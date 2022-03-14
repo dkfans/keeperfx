@@ -181,15 +181,17 @@ ENDIF
 REM Optional: taking down PLAYER1***********************************************
 REM ****************************************************************************
 
-IF(PLAYER1,GAME_TURN > 122500)
-	IF_SLAB_OWNER(35,21,PLAYER1)
-		SET_DOOR(UNLOCKED,35,21)
-	ENDIF
-ENDIF
-
+REM When the 30 units average level 8, open a magic door
 IF(PLAYER1,TIMES_LEVELUP_CREATURE >= 210)
 	IF_SLAB_OWNER(33,21,PLAYER1)
 		SET_DOOR(UNLOCKED,33,21)
+	ENDIF
+ENDIF
+
+REM After 12 paydays when CHECK FOR QUICK ATTACK is enabled, open a door
+IF(PLAYER1,GAME_TURN > 122500)
+	IF_SLAB_OWNER(35,21,PLAYER1)
+		SET_DOOR(UNLOCKED,35,21)
 	ENDIF
 ENDIF
 
