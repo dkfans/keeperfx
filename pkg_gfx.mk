@@ -304,8 +304,6 @@ pkg/creatrs/%.jty pkg/data/%.jty:
 	-$(ECHO) 'Finished building: $@'
 	-$(ECHO) ' '
 
-ifeq ($(ENABLE_EXTRACT), 1)
-
 # The package is extracted only if targets does not exits; the "|" causes file dates to be ignored
 # Note that ignoring timestamp means it is possible to have outadated files after a new
 # package release, if no targets were modified with the update.
@@ -322,22 +320,7 @@ gfx/sprites-32/%.txt gfx/sprites-64/%.txt gfx/sprites-128/%.txt \
 gfx/swipes-32/%.txt gfx/swipes-64/%.txt gfx/swipes-128/%.txt \
 gfx/textures-32/%.png gfx/textures-64/%.png gfx/textures-128/%.png \
 gfx/textures-32/%.txt gfx/textures-64/%.txt gfx/textures-128/%.txt \
-gfx/torturescr/%.png gfx/torturescr/%.txt gfx/guimap/%.txt gfx/parchmentbug/%.txt gfx/creatrportrait/%.txt: | gfx/$(GFXSRC_PACKAGE)
-	-$(ECHO) 'Extracting package: $<'
-	7z x -aoa -y -ogfx "$|"
-	-$(ECHO) 'Finished extracting: $<'
-	-$(ECHO) ' '
-
-endif
-
-# Downloading the gfx sources pack
-gfx/$(GFXSRC_PACKAGE):
-	-$(ECHO) 'Downloading package: $@'
-	$(MKDIR) "$(@D)"
-	curl -L -o "$@.dl" "$(GFXSRC_DOWNLOAD)"
-	7z t "$@.dl"
-	$(MV) "$@.dl" "$@"
-	-$(ECHO) 'Finished downloading: $@'
-	-$(ECHO) ' '
+gfx/torturescr/%.png gfx/torturescr/%.txt gfx/guimap/%.txt gfx/parchmentbug/%.txt gfx/creatrportrait/%.txt:
+	git clone --depth=1 https://github.com/dkfans/FXGraphics.git gfx
 
 #******************************************************************************

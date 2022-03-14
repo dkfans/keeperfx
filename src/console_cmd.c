@@ -94,7 +94,7 @@ static long cmd_comp_procs_click(struct GuiBox *gbox, struct GuiBoxOption *goptn
         message_add_fmt(args[0], "resuming %s", cproc->name?cproc->name:"(null)");
     else
         message_add_fmt(args[0], "suspending %s", cproc->name?cproc->name:"(null)");
-    
+
     cproc->flags ^= ComProc_Unkn0020; // Suspend, but do not update running time
     return 1;
 }
@@ -151,10 +151,10 @@ int cmd_comp_list(PlayerNumber plyr_idx, int max_count,
     comp = get_computer_player(plyr_idx);
     for (; i < max_count; i++)
     {
-        unsigned long flags = get_flags(comp, i); 
+        unsigned long flags = get_flags(comp, i);
         const char *name = get_name(comp, i);
         if (name == NULL)
-            sprintf(label_list[i], "%02lx %s", flags, "(null2)");  
+            sprintf(label_list[i], "%02lx %s", flags, "(null2)");
         else
           sprintf(label_list[i], "%02lx %s", flags, name);
         data_list[i].label = label_list[i];
@@ -181,13 +181,13 @@ static unsigned long  get_process_flags(struct Computer2 *comp, int i)
 }
 static void cmd_comp_procs(PlayerNumber plyr_idx)
 {
-    int i = cmd_comp_list(plyr_idx, COMPUTER_PROCESSES_COUNT, 
+    int i = cmd_comp_list(plyr_idx, COMPUTER_PROCESSES_COUNT,
         cmd_comp_procs_data, cmd_comp_procs_label,
         &get_process_name, &get_process_flags,
         &cmd_comp_procs_click);
 
     cmd_comp_procs_data[0].active_cb = &cmd_comp_procs_update;
-    
+
     cmd_comp_procs_data[i].label = "======";
     cmd_comp_procs_data[i].numfield_4 = 1;
     i++;
@@ -210,7 +210,7 @@ static unsigned long  get_event_flags(struct Computer2 *comp, int i)
 }
 static void cmd_comp_events(PlayerNumber plyr_idx)
 {
-    cmd_comp_list(plyr_idx, COMPUTER_EVENTS_COUNT, 
+    cmd_comp_list(plyr_idx, COMPUTER_EVENTS_COUNT,
         cmd_comp_events_data, cmd_comp_events_label,
         &get_event_name, &get_event_flags, NULL);
     cmd_comp_events_data[0].active_cb = NULL;
@@ -229,7 +229,7 @@ static long cmd_comp_checks_click(struct GuiBox *gbox, struct GuiBoxOption *gopt
         message_add_fmt(args[0], "resuming %s", cproc->name?cproc->name:"(null)");
     else
         message_add_fmt(args[0], "suspending %s", cproc->name?cproc->name:"(null)");
-    
+
     cproc->flags ^= ComChk_Unkn0001;
     return 1;
 }
@@ -244,7 +244,7 @@ static unsigned long  get_check_flags(struct Computer2 *comp, int i)
 
 static void cmd_comp_checks(PlayerNumber plyr_idx)
 {
-    cmd_comp_list(plyr_idx, COMPUTER_CHECKS_COUNT, 
+    cmd_comp_list(plyr_idx, COMPUTER_CHECKS_COUNT,
         cmd_comp_checks_data, cmd_comp_checks_label,
         &get_check_name, &get_check_flags, &cmd_comp_checks_click);
     cmd_comp_checks_data[0].active_cb = NULL;
@@ -337,14 +337,13 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
     struct Room* room;
     struct Packet* pckt;
     struct SlabMap *slb;
-    struct Coord3d pos;
-    struct ScriptValue tmp_value = {0};
+    struct Coord3d pos = {0};
     if (strcasecmp(parstr, "stats") == 0)
     {
       message_add_fmt(plyr_idx, "Now time is %d, last loop time was %d",LbTimerClock(),last_loop_time);
       message_add_fmt(plyr_idx, "clock is %d, requested fps is %d",clock(),game.num_fps);
       return true;
-    } 
+    }
     else if (strcasecmp(parstr, "fps") == 0)
     {
         if (pr2str == NULL)
@@ -362,7 +361,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
         quit_game = 1;
         exit_keeper = 1;
         return true;
-    } 
+    }
     else if (strcasecmp(parstr, "time") == 0)
     {
         unsigned long turn = (pr2str != NULL) ? atoi(pr2str) : game.play_gameturn;
@@ -396,7 +395,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
     {
         message_add_fmt(plyr_idx, "turn %ld", game.play_gameturn);
         return true;
-    } 
+    }
     else if (strcasecmp(parstr, "game.save") == 0)
     {
         long slot_num = atoi(pr2str);
@@ -453,7 +452,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
     else if (strcasecmp(parstr, "volume") == 0)
     {
         message_add_fmt(plyr_idx, "%s: %d %s: %d", get_string(340), settings.sound_volume, get_string(341), settings.redbook_volume);
-        return true;        
+        return true;
     }
     else if ( (strcasecmp(parstr, "volume.sound") == 0) || (strcasecmp(parstr, "volume.sfx") == 0) )
     {
@@ -560,7 +559,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                 return false;
             thing = get_player_soul_container(id);
             thing->health = 0;
-            
+
         }
         else if (strcasecmp(parstr, "player.score") == 0)
         {
@@ -569,7 +568,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
             if (!dungeon_invalid(dungeon))
             {
                 message_add_fmt(plyr_idx, "Player %d score: %ld", id, dungeon->total_score);
-                return true;                
+                return true;
             }
         }
         else if (strcasecmp(parstr, "player.flag") == 0)
@@ -660,7 +659,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                     }
                     return true;
                 }
-            }           
+            }
         }
         else if ( (strcasecmp(parstr, "object.create") == 0) || (strcasecmp(parstr, "create.object") == 0) )
         {
@@ -718,11 +717,11 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                     if (!subtile_coords_invalid(stl_x, stl_y))
                     {
                         pos.x.stl.num = stl_x;
-                        pos.y.stl.num = stl_y;                 
+                        pos.y.stl.num = stl_y;
                         unsigned int count = (pr4str != NULL) ? atoi(pr4str) : 1;
                         unsigned int i;
                         for (i = 0; i < count; i++)
-                        {                            
+                        {
                             struct Thing* creatng = create_creature(&pos, crmodel, id);
                             if (thing_is_creature(creatng))
                             {
@@ -868,13 +867,13 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                     }
                     if ( (slbkind >= 0) && (slbkind <= slab_conf.slab_types_count) )
                     {
-                        if (subtile_is_room(stl_x, stl_y)) 
+                        if (subtile_is_room(stl_x, stl_y))
                         {
                             delete_room_slab(slb_x, slb_y, true);
                         }
                         if (slab_kind_is_animated(slbkind))
                         {
-                            place_animating_slab_type_on_map(slbkind, 0, stl_x, stl_y, id);  
+                            place_animating_slab_type_on_map(slbkind, 0, stl_x, stl_y, id);
                         }
                         else
                         {
@@ -898,12 +897,12 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                     if (roomid != RoK_DUNGHEART)
                     {
                         set_room_available(id, roomid, available, available);
-                    }                   
+                    }
                 }
             }
             else
             {
-                roomid = get_rid(room_desc, pr2str);                
+                roomid = get_rid(room_desc, pr2str);
                 if (roomid <= 0)
                 {
                     if (strcasecmp(pr2str, "Hatchery" ) == 0)
@@ -934,7 +933,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                         WARNLOG("Setting power %s availability for player %d failed.",power_code_name(pw),1);
                 }
                 update_powers_tab_to_config();
-                return true; 
+                return true;
             }
             else
             {
@@ -947,7 +946,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                         WARNLOG("Setting power %s availability for player %d failed.",power_code_name(power),1);
                 update_powers_tab_to_config();
                 return true;
-            }                
+            }
         }
         else if (strcasecmp(parstr, "player.heart.health") == 0)
         {
@@ -976,7 +975,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
             PlayerNumber id = get_player_number_for_command(pr4str);
             if (!set_creature_available(id, crmodel, available, available))
               WARNLOG("Setting creature %s availability for player %d failed.",creature_code_name(crmodel),(int)id);
-          
+
             return true;
         }
         else if ( (strcasecmp(parstr, "creature.addhealth") == 0) || (strcasecmp(parstr, "creature.health.add") == 0) )
@@ -1068,6 +1067,49 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                 }
             }
         }
+        else if (strcasecmp(parstr, "mapwho.info") == 0)
+        {
+            if (pr2str == NULL)
+            {
+                player = get_player(plyr_idx);
+                pckt = get_packet_direct(player->packet_num);
+                pos.x.val = ((unsigned short) pckt->pos_x);
+                pos.y.val = ((unsigned short) pckt->pos_y);
+            }
+            else
+            {
+                pos.x.stl.num = atoi(pr2str);
+                pos.y.stl.num = atoi(pr3str);
+            }
+            if ((pos.x.stl.num >= map_subtiles_x) ||
+                (pos.y.stl.num >= map_subtiles_y))
+            {
+                message_add_fmt(plyr_idx, "invalid location");
+                return true;
+            }
+            player = get_player(plyr_idx);
+            struct Map *block = get_map_block_at(pos.x.stl.num, pos.y.stl.num);
+            short thing_id = (short) get_mapwho_thing_index(block);
+            thing = thing_get(thing_id);
+            message_add_fmt(plyr_idx, "first_thing:%d %s", thing_id, thing_class_and_model_name(thing->class_id, thing->model));
+            message_add_fmt(plyr_idx, "flags: %02x, data: %04lx", block->flags, block->data);
+            message_add_fmt(plyr_idx, "stl_x: %d, stl_y:%d", pos.x.stl.num, pos.y.stl.num);
+        }
+        else if (strcasecmp(parstr, "thing.info") == 0)
+        {
+            player = get_player(plyr_idx);
+            thing = thing_get(player->influenced_thing_idx);
+            if (!thing_is_invalid(thing))
+            {
+                message_add_fmt(plyr_idx, "next_on_map: %d, next_of_class: %d", thing->next_on_mapblk, thing->next_of_class);
+                message_add_fmt(plyr_idx, "health: %d", thing->health);
+                message_add_fmt(plyr_idx, "pos: %d %d %d", thing->mappos.x.stl.num,
+                                thing->mappos.y.stl.num,
+                                thing->mappos.z.stl.num);
+                message_add_fmt(plyr_idx, "%s", thing_class_and_model_name(thing->class_id, thing->model));
+                return true;
+            }
+        }
         else if (strcasecmp(parstr, "creature.attackheart") == 0)
         {
             if (pr2str != NULL)
@@ -1104,16 +1146,29 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                 }
             }
         }
+        else if (strcasecmp(parstr, "cursor.pos") == 0)
+        {
+            player = get_player(plyr_idx);
+            pckt = get_packet_direct(player->packet_num);
+            pos.x.val = ((unsigned short) pckt->pos_x);
+            pos.y.val = ((unsigned short) pckt->pos_y);
+            pos.z.val = get_floor_height_at(&pos);
+            message_add_fmt(plyr_idx, "Cursor at %d, %d, %d",
+                            (int)pos.x.stl.num, (int)pos.y.stl.num, (int)pos.z.stl.num);
+            return true;
+        }
         else if (strcasecmp(parstr, "thing.get") == 0)
         {
             player = get_player(plyr_idx);
             pckt = get_packet_direct(player->packet_num);
             MapSubtlCoord stl_x = coord_subtile(((unsigned short)pckt->pos_x));
             MapSubtlCoord stl_y = coord_subtile(((unsigned short)pckt->pos_y));
-            thing = (pr2str != NULL) ? thing_get(atoi(pr2str)) : get_nearest_object_at_position(stl_x, stl_y);
+            thing = (pr2str != NULL) ? thing_get(atoi(pr2str)) : get_nearest_thing_at_position(stl_x, stl_y);
             if (!thing_is_invalid(thing))
             {
-                message_add_fmt(plyr_idx, "Got thing ID %d", thing->index);
+                message_add_fmt(plyr_idx, "Got thing ID %d %s",
+                                thing->index,
+                                thing_class_and_model_name(thing->class_id, thing->model));
                 player->influenced_thing_idx = thing->index;
                 return true;
             }
@@ -1135,21 +1190,44 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                 return true;
             }
         }
-        else if (strcasecmp(parstr, "thing.pos") == 0)
+        else if (strcasecmp(parstr, "thing.move") == 0)
         {
             player = get_player(plyr_idx);
             thing = thing_get(player->influenced_thing_idx);
-            if (pr4str != NULL)
+            if (!thing_is_invalid(thing))
             {
-                pos.x.stl.num = atoi(pr2str);
-                pos.y.stl.num = atoi(pr3str);
-                pos.z.stl.num = atoi(pr4str);
-                move_thing_in_map(thing, &pos);                
+                if (pr3str != NULL)
+                {
+                    pos.x.stl.num = atoi(pr2str);
+                    pos.y.stl.num = atoi(pr3str);
+                    if ((pos.x.stl.num >= map_subtiles_x) ||
+                            (pos.y.stl.num >= map_subtiles_y))
+                    {
+                        message_add_fmt(plyr_idx, "invalid location");
+                        return true;
+                    }
+                    if (pr4str != NULL)
+                    {
+                        pos.z.stl.num = atoi(pr4str);
+                    }
+                    else
+                    {
+                        pos.z.val = get_floor_height_at(&pos);
+                    }
+                }
+                else
+                {
+                    pckt = get_packet_direct(player->packet_num);
+                    pos.x.val = ((unsigned short) pckt->pos_x);
+                    pos.y.val = ((unsigned short) pckt->pos_y);
+                    pos.z.val = get_floor_height_at(&pos);
+                }
+
+                move_thing_in_map(thing, &pos);
             }
-            else if (!thing_is_invalid(thing))
+            else
             {
-                message_add_fmt(plyr_idx, "Thing ID %d X: %d Y: %d Z: %d", thing->index, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing->mappos.z.stl.num);
-                return true;
+                message_add_fmt(plyr_idx, "no thing selected");
             }
         }
         else if (strcasecmp(parstr, "thing.destroy") == 0)
@@ -1204,7 +1282,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
             if (!slabmap_block_invalid(slb))
             {
                 if (pr2str == NULL)
-                {                    
+                {
                     message_add_fmt(plyr_idx, "Slab health: %d", slb->health);
                     return true;
                 }
@@ -1224,7 +1302,14 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                 {
                     crmodel = atoi(pr2str);
                 }
+                if (crmodel == 0)
+                {
+                    message_add_fmt(plyr_idx, "invalid creature model");
+                    return true;
+                }
                 game.pool.crtr_kind[crmodel] += atoi(pr3str);
+                if (game.pool.crtr_kind[crmodel] < 0)
+                    game.pool.crtr_kind[crmodel] = 0;
                 return true;
             }
         }
@@ -1237,7 +1322,14 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                 {
                     crmodel = atoi(pr2str);
                 }
+                if (crmodel == 0)
+                {
+                    message_add_fmt(plyr_idx, "invalid creature model");
+                    return true;
+                }
                 game.pool.crtr_kind[crmodel] -= atoi(pr3str);
+                if (game.pool.crtr_kind[crmodel] < 0)
+                    game.pool.crtr_kind[crmodel] = 0;
                 return true;
             }
         }
@@ -1337,7 +1429,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                     message_add_fmt(plyr_idx, "Action Point %d X: %d Y: %d", ap, actionpt->mappos.x.stl.num, actionpt->mappos.y.stl.num);
                     return true;
                 }
-            }            
+            }
         }
         else if (strcasecmp(parstr, "actionpoint.zoomto") == 0)
         {
@@ -1472,7 +1564,7 @@ long get_creature_model_for_command(char *msg)
         else
         {
             return -1;
-        }    
+        }
     }
 }
 
@@ -1492,7 +1584,7 @@ PlayerNumber get_player_number_for_command(char *msg)
             {
                 id = atoi(msg);
             }
-        }        
+        }
     }
     return id;
 }
