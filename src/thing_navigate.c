@@ -229,6 +229,10 @@ void move_thing_in_map_f(struct Thing *thing, const struct Coord3d *pos, const c
 {
     SYNCDBG(18,"%s: Starting for %s index %d",func_name,thing_model_name(thing),(int)thing->index);
     TRACE_THING(thing);
+    if (thing->index == 0)
+    {
+        ERRORLOG("Moving deleted object (from %s)", func_name);
+    }
     if ((thing->mappos.x.stl.num == pos->x.stl.num) && (thing->mappos.y.stl.num == pos->y.stl.num))
     {
         SYNCDBG(19,"Moving %s index %d from (%d,%d) to (%d,%d)",thing_model_name(thing),
