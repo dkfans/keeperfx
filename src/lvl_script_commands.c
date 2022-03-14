@@ -1224,7 +1224,7 @@ static void set_door_check(const struct ScriptLine* scline)
 
     if (slab_coords_invalid(scline->np[1], scline->np[2]))
     {
-        SCRPTERRLOG("Invalid slab co-ordinates: %ld, %ld", scline->np[1], scline->np[2]);
+        SCRPTERRLOG("Invalid slab coordinates: %ld, %ld", scline->np[1], scline->np[2]);
         return;
     }
 
@@ -1791,7 +1791,7 @@ static void create_effect_at_pos_check(const struct ScriptLine *scline)
     value->chars[0] = effct_id;
     if (subtile_coords_invalid(scline->np[1], scline->np[2]))
     {
-        SCRPTERRLOG("Invalid co-ordinates: %ld, %ld", scline->np[1], scline->np[2]);
+        SCRPTERRLOG("Invalid coordinates: %ld, %ld", scline->np[1], scline->np[2]);
         return;
     }
     value->bytes[1] = scline->np[1];
