@@ -1215,7 +1215,20 @@ static void heart_lost_objective_process(struct ScriptContext *context)
 static void set_door_check(const struct ScriptLine* scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
-    value->shorts[0] = get_id(set_door_desc, scline->tp[0]);
+    long doorAction = get_id(set_door_desc, scline->tp[0]);
+    if (doorAction == -1)
+    {
+        SCRPTERRLOG("Set Door state %s not recognized", scline->tp[0]);
+        return;
+    }
+
+    if (slab_coords_invalid(scline->np[1], scline->np[2]))
+    {
+        SCRPTERRLOG("Invalid slab co-ordinates: %ld, %ld", scline->np[1], scline->np[2]);
+        return;
+    }
+
+    value->shorts[0] = doorAction;
     value->shorts[1] = scline->np[1];
     value->shorts[2] = scline->np[2];
     PROCESS_SCRIPT_VALUE(scline->command);
