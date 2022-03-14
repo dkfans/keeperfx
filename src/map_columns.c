@@ -28,9 +28,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-/******************************************************************************/
-DLLIMPORT long _DK_create_column(struct Column *col);
-/******************************************************************************/
 struct Column *get_column(long idx)
 {
   if ((idx < 1) || (idx >= COLUMNS_COUNT))
@@ -342,9 +339,75 @@ long find_column(struct Column *srccol)
     return 0;
 }
 
-long create_column(struct Column *colmn)
+long create_column(struct Column *col)
 {
-  return _DK_create_column(colmn);
+    long result;
+    struct Column *dst;
+    unsigned char v6;
+    unsigned char top_of_floor;
+
+    // Find an empty column
+    result = 1;
+    dst = &game.columns_data[1];
+    while (dst->use || dst->bitfields & CLF_ACTIVE )
+    {
+        ++result;
+        ++dst;
+        if ( result >= COLUMNS_COUNT )
+        {
+            ERRORLOG("Could not create column: None free");
+            return 0;
+        }
+    }
+    // Copy data
+    memcpy(dst, col, sizeof(struct Column));
+    // Create cubemask
+    make_solidmask(dst);
+
+    // Find lowest cube
+    for (v6 = 0; v6 < COLUMN_STACK_HEIGHT;v6++)
+    {
+        if ( dst->cubes[v6] == 0)
+            break;
+    }
+    top_of_floor = v6;
+    // set lowest cube info
+    dst->bitfields &= ~CLF_FLOOR_MASK;
+    dst->bitfields |= (top_of_floor << 4);
+    ///
+    if (top_of_floor >= COLUMN_STACK_HEIGHT )
+    {
+        dst->bitfields &= CLF_FLOOR_MASK | CLF_ACTIVE;
+    }
+    else
+    {
+        // Search for ceiling
+        unsigned char ceiling = top_of_floor;
+        for (; ceiling < COLUMN_STACK_HEIGHT; ceiling++)
+        {
+            if (dst->cubes[ceiling])
+                break;
+        }
+
+        if (ceiling >= COLUMN_STACK_HEIGHT)
+        {
+            dst->bitfields &= CLF_FLOOR_MASK | CLF_ACTIVE;
+        }
+        else
+        {
+            unsigned short *v13 = &dst->cubes[7];
+            unsigned char v12 = 0;
+            // Counting ceiling height
+            for (int i = 0; i < COLUMN_STACK_HEIGHT-1; i++)
+            {
+                if (*v13)
+                    dst->bitfields ^= (v12 ^ dst->bitfields) & CLF_CEILING_MASK;
+                --v13;
+                v12 += 2;
+            }
+        }
+    }
+    return result;
 }
 
 void clear_columns(void)
@@ -447,7 +510,7 @@ void init_whole_blocks(void)
       i = create_column(&lcolmn);
     colmn = get_column(i);
     // Update its parameters
-    colmn->bitfields |= 0x01;
+    colmn->bitfields |= CLF_ACTIVE;
     game.field_149E7C = 24;
     game.unrevealed_column_idx = i;
 }

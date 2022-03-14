@@ -557,7 +557,7 @@ static TbBool get_against(unsigned char agnst_plyr_idx, long agnst_slbkind, long
 
 void delete_column(long col_idx)
 {
-    game.field_14AB3F--;
+    game.columns_used--;
     struct Column *col;
     col = &game.columns_data[col_idx];
     memcpy(col, &game.columns_data[0], sizeof(struct Column));
@@ -573,7 +573,7 @@ void remove_block_from_map_element(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
     struct Column *col;
     col = get_column(col_idx);
     col->use--;
-    if (((col->bitfields & 0x01) == 0) && (col->use <= 0)) {
+    if (((col->bitfields & CLF_ACTIVE) == 0) && (col->use <= 0)) {
         delete_column(col_idx);
     }
     set_mapblk_column_index(mapblk, 0);
