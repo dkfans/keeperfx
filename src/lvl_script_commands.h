@@ -42,7 +42,7 @@ extern const struct NamedCommand trap_config_desc[];
 extern const struct NamedCommand gui_button_group_desc[];
 extern const struct NamedCommand campaign_flag_desc[];
 extern const struct NamedCommand script_operator_desc[];
-extern const struct NamedCommand door_state_desc[];
+extern const struct NamedCommand set_door_desc[];
 
 #ifdef __cplusplus
 }
