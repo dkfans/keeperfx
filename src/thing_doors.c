@@ -139,8 +139,6 @@ struct Thing *create_door(struct Coord3d *pos, ThingModel tngmodel, unsigned cha
 
     struct DoorStats* dostat = &door_stats[tngmodel][orient];
 
-    doortng = allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots);
-
     doortng->class_id = TCls_Door;
     doortng->model = tngmodel;
     doortng->mappos.x.val = pos->x.val;
