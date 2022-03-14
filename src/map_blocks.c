@@ -557,7 +557,7 @@ static TbBool get_against(unsigned char agnst_plyr_idx, long agnst_slbkind, long
 
 void delete_column(long col_idx)
 {
-    game.field_14AB3F--;
+    game.columns_used--;
     struct Column *col;
     col = &game.columns_data[col_idx];
     memcpy(col, &game.columns_data[0], sizeof(struct Column));

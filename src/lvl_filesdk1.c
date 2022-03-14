@@ -606,10 +606,10 @@ TbBool load_column_file(LevelNumber lv_num)
       total = COLUMNS_COUNT;
     }
     // Read and validate second amount
-    game.field_14AB3F = llong(&buf[i]);
-    if (game.field_14AB3F >= COLUMNS_COUNT)
+    game.columns_used = llong(&buf[i]);
+    if (game.columns_used >= COLUMNS_COUNT)
     {
-      game.field_14AB3F = COLUMNS_COUNT-1;
+      game.columns_used = COLUMNS_COUNT - 1;
     }
     i += 4;
     // Fill the columns
