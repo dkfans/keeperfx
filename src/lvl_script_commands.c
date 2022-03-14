@@ -325,7 +325,11 @@ const struct NamedCommand fill_desc[] = {
   {NULL,            0},
 };
 
-
+const struct NamedCommand door_state_desc[] = {
+  {"LOCK", 1},
+  {"UNLOCK", 2},
+  {NULL, 0}
+};
 
 
 static int sac_compare_fn(const void *ptr_a, const void *ptr_b)
@@ -1206,6 +1210,32 @@ static void heart_lost_objective_process(struct ScriptContext *context)
     gameadd.heart_lost_quick_message = false;
     gameadd.heart_lost_message_id = context->value->arg0;
     gameadd.heart_lost_message_target = context->value->arg1;
+}
+
+static void set_doors_check(const struct ScriptLine* scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
+    value->shorts[0] = get_id(door_state_desc, scline->tp[1]);
+    value->shorts[1] = scline->np[2];
+    value->shorts[2] = scline->np[3];
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void set_doors_process(struct ScriptContext* context)
+{
+    struct Thing* doortng = get_door_for_position(slab_subtile_center(context->value->shorts[1]), slab_subtile_center(context->value->shorts[2]));
+    if (!thing_is_invalid(doortng) && doortng->owner == context->player_idx);
+    {
+        switch (context->value->shorts[0])
+        {
+        case 1:
+            lock_door(doortng);
+            break;
+        case 2:
+            unlock_door(doortng);
+            break;
+        }
+    }
 }
 
 static void create_effects_line_check(const struct ScriptLine *scline)
@@ -2182,6 +2212,7 @@ const struct CommandDesc command_desc[] = {
   {"CREATE_EFFECT_AT_POS",              "ANNn    ", Cmd_CREATE_EFFECT_AT_POS, &create_effect_at_pos_check, &create_effect_process},
   {"HEART_LOST_QUICK_OBJECTIVE",        "NAl     ", Cmd_HEART_LOST_QUICK_OBJECTIVE, &heart_lost_quick_objective_check, &heart_lost_quick_objective_process},
   {"HEART_LOST_OBJECTIVE",              "Nl      ", Cmd_HEART_LOST_OBJECTIVE, &heart_lost_objective_check, &heart_lost_objective_process},
+  {"SET_DOORS",                         "PANN    ", Cmd_SET_DOORS, &set_doors_check, &set_doors_process},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 
