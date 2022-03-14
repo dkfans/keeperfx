@@ -614,21 +614,21 @@ long shot_kill_object(struct Thing *shotng, struct Thing *target)
     return 0;
 }
 
-long shot_hit_object_at(struct Thing *shotng, struct Thing *target, struct Coord3d *pos)
+static TbBool shot_hit_object_at(struct Thing *shotng, struct Thing *target, struct Coord3d *pos)
 {
     struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
     if (!thing_is_object(target)) {
-        return 0;
+        return false;
     }
     if (shotst->model_flags & ShMF_NoHit) {
-        return 0;
+        return false;
     }
     if (target->health < 0) {
-        return 0;
+        return false;
     }
     struct ObjectConfig* objconf = get_object_model_stats2(target->model);
     if (objconf->resistant_to_nonmagic && !(shotst->damage_type == DmgT_Magical)) {
-        return 0;
+        return false;
     }
     struct Thing* shootertng = INVALID_THING;
     if (shotng->parent_idx != shotng->index) {
@@ -658,12 +658,11 @@ long shot_hit_object_at(struct Thing *shotng, struct Thing *target, struct Coord
         }
     }
 
-    HitPoints damage = 0;
+    HitPoints damage_done = 0;
     if (shotng->shot.damage)
     {
         if (object_can_be_damaged(target)) // do not damage objects that cannot be destroyed
         {
-            HitPoints damage_done;
             damage_done = apply_damage_to_thing(target, shotng->shot.damage, shotst->damage_type, -1);
 
             // Drain allows caster to regain half of damage
@@ -679,8 +678,11 @@ long shot_hit_object_at(struct Thing *shotng, struct Thing *target, struct Coord
     }
     if (shotst->old->destroy_on_first_hit) {
         delete_thing_structure(shotng, 0);
+        // If thing was deleted something was hit
+        // To test this use zero damage shots
+        return true;
     }
-    return damage;
+    return damage_done > 0;
 }
 
 long get_damage_of_melee_shot(struct Thing *shotng, const struct Thing *target)
