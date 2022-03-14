@@ -429,7 +429,7 @@ TbBool packets_process_cheats(
                             }
                             else
                             {
-                                slbkind = rand() % (5) + 4;
+                                slbkind = SlbT_WALLDRAPE + GAME_RANDOM(5);
                             }
                             break;
                         }
