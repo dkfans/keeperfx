@@ -2212,7 +2212,7 @@ const struct CommandDesc command_desc[] = {
   {"CREATE_EFFECT_AT_POS",              "ANNn    ", Cmd_CREATE_EFFECT_AT_POS, &create_effect_at_pos_check, &create_effect_process},
   {"HEART_LOST_QUICK_OBJECTIVE",        "NAl     ", Cmd_HEART_LOST_QUICK_OBJECTIVE, &heart_lost_quick_objective_check, &heart_lost_quick_objective_process},
   {"HEART_LOST_OBJECTIVE",              "Nl      ", Cmd_HEART_LOST_OBJECTIVE, &heart_lost_objective_check, &heart_lost_objective_process},
-  {"SET_DOOR",                          "ANN     ", Cmd_SET_DOORS, &set_door_check, &set_door_process},
+  {"SET_DOOR",                          "ANN     ", Cmd_SET_DOOR, &set_door_check, &set_door_process},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 
