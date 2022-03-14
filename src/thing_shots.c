@@ -678,6 +678,9 @@ long shot_hit_object_at(struct Thing *shotng, struct Thing *target, struct Coord
     }
     if (shotst->old->destroy_on_first_hit) {
         delete_thing_structure(shotng, 0);
+        // If thing was deleted something was hit
+        // To test this use zero damage shots
+        return damage_done ? damage_done : 1;
     }
     return damage_done;
 }
