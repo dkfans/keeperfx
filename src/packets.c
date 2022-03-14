@@ -641,10 +641,6 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       if (is_my_player(player))
       {
           switch_to_next_video_mode();
-          if (pckt->actn_par1)
-          {
-              turn_on_menu(GMnu_VIDEO);
-          }
       }
       return 1;
   case PckA_TogglePause:

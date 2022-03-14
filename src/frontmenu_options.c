@@ -316,7 +316,8 @@ void gui_video_cluedo_maintain(struct GuiButton *gbtn)
 void gui_switch_video_mode(struct GuiButton *gbtn)
 {
     struct PlayerInfo* player = get_my_player();
-    set_players_packet_action(player, PckA_SwitchScrnRes, 1, 0, 0, 0);
+    set_players_packet_action(player, PckA_SwitchScrnRes, 0, 0, 0, 0);
+    turn_on_menu(GMnu_VIDEO);
 }
 
 void gui_display_current_resolution(struct GuiButton *gbtn)
