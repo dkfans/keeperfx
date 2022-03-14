@@ -325,7 +325,11 @@ const struct NamedCommand fill_desc[] = {
   {NULL,            0},
 };
 
-
+const struct NamedCommand set_door_desc[] = {
+  {"LOCKED", 1},
+  {"UNLOCKED", 2},
+  {NULL, 0}
+};
 
 
 static int sac_compare_fn(const void *ptr_a, const void *ptr_b)
@@ -1082,7 +1086,7 @@ static void create_effect_process(struct ScriptContext *context)
         }
         if (Price)
         {
-            efftng->long_13 = context->value->arg1;
+            efftng->price_effect.number = context->value->arg1;
         }
     }
 }
@@ -1206,6 +1210,45 @@ static void heart_lost_objective_process(struct ScriptContext *context)
     gameadd.heart_lost_quick_message = false;
     gameadd.heart_lost_message_id = context->value->arg0;
     gameadd.heart_lost_message_target = context->value->arg1;
+}
+
+static void set_door_check(const struct ScriptLine* scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    long doorAction = get_id(set_door_desc, scline->tp[0]);
+    if (doorAction == -1)
+    {
+        SCRPTERRLOG("Set Door state %s not recognized", scline->tp[0]);
+        return;
+    }
+
+    if (slab_coords_invalid(scline->np[1], scline->np[2]))
+    {
+        SCRPTERRLOG("Invalid slab coordinates: %ld, %ld", scline->np[1], scline->np[2]);
+        return;
+    }
+
+    value->shorts[0] = doorAction;
+    value->shorts[1] = scline->np[1];
+    value->shorts[2] = scline->np[2];
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void set_door_process(struct ScriptContext* context)
+{
+    struct Thing* doortng = get_door_for_position(slab_subtile_center(context->value->shorts[1]), slab_subtile_center(context->value->shorts[2]));
+    if (!thing_is_invalid(doortng))
+    {
+        switch (context->value->shorts[0])
+        {
+        case 1:
+            lock_door(doortng);
+            break;
+        case 2:
+            unlock_door(doortng);
+            break;
+        }
+    }
 }
 
 static void create_effects_line_check(const struct ScriptLine *scline)
@@ -1748,7 +1791,7 @@ static void create_effect_at_pos_check(const struct ScriptLine *scline)
     value->chars[0] = effct_id;
     if (subtile_coords_invalid(scline->np[1], scline->np[2]))
     {
-        SCRPTERRLOG("Invalid co-ordinates: %ld, %ld", scline->np[1], scline->np[2]);
+        SCRPTERRLOG("Invalid coordinates: %ld, %ld", scline->np[1], scline->np[2]);
         return;
     }
     value->bytes[1] = scline->np[1];
@@ -2182,6 +2225,7 @@ const struct CommandDesc command_desc[] = {
   {"CREATE_EFFECT_AT_POS",              "ANNn    ", Cmd_CREATE_EFFECT_AT_POS, &create_effect_at_pos_check, &create_effect_process},
   {"HEART_LOST_QUICK_OBJECTIVE",        "NAl     ", Cmd_HEART_LOST_QUICK_OBJECTIVE, &heart_lost_quick_objective_check, &heart_lost_quick_objective_process},
   {"HEART_LOST_OBJECTIVE",              "Nl      ", Cmd_HEART_LOST_OBJECTIVE, &heart_lost_objective_check, &heart_lost_objective_process},
+  {"SET_DOOR",                          "ANN     ", Cmd_SET_DOOR, &set_door_check, &set_door_process},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 

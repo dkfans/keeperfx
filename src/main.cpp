@@ -2322,7 +2322,7 @@ void update_near_creatures_for_footsteps(long *near_creatures, const struct Coor
         i = thing->next_of_class;
         // Per-thing code
         thing->state_flags &= ~TF1_DoFootsteps;
-        if (!thing_is_picked_up(thing))
+        if ( (!thing_is_picked_up(thing)) && (!thing_is_dragged_or_pulled(thing)) )
         {
             struct CreatureSound *crsound;
             crsound = get_creature_sound(thing, CrSnd_Foot);
@@ -2510,8 +2510,8 @@ long update_cave_in(struct Thing *thing)
     {
         int n;
         n = UNSYNC_RANDOM(AROUND_TILES_COUNT);
-        pos.x.val = thing->mappos.x.val + UNSYNC_RANDOM(0x2C0) * around[n].delta_x;
-        pos.y.val = thing->mappos.y.val + UNSYNC_RANDOM(0x2C0) * around[n].delta_y;
+        pos.x.val = thing->mappos.x.val + UNSYNC_RANDOM(704) * around[n].delta_x;
+        pos.y.val = thing->mappos.y.val + UNSYNC_RANDOM(704) * around[n].delta_y;
         if (subtile_has_slab(coord_subtile(pos.x.val),coord_subtile(pos.y.val)))
         {
             pos.z.val = get_ceiling_height(&pos) - 128;
@@ -2566,20 +2566,20 @@ long update_cave_in(struct Thing *thing)
                 {
                     long dist;
                     struct Coord3d pos2;
-                    pos2.x.val = subtile_coord(thing->byte_13,0);
-                    pos2.y.val = subtile_coord(thing->byte_14,0);
+                    pos2.x.val = subtile_coord(thing->cave_in.x,0);
+                    pos2.y.val = subtile_coord(thing->cave_in.y,0);
                     pos2.z.val = subtile_coord(1,0);
                     dist = get_2d_box_distance(&pos, &pos2);
-                    if (pwrdynst->strength[thing->byte_17] >= coord_subtile(dist))
+                    if (pwrdynst->strength[thing->cave_in.model] >= coord_subtile(dist))
                     {
-                        ncavitng = create_thing(&pos, TCls_CaveIn, thing->byte_17, owner, -1);
+                        ncavitng = create_thing(&pos, TCls_CaveIn, thing->cave_in.model, owner, -1);
                         if (!thing_is_invalid(ncavitng))
                         {
                             thing->health += 5;
                             if (thing->health > 0)
                             {
-                                ncavitng->byte_13 = thing->byte_13;
-                                ncavitng->byte_14 = thing->byte_14;
+                                ncavitng->cave_in.x = thing->cave_in.x;
+                                ncavitng->cave_in.y = thing->cave_in.y;
                             }
                         }
                     }

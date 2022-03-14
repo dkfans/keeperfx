@@ -472,7 +472,10 @@ long pinstfe_passenger_control_creature(struct PlayerInfo *player, long *n)
 {
     struct Thing* thing = thing_get(player->influenced_thing_idx);
     if (!thing_is_invalid(thing))
-      control_creature_as_passenger(player, thing);
+    {
+        load_swipe_graphic_for_creature(thing);
+        control_creature_as_passenger(player, thing);
+    }
     set_player_instance(player, PI_CrCtrlFade, false);
     return 0;
 }
