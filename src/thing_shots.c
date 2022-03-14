@@ -658,12 +658,11 @@ long shot_hit_object_at(struct Thing *shotng, struct Thing *target, struct Coord
         }
     }
 
-    HitPoints damage = 0;
+    HitPoints damage_done = 0;
     if (shotng->shot.damage)
     {
         if (object_can_be_damaged(target)) // do not damage objects that cannot be destroyed
         {
-            HitPoints damage_done;
             damage_done = apply_damage_to_thing(target, shotng->shot.damage, shotst->damage_type, -1);
 
             // Drain allows caster to regain half of damage
@@ -680,7 +679,7 @@ long shot_hit_object_at(struct Thing *shotng, struct Thing *target, struct Coord
     if (shotst->old->destroy_on_first_hit) {
         delete_thing_structure(shotng, 0);
     }
-    return damage;
+    return damage_done;
 }
 
 long get_damage_of_melee_shot(struct Thing *shotng, const struct Thing *target)
