@@ -1224,7 +1224,7 @@ static void set_doors_check(const struct ScriptLine* scline)
 static void set_doors_process(struct ScriptContext* context)
 {
     struct Thing* doortng = get_door_for_position(slab_subtile_center(context->value->shorts[1]), slab_subtile_center(context->value->shorts[2]));
-    if (!thing_is_invalid(doortng) && doortng->owner == context->player_idx);
+    if (!thing_is_invalid(doortng) && doortng->owner == context->player_idx)
     {
         switch (context->value->shorts[0])
         {
