@@ -1300,6 +1300,24 @@ void process_thing_spell_teleport_effects(struct Thing *thing, struct CastedSpel
     clear_messages_from_player(-45);
     if (cspell->duration == splconf->duration / 2)
     {
+        PlayerNumber plyr_idx;
+        TbBool controlled = false;
+        if ((thing->alloc_flags & TAlF_IsControlled) != 0)
+        {
+            for (plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
+            {
+                if (is_thing_directly_controlled_by_player(thing, plyr_idx))
+                {
+                    controlled = true;
+                    break;
+                }
+            }
+        }
+        if (!controlled)
+        {
+           plyr_idx = thing->owner; 
+        }
+        struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
         struct Coord3d pos;
         pos.x.val = subtile_coord_center(cctrl->teleport_x);
         pos.y.val = subtile_coord_center(cctrl->teleport_y);
@@ -1308,7 +1326,7 @@ void process_thing_spell_teleport_effects(struct Thing *thing, struct CastedSpel
         {
             const struct Coord3d* newpos = NULL;
             struct Coord3d room_pos;
-            switch(teleport_destination)
+            switch(dungeonadd->teleport_destination)
             {
                 case 6: // Dungeon Heart
                 {
@@ -1320,16 +1338,16 @@ void process_thing_spell_teleport_effects(struct Thing *thing, struct CastedSpel
                     if (active_battle_exists(thing->owner))
                     {
                         long count = 0;
-                        if (battleid > BATTLES_COUNT)
+                        if (dungeonadd->battleid > BATTLES_COUNT)
                         {
-                            battleid = 1;
+                            dungeonadd->battleid = 1;
                         }
-                        for (i = battleid; i <= BATTLES_COUNT; i++)
+                        for (i = dungeonadd->battleid; i <= BATTLES_COUNT; i++)
                         {
                             if (i > BATTLES_COUNT)
                             {
                                 i = 1;
-                                battleid = 1;
+                                dungeonadd->battleid = 1;
                             }
                             count++;
                             struct CreatureBattle* battle = creature_battle_get(i);
@@ -1341,19 +1359,18 @@ void process_thing_spell_teleport_effects(struct Thing *thing, struct CastedSpel
                                 {
                                     pos.x.val = tng->mappos.x.val;
                                     pos.y.val = tng->mappos.y.val;
-                                    battleid = i + 1;
                                     break;
                                 }
                             }
                             if (count >= BATTLES_COUNT)
                             {
-                                battleid = 1;
+                                dungeonadd->battleid = 1;
                                 break;
                             }
                             if (i >= BATTLES_COUNT)
                             {
                                 i = 0;
-                                battleid = 1;
+                                dungeonadd->battleid = 1;
                                 continue;
                             }
                         }
@@ -1392,7 +1409,7 @@ void process_thing_spell_teleport_effects(struct Thing *thing, struct CastedSpel
                 }
                 default:
                 {
-                    rkind = zoom_key_room_order[teleport_destination];
+                    rkind = zoom_key_room_order[dungeonadd->teleport_destination];
                 }
             }
             if (rkind > 0)
@@ -1485,7 +1502,7 @@ void process_thing_spell_teleport_effects(struct Thing *thing, struct CastedSpel
             thing->veloc_push_add.z.val += CREATURE_RANDOM(thing, 96) + 40;
             thing->state_flags |= TF1_PushAdd;
         }
-        teleport_destination = 18;
+        dungeonadd->teleport_destination = 18;
     }
 }
 

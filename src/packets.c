@@ -1215,6 +1215,12 @@ void process_players_creature_control_packet_action(long plyr_idx)
         dungeonadd->first_person_dig_claim_mode ^= 1;
         break;
     }
+    case PckA_SwitchTeleportDest:
+    {
+        dungeonadd = get_dungeonadd(plyr_idx);
+        dungeonadd->teleport_destination = pckt->actn_par1;
+        break; 
+    }
   }
 }
 
