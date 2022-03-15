@@ -97,8 +97,6 @@ extern "C" {
 
 /******************************************************************************/
 int creature_swap_idx[CREATURE_TYPES_COUNT];
-unsigned char teleport_destination = 18;
-BattleIndex battleid = 1;
 
 struct Creatures creatures_NEW[] = {
   { 0,  0, 0, 0, 0, 0, 0, 0, 0, 0x0000, 1},
