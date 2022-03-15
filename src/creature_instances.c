@@ -414,23 +414,7 @@ void process_creature_instance(struct Thing *thing)
             struct InstanceInfo* inst_inf = creature_instance_info_get(cctrl->instance_id);
             if (inst_inf->func_cb != NULL)
             {
-                PlayerNumber plyr_idx;
-                TbBool controlled = false;
-                if ((thing->alloc_flags & TAlF_IsControlled) != 0)
-                {
-                    for (plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
-                    {
-                        if (is_thing_directly_controlled_by_player(thing, plyr_idx))
-                        {
-                            controlled = true;
-                            break;
-                        }
-                    }
-                }
-                if (!controlled)
-                {
-                    plyr_idx = thing->owner;
-                }
+                PlayerNumber plyr_idx = get_appropriate_player_for_creature(thing);
                 SYNCDBG(18,"Executing %s for %s index %d player %d.",creature_instance_code_name(cctrl->instance_id),thing_model_name(thing),(int)thing->index, plyr_idx);
                 inst_inf->func_cb(thing, inst_inf->func_params, plyr_idx);
             }

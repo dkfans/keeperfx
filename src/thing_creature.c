@@ -1298,23 +1298,7 @@ void process_thing_spell_teleport_effects(struct Thing *thing, struct CastedSpel
     clear_messages_from_player(-45);
     if (cspell->duration == splconf->duration / 2)
     {
-        PlayerNumber plyr_idx;
-        TbBool controlled = false;
-        if ((thing->alloc_flags & TAlF_IsControlled) != 0)
-        {
-            for (plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
-            {
-                if (is_thing_directly_controlled_by_player(thing, plyr_idx))
-                {
-                    controlled = true;
-                    break;
-                }
-            }
-        }
-        if (!controlled)
-        {
-           plyr_idx = thing->owner; 
-        }
+        PlayerNumber plyr_idx = get_appropriate_player_for_creature(thing);
         struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
         struct Coord3d pos;
         pos.x.val = subtile_coord_center(cctrl->teleport_x);
