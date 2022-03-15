@@ -770,7 +770,7 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param, PlayerNu
     MapSlabCoord slb_y = subtile_slab_fast(creatng->mappos.y.stl.num);
     if (check_place_to_pretty_excluding(creatng, slb_x, slb_y))
     {
-        instf_pretty_path(creatng, NULL, plyr_idx);
+        instf_pretty_path(creatng, NULL, creatng->owner);
         return 1;
     }
     MapSlabCoord ahead_slb_x = slb_x;
@@ -831,7 +831,7 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param, PlayerNu
         if ( check_place_to_convert_excluding(creatng, slb_x, slb_y) )
         {
             struct SlabAttr* slbattr = get_slab_attrs(slb);
-            instf_destroy(creatng, NULL, plyr_idx);
+            instf_destroy(creatng, NULL, creatng->owner);
             if (slbattr->block_flags & SlbAtFlg_IsRoom)
             {
                 room = room_get(slb->room_index);
@@ -879,7 +879,7 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param, PlayerNu
                         if (slab_by_players_land(creatng->owner, ahead_sslb_x, ahead_sslb_y))
                         {
                             cctrl->digger.working_stl = get_subtile_number(ahead_stl_x, ahead_stl_y);
-                            instf_reinforce(creatng, NULL, plyr_idx);
+                            instf_reinforce(creatng, NULL, creatng->owner);
                             return 1;
                         } 
                     }
@@ -891,7 +891,7 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param, PlayerNu
     {
         //TODO CONFIG shot model dependency
         long locparam = ShM_Dig;
-        instf_creature_fire_shot(creatng, &locparam, plyr_idx);
+        instf_creature_fire_shot(creatng, &locparam, creatng->owner);
     }
     return 1;
 }
