@@ -6077,6 +6077,21 @@ void controlled_continue_looking_excluding_diagonal(struct Thing *creatng, MapSu
     *stl_y = y;
 }
 
+PlayerNumber get_appropriate_player_for_creature(struct Thing *creatng)
+{
+    if ((creatng->alloc_flags & TAlF_IsControlled) != 0)
+    {
+        for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
+        {
+            if (is_thing_directly_controlled_by_player(creatng, plyr_idx))
+            {
+                return plyr_idx;
+            }
+        }
+    }
+    return creatng->owner;
+}
+
 /******************************************************************************/
 #ifdef __cplusplus
 }
