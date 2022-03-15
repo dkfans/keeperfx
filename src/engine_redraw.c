@@ -57,6 +57,7 @@
 #include "magic.h"
 #include "game_merge.h"
 #include "game_legacy.h"
+#include "creature_instances.h"
 
 #include "keeperfx.hpp"
 
@@ -573,6 +574,14 @@ void redraw_creature_view(void)
             }
         }
         draw_gui_panel_sprite_left(x, y, ps_units_per_px, spr_idx);
+    }
+    else if (first_person_dig_claim_mode == 1)
+    {
+        if (cctrl->active_instance_id == CrInst_FIRST_PERSON_DIG)
+        {
+            x = MyScreenWidth - (x / 4);
+            draw_gui_panel_sprite_left(x, y, ps_units_per_px, instance_button_init[CrInst_FIRST_PERSON_DIG].symbol_spridx);
+        }
     }
 }
 
