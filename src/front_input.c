@@ -1424,7 +1424,12 @@ short get_creature_control_action_inputs(void)
             }
             message_add(CrInst, get_string(StrID));
         }
-        first_person_dig_claim_mode = is_game_key_pressed(Gkey_CrtrContrlMod, &val, false);
+        if (is_game_key_pressed(Gkey_CrtrContrlMod, &val, false))
+        {
+            set_players_packet_action(player, PckA_ToggleFirstPersonReinforce, 0, 0, 0, 0);
+            struct GameKey* GKey = &settings.kbkeys[Gkey_CrtrContrlMod];
+            clear_key_pressed(GKey->code);
+        }
         player->thing_under_hand = 0;
         struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
         if (cctrl->active_instance_id == CrInst_FIRST_PERSON_DIG)
@@ -1473,6 +1478,8 @@ short get_creature_control_action_inputs(void)
                         }
                     }
                 }
+                /*
+                else
             }
         }
         if (!creature_affected_by_spell(thing, SplK_Chicken))
@@ -2077,7 +2084,7 @@ void get_creature_control_nonaction_inputs(void)
   long k;
   struct PlayerInfo* player = get_my_player();
   struct Packet* pckt = get_packet(my_player_number);
-
+  SYNCDBG(8,"Starting");
   long x = GetMouseX();
   long y = GetMouseY();
   struct Thing* thing = thing_get(player->controlled_thing_idx);
@@ -2086,8 +2093,6 @@ void get_creature_control_nonaction_inputs(void)
   pckt->pos_y = 127;
   if ((player->allocflags & PlaF_Unknown8) != 0)
     return;
-TbBool cheat_menu_active = ( (gui_box != NULL) || (gui_cheat_box != NULL) );
-if (((MyScreenWidth >> 1) != GetMouseX()) || (GetMouseY() != y))
   {
       if (cheat_menu_active == false)
       {
@@ -2148,6 +2153,7 @@ if (((MyScreenWidth >> 1) != GetMouseX()) || (GetMouseY() != y))
           if ( is_game_key_pressed(Gkey_MoveDown, NULL, true) || is_key_pressed(KC_DOWN,KMod_DONTCARE) )
               set_packet_control(pckt, PCtr_MoveDown);
       }
+  SYNCDBG(8,"Finished");
 }
 
 static void speech_pickup_of_gui_job(int job_idx)
@@ -2426,12 +2432,11 @@ short get_gui_inputs(short gameplay_on)
       for (int idx = 0; idx < ACTIVE_BUTTONS_COUNT; idx++)
       {
         struct GuiButton *gbtn = &active_buttons[idx];
-        if ((gbtn->flags & LbBtnF_Active) && (gbtn->gbtype == LbBtnT_Unknown6))
+        if ((gbtn->flags & LbBtnF_Unknown01) && (gbtn->gbtype == LbBtnT_Unknown6))
             gbtn->gbactn_1 = 0;
       }
   }
   update_busy_doing_gui_on_menu();
-
   int fmmenu_idx = first_monopoly_menu();
   struct PlayerInfo* player = get_my_player();
   int gmbtn_idx = -1;
@@ -2441,7 +2446,7 @@ short get_gui_inputs(short gameplay_on)
   for (int gidx = 0; gidx < ACTIVE_BUTTONS_COUNT; gidx++)
   {
       gbtn = &active_buttons[gidx];
-      if ((gbtn->flags & LbBtnF_Active) == 0)
+      if ((gbtn->flags & LbBtnF_Unknown01) == 0)
           continue;
       if (!get_active_menu(gbtn->gmenu_idx)->is_turned_on)
           continue;

@@ -1146,6 +1146,7 @@ void process_players_creature_control_packet_action(long plyr_idx)
   long i;
   long k;
   player = get_player(plyr_idx);
+  struct DungeonAdd* dungeonadd;
   pckt = get_packet_direct(player->packet_num);
   SYNCDBG(6,"Processing player %d action %d",(int)plyr_idx,(int)pckt->action);
   switch (pckt->action)
@@ -1208,6 +1209,12 @@ void process_players_creature_control_packet_action(long plyr_idx)
          direct_control_pick_up_or_drop(player);
          break;
       }
+    case PckA_ToggleFirstPersonReinforce:
+    {
+        dungeonadd = get_dungeonadd(plyr_idx);
+        dungeonadd->first_person_dig_claim_mode ^= 1;
+        break;
+    }
   }
 }
 

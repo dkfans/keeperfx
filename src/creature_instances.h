@@ -85,7 +85,7 @@ enum CreatureInstances {
 
 struct Thing;
 
-typedef long (*Creature_Instf_Func)(struct Thing *, long *);
+typedef long (*Creature_Instf_Func)(struct Thing *, long *, PlayerNumber plyr_idx);
 
 struct InstanceInfo { // sizeof = 42
     TbBool instant;
@@ -135,8 +135,6 @@ int creature_instance_get_available_number_for_pos(struct Thing *thing, int req_
 CrInstance creature_instance_get_available_id_for_pos(struct Thing *thing, int req_avail_pos);
 
 void delay_teleport(struct Thing *creatng);
-
-extern TbBool first_person_dig_claim_mode;
 /******************************************************************************/
 #ifdef __cplusplus
 }
