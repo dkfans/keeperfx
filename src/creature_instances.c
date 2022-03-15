@@ -612,7 +612,7 @@ long instf_destroy(struct Thing *creatng, long *param, PlayerNumber plyr_idx)
             thing_play_sample(creatng, 5 + UNSYNC_RANDOM(2), 200, 0, 3, 0, 2, volume);
             return 0;
         }
-        clear_dig_on_room_slabs(room, creatng->owner);
+        clear_dig_on_room_slabs(room, plyr_idx);
         if (room->owner == game.neutral_player_num)
         {
             claim_room(room, creatng);
@@ -624,7 +624,7 @@ long instf_destroy(struct Thing *creatng, long *param, PlayerNumber plyr_idx)
             claim_enemy_room(room, creatng);
         }
         thing_play_sample(creatng, 76, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
-        create_effects_on_room_slabs(room, imp_spangle_effects[creatng->owner], 0, creatng->owner);
+        create_effects_on_room_slabs(room, imp_spangle_effects[plyr_idx], 0, plyr_idx);
         return 0;
     }
     if (slb->health > 1)
@@ -686,7 +686,7 @@ long instf_attack_room_slab(struct Thing *creatng, long *param, PlayerNumber ply
     {
         event_create_event_or_update_nearby_existing_event(coord_slab(creatng->mappos.x.val), coord_slab(creatng->mappos.y.val), EvKind_RoomLost, room->owner, room->kind);
     }
-    create_effect(&creatng->mappos, TngEff_Explosion3, creatng->owner);
+    create_effect(&creatng->mappos, TngEff_Explosion3, plyr_idx);
     thing_play_sample(creatng, 47, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     return 1;
 }
@@ -709,7 +709,7 @@ long instf_damage_wall(struct Thing *creatng, long *param, PlayerNumber plyr_idx
         slb->health -= 2;
     } else
     {
-        place_slab_type_on_map(2, stl_x, stl_y, creatng->owner, 0);
+        place_slab_type_on_map(2, stl_x, stl_y, plyr_idx, 0);
         do_slab_efficiency_alteration(subtile_slab_fast(stl_x), subtile_slab_fast(stl_y));
     }
     thing_play_sample(creatng, 63+UNSYNC_RANDOM(6), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
@@ -884,17 +884,17 @@ long instf_pretty_path(struct Thing *creatng, long *param, PlayerNumber plyr_idx
 {
     TRACE_THING(creatng);
     SYNCDBG(16,"Starting");
-    struct Dungeon* dungeon = get_dungeon(creatng->owner);
+    struct Dungeon* dungeon = get_dungeon(plyr_idx);
     MapSlabCoord slb_x = subtile_slab_fast(creatng->mappos.x.stl.num);
     MapSlabCoord slb_y = subtile_slab_fast(creatng->mappos.y.stl.num);
-    create_effect(&creatng->mappos, imp_spangle_effects[creatng->owner], creatng->owner);
+    create_effect(&creatng->mappos, imp_spangle_effects[plyr_idx], plyr_idx);
     thing_play_sample(creatng, 76, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
-    place_slab_type_on_map(SlbT_CLAIMED, slab_subtile_center(slb_x), slab_subtile_center(slb_y), creatng->owner, 1);
-    do_unprettying(creatng->owner, slb_x, slb_y);
+    place_slab_type_on_map(SlbT_CLAIMED, slab_subtile_center(slb_x), slab_subtile_center(slb_y), plyr_idx, 1);
+    do_unprettying(plyr_idx, slb_x, slb_y);
     do_slab_efficiency_alteration(slb_x, slb_y);
-    increase_dungeon_area(creatng->owner, 1);
+    increase_dungeon_area(plyr_idx, 1);
     dungeon->lvstats.area_claimed++;
-    EVM_MAP_EVENT("claimed", creatng->owner, slb_x, slb_y, "");
+    EVM_MAP_EVENT("claimed", plyr_idx, slb_x, slb_y, "");
     remove_traps_around_subtile(slab_subtile_center(slb_x), slab_subtile_center(slb_y), NULL);
     return 1;
 }
