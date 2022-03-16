@@ -1160,8 +1160,9 @@ int get_place_terrain_pointer_graphics(SlabKind skind)
 
 void draw_creature_view_icons(struct Thing* creatng)
 {
-    long x = scale_value_by_horizontal_resolution(148);
-    long y = (MyScreenHeight - (scale_value_by_vertical_resolution((LbTextLineHeight())) * 2));
+    struct GuiMenu *gmnu = get_active_menu(menu_id_to_number(GMnu_MAIN));
+    ScreenCoord x = gmnu->width + scale_value_by_horizontal_resolution(5);
+    ScreenCoord y = (MyScreenHeight - (scale_value_by_vertical_resolution(LbTextLineHeight() * 2)));
     int ps_units_per_px;
     {
         struct TbSprite* spr = &gui_panel_sprites[488];
@@ -1221,7 +1222,7 @@ void draw_creature_view_icons(struct Thing* creatng)
     {
         if (cctrl->active_instance_id == CrInst_FIRST_PERSON_DIG)
         {
-            x = MyScreenWidth - (x / 4);
+            x = MyScreenWidth - (scale_value_by_horizontal_resolution(148) / 4);
             draw_gui_panel_sprite_left(x, y, ps_units_per_px, instance_button_init[CrInst_FIRST_PERSON_DIG].symbol_spridx);
         }
     }
