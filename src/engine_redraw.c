@@ -1167,6 +1167,11 @@ void draw_creature_view_icons(struct Thing* creatng)
     {
         struct TbSprite* spr = &gui_panel_sprites[488];
         ps_units_per_px = (22 * units_per_pixel) / spr->SHeight;
+        if (MyScreenWidth / MyScreenHeight >= 4)
+        {
+            ps_units_per_px >>= 1;
+            y -= 25;
+        }
     }
     for (int Spell = SplK_Freeze; Spell < SplK_TimeBomb; Spell++)
     {
