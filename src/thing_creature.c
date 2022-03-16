@@ -1341,6 +1341,7 @@ void process_thing_spell_teleport_effects(struct Thing *thing, struct CastedSpel
                                 {
                                     pos.x.val = tng->mappos.x.val;
                                     pos.y.val = tng->mappos.y.val;
+                                    dungeonadd->battleid = i + 1;
                                     break;
                                 }
                             }
