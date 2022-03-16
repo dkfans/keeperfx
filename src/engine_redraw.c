@@ -1224,7 +1224,7 @@ void draw_creature_view_icons(struct Thing* creatng)
         }
         draw_gui_panel_sprite_left(x, y, ps_units_per_px, spr_idx);
     }
-    else if (first_person_dig_claim_mode == 1)
+    else if (first_person_dig_claim_mode)
     {
         if (cctrl->active_instance_id == CrInst_FIRST_PERSON_DIG)
         {
