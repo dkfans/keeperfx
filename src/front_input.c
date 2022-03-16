@@ -1474,7 +1474,7 @@ short get_creature_control_action_inputs(void)
                         player->thing_under_hand = picktng->index;
                         if (first_person_see_item_desc)
                         {
-                            display_controlled_pick_up_thing_name(picktng, 1);
+                            display_controlled_pick_up_thing_name(picktng, 1, player->id_number);
                         }
                     }
                 }
