@@ -91,13 +91,22 @@ unsigned char destroy_effect[][9] = {
  */
 TbBool can_cast_spell_f(PlayerNumber plyr_idx, PowerKind pwkind, MapSubtlCoord stl_x, MapSubtlCoord stl_y, const struct Thing *thing, unsigned long flags, const char *func_name)
 {
+    struct PlayerInfo* player = get_player(plyr_idx);
+    if (player->work_state == PSt_FreeDestroyWalls)
+    {
+        struct SlabAttr *slbattr = get_slab_attrs(get_slabmap_for_subtile(stl_x, stl_y));
+        return ( (slbattr->category == SlbAtCtg_FortifiedWall) || (slbattr->category == SlbAtCtg_FriableDirt) );
+    }
+    else if ( (player->work_state == PSt_FreeCastDisease) || (player->work_state == PSt_FreeTurnChicken) )
+    {
+        return (slab_is_wall(subtile_slab_fast(stl_x), subtile_slab_fast(stl_y)) == false);
+    }
     if ((flags & CastChk_SkipAvailiabilty) == 0)
     {
         if (!is_power_available(plyr_idx, pwkind)) {
             return false;
         }
     }
-    struct PlayerInfo* player = get_player(plyr_idx);
     if (player->work_state == PSt_FreeCtrlDirect)
     {
         return true;
@@ -1363,7 +1372,7 @@ TbResult magic_use_power_lightning(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     {
         shtng->mappos.z.val = get_thing_height_at(shtng, &shtng->mappos) + COORD_PER_STL/2;
         shtng->shot.hit_type = THit_CrtrsOnly;
-        shtng->shot.byte_19 = splevel;
+        shtng->shot.spell_level = splevel;
     }
     pwrdynst = get_power_dynamic_stats(PwrK_LIGHTNING);
     shotst = get_shot_model_stats(ShM_GodLightning);
@@ -1376,7 +1385,7 @@ TbResult magic_use_power_lightning(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     obtng = create_object(&pos, 124, plyr_idx, -1);
     if (!thing_is_invalid(obtng))
     {
-        obtng->byte_13 = splevel;
+        obtng->lightning.spell_level = splevel;
         obtng->field_4F |= TF4F_Unknown01;
     }
     i = electricity_affecting_area(&pos, plyr_idx, range, max_damage);

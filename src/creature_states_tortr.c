@@ -115,7 +115,7 @@ short cleanup_torturing(struct Thing *creatng)
     {
         struct Thing* thing = thing_get(cctrl->assigned_torturer);
         if (thing_exists(thing)) {
-            thing->belongs_to = 0;
+            thing->torturer.belongs_to = 0;
             thing->field_4F &= ~TF4F_Unknown01;
         }
         cctrl->assigned_torturer = 0;
@@ -149,7 +149,7 @@ long setup_torture_move_to_device(struct Thing *creatng, struct Room *room, Crea
         MapSlabCoord slb_x = slb_num_decode_x(slbnum);
         MapSlabCoord slb_y = slb_num_decode_y(slbnum);
         struct Thing* tortrtng = find_base_thing_on_mapwho(TCls_Object, 125, slab_subtile_center(slb_x), slab_subtile_center(slb_y));
-        if (!thing_is_invalid(tortrtng) && (tortrtng->belongs_to == 0))
+        if (!thing_is_invalid(tortrtng) && (tortrtng->torturer.belongs_to == 0))
         {
             if (!setup_person_move_to_coord(creatng, &tortrtng->mappos, NavRtF_Default))
             {
@@ -158,8 +158,8 @@ long setup_torture_move_to_device(struct Thing *creatng, struct Room *room, Crea
             }
             struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
             creatng->continue_state = get_continue_state_for_job(jobpref);
-            tortrtng->belongs_to = creatng->index;
-            tortrtng->word_15 = tortrtng->sprite_size;
+            tortrtng->torturer.belongs_to = creatng->index;
+            tortrtng->torturer.cssize = tortrtng->sprite_size;
             cctrl->assigned_torturer = tortrtng->index;
             return 1;
         }
@@ -487,6 +487,10 @@ CrCheckRet process_torture_function(struct Thing *creatng)
         WARNLOG("Room %s owned by player %d is bad work place for %s owned by played %d",room_code_name(room->kind),(int)room->owner,thing_model_name(creatng),(int)creatng->owner);
         set_start_state(creatng);
         return CrCkRet_Continue;
+    }
+    if (room->owner == game.neutral_player_num || is_neutral_thing(creatng))
+    {
+        return CrCkRet_Available;
     }
     struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);

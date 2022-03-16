@@ -58,6 +58,7 @@
 #include "game_merge.h"
 #include "game_legacy.h"
 #include "creature_instances.h"
+#include "packets.h"
 
 #include "keeperfx.hpp"
 
@@ -933,6 +934,27 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
     case PSt_Sell:
         set_pointer_graphic(MousePG_Sell);
         break;
+    case PSt_PlaceTerrain:
+    {
+        struct DungeonAdd* dungeonadd = get_dungeonadd(player->id_number);
+        i = get_place_terrain_pointer_graphics(dungeonadd->cheatselection.chosen_terrain_kind);
+        set_pointer_graphic(i);
+        break;
+    }
+    case PSt_MkDigger:
+        set_pointer_graphic(MousePG_MkDigger);
+        break;
+    case PSt_MkGoodCreatr:
+    case PSt_MkBadCreatr:
+        set_pointer_graphic(MousePG_MkCreature);
+        break;
+    case PSt_OrderCreatr:
+    {
+        struct Thing* creatng = thing_get(player->controlled_thing_idx);
+        i = (thing_is_creature(creatng)) ? MousePG_MvCreature : MousePG_Arrow;
+        set_pointer_graphic(i);
+        break;
+    }
     default:
         set_pointer_graphic(MousePG_Arrow);
         break;
@@ -951,7 +973,7 @@ void process_pointer_graphic(void)
         break;
     case PVT_CreatureContrl:
     case PVT_CreaturePasngr:
-        if ((game.numfield_D & GNFldD_CreaturePasngr) != 0)
+        if ( ((game.numfield_D & GNFldD_CreaturePasngr) != 0) || (gui_box != NULL) || (gui_cheat_box != NULL) )
           set_pointer_graphic(MousePG_Arrow);
         else
           set_pointer_graphic(MousePG_Invisible);
@@ -1131,5 +1153,70 @@ TbBool keeper_screen_redraw(void)
         return true;
     }
     return false;
+}
+
+int get_place_terrain_pointer_graphics(SlabKind skind)
+{
+    int result;
+    switch (skind)
+    {
+        case SlbT_ROCK:
+        {
+            result = MousePG_PlaceImpRock;
+            break;
+        }
+        case SlbT_GOLD:
+        {
+            result = MousePG_PlaceGold;
+            break;
+        }
+        case SlbT_EARTH:
+        case SlbT_TORCHDIRT:
+        {
+            result = MousePG_PlaceEarth;
+            break;
+        }
+        case SlbT_WALLDRAPE:
+        case SlbT_WALLTORCH:
+        case SlbT_WALLWTWINS:
+        case SlbT_WALLWWOMAN:
+        case SlbT_WALLPAIRSHR:
+        case SlbT_DAMAGEDWALL:
+        {
+            result = MousePG_PlaceWall;
+            break;
+        }
+        case SlbT_PATH:
+        {
+            result = MousePG_PlacePath;
+            break;
+        }
+        case SlbT_CLAIMED:
+        {
+            result = MousePG_PlaceClaimed;
+            break;
+        }
+        case SlbT_LAVA:
+        {
+            result = MousePG_PlaceLava;
+            break;
+        }
+        case SlbT_WATER:
+        {
+            result = MousePG_PlaceWater;
+            break;
+        }
+        case SlbT_GEMS:
+        {
+            result = MousePG_PlaceGems;
+            break;
+        }
+        default:
+        {
+            result = MousePG_Arrow;
+            break;
+        }
+    }
+    return result;
 }
 /******************************************************************************/

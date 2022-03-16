@@ -131,9 +131,6 @@ extern "C" {
 #endif
 
 // DLLIMPORT int _DK_can_thing_be_queried(struct Thing *thing, long a2);
-DLLIMPORT void _DK_tag_cursor_blocks_sell_area(unsigned char a1, long a2, long a3, long a4);
-DLLIMPORT unsigned char _DK_tag_cursor_blocks_place_door(unsigned char a1, long a2, long a3);
-DLLIMPORT void _DK_tag_cursor_blocks_dig(unsigned char a1, long a2, long a3, long a4);
 DLLIMPORT long _DK_ceiling_init(unsigned long a1, unsigned long a2);
 DLLIMPORT long _DK_apply_wallhug_force_to_boulder(struct Thing *thing);
 DLLIMPORT void __stdcall _DK_IsRunningMark(void);
@@ -1099,8 +1096,11 @@ TbBool players_cursor_is_at_top_of_view(struct PlayerInfo *player)
 {
     int i;
     i = player->work_state;
-    if ( (i == PSt_BuildRoom) || (i == PSt_PlaceDoor) || (i == PSt_PlaceTrap) || (i == PSt_SightOfEvil) || (i == PSt_Sell) )
+    if ( (i == PSt_BuildRoom) || (i == PSt_PlaceDoor) || (i == PSt_PlaceTrap) || (i == PSt_SightOfEvil) || (i == PSt_Sell) || (i == PSt_PlaceTerrain) || (i == PSt_MkDigger)
+        || (i == PSt_MkGoodCreatr) || (i == PSt_MkBadCreatr) )
         return true;
+    if ( (i == PSt_OrderCreatr) && (player->controlled_thing_idx > 0) )
+        return true;  
     if ( (i == PSt_CtrlDungeon) && (player->primary_cursor_state != CSt_DefaultArrow) && (player->thing_under_hand == 0) )
         return true;
     return false;
@@ -2285,27 +2285,6 @@ void process_dungeons(void)
   SYNCDBG(9,"Finished");
 }
 
-void process_level_script(void)
-{
-  SYNCDBG(6,"Starting");
-  struct PlayerInfo *player;
-  player = get_my_player();
-  // Do NOT stop executing scripts after winning if the RUN_AFTER_VICTORY(1) script command has been issued
-  if ((player->victory_state == VicS_Undecided) || (game.system_flags & GSF_RunAfterVictory))
-  {
-      process_conditions();
-      process_check_new_creature_partys();
-    //script_process_messages(); is not here, but it is in beta - check why
-      process_check_new_tunneller_partys();
-      process_values();
-      process_win_and_lose_conditions(my_player_number); //player->id_number may be uninitialized yet
-    //  show_onscreen_msg(8, "Flags %d %d %d %d %d %d", game.dungeon[0].script_flags[0],game.dungeon[0].script_flags[1],
-    //    game.dungeon[0].script_flags[2],game.dungeon[0].script_flags[3],game.dungeon[0].script_flags[4],game.dungeon[0].script_flags[5]);
-  }
-  SYNCDBG(19,"Finished");
-}
-
-
 void update_flames_nearest_camera(struct Camera *camera)
 {
   if (camera == NULL)
@@ -2342,7 +2321,7 @@ void update_near_creatures_for_footsteps(long *near_creatures, const struct Coor
         i = thing->next_of_class;
         // Per-thing code
         thing->state_flags &= ~TF1_DoFootsteps;
-        if (!thing_is_picked_up(thing))
+        if ( (!thing_is_picked_up(thing)) && (!thing_is_dragged_or_pulled(thing)) )
         {
             struct CreatureSound *crsound;
             crsound = get_creature_sound(thing, CrSnd_Foot);
@@ -2530,8 +2509,8 @@ long update_cave_in(struct Thing *thing)
     {
         int n;
         n = UNSYNC_RANDOM(AROUND_TILES_COUNT);
-        pos.x.val = thing->mappos.x.val + UNSYNC_RANDOM(0x2C0) * around[n].delta_x;
-        pos.y.val = thing->mappos.y.val + UNSYNC_RANDOM(0x2C0) * around[n].delta_y;
+        pos.x.val = thing->mappos.x.val + UNSYNC_RANDOM(704) * around[n].delta_x;
+        pos.y.val = thing->mappos.y.val + UNSYNC_RANDOM(704) * around[n].delta_y;
         if (subtile_has_slab(coord_subtile(pos.x.val),coord_subtile(pos.y.val)))
         {
             pos.z.val = get_ceiling_height(&pos) - 128;
@@ -2586,20 +2565,20 @@ long update_cave_in(struct Thing *thing)
                 {
                     long dist;
                     struct Coord3d pos2;
-                    pos2.x.val = subtile_coord(thing->byte_13,0);
-                    pos2.y.val = subtile_coord(thing->byte_14,0);
+                    pos2.x.val = subtile_coord(thing->cave_in.x,0);
+                    pos2.y.val = subtile_coord(thing->cave_in.y,0);
                     pos2.z.val = subtile_coord(1,0);
                     dist = get_2d_box_distance(&pos, &pos2);
-                    if (pwrdynst->strength[thing->byte_17] >= coord_subtile(dist))
+                    if (pwrdynst->strength[thing->cave_in.model] >= coord_subtile(dist))
                     {
-                        ncavitng = create_thing(&pos, TCls_CaveIn, thing->byte_17, owner, -1);
+                        ncavitng = create_thing(&pos, TCls_CaveIn, thing->cave_in.model, owner, -1);
                         if (!thing_is_invalid(ncavitng))
                         {
                             thing->health += 5;
                             if (thing->health > 0)
                             {
-                                ncavitng->byte_13 = thing->byte_13;
-                                ncavitng->byte_14 = thing->byte_14;
+                                ncavitng->cave_in.x = thing->cave_in.x;
+                                ncavitng->cave_in.y = thing->cave_in.y;
                             }
                         }
                     }
@@ -2702,75 +2681,6 @@ struct Thing *get_queryable_object_near(MapCoord pos_x, MapCoord pos_y, long ply
     param.num1 = pos_x;
     param.num2 = pos_y;
     return get_thing_near_revealed_map_block_with_filter(pos_x, pos_y, filter, &param);
-}
-
-void tag_cursor_blocks_dig(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long full_slab)
-{
-    SYNCDBG(7,"Starting for player %d at subtile (%d,%d)",(int)plyr_idx,(int)stl_x,(int)stl_y);
-    //_DK_tag_cursor_blocks_dig(plyr_idx, stl_x, stl_y, full_slab);
-    struct PlayerInfo* player = get_player(plyr_idx);
-    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
-    struct Packet* pckt = get_packet_direct(player->packet_num);
-    MapSlabCoord slb_x = subtile_slab_fast(stl_x);
-    MapSlabCoord slb_y = subtile_slab_fast(stl_y);
-    int floor_height_z = floor_height_for_volume_box(plyr_idx, slb_x, slb_y);
-    TbBool allowed = false;
-    if (render_roomspace.slab_count > 0 && full_slab) // if roomspace is not empty
-    {
-        allowed = true;
-    }
-    else if (subtile_is_diggable_for_player(plyr_idx, stl_x, stl_y, false)) // else if not using roomspace, is current slab diggable
-    {
-        allowed = true;
-    }
-    else if ((dungeonadd->one_click_lock_cursor) && ((pckt->control_flags & PCtr_LBtnHeld) != 0))
-    {
-        allowed = true;
-    }
-    unsigned char line_color = allowed;
-    if (render_roomspace.untag_mode && allowed)
-    {
-        line_color = SLC_YELLOW;
-    }
-    if (is_my_player_number(plyr_idx) && !game_is_busy_doing_gui() && (game.small_map_state != 2) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
-    {
-        map_volume_box.visible = 1;
-        map_volume_box.color = line_color;
-        map_volume_box.beg_x = (!full_slab ? (subtile_coord(stl_x, 0)) : subtile_coord(((render_roomspace.centreX - calc_distance_from_roomspace_centre(render_roomspace.width,0)) * STL_PER_SLB), 0));
-        map_volume_box.beg_y = (!full_slab ? (subtile_coord(stl_y, 0)) : subtile_coord(((render_roomspace.centreY - calc_distance_from_roomspace_centre(render_roomspace.height,0)) * STL_PER_SLB), 0));
-        map_volume_box.end_x = (!full_slab ? (subtile_coord(stl_x + 1, 0)) : subtile_coord((((render_roomspace.centreX + calc_distance_from_roomspace_centre(render_roomspace.width,(render_roomspace.width % 2 == 0))) + 1) * STL_PER_SLB), 0));
-        map_volume_box.end_y = (!full_slab ? (subtile_coord(stl_y + 1, 0)) : subtile_coord((((render_roomspace.centreY + calc_distance_from_roomspace_centre(render_roomspace.height,(render_roomspace.height % 2 == 0))) + 1) * STL_PER_SLB), 0));
-        map_volume_box.floor_height_z = floor_height_z;
-        render_roomspace.is_roomspace_a_single_subtile = !full_slab;
-    }
-}
-
-void tag_cursor_blocks_thing_in_hand(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, int is_special_digger, long full_slab)
-{
-  SYNCDBG(7,"Starting");
-  // _DK_tag_cursor_blocks_thing_in_hand(plyr_idx, stl_x, stl_y, is_special_digger, full_slab);
-  MapSlabCoord slb_x = subtile_slab_fast(stl_x);
-  MapSlabCoord slb_y = subtile_slab_fast(stl_y);  
-  if (is_my_player_number(plyr_idx) && !game_is_busy_doing_gui() && (game.small_map_state != 2) )
-    {
-        map_volume_box.visible = true;
-        map_volume_box.color = can_drop_thing_here(stl_x, stl_y, plyr_idx, is_special_digger);
-        if (full_slab)
-        {
-            map_volume_box.beg_x = subtile_coord(slab_subtile(slb_x, 0), 0);
-            map_volume_box.beg_y = subtile_coord(slab_subtile(slb_y, 0), 0);
-            map_volume_box.end_x = subtile_coord(slab_subtile(slb_x, 0) + STL_PER_SLB, 0);
-            map_volume_box.end_y = subtile_coord(slab_subtile(slb_y, 0) + STL_PER_SLB, 0);
-        }
-        else
-        {
-            map_volume_box.beg_x = subtile_coord(stl_x, 0);
-            map_volume_box.beg_y = subtile_coord(stl_y, 0);
-            map_volume_box.end_x = subtile_coord(stl_x + 1, 0);
-            map_volume_box.end_y = subtile_coord(stl_y + 1, 0); 
-        }
-        map_volume_box.floor_height_z = floor_height_for_volume_box(plyr_idx, slb_x, slb_y);
-    }
 }
 
 void set_player_cameras_position(struct PlayerInfo *player, long pos_x, long pos_y)
@@ -3412,43 +3322,6 @@ TbBool can_thing_be_queried(struct Thing *thing, PlayerNumber plyr_idx)
     }
 }
 
-TbBool tag_cursor_blocks_sell_area(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long full_slab)
-{
-    SYNCDBG(7,"Starting");
-    // _DK_tag_cursor_blocks_sell_area(plyr_idx, stl_x, stl_y, full_slab);
-    MapSlabCoord slb_x = subtile_slab_fast(stl_x);
-    MapSlabCoord slb_y = subtile_slab_fast(stl_y);
-    struct SlabMap *slb;
-    slb = get_slabmap_block(slb_x, slb_y);
-    int floor_height_z = floor_height_for_volume_box(plyr_idx, slb_x, slb_y);
-    TbBool allowed = false;
-    if (render_roomspace.slab_count > 0 && full_slab)
-    {
-        allowed = true; // roomspace selling support is basic, this makes roomspace selling work over any slabtype
-    }
-    else if (floor_height_z == 1)
-    {
-        if ( ( ((subtile_is_sellable_room(plyr_idx, stl_x, stl_y)) || ( (slabmap_owner(slb) == plyr_idx) && ( (slab_is_door(slb_x, slb_y))
-            || ((!full_slab) ? (subtile_has_trap_on(stl_x, stl_y)) : (slab_has_trap_on(slb_x, slb_y))) ) ) ) )
-            && ( slb->kind != SlbT_ENTRANCE && slb->kind != SlbT_DUNGHEART ) )
-        {
-            allowed = true;
-        }
-    }
-    if ( is_my_player_number(plyr_idx) && !game_is_busy_doing_gui() && game.small_map_state != 2 )
-    {
-        map_volume_box.visible = 1;
-        map_volume_box.color = allowed;
-        map_volume_box.beg_x = (!full_slab ? (subtile_coord(stl_x, 0)) : subtile_coord(((render_roomspace.centreX - calc_distance_from_roomspace_centre(render_roomspace.width,0)) * STL_PER_SLB), 0));
-        map_volume_box.beg_y = (!full_slab ? (subtile_coord(stl_y, 0)) : subtile_coord(((render_roomspace.centreY - calc_distance_from_roomspace_centre(render_roomspace.height,0)) * STL_PER_SLB), 0));
-        map_volume_box.end_x = (!full_slab ? (subtile_coord(stl_x + 1, 0)) : subtile_coord((((render_roomspace.centreX + calc_distance_from_roomspace_centre(render_roomspace.width,(render_roomspace.width % 2 == 0))) + 1) * STL_PER_SLB), 0));
-        map_volume_box.end_y = (!full_slab ? (subtile_coord(stl_y + 1, 0)) : subtile_coord((((render_roomspace.centreY + calc_distance_from_roomspace_centre(render_roomspace.height,(render_roomspace.height % 2 == 0))) + 1) * STL_PER_SLB), 0));
-        map_volume_box.floor_height_z = floor_height_z;
-        render_roomspace.is_roomspace_a_single_subtile = !full_slab;
-    }
-    return allowed;
-}
-
 long packet_place_door(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, ThingModel tngmodel, unsigned char a5)
 {
     //return _DK_packet_place_door(a1, a2, a3, a4, a5);
@@ -3462,97 +3335,6 @@ long packet_place_door(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber pl
     }
     remove_dead_creatures_from_slab(subtile_slab(stl_x), subtile_slab(stl_y));
     return 1;
-}
-
-TbBool tag_cursor_blocks_place_door(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
-{
-    SYNCDBG(7,"Starting");
-    // return _DK_tag_cursor_blocks_place_door(a1, a2, a3);
-    MapSlabCoord slb_x = subtile_slab_fast(stl_x);
-    MapSlabCoord slb_y = subtile_slab_fast(stl_y);
-    struct SlabMap *slb;
-    slb = get_slabmap_block(slb_x, slb_y);
-    TbBool allowed = false;
-    char Orientation;
-    TbBool Check = false;
-    int floor_height_z = floor_height_for_volume_box(plyr_idx, slb_x, slb_y);
-    if (floor_height_z == 1)
-    {
-        Orientation = find_door_angle(stl_x, stl_y, plyr_idx);
-        if (gameadd.place_traps_on_subtiles)
-        {
-            switch(Orientation)
-            {
-                case 0:
-                {
-                    Check = (!slab_middle_row_has_trap_on(slb_x, slb_y) );
-                    break;
-                }
-                case 1:
-                {
-                    Check = (!slab_middle_column_has_trap_on(slb_x, slb_y) );
-                    break;
-                }
-            }
-        }
-        if ( ( (slabmap_owner(slb) == plyr_idx) && (slb->kind == SlbT_CLAIMED) )
-            && (Orientation != -1)
-            && ( ( (gameadd.place_traps_on_subtiles) ? (Check) : (!slab_has_trap_on(slb_x, slb_y) ) ) && (!slab_has_door_thing_on(slb_x, slb_y) ) )
-            )
-        {
-            allowed = true;
-        }
-    }
-    if ( is_my_player_number(plyr_idx) && !game_is_busy_doing_gui() && game.small_map_state != 2 )
-    {
-        map_volume_box.visible = 1;
-        map_volume_box.beg_x = subtile_coord(slab_subtile(slb_x, 0), 0);
-        map_volume_box.beg_y = subtile_coord(slab_subtile(slb_y, 0), 0);
-        map_volume_box.end_x = subtile_coord(slab_subtile(slb_x, 3), 0);
-        map_volume_box.end_y = subtile_coord(slab_subtile(slb_y, 3), 0);
-        map_volume_box.floor_height_z = floor_height_z;
-        map_volume_box.color = allowed;
-        render_roomspace.is_roomspace_a_box = true;
-        render_roomspace.render_roomspace_as_box = true;
-        render_roomspace.is_roomspace_a_single_subtile = false;
-    }
-    return allowed;
-}
-
-TbBool tag_cursor_blocks_place_room(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long full_slab)
-{
-    SYNCDBG(7,"Starting");
-    //return _DK_tag_cursor_blocks_place_room(plyr_idx, stl_x, stl_y, full_slab);
-    MapSlabCoord slb_x;
-    MapSlabCoord slb_y;
-    slb_x = subtile_slab_fast(stl_x);
-    slb_y = subtile_slab_fast(stl_y);
-    struct PlayerInfo *player;
-    player = get_player(plyr_idx);
-    int floor_height_z = floor_height_for_volume_box(plyr_idx, slb_x, slb_y);
-    TbBool allowed = false;
-    if(can_build_roomspace(plyr_idx, player->chosen_room_kind, render_roomspace) > 0)
-    {
-        allowed = true;
-    }
-    else
-    {
-        SYNCDBG(7,"Cannot build %s on %s slabs centered at (%d,%d)", room_code_name(player->chosen_room_kind),
-                slab_code_name(get_slabmap_block(slb_x, slb_y)->kind), (int)slb_x, (int)slb_y);
-    }
-    
-    if (is_my_player_number(plyr_idx) && !game_is_busy_doing_gui() && (game.small_map_state != 2))
-    {
-        map_volume_box.visible = 1;
-        map_volume_box.color = allowed;
-        map_volume_box.beg_x = (!full_slab ? (subtile_coord(stl_x, 0)) : subtile_coord(((render_roomspace.centreX - calc_distance_from_roomspace_centre(render_roomspace.width,0)) * STL_PER_SLB), 0));
-        map_volume_box.beg_y = (!full_slab ? (subtile_coord(stl_y, 0)) : subtile_coord(((render_roomspace.centreY - calc_distance_from_roomspace_centre(render_roomspace.height,0)) * STL_PER_SLB), 0));
-        map_volume_box.end_x = (!full_slab ? (subtile_coord(stl_x + 1, 0)) : subtile_coord((((render_roomspace.centreX + calc_distance_from_roomspace_centre(render_roomspace.width,(render_roomspace.width % 2 == 0))) + 1) * STL_PER_SLB), 0));
-        map_volume_box.end_y = (!full_slab ? (subtile_coord(stl_y + 1, 0)) : subtile_coord((((render_roomspace.centreY + calc_distance_from_roomspace_centre(render_roomspace.height,(render_roomspace.height % 2 == 0))) + 1) * STL_PER_SLB), 0));
-        map_volume_box.floor_height_z = floor_height_z;
-        render_roomspace.is_roomspace_a_single_subtile = !full_slab;
-    }
-    return allowed;
 }
 
 void initialise_map_collides(void)
