@@ -720,8 +720,13 @@ struct Thing *create_trap(struct Coord3d *pos, ThingModel trpkind, PlayerNumber 
 {
     SYNCDBG(7,"Starting for %s owner %d",trap_code_name(trpkind),(int)plyr_idx);
     struct TrapStats* trapstat = &gameadd.trap_stats[trpkind];
-    if (!i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots)) {
+    if (!i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots))
+    {
         ERRORDBG(3,"Cannot create trap %s for player %d. There are too many things allocated.",trap_code_name(trpkind),(int)plyr_idx);
+        if (game.free_things_start_index > THINGS_COUNT - 2)
+        {
+            show_onscreen_msg(2 * game.num_fps, "Warning: Cannot create thing, %d/%d thing slots used.", game.free_things_start_index + 1, THINGS_COUNT);
+        }
         erstat_inc(ESE_NoFreeThings);
         return INVALID_THING;
     }
