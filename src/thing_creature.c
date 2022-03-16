@@ -277,9 +277,13 @@ TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *t
       cam->mappos.z.val += (crstat->eye_height + (crstat->eye_height * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100);
       return true;
     }
-    cctrl->moveto_pos.x.val = 0;
-    cctrl->moveto_pos.y.val = 0;
-    cctrl->moveto_pos.z.val = 0;
+    TbBool chicken = (creature_affected_by_spell(thing, SplK_Chicken));
+    if (!chicken)
+    {
+        cctrl->moveto_pos.x.val = 0;
+        cctrl->moveto_pos.y.val = 0;
+        cctrl->moveto_pos.z.val = 0;
+    }
     if (is_my_player(player))
     {
       toggle_status_menu(0);
@@ -291,7 +295,14 @@ TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *t
       player->view_mode_restore = cam->view_mode;
     thing->alloc_flags |= TAlF_IsControlled;
     thing->field_4F |= TF4F_Unknown01;
-    set_start_state(thing);
+    if (!chicken)
+    {
+        set_start_state(thing);
+    }
+    else
+    {
+        internal_set_thing_state(thing, CrSt_CreaturePretendChickenSetupMove);
+    }
     set_player_mode(player, PVT_CreatureContrl);
     if (thing_is_creature(thing))
     {
@@ -306,13 +317,10 @@ TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *t
     {
         create_light_for_possession(thing);
     }
-    if (is_my_player_number(thing->owner))
+    if (thing->class_id == TCls_Creature)
     {
-      if (thing->class_id == TCls_Creature)
-      {
         crstat = creature_stats_get_from_thing(thing);
         setup_eye_lens(crstat->eye_effect);
-      }
     }
     return true;
 }
@@ -908,8 +916,8 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
                 {
                     cctrl->spell_tngidx_armour[k] = ntng->index;
                     ntng->health = pwrdynst->strength[spell_lev] + 1;
-                    ntng->belongs_to = thing->index;
-                    ntng->byte_15 = k;
+                    ntng->armor.belongs_to = thing->index;
+                    ntng->armor.shspeed = k;
                     ntng->move_angle_xy = thing->move_angle_xy;
                     ntng->move_angle_z = thing->move_angle_z;
                     angles_to_vector(ntng->move_angle_xy, ntng->move_angle_z, 32, &cvect);
@@ -1024,8 +1032,8 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
               {
                 cctrl->spell_tngidx_disease[k] = ntng->index;
                 ntng->health = pwrdynst->strength[spell_lev] + 1;
-                ntng->belongs_to = thing->index;
-                ntng->byte_15 = k;
+                ntng->disease.belongs_to = thing->index;
+                ntng->disease.effect_slot = k;
                 ntng->move_angle_xy = thing->move_angle_xy;
                 ntng->move_angle_z = thing->move_angle_z;
                 angles_to_vector(ntng->move_angle_xy, ntng->move_angle_z, 32, &cvect);
@@ -1641,7 +1649,7 @@ void creature_cast_spell(struct Thing *castng, long spl_idx, long shot_lvl, long
         if (!thing_is_invalid(efthing))
         {
           if (spinfo->cast_effect_model == 14)
-            efthing->hit_type = THit_CrtrsNObjctsNotOwn;
+            efthing->shot_effect.hit_type = THit_CrtrsNObjctsNotOwn;
         }
     }
 }
@@ -1815,11 +1823,20 @@ TngUpdateRet process_creature_state(struct Thing *thing)
                 struct Thing* doortng = get_door_for_position(x, y);
                 if (!thing_is_invalid(doortng))
                 {
-                    if (thing->owner != doortng->owner) {
-                        set_creature_door_combat(thing, doortng);
+                    if (thing->owner != doortng->owner)
+                    {
+                        if (set_creature_door_combat(thing, doortng))
+                        {
+                            // If the door gets attacked, we're not running into it
+                            cctrl->collided_door_subtile = 0;
+                        }
                     }
                 }
-                cctrl->collided_door_subtile = 0;
+                else
+                {
+                    // If the door does not exist, clear this field too.
+                    cctrl->collided_door_subtile = 0;
+                }
             }
         }
     }
@@ -2838,12 +2855,17 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
         angle_yz = get_angle_yz_to(&pos1, &pos2);
     }
     // Compute shot damage
-    if ((shotst->model_flags & ShMF_StrengthBased) != 0)
+    damage = shotst->damage;
+    if (shotst->fixed_damage == 0)
     {
-        damage = calculate_melee_damage(firing);
-    } else
-    {
-        damage = calculate_shot_damage(firing,shot_model);
+        if ((shotst->model_flags & ShMF_StrengthBased) != 0)
+        {
+            damage = calculate_melee_damage(firing);
+        }
+        else
+        {
+            damage = calculate_shot_damage(firing, shot_model);
+        }
     }
     struct Thing* shotng = NULL;
     long target_idx = 0;
@@ -2865,11 +2887,11 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
         if (thing_is_invalid(shotng))
           return;
         if (shot_model == ShM_Drain)
-          draw_lightning(&pos1, &pos2, 96, 93);
+          draw_lightning(&pos1, &pos2, 96, TngEffElm_RedDot);
         else
-          draw_lightning(&pos1, &pos2, 96, 60);
+          draw_lightning(&pos1, &pos2, 96, TngEffElm_ElectricBall3);
         shotng->health = shotst->health;
-        shotng->shot.damage = shotst->damage;
+        shotng->shot.damage = damage;
         shotng->parent_idx = firing->index;
         break;
     case ShM_FlameBreathe:
@@ -2880,7 +2902,7 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
           return;
         draw_flame_breath(&pos1, &pos2, 96, 2);
         shotng->health = shotst->health;
-        shotng->shot.damage = shotst->damage;
+        shotng->shot.damage = damage;
         shotng->parent_idx = firing->index;
         break;
     case ShM_Hail_storm:
@@ -2934,9 +2956,9 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
                     long x = move_coord_with_angle_x(target->mappos.x.val, rnd, angle_xy);
                     long y = move_coord_with_angle_y(target->mappos.y.val, rnd, angle_xy);
                     int posint = y / gameadd.crtr_conf.sprite_size;
-                    shotng->price.number = x;
-                    shotng->shot.byte_19 = posint;
-                    shotng->shot.dexterity = range / 10;
+                    shotng->shot_lizard.x = x;
+                    shotng->shot_lizard.posint = posint;
+                    shotng->shot_lizard2.range = range / 10;
                 }
             }
         break;
@@ -2944,7 +2966,7 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
     if (!thing_is_invalid(shotng))
     {
 #if (BFDEBUG_LEVEL > 0)
-      damage = shotng->damagepoints;
+      damage = shotng->shot.damage;
       // Special debug code that shows amount of damage the shot will make
       if ((start_params.debug_flags & DFlg_ShotsDamage) != 0)
           create_price_effect(&pos1, my_player_number, damage);
@@ -3733,7 +3755,7 @@ TbBool create_random_hero_creature(MapCoord x, MapCoord y, PlayerNumber owner, C
  * @param owner
  * @return
  */
-TbBool create_owned_special_digger(MapCoord x, MapCoord y, PlayerNumber owner)
+struct Thing *create_owned_special_digger(MapCoord x, MapCoord y, PlayerNumber owner)
 {
     ThingModel crmodel = get_players_special_digger_model(owner);
     struct Coord3d pos;
@@ -3744,21 +3766,21 @@ TbBool create_owned_special_digger(MapCoord x, MapCoord y, PlayerNumber owner)
     if (thing_is_invalid(thing))
     {
         ERRORLOG("Cannot create creature %s at (%ld,%ld)",creature_code_name(crmodel),x,y);
-        return false;
+        return INVALID_THING;
     }
     pos.z.val = get_thing_height_at(thing, &pos);
     if (thing_in_wall_at(thing, &pos))
     {
         delete_thing_structure(thing, 0);
         ERRORLOG("Creature %s at (%ld,%ld) deleted because is in wall",creature_code_name(crmodel),x,y);
-        return false;
+        return INVALID_THING;
     }
     thing->mappos.x.val = pos.x.val;
     thing->mappos.y.val = pos.y.val;
     thing->mappos.z.val = pos.z.val;
     remove_first_creature(thing);
     set_first_creature(thing);
-    return true;
+    return thing;
 }
 
 /**
@@ -4818,6 +4840,22 @@ void check_for_creature_escape_from_lava(struct Thing *thing)
     }
 }
 
+TbBool thing_is_on_snow_texture(struct Thing* thing)
+{
+    #define SNOW_TEXTURE 2
+    unsigned char ext_txtr = gameadd.slab_ext_data[get_slab_number(subtile_slab_fast(thing->mappos.x.stl.num), subtile_slab_fast(thing->mappos.y.stl.num))];
+
+    if ((ext_txtr == 0) && (game.texture_id == SNOW_TEXTURE)) //Snow map and on default texture
+    {
+        return true;
+    }
+    if (ext_txtr == SNOW_TEXTURE+1) //On non-default texture that is snow
+    {
+        return true;
+    }
+    return false;
+}
+
 void process_creature_leave_footsteps(struct Thing *thing)
 {
     struct Thing *footng;
@@ -4842,15 +4880,18 @@ void process_creature_leave_footsteps(struct Thing *thing)
             cctrl->bloody_footsteps_turns--;
         }
     } else
-    // Snow footprints
-    if (game.texture_id == 2)
     {
-        struct SlabMap* slb = get_slabmap_for_subtile(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
-        if (slb->kind == SlbT_PATH)
+        // Snow footprints
+        TbBool SnowTexture = thing_is_on_snow_texture(thing);
+        if (SnowTexture)
         {
-          thing->movement_flags |= TMvF_Unknown80;
-          nfoot = get_foot_creature_has_down(thing);
-          footng = create_footprint_sine(&thing->mappos, thing->move_angle_xy, nfoot, TngEffElm_IceMelt3, thing->owner);
+            struct SlabMap* slb = get_slabmap_for_subtile(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
+            if (slb->kind == SlbT_PATH)
+            {
+              thing->movement_flags |= TMvF_IsOnSnow;
+              nfoot = get_foot_creature_has_down(thing);
+              footng = create_footprint_sine(&thing->mappos, thing->move_angle_xy, nfoot, TngEffElm_IceMelt3, thing->owner);
+            }
         }
     }
 }
@@ -4886,7 +4927,7 @@ void process_landscape_affecting_creature(struct Thing *thing)
     SYNCDBG(18,"Starting");
     thing->movement_flags &= ~TMvF_IsOnWater;
     thing->movement_flags &= ~TMvF_IsOnLava;
-    thing->movement_flags &= ~TMvF_Unknown80;
+    thing->movement_flags &= ~TMvF_IsOnSnow;
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     if (creature_control_invalid(cctrl))
     {
@@ -5251,16 +5292,21 @@ int claim_neutral_creatures_in_sight(struct Thing *creatng, struct Coord3d *pos,
         {
             if (is_neutral_thing(thing) && line_of_sight_3d(&thing->mappos, pos))
             {
-				if (!creature_is_kept_in_custody(creatng))
-				{
-				    change_creature_owner(thing, creatng->owner);
+                // Unless the relevant classic bug is enabled,
+                // neutral creatures in custody (prison/torture) can only be claimed by the player who holds it captive
+                // and neutral creatures can not be claimed by creatures in custody.
+                if ((gameadd.classic_bugs_flags & ClscBug_PassiveNeutrals)
+                    || (get_room_creature_works_in(thing)->owner == creatng->owner && !creature_is_kept_in_custody(creatng))
+                    || !(creature_is_kept_in_custody(thing) || creature_is_kept_in_custody(creatng)))
+                {
+                    change_creature_owner(thing, creatng->owner);
                     mark_creature_joined_dungeon(thing);
                     if (is_my_player_number(thing->owner))
                     {
-                        output_message(SMsg_CreaturesJoinedYou, MESSAGE_DELAY_CRTR_JOINED , true);
+                        output_message(SMsg_CreaturesJoinedYou, MESSAGE_DELAY_CRTR_JOINED, true);
                     }
                     n++;
-				}
+                }
             }
         }
         // Per thing code ends
@@ -5369,6 +5415,132 @@ void illuminate_creature(struct Thing *creatng)
     lgt->radius <<= 1;    
 }
 
+struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, ThingModel crmodel, TbMapLocation location)
+{
+    long effect;
+    long i = get_map_location_longval(location);
+    struct Coord3d pos;
+    TbBool fall_from_gate = false;
+
+    const unsigned char tngclass = TCls_Creature;
+
+    switch (get_map_location_type(location))
+    {
+    case MLoc_ACTIONPOINT:
+        if (!get_coords_at_action_point(&pos, i, 1))
+        {
+            return INVALID_THING;
+        }
+        effect = 1;
+        break;
+    case MLoc_HEROGATE:
+        if (!get_coords_at_hero_door(&pos, i, 1))
+        {
+            return INVALID_THING;
+        }
+        effect = 0;
+        fall_from_gate = true;
+        break;
+    case MLoc_PLAYERSHEART:
+        if (!get_coords_at_dungeon_heart(&pos, i))
+        {
+            return INVALID_THING;
+        }
+        effect = 0;
+        break;
+    case MLoc_METALOCATION:
+        if (!get_coords_at_meta_action(&pos, plyr_idx, i))
+        {
+            return INVALID_THING;
+        }
+        effect = 0;
+        break;
+    case MLoc_CREATUREKIND:
+    case MLoc_OBJECTKIND:
+    case MLoc_ROOMKIND:
+    case MLoc_THING:
+    case MLoc_PLAYERSDUNGEON:
+    case MLoc_APPROPRTDUNGEON:
+    case MLoc_DOORKIND:
+    case MLoc_TRAPKIND:
+    case MLoc_NONE:
+    default:
+        effect = 0;
+        return INVALID_THING;
+    }
+    
+    struct Thing* thing = create_thing_at_position_then_move_to_valid_and_add_light(&pos, tngclass, crmodel, plyr_idx);
+    if (thing_is_invalid(thing))
+    {
+        ERRORLOG("Couldn't create %s at location %d",thing_class_and_model_name(tngclass, crmodel),(int)location);
+            // Error is already logged
+        return INVALID_THING;
+    }
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    if (fall_from_gate)
+    {
+        cctrl->field_AE |= 0x02;
+        cctrl->spell_flags |= CSAfF_MagicFall;
+        thing->veloc_push_add.x.val += PLAYER_RANDOM(plyr_idx, 193) - 96;
+        thing->veloc_push_add.y.val += PLAYER_RANDOM(plyr_idx, 193) - 96;
+        if ((thing->movement_flags & TMvF_Flying) != 0) {
+            thing->veloc_push_add.z.val -= PLAYER_RANDOM(plyr_idx, 32);
+        } else {
+            thing->veloc_push_add.z.val += PLAYER_RANDOM(plyr_idx, 96) + 80;
+        }
+        thing->state_flags |= TF1_PushAdd;
+    }
+
+    if (thing->owner != PLAYER_NEUTRAL)
+    {   // Was set only when spawned from action point
+
+        struct Thing* heartng = get_player_soul_container(thing->owner);
+        if (thing_exists(heartng) && creature_can_navigate_to(thing, &heartng->mappos, NavRtF_NoOwner))
+        {
+            cctrl->field_AE |= 0x01;
+        }
+    }
+
+    if ((get_creature_model_flags(thing) & CMF_IsLordOTLand) != 0)
+    {
+        output_message(SMsg_LordOfLandComming, MESSAGE_DELAY_LORD, 1);
+        output_message(SMsg_EnemyLordQuote + UNSYNC_RANDOM(8), MESSAGE_DELAY_LORD, 1);
+    }
+    switch (effect)
+    {
+    case 1:
+        if (plyr_idx == game.hero_player_num)
+        {
+            thing->mappos.z.val = get_ceiling_height(&thing->mappos);
+            create_effect(&thing->mappos, TngEff_CeilingBreach, thing->owner);
+            initialise_thing_state(thing, CrSt_CreatureHeroEntering);
+            thing->field_4F |= TF4F_Unknown01;
+            cctrl->countdown_282 = 24;
+        }
+    default:
+        break;
+    }
+    return thing;
+}
+
+struct Thing *script_create_new_creature(PlayerNumber plyr_idx, ThingModel crmodel, TbMapLocation location, long carried_gold, long crtr_level)
+{
+    struct Thing* creatng = script_create_creature_at_location(plyr_idx, crmodel, location);
+    if (thing_is_invalid(creatng))
+        return INVALID_THING;
+    creatng->creature.gold_carried = carried_gold;
+    init_creature_level(creatng, crtr_level);
+    return creatng;
+}
+
+void script_process_new_creatures(PlayerNumber plyr_idx, long crmodel, long location, long copies_num, long carried_gold, long crtr_level)
+{
+    for (long i = 0; i < copies_num; i++)
+    {
+        script_create_new_creature(plyr_idx, crmodel, location, carried_gold, crtr_level);
+    }
+}
+
 void controlled_creature_pick_thing_up(struct Thing *creatng, struct Thing *picktng)
 {
     if (picktng->class_id == TCls_Creature)
@@ -5394,57 +5566,98 @@ void controlled_creature_pick_thing_up(struct Thing *creatng, struct Thing *pick
     cctrl->pickup_object_id = picktng->index;
     struct CreatureSound* crsound = get_creature_sound(creatng, CrSnd_Hurt);
     unsigned short smpl_idx = crsound->index + 1;
-    thing_play_sample(creatng, smpl_idx, 90, 0, 3, 0, 2, FULL_LOUDNESS);
+    thing_play_sample(creatng, smpl_idx, 90, 0, 3, 0, 2, FULL_LOUDNESS * 5/4);
     display_controlled_pick_up_thing_name(picktng, (GUI_MESSAGES_DELAY >> 4));
 }
 
 void controlled_creature_drop_thing(struct Thing *creatng, struct Thing *droptng)
 {
-    creature_drop_dragged_object(creatng, droptng);
+    long volume = FULL_LOUDNESS;
+    if (droptng->class_id == TCls_Creature)
+    {
+        stop_creature_being_dragged_by(droptng, creatng);
+    }
+    else
+    {
+        creature_drop_dragged_object(creatng, droptng);
+    }
     clear_messages_from_player(-81);
     clear_messages_from_player(-86);
     unsigned short smpl_idx, pitch;
-    switch(droptng->class_id)
+    if (subtile_has_water_on_top(droptng->mappos.x.stl.num, droptng->mappos.y.stl.num))
     {
-        case TCls_Object:
+        smpl_idx = 21 + SOUND_RANDOM(4);
+        pitch = 75;
+    }
+    else
+    {
+        switch(droptng->class_id)
         {
-            smpl_idx = 992;
-            struct ObjectConfigStats* objst = get_object_model_stats(droptng->model);
-            switch (objst->genre)
+            case TCls_Object:
             {
-                case OCtg_WrkshpBox:
-                case OCtg_SpecialBox:
+                smpl_idx = 992;
+                struct ObjectConfigStats* objst = get_object_model_stats(droptng->model);
+                switch (objst->genre)
                 {
-                    pitch = 25;
-                    break;
+                    case OCtg_WrkshpBox:
+                    case OCtg_SpecialBox:
+                    {
+                        pitch = 25;
+                        break;
+                    }
+                    case OCtg_Spellbook:
+                    {
+                        pitch = 90;
+                        break;
+                    }
+                    default:
+                    {
+                        pitch = 0;
+                        break;
+                    }
                 }
-                case OCtg_Spellbook:
-                {
-                    pitch = 90;
-                    break;
-                }
-                default:
-                {
-                    pitch = 0;
-                    break;
-                }
+                break;
             }
-            break;
-        }
-        case TCls_DeadCreature:
-        {
-            smpl_idx = 58;
-            pitch = 50;
-            break;
-        }
-        default:
-        {
-            smpl_idx = 0;
-            pitch = 0;
-            break;
+            case TCls_Creature:
+            {
+                switch (compute_creature_weight(droptng))
+                {
+                    case 0 ... 99:
+                    {
+                        pitch = 240;
+                        volume = FULL_LOUDNESS / 2;
+                        break;
+                    }
+                    case 100 ... 199:
+                    {
+                        pitch = 120;
+                        volume = FULL_LOUDNESS * 3 / 4;
+                        break;
+                    }
+                    default:
+                    {
+                        pitch = 75;
+                        break;
+                    }
+                }
+                smpl_idx = 17 + SOUND_RANDOM(4);
+                break;
+            }
+            case TCls_DeadCreature:
+            {
+                smpl_idx = 58;
+                pitch = 50;
+                break;
+            }
+            default:
+            {
+                smpl_idx = 0;
+                pitch = 0;
+                break;
+            }
         }
     }
-    thing_play_sample(droptng, smpl_idx, pitch, 0, 3, 0, 2, FULL_LOUDNESS);
+    thing_play_sample(droptng, smpl_idx, pitch, 0, 3, 0, 2, volume);
     struct Room* room = subtile_room_get(creatng->mappos.x.stl.num, creatng->mappos.y.stl.num);
     if (!room_is_invalid(room))
     {
@@ -5694,25 +5907,15 @@ void display_controlled_pick_up_thing_name(struct Thing *picktng, unsigned long 
     }
     else if (thing_is_creature(picktng))
     {
-        if (picktng->owner == game.neutral_player_num)
-        {
-            id = game.neutral_player_num;
-            sprintf(str, "%s", player_desc[6].name);
-        }
-        else if (picktng->owner == game.hero_player_num)
-        {
-            id = picktng->owner;
-            sprintf(str, "%s", player_desc[4].name);
-        }
-        else
-        {
-            id = picktng->owner;
-            sprintf(str, "%s", player_desc[picktng->owner].name);
-        }
+        id = picktng->owner;
+        struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[picktng->model];
+        sprintf(str, "%s", get_string(crconf->namestr_idx));
     }
     else if (picktng->class_id == TCls_DeadCreature)
     {
         id = -89;
+        struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[picktng->model];
+        sprintf(str, "%s", get_string(crconf->namestr_idx));
     }
     else
     {
@@ -5765,17 +5968,36 @@ struct Thing *controlled_get_thing_to_pick_up(struct Thing *creatng)
 
 TbBool thing_is_pickable_by_digger(struct Thing *picktng, struct Thing *creatng)
 {
+    if (check_place_to_pretty_excluding(creatng, subtile_slab_fast(creatng->mappos.x.stl.num), subtile_slab_fast(creatng->mappos.y.stl.num)) 
+        || (check_place_to_convert_excluding(creatng, subtile_slab_fast(creatng->mappos.x.stl.num), subtile_slab_fast(creatng->mappos.y.stl.num)) ) )
+    {
+        return false;
+    }
     struct SlabMap *slb = get_slabmap_thing_is_on(picktng);
     if (object_is_gold_pile(picktng))
     {
-        return ( (slabmap_owner(slb) == creatng->owner) || (slb->kind == SlbT_PATH) || (slab_kind_is_liquid(slb->kind)) );
+        struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+        return ( ( (slabmap_owner(slb) == creatng->owner) || (slb->kind == SlbT_PATH) || (slab_kind_is_liquid(slb->kind)) ) &&
+                  (creatng->creature.gold_carried < crstat->gold_hold) );
     }
-    else if ( (thing_can_be_picked_to_place_in_player_room(picktng, creatng->owner, RoK_LIBRARY, TngFRPickF_Default) ) ||
-                  (thing_can_be_picked_to_place_in_player_room(picktng, creatng->owner, RoK_WORKSHOP, TngFRPickF_Default)) || 
-                  (thing_can_be_picked_to_place_in_player_room(picktng, creatng->owner, RoK_GRAVEYARD, TngFRPickF_Default)) || 
-                  ( (thing_is_creature(picktng)) && (creature_is_being_unconscious(picktng)) && (picktng->owner != creatng->owner) ) )
+    else if (thing_is_creature(picktng))
+    {        
+        if (creature_is_being_unconscious(picktng))
+        {
+            return (picktng->owner != creatng->owner);
+        }
+    }
+    else if (thing_is_dead_creature(picktng))
     {
-        return (slabmap_owner(slb) == creatng->owner);              
+        return ( (get_room_slabs_count(creatng->owner, RoK_GRAVEYARD) > 0) && (corpse_ready_for_collection(picktng)) );
+    }
+    else if (thing_can_be_picked_to_place_in_player_room(picktng, creatng->owner, RoK_LIBRARY, TngFRPickF_Default))
+    {
+        return (get_room_slabs_count(creatng->owner, RoK_LIBRARY) > 0);
+    }
+    else if (thing_can_be_picked_to_place_in_player_room(picktng, creatng->owner, RoK_WORKSHOP, TngFRPickF_Default))
+    {
+        return (get_room_slabs_count(creatng->owner, RoK_WORKSHOP) > 0);
     }
     else if (thing_is_trap_crate(picktng)) // for trap crates in one's own Workshop
     {

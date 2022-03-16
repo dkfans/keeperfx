@@ -199,7 +199,7 @@ char field_14A83C;
     //unsigned char level_file_number; // merged with level_number to get maps > 255
     short loaded_level_number;
     short texture_animation[8*TEXTURE_BLOCKS_ANIM_COUNT];
-unsigned short field_14AB3F;
+    unsigned short columns_used;
     unsigned char texture_id;
     unsigned short free_things[THINGS_COUNT-1];
     /** Index of the first used element in free things array. All elements BEYOND this index are free. If all things are free, it is set to 0. */

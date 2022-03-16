@@ -722,6 +722,12 @@ void do_unprettying(PlayerNumber keep_plyr_idx, MapSlabCoord slb_x, MapSlabCoord
         }
     }
 }
+
+TbBool slab_kind_has_no_ownership(SlabKind slbkind)
+{
+    return ( (slbkind == SlbT_ROCK) || (slbkind == SlbT_GOLD) || (slbkind == SlbT_GEMS) || (slbkind == SlbT_EARTH) || (slbkind == SlbT_TORCHDIRT)
+            || (slbkind == SlbT_PATH) || (slab_kind_is_liquid(slbkind)) );
+}
 /******************************************************************************/
 #ifdef __cplusplus
 }
