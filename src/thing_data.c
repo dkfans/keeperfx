@@ -98,7 +98,9 @@ TbBool i_can_allocate_free_thing_structure(unsigned char allocflags)
     if ((allocflags & FTAF_FreeEffectIfNoSlots) != 0)
     {
         if (game.thing_lists[TngList_EffectElems].index > 0)
+        {
             return true;
+        }
     }
     // Couldn't find free slot - fail
     if ((allocflags & FTAF_LogFailures) != 0)

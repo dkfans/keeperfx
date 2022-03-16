@@ -1214,7 +1214,7 @@ TngUpdateRet process_effect_generator(struct Thing *thing)
 struct Thing *create_effect(const struct Coord3d *pos, ThingModel effmodel, PlayerNumber owner)
 {
     struct InitEffect* ieffect = &effect_info[effmodel];
-    if (!i_can_allocate_free_thing_structure(1)) {
+    if (!i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots)) {
         return INVALID_THING;
     }
     struct Thing* thing = allocate_free_thing_structure(1);
