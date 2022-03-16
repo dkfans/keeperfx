@@ -1179,7 +1179,7 @@ void draw_creature_view_icons(struct Thing* creatng)
         {
             struct SpellInfo* spinfo = get_magic_info(Spell);
             draw_gui_panel_sprite_left(x, y, ps_units_per_px, spinfo->medsym_sprite_idx);
-            x += scale_value_by_horizontal_resolution(LbTextLineHeight());
+            x += scale_value_by_horizontal_resolution(15);
         }
     }
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
