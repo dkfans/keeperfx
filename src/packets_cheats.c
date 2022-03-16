@@ -72,7 +72,7 @@ TbBool packets_process_cheats(
         case PSt_MkDigger:
         allowed = tag_cursor_blocks_place_thing(plyr_idx, stl_x, stl_y);
         clear_messages_from_player(dungeonadd->cheatselection.chosen_player);
-        message_add_timeout(dungeonadd->cheatselection.chosen_player, 1, "%d", dungeonadd->cheatselection.chosen_experience_level + 1);
+        targeted_message_add(dungeonadd->cheatselection.chosen_player, plyr_idx, 1, "%d", dungeonadd->cheatselection.chosen_experience_level + 1);
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {
             if (allowed)
@@ -101,7 +101,7 @@ TbBool packets_process_cheats(
             struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[dungeonadd->cheatselection.chosen_hero_kind];
             sprintf(str, "%s %d", get_string(crconf->namestr_idx), dungeonadd->cheatselection.chosen_experience_level + 1);
         }
-        message_add_timeout(dungeonadd->cheatselection.chosen_player, 1, "%s", str);
+        targeted_message_add(dungeonadd->cheatselection.chosen_player, plyr_idx, 1, "%s", str);
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {
             if (allowed)
@@ -255,7 +255,7 @@ TbBool packets_process_cheats(
             struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[dungeonadd->cheatselection.chosen_creature_kind + 13];
             sprintf(str, "%s %d", get_string(crconf->namestr_idx), dungeonadd->cheatselection.chosen_experience_level + 1);
         }
-        message_add_timeout(dungeonadd->cheatselection.chosen_player, 1, "%s", str);
+        targeted_message_add(dungeonadd->cheatselection.chosen_player, plyr_idx, 1, "%s", str);
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {
             if (allowed)
@@ -337,7 +337,7 @@ TbBool packets_process_cheats(
         {
             sprintf(str, get_string(419));
         }
-        message_add_timeout(dungeonadd->cheatselection.chosen_player, 1, str);
+        targeted_message_add(dungeonadd->cheatselection.chosen_player, plyr_idx, 1, str);
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {    
             if (allowed)
@@ -355,7 +355,7 @@ TbBool packets_process_cheats(
         allowed = (room_exists(room));
         if (allowed)
         {
-            message_add_timeout(-127, 1, get_string(419));
+            targeted_message_add(-127, plyr_idx, 1, get_string(419));
         }
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {          
@@ -387,7 +387,7 @@ TbBool packets_process_cheats(
             break;
         case PSt_ConvertCreatr:
         clear_messages_from_player(dungeonadd->cheatselection.chosen_player);
-        message_add_timeout(dungeonadd->cheatselection.chosen_player, 1, str);
+        targeted_message_add(dungeonadd->cheatselection.chosen_player, plyr_idx, 1, str);
         thing = get_creature_near(x, y);
         if ((!thing_is_creature(thing)) || (thing->owner == dungeonadd->cheatselection.chosen_player))
         {
@@ -406,7 +406,7 @@ TbBool packets_process_cheats(
         case PSt_StealSlab:
         allowed = tag_cursor_blocks_steal_slab(plyr_idx, stl_x, stl_y);
         clear_messages_from_player(dungeonadd->cheatselection.chosen_player);
-        message_add_timeout(dungeonadd->cheatselection.chosen_player, 1, str);
+        targeted_message_add(dungeonadd->cheatselection.chosen_player, plyr_idx, 1, str);
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {
             if (allowed)
@@ -516,7 +516,7 @@ TbBool packets_process_cheats(
           struct PlayerInfo* PlayerToKill = get_player(dungeonadd->cheatselection.chosen_player);
           if (player_exists(PlayerToKill))
           {
-              message_add_timeout(dungeonadd->cheatselection.chosen_player, 1, str);
+              targeted_message_add(dungeonadd->cheatselection.chosen_player, plyr_idx, 1, str);
               if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
               {
                 set_packet_action(pckt, PckA_CheatKillPlayer, PlayerToKill->id_number, 0, 0, 0);
@@ -529,7 +529,7 @@ TbBool packets_process_cheats(
         thing = get_player_soul_container(dungeonadd->cheatselection.chosen_player);
         if (!thing_is_invalid(thing))
         {
-            message_add_timeout(thing->owner, 1, "%d/%d", thing->health, game.dungeon_heart_health);
+            targeted_message_add(thing->owner, plyr_idx, 1, "%d/%d", thing->health, game.dungeon_heart_health);
         }
         else
         {
@@ -663,12 +663,12 @@ TbBool packets_process_cheats(
                 const char* msg = get_string(slbattr->tooltip_stridx);
                 strcpy(str, msg);
                 char* dis_msg = strtok(str, ":");
-                message_add_timeout(dungeonadd->cheatselection.chosen_player, 1, dis_msg);
+                targeted_message_add(dungeonadd->cheatselection.chosen_player, plyr_idx, 1, dis_msg);
             }
             else
             {
                 slab_cfgstats = get_slab_kind_stats(dungeonadd->cheatselection.chosen_terrain_kind);
-                message_add_timeout(dungeonadd->cheatselection.chosen_player, 1, slab_cfgstats->code_name);            
+                targeted_message_add(dungeonadd->cheatselection.chosen_player, plyr_idx, 1, slab_cfgstats->code_name);            
             }
             clear_messages_from_player(-127);
             if (is_key_pressed(KC_RSHIFT, KMod_DONTCARE))
@@ -680,7 +680,7 @@ TbBool packets_process_cheats(
             {
                 slb = get_slabmap_block(slb_x, slb_y);
                 slab_cfgstats = get_slab_kind_stats(slb->kind);
-                message_add_timeout(-127, 1, "%s (%d) %d %d (%d) %d %d (%d)", slab_cfgstats->code_name, slabmap_owner(slb), slb_x, slb_y, get_slab_number(slb_x, slb_y), stl_x, stl_y, get_subtile_number(stl_x, stl_y));
+                targeted_message_add(-127, plyr_idx, 1, "%s (%d) %d %d (%d) %d %d (%d)", slab_cfgstats->code_name, slabmap_owner(slb), slb_x, slb_y, get_slab_number(slb_x, slb_y), stl_x, stl_y, get_subtile_number(stl_x, stl_y));
             }        
             if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
             {          

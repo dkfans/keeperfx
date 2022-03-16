@@ -5921,7 +5921,7 @@ void display_controlled_pick_up_thing_name(struct Thing *picktng, unsigned long 
         return;
     }
     zero_messages();
-    message_add_timeout(id, timeout, str);
+    targeted_message_add(id, my_player_number, timeout, str);
 }
 
 struct Thing *controlled_get_thing_to_pick_up(struct Thing *creatng)
