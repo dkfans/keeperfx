@@ -1189,7 +1189,7 @@ void draw_creature_view_icons(struct Thing* creatng)
     {
         struct Thing* dragtng = thing_get(cctrl->dragtng_idx);
         unsigned long spr_idx;
-        x = MyScreenWidth - (x / 4);
+        x = MyScreenWidth - (scale_value_by_horizontal_resolution(148) / 4);
         switch(dragtng->class_id)
         {
             case TCls_Object:
