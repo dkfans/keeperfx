@@ -5540,7 +5540,7 @@ void script_process_new_creatures(PlayerNumber plyr_idx, long crmodel, long loca
     }
 }
 
-void controlled_creature_pick_thing_up(struct Thing *creatng, struct Thing *picktng)
+void controlled_creature_pick_thing_up(struct Thing *creatng, struct Thing *picktng, PlayerNumber plyr_idx)
 {
     if (picktng->class_id == TCls_Creature)
     {
@@ -5566,7 +5566,7 @@ void controlled_creature_pick_thing_up(struct Thing *creatng, struct Thing *pick
     struct CreatureSound* crsound = get_creature_sound(creatng, CrSnd_Hurt);
     unsigned short smpl_idx = crsound->index + 1;
     thing_play_sample(creatng, smpl_idx, 90, 0, 3, 0, 2, FULL_LOUDNESS * 5/4);
-    display_controlled_pick_up_thing_name(picktng, (GUI_MESSAGES_DELAY >> 4));
+    display_controlled_pick_up_thing_name(picktng, (GUI_MESSAGES_DELAY >> 4), plyr_idx);
 }
 
 void controlled_creature_drop_thing(struct Thing *creatng, struct Thing *droptng)
@@ -5775,7 +5775,7 @@ void direct_control_pick_up_or_drop(struct PlayerInfo *player)
                 }
                 else
                 {
-                    if (is_thing_directly_controlled_by_player(thing, my_player_number))
+                    if (is_thing_directly_controlled_by_player(thing, player->id_number))
                     {
                         play_non_3d_sample(119);
                         return;
@@ -5803,7 +5803,7 @@ void direct_control_pick_up_or_drop(struct PlayerInfo *player)
                     }
                     else
                     {
-                        if (is_thing_directly_controlled_by_player(thing, my_player_number))
+                        if (is_thing_directly_controlled_by_player(thing, player->id_number))
                         {
                             play_non_3d_sample(119);
                             return;
@@ -5811,7 +5811,7 @@ void direct_control_pick_up_or_drop(struct PlayerInfo *player)
                     }
                 }
             }
-            controlled_creature_pick_thing_up(thing, picktng);
+            controlled_creature_pick_thing_up(thing, picktng, player->id_number);
         }
         else
         {
@@ -5833,7 +5833,7 @@ void direct_control_pick_up_or_drop(struct PlayerInfo *player)
     }
 }
 
-void display_controlled_pick_up_thing_name(struct Thing *picktng, unsigned long timeout)
+void display_controlled_pick_up_thing_name(struct Thing *picktng, unsigned long timeout, PlayerNumber plyr_idx)
 {
     char id;
     char str[255] = {'\0'};
@@ -5921,7 +5921,7 @@ void display_controlled_pick_up_thing_name(struct Thing *picktng, unsigned long 
         return;
     }
     zero_messages();
-    targeted_message_add(id, my_player_number, timeout, str);
+    targeted_message_add(id, plyr_idx, timeout, str);
 }
 
 struct Thing *controlled_get_thing_to_pick_up(struct Thing *creatng)
