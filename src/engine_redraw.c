@@ -1204,6 +1204,7 @@ void draw_creature_view_icons(struct Thing* creatng)
             case TCls_DeadCreature:
             case TCls_Creature:
             {
+                y -= scale_value_by_horizontal_resolution(spr->SHeight / 2);
                 spr_idx = get_creature_model_graphics(dragtng->model, CGI_HandSymbol);
                 if (dragtng->class_id == TCls_DeadCreature)
                 {
