@@ -1162,17 +1162,13 @@ void draw_creature_view_icons(struct Thing* creatng)
 {
     struct GuiMenu *gmnu = get_active_menu(menu_id_to_number(GMnu_MAIN));
     ScreenCoord x = gmnu->width + scale_value_by_horizontal_resolution(5);
-    ScreenCoord y = (MyScreenHeight - (scale_value_by_vertical_resolution(LbTextLineHeight() * 2)));
-    TbBool wide_screen = (MyScreenWidth / MyScreenHeight >= 4);
+    ScreenCoord y;
+    struct TbSprite* spr;
     int ps_units_per_px;
     {
-        struct TbSprite* spr = &gui_panel_sprites[488];
+        spr = &gui_panel_sprites[488];
         ps_units_per_px = (22 * units_per_pixel) / spr->SHeight;
-        if (wide_screen)
-        {
-            ps_units_per_px >>= 1;
-            y -= 25;
-        }
+        y = MyScreenHeight - scale_value_by_horizontal_resolution(spr->SHeight * 2);
     }
     for (int Spell = SplK_Freeze; Spell < SplK_TimeBomb; Spell++)
     {
@@ -1180,8 +1176,7 @@ void draw_creature_view_icons(struct Thing* creatng)
         {
             struct SpellInfo* spinfo = get_magic_info(Spell);
             draw_gui_panel_sprite_left(x, y, ps_units_per_px, spinfo->medsym_sprite_idx);
-            unsigned char scale = (wide_screen) ? 7 : 15;
-            x += scale_value_by_horizontal_resolution(scale);
+            x += scale_value_by_horizontal_resolution(spr->SWidth);
         }
     }
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
