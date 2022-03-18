@@ -56,8 +56,6 @@ TbBool keeper_screen_redraw(void);
 void smooth_screen_area(unsigned char *a1, long a2, long a3, long a4, long a5, long a6);
 
 int get_place_terrain_pointer_graphics(SlabKind skind);
-
-void draw_creature_view_icons(struct Thing* creatng);
 /******************************************************************************/
 #ifdef __cplusplus
 }
