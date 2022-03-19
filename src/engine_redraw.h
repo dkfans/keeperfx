@@ -23,7 +23,6 @@
 #include "bflib_basics.h"
 #include "globals.h"
 #include "bflib_video.h"
-#include "thing_data.h"
 
 #ifdef __cplusplus
 extern "C" {
