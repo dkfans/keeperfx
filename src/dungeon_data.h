@@ -328,6 +328,7 @@ struct DungeonAdd
     TbBool first_person_dig_claim_mode; // TODO, move to Player if and when possible
     unsigned char teleport_destination; // TODO, move to Player if and when possible
     BattleIndex battleid; // TODO, move to Player if and when possible
+    unsigned short selected_fp_thing_pickup; // TODO, move to Player if and when possible
 };
 /******************************************************************************/
 extern struct Dungeon bad_dungeon;

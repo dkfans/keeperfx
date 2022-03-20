@@ -1206,7 +1206,8 @@ void process_players_creature_control_packet_action(long plyr_idx)
       break;
       case PckA_DirectCtrlDragDrop:
       {
-         direct_control_pick_up_or_drop(player);
+         thing = thing_get(player->controlled_thing_idx);
+         direct_control_pick_up_or_drop(plyr_idx, thing);
          break;
       }
     case PckA_ToggleFirstPersonReinforce:
@@ -1220,6 +1221,12 @@ void process_players_creature_control_packet_action(long plyr_idx)
         dungeonadd = get_dungeonadd(plyr_idx);
         dungeonadd->teleport_destination = pckt->actn_par1;
         break; 
+    }
+    case PckA_SelectFPPickup:
+    {
+        dungeonadd = get_dungeonadd(plyr_idx);
+        dungeonadd->selected_fp_thing_pickup = pckt->actn_par1;
+        break;
     }
   }
 }

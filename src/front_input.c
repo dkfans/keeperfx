@@ -1479,6 +1479,11 @@ short get_creature_control_action_inputs(void)
                     }
                 }
             }
+            struct DungeonAdd* dungeonadd = get_dungeonadd(player->id_number);
+            if (dungeonadd->selected_fp_thing_pickup != player->thing_under_hand)
+            {
+                set_players_packet_action(player, PckA_SelectFPPickup, player->thing_under_hand, 0, 0, 0);
+            }
         }
         if (!creature_affected_by_spell(thing, SplK_Chicken))
         {

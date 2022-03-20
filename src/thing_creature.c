@@ -5737,46 +5737,46 @@ void controlled_creature_drop_thing(struct Thing *creatng, struct Thing *droptng
     }
 }
 
-void direct_control_pick_up_or_drop(struct PlayerInfo *player)
+void direct_control_pick_up_or_drop(PlayerNumber plyr_idx, struct Thing *creatng)
 {
-    struct Thing *thing = thing_get(player->controlled_thing_idx);
-    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     struct Thing* dragtng = thing_get(cctrl->dragtng_idx);
+    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
     if (!thing_is_invalid(dragtng))
     {
         if (thing_is_trap_crate(dragtng))
         {
-            struct Thing *traptng = thing_get(player->thing_under_hand);
+            struct Thing *traptng = thing_get(dungeonadd->selected_fp_thing_pickup);
             if (!thing_is_invalid(traptng))
             {
                 if (traptng->class_id == TCls_Trap)
                 {   
                     cctrl->arming_thing_id = traptng->index;
-                    internal_set_thing_state(thing, CrSt_CreatureArmsTrap);
+                    internal_set_thing_state(creatng, CrSt_CreatureArmsTrap);
                     return;
                 }
             }
         }
-        controlled_creature_drop_thing(thing, dragtng);
+        controlled_creature_drop_thing(creatng, dragtng);
     }
     else
     {
-        struct Thing* picktng = thing_get(player->thing_under_hand);
+        struct Thing* picktng = thing_get(dungeonadd->selected_fp_thing_pickup);
         struct Room* room;
         if (!thing_is_invalid(picktng))
         {
             if (object_is_gold_pile(picktng))
             {
-                struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-                if (thing->creature.gold_carried < crstat->gold_hold)
+                struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+                if (creatng->creature.gold_carried < crstat->gold_hold)
                 {
                     cctrl->pickup_object_id = picktng->index;
-                    internal_set_thing_state(thing, CrSt_ImpPicksUpGoldPile);
+                    internal_set_thing_state(creatng, CrSt_ImpPicksUpGoldPile);
                     return;
                 }
                 else
                 {
-                    if (is_thing_directly_controlled_by_player(thing, my_player_number))
+                    if (is_thing_directly_controlled_by_player(creatng, plyr_idx))
                     {
                         play_non_3d_sample(119);
                         return;
@@ -5786,11 +5786,11 @@ void direct_control_pick_up_or_drop(struct PlayerInfo *player)
             room = get_room_thing_is_on(picktng);
             if (!room_is_invalid(room))
             {
-                if ( (room_role_matches(room->kind, RoRoF_CratesStorage)) && (room->owner == thing->owner) )
+                if ( (room_role_matches(room->kind, RoRoF_CratesStorage)) && (room->owner == creatng->owner) )
                 {
                     if (thing_is_workshop_crate(picktng))
                     {
-                        if (picktng->owner == thing->owner)
+                        if (picktng->owner == creatng->owner)
                         {
                             if (!remove_item_from_room_capacity(room))
                             {
@@ -5804,7 +5804,7 @@ void direct_control_pick_up_or_drop(struct PlayerInfo *player)
                     }
                     else
                     {
-                        if (is_thing_directly_controlled_by_player(thing, my_player_number))
+                        if (is_thing_directly_controlled_by_player(creatng, plyr_idx))
                         {
                             play_non_3d_sample(119);
                             return;
@@ -5812,20 +5812,20 @@ void direct_control_pick_up_or_drop(struct PlayerInfo *player)
                     }
                 }
             }
-            controlled_creature_pick_thing_up(thing, picktng);
+            controlled_creature_pick_thing_up(creatng, picktng, plyr_idx);
         }
         else
         {
-            room = get_room_thing_is_on(thing);
+            room = get_room_thing_is_on(creatng);
             if (!room_is_invalid(room))
             {
                 if (room_role_matches(room->kind, RoRoF_GoldStorage))
                 {                                
-                    if (room->owner == thing->owner)
+                    if (room->owner == creatng->owner)
                     {
-                        if (thing->creature.gold_carried > 0)
+                        if (creatng->creature.gold_carried > 0)
                         {
-                            internal_set_thing_state(thing, CrSt_ImpDropsGold);
+                            internal_set_thing_state(creatng, CrSt_ImpDropsGold);
                         }
                     }
                 }
