@@ -694,9 +694,9 @@ TbBool is_creature_match(const struct Thing* thing, long crmodel)
     else if (crmodel == CREATURE_NONE)
         return false;
     if (crmodel == CREATURE_DIGGER)
-        return thing_is_creature_special_digger(thing);
+        return creature_kind_is_for_dungeon_diggers_list(thing->owner, crmodel);
     else if (crmodel == CREATURE_NOT_A_DIGGER)
-        return !thing_is_creature_special_digger(thing);
+        return !creature_kind_is_for_dungeon_diggers_list(thing->owner, crmodel);
     else
         ERRORLOG("Invalid model wildcard detected: %d", crmodel);
     return false;
