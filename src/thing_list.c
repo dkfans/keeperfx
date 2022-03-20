@@ -681,7 +681,7 @@ long anywhere_thing_filter_is_creature_of_model_training_and_owned_by(const stru
 }
 
 //todo cleanup
-TbBool is_creature_match(struct Thing* thing, int crmodel)
+TbBool is_creature_match(const struct Thing* thing, int crmodel)
 {
     if (!is_creature_model_wildcard(crmodel))
         return crmodel = thing->model;
@@ -690,12 +690,13 @@ TbBool is_creature_match(struct Thing* thing, int crmodel)
     else if (crmodel == CREATURE_NONE)
         return false;
         //digger = ... thing->dungeon ...  <- ??
-        if (crmodel == CREATURE_DIGGER)
-            return thing->model == thing_is_creature_special_digger(thing);
-        else if (crmodel == CREATURE_NOT_A_DIGGER)
-            return thing->model != thing_is_creature_special_digger(thing);
-        else
-            ERRORLOG("Wtf invalid wildcard: %d", crmodel);
+    if (crmodel == CREATURE_DIGGER)
+        return thing_is_creature_special_digger(thing);
+    else if (crmodel == CREATURE_NOT_A_DIGGER)
+        return !thing_is_creature_special_digger(thing);
+    else
+        ERRORLOG("Wtf invalid wildcard: %d", crmodel);
+    return false;
 }
 
 /**
