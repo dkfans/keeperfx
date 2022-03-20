@@ -99,6 +99,7 @@ static void draw_creature_view_icons(struct Thing* creatng)
             x += scale_value_by_horizontal_resolution(spr->SWidth);
         }
     }
+    struct DungeonAdd* dungeonadd = get_dungeonadd(my_player_number);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     if ( (cctrl->dragtng_idx != 0) && ((creatng->alloc_flags & TAlF_IsDragged) == 0) )
     {
@@ -140,7 +141,7 @@ static void draw_creature_view_icons(struct Thing* creatng)
         }
         draw_gui_panel_sprite_left(x, y, ps_units_per_px, spr_idx);
     }
-    else if (first_person_dig_claim_mode)
+    else if (dungeonadd->first_person_dig_claim_mode)
     {
         if (cctrl->active_instance_id == CrInst_FIRST_PERSON_DIG)
         {
