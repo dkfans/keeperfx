@@ -421,8 +421,17 @@ void reset_player_mode(struct PlayerInfo *player, unsigned short nview)
 struct PlayerInfoAdd *get_playeradd_f(long plyr_idx,const char *func_name)
 {
     if ((plyr_idx >= 0) && (plyr_idx < PLAYERS_COUNT))
+    {
         return &gameadd.players[plyr_idx];
-    ERRORMSG("%s: Tried to get non-existing player %d!",func_name,(int)plyr_idx);
+    }
+    if (plyr_idx == game.neutral_player_num) // Suppress error for never existing but valid neutral 'player'
+    {
+        SYNCDBG(3, "%s: Tried to get neutral player!",func_name);
+    }
+    else
+    {
+        ERRORMSG("%s: Tried to get non-existing player %d!",func_name,(int)plyr_idx);
+    }
     return INVALID_PLAYER_ADD;
 }
 /******************************************************************************/
