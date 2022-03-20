@@ -681,7 +681,7 @@ long anywhere_thing_filter_is_creature_of_model_training_and_owned_by(const stru
 }
 
 //todo cleanup
-TbBool is_creature_match(const struct Thing* thing, int crmodel)
+TbBool is_creature_match(const struct Thing* thing, ThingModel crmodel)
 {
     if (!is_creature_model_wildcard(crmodel))
         return crmodel = thing->model;
