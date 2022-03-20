@@ -54,9 +54,11 @@
 #include "config_strings.h"
 #include "config_terrain.h"
 #include "config_players.h"
+#include "config_magic.h"
 #include "magic.h"
 #include "game_merge.h"
 #include "game_legacy.h"
+#include "creature_instances.h"
 #include "packets.h"
 
 #include "keeperfx.hpp"
@@ -76,6 +78,78 @@ void redraw_frontview(void);
 long xtab[640][2];
 long ytab[480][2];
 /******************************************************************************/
+static void draw_creature_view_icons(struct Thing* creatng)
+{
+    struct GuiMenu *gmnu = get_active_menu(menu_id_to_number(GMnu_MAIN));
+    ScreenCoord x = gmnu->width + scale_value_by_horizontal_resolution(5);
+    ScreenCoord y;
+    struct TbSprite* spr;
+    int ps_units_per_px;
+    {
+        spr = &gui_panel_sprites[488];
+        ps_units_per_px = (22 * units_per_pixel) / spr->SHeight;
+        y = MyScreenHeight - scale_value_by_horizontal_resolution(spr->SHeight * 2);
+    }
+    for (int Spell = SplK_Freeze; Spell < SplK_TimeBomb; Spell++)
+    {
+        if (creature_affected_by_spell(creatng, Spell))
+        {
+            struct SpellInfo* spinfo = get_magic_info(Spell);
+            draw_gui_panel_sprite_left(x, y, ps_units_per_px, spinfo->medsym_sprite_idx);
+            x += scale_value_by_horizontal_resolution(spr->SWidth);
+        }
+    }
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    if ( (cctrl->dragtng_idx != 0) && ((creatng->alloc_flags & TAlF_IsDragged) == 0) )
+    {
+        struct Thing* dragtng = thing_get(cctrl->dragtng_idx);
+        unsigned long spr_idx;
+        x = MyScreenWidth - (scale_value_by_horizontal_resolution(148) / 4);
+        switch(dragtng->class_id)
+        {
+            case TCls_Object:
+            {
+                struct RoomConfigStats *roomst;
+                if (thing_is_workshop_crate(dragtng))
+                {
+                    roomst = get_room_kind_stats(RoK_WORKSHOP);
+                }
+                else
+                {
+                    roomst = get_room_kind_stats(RoK_LIBRARY);
+                }
+                spr_idx = roomst->medsym_sprite_idx;
+                break;
+            }
+            case TCls_DeadCreature:
+            case TCls_Creature:
+            {
+                y -= scale_value_by_horizontal_resolution(spr->SHeight / 2);
+                spr_idx = get_creature_model_graphics(dragtng->model, CGI_HandSymbol);
+                if (dragtng->class_id == TCls_DeadCreature)
+                {
+                    spr_idx++;
+                }
+                break;
+            }
+            default:
+            {
+                spr_idx = 0;
+                break;
+            }
+        }
+        draw_gui_panel_sprite_left(x, y, ps_units_per_px, spr_idx);
+    }
+    else if (first_person_dig_claim_mode)
+    {
+        if (cctrl->active_instance_id == CrInst_FIRST_PERSON_DIG)
+        {
+            x = MyScreenWidth - (scale_value_by_horizontal_resolution(148) / 4);
+            draw_gui_panel_sprite_left(x, y, ps_units_per_px, instance_button_init[CrInst_FIRST_PERSON_DIG].symbol_spridx);
+        }
+    }
+}
+
 void setup_engine_window(long x, long y, long width, long height)
 {
     SYNCDBG(6,"Starting for size (%ld,%ld) at (%ld,%ld)",width,height,x,y);
@@ -519,6 +593,7 @@ void redraw_creature_view(void)
     message_draw();
     gui_draw_all_boxes();
     draw_tooltip();
+    draw_creature_view_icons(thing);
 }
 
 void smooth_screen_area(unsigned char *scrbuf, long x, long y, long w, long h, long scanln)
