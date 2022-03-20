@@ -684,18 +684,17 @@ long anywhere_thing_filter_is_creature_of_model_training_and_owned_by(const stru
 TbBool is_creature_match(const struct Thing* thing, ThingModel crmodel)
 {
     if (!is_creature_model_wildcard(crmodel))
-        return crmodel = thing->model;
+        return crmodel == thing->model;
     else if (crmodel == CREATURE_ANY)
         return true;
     else if (crmodel == CREATURE_NONE)
         return false;
-        //digger = ... thing->dungeon ...  <- ??
     if (crmodel == CREATURE_DIGGER)
         return thing_is_creature_special_digger(thing);
     else if (crmodel == CREATURE_NOT_A_DIGGER)
         return !thing_is_creature_special_digger(thing);
     else
-        ERRORLOG("Wtf invalid wildcard: %d", crmodel);
+        ERRORLOG("Invalid model wildcard detected: %d", crmodel);
     return false;
 }
 
@@ -709,7 +708,7 @@ long anywhere_thing_filter_call_bool_filter(const struct Thing *thing, MaxTngFil
 {
     if ((param->class_id == -1) || (thing->class_id == param->class_id))
     {
-        if(is_creature_match(thing, param->model_id))
+        if((is_creature_match(thing, param->model_id) && param->class_id == TCls_Creature) || (param->model_id == -1) || (thing->model == param->model_id))
         {
             if ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
             {
