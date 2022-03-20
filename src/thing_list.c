@@ -680,8 +680,12 @@ long anywhere_thing_filter_is_creature_of_model_training_and_owned_by(const stru
     return -1;
 }
 
-//todo cleanup
-TbBool is_creature_match(const struct Thing* thing, ThingModel crmodel)
+/**
+ * returns if the creature thing matches the model from the filter, considering possible wildcards.
+ * @param thing The thing being checked.
+ * @param crmodel model to compare it to, possible wildcard.
+  */
+TbBool is_creature_match(const struct Thing* thing, long crmodel)
 {
     if (!is_creature_model_wildcard(crmodel))
         return crmodel == thing->model;
@@ -708,7 +712,8 @@ long anywhere_thing_filter_call_bool_filter(const struct Thing *thing, MaxTngFil
 {
     if ((param->class_id == -1) || (thing->class_id == param->class_id))
     {
-        if((is_creature_match(thing, param->model_id) && param->class_id == TCls_Creature) || (param->model_id == -1) || (thing->model == param->model_id))
+        if((is_creature_match(thing, param->model_id) && param->class_id == TCls_Creature) 
+            || (param->model_id == -1) || (thing->model == param->model_id))
         {
             if ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
             {
