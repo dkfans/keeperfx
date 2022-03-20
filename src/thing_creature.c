@@ -1299,7 +1299,7 @@ void process_thing_spell_teleport_effects(struct Thing *thing, struct CastedSpel
     if (cspell->duration == splconf->duration / 2)
     {
         PlayerNumber plyr_idx = get_appropriate_player_for_creature(thing);
-        struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
+        struct PlayerInfoAdd* playeradd = get_playeradd(plyr_idx);
         struct Coord3d pos;
         pos.x.val = subtile_coord_center(cctrl->teleport_x);
         pos.y.val = subtile_coord_center(cctrl->teleport_y);
@@ -1308,7 +1308,7 @@ void process_thing_spell_teleport_effects(struct Thing *thing, struct CastedSpel
         {
             const struct Coord3d* newpos = NULL;
             struct Coord3d room_pos;
-            switch(dungeonadd->teleport_destination)
+            switch(playeradd->teleport_destination)
             {
                 case 6: // Dungeon Heart
                 {
@@ -1320,16 +1320,16 @@ void process_thing_spell_teleport_effects(struct Thing *thing, struct CastedSpel
                     if (active_battle_exists(thing->owner))
                     {
                         long count = 0;
-                        if (dungeonadd->battleid > BATTLES_COUNT)
+                        if (playeradd->battleid > BATTLES_COUNT)
                         {
-                            dungeonadd->battleid = 1;
+                            playeradd->battleid = 1;
                         }
-                        for (i = dungeonadd->battleid; i <= BATTLES_COUNT; i++)
+                        for (i = playeradd->battleid; i <= BATTLES_COUNT; i++)
                         {
                             if (i > BATTLES_COUNT)
                             {
                                 i = 1;
-                                dungeonadd->battleid = 1;
+                                playeradd->battleid = 1;
                             }
                             count++;
                             struct CreatureBattle* battle = creature_battle_get(i);
@@ -1341,19 +1341,19 @@ void process_thing_spell_teleport_effects(struct Thing *thing, struct CastedSpel
                                 {
                                     pos.x.val = tng->mappos.x.val;
                                     pos.y.val = tng->mappos.y.val;
-                                    dungeonadd->battleid = i + 1;
+                                    playeradd->battleid = i + 1;
                                     break;
                                 }
                             }
                             if (count >= BATTLES_COUNT)
                             {
-                                dungeonadd->battleid = 1;
+                                playeradd->battleid = 1;
                                 break;
                             }
                             if (i >= BATTLES_COUNT)
                             {
                                 i = 0;
-                                dungeonadd->battleid = 1;
+                                playeradd->battleid = 1;
                                 continue;
                             }
                         }
@@ -1392,7 +1392,7 @@ void process_thing_spell_teleport_effects(struct Thing *thing, struct CastedSpel
                 }
                 default:
                 {
-                    rkind = zoom_key_room_order[dungeonadd->teleport_destination];
+                    rkind = zoom_key_room_order[playeradd->teleport_destination];
                 }
             }
             if (rkind > 0)
@@ -1485,7 +1485,7 @@ void process_thing_spell_teleport_effects(struct Thing *thing, struct CastedSpel
             thing->veloc_push_add.z.val += CREATURE_RANDOM(thing, 96) + 40;
             thing->state_flags |= TF1_PushAdd;
         }
-        dungeonadd->teleport_destination = 18;
+        playeradd->teleport_destination = 18;
     }
 }
 
