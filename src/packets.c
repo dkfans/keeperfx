@@ -1146,7 +1146,7 @@ void process_players_creature_control_packet_action(long plyr_idx)
   long i;
   long k;
   player = get_player(plyr_idx);
-  struct DungeonAdd* dungeonadd;
+  struct PlayerInfoAdd* playeradd;
   pckt = get_packet_direct(player->packet_num);
   SYNCDBG(6,"Processing player %d action %d",(int)plyr_idx,(int)pckt->action);
   switch (pckt->action)
@@ -1212,20 +1212,20 @@ void process_players_creature_control_packet_action(long plyr_idx)
       }
     case PckA_ToggleFirstPersonReinforce:
     {
-        dungeonadd = get_dungeonadd(plyr_idx);
-        dungeonadd->first_person_dig_claim_mode ^= 1;
+        playeradd = get_playeradd(plyr_idx);
+        playeradd->first_person_dig_claim_mode ^= 1;
         break;
     }
     case PckA_SwitchTeleportDest:
     {
-        dungeonadd = get_dungeonadd(plyr_idx);
-        dungeonadd->teleport_destination = pckt->actn_par1;
+        playeradd = get_playeradd(plyr_idx);
+        playeradd->teleport_destination = pckt->actn_par1;
         break; 
     }
     case PckA_SelectFPPickup:
     {
-        dungeonadd = get_dungeonadd(plyr_idx);
-        dungeonadd->selected_fp_thing_pickup = pckt->actn_par1;
+        playeradd = get_playeradd(plyr_idx);
+        playeradd->selected_fp_thing_pickup = pckt->actn_par1;
         break;
     }
   }

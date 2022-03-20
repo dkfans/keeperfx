@@ -324,11 +324,6 @@ struct DungeonAdd
     long                  swap_to_untag_mode; // 0 = no, 1 = maybe, 2= yes, -1 = disable
     struct ComputerInfo   computer_info;
     long event_last_run_turn[EVENT_KIND_COUNT];
-    struct CheatSelection cheatselection; // TODO, move to Player if and when possible
-    TbBool first_person_dig_claim_mode; // TODO, move to Player if and when possible
-    unsigned char teleport_destination; // TODO, move to Player if and when possible
-    BattleIndex battleid; // TODO, move to Player if and when possible
-    unsigned short selected_fp_thing_pickup; // TODO, move to Player if and when possible
 };
 /******************************************************************************/
 extern struct Dungeon bad_dungeon;

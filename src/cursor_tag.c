@@ -333,8 +333,8 @@ TbBool tag_cursor_blocks_steal_slab(PlayerNumber plyr_idx, MapSubtlCoord stl_x, 
     struct SlabAttr* slbattr = get_slab_attrs(slb);
     int floor_height_z = floor_height_for_volume_box(plyr_idx, slb_x, slb_y);
     unsigned char colour;
-    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
-    if ( ( ( ((slbattr->category == SlbAtCtg_FortifiedGround) || (slbattr->category == SlbAtCtg_FortifiedWall) ) && (slabmap_owner(slb) != dungeonadd->cheatselection.chosen_player) ) )
+    struct PlayerInfoAdd* playeradd = get_playeradd(plyr_idx);
+    if ( ( ( ((slbattr->category == SlbAtCtg_FortifiedGround) || (slbattr->category == SlbAtCtg_FortifiedWall) ) && (slabmap_owner(slb) != playeradd->cheatselection.chosen_player) ) )
         || ( (slbattr->category == SlbAtCtg_FriableDirt) || ( (slbattr->category == SlbAtCtg_Unclaimed) && (slbattr->is_safe_land) && (!slab_is_liquid(slb_x, slb_y) ) ) ) )
     {
         colour = SLC_GREEN;

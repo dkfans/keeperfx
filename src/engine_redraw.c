@@ -142,8 +142,8 @@ static void draw_creature_view_icons(struct Thing* creatng)
     }
     else
     {
-        struct DungeonAdd* dungeonadd = get_dungeonadd(my_player_number);
-        if (dungeonadd->first_person_dig_claim_mode)
+        struct PlayerInfoAdd* playeradd = get_playeradd(my_player_number);
+        if (playeradd->first_person_dig_claim_mode)
         {
             if (cctrl->active_instance_id == CrInst_FIRST_PERSON_DIG)
             {
@@ -950,8 +950,8 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
         break;
     case PSt_PlaceTerrain:
     {
-        struct DungeonAdd* dungeonadd = get_dungeonadd(player->id_number);
-        i = get_place_terrain_pointer_graphics(dungeonadd->cheatselection.chosen_terrain_kind);
+        struct PlayerInfoAdd* playeradd = get_playeradd(player->id_number);
+        i = get_place_terrain_pointer_graphics(playeradd->cheatselection.chosen_terrain_kind);
         set_pointer_graphic(i);
         break;
     }

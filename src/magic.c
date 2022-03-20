@@ -1719,10 +1719,10 @@ TbResult magic_use_power_possess_thing(PlayerNumber plyr_idx, struct Thing *thin
     }
     player = get_player(plyr_idx);
     player->influenced_thing_idx = thing->index;
-    struct DungeonAdd* dungeonadd = get_dungeonadd(player->id_number);
-    dungeonadd->first_person_dig_claim_mode = false;
-    dungeonadd->teleport_destination = 18;
-    dungeonadd->battleid = 1;
+    struct PlayerInfoAdd* playeradd = get_playeradd(player->id_number);
+    playeradd->first_person_dig_claim_mode = false;
+    playeradd->teleport_destination = 18;
+    playeradd->battleid = 1;
     // Note that setting Direct Control player instance requires player->influenced_thing_idx to be set correctly
     set_player_instance(player, PI_DirctCtrl, 0);
     return Lb_SUCCESS;
