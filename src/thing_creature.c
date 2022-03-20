@@ -5812,7 +5812,7 @@ void direct_control_pick_up_or_drop(PlayerNumber plyr_idx, struct Thing *creatng
                     }
                 }
             }
-            controlled_creature_pick_thing_up(creatng, picktng, plyr_idx);
+            controlled_creature_pick_thing_up(creatng, picktng);
         }
         else
         {
