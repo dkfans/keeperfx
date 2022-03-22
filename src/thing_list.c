@@ -682,23 +682,43 @@ long anywhere_thing_filter_is_creature_of_model_training_and_owned_by(const stru
 
 /**
  * returns if the creature thing matches the model from the filter, considering possible wildcards.
- * @param thing The thing being checked.
+ * @param creatng The creature being checked.
  * @param crmodel model to compare it to, possible wildcard.
   */
-TbBool is_creature_match(const struct Thing* thing, long crmodel)
+TbBool is_creature_match(const struct Thing* creatng, long crmodel)
 {
+    if (creatng->class_id != TCls_Creature)
+        return false;
     if (!is_creature_model_wildcard(crmodel))
-        return crmodel == thing->model;
+        return crmodel == creatng->model;
     else if (crmodel == CREATURE_ANY)
         return true;
     else if (crmodel == CREATURE_NONE)
         return false;
     if (crmodel == CREATURE_DIGGER)
-        return creature_kind_is_for_dungeon_diggers_list(thing->owner, crmodel);
+        return creature_kind_is_for_dungeon_diggers_list(creatng->owner, crmodel);
     else if (crmodel == CREATURE_NOT_A_DIGGER)
-        return !creature_kind_is_for_dungeon_diggers_list(thing->owner, crmodel);
+        return !creature_kind_is_for_dungeon_diggers_list(creatng->owner, crmodel);
     else
         ERRORLOG("Invalid model wildcard detected: %d", crmodel);
+    return false;
+}
+
+/**
+ * returns if the thing matches the model from the filter, considering possible wildcards.
+ * @param thing The thing being checked.
+ * @param crmodel model to compare it to, possible wildcard.
+  */
+TbBool thing_matches_model(const struct Thing* thing, long tngmodel)
+{
+    if (thing->class_id == TCls_Creature)
+    {
+        return is_creature_match(thing, tngmodel);
+    }
+    else if ((tngmodel == -1) || (thing->model == tngmodel))
+    {
+        return true;
+    }
     return false;
 }
 
@@ -712,8 +732,7 @@ long anywhere_thing_filter_call_bool_filter(const struct Thing *thing, MaxTngFil
 {
     if ((param->class_id == -1) || (thing->class_id == param->class_id))
     {
-        if((is_creature_match(thing, param->model_id) && param->class_id == TCls_Creature) 
-            || (param->model_id == -1) || (thing->model == param->model_id))
+        if(thing_matches_model(thing, param->model_id))
         {
             if ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
             {
