@@ -1424,11 +1424,20 @@ short get_creature_control_action_inputs(void)
             }
             message_add(CrInst, get_string(StrID));
         }
+        struct PlayerInfoAdd* playeradd = get_playeradd(player->id_number);
         if (is_game_key_pressed(Gkey_CrtrContrlMod, &val, false))
         {
-            set_players_packet_action(player, PckA_ToggleFirstPersonReinforce, 0, 0, 0, 0);
-            struct GameKey* GKey = &settings.kbkeys[Gkey_CrtrContrlMod];
-            clear_key_pressed(GKey->code);
+            if (!playeradd->first_person_dig_claim_mode)
+            {
+                set_players_packet_action(player, PckA_SetFirstPersonDigMode, true, 0, 0, 0);
+            }
+        }
+        else
+        {
+            if (playeradd->first_person_dig_claim_mode)
+            {
+                set_players_packet_action(player, PckA_SetFirstPersonDigMode, false, 0, 0, 0);
+            }
         }
         player->thing_under_hand = 0;
         struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
@@ -1479,7 +1488,6 @@ short get_creature_control_action_inputs(void)
                     }
                 }
             }
-            struct PlayerInfoAdd* playeradd = get_playeradd(player->id_number);
             if (playeradd->selected_fp_thing_pickup != player->thing_under_hand)
             {
                 set_players_packet_action(player, PckA_SelectFPPickup, player->thing_under_hand, 0, 0, 0);

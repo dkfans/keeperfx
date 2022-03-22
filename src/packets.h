@@ -165,7 +165,7 @@ enum TbPacketAction {
         PckA_CheatSwitchHero,
         PckA_CheatSwitchExperience,
         PckA_CheatCtrlCrtrSetInstnc,
-        PckA_ToggleFirstPersonReinforce,
+        PckA_SetFirstPersonDigMode,
         PckA_SwitchTeleportDest,
         PckA_SelectFPPickup
 };

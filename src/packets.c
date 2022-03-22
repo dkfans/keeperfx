@@ -1210,10 +1210,10 @@ void process_players_creature_control_packet_action(long plyr_idx)
          direct_control_pick_up_or_drop(plyr_idx, thing);
          break;
       }
-    case PckA_ToggleFirstPersonReinforce:
+    case PckA_SetFirstPersonDigMode:
     {
         playeradd = get_playeradd(plyr_idx);
-        playeradd->first_person_dig_claim_mode ^= 1;
+        playeradd->first_person_dig_claim_mode = pckt->actn_par1;
         break;
     }
     case PckA_SwitchTeleportDest:
