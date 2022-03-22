@@ -685,7 +685,7 @@ long anywhere_thing_filter_is_creature_of_model_training_and_owned_by(const stru
  * @param creatng The creature being checked.
  * @param crmodel model to compare it to, possible wildcard.
   */
-TbBool is_creature_match(const struct Thing* creatng, long crmodel)
+TbBool creature_matches_model(const struct Thing* creatng, long crmodel)
 {
     if (creatng->class_id != TCls_Creature)
         return false;
@@ -713,7 +713,7 @@ TbBool thing_matches_model(const struct Thing* thing, long tngmodel)
 {
     if (thing->class_id == TCls_Creature)
     {
-        return is_creature_match(thing, tngmodel);
+        return creature_matches_model(thing, tngmodel);
     }
     else if ((tngmodel == -1) || (thing->model == tngmodel))
     {
