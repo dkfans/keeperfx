@@ -547,7 +547,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
             return true;
         } else if (strcasecmp(parstr, "reveal") == 0)
         {
-            player = get_my_player();
+            player = get_player(plyr_idx);
             reveal_whole_map(player);
             return true;
         } else if (strcasecmp(parstr, "comp.kill") == 0)
