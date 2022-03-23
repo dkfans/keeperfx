@@ -980,7 +980,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
         }
         else if ( (strcasecmp(parstr, "creature.addhealth") == 0) || (strcasecmp(parstr, "creature.health.add") == 0) )
         {
-            player = get_my_player();
+            player = get_player(plyr_idx);
             thing = thing_get(player->influenced_thing_idx);
             if (thing_is_creature(thing))
             {
@@ -990,7 +990,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
         }
         else if ( (strcasecmp(parstr, "creature.subhealth") == 0) || (strcasecmp(parstr, "creature.health.sub") == 0) )
         {
-            player = get_my_player();
+            player = get_player(plyr_idx);
             thing = thing_get(player->influenced_thing_idx);
             if (thing_is_creature(thing))
             {
@@ -1001,7 +1001,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
         else if (strcasecmp(parstr, "digger.sendto") == 0)
         {
             PlayerNumber id = get_player_number_for_command(pr2str);
-            player = get_my_player();
+            player = get_player(plyr_idx);
             thing = thing_get(player->influenced_thing_idx);
             if (thing_is_creature(thing))
             {
