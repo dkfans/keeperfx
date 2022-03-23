@@ -57,19 +57,19 @@ extern "C" {
 // DLLIMPORT struct InstanceInfo _DK_instance_info[48];
 // #define instance_info _DK_instance_info
 /******************************************************************************/
-long instf_attack_room_slab(struct Thing *creatng, long *param);
-long instf_creature_cast_spell(struct Thing *creatng, long *param);
-long instf_creature_fire_shot(struct Thing *creatng, long *param);
-long instf_damage_wall(struct Thing *creatng, long *param);
-long instf_destroy(struct Thing *creatng, long *param);
-long instf_dig(struct Thing *creatng, long *param);
-long instf_eat(struct Thing *creatng, long *param);
-long instf_fart(struct Thing *creatng, long *param);
-long instf_first_person_do_imp_task(struct Thing *creatng, long *param);
-long instf_pretty_path(struct Thing *creatng, long *param);
-long instf_reinforce(struct Thing *creatng, long *param);
-long instf_tortured(struct Thing *creatng, long *param);
-long instf_tunnel(struct Thing *creatng, long *param);
+long instf_attack_room_slab(struct Thing *creatng, long *param, PlayerNumber plyr_idx);
+long instf_creature_cast_spell(struct Thing *creatng, long *param, PlayerNumber plyr_idx);
+long instf_creature_fire_shot(struct Thing *creatng, long *param, PlayerNumber plyr_idx);
+long instf_damage_wall(struct Thing *creatng, long *param, PlayerNumber plyr_idx);
+long instf_destroy(struct Thing *creatng, long *param, PlayerNumber plyr_idx);
+long instf_dig(struct Thing *creatng, long *param, PlayerNumber plyr_idx);
+long instf_eat(struct Thing *creatng, long *param, PlayerNumber plyr_idx);
+long instf_fart(struct Thing *creatng, long *param, PlayerNumber plyr_idx);
+long instf_first_person_do_imp_task(struct Thing *creatng, long *param, PlayerNumber plyr_idx);
+long instf_pretty_path(struct Thing *creatng, long *param, PlayerNumber plyr_idx);
+long instf_reinforce(struct Thing *creatng, long *param, PlayerNumber plyr_idx);
+long instf_tortured(struct Thing *creatng, long *param, PlayerNumber plyr_idx);
+long instf_tunnel(struct Thing *creatng, long *param, PlayerNumber plyr_idx);
 
 const struct NamedCommand creature_instances_func_type[] = {
   {"attack_room_slab",         1},
@@ -414,8 +414,9 @@ void process_creature_instance(struct Thing *thing)
             struct InstanceInfo* inst_inf = creature_instance_info_get(cctrl->instance_id);
             if (inst_inf->func_cb != NULL)
             {
-                SYNCDBG(18,"Executing %s for %s index %d.",creature_instance_code_name(cctrl->instance_id),thing_model_name(thing),(int)thing->index);
-                inst_inf->func_cb(thing, inst_inf->func_params);
+                PlayerNumber plyr_idx = get_appropriate_player_for_creature(thing);
+                SYNCDBG(18,"Executing %s for %s index %d player %d.",creature_instance_code_name(cctrl->instance_id),thing_model_name(thing),(int)thing->index, plyr_idx);
+                inst_inf->func_cb(thing, inst_inf->func_params, plyr_idx);
             }
         }
         if (cctrl->inst_turn >= cctrl->inst_total_turns)
@@ -434,21 +435,18 @@ void process_creature_instance(struct Thing *thing)
     }
 }
 
-long instf_creature_fire_shot(struct Thing *creatng, long *param)
+long instf_creature_fire_shot(struct Thing *creatng, long *param, PlayerNumber plyr_idx)
 {
     struct Thing *target;
     int hittype;
-    int i;
     TRACE_THING(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     if (cctrl->targtng_idx <= 0)
     {
         if ((creatng->alloc_flags & TAlF_IsControlled) == 0)
             hittype = THit_CrtrsOnlyNotOwn;
-            i = 4;
         else
             hittype = THit_CrtrsNObjcts;
-            i = 1;
     }
     else if ((creatng->alloc_flags & TAlF_IsControlled) != 0)
     {
@@ -456,10 +454,8 @@ long instf_creature_fire_shot(struct Thing *creatng, long *param)
         TRACE_THING(target);
         if (target->class_id == TCls_Object)
             hittype = THit_CrtrsNObjcts;
-            i = 1;
         else
             hittype = THit_CrtrsOnly;
-            i = 2;
     }
     else
     {
@@ -467,13 +463,10 @@ long instf_creature_fire_shot(struct Thing *creatng, long *param)
         TRACE_THING(target);
         if (target->class_id == TCls_Object)
             hittype = THit_CrtrsNObjcts;
-            i = 1;
         else if (target->owner == creatng->owner)
             hittype = THit_CrtrsOnly;
-            i = 2;
         else
             hittype = THit_CrtrsOnlyNotOwn;
-            i = 4;
     }
     if (cctrl->targtng_idx > 0)
     {
@@ -486,13 +479,12 @@ long instf_creature_fire_shot(struct Thing *creatng, long *param)
         SYNCDBG(8,"The %s index %d fires %s",thing_model_name(creatng),(int)creatng->index,shot_code_name(*param));
     }
     creature_fire_shot(creatng, target, *param, 1, hittype);
-    creature_fire_shot(creatng, target, *param, 1, i);
     // Start cooldown after shot is fired
     cctrl->instance_use_turn[cctrl->instance_id] = game.play_gameturn;
     return 0;
 }
 
-long instf_creature_cast_spell(struct Thing *creatng, long *param)
+long instf_creature_cast_spell(struct Thing *creatng, long *param, PlayerNumber plyr_idx)
 {
     TRACE_THING(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
@@ -516,7 +508,7 @@ long instf_creature_cast_spell(struct Thing *creatng, long *param)
     return 0;
 }
 
-long instf_dig(struct Thing *creatng, long *param)
+long instf_dig(struct Thing *creatng, long *param, PlayerNumber plyr_idx)
 {
     long stl_x;
     long stl_y;
@@ -595,7 +587,7 @@ long instf_dig(struct Thing *creatng, long *param)
     return 1;
 }
 
-long instf_destroy(struct Thing *creatng, long *param)
+long instf_destroy(struct Thing *creatng, long *param, PlayerNumber plyr_idx)
 {
     TRACE_THING(creatng);
     MapSlabCoord slb_x = subtile_slab_fast(creatng->mappos.x.stl.num);
@@ -605,7 +597,7 @@ long instf_destroy(struct Thing *creatng, long *param)
     struct Room* room = room_get(slb->room_index);
     long prev_owner = slabmap_owner(slb);
     struct PlayerInfo* player;
-    player = get_player(get_appropriate_player_for_creature(creatng));
+    player = get_player(plyr_idx);
     int volume = 32;
 
     if ( !room_is_invalid(room) && (prev_owner != creatng->owner) )
@@ -620,7 +612,7 @@ long instf_destroy(struct Thing *creatng, long *param)
             thing_play_sample(creatng, 5 + UNSYNC_RANDOM(2), 200, 0, 3, 0, 2, volume);
             return 0;
         }
-        clear_dig_on_room_slabs(room, creatng->owner);
+        clear_dig_on_room_slabs(room, plyr_idx);
         if (room->owner == game.neutral_player_num)
         {
             claim_room(room, creatng);
@@ -632,7 +624,7 @@ long instf_destroy(struct Thing *creatng, long *param)
             claim_enemy_room(room, creatng);
         }
         thing_play_sample(creatng, 76, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
-        create_effects_on_room_slabs(room, imp_spangle_effects[creatng->owner], 0, creatng->owner);
+        create_effects_on_room_slabs(room, imp_spangle_effects[plyr_idx], 0, plyr_idx);
         return 0;
     }
     if (slb->health > 1)
@@ -641,8 +633,8 @@ long instf_destroy(struct Thing *creatng, long *param)
         if ((player->view_type == PVT_CreatureContrl) || (player->view_type == PVT_CreaturePasngr))
         {
             volume = FULL_LOUDNESS;
-            thing_play_sample(creatng, 128 + UNSYNC_RANDOM(3), 120, 0, 3, 0, 2, FULL_LOUDNESS);
         }
+        thing_play_sample(creatng, 128 + UNSYNC_RANDOM(3), 200, 0, 3, 0, 2, volume);
         return 0;
     }
     if (prev_owner != game.neutral_player_num) {
@@ -662,7 +654,7 @@ long instf_destroy(struct Thing *creatng, long *param)
     return 1;
 }
 
-long instf_attack_room_slab(struct Thing *creatng, long *param)
+long instf_attack_room_slab(struct Thing *creatng, long *param, PlayerNumber plyr_idx)
 {
     TRACE_THING(creatng);
     struct Room* room = get_room_thing_is_on(creatng);
@@ -694,12 +686,12 @@ long instf_attack_room_slab(struct Thing *creatng, long *param)
     {
         event_create_event_or_update_nearby_existing_event(coord_slab(creatng->mappos.x.val), coord_slab(creatng->mappos.y.val), EvKind_RoomLost, room->owner, room->kind);
     }
-    create_effect(&creatng->mappos, TngEff_Explosion3, creatng->owner);
+    create_effect(&creatng->mappos, TngEff_Explosion3, plyr_idx);
     thing_play_sample(creatng, 47, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     return 1;
 }
 
-long instf_damage_wall(struct Thing *creatng, long *param)
+long instf_damage_wall(struct Thing *creatng, long *param, PlayerNumber plyr_idx)
 {
     SYNCDBG(16,"Starting");
     TRACE_THING(creatng);
@@ -717,14 +709,14 @@ long instf_damage_wall(struct Thing *creatng, long *param)
         slb->health -= 2;
     } else
     {
-        place_slab_type_on_map(2, stl_x, stl_y, creatng->owner, 0);
+        place_slab_type_on_map(2, stl_x, stl_y, plyr_idx, 0);
         do_slab_efficiency_alteration(subtile_slab_fast(stl_x), subtile_slab_fast(stl_y));
     }
     thing_play_sample(creatng, 63+UNSYNC_RANDOM(6), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     return 1;
 }
 
-long instf_eat(struct Thing *creatng, long *param)
+long instf_eat(struct Thing *creatng, long *param, PlayerNumber plyr_idx)
 {
     TRACE_THING(creatng);
     //return _DK_instf_eat(creatng, param);
@@ -736,13 +728,13 @@ long instf_eat(struct Thing *creatng, long *param)
     return 1;
 }
 
-long instf_fart(struct Thing *creatng, long *param)
+long instf_fart(struct Thing *creatng, long *param, PlayerNumber plyr_idx)
 {
     TRACE_THING(creatng);
     //return _DK_instf_fart(creatng, param);
     struct Thing* efftng = create_effect(&creatng->mappos, TngEff_Gas3, creatng->owner);
     if (!thing_is_invalid(efftng))
-        efftng->hit_type = THit_CrtrsOnlyNotOwn;
+        efftng->shot_effect.hit_type = THit_CrtrsOnlyNotOwn;
     thing_play_sample(creatng,94+UNSYNC_RANDOM(6), NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
     // Start cooldown after fart created
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
@@ -750,18 +742,19 @@ long instf_fart(struct Thing *creatng, long *param)
     return 1;
 }
 
-long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
+long instf_first_person_do_imp_task(struct Thing *creatng, long *param, PlayerNumber plyr_idx)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    struct PlayerInfo* player = get_player(get_appropriate_player_for_creature(creatng));
+    struct PlayerInfo* player = get_player(plyr_idx);
     TRACE_THING(creatng);
+    struct SlabMap* slb;
     MapSubtlCoord ahead_stl_x = creatng->mappos.x.stl.num;
     MapSubtlCoord ahead_stl_y = creatng->mappos.y.stl.num;
     MapSlabCoord slb_x = subtile_slab_fast(creatng->mappos.x.stl.num);
     MapSlabCoord slb_y = subtile_slab_fast(creatng->mappos.y.stl.num);
     if (check_place_to_pretty_excluding(creatng, slb_x, slb_y))
     {
-        instf_pretty_path(creatng, NULL);
+        instf_pretty_path(creatng, NULL, creatng->owner);
         return 1;
     }
     MapSlabCoord ahead_slb_x = slb_x;
@@ -786,7 +779,7 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
         ahead_stl_x++;
         ahead_slb_x++;
     }
-    struct PlayerInfoAdd* playeradd = get_playeradd(player->id_number);
+    struct PlayerInfoAdd* playeradd = get_playeradd(plyr_idx);
     if ( (playeradd->selected_fp_thing_pickup != 0) || (cctrl->dragtng_idx != 0) )
     {
         set_players_packet_action(player, PckA_DirectCtrlDragDrop, 0, 0, 0, 0);
@@ -819,11 +812,10 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
     if ( (playeradd->first_person_dig_claim_mode) || (!subtile_diggable) )
     {
         slb = get_slabmap_block(slb_x, slb_y);
-        struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
         if ( check_place_to_convert_excluding(creatng, slb_x, slb_y) )
         {
             struct SlabAttr* slbattr = get_slab_attrs(slb);
-            instf_destroy(creatng, NULL);
+            instf_destroy(creatng, NULL, creatng->owner);
             if (slbattr->block_flags & SlbAtFlg_IsRoom)
             {
                 room = room_get(slb->room_index);
@@ -845,7 +837,6 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
                             clear_messages_from_player(id);
                         }
                         message_add_timeout(id, 50, "%d/%d", room->health, compute_room_max_health(room->slabs_count, room->efficiency));
-                        targeted_message_add(id, player->id_number, 50, "%d/%d", room->health, compute_room_max_health(room->slabs_count, room->efficiency));
                     }
                     else
                     {
@@ -872,7 +863,7 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
                         if (slab_by_players_land(creatng->owner, ahead_sslb_x, ahead_sslb_y))
                         {
                             cctrl->digger.working_stl = get_subtile_number(ahead_stl_x, ahead_stl_y);
-                            instf_reinforce(creatng, NULL);
+                            instf_reinforce(creatng, NULL, creatng->owner);
                             return 1;
                         } 
                     }
@@ -884,31 +875,31 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
     {
         //TODO CONFIG shot model dependency
         long locparam = ShM_Dig;
-        instf_creature_fire_shot(creatng, &locparam);
+        instf_creature_fire_shot(creatng, &locparam, creatng->owner);
     }
     return 1;
 }
 
-long instf_pretty_path(struct Thing *creatng, long *param)
+long instf_pretty_path(struct Thing *creatng, long *param, PlayerNumber plyr_idx)
 {
     TRACE_THING(creatng);
     SYNCDBG(16,"Starting");
-    struct Dungeon* dungeon = get_dungeon(creatng->owner);
+    struct Dungeon* dungeon = get_dungeon(plyr_idx);
     MapSlabCoord slb_x = subtile_slab_fast(creatng->mappos.x.stl.num);
     MapSlabCoord slb_y = subtile_slab_fast(creatng->mappos.y.stl.num);
-    create_effect(&creatng->mappos, imp_spangle_effects[creatng->owner], creatng->owner);
+    create_effect(&creatng->mappos, imp_spangle_effects[plyr_idx], plyr_idx);
     thing_play_sample(creatng, 76, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
-    place_slab_type_on_map(SlbT_CLAIMED, slab_subtile_center(slb_x), slab_subtile_center(slb_y), creatng->owner, 1);
-    do_unprettying(creatng->owner, slb_x, slb_y);
+    place_slab_type_on_map(SlbT_CLAIMED, slab_subtile_center(slb_x), slab_subtile_center(slb_y), plyr_idx, 1);
+    do_unprettying(plyr_idx, slb_x, slb_y);
     do_slab_efficiency_alteration(slb_x, slb_y);
-    increase_dungeon_area(creatng->owner, 1);
+    increase_dungeon_area(plyr_idx, 1);
     dungeon->lvstats.area_claimed++;
-    EVM_MAP_EVENT("claimed", creatng->owner, slb_x, slb_y, "");
+    EVM_MAP_EVENT("claimed", plyr_idx, slb_x, slb_y, "");
     remove_traps_around_subtile(slab_subtile_center(slb_x), slab_subtile_center(slb_y), NULL);
     return 1;
 }
 
-long instf_reinforce(struct Thing *creatng, long *param)
+long instf_reinforce(struct Thing *creatng, long *param, PlayerNumber plyr_idx)
 {
     SYNCDBG(16,"Starting");
     TRACE_THING(creatng);
@@ -926,7 +917,7 @@ long instf_reinforce(struct Thing *creatng, long *param)
         if (!S3DEmitterIsPlayingSample(creatng->snd_emitter_id, 63, 0))
         {
             struct PlayerInfo* player;
-            player = get_player(get_appropriate_player_for_creature(creatng));
+            player = get_player(plyr_idx);
             int volume = 32;
             if ((player->view_type == PVT_CreatureContrl) || (player->view_type == PVT_CreaturePasngr))
             {
@@ -957,13 +948,13 @@ long instf_reinforce(struct Thing *creatng, long *param)
     return 0;
 }
 
-long instf_tortured(struct Thing *creatng, long *param)
+long instf_tortured(struct Thing *creatng, long *param, PlayerNumber plyr_idx)
 {
     TRACE_THING(creatng);
     return 1;
 }
 
-long instf_tunnel(struct Thing *creatng, long *param)
+long instf_tunnel(struct Thing *creatng, long *param, PlayerNumber plyr_idx)
 {
     SYNCDBG(16,"Starting");
     TRACE_THING(creatng);
