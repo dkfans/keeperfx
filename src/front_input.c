@@ -1411,7 +1411,7 @@ short get_creature_control_action_inputs(void)
         }
         else if (is_key_pressed(KC_COMMA,KMod_DONTCARE))
         {
-            set_players_packet_action(player, PckA_SwitchTeleportDest, 18, 0, 0, 0);
+            set_players_packet_action(player, PckA_SwitchTeleportDest, 18, 0, 0, 0); // default behaviour
             StrID = 609;
         }
         struct Thing* creatng = thing_get(player->controlled_thing_idx);
