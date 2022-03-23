@@ -4274,11 +4274,11 @@ struct Thing *find_players_first_creature_of_breed_and_gui_job(long crmodel, lon
     }
     TbBool is_spec_digger = (crmodel > 0) && creature_kind_is_for_dungeon_diggers_list(plyr_idx, crmodel);
     struct Thing* thing = INVALID_THING;
-    if ((!is_spec_digger) || (crmodel == -1))
+    if ((!is_spec_digger) || (crmodel == CREATURE_ANY))
     {
         thing = get_player_list_creature_with_filter(dungeon->creatr_list_start, filter, &param);
     }
-    if (((is_spec_digger) || (crmodel == -1)) && thing_is_invalid(thing))
+    if (((is_spec_digger) || (crmodel == CREATURE_ANY)) && thing_is_invalid(thing))
     {
         thing = get_player_list_creature_with_filter(dungeon->digger_list_start, filter, &param);
     }
@@ -4304,7 +4304,7 @@ struct Thing *find_players_next_creature_of_breed_and_gui_job(long crmodel, long
     if ((pick_flags & TPF_OrderedPick) == 0)
     {
         long i;
-        if (crmodel != -1)
+        if (crmodel != CREATURE_ANY)
         {
             i = dungeon->selected_creatures_of_model[crmodel];
             thing = thing_get(i);
