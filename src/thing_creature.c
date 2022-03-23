@@ -4380,7 +4380,7 @@ struct Thing *find_players_next_creature_of_breed_and_gui_job(long crmodel, long
         return INVALID_THING;
     }
     // Remember the creature we've found
-    if (crmodel != -1)
+    if (crmodel != CREATURE_ANY)
     {
         if (thing->model != crmodel) {
             ERRORLOG("Searched for model %d, but found %d.",(int)crmodel,(int)thing->model);
@@ -4406,14 +4406,14 @@ struct Thing *pick_up_creature_of_model_and_gui_job(long crmodel, long job_idx, 
         return INVALID_THING;
     }
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
-    if ((crmodel > 0) && (crmodel < CREATURE_TYPES_COUNT))
+    if (crmodel < CREATURE_TYPES_COUNT)
     {
         if ((job_idx == -1) || (dungeon->guijob_all_creatrs_count[crmodel][job_idx & 0x03]))
         {
             set_players_packet_action(get_player(plyr_idx), PckA_UsePwrHandPick, thing->index, 0, 0, 0);
         }
     } else
-    if ((crmodel == -1))
+    if ((crmodel == CREATURE_ANY))
     {
         set_players_packet_action(get_player(plyr_idx), PckA_UsePwrHandPick, thing->index, 0, 0, 0);
     } else
