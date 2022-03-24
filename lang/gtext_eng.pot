@@ -5881,5 +5881,5 @@ msgstr ""
 
 #: guitext:1007
 msgctxt "In-game interface description"
-msgid "Display Resolution: Switch to the next configured display resolution. LMB toggle. RMB display current mode."
+msgid "Display Resolution: Switch to the next configured display resolution. LMB toggle. RMB display current resolution."
 msgstr ""
