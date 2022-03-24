@@ -758,7 +758,7 @@ long anywhere_thing_filter_call_neg_bool_filter(const struct Thing *thing, MaxTn
 {
     if ((param->class_id == -1) || (thing->class_id == param->class_id))
     {
-        if ((param->model_id == -1) || (thing->model == param->model_id))
+        if (thing_matches_model(thing,param->model_id))
         {
             if ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
             {
