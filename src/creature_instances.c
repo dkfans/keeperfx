@@ -852,7 +852,6 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
     }
     else if (playeradd->first_person_dig_claim_mode)
     {
-        dig = false;
         if (slabmap_owner(slb) == creatng->owner)
         {
             MapSlabCoord ahead_sslb_x = subtile_slab_fast(ahead_stl_x);
@@ -871,6 +870,7 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
                 }
             }
         }
+        dig = false;
     }
     if (dig)
     {
