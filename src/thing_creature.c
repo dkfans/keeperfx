@@ -3799,7 +3799,7 @@ long player_list_creature_filter_in_fight_and_not_affected_by_spell(const struct
     {
         if ((param->plyr_idx >= 0) && (thing->owner != param->plyr_idx))
             return -1;
-        if ((param->model_id > 0) && (thing->model != param->model_id))
+        if (!creature_matches_model(thing, param->model_id))
             return -1;
         if ((param->class_id > 0) && (thing->class_id != param->class_id))
             return -1;

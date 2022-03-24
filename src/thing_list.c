@@ -248,7 +248,7 @@ long near_map_block_thing_filter_call_bool_filter(const struct Thing *thing, Max
 {
     if ((param->class_id == -1) || (thing->class_id == param->class_id))
     {
-        if ((param->model_id == -1) || (thing->model == param->model_id))
+        if (thing_matches_model(thing, param->model_id))
         {
             if ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
             {
@@ -280,7 +280,7 @@ long near_thing_pos_thing_filter_is_enemy_which_can_be_attacked_by_creature(cons
 {
     if ((param->class_id == -1) || (thing->class_id == param->class_id))
     {
-        if ((param->model_id == -1) || (thing->model == param->model_id))
+        if (thing_matches_model(thing, param->model_id))
         {
             if ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
             {
@@ -404,7 +404,7 @@ long near_map_block_creature_filter_diagonal_random(const struct Thing *thing, M
 {
     if (thing->class_id == TCls_Creature)
     {
-        if ((param->model_id == -1) || (param->model_id == CREATURE_ANY) || (thing->model == param->model_id))
+        if (thing_matches_model(thing, param->model_id))
         {
             if ((param->plyr_idx == ALL_PLAYERS) || (thing->owner == param->plyr_idx))
             {
@@ -434,7 +434,7 @@ long near_map_block_thing_filter_is_thing_of_class_and_model_owned_by(const stru
 {
     if ((param->class_id == -1) || (thing->class_id == param->class_id))
     {
-        if ((param->model_id == -1) || (param->model_id == CREATURE_ANY) || (thing->model == param->model_id))
+        if (thing_matches_model(thing, param->model_id))
         {
             if ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
             {
@@ -580,7 +580,7 @@ long anywhere_thing_filter_is_of_class_and_model_and_owned_by_or_allied_with(con
 {
     if (thing->class_id == param->class_id)
     {
-        if ((param->model_id == CREATURE_ANY) || (thing->model == param->model_id))
+        if (thing_matches_model(thing, param->model_id))
         {
             if ((param->plyr_idx == -1) || players_are_mutual_allies(thing->owner,param->plyr_idx))
             {
@@ -603,7 +603,7 @@ long anywhere_thing_filter_is_of_class_and_model_and_owned_by(const struct Thing
 {
     if (thing->class_id == param->class_id)
     {
-        if ((param->model_id == -1) || (thing->model == param->model_id))
+        if (thing_matches_model(thing, param->model_id))
         {
             if ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
             {
@@ -660,7 +660,7 @@ long anywhere_thing_filter_is_creature_of_model_training_and_owned_by(const stru
 {
     if (thing->class_id == TCls_Creature)
     {
-      if ((thing->model == param->model_id) || (param->model_id == -1))
+        if (thing_matches_model(thing, param->model_id))
       {
           if ((thing->owner == param->plyr_idx) || (param->plyr_idx == -1))
           {
@@ -784,7 +784,7 @@ long anywhere_thing_filter_is_trap_of_model_armed_and_owned_by(const struct Thin
 {
     if (thing->class_id == TCls_Trap)
     {
-      if ((thing->model == param->model_id) || (param->model_id == -1))
+        if (thing_matches_model(thing, param->model_id))
       {
           if ((thing->owner == param->plyr_idx) || (param->plyr_idx == -1))
           {
