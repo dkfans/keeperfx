@@ -373,7 +373,7 @@ long near_map_block_thing_filter_is_creature_of_model_owned_and_controlled_by(co
 {
     if (thing->class_id == TCls_Creature)
     {
-        if ((param->model_id == CREATURE_ANY) || (thing->model == param->model_id))
+        if (thing_matches_model(thing,param->model_id))
         {
             if ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
             {
@@ -660,7 +660,7 @@ long anywhere_thing_filter_is_creature_of_model_training_and_owned_by(const stru
 {
     if (thing->class_id == TCls_Creature)
     {
-        if (thing_matches_model(thing, param->model_id))
+      if (thing_matches_model(thing, param->model_id))
       {
           if ((thing->owner == param->plyr_idx) || (param->plyr_idx == -1))
           {
@@ -784,7 +784,7 @@ long anywhere_thing_filter_is_trap_of_model_armed_and_owned_by(const struct Thin
 {
     if (thing->class_id == TCls_Trap)
     {
-        if (thing_matches_model(thing, param->model_id))
+      if (thing_matches_model(thing, param->model_id))
       {
           if ((thing->owner == param->plyr_idx) || (param->plyr_idx == -1))
           {
@@ -811,7 +811,7 @@ long anywhere_thing_filter_is_door_of_model_locked_and_owned_by(const struct Thi
 {
     if (thing->class_id == TCls_Door)
     {
-      if ((thing->model == param->model_id) || (param->model_id == -1))
+      if (thing_matches_model(thing,param->model_id))
       {
           if ((thing->owner == param->plyr_idx) || (param->plyr_idx == -1))
           {

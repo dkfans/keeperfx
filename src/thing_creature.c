@@ -3860,7 +3860,7 @@ long player_list_creature_filter_most_experienced(const struct Thing *thing, Max
     long nmaxim = cctrl->explevel + 1;
     if ( ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
         && (thing->class_id == param->class_id)
-        && ((param->model_id == CREATURE_ANY) || (thing->model == param->model_id))
+        && ((thing_matches_model(thing,param->model_id)))
         && ((param->num1 == -1) || (get_creature_gui_job(thing) == param->num1))
         && (nmaxim > maximizer) )
     {
@@ -3885,7 +3885,7 @@ long player_list_creature_filter_most_experienced_and_pickable1(const struct Thi
     long nmaxim = cctrl->explevel + 1;
     if ( ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
         && (thing->class_id == param->class_id)
-        && ((param->model_id == CREATURE_ANY) || (thing->model == param->model_id))
+        && ((thing_matches_model(thing,param->model_id)))
         && ((param->num1 == -1) || (get_creature_gui_job(thing) == param->num1))
         && !thing_is_picked_up(thing)
         && (thing->active_state != CrSt_CreatureUnconscious) && (nmaxim > maximizer) )
@@ -3914,7 +3914,7 @@ long player_list_creature_filter_most_experienced_and_pickable2(const struct Thi
     long nmaxim = cctrl->explevel + 1;
     if ( ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
         && (thing->class_id == param->class_id)
-        && ((param->model_id == CREATURE_ANY) || (thing->model == param->model_id))
+        && ((thing_matches_model(thing,param->model_id)))
         && ((param->num1 == -1) || (get_creature_gui_job(thing) == param->num1))
         && !thing_is_picked_up(thing)
         && (thing->active_state != CrSt_CreatureUnconscious) && (nmaxim > maximizer) )
@@ -3943,7 +3943,7 @@ long player_list_creature_filter_least_experienced(const struct Thing *thing, Ma
     long nmaxim = CREATURE_MAX_LEVEL - cctrl->explevel;
     if ( ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
       && (thing->class_id == param->class_id)
-      && ((param->model_id == CREATURE_ANY) || (thing->model == param->model_id))
+      && ((thing_matches_model(thing,param->model_id)))
       && ((param->num1 == -1) || (get_creature_gui_job(thing) == param->num1))
       && (nmaxim > maximizer) )
     {
@@ -3968,7 +3968,7 @@ long player_list_creature_filter_least_experienced_and_pickable1(const struct Th
     long nmaxim = CREATURE_MAX_LEVEL - cctrl->explevel;
     if ( ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
       && (thing->class_id == param->class_id)
-      && ((param->model_id == CREATURE_ANY) || (thing->model == param->model_id))
+      && ((thing_matches_model(thing,param->model_id)))
       && ((param->num1 == -1) || (get_creature_gui_job(thing) == param->num1))
       && !thing_is_picked_up(thing)
       && (thing->active_state != CrSt_CreatureUnconscious) && (nmaxim > maximizer) )
@@ -3997,7 +3997,7 @@ long player_list_creature_filter_least_experienced_and_pickable2(const struct Th
     long nmaxim = CREATURE_MAX_LEVEL - cctrl->explevel;
     if ( ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
       && (thing->class_id == param->class_id)
-      && ((param->model_id == CREATURE_ANY) || (thing->model == param->model_id))
+      && ((thing_matches_model(thing,param->model_id)))
       && ((param->num1 == -1) || (get_creature_gui_job(thing) == param->num1))
       && !thing_is_picked_up(thing)
       && (thing->active_state != CrSt_CreatureUnconscious) && (nmaxim > maximizer) )
@@ -4023,7 +4023,7 @@ long player_list_creature_filter_of_gui_job(const struct Thing *thing, MaxTngFil
 {
     if ( ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
       && (thing->class_id == param->class_id)
-      && ((param->model_id == CREATURE_ANY) || (thing->model == param->model_id))
+      && ((thing_matches_model(thing,param->model_id)))
       && ((param->num1 == -1) || (get_creature_gui_job(thing) == param->num1))) // job_idx
     {
         // New 'maximizer' equal to MAX_LONG will stop the sweeping
@@ -4046,7 +4046,7 @@ long player_list_creature_filter_of_gui_job_and_pickable1(const struct Thing *th
 {
     if ( ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
       && (thing->class_id == param->class_id)
-      && ((param->model_id == CREATURE_ANY) || (thing->model == param->model_id))
+      && ((thing_matches_model(thing,param->model_id)))
       && !thing_is_picked_up(thing)
       && ((param->num1 == -1) || (get_creature_gui_job(thing) == param->num1)) // job_idx
       && (thing->active_state != CrSt_CreatureUnconscious) )
@@ -4074,7 +4074,7 @@ long player_list_creature_filter_of_gui_job_and_pickable2(const struct Thing *th
 {
     if ( ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
       && (thing->class_id == param->class_id)
-      && ((param->model_id == CREATURE_ANY) || (thing->model == param->model_id))
+      && ((thing_matches_model(thing,param->model_id)))
       && !thing_is_picked_up(thing)
       && ((param->num1 == -1) || (get_creature_gui_job(thing) == param->num1))
       && (thing->active_state != CrSt_CreatureUnconscious) )
