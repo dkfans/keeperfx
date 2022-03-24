@@ -808,10 +808,11 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
             }
         }
     }
-    if ( (playeradd->first_person_dig_claim_mode) || (!subtile_diggable) )
+    TbBool dig = true;
+    struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
+    if ( check_place_to_convert_excluding(creatng, slb_x, slb_y) )
     {
-        slb = get_slabmap_block(slb_x, slb_y);
-        if ( check_place_to_convert_excluding(creatng, slb_x, slb_y) )
+        if (!playeradd->first_person_dig_claim_mode)
         {
             struct SlabAttr* slbattr = get_slab_attrs(slb);
             instf_destroy(creatng, NULL);
@@ -848,29 +849,30 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
             }
             return 1;
         }
-        else
+    }
+    else if (playeradd->first_person_dig_claim_mode)
+    {
+        dig = false;
+        if (slabmap_owner(slb) == creatng->owner)
         {
-            if (slabmap_owner(slb) == creatng->owner)
+            MapSlabCoord ahead_sslb_x = subtile_slab_fast(ahead_stl_x);
+            MapSlabCoord ahead_sslb_y = subtile_slab_fast(ahead_stl_y);
+            if ( check_place_to_reinforce(creatng, ahead_sslb_x, ahead_sslb_y) )
             {
-                MapSlabCoord ahead_sslb_x = subtile_slab_fast(ahead_stl_x);
-                MapSlabCoord ahead_sslb_y = subtile_slab_fast(ahead_stl_y);
-                if ( check_place_to_reinforce(creatng, ahead_sslb_x, ahead_sslb_y) )
+                struct SlabMap* ahead_sslb = get_slabmap_block(ahead_sslb_x, ahead_sslb_y);
+                if ((ahead_sslb->kind >= SlbT_EARTH) && (ahead_sslb->kind <= SlbT_TORCHDIRT))
                 {
-                    struct SlabMap* ahead_sslb = get_slabmap_block(ahead_sslb_x, ahead_sslb_y);
-                    if ((ahead_sslb->kind >= SlbT_EARTH) && (ahead_sslb->kind <= SlbT_TORCHDIRT))
+                    if (slab_by_players_land(creatng->owner, ahead_sslb_x, ahead_sslb_y))
                     {
-                        if (slab_by_players_land(creatng->owner, ahead_sslb_x, ahead_sslb_y))
-                        {
-                            cctrl->digger.working_stl = get_subtile_number(ahead_stl_x, ahead_stl_y);
-                            instf_reinforce(creatng, NULL);
-                            return 1;
-                        } 
-                    }
+                        cctrl->digger.working_stl = get_subtile_number(ahead_stl_x, ahead_stl_y);
+                        instf_reinforce(creatng, NULL);
+                        return 1;
+                    } 
                 }
             }
         }
     }
-    if (playeradd->first_person_dig_claim_mode == false)
+    if (dig)
     {
         //TODO CONFIG shot model dependency
         long locparam = ShM_Dig;
