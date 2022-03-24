@@ -269,6 +269,7 @@ struct Thing *get_nth_creature_owned_by_and_failing_bool_filter(PlayerNumber ply
 long count_creatures_in_dungeon_of_model_flags(const struct Dungeon *dungeon, unsigned long need_mdflags, unsigned long excl_mdflags);
 long count_creatures_in_dungeon_controlled_and_of_model_flags(const struct Dungeon *dungeon, unsigned long need_mdflags, unsigned long excl_mdflags);
 
+TbBool creature_matches_model(const struct Thing* creatng, long crmodel);
 unsigned long update_things_sounds_in_list(struct StructureList *list);
 void stop_all_things_playing_samples(void);
 unsigned long update_cave_in_things(void);

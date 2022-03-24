@@ -3830,12 +3830,12 @@ long player_list_creature_filter_dragging_specific_thing(const struct Thing *thi
         }
         return -1;
     }
-    if ((param->class_id > 0) || (param->model_id > 0) || (param->plyr_idx >= 0))
+    if ((param->class_id > 0) || ((param->model_id > 0) && !is_creature_model_wildcard(param->model_id)) || (param->plyr_idx >= 0))
     {
         struct Thing* dragtng = thing_get(cctrl->dragtng_idx);
         if ((param->plyr_idx >= 0) && (dragtng->owner != param->plyr_idx))
             return -1;
-        if ((param->model_id > 0) && (dragtng->model != param->model_id))
+        if (!creature_matches_model(thing,param->model_id))
             return -1;
         if ((param->class_id > 0) && (dragtng->class_id != param->class_id))
             return -1;
