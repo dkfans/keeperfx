@@ -4123,7 +4123,7 @@ struct Thing *find_players_creature_dragging_thing(PlayerNumber plyr_idx, const 
     Thing_Maximizer_Filter filter = player_list_creature_filter_dragging_specific_thing;
     struct CompoundTngFilterParam param;
     param.class_id = TCls_Creature;
-    param.model_id = -1;
+    param.model_id = CREATURE_ANY;
     param.plyr_idx = -1;
     param.num1 = dragtng->index;
     param.num2 = -1;
@@ -4146,7 +4146,7 @@ struct Thing *find_creature_dragging_thing(const struct Thing *dragtng)
     Thing_Maximizer_Filter filter = player_list_creature_filter_dragging_specific_thing;
     struct CompoundTngFilterParam param;
     param.class_id = TCls_Creature;
-    param.model_id = -1;
+    param.model_id = CREATURE_ANY;
     param.plyr_idx = -1;
     param.num1 = dragtng->index;
     param.num2 = -1;

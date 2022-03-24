@@ -1572,7 +1572,7 @@ struct Thing *get_nth_creature_owned_by_and_matching_bool_filter(PlayerNumber pl
     Thing_Maximizer_Filter filter = anywhere_thing_filter_call_bool_filter;
     struct CompoundTngFilterParam param;
     param.class_id = TCls_Creature;
-    param.model_id = -1;
+    param.model_id = CREATURE_ANY;
     param.plyr_idx = plyr_idx;
     param.num1 = -1;
     param.num2 = -1;
@@ -1593,7 +1593,7 @@ struct Thing *get_nth_creature_owned_by_and_failing_bool_filter(PlayerNumber ply
     Thing_Maximizer_Filter filter = anywhere_thing_filter_call_neg_bool_filter;
     struct CompoundTngFilterParam param;
     param.class_id = TCls_Creature;
-    param.model_id = -1;
+    param.model_id = CREATURE_ANY;
     param.plyr_idx = plyr_idx;
     param.num1 = -1;
     param.num2 = -1;
@@ -1607,7 +1607,7 @@ struct Thing *get_nearest_enemy_creature_possible_to_attack_by(struct Thing *cre
     Thing_Maximizer_Filter filter = near_thing_pos_thing_filter_is_enemy_which_can_be_attacked_by_creature;
     struct CompoundTngFilterParam param;
     param.class_id = TCls_Creature;
-    param.model_id = -1;
+    param.model_id = CREATURE_ANY;
     param.plyr_idx = -1;
     param.num1 = creatng->index;
     param.num2 = -1;
@@ -1621,7 +1621,7 @@ struct Thing *get_highest_score_enemy_creature_within_distance_possible_to_attac
     Thing_Maximizer_Filter filter = highest_score_thing_filter_is_enemy_within_distance_which_can_be_attacked_by_creature;
     struct CompoundTngFilterParam param;
     param.class_id = TCls_Creature;
-    param.model_id = -1;
+    param.model_id = CREATURE_ANY;
     param.plyr_idx = -1;
     param.num1 = creatng->index;
     param.num2 = dist;
