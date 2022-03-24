@@ -31,6 +31,7 @@
 #include "bflib_network.h"
 #include "bflib_sound.h"
 #include "bflib_sndlib.h"
+#include "bflib_sprfnt.h"
 #include "bflib_planar.h"
 
 #include "kjm_input.h"
@@ -100,6 +101,8 @@ extern "C" {
 }
 #endif
 /******************************************************************************/
+extern TbBool process_players_global_cheats_packet_action(PlayerNumber plyr_idx, struct Packet* pckt);
+extern TbBool process_players_dungeon_control_cheats_packet_action(PlayerNumber plyr_idx, struct Packet* pckt);
 /******************************************************************************/
 void set_packet_action(struct Packet *pckt, unsigned char pcktype, unsigned short par1, unsigned short par2, unsigned short par3, unsigned short par4)
 {
@@ -698,45 +701,14 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
           game.creatures_tend_flee = ((dungeon->creature_tendencies & 0x02) != 0);
       }
       return 0;
-  case PckA_CheatEnter:
-//      game.???[my_player_number].cheat_mode = 1;
-      show_onscreen_msg(2*game.num_fps, "Cheat mode activated by player %d", plyr_idx);
-      return 1;
-  case PckA_CheatAllFree:
-      make_all_creatures_free();
-      make_all_rooms_free();
-      make_all_powers_cost_free();
-      return 1;
-  case PckA_CheatCrtSpells:
-      //TODO: remake from beta
-      return 0;
-  case PckA_CheatRevealMap:
-  {
-      struct PlayerInfo* myplyr = get_my_player();
-      reveal_whole_map(myplyr);
-      return 0;
-  }
-  case PckA_CheatCrAllSpls:
-      //TODO: remake from beta
-      return 0;
   case PckA_Unknown065:
       //TODO: remake from beta
-      return 0;
-  case PckA_CheatAllMagic:
-      make_available_all_researchable_powers(my_player_number);
-      return 0;
-  case PckA_CheatAllRooms:
-      make_available_all_researchable_rooms(my_player_number);
       return 0;
   case PckA_Unknown068:
       //TODO: remake from beta
       return 0;
   case PckA_Unknown069:
       //TODO: remake from beta
-      return 0;
-  case PckA_CheatAllResrchbl:
-      make_all_powers_researchable(my_player_number);
-      make_all_rooms_researchable(my_player_number);
       return 0;
   case PckA_SetViewType:
       set_player_mode(player, pckt->actn_par1);
@@ -910,7 +882,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       set_engine_view(player, player->view_mode_restore);
       return false;
     default:
-      return false;
+      return process_players_global_cheats_packet_action(plyr_idx, pckt);
   }
 }
 
@@ -1021,7 +993,7 @@ TbBool process_players_dungeon_control_packet_action(long plyr_idx)
         toggle_computer_player(plyr_idx);
         break;
     default:
-        return false;
+        return process_players_dungeon_control_cheats_packet_action(plyr_idx, pckt);
     }
     return true;
 }
@@ -1128,37 +1100,40 @@ void process_players_creature_control_packet_control(long idx)
             }
         }
     }
-    struct CreatureStats* crstat = creature_stats_get_from_thing(cctng);
-    i = pckt->pos_y;
-    if (i < 5)
-      i = 5;
-    else
-    if (i > 250)
-      i = 250;
-    long k = i - 127;
-    long angle = (pckt->pos_x - 127) / player->field_14;
-    if (angle != 0)
+    if (pckt->pos_x != 0)
     {
-      if (angle < -32)
-          angle = -32;
-      else
-      if (angle > 32)
-          angle = 32;
-      ccctrl->field_6C += 56 * angle / 32;
+        struct CreatureStats* crstat = creature_stats_get_from_thing(cctng);
+        i = pckt->pos_y;
+        if (i < 5)
+          i = 5;
+        else
+        if (i > 250)
+          i = 250;
+        long k = i - 127;
+        long angle = (pckt->pos_x - 127) / player->field_14;
+        if (angle != 0)
+        {
+          if (angle < -32)
+              angle = -32;
+          else
+          if (angle > 32)
+              angle = 32;
+          ccctrl->field_6C += 56 * angle / 32;
+        }
+        long angle_limit = crstat->max_angle_change;
+        if (angle_limit < 1)
+            angle_limit = 1;
+        angle = ccctrl->field_6C;
+        if (angle < -angle_limit)
+            angle = -angle_limit;
+        else
+        if (angle > angle_limit)
+            angle = angle_limit;
+        cctng->move_angle_xy = (cctng->move_angle_xy + angle) & LbFPMath_AngleMask;
+        cctng->move_angle_z = (227 * k / 127) & LbFPMath_AngleMask;
+        ccctrl->field_CC = 170 * angle / angle_limit;
+        ccctrl->field_6C = 4 * angle / 8;
     }
-    long angle_limit = crstat->max_angle_change;
-    if (angle_limit < 1)
-        angle_limit = 1;
-    angle = ccctrl->field_6C;
-    if (angle < -angle_limit)
-        angle = -angle_limit;
-    else
-    if (angle > angle_limit)
-        angle = angle_limit;
-    cctng->move_angle_xy = (cctng->move_angle_xy + angle) & LbFPMath_AngleMask;
-    cctng->move_angle_z = (227 * k / 127) & LbFPMath_AngleMask;
-    ccctrl->field_CC = 170 * angle / angle_limit;
-    ccctrl->field_6C = 4 * angle / 8;
 }
 
 void process_players_creature_control_packet_action(long plyr_idx)
@@ -1211,6 +1186,21 @@ void process_players_creature_control_packet_action(long plyr_idx)
               instant_instance_selected(i);
           }
         }
+      }
+      break;
+  case PckA_CheatCtrlCrtrSetInstnc:
+      thing = thing_get(player->controlled_thing_idx);
+      if (thing_is_invalid(thing))
+        break;
+      cctrl = creature_control_get_from_thing(thing);
+      if (creature_control_invalid(cctrl))
+        break;
+      i = pckt->actn_par1;
+      inst_inf = creature_instance_info_get(i);
+      k = (!inst_inf->instant) ? get_human_controlled_creature_target(thing, inst_inf->field_1D) : 0;
+      set_creature_instance(thing, i, 1, k, 0);
+      if ( (plyr_idx == my_player_number) && creature_instance_is_available(thing,i) ) {
+          instant_instance_selected(i);
       }
       break;
       case PckA_DirectCtrlDragDrop:

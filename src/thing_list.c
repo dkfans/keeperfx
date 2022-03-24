@@ -681,6 +681,48 @@ long anywhere_thing_filter_is_creature_of_model_training_and_owned_by(const stru
 }
 
 /**
+ * returns if the creature thing matches the model from the filter, considering possible wildcards.
+ * @param creatng The creature being checked.
+ * @param crmodel model to compare it to, possible wildcard.
+  */
+TbBool creature_matches_model(const struct Thing* creatng, long crmodel)
+{
+    if (creatng->class_id != TCls_Creature)
+        return false;
+    if (!is_creature_model_wildcard(crmodel))
+        return crmodel == creatng->model;
+    else if (crmodel == CREATURE_ANY)
+        return true;
+    else if (crmodel == CREATURE_NONE)
+        return false;
+    if (crmodel == CREATURE_DIGGER)
+        return creature_kind_is_for_dungeon_diggers_list(creatng->owner, crmodel);
+    else if (crmodel == CREATURE_NOT_A_DIGGER)
+        return !creature_kind_is_for_dungeon_diggers_list(creatng->owner, crmodel);
+    else
+        ERRORLOG("Invalid model wildcard detected: %d", crmodel);
+    return false;
+}
+
+/**
+ * returns if the thing matches the model from the filter, considering possible wildcards.
+ * @param thing The thing being checked.
+ * @param crmodel model to compare it to, possible wildcard.
+  */
+TbBool thing_matches_model(const struct Thing* thing, long tngmodel)
+{
+    if (thing->class_id == TCls_Creature)
+    {
+        return creature_matches_model(thing, tngmodel);
+    }
+    else if ((tngmodel == -1) || (thing->model == tngmodel))
+    {
+        return true;
+    }
+    return false;
+}
+
+/**
  * Filter function.
  * @param thing The thing being checked.
  * @param param Parameters exchanged between filter calls.
@@ -690,7 +732,7 @@ long anywhere_thing_filter_call_bool_filter(const struct Thing *thing, MaxTngFil
 {
     if ((param->class_id == -1) || (thing->class_id == param->class_id))
     {
-        if ((param->model_id == -1) || (thing->model == param->model_id))
+        if(thing_matches_model(thing, param->model_id))
         {
             if ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
             {

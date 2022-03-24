@@ -161,9 +161,9 @@ int cmd_comp_list(PlayerNumber plyr_idx, int max_count,
 
         data_list[i].numfield_4 = 1;
         data_list[i].callback = click_fn;
-        data_list[i].field_D = plyr_idx;
+        data_list[i].acb_param1 = plyr_idx;
         data_list[i].field_11 = max_count;
-        data_list[i].field_19 = plyr_idx;
+        data_list[i].cb_param1 = plyr_idx;
         data_list[i].field_1D = i;
     }
     data_list[i].label = "!";
@@ -547,7 +547,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
             return true;
         } else if (strcasecmp(parstr, "reveal") == 0)
         {
-            player = get_my_player();
+            player = get_player(plyr_idx);
             reveal_whole_map(player);
             return true;
         } else if (strcasecmp(parstr, "comp.kill") == 0)
@@ -980,7 +980,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
         }
         else if ( (strcasecmp(parstr, "creature.addhealth") == 0) || (strcasecmp(parstr, "creature.health.add") == 0) )
         {
-            player = get_my_player();
+            player = get_player(plyr_idx);
             thing = thing_get(player->influenced_thing_idx);
             if (thing_is_creature(thing))
             {
@@ -990,7 +990,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
         }
         else if ( (strcasecmp(parstr, "creature.subhealth") == 0) || (strcasecmp(parstr, "creature.health.sub") == 0) )
         {
-            player = get_my_player();
+            player = get_player(plyr_idx);
             thing = thing_get(player->influenced_thing_idx);
             if (thing_is_creature(thing))
             {
@@ -1001,7 +1001,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
         else if (strcasecmp(parstr, "digger.sendto") == 0)
         {
             PlayerNumber id = get_player_number_for_command(pr2str);
-            player = get_my_player();
+            player = get_player(plyr_idx);
             thing = thing_get(player->influenced_thing_idx);
             if (thing_is_creature(thing))
             {

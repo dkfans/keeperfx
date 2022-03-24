@@ -41,6 +41,7 @@
 
 #include "keeperfx.hpp"
 #include "creature_senses.h"
+#include "cursor_tag.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -984,37 +985,6 @@ TbBool can_place_trap_on(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoo
     return false;
 }
 
-TbBool tag_cursor_blocks_place_trap(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long full_slab)
-{
-    SYNCDBG(7,"Starting");
-    MapSlabCoord slb_x = subtile_slab_fast(stl_x);
-    MapSlabCoord slb_y = subtile_slab_fast(stl_y);
-    TbBool can_place = can_place_trap_on(plyr_idx, stl_x, stl_y);
-    int floor_height = floor_height_for_volume_box(plyr_idx, slb_x, slb_y);
-    if (is_my_player_number(plyr_idx))
-    {
-        if (!game_is_busy_doing_gui() && (game.small_map_state != 2))
-        {
-            render_roomspace.is_roomspace_a_box = true;
-            render_roomspace.render_roomspace_as_box = true;
-            if (full_slab)
-            {
-                // Move to first subtile on a slab
-                stl_x = slab_subtile(slb_x,0);
-                stl_y = slab_subtile(slb_y,0);
-                render_roomspace.is_roomspace_a_single_subtile = false;
-                draw_map_volume_box(subtile_coord(stl_x,0), subtile_coord(stl_y,0),
-                subtile_coord(stl_x+STL_PER_SLB,0), subtile_coord(stl_y+STL_PER_SLB,0), floor_height, can_place);
-            }
-            else
-            {
-                render_roomspace.is_roomspace_a_single_subtile = true;
-                draw_map_volume_box(subtile_coord(stl_x,0), subtile_coord(stl_y,0), subtile_coord(stl_x+1,0), subtile_coord(stl_y+1,0), floor_height, can_place);
-            }
-        }
-    }
-    return can_place;
-}
 /******************************************************************************/
 #ifdef __cplusplus
 }

@@ -41,8 +41,7 @@
 #include "power_hand.h"
 #include "gui_soundmsgs.h"
 #include "game_legacy.h"
-
-#include "keeperfx.hpp"
+#include "cursor_tag.h"
 
 #ifdef __cplusplus
 extern "C" {

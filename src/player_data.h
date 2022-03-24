@@ -224,6 +224,15 @@ char field_462;
     long field_4E7;
     long field_4EB;
     };
+    
+struct CheatSelection
+{
+    SlabKind chosen_terrain_kind; 
+    PlayerNumber chosen_player;
+    unsigned char chosen_creature_kind;
+    unsigned char chosen_hero_kind;
+    unsigned char chosen_experience_level;
+};
 
 /******************************************************************************/
 DLLIMPORT extern unsigned char _DK_my_player_number;
