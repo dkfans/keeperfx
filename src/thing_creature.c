@@ -5570,7 +5570,7 @@ void controlled_creature_pick_thing_up(struct Thing *creatng, struct Thing *pick
     display_controlled_pick_up_thing_name(picktng, (GUI_MESSAGES_DELAY >> 4));
 }
 
-void controlled_creature_drop_thing(struct Thing *creatng, struct Thing *droptng)
+void controlled_creature_drop_thing(struct Thing *creatng, struct Thing *droptng, PlayerNumber plyr_idx)
 {
     long volume = FULL_LOUDNESS;
     if (droptng->class_id == TCls_Creature)
@@ -5675,7 +5675,10 @@ void controlled_creature_drop_thing(struct Thing *creatng, struct Thing *droptng
                     else
                     {
                         WARNLOG("Adding %s index %d to %s room capacity failed",thing_model_name(droptng),(int)droptng->index,room_code_name(RoK_LIBRARY));
-                        output_message(SMsg_LibraryTooSmall, 0, true);
+                        if (is_my_player_number(plyr_idx))
+                        {
+                            output_message(SMsg_LibraryTooSmall, 0, true);
+                        }
                     }
                 } 
                 else if (thing_is_special_box(droptng))
@@ -5695,7 +5698,10 @@ void controlled_creature_drop_thing(struct Thing *creatng, struct Thing *droptng
                     else
                     {
                         WARNLOG("Adding %s index %d to %s room capacity failed",thing_model_name(droptng),(int)droptng->index,room_code_name(RoK_WORKSHOP));
-                        output_message(SMsg_WorkshopTooSmall, 0, true);
+                        if (is_my_player_number(plyr_idx))
+                        {
+                            output_message(SMsg_WorkshopTooSmall, 0, true);
+                        }
                     }
                 }
             }
@@ -5709,7 +5715,10 @@ void controlled_creature_drop_thing(struct Thing *creatng, struct Thing *droptng
                     }
                     else
                     {
-                        output_message(SMsg_GraveyardTooSmall, 0, true);
+                        if (is_my_player_number(plyr_idx))
+                        {
+                            output_message(SMsg_GraveyardTooSmall, 0, true);
+                        }
                     }
                 }
             }
@@ -5728,7 +5737,10 @@ void controlled_creature_drop_thing(struct Thing *creatng, struct Thing *droptng
                         }
                         else
                         {
-                            output_message(SMsg_PrisonTooSmall, 0, true); 
+                            if (is_my_player_number(plyr_idx))
+                            {
+                                output_message(SMsg_PrisonTooSmall, 0, true);
+                            }
                         }
                     }
                 }
@@ -5757,7 +5769,7 @@ void direct_control_pick_up_or_drop(PlayerNumber plyr_idx, struct Thing *creatng
                 }
             }
         }
-        controlled_creature_drop_thing(creatng, dragtng);
+        controlled_creature_drop_thing(creatng, dragtng, plyr_idx);
     }
     else
     {
@@ -5778,7 +5790,10 @@ void direct_control_pick_up_or_drop(PlayerNumber plyr_idx, struct Thing *creatng
                 {
                     if (is_thing_directly_controlled_by_player(creatng, plyr_idx))
                     {
-                        play_non_3d_sample(119);
+                        if (is_my_player_number(plyr_idx))
+                        {
+                            play_non_3d_sample(119);
+                        }
                         return;
                     }
                 }
@@ -5806,7 +5821,10 @@ void direct_control_pick_up_or_drop(PlayerNumber plyr_idx, struct Thing *creatng
                     {
                         if (is_thing_directly_controlled_by_player(creatng, plyr_idx))
                         {
-                            play_non_3d_sample(119);
+                            if (is_my_player_number(plyr_idx))
+                            {
+                                play_non_3d_sample(119);
+                            }
                             return;
                         }
                     }
