@@ -4229,11 +4229,11 @@ struct Thing *find_players_lowest_level_creature_of_breed_and_gui_job(long crmod
     }
     TbBool is_spec_digger = (crmodel > 0) && creature_kind_is_for_dungeon_diggers_list(plyr_idx, crmodel);
     struct Thing* thing = INVALID_THING;
-    if ((!is_spec_digger) || (crmodel == -1))
+    if ((!is_spec_digger) || (crmodel == CREATURE_ANY) || (crmodel == CREATURE_NOT_A_DIGGER))
     {
         thing = get_player_list_creature_with_filter(dungeon->creatr_list_start, filter, &param);
     }
-    if (((is_spec_digger) || (crmodel == -1)) && thing_is_invalid(thing))
+    if (((is_spec_digger) || (crmodel == CREATURE_ANY) || (crmodel == CREATURE_DIGGER)) && thing_is_invalid(thing))
     {
         thing = get_player_list_creature_with_filter(dungeon->digger_list_start, filter, &param);
     }
@@ -4274,11 +4274,11 @@ struct Thing *find_players_first_creature_of_breed_and_gui_job(long crmodel, lon
     }
     TbBool is_spec_digger = (crmodel > 0) && creature_kind_is_for_dungeon_diggers_list(plyr_idx, crmodel);
     struct Thing* thing = INVALID_THING;
-    if ((!is_spec_digger) || (crmodel == -1))
+    if ((!is_spec_digger) || (crmodel == CREATURE_ANY))
     {
         thing = get_player_list_creature_with_filter(dungeon->creatr_list_start, filter, &param);
     }
-    if (((is_spec_digger) || (crmodel == -1)) && thing_is_invalid(thing))
+    if (((is_spec_digger) || (crmodel == CREATURE_ANY) || (crmodel == CREATURE_DIGGER)) && thing_is_invalid(thing))
     {
         thing = get_player_list_creature_with_filter(dungeon->digger_list_start, filter, &param);
     }
@@ -4304,7 +4304,7 @@ struct Thing *find_players_next_creature_of_breed_and_gui_job(long crmodel, long
     if ((pick_flags & TPF_OrderedPick) == 0)
     {
         long i;
-        if (crmodel != -1)
+        if (crmodel != CREATURE_ANY)
         {
             i = dungeon->selected_creatures_of_model[crmodel];
             thing = thing_get(i);
@@ -4380,7 +4380,7 @@ struct Thing *find_players_next_creature_of_breed_and_gui_job(long crmodel, long
         return INVALID_THING;
     }
     // Remember the creature we've found
-    if (crmodel != -1)
+    if (crmodel != CREATURE_ANY)
     {
         if (thing->model != crmodel) {
             ERRORLOG("Searched for model %d, but found %d.",(int)crmodel,(int)thing->model);
@@ -4406,14 +4406,14 @@ struct Thing *pick_up_creature_of_model_and_gui_job(long crmodel, long job_idx, 
         return INVALID_THING;
     }
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
-    if ((crmodel > 0) && (crmodel < CREATURE_TYPES_COUNT))
+    if (crmodel < CREATURE_TYPES_COUNT)
     {
         if ((job_idx == -1) || (dungeon->guijob_all_creatrs_count[crmodel][job_idx & 0x03]))
         {
             set_players_packet_action(get_player(plyr_idx), PckA_UsePwrHandPick, thing->index, 0, 0, 0);
         }
     } else
-    if ((crmodel == -1))
+    if ((crmodel == CREATURE_ANY))
     {
         set_players_packet_action(get_player(plyr_idx), PckA_UsePwrHandPick, thing->index, 0, 0, 0);
     } else
