@@ -373,7 +373,7 @@ long near_map_block_thing_filter_is_creature_of_model_owned_and_controlled_by(co
 {
     if (thing->class_id == TCls_Creature)
     {
-        if (thing_matches_model(thing,param->model_id))
+        if (creature_matches_model(thing,param->model_id))
         {
             if ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
             {
@@ -404,7 +404,7 @@ long near_map_block_creature_filter_diagonal_random(const struct Thing *thing, M
 {
     if (thing->class_id == TCls_Creature)
     {
-        if (thing_matches_model(thing, param->model_id))
+        if (creature_matches_model(thing, param->model_id))
         {
             if ((param->plyr_idx == ALL_PLAYERS) || (thing->owner == param->plyr_idx))
             {
@@ -660,7 +660,7 @@ long anywhere_thing_filter_is_creature_of_model_training_and_owned_by(const stru
 {
     if (thing->class_id == TCls_Creature)
     {
-      if (thing_matches_model(thing, param->model_id))
+      if (creature_matches_model(thing, param->model_id))
       {
           if ((thing->owner == param->plyr_idx) || (param->plyr_idx == -1))
           {
