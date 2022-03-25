@@ -809,7 +809,7 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
         }
     }
     TbBool dig = true;
-    struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
+    slb = get_slabmap_block(slb_x, slb_y);
     if ( check_place_to_convert_excluding(creatng, slb_x, slb_y) )
     {
         if (!playeradd->first_person_dig_claim_mode)
