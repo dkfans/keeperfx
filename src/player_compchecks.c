@@ -358,7 +358,7 @@ long player_list_creature_filter_best_for_sacrifice(const struct Thing *thing, M
             return -1;
         if ((param->plyr_idx >= 0) && (thing->owner != param->plyr_idx))
             return -1;
-        if (!creature_matches_model(thing, param->model_id))
+        if (!thing_matches_model(thing, param->model_id))
             return -1;
         if ((param->class_id > 0) && (thing->class_id != param->class_id))
             return -1;
