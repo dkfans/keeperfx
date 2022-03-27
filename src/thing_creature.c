@@ -3813,7 +3813,7 @@ long player_list_creature_filter_in_fight_and_not_affected_by_spell(const struct
 
 /**
  * Filter function for selecting creature which is dragging a specific thing.
- * A specific thing can be selected either by index, or by class, model and owner.
+ * A specific thing is selected by index.
  *
  * @param thing Creature thing to be filtered.
  * @param param Struct with specific thing which is dragged.
@@ -3830,18 +3830,7 @@ long player_list_creature_filter_dragging_specific_thing(const struct Thing *thi
         }
         return -1;
     }
-    if ((param->class_id > 0) || ((param->model_id > 0) && (!is_creature_model_wildcard(param->model_id) && param->class_id == TCls_Creature)) || (param->plyr_idx >= 0))
-    {
-        struct Thing* dragtng = thing_get(cctrl->dragtng_idx);
-        if ((param->plyr_idx >= 0) && (dragtng->owner != param->plyr_idx))
-            return -1;
-        if (!creature_matches_model(dragtng,param->model_id))
-            return -1;
-        if ((param->class_id > 0) && (dragtng->class_id != param->class_id))
-            return -1;
-        return LONG_MAX;
-    }
-    // If conditions are not met, return -1 to be sure thing will not be returned.
+    ERRORLOG("No thing index to find dragging creature with");
     return -1;
 }
 
@@ -4106,31 +4095,6 @@ struct Thing *find_players_highest_score_creature_in_fight_not_affected_by_spell
     struct Thing* creatng = get_player_list_creature_with_filter(dungeon->creatr_list_start, filter, &param);
     if (thing_is_invalid(creatng)) {
         creatng = get_player_list_creature_with_filter(dungeon->digger_list_start, filter, &param);
-    }
-    return creatng;
-}
-
-/**
- * Returns a creature who is dragging given thing, if it belongs to given player.
- * @param plyr_idx Player index whose creatures are to be checked.
- * @param dragtng The thing being dragged.
- * @return The thing which is dragging, or invalid thing if not found.
- * @see find_creature_dragging_thing()
- */
-struct Thing *find_players_creature_dragging_thing(PlayerNumber plyr_idx, const struct Thing *dragtng)
-{
-    struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
-    Thing_Maximizer_Filter filter = player_list_creature_filter_dragging_specific_thing;
-    struct CompoundTngFilterParam param;
-    param.class_id = TCls_Creature;
-    param.model_id = CREATURE_ANY;
-    param.plyr_idx = -1;
-    param.num1 = dragtng->index;
-    param.num2 = -1;
-    param.num3 = -1;
-    struct Thing* creatng = get_player_list_creature_with_filter(dungeon->digger_list_start, filter, &param);
-    if (thing_is_invalid(creatng)) {
-        creatng = get_player_list_creature_with_filter(dungeon->creatr_list_start, filter, &param);
     }
     return creatng;
 }
