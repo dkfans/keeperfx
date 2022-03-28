@@ -2101,7 +2101,6 @@ static void reveal_map_location_process(struct ScriptContext *context)
 
 static void player_zoom_to_check(const struct ScriptLine *scline)
 {
-    
     TbMapLocation location;
     const char *where = scline->tp[0];
         if (!get_map_location_id(where, &location)) {
@@ -2109,12 +2108,8 @@ static void player_zoom_to_check(const struct ScriptLine *scline)
     }
 
     ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[1]);
-
     value->arg0 = location;
-
     PROCESS_SCRIPT_VALUE(scline->command);
-
-    
 }
 
 static void player_zoom_to_process(struct ScriptContext *context)
@@ -2123,7 +2118,6 @@ static void player_zoom_to_process(struct ScriptContext *context)
     struct Coord3d pos;
 
     find_location_pos(target, context->player_idx, &pos, __func__);
-
     set_player_zoom_to_position(get_player(context->player_idx),&pos);
 }
 
