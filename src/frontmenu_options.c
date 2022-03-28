@@ -37,6 +37,7 @@
 #include "packets.h"
 #include "config_settings.h"
 #include "keeperfx.hpp"
+#include "gui_topmsg.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -310,6 +311,18 @@ void gui_video_cluedo_maintain(struct GuiButton *gbtn)
         gbtn->btype_value &= LbBFeF_IntValueMask;
         gbtn->flags |= LbBtnF_Enabled;
     }
+}
+
+void gui_switch_video_mode(struct GuiButton *gbtn)
+{
+    struct PlayerInfo* player = get_my_player();
+    set_players_packet_action(player, PckA_SwitchScrnRes, 0, 0, 0, 0);
+}
+
+void gui_display_current_resolution(struct GuiButton *gbtn)
+{
+    char* mode = get_vidmode_name(lbDisplay.ScreenMode);
+    show_onscreen_msg(40, "%s", mode);
 }
 
 void frontend_set_mouse_sensitivity(struct GuiButton *gbtn)

@@ -587,7 +587,7 @@ long instf_dig(struct Thing *creatng, long *param, PlayerNumber plyr_idx)
     return 1;
 }
 
-long instf_destroy(struct Thing *creatng, long *param, PlayerNumber plyr_idx)
+long instf_destroy(struct Thing *creatng, long *param)
 {
     TRACE_THING(creatng);
     MapSlabCoord slb_x = subtile_slab_fast(creatng->mappos.x.stl.num);
@@ -597,7 +597,7 @@ long instf_destroy(struct Thing *creatng, long *param, PlayerNumber plyr_idx)
     struct Room* room = room_get(slb->room_index);
     long prev_owner = slabmap_owner(slb);
     struct PlayerInfo* player;
-    player = get_player(plyr_idx);
+    player = get_player(get_appropriate_player_for_creature(creatng));
     int volume = 32;
 
     if ( !room_is_invalid(room) && (prev_owner != creatng->owner) )
@@ -728,7 +728,7 @@ long instf_eat(struct Thing *creatng, long *param, PlayerNumber plyr_idx)
     return 1;
 }
 
-long instf_fart(struct Thing *creatng, long *param, PlayerNumber plyr_idx)
+long instf_fart(struct Thing *creatng, long *param)
 {
     TRACE_THING(creatng);
     //return _DK_instf_fart(creatng, param);
@@ -742,10 +742,10 @@ long instf_fart(struct Thing *creatng, long *param, PlayerNumber plyr_idx)
     return 1;
 }
 
-long instf_first_person_do_imp_task(struct Thing *creatng, long *param, PlayerNumber plyr_idx)
+long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    struct PlayerInfo* player = get_player(plyr_idx);
+    struct PlayerInfo* player = get_player(get_appropriate_player_for_creature(creatng));
     TRACE_THING(creatng);
     struct SlabMap* slb;
     MapSubtlCoord ahead_stl_x = creatng->mappos.x.stl.num;
@@ -779,7 +779,8 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param, PlayerNu
         ahead_stl_x++;
         ahead_slb_x++;
     }
-    if ( (player->thing_under_hand != 0) || (cctrl->dragtng_idx != 0) )
+    struct PlayerInfoAdd* playeradd = get_playeradd(player->id_number);
+    if ( (playeradd->selected_fp_thing_pickup != 0) || (cctrl->dragtng_idx != 0) )
     {
         set_players_packet_action(player, PckA_DirectCtrlDragDrop, 0, 0, 0, 0);
         return 1;
@@ -808,8 +809,7 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param, PlayerNu
             }
         }
     }
-    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
-    if ( (dungeonadd->first_person_dig_claim_mode) || (!subtile_diggable) )
+    if ( (playeradd->first_person_dig_claim_mode) || (!subtile_diggable) )
     {
         slb = get_slabmap_block(slb_x, slb_y);
         if ( check_place_to_convert_excluding(creatng, slb_x, slb_y) )
@@ -871,7 +871,7 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param, PlayerNu
             }
         }
     }
-    if (dungeonadd->first_person_dig_claim_mode == false)
+    if (playeradd->first_person_dig_claim_mode == false)
     {
         //TODO CONFIG shot model dependency
         long locparam = ShM_Dig;
@@ -899,7 +899,7 @@ long instf_pretty_path(struct Thing *creatng, long *param, PlayerNumber plyr_idx
     return 1;
 }
 
-long instf_reinforce(struct Thing *creatng, long *param, PlayerNumber plyr_idx)
+long instf_reinforce(struct Thing *creatng, long *param)
 {
     SYNCDBG(16,"Starting");
     TRACE_THING(creatng);
@@ -917,7 +917,7 @@ long instf_reinforce(struct Thing *creatng, long *param, PlayerNumber plyr_idx)
         if (!S3DEmitterIsPlayingSample(creatng->snd_emitter_id, 63, 0))
         {
             struct PlayerInfo* player;
-            player = get_player(plyr_idx);
+            player = get_player(get_appropriate_player_for_creature(creatng));
             int volume = 32;
             if ((player->view_type == PVT_CreatureContrl) || (player->view_type == PVT_CreaturePasngr))
             {

@@ -1954,37 +1954,37 @@ void maintain_creature_button(struct GuiButton* gbtn)
 void pick_up_next_wanderer(struct GuiButton *gbtn)
 {
     unsigned short pick_flags = get_creature_pick_flags(1);
-    pick_up_creature_of_model_and_gui_job(-1, CrGUIJob_Wandering, my_player_number, pick_flags);
+    pick_up_creature_of_model_and_gui_job(CREATURE_ANY, CrGUIJob_Wandering, my_player_number, pick_flags);
 }
 
 void gui_go_to_next_wanderer(struct GuiButton *gbtn)
 {
     unsigned short pick_flags = get_creature_pick_flags(0);
-    go_to_next_creature_of_model_and_gui_job(-1, CrGUIJob_Wandering, pick_flags);
+    go_to_next_creature_of_model_and_gui_job(CREATURE_ANY, CrGUIJob_Wandering, pick_flags);
 }
 
 void pick_up_next_worker(struct GuiButton *gbtn)
 {
     unsigned short pick_flags = get_creature_pick_flags(1);
-    pick_up_creature_of_model_and_gui_job(-1, CrGUIJob_Working, my_player_number, pick_flags);
+    pick_up_creature_of_model_and_gui_job(CREATURE_ANY, CrGUIJob_Working, my_player_number, pick_flags);
 }
 
 void gui_go_to_next_worker(struct GuiButton *gbtn)
 {
     unsigned short pick_flags = get_creature_pick_flags(0);
-    go_to_next_creature_of_model_and_gui_job(-1, CrGUIJob_Working, pick_flags);
+    go_to_next_creature_of_model_and_gui_job(CREATURE_ANY, CrGUIJob_Working, pick_flags);
 }
 
 void pick_up_next_fighter(struct GuiButton *gbtn)
 {
     unsigned short pick_flags = get_creature_pick_flags(1);
-    pick_up_creature_of_model_and_gui_job(-1, CrGUIJob_Fighting, my_player_number, pick_flags);
+    pick_up_creature_of_model_and_gui_job(CREATURE_ANY, CrGUIJob_Fighting, my_player_number, pick_flags);
 }
 
 void gui_go_to_next_fighter(struct GuiButton *gbtn)
 {
     unsigned short pick_flags = get_creature_pick_flags(0);
-    go_to_next_creature_of_model_and_gui_job(-1, CrGUIJob_Fighting, pick_flags);
+    go_to_next_creature_of_model_and_gui_job(CREATURE_ANY, CrGUIJob_Fighting, pick_flags);
 }
 
 void gui_area_payday_button(struct GuiButton *gbtn)

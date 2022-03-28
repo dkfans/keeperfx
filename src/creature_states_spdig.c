@@ -1816,7 +1816,7 @@ short creature_arms_trap_first_person(struct Thing *creatng)
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     struct Thing* cratetng = thing_get(cctrl->dragtng_idx);
     struct Thing* traptng = thing_get(cctrl->arming_thing_id);
-    controlled_creature_drop_thing(creatng, cratetng);
+    controlled_creature_drop_thing(creatng, cratetng, get_appropriate_player_for_creature(creatng));
     move_thing_in_map(cratetng, &traptng->mappos);
     rearm_trap(traptng);
     thing_play_sample(traptng, 1000, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);

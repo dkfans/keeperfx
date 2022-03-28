@@ -943,8 +943,13 @@ TbScreenMode switch_to_next_video_mode(void)
     }
     SYNCLOG("Switched video to %s (mode %d)", get_vidmode_name(scrmode),(int)scrmode);
     save_settings();
+    TbBool reload_video = (menu_is_active(GMnu_VIDEO));
     reinit_all_menus();
     init_custom_sprites(SPRITE_LAST_LEVEL);
+    if (reload_video)
+    {
+        turn_on_menu(GMnu_VIDEO);
+    }
     return scrmode;
 }
 
