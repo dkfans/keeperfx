@@ -96,12 +96,15 @@ TbBool set_selected_creature_f(struct PlayerInfo *player, struct Thing *thing, c
 #define set_selected_thing(player,thing) set_selected_thing_f(player, thing, __func__)
 TbBool set_selected_thing_f(struct PlayerInfo *player, struct Thing *thing, const char *func_name);
 TbBool clear_selected_thing(struct PlayerInfo *player);
+
 TbBool is_thing_directly_controlled(const struct Thing *thing);
 TbBool is_thing_passenger_controlled(const struct Thing *thing);
 TbBool is_thing_query_controlled(const struct Thing *thing);
 TbBool is_thing_some_way_controlled(const struct Thing *thing);
 TbBool is_thing_directly_controlled_by_player(const struct Thing *thing, PlayerNumber plyr_idx);
 TbBool is_thing_passenger_controlled_by_player(const struct Thing *thing, PlayerNumber plyr_idx);
+
+void set_player_zoom_to_position(struct PlayerInfo *player,struct Coord3d *pos);
 
 struct Room *player_build_room_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, RoomKind rkind);
 TbBool player_place_trap_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, ThingModel tngmodel);

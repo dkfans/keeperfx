@@ -2099,6 +2099,35 @@ static void reveal_map_location_process(struct ScriptContext *context)
         reveal_map_area(context->player_idx, x-(r>>1), x+(r>>1)+(r&1), y-(r>>1), y+(r>>1)+(r&1));
 }
 
+static void player_zoom_to_check(const struct ScriptLine *scline)
+{
+    
+    TbMapLocation location;
+    const char *where = scline->tp[0];
+        if (!get_map_location_id(where, &location)) {
+        return;
+    }
+SCRPTERRLOG("huh '%d'. .", scline->np[1]);
+
+    ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[1]);
+
+    value->arg0 = location;
+
+    PROCESS_SCRIPT_VALUE(scline->command);
+
+    
+}
+
+static void player_zoom_to_process(struct ScriptContext *context)
+{
+    TbMapLocation target = context->value->arg0;
+    struct Coord3d pos;
+
+    find_location_pos(target, context->player_idx, &pos, __func__);
+
+    set_player_zoom_to_position(get_player(context->player_idx),&pos);
+}
+
 /**
  * Descriptions of script commands for parser.
  * Arguments are: A-string, N-integer, C-creature model, P- player, R- room kind, L- location, O- operator, S- slab kind, X- creature property
@@ -2226,6 +2255,7 @@ const struct CommandDesc command_desc[] = {
   {"HEART_LOST_QUICK_OBJECTIVE",        "NAl     ", Cmd_HEART_LOST_QUICK_OBJECTIVE, &heart_lost_quick_objective_check, &heart_lost_quick_objective_process},
   {"HEART_LOST_OBJECTIVE",              "Nl      ", Cmd_HEART_LOST_OBJECTIVE, &heart_lost_objective_check, &heart_lost_objective_process},
   {"SET_DOOR",                          "ANN     ", Cmd_SET_DOOR, &set_door_check, &set_door_process},
+  {"MOVE_PLAYER_CAMERA_TO",             "LP      ", Cmd_MOVE_PLAYER_CAMERA_TO, &player_zoom_to_check, &player_zoom_to_process},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 

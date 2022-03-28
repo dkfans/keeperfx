@@ -800,6 +800,15 @@ long pinstfe_fade_from_map(struct PlayerInfo *player, long *n)
     return 0;
 }
 
+void set_player_zoom_to_position(struct PlayerInfo *player,struct Coord3d *pos)
+{
+    player->zoom_to_pos_x = pos->x.val;
+    player->zoom_to_pos_y = pos->y.val;
+
+    set_player_instance(player, PI_ZoomToPos, 0);
+
+}
+
 long pinstfs_zoom_to_position(struct PlayerInfo *player, long *n)
 {
     //return _DK_pinstfs_zoom_to_position(player, n);
