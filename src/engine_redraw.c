@@ -140,18 +140,6 @@ static void draw_creature_view_icons(struct Thing* creatng)
         }
         draw_gui_panel_sprite_left(x, y, ps_units_per_px, spr_idx);
     }
-    else
-    {
-        struct PlayerInfoAdd* playeradd = get_playeradd(my_player_number);
-        if (playeradd->first_person_dig_claim_mode)
-        {
-            if (cctrl->active_instance_id == CrInst_FIRST_PERSON_DIG)
-            {
-                x = MyScreenWidth - (scale_value_by_horizontal_resolution(148) / 4);
-                draw_gui_panel_sprite_left(x, y, ps_units_per_px, instance_button_init[CrInst_FIRST_PERSON_DIG].symbol_spridx);
-            }
-        }
-    }
 }
 
 void setup_engine_window(long x, long y, long width, long height)
