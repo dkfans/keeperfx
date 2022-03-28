@@ -45,6 +45,7 @@
 #include "gui_soundmsgs.h"
 #include "sounds.h"
 #include "game_legacy.h"
+#include "player_instances.h"
 
 #include "keeperfx.hpp"
 
@@ -159,8 +160,6 @@ struct InstanceInfo instance_info[] = {
     {0, 16,  4,  4,  2,   1,   1,  5,  0,  0,  3, NULL,                              {0,0}},
     {0,  8,  4,  4,  2,   1,   1,  6,  0,  0,  3, NULL,                              {0,0}},
 };
-
-TbBool first_person_dig_claim_mode = false;
 
 /******************************************************************************/
 #ifdef __cplusplus
@@ -597,7 +596,7 @@ long instf_destroy(struct Thing *creatng, long *param)
     struct Room* room = room_get(slb->room_index);
     long prev_owner = slabmap_owner(slb);
     struct PlayerInfo* player;
-    player = get_my_player();
+    player = get_player(get_appropriate_player_for_creature(creatng));
     int volume = 32;
 
     if ( !room_is_invalid(room) && (prev_owner != creatng->owner) )
@@ -646,7 +645,6 @@ long instf_destroy(struct Thing *creatng, long *param)
         volume = FULL_LOUDNESS;
     }
     thing_play_sample(creatng, 128 + UNSYNC_RANDOM(3), 200, 0, 3, 0, 2, volume);
-
     decrease_dungeon_area(prev_owner, 1);
     neutralise_enemy_block(creatng->mappos.x.stl.num, creatng->mappos.y.stl.num, creatng->owner);
     remove_traps_around_subtile(slab_subtile_center(slb_x), slab_subtile_center(slb_y), NULL);
@@ -746,7 +744,7 @@ long instf_fart(struct Thing *creatng, long *param)
 long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    struct PlayerInfo* player = get_my_player();
+    struct PlayerInfo* player = get_player(get_appropriate_player_for_creature(creatng));
     TRACE_THING(creatng);
     struct SlabMap* slb;
     MapSubtlCoord ahead_stl_x = creatng->mappos.x.stl.num;
@@ -780,7 +778,8 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
         ahead_stl_x++;
         ahead_slb_x++;
     }
-    if ( (player->thing_under_hand != 0) || (cctrl->dragtng_idx != 0) )
+    struct PlayerInfoAdd* playeradd = get_playeradd(player->id_number);
+    if ( (playeradd->selected_fp_thing_pickup != 0) || (cctrl->dragtng_idx != 0) )
     {
         set_players_packet_action(player, PckA_DirectCtrlDragDrop, 0, 0, 0, 0);
         return 1;
@@ -809,7 +808,7 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
             }
         }
     }
-    if ( (first_person_dig_claim_mode) || (!subtile_diggable) )
+    if ( (playeradd->first_person_dig_claim_mode) || (!subtile_diggable) )
     {
         slb = get_slabmap_block(slb_x, slb_y);
         if ( check_place_to_convert_excluding(creatng, slb_x, slb_y) )
@@ -871,7 +870,7 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
             }
         }
     }
-    if (first_person_dig_claim_mode == false)
+    if (playeradd->first_person_dig_claim_mode == false)
     {
         //TODO CONFIG shot model dependency
         long locparam = ShM_Dig;
@@ -917,7 +916,7 @@ long instf_reinforce(struct Thing *creatng, long *param)
         if (!S3DEmitterIsPlayingSample(creatng->snd_emitter_id, 63, 0))
         {
             struct PlayerInfo* player;
-            player = get_my_player();
+            player = get_player(get_appropriate_player_for_creature(creatng));
             int volume = 32;
             if ((player->view_type == PVT_CreatureContrl) || (player->view_type == PVT_CreaturePasngr))
             {

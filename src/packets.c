@@ -1146,6 +1146,7 @@ void process_players_creature_control_packet_action(long plyr_idx)
   long i;
   long k;
   player = get_player(plyr_idx);
+  struct PlayerInfoAdd* playeradd;
   pckt = get_packet_direct(player->packet_num);
   SYNCDBG(6,"Processing player %d action %d",(int)plyr_idx,(int)pckt->action);
   switch (pckt->action)
@@ -1205,9 +1206,28 @@ void process_players_creature_control_packet_action(long plyr_idx)
       break;
       case PckA_DirectCtrlDragDrop:
       {
-         direct_control_pick_up_or_drop(player);
+         thing = thing_get(player->controlled_thing_idx);
+         direct_control_pick_up_or_drop(plyr_idx, thing);
          break;
       }
+    case PckA_SetFirstPersonDigMode:
+    {
+        playeradd = get_playeradd(plyr_idx);
+        playeradd->first_person_dig_claim_mode = pckt->actn_par1;
+        break;
+    }
+    case PckA_SwitchTeleportDest:
+    {
+        playeradd = get_playeradd(plyr_idx);
+        playeradd->teleport_destination = pckt->actn_par1;
+        break; 
+    }
+    case PckA_SelectFPPickup:
+    {
+        playeradd = get_playeradd(plyr_idx);
+        playeradd->selected_fp_thing_pickup = pckt->actn_par1;
+        break;
+    }
   }
 }
 
