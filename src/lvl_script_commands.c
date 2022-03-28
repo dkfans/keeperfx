@@ -2107,7 +2107,6 @@ static void player_zoom_to_check(const struct ScriptLine *scline)
         if (!get_map_location_id(where, &location)) {
         return;
     }
-SCRPTERRLOG("huh '%d'. .", scline->np[1]);
 
     ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[1]);
 
