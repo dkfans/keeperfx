@@ -663,12 +663,12 @@ TbBool packets_process_cheats(
                 const char* msg = get_string(slbattr->tooltip_stridx);
                 strcpy(str, msg);
                 char* dis_msg = strtok(str, ":");
-                targeted_message_add(dungeonadd->cheatselection.chosen_player, plyr_idx, 1, dis_msg);
+                targeted_message_add(playeradd->cheatselection.chosen_player, plyr_idx, 1, dis_msg);
             }
             else
             {
                 slab_cfgstats = get_slab_kind_stats(dungeonadd->cheatselection.chosen_terrain_kind);
-                targeted_message_add(dungeonadd->cheatselection.chosen_player, plyr_idx, 1, slab_cfgstats->code_name);            
+                targeted_message_add(playeradd->cheatselection.chosen_player, plyr_idx, 1, slab_cfgstats->code_name);            
             }
             clear_messages_from_player(-127);
             if (is_key_pressed(KC_RSHIFT, KMod_DONTCARE))
