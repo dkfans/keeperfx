@@ -71,8 +71,8 @@ TbBool packets_process_cheats(
     {
         case PSt_MkDigger:
         allowed = tag_cursor_blocks_place_thing(plyr_idx, stl_x, stl_y);
-        clear_messages_from_player(dungeonadd->cheatselection.chosen_player);
-        targeted_message_add(dungeonadd->cheatselection.chosen_player, plyr_idx, 1, "%d", dungeonadd->cheatselection.chosen_experience_level + 1);
+        clear_messages_from_player(playeradd->cheatselection.chosen_player);
+        targeted_message_add(playeradd->cheatselection.chosen_player, plyr_idx, 1, "%d", playeradd->cheatselection.chosen_experience_level + 1);
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {
             if (allowed)
@@ -101,7 +101,7 @@ TbBool packets_process_cheats(
             struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[playeradd->cheatselection.chosen_hero_kind];
             sprintf(str, "%s %d", get_string(crconf->namestr_idx), playeradd->cheatselection.chosen_experience_level + 1);
         }
-        targeted_message_add(dungeonadd->cheatselection.chosen_player, plyr_idx, 1, "%s", str);
+        targeted_message_add(playeradd->cheatselection.chosen_player, plyr_idx, 1, "%s", str);
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {
             if (allowed)
@@ -255,7 +255,7 @@ TbBool packets_process_cheats(
             struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[playeradd->cheatselection.chosen_creature_kind + 13];
             sprintf(str, "%s %d", get_string(crconf->namestr_idx), playeradd->cheatselection.chosen_experience_level + 1);
         }
-        targeted_message_add(dungeonadd->cheatselection.chosen_player, plyr_idx, 1, "%s", str);
+        targeted_message_add(playeradd->cheatselection.chosen_player, plyr_idx, 1, "%s", str);
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {
             if (allowed)
@@ -337,7 +337,7 @@ TbBool packets_process_cheats(
         {
             sprintf(str, get_string(419));
         }
-        targeted_message_add(dungeonadd->cheatselection.chosen_player, plyr_idx, 1, str);
+        targeted_message_add(playeradd->cheatselection.chosen_player, plyr_idx, 1, str);
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {    
             if (allowed)
@@ -386,8 +386,8 @@ TbBool packets_process_cheats(
             }
             break;
         case PSt_ConvertCreatr:
-        clear_messages_from_player(dungeonadd->cheatselection.chosen_player);
-        targeted_message_add(dungeonadd->cheatselection.chosen_player, plyr_idx, 1, str);
+        clear_messages_from_player(playeradd->cheatselection.chosen_player);
+        targeted_message_add(playeradd->cheatselection.chosen_player, plyr_idx, 1, str);
         thing = get_creature_near(x, y);
         if ((!thing_is_creature(thing)) || (thing->owner == playeradd->cheatselection.chosen_player))
         {
@@ -405,8 +405,8 @@ TbBool packets_process_cheats(
         break;
         case PSt_StealSlab:
         allowed = tag_cursor_blocks_steal_slab(plyr_idx, stl_x, stl_y);
-        clear_messages_from_player(dungeonadd->cheatselection.chosen_player);
-        targeted_message_add(dungeonadd->cheatselection.chosen_player, plyr_idx, 1, str);
+        clear_messages_from_player(playeradd->cheatselection.chosen_player);
+        targeted_message_add(playeradd->cheatselection.chosen_player, plyr_idx, 1, str);
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {
             if (allowed)
@@ -516,7 +516,7 @@ TbBool packets_process_cheats(
           struct PlayerInfo* PlayerToKill = get_player(playeradd->cheatselection.chosen_player);
           if (player_exists(PlayerToKill))
           {
-              targeted_message_add(dungeonadd->cheatselection.chosen_player, plyr_idx, 1, str);
+              targeted_message_add(playeradd->cheatselection.chosen_player, plyr_idx, 1, str);
               if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
               {
                 set_packet_action(pckt, PckA_CheatKillPlayer, PlayerToKill->id_number, 0, 0, 0);
@@ -667,7 +667,7 @@ TbBool packets_process_cheats(
             }
             else
             {
-                slab_cfgstats = get_slab_kind_stats(dungeonadd->cheatselection.chosen_terrain_kind);
+                slab_cfgstats = get_slab_kind_stats(playeradd->cheatselection.chosen_terrain_kind);
                 targeted_message_add(playeradd->cheatselection.chosen_player, plyr_idx, 1, slab_cfgstats->code_name);            
             }
             clear_messages_from_player(-127);
