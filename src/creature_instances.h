@@ -85,7 +85,7 @@ enum CreatureInstances {
 
 struct Thing;
 
-typedef long (*Creature_Instf_Func)(struct Thing *, long *, PlayerNumber plyr_idx);
+typedef long (*Creature_Instf_Func)(struct Thing *, long *);
 
 struct InstanceInfo { // sizeof = 42
     TbBool instant;
