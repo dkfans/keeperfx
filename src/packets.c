@@ -1222,10 +1222,6 @@ void process_players_creature_control_packet_action(long plyr_idx)
         playeradd->teleport_destination = pckt->actn_par1;
         break; 
     }
-        playeradd = get_playeradd(plyr_idx);
-        playeradd->teleport_destination = pckt->actn_par1;
-        break; 
-    }
     case PckA_SelectFPPickup:
     {
         playeradd = get_playeradd(plyr_idx);
