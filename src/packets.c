@@ -1218,7 +1218,7 @@ void process_players_creature_control_packet_action(long plyr_idx)
     }
     case PckA_SwitchTeleportDest:
     {
-        playeradd = get_dungeonadd(plyr_idx);
+        playeradd = get_playeradd(plyr_idx);
         playeradd->teleport_destination = pckt->actn_par1;
         break; 
     }
