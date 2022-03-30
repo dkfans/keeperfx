@@ -880,7 +880,6 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
     }
     return 1;
 }
-}
 
 long instf_pretty_path(struct Thing *creatng, long *param)
 {
