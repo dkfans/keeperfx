@@ -596,7 +596,7 @@ long instf_destroy(struct Thing *creatng, long *param)
     struct Room* room = room_get(slb->room_index);
     long prev_owner = slabmap_owner(slb);
     struct PlayerInfo* player;
-    player = get_player(get_appropriate_player_for_creature(creatng));
+    player = get_my_player();
     int volume = 32;
 
     if ( !room_is_invalid(room) && (prev_owner != creatng->owner) )
