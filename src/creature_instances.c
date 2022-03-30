@@ -916,7 +916,7 @@ long instf_reinforce(struct Thing *creatng, long *param)
         if (!S3DEmitterIsPlayingSample(creatng->snd_emitter_id, 63, 0))
         {
             struct PlayerInfo* player;
-            player = get_player(get_appropriate_player_for_creature(creatng));
+            player = get_my_player();
             int volume = 32;
             if ((player->view_type == PVT_CreatureContrl) || (player->view_type == PVT_CreaturePasngr))
             {
