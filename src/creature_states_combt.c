@@ -533,6 +533,8 @@ void update_battle_events(BattleIndex battle_id)
     unsigned short owner_flags = 0;
     MapCoord map_x = -1;
     MapCoord map_y = -1;
+    MapCoord map_z = -1;
+    struct DungeonAdd* DungeonAdd;
     unsigned long k = 0;
     struct CreatureBattle* battle = creature_battle_get(battle_id);
     int i = battle->first_creatr;
@@ -551,6 +553,7 @@ void update_battle_events(BattleIndex battle_id)
         owner_flags |= (1 << thing->owner);
         map_x = thing->mappos.x.val;
         map_y = thing->mappos.y.val;
+        map_z = thing->mappos.z.val;
         // Per thing code ends
         k++;
         if (k > CREATURES_COUNT)
@@ -563,7 +566,14 @@ void update_battle_events(BattleIndex battle_id)
     {
         if ((i == game.hero_player_num) || (i == game.neutral_player_num))
             continue;
-        if ((1 << i) & owner_flags) {
+        if ((1 << i) & owner_flags) 
+        {
+            struct Coord3d pos;
+            pos.x.val = map_x;
+            pos.y.val = map_y;
+            pos.z.val = map_z;
+            DungeonAdd = get_dungeonadd(i);
+            memcpy(&DungeonAdd->last_combat_location, &pos, sizeof(struct Coord3d));
             if ((1 << i) == owner_flags) {
                 event_create_event_or_update_old_event(map_x, map_y, EvKind_FriendlyFight, i, 0);
             } else {
