@@ -641,7 +641,7 @@ static void display_objective_check(const struct ScriptLine *scline)
 {
   long msg_num = scline->np[0];
   long x, y;
-  TbMapLocation location = 0;
+  TbMapLocation location = MLoc_NONE;
   if ((msg_num < 0) || (msg_num >= STRINGS_MAX))
   {
     SCRPTERRLOG("Invalid TEXT number");
@@ -649,11 +649,14 @@ static void display_objective_check(const struct ScriptLine *scline)
   }
   if (scline->command == Cmd_DISPLAY_OBJECTIVE)
   {
-    const char *where = scline->tp[1];
-    if (!get_map_location_id(where, &location))
-    {
-      return;
-    }
+      if (*scline->tp[1] != '\0')
+      {
+          const char* where = scline->tp[1];
+          if (!get_map_location_id(where, &location))
+          {
+              return;
+          }
+      }
     command_add_value(Cmd_DISPLAY_OBJECTIVE, ALL_PLAYERS, msg_num, location, 0);
   }
   else
@@ -2133,9 +2136,9 @@ const struct CommandDesc command_desc[] = {
   {"MAX_CREATURES",                     "PN      ", Cmd_MAX_CREATURES, NULL, NULL},
   {"NEXT_COMMAND_REUSABLE",             "        ", Cmd_NEXT_COMMAND_REUSABLE, NULL, NULL},
   {"DOOR_AVAILABLE",                    "PANN    ", Cmd_DOOR_AVAILABLE, NULL, NULL},
-  {"DISPLAY_OBJECTIVE",                 "NL      ", Cmd_DISPLAY_OBJECTIVE, &display_objective_check, &display_objective_process},
+  {"DISPLAY_OBJECTIVE",                 "Nl      ", Cmd_DISPLAY_OBJECTIVE, &display_objective_check, &display_objective_process},
   {"DISPLAY_OBJECTIVE_WITH_POS",        "NNN     ", Cmd_DISPLAY_OBJECTIVE_WITH_POS, &display_objective_check, &display_objective_process},
-  {"DISPLAY_INFORMATION",               "NL      ", Cmd_DISPLAY_INFORMATION, NULL, NULL},
+  {"DISPLAY_INFORMATION",               "Nl      ", Cmd_DISPLAY_INFORMATION, NULL, NULL},
   {"DISPLAY_INFORMATION_WITH_POS",      "NNN     ", Cmd_DISPLAY_INFORMATION_WITH_POS, NULL, NULL},
   {"ADD_TUNNELLER_PARTY_TO_LEVEL",      "PAAANNN ", Cmd_ADD_TUNNELLER_PARTY_TO_LEVEL, NULL, NULL},
   {"ADD_CREATURE_TO_POOL",              "CN      ", Cmd_ADD_CREATURE_TO_POOL, NULL, NULL},
@@ -2159,8 +2162,8 @@ const struct CommandDesc command_desc[] = {
   {"ALLY_PLAYERS",                      "PPN     ", Cmd_ALLY_PLAYERS, NULL, NULL},
   {"DEAD_CREATURES_RETURN_TO_POOL",     "N       ", Cmd_DEAD_CREATURES_RETURN_TO_POOL, NULL, NULL},
   {"BONUS_LEVEL_TIME",                  "Nn      ", Cmd_BONUS_LEVEL_TIME, NULL, NULL},
-  {"QUICK_OBJECTIVE",                   "NAL     ", Cmd_QUICK_OBJECTIVE, NULL, NULL},
-  {"QUICK_INFORMATION",                 "NAL     ", Cmd_QUICK_INFORMATION, NULL, NULL},
+  {"QUICK_OBJECTIVE",                   "NAl     ", Cmd_QUICK_OBJECTIVE, NULL, NULL},
+  {"QUICK_INFORMATION",                 "NAl     ", Cmd_QUICK_INFORMATION, NULL, NULL},
   {"QUICK_OBJECTIVE_WITH_POS",          "NANN    ", Cmd_QUICK_OBJECTIVE_WITH_POS, NULL, NULL},
   {"QUICK_INFORMATION_WITH_POS",        "NANN    ", Cmd_QUICK_INFORMATION_WITH_POS, NULL, NULL},
   {"SWAP_CREATURE",                     "AC      ", Cmd_SWAP_CREATURE, NULL, NULL},

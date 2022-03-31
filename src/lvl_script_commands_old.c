@@ -288,8 +288,15 @@ static void command_display_information(long msg_num, const char *where, long x,
       SCRPTERRLOG("Invalid TEXT number");
       return;
     }
-    if (!get_map_location_id(where, &location))
-      return;
+    if (*where != '\0')
+    {
+        if (!get_map_location_id(where, &location))
+            return;
+    }
+    else
+    {
+        location = MLoc_NONE;
+    }
     command_add_value(Cmd_DISPLAY_INFORMATION, ALL_PLAYERS, msg_num, location, get_subtile_number(x,y));
 }
 
@@ -1181,8 +1188,15 @@ static void command_quick_objective(int idx, const char *msgtext, const char *wh
   }
   strncpy(gameadd.quick_messages[idx], msgtext, MESSAGE_TEXT_LEN-1);
   gameadd.quick_messages[idx][MESSAGE_TEXT_LEN-1] = '\0';
-  if (!get_map_location_id(where, &location))
-    return;
+  if (*where != '\0')
+  {
+      if (!get_map_location_id(where, &location))
+          return;
+  }
+  else
+  {
+      location = MLoc_NONE;
+  }
   command_add_value(Cmd_QUICK_OBJECTIVE, ALL_PLAYERS, idx, location, get_subtile_number(x,y));
 }
 
@@ -1204,8 +1218,15 @@ static void command_quick_information(int idx, const char *msgtext, const char *
   }
   strncpy(gameadd.quick_messages[idx], msgtext, MESSAGE_TEXT_LEN-1);
   gameadd.quick_messages[idx][MESSAGE_TEXT_LEN-1] = '\0';
-  if (!get_map_location_id(where, &location))
-    return;
+  if (*where != '\0')
+  {
+      if (!get_map_location_id(where, &location))
+          return;
+  }
+  else
+  {
+      location = MLoc_NONE;
+  }
   command_add_value(Cmd_QUICK_INFORMATION, ALL_PLAYERS, idx, location, get_subtile_number(x,y));
 }
 
