@@ -255,8 +255,8 @@ TngUpdateRet update_dead_creature(struct Thing *thing)
             }
         } else
         {
-            if ((game.play_gameturn - thing->creation_turn > game.body_remains_for) ||
-                !corpse_is_rottable(thing))
+            if (((game.play_gameturn - thing->creation_turn > game.body_remains_for) || !corpse_is_rottable(thing))
+                && !(is_thing_directly_controlled(thing) || is_thing_passenger_controlled(thing)))
             {
                 EVM_CREATURE_EVENT("remove", thing->owner, thing);
                 delete_corpse(thing);
