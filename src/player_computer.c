@@ -1237,6 +1237,33 @@ TbBool setup_a_computer_player(PlayerNumber plyr_idx, long comp_model)
     return true;
 }
 
+
+TbBool script_support_setup_player_as_computer_keeper(PlayerNumber plyridx, long comp_model)
+{
+    struct PlayerInfo* player = get_player(plyridx);
+    if (player_invalid(player)) {
+        SCRPTWRNLOG("Tried to set up invalid player %d",(int)plyridx);
+        return false;
+    }
+    // It uses >= because the count will be one higher than
+    // the actual highest possible computer model number.
+    if ((comp_model < 0) || (comp_model >= COMPUTER_MODELS_COUNT)) {
+        SCRPTWRNLOG("Tried to set up player %d as outranged computer model %d",(int)plyridx,(int)comp_model);
+        comp_model = 0;
+    }
+    player->allocflags |= PlaF_Allocated;
+    player->id_number = plyridx;
+    player->is_active = 1;
+    player->allocflags |= PlaF_CompCtrl;
+    init_player_start(player, false);
+    if (!setup_a_computer_player(plyridx, comp_model)) {
+        player->allocflags &= ~PlaF_CompCtrl;
+        player->allocflags &= ~PlaF_Allocated;
+        return false;
+    }
+    return true;
+}
+
 void computer_check_events(struct Computer2 *comp)
 {
     SYNCDBG(17,"Starting");
@@ -1558,6 +1585,8 @@ void restore_computer_player_after_load(void)
             continue;
         }
         comp->dungeon = get_players_dungeon(player);
+        comp->events = &get_dungeonadd(plyr_idx)->computer_info.events[0];
+        comp->checks = &get_dungeonadd(plyr_idx)->computer_info.checks[0];
         struct ComputerProcessTypes* cpt = get_computer_process_type_template(comp->model);
 
         long i;

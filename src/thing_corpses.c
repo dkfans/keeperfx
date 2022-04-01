@@ -165,7 +165,7 @@ void remove_body_from_graveyard(struct Thing *thing)
         return;
     }
     room->used_capacity--;
-    thing->byte_14 = 0; //Laid to rest
+    thing->corpse.laid_to_rest = 0;
     struct Dungeon* dungeon = get_dungeon(room->owner);
     dungeon->bodies_rotten_for_vampire++;
     dungeon->lvstats.graveyard_bodys++;

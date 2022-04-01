@@ -229,7 +229,7 @@ TbBool tag_blocks_for_digging_in_area(MapSubtlCoord stl_x, MapSubtlCoord stl_y, 
       } else
       if (((mapblk->flags & SlbAtFlg_Digable) == 0) && (((mapblk->flags & SlbAtFlg_Filled) == 0) || (slabmap_owner(slb) != plyr_idx)))
       {
-          add_task_list_entry(plyr_idx, SDDigTask_Unknown3, i);
+          add_task_list_entry(plyr_idx, SDDigTask_MineGems, i);
           task_added = true;
       } else
       {
@@ -540,9 +540,8 @@ void delete_attached_things_on_slab(long slb_x, long slb_y)
     _DK_delete_attached_things_on_slab(slb_x, slb_y); return;
 }
 
-unsigned char get_against(unsigned char agnst_plyr_idx, long agnst_slbkind, long slb_x, long slb_y)
+static TbBool get_against(unsigned char agnst_plyr_idx, long agnst_slbkind, long slb_x, long slb_y)
 {
-    //return _DK_get_against(a1, a2, slb_x, slb_y);
     struct SlabMap *slb;
     slb = get_slabmap_block(slb_x, slb_y);
     if (slabmap_block_invalid(slb)) {
@@ -553,12 +552,12 @@ unsigned char get_against(unsigned char agnst_plyr_idx, long agnst_slbkind, long
     struct SlabAttr *agnst_slbattr;
     agnst_slbattr = get_slab_kind_attrs(agnst_slbkind);
     return (slbattr->slb_id != agnst_slbattr->slb_id)
-            || ((slabmap_owner(slb) != agnst_plyr_idx) && (slabmap_owner(slb)!= game.neutral_player_num));
+            || ((slabmap_owner(slb) != agnst_plyr_idx) && (slabmap_owner(slb) != game.neutral_player_num));
 }
 
 void delete_column(long col_idx)
 {
-    game.field_14AB3F--;
+    game.columns_used--;
     struct Column *col;
     col = &game.columns_data[col_idx];
     memcpy(col, &game.columns_data[0], sizeof(struct Column));
@@ -574,7 +573,7 @@ void remove_block_from_map_element(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
     struct Column *col;
     col = get_column(col_idx);
     col->use--;
-    if (((col->bitfields & 0x01) == 0) && (col->use <= 0)) {
+    if (((col->bitfields & CLF_ACTIVE) == 0) && (col->use <= 0)) {
         delete_column(col_idx);
     }
     set_mapblk_column_index(mapblk, 0);
@@ -742,9 +741,18 @@ unsigned short get_slabset_index_f(SlabKind slbkind, unsigned char style, unsign
         ERRORLOG("%s: Illegal animating slab style: %d", func_name, (int)style);
         style = 0;
     }
-    if ((pick >= 9) || ((style == 3) && (pick >= 1))) {
-        ERRORLOG("%s: Illegal animating slab pick: %d", func_name, (int)pick);
-        pick = 0;
+    if ((pick >= 9) || ((style == (SlbFillStl_Water+1)) && (pick >= 1)))
+    {
+        if (slab_kind_is_room_wall(slbkind) && (pick < 9))
+        {
+            style = SlbFillStl_Water;
+            slbkind = SlbT_DAMAGEDWALL; // There's no columns for room walls next to water, so we're using a regular wall instead.
+        }
+        else
+        {
+            ERRORLOG("%s: Illegal animating slab pick: %d", func_name, (int)pick);
+            pick = 0;
+        }
     }
     return 28 * slbkind + 9 * style + pick;
 }
@@ -869,9 +877,9 @@ void place_slab_object(unsigned short a1, long a2, long a3, unsigned short slabc
                 } else
                 if (sobj->field_A == TCls_EffectGen)
                 {
-                    struct Thing *efftng;
-                    efftng = create_effect_generator(&pos, sobj->sofield_B, sobj->sofield_C << 8, a6, a1);
-                    if (thing_is_invalid(efftng)) {
+                    struct Thing *effgentng;
+                    effgentng = create_effect_generator(&pos, sobj->sofield_B, sobj->sofield_C << 8, a6, a1);
+                    if (thing_is_invalid(effgentng)) {
                         ERRORLOG("Cannot create effect generator, type %d", sobj->sofield_B);
                         continue;
                     }
@@ -1076,13 +1084,17 @@ void place_single_slab_prepare_column_index(SlabKind slbkind, MapSlabCoord slb_x
     signed short primitiv;
     against = 0;
     int i;
+    // Test non diagonal neighbours
     for (i=0; i < AROUND_EIGHT_LENGTH; i+=2)
     {
         MapSlabCoord sslb_x;
         MapSlabCoord sslb_y;
         sslb_x = slb_x + (MapSlabCoord)my_around_eight[i].delta_x;
         sslb_y = slb_y + (MapSlabCoord)my_around_eight[i].delta_y;
-        against = get_against(plyr_idx, slbkind, sslb_x, sslb_y) | 2 * against;
+
+        // Collecting bitmask
+        against <<= 1;
+        against |= get_against(plyr_idx, slbkind, sslb_x, sslb_y);
     }
     i = 0;
     int slabct_num;
@@ -1122,13 +1134,16 @@ void place_single_slab_prepare_column_index(SlabKind slbkind, MapSlabCoord slb_x
     } else
     if (place_slbattr->category == SlbAtCtg_RoomInterior)
     {
-        for (i=1; i < 8; i+=2)
+        // Test diagonal neighbours
+        for (i=1; i < AROUND_EIGHT_LENGTH; i+=2)
         {
             MapSlabCoord sslb_x;
             MapSlabCoord sslb_y;
             sslb_x = slb_x + (MapSlabCoord)my_around_eight[i].delta_x;
             sslb_y = slb_y + (MapSlabCoord)my_around_eight[i].delta_y;
-            against = get_against(plyr_idx, slbkind, sslb_x, sslb_y) | 2 * against;
+            // Collecting bitmask
+            against <<= 1;
+            against |= get_against(plyr_idx, slbkind, sslb_x, sslb_y);
         }
         if ( against )
         {
@@ -1265,9 +1280,9 @@ void place_single_slab_type_on_map(SlabKind slbkind, MapSlabCoord slb_x, MapSlab
     place_slab_objects(slb_x, slb_y, slab_number_list, plyr_idx);
 }
 
-void shuffle_unattached_things_on_slab(long a1, long a2)
+void shuffle_unattached_things_on_slab(long stl_x, long stl_y)
 {
-    _DK_shuffle_unattached_things_on_slab(a1, a2); return;
+    _DK_shuffle_unattached_things_on_slab(stl_x, stl_y);
 }
 
 void dump_slab_on_map(SlabKind slbkind, long slabct_num, MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber owner)
@@ -1355,7 +1370,7 @@ void dump_slab_on_map(SlabKind slbkind, long slabct_num, MapSubtlCoord stl_x, Ma
     slb = get_slabmap_block(slb_x, slb_y);
     slb->kind = slbkind;
     pannel_map_update(stl_xa, stl_ya, STL_PER_SLB, STL_PER_SLB);
-    if ((slbkind == SlbT_SLAB50) || (slbkind == SlbT_GUARDPOST) || (slbkind == SlbT_BRIDGE) || (slbkind == SlbT_GEMS))
+    if ((slbkind == SlbT_SLAB50) || (slbkind == SlbT_GUARDPOST) || (slbkind == SlbT_BRIDGE) || (slbkind == SlbT_GEMS) || (slbkind == SlbT_PURPLE))
     {
         MapSubtlCoord stl_xb;
         MapSubtlCoord stl_yb;

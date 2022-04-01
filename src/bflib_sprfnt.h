@@ -85,6 +85,9 @@ struct AsianFontWindow {
   unsigned char *buf_ptr;
 };
 
+extern short dbc_language;
+extern TbBool dbc_enabled;
+
 /******************************************************************************/
 DLLIMPORT extern const struct TbSprite *_DK_lbFontPtr;
 #define lbFontPtr _DK_lbFontPtr

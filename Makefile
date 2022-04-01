@@ -25,7 +25,6 @@
 ifneq (,$(findstring Windows,$(OS)))
   CROSS_EXEEXT = .exe
   # linker flags
-  # useful for development only: -Wl,-Map,"$(@:%.exe=%.map)"
   LINKFLAGS = -static-libgcc -static-libstdc++ -Wl,--enable-auto-import -Wl,-Bstatic,--whole-archive -lwinpthread -Wl,--no-whole-archive
   # The following flags are only here to prevent a dependency on libwinpthread-1.dll when keeperfx is built with MSYS2:
   # "-Wl,-Bstatic,--whole-archive -lwinpthread -Wl,--no-whole-archive
@@ -181,6 +180,7 @@ obj/creature_states_tortr.o \
 obj/creature_states_train.o \
 obj/creature_states_tresr.o \
 obj/creature_states_wrshp.o \
+obj/cursor_tag.o \
 obj/dungeon_data.o \
 obj/dungeon_stats.o \
 obj/engine_arrays.o \
@@ -245,12 +245,18 @@ obj/lens_mist.o \
 obj/light_data.o \
 obj/lvl_filesdk1.o \
 obj/lvl_script.o \
+obj/lvl_script_commands.o \
+obj/lvl_script_commands_old.o \
+obj/lvl_script_lib.o \
+obj/lvl_script_conditions.o \
+obj/lvl_script_value.o \
 obj/magic.o \
 obj/main_game.o \
 obj/map_blocks.o \
 obj/map_columns.o \
 obj/map_data.o \
 obj/map_events.o \
+obj/map_locations.o \
 obj/map_utils.o \
 obj/music_player.o \
 obj/net_game.o \
@@ -372,7 +378,7 @@ WARNFLAGS = -Wall -W -Wshadow -Wno-sign-compare -Wno-unused-parameter -Wno-stric
 # disabled warnings: -Wextra -Wtype-limits
 CXXFLAGS = $(CXXINCS) -c -std=gnu++1y -fmessage-length=0 $(WARNFLAGS) $(DEPFLAGS) $(OPTFLAGS) $(DBGFLAGS) $(INCFLAGS)
 CFLAGS = $(INCS) -c -std=gnu11 -fmessage-length=0 $(WARNFLAGS) -Werror=implicit $(DEPFLAGS) $(OPTFLAGS) $(DBGFLAGS) $(INCFLAGS)
-LDFLAGS = $(LINKLIB) $(OPTFLAGS) $(DBGFLAGS) $(LINKFLAGS)
+LDFLAGS = $(LINKLIB) $(OPTFLAGS) $(DBGFLAGS) $(LINKFLAGS) -Wl,-Map,"$(@:%.exe=%.map)"
 
 CAMPAIGNS  = \
 ami2019 \
@@ -553,6 +559,7 @@ obj/ver_defs.h: version.mk Makefile
 	$(ECHO) \#define VER_BUILD   $(BUILD_NUMBER) >> "$(@D)/tmp"
 	$(ECHO) \#define VER_STRING  \"$(VER_STRING)\" >> "$(@D)/tmp"
 	$(ECHO) \#define PACKAGE_SUFFIX  \"$(PACKAGE_SUFFIX)\" >> "$(@D)/tmp"
+	$(ECHO) \#define GIT_REVISION  \"`git describe  --always`\" >> "$(@D)/tmp"
 	$(MV) "$(@D)/tmp" "$@"
 
 obj/libkeeperfx.a: bin/keeperfx.dll obj/keeperfx.def

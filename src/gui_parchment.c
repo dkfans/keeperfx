@@ -255,7 +255,7 @@ TbPixel get_overhead_mapblock_color(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Pl
           {
             pixval = player_highlight_colours[owner];
           } else
-          if (thing->trap_door_active_state)
+          if (thing->door.is_locked)
           {
             pixval = 79;
           } else
@@ -503,7 +503,7 @@ int draw_overhead_traps(const struct TbRect *map_area, long block_size, PlayerNu
         {
             if (thing->owner == plyr_idx)
             {
-                if ( (thing->trap_door_active_state) || (thing->owner == plyr_idx) )
+                if ( (thing->trap.revealed) || (thing->owner == plyr_idx) )
                 {
                     long pos_x = map_area->left + (block_size * (int)thing->mappos.x.stl.num / STL_PER_SLB) + ((block_size + 1)/5);
                     long pos_y = map_area->top + (block_size * (int)thing->mappos.y.stl.num / STL_PER_SLB) + ((block_size + 1)/5);
@@ -672,7 +672,7 @@ void draw_zoom_box_things_on_mapblk(struct Map *mapblk,unsigned short subtile_si
             }
             case TCls_Trap:
             {
-                if ((!thing->trap_door_active_state) && (player->id_number != thing->owner))
+                if ((!thing->trap.revealed) && (player->id_number != thing->owner))
                     break;
                 struct ManufactureData* manufctr = get_manufacture_data(get_manufacture_data_index_for_thing(thing->class_id, thing->model));
                 spridx = manufctr->medsym_sprite_idx;
@@ -773,8 +773,35 @@ void draw_zoom_box(void)
 {
     struct PlayerInfo* player = get_my_player();
 
-    long draw_tiles_x = 13;
-    long draw_tiles_y = 13;
+    long draw_tiles = 13;
+    long subtile_unscaled = 8;
+    if (player->minimap_zoom == 128)
+    {
+        draw_tiles = 6;
+        subtile_unscaled = 18;
+    } else
+    if (player->minimap_zoom == 256)
+    {
+        draw_tiles = 9;
+        subtile_unscaled = 12;
+    } else
+    if (player->minimap_zoom == 512)
+    {
+        draw_tiles = 12;
+        subtile_unscaled = 9;
+    } else
+    if (player->minimap_zoom == 1024)
+    {
+        draw_tiles = 18;
+        subtile_unscaled = 6;
+    } else
+    if (player->minimap_zoom == 2048)
+    {
+        draw_tiles = 36;
+        subtile_unscaled = 3;
+    }
+    long draw_tiles_x = draw_tiles;
+    long draw_tiles_y = draw_tiles;
 
     // Sizes of the parchment map on which we're drawing
     // Needed only to figure out map position pointed by cursor
@@ -785,7 +812,7 @@ void draw_zoom_box(void)
     long mouse_y = GetMouseY();
 
     // zoom box block size
-    const int subtile_size = scale_value_for_resolution(8);
+    const int subtile_size = scale_value_for_resolution(subtile_unscaled);
 
     // Drawing coordinates
     long scrtop_x = mouse_x + scale_value_for_resolution(24);

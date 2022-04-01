@@ -1035,7 +1035,7 @@ msgstr ""
 #. Reapers' Yard (lv13) opening objective
 #: guitext:144
 msgctxt "In-game message"
-msgid "The platform has four points of access. Expect human parties attacking from all directions. You must protect your dungeon heart at all cost!"
+msgid "The platform has four points of access. Expect human parties attacking from all directions. You must protect your dungeon heart at all costs!"
 msgstr ""
 
 #. Reapers' Yard (lv13) after battle wins

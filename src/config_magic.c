@@ -94,6 +94,7 @@ const struct NamedCommand magic_shot_commands[] = {
   {"HITLAVASOUNDVARIANTS",  31},
   {"HITLAVAEFFECT",         32},
   {"HITCREATURESOUND",      33},
+  {"ANIMATIONTRANSPARENCY", 34},
   {NULL,                     0},
   };
 
@@ -144,6 +145,7 @@ const struct NamedCommand shotmodel_properties_commands[] = {
   {"WITHSTAND_WATER_HIT", 16},
   {"NO_AIR_DAMAGE",       17},
   {"WIND_IMMUNE",         18},
+  {"FIXED_DAMAGE",        19},
   {NULL,                   0},
   };
 
@@ -721,6 +723,8 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           shotst->size_yz = 0;
           shotst->speed = 0;
           shotst->wind_immune = 0;
+          shotst->animation_transparency = 0;
+          shotst->fixed_damage = 0;
       }
   }
   // Load the file
@@ -943,6 +947,10 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                 break;
             case 18: // WIND_IMMUNE
                 shotst->wind_immune = 1;
+                n++;
+                break;
+            case 19: // FIXED_DAMAGE
+                shotst->fixed_damage = 1;
                 n++;
                 break;
             default:
@@ -1268,6 +1276,19 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           {
               k = atoi(word_buf);
               shotst->hit_creature.sndsample_idx = k;
+              n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 34: //ANIMATIONTRANSPARENCY
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->animation_transparency = k;
               n++;
           }
           if (n < 1)
@@ -2032,7 +2053,7 @@ TbBool set_power_available(PlayerNumber plyr_idx, PowerKind pwkind, long resrch,
     // may be uninitialized yet when this is called.
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
     if (dungeon_invalid(dungeon)) {
-        ERRORDBG(11,"Cannot set trap availability; player %d has no dungeon",(int)plyr_idx);
+        ERRORDBG(11,"Cannot set power availability; player %d has no dungeon",(int)plyr_idx);
         return false;
     }
     dungeon->magic_resrchable[pwkind] = resrch;

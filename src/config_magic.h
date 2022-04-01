@@ -265,6 +265,8 @@ struct ShotConfigStats {
     short bounce_angle;
     short wind_immune;
     short no_air_damage;
+    short animation_transparency;
+    short fixed_damage;
 };
 
 typedef unsigned char (*Expand_Check_Func)(void);
@@ -325,7 +327,7 @@ struct ShotStats // sizeof = 101
   unsigned char field_4[2];
   unsigned char field_6;
   unsigned char field_7;
-  unsigned char field_8; // transparency mode
+  unsigned char animation_transparency_UNUSED; // transparency mode
   short size_xy_UNUSED;
   short size_yz_UNUSED;
   short bounce_angle_UNUSED;

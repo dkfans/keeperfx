@@ -67,7 +67,7 @@
 void gui_zoom_in(struct GuiButton *gbtn)
 {
     struct PlayerInfo* player = get_my_player();
-    if (player->minimap_zoom > 0x80) {
+    if (player->minimap_zoom > 128) {
         set_players_packet_action(player, PckA_SetMinimapConf, player->minimap_zoom >> 1, 0, 0, 0);
     }
 }
@@ -75,7 +75,7 @@ void gui_zoom_in(struct GuiButton *gbtn)
 void gui_zoom_out(struct GuiButton *gbtn)
 {
     struct PlayerInfo* player = get_my_player();
-    if (player->minimap_zoom < 0x800) {
+    if (player->minimap_zoom < 2048) {
         set_players_packet_action(player, PckA_SetMinimapConf, player->minimap_zoom << 1, 0, 0, 0);
     }
 }
@@ -1911,7 +1911,7 @@ void maintain_prison_bar(struct GuiButton *gbtn)
     }
 }
 
-void maintain_room_and_creature_button(struct GuiButton *gbtn)
+void maintain_room_button(struct GuiButton *gbtn)
 {
     PlayerNumber plyr_idx = (int)gbtn->content;
     struct PlayerInfo* player = get_player(plyr_idx);
@@ -1926,41 +1926,65 @@ void maintain_room_and_creature_button(struct GuiButton *gbtn)
         gbtn->tooltip_stridx = 201;
     }
 }
+void maintain_creature_button(struct GuiButton* gbtn)
+{
+    PlayerNumber plyr_idx = (int)gbtn->content;
+    struct PlayerInfo* player = get_player(plyr_idx);
+    if (player_exists(player))
+    {
+        if (player_has_heart(plyr_idx))
+        {
+            gbtn->sprite_idx = 323 + (plyr_idx * 2);
+        }
+        else
+        {
+            gbtn->sprite_idx = 535 + (plyr_idx);
+        }
+        gbtn->btype_value &= LbBFeF_IntValueMask;
+        gbtn->flags |= LbBtnF_Enabled;
+    }
+    else
+    {
+        gbtn->btype_value |= LbBFeF_NoMouseOver;
+        gbtn->flags &= ~LbBtnF_Enabled;
+        gbtn->tooltip_stridx = 201;
+    }
+}
 
 void pick_up_next_wanderer(struct GuiButton *gbtn)
 {
     unsigned short pick_flags = get_creature_pick_flags(1);
-    pick_up_creature_of_model_and_gui_job(-1, CrGUIJob_Wandering, my_player_number, pick_flags);
+    pick_up_creature_of_model_and_gui_job(CREATURE_ANY, CrGUIJob_Wandering, my_player_number, pick_flags);
 }
 
 void gui_go_to_next_wanderer(struct GuiButton *gbtn)
 {
     unsigned short pick_flags = get_creature_pick_flags(0);
-    go_to_next_creature_of_model_and_gui_job(-1, CrGUIJob_Wandering, pick_flags);
+    go_to_next_creature_of_model_and_gui_job(CREATURE_ANY, CrGUIJob_Wandering, pick_flags);
 }
 
 void pick_up_next_worker(struct GuiButton *gbtn)
 {
     unsigned short pick_flags = get_creature_pick_flags(1);
-    pick_up_creature_of_model_and_gui_job(-1, CrGUIJob_Working, my_player_number, pick_flags);
+    pick_up_creature_of_model_and_gui_job(CREATURE_ANY, CrGUIJob_Working, my_player_number, pick_flags);
 }
 
 void gui_go_to_next_worker(struct GuiButton *gbtn)
 {
     unsigned short pick_flags = get_creature_pick_flags(0);
-    go_to_next_creature_of_model_and_gui_job(-1, CrGUIJob_Working, pick_flags);
+    go_to_next_creature_of_model_and_gui_job(CREATURE_ANY, CrGUIJob_Working, pick_flags);
 }
 
 void pick_up_next_fighter(struct GuiButton *gbtn)
 {
     unsigned short pick_flags = get_creature_pick_flags(1);
-    pick_up_creature_of_model_and_gui_job(-1, CrGUIJob_Fighting, my_player_number, pick_flags);
+    pick_up_creature_of_model_and_gui_job(CREATURE_ANY, CrGUIJob_Fighting, my_player_number, pick_flags);
 }
 
 void gui_go_to_next_fighter(struct GuiButton *gbtn)
 {
     unsigned short pick_flags = get_creature_pick_flags(0);
-    go_to_next_creature_of_model_and_gui_job(-1, CrGUIJob_Fighting, pick_flags);
+    go_to_next_creature_of_model_and_gui_job(CREATURE_ANY, CrGUIJob_Fighting, pick_flags);
 }
 
 void gui_area_payday_button(struct GuiButton *gbtn)
