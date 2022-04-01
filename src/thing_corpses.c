@@ -512,21 +512,21 @@ struct Thing *destroy_creature_and_create_corpse(struct Thing *thing, long crpsc
     return deadtng;
 }
 
-void delete_corpse(struct Thing *thing)
+void delete_corpse(struct Thing *deadtng)
 {
-    struct CreatureStats* crstat = creature_stats_get(thing->model);
+    struct CreatureStats* crstat = creature_stats_get(deadtng->model);
     if (crstat->corpse_vanish_effect != 0)
     {
        if (crstat->corpse_vanish_effect > 0)
        {
-            create_effect(&thing->mappos, crstat->corpse_vanish_effect, thing->owner);
+            create_effect(&deadtng->mappos, crstat->corpse_vanish_effect, deadtng->owner);
        }
        else
        {
-            create_effect_element(&thing->mappos, ~(crstat->corpse_vanish_effect)+1, thing->owner);
+            create_effect_element(&deadtng->mappos, ~(crstat->corpse_vanish_effect)+1, deadtng->owner);
        }            
     }
-    delete_thing_structure(thing, 0);
+    delete_thing_structure(deadtng, 0);
 }
 
 /******************************************************************************/
