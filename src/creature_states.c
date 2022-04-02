@@ -2003,7 +2003,7 @@ short creature_follow_leader(struct Thing *creatng)
         return 1;
     }
     int fails_amount = cctrl->field_307;
-    if (fails_amount > 8)
+    if (fails_amount > 12) //When set too low, group might disband before a white wall is breached
     {
         SYNCDBG(3,"Removing %s index %d owned by player %d from group due to fails to follow",
             thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
