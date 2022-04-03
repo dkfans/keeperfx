@@ -441,7 +441,7 @@ unsigned short shot_shift_z;
     unsigned long field_2FE;
     unsigned char field_302;
     long field_303;
-    unsigned char field_307;
+    unsigned char follow_leader_fails;
 };
 
 struct CreatureStatsOLD { // sizeof = 230
