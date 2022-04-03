@@ -2002,7 +2002,7 @@ short creature_follow_leader(struct Thing *creatng)
         set_start_state(creatng);
         return 1;
     }
-    int fails_amount = cctrl->field_307;
+    int fails_amount = cctrl->follow_leader_fails;
     if (fails_amount > 12) //When set too low, group might disband before a white wall is breached
     {
         SYNCDBG(3,"Removing %s index %d owned by player %d from group due to fails to follow",
@@ -2025,7 +2025,7 @@ short creature_follow_leader(struct Thing *creatng)
             speed = MAX_VELOCITY;
         if (creature_move_to(creatng, &follwr_pos, speed, 0, 0) == -1)
         {
-          cctrl->field_307++;
+          cctrl->follow_leader_fails++;
           return 0;
         }
     } else
@@ -2041,7 +2041,7 @@ short creature_follow_leader(struct Thing *creatng)
             speed = MAX_VELOCITY;
         if (creature_move_to(creatng, &follwr_pos, speed, 0, 0) == -1)
         {
-          cctrl->field_307++;
+          cctrl->follow_leader_fails++;
           return 0;
         }
     } else
@@ -2054,7 +2054,7 @@ short creature_follow_leader(struct Thing *creatng)
         } else
         if (creature_move_to(creatng, &follwr_pos, speed, 0, 0) == -1)
         {
-            cctrl->field_307++;
+            cctrl->follow_leader_fails++;
             return 0;
         }
     } else
@@ -2069,11 +2069,11 @@ short creature_follow_leader(struct Thing *creatng)
             speed = MAX_VELOCITY;
         if (creature_move_to(creatng, &follwr_pos, speed, 0, 0) == -1)
         {
-            cctrl->field_307++;
+            cctrl->follow_leader_fails++;
             return 0;
         }
     }
-    cctrl->field_307 = 0;
+    cctrl->follow_leader_fails = 0;
     return 0;
 }
 
