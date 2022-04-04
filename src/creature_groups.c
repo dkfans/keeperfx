@@ -259,7 +259,7 @@ void internal_add_member_to_group_chain_head(struct Thing *creatng, struct Thing
 /**
  * Removes a creature from group. If the group had size of 2, it is disbanded; otherwise, next
  *   creature becomes a leader without checking whether it's best for it.
- * @param creatng The creatuire to be removed.
+ * @param creatng The creature to be removed.
  * @return True if the group still exists after removal, false otherwise.
  */
 TbBool remove_creature_from_group_without_leader_consideration(struct Thing *creatng)
@@ -316,22 +316,27 @@ TbBool remove_creature_from_group_without_leader_consideration(struct Thing *cre
     return true;
 }
 
-// 0 = no digger, 1 = only defensive diggers, 2 = digger for leader
+/**
+ * Determines if a party has a Tunneler or Imp to consider for leadership.
+ * @param grptng is the creature whos party is considerd
+ * @return 0 if there's no digger, 1 if there's a digger who does not want to be a leader, and 2 if the digger is a preferred leader
+ */
 short creatures_group_has_special_digger_to_lead(struct Thing* grptng)
 {
     struct Thing* ctng = INVALID_THING;
-    short defender = 0;
+    short potential_leader = 0;
     struct CreatureControl* cctrl;
     cctrl = creature_control_get_from_thing(grptng);
     if (thing_is_creature_special_digger(grptng))
     {
         if (cctrl->party_objective != CHeroTsk_DefendParty)
         {
-            return 2;
+            potential_leader = 2;
+            return potential_leader;
         }
         else
         {
-            defender = 1;
+            potential_leader = 1;
         }
     }
     long i = cctrl->group_info & TngGroup_LeaderIndex;
@@ -349,11 +354,12 @@ short creatures_group_has_special_digger_to_lead(struct Thing* grptng)
         {
             if (cctrl->party_objective != CHeroTsk_DefendParty)
             {
-                return 2;
+                potential_leader = 2;
+                return potential_leader;
             }
             else
             {
-                defender = 1;
+                potential_leader = 1;
             }
         }
         i = cctrl->next_in_group;
@@ -364,9 +370,14 @@ short creatures_group_has_special_digger_to_lead(struct Thing* grptng)
             break;
         }
     }
-    return defender;
+    return potential_leader;
 }
 
+/**
+ * Finds a creature to become group leader. Considers objectives, diggers and score.
+ * @param grptng is the party member which needs a leader
+ * @return The Creature that should lead the group.
+ */
 struct Thing* get_best_creature_to_lead_group(struct Thing* grptng)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(grptng);
