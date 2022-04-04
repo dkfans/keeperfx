@@ -319,6 +319,7 @@ TbBool remove_creature_from_group_without_leader_consideration(struct Thing *cre
 // 0 = no digger, 1 = only defensive diggers, 2 = digger for leader
 short creatures_group_has_special_digger_to_lead(struct Thing* grptng)
 {
+    struct Thing* ctng = INVALID_THING;
     short defender = 0;
     struct CreatureControl* cctrl;
     cctrl = creature_control_get_from_thing(grptng);
@@ -341,7 +342,8 @@ short creatures_group_has_special_digger_to_lead(struct Thing* grptng)
     }
     while (i > 0)
     {
-        struct Thing* ctng = thing_get(i);
+        ctng = thing_get(i);
+        cctrl = creature_control_get_from_thing(ctng);
         TRACE_THING(ctng);
         if (thing_is_creature_special_digger(ctng))
         {
