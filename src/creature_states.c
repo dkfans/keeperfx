@@ -2016,7 +2016,7 @@ short creature_follow_leader(struct Thing *creatng)
     }
     cctrl->field_303 = game.play_gameturn;
     MapCoord distance_to_follower_pos = get_2d_box_distance(&creatng->mappos, &follwr_pos);
-    MapCoord distance_to_leader = get_2d_box_distance(&creatng->mappos, &leadtng->mappos);
+    MapCoord cannot_reach_leader = creature_cannot_move_directly_to(creatng, &leadtng->mappos);
     int speed = get_creature_speed(leadtng);
     // If we're too far from the designated position, do a speed run
     if (distance_to_follower_pos > subtile_coord(12,0))
@@ -2027,6 +2027,7 @@ short creature_follow_leader(struct Thing *creatng)
         if (creature_move_to(creatng, &follwr_pos, speed, 0, 0) == -1)
         {
             if (distance_to_follower_pos < distance_to_leader) // only count fails when we're not able to get to the leader, instead of getting a position in the trail it cannot reach.
+            if (cannot_reach_leader) // only count fails when we're not able to get to the leader, instead of getting a position in the trail it cannot reach.
             {
                 cctrl->follow_leader_fails++;
             }
@@ -2080,6 +2081,7 @@ short creature_follow_leader(struct Thing *creatng)
         if (creature_move_to(creatng, &follwr_pos, speed, 0, 0) == -1)
         {
             if (distance_to_follower_pos < distance_to_leader)
+            if (cannot_reach_leader)
             {
                 cctrl->follow_leader_fails++;
             }
