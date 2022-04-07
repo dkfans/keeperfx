@@ -2026,7 +2026,6 @@ short creature_follow_leader(struct Thing *creatng)
             speed = MAX_VELOCITY;
         if (creature_move_to(creatng, &follwr_pos, speed, 0, 0) == -1)
         {
-            if (distance_to_follower_pos < distance_to_leader) // only count fails when we're not able to get to the leader, instead of getting a position in the trail it cannot reach.
             if (cannot_reach_leader) // only count fails when we're not able to get to the leader, instead of getting a position in the trail it cannot reach.
             {
                 cctrl->follow_leader_fails++;
@@ -2046,7 +2045,7 @@ short creature_follow_leader(struct Thing *creatng)
             speed = MAX_VELOCITY;
         if (creature_move_to(creatng, &follwr_pos, speed, 0, 0) == -1)
         {
-            if (distance_to_follower_pos < distance_to_leader)
+            if (cannot_reach_leader)
             {
                 cctrl->follow_leader_fails++;
             }
@@ -2062,7 +2061,7 @@ short creature_follow_leader(struct Thing *creatng)
         } else
         if (creature_move_to(creatng, &follwr_pos, speed, 0, 0) == -1)
         {
-            if (distance_to_follower_pos < distance_to_leader)
+            if (cannot_reach_leader)
             {
                 cctrl->follow_leader_fails++;
             }
@@ -2080,7 +2079,6 @@ short creature_follow_leader(struct Thing *creatng)
             speed = MAX_VELOCITY;
         if (creature_move_to(creatng, &follwr_pos, speed, 0, 0) == -1)
         {
-            if (distance_to_follower_pos < distance_to_leader)
             if (cannot_reach_leader)
             {
                 cctrl->follow_leader_fails++;
