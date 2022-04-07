@@ -2015,8 +2015,8 @@ short creature_follow_leader(struct Thing *creatng)
         return 0;
     }
     cctrl->field_303 = game.play_gameturn;
-    MapCoord distance_to_follower_pos = get_2d_box_distance(&creatng->mappos, &follwr_pos);
-    MapCoord cannot_reach_leader = creature_cannot_move_directly_to(creatng, &leadtng->mappos);
+    MapCoordDelta distance_to_follower_pos = get_2d_box_distance(&creatng->mappos, &follwr_pos);
+    TbBool cannot_reach_leader = creature_cannot_move_directly_to(creatng, &leadtng->mappos);
     int speed = get_creature_speed(leadtng);
     // If we're too far from the designated position, do a speed run
     if (distance_to_follower_pos > subtile_coord(12,0))
@@ -4051,7 +4051,7 @@ short seek_the_enemy(struct Thing *creatng)
     struct Thing* enemytng = thing_update_enemy_to_fight_with(creatng);
     if (!thing_is_invalid(enemytng))
     {
-        long dist = get_2d_box_distance(&enemytng->mappos, &creatng->mappos);
+        MapCoordDelta dist = get_2d_box_distance(&enemytng->mappos, &creatng->mappos);
         if (creature_can_hear_within_distance(creatng, dist))
         {
             if (cctrl->instance_id == CrInst_NULL)
