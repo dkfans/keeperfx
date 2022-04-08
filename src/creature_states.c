@@ -2010,11 +2010,11 @@ short creature_follow_leader(struct Thing *creatng)
         remove_creature_from_group(creatng);
         return 0;
     }
-    if ((fails_amount > 0) && (cctrl->field_303 + 16 > game.play_gameturn))
+    if ((fails_amount > 0) && (cctrl->following_leader_since + 16 > game.play_gameturn))
     {
         return 0;
     }
-    cctrl->field_303 = game.play_gameturn;
+    cctrl->following_leader_since = game.play_gameturn;
     MapCoordDelta distance_to_follower_pos = get_2d_box_distance(&creatng->mappos, &follwr_pos);
     TbBool cannot_reach_leader = creature_cannot_move_directly_to(creatng, &leadtng->mappos);
     int speed = get_creature_speed(leadtng);
