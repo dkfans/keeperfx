@@ -349,7 +349,7 @@ static short creatures_group_has_special_digger_to_lead(struct Thing* grptng)
     struct CreatureControl* cctrl;
     cctrl = creature_control_get_from_thing(grptng);
     potential_leader = creature_could_be_lead_digger(grptng, cctrl);
-    if (potential_leader = 2)
+    if (potential_leader == 2)
     {
         return potential_leader;
     }
@@ -364,7 +364,7 @@ static short creatures_group_has_special_digger_to_lead(struct Thing* grptng)
         ctng = thing_get(i);
         cctrl = creature_control_get_from_thing(ctng);
         potential_leader = creature_could_be_lead_digger(ctng, cctrl);
-        if (potential_leader = 2)
+        if (potential_leader == 2)
         {
             return potential_leader;
         }
