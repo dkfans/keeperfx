@@ -2010,27 +2010,31 @@ short creature_follow_leader(struct Thing *creatng)
         remove_creature_from_group(creatng);
         return 0;
     }
-    if ((fails_amount > 0) && (cctrl->field_303 + 16 > game.play_gameturn))
+    if ((fails_amount > 0) && (cctrl->following_leader_since + 16 > game.play_gameturn))
     {
         return 0;
     }
-    cctrl->field_303 = game.play_gameturn;
-    MapCoord dist = get_2d_box_distance(&creatng->mappos, &follwr_pos);
+    cctrl->following_leader_since = game.play_gameturn;
+    MapCoordDelta distance_to_follower_pos = get_2d_box_distance(&creatng->mappos, &follwr_pos);
+    TbBool cannot_reach_leader = creature_cannot_move_directly_to(creatng, &leadtng->mappos);
     int speed = get_creature_speed(leadtng);
     // If we're too far from the designated position, do a speed run
-    if (dist > subtile_coord(12,0))
+    if (distance_to_follower_pos > subtile_coord(12,0))
     {
         speed = 2 * speed;
         if (speed >= MAX_VELOCITY)
             speed = MAX_VELOCITY;
         if (creature_move_to(creatng, &follwr_pos, speed, 0, 0) == -1)
         {
-          cctrl->follow_leader_fails++;
+            if (cannot_reach_leader) // only count fails when we're not able to get to the leader, instead of getting a position in the trail it cannot reach.
+            {
+                cctrl->follow_leader_fails++;
+            }
           return 0;
         }
     } else
     // If we're far from the designated position, move considerably faster
-    if (dist > subtile_coord(6,0))
+    if (distance_to_follower_pos > subtile_coord(6,0))
     {
         if (speed > 4) {
             speed = 5 * speed / 4;
@@ -2041,20 +2045,26 @@ short creature_follow_leader(struct Thing *creatng)
             speed = MAX_VELOCITY;
         if (creature_move_to(creatng, &follwr_pos, speed, 0, 0) == -1)
         {
-          cctrl->follow_leader_fails++;
+            if (cannot_reach_leader)
+            {
+                cctrl->follow_leader_fails++;
+            }
           return 0;
         }
     } else
     // If we're close, continue moving at normal speed
-    if (dist <= subtile_coord(2,0))
+    if (distance_to_follower_pos <= subtile_coord(2,0))
     {
-        if (dist <= 0)
+        if (distance_to_follower_pos <= 0)
         {
             creature_turn_to_face(creatng, &leadtng->mappos);
         } else
         if (creature_move_to(creatng, &follwr_pos, speed, 0, 0) == -1)
         {
-            cctrl->follow_leader_fails++;
+            if (cannot_reach_leader)
+            {
+                cctrl->follow_leader_fails++;
+            }
             return 0;
         }
     } else
@@ -2069,7 +2079,10 @@ short creature_follow_leader(struct Thing *creatng)
             speed = MAX_VELOCITY;
         if (creature_move_to(creatng, &follwr_pos, speed, 0, 0) == -1)
         {
-            cctrl->follow_leader_fails++;
+            if (cannot_reach_leader)
+            {
+                cctrl->follow_leader_fails++;
+            }
             return 0;
         }
     }
@@ -4038,7 +4051,7 @@ short seek_the_enemy(struct Thing *creatng)
     struct Thing* enemytng = thing_update_enemy_to_fight_with(creatng);
     if (!thing_is_invalid(enemytng))
     {
-        long dist = get_2d_box_distance(&enemytng->mappos, &creatng->mappos);
+        MapCoordDelta dist = get_2d_box_distance(&enemytng->mappos, &creatng->mappos);
         if (creature_can_hear_within_distance(creatng, dist))
         {
             if (cctrl->instance_id == CrInst_NULL)

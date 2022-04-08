@@ -1836,7 +1836,7 @@ TbBool electricity_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, c
         max_dist = max_dist * gameadd.friendly_fight_area_range_permil / 1000;
         max_damage = max_damage * gameadd.friendly_fight_area_damage_permil / 1000;
     }
-    MapCoord distance = get_2d_box_distance(pos, &tngdst->mappos);
+    MapCoordDelta distance = get_2d_box_distance(pos, &tngdst->mappos);
     if (distance < max_dist)
     {
         if (tngdst->class_id == TCls_Creature)

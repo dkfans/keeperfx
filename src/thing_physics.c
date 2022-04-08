@@ -382,7 +382,7 @@ TbBool position_over_floor_level(const struct Thing *thing, const struct Coord3d
     return false;
 }
 
-long creature_cannot_move_directly_to(struct Thing *thing, struct Coord3d *pos)
+TbBool creature_cannot_move_directly_to(struct Thing *thing, struct Coord3d *pos)
 {
     struct Coord3d realpos;
     realpos.x.val = thing->mappos.x.val;
@@ -410,7 +410,7 @@ long creature_cannot_move_directly_to(struct Thing *thing, struct Coord3d *pos)
             modpos.z.val = realpos.z.val;
             if (position_over_floor_level(thing, &modpos)) {
                 // No need to restore mappos - it was not modified yet
-                return 1;
+                return true;
             }
             thing->mappos.x.val = modpos.x.val;
             thing->mappos.y.val = modpos.y.val;
@@ -430,7 +430,7 @@ long creature_cannot_move_directly_to(struct Thing *thing, struct Coord3d *pos)
             modpos.z.val = realpos.z.val;
             if (position_over_floor_level(thing, &modpos)) {
                 thing->mappos = origpos;
-                return 1;
+                return true;
             }
             thing->mappos.x.val = modpos.x.val;
             thing->mappos.y.val = modpos.y.val;
@@ -446,10 +446,10 @@ long creature_cannot_move_directly_to(struct Thing *thing, struct Coord3d *pos)
             modpos.z.val = realpos.z.val;
             if (position_over_floor_level(thing, &modpos)) {
                 thing->mappos = origpos;
-                return 1;
+                return true;
             }
             thing->mappos = origpos;
-            return 0;
+            return false;
         }
 
         if (cross_y_boundary_first(&realpos, pos))
@@ -465,7 +465,7 @@ long creature_cannot_move_directly_to(struct Thing *thing, struct Coord3d *pos)
             modpos.z.val = realpos.z.val;
             if (position_over_floor_level(thing, &modpos)) {
                 // No need to restore mappos - it was not modified yet
-                return 1;
+                return true;
             }
             thing->mappos.x.val = modpos.x.val;
             thing->mappos.y.val = modpos.y.val;
@@ -485,7 +485,7 @@ long creature_cannot_move_directly_to(struct Thing *thing, struct Coord3d *pos)
             modpos.z.val = realpos.z.val;
             if (position_over_floor_level(thing, &modpos)) {
                 thing->mappos = origpos;
-                return 1;
+                return true;
             }
             thing->mappos.x.val = modpos.x.val;
             thing->mappos.y.val = modpos.y.val;
@@ -501,18 +501,18 @@ long creature_cannot_move_directly_to(struct Thing *thing, struct Coord3d *pos)
             modpos.z.val = realpos.z.val;
             if (position_over_floor_level(thing, &modpos)) {
                 thing->mappos = origpos;
-                return 1;
+                return true;
             }
             thing->mappos = origpos;
-            return 0;
+            return false;
         }
 
         if (position_over_floor_level(thing, pos)) {
             thing->mappos = origpos;
-            return 1;
+            return true;
         }
         thing->mappos = origpos;
-        return 0;
+        return false;
     }
 
     if (position_over_floor_level(thing, pos)) {
