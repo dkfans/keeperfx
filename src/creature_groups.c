@@ -317,6 +317,27 @@ TbBool remove_creature_from_group_without_leader_consideration(struct Thing *cre
 }
 
 /**
+ * Determines if the creature is a Tunneler or Imp to consider for leadership.
+  * @return 0 if it's no digger, 1 if it's a digger who does not want to be a leader, and 2 if the digger is a preferred leader
+ */
+short creature_could_be_lead_digger(struct Thing* crtng, struct CreatureControl* cctrl)
+{
+    short potential_leader = 0;
+    if (thing_is_creature_special_digger(crtng))
+    {
+        if (cctrl->party_objective != CHeroTsk_DefendParty)
+        {
+            potential_leader = 2;
+        }
+        else
+        {
+            potential_leader = 1;
+        }
+    }
+    return potential_leader;
+}
+
+/**
  * Determines if a party has a Tunneler or Imp to consider for leadership.
  * @param grptng is the creature whos party is considerd
  * @return 0 if there's no digger, 1 if there's a digger who does not want to be a leader, and 2 if the digger is a preferred leader
@@ -327,17 +348,10 @@ short creatures_group_has_special_digger_to_lead(struct Thing* grptng)
     short potential_leader = 0;
     struct CreatureControl* cctrl;
     cctrl = creature_control_get_from_thing(grptng);
-    if (thing_is_creature_special_digger(grptng))
+    potential_leader = creature_could_be_lead_digger(grptng, cctrl);
+    if (potential_leader = 2)
     {
-        if (cctrl->party_objective != CHeroTsk_DefendParty)
-        {
-            potential_leader = 2;
-            return potential_leader;
-        }
-        else
-        {
-            potential_leader = 1;
-        }
+        return potential_leader;
     }
     long i = cctrl->group_info & TngGroup_LeaderIndex;
     unsigned long k = 0;
@@ -349,18 +363,10 @@ short creatures_group_has_special_digger_to_lead(struct Thing* grptng)
     {
         ctng = thing_get(i);
         cctrl = creature_control_get_from_thing(ctng);
-        TRACE_THING(ctng);
-        if (thing_is_creature_special_digger(ctng))
+        potential_leader = creature_could_be_lead_digger(ctng, cctrl);
+        if (potential_leader = 2)
         {
-            if (cctrl->party_objective != CHeroTsk_DefendParty)
-            {
-                potential_leader = 2;
-                return potential_leader;
-            }
-            else
-            {
-                potential_leader = 1;
-            }
+            return potential_leader;
         }
         i = cctrl->next_in_group;
         k++;
