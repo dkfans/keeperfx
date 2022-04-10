@@ -77,7 +77,7 @@ void slide_thing_against_wall_at(struct Thing *thing, struct Coord3d *pos, long 
   {
     case SlbBloF_WalledX:
       x_thing = thing->mappos.x.val;
-      sizexy = (unsigned short)actual_sizexy_to_nav_sizexy_table[thing->clipbox_size_xy] >> 1;
+      sizexy = thing_nav_sizexy(thing)/2;
       x_pos = pos->x.val;
       if ( x_pos != x_thing )
       {
@@ -92,7 +92,7 @@ void slide_thing_against_wall_at(struct Thing *thing, struct Coord3d *pos, long 
       break;
     case SlbBloF_WalledY:
       y_thing = thing->mappos.y.val;
-      sizexy = (unsigned short)actual_sizexy_to_nav_sizexy_table[thing->clipbox_size_xy] >> 1;
+      sizexy =  thing_nav_sizexy(thing)/2;
       y_pos = pos->y.val;
       if ( y_thing != y_pos )
       {
@@ -107,7 +107,7 @@ void slide_thing_against_wall_at(struct Thing *thing, struct Coord3d *pos, long 
       break;
     case SlbBloF_WalledX|SlbBloF_WalledY:
       x_thing = thing->mappos.x.val;
-      sizexy = (unsigned short)actual_sizexy_to_nav_sizexy_table[thing->clipbox_size_xy] >> 1;
+      sizexy =  thing_nav_sizexy(thing)/2;
       x_pos = pos->x.val;
       if ( x_pos != x_thing )
       {
@@ -133,7 +133,7 @@ void slide_thing_against_wall_at(struct Thing *thing, struct Coord3d *pos, long 
       break;
     case SlbBloF_WalledZ|SlbBloF_WalledX:
       x_thing = thing->mappos.x.val;
-      sizexy = (unsigned short)actual_sizexy_to_nav_sizexy_table[thing->clipbox_size_xy] >> 1;
+      sizexy =  thing_nav_sizexy(thing)/2;
       x_pos = pos->x.val;
       if ( x_pos != x_thing )
       {
@@ -147,7 +147,7 @@ void slide_thing_against_wall_at(struct Thing *thing, struct Coord3d *pos, long 
       break;
     case SlbBloF_WalledZ|SlbBloF_WalledY:
       y_thing = thing->mappos.y.val;
-      sizexy = (unsigned short)actual_sizexy_to_nav_sizexy_table[thing->clipbox_size_xy] >> 1;
+      sizexy =  thing_nav_sizexy(thing)/2;
       y_pos = pos->y.val;
       if ( y_thing != y_pos )
       {
@@ -161,7 +161,7 @@ void slide_thing_against_wall_at(struct Thing *thing, struct Coord3d *pos, long 
       break;
     case SlbBloF_WalledX|SlbBloF_WalledY|SlbBloF_WalledZ:
       x_thing = thing->mappos.x.val;
-      sizexy = (unsigned short)actual_sizexy_to_nav_sizexy_table[thing->clipbox_size_xy] >> 1;
+      sizexy =  thing_nav_sizexy(thing)/2;
       x_pos = pos->x.val;
       if ( x_pos != x_thing )
       {
