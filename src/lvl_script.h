@@ -156,6 +156,16 @@ struct ScriptValue { // sizeof = 16
 
 static_assert(sizeof(struct ScriptValue) == 16, "");
 
+struct ConditionOld { // sizeof = 12
+  short condit_idx;
+  unsigned char status;
+  unsigned char plyr_range;
+  unsigned char variabl_type;
+  unsigned short variabl_idx;
+  unsigned char operation;
+  unsigned long rvalue;
+};
+
 struct Condition { // sizeof = 12
   short condit_idx;
   unsigned char status;
@@ -164,6 +174,9 @@ struct Condition { // sizeof = 12
   unsigned short variabl_idx;
   unsigned char operation;
   unsigned long rvalue;
+  unsigned char variabl_type2;
+  unsigned short variabl_idx2;
+  TbBool use_second_variable;
 };
 
 
@@ -193,7 +206,7 @@ struct LevelScriptOld { // sizeof = 5884
     unsigned long party_triggers_num;
     struct ScriptValue values[SCRIPT_VALUES_COUNT_OLD];
     unsigned long values_num;
-    struct Condition conditions[CONDITIONS_COUNT_OLD];
+    struct ConditionOld conditions[CONDITIONS_COUNT_OLD];
     unsigned long conditions_num;
     struct Party creature_partys[CREATURE_PARTYS_COUNT_OLD];
     unsigned long creature_partys_num;

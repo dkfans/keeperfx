@@ -342,7 +342,18 @@ static void process_condition(struct Condition *condt, int idx)
             for (i = plr_start; i < plr_end; i++)
             {
                 long k = get_condition_value(i, condt->variabl_type, condt->variabl_idx);
-                new_status = get_condition_status(condt->operation, k, condt->rvalue);
+                long right_value;
+                if (condt->use_second_variable)
+                {
+                    right_value = get_condition_value(i, condt->variabl_type2, condt->variabl_idx2);
+                }
+                else
+                {
+                    right_value = condt->rvalue;
+                }
+
+                new_status = get_condition_status(condt->operation, k, right_value);
+
                 if (new_status != false)
                 {
                   break;
@@ -411,6 +422,35 @@ void command_add_condition(long plr_range_id, long opertr_id, long varib_type, l
     condt->variabl_idx = varib_id;
     condt->operation = opertr_id;
     condt->rvalue = value;
+    condt->use_second_variable = false;
+    if (condition_stack_pos >= CONDITIONS_COUNT)
+    {
+        gameadd.script.conditions_num++;
+        SCRPTWRNLOG("Conditions too deep in script");
+        return;
+    }
+    if (script_current_condition != CONDITION_ALWAYS)
+    {
+        condition_stack[condition_stack_pos] = script_current_condition;
+        condition_stack_pos++;
+    }
+    script_current_condition = gameadd.script.conditions_num;
+    gameadd.script.conditions_num++;
+}
+
+void command_add_condition2(long plr_range_id, long opertr_id, long varib_type, long varib_id, long varib_type2, long varib_id2)
+{
+    // TODO: replace with pointer to functions
+    struct Condition* condt = &gameadd.script.conditions[gameadd.script.conditions_num];
+    condt->condit_idx = script_current_condition;
+    condt->plyr_range = plr_range_id;
+    condt->variabl_type = varib_type;
+    condt->variabl_idx = varib_id;
+    condt->operation = opertr_id;
+    condt->variabl_type2 = varib_type2;
+    condt->variabl_idx2 = varib_id2;
+    condt->use_second_variable = true;
+
     if (condition_stack_pos >= CONDITIONS_COUNT)
     {
         gameadd.script.conditions_num++;
