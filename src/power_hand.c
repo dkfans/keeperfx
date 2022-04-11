@@ -202,13 +202,14 @@ long can_thing_be_picked_up_by_player(const struct Thing *thing, PlayerNumber pl
 
 TbBool can_thing_be_picked_up2_by_player(const struct Thing *thing, PlayerNumber plyr_idx)
 {
-    //TODO: rewrite, then give it better name
-    // return _DK_can_thing_be_picked_up2_by_player(thing, plyr_idx);
-    if ( thing->class_id != TCls_Creature )
+    unsigned char state;
+
+    if(!thing_is_creature(thing))
     {
-        return ( (thing->class_id == TCls_Object) && (object_is_pickable_by_hand_for_use(thing, plyr_idx)) );
+        return (thing_is_object(thing) && object_is_pickable_by_hand_for_use(thing, plyr_idx));
     }
-    if ( (game.armageddon_cast_turn > 0) && ( ((game.armageddon.count_down + game.armageddon_cast_turn) <= game.play_gameturn) ) )
+
+    if ( (game.armageddon_cast_turn > 0) && ( (game.armageddon.count_down + game.armageddon_cast_turn) <= game.play_gameturn) )
     {
         return false;
     }
@@ -216,7 +217,16 @@ TbBool can_thing_be_picked_up2_by_player(const struct Thing *thing, PlayerNumber
     {
         return false;
     }
-    unsigned char state = (thing->active_state == CrSt_MoveToPosition) ? thing->continue_state : thing->active_state;
+    
+    if (thing->active_state == CrSt_MoveToPosition)
+    {
+        state = thing->continue_state;
+    }
+    else 
+    {
+        state = thing->active_state;
+    }
+
     if ( (state == CrSt_CreatureSacrifice)
         || (state == CrSt_CreatureBeingSacrificed) || (state == CrSt_CreatureBeingSummoned))
     {
