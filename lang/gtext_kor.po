@@ -6720,3 +6720,8 @@ msgstr "신비한 상자: 이게 뭘 할지 알 수 없어요."
 msgctxt "Network game message"
 msgid "Joined player has different map version from host."
 msgstr ""
+
+#: guitext:1007
+msgctxt "In-game interface description"
+msgid "Display Resolution: Switch to the next configured display resolution. LMB toggle. RMB display current resolution."
+msgstr ""

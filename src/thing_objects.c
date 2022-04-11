@@ -61,7 +61,6 @@ TngUpdateRet object_update_dungeon_heart(struct Thing *heartng);
 TngUpdateRet object_update_call_to_arms(struct Thing *objtng);
 TngUpdateRet object_update_armour(struct Thing *objtng);
 TngUpdateRet object_update_object_scale(struct Thing *objtng);
-TngUpdateRet object_update_armour2(struct Thing *objtng);
 TngUpdateRet object_update_power_sight(struct Thing *objtng);
 TngUpdateRet object_update_power_lightning(struct Thing *objtng);
 
@@ -187,7 +186,7 @@ Thing_Class_Func object_update_functions[OBJECT_TYPES_MAX] = {
     NULL,
     NULL,
     NULL,
-    object_update_armour2,
+    object_update_armour,
     NULL,
     NULL,
     NULL,
@@ -391,7 +390,6 @@ struct CallToArmsGraphics call_to_arms_graphics[] = {
 };
 
 /******************************************************************************/
-DLLIMPORT long _DK_object_update_armour2(struct Thing *objtng);
 DLLIMPORT long _DK_object_update_power_sight(struct Thing *objtng);
 DLLIMPORT struct Thing * _DK_find_base_thing_on_mapwho_excluding_self(struct Thing *gldtng);
 /******************************************************************************/
@@ -444,7 +442,7 @@ struct Thing *create_object(const struct Coord3d *pos, unsigned short model, uns
     thing->fall_acceleration = objconf->fall_acceleration;
     thing->field_23 = 204;
     thing->field_24 = 51;
-    thing->field_22 = 0;
+    thing->bounce_angle = 0;
     thing->movement_flags |= TMvF_Unknown08;
 
     set_flag_byte(&thing->movement_flags, TMvF_Unknown40, objconf->movement_flag);
@@ -487,7 +485,7 @@ struct Thing *create_object(const struct Coord3d *pos, unsigned short model, uns
     switch (thing->model)
     {
       case 5:
-        thing->byte_14 = 1;
+        thing->heart.beat_direction = 1;
         light_set_light_minimum_size_to_cache(thing->light_id, 0, 56);
         break;
       case 33: // Why it is hardcoded? And what is TempleS
@@ -504,10 +502,10 @@ struct Thing *create_object(const struct Coord3d *pos, unsigned short model, uns
         i = get_free_hero_gate_number();
         if (i > 0)
         {
-            thing->byte_13 = i;
+            thing->hero_gate.number = i;
         } else
         {
-            thing->byte_13 = 0;
+            thing->hero_gate.number = 0;
             ERRORLOG("Could not allocate number for hero gate");
         }
         break;
@@ -554,7 +552,7 @@ void destroy_food(struct Thing *foodtng)
             {
                 room->used_capacity -= required_cap;
             }
-            foodtng->belongs_to = game.food_life_out_of_hatchery;
+            foodtng->food.life_remaining = game.food_life_out_of_hatchery;
         }
     }
     delete_thing_structure(foodtng, 0);
@@ -569,6 +567,16 @@ void destroy_object(struct Thing *thing)
     {
         delete_thing_structure(thing, 0);
     }
+}
+
+TbBool object_can_be_damaged (const struct Thing* thing)
+{
+    //todo make this an object property. Then include the possibility to kill the other object types.
+    if (thing->class_id != TCls_Object)
+        return false;
+    if (thing_is_dungeon_heart(thing) || object_is_mature_food(thing) || object_is_growing_food(thing))
+        return true;
+    return false;
 }
 
 TbBool thing_is_object(const struct Thing *thing)
@@ -931,7 +939,7 @@ TbBool creature_remove_lair_totem_from_room(struct Thing *creatng, struct Room *
 
 TbBool delete_lair_totem(struct Thing *lairtng)
 {
-    struct Thing* creatng = thing_get(lairtng->belongs_to);
+    struct Thing* creatng = thing_get(lairtng->lair.belongs_to);
     if (thing_is_creature(creatng)) {
         struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
         cctrl->lair_room_id = 0;
@@ -951,7 +959,7 @@ long food_moves(struct Thing *objtng)
     pos.y.val = objtng->mappos.y.val;
     pos.z.val = objtng->mappos.z.val;
     unsigned int snd_smplidx = 0;
-    if (objtng->food.byte_17)
+    if (objtng->food.some_chicken_was_sacrificed)
     {
         destroy_food(objtng);
         return -1;
@@ -968,24 +976,44 @@ long food_moves(struct Thing *objtng)
     struct Room* room = get_room_thing_is_on(objtng);
     if (!dirct_ctrl)
     {
-      if (objtng->food.word_13 >= 0)
+      if (objtng->food.life_remaining >= 0)
       {
-        if (!room_is_invalid(room) && !is_neutral_thing(objtng) && (objtng->food.word_13 != -1))
+        if (!room_is_invalid(room) && !is_neutral_thing(objtng) && (objtng->food.life_remaining != -1))
         {
             if (room_role_matches(room->kind, RoRoF_FoodSpawn) && (room->owner == objtng->owner) && (room->total_capacity > room->used_capacity))
             {
                 room->used_capacity++;
-                objtng->food.word_13 = -1;
+                objtng->food.life_remaining = -1;
+                objtng->parent_idx = room->index;
             }
         }
       }
-      if (objtng->food.word_13 >= 0)
+      else
       {
-        objtng->food.word_13--;
-        if (objtng->food.word_13 <= 0)
+            if ( (room_is_invalid(room)) || (!room_role_matches(room->kind, RoRoF_FoodSpawn)) || (room->owner != objtng->owner) || (room->used_capacity > room->total_capacity) )
+            {
+                objtng->food.life_remaining = game.food_life_out_of_hatchery;
+                struct Room* hatchroom = room_get(objtng->parent_idx);
+                if (!room_is_invalid(hatchroom))
+                {
+                    if (hatchroom->kind == RoK_GARDEN)
+                    {
+                        update_room_contents(hatchroom);                    
+                    }
+                }
+                objtng->parent_idx = -1;
+            }
+      }
+      if (objtng->food.life_remaining >= 0)
+      {
+        objtng->food.life_remaining--;
+        if (objtng->food.life_remaining <= 0)
         {
-            struct Dungeon* dungeon = get_dungeon(objtng->owner);
-            dungeon->lvstats.chickens_wasted++;
+            if (objtng->owner != game.neutral_player_num)
+            {
+                struct Dungeon* dungeon = get_dungeon(objtng->owner);
+                dungeon->lvstats.chickens_wasted++;
+            }
             create_effect(&objtng->mappos, TngEff_FeatherPuff, objtng->owner);
             create_effect(&objtng->mappos, TngEff_ChickenBlood, objtng->owner);
             delete_thing_structure(objtng, 0);
@@ -994,8 +1022,9 @@ long food_moves(struct Thing *objtng)
       }
     }
     TbBool has_near_creature = false;
-    if (!room_is_invalid(room) && (room->kind == 13) && (objtng->food.word_13 < 0))
+    if (!room_is_invalid(room) && (room->kind == RoK_GARDEN) && (objtng->food.life_remaining < 0))
     {
+        objtng->parent_idx = room->index;
         struct Thing* near_creatng;
         if (room->hatch_gameturn == game.play_gameturn)
         {
@@ -1010,7 +1039,7 @@ long food_moves(struct Thing *objtng)
         has_near_creature = (thing_exists(near_creatng) && (get_2d_box_distance(&objtng->mappos, &near_creatng->mappos) < 768));
         if (has_near_creature)
         {
-            objtng->food.word_18 = get_angle_xy_to(&near_creatng->mappos, &pos);
+            objtng->food.angle = get_angle_xy_to(&near_creatng->mappos, &pos);
             if (objtng->snd_emitter_id == 0)
             {
                 if (UNSYNC_RANDOM(16) == 0) {
@@ -1035,7 +1064,7 @@ long food_moves(struct Thing *objtng)
         {
             set_thing_draw(objtng, 819, -1, -1, -1, 0, 2);
             objtng->food.byte_15 = CREATURE_RANDOM(objtng, 0x39);
-            objtng->food.word_18 = CREATURE_RANDOM(objtng, 0x7FF);
+            objtng->food.angle = CREATURE_RANDOM(objtng, 0x7FF);
             objtng->food.byte_16 = 0;
         } else
         if ((objtng->anim_speed * objtng->field_49 <= objtng->anim_speed + objtng->field_40) && (objtng->food.byte_16 < 5))
@@ -1045,20 +1074,20 @@ long food_moves(struct Thing *objtng)
     }
     else
     {
-        int vel_x = 32 * LbSinL(objtng->food.word_18) >> 16;
+        int vel_x = 32 * LbSinL(objtng->food.angle) >> 16;
         pos.x.val += vel_x;
-        int vel_y = -(32 * LbCosL(objtng->food.word_18) >> 8) >> 8;
+        int vel_y = -(32 * LbCosL(objtng->food.angle) >> 8) >> 8;
         pos.y.val += vel_y;
         if (thing_in_wall_at(objtng, &pos))
         {
-            objtng->food.word_18 = CREATURE_RANDOM(objtng, 0x7FF);
+            objtng->food.angle = CREATURE_RANDOM(objtng, 0x7FF);
         }
-        long dangle = get_angle_difference(objtng->move_angle_xy, objtng->food.word_18);
-        int sangle = get_angle_sign(objtng->move_angle_xy, objtng->food.word_18);
+        long dangle = get_angle_difference(objtng->move_angle_xy, objtng->food.angle);
+        int sangle = get_angle_sign(objtng->move_angle_xy, objtng->food.angle);
         if (dangle > 62)
             dangle = 62;
         objtng->move_angle_xy = (objtng->move_angle_xy + dangle * sangle) & LbFPMath_AngleMask;
-        if (get_angle_difference(objtng->move_angle_xy, objtng->food.word_18) < 284)
+        if (get_angle_difference(objtng->move_angle_xy, objtng->food.angle) < 284)
         {
             struct ComponentVector cvec;
             cvec.x = vel_x;
@@ -1089,9 +1118,9 @@ long food_moves(struct Thing *objtng)
 long food_grows(struct Thing *objtng)
 {
     //return _DK_food_grows(objtng);
-    if (objtng->food.word_13 > 0)
+    if (objtng->food.life_remaining > 0)
     {
-        objtng->food.word_13--;
+        objtng->food.life_remaining--;
         return 1;
     }
     struct Coord3d pos;
@@ -1101,39 +1130,41 @@ long food_grows(struct Thing *objtng)
     long ret = 0;
     PlayerNumber tngowner = objtng->owner;
     struct Thing* nobjtng;
+    struct Room* room = subtile_room_get(pos.x.stl.num, pos.y.stl.num);
+    short room_idx = (!room_is_invalid(room)) ? room->index : -1;
     switch (objtng->anim_sprite)
     {
       case 893:
       case 897:
         delete_thing_structure(objtng, 0);
-        nobjtng = create_object(&pos, food_grow_objects[0], tngowner, -1);
+        nobjtng = create_object(&pos, food_grow_objects[0], tngowner, room_idx);
         if (!thing_is_invalid(nobjtng)) {
-            nobjtng->food.word_13 = (nobjtng->field_49 << 8) / nobjtng->anim_speed - 1;
+            nobjtng->food.life_remaining = (nobjtng->field_49 << 8) / nobjtng->anim_speed - 1;
         }
         ret = -1;
         break;
       case 894:
       case 898:
         delete_thing_structure(objtng, 0);
-        nobjtng = create_object(&pos, food_grow_objects[1], tngowner, -1);
+        nobjtng = create_object(&pos, food_grow_objects[1], tngowner, room_idx);
         if (!thing_is_invalid(nobjtng)) {
-            nobjtng->food.word_13 = 3 * ((nobjtng->field_49 << 8) / nobjtng->anim_speed - 1);
+            nobjtng->food.life_remaining = 3 * ((nobjtng->field_49 << 8) / nobjtng->anim_speed - 1);
         }
         ret = -1;
         break;
       case 895:
       case 899:
         delete_thing_structure(objtng, 0);
-        nobjtng = create_object(&pos, food_grow_objects[2], tngowner, -1);
+        nobjtng = create_object(&pos, food_grow_objects[2], tngowner, room_idx);
         if (!thing_is_invalid(nobjtng)) {
-            nobjtng->food.word_13 = (nobjtng->field_49 << 8) / nobjtng->anim_speed - 1;
+            nobjtng->food.life_remaining = (nobjtng->field_49 << 8) / nobjtng->anim_speed - 1;
         }
         ret = -1;
         break;
       case 896:
       case 900:
         delete_thing_structure(objtng, 0);
-        nobjtng = create_object(&pos, 10, tngowner, -1);
+        nobjtng = create_object(&pos, 10, tngowner, room_idx);
         if (!thing_is_invalid(nobjtng)) {
             nobjtng->move_angle_xy = CREATURE_RANDOM(objtng, 0x800);
             nobjtng->food.byte_15 = CREATURE_RANDOM(objtng, 0x6FF);
@@ -1144,7 +1175,7 @@ long food_grows(struct Thing *objtng)
               dungeon = get_dungeon(nobjtng->owner);
               dungeon->lvstats.chickens_hatched++;
           }
-          nobjtng->food.word_13 = -1;
+          nobjtng->food.life_remaining = -1;
         }
         ret = -1;
         break;
@@ -1255,7 +1286,7 @@ long process_temple_special(struct Thing *thing, long sacowner)
     if (object_is_mature_food(thing))
     {
         dungeon->chickens_sacrificed++;
-        if (temple_check_for_arachnid_join_dungeon(dungeon))
+        if (temple_check_for_arachnid_join_dungeon(dungeon) && (game.flags_font & FFlg_AlexCheat))
             return true;
     } else
     {
@@ -1370,7 +1401,7 @@ void update_dungeon_heart_beat(struct Thing *heartng)
     static long bounce = 0;
     if (heartng->active_state != ObSt_BeingDestroyed)
     {
-        long i = (char)heartng->byte_14;
+        long i = (char)heartng->heart.beat_direction;
         heartng->anim_speed = 0;
         struct ObjectConfig* objconf = get_object_model_stats2(5);
         long long k = 384 * (long)(objconf->health - heartng->health) / objconf->health;
@@ -1381,13 +1412,13 @@ void update_dungeon_heart_beat(struct Thing *heartng)
         {
             heartng->field_40 = 0;
             light_set_light_intensity(heartng->light_id, 20);
-            heartng->byte_14 = 1;
+            heartng->heart.beat_direction = 1;
         }
         if (heartng->field_40 > base_heart_beat_rate-1)
         {
             heartng->field_40 = base_heart_beat_rate-1;
             light_set_light_intensity(heartng->light_id, 56);
-            heartng->byte_14 = (unsigned char)-1;
+            heartng->heart.beat_direction = (unsigned char)-1;
             if ( bounce )
             {
                 thing_play_sample(heartng, 151, NORMAL_PITCH, 0, 3, 1, 6, FULL_LOUDNESS);
@@ -1433,8 +1464,8 @@ TngUpdateRet object_update_dungeon_heart(struct Thing *heartng)
         struct Objects* objdat = get_objects_data_for_thing(heartng);
         heartng->sprite_size = i * (long)objdat->sprite_size_max >> 8;
         heartng->clipbox_size_xy = i * (long)objdat->size_xy >> 8;
-    } else
-    if (heartng->owner != game.neutral_player_num)
+    }
+    else if (heartng->owner != game.neutral_player_num)
     {
         struct Dungeon* dungeon = get_players_num_dungeon(heartng->owner);
         if (dungeon->heart_destroy_state == 0)
@@ -1450,8 +1481,6 @@ TngUpdateRet object_update_dungeon_heart(struct Thing *heartng)
     SYNCDBG(18,"Beat update");
     if ((heartng->alloc_flags & TAlF_Exists) == 0)
       return 0;
-    if ( heartng->byte_13 )
-      heartng->byte_13--;
     update_dungeon_heart_beat(heartng);
     return TUFRet_Modified;
 }
@@ -1459,7 +1488,7 @@ TngUpdateRet object_update_dungeon_heart(struct Thing *heartng)
 void set_call_to_arms_as_birthing(struct Thing *objtng)
 {
     int frame;
-    switch (objtng->byte_13)
+    switch (objtng->call_to_arms_flag.state)
     {
     case CTAOL_Birthing:
         frame = objtng->field_48;
@@ -1472,14 +1501,14 @@ void set_call_to_arms_as_birthing(struct Thing *objtng)
         frame = objtng->field_49 - (int)objtng->field_48;
         break;
     default:
-        ERRORLOG("Invalid CTA object life state %d",(int)objtng->byte_13);
+        ERRORLOG("Invalid CTA object life state %d",(int)objtng->call_to_arms_flag.state);
         frame = 0;
         break;
     }
     struct CallToArmsGraphics* ctagfx = &call_to_arms_graphics[objtng->owner];
     struct Objects* objdat = get_objects_data_for_thing(objtng);
     set_thing_draw(objtng, ctagfx->birth_anim_idx, 256, objdat->sprite_size_max, 0, frame, 2);
-    objtng->byte_13 = CTAOL_Birthing;
+    objtng->call_to_arms_flag.state = CTAOL_Birthing;
     struct PowerConfigStats* powerst = get_power_model_stats(PwrK_CALL2ARMS);
     stop_thing_playing_sample(objtng, powerst->select_sound_idx);
     thing_play_sample(objtng, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 6, FULL_LOUDNESS);
@@ -1489,7 +1518,7 @@ void set_call_to_arms_as_dying(struct Thing *objtng)
 {
     //_DK_set_call_to_arms_as_dying(objtng); return;
     int frame;
-    switch (objtng->byte_13)
+    switch (objtng->call_to_arms_flag.state)
     {
     case CTAOL_Birthing:
         frame = objtng->field_49 - (int)objtng->field_48;
@@ -1502,21 +1531,21 @@ void set_call_to_arms_as_dying(struct Thing *objtng)
         frame = objtng->field_48;
         break;
     default:
-        ERRORLOG("Invalid CTA object life state %d",(int)objtng->byte_13);
+        ERRORLOG("Invalid CTA object life state %d",(int)objtng->call_to_arms_flag.state);
         frame = 0;
         break;
     }
     struct CallToArmsGraphics* ctagfx = &call_to_arms_graphics[objtng->owner];
     struct Objects* objdat = get_objects_data_for_thing(objtng);
     set_thing_draw(objtng, ctagfx->leave_anim_idx, 256, objdat->sprite_size_max, 0, frame, 2);
-    objtng->byte_13 = CTAOL_Dying;
+    objtng->call_to_arms_flag.state = CTAOL_Dying;
 }
 
 void set_call_to_arms_as_rebirthing(struct Thing *objtng)
 {
     //_DK_set_call_to_arms_as_rebirthing(objtng); return;
     int frame;
-    switch (objtng->byte_13)
+    switch (objtng->call_to_arms_flag.state)
     {
     case CTAOL_Birthing:
         frame = objtng->field_49 - (int)objtng->field_48;
@@ -1529,14 +1558,14 @@ void set_call_to_arms_as_rebirthing(struct Thing *objtng)
         frame = objtng->field_48;
         break;
     default:
-        ERRORLOG("Invalid CTA object life state %d",(int)objtng->byte_13);
+        ERRORLOG("Invalid CTA object life state %d",(int)objtng->call_to_arms_flag.state);
         frame = 0;
         break;
     }
     struct CallToArmsGraphics* ctagfx = &call_to_arms_graphics[objtng->owner];
     struct Objects* objdat = get_objects_data_for_thing(objtng);
     set_thing_draw(objtng, ctagfx->leave_anim_idx, 256, objdat->sprite_size_max, 0, frame, 2);
-    objtng->byte_13 = CTAOL_Rebirthing;
+    objtng->call_to_arms_flag.state = CTAOL_Rebirthing;
 }
 
 TngUpdateRet object_update_call_to_arms(struct Thing *thing)
@@ -1551,12 +1580,12 @@ TngUpdateRet object_update_call_to_arms(struct Thing *thing)
     struct CallToArmsGraphics* ctagfx = &call_to_arms_graphics[player->id_number];
     struct Objects* objdat = get_objects_data_for_thing(thing);
 
-    switch (thing->byte_13)
+    switch (thing->call_to_arms_flag.state)
     {
     case CTAOL_Birthing:
         if (thing->field_49 - 1 <= thing->field_48)
         {
-            thing->byte_13 = CTAOL_Alive;
+            thing->call_to_arms_flag.state = CTAOL_Alive;
             set_thing_draw(thing, ctagfx->alive_anim_idx, 256, objdat->sprite_size_max, 0, 0, 2);
             return 1;
         }
@@ -1582,7 +1611,7 @@ TngUpdateRet object_update_call_to_arms(struct Thing *thing)
             pos.z.val = get_thing_height_at(thing, &pos);
             move_thing_in_map(thing, &pos);
             set_thing_draw(thing, ctagfx->birth_anim_idx, 256, objdat->sprite_size_max, 0, 0, 2);
-            thing->byte_13 = CTAOL_Birthing;
+            thing->call_to_arms_flag.state = CTAOL_Birthing;
             stop_thing_playing_sample(thing, powerst->select_sound_idx);
             thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 6, FULL_LOUDNESS);
         }
@@ -1597,7 +1626,7 @@ TngUpdateRet object_update_call_to_arms(struct Thing *thing)
 TngUpdateRet object_update_armour(struct Thing *objtng)
 {
     //return _DK_object_update_armour(objtng);
-    struct Thing* thing = thing_get(objtng->belongs_to);
+    struct Thing* thing = thing_get(objtng->armor.belongs_to);
     if (thing_is_picked_up(thing))
     {
         objtng->field_4F |= TF4F_Unknown01;
@@ -1612,7 +1641,7 @@ TngUpdateRet object_update_armour(struct Thing *objtng)
      || (abs(objtng->mappos.y.val - pos.y.val) > 512)
      || (abs(objtng->mappos.z.val - pos.z.val) > 512))
     {
-        short shspeed = objtng->byte_15;
+        short shspeed = objtng->armor.shspeed;
         pos.x.val += 32 * LbSinL(682 * shspeed) >> 16;
         pos.y.val += -(32 * LbCosL(682 * shspeed) >> 8) >> 8;
         pos.z.val += shspeed * (thing->clipbox_size_yz >> 1);
@@ -1649,43 +1678,38 @@ TngUpdateRet object_update_armour(struct Thing *objtng)
 TngUpdateRet object_update_object_scale(struct Thing *objtng)
 {
     //return _DK_object_update_object_scale(objtng);
-    struct Thing* creatng = thing_get(objtng->belongs_to);
+    struct Thing* creatng = thing_get(objtng->lair.belongs_to);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     struct Objects* objdat = get_objects_data_for_thing(objtng);
     int spr_size;
     int start_frame = objtng->field_48;
-    if (objtng->belongs_to) {
+    if (objtng->lair.belongs_to) {
         spr_size = gameadd.crtr_conf.sprite_size + (gameadd.crtr_conf.sprite_size * cctrl->explevel * gameadd.crtr_conf.exp.size_increase_on_exp) / 100;
     } else {
         spr_size = objdat->sprite_size_max;
     }
-    int cssize = objtng->word_15;
-    objtng->size = spr_size;
+    int cssize = objtng->lair.cssize;
+    objtng->lair.spr_size = spr_size;
     long i;
     if (cssize+32 < spr_size)
     {
-        objtng->word_15 = cssize+32;
+        objtng->lair.cssize = cssize+32;
         i = convert_td_iso(objdat->sprite_anim_idx);
     } else
     if (cssize-32 > spr_size)
     {
-        objtng->word_15 = cssize-32;
+        objtng->lair.cssize = cssize-32;
         i = convert_td_iso(objdat->sprite_anim_idx);
     } else
     {
-        objtng->word_15 = spr_size;
+        objtng->lair.cssize = spr_size;
         i = convert_td_iso(objdat->sprite_anim_idx);
     }
     if ((i & 0x8000u) != 0) {
         i = objdat->sprite_anim_idx;
     }
-    set_thing_draw(objtng, i, objdat->anim_speed, objtng->word_15, 0, start_frame, objdat->draw_class);
+    set_thing_draw(objtng, i, objdat->anim_speed, objtng->lair.cssize, 0, start_frame, objdat->draw_class);
     return 1;
-}
-
-TngUpdateRet object_update_armour2(struct Thing *objtng)
-{
-    return _DK_object_update_armour2(objtng);
 }
 
 TngUpdateRet object_update_power_sight(struct Thing *objtng)
@@ -1715,7 +1739,7 @@ TngUpdateRet object_update_power_lightning(struct Thing *objtng)
         variation++;
     }
     const struct MagicStats* pwrdynst = get_power_dynamic_stats(PwrK_LIGHTNING);
-    if (exist_turns > abs(pwrdynst->strength[objtng->byte_13]))
+    if (exist_turns > abs(pwrdynst->strength[objtng->lightning.spell_level]))
     {
         delete_thing_structure(objtng, 0);
         return TUFRet_Deleted;
@@ -1774,7 +1798,7 @@ TngUpdateRet move_object(struct Thing *thing)
                 {
                     if (!find_free_position_on_slab(thing, &pos))
                     {
-                        SYNCDBG(7, "Found no free position next to (%ld,%ld) due to blocked flag %d. Move to valid position.",pos.x.val,pos.y.val, blocked_flags);
+                        SYNCDBG(7, "Found no free position next to (%ld,%ld) due to blocked flag %d. Move to valid position.", pos.x.val, pos.y.val, blocked_flags);
                         move_creature_to_nearest_valid_position(thing);
                     }
                 }

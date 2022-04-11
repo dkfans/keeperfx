@@ -606,10 +606,10 @@ TbBool load_column_file(LevelNumber lv_num)
       total = COLUMNS_COUNT;
     }
     // Read and validate second amount
-    game.field_14AB3F = llong(&buf[i]);
-    if (game.field_14AB3F >= COLUMNS_COUNT)
+    game.columns_used = llong(&buf[i]);
+    if (game.columns_used >= COLUMNS_COUNT)
     {
-      game.field_14AB3F = COLUMNS_COUNT-1;
+      game.columns_used = COLUMNS_COUNT - 1;
     }
     i += 4;
     // Fill the columns
@@ -839,7 +839,7 @@ TbBool columns_add_static_entries(void)
           if (ncol == 0)
             ncol = create_column(&lcolmn);
           struct Column* colmn = get_column(ncol);
-          colmn->bitfields |= 0x01;
+          colmn->bitfields |= CLF_ACTIVE;
           *wptr = -(short)ncol;
           wptr++;
         }
@@ -866,7 +866,7 @@ TbBool update_slabset_column_indices(struct Column *cols, long ccount)
                 {
                     ncol = create_column(&lcolmn);
                     struct Column* colmn = get_column(ncol);
-                    colmn->bitfields |= 0x01;
+                    colmn->bitfields |= CLF_ACTIVE;
                 }
             } else
           {
@@ -896,7 +896,7 @@ TbBool create_columns_from_list(struct Column *cols, long ccount)
             if (ncol == 0)
                 ncol = create_column(&cols[i]);
             struct Column* colmn = get_column(ncol);
-            colmn->bitfields |= 0x01;
+            colmn->bitfields |= CLF_ACTIVE;
         }
     }
     return true;
@@ -1223,10 +1223,10 @@ static void load_ext_slabs(LevelNumber lvnum)
     char* fname = prepare_file_fmtpath(fgroup, "map%05lu.slx", (unsigned long)lvnum);
     if (LbFileExists(fname))
     {
-        if (sizeof(slab_ext_data) != LbFileLoadAt(fname, slab_ext_data))
+        if (sizeof(gameadd.slab_ext_data) != LbFileLoadAt(fname, gameadd.slab_ext_data))
         {
             JUSTLOG("Invalid ExtSlab data from %s", fname);
-            memset(slab_ext_data, 0, sizeof(slab_ext_data));
+            memset(gameadd.slab_ext_data, 0, sizeof(gameadd.slab_ext_data));
         }
         SYNCDBG(1, "ExtSlab file:%s ok", fname);
         return;
@@ -1234,7 +1234,7 @@ static void load_ext_slabs(LevelNumber lvnum)
     else
     {
         SYNCDBG(1, "No ExtSlab file:%s", fname);
-        memset(slab_ext_data, 0, sizeof(slab_ext_data));
+        memset(gameadd.slab_ext_data, 0, sizeof(gameadd.slab_ext_data));
     }
 }
 

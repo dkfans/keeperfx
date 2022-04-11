@@ -330,6 +330,7 @@ void creature_drop_dragged_object(struct Thing *crtng, struct Thing *dragtng);
 void creature_drag_object(struct Thing *creatng, struct Thing *dragtng);
 TbBool creature_is_dragging_something(const struct Thing *creatng);
 TbBool creature_is_dragging_spellbook(const struct Thing *creatng);
+void stop_creature_being_dragged_by(struct Thing *dragtng, struct Thing *creatng);
 
 void make_creature_conscious(struct Thing *creatng);
 void make_creature_unconscious(struct Thing *creatng);
@@ -399,6 +400,8 @@ TbBool creature_state_cannot_be_blocked(const struct Thing *thing);
 
 TbBool setup_move_off_lava(struct Thing* thing);
 TbBool setup_move_out_of_cave_in(struct Thing* thing);
+
+struct Room* get_room_xy(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 
 /******************************************************************************/
 #ifdef __cplusplus

@@ -43,30 +43,35 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT short _DK_cleanup_prison(struct Thing *creatng);
 DLLIMPORT long _DK_process_prison_food(struct Thing *creatng, struct Room *room);
 /******************************************************************************/
 #ifdef __cplusplus
 }
 #endif
 /******************************************************************************/
-TbBool jailbreak_possible(struct Room *room, long plyr_idx)
+TbBool jailbreak_possible(struct Room *room, PlayerNumber creature_owner)
 {
-    if (room->owner == plyr_idx) {
+    struct SlabMap *slb;
+    // Neutral creatures (in any player's prison)
+    // and creatures in the prisons of their owner can't jailbreak
+    if (creature_owner == game.neutral_player_num || room->owner == creature_owner)
+    {
         return false;
     }
     unsigned long k = 0;
     unsigned long i = room->slabs_list;
     while (i > 0)
     {
-        struct SlabMap* slb = get_slabmap_direct(i);
+        slb = get_slabmap_direct(i);
         if (slabmap_block_invalid(slb))
         {
             ERRORLOG("Jump to invalid room slab detected");
             break;
         }
-        if (slab_by_players_land(plyr_idx, slb_num_decode_x(i), slb_num_decode_y(i)))
+        if (slab_by_players_land(creature_owner, slb_num_decode_x(i), slb_num_decode_y(i)))
+        {
             return true;
+        }
         i = get_next_slab_number_in_room(i);
         k++;
         if (k > map_tiles_x * map_tiles_y)
@@ -80,7 +85,11 @@ TbBool jailbreak_possible(struct Room *room, long plyr_idx)
 
 short cleanup_prison(struct Thing *thing)
 {
-  return _DK_cleanup_prison(thing);
+  // return _DK_cleanup_prison(thing);
+  struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+  cctrl->flgfield_1 &= (CCFlg_Exists | CCFlg_PreventDamage | CCFlg_Unknown08 | CCFlg_Unknown10 | CCFlg_IsInRoomList | CCFlg_Unknown40 | CCFlg_Unknown80);
+  state_cleanup_in_room(thing);
+  return 1;
 }
 
 short creature_arrived_at_prison(struct Thing *creatng)

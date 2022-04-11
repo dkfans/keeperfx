@@ -120,8 +120,8 @@ ThingModel crate_to_workshop_item_model(ThingModel tngmodel)
 
 ThingClass crate_thing_to_workshop_item_class(const struct Thing *thing)
 {
-    if (thing_is_invalid(thing) || (thing->class_id != TCls_Object))
-        return gameadd.object_conf.workshop_object_class[0];
+    if (!thing_is_workshop_crate(thing))
+        return thing->class_id;
     ThingModel tngmodel = thing->model;
     if ((tngmodel <= 0) || (tngmodel >= gameadd.object_conf.object_types_count))
         return gameadd.object_conf.workshop_object_class[0];
@@ -236,7 +236,6 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
         char block_buf[COMMAND_WORD_LEN];
         sprintf(block_buf, "object%d", tmodel);
         long pos = 0;
-        char* tail;
         int k = find_conf_block(buf, &pos, len, block_buf);
         if (k < 0)
         {
@@ -263,13 +262,7 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
             }
             continue;
         }
-        else
-        {
-            if (tmodel > gameadd.object_conf.object_types_count)
-            {
-                WARNMSG("Found unexpected block [%s] in %s file.", block_buf, config_textname);
-            }
-        }
+
         objst = &gameadd.object_conf.object_cfgstats[tmodel];
         objbc = &gameadd.object_conf.base_config[tmodel];
         struct Objects* objdat = get_objects_data(tmodel);
@@ -524,14 +517,17 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                 }
                 break;
             case 18: // MAPICON
-                tail = buf;
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
-                    n = strtol(word_buf, &tail, 10);
-                    objst->map_icon = n;
+                    n = get_icon_id(word_buf);
+                    if (n >= -1)
+                    {
+                        objst->map_icon = n;
+                    }
                 }
-                if (0 != *tail)
+                if (n < -1)
                 {
+                    objst->map_icon = bad_icon_id;
                     CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
                         COMMAND_TEXT(cmd_num), block_buf, config_textname);
                 }

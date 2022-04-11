@@ -39,6 +39,7 @@
 #include "creature_jobs.h"
 #include "engine_arrays.h"
 #include "game_legacy.h"
+#include "custom_sprites.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -1013,7 +1014,7 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
         case 10: // SYMBOLSPRITES
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
-              k = atoi(word_buf);
+              k = get_icon_id(word_buf);
               if (k >= 0)
               {
                   //TODO CONFIG Add when InstanceInfo can be changed
@@ -1207,10 +1208,10 @@ TbBool parse_creaturetype_job_blocks(char *buf, long len, const char *config_tex
             jobcfg->initial_crstate = CrSt_Unused;
             jobcfg->continue_crstate = CrSt_Unused;
             jobcfg->job_flags = 0;
-            jobcfg->func_plyr_check = NULL;
-            jobcfg->func_plyr_assign = NULL;
-            jobcfg->func_cord_check = NULL;
-            jobcfg->func_cord_assign = NULL;
+            jobcfg->func_plyr_check_idx = 0;
+            jobcfg->func_plyr_assign_idx = 0;
+            jobcfg->func_cord_check_idx = 0;
+            jobcfg->func_cord_assign_idx = 0;
             if (i < gameadd.crtr_conf.jobs_count)
             {
                 creaturejob_desc[i].name = gameadd.crtr_conf.jobs[i].name;
@@ -1368,18 +1369,18 @@ TbBool parse_creaturetype_job_blocks(char *buf, long len, const char *config_tex
                 }
                 break;
             case 7: // PLAYERFUNCTIONS
-                jobcfg->func_plyr_check = NULL;
-                jobcfg->func_plyr_assign = NULL;
+                jobcfg->func_plyr_check_idx = 0;
+                jobcfg->func_plyr_assign_idx = 0;
                 k = recognize_conf_parameter(buf,&pos,len,creature_job_player_check_func_type);
                 if (k > 0)
                 {
-                    jobcfg->func_plyr_check = creature_job_player_check_func_list[k];
+                    jobcfg->func_plyr_check_idx = k;
                     n++;
                 }
                 k = recognize_conf_parameter(buf,&pos,len,creature_job_player_assign_func_type);
                 if (k > 0)
                 {
-                    jobcfg->func_plyr_assign = creature_job_player_assign_func_list[k];
+                    jobcfg->func_plyr_assign_idx = k;
                     n++;
                 }
                 if (n < 2)
@@ -1389,18 +1390,18 @@ TbBool parse_creaturetype_job_blocks(char *buf, long len, const char *config_tex
                 }
                 break;
             case 8: // COORDSFUNCTIONS
-                jobcfg->func_cord_check = NULL;
-                jobcfg->func_cord_assign = NULL;
+                jobcfg->func_cord_check_idx = 0;
+                jobcfg->func_cord_assign_idx = 0;
                 k = recognize_conf_parameter(buf,&pos,len,creature_job_coords_check_func_type);
                 if (k > 0)
                 {
-                    jobcfg->func_cord_check = creature_job_coords_check_func_list[k];
+                    jobcfg->func_cord_check_idx = k;
                     n++;
                 }
                 k = recognize_conf_parameter(buf,&pos,len,creature_job_coords_assign_func_type);
                 if (k > 0)
                 {
-                    jobcfg->func_cord_assign = creature_job_coords_assign_func_list[k];
+                    jobcfg->func_cord_assign_idx = k;
                     n++;
                 }
                 if (n < 2)

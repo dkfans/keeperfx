@@ -270,7 +270,7 @@ int draw_overlay_traps(struct PlayerInfo *player, long units_per_px, long zoom)
             RealScreenCoord basepos;
             basepos = MapDiagonalLength/2;
             // Do the drawing
-            if ((thing->trap_door_active_state) || (player->id_number == thing->owner))
+            if ((thing->trap.revealed) || (player->id_number == thing->owner))
             {
                 TbPixel col;
                 if ((thing->model == gui_trap_type_highlighted) && (game.play_gameturn & 1)) {
@@ -347,7 +347,7 @@ int draw_overlay_spells_and_boxes(struct PlayerInfo *player, long units_per_px, 
                 RealScreenCoord basepos;
                 basepos = MapDiagonalLength/2;
                 // Do the drawing
-                if ((thing->trap_door_active_state) || (player->id_number == thing->owner))
+                if ((thing->trap.revealed) || (player->id_number == thing->owner))
                 {
                     if (thing_is_special_box(thing) || thing_is_spellbook(thing)) {
                         pannel_map_draw_pixel(mapos_x+basepos, mapos_y+basepos, colours[15][0][15]);
@@ -720,7 +720,7 @@ void pannel_map_update_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSu
             struct Thing *doortng;
             doortng = get_door_for_position(stl_x, stl_y);
             if (!thing_is_invalid(doortng)) {
-                col = owner_col + 6 * ((doortng->trap_door_active_state == 1) + 2 * doortng->model) + 110;
+                col = owner_col + 6 * ((doortng->door.is_locked == 1) + 2 * doortng->model) + 110;
             } else {
                 ERRORLOG("No door for flagged position");
             }

@@ -165,7 +165,7 @@ void remove_body_from_graveyard(struct Thing *thing)
         return;
     }
     room->used_capacity--;
-    thing->byte_14 = 0; //Laid to rest
+    thing->corpse.laid_to_rest = 0;
     struct Dungeon* dungeon = get_dungeon(room->owner);
     dungeon->bodies_rotten_for_vampire++;
     dungeon->lvstats.graveyard_bodys++;
@@ -438,7 +438,7 @@ struct Thing *create_dead_creature(const struct Coord3d *pos, ThingModel model, 
     thing->fall_acceleration = 16;
     thing->field_23 = 204;
     thing->field_24 = 51;
-    thing->field_22 = 0;
+    thing->bounce_angle = 0;
     thing->movement_flags |= TMvF_Unknown08;
     thing->creation_turn = game.play_gameturn;
     if (creatures[model].field_7) {
