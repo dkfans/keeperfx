@@ -543,9 +543,8 @@ long apply_wallhug_force_to_boulder(struct Thing *thing)
     }
   }
   angle = thing->move_angle_xy;
-  thing->velocity.x.val = shotst->speed
-                                       * lbSinTable[angle] >> 16;
-  thing->velocity.y.val = -(shotst->speed * lbCosTable[angle] >> 8) >> 8;
+  thing->velocity.x.val = distance_with_angle_to_coord_x(shotst->speed,angle);
+  thing->velocity.y.val = distance_with_angle_to_coord_y(shotst->speed,angle);
   return 0;
 }
 
