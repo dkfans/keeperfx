@@ -450,7 +450,6 @@ long apply_wallhug_force_to_boulder(struct Thing *thing)
   pos.x.val = move_coord_with_angle_x(thing->mappos.x.val,speed,thing->move_angle_xy);
   pos.y.val = move_coord_with_angle_y(thing->mappos.y.val,speed,thing->move_angle_xy);
   pos.z.val = thing->mappos.z.val;
-  game.action_rand_seed = ACTION_RANDOM(ULONG_MAX);
   if ( (ACTION_RANDOM(8) == 0) && (!thing->velocity.z.val ) )
   {
     if ( thing_touching_floor(thing) )
