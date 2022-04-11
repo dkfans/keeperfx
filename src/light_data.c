@@ -828,7 +828,6 @@ void update_light_render_area(void)
 
 void light_set_light_minimum_size_to_cache(long lgt_id, long a2, long a3)
 {
-  // _DK_light_set_light_minimum_size_to_cache(a1, a2, a3);
   struct Light *lgt;
   if ( lgt_id )
   {
@@ -840,8 +839,8 @@ void light_set_light_minimum_size_to_cache(long lgt_id, long a2, long a3)
         lgt->flags &= ~LgtF_Unkn02;
         if ( lgt->flags & LgtF_Dynamic )
         {
-          lgt->field_9[0] = a2;
-          *(unsigned short *)&lgt->field_1C[8] = a3;
+          lgt->field_9 = a2;
+          lgt->field_24 = a3;
         }
         else
         {
