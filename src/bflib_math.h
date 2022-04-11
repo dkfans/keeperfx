@@ -78,11 +78,6 @@ TbBool LbNumberSignsSame(long num_a, long num_b);
 char LbCompareMultiplications(long mul1a, long mul1b, long mul2a, long mul2b);
 long LbDiagonalLength(long a, long b);
 
-DLLIMPORT extern int _DK_lbCosTable[2048];
-#define lbCosTable _DK_lbCosTable
-DLLIMPORT extern int _DK_lbSinTable[2048];
-#define lbSinTable _DK_lbSinTable
-
 /******************************************************************************/
 #ifdef __cplusplus
 }

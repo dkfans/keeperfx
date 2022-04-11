@@ -22,6 +22,7 @@
 #include "bflib_mouse.h"
 #include "bflib_filelst.h"
 #include "bflib_network.h"
+#include "bflib_planar.h"
 
 #include "custom_sprites.h"
 #include "version.h"
@@ -432,7 +433,6 @@ void affect_nearby_friends_with_alarm(struct Thing *traptng)
 
 long apply_wallhug_force_to_boulder(struct Thing *thing)
 {
-  // return _DK_apply_wallhug_force_to_boulder(thing);
   unsigned short angle;
   long collide;
   unsigned short new_angle;
@@ -440,11 +440,9 @@ long apply_wallhug_force_to_boulder(struct Thing *thing)
   struct Coord3d pos;
   struct ShotStats *shotst = &shot_stats[thing->model];
   unsigned short speed = (unsigned short)shotst->speed;
-  pos.x.val = thing->mappos.x.val + ((speed * lbSinTable[thing->move_angle_xy]) >> 16);
-  int n = speed * lbCosTable[thing->move_angle_xy];
-  pos.y.val = thing->mappos.y.val + (-(n >> 8) >> 8);
+  pos.x.val = move_coord_with_angle_x(thing->mappos.x.val,speed,thing->move_angle_xy);
+  pos.y.val = move_coord_with_angle_y(thing->mappos.y.val,speed,thing->move_angle_xy);
   pos.z.val = thing->mappos.z.val;
-  game.action_rand_seed = ACTION_RANDOM(ULONG_MAX);
   if ( (ACTION_RANDOM(8) == 0) && (!thing->velocity.z.val ) )
   {
     if ( thing_touching_floor(thing) )
@@ -538,9 +536,8 @@ long apply_wallhug_force_to_boulder(struct Thing *thing)
     }
   }
   angle = thing->move_angle_xy;
-  thing->velocity.x.val = shotst->speed
-                                       * lbSinTable[angle] >> 16;
-  thing->velocity.y.val = -(shotst->speed * lbCosTable[angle] >> 8) >> 8;
+  thing->velocity.x.val = distance_with_angle_to_coord_x(shotst->speed,angle);
+  thing->velocity.y.val = distance_with_angle_to_coord_y(shotst->speed,angle);
   return 0;
 }
 
