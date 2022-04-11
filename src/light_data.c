@@ -32,16 +32,8 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT void _DK_light_remove_light_from_list(struct Light *lgt, struct StructureList *list);
-DLLIMPORT void _DK_light_signal_stat_light_update_in_area(long x1, long y1, long x2, long y2);
 DLLIMPORT void _DK_light_initialise_lighting_tables(void);
-DLLIMPORT void _DK_light_set_light_minimum_size_to_cache(long a1, long a2, long a3);
-DLLIMPORT void _DK_light_set_light_position(long lgt_id, struct Coord3d *pos);
-DLLIMPORT long _DK_light_get_light_intensity(long idx);
-DLLIMPORT long _DK_light_set_light_intensity(long a1, long a2);
 DLLIMPORT void _DK_light_render_area(int startx, int starty, int endx, int endy);
-DLLIMPORT void _DK_light_stat_light_map_clear_area(long x1, long y1, long x2, long y2);
-DLLIMPORT void _DK_light_signal_update_in_area(long sx, long sy, long ex, long ey);
 
 /******************************************************************************/
 struct Light *light_allocate_light(void)
@@ -111,13 +103,13 @@ void light_shadow_cache_free(struct ShadowCache *shdc)
 
 TbBool light_add_light_to_list(struct Light *lgt, struct StructureList *list)
 {
-  if ((lgt->field_1 & 0x01) != 0)
+  if ((lgt->flags2 & 0x01) != 0)
   {
     ERRORLOG("Light is already in list");
     return false;
   }
   list->count++;
-  lgt->field_1 |= 0x01;
+  lgt->flags2 |= 0x01;
   lgt->field_26 = list->index;
   list->index = lgt->index;
   return true;
@@ -155,7 +147,7 @@ long light_create_light(struct InitLight *ilght)
     lgt->radius = ilght->radius;
     lgt->intensity = ilght->intensity;
     unsigned long k = 2 * ilght->field_3;
-    lgt->field_1 = k ^ ((k ^ lgt->field_1) & 0x01);
+    lgt->flags2 = k ^ ((k ^ lgt->flags2) & 0x01);
     set_flag_byte(&lgt->flags,LgtF_Dynamic,ilght->is_dynamic);
     lgt->field_1A = ilght->field_8;
     lgt->field_18 = ilght->field_4;
@@ -356,22 +348,147 @@ long light_is_light_allocated(long lgt_id)
 
 void light_set_light_position(long lgt_id, struct Coord3d *pos)
 {
-  _DK_light_set_light_position(lgt_id, pos);
+  // _DK_light_set_light_position(lgt_id, pos);
+  struct Light *lgt = &game.lish.lights[lgt_id];
+  if ( lgt->mappos.x.val != pos->x.val
+    || pos->y.val != lgt->mappos.y.val
+    || pos->z.val != lgt->mappos.z.val )
+  {
+    if ( (lgt->flags & LgtF_Dynamic) == 0 )
+    {
+      stat_light_needs_updating = 1;
+      unsigned char range = lgt->range;
+      long end_y = lgt->mappos.y.stl.num + range;
+      long end_x = lgt->mappos.x.stl.num + range;
+      if ( end_y > 255 )
+      {
+        end_y = 255;
+      }
+      if ( end_x > 255 )
+      {
+        end_x = 255;
+      }
+      long beg_y = lgt->mappos.y.stl.num - range;
+      if ( beg_y < 0 )
+      {
+        beg_y = 0;
+      }
+      long beg_x = lgt->mappos.x.stl.num - range;
+      if ( beg_x < 0 )
+      {
+        beg_x = 0;
+      }
+      light_signal_stat_light_update_in_area(beg_x, beg_y, end_x, end_y);
+    }
+    lgt->mappos.x.val = pos->x.val;
+    lgt->mappos.y.val = pos->y.val;
+    lgt->mappos.z.val = pos->z.val;
+    lgt->flags |= LgtF_Unkn08;
+  }
 }
 
 void light_remove_light_from_list(struct Light *lgt, struct StructureList *list)
 {
-  _DK_light_remove_light_from_list(lgt, list);
+  // _DK_light_remove_light_from_list(lgt, list);
+  if ( list->count == 0 )
+  {
+      ERRORLOG("List %d has no structures", list->index);
+      return;
+  }
+  TbBool Removed = false;
+  struct Light *lgt2;
+  struct Light *i;
+  if ( lgt->flags2 & 1 )
+  {
+    if ( lgt->index == list->index )
+    {
+      Removed = true;
+      list->count--;
+      list->index = lgt->field_26;
+      lgt->field_26 = 0;
+      lgt->flags2 &= ~1;
+    }
+    else
+    {
+      lgt2 = &game.lish.lights[list->index];
+      for ( i = 0; lgt2 != game.lish.lights; lgt2 = &game.lish.lights[lgt2->field_26] )
+      {
+        if ( lgt2 == lgt )
+        {
+          Removed = true;
+          if ( i )
+          {
+            i->field_26 = lgt->field_26;
+            lgt->flags2 &= ~1;
+            list->count--;
+            lgt->field_26 = 0;
+          }
+          else
+          {
+            ERRORLOG("No prev when removing light from list");
+          }
+        }
+        i = lgt2;
+      }
+    }
+    if ( !Removed )
+    {
+      ERRORLOG("Could not find light %d in list", lgt->index);
+    }
+  }
 }
 
 void light_signal_stat_light_update_in_area(long x1, long y1, long x2, long y2)
 {
-  _DK_light_signal_stat_light_update_in_area(x1, y1, x2, y2);
+  // _DK_light_signal_stat_light_update_in_area(x1, y1, x2, y2);
+  int i = 0;
+  struct Light *lgt = &game.lish.lights[1];
+  do
+  {
+    if ( lgt->flags & LgtF_Allocated )
+    {
+      if ( !(lgt->flags & LgtF_Dynamic) )
+      {
+        unsigned char range = lgt->range;
+        MapSubtlCoord x = lgt->mappos.x.stl.num;
+        MapSubtlCoord y = lgt->mappos.y.stl.num;
+        if ( range + x >= x1 && x - range <= x2 && range + y >= y1 && y - range <= y2 )
+        {
+          stat_light_needs_updating = 1;
+          i++;
+          lgt->flags |= LgtF_Unkn08;
+          lgt->flags &= 0x7F;
+        }
+      }
+    }
+    lgt++;
+  }
+  while ( lgt < (struct Light *)game.lish.shadow_cache );
+  if ( i )
+    light_stat_light_map_clear_area(x1, y1, x2, y2);
 }
 
 void light_signal_update_in_area(long sx, long sy, long ex, long ey)
 {
-    _DK_light_signal_update_in_area(sx, sy, ex, ey);
+   // _DK_light_signal_update_in_area(sx, sy, ex, ey);
+  struct Light *lgt = &game.lish.lights[1];
+  do
+  {
+    if ( lgt->flags & LgtF_Allocated )
+    {
+      if ( lgt->flags & LgtF_Dynamic )
+      {
+        unsigned char range = lgt->range;;
+        MapSubtlCoord x = lgt->mappos.x.stl.num;
+        MapSubtlCoord y = lgt->mappos.y.stl.num;
+        if ( range + x >= sx && x - range <= ex && range + y >= sy && y - range <= ey )
+          lgt->flags |= LgtF_Unkn08;
+      }
+    }
+    lgt++;
+  }
+  while ( lgt < (struct Light *)game.lish.shadow_cache );
+  light_signal_stat_light_update_in_area(sx, sy, ex, ey);
 }
 
 void light_signal_stat_light_update_in_own_radius(struct Light *lgt)
@@ -588,7 +705,55 @@ void light_initialise(void)
 
 void light_stat_light_map_clear_area(long x1, long y1, long x2, long y2)
 {
-  _DK_light_stat_light_map_clear_area(x1, y1, x2, y2);
+  // _DK_light_stat_light_map_clear_area(x1, y1, x2, y2);
+  long j,n,x,k,y;
+  unsigned short *p;
+  unsigned short *light_map;
+  if ( y2 >= y1 )
+  {
+    y = y1 << 8;
+    unsigned long i = x1 + (y1 << 8);
+    struct Map *Mapblk1 = get_map_block_at_pos(i);
+    light_map = &game.lish.stat_light_map[i];
+    for (k = y1; k <= y2; k++)
+    {
+      if ( x2 >= x1 )
+      {
+        p = light_map;
+        n = k - 1;
+        if ( k - 1 <= 0 )
+        {
+          n = 0;
+        }
+        struct Map *Mapblk2 = get_map_block_at_pos((n << 8) + x1);
+        for (j = x1; j <= x2; j++)
+        {
+          x = j - 1;
+          if ( x < 0 )
+          {
+            x = 0;
+          }
+          struct Column *Col1 = get_map_column(Mapblk1);
+          struct Column *Col2 = get_map_column(Mapblk2);
+          struct Column *Col3 = get_map_column(get_map_block_at_pos(x + y));
+          struct Column *Col4 = get_map_column(get_map_block_at_pos((n << 8) + x));
+          if ( (!column_invalid(Col1)) && (!column_invalid(Col2)) && (!column_invalid(Col3)) && (!column_invalid(Col4)) )
+          {
+            *p = game.lish.field_46149 << 8;
+          }
+          else
+          {
+            *p = 0;
+          }
+          p++;
+          Mapblk1++;
+          Mapblk2++;
+        }
+      }
+      y += 256;
+      light_map += 256;
+    }
+  }
 }
 
 void light_set_lights_on(char state)
@@ -661,9 +826,37 @@ void update_light_render_area(void)
     light_render_area(startx, starty, endx, endy);
 }
 
-void light_set_light_minimum_size_to_cache(long a1, long a2, long a3)
+void light_set_light_minimum_size_to_cache(long lgt_id, long a2, long a3)
 {
-  _DK_light_set_light_minimum_size_to_cache(a1, a2, a3);
+  struct Light *lgt;
+  if ( lgt_id )
+  {
+    lgt = &game.lish.lights[lgt_id];
+    if ( lgt->flags & LgtF_Allocated )
+    {
+      if ( lgt->flags & LgtF_Unkn02 )
+      {
+        lgt->flags &= ~LgtF_Unkn02;
+        if ( lgt->flags & LgtF_Dynamic )
+        {
+          lgt->field_9 = a2;
+          lgt->field_24 = a3;
+        }
+        else
+        {
+          ERRORLOG("Attempt to set_minimum light size to cache on non dynamic light");
+        }
+      }
+    }
+    else
+    {
+      ERRORLOG("Attempt to set minimum light size for unallocated light structure");
+    }
+  }
+  else
+  {
+    ERRORLOG("Attempt to set minimum light size for light 0");
+  }
 }
 
 /******************************************************************************/
