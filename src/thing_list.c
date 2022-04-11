@@ -23,7 +23,6 @@
 #include "globals.h"
 #include "bflib_sound.h"
 #include "packets.h"
-#include "lvl_script.h"
 #include "light_data.h"
 #include "thing_objects.h"
 #include "thing_effects.h"
@@ -249,7 +248,7 @@ long near_map_block_thing_filter_call_bool_filter(const struct Thing *thing, Max
 {
     if ((param->class_id == -1) || (thing->class_id == param->class_id))
     {
-        if ((param->model_id == -1) || (thing->model == param->model_id))
+        if (thing_matches_model(thing, param->model_id))
         {
             if ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
             {
@@ -281,7 +280,7 @@ long near_thing_pos_thing_filter_is_enemy_which_can_be_attacked_by_creature(cons
 {
     if ((param->class_id == -1) || (thing->class_id == param->class_id))
     {
-        if ((param->model_id == -1) || (thing->model == param->model_id))
+        if (thing_matches_model(thing, param->model_id))
         {
             if ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
             {
@@ -311,7 +310,7 @@ long highest_score_thing_filter_is_enemy_within_distance_which_can_be_attacked_b
 {
     if ((param->class_id == -1) || (thing->class_id == param->class_id))
     {
-        if ((param->model_id == -1) || (thing->model == param->model_id))
+        if (thing_matches_model(thing,param->model_id))
         {
             if ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
             {
@@ -374,7 +373,7 @@ long near_map_block_thing_filter_is_creature_of_model_owned_and_controlled_by(co
 {
     if (thing->class_id == TCls_Creature)
     {
-        if ((param->model_id == CREATURE_ANY) || (thing->model == param->model_id))
+        if (creature_matches_model(thing,param->model_id))
         {
             if ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
             {
@@ -405,7 +404,7 @@ long near_map_block_creature_filter_diagonal_random(const struct Thing *thing, M
 {
     if (thing->class_id == TCls_Creature)
     {
-        if ((param->model_id == -1) || (param->model_id == CREATURE_ANY) || (thing->model == param->model_id))
+        if (creature_matches_model(thing, param->model_id))
         {
             if ((param->plyr_idx == ALL_PLAYERS) || (thing->owner == param->plyr_idx))
             {
@@ -435,7 +434,7 @@ long near_map_block_thing_filter_is_thing_of_class_and_model_owned_by(const stru
 {
     if ((param->class_id == -1) || (thing->class_id == param->class_id))
     {
-        if ((param->model_id == -1) || (param->model_id == CREATURE_ANY) || (thing->model == param->model_id))
+        if (thing_matches_model(thing, param->model_id))
         {
             if ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
             {
@@ -581,7 +580,7 @@ long anywhere_thing_filter_is_of_class_and_model_and_owned_by_or_allied_with(con
 {
     if (thing->class_id == param->class_id)
     {
-        if ((param->model_id == CREATURE_ANY) || (thing->model == param->model_id))
+        if (thing_matches_model(thing, param->model_id))
         {
             if ((param->plyr_idx == -1) || players_are_mutual_allies(thing->owner,param->plyr_idx))
             {
@@ -604,7 +603,7 @@ long anywhere_thing_filter_is_of_class_and_model_and_owned_by(const struct Thing
 {
     if (thing->class_id == param->class_id)
     {
-        if ((param->model_id == -1) || (thing->model == param->model_id))
+        if (thing_matches_model(thing, param->model_id))
         {
             if ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
             {
@@ -661,7 +660,7 @@ long anywhere_thing_filter_is_creature_of_model_training_and_owned_by(const stru
 {
     if (thing->class_id == TCls_Creature)
     {
-      if ((thing->model == param->model_id) || (param->model_id == -1))
+      if (creature_matches_model(thing, param->model_id))
       {
           if ((thing->owner == param->plyr_idx) || (param->plyr_idx == -1))
           {
@@ -682,6 +681,48 @@ long anywhere_thing_filter_is_creature_of_model_training_and_owned_by(const stru
 }
 
 /**
+ * returns if the creature thing matches the model from the filter, considering possible wildcards.
+ * @param creatng The creature being checked.
+ * @param crmodel model to compare it to, possible wildcard.
+  */
+TbBool creature_matches_model(const struct Thing* creatng, long crmodel)
+{
+    if (creatng->class_id != TCls_Creature)
+        return false;
+    if (!is_creature_model_wildcard(crmodel))
+        return crmodel == creatng->model;
+    else if (crmodel == CREATURE_ANY)
+        return true;
+    else if (crmodel == CREATURE_NONE)
+        return false;
+    if (crmodel == CREATURE_DIGGER)
+        return creature_kind_is_for_dungeon_diggers_list(creatng->owner, crmodel);
+    else if (crmodel == CREATURE_NOT_A_DIGGER)
+        return !creature_kind_is_for_dungeon_diggers_list(creatng->owner, crmodel);
+    else
+        ERRORLOG("Invalid model wildcard detected: %d", crmodel);
+    return false;
+}
+
+/**
+ * returns if the thing matches the model from the filter, considering possible wildcards.
+ * @param thing The thing being checked.
+ * @param crmodel model to compare it to, possible wildcard.
+  */
+TbBool thing_matches_model(const struct Thing* thing, long tngmodel)
+{
+    if (thing->class_id == TCls_Creature)
+    {
+        return creature_matches_model(thing, tngmodel);
+    }
+    else if ((tngmodel == -1) || (thing->model == tngmodel))
+    {
+        return true;
+    }
+    return false;
+}
+
+/**
  * Filter function.
  * @param thing The thing being checked.
  * @param param Parameters exchanged between filter calls.
@@ -691,7 +732,7 @@ long anywhere_thing_filter_call_bool_filter(const struct Thing *thing, MaxTngFil
 {
     if ((param->class_id == -1) || (thing->class_id == param->class_id))
     {
-        if ((param->model_id == -1) || (thing->model == param->model_id))
+        if(thing_matches_model(thing, param->model_id))
         {
             if ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
             {
@@ -717,7 +758,7 @@ long anywhere_thing_filter_call_neg_bool_filter(const struct Thing *thing, MaxTn
 {
     if ((param->class_id == -1) || (thing->class_id == param->class_id))
     {
-        if ((param->model_id == -1) || (thing->model == param->model_id))
+        if (thing_matches_model(thing,param->model_id))
         {
             if ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
             {
@@ -743,7 +784,7 @@ long anywhere_thing_filter_is_trap_of_model_armed_and_owned_by(const struct Thin
 {
     if (thing->class_id == TCls_Trap)
     {
-      if ((thing->model == param->model_id) || (param->model_id == -1))
+      if (thing_matches_model(thing, param->model_id))
       {
           if ((thing->owner == param->plyr_idx) || (param->plyr_idx == -1))
           {
@@ -770,7 +811,7 @@ long anywhere_thing_filter_is_door_of_model_locked_and_owned_by(const struct Thi
 {
     if (thing->class_id == TCls_Door)
     {
-      if ((thing->model == param->model_id) || (param->model_id == -1))
+      if (thing_matches_model(thing,param->model_id))
       {
           if ((thing->owner == param->plyr_idx) || (param->plyr_idx == -1))
           {
@@ -1073,6 +1114,22 @@ void init_player_start(struct PlayerInfo *player, TbBool keep_prev)
     }
 }
 
+TbBool script_support_setup_player_as_zombie_keeper(unsigned short plyridx)
+{
+    SYNCDBG(8,"Starting for player %d",(int)plyridx);
+    struct PlayerInfo* player = get_player(plyridx);
+    if (player_invalid(player)) {
+        SCRPTWRNLOG("Tried to set up invalid player %d",(int)plyridx);
+        return false;
+    }
+    player->allocflags &= ~PlaF_Allocated; // mark as non-existing
+    player->id_number = plyridx;
+    player->is_active = 0;
+    player->allocflags &= ~PlaF_CompCtrl;
+    init_player_start(player, false);
+    return true;
+}
+
 void setup_computer_player(int plr_idx)
 {
     SYNCDBG(5,"Starting for player %d",plr_idx);
@@ -1154,6 +1211,11 @@ void remove_thing_from_mapwho(struct Thing *thing)
     } else
     {
         struct Map* mapblk = get_map_block_at(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
+        if (get_mapwho_thing_index(mapblk) != thing->index)
+        {
+            WARNLOG("Moving lost %s %d from %d, %d", thing_class_and_model_name(thing->class_id, thing->model),
+                    thing->index, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
+        }
         set_mapwho_thing_index(mapblk, thing->next_on_mapblk);
     }
     if (thing->next_on_mapblk > 0)
@@ -1246,7 +1308,7 @@ struct Thing *find_hero_gate_of_number(long num)
       }
       i = thing->next_of_class;
       // Per-thing code
-      if ((object_is_hero_gate(thing)) && (thing->byte_13 == num))
+      if ((object_is_hero_gate(thing)) && (thing->hero_gate.number == num))
       {
         return thing;
       }
@@ -1510,7 +1572,7 @@ struct Thing *get_nth_creature_owned_by_and_matching_bool_filter(PlayerNumber pl
     Thing_Maximizer_Filter filter = anywhere_thing_filter_call_bool_filter;
     struct CompoundTngFilterParam param;
     param.class_id = TCls_Creature;
-    param.model_id = -1;
+    param.model_id = CREATURE_ANY;
     param.plyr_idx = plyr_idx;
     param.num1 = -1;
     param.num2 = -1;
@@ -1531,7 +1593,7 @@ struct Thing *get_nth_creature_owned_by_and_failing_bool_filter(PlayerNumber ply
     Thing_Maximizer_Filter filter = anywhere_thing_filter_call_neg_bool_filter;
     struct CompoundTngFilterParam param;
     param.class_id = TCls_Creature;
-    param.model_id = -1;
+    param.model_id = CREATURE_ANY;
     param.plyr_idx = plyr_idx;
     param.num1 = -1;
     param.num2 = -1;
@@ -1545,7 +1607,7 @@ struct Thing *get_nearest_enemy_creature_possible_to_attack_by(struct Thing *cre
     Thing_Maximizer_Filter filter = near_thing_pos_thing_filter_is_enemy_which_can_be_attacked_by_creature;
     struct CompoundTngFilterParam param;
     param.class_id = TCls_Creature;
-    param.model_id = -1;
+    param.model_id = CREATURE_ANY;
     param.plyr_idx = -1;
     param.num1 = creatng->index;
     param.num2 = -1;
@@ -1559,7 +1621,7 @@ struct Thing *get_highest_score_enemy_creature_within_distance_possible_to_attac
     Thing_Maximizer_Filter filter = highest_score_thing_filter_is_enemy_within_distance_which_can_be_attacked_by_creature;
     struct CompoundTngFilterParam param;
     param.class_id = TCls_Creature;
-    param.model_id = -1;
+    param.model_id = CREATURE_ANY;
     param.plyr_idx = -1;
     param.num1 = creatng->index;
     param.num2 = dist;
@@ -1774,7 +1836,7 @@ TbBool electricity_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, c
         max_dist = max_dist * gameadd.friendly_fight_area_range_permil / 1000;
         max_damage = max_damage * gameadd.friendly_fight_area_damage_permil / 1000;
     }
-    MapCoord distance = get_2d_box_distance(pos, &tngdst->mappos);
+    MapCoordDelta distance = get_2d_box_distance(pos, &tngdst->mappos);
     if (distance < max_dist)
     {
         if (tngdst->class_id == TCls_Creature)
@@ -1994,7 +2056,8 @@ long count_player_list_creatures_of_model_on_territory(long thing_idx, ThingMode
         int slbwnr = get_slab_owner_thing_is_on(thing);
         if ( ((thing->model == crmodel) || (crmodel == CREATURE_ANY)) &&
             ( (players_are_enemies(thing->owner,slbwnr) && (friendly == 0)) ||
-            (players_are_mutual_allies(thing->owner,slbwnr) && (friendly == 1)) ) )
+              (players_are_mutual_allies(thing->owner,slbwnr) && (friendly == 1)) ||
+              (slbwnr == game.neutral_player_num && (friendly == 2)) ) )
         {
             count++;
         }
@@ -2058,40 +2121,49 @@ struct Thing *get_player_list_nth_creature_of_model_on_territory(long thing_idx,
         {
             ERRORLOG("Jump to invalid thing detected");
             return INVALID_THING;
-      }
-      struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-      i = cctrl->players_next_creature_idx;
-      // Per creature code
-      int slbwnr = get_slab_owner_thing_is_on(thing);
-      int match = 0;
-      if (friendly)
-      {
-        if (players_are_mutual_allies(thing->owner,slbwnr))
-        {
-          match = 1;
         }
-      } else
-      {
-        if (players_are_enemies(thing->owner,slbwnr))
+        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+        i = cctrl->players_next_creature_idx;
+        // Per creature code
+        int slbwnr = get_slab_owner_thing_is_on(thing);
+        int match = 0;
+        if (friendly == 1)
         {
-          match = 1;
+            if (players_are_mutual_allies(thing->owner,slbwnr))
+            {
+                match = 1;
+            }
+        } 
+        else if (friendly == 0)
+        {
+            if (players_are_enemies(thing->owner,slbwnr))
+            {
+                match = 1;
+            }
         }
-      }
-      if (((crmodel == 0) || (crmodel == CREATURE_ANY) || (thing->model == crmodel && crtr_idx <= 1)) && (match == 1))
-      {
-          return thing;
-      }
-      if ((crmodel == 0) || (crmodel == CREATURE_ANY) || ((thing->model == crmodel) && (match == 1)))
-      {
-          crtr_idx--;
-      }
-      // Per creature code ends
-      k++;
-      if (k > THINGS_COUNT)
-      {
-        ERRORLOG("Infinite loop detected when sweeping things list");
-        return INVALID_THING;
-      }
+        else
+        {
+            if (slbwnr == game.neutral_player_num)
+            {
+                match = 1;
+            }
+        }
+
+        if (((crmodel == 0) || (crmodel == CREATURE_ANY) || (thing->model == crmodel && crtr_idx <= 1)) && (match == 1))
+        {
+            return thing;
+        }
+        if ((crmodel == 0) || (crmodel == CREATURE_ANY) || ((thing->model == crmodel) && (match == 1)))
+        {
+            crtr_idx--;
+        }
+        // Per creature code ends
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            return INVALID_THING;
+        }
     }
     ERRORLOG("Tried to get creature of index exceeding list");
     return INVALID_THING;
@@ -2149,7 +2221,7 @@ GoldAmount compute_player_payday_total(const struct Dungeon *dungeon)
 struct Thing *get_random_players_creature_of_model(PlayerNumber plyr_idx, ThingModel crmodel)
 {
     long total_count;
-    TbBool is_spec_digger = ((crmodel > CREATURE_ANY) && creature_kind_is_for_dungeon_diggers_list(plyr_idx, crmodel));
+    TbBool is_spec_digger = ((crmodel == CREATURE_DIGGER) || creature_kind_is_for_dungeon_diggers_list(plyr_idx, crmodel));
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
     if (is_spec_digger)
     {
@@ -2822,25 +2894,6 @@ TbBool update_thing(struct Thing *thing)
     }
     SYNCDBG(18,"Finished");
     return true;
-}
-
-TbBigChecksum get_thing_checksum(const struct Thing *thing)
-{
-    SYNCDBG(18,"Starting");
-    if (!thing_exists(thing))
-        return 0;
-    TbBigChecksum csum = (ulong)thing->class_id +
-        (ulong)thing->mappos.z.val +
-        (ulong)thing->mappos.x.val +
-        (ulong)thing->mappos.y.val +
-        (ulong)thing->health + (ulong)thing->model + (ulong)thing->owner;
-    if (thing->class_id == TCls_Creature)
-    {
-        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-        csum += (ulong)cctrl->inst_turn + (ulong)cctrl->instance_id
-            + (ulong)thing->field_49 + (ulong)thing->field_48;
-    }
-    return csum * thing->index;
 }
 
 short update_thing_sound(struct Thing *thing)

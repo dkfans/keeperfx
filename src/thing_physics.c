@@ -68,7 +68,6 @@ TbBool thing_above_flight_altitude(const struct Thing* thing)
 
 void slide_thing_against_wall_at(struct Thing *thing, struct Coord3d *pos, long blocked_flags)
 {
-   // _DK_slide_thing_against_wall_at(thing, pos, a3); return;
   unsigned short x_thing;
   unsigned short sizexy;
   unsigned short x_pos;
@@ -200,14 +199,14 @@ void bounce_thing_off_wall_at(struct Thing *thing, struct Coord3d *pos, long blo
   {
     case SlbBloF_WalledX:
       pos->x.val = thing->mappos.x.val;
-      thing->veloc_base.x.val = -(short)(x * thing->field_22 / 128);
+      thing->veloc_base.x.val = -(short)(x * thing->bounce_angle / 128);
       i = 256 - thing->field_23;
       thing->veloc_base.y.val = i * (short)thing->veloc_base.y.val / 256;
       thing->veloc_base.z.val = i * (short)thing->veloc_base.z.val / 256;
       break;
     case SlbBloF_WalledY:
       pos->y.val = thing->mappos.y.val;
-      thing->veloc_base.y.val = -(short)(y * thing->field_22 / 128);
+      thing->veloc_base.y.val = -(short)(y * thing->bounce_angle / 128);
       i = 256 - thing->field_23;
       thing->veloc_base.x.val = i * (short)thing->veloc_base.x.val / 256;
       thing->veloc_base.z.val = i * (short)thing->veloc_base.z.val / 256;
@@ -215,13 +214,13 @@ void bounce_thing_off_wall_at(struct Thing *thing, struct Coord3d *pos, long blo
     case SlbBloF_WalledX|SlbBloF_WalledY:
       pos->x.val = thing->mappos.x.val;
       pos->y.val = thing->mappos.y.val;
-      i = thing->field_22;
+      i = thing->bounce_angle;
       thing->veloc_base.x.val = -(short)(i * x / 128);
       thing->veloc_base.y.val = -(short)(i * y / 128);
       break;
     case SlbBloF_WalledZ:
       pos->z.val = thing->mappos.z.val;
-      thing->veloc_base.z.val = -(short)(z * thing->field_22 / 128);
+      thing->veloc_base.z.val = -(short)(z * thing->bounce_angle / 128);
       i = 256 - thing->field_23;
       thing->veloc_base.x.val = i * (short)thing->veloc_base.x.val / 256;
       thing->veloc_base.y.val = i * (short)thing->veloc_base.y.val / 256;
@@ -229,14 +228,14 @@ void bounce_thing_off_wall_at(struct Thing *thing, struct Coord3d *pos, long blo
     case SlbBloF_WalledZ|SlbBloF_WalledX:
       pos->z.val = thing->mappos.z.val;
       pos->x.val = thing->mappos.x.val;
-      i = thing->field_22;
+      i = thing->bounce_angle;
       thing->veloc_base.x.val = -(short)(i * x / 128);
       thing->veloc_base.z.val = -(short)(i * z / 128);
       break;
     case SlbBloF_WalledZ|SlbBloF_WalledY:
       pos->y.val = thing->mappos.y.val;
       pos->z.val = thing->mappos.z.val;
-      i = thing->field_22;
+      i = thing->bounce_angle;
       thing->veloc_base.y.val = -(short)(i * y / 128);
       int n = i * y;
       int j = thing->field_23;
@@ -248,7 +247,7 @@ void bounce_thing_off_wall_at(struct Thing *thing, struct Coord3d *pos, long blo
       pos->x.val = thing->mappos.x.val;
       pos->y.val = thing->mappos.y.val;
       pos->z.val = thing->mappos.z.val;
-      i = thing->field_22;
+      i = thing->bounce_angle;
       thing->veloc_base.x.val = -(short)(i * x / 128);
       thing->veloc_base.y.val = -(short)(i * y / 128);
       thing->veloc_base.z.val = -(short)(i * z / 128);
@@ -383,7 +382,7 @@ TbBool position_over_floor_level(const struct Thing *thing, const struct Coord3d
     return false;
 }
 
-long creature_cannot_move_directly_to(struct Thing *thing, struct Coord3d *pos)
+TbBool creature_cannot_move_directly_to(struct Thing *thing, struct Coord3d *pos)
 {
     struct Coord3d realpos;
     realpos.x.val = thing->mappos.x.val;
@@ -411,7 +410,7 @@ long creature_cannot_move_directly_to(struct Thing *thing, struct Coord3d *pos)
             modpos.z.val = realpos.z.val;
             if (position_over_floor_level(thing, &modpos)) {
                 // No need to restore mappos - it was not modified yet
-                return 1;
+                return true;
             }
             thing->mappos.x.val = modpos.x.val;
             thing->mappos.y.val = modpos.y.val;
@@ -431,7 +430,7 @@ long creature_cannot_move_directly_to(struct Thing *thing, struct Coord3d *pos)
             modpos.z.val = realpos.z.val;
             if (position_over_floor_level(thing, &modpos)) {
                 thing->mappos = origpos;
-                return 1;
+                return true;
             }
             thing->mappos.x.val = modpos.x.val;
             thing->mappos.y.val = modpos.y.val;
@@ -447,10 +446,10 @@ long creature_cannot_move_directly_to(struct Thing *thing, struct Coord3d *pos)
             modpos.z.val = realpos.z.val;
             if (position_over_floor_level(thing, &modpos)) {
                 thing->mappos = origpos;
-                return 1;
+                return true;
             }
             thing->mappos = origpos;
-            return 0;
+            return false;
         }
 
         if (cross_y_boundary_first(&realpos, pos))
@@ -466,7 +465,7 @@ long creature_cannot_move_directly_to(struct Thing *thing, struct Coord3d *pos)
             modpos.z.val = realpos.z.val;
             if (position_over_floor_level(thing, &modpos)) {
                 // No need to restore mappos - it was not modified yet
-                return 1;
+                return true;
             }
             thing->mappos.x.val = modpos.x.val;
             thing->mappos.y.val = modpos.y.val;
@@ -486,7 +485,7 @@ long creature_cannot_move_directly_to(struct Thing *thing, struct Coord3d *pos)
             modpos.z.val = realpos.z.val;
             if (position_over_floor_level(thing, &modpos)) {
                 thing->mappos = origpos;
-                return 1;
+                return true;
             }
             thing->mappos.x.val = modpos.x.val;
             thing->mappos.y.val = modpos.y.val;
@@ -502,18 +501,18 @@ long creature_cannot_move_directly_to(struct Thing *thing, struct Coord3d *pos)
             modpos.z.val = realpos.z.val;
             if (position_over_floor_level(thing, &modpos)) {
                 thing->mappos = origpos;
-                return 1;
+                return true;
             }
             thing->mappos = origpos;
-            return 0;
+            return false;
         }
 
         if (position_over_floor_level(thing, pos)) {
             thing->mappos = origpos;
-            return 1;
+            return true;
         }
         thing->mappos = origpos;
-        return 0;
+        return false;
     }
 
     if (position_over_floor_level(thing, pos)) {

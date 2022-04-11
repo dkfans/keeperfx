@@ -89,7 +89,7 @@ struct Room {
     unsigned char central_stl_y;
     unsigned short kind;
     unsigned short health;
-    short total_capacity;
+    unsigned short total_capacity;
     unsigned short used_capacity;
     /* Informs whether players are interested in that room.
      * Usually used for neutral rooms, set if a player is starting to dig to that room. */
@@ -98,7 +98,7 @@ struct Room {
     /** For rooms which can store things, amount of storage space, or sum of gold, used by them.
      *  Rooms which can store things are workshops, libraries, treasure rooms etc. */
     struct {
-      long capacity_used_for_storage;
+      unsigned long capacity_used_for_storage;
       short hatchfield_1B;
       unsigned char field_1D[26];
     };
@@ -165,7 +165,6 @@ struct RoomReposition {
 
 /******************************************************************************/
 DLLIMPORT extern struct RoomData _DK_room_data[];
-//#define room_data _DK_room_data
 
 #pragma pack()
 /******************************************************************************/
@@ -263,6 +262,9 @@ void do_room_integration(struct Room *room);
 void destroy_dungeon_heart_room(PlayerNumber plyr_idx, const struct Thing *heartng);
 
 void count_gold_hoardes_in_room(struct Room *room);
+void update_room_total_capacity(struct Room *room);
+
+TbBool find_random_valid_position_for_thing_in_room_avoiding_object_excluding_room_slab(struct Thing *thing, struct Room *room, struct Coord3d *pos, long slbnum);
 
 /* MOVE TO room_list.c/h */
 struct Room *find_nearest_room_for_thing_with_spare_item_capacity(struct Thing *thing, PlayerNumber plyr_idx, RoomKind rkind, unsigned char nav_flags);

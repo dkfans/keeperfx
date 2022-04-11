@@ -149,7 +149,25 @@ enum TbPacketAction {
         PckA_SaveViewType,
         PckA_LoadViewType,//120
         PckA_PlyrMsgChar    =  121,
-        PckA_PlyrMsgClear
+        PckA_PlyrMsgClear,
+        PckA_DirectCtrlDragDrop,
+        PckA_CheatPlaceTerrain,
+        PckA_CheatMakeCreature,
+        PckA_CheatMakeDigger,
+        PckA_CheatStealSlab,
+        PckA_CheatStealRoom,
+        PckA_CheatHeartHealth,
+        PckA_CheatKillPlayer,
+        PckA_CheatConvertCreature,
+        PckA_CheatSwitchTerrain,
+        PckA_CheatSwitchPlayer,
+        PckA_CheatSwitchCreature,
+        PckA_CheatSwitchHero,
+        PckA_CheatSwitchExperience,
+        PckA_CheatCtrlCrtrSetInstnc,
+        PckA_SetFirstPersonDigMode,
+        PckA_SwitchTeleportDest,
+        PckA_SelectFPPickup
 };
 
 /** Packet flags for non-action player operation. */

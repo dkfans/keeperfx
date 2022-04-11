@@ -119,10 +119,11 @@ unsigned char keepersprite_frames(unsigned short n);
 unsigned char keepersprite_rotable(unsigned short n);
 void get_keepsprite_unscaled_dimensions(long kspr_frame, long a2, long a3, short *orig_w, short *orig_h, short *unsc_w, short *unsc_h);
 long get_lifespan_of_animation(long ani, long frameskip);
-unsigned long get_creature_anim(struct Thing *thing, unsigned short frame);
-unsigned long get_creature_model_graphics(long crmodel, unsigned short frame);
+short get_creature_anim(struct Thing *thing, unsigned short frame);
+short get_creature_model_graphics(long crmodel, unsigned short frame);
 void set_creature_model_graphics(long crmodel, unsigned short frame, unsigned long val);
 void set_creature_graphic(struct Thing *thing);
+void update_creature_graphic_field_4F(struct Thing *thing);
 
 /******************************************************************************/
 #ifdef __cplusplus

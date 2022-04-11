@@ -546,7 +546,7 @@ void get_dungeon_highlight_user_roomspace(PlayerNumber plyr_idx, MapSubtlCoord s
             untag_mode = true;
         }
     }
-    if ((dungeonadd->swap_to_untag_mode == -1) && ((pckt->control_flags & PCtr_RBtnHeld) == PCtr_RBtnHeld) && (is_game_key_pressed(Gkey_SquareRoomSpace, &keycode, true)) && (!subtile_is_diggable_for_player(plyr_idx, stl_x, stl_y, false)) && ((pckt->control_flags & PCtr_LBtnAnyAction) == 0))
+    if ((dungeonadd->swap_to_untag_mode == -1) && ((pckt->control_flags & PCtr_RBtnHeld) == PCtr_RBtnHeld) && (is_game_key_pressed(Gkey_SquareRoomSpace, &keycode, true) && !(game.system_flags & GSF_NetworkActive)) && (!subtile_is_diggable_for_player(plyr_idx, stl_x, stl_y, false)) && ((pckt->control_flags & PCtr_LBtnAnyAction) == 0))
     {
         // Allow RMB + CTRL to work as expected over lowslabs (for tagging and untagging)
         // we reset swap_to_untag_mode whenever LMB is not pressed (i.e. we are still in preview mode)
@@ -560,7 +560,7 @@ void get_dungeon_highlight_user_roomspace(PlayerNumber plyr_idx, MapSubtlCoord s
             dungeonadd->swap_to_untag_mode = 1; // maybe
         }
     }
-    if (is_game_key_pressed(Gkey_BestRoomSpace, &keycode, true)) // Use "modern" click and drag method
+    if (is_game_key_pressed(Gkey_BestRoomSpace, &keycode, true) && !(game.system_flags & GSF_NetworkActive)) // Use "modern" click and drag method
     {
         if (((pckt->control_flags & PCtr_HeldAnyButton) != 0) || ((pckt->control_flags & PCtr_LBtnRelease) != 0))
         {
@@ -584,7 +584,7 @@ void get_dungeon_highlight_user_roomspace(PlayerNumber plyr_idx, MapSubtlCoord s
         highlight_mode = true;
         current_roomspace = create_box_roomspace_from_drag(render_roomspace, drag_start_x, drag_start_y, slb_x, slb_y);
     }
-    else if (is_game_key_pressed(Gkey_SquareRoomSpace, &keycode, true)) // Define square room (mouse scroll-wheel changes size - default is 5x5)
+    else if (is_game_key_pressed(Gkey_SquareRoomSpace, &keycode, true) && !(game.system_flags & GSF_NetworkActive)) // Define square room (mouse scroll-wheel changes size - default is 5x5)
     {
         if ((pckt->control_flags & PCtr_HeldAnyButton) != 0) // Block camera zoom/rotate if Ctrl is held with LMB/RMB
         {
@@ -630,7 +630,7 @@ void get_dungeon_highlight_user_roomspace(PlayerNumber plyr_idx, MapSubtlCoord s
             struct RoomSpace untag_roomspace = current_roomspace;
             untag_roomspace.untag_mode = true;
             untag_roomspace = check_roomspace_for_diggable_slabs(untag_roomspace, plyr_idx);
-            if (untag_roomspace.slab_count > 0)
+            if ((untag_roomspace.slab_count > 0) && ((pckt->control_flags & PCtr_LBtnAnyAction) == 0)) //only switch modes when no buttons are held
             {
                 current_roomspace = untag_roomspace;
                 dungeonadd->swap_to_untag_mode = 2;
@@ -668,7 +668,7 @@ void get_dungeon_sell_user_roomspace(PlayerNumber plyr_idx, MapSubtlCoord stl_x,
     MapSlabCoord slb_x = subtile_slab(stl_x);
     MapSlabCoord slb_y = subtile_slab(stl_y);
     struct RoomSpace current_roomspace;
-    if (is_game_key_pressed(Gkey_BestRoomSpace, &keycode, true))
+    if (is_game_key_pressed(Gkey_BestRoomSpace, &keycode, true) && !(game.system_flags & GSF_NetworkActive))
     {
         current_roomspace = get_current_room_as_roomspace(player->id_number, slb_x, slb_y);
         if (!current_roomspace.is_roomspace_a_box)
@@ -678,7 +678,7 @@ void get_dungeon_sell_user_roomspace(PlayerNumber plyr_idx, MapSubtlCoord stl_x,
     }
     else 
     {
-        if (is_game_key_pressed(Gkey_SquareRoomSpace, &keycode, true)) // Define square room (mouse scroll-wheel changes size - default is 5x5)
+        if (is_game_key_pressed(Gkey_SquareRoomSpace, &keycode, true) && !(game.system_flags & GSF_NetworkActive)) // Define square room (mouse scroll-wheel changes size - default is 5x5)
         {
             if (is_game_key_pressed(Gkey_RoomSpaceIncSize, &keycode, true))
             {
@@ -726,7 +726,7 @@ void get_dungeon_build_user_roomspace(PlayerNumber plyr_idx, RoomKind rkind, Map
             (*mode) = drag_placement_mode;
         }
     }
-    else if (is_game_key_pressed(Gkey_BestRoomSpace, &keycode, true)) // Find "best" room
+    else if (is_game_key_pressed(Gkey_BestRoomSpace, &keycode, true) && !(game.system_flags & GSF_NetworkActive)) // Find "best" room
     {
         if (is_game_key_pressed(Gkey_RoomSpaceIncSize, &keycode, true))
         {
@@ -752,7 +752,7 @@ void get_dungeon_build_user_roomspace(PlayerNumber plyr_idx, RoomKind rkind, Map
         }
         (*mode) = roomspace_detection_mode;
     }
-    else if (is_game_key_pressed(Gkey_SquareRoomSpace, &keycode, true)) // Define square room (mouse scroll-wheel changes size - default is 5x5)
+    else if (is_game_key_pressed(Gkey_SquareRoomSpace, &keycode, true) && !(game.system_flags & GSF_NetworkActive)) // Define square room (mouse scroll-wheel changes size - default is 5x5)
     {
         if (is_game_key_pressed(Gkey_RoomSpaceIncSize, &keycode, true))
         {

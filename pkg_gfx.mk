@@ -110,6 +110,7 @@ pkg/data/tmapa007.dat \
 pkg/data/tmapa008.dat \
 pkg/data/tmapa009.dat \
 pkg/data/tmapa010.dat \
+pkg/data/tmapa011.dat \
 pkg/data/swipe01.dat \
 pkg/data/swipe02.dat \
 pkg/data/swipe03.dat \
@@ -238,6 +239,7 @@ pkg/data/tmapa007.dat: gfx/textures-32/filelist_tmapa007.txt pkg/data/palette.da
 pkg/data/tmapa008.dat: gfx/textures-32/filelist_tmapa008.txt pkg/data/palette.dat $(PNGTORAW)
 pkg/data/tmapa009.dat: gfx/textures-32/filelist_tmapa009.txt pkg/data/palette.dat $(PNGTORAW)
 pkg/data/tmapa010.dat: gfx/textures-32/filelist_tmapa010.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/tmapa011.dat: gfx/textures-32/filelist_tmapa011.txt pkg/data/palette.dat $(PNGTORAW)
 
 pkg/data/gmap32.raw: gfx/guimap/gmap-32.png pkg/data/palette.dat $(PNGTORAW)
 pkg/data/gmap64.raw: gfx/guimap/gmap-64.png pkg/data/palette.dat $(PNGTORAW)
@@ -302,8 +304,6 @@ pkg/creatrs/%.jty pkg/data/%.jty:
 	-$(ECHO) 'Finished building: $@'
 	-$(ECHO) ' '
 
-ifeq ($(ENABLE_EXTRACT), 1)
-
 # The package is extracted only if targets does not exits; the "|" causes file dates to be ignored
 # Note that ignoring timestamp means it is possible to have outadated files after a new
 # package release, if no targets were modified with the update.
@@ -320,22 +320,7 @@ gfx/sprites-32/%.txt gfx/sprites-64/%.txt gfx/sprites-128/%.txt \
 gfx/swipes-32/%.txt gfx/swipes-64/%.txt gfx/swipes-128/%.txt \
 gfx/textures-32/%.png gfx/textures-64/%.png gfx/textures-128/%.png \
 gfx/textures-32/%.txt gfx/textures-64/%.txt gfx/textures-128/%.txt \
-gfx/torturescr/%.png gfx/torturescr/%.txt gfx/guimap/%.txt gfx/parchmentbug/%.txt gfx/creatrportrait/%.txt: | gfx/$(GFXSRC_PACKAGE)
-	-$(ECHO) 'Extracting package: $<'
-	7z x -aoa -y -ogfx "$|"
-	-$(ECHO) 'Finished extracting: $<'
-	-$(ECHO) ' '
-
-endif
-
-# Downloading the gfx sources pack
-gfx/$(GFXSRC_PACKAGE):
-	-$(ECHO) 'Downloading package: $@'
-	$(MKDIR) "$(@D)"
-	curl -L -o "$@.dl" "$(GFXSRC_DOWNLOAD)"
-	7z t "$@.dl"
-	$(MV) "$@.dl" "$@"
-	-$(ECHO) 'Finished downloading: $@'
-	-$(ECHO) ' '
+gfx/torturescr/%.png gfx/torturescr/%.txt gfx/guimap/%.txt gfx/parchmentbug/%.txt gfx/creatrportrait/%.txt:
+	git clone --depth=1 https://github.com/dkfans/FXGraphics.git gfx
 
 #******************************************************************************

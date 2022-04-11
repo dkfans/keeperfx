@@ -115,6 +115,7 @@
     <ClCompile Include="src\creature_states_train.c" />
     <ClCompile Include="src\creature_states_tresr.c" />
     <ClCompile Include="src\creature_states_wrshp.c" />
+    <ClCompile Include="src\cursor_tag.c" />
     <ClCompile Include="src\custom_sprites.c" />
     <ClCompile Include="src\dungeon_data.c" />
     <ClCompile Include="src\dungeon_stats.c" />
@@ -125,6 +126,7 @@
     <ClCompile Include="src\engine_render.c" />
     <ClCompile Include="src\engine_render_data.cpp" />
     <ClCompile Include="src\engine_textures.c" />
+    <ClCompile Include="src\event_monitoring.c" />
     <ClCompile Include="src\frontend.cpp" />
     <ClCompile Include="src\frontmenu_ingame_evnt.c" />
     <ClCompile Include="src\frontmenu_ingame_evnt_data.cpp" />
@@ -179,6 +181,11 @@
     <ClCompile Include="src\light_data.c" />
     <ClCompile Include="src\lvl_filesdk1.c" />
     <ClCompile Include="src\lvl_script.c" />
+    <ClCompile Include="src\lvl_script_commands_old.c" />
+    <ClCompile Include="src\lvl_script_conditions.c" />
+    <ClCompile Include="src\lvl_script_lib.c" />
+    <ClCompile Include="src\lvl_script_commands.c" />
+    <ClCompile Include="src\lvl_script_value.c" />
     <ClCompile Include="src\magic.c" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\main_game.c" />
@@ -186,11 +193,14 @@
     <ClCompile Include="src\map_columns.c" />
     <ClCompile Include="src\map_data.c" />
     <ClCompile Include="src\map_events.c" />
+    <ClCompile Include="src\map_locations.c" />
     <ClCompile Include="src\map_utils.c" />
     <ClCompile Include="src\music_player.c" />
     <ClCompile Include="src\net_game.c" />
     <ClCompile Include="src\net_sync.c" />
     <ClCompile Include="src\packets.c" />
+    <ClCompile Include="src\packets_cheats.c" />
+    <ClCompile Include="src\packets_input.c" />
     <ClCompile Include="src\packets_misc.c" />
     <ClCompile Include="src\player_compchecks.c" />
     <ClCompile Include="src\player_compevents.c" />
@@ -315,6 +325,7 @@
     <ClInclude Include="src\config_strings.h" />
     <ClInclude Include="src\config_terrain.h" />
     <ClInclude Include="src\config_trapdoor.h" />
+    <ClInclude Include="src\console_cmd.h" />
     <ClInclude Include="src\creature_battle.h" />
     <ClInclude Include="src\creature_control.h" />
     <ClInclude Include="src\creature_graphics.h" />
@@ -339,6 +350,7 @@
     <ClInclude Include="src\creature_states_train.h" />
     <ClInclude Include="src\creature_states_tresr.h" />
     <ClInclude Include="src\creature_states_wrshp.h" />
+    <ClInclude Include="src\cursor_tag.h" />
     <ClInclude Include="src\custom_sprites.h" />
     <ClInclude Include="src\dungeon_data.h" />
     <ClInclude Include="src\dungeon_stats.h" />
@@ -348,6 +360,7 @@
     <ClInclude Include="src\engine_redraw.h" />
     <ClInclude Include="src\engine_render.h" />
     <ClInclude Include="src\engine_textures.h" />
+    <ClInclude Include="src\event_monitoring.h" />
     <ClInclude Include="src\frontend.h" />
     <ClInclude Include="src\frontmenu_ingame_evnt.h" />
     <ClInclude Include="src\frontmenu_ingame_map.h" />
@@ -393,11 +406,17 @@
     <ClInclude Include="src\light_data.h" />
     <ClInclude Include="src\lvl_filesdk1.h" />
     <ClInclude Include="src\lvl_script.h" />
+    <ClInclude Include="src\lvl_script_commands.h" />
+    <ClInclude Include="src\lvl_script_conditions.h" />
+    <ClInclude Include="src\lvl_script_lib.h" />
+    <ClInclude Include="src\lvl_script_commands_old.h" />
+    <ClInclude Include="src\lvl_script_value.h" />
     <ClInclude Include="src\magic.h" />
     <ClInclude Include="src\map_blocks.h" />
     <ClInclude Include="src\map_columns.h" />
     <ClInclude Include="src\map_data.h" />
     <ClInclude Include="src\map_events.h" />
+    <ClInclude Include="src\map_locations.h" />
     <ClInclude Include="src\map_utils.h" />
     <ClInclude Include="src\music_player.h" />
     <ClInclude Include="src\net_game.h" />

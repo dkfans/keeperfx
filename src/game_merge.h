@@ -100,6 +100,7 @@ enum ClassicBugFlags {
     ClscBug_FaintedImmuneToBoulder = 0x0200,
     ClscBug_RebirthKeepsSpells     = 0x0400,
     ClscBug_FriendlyFaint          = 0x0800,
+    ClscBug_PassiveNeutrals        = 0x1000,
 };
 
 enum GameFlags2 {
@@ -158,6 +159,8 @@ struct GameAdd {
     unsigned short bag_gold_hold;
     TbBool scavenge_good_allowed;
     TbBool scavenge_neutral_allowed;
+    long scavenge_effectiveness_evil; //unused
+    long scavenge_effectiveness_good; //unused
     TbBool armegeddon_teleport_neutrals;
     unsigned long classic_bugs_flags;
     unsigned short computer_chat_flags;
@@ -200,6 +203,7 @@ struct GameAdd {
     struct Objects thing_objects_data[OBJECT_TYPES_COUNT];
     struct ObjectsConfig object_conf;
 
+    LevelNumber last_level; // Used to restore custom sprites
     struct LevelScript script;
     PlayerNumber script_player;
     unsigned char script_timer_id;
@@ -213,6 +217,8 @@ struct GameAdd {
     TbBool heart_lost_quick_message;
     unsigned long heart_lost_message_id;
     long heart_lost_message_target;
+    unsigned char slab_ext_data[85 * 85];
+    struct PlayerInfoAdd players[PLAYERS_COUNT];
 };
 
 extern unsigned long game_flags2; // Should be reset to zero on new level

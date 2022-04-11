@@ -372,6 +372,29 @@ TbBool replace_slab_from_script(MapSlabCoord slb_x, MapSlabCoord slb_y, unsigned
     return true;
 }
 
+void change_slab_owner_from_script(MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber plyr_idx)
+{
+    struct SlabMap *slb = get_slabmap_block(slb_x, slb_y);
+    if (slb->room_index)
+    {
+        struct Room* room = room_get(slb->room_index);
+        take_over_room(room, plyr_idx);
+    } else
+    if (slb->kind >= SlbT_WALLDRAPE && slb->kind <= SlbT_CLAIMED) //All slabs that can be owned but aren't rooms
+    {
+        short slbkind;
+        if (slb->kind == SlbT_PATH)
+        {
+            slbkind = SlbT_CLAIMED;
+        }
+        else
+        {
+            slbkind = slb->kind;
+        }
+        place_slab_type_on_map(slbkind, slab_subtile(slb_x, 0), slab_subtile(slb_y, 0), plyr_idx, 0);
+    }
+}
+
 /**
  * Updates thing interaction with rooms. Sometimes deletes the given thing.
  * @param thing Thing to be checked, and assimilated or deleted.
@@ -406,25 +429,35 @@ short check_and_asimilate_thing_by_room(struct Thing *thing)
     if (thing_is_spellbook(thing))
     {
         room = get_room_thing_is_on(thing);
-        if (room_is_invalid(room) || !room_role_matches(room->kind, RoRoF_PowersStorage) || !player_exists(get_player(room->owner)))
+        if (room->owner != game.neutral_player_num)
         {
-            // No room - oh well, leave it as free spell
-            if (((gameadd.classic_bugs_flags & ClscBug_ClaimRoomAllThings) != 0) && !room_is_invalid(room)) {
-                // Preserve classic bug - object is claimed with the room
-                thing->owner = room->owner;
-            } else {
-                // Make correct owner so that Imps can pick it up
-                thing->owner = game.neutral_player_num;
+            if (room_is_invalid(room) || !room_role_matches(room->kind, RoRoF_PowersStorage) || (!player_exists(get_player(room->owner)) && (game.play_gameturn >= 10)))
+            {
+                // No room - oh well, leave it as free spell
+                if (((gameadd.classic_bugs_flags & ClscBug_ClaimRoomAllThings) != 0) && !room_is_invalid(room)) {
+                    // Preserve classic bug - object is claimed with the room
+                    thing->owner = room->owner;
+                }
+                else {
+                    // Make correct owner so that Imps can pick it up
+                    thing->owner = game.neutral_player_num;
+                    return false;
+                }
+                return false;
             }
-            return true;
-        }
-        if (!add_power_to_player(book_thing_to_power_kind(thing), room->owner))
-        {
-            thing->owner = game.neutral_player_num;
-            return true;
+            if (!add_power_to_player(book_thing_to_power_kind(thing), room->owner))
+            {
+                thing->owner = game.neutral_player_num;
+                return false;
+            }
+            else
+            {
+                thing->owner = room->owner;
+                return true;
+            }
         }
         thing->owner = room->owner;
-        return true;
+        return false;
     }
     if (thing_is_workshop_crate(thing))
     {

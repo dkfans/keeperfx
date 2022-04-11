@@ -94,6 +94,7 @@ void person_eat_food(struct Thing *creatng, struct Thing *foodtng, struct Room *
             room->used_capacity -= required_cap;
         } else {
             ERRORLOG("Trying to remove some food not in room");
+            room->used_capacity = 0;
         }
         delete_thing_structure(foodtng, 0);
     }
