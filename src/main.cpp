@@ -22,6 +22,7 @@
 #include "bflib_mouse.h"
 #include "bflib_filelst.h"
 #include "bflib_network.h"
+#include "bflib_planar.h"
 
 #include "custom_sprites.h"
 #include "version.h"
