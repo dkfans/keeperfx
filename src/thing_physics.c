@@ -77,7 +77,7 @@ void slide_thing_against_wall_at(struct Thing *thing, struct Coord3d *pos, long 
   {
     case SlbBloF_WalledX:
       x_thing = thing->mappos.x.val;
-      sizexy = (unsigned short)actual_sizexy_to_nav_sizexy_table[thing->clipbox_size_xy] >> 1;
+      sizexy = (unsigned short)actual_sizexy_to_nav_sizexy_table[thing->solid_size_xy] >> 1;
       x_pos = pos->x.val;
       if ( x_pos != x_thing )
       {
@@ -92,7 +92,7 @@ void slide_thing_against_wall_at(struct Thing *thing, struct Coord3d *pos, long 
       break;
     case SlbBloF_WalledY:
       y_thing = thing->mappos.y.val;
-      sizexy = (unsigned short)actual_sizexy_to_nav_sizexy_table[thing->clipbox_size_xy] >> 1;
+      sizexy = (unsigned short)actual_sizexy_to_nav_sizexy_table[thing->solid_size_xy] >> 1;
       y_pos = pos->y.val;
       if ( y_thing != y_pos )
       {
@@ -107,7 +107,7 @@ void slide_thing_against_wall_at(struct Thing *thing, struct Coord3d *pos, long 
       break;
     case SlbBloF_WalledX|SlbBloF_WalledY:
       x_thing = thing->mappos.x.val;
-      sizexy = (unsigned short)actual_sizexy_to_nav_sizexy_table[thing->clipbox_size_xy] >> 1;
+      sizexy = (unsigned short)actual_sizexy_to_nav_sizexy_table[thing->solid_size_xy] >> 1;
       x_pos = pos->x.val;
       if ( x_pos != x_thing )
       {
@@ -133,7 +133,7 @@ void slide_thing_against_wall_at(struct Thing *thing, struct Coord3d *pos, long 
       break;
     case SlbBloF_WalledZ|SlbBloF_WalledX:
       x_thing = thing->mappos.x.val;
-      sizexy = (unsigned short)actual_sizexy_to_nav_sizexy_table[thing->clipbox_size_xy] >> 1;
+      sizexy = (unsigned short)actual_sizexy_to_nav_sizexy_table[thing->solid_size_xy] >> 1;
       x_pos = pos->x.val;
       if ( x_pos != x_thing )
       {
@@ -147,7 +147,7 @@ void slide_thing_against_wall_at(struct Thing *thing, struct Coord3d *pos, long 
       break;
     case SlbBloF_WalledZ|SlbBloF_WalledY:
       y_thing = thing->mappos.y.val;
-      sizexy = (unsigned short)actual_sizexy_to_nav_sizexy_table[thing->clipbox_size_xy] >> 1;
+      sizexy = (unsigned short)actual_sizexy_to_nav_sizexy_table[thing->solid_size_xy] >> 1;
       y_pos = pos->y.val;
       if ( y_thing != y_pos )
       {
@@ -161,7 +161,7 @@ void slide_thing_against_wall_at(struct Thing *thing, struct Coord3d *pos, long 
       break;
     case SlbBloF_WalledX|SlbBloF_WalledY|SlbBloF_WalledZ:
       x_thing = thing->mappos.x.val;
-      sizexy = (unsigned short)actual_sizexy_to_nav_sizexy_table[thing->clipbox_size_xy] >> 1;
+      sizexy = (unsigned short)actual_sizexy_to_nav_sizexy_table[thing->solid_size_xy] >> 1;
       x_pos = pos->x.val;
       if ( x_pos != x_thing )
       {
@@ -543,7 +543,7 @@ long get_thing_height_at(const struct Thing *thing, const struct Coord3d *pos)
     if (thing_is_creature(thing)) {
         i = thing_nav_sizexy(thing);
     } else {
-        i = thing->clipbox_size_xy;
+        i = thing->solid_size_xy;
     }
     int radius = i >> 1;
 
@@ -595,7 +595,7 @@ TbBool creature_can_pass_through_wall_at(const struct Thing *creatng, const stru
         if (thing_is_creature(creatng)) {
             i = thing_nav_sizexy(creatng);
         } else {
-            i = creatng->clipbox_size_xy;
+            i = creatng->solid_size_xy;
         }
         int radius = i / 2;
         // Base on the radius, determine bounds of the object
@@ -629,12 +629,12 @@ long thing_in_wall_at(const struct Thing *thing, const struct Coord3d *pos)
     if (thing_is_creature(thing)) {
         i = thing_nav_sizexy(thing);
     } else {
-        i = thing->clipbox_size_xy;
+        i = thing->solid_size_xy;
     }
     int radius = i / 2;
     // Base on the radius, determine bounds of the object
     MapCoord height_beg = pos->z.val;
-    MapCoord height_end = height_beg + thing->clipbox_size_yz;
+    MapCoord height_end = height_beg + thing->solid_size_yz;
     MapSubtlCoord stl_x_beg = coord_subtile(pos->x.val - radius);
     MapSubtlCoord stl_x_end = coord_subtile(pos->x.val + radius);
     MapSubtlCoord stl_y_beg = coord_subtile(pos->y.val - radius);
@@ -654,7 +654,7 @@ long thing_in_wall_at(const struct Thing *thing, const struct Coord3d *pos)
 long thing_in_wall_at_with_radius(const struct Thing *thing, const struct Coord3d *pos, unsigned long radius)
 {
     MapCoord z_beg = pos->z.val;
-    MapCoord z_end = z_beg + thing->clipbox_size_yz;
+    MapCoord z_end = z_beg + thing->solid_size_yz;
     MapSubtlCoord stl_x_beg = coord_subtile(pos->x.val - radius);
     MapSubtlCoord stl_x_end = coord_subtile(pos->x.val + radius);
     MapSubtlCoord stl_y_beg = coord_subtile(pos->y.val - radius);
@@ -689,7 +689,7 @@ long get_floor_height_under_thing_at(const struct Thing *thing, const struct Coo
     if (thing_is_creature(thing)) {
         i = thing_nav_sizexy(thing);
     } else {
-        i = thing->clipbox_size_xy;
+        i = thing->solid_size_xy;
     }
     int radius = i / 2;
     // Get range of coords under thing
