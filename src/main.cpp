@@ -438,8 +438,8 @@ long apply_wallhug_force_to_boulder(struct Thing *thing)
   unsigned short new_angle;
   struct Coord3d pos2;
   struct Coord3d pos;
-  struct ShotStats *shotst = &shot_stats[thing->model];
-  unsigned short speed = (unsigned short)shotst->speed;
+  struct ShotConfigStats *shotst = get_shot_model_stats(thing->model);
+  short speed = shotst->speed;
   pos.x.val = move_coord_with_angle_x(thing->mappos.x.val,speed,thing->move_angle_xy);
   pos.y.val = move_coord_with_angle_y(thing->mappos.y.val,speed,thing->move_angle_xy);
   pos.z.val = thing->mappos.z.val;
