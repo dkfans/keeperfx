@@ -97,6 +97,7 @@ TbBool get_nearest_valid_position_for_creature_at(struct Thing *thing, struct Co
             if ( !thing_in_wall_at(thing, &spiral_pos) )
             {
                 pos->x.val = spiral_pos.x.val;
+                pos->y.val = spiral_pos.y.val;
                 pos->z.val = spiral_pos.z.val;
                 return true;
             }
