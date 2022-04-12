@@ -41,6 +41,17 @@ enum NaviRouteFlagValues {
     NavRtF_NoOwner   = 0x01,
 };
 
+enum ThingAngles {
+    ANGLE_NORTH = 0,
+    ANGLE_NORTHEAST = 256,
+    ANGLE_EAST = 512,
+    ANGLE_SOUTHEAST = 768,
+    ANGLE_SOUTH = 1024,
+    ANGLE_SOUTHWEST = 1280,
+    ANGLE_WEST = 1536,
+    ANGLE_NORTHWEST = 1792,
+};
+
 /******************************************************************************/
 #pragma pack(1)
 
