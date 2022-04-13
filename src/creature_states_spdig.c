@@ -797,32 +797,24 @@ short imp_arrives_at_improve_dungeon(struct Thing *spdigtng)
 }
 
 
-static TbBool sub_4D2720(struct Thing *spdigtng, SubtlCodedCoords stl_num)
-{
-  MapSubtlCoord stl_x;
-  MapSubtlCoord stl_y;
-
-  if ( !check_out_uncrowded_reinforce_position(spdigtng, stl_num, &stl_x, &stl_y)
-    || !setup_person_move_to_position(spdigtng, stl_x, stl_y, 0) )
-  {
-    return false;
-  }
-  spdigtng->continue_state = CrSt_ImpArrivesAtReinforce;
-
-  return true;
-}
 
 short imp_arrives_at_reinforce(struct Thing *spdigtng)
 {
-
+    MapSubtlCoord stl_x;
+    MapSubtlCoord stl_y;
     struct CreatureControl* cctrl = creature_control_get_from_thing(spdigtng);
 
     if ( imp_already_reinforcing_at_excluding(spdigtng,spdigtng->mappos.x.stl.num,spdigtng->mappos.y.stl.num))
     {
-        if ( !sub_4D2720(spdigtng, cctrl->digger.working_stl) )
+        if ( !check_out_uncrowded_reinforce_position(spdigtng, cctrl->digger.working_stl, &stl_x, &stl_y)
+            || !setup_person_move_to_position(spdigtng, stl_x, stl_y, 0) )
         {
             internal_set_thing_state(spdigtng, CrSt_ImpLastDidJob);
             return 1;
+        }
+        else
+        {
+            spdigtng->continue_state = CrSt_ImpArrivesAtReinforce;
         }
     }
     else
