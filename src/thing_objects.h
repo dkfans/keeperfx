@@ -28,7 +28,8 @@ extern "C" {
 #endif
 
 /******************************************************************************/
-#define OBJECT_TYPES_COUNT  136
+#define OBJECT_TYPES_COUNT_ORIGINAL  136
+#define OBJECT_TYPES_COUNT  255
 
 #define OBJECT_TYPE_SPECBOX_CUSTOM    133
 
@@ -77,6 +78,7 @@ struct Objects {
     unsigned char related_creatr_model;
     unsigned char own_category;
     unsigned char destroy_on_liquid;
+    unsigned char rotation_flag;
 };
 
 struct CallToArmsGraphics {
@@ -86,12 +88,14 @@ struct CallToArmsGraphics {
 };
 
 /******************************************************************************/
-DLLIMPORT struct Objects _DK_objects[OBJECT_TYPES_COUNT]; // in KeeperFX, named objects_data[]
+/*
+TODO: Test and remove these
 DLLIMPORT unsigned char _DK_object_to_special[OBJECT_TYPES_COUNT];
 DLLIMPORT unsigned char _DK_object_to_magic[OBJECT_TYPES_COUNT];
 DLLIMPORT unsigned char _DK_workshop_object_class[OBJECT_TYPES_COUNT];
 DLLIMPORT unsigned char _DK_object_to_door_or_trap[OBJECT_TYPES_COUNT];
 DLLIMPORT extern unsigned char _DK_magic_to_object[24];
+*/
 
 #pragma pack()
 /******************************************************************************/
@@ -101,11 +105,12 @@ extern unsigned short player_guardflag_objects[];
 extern unsigned short dungeon_flame_objects[];
 
 /******************************************************************************/
-struct Thing *create_object(const struct Coord3d *pos, unsigned short model, unsigned short owner, long a4);
+struct Thing *create_object(const struct Coord3d *pos, unsigned short model, unsigned short owner, long parent_idx);
 void destroy_object(struct Thing *thing);
 TngUpdateRet update_object(struct Thing *thing);
 TbBool thing_is_object(const struct Thing *thing);
 void change_object_owner(struct Thing *objtng, PlayerNumber nowner);
+void destroy_food(struct Thing *foodtng);
 
 struct Objects *get_objects_data_for_thing(struct Thing *thing);
 struct Objects *get_objects_data(unsigned int tmodel);
@@ -117,7 +122,6 @@ SpecialKind box_thing_to_special(const struct Thing *thing);
 PowerKind book_thing_to_power_kind(const struct Thing *thing);
 
 TbBool thing_is_special_box(const struct Thing *thing);
-#define is_dungeon_special thing_is_special_box
 TbBool thing_is_workshop_crate(const struct Thing *thing);
 TbBool thing_is_trap_crate(const struct Thing *thing);
 TbBool thing_is_door_crate(const struct Thing *thing);
@@ -138,6 +142,7 @@ TbBool thing_is_lair_totem(const struct Thing *thing);
 TbBool object_is_room_equipment(const struct Thing *thing, RoomKind rkind);
 TbBool object_is_room_inventory(const struct Thing *thing, RoomKind rkind);
 TbBool object_is_unaffected_by_terrain_changes(const struct Thing *thing);
+TbBool object_can_be_damaged(const struct Thing* thing);
 
 TbBool creature_remove_lair_totem_from_room(struct Thing *creatng, struct Room *room);
 TbBool delete_lair_totem(struct Thing *lairtng);
@@ -153,6 +158,7 @@ struct Thing *find_gold_hoard_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 struct Thing *create_gold_hoarde(struct Room *room, const struct Coord3d *pos, GoldAmount value);
 long add_gold_to_hoarde(struct Thing *thing, struct Room *room, GoldAmount amount);
 long remove_gold_from_hoarde(struct Thing *thing, struct Room *room, GoldAmount amount);
+long gold_being_dropped_at_treasury(struct Thing* thing, struct Room* room);
 
 struct Thing *drop_gold_pile(long value, struct Coord3d *pos, PlayerNumber cause_plyr_idx, TbBool maybe_ghost);
 struct Thing *create_gold_pot_at(long pos_x, long pos_y, PlayerNumber plyr_idx);
@@ -164,6 +170,10 @@ void set_call_to_arms_as_dying(struct Thing *objtng);
 void set_call_to_arms_as_rebirthing(struct Thing *objtng);
 
 TbBool object_packet_cb(unsigned long turn, PlayerNumber net_idx, void *data_ptr, short size);
+
+void define_custom_object(int obj_id, short anim_idx);
+void init_thing_objects();
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

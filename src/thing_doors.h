@@ -60,7 +60,7 @@ TbBool subtile_has_locked_door(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 TbBool slab_row_has_door_thing_on(MapSlabCoord slb_x, MapSubtlCoord stl_y);
 TbBool slab_column_has_door_thing_on(MapSubtlCoord stl_x, MapSlabCoord slb_y);
 
-struct Thing *create_door(struct Coord3d *pos, unsigned short a1, unsigned char a2, unsigned short a3, unsigned char a4);
+struct Thing *create_door(struct Coord3d *pos, ThingModel tngmodel, unsigned char orient, PlayerNumber plyr_idx, TbBool is_locked);
 TbBool thing_is_deployed_door(const struct Thing *thing);
 void lock_door(struct Thing *thing);
 void unlock_door(struct Thing *thing);
@@ -74,6 +74,8 @@ TbBool player_has_deployed_door_of_model(PlayerNumber owner, int model, short lo
 long count_player_deployed_doors_of_model(PlayerNumber owner, int model);
 TbBool player_has_deployed_trap_of_model(PlayerNumber owner, int model);
 long count_player_deployed_traps_of_model(PlayerNumber owner, int model);
+
+void update_all_door_stats();
 /******************************************************************************/
 #ifdef __cplusplus
 }

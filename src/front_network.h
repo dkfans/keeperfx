@@ -55,7 +55,7 @@ long modem_connect_callback(void);
 void process_network_error(long errcode);
 void gui_draw_network_state();
 void display_attempting_to_join_message(void);
-CoroutineLoopState setup_alliances(CoroutineLoop *loop);
+CoroutineLoopState setup_alliances(CoroutineLoop *con);
 void frontnet_service_setup(void);
 void frontnet_session_setup(void);
 void frontnet_start_setup(void);

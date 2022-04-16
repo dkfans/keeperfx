@@ -25,15 +25,16 @@
 
 #include "config_creature.h"
 #include "config_crtrmodel.h"
+#include "config_objects.h"
 #include "config_rules.h"
 #include "creature_control.h"
 #include "dungeon_data.h"
 #include "gui_msgs.h"
-#include "light_data.h"
 #include "net_game.h"
 #include "packets.h"
-#include "thing_creature.h"
-
+#include "thing_objects.h"
+#include "light_data.h"
+#include "lvl_script.h"
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -44,15 +45,28 @@ extern "C" {
 #define PLAYERS_FOR_CAMPAIGN_FLAGS    5
 #define CAMPAIGN_FLAGS_PER_PLAYER     8
 
-#define SOUND_RANDOM(range) LbRandomSeries(range, &sound_seed, __func__, __LINE__, "sound")
-#define UNSYNC_RANDOM(range) LbRandomSeries(range, &game.unsync_rand_seed, __func__, __LINE__, "unsync")
-#define GAME_RANDOM(range) LbRandomSeries(range, &game.action_rand_seed, __func__, __LINE__, "game")
-#define CREATURE_RANDOM(thing, range) \
-    LbRandomSeries(range, &gameadd.things[thing->index].rand_seed, __func__, __LINE__, "creature")
-#define AI_RANDOM(range) LbRandomSeries(range, &game.action_rand_seed, __func__, __LINE__, "ai")
-#define PLAYER_RANDOM(plyr, range) LbRandomSeries(range, &game.action_rand_seed, __func__, __LINE__, "ai")
+// UNSYNC_RANDOM is not synced at all. For synced choices the more specific random is better.
+// So priority is  CREATURE_RANDOM >> PLAYER_RANDOM >> GAME_RANDOM
 
-#define LAND_RANDOM(slb_x, slb_y, plyr, range) get_land_random_f(slb_x, slb_y, plyr, range, __func__)
+// Deprecated. Used only once. Maybe it is sound-specific UNSYNC_RANDOM
+#define SOUND_RANDOM(range) LbRandomSeries(range, &sound_seed, __func__, __LINE__, "sound")
+// This RNG should not be used to affect anything related affecting game state
+#define UNSYNC_RANDOM(range) LbRandomSeries(range, &game.unsync_rand_seed, __func__, __LINE__, "unsync")
+// This RNG should be used only for "whole game" events (i.e. from script)
+#define GAME_RANDOM(range) LbRandomSeries(range, &game.action_rand_seed, __func__, __LINE__, "game")
+// This RNG is for anything related to creatures or their shots. So creatures should act independent
+#define CREATURE_RANDOM(thing, range) \
+    LbRandomSeries(range, &game.action_rand_seed, __func__, __LINE__, "creature")
+// This is messy. Used only for AI choices. Maybe it should be merged with PLAYER_RANDOM.
+#define AI_RANDOM(range) LbRandomSeries(range, &game.action_rand_seed, __func__, __LINE__, "ai")
+// This RNG is about something related to specific player
+#define PLAYER_RANDOM(plyr, range) LbRandomSeries(range, &game.action_rand_seed, __func__, __LINE__, "player")
+// RNG related to effects. I am unsure about its relationship with game state.
+// It should be replaced either with CREATURE_RANDOM or with UNSYNC_RANDOM on case by case basis.
+#define EFFECT_RANDOM(thing, range) \
+    LbRandomSeries(range, &game.action_rand_seed, __func__, __LINE__, "effect")
+#define ACTION_RANDOM(range) \
+    LbRandomSeries(range, &game.action_rand_seed, __func__, __LINE__, "action")
 
 enum GameSystemFlags {
     GSF_NetworkActive    = 0x0001,
@@ -65,8 +79,10 @@ enum GameSystemFlags {
 };
 
 enum GameGUIFlags {
+    GGUI_1Player         = 0x0001,
     GGUI_CountdownTimer  = 0x0002,
-    GGUI_ShowTickTime    = 0x0040,
+    GGUI_ScriptTimer     = 0x0004,
+    GGUI_Variable        = 0x0008,
     GGUI_SoloChatEnabled = 0x0080
 };
 
@@ -83,15 +99,17 @@ enum ClassicBugFlags {
     ClscBug_FullyHappyWithGold     = 0x0100,
     ClscBug_FaintedImmuneToBoulder = 0x0200,
     ClscBug_RebirthKeepsSpells     = 0x0400,
+    ClscBug_FriendlyFaint          = 0x0800,
+    ClscBug_PassiveNeutrals        = 0x1000,
 };
 
 enum GameFlags2 {
     GF2_ClearPauseOnSync          = 0x0001,
     GF2_ClearPauseOnPacket        = 0x0002,
-    GF2_Server                    = 0x0004,
-    GF2_Connect                   = 0x0008,
+    GF2_Timer                     = 0x0004,
+    GF2_Server                    = 0x0008,
+    GF2_Connect                   = 0x0010,
     GF2_ShowEventLog              = 0x00010000,
-    GF2_ShowPlot                  = 0x00020000,
     GF2_PERSISTENT_FLAGS          = 0xFFFF0000
 };
 /******************************************************************************/
@@ -124,6 +142,7 @@ struct IntralevelData {
  */
 struct GameAdd {
     struct CreatureStats creature_stats[CREATURE_TYPES_MAX];
+    struct CreatureConfig crtr_conf;
     unsigned long turn_last_checked_for_gold;
     unsigned long flee_zone_radius;
     unsigned long time_between_prison_break;
@@ -137,10 +156,13 @@ struct GameAdd {
     long friendly_fight_area_range_permil;
     unsigned char torture_death_chance;
     unsigned char torture_convert_chance;
+    unsigned short bag_gold_hold;
     TbBool scavenge_good_allowed;
     TbBool scavenge_neutral_allowed;
+    long scavenge_effectiveness_evil; //unused
+    long scavenge_effectiveness_good; //unused
     TbBool armegeddon_teleport_neutrals;
-    unsigned short classic_bugs_flags;
+    unsigned long classic_bugs_flags;
     unsigned short computer_chat_flags;
     /** The creature model used for determining amount of sacrifices which decrease digger cost. */
     ThingModel cheaper_diggers_sacrifice_model;
@@ -150,18 +172,29 @@ struct GameAdd {
     struct LightSystemState lightst;
     long digger_work_experience;
     unsigned long gem_effectiveness;
+    long door_sale_percent;
     long room_sale_percent;
+    long trap_sale_percent;
     unsigned long pay_day_speed;
+    unsigned short disease_to_temple_pct;
     TbBool place_traps_on_subtiles;
+    unsigned long gold_per_hoard;
+
+#define TRAPDOOR_TYPES_MAX 128
 
     struct ManfctrConfig traps_config[TRAPDOOR_TYPES_MAX];
     struct ManfctrConfig doors_config[TRAPDOOR_TYPES_MAX];
     struct TrapStats trap_stats[TRAPDOOR_TYPES_MAX];
+    struct TrapDoorConfig trapdoor_conf;
 
     uint8_t               max_custom_box_kind;
     unsigned long         current_player_turn; // Actually it is a hack. We need to rewrite scripting for current player
     int                   script_current_player;
     struct Coord3d        triggered_object_location; //Position of `TRIGGERED_OBJECT`
+
+    char                  box_tooltip[CUSTOM_BOX_COUNT][MESSAGE_TEXT_LEN];
+    struct ScriptFxLine   fx_lines[FX_LINES_COUNT];
+    int                   active_fx_lines;
 
     struct DungeonAdd dungeon[DUNGEONS_COUNT];
     unsigned long action_turn_rand_seed; // This is a base for action_rand_seed each turn
@@ -176,7 +209,28 @@ struct GameAdd {
     TbBool          unit_update_list_idx; // diggers_list or creatures_list
 
     Thingid         first_updated_combatant; // first thing who started combat now
+
+    struct Objects thing_objects_data[OBJECT_TYPES_COUNT];
+    struct ObjectsConfig object_conf;
+
+    LevelNumber last_level; // Used to restore custom sprites
+    struct LevelScript script;
+    PlayerNumber script_player;
+    unsigned char script_timer_id;
+    unsigned long script_timer_limit;
+    TbBool timer_real;
+    unsigned char script_value_type;
+    unsigned char script_value_id;
+    long script_variable_target;
+    unsigned char script_variable_target_type;
+    TbBool heart_lost_display_message;
+    TbBool heart_lost_quick_message;
+    unsigned long heart_lost_message_id;
+    long heart_lost_message_target;
+    unsigned char slab_ext_data[85 * 85];
+    struct PlayerInfoAdd players[PLAYERS_COUNT];
 };
+extern unsigned long game_flags2; // Should be reset to zero on new level
 
 #pragma pack()
 
@@ -210,6 +264,9 @@ void set_creature_random_seed(Thingid thing_idx, unsigned long seed);
 unsigned long get_creature_random_seed(Thingid thing_idx);
 unsigned long get_land_random_f(int slb_x, int slb_y, PlayerNumber player, unsigned long range, const char *func_name);
 /******************************************************************************/
+
+struct ThingAdd *get_thingadd(Thingid thing_idx);
+
 #ifdef __cplusplus
 }
 #endif

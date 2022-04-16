@@ -31,6 +31,7 @@ struct GameAdd gameadd;
 struct IntralevelData intralvl;
 unsigned long ui_turn;
 TbClockMSec tick_time;
+unsigned long game_flags2 = 0;
 /******************************************************************************/
 int net_max_failed_login_turns = 10;
 unsigned long game_flags2 = 0;

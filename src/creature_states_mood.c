@@ -243,6 +243,7 @@ void anger_set_creature_anger_f(struct Thing *creatng, long annoy_lv, AnnoyMotiv
 {
     SYNCDBG(18,"%s: Setting reason %d to %d for %s index %d",func_name,(int)reason,(int)annoy_lv,thing_model_name(creatng),(int)creatng->index);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
     if ((game.numfield_14 != 0) || !creature_can_get_angry(creatng)) {
         return;
     }
@@ -250,7 +251,12 @@ void anger_set_creature_anger_f(struct Thing *creatng, long annoy_lv, AnnoyMotiv
     {
         annoy_lv = 0;
     } else
-    if (annoy_lv > 65534) {
+    if (annoy_lv > (3 * crstat->annoy_level)) 
+    {
+        annoy_lv = (3 * crstat->annoy_level);
+    } else
+    if (annoy_lv > 65534) 
+    {
         annoy_lv = 65534;
     }
     TbBool was_angry = ((cctrl->mood_flags & CCMoo_Angry) != 0);
@@ -321,7 +327,7 @@ AnnoyMotive anger_get_creature_anger_type(const struct Thing *creatng)
 
 void anger_apply_anger_to_creature_all_types_f(struct Thing *thing, long anger, const char *func_name)
 {
-    if (!creature_can_get_angry(thing)) {
+    if (!creature_can_get_angry(thing) || anger == 0) {
         return;
     }
     if (anger > 0)

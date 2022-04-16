@@ -114,12 +114,36 @@ TbBool erstat_check(void)
 TbBool draw_onscreen_direct_messages(void)
 {
     SYNCDBG(5,"Starting");
+    int tx_units_per_px;
+    if (dbc_language > 0)
+    {
+        tx_units_per_px = scale_value_by_horizontal_resolution((MyScreenWidth >= 640) ? 16 : 32);
+    }
+    else
+    {
+        tx_units_per_px = scale_ui_value((MyScreenWidth >= 640) ? 16 : 32);
+    }
     // Display in-game message for debug purposes
     if ((onscreen_msg_turns > 0) || erstat_check())
     {
         if ( LbScreenIsLocked() )
-          LbTextDraw(260*units_per_pixel/16, 0*units_per_pixel/16, onscreen_msg_text);
+      LbTextDrawResized(scale_value_by_horizontal_resolution(160), 0, tx_units_per_px, onscreen_msg_text);
         onscreen_msg_turns--;
+    }
+    unsigned int msg_pos = scale_value_by_vertical_resolution(200);
+    if ((game.system_flags & GSF_NetGameNoSync) != 0)
+    {
+        ERRORLOG("OUT OF SYNC (GameTurn %7d)", game.play_gameturn);
+        if ( LbScreenIsLocked() )
+          LbTextDrawResized(scale_value_by_horizontal_resolution(260), scale_value_by_vertical_resolution(msg_pos), tx_units_per_px, "OUT OF SYNC");
+        msg_pos += scale_value_by_horizontal_resolution(20);
+    }
+    if ((game.system_flags & GSF_NetSeedNoSync) != 0)
+    {
+        ERRORLOG("SEED OUT OF SYNC (GameTurn %7d)", game.play_gameturn);
+        if ( LbScreenIsLocked() )
+          LbTextDrawResized(scale_value_by_horizontal_resolution(260), scale_value_by_vertical_resolution(msg_pos), tx_units_per_px, "SEED OUT OF SYNC");
+        msg_pos += scale_value_by_vertical_resolution(20);
     }
     SYNCDBG(18,"Finished");
     return true;

@@ -286,6 +286,11 @@ TbBool creature_is_actually_scared(const struct Thing *creatng, const struct Thi
         SYNCDBG(8,"The %s index %d is scared due to low health (%ld/%ld)",thing_model_name(creatng),(int)creatng->index,(long)creatng->health,crmaxhealth);
         return true;
     }
+    // Units dropped will fight stronger units for a bit
+    if ((cctrl->wait_to_turn > (long)game.play_gameturn))
+    {
+        return false;
+    }
     // If the enemy is way stronger, a creature may be scared anyway
     fear = crstat->fear_stronger;
     long long enmstrength = LbSqrL(project_melee_damage(enmtng)) * (enmstat->fearsome_factor) / 100 * ((long long)enmaxhealth + (long long)enmtng->health) / 2;
@@ -385,6 +390,7 @@ void remove_thing_from_battle_list(struct Thing *thing)
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     if (!thing_is_creature(thing) || creature_control_invalid(cctrl)) {
       ERRORLOG("Creature should have been already removed due to death");
+      return;
     }
     struct CreatureBattle* battle = creature_battle_get(cctrl->battle_id);
     // Change next index in prev creature
@@ -528,6 +534,8 @@ void update_battle_events(BattleIndex battle_id)
     unsigned short owner_flags = 0;
     MapCoord map_x = -1;
     MapCoord map_y = -1;
+    MapCoord map_z = -1;
+    struct DungeonAdd* dungeonadd;
     unsigned long k = 0;
     struct CreatureBattle* battle = creature_battle_get(battle_id);
     int i = battle->first_creatr;
@@ -546,6 +554,7 @@ void update_battle_events(BattleIndex battle_id)
         owner_flags |= (1 << thing->owner);
         map_x = thing->mappos.x.val;
         map_y = thing->mappos.y.val;
+        map_z = thing->mappos.z.val;
         // Per thing code ends
         k++;
         if (k > CREATURES_COUNT)
@@ -558,7 +567,12 @@ void update_battle_events(BattleIndex battle_id)
     {
         if ((i == game.hero_player_num) || (i == game.neutral_player_num))
             continue;
-        if ((1 << i) & owner_flags) {
+        if ((1 << i) & owner_flags) 
+        {
+            dungeonadd = get_dungeonadd(i);
+            dungeonadd->last_combat_location.x.val = map_x;
+            dungeonadd->last_combat_location.y.val = map_y;
+            dungeonadd->last_combat_location.z.val = map_z;
             if ((1 << i) == owner_flags) {
                 event_create_event_or_update_old_event(map_x, map_y, EvKind_FriendlyFight, i, 0);
             } else {
@@ -2791,7 +2805,7 @@ TbBool creature_look_for_combat(struct Thing *creatng)
     }
 
     // If not too scared for combat, then do the combat
-    if (!creature_too_scared_for_combat(creatng, enmtng))
+    if ((!creature_too_scared_for_combat(creatng, enmtng)) || (cctrl->wait_to_turn > (long)game.play_gameturn) )
     {
         set_creature_in_combat(creatng, enmtng, attack_type);
         return true;
@@ -2840,7 +2854,7 @@ TbBool creature_look_for_enemy_heart_combat(struct Thing *thing)
     return true;
 }
 
-struct Thing *check_for_door_to_fight(const struct Thing *thing)
+struct Thing *check_for_door_to_fight(struct Thing *thing)
 {
     long m = CREATURE_RANDOM(thing, SMALL_AROUND_SLAB_LENGTH);
     for (long n = 0; n < SMALL_AROUND_SLAB_LENGTH; n++)

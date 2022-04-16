@@ -129,10 +129,31 @@ long level_lif_entry_parse(char *fname, char *buf)
   // Skip spaces and control chars
   while (buf[i] != '\0')
   {
-    if (!isspace(buf[i]) && (buf[i] != ',') && (buf[i] != ';') && (buf[i] != ':'))
+    // Check for commented-out lines
+    if (buf[i] == ';')
+    {
+      // Loop through the entire commented-out line
+      while (buf[i] != '\0')
+      {
+        if ((buf[i] == '\n') || (buf[i] == '\r'))
+        {
+          break;
+        }
+        i++;
+        if (i >= 10000) // arbritarily big number to prevent an infinte loop if last line is a comment that doesn't have a new line at the end
+        {
+          WARNMSG("commented-out line from \"%s\" is too long at %d characters", fname,i);
+          return 0;
+        }
+      }
+    }
+    if (!isspace(buf[i]) && (buf[i] != ',') && (buf[i] != ';') && (buf[i] != ':') && (buf[i] != '\n') && (buf[i] != '\r'))
       break;
     i++;
   }
+  // when the last line of a .lif is a comment, we check here if the end of the file has been reached (and we should exit the function)
+  if (buf[i] == '\0')
+    return 0;
   // Get level number
   char* cbuf;
   long lvnum = strtol(&buf[i], &cbuf, 0);
@@ -149,6 +170,16 @@ long level_lif_entry_parse(char *fname, char *buf)
       break;
     cbuf++;
   }
+  // IF the next field starts with a "#" then treat it as a string ID for the level's name
+    if (cbuf[0] == '#')
+    {
+      cbuf++;
+      if (!set_level_info_string_index(lvnum,cbuf,LvOp_IsFree))
+      {
+        WARNMSG("Can't set string index of level %d from file \"%s\"", lvnum, fname);
+      }
+      cbuf--;
+    }
   // Find length of level name; make it null-terminated
   i = 0;
   while (cbuf[i] != '\0')
@@ -174,7 +205,7 @@ long level_lif_entry_parse(char *fname, char *buf)
   // Store level name
   if (add_freeplay_level_to_campaign(&campaign,lvnum) < 0)
   {
-    WARNMSG("Can't add freeplay level from \"%s\" to campaign", fname);
+    WARNMSG("Can't add freeplay level from \"%s\" to campaign \"%s\"", fname, campaign.name);
     return 0;
   }
   if (!set_level_info_text_name(lvnum,cbuf,LvOp_IsFree))
@@ -576,10 +607,10 @@ TbBool load_column_file(LevelNumber lv_num)
       total = COLUMNS_COUNT;
     }
     // Read and validate second amount
-    game.field_14AB3F = llong(&buf[i]);
-    if (game.field_14AB3F >= COLUMNS_COUNT)
+    game.columns_used = llong(&buf[i]);
+    if (game.columns_used >= COLUMNS_COUNT)
     {
-      game.field_14AB3F = COLUMNS_COUNT-1;
+      game.columns_used = COLUMNS_COUNT - 1;
     }
     i += 4;
     // Fill the columns
@@ -810,7 +841,7 @@ TbBool columns_add_static_entries(void)
           if (ncol == 0)
             ncol = create_column(&lcolmn);
           struct Column* colmn = get_column(ncol);
-          colmn->bitfields |= 0x01;
+          colmn->bitfields |= CLF_ACTIVE;
           *wptr = -(short)ncol;
           wptr++;
         }
@@ -837,7 +868,7 @@ TbBool update_slabset_column_indices(struct Column *cols, long ccount)
                 {
                     ncol = create_column(&lcolmn);
                     struct Column* colmn = get_column(ncol);
-                    colmn->bitfields |= 0x01;
+                    colmn->bitfields |= CLF_ACTIVE;
                 }
             } else
           {
@@ -867,7 +898,7 @@ TbBool create_columns_from_list(struct Column *cols, long ccount)
             if (ncol == 0)
                 ncol = create_column(&cols[i]);
             struct Column* colmn = get_column(ncol);
-            colmn->bitfields |= 0x01;
+            colmn->bitfields |= CLF_ACTIVE;
         }
     }
     return true;
@@ -1194,10 +1225,10 @@ static void load_ext_slabs(LevelNumber lvnum)
     char* fname = prepare_file_fmtpath(fgroup, "map%05lu.slx", (unsigned long)lvnum);
     if (LbFileExists(fname))
     {
-        if (sizeof(slab_ext_data) != LbFileLoadAt(fname, slab_ext_data))
+        if (sizeof(gameadd.slab_ext_data) != LbFileLoadAt(fname, gameadd.slab_ext_data))
         {
             JUSTLOG("Invalid ExtSlab data from %s", fname);
-            memset(slab_ext_data, 0, sizeof(slab_ext_data));
+            memset(gameadd.slab_ext_data, 0, sizeof(gameadd.slab_ext_data));
         }
         SYNCDBG(1, "ExtSlab file:%s ok", fname);
         return;
@@ -1205,7 +1236,7 @@ static void load_ext_slabs(LevelNumber lvnum)
     else
     {
         SYNCDBG(1, "No ExtSlab file:%s", fname);
-        memset(slab_ext_data, 0, sizeof(slab_ext_data));
+        memset(gameadd.slab_ext_data, 0, sizeof(gameadd.slab_ext_data));
     }
 }
 

@@ -97,17 +97,37 @@ TbBool remove_spell_from_library(struct Room *room, struct Thing *spelltng, Play
 EventIndex update_library_object_pickup_event(struct Thing *creatng, struct Thing *picktng)
 {
     EventIndex evidx;
+    struct PlayerInfo* player;
     if (thing_is_spellbook(picktng))
     {
         evidx = event_create_event_or_update_nearby_existing_event(
             picktng->mappos.x.val, picktng->mappos.y.val,
             EvKind_SpellPickedUp, creatng->owner, picktng->index);
         // Only play speech message if new event was created
-        if ((evidx > 0) && is_my_player_number(picktng->owner) && !is_my_player_number(creatng->owner)) {
-            output_message(SMsg_SpellbookStolen, 0, true);
-        } else
-        if ((evidx > 0) && is_my_player_number(creatng->owner) && !is_my_player_number(picktng->owner)) {
-            output_message(SMsg_SpellbookTaken, 0, true);
+        if (evidx > 0)
+        {
+            if ( (is_my_player_number(picktng->owner)) && (!is_my_player_number(creatng->owner)) )
+            {
+                output_message(SMsg_SpellbookStolen, 0, true);
+            } 
+            else if ( (is_my_player_number(creatng->owner)) && (!is_my_player_number(picktng->owner)) )
+            {
+                player = get_my_player();
+                if (picktng->owner == game.neutral_player_num)
+                {
+                   if (creatng->index != player->influenced_thing_idx)
+                   {                       
+                        output_message(SMsg_DiscoveredSpell, 0, true);
+                   }                   
+                }
+                else
+                {
+                   if (creatng->index != player->influenced_thing_idx)
+                   {       
+                        output_message(SMsg_SpellbookTaken, 0, true);
+                   }
+                }
+            }
         }
     } else
     if (thing_is_special_box(picktng))
@@ -120,7 +140,11 @@ EventIndex update_library_object_pickup_event(struct Thing *creatng, struct Thin
         {
           if (is_my_player_number(creatng->owner) && !is_my_player_number(picktng->owner))
           {
-            output_message(SMsg_DiscoveredSpecial, 0, true);
+              player = get_my_player();
+              if (creatng->index != player->influenced_thing_idx)
+              {    
+                output_message(SMsg_DiscoveredSpecial, 0, true);
+              }
           }
         }
     } else
@@ -330,7 +354,7 @@ void process_player_research(PlayerNumber plyr_idx)
                 move_thing_in_map(spelltng, &pos);
                 add_item_to_room_capacity(room, true);
                 event_create_event(spelltng->mappos.x.val, spelltng->mappos.y.val, EvKind_NewSpellResrch, spelltng->owner, pwkind);
-                create_effect(&pos, TngEff_Unknown53, spelltng->owner);
+                create_effect(&pos, TngEff_ResearchComplete, spelltng->owner);
             }
             else
             {
@@ -358,7 +382,7 @@ void process_player_research(PlayerNumber plyr_idx)
                 pos.x.val = subtile_coord_center(room->central_stl_x);
                 pos.y.val = subtile_coord_center(room->central_stl_y);
                 pos.z.val = get_floor_height_at(&pos);
-                create_effect(&pos, TngEff_Unknown53, room->owner);
+                create_effect(&pos, TngEff_ResearchComplete, room->owner);
             }
         }
         break;

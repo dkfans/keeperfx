@@ -32,6 +32,8 @@ extern "C" {
 #define PALETTE_COLORS 256
 #define PALETTE_SIZE (3*PALETTE_COLORS)
 
+#define LOWRES_SCREEN_SIZE          320
+
 #define MAX_SUPPORTED_SCREEN_WIDTH  3840
 #define MAX_SUPPORTED_SCREEN_HEIGHT 2160
 
@@ -143,7 +145,7 @@ struct DisplayStruct {
         /** Pointer to graphics window buffer, if locked. */
         uchar *GraphicsWindowPtr;
         /** Sprite used as mouse cursor. */
-        struct TbSprite *MouseSprite;
+        const struct TbSprite *MouseSprite;
         /** Resolution in width of the current video mode.
          *  Note that it's not always "physical" size.
          *  It is the part of screen buffer which is being drawn
@@ -271,6 +273,19 @@ extern volatile TbBool lbUseSdk;
 extern volatile TbBool lbInteruptMouse;
 extern volatile TbDisplayStructEx lbDisplayEx;
 extern unsigned char lbPalette[PALETTE_SIZE];
+
+#define DEFAULT_UI_SCALE                128 // is equivilent to size 1 or 100%
+
+enum UIScaleSettings {
+    UI_NORMAL_SIZE = DEFAULT_UI_SCALE,
+    UI_HALF_SIZE   = DEFAULT_UI_SCALE / 2,
+    UI_DOUBLE_SIZE = DEFAULT_UI_SCALE * 2,
+};
+
+extern unsigned short units_per_pixel_width;
+extern unsigned short units_per_pixel_height;
+extern unsigned short units_per_pixel_best;
+extern unsigned short units_per_pixel_ui;
 /******************************************************************************/
 TbResult LbScreenInitialize(void);
 TbResult LbScreenSetDoubleBuffering(TbBool state);
@@ -317,6 +332,17 @@ TbResult LbScreenSetGraphicsWindow(TbScreenCoord x, TbScreenCoord y,
 
 TbResult LbSetTitle(const char *title);
 TbResult LbSetIcon(unsigned short nicon);
+
+long scale_value_for_resolution(long base_value);
+long scale_value_for_resolution_with_upp(long base_value, long units_per_px);
+long scale_value_by_horizontal_resolution(long base_value);
+long scale_value_by_vertical_resolution(long base_value);
+long scale_ui_value_lofi(long base_value);
+long scale_ui_value(long base_value);
+long scale_fixed_DK_value(long base_value);
+TbBool is_ar_wider_than_original(long width, long height);
+long calculate_relative_upp(long base_length, long reference_upp, long reference_length);
+long resize_ui(long units_per_px, long ui_scale);
 /******************************************************************************/
 #ifdef __cplusplus
 }

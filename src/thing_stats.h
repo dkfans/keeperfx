@@ -82,8 +82,8 @@ TbBool is_hero_thing(const struct Thing *thing);
 long compute_creature_kind_score(ThingModel crkind,unsigned short crlevel);
 long compute_creature_max_pay(long base_pay,unsigned short crlevel);
 long compute_creature_max_health(long base_health,unsigned short crlevel);
-long compute_creature_attack_melee_damage(struct Thing *creature, long base_param, long luck, unsigned short crlevel);
-long compute_creature_attack_spell_damage(struct Thing *creature, long base_param,long luck,unsigned short crlevel);
+long compute_creature_attack_melee_damage(long base_param, long luck, unsigned short crlevel, struct Thing* thing);
+long compute_creature_attack_spell_damage(long base_param,long luck,unsigned short crlevel, struct Thing* thing);
 long project_creature_attack_melee_damage(long base_param,long luck,unsigned short crlevel);
 long project_creature_attack_spell_damage(long base_param,long luck,unsigned short crlevel);
 long compute_creature_attack_range(long base_param,long luck,unsigned short crlevel);
@@ -103,6 +103,7 @@ long calculate_correct_creature_maxspeed(const struct Thing *thing);
 long calculate_correct_creature_pay(const struct Thing *thing);
 long calculate_correct_creature_scavenge_required(const struct Thing *thing, PlayerNumber callplyr_idx);
 long compute_creature_work_value_for_room_role(const struct Thing *creatng, RoomRole rrole, long efficiency);
+long compute_creature_weight(const struct Thing* creatng);
 
 const char *creature_statistic_text(const struct Thing *creatng, CreatureLiveStatId cstat_id);
 

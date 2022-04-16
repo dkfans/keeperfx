@@ -64,7 +64,7 @@ short at_kinky_torture_room(struct Thing *thing)
         return 0;
     }
     add_creature_to_torture_room(thing, room);
-    cctrl->word_A6 = 0;
+    cctrl->assigned_torturer = 0;
     cctrl->turns_at_job = game.play_gameturn;
     cctrl->tortured.start_gameturn = game.play_gameturn;
     cctrl->tortured.long_9Ex = game.play_gameturn;
@@ -98,7 +98,7 @@ short at_torture_room(struct Thing *thing)
     }
     add_creature_to_torture_room(thing, room);
     cctrl->flgfield_1 |= CCFlg_NoCompControl;
-    cctrl->word_A6 = 0;
+    cctrl->assigned_torturer = 0;
     cctrl->turns_at_job = game.play_gameturn;
     cctrl->tortured.start_gameturn = game.play_gameturn;
     cctrl->tortured.long_9Ex = game.play_gameturn;
@@ -111,14 +111,14 @@ short at_torture_room(struct Thing *thing)
 short cleanup_torturing(struct Thing *creatng)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    if (cctrl->word_A6 > 0)
+    if (cctrl->assigned_torturer > 0)
     {
-        struct Thing* thing = thing_get(cctrl->word_A6);
+        struct Thing* thing = thing_get(cctrl->assigned_torturer);
         if (thing_exists(thing)) {
-            thing->belongs_to = 0;
+            thing->torturer.belongs_to = 0;
             thing->field_4F &= ~TF4F_Unknown01;
         }
-        cctrl->word_A6 = 0;
+        cctrl->assigned_torturer = 0;
     }
     // If the creature has flight ability, return it to flying state
     restore_creature_flight_flag(creatng);
@@ -149,7 +149,7 @@ long setup_torture_move_to_device(struct Thing *creatng, struct Room *room, Crea
         MapSlabCoord slb_x = slb_num_decode_x(slbnum);
         MapSlabCoord slb_y = slb_num_decode_y(slbnum);
         struct Thing* tortrtng = find_base_thing_on_mapwho(TCls_Object, 125, slab_subtile_center(slb_x), slab_subtile_center(slb_y));
-        if (!thing_is_invalid(tortrtng) && (tortrtng->belongs_to == 0))
+        if (!thing_is_invalid(tortrtng) && (tortrtng->torturer.belongs_to == 0))
         {
             if (!setup_person_move_to_coord(creatng, &tortrtng->mappos, NavRtF_Default))
             {
@@ -158,9 +158,9 @@ long setup_torture_move_to_device(struct Thing *creatng, struct Room *room, Crea
             }
             struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
             creatng->continue_state = get_continue_state_for_job(jobpref);
-            tortrtng->belongs_to = creatng->index;
-            tortrtng->word_15 = tortrtng->sprite_size;
-            cctrl->word_A6 = tortrtng->index;
+            tortrtng->torturer.belongs_to = creatng->index;
+            tortrtng->torturer.cssize = tortrtng->sprite_size;
+            cctrl->assigned_torturer = tortrtng->index;
             return 1;
         }
         slbnum = get_next_slab_number_in_room(slbnum);
@@ -202,7 +202,7 @@ long process_torture_visuals(struct Thing *creatng, struct Room *room, CreatureJ
         cctrl->tortured.long_9Ex = game.play_gameturn;
         return 1;
     case CTVS_TortureInDevice:
-        sectng = thing_get(cctrl->word_A6);
+        sectng = thing_get(cctrl->assigned_torturer);
         if (creature_turn_to_face_angle(creatng, sectng->move_angle_xy) >= LbFPMath_PI/12) {
             return CrStRet_Unchanged;
         }
@@ -245,7 +245,7 @@ short kinky_torturing(struct Thing *thing)
     }
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    if (game.play_gameturn-cctrl->turns_at_job > crstat->torture_break_time)
+    if ((game.play_gameturn-cctrl->turns_at_job > crstat->torture_break_time) && !is_neutral_thing(thing))
     {
         set_start_state(thing);
         return CrStRet_ResetOk;
@@ -281,7 +281,7 @@ void convert_creature_to_ghost(struct Room *room, struct Thing *thing)
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     init_creature_level(newthing, cctrl->explevel);
     if (creature_model_bleeds(thing->model))
-      create_effect_around_thing(newthing, TngEff_Unknown10);
+      create_effect_around_thing(newthing, TngEff_Blood5);
     set_start_state(newthing);
     kill_creature(thing, INVALID_THING, -1, CrDed_NoEffects|CrDed_DiedInBattle);
     struct Dungeon* dungeon = get_dungeon(room->owner);
@@ -305,8 +305,21 @@ void convert_tortured_creature_owner(struct Thing *creatng, PlayerNumber new_own
     change_creature_owner(creatng, new_owner);
     anger_set_creature_anger_all_types(creatng, 0);
     struct Dungeon* dungeon = get_dungeon(new_owner);
-    if (!dungeon_invalid(dungeon)) {
+    struct DungeonAdd* dungeonadd = get_dungeonadd(new_owner);
+    if (!dungeon_invalid(dungeon)) 
+    {
         dungeon->lvstats.creatures_converted++;
+        if (((get_creature_model_flags(creatng) & CMF_IsSpectator) == 0) && ((get_creature_model_flags(creatng) & CMF_IsSpecDigger) == 0))
+        {
+            if (get_creature_model_flags(creatng) & CMF_IsEvil)
+            {
+                dungeonadd->evil_creatures_converted++;
+            }
+            else
+            {
+                dungeonadd->good_creatures_converted++;
+            }
+        }
     }
 }
 
@@ -475,6 +488,10 @@ CrCheckRet process_torture_function(struct Thing *creatng)
         set_start_state(creatng);
         return CrCkRet_Continue;
     }
+    if (room->owner == game.neutral_player_num || is_neutral_thing(creatng))
+    {
+        return CrCkRet_Available;
+    }
     struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     anger_apply_anger_to_creature(creatng, crstat->annoy_in_torture, AngR_Other, 1);
@@ -498,7 +515,7 @@ CrCheckRet process_torture_function(struct Thing *creatng)
         return CrCkRet_Available;
     // Torture must take some time before it has any affect
     i = compute_torture_convert_time(creatng,room);
-    if ( (i < crstat->torture_break_time) || (cctrl->word_A6 == 0) )
+    if ( (i < crstat->torture_break_time) || (cctrl->assigned_torturer == 0) )
         return CrCkRet_Available;
     // After that, every time broke chance is hit, do something
     if (CREATURE_RANDOM(creatng, 100) < compute_torture_broke_chance(creatng))

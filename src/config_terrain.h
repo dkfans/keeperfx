@@ -57,6 +57,12 @@ enum SlabAttrFlags {
     SlbAtFlg_TaggedValuable = 0x80,
 };
 
+enum SlabFillStyle {
+    SlbFillStl_Normal = 0,
+    SlbFillStl_Lava = 1,
+    SlbFillStl_Water = 2,
+};
+
 enum RoomCfgFlags {
     RoCFlg_None          = 0x00,
     RoCFlg_NoEnsign      = 0x01,
@@ -100,14 +106,14 @@ struct SlabMap;
 
 struct SlabAttr {
     unsigned short tooltip_stridx;
-    short field_2;
-    short field_4;
+    short block_flags_height;
+    short block_health_index;
     unsigned long block_flags;
     unsigned long noblck_flags;
-    unsigned char field_E;
+    unsigned char fill_style;
     unsigned char category;
-    unsigned char slbfield_10;
-    unsigned char is_unknflg11;
+    unsigned char slb_id;
+    unsigned char wibble;
     unsigned char is_safe_land;
     unsigned char is_unknflg13;
     unsigned char is_diggable;
@@ -167,6 +173,7 @@ const char *slab_code_name(SlabKind slbkind);
 /******************************************************************************/
 TbBool slab_kind_is_indestructible(RoomKind slbkind);
 TbBool slab_kind_is_fortified_wall(RoomKind slbkind);
+TbBool slab_kind_is_room_wall(RoomKind slbkind);
 TbBool slab_kind_is_friable_dirt(RoomKind slbkind);
 TbBool slab_kind_is_door(SlabKind slbkind);
 TbBool slab_kind_is_nonmagic_door(SlabKind slbkind);

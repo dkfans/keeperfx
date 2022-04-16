@@ -54,7 +54,7 @@ void gui_clear_buttons_not_over_mouse(int gmbtn_mouseover_idx)
     for (gidx=0;gidx<ACTIVE_BUTTONS_COUNT;gidx++)
     {
       gbtn = &active_buttons[gidx];
-      if (gbtn->flags & LbBtnF_Unknown01)
+      if (gbtn->flags & LbBtnF_Active)
         if ( ((gmbtn_mouseover_idx == -1) || (gmbtn_mouseover_idx != gidx)) &&
              (gbtn->gbtype != LbBtnT_RadioBtn) && (gbtn != input_button) )
         {
@@ -74,7 +74,7 @@ void fake_button_click(int gmbtn_idx)
         gbtn = &active_buttons[i];
         struct GuiMenu *gmnu;
         gmnu = &active_menus[(unsigned)gbtn->gmenu_idx];
-        if (((gbtn->flags & LbBtnF_Unknown01) != 0) && (gmnu->is_turned_on != 0) && (gbtn->id_num == gmbtn_idx))
+        if (((gbtn->flags & LbBtnF_Active) != 0) && (gmnu->is_turned_on != 0) && (gbtn->id_num == gmbtn_idx))
         {
             if ((gbtn->click_event != NULL) || ((gbtn->flags & LbBtnF_Unknown02) != 0) || (gbtn->parent_menu != NULL) || (gbtn->gbtype == LbBtnT_RadioBtn)) {
                 do_button_press_actions(gbtn, &gbtn->gbactn_1, gbtn->click_event);
@@ -329,7 +329,7 @@ int guibutton_get_unused_slot(void)
     for (i=0; i<ACTIVE_BUTTONS_COUNT; i++)
     {
         gbtn = &active_buttons[i];
-        if ((gbtn->flags & LbBtnF_Unknown01) == 0) {
+        if ((gbtn->flags & LbBtnF_Active) == 0) {
             return i;
         }
     }
@@ -377,7 +377,7 @@ void init_menu_buttons(struct GuiMenu *gmnu)
 void kill_button(struct GuiButton *gbtn)
 {
     if (gbtn != NULL) {
-        gbtn->flags &= ~LbBtnF_Unknown01;
+        gbtn->flags &= ~LbBtnF_Active;
     }
 }
 

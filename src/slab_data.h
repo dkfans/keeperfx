@@ -41,24 +41,39 @@ enum SlabTypes {
     SlbT_WALLWTWINS         =   6,
     SlbT_WALLWWOMAN         =   7,
     SlbT_WALLPAIRSHR        =   8,
+    SlbT_DAMAGEDWALL        =   9,
     SlbT_PATH               =  10,
     SlbT_CLAIMED            =  11,
     SlbT_LAVA               =  12,
     SlbT_WATER              =  13,
     SlbT_ENTRANCE           =  14,
+    SlbT_ENTRANCE_WALL      =  15,
     SlbT_TREASURE           =  16,
+    SlbT_TREASURE_WALL      =  17,
     SlbT_LIBRARY            =  18,
+    SlbT_LIBRARY_WALL       =  19,
     SlbT_PRISON             =  20,
+    SlbT_PRISON_WALL        =  21,
     SlbT_TORTURE            =  22,
+    SlbT_TORTURE_WALL       =  23,
     SlbT_TRAINING           =  24,
+    SlbT_TRAINING_WALL      =  25,
     SlbT_DUNGHEART          =  26,
+    SlbT_DUNGHEART_WALL     =  27,
     SlbT_WORKSHOP           =  28,
+    SlbT_WORKSHOP_WALL      =  29,
     SlbT_SCAVENGER          =  30,
+    SlbT_SCAVENGER_WALL     =  31,
     SlbT_TEMPLE             =  32,
+    SlbT_TEMPLE_WALL        =  33,
     SlbT_GRAVEYARD          =  34,
+    SlbT_GRAVEYARD_WALL     =  35,
     SlbT_GARDEN             =  36,
+    SlbT_GARDEN_WALL        =  37,
     SlbT_LAIR               =  38,
+    SlbT_LAIR_WALL          =  39,
     SlbT_BARRACKS           =  40,
+    SlbT_BARRACKS_WALL      =  41,
     SlbT_DOORWOOD1          =  42,
     SlbT_DOORWOOD2          =  43,
     SlbT_DOORBRACE1         =  44,
@@ -67,9 +82,11 @@ enum SlabTypes {
     SlbT_DOORIRON2          =  47,
     SlbT_DOORMAGIC1         =  48,
     SlbT_DOORMAGIC2         =  49,
+    SlbT_SLAB50             =  50, //Has special properties and is known as slab50 until a better name is found
     SlbT_BRIDGE             =  51,
     SlbT_GEMS               =  52,
     SlbT_GUARDPOST          =  53,
+    SlbT_PURPLE             =  54,
 };
 
 /******************************************************************************/
@@ -153,6 +170,8 @@ void update_map_collide(SlabKind slbkind, MapSubtlCoord stl_x, MapSubtlCoord stl
 void copy_block_with_cube_groups(short itm_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 void do_slab_efficiency_alteration(MapSlabCoord slb_x, MapSlabCoord slb_y);
 void do_unprettying(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y);
+
+TbBool slab_kind_has_no_ownership(SlabKind slbkind);
 
 /******************************************************************************/
 #include "roomspace.h"

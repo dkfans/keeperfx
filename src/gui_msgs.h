@@ -34,7 +34,7 @@ extern "C" {
 
 struct GuiMessage { // sizeof = 0x45 (69)
     char text[64];
-unsigned char plyr_idx;
+PlayerNumber plyr_idx;
 unsigned long creation_turn;
 };
 
@@ -45,6 +45,11 @@ void message_draw(void);
 void zero_messages(void);
 void message_add(PlayerNumber plyr_idx, const char *text);
 void message_add_fmt(PlayerNumber plyr_idx, const char *fmt_str, ...);
+void show_game_time_taken(unsigned long fps, unsigned long turns);
+void show_real_time_taken(void);
+void clear_messages_from_player(char plyr_idx);
+void delete_message(unsigned char msg_idx);
+void message_add_timeout(PlayerNumber plyr_idx, unsigned long timeout, const char *fmt_str, ...);
 /******************************************************************************/
 #ifdef __cplusplus
 }

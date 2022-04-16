@@ -142,8 +142,8 @@ struct CreatureControl
     unsigned char flgfield_2;
     unsigned char combat_flags;
     unsigned char party_objective;
-    long field_5;
-    short field_9;
+    unsigned long wait_to_turn;
+    short distance_to_destination;
     short opponents_melee[COMBAT_MELEE_OPPONENTS_LIMIT];
     short opponents_ranged[COMBAT_RANGED_OPPONENTS_LIMIT];
     unsigned char opponents_melee_count;
@@ -252,129 +252,115 @@ struct CreatureControl
         };
     };
 
-    union
-    {
-        struct
-        {
-            long start_gameturn;
-            long long_9Ex;
-            long long_A2x;
-            short word_A6;
-            unsigned char vis_state;
-        } tortured;
-        struct
-        {
-            long start_gameturn;
-            long long_9Ex;
-            long long_A2x;
-        } idle;
-        struct
-        {
-            unsigned char byte_9A;
-            unsigned char byte_9B;
-            unsigned char byte_9C;
-            unsigned char byte_9D;
-            unsigned char byte_9E;
-            unsigned char byte_9F;
-            unsigned char byte_A0;
-            unsigned char byte_A1;
-            unsigned char byte_A2;
-            unsigned char byte_A3;
-            unsigned char byte_A4;
-            unsigned char byte_A5;
-        };
-        struct
-        {
-            unsigned char byte_9A_scv;
-            unsigned char byte_9B_scv;
-            unsigned char byte_9C_scv;
-            unsigned char stl_9D_x;
-            unsigned char stl_9D_y;
-            unsigned char byte_9F_scv;
-            unsigned char byte_A0_scv;
-            unsigned char byte_A1_scv;
-            unsigned char byte_A2_scv;
-            unsigned char byte_A3_scv;
-            unsigned char byte_A4_scv;
-            unsigned char byte_A5_scv;
-        } scavenge;
-        struct
-        {
-            unsigned char mode;// offset 9A
-            unsigned char train_timeout;
-            unsigned char pole_stl_x;
-            unsigned char pole_stl_y;
-            unsigned char search_timeout;
-            short partner_idx;
-            long partner_creation;
-            unsigned char byte_A5x;
-        } training;
-        struct
-        {
-            long seen_enemy_turn;
-            long battle_enemy_crtn;
-            short battle_enemy_idx;
-            short seen_enemy_idx;
-            unsigned char state_id;
-            unsigned char attack_type;
-            unsigned char seen_enemy_los;
-        } combat;
-        struct
-        {
-            unsigned long start_gameturn;
-            unsigned long last_mood_sound_turn;
-        } imprison;
-        struct
-        {
-            short word_9A;
-            short word_9C;
-            short word_9E;
-            long long_A0;
-            short word_A4;
-            short word_A6;
-        };
-        struct
-        {
-            short word_9A_cp2;
-            long long_9C;
-            long long_A0_cp2;
-            short word_A4_cp2;
-            short word_A6_cp2;
-        };
-        struct
-        {
-            long long_9A;
-            long long_9E;
-            long long_A2;
-        };
-        struct
-        {
-            unsigned long last_mood_sound_turn;
-            long long_9E_cp2;
-            long long_A2_cp2;
-            short word_A6_cp3;
-        };
-        struct
-        {
-            unsigned char byte_9A_cp2;
-            long long_9B;
-            short word_9F_cp2;
-            long long_A1;
-            unsigned char byte_A5_cp2;
-            short word_A6_cp4;
-        };
-        struct
-        {
-            unsigned char byte_9A_cp3;
-            short word_9B;
-            short word_9D;
-            short word_9F;
-            short word_A1;
-            short word_A3;
-            unsigned char byte_A5_cp3;
-            short word_A6_cp5;
-        };
-    };
+  union {
+  struct {
+        long start_gameturn;
+        long long_9Ex;
+        long long_A2x;
+        short assigned_torturer;
+        unsigned char vis_state;
+  } tortured;
+  struct {
+        long start_gameturn;
+        long long_9Ex;
+        long long_A2x;
+  } idle;
+  struct {
+    unsigned char byte_9A;
+    unsigned char byte_9B;
+    unsigned char byte_9C;
+    unsigned char byte_9D;
+    unsigned char byte_9E;
+    unsigned char byte_9F;
+    unsigned char byte_A0;
+    unsigned char byte_A1;
+    unsigned char byte_A2;
+    unsigned char byte_A3;
+    unsigned char byte_A4;
+    unsigned char byte_A5;
+  };
+  struct {
+    unsigned char byte_9A_scv;
+    unsigned char byte_9B_scv;
+    unsigned char byte_9C_scv;
+    unsigned char stl_9D_x;
+    unsigned char stl_9D_y;
+    unsigned char byte_9F_scv;
+    unsigned char byte_A0_scv;
+    unsigned char byte_A1_scv;
+    unsigned char byte_A2_scv;
+    unsigned char byte_A3_scv;
+    unsigned char byte_A4_scv;
+    unsigned char byte_A5_scv;
+  } scavenge;
+  struct {
+    unsigned char mode;// offset 9A
+    unsigned char train_timeout;
+    unsigned char pole_stl_x;
+    unsigned char pole_stl_y;
+    unsigned char search_timeout;
+    short partner_idx;
+    long partner_creation;
+    unsigned char byte_A5x;
+  } training;
+  struct {
+    long seen_enemy_turn;
+    long battle_enemy_crtn;
+    short battle_enemy_idx;
+    short seen_enemy_idx;
+    unsigned char state_id;
+    unsigned char attack_type;
+    unsigned char seen_enemy_los;
+  } combat;
+  struct {
+    unsigned long start_gameturn;
+    unsigned long last_mood_sound_turn;
+  } imprison;
+  struct {
+    short word_9A;
+    short word_9C;
+    short word_9E;
+    long long_A0;
+    short word_A4;
+    short assigned_torturer;
+  };
+  struct {
+    short word_9A_cp2;
+    long long_9C;
+    long long_A0_cp2;
+    short word_A4_cp2;
+    short word_A6_cp2;
+  };
+  struct {
+    long long_9A;
+    long long_9E;
+    long long_A2;
+  };
+  struct {
+    unsigned long last_mood_sound_turn;
+    long long_9E_cp2;
+    long long_A2_cp2;
+    short word_A6_cp3;
+  };
+  struct {
+    unsigned char byte_9A_cp2;
+    long long_9B;
+    short word_9F_cp2;
+    long long_A1;
+    unsigned char byte_A5_cp2;
+    short word_A6_cp4;
+  };
+  struct {
+    unsigned char byte_9A_cp3;
+    short word_9B;
+    short word_9D;
+    short word_9F;
+    short word_A1;
+    short word_A3;
+    unsigned char byte_A5_cp3;
+    short word_A6_cp5;
+  };
+  };
     unsigned char fight_til_death;
     unsigned char field_AA;
     unsigned char stateblock_flags;
@@ -433,8 +419,8 @@ struct CreatureControl
     struct MemberPos followers_pos[GROUP_MEMBERS_COUNT];
     unsigned short next_in_room;
     unsigned short prev_in_room;//field_2AC
-    short field_2AE;
-    unsigned char field_2B0;
+short field_2AE;
+    unsigned char field_2B0; // 7 == heal
     unsigned short job_assigned;
     unsigned short spell_tngidx_armour[3];
     unsigned short spell_tngidx_disease[3];
@@ -465,8 +451,8 @@ struct CreatureControl
     unsigned long field_2FA;
     unsigned long field_2FE;
     unsigned char field_302;
-    long field_303;
-    unsigned char field_307;
+    long following_leader_since;
+    unsigned char follow_leader_fails;
 };
 
 struct CreatureStatsOLD { // sizeof = 230
@@ -501,7 +487,7 @@ struct CreatureStatsOLD { // sizeof = 230
   unsigned char base_speed;
   short grow_up;
   unsigned char grow_up_level;
-  unsigned char entrance_force;
+  TbBool entrance_force;
   short max_angle_change;
   short eye_height;
 short field_57[14];
@@ -509,15 +495,15 @@ short field_73;
   unsigned short size_xy;
   unsigned short size_yz;
   unsigned short walking_anim_speed;
-  unsigned char flying;
-  unsigned char immune_to_gas;
+  TbBool flying;
+  TbBool immune_to_gas;
   unsigned char attack_preference;
   short field_of_view;
   unsigned char learned_instance_id[10];
   unsigned char learned_instance_level[10];
   unsigned char research_value;
-  unsigned char humanoid_creature;
-  unsigned char piss_on_dead;
+  TbBool humanoid_creature;
+  TbBool piss_on_dead;
   unsigned char training_value;
   short pay;
   unsigned char manufacture_value;
@@ -553,10 +539,10 @@ short field_73;
   short lair_enemy;
   short hero_vs_keeper_cost;
   unsigned char rebirth;
-  unsigned char can_see_invisible;
-  unsigned char can_go_locked_doors;
-  unsigned char bleeds;
-  unsigned char affected_by_wind;
+  TbBool can_see_invisible;
+  TbBool can_go_locked_doors;
+  TbBool bleeds;
+  TbBool affected_by_wind;
   unsigned short thing_size_xy;
   unsigned short thing_size_yz;
   short annoy_eat_food;
@@ -596,7 +582,7 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     unsigned char base_speed;
     short grow_up;
     unsigned char grow_up_level;
-    unsigned char entrance_force;
+    TbBool entrance_force;
     short max_angle_change;
     short eye_height;
   short field_57[14];
@@ -604,8 +590,8 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     unsigned short size_xy;
     unsigned short size_yz;
     unsigned short walking_anim_speed;
-    unsigned char flying;
-    unsigned char immune_to_gas;
+    TbBool flying;
+    TbBool immune_to_gas;
     unsigned char attack_preference;
     short field_of_view;
     /** Instance identifiers of the instances creature can learn. */
@@ -613,8 +599,8 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     /** Required level to use the instances creature can learn. Scaled 1..CREATURE_MAX_LEVEL. */
     unsigned char learned_instance_level[LEARNED_INSTANCES_COUNT];
     unsigned char research_value;
-    unsigned char humanoid_creature;
-    unsigned char piss_on_dead;
+    TbBool humanoid_creature;
+    TbBool piss_on_dead;
     unsigned char training_value;
     short pay;
     unsigned char manufacture_value;
@@ -671,6 +657,7 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     short annoy_going_postal;
     short toking_recovery;
     TbBool illuminated;
+    char corpse_vanish_effect;
 };
 
 struct Persons {

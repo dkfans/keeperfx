@@ -19,11 +19,12 @@
 #include "thing_data.h"
 
 #include "globals.h"
+#include "bflib_keybrd.h"
 #include "bflib_basics.h"
 #include "bflib_sound.h"
 #include "bflib_memory.h"
 #include "bflib_math.h"
-
+#include "frontend.h"
 #include "config_creature.h"
 #include "config_effects.h"
 #include "thing_stats.h"
@@ -31,8 +32,9 @@
 #include "creature_graphics.h"
 #include "game_legacy.h"
 #include "engine_arrays.h"
-#include "gui_topmsg.h"
 #include "packets_updating.h"
+#include "kjm_input.h"
+#include "gui_topmsg.h" 
 
 #ifdef __cplusplus
 extern "C" {
@@ -95,10 +97,6 @@ struct Thing *allocate_free_thing_structure_f(unsigned char allocflags, const ch
 
 TbBool i_can_allocate_free_thing_structure(unsigned char allocflags)
 {
-    if (game.free_things_start_index > THINGS_COUNT - 5)
-    {
-        show_onscreen_msg(game.num_fps, "Warning: thing slots used %d/%d", game.free_things_start_index+1, THINGS_COUNT);
-    }
     // Check if there are free slots
     if (game.free_things_start_index < THINGS_COUNT-1)
         return true;
@@ -106,13 +104,19 @@ TbBool i_can_allocate_free_thing_structure(unsigned char allocflags)
     if ((allocflags & FTAF_FreeEffectIfNoSlots) != 0)
     {
         if (game.thing_lists[TngList_EffectElems].index > 0)
+        {
             return true;
+        }
     }
     // Couldn't find free slot - fail
     if ((allocflags & FTAF_LogFailures) != 0)
     {
         ERRORLOG("Cannot allocate thing structure.");
         things_stats_debug_dump();
+    }
+    if (game.free_things_start_index > THINGS_COUNT - 2)
+    {
+        show_onscreen_msg(2 * game.num_fps, "Warning: Cannot create thing, %d/%d thing slots used.", game.free_things_start_index + 1, THINGS_COUNT);
     }
     return false;
 }
@@ -267,6 +271,60 @@ void set_thing_draw(struct Thing *thing, long anim, long speed, long scale, char
       i = start_frame;
       thing->field_48 = i;
       thing->field_40 = i << 8;
+    }
+}
+
+void query_thing(struct Thing *thing)
+{
+    struct Thing *querytng;
+    if ( (thing->class_id == TCls_Object) && (thing->model == 44) && (!is_key_pressed(KC_LALT, KMod_DONTCARE)) )
+    {
+        querytng = get_door_for_position(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
+    }   
+    else
+    {
+        querytng = thing;
+    }
+    if (!thing_is_invalid(querytng))
+    {
+        const char title[24];
+        const char* name = thing_model_name(querytng);
+        const char owner[24]; 
+        const char health[24];
+        const char position[24];
+        const char amount[24] = "\0";
+        char output[36];
+        sprintf((char*)title, "Thing ID: %d", querytng->index);
+        sprintf((char*)owner, "Owner: %d", querytng->owner);
+        sprintf((char*)position, "Pos: X:%d Y:%d Z:%d", querytng->mappos.x.stl.num, querytng->mappos.y.stl.num, querytng->mappos.z.stl.num);
+        if (querytng->class_id == TCls_Trap)
+        {
+            struct ManfctrConfig *mconf = &gameadd.traps_config[querytng->model];
+            sprintf((char*)health, "Shots: %d/%d", querytng->trap.num_shots, mconf->shots);
+        }
+        else
+        {
+            if (querytng->class_id == TCls_Object)
+            {
+                if (object_is_gold(querytng))
+                {
+                    sprintf((char*)amount, "Amount: %ld", querytng->valuable.gold_stored);   
+                }
+            }  
+            sprintf((char*)health, "Health: %d", querytng->health);
+            if (querytng->class_id == TCls_Door)
+            {
+                sprintf(output, "%s/%ld", health, door_stats[querytng->model][0].health);
+            }
+            else if (querytng->class_id == TCls_Object)
+            {
+                if (querytng->model == 5)
+                {
+                    sprintf(output, "%s/%ld", health, game.dungeon_heart_health);
+                }
+            }
+        }
+        create_message_box((const char*)&title, name, (const char*)&owner, (const char*)&health, (const char*)&position, (const char*)&amount);
     }
 }
 /******************************************************************************/

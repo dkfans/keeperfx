@@ -74,6 +74,8 @@ void gui_video_rotate_mode(struct GuiButton *gbtn);
 void gui_video_cluedo_mode(struct GuiButton *gbtn);
 void gui_video_gamma_correction(struct GuiButton *gbtn);
 void gui_video_cluedo_maintain(struct GuiButton *gbtn);
+void gui_switch_video_mode(struct GuiButton *gbtn);
+void gui_display_current_resolution(struct GuiButton *gbtn);
 void gui_set_sound_volume(struct GuiButton *gbtn);
 void gui_set_music_volume(struct GuiButton *gbtn);
 void init_video_menu(struct GuiMenu *gmnu);

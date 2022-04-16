@@ -29,6 +29,7 @@
 #include "config_strings.h"
 #include "config_creature.h"
 #include "game_legacy.h"
+#include "custom_sprites.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -45,6 +46,17 @@ const struct NamedCommand terrain_common_commands[] = {
 const struct NamedCommand terrain_slab_commands[] = {
   {"NAME",            1},
   {"TOOLTIPTEXTID",   2},
+  {"BLOCKFLAGSHEIGHT",3},
+  {"BLOCKHEALTHINDEX",4},
+  {"BLOCKFLAGS",      5},
+  {"NOBLOCKFLAGS",    6},
+  {"FILLSTYLE",       7},
+  {"CATEGORY",        8},
+  {"SLBID",           9},
+  {"WIBBLE",         10},
+  {"ISSAFELAND",     11},
+  {"ISDIGGABLE",     12},
+  {"WLBTYPE",        13},
   {NULL,              0},
 };
 
@@ -184,66 +196,79 @@ struct NamedCommand slab_desc[TERRAIN_ITEMS_MAX];
 struct NamedCommand room_desc[TERRAIN_ITEMS_MAX];
 
 //TODO CONFIG identify all slab attributes and store them in config file
+// tooltip_stridx, block_flags_height, block_health_index, block_flags, noblck_flags, fill_style, category, slb_id, wibble, is_safe_land, is_unknflg13, is_diggable, wlb_type
 struct SlabAttr slab_attrs[] = {
-  {0, 4, 0, SlbAtFlg_Blocking|SlbAtFlg_Filled,  SlbAtFlg_None,   0, SlbAtCtg_Unclaimed,      0, 1, 0, 0, 0, 0}, // [0] HARD
-  {0, 4, 1, SlbAtFlg_Blocking|SlbAtFlg_Valuable,SlbAtFlg_None,   0, SlbAtCtg_Unclaimed,      0, 1, 0, 0, 1, 0}, // [1] GOLD
-  {0, 4, 0, SlbAtFlg_Blocking|SlbAtFlg_Digable, SlbAtFlg_None,   0, SlbAtCtg_FriableDirt,    0, 1, 0, 0, 1, 0}, // [2] DIRT
-  {0, 4, 0, SlbAtFlg_Blocking|SlbAtFlg_Digable, SlbAtFlg_None,   0, SlbAtCtg_FriableDirt,    0, 1, 0, 0, 1, 0}, // [3] TORCH_DIRT
-  {0, 4, 2, SlbAtFlg_Blocking|SlbAtFlg_Filled,  SlbAtFlg_None,   0, SlbAtCtg_FortifiedWall,  0, 1, 0, 0, 1, 0}, // [4] DRAPE_WALL
-  {0, 4, 2, SlbAtFlg_Blocking|SlbAtFlg_Filled,  SlbAtFlg_None,   0, SlbAtCtg_FortifiedWall,  0, 1, 0, 0, 1, 0}, // [5] TORCH_WALL
-  {0, 4, 2, SlbAtFlg_Blocking|SlbAtFlg_Filled,  SlbAtFlg_None,   0, SlbAtCtg_FortifiedWall,  0, 1, 0, 0, 1, 0}, // [6] TWINS_WALL
-  {0, 4, 2, SlbAtFlg_Blocking|SlbAtFlg_Filled,  SlbAtFlg_None,   0, SlbAtCtg_FortifiedWall,  0, 1, 0, 0, 1, 0}, // [7] WOMAN_WALL
-  {0, 4, 2, SlbAtFlg_Blocking|SlbAtFlg_Filled,  SlbAtFlg_None,   0, SlbAtCtg_FortifiedWall,  0, 1, 0, 0, 1, 0}, // [8] PAIR_WALL
-  {0, 4, 2, SlbAtFlg_Blocking|SlbAtFlg_Digable, SlbAtFlg_None,   0, SlbAtCtg_FortifiedWall,  0, 1, 0, 0, 1, 0}, // [9] DAMAGED_WALL
-  {0, 0, 2, SlbAtFlg_None,                      SlbAtFlg_None,   0, SlbAtCtg_Unclaimed,      1, 1, 1, 0, 0, 0}, // [10] PATH
-  {0, 0, 3, SlbAtFlg_None,                      SlbAtFlg_None,   0, SlbAtCtg_FortifiedGround,2, 1, 1, 0, 0, 0}, // [11]
-  {0, 0, 2, SlbAtFlg_None,                      SlbAtFlg_None,   1, SlbAtCtg_Unclaimed,      3, 1, 0, 0, 0, 1}, // [12] LAVA
-  {0, 0, 2, SlbAtFlg_None,                      SlbAtFlg_None,   2, SlbAtCtg_Unclaimed,      4, 1, 1, 0, 0, 2}, // [13] WATER
-  {0, 4, 4, SlbAtFlg_Blocking|SlbAtFlg_IsRoom,  SlbAtFlg_IsRoom, 0, SlbAtCtg_RoomInterior,   5, 1, 1, 0, 0, 0}, // [14] ENTRANCE_ZONE
-  {0, 4, 2, SlbAtFlg_Blocking|SlbAtFlg_Filled,  SlbAtFlg_None,   0, SlbAtCtg_FortifiedWall,  5, 1, 0, 0, 1, 0}, // [15] SLAB15
-  {0, 4, 4, SlbAtFlg_Blocking|SlbAtFlg_IsRoom,  SlbAtFlg_IsRoom, 0, SlbAtCtg_RoomInterior,   6, 1, 1, 0, 0, 0}, // [16] TREASURY_AREA
-  {0, 4, 2, SlbAtFlg_Blocking|SlbAtFlg_Filled,  SlbAtFlg_None,   0, SlbAtCtg_FortifiedWall,  6, 1, 0, 0, 1, 0}, // [17] SLAB17
-  {0, 4, 4, SlbAtFlg_Blocking|SlbAtFlg_IsRoom,  SlbAtFlg_IsRoom, 0, SlbAtCtg_RoomInterior,   7, 1, 1, 0, 0, 0}, // [18]
-  {0, 4, 2, SlbAtFlg_Blocking|SlbAtFlg_Filled,  SlbAtFlg_None,   0, SlbAtCtg_FortifiedWall,  7, 1, 0, 0, 1, 0}, // [19] SLAB19
-  {0, 4, 4, SlbAtFlg_Blocking|SlbAtFlg_IsRoom,  SlbAtFlg_IsRoom, 0, SlbAtCtg_RoomInterior,   8, 1, 1, 0, 0, 0}, // [20]
-  {0, 4, 2, SlbAtFlg_Blocking|SlbAtFlg_Filled,  SlbAtFlg_None,   0, SlbAtCtg_FortifiedWall,  8, 1, 0, 0, 1, 0},
-  {0, 4, 4, SlbAtFlg_Blocking|SlbAtFlg_IsRoom,  SlbAtFlg_IsRoom, 0, SlbAtCtg_RoomInterior,   9, 1, 1, 0, 0, 0},
-  {0, 4, 2, SlbAtFlg_Blocking|SlbAtFlg_Filled,  SlbAtFlg_None,   0, SlbAtCtg_FortifiedWall,  9, 1, 0, 0, 1, 0},
-  {0, 4, 4, SlbAtFlg_Blocking|SlbAtFlg_IsRoom,  SlbAtFlg_IsRoom, 0, SlbAtCtg_RoomInterior,  10, 1, 1, 0, 0, 0},
-  {0, 4, 2, SlbAtFlg_Blocking|SlbAtFlg_Filled,  SlbAtFlg_None,   0, SlbAtCtg_FortifiedWall, 10, 1, 0, 0, 1, 0},
-  {0, 4, 4, SlbAtFlg_Blocking|SlbAtFlg_IsRoom,  SlbAtFlg_IsRoom, 0, SlbAtCtg_RoomInterior,  11, 1, 1, 0, 0, 0},
-  {0, 4, 2, SlbAtFlg_Blocking|SlbAtFlg_Filled,  SlbAtFlg_None,   0, SlbAtCtg_FortifiedWall, 11, 1, 0, 0, 1, 0},
-  {0, 4, 4, SlbAtFlg_Blocking|SlbAtFlg_IsRoom,  SlbAtFlg_IsRoom, 0, SlbAtCtg_RoomInterior,  12, 1, 1, 0, 0, 0},
-  {0, 4, 2, SlbAtFlg_Blocking|SlbAtFlg_Filled,  SlbAtFlg_None,   0, SlbAtCtg_FortifiedWall, 12, 1, 0, 0, 1, 0},
-  {0, 4, 4, SlbAtFlg_Blocking|SlbAtFlg_IsRoom,  SlbAtFlg_IsRoom, 0, SlbAtCtg_RoomInterior,  13, 1, 1, 0, 0, 0}, // [30]
-  {0, 4, 2, SlbAtFlg_Blocking|SlbAtFlg_Filled,  SlbAtFlg_None,   0, SlbAtCtg_FortifiedWall, 13, 1, 0, 0, 1, 0},
-  {0, 4, 4, SlbAtFlg_Blocking|SlbAtFlg_IsRoom,  SlbAtFlg_IsRoom, 0, SlbAtCtg_RoomInterior,  14, 1, 1, 0, 0, 0},
-  {0, 4, 2, SlbAtFlg_Blocking|SlbAtFlg_Filled,  SlbAtFlg_None,   0, SlbAtCtg_FortifiedWall, 14, 1, 0, 0, 1, 0},
-  {0, 4, 4, SlbAtFlg_Blocking|SlbAtFlg_IsRoom,  SlbAtFlg_IsRoom, 0, SlbAtCtg_RoomInterior,  15, 1, 1, 0, 0, 0},
-  {0, 4, 2, SlbAtFlg_Blocking|SlbAtFlg_Filled,  SlbAtFlg_None,   0, SlbAtCtg_FortifiedWall, 15, 1, 0, 0, 1, 0}, // [35]
-  {0, 4, 4, SlbAtFlg_Blocking|SlbAtFlg_IsRoom,  SlbAtFlg_IsRoom, 0, SlbAtCtg_RoomInterior,  16, 1, 1, 0, 0, 0},
-  {0, 4, 2, SlbAtFlg_Blocking|SlbAtFlg_Filled,  SlbAtFlg_None,   0, SlbAtCtg_FortifiedWall, 16, 1, 0, 0, 1, 0},
-  {0, 4, 4, SlbAtFlg_Blocking|SlbAtFlg_IsRoom,  SlbAtFlg_IsRoom, 0, SlbAtCtg_RoomInterior,  17, 1, 1, 0, 0, 0},
-  {0, 4, 2, SlbAtFlg_Blocking|SlbAtFlg_Filled,  SlbAtFlg_None,   0, SlbAtCtg_FortifiedWall, 17, 1, 0, 0, 1, 0},
-  {0, 4, 4, SlbAtFlg_Blocking|SlbAtFlg_IsRoom,  SlbAtFlg_IsRoom, 0, SlbAtCtg_RoomInterior,  18, 1, 1, 0, 0, 0}, // [40] BARRACK_AREA
-  {0, 4, 2, SlbAtFlg_Blocking|SlbAtFlg_Filled,  SlbAtFlg_None,   0, SlbAtCtg_FortifiedWall, 18, 1, 0, 0, 1, 0}, // [41] SLAB41
-  {0, 4, 5, SlbAtFlg_Blocking|SlbAtFlg_IsDoor,  SlbAtFlg_None,   0, SlbAtCtg_Obstacle,       2, 1, 1, 1, 0, 0}, // [42] DOOR_WOODEN
-  {0, 4, 5, SlbAtFlg_Blocking|SlbAtFlg_IsDoor,  SlbAtFlg_None,   0, SlbAtCtg_Obstacle,       2, 1, 1, 1, 0, 0},
-  {0, 4, 6, SlbAtFlg_Blocking|SlbAtFlg_IsDoor,  SlbAtFlg_None,   0, SlbAtCtg_Obstacle,       2, 1, 1, 1, 0, 0},
-  {0, 4, 6, SlbAtFlg_Blocking|SlbAtFlg_IsDoor,  SlbAtFlg_None,   0, SlbAtCtg_Obstacle,       2, 1, 1, 1, 0, 0}, // [45] DOOR_BRACE2
-  {0, 4, 7, SlbAtFlg_Blocking|SlbAtFlg_IsDoor,  SlbAtFlg_None,   0, SlbAtCtg_Obstacle,       2, 1, 1, 1, 0, 0},
-  {0, 4, 7, SlbAtFlg_Blocking|SlbAtFlg_IsDoor,  SlbAtFlg_None,   0, SlbAtCtg_Obstacle,       2, 1, 1, 1, 0, 0},
-  {0, 4, 8, SlbAtFlg_Blocking|SlbAtFlg_IsDoor,  SlbAtFlg_None,   0, SlbAtCtg_Obstacle,       2, 1, 1, 1, 0, 0}, // [48] DOOR_MAGIC
-  {0, 4, 8, SlbAtFlg_Blocking|SlbAtFlg_IsDoor,  SlbAtFlg_None,   0, SlbAtCtg_Obstacle,       2, 1, 1, 1, 0, 0},
-  {0, 4, 2, SlbAtFlg_None,                      SlbAtFlg_None,   0, SlbAtCtg_Obstacle,       0, 1, 0, 1, 0, 0}, // [50]
-  {0, 4, 4, SlbAtFlg_Blocking|SlbAtFlg_IsRoom,  SlbAtFlg_IsRoom, 0, SlbAtCtg_Obstacle,       1, 1, 1, 1, 0, 3}, // [51] BRIDGE_FRAME
-  {0, 4, 1, SlbAtFlg_Blocking|SlbAtFlg_Valuable,SlbAtFlg_None,   0, SlbAtCtg_Unclaimed,      0, 1, 0, 1, 1, 0}, // [52] GEMS
-  {0, 4, 4, SlbAtFlg_Blocking|SlbAtFlg_IsRoom,  SlbAtFlg_IsRoom, 0, SlbAtCtg_Obstacle,       1, 1, 1, 1, 0, 0}, // [53] GUARD_AREA
-  {0, 4, 2, SlbAtFlg_Blocking|SlbAtFlg_Filled,  SlbAtFlg_None,   0, SlbAtCtg_Obstacle,       0, 1, 0, 1, 0, 0},
-  {0, 4, 2, SlbAtFlg_Blocking|SlbAtFlg_Filled,  SlbAtFlg_None,   0, SlbAtCtg_Obstacle,       0, 1, 0, 1, 0, 0}, // [55]
-  {0, 4, 2, SlbAtFlg_Blocking|SlbAtFlg_Filled,  SlbAtFlg_None,   0, SlbAtCtg_Obstacle,       0, 1, 0, 1, 0, 0},
-  {0, 4, 2, SlbAtFlg_Blocking|SlbAtFlg_Filled,  SlbAtFlg_None,   0, SlbAtCtg_Obstacle,       0, 1, 0, 1, 0, 0},
+  {0, 4, 0, SlbAtFlg_Blocking|SlbAtFlg_Filled,  SlbAtFlg_None,   SlbFillStl_Normal, SlbAtCtg_Unclaimed,      0, 1, 0, 0, 0, 0}, // [0] HARD
+  {0, 4, 1, SlbAtFlg_Blocking|SlbAtFlg_Valuable,SlbAtFlg_None,   SlbFillStl_Normal, SlbAtCtg_Unclaimed,      0, 1, 0, 0, 1, 0}, // [1] GOLD
+  {0, 4, 0, SlbAtFlg_Blocking|SlbAtFlg_Digable, SlbAtFlg_None,   SlbFillStl_Normal, SlbAtCtg_FriableDirt,    0, 1, 0, 0, 1, 0}, // [2] DIRT
+  {0, 4, 0, SlbAtFlg_Blocking|SlbAtFlg_Digable, SlbAtFlg_None,   SlbFillStl_Normal, SlbAtCtg_FriableDirt,    0, 1, 0, 0, 1, 0}, // [3] TORCH_DIRT
+  {0, 4, 2, SlbAtFlg_Blocking|SlbAtFlg_Filled,  SlbAtFlg_None,   SlbFillStl_Normal, SlbAtCtg_FortifiedWall,  0, 1, 0, 0, 1, 0}, // [4] DRAPE_WALL
+  {0, 4, 2, SlbAtFlg_Blocking|SlbAtFlg_Filled,  SlbAtFlg_None,   SlbFillStl_Normal, SlbAtCtg_FortifiedWall,  0, 1, 0, 0, 1, 0}, // [5] TORCH_WALL
+  {0, 4, 2, SlbAtFlg_Blocking|SlbAtFlg_Filled,  SlbAtFlg_None,   SlbFillStl_Normal, SlbAtCtg_FortifiedWall,  0, 1, 0, 0, 1, 0}, // [6] TWINS_WALL
+  {0, 4, 2, SlbAtFlg_Blocking|SlbAtFlg_Filled,  SlbAtFlg_None,   SlbFillStl_Normal, SlbAtCtg_FortifiedWall,  0, 1, 0, 0, 1, 0}, // [7] WOMAN_WALL
+  {0, 4, 2, SlbAtFlg_Blocking|SlbAtFlg_Filled,  SlbAtFlg_None,   SlbFillStl_Normal, SlbAtCtg_FortifiedWall,  0, 1, 0, 0, 1, 0}, // [8] PAIR_WALL
+  {0, 4, 2, SlbAtFlg_Blocking|SlbAtFlg_Digable, SlbAtFlg_None,   SlbFillStl_Normal, SlbAtCtg_FortifiedWall,  0, 1, 0, 0, 1, 0}, // [9] DAMAGED_WALL
+  {0, 0, 2, SlbAtFlg_None,                      SlbAtFlg_None,   SlbFillStl_Normal, SlbAtCtg_Unclaimed,      1, 1, 1, 0, 0, 0}, // [10] PATH
+  {0, 0, 3, SlbAtFlg_None,                      SlbAtFlg_None,   SlbFillStl_Normal, SlbAtCtg_FortifiedGround,2, 1, 1, 0, 0, 0}, // [11]
+  {0, 0, 2, SlbAtFlg_None,                      SlbAtFlg_None,   SlbFillStl_Lava  , SlbAtCtg_Unclaimed,      3, 1, 0, 0, 0, 1}, // [12] LAVA
+  {0, 0, 2, SlbAtFlg_None,                      SlbAtFlg_None,   SlbFillStl_Water , SlbAtCtg_Unclaimed,      4, 1, 1, 0, 0, 2}, // [13] WATER
+  {0, 4, 4, SlbAtFlg_Blocking|SlbAtFlg_IsRoom,  SlbAtFlg_IsRoom, SlbFillStl_Normal, SlbAtCtg_RoomInterior,   5, 1, 1, 0, 0, 0}, // [14] ENTRANCE_ZONE
+  {0, 4, 2, SlbAtFlg_Blocking|SlbAtFlg_Filled,  SlbAtFlg_None,   SlbFillStl_Normal, SlbAtCtg_FortifiedWall,  5, 1, 0, 0, 1, 0}, // [15] SLAB15
+  {0, 4, 4, SlbAtFlg_Blocking|SlbAtFlg_IsRoom,  SlbAtFlg_IsRoom, SlbFillStl_Normal, SlbAtCtg_RoomInterior,   6, 1, 1, 0, 0, 0}, // [16] TREASURY_AREA
+  {0, 4, 2, SlbAtFlg_Blocking|SlbAtFlg_Filled,  SlbAtFlg_None,   SlbFillStl_Normal, SlbAtCtg_FortifiedWall,  6, 1, 0, 0, 1, 0}, // [17] SLAB17
+  {0, 4, 4, SlbAtFlg_Blocking|SlbAtFlg_IsRoom,  SlbAtFlg_IsRoom, SlbFillStl_Normal, SlbAtCtg_RoomInterior,   7, 1, 1, 0, 0, 0}, // [18]
+  {0, 4, 2, SlbAtFlg_Blocking|SlbAtFlg_Filled,  SlbAtFlg_None,   SlbFillStl_Normal, SlbAtCtg_FortifiedWall,  7, 1, 0, 0, 1, 0}, // [19] SLAB19
+  {0, 4, 4, SlbAtFlg_Blocking|SlbAtFlg_IsRoom,  SlbAtFlg_IsRoom, SlbFillStl_Normal, SlbAtCtg_RoomInterior,   8, 1, 1, 0, 0, 0}, // [20]
+  {0, 4, 2, SlbAtFlg_Blocking|SlbAtFlg_Filled,  SlbAtFlg_None,   SlbFillStl_Normal, SlbAtCtg_FortifiedWall,  8, 1, 0, 0, 1, 0},
+  {0, 4, 4, SlbAtFlg_Blocking|SlbAtFlg_IsRoom,  SlbAtFlg_IsRoom, SlbFillStl_Normal, SlbAtCtg_RoomInterior,   9, 1, 1, 0, 0, 0},
+  {0, 4, 2, SlbAtFlg_Blocking|SlbAtFlg_Filled,  SlbAtFlg_None,   SlbFillStl_Normal, SlbAtCtg_FortifiedWall,  9, 1, 0, 0, 1, 0},
+  {0, 4, 4, SlbAtFlg_Blocking|SlbAtFlg_IsRoom,  SlbAtFlg_IsRoom, SlbFillStl_Normal, SlbAtCtg_RoomInterior,  10, 1, 1, 0, 0, 0},
+  {0, 4, 2, SlbAtFlg_Blocking|SlbAtFlg_Filled,  SlbAtFlg_None,   SlbFillStl_Normal, SlbAtCtg_FortifiedWall, 10, 1, 0, 0, 1, 0},
+  {0, 4, 4, SlbAtFlg_Blocking|SlbAtFlg_IsRoom,  SlbAtFlg_IsRoom, SlbFillStl_Normal, SlbAtCtg_RoomInterior,  11, 1, 1, 0, 0, 0},
+  {0, 4, 2, SlbAtFlg_Blocking|SlbAtFlg_Filled,  SlbAtFlg_None,   SlbFillStl_Normal, SlbAtCtg_FortifiedWall, 11, 1, 0, 0, 1, 0},
+  {0, 4, 4, SlbAtFlg_Blocking|SlbAtFlg_IsRoom,  SlbAtFlg_IsRoom, SlbFillStl_Normal, SlbAtCtg_RoomInterior,  12, 1, 1, 0, 0, 0},
+  {0, 4, 2, SlbAtFlg_Blocking|SlbAtFlg_Filled,  SlbAtFlg_None,   SlbFillStl_Normal, SlbAtCtg_FortifiedWall, 12, 1, 0, 0, 1, 0},
+  {0, 4, 4, SlbAtFlg_Blocking|SlbAtFlg_IsRoom,  SlbAtFlg_IsRoom, SlbFillStl_Normal, SlbAtCtg_RoomInterior,  13, 1, 1, 0, 0, 0}, // [30]
+  {0, 4, 2, SlbAtFlg_Blocking|SlbAtFlg_Filled,  SlbAtFlg_None,   SlbFillStl_Normal, SlbAtCtg_FortifiedWall, 13, 1, 0, 0, 1, 0},
+  {0, 4, 4, SlbAtFlg_Blocking|SlbAtFlg_IsRoom,  SlbAtFlg_IsRoom, SlbFillStl_Normal, SlbAtCtg_RoomInterior,  14, 1, 1, 0, 0, 0},
+  {0, 4, 2, SlbAtFlg_Blocking|SlbAtFlg_Filled,  SlbAtFlg_None,   SlbFillStl_Normal, SlbAtCtg_FortifiedWall, 14, 1, 0, 0, 1, 0},
+  {0, 4, 4, SlbAtFlg_Blocking|SlbAtFlg_IsRoom,  SlbAtFlg_IsRoom, SlbFillStl_Normal, SlbAtCtg_RoomInterior,  15, 1, 1, 0, 0, 0},
+  {0, 4, 2, SlbAtFlg_Blocking|SlbAtFlg_Filled,  SlbAtFlg_None,   SlbFillStl_Normal, SlbAtCtg_FortifiedWall, 15, 1, 0, 0, 1, 0}, // [35]
+  {0, 4, 4, SlbAtFlg_Blocking|SlbAtFlg_IsRoom,  SlbAtFlg_IsRoom, SlbFillStl_Normal, SlbAtCtg_RoomInterior,  16, 1, 1, 0, 0, 0},
+  {0, 4, 2, SlbAtFlg_Blocking|SlbAtFlg_Filled,  SlbAtFlg_None,   SlbFillStl_Normal, SlbAtCtg_FortifiedWall, 16, 1, 0, 0, 1, 0},
+  {0, 4, 4, SlbAtFlg_Blocking|SlbAtFlg_IsRoom,  SlbAtFlg_IsRoom, SlbFillStl_Normal, SlbAtCtg_RoomInterior,  17, 1, 1, 0, 0, 0},
+  {0, 4, 2, SlbAtFlg_Blocking|SlbAtFlg_Filled,  SlbAtFlg_None,   SlbFillStl_Normal, SlbAtCtg_FortifiedWall, 17, 1, 0, 0, 1, 0},
+  {0, 4, 4, SlbAtFlg_Blocking|SlbAtFlg_IsRoom,  SlbAtFlg_IsRoom, SlbFillStl_Normal, SlbAtCtg_RoomInterior,  18, 1, 1, 0, 0, 0}, // [40] BARRACK_AREA
+  {0, 4, 2, SlbAtFlg_Blocking|SlbAtFlg_Filled,  SlbAtFlg_None,   SlbFillStl_Normal, SlbAtCtg_FortifiedWall, 18, 1, 0, 0, 1, 0}, // [41] SLAB41
+  {0, 4, 5, SlbAtFlg_Blocking|SlbAtFlg_IsDoor,  SlbAtFlg_None,   SlbFillStl_Normal, SlbAtCtg_Obstacle,       2, 1, 1, 1, 0, 0}, // [42] DOOR_WOODEN
+  {0, 4, 5, SlbAtFlg_Blocking|SlbAtFlg_IsDoor,  SlbAtFlg_None,   SlbFillStl_Normal, SlbAtCtg_Obstacle,       2, 1, 1, 1, 0, 0},
+  {0, 4, 6, SlbAtFlg_Blocking|SlbAtFlg_IsDoor,  SlbAtFlg_None,   SlbFillStl_Normal, SlbAtCtg_Obstacle,       2, 1, 1, 1, 0, 0},
+  {0, 4, 6, SlbAtFlg_Blocking|SlbAtFlg_IsDoor,  SlbAtFlg_None,   SlbFillStl_Normal, SlbAtCtg_Obstacle,       2, 1, 1, 1, 0, 0}, // [45] DOOR_BRACE2
+  {0, 4, 7, SlbAtFlg_Blocking|SlbAtFlg_IsDoor,  SlbAtFlg_None,   SlbFillStl_Normal, SlbAtCtg_Obstacle,       2, 1, 1, 1, 0, 0},
+  {0, 4, 7, SlbAtFlg_Blocking|SlbAtFlg_IsDoor,  SlbAtFlg_None,   SlbFillStl_Normal, SlbAtCtg_Obstacle,       2, 1, 1, 1, 0, 0},
+  {0, 4, 8, SlbAtFlg_Blocking|SlbAtFlg_IsDoor,  SlbAtFlg_None,   SlbFillStl_Normal, SlbAtCtg_Obstacle,       2, 1, 1, 1, 0, 0}, // [48] DOOR_MAGIC
+  {0, 4, 8, SlbAtFlg_Blocking|SlbAtFlg_IsDoor,  SlbAtFlg_None,   SlbFillStl_Normal, SlbAtCtg_Obstacle,       2, 1, 1, 1, 0, 0},
+  {0, 4, 2, SlbAtFlg_None,                      SlbAtFlg_None,   SlbFillStl_Normal, SlbAtCtg_Obstacle,       0, 1, 0, 1, 0, 0}, // [50]
+  {0, 4, 4, SlbAtFlg_Blocking|SlbAtFlg_IsRoom,  SlbAtFlg_IsRoom, SlbFillStl_Normal, SlbAtCtg_Obstacle,       1, 1, 1, 1, 0, 3}, // [51] BRIDGE_FRAME
+  {0, 4, 1, SlbAtFlg_Blocking|SlbAtFlg_Valuable,SlbAtFlg_None,   SlbFillStl_Normal, SlbAtCtg_Unclaimed,      0, 1, 0, 1, 1, 0}, // [52] GEMS
+  {0, 4, 4, SlbAtFlg_Blocking|SlbAtFlg_IsRoom,  SlbAtFlg_IsRoom, SlbFillStl_Normal, SlbAtCtg_Obstacle,       1, 1, 1, 1, 0, 0}, // [53] GUARD_AREA
+  {0, 4, 2, SlbAtFlg_Blocking|SlbAtFlg_Filled,  SlbAtFlg_None,   SlbFillStl_Normal, SlbAtCtg_Obstacle,       0, 1, 0, 1, 0, 0},
+  {0, 4, 2, SlbAtFlg_Blocking|SlbAtFlg_Filled,  SlbAtFlg_None,   SlbFillStl_Normal, SlbAtCtg_Obstacle,       0, 1, 0, 1, 0, 0}, // [55]
+  {0, 4, 2, SlbAtFlg_Blocking|SlbAtFlg_Filled,  SlbAtFlg_None,   SlbFillStl_Normal, SlbAtCtg_Obstacle,       0, 1, 0, 1, 0, 0},
+  {0, 4, 2, SlbAtFlg_Blocking|SlbAtFlg_Filled,  SlbAtFlg_None,   SlbFillStl_Normal, SlbAtCtg_Obstacle,       0, 1, 0, 1, 0, 0},
 };
+
+const struct NamedCommand terrain_flags[] = {
+  {"VALUABLE",          1},
+  {"IS_ROOM",           2},
+  {"UNEXPLORED",        3},
+  {"DIGGABLE",          4},
+  {"BLOCKING",          5},
+  {"FILLED",            6},
+  {"IS_DOOR",           7},
+  {"TAGGED_VALUABLE",   8},
+  {NULL,                0},
+  };
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -481,6 +506,211 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
                 if (k > 0)
                 {
                     slbattr->tooltip_stridx = k;
+                    n++;
+                }
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
+            break;
+            case 3:
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                if (k >= 0)
+                {
+                    slbattr->block_flags_height = k;
+                    n++;
+                }
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
+            break;
+            case 4:
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                if (k >= 0)
+                {
+                    slbattr->block_health_index = k;
+                    n++;
+                }
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
+            break;
+            case 5:
+            case 6:
+            {
+                unsigned long *flg = (cmd_num == 5) ? &slbattr->block_flags : &slbattr->noblck_flags;
+                *flg = 0;
+                while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+                {
+                    k = get_id(terrain_flags, word_buf);
+                    switch(k)
+                    {
+                        case 1:
+                        {
+                            *flg |= SlbAtFlg_Valuable;
+                            break;
+                        }
+                        case 2:
+                        {
+                            *flg |= SlbAtFlg_IsRoom;
+                            break;    
+                        }
+                        case 3:
+                        {
+                            *flg |= SlbAtFlg_Unexplored;
+                            break;    
+                        }
+                        case 4:
+                        {
+                            *flg |= SlbAtFlg_Digable;
+                            break;   
+                        }
+                        case 5:
+                        {
+                            *flg |= SlbAtFlg_Blocking;
+                            break;    
+                        }
+                        case 6:
+                        {
+                            *flg |= SlbAtFlg_Filled;
+                            break;    
+                        }
+                        case 7:
+                        {
+                            *flg |= SlbAtFlg_IsDoor;
+                            break;    
+                        }
+                        case 8:
+                        {
+                            *flg |= SlbAtFlg_TaggedValuable;
+                            break;   
+                        }
+                        default:
+                        {
+                            CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%s] block of %s file.",
+                            COMMAND_TEXT(cmd_num),word_buf,block_buf,config_textname);
+                            break;
+                        }
+                    }
+                    n++;
+                }
+                break;
+            }
+            case 7:
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                if (k >= 0)
+                {
+                    slbattr->fill_style = k;
+                    n++;
+                }
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
+            break;
+            case 8:
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                if (k >= 0)
+                {
+                    slbattr->category = k;
+                    n++;
+                }
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
+            break;
+            case 9: // SLB_ID
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                if (k >= 0)
+                {
+                    slbattr->slb_id = k;
+                    n++;
+                }
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
+            break;
+            case 10:
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                if (k >= 0)
+                {
+                    slbattr->wibble = k;
+                    n++;
+                }
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
+            break;
+            case 11:
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                if (k >= 0)
+                {
+                    slbattr->is_safe_land = k;
+                    n++;
+                }
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
+            break;
+            case 12:
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                if (k >= 0)
+                {
+                    slbattr->is_diggable = k;
+                    n++;
+                }
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
+            break;
+            case 13:
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                if (k >= 0)
+                {
+                    slbattr->wlb_type = k;
                     n++;
                 }
             }
@@ -799,7 +1029,7 @@ TbBool parse_terrain_room_blocks(char *buf, long len, const char *config_textnam
         case 10: // SYMBOLSPRITES
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
-                k = atoi(word_buf);
+                k = get_icon_id(word_buf);
                 if (k >= 0)
                 {
                     roomst->bigsym_sprite_idx = k;
@@ -808,7 +1038,7 @@ TbBool parse_terrain_room_blocks(char *buf, long len, const char *config_textnam
             }
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
-                k = atoi(word_buf);
+                k = get_icon_id(word_buf);
                 if (k >= 0)
                 {
                     roomst->medsym_sprite_idx = k;
@@ -818,6 +1048,9 @@ TbBool parse_terrain_room_blocks(char *buf, long len, const char *config_textnam
             }
             if (n < 2)
             {
+                roomst->bigsym_sprite_idx = bad_icon_id;
+                roomst->medsym_sprite_idx = bad_icon_id;
+                rdata->medsym_sprite_idx = bad_icon_id;
                 CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
                     COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
@@ -825,7 +1058,7 @@ TbBool parse_terrain_room_blocks(char *buf, long len, const char *config_textnam
         case 11: // POINTERSPRITES
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
-                k = atoi(word_buf);
+                k = get_icon_id(word_buf);
                 if (k >= 0)
                 {
                     roomst->pointer_sprite_idx = k;
@@ -834,6 +1067,7 @@ TbBool parse_terrain_room_blocks(char *buf, long len, const char *config_textnam
             }
             if (n < 1)
             {
+              roomst->pointer_sprite_idx = bad_icon_id;
               CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
                   COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
@@ -1112,6 +1346,17 @@ TbBool make_available_all_researchable_rooms(PlayerNumber plyr_idx)
 TbBool slab_kind_is_indestructible(RoomKind slbkind)
 {
     return (slbkind == SlbT_ROCK) || (slbkind == SlbT_GEMS) || (slbkind == SlbT_ENTRANCE);
+}
+
+/**
+ * Returns if given slab kind is a reinforced wall modified by the room besides it.
+ * @param slbkind The slab kind to be checked.
+ * @return True if the slab is a fortified wall next to a room, false otherwise.
+ */
+TbBool slab_kind_is_room_wall(RoomKind slbkind)
+{
+    struct SlabAttr* attributes = get_slab_kind_attrs(slbkind);
+    return ((attributes->category == SlbAtCtg_FortifiedWall) && (attributes->slb_id != 0));
 }
 
 /**

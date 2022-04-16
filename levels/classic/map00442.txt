@@ -1,10 +1,12 @@
+REM	Heroic Invasion 1.0.0 level 442
+REM	Author: Mothrayas, Created on 28 Dec 2009
+REM	Updated to add messaging through a pot file by dayokay Dec2020
+
 SET_GENERATE_SPEED(550)
 
 MAX_CREATURES(PLAYER0,41)
 
 START_MONEY(PLAYER0,10000)
-
-DISPLAY_OBJECTIVE(122,PLAYER0)
 
 ADD_CREATURE_TO_POOL(BILE_DEMON,16)
 ADD_CREATURE_TO_POOL(DRAGON,18)
@@ -119,8 +121,13 @@ ADD_TO_PARTY(KNIGHT_SUPPORT,WITCH,10,500,ATTACK_ENEMIES,0)
 
 REM Hero doors: 1,2-Hero Dungeon, 3,4-Northwest,5-Northeast,6-North,7,8-SouthEastDungeon,9-Southwest,10-FarSouthwest,11-FarSouthEast
 
+REM "Beware Master, for many Keepers have tried to conquer this land but they have all failed. These Heroes are not to be underestimated, and your presence in this realm is already known! Prepare for a tough war. The local forces are numerous, and determined to eject you before you can establish an effective army. You must train your forces swiftly, as attacks must surely start soon!"
+DISPLAY_OBJECTIVE(60,PLAYER0)
+
 IF(PLAYER0,GAME_TURN >= 8400)
 	ADD_TUNNELLER_PARTY_TO_LEVEL(PLAYER_GOOD,LOW1,-10,DUNGEON,0,4,500)
+	REM "Beware Keeper. An attack is on its way! Are your forces ready for battle?"
+	DISPLAY_OBJECTIVE(61,PLAYER0)
 ENDIF
 
 IF(PLAYER0,GAME_TURN >= 9600)
@@ -130,6 +137,8 @@ ENDIF
 IF(PLAYER0,GAME_TURN >= 10800)
 	ADD_TUNNELLER_PARTY_TO_LEVEL(PLAYER_GOOD,LOW2,-9,DUNGEON,0,4,500)
 	ADD_TUNNELLER_PARTY_TO_LEVEL(PLAYER_GOOD,LOW3,-4,DUNGEON,0,5,500)
+	REM "Yet more Heroes? These people are determined to defeat you. You must stay focussed Keeper!"
+	DISPLAY_OBJECTIVE(62,PLAYER0)
 ENDIF
 
 IF(PLAYER0,GAME_TURN >= 12000)
@@ -142,6 +151,8 @@ ENDIF
 
 IF(PLAYER0,GAME_TURN >= 20000)
 	ADD_TUNNELLER_PARTY_TO_LEVEL(PLAYER_GOOD,MEDIUM1,-3,DUNGEON,0,6,500)
+	REM "Spies inform us that there are some abandoned magic spells to the South-West. These would be useful, but can you spare the time to find them? Oh, hang on, another raiding party is on its way! "
+	DISPLAY_OBJECTIVE(63,PLAYER0)
 ENDIF
 
 IF(PLAYER0,GAME_TURN >= 24000)
@@ -151,6 +162,8 @@ ENDIF
 IF(PLAYER0,GAME_TURN >= 30000)
 	ADD_TUNNELLER_PARTY_TO_LEVEL(PLAYER_GOOD,ELITE2,-11,DUNGEON,0,8,500)
 	ADD_TUNNELLER_PARTY_TO_LEVEL(PLAYER_GOOD,ELITE3,-3,DUNGEON,0,8,500)
+	REM "Another hero raiding party?! Where are they coming from? These people are relentless!"
+	DISPLAY_OBJECTIVE(64,PLAYER0)
 ENDIF
 
 IF(PLAYER0,GAME_TURN >= 31200)
@@ -161,6 +174,8 @@ IF(PLAYER0,GAME_TURN >= 36000)
 	ADD_TUNNELLER_PARTY_TO_LEVEL(PLAYER_GOOD,ELITE2,-7,DUNGEON,0,8,500)
 	ADD_TUNNELLER_PARTY_TO_LEVEL(PLAYER_GOOD,ELITE1,-5,DUNGEON,0,8,500)
 	ADD_TUNNELLER_PARTY_TO_LEVEL(PLAYER_GOOD,ELITE3,-8,DUNGEON,0,8,500)
+	REM "Another hero raiding party?! Where are they coming from? These people are relentless!"
+	DISPLAY_INFORMATION(64)
 ENDIF
 
 
@@ -172,6 +187,8 @@ IF_ACTION_POINT(1,PLAYER0)
 		SET_FLAG(PLAYER_GOOD,FLAG0,1)
 		SET_FLAG(PLAYER_GOOD,FLAG2,1)
 		SET_TIMER(PLAYER_GOOD,TIMER0)
+		REM "Apparently a Knight has gathered an army to finish you off, and is on his way. You must force your exhausted minions back into action!"
+		DISPLAY_OBJECTIVE(65,PLAYER0)
 	ENDIF
 ENDIF
 
@@ -184,6 +201,8 @@ IF(PLAYER0,GAME_TURN>=42000)
 		SET_FLAG(PLAYER_GOOD,FLAG0,1)
 		SET_FLAG(PLAYER_GOOD,FLAG2,1)
 		SET_TIMER(PLAYER_GOOD,TIMER0)
+		REM "Now a Knight has gathered a tunnelling party to drive you from this realm. Have you found the time to research any useful spells yet Keeper? "
+		DISPLAY_OBJECTIVE(66,PLAYER0)
 	ENDIF
 ENDIF
 
@@ -197,6 +216,8 @@ IF(PLAYER_GOOD,FLAG0==1)
 	IF(PLAYER_GOOD,FLAG1==1)
 		IF(PLAYER_GOOD,TOTAL_CREATURES==0)
 			IF(PLAYER_GOOD,DUNGEON_DESTROYED==1)
+				REM "An impressive victory Keeper! I'm sure you will enjoy plundering this land in your own time, but your remaining minions must need a rest?!"
+				DISPLAY_OBJECTIVE(67,PLAYER0)
 				WIN_GAME
 			ENDIF
 		ENDIF

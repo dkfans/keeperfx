@@ -17,3 +17,6 @@ build*/
 .vscode
 config/fxdata/*.fon
 config/fxdata/*.dat
+/libexterns
+docs/html
+docs/latex

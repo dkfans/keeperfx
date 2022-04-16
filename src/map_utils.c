@@ -173,6 +173,54 @@ long near_coord_filter_battle_drop_point(const struct Coord3d *pos, MaxCoordFilt
     return -1;
 }
 
+void slabs_fill_iterate_from_slab(MapSlabCoord src_slab_x, MapSlabCoord src_slab_y, SlabsFillIterAction f_action, MaxCoordFilterParam param)
+{
+    long max_slb_dim_x = (map_subtiles_x / STL_PER_SLB);
+    long max_slb_dim_y = (map_subtiles_y / STL_PER_SLB);
+    MapSlabCoord stack_x[max_slb_dim_x * max_slb_dim_y];
+    MapSlabCoord stack_y[max_slb_dim_x * max_slb_dim_y];
+    char visited[max_slb_dim_x][max_slb_dim_y];
+    memset(visited, 0, max_slb_dim_x * max_slb_dim_y);
+    long stack_head = 0;
+    stack_x[0] = src_slab_x;
+    stack_y[0] = src_slab_y;
+    MapSlabCoord cx, cy;
+    while (stack_head != -1)
+    {
+        cx = stack_x[stack_head];
+        cy = stack_y[stack_head];
+        stack_head--;
+        visited[cx][cy] = 1;
+
+        if (!f_action(cx, cy, param)) continue;
+
+        if (cx + 1 < max_slb_dim_x && !visited[cx+1][cy])
+        {
+            stack_head++;
+            stack_x[stack_head] = cx + 1;
+            stack_y[stack_head] = cy;
+        }
+        if (cx - 1 >= 0 && !visited[cx-1][cy])
+        {
+            stack_head++;
+            stack_x[stack_head] = cx - 1;
+            stack_y[stack_head] = cy;
+        }
+        if (cy + 1 < max_slb_dim_y && !visited[cx][cy+1])
+        {
+            stack_head++;
+            stack_x[stack_head] = cx;
+            stack_y[stack_head] = cy + 1;
+        }
+        if (cy - 1 >= 0 && !visited[cx][cy-1])
+        {
+            stack_head++;
+            stack_x[stack_head] = cx;
+            stack_y[stack_head] = cy - 1;
+        }
+    }
+}
+
 /** Retrieves index for small_around[] array which leads to the area closer to given destination.
  *  It uses a bit of randomness when angles are too straight, so it may happen that result for same points will vary.
  *
@@ -216,9 +264,9 @@ TbBool get_position_spiral_near_map_block_with_filter(struct Coord3d *retpos, Ma
 {
     SYNCDBG(19,"Starting");
     long maximizer = 0;
-    for (int around = 0; around < spiral_len; around++)
+    for (int around_val = 0; around_val < spiral_len; around_val++)
     {
-        struct MapOffset* sstep = &spiral_step[around];
+        struct MapOffset* sstep = &spiral_step[around_val];
         MapSubtlCoord sx = coord_subtile(x) + (MapSubtlCoord)sstep->h;
         MapSubtlCoord sy = coord_subtile(y) + (MapSubtlCoord)sstep->v;
         struct Map* mapblk = get_map_block_at(sx, sy);

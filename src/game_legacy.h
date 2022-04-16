@@ -91,7 +91,7 @@ enum GameNumfieldDFlags {
     GNFldD_Unkn01 = 0x01,
     GNFldD_Unkn02 = 0x02,
     GNFldD_Unkn04 = 0x04,
-    GNFldD_Unkn08 = 0x08,
+    GNFldD_CreaturePasngr = 0x08, // Possessing a creature as a passenger (no direct control)
     GNFldD_Unkn10 = 0x10,
     GNFldD_Unkn20 = 0x20,
     GNFldD_Unkn40 = 0x40,
@@ -136,7 +136,7 @@ char numfield_1A;
     struct PlayerInfo players[PLAYERS_COUNT];
     struct Column columns_data[COLUMNS_COUNT];
     struct CubeAttribs cubes_data[CUBE_ITEMS_MAX];
-    struct ObjectConfig objects_config[OBJECT_TYPES_COUNT];
+    struct ObjectConfig objects_config[OBJECT_TYPES_COUNT_ORIGINAL];
 struct ObjectConfig objects_config_UNUSED[103];
 char field_117DA[14];
     // Traps and doors config; note that eventually we'll want to merge it with trapdoor_conf
@@ -199,7 +199,7 @@ char field_14A83C;
     //unsigned char level_file_number; // merged with level_number to get maps > 255
     short loaded_level_number;
     short texture_animation[8*TEXTURE_BLOCKS_ANIM_COUNT];
-unsigned short field_14AB3F;
+    unsigned short columns_used;
     unsigned char texture_id;
     unsigned short free_things[THINGS_COUNT-1];
     /** Index of the first used element in free things array. All elements BEYOND this index are free. If all things are free, it is set to 0. */
@@ -293,7 +293,7 @@ char field_14EA4B;
     unsigned short torture_health_loss;
     unsigned short turns_per_torture_health_loss;
     unsigned char ghost_convert_chance;
-    struct LevelScript script;
+    struct LevelScriptOld script;
     struct Bookmark bookmark[BOOKMARKS_COUNT];
     struct CreaturePool pool;
     long frame_skip;
@@ -374,7 +374,6 @@ long field_1516FB;
 DLLIMPORT extern struct Game _DK_game;
 #define game _DK_game
 /******************************************************************************/
-extern unsigned long gold_per_hoard;
 /******************************************************************************/
 #ifdef __cplusplus
 }

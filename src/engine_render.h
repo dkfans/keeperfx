@@ -34,6 +34,9 @@ extern "C" {
 #define BUCKETS_COUNT 704
 #define KEEPSPRITE_LENGTH 9149
 
+#define KEEPERSPRITE_ADD_OFFSET 16384
+#define KEEPERSPRITE_ADD_NUM 2048
+
 enum QKinds {
     QK_PolyTriangle = 0,
     QK_PolyTriangleSimp,
@@ -354,17 +357,21 @@ struct MapVolumeBox { // sizeof = 24
 
 /******************************************************************************/
 // Stripey Line Color Arrays
-#define STRIPEY_LINE_COLOR_COUNT 8
 
 enum stripey_line_colors {
     SLC_RED = 0, // INVALID SELECTION
     SLC_GREEN = 1, // VALID SELECTION
     SLC_YELLOW,
+    SLC_BROWN,
     SLC_GREY,
+    SLC_REDYELLOW,
+    SLC_GREENFLASH,
+    SLC_REDFLASH,
     SLC_PURPLE,
     SLC_BLUE,
     SLC_ORANGE,
     SLC_WHITE,
+    STRIPEY_LINE_COLOR_COUNT // Must always be the last entry (add new colours above this line)
 };
 
 struct stripey_line {
@@ -522,6 +529,7 @@ DLLIMPORT TbFileHandle _DK_file_handle;
 DLLIMPORT long _DK_cam_map_angle;
 #define cam_map_angle _DK_cam_map_angle
 
+extern TbSpriteData keepersprite_add[KEEPERSPRITE_ADD_NUM];
 #pragma pack()
 /******************************************************************************/
 //extern unsigned char temp_cluedo_mode;
@@ -532,10 +540,8 @@ void do_a_plane_of_engine_columns_isometric(long a1, long a2, long a3, long a4);
 void find_gamut(void);
 void fiddle_gamut(long a1, long a2);
 int floor_height_for_volume_box(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y);
-void create_map_volume_box(long a1, long a2, long a3);
-void create_fancy_map_volume_box(struct RoomSpace roomspace, long x, long y, long z);
-void create_frontview_map_volume_box(struct Camera *cam, unsigned char stl_width, TbBool single_subtile);
-void create_fancy_frontview_map_volume_box(struct RoomSpace roomspace, struct Camera *cam, unsigned char stl_width);
+void process_isometric_map_volume_box(long x, long y, long z);
+void process_frontview_map_volume_box(struct Camera *cam, unsigned char stl_width);
 void rotpers_parallel_3(struct EngineCoord *epos, struct M33 *matx, long zoom);
 void rotate_base_axis(struct M33 *matx, short a2, unsigned char a3);
 void fill_in_points_perspective(long a1, long a2, struct MinMax *mm);
@@ -544,11 +550,11 @@ void fill_in_points_isometric(long a1, long a2, struct MinMax *mm);
 void frame_wibble_generate(void);
 void setup_rotate_stuff(long a1, long a2, long a3, long a4, long a5, long a6, long a7, long a8);
 
-void process_keeper_sprite(short x, short y, unsigned short a3, short a4, unsigned char a5, long a6);
+void process_keeper_sprite(short x, short y, unsigned short a3, short kspr_angle, unsigned char a5, long a6);
 void draw_engine_number(struct Number *num);
 void draw_engine_room_flagpole(struct RoomFlag *rflg);
 void draw_status_sprites(long a1, long a2, struct Thing *thing, long a4);
-void draw_keepsprite_unscaled_in_buffer(unsigned short a1, short a2, unsigned char a3, unsigned char *a4);
+void draw_keepsprite_unscaled_in_buffer(unsigned short kspr_n, short a2, unsigned char a3, unsigned char *a4);
 void draw_mapwho_ariadne_path(struct Thing *thing);
 void draw_jonty_mapwho(struct JontySpr *jspr);
 void draw_map_volume_box(long cor1_x, long cor1_y, long cor2_x, long cor2_y, long floor_height_z, unsigned char color);

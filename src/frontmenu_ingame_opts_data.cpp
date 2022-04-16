@@ -37,6 +37,8 @@
 extern "C" {
 #endif
 /******************************************************************************/
+struct MsgBoxInfo MsgBox;
+
 struct GuiButtonInit options_menu_buttons[] = {
   {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0, 999,  10, 999,  10,155, 32, gui_area_text,                     1, GUIStr_MnuOptions,          0,       {0},          0, NULL },
   {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 1, NULL,               NULL,        NULL,               0,  12,  36,  12,  36, 46, 64, gui_area_no_anim_button,          23, GUIStr_LoadGameDesc,     &load_menu, {0},          0, maintain_loadsave },
@@ -56,9 +58,9 @@ struct GuiButtonInit quit_menu_buttons[] = {
 };
 
 struct GuiButtonInit error_box_buttons[] = {
-  {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0, 999,  10, 999,  10,155, 32, gui_area_text,                     1, GUIStr_EventInformation, 0,       {0},            0, NULL },
-  {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0, 999,   0, 999,   0,155, 32, gui_area_text,                     0, GUIStr_Empty,           0,{(long)&gui_error_text},0, NULL },
-  {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 1, NULL,               NULL,        NULL,               0, 999, 100, 999, 132, 46, 34, gui_area_normal_button,           48, GUIStr_Empty,            0,       {0},            0, NULL },
+  {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0, 999,  10, 999,  10,155, 32, gui_area_text,                     1, GUIStr_Error,            0,       {0},            0, NULL },
+  {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0, 999,  65, 999,  0, 250, 32, gui_area_text,                     0, GUIStr_Empty,            0,       {(long)&gui_error_text}, 0, NULL },
+  {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 1, NULL,               NULL,        NULL,               0, 999, 100, 999, 132, 46, 34, gui_area_normal_button,           48, GUIStr_CloseWindow,      0,       {0},            0, NULL },
   {              -1,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,                     0,       {0},            0, NULL },
 };
 
@@ -81,13 +83,14 @@ struct GuiButtonInit autopilot_menu_buttons[] = {
 };
 
 struct GuiButtonInit video_menu_buttons[] = {
-  {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0, 999,  10, 999,  10,155, 32, gui_area_text,                     1, GUIStr_MnuGraphicsOptions,0,      {0},            0, NULL },
-  {LbBtnT_ToggleBtn,  BID_DEFAULT, 0, 0, gui_video_shadows,  NULL,        NULL,               0,   8,  38,  10,  38, 46, 64, gui_area_no_anim_button,          27, GUIStr_OptionShadowsDesc, 0,{(long)&_DK_video_shadows}, 4, NULL },
-  {LbBtnT_ToggleBtn,  BID_DEFAULT, 0, 0, gui_video_view_distance_level,NULL,NULL,             0,  56,  38,  58,  38, 46, 64, gui_area_no_anim_button,          36, GUIStr_OptionViewDistanceDesc,0,{(long)&video_view_distance_level}, 3, NULL },
-  {LbBtnT_ToggleBtn,  BID_DEFAULT, 0, 0, gui_video_rotate_mode,NULL,      NULL,               0, 104,  38, 106,  38, 46, 64, gui_area_no_anim_button,          32, GUIStr_OptionViewTypeDesc,0,{(long)&settings.video_rotate_mode}, 1, NULL },
-  {LbBtnT_ToggleBtn,  BID_DEFAULT, 0, 0, gui_video_cluedo_mode,NULL,      NULL,               0,  32,  90,  32,  90, 46, 64, gui_area_no_anim_button,          42, GUIStr_OptionWallHeightDesc,0,{(long)&_DK_video_cluedo_mode},1, gui_video_cluedo_maintain },
-  {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, gui_video_gamma_correction,NULL, NULL,               0,  80,  90,  80,  90, 46, 64, gui_area_no_anim_button,          44, GUIStr_OptionGammaCorrectionDesc,0,{(long)&video_gamma_correction}, 0, NULL },
-  {              -1,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,                     0,       {0},            0, NULL },
+  {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,                          NULL,                           NULL,  0, 999,  10, 999,  10, 155, 32, gui_area_text,                     1, GUIStr_MnuGraphicsOptions,          0, {0},            0, NULL },
+  {LbBtnT_ToggleBtn,  BID_DEFAULT, 0, 0, gui_video_shadows,             NULL,                           NULL,  0,  28,  38,  30,  38,  46, 64, gui_area_no_anim_button,          27, GUIStr_OptionShadowsDesc,           0, {(long)&_DK_video_shadows}, 4, NULL },
+  {LbBtnT_ToggleBtn,  BID_DEFAULT, 0, 0, gui_video_view_distance_level, NULL,                           NULL,  0,  76,  38,  78,  38,  46, 64, gui_area_no_anim_button,          36, GUIStr_OptionViewDistanceDesc,      0, {(long)&video_view_distance_level}, 3, NULL },
+  {LbBtnT_ToggleBtn,  BID_DEFAULT, 0, 0, gui_video_rotate_mode,         NULL,                           NULL,  0, 124,  38, 126,  38,  46, 64, gui_area_no_anim_button,          32, GUIStr_OptionViewTypeDesc,          0, {(long)&settings.video_rotate_mode}, 1, NULL },
+  {LbBtnT_ToggleBtn,  BID_DEFAULT, 0, 0, gui_video_cluedo_mode,         NULL,                           NULL,  0,  28, 100,  30, 100,  46, 64, gui_area_no_anim_button,          42, GUIStr_OptionWallHeightDesc,        0, {(long)&_DK_video_cluedo_mode},1, gui_video_cluedo_maintain },
+  {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, gui_video_gamma_correction,    NULL,                           NULL,  0,  76, 100,  78, 100,  46, 64, gui_area_no_anim_button,          44, GUIStr_OptionGammaCorrectionDesc,   0, {(long)&video_gamma_correction}, 0, NULL },
+  {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, gui_switch_video_mode,         gui_display_current_resolution, NULL,  0, 124, 100, 126, 100,  46, 64, gui_area_no_anim_button,         122, GUIStr_DisplayResolution,           0, {0}, 0, NULL },
+  {              -1,  BID_DEFAULT, 0, 0, NULL,                          NULL,                           NULL,  0,   0,   0,   0,   0,   0,  0, NULL,                              0,                                     0, 0, {0},            0, NULL },
 };
 
 struct GuiButtonInit sound_menu_buttons[] = {
@@ -96,6 +99,17 @@ struct GuiButtonInit sound_menu_buttons[] = {
   {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,   8,  80,  10,  80, 46, 64, gui_area_no_anim_button,          40, GUIStr_Empty,            0,       {0},            0, NULL },
   {LbBtnT_HorizSlider,BID_DEFAULT, 0, 0, gui_set_sound_volume,NULL,       NULL,               0,  66,  58,  66,  58,190, 30, gui_area_slider,                   0, GUIStr_OptionSoundFx,    0,{(long)&sound_level},127, NULL },
   {LbBtnT_HorizSlider,BID_DEFAULT, 0, 0, gui_set_music_volume,NULL,       NULL,               0,  66, 110,  66, 110,190, 30, gui_area_slider,                   0, GUIStr_OptionMusic,      0,{(long)&music_level},127, NULL },
+  {              -1,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,                     0,       {0},            0, NULL },
+};
+
+struct GuiButtonInit message_box_buttons[] = {
+  {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0, 999,  10, 999,  10,155, 32, gui_area_text,                     1, GUIStr_Empty,            0,       {(long)&MsgBox.title},            0, NULL },
+  {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0, 999,  35, 999,  0, 250, 32, gui_area_text,                     0, GUIStr_Empty,            0,       {(long)&MsgBox.line1}, 0, NULL },
+  {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0, 999,  55, 999,  0, 250, 32, gui_area_text,                     0, GUIStr_Empty,            0,       {(long)&MsgBox.line2}, 0, NULL },
+  {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0, 999,  75, 999,  0, 250, 32, gui_area_text,                     0, GUIStr_Empty,            0,       {(long)&MsgBox.line3}, 0, NULL },
+  {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0, 999,  95, 999,  0, 250, 32, gui_area_text,                     0, GUIStr_Empty,            0,       {(long)&MsgBox.line4}, 0, NULL },
+  {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0, 999, 115, 999,  0, 250, 32, gui_area_text,                     0, GUIStr_Empty,            0,       {(long)&MsgBox.line5}, 0, NULL },
+  {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 1, NULL,               NULL,        NULL,               0, 999, 115, 999, 132, 46, 34, gui_area_normal_button,           48, GUIStr_CloseWindow,      0,       {0},            0, NULL },
   {              -1,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,                     0,       {0},            0, NULL },
 };
 
@@ -111,9 +125,12 @@ struct GuiMenu autopilot_menu =
  { GMnu_AUTOPILOT,    0, 4, autopilot_menu_buttons,     POS_GAMECTR,POS_GAMECTR,224, 120, gui_pretty_background,       0, NULL,    NULL,                    0, 1, 0,};
 
 struct GuiMenu video_menu =
- { GMnu_VIDEO, 0, 4, video_menu_buttons,         POS_GAMECTR,POS_GAMECTR,160, 170, gui_pretty_background,       0, NULL,    init_video_menu,         0, 1, 0,};
+ { GMnu_VIDEO, 0, 4, video_menu_buttons,         POS_GAMECTR,POS_GAMECTR,200, 180, gui_pretty_background,       0, NULL,    init_video_menu,         0, 1, 0,};
 struct GuiMenu sound_menu =
  { GMnu_SOUND, 0, 4, sound_menu_buttons,         POS_GAMECTR,POS_GAMECTR,280, 170, gui_pretty_background,       0, NULL,    init_audio_menu,         0, 1, 0,};
+ 
+struct GuiMenu message_box =
+{ GMnu_MSG_BOX,    0, 1, message_box_buttons,          POS_GAMECTR,POS_GAMECTR,280, 180, gui_pretty_background,       0, NULL,    NULL,                    0, 1, 0,};
 /******************************************************************************/
 #ifdef __cplusplus
 }

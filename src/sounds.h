@@ -39,7 +39,7 @@ struct SoundSettings {
   char *music_data_path;
   char *dir3;
   unsigned short sound_type;
-  unsigned short field_E;
+  unsigned short flags;
   unsigned char max_number_of_samples;
   unsigned char stereo;
   unsigned char field_12;
@@ -76,6 +76,12 @@ struct SoundBankEntry { // sizeof = 16
   unsigned long field_C;
 };
 
+enum SoundSettingsFlags {
+    SndSetting_None    = 0x00,
+    SndSetting_MIDI = 0x01,
+    SndSetting_Sound = 0x02,
+};
+
 extern int atmos_sound_frequency;
 
 #pragma pack()
@@ -99,6 +105,9 @@ void play_thing_walking(struct Thing *thing);
 TbBool ambient_sound_prepare(void);
 TbBool ambient_sound_stop(void);
 struct Thing *create_ambient_sound(const struct Coord3d *pos, ThingModel model, PlayerNumber owner);
+
+void mute_audio(TbBool mute);
+void pause_music(TbBool pause);
 /******************************************************************************/
 #ifdef __cplusplus
 }

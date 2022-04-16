@@ -56,6 +56,7 @@
 #include "power_hand.h"
 #include "power_process.h"
 #include "game_legacy.h"
+#include "cursor_tag.h"
 
 #include "keeperfx.hpp"
 
@@ -805,7 +806,7 @@ CreatureJob find_creature_to_be_placed_in_room_for_job(struct Computer2 *comp, s
     param.ptr1 = (void *)comp;
     param.num2 = Job_NULL; // Our filter function will update that
     filter = player_list_creature_filter_needs_to_be_placed_in_room_for_job;
-    thing = get_player_list_random_creature_with_filter(dungeon->creatr_list_start, filter, &param);
+    thing = get_player_list_random_creature_with_filter(dungeon->creatr_list_start, filter, &param, dungeon->owner);
     if (thing_is_invalid(thing)) {
         return Job_NULL;
     }
@@ -823,7 +824,7 @@ CreatureJob find_creature_to_be_placed_in_room_for_job(struct Computer2 *comp, s
         }
         return Job_NULL;
     }
-    room = get_room_of_given_role_for_thing(thing,dungeon, get_room_role_for_job(param.num2), 1);
+    room = get_room_of_given_role_for_thing(thing, dungeon, get_room_role_for_job(param.num2), 1);
     if (room_is_invalid(room))
         return Job_NULL;
     *roomp = room;
@@ -2472,20 +2473,23 @@ long task_move_creature_to_room(struct Computer2 *comp, struct ComputerTask *cta
     long i;
     struct Dungeon *dungeon;
     dungeon = comp->dungeon;
-    room = INVALID_ROOM;
+    room = room_get(ctask->move_to_room.room_idx1);
     thing = thing_get(comp->held_thing_idx);
-    if (!thing_is_invalid(thing))
+    if (!thing_is_invalid(thing)) // We have no unit in hand
     {
         // 2nd phase - we have specific creature and specific room index, and creature is picked up already
         SYNCDBG(9,"Starting player %d drop",(int)dungeon->owner);
-        room = room_get(ctask->move_to_room.room_idx2);
+        if (room_is_invalid(room))
+        {
+            room = room_get(ctask->move_to_room.room_idx2);
+        }
         if (thing_is_creature(thing) && room_exists(room))
         {
             struct CreatureStats *crstat;
             crstat = creature_stats_get_from_thing(thing);
             CreatureJob jobpref;
             jobpref = get_job_for_room(room->kind, JoKF_AssignComputerDrop|JoKF_AssignAreaWithinRoom, crstat->job_primary|crstat->job_secondary);
-            if (get_drop_position_for_creature_job_in_room(thing, &pos, room, jobpref))
+            if (get_drop_position_for_creature_job_in_room(&pos, room, jobpref, thing))
             {
                 if (computer_dump_held_things_on_map(comp, thing, &pos) > 0) {
                     return CTaskRet_Unk2;
@@ -2516,11 +2520,8 @@ long task_move_creature_to_room(struct Computer2 *comp, struct ComputerTask *cta
         //TODO CREATURE_AI try to make sure the creature will do proper activity in the room
         //     ie. select a room tile which is far from CTA and enemies
         ctask->move_to_room.room_idx2 = room->index;
-        if (get_drop_position_for_creature_job_in_room(thing, &pos, room, jobpref))
-        {
-            if (computer_place_thing_in_power_hand(comp, thing, &pos)) {
+        if (get_drop_position_for_creature_job_in_room(&pos, room, jobpref, thing))
                 SYNCDBG(9,"Player %d picked %s index %d to place in %s index %d",(int)dungeon->owner,
-                    thing_model_name(thing),(int)thing->index,room_code_name(room->kind),(int)room->index);
                 return CTaskRet_Unk2;
             }
         }
@@ -2661,6 +2662,10 @@ long task_move_creatures_to_defend(struct Computer2 *comp, struct ComputerTask *
     {
         if (thing_is_creature(thing))
         {
+            if (!players_are_mutual_allies(thing->owner, dungeon->owner))
+            {
+                return CTaskRet_Unk4;
+            }
             if (computer_dump_held_things_on_map(comp, thing, &ctask->move_to_defend.target_pos)) {
                 return CTaskRet_Unk2;
             }
@@ -3004,7 +3009,7 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
             {
             case TDSC_DoorCrate:
                 model = tdsell->model;
-                if ((model <= 0) || (model >= trapdoor_conf.door_types_count)) {
+                if ((model <= 0) || (model >= gameadd.trapdoor_conf.door_types_count)) {
                     ERRORLOG("Internal error - invalid door model %d in slot %d",(int)model,(int)i);
                     break;
                 }
@@ -3017,14 +3022,14 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                     case WrkCrtS_Offmap:
                         remove_workshop_item_from_amount_placeable(dungeon->owner, TCls_Door, model);
                         item_sold = true;
-                        value = gameadd.doors_config[model].selling_value;
+                        value = compute_value_percentage(gameadd.doors_config[model].selling_value,gameadd.door_sale_percent);
                         SYNCDBG(9,"Offmap door %s crate sold for %d gold",door_code_name(model),(int)value);
                         break;
                     case WrkCrtS_Stored:
                         remove_workshop_item_from_amount_placeable(dungeon->owner, TCls_Door, model);
                         remove_workshop_object_from_player(dungeon->owner, door_crate_object_model(model));
                         item_sold = true;
-                        value = gameadd.doors_config[model].selling_value;
+                        value = compute_value_percentage(gameadd.doors_config[model].selling_value, gameadd.door_sale_percent);
                         SYNCDBG(9,"Stored door %s crate sold for %ld gold by player %d",door_code_name(model),(long)value,(int)dungeon->owner);
                         break;
                     default:
@@ -3036,7 +3041,7 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                 break;
             case TDSC_TrapCrate:
                 model = tdsell->model;
-                if ((model <= 0) || (model >= trapdoor_conf.trap_types_count)) {
+                if ((model <= 0) || (model >= gameadd.trapdoor_conf.trap_types_count)) {
                     ERRORLOG("Internal error - invalid trap model %d in slot %d",(int)model,(int)i);
                     break;
                 }
@@ -3049,14 +3054,14 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                     case WrkCrtS_Offmap:
                         remove_workshop_item_from_amount_placeable(dungeon->owner, TCls_Trap, model);
                         item_sold = true;
-                        value = gameadd.traps_config[model].selling_value;
+                        value = compute_value_percentage(gameadd.traps_config[model].selling_value, gameadd.trap_sale_percent);
                         SYNCDBG(9,"Offmap trap %s crate sold for %ld gold",trap_code_name(model),value);
                         break;
                     case WrkCrtS_Stored:
                         remove_workshop_item_from_amount_placeable(dungeon->owner, TCls_Trap, model);
                         remove_workshop_object_from_player(dungeon->owner, trap_crate_object_model(model));
                         item_sold = true;
-                        value = gameadd.traps_config[model].selling_value;
+                        value = compute_value_percentage(gameadd.traps_config[model].selling_value, gameadd.trap_sale_percent);
                         SYNCDBG(9,"Stored trap %s crate sold for %ld gold by player %d",trap_code_name(model),(long)value,(int)dungeon->owner);
                         break;
                     default:
@@ -3070,7 +3075,7 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                 if (!ctask->sell_traps_doors.allow_deployed)
                     break;
                 model = tdsell->model;
-                if ((model <= 0) || (model >= trapdoor_conf.door_types_count)) {
+                if ((model <= 0) || (model >= gameadd.trapdoor_conf.door_types_count)) {
                     ERRORLOG("Internal error - invalid door model %d in slot %d",(int)model,(int)i);
                     break;
                 }
@@ -3083,7 +3088,7 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                         item_sold = true;
                         stl_x = stl_slab_center_subtile(doortng->mappos.x.stl.num);
                         stl_y = stl_slab_center_subtile(doortng->mappos.y.stl.num);
-                        value = gameadd.doors_config[model].selling_value;
+                        value = compute_value_percentage(gameadd.doors_config[model].selling_value, gameadd.door_sale_percent);
                         destroy_door(doortng);
                         if (is_my_player_number(dungeon->owner))
                             play_non_3d_sample(115);
@@ -3106,7 +3111,7 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                 if (!ctask->sell_traps_doors.allow_deployed)
                     break;
                 model = tdsell->model;
-                if ((model <= 0) || (model >= trapdoor_conf.trap_types_count)) {
+                if ((model <= 0) || (model >= gameadd.trapdoor_conf.trap_types_count)) {
                     ERRORLOG("Internal error - invalid trap model %d in slot %d",(int)model,(int)i);
                     break;
                 }
@@ -3230,6 +3235,12 @@ TbBool create_task_move_creature_to_pos(struct Computer2 *comp, const struct Thi
                 break;
             }
             message_add_fmt(comp->dungeon->owner, "This %s will be sacrificed.",get_string(crdata->namestr_idx));
+            break;
+        case CrSt_Torturing:
+            message_add_fmt(comp->dungeon->owner, "This %s should be tortured.", get_string(crdata->namestr_idx));
+            break;
+        case CrSt_CreatureDoorCombat:
+            message_add_fmt(comp->dungeon->owner, "This %s should attack a door.", get_string(crdata->namestr_idx));
             break;
         default:
             message_add_fmt(comp->dungeon->owner, "This %s should go there.",get_string(crdata->namestr_idx));

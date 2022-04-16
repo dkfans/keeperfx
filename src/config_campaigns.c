@@ -642,7 +642,7 @@ short parse_campaign_common_blocks(struct GameCampaign *campgn,char *buf,long le
           else {
               k = atoi(word_buf);
                 if (k > 0) {
-                    char* newname = get_string(STRINGS_MAX+k);
+                    const char* newname = get_string(STRINGS_MAX+k);
                     if (strcasecmp(newname,"") != 0) {
                         LbStringCopy(campgn->name,newname,LINEMSG_SIZE); // use the index provided in the config file to get a specific UI string
                     }
@@ -1353,6 +1353,13 @@ TbBool check_lif_files_in_mappack(struct GameCampaign *campgn)
     LbMemoryCopy(campgn, &campaign, sizeof(struct GameCampaign));
     LbMemoryCopy(&campaign, &campbuf, sizeof(struct GameCampaign));
     return result;
+}
+
+TbBool is_map_pack(void)
+{
+    if (campaign.fname[0]=='\0')
+        return false;
+    return (campaign.single_levels_count == 0) && (campaign.multi_levels_count == 0) && (campaign.freeplay_levels_count > 0);
 }
 /******************************************************************************/
 #ifdef __cplusplus

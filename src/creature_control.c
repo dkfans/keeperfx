@@ -199,10 +199,10 @@ struct Thing *create_and_control_creature_as_controller(struct PlayerInfo *playe
     ilght.mappos.x.val = thing->mappos.x.val;
     ilght.mappos.y.val = thing->mappos.y.val;
     ilght.mappos.z.val = thing->mappos.z.val;
-    ilght.field_2 = 36;
+    ilght.intensity = 36;
     ilght.field_3 = 1;
     ilght.is_dynamic = 1;
-    ilght.field_0 = 2560;
+    ilght.radius = 2560;
     thing->light_id = light_create_light(&ilght);
     if (thing->light_id != 0)
     {
@@ -353,7 +353,7 @@ void play_creature_sound_and_create_sound_thing(struct Thing *thing, long snd_id
         return;
     }
     long i = UNSYNC_RANDOM(crsound->count);
-    struct Thing* efftng = create_effect(&thing->mappos, TngEff_Unknown49, thing->owner);
+    struct Thing* efftng = create_effect(&thing->mappos, TngEff_DamageBlood, thing->owner);
     if (!thing_is_invalid(efftng)) {
         thing_play_sample(efftng, crsound->index+i, NORMAL_PITCH, 0, 3, 0, a2, FULL_LOUDNESS);
     }
@@ -361,10 +361,7 @@ void play_creature_sound_and_create_sound_thing(struct Thing *thing, long snd_id
 
 void reset_creature_eye_lens(struct Thing *thing)
 {
-    if (is_my_player_number(thing->owner))
-    {
-        setup_eye_lens(0);
-    }
+    setup_eye_lens(0);
 }
 
 TbBool creature_can_gain_experience(const struct Thing *thing)

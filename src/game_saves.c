@@ -31,6 +31,7 @@
 #include "config_compp.h"
 #include "front_simple.h"
 #include "frontend.h"
+#include "frontmenu_ingame_tabs.h"
 #include "front_landview.h"
 #include "front_highscore.h"
 #include "front_lvlstats.h"
@@ -205,7 +206,6 @@ int load_game_chunks(TbFileHandle fhandle,struct CatalogueEntry *centry)
                 load_stats_files();
                 check_and_auto_fix_stats();
                 init_creature_scores();
-                // Update interface items
                 strncpy(high_score_entry,centry->player_name,PLAYER_NAME_LENGTH);
             }
             break;
@@ -287,7 +287,11 @@ int load_game_chunks(TbFileHandle fhandle,struct CatalogueEntry *centry)
         }
     }
     if ((chunks_done & SGF_SavedGame) == SGF_SavedGame)
+    {
+        // Update interface items
+        update_trap_tab_to_config();
         return GLoad_SavedGame;
+    }
     return GLoad_Failed;
 }
 
@@ -380,7 +384,7 @@ TbBool load_game(long slot_num)
         LbFileClose(fh);
         WARNMSG("Saved game file \"%s\" has incompatible version; restarting level.",fname);
         player = get_my_player();
-        player->field_7 = 0;
+        player->lens_palette = 0;
         my_player_number = default_loc_player;
         player = get_my_player();
         game.flagfield_14EA4A = 2;
@@ -410,11 +414,11 @@ TbBool load_game(long slot_num)
     calculate_moon_phase(false,false);
     update_extra_levels_visibility();
     struct PlayerInfo* player = get_my_player();
-    set_flag_byte(&player->field_3,0x08,false);
-    set_flag_byte(&player->field_3,0x04,false);
-    player->field_4C1 = 0;
-    player->field_4C5 = 0;
-    player->field_7 = 0;
+    set_flag_byte(&player->additional_flags,PlaAF_LightningPaletteIsActive,false);
+    set_flag_byte(&player->additional_flags,PlaAF_FreezePaletteIsActive,false);
+    player->palette_fade_step_pain = 0;
+    player->palette_fade_step_possession = 0;
+    player->lens_palette = 0;
     PaletteSetPlayerPalette(player, engine_palette);
     reinitialise_eye_lens(game.numfield_1B);
     // Update the lights system state

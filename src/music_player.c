@@ -124,6 +124,28 @@ void PlayMusicPlayer(int track)
     }
 }
 
+void PauseMusicPlayer(void)
+{
+    if (IsRedbookMusicActive())
+    {
+        PauseRedbookTrack();
+    } else
+    {
+        Mix_PauseMusic();
+    }
+}
+
+void ResumeMusicPlayer(void)
+{
+    if (IsRedbookMusicActive())
+    {
+        ResumeRedbookTrack();
+    } else
+    {
+        Mix_ResumeMusic();
+    }
+}
+
 void StopMusicPlayer(void)
 {
     if (IsRedbookMusicActive())

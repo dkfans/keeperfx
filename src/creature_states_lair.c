@@ -178,8 +178,8 @@ long creature_add_lair_to_room(struct Thing *creatng, struct Room *room)
     room->used_capacity += get_required_room_capacity_for_object(RoRoF_LairStorage, 0, creatng->model);
     if ((cctrl->lair_room_id > 0) && (cctrl->lairtng_idx > 0))
     {
-        struct Room* room = room_get(cctrl->lair_room_id);
-        creature_remove_lair_totem_from_room(creatng, room);
+        struct Room* origroom = room_get(cctrl->lair_room_id);
+        creature_remove_lair_totem_from_room(creatng, origroom);
     }
     cctrl->lair_room_id = room->index;
     // Create the lair thing
@@ -199,14 +199,14 @@ long creature_add_lair_to_room(struct Thing *creatng, struct Room *room)
     lairtng->mappos.z.val = get_thing_height_at(lairtng, &lairtng->mappos);
     // Associate creature with the lair
     cctrl->lairtng_idx = lairtng->index;
-    lairtng->belongs_to = creatng->index;
-    lairtng->word_15 = 1;
+    lairtng->lair.belongs_to = creatng->index;
+    lairtng->lair.cssize = 1;
     // Lair size depends on creature level
-    lairtng->size = crtr_conf.sprite_size + (crtr_conf.sprite_size * crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100;
-    lairtng->move_angle_xy = CREATURE_RANDOM(lairtng, 2*LbFPMath_PI);
+    lairtng->lair.spr_size = gameadd.crtr_conf.sprite_size + (gameadd.crtr_conf.sprite_size * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100;
+    lairtng->move_angle_xy = CREATURE_RANDOM(creatng, 2*LbFPMath_PI);
     struct Objects* objdat = get_objects_data_for_thing(lairtng);
     unsigned long i = convert_td_iso(objdat->sprite_anim_idx);
-    set_thing_draw(lairtng, i, objdat->anim_speed, lairtng->word_15, 0, -1, objdat->draw_class);
+    set_thing_draw(lairtng, i, objdat->anim_speed, lairtng->lair.cssize, 0, -1, objdat->draw_class);
     thing_play_sample(creatng, 158, NORMAL_PITCH, 0, 3, 1, 2, FULL_LOUDNESS);
     create_effect(&pos, imp_spangle_effects[creatng->owner], creatng->owner);
     anger_set_creature_anger(creatng, 0, AngR_NoLair);
@@ -469,7 +469,7 @@ short creature_sleep(struct Thing *thing)
     }
     if (((game.play_gameturn + thing->index) & 0x3F) == 0)
     {
-        if (GAME_RANDOM(100) < 5) {
+        if (CREATURE_RANDOM(thing, 100) < 5) {
             struct Dungeon* dungeon = get_dungeon(thing->owner);
             dungeon->lvstats.backs_stabbed++;
         }

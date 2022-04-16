@@ -38,6 +38,8 @@
 #include "gui_soundmsgs.h"
 #include "game_legacy.h"
 #include "keeperfx.hpp"
+#include "frontend.h"
+#include "math.h"
 
 /******************************************************************************/
 struct Thing *create_room_surrounding_flame(struct Room *room, const struct Coord3d *pos,
@@ -329,12 +331,32 @@ TbBool replace_slab_from_script(MapSlabCoord slb_x, MapSlabCoord slb_y, unsigned
     if (room->slabs_count <= 1)
     {
         delete_room_flag(room);
-        // Create a new one-slab room
-        place_room(plyr_idx, rkind, slab_subtile(slb_x, 0), slab_subtile(slb_y, 0));
+        // If we're looking to place a non-room slab, simply place it.
+        if (rkind == 0)
+        {
+            if (slab_kind_is_animated(slabkind))
+            {
+                place_animating_slab_type_on_map(slabkind, 0, slab_subtile(slb_x, 0), slab_subtile(slb_y, 0), plyr_idx);
+            }
+            else
+            {
+                place_slab_type_on_map(slabkind, slab_subtile(slb_x, 0), slab_subtile(slb_y, 0), plyr_idx, 0);
+            }
+        }
+        else
+        {
+            // Create a new one-slab room
+            place_room(plyr_idx, rkind, slab_subtile(slb_x, 0), slab_subtile(slb_y, 0));
+        }
+        if (count_slabs_of_room_type(room->owner, room->kind) <= 1)
+        {
+            event_create_event_or_update_nearby_existing_event(slb_x, slb_y, EvKind_RoomLost, room->owner, room->kind);
+        }
         //Clean up old room
         kill_all_room_slabs_and_contents(room);
         free_room_structure(room);
         do_slab_efficiency_alteration(slb_x, slb_y);
+        return true;
     }
     else
     {
@@ -355,6 +377,29 @@ TbBool replace_slab_from_script(MapSlabCoord slb_x, MapSlabCoord slb_y, unsigned
         free_room_structure(room);
     }
     return true;
+}
+
+void change_slab_owner_from_script(MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber plyr_idx)
+{
+    struct SlabMap *slb = get_slabmap_block(slb_x, slb_y);
+    if (slb->room_index)
+    {
+        struct Room* room = room_get(slb->room_index);
+        take_over_room(room, plyr_idx);
+    } else
+    if (slb->kind >= SlbT_WALLDRAPE && slb->kind <= SlbT_CLAIMED) //All slabs that can be owned but aren't rooms
+    {
+        short slbkind;
+        if (slb->kind == SlbT_PATH)
+        {
+            slbkind = SlbT_CLAIMED;
+        }
+        else
+        {
+            slbkind = slb->kind;
+        }
+        place_slab_type_on_map(slbkind, slab_subtile(slb_x, 0), slab_subtile(slb_y, 0), plyr_idx, 0);
+    }
 }
 
 /**
@@ -382,7 +427,7 @@ short check_and_asimilate_thing_by_room(struct Thing *thing)
             delete_thing_structure(thing, 0);
             return false;
         }
-        long wealth_size_holds = gold_per_hoard / get_wealth_size_types_count();
+        long wealth_size_holds = gameadd.gold_per_hoard / get_wealth_size_types_count();
         unsigned long n = wealth_size_holds * (get_wealth_size_of_gold_hoard_object(thing) + 1);
         thing->owner = room->owner;
         add_gold_to_hoarde(thing, room, n);
@@ -391,25 +436,35 @@ short check_and_asimilate_thing_by_room(struct Thing *thing)
     if (thing_is_spellbook(thing))
     {
         room = get_room_thing_is_on(thing);
-        if (room_is_invalid(room) || !room_role_matches(room->kind, RoRoF_PowersStorage) || !player_exists(get_player(room->owner)))
+        if (room->owner != game.neutral_player_num)
         {
-            // No room - oh well, leave it as free spell
-            if (((gameadd.classic_bugs_flags & ClscBug_ClaimRoomAllThings) != 0) && !room_is_invalid(room)) {
-                // Preserve classic bug - object is claimed with the room
-                thing->owner = room->owner;
-            } else {
-                // Make correct owner so that Imps can pick it up
-                thing->owner = game.neutral_player_num;
+            if (room_is_invalid(room) || !room_role_matches(room->kind, RoRoF_PowersStorage) || (!player_exists(get_player(room->owner)) && (game.play_gameturn >= 10)))
+            {
+                // No room - oh well, leave it as free spell
+                if (((gameadd.classic_bugs_flags & ClscBug_ClaimRoomAllThings) != 0) && !room_is_invalid(room)) {
+                    // Preserve classic bug - object is claimed with the room
+                    thing->owner = room->owner;
+                }
+                else {
+                    // Make correct owner so that Imps can pick it up
+                    thing->owner = game.neutral_player_num;
+                    return false;
+                }
+                return false;
             }
-            return true;
-        }
-        if (!add_power_to_player(book_thing_to_power_kind(thing), room->owner))
-        {
-            thing->owner = game.neutral_player_num;
-            return true;
+            if (!add_power_to_player(book_thing_to_power_kind(thing), room->owner))
+            {
+                thing->owner = game.neutral_player_num;
+                return false;
+            }
+            else
+            {
+                thing->owner = room->owner;
+                return true;
+            }
         }
         thing->owner = room->owner;
-        return true;
+        return false;
     }
     if (thing_is_workshop_crate(thing))
     {
@@ -519,4 +574,22 @@ EventIndex update_cannot_find_room_wth_spare_capacity_event(PlayerNumber plyr_id
     }
     return evidx;
 }
+
+void query_room(struct Room *room)
+{
+    const char title[26];
+    const char* name = room_code_name(room->kind);
+    const char owner[26]; 
+    const char health[26];
+    const char capacity[26];
+    const char efficiency[26] = "\0";
+    sprintf((char*)title, "Room ID: %d", room->index);
+    sprintf((char*)owner, "Owner: %d", room->owner);
+    sprintf((char*)health, "Health: %d", room->health);
+    sprintf((char*)capacity, "Capacity: %d/%d", room->used_capacity, room->total_capacity);
+    float room_efficiency_percent = ((float)room->efficiency / (float)ROOM_EFFICIENCY_MAX) * 100;
+    sprintf((char*)efficiency, "Efficiency: %d", (unsigned char)round(room_efficiency_percent));
+    create_message_box((const char*)&title, name, (const char*)&owner, (const char*)&health, (const char*)&capacity, (const char*)&efficiency);    
+}
+
 /******************************************************************************/

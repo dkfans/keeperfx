@@ -779,10 +779,8 @@ int small_scroll_box_get_units_per_px(struct GuiButton *gbtn)
 {
     struct TbSprite *spr;
     int width;
-    int spridx;
     width = 0;
-    spridx = 40;
-    spr = &frontend_sprite[spridx];
+    spr = &frontend_sprite[40];
     width += spr->SWidth;
     spr++;
     width += spr->SWidth;

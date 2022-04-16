@@ -24,8 +24,11 @@
 #include "bflib_keybrd.h"
 #include "bflib_mouse.h"
 #include "bflib_video.h"
-#include "bflib_vidsurface.h"
 #include "bflib_planar.h"
+#include "bflib_mshandler.hpp"
+#include "config.h"
+#include "sounds.h"
+#include "game_legacy.h" // needed for paused and possession_mode below - maybe there is a neater way than this...
 #include <SDL2/SDL.h>
 
 using namespace std;
@@ -44,8 +47,9 @@ volatile int lbUserQuit = 0;
 static int prevMouseX = 0, prevMouseY = 0;
 static TbBool isMouseActive = true;
 static TbBool isMouseActivated = false;
+static TbBool firstTimeMouseInit = true;
 
-std::map<int, TbKeyCode> *keymap_sdl_to_bf = NULL;
+std::map<int, TbKeyCode> keymap_sdl_to_bf;
 
 /******************************************************************************/
 /**
@@ -54,6 +58,8 @@ std::map<int, TbKeyCode> *keymap_sdl_to_bf = NULL;
  * @param button SDL button definition.
  * @return
  */
+ 
+
 static unsigned int mouse_button_actions_mapping(int eventType, const SDL_MouseButtonEvent * button)
 {
     if (eventType == SDL_MOUSEBUTTONDOWN) {
@@ -76,147 +82,142 @@ static unsigned int mouse_button_actions_mapping(int eventType, const SDL_MouseB
 
 void done_inputcontrol(void)
 {
-    delete keymap_sdl_to_bf;
-    keymap_sdl_to_bf = NULL;
 }
 
 void init_inputcontrol(void)
 {
     SDL_GetMouseState(&prevMouseX, &prevMouseY);
 
-    delete keymap_sdl_to_bf;
-    keymap_sdl_to_bf = new std::map<int, TbKeyCode>;
-
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_a, KC_A));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_b, KC_B));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_c, KC_C));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_d, KC_D));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_e, KC_E));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_f, KC_F));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_g, KC_G));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_h, KC_H));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_i, KC_I));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_j, KC_J));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_k, KC_K));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_l, KC_L));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_m, KC_M));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_n, KC_N));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_o, KC_O));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_p, KC_P));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_q, KC_Q));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_r, KC_R));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_s, KC_S));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_t, KC_T));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_u, KC_U));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_v, KC_V));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_w, KC_W));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_x, KC_X));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_y, KC_Y));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_z, KC_Z));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_F1, KC_F1));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_F2, KC_F2));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_F3, KC_F3));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_F4, KC_F4));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_F5, KC_F5));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_F6, KC_F6));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_F7, KC_F7));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_F8, KC_F8));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_F9, KC_F9));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_F10, KC_F10));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_F11, KC_F11));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_F12, KC_F12));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_F13, KC_F13));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_F14, KC_F14));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_F15, KC_F15));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_BACKSPACE, KC_BACK));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_TAB, KC_TAB));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_CLEAR, KC_UNASSIGNED));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_RETURN, KC_RETURN));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_PAUSE, KC_PAUSE));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_ESCAPE, KC_ESCAPE));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_SPACE, KC_SPACE));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_EXCLAIM, KC_UNASSIGNED));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_QUOTEDBL, KC_UNASSIGNED));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_HASH, KC_UNASSIGNED));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_DOLLAR, KC_UNASSIGNED));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_AMPERSAND, KC_UNASSIGNED));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_QUOTE, KC_APOSTROPHE));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_LEFTPAREN, KC_UNASSIGNED));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_RIGHTPAREN, KC_UNASSIGNED));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_ASTERISK, KC_UNASSIGNED));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_PLUS, KC_UNASSIGNED));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_COMMA, KC_COMMA));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_MINUS, KC_MINUS));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_PERIOD, KC_PERIOD));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_SLASH, KC_SLASH));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_0, KC_0));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_1, KC_1));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_2, KC_2));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_3, KC_3));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_4, KC_4));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_5, KC_5));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_6, KC_6));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_7, KC_7));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_8, KC_8));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_9, KC_9));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_COLON, KC_COLON));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_SEMICOLON, KC_SEMICOLON));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_LESS, KC_UNASSIGNED));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_EQUALS, KC_EQUALS));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_GREATER, KC_UNASSIGNED));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_QUESTION, KC_UNASSIGNED));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_AT, KC_AT));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_LEFTBRACKET, KC_LBRACKET));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_BACKSLASH, KC_BACKSLASH));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_RIGHTBRACKET, KC_RBRACKET));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_CARET, KC_UNASSIGNED));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_UNDERSCORE, KC_UNDERLINE));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_BACKQUOTE, KC_GRAVE));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_DELETE, KC_DELETE));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_KP_0, KC_NUMPAD0));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_KP_1, KC_NUMPAD1));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_KP_2, KC_NUMPAD2));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_KP_3, KC_NUMPAD3));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_KP_4, KC_NUMPAD4));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_KP_5, KC_NUMPAD5));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_KP_6, KC_NUMPAD6));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_KP_7, KC_NUMPAD7));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_KP_8, KC_NUMPAD8));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_KP_9, KC_NUMPAD9));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_KP_PERIOD, KC_DECIMAL));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_KP_DIVIDE, KC_DIVIDE));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_KP_MULTIPLY, KC_MULTIPLY));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_KP_MINUS, KC_SUBTRACT));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_KP_PLUS, KC_ADD));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_KP_ENTER, KC_NUMPADENTER));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_KP_EQUALS, KC_NUMPADEQUALS));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_UP, KC_UP));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_DOWN, KC_DOWN));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_RIGHT, KC_RIGHT));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_LEFT, KC_LEFT));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_INSERT, KC_INSERT));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_HOME, KC_HOME));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_END, KC_END));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_PAGEUP, KC_PGUP));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_PAGEDOWN, KC_PGDOWN));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_NUMLOCKCLEAR, KC_NUMLOCK));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_CAPSLOCK, KC_CAPITAL));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_SCROLLLOCK, KC_SCROLL));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_RSHIFT, KC_RSHIFT));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_LSHIFT, KC_LSHIFT));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_RCTRL, KC_RCONTROL));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_LCTRL, KC_LCONTROL));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_RALT, KC_RALT));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_LALT, KC_LALT));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_LGUI, KC_LWIN));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_RGUI, KC_RWIN));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_MODE, KC_UNASSIGNED));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_HELP, KC_UNASSIGNED));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_PRINTSCREEN, KC_UNASSIGNED));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_SYSREQ, KC_SYSRQ));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_MENU, KC_APPS));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_POWER, KC_POWER));
-    keymap_sdl_to_bf->insert(pair<int, TbKeyCode>(SDLK_UNDO, KC_UNASSIGNED));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_a, KC_A));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_b, KC_B));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_c, KC_C));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_d, KC_D));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_e, KC_E));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_f, KC_F));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_g, KC_G));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_h, KC_H));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_i, KC_I));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_j, KC_J));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_k, KC_K));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_l, KC_L));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_m, KC_M));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_n, KC_N));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_o, KC_O));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_p, KC_P));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_q, KC_Q));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_r, KC_R));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_s, KC_S));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_t, KC_T));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_u, KC_U));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_v, KC_V));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_w, KC_W));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_x, KC_X));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_y, KC_Y));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_z, KC_Z));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_F1, KC_F1));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_F2, KC_F2));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_F3, KC_F3));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_F4, KC_F4));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_F5, KC_F5));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_F6, KC_F6));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_F7, KC_F7));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_F8, KC_F8));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_F9, KC_F9));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_F10, KC_F10));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_F11, KC_F11));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_F12, KC_F12));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_F13, KC_F13));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_F14, KC_F14));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_F15, KC_F15));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_BACKSPACE, KC_BACK));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_TAB, KC_TAB));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_CLEAR, KC_UNASSIGNED));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_RETURN, KC_RETURN));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_PAUSE, KC_PAUSE));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_ESCAPE, KC_ESCAPE));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_SPACE, KC_SPACE));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_EXCLAIM, KC_UNASSIGNED));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_QUOTEDBL, KC_UNASSIGNED));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_HASH, KC_UNASSIGNED));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_DOLLAR, KC_UNASSIGNED));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_AMPERSAND, KC_UNASSIGNED));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_QUOTE, KC_APOSTROPHE));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_LEFTPAREN, KC_UNASSIGNED));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_RIGHTPAREN, KC_UNASSIGNED));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_ASTERISK, KC_UNASSIGNED));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_PLUS, KC_UNASSIGNED));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_COMMA, KC_COMMA));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_MINUS, KC_MINUS));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_PERIOD, KC_PERIOD));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_SLASH, KC_SLASH));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_0, KC_0));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_1, KC_1));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_2, KC_2));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_3, KC_3));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_4, KC_4));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_5, KC_5));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_6, KC_6));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_7, KC_7));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_8, KC_8));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_9, KC_9));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_COLON, KC_COLON));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_SEMICOLON, KC_SEMICOLON));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_LESS, KC_UNASSIGNED));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_EQUALS, KC_EQUALS));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_GREATER, KC_UNASSIGNED));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_QUESTION, KC_UNASSIGNED));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_AT, KC_AT));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_LEFTBRACKET, KC_LBRACKET));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_BACKSLASH, KC_BACKSLASH));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_RIGHTBRACKET, KC_RBRACKET));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_CARET, KC_UNASSIGNED));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_UNDERSCORE, KC_UNDERLINE));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_BACKQUOTE, KC_GRAVE));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_DELETE, KC_DELETE));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_KP_0, KC_NUMPAD0));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_KP_1, KC_NUMPAD1));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_KP_2, KC_NUMPAD2));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_KP_3, KC_NUMPAD3));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_KP_4, KC_NUMPAD4));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_KP_5, KC_NUMPAD5));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_KP_6, KC_NUMPAD6));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_KP_7, KC_NUMPAD7));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_KP_8, KC_NUMPAD8));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_KP_9, KC_NUMPAD9));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_KP_PERIOD, KC_DECIMAL));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_KP_DIVIDE, KC_DIVIDE));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_KP_MULTIPLY, KC_MULTIPLY));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_KP_MINUS, KC_SUBTRACT));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_KP_PLUS, KC_ADD));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_KP_ENTER, KC_NUMPADENTER));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_KP_EQUALS, KC_NUMPADEQUALS));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_UP, KC_UP));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_DOWN, KC_DOWN));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_RIGHT, KC_RIGHT));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_LEFT, KC_LEFT));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_INSERT, KC_INSERT));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_HOME, KC_HOME));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_END, KC_END));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_PAGEUP, KC_PGUP));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_PAGEDOWN, KC_PGDOWN));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_NUMLOCKCLEAR, KC_NUMLOCK));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_CAPSLOCK, KC_CAPITAL));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_SCROLLLOCK, KC_SCROLL));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_RSHIFT, KC_RSHIFT));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_LSHIFT, KC_LSHIFT));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_RCTRL, KC_RCONTROL));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_LCTRL, KC_LCONTROL));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_RALT, KC_RALT));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_LALT, KC_LALT));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_LGUI, KC_LWIN));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_RGUI, KC_RWIN));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_MODE, KC_UNASSIGNED));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_HELP, KC_UNASSIGNED));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_PRINTSCREEN, KC_UNASSIGNED));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_SYSREQ, KC_SYSRQ));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_MENU, KC_APPS));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_POWER, KC_POWER));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_UNDO, KC_UNASSIGNED));
 }
 
 static unsigned int keyboard_keys_mapping(const SDL_KeyboardEvent * key)
@@ -268,6 +269,11 @@ static TbKeyMods keyboard_mods_mapping(const SDL_KeyboardEvent * key)
     return keymod;
 }
 
+TbBool LbIsFrozenOrPaused(void)
+{
+    return ((freeze_game_on_focus_lost() && !LbIsActive()) || ((game.operation_flags & GOF_Paused) != 0));
+}
+
 static void process_event(const SDL_Event *ev)
 {
     struct TbPoint mouseDelta;
@@ -310,7 +316,12 @@ static void process_event(const SDL_Event *ev)
         break;
 
     case SDL_MOUSEMOTION:
-        if (lbMouseGrab && lbDisplay.MouseMoveRatio > 0)
+        if (!isMouseActive)
+        {
+          SDL_GetMouseState(&prevMouseX, &prevMouseY);
+          return;
+        }
+        if (lbMouseGrabbed && lbDisplay.MouseMoveRatio > 0)
         {
             mouseDelta.x = ev->motion.xrel * lbDisplay.MouseMoveRatio / 256;
             mouseDelta.y = ev->motion.yrel * lbDisplay.MouseMoveRatio / 256;
@@ -319,12 +330,23 @@ static void process_event(const SDL_Event *ev)
         {
             mouseDelta.x = ev->motion.xrel;
             mouseDelta.y = ev->motion.yrel;
+            if (isMouseActivated)
+            {
+                isMouseActivated = 0;
+                pointerHandler.SetPosition(ev->motion.x + lbDisplay.MouseWindowY, ev->motion.y + lbDisplay.MouseWindowY);
+                mouseDelta.x = 0;
+                mouseDelta.y = 0;
+            }
         }
         mouseControl(MActn_MOUSEMOVE, &mouseDelta);
         break;
 
     case SDL_MOUSEBUTTONDOWN:
     case SDL_MOUSEBUTTONUP:
+        if (!isMouseActive)
+        {
+          return;
+        }
         mouseDelta.x = 0;
         mouseDelta.y = 0;
         mouseControl(mouse_button_actions_mapping(ev->type, &ev->button), &mouseDelta);
@@ -337,14 +359,49 @@ static void process_event(const SDL_Event *ev)
         break;
 
     case SDL_WINDOWEVENT:
-        if (ev->window.event == SDL_WINDOWEVENT_FOCUS_GAINED) {
+        if (ev->window.event == SDL_WINDOWEVENT_FOCUS_GAINED)
+        {
             lbAppActive = true;
+            isMouseActive = true;
+            isMouseActivated = true;
+            LbGrabMouseCheck(MG_OnFocusGained);
+            if (freeze_game_on_focus_lost() && !LbIsFrozenOrPaused())
+            {
+                pause_music(false);
+            }
+            if (mute_audio_on_focus_lost() && !LbIsFrozenOrPaused())
+            {
+                mute_audio(false);
+            }
         }
-        if (ev->window.event == SDL_WINDOWEVENT_FOCUS_LOST) {
+        else if (ev->window.event == SDL_WINDOWEVENT_FOCUS_LOST)
+        {
             lbAppActive = false;
+            isMouseActive = false;
+            isMouseActivated = false;
+            LbGrabMouseCheck(MG_OnFocusLost);
+            if (freeze_game_on_focus_lost())
+            {
+                pause_music(true);
+            }
+            if (mute_audio_on_focus_lost())
+            {
+                mute_audio(true);
+            }
+        }
+        else if (ev->window.event == SDL_WINDOWEVENT_ENTER)
+        {
+            if (lbAppActive)
+            {
+                isMouseActive = true;
+                isMouseActivated = true;
+            }
+        }
+        else if (ev->window.event == SDL_WINDOWEVENT_LEAVE)
+        {
+            isMouseActive = false;
         }
         break;
-
     case SDL_JOYAXISMOTION:
     case SDL_JOYBALLMOTION:
     case SDL_JOYHATMOTION:
@@ -381,6 +438,145 @@ TbBool LbIsActive(void)
 
     return lbAppActive;
 }
+
+TbBool LbIsMouseActive(void)
+{
+    return isMouseActive;
+}
+
+void LbMouseCheckPosition(TbBool grab_state_changed)
+{
+    if (!lbAppActive)
+    {
+        if (IsMouseInsideWindow())
+        {
+            LbMoveHostCursorToGameCursor(); // release host mouse
+        }
+    }
+    else // app has focus
+    {
+        if (lbMouseGrabbed)
+        {
+            if (grab_state_changed || firstTimeMouseInit) // if start grab, move cursor appropriately
+            {
+                firstTimeMouseInit = false;
+                if (IsMouseInsideWindow())
+                {
+                    LbMoveGameCursorToHostCursor();
+                }
+                else
+                {
+                    LbMouseSetPosition(lbDisplay.PhysicalScreenWidth/2, lbDisplay.PhysicalScreenHeight/2);
+                }
+            }
+        }
+        else
+        {
+            if (firstTimeMouseInit) // if start no-grab, move cursor appropriately
+            {
+                firstTimeMouseInit = false;
+                if (IsMouseInsideWindow() && lbAppActive)
+                {
+                    LbMoveGameCursorToHostCursor();
+                }
+            }
+            else if (grab_state_changed) // if release grab, move cursor appropriately
+            {
+                if (IsMouseInsideWindow() && lbAppActive)
+                {
+                    LbMoveHostCursorToGameCursor();
+                }
+            }
+        }
+    }
+}
+
+void LbSetMouseGrab(TbBool grab_mouse)
+{
+    TbBool previousGrabState = lbMouseGrabbed;
+    lbMouseGrabbed = grab_mouse;
+    if (lbMouseGrabbed)
+    {
+        LbMouseCheckPosition((previousGrabState != lbMouseGrabbed));
+        SDL_SetRelativeMouseMode(SDL_TRUE);
+    }
+    else
+    {
+        SDL_SetRelativeMouseMode(SDL_FALSE);
+        LbMouseCheckPosition((previousGrabState != lbMouseGrabbed));
+    }
+    SDL_ShowCursor((lbAppActive ? SDL_DISABLE : SDL_ENABLE)); // show host OS cursor when window has lost focus
+}
+
+void LbGrabMouseInit(void)
+{
+    LbGrabMouseCheck(MG_InitMouse);
+}
+
+void LbGrabMouseCheck(long grab_event)
+{
+    TbBool window_has_focus = lbAppActive;
+    TbBool paused = ((game.operation_flags & GOF_Paused) != 0);
+    TbBool possession_mode = (get_my_player()->view_type == PVT_CreatureContrl) && ((game.numfield_D & GNFldD_CreaturePasngr) == 0);
+    TbBool grab_cursor = lbMouseGrabbed;
+    if (!window_has_focus)
+    {
+        grab_cursor = false;
+    }
+    else
+    {
+        if (!game.packet_load_enable)
+        {
+            switch (grab_event)
+            {
+            case MG_OnPauseEnter:
+                if (unlock_cursor_when_game_paused() && lbMouseGrabbed)
+                {
+                    grab_cursor = false;
+                }
+                break;
+            case MG_OnPauseLeave:
+                if ((unlock_cursor_when_game_paused() && lbMouseGrab) || (!lbMouseGrab && lock_cursor_in_possession() && possession_mode && unlock_cursor_when_game_paused()))
+                {
+                    grab_cursor = true;
+                }
+                break;
+            case MG_OnPossessionEnter:
+                if (lock_cursor_in_possession() && !lbMouseGrabbed)
+                {
+                    grab_cursor = true;
+                }
+                break;
+            case MG_OnPossessionLeave:
+                if (lock_cursor_in_possession() && !lbMouseGrab)
+                {
+                    grab_cursor = false;
+                }
+                break;
+            case MG_OnFocusGained:
+            case MG_InitMouse:
+                grab_cursor = lbMouseGrab;
+                if (paused && unlock_cursor_when_game_paused())
+                {
+                    grab_cursor = false;
+                }
+                if (!paused && possession_mode && lock_cursor_in_possession() && !lbMouseGrab)
+                {
+                    grab_cursor = true;
+                }
+                break;
+            default:
+                break;
+            }
+        }
+        else
+        {
+            grab_cursor = lbMouseGrab; // keep the default grab state if the player is viewing a saved packet
+        }
+    }
+    LbSetMouseGrab(grab_cursor);
+}
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

@@ -1,0 +1,2505 @@
+# *****************************************************************************
+#  Free implementation of Bullfrog's Dungeon Keeper strategy game.
+# *****************************************************************************
+#   @file questfth/text_eng.pot
+#      KeeperFX Campaign Strings translation template
+#  @par Purpose:
+#      Allows to create .po files used for translating the game.
+#      Also, acts as a source of english translation strings.
+#  @par Comment:
+#      Use this file to create or update source strings in translations.
+#  @author   KeeperFX Team
+#  @date     25 Aug 2012 - 02 Oct 2012
+#  @par  Copying and copyrights:
+#      This program is free software; you can redistribute it and/or modify
+#      it under the terms of the GNU General Public License as published by
+#      the Free Software Foundation; either version 2 of the License, or
+#      (at your option) any later version.
+#
+# *****************************************************************************
+msgid ""
+msgstr ""
+"Project-Id-Version: Quest for the Hero campaign for KeeperFX\n"
+"Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
+"POT-Creation-Date: 2012-09-02 01:12+0200\n"
+"PO-Revision-Date: 2013-11-13 19:19+0100\n"
+"Last-Translator: Tomasz Lis <listom@gmail.com>\n"
+"Language-Team: KeeperFX Team <code.google.com>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.5.7\n"
+
+#. Generic victory message
+#: guitext:0
+msgctxt "In-game message"
+msgid "Success! The land is yours. Press Space to proceed to the next realm."
+msgstr ""
+
+#: guitext:1
+msgctxt "In-game message"
+msgid ""
+"This realm used to be one of wealth and peace. Now it is torn and lost in "
+"chaos ever since Metilians have been sighted, lured in by the gold. Keep a "
+"watchful eye on your ally, and whipe out any Metilians you encounter."
+msgstr ""
+
+#: guitext:2
+msgctxt "In-game message"
+msgid "Watch it keeper, your presence has not gone unnoticed..."
+msgstr ""
+
+#: guitext:3
+msgctxt "In-game message"
+msgid ""
+"You might have noticed by now, your minions happen to be fast and cheap at "
+"training. As a result, they do terrible at research."
+msgstr ""
+
+#: guitext:4
+msgctxt "In-game message"
+msgid ""
+"Your troops may be cheap and fast, they require a lot of food. Keep this in "
+"mind Keeper, make sure your Hatchery is large enough."
+msgstr ""
+
+#: guitext:5
+msgctxt "In-game message"
+msgid ""
+"It seems the perfection of the Gror has arrived, a Horned Reaper. These "
+"creatures are by far your most powerful troops, but they won't work for free."
+msgstr ""
+
+#: guitext:6
+msgctxt "In-game message"
+msgid ""
+"A Dark Mistress has found her way into your tribe. These pain loving "
+"creatures offer the only ranged magic support to your troops, and like "
+"Horned Reapers, they require payment."
+msgstr ""
+
+#: guitext:7
+msgctxt "In-game message"
+msgid ""
+"A splendid performance, great one. No time to celebrate though, you are far "
+"from finished. There are still Metilians in the region, feeding off on the "
+"gold. Find and slay them!"
+msgstr ""
+
+#: guitext:8
+msgctxt "In-game message"
+msgid ""
+"Flies could be considered your personal airforce, capable of sighting and "
+"attacking enemies from a long distance range. Although not your strongest "
+"units, they gain experience the fastest, and are well worth their training."
+msgstr ""
+
+#: guitext:9
+msgctxt "In-game message"
+msgid ""
+"A dark, clammy maze. The Dark Gods are putting you to the test, great one. "
+"Find yourself a way out of this, but beware. Who knows what could lurk deep "
+"inside these mysterious hallways..."
+msgstr ""
+
+#: guitext:10
+msgctxt "In-game message"
+msgid ""
+"Hmmmm yes... Welcome to the heart of the Metilian section of the underworld, "
+"Keeper. The spawning section to be exact, this is where Metilians proof "
+"their strength, where only the strongest survive and manage to venture into "
+"higher realms. Proof your skills and your worth to lead these creatures, "
+"Keeper. The Dark Gods have special plans for you..."
+msgstr ""
+
+#: guitext:11
+msgctxt "In-game message"
+msgid ""
+"Beware! A particular nasty group of Metilians have crawlen into your region. "
+"Defeating them though might be enough to proof your worth to the dark "
+"gods... Make them feel it!"
+msgstr ""
+
+#: guitext:12
+msgctxt "In-game message"
+msgid ""
+"A powerfull Kingdom above ground has begun the construction of a Tower, "
+"greater than any before. This Stronghold is supposed to give local Heroes "
+"above ground control over lands at a strategic location. Allied dark forces "
+"above ground are unable to do anything against this, held at bay by most "
+"powerfull Hero troops. Displeased as the Dark Gods were, the decision was "
+"made to deal with this threat underground. This humongous construct supports "
+"on three fundaments, one of which is located in this realm. There is no time "
+"to lose. With the lava river dried up, heroes have the upperhand in this "
+"realm as well. Your mission is simple, try and find yourself a way "
+"northward, before heroes find out about your presence, and destroy you."
+msgstr ""
+
+#: guitext:13
+msgctxt "In-game message"
+msgid ""
+"Marvelous! When the dam breached, the heated lava quickly reclaimed its "
+"original path, and is now slowly melting away the weak walls surrounding the "
+"Tower's fundament. The heroes are trapped and scattered, this is your chance "
+"to find and destroy the enemy heart!"
+msgstr ""
+
+#: guitext:14
+msgctxt "In-game message"
+msgid ""
+"While passing through, it might be useful to enter and explore the Metilian "
+"caverns. WHo knows what you can find?..."
+msgstr ""
+
+#: guitext:15
+msgctxt "In-game message"
+msgid "Alas Keeper, of your old dungeon remains nothing more but ruins..."
+msgstr ""
+
+#: guitext:16
+msgctxt "In-game message"
+msgid ""
+"Ahhh, the enemy heart... Destroying it will definately call for the lord of "
+"this realm's intervention. Attack it now!"
+msgstr ""
+
+#: guitext:17
+msgctxt "In-game message"
+msgid ""
+"Make haste, Keeper. You wouldn't want to give these heroes the opportunity "
+"to assemble too much reinforcements, would you?"
+msgstr ""
+
+#: guitext:18
+msgctxt "In-game message"
+msgid ""
+"You are taking too long, evil one. Hero forces are assembling and preparing "
+"an assault. The longer you take, the more difficult it will be to stop them "
+"once they arrive."
+msgstr ""
+
+#: guitext:19
+msgctxt "In-game message"
+msgid ""
+"Rivalling Metilian nests nearby have watched you deal with the opposing "
+"heroes, and now that the Tower's fundament is crumbling and melting away, "
+"they make their move, intending on gaining control of the region to claim "
+"the victory as theirs. This insolence can not be tolerated! You know what to "
+"do."
+msgstr ""
+
+#: guitext:20
+msgctxt "In-game message"
+msgid ""
+"Even though their stronghold already lies in ruins and the situation is "
+"hopeless, Heroes still try to gain a foothold to possibly regain and "
+"reestablish the region, as well to rebuild the fundament. This should be "
+"nothing more but a minor pest to you though, their desperation is clear."
+msgstr ""
+
+#: guitext:21
+msgctxt "In-game message"
+msgid ""
+"Make sure to explore any cavern you find Keeper, Metilians lurk everywhere."
+msgstr ""
+
+#: guitext:22
+msgctxt "In-game message"
+msgid ""
+"Marvelous! None would dare to question your might now, oh great one!... "
+"Although..."
+msgstr ""
+
+#: guitext:23
+msgctxt "In-game message"
+msgid ""
+"Blasted heroes have managed to capture an allied band of Metilians, which "
+"are held prisoner. A full scale assault would only alert them, and that's "
+"not something we'd want... Infiltrate the region as quiet as possible, "
+"Keeper, and find a way to break the dam. This won't be easy. Note that it "
+"would only be a matter of time untill your Dungeon is discovered, and heroes "
+"will come to destroy it. Make haste!"
+msgstr ""
+
+#: guitext:24
+msgctxt "In-game message"
+msgid ""
+"A legendary hero resides in this region, rumoured to be so powerfull, he "
+"forms even a threat to the Dark gods! You have proven your worth so far, but "
+"this will be a challenge unlike any before. Good luck, evil one. It has been "
+"a pleasure working with you..."
+msgstr ""
+
+#: guitext:25
+msgctxt "In-game message"
+msgid ""
+"Hero forces are already assembling and grouping. Strike fast and hard, this "
+"legendary Hero will be a pest on his own, and you can't afford having Heroes "
+"group to aid him."
+msgstr ""
+
+#: guitext:26
+msgctxt "In-game message"
+msgid "Hurry, Keeper. I smell heroes gathering..."
+msgstr ""
+
+#: guitext:27
+msgctxt "In-game message"
+msgid "You are taking too long!"
+msgstr ""
+
+#: guitext:28
+msgctxt "In-game message"
+msgid ""
+"More and more heroes gather Keeper, this isn't good. It is likely their "
+"forces will be too numerous to handle."
+msgstr ""
+
+#: guitext:29
+msgctxt "In-game message"
+msgid ""
+"Too late, Keeper! The heroes have taken it upon themselves to launch a full-"
+"scale assault now that enough forces have gathered. Let us hope you know "
+"what you are doing."
+msgstr ""
+
+#: guitext:30
+msgctxt "In-game message"
+msgid ""
+"Passing onto holy ground doesn't seem like something this Hero is prepared "
+"to tolerate, good! His party has arrived, and he is furious. Good luck, oh "
+"great one."
+msgstr ""
+
+#: guitext:31
+msgctxt "In-game message"
+msgid "You are indeed, a Master Keeper."
+msgstr ""
+
+#: guitext:32
+msgctxt "In-game message"
+msgid ""
+"Beetles are by far your weakest troops. Especially at the lower levels they "
+"proof their worth though, and their fast speed make them ideal imp "
+"interceptors."
+msgstr ""
+
+#: guitext:33
+msgctxt "In-game message"
+msgid ""
+"Spiders are powerfull and usefull back-up units for Metilians, capable of "
+"stunning enemies and rendering them vulnerable targets for other Metilians."
+msgstr ""
+
+#: guitext:34
+msgctxt "In-game message"
+msgid ""
+"Along with Hellhounds, Dragons are the backbone of Metilian armies. This "
+"lethal creature, although not the toughest of the lot, possesses good speed, "
+"and is capable of firing powerfull blasts of fire at enemies at long range, "
+"dealing unmatched damage in a single shot."
+msgstr ""
+
+#: guitext:35
+msgctxt "In-game message"
+msgid ""
+"Hellhounds are along with Dragons the backbone of Metilian armies. Although "
+"like the beetle not capable of dealing powerfull damage, they can withstand "
+"a good amount of blows, train fast, and are most effective at keeping "
+"enemies at range from Dragons."
+msgstr ""
+
+#: guitext:36
+msgctxt "In-game message"
+msgid ""
+"Demonspawns are mystical, above average creatures who learn a good arsenal "
+"of spells, and form a perfect support unit for your spiders."
+msgstr ""
+
+#: guitext:37
+msgctxt "In-game message"
+msgid ""
+"A warlock has entered your dungeon, most likely unwillingly. Warlocks are "
+"slaves for Metilians, forced to do their research since none of the "
+"Metilians can do any research themselves. It is only a matter of time before "
+"these monsters grow fed up with a Warlock's attitude, and kill them. On top "
+"of it all, there's no food available for these sorcerors."
+msgstr ""
+
+#: guitext:38
+msgctxt "In-game message"
+msgid ""
+"Supremacy has entered your dungeon, finally. Bile Demons really lift "
+"Metilians as a group far above average. Although agonizingly slow, these "
+"heavy, large beasts can both dish out and take damage with eaze, and their "
+"lightning attacks add to the already harsh ranged punch Metilians can dish "
+"out. This comes at a price though, these monsters require a LOT of gold..."
+msgstr ""
+
+#: guitext:39
+msgctxt "In-game message"
+msgid ""
+"The first wave of attackers lie hacked to pieces on the floor and give your "
+"domain that lived in feeling but it surely won't be long before their kin "
+"launch another assault."
+msgstr ""
+
+#: guitext:40
+msgctxt "In-game message"
+msgid ""
+"You meet with success yet again, Keeper. All those corpses will keep your "
+"Hatchery's topsoil fertile. They also serve as warnings to other foolhardy "
+"adventurers, of course."
+msgstr ""
+
+#: guitext:41
+msgctxt "In-game message"
+msgid ""
+"All is quiet again. Use this time to ready yourself for the next attacks. "
+"The enemy is only regrouping. It is not yet defeated."
+msgstr ""
+
+#: guitext:42
+msgctxt "In-game message"
+msgid ""
+"Is that Imp playing football with a decapitated head? Stay alert, Keeper."
+msgstr ""
+
+#: guitext:43
+msgctxt "In-game message"
+msgid "Now would be an excellent time to train a Warlock."
+msgstr ""
+
+#: guitext:44
+msgctxt "In-game message"
+msgid ""
+"Already your research bears fruit. The Speed Creature spell has been "
+"perfected. Cast it on a creature and observe the dramatic increase in its "
+"speed. The effect wears off after a while."
+msgstr ""
+
+#: guitext:45
+msgctxt "In-game message"
+msgid ""
+"Build up your dungeon with the rooms available to you and claim the Portal "
+"nearby but do not yet venture north. Powerful adversaries lurk there. It "
+"would be wiser not to disturb them until you are prepared."
+msgstr ""
+
+#: guitext:46
+msgctxt "In-game message"
+msgid ""
+"Clever research has given your Imps the engineering skill to build Bridges. "
+"You will need Bridges to cross some of the more hazardous underworld terrain."
+msgstr ""
+
+#: guitext:47
+msgctxt "In-game message"
+msgid ""
+"A study of dungeon designs reveals that Workshops manufacture essential "
+"furniture, such as Doors and Traps. If your Workshop occupies a square of at "
+"least nine tiles, its mere presence will lure the underworld's finest "
+"artisans into your dungeon."
+msgstr ""
+
+#: guitext:48
+msgctxt "In-game message"
+msgid ""
+"To manufacture Traps and Doors in your Workshop you will need to assign "
+"creatures to it, by dropping them into the room. Manufactured items can be "
+"selected from the Workshop Panel as soon as they're ready."
+msgstr ""
+
+#: guitext:49
+msgctxt "In-game message"
+msgid ""
+"When your troops are sufficient in number and have had some training, lead "
+"them north and crush any who oppose you."
+msgstr ""
+
+#: guitext:50
+msgctxt "In-game message"
+msgid ""
+"You will have to find a way to cross the river of molten lava that bars your "
+"way."
+msgstr ""
+
+#: guitext:51
+msgctxt "In-game message"
+msgid ""
+"The enemy's Dungeon Heart throbs before you. Assemble your minions nearby "
+"and administer the coup de grace."
+msgstr ""
+
+#: guitext:52
+msgctxt "In-game message"
+msgid ""
+"A Troll has joined you. Skilled in the craft of manufacturing, trolls are "
+"best employed doing dark deeds in your Workshop. They don't complain about "
+"the hours, because their labours keep them away from combat."
+msgstr ""
+
+#: guitext:53
+msgctxt "In-game message"
+msgid ""
+"With the enemy Dungeon Heart in ruins, you have trounced the once proud "
+"opposition. Rule your new domain with terror and loathing, for a laugh."
+msgstr ""
+
+#: guitext:54
+msgctxt "In-game message"
+msgid ""
+"Your Workshop has created a Wooden Door. Placed in a corridor, it restricts "
+"access to the enemy. Your creatures may pass freely. Lock or unlock Doors by "
+"clicking over them with the left mouse button."
+msgstr ""
+
+#: guitext:55
+msgctxt "In-game message"
+msgid ""
+"Your Workshop has produced a Poison Gas trap. Position it and, when an "
+"intruder sets it off, it will envelop the area in deadly vapours."
+msgstr ""
+
+#: guitext:56
+msgctxt "In-game message"
+msgid ""
+"You have researched the Call to Arms spell. The first time you cast it, your "
+"creatures gather around a banner created by the spell. Cast it again in a "
+"target area. Call to Arms only costs gold when it's targetted beyond your "
+"territory."
+msgstr ""
+
+#: guitext:57
+msgctxt "In-game message"
+msgid ""
+"Another Keeper controls this underworld realm. His dungeon lies to the "
+"north. If you are to entice creatures to work for you instead of him, you "
+"will have to build a more magnificent dungeon. Get on with it then."
+msgstr ""
+
+#: guitext:58
+msgctxt "In-game message"
+msgid ""
+"You have slain your rival. His defeat is a testimony to your clever dungeon "
+"design. You have the makings of a Dungeon Keeper worthy of the name."
+msgstr ""
+
+#: guitext:59
+msgctxt "In-game message"
+msgid ""
+"A Bile Demon chooses to side with you. Bile Demons demand large Lairs and "
+"ample Hatcheries. These corpulent monstrosities attack somewhat "
+"unconventionally."
+msgstr ""
+
+#: guitext:60
+msgctxt "In-game message"
+msgid ""
+"Your loyal researchers have perfected the Sight of Evil spell. Cast it on an "
+"unexplored area and it will be revealed to you for a moment."
+msgstr ""
+
+#: guitext:61
+msgctxt "In-game message"
+msgid ""
+"You have claimed a Prison. Select imprison from the Information Panel and "
+"your creatures subdue their foe, at which point your imps drag the bodies "
+"off to a cell. Prisoners who die of starvation may rise again as Skeleton "
+"warriors for you to command."
+msgstr ""
+
+#: guitext:62
+msgctxt "In-game message"
+msgid ""
+"Your dedicated librarians have designed a Guard Post. Place a Guard Post in "
+"a strategically important area and assign creatures to occupy it by dropping "
+"them there."
+msgstr ""
+
+#: guitext:63
+msgctxt "In-game message"
+msgid ""
+"A Spider has joined your dungeon. They are natural enemies of Flies, so "
+"endeavour to keep them apart. Overcoming such obstacles will temper your "
+"mettle - whatever that means."
+msgstr ""
+
+#: guitext:64
+msgctxt "In-game message"
+msgid ""
+"It's time to mete out the ultimate punishment to a keeper who dares to "
+"challenge you for this corner of your subterranean empire. The price of "
+"failure shall be oblivion."
+msgstr ""
+
+#: guitext:65
+msgctxt "In-game message"
+msgid ""
+"How satisfying it is to see an enemy Keeper's dungeon crumble and his power "
+"dissipate. There'll be no controversy over this year's hall of infamy "
+"nomination."
+msgstr ""
+
+#: guitext:66
+msgctxt "In-game message"
+msgid ""
+"You have claimed a Torture Room. Place captive heroes and creatures into "
+"this chamber of horrors to convert them to your supremely evil way. "
+"Alternatively, place your own creatures within the room whenever "
+"disciplinary measures become necessary."
+msgstr ""
+
+#: guitext:67
+msgctxt "In-game message"
+msgid ""
+"You have finally constructed a dungeon impressive enough to attract a Dark "
+"Mistress. You must discipline these wicked wenches frequently. They respond "
+"particularly well to a good slapping."
+msgstr ""
+
+#: guitext:68
+msgctxt "In-game message"
+msgid ""
+"Your manufacturers have created a Braced Door. If security matters, you can "
+"be sure when you buy a Braced Door. You couldn't be certain with only a "
+"curtain and a hole in the wall is no help at all."
+msgstr ""
+
+#: guitext:69
+msgctxt "In-game message"
+msgid ""
+"Your researchers have devised a spell that unleashes the energy of a "
+"thunderstorm on the target of your choice. Select the spell, aim at a "
+"hostile creature and flash-fry him with a Lightning Strike."
+msgstr ""
+
+#: guitext:70
+msgctxt "In-game message"
+msgid ""
+"You have manufactured a powerful Lightning Trap. Try it out. It's bound to "
+"give someone a shock."
+msgstr ""
+
+#: guitext:71
+msgctxt "In-game message"
+msgid ""
+"It appears you have arrived in the middle of a raging battle. Perhaps it "
+"would be wise to stay out of the way until you are strong enough to "
+"eliminate both sides."
+msgstr ""
+
+#: guitext:72
+msgctxt "In-game message"
+msgid ""
+"An Orc warlord joins you and brings with him the plans for building a "
+"Barracks. In this room you can form creatures into teams."
+msgstr ""
+
+#: guitext:73
+msgctxt "In-game message"
+msgid ""
+"I think I hear the clanking of plate armour. Yes, the Lord of the Land has "
+"finally roused himself from the fireside to find out where all his loyal "
+"servants have gone."
+msgstr ""
+
+#: guitext:74
+msgctxt "In-game message"
+msgid ""
+"You have turned local heroes into something of an endangered species, now "
+"make the enemy Dungeon Keeper extinct."
+msgstr ""
+
+#: guitext:75
+msgctxt "In-game message"
+msgid ""
+"You have prevailed, Keeper. The bodies of your enemies litter the most "
+"forlorn alcoves of your domain, in tribute to their futile efforts to keep "
+"you at bay."
+msgstr ""
+
+#: guitext:76
+msgctxt "In-game message"
+msgid ""
+"Seek out the one who would be your rival in this region of the underworld. "
+"Explain the concept of early retirement to him. On the other hand, string "
+"him up. It's in the only language he understands."
+msgstr ""
+
+#: guitext:77
+msgctxt "In-game message"
+msgid ""
+"You have researched the power of Invisibility. Cast it on a creature to hide "
+"it from enemy eyes."
+msgstr ""
+
+#: guitext:78
+msgctxt "In-game message"
+msgid ""
+"The Protect Creature spell has been researched at last. Cast it on a "
+"creature to increase its toughness."
+msgstr ""
+
+#: guitext:79
+msgctxt "In-game message"
+msgid ""
+"That's another enemy successfully written off. The defenceless inhabitants "
+"of the land above bow down before your depraved presence. As if that will "
+"save them..."
+msgstr ""
+
+#: guitext:80
+msgctxt "In-game message"
+msgid ""
+"Researchers have found instructions for building a Temple to the dark gods. "
+"Sacrifice creatures in the Temple's pool to receive gifts from these gods. "
+"You might have to experiment with the offerings you make. The dark gods are "
+"not easy to please."
+msgstr ""
+
+#: guitext:81
+msgctxt "In-game message"
+msgid ""
+"This realm is ruled by four arrogant Wizards who think they've got "
+"everything under control, because their feeble magical power impresses the "
+"locals. But you're not from these parts..."
+msgstr ""
+
+#: guitext:82
+msgctxt "In-game message"
+msgid ""
+"Well, you're done down here. Time to introduce yourself to the locals and re-"
+"organise their nice little lives."
+msgstr ""
+
+#: guitext:83
+msgctxt "In-game message"
+msgid ""
+"Behold, you have summoned a Horned Reaper. Try not make it angry. You'll "
+"fail, because everything makes a Horned Reaper angry but at least try to "
+"make sure that everything near it is an enemy creature when it finally goes "
+"ballistic."
+msgstr ""
+
+#: guitext:84
+msgctxt "In-game message"
+msgid ""
+"Your researchers have concocted a Disease spell. Cast it on enemy creatures "
+"and watch the affliction spread like the plague."
+msgstr ""
+
+#: guitext:85
+msgctxt "In-game message"
+msgid ""
+"A Vampire has risen from your Graveyard, nourished by the souls of the dead "
+"which have been brought here. You have to suck up to Vampires or they go off "
+"in a huff, but they're extremely powerful and fearsome underlings to have in "
+"your employ."
+msgstr ""
+
+#: guitext:86
+msgctxt "In-game message"
+msgid ""
+"You have researched the Graveyard. Your Imps will drag corpses here to "
+"rot... And possibly to rise again as Vampires, ready to do your bidding. "
+"That's style."
+msgstr ""
+
+#: guitext:87
+msgctxt "In-game message"
+msgid ""
+"You have manufactured an Iron Door. It's a formidable barrier. Use it well."
+msgstr ""
+
+#: guitext:88
+msgctxt "In-game message"
+msgid ""
+"Powerful creatures inhabit a cave south of here. There's a party of heroes "
+"between you and them but, if you reach them and convert them to your side "
+"before they join the other keepers, you will be unstoppable, unless you do "
+"something stupid."
+msgstr ""
+
+#: guitext:89
+msgctxt "In-game message"
+msgid ""
+"You have overcome all resistance to your rule, O despicable one. It's time "
+"to flex the old misery muscle on the pathetic inhabitants of the land above."
+msgstr ""
+
+#: guitext:90
+msgctxt "In-game message"
+msgid ""
+"You have a manufactured a Boulder Trap. Place it in a corridor and howl "
+"deliriously as it rumbles inexorably towards unwary trespassers."
+msgstr ""
+
+#: guitext:91
+msgctxt "In-game message"
+msgid ""
+"With typical brilliance, you have researched the Cave-In spell. Use it to "
+"block off passages and repair dungeon breaches. Interestingly, the rockfall "
+"will crush to death any creatures caught beneath it."
+msgstr ""
+
+#: guitext:92
+msgctxt "In-game message"
+msgid ""
+"Your tireless librarians have researched the Scavenger Room. Creatures "
+"placed within a Scavenger Room will lure their kin from other dungeons and "
+"the outside world, into your domain."
+msgstr ""
+
+#: guitext:93
+msgctxt "In-game message"
+msgid ""
+"Your great wealth has bought the loyalty of a passing Dragon. They are "
+"fickle creatures. Keep your eye on this one."
+msgstr ""
+
+#: guitext:94
+msgctxt "In-game message"
+msgid "A Hell Hound has been lured to your domain by your Scavenger Room."
+msgstr ""
+
+#: guitext:95
+msgctxt "In-game message"
+msgid ""
+"The other two Keepers in this region have put aside their differences for "
+"the moment and joined forces, in an effort to destroy you. That's almost a "
+"compliment. Kill the creeps."
+msgstr ""
+
+#: guitext:96
+msgctxt "In-game message"
+msgid ""
+"You have won a magnificent victory, Master. You have a talent for twisted "
+"mercilessness that makes other Keepers look well behaved by comparison."
+msgstr ""
+
+#: guitext:97
+msgctxt "In-game message"
+msgid ""
+"You have discovered a devastating magical power. Target it against a "
+"creature to transform a fearsome monster into a clucking chicken. Marvellous."
+msgstr ""
+
+#: guitext:98
+msgctxt "In-game message"
+msgid ""
+"Your manufacturers have built an Alarm Trap. It will warn you of your "
+"enemies' approach and summon nearby creatures to deal with the intruders."
+msgstr ""
+
+#: guitext:99
+msgctxt "In-game message"
+msgid ""
+"You have created a Magic Door. These are almost impregnable to all but "
+"magical attacks. I recommend sealing off your Treasure Room or Dungeon Heart."
+msgstr ""
+
+#: guitext:100
+msgctxt "In-game message"
+msgid ""
+"Elsewhere in this fiery realm you have a rival Keeper to contend with. I "
+"advise extreme antisocial behaviour on your part."
+msgstr ""
+
+#: guitext:101
+msgctxt "In-game message"
+msgid ""
+"Notch up another victory, most malicious one. You have another land to add "
+"to your dismal collection."
+msgstr ""
+
+#: guitext:102
+msgctxt "In-game message"
+msgid ""
+"Your annihilation of the first wave has met with the approval of a pack of "
+"demons from the fifth plane of hell. Train your creatures and prepare for "
+"another battle. You're attracting quite an audience."
+msgstr ""
+
+#: guitext:103
+msgctxt "In-game message"
+msgid ""
+"The enemy are upon us. I'm just telling you in case you were having a doze."
+msgstr ""
+
+#: guitext:104
+msgctxt "In-game message"
+msgid ""
+"All the heroes are dead, which is as it should be. This land and all its "
+"spoils are yours. May I suggest that you waste everything?"
+msgstr ""
+
+#: guitext:105
+msgctxt "In-game message"
+msgid ""
+"If lands had legs this one would be on its knees. Its desperate inhabitants "
+"are preparing a full scale attack on your dungeon. It will be an ideal "
+"opportunity to practise unspeakable evil on a massive scale. Go for it, "
+"master."
+msgstr ""
+
+#: guitext:106
+msgctxt "In-game message"
+msgid ""
+"Your latest discovery is the Word of Power Trap. When activated, the trap "
+"triggers an expanding ring of fire that incinerates anything caught in its "
+"area of effect. What a scream that should be."
+msgstr ""
+
+#: guitext:107
+msgctxt "In-game message"
+msgid ""
+"The Hold Audience spell has been researched. It will immediately teleport "
+"all of your creatures back to your Dungeon Heart. Let's hope you never need "
+"it."
+msgstr ""
+
+#: guitext:108
+msgctxt "In-game message"
+msgid ""
+"You can't swing a cat for Dungeon Keepers fighting over the destiny of this "
+"region. It should fall to you to settle the disagreement once and for all."
+msgstr ""
+
+#: guitext:109
+msgctxt "In-game message"
+msgid ""
+"Your researchers have discovered the devastating Chicken spell. Cast it on "
+"any creature to instantly transform the target into poultry. It's a fowl "
+"weapon."
+msgstr ""
+
+#: guitext:110
+msgctxt "In-game message"
+msgid ""
+"So, now you have a spell that turns fortified walls to dust. It's expensive "
+"to cast and it's also possible that your enemies possess the same magic "
+"power. This could still turn out to be one of those days."
+msgstr ""
+
+#: guitext:111
+msgctxt "In-game message"
+msgid ""
+"Only the Lord of this Land stands between you and hectares of desolation and "
+"woe. I bet you can't wait to meet him."
+msgstr ""
+
+#: guitext:112
+msgctxt "In-game message"
+msgid "Your continued success makes me sick. Thank you, your wickedness."
+msgstr ""
+
+#: guitext:113
+msgctxt "In-game message"
+msgid ""
+"You seem to have started a trend. Two other Dungeon Keepers also have "
+"designs on this dark domain. Expect no quarter from your rivals."
+msgstr ""
+
+#: guitext:114
+msgctxt "In-game message"
+msgid ""
+"Can you see how vulnerable one of your opponents has become? Then kill him."
+msgstr ""
+
+#: guitext:115
+msgctxt "In-game message"
+msgid ""
+"I spy a keeper with hardly any creatures left under his control. I spy a "
+"Keeper who's about to die."
+msgstr ""
+
+#: guitext:116
+msgctxt "In-game message"
+msgid ""
+"This ancient dungeon possesses great archaeological significance. This "
+"simply means there should be some interesting treasure worth stealing. Now "
+"that's what I call practical archaeology."
+msgstr ""
+
+#: guitext:117
+msgctxt "In-game message"
+msgid ""
+"Your librarians have learned a spell that can break through fortified walls. "
+"Give them a slap for not learning it earlier."
+msgstr ""
+
+#: guitext:118
+msgctxt "In-game message"
+msgid ""
+"One of your opponents has developed a spell that can break through fortified "
+"walls. Typical. Be on your guard."
+msgstr ""
+
+#: guitext:119
+msgctxt "In-game message"
+msgid ""
+"You have developed the Armageddon spell. That's quite a name to live up to. "
+"Make sure you're the most powerful force in the region before casting it."
+msgstr ""
+
+#: guitext:120
+msgctxt "In-game message"
+msgid ""
+"You will not find any easy path through this region. You will have to fight "
+"hard to gain any advantage. But, if you intend to rule the world, you've "
+"simply got to get through days like this."
+msgstr ""
+
+#: guitext:121
+msgctxt "In-game message"
+msgid "Your manufacturers have crafted the Lava Trap."
+msgstr ""
+
+#: guitext:122
+msgctxt "In-game message"
+msgid ""
+"Your location is already known to the heroes of this land. They have moved "
+"quickly to mobilise their forces against you. It's pathetic. They deserve to "
+"have their heads impaled on lances for such impudence."
+msgstr ""
+
+#: guitext:123
+msgctxt "In-game message"
+msgid ""
+"You've upset the local Lord. He's on his way right now. Shall I alert the "
+"media?"
+msgstr ""
+
+#: guitext:124
+msgctxt "In-game message"
+msgid ""
+"The heroes of this realm possess treasures of great power. Obviously, these "
+"should belong to you. I'm certain you will settle the matter of their "
+"ownership in your own way."
+msgstr ""
+
+#: guitext:125
+msgctxt "In-game message"
+msgid ""
+"It appears you have a rival. Another Keeper believes he is more ruthless and "
+"evil than you. We shall soon see."
+msgstr ""
+
+#: guitext:126
+msgctxt "In-game message"
+msgid "This ancient realm is rich in magical artifacts. Go forth and plunder."
+msgstr ""
+
+#: guitext:127
+msgctxt "In-game message"
+msgid ""
+"The guardians of this realm are asleep at the moment. Attack them as soon as "
+"you can or they'll be breakfasted, wide awake and inherently more difficult "
+"to slaughter."
+msgstr ""
+
+#: guitext:128
+msgctxt "In-game message"
+msgid ""
+"If you should encounter hero patrols, ensure that none of their number "
+"escape. Otherwise your presence will be revealed and then you will be in "
+"trouble."
+msgstr ""
+
+#: guitext:129
+msgctxt "In-game message"
+msgid ""
+"You're taking forever over this. Attack and destroy the heroes' stronghold "
+"soon, preferably before hell freezes over."
+msgstr ""
+
+#: guitext:130
+msgctxt "In-game message"
+msgid ""
+"Enemy reinforcements have arrived. So what? Let's hear it for more killing."
+msgstr ""
+
+#: guitext:131
+msgctxt "In-game message"
+msgid ""
+"The heroes of this realm have prepared for your coming by building an "
+"underground stronghold of their own. Who do they think they are? Sorry, "
+"master, that was a rhetorical question."
+msgstr ""
+
+#: guitext:132
+msgctxt "In-game message"
+msgid ""
+"You are about to face the greatest challenge yet to your evil aspirations. "
+"Here it comes, ready or not."
+msgstr ""
+
+#: guitext:133
+msgctxt "In-game message"
+msgid ""
+"Three other Dungeon Keepers, each as evil and powerful as you, have expanded "
+"their empires into this realm. Ultimately, only the one who rules the "
+"underworld can conquer the realms above."
+msgstr ""
+
+#: guitext:134
+msgctxt "In-game message"
+msgid ""
+"This realm is begging to be plunged into darkness. The Avatar himself has a "
+"castle here. Another Keeper also seeks his soul. This could get messy."
+msgstr ""
+
+#: guitext:135
+msgctxt "In-game message"
+msgid ""
+"You have destroyed the Avatar's castle but your rival has already taken the "
+"Avatar prisoner. Be that as it may, only the Keeper with the blackest heart "
+"can destroy this legendary hero, so ransack your rival's dungeon and take "
+"the prize."
+msgstr ""
+
+#: guitext:136
+msgctxt "In-game message"
+msgid ""
+"The Avatar has been resurrected by loyal lieutenants in hiding. But their "
+"act has revealed them to us, here in this realm. Now the Avatar rallies all "
+"those who would stand against you. It's time you gave this self-righteous "
+"oaf a proper kicking, master."
+msgstr ""
+
+#: guitext:137
+msgctxt "In-game message"
+msgid ""
+"Powerful magic permeating through the rock from the realm above prevents a "
+"dungeon from being constructed here. You will have to conquer this realm "
+"another way."
+msgstr ""
+
+#: guitext:138
+msgctxt "In-game message"
+msgid ""
+"Possess this Dragon to help you negotiate the fiery pits but be prepared to "
+"transfer your soul to a more appropriate creature when the situation demands "
+"it."
+msgstr ""
+
+#: guitext:139
+msgctxt "In-game message"
+msgid ""
+"Possess the Vampire below. Should you succeed in killing every hero in this "
+"region, the Vampire will accompany you to the realm beyond."
+msgstr ""
+
+#: guitext:140
+msgctxt "In-game message"
+msgid ""
+"These Imps have all turned rogue and therefore must die. The speed with "
+"which you accomplish their destruction will determine your fitness for "
+"greater tasks ahead."
+msgstr ""
+
+#: guitext:141
+msgctxt "In-game message"
+msgid "Tempus fugit, Keeper. You have been warned."
+msgstr ""
+
+#: guitext:142
+msgctxt "In-game message"
+msgid ""
+"You have failed. Perhaps you're not the harbinger of doom the forces of "
+"darkness were hoping for."
+msgstr ""
+
+#: guitext:143
+msgctxt "In-game message"
+msgid ""
+"You are indeed a twisted soul, master. You made the Imps extinct with such "
+"panache that not one but two Dark Mistresses have devoted themselves to "
+"helping you achieve your next goal. You may proceed to your next conquest."
+msgstr ""
+
+#: guitext:144
+msgctxt "In-game message"
+msgid ""
+"You must have lightning reflexes to complete the task ahead of you. Kill "
+"these Imps as quickly as you can."
+msgstr ""
+
+#: guitext:145
+msgctxt "In-game message"
+msgid "Half your allotted time has elapsed."
+msgstr ""
+
+#: guitext:146
+msgctxt "In-game message"
+msgid "You are out of time. That was a shocking performance."
+msgstr ""
+
+#: guitext:147
+msgctxt "In-game message"
+msgid ""
+"It is done. Tiny heaps of charred flesh smoulder where Imps once stood. You "
+"certainly had your finger on the pulse this time. The dark gods will send "
+"you a Giant to help you conquer the next realm."
+msgstr ""
+
+#: guitext:148
+msgctxt "In-game message"
+msgid ""
+"You have no gold left. It pays to keep your head in such a charged "
+"environment."
+msgstr ""
+
+#: guitext:149
+msgctxt "In-game message"
+msgid ""
+"You have been called to this realm to punish a horde of revolting Bile "
+"Demons by crushing them with Boulder Traps scattered around the perimeter of "
+"the dungeon. You have very little time, so rock and roll!"
+msgstr ""
+
+#: guitext:150
+msgctxt "In-game message"
+msgid "Half your time has expired."
+msgstr ""
+
+#: guitext:151
+msgctxt "In-game message"
+msgid ""
+"Your time is up. You have failed. I'm embarrassed to come from the same "
+"inter-dimensional void as you."
+msgstr ""
+
+#: guitext:152
+msgctxt "In-game message"
+msgid ""
+"Well done. You have excelled in your use of large balls of stone for which "
+"the dark gods will repay you, by granting you three superior Imps when you "
+"reach the next realm."
+msgstr ""
+
+#: guitext:153
+msgctxt "In-game message"
+msgid ""
+"This region of the underworld will test your ability to traverse the network "
+"of caverns. Indeed, time is your enemy here. Defeat it and you will find "
+"where the legendary warrior, Ug the Barbarian is imprisoned. Ug will serve "
+"you well in the future."
+msgstr ""
+
+#: guitext:154
+msgctxt "In-game message"
+msgid ""
+"The people of this realm speak of a Dungeon Keeper called Wisel, who is "
+"bound to get in your way. When he does, you will have to consign him to "
+"history. This will be no mean feat. Resources are scarce because of his "
+"activities."
+msgstr ""
+
+#: guitext:155
+msgctxt "In-game message"
+msgid ""
+"Wisel is defeated. The land is yours to plunder and despoil for all "
+"eternity. Give 'em hell, master."
+msgstr ""
+
+#: guitext:156
+msgctxt "In-game message"
+msgid ""
+"Your evil has corrupted a Samurai Warrior, he has forsaken honour to join "
+"your cause. Should your minions suffer heavy casualties, this Warrior will "
+"even call upon his brothers in arms to offer assistance. How kind. How "
+"stupid!"
+msgstr ""
+
+#: guitext:157
+msgctxt "In-game message"
+msgid ""
+"This region of the underworld is riddled with tunnels and many heroes "
+"explore their labyrinthine ways. No-one said being evil would be easy."
+msgstr ""
+
+#: guitext:158
+msgctxt "In-game message"
+msgid ""
+"It is rumoured that two Dragons are held captive somewhere east of here. "
+"Were you to find them and free them, they would make powerful servants."
+msgstr ""
+
+#: guitext:159
+msgctxt "In-game message"
+msgid ""
+"A tunnel to the north leads to the Lord of the Realm's domain. This gate is "
+"guarded well. It might be wise to direct the humans' attention towards your "
+"subterranean enemy."
+msgstr ""
+
+#: guitext:160
+msgctxt "In-game message"
+msgid ""
+"These Boulder Traps are ideal for crushing the foe but there are only three "
+"of them at your disposal, so use them wisely."
+msgstr ""
+
+#: guitext:161
+msgctxt "In-game message"
+msgid "May I suggest that you kill or imprison anything that gets in your way?"
+msgstr ""
+
+#: guitext:162
+msgctxt "In-game message"
+msgid ""
+"Another realm falls under your evil reign. Another cloud of misery and "
+"despair gathers. Lovely."
+msgstr ""
+
+#: guitext:163
+msgctxt "In-game message"
+msgid "You have failed. This is a grim day for evil."
+msgstr ""
+
+#: guitext:164
+msgctxt "In-game message"
+msgid ""
+"Dispense with a particularly obnoxious party of Dwarves which wanders this "
+"region and recruit as many Bile Demons as you can. If you free the Wizard "
+"held captive in this realm, he will serve you for some time to come."
+msgstr ""
+
+#: guitext:165
+msgctxt "In-game message"
+msgid ""
+"Take more care of your Bile Demons or you will never make it beyond this "
+"realm."
+msgstr ""
+
+#: guitext:166
+msgctxt "In-game message"
+msgid "How time flies... hurry!"
+msgstr ""
+
+#: guitext:167
+msgctxt "In-game message"
+msgid ""
+"You will meet your nemesis, the Avatar, in this subterranean place. This is "
+"your ultimate test. Remember, mercy is for losers."
+msgstr ""
+
+#: guitext:168
+msgctxt "In-game message"
+msgid ""
+"The Avatar and his allys are defeated, yet his power over this land lingers. "
+"Prepare thyself..."
+msgstr ""
+
+#: guitext:169
+msgctxt "In-game message"
+msgid ""
+"You got rid of that Keeper easily. Now all that stands between you and total "
+"world domination is that ponce in shining armour. Let's get him."
+msgstr ""
+
+#: guitext:170
+msgctxt "In-game message"
+msgid "Success is thine. Truly, you have earned your title, Dungeon Keeper."
+msgstr ""
+
+#: guitext:171
+msgctxt "In-game message"
+msgid "What is this? The Avatar lives!"
+msgstr ""
+
+#: guitext:172
+msgctxt "In-game message"
+msgid ""
+"Finally, you stand unchallenged. The world is yours to waste and despoil. I "
+"bet you have never felt so bad."
+msgstr ""
+
+#: guitext:173 guitext:174 guitext:175 guitext:176 guitext:177 guitext:178
+#: guitext:179 guitext:180 guitext:181 guitext:182 guitext:183 guitext:184
+#: guitext:185 guitext:186 guitext:187 guitext:188 guitext:189 guitext:190
+#: guitext:191 guitext:192 guitext:193 guitext:194 guitext:195 guitext:196
+#: guitext:197 guitext:198 guitext:199 guitext:200
+msgctxt "In-game message"
+msgid "Moo"
+msgstr ""
+
+#: guitext:202
+msgctxt "Level name"
+msgid "Manudania"
+msgstr ""
+
+#: guitext:203
+msgctxt "Level name"
+msgid "A-Maze-ing"
+msgstr ""
+
+#: guitext:204
+msgctxt "Level name"
+msgid "Hivespawn"
+msgstr ""
+
+#: guitext:205
+msgctxt "Level name"
+msgid "Tower of Power"
+msgstr ""
+
+#: guitext:206
+msgctxt "Level name"
+msgid "Dambreak"
+msgstr ""
+
+#: guitext:207
+msgctxt "Level name"
+msgid "Sin-king"
+msgstr ""
+
+#: guitext:208
+msgctxt "Level name"
+msgid "Superblah"
+msgstr ""
+
+#: guitext:209
+msgctxt "Level name"
+msgid "Stronghold"
+msgstr ""
+
+#: guitext:210 guitext:211 guitext:212 guitext:213 guitext:214 guitext:215
+#: guitext:216 guitext:217 guitext:218 guitext:219 guitext:220 guitext:221
+#: guitext:222 guitext:223 guitext:224 guitext:225
+msgctxt "Level name"
+msgid "Unused"
+msgstr ""
+
+#: guitext:226
+msgctxt "Creature spell"
+msgid "Arrow: The basic ranged weapon, effective at long distance."
+msgstr ""
+
+#: guitext:227
+msgctxt "Creature spell"
+msgid ""
+"Freeze: Changes the target creature to ice. It is then in suspended "
+"animation and can be shattered with a well-aimed blow."
+msgstr ""
+
+#: guitext:228
+msgctxt "Creature spell"
+msgid ""
+"Armour: This lowers the amount of damage a creature takes each time it is "
+"hit, and provides complete immunity to electric shocks."
+msgstr ""
+
+#: guitext:229
+msgctxt "Creature spell"
+msgid ""
+"Lightning: A powerful magical weapon with electric attack. Casts a bolt of "
+"lighting from the creature."
+msgstr ""
+
+#: guitext:230
+msgctxt "Creature spell"
+msgid "Rebound: Causes any spell fired at you to bounce back at the attacker."
+msgstr ""
+
+#: guitext:231
+msgctxt "Creature spell"
+msgid ""
+"Fear: Causes the opponent to be terrified and wanting to skip engageing into "
+"combat."
+msgstr ""
+
+#: guitext:232
+msgctxt "Creature spell"
+msgid ""
+"Sight: Allows the creature to temporarely increase its awareness and notice "
+"the invisible."
+msgstr ""
+
+#: guitext:233
+msgctxt "Creature spell"
+msgid ""
+"Missile: A simple spell that sends a screaming magic reptile at the "
+"invaders. Very disconcerting."
+msgstr ""
+
+#: guitext:234
+msgctxt "Creature spell"
+msgid ""
+"Grenade: Throws a powerful explosive at the approaching enemy. It can also "
+"bounce off walls and has the traditional delayed fuse."
+msgstr ""
+
+#: guitext:235
+msgctxt "Creature spell"
+msgid ""
+"Navigating Missile: This homes in on the nearest hero or enemy creature and "
+"explodes with devastating force."
+msgstr ""
+
+#: guitext:236
+msgctxt "Creature spell"
+msgid ""
+"Speed: Speeds up the creature so that it can perform fighting and working "
+"tasks really quickly."
+msgstr ""
+
+#: guitext:237
+msgctxt "Creature spell"
+msgid ""
+"Poison Cloud: Forms a cloud of noxious gas capable of damaging both the "
+"enemy and your own creatures. The gas affects all who breathe it."
+msgstr ""
+
+#: guitext:238
+msgctxt "Creature spell"
+msgid "Group: Not used"
+msgstr ""
+
+#: guitext:239
+msgctxt "Creature spell"
+msgid ""
+"Invisibility: Cast on one of your minions, it makes the host creature "
+"invisible to all enemies. Unless they possess a subnatural Sight."
+msgstr ""
+
+#: guitext:240
+msgctxt "Creature spell"
+msgid ""
+"Teleport: With this spell, a creature can teleport anywhere on the map. If "
+"you are Possessing a creature, then it teleports to its Lair or to the "
+"Dungeon Heart."
+msgstr ""
+
+#: guitext:241
+msgctxt "Creature spell"
+msgid "Flame Breath: The devasting constant stream of searing fire."
+msgstr ""
+
+#: guitext:242
+msgctxt "Creature spell"
+msgid ""
+"Illumination: Brings light onto darkness, allowing the creature to see but "
+"also be seen by others."
+msgstr ""
+
+#: guitext:243
+msgctxt "Creature spell"
+msgid ""
+"Flight: Causes the creature to take off from the ground and attack creatures "
+"from the air."
+msgstr ""
+
+#: guitext:244
+msgctxt "Creature spell"
+msgid "Hail Storm: Creates a shower of hailstones wherever the spell lands."
+msgstr ""
+
+#: guitext:245
+msgctxt "Creature spell"
+msgid ""
+"Slow: Slows down the target creature, making it attacks and movement delayed."
+msgstr ""
+
+#: guitext:246
+msgctxt "Creature spell"
+msgid ""
+"Drain: This spell drains the target creature a fair part of its health and "
+"magical abilities."
+msgstr ""
+
+#: guitext:247
+msgctxt "Creature spell"
+msgid ""
+"Word of Power: Causes rings of fire to emanate from the creature's body and "
+"inflicts massive damage on the vicinity."
+msgstr ""
+
+#: guitext:248
+msgctxt "Creature spell"
+msgid ""
+"Heal: When this is cast, the creature is massively healed. Also, any nearby "
+"creatures are healed by a quarter."
+msgstr ""
+
+#: guitext:249
+msgctxt "Creature spell"
+msgid ""
+"Wind: Creates a force twelve gale in your Dungeon blowing every creature "
+"away from you."
+msgstr ""
+
+#: guitext:250
+msgctxt "Creature spell"
+msgid ""
+"Meteor: More powerful that the fireball, this spell throws out a solid ball "
+"of fire which does a lot of damage to an enemy."
+msgstr ""
+
+#: guitext:251
+msgctxt "Creature spell"
+msgid ""
+"Fireball: Fires a single fireball which homes in on the nearest enemy. Also "
+"inflicts minor damage to a Dungeon's walls and doors."
+msgstr ""
+
+#: guitext:252
+msgctxt "Creature spell"
+msgid ""
+"Hand to Hand: The basic battle ability that allows to attack the enemy with "
+"either bare hands or a sword."
+msgstr ""
+
+#: guitext:253
+msgctxt "Creature spell"
+msgid ""
+"Fart: A close range gas attack that only damages enemy creatures."
+msgstr ""
+
+#: guitext:254
+msgctxt "Creature spell"
+msgid ""
+"Dig: This is the basic ability of the Imp and allows it to tunnel through "
+"earth."
+msgstr ""
+
+#: guitext:255
+msgctxt "Creature spell"
+msgid ""
+"Disease: Fired at a foe, gives them a Disease which is then spread to other "
+"creatures. The infected are slowly dying and can only be healed in the "
+"Temple."
+msgstr ""
+
+#: guitext:256
+msgctxt "Creature spell"
+msgid ""
+"Chicken: Turns enemy into chicken for a while. The enemy isn't able to "
+"attack but has the same strength and thus won't be as easy to kill as a "
+"normal chicken."
+msgstr ""
+
+#: guitext:257
+msgctxt "Creature spell"
+msgid "Time Bomb: Turns your creature into a suicidal bomber."
+msgstr ""
+
+#: guitext:258
+msgctxt "Creature name"
+msgid "Fairy"
+msgstr ""
+
+#: guitext:259
+msgctxt "Creature name"
+msgid "Imp"
+msgstr ""
+
+#: guitext:260
+msgctxt "Creature name"
+msgid "Beetle"
+msgstr ""
+
+#: guitext:261
+msgctxt "Creature name"
+msgid "Troll"
+msgstr ""
+
+#: guitext:262
+msgctxt "Creature name"
+msgid "Demon Spawn"
+msgstr ""
+
+#: guitext:263
+msgctxt "Creature name"
+msgid "Warlock"
+msgstr ""
+
+#: guitext:264
+msgctxt "Creature name"
+msgid "Fly"
+msgstr ""
+
+#: guitext:265
+msgctxt "Creature name"
+msgid "Spider"
+msgstr ""
+
+#: guitext:266
+msgctxt "Creature name"
+msgid "Skeleton"
+msgstr ""
+
+#: guitext:267
+msgctxt "Creature name"
+msgid "Horned Reaper"
+msgstr ""
+
+#: guitext:268
+msgctxt "Creature name"
+msgid "Dragon"
+msgstr ""
+
+#: guitext:269
+msgctxt "Creature name"
+msgid "Tentacle"
+msgstr ""
+
+#: guitext:270
+msgctxt "Creature name"
+msgid "Hound"
+msgstr ""
+
+#: guitext:271
+msgctxt "Creature name"
+msgid "Ghost"
+msgstr ""
+
+#: guitext:272
+msgctxt "Creature name"
+msgid "Mistress"
+msgstr ""
+
+#: guitext:273
+msgctxt "Creature name"
+msgid "Bile Demon"
+msgstr ""
+
+#: guitext:274
+msgctxt "Creature name"
+msgid "Vampire"
+msgstr ""
+
+#: guitext:275
+msgctxt "Creature name"
+msgid "Barbarian"
+msgstr ""
+
+#: guitext:276
+msgctxt "Creature name"
+msgid "Knight"
+msgstr ""
+
+#: guitext:277
+msgctxt "Creature name"
+msgid "Wizard"
+msgstr ""
+
+#: guitext:278
+msgctxt "Creature name"
+msgid "Orc"
+msgstr ""
+
+#: guitext:279
+msgctxt "Creature name"
+msgid "Mountain Dwarf"
+msgstr ""
+
+#: guitext:280
+msgctxt "Creature name"
+msgid "Valley Dwarf"
+msgstr ""
+
+#: guitext:281
+msgctxt "Creature name"
+msgid "Thief"
+msgstr ""
+
+#: guitext:282
+msgctxt "Creature name"
+msgid "Samurai"
+msgstr ""
+
+#: guitext:283
+msgctxt "Creature name"
+msgid "Priestess"
+msgstr ""
+
+#: guitext:284
+msgctxt "Creature name"
+msgid "Giant"
+msgstr ""
+
+#: guitext:285
+msgctxt "Creature name"
+msgid "Archer"
+msgstr ""
+
+#: guitext:286
+msgctxt "Creature name"
+msgid "Monk"
+msgstr ""
+
+#: guitext:287 guitext:288 guitext:289 guitext:290 guitext:343 guitext:291
+#: guitext:292 guitext:293 guitext:294 guitext:295 guitext:296 guitext:297
+#: guitext:298 guitext:299 guitext:300 guitext:301 guitext:302 guitext:303
+#: guitext:304 guitext:305 guitext:306 guitext:307 guitext:308 guitext:309
+#: guitext:310 guitext:311 guitext:312 guitext:313 guitext:314 guitext:315
+#: guitext:316 guitext:317 guitext:318 guitext:320 guitext:321 guitext:322
+#: guitext:323 guitext:333
+msgctxt "Unused"
+msgid "Moo9"
+msgstr ""
+
+#: guitext:319
+msgctxt "Slab description"
+msgid "Empty Lair: Would suit itinerant creature."
+msgstr ""
+
+#: guitext:324
+msgctxt "Slab description"
+msgid "Impenetrable Rock: Your Imps cannot dig through this. [12.4]"
+msgstr ""
+
+#: guitext:325
+msgctxt "Slab description"
+msgid "Earth: You can excavate this. [12.1]"
+msgstr ""
+
+#: guitext:326
+msgctxt "Slab description"
+msgid ""
+"Gold Seam: Your source of wealth. Dig this out and your Imps will take it to "
+"your Treasure Room. [12.2]"
+msgstr ""
+
+#: guitext:327
+msgctxt "Slab description"
+msgid "Lava: Burns any creature that step on it. [14.2]"
+msgstr ""
+
+#: guitext:328
+msgctxt "Slab description"
+msgid "Water: Creatures move more slowly through water. [14.1]"
+msgstr ""
+
+#: guitext:329
+msgctxt "Slab description"
+msgid "Wall: A reinforced stone wall that enemies cannot break through. [12.1]"
+msgstr ""
+
+#: guitext:330
+msgctxt "Slab description"
+msgid "Damaged Wall: Unless repaired, this wall will eventually collapse."
+msgstr ""
+
+#: guitext:331
+msgctxt "Slab description"
+msgid "Path: Unclaimed earth floor. [12.1]"
+msgstr ""
+
+#: guitext:332
+msgctxt "Slab description"
+msgid "Claimed area: Your dungeon territory. [12.1]"
+msgstr ""
+
+#: guitext:334
+msgctxt "In-game message"
+msgid "Level completed - press Escape to continue"
+msgstr ""
+
+#: guitext:335
+msgctxt "In-game message"
+msgid "You have been defeated. Press Space to restart."
+msgstr ""
+
+#: guitext:336 guitext:337 guitext:338 guitext:339 guitext:340 guitext:341
+#: guitext:342 guitext:344 guitext:345 guitext:346 guitext:347 guitext:348
+#: guitext:349 guitext:350 guitext:351 guitext:352 guitext:353 guitext:354
+#: guitext:355 guitext:356 guitext:357 guitext:358 guitext:359 guitext:360
+#: guitext:361 guitext:362 guitext:363 guitext:364 guitext:365 guitext:366
+#: guitext:367 guitext:368 guitext:369 guitext:370 guitext:371 guitext:372
+#: guitext:373 guitext:374 guitext:375 guitext:376 guitext:377 guitext:378
+#: guitext:379 guitext:380 guitext:381 guitext:382 guitext:383 guitext:384
+#: guitext:385 guitext:386 guitext:387 guitext:388 guitext:389 guitext:390
+#: guitext:391 guitext:392 guitext:393 guitext:394 guitext:395 guitext:396
+#: guitext:397 guitext:398 guitext:399 guitext:400 guitext:401 guitext:402
+#: guitext:403 guitext:404 guitext:405 guitext:406 guitext:407 guitext:408
+#: guitext:409 guitext:410 guitext:411 guitext:412 guitext:413 guitext:414
+#: guitext:415 guitext:416 guitext:417 guitext:418 guitext:419
+msgctxt "Unused"
+msgid "Moo5"
+msgstr ""
+
+#: guitext:420
+msgctxt "Dungeon special decription"
+msgid "Reveal Map: Reveals the entire underground realm to you."
+msgstr ""
+
+#: guitext:421
+msgctxt "Dungeon special decription"
+msgid ""
+"Resurrect Creature: You may raise one of your fallen minions from the dead."
+msgstr ""
+
+#: guitext:422
+msgctxt "Dungeon special decription"
+msgid ""
+"Transfer Creature: Pick one of your creatures to accompany you to the next "
+"realm."
+msgstr ""
+
+#: guitext:423
+msgctxt "Dungeon special decription"
+msgid "Steal Hero: Subvert a hero to your cause."
+msgstr ""
+
+#: guitext:424
+msgctxt "Dungeon special decription"
+msgid "Multiply Creatures: Create a double of each of your creatures."
+msgstr ""
+
+#: guitext:425
+msgctxt "Dungeon special decription"
+msgid "Increase Level: Bestows greater skill on all your creatures."
+msgstr ""
+
+#: guitext:426
+msgctxt "Dungeon special decription"
+msgid "Make Safe : Reinforces your entire dungeon."
+msgstr ""
+
+#: guitext:427
+msgctxt "Dungeon special decription"
+msgid ""
+"Locate Hidden World: You will be transported to a secret realm after you "
+"have conquered this one."
+msgstr ""
+
+#: guitext:428
+msgctxt "Dungeon special name"
+msgid "Resurrect Creature"
+msgstr ""
+
+#: guitext:429
+msgctxt "Dungeon special name"
+msgid "Transfer Creature"
+msgstr ""
+
+#: guitext:430
+msgctxt "Menu interface item"
+msgid "Bonus"
+msgstr ""
+
+#: guitext:431 guitext:432 guitext:433 guitext:434 guitext:435 guitext:436
+#: guitext:437 guitext:438 guitext:439 guitext:440 guitext:441 guitext:442
+#: guitext:443 guitext:444 guitext:445 guitext:446 guitext:447 guitext:448
+#: guitext:449 guitext:450 guitext:451 guitext:452 guitext:453 guitext:454
+#: guitext:455 guitext:456 guitext:457 guitext:458 guitext:459 guitext:460
+#: guitext:461 guitext:462 guitext:463 guitext:464 guitext:465 guitext:466
+#: guitext:467 guitext:468 guitext:469 guitext:470 guitext:471 guitext:472
+#: guitext:473 guitext:474 guitext:475 guitext:476 guitext:477 guitext:478
+#: guitext:479 guitext:480 guitext:481 guitext:482 guitext:483 guitext:484
+#: guitext:485 guitext:486 guitext:487 guitext:488 guitext:489 guitext:490
+#: guitext:491 guitext:492 guitext:493 guitext:494 guitext:495 guitext:496
+#: guitext:497 guitext:498 guitext:499 guitext:500 guitext:501 guitext:502
+#: guitext:503 guitext:504 guitext:505 guitext:506 guitext:507 guitext:508
+#: guitext:509 guitext:510 guitext:511 guitext:512 guitext:513 guitext:514
+#: guitext:515 guitext:516 guitext:517 guitext:518 guitext:519 guitext:520
+#: guitext:521 guitext:522 guitext:523 guitext:524 guitext:525 guitext:526
+#: guitext:527 guitext:528 guitext:529 guitext:530 guitext:531 guitext:532
+#: guitext:533 guitext:534 guitext:535 guitext:536 guitext:537 guitext:538
+#: guitext:539 guitext:540 guitext:541 guitext:542 guitext:543
+msgctxt "Unused"
+msgid "Moo6"
+msgstr ""
+
+#: guitext:544
+msgctxt "Slab description"
+msgid "Gems: Infinite wealth for your Imps to extract. [12.3]"
+msgstr ""
+
+#: guitext:545
+msgctxt "Object description"
+msgid "Hero Gate: Heroes use this portal to invade your dungeon. [15.4]"
+msgstr ""
+
+#: guitext:546
+msgctxt "Creature name"
+msgid "Tunneller"
+msgstr ""
+
+#: guitext:547
+msgctxt "Creature name"
+msgid "Avatar"
+msgstr ""
+
+#: guitext:548 guitext:549 guitext:550 guitext:551
+msgctxt "Unused"
+msgid "Moo7"
+msgstr ""
+
+#: guitext:552
+msgctxt "In-game tab with rooms"
+msgid "Treasure Room"
+msgstr ""
+
+#: guitext:553
+msgctxt "In-game tab with rooms"
+msgid "Library"
+msgstr ""
+
+#: guitext:554
+msgctxt "In-game tab with rooms"
+msgid "Lair"
+msgstr ""
+
+#: guitext:555
+msgctxt "In-game tab with rooms"
+msgid "Prison"
+msgstr ""
+
+#: guitext:556
+msgctxt "In-game tab with rooms"
+msgid "Torture Room"
+msgstr ""
+
+#: guitext:557
+msgctxt "In-game tab with rooms"
+msgid "Training Room"
+msgstr ""
+
+#: guitext:558
+msgctxt "In-game tab with rooms"
+msgid "Dungeon Heart"
+msgstr ""
+
+#: guitext:559
+msgctxt "In-game tab with rooms"
+msgid "Workshop"
+msgstr ""
+
+#: guitext:560
+msgctxt "In-game tab with rooms"
+msgid "Scavenger Room"
+msgstr ""
+
+#: guitext:561
+msgctxt "In-game tab with rooms"
+msgid "Temple"
+msgstr ""
+
+#: guitext:562
+msgctxt "In-game tab with rooms"
+msgid "Graveyard"
+msgstr ""
+
+#: guitext:563
+msgctxt "In-game tab with rooms"
+msgid "Barracks"
+msgstr ""
+
+#: guitext:564
+msgctxt "In-game tab with rooms"
+msgid "Hatchery"
+msgstr ""
+
+#: guitext:565
+msgctxt "In-game tab with rooms"
+msgid "Guard Post"
+msgstr ""
+
+#: guitext:566
+msgctxt "In-game tab with rooms"
+msgid "Bridge"
+msgstr ""
+
+#: guitext:567 guitext:568 guitext:569 guitext:570 guitext:571 guitext:572
+#: guitext:573 guitext:574 guitext:575 guitext:576 guitext:577
+msgctxt "Unused"
+msgid "Moo8"
+msgstr ""
+
+#: guitext:578
+msgctxt "Trap names"
+msgid "Boulder Trap"
+msgstr ""
+
+#: guitext:579
+msgctxt "Trap names"
+msgid "Alarm Trap"
+msgstr ""
+
+#: guitext:580
+msgctxt "Trap names"
+msgid "Poison Gas Trap"
+msgstr ""
+
+#: guitext:581
+msgctxt "Trap names"
+msgid "Lightning Trap"
+msgstr ""
+
+#: guitext:582
+msgctxt "Trap names"
+msgid "Word of Power Trap"
+msgstr ""
+
+#: guitext:583
+msgctxt "Trap names"
+msgid "Lava Trap"
+msgstr ""
+
+#: guitext:584
+msgctxt "Trap description"
+msgid ""
+"Boulder Trap: A rolling rock that crushes everything in its path. LMB "
+"select. RMB zoom. [20.1]"
+msgstr ""
+
+#: guitext:585
+msgctxt "Trap description"
+msgid "Alarm Trap: Triggers a Call To Arms spell. LMB select. RMB zoom. [20.2]"
+msgstr ""
+
+#: guitext:586
+msgctxt "Trap description"
+msgid ""
+"Poison Gas Trap: A cloud of noxious vapours triggered by your enemies. LMB "
+"select. RMB zoom. [20.3]"
+msgstr ""
+
+#: guitext:587
+msgctxt "Trap description"
+msgid ""
+"Lightning Trap: Strikes nearby enemy creatures with bolts of lightning. LMB "
+"select. RMB zoom. [20.4]"
+msgstr ""
+
+#: guitext:588
+msgctxt "Trap description"
+msgid ""
+"Word of Power Trap: Radiates devastating rings of demonic energy, damaging "
+"all creatures within range. LMB select. RMB zoom. [20.5]"
+msgstr ""
+
+#: guitext:589
+msgctxt "Trap description"
+msgid ""
+"Lava Trap: The tile disintegrates revealing a pool of molten lava. LMB "
+"select. RMB zoom. [20.6]"
+msgstr ""
+
+#: guitext:590
+msgctxt "Door name"
+msgid "Wooden Door"
+msgstr ""
+
+#: guitext:591
+msgctxt "Door name"
+msgid "Braced Door"
+msgstr ""
+
+#: guitext:592
+msgctxt "Door name"
+msgid "Iron Door"
+msgstr ""
+
+#: guitext:593
+msgctxt "Door name"
+msgid "Magic Door"
+msgstr ""
+
+#: guitext:594
+msgctxt "Door description"
+msgid ""
+"Wooden Door: The simplest means of restricting access. LMB select. RMB zoom. "
+"[21.1]"
+msgstr ""
+
+#: guitext:595
+msgctxt "Door description"
+msgid ""
+"Braced Door: A wooden door reinforced with iron. LMB select. RMB zoom. [21.2]"
+msgstr ""
+
+#: guitext:596
+msgctxt "Door description"
+msgid ""
+"Iron Door: Strong, heavy door capable of sustaining massive damage. LMB "
+"select. RMB zoom. [21.3]"
+msgstr ""
+
+#: guitext:597
+msgctxt "Door description"
+msgid ""
+"Magic Door: A special door, highly resistant to physical damage but "
+"susceptible to magical damage. LMB select. RMB zoom. [21.4]"
+msgstr ""
+
+#: guitext:598
+msgctxt "Room name"
+msgid "Portal"
+msgstr ""
+
+#: guitext:599
+msgctxt "Room name"
+msgid "Treasure Room"
+msgstr ""
+
+#: guitext:600
+msgctxt "Room name"
+msgid "Library"
+msgstr ""
+
+#: guitext:601
+msgctxt "Room name"
+msgid "Prison"
+msgstr ""
+
+#: guitext:602
+msgctxt "Room name"
+msgid "Torture Chamber"
+msgstr ""
+
+#: guitext:603
+msgctxt "Room name"
+msgid "Training Room"
+msgstr ""
+
+#: guitext:604
+msgctxt "Room name"
+msgid "Dungeon Heart"
+msgstr ""
+
+#: guitext:605
+msgctxt "Room name"
+msgid "Workshop"
+msgstr ""
+
+#: guitext:606
+msgctxt "Room name"
+msgid "Graveyard"
+msgstr ""
+
+#: guitext:607
+msgctxt "Room name"
+msgid "Barracks"
+msgstr ""
+
+#: guitext:608
+msgctxt "Room name"
+msgid "Hatchery"
+msgstr ""
+
+#: guitext:609
+msgctxt "Room name"
+msgid "Lair"
+msgstr ""
+
+#: guitext:610
+msgctxt "Room name"
+msgid "Bridge"
+msgstr ""
+
+#: guitext:611
+msgctxt "Room name"
+msgid "Guard Post"
+msgstr ""
+
+#: guitext:612
+msgctxt "Room name"
+msgid "Temple"
+msgstr ""
+
+#: guitext:613
+msgctxt "Room name"
+msgid "Scavenger Room"
+msgstr ""
+
+#: guitext:614
+msgctxt "Object name"
+msgid "Hero Gate"
+msgstr ""
+
+#: guitext:615
+msgctxt "Room description"
+msgid "Treasure Room: Your gold is stored here. LMB select. RMB zoom. [17.1]"
+msgstr ""
+
+#: guitext:616
+msgctxt "Room description"
+msgid ""
+"Library: The room where spells are researched. LMB select. RMB zoom. [17.4]"
+msgstr ""
+
+#: guitext:617
+msgctxt "Room description"
+msgid ""
+"Prison: Place enemy creatures here for safe keeping. LMB select. RMB zoom. "
+"[17.10]"
+msgstr ""
+
+#: guitext:618
+msgctxt "Room description"
+msgid ""
+"Training Room: Place creatures in here to improve their experience. LMB "
+"select. RMB zoom. [17.5]"
+msgstr ""
+
+#: guitext:619
+msgctxt "Room description"
+msgid ""
+"Torture Chamber: Torture creatures for your own evil ends. LMB select. RMB "
+"zoom. [17.11]"
+msgstr ""
+
+#: guitext:620
+msgctxt "Room description"
+msgid "Dungeon Heart: The life force of your dungeon. [11.2]"
+msgstr ""
+
+#: guitext:621
+msgctxt "Room description"
+msgid ""
+"Workshop: Place creatures inside to manufacture Traps and Doors. LMB select. "
+"RMB zoom. [17.8]"
+msgstr ""
+
+#: guitext:622
+msgctxt "Room description"
+msgid ""
+"Graveyard: Dead creatures are taken to this room to rot. LMB select. RMB "
+"zoom. [17.13]"
+msgstr ""
+
+#: guitext:623
+msgctxt "Room description"
+msgid ""
+"Barracks: Group creatures by placing them into the room. LMB select. RMB "
+"zoom. [17.9]"
+msgstr ""
+
+#: guitext:624
+msgctxt "Room description"
+msgid ""
+"Hatchery: Where creatures feast on cute, helpless little chicks. LMB select. "
+"RMB zoom. [17.3]"
+msgstr ""
+
+#: guitext:625
+msgctxt "Room description"
+msgid ""
+"Lair: Where your creatures sleep and replenish their energy. LMB select. RMB "
+"zoom. [17.2]"
+msgstr ""
+
+#: guitext:626
+msgctxt "Room description"
+msgid ""
+"Bridge: Place this on water and lava to allow creatures to cross. LMB "
+"select. RMB zoom. [17.6]"
+msgstr ""
+
+#: guitext:627
+msgctxt "Room description"
+msgid ""
+"Guard Post: Your creatures keep watch over your dungeon when placed on this "
+"room. LMB select. RMB zoom. [17.7]"
+msgstr ""
+
+#: guitext:628
+msgctxt "Room description"
+msgid ""
+"Temple: Worshipping the dark gods makes creatures happier. Sacrifice "
+"creatures by dropping them into the font. LMB select. RMB zoom. [17.12]"
+msgstr ""
+
+#: guitext:629
+msgctxt "Room description"
+msgid ""
+"Scavenger Room: Creatures placed onto the room lure their kin away from "
+"other dungeons or through portals. LMB select. RMB zoom. [17.14]"
+msgstr ""
+
+#: guitext:630
+msgctxt "Keeper spell name"
+msgid "Possess Creature"
+msgstr ""
+
+#: guitext:631
+msgctxt "Keeper spell name"
+msgid "Create Imp"
+msgstr ""
+
+#: guitext:632
+msgctxt "Keeper spell name"
+msgid "Sight of Evil"
+msgstr ""
+
+#: guitext:633
+msgctxt "Keeper spell name"
+msgid "Call To Arms"
+msgstr ""
+
+#: guitext:634
+msgctxt "Keeper spell name"
+msgid "Hold Audience"
+msgstr ""
+
+#: guitext:635
+msgctxt "Keeper spell name"
+msgid "Cave-In"
+msgstr ""
+
+#: guitext:636
+msgctxt "Keeper spell name"
+msgid "Must Obey"
+msgstr ""
+
+#: guitext:637
+msgctxt "Keeper spell name"
+msgid "Speed Monster"
+msgstr ""
+
+#: guitext:638
+msgctxt "Keeper spell name"
+msgid "Protect Monster"
+msgstr ""
+
+#: guitext:639
+msgctxt "Keeper spell name"
+msgid "Conceal Monster"
+msgstr ""
+
+#: guitext:640
+msgctxt "Keeper spell name"
+msgid "Lightning Strike"
+msgstr ""
+
+#: guitext:641
+msgctxt "Keeper spell name"
+msgid "Chicken"
+msgstr ""
+
+#: guitext:642
+msgctxt "Keeper spell name"
+msgid "Disease"
+msgstr ""
+
+#: guitext:643
+msgctxt "Keeper spell name"
+msgid "Destroy Walls"
+msgstr ""
+
+#: guitext:644
+msgctxt "Keeper spell name"
+msgid "Heal"
+msgstr ""
+
+#: guitext:645
+msgctxt "Keeper spell name"
+msgid "Time Bomb"
+msgstr ""
+
+#: guitext:646
+msgctxt "Keeper spell name"
+msgid "Armageddon"
+msgstr ""
+
+#: guitext:647
+msgctxt "Keeper spell description"
+msgid "Possess Creature: Control a creature directly. LMB select. [18.1]"
+msgstr ""
+
+#: guitext:648
+msgctxt "Keeper spell description"
+msgid ""
+"Create Imp: Create summon a new Imp anywhere in your dungeon. LMB select. "
+"[18.2]"
+msgstr ""
+
+#: guitext:649
+msgctxt "Keeper spell description"
+msgid ""
+"Sight of Evil: Reveal a hidden area of the map for a limited time. LMB "
+"select. RMB zoom. [18.3]"
+msgstr ""
+
+#: guitext:650
+msgctxt "Keeper spell description"
+msgid ""
+"Call To Arms: Calls all your creatures to an area of your dungeon. LMB "
+"select, LMB again to reselect, LMB a third time to cancel. RMB zoom. [18.6]"
+msgstr ""
+
+#: guitext:651
+msgctxt "Keeper spell description"
+msgid ""
+"Hold Audience: Calls all your creatures to the Dungeon Heart. LMB select. "
+"RMB zoom. [18.8]"
+msgstr ""
+
+#: guitext:652
+msgctxt "Keeper spell description"
+msgid "Cave In: Collapses the roof of the dungeon. LMB select. [18.13]"
+msgstr ""
+
+#: guitext:653
+msgctxt "Keeper spell description"
+msgid ""
+"Must Obey: Forces your creatures to obey your every command. LMB select. "
+"[18.5]"
+msgstr ""
+
+#: guitext:654
+msgctxt "Keeper spell description"
+msgid "Speed Monster: Increases the speed of your monsters. LMB select. [18.4]"
+msgstr ""
+
+#: guitext:655
+msgctxt "Keeper spell description"
+msgid ""
+"Protect Monster: Shields your creatures from attack. LBM select. [18.11]"
+msgstr ""
+
+#: guitext:656
+msgctxt "Keeper spell description"
+msgid ""
+"Conceal Monster: Makes your creatures invisible to the enemy. LMB select. "
+"[18.7]"
+msgstr ""
+
+#: guitext:657
+msgctxt "Keeper spell description"
+msgid ""
+"Lightning Strike: Strikes an area of the dungeon with a devastating bolt of "
+"lightning. LMB select. [18.10]"
+msgstr ""
+
+#: guitext:658
+msgctxt "Keeper spell description"
+msgid "Chicken: Transforms the enemy into a tasty morsel. LMB select. [18.12]"
+msgstr ""
+
+#: guitext:659
+msgctxt "Keeper spell description"
+msgid ""
+"Disease: Inflicts a deadly plague on an enemy creature. LMB select. [18.14]"
+msgstr ""
+
+#: guitext:660
+msgctxt "Keeper spell description"
+msgid ""
+"Destroy Walls: Breaks down reinforcemed enemy's walls. LMB select. [18.16]"
+msgstr ""
+
+#: guitext:661
+msgctxt "Keeper spell description"
+msgid ""
+"Heal: Cast on an area of the dungeon to improve the health of your "
+"creatures. LMB select. [18.9]"
+msgstr ""
+
+#: guitext:662
+msgctxt "Keeper spell description"
+msgid "Time Bomb: Turns your creature into a suicidal bomber."
+msgstr ""
+
+#: guitext:663
+msgctxt "Keeper spell description"
+msgid ""
+"Armageddon: Transports all the creatures in the land to your Dungeon Heart "
+"for a final, decisive battle. LMB select. [18.15]"
+msgstr ""

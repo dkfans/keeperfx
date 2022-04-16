@@ -32,6 +32,12 @@ extern "C" {
 #define CREATURE_TYPES_MAX 64
 #define INSTANCE_TYPES_MAX 64
 #define CREATURE_STATES_MAX 256
+
+#define CREATURE_NONE 255
+#define CREATURE_ANY  254
+#define CREATURE_NOT_A_DIGGER  253
+#define CREATURE_DIGGER  252
+
 /** Percentage of creature parameter increase for every experience level.
  *  Used as default value, should be replaced in config file. */
 #define CREATURE_PROPERTY_INCREASE_ON_EXP  35
@@ -205,10 +211,10 @@ typedef TbBool (*Creature_Job_Coords_Assign_Func)(struct Thing *creatng, MapSubt
 
 struct CreatureJobConfig {
     char name[COMMAND_WORD_LEN];
-    Creature_Job_Player_Check_Func func_plyr_check;
-    Creature_Job_Player_Assign_Func func_plyr_assign;
-    Creature_Job_Coords_Check_Func func_cord_check;
-    Creature_Job_Coords_Assign_Func func_cord_assign;
+    unsigned char func_plyr_check_idx;
+    unsigned char func_plyr_assign_idx;
+    unsigned char func_cord_check_idx;
+    unsigned char func_cord_assign_idx;
     RoomRole room_role;
     EventKind event_kind;
     /** The state creature should go into when job is started. */
@@ -272,8 +278,9 @@ extern struct NamedCommand angerjob_desc[];
 extern struct NamedCommand creaturejob_desc[];
 extern struct NamedCommand attackpref_desc[];
 extern struct NamedCommand instance_desc[];
+extern const struct NamedCommand creatmodel_attributes_commands[];
+
 extern const struct NamedCommand creature_graphics_desc[];
-extern struct CreatureConfig crtr_conf;
 /******************************************************************************/
 extern struct CreatureData creature_data[];
 //extern struct Creatures creatures[];
@@ -288,6 +295,7 @@ void check_and_auto_fix_stats(void);
 const char *creature_code_name(ThingModel crmodel);
 long creature_model_id(const char * name);
 const char *creature_own_name(const struct Thing *creatng);
+TbBool is_creature_model_wildcard(ThingModel crmodel);
 /******************************************************************************/
 TbBool load_creaturetypes_config(const char *conf_fname, unsigned short flags);
 /******************************************************************************/

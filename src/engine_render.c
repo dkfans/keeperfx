@@ -53,13 +53,12 @@
 #include "config_creature.h"
 #include "keeperfx.hpp"
 #include "player_states.h"
+#include "custom_sprites.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT void _DK_draw_fastview_mapwho(struct Camera *cam, struct JontySpr *outbuf);
-DLLIMPORT void _DK_draw_stripey_line(long pos_x, long pos_z, long beg_y, long end_y, unsigned char scale);
 DLLIMPORT long _DK_convert_world_coord_to_front_view_screen_coord(struct Coord3d *pos, struct Camera *cam, long *x, long *y, long *z);
 DLLIMPORT void _DK_do_a_trig_gourad_tr(struct EngineCoord *ep1, struct EngineCoord *ep2, struct EngineCoord *ep3, short plane_end, long scale);
 DLLIMPORT void _DK_do_a_trig_gourad_bl(struct EngineCoord *ep1, struct EngineCoord *ep2, struct EngineCoord *ep3, short plane_end, long scale);
@@ -143,6 +142,7 @@ static int water_wibble_angle = 0;
 static unsigned long render_problems;
 static long render_prob_kind;
 static long sp_x, sp_y, sp_dx, sp_dy;
+
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -474,6 +474,31 @@ void rotate_base_axis(struct M33 *matx, short angle, unsigned char axis)
     matx->r[2].v[3] = matx->r[2].v[0] * matx->r[2].v[1];
 }
 
+struct WibbleTable *get_wibble_from_table(long table_index, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+    struct WibbleTable *wibl;
+    TbBool use_wibble = wibble_enabled();
+    if (liquid_wibble_enabled() && !use_wibble)
+    {
+        struct SlabMap *slb = get_slabmap_for_subtile(stl_slab_center_subtile(stl_x), stl_slab_center_subtile(stl_y));
+        struct SlabMap *slb2 = get_slabmap_for_subtile(stl_slab_center_subtile(stl_x), stl_slab_center_subtile(stl_y+1)); // additional checks needed to keep straight edges around liquid with liquid wibble mode
+        struct SlabMap *slb3 = get_slabmap_for_subtile(stl_slab_center_subtile(stl_x-1), stl_slab_center_subtile(stl_y));
+        if (slab_kind_is_liquid(slb3->kind) && slab_kind_is_liquid(slb2->kind) && slab_kind_is_liquid(slb->kind))
+        {
+            use_wibble = true;
+        }
+    }
+    if (use_wibble)
+    {
+        wibl = &wibble_table[table_index];
+    }
+    else
+    {
+        wibl = &blank_wibble_table[table_index];
+    }
+    return wibl;
+}
+
 void fill_in_points_perspective(long bstl_x, long bstl_y, struct MinMax *mm)
 {
     //_DK_fill_in_points_perspective(bstl_x, bstl_y, mm); return;
@@ -570,7 +595,7 @@ void fill_in_points_perspective(long bstl_x, long bstl_y, struct MinMax *mm)
         hpos = subtile_coord(hmin,0) - view_alt;
         wib_x = stl_x & 3;
         struct WibbleTable *wibl;
-        wibl = &wibble_table[32 * wib_v + wib_x + (wib_y << 2)];
+        wibl = get_wibble_from_table(32 * wib_v + wib_x + (wib_y << 2), stl_x, stl_y);
         int idxh;
         for (idxh = hmax-hmin+1; idxh > 0; idxh--)
         {
@@ -595,7 +620,9 @@ void fill_in_points_perspective(long bstl_x, long bstl_y, struct MinMax *mm)
         wib_v = get_mapblk_wibble_value(mapblk);
         hpos = subtile_coord(get_mapblk_filled_subtiles(mapblk),0) - view_alt;
         if (wib_v == 2)
-          wibl = &wibble_table[wib_x + 2 * (hmax + 2 * wib_y - hmin) + 32];
+        {
+            wibl = get_wibble_from_table(wib_x + 2 * (hmax + 2 * wib_y - hmin) + 32, stl_x, stl_y);
+        }
         ecord = &ecol->cors[8];
         {
             ecord->x = apos + wibl->field_0;
@@ -770,7 +797,7 @@ void fill_in_points_cluedo(long bstl_x, long bstl_y, struct MinMax *mm)
         ecord = &ecol->cors[hmin];
         wib_x = stl_x & 3;
         struct WibbleTable *wibl;
-        wibl = &wibble_table[32 * wib_v + wib_x + (wib_y << 2)];
+        wibl = get_wibble_from_table(32 * wib_v + wib_x + (wib_y << 2), stl_x, stl_y);
         long *randmis;
         randmis = &randomisors[(stl_x + 17 * (stl_y + 1)) & 0xff];
         eview_h = dview_h * hmin + hview_y;
@@ -1001,7 +1028,7 @@ void fill_in_points_isometric(long bstl_x, long bstl_y, struct MinMax *mm)
         ecord = &ecol->cors[hmin];
         wib_x = stl_x & 3;
         struct WibbleTable *wibl;
-        wibl = &wibble_table[32 * wib_v + wib_x + (wib_y << 2)];
+        wibl = get_wibble_from_table(32 * wib_v + wib_x + (wib_y << 2), stl_x, stl_y);
         eview_h = dview_h * hmin + hview_y;
         eview_z = dview_z * hmin + hview_z;
         randmis = &randomisors[(stl_x + 17 * (stl_y+1)) & 0xff] + hmin;
@@ -1100,7 +1127,7 @@ void frame_wibble_generate(void)
     }
 }
 
-void setup_rotate_stuff(long x, long y, long z, long fade_max, long fade_min, long zoom, long map_angle, long map_roll)
+void setup_rotate_stuff(long x, long y, long z, long rotate_fade_max, long rotate_fade_min, long zoom, long map_angle, long rotate_map_roll)
 {
     //_DK_setup_rotate_stuff(x, y, z, fade_max, fade_min, zoom, map_angle, map_roll);
     view_width_over_2 = vec_window_width / 2;
@@ -1110,9 +1137,9 @@ void setup_rotate_stuff(long x, long y, long z, long fade_max, long fade_min, lo
     map_z_pos = z;
     thelens = zoom;
     spr_map_angle = map_angle;
-    lfade_min = fade_min;
-    lfade_max = fade_max;
-    fade_mmm = fade_max - fade_min;
+    lfade_min = rotate_fade_min;
+    lfade_max = rotate_fade_max;
+    fade_mmm = rotate_fade_max - rotate_fade_min;
 }
 
 static void create_box_coords(struct EngineCoord *coord, long x, long z, long y)
@@ -2062,7 +2089,7 @@ static void create_line_const_yz(long pos_y, long pos_z, long start_x, long end_
     }
 }
 
-void create_map_volume_box(long x, long y, long z)
+void create_map_volume_box(long x, long y, long z, long line_color)
 {
     long box_xs;
     long box_xe;
@@ -2071,6 +2098,8 @@ void create_map_volume_box(long x, long y, long z)
     long box_zs;
     long box_ze;
     long i;
+    long box_color = map_volume_box.color;
+    map_volume_box.color = line_color;
 
     box_xs = map_volume_box.beg_x - x;
     box_ys = y - map_volume_box.beg_y;
@@ -2125,10 +2154,17 @@ void create_map_volume_box(long x, long y, long z)
     create_line_const_yz(box_ys, box_ze, box_xs, box_xe);
     create_line_const_xz(box_xs, box_ze, box_ys, box_ye);
     create_line_const_xz(box_xe, box_ze, box_ys, box_ye);
+
+    map_volume_box.color = box_color;
 }
 
-void create_fancy_map_volume_box(struct RoomSpace roomspace, long x, long y, long z)
+void create_fancy_map_volume_box(struct RoomSpace roomspace, long x, long y, long z, long color, TbBool show_outer_box)
 {
+    long line_color = color;
+    if (show_outer_box)
+    {
+        line_color = map_volume_box.color; //  set the "inner" box color to the default colour (usually red/green)
+    }
     long box_xs;
     long box_xe;
     long box_ys;
@@ -2136,11 +2172,19 @@ void create_fancy_map_volume_box(struct RoomSpace roomspace, long x, long y, lon
     long box_zs;
     long box_ze;
     long i;
+    long box_color = map_volume_box.color;
+    map_volume_box.color = line_color;
+    struct MapVolumeBox valid_slabs = map_volume_box;
+    // get the 'accurate' roomspace shape instead of the outer box
+    valid_slabs.beg_x = subtile_coord((roomspace.left * 3), 0);
+    valid_slabs.beg_y = subtile_coord((roomspace.top * 3), 0);
+    valid_slabs.end_x = subtile_coord((3*1) + (roomspace.right * 3), 0);
+    valid_slabs.end_y = subtile_coord(((3*1) + roomspace.bottom * 3), 0);
 
-    box_xs = map_volume_box.beg_x - x;
-    box_ys = y - map_volume_box.beg_y;
-    box_ye = y - map_volume_box.end_y;
-    box_xe = map_volume_box.end_x - x;
+    box_xs = valid_slabs.beg_x - x;
+    box_ys = y - valid_slabs.beg_y;
+    box_ye = y - valid_slabs.end_y;
+    box_xe = valid_slabs.end_x - x;
 
     if ( temp_cluedo_mode )
     {
@@ -2159,22 +2203,21 @@ void create_fancy_map_volume_box(struct RoomSpace roomspace, long x, long y, lon
 
     if ( box_xe < box_xs )
     {
-        i = map_volume_box.beg_x;
-        box_xs = map_volume_box.end_x - x;
-        box_xe = map_volume_box.beg_x - x;
-        map_volume_box.beg_x = map_volume_box.end_x;
-        map_volume_box.end_x = i;
+        i = valid_slabs.beg_x;
+        box_xs = valid_slabs.end_x - x;
+        box_xe = valid_slabs.beg_x - x;
+        valid_slabs.beg_x = valid_slabs.end_x;
+        valid_slabs.end_x = i;
     }
 
     if ( box_ye > box_ys )
     {
-        i = map_volume_box.beg_y;
-        box_ys = y - map_volume_box.end_y;
-        box_ye = y - map_volume_box.beg_y;
-        map_volume_box.beg_y = map_volume_box.end_y;
-        map_volume_box.end_y = i;
+        i = valid_slabs.beg_y;
+        box_ys = y - valid_slabs.end_y;
+        box_ye = y - valid_slabs.beg_y;
+        valid_slabs.beg_y = valid_slabs.end_y;
+        valid_slabs.end_y = i;
     }
-
     for (int roomspace_y = 0; roomspace_y < roomspace.height; roomspace_y++)
     {
         for (int roomspace_x = 0; roomspace_x < roomspace.width; roomspace_x++)
@@ -2267,11 +2310,93 @@ void create_fancy_map_volume_box(struct RoomSpace roomspace, long x, long y, lon
                         create_line_const_xy(slab_xend, slab_yend, box_zs, box_ze);
                     }
                 }
+                if (show_outer_box) // this handles the "outer line" (only when it is not in the roomspace)
+                {
+                    //draw 2nd line, i.e. the outer line - the one around the edge of the 5x5 cursor, not the valid slabs within the cursor
+                    map_volume_box.color = color; // switch to the "secondary colour" (the one passed as a variable if show_outer_box is true)
+                    TbBool left_edge   = (roomspace_x == 0)                    ? true : false;
+                    TbBool right_edge  = (roomspace_x == roomspace.width - 1)  ? true : false;
+                    TbBool top_edge    = (roomspace_y == 0)                    ? true : false;
+                    TbBool bottom_edge = (roomspace_y == roomspace.height - 1) ? true : false;
+                    if (left_edge)
+                    {
+                        create_line_const_xz(slab_xstart, box_zs, slab_yend, slab_ystart);
+                        create_line_const_xz(slab_xstart, box_ze, slab_yend, slab_ystart);
+                        if (top_edge)
+                        {
+                            create_line_const_xy(slab_xstart, slab_ystart, box_zs, box_ze);
+                        }
+                        if (bottom_edge)
+                        {
+                            create_line_const_xy(slab_xstart, slab_yend, box_zs, box_ze);
+                        }
+                    }
+                    if (right_edge)
+                    {
+                        create_line_const_xz(slab_xend, box_zs, slab_yend, slab_ystart);
+                        create_line_const_xz(slab_xend, box_ze, slab_yend, slab_ystart);
+                        if (top_edge)
+                        {
+                            create_line_const_xy(slab_xend, slab_ystart, box_zs, box_ze);
+                        }
+                        if (bottom_edge)
+                        {
+                            create_line_const_xy(slab_xend, slab_yend, box_zs, box_ze);
+                        }
+                    }
+                    if (top_edge)
+                    {
+                        create_line_const_yz(slab_ystart, box_zs, slab_xstart, slab_xend);
+                        create_line_const_yz(slab_ystart, box_ze, slab_xstart, slab_xend);
+                    }
+                    if (bottom_edge)
+                    {
+                        create_line_const_yz(slab_yend, box_zs, slab_xstart, slab_xend);
+                        create_line_const_yz(slab_yend, box_ze, slab_xstart, slab_xend);
+                    }
+                    map_volume_box.color = line_color; // switch back to default color (red/green) for the inner line
+                }
             }
         }
     }
+
+    map_volume_box.color = box_color;
 }
 
+void process_isometric_map_volume_box(long x, long y, long z)
+{
+    unsigned char default_color = map_volume_box.color;
+    unsigned char line_color = default_color;
+    struct DungeonAdd *dungeonadd = get_dungeonadd(render_roomspace.plyr_idx);
+    struct PlayerInfo* current_player = get_player(render_roomspace.plyr_idx);
+    // Check if a roomspace is currently being built
+    // and if so feed this back to the user
+    if ((dungeonadd->roomspace.is_active) && ((current_player->work_state == PSt_Sell) || (current_player->work_state == PSt_BuildRoom)))
+    {
+        line_color = SLC_REDYELLOW; // change the cursor color to indicate to the user that nothing else can be built or sold at the moment
+    }
+    if (render_roomspace.render_roomspace_as_box)
+    {
+        if (render_roomspace.is_roomspace_a_box)
+        {
+            // This is a basic square box
+            create_map_volume_box(x, y, z, line_color);
+        }
+        else
+        {
+            // This is a "2-line" square box
+            // i.e. an "accurate" box with an outer square box
+            map_volume_box.color = line_color;
+            create_fancy_map_volume_box(render_roomspace, x, y, z, SLC_BROWN, true);
+        }
+    }
+    else
+    {
+        // This is an "accurate"/"automagic" box
+        create_fancy_map_volume_box(render_roomspace, x, y, z, line_color, false);
+    }
+    map_volume_box.color = default_color;
+}
 static void do_a_trig_gourad_tr(struct EngineCoord *ep1, struct EngineCoord *ep2, struct EngineCoord *ep3, short a4, long a5)
 {
     _DK_do_a_trig_gourad_tr(ep1, ep2, ep3, a4, a5);
@@ -2553,9 +2678,9 @@ static void add_draw_status_box(struct Thing *thing, struct EngineCoord *ecor)
 
 unsigned short engine_remap_texture_blocks(long stl_x, long stl_y, unsigned short tex_id)
 {
-    long slb_x = stl_x / 3;
-    long slb_y = stl_y / 3;
-    return tex_id + (slab_ext_data[85 * slb_y + slb_x] & 0xF) * TEXTURE_BLOCKS_COUNT;
+    long slb_x = subtile_slab(stl_x);
+    long slb_y = subtile_slab(stl_y);
+    return tex_id + (gameadd.slab_ext_data[85 * slb_y + slb_x] & 0xF) * TEXTURE_BLOCKS_COUNT;
 }
 
 void do_a_plane_of_engine_columns_perspective(long stl_x, long stl_y, long plane_start, long plane_end)
@@ -2888,8 +3013,19 @@ void do_a_plane_of_engine_columns_cluedo(long stl_x, long stl_y, long plane_star
         {
             int ncor_raw;
             ncor_raw = _DK_floor_height[solidmsk_cur_raw];
-            if ((cur_mapblk->flags & (SlbAtFlg_TaggedValuable|SlbAtFlg_Unexplored)) == 0)
+            if ( (cur_mapblk->flags & SlbAtFlg_Unexplored) != 0 )
             {
+                unsigned short textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, TEXTURE_LAND_MARKED_LAND);
+                do_a_gpoly_unlit_tr(&bec[0].cors[ncor], &bec[1].cors[ncor], &fec[1].cors[ncor], textr_id);
+                do_a_gpoly_unlit_bl(&fec[1].cors[ncor], &fec[0].cors[ncor], &bec[0].cors[ncor], textr_id);
+            } else
+            if ((cur_mapblk->flags & SlbAtFlg_TaggedValuable) != 0)
+            {
+                unsigned short textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, TEXTURE_LAND_MARKED_GOLD);
+                do_a_gpoly_unlit_tr(&bec[0].cors[ncor], &bec[1].cors[ncor], &fec[1].cors[ncor], textr_id);
+                do_a_gpoly_unlit_bl(&fec[1].cors[ncor], &fec[0].cors[ncor], &bec[0].cors[ncor], textr_id);
+            } else
+             {
                 if ((ncor_raw > 0) && (ncor_raw <= COLUMN_STACK_HEIGHT))
                 {
                     struct CubeAttribs * cubed = &game.cubes_data[cur_colmn->cubes[ncor_raw-1]];
@@ -2898,17 +3034,6 @@ void do_a_plane_of_engine_columns_cluedo(long stl_x, long stl_y, long plane_star
                     do_a_gpoly_gourad_tr(&bec[0].cors[ncor], &bec[1].cors[ncor], &fec[1].cors[ncor], textr_id, -1);
                     do_a_gpoly_gourad_bl(&fec[1].cors[ncor], &fec[0].cors[ncor], &bec[0].cors[ncor], textr_id, -1);
                 }
-            } else
-            if ((cur_mapblk->flags & SlbAtFlg_Valuable) != 0)
-            {
-                unsigned short textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, TEXTURE_LAND_MARKED_GOLD);
-                do_a_gpoly_unlit_tr(&bec[0].cors[ncor], &bec[1].cors[ncor], &fec[1].cors[ncor], textr_id);
-                do_a_gpoly_unlit_bl(&fec[1].cors[ncor], &fec[0].cors[ncor], &bec[0].cors[ncor], textr_id);
-            } else
-            {
-                unsigned short textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, TEXTURE_LAND_MARKED_LAND);
-                do_a_gpoly_unlit_tr(&bec[0].cors[ncor], &bec[1].cors[ncor], &fec[1].cors[ncor], textr_id);
-                do_a_gpoly_unlit_bl(&fec[1].cors[ncor], &fec[0].cors[ncor], &bec[0].cors[ncor], textr_id);
             }
         } else
         {
@@ -3074,7 +3199,13 @@ void do_a_plane_of_engine_columns_isometric(long stl_x, long stl_y, long plane_s
         ncor = _DK_floor_height[solidmsk_cur];
         if (ncor > 0)
         {
-            if ((cur_mapblk->flags & (SlbAtFlg_TaggedValuable|SlbAtFlg_Unexplored)) == 0)
+            if (cur_mapblk->flags & SlbAtFlg_Unexplored)
+            {
+                unsigned short textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, TEXTURE_LAND_MARKED_LAND);
+                do_a_gpoly_unlit_tr(&bec[0].cors[ncor], &bec[1].cors[ncor], &fec[1].cors[ncor], textr_id);
+                do_a_gpoly_unlit_bl(&fec[1].cors[ncor], &fec[0].cors[ncor], &bec[0].cors[ncor], textr_id);
+            }
+            else if ((cur_mapblk->flags & (SlbAtFlg_TaggedValuable|SlbAtFlg_Unexplored)) == 0)
             {
                 struct CubeAttribs * cubed;
                 cubed = &game.cubes_data[*(short *)((char *)&cur_colmn->baseblock + 2 * ncor + 1)];
@@ -3086,11 +3217,6 @@ void do_a_plane_of_engine_columns_isometric(long stl_x, long stl_y, long plane_s
             if ((cur_mapblk->flags & SlbAtFlg_Valuable) != 0)
             {
                 unsigned short textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, TEXTURE_LAND_MARKED_GOLD);
-                do_a_gpoly_unlit_tr(&bec[0].cors[ncor], &bec[1].cors[ncor], &fec[1].cors[ncor], textr_id);
-                do_a_gpoly_unlit_bl(&fec[1].cors[ncor], &fec[0].cors[ncor], &bec[0].cors[ncor], textr_id);
-            } else
-            {
-                unsigned short textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, TEXTURE_LAND_MARKED_LAND);
                 do_a_gpoly_unlit_tr(&bec[0].cors[ncor], &bec[1].cors[ncor], &fec[1].cors[ncor], textr_id);
                 do_a_gpoly_unlit_bl(&fec[1].cors[ncor], &fec[0].cors[ncor], &bec[0].cors[ncor], textr_id);
             }
@@ -3131,9 +3257,194 @@ void draw_map_volume_box(long cor1_x, long cor1_y, long cor2_x, long cor2_y, lon
     map_volume_box.color = color;
 }
 
-static void draw_fastview_mapwho(struct Camera *cam, struct JontySpr *spr)
+static unsigned short get_thing_shade(struct Thing* thing);
+static void draw_fastview_mapwho(struct Camera *cam, struct JontySpr *jspr)
 {
-    _DK_draw_fastview_mapwho(cam, spr);
+    unsigned short flg_mem;
+    unsigned char alpha_mem;
+    struct PlayerInfo *player;
+    struct Thing *thing;
+    short angle;
+    flg_mem = lbDisplay.DrawFlags;
+    alpha_mem = EngineSpriteDrawUsingAlpha;
+    thing = jspr->thing;
+    player = get_my_player();
+    if (keepersprite_rotable(thing->anim_sprite))
+    {
+        angle = thing->move_angle_xy - cam->orient_a; // orient_a maybe short
+    }
+    else
+    {
+        angle = thing->move_angle_xy;
+    }
+
+    switch(thing->field_4F & TF4F_Transpar_Alpha)
+    {
+        case TF4F_Transpar_8:
+            lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR8;
+            break;
+        case TF4F_Transpar_4:
+            lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
+            break;
+        default:
+            break;
+    }
+    unsigned short v6 = 0x2000;
+    if ( !(thing->field_4F & TF4F_Unknown02) )
+        v6 = get_thing_shade(thing);
+    v6 >>= 8;
+
+    int a6_2 = thing->sprite_size * ((cam->zoom << 13) / 0x10000 / pixel_size) / 0x10000;
+    if ( thing->field_4F & TF4F_Tint_Flags )
+    {
+        lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
+        lbSpriteReMapPtr = &pixmap.ghost[256 * thing->field_51];
+    }
+    else if ( v6 == 0x2000 )
+    {
+        lbDisplay.DrawFlags &= ~Lb_TEXT_UNDERLNSHADOW;
+    }
+    else
+    {
+        lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
+        lbSpriteReMapPtr = &pixmap.fade_tables[v6 << 8];
+    }
+
+    EngineSpriteDrawUsingAlpha = 0;
+    switch (thing->field_4F & (TF4F_Transpar_Flags))
+    {
+        case TF4F_Transpar_8:
+            lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR8;
+            lbDisplay.DrawFlags &= ~Lb_TEXT_UNDERLNSHADOW;
+            break;
+        case TF4F_Transpar_4:
+            lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
+            lbDisplay.DrawFlags &= ~Lb_TEXT_UNDERLNSHADOW;
+            break;
+        case TF4F_Transpar_Alpha:
+            EngineSpriteDrawUsingAlpha = 1;
+            break;
+    }
+//
+    if ((thing->class_id == TCls_Creature)
+        || (thing->class_id == TCls_Object)
+        || (thing->class_id == TCls_DeadCreature))
+    {
+        if ((player->thing_under_hand == thing->index) && (game.play_gameturn & 2))
+        {
+            lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
+            lbSpriteReMapPtr = white_pal;
+        }
+        else if ((thing->field_4F & TF4F_Unknown80) != 0)
+        {
+            lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
+            lbSpriteReMapPtr = red_pal;
+            thing->field_4F &= ~TF4F_Unknown80;
+        }
+        thing_being_displayed_is_creature = 1;
+        thing_being_displayed = thing;
+    } else
+    {
+        thing_being_displayed_is_creature = 0;
+        thing_being_displayed = NULL;
+    }
+
+    if (
+            ((thing->anim_sprite >= CREATURE_FRAMELIST_LENGTH) && (thing->anim_sprite < KEEPERSPRITE_ADD_OFFSET))
+            || (thing->anim_sprite >= KEEPERSPRITE_ADD_OFFSET + KEEPERSPRITE_ADD_NUM)
+            )
+    {
+        ERRORLOG("Invalid graphic Id %d from model %d, class %d", (int)thing->anim_sprite, (int)thing->model, (int)thing->class_id);
+        lbDisplay.DrawFlags = flg_mem;
+        EngineSpriteDrawUsingAlpha = alpha_mem;
+        return;
+    }
+    TbBool special_drawing = false;
+    int n;
+    long dx;
+    long dy;
+    long v16;
+    if (thing->class_id == TCls_Object)
+    {
+        //TODO CONFIG object model dependency, move to config
+
+        if (thing->model == 2)
+        {
+            n = 113;
+            if (player->view_type == PVT_DungeonTop)
+            {
+                dx = 0;
+                dy = 3 * a6_2 >> 3;
+            }
+            else
+            {
+                dx = a6_2 * LbSinL(angle) >> 20;
+                dy = a6_2 * LbCosL(angle) >> 20;
+            }
+            v16 = 2 * a6_2 / 3;
+            special_drawing = true;
+        }
+        else if (thing->model == 4)
+        {
+            n = 113;
+            if (player->view_type == PVT_DungeonTop)
+            {
+                dx = (a6_2 >> 2) / 3;
+                dy = a6_2 / 6;
+            }
+            else
+            {
+                dx = a6_2 * LbSinL(angle) >> 20;
+                dy = (-(LbCosL(angle) * ((3 * a6_2) / 2)) >> 16) / 3;
+            }
+            v16 = a6_2 / 3;
+            special_drawing = true;
+        }
+        else if (thing->model == 28) //torchflames
+        {
+            n = 112;
+            if (player->view_type == PVT_DungeonTop)
+            {
+                dx = a6_2 >> 3;
+                dy = (a6_2 >> 2) - a6_2;
+            }
+            else
+            {
+                dx = a6_2 * LbSinL(angle) >> 20;
+                dy = -(LbCosL(angle) * ((3 * a6_2) / 2)) >> 16;
+            }
+            v16 = a6_2 / 2;
+            special_drawing = true;
+        }
+    }
+    if (special_drawing)
+    {
+        EngineSpriteDrawUsingAlpha = 0;
+        unsigned long v21 = (game.play_gameturn + thing->index) % keepersprite_frames(n);
+        // drawing torch
+        process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->field_48, a6_2);
+        EngineSpriteDrawUsingAlpha = 1;
+        // drawing flame
+        process_keeper_sprite(dx + jspr->scr_x, dy + jspr->scr_y, n, angle, v21, v16);
+    }
+    else
+    {
+        TbBool is_shown = false;
+        if (thing->class_id == TCls_Trap)
+        {
+            is_shown = !gameadd.trapdoor_conf.trap_cfgstats[thing->model].hidden;
+        }
+        else
+        {
+            is_shown = ((thing->field_4F & TF4F_Unknown01) == 0);
+        }
+        if ( is_shown ||
+                get_my_player()->id_number == thing->owner ||
+                thing->trap.revealed )
+            process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->field_48, a6_2);
+    }
+    lbDisplay.DrawFlags = flg_mem;
+    EngineSpriteDrawUsingAlpha = alpha_mem;
 }
 
 void draw_engine_number(struct Number *num)
@@ -3150,8 +3461,8 @@ void draw_engine_number(struct Number *num)
     player = get_my_player();
     lbDisplay.DrawFlags &= ~Lb_SPRITE_FLIP_HORIZ;
     spr = &button_sprite[71];
-    w = spr->SWidth;
-    h = spr->SHeight;
+    w = scale_ui_value(spr->SWidth);
+    h = scale_ui_value(spr->SHeight);
     if ((player->acamera->view_mode == PVM_IsometricView) || (player->acamera->view_mode == PVM_FrontView))
     {
         // Count digits to be displayed
@@ -3354,7 +3665,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing, long
     h_add = 0;
     int w;
     int h;
-    struct TbSprite *spr;
+    const struct TbSprite *spr;
     int bs_units_per_px;
     spr = &button_sprite[70];
     bs_units_per_px = 17 * units_per_pixel / spr->SHeight;
@@ -3373,18 +3684,18 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing, long
         w = (zoom * spr->SWidth * bs_units_per_px/16) >> 13;
         h = (zoom * spr->SHeight * bs_units_per_px/16) >> 13;
         LbSpriteDrawScaled(scrpos_x - w / 2, scrpos_y - h, spr, w, h);
-        spr = &button_sprite[state_spridx];
+        spr = get_button_sprite(state_spridx);
         h_add += spr->SHeight * bs_units_per_px/16;
-    } else
-    if ( state_spridx )
+    }
+    else if ( state_spridx )
     {
-        spr = &button_sprite[state_spridx];
+        spr = get_button_sprite(state_spridx);
         w = (zoom * spr->SWidth * bs_units_per_px/16) >> 13;
         h = (zoom * spr->SHeight * bs_units_per_px/16) >> 13;
         LbSpriteDrawScaled(scrpos_x - w / 2, scrpos_y - h, spr, w, h);
         h_add += h;
     }
-    if ((thing->size > 0) && (health_spridx > 0) && ((game.play_gameturn & 1) != 0))
+    if ((thing->lair.spr_size > 0) && (health_spridx > 0) && ((game.play_gameturn & 1) != 0))
     {
         int flash_owner;
         if (is_neutral_thing(thing)) {
@@ -3392,7 +3703,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing, long
         } else {
             flash_owner = thing->owner;
         }
-        spr = &button_sprite[health_spridx];
+        spr = get_button_sprite(health_spridx);
         w = (zoom * spr->SWidth * bs_units_per_px/16) >> 13;
         h = (zoom * spr->SHeight * bs_units_per_px/16) >> 13;
         LbSpriteDrawScaledOneColour(scrpos_x - w / 2, scrpos_y - h - h_add, spr, w, h, player_flash_colours[flash_owner]);
@@ -3402,11 +3713,11 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing, long
       if ( (myplyr->thing_under_hand == thing->index)
         || ((myplyr->id_number != thing->owner) && !creature_is_invisible(thing))
         || (cctrl->combat_flags != 0)
-        || (thing->size > 0)
+        || (thing->lair.spr_size > 0)
         || (mycam->view_mode == PVM_ParchmentView))
       {
           if (health_spridx > 0) {
-              spr = &button_sprite[health_spridx];
+              spr = get_button_sprite(health_spridx);
               w = (zoom * spr->SWidth * bs_units_per_px/16) >> 13;
               h = (zoom * spr->SHeight * bs_units_per_px/16) >> 13;
               LbSpriteDrawScaled(scrpos_x - w / 2, scrpos_y - h - h_add, spr, w, h);
@@ -3506,7 +3817,7 @@ static void draw_engine_room_flag_top(struct RoomFlag *rflg)
 
 static void draw_stripey_line(long x1,long y1,long x2,long y2,unsigned char line_color)
 {
-    //_DK_draw_stripey_line(x1, y1, x2, y2, line_color);
+    if ((x1 == x2) && (y1 == y2)) return; // todo if distance is 0, provide a red square
 
     // get the 4 least significant bits of game.play_gameturn, to loop through the starting index of the color array, using numbers 0-15.
     unsigned char color_index = game.play_gameturn & 0xf;
@@ -4693,7 +5004,7 @@ void display_drawlist(void)
       }
     }
     if (render_problems > 0)
-      WARNLOG("Encoured %lu rendering problems; last was with poly kind %ld",render_problems,render_prob_kind);
+      WARNLOG("Incurred %lu rendering problems; last was with poly kind %ld",render_problems,render_prob_kind);
 }
 
 static void prepare_draw_plane_of_engine_columns(long aposc, long bposc, long xcell, long ycell, struct MinMax *mm)
@@ -4832,7 +5143,10 @@ void draw_view(struct Camera *cam, unsigned char a2)
     x = cam->mappos.x.val;
     y = cam->mappos.y.val;
     z = cam->mappos.z.val;
-    frame_wibble_generate();
+    if (wibble_enabled() || liquid_wibble_enabled())
+    {
+        frame_wibble_generate();
+    }
     view_alt = z;
     if (lens_mode != 0)
     {
@@ -4858,14 +5172,7 @@ void draw_view(struct Camera *cam, unsigned char a2)
     if (map_volume_box.visible)
     {
         poly_pool_end_reserve(0);
-        if (render_roomspace.is_roomspace_a_box)
-        {
-            create_map_volume_box(x, y, z);
-        }
-        else
-        {
-            create_fancy_map_volume_box(render_roomspace, x, y, z);
-        }
+        process_isometric_map_volume_box(x, y, z);
     }
     cam->zoom = zoom_mem;//TODO [zoom] remove when all cam->zoom will be changed to camera_zoom
     display_drawlist();
@@ -5035,7 +5342,7 @@ static void display_fast_drawlist(struct Camera *cam)
         }
     } // end for(bucket_num...
     if (render_problems > 0) {
-        WARNLOG("Encoured %lu rendering problems; last was with poly kind %ld",render_problems,render_prob_kind);
+        WARNLOG("Incurred %lu rendering problems; last was with poly kind %ld",render_problems,render_prob_kind);
     }
 }
 
@@ -5315,7 +5622,7 @@ static void draw_element(struct Map *map, long lightness, long stl_x, long stl_y
       i = game.unrevealed_column_idx;
     col = get_column(i);
     mapblk = get_map_block_at(stl_x, stl_y);
-
+    unsigned short textr_idx;
     // Draw the columns base block
 
     if (*ymax > pos_y)
@@ -5323,20 +5630,21 @@ static void draw_element(struct Map *map, long lightness, long stl_x, long stl_y
       if ((col->baseblock != 0) && (col->cubes[0] == 0))
       {
           *ymax = pos_y;
+          textr_idx = engine_remap_texture_blocks(stl_x, stl_y, col->baseblock);
           if ((mapblk->flags & SlbAtFlg_Unexplored) != 0)
           {
-              add_textruredquad_to_polypool(pos_x, pos_y, col->baseblock, a7, 0,
+              add_textruredquad_to_polypool(pos_x, pos_y, textr_idx, a7, 0,
                   2097152, 0, bckt_idx);
           } else
           {
-              add_lgttextrdquad_to_polypool(pos_x, pos_y, col->baseblock, a7, a7, 0,
+              add_lgttextrdquad_to_polypool(pos_x, pos_y, textr_idx, a7, a7, 0,
                   lightness_arr[0][0], lightness_arr[1][0], lightness_arr[2][0], lightness_arr[3][0], bckt_idx);
           }
       }
     }
 
     // Draw the columns cubes
-
+    
     y = a7 + pos_y;
     unkstrcp = NULL;
     for (tc=0; tc < COLUMN_STACK_HEIGHT; tc++)
@@ -5348,7 +5656,8 @@ static void draw_element(struct Map *map, long lightness, long stl_x, long stl_y
       if (*ymax > y)
       {
         *ymax = y;
-        add_lgttextrdquad_to_polypool(pos_x, y, unkstrcp->texture_id[cube_itm], a7, delta_y, 0,
+        textr_idx = engine_remap_texture_blocks(stl_x, stl_y, unkstrcp->texture_id[cube_itm]);
+        add_lgttextrdquad_to_polypool(pos_x, y, textr_idx, a7, delta_y, 0,
             lightness_arr[3][tc+1], lightness_arr[2][tc+1], lightness_arr[2][tc], lightness_arr[3][tc], bckt_idx);
       }
     }
@@ -5359,18 +5668,19 @@ static void draw_element(struct Map *map, long lightness, long stl_x, long stl_y
       if (*ymax > i)
       {
         *ymax = i;
+        textr_idx = engine_remap_texture_blocks(stl_x, stl_y, unkstrcp->texture_id[4]);
         if ((mapblk->flags & SlbAtFlg_TaggedValuable) != 0)
         {
-          add_textruredquad_to_polypool(pos_x, i, unkstrcp->texture_id[4], a7, a8,
+          add_textruredquad_to_polypool(pos_x, i, textr_idx, a7, a8,
               2097152, 1, bckt_idx);
         } else
         if ((mapblk->flags & SlbAtFlg_Unexplored) != 0)
         {
-          add_textruredquad_to_polypool(pos_x, i, unkstrcp->texture_id[4], a7, a8,
+          add_textruredquad_to_polypool(pos_x, i, textr_idx, a7, a8,
               2097152, 0, bckt_idx);
         } else
         {
-          add_lgttextrdquad_to_polypool(pos_x, i, unkstrcp->texture_id[4], a7, a7, a8,
+          add_lgttextrdquad_to_polypool(pos_x, i, textr_idx, a7, a7, a8,
               lightness_arr[0][tc], lightness_arr[1][tc], lightness_arr[2][tc], lightness_arr[3][tc], bckt_idx);
         }
       }
@@ -5395,7 +5705,8 @@ static void draw_element(struct Map *map, long lightness, long stl_x, long stl_y
             unkstrcp = &game.cubes_data[col->cubes[tc]];
             if (*ymax > y)
             {
-              add_lgttextrdquad_to_polypool(pos_x, y, unkstrcp->texture_id[cube_itm], a7, delta_y, 0,
+              textr_idx = engine_remap_texture_blocks(stl_x, stl_y, unkstrcp->texture_id[cube_itm]);
+              add_lgttextrdquad_to_polypool(pos_x, y, textr_idx, a7, delta_y, 0,
                   lightness_arr[3][tc+1], lightness_arr[2][tc+1], lightness_arr[2][tc], lightness_arr[3][tc], bckt_idx);
             }
         }
@@ -5404,7 +5715,8 @@ static void draw_element(struct Map *map, long lightness, long stl_x, long stl_y
           i = y - a7;
           if (*ymax > i)
           {
-            add_lgttextrdquad_to_polypool(pos_x, i, unkstrcp->texture_id[4], a7, a7, a8,
+              textr_idx = engine_remap_texture_blocks(stl_x, stl_y, unkstrcp->texture_id[4]);
+            add_lgttextrdquad_to_polypool(pos_x, i, textr_idx, a7, a7, a8,
                 lightness_arr[0][tc], lightness_arr[1][tc], lightness_arr[2][tc], lightness_arr[3][tc], bckt_idx);
           }
         }
@@ -5565,6 +5877,8 @@ static long load_keepersprite_if_needed(unsigned short kspr_idx)
 static long heap_manage_keepersprite(unsigned short kspr_idx)
 {
     long result;
+    if (kspr_idx >= KEEPERSPRITE_ADD_OFFSET)
+        return 1;
     lock_keepersprite(kspr_idx);
     result = load_keepersprite_if_needed(kspr_idx);
     unlock_keepersprite(kspr_idx);
@@ -5577,7 +5891,9 @@ static void draw_keepersprite(long x, long y, long w, long h, long kspr_idx)
     long cut_w;
     long cut_h;
     TbSpriteData *kspr_item;
-    if ((kspr_idx < 0) || (kspr_idx >= KEEPSPRITE_LENGTH)) {
+    if ((kspr_idx < 0)
+        || ((kspr_idx >= KEEPSPRITE_LENGTH) && (kspr_idx < KEEPERSPRITE_ADD_OFFSET))
+        || (kspr_idx > (KEEPERSPRITE_ADD_NUM + KEEPERSPRITE_ADD_OFFSET))) {
         WARNDBG(9,"Invalid KeeperSprite %ld at (%ld,%ld) size (%ld,%ld) alpha %d",kspr_idx,x,y,w,h,(int)EngineSpriteDrawUsingAlpha);
         return;
     }
@@ -5587,7 +5903,11 @@ static void draw_keepersprite(long x, long y, long w, long h, long kspr_idx)
     if (cut_h <= 0) {
         return;
     }
-    kspr_item = keepsprite[kspr_idx];
+    if (kspr_idx < KEEPERSPRITE_ADD_OFFSET)
+        kspr_item = keepsprite[kspr_idx];
+    else
+        kspr_item = &keepersprite_add[kspr_idx - KEEPERSPRITE_ADD_OFFSET];
+
     sprite.SWidth = cut_w;
     sprite.SHeight = cut_h;
     if (kspr_item != NULL) {
@@ -5772,7 +6092,7 @@ static void draw_single_keepersprite(long kspos_x, long kspos_y, struct KeeperSp
 
 // this function is called by draw_fastview_mapwho
 HOOK_DK_FUNC(process_keeper_sprite)
-void process_keeper_sprite(short x, short y, unsigned short kspr_base, short kspr_frame, unsigned char sprgroup, long scale)
+void process_keeper_sprite(short x, short y, unsigned short kspr_base, short kspr_angle, unsigned char sprgroup, long scale)
 {
     struct KeeperSprite *creature_sprites;
     struct PlayerInfo *player;
@@ -5789,12 +6109,12 @@ void process_keeper_sprite(short x, short y, unsigned short kspr_base, short ksp
     TbBool needs_xflip;
     long long lltemp;
     long sprite_group;
-    long sprite_delta;
+    long sprite_rot;
     long cutoff;
-    SYNCDBG(17,"At (%d,%d) opts %d %d %d %d",(int)x,(int)y,(int)kspr_base,(int)kspr_frame,(int)sprgroup,(int)scale);
+    SYNCDBG(17, "At (%d,%d) opts %d %d %d %d", (int)x, (int)y, (int)kspr_base, (int)kspr_angle, (int)sprgroup, (int)scale);
     player = get_my_player();
 
-    if ( ((kspr_frame & 0x7FF) <= 1151) || ((kspr_frame & 0x7FF) >= 1919) )
+    if (((kspr_angle & 0x7FF) <= 1151) || ((kspr_angle & 0x7FF) >= 1919) )
         needs_xflip = 0;
     else
         needs_xflip = 1;
@@ -5803,8 +6123,8 @@ void process_keeper_sprite(short x, short y, unsigned short kspr_base, short ksp
     else
       lbDisplay.DrawFlags &= ~Lb_SPRITE_FLIP_HORIZ;
     sprite_group = sprgroup;
-    lltemp = 4 - ((((long)kspr_frame + 128) & 0x7FF) >> 8);
-    sprite_delta = llabs(lltemp);
+    lltemp = 4 - ((((long)kspr_angle + 128) & 0x7FF) >> 8);
+    sprite_rot = llabs(lltemp);
     kspr_idx = keepersprite_index(kspr_base);
     global_scaler = scale;
     creature_sprites = keepersprite_array(kspr_base);
@@ -5863,8 +6183,8 @@ void process_keeper_sprite(short x, short y, unsigned short kspr_base, short ksp
         {
             return;
         }
-        kspr = &creature_sprites[sprite_group + sprite_delta * (long)creature_sprites->FramesCount];
-        draw_idx = sprite_group + sprite_delta * (long)kspr->FramesCount + kspr_idx;
+        kspr = &creature_sprites[sprite_group + sprite_rot * (long)creature_sprites->FramesCount];
+        draw_idx = sprite_group + sprite_rot * (long)kspr->FramesCount + kspr_idx;
         if ( needs_xflip )
         {
             draw_single_keepersprite_xflip(scaled_x, scaled_y, kspr, draw_idx, scale);
@@ -6043,7 +6363,10 @@ void draw_jonty_mapwho(struct JontySpr *jspr)
     thingadd = get_thingadd(thing->index);
     player = get_my_player();
     if (keepersprite_rotable(thing->anim_sprite))
+    {
       angle = thing->move_angle_xy - spr_map_angle;
+      angle += 256 * (long)((get_thingadd(thing->index)->flags & TAF_ROTATED_MASK) >> TAF_ROTATED_SHIFT);
+    }
     else
       angle = thing->move_angle_xy;
     prepare_jonty_remap_and_scale(&scale, jspr);
@@ -6072,9 +6395,7 @@ void draw_jonty_mapwho(struct JontySpr *jspr)
         }
     }
 
-    if ((thing->class_id == TCls_Creature)
-     || (thing->class_id == TCls_Object)
-     || (thing->class_id == TCls_DeadCreature))
+    if (!thing_is_invalid(thing))
     {
         if ((player->thing_under_hand == thing->index) && (game.play_gameturn & 2))
         {
@@ -6082,6 +6403,32 @@ void draw_jonty_mapwho(struct JontySpr *jspr)
           {
               lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
               lbSpriteReMapPtr = white_pal;
+          }
+          else if (player->acamera->view_mode == PVM_CreatureView)
+          {
+              struct Thing *creatng = thing_get(player->influenced_thing_idx);
+              if (thing_is_creature(creatng))
+              {
+                  struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+                  struct Thing *dragtng = thing_get(cctrl->dragtng_idx);
+                  if (thing_is_invalid(dragtng))
+                  {
+                    lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
+                    lbSpriteReMapPtr = white_pal;  
+                  }
+                  else if (thing_is_trap_crate(dragtng))
+                  {
+                      struct Thing *handthing = thing_get(player->thing_under_hand);
+                      if (!thing_is_invalid(handthing))
+                      {
+                          if (handthing->class_id == TCls_Trap)
+                          {
+                              lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
+                              lbSpriteReMapPtr = white_pal; 
+                          }
+                      }
+                  }
+              }
           }
         } else
         if ((thing->field_4F & TF4F_Unknown80) != 0)
@@ -6098,7 +6445,10 @@ void draw_jonty_mapwho(struct JontySpr *jspr)
         thing_being_displayed = NULL;
     }
 
-    if (thing->anim_sprite >= CREATURE_FRAMELIST_LENGTH)
+    if (
+        ((thing->anim_sprite >= CREATURE_FRAMELIST_LENGTH) && (thing->anim_sprite < KEEPERSPRITE_ADD_OFFSET))
+        || (thing->anim_sprite >= KEEPERSPRITE_ADD_OFFSET + KEEPERSPRITE_ADD_NUM)
+    )
     {
         ERRORLOG("Invalid graphic Id %d from model %d, class %d", (int)thing->anim_sprite, (int)thing->model, (int)thing->class_id);
     } else
@@ -6116,7 +6466,7 @@ void draw_jonty_mapwho(struct JontySpr *jspr)
             process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->field_48, scale);
             break;
         case TCls_Trap:
-            trapst = &trapdoor_conf.trap_cfgstats[thing->model];
+            trapst = &gameadd.trapdoor_conf.trap_cfgstats[thing->model];
             if ((trapst->hidden == 1) && (player->id_number != thing->owner) && (thing->trap.revealed == 0))
             {
                 break;
@@ -6415,7 +6765,7 @@ static void update_frontview_pointed_block(unsigned long laaa, unsigned char qdr
     }
 }
 
-void create_frontview_map_volume_box(struct Camera *cam, unsigned char stl_width, TbBool single_subtile)
+void create_frontview_map_volume_box(struct Camera *cam, unsigned char stl_width, TbBool single_subtile, long line_color)
 {
     unsigned char orient = ((unsigned int)(cam->orient_a + LbFPMath_PI/4) >> 9) & 0x03;
     // _depth_ is "how far in to the screen" the box goes - it will be the width/height of a slab
@@ -6459,18 +6809,23 @@ void create_frontview_map_volume_box(struct Camera *cam, unsigned char stl_width
     }
     coord_z -= (stl_width >> 1);
     // Draw 4 horizonal line elements
-    create_line_element(coord_x,             coord_y,                      coord_x + box_width, coord_y,                      coord_z,                          map_volume_box.color);
-    create_line_element(coord_x,             coord_y + box_height,         coord_x + box_width, coord_y + box_height,         coord_z - box_height,             map_volume_box.color);
-    create_line_element(coord_x,             coord_y + depth,              coord_x + box_width, coord_y + depth,              coord_z,                          map_volume_box.color);
-    create_line_element(coord_x,             coord_y + box_height + depth, coord_x + box_width, coord_y + box_height + depth, coord_z - box_height,             map_volume_box.color);
+    create_line_element(coord_x,             coord_y,                      coord_x + box_width, coord_y,                      coord_z,                          line_color);
+    create_line_element(coord_x,             coord_y + box_height,         coord_x + box_width, coord_y + box_height,         coord_z - box_height,             line_color);
+    create_line_element(coord_x,             coord_y + depth,              coord_x + box_width, coord_y + depth,              coord_z,                          line_color);
+    create_line_element(coord_x,             coord_y + box_height + depth, coord_x + box_width, coord_y + box_height + depth, coord_z - box_height,             line_color);
     // Now the lines at left and right
-    create_line_element(coord_x,             coord_y,                      coord_x,             coord_y + box_height,         coord_z - box_height,             map_volume_box.color);
-    create_line_element(coord_x + box_width, coord_y,                      coord_x + box_width, coord_y + box_height,         coord_z - box_height,             map_volume_box.color);
-    create_line_element(coord_x,             coord_y + breadth,            coord_x,             coord_y + box_height + depth, coord_z - box_height + stl_width, map_volume_box.color);
-    create_line_element(coord_x + box_width, coord_y + breadth,            coord_x + box_width, coord_y + box_height + depth, coord_z - box_height + stl_width, map_volume_box.color);
+    create_line_element(coord_x,             coord_y,                      coord_x,             coord_y + box_height,         coord_z - box_height,             line_color);
+    create_line_element(coord_x + box_width, coord_y,                      coord_x + box_width, coord_y + box_height,         coord_z - box_height,             line_color);
+    create_line_element(coord_x,             coord_y + breadth,            coord_x,             coord_y + box_height + depth, coord_z - box_height + stl_width, line_color);
+    create_line_element(coord_x + box_width, coord_y + breadth,            coord_x + box_width, coord_y + box_height + depth, coord_z - box_height + stl_width, line_color);
 }
-void create_fancy_frontview_map_volume_box(struct RoomSpace roomspace, struct Camera *cam, unsigned char stl_width)
+void create_fancy_frontview_map_volume_box(struct RoomSpace roomspace, struct Camera *cam, unsigned char stl_width, long color, TbBool show_outer_box)
 {
+    long line_color = color;
+    if (show_outer_box)
+    {
+        line_color = map_volume_box.color; //  set the "inner" box color to the default colour (usually red/green)
+    }
     unsigned char orient = ((unsigned int)(cam->orient_a + LbFPMath_PI/4) >> 9) & 0x03;
     int floor_height_z = (map_volume_box.floor_height_z == 0) ? 1 : map_volume_box.floor_height_z; // ignore "liquid height", and force it to "floor height". All fancy rooms are on the ground, and this ensures the boundboxes are drawn correctly. A different solution will be required if this function is used to draw fancy rooms over "liquid".
     long depth = ((5 - floor_height_z) * ((long)stl_width << 7) / 256);
@@ -6479,14 +6834,20 @@ void create_fancy_frontview_map_volume_box(struct RoomSpace roomspace, struct Ca
     long coord_y;
     long coord_z;
     long box_width, box_height;
-    pos.y.val = map_volume_box.end_y;
-    pos.x.val = map_volume_box.end_x;
+    struct MapVolumeBox valid_slabs = map_volume_box;
+    // get the 'accurate' roomspace shape instead of the outer box
+    valid_slabs.beg_x = subtile_coord((roomspace.left * 3), 0);
+    valid_slabs.beg_y = subtile_coord((roomspace.top * 3), 0);
+    valid_slabs.end_x = subtile_coord((3*1) + (roomspace.right * 3), 0);
+    valid_slabs.end_y = subtile_coord(((3*1) + roomspace.bottom * 3), 0);
+    pos.y.val = valid_slabs.end_y;
+    pos.x.val = valid_slabs.end_x;
     pos.z.val = subtile_coord(5,0);
     convert_world_coord_to_front_view_screen_coord(&pos, cam, &coord_x, &coord_y, &coord_z);
     box_width = coord_x;
     box_height = coord_y;
-    pos.y.val = map_volume_box.beg_y;
-    pos.x.val = map_volume_box.beg_x;
+    pos.y.val = valid_slabs.beg_y;
+    pos.x.val = valid_slabs.beg_x;
     convert_world_coord_to_front_view_screen_coord(&pos, cam, &coord_x, &coord_y, &coord_z);
     box_width -= coord_x;
     box_height -= coord_y;
@@ -6558,29 +6919,29 @@ void create_fancy_frontview_map_volume_box(struct RoomSpace roomspace, struct Ca
                 TbBool air_below = (roomspace_y == room_slab_height - 1) ? true : (rotated_roomspace[roomspace_x][roomspace_y+1] == false);
                 if (air_left)
                 {
-                    create_line_element(    coord_x + x_start, coord_y + y_start,         coord_x + x_start, coord_y + y_end,           bckt_idx,             map_volume_box.color);
+                    create_line_element(    coord_x + x_start, coord_y + y_start,         coord_x + x_start, coord_y + y_end,           bckt_idx,             line_color);
                     if (air_below)
                     {
-                        create_line_element(coord_x + x_start, coord_y + y_end,           coord_x + x_start, coord_y + y_end + depth,   bckt_idx + stl_width, map_volume_box.color);
+                        create_line_element(coord_x + x_start, coord_y + y_end,           coord_x + x_start, coord_y + y_end + depth,   bckt_idx + stl_width, line_color);
                     }
                 }
                 if (air_right)
                 {
-                    create_line_element(    coord_x + x_end,   coord_y + y_start,         coord_x + x_end,   coord_y + y_end,           bckt_idx,             map_volume_box.color);
+                    create_line_element(    coord_x + x_end,   coord_y + y_start,         coord_x + x_end,   coord_y + y_end,           bckt_idx,             line_color);
                     if (air_below)
                     {
-                        create_line_element(coord_x + x_end,   coord_y + y_end,           coord_x + x_end,   coord_y + y_end + depth,   bckt_idx + stl_width, map_volume_box.color);
+                        create_line_element(coord_x + x_end,   coord_y + y_end,           coord_x + x_end,   coord_y + y_end + depth,   bckt_idx + stl_width, line_color);
                     }
                 }
                 if (air_above)
                 {
-                    create_line_element(    coord_x + x_start, coord_y + y_start,         coord_x + x_end,   coord_y + y_start,         bckt_idx,             map_volume_box.color);
-                    create_line_element(    coord_x + x_start, coord_y + y_start + depth, coord_x + x_end,   coord_y + y_start + depth, bckt_idx,             map_volume_box.color);
+                    create_line_element(    coord_x + x_start, coord_y + y_start,         coord_x + x_end,   coord_y + y_start,         bckt_idx,             line_color);
+                    create_line_element(    coord_x + x_start, coord_y + y_start + depth, coord_x + x_end,   coord_y + y_start + depth, bckt_idx,             line_color);
                 }
                 if (air_below)
                 {
-                    create_line_element(    coord_x + x_start, coord_y + y_end,           coord_x + x_end,   coord_y + y_end,           bckt_idx,             map_volume_box.color);
-                    create_line_element(    coord_x + x_start, coord_y + y_end + depth,   coord_x + x_end,   coord_y + y_end + depth,   bckt_idx,             map_volume_box.color);
+                    create_line_element(    coord_x + x_start, coord_y + y_end,           coord_x + x_end,   coord_y + y_end,           bckt_idx,             line_color);
+                    create_line_element(    coord_x + x_start, coord_y + y_end + depth,   coord_x + x_end,   coord_y + y_end + depth,   bckt_idx,             line_color);
                 }
             }
             else if (!is_in_roomspace) //this handles "inside corners"
@@ -6592,21 +6953,91 @@ void create_fancy_frontview_map_volume_box(struct RoomSpace roomspace, struct Ca
                 {
                     if (room_below)
                     {
-                        create_line_element(coord_x + x_start,  coord_y + y_end,          coord_x + x_start, coord_y + y_end + depth,   bckt_idx,             map_volume_box.color);
+                        create_line_element(coord_x + x_start,  coord_y + y_end,          coord_x + x_start, coord_y + y_end + depth,   bckt_idx,             line_color);
                     }
                 }
                 if (room_right)
                 {
                     if (room_below)
                     {
-                        create_line_element(coord_x + x_end,   coord_y + y_end,           coord_x + x_end,   coord_y + y_end + depth,   bckt_idx,             map_volume_box.color);
+                        create_line_element(coord_x + x_end,   coord_y + y_end,           coord_x + x_end,   coord_y + y_end + depth,   bckt_idx,             line_color);
                     }
+                }
+                if (show_outer_box) // this handles the "outer line" (only when it is not in the roomspace)
+                {
+                    //draw 2nd line, i.e. the outer line - the one around the edge of the 5x5 cursor, not the valid slabs within the cursor
+                    line_color = color; // switch to the "secondary colour" (the one passed as a variable if show_outer_box is true)
+                    TbBool left_edge   = (roomspace_x == 0)                    ? true : false;
+                    TbBool right_edge  = (roomspace_x == room_slab_width - 1)  ? true : false;
+                    TbBool top_edge    = (roomspace_y == 0)                    ? true : false;
+                    TbBool bottom_edge = (roomspace_y == room_slab_height - 1) ? true : false;
+                    if (left_edge)
+                    {
+                        create_line_element(    coord_x + x_start, coord_y + y_start,         coord_x + x_start, coord_y + y_end,           bckt_idx,             line_color);
+                        if (bottom_edge)
+                        {
+                            create_line_element(coord_x + x_start, coord_y + y_end,           coord_x + x_start, coord_y + y_end + depth,   bckt_idx + stl_width, line_color);
+                        }
+                    }
+                    if (right_edge)
+                    {
+                        create_line_element(    coord_x + x_end,   coord_y + y_start,         coord_x + x_end,   coord_y + y_end,           bckt_idx,             line_color);
+                        if (bottom_edge)
+                        {
+                            create_line_element(coord_x + x_end,   coord_y + y_end,           coord_x + x_end,   coord_y + y_end + depth,   bckt_idx + stl_width, line_color);
+                        }
+                    }
+                    if (top_edge)
+                    {
+                        create_line_element(    coord_x + x_start, coord_y + y_start,         coord_x + x_end,   coord_y + y_start,         bckt_idx,             line_color);
+                        create_line_element(    coord_x + x_start, coord_y + y_start + depth, coord_x + x_end,   coord_y + y_start + depth, bckt_idx,             line_color);
+                    }
+                    if (bottom_edge)
+                    {
+                        create_line_element(    coord_x + x_start, coord_y + y_end,           coord_x + x_end,   coord_y + y_end,           bckt_idx,             line_color);
+                        create_line_element(    coord_x + x_start, coord_y + y_end + depth,   coord_x + x_end,   coord_y + y_end + depth,   bckt_idx,             line_color);
+                    }
+                    line_color = map_volume_box.color; // switch back to default color (red/green) for the inner line
                 }
             }
         }
     }
 }
 
+void process_frontview_map_volume_box(struct Camera *cam, unsigned char stl_width)
+{
+    unsigned char default_color = map_volume_box.color;
+    unsigned char line_color = default_color;
+    struct DungeonAdd *dungeonadd = get_dungeonadd(render_roomspace.plyr_idx);
+    struct PlayerInfo* current_player = get_player(render_roomspace.plyr_idx);
+    // Check if a roomspace is currently being built
+    // and if so feed this back to the user
+    if ((dungeonadd->roomspace.is_active) && ((current_player->work_state == PSt_Sell) || (current_player->work_state == PSt_BuildRoom)))
+    {
+        line_color = SLC_REDYELLOW; // change the cursor color to indicate to the user that nothing else can be built or sold at the moment
+    }
+    if (render_roomspace.render_roomspace_as_box)
+    {
+        if (render_roomspace.is_roomspace_a_box)
+        {
+            // This is a basic square box
+             create_frontview_map_volume_box(cam, stl_width, render_roomspace.is_roomspace_a_single_subtile, line_color);
+        }
+        else
+        {
+            // This is a "2-line" square box
+            // i.e. an "accurate" box with an outer square box
+            map_volume_box.color = line_color;
+            create_fancy_frontview_map_volume_box(render_roomspace, cam, stl_width, SLC_BROWN, true);
+        }
+    }
+    else
+    {
+        // This is an "accurate"/"automagic" box
+        create_fancy_frontview_map_volume_box(render_roomspace, cam, stl_width, line_color, false);
+    }
+    map_volume_box.color = default_color;
+}
 static void do_map_who_for_thing(struct Thing *thing)
 {
     int bckt_idx;
@@ -6664,7 +7095,7 @@ static void do_map_who_for_thing(struct Thing *thing)
         rotpers(&ecor, &camera_matrix);
         if (getpoly < poly_pool_end)
         {
-            add_number_to_polypool(ecor.view_width, ecor.view_height, thing->price.number, 1);
+            add_number_to_polypool(ecor.view_width, ecor.view_height, thing->price_effect.number, 1);
         }
         break;
     case 5:
@@ -6674,16 +7105,16 @@ static void do_map_who_for_thing(struct Thing *thing)
         rotpers(&ecor, &camera_matrix);
         if (getpoly < poly_pool_end)
         {
-            if (game.play_gameturn - thing->long_15 == 1)
+            if (game.play_gameturn - thing->roomflag2.turntime == 1)
             {
-              if (thing->byte_19 < 40)
-                thing->byte_19++;
+              if (thing->roomflag2.byte_19 < 40)
+                thing->roomflag2.byte_19++;
             } else
             {
-                thing->byte_19 = 0;
+                thing->roomflag2.byte_19 = 0;
             }
-            thing->long_15 = game.play_gameturn;
-            if (thing->byte_19 == 40)
+            thing->roomflag2.turntime = game.play_gameturn;
+            if (thing->roomflag2.byte_19 == 40)
             {
                 bckt_idx = (ecor.z - 64) / 16 - 6;
                 add_room_flag_pole_to_polypool(ecor.view_width, ecor.view_height, thing->roomflag.room_idx, bckt_idx);
@@ -6772,16 +7203,16 @@ static void draw_frontview_thing_on_element(struct Thing *thing, struct Map *map
         convert_world_coord_to_front_view_screen_coord(&thing->mappos,cam,&cx,&cy,&cz);
         if (is_free_space_in_poly_pool(1))
         {
-          if (game.play_gameturn - thing->long_15 != 1)
+          if (game.play_gameturn - thing->roomflag2.turntime != 1)
           {
-              thing->byte_19 = 0;
+              thing->roomflag2.byte_19 = 0;
           } else
-          if (thing->byte_19 < 40)
+          if (thing->roomflag2.byte_19 < 40)
           {
-              thing->byte_19++;
+              thing->roomflag2.byte_19++;
           }
-          thing->long_15 = game.play_gameturn;
-          if (thing->byte_19 == 40)
+          thing->roomflag2.turntime = game.play_gameturn;
+          if (thing->roomflag2.byte_19 == 40)
           {
               add_room_flag_pole_to_polypool(cx, cy, thing->roomflag.room_idx, cz-3);
               if (is_free_space_in_poly_pool(1))
@@ -6926,14 +7357,7 @@ void draw_frontview_engine(struct Camera *cam)
     update_frontview_pointed_block(zoom, qdrant, px, py, qx, qy);
     if (map_volume_box.visible)
     {
-        if (render_roomspace.is_roomspace_a_box)
-        {            
-            create_frontview_map_volume_box(cam, ((zoom >> 8) & 0xFF), render_roomspace.is_roomspace_a_single_subtile);
-        }
-        else
-        {
-            create_fancy_frontview_map_volume_box(render_roomspace, cam, ((zoom >> 8) & 0xFF));
-        }
+        process_frontview_map_volume_box(cam, ((zoom >> 8) & 0xFF));
     }
     map_volume_box.visible = 0;
 

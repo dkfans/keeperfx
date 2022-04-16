@@ -32,6 +32,8 @@
 #include "net_game.h"
 #include "player_data.h"
 #include "thing_serde.h"
+#include "frontend.h"
+#include "thing_effects.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -444,10 +446,12 @@ CoroutineLoopState perform_checksum_verification(CoroutineLoop *con)
         coroutine_clear(con, true);
         return CLS_ABORT;
     }
-
-    // TODO: spectrators?
-    NETDBG(6, "answers:0x%02x answers_mask:0x%02x", context.checked_players, context.answers_mask);
-    if ((context.checked_players == context.answers_mask) && (context.sent < 3))
+    if (get_packet(0)->action != get_packet(1)->action)
+    {
+        // Wait for message from other side
+        return CLS_REPEAT;
+    }
+    if ( checksums_different() )
     {
         if ( checksums_different() )
         {
@@ -458,7 +462,129 @@ CoroutineLoopState perform_checksum_verification(CoroutineLoop *con)
         context.sent = 0;
         return CLS_CONTINUE; // Exit loop
     }
-    return CLS_REPEAT;
+    if (!result)
+    {
+        coroutine_clear(con, true);
+
+        create_frontend_error_box(5000, get_string(GUIStr_NetUnsyncedMap));
+        return CLS_ABORT;
+    }
+    NETLOG("Checksums are verified");
+    return CLS_CONTINUE;
+}
+
+TbBigChecksum compute_player_checksum(struct PlayerInfo *player)
+{
+    TbBigChecksum sum = 0;
+    if (((player->allocflags & PlaF_CompCtrl) == 0) && (player->acamera != NULL))
+    {
+        struct Coord3d* mappos = &(player->acamera->mappos);
+        sum += (TbBigChecksum)player->instance_remain_rurns + (TbBigChecksum)player->instance_num;
+        sum += (TbBigChecksum)mappos->x.val + (TbBigChecksum)mappos->z.val + (TbBigChecksum)mappos->y.val;
+    }
+    return sum;
+}
+
+/**
+ * Computes checksum of current state of all existing players.
+ * @return The checksum value.
+ */
+TbBigChecksum compute_players_checksum(void)
+{
+    TbBigChecksum sum = 0;
+    for (int i = 0; i < PLAYERS_COUNT; i++)
+    {
+        struct PlayerInfo* player = get_player(i);
+        if (player_exists(player))
+        {
+            sum += compute_player_checksum(player);
+        }
+    }
+    return sum;
+}
+
+/**
+ * Adds given value to checksum at current game turn stored in packet file.
+ *
+ * @param plyr_idx The player whose checksum is computed.
+ * @param sum Checksum increase.
+ * @param area_name Name of the area from which the checksum increase comes, for logging purposes.
+ */
+void player_packet_checksum_add(PlayerNumber plyr_idx, TbBigChecksum sum, const char *area_name)
+{
+    struct Packet* pckt = get_packet(plyr_idx);
+    pckt->chksum += sum;
+    SYNCDBG(9,"Checksum increase from %s is %06lX",area_name,(unsigned long)sum);
+}
+
+/**
+ * Checks if all active players packets have same checksums.
+ * @return Returns false if all checksums are same; true if there's mismatch.
+ */
+short checksums_different()
+{
+    TbChecksum checksum = 0;
+    unsigned short is_set = false;
+    int plyr = -1;
+    for (int i = 0; i < PLAYERS_COUNT; i++)
+    {
+        struct PlayerInfo* player = get_player(i);
+        if (player_exists(player) && ((player->allocflags & PlaF_CompCtrl) == 0))
+        {
+            struct Packet* pckt = get_packet_direct(player->packet_num);
+            if (!is_set)
+            {
+                checksum = pckt->chksum;
+                is_set = true;
+                plyr = i;
+            }
+            else if (checksum != pckt->chksum)
+            {
+                ERRORLOG("Checksums %08x(%d) != %08x(%d) turn: %ld", checksum, plyr, pckt->chksum, i, game.play_gameturn);
+
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+TbBigChecksum get_thing_checksum(const struct Thing* thing)
+{
+    SYNCDBG(18, "Starting");
+    if (!thing_exists(thing))
+        return 0;
+    TbBigChecksum csum = (ulong)thing->class_id + ((ulong)thing->model << 4) + (ulong)thing->owner;
+    if (thing->class_id == TCls_Creature)
+    {
+        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+        csum += (ulong)cctrl->inst_turn + (ulong)cctrl->instance_id
+            + (ulong)thing->field_49 + (ulong)thing->field_48;
+    }
+    else if ((thing->class_id == TCls_EffectElem) || (thing->class_id == TCls_AmbientSnd))
+    {
+        // No syncing on Effect Elements or Sounds
+    }
+    else if (thing->class_id == TCls_Effect)
+    {
+        const struct InitEffect* effnfo = get_effect_info_for_thing(thing);
+        if (effnfo->area_affect_type != AAffT_None)
+        {
+            csum += (ulong)thing->mappos.z.val +
+                (ulong)thing->mappos.x.val +
+                (ulong)thing->mappos.y.val +
+                (ulong)thing->health;
+        }
+        //else: No syncing on Effects that do not affect the area around them
+    }
+    else
+    {
+        csum += (ulong)thing->mappos.z.val +
+            (ulong)thing->mappos.x.val +
+            (ulong)thing->mappos.y.val +
+            (ulong)thing->health;
+    }
+    return csum * thing->index;
 }
 
 /**

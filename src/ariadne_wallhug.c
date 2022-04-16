@@ -161,7 +161,6 @@ TbBool wallhug_angle_with_collide_valid(struct Thing *thing, long a2, long move_
 
 long get_angle_of_wall_hug(struct Thing *creatng, long a2, long a3, unsigned char a4)
 {
-    //return _DK_get_angle_of_wall_hug(creatng, a2, a3, a4);
     struct Navigation *navi;
     {
         struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
@@ -219,7 +218,6 @@ short hug_round(struct Thing *creatng, struct Coord3d *pos1, struct Coord3d *pos
 long slab_wall_hug_route(struct Thing *thing, struct Coord3d *pos, long max_val)
 {
     struct Coord3d curr_pos;
-    //return _DK_slab_wall_hug_route(thing, pos, max_val);
     curr_pos.x.val = thing->mappos.x.val;
     curr_pos.y.val = thing->mappos.y.val;
     curr_pos.z.val = thing->mappos.z.val;
@@ -400,8 +398,6 @@ long creature_cannot_move_directly_to_with_collide_sub(struct Thing *creatng, st
 
 long creature_cannot_move_directly_to_with_collide(struct Thing *creatng, struct Coord3d *pos, long a3, unsigned char a4)
 {
-    //return _DK_creature_cannot_move_directly_to_with_collide(creatng, pos, a3, a4);
-
     MapCoord clpcor;
 
     struct Coord3d next_pos;
@@ -629,7 +625,7 @@ TbBool find_approach_position_to_subtile(const struct Coord3d *srcpos, MapSubtlC
         struct Map* mapblk = get_map_block_at(tmpos.x.stl.num, tmpos.y.stl.num);
         if ((!map_block_invalid(mapblk)) && ((mapblk->flags & SlbAtFlg_Blocking) == 0))
         {
-            long dist = get_2d_box_distance(srcpos, &tmpos);
+            MapCoordDelta dist = get_2d_box_distance(srcpos, &tmpos);
             if (min_dist > dist)
             {
                 min_dist = dist;
@@ -776,8 +772,6 @@ long get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *cr
                 stl_num = get_map_index_of_first_block_thing_colliding_with_travelling_to(creatng, &creatng->mappos, &navi->pos_next, 40, 0);
                 navi->field_15 = stl_num;
                 nav_radius = thing_nav_sizexy(creatng) / 2;
-                MapSubtlCoord stl_x;
-                MapSubtlCoord stl_y;
                 stl_x = slab_subtile_center(subtile_slab_fast(stl_num_decode_x(stl_num)));
                 stl_y = slab_subtile_center(subtile_slab_fast(stl_num_decode_y(stl_num)));
                 find_approach_position_to_subtile(&creatng->mappos, stl_x, stl_y, nav_radius + 385, &navi->pos_next);
@@ -1089,7 +1083,6 @@ TbBool is_valid_hug_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumb
 long dig_to_position(PlayerNumber plyr_idx, MapSubtlCoord basestl_x, MapSubtlCoord basestl_y, int direction_around, TbBool revside)
 {
     long round_change;
-    //return _DK_dig_to_position(a1, a2, a3, start_side, revside);
     SYNCDBG(14,"Starting for subtile (%d,%d)",(int)basestl_x,(int)basestl_y);
     if (revside) {
       round_change = 1;

@@ -3,14 +3,15 @@ REM  Hero campaign by Alexsa
 REM  Map 1239, Knights' Castle
 REM  Script for the map
 REM  Version 0.00
+REM Update 1.00, august 2018: lowered difficulty. Reduced amount of AI players troops.
+REM v2.0 by dayokay Dec2020 to use pot file
 REM ********************************************
 REM Knight-production map. You must gather 5 knights and then you'll be given Destroy Walls.
 REM Obviously, with how *weak* are the thiefs themselves you're effectively handicapped at 12 creatures
 REM But, there are no Vampires here like previous level... Just Mistresses ;)
 REM With plentiful gold, Disease seems like a good idea.
 REM ********************************************
-REM Update 1.00, august 2018: lowered difficulty. 
-REM Reduced amount of AI players troops.
+
 REM ********************************************
 LEVEL_VERSION(1)
 
@@ -179,15 +180,18 @@ REM 5 - white heart
 REM Startup
     SET_TIMER(PLAYER0,TIMER0)
     SET_TIMER(PLAYER_GOOD,TIMER0)
-    QUICK_OBJECTIVE(1,"While your masons rebuild the foundation, you must restore the lost glory of Knights' Castle. It'll be fitting if you create a new Knightly Order comprised of at least five knights, or deliver a valiant victory against forces of evil nested in this underground realm.", PLAYER0)
+REM QUICK_OBJECTIVE(1,"While your masons rebuild the foundation, you must restore the lost glory of Knights' Castle. It'll be fitting if you create a new Knightly Order comprised of at least five knights, or deliver a valiant victory against forces of evil nested in this underground realm.", PLAYER0)
+	DISPLAY_OBJECTIVE(60,PLAYER0)
 
 REM First informatio
 IF(PLAYER0,TIMER0 >= 200)
-	    QUICK_INFORMATION(2,"My liege, the cellars of Knight's Castle are mostly empty of gold and grain. It will be necessary to expand outwards very soon, and this will expose you to attack from two enemy keepers controlling the region. It might be wise to focus on a single opponent at a time.", PLAYER0)
+	REM	QUICK_INFORMATION(2,"My liege, the cellars of Knight's Castle are mostly empty of gold and grain. It will be necessary to expand outwards very soon, and this will expose you to attack from two enemy keepers controlling the region. It might be wise to focus on a single opponent at a time.", PLAYER0)
+	DISPLAY_INFORMATION(61,PLAYER0)
 ENDIF
 REM Once-off attack; you should've trained up your troops by this time. If you didn't properly fortify the outer rooms taken over, you'll get more breaches.
 IF(PLAYER0,TIMER0 >= 15000)
-    QUICK_INFORMATION(3,"My liege, the monsters are attacking! They seem to be gathering at the libraries and workshops, as well as dungeons of enemy keepers.", PLAYER0)
+	REM	QUICK_INFORMATION(3,"My liege, the monsters are attacking! They seem to be gathering at the libraries and workshops, as well as dungeons of enemy keepers.", PLAYER0)
+	DISPLAY_INFORMATION(62,PLAYER0)
 	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_WARLOCKS,-2,1)
 	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_TROLLS,-3,1)
 	ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,IMP,-1,1,1,0)
@@ -198,7 +202,8 @@ ENDIF
 
 REM Start endless attacks from workshop/library and add a few more attackers.
 IF(PLAYER0,TIMER0 >= 35000)
-    QUICK_INFORMATION(6,"The enemy keepers have constructed infernal gates which are connected to the dungeons of Wickedridge, and are now staging more attacks upon your castle's cellar. If you do not capture or destroy the libraries and workshops soon, they will bring in even more reinforcements.", PLAYER0)
+REM	QUICK_INFORMATION(6,"The enemy keepers have constructed infernal gates which are connected to the dungeons of Wickedridge, and are now staging more attacks upon your castle's cellar. If you do not capture or destroy the libraries and workshops soon, they will bring in even more reinforcements.", PLAYER0)
+	DISPLAY_INFORMATION(63,PLAYER0)
 	SET_FLAG(PLAYER_GOOD,FLAG1,1)
 	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_ORC,-1,1)
 	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_DARK,-4,1)
@@ -208,7 +213,8 @@ ENDIF
 
 REM Start all endless attacks. If you haven't yet cleared workshop/library, and AI keepers, you're in trouble.
 IF(PLAYER0,TIMER0 >= 50000)
-    QUICK_INFORMATION(7,"Infernal heat scours the tunnels; forces of Wickedridge have arrived to drive you out. Rally your troops, and defeat the invaders.", PLAYER0)
+REM	QUICK_INFORMATION(7,"Infernal heat scours the tunnels; forces of Wickedridge have arrived to drive you out. Rally your troops, and defeat the invaders.", PLAYER0)
+	DISPLAY_INFORMATION(64,PLAYER0)
 	SET_FLAG(PLAYER_GOOD,FLAG2,1)
 	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_VAMPIRE,-2,1)
 	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_BILE,-3,1)
@@ -223,7 +229,8 @@ IF(PLAYER_GOOD,FLAG2==1)
 	SET_TIMER(PLAYER0,TIMER2)
 ENDIF
 IF(PLAYER_GOOD,FLAG3==1)
-	QUICK_INFORMATION(4,"My liege, after your last offensive the vile monsters are staging a counterattack!", PLAYER0)
+REM	QUICK_INFORMATION(4,"My liege, after your last offensive the vile monsters are staging a counterattack!", PLAYER0)
+	DISPLAY_INFORMATION(65,PLAYER0)
 	SET_TIMER(PLAYER0,TIMER3)
 ENDIF
 
@@ -310,12 +317,14 @@ IF(PLAYER0,TIMER4 >= 5000)
 ENDIF
 REM Heart welcome party. Starts the counterattacks timer and adds several creatures to deal with the possessing player.
 IF_ACTION_POINT(1,PLAYER0)
-	QUICK_INFORMATION(5,"My liege, an alarm can be heard within the enemy dungeon - undoubtedly, more monsters will arrive as reinforcements!", PLAYER0)
+REM	QUICK_INFORMATION(5,"My liege, an alarm can be heard within the enemy dungeon - undoubtedly, more monsters will arrive as reinforcements!", PLAYER0)
+	DISPLAY_INFORMATION(66,1)
 	SET_FLAG(PLAYER_GOOD,FLAG3,1)
 	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_ORC,-1,2)
 ENDIF
 IF_ACTION_POINT(2,PLAYER0)
-	QUICK_INFORMATION(5,"My liege, an alarm can be heard within the enemy dungeon - undoubtedly, more monsters will arrive as reinforcements!", PLAYER0)
+REM	QUICK_INFORMATION(5,"My liege, an alarm can be heard within the enemy dungeon - undoubtedly, more monsters will arrive as reinforcements!", PLAYER0)
+	DISPLAY_INFORMATION(66,2)
 	SET_FLAG(PLAYER_GOOD,FLAG3,1)
 	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_DARK,-4,2)
 ENDIF
@@ -334,14 +343,16 @@ IF_ACTION_POINT(4,PLAYER0)
 	SET_FLAG(PLAYER_GOOD,FLAG1,1)
 	SET_FLAG(PLAYER_GOOD,FLAG2,1)
 	SET_FLAG(PLAYER_GOOD,FLAG3,1)
-	QUICK_INFORMATION(5,"My liege, an alarm can be heard within the enemy dungeon - undoubtedly, more monsters will arrive as reinforcements!", PLAYER0)
+REM	QUICK_INFORMATION(5,"My liege, an alarm can be heard within the enemy dungeon - undoubtedly, more monsters will arrive as reinforcements!", PLAYER0)
+	DISPLAY_INFORMATION(66,4)
 	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_DEMONSPAWN,-6,1)
 ENDIF
 IF_ACTION_POINT(5,PLAYER0)
 	SET_FLAG(PLAYER_GOOD,FLAG1,1)
 	SET_FLAG(PLAYER_GOOD,FLAG2,1)
 	SET_FLAG(PLAYER_GOOD,FLAG3,1)
-	QUICK_INFORMATION(5,"My liege, an alarm can be heard within the enemy dungeon - undoubtedly, more monsters will arrive as reinforcements!", PLAYER0)
+REM	QUICK_INFORMATION(5,"My liege, an alarm can be heard within the enemy dungeon - undoubtedly, more monsters will arrive as reinforcements!", PLAYER0)
+	DISPLAY_INFORMATION(66,5)
 	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_DEMONSPAWN,-6,1)
 ENDIF
 
@@ -360,13 +371,15 @@ IF(PLAYER0,FLAG7>=1)
 	SET_FLAG(PLAYER_GOOD,FLAG2,1)
 	SET_FLAG(PLAYER_GOOD,FLAG3,1)
 	ADD_CREATURE_TO_LEVEL(PLAYER0,WIZARD,PLAYER0,1,10,0)
-	QUICK_OBJECTIVE(14,"You have established a new Knightly Order, and a wise and powerful wizard has joined your cause, bringing a spellbook of Destroy Walls. It is now possible to finally eradicate the evil presence in these lands by destroying its very heart.", PLAYER0)
+REM	QUICK_OBJECTIVE(14,"You have established a new Knightly Order, and a wise and powerful wizard has joined your cause, bringing a spellbook of Destroy Walls. It is now possible to finally eradicate the evil presence in these lands by destroying its very heart.", PLAYER0)
+	DISPLAY_OBJECTIVE(67,PLAYER0)
 	MAGIC_AVAILABLE(PLAYER0,POWER_DESTROY_WALLS,1,1)
 	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_DEMONSPAWN,-5,2)
 ENDIF
 REM Destruction of hero heart ends the game.
 IF(PLAYER_GOOD, DUNGEON_DESTROYED>=1)
-	QUICK_OBJECTIVE(16,"The evil polluting this land is no more, and the walls of Knights' Castle once again stand proud at the dawn. It is time to move upon the Wickedridge itself.", PLAYER0)
+REM	QUICK_OBJECTIVE(16,"The evil polluting this land is no more, and the walls of Knights' Castle once again stand proud at the dawn. It is time to move upon the Wickedridge itself.", PLAYER0)
+	DISPLAY_OBJECTIVE(68,PLAYER0)
 	WIN_GAME
 ENDIF
 
@@ -389,7 +402,8 @@ IF(PLAYER0,TIMER0>=20000)
 	ENDIF
 ENDIF
 IF(PLAYER0,ENTRANCE >= 10)
-	QUICK_OBJECTIVE(13,"By capturing this portal, you have established a firm foothold which allows you to build more Hatcheries and Treasure Rooms.", PLAYER0) 
+REM	QUICK_OBJECTIVE(13,"By capturing this portal, you have established a firm foothold which allows you to build more Hatcheries and Treasure Rooms.", PLAYER0)
+	DISPLAY_OBJECTIVE(69,PLAYER0)
 	ROOM_AVAILABLE(PLAYER0,TREASURE,1,1)
 	ROOM_AVAILABLE(PLAYER0,GARDEN,1,1)
 	NEXT_COMMAND_REUSABLE
@@ -416,7 +430,8 @@ IF(PLAYER3,ENTRANCE >= 10)
 ENDIF
 
 IF(PLAYER0,BRIDGE >= 1)
-    QUICK_INFORMATION(15,"The inhabitants of Dominus do not approve of building too many bridges. Make do with shorter ones!", PLAYER0)
+REM	QUICK_INFORMATION(15,"The inhabitants of Dominus do not approve of building too many bridges. Make do with shorter ones!", PLAYER0)
+	DISPLAY_INFORMATION(27,PLAYER0)
     NEXT_COMMAND_REUSABLE
     ROOM_AVAILABLE(PLAYER0,BRIDGE,0,0)
 ENDIF

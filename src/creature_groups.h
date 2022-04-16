@@ -21,6 +21,7 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
+#include "map_locations.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -29,9 +30,15 @@ extern "C" {
 #define GROUP_MEMBERS_COUNT 8
 
 enum TriggerFlags {
-    TrgF_NONE                          =  0x00,
-    TrgF_REUSABLE                      =  0x01,
-    TrgF_DISABLED                      =  0x02,
+    TrgF_CREATE_PARTY                  =  0x00,
+    TrgF_CREATE_CREATURE               =  0x01,
+    TrgF_CREATE_OBJECT                 =  0x02,
+    TrgF_ADD_TO_PARTY                  =  0x03,
+    TrgF_DELETE_FROM_PARTY             =  0x04,
+    TrgF_COMMAND_MASK                  =  0x0F,
+
+    TrgF_DISABLED                      =  0x40,
+    TrgF_REUSABLE                      =  0x80,
 };
 
 /******************************************************************************/
@@ -39,11 +46,34 @@ enum TriggerFlags {
 
 struct Thing;
 
+enum MemberPosFlags
+{
+        MpF_OCCUPIED = 1,
+        MpF_AVAIL    = 2,
+};
+
 /** Used for storing group members positions around leader.
  */
 struct MemberPos { // sizeof=3
     unsigned short stl_num;
     unsigned char flags;
+};
+
+struct PartyMember { // sizeof = 13
+  unsigned char flags;
+  unsigned char field_65;
+  unsigned char crtr_kind;
+  unsigned char objectv;
+  long countdown;
+  unsigned char crtr_level;
+  unsigned short carried_gold;
+  unsigned short field_6F;
+};
+
+struct Party { // sizeof = 208
+  char prtname[100];
+  struct PartyMember members[GROUP_MEMBERS_COUNT];
+  unsigned long members_num;
 };
 
 #pragma pack()
@@ -68,9 +98,13 @@ TbBool make_group_member_leader(struct Thing *leadtng);
 
 TbBool create_party(const char *prtname);
 int get_party_index_of_name(const char *prtname);
-TbBool add_member_to_party_name(const char *prtname, long crtr_model, long crtr_level, long carried_gold, long objctv_id, long countdown);
+TbBool add_member_to_party(int party_id, long crtr_model, long crtr_level, long carried_gold, long objctv_id, long countdown);
+TbBool delete_member_from_party(int party_id, long crtr_model, long crtr_level);
 long process_obey_leader(struct Thing *thing);
 void leader_find_positions_for_followers(struct Thing *leadtng);
+
+struct Thing *script_process_new_party(struct Party *party, PlayerNumber plyr_idx, TbMapLocation location, long copies_num);
+void script_process_new_tunneller_party(PlayerNumber plyr_idx, long prty_id, TbMapLocation location, TbMapLocation heading, unsigned char crtr_level, unsigned long carried_gold);
 /******************************************************************************/
 #ifdef __cplusplus
 }

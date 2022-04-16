@@ -2220,7 +2220,7 @@ msgid ""
 "tasks really quickly."
 msgstr "Velocità: [26.20]"
 
-#: guitext:237 guitext:253
+#: guitext:237
 #, fuzzy
 msgctxt "Creature spell"
 msgid ""
@@ -2341,6 +2341,13 @@ msgid ""
 "Hand to Hand: The basic battle ability that allows to attack the enemy with "
 "either bare hands or a sword."
 msgstr "Corpo a corpo: [25.3]"
+
+#: guitext:253
+#, fuzzy
+msgctxt "Creature spell"
+msgid ""
+"Fart: A close range gas attack that only damages enemy creatures."
+msgstr "Nuvola di Veleno: [26.17]"
 
 #: guitext:254
 #, fuzzy
@@ -6773,4 +6780,14 @@ msgstr ""
 #: guitext:1005
 msgctxt "Dungeon special decription"
 msgid "Mysterious Box: There's no telling what this will do."
+msgstr ""
+
+#: guitext:1006
+msgctxt "Network game message"
+msgid "Joined player has different map version from host."
+msgstr ""
+
+#: guitext:1007
+msgctxt "In-game interface description"
+msgid "Display Resolution: Switch to the next configured display resolution. LMB toggle. RMB display current resolution."
 msgstr ""

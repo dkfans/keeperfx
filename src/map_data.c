@@ -18,13 +18,16 @@
 /******************************************************************************/
 #include "map_data.h"
 #include "globals.h"
-
+#include "map_columns.h"
 #include "bflib_math.h"
 #include "bflib_memory.h"
 #include "slab_data.h"
 #include "config_terrain.h"
 #include "game_legacy.h"
 #include "frontmenu_ingame_map.h"
+#include "map_blocks.h"
+#include "map_utils.h"
+#include "room_util.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -72,8 +75,6 @@ long navigation_map_size_y = 256;
 
 unsigned char *IanMap = NULL;
 long nav_map_initialised = 0;
-/******************************************************************************/
-DLLIMPORT void _DK_clear_slab_dig(long a1, long a2, char a3);
 /******************************************************************************/
 /**
  * Returns if the subtile coords are in range of subtiles which have slab entry.
@@ -256,6 +257,95 @@ void reveal_map_block(struct Map *mapblk, PlayerNumber plyr_idx)
     mapblk->data |= (i & 0x0F) << 28;
 }
 
+TbBool slabs_reveal_slab_and_corners(MapSlabCoord slab_x, MapSlabCoord slab_y, MaxCoordFilterParam param)
+{
+    PlayerNumber plyr_idx = param->plyr_idx;
+    long max_slb_dim_x = (map_subtiles_x / STL_PER_SLB);
+    long max_slb_dim_y = (map_subtiles_y / STL_PER_SLB);
+    MapSubtlCoord stl_cx = slab_subtile_center(slab_x), stl_cy = slab_subtile_center(slab_y);
+    long s = STL_PER_SLB;
+    reveal_map_area(plyr_idx, stl_cx, stl_cx, stl_cy, stl_cy);
+    if (slab_is_wall(slab_x, slab_y))
+        return false;
+    if (slab_is_door(slab_x, slab_y))
+    {
+        if (slabmap_owner(get_slabmap_for_subtile(stl_cx, stl_cy)) != plyr_idx)
+            return false;
+    }
+    // now also reveal wall corners
+    if (slab_x - 1 >= 0)
+    {
+        if (slab_y - 1 >= 0)
+        {
+            if (slab_is_wall(slab_x - 1, slab_y) && slab_is_wall(slab_x, slab_y - 1) && slab_is_wall(slab_x - 1, slab_y - 1))
+                reveal_map_area(plyr_idx, stl_cx - s, stl_cx - s, stl_cy - s, stl_cy - s);
+        }
+        if (slab_y + 1 < max_slb_dim_y)
+        {
+            if (slab_is_wall(slab_x - 1, slab_y) && slab_is_wall(slab_x, slab_y + 1) && slab_is_wall(slab_x - 1, slab_y + 1))
+                reveal_map_area(plyr_idx, stl_cx - s, stl_cx - s, stl_cy + s, stl_cy + s);
+        }
+    }
+    if (slab_x + 1 < max_slb_dim_x)
+    {
+        if (slab_y - 1 >= 0)
+        {
+            if (slab_is_wall(slab_x + 1, slab_y) && slab_is_wall(slab_x, slab_y - 1) && slab_is_wall(slab_x + 1, slab_y - 1))
+                reveal_map_area(plyr_idx, stl_cx + s, stl_cx + s, stl_cy - s, stl_cy - s);
+        }
+        if (slab_y + 1 < max_slb_dim_y)
+        {
+            if (slab_is_wall(slab_x + 1, slab_y) && slab_is_wall(slab_x, slab_y + 1) && slab_is_wall(slab_x + 1, slab_y + 1))
+                reveal_map_area(plyr_idx, stl_cx + s, stl_cx + s, stl_cy + s, stl_cy + s);
+        }
+    }
+    return true;
+}
+
+TbBool slabs_iter_will_change(SlabKind orig_slab_kind, SlabKind current, long fill_type)
+{
+    TbBool check_for_any_earth = orig_slab_kind == SlbT_EARTH;
+    TbBool check_for_any_wall = orig_slab_kind >= SlbT_WALLDRAPE && orig_slab_kind <= SlbT_WALLPAIRSHR;
+    TbBool will_change = current == orig_slab_kind;
+    will_change |= check_for_any_earth && (current == SlbT_EARTH || current == SlbT_TORCHDIRT);
+    will_change |= check_for_any_wall && (current >= SlbT_WALLDRAPE && current <= SlbT_WALLPAIRSHR);
+    will_change |= (fill_type == FillIterType_Floor || fill_type == FillIterType_FloorBridge) && (
+        (fill_type == FillIterType_FloorBridge && current == SlbT_BRIDGE) ||
+        current == SlbT_PATH || current == SlbT_CLAIMED || current == SlbT_GUARDPOST ||
+        (current >= SlbT_TREASURE && current <= SlbT_BARRACKS && current != SlbT_DUNGHEART)
+    );
+    return will_change;
+}
+
+TbBool slabs_change_owner(MapSlabCoord slb_x, MapSlabCoord slb_y, MaxCoordFilterParam param)
+{
+    unsigned long plr_range_id = param->plyr_idx;
+    long fill_type = param->num1;
+    SlabKind orig_slab_kind = param->num2;
+    SlabKind current_kind = get_slabmap_block(slb_x, slb_y)->kind;
+    if (slabs_iter_will_change(orig_slab_kind, current_kind, fill_type))
+    {
+        change_slab_owner_from_script(slb_x, slb_y, plr_range_id);
+        return true;
+    }
+    return false;
+}
+
+TbBool slabs_change_type(MapSlabCoord slb_x, MapSlabCoord slb_y, MaxCoordFilterParam param)
+{
+    SlabKind target_slab_kind = param->num1;
+    long fill_type = param->num2;
+    SlabKind orig_slab_kind = param->num3;
+    SlabKind current_kind = get_slabmap_block(slb_x, slb_y)->kind; // current kind
+    if (slabs_iter_will_change(orig_slab_kind, current_kind, fill_type))
+    {
+        if (current_kind != target_slab_kind)
+            replace_slab_from_script(slb_x, slb_y, target_slab_kind);
+        return true;
+    }
+    return false;
+}
+
 TbBool map_block_revealed(const struct Map *mapblk, PlayerNumber plyr_idx)
 {
     unsigned short plyr_bit = (1 << plyr_idx);
@@ -306,8 +396,12 @@ TbBool set_coords_with_range_check(struct Coord3d *pos, MapCoord cor_x, MapCoord
         if (flags & MapCoord_ClipY) cor_y = subtile_coord(map_subtiles_y,255);
         corrected = true;
     }
-    if (cor_z >= subtile_coord(map_subtiles_z,255)) {
-        if (flags & MapCoord_ClipZ) cor_z = subtile_coord(map_subtiles_z,255);
+    MapSubtlCoord stl_x = coord_subtile(cor_x);
+    MapSubtlCoord stl_y = coord_subtile(cor_y);
+    MapCoord height = get_ceiling_height_at_subtile(stl_x, stl_y);
+    if (cor_z > height)
+    {
+        if (flags & MapCoord_ClipZ) cor_z = height;
         corrected = true;
     }
     if (cor_x < subtile_coord(0,0)) {
@@ -318,9 +412,16 @@ TbBool set_coords_with_range_check(struct Coord3d *pos, MapCoord cor_x, MapCoord
         if (flags & MapCoord_ClipY) cor_y = subtile_coord(0,0);
         corrected = true;
     }
-    if (cor_z < subtile_coord(0,0)) {
-        if (flags & MapCoord_ClipZ) cor_z = subtile_coord(0,0);
-        corrected = true;
+    MapSlabCoord slb_x = subtile_slab(stl_x);
+    MapSlabCoord slb_y = subtile_slab(stl_y);
+    if ( (!slab_is_liquid(slb_x, slb_y)) && (!slab_is_door(slb_x, slb_y)) && (!slab_is_wall(slb_x, slb_y)) )
+    {
+        height = get_floor_height(stl_x, stl_y);
+        if (cor_z < height)
+        {
+            if (flags & MapCoord_ClipZ) cor_z = height;
+            corrected = true;
+        }
     }
     pos->x.val = cor_x;
     pos->y.val = cor_y;
@@ -511,7 +612,23 @@ void clear_mapmap(void)
  */
 void clear_slab_dig(long slb_x, long slb_y, char plyr_idx)
 {
-  _DK_clear_slab_dig(slb_x, slb_y, plyr_idx);
+    const struct SlabMap *slb = &game.slabmap[slb_x + 85 * slb_y];
+    if ( get_slab_attrs(slb)->block_flags & (SlbAtFlg_Filled | SlbAtFlg_Digable | SlbAtFlg_Valuable) )
+    {
+        if (slb->kind == SlbT_ROCK) // fix #1128
+        {
+            untag_blocks_for_digging_in_area(slab_subtile(slb_x, 0), slab_subtile(slb_y, 0), plyr_idx);
+        }
+        else if ( (get_slab_attrs(slb)->category == SlbAtCtg_FortifiedWall)
+            && (slabmap_owner(slb) != plyr_idx ))
+        {
+        untag_blocks_for_digging_in_area(slab_subtile(slb_x, 0), slab_subtile(slb_y, 0), plyr_idx);
+        }
+    }
+    else if ( !subtile_revealed(slab_subtile(slb_x, 0) , slab_subtile(slb_y, 0), plyr_idx) )
+    {
+        untag_blocks_for_digging_in_area(slab_subtile(slb_x, 0), slab_subtile(slb_y, 0), plyr_idx);
+    }
 }
 
 /**
@@ -564,6 +681,41 @@ void reveal_map_area(PlayerNumber plyr_idx,MapSubtlCoord start_x,MapSubtlCoord e
   pannel_map_update(start_x,start_y,end_x,end_y);
 }
 
+void conceal_map_area(PlayerNumber plyr_idx,MapSubtlCoord start_x,MapSubtlCoord end_x,MapSubtlCoord start_y,MapSubtlCoord end_y, TbBool all)
+{
+    unsigned long nflag = (1 << plyr_idx);
+    nflag <<= 28;
+    nflag = ~nflag;
+
+    start_x = stl_slab_starting_subtile(start_x);
+    start_y = stl_slab_starting_subtile(start_y);
+    end_x = stl_slab_ending_subtile(end_x)+1;
+    end_y = stl_slab_ending_subtile(end_y)+1;
+    clear_dig_for_map_rect(plyr_idx,subtile_slab_fast(start_x),subtile_slab_fast(end_x),
+                           subtile_slab_fast(start_y),subtile_slab_fast(end_y));
+    for (MapSubtlCoord y = start_y; y < end_y; y++)
+    {
+        for (MapSubtlCoord x = start_x; x < end_x; x++)
+        {
+            struct Map* mapblk = get_map_block_at(x, y);
+            if (!all)
+            {
+                struct SlabMap *slb = get_slabmap_for_subtile(x,y);
+                switch (slb->kind) // TODO: flags?
+                {
+                    case SlbT_ROCK:
+                    case SlbT_GEMS:
+                    case SlbT_GOLD:
+                        continue;
+                    default:
+                        break;
+                }
+            }
+            mapblk->data &= nflag;
+        }
+    }
+    pannel_map_update(start_x,start_y,end_x,end_y);
+}
 /**
  * Returns if given map position is unsafe (contains a terrain which may lead to creature death).
  * Unsafe terrain is currently lava and sacrificial ground.
@@ -632,6 +784,19 @@ TbBool subtile_is_sellable_room(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapS
     return true;
 }
 
+TbBool subtile_is_sellable_door_or_trap(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+    struct Map* mapblk = get_map_block_at(stl_x, stl_y);
+    if (map_block_invalid(mapblk))
+        return false;
+    struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
+    if (slabmap_owner(slb) != plyr_idx)
+        return false;
+    if ((slab_has_door_thing_on(subtile_slab(stl_x), subtile_slab(stl_y))) || (slab_has_trap_on(subtile_slab(stl_x), subtile_slab(stl_y))))
+        return true;
+    return false;
+}
+
 /**
  * Returns if given map subtile is part of a door slab.
  * @param stl_x
@@ -652,24 +817,41 @@ TbBool subtile_is_door(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
  * @param plyr_idx The player to be checked.
  * @param stl_x Map subtile X coordinate.
  * @param stl_y Map subtile Y coordinate.
+ * @param enemy_wall_diggable * If enemy walls can be selected for digging
  * @return True if the player can dig the subtile, false otherwise.
  */
-TbBool subtile_is_diggable_for_player(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+TbBool subtile_is_diggable_for_player(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, TbBool enemy_wall_diggable)
 {
     struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
     if (slabmap_block_invalid(slb))
+    {
         return false;
+    }
     if (!subtile_revealed(stl_x, stl_y, plyr_idx))
+    {
         return true;
+    }
     //TODO DOOR Why magic door id different? This doesn't seem to be intended.
     if (slab_kind_is_nonmagic_door(slb->kind))
     {
         if (slabmap_owner(slb) == plyr_idx)
-          return false;
+        {
+            return false;
+        }
     }
     struct SlabAttr* slbattr = get_slab_attrs(slb);
-    if ((slbattr->block_flags & (SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0)
-      return true;
+    if (((slbattr->block_flags & (SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0))
+    {
+        if (enemy_wall_diggable)
+        {
+            return true;
+        }
+        if (!(((slbattr->is_diggable) == 0) || 
+        ((slabmap_owner(slb) != plyr_idx) && ((slbattr->block_flags & SlbAtFlg_Filled) != 0))))
+        {
+            return true;
+        }
+    }
     return false;
 }
 /******************************************************************************/

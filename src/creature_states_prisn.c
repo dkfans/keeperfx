@@ -43,30 +43,35 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT short _DK_cleanup_prison(struct Thing *creatng);
 DLLIMPORT long _DK_process_prison_food(struct Thing *creatng, struct Room *room);
 /******************************************************************************/
 #ifdef __cplusplus
 }
 #endif
 /******************************************************************************/
-TbBool jailbreak_possible(struct Room *room, long plyr_idx)
+TbBool jailbreak_possible(struct Room *room, PlayerNumber creature_owner)
 {
-    if (room->owner == plyr_idx) {
+    struct SlabMap *slb;
+    // Neutral creatures (in any player's prison)
+    // and creatures in the prisons of their owner can't jailbreak
+    if (creature_owner == game.neutral_player_num || room->owner == creature_owner)
+    {
         return false;
     }
     unsigned long k = 0;
     unsigned long i = room->slabs_list;
     while (i > 0)
     {
-        struct SlabMap* slb = get_slabmap_direct(i);
+        slb = get_slabmap_direct(i);
         if (slabmap_block_invalid(slb))
         {
             ERRORLOG("Jump to invalid room slab detected");
             break;
         }
-        if (slab_by_players_land(plyr_idx, slb_num_decode_x(i), slb_num_decode_y(i)))
+        if (slab_by_players_land(creature_owner, slb_num_decode_x(i), slb_num_decode_y(i)))
+        {
             return true;
+        }
         i = get_next_slab_number_in_room(i);
         k++;
         if (k > map_tiles_x * map_tiles_y)
@@ -80,7 +85,11 @@ TbBool jailbreak_possible(struct Room *room, long plyr_idx)
 
 short cleanup_prison(struct Thing *thing)
 {
-  return _DK_cleanup_prison(thing);
+  // return _DK_cleanup_prison(thing);
+  struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+  cctrl->flgfield_1 &= (CCFlg_Exists | CCFlg_PreventDamage | CCFlg_Unknown08 | CCFlg_Unknown10 | CCFlg_IsInRoomList | CCFlg_Unknown40 | CCFlg_Unknown80);
+  state_cleanup_in_room(thing);
+  return 1;
 }
 
 short creature_arrived_at_prison(struct Thing *creatng)
@@ -257,6 +266,7 @@ CrStateRet process_prison_visuals(struct Thing *creatng, struct Room *room)
         if (game.play_gameturn - cctrl->turns_at_job < 250)
         {
             set_creature_instance(creatng, CrInst_MOAN, 1, 0, 0);
+            event_create_event_or_update_nearby_existing_event(creatng->mappos.x.val, creatng->mappos.y.val, EvKind_PrisonerStarving, room->owner, creatng->index);
             if (game.play_gameturn - cctrl->imprison.last_mood_sound_turn > 32)
             {
                 play_creature_sound(creatng, CrSnd_Sad, 2, 0);
@@ -314,7 +324,7 @@ TbBool prison_convert_creature_to_skeleton(struct Room *room, struct Thing *thin
     init_creature_level(crthing, cctrl->explevel);
     set_start_state(crthing);
     if (creature_model_bleeds(thing->model))
-      create_effect_around_thing(thing, TngEff_Unknown10);
+      create_effect_around_thing(thing, TngEff_Blood5);
     kill_creature(thing, INVALID_THING, -1, CrDed_NoEffects);
     struct Dungeon* dungeon = get_dungeon(room->owner);
     if (!dungeon_invalid(dungeon)) {
@@ -358,8 +368,18 @@ CrCheckRet process_prison_function(struct Thing *creatng)
         return CrCkRet_Continue;
   }
   process_creature_hunger(creatng);
-  if ( process_prisoner_skelification(creatng,room) )
-    return CrCkRet_Deleted;
+  struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+  if (process_prisoner_skelification(creatng, room))
+  {
+      return CrCkRet_Deleted;
+  }
+  else if ((creatng->health < 0) && (!crstat->humanoid_creature))
+  { 
+      if (is_my_player_number(room->owner))
+      {
+          output_message(SMsg_PrisonersStarving, MESSAGE_DELAY_STARVING, 1);
+      }
+  }
   struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
   if ((cctrl->instance_id == CrInst_NULL) && process_prison_food(creatng, room) )
     return CrCkRet_Continue;

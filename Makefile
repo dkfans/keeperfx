@@ -25,8 +25,9 @@
 ifneq (,$(findstring Windows,$(OS)))
   CROSS_EXEEXT = .exe
   # linker flags
-  # useful for development only: -Wl,-Map,"$(@:%.exe=%.map)"
-  LINKFLAGS = -static-libgcc -static-libstdc++ -Wl,--enable-auto-import
+  LINKFLAGS = -static-libgcc -static-libstdc++ -Wl,--enable-auto-import -Wl,-Bstatic,--whole-archive -lwinpthread -Wl,--no-whole-archive
+  # The following flags are only here to prevent a dependency on libwinpthread-1.dll when keeperfx is built with MSYS2:
+  # "-Wl,-Bstatic,--whole-archive -lwinpthread -Wl,--no-whole-archive
 else
   CROSS_EXEEXT =
   CROSS_COMPILE = i686-w64-mingw32-
@@ -41,6 +42,8 @@ WINDRES  = $(CROSS_COMPILE)windres
 DLLTOOL  = $(CROSS_COMPILE)dlltool
 EXETODLL = tools/peresec/bin/peresec$(CROSS_EXEEXT)
 DOXYTOOL = doxygen
+BUILD_NUMBER ?= $(VER_BUILD)
+PACKAGE_SUFFIX ?= Prototype
 PNGTOICO = tools/png2ico/png2ico$(CROSS_EXEEXT)
 PNGTORAW = tools/pngpal2raw/bin/pngpal2raw$(CROSS_EXEEXT)
 PNGTOBSPAL = tools/png2bestpal/bin/png2bestpal$(CROSS_EXEEXT)
@@ -57,12 +60,23 @@ ECHO     = @echo
 
 # Names of target binary files
 BIN      = bin/keeperfx$(EXEEXT)
+TEST_BIN = bin/tests$(EXEEXT)
 HVLOGBIN = bin/keeperfx_hvlog$(EXEEXT)
 # Names of intermediate build products
 GENSRC   = obj/ver_defs.h
 RES      = obj/keeperfx_stdres.res
 LIBS     = obj/libkeeperfx.a
+
+DEPS = \
+obj/spng.o \
+obj/json/json.o \
+obj/json/value.o \
+obj/json/json-dom.o \
+obj/unzip.o \
+obj/ioapi.o
+
 OBJS = \
+$(DEPS) \
 obj/actionpt.o \
 obj/ariadne.o \
 obj/ariadne_edge.o \
@@ -76,6 +90,7 @@ obj/ariadne_wallhug.o \
 obj/bflib_base_tcp.o \
 obj/bflib_basics.o \
 obj/bflib_bufrw.o \
+obj/bflib_coroutine.o \
 obj/bflib_client_tcp.o \
 obj/bflib_coroutine.o \
 obj/bflib_cpu.o \
@@ -141,6 +156,7 @@ obj/config_terrain.o \
 obj/config_cubes.o \
 obj/config_trapdoor.o \
 obj/console_cmd.o \
+obj/custom_sprites.o \
 obj/creature_battle.o \
 obj/creature_control.o \
 obj/creature_graphics.o \
@@ -165,6 +181,7 @@ obj/creature_states_tortr.o \
 obj/creature_states_train.o \
 obj/creature_states_tresr.o \
 obj/creature_states_wrshp.o \
+obj/cursor_tag.o \
 obj/dungeon_data.o \
 obj/dungeon_stats.o \
 obj/engine_arrays.o \
@@ -207,6 +224,7 @@ obj/frontmenu_saves.o \
 obj/frontmenu_specials.o \
 obj/game_heap.o \
 obj/game_legacy.o \
+obj/game_loop.o \
 obj/game_lghtshdw.o \
 obj/game_loop.o \
 obj/game_merge.o \
@@ -230,11 +248,18 @@ obj/lens_mist.o \
 obj/light_data.o \
 obj/lvl_filesdk1.o \
 obj/lvl_script.o \
+obj/lvl_script_commands.o \
+obj/lvl_script_commands_old.o \
+obj/lvl_script_lib.o \
+obj/lvl_script_conditions.o \
+obj/lvl_script_value.o \
 obj/magic.o \
+obj/main_game.o \
 obj/map_blocks.o \
 obj/map_columns.o \
 obj/map_data.o \
 obj/map_events.o \
+obj/map_locations.o \
 obj/map_utils.o \
 obj/music_player.o \
 obj/net_game.o \
@@ -246,6 +271,8 @@ obj/packets_frontend.o \
 obj/packets_input.o \
 obj/packets_misc.o \
 obj/packets_updating.o \
+obj/packets_input.o \
+obj/packets_misc.o \
 obj/player_compchecks.o \
 obj/player_compevents.o \
 obj/player_complookup.o \
@@ -302,19 +329,39 @@ obj/main.o \
 obj/main_game.o \
 $(RES)
 
+MAIN_OBJ = obj/main.o
+
+TESTS_OBJ = obj/tests/tst_main.o \
+obj/tests/tst_fixes.o \
+obj/tests/001_test.o
+
+CU_DIR = deps/CUnit-2.1-3/CUnit
+CU_INC = -I"$(CU_DIR)/Headers"
+CU_OBJS = \
+	obj/cu/Basic.o \
+	obj/cu/TestDB.o \
+	obj/cu/CUError.o \
+	obj/cu/TestRun.o \
+	obj/cu/Util.o
+
 # include and library directories
-LINKLIB =  -L"sdl/lib" -mwindows obj/libkeeperfx.a -lwinmm -lmingw32 -limagehlp -lSDL2main -lSDL2 -lSDL2_mixer -lSDL2_net -lwsock32 -lws2_32
-INCS =  -I"sdl/include"
-CXXINCS =  -I"sdl/include"
+LINKLIB =  -L"sdl/lib" -mwindows obj/libkeeperfx.a \
+	-lwinmm -lmingw32 -limagehlp -lSDL2main -lSDL2 -lSDL2_mixer -lSDL2_net -lwsock32 -lws2_32\
+	-L"deps/zlib" -lz
+INCS =  -I"sdl/include" -I"sdl/include/SDL2"
+CXXINCS =  -I"sdl/include" -I"sdl/include/SDL2"
 
 STDOBJS   = $(subst obj/,obj/std/,$(OBJS))
 HVLOGOBJS = $(subst obj/,obj/hvlog/,$(OBJS))
+STD_MAIN_OBJ = $(subst obj/,obj/std/,$(MAIN_OBJ))
+HVLOG_MAIN_OBJ = $(subst obj/,obj/hvlog/,$(MAIN_OBJ))
+
 
 # allow extracting files from archives, replacing pre-existing ones
 ENABLE_EXTRACT ?= 1
 
 # flags to generate dependency files
-DEPFLAGS = -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)"
+DEPFLAGS = -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -DSPNG_STATIC=1
 # other flags to include while compiling
 INCFLAGS =
 # code optimization and debugging flags
@@ -343,7 +390,7 @@ WARNFLAGS = -Wall -W -Wshadow -Wno-sign-compare -Wno-unused-parameter -Wno-stric
 # disabled warnings: -Wextra -Wtype-limits
 CXXFLAGS = $(CXXINCS) -c -std=gnu++1y -fmessage-length=0 $(WARNFLAGS) $(DEPFLAGS) $(OPTFLAGS) $(DBGFLAGS) $(INCFLAGS)
 CFLAGS = $(INCS) -c -std=gnu11 -fmessage-length=0 $(WARNFLAGS) -Werror=implicit $(DEPFLAGS) $(OPTFLAGS) $(DBGFLAGS) $(INCFLAGS)
-LDFLAGS = $(LINKLIB) $(OPTFLAGS) $(DBGFLAGS) $(LINKFLAGS)
+LDFLAGS = $(LINKLIB) $(OPTFLAGS) $(DBGFLAGS) $(LINKFLAGS) -Wl,-Map,"$(@:%.exe=%.map)"
 
 CAMPAIGNS  = \
 ami2019 \
@@ -362,18 +409,27 @@ keeporig \
 lqizgood \
 lrdvexer \
 ncastles \
+origplus \
 postanck \
 pstunded \
 questfth \
+revlord \
 twinkprs \
 undedkpr
+
+MAPPACKS  = \
+classic \
+deepdngn \
+legacy \
+lostlvls \
+standard
 
 LANGS = eng chi cht cze dut fre ger ita jpn kor lat pol rus spa swe
 
 # load program version
 include version.mk
 
-VER_STRING = $(VER_MAJOR).$(VER_MINOR).$(VER_RELEASE).$(VER_BUILD) Alpha
+VER_STRING = $(VER_MAJOR).$(VER_MINOR).$(VER_RELEASE).$(BUILD_NUMBER) $(PACKAGE_SUFFIX)
 
 # load depenency packages
 include prebuilds.mk
@@ -386,6 +442,7 @@ include prebuilds.mk
 .PHONY: tools clean-tools deep-clean-tools
 .PHONY: libexterns clean-libexterns deep-clean-libexterns
 .PHONY: testnet
+.PHONY: tests
 
 # dependencies tracking
 -include $(filter %.d,$(STDOBJS:%.o=%.d))
@@ -407,9 +464,9 @@ heavylog: CFLAGS += $(HVLOGFLAGS)
 heavylog: hvlog-before $(HVLOGBIN) hvlog-after
 
 # not nice but necessary for make -j to work
-$(shell $(MKDIR) bin obj/std obj/hvlog)
-std-before: libexterns
-hvlog-before: libexterns
+$(shell $(MKDIR) bin obj/std obj/hvlog obj/tests obj/cu obj/std/json obj/hvlog/json)
+std-before:
+hvlog-before:
 
 docs: docsdox
 
@@ -421,8 +478,8 @@ deep-clean: deep-clean-tools deep-clean-libexterns deep-clean-package
 clean: clean-build clean-tools clean-libexterns clean-package
 
 clean-build:
-	-$(RM) $(STDOBJS) $(filter %.d,$(STDOBJS:%.o=%.d))
-	-$(RM) $(HVLOGOBJS) $(filter %.d,$(HVLOGOBJS:%.o=%.d))
+	-$(RM) $(STDOBJS) $(STD_MAIN_OBJ) $(filter %.d,$(STDOBJS:%.o=%.d)) $(filter %.d,$(STD_MAIN_OBJ:%.o=%.d))
+	-$(RM) $(HVLOGOBJS) $(HVLOG_MAIN_OBJ) $(filter %.d,$(HVLOGOBJS:%.o=%.d)) $(filter %.d,$(HVLOG_MAIN_OBJ:%.o=%.d))
 	-$(RM) $(TESTNETOBJS)
 	-$(RM) $(BIN) $(BIN:%.exe=%.map)
 	-$(RM) $(BIN) $(BIN:%.exe=%.pdb)
@@ -433,22 +490,37 @@ clean-build:
 	-$(RM) res/*.ico
 	-$(RM) obj/keeperfx.*
 
-$(BIN): $(GENSRC) $(STDOBJS) $(LIBS) std-before
+$(BIN): $(GENSRC) $(STDOBJS) $(STD_MAIN_OBJ) $(LIBS) std-before
 	-$(ECHO) 'Building target: $@'
-	$(CPP) -o "$@" $(STDOBJS) $(LDFLAGS)
+	$(CPP) -o "$@" $(STDOBJS) $(STD_MAIN_OBJ) $(LDFLAGS)
 ifdef CV2PDB
 	$(CV2PDB) -C "$@"
 endif
-	-$(ECHO) 'Finished building target: $@'
 	-$(ECHO) ' '
 
-$(HVLOGBIN): $(GENSRC) $(HVLOGOBJS) $(LIBS) hvlog-before
+$(HVLOGBIN): $(GENSRC) $(HVLOGOBJS) $(HVLOG_MAIN_OBJ) $(LIBS) hvlog-before
 	-$(ECHO) 'Building target: $@'
-	$(CPP) -o "$@" $(HVLOGOBJS) $(LDFLAGS)
+	$(CPP) -o "$@" $(HVLOGOBJS) $(HVLOG_MAIN_OBJ) $(LDFLAGS)
 ifdef CV2PDB
 	$(CV2PDB) -C "$@"
 endif
-	-$(ECHO) 'Finished building target: $@'
+	-$(ECHO) ' '
+
+$(TEST_BIN): $(GENSRC) $(STDOBJS) $(TESTS_OBJ) $(LIBS) $(CU_OBJS) std-before
+	-$(ECHO) 'Building target: $@'
+	$(CPP) -o "$@" $(TESTS_OBJ) $(STDOBJS) $(CU_OBJS) $(LDFLAGS)
+ifdef CV2PDB
+	$(CV2PDB) -C "$@"
+endif
+
+obj/std/spng.o obj/hvlog/spng.o: deps/libspng/spng/spng.c deps/zlib/libz.a
+	-$(ECHO) 'Building file: $<'
+	$(CC) $(CFLAGS) -I"deps/zlib" -I"deps/libspng/spng" -o"$@" "$<"
+	-$(ECHO) ' '
+
+obj/std/json/%.o obj/hvlog/json/%.o: deps/centijson/src/%.c
+	-$(ECHO) 'Building file: $<'
+	$(CC) $(CFLAGS) -I"deps/centijson/src" -o"$@" "$<"
 	-$(ECHO) ' '
 
 testnet: bin/testnet.exe
@@ -475,54 +547,95 @@ obj/std/%.o obj/hvlog/%.o: tests/functional/%.cpp $(GENSRC)
 	-$(ECHO) 'Finished building: $<'
 	-$(ECHO) ' '
 
-obj/std/%.o obj/hvlog/%.o: src/%.cpp $(GENSRC)
+obj/std/unzip.o obj/hvlog/unzip.o: deps/zlib/contrib/minizip/unzip.c
 	-$(ECHO) 'Building file: $<'
-	$(CPP) $(CXXFLAGS) -o"$@" "$<"
-	-$(ECHO) 'Finished building: $<'
+	$(CC) $(CFLAGS) -I"deps/zlib" -o"$@" "$<"
 	-$(ECHO) ' '
 
-obj/std/%.o obj/hvlog/%.o: src/%.c $(GENSRC)
+obj/std/ioapi.o obj/hvlog/ioapi.o: deps/zlib/contrib/minizip/ioapi.c
+	-$(ECHO) 'Building file: $<'
+	$(CC) $(CFLAGS) -I"deps/zlib" -o"$@" "$<"
+	-$(ECHO) ' '
+
+obj/std/custom_sprites.o obj/hvlog/custom_sprites.o: src/custom_sprites.c deps/zlib/contrib/minizip/unzip.c
+	-$(ECHO) 'Building file: $<'
+	$(CC) $(CFLAGS) -I"deps/libspng/spng" -I"deps/centijson/src" -I"deps/zlib" -I"deps/zlib/contrib/minizip" -o"$@" "$<"
+	-$(ECHO) ' '
+
+obj/tests/%.o: tests/%.cpp $(GENSRC)
+	-$(ECHO) 'Building file: $<'
+	$(CPP) $(CXXFLAGS) -I"src/" $(CU_INC) -o"$@" "$<"
+	-$(ECHO) ' '
+
+obj/cu/%.o: $(CU_DIR)/Sources/Framework/%.c
+	$(CPP) $(CXXFLAGS) $(CU_INC) -o"$@" "$<"
+
+obj/cu/%.o: $(CU_DIR)/Sources/Basic/%.c
+	$(CPP) $(CXXFLAGS) $(CU_INC) -o"$@" "$<"
+
+obj/std/%.o obj/hvlog/%.o: src/%.cpp libexterns $(GENSRC)
+	-$(ECHO) 'Building file: $<'
+	$(CPP) $(CXXFLAGS) -o"$@" "$<"
+	-$(ECHO) ' '
+
+obj/std/%.o obj/hvlog/%.o: src/%.c libexterns $(GENSRC)
 	-$(ECHO) 'Building file: $<'
 	$(CC) $(CFLAGS) -o"$@" "$<"
-	-$(ECHO) 'Finished building: $<'
 	-$(ECHO) ' '
 
 # Windows resources compilation
 obj/std/%.res obj/hvlog/%.res: res/%.rc res/keeperfx_icon.ico $(GENSRC)
 	-$(ECHO) 'Building resource: $<'
-	$(WINDRES) -i "$<" --input-format=rc -o "$@" -O coff 
-	-$(ECHO) 'Finished building: $<'
+	$(WINDRES) -i "$<" --input-format=rc -o "$@" -O coff
 	-$(ECHO) ' '
 
 # Creation of Windows icon files from PNG files
 res/%.ico: res/%016-08bpp.png res/%032-08bpp.png res/%048-08bpp.png res/%064-08bpp.png res/%128-08bpp.png $(PNGTOICO)
 	-$(ECHO) 'Building icon: $@'
 	$(PNGTOICO) "$@" --colors 256 $(word 5,$^) $(word 4,$^) $(word 3,$^) --colors 16 $(word 2,$^) $(word 1,$^)
-	-$(ECHO) 'Finished building: $@'
 	-$(ECHO) ' '
 
 obj/ver_defs.h: version.mk Makefile
 	$(ECHO) \#define VER_MAJOR   $(VER_MAJOR) > "$(@D)/tmp"
 	$(ECHO) \#define VER_MINOR   $(VER_MINOR) >> "$(@D)/tmp"
 	$(ECHO) \#define VER_RELEASE $(VER_RELEASE) >> "$(@D)/tmp"
-	$(ECHO) \#define VER_BUILD   $(VER_BUILD) >> "$(@D)/tmp"
+	$(ECHO) \#define VER_BUILD   $(BUILD_NUMBER) >> "$(@D)/tmp"
 	$(ECHO) \#define VER_STRING  \"$(VER_STRING)\" >> "$(@D)/tmp"
 	$(ECHO) \#define PACKAGE_SUFFIX  \"$(PACKAGE_SUFFIX)\" >> "$(@D)/tmp"
+	$(ECHO) \#define GIT_REVISION  \"`git describe  --always`\" >> "$(@D)/tmp"
 	$(MV) "$(@D)/tmp" "$@"
 
 obj/libkeeperfx.a: bin/keeperfx.dll obj/keeperfx.def
 	-$(ECHO) 'Generating gcc library archive for: $<'
 	$(DLLTOOL) --dllname "$<" --def "obj/keeperfx.def" --output-lib "$@"
-	-$(ECHO) 'Finished generating: $@'
 	-$(ECHO) ' '
 
 bin/keeperfx.dll obj/keeperfx.def: lib/keeper95_gold.dll lib/keeper95_gold.map $(EXETODLL)
 	-$(ECHO) 'Rebuilding DLL export table from: $<'
 	$(EXETODLL) -o"$@" --def "obj/keeperfx.def" -p"_DK_" "$<"
-	-$(ECHO) 'Finished creating: $@'
 	-$(ECHO) ' '
 
-include libexterns.mk
+tests: std-before $(TEST_BIN)
+
+libexterns: libexterns.mk
+	$(MAKE) -f libexterns.mk
+
+clean-libexterns: libexterns.mk
+	-$(MAKE) -f libexterns.mk clean-libexterns
+	-cd deps/zlib && $(MAKE) -f win32/Makefile.gcc clean
+	-cd deps/zlib && git checkout Makefile zconf.h
+	-$(RM) libexterns
+
+deps/centijson/src/json.c deps/centijson/src/value.c deps/centijson/src/json-dom.c: deps/zlib/configure.log
+deps/libspng/spng/spng.c: deps/zlib/configure.log
+deps/zlib/contrib/minizip/unzip.c deps/zlib/contrib/minizip/ioapi.c: deps/zlib/configure.log
+
+
+deps/zlib/configure.log:
+	git submodule sync && git submodule update --init && cd deps/zlib && ./configure --static
+
+deps/zlib/libz.a: deps/zlib/configure.log
+	cd deps/zlib && $(MAKE) -f win32/Makefile.gcc PREFIX=$(CROSS_COMPILE) libz.a
 
 include tool_peresec.mk
 include tool_png2ico.mk
@@ -539,4 +652,5 @@ include pkg_lang.mk
 include pkg_gfx.mk
 include pkg_sfx.mk
 
+export RM CP MKDIR MV ECHO
 #******************************************************************************

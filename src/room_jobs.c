@@ -95,16 +95,20 @@ TbBool add_creature_to_torture_room(struct Thing *creatng, const struct Room *ro
         terminate_thing_spell_effect(creatng, SplK_Speed);
     if (creature_affected_by_spell(creatng, SplK_Invisibility))
         terminate_thing_spell_effect(creatng, SplK_Invisibility);
-    struct Dungeon* dungeon = get_dungeon(room->owner);
-    dungeon->lvstats.creatures_tortured++;
-    if (dungeon->tortured_creatures[creatng->model] == 0)
+    if (room->owner != game.neutral_player_num)
     {
-        dungeon->tortured_creatures[creatng->model]++;
-        // Torturing changes speed of creatures of that kind, so let's update
-        update_speed_of_player_creatures_of_model(room->owner, creatng->model);
-    } else
-    {
-        dungeon->tortured_creatures[creatng->model]++;
+        struct Dungeon* dungeon = get_dungeon(room->owner);
+        dungeon->lvstats.creatures_tortured++;
+        if (dungeon->tortured_creatures[creatng->model] == 0)
+        {
+            dungeon->tortured_creatures[creatng->model]++;
+            // Torturing changes speed of creatures of that kind, so let's update
+            update_speed_of_player_creatures_of_model(room->owner, creatng->model);
+        }
+        else
+        {
+            dungeon->tortured_creatures[creatng->model]++;
+        }
     }
     return true;
 }
@@ -353,10 +357,10 @@ TbBool creature_setup_random_move_for_job_in_room_f(struct Thing *creatng, struc
     switch (room_area)
     {
     case JoKF_WorkOnAreaBorder:
-        result = find_random_position_at_area_of_room(creatng, &pos, room, RoArC_BORDER);
+        result = find_random_position_at_area_of_room(&pos, room, RoArC_BORDER, creatng);
         break;
     case JoKF_WorkOnAreaCenter:
-        result = find_random_position_at_area_of_room(creatng, &pos, room, RoArC_CENTER);
+        result = find_random_position_at_area_of_room(&pos, room, RoArC_CENTER, creatng);
         break;
     case (JoKF_WorkOnAreaBorder|JoKF_WorkOnAreaCenter):
         result = find_random_valid_position_for_thing_in_room(creatng, room, &pos);

@@ -66,12 +66,12 @@ struct Camera {
     int orient_c;
     int field_13;
     int zoom;
-    int field_1B;
-    unsigned char field_1F;
-    long field_20;
-    unsigned char field_24;
-    long field_25;
-    unsigned char field_29;
+    int inertia_rotation;
+    TbBool in_active_movement_rotation;
+    long inertia_x;
+    TbBool in_active_movement_x;
+    long inertia_y;
+    TbBool in_active_movement_y;
 };
 
 /******************************************************************************/
@@ -112,6 +112,7 @@ void view_set_camera_y_inertia(struct Camera *cam, long a2, long a3);
 void view_set_camera_x_inertia(struct Camera *cam, long a2, long a3);
 void view_set_camera_rotation_inertia(struct Camera *cam, long a2, long a3);
 
+void update_all_players_cameras(void);
 void init_player_cameras(struct PlayerInfo *player);
 /******************************************************************************/
 #ifdef __cplusplus

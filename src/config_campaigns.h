@@ -154,6 +154,7 @@ extern struct CampaignsList mappacks_list;
 extern const struct NamedCommand cmpgn_map_commands[];
 extern const struct NamedCommand cmpgn_map_cmnds_options[];
 extern const struct NamedCommand cmpgn_map_cmnds_kind[];
+extern const struct NamedCommand cmpgn_human_player_options[];
 /******************************************************************************/
 TbBool load_campaign(const char *cmpgn_fname,struct GameCampaign *campgn,unsigned short flags, short fgroup);
 TbBool free_campaign(struct GameCampaign *campgn);
@@ -178,6 +179,7 @@ TbBool change_campaign(const char *cmpgn_fname);
 TbBool is_campaign_loaded(void);
 TbBool is_campaign_in_list(const char *cmpgn_fname, struct CampaignsList *clist);
 TbBool check_lif_files_in_mappack(struct GameCampaign *campgn);
+TbBool is_map_pack(void);
 /******************************************************************************/
 #ifdef __cplusplus
 }

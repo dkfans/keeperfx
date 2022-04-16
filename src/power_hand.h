@@ -56,7 +56,7 @@ TbBool remove_first_thing_from_power_hand_list(PlayerNumber plyr_idx);
 TbBool thing_is_in_power_hand_list(const struct Thing *thing, PlayerNumber plyr_idx);
 
 long can_thing_be_picked_up_by_player(const struct Thing *thing, PlayerNumber plyr_idx);
-long can_thing_be_picked_up2_by_player(const struct Thing *thing, PlayerNumber plyr_idx);
+TbBool can_thing_be_picked_up2_by_player(const struct Thing *thing, PlayerNumber plyr_idx);
 
 TbBool thing_is_picked_up(const struct Thing *thing);
 TbBool thing_is_picked_up_by_owner(const struct Thing *thing);

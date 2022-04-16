@@ -96,7 +96,7 @@ short LbIKeyboardClose(void)
 
 short LbIKeyboardOpen(void)
 {
-    init_inputcontrol();
+  init_inputcontrol();
     return 1;
 }
 

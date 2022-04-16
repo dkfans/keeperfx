@@ -20,6 +20,7 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
+#include "bflib_coroutine.h"
 #include "bflib_memory.h"
 #include "bflib_network.h"
 
@@ -193,7 +194,11 @@ static CoroutineLoopState setup_exchange_player_number(CoroutineLoop *context)
       exchange_context.sent = 0; // return to original state
       return CLS_CONTINUE; // continue loop
   }
-  return CLS_REPEAT; // repeat loop
+  if (k != game.active_players_count)
+  {
+      return CLS_REPEAT; // Repeat
+  }
+  return CLS_CONTINUE; // Skip loop to next function
 }
 
 static short setup_select_player_number(void)
@@ -214,8 +219,8 @@ static short setup_select_player_number(void)
             }
             k++;
         }
-  }
-  return is_set;
+    }
+    return is_set;
 }
 
 void setup_players_count(void)

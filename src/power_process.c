@@ -32,6 +32,7 @@
 #include "thing_physics.h"
 #include "thing_effects.h"
 #include "thing_navigate.h"
+#include "creature_instances.h"
 #include "creature_states.h"
 #include "creature_senses.h"
 #include "ariadne_wallhug.h"
@@ -166,9 +167,12 @@ void process_armageddon_influencing_creature(struct Thing *creatng)
         // If Armageddon is on, teleport creature to its position
         if ((cctrl->armageddon_teleport_turn != 0) && (cctrl->armageddon_teleport_turn <= game.play_gameturn))
         {
-            cctrl->armageddon_teleport_turn = 0;
-            create_effect(&creatng->mappos, imp_spangle_effects[creatng->owner], creatng->owner);
-            move_thing_in_map(creatng, &game.armageddon.mappos);
+            if (cctrl->instance_id == CrInst_NULL) // Avoid corruption from in progress instances, like claiming floors.
+            {
+                cctrl->armageddon_teleport_turn = 0;
+                create_effect(&creatng->mappos, imp_spangle_effects[creatng->owner], creatng->owner);
+                move_thing_in_map(creatng, &game.armageddon.mappos);
+            }
         }
     }
 }
@@ -230,7 +234,7 @@ void lightning_modify_palette(struct Thing *thing)
     if (thing->health == 0)
     {
       PaletteSetPlayerPalette(myplyr, engine_palette);
-      myplyr->field_3 &= ~Pf3F_Unkn08;
+      myplyr->additional_flags &= ~PlaAF_LightningPaletteIsActive;
       return;
     }
     if (myplyr->acamera == NULL)
@@ -240,24 +244,24 @@ void lightning_modify_palette(struct Thing *thing)
     }
     if (((thing->health % 8) != 7) && (thing->health != 1) && (UNSYNC_RANDOM(4) != 0))
     {
-        if ((myplyr->field_3 & Pf3F_Unkn08) != 0)
+        if ((myplyr->additional_flags & PlaAF_LightningPaletteIsActive) != 0)
         {
             if (get_2d_box_distance(&myplyr->acamera->mappos, &thing->mappos) < 11520)
             {
                 PaletteSetPlayerPalette(myplyr, engine_palette);
-                myplyr->field_3 &= ~Pf3F_Unkn08;
+                myplyr->additional_flags &= ~PlaAF_LightningPaletteIsActive;
             }
         }
         return;
     }
     if ((myplyr->view_mode != PVM_ParchFadeIn) && (myplyr->view_mode != PVM_ParchFadeOut) && (myplyr->view_mode != PVM_ParchmentView))
     {
-        if ((myplyr->field_3 & Pf3F_Unkn08) == 0)
+        if ((myplyr->additional_flags & PlaAF_LightningPaletteIsActive) == 0)
         {
             if (get_2d_box_distance(&myplyr->acamera->mappos, &thing->mappos) < 11520)
             {
               PaletteSetPlayerPalette(myplyr, lightning_palette);
-              myplyr->field_3 |= Pf3F_Unkn08;
+              myplyr->additional_flags |= PlaAF_LightningPaletteIsActive;
             }
         }
     }
@@ -281,7 +285,7 @@ void update_god_lightning_ball(struct Thing *thing)
         target = thing_get(thing->shot.target_idx);
         if (thing_is_invalid(target))
             break;
-        draw_lightning(&thing->mappos,&target->mappos, 96, 60);
+        draw_lightning(&thing->mappos,&target->mappos, 96, TngEffElm_ElectricBall3);
         break;
     case 2:
     {
@@ -289,7 +293,7 @@ void update_god_lightning_ball(struct Thing *thing)
         if (thing_is_invalid(target))
             break;
         struct ShotConfigStats* shotst = get_shot_model_stats(ShM_GodLightBall);
-        apply_damage_to_thing_and_display_health(target, shotst->old->damage, shotst->damage_type, thing->owner);
+        apply_damage_to_thing_and_display_health(target, shotst->damage, shotst->damage_type, thing->owner);
         if (target->health < 0)
         {
             struct CreatureControl* cctrl = creature_control_get_from_thing(target);
@@ -330,7 +334,7 @@ void god_lightning_choose_next_creature(struct Thing *shotng)
             if (dist < best_dist)
             {
                 const struct MagicStats* pwrdynst = get_power_dynamic_stats(PwrK_LIGHTNING);
-                int spell_lev = shotng->shot.byte_19;
+                int spell_lev = shotng->shot.spell_level;
                 if (spell_lev > SPELL_MAX_LEVEL)
                     spell_lev = SPELL_MAX_LEVEL;
                 if (subtile_coord(pwrdynst->strength[spell_lev],0) > dist)
@@ -377,7 +381,7 @@ void draw_god_lightning(struct Thing *shotng)
         locpos.x.val +=  (LbSinL(i + cam->orient_a) >> (LbFPMath_TrigmBits - 10));
         locpos.y.val += -(LbCosL(i + cam->orient_a) >> (LbFPMath_TrigmBits - 10));
         locpos.z.val = subtile_coord(12,0);
-        draw_lightning(&locpos, &shotng->mappos, 256, 60);
+        draw_lightning(&locpos, &shotng->mappos, 256, TngEffElm_ElectricBall3);
     }
 }
 

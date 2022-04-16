@@ -43,6 +43,8 @@ TbBool remove_creature_from_generate_pool(ThingModel crtr_kind);
 TbBool creature_will_generate_for_dungeon(const struct Dungeon * dungeon, ThingModel crtr_kind);
 TbBool entrance_packet_cb(int player_id, struct BigActionPacket * big);
 /******************************************************************************/
+TbBool update_creature_pool_state(void);
+/******************************************************************************/
 #ifdef __cplusplus
 }
 #endif

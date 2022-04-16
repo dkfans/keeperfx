@@ -37,7 +37,7 @@
 #include "config_creature.h"
 #include "config_terrain.h"
 #include "game_legacy.h"
-
+#include "config_settings.h"
 #include "music_player.h"
 
 #include "keeperfx.hpp"
@@ -54,12 +54,6 @@ const char foot_down_sound_sample_variant[] = {
 
 char sound_dir[64] = "SOUND";
 int atmos_sound_frequency = 800;
-/******************************************************************************/
-DLLIMPORT TbFileHandle _DK_LbFileOpen(const char *fname, int mode);
-DLLIMPORT int _DK_LbFileClose(TbFileHandle handle);
-DLLIMPORT int _DK_LbFileSeek(TbFileHandle handle, long offset, int origin);
-DLLIMPORT int _DK_LbFileRead(TbFileHandle handle, void *buffer, unsigned long len);
-DLLIMPORT int _DK_LbFilePosition(TbFileHandle handle);
 /******************************************************************************/
 void thing_play_sample(struct Thing *thing, short smptbl_idx, unsigned short pitch, char a4, unsigned char a5, unsigned char a6, long a7, long loudness)
 {
@@ -119,11 +113,11 @@ void play_thing_walking(struct Thing *thing)
             S3DDeleteSampleFromEmitter(thing->snd_emitter_id, 25, 0);
         }
         struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-        if ((cctrl->field_9) && get_foot_creature_has_down(thing))
+        if ((cctrl->distance_to_destination) && get_foot_creature_has_down(thing))
         {
             int smpl_variant = foot_down_sound_sample_variant[4 * ((cctrl->mood_flags & 0x1C) >> 2) + (cctrl->field_67 & 0x1F)];
             long smpl_idx;
-            if ((thing->movement_flags & TMvF_Unknown80) != 0) {
+            if ((thing->movement_flags & TMvF_IsOnSnow) != 0) {
                 smpl_idx = 181 + smpl_variant;
             } else {
                 struct CreatureSound* crsound = get_creature_sound(thing, CrSnd_Foot);
@@ -136,23 +130,22 @@ void play_thing_walking(struct Thing *thing)
                 cctrl->mood_flags |=  (UNSYNC_RANDOM(4) << 2);
                 cctrl->field_67 &= ~0x1F;
             }
-
             //TODO CONFIG creature model dependency; remove, add config file option for this
-            int v15 = thing->model;
-            unsigned short smpl_delay;
-            if (v15 == 19 || v15 == 24)
+            ThingModel crmodel = thing->model;
+            unsigned short smpl_pitch;
+            if (crmodel == 19 || crmodel == 24)
             { //FLY or BUG
-                smpl_delay = 400;
+                smpl_pitch = 400;
             }
-            else if (v15 == 27)
+            else if (crmodel == 27)
             { //HELL_HOUND
-                smpl_delay = 300;
+                smpl_pitch = 300;
             }
             else
             {
-                smpl_delay = 100;
+                smpl_pitch = 100;
             }
-            thing_play_sample(thing, smpl_idx, smpl_delay, 0, 3, 3, 1, loudness);
+            thing_play_sample(thing, smpl_idx, smpl_pitch, 0, 3, 3, 1, loudness);
             if ((thing->movement_flags & TMvF_IsOnWater) != 0) {
                 thing_play_sample(thing, 21 + SOUND_RANDOM(4), 90 + SOUND_RANDOM(20), 0, 3, 3, 1, FULL_LOUDNESS);
             }
@@ -207,9 +200,12 @@ void find_nearest_rooms_for_ambient_sound(void)
         return;
     struct PlayerInfo* player = get_my_player();
     struct Camera* cam = player->acamera;
-    if (cam == NULL)
+    if (cam == NULL || LbIsFrozenOrPaused())
     {
-        ERRORLOG("No active camera");
+        if (cam == NULL)
+        {
+            ERRORLOG("No active camera");
+        }
         set_room_playing_ambient_sound(NULL, 0);
         return;
     }
@@ -435,17 +431,17 @@ long parse_sound_file(TbFileHandle fileh, unsigned char *buf, long *nsamples, lo
     default:
         return 0;
     }
-    _DK_LbFileSeek(fileh, 0, Lb_FILE_SEEK_END);
-    long fsize = _DK_LbFilePosition(fileh);
-    _DK_LbFileSeek(fileh, fsize-4, Lb_FILE_SEEK_BEGINNING);
+    LbFileSeek(fileh, 0, Lb_FILE_SEEK_END);
+    long fsize = LbFilePosition(fileh);
+    LbFileSeek(fileh, fsize-4, Lb_FILE_SEEK_BEGINNING);
     unsigned char rbuf[8];
-    _DK_LbFileRead(fileh, &rbuf, 4);
+    LbFileRead(fileh, &rbuf, 4);
     long i = read_int32_le_buf(rbuf);
-    _DK_LbFileSeek(fileh, i, Lb_FILE_SEEK_BEGINNING);
+    LbFileSeek(fileh, i, Lb_FILE_SEEK_BEGINNING);
     struct SoundBankHead bhead;
-    _DK_LbFileRead(fileh, &bhead, sizeof(bhead));
+    LbFileRead(fileh, &bhead, sizeof(bhead));
     struct SoundBankEntry bentries[9];
-    _DK_LbFileRead(fileh, bentries, sizeof(bentries));
+    LbFileRead(fileh, bentries, sizeof(bentries));
     struct SoundBankEntry* bentry = &bentries[k];
     if (bentry->field_0 == 0) {
         return 0;
@@ -458,13 +454,13 @@ long parse_sound_file(TbFileHandle fileh, unsigned char *buf, long *nsamples, lo
     if (sizeof(struct SampleTable) * (*nsamples) >= buf_len) {
         return 0;
     }
-    _DK_LbFileSeek(fileh, bentry->field_0, Lb_FILE_SEEK_BEGINNING);
+    LbFileSeek(fileh, bentry->field_0, Lb_FILE_SEEK_BEGINNING);
     struct SampleTable* smpl = (struct SampleTable*)buf;
     k = bentry->field_4;
     for (i=0; i < *nsamples; i++)
     {
         struct SoundBankSample bsample;
-        _DK_LbFileRead(fileh, &bsample, sizeof(struct SoundBankSample));
+        LbFileRead(fileh, &bsample, sizeof(struct SoundBankSample));
         smpl->file_pos = k + bsample.field_12;
         smpl->data_size = bsample.data_size;
         smpl->sfxid = bsample.sfxid;
@@ -482,7 +478,7 @@ TbBool init_sound(void)
       return false;
     struct SoundSettings* snd_settng = &game.sound_settings;
     SetupAudioOptionDefaults(snd_settng);
-    snd_settng->field_E = 3;
+    snd_settng->flags = SndSetting_Sound;
     snd_settng->sound_type = 1622;
     snd_settng->sound_data_path = sound_dir;
     snd_settng->dir3 = sound_dir;
@@ -494,16 +490,13 @@ TbBool init_sound(void)
     else
       snd_settng->max_number_of_samples = 16;
     snd_settng->danger_music = 0;
-    snd_settng->no_load_music = 0;
+    snd_settng->no_load_music = 1;
     snd_settng->no_load_sounds = 1;
-    snd_settng->field_16 = 1;
-    if ((game.flags_font & FFlg_UsrSndFont) == 0)
-      snd_settng->field_16 = 0;
+    snd_settng->field_16 = 0;
     snd_settng->field_18 = 1;
     snd_settng->redbook_enable = ((game.flags_cd & MFlg_NoCdMusic) == 0);
     snd_settng->sound_system = 0;
     InitAudio(snd_settng);
-    LoadMusic(0);
     InitializeMusicPlayer();
     if (!GetSoundInstalled())
     {
@@ -525,7 +518,7 @@ TbBool init_sound_heap_two_banks(unsigned char *heap_mem, long heap_size, char *
     if (sound_file != -1)
         close_sound_bank(0);
     samples_in_bank = 0;
-    sound_file = _DK_LbFileOpen(snd_fname,Lb_FILE_MODE_READ_ONLY);
+    sound_file = LbFileOpen(snd_fname,Lb_FILE_MODE_READ_ONLY);
     if (sound_file == -1)
     {
         ERRORLOG("Couldn't open primary sound bank file \"%s\"",snd_fname);
@@ -553,7 +546,7 @@ TbBool init_sound_heap_two_banks(unsigned char *heap_mem, long heap_size, char *
     if (sound_file2 != -1)
         close_sound_bank(1);
     samples_in_bank2 = 0;
-    sound_file2 = _DK_LbFileOpen(spc_fname,Lb_FILE_MODE_READ_ONLY);
+    sound_file2 = LbFileOpen(spc_fname,Lb_FILE_MODE_READ_ONLY);
     if (sound_file2 == -1)
     {
         ERRORLOG("Couldn't open secondary sound bank file \"%s\"",spc_fname);
@@ -585,26 +578,6 @@ TbBool init_sound_heap_two_banks(unsigned char *heap_mem, long heap_size, char *
     }
     using_two_banks = 1;
     return true;
-}
-
-void randomize_sound_font(void)
-{
-    StopMusic();
-    switch (UNSYNC_RANDOM(3))
-    {
-    case 0:
-        if (LoadAwe32Soundfont("bullfrog"))
-          StartMusic(1, 127);
-        break;
-    case 1:
-        if (LoadAwe32Soundfont("atmos1"))
-          StartMusic(1, 127);
-        break;
-    case 2:
-        if (LoadAwe32Soundfont("atmos2"))
-          StartMusic(1, 127);
-        break;
-    }
 }
 
 struct Thing *create_ambient_sound(const struct Coord3d *pos, ThingModel model, PlayerNumber owner)
@@ -675,9 +648,7 @@ void sound_reinit_after_load(void)
         Non3DEmitter = 0;
     }
     ambient_sound_stop();
-    StartMusic(1, 127);
     init_messages();
-    randomize_sound_font();
 }
 
 void stop_thing_playing_sample(struct Thing *heartng, short a2)
@@ -687,6 +658,48 @@ void stop_thing_playing_sample(struct Thing *heartng, short a2)
     {
         if (S3DEmitterIsPlayingSample(eidx, a2, 0)) {
             S3DDeleteSampleFromEmitter(eidx, a2, 0);
+        }
+    }
+}
+
+void mute_audio(TbBool mute)
+{
+    if (!SoundDisabled)
+    {
+        if (mute)
+        {
+            SetSoundMasterVolume(0);
+            SetMusicPlayerVolume(0);
+            SetMusicMasterVolume(0);
+            if (IsRedbookMusicActive())
+            {
+                PauseRedbookTrack(); // volume seems to have no effect on CD audio, so just pause/resume it
+            }
+        }
+        else
+        {
+            SetMusicPlayerVolume(settings.redbook_volume);
+            SetSoundMasterVolume(settings.sound_volume);
+            SetMusicMasterVolume(settings.sound_volume);
+            if (IsRedbookMusicActive())
+            {
+                ResumeRedbookTrack();
+            }
+        }
+    }
+}
+
+void pause_music(TbBool pause)
+{
+    if (!SoundDisabled)
+    {
+        if (pause)
+        {
+            PauseMusicPlayer();
+        }
+        else
+        {
+            ResumeMusicPlayer();
         }
     }
 }

@@ -47,6 +47,14 @@ struct Columns {
     struct Column *end;
 };
 
+enum ColumnFlags
+{
+    CLF_ACTIVE = 0x01,
+    // Height of ceiling cube layer (IF ANY)
+    CLF_CEILING_MASK = 0x0E,
+    // Height of a floor cube layer
+    CLF_FLOOR_MASK = 0xF0
+};
 
 #pragma pack()
 /******************************************************************************/
@@ -85,6 +93,7 @@ long get_map_floor_height(const struct Map *mapblk);
 long get_floor_height_at(const struct Coord3d *pos);
 long get_map_ceiling_height(const struct Map *mapblk);
 long get_ceiling_height_at(const struct Coord3d *pos);
+long get_ceiling_height_at_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 
 TbBool cube_is_water(long cube_id);
 TbBool cube_is_lava(long cube_id);

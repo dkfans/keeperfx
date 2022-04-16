@@ -1,0 +1,434 @@
+REM ****************************************************************************
+REM  Free Play levels : Standard Map Pack - KeeperFX
+REM ****************************************************************************
+REM  Script for Level 452 - Wetlands
+REM  Author:  Loobinex
+REM  Date:    2021-01-07
+REM  Copying and copyrights:
+REM    This program is free software; you can redistribute it and/or modify
+REM    it under the terms of the GNU General Public License as published by
+REM    the Free Software Foundation; either version 2 of the License, or
+REM    (at your option) any later version.
+REM ****************************************************************************
+
+
+REM Brief: Player needs to summon horny and face final hero party with that. To do so he needs to acquire 9 temple tiles from the land,
+REM find a troll and a mistress and destroy blue keeper to get bile demons. In order to do so the player needs to use barracks to kill
+REM wizards in the south after which the bridge becomes available.
+
+LEVEL_VERSION(1)
+SET_GENERATE_SPEED(1000)
+
+COMPUTER_PLAYER(PLAYER1,0)
+
+START_MONEY(PLAYER0,10000)
+START_MONEY(PLAYER1,100000)
+
+MAX_CREATURES(PLAYER0,22)
+MAX_CREATURES(PLAYER1,6)
+
+SET_CREATURE_ARMOUR(DRAGON,160)
+SET_CREATURE_HEALTH(DRAGON,1200)
+
+REM ****************************************************************************
+REM Flags used:
+REM  PLAYER0,FLAG0		- Horny summoned
+REM  PLAYER_GOOD,FLAG1	- Prison limit reached
+
+
+REM Timers used:
+REM   PLAYER_GOOD,TIMER1	- Spawning party Buzz loop
+
+REM Action Points and Hero Gates
+REM Action Point 1 - Northern temple
+REM Action Point 2 - Lava area
+REM Action Point 3 - Entrance Hero Library
+REM Action Point 4 - In water within the monk temple
+REM Action Point 5 - Hero library centre
+REM Action Point 6 - Eye behind the monk temple
+REM Action Point 7 - Portal
+REM Action Point 8 - Hero fortress front
+REM Action Point 9 - Hero heart room
+REM Action Point 10 - South waterway
+REM Action Point 11 - West waterway
+REM Action Point 12 - North waterway
+
+REM Hero Gate 1 - Buzz barracks
+REM Hero Gate 2 - Northern temple
+REM Hero Gate 3~6 - Hero libraries
+REM Hero Gate 7 - Guarded temple
+REM Hero Gate 8 - Behind hero heart
+
+
+REM ****************************************************************************
+REM Initial availability
+REM ****************************************************************************
+ROOM_AVAILABLE(PLAYER0,TREASURE,1,1)
+ROOM_AVAILABLE(PLAYER0,LAIR,1,1)
+ROOM_AVAILABLE(PLAYER0,GARDEN,1,1)
+ROOM_AVAILABLE(PLAYER0,TRAINING,1,1)
+ROOM_AVAILABLE(PLAYER0,RESEARCH,1,1)
+ROOM_AVAILABLE(PLAYER0,PRISON,4,0)
+ROOM_AVAILABLE(PLAYER0,BARRACKS,4,0)
+
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_POSSESS,1,1)
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_HAND,1,1)
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_SLAP,1,1)
+MAGIC_AVAILABLE(PLAYER0,POWER_IMP,1,1)
+MAGIC_AVAILABLE(PLAYER0,POWER_PROTECT,1,0)
+MAGIC_AVAILABLE(PLAYER0,POWER_HOLD_AUDIENCE,1,0)
+MAGIC_AVAILABLE(PLAYER0,POWER_OBEY,1,0)
+MAGIC_AVAILABLE(PLAYER0,POWER_CONCEAL,1,0)
+MAGIC_AVAILABLE(PLAYER0,POWER_SIGHT,1,0)
+
+ADD_CREATURE_TO_POOL(BILE_DEMON,5)
+ADD_CREATURE_TO_POOL(ORC,4)
+ADD_CREATURE_TO_POOL(HELL_HOUND,3)
+ADD_CREATURE_TO_POOL(BUG,3)
+ADD_CREATURE_TO_POOL(TENTACLE,4)
+
+
+CREATURE_AVAILABLE(PLAYER0,BUG,1,0)
+CREATURE_AVAILABLE(PLAYER0,DEMONSPAWN,1,0)
+CREATURE_AVAILABLE(PLAYER0,TENTACLE,1,4)
+CREATURE_AVAILABLE(PLAYER0,SORCEROR,1,0)
+CREATURE_AVAILABLE(PLAYER0,ORC,1,0)
+CREATURE_AVAILABLE(PLAYER0,TROLL,1,0)
+CREATURE_AVAILABLE(PLAYER0,HELL_HOUND,1,0)
+CREATURE_AVAILABLE(PLAYER0,DARK_MISTRESS,1,0)
+
+CREATURE_AVAILABLE(PLAYER1,BILE_DEMON,1,5)
+
+DOOR_AVAILABLE(PLAYER1,STEEL,1,0)
+
+REM ****************************************************************************
+REM Hero Parties
+REM ****************************************************************************
+
+CREATE_PARTY(Buzz)
+	ADD_TO_PARTY(Buzz,BARBARIAN,4,150,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(Buzz,THIEF,3,250,STEAL_GOLD,0)
+	ADD_TO_PARTY(Buzz,DWARFA,3,100,ATTACK_ROOMS,0)
+
+CREATE_PARTY(Snooze)
+	ADD_TO_PARTY(Snooze,BARBARIAN,6,550,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(Snooze,BARBARIAN,5,300,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(Snooze,BARBARIAN,4,150,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(Snooze,GIANT,4,250,STEAL_GOLD,0)
+	ADD_TO_PARTY(Snooze,DWARFA,4,100,ATTACK_ROOMS,0)
+
+CREATE_PARTY(Revenge)
+	ADD_TO_PARTY(Revenge,GHOST,6,200,STEAL_SPELLS,0)
+	ADD_TO_PARTY(Revenge,GHOST,4,150,STEAL_SPELLS,0)
+	ADD_TO_PARTY(Revenge,GHOST,2,100,STEAL_SPELLS,0)
+
+CREATE_PARTY(Fodder)
+	ADD_TO_PARTY(Fodder,FAIRY,8,800,ATTACK_ENEMIES,7200)
+	ADD_TO_PARTY(Fodder,FAIRY,6,600,ATTACK_ENEMIES,7200)
+	ADD_TO_PARTY(Fodder,FAIRY,6,600,ATTACK_ENEMIES,7200)
+	ADD_TO_PARTY(Fodder,FAIRY,5,500,ATTACK_ENEMIES,7200)
+	ADD_TO_PARTY(Fodder,FAIRY,4,400,ATTACK_ENEMIES,7200)
+
+CREATE_PARTY(Asshole)
+	ADD_TO_PARTY(Asshole,WITCH,8,1000,ATTACK_DUNGEON_HEART,0)
+	ADD_TO_PARTY(Asshole,WITCH,7,250,ATTACK_DUNGEON_HEART,0)
+	ADD_TO_PARTY(Asshole,ARCHER,9,1000,ATTACK_DUNGEON_HEART,0)
+	ADD_TO_PARTY(Asshole,ARCHER,6,250,ATTACK_DUNGEON_HEART,0)
+
+CREATE_PARTY(Defence)
+	ADD_TO_PARTY(Defence,SAMURAI,9,900,DEFEND_PARTY,36000)
+	ADD_TO_PARTY(Defence,BARBARIAN,6,600,DEFEND_PARTY,36000)
+	ADD_TO_PARTY(Defence,BARBARIAN,6,600,DEFEND_PARTY,36000)
+	ADD_TO_PARTY(Defence,ARCHER,4,400,DEFEND_PARTY,36000)
+	ADD_TO_PARTY(Defence,ARCHER,4,400,DEFEND_PARTY,36000)
+	ADD_TO_PARTY(Defence,DWARFA,5,500,DEFEND_PARTY,36000)
+
+CREATE_PARTY(Landlord)
+	ADD_TO_PARTY(Landlord,KNIGHT,10,10000,ATTACK_DUNGEON_HEART,0)
+	ADD_TO_PARTY(Landlord,WIZARD,10,1000,ATTACK_DUNGEON_HEART,0)
+	ADD_TO_PARTY(Landlord,WIZARD,10,1000,ATTACK_DUNGEON_HEART,0)
+	ADD_TO_PARTY(Landlord,GIANT,9,800,ATTACK_DUNGEON_HEART,0)
+	ADD_TO_PARTY(Landlord,GIANT,9,800,ATTACK_DUNGEON_HEART,0)
+	ADD_TO_PARTY(Landlord,MONK,8,700,ATTACK_DUNGEON_HEART,0)
+	ADD_TO_PARTY(Landlord,MONK,8,700,ATTACK_DUNGEON_HEART,0)
+
+REM ****************************************************************************
+REM Additional availability
+REM ****************************************************************************
+
+IF(PLAYER0,BARRACKS >= 1)
+	TUTORIAL_FLASH_BUTTON(16,100)
+	ADD_CREATURE_TO_LEVEL(PLAYER0,TENTACLE,7,1,1,0)
+ENDIF
+
+IF(PLAYER0,PRISON >= 1)
+	TUTORIAL_FLASH_BUTTON(11,100)
+	ADD_CREATURE_TO_LEVEL(PLAYER0,TENTACLE,7,1,1,0)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,Buzz,11,2)
+ENDIF
+
+IF_CONTROLS(PLAYER0,DARK_MISTRESS >= 1)
+	ROOM_AVAILABLE(PLAYER0,TORTURE,1,0)
+	TUTORIAL_FLASH_BUTTON(17,100)
+	ADD_CREATURE_TO_LEVEL(PLAYER0,TENTACLE,7,1,1,0)
+ENDIF
+
+IF_CONTROLS(PLAYER0,TROLL >= 1)
+	ROOM_AVAILABLE(PLAYER0,WORKSHOP,1,0)
+	TUTORIAL_FLASH_BUTTON(13,100)
+	DOOR_AVAILABLE(PLAYER0,BRACED,1,0)
+	TRAP_AVAILABLE(PLAYER0,ALARM,1,0)
+	ADD_CREATURE_TO_LEVEL(PLAYER0,TENTACLE,7,1,1,0)
+ENDIF
+
+IF_ACTION_POINT(6,PLAYER0)
+	ROOM_AVAILABLE(PLAYER0,SCAVENGER,1,0)
+	TUTORIAL_FLASH_BUTTON(14,100)
+	ADD_CREATURE_TO_LEVEL(PLAYER0,TENTACLE,7,1,1,0)
+ENDIF
+
+REM ****************************************************************************
+REM Level starts here
+REM ****************************************************************************
+
+REM	"I'll keep it simple: Get a horned reaper and use it to destroy the lord of the land."
+DISPLAY_OBJECTIVE(32,ALL_PLAYERS)
+
+REM Only 9 tiles of Temple are in play. When they are sold/destroyed the player can rebuild them.
+IF(PLAYER_GOOD,TEMPLE < 9)
+	REM	"You'll need a bridge to get a Horned reaper. Wizards have a spell in play to stop you from building one."
+	DISPLAY_OBJECTIVE(33,5)
+	REVEAL_MAP_LOCATION(PLAYER0,5,7)
+	IF(PLAYER0,TEMPLE >= 3)
+		NEXT_COMMAND_REUSABLE
+		ROOM_AVAILABLE(PLAYER0,TEMPLE,0,0)
+	ENDIF
+	IF(PLAYER0,TEMPLE < 3)
+		NEXT_COMMAND_REUSABLE
+		ROOM_AVAILABLE(PLAYER0,TEMPLE,1,1)
+	ENDIF
+ENDIF
+IF(PLAYER_GOOD,TEMPLE < 6)
+	IF(PLAYER0,TEMPLE >= 6)
+		NEXT_COMMAND_REUSABLE
+		ROOM_AVAILABLE(PLAYER0,TEMPLE,0,0)
+	ENDIF
+	IF(PLAYER0,TEMPLE < 6)
+		NEXT_COMMAND_REUSABLE
+		ROOM_AVAILABLE(PLAYER0,TEMPLE,1,1)
+	ENDIF
+ENDIF
+IF(PLAYER_GOOD,TEMPLE <= 0)
+	REM	"We can't build temples in this realm, but we can move the pieces we have. Summon Horny."
+	DISPLAY_OBJECTIVE(34,ALL_PLAYERS)
+	IF(PLAYER0,TEMPLE >= 9)
+		NEXT_COMMAND_REUSABLE
+		ROOM_AVAILABLE(PLAYER0,TEMPLE,0,0)
+	ENDIF
+	IF(PLAYER0,TEMPLE < 9)
+		NEXT_COMMAND_REUSABLE
+		ROOM_AVAILABLE(PLAYER0,TEMPLE,1,1)
+	ENDIF
+ENDIF
+
+REM Give bridge research when all are destroyed and creature has set foot in centre of library
+IF_ACTION_POINT(5,PLAYER0)
+	IF_CONTROLS(PLAYER_GOOD,WIZARD <= 0)
+		ROOM_AVAILABLE(PLAYER0,BRIDGE,1,1)
+		ADD_CREATURE_TO_LEVEL(PLAYER0,TENTACLE,7,1,1,0)
+		ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,FAIRY,6,4,5,250)
+		REM	"Great, you can now make bridges. Use them to get a horned reaper to join you."
+		DISPLAY_OBJECTIVE(35,ALL_PLAYERS)
+		TUTORIAL_FLASH_BUTTON(18,100)
+		CREATE_EFFECT(EFFECT_ERUPTION,5)
+		SET_FLAG(PLAYER_GOOD,FLAG2,1)
+	ENDIF
+ENDIF
+SET_TIMER(PLAYER_GOOD,TIMER0)
+SET_TIMER(PLAYER_GOOD,TIMER2)
+IF(PLAYER_GOOD,TIMER0 > 50)
+	IF(PLAYER_GOOD,WIZARD > 4)
+		NEXT_COMMAND_REUSABLE
+		CREATE_EFFECTS_LINE(-3,5,20,2,20,-16)
+	ENDIF
+	IF(PLAYER_GOOD,WIZARD > 3)
+		NEXT_COMMAND_REUSABLE
+		CREATE_EFFECTS_LINE(-4,5,23,2,20,-16)
+	ENDIF
+	IF(PLAYER_GOOD,WIZARD > 2)
+		NEXT_COMMAND_REUSABLE
+		CREATE_EFFECTS_LINE(-5,5,20,2,20,-16)
+	ENDIF
+	IF(PLAYER_GOOD,WIZARD > 1)
+		NEXT_COMMAND_REUSABLE
+		CREATE_EFFECTS_LINE(-6,5,23,2,20,-16)
+		NEXT_COMMAND_REUSABLE
+		ADD_TO_TIMER(PLAYER_GOOD,TIMER0,-25)
+	ENDIF
+ENDIF
+IF(PLAYER_GOOD,FLAG2 == 0)
+	IF_CONTROLS(PLAYER_GOOD,WIZARD > 0)
+		IF(PLAYER_GOOD,TIMER2 > 120)
+			NEXT_COMMAND_REUSABLE
+			CREATE_EFFECT(EFFECT_COLOURFUL_FIRE_CIRCLE,5)
+			NEXT_COMMAND_REUSABLE
+			ADD_TO_TIMER(PLAYER_GOOD,TIMER2,-10)
+		ENDIF
+	ENDIF
+	IF(PLAYER_GOOD,WIZARD == 0)
+		NEXT_COMMAND_REUSABLE
+		CREATE_EFFECT(-16,5)
+	ENDIF
+ENDIF
+
+REM When there are no monks left under GOOD control, spawn creatures from monk puddle
+IF_CONTROLS(PLAYER_GOOD,MONK <= 0)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,Revenge,4,4)
+ENDIF
+
+REM Blue to be destroyed to get access to bile demons.
+IF(PLAYER1,DUNGEON_DESTROYED == 1)
+	CREATURE_AVAILABLE(PLAYER0,BILE_DEMON,1,0)
+	IF(PLAYER0,BILE_DEMON > 0)
+		CREATURE_AVAILABLE(PLAYER0,SPIDER,1,0)
+	ENDIF
+	DOOR_AVAILABLE(PLAYER0,STEEL,1,0)
+	TUTORIAL_FLASH_BUTTON(60,60)
+	ADD_CREATURE_TO_LEVEL(PLAYER0,TENTACLE,7,1,1,0)
+	REM	"Well done. Bile demons may now join us."
+	DISPLAY_INFORMATION(36,7)
+ENDIF
+
+REM When horny is acquired dwarfs open up the hero fortress and it is populated with heroes.
+IF(PLAYER0,HORNY >= 1)
+	SET_FLAG(PLAYER0,FLAG0,1)
+	REM	"Well done. Destroy the heroes and their stronghold. Keep Horny alive or all is lost."
+	DISPLAY_OBJECTIVE(37,ALL_PLAYERS)
+	ADD_TUNNELLER_TO_LEVEL(PLAYER_GOOD,8,ACTION_POINT,4,7,1000)
+	ADD_TUNNELLER_TO_LEVEL(PLAYER_GOOD,8,ACTION_POINT,6,7,1000)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,Fodder,8,1)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,Defence,PLAYER_GOOD,1)
+ENDIF
+
+REM Once you have horny you can't lose him and you shouldn't make more.
+IF(PLAYER0,FLAG0 == 1)
+	REMOVE_SACRIFICE_RECIPE(TROLL,BILE_DEMON,DARK_MISTRESS)
+	IF(PLAYER0,HORNY <= 0)
+		LOSE_GAME
+		REM	"You've lost horny. No second chances."
+		DISPLAY_OBJECTIVE(38,ALL_PLAYERS)
+	ENDIF
+ENDIF
+
+REM If the player nears the heart spawn the final party.
+IF_ACTION_POINT(9,PLAYER0)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,Landlord,-8,1)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,Snooze,-8,1)
+ENDIF
+
+REM When Heroes have barracks continuously spawn party Buzz
+IF(PLAYER0,TOTAL_CREATURES >= 7)
+	SET_TIMER(PLAYER_GOOD,TIMER1)
+ENDIF
+IF(PLAYER_GOOD,BARRACKS >= 1)
+	IF(PLAYER_GOOD,TIMER1 >= 3600)
+		REM	"Heroes think you are vulnerable and will try to attack you until the bitter end."
+		DISPLAY_OBJECTIVE(39,ALL_PLAYERS)
+		NEXT_COMMAND_REUSABLE
+		ADD_PARTY_TO_LEVEL(PLAYER_GOOD,Buzz,-1,1)
+		NEXT_COMMAND_REUSABLE
+		SET_TIMER(PLAYER_GOOD,TIMER1)
+	ENDIF
+ENDIF
+
+REM After 20 minutes spawn some heroes from southern waterway
+IF(PLAYER0,GAME_TURN >= 24000)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,Buzz,10,1)
+ENDIF
+
+REM After 35 minutes spawn some heroes from western waterway
+IF(PLAYER0,GAME_TURN >= 42000)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,Snooze,11,1)
+ENDIF
+
+REM After 45 minutes spawn some heroes from northern waterway
+IF(PLAYER0,GAME_TURN >= 54000)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,Defence,12,1)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,Buzz,12,1)
+ENDIF
+
+REM After 60 minutes spawn some heroes from all waterways
+IF(PLAYER0,GAME_TURN >= 72000)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,Buzz,10,2)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,Buzz,11,2)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,Buzz,12,2)
+ENDIF
+
+REM After 75 minutes spawn some heroes from all waterways
+IF(PLAYER0,GAME_TURN >= 90000)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,Asshole,12,1)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,Asshole,10,1)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,Buzz,11,3)
+ENDIF
+
+REM After 100 minutes spawn final party from the southern waterway. Only for slow players.
+IF(PLAYER0,GAME_TURN >= 120000)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,Asshole,10,2)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,Buzz,10,4)
+ENDIF
+
+REM There is a limit to how many creatures you can gain through the prison.
+SET_GAME_RULE(StunGoodEnemyChance,60)
+IF(PLAYER0,GOOD_CREATURES >= 1)
+	ADD_TO_FLAG(PLAYER_GOOD,FLAG1,1)
+ENDIF
+IF(PLAYER0,GOOD_CREATURES >= DRAWFROM(2~5))
+	ADD_TO_FLAG(PLAYER_GOOD,FLAG1,1)
+ENDIF
+IF(PLAYER0,SKELETON >= 1)
+	SET_GAME_RULE(PrisonSkeletonChance,60)
+	ADD_TO_FLAG(PLAYER_GOOD,FLAG1,1)
+ENDIF
+IF(PLAYER0,SKELETON >= DRAWFROM(2~5))
+	SET_GAME_RULE(PrisonSkeletonChance,30)
+	ADD_TO_FLAG(PLAYER_GOOD,FLAG1,1)
+ENDIF
+
+IF(PLAYER0,BILE_DEMON > 0)
+	SET_GAME_RULE(TortureDeathChance,33)
+ENDIF
+IF(PLAYER0,BILE_DEMON > 2)
+	SET_GAME_RULE(StunEvilEnemyChance,20)
+ENDIF
+
+IF(PLAYER_GOOD,FLAG1 >= 2)
+	REM	"Your enemies have learned that getting captured by you is a fate worse than death. They will avoid your prison at all cost."
+	DISPLAY_INFORMATION(40,ALL_PLAYERS)
+	SET_GAME_RULE(StunGoodEnemyChance,0)
+	REM If player cannot use prison, award him bile demon on defeat of blue.
+	IF(PLAYER1,DUNGEON_DESTROYED == 1)
+		IF(PLAYER0,BILE_DEMON <= 0)
+			ADD_CREATURE_TO_LEVEL(PLAYER0,BILE_DEMON,7,1,1,0)
+		ENDIF
+	ENDIF
+ENDIF
+
+
+REM ****************************************************************************
+REM Win game
+REM ****************************************************************************
+
+REM Summon horny then kill hero heart and lord of the land.
+IF(PLAYER_GOOD,DUNGEON_DESTROYED == 1)
+	IF_CONTROLS(PLAYER_GOOD,KNIGHT <= 0)
+		IF(PLAYER0,FLAG0 >= 1)
+			REM	"Victory! This realm is yours Keeper."
+			DISPLAY_OBJECTIVE(42,PLAYER0)
+			WIN_GAME
+		ENDIF
+	ENDIF
+ENDIF
+
+REM ****************************************************************************
+REM End of file
+REM ****************************************************************************

@@ -16,7 +16,7 @@ REM ****************************************************************************
 LEVEL_VERSION(1)
 RUN_AFTER_VICTORY(1)
 START_MONEY(PLAYER0,0)
-SET_TRAP_CONFIGURATION(WORD_OF_POWER,3,84,844,2,2,14,0)
+SET_TRAP_CONFIGURATION(WORD_OF_POWER,Hidden,0)
 
 IF(PLAYER0,CAMPAIGN_FLAG1 <= 0)
 	REM "You have entered this realm to gain a creature for your further efforts. You got the creature from start, so you must only keep it safe. And the only way to make this place safe is to kill every hero in the realm."
@@ -60,7 +60,7 @@ REM You can only win normally if this is your first playthrough
 IF(PLAYER0,CAMPAIGN_FLAG1 <= 0)
 	IF(PLAYER_GOOD,TOTAL_CREATURES == 0)
 		BONUS_LEVEL_TIME(0)
-		SET_CAMPAIGN_FLAG(PLAYER0,CAMPAIGN_FLAG1,1)
+		SET_FLAG(PLAYER0,CAMPAIGN_FLAG1,1)
 		SET_FLAG(PLAYER0,FLAG1,1)
 		WIN_GAME
 	ENDIF
@@ -71,7 +71,7 @@ IF(PLAYER0,CAMPAIGN_FLAG1 == 1)
 	IF(PLAYER0,TOTAL_CREATURES == 0)
 		REM If you won, and don't have creatures, you must have transferred it
 		IF(PLAYER0,FLAG1 >= 1)
-			SET_CAMPAIGN_FLAG(PLAYER0,CAMPAIGN_FLAG1,2)
+			SET_FLAG(PLAYER0,CAMPAIGN_FLAG1,2)
 		ENDIF
 	ENDIF
 	REM If you did not win the level yet, but still have CF1=1, you must have won last time
@@ -89,7 +89,7 @@ IF(PLAYER0,CAMPAIGN_FLAG1 == 1)
 		REVEAL_MAP_LOCATION(PLAYER0,2,7)
 		WIN_GAME
 		IF(PLAYER0,TOTAL_CREATURES == 0)
-			SET_CAMPAIGN_FLAG(PLAYER0,CAMPAIGN_FLAG1,2)
+			SET_FLAG(PLAYER0,CAMPAIGN_FLAG1,2)
 		ENDIF
 	ENDIF
 ENDIF

@@ -80,13 +80,13 @@ void LbCursorSpriteSetScalingHeightSimple(long y, long sheight, long dheight)
 /**
  * Draws the mouse pointer sprite on a display buffer.
  */
-long PointerDraw(long x, long y, struct TbSprite *spr, TbPixel *outbuf, unsigned long scanline)
+static long PointerDraw(long x, long y, const struct TbSprite *spr, TbPixel *outbuf, unsigned long scanline)
 {
     unsigned int dwidth;
     unsigned int dheight;
     // Prepare bounds
-    dwidth = (spr->SWidth*units_per_pixel)/16;
-    dheight = (spr->SHeight*units_per_pixel)/16;
+    dwidth = scale_ui_value_lofi(spr->SWidth);
+    dheight = scale_ui_value_lofi(spr->SHeight);
     if ( (dwidth <= 0) || (dheight <= 0) )
         return 1;
     if ( (lbDisplay.MouseWindowWidth <= 0) || (lbDisplay.MouseWindowHeight <= 0) )
@@ -185,7 +185,7 @@ void LbI_PointerHandler::ClipHotspot(void)
     }
 }
 
-void LbI_PointerHandler::Initialise(struct TbSprite *spr, struct TbPoint *npos, struct TbPoint *noffset)
+void LbI_PointerHandler::Initialise(const struct TbSprite *spr, struct TbPoint *npos, struct TbPoint *noffset)
 {
     void *surfbuf;
     TbPixel *buf;
@@ -196,8 +196,8 @@ void LbI_PointerHandler::Initialise(struct TbSprite *spr, struct TbPoint *npos, 
     LbSemaLock semlock(&sema_rel,0);
     semlock.Lock(true);
     sprite = spr;
-    dstwidth = (sprite->SWidth*units_per_pixel + 16)/16;
-    dstheight = (sprite->SHeight*units_per_pixel + 16)/16;
+    dstwidth = scale_ui_value_lofi(sprite->SWidth) + 1;
+    dstheight = scale_ui_value_lofi(sprite->SHeight) + 1;
     LbScreenSurfaceCreate(&surf1, dstwidth, dstheight);
     LbScreenSurfaceCreate(&surf2, dstwidth, dstheight);
     surfbuf = LbScreenSurfaceLock(&surf1);
@@ -273,12 +273,12 @@ void LbI_PointerHandler::Release(void)
 
 void LbI_PointerHandler::NewMousePos(void)
 {
-    this->draw_pos_x = position->x - spr_offset->x*units_per_pixel/16;
-    this->draw_pos_y = position->y - spr_offset->y*units_per_pixel/16;
+    this->draw_pos_x = position->x - scale_ui_value_lofi(spr_offset->x);
+    this->draw_pos_y = position->y - scale_ui_value_lofi(spr_offset->y);
     int dstwidth;
     int dstheight;
-    dstwidth = (sprite->SWidth*units_per_pixel)/16;
-    dstheight = (sprite->SHeight*units_per_pixel)/16;
+    dstwidth = scale_ui_value_lofi(sprite->SWidth);
+    dstheight = scale_ui_value_lofi(sprite->SHeight);
     LbSetRect(&rect_1038, 0, 0, dstwidth, dstheight);
     if (this->draw_pos_x < 0)
     {
@@ -347,7 +347,7 @@ void LbI_PointerHandler::OnBeginSwap(void)
     } else
     if (LbScreenLock() == Lb_SUCCESS)
     {
-      PointerDraw(position->x - spr_offset->x*units_per_pixel/16, position->y - spr_offset->y*units_per_pixel/16,
+      PointerDraw(position->x - scale_ui_value_lofi(spr_offset->x), position->y - scale_ui_value_lofi(spr_offset->y),
           sprite, lbDisplay.WScreen, lbDisplay.GraphicsScreenWidth);
       LbScreenUnlock();
     }

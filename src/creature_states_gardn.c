@@ -94,6 +94,7 @@ void person_eat_food(struct Thing *creatng, struct Thing *foodtng, struct Room *
             room->used_capacity -= required_cap;
         } else {
             ERRORLOG("Trying to remove some food not in room");
+            room->used_capacity = 0;
         }
         delete_thing_structure(foodtng, 0);
     }
@@ -185,8 +186,8 @@ void person_search_for_food_again(struct Thing *creatng, struct Room *room)
         cctrl->stateblock_flags |= CCSpl_ChickenRel;
     } else
     {
-        near_food_tng->byte_15 = 255;
-        near_food_tng->byte_16 = 127;
+        near_food_tng->food.byte_15 = 255;
+        near_food_tng->food.byte_16 = 127;
     }
     creatng->continue_state = CrSt_CreatureEatingAtGarden;
     cctrl = creature_control_get_from_thing(creatng);
