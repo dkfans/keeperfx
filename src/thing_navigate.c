@@ -93,7 +93,7 @@ TbBool get_nearest_valid_position_for_creature_at(struct Thing *thing, struct Co
         {
             spiral_pos.x.val = (stl_x << 8) + 128;
             spiral_pos.y.val = (stl_y << 8) + 128;
-            spiral_pos.z.val = get_thing_height_at(thing, &spiral_pos);
+            spiral_pos.z.val = subtile_coord(3, 0);// 900; //get_thing_height_at(thing, &spiral_pos);
             if ( !thing_in_wall_at(thing, &spiral_pos) )
             {
                 pos->x.val = spiral_pos.x.val;
@@ -125,9 +125,9 @@ static void get_nearest_navigable_point_for_thing(struct Thing *thing, struct Co
       pos1->x.val, pos1->y.val, &px, &py);
     pos2->x.val = px;
     pos2->y.val = py;
-    pos2->z.val = get_thing_height_at(thing, pos2);
-    if (thing_in_wall_at(thing, pos2))
-        get_nearest_valid_position_for_creature_at(thing, pos2);
+    pos2->z.val = get_thing_height_at(thing, pos2); //3?
+    if (thing_in_wall_at(thing, pos2)) //
+       get_nearest_valid_position_for_creature_at(thing, pos2); //
     nav_thing_can_travel_over_lava = 0;
 }
 HOOK_DK_FUNC(get_nearest_navigable_point_for_thing)

@@ -2857,8 +2857,8 @@ TbBool update_thing(struct Thing *thing)
                 {
                     if (thing_above_flight_altitude(thing) && !is_thing_directly_controlled(thing))
                     {
-                        thing->veloc_push_add.z.val -= thing->fall_acceleration;
-                        thing->state_flags |= TF1_PushAdd;
+                       thing->veloc_push_add.z.val -= thing->fall_acceleration; //
+                       thing->state_flags |= TF1_PushAdd; //
                     }
                 }
             }
