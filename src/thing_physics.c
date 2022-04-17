@@ -379,7 +379,7 @@ TbBool position_over_floor_level(const struct Thing *thing, const struct Coord3d
         }
         modpos.z.val = -1;
         norm_height = get_thing_height_at(thing, &modpos);
-        if ((norm_height == -1) || (norm_height - curr_height > 256) || creature_can_travel_over_lava(thing))
+        if ((norm_height == -1) || ((norm_height - curr_height > 256) && !creature_can_travel_over_lava(thing)))
         {
             return true;
         }
@@ -389,7 +389,6 @@ TbBool position_over_floor_level(const struct Thing *thing, const struct Coord3d
 
 TbBool creature_cannot_move_directly_to(struct Thing *thing, struct Coord3d *pos)
 {
-    return false;
     struct Coord3d realpos;
     realpos.x.val = thing->mappos.x.val;
     realpos.y.val = thing->mappos.y.val;
@@ -522,9 +521,9 @@ TbBool creature_cannot_move_directly_to(struct Thing *thing, struct Coord3d *pos
     }
 
     if (position_over_floor_level(thing, pos)) {
-        return 1;
+        return true;
     }
-    return 0;
+    return false;
 }
 
 /** Retrieves planned next position for given thing, without collision detection.
