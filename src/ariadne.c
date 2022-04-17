@@ -384,11 +384,11 @@ long Keeper_nav_rulesA2B(long treeA, long treeB)
 long navigation_rule_normal(long treeA, long treeB)
 {
     int difference = ((treeB & 0x0F) - (treeA & 0x0F));
-    if (difference > 1)
+    if (difference > 1) // Creatures can walk over one block height difference
     {
-        if (difference < 3) // todo: figure out the best condition to exclude walls but include heights
+        if (difference < COLUMN_STACK_HEIGHT)
         {
-            return nav_thing_can_travel_over_lava; //TODO: Needs to be nav_thing_is_flying instead, does not exist yet.
+            return creature_can_fly_over_obstacles;
         }
         else
         {

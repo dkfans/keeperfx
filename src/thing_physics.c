@@ -378,7 +378,7 @@ TbBool position_over_floor_level(const struct Thing *thing, const struct Coord3d
         }
         modpos.z.val = -1;
         norm_height = get_thing_height_at(thing, &modpos);
-        if ((norm_height == -1) || ((norm_height - curr_height > 256) && !creature_can_travel_over_lava(thing))) //todo replace with creature_can_fly_over_heights function
+        if ((norm_height == -1) || ((norm_height - curr_height > 256) && !creature_can_fly_over_obstacles(thing)))
         {
             return true;
         }

@@ -312,6 +312,16 @@ TbBool move_creature_to_nearest_valid_position(struct Thing *thing)
 }
 
 /**
+ * Returns if a creature can currently travel over obstacles.
+ * @param thing
+ * @return
+ */
+long creature_can_fly_over_obstacles(const struct Thing* creatng)
+{
+    return ((creatng->movement_flags & TMvF_Flying) != 0);
+}
+
+/**
  * Returns if a creature can currently travel over lava.
  * @param thing
  * @return
