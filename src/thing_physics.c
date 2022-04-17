@@ -63,10 +63,6 @@ TbBool thing_touching_flight_altitude(const struct Thing *thing)
 TbBool thing_above_flight_altitude(const struct Thing* thing)
 {
     int floor_height = get_floor_height_under_thing_at(thing, &thing->mappos);
-    if (floor_height < subtile_coord(3, 0))
-    {
-        floor_height = subtile_coord(3, 0); //TODO Artifical floor height to make sure flyers do not fall back down when they attempt to fly over something. Replace with accurate condition, one level up.
-    }
     return (thing->mappos.z.val > floor_height + 19 * NORMAL_FLYING_ALTITUDE / 17);
 }
 
