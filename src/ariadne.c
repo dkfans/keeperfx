@@ -384,7 +384,7 @@ long Keeper_nav_rulesA2B(long treeA, long treeB)
 long navigation_rule_normal(long treeA, long treeB)
 {
     if ((treeB & 0x0F) - (treeA & 0x0F) > 1)
-      return nav_thing_can_travel_over_lava;
+        return nav_thing_can_travel_over_lava; //TODO: Needs to be nav_thing_is_flying instead, does not exist yet. Also, causes fairies to try and fly through walls.
     if ((treeB & 0xF0) == 0)
       return 1;
     if (owner_player_navigating != -1)

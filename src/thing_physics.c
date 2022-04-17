@@ -65,9 +65,8 @@ TbBool thing_above_flight_altitude(const struct Thing* thing)
     int floor_height = get_floor_height_under_thing_at(thing, &thing->mappos);
     if (floor_height < subtile_coord(3, 0))
     {
-        floor_height = subtile_coord(3, 0);
+        floor_height = subtile_coord(3, 0); //TODO Artifical floor height to make sure flyers do not fall back down when they attempt to fly over something. Replace with accurate condition, one level up.
     }
-    //return (thing->mappos.z.val > floor_height + 19 * (3*NORMAL_FLYING_ALTITUDE) / 17);
     return (thing->mappos.z.val > floor_height + 19 * NORMAL_FLYING_ALTITUDE / 17);
 }
 
@@ -379,7 +378,7 @@ TbBool position_over_floor_level(const struct Thing *thing, const struct Coord3d
         }
         modpos.z.val = -1;
         norm_height = get_thing_height_at(thing, &modpos);
-        if ((norm_height == -1) || ((norm_height - curr_height > 256) && !creature_can_travel_over_lava(thing)))
+        if ((norm_height == -1) || ((norm_height - curr_height > 256) && !creature_can_travel_over_lava(thing))) //todo replace with creature_can_fly_over_heights function
         {
             return true;
         }
@@ -778,7 +777,7 @@ void get_floor_and_ceiling_height_under_thing_at(const struct Thing *thing,
     MapSubtlCoord ceiling_height;
     get_min_floor_and_ceiling_heights_for_rect(coord_subtile(pos_x_beg), coord_subtile(pos_y_beg),
         coord_subtile(pos_x_end), coord_subtile(pos_y_end), &floor_height, &ceiling_height);
-    *floor_height_cor = subtile_coord(6,0); //6?
+    *floor_height_cor = subtile_coord(floor_height,0);
     *ceiling_height_cor = subtile_coord(ceiling_height,0);
 }
 

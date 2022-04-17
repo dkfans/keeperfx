@@ -36,7 +36,6 @@ extern "C" {
 /** The standard altitude at which a creature is flying.
  * Should be over one tile, to allow flying creatures leave water areas. */
 #define NORMAL_FLYING_ALTITUDE (256+16)
-//#define NORMAL_FLYING_ALTITUDE (512+128)
 
 #define SWIPE_SPRITES_X 3
 #define SWIPE_SPRITES_Y 2
