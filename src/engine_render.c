@@ -2363,21 +2363,22 @@ void create_fancy_map_volume_box(struct RoomSpace roomspace, long x, long y, lon
     map_volume_box.color = box_color;
 }
 
-void process_isometric_map_volume_box(long x, long y, long z)
+void process_isometric_map_volume_box(long x, long y, long z, PlayerNumber plyr_idx)
 {
     unsigned char default_color = map_volume_box.color;
     unsigned char line_color = default_color;
-    struct DungeonAdd *dungeonadd = get_dungeonadd(render_roomspace.plyr_idx);
-    struct PlayerInfo* current_player = get_player(render_roomspace.plyr_idx);
+    struct DungeonAdd *dungeonadd = get_dungeonadd(plyr_idx);
+    struct PlayerInfo* current_player = get_player(plyr_idx);
+    struct PlayerInfoAdd* current_playeradd = get_playeradd(plyr_idx);
     // Check if a roomspace is currently being built
     // and if so feed this back to the user
     if ((dungeonadd->roomspace.is_active) && ((current_player->work_state == PSt_Sell) || (current_player->work_state == PSt_BuildRoom)))
     {
         line_color = SLC_REDYELLOW; // change the cursor color to indicate to the user that nothing else can be built or sold at the moment
     }
-    if (render_roomspace.render_roomspace_as_box)
+    if (current_playeradd->render_roomspace.render_roomspace_as_box)
     {
-        if (render_roomspace.is_roomspace_a_box)
+        if (current_playeradd->render_roomspace.is_roomspace_a_box)
         {
             // This is a basic square box
             create_map_volume_box(x, y, z, line_color);
@@ -2387,13 +2388,13 @@ void process_isometric_map_volume_box(long x, long y, long z)
             // This is a "2-line" square box
             // i.e. an "accurate" box with an outer square box
             map_volume_box.color = line_color;
-            create_fancy_map_volume_box(render_roomspace, x, y, z, SLC_BROWN, true);
+            create_fancy_map_volume_box(current_playeradd->render_roomspace, x, y, z, SLC_BROWN, true);
         }
     }
     else
     {
         // This is an "accurate"/"automagic" box
-        create_fancy_map_volume_box(render_roomspace, x, y, z, line_color, false);
+        create_fancy_map_volume_box(current_playeradd->render_roomspace, x, y, z, line_color, false);
     }
     map_volume_box.color = default_color;
 }
@@ -5172,7 +5173,7 @@ void draw_view(struct Camera *cam, unsigned char a2)
     if (map_volume_box.visible)
     {
         poly_pool_end_reserve(0);
-        process_isometric_map_volume_box(x, y, z);
+        process_isometric_map_volume_box(x, y, z, my_player_number);
     }
     cam->zoom = zoom_mem;//TODO [zoom] remove when all cam->zoom will be changed to camera_zoom
     display_drawlist();
@@ -6993,37 +6994,38 @@ void create_fancy_frontview_map_volume_box(struct RoomSpace roomspace, struct Ca
     }
 }
 
-void process_frontview_map_volume_box(struct Camera *cam, unsigned char stl_width)
+void process_frontview_map_volume_box(struct Camera *cam, unsigned char stl_width, PlayerNumber plyr_idx)
 {
     unsigned char default_color = map_volume_box.color;
     unsigned char line_color = default_color;
-    struct DungeonAdd *dungeonadd = get_dungeonadd(render_roomspace.plyr_idx);
-    struct PlayerInfo* current_player = get_player(render_roomspace.plyr_idx);
+    struct DungeonAdd *dungeonadd = get_dungeonadd(plyr_idx);
+    struct PlayerInfo* current_player = get_player(plyr_idx);
+    struct PlayerInfoAdd* current_playeradd = get_playeradd(plyr_idx);
     // Check if a roomspace is currently being built
     // and if so feed this back to the user
     if ((dungeonadd->roomspace.is_active) && ((current_player->work_state == PSt_Sell) || (current_player->work_state == PSt_BuildRoom)))
     {
         line_color = SLC_REDYELLOW; // change the cursor color to indicate to the user that nothing else can be built or sold at the moment
     }
-    if (render_roomspace.render_roomspace_as_box)
+    if (current_playeradd->render_roomspace.render_roomspace_as_box)
     {
-        if (render_roomspace.is_roomspace_a_box)
+        if (current_playeradd->render_roomspace.is_roomspace_a_box)
         {
             // This is a basic square box
-             create_frontview_map_volume_box(cam, stl_width, render_roomspace.is_roomspace_a_single_subtile, line_color);
+             create_frontview_map_volume_box(cam, stl_width, current_playeradd->render_roomspace.is_roomspace_a_single_subtile, line_color);
         }
         else
         {
             // This is a "2-line" square box
             // i.e. an "accurate" box with an outer square box
             map_volume_box.color = line_color;
-            create_fancy_frontview_map_volume_box(render_roomspace, cam, stl_width, SLC_BROWN, true);
+            create_fancy_frontview_map_volume_box(current_playeradd->render_roomspace, cam, stl_width, SLC_BROWN, true);
         }
     }
     else
     {
         // This is an "accurate"/"automagic" box
-        create_fancy_frontview_map_volume_box(render_roomspace, cam, stl_width, line_color, false);
+        create_fancy_frontview_map_volume_box(current_playeradd->render_roomspace, cam, stl_width, line_color, false);
     }
     map_volume_box.color = default_color;
 }
@@ -7346,7 +7348,7 @@ void draw_frontview_engine(struct Camera *cam)
     update_frontview_pointed_block(zoom, qdrant, px, py, qx, qy);
     if (map_volume_box.visible)
     {
-        process_frontview_map_volume_box(cam, ((zoom >> 8) & 0xFF));
+        process_frontview_map_volume_box(cam, ((zoom >> 8) & 0xFF), player->id_number);
     }
     map_volume_box.visible = 0;
 
