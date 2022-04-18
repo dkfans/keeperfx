@@ -1092,7 +1092,14 @@ short load_configuration(void)
           break;
         case 23: // POSSESS_AFFECT_CAMERA
         i = recognize_conf_parameter(buf,&pos,len,logicval_type);
-          if (i)
+        if (i <= 0)
+          {
+              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
+                COMMAND_TEXT(cmd_num),config_textname);
+                PossessAffectCamera = true;
+            break;
+          }
+          if (i > 0)
             PossessAffectCamera = true;
           else
               PossessAffectCamera = false;
