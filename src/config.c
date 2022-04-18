@@ -1091,10 +1091,7 @@ short load_configuration(void)
           }
           break;
         case 23: // POSSESS_AFFECT_CAMERA
-        if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            i = atoi(word_buf);
-          }
+        i = recognize_conf_parameter(buf,&pos,len,logicval_type);
           if (i)
             PossessAffectCamera = true;
           else
