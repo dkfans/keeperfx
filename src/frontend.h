@@ -388,6 +388,7 @@ void frontend_input(void);
 void frontend_update(short *finish_menu);
 short frontend_draw(void);
 void create_frontend_error_box(long showTime, const char * text);
+void try_restore_frontend_error_box(); // Restore error box if frontend state was switched
 
 short menu_is_active(short idx);
 TbBool a_menu_window_is_active(void);

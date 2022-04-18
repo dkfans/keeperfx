@@ -26,6 +26,8 @@
 extern "C" {
 #endif
 
+typedef unsigned short Thingid;
+
 /******************************************************************************/
 /** Enums for thing->field_0 bit fields. */
 enum ThingAllocFlags {
@@ -57,8 +59,10 @@ enum ThingFlags2 {
 enum ThingFlags4F {
     TF4F_Unknown01     = 0x01, /** Not Drawn **/
     TF4F_Unknown02     = 0x02, // Not shaded
+
     TF4F_Unknown04     = 0x04, // Tint1 (used to draw enemy creatures when they are blinking to owners color)
     TF4F_Unknown08     = 0x08, // Tint2 (not used?)
+    TF4F_Tint_Flags    = 0x0C, // Tint flags
 
     TF4F_Transpar_8     = 0x10, // Used on chicken effect when creature is turned to chicken
     TF4F_Transpar_4     = 0x20, // Used for Invisible creatures and traps -- more transparent
@@ -81,10 +85,10 @@ enum ThingMovementFlags {
     TMvF_IsOnLava           = 0x02,
     TMvF_Unknown04          = 0x04, //Touching ground? Also don't cast shadows when this is set
     TMvF_Unknown08          = 0x08,
-    TMvF_Unknown10          = 0x10,
+    TMvF_Unknown10          = 0x10, //Stopped by walls?
     TMvF_Flying             = 0x20,
     TMvF_Unknown40          = 0x40,
-    TMvF_Unknown80          = 0x80,
+    TMvF_IsOnSnow           = 0x80,
 };
 
 /******************************************************************************/
@@ -103,93 +107,125 @@ struct Thing {
     long creation_turn;
     struct Coord3d mappos;
     union {
-      struct {
-        long gold_carried;
-        short health_bar_turns;
-      } creature;
+//TCls_Empty
+//TCls_Object
       struct {
         long gold_stored;
         short word_17v;
       } valuable;
       struct {
-        short word_13;
+        short life_remaining;
         char byte_15;
         unsigned char byte_16;
-        unsigned char byte_17;
-        unsigned short word_18;
+        TbBool some_chicken_was_sacrificed;
+        unsigned short angle;
       } food;
       struct {
-        unsigned char num_shots;
-        long rearm_turn;
-        unsigned char revealed;
-        unsigned char byte_19t;
-      } trap;
+        unsigned char box_kind;
+      } custom_box;
       struct {
-        long number;
-        short word_17e;
-        unsigned char byte_19e;
-      } price;
+        short belongs_to;
+        short cssize;
+        short spr_size;
+      } lair;
+      struct {
+        short belongs_to;
+        short cssize;
+        short spr_size;
+      } torturer;
+      struct {
+        unsigned char state;
+      } call_to_arms_flag;
+      struct {
+        unsigned char countdown_UNUSED;
+        unsigned char beat_direction;
+      } heart;
+      struct {
+        unsigned char number;
+      } hero_gate;
+      struct {
+        unsigned char spell_level;
+      } lightning;
+      struct {
+        short belongs_to;
+        unsigned char shspeed;
+      } armor;
+      struct {
+        short belongs_to;
+        unsigned char effect_slot;
+      } disease;
+      struct {
+        long room_idx;
+      } roomflag;
+      struct {
+      short unused3;
+      long turntime;
+      unsigned char byte_19;
+      }roomflag2; // both roomflag and roomflag2 are used in same function on same object but have 2 bytes overlapping between room_idx and turntime 
+//TCls_Shot
       struct {
         unsigned char dexterity;
         short damage;
         unsigned char hit_type;
         short target_idx;
-        unsigned char byte_19;
+        unsigned char spell_level;
       } shot;
       struct {
-      short orientation;
-      unsigned char byte_15d;
-      short word_16d;
-      unsigned char is_locked;
-      unsigned char byte_19d;
-      } door;
+        long x;
+        short target_idx;
+        unsigned char posint;
+      } shot_lizard;
       struct {
-        long room_idx;
-        short word_17r;
-        unsigned char byte_19r;
-      } roomflag;
-      struct {
-      long long_13;
-      short word_17a;
-      };
-      struct {
-      short word_13a;
-      long long_15;
-      };
-      struct {
-      short belongs_to;
-      short word_15;
-      short size;
-      };
-      struct {
-      unsigned char byte_13b;
-      short damagepoints;
-      short word_16;
-      unsigned char byte_18b;
-      unsigned char byte_19b;
-      };
-      struct {
-      unsigned char byte_13a;
-      long long_14;
-      unsigned char byte_18a;
-      unsigned char byte_19a;
-      };
-      struct {
-      unsigned char box_kind;
-      } custom_box;
+        unsigned char range;
+      } shot_lizard2;// both shot_lizard and shot_lizard2 are used in same function on same object but have 1 byte overlapping between x and range 
+//TCls_EffectElem
+//TCls_DeadCreature
       struct {
           unsigned char exp_level;
           unsigned char laid_to_rest;
       } corpse;
+//TCls_Creature
       struct {
-        unsigned char byte_13;
-        unsigned char byte_14;
-        unsigned char byte_15;
+        long gold_carried;
+        short health_bar_turns;
+      } creature;
+//TCls_Effect
+      struct {
+        char unused;
+        short unused2;
         unsigned char hit_type;
-        unsigned char byte_17;
-        unsigned char trap_door_active_state; // For Doors: if byte_18 = 1 then door is locked/ For Traps: seems to be, if byte_18 = 1 then trap is still active
-        unsigned char byte_19;
-      };
+      } shot_effect;
+      struct {
+        long number;
+      } price_effect;
+//TCls_EffectGen
+      struct {
+      short range;
+      long generation_delay;
+      } effect_generator;
+//TCls_Trap
+      struct {
+        unsigned char num_shots;
+        long rearm_turn;
+        unsigned char revealed;
+      } trap;
+//TCls_Door
+      struct {
+      short orientation;
+      unsigned char opening_counter;
+      short closing_counter;
+      unsigned char is_locked;
+      } door;
+//TCls_Unkn10
+//TCls_Unkn11
+//TCls_AmbientSnd
+//TCls_CaveIn
+      struct {
+        unsigned char x;
+        unsigned char y;
+        short time;
+        unsigned char model;
+      }cave_in;
     };
     unsigned char model;
     unsigned short index;
@@ -201,7 +237,7 @@ struct Thing {
     unsigned char class_id;
     unsigned char fall_acceleration;
 unsigned char field_21;
-unsigned char field_22;
+    unsigned char bounce_angle;
     unsigned char field_23;
     unsigned char field_24;
     unsigned char movement_flags;
@@ -245,6 +281,17 @@ unsigned short field_60;
  * Can be defined to any SYNCLOG routine, making complete trace of usage on a thing.
  */
 #define TRACE_THING(thing)
+
+enum ThingAddFlags
+{
+    TAF_ROTATED_SHIFT = 16,
+    TAF_ROTATED_MASK = 0x070000,
+};
+
+struct ThingAdd // Additional thing data
+{
+    unsigned long flags; //ThingAddFlags
+};
 
 #pragma pack()
 /******************************************************************************/

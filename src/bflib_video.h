@@ -32,6 +32,8 @@ extern "C" {
 #define PALETTE_COLORS 256
 #define PALETTE_SIZE (3*PALETTE_COLORS)
 
+#define LOWRES_SCREEN_SIZE          320
+
 #define MAX_SUPPORTED_SCREEN_WIDTH  3840
 #define MAX_SUPPORTED_SCREEN_HEIGHT 2160
 
@@ -143,7 +145,7 @@ struct DisplayStruct {
         /** Pointer to graphics window buffer, if locked. */
         uchar *GraphicsWindowPtr;
         /** Sprite used as mouse cursor. */
-        struct TbSprite *MouseSprite;
+        const struct TbSprite *MouseSprite;
         /** Resolution in width of the current video mode.
          *  Note that it's not always "physical" size.
          *  It is the part of screen buffer which is being drawn

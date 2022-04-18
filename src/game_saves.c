@@ -31,6 +31,7 @@
 #include "config_compp.h"
 #include "front_simple.h"
 #include "frontend.h"
+#include "frontmenu_ingame_tabs.h"
 #include "front_landview.h"
 #include "front_highscore.h"
 #include "front_lvlstats.h"
@@ -205,7 +206,6 @@ int load_game_chunks(TbFileHandle fhandle,struct CatalogueEntry *centry)
                 load_stats_files();
                 check_and_auto_fix_stats();
                 init_creature_scores();
-                // Update interface items
                 strncpy(high_score_entry,centry->player_name,PLAYER_NAME_LENGTH);
             }
             break;
@@ -287,7 +287,11 @@ int load_game_chunks(TbFileHandle fhandle,struct CatalogueEntry *centry)
         }
     }
     if ((chunks_done & SGF_SavedGame) == SGF_SavedGame)
+    {
+        // Update interface items
+        update_trap_tab_to_config();
         return GLoad_SavedGame;
+    }
     return GLoad_Failed;
 }
 

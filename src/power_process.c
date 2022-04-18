@@ -185,7 +185,7 @@ void process_disease(struct Thing *creatng)
     if (!creature_affected_by_spell(creatng, SplK_Disease)) {
         return;
     }
-    if (ACTION_RANDOM(100) < game.disease_transfer_percentage)
+    if (CREATURE_RANDOM(creatng, 100) < game.disease_transfer_percentage)
     {
         SubtlCodedCoords stl_num = get_subtile_number(creatng->mappos.x.stl.num, creatng->mappos.y.stl.num);
         for (long n = 0; n < AROUND_MAP_LENGTH; n++)
@@ -242,7 +242,7 @@ void lightning_modify_palette(struct Thing *thing)
         ERRORLOG("No active camera");
         return;
     }
-    if (((thing->health % 8) != 7) && (thing->health != 1) && (ACTION_RANDOM(4) != 0))
+    if (((thing->health % 8) != 7) && (thing->health != 1) && (UNSYNC_RANDOM(4) != 0))
     {
         if ((myplyr->additional_flags & PlaAF_LightningPaletteIsActive) != 0)
         {
@@ -285,7 +285,7 @@ void update_god_lightning_ball(struct Thing *thing)
         target = thing_get(thing->shot.target_idx);
         if (thing_is_invalid(target))
             break;
-        draw_lightning(&thing->mappos,&target->mappos, 96, 60);
+        draw_lightning(&thing->mappos,&target->mappos, 96, TngEffElm_ElectricBall3);
         break;
     case 2:
     {
@@ -293,7 +293,7 @@ void update_god_lightning_ball(struct Thing *thing)
         if (thing_is_invalid(target))
             break;
         struct ShotConfigStats* shotst = get_shot_model_stats(ShM_GodLightBall);
-        apply_damage_to_thing_and_display_health(target, shotst->old->damage, shotst->damage_type, thing->owner);
+        apply_damage_to_thing_and_display_health(target, shotst->damage, shotst->damage_type, thing->owner);
         if (target->health < 0)
         {
             struct CreatureControl* cctrl = creature_control_get_from_thing(target);
@@ -334,7 +334,7 @@ void god_lightning_choose_next_creature(struct Thing *shotng)
             if (dist < best_dist)
             {
                 const struct MagicStats* pwrdynst = get_power_dynamic_stats(PwrK_LIGHTNING);
-                int spell_lev = shotng->shot.byte_19;
+                int spell_lev = shotng->shot.spell_level;
                 if (spell_lev > SPELL_MAX_LEVEL)
                     spell_lev = SPELL_MAX_LEVEL;
                 if (subtile_coord(pwrdynst->strength[spell_lev],0) > dist)
@@ -381,7 +381,7 @@ void draw_god_lightning(struct Thing *shotng)
         locpos.x.val +=  (LbSinL(i + cam->orient_a) >> (LbFPMath_TrigmBits - 10));
         locpos.y.val += -(LbCosL(i + cam->orient_a) >> (LbFPMath_TrigmBits - 10));
         locpos.z.val = subtile_coord(12,0);
-        draw_lightning(&locpos, &shotng->mappos, 256, 60);
+        draw_lightning(&locpos, &shotng->mappos, 256, TngEffElm_ElectricBall3);
     }
 }
 

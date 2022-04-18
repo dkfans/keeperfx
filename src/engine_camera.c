@@ -33,6 +33,8 @@
 #include "map_blocks.h"
 #include "dungeon_data.h"
 #include "config_settings.h"
+#include "player_instances.h"
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -45,6 +47,10 @@ long camera_zoom;
 }
 #endif
 /******************************************************************************/
+
+DLLIMPORT void _DK_update_player_camera_fp(struct Camera *cam, struct Thing *thing);
+
+
 MapCoordDelta get_3d_box_distance(const struct Coord3d *pos1, const struct Coord3d *pos2)
 {
     long dist_y = abs(pos2->y.val - (long)pos1->y.val);
@@ -321,53 +327,51 @@ unsigned long scale_camera_zoom_to_screen(unsigned long zoom_lvl)
 void view_set_camera_y_inertia(struct Camera *cam, long delta, long ilimit)
 {
     long abslimit = abs(ilimit);
-    cam->field_25 += delta;
-    if (cam->field_25 < -abslimit) {
-        cam->field_25 = -abslimit;
+    cam->inertia_y += delta;
+    if (cam->inertia_y < -abslimit) {
+        cam->inertia_y = -abslimit;
     } else
-    if (cam->field_25 > abslimit) {
-        cam->field_25 = abslimit;
+    if (cam->inertia_y > abslimit) {
+        cam->inertia_y = abslimit;
     }
-    cam->field_29 = 1;
+    cam->in_active_movement_y = true;
 }
 
 void view_set_camera_x_inertia(struct Camera *cam, long delta, long ilimit)
 {
     long abslimit = abs(ilimit);
-    cam->field_20 += delta;
-    if (cam->field_20 < -abslimit) {
-        cam->field_20 = -abslimit;
+    cam->inertia_x += delta;
+    if (cam->inertia_x < -abslimit) {
+        cam->inertia_x = -abslimit;
     } else
-    if (cam->field_20 > abslimit) {
-        cam->field_20 = abslimit;
+    if (cam->inertia_x > abslimit) {
+        cam->inertia_x = abslimit;
     }
-    cam->field_24 = 1;
+    cam->in_active_movement_x = true;
 }
 
 void view_set_camera_rotation_inertia(struct Camera *cam, long delta, long ilimit)
 {
-    //_DK_view_set_camera_rotation_inertia(cam, delta, ilimit);
     int limit_val = abs(ilimit);
-    int new_val = delta + cam->field_1B;
-    cam->field_1B = new_val;
+    int new_val = delta + cam->inertia_rotation;
+    cam->inertia_rotation = new_val;
     if (new_val < -limit_val)
     {
-        cam->field_1B = -limit_val;
-        cam->field_1F = 1;
+        cam->inertia_rotation = -limit_val;
+        cam->in_active_movement_rotation = true;
     } else
     if (new_val > limit_val)
     {
-        cam->field_1B = limit_val;
-        cam->field_1F = 1;
+        cam->inertia_rotation = limit_val;
+        cam->in_active_movement_rotation = true;
     } else
     {
-        cam->field_1F = 1;
+        cam->in_active_movement_rotation = true;
     }
 }
 
 void init_player_cameras(struct PlayerInfo *player)
 {
-    //_DK_init_player_cameras(player);
 
     struct Thing* heartng = get_player_soul_container(player->id_number);
     struct Camera* cam = &player->cameras[CamIV_FirstPerson];
@@ -405,5 +409,278 @@ void init_player_cameras(struct PlayerInfo *player)
     cam->field_13 = 188;
     cam->view_mode = PVM_FrontView;
     cam->zoom = settings.frontview_zoom_level;
+}
+
+void update_player_camera_fp(struct Camera *cam, struct Thing *thing)
+{
+    struct CreatureStatsOLD *creature_stats_OLD = &game.creature_stats_OLD[thing->model];
+    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+    int chicken_height = 100;
+    TbBool chicken = (creature_affected_by_spell(thing, SplK_Chicken));
+    if (!chicken)
+    {
+        creature_stats_OLD->eye_height = crstat->eye_height + (crstat->eye_height * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100;
+    }
+    else
+    {
+        creature_stats_OLD->eye_height = chicken_height + (chicken_height * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100;
+    }
+    _DK_update_player_camera_fp(cam, thing);
+}
+
+void view_move_camera_left(struct Camera *cam, long distance)
+{
+  
+    int pos_x;
+    int pos_y;
+    int parchment_pos_x;
+  
+    if ( cam->view_mode == PVM_IsometricView || cam->view_mode == PVM_FrontView)
+    {
+
+        pos_x = cam->mappos.x.val - FIXED_POLAR_TO_X(cam->orient_a + 512,distance);
+        pos_y = cam->mappos.y.val + FIXED_POLAR_TO_Y(cam->orient_a + 512,distance);
+
+        if ( pos_x < 0 )
+            pos_x = 0;
+        if ( pos_x > 0xFFFF )
+            pos_x = -1;
+
+        if ( pos_y < 0 )
+            pos_y = 0;
+        if ( pos_y > 0xFFFF )
+            pos_y = -1;
+
+        cam->mappos.x.val = pos_x;
+        cam->mappos.y.val = pos_y;
+        return;
+    }
+  
+    else if ( cam->view_mode == PVM_ParchmentView )
+    {
+        parchment_pos_x = cam->mappos.x.val - distance;
+
+        if ( parchment_pos_x < 0 )
+            parchment_pos_x = 0;
+        if ( parchment_pos_x > 0xFFFF )
+            parchment_pos_x = -1;
+
+        cam->mappos.x.stl.pos = parchment_pos_x;
+
+    }
+    
+}
+
+void view_move_camera_right(struct Camera *cam, long distance)
+{
+    int pos_x;
+    int pos_y;
+    int parchment_pos_x;
+  
+    if ( cam->view_mode == PVM_IsometricView || cam->view_mode == PVM_FrontView)
+    {
+
+        pos_x = cam->mappos.x.val + FIXED_POLAR_TO_X(cam->orient_a + 512,distance);
+        pos_y = cam->mappos.y.val - FIXED_POLAR_TO_Y(cam->orient_a + 512,distance);
+
+        if ( pos_x < 0 )
+            pos_x = 0;
+        if ( pos_x > 0xFFFF )
+            pos_x = -1;
+
+        if ( pos_y < 0 )
+            pos_y = 0;
+        if ( pos_y > 0xFFFF )
+            pos_y = -1;
+
+        cam->mappos.x.val = pos_x;
+        cam->mappos.y.val = pos_y;
+        return;
+    }
+  
+    else if ( cam->view_mode == PVM_ParchmentView )
+    {
+        parchment_pos_x = cam->mappos.x.val + distance;
+
+        if ( parchment_pos_x < 0 )
+            parchment_pos_x = 0;
+        if ( parchment_pos_x > 0xFFFF )
+            parchment_pos_x = -1;
+
+        cam->mappos.x.stl.pos = parchment_pos_x;
+
+    }
+    
+}
+
+void view_move_camera_up(struct Camera *cam, long distance)
+{
+    int pos_x;
+    int pos_y;
+    int parchment_pos_y;
+  
+    if ( cam->view_mode == PVM_IsometricView || cam->view_mode == PVM_FrontView)
+    {
+
+        pos_x = cam->mappos.x.val + FIXED_POLAR_TO_X(cam->orient_a,distance);
+        pos_y = cam->mappos.y.val - FIXED_POLAR_TO_Y(cam->orient_a,distance);
+
+        if ( pos_x < 0 )
+            pos_x = 0;
+        if ( pos_x > 0xFFFF )
+            pos_x = -1;
+
+        if ( pos_y < 0 )
+            pos_y = 0;
+        if ( pos_y > 0xFFFF )
+            pos_y = -1;
+
+        cam->mappos.x.val = pos_x;
+        cam->mappos.y.val = pos_y;
+        return;
+    }
+    else if ( cam->view_mode == PVM_ParchmentView )
+    {
+        parchment_pos_y = cam->mappos.y.val - distance;
+
+        if ( parchment_pos_y < 0 )
+            parchment_pos_y = 0;
+        if ( parchment_pos_y > 0xFFFF )
+            parchment_pos_y = -1;
+
+        cam->mappos.y.stl.pos = parchment_pos_y;
+
+    }
+}
+
+void view_move_camera_down(struct Camera *cam, long distance)
+{
+    int pos_x;
+    int pos_y;
+    int parchment_pos_y;
+  
+    if ( cam->view_mode == PVM_IsometricView || cam->view_mode == PVM_FrontView)
+    {
+
+        pos_x = cam->mappos.x.val - FIXED_POLAR_TO_X(cam->orient_a,distance);
+        pos_y = cam->mappos.y.val + FIXED_POLAR_TO_Y(cam->orient_a,distance);
+
+        if ( pos_x < 0 )
+            pos_x = 0;
+        if ( pos_x > 0xFFFF )
+            pos_x = -1;
+
+        if ( pos_y < 0 )
+            pos_y = 0;
+        if ( pos_y > 0xFFFF )
+            pos_y = -1;
+
+        cam->mappos.x.val = pos_x;
+        cam->mappos.y.val = pos_y;
+        return;
+    }
+  
+    else if ( cam->view_mode == PVM_ParchmentView )
+    {
+        parchment_pos_y = cam->mappos.y.val - distance;
+
+        if ( parchment_pos_y < 0 )
+            parchment_pos_y = 0;
+        if ( parchment_pos_y > 0xFFFF )
+            parchment_pos_y = -1;
+
+        cam->mappos.y.stl.pos = parchment_pos_y;
+
+    }
+    
+}
+
+void view_process_camera_inertia(struct Camera *cam)
+{
+    int i;
+    i = cam->inertia_x;
+    if (i > 0) {
+        view_move_camera_right(cam, abs(i));
+    } else
+    if (i < 0) {
+        view_move_camera_left(cam, abs(i));
+    }
+    if ( cam->in_active_movement_x ) {
+        cam->in_active_movement_x = false;
+    } else {
+        cam->inertia_x /= 2;
+    }
+    i = cam->inertia_y;
+    if (i > 0) {
+        view_move_camera_down(cam, abs(i));
+    } else
+    if (i < 0) {
+        view_move_camera_up(cam, abs(i));
+    }
+    if (cam->in_active_movement_y) {
+        cam->in_active_movement_y = false;
+    } else {
+        cam->inertia_y /= 2;
+    }
+    if (cam->inertia_rotation) {
+        cam->orient_a = (cam->inertia_rotation + cam->orient_a) & LbFPMath_AngleMask;
+    }
+    if (cam->in_active_movement_rotation) {
+        cam->in_active_movement_rotation = false;
+    } else {
+        cam->inertia_rotation /= 2;
+    }
+}
+
+void update_player_camera(struct PlayerInfo *player)
+{
+    struct Dungeon *dungeon;
+    dungeon = get_players_dungeon(player);
+    struct Camera *cam;
+    cam = player->acamera;
+    view_process_camera_inertia(cam);
+    switch (cam->view_mode)
+    {
+    case PVM_CreatureView:
+        if (player->controlled_thing_idx > 0) {
+            struct Thing *ctrltng;
+            ctrltng = thing_get(player->controlled_thing_idx);
+            update_player_camera_fp(cam, ctrltng);
+        } else
+        if (player->instance_num != PI_HeartZoom) {
+            ERRORLOG("Cannot go first person without controlling creature");
+        }
+        break;
+    case PVM_IsometricView:
+        player->cameras[CamIV_FrontView].mappos.x.val = cam->mappos.x.val;
+        player->cameras[CamIV_FrontView].mappos.y.val = cam->mappos.y.val;
+        break;
+    case PVM_FrontView:
+        player->cameras[CamIV_Isometric].mappos.x.val = cam->mappos.x.val;
+        player->cameras[CamIV_Isometric].mappos.y.val = cam->mappos.y.val;
+        break;
+    }
+    if (dungeon->camera_deviate_quake) {
+        dungeon->camera_deviate_quake--;
+    }
+    if (dungeon->camera_deviate_jump > 0) {
+        dungeon->camera_deviate_jump -= 32;
+    }
+}
+
+void update_all_players_cameras(void)
+{
+  int i;
+  struct PlayerInfo *player;
+  SYNCDBG(6,"Starting");
+  for (i=0; i<PLAYERS_COUNT; i++)
+  {
+    player = get_player(i);
+    if (player_exists(player) && ((player->allocflags & PlaF_CompCtrl) == 0))
+    {
+          update_player_camera(player);
+    }
+  }
 }
 /******************************************************************************/

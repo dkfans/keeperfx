@@ -57,7 +57,7 @@ enum TbButtonType {
 };
 
 enum TbButtonFlags {
-    LbBtnF_Unknown01  =  0x01,  // Created, slot occupied
+    LbBtnF_Active     =  0x01,  // Created, slot occupied
     LbBtnF_Unknown02  =  0x02,
     LbBtnF_Visible    =  0x04,  /**< Informs if the button is visible and uses its drawing callback. If not set, the button is not being displayed. */
     LbBtnF_Enabled    =  0x08,  /**< Informs if the button is enabled and can be clicked, or disabled and grayed out with no reaction to input. */
@@ -83,14 +83,14 @@ struct GuiBoxOption {
        unsigned char numfield_4;
        Gf_OptnBox_3Callback active_cb;
        Gf_OptnBox_4Callback callback;
-       long field_D;
+       long acb_param1;
        long field_11;
        long field_15;
-       long field_19;
+       long cb_param1;
        long field_1D;
        long field_21;
-       char active;
-       char field_26;
+       TbBool active;
+       TbBool enabled;
 };
 
 struct GuiBox {
@@ -197,8 +197,8 @@ struct FrontEndButtonData {
         unsigned char font_index;
 };
 
-struct EventTypeInfo { //sizeof=0x10
-    int field_0;
+struct EventTypeInfo {
+    int bttn_sprite;
     unsigned short tooltip_stridx;
     unsigned short msg_stridx;
     int lifespan_turns;

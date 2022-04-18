@@ -250,7 +250,7 @@ unsigned char field_67;
         long start_gameturn;
         long long_9Ex;
         long long_A2x;
-        short word_A6;
+        short assigned_torturer;
         unsigned char vis_state;
   } tortured;
   struct {
@@ -315,7 +315,7 @@ unsigned char field_67;
     short word_9E;
     long long_A0;
     short word_A4;
-    short word_A6;
+    short assigned_torturer;
   };
   struct {
     short word_9A_cp2;
@@ -440,8 +440,8 @@ unsigned short shot_shift_z;
     unsigned long field_2FA;
     unsigned long field_2FE;
     unsigned char field_302;
-    long field_303;
-    unsigned char field_307;
+    long following_leader_since;
+    unsigned char follow_leader_fails;
 };
 
 struct CreatureStatsOLD { // sizeof = 230
@@ -646,6 +646,7 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     short annoy_going_postal;
     short toking_recovery;
     TbBool illuminated;
+    char corpse_vanish_effect;
 };
 
 struct Persons {

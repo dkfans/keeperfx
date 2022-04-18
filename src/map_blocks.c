@@ -46,8 +46,6 @@ DLLIMPORT void _DK_set_slab_explored_flags(unsigned char flag, long tgslb_x, lon
 DLLIMPORT long _DK_ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey);
 DLLIMPORT long _DK_element_top_face_texture(struct Map *map);
 DLLIMPORT void _DK_shuffle_unattached_things_on_slab(long a1, long stl_x);
-DLLIMPORT void _DK_fill_in_reinforced_corners(unsigned char plyr_idx, unsigned char slb_x, unsigned char slb_y);
-DLLIMPORT unsigned char _DK_choose_pretty_type(unsigned char plyr_idx, unsigned char slb_x, unsigned char slb_y);
 DLLIMPORT void _DK_delete_attached_things_on_slab(long slb_x, long slb_y);
 
 const signed short slab_element_around_eight[] = {
@@ -231,7 +229,7 @@ TbBool tag_blocks_for_digging_in_area(MapSubtlCoord stl_x, MapSubtlCoord stl_y, 
       } else
       if (((mapblk->flags & SlbAtFlg_Digable) == 0) && (((mapblk->flags & SlbAtFlg_Filled) == 0) || (slabmap_owner(slb) != plyr_idx)))
       {
-          add_task_list_entry(plyr_idx, SDDigTask_Unknown3, i);
+          add_task_list_entry(plyr_idx, SDDigTask_MineGems, i);
           task_added = true;
       } else
       {
@@ -257,6 +255,8 @@ TbBool tag_blocks_for_digging_in_area(MapSubtlCoord stl_x, MapSubtlCoord stl_y, 
                   if ((mapblk->flags & SlbAtFlg_Valuable) != 0)
                   {
                       mapblk->flags |= SlbAtFlg_TaggedValuable;
+                      if (!map_block_revealed(mapblk, plyr_idx))
+                          mapblk->flags |= SlbAtFlg_Unexplored;
                   } else
                   if (((mapblk->flags & (SlbAtFlg_Filled|SlbAtFlg_Digable)) != 0) || !map_block_revealed(mapblk, plyr_idx))
                   {
@@ -540,9 +540,8 @@ void delete_attached_things_on_slab(long slb_x, long slb_y)
     _DK_delete_attached_things_on_slab(slb_x, slb_y); return;
 }
 
-unsigned char get_against(unsigned char agnst_plyr_idx, long agnst_slbkind, long slb_x, long slb_y)
+static TbBool get_against(unsigned char agnst_plyr_idx, long agnst_slbkind, long slb_x, long slb_y)
 {
-    //return _DK_get_against(a1, a2, slb_x, slb_y);
     struct SlabMap *slb;
     slb = get_slabmap_block(slb_x, slb_y);
     if (slabmap_block_invalid(slb)) {
@@ -553,12 +552,12 @@ unsigned char get_against(unsigned char agnst_plyr_idx, long agnst_slbkind, long
     struct SlabAttr *agnst_slbattr;
     agnst_slbattr = get_slab_kind_attrs(agnst_slbkind);
     return (slbattr->slb_id != agnst_slbattr->slb_id)
-            || ((slabmap_owner(slb) != agnst_plyr_idx) && (slabmap_owner(slb)!= game.neutral_player_num));
+            || ((slabmap_owner(slb) != agnst_plyr_idx) && (slabmap_owner(slb) != game.neutral_player_num));
 }
 
 void delete_column(long col_idx)
 {
-    game.field_14AB3F--;
+    game.columns_used--;
     struct Column *col;
     col = &game.columns_data[col_idx];
     memcpy(col, &game.columns_data[0], sizeof(struct Column));
@@ -574,7 +573,7 @@ void remove_block_from_map_element(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
     struct Column *col;
     col = get_column(col_idx);
     col->use--;
-    if (((col->bitfields & 0x01) == 0) && (col->use <= 0)) {
+    if (((col->bitfields & CLF_ACTIVE) == 0) && (col->use <= 0)) {
         delete_column(col_idx);
     }
     set_mapblk_column_index(mapblk, 0);
@@ -742,9 +741,18 @@ unsigned short get_slabset_index_f(SlabKind slbkind, unsigned char style, unsign
         ERRORLOG("%s: Illegal animating slab style: %d", func_name, (int)style);
         style = 0;
     }
-    if ((pick >= 9) || ((style == 3) && (pick >= 1))) {
-        ERRORLOG("%s: Illegal animating slab pick: %d", func_name, (int)pick);
-        pick = 0;
+    if ((pick >= 9) || ((style == (SlbFillStl_Water+1)) && (pick >= 1)))
+    {
+        if (slab_kind_is_room_wall(slbkind) && (pick < 9))
+        {
+            style = SlbFillStl_Water;
+            slbkind = SlbT_DAMAGEDWALL; // There's no columns for room walls next to water, so we're using a regular wall instead.
+        }
+        else
+        {
+            ERRORLOG("%s: Illegal animating slab pick: %d", func_name, (int)pick);
+            pick = 0;
+        }
     }
     return 28 * slbkind + 9 * style + pick;
 }
@@ -786,8 +794,8 @@ void place_slab_object(unsigned short a1, long a2, long a3, unsigned short slabc
                 ilght.mappos.x.val = pos.x.val;
                 ilght.mappos.y.val = pos.y.val;
                 ilght.mappos.z.val = pos.z.val;
-                ilght.field_0 = sobj->sofield_C << 8;
-                ilght.field_2 = sobj->sofield_B;
+                ilght.radius = sobj->sofield_C << 8;
+                ilght.intensity = sobj->sofield_B;
                 ilght.field_3 = 0;
                 ilght.is_dynamic = 0;
                 long lgt_id;
@@ -869,9 +877,9 @@ void place_slab_object(unsigned short a1, long a2, long a3, unsigned short slabc
                 } else
                 if (sobj->field_A == TCls_EffectGen)
                 {
-                    struct Thing *efftng;
-                    efftng = create_effect_generator(&pos, sobj->sofield_B, sobj->sofield_C << 8, a6, a1);
-                    if (thing_is_invalid(efftng)) {
+                    struct Thing *effgentng;
+                    effgentng = create_effect_generator(&pos, sobj->sofield_B, sobj->sofield_C << 8, a6, a1);
+                    if (thing_is_invalid(effgentng)) {
                         ERRORLOG("Cannot create effect generator, type %d", sobj->sofield_B);
                         continue;
                     }
@@ -1076,13 +1084,17 @@ void place_single_slab_prepare_column_index(SlabKind slbkind, MapSlabCoord slb_x
     signed short primitiv;
     against = 0;
     int i;
+    // Test non diagonal neighbours
     for (i=0; i < AROUND_EIGHT_LENGTH; i+=2)
     {
         MapSlabCoord sslb_x;
         MapSlabCoord sslb_y;
         sslb_x = slb_x + (MapSlabCoord)my_around_eight[i].delta_x;
         sslb_y = slb_y + (MapSlabCoord)my_around_eight[i].delta_y;
-        against = get_against(plyr_idx, slbkind, sslb_x, sslb_y) | 2 * against;
+
+        // Collecting bitmask
+        against <<= 1;
+        against |= get_against(plyr_idx, slbkind, sslb_x, sslb_y);
     }
     i = 0;
     int slabct_num;
@@ -1122,13 +1134,16 @@ void place_single_slab_prepare_column_index(SlabKind slbkind, MapSlabCoord slb_x
     } else
     if (place_slbattr->category == SlbAtCtg_RoomInterior)
     {
-        for (i=1; i < 8; i+=2)
+        // Test diagonal neighbours
+        for (i=1; i < AROUND_EIGHT_LENGTH; i+=2)
         {
             MapSlabCoord sslb_x;
             MapSlabCoord sslb_y;
             sslb_x = slb_x + (MapSlabCoord)my_around_eight[i].delta_x;
             sslb_y = slb_y + (MapSlabCoord)my_around_eight[i].delta_y;
-            against = get_against(plyr_idx, slbkind, sslb_x, sslb_y) | 2 * against;
+            // Collecting bitmask
+            against <<= 1;
+            against |= get_against(plyr_idx, slbkind, sslb_x, sslb_y);
         }
         if ( against )
         {
@@ -1265,9 +1280,9 @@ void place_single_slab_type_on_map(SlabKind slbkind, MapSlabCoord slb_x, MapSlab
     place_slab_objects(slb_x, slb_y, slab_number_list, plyr_idx);
 }
 
-void shuffle_unattached_things_on_slab(long a1, long a2)
+void shuffle_unattached_things_on_slab(long stl_x, long stl_y)
 {
-    _DK_shuffle_unattached_things_on_slab(a1, a2); return;
+    _DK_shuffle_unattached_things_on_slab(stl_x, stl_y);
 }
 
 void dump_slab_on_map(SlabKind slbkind, long slabct_num, MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber owner)
@@ -1355,7 +1370,7 @@ void dump_slab_on_map(SlabKind slbkind, long slabct_num, MapSubtlCoord stl_x, Ma
     slb = get_slabmap_block(slb_x, slb_y);
     slb->kind = slbkind;
     pannel_map_update(stl_xa, stl_ya, STL_PER_SLB, STL_PER_SLB);
-    if ((slbkind == SlbT_SLAB50) || (slbkind == SlbT_GUARDPOST) || (slbkind == SlbT_BRIDGE) || (slbkind == SlbT_GEMS))
+    if ((slbkind == SlbT_SLAB50) || (slbkind == SlbT_GUARDPOST) || (slbkind == SlbT_BRIDGE) || (slbkind == SlbT_GEMS) || (slbkind == SlbT_PURPLE))
     {
         MapSubtlCoord stl_xb;
         MapSubtlCoord stl_yb;
@@ -2284,13 +2299,116 @@ unsigned short get_point_in_map_solid_flags_ignoring_own_door(const struct Coord
 void fill_in_reinforced_corners(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
     SYNCDBG(16,"Starting");
-    _DK_fill_in_reinforced_corners(plyr_idx, slb_x, slb_y); return;
+    // _DK_fill_in_reinforced_corners(plyr_idx, slb_x, slb_y); return;
+  struct SlabMap *slb = get_slabmap_block(slb_x, slb_y);
+  struct SlabAttr* slbattr = get_slab_attrs(slb);
+  if ((slbattr->category != SlbAtCtg_FortifiedWall))
+   return;
+  if ( slabmap_owner(slb) != plyr_idx )
+    return;
+  for (long n = 0; n < SMALL_AROUND_LENGTH; n++)
+  {
+    MapSlabCoord x = slb_x + small_around[n].delta_x;
+    MapSlabCoord y = slb_y + small_around[n].delta_y;
+    struct SlabMap *slb2 = get_slabmap_block(x, y);
+    struct SlabAttr* slbattr2 = get_slab_attrs(slb2);
+    if ( (((slbattr2->category == SlbAtCtg_FortifiedGround) || (slbattr2->block_flags & SlbAtFlg_IsRoom) || ((slbattr2->block_flags & SlbAtFlg_IsDoor)) )) 
+      && (slabmap_owner(slb2) == plyr_idx ) )
+    {
+      for (int k = -1; k < 2; k+=2)
+      {
+        int j = (k + n) & 3;
+        MapSlabCoord x2 = x + small_around[j].delta_x;
+        MapSlabCoord y2 = y + small_around[j].delta_y;
+        struct SlabMap *slb3 = get_slabmap_block(x2, y2);
+        struct SlabAttr* slbattr3 = get_slab_attrs(slb3);
+        if ( (slbattr3->category == SlbAtCtg_FortifiedWall) 
+          && (slabmap_owner(slb3) == plyr_idx ) )
+        {
+          int m = (k + j) & 3;
+          MapSlabCoord x3 = x2 + small_around[m].delta_x;
+          MapSlabCoord y3 = y2 + small_around[m].delta_y;
+          struct SlabMap *slb4 = get_slabmap_block(x3, y3);
+          struct SlabAttr* slbattr4 = get_slab_attrs(slb4);
+          if ( (slbattr4->category == SlbAtCtg_FriableDirt) )
+          {
+            unsigned char pretty_type = choose_pretty_type(plyr_idx, x3, y3);
+            place_slab_type_on_map(pretty_type, slab_subtile(x3, 0), slab_subtile(y3, 0), plyr_idx, 1);
+            do_slab_efficiency_alteration(x3, y3);
+            set_slab_explored(plyr_idx, x3, y3);
+            remove_task_from_all_other_players_digger_stacks(plyr_idx, slab_subtile_center(x3), slab_subtile_center(y3));
+          }
+        }
+      }
+    }
+  }
 }
 
-unsigned char choose_pretty_type(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y)
+SlabKind choose_pretty_type(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
+    struct SlabMap *pvslb, *nxslb;
     SYNCDBG(16,"Starting");
-    return _DK_choose_pretty_type(plyr_idx, slb_x, slb_y);
+    // return _DK_choose_pretty_type(plyr_idx, slb_x, slb_y);
+    // if x co-ordinate is divisible by 5
+    if (slb_x % 5 == 0)
+    {
+        pvslb = get_slabmap_block(slb_x, slb_y - 1);
+        nxslb = get_slabmap_block(slb_x, slb_y + 1);
+        if ( (pvslb->kind == SlbT_CLAIMED) || (nxslb->kind == SlbT_CLAIMED) )  
+        {
+            return SlbT_WALLTORCH;
+        }
+    }
+    // if y co-ordinate is divisible by 5
+    if (slb_y % 5 == 0)
+    {
+        pvslb = get_slabmap_block(slb_x - 1, slb_y);
+        nxslb = get_slabmap_block(slb_x + 1, slb_y);
+        if ( (pvslb->kind == SlbT_CLAIMED) || (nxslb->kind == SlbT_CLAIMED) )
+        {
+            return SlbT_WALLTORCH;
+        }
+    }
+    // if x co-ordinate is odd
+    if ((slb_x & 1) != 0)
+    {
+        pvslb = get_slabmap_block(slb_x, slb_y - 1);
+        nxslb = get_slabmap_block(slb_x, slb_y + 1);
+        if ( (pvslb->kind == SlbT_CLAIMED) || (nxslb->kind == SlbT_CLAIMED) )
+        {
+        return SlbT_WALLDRAPE;
+        }
+    }
+    // if y co-ordinate is odd
+    if ((slb_y & 1) != 0)
+    {
+        pvslb = get_slabmap_block(slb_x - 1, slb_y);
+        nxslb = get_slabmap_block(slb_x + 1, slb_y);
+        if ( (pvslb->kind == SlbT_CLAIMED) || (nxslb->kind == SlbT_CLAIMED) )
+        {
+            return SlbT_WALLDRAPE;
+        }
+    }
+    /* else, choose an art type, based on the tile's distance from its owner's Dungeon Heart,
+    or the centre of the map if there's no heart */
+    const SlabKind pretty_types[3] = {SlbT_WALLWTWINS, SlbT_WALLWWOMAN, SlbT_WALLPAIRSHR};
+    struct Coord3d pos, pos2;
+    struct Thing *heartng = get_player_soul_container(plyr_idx);
+    // this function calculates distance in slabs, not subtiles
+    if (thing_is_invalid(heartng))
+    {
+        pos.x.val = 42;
+        pos.y.val = 42;
+    }
+    else
+    {
+        pos.x.val = heartng->mappos.x.stl.num / STL_PER_SLB;
+        pos.y.val = heartng->mappos.y.stl.num / STL_PER_SLB;
+    }
+    pos2.x.val = slb_x;
+    pos2.y.val = slb_y;
+    MapCoordDelta dist = get_2d_distance(&pos, &pos2);
+    return pretty_types[(dist / 4) % 3];
 }
 
 void pretty_map_remove_flags_and_update(MapSlabCoord slb_x, MapSlabCoord slb_y)

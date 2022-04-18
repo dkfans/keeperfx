@@ -310,7 +310,7 @@ void kill_all_players_chickens(PlayerNumber plyr_idx)
         // Per-thing code
         if (thing_exists(thing) && thing_is_mature_food(thing) && (thing->owner == plyr_idx)
           && !thing_is_picked_up(thing)) {
-            thing->byte_17 = 1;
+            thing->food.some_chicken_was_sacrificed = true;
         }
         // Per-thing code ends
         k++;
@@ -321,7 +321,7 @@ void kill_all_players_chickens(PlayerNumber plyr_idx)
         }
     }
     // Force leave or kill normal creatures and special diggers
-    do_to_players_all_creatures_of_model(plyr_idx, -1, kill_creature_if_under_chicken_spell);
+    do_to_players_all_creatures_of_model(plyr_idx, CREATURE_ANY, kill_creature_if_under_chicken_spell);
 }
 
 // This is state-process function of a creature
@@ -667,7 +667,7 @@ short creature_sacrifice(struct Thing *thing)
 TbBool find_random_sacrifice_center(struct Coord3d *pos, const struct Room *room)
 {
     // Find a random slab in the room to be used as our starting point
-    long i = ACTION_RANDOM(room->slabs_count);
+    long i = PLAYER_RANDOM(room->owner, room->slabs_count);
     unsigned long n = room->slabs_list;
     while (i > 0)
     {

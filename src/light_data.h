@@ -48,27 +48,29 @@ enum LightFlags {
 
 struct Light { // sizeof = 46
   unsigned char flags;
-  unsigned char field_1;
+  unsigned char flags2;
   unsigned char intensity;
   unsigned char field_3[2];
   unsigned char range;
   unsigned char field_6;
   unsigned short field_7;
-  unsigned char field_9[5];
+  unsigned char field_9;
+  unsigned char field_A[4];
   unsigned short index;
   unsigned short shadow_index;
   long field_12;
   unsigned short radius;
   short field_18;
   short field_1A;
-  unsigned char field_1C[10];
+  unsigned char field_1C[8];
+  unsigned short field_24;
   unsigned short field_26;
   struct Coord3d mappos;
 };
 
 struct InitLight { // sizeof=0x14
-short field_0;
-unsigned char field_2;
+short radius;
+unsigned char intensity;
 unsigned char field_3;
 short field_4;
 short field_6;
@@ -125,12 +127,14 @@ TbBool light_is_invalid(const struct Light *lgt);
 long light_is_light_allocated(long lgt_id);
 void light_set_light_position(long lgt_id, struct Coord3d *pos);
 void light_set_lights_on(char state);
-void light_set_light_minimum_size_to_cache(long a1, long a2, long a3);
+void light_set_light_minimum_size_to_cache(long lgt_id, long a2, long a3);
 void light_signal_update_in_area(long sx, long sy, long ex, long ey);
 long light_get_total_dynamic_lights(void);
 void light_export_system_state(struct LightSystemState *lightst);
 void light_import_system_state(const struct LightSystemState *lightst);
 TbBool lights_stats_debug_dump(void);
+void light_signal_stat_light_update_in_area(long x1, long y1, long x2, long y2);
+void light_stat_light_map_clear_area(long x1, long y1, long x2, long y2);
 
 /******************************************************************************/
 #ifdef __cplusplus

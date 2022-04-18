@@ -54,6 +54,7 @@
 #include "game_legacy.h"
 #include "config_magic.h"
 #include "thing_shots.h"
+#include "bflib_inputctrl.h"
 
 #include "keeperfx.hpp"
 
@@ -355,6 +356,7 @@ long pinstfs_direct_control_creature(struct PlayerInfo *player, long *n)
     if (thing_is_creature(thing)) {
         SYNCDBG(8,"Cleaning up state %s of %s index %d",creature_state_code_name(thing->active_state),thing_model_name(thing),(int)thing->index);
         initialise_thing_state(thing, CrSt_ManualControl);
+        LbGrabMouseCheck(MG_OnPossessionEnter);
     }
     return pinstfs_passenger_control_creature(player, n);
 }
@@ -474,7 +476,10 @@ long pinstfe_passenger_control_creature(struct PlayerInfo *player, long *n)
 {
     struct Thing* thing = thing_get(player->influenced_thing_idx);
     if (!thing_is_invalid(thing))
-      control_creature_as_passenger(player, thing);
+    {
+        load_swipe_graphic_for_creature(thing);
+        control_creature_as_passenger(player, thing);
+    }
     set_player_instance(player, PI_CrCtrlFade, false);
     return 0;
 }
@@ -497,6 +502,7 @@ long pinstfs_direct_leave_creature(struct PlayerInfo *player, long *n)
       turn_off_query_menus();
       turn_on_main_panel_menu();
       set_flag_byte(&game.operation_flags, GOF_ShowPanel, (game.operation_flags & GOF_ShowGui) != 0);
+      LbGrabMouseCheck(MG_OnPossessionLeave);
   }
   thing = thing_get(player->influenced_thing_idx);
   leave_creature_as_controller(player, thing);
@@ -591,7 +597,7 @@ long pinstfs_zoom_to_heart(struct PlayerInfo *player, long *n)
         cctrl->flgfield_1 |= CCFlg_NoCompControl;
         player->allocflags |= PlaF_KeyboardInputDisabled;
         player->allocflags |= PlaF_MouseInputDisabled;
-        game.numfield_D |= GNFldD_Unkn08;
+        game.numfield_D |= GNFldD_CreaturePasngr;
     }
     return 0;
 }
@@ -743,7 +749,7 @@ long pinstfe_zoom_out_of_heart(struct PlayerInfo *player, long *n)
   light_turn_light_on(player->field_460);
   player->allocflags &= ~PlaF_KeyboardInputDisabled;
   player->allocflags &= ~PlaF_MouseInputDisabled;
-  game.numfield_D &= ~GNFldD_Unkn08;
+  game.numfield_D &= ~GNFldD_CreaturePasngr;
   if (is_my_player(player))
     PaletteSetPlayerPalette(player, engine_palette);
   return 0;
@@ -1312,5 +1318,86 @@ TbBool player_place_door_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumb
         play_non_3d_sample(117);
     }
     return 1;
+}
+
+TbBool is_thing_directly_controlled_by_player(const struct Thing *thing, PlayerNumber plyr_idx)
+{
+    if (!thing_exists(thing))
+        return false;
+     struct PlayerInfo* player = get_player(plyr_idx);
+     if (player_invalid(player))
+     {
+         ERRORLOG("Bad player: $d", plyr_idx);
+         return false;
+     }
+     else
+     {
+        if ((player->work_state != PSt_CtrlDirect) && (player->work_state != PSt_FreeCtrlDirect) && (player->work_state != PSt_CtrlDungeon))
+        {
+            return false;
+        }
+        switch (player->instance_num)
+        {
+            case PI_DirctCtrl:
+            case PI_HeartZoom:
+            case PI_HeartZoomOut:
+            case PI_Drop:
+            {
+                if ((thing->alloc_flags & TAlF_IsControlled) != 0)
+                {
+                    if (player->view_type == PVT_CreatureContrl)
+                    {
+                        return ( (thing->index == player->influenced_thing_idx) || (get_creature_model_flags(thing) & CMF_IsSpectator) );
+                    }
+                }
+                return false;
+            }
+            case PI_CrCtrlFade:
+                return (thing->index == player->controlled_thing_idx);
+            case PI_DirctCtLeave:
+                return (thing->index == player->influenced_thing_idx);
+            case PI_Unset:
+            case PI_Whip: // Whip can be used at any time by comp. assistant
+            case PI_WhipEnd:
+                return (thing->index == player->controlled_thing_idx);
+            case PI_PsngrCtLeave: // Leaving the possessed creature
+                break;
+        }
+     }
+    return false;
+}
+
+TbBool is_thing_passenger_controlled_by_player(const struct Thing *thing, PlayerNumber plyr_idx)
+{
+    if (!thing_exists(thing))
+        return false;
+     struct PlayerInfo* player = get_player(plyr_idx);
+     if (player_invalid(player))
+     {
+         ERRORLOG("Bad player: $d", plyr_idx);
+         return false;
+     }
+    else
+    {
+        if ((player->work_state != PSt_CtrlPassngr) && (player->work_state != PSt_FreeCtrlPassngr))
+            return false;
+        switch (player->instance_num)
+        {
+        case PI_PsngrCtrl:
+            return ( (thing->index == player->influenced_thing_idx) && (player->view_type == PVT_CreaturePasngr) );
+        case PI_CrCtrlFade:
+            return (thing->index == player->controlled_thing_idx);
+        case PI_PsngrCtLeave:
+            return (thing->index == player->influenced_thing_idx);
+        case PI_Unset:
+        case PI_Whip: // Whip can be used at any time by comp. assistant
+        case PI_WhipEnd:
+            return (thing->index == player->controlled_thing_idx);
+        default:
+            ERRORLOG("Bad player %d instance %d",plyr_idx,(int)player->instance_num);
+            break;
+        }
+    }
+    return false;
 }
 /******************************************************************************/

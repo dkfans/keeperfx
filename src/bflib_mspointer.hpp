@@ -39,7 +39,7 @@ class LbI_PointerHandler {
     LbI_PointerHandler(void);
     ~LbI_PointerHandler(void);
     void SetHotspot(long x, long y);
-    void Initialise(struct TbSprite *spr, struct TbPoint *, struct TbPoint *);
+    void Initialise(const struct TbSprite *spr, struct TbPoint *, struct TbPoint *);
     void Release(void);
     void NewMousePos(void);
     bool OnMove(void);
@@ -65,7 +65,7 @@ class LbI_PointerHandler {
     long draw_pos_y;
     bool field_1050;
     bool field_1054;
-    struct TbSprite *sprite;
+    const struct TbSprite *sprite;
     LbSemaphore sema_rel;
     };
 

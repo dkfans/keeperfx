@@ -27,6 +27,7 @@
 #include "gui_draw.h"
 #include "frontend.h"
 #include "game_legacy.h"
+#include "frontmenu_ingame_evnt.h"
 
 #include "keeperfx.hpp"
 
@@ -44,6 +45,13 @@ void message_draw(void)
     }
     int h = LbTextLineHeight();
     long y = 28 * units_per_pixel / 16;
+    if (game.armageddon_cast_turn != 0)
+    {
+        if ( (bonus_timer_enabled()) || (script_timer_enabled()) || display_variable_enabled() )
+        {
+            y += h*units_per_pixel/16;
+        }
+    }
     for (int i = 0; i < game.active_messages_count; i++)
     {
         long x = 148 * units_per_pixel / 16;
@@ -99,7 +107,18 @@ void message_draw(void)
         }
         else
         {
-            spr_idx = 488+gameadd.messages[i].plyr_idx;
+            if (gameadd.messages[i].plyr_idx == game.hero_player_num)
+            {
+                spr_idx = 533;
+            }
+            else if (gameadd.messages[i].plyr_idx == game.neutral_player_num)
+            {
+                spr_idx = ((game.play_gameturn >> 1) & 3) + 488;
+            }
+            else
+            {
+                spr_idx = ((player_has_heart(gameadd.messages[i].plyr_idx)) ? 488 : 535) + gameadd.messages[i].plyr_idx;
+            }
         }
         if (gameadd.messages[i].plyr_idx != 127)
         {

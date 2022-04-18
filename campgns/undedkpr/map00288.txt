@@ -14,7 +14,8 @@ ALLY_PLAYERS(PLAYER1,PLAYER2)
 
 SET_COMPUTER_PROCESS(PLAYER1,"BUILD A GRAVEYARD ROOM",0,5,6,11,0)
 
-QUICK_OBJECTIVE(0,"You are outnumbered here, so use the land itself to your advantage. Speaking of that; this ancient realm is full of riches, all for you for the taking. Also, your library has been captured by some vile rogue warlocks in the east, make them regret it with their lifes.",PLAYER0)
+REM "You are outnumbered here, so use the land itself to your advantage. Speaking of that; this ancient realm is full of riches, all for you for the taking. Also, your library has been captured by some vile rogue warlocks in the east, make them regret it with their lifes."
+DISPLAY_OBJECTIVE(11,PLAYER0)
 
 REM -------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -214,13 +215,15 @@ IF_ACTION_POINT(3,PLAYER0)
 ENDIF
 
 IF(PLAYER0,RESEARCH >= 1)
-    QUICK_OBJECTIVE(1,"Excellent, now we can research spells and rooms!",PLAYER0)
+    REM "Excellent, now we can research spells and rooms!"
+    DISPLAY_OBJECTIVE(12,PLAYER0)
 ENDIF
 
 
 REM --------------------------------------------------------------------------------------------------------------------------------------------
 
 IF(PLAYER0,ALL_DUNGEONS_DESTROYED == 1)
-    QUICK_OBJECTIVE(2,"Another one bites the dust. Let us not waste too much time on these rookies, there are more challenges on the horizon.",PLAYER0)
+    REM "Another one bites the dust. Let us not waste too much time on these rookies, there are more challenges on the horizon."
+    DISPLAY_OBJECTIVE(13,PLAYER0)
     WIN_GAME
 ENDIF

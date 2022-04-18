@@ -45,10 +45,28 @@ extern "C" {
 #define PLAYERS_FOR_CAMPAIGN_FLAGS    5
 #define CAMPAIGN_FLAGS_PER_PLAYER     8
 
+// UNSYNC_RANDOM is not synced at all. For synced choices the more specific random is better.
+// So priority is  CREATURE_RANDOM >> PLAYER_RANDOM >> GAME_RANDOM
+
+// Deprecated. Used only once. Maybe it is sound-specific UNSYNC_RANDOM
 #define SOUND_RANDOM(range) LbRandomSeries(range, &sound_seed, __func__, __LINE__, "sound")
+// This RNG should not be used to affect anything related affecting game state
 #define UNSYNC_RANDOM(range) LbRandomSeries(range, &game.unsync_rand_seed, __func__, __LINE__, "unsync")
-#define ACTION_RANDOM(range) LbRandomSeries(range, &game.action_rand_seed, __func__, __LINE__, "action")
+// This RNG should be used only for "whole game" events (i.e. from script)
+#define GAME_RANDOM(range) LbRandomSeries(range, &game.action_rand_seed, __func__, __LINE__, "game")
+// This RNG is for anything related to creatures or their shots. So creatures should act independent
+#define CREATURE_RANDOM(thing, range) \
+    LbRandomSeries(range, &game.action_rand_seed, __func__, __LINE__, "creature")
+// This is messy. Used only for AI choices. Maybe it should be merged with PLAYER_RANDOM.
 #define AI_RANDOM(range) LbRandomSeries(range, &game.action_rand_seed, __func__, __LINE__, "ai")
+// This RNG is about something related to specific player
+#define PLAYER_RANDOM(plyr, range) LbRandomSeries(range, &game.action_rand_seed, __func__, __LINE__, "player")
+// RNG related to effects. I am unsure about its relationship with game state.
+// It should be replaced either with CREATURE_RANDOM or with UNSYNC_RANDOM on case by case basis.
+#define EFFECT_RANDOM(thing, range) \
+    LbRandomSeries(range, &game.action_rand_seed, __func__, __LINE__, "effect")
+#define ACTION_RANDOM(range) \
+    LbRandomSeries(range, &game.action_rand_seed, __func__, __LINE__, "action")
 
 enum GameSystemFlags {
     GSF_NetworkActive    = 0x0001,
@@ -61,7 +79,10 @@ enum GameSystemFlags {
 };
 
 enum GameGUIFlags {
+    GGUI_1Player         = 0x0001,
     GGUI_CountdownTimer  = 0x0002,
+    GGUI_ScriptTimer     = 0x0004,
+    GGUI_Variable        = 0x0008,
     GGUI_SoloChatEnabled = 0x0080
 };
 
@@ -79,16 +100,18 @@ enum ClassicBugFlags {
     ClscBug_FaintedImmuneToBoulder = 0x0200,
     ClscBug_RebirthKeepsSpells     = 0x0400,
     ClscBug_FriendlyFaint          = 0x0800,
+    ClscBug_PassiveNeutrals        = 0x1000,
 };
 
 enum GameFlags2 {
     GF2_ClearPauseOnSync          = 0x0001,
     GF2_ClearPauseOnPacket        = 0x0002,
     GF2_Timer                     = 0x0004,
+    GF2_Server                    = 0x0008,
+    GF2_Connect                   = 0x0010,
     GF2_ShowEventLog              = 0x00010000,
     GF2_PERSISTENT_FLAGS          = 0xFFFF0000
 };
-
 /******************************************************************************/
 #pragma pack(1)
 
@@ -136,6 +159,8 @@ struct GameAdd {
     unsigned short bag_gold_hold;
     TbBool scavenge_good_allowed;
     TbBool scavenge_neutral_allowed;
+    long scavenge_effectiveness_evil; //unused
+    long scavenge_effectiveness_good; //unused
     TbBool armegeddon_teleport_neutrals;
     unsigned long classic_bugs_flags;
     unsigned short computer_chat_flags;
@@ -173,8 +198,27 @@ struct GameAdd {
 
     struct DungeonAdd dungeon[DUNGEONS_COUNT];
 
+    struct ThingAdd things[THINGS_COUNT];
+
     struct Objects thing_objects_data[OBJECT_TYPES_COUNT];
     struct ObjectsConfig object_conf;
+
+    LevelNumber last_level; // Used to restore custom sprites
+    struct LevelScript script;
+    PlayerNumber script_player;
+    unsigned char script_timer_id;
+    unsigned long script_timer_limit;
+    TbBool timer_real;
+    unsigned char script_value_type;
+    unsigned char script_value_id;
+    long script_variable_target;
+    unsigned char script_variable_target_type;
+    TbBool heart_lost_display_message;
+    TbBool heart_lost_quick_message;
+    unsigned long heart_lost_message_id;
+    long heart_lost_message_target;
+    unsigned char slab_ext_data[85 * 85];
+    struct PlayerInfoAdd players[PLAYERS_COUNT];
 };
 
 extern unsigned long game_flags2; // Should be reset to zero on new level
@@ -199,6 +243,8 @@ short is_extra_level_visible(struct PlayerInfo *player, long ex_lvnum);
 void update_extra_levels_visibility(void);
 TbBool set_bonus_level_visibility_for_singleplayer_level(struct PlayerInfo *player, unsigned long sp_lvnum, short visible);
 /******************************************************************************/
+
+struct ThingAdd *get_thingadd(Thingid thing_idx);
 
 #ifdef __cplusplus
 }
