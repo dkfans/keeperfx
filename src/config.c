@@ -38,6 +38,7 @@
 #include "scrcapt.h"
 #include "vidmode.h"
 #include "music_player.h"
+#include "thing_navigate.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -1041,9 +1042,9 @@ short load_configuration(void)
           }
           switch(i)
           {
-            case 0: // North
+            case 0:
             {
-                LevelStartAngle = 0;
+                LevelStartAngle = ANGLE_NORTH;
                 break;  
             }
             case 1: // North-east
@@ -1051,34 +1052,34 @@ short load_configuration(void)
                 // Value is already initialised; there is no need to write it again.
                 break;  
             }
-            case 2: // East
+            case 2:
             {
-                LevelStartAngle = 512;
+                LevelStartAngle = ANGLE_EAST;
                 break;  
             }
-            case 3: // South-east
+            case 3:
             {
-                LevelStartAngle = 768;
+                LevelStartAngle = ANGLE_SOUTHEAST;
                 break;  
             }
-            case 4: // South
+            case 4:
             {
-                LevelStartAngle = 1024;
+                LevelStartAngle = ANGLE_SOUTH;
                 break;  
             }
-            case 5: // South-west
+            case 5:
             {
-                LevelStartAngle = 1280;
+                LevelStartAngle = ANGLE_SOUTHWEST;
                 break;  
             }
-            case 6: // West
+            case 6:
             {
-                LevelStartAngle = 1536;
+                LevelStartAngle = ANGLE_WEST;
                 break;  
             }
-            case 7: // North-west
+            case 7:
             {
-                LevelStartAngle = 1792;
+                LevelStartAngle = ANGLE_NORTHWEST;
                 break;  
             }
             default:
