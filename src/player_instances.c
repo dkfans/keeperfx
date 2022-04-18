@@ -672,29 +672,29 @@ long pinstfm_zoom_out_of_heart(struct PlayerInfo *player, long *n)
         long deltax;
         long deltay;
         unsigned long addval;
-        TbBool south = ((LevelStartAngle > 512) && (LevelStartAngle < 1536));
-        TbBool anticlockwise = (south) ? (LevelStartAngle < 1024) : (LevelStartAngle >= 1536);
+        TbBool south = ((LevelStartAngle > ANGLE_EAST) && (LevelStartAngle < ANGLE_WEST));
+        TbBool anticlockwise = (south) ? (LevelStartAngle < ANGLE_SOUTH) : (LevelStartAngle >= ANGLE_WEST);
         if (cam != NULL)
         {
           if (south)
           {
-              if ((cam->orient_a > 1536) || (cam->orient_a < 512))
+              if ((cam->orient_a > ANGLE_WEST) || (cam->orient_a < ANGLE_EAST))
               {
-                cam->orient_a = 1024;
+                cam->orient_a = ANGLE_SOUTH;
               }
           }
           cam->zoom -= (24000 - settings.isometric_view_zoom_level) / 16;
-          if ((LevelStartAngle > 0) && (LevelStartAngle != 1024))
+          if ((LevelStartAngle > ANGLE_NORTH) && (LevelStartAngle != ANGLE_SOUTH))
           {
             if (!south)
             {
                 if (!anticlockwise)
                 {
-                    cam->orient_a += ((LbFPMath_PI/64) << (unsigned char)(LevelStartAngle > 256));
+                    cam->orient_a += ((LbFPMath_PI/64) << (unsigned char)(LevelStartAngle > ANGLE_NORTHEAST));
                 }
                 else
                 {
-                    cam->orient_a -= ((LbFPMath_PI/64) << (unsigned char)(LevelStartAngle < 1792));
+                    cam->orient_a -= ((LbFPMath_PI/64) << (unsigned char)(LevelStartAngle < ANGLE_NORTHWEST));
                 }
             }
             else
@@ -727,7 +727,7 @@ long pinstfm_zoom_out_of_heart(struct PlayerInfo *player, long *n)
     }
     else
     {
-        if ((LevelStartAngle == 512) || (LevelStartAngle == 1024) || (LevelStartAngle == 1536))
+        if ((LevelStartAngle == ANGLE_EAST) || (LevelStartAngle == ANGLE_SOUTH) || (LevelStartAngle == ANGLE_WEST))
         {
             cam->orient_a = LevelStartAngle;
         }
