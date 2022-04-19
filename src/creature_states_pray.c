@@ -172,9 +172,13 @@ short state_cleanup_in_temple(struct Thing *creatng)
 {
     struct Dungeon* dungeon = get_dungeon(creatng->owner);
     if ( dungeon->creatures_praying[creatng->model] > 0 )
+    {
        dungeon->creatures_praying[creatng->model]--;
+    }
     else
+    {
         ERRORLOG("No creature in temple to cleanup");
+    }
     state_cleanup_in_room(creatng);
     return 1;
 }
