@@ -896,42 +896,42 @@ void keeper_highlight_roomspace(PlayerNumber plyr_idx, struct RoomSpace *roomspa
 
 void keeper_sell_roomspace(PlayerNumber plyr_idx, struct RoomSpace *roomspace)
 {
-    struct DungeonAdd *dungeonadd = get_dungeonadd(plyr_idx);
-    if (dungeonadd->roomspace.is_active)
+    struct PlayerInfoAdd *playeradd = get_playeradd(plyr_idx);
+    if (playeradd->roomspace.is_active)
     {
         ERRORLOG("Selling roomspace while it is still in progress plyr:%d", roomspace->plyr_idx);
         return;
     }
     roomspace->rkind = RoK_SELL;
-    memcpy(&dungeonadd->roomspace, roomspace, sizeof(dungeonadd->roomspace));
+    memcpy(&playeradd->roomspace, roomspace, sizeof(playeradd->roomspace));
     // Init
-    dungeonadd->roomspace.is_active = true;
-    dungeonadd->roomspace.buildx = roomspace->left;
-    dungeonadd->roomspace.buildy = roomspace->top;
+    playeradd->roomspace.is_active = true;
+    playeradd->roomspace.buildx = roomspace->left;
+    playeradd->roomspace.buildy = roomspace->top;
     if (!roomspace->is_roomspace_a_box)
     {
         // We want to find first point
-        find_next_point(&dungeonadd->roomspace);
+        find_next_point(&playeradd->roomspace);
     }
 }
 
 void keeper_build_roomspace(PlayerNumber plyr_idx, struct RoomSpace *roomspace)
 {
-    struct DungeonAdd *dungeonadd = get_dungeonadd(plyr_idx);
-    if (dungeonadd->roomspace.is_active)
+    struct PlayerInfoAdd *playeradd = get_playeradd(plyr_idx);
+    if (playeradd->roomspace.is_active)
     {
         ERRORLOG("Building roomspace while it is still in progress plyr:%d", roomspace->plyr_idx);
         return;
     }
-    memcpy(&dungeonadd->roomspace, roomspace, sizeof(dungeonadd->roomspace));
+    memcpy(&playeradd->roomspace, roomspace, sizeof(playeradd->roomspace));
     // Init
-    dungeonadd->roomspace.is_active = true;
-    dungeonadd->roomspace.buildx = roomspace->left;
-    dungeonadd->roomspace.buildy = roomspace->top;
+    playeradd->roomspace.is_active = true;
+    playeradd->roomspace.buildx = roomspace->left;
+    playeradd->roomspace.buildy = roomspace->top;
     if (!roomspace->is_roomspace_a_box)
     {
-        dungeonadd->roomspace.buildx--; // We want to find first point
-        find_next_point(&dungeonadd->roomspace);
+        playeradd->roomspace.buildx--; // We want to find first point
+        find_next_point(&playeradd->roomspace);
     }
 }
 
@@ -977,7 +977,7 @@ void update_roomspaces()
     {
         if (get_player(plyr_idx)->is_active)
         {
-            keeper_update_roomspace(&get_dungeonadd(plyr_idx)->roomspace);
+            keeper_update_roomspace(&get_playeradd(plyr_idx)->roomspace);
         }
     }
 }

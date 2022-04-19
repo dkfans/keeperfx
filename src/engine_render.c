@@ -2367,12 +2367,11 @@ void process_isometric_map_volume_box(long x, long y, long z, PlayerNumber plyr_
 {
     unsigned char default_color = map_volume_box.color;
     unsigned char line_color = default_color;
-    struct DungeonAdd *dungeonadd = get_dungeonadd(plyr_idx);
     struct PlayerInfo* current_player = get_player(plyr_idx);
     struct PlayerInfoAdd* current_playeradd = get_playeradd(plyr_idx);
     // Check if a roomspace is currently being built
     // and if so feed this back to the user
-    if ((dungeonadd->roomspace.is_active) && ((current_player->work_state == PSt_Sell) || (current_player->work_state == PSt_BuildRoom)))
+    if ((current_playeradd->roomspace.is_active) && ((current_player->work_state == PSt_Sell) || (current_player->work_state == PSt_BuildRoom)))
     {
         line_color = SLC_REDYELLOW; // change the cursor color to indicate to the user that nothing else can be built or sold at the moment
     }
@@ -6998,12 +6997,11 @@ void process_frontview_map_volume_box(struct Camera *cam, unsigned char stl_widt
 {
     unsigned char default_color = map_volume_box.color;
     unsigned char line_color = default_color;
-    struct DungeonAdd *dungeonadd = get_dungeonadd(plyr_idx);
     struct PlayerInfo* current_player = get_player(plyr_idx);
     struct PlayerInfoAdd* current_playeradd = get_playeradd(plyr_idx);
     // Check if a roomspace is currently being built
     // and if so feed this back to the user
-    if ((dungeonadd->roomspace.is_active) && ((current_player->work_state == PSt_Sell) || (current_player->work_state == PSt_BuildRoom)))
+    if ((current_playeradd->roomspace.is_active) && ((current_player->work_state == PSt_Sell) || (current_player->work_state == PSt_BuildRoom)))
     {
         line_color = SLC_REDYELLOW; // change the cursor color to indicate to the user that nothing else can be built or sold at the moment
     }

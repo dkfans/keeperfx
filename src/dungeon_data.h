@@ -310,7 +310,6 @@ struct DungeonAdd
     struct BoxInfo        box_info;
     struct Coord3d        last_combat_location;
     int                   creature_awarded[CREATURE_TYPES_COUNT];
-    struct RoomSpace      roomspace;
     unsigned char         creature_entrance_level;
     unsigned long         evil_creatures_converted;
     unsigned long         good_creatures_converted;
