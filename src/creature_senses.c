@@ -709,7 +709,6 @@ TbBool line_of_sight_2d(const struct Coord3d *frpos, const struct Coord3d *topos
         ray_point_delta_y = RAY_RESOLUTION;
     }
     
-    
     if ( pos_delta_y == pos_delta_x )
     {
       ray_end_point = (pos_delta_x + 1) / RAY_RESOLUTION;
@@ -719,7 +718,7 @@ TbBool line_of_sight_2d(const struct Coord3d *frpos, const struct Coord3d *topos
       ray_point_delta_x = (pos_delta_x + 1) * ray_point_delta_x / (pos_delta_y + 1);
       ray_end_point = (pos_delta_y + 1) / RAY_RESOLUTION;
     }
-    else if ( pos_delta_y < pos_delta_x )
+    else
     {
       ray_point_delta_y = (pos_delta_y + 1) * ray_point_delta_y / (pos_delta_x + 1);
       ray_end_point = (pos_delta_x + 1) / RAY_RESOLUTION;
