@@ -677,66 +677,68 @@ TbBool jonty_creature_can_see_thing_including_lava_check(const struct Thing *cre
 
 TbBool line_of_sight_2d(const struct Coord3d *frpos, const struct Coord3d *topos)
 {
-    MapCoordDelta increase_x;
-    MapCoordDelta increase_y;
-    MapCoordDelta deltaX;
-    MapCoordDelta deltaY;
-    long rayPathEnd;
-    long rayCurrentPoint;
-    struct Coord3d rayPos;
+
+    MapCoordDelta pos_delta_x;
+    MapCoordDelta pos_delta_y;
+    MapCoordDelta ray_point_delta_x;
+    MapCoordDelta ray_point_delta_y;
+
+    long ray_end_point;
+    long ray_current_point;
+    struct Coord3d ray_point_pos;
     static const long RAY_RESOLUTION = 80;
         
-    deltaX = abs(topos->x.val - frpos->x.val);
-    deltaY = abs(topos->y.val - frpos->y.val);
+    pos_delta_x = abs(topos->x.val - frpos->x.val);
+    pos_delta_y = abs(topos->y.val - frpos->y.val);
 
     if ( frpos->x.val > topos->x.val )
     {
-        increase_x = -RAY_RESOLUTION;
+        ray_point_delta_x = -RAY_RESOLUTION;
     }
     else
     {
-        increase_x = RAY_RESOLUTION;
+        ray_point_delta_x = RAY_RESOLUTION;
     }
     
     if ( frpos->y.val > topos->y.val )
     {
-        increase_y = -RAY_RESOLUTION;
+        ray_point_delta_y = -RAY_RESOLUTION;
     }
     else
     {
-        increase_y = RAY_RESOLUTION;
+        ray_point_delta_y = RAY_RESOLUTION;
     }
     
     
-    if ( deltaY == deltaX )
+    if ( pos_delta_y == pos_delta_x )
     {
-      rayPathEnd = (deltaX + 1) / RAY_RESOLUTION;
+      ray_end_point = (pos_delta_x + 1) / RAY_RESOLUTION;
     }
-    else if ( deltaY > deltaX )
+    else if ( pos_delta_y > pos_delta_x )
     {
-      increase_x = (deltaX + 1) * increase_x / (deltaY + 1);
-      rayPathEnd = (deltaY + 1) / RAY_RESOLUTION;
+      ray_point_delta_x = (pos_delta_x + 1) * ray_point_delta_x / (pos_delta_y + 1);
+      ray_end_point = (pos_delta_y + 1) / RAY_RESOLUTION;
     }
-    else if ( deltaY < deltaX )
+    else if ( pos_delta_y < pos_delta_x )
     {
-      increase_y = (deltaY + 1) * increase_y / (deltaX + 1);
-      rayPathEnd = (deltaX + 1) / RAY_RESOLUTION;
+      ray_point_delta_y = (pos_delta_y + 1) * ray_point_delta_y / (pos_delta_x + 1);
+      ray_end_point = (pos_delta_x + 1) / RAY_RESOLUTION;
     }
     
-    rayCurrentPoint = rayPathEnd;
-    rayPos.x = frpos->x;
-    rayPos.y = frpos->y;
-    rayPos.z = frpos->z;
+    ray_current_point = ray_end_point;
+    ray_point_pos.x = frpos->x;
+    ray_point_pos.y = frpos->y;
+    ray_point_pos.z = frpos->z;
 
-    if ( rayPathEnd == 0 )
+    if ( ray_end_point == 0 )
       return true;
 
-    while ( !point_in_map_is_solid(&rayPos) )
+    while ( !point_in_map_is_solid(&ray_point_pos) )
     {
-      rayPos.x.val += increase_x;
-      rayPos.y.val += increase_y;
-      rayCurrentPoint--;
-      if ( rayCurrentPoint == 0 )
+      ray_point_pos.x.val += ray_point_delta_x;
+      ray_point_pos.y.val += ray_point_delta_y;
+      ray_current_point--;
+      if ( ray_current_point == 0 )
         return true;
     }
     return false;
