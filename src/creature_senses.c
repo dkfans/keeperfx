@@ -678,53 +678,52 @@ TbBool jonty_creature_can_see_thing_including_lava_check(const struct Thing *cre
 TbBool line_of_sight_2d(const struct Coord3d *frpos, const struct Coord3d *topos)
 {
     MapCoordDelta increase_x;
+    MapCoordDelta increase_y;
     MapCoordDelta deltaX;
     MapCoordDelta deltaY;
-    MapCoordDelta increase_y;
-    MapCoordDelta deltaXplus1;
-    MapCoordDelta deltaYplus1;
-    int rayPathEnd;
-    int v10;
+    long rayPathEnd;
+    long rayCurrentPoint;
     struct Coord3d rayPos;
+    static const long RAY_RESOLUTION = 80;
         
     deltaX = abs(topos->x.val - frpos->x.val);
     deltaY = abs(topos->y.val - frpos->y.val);
 
     if ( frpos->x.val > topos->x.val )
     {
-        increase_x = -80;
+        increase_x = -RAY_RESOLUTION;
     }
     else
     {
-        increase_x = 80;
+        increase_x = RAY_RESOLUTION;
     }
     
     if ( frpos->y.val > topos->y.val )
     {
-        increase_y = -80;
+        increase_y = -RAY_RESOLUTION;
     }
     else
     {
-        increase_y = 80;
+        increase_y = RAY_RESOLUTION;
     }
     
     
     if ( deltaY == deltaX )
     {
-      rayPathEnd = (deltaX + 1) / 80;
+      rayPathEnd = (deltaX + 1) / RAY_RESOLUTION;
     }
     else if ( deltaY > deltaX )
     {
       increase_x = (deltaX + 1) * increase_x / (deltaY + 1);
-      rayPathEnd = (deltaY + 1) / 80;
+      rayPathEnd = (deltaY + 1) / RAY_RESOLUTION;
     }
     else if ( deltaY < deltaX )
     {
       increase_y = (deltaY + 1) * increase_y / (deltaX + 1);
-      rayPathEnd = (deltaX + 1) / 80;
+      rayPathEnd = (deltaX + 1) / RAY_RESOLUTION;
     }
     
-    v10 = rayPathEnd;
+    rayCurrentPoint = rayPathEnd;
     rayPos.x = frpos->x;
     rayPos.y = frpos->y;
     rayPos.z = frpos->z;
@@ -736,7 +735,8 @@ TbBool line_of_sight_2d(const struct Coord3d *frpos, const struct Coord3d *topos
     {
       rayPos.x.val += increase_x;
       rayPos.y.val += increase_y;
-      if ( !--v10 )
+      rayCurrentPoint--;
+      if ( rayCurrentPoint == 0 )
         return true;
     }
     return false;
