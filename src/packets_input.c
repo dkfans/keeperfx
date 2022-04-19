@@ -508,7 +508,7 @@ TbBool process_dungeon_control_packet_sell_operation(long plyr_idx)
     if (player->full_slab_cursor)
     {
         //Slab Mode
-        if (playeradd->playeradd->render_roomspace.slab_count > 0)
+        if (playeradd->render_roomspace.slab_count > 0)
         {
             keeper_sell_roomspace(plyr_idx, &playeradd->render_roomspace);
         }
