@@ -245,7 +245,7 @@ short kinky_torturing(struct Thing *thing)
     }
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    if (game.play_gameturn-cctrl->turns_at_job > crstat->torture_break_time)
+    if ((game.play_gameturn-cctrl->turns_at_job > crstat->torture_break_time) && !is_neutral_thing(thing))
     {
         set_start_state(thing);
         return CrStRet_ResetOk;

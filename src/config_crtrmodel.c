@@ -162,6 +162,7 @@ const struct NamedCommand creatmodel_appearance_commands[] = {
   {"POSSESSSWIPEINDEX",    3},
   {"NATURALDEATHKIND",     4},
   {"SHOTORIGIN",           5},
+  {"CORPSEVANISHEFFECT",   6},
   {NULL,                   0},
   };
 
@@ -1489,6 +1490,7 @@ TbBool parse_creaturemodel_appearance_blocks(long crtr_model,char *buf,long len,
         creatures[crtr_model].shot_shift_x = 0;
         creatures[crtr_model].shot_shift_y = 0;
         creatures[crtr_model].shot_shift_z = 0;
+        crstat->corpse_vanish_effect = 0;
     }
     // Find the block
     char block_buf[COMMAND_WORD_LEN];
@@ -1593,6 +1595,14 @@ TbBool parse_creaturemodel_appearance_blocks(long crtr_model,char *buf,long len,
             {
               CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s file.",
                   COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
+            break;
+        case 6: // CORPSEVANISHEFFECT
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                crstat->corpse_vanish_effect = k;
+                n++;
             }
             break;
         case 0: // comment

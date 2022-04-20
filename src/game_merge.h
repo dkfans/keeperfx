@@ -65,6 +65,8 @@ extern "C" {
 // It should be replaced either with CREATURE_RANDOM or with UNSYNC_RANDOM on case by case basis.
 #define EFFECT_RANDOM(thing, range) \
     LbRandomSeries(range, &game.action_rand_seed, __func__, __LINE__, "effect")
+#define ACTION_RANDOM(range) \
+    LbRandomSeries(range, &game.action_rand_seed, __func__, __LINE__, "action")
 
 enum GameSystemFlags {
     GSF_NetworkActive    = 0x0001,
