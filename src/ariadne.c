@@ -374,16 +374,16 @@ static long get_navtree_owner(long treeI)
 
 long Keeper_nav_rulesA2B(long treeA, long treeB)
 {
-    if ((treeB & 0x0F) - (treeA & 0x0F) > 1)
+    if ((treeB & NAVMAP_FLOORHEIGHT_MAX) - (treeA & NAVMAP_FLOORHEIGHT_MAX) > 1)
         return 0;
-    if ((treeB & 0x10) == 0)
+    if ((treeB & NAVMAP_UNSAFE_SURFACE) == 0)
         return 1;
     return 2;
 }
 
 long navigation_rule_normal(long treeA, long treeB)
 {
-    int difference = ((treeB & 0x0F) - (treeA & 0x0F));
+    int difference = ((treeB & NAVMAP_FLOORHEIGHT_MAX) - (treeA & NAVMAP_FLOORHEIGHT_MAX));
     if (difference > 1) // Creatures can walk over one block height difference
     {
         if (difference < COLUMN_STACK_HEIGHT)
@@ -402,9 +402,9 @@ long navigation_rule_normal(long treeA, long treeB)
         if (get_navtree_owner(treeB) == owner_player_navigating)
           return 0;
     }
-    if ((treeB & 0x10) == 0)
+    if ((treeB & NAVMAP_UNSAFE_SURFACE) == 0)
         return 1;
-    if ((treeA & 0x10) != 0)
+    if ((treeA & NAVMAP_UNSAFE_SURFACE) != 0)
         return 1;
     return nav_thing_can_travel_over_lava;
 }

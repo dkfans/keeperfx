@@ -690,10 +690,7 @@ TbBool find_random_sacrifice_center(struct Coord3d *pos, const struct Room *room
             pos->x.val = subtile_coord_center(slab_subtile_center(slb_x));
             pos->y.val = subtile_coord_center(slab_subtile_center(slb_y));
             pos->z.val = subtile_coord(1,0);
-            struct Map* mapblk = get_map_block_at(pos->x.stl.num, pos->y.stl.num);
-            if (((mapblk->flags & SlbAtFlg_Blocking) == 0) && ((mapblk->flags & SlbAtFlg_IsDoor) == 0)
-                && (get_navigation_map_floor_height(pos->x.stl.num, pos->y.stl.num) < 4)
-                )
+            if (subtile_not_part_of_solid_block(pos->x.stl.num, pos->y.stl.num) && !(slab_is_door(pos->x.stl.num, pos->y.stl.num)))
             {
                 return true;
             }

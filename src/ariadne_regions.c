@@ -20,6 +20,7 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
+#include "ariadne.h"
 #include "ariadne_tringls.h"
 
 #ifdef __cplusplus
@@ -221,8 +222,8 @@ TbBool regions_connected(long tree_reg1, long tree_reg2)
         return false;
     if ((tree_reg2 < 0) || (tree_reg2 >= TRIANLGLES_COUNT))
         return false;
-    if (((get_triangle_tree_alt(tree_reg1) & 0x0F) == 0x0F)
-    ||  ((get_triangle_tree_alt(tree_reg2) & 0x0F) == 0x0F))
+    if (((get_triangle_tree_alt(tree_reg1) & NAVMAP_FLOORHEIGHT_MASK) == NAVMAP_FLOORHEIGHT_MASK)
+    ||  ((get_triangle_tree_alt(tree_reg2) & NAVMAP_FLOORHEIGHT_MASK) == NAVMAP_FLOORHEIGHT_MASK))
         return false;
     long reg_id1 = get_triangle_region_id(tree_reg1);
     long reg_id2 = get_triangle_region_id(tree_reg2);

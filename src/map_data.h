@@ -105,6 +105,7 @@ void set_mapblk_wibble_value(struct Map *mapblk, long wib);
 unsigned long get_navigation_map(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 void set_navigation_map(MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned long navcolour);
 unsigned long get_navigation_map_floor_height(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
+TbBool subtile_not_part_of_solid_block(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 
 TbBool set_coords_with_clip(struct Coord3d *pos, MapCoord cor_x, MapCoord cor_y, MapCoord cor_z);
 TbBool subtile_has_slab(MapSubtlCoord stl_x, MapSubtlCoord stl_y);

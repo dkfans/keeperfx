@@ -142,6 +142,16 @@ void set_navigation_map(MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned long 
   game.navigation_map[navmap_tile_number(stl_x,stl_y)] = navcolour;
 }
 
+/**
+ * Returns if the position isn't filled with solid block
+ */
+TbBool subtile_not_part_of_solid_block(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+    struct Map* mapblk = get_map_block_at(stl_x, stl_y);
+    // Check if the position isn't filled with solid block
+    return (((mapblk->flags & SlbAtFlg_Blocking) == 0) && (get_navigation_map_floor_height(stl_x, stl_y) < 4));
+}
+
 unsigned long get_navigation_map_floor_height(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     return get_navigation_map(stl_x, stl_y) & NAVMAP_FLOORHEIGHT_MASK;
