@@ -91,6 +91,8 @@ struct RoomSpace {
     TbBool drag_mode;
 };
 /******************************************************************************/
+// extern int user_defined_roomspace_width;
+// extern int roomspace_detection_looseness;
 extern struct RoomSpace render_roomspace;
 /******************************************************************************/
 int calc_distance_from_roomspace_centre(int total_distance, TbBool offset);
@@ -125,12 +127,15 @@ struct RoomSpace get_dungeon_sell_user_roomspace(PlayerNumber plyr_idx, MapSubtl
 
 struct RoomSpace get_dungeon_build_user_roomspace(PlayerNumber plyr_idx, RoomKind rkind,
     MapSubtlCoord stl_x, MapSubtlCoord stl_y, int *mode, TbBool drag_check);
+struct RoomSpace get_dungeon_build_user_roomspace(PlayerNumber plyr_idx, RoomKind rkind, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned char mode);
 
 void keeper_highlight_roomspace(PlayerNumber plyr_idx, struct RoomSpace *roomspace, int task_allowance_reduction);
 void keeper_sell_roomspace(PlayerNumber plyr_idx, struct RoomSpace *roomspace);
 void keeper_build_roomspace(PlayerNumber plyr_idx, struct RoomSpace *roomspace);
 
 void update_roomspaces();
+
+void process_build_roomspace_inputs(PlayerNumber plyr_idx);
 /******************************************************************************/
 #include "roomspace_detection.h"
 /******************************************************************************/

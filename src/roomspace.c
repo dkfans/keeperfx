@@ -31,6 +31,8 @@
 extern "C" {
 #endif
 /******************************************************************************/
+// int playeradd->user_defined_roomspace_width = DEFAULT_USER_ROOMSPACE_WIDTH;
+// int roomspace_detection_looseness = DEFAULT_USER_ROOMSPACE_DETECTION_LOOSENESS;
 struct RoomSpace render_roomspace = { {{false}}, 1, true, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, false, 0, 0, false, true, false, false, false, false, 0, 0, 0, 0, false };
 /******************************************************************************/
 TbBool can_afford_roomspace(PlayerNumber plyr_idx, RoomKind rkind, int slab_count)
@@ -709,106 +711,46 @@ struct RoomSpace get_dungeon_sell_user_roomspace(PlayerNumber plyr_idx, MapSubtl
     return current_roomspace;
 }
 
-struct RoomSpace get_dungeon_build_user_roomspace(PlayerNumber plyr_idx, RoomKind rkind, MapSubtlCoord stl_x, MapSubtlCoord stl_y, int *mode, TbBool drag_check)
+struct RoomSpace get_dungeon_build_user_roomspace(PlayerNumber plyr_idx, RoomKind rkind, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned char mode)
 {
-    long keycode = 0;
     struct PlayerInfo* player = get_player(plyr_idx);
     struct PlayerInfoAdd* playeradd = get_playeradd(plyr_idx);
     MapSlabCoord slb_x = subtile_slab_fast(stl_x);
     MapSlabCoord slb_y = subtile_slab_fast(stl_y);
-    int width = 1, height = 1; // 1x1 slabs
-    TbBool one_click_mode_exclusive = false;
-    if (rkind == RoK_BRIDGE)
-    {
-        reset_dungeon_build_room_ui_variables(playeradd);
-        if (drag_check) // Enable "paint mode" if Ctrl or Shift are held
-        {
-            one_click_mode_exclusive = true; // Enable GuiLayer_OneClickBridgeBuild layer
-            (*mode) = drag_placement_mode;
-        }
-    }
-    else if (is_game_key_pressed(Gkey_BestRoomSpace, &keycode, true)) // Find "best" room
-    {
-        if (is_game_key_pressed(Gkey_RoomSpaceIncSize, &keycode, true))
-        {
-            if (playeradd->roomspace_detection_looseness < tolerate_gold && playeradd->roomspace_detection_looseness >=disable_tolerance_layers)
-            {
-                playeradd->roomspace_detection_looseness = tolerate_gold;
-            }
-            else if (playeradd->roomspace_detection_looseness != tolerate_rock)
-            {
-                playeradd->roomspace_detection_looseness = tolerate_rock;
-            }
-        }
-        if (is_game_key_pressed(Gkey_RoomSpaceDecSize, &keycode, true))
-        {
-            if (playeradd->roomspace_detection_looseness == tolerate_rock)
-            {
-                playeradd->roomspace_detection_looseness = tolerate_gold;
-            }
-            else if (playeradd->roomspace_detection_looseness != disable_tolerance_layers)
-            {
-                playeradd->roomspace_detection_looseness = disable_tolerance_layers;
-            }
-        }
-        (*mode) = roomspace_detection_mode;
-    }
-    else if (is_game_key_pressed(Gkey_SquareRoomSpace, &keycode, true)) // Define square room (mouse scroll-wheel changes size - default is 5x5)
-    {
-        if (is_game_key_pressed(Gkey_RoomSpaceIncSize, &keycode, true))
-        {
-            if (playeradd->user_defined_roomspace_width != MAX_USER_ROOMSPACE_WIDTH)
-            {
-                playeradd->user_defined_roomspace_width++;
-            }
-        }
-        if (is_game_key_pressed(Gkey_RoomSpaceDecSize, &keycode, true))
-        {
-            if (playeradd->user_defined_roomspace_width != MIN_USER_ROOMSPACE_WIDTH)
-            {
-                playeradd->user_defined_roomspace_width--;
-            }
-        }
-        width = height = playeradd->user_defined_roomspace_width;
-    }
-    else
-    {
-        reset_dungeon_build_room_ui_variables(playeradd);
-        width = height = numpad_to_value(false);
-    }
-
     struct RoomSpace best_roomspace;
     best_roomspace.is_roomspace_a_box = true;
     best_roomspace.render_roomspace_as_box = true;
     struct RoomStats* rstat = room_stats_get_for_kind(rkind);
     best_roomspace.plyr_idx = plyr_idx;
     best_roomspace.rkind = rkind;
-    if ((*mode) == roomspace_detection_mode) // room auto-detection mode
+    int new_width = playeradd->roomspace_width;
+    int new_height = playeradd->roomspace_height;
+    if (mode == roomspace_detection_mode) // room auto-detection mode
     {
         best_roomspace = get_biggest_roomspace(plyr_idx, rkind, slb_x, slb_y, rstat->cost, 0, 32, playeradd->roomspace_detection_looseness);
-        width = best_roomspace.width;
-        height = best_roomspace.height;
+        new_width = best_roomspace.width;
+        new_height = best_roomspace.height;
         slb_x = best_roomspace.centreX;
         slb_y = best_roomspace.centreY;
         player->boxsize = best_roomspace.slab_count; // correct number of tiles always returned from get_biggest_roomspace
     }
-    else if (width == 1 && height == 1)
+    else if (playeradd->roomspace_width == 1 && playeradd->roomspace_height == 1)
     {
-        player->boxsize = can_build_roomspace_of_dimensions(plyr_idx, rkind, slb_x, slb_y, width, height, true); //number of slabs to build, corrected for blocked tiles
-        best_roomspace = create_box_roomspace(best_roomspace, width, height, slb_x, slb_y);
+        player->boxsize = can_build_roomspace_of_dimensions(plyr_idx, rkind, slb_x, slb_y, new_width, new_height, true); //number of slabs to build, corrected for blocked tiles
+        best_roomspace = create_box_roomspace(best_roomspace, new_width, new_height, slb_x, slb_y);
     }
     else
     {
-        struct RoomSpace temp_best_room = create_box_roomspace(best_roomspace, width, height, slb_x, slb_y);
+        struct RoomSpace temp_best_room = create_box_roomspace(best_roomspace, new_width, new_height, slb_x, slb_y);
         temp_best_room = check_slabs_in_roomspace(temp_best_room, plyr_idx, rkind, rstat->cost);
         best_roomspace = temp_best_room;
         player->boxsize = best_roomspace.slab_count; // correct number of tiles returned from check_slabs_in_roomspace
             // Make sure the "outer box" bounding is drawn with square room mode
-            best_roomspace.width = width;
-            best_roomspace.height = height;
+            best_roomspace.width = new_width;
+            best_roomspace.height = new_height;
             best_roomspace.render_roomspace_as_box = true;
     }
-    best_roomspace.one_click_mode_exclusive = one_click_mode_exclusive;
+    best_roomspace.one_click_mode_exclusive = playeradd->one_click_mode_exclusive;
     return best_roomspace; // make sure we can render the correct boundbox to the user
 }
 
@@ -979,6 +921,72 @@ void update_roomspaces()
         {
             keeper_update_roomspace(&get_playeradd(plyr_idx)->roomspace);
         }
+    }
+}
+
+void process_build_roomspace_inputs(PlayerNumber plyr_idx)
+{
+    long keycode = 0;
+    struct PlayerInfo* player = get_player(plyr_idx);
+    struct PlayerInfoAdd* playeradd = get_playeradd(plyr_idx);
+    playeradd->one_click_mode_exclusive = false;
+    if (player->chosen_room_kind == RoK_BRIDGE)
+    {
+        reset_dungeon_build_room_ui_variables(playeradd);
+        if (playeradd->roomspace_drag_check) // Enable "paint mode" if Ctrl or Shift are held
+        {
+            playeradd->one_click_mode_exclusive = true; // Enable GuiLayer_OneClickBridgeBuild layer
+            playeradd->roomspace_mode = drag_placement_mode;
+        }
+    }
+    else if (is_game_key_pressed(Gkey_BestRoomSpace, &keycode, true)) // Find "best" room
+    {
+        if (is_game_key_pressed(Gkey_RoomSpaceIncSize, &keycode, true))
+        {
+            if (playeradd->roomspace_detection_looseness < tolerate_gold && playeradd->roomspace_detection_looseness >=disable_tolerance_layers)
+            {
+                playeradd->roomspace_detection_looseness = tolerate_gold;
+            }
+            else if (playeradd->roomspace_detection_looseness != tolerate_rock)
+            {
+                playeradd->roomspace_detection_looseness = tolerate_rock;
+            }
+        }
+        if (is_game_key_pressed(Gkey_RoomSpaceDecSize, &keycode, true))
+        {
+            if (playeradd->roomspace_detection_looseness == tolerate_rock)
+            {
+                playeradd->roomspace_detection_looseness = tolerate_gold;
+            }
+            else if (playeradd->roomspace_detection_looseness != disable_tolerance_layers)
+            {
+                playeradd->roomspace_detection_looseness = disable_tolerance_layers;
+            }
+        }
+        playeradd->roomspace_mode = roomspace_detection_mode;
+    }
+    else if (is_game_key_pressed(Gkey_SquareRoomSpace, &keycode, true)) // Define square room (mouse scroll-wheel changes size - default is 5x5)
+    {
+        if (is_game_key_pressed(Gkey_RoomSpaceIncSize, &keycode, true))
+        {
+            if (playeradd->user_defined_roomspace_width != MAX_USER_ROOMSPACE_WIDTH)
+            {
+                playeradd->user_defined_roomspace_width++;
+            }
+        }
+        if (is_game_key_pressed(Gkey_RoomSpaceDecSize, &keycode, true))
+        {
+            if (playeradd->user_defined_roomspace_width != MIN_USER_ROOMSPACE_WIDTH)
+            {
+                playeradd->user_defined_roomspace_width--;
+            }
+        }
+        playeradd->roomspace_width = playeradd->roomspace_height = playeradd->user_defined_roomspace_width;
+    }
+    else
+    {
+        reset_dungeon_build_room_ui_variables(playeradd);
+        playeradd->roomspace_width = playeradd->roomspace_height = numpad_to_value(false);
     }
 }
 /******************************************************************************/

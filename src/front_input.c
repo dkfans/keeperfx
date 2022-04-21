@@ -1088,6 +1088,7 @@ long get_dungeon_control_action_inputs(void)
         {
             playeradd->roomspace_mode = box_placement_mode;
             set_packet_action(pckt, PckA_SetRoomspace, pos.x.stl.num, pos.y.stl.num, 0, 0);
+            process_build_roomspace_inputs(my_player_number);
         }
     }
     if (is_game_key_pressed(Gkey_SwitchToMap, &val, false))
