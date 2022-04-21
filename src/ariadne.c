@@ -386,7 +386,7 @@ long navigation_rule_normal(long treeA, long treeB)
     int difference = ((treeB & NAVMAP_FLOORHEIGHT_MAX) - (treeA & NAVMAP_FLOORHEIGHT_MAX));
     if (difference > 1) // Creatures can walk over one block height difference
     {
-        if (difference < COLUMN_STACK_HEIGHT)
+        if (difference <= 4) // Flying creatures to go up to 4 blocks heigh
         {
             return nav_thing_can_fly_over_obstacles;
         }
