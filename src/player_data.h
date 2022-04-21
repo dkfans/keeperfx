@@ -245,6 +245,11 @@ struct PlayerInfoAdd {
     struct RoomSpace render_roomspace;
     struct RoomSpace roomspace;
     TbBool roomspace_drag_check;
+    unsigned char roomspace_mode;
+    int user_defined_roomspace_width;
+    int roomspace_detection_looseness;
+    MapSubtlCoord roomspace_stl_x;
+    MapSubtlCoord roomspace_stl_y;
     };
 
 /******************************************************************************/

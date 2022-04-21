@@ -91,8 +91,6 @@ struct RoomSpace {
     TbBool drag_mode;
 };
 /******************************************************************************/
-extern int user_defined_roomspace_width;
-extern int roomspace_detection_looseness;
 extern struct RoomSpace render_roomspace;
 /******************************************************************************/
 int calc_distance_from_roomspace_centre(int total_distance, TbBool offset);

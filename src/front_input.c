@@ -1081,8 +1081,14 @@ long get_dungeon_control_action_inputs(void)
     else if (player->work_state == PSt_BuildRoom)
     {
         struct Packet* pckt = get_packet(my_player_number);
-        struct PlayerInfoAdd* playeradd = get_playeradd(player->id_number);
+        struct PlayerInfoAdd* playeradd = get_playeradd(my_player_number);
         playeradd->roomspace_drag_check = ((is_game_key_pressed(Gkey_BestRoomSpace, &val, true) || is_game_key_pressed(Gkey_SquareRoomSpace, &val, true)) && ((pckt->control_flags & PCtr_LBtnHeld) == PCtr_LBtnHeld));
+        struct Coord3d pos;
+        if (screen_to_map(player->acamera, GetMouseX(), GetMouseY(), &pos))
+        {
+            playeradd->roomspace_mode = box_placement_mode;
+            set_packet_action(pckt, PckA_SetRoomspace, pos.x.stl.num, pos.y.stl.num, 0, 0);
+        }
     }
     if (is_game_key_pressed(Gkey_SwitchToMap, &val, false))
     {

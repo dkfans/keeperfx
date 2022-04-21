@@ -82,7 +82,6 @@ TbBool process_dungeon_control_packet_dungeon_build_room(long plyr_idx)
     MapCoord y = ((unsigned short)pckt->pos_y);
     MapSubtlCoord stl_x = coord_subtile(x);
     MapSubtlCoord stl_y = coord_subtile(y);
-    int mode = box_placement_mode;
     if ((pckt->control_flags & PCtr_MapCoordsValid) == 0)
     {
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && (player->cursor_button_down != 0))
@@ -104,10 +103,9 @@ TbBool process_dungeon_control_packet_dungeon_build_room(long plyr_idx)
         drag_check = false; // Disable due to lack of network support
     }
     */
-    playeradd->render_roomspace = get_dungeon_build_user_roomspace(player->id_number, player->chosen_room_kind, stl_x, stl_y, &mode, playeradd->roomspace_drag_check);
+    playeradd->render_roomspace = get_dungeon_build_user_roomspace(player->id_number, player->chosen_room_kind, playeradd->roomspace_stl_x, playeradd->roomspace_stl_y, &playeradd->roomspace_mode, playeradd->roomspace_drag_check);
     long i = tag_cursor_blocks_place_room(player->id_number, stl_x, stl_y, player->full_slab_cursor);
-
-    if (mode != drag_placement_mode) // allows the user to hold the left mouse to use "paint mode"
+    if (playeradd->roomspace_mode != drag_placement_mode) // allows the user to hold the left mouse to use "paint mode"
     {
         if ((pckt->control_flags & PCtr_LBtnClick) == 0)
         {
@@ -128,23 +126,26 @@ TbBool process_dungeon_control_packet_dungeon_build_room(long plyr_idx)
     }
     if (i == 0)
     {
-        if (is_my_player(player))
+        if (can_build_room_at_slab(player->id_number, player->chosen_room_kind, subtile_slab_fast(stl_x), subtile_slab_fast(stl_y)))
         {
-            if (can_build_room_at_slab(player->id_number, player->chosen_room_kind, subtile_slab_fast(stl_x), subtile_slab_fast(stl_y)))
+            struct Dungeon* dungeon = get_dungeon(player->id_number);
+            if (playeradd->render_roomspace.total_roomspace_cost > dungeon->total_money_owned)
             {
-                struct Dungeon* dungeon = get_dungeon(player->id_number);
-                if (playeradd->render_roomspace.total_roomspace_cost > dungeon->total_money_owned)
+                if (is_my_player(player))
                 {
                     output_message(SMsg_GoldNotEnough, 0, true);
                 }
             }
-            else
+        }
+        else
+        {
+            if (is_my_player(player))
             {
                 play_non_3d_sample(119);
             }
-            unset_packet_control(pckt, PCtr_LBtnClick);
         }
-        return false;
+        unset_packet_control(pckt, PCtr_LBtnClick);
+      return false;
     }
     if (player->boxsize > 0)
     {
