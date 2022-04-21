@@ -388,7 +388,7 @@ long navigation_rule_normal(long treeA, long treeB)
     {
         if (difference < COLUMN_STACK_HEIGHT)
         {
-            return creature_can_fly_over_obstacles;
+            return nav_thing_can_fly_over_obstacles;
         }
         else
         {
@@ -2698,6 +2698,7 @@ AriadneReturn ariadne_prepare_creature_route_to_target_f(const struct Thing *thi
     LbMemorySet(&path, 0, sizeof(struct Path));
     // Set the required parameters
     nav_thing_can_travel_over_lava = creature_can_travel_over_lava(thing);
+    nav_thing_can_fly_over_obstacles = creature_can_fly_over_obstacles(thing);
     if ((flags & AridRtF_NoOwner) != 0)
         owner_player_navigating = -1;
     else
@@ -2709,6 +2710,7 @@ AriadneReturn ariadne_prepare_creature_route_to_target_f(const struct Thing *thi
         dstpos->x.val, dstpos->y.val, -2, nav_sizexy, func_name);
     // Reset globals
     nav_thing_can_travel_over_lava = 0;
+    nav_thing_can_fly_over_obstacles = 0;
     owner_player_navigating = -1;
     // Fill the Ariadne struct
     arid->startpos.x.val = srcpos->x.val;
@@ -2774,6 +2776,7 @@ long ariadne_count_waypoints_on_creature_route_to_target_f(const struct Thing *t
     LbMemorySet(&path, 0, sizeof(struct Path));
     // Set the required parameters
     nav_thing_can_travel_over_lava = creature_can_travel_over_lava(thing);
+    nav_thing_can_fly_over_obstacles = creature_can_fly_over_obstacles(thing);
     if ((flags & AridRtF_NoOwner) != 0)
         owner_player_navigating = -1;
     else
@@ -2785,6 +2788,7 @@ long ariadne_count_waypoints_on_creature_route_to_target_f(const struct Thing *t
         dstpos->x.val, dstpos->y.val, -2, nav_sizexy, func_name);
     // Reset globals
     nav_thing_can_travel_over_lava = 0;
+    nav_thing_can_fly_over_obstacles = 0;
     owner_player_navigating = -1;
     // Note: since this point, the function body should be identical to ariadne_prepare_creature_route_to_target().
     NAVIDBG(19,"%s: Finished, %d waypoints",func_name,(int)path.waypoints_num);

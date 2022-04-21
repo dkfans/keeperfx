@@ -40,6 +40,9 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+long nav_thing_can_fly_over_obstacles;
+
 /******************************************************************************/
 DLLIMPORT long _DK_get_next_gap_creature_can_fit_in_below_point(struct Thing *creatng, struct Coord3d *pos);
 /******************************************************************************/
@@ -115,6 +118,7 @@ static void get_nearest_navigable_point_for_thing(struct Thing *thing, struct Co
     long px;
     long py;
     nav_thing_can_travel_over_lava = creature_can_travel_over_lava(thing);
+    nav_thing_can_fly_over_obstacles = creature_can_fly_over_obstacles(thing);
     if ((flags & AridRtF_NoOwner) != 0)
         owner_player_navigating = -1;
     else
@@ -129,6 +133,7 @@ static void get_nearest_navigable_point_for_thing(struct Thing *thing, struct Co
     if (thing_in_wall_at(thing, pos2))
         get_nearest_valid_position_for_creature_at(thing, pos2);
     nav_thing_can_travel_over_lava = 0;
+    nav_thing_can_fly_over_obstacles = 0;
 }
 HOOK_DK_FUNC(get_nearest_navigable_point_for_thing)
 
