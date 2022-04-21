@@ -83,7 +83,6 @@ TbBool process_dungeon_control_packet_dungeon_build_room(long plyr_idx)
     MapSubtlCoord stl_x = coord_subtile(x);
     MapSubtlCoord stl_y = coord_subtile(y);
     int mode = box_placement_mode;
-    long keycode = 0;
     if ((pckt->control_flags & PCtr_MapCoordsValid) == 0)
     {
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && (player->cursor_button_down != 0))
@@ -98,12 +97,14 @@ TbBool process_dungeon_control_packet_dungeon_build_room(long plyr_idx)
     {
         gui_room_type_highlighted = player->chosen_room_kind;
     }
+    /*
     TbBool drag_check = ((is_game_key_pressed(Gkey_BestRoomSpace, &keycode, true) || is_game_key_pressed(Gkey_SquareRoomSpace, &keycode, true)) && ((pckt->control_flags & PCtr_LBtnHeld) == PCtr_LBtnHeld));
     if (game.system_flags & GSF_NetworkActive)
     {
         drag_check = false; // Disable due to lack of network support
     }
-    playeradd->render_roomspace = get_dungeon_build_user_roomspace(player->id_number, player->chosen_room_kind, stl_x, stl_y, &mode, drag_check);
+    */
+    playeradd->render_roomspace = get_dungeon_build_user_roomspace(player->id_number, player->chosen_room_kind, stl_x, stl_y, &mode, playeradd->roomspace_drag_check);
     long i = tag_cursor_blocks_place_room(player->id_number, stl_x, stl_y, player->full_slab_cursor);
 
     if (mode != drag_placement_mode) // allows the user to hold the left mouse to use "paint mode"

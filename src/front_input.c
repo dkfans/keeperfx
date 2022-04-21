@@ -1078,6 +1078,12 @@ long get_dungeon_control_action_inputs(void)
     {
         process_cheat_mode_selection_inputs();
     }
+    else if (player->work_state == PSt_BuildRoom)
+    {
+        struct Packet* pckt = get_packet(my_player_number);
+        struct PlayerInfoAdd* playeradd = get_playeradd(player->id_number);
+        playeradd->roomspace_drag_check = ((is_game_key_pressed(Gkey_BestRoomSpace, &val, true) || is_game_key_pressed(Gkey_SquareRoomSpace, &val, true)) && ((pckt->control_flags & PCtr_LBtnHeld) == PCtr_LBtnHeld));
+    }
     if (is_game_key_pressed(Gkey_SwitchToMap, &val, false))
     {
       clear_key_pressed(val);
