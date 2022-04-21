@@ -55,10 +55,9 @@ TbBool thing_touching_flight_altitude(const struct Thing *thing)
     if (thing->veloc_push_add.z.val != 0) {
         return false;
     }
-    int navi_radius = 2 * subtile_coord(thing_nav_block_sizexy(thing), 0);
-    long flying_alt = get_thing_height_at_with_radius(thing, &thing->mappos, navi_radius);
-    return (thing->mappos.z.val >= flying_alt + 16*NORMAL_FLYING_ALTITUDE/17)
-        && (thing->mappos.z.val <= flying_alt + 19*NORMAL_FLYING_ALTITUDE/17);
+    int floor_height = get_floor_height_under_thing_at(thing, &thing->mappos);
+    return (thing->mappos.z.val >= floor_height + 16 * NORMAL_FLYING_ALTITUDE / 17)
+        && (thing->mappos.z.val <= floor_height + 19 * NORMAL_FLYING_ALTITUDE / 17);
 }
 
 TbBool thing_above_flight_altitude(const struct Thing* thing)
