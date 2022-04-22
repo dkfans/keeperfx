@@ -933,7 +933,7 @@ void process_build_roomspace_inputs(PlayerNumber plyr_idx)
     playeradd->one_click_mode_exclusive = false;
     if (player->chosen_room_kind == RoK_BRIDGE)
     {
-        reset_dungeon_build_room_ui_variables(playeradd);
+        reset_dungeon_build_room_ui_variables(plyr_idx);
         if (playeradd->roomspace_drag_check) // Enable "paint mode" if Ctrl or Shift are held
         {
             playeradd->one_click_mode_exclusive = true; // Enable GuiLayer_OneClickBridgeBuild layer
@@ -990,7 +990,7 @@ void process_build_roomspace_inputs(PlayerNumber plyr_idx)
     }
     else
     {
-        reset_dungeon_build_room_ui_variables(playeradd);
+        reset_dungeon_build_room_ui_variables(plyr_idx);
         playeradd->roomspace_width = playeradd->roomspace_height = numpad_to_value(false);
         playeradd->roomspace_mode = box_placement_mode;
     }
