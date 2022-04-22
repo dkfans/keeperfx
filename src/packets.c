@@ -883,9 +883,10 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       return false;
   case PckA_SetRoomspace:
     {
-        struct PlayerInfoAdd* playeradd = get_playeradd(plyr_idx);
-        playeradd->roomspace_stl_x = pckt->actn_par1;
-        playeradd->roomspace_stl_y = pckt->actn_par2;
+        playeradd->roomspace_stl_x = (unsigned char)pckt->actn_par1;
+        playeradd->roomspace_stl_y = (unsigned char)(pckt->actn_par1 >> 8);
+        playeradd->roomspace_detection_looseness = (unsigned char)pckt->actn_par2;
+        playeradd->roomspace_mode = (unsigned char)(pckt->actn_par2 >> 8);
         return false;
     }
     default:
