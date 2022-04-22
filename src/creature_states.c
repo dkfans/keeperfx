@@ -4000,9 +4000,7 @@ long get_thing_navigation_distance(struct Thing* creatng, struct Coord3d* pos, u
 {
     if (pos->x.val == creatng->mappos.x.val && pos->y.val == creatng->mappos.y.val)
         return 0;
-
-    nav_thing_can_travel_over_lava = creature_can_travel_over_lava(creatng);
-    nav_thing_can_fly_over_obstacles = creature_can_fly_over_obstacles(creatng);
+    set_navigation_rule_for_creature(creatng);
     if (resetOwnerPlayerNavigating)
         owner_player_navigating = -1;
     else
@@ -4018,8 +4016,7 @@ long get_thing_navigation_distance(struct Thing* creatng, struct Coord3d* pos, u
         pos->x.val,
         pos->y.val,
 	    -2, nav_sizexy, __func__);
-    nav_thing_can_travel_over_lava = 0;
-    nav_thing_can_fly_over_obstacles = 0;
+    reset_navigation_rule();
 
     int distance = 0;
     if (!path.waypoints_num)

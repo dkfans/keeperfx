@@ -360,7 +360,7 @@ void init_navigation_map(void)
 static long get_navtree_owner(long treeI)
 {
     long owner;
-    owner = ((treeI & 0xE0) >> 5) - 1;
+    owner = ((treeI & 0xE0) >> NAVMAP_OWNERSELECT_BIT) - 1;
     if (owner == 5)
     {
         owner = game.hero_player_num;
@@ -381,21 +381,48 @@ long Keeper_nav_rulesA2B(long treeA, long treeB)
     return 2;
 }
 
+long navigation_rule_flying(long treeA, long treeB)
+{
+    int difference = ((treeB & NAVMAP_FLOORHEIGHT_MAX) - (treeA & NAVMAP_FLOORHEIGHT_MAX));
+    if (difference > 4) // Flying creatures are allowed 4 blocks height difference
+    {
+        return 0;
+    }
+    if ((treeB & 0xF0) == 0)
+        return 1;
+    if (owner_player_navigating != -1)
+    {
+        if (get_navtree_owner(treeB) == owner_player_navigating)
+            return 0;
+    }
+    return 1;
+}
+
+long navigation_rule_fireproof(long treeA, long treeB)
+{
+    int difference = ((treeB & NAVMAP_FLOORHEIGHT_MAX) - (treeA & NAVMAP_FLOORHEIGHT_MAX));
+    if (difference > 1) // Creatures can walk over one block height difference
+    {
+        return 0;
+    }
+    if ((treeB & 0xF0) == 0)
+        return 1;
+    if (owner_player_navigating != -1)
+    {
+        if (get_navtree_owner(treeB) == owner_player_navigating)
+            return 0;
+    }
+    return true;
+}
+
 long navigation_rule_normal(long treeA, long treeB)
 {
     int difference = ((treeB & NAVMAP_FLOORHEIGHT_MAX) - (treeA & NAVMAP_FLOORHEIGHT_MAX));
     if (difference > 1) // Creatures can walk over one block height difference
     {
-        if (difference <= 4) // Flying creatures to go up to 4 blocks heigh
-        {
-            return nav_thing_can_fly_over_obstacles;
-        }
-        else
-        {
-            return 0; 
-        }
+        return 0;
     }
-    if ((treeB & 0xF0) == 0)
+    if ((treeB & 0xF0) == 0) // Neither owned nor unsafe surface
       return 1;
     if (owner_player_navigating != -1)
     {
@@ -406,7 +433,7 @@ long navigation_rule_normal(long treeA, long treeB)
         return 1;
     if ((treeA & NAVMAP_UNSAFE_SURFACE) != 0)
         return 1;
-    return nav_thing_can_travel_over_lava;
+    return 0;
 }
 
 long init_navigation(void)
@@ -2677,6 +2704,28 @@ AriadneReturn ariadne_prepare_creature_route_target_reached(const struct Thing *
     return AridRet_OK;
 }
 
+
+void set_navigation_rule_for_creature(const struct Thing* creatng)
+{
+    if (creature_can_fly_over_obstacles(creatng))
+    {
+        nav_rulesA2B = navigation_rule_flying;
+    }
+    else if (creature_can_travel_over_lava(creatng))
+    {
+        nav_rulesA2B = navigation_rule_fireproof;
+    }
+    else
+    {
+        nav_rulesA2B = navigation_rule_normal;
+    }
+}
+
+void reset_navigation_rule()
+{
+    nav_rulesA2B = navigation_rule_normal;
+}
+
 /**
  * Prepares creature route from source to destination position.
  * @param thing
@@ -2696,9 +2745,7 @@ AriadneReturn ariadne_prepare_creature_route_to_target_f(const struct Thing *thi
     NAVIDBG(18,"%s: The %s index %d from %3d,%3d to %3d,%3d", func_name, thing_model_name(thing), (int)thing->index,
         (int)srcpos->x.stl.num, (int)srcpos->y.stl.num, (int)dstpos->x.stl.num, (int)dstpos->y.stl.num);
     LbMemorySet(&path, 0, sizeof(struct Path));
-    // Set the required parameters
-    nav_thing_can_travel_over_lava = creature_can_travel_over_lava(thing);
-    nav_thing_can_fly_over_obstacles = creature_can_fly_over_obstacles(thing);
+    set_navigation_rule_for_creature(thing);
     if ((flags & AridRtF_NoOwner) != 0)
         owner_player_navigating = -1;
     else
@@ -2709,8 +2756,7 @@ AriadneReturn ariadne_prepare_creature_route_to_target_f(const struct Thing *thi
     path_init8_wide_f(&path, srcpos->x.val, srcpos->y.val,
         dstpos->x.val, dstpos->y.val, -2, nav_sizexy, func_name);
     // Reset globals
-    nav_thing_can_travel_over_lava = 0;
-    nav_thing_can_fly_over_obstacles = 0;
+    reset_navigation_rule();
     owner_player_navigating = -1;
     // Fill the Ariadne struct
     arid->startpos.x.val = srcpos->x.val;
@@ -2775,8 +2821,7 @@ long ariadne_count_waypoints_on_creature_route_to_target_f(const struct Thing *t
         (int)srcpos->x.stl.num, (int)srcpos->y.stl.num, (int)dstpos->x.stl.num, (int)dstpos->y.stl.num);
     LbMemorySet(&path, 0, sizeof(struct Path));
     // Set the required parameters
-    nav_thing_can_travel_over_lava = creature_can_travel_over_lava(thing);
-    nav_thing_can_fly_over_obstacles = creature_can_fly_over_obstacles(thing);
+    set_navigation_rule_for_creature(thing);
     if ((flags & AridRtF_NoOwner) != 0)
         owner_player_navigating = -1;
     else
@@ -2787,8 +2832,7 @@ long ariadne_count_waypoints_on_creature_route_to_target_f(const struct Thing *t
     path_init8_wide_f(&path, srcpos->x.val, srcpos->y.val,
         dstpos->x.val, dstpos->y.val, -2, nav_sizexy, func_name);
     // Reset globals
-    nav_thing_can_travel_over_lava = 0;
-    nav_thing_can_fly_over_obstacles = 0;
+    reset_navigation_rule();
     owner_player_navigating = -1;
     // Note: since this point, the function body should be identical to ariadne_prepare_creature_route_to_target().
     NAVIDBG(19,"%s: Finished, %d waypoints",func_name,(int)path.waypoints_num);

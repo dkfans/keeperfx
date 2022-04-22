@@ -271,6 +271,15 @@ long thing_nav_sizexy(const struct Thing *thing);
 void clear_wallhugging_path(struct Navigation *navi);
 void initialise_wallhugging_path_from_to(struct Navigation *navi, struct Coord3d *mvstart, struct Coord3d *mvend);
 
+
+void set_navigation_rule_for_creature(const struct Thing* creatng);
+void reset_navigation_rule();
+long navigation_rule_normal(long treeA, long treeB);
+long navigation_rule_fireproof(long treeA, long treeB);
+long navigation_rule_flying(long treeA, long treeB);
+
+extern long nav_rulesA2B;
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

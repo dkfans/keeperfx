@@ -456,7 +456,7 @@ long count_creatures_availiable_for_fight(struct Computer2 *comp, struct Coord3d
         // Thing list loop body
         if (cctrl->combat_flags == 0)
         {
-            if ((pos == NULL) || creature_can_navigate_to(thing, pos, 1)) {
+            if ((pos == NULL) || creature_can_navigate_to(thing, pos, NavRtF_NoOwner)) {
                 count++;
             }
         }
