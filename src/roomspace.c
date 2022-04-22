@@ -935,18 +935,19 @@ void process_build_roomspace_inputs(PlayerNumber plyr_idx)
     if (screen_to_map(player->acamera, GetMouseX(), GetMouseY(), &pos))
     {
         long keycode = 0;
-        unsigned char mode, looseness;
+        unsigned char looseness;
         struct Packet* pckt = get_packet(plyr_idx);
-        playeradd->roomspace_drag_check = ((is_game_key_pressed(Gkey_BestRoomSpace, &keycode, true) || is_game_key_pressed(Gkey_SquareRoomSpace, &keycode, true)) && ((pckt->control_flags & PCtr_LBtnHeld) == PCtr_LBtnHeld));
-        playeradd->one_click_mode_exclusive = false;
+        unsigned short par1;
         if (player->chosen_room_kind == RoK_BRIDGE)
         {
-            looseness = DEFAULT_USER_ROOMSPACE_DETECTION_LOOSENESS;
-            playeradd->user_defined_roomspace_width = DEFAULT_USER_ROOMSPACE_WIDTH;
-            if (playeradd->roomspace_drag_check) // Enable "paint mode" if Ctrl or Shift are held
+            TbBool drag_check = ((is_game_key_pressed(Gkey_BestRoomSpace, &keycode, true) || is_game_key_pressed(Gkey_SquareRoomSpace, &keycode, true)) && ((pckt->control_flags & PCtr_LBtnHeld) == PCtr_LBtnHeld));
+            if (drag_check) // Enable "paint mode" if Ctrl or Shift are held
             {
-                playeradd->one_click_mode_exclusive = true; // Enable GuiLayer_OneClickBridgeBuild layer
-                mode = drag_placement_mode;
+                set_packet_action(pckt, PckA_SetRoomspaceDrag, pos.x.stl.num, pos.y.stl.num, 0, 0);
+            }
+            else
+            {
+                set_packet_action(pckt, PckA_SetRoomspaceDefault, pos.x.stl.num, pos.y.stl.num, 0, 0);
             }
         }
         else if (is_game_key_pressed(Gkey_BestRoomSpace, &keycode, true)) // Find "best" room
@@ -977,36 +978,34 @@ void process_build_roomspace_inputs(PlayerNumber plyr_idx)
             {
                 looseness = DEFAULT_USER_ROOMSPACE_DETECTION_LOOSENESS;
             }
-            mode = roomspace_detection_mode;
+            par1 = (pos.x.stl.num | (pos.y.stl.num << 8));
+            set_packet_action(pckt, PckA_SetRoomspaceAuto, par1, looseness, 0, 0);
         }
         else if (is_game_key_pressed(Gkey_SquareRoomSpace, &keycode, true)) // Define square room (mouse scroll-wheel changes size - default is 5x5)
         {
+            int width = playeradd->user_defined_roomspace_width;
+            par1 = (pos.x.stl.num | (pos.y.stl.num << 8));
             if (is_game_key_pressed(Gkey_RoomSpaceIncSize, &keycode, true))
             {
-                if (playeradd->user_defined_roomspace_width != MAX_USER_ROOMSPACE_WIDTH)
+                if (width != MAX_USER_ROOMSPACE_WIDTH)
                 {
-                    playeradd->user_defined_roomspace_width++;
+                    width++;
+                    set_packet_action(pckt, PckA_SetRoomspaceMan, par1, width, 0, 0);
                 }
             }
             if (is_game_key_pressed(Gkey_RoomSpaceDecSize, &keycode, true))
             {
-                if (playeradd->user_defined_roomspace_width != MIN_USER_ROOMSPACE_WIDTH)
+                if (width != MIN_USER_ROOMSPACE_WIDTH)
                 {
-                    playeradd->user_defined_roomspace_width--;
+                    width--;
+                    set_packet_action(pckt, PckA_SetRoomspaceMan, par1, width, 0, 0);
                 }
             }
-            playeradd->roomspace_width = playeradd->roomspace_height = playeradd->user_defined_roomspace_width;
         }
         else
         {
-            looseness = DEFAULT_USER_ROOMSPACE_DETECTION_LOOSENESS;
-            playeradd->user_defined_roomspace_width = DEFAULT_USER_ROOMSPACE_WIDTH;
-            playeradd->roomspace_width = playeradd->roomspace_height = numpad_to_value(false);
-            mode = box_placement_mode;
+            set_packet_action(pckt, PckA_SetRoomspaceDefault, pos.x.stl.num, pos.y.stl.num, 0, 0);
         }
-        unsigned short par1 = (pos.x.stl.num | (pos.y.stl.num << 8));
-        unsigned short par2 = (looseness | (mode << 8));
-        set_packet_action(pckt, PckA_SetRoomspace, par1, par2, 0, 0);
     }
 }
 /******************************************************************************/
