@@ -935,7 +935,6 @@ void process_build_roomspace_inputs(PlayerNumber plyr_idx)
     if (screen_to_map(player->acamera, GetMouseX(), GetMouseY(), &pos))
     {
         long keycode = 0;
-        unsigned char looseness;
         struct Packet* pckt = get_packet(plyr_idx);
         unsigned short par1;
         if (player->chosen_room_kind == RoK_BRIDGE)
@@ -952,6 +951,7 @@ void process_build_roomspace_inputs(PlayerNumber plyr_idx)
         }
         else if (is_game_key_pressed(Gkey_BestRoomSpace, &keycode, true)) // Find "best" room
         {
+            unsigned char looseness = playeradd->roomspace_detection_looseness;
             if (is_game_key_pressed(Gkey_RoomSpaceIncSize, &keycode, true))
             {
                 if (looseness < tolerate_gold && looseness >= disable_tolerance_layers)
@@ -973,10 +973,6 @@ void process_build_roomspace_inputs(PlayerNumber plyr_idx)
                 {
                     looseness = disable_tolerance_layers;
                 }
-            }
-            else
-            {
-                looseness = DEFAULT_USER_ROOMSPACE_DETECTION_LOOSENESS;
             }
             par1 = (pos.x.stl.num | (pos.y.stl.num << 8));
             set_packet_action(pckt, PckA_SetRoomspaceAuto, par1, looseness, 0, 0);
