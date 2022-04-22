@@ -939,7 +939,7 @@ void process_build_roomspace_inputs(PlayerNumber plyr_idx)
         unsigned short par1;
         if (player->chosen_room_kind == RoK_BRIDGE)
         {
-            TbBool drag_check = ((is_game_key_pressed(Gkey_BestRoomSpace, &keycode, true) || is_game_key_pressed(Gkey_SquareRoomSpace, &keycode, true)) && ((pckt->control_flags & PCtr_LBtnHeld) == PCtr_LBtnHeld));
+            TbBool drag_check = ((is_game_key_pressed(Gkey_BestRoomSpace, &keycode, true) || is_game_key_pressed(Gkey_SquareRoomSpace, &keycode, true)) && (left_button_held));
             if (drag_check) // Enable "paint mode" if Ctrl or Shift are held
             {
                 set_packet_action(pckt, PckA_SetRoomspaceDrag, pos.x.stl.num, pos.y.stl.num, 0, 0);
