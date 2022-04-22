@@ -456,7 +456,7 @@ int numpad_to_value(TbBool allow_zero)
     }
     else if (is_key_pressed(KC_NUMPAD4, KMod_DONTCARE))
     {
-        value =4;
+        value = 4;
     }
     else if (is_key_pressed(KC_NUMPAD5, KMod_DONTCARE))
     {
@@ -946,7 +946,8 @@ void process_build_roomspace_inputs(PlayerNumber plyr_idx)
             }
             else
             {
-                set_packet_action(pckt, PckA_SetRoomspaceDefault, pos.x.stl.num, pos.y.stl.num, 0, 0);
+                par1 = (pos.x.stl.num | (pos.y.stl.num << 8));
+                set_packet_action(pckt, PckA_SetRoomspaceDefault, par1, 1, 0, 0);
             }
         }
         else if (is_game_key_pressed(Gkey_BestRoomSpace, &keycode, true)) // Find "best" room
@@ -1000,7 +1001,9 @@ void process_build_roomspace_inputs(PlayerNumber plyr_idx)
         }
         else
         {
-            set_packet_action(pckt, PckA_SetRoomspaceDefault, pos.x.stl.num, pos.y.stl.num, 0, 0);
+            int size = numpad_to_value(false);
+            par1 = (pos.x.stl.num | (pos.y.stl.num << 8));
+            set_packet_action(pckt, PckA_SetRoomspaceDefault, par1, size, 0, 0);
         }
     }
 }
