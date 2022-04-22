@@ -479,8 +479,9 @@ int numpad_to_value(TbBool allow_zero)
     return value;
 }
 
-void reset_dungeon_build_room_ui_variables(struct PlayerInfoAdd* playeradd)
+void reset_dungeon_build_room_ui_variables(PlayerNumber plyr_idx)
 {
+    struct PlayerInfoAdd* playeradd = get_playeradd(plyr_idx);
     playeradd->roomspace_detection_looseness = DEFAULT_USER_ROOMSPACE_DETECTION_LOOSENESS;
     playeradd->user_defined_roomspace_width = DEFAULT_USER_ROOMSPACE_WIDTH;
 }
@@ -520,7 +521,7 @@ void get_dungeon_highlight_user_roomspace(PlayerNumber plyr_idx, MapSubtlCoord s
         // because player cancelled a tag/untag with RMB, we need to default back to vanilla 1x1 box
         playeradd->render_roomspace.drag_mode = false;
         dungeonadd->one_click_lock_cursor = false;
-        reset_dungeon_build_room_ui_variables(playeradd);
+        reset_dungeon_build_room_ui_variables(plyr_idx);
         current_roomspace = create_box_roomspace(playeradd->render_roomspace, width, height, slb_x, slb_y);
         current_roomspace.highlight_mode = false;
         current_roomspace.untag_mode = false;
@@ -612,7 +613,7 @@ void get_dungeon_highlight_user_roomspace(PlayerNumber plyr_idx, MapSubtlCoord s
     }
     else
     {
-        reset_dungeon_build_room_ui_variables(playeradd);
+        reset_dungeon_build_room_ui_variables(plyr_idx);
         width = height = numpad_to_value(false);
         current_roomspace = create_box_roomspace(playeradd->render_roomspace, width, height, slb_x, slb_y);
         
@@ -700,7 +701,7 @@ struct RoomSpace get_dungeon_sell_user_roomspace(PlayerNumber plyr_idx, MapSubtl
         }
         else
         {
-            reset_dungeon_build_room_ui_variables(playeradd);
+            reset_dungeon_build_room_ui_variables(plyr_idx);
             width = height = numpad_to_value(false);
             
         }
@@ -987,6 +988,7 @@ void process_build_roomspace_inputs(PlayerNumber plyr_idx)
     {
         reset_dungeon_build_room_ui_variables(playeradd);
         playeradd->roomspace_width = playeradd->roomspace_height = numpad_to_value(false);
+        playeradd->roomspace_mode = box_placement_mode;
     }
 }
 /******************************************************************************/

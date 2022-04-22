@@ -881,6 +881,13 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       set_player_mode(player, pckt->actn_par1);
       set_engine_view(player, player->view_mode_restore);
       return false;
+  case PckA_SetRoomspace:
+    {
+        struct PlayerInfoAdd* playeradd = get_playeradd(plyr_idx);
+        playeradd->roomspace_stl_x = pckt->actn_par1;
+        playeradd->roomspace_stl_y = pckt->actn_par2;
+        return false;
+    }
     default:
       return process_players_global_cheats_packet_action(plyr_idx, pckt);
   }
@@ -972,7 +979,6 @@ void process_players_creature_passenger_packet_action(long plyr_idx)
 TbBool process_players_dungeon_control_packet_action(long plyr_idx)
 {
     struct PlayerInfo* player = get_player(plyr_idx);
-    struct PlayerInfoAdd* playeradd = get_playeradd(plyr_idx);
     struct Packet* pckt = get_packet_direct(player->packet_num);
     SYNCDBG(6,"Processing player %d action %d",(int)plyr_idx,(int)pckt->action);
     switch (pckt->action)
@@ -993,12 +999,6 @@ TbBool process_players_dungeon_control_packet_action(long plyr_idx)
     case PckA_ToggleComputer:
         toggle_computer_player(plyr_idx);
         break;
-    case PckA_SetRoomspace:
-    {
-        playeradd->roomspace_stl_x = pckt->actn_par1;
-        playeradd->roomspace_stl_y = pckt->actn_par2;
-        break;
-    }
     default:
         return process_players_dungeon_control_cheats_packet_action(plyr_idx, pckt);
     }
