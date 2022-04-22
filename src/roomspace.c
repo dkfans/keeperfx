@@ -953,7 +953,7 @@ void process_build_roomspace_inputs(PlayerNumber plyr_idx)
                 playeradd->roomspace_detection_looseness = tolerate_rock;
             }
         }
-        if (is_game_key_pressed(Gkey_RoomSpaceDecSize, &keycode, true))
+        else if (is_game_key_pressed(Gkey_RoomSpaceDecSize, &keycode, true))
         {
             if (playeradd->roomspace_detection_looseness == tolerate_rock)
             {
@@ -963,6 +963,10 @@ void process_build_roomspace_inputs(PlayerNumber plyr_idx)
             {
                 playeradd->roomspace_detection_looseness = disable_tolerance_layers;
             }
+        }
+        else
+        {
+            playeradd->roomspace_detection_looseness = DEFAULT_USER_ROOMSPACE_DETECTION_LOOSENESS;
         }
         playeradd->roomspace_mode = roomspace_detection_mode;
     }
