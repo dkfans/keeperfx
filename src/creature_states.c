@@ -2569,7 +2569,7 @@ short creature_pretend_chicken_setup_move(struct Thing *creatng)
     
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
 
-    if (cctrl->stateblock_flags & CCSpl_ChickenRel != 0)
+    if ((cctrl->stateblock_flags & CCSpl_ChickenRel) != 0)
     {
         return 1;
     }
