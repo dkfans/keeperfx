@@ -652,8 +652,8 @@ short game_is_busy_doing_gui(void)
 {
     struct PlayerInfo *player;
     player = get_my_player();
-    struct DungeonAdd *dungeonadd = get_dungeonadd(player->id_number);
-    if (dungeonadd->one_click_lock_cursor)
+    struct PlayerInfoAdd *playeradd = get_playeradd(player->id_number);
+    if (playeradd->one_click_lock_cursor)
       return false;
     if (!busy_doing_gui)
       return false;
