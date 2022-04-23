@@ -502,9 +502,7 @@ void get_dungeon_highlight_user_roomspace(PlayerNumber plyr_idx, MapSubtlCoord s
     TbBool one_click_mode_exclusive = false;
     MapSlabCoord drag_start_x = slb_x;
     MapSlabCoord drag_start_y = slb_y;
-    struct DungeonAdd *dungeonadd = get_dungeonadd(player->id_number);
     struct Packet* pckt = get_packet_direct(player->packet_num);
-
     if (!is_game_key_pressed(Gkey_BestRoomSpace, &keycode, true))
     {
         // exit out of click and drag mode
@@ -513,12 +511,12 @@ void get_dungeon_highlight_user_roomspace(PlayerNumber plyr_idx, MapSubtlCoord s
             playeradd->one_click_lock_cursor = false;
             if ((pckt->control_flags & PCtr_LBtnHeld) == PCtr_LBtnHeld)
             {
-                dungeonadd->ignore_next_PCtr_LBtnRelease = true;
+                playeradd->ignore_next_PCtr_LBtnRelease = true;
             }
         }
         playeradd->render_roomspace.drag_mode = false;
     }
-    if (dungeonadd->ignore_next_PCtr_LBtnRelease)
+    if (playeradd->ignore_next_PCtr_LBtnRelease)
     {
         // because player cancelled a tag/untag with RMB, we need to default back to vanilla 1x1 box
         playeradd->render_roomspace.drag_mode = false;
@@ -550,18 +548,18 @@ void get_dungeon_highlight_user_roomspace(PlayerNumber plyr_idx, MapSubtlCoord s
             untag_mode = true;
         }
     }
-    if ((dungeonadd->swap_to_untag_mode == -1) && ((pckt->control_flags & PCtr_RBtnHeld) == PCtr_RBtnHeld) && (is_game_key_pressed(Gkey_SquareRoomSpace, &keycode, true)) && (!subtile_is_diggable_for_player(plyr_idx, stl_x, stl_y, false)) && ((pckt->control_flags & PCtr_LBtnAnyAction) == 0))
+    if ((playeradd->swap_to_untag_mode == -1) && ((pckt->control_flags & PCtr_RBtnHeld) == PCtr_RBtnHeld) && (is_game_key_pressed(Gkey_SquareRoomSpace, &keycode, true)) && (!subtile_is_diggable_for_player(plyr_idx, stl_x, stl_y, false)) && ((pckt->control_flags & PCtr_LBtnAnyAction) == 0))
     {
         // Allow RMB + CTRL to work as expected over lowslabs (for tagging and untagging)
         // we reset swap_to_untag_mode whenever LMB is not pressed (i.e. we are still in preview mode)
-        dungeonadd->swap_to_untag_mode = 0;
+        playeradd->swap_to_untag_mode = 0;
     }
-    if (dungeonadd->swap_to_untag_mode == 0) // if swap_to_untag_mode ==  no / enabled
+    if (playeradd->swap_to_untag_mode == 0) // if swap_to_untag_mode ==  no / enabled
     {
         //if (untag_or_tag_started_on_undiggable_highslab OR lowslab)
         if (!subtile_is_diggable_for_player(plyr_idx, stl_x, stl_y, false))
         {
-            dungeonadd->swap_to_untag_mode = 1; // maybe
+            playeradd->swap_to_untag_mode = 1; // maybe
         }
     }
     if (is_game_key_pressed(Gkey_BestRoomSpace, &keycode, true)) // Use "modern" click and drag method
@@ -576,12 +574,12 @@ void get_dungeon_highlight_user_roomspace(PlayerNumber plyr_idx, MapSubtlCoord s
         }
         if (((pckt->control_flags & PCtr_RBtnHeld) != 0) && ((pckt->control_flags & PCtr_LBtnClick) != 0))
         {
-            dungeonadd->ignore_next_PCtr_RBtnRelease = true;
+            playeradd->ignore_next_PCtr_RBtnRelease = true;
         }
         if (((pckt->control_flags & PCtr_LBtnHeld) != 0) && ((pckt->control_flags & PCtr_RBtnClick) != 0))
         {
-            dungeonadd->ignore_next_PCtr_LBtnRelease = true;
-            dungeonadd->ignore_next_PCtr_RBtnRelease = true;
+            playeradd->ignore_next_PCtr_LBtnRelease = true;
+            playeradd->ignore_next_PCtr_RBtnRelease = true;
             drag_start_x = slb_x;
             drag_start_y = slb_y;
         }
@@ -624,7 +622,7 @@ void get_dungeon_highlight_user_roomspace(PlayerNumber plyr_idx, MapSubtlCoord s
     current_roomspace.untag_mode = untag_mode;
     current_roomspace.one_click_mode_exclusive = one_click_mode_exclusive;
     current_roomspace = check_roomspace_for_diggable_slabs(current_roomspace, plyr_idx);
-    if (dungeonadd->swap_to_untag_mode == 1) // if swap_to_untag_mode == maybe
+    if (playeradd->swap_to_untag_mode == 1) // if swap_to_untag_mode == maybe
     {
         // highlight roomspace was started on undiggable highslab, and we are therefore in "tag mode"...
         if (current_roomspace.slab_count == 0)
@@ -637,13 +635,13 @@ void get_dungeon_highlight_user_roomspace(PlayerNumber plyr_idx, MapSubtlCoord s
             if ((untag_roomspace.slab_count > 0) && ((pckt->control_flags & PCtr_LBtnAnyAction) == 0)) //only switch modes when no buttons are held
             {
                 current_roomspace = untag_roomspace;
-                dungeonadd->swap_to_untag_mode = 2;
+                playeradd->swap_to_untag_mode = 2;
             }
         }
         else if (current_roomspace.slab_count > 0)
         {
             // player has started a "room" in tag mode, so...
-            dungeonadd->swap_to_untag_mode = -1; // disable
+            playeradd->swap_to_untag_mode = -1; // disable
         }
     }
     player->boxsize = current_roomspace.slab_count;
@@ -656,11 +654,11 @@ void get_dungeon_highlight_user_roomspace(PlayerNumber plyr_idx, MapSubtlCoord s
         current_roomspace.is_roomspace_a_box = true; // force full box cursor in "paint mode" - this stops the accurate boundbox appearing for a frame, before the slabs are tagged/untagged (which appears as flickering to the user)
     }
     playeradd->render_roomspace = current_roomspace;
-    if (dungeonadd->swap_to_untag_mode == 2) // if swap_to_untag_mode == yes
+    if (playeradd->swap_to_untag_mode == 2) // if swap_to_untag_mode == yes
     {
         // change to untag mode, as requested, and disable swap_to_untag_mode
         set_tag_untag_mode(plyr_idx, stl_x, stl_y);
-        dungeonadd->swap_to_untag_mode = -1; // disable
+        playeradd->swap_to_untag_mode = -1; // disable
     }
 }
 

@@ -242,7 +242,6 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
     struct PlayerInfo* player = get_player(plyr_idx);
     struct PlayerInfoAdd* playeradd = get_playeradd(plyr_idx);
     struct Dungeon* dungeon = get_players_dungeon(player);
-    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
     struct Packet* pckt = get_packet_direct(player->packet_num);
     MapCoord x = ((unsigned short)pckt->pos_x);
     MapCoord y = ((unsigned short)pckt->pos_y);
@@ -342,9 +341,9 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
     {
         if (player->secondary_cursor_state == CSt_DefaultArrow)
             player->secondary_cursor_state = player->primary_cursor_state;
-        if (dungeonadd->ignore_next_PCtr_LBtnRelease)
+        if (playeradd->ignore_next_PCtr_LBtnRelease)
         {
-            dungeonadd->ignore_next_PCtr_LBtnRelease = false;
+            playeradd->ignore_next_PCtr_LBtnRelease = false;
             if ((pckt->control_flags & PCtr_RBtnHeld) == 0)
             {
                 player->cursor_button_down = 0;
@@ -429,9 +428,9 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
 
     if ((pckt->control_flags & PCtr_RBtnRelease) != 0)
     {
-        if (dungeonadd->ignore_next_PCtr_RBtnRelease && (!playeradd->one_click_lock_cursor))
+        if (playeradd->ignore_next_PCtr_RBtnRelease && (!playeradd->one_click_lock_cursor))
         {
-            dungeonadd->ignore_next_PCtr_RBtnRelease = false;
+            playeradd->ignore_next_PCtr_RBtnRelease = false;
             if ((pckt->control_flags & PCtr_LBtnHeld) == 0)
             {
                 player->cursor_button_down = 0;
@@ -467,7 +466,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
     if ((player->cursor_button_down == 0) || (!playeradd->one_click_lock_cursor))
     {
         //if (untag_or_tag_completed_or_cancelled)
-        dungeonadd->swap_to_untag_mode = 0; // no
+        playeradd->swap_to_untag_mode = 0; // no
         if ((player->cursor_button_down == 0) && ((pckt->control_flags & PCtr_LBtnHeld) == 0))
         {
             playeradd->one_click_lock_cursor = false;

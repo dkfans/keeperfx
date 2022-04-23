@@ -317,9 +317,6 @@ struct DungeonAdd
     unsigned long         doors_sold;
     unsigned long         manufacture_gold;
     long                  cheaper_diggers;
-    TbBool                ignore_next_PCtr_RBtnRelease;
-    TbBool                ignore_next_PCtr_LBtnRelease;
-    long                  swap_to_untag_mode; // 0 = no, 1 = maybe, 2= yes, -1 = disable
     struct ComputerInfo   computer_info;
     long event_last_run_turn[EVENT_KIND_COUNT];
 };
