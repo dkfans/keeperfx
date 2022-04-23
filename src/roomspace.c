@@ -33,9 +33,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-// int playeradd->user_defined_roomspace_width = DEFAULT_USER_ROOMSPACE_WIDTH;
-// int roomspace_detection_looseness = DEFAULT_USER_ROOMSPACE_DETECTION_LOOSENESS;
-struct RoomSpace render_roomspace = { {{false}}, 1, true, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, false, 0, 0, false, true, false, false, false, false, 0, 0, 0, 0, false };
 /******************************************************************************/
 TbBool can_afford_roomspace(PlayerNumber plyr_idx, RoomKind rkind, int slab_count)
 {
