@@ -173,7 +173,9 @@ enum TbPacketAction {
         PckA_SetRoomspaceAuto,
         PckA_SetRoomspaceMan,
         PckA_SetRoomspaceDrag,
-        PckA_SetRoomspaceDefault
+        PckA_SetRoomspaceDefault,
+        PckA_SetRoomspaceWholeRoom,
+        PckA_SetRoomspaceSubtile
 };
 
 /** Packet flags for non-action player operation. */

@@ -664,49 +664,27 @@ void get_dungeon_highlight_user_roomspace(PlayerNumber plyr_idx, MapSubtlCoord s
 
 struct RoomSpace get_dungeon_sell_user_roomspace(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    long keycode = 0;
     struct PlayerInfo* player = get_player(plyr_idx);
     struct PlayerInfoAdd* playeradd = get_playeradd(plyr_idx);
-    int width = 1, height = 1;
-    MapSlabCoord slb_x = subtile_slab(stl_x);
-    MapSlabCoord slb_y = subtile_slab(stl_y);
     struct RoomSpace current_roomspace;
-    if (is_game_key_pressed(Gkey_BestRoomSpace, &keycode, true))
+    MapSlabCoord slb_x = subtile_slab_fast(stl_x);
+    MapSlabCoord slb_y = subtile_slab_fast(stl_y);
+    if (playeradd->roomspace_mode == roomspace_detection_mode)
     {
-        current_roomspace = get_current_room_as_roomspace(player->id_number, slb_x, slb_y);
+        current_roomspace = get_current_room_as_roomspace(plyr_idx, slb_x, slb_y);
         if (!current_roomspace.is_roomspace_a_box)
         {
             current_roomspace.render_roomspace_as_box = false;
         }
     }
-    else 
+    else if (playeradd->roomspace_mode == box_placement_mode)
     {
-        if (is_game_key_pressed(Gkey_SquareRoomSpace, &keycode, true)) // Define square room (mouse scroll-wheel changes size - default is 5x5)
-        {
-            if (is_game_key_pressed(Gkey_RoomSpaceIncSize, &keycode, true))
-            {
-                if (playeradd->user_defined_roomspace_width != MAX_USER_ROOMSPACE_WIDTH)
-                {
-                    playeradd->user_defined_roomspace_width++;
-                }
-            }
-            if (is_game_key_pressed(Gkey_RoomSpaceDecSize, &keycode, true))
-            {
-                if (playeradd->user_defined_roomspace_width != MIN_USER_ROOMSPACE_WIDTH)
-                {
-                    playeradd->user_defined_roomspace_width--;
-                }
-            }
-            width = height = playeradd->user_defined_roomspace_width;
-        }
-        else
-        {
-            reset_dungeon_build_room_ui_variables(plyr_idx);
-            width = height = numpad_to_value(false);
-            
-        }
-        current_roomspace = create_box_roomspace(render_roomspace, width, height, slb_x, slb_y);
+        current_roomspace = create_box_roomspace(playeradd->render_roomspace, playeradd->roomspace_width, playeradd->roomspace_height, slb_x, slb_y);
         current_roomspace = check_roomspace_for_sellable_slabs(current_roomspace, plyr_idx);
+    }
+    else if (playeradd->roomspace_mode == single_subtile_mode)
+    {
+        current_roomspace = playeradd->render_roomspace;
     }
     player->boxsize = current_roomspace.slab_count;
     return current_roomspace;
@@ -975,6 +953,56 @@ void process_build_roomspace_inputs(PlayerNumber plyr_idx)
             }
             par1 = (pos.x.stl.num | (pos.y.stl.num << 8));
             set_packet_action(pckt, PckA_SetRoomspaceAuto, par1, looseness, 0, 0);
+        }
+        else if (is_game_key_pressed(Gkey_SquareRoomSpace, &keycode, true)) // Define square room (mouse scroll-wheel changes size - default is 5x5)
+        {
+            int width = playeradd->user_defined_roomspace_width;
+            par1 = (pos.x.stl.num | (pos.y.stl.num << 8));
+            if (is_game_key_pressed(Gkey_RoomSpaceIncSize, &keycode, true))
+            {
+                if (width != MAX_USER_ROOMSPACE_WIDTH)
+                {
+                    width++;
+                    set_packet_action(pckt, PckA_SetRoomspaceMan, par1, width, 0, 0);
+                }
+            }
+            if (is_game_key_pressed(Gkey_RoomSpaceDecSize, &keycode, true))
+            {
+                if (width != MIN_USER_ROOMSPACE_WIDTH)
+                {
+                    width--;
+                    set_packet_action(pckt, PckA_SetRoomspaceMan, par1, width, 0, 0);
+                }
+            }
+        }
+        else
+        {
+            int size = numpad_to_value(false);
+            par1 = (pos.x.stl.num | (pos.y.stl.num << 8));
+            set_packet_action(pckt, PckA_SetRoomspaceDefault, par1, size, 0, 0);
+        }
+    }
+}
+
+void process_sell_roomspace_inputs(PlayerNumber plyr_idx)
+{
+    struct PlayerInfo* player = get_player(plyr_idx);
+    struct Coord3d pos;
+    if (screen_to_map(player->acamera, GetMouseX(), GetMouseY(), &pos))
+    {
+        struct Packet* pckt = get_packet(plyr_idx);
+        long keycode = 0;
+        struct PlayerInfoAdd* playeradd = get_playeradd(plyr_idx);
+        unsigned short par1;
+        if (is_game_key_pressed(Gkey_SellTrapOnSubtile, &keycode, true))
+        {
+            set_packet_action(pckt, PckA_SetRoomspaceSubtile, 0, 0, 0, 0);
+        }
+        else if (is_game_key_pressed(Gkey_BestRoomSpace, &keycode, true))
+        {
+            MapSlabCoord slb_x = subtile_slab_fast(pos.x.stl.num);
+            MapSlabCoord slb_y = subtile_slab_fast(pos.y.stl.num);
+            set_packet_action(pckt, PckA_SetRoomspaceWholeRoom, slb_x, slb_y, 0, 0);
         }
         else if (is_game_key_pressed(Gkey_SquareRoomSpace, &keycode, true)) // Define square room (mouse scroll-wheel changes size - default is 5x5)
         {

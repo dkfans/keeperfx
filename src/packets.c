@@ -927,6 +927,16 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
         playeradd->roomspace_drag_check = false;
         return false;
     }
+    case PckA_SetRoomspaceWholeRoom:
+    {
+        playeradd->roomspace_mode = roomspace_detection_mode;
+        return false;
+    }
+    case PckA_SetRoomspaceSubtile:
+    {
+        playeradd->roomspace_mode = single_subtile_mode;
+        return false;
+    }
     default:
       return process_players_global_cheats_packet_action(plyr_idx, pckt);
   }

@@ -37,6 +37,7 @@ enum roomspace_placement_modes {
     box_placement_mode = 0, // fixed width/height (default)
     drag_placement_mode = 1, // fixed 1x1 roomspace, can hold left click to paint
     roomspace_detection_mode = 2, // find biggest/best roomspace under cursor
+    single_subtile_mode = 3,
 };
 
 // 
@@ -134,6 +135,7 @@ void keeper_build_roomspace(PlayerNumber plyr_idx, struct RoomSpace *roomspace);
 void update_roomspaces();
 
 void process_build_roomspace_inputs(PlayerNumber plyr_idx);
+void process_sell_roomspace_inputs(PlayerNumber plyr_idx);
 /******************************************************************************/
 #include "roomspace_detection.h"
 /******************************************************************************/

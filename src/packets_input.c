@@ -494,7 +494,7 @@ TbBool process_dungeon_control_packet_sell_operation(long plyr_idx)
     MapCoord y = ((unsigned short)pckt->pos_y);
     MapSubtlCoord stl_x = coord_subtile(x);
     MapSubtlCoord stl_y = coord_subtile(y);
-    player->full_slab_cursor = (!is_game_key_pressed(Gkey_SellTrapOnSubtile, &keycode, true));
+    player->full_slab_cursor = (playeradd->roomspace_mode != single_subtile_mode);
     playeradd->render_roomspace = get_dungeon_sell_user_roomspace(player->id_number, stl_x, stl_y);
     tag_cursor_blocks_sell_area(player->id_number, stl_x, stl_y, player->full_slab_cursor);
     if ((pckt->control_flags & PCtr_LBtnClick) == 0)
