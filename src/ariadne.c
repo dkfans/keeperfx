@@ -360,7 +360,7 @@ void init_navigation_map(void)
 static long get_navtree_owner(long treeI)
 {
     long owner;
-    owner = ((treeI & 0xE0) >> NAVMAP_OWNERSELECT_BIT) - 1;
+    owner = ((treeI & NAVMAP_OWNERSHIP_MASK) >> NAVMAP_OWNERSELECT_BIT) - 1;
     if (owner == 5)
     {
         owner = game.hero_player_num;
@@ -374,7 +374,7 @@ static long get_navtree_owner(long treeI)
 
 long Keeper_nav_rulesA2B(long treeA, long treeB)
 {
-    if ((treeB & NAVMAP_FLOORHEIGHT_MAX) - (treeA & NAVMAP_FLOORHEIGHT_MAX) > 1)
+    if ((treeB & NAVMAP_FLOORHEIGHT_MASK) - (treeA & NAVMAP_FLOORHEIGHT_MASK) > 1)
         return 0;
     if ((treeB & NAVMAP_UNSAFE_SURFACE) == 0)
         return 1;
@@ -383,7 +383,7 @@ long Keeper_nav_rulesA2B(long treeA, long treeB)
 
 long navigation_rule_flying(long treeA, long treeB)
 {
-    int difference = ((treeB & NAVMAP_FLOORHEIGHT_MAX) - (treeA & NAVMAP_FLOORHEIGHT_MAX));
+    int difference = ((treeB & NAVMAP_FLOORHEIGHT_MASK) - (treeA & NAVMAP_FLOORHEIGHT_MASK));
     if (difference > 4) // Flying creatures are allowed 4 blocks height difference
     {
         return 0;
@@ -400,7 +400,7 @@ long navigation_rule_flying(long treeA, long treeB)
 
 long navigation_rule_fireproof(long treeA, long treeB)
 {
-    int difference = ((treeB & NAVMAP_FLOORHEIGHT_MAX) - (treeA & NAVMAP_FLOORHEIGHT_MAX));
+    int difference = ((treeB & NAVMAP_FLOORHEIGHT_MASK) - (treeA & NAVMAP_FLOORHEIGHT_MASK));
     if (difference > 1) // Creatures can walk over one block height difference
     {
         return 0;
@@ -417,7 +417,7 @@ long navigation_rule_fireproof(long treeA, long treeB)
 
 long navigation_rule_normal(long treeA, long treeB)
 {
-    int difference = ((treeB & NAVMAP_FLOORHEIGHT_MAX) - (treeA & NAVMAP_FLOORHEIGHT_MAX));
+    int difference = ((treeB & NAVMAP_FLOORHEIGHT_MASK) - (treeA & NAVMAP_FLOORHEIGHT_MASK));
     if (difference > 1) // Creatures can walk over one block height difference
     {
         return 0;
