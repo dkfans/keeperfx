@@ -56,8 +56,8 @@ TbBool thing_touching_flight_altitude(const struct Thing *thing)
         return false;
     }
     int floor_height = get_floor_height_under_thing_at(thing, &thing->mappos);
-    return (thing->mappos.z.val >= floor_height + 16 * NORMAL_FLYING_ALTITUDE / 17)
-        && (thing->mappos.z.val <= floor_height + 19 * NORMAL_FLYING_ALTITUDE / 17);
+    return (thing->mappos.z.val >= floor_height + 16*NORMAL_FLYING_ALTITUDE/17)
+        && (thing->mappos.z.val <= floor_height + 19*NORMAL_FLYING_ALTITUDE/17);
 }
 
 TbBool thing_above_flight_altitude(const struct Thing* thing)

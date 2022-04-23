@@ -383,12 +383,13 @@ long Keeper_nav_rulesA2B(long treeA, long treeB)
 
 long navigation_rule_flying(long treeA, long treeB)
 {
-    int difference = ((treeB & NAVMAP_FLOORHEIGHT_MASK) - (treeA & NAVMAP_FLOORHEIGHT_MASK));
-    if (difference > 4) // Flying creatures are allowed 4 blocks height difference
+    short fly_over_max = 4;
+    short height_difference = ((treeB & NAVMAP_FLOORHEIGHT_MASK) - (treeA & NAVMAP_FLOORHEIGHT_MASK));
+    if (height_difference > fly_over_max)
     {
         return 0;
     }
-    if ((treeB & 0xF0) == 0)
+    if ((treeB & (NAVMAP_OWNERSHIP_MASK | NAVMAP_UNSAFE_SURFACE)) == 0)
         return 1;
     if (owner_player_navigating != -1)
     {
@@ -400,29 +401,29 @@ long navigation_rule_flying(long treeA, long treeB)
 
 long navigation_rule_fireproof(long treeA, long treeB)
 {
-    int difference = ((treeB & NAVMAP_FLOORHEIGHT_MASK) - (treeA & NAVMAP_FLOORHEIGHT_MASK));
-    if (difference > 1) // Creatures can walk over one block height difference
+    int height_difference = ((treeB & NAVMAP_FLOORHEIGHT_MASK) - (treeA & NAVMAP_FLOORHEIGHT_MASK));
+    if (height_difference > 1) // Creatures can walk over one block height difference
     {
         return 0;
     }
-    if ((treeB & 0xF0) == 0)
+    if ((treeB & (NAVMAP_OWNERSHIP_MASK | NAVMAP_UNSAFE_SURFACE)) == 0)
         return 1;
     if (owner_player_navigating != -1)
     {
         if (get_navtree_owner(treeB) == owner_player_navigating)
             return 0;
     }
-    return true;
+    return 1;
 }
 
 long navigation_rule_normal(long treeA, long treeB)
 {
-    int difference = ((treeB & NAVMAP_FLOORHEIGHT_MASK) - (treeA & NAVMAP_FLOORHEIGHT_MASK));
-    if (difference > 1) // Creatures can walk over one block height difference
+    int height_difference = ((treeB & NAVMAP_FLOORHEIGHT_MASK) - (treeA & NAVMAP_FLOORHEIGHT_MASK));
+    if (height_difference > 1) // Creatures can walk over one block height difference
     {
         return 0;
     }
-    if ((treeB & 0xF0) == 0) // Neither owned nor unsafe surface
+    if ((treeB & (NAVMAP_OWNERSHIP_MASK | NAVMAP_UNSAFE_SURFACE)) == 0) // Neither owned nor unsafe surface
       return 1;
     if (owner_player_navigating != -1)
     {
