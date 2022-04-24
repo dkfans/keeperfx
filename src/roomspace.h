@@ -134,6 +134,8 @@ void update_roomspaces();
 void process_build_roomspace_inputs(PlayerNumber plyr_idx);
 void process_sell_roomspace_inputs(PlayerNumber plyr_idx);
 void process_highlight_roomspace_inputs(PlayerNumber plyr_idx);
+
+void reset_dungeon_build_room_ui_variables(PlayerNumber plyr_idx);
 /******************************************************************************/
 #include "roomspace_detection.h"
 /******************************************************************************/

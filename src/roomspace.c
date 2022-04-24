@@ -487,7 +487,6 @@ void reset_dungeon_build_room_ui_variables(PlayerNumber plyr_idx)
 
 struct RoomSpace get_dungeon_highlight_user_roomspace(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    long keycode = 0;
     struct PlayerInfo* player = get_player(plyr_idx);
     struct PlayerInfoAdd* playeradd = get_playeradd(plyr_idx);
     MapSlabCoord slb_x = subtile_slab(stl_x);
@@ -530,7 +529,7 @@ struct RoomSpace get_dungeon_highlight_user_roomspace(PlayerNumber plyr_idx, Map
             untag_mode = true;
         }
     }
-    if ((playeradd->swap_to_untag_mode == -1) && ((pckt->control_flags & PCtr_RBtnHeld) == PCtr_RBtnHeld) && (is_game_key_pressed(Gkey_SquareRoomSpace, &keycode, true)) && (!subtile_is_diggable_for_player(plyr_idx, stl_x, stl_y, false)) && ((pckt->control_flags & PCtr_LBtnAnyAction) == 0))
+    if ((playeradd->swap_to_untag_mode == -1) && ((pckt->control_flags & PCtr_RBtnHeld) == PCtr_RBtnHeld) && (playeradd->roomspace_highlight_mode == 2) && (!subtile_is_diggable_for_player(plyr_idx, stl_x, stl_y, false)) && ((pckt->control_flags & PCtr_LBtnAnyAction) == 0))
     {
         // Allow RMB + CTRL to work as expected over lowslabs (for tagging and untagging)
         // we reset swap_to_untag_mode whenever LMB is not pressed (i.e. we are still in preview mode)
@@ -581,10 +580,7 @@ struct RoomSpace get_dungeon_highlight_user_roomspace(PlayerNumber plyr_idx, Map
     }
     else
     {
-        reset_dungeon_build_room_ui_variables(plyr_idx);
-        playeradd->roomspace_width = playeradd->roomspace_height = numpad_to_value(false);
         current_roomspace = create_box_roomspace(playeradd->render_roomspace, playeradd->roomspace_width, playeradd->roomspace_height, slb_x, slb_y);
-        
     }
     current_roomspace.highlight_mode = highlight_mode;
     current_roomspace.untag_mode = untag_mode;
@@ -1043,7 +1039,7 @@ void process_highlight_roomspace_inputs(PlayerNumber plyr_idx)
     else
     {
         par1 = 0;
-        par2 = 0;
+        par2 = numpad_to_value(false);
     }
     set_players_packet_action(player, PckA_SetRoomspaceHighlight, par1, par2, 0, 0);
 }

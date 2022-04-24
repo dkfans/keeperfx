@@ -959,6 +959,11 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
             playeradd->roomspace_width = pckt->actn_par2;
             playeradd->roomspace_height = pckt->actn_par2;
         }
+        else if (pckt->actn_par1 == 0)
+        {
+            reset_dungeon_build_room_ui_variables(plyr_idx);
+            playeradd->roomspace_width = playeradd->roomspace_height = pckt->actn_par2;
+        }
         return false;
     }
     default:
