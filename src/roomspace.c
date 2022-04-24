@@ -643,7 +643,9 @@ struct RoomSpace get_dungeon_sell_user_roomspace(PlayerNumber plyr_idx, MapSubtl
     }
     else if (playeradd->roomspace_mode == box_placement_mode)
     {
-        current_roomspace = create_box_roomspace(playeradd->render_roomspace, playeradd->roomspace_width, playeradd->roomspace_height, slb_x, slb_y);
+        current_roomspace.is_roomspace_a_box = true;
+        current_roomspace.render_roomspace_as_box = true;
+        current_roomspace = create_box_roomspace(current_roomspace, playeradd->roomspace_width, playeradd->roomspace_height, slb_x, slb_y);
         current_roomspace = check_roomspace_for_sellable_slabs(current_roomspace, plyr_idx);
     }
     else if (playeradd->roomspace_mode == single_subtile_mode)
