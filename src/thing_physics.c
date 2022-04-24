@@ -62,7 +62,13 @@ TbBool thing_touching_flight_altitude(const struct Thing *thing)
 
 TbBool thing_above_flight_altitude(const struct Thing* thing)
 {
-    int navi_radius = 2* subtile_coord(thing_nav_block_sizexy(thing), 0);
+    int floor_height = get_floor_height_under_thing_at(thing, &thing->mappos);
+    if ((thing->mappos.z.val - floor_height) > (subtile_coord(2,0) + NORMAL_FLYING_ALTITUDE)) // More than 2 blocks over flying altitude is too high for sure
+    {
+        return true;
+    }
+
+    int navi_radius = 2 * subtile_coord(thing_nav_block_sizexy(thing), 0); // Otherwise consider the height of the surrounding subtiles
     long flying_alt = get_thing_height_at_with_radius(thing, &thing->mappos, navi_radius);
     return (thing->mappos.z.val > flying_alt + 19 * NORMAL_FLYING_ALTITUDE / 17);
 }
