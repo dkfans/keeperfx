@@ -881,7 +881,8 @@ TbBool player_sell_trap_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     MapSlabCoord slb_x = subtile_slab_fast(stl_x);
     MapSlabCoord slb_y = subtile_slab_fast(stl_y);
     long sell_value = 0;
-    if (is_key_pressed(KC_LALT, KMod_DONTCARE))
+    struct PlayerInfo* player = get_player(plyr_idx);
+    if (player->full_slab_cursor == false)
     {
         thing = get_trap_for_position(stl_x, stl_y);
         if (thing_is_invalid(thing))
