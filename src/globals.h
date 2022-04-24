@@ -183,6 +183,10 @@ void replaceFn(void* oldFn, void* newFn);
 	DLLIMPORT void _DK_##name(); \
 	__attribute__((constructor)) static void CONCAT(hookFn, __COUNTER__)(void) { replaceFn(&_DK_##name, &name); }
 
+#define HOOK_DK_FUNC2(old, new_fn) \
+	DLLIMPORT void _DK_##old(); \
+	__attribute__((constructor)) static void CONCAT(hookFn, __COUNTER__)(void) { replaceFn(&_DK_##old, &new_fn); }
+
 #pragma pack(1)
 
 /** Screen coordinate in scale of the game (resolution independent). */

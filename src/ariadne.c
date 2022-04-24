@@ -2722,9 +2722,21 @@ void set_navigation_rule_for_creature(const struct Thing* creatng)
     }
 }
 
+static TbBool nav_watchdog_triggered = false;
+long navigation_rule_watchdog(long treeA, long treeB)
+{
+    if (!nav_watchdog_triggered)
+    {
+        NAVIDBG(1, "Navigation is called without `set_navigation_rule`");
+        nav_watchdog_triggered = true;
+    }
+    return navigation_rule_normal(treeA, treeB);
+}
+
 void reset_navigation_rule()
 {
-    nav_rulesA2B = navigation_rule_normal;
+    nav_watchdog_triggered = false;
+    nav_rulesA2B = navigation_rule_watchdog;
 }
 
 /**
@@ -2884,6 +2896,12 @@ AriadneReturn ariadne_initialise_creature_route_f(struct Thing *thing, const str
     NAVIDBG(19,"%s: Route prepared", func_name);
     return AridRet_OK;
 }
+
+static AriadneReturn ariadne_initialise_creature_route_dk(struct Thing *thing, const struct Coord3d *pos, long speed, AriadneRouteFlags flags)
+{
+    return ariadne_initialise_creature_route_f(thing, pos, speed, flags, "dk dll");
+}
+HOOK_DK_FUNC2(ariadne_initialise_creature_route, ariadne_initialise_creature_route_dk)
 
 AriadneReturn ariadne_creature_get_next_waypoint(struct Thing *thing, struct Ariadne *arid)
 {
