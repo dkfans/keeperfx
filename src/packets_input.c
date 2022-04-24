@@ -201,8 +201,8 @@ TbBool process_dungeon_power_hand_state(long plyr_idx)
             && (!playeradd->one_click_lock_cursor))
         {
             playeradd->render_roomspace = create_box_roomspace(playeradd->render_roomspace, 1, 1, subtile_slab(stl_x), subtile_slab(stl_y));
-            long keycode;
-            tag_cursor_blocks_thing_in_hand(player->id_number, stl_x, stl_y, i, (!is_game_key_pressed(Gkey_SellTrapOnSubtile, &keycode, true)));
+            player->full_slab_cursor = (playeradd->roomspace_mode != single_subtile_mode);
+            tag_cursor_blocks_thing_in_hand(plyr_idx, stl_x, stl_y, i, player->full_slab_cursor);
         } else
         {
             player->additional_flags |= PlaAF_ChosenSubTileIsHigh;

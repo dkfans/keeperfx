@@ -1078,6 +1078,24 @@ long get_dungeon_control_action_inputs(void)
         {
             process_highlight_roomspace_inputs(player->id_number);
         }
+        else if (player->primary_cursor_state == CSt_PowerHand)
+        {
+            struct Coord3d pos;
+            if (screen_to_map(player->acamera, GetMouseX(), GetMouseY(), &pos))
+            {
+                long keycode = 0;
+                struct Packet* pckt = get_packet(my_player_number);
+                if (is_game_key_pressed(Gkey_SellTrapOnSubtile, &keycode, true))
+                {
+                    set_packet_action(pckt, PckA_SetRoomspaceSubtile, 0, 0, 0, 0);
+                }
+                else
+                {
+                    unsigned short par1 = (pos.x.stl.num | (pos.y.stl.num << 8));
+                    set_packet_action(pckt, PckA_SetRoomspaceDefault, par1, 0, 0, 0);
+                }
+            }
+        }
     }
     else if (player->work_state == PSt_BuildRoom)
     {
