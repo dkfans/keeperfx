@@ -119,7 +119,7 @@ struct RoomSpace get_current_room_as_roomspace(PlayerNumber current_plyr_idx,
                                                MapSlabCoord cursor_x, 
                                                MapSlabCoord cursor_y);
 
-void get_dungeon_highlight_user_roomspace(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
+struct RoomSpace get_dungeon_highlight_user_roomspace(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 
 struct RoomSpace get_dungeon_sell_user_roomspace(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 
@@ -133,6 +133,7 @@ void update_roomspaces();
 
 void process_build_roomspace_inputs(PlayerNumber plyr_idx);
 void process_sell_roomspace_inputs(PlayerNumber plyr_idx);
+void process_highlight_roomspace_inputs(PlayerNumber plyr_idx);
 /******************************************************************************/
 #include "roomspace_detection.h"
 /******************************************************************************/

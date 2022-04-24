@@ -937,6 +937,30 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
         playeradd->roomspace_mode = single_subtile_mode;
         return false;
     }
+    case PckA_SetRoomspaceHighlight:
+    {
+        if ( (pckt->actn_par2 == 1) || (pckt->actn_par1 == 2) )
+        {
+            // exit out of click and drag mode
+            if (playeradd->render_roomspace.drag_mode)
+            {
+                playeradd->one_click_lock_cursor = false;
+                if ((pckt->control_flags & PCtr_LBtnHeld) == PCtr_LBtnHeld)
+                {
+                    playeradd->ignore_next_PCtr_LBtnRelease = true;
+                }
+            }
+            playeradd->render_roomspace.drag_mode = false;
+        }
+        playeradd->roomspace_highlight_mode = pckt->actn_par1;
+        if (pckt->actn_par1 == 2)
+        {
+            playeradd->user_defined_roomspace_width = pckt->actn_par2;
+            playeradd->roomspace_width = pckt->actn_par2;
+            playeradd->roomspace_height = pckt->actn_par2;
+        }
+        return false;
+    }
     default:
       return process_players_global_cheats_packet_action(plyr_idx, pckt);
   }

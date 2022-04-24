@@ -485,12 +485,11 @@ void reset_dungeon_build_room_ui_variables(PlayerNumber plyr_idx)
     playeradd->user_defined_roomspace_width = DEFAULT_USER_ROOMSPACE_WIDTH;
 }
 
-void get_dungeon_highlight_user_roomspace(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+struct RoomSpace get_dungeon_highlight_user_roomspace(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     long keycode = 0;
     struct PlayerInfo* player = get_player(plyr_idx);
     struct PlayerInfoAdd* playeradd = get_playeradd(plyr_idx);
-    int width = 1, height = 1;
     MapSlabCoord slb_x = subtile_slab(stl_x);
     MapSlabCoord slb_y = subtile_slab(stl_y);
     struct RoomSpace current_roomspace;
@@ -500,33 +499,19 @@ void get_dungeon_highlight_user_roomspace(PlayerNumber plyr_idx, MapSubtlCoord s
     MapSlabCoord drag_start_x = slb_x;
     MapSlabCoord drag_start_y = slb_y;
     struct Packet* pckt = get_packet_direct(player->packet_num);
-    if (!is_game_key_pressed(Gkey_BestRoomSpace, &keycode, true))
-    {
-        // exit out of click and drag mode
-        if (playeradd->render_roomspace.drag_mode)
-        {
-            playeradd->one_click_lock_cursor = false;
-            if ((pckt->control_flags & PCtr_LBtnHeld) == PCtr_LBtnHeld)
-            {
-                playeradd->ignore_next_PCtr_LBtnRelease = true;
-            }
-        }
-        playeradd->render_roomspace.drag_mode = false;
-    }
     if (playeradd->ignore_next_PCtr_LBtnRelease)
     {
         // because player cancelled a tag/untag with RMB, we need to default back to vanilla 1x1 box
         playeradd->render_roomspace.drag_mode = false;
         playeradd->one_click_lock_cursor = false;
         reset_dungeon_build_room_ui_variables(plyr_idx);
-        current_roomspace = create_box_roomspace(playeradd->render_roomspace, width, height, slb_x, slb_y);
+        current_roomspace = create_box_roomspace(playeradd->render_roomspace, playeradd->roomspace_width, playeradd->roomspace_height, slb_x, slb_y);
         current_roomspace.highlight_mode = false;
         current_roomspace.untag_mode = false;
         current_roomspace.one_click_mode_exclusive = false;
         current_roomspace = check_roomspace_for_diggable_slabs(current_roomspace, plyr_idx);
         player->boxsize = current_roomspace.slab_count;
-        playeradd->render_roomspace = current_roomspace;
-        return;
+        return current_roomspace;
     }
     if (!playeradd->render_roomspace.drag_mode) // reset drag start slab
     {
@@ -559,7 +544,7 @@ void get_dungeon_highlight_user_roomspace(PlayerNumber plyr_idx, MapSubtlCoord s
             playeradd->swap_to_untag_mode = 1; // maybe
         }
     }
-    if (is_game_key_pressed(Gkey_BestRoomSpace, &keycode, true)) // Use "modern" click and drag method
+    if (playeradd->roomspace_highlight_mode == 1)
     {
         if (((pckt->control_flags & PCtr_HeldAnyButton) != 0) || ((pckt->control_flags & PCtr_LBtnRelease) != 0))
         {
@@ -583,36 +568,22 @@ void get_dungeon_highlight_user_roomspace(PlayerNumber plyr_idx, MapSubtlCoord s
         highlight_mode = true;
         current_roomspace = create_box_roomspace_from_drag(playeradd->render_roomspace, drag_start_x, drag_start_y, slb_x, slb_y);
     }
-    else if (is_game_key_pressed(Gkey_SquareRoomSpace, &keycode, true)) // Define square room (mouse scroll-wheel changes size - default is 5x5)
+    else if (playeradd->roomspace_highlight_mode == 2) // Define square room (mouse scroll-wheel changes size - default is 5x5)
     {
         if ((pckt->control_flags & PCtr_HeldAnyButton) != 0) // Block camera zoom/rotate if Ctrl is held with LMB/RMB
         {
             playeradd->one_click_lock_cursor = true;
             one_click_mode_exclusive = true;
         }
-        if (is_game_key_pressed(Gkey_RoomSpaceIncSize, &keycode, true))
-        {
-            if (playeradd->user_defined_roomspace_width != MAX_USER_ROOMSPACE_WIDTH)
-            {
-                playeradd->user_defined_roomspace_width++;
-            }
-        }
-        if (is_game_key_pressed(Gkey_RoomSpaceDecSize, &keycode, true))
-        {
-            if (playeradd->user_defined_roomspace_width != MIN_USER_ROOMSPACE_WIDTH)
-            {
-                playeradd->user_defined_roomspace_width--;
-            }
-        }
-        width = height = playeradd->user_defined_roomspace_width;
+        playeradd->roomspace_width = playeradd->roomspace_height = playeradd->user_defined_roomspace_width;
         highlight_mode = true;
-        current_roomspace = create_box_roomspace(playeradd->render_roomspace, width, height, slb_x, slb_y);
+        current_roomspace = create_box_roomspace(playeradd->render_roomspace, playeradd->roomspace_width, playeradd->roomspace_height, slb_x, slb_y);
     }
     else
     {
         reset_dungeon_build_room_ui_variables(plyr_idx);
-        width = height = numpad_to_value(false);
-        current_roomspace = create_box_roomspace(playeradd->render_roomspace, width, height, slb_x, slb_y);
+        playeradd->roomspace_width = playeradd->roomspace_height = numpad_to_value(false);
+        current_roomspace = create_box_roomspace(playeradd->render_roomspace, playeradd->roomspace_width, playeradd->roomspace_height, slb_x, slb_y);
         
     }
     current_roomspace.highlight_mode = highlight_mode;
@@ -650,13 +621,13 @@ void get_dungeon_highlight_user_roomspace(PlayerNumber plyr_idx, MapSubtlCoord s
     {
         current_roomspace.is_roomspace_a_box = true; // force full box cursor in "paint mode" - this stops the accurate boundbox appearing for a frame, before the slabs are tagged/untagged (which appears as flickering to the user)
     }
-    playeradd->render_roomspace = current_roomspace;
     if (playeradd->swap_to_untag_mode == 2) // if swap_to_untag_mode == yes
     {
         // change to untag mode, as requested, and disable swap_to_untag_mode
         set_tag_untag_mode(plyr_idx, stl_x, stl_y);
         playeradd->swap_to_untag_mode = -1; // disable
     }
+    return current_roomspace;
 }
 
 struct RoomSpace get_dungeon_sell_user_roomspace(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
@@ -1029,6 +1000,52 @@ void process_sell_roomspace_inputs(PlayerNumber plyr_idx)
             set_packet_action(pckt, PckA_SetRoomspaceDefault, par1, size, 0, 0);
         }
     }
+}
+
+void process_highlight_roomspace_inputs(PlayerNumber plyr_idx)
+{
+    long keycode = 0;
+    unsigned short par1, par2;
+    struct PlayerInfo* player = get_player(plyr_idx);
+    if (!is_game_key_pressed(Gkey_BestRoomSpace, &keycode, true))
+    {
+        par2 = 1;
+    }
+    else
+    {
+        par2 = 0;
+    }
+    if (is_game_key_pressed(Gkey_BestRoomSpace, &keycode, true)) // Use "modern" click and drag method
+    {
+        par1 = 1;
+        par2 = 0;
+    }
+    else if (is_game_key_pressed(Gkey_SquareRoomSpace, &keycode, true)) // Use "modern" click and drag method
+    {
+        par1 = 2;
+        struct PlayerInfoAdd* playeradd = get_playeradd(plyr_idx);
+        par2 = playeradd->user_defined_roomspace_width;
+        if (is_game_key_pressed(Gkey_RoomSpaceIncSize, &keycode, true))
+        {
+            if (par2 != MAX_USER_ROOMSPACE_WIDTH)
+            {
+                par2++;
+            }
+        }
+        if (is_game_key_pressed(Gkey_RoomSpaceDecSize, &keycode, true))
+        {
+            if (par2 != MIN_USER_ROOMSPACE_WIDTH)
+            {
+                par2--;
+            }
+        }
+    }
+    else
+    {
+        par1 = 0;
+        par2 = 0;
+    }
+    set_players_packet_action(player, PckA_SetRoomspaceHighlight, par1, par2, 0, 0);
 }
 /******************************************************************************/
 #ifdef __cplusplus

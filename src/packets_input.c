@@ -206,7 +206,7 @@ TbBool process_dungeon_power_hand_state(long plyr_idx)
         } else
         {
             player->additional_flags |= PlaAF_ChosenSubTileIsHigh;
-            get_dungeon_highlight_user_roomspace(player->id_number, stl_x, stl_y);
+            playeradd->render_roomspace = get_dungeon_highlight_user_roomspace(player->id_number, stl_x, stl_y);
             tag_cursor_blocks_dig(player->id_number, stl_x, stl_y, player->full_slab_cursor);
         }
     }
@@ -258,7 +258,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
     {
         if (player->primary_cursor_state == CSt_PickAxe)
         {
-            get_dungeon_highlight_user_roomspace(player->id_number, stl_x, stl_y);
+            playeradd->render_roomspace = get_dungeon_highlight_user_roomspace(player->id_number, stl_x, stl_y);
             tag_cursor_blocks_dig(player->id_number, stl_x, stl_y, player->full_slab_cursor);
         }
         if ((pckt->control_flags & PCtr_LBtnClick) != 0)

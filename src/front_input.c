@@ -1086,6 +1086,13 @@ long get_dungeon_control_action_inputs(void)
     {
        process_sell_roomspace_inputs(player->id_number); 
     }
+    else if (player->work_state == PSt_CtrlDungeon)
+    {
+        if (player->primary_cursor_state == CSt_PickAxe)
+        {
+            process_highlight_roomspace_inputs(player->id_number);
+        }
+    }
     if (is_game_key_pressed(Gkey_SwitchToMap, &val, false))
     {
       clear_key_pressed(val);
