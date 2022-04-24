@@ -383,7 +383,7 @@ long Keeper_nav_rulesA2B(long treeA, long treeB)
 
 long navigation_rule_flying(long treeA, long treeB)
 {
-    short fly_over_max = 3; //At 4 they will fly over bookshelves
+    short fly_over_max = 2;
     short height_difference = ((treeB & NAVMAP_FLOORHEIGHT_MASK) - (treeA & NAVMAP_FLOORHEIGHT_MASK));
     if (height_difference > fly_over_max)
     {
