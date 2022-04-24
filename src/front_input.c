@@ -1072,11 +1072,12 @@ long get_dungeon_control_action_inputs(void)
     {
         return 1;
     }
-    if ( (player->work_state == PSt_PlaceTerrain) || (player->work_state == PSt_MkDigger) || (player->work_state == PSt_MkBadCreatr) || (player->work_state == PSt_MkGoodCreatr) 
-        || (player->work_state == PSt_KillPlayer) || (player->work_state == PSt_HeartHealth) || (player->work_state == PSt_StealRoom) || 
-        (player->work_state == PSt_StealSlab) || (player->work_state == PSt_ConvertCreatr) )
+    if (player->work_state == PSt_CtrlDungeon)
     {
-        process_cheat_mode_selection_inputs();
+        if (player->primary_cursor_state == CSt_PickAxe)
+        {
+            process_highlight_roomspace_inputs(player->id_number);
+        }
     }
     else if (player->work_state == PSt_BuildRoom)
     {
@@ -1084,14 +1085,13 @@ long get_dungeon_control_action_inputs(void)
     }
     else if (player->work_state == PSt_Sell)
     {
-       process_sell_roomspace_inputs(player->id_number); 
+        process_sell_roomspace_inputs(player->id_number); 
     }
-    else if (player->work_state == PSt_CtrlDungeon)
+    else if ( (player->work_state == PSt_PlaceTerrain) || (player->work_state == PSt_MkDigger) || (player->work_state == PSt_MkBadCreatr) || (player->work_state == PSt_MkGoodCreatr) 
+        || (player->work_state == PSt_KillPlayer) || (player->work_state == PSt_HeartHealth) || (player->work_state == PSt_StealRoom) || 
+        (player->work_state == PSt_StealSlab) || (player->work_state == PSt_ConvertCreatr) )
     {
-        if (player->primary_cursor_state == CSt_PickAxe)
-        {
-            process_highlight_roomspace_inputs(player->id_number);
-        }
+        process_cheat_mode_selection_inputs();
     }
     if (is_game_key_pressed(Gkey_SwitchToMap, &val, false))
     {
