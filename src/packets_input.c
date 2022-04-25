@@ -495,7 +495,7 @@ TbBool process_dungeon_control_packet_sell_operation(long plyr_idx)
     MapSubtlCoord stl_y = coord_subtile(y);
     player->full_slab_cursor = (playeradd->roomspace_mode != single_subtile_mode);
     playeradd->render_roomspace = get_dungeon_sell_user_roomspace(player->id_number, stl_x, stl_y);
-    tag_cursor_blocks_sell_area(player->id_number, stl_x, stl_y, player->full_slab_cursor);
+    tag_cursor_blocks_sell_area(plyr_idx, stl_x, stl_y, player->full_slab_cursor);
     if ((pckt->control_flags & PCtr_LBtnClick) == 0)
     {
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && (player->full_slab_cursor != 0))

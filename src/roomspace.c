@@ -633,6 +633,7 @@ struct RoomSpace get_dungeon_sell_user_roomspace(PlayerNumber plyr_idx, MapSubtl
     struct RoomSpace current_roomspace;
     MapSlabCoord slb_x = subtile_slab_fast(stl_x);
     MapSlabCoord slb_y = subtile_slab_fast(stl_y);
+    current_roomspace.plyr_idx = plyr_idx;
     if (playeradd->roomspace_mode == roomspace_detection_mode)
     {
         current_roomspace = get_current_room_as_roomspace(plyr_idx, slb_x, slb_y);
@@ -653,6 +654,7 @@ struct RoomSpace get_dungeon_sell_user_roomspace(PlayerNumber plyr_idx, MapSubtl
         current_roomspace = playeradd->render_roomspace;
     }
     player->boxsize = current_roomspace.slab_count;
+    current_roomspace.one_click_mode_exclusive = playeradd->one_click_mode_exclusive;
     return current_roomspace;
 }
 

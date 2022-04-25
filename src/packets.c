@@ -890,6 +890,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
         playeradd->roomspace_mode = roomspace_detection_mode;
         playeradd->one_click_mode_exclusive = false;
         playeradd->roomspace_drag_check = false;
+        playeradd->render_roomspace.highlight_mode = false;
         return false;
     }
    case PckA_SetRoomspaceMan:
@@ -902,6 +903,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
         playeradd->roomspace_mode = box_placement_mode;
         playeradd->one_click_mode_exclusive = false;
         playeradd->roomspace_drag_check = false;
+        playeradd->render_roomspace.highlight_mode = false;
         playeradd->roomspace_no_default = true;
         return false;
     }
@@ -914,6 +916,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
         playeradd->roomspace_drag_check = true;
         playeradd->roomspace_mode = drag_placement_mode;
         playeradd->one_click_mode_exclusive = true; // Enable GuiLayer_OneClickBridgeBuild layer
+        playeradd->render_roomspace.highlight_mode = false;
         return false;
     }
     case PckA_SetRoomspaceDefault:
@@ -931,11 +934,13 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
     }
     case PckA_SetRoomspaceWholeRoom:
     {
+        playeradd->render_roomspace.highlight_mode = false;
         playeradd->roomspace_mode = roomspace_detection_mode;
         return false;
     }
     case PckA_SetRoomspaceSubtile:
     {
+        playeradd->render_roomspace.highlight_mode = false;
         playeradd->roomspace_mode = single_subtile_mode;
         return false;
     }
