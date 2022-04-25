@@ -930,7 +930,7 @@ void process_build_roomspace_inputs(PlayerNumber plyr_idx)
                     width++;
                 }
             }
-            if (is_game_key_pressed(Gkey_RoomSpaceDecSize, &keycode, true))
+            else if (is_game_key_pressed(Gkey_RoomSpaceDecSize, &keycode, true))
             {
                 if (width != MIN_USER_ROOMSPACE_WIDTH)
                 {
@@ -980,7 +980,7 @@ void process_sell_roomspace_inputs(PlayerNumber plyr_idx)
                     set_packet_action(pckt, PckA_SetRoomspaceMan, par1, width, 0, 0);
                 }
             }
-            if (is_game_key_pressed(Gkey_RoomSpaceDecSize, &keycode, true))
+            else if (is_game_key_pressed(Gkey_RoomSpaceDecSize, &keycode, true))
             {
                 if (width != MIN_USER_ROOMSPACE_WIDTH)
                 {
