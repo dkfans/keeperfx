@@ -670,30 +670,22 @@ struct RoomSpace get_dungeon_build_user_roomspace(PlayerNumber plyr_idx, RoomKin
     struct RoomStats* rstat = room_stats_get_for_kind(rkind);
     best_roomspace.plyr_idx = plyr_idx;
     best_roomspace.rkind = rkind;
-    int new_width = playeradd->roomspace_width;
-    int new_height = playeradd->roomspace_height;
     if (mode == roomspace_detection_mode) // room auto-detection mode
     {
         best_roomspace = get_biggest_roomspace(plyr_idx, rkind, slb_x, slb_y, rstat->cost, 0, 32, playeradd->roomspace_detection_looseness);
-        new_width = best_roomspace.width;
-        new_height = best_roomspace.height;
         slb_x = best_roomspace.centreX;
         slb_y = best_roomspace.centreY;
         player->boxsize = best_roomspace.slab_count; // correct number of tiles always returned from get_biggest_roomspace
     }
-    else if (mode == box_placement_mode)
-    {
-        best_roomspace = create_box_roomspace(best_roomspace, playeradd->roomspace_width, playeradd->roomspace_height, slb_x, slb_y);
-    }
     else
     {
-        struct RoomSpace temp_best_room = create_box_roomspace(best_roomspace, new_width, new_height, slb_x, slb_y);
+        struct RoomSpace temp_best_room = create_box_roomspace(best_roomspace, playeradd->roomspace_width, playeradd->roomspace_height, slb_x, slb_y);
         temp_best_room = check_slabs_in_roomspace(temp_best_room, plyr_idx, rkind, rstat->cost);
         best_roomspace = temp_best_room;
         player->boxsize = best_roomspace.slab_count; // correct number of tiles returned from check_slabs_in_roomspace
             // Make sure the "outer box" bounding is drawn with square room mode
-            best_roomspace.width = new_width;
-            best_roomspace.height = new_height;
+            best_roomspace.width = playeradd->roomspace_width;
+            best_roomspace.height = playeradd->roomspace_height;
             best_roomspace.render_roomspace_as_box = true;
     }
     best_roomspace.one_click_mode_exclusive = playeradd->one_click_mode_exclusive;
