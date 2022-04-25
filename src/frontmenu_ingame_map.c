@@ -377,16 +377,34 @@ void pannel_map_draw_creature_dot(long mapos_x, long mapos_y, RealScreenCoord ba
         // If the screen is 640x480 or lower resolution, the above single pixel is all we will do here.
         return;
     }
+    short pixels_per_creature;
+    if (basic_zoom >= 2048)
+    {
+        pixels_per_creature = 1;
+    }
+    else if (basic_zoom >= 512)
+    {
+        pixels_per_creature = 2;
+    }
+    else
+    {
+        pixels_per_creature = 3;
+    }
 
+    short draw_pixels = scale_ui_value(pixels_per_creature)/2;
+    if (draw_pixels <= 1)
+    {
+        return;
+    }
     // Can be altered to not include 512 (zoom 3) by changing from <= to < 
-    if (basic_zoom <= 512)
+    if (draw_pixels >= 2)
     {
         // (2x2) pixels to the right and below
         pannel_map_draw_pixel(mapos_x+basepos, mapos_y+basepos+1, col);
         pannel_map_draw_pixel(mapos_x+basepos+1, mapos_y+basepos, col);
         pannel_map_draw_pixel(mapos_x+basepos+1, mapos_y+basepos+1, col);
     }
-	    if (basic_zoom == 128)
+    if (draw_pixels >= 3)
     {
         // (3x3) pixels to the left and above
         pannel_map_draw_pixel(mapos_x+basepos-1, mapos_y+basepos-1, col);
@@ -395,19 +413,8 @@ void pannel_map_draw_creature_dot(long mapos_x, long mapos_y, RealScreenCoord ba
         pannel_map_draw_pixel(mapos_x+basepos-1, mapos_y+basepos, col);
         pannel_map_draw_pixel(mapos_x+basepos-1, mapos_y+basepos+1, col);
     }
-    // Option for bigger dots with closer zooms (zoom 1 and 2)
-    // TODO: Make this functional for higher screen resolution if we can factor that in.
 
-    /*if (basic_zoom <= 256)
-    {
-        // (3x3) pixels to the left and above
-        pannel_map_draw_pixel(mapos_x+basepos-1, mapos_y+basepos-1, col);
-        pannel_map_draw_pixel(mapos_x+basepos, mapos_y+basepos-1, col);
-        pannel_map_draw_pixel(mapos_x+basepos+1, mapos_y+basepos-1, col);
-        pannel_map_draw_pixel(mapos_x+basepos-1, mapos_y+basepos, col);
-        pannel_map_draw_pixel(mapos_x+basepos-1, mapos_y+basepos+1, col);
-    }
-    if (basic_zoom == 128)
+    if (draw_pixels >= 5)
     {
         // (5x5)
         // add a perimeter-layer of pixels for a really zoomed-in map
@@ -430,7 +437,7 @@ void pannel_map_draw_creature_dot(long mapos_x, long mapos_y, RealScreenCoord ba
         pannel_map_draw_pixel(mapos_x+basepos, mapos_y+basepos+2, col);
         pannel_map_draw_pixel(mapos_x+basepos+1, mapos_y+basepos+2, col);
         pannel_map_draw_pixel(mapos_x+basepos+2, mapos_y+basepos+2, col);
-    }*/
+    }
 }
 
 int draw_overlay_creatures(struct PlayerInfo *player, long units_per_px, long zoom, long basic_zoom)
