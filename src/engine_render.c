@@ -3668,7 +3668,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing, long
     const struct TbSprite *spr;
     int bs_units_per_px;
     spr = &button_sprite[70];
-    bs_units_per_px = 17 * units_per_pixel / spr->SHeight;
+    bs_units_per_px = calculate_relative_upp(17, units_per_pixel_ui, spr->SHeight);
     if ( state_spridx || anger_spridx )
     {
         spr = &button_sprite[70];
