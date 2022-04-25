@@ -1005,6 +1005,7 @@ long get_dungeon_control_action_inputs(void)
         }
         set_packet_action(pckt,PckA_SetMapRotation,angle,0,0,0);
         clear_key_pressed(val);
+        return 1;
       }
     }
     if (player->view_mode == PVM_FrontView)
@@ -1053,6 +1054,7 @@ long get_dungeon_control_action_inputs(void)
         set_packet_action(pckt,PckA_SetMapRotation,angle,0,0,0);
         }
         clear_key_pressed(val);
+        return 1;
       }
     }
 
