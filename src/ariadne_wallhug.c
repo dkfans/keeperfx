@@ -625,7 +625,7 @@ TbBool find_approach_position_to_subtile(const struct Coord3d *srcpos, MapSubtlC
         struct Map* mapblk = get_map_block_at(tmpos.x.stl.num, tmpos.y.stl.num);
         if ((!map_block_invalid(mapblk)) && ((mapblk->flags & SlbAtFlg_Blocking) == 0))
         {
-            long dist = get_2d_box_distance(srcpos, &tmpos);
+            MapCoordDelta dist = get_2d_box_distance(srcpos, &tmpos);
             if (min_dist > dist)
             {
                 min_dist = dist;

@@ -1,4 +1,21 @@
-
+/******************************************************************************/
+// Free implementation of Bullfrog's Dungeon Keeper strategy game.
+/******************************************************************************/
+/** @file packets_input.c
+ *     Packet processing routines.
+ * @par Purpose:
+ *     Functions for creating and executing packets.
+ * @par Comment:
+ *     None.
+ * @author   KeeperFX Team
+ * @date     30 Jan 2009 - 10 Mar 2022
+ * @par  Copying and copyrights:
+ *     This program is free software; you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation; either version 2 of the License, or
+ *     (at your option) any later version.
+ */
+/******************************************************************************/
 #include "config_players.h"
 #include "packets.h"
 #include "player_data.h"
@@ -24,6 +41,7 @@
 #include "map_blocks.h"
 #include "map_utils.h"
 #include "room_workshop.h"
+#include "cursor_tag.h"
 
 extern TbBool process_dungeon_control_packet_spell_overcharge(long plyr_idx);
 extern TbBool packets_process_cheats(
@@ -79,6 +97,10 @@ TbBool process_dungeon_control_packet_dungeon_build_room(long plyr_idx)
         gui_room_type_highlighted = player->chosen_room_kind;
     }
     TbBool drag_check = ((is_game_key_pressed(Gkey_BestRoomSpace, &keycode, true) || is_game_key_pressed(Gkey_SquareRoomSpace, &keycode, true)) && ((pckt->control_flags & PCtr_LBtnHeld) == PCtr_LBtnHeld));
+    if (game.system_flags & GSF_NetworkActive)
+    {
+        drag_check = false; // Disable due to lack of network support
+    }
     get_dungeon_build_user_roomspace(player->id_number, player->chosen_room_kind, stl_x, stl_y, &mode, drag_check);
     long i = tag_cursor_blocks_place_room(player->id_number, stl_x, stl_y, player->full_slab_cursor);
 
@@ -229,13 +251,10 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
 
     if ((pckt->control_flags & PCtr_MapCoordsValid) != 0)
     {
-        if (is_my_player(player) && !game_is_busy_doing_gui())
+        if (player->primary_cursor_state == CSt_PickAxe)
         {
-            if (player->primary_cursor_state == CSt_PickAxe)
-            {
-                get_dungeon_highlight_user_roomspace(player->id_number, stl_x, stl_y);
-                tag_cursor_blocks_dig(player->id_number, stl_x, stl_y, player->full_slab_cursor);
-            }
+            get_dungeon_highlight_user_roomspace(player->id_number, stl_x, stl_y);
+            tag_cursor_blocks_dig(player->id_number, stl_x, stl_y, player->full_slab_cursor);
         }
         if ((pckt->control_flags & PCtr_LBtnClick) != 0)
         {
@@ -255,7 +274,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
                         ERRORLOG("Door thing not found at map pos (%d,%d)",(int)player->cursor_stl_x,(int)player->cursor_stl_y);
                         break;
                     }
-                    if (thing->trap_door_active_state)
+                    if (thing->door.is_locked)
                         unlock_door(thing);
                     else
                         lock_door(thing);
@@ -470,14 +489,8 @@ TbBool process_dungeon_control_packet_sell_operation(long plyr_idx)
     MapSubtlCoord stl_x = coord_subtile(x);
     MapSubtlCoord stl_y = coord_subtile(y);
     player->full_slab_cursor = (!is_game_key_pressed(Gkey_SellTrapOnSubtile, &keycode, true));
-    if (is_my_player(player))
-    {
-        if (!game_is_busy_doing_gui())
-        {
-            get_dungeon_sell_user_roomspace(player->id_number, stl_x, stl_y);
-            tag_cursor_blocks_sell_area(player->id_number, stl_x, stl_y, player->full_slab_cursor);
-        }
-    }
+    get_dungeon_sell_user_roomspace(player->id_number, stl_x, stl_y);
+    tag_cursor_blocks_sell_area(player->id_number, stl_x, stl_y, player->full_slab_cursor);
     if ((pckt->control_flags & PCtr_LBtnClick) == 0)
     {
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && (player->full_slab_cursor != 0))

@@ -468,6 +468,21 @@ TbBool set_pointer_graphic(long ptr_idx)
       spr = &pointer_sprites[ptr_idx];
       x = 12; y = 15;
       break;
+  case MousePG_PlaceImpRock:
+  case MousePG_PlaceGold:
+  case MousePG_PlaceEarth:
+  case MousePG_PlaceWall:
+  case MousePG_PlacePath:
+  case MousePG_PlaceClaimed:
+  case MousePG_PlaceLava:
+  case MousePG_PlaceWater:
+  case MousePG_PlaceGems:
+  case MousePG_MkDigger:
+  case MousePG_MkCreature:
+  case MousePG_MvCreature:
+      spr = &pointer_sprites[ptr_idx];
+      x = 12; y = 38;
+      break;
   default:
       spr = get_new_icon_sprite(ptr_idx);
       if (spr != NULL)
@@ -935,8 +950,13 @@ TbScreenMode switch_to_next_video_mode(void)
     }
     SYNCLOG("Switched video to %s (mode %d)", get_vidmode_name(scrmode),(int)scrmode);
     save_settings();
+    TbBool reload_video = (menu_is_active(GMnu_VIDEO));
     reinit_all_menus();
     init_custom_sprites(SPRITE_LAST_LEVEL);
+    if (reload_video)
+    {
+        turn_on_menu(GMnu_VIDEO);
+    }
     return scrmode;
 }
 

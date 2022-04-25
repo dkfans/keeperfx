@@ -65,7 +65,7 @@ TbBool get_thing_next_position(struct Coord3d *pos, const struct Thing *thing);
 void remove_relevant_forces_from_thing_after_slide(struct Thing *thing, struct Coord3d *pos, long a3);
 void apply_transitive_velocity_to_thing(struct Thing *thing, struct ComponentVector *veloc);
 TbBool positions_equivalent(const struct Coord3d *pos_a, const struct Coord3d *pos_b);
-long creature_cannot_move_directly_to(struct Thing *thing, struct Coord3d *pos);
+TbBool creature_cannot_move_directly_to(struct Thing *thing, struct Coord3d *pos);
 void creature_set_speed(struct Thing *thing, long speed);
 
 long get_thing_height_at(const struct Thing *thing, const struct Coord3d *pos);
@@ -80,6 +80,7 @@ void get_floor_and_ceiling_height_under_thing_at(const struct Thing *thing,
 TbBool thing_is_exempt_from_z_axis_clipping(const struct Thing *thing);
 unsigned short get_slide_z_coord(const struct Thing *thing, const struct Coord3d *pos);
 TbBool position_over_floor_level(const struct Thing* thing, const struct Coord3d* pos);
+TbBool map_is_solid_at_height(MapSubtlCoord stl_x, MapSubtlCoord stl_y, MapCoord height_beg, MapCoord height_end);
 /******************************************************************************/
 #ifdef __cplusplus
 }

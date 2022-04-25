@@ -65,6 +65,8 @@ extern "C" {
 // It should be replaced either with CREATURE_RANDOM or with UNSYNC_RANDOM on case by case basis.
 #define EFFECT_RANDOM(thing, range) \
     LbRandomSeries(range, &game.action_rand_seed, __func__, __LINE__, "effect")
+#define ACTION_RANDOM(range) \
+    LbRandomSeries(range, &game.action_rand_seed, __func__, __LINE__, "action")
 
 enum GameSystemFlags {
     GSF_NetworkActive    = 0x0001,
@@ -98,6 +100,7 @@ enum ClassicBugFlags {
     ClscBug_FaintedImmuneToBoulder = 0x0200,
     ClscBug_RebirthKeepsSpells     = 0x0400,
     ClscBug_FriendlyFaint          = 0x0800,
+    ClscBug_PassiveNeutrals        = 0x1000,
 };
 
 enum GameFlags2 {
@@ -215,6 +218,7 @@ struct GameAdd {
     unsigned long heart_lost_message_id;
     long heart_lost_message_target;
     unsigned char slab_ext_data[85 * 85];
+    struct PlayerInfoAdd players[PLAYERS_COUNT];
 };
 
 extern unsigned long game_flags2; // Should be reset to zero on new level
