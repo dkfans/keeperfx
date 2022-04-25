@@ -679,10 +679,9 @@ struct RoomSpace get_dungeon_build_user_roomspace(PlayerNumber plyr_idx, RoomKin
         slb_y = best_roomspace.centreY;
         player->boxsize = best_roomspace.slab_count; // correct number of tiles always returned from get_biggest_roomspace
     }
-    else if (playeradd->roomspace_width == 1 && playeradd->roomspace_height == 1)
+    else if (mode == box_placement_mode)
     {
-        player->boxsize = can_build_roomspace_of_dimensions(plyr_idx, rkind, slb_x, slb_y, new_width, new_height, true); //number of slabs to build, corrected for blocked tiles
-        best_roomspace = create_box_roomspace(best_roomspace, new_width, new_height, slb_x, slb_y);
+        best_roomspace = create_box_roomspace(best_roomspace, playeradd->roomspace_width, playeradd->roomspace_height, slb_x, slb_y);
     }
     else
     {
@@ -929,7 +928,6 @@ void process_build_roomspace_inputs(PlayerNumber plyr_idx)
                 if (width != MAX_USER_ROOMSPACE_WIDTH)
                 {
                     width++;
-                    set_packet_action(pckt, PckA_SetRoomspaceMan, par1, width, 0, 0);
                 }
             }
             if (is_game_key_pressed(Gkey_RoomSpaceDecSize, &keycode, true))
@@ -937,13 +935,9 @@ void process_build_roomspace_inputs(PlayerNumber plyr_idx)
                 if (width != MIN_USER_ROOMSPACE_WIDTH)
                 {
                     width--;
-                    set_packet_action(pckt, PckA_SetRoomspaceMan, par1, width, 0, 0);
                 }
             }
-            if (playeradd->roomspace_no_default == false)
-            {
-                set_packet_action(pckt, PckA_SetRoomspaceMan, par1, width, 0, 0);
-            }
+            set_packet_action(pckt, PckA_SetRoomspaceMan, par1, width, 0, 0);
         }
         else
         {
