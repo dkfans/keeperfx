@@ -866,129 +866,121 @@ void update_roomspaces()
 void process_build_roomspace_inputs(PlayerNumber plyr_idx)
 {
     struct PlayerInfo* player = get_player(plyr_idx);
-    struct Coord3d pos;
-    if (screen_to_map(player->acamera, GetMouseX(), GetMouseY(), &pos))
+    struct PlayerInfoAdd* playeradd = get_playeradd(plyr_idx);
+    long keycode = 0;
+    struct Packet* pckt = get_packet(plyr_idx);
+    if (player->chosen_room_kind == RoK_BRIDGE)
     {
-        struct PlayerInfoAdd* playeradd = get_playeradd(plyr_idx);
-        long keycode = 0;
-        struct Packet* pckt = get_packet(plyr_idx);
-        if (player->chosen_room_kind == RoK_BRIDGE)
+        TbBool drag_check = ((is_game_key_pressed(Gkey_BestRoomSpace, &keycode, true) || (is_game_key_pressed(Gkey_SquareRoomSpace, &keycode, true))) && (left_button_held));
+        if (drag_check) // Enable "paint mode" if Ctrl or Shift are held
         {
-            TbBool drag_check = ((is_game_key_pressed(Gkey_BestRoomSpace, &keycode, true) || (is_game_key_pressed(Gkey_SquareRoomSpace, &keycode, true))) && (left_button_held));
-            if (drag_check) // Enable "paint mode" if Ctrl or Shift are held
-            {
-                set_packet_action(pckt, PckA_SetRoomspaceDrag, 0, 0, 0, 0);
-            }
-            else
-            {
-                set_packet_action(pckt, PckA_SetRoomspaceDefault, 1, 0, 0, 0);
-            }
-        }
-        else if (is_game_key_pressed(Gkey_BestRoomSpace, &keycode, true)) // Find "best" room
-        {
-            unsigned char looseness = playeradd->roomspace_detection_looseness;
-            if (is_game_key_pressed(Gkey_RoomSpaceIncSize, &keycode, true))
-            {
-                if (looseness < tolerate_gold)
-                {
-                    looseness = tolerate_gold;
-                }
-                else if (looseness != tolerate_rock)
-                {
-                    looseness = tolerate_rock;
-                }
-            }
-            else if (is_game_key_pressed(Gkey_RoomSpaceDecSize, &keycode, true))
-            {
-                if (looseness == tolerate_rock)
-                {
-                    looseness = tolerate_gold;
-                }
-                else if (looseness != disable_tolerance_layers)
-                {
-                    looseness = disable_tolerance_layers;
-                }
-            }
-            set_packet_action(pckt, PckA_SetRoomspaceAuto, looseness, 0, 0, 0);
-        }
-        else if (is_game_key_pressed(Gkey_SquareRoomSpace, &keycode, true)) // Define square room (mouse scroll-wheel changes size - default is 5x5)
-        {
-            int width = (playeradd->roomspace_no_default) ? playeradd->user_defined_roomspace_width : DEFAULT_USER_ROOMSPACE_WIDTH;
-            if (is_game_key_pressed(Gkey_RoomSpaceIncSize, &keycode, true))
-            {
-                if (width != MAX_USER_ROOMSPACE_WIDTH)
-                {
-                    width++;
-                    set_packet_action(pckt, PckA_SetRoomspaceMan, width, 0, 0, 0);
-                }
-            }
-            else if (is_game_key_pressed(Gkey_RoomSpaceDecSize, &keycode, true))
-            {
-                if (width != MIN_USER_ROOMSPACE_WIDTH)
-                {
-                    width--;
-                    set_packet_action(pckt, PckA_SetRoomspaceMan, width, 0, 0, 0);
-                }
-            }
-            if (playeradd->roomspace_no_default == false)
-            {
-                set_packet_action(pckt, PckA_SetRoomspaceMan, width, 0, 0, 0);
-            }
+            set_packet_action(pckt, PckA_SetRoomspaceDrag, 0, 0, 0, 0);
         }
         else
         {
-            int size = numpad_to_value(false);
-            set_packet_action(pckt, PckA_SetRoomspaceDefault, size, 0, 0, 0);
+            set_packet_action(pckt, PckA_SetRoomspaceDefault, 1, 0, 0, 0);
         }
+    }
+    else if (is_game_key_pressed(Gkey_BestRoomSpace, &keycode, true)) // Find "best" room
+    {
+        unsigned char looseness = playeradd->roomspace_detection_looseness;
+        if (is_game_key_pressed(Gkey_RoomSpaceIncSize, &keycode, true))
+        {
+            if (looseness < tolerate_gold)
+            {
+                looseness = tolerate_gold;
+            }
+            else if (looseness != tolerate_rock)
+            {
+                looseness = tolerate_rock;
+            }
+        }
+        else if (is_game_key_pressed(Gkey_RoomSpaceDecSize, &keycode, true))
+        {
+            if (looseness == tolerate_rock)
+            {
+                looseness = tolerate_gold;
+            }
+            else if (looseness != disable_tolerance_layers)
+            {
+                looseness = disable_tolerance_layers;
+            }
+        }
+        set_packet_action(pckt, PckA_SetRoomspaceAuto, looseness, 0, 0, 0);
+    }
+    else if (is_game_key_pressed(Gkey_SquareRoomSpace, &keycode, true)) // Define square room (mouse scroll-wheel changes size - default is 5x5)
+    {
+        int width = (playeradd->roomspace_no_default) ? playeradd->user_defined_roomspace_width : DEFAULT_USER_ROOMSPACE_WIDTH;
+        if (is_game_key_pressed(Gkey_RoomSpaceIncSize, &keycode, true))
+        {
+            if (width != MAX_USER_ROOMSPACE_WIDTH)
+            {
+                width++;
+                set_packet_action(pckt, PckA_SetRoomspaceMan, width, 0, 0, 0);
+            }
+        }
+        else if (is_game_key_pressed(Gkey_RoomSpaceDecSize, &keycode, true))
+        {
+            if (width != MIN_USER_ROOMSPACE_WIDTH)
+            {
+                width--;
+                set_packet_action(pckt, PckA_SetRoomspaceMan, width, 0, 0, 0);
+            }
+        }
+        if (playeradd->roomspace_no_default == false)
+        {
+            set_packet_action(pckt, PckA_SetRoomspaceMan, width, 0, 0, 0);
+        }
+    }
+    else
+    {
+        int size = numpad_to_value(false);
+        set_packet_action(pckt, PckA_SetRoomspaceDefault, size, 0, 0, 0);
     }
 }
 
 void process_sell_roomspace_inputs(PlayerNumber plyr_idx)
 {
     struct PlayerInfo* player = get_player(plyr_idx);
-    struct Coord3d pos;
-    if (screen_to_map(player->acamera, GetMouseX(), GetMouseY(), &pos))
+    struct Packet* pckt = get_packet(plyr_idx);
+    long keycode = 0;
+    struct PlayerInfoAdd* playeradd = get_playeradd(plyr_idx);
+    if (is_game_key_pressed(Gkey_SellTrapOnSubtile, &keycode, true))
     {
-        struct Packet* pckt = get_packet(plyr_idx);
-        long keycode = 0;
-        struct PlayerInfoAdd* playeradd = get_playeradd(plyr_idx);
-        if (is_game_key_pressed(Gkey_SellTrapOnSubtile, &keycode, true))
+        set_packet_action(pckt, PckA_SetRoomspaceSubtile, 0, 0, 0, 0);
+    }
+    else if (is_game_key_pressed(Gkey_BestRoomSpace, &keycode, true))
+    {
+        set_packet_action(pckt, PckA_SetRoomspaceWholeRoom, 0, 0, 0, 0);
+    }
+    else if (is_game_key_pressed(Gkey_SquareRoomSpace, &keycode, true)) // Define square room (mouse scroll-wheel changes size - default is 5x5)
+    {
+        int width = (playeradd->roomspace_no_default) ? playeradd->user_defined_roomspace_width : DEFAULT_USER_ROOMSPACE_WIDTH;
+        if (is_game_key_pressed(Gkey_RoomSpaceIncSize, &keycode, true))
         {
-            set_packet_action(pckt, PckA_SetRoomspaceSubtile, 0, 0, 0, 0);
-        }
-        else if (is_game_key_pressed(Gkey_BestRoomSpace, &keycode, true))
-        {
-            set_packet_action(pckt, PckA_SetRoomspaceWholeRoom, 0, 0, 0, 0);
-        }
-        else if (is_game_key_pressed(Gkey_SquareRoomSpace, &keycode, true)) // Define square room (mouse scroll-wheel changes size - default is 5x5)
-        {
-            int width = (playeradd->roomspace_no_default) ? playeradd->user_defined_roomspace_width : DEFAULT_USER_ROOMSPACE_WIDTH;
-            if (is_game_key_pressed(Gkey_RoomSpaceIncSize, &keycode, true))
+            if (width != MAX_USER_ROOMSPACE_WIDTH)
             {
-                if (width != MAX_USER_ROOMSPACE_WIDTH)
-                {
-                    width++;
-                    set_packet_action(pckt, PckA_SetRoomspaceMan, width, 0, 0, 0);
-                }
-            }
-            else if (is_game_key_pressed(Gkey_RoomSpaceDecSize, &keycode, true))
-            {
-                if (width != MIN_USER_ROOMSPACE_WIDTH)
-                {
-                    width--;
-                    set_packet_action(pckt, PckA_SetRoomspaceMan, width, 0, 0, 0);
-                }
-            }
-            if (playeradd->roomspace_no_default == false)
-            {
+                width++;
                 set_packet_action(pckt, PckA_SetRoomspaceMan, width, 0, 0, 0);
             }
         }
-        else
+        else if (is_game_key_pressed(Gkey_RoomSpaceDecSize, &keycode, true))
         {
-            int size = numpad_to_value(false);
-            set_packet_action(pckt, PckA_SetRoomspaceDefault, size, 0, 0, 0);
+            if (width != MIN_USER_ROOMSPACE_WIDTH)
+            {
+                width--;
+                set_packet_action(pckt, PckA_SetRoomspaceMan, width, 0, 0, 0);
+            }
         }
+        if (playeradd->roomspace_no_default == false)
+        {
+            set_packet_action(pckt, PckA_SetRoomspaceMan, width, 0, 0, 0);
+        }
+    }
+    else
+    {
+        int size = numpad_to_value(false);
+        set_packet_action(pckt, PckA_SetRoomspaceDefault, size, 0, 0, 0);
     }
 }
 

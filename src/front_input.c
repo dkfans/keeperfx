@@ -1082,19 +1082,15 @@ long get_dungeon_control_action_inputs(void)
         }
         else if (player->primary_cursor_state == CSt_PowerHand)
         {
-            struct Coord3d pos;
-            if (screen_to_map(player->acamera, GetMouseX(), GetMouseY(), &pos))
+            long keycode = 0;
+            struct Packet* pckt = get_packet(my_player_number);
+            if (is_game_key_pressed(Gkey_SellTrapOnSubtile, &keycode, true))
             {
-                long keycode = 0;
-                struct Packet* pckt = get_packet(my_player_number);
-                if (is_game_key_pressed(Gkey_SellTrapOnSubtile, &keycode, true))
-                {
-                    set_packet_action(pckt, PckA_SetRoomspaceSubtile, 0, 0, 0, 0);
-                }
-                else
-                {
-                    set_packet_action(pckt, PckA_SetRoomspaceDefault, 0, 0, 0, 0);
-                }
+                set_packet_action(pckt, PckA_SetRoomspaceSubtile, 0, 0, 0, 0);
+            }
+            else
+            {
+                set_packet_action(pckt, PckA_SetRoomspaceDefault, 0, 0, 0, 0);
             }
         }
     }
