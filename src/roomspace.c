@@ -935,10 +935,6 @@ void process_build_roomspace_inputs(PlayerNumber plyr_idx)
                 set_packet_action(pckt, PckA_SetRoomspaceMan, width, 0, 0, 0);
             }
         }
-        else if (is_game_key_pressed(Gkey_SellTrapOnSubtile, &keycode, true))
-        {
-            set_packet_action(pckt, PckA_SetRoomspaceDrag, 0, 0, 0, 0);
-        }
         else
         {
             int size = numpad_to_value(false);
