@@ -96,14 +96,7 @@ TbBool process_dungeon_control_packet_dungeon_build_room(long plyr_idx)
     {
         gui_room_type_highlighted = player->chosen_room_kind;
     }
-    /*
-    TbBool drag_check = ((is_game_key_pressed(Gkey_BestRoomSpace, &keycode, true) || is_game_key_pressed(Gkey_SquareRoomSpace, &keycode, true)) && ((pckt->control_flags & PCtr_LBtnHeld) == PCtr_LBtnHeld));
-    if (game.system_flags & GSF_NetworkActive)
-    {
-        drag_check = false; // Disable due to lack of network support
-    }
-    */
-    playeradd->render_roomspace = get_dungeon_build_user_roomspace(player->id_number, player->chosen_room_kind, playeradd->roomspace_stl_x, playeradd->roomspace_stl_y, playeradd->roomspace_mode);
+    get_dungeon_build_user_roomspace(&playeradd->render_roomspace, player->id_number, player->chosen_room_kind, playeradd->roomspace_stl_x, playeradd->roomspace_stl_y, playeradd->roomspace_mode);
     long i = tag_cursor_blocks_place_room(player->id_number, stl_x, stl_y, player->full_slab_cursor);
     if (playeradd->roomspace_mode != drag_placement_mode) // allows the user to hold the left mouse to use "paint mode"
     {
@@ -206,7 +199,7 @@ TbBool process_dungeon_power_hand_state(long plyr_idx)
         } else
         {
             player->additional_flags |= PlaAF_ChosenSubTileIsHigh;
-            playeradd->render_roomspace = get_dungeon_highlight_user_roomspace(player->id_number, stl_x, stl_y);
+            get_dungeon_highlight_user_roomspace(&playeradd->render_roomspace, player->id_number, stl_x, stl_y);
             tag_cursor_blocks_dig(player->id_number, stl_x, stl_y, player->full_slab_cursor);
         }
     }
@@ -258,7 +251,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
     {
         if (player->primary_cursor_state == CSt_PickAxe)
         {
-            playeradd->render_roomspace = get_dungeon_highlight_user_roomspace(player->id_number, stl_x, stl_y);
+            get_dungeon_highlight_user_roomspace(&playeradd->render_roomspace, player->id_number, stl_x, stl_y);
             tag_cursor_blocks_dig(player->id_number, stl_x, stl_y, player->full_slab_cursor);
         }
         if ((pckt->control_flags & PCtr_LBtnClick) != 0)
@@ -494,7 +487,7 @@ TbBool process_dungeon_control_packet_sell_operation(long plyr_idx)
     MapSubtlCoord stl_x = coord_subtile(x);
     MapSubtlCoord stl_y = coord_subtile(y);
     player->full_slab_cursor = (playeradd->roomspace_mode != single_subtile_mode);
-    playeradd->render_roomspace = get_dungeon_sell_user_roomspace(player->id_number, stl_x, stl_y);
+    get_dungeon_sell_user_roomspace(&playeradd->render_roomspace, player->id_number, stl_x, stl_y);
     tag_cursor_blocks_sell_area(plyr_idx, stl_x, stl_y, player->full_slab_cursor);
     if ((pckt->control_flags & PCtr_LBtnClick) == 0)
     {

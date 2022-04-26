@@ -119,11 +119,11 @@ struct RoomSpace get_current_room_as_roomspace(PlayerNumber current_plyr_idx,
                                                MapSlabCoord cursor_x, 
                                                MapSlabCoord cursor_y);
 
-struct RoomSpace get_dungeon_highlight_user_roomspace(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
+void get_dungeon_highlight_user_roomspace(struct RoomSpace *roomspace, PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 
-struct RoomSpace get_dungeon_sell_user_roomspace(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
+void get_dungeon_sell_user_roomspace(struct RoomSpace *roomspace, PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 
-struct RoomSpace get_dungeon_build_user_roomspace(PlayerNumber plyr_idx, RoomKind rkind, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned char mode);
+void get_dungeon_build_user_roomspace(struct RoomSpace *roomspace, PlayerNumber plyr_idx, RoomKind rkind, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned char mode);
 
 void keeper_highlight_roomspace(PlayerNumber plyr_idx, struct RoomSpace *roomspace, int task_allowance_reduction);
 void keeper_sell_roomspace(PlayerNumber plyr_idx, struct RoomSpace *roomspace);

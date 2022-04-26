@@ -485,7 +485,7 @@ void reset_dungeon_build_room_ui_variables(PlayerNumber plyr_idx)
     playeradd->user_defined_roomspace_width = DEFAULT_USER_ROOMSPACE_WIDTH;
 }
 
-struct RoomSpace get_dungeon_highlight_user_roomspace(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+void get_dungeon_highlight_user_roomspace(struct RoomSpace *roomspace, PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     struct PlayerInfo* player = get_player(plyr_idx);
     struct PlayerInfoAdd* playeradd = get_playeradd(plyr_idx);
@@ -510,7 +510,8 @@ struct RoomSpace get_dungeon_highlight_user_roomspace(PlayerNumber plyr_idx, Map
         current_roomspace.one_click_mode_exclusive = false;
         current_roomspace = check_roomspace_for_diggable_slabs(current_roomspace, plyr_idx);
         player->boxsize = current_roomspace.slab_count;
-        return current_roomspace;
+        *roomspace = current_roomspace;
+        return;
     }
     if (!playeradd->render_roomspace.drag_mode) // reset drag start slab
     {
@@ -623,10 +624,10 @@ struct RoomSpace get_dungeon_highlight_user_roomspace(PlayerNumber plyr_idx, Map
         set_tag_untag_mode(plyr_idx, stl_x, stl_y);
         playeradd->swap_to_untag_mode = -1; // disable
     }
-    return current_roomspace;
+    *roomspace = current_roomspace;
 }
 
-struct RoomSpace get_dungeon_sell_user_roomspace(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+void get_dungeon_sell_user_roomspace(struct RoomSpace *roomspace, PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     struct PlayerInfo* player = get_player(plyr_idx);
     struct PlayerInfoAdd* playeradd = get_playeradd(plyr_idx);
@@ -655,10 +656,10 @@ struct RoomSpace get_dungeon_sell_user_roomspace(PlayerNumber plyr_idx, MapSubtl
     }
     player->boxsize = current_roomspace.slab_count;
     current_roomspace.one_click_mode_exclusive = playeradd->one_click_mode_exclusive;
-    return current_roomspace;
+    *roomspace = current_roomspace;
 }
 
-struct RoomSpace get_dungeon_build_user_roomspace(PlayerNumber plyr_idx, RoomKind rkind, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned char mode)
+void get_dungeon_build_user_roomspace(struct RoomSpace *roomspace, PlayerNumber plyr_idx, RoomKind rkind, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned char mode)
 {
     struct PlayerInfo* player = get_player(plyr_idx);
     struct PlayerInfoAdd* playeradd = get_playeradd(plyr_idx);
@@ -689,7 +690,7 @@ struct RoomSpace get_dungeon_build_user_roomspace(PlayerNumber plyr_idx, RoomKin
             best_roomspace.render_roomspace_as_box = true;
     }
     best_roomspace.one_click_mode_exclusive = playeradd->one_click_mode_exclusive;
-    return best_roomspace; // make sure we can render the correct boundbox to the user
+    *roomspace = best_roomspace; // make sure we can render the correct boundbox to the user
 }
 
 static void sell_at_point(struct RoomSpace *roomspace)
