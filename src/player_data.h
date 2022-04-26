@@ -248,8 +248,6 @@ struct PlayerInfoAdd {
     unsigned char roomspace_mode;
     int user_defined_roomspace_width;
     int roomspace_detection_looseness;
-    MapSubtlCoord roomspace_stl_x;
-    MapSubtlCoord roomspace_stl_y;
     int roomspace_width;
     int roomspace_height;
     TbBool one_click_mode_exclusive;

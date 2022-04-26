@@ -866,24 +866,22 @@ void update_roomspaces()
 void process_build_roomspace_inputs(PlayerNumber plyr_idx)
 {
     struct PlayerInfo* player = get_player(plyr_idx);
-    struct PlayerInfoAdd* playeradd = get_playeradd(plyr_idx);
     struct Coord3d pos;
     if (screen_to_map(player->acamera, GetMouseX(), GetMouseY(), &pos))
     {
+        struct PlayerInfoAdd* playeradd = get_playeradd(plyr_idx);
         long keycode = 0;
         struct Packet* pckt = get_packet(plyr_idx);
-        unsigned short par1;
         if (player->chosen_room_kind == RoK_BRIDGE)
         {
-            TbBool drag_check = ((is_game_key_pressed(Gkey_BestRoomSpace, &keycode, true) || is_game_key_pressed(Gkey_SquareRoomSpace, &keycode, true)) && (left_button_held));
+            TbBool drag_check = ((is_game_key_pressed(Gkey_BestRoomSpace, &keycode, true) || (is_game_key_pressed(Gkey_SquareRoomSpace, &keycode, true))) && (left_button_held));
             if (drag_check) // Enable "paint mode" if Ctrl or Shift are held
             {
-                set_packet_action(pckt, PckA_SetRoomspaceDrag, pos.x.stl.num, pos.y.stl.num, 0, 0);
+                set_packet_action(pckt, PckA_SetRoomspaceDrag, 0, 0, 0, 0);
             }
             else
             {
-                par1 = (pos.x.stl.num | (pos.y.stl.num << 8));
-                set_packet_action(pckt, PckA_SetRoomspaceDefault, par1, 1, 0, 0);
+                set_packet_action(pckt, PckA_SetRoomspaceDefault, 1, 0, 0, 0);
             }
         }
         else if (is_game_key_pressed(Gkey_BestRoomSpace, &keycode, true)) // Find "best" room
@@ -911,18 +909,17 @@ void process_build_roomspace_inputs(PlayerNumber plyr_idx)
                     looseness = disable_tolerance_layers;
                 }
             }
-            par1 = (pos.x.stl.num | (pos.y.stl.num << 8));
-            set_packet_action(pckt, PckA_SetRoomspaceAuto, par1, looseness, 0, 0);
+            set_packet_action(pckt, PckA_SetRoomspaceAuto, looseness, 0, 0, 0);
         }
         else if (is_game_key_pressed(Gkey_SquareRoomSpace, &keycode, true)) // Define square room (mouse scroll-wheel changes size - default is 5x5)
         {
             int width = (playeradd->roomspace_no_default) ? playeradd->user_defined_roomspace_width : DEFAULT_USER_ROOMSPACE_WIDTH;
-            par1 = (pos.x.stl.num | (pos.y.stl.num << 8));
             if (is_game_key_pressed(Gkey_RoomSpaceIncSize, &keycode, true))
             {
                 if (width != MAX_USER_ROOMSPACE_WIDTH)
                 {
                     width++;
+                    set_packet_action(pckt, PckA_SetRoomspaceMan, width, 0, 0, 0);
                 }
             }
             else if (is_game_key_pressed(Gkey_RoomSpaceDecSize, &keycode, true))
@@ -930,15 +927,22 @@ void process_build_roomspace_inputs(PlayerNumber plyr_idx)
                 if (width != MIN_USER_ROOMSPACE_WIDTH)
                 {
                     width--;
+                    set_packet_action(pckt, PckA_SetRoomspaceMan, width, 0, 0, 0);
                 }
             }
-            set_packet_action(pckt, PckA_SetRoomspaceMan, par1, width, 0, 0);
+            if (playeradd->roomspace_no_default == false)
+            {
+                set_packet_action(pckt, PckA_SetRoomspaceMan, width, 0, 0, 0);
+            }
+        }
+        else if (is_game_key_pressed(Gkey_SellTrapOnSubtile, &keycode, true))
+        {
+            set_packet_action(pckt, PckA_SetRoomspaceDrag, 0, 0, 0, 0);
         }
         else
         {
             int size = numpad_to_value(false);
-            par1 = (pos.x.stl.num | (pos.y.stl.num << 8));
-            set_packet_action(pckt, PckA_SetRoomspaceDefault, par1, size, 0, 0);
+            set_packet_action(pckt, PckA_SetRoomspaceDefault, size, 0, 0, 0);
         }
     }
 }
@@ -952,27 +956,23 @@ void process_sell_roomspace_inputs(PlayerNumber plyr_idx)
         struct Packet* pckt = get_packet(plyr_idx);
         long keycode = 0;
         struct PlayerInfoAdd* playeradd = get_playeradd(plyr_idx);
-        unsigned short par1;
         if (is_game_key_pressed(Gkey_SellTrapOnSubtile, &keycode, true))
         {
             set_packet_action(pckt, PckA_SetRoomspaceSubtile, 0, 0, 0, 0);
         }
         else if (is_game_key_pressed(Gkey_BestRoomSpace, &keycode, true))
         {
-            MapSlabCoord slb_x = subtile_slab_fast(pos.x.stl.num);
-            MapSlabCoord slb_y = subtile_slab_fast(pos.y.stl.num);
-            set_packet_action(pckt, PckA_SetRoomspaceWholeRoom, slb_x, slb_y, 0, 0);
+            set_packet_action(pckt, PckA_SetRoomspaceWholeRoom, 0, 0, 0, 0);
         }
         else if (is_game_key_pressed(Gkey_SquareRoomSpace, &keycode, true)) // Define square room (mouse scroll-wheel changes size - default is 5x5)
         {
             int width = (playeradd->roomspace_no_default) ? playeradd->user_defined_roomspace_width : DEFAULT_USER_ROOMSPACE_WIDTH;
-            par1 = (pos.x.stl.num | (pos.y.stl.num << 8));
             if (is_game_key_pressed(Gkey_RoomSpaceIncSize, &keycode, true))
             {
                 if (width != MAX_USER_ROOMSPACE_WIDTH)
                 {
                     width++;
-                    set_packet_action(pckt, PckA_SetRoomspaceMan, par1, width, 0, 0);
+                    set_packet_action(pckt, PckA_SetRoomspaceMan, width, 0, 0, 0);
                 }
             }
             else if (is_game_key_pressed(Gkey_RoomSpaceDecSize, &keycode, true))
@@ -980,19 +980,18 @@ void process_sell_roomspace_inputs(PlayerNumber plyr_idx)
                 if (width != MIN_USER_ROOMSPACE_WIDTH)
                 {
                     width--;
-                    set_packet_action(pckt, PckA_SetRoomspaceMan, par1, width, 0, 0);
+                    set_packet_action(pckt, PckA_SetRoomspaceMan, width, 0, 0, 0);
                 }
             }
             if (playeradd->roomspace_no_default == false)
             {
-                set_packet_action(pckt, PckA_SetRoomspaceMan, par1, width, 0, 0);
+                set_packet_action(pckt, PckA_SetRoomspaceMan, width, 0, 0, 0);
             }
         }
         else
         {
             int size = numpad_to_value(false);
-            par1 = (pos.x.stl.num | (pos.y.stl.num << 8));
-            set_packet_action(pckt, PckA_SetRoomspaceDefault, par1, size, 0, 0);
+            set_packet_action(pckt, PckA_SetRoomspaceDefault, size, 0, 0, 0);
         }
     }
 }

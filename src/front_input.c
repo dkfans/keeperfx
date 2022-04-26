@@ -1093,8 +1093,7 @@ long get_dungeon_control_action_inputs(void)
                 }
                 else
                 {
-                    unsigned short par1 = (pos.x.stl.num | (pos.y.stl.num << 8));
-                    set_packet_action(pckt, PckA_SetRoomspaceDefault, par1, 0, 0, 0);
+                    set_packet_action(pckt, PckA_SetRoomspaceDefault, 0, 0, 0, 0);
                 }
             }
         }

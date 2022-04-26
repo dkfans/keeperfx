@@ -884,9 +884,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       return false;
   case PckA_SetRoomspaceAuto:
     {
-        playeradd->roomspace_stl_x = (unsigned char)pckt->actn_par1;
-        playeradd->roomspace_stl_y = (unsigned char)(pckt->actn_par1 >> 8);
-        playeradd->roomspace_detection_looseness = (unsigned char)pckt->actn_par2;
+        playeradd->roomspace_detection_looseness = (unsigned char)pckt->actn_par1;
         playeradd->roomspace_mode = roomspace_detection_mode;
         playeradd->one_click_mode_exclusive = false;
         playeradd->roomspace_drag_check = false;
@@ -895,11 +893,9 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
     }
    case PckA_SetRoomspaceMan:
     {
-        playeradd->roomspace_stl_x = (unsigned char)pckt->actn_par1;
-        playeradd->roomspace_stl_y = (unsigned char)(pckt->actn_par1 >> 8);
-        playeradd->user_defined_roomspace_width = pckt->actn_par2;
-        playeradd->roomspace_width = pckt->actn_par2;
-        playeradd->roomspace_height = pckt->actn_par2;
+        playeradd->user_defined_roomspace_width = pckt->actn_par1;
+        playeradd->roomspace_width = pckt->actn_par1;
+        playeradd->roomspace_height = pckt->actn_par1;
         playeradd->roomspace_mode = box_placement_mode;
         playeradd->one_click_mode_exclusive = false;
         playeradd->roomspace_drag_check = false;
@@ -909,8 +905,6 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
     }
     case PckA_SetRoomspaceDrag:
     {
-        playeradd->roomspace_stl_x = pckt->actn_par1;
-        playeradd->roomspace_stl_y = pckt->actn_par2;
         playeradd->roomspace_detection_looseness = DEFAULT_USER_ROOMSPACE_DETECTION_LOOSENESS;
         playeradd->user_defined_roomspace_width = DEFAULT_USER_ROOMSPACE_WIDTH;
         playeradd->roomspace_drag_check = true;
@@ -921,11 +915,9 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
     }
     case PckA_SetRoomspaceDefault:
     {
-        playeradd->roomspace_stl_x = (unsigned char)pckt->actn_par1;
-        playeradd->roomspace_stl_y = (unsigned char)(pckt->actn_par1 >> 8);
         playeradd->roomspace_detection_looseness = DEFAULT_USER_ROOMSPACE_DETECTION_LOOSENESS;
         playeradd->user_defined_roomspace_width = DEFAULT_USER_ROOMSPACE_WIDTH;
-        playeradd->roomspace_width = playeradd->roomspace_height = pckt->actn_par2;
+        playeradd->roomspace_width = playeradd->roomspace_height = pckt->actn_par1;
         playeradd->roomspace_mode = box_placement_mode;
         playeradd->one_click_mode_exclusive = false;
         playeradd->roomspace_drag_check = false;
