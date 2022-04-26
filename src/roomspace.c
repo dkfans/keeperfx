@@ -916,7 +916,7 @@ void process_build_roomspace_inputs(PlayerNumber plyr_idx)
         }
         else if (is_game_key_pressed(Gkey_SquareRoomSpace, &keycode, true)) // Define square room (mouse scroll-wheel changes size - default is 5x5)
         {
-            int width = (playeradd->roomspace_no_default) ? playeradd->user_defined_roomspace_width : 5;
+            int width = (playeradd->roomspace_no_default) ? playeradd->user_defined_roomspace_width : DEFAULT_USER_ROOMSPACE_WIDTH;
             par1 = (pos.x.stl.num | (pos.y.stl.num << 8));
             if (is_game_key_pressed(Gkey_RoomSpaceIncSize, &keycode, true))
             {
@@ -965,7 +965,7 @@ void process_sell_roomspace_inputs(PlayerNumber plyr_idx)
         }
         else if (is_game_key_pressed(Gkey_SquareRoomSpace, &keycode, true)) // Define square room (mouse scroll-wheel changes size - default is 5x5)
         {
-            int width = (playeradd->roomspace_no_default) ? playeradd->user_defined_roomspace_width : 5;
+            int width = (playeradd->roomspace_no_default) ? playeradd->user_defined_roomspace_width : DEFAULT_USER_ROOMSPACE_WIDTH;
             par1 = (pos.x.stl.num | (pos.y.stl.num << 8));
             if (is_game_key_pressed(Gkey_RoomSpaceIncSize, &keycode, true))
             {
@@ -1019,7 +1019,7 @@ void process_highlight_roomspace_inputs(PlayerNumber plyr_idx)
     {
         par1 = 2;
         struct PlayerInfoAdd* playeradd = get_playeradd(plyr_idx);
-        par2 = (playeradd->roomspace_no_default) ? playeradd->user_defined_roomspace_width : 5;
+        par2 = (playeradd->roomspace_no_default) ? playeradd->user_defined_roomspace_width : DEFAULT_USER_ROOMSPACE_WIDTH;
         if (is_game_key_pressed(Gkey_RoomSpaceIncSize, &keycode, true))
         {
             if (par2 != MAX_USER_ROOMSPACE_WIDTH)
