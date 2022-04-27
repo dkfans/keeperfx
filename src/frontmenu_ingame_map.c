@@ -66,40 +66,6 @@ void pannel_map_draw_pixel(RealScreenCoord x, RealScreenCoord y, TbPixel col)
     }
 }
 
-
-short get_pixels_scaled_and_zoomed(long basic_zoom)
-{
-    short pixels_per_map_dot = 5;
-    if (basic_zoom >= 2048)
-    {
-        pixels_per_map_dot = 1;
-    }
-    else if (basic_zoom >= 1024)
-    {
-        pixels_per_map_dot = 2;
-    }
-    else if (basic_zoom >= 512)
-    {
-        pixels_per_map_dot = 3;
-    }
-    else if (basic_zoom >= 256)
-    {
-        pixels_per_map_dot = 4;
-    } // 128 = 5
-
-    short draw_pixels = scale_fixed_DK_value(pixels_per_map_dot) * 2 / 5;
-
-    if (draw_pixels <= 1)
-    {
-        return 0;
-    }
-    if (draw_pixels > 6)
-    {
-        draw_pixels = 6; // We just support 6 pixels for now
-    }
-    return pixels_needed[draw_pixels - 1];
-}
-
 /**
  * Draws single call to arms overlay on minimap.
  * @param owner
@@ -262,7 +228,7 @@ int draw_overlay_call_to_arms(struct PlayerInfo *player, long units_per_px, long
  * @param zoom Scale between map coordinates and minimap pixels.
  * @return Amount of traps drawn.
  */
-int draw_overlay_traps(struct PlayerInfo *player, long units_per_px, long zoom)
+int draw_overlay_traps(struct PlayerInfo *player, long units_per_px, long scaled_zoom, long basic_zoom)
 {
     unsigned long k;
     int i;
@@ -294,8 +260,8 @@ int draw_overlay_traps(struct PlayerInfo *player, long units_per_px, long zoom)
             // for camera, coordinates within subtile are skipped; the thing uses full resolution coordinates
             long zmpos_x;
             long zmpos_y;
-            zmpos_x = (thing->mappos.x.val - (MapCoordDelta)subtile_coord(cam->mappos.x.stl.num,0)) / zoom;
-            zmpos_y = (thing->mappos.y.val - (MapCoordDelta)subtile_coord(cam->mappos.y.stl.num,0)) / zoom;
+            zmpos_x = (thing->mappos.x.val - (MapCoordDelta)subtile_coord(cam->mappos.x.stl.num,0)) / scaled_zoom;
+            zmpos_y = (thing->mappos.y.val - (MapCoordDelta)subtile_coord(cam->mappos.y.stl.num,0)) / scaled_zoom;
             // Now rotate the coordinates to receive minimap points
             RealScreenCoord mapos_x;
             RealScreenCoord mapos_y;
@@ -312,7 +278,7 @@ int draw_overlay_traps(struct PlayerInfo *player, long units_per_px, long zoom)
                 } else {
                     col = 60;
                 }
-                pannel_map_draw_pixel(mapos_x+basepos,   mapos_y+basepos,   col);
+                pannel_map_draw_pixel(mapos_x+basepos,   mapos_y+basepos,   col); //todo make cross scaled
                 pannel_map_draw_pixel(mapos_x+basepos-1, mapos_y+basepos,   col);
                 pannel_map_draw_pixel(mapos_x+basepos+1, mapos_y+basepos,   col);
                 pannel_map_draw_pixel(mapos_x+basepos,   mapos_y+basepos+1, col);
@@ -337,7 +303,7 @@ int draw_overlay_traps(struct PlayerInfo *player, long units_per_px, long zoom)
  * @param zoom Zoom level of the minimap.
  * @return Amount of objects drawn.
  */
-int draw_overlay_spells_and_boxes(struct PlayerInfo *player, long units_per_px, long zoom)
+int draw_overlay_spells_and_boxes(struct PlayerInfo *player, long units_per_px, long scaled_zoom, long basic_zoom)
 {
     unsigned long k;
     int i;
@@ -371,8 +337,8 @@ int draw_overlay_spells_and_boxes(struct PlayerInfo *player, long units_per_px, 
                 // for camera, coordinates within subtile are skipped; the thing uses full resolution coordinates
                 long zmpos_x;
                 long zmpos_y;
-                zmpos_x = (thing->mappos.x.val - (MapCoordDelta)subtile_coord(cam->mappos.x.stl.num,0)) / zoom;
-                zmpos_y = (thing->mappos.y.val - (MapCoordDelta)subtile_coord(cam->mappos.y.stl.num,0)) / zoom;
+                zmpos_x = (thing->mappos.x.val - (MapCoordDelta)subtile_coord(cam->mappos.x.stl.num,0)) / scaled_zoom;
+                zmpos_y = (thing->mappos.y.val - (MapCoordDelta)subtile_coord(cam->mappos.y.stl.num,0)) / scaled_zoom;
                 long mapos_x;
                 long mapos_y;
                 // Now rotate the coordinates to receive minimap points
@@ -384,12 +350,11 @@ int draw_overlay_spells_and_boxes(struct PlayerInfo *player, long units_per_px, 
                 if ((thing->trap.revealed) || (player->id_number == thing->owner))
                 {
                     if (thing_is_special_box(thing) || thing_is_spellbook(thing)) {
-                        pannel_map_draw_pixel(mapos_x+basepos, mapos_y+basepos, colours[15][0][15]);
-                        short pixel_end = get_pixels_scaled_and_zoomed(zoom);
+                        short pixel_end = get_pixels_scaled_and_zoomed(basic_zoom);
                         int p;
                         for (p = 0; p < pixel_end; p++)
                         {
-                            pannel_map_draw_pixel(mapos_x + basepos + my_around_35[p].delta_x, mapos_y + basepos + my_around_35[p].delta_y, colours[15][0][15]);
+                            pannel_map_draw_pixel(mapos_x + basepos + draw_square[p].delta_x, mapos_y + basepos + draw_square[p].delta_y, colours[15][0][15]);
                         }
                         n++;
                     }
@@ -409,19 +374,16 @@ int draw_overlay_spells_and_boxes(struct PlayerInfo *player, long units_per_px, 
 
 void pannel_map_draw_creature_dot(long mapos_x, long mapos_y, RealScreenCoord basepos, TbPixel col, long basic_zoom, TbBool isLowRes) 
 {
-    // actual position single pixel
-    pannel_map_draw_pixel(mapos_x+basepos, mapos_y+basepos, col);
     if (isLowRes)
     {
         // At low resolutions, we only need the single pixel
+        pannel_map_draw_pixel(mapos_x + basepos, mapos_y + basepos, col);
         return;
     }
-    short pixel_end = get_pixels_scaled_and_zoomed(basic_zoom);
-        
-    int i;
-    for (i = 0; i < pixel_end; i++)
+    short pixel_end = get_pixels_scaled_and_zoomed(basic_zoom);     
+    for (int i = 0; i < pixel_end; i++)
     {
-        pannel_map_draw_pixel(mapos_x + basepos + my_around_35[i].delta_x, mapos_y + basepos + my_around_35[i].delta_y, col);
+        pannel_map_draw_pixel(mapos_x + basepos + draw_square[i].delta_x, mapos_y + basepos + draw_square[i].delta_y, col);
     }
 }
 
@@ -489,7 +451,7 @@ int draw_overlay_creatures(struct PlayerInfo *player, long units_per_px, long zo
                 {
                     if ((thing->model == gui_creature_type_highlighted) && (game.play_gameturn & 1))
                     {
-                        pannel_map_draw_pixel(mapos_x+basepos,   mapos_y+basepos,   31);
+                        pannel_map_draw_pixel(mapos_x+basepos,   mapos_y+basepos,   31); //todo make cross
                         pannel_map_draw_pixel(mapos_x+basepos-1, mapos_y+basepos,   col2);
                         pannel_map_draw_pixel(mapos_x+basepos+1, mapos_y+basepos,   col2);
                         pannel_map_draw_pixel(mapos_x+basepos,   mapos_y+basepos,   col2);
@@ -630,7 +592,7 @@ int draw_overlay_possessed_thing(struct PlayerInfo *player, long units_per_px, l
     long scr_y;
     scr_x = MapDiagonalLength / 2;
     scr_y = MapDiagonalLength / 2;
-    pannel_map_draw_pixel(scr_x,   scr_y,   colours[15][15][15]);
+    pannel_map_draw_pixel(scr_x,   scr_y,   colours[15][15][15]); // todo draw scaled cross
     pannel_map_draw_pixel(scr_x-1, scr_y,   colours[15][15][15]);
     pannel_map_draw_pixel(scr_x+1, scr_y,   colours[15][15][15]);
     pannel_map_draw_pixel(scr_x,   scr_y+1, colours[15][15][15]);
@@ -638,24 +600,25 @@ int draw_overlay_possessed_thing(struct PlayerInfo *player, long units_per_px, l
     return 1;
 }
 
-void pannel_map_draw_overlay_things(long units_per_px, long zoom, long basic_zoom)
+void pannel_map_draw_overlay_things(long units_per_px, long scaled_zoom, long basic_zoom)
 {
     SYNCDBG(7,"Starting");
-    if (zoom < 1) {
+    // JUSTMSG("TESTLOG Difference zoom %d, basic zoom %d", zoom, basic_zoom);
+    if (scaled_zoom < 1) {
         return;
     }
     struct PlayerInfo *player;
     player = get_my_player();
-    draw_overlay_call_to_arms(player, units_per_px, zoom);
-    draw_overlay_traps(player, units_per_px, zoom);
-    draw_overlay_creatures(player, units_per_px, zoom, basic_zoom);
+    draw_overlay_call_to_arms(player, units_per_px, scaled_zoom);
+    draw_overlay_traps(player, units_per_px, scaled_zoom,basic_zoom);
+    draw_overlay_creatures(player, units_per_px, scaled_zoom, basic_zoom);
     if ((game.play_gameturn & 3) == 1) {
-        draw_overlay_spells_and_boxes(player, units_per_px, zoom);
+        draw_overlay_spells_and_boxes(player, units_per_px, scaled_zoom, basic_zoom);
     }
-    draw_line_to_heart(player, units_per_px, zoom);
+    draw_line_to_heart(player, units_per_px, scaled_zoom);
     if ((game.play_gameturn & 1) != 0)
     {
-        draw_overlay_possessed_thing(player, units_per_px, zoom);
+        draw_overlay_possessed_thing(player, units_per_px, scaled_zoom);
     }
 }
 

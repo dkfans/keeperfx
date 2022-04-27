@@ -62,8 +62,56 @@
 #include "kjm_input.h"
 #include "custom_sprites.h"
 
+struct Around const draw_square[36] = {
+{ 0, 0},
+{ 1, 0},{ 1, 1},{ 0, 1},{-1, 1},{-1, 0},{-1,-1},{ 0,-1},
+{ 1,-1},{ 2,-1},{ 2, 0},{ 2, 1},{ 2, 2},{ 1, 2},{ 0, 2},
+{-1, 2},{-2, 2},{-2, 1},{-2, 0},{-2,-1},{-2,-2},{-1,-2},
+{ 0,-2},{ 1,-2},{ 2,-2},{ 3,-2},{ 3,-1},{ 3, 0},{ 3, 1},
+{ 3, 2},{ 3, 3},{ 2, 3},{ 1, 3},{ 0, 3},{-1, 3},{-2, 3}
+};
+
+const short pixels_needed[] = {
+    0,
+    1,
+    AROUND_2x2_PIXEL,
+    AROUND_3x3_PIXEL,
+    AROUND_4x4_PIXEL,
+    AROUND_5x5_PIXEL,
+    AROUND_6x6_PIXEL,
+};
+
 /******************************************************************************/
 /******************************************************************************/
+
+short get_pixels_scaled_and_zoomed(long basic_zoom)
+{
+    short pixels_per_map_dot = 5;
+    if (basic_zoom >= ONE_PIXEL)
+    {
+        pixels_per_map_dot = 1;
+    }
+    else if (basic_zoom >= TWO_PIXELS)
+    {
+        pixels_per_map_dot = 2;
+    }
+    else if (basic_zoom >= THREE_PIXELS)
+    {
+        pixels_per_map_dot = 3;
+    }
+    else if (basic_zoom >= FOUR_PIXELS)
+    {
+        pixels_per_map_dot = 4;
+    } // 128 = 5
+
+    short draw_pixels = scale_fixed_DK_value(pixels_per_map_dot) * 2 / 5;
+    if (draw_pixels > 6)
+    {
+        draw_pixels = 6; // We just support 6 pixels for now
+    }
+    return pixels_needed[draw_pixels];
+}
+
 void gui_zoom_in(struct GuiButton *gbtn)
 {
     struct PlayerInfo* player = get_my_player();
