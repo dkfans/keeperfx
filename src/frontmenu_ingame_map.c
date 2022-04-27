@@ -367,83 +367,56 @@ int draw_overlay_spells_and_boxes(struct PlayerInfo *player, long units_per_px, 
     return n;
 }
 
-void pannel_map_draw_creature_dot(long mapos_x, long mapos_y, RealScreenCoord basepos, TbPixel col, long basic_zoom, TbBool isLowRes)
+void pannel_map_draw_creature_dot(long mapos_x, long mapos_y, RealScreenCoord basepos, TbPixel col, long basic_zoom, TbBool isLowRes) 
 {
+//2048 -> 1 px ,1024,512 -> 2px,256,128 -> 3px
     // actual position single pixel
     pannel_map_draw_pixel(mapos_x+basepos, mapos_y+basepos, col);
-
     if (isLowRes)
     {
-        // If the screen is 640x480 or lower resolution, the above single pixel is all we will do here.
+        // At low resolutions, we only need the single pixel
         return;
     }
-    short pixels_per_creature;
+    short pixels_per_creature = 5;
     if (basic_zoom >= 2048)
     {
         pixels_per_creature = 1;
     }
-    else if (basic_zoom >= 512)
+    else if (basic_zoom >= 1024)
     {
         pixels_per_creature = 2;
     }
-    else
+    else if (basic_zoom >= 512)
     {
         pixels_per_creature = 3;
     }
-
-    short draw_pixels = scale_ui_value(pixels_per_creature)/2;
-    if (draw_pixels <= 1)
+    else if (basic_zoom >= 256)
     {
-        return;
+        pixels_per_creature = 4;
+    } // 128 = 5
+    
+    short draw_pixels = scale_fixed_DK_value(pixels_per_creature) * 2 / 5;
+    
+    if (draw_pixels < 1)
+    {
+        return; // We already drew the center.
     }
-    // Can be altered to not include 512 (zoom 3) by changing from <= to < 
-    if (draw_pixels >= 2)
+    if (draw_pixels > 6)
     {
-        // (2x2) pixels to the right and below
-        pannel_map_draw_pixel(mapos_x+basepos, mapos_y+basepos+1, col);
-        pannel_map_draw_pixel(mapos_x+basepos+1, mapos_y+basepos, col);
-        pannel_map_draw_pixel(mapos_x+basepos+1, mapos_y+basepos+1, col);
+        draw_pixels = 6; // We just support 6 pixels for now
     }
-    if (draw_pixels >= 3)
+    short pixel_end = pixels_needed[draw_pixels-1];
+    int i;
+    for (i = 0; i < pixel_end; i++)
     {
-        // (3x3) pixels to the left and above
-        pannel_map_draw_pixel(mapos_x+basepos-1, mapos_y+basepos-1, col);
-        pannel_map_draw_pixel(mapos_x+basepos, mapos_y+basepos-1, col);
-        pannel_map_draw_pixel(mapos_x+basepos+1, mapos_y+basepos-1, col);
-        pannel_map_draw_pixel(mapos_x+basepos-1, mapos_y+basepos, col);
-        pannel_map_draw_pixel(mapos_x+basepos-1, mapos_y+basepos+1, col);
-    }
-
-    if (draw_pixels >= 5)
-    {
-        // (5x5)
-        // add a perimeter-layer of pixels for a really zoomed-in map
-        //above
-        pannel_map_draw_pixel(mapos_x+basepos-2, mapos_y+basepos-2, col);
-        pannel_map_draw_pixel(mapos_x+basepos-1, mapos_y+basepos-2, col);
-        pannel_map_draw_pixel(mapos_x+basepos, mapos_y+basepos-2, col);
-        pannel_map_draw_pixel(mapos_x+basepos+1, mapos_y+basepos-2, col);
-        pannel_map_draw_pixel(mapos_x+basepos+2, mapos_y+basepos-2, col);
-        //sides
-        pannel_map_draw_pixel(mapos_x+basepos-2, mapos_y+basepos-1, col);
-        pannel_map_draw_pixel(mapos_x+basepos+2, mapos_y+basepos-1, col);
-        pannel_map_draw_pixel(mapos_x+basepos-2, mapos_y+basepos, col);
-        pannel_map_draw_pixel(mapos_x+basepos+2, mapos_y+basepos, col);
-        pannel_map_draw_pixel(mapos_x+basepos-2, mapos_y+basepos+1, col);
-        pannel_map_draw_pixel(mapos_x+basepos+2, mapos_y+basepos+1, col);
-        //below
-        pannel_map_draw_pixel(mapos_x+basepos-2, mapos_y+basepos+2, col);
-        pannel_map_draw_pixel(mapos_x+basepos-1, mapos_y+basepos+2, col);
-        pannel_map_draw_pixel(mapos_x+basepos, mapos_y+basepos+2, col);
-        pannel_map_draw_pixel(mapos_x+basepos+1, mapos_y+basepos+2, col);
-        pannel_map_draw_pixel(mapos_x+basepos+2, mapos_y+basepos+2, col);
+        pannel_map_draw_pixel(mapos_x + basepos + my_around_35[i].delta_x, mapos_y + basepos + my_around_35[i].delta_y, col);
     }
 }
 
 int draw_overlay_creatures(struct PlayerInfo *player, long units_per_px, long zoom, long basic_zoom)
 {
     TbBool isLowRes = 0;
-    if (units_per_px <= 16)
+    if (units_per_px < 16)
     {
        isLowRes = 1;
     }

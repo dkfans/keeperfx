@@ -68,6 +68,29 @@ void do_map_rotate_stuff(long a1, long a2, long *a3, long *a4, long a5);
 short do_left_map_drag(long begin_x, long begin_y, long curr_x, long curr_y, long zoom);
 short do_left_map_click(long begin_x, long begin_y, long curr_x, long curr_y, long zoom);
 short do_right_map_click(long start_x, long start_y, long curr_x, long curr_y, long zoom);
+
+#define AROUND_2x2_PIXEL      3
+#define AROUND_3x3_PIXEL      8
+#define AROUND_4x4_PIXEL      15
+#define AROUND_5x5_PIXEL      24
+#define AROUND_6x6_PIXEL      35
+
+const short pixels_needed[] = {
+	0,
+	AROUND_2x2_PIXEL,
+	AROUND_3x3_PIXEL,
+	AROUND_4x4_PIXEL,
+	AROUND_5x5_PIXEL,
+	AROUND_6x6_PIXEL,
+};
+
+struct Around const my_around_35[35] = {
+{ 1, 0},{ 1, 1},{ 0, 1},{-1, 1},{-1, 0},{-1,-1},{ 0,-1},
+{ 1,-1},{ 2,-1},{ 2, 0},{ 2, 1},{ 2, 2},{ 1, 2},{ 0, 2},
+{-1, 2},{-2, 2},{-2, 1},{-2, 0},{-2,-1},{-2,-2},{-1,-2},
+{ 0,-2},{ 1,-2},{ 2,-2},{ 3,-2},{ 3,-1},{ 3, 0},{ 3, 1},
+{ 3, 2},{ 3, 3},{ 2, 3},{ 1, 3},{ 0, 3},{-1, 3},{-2, 3}
+};
 /******************************************************************************/
 #ifdef __cplusplus
 }
