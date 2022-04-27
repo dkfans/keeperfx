@@ -244,7 +244,6 @@ struct PlayerInfoAdd {
     unsigned short selected_fp_thing_pickup;
     struct RoomSpace render_roomspace;
     struct RoomSpace roomspace;
-    TbBool roomspace_drag_check;
     unsigned char roomspace_mode;
     int user_defined_roomspace_width;
     int roomspace_detection_looseness;

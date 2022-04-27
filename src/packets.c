@@ -887,7 +887,6 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
         playeradd->roomspace_detection_looseness = (unsigned char)pckt->actn_par1;
         playeradd->roomspace_mode = roomspace_detection_mode;
         playeradd->one_click_mode_exclusive = false;
-        playeradd->roomspace_drag_check = false;
         playeradd->render_roomspace.highlight_mode = false;
         return false;
     }
@@ -898,7 +897,6 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
         playeradd->roomspace_height = pckt->actn_par1;
         playeradd->roomspace_mode = box_placement_mode;
         playeradd->one_click_mode_exclusive = false;
-        playeradd->roomspace_drag_check = false;
         playeradd->render_roomspace.highlight_mode = false;
         playeradd->roomspace_no_default = true;
         return false;
@@ -907,7 +905,6 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
     {
         playeradd->roomspace_detection_looseness = DEFAULT_USER_ROOMSPACE_DETECTION_LOOSENESS;
         playeradd->user_defined_roomspace_width = DEFAULT_USER_ROOMSPACE_WIDTH;
-        playeradd->roomspace_drag_check = true;
         playeradd->roomspace_mode = drag_placement_mode;
         playeradd->one_click_mode_exclusive = true; // Enable GuiLayer_OneClickBridgeBuild layer
         playeradd->render_roomspace.highlight_mode = false;
@@ -920,7 +917,6 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
         playeradd->roomspace_width = playeradd->roomspace_height = pckt->actn_par1;
         playeradd->roomspace_mode = box_placement_mode;
         playeradd->one_click_mode_exclusive = false;
-        playeradd->roomspace_drag_check = false;
         playeradd->roomspace_no_default = false;
         return false;
     }
