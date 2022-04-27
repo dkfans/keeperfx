@@ -66,6 +66,40 @@ void pannel_map_draw_pixel(RealScreenCoord x, RealScreenCoord y, TbPixel col)
     }
 }
 
+
+short get_pixels_scaled_and_zoomed(long basic_zoom)
+{
+    short pixels_per_map_dot = 5;
+    if (basic_zoom >= 2048)
+    {
+        pixels_per_map_dot = 1;
+    }
+    else if (basic_zoom >= 1024)
+    {
+        pixels_per_map_dot = 2;
+    }
+    else if (basic_zoom >= 512)
+    {
+        pixels_per_map_dot = 3;
+    }
+    else if (basic_zoom >= 256)
+    {
+        pixels_per_map_dot = 4;
+    } // 128 = 5
+
+    short draw_pixels = scale_fixed_DK_value(pixels_per_map_dot) * 2 / 5;
+
+    if (draw_pixels <= 1)
+    {
+        return 0;
+    }
+    if (draw_pixels > 6)
+    {
+        draw_pixels = 6; // We just support 6 pixels for now
+    }
+    return pixels_needed[draw_pixels - 1];
+}
+
 /**
  * Draws single call to arms overlay on minimap.
  * @param owner
@@ -351,6 +385,12 @@ int draw_overlay_spells_and_boxes(struct PlayerInfo *player, long units_per_px, 
                 {
                     if (thing_is_special_box(thing) || thing_is_spellbook(thing)) {
                         pannel_map_draw_pixel(mapos_x+basepos, mapos_y+basepos, colours[15][0][15]);
+                        short pixel_end = get_pixels_scaled_and_zoomed(zoom);
+                        int p;
+                        for (p = 0; p < pixel_end; p++)
+                        {
+                            pannel_map_draw_pixel(mapos_x + basepos + my_around_35[p].delta_x, mapos_y + basepos + my_around_35[p].delta_y, colours[15][0][15]);
+                        }
                         n++;
                     }
                 }
@@ -369,7 +409,6 @@ int draw_overlay_spells_and_boxes(struct PlayerInfo *player, long units_per_px, 
 
 void pannel_map_draw_creature_dot(long mapos_x, long mapos_y, RealScreenCoord basepos, TbPixel col, long basic_zoom, TbBool isLowRes) 
 {
-//2048 -> 1 px ,1024,512 -> 2px,256,128 -> 3px
     // actual position single pixel
     pannel_map_draw_pixel(mapos_x+basepos, mapos_y+basepos, col);
     if (isLowRes)
@@ -377,35 +416,8 @@ void pannel_map_draw_creature_dot(long mapos_x, long mapos_y, RealScreenCoord ba
         // At low resolutions, we only need the single pixel
         return;
     }
-    short pixels_per_creature = 5;
-    if (basic_zoom >= 2048)
-    {
-        pixels_per_creature = 1;
-    }
-    else if (basic_zoom >= 1024)
-    {
-        pixels_per_creature = 2;
-    }
-    else if (basic_zoom >= 512)
-    {
-        pixels_per_creature = 3;
-    }
-    else if (basic_zoom >= 256)
-    {
-        pixels_per_creature = 4;
-    } // 128 = 5
-    
-    short draw_pixels = scale_fixed_DK_value(pixels_per_creature) * 2 / 5;
-    
-    if (draw_pixels < 1)
-    {
-        return; // We already drew the center.
-    }
-    if (draw_pixels > 6)
-    {
-        draw_pixels = 6; // We just support 6 pixels for now
-    }
-    short pixel_end = pixels_needed[draw_pixels-1];
+    short pixel_end = get_pixels_scaled_and_zoomed(basic_zoom);
+        
     int i;
     for (i = 0; i < pixel_end; i++)
     {
