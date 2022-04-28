@@ -1439,6 +1439,20 @@ short get_creature_control_action_inputs(void)
                 set_players_packet_action(player, PckA_SetFirstPersonDigMode, false, 0, 0, 0);
             }
         }
+        if (is_key_pressed(KC_LALT,KMod_DONTCARE))
+        {
+            if (!playeradd->nearest_teleport)
+            {
+                set_players_packet_action(player, PckA_SetNearestTeleport, true, 0, 0, 0);
+            }
+        }
+        else
+        {
+            if (playeradd->nearest_teleport)
+            {
+                set_players_packet_action(player, PckA_SetNearestTeleport, false, 0, 0, 0);
+            }
+        }
         player->thing_under_hand = 0;
         struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
         if (cctrl->active_instance_id == CrInst_FIRST_PERSON_DIG)

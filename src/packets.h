@@ -167,7 +167,8 @@ enum TbPacketAction {
         PckA_CheatCtrlCrtrSetInstnc,
         PckA_SetFirstPersonDigMode,
         PckA_SwitchTeleportDest,
-        PckA_SelectFPPickup
+        PckA_SelectFPPickup,
+        PckA_SetNearestTeleport
 };
 
 /** Packet flags for non-action player operation. */

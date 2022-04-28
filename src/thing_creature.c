@@ -1291,7 +1291,6 @@ void process_thing_spell_teleport_effects(struct Thing *thing, struct CastedSpel
     const struct Thing* desttng = NULL;
     long distance = LONG_MAX;
     struct Dungeon *dungeon = get_players_num_dungeon(thing->owner);
-    TbBool nearest = is_key_pressed(KC_LALT,KMod_DONTCARE);
     RoomKind rkind = 0;
     long i;
     TbBool allowed = true;
@@ -1398,7 +1397,7 @@ void process_thing_spell_teleport_effects(struct Thing *thing, struct CastedSpel
             if (rkind > 0)
             {
                 long count = 0;
-                if (nearest)
+                if (playeradd->nearest_teleport)
                 {
                     room = find_room_nearest_to_position(thing->owner, rkind, &thing->mappos, &distance); 
                 }

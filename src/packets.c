@@ -1228,6 +1228,12 @@ void process_players_creature_control_packet_action(long plyr_idx)
         playeradd->selected_fp_thing_pickup = pckt->actn_par1;
         break;
     }
+    case PckA_SetNearestTeleport:
+    {
+        playeradd = get_playeradd(plyr_idx);
+        playeradd->nearest_teleport = pckt->actn_par1;
+        break;
+    }
   }
 }
 
