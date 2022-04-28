@@ -112,7 +112,7 @@ TbBool process_dungeon_control_packet_dungeon_build_room(long plyr_idx)
     }
     else if ((pckt->control_flags & PCtr_LBtnHeld) == PCtr_LBtnHeld)
     {
-        if (player->boxsize == 0)
+        if ( (player->boxsize == 0) || (!can_build_room_at_slab(player->id_number, player->chosen_room_kind, subtile_slab_fast(stl_x), subtile_slab_fast(stl_y))) )
         {
             return false; //stops attempts at invalid rooms, if left mouse button held (i.e. don't repeat failure sound repeatedly in paint mode)
         }
