@@ -46,8 +46,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT short _DK_state_cleanup_in_temple(struct Thing *creatng);
-/******************************************************************************/
 #ifdef __cplusplus
 }
 #endif
@@ -170,9 +168,19 @@ CrCheckRet process_temple_function(struct Thing *thing)
     return CrCkRet_Available;
 }
 
-short state_cleanup_in_temple(struct Thing *thing)
+short state_cleanup_in_temple(struct Thing *creatng)
 {
-  return _DK_state_cleanup_in_temple(thing);
+    struct Dungeon* dungeon = get_dungeon(creatng->owner);
+    if ( dungeon->creatures_praying[creatng->model] > 0 )
+    {
+       dungeon->creatures_praying[creatng->model]--;
+    }
+    else
+    {
+        ERRORLOG("No creature in temple to cleanup");
+    }
+    state_cleanup_in_room(creatng);
+    return 1;
 }
 
 TbBool summon_creature(long model, struct Coord3d *pos, long owner, long explevel)
