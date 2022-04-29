@@ -689,23 +689,7 @@ TbBool packets_process_cheats(
                     room = subtile_room_get(stl_x, stl_y);
                     delete_room_slab(slb_x, slb_y, true);
                 }
-                PlayerNumber id;
-                if ( (playeradd->cheatselection.chosen_terrain_kind == SlbT_CLAIMED) || ( (playeradd->cheatselection.chosen_terrain_kind >= SlbT_WALLDRAPE) && (playeradd->cheatselection.chosen_terrain_kind <= SlbT_DAMAGEDWALL) ) )
-                {
-                    slb = get_slabmap_block(slb_x, slb_y);
-                    if ( (slb->kind == SlbT_CLAIMED) || ( (slb->kind >= SlbT_WALLDRAPE) && (slb->kind <= SlbT_DAMAGEDWALL) ) )
-                    {
-                        id = slabmap_owner(slb);
-                    }
-                    else
-                    {
-                        id = playeradd->cheatselection.chosen_player;
-                    }
-                }
-                else
-                {
-                    id = game.neutral_player_num;
-                }
+                PlayerNumber id = (slab_kind_has_no_ownership(playeradd->cheatselection.chosen_terrain_kind)) ? game.neutral_player_num : playeradd->cheatselection.chosen_player;
                 set_packet_action(pckt, PckA_CheatPlaceTerrain, playeradd->cheatselection.chosen_terrain_kind, id, 0, 0);
                 if ( (playeradd->cheatselection.chosen_terrain_kind >= SlbT_WALLDRAPE) && (playeradd->cheatselection.chosen_terrain_kind <= SlbT_WALLPAIRSHR) )
                 {
