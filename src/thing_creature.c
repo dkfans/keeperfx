@@ -1306,6 +1306,18 @@ void process_thing_spell_teleport_effects(struct Thing *thing, struct CastedSpel
         pos.z.val = get_floor_height_at(&pos);
         if (thing_in_wall_at(thing, &pos))
         {
+            if (creature_is_dragging_something(thing))
+            {
+                struct Thing *droptng = thing_get(cctrl->dragtng_idx);
+                if (droptng->class_id == TCls_Creature)
+                {
+                    stop_creature_being_dragged_by(droptng, thing);
+                }
+                else
+                {
+                    creature_drop_dragged_object(thing, droptng);
+                }
+            }
             const struct Coord3d* newpos = NULL;
             struct Coord3d room_pos;
             switch(playeradd->teleport_destination)
