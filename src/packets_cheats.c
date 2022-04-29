@@ -650,6 +650,7 @@ TbBool packets_process_cheats(
             break;
         case PSt_PlaceTerrain:
         {
+            playeradd->render_roomspace = create_box_roomspace(playeradd->render_roomspace, 1, 1, slb_x, slb_y);
             tag_cursor_blocks_place_terrain(plyr_idx, stl_x, stl_y);
             struct SlabConfigStats* slab_cfgstats;
             clear_messages_from_player(playeradd->cheatselection.chosen_player);
