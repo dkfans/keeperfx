@@ -1276,7 +1276,7 @@ TbBool make_available_all_doors(PlayerNumber plyr_idx)
   SYNCDBG(0,"Starting");
   struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
   if (dungeon_invalid(dungeon)) {
-      ERRORDBG(11,"Cannot do; player %d has no dungeon",(int)plyr_idx);
+      ERRORDBG(11,"Cannot make doors available; player %d has no dungeon",(int)plyr_idx);
       return false;
   }
   for (long i = 1; i < gameadd.trapdoor_conf.door_types_count; i++)
@@ -1298,7 +1298,7 @@ TbBool make_available_all_traps(PlayerNumber plyr_idx)
   SYNCDBG(0,"Starting");
   struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
   if (dungeon_invalid(dungeon)) {
-      ERRORDBG(11,"Cannot do; player %d has no dungeon",(int)plyr_idx);
+      ERRORDBG(11,"Cannot make traps available; player %d has no dungeon",(int)plyr_idx);
       return false;
   }
   for (long i = 1; i < gameadd.trapdoor_conf.trap_types_count; i++)

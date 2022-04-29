@@ -2135,7 +2135,7 @@ TbBool make_available_all_researchable_powers(PlayerNumber plyr_idx)
   TbBool ret = true;
   struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
   if (dungeon_invalid(dungeon)) {
-      ERRORDBG(11,"Cannot do; player %d has no dungeon",(int)plyr_idx);
+      ERRORDBG(11,"Cannot make research available; player %d has no dungeon",(int)plyr_idx);
       return false;
   }
   for (long i = 0; i < KEEPER_POWERS_COUNT; i++)
