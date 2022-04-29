@@ -708,7 +708,7 @@ long instf_damage_wall(struct Thing *creatng, long *param)
         slb->health -= 2;
     } else
     {
-        place_slab_type_on_map(2, stl_x, stl_y, creatng->owner, 0);
+        place_slab_type_on_map(SlbT_EARTH, stl_x, stl_y, creatng->owner, 0);
         do_slab_efficiency_alteration(subtile_slab_fast(stl_x), subtile_slab_fast(stl_y));
     }
     thing_play_sample(creatng, 63+UNSYNC_RANDOM(6), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);

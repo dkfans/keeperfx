@@ -2265,7 +2265,7 @@ void blast_slab(MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber plyr_idx)
     slbattr = get_slab_attrs(slb);
     if (slbattr->category == SlbAtCtg_FortifiedGround)
     {
-      place_slab_type_on_map(10, slab_subtile_center(slb_x), slab_subtile_center(slb_y), game.neutral_player_num, 1);
+      place_slab_type_on_map(SlbT_PATH, slab_subtile_center(slb_x), slab_subtile_center(slb_y), game.neutral_player_num, 1);
       decrease_dungeon_area(plyr_idx, 1);
       do_unprettying(game.neutral_player_num, slb_x, slb_y);
       do_slab_efficiency_alteration(slb_x, slb_y);
