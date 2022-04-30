@@ -44,6 +44,7 @@
 #include "frontmenu_ingame_tabs.h"
 #include "vidmode.h"
 #include "vidfade.h"
+#include "player_instances.h"
 
 /******************************************************************************/
 /**
@@ -393,6 +394,37 @@ void pannel_map_draw_creature_dot(long mapos_x, long mapos_y, RealScreenCoord ba
     }
 }
 
+int draw_overlay_possessed_thing(struct PlayerInfo* player, long mapos_x, long mapos_y, RealScreenCoord basepos, TbPixel col, long basic_zoom, TbBool isLowRes)
+{
+    const struct Camera* cam;
+    cam = player->acamera;
+    if (cam == NULL)
+        return 0;
+    if (cam->view_mode != PVM_CreatureView)
+        return 0;
+    if (game.play_gameturn & 4)
+    {
+        col = colours[15][15][15];
+    }
+    if (isLowRes)
+    {
+        // At low resolutions, we only need the single pixel
+        pannel_map_draw_pixel(mapos_x + basepos, mapos_y + basepos, col);
+        return 1;
+    }
+    short pixel_end = get_pixels_scaled_and_zoomed(basic_zoom * 2);
+    short pixels_amount = scale_pixel(basic_zoom * 2);
+    for (int i = 0; i < pixel_end; i++)
+    {
+        pannel_map_draw_pixel(mapos_x + basepos + draw_square[i].delta_x, mapos_y + basepos + draw_square[i].delta_y, col);
+        pannel_map_draw_pixel(mapos_x + basepos + pixels_amount + draw_square[i].delta_x, mapos_y + basepos + draw_square[i].delta_y, col);
+        pannel_map_draw_pixel(mapos_x + basepos - pixels_amount + draw_square[i].delta_x, mapos_y + basepos + draw_square[i].delta_y, col);
+        pannel_map_draw_pixel(mapos_x + basepos + draw_square[i].delta_x, mapos_y + basepos + pixels_amount + draw_square[i].delta_y, col);
+        pannel_map_draw_pixel(mapos_x + basepos + draw_square[i].delta_x, mapos_y + basepos - pixels_amount + draw_square[i].delta_y, col);
+    }
+    return 1;
+}
+
 int draw_overlay_creatures(struct PlayerInfo *player, long units_per_px, long zoom, long basic_zoom)
 {
     TbBool isLowRes = 0;
@@ -465,7 +497,14 @@ int draw_overlay_creatures(struct PlayerInfo *player, long units_per_px, long zo
 
                     } else
                     {
-                        pannel_map_draw_creature_dot(mapos_x, mapos_y, basepos, col2, basic_zoom, isLowRes);
+                        if ((is_thing_directly_controlled_by_player(thing, my_player_number)) || (is_thing_passenger_controlled_by_player(thing, my_player_number)))
+                        {
+                            draw_overlay_possessed_thing(player, mapos_x, mapos_y, basepos, col2, basic_zoom, isLowRes);
+                        }
+                        else
+                        {
+                            pannel_map_draw_creature_dot(mapos_x, mapos_y, basepos, col2, basic_zoom, isLowRes);
+                        }
                     }
                 } else
                 {
@@ -586,30 +625,9 @@ int draw_line_to_heart(struct PlayerInfo *player, long units_per_px, long zoom)
     return 1;
 }
 
-int draw_overlay_possessed_thing(struct PlayerInfo *player, long units_per_px, long zoom)
-{
-    const struct Camera *cam;
-    cam = player->acamera;
-    if (cam == NULL)
-        return 0;
-    if (cam->view_mode != PVM_CreatureView)
-        return 0;
-    long scr_x;
-    long scr_y;
-    scr_x = MapDiagonalLength / 2;
-    scr_y = MapDiagonalLength / 2;
-    pannel_map_draw_pixel(scr_x,   scr_y,   colours[15][15][15]); // todo draw scaled cross
-    pannel_map_draw_pixel(scr_x-1, scr_y,   colours[15][15][15]);
-    pannel_map_draw_pixel(scr_x+1, scr_y,   colours[15][15][15]);
-    pannel_map_draw_pixel(scr_x,   scr_y+1, colours[15][15][15]);
-    pannel_map_draw_pixel(scr_x,   scr_y-1, colours[15][15][15]);
-    return 1;
-}
-
 void pannel_map_draw_overlay_things(long units_per_px, long scaled_zoom, long basic_zoom)
 {
     SYNCDBG(7,"Starting");
-    // JUSTMSG("TESTLOG Difference zoom %d, basic zoom %d", zoom, basic_zoom);
     if (scaled_zoom < 1) {
         return;
     }
@@ -622,10 +640,6 @@ void pannel_map_draw_overlay_things(long units_per_px, long scaled_zoom, long ba
         draw_overlay_spells_and_boxes(player, units_per_px, scaled_zoom, basic_zoom);
     }
     draw_line_to_heart(player, units_per_px, scaled_zoom);
-    if ((game.play_gameturn & 1) != 0)
-    {
-        draw_overlay_possessed_thing(player, units_per_px, scaled_zoom);
-    }
 }
 
 void pannel_map_update_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)

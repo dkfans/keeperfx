@@ -68,7 +68,6 @@ void do_map_rotate_stuff(long a1, long a2, long *a3, long *a4, long a5);
 short do_left_map_drag(long begin_x, long begin_y, long curr_x, long curr_y, long zoom);
 short do_left_map_click(long begin_x, long begin_y, long curr_x, long curr_y, long zoom);
 short do_right_map_click(long start_x, long start_y, long curr_x, long curr_y, long zoom);
-
 /******************************************************************************/
 #ifdef __cplusplus
 }
