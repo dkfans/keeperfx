@@ -278,11 +278,17 @@ int draw_overlay_traps(struct PlayerInfo *player, long units_per_px, long scaled
                 } else {
                     col = 60;
                 }
-                pannel_map_draw_pixel(mapos_x+basepos,   mapos_y+basepos,   col); //todo make cross scaled
-                pannel_map_draw_pixel(mapos_x+basepos-1, mapos_y+basepos,   col);
-                pannel_map_draw_pixel(mapos_x+basepos+1, mapos_y+basepos,   col);
-                pannel_map_draw_pixel(mapos_x+basepos,   mapos_y+basepos+1, col);
-                pannel_map_draw_pixel(mapos_x+basepos,   mapos_y+basepos-1, col);
+                short pixels_amount = scale_pixel(basic_zoom*2);
+                short pixel_end = get_pixels_scaled_and_zoomed(basic_zoom*2);
+                for (int p = 0; p < pixel_end; p++)
+                {
+                    // Draw a cross
+                    pannel_map_draw_pixel(mapos_x + basepos + draw_square[p].delta_x, mapos_y + basepos + draw_square[p].delta_y, col);
+                    pannel_map_draw_pixel(mapos_x + basepos + pixels_amount + draw_square[p].delta_x, mapos_y + basepos + draw_square[p].delta_y, col);
+                    pannel_map_draw_pixel(mapos_x + basepos - pixels_amount + draw_square[p].delta_x, mapos_y + basepos + draw_square[p].delta_y, col);
+                    pannel_map_draw_pixel(mapos_x + basepos + draw_square[p].delta_x, mapos_y + basepos + pixels_amount + draw_square[p].delta_y, col);
+                    pannel_map_draw_pixel(mapos_x + basepos + draw_square[p].delta_x, mapos_y + basepos - pixels_amount + draw_square[p].delta_y, col);
+                }
                 n++;
             }
         }

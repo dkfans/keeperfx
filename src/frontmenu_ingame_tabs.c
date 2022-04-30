@@ -62,7 +62,7 @@
 #include "kjm_input.h"
 #include "custom_sprites.h"
 
-struct Around const draw_square[36] = {
+struct Around const draw_square[] = {
 { 0, 0},
 { 1, 0},{ 1, 1},{ 0, 1},{-1, 1},{-1, 0},{-1,-1},{ 0,-1},
 { 1,-1},{ 2,-1},{ 2, 0},{ 2, 1},{ 2, 2},{ 1, 2},{ 0, 2},
@@ -84,7 +84,7 @@ const short pixels_needed[] = {
 /******************************************************************************/
 /******************************************************************************/
 
-short get_pixels_scaled_and_zoomed(long basic_zoom)
+short scale_pixel(long basic_zoom)
 {
     short pixels_per_map_dot = 5;
     if (basic_zoom >= ONE_PIXEL)
@@ -109,6 +109,12 @@ short get_pixels_scaled_and_zoomed(long basic_zoom)
     {
         draw_pixels = 6; // We just support 6 pixels for now
     }
+    return draw_pixels;
+}
+
+short get_pixels_scaled_and_zoomed(long basic_zoom)
+{
+    short draw_pixels = scale_pixel(basic_zoom);
     return pixels_needed[draw_pixels];
 }
 
