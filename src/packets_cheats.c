@@ -1004,8 +1004,20 @@ TbBool process_players_dungeon_control_cheats_packet_action(PlayerNumber plyr_id
             }
             break;
         }
-        default:
-            return false;
+        case PckA_CheatAllDoors:
+        {
+            make_available_all_doors(plyr_idx);
+            break;
         }
+        case PckA_CheatAllTraps:
+        {
+            make_available_all_traps(plyr_idx);
+            break;
+        }
+        default:
+        {
+           return false;
+        }
+    }
     return true;
 }
