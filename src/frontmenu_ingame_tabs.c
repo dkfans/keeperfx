@@ -72,7 +72,7 @@ struct Around const draw_square[] = {
 };
 
 const short pixels_needed[] = {
-    0,
+    1,
     1,
     AROUND_2x2_PIXEL,
     AROUND_3x3_PIXEL,
