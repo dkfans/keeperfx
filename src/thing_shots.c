@@ -118,6 +118,9 @@ TbBool detonate_shot(struct Thing *shotng)
     case ShM_Lizard:
     case ShM_Firebomb:
         create_effect(&shotng->mappos, TngEff_Explosion7, shotng->owner);
+        break;
+    case ShM_Missile:
+    case ShM_NaviMissile:
         create_effect(&shotng->mappos,  TngEff_Blood4, shotng->owner);
         break;
     case ShM_Boulder:
