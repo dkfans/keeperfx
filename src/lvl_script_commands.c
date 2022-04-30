@@ -34,6 +34,7 @@
 #include "creature_states_pray.h"
 #include "creature_states_mood.h"
 #include "room_util.h"
+#include "creature_instances.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -2099,6 +2100,49 @@ static void reveal_map_location_process(struct ScriptContext *context)
         reveal_map_area(context->player_idx, x-(r>>1), x+(r>>1)+(r&1), y-(r>>1), y+(r>>1)+(r&1));
 }
 
+static void set_creature_instance_check(const struct ScriptLine *scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    value->bytes[0] = scline->np[0];
+    value->bytes[1] = scline->np[1];
+    if (scline->tp[2][0] != '\0')
+    {
+        int instance = get_rid(instance_desc, scline->tp[2]);
+        if (instance != -1)
+        {
+            value->bytes[2] = instance;
+        }
+        else
+        {
+            SCRPTERRLOG("Invalid instance: %s", scline->tp[2]);
+            return;
+        }
+    }
+    value->bytes[3] = scline->np[3];
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void set_creature_instance_process(struct ScriptContext *context)
+{
+    struct CreatureStats *crstat = creature_stats_get(context->value->bytes[0]);
+    if (!creature_stats_invalid(crstat))
+    {
+        crstat->learned_instance_id[context->value->bytes[1]] = context->value->bytes[2];
+        crstat->learned_instance_level[context->value->bytes[1]] = context->value->bytes[3] - 1;
+        for (short i = 0; i < THINGS_COUNT; i++)
+        {
+            struct Thing* thing = thing_get(i);
+            if (thing_is_creature(thing))
+            {
+                if (thing->model == context->value->bytes[0])
+                {
+                    creature_increase_available_instances(thing);
+                }
+            }
+        }
+    }
+}
+
 /**
  * Descriptions of script commands for parser.
  * Arguments are: A-string, N-integer, C-creature model, P- player, R- room kind, L- location, O- operator, S- slab kind, X- creature property
@@ -2226,6 +2270,7 @@ const struct CommandDesc command_desc[] = {
   {"HEART_LOST_QUICK_OBJECTIVE",        "NAl     ", Cmd_HEART_LOST_QUICK_OBJECTIVE, &heart_lost_quick_objective_check, &heart_lost_quick_objective_process},
   {"HEART_LOST_OBJECTIVE",              "Nl      ", Cmd_HEART_LOST_OBJECTIVE, &heart_lost_objective_check, &heart_lost_objective_process},
   {"SET_DOOR",                          "ANN     ", Cmd_SET_DOOR, &set_door_check, &set_door_process},
+  {"SET_CREATURE_INSTANCE",             "CNAN    ", Cmd_SET_CREATURE_INSTANCE, &set_creature_instance_check, &set_creature_instance_process},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 
