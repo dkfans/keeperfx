@@ -159,7 +159,6 @@ TbBool process_dungeon_power_hand_state(long plyr_idx)
 {
     struct PlayerInfo* player = get_player(plyr_idx);
     struct PlayerInfoAdd* playeradd = get_playeradd(plyr_idx);
-    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
     struct Packet* pckt = get_packet_direct(player->packet_num);
     MapCoord x = ((unsigned short)pckt->pos_x);
     MapCoord y = ((unsigned short)pckt->pos_y);
@@ -641,9 +640,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
     MapSubtlCoord stl_x = coord_subtile(x);
     MapSubtlCoord stl_y = coord_subtile(y);
     short influence_own_creatures = false;
-    struct SlabMap *slb;
     long i;
-    struct Room* room = NULL;
     MapSlabCoord slb_x = subtile_slab_fast(stl_x);
     MapSlabCoord slb_y = subtile_slab_fast(stl_y);
     switch (player->work_state)

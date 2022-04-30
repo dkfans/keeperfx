@@ -941,7 +941,6 @@ void process_build_roomspace_inputs(PlayerNumber plyr_idx)
 
 void process_sell_roomspace_inputs(PlayerNumber plyr_idx)
 {
-    struct PlayerInfo* player = get_player(plyr_idx);
     struct Packet* pckt = get_packet(plyr_idx);
     long keycode = 0;
     struct PlayerInfoAdd* playeradd = get_playeradd(plyr_idx);
