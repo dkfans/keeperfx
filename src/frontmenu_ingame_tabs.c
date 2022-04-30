@@ -923,6 +923,20 @@ void gui_go_to_next_door(struct GuiButton *gbtn)
     game.manufactr_tooltip = manufctr->tooltip_stridx;
 }
 
+void gui_over_creature_button(struct GuiButton* gbtn)
+{
+    SYNCDBG(8, "Starting");
+    long i = gbtn->btype_value & LbBFeF_IntValueMask;
+    ThingModel crmodel;
+    if (i > 0) {
+        crmodel = breed_activities[(top_of_breed_list + i) % CREATURE_TYPES_COUNT];
+    }
+    else {
+        crmodel = get_players_special_digger_model(my_player_number);
+    }
+    gui_creature_type_highlighted = crmodel;
+}
+
 void gui_over_door_button(struct GuiButton *gbtn)
 {
     int manufctr_idx = (long)gbtn->content;

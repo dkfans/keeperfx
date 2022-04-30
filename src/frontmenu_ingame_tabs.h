@@ -175,6 +175,8 @@ void gui_set_button_flashing(long btn_idx, long gameturns);
 short button_designation_to_tab_designation(short btn_designt_id);
 short get_button_designation(short btn_group, short btn_item);
 
+void gui_over_creature_button(struct GuiButton* gbtn);
+
 void update_room_tab_to_config(void);
 void update_trap_tab_to_config(void);
 void update_powers_tab_to_config(void);
