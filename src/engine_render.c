@@ -54,6 +54,7 @@
 #include "keeperfx.hpp"
 #include "player_states.h"
 #include "custom_sprites.h"
+#include "frontmenu_ingame_tabs.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -3981,7 +3982,14 @@ static void draw_stripey_line(long x1,long y1,long x2,long y2,unsigned char line
             WARNMSG("draw_stripey_line: Pixel rendered outside engine window. X: %d, Y: %d, window_width: %d, window_height %d, A1: %d, A2 %d, B1 %d, B2 %d, a_start: %d, a_end: %d, b_start: %d, rWA: %d", *x_coord, *y_coord, relative_window_width, relative_window_height, a1, a2, b1, b2, a_start, a_end, b_start, relative_window_a);
         }
         // Draw a pixel with the correct colour from the stripey line's color array.
-        LbDrawPixel(*x_coord, *y_coord, colored_stripey_lines[line_color].stripey_line_color_array[color_index]);
+        int colour = colored_stripey_lines[line_color].stripey_line_color_array[color_index];
+        int zoom = ONE_PIXEL >> scale_ui_value_lofi(1);
+        short pixel_end = get_pixels_scaled_and_zoomed(zoom);
+        int p;
+        for (p = 0; p < pixel_end; p++)
+        {
+            LbDrawPixel(*x_coord + draw_square[p].delta_x, *y_coord + draw_square[p].delta_y, colour);
+        }
         // Increment color_index, looping back to 0 after 15
         color_index = (color_index + 1) & 0xf;
         // The remainder is used to know when to round up B to the next increment
