@@ -2128,7 +2128,7 @@ static void set_creature_instance_process(struct ScriptContext *context)
     if (!creature_stats_invalid(crstat))
     {
         crstat->learned_instance_id[context->value->bytes[1] - 1] = context->value->bytes[2];
-        crstat->learned_instance_level[context->value->bytes[1] - 1] = context->value->bytes[3] - 1;
+        crstat->learned_instance_level[context->value->bytes[1] - 1] = context->value->bytes[3];
         for (short i = 0; i < THINGS_COUNT; i++)
         {
             struct Thing* thing = thing_get(i);
