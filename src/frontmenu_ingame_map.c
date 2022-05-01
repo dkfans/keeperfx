@@ -487,14 +487,15 @@ int draw_overlay_creatures(struct PlayerInfo *player, long units_per_px, long zo
                 // Do the drawing
                 if (thing->owner == player->id_number)
                 {
-                    if ((thing->model == gui_creature_type_highlighted) && (game.play_gameturn & 1))
+                    if ((thing->model == gui_creature_type_highlighted) && (game.play_gameturn & 2))
                     {
-                        pannel_map_draw_pixel(mapos_x+basepos,   mapos_y+basepos,   31); //todo make cross
-                        pannel_map_draw_pixel(mapos_x+basepos-1, mapos_y+basepos,   col2);
-                        pannel_map_draw_pixel(mapos_x+basepos+1, mapos_y+basepos,   col2);
-                        pannel_map_draw_pixel(mapos_x+basepos,   mapos_y+basepos,   col2);
-                        pannel_map_draw_pixel(mapos_x+basepos,   mapos_y+basepos-1, col2);
-
+                        short pixel_end = get_pixels_scaled_and_zoomed(basic_zoom * 4);
+                        short pixels_amount = scale_pixel(basic_zoom * 4);
+                        pannel_map_draw_creature_dot(mapos_x + pixels_amount, mapos_y, basepos, col2, basic_zoom, isLowRes);
+                        pannel_map_draw_creature_dot(mapos_x - pixels_amount, mapos_y, basepos, col2, basic_zoom, isLowRes);
+                        pannel_map_draw_creature_dot(mapos_x, mapos_y + pixels_amount, basepos, col2, basic_zoom, isLowRes);
+                        pannel_map_draw_creature_dot(mapos_x, mapos_y - pixels_amount, basepos, col2, basic_zoom, isLowRes);
+                        pannel_map_draw_creature_dot(mapos_x, mapos_y, basepos, 31, basic_zoom, isLowRes);
                     } else
                     {
                         if ((is_thing_directly_controlled_by_player(thing, my_player_number)) || (is_thing_passenger_controlled_by_player(thing, my_player_number)))

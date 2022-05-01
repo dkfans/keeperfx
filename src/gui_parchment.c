@@ -373,7 +373,7 @@ int draw_overhead_call_to_arms(const struct TbRect *map_area, long block_size, P
     return n;
 }
 
-int draw_overhead_creatures(const struct TbRect *map_area, long block_size, PlayerNumber plyr_idx) 
+int draw_overhead_creatures(const struct TbRect *map_area, long block_size, PlayerNumber plyr_idx)
 {
     TbPixel col;
     short pixel_end;
