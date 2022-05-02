@@ -241,7 +241,6 @@ struct PlayerInfoAdd {
     unsigned char teleport_destination;
     BattleIndex battleid;
     unsigned short selected_fp_thing_pickup;
-    TbBool map_revealed;
     };
 
 /******************************************************************************/

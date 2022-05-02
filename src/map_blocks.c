@@ -1751,8 +1751,8 @@ void mine_out_block(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_
     unsigned char player_flags = 0;
     for (PlayerNumber player_id = 0; player_id < PLAYERS_COUNT; player_id++)
     {
-        struct PlayerInfoAdd* playeradd = get_playeradd(player_id);
-        if ( (player_id == plyr_idx) || (playeradd->map_revealed) )
+        struct DungeonAdd* dungeonadd = get_dungeonadd(player_id);
+        if ( (player_id == plyr_idx) || (dungeonadd->map_revealed) )
         {
             player_flags |= (1 << player_id);
         }
