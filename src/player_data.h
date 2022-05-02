@@ -23,7 +23,6 @@
 #include "globals.h"
 #include "engine_camera.h"
 #include "bflib_video.h"
-#include "roomspace.h"
 
 #ifdef __cplusplus
 extern "C" {
