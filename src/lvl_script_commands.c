@@ -2145,13 +2145,6 @@ static void set_creature_instance_process(struct ScriptContext *context)
 static void if_check(const struct ScriptLine *scline)
 {
 
-        char* text;
-        scline->np[idx] = strtol(scline->tp[idx], &text, 0);
-        if (text != &scline->tp[idx][strlen(scline->tp[idx])]) {
-            SCRPTWRNLOG("Numerical value \"%s\" interpreted as %ld", scline->tp[idx], scline->np[idx]);
-        }
-        break;
-
 
     long plr_range_id = scline->np[0];
     const char *varib_name = scline->tp[1];
@@ -2178,6 +2171,15 @@ static void if_check(const struct ScriptLine *scline)
     else 
         SCRPTERRLOG("DoubleVar mode anabled");
     
+/*
+    if (double_var_mode){
+        char* text;
+        scline->np[idx] = strtol(scline->tp[idx], &text, 0);
+        if (text != &scline->tp[idx][strlen(scline->tp[idx])]) {
+            SCRPTWRNLOG("Numerical value \"%s\" interpreted as %ld", scline->tp[idx], scline->np[idx]);
+        }
+    }
+*/
 
 
     if (gameadd.script.conditions_num >= CONDITIONS_COUNT)
@@ -2249,7 +2251,7 @@ const struct CommandDesc command_desc[] = {
   {"ADD_PARTY_TO_LEVEL",                "PAAN    ", Cmd_ADD_PARTY_TO_LEVEL, NULL, NULL},
   {"ADD_CREATURE_TO_LEVEL",             "PCANNN  ", Cmd_ADD_CREATURE_TO_LEVEL, NULL, NULL},
   {"ADD_OBJECT_TO_LEVEL",               "AAN     ", Cmd_ADD_OBJECT_TO_LEVEL, NULL, NULL},
-  {"IF",                                "PAOAa   ", Cmd_IF, NULL, NULL},
+  {"IF",                                "PAOAa   ", Cmd_IF, if_check, NULL},
   {"IF_ACTION_POINT",                   "NP      ", Cmd_IF_ACTION_POINT, NULL, NULL},
   {"ENDIF",                             "        ", Cmd_ENDIF, NULL, NULL},
   {"SET_HATE",                          "PPN     ", Cmd_SET_HATE, NULL, NULL},
@@ -2372,7 +2374,7 @@ const struct CommandDesc dk1_command_desc[] = {
   {"ADD_TO_PARTY",                 "ACNNAN  ", Cmd_ADD_TO_PARTY, &add_to_party_check, NULL},
   {"ADD_PARTY_TO_LEVEL",           "PAAN    ", Cmd_ADD_PARTY_TO_LEVEL, NULL, NULL},
   {"ADD_CREATURE_TO_LEVEL",        "PCANNN  ", Cmd_ADD_CREATURE_TO_LEVEL, NULL, NULL},
-  {"IF",                           "PAOAa   ", Cmd_IF, NULL, NULL},
+  {"IF",                           "PAOAa   ", Cmd_IF, if_check, NULL},
   {"IF_ACTION_POINT",              "NP      ", Cmd_IF_ACTION_POINT, NULL, NULL},
   {"ENDIF",                        "        ", Cmd_ENDIF, NULL, NULL},
   {"SET_HATE",                     "PPN     ", Cmd_SET_HATE, NULL, NULL},
