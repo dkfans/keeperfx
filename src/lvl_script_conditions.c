@@ -342,18 +342,20 @@ static void process_condition(struct Condition *condt, int idx)
             for (i = plr_start; i < plr_end; i++)
             {
                 long k = get_condition_value(i, condt->variabl_type, condt->variabl_idx);
-                long right_value;
-                if (condt->use_second_variable)
-                {
-                    right_value = get_condition_value(i, condt->variabl_type2, condt->variabl_idx2);
-                }
-                else
-                {
-                    right_value = condt->rvalue;
-                }
-
-                new_status = get_condition_status(condt->operation, k, right_value);
-
+                
+                new_status = get_condition_status(condt->operation, k, condt->rvalue);
+         //       long right_value;
+         //       if (condt->use_second_variable)
+         //       {
+         //           right_value = get_condition_value(i, condt->variabl_type2, condt->variabl_idx2);
+         //       }
+         //       else
+         //       {
+         //           right_value = condt->rvalue;
+         //       }
+//
+         //       new_status = get_condition_status(condt->operation, k, right_value);
+//
                 if (new_status != false)
                 {
                   break;
@@ -414,6 +416,7 @@ void set_script_current_condition(int current_condition)
 
 void command_add_condition(long plr_range_id, long opertr_id, long varib_type, long varib_id, long value)
 {
+     SCRPTERRLOG("cond1");
     // TODO: replace with pointer to functions
     struct Condition* condt = &gameadd.script.conditions[gameadd.script.conditions_num];
     condt->condit_idx = script_current_condition;
@@ -423,6 +426,7 @@ void command_add_condition(long plr_range_id, long opertr_id, long varib_type, l
     condt->operation = opertr_id;
     condt->rvalue = value;
     condt->use_second_variable = false;
+
     if (condition_stack_pos >= CONDITIONS_COUNT)
     {
         gameadd.script.conditions_num++;
@@ -441,6 +445,7 @@ void command_add_condition(long plr_range_id, long opertr_id, long varib_type, l
 void command_add_condition2(long plr_range_id, long opertr_id, long varib_type, long varib_id, long varib_type2, long varib_id2)
 {
     // TODO: replace with pointer to functions
+     SCRPTERRLOG("cond2");
     struct Condition* condt = &gameadd.script.conditions[gameadd.script.conditions_num];
     condt->condit_idx = script_current_condition;
     condt->plyr_range = plr_range_id;

@@ -2099,6 +2099,144 @@ static void reveal_map_location_process(struct ScriptContext *context)
         reveal_map_area(context->player_idx, x-(r>>1), x+(r>>1)+(r&1), y-(r>>1), y+(r>>1)+(r&1));
 }
 
+static void set_creature_instance_check(const struct ScriptLine *scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    value->bytes[0] = scline->np[0];
+    value->bytes[1] = scline->np[1];
+    if (scline->tp[2][0] != '\0')
+    {
+        int instance = get_rid(instance_desc, scline->tp[2]);
+        if (instance != -1)
+        {
+            value->bytes[2] = instance;
+        }
+        else
+        {
+            SCRPTERRLOG("Invalid instance: %s", scline->tp[2]);
+            return;
+        }
+    }
+    value->bytes[3] = scline->np[3];
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void set_creature_instance_process(struct ScriptContext *context)
+{
+    struct CreatureStats *crstat = creature_stats_get(context->value->bytes[0]);
+    if (!creature_stats_invalid(crstat))
+    {
+        crstat->learned_instance_id[context->value->bytes[1] - 1] = context->value->bytes[2];
+        crstat->learned_instance_level[context->value->bytes[1] - 1] = context->value->bytes[3];
+        for (short i = 0; i < THINGS_COUNT; i++)
+        {
+            struct Thing* thing = thing_get(i);
+            if (thing_is_creature(thing))
+            {
+                if (thing->model == context->value->bytes[0])
+                {
+                    creature_increase_available_instances(thing);
+                }
+            }
+        }
+    }
+}
+
+static void if_check(const struct ScriptLine *scline)
+{
+
+        char* text;
+        scline->np[idx] = strtol(scline->tp[idx], &text, 0);
+        if (text != &scline->tp[idx][strlen(scline->tp[idx])]) {
+            SCRPTWRNLOG("Numerical value \"%s\" interpreted as %ld", scline->tp[idx], scline->np[idx]);
+        }
+        break;
+
+
+    long plr_range_id = scline->np[0];
+    const char *varib_name = scline->tp[1];
+    const char *operatr = scline->tp[2];
+
+    long plr_range_id2 = scline->np[3];
+    const char *varib_name2 = scline->tp[4];
+
+    long value = scline->np[3];
+
+    TbBool double_var_mode = true;
+    long varib_type;
+    long varib_id;
+    long varib_type2;
+    long varib_id2;
+
+    SCRPTERRLOG("tp4:%s",scline->tp[1]);
+
+    if (varib_name2 == NULL || *varib_name2 == '\0')
+    {
+        SCRPTERRLOG("DoubleVar mode disabled");
+        double_var_mode = false;
+    }
+    else 
+        SCRPTERRLOG("DoubleVar mode anabled");
+    
+
+
+    if (gameadd.script.conditions_num >= CONDITIONS_COUNT)
+    {
+      SCRPTERRLOG("Too many (over %d) conditions in script", CONDITIONS_COUNT);
+      return;
+    }
+    // Recognize variable
+    if (!parse_get_varib(varib_name, &varib_id, &varib_type))
+    {
+        return;
+    }
+    if (double_var_mode && !parse_get_varib(varib_name2, &varib_id2, &varib_type2))
+    {
+        return;
+    }
+
+    { // Warn if using the command for a player without Dungeon struct
+        int plr_start;
+        int plr_end;
+        if (get_players_range(plr_range_id, &plr_start, &plr_end) >= 0) {
+            struct Dungeon* dungeon = get_dungeon(plr_start);
+            if ((plr_start+1 == plr_end) && dungeon_invalid(dungeon)) {
+                // Note that this list should be kept updated with the changes in get_condition_value()
+                if (((varib_type != SVar_GAME_TURN) && (varib_type != SVar_ALL_DUNGEONS_DESTROYED)
+                 && (varib_type != SVar_DOOR_NUM) && (varib_type != SVar_TRAP_NUM)))
+                    SCRPTWRNLOG("Found player without dungeon used in IF clause in script; this will not work correctly");
+                    
+            }
+        }
+        if (double_var_mode && get_players_range(plr_range_id2, &plr_start, &plr_end) >= 0) {
+            struct Dungeon* dungeon = get_dungeon(plr_start);
+            if ((plr_start+1 == plr_end) && dungeon_invalid(dungeon)) {
+                // Note that this list should be kept updated with the changes in get_condition_value()
+                if (((varib_type2 != SVar_GAME_TURN) && (varib_type2 != SVar_ALL_DUNGEONS_DESTROYED)
+                 && (varib_type2 != SVar_DOOR_NUM) && (varib_type2 != SVar_TRAP_NUM)))
+                    SCRPTWRNLOG("Found player without dungeon used in IF clause in script; this will not work correctly");
+                    
+            }
+        }
+    }
+    // Recognize comparison
+    long opertr_id = get_id(comparison_desc, operatr);
+    if (opertr_id == -1)
+    {
+      SCRPTERRLOG("Unknown comparison name, '%s'", operatr);
+      return;
+    }
+    // Add the condition to script structure
+    if (double_var_mode)
+    {
+        command_add_condition2(plr_range_id, opertr_id, varib_type, varib_id, varib_type2, varib_id2);
+    }
+    else{
+        command_add_condition(plr_range_id, opertr_id, varib_type, varib_id, value);
+    }
+}
+
+
 /**
  * Descriptions of script commands for parser.
  * Arguments are: A-string, N-integer, C-creature model, P- player, R- room kind, L- location, O- operator, S- slab kind, X- creature property

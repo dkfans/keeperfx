@@ -242,14 +242,35 @@ static void command_add_creature_to_level(long plr_range_id, const char *crtr_na
     }
 }
 
-
-
-static void command_if(long plr_range_id, const char *varib_name, const char *operatr, const char *varib_name2)
+static void if_check(const struct ScriptLine *scline)
 {
+    long plr_range_id = scline->np[0];
+    const char *varib_name = scline->tp[1];
+    const char *operatr = scline->tp[2];
+
+    long plr_range_id2 = scline->np[3];
+    const char *varib_name2 = scline->tp[4];
+
+    long value = scline->np[3];
+
+    TbBool double_var_mode = true;
     long varib_type;
     long varib_id;
     long varib_type2;
     long varib_id2;
+
+    SCRPTERRLOG("tp4:%s",scline->tp[1]);
+
+    if (varib_name2 == NULL || *varib_name2 == '\0')
+    {
+        SCRPTERRLOG("DoubleVar mode disabled");
+        double_var_mode = false;
+    }
+    else 
+        SCRPTERRLOG("DoubleVar mode anabled");
+    
+
+
     if (gameadd.script.conditions_num >= CONDITIONS_COUNT)
     {
       SCRPTERRLOG("Too many (over %d) conditions in script", CONDITIONS_COUNT);
@@ -260,10 +281,11 @@ static void command_if(long plr_range_id, const char *varib_name, const char *op
     {
         return;
     }
-    if (!parse_get_varib(varib_name2, &varib_id2, &varib_type2))
-    {
-        return;
-    }
+   if (double_var_mode && !parse_get_varib(varib_name2, &varib_id2, &varib_type2))
+   {
+       return;
+   }
+
     { // Warn if using the command for a player without Dungeon struct
         int plr_start;
         int plr_end;
@@ -271,9 +293,17 @@ static void command_if(long plr_range_id, const char *varib_name, const char *op
             struct Dungeon* dungeon = get_dungeon(plr_start);
             if ((plr_start+1 == plr_end) && dungeon_invalid(dungeon)) {
                 // Note that this list should be kept updated with the changes in get_condition_value()
-                if (((varib_type != SVar_GAME_TURN) && (varib_type != SVar_ALL_DUNGEONS_DESTROYED)
+                if ((varib_type != SVar_GAME_TURN) && (varib_type != SVar_ALL_DUNGEONS_DESTROYED)
                  && (varib_type != SVar_DOOR_NUM) && (varib_type != SVar_TRAP_NUM))
-                 ||((varib_type2 != SVar_GAME_TURN) && (varib_type2 != SVar_ALL_DUNGEONS_DESTROYED)
+                    SCRPTWRNLOG("Found player without dungeon used in IF clause in script; this will not work correctly");
+                    
+            }
+        }
+        if (double_var_mode && get_players_range(plr_range_id2, &plr_start, &plr_end) >= 0) {
+            struct Dungeon* dungeon = get_dungeon(plr_start);
+            if ((plr_start+1 == plr_end) && dungeon_invalid(dungeon)) {
+                // Note that this list should be kept updated with the changes in get_condition_value()
+                if (((varib_type2 != SVar_GAME_TURN) && (varib_type2 != SVar_ALL_DUNGEONS_DESTROYED)
                  && (varib_type2 != SVar_DOOR_NUM) && (varib_type2 != SVar_TRAP_NUM)))
                     SCRPTWRNLOG("Found player without dungeon used in IF clause in script; this will not work correctly");
                     
@@ -288,8 +318,13 @@ static void command_if(long plr_range_id, const char *varib_name, const char *op
       return;
     }
     // Add the condition to script structure
-    command_add_condition(plr_range_id, opertr_id, varib_type, varib_id, value);
-    command_add_condition2(plr_range_id, opertr_id, varib_type, varib_id, varib_type2, varib_id2);
+    if (double_var_mode)
+    {
+        command_add_condition2(plr_range_id, opertr_id, varib_type, varib_id, varib_type2, varib_id2);
+    }
+    else{
+        command_add_condition(plr_range_id, opertr_id, varib_type, varib_id, value);
+    }
 }
 
 static void command_display_information(long msg_num, const char *where, long x, long y)
@@ -1826,7 +1861,7 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         command_add_object_to_level(scline->tp[0], scline->tp[1], scline->np[2]);
         break;
     case Cmd_IF:
-        command_if(scline->np[0], scline->tp[1], scline->tp[2], scline->tp[3]);
+        if_check(scline);
         break;
     case Cmd_ENDIF:
         pop_condition();
