@@ -34,6 +34,7 @@
 #include "creature_states_pray.h"
 #include "creature_states_mood.h"
 #include "room_util.h"
+#include "creature_instances.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -2366,6 +2367,7 @@ const struct CommandDesc command_desc[] = {
   {"HEART_LOST_QUICK_OBJECTIVE",        "NAl     ", Cmd_HEART_LOST_QUICK_OBJECTIVE, &heart_lost_quick_objective_check, &heart_lost_quick_objective_process},
   {"HEART_LOST_OBJECTIVE",              "Nl      ", Cmd_HEART_LOST_OBJECTIVE, &heart_lost_objective_check, &heart_lost_objective_process},
   {"SET_DOOR",                          "ANN     ", Cmd_SET_DOOR, &set_door_check, &set_door_process},
+  {"SET_CREATURE_INSTANCE",             "CNAN    ", Cmd_SET_CREATURE_INSTANCE, &set_creature_instance_check, &set_creature_instance_process},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 

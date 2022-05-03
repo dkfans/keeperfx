@@ -341,21 +341,20 @@ static void process_condition(struct Condition *condt, int idx)
             new_status = false;
             for (i = plr_start; i < plr_end; i++)
             {
-                long k = get_condition_value(i, condt->variabl_type, condt->variabl_idx);
-                
-                new_status = get_condition_status(condt->operation, k, condt->rvalue);
-         //       long right_value;
-         //       if (condt->use_second_variable)
-         //       {
-         //           right_value = get_condition_value(i, condt->variabl_type2, condt->variabl_idx2);
-         //       }
-         //       else
-         //       {
-         //           right_value = condt->rvalue;
-         //       }
-//
-         //       new_status = get_condition_status(condt->operation, k, right_value);
-//
+                long left_value = get_condition_value(i, condt->variabl_type, condt->variabl_idx);
+
+                long right_value;
+                if (condt->use_second_variable)
+                {
+                    right_value = get_condition_value(i, condt->variabl_type2, condt->variabl_idx2);
+                }
+                else
+                {
+                    right_value = condt->rvalue;
+                }
+
+                new_status = get_condition_status(condt->operation, left_value, right_value);
+
                 if (new_status != false)
                 {
                   break;
