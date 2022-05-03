@@ -413,18 +413,27 @@ short check_and_asimilate_thing_by_room(struct Thing *thing)
     if (thing_is_gold_hoard(thing))
     {
         room = get_room_thing_is_on(thing);
+        long wealth_size_holds = gameadd.gold_per_hoard / get_wealth_size_types_count();
+        unsigned long n = wealth_size_holds * (get_wealth_size_of_gold_hoard_object(thing) + 1);
         if (room_is_invalid(room) || !room_role_matches(room->kind, RoRoF_GoldStorage))
         {
             // No room - delete it, hoard cannot exist outside treasure room
             ERRORLOG("Found %s outside of %d room; removing",thing_model_name(thing),room_code_name(RoK_TREASURE));
+            create_gold_pile(&thing->mappos, thing->owner, n);
             delete_thing_structure(thing, 0);
             return false;
         }
-        long wealth_size_holds = gameadd.gold_per_hoard / get_wealth_size_types_count();
-        unsigned long n = wealth_size_holds * (get_wealth_size_of_gold_hoard_object(thing) + 1);
-        thing->owner = room->owner;
-        add_gold_to_hoarde(thing, room, n);
-        return true;
+        MapSubtlCoord stl_x = thing->mappos.x.stl.num - 1;
+        MapSubtlCoord stl_y = thing->mappos.y.stl.num - 1;
+        if (!((stl_x % 3) || (stl_y % 3))) // Only accept hoards on a center subtile.
+        {
+            thing->owner = room->owner;
+            add_gold_to_hoarde(thing, room, n);
+            return true;
+        }
+        create_gold_pile(&thing->mappos, thing->owner, n);
+        delete_thing_structure(thing, 0);
+        return false;
     }
     if (thing_is_spellbook(thing))
     {
