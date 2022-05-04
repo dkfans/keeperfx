@@ -584,6 +584,9 @@ short computer_dump_held_things_on_map(struct Computer2 *comp, struct Thing *dro
     if (!can_place_thing_here(droptng, pos->x.stl.num, pos->y.stl.num, comp->dungeon->owner)) {
         return 0;
     }
+    if (is_dangerous_drop_subtile(pos->x.stl.num, pos->y.stl.num)) {
+        return 0;
+    }
     struct Coord3d locpos;
     locpos.z.val = 0;
     locpos.x.val = subtile_coord_center(pos->x.stl.num);
