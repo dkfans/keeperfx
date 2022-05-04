@@ -99,7 +99,6 @@ long good_find_best_enemy_dungeon(struct Thing* creatng)
         {
             if (has_available_enemy_dungeon(creatng, plyr_idx))
             {
-                JUSTMSG("Classic bug return %d",plyr_idx);
                 return plyr_idx;
             }
         }
@@ -108,7 +107,6 @@ long good_find_best_enemy_dungeon(struct Thing* creatng)
         if (player_exists(player) && !dungeon_invalid(dungeon) && (creatng->owner != plyr_idx) && has_available_enemy_dungeon(creatng, plyr_idx))
         {
             long score = dungeon->total_score - 20 * dungeon->total_score * dungeon->field_F7D / 100;
-            JUSTMSG("Score for player %d = %d", plyr_idx, score);
             if (score <= 0)
             {
                 score = 0;
