@@ -375,12 +375,9 @@ int draw_overhead_call_to_arms(const struct TbRect *map_area, long block_size, P
 
 int draw_overhead_creatures(const struct TbRect *map_area, long block_size, PlayerNumber plyr_idx)
 {
-    TbBool isLowRes = 0;
-    if (lbDisplay.PhysicalScreenWidth <= 640)
-    {
-        isLowRes = 1;
-    }
-
+    TbPixel col;
+    short pixel_end;
+    int p;
     int n = 0;
     int k = 0;
     const struct StructureList* slist = get_list_for_thing_class(TCls_Creature);
@@ -410,27 +407,17 @@ int draw_overhead_creatures(const struct TbRect *map_area, long block_size, Play
                 long pos_y = map_area->top + block_size * (int)thing->mappos.y.stl.num / STL_PER_SLB;
                 if (thing->owner == plyr_idx)
                 {
-                    LbDrawPixel(pos_x, pos_y, col2);
+                    col = col2;
 
-                    // These only draw if screen resolution is high (not the 640x480)
-                    // TODO: scale appropriately for windowed mode
-                    if (!isLowRes)
-                    {
-                        LbDrawPixel(pos_x+1, pos_y, col2);
-                        LbDrawPixel(pos_x, pos_y+1, col2);
-                        LbDrawPixel(pos_x+1, pos_y+1, col2);
-                    }
-                } else
+                }
+                else
                 {
-                    LbDrawPixel(pos_x, pos_y, col1);
-                    // These only draw if screen resolution is high (not the 640x480)
-                    // TODO: scale appropriately for windowed mode
-                    if (!isLowRes)
-                    {
-                        LbDrawPixel(pos_x+1, pos_y, col1);
-                        LbDrawPixel(pos_x, pos_y+1, col1);
-                        LbDrawPixel(pos_x+1, pos_y+1, col1);
-                    }
+                    col = col1;
+                }
+                pixel_end = get_pixels_scaled_and_zoomed(TWO_PIXELS);
+                for (p = 0; p < pixel_end; p++)
+                {
+                    LbDrawPixel(pos_x + draw_square[p].delta_x, pos_y+draw_square[p].delta_y, col);
                 }
                 n++;
             } else
@@ -438,7 +425,6 @@ int draw_overhead_creatures(const struct TbRect *map_area, long block_size, Play
             if (is_hero_tunnelling_to_attack(thing))
             {
                 struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-                TbPixel col;
                 if ((game.play_gameturn & 4) == 0)
                 {
                     col1 = player_room_colours[(int)(cctrl->party.target_plyr_idx>=0?cctrl->party.target_plyr_idx:0)];
@@ -459,14 +445,10 @@ int draw_overhead_creatures(const struct TbRect *map_area, long block_size, Play
                         break;
                     long pos_x = map_area->left + block_size * stl_num_decode_x(memberpos) / STL_PER_SLB;
                     long pos_y = map_area->top + block_size * stl_num_decode_y(memberpos) / STL_PER_SLB;
-                    LbDrawPixel(pos_x, pos_y, col);
-                    // These only draw if screen resolution is high (not the 640x480)
-                    // TODO: scale appropriately for windowed mode
-                    if (!isLowRes)
+                    pixel_end = get_pixels_scaled_and_zoomed(TWO_PIXELS);
+                    for (p = 0; p < pixel_end; p++)
                     {
-                        LbDrawPixel(pos_x+1, pos_y, col);
-                        LbDrawPixel(pos_x, pos_y+1, col);
-                        LbDrawPixel(pos_x+1, pos_y+1, col);
+                        LbDrawPixel(pos_x + draw_square[p].delta_x, pos_y + draw_square[p].delta_y, col);
                     }
                     n++;
                 }
@@ -507,13 +489,17 @@ int draw_overhead_traps(const struct TbRect *map_area, long block_size, PlayerNu
                 {
                     long pos_x = map_area->left + (block_size * (int)thing->mappos.x.stl.num / STL_PER_SLB) + ((block_size + 1)/5);
                     long pos_y = map_area->top + (block_size * (int)thing->mappos.y.stl.num / STL_PER_SLB) + ((block_size + 1)/5);
-                    LbDrawPixel(pos_x, pos_y, 60);
-                    if (block_size > 4)
+                    short pixels_amount = scale_pixel(ONE_PIXEL);
+                    short pixel_end = get_pixels_scaled_and_zoomed(ONE_PIXEL);
+                    short colour = 60;
+                    for (int p = 0; p < pixel_end; p++)
                     {
-                        LbDrawPixel(pos_x + 1, pos_y, 60);
-                        LbDrawPixel(pos_x - 1, pos_y, 60);
-                        LbDrawPixel(pos_x, pos_y + 1, 60);
-                        LbDrawPixel(pos_x, pos_y - 1, 60);
+                        // Draw a cross
+                        LbDrawPixel(pos_x + draw_square[p].delta_x, pos_y + draw_square[p].delta_y, colour);
+                        LbDrawPixel(pos_x + pixels_amount + draw_square[p].delta_x, pos_y + draw_square[p].delta_y, colour);
+                        LbDrawPixel(pos_x - pixels_amount + draw_square[p].delta_x, pos_y + draw_square[p].delta_y, colour);
+                        LbDrawPixel(pos_x + draw_square[p].delta_x, pos_y + pixels_amount + draw_square[p].delta_y, colour);
+                        LbDrawPixel(pos_x + draw_square[p].delta_x, pos_y - pixels_amount + draw_square[p].delta_y, colour);
                     }
                     n++;
                 }
@@ -554,8 +540,11 @@ int draw_overhead_spells(const struct TbRect *map_area, long block_size, PlayerN
               {
                   long pos_x = map_area->left + block_size * (int)thing->mappos.x.stl.num / STL_PER_SLB  + ((block_size + 1)/5);
                   long pos_y = map_area->top + block_size * (int)thing->mappos.y.stl.num / STL_PER_SLB + ((block_size + 1)/5);
-                  LbDrawPixel(pos_x, pos_y, colours[15][0][15]);
-                  n++;
+                  short pixel_end = get_pixels_scaled_and_zoomed(TWO_PIXELS);
+                  for (int p = 0; p < pixel_end; p++)
+                  {
+                      LbDrawPixel(pos_x + draw_square[p].delta_x, pos_y + draw_square[p].delta_y, colours[15][0][15]);
+                  }
               }
             }
         }

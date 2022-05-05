@@ -1526,7 +1526,7 @@ void draw_scrolling_button_string(struct GuiButton *gbtn, const char *text)
   }
   else
   {
-      tx_units_per_px = scale_ui_value((MyScreenWidth >= 640) ? 16 : 32);
+      tx_units_per_px = scale_ui_value_lofi(16);
   }
   if (text_height == 0)
   {
