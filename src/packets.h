@@ -169,7 +169,14 @@ enum TbPacketAction {
         PckA_SwitchTeleportDest,
         PckA_SelectFPPickup,
         PckA_CheatAllDoors,
-        PckA_CheatAllTraps
+        PckA_CheatAllTraps,
+        PckA_SetRoomspaceAuto,
+        PckA_SetRoomspaceMan,
+        PckA_SetRoomspaceDrag,
+        PckA_SetRoomspaceDefault,
+        PckA_SetRoomspaceWholeRoom,
+        PckA_SetRoomspaceSubtile,
+        PckA_SetRoomspaceHighlight
 };
 
 /** Packet flags for non-action player operation. */

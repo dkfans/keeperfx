@@ -562,6 +562,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
   struct Packet* pckt = get_packet_direct(player->packet_num);
   SYNCDBG(6,"Processing player %d action %d",(int)plyr_idx,(int)pckt->action);
   struct Dungeon *dungeon;
+  struct PlayerInfoAdd* playeradd = get_playeradd(plyr_idx);
   struct Thing *thing;
   int i;
   switch (pckt->action)
@@ -881,6 +882,86 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       set_player_mode(player, pckt->actn_par1);
       set_engine_view(player, player->view_mode_restore);
       return false;
+  case PckA_SetRoomspaceAuto:
+    {
+        playeradd->roomspace_detection_looseness = (unsigned char)pckt->actn_par1;
+        playeradd->roomspace_mode = roomspace_detection_mode;
+        playeradd->one_click_mode_exclusive = false;
+        playeradd->render_roomspace.highlight_mode = false;
+        return false;
+    }
+   case PckA_SetRoomspaceMan:
+    {
+        playeradd->user_defined_roomspace_width = pckt->actn_par1;
+        playeradd->roomspace_width = pckt->actn_par1;
+        playeradd->roomspace_height = pckt->actn_par1;
+        playeradd->roomspace_mode = box_placement_mode;
+        playeradd->one_click_mode_exclusive = false;
+        playeradd->render_roomspace.highlight_mode = false;
+        playeradd->roomspace_no_default = true;
+        return false;
+    }
+    case PckA_SetRoomspaceDrag:
+    {
+        playeradd->roomspace_detection_looseness = DEFAULT_USER_ROOMSPACE_DETECTION_LOOSENESS;
+        playeradd->user_defined_roomspace_width = DEFAULT_USER_ROOMSPACE_WIDTH;
+        playeradd->roomspace_mode = drag_placement_mode;
+        playeradd->one_click_mode_exclusive = true; // Enable GuiLayer_OneClickBridgeBuild layer
+        playeradd->render_roomspace.highlight_mode = false;
+        return false;
+    }
+    case PckA_SetRoomspaceDefault:
+    {
+        playeradd->roomspace_detection_looseness = DEFAULT_USER_ROOMSPACE_DETECTION_LOOSENESS;
+        playeradd->user_defined_roomspace_width = DEFAULT_USER_ROOMSPACE_WIDTH;
+        playeradd->roomspace_width = playeradd->roomspace_height = pckt->actn_par1;
+        playeradd->roomspace_mode = box_placement_mode;
+        playeradd->one_click_mode_exclusive = false;
+        playeradd->roomspace_no_default = false;
+        return false;
+    }
+    case PckA_SetRoomspaceWholeRoom:
+    {
+        playeradd->render_roomspace.highlight_mode = false;
+        playeradd->roomspace_mode = roomspace_detection_mode;
+        return false;
+    }
+    case PckA_SetRoomspaceSubtile:
+    {
+        playeradd->render_roomspace.highlight_mode = false;
+        playeradd->roomspace_mode = single_subtile_mode;
+        return false;
+    }
+    case PckA_SetRoomspaceHighlight:
+    {
+        if ( (pckt->actn_par2 == 1) || (pckt->actn_par1 == 2) )
+        {
+            // exit out of click and drag mode
+            if (playeradd->render_roomspace.drag_mode)
+            {
+                playeradd->one_click_lock_cursor = false;
+                if ((pckt->control_flags & PCtr_LBtnHeld) == PCtr_LBtnHeld)
+                {
+                    playeradd->ignore_next_PCtr_LBtnRelease = true;
+                }
+            }
+            playeradd->render_roomspace.drag_mode = false;
+        }
+        playeradd->roomspace_highlight_mode = pckt->actn_par1;
+        if (pckt->actn_par1 == 2)
+        {
+            playeradd->user_defined_roomspace_width = pckt->actn_par2;
+            playeradd->roomspace_width = pckt->actn_par2;
+            playeradd->roomspace_height = pckt->actn_par2;
+        }
+        else if (pckt->actn_par1 == 0)
+        {
+            reset_dungeon_build_room_ui_variables(plyr_idx);
+            playeradd->roomspace_width = playeradd->roomspace_height = pckt->actn_par2;
+        }
+        playeradd->roomspace_no_default = true;
+        return false;
+    }
     default:
       return process_players_global_cheats_packet_action(plyr_idx, pckt);
   }

@@ -155,10 +155,11 @@ void update_gui_layer()
     }
 
     struct PlayerInfo* player = get_my_player();
-    if ( ((player->work_state == PSt_Sell) || (player->work_state == PSt_BuildRoom) || (render_roomspace.highlight_mode))  &&
+    struct PlayerInfoAdd* playeradd = get_playeradd(player->id_number);
+    if ( ((player->work_state == PSt_Sell) || (player->work_state == PSt_BuildRoom) || (playeradd->render_roomspace.highlight_mode))  &&
          (is_game_key_pressed(Gkey_BestRoomSpace, NULL, true) || is_game_key_pressed(Gkey_SquareRoomSpace, NULL, true)) )
     {
-        if (render_roomspace.one_click_mode_exclusive)
+        if (playeradd->render_roomspace.one_click_mode_exclusive)
         {
             // Is the user in "one-click bridge building" mode
             set_current_gui_layer(GuiLayer_OneClickBridgeBuild);
@@ -1004,6 +1005,7 @@ long get_dungeon_control_action_inputs(void)
         }
         set_packet_action(pckt,PckA_SetMapRotation,angle,0,0,0);
         clear_key_pressed(val);
+        return 1;
       }
     }
     if (player->view_mode == PVM_FrontView)
@@ -1052,6 +1054,7 @@ long get_dungeon_control_action_inputs(void)
         set_packet_action(pckt,PckA_SetMapRotation,angle,0,0,0);
         }
         clear_key_pressed(val);
+        return 1;
       }
     }
 
@@ -1071,7 +1074,35 @@ long get_dungeon_control_action_inputs(void)
     {
         return 1;
     }
-    if ( (player->work_state == PSt_PlaceTerrain) || (player->work_state == PSt_MkDigger) || (player->work_state == PSt_MkBadCreatr) || (player->work_state == PSt_MkGoodCreatr) 
+    if (player->work_state == PSt_CtrlDungeon)
+    {
+        if (player->primary_cursor_state == CSt_PickAxe)
+        {
+            process_highlight_roomspace_inputs(player->id_number);
+        }
+        else if (player->primary_cursor_state == CSt_PowerHand)
+        {
+            long keycode = 0;
+            struct Packet* pckt = get_packet(my_player_number);
+            if (is_game_key_pressed(Gkey_SellTrapOnSubtile, &keycode, true))
+            {
+                set_packet_action(pckt, PckA_SetRoomspaceSubtile, 0, 0, 0, 0);
+            }
+            else
+            {
+                set_packet_action(pckt, PckA_SetRoomspaceDefault, 0, 0, 0, 0);
+            }
+        }
+    }
+    else if (player->work_state == PSt_BuildRoom)
+    {
+        process_build_roomspace_inputs(player->id_number);
+    }
+    else if (player->work_state == PSt_Sell)
+    {
+        process_sell_roomspace_inputs(player->id_number); 
+    }
+    else if ( (player->work_state == PSt_PlaceTerrain) || (player->work_state == PSt_MkDigger) || (player->work_state == PSt_MkBadCreatr) || (player->work_state == PSt_MkGoodCreatr) 
         || (player->work_state == PSt_KillPlayer) || (player->work_state == PSt_HeartHealth) || (player->work_state == PSt_StealRoom) || 
         (player->work_state == PSt_StealSlab) || (player->work_state == PSt_ConvertCreatr) )
     {
@@ -1925,7 +1956,7 @@ TbBool get_player_coords_and_context(struct Coord3d *pos, unsigned char *context
   unsigned long x;
   unsigned long y;
   struct PlayerInfo* player = get_my_player();
-  struct DungeonAdd* dungeonadd = get_dungeonadd(player->id_number);
+  struct PlayerInfoAdd* playeradd = get_playeradd(player->id_number);
   if ((pointer_x < 0) || (pointer_y < 0)
    || (pointer_x >= player->engine_window_width/pixel_size)
    || (pointer_y >= player->engine_window_height/pixel_size))
@@ -1942,7 +1973,7 @@ TbBool get_player_coords_and_context(struct Coord3d *pos, unsigned char *context
   unsigned int slb_y = subtile_slab_fast(y);
   struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
   struct SlabAttr* slbattr = get_slab_attrs(slb);
-  if (slab_kind_is_door(slb->kind) && (slabmap_owner(slb) == player->id_number) && (!dungeonadd->one_click_lock_cursor))
+  if (slab_kind_is_door(slb->kind) && (slabmap_owner(slb) == player->id_number) && (!playeradd->one_click_lock_cursor))
   {
     *context = CSt_DoorKey;
     pos->x.val = (x<<8) + top_pointed_at_frac_x;
@@ -1960,13 +1991,13 @@ TbBool get_player_coords_and_context(struct Coord3d *pos, unsigned char *context
     pos->x.val = (x<<8) + top_pointed_at_frac_x;
     pos->y.val = (y<<8) + top_pointed_at_frac_y;
   } else
-  if (((slb_x >= map_tiles_x) || (slb_y >= map_tiles_y)) && (!dungeonadd->one_click_lock_cursor))
+  if (((slb_x >= map_tiles_x) || (slb_y >= map_tiles_y)) && (!playeradd->one_click_lock_cursor))
   {
     *context = CSt_DefaultArrow;
     pos->x.val = (block_pointed_at_x<<8) + pointed_at_frac_x;
     pos->y.val = (block_pointed_at_y<<8) + pointed_at_frac_y;
   } else
-  if (((slbattr->block_flags & (SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0) || (dungeonadd->one_click_lock_cursor))
+  if (((slbattr->block_flags & (SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0) || (playeradd->one_click_lock_cursor))
   {
     *context = CSt_PickAxe;
     pos->x.val = (x<<8) + top_pointed_at_frac_x;
