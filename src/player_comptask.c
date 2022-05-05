@@ -576,15 +576,23 @@ TbBool thing_is_in_computer_power_hand_list(const struct Thing *thing, PlayerNum
 short computer_dump_held_things_on_map(struct Computer2 *comp, struct Thing *droptng, struct Coord3d *pos)
 {
     if (thing_is_creature(droptng) && (droptng->active_state == CrSt_CreatureUnconscious)) {
-        WARNLOG("The %s Held By computer is unconscious",creature_code_name(droptng->model));
+        WARNLOG("The %s Held By computer is unconscious", creature_code_name(droptng->model));
     }
-    if (!computer_find_non_solid_block(comp, pos)) {
-        return 0;
+    if (thing_is_creature(droptng))
+    {
+        if (!computer_find_safe_non_solid_block(comp, pos))
+        {
+            return 0;
+        }
+    }
+    else
+    {
+        if (!computer_find_non_solid_block(comp, pos))
+        {
+            return 0;
+        }
     }
     if (!can_place_thing_here(droptng, pos->x.stl.num, pos->y.stl.num, comp->dungeon->owner)) {
-        return 0;
-    }
-    if (is_dangerous_drop_subtile(pos->x.stl.num, pos->y.stl.num)) {
         return 0;
     }
     struct Coord3d locpos;
