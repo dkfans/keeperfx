@@ -167,7 +167,7 @@ struct GameAdd {
     /** The creature model used for determining amount of sacrifices which decrease digger cost. */
     ThingModel cheaper_diggers_sacrifice_model;
     char quick_messages[QUICK_MESSAGES_COUNT][MESSAGE_TEXT_LEN];
-    struct GuiMessageExt messages[GUI_MESSAGES_COUNT];
+    struct GuiMessage messages[GUI_MESSAGES_COUNT];
     struct SacrificeRecipe sacrifice_recipes[MAX_SACRIFICE_RECIPES];
     struct LightSystemState lightst;
     long digger_work_experience;

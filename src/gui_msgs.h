@@ -32,13 +32,13 @@ extern "C" {
 /******************************************************************************/
 #pragma pack(1)
 
-struct GuiMessage { // sizeof = 0x45 (69)
+struct GuiMessage_OLD { // sizeof = 0x45 (69)
     char text[64];
 PlayerNumber plyr_idx;
 unsigned long creation_turn;
 };
 
-struct GuiMessageExt {
+struct GuiMessage {
     char text[64];
 PlayerNumber plyr_idx;
 unsigned long creation_turn;

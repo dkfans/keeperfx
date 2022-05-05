@@ -164,7 +164,7 @@ void zero_messages(void)
     game.active_messages_count = 0;
     for (int i = 0; i < 3; i++)
     {
-      memset(&gameadd.messages[i], 0, sizeof(struct GuiMessageExt));
+      memset(&gameadd.messages[i], 0, sizeof(struct GuiMessage));
     }
 }
 
@@ -181,14 +181,14 @@ void clear_messages_from_player(char plyr_idx)
 
 void delete_message(unsigned char msg_idx)
 {
-    memset(&gameadd.messages[msg_idx], 0, sizeof(struct GuiMessageExt));
+    memset(&gameadd.messages[msg_idx], 0, sizeof(struct GuiMessage));
     if (msg_idx < game.active_messages_count - 1)
     {
         for (int i = msg_idx; i < game.active_messages_count; i++)
         {
             gameadd.messages[i] = gameadd.messages[i+1]; 
         }
-        memset(&gameadd.messages[game.active_messages_count - 1], 0, sizeof(struct GuiMessageExt));        
+        memset(&gameadd.messages[game.active_messages_count - 1], 0, sizeof(struct GuiMessage));        
     }
     game.active_messages_count--;    
 }
@@ -198,7 +198,7 @@ void message_add(PlayerNumber plyr_idx, const char *text)
     SYNCDBG(2,"Player %d: %s",(int)plyr_idx,text);
     for (int i = GUI_MESSAGES_COUNT - 1; i > 0; i--)
     {
-        memcpy(&gameadd.messages[i], &gameadd.messages[i-1], sizeof(struct GuiMessageExt));
+        memcpy(&gameadd.messages[i], &gameadd.messages[i-1], sizeof(struct GuiMessage));
     }
     strncpy(gameadd.messages[0].text, text, sizeof(gameadd.messages[0].text) - 1);
     gameadd.messages[0].plyr_idx = plyr_idx;
@@ -233,7 +233,7 @@ void targeted_message_add(PlayerNumber plyr_idx, PlayerNumber target_idx, unsign
     SYNCDBG(2,"Player %d: %s",(int)plyr_idx,full_msg_text);
     for (int i = GUI_MESSAGES_COUNT - 1; i > 0; i--)
     {
-        memcpy(&gameadd.messages[i], &gameadd.messages[i-1], sizeof(struct GuiMessageExt));
+        memcpy(&gameadd.messages[i], &gameadd.messages[i-1], sizeof(struct GuiMessage));
     }
     strncpy(gameadd.messages[0].text, full_msg_text, sizeof(gameadd.messages[0].text) - 1);
     gameadd.messages[0].plyr_idx = plyr_idx;
