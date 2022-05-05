@@ -278,7 +278,7 @@ static void str_replace(char *str, int from, int to)
     }
 }
 
-static TbBool cmd_magic_instance(char* creature_str, const char*  slot_str, char* instance_str)
+static TbBool cmd_magic_instance(PlayerNumber plyr_idx, char* creature_str, const char*  slot_str, char* instance_str)
 {
     if (creature_str == NULL || slot_str == NULL || instance_str == NULL)
         return false;
@@ -287,13 +287,13 @@ static TbBool cmd_magic_instance(char* creature_str, const char*  slot_str, char
     int creature = get_id(creature_desc, creature_str);
     if (creature == -1)
     {
-        message_add(10, "Invalid creature");
+        targeted_message_add(10, plyr_idx, GUI_MESSAGES_DELAY, "Invalid creature");
         return false;
     }
     int slot = atoi(slot_str);
     if (slot < 0 || slot > 9)
     {
-        message_add(10, "Invalid slot");
+        targeted_message_add(10, plyr_idx, GUI_MESSAGES_DELAY, "Invalid slot");
         return false;
     }
     int instance = get_id(instance_desc, instance_str);
@@ -303,7 +303,7 @@ static TbBool cmd_magic_instance(char* creature_str, const char*  slot_str, char
     }
     if (instance <= 0)
     {
-        message_add(10, "Invalid instance");
+        targeted_message_add(10, plyr_idx, GUI_MESSAGES_DELAY, "Invalid instance");
         return false;
     }
     struct CreatureStats* crstat = creature_stats_get(creature);
@@ -603,7 +603,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
             return true;
         } else if (strcasecmp(parstr, "magic.instance") == 0)
         {
-            return cmd_magic_instance((char*)pr2str, pr3str, (char*)pr4str);
+            return cmd_magic_instance(plyr_idx, (char*)pr2str, pr3str, (char*)pr4str);
         } else if ( (strcasecmp(parstr, "give.trap") == 0) || (strcasecmp(parstr, "trap.give") == 0) )
         {
             long id = get_trap_number_for_command(pr2str);
