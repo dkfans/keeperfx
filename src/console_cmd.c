@@ -340,15 +340,15 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
     struct Coord3d pos = {0};
     if (strcasecmp(parstr, "stats") == 0)
     {
-      targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGE_DELAY, "Now time is %d, last loop time was %d",LbTimerClock(),last_loop_time);
-      targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGE_DELAY, "clock is %d, requested fps is %d",clock(),game.num_fps);
+      targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Now time is %d, last loop time was %d",LbTimerClock(),last_loop_time);
+      targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "clock is %d, requested fps is %d",clock(),game.num_fps);
       return true;
     }
     else if (strcasecmp(parstr, "fps") == 0)
     {
         if (pr2str == NULL)
         {
-            targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGE_DELAY, "Framerate is %d fps", game.num_fps);
+            targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Framerate is %d fps", game.num_fps);
         }
         else
         {
@@ -393,7 +393,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
     }
     else if (strcasecmp(parstr, "turn") == 0)
     {
-        targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGE_DELAY, "turn %ld", game.play_gameturn);
+        targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "turn %ld", game.play_gameturn);
         return true;
     }
     else if (strcasecmp(parstr, "game.save") == 0)
@@ -431,12 +431,12 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
             }
             else
             {
-                targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGE_DELAY, "Unable to load game %d", slot_num);
+                targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Unable to load game %d", slot_num);
             }
         }
         else
         {
-            targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGE_DELAY, "Unable to load game %d", slot_num);
+            targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Unable to load game %d", slot_num);
         }
     }
     else if (strcasecmp(parstr, "cls") == 0)
@@ -446,12 +446,12 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
     }
     else if (strcasecmp(parstr, "ver") == 0)
     {
-        targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGE_DELAY, PRODUCT_VERSION);
+        targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, PRODUCT_VERSION);
         return true;
     }
     else if (strcasecmp(parstr, "volume") == 0)
     {
-        targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGE_DELAY, "%s: %d %s: %d", get_string(340), settings.sound_volume, get_string(341), settings.redbook_volume);
+        targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "%s: %d %s: %d", get_string(340), settings.sound_volume, get_string(341), settings.redbook_volume);
         return true;
     }
     else if ( (strcasecmp(parstr, "volume.sound") == 0) || (strcasecmp(parstr, "volume.sfx") == 0) )
@@ -504,17 +504,17 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                         continue;
                     struct Computer2* comp = get_computer_player(i);
                     if (player_exists(get_player(i)) && (!computer_player_invalid(comp)))
-                        targeted_message_add(i, plyr_idx, GUI_MESSAGE_DELAY, "Ai model %d", (int)comp->model);
+                        targeted_message_add(i, plyr_idx, GUI_MESSAGES_DELAY, "Ai model %d", (int)comp->model);
                 }
                 gameadd.computer_chat_flags = CChat_TasksScarce;
             } else
             if ((strcasecmp(pr2str,"frequent") == 0) || (strcasecmp(pr2str,"2") == 0))
             {
-                targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGE_DELAY, "%s", pr2str);
+                targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "%s", pr2str);
                 gameadd.computer_chat_flags = CChat_TasksScarce|CChat_TasksFrequent;
             } else
             {
-                targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGE_DELAY, "none");
+                targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "none");
                 gameadd.computer_chat_flags = CChat_None;
             }
             return true;
@@ -567,7 +567,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
             dungeon = get_dungeon(id);
             if (!dungeon_invalid(dungeon))
             {
-                targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGE_DELAY, "Player %d score: %ld", id, dungeon->total_score);
+                targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Player %d score: %ld", id, dungeon->total_score);
                 return true;
             }
         }
@@ -582,7 +582,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                 {
                     if (pr4str == NULL)
                     {
-                        targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGE_DELAY, "Player %d flag %d value: %d", id, flg_id, dungeon->script_flags[flg_id]);
+                        targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Player %d flag %d value: %d", id, flg_id, dungeon->script_flags[flg_id]);
                     }
                     else
                     {
@@ -597,9 +597,9 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
             if (pr2str == NULL)
                 return false;
             if (!setup_a_computer_player(plyr_idx, atoi(pr2str))) {
-                targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGE_DELAY, "unable to set assistant");
+                targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "unable to set assistant");
             } else
-                targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGE_DELAY, "computer assistant is %d", atoi(pr2str));
+                targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "computer assistant is %d", atoi(pr2str));
             return true;
         } else if (strcasecmp(parstr, "magic.instance") == 0)
         {
@@ -614,7 +614,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
             unsigned char num = (pr3str != NULL) ? atoi(pr3str) : 1;
             set_trap_buildable_and_add_to_amount(plyr_idx, id, 1, num);
             update_trap_tab_to_config();
-            targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGE_DELAY, "done!");
+            targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "done!");
             return true;
         } else if ( (strcasecmp(parstr, "give.door") == 0) || (strcasecmp(parstr, "door.give") == 0) )
         {
@@ -626,7 +626,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
             unsigned char num = (pr3str != NULL) ? atoi(pr3str) : 1;
             set_door_buildable_and_add_to_amount(plyr_idx, id, 1, num);
             update_trap_tab_to_config();
-            targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGE_DELAY, "done!");
+            targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "done!");
             return true;
         } else if ( (strcasecmp(parstr, "map.pool") == 0) || (strcasecmp(parstr, "creature.pool") == 0) )
         {
@@ -957,7 +957,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                 if (pr3str == NULL)
                 {
                     float percent = ((float)thing->health / (float)game.dungeon_heart_health) * 100;
-                    targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGE_DELAY, "Player %d heart health: %ld (%.2f per cent)", id, thing->health, percent);
+                    targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Player %d heart health: %ld (%.2f per cent)", id, thing->health, percent);
                     return true;
                 }
                 else
@@ -1061,7 +1061,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                     }
                     else
                     {
-                        targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGE_DELAY, "Cannot do job %d.", new_job);
+                        targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Cannot do job %d.", new_job);
                         return true;
                     }
                 }
@@ -1084,16 +1084,16 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
             if ((pos.x.stl.num >= map_subtiles_x) ||
                 (pos.y.stl.num >= map_subtiles_y))
             {
-                targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGE_DELAY, "invalid location");
+                targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "invalid location");
                 return true;
             }
             player = get_player(plyr_idx);
             struct Map *block = get_map_block_at(pos.x.stl.num, pos.y.stl.num);
             short thing_id = (short) get_mapwho_thing_index(block);
             thing = thing_get(thing_id);
-            targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGE_DELAY, "first_thing:%d %s", thing_id, thing_class_and_model_name(thing->class_id, thing->model));
-            targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGE_DELAY, "flags: %02x, data: %04lx", block->flags, block->data);
-            targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGE_DELAY, "stl_x: %d, stl_y:%d", pos.x.stl.num, pos.y.stl.num);
+            targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "first_thing:%d %s", thing_id, thing_class_and_model_name(thing->class_id, thing->model));
+            targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "flags: %02x, data: %04lx", block->flags, block->data);
+            targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "stl_x: %d, stl_y:%d", pos.x.stl.num, pos.y.stl.num);
         }
         else if (strcasecmp(parstr, "thing.info") == 0)
         {
@@ -1101,12 +1101,12 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
             thing = thing_get(player->influenced_thing_idx);
             if (!thing_is_invalid(thing))
             {
-                targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGE_DELAY, "next_on_map: %d, next_of_class: %d", thing->next_on_mapblk, thing->next_of_class);
-                targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGE_DELAY, "health: %d", thing->health);
-                targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGE_DELAY, "pos: %d %d %d", thing->mappos.x.stl.num,
+                targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "next_on_map: %d, next_of_class: %d", thing->next_on_mapblk, thing->next_of_class);
+                targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "health: %d", thing->health);
+                targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "pos: %d %d %d", thing->mappos.x.stl.num,
                                 thing->mappos.y.stl.num,
                                 thing->mappos.z.stl.num);
-                targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGE_DELAY, "%s", thing_class_and_model_name(thing->class_id, thing->model));
+                targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "%s", thing_class_and_model_name(thing->class_id, thing->model));
                 return true;
             }
         }
@@ -1153,7 +1153,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
             pos.x.val = ((unsigned short) pckt->pos_x);
             pos.y.val = ((unsigned short) pckt->pos_y);
             pos.z.val = get_floor_height_at(&pos);
-            targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGE_DELAY, "Cursor at %d, %d, %d",
+            targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Cursor at %d, %d, %d",
                             (int)pos.x.stl.num, (int)pos.y.stl.num, (int)pos.z.stl.num);
             return true;
         }
@@ -1166,7 +1166,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
             thing = (pr2str != NULL) ? thing_get(atoi(pr2str)) : get_nearest_thing_at_position(stl_x, stl_y);
             if (!thing_is_invalid(thing))
             {
-                targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGE_DELAY, "Got thing ID %d %s",
+                targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Got thing ID %d %s",
                                 thing->index,
                                 thing_class_and_model_name(thing->class_id, thing->model));
                 player->influenced_thing_idx = thing->index;
@@ -1185,7 +1185,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                 }
                 else
                 {
-                    targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGE_DELAY, "Thing ID: %d health: %d", thing->index, thing->health);
+                    targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Thing ID: %d health: %d", thing->index, thing->health);
                 }
                 return true;
             }
@@ -1203,7 +1203,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                     if ((pos.x.stl.num >= map_subtiles_x) ||
                             (pos.y.stl.num >= map_subtiles_y))
                     {
-                        targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGE_DELAY, "invalid location");
+                        targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "invalid location");
                         return true;
                     }
                     if (pr4str != NULL)
@@ -1227,7 +1227,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
             }
             else
             {
-                targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGE_DELAY, "no thing selected");
+                targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "no thing selected");
             }
         }
         else if (strcasecmp(parstr, "thing.destroy") == 0)
@@ -1249,7 +1249,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
             room = (pr2str != NULL) ? room_get(atoi(pr2str)) : subtile_room_get(stl_x, stl_y);
             if (room_exists(room))
             {
-                targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGE_DELAY, "Got room ID %d", room->index);
+                targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Got room ID %d", room->index);
                 player->influenced_thing_idx = room->index;
                 return true;
             }
@@ -1262,7 +1262,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
             {
                 if (pr2str == NULL)
                 {
-                    targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGE_DELAY, "Room ID %d health: %d", room->index, room->health);
+                    targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Room ID %d health: %d", room->index, room->health);
                     return true;
                 }
                 else
@@ -1283,7 +1283,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
             {
                 if (pr2str == NULL)
                 {
-                    targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGE_DELAY, "Slab health: %d", slb->health);
+                    targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Slab health: %d", slb->health);
                     return true;
                 }
                 else
@@ -1304,7 +1304,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                 }
                 if (crmodel == 0)
                 {
-                    targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGE_DELAY, "invalid creature model");
+                    targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "invalid creature model");
                     return true;
                 }
                 game.pool.crtr_kind[crmodel] += atoi(pr3str);
@@ -1324,7 +1324,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                 }
                 if (crmodel == 0)
                 {
-                    targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGE_DELAY, "invalid creature model");
+                    targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "invalid creature model");
                     return true;
                 }
                 game.pool.crtr_kind[crmodel] -= atoi(pr3str);
@@ -1398,7 +1398,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                 }
                 else
                 {
-                    targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGE_DELAY, "Co-ordinates specified are invalid");
+                    targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Co-ordinates specified are invalid");
                     return true;
                 }
             }
@@ -1414,7 +1414,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                 }
                 unsigned long flg = (bug > 2) ? (1 << (bug - 1)) : bug;
                 toggle_flag_dword(&gameadd.classic_bugs_flags, flg);
-                targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGE_DELAY, "%s %s", get_conf_parameter_text(rules_game_classicbugs_commands, bug), ((gameadd.classic_bugs_flags & flg) != 0) ? "enabled" : "disabled");
+                targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "%s %s", get_conf_parameter_text(rules_game_classicbugs_commands, bug), ((gameadd.classic_bugs_flags & flg) != 0) ? "enabled" : "disabled");
                 return true;
             }
         }
@@ -1426,7 +1426,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                 if (action_point_exists_idx(ap))
                 {
                     struct ActionPoint* actionpt = action_point_get(ap);
-                    targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGE_DELAY, "Action Point %d X: %d Y: %d", ap, actionpt->mappos.x.stl.num, actionpt->mappos.y.stl.num);
+                    targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Action Point %d X: %d Y: %d", ap, actionpt->mappos.x.stl.num, actionpt->mappos.y.stl.num);
                     return true;
                 }
             }
@@ -1506,7 +1506,7 @@ static TbBool script_set_pool(PlayerNumber plyr_idx, const char *creature, const
       clear_creature_pool();
       return true;
     }
-    targeted_message_add(10, plyr_idx, GUI_MESSAGE_DELAY, "Invalid creature");
+    targeted_message_add(10, plyr_idx, GUI_MESSAGES_DELAY, "Invalid creature");
     return false;
   }
   int num = atoi(str_num);
