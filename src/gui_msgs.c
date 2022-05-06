@@ -249,13 +249,13 @@ void show_game_time_taken(unsigned long fps, unsigned long turns)
 {
     struct GameTime gt = get_game_time(turns, fps);
     struct PlayerInfo* player = get_my_player();
-    message_add_fmt(player->id_number, "%s: %02ld:%02ld:%02ld", get_string(746), gt.Hours, gt.Minutes, gt.Seconds);
+    targeted_message_add(player->id_number, player->id_number, GUI_MESSAGES_DELAY, "%s: %02ld:%02ld:%02ld", get_string(746), gt.Hours, gt.Minutes, gt.Seconds);
 }
 
 void show_real_time_taken(void)
 {
     update_time();
     struct PlayerInfo* player = get_my_player();
-    message_add_fmt(player->id_number, "%s: %02ld:%02ld:%02ld:%03ld", get_string(746), Timer.Hours, Timer.Minutes, Timer.Seconds, Timer.MSeconds);
+    targeted_message_add(player->id_number, player->id_number, GUI_MESSAGES_DELAY, "%s: %02ld:%02ld:%02ld:%03ld", get_string(746), Timer.Hours, Timer.Minutes, Timer.Seconds, Timer.MSeconds);
 }
 /******************************************************************************/
