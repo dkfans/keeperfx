@@ -1010,8 +1010,7 @@ static void set_door_configuration_process(struct ScriptContext *context)
         case 3: // Health
             if (door_type < DOOR_TYPES_COUNT)
             {
-                door_stats[door_type][0].health = value;
-                door_stats[door_type][1].health = value;
+                doorst->health = value;
             }
             update_all_door_stats();
             break;

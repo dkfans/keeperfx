@@ -137,7 +137,7 @@ struct Thing *create_door(struct Coord3d *pos, ThingModel tngmodel, unsigned cha
         return INVALID_THING;
     }
 
-    struct DoorStats* dostat = &door_stats[tngmodel][orient];
+    struct DoorConfigStats* doorst = get_door_model_stats(tngmodel);
 
     doortng->class_id = TCls_Door;
     doortng->model = tngmodel;
@@ -151,7 +151,7 @@ struct Thing *create_door(struct Coord3d *pos, ThingModel tngmodel, unsigned cha
     doortng->door.orientation = orient;
     doortng->active_state = DorSt_Closed;
     doortng->creation_turn = game.play_gameturn;
-    doortng->health = dostat->health;
+    doortng->health = doorst->health;
     doortng->door.is_locked = is_locked;
 
     add_thing_to_its_class_list(doortng);
@@ -600,8 +600,8 @@ void update_all_door_stats()
         struct Thing* thing = thing_get(i);
         i = thing->next_of_class
         TRACE_THING(thing);
-        struct DoorStats* dostat = &door_stats[thing->model][thing->door.orientation];
-        thing->health = dostat->health;
+        struct DoorConfigStats* doorst = get_door_model_stats(thing->model) + thing->door.orientation;
+        thing->health = doorst->health;
     }
 }
 /******************************************************************************/
