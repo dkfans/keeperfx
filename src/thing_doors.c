@@ -42,7 +42,9 @@
 extern "C" {
 #endif
 /******************************************************************************/
-char const build_door_angle[] = {-1, -1, -1, -1, -1, 0, -1, 0, -1, -1, 1, 1, -1, 0, 1, -1 };
+
+char const build_door_angle[] = { -1, -1, -1, -1, -1, 1, -1, 1, -1, -1, 0, 0, -1, 1, 0, -1 };
+
 /* Obsolete - use DoorConfigStats instead
 const short door_names[] = {
     201, 590, 591, 592, 593, 0,
@@ -157,7 +159,7 @@ struct Thing *create_door(struct Coord3d *pos, ThingModel tngmodel, unsigned cha
     add_thing_to_its_class_list(doortng);
     place_thing_in_mapwho(doortng);
 
-    place_animating_slab_type_on_map(dostat->slbkind, 0,  doortng->mappos.x.stl.num, doortng->mappos.y.stl.num, plyr_idx);
+    place_animating_slab_type_on_map(doorst->slbkind + orient, 0,  doortng->mappos.x.stl.num, doortng->mappos.y.stl.num, plyr_idx);
     //update_navigation_triangulation(stl_x-1,  stl_y-1, stl_x+2,stl_y+2);
     if ( game.neutral_player_num != plyr_idx )
         ++game.dungeon[plyr_idx].total_doors;
@@ -199,14 +201,14 @@ void unlock_door(struct Thing *thing)
 
 void lock_door(struct Thing *doortng)
 {
-    struct DoorStats* dostat = &door_stats[doortng->model][doortng->door.orientation];
+    struct DoorConfigStats* doorst = get_door_model_stats(doortng->model);
     long stl_x = doortng->mappos.x.stl.num;
     long stl_y = doortng->mappos.y.stl.num;
     doortng->active_state = DorSt_Closed;
     doortng->door.closing_counter = 0;
     doortng->door.is_locked = 1;
     game.field_14EA4B = 1;
-    place_animating_slab_type_on_map(dostat->slbkind, 0, stl_x, stl_y, doortng->owner);
+    place_animating_slab_type_on_map(doorst->slbkind + doortng->door.orientation, 0, stl_x, stl_y, doortng->owner);
     update_navigation_triangulation(stl_x-1,  stl_y-1, stl_x+1,stl_y+1);
     pannel_map_update(stl_x-1, stl_y-1, STL_PER_SLB, STL_PER_SLB);
     if (!add_key_on_door(doortng)) {
@@ -398,8 +400,8 @@ long process_door_opening(struct Thing *thing)
     struct DoorConfigStats* doorst = get_door_model_stats(thing->model);
     int old_frame = (thing->door.closing_counter / 256);
     short delta_h = doorst->turns_open;
-    int slbparam = doorst->slbkind;
-    if (thing->door.closing_counter+delta_h < 768)
+    int slbparam = doorst->slbkind + thing->door.orientation;
+    if (thing->door.closing_counter + delta_h < 768)
     {
         thing->door.closing_counter += delta_h;
     } else
@@ -417,9 +419,9 @@ long process_door_opening(struct Thing *thing)
 long process_door_closing(struct Thing *thing)
 {
     int old_frame = (thing->door.closing_counter / 256);
-    int slbparam = dostat->slbkind;
     struct DoorConfigStats* doorst = get_door_model_stats(thing->model);
     int delta_h = doorst->turns_open;
+    int slbparam = doorst->slbkind + thing->door.orientation;
     if ( check_door_should_open(thing) )
     {
         thing->active_state = DorSt_Opening;

@@ -769,7 +769,7 @@ TbBool parse_trapdoor_door_blocks(char *buf, long len, const char *config_textna
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = get_id(slab_desc, word_buf);
-              doorst->slbkind = k+1;
+              doorst->slbkind = k;
           }
           if (n < 0)
           {

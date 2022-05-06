@@ -48,9 +48,6 @@ struct DoorStats { // sizeof = 8
 };
 
 /******************************************************************************/
-DLLIMPORT extern struct DoorStats _DK_door_stats[5][2];
-#define door_stats _DK_door_stats
-DLLIMPORT extern unsigned char _DK_door_to_object[DOOR_TYPES_COUNT];
 
 #pragma pack()
 /******************************************************************************/
