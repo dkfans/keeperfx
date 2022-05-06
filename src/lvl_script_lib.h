@@ -157,7 +157,8 @@ enum TbScriptCommands {
     Cmd_CREATE_EFFECT_AT_POS              = 144,
     Cmd_HEART_LOST_QUICK_OBJECTIVE        = 145,
     Cmd_HEART_LOST_OBJECTIVE              = 146,
-    Cmd_SET_DOOR                          = 147   
+    Cmd_SET_DOOR                          = 147,
+    Cmd_SET_CREATURE_INSTANCE             = 148    
 };
 
 struct ScriptLine {

@@ -152,11 +152,30 @@ extern struct GuiMenu creature_query_menu2;
 extern struct GuiMenu creature_query_menu3;
 extern struct GuiMenu creature_query_menu4;
 extern struct TiledSprite status_panel;
+extern struct Around const draw_square[];
+
+#define AROUND_2x2_PIXEL      4
+#define AROUND_3x3_PIXEL      9
+#define AROUND_4x4_PIXEL      16
+#define AROUND_5x5_PIXEL      25
+#define AROUND_6x6_PIXEL      36
+
+#define ONE_PIXEL       2048
+#define TWO_PIXELS      1024
+#define THREE_PIXELS     512
+#define FOUR_PIXELS      256
+
+extern const short pixels_needed[];
+
 /******************************************************************************/
+short get_pixels_scaled_and_zoomed(long basic_zoom);
+short scale_pixel(long basic_zoom);
 void draw_whole_status_panel(void);
 void gui_set_button_flashing(long btn_idx, long gameturns);
 short button_designation_to_tab_designation(short btn_designt_id);
 short get_button_designation(short btn_group, short btn_item);
+
+void gui_over_creature_button(struct GuiButton* gbtn);
 
 void update_room_tab_to_config(void);
 void update_trap_tab_to_config(void);
