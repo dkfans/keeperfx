@@ -1021,6 +1021,15 @@ void process_highlight_roomspace_inputs(PlayerNumber plyr_idx)
             }
         }
     }
+    else if (is_game_key_pressed(Gkey_SellTrapOnSubtile, &keycode, true))
+    {
+        if (player->primary_cursor_state == CSt_PowerHand)
+        {
+            struct Packet* pckt = get_packet(my_player_number);
+            set_packet_action(pckt, PckA_SetRoomspaceSubtile, 0, 0, 0, 0);
+            return;
+        }
+    }
     else
     {
         par1 = 0;
