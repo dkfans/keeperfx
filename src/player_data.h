@@ -23,6 +23,7 @@
 #include "globals.h"
 #include "engine_camera.h"
 #include "bflib_video.h"
+#include "roomspace.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -242,6 +243,20 @@ struct PlayerInfoAdd {
     TbBool nearest_teleport;
     BattleIndex battleid;
     unsigned short selected_fp_thing_pickup;
+    struct RoomSpace render_roomspace;
+    struct RoomSpace roomspace;
+    unsigned char roomspace_mode;
+    int user_defined_roomspace_width;
+    int roomspace_detection_looseness;
+    int roomspace_width;
+    int roomspace_height;
+    TbBool one_click_mode_exclusive;
+    TbBool one_click_lock_cursor;
+    TbBool ignore_next_PCtr_RBtnRelease;
+    TbBool ignore_next_PCtr_LBtnRelease;
+    char swap_to_untag_mode; // 0 = no, 1 = maybe, 2= yes, -1 = disable
+    unsigned char roomspace_highlight_mode;
+    TbBool roomspace_no_default;
     };
 
 /******************************************************************************/
