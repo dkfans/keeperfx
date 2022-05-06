@@ -395,10 +395,10 @@ long process_door_closed(struct Thing *thing)
 
 long process_door_opening(struct Thing *thing)
 {
-    struct DoorStats* dostat = &door_stats[thing->model][thing->door.orientation];
+    struct DoorConfigStats* doorst = get_door_model_stats(thing->model);
     int old_frame = (thing->door.closing_counter / 256);
-    short delta_h = dostat->field_6;
-    int slbparam = dostat->slbkind;
+    short delta_h = doorst->turns_open;
+    int slbparam = doorst->slbkind;
     if (thing->door.closing_counter+delta_h < 768)
     {
         thing->door.closing_counter += delta_h;
@@ -417,9 +417,9 @@ long process_door_opening(struct Thing *thing)
 long process_door_closing(struct Thing *thing)
 {
     int old_frame = (thing->door.closing_counter / 256);
-    struct DoorStats* dostat = &door_stats[thing->model][thing->door.orientation];
-    int delta_h = dostat->field_6;
     int slbparam = dostat->slbkind;
+    struct DoorConfigStats* doorst = get_door_model_stats(thing->model);
+    int delta_h = doorst->turns_open;
     if ( check_door_should_open(thing) )
     {
         thing->active_state = DorSt_Opening;
