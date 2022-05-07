@@ -304,7 +304,6 @@ TbBool get_condition_status(unsigned char opkind, long val1, long val2)
 
 static void process_condition(struct Condition *condt, int idx)
 {
-    
     TbBool new_status;
     int plr_start;
     int plr_end;
@@ -370,10 +369,6 @@ static void process_condition(struct Condition *condt, int idx)
                     new_status = get_condition_status(condt->operation, left_value, right_value);
                 }
 
-
-                JUSTLOG("second; %d left: %d right: %d.",condt->use_second_variable, left_value, right_value);
-                
-
                 if (new_status != false)
                 {
                   break;
@@ -393,9 +388,6 @@ static void process_condition(struct Condition *condt, int idx)
         set_flag_byte(&condt->status, 0x04,  true);
     }
     SCRIPTDBG(19,"Finished");
-    if (condt->use_second_variable)
-        JUSTLOG("sec");
-    JUSTLOG("process condt: %d. status: %d",idx,condt->status);
 }
 
 void process_conditions(void)
@@ -438,7 +430,6 @@ void set_script_current_condition(int current_condition)
 
 void command_add_condition(long plr_range_id, long opertr_id, long varib_type, long varib_id, long value)
 {
-     SCRPTERRLOG("cond1");
     // TODO: replace with pointer to functions
     struct Condition* condt = &gameadd.script.conditions[gameadd.script.conditions_num];
     condt->condit_idx = script_current_condition;
