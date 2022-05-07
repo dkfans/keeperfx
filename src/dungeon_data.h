@@ -196,7 +196,7 @@ struct Dungeon {
     struct ResearchVal research[DUNGEON_RESEARCH_COUNT];
     int current_research_idx;
     unsigned char research_num;
-unsigned char field_F7D;
+    unsigned char field_F7D_UNUSED;
     unsigned char room_buildable[ROOM_TYPES_COUNT];
     unsigned char room_resrchable[ROOM_TYPES_COUNT];
     /** How many creatures are force-enabled for each kind.
@@ -310,7 +310,6 @@ struct DungeonAdd
     struct BoxInfo        box_info;
     struct Coord3d        last_combat_location;
     int                   creature_awarded[CREATURE_TYPES_COUNT];
-    struct RoomSpace      roomspace;
     unsigned char         creature_entrance_level;
     unsigned long         evil_creatures_converted;
     unsigned long         good_creatures_converted;
@@ -318,10 +317,6 @@ struct DungeonAdd
     unsigned long         doors_sold;
     unsigned long         manufacture_gold;
     long                  cheaper_diggers;
-    TbBool                one_click_lock_cursor;
-    TbBool                ignore_next_PCtr_RBtnRelease;
-    TbBool                ignore_next_PCtr_LBtnRelease;
-    long                  swap_to_untag_mode; // 0 = no, 1 = maybe, 2= yes, -1 = disable
     struct ComputerInfo   computer_info;
     long event_last_run_turn[EVENT_KIND_COUNT];
 };

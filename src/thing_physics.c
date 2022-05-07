@@ -844,6 +844,14 @@ TbBool thing_is_exempt_from_z_axis_clipping(const struct Thing *thing)
     {
         return (!shot_is_boulder(thing));
     }
+    if (thing->class_id == TCls_EffectElem)
+    {
+        return true;
+    }
+    if (thing->class_id == TCls_Effect)
+    {
+        return true;
+    }
     return false;
 }
 

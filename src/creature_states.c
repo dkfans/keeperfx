@@ -2407,8 +2407,8 @@ TbBool find_random_valid_position_for_thing_in_room_avoiding_object(struct Thing
     // Get the selected index
     while (i != 0)
     {
-        struct DungeonAdd *dungeonadd = get_dungeonadd(room->owner);
-        if (dungeonadd->roomspace.is_active)
+        struct PlayerInfoAdd *playeradd = get_playeradd(room->owner);
+        if (playeradd->roomspace.is_active)
         {
             MapSlabCoord slb_x = slb_num_decode_x(i);
             MapSlabCoord slb_y = slb_num_decode_y(i);
