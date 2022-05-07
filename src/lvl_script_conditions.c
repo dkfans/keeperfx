@@ -458,7 +458,6 @@ void command_add_condition(long plr_range_id, long opertr_id, long varib_type, l
 void command_add_condition_2variables(long plr_range_id, long opertr_id, long varib_type, long varib_id,long plr_range_id_right, long varib_type_right, long varib_id_right)
 {
     // TODO: replace with pointer to functions
-     SCRPTERRLOG("cond2");
     struct Condition* condt = &gameadd.script.conditions[gameadd.script.conditions_num];
     condt->condit_idx = script_current_condition;
     condt->plyr_range = plr_range_id;

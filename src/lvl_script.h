@@ -166,7 +166,7 @@ struct ConditionOld { // sizeof = 12
   unsigned long rvalue;
 };
 
-struct Condition { // sizeof = 12
+struct Condition {
   short condit_idx;
   unsigned char status;
   unsigned char plyr_range;

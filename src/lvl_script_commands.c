@@ -2146,7 +2146,6 @@ static void set_creature_instance_process(struct ScriptContext *context)
 static void if_check(const struct ScriptLine *scline)
 {
 
-
     long plr_range_id = scline->np[0];
     const char *varib_name = scline->tp[1];
     const char *operatr = scline->tp[2];
@@ -2182,8 +2181,6 @@ static void if_check(const struct ScriptLine *scline)
             SCRPTWRNLOG("Numerical value \"%s\" interpreted as %ld", scline->tp[3], value);
         }
     }
-
-
 
 
     if (gameadd.script.conditions_num >= CONDITIONS_COUNT)
