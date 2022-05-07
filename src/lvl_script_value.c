@@ -1371,6 +1371,26 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
               SCRPTERRLOG("Rule '%d' value %d out of range. Max %d.", val2, val3, SHRT_MAX);
           }
           break;
+      case 24: //HungerHealthLoss
+          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.pay_day_gap, val3);
+          game.hunger_health_loss = val3;
+          break;
+      case 25: //GameTurnsPerHungerHealthLoss
+          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.pay_day_gap, val3);
+          game.turns_per_hunger_health_loss = val3;
+          break;
+      case 26: //FoodHealthGain
+          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.pay_day_gap, val3);
+          game.food_health_gain = val3;
+          break;
+      case 27: //TortureHealthLoss
+          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.pay_day_gap, val3);
+          game.torture_health_loss = val3;
+          break;
+      case 28: //GameTurnsPerTortureHealthLoss
+          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.pay_day_gap, val3);
+          game.turns_per_torture_health_loss = val3;
+          break;
       default:
           WARNMSG("Unsupported Game RULE, command %d.", val2);
           break;
