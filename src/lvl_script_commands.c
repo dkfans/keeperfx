@@ -1056,10 +1056,10 @@ static void set_door_configuration_process(struct ScriptContext *context)
             manufctr->panel_tab_idx = value;
             update_trap_tab_to_config();
             break;
-        case 13: // TurnsOpen
+        case 13: // OpenSpeed
             if (door_type < DOOR_TYPES_COUNT)
             {
-                doorst->turns_open = value;
+                doorst->open_speed = value;
             }
             break;
         default:

@@ -54,7 +54,7 @@ struct DoorConfigStats {
     long pointer_sprite_idx;
     unsigned short slbkind;
     long health;
-    unsigned short turns_open;
+    unsigned short open_speed;
 };
 
 struct TrapConfigStats {

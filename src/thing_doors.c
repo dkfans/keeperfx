@@ -398,7 +398,7 @@ long process_door_opening(struct Thing *thing)
 {
     struct DoorConfigStats* doorst = get_door_model_stats(thing->model);
     int old_frame = (thing->door.closing_counter / 256);
-    short delta_h = doorst->turns_open;
+    short delta_h = doorst->open_speed;
     int slbparam = doorst->slbkind - thing->door.orientation;
     if (thing->door.closing_counter + delta_h < 768)
     {
@@ -419,7 +419,7 @@ long process_door_closing(struct Thing *thing)
 {
     int old_frame = (thing->door.closing_counter / 256);
     struct DoorConfigStats* doorst = get_door_model_stats(thing->model);
-    int delta_h = doorst->turns_open;
+    int delta_h = doorst->open_speed;
     int slbparam = doorst->slbkind - thing->door.orientation;
     if ( check_door_should_open(thing) )
     {

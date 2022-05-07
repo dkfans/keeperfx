@@ -57,7 +57,7 @@ const struct NamedCommand trapdoor_door_commands[] = {
   {"SYMBOLSPRITES",        10},
   {"POINTERSPRITES",       11},
   {"PANELTABINDEX",        12},
-  {"TURNSOPEN",            13},
+  {"OPENSPEED",            13},
   {NULL,                    0},
 };
 
@@ -914,13 +914,13 @@ TbBool parse_trapdoor_door_blocks(char *buf, long len, const char *config_textna
                 COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }
           break;
-          case 13: // TURNSOPEN
+          case 13: // OPENSPEED
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
             if (k >= 0)
             {
-                doorst->turns_open = k;
+                doorst->open_speed = k;
                 n++;
             }
           }
