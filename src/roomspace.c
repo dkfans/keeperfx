@@ -988,6 +988,7 @@ void process_highlight_roomspace_inputs(PlayerNumber plyr_idx)
     long keycode = 0;
     unsigned short par1, par2;
     struct PlayerInfo* player = get_player(plyr_idx);
+    struct PlayerInfoAdd* playeradd;
     if (!is_game_key_pressed(Gkey_BestRoomSpace, &keycode, true))
     {
         par2 = 1;
@@ -1025,10 +1026,14 @@ void process_highlight_roomspace_inputs(PlayerNumber plyr_idx)
     {
         if (player->primary_cursor_state == CSt_PowerHand)
         {
-            struct Packet* pckt = get_packet(my_player_number);
-            set_packet_action(pckt, PckA_SetRoomspaceSubtile, 0, 0, 0, 0);
-            return;
+            playeradd = get_playeradd(plyr_idx);
+            if (playeradd->roomspace_mode != single_subtile_mode)
+            {
+                struct Packet* pckt = get_packet(my_player_number);
+                set_packet_action(pckt, PckA_SetRoomspaceSubtile, 0, 0, 0, 0);
+            }
         }
+        return;
     }
     else
     {
