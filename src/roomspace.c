@@ -688,6 +688,7 @@ void get_dungeon_build_user_roomspace(struct RoomSpace *roomspace, PlayerNumber 
             best_roomspace.width = playeradd->roomspace_width;
             best_roomspace.height = playeradd->roomspace_height;
             best_roomspace.render_roomspace_as_box = true;
+            best_roomspace.is_roomspace_a_box = true;
     }
     best_roomspace.one_click_mode_exclusive = playeradd->one_click_mode_exclusive;
     *roomspace = best_roomspace; // make sure we can render the correct boundbox to the user
