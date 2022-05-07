@@ -1005,7 +1005,7 @@ void process_highlight_roomspace_inputs(PlayerNumber plyr_idx)
     else if (is_game_key_pressed(Gkey_SquareRoomSpace, &keycode, true)) // Use "modern" click and drag method
     {
         par1 = 2;
-        PlayerInfoAdd* playeradd = get_playeradd(plyr_idx);
+        playeradd = get_playeradd(plyr_idx);
         par2 = (playeradd->roomspace_no_default) ? playeradd->user_defined_roomspace_width : DEFAULT_USER_ROOMSPACE_WIDTH;
         if (is_game_key_pressed(Gkey_RoomSpaceIncSize, &keycode, true))
         {
