@@ -149,20 +149,6 @@ const struct NamedCommand creature_select_criteria_desc[] = {
   {NULL,                   0},
 };
 
-const struct NamedCommand door_config_desc[] = {
-  {"ManufactureLevel",      1},
-  {"ManufactureRequired",   2},
-  {"Health",                3},
-  {"SellingValue",          4},
-  {"NametextId",            5},
-  {"TooltipTextId",         6},
-  {"Crate",                 7},
-  {"SymbolSprites",         8},
-  {"PointerSprites",        9},
-  {"PanelTabIndex",        10},
-  {NULL,                    0},
-};
-
 const struct NamedCommand trap_config_desc[] = {
   {"NameTextID",           1},
   {"TooltipTextID",        2},
@@ -941,7 +927,7 @@ static void set_door_configuration_check(const struct ScriptLine* scline)
         return;
     }
 
-    short doorvar = get_id(door_config_desc, scline->tp[1]);
+    short doorvar = get_id(trapdoor_door_commands, scline->tp[1]);
     if (doorvar == -1)
     {
         SCRPTERRLOG("Unknown door variable");
@@ -951,7 +937,18 @@ static void set_door_configuration_check(const struct ScriptLine* scline)
 
     value->shorts[0] = door_id;
     value->shorts[1] = doorvar;
-    if (doorvar == 8) // SymbolSprites
+    if (doorvar == 4) // SlabKind
+    {
+        value->shorts[2] = get_id(slab_desc, scline->tp[2]) + 1;
+        if (value->shorts[2] <= 0)
+        {
+            SCRPTERRLOG("Error slab %s not recognized", scline->tp[2]);
+            DEALLOCATE_SCRIPT_VALUE
+            return;
+        }
+    }
+
+    else if (doorvar == 8) // SymbolSprites
     {
         char *tmp = malloc(strlen(scline->tp[2]) + strlen(scline->tp[3]) + 3);
         // Pass two vars along as one merged val like: first\nsecond\m
@@ -1001,34 +998,41 @@ static void set_door_configuration_process(struct ScriptContext *context)
     short value = context->value->shorts[2];
     switch (context->value->shorts[1])
     {
-        case 1: // ManufactureLevel
+        case 2: // ManufactureLevel
             mconf->manufct_level = value;
             break;
-        case 2: // ManufactureRequired
+        case 3: // ManufactureRequired
             mconf->manufct_required = value;
             break;
-        case 3: // Health
+        case 4: // SlabKind
+            if (door_type < DOOR_TYPES_COUNT)
+            {
+                doorst->slbkind = value;
+            }
+            update_all_door_stats();
+            break;
+        case 5: // Health
             if (door_type < DOOR_TYPES_COUNT)
             {
                 doorst->health = value;
             }
             update_all_door_stats();
             break;
-        case 4: //SellingValue
+        case 6: //SellingValue
             mconf->selling_value = value;
             break;
-        case 5: // NametextId
+        case 7: // NametextId
             doorst->name_stridx = value;
             break;
-        case 6: // TooltipTextId
+        case 8: // TooltipTextId
             doorst->tooltip_stridx = value;
             break;
-        case 7: // Crate
+        case 9: // Crate
             gameadd.object_conf.object_to_door_or_trap[value] = door_type;
             gameadd.object_conf.workshop_object_class[value] = TCls_Door;
             gameadd.trapdoor_conf.door_to_object[door_type] = value;
             break;
-        case 8: //SymbolSprites
+        case 10: //SymbolSprites
             {
                 doorst->bigsym_sprite_idx = get_icon_id(context->value->str2); // First
                 doorst->medsym_sprite_idx = get_icon_id(context->value->str2 + strlen(context->value->str2) + 1); // Second
@@ -1041,16 +1045,22 @@ static void set_door_configuration_process(struct ScriptContext *context)
                 update_trap_tab_to_config();
             }
             break;
-        case 9: // PointerSprites
+        case 11: // PointerSprites
             doorst->pointer_sprite_idx = get_icon_id(context->value->str2);
             if (doorst->pointer_sprite_idx < 0)
                 doorst->pointer_sprite_idx = bad_icon_id;
             update_trap_tab_to_config();
             break;
-        case 10: // PanelTabIndex
+        case 12: // PanelTabIndex
             doorst->panel_tab_idx = value;
             manufctr->panel_tab_idx = value;
             update_trap_tab_to_config();
+            break;
+        case 13: // TurnsOpen
+            if (door_type < DOOR_TYPES_COUNT)
+            {
+                doorst->turns_open = value;
+            }
             break;
         default:
             WARNMSG("Unsupported Door configuration, variable %d.", context->value->shorts[1]);
