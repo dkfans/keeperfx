@@ -304,6 +304,7 @@ TbBool get_condition_status(unsigned char opkind, long val1, long val2)
 
 static void process_condition(struct Condition *condt, int idx)
 {
+    
     TbBool new_status;
     int plr_start;
     int plr_end;
@@ -346,14 +347,32 @@ static void process_condition(struct Condition *condt, int idx)
                 long right_value;
                 if (condt->use_second_variable)
                 {
-                    right_value = get_condition_value(i, condt->variabl_type2, condt->variabl_idx2);
+                    int plr_start_right;
+                    int plr_end_right;
+                    if (get_players_range(condt->plyr_range_right, &plr_start_right, &plr_end_right) < 0)
+                    {
+                        WARNLOG("Invalid player range %d in CONDITION command %d.", (int)condt->plyr_range, (int)condt->variabl_type);
+                        return;
+                    }
+                    for (i = plr_start; i < plr_end; i++)
+                    {
+                        right_value = get_condition_value(i, condt->variabl_type_right, condt->variabl_idx_right);
+                        new_status = get_condition_status(condt->operation, left_value, right_value);
+                        if (new_status != false)
+                        {
+                            break;
+                        }
+                    }
                 }
                 else
                 {
                     right_value = condt->rvalue;
+                    new_status = get_condition_status(condt->operation, left_value, right_value);
                 }
 
-                new_status = get_condition_status(condt->operation, left_value, right_value);
+
+                JUSTLOG("second; %d left: %d right: %d.",condt->use_second_variable, left_value, right_value);
+                
 
                 if (new_status != false)
                 {
@@ -362,6 +381,7 @@ static void process_condition(struct Condition *condt, int idx)
             }
         }
     }
+    
     SYNCDBG(19,"Condition type %d status %d",(int)condt->variabl_type,(int)new_status);
     set_flag_byte(&condt->status, 0x01,  new_status);
     if (((condt->status & 0x01) == 0) || ((condt->status & 0x02) != 0))
@@ -373,6 +393,9 @@ static void process_condition(struct Condition *condt, int idx)
         set_flag_byte(&condt->status, 0x04,  true);
     }
     SCRIPTDBG(19,"Finished");
+    if (condt->use_second_variable)
+        JUSTLOG("sec");
+    JUSTLOG("process condt: %d. status: %d",idx,condt->status);
 }
 
 void process_conditions(void)
@@ -441,7 +464,7 @@ void command_add_condition(long plr_range_id, long opertr_id, long varib_type, l
     gameadd.script.conditions_num++;
 }
 
-void command_add_condition2(long plr_range_id, long opertr_id, long varib_type, long varib_id, long varib_type2, long varib_id2)
+void command_add_condition_2variables(long plr_range_id, long opertr_id, long varib_type, long varib_id,long plr_range_id_right, long varib_type_right, long varib_id_right)
 {
     // TODO: replace with pointer to functions
      SCRPTERRLOG("cond2");
@@ -451,8 +474,9 @@ void command_add_condition2(long plr_range_id, long opertr_id, long varib_type, 
     condt->variabl_type = varib_type;
     condt->variabl_idx = varib_id;
     condt->operation = opertr_id;
-    condt->variabl_type2 = varib_type2;
-    condt->variabl_idx2 = varib_id2;
+    condt->plyr_range_right = plr_range_id_right;
+    condt->variabl_type_right = varib_type_right;
+    condt->variabl_idx_right = varib_id_right;
     condt->use_second_variable = true;
 
     if (condition_stack_pos >= CONDITIONS_COUNT)

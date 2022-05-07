@@ -273,6 +273,8 @@ long parse_criteria(const char *criteria);
 long get_players_range_single_f(long plr_range_id, const char *func_name, long ln_num);
 TbBool parse_get_varib(const char *varib_name, long *varib_id, long *varib_type);
 char get_player_number_from_value(const char* txt);
+#define get_player_id(plrname, plr_range_id) get_player_id_f(plrname, plr_range_id, __func__, text_line_number)
+TbBool get_player_id_f(const char *plrname, long *plr_range_id, const char *func_name, long ln_num);
 
 #define ALLOCATE_SCRIPT_VALUE(var_index, plr_range_id) \
     struct ScriptValue tmp_value = {0}; \

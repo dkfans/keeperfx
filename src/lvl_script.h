@@ -174,8 +174,9 @@ struct Condition { // sizeof = 12
   unsigned short variabl_idx;
   unsigned char operation;
   unsigned long rvalue;
-  unsigned char variabl_type2;
-  unsigned short variabl_idx2;
+  unsigned char plyr_range_right;
+  unsigned char variabl_type_right;
+  unsigned short variabl_idx_right;
   TbBool use_second_variable;
 };
 
