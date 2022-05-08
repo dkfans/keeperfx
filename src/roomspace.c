@@ -703,13 +703,16 @@ static void sell_at_point(struct RoomSpace *roomspace)
         {
             player_sell_room_at_subtile(roomspace->plyr_idx,slab_subtile(roomspace->buildx,0), slab_subtile(roomspace->buildy,0));
         }
-        else if (player_sell_door_at_subtile(roomspace->plyr_idx, slab_subtile(roomspace->buildx,0), slab_subtile(roomspace->buildy,0))) // Trying to sell door
+        else
         {
-            // Nothing to do here - door already sold
-        }
-        else if (player_sell_trap_at_subtile(roomspace->plyr_idx, slab_subtile_center(roomspace->buildx), slab_subtile_center(roomspace->buildy))) // Trying to sell trap
-        {
-            // Nothing to do here - trap already sold
+            if (player_sell_door_at_subtile(roomspace->plyr_idx, slab_subtile(roomspace->buildx,0), slab_subtile(roomspace->buildy,0))) // Trying to sell door
+            {
+                // Nothing to do here - door already sold
+            }
+            if (player_sell_trap_at_subtile(roomspace->plyr_idx, slab_subtile_center(roomspace->buildx), slab_subtile_center(roomspace->buildy))) // Trying to sell trap
+            {
+                // Nothing to do here - trap already sold
+            }
         }
     }
 }
