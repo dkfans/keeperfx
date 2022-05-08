@@ -835,22 +835,25 @@ static void keeper_update_roomspace(struct RoomSpace *roomspace)
                           roomspace->plyr_idx, roomspace->rkind);
     }
     // find next point
-    roomspace->buildx++;
-    if (roomspace->buildx > roomspace->right)
+    do
     {
-        roomspace->buildx = roomspace->left;
-        roomspace->buildy++;
+        roomspace->buildx++;
+        if (roomspace->buildx > roomspace->right)
+        {
+            roomspace->buildx = roomspace->left;
+            roomspace->buildy++;
+        }
+        if (!roomspace->is_roomspace_a_box)
+        {
+            find_next_point(roomspace);
+        }
+        if ((roomspace->buildy > roomspace->bottom) || (roomspace->buildx > roomspace->right))
+        {
+            roomspace->is_active = false;
+            return;
+        }
     }
-    if (!roomspace->is_roomspace_a_box)
-    {
-        find_next_point(roomspace);
-    }
-
-    if ((roomspace->buildy > roomspace->bottom) || (roomspace->buildx > roomspace->right))
-    {
-        roomspace->is_active = false;
-        return;
-    }
+    while (!can_build_room_at_slab(roomspace->plyr_idx, roomspace->rkind, roomspace->buildx, roomspace->buildy));
 }
 
 void update_roomspaces()
