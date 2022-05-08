@@ -709,112 +709,6 @@ static void command_set_hate(long trgt_plr_range_id, long enmy_plr_range_id, lon
     command_add_value(Cmd_SET_HATE, trgt_plr_range_id, enmy_plr_id, hate_val, 0);
 }
 
-static void command_if_available(long plr_range_id, const char *varib_name, const char *operatr, long value)
-{
-    long varib_type;
-    if (gameadd.script.conditions_num >= CONDITIONS_COUNT)
-    {
-      SCRPTERRLOG("Too many (over %d) conditions in script", CONDITIONS_COUNT);
-      return;
-    }
-    // Recognize variable
-    long varib_id = -1;
-    if (varib_id == -1)
-    {
-      varib_id = get_id(door_desc, varib_name);
-      varib_type = SVar_AVAILABLE_DOOR;
-    }
-    if (varib_id == -1)
-    {
-      varib_id = get_id(trap_desc, varib_name);
-      varib_type = SVar_AVAILABLE_TRAP;
-    }
-    if (varib_id == -1)
-    {
-      varib_id = get_id(room_desc, varib_name);
-      varib_type = SVar_AVAILABLE_ROOM;
-    }
-    if (varib_id == -1)
-    {
-      varib_id = get_id(power_desc, varib_name);
-      varib_type = SVar_AVAILABLE_MAGIC;
-    }
-    if (varib_id == -1)
-    {
-      varib_id = get_id(creature_desc, varib_name);
-      varib_type = SVar_AVAILABLE_CREATURE;
-    }
-    if (varib_id == -1)
-    {
-      SCRPTERRLOG("Unrecognized VARIABLE, '%s'", varib_name);
-      return;
-    }
-    // Recognize comparison
-    long opertr_id = get_id(comparison_desc, operatr);
-    if (opertr_id == -1)
-    {
-      SCRPTERRLOG("Unknown comparison name, '%s'", operatr);
-      return;
-    }
-    { // Warn if using the command for a player without Dungeon struct
-        int plr_start;
-        int plr_end;
-        if (get_players_range(plr_range_id, &plr_start, &plr_end) >= 0) {
-            struct Dungeon* dungeon = get_dungeon(plr_start);
-            if ((plr_start+1 == plr_end) && dungeon_invalid(dungeon)) {
-                SCRPTWRNLOG("Found player without dungeon used in IF_AVAILABLE clause in script; this will not work correctly");
-            }
-        }
-    }
-    // Add the condition to script structure
-    command_add_condition(plr_range_id, opertr_id, varib_type, varib_id, value);
-}
-
-static void command_if_controls(long plr_range_id, const char *varib_name, const char *operatr, long value)
-{
-    long varib_id;
-    if (gameadd.script.conditions_num >= CONDITIONS_COUNT)
-    {
-      SCRPTERRLOG("Too many (over %d) conditions in script", CONDITIONS_COUNT);
-      return;
-    }
-    // Recognize variable
-    long varib_type = get_id(controls_variable_desc, varib_name);
-    if (varib_type == -1)
-      varib_id = -1;
-    else
-      varib_id = 0;
-    if (varib_id == -1)
-    {
-      varib_id = get_id(creature_desc, varib_name);
-      varib_type = SVar_CONTROLS_CREATURE;
-    }
-    if (varib_id == -1)
-    {
-      SCRPTERRLOG("Unrecognized VARIABLE, '%s'", varib_name);
-      return;
-    }
-    // Recognize comparison
-    long opertr_id = get_id(comparison_desc, operatr);
-    if (opertr_id == -1)
-    {
-      SCRPTERRLOG("Unknown comparison name, '%s'", operatr);
-      return;
-    }
-    { // Warn if using the command for a player without Dungeon struct
-        int plr_start;
-        int plr_end;
-        if (get_players_range(plr_range_id, &plr_start, &plr_end) >= 0) {
-            struct Dungeon* dungeon = get_dungeon(plr_start);
-            if ((plr_start+1 == plr_end) && dungeon_invalid(dungeon)) {
-                SCRPTWRNLOG("Found player without dungeon used in IF_CONTROLS clause in script; this will not work correctly");
-            }
-        }
-    }
-    // Add the condition to script structure
-    command_add_condition(plr_range_id, opertr_id, varib_type, varib_id, value);
-}
-
 static void command_set_computer_globals(long plr_range_id, long val1, long val2, long val3, long val4, long val5, long val6)
 {
   int plr_start;
@@ -1887,12 +1781,6 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         break;
     case Cmd_SET_CREATURE_PROPERTY:
         command_set_creature_property(scline->tp[0], scline->np[1], scline->np[2]);
-        break;
-    case Cmd_IF_AVAILABLE:
-        command_if_available(scline->np[0], scline->tp[1], scline->tp[2], scline->np[3]);
-        break;
-    case Cmd_IF_CONTROLS:
-        command_if_controls(scline->np[0], scline->tp[1], scline->tp[2], scline->np[3]);
         break;
     case Cmd_IF_SLAB_OWNER:
         command_if_slab_owner(scline->np[0], scline->np[1], scline->np[2]);

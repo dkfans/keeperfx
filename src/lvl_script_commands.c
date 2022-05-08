@@ -2239,6 +2239,213 @@ static void if_check(const struct ScriptLine *scline)
     }
 }
 
+static void if_available_check(const struct ScriptLine *scline)
+{
+    
+    long plr_range_id = scline->np[0];
+    const char *varib_name = scline->tp[1];
+    const char *operatr = scline->tp[2];
+
+    long plr_range_id_right;
+    const char *varib_name_right = scline->tp[4];
+
+    long value;
+
+    TbBool double_var_mode = false;
+    long varib_type_right;
+    long varib_id_right;
+
+
+    if (*varib_name_right != '\0')
+    {
+        double_var_mode = true;
+
+        if (!get_player_id(scline->tp[3], &plr_range_id_right)) {
+            
+            SCRPTWRNLOG("failed to parse \"%s\" as a player", scline->tp[3]);
+        }
+    }
+    else
+    {
+        double_var_mode = false;
+
+        char* text;
+        value = strtol(scline->tp[3], &text, 0);
+        if (text != &scline->tp[3][strlen(scline->tp[3])]) {
+            SCRPTWRNLOG("Numerical value \"%s\" interpreted as %ld", scline->tp[3], value);
+        }
+    }
+
+    long varib_type;
+    if (gameadd.script.conditions_num >= CONDITIONS_COUNT)
+    {
+      SCRPTERRLOG("Too many (over %d) conditions in script", CONDITIONS_COUNT);
+      return;
+    }
+    // Recognize variable
+    long varib_id = -1;
+    if (varib_id == -1)
+    {
+      varib_id = get_id(door_desc, varib_name);
+      varib_type = SVar_AVAILABLE_DOOR;
+    }
+    if (varib_id == -1)
+    {
+      varib_id = get_id(trap_desc, varib_name);
+      varib_type = SVar_AVAILABLE_TRAP;
+    }
+    if (varib_id == -1)
+    {
+      varib_id = get_id(room_desc, varib_name);
+      varib_type = SVar_AVAILABLE_ROOM;
+    }
+    if (varib_id == -1)
+    {
+      varib_id = get_id(power_desc, varib_name);
+      varib_type = SVar_AVAILABLE_MAGIC;
+    }
+    if (varib_id == -1)
+    {
+      varib_id = get_id(creature_desc, varib_name);
+      varib_type = SVar_AVAILABLE_CREATURE;
+    }
+    if (varib_id == -1)
+    {
+      SCRPTERRLOG("Unrecognized VARIABLE, '%s'", varib_name);
+      return;
+    }
+    // Recognize comparison
+    long opertr_id = get_id(comparison_desc, operatr);
+    if (opertr_id == -1)
+    {
+      SCRPTERRLOG("Unknown comparison name, '%s'", operatr);
+      return;
+    }
+    { // Warn if using the command for a player without Dungeon struct
+        int plr_start;
+        int plr_end;
+        if (get_players_range(plr_range_id, &plr_start, &plr_end) >= 0) {
+            struct Dungeon* dungeon = get_dungeon(plr_start);
+            if ((plr_start+1 == plr_end) && dungeon_invalid(dungeon)) {
+                SCRPTWRNLOG("Found player without dungeon used in IF_AVAILABLE clause in script; this will not work correctly");
+            }
+        }
+    }
+    if (double_var_mode && !parse_get_varib(varib_name_right, &varib_id_right, &varib_type_right))
+    {
+        return;
+    }
+    // Add the condition to script structure
+    if (double_var_mode)
+    {
+        command_add_condition_2variables(plr_range_id, opertr_id, varib_type, varib_id,plr_range_id_right, varib_type_right, varib_id_right);
+    }
+    else{
+        command_add_condition(plr_range_id, opertr_id, varib_type, varib_id, value);
+    }
+}
+
+static void if_controls_check(const struct ScriptLine *scline)
+{
+
+    long plr_range_id = scline->np[0];
+    const char *varib_name = scline->tp[1];
+    const char *operatr = scline->tp[2];
+
+    long plr_range_id_right;
+    const char *varib_name_right = scline->tp[4];
+
+    long value;
+
+    TbBool double_var_mode = false;
+    long varib_type_right;
+    long varib_id_right;
+
+
+    if (*varib_name_right != '\0')
+    {
+        double_var_mode = true;
+
+        if (!get_player_id(scline->tp[3], &plr_range_id_right)) {
+            
+            SCRPTWRNLOG("failed to parse \"%s\" as a player", scline->tp[3]);
+        }
+    }
+    else
+    {
+        double_var_mode = false;
+
+        char* text;
+        value = strtol(scline->tp[3], &text, 0);
+        if (text != &scline->tp[3][strlen(scline->tp[3])]) {
+            SCRPTWRNLOG("Numerical value \"%s\" interpreted as %ld", scline->tp[3], value);
+        }
+    }
+
+    long varib_id;
+    if (gameadd.script.conditions_num >= CONDITIONS_COUNT)
+    {
+      SCRPTERRLOG("Too many (over %d) conditions in script", CONDITIONS_COUNT);
+      return;
+    }
+    // Recognize variable
+    long varib_type = get_id(controls_variable_desc, varib_name);
+    if (varib_type == -1)
+      varib_id = -1;
+    else
+      varib_id = 0;
+    if (varib_id == -1)
+    {
+      varib_id = get_id(creature_desc, varib_name);
+      varib_type = SVar_CONTROLS_CREATURE;
+    }
+    if (varib_id == -1)
+    {
+      SCRPTERRLOG("Unrecognized VARIABLE, '%s'", varib_name);
+      return;
+    }
+    // Recognize comparison
+    long opertr_id = get_id(comparison_desc, operatr);
+    if (opertr_id == -1)
+    {
+      SCRPTERRLOG("Unknown comparison name, '%s'", operatr);
+      return;
+    }
+    { // Warn if using the command for a player without Dungeon struct
+        int plr_start;
+        int plr_end;
+        if (get_players_range(plr_range_id, &plr_start, &plr_end) >= 0) {
+            struct Dungeon* dungeon = get_dungeon(plr_start);
+            if ((plr_start+1 == plr_end) && dungeon_invalid(dungeon)) {
+                SCRPTWRNLOG("Found player without dungeon used in IF_CONTROLS clause in script; this will not work correctly");
+            }
+        }
+        if (double_var_mode && get_players_range(plr_range_id_right, &plr_start, &plr_end) >= 0) {
+            struct Dungeon* dungeon = get_dungeon(plr_start);
+            if ((plr_start+1 == plr_end) && dungeon_invalid(dungeon)) {
+                // Note that this list should be kept updated with the changes in get_condition_value()
+                if (((varib_type_right != SVar_GAME_TURN) && (varib_type_right != SVar_ALL_DUNGEONS_DESTROYED)
+                 && (varib_type_right != SVar_DOOR_NUM) && (varib_type_right != SVar_TRAP_NUM)))
+                    SCRPTWRNLOG("Found player without dungeon used in IF clause in script; this will not work correctly");
+                    
+            }
+        }
+    }
+
+    if (double_var_mode && !parse_get_varib(varib_name_right, &varib_id_right, &varib_type_right))
+    {
+        return;
+    }
+    // Add the condition to script structure
+    if (double_var_mode)
+    {
+        command_add_condition_2variables(plr_range_id, opertr_id, varib_type, varib_id,plr_range_id_right, varib_type_right, varib_id_right);
+    }
+    else
+    {
+        command_add_condition(plr_range_id, opertr_id, varib_type, varib_id, value);
+    }
+}
 
 /**
  * Descriptions of script commands for parser.
@@ -2252,7 +2459,7 @@ const struct CommandDesc command_desc[] = {
   {"ADD_PARTY_TO_LEVEL",                "PAAN    ", Cmd_ADD_PARTY_TO_LEVEL, NULL, NULL},
   {"ADD_CREATURE_TO_LEVEL",             "PCANNN  ", Cmd_ADD_CREATURE_TO_LEVEL, NULL, NULL},
   {"ADD_OBJECT_TO_LEVEL",               "AAN     ", Cmd_ADD_OBJECT_TO_LEVEL, NULL, NULL},
-  {"IF",                                "PAOAa   ", Cmd_IF, if_check, NULL},
+  {"IF",                                "PAOAa   ", Cmd_IF, &if_check, NULL},
   {"IF_ACTION_POINT",                   "NP      ", Cmd_IF_ACTION_POINT, NULL, NULL},
   {"ENDIF",                             "        ", Cmd_ENDIF, NULL, NULL},
   {"SET_HATE",                          "PPN     ", Cmd_SET_HATE, NULL, NULL},
@@ -2291,8 +2498,8 @@ const struct CommandDesc command_desc[] = {
   {"SET_CREATURE_FEAR_STRONGER",        "CN      ", Cmd_SET_CREATURE_FEAR_STRONGER, NULL, NULL},
   {"SET_CREATURE_FEARSOME_FACTOR",      "CN      ", Cmd_SET_CREATURE_FEARSOME_FACTOR, NULL, NULL},
   {"SET_CREATURE_PROPERTY",             "CXN     ", Cmd_SET_CREATURE_PROPERTY, NULL, NULL},
-  {"IF_AVAILABLE",                      "PAON    ", Cmd_IF_AVAILABLE, NULL, NULL},
-  {"IF_CONTROLS",                       "PAON    ", Cmd_IF_CONTROLS, NULL, NULL},
+  {"IF_AVAILABLE",                      "PAOAa   ", Cmd_IF_AVAILABLE, &if_available_check, NULL},
+  {"IF_CONTROLS",                       "PAOAa   ", Cmd_IF_CONTROLS,  &if_controls_check, NULL},
   {"SET_COMPUTER_GLOBALS",              "PNNNNNN ", Cmd_SET_COMPUTER_GLOBALS, NULL, NULL},
   {"SET_COMPUTER_CHECKS",               "PANNNNN ", Cmd_SET_COMPUTER_CHECKS, NULL, NULL},
   {"SET_COMPUTER_EVENT",                "PANNNNN ", Cmd_SET_COMPUTER_EVENT, NULL, NULL},
@@ -2376,7 +2583,7 @@ const struct CommandDesc dk1_command_desc[] = {
   {"ADD_TO_PARTY",                 "ACNNAN  ", Cmd_ADD_TO_PARTY, &add_to_party_check, NULL},
   {"ADD_PARTY_TO_LEVEL",           "PAAN    ", Cmd_ADD_PARTY_TO_LEVEL, NULL, NULL},
   {"ADD_CREATURE_TO_LEVEL",        "PCANNN  ", Cmd_ADD_CREATURE_TO_LEVEL, NULL, NULL},
-  {"IF",                           "PAOAa   ", Cmd_IF, if_check, NULL},
+  {"IF",                           "PAOAa   ", Cmd_IF, &if_check, NULL},
   {"IF_ACTION_POINT",              "NP      ", Cmd_IF_ACTION_POINT, NULL, NULL},
   {"ENDIF",                        "        ", Cmd_ENDIF, NULL, NULL},
   {"SET_HATE",                     "PPN     ", Cmd_SET_HATE, NULL, NULL},
@@ -2411,7 +2618,7 @@ const struct CommandDesc dk1_command_desc[] = {
   {"SET_CREATURE_HEALTH",          "CN      ", Cmd_SET_CREATURE_HEALTH, NULL, NULL},
   {"SET_CREATURE_ARMOUR",          "CN      ", Cmd_SET_CREATURE_ARMOUR, NULL, NULL},
   {"SET_CREATURE_FEAR",            "CN      ", Cmd_SET_CREATURE_FEAR_WOUNDED, NULL, NULL},
-  {"IF_AVAILABLE",                 "PAON    ", Cmd_IF_AVAILABLE, NULL, NULL},
+  {"IF_AVAILABLE",                 "PAOAa   ", Cmd_IF_AVAILABLE, &if_available_check, NULL},
   {"SET_COMPUTER_GLOBALS",         "PNNNNNN ", Cmd_SET_COMPUTER_GLOBALS, NULL, NULL},
   {"SET_COMPUTER_CHECKS",          "PANNNNN ", Cmd_SET_COMPUTER_CHECKS, NULL, NULL},
   {"SET_COMPUTER_EVENT",           "PANN    ", Cmd_SET_COMPUTER_EVENT, NULL, NULL},
