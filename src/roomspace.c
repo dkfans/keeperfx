@@ -853,7 +853,7 @@ static void keeper_update_roomspace(struct RoomSpace *roomspace)
             return;
         }
     }
-    while (!can_build_room_at_slab(roomspace->plyr_idx, roomspace->rkind, roomspace->buildx, roomspace->buildy));
+    while ( (roomspace->rkind != RoK_SELL) && (!can_build_room_at_slab(roomspace->plyr_idx, roomspace->rkind, roomspace->buildx, roomspace->buildy)) );
 }
 
 void update_roomspaces()
