@@ -27,6 +27,7 @@
 #include "custom_sprites.h"
 #include "gui_soundmsgs.h"
 #include "config_effects.h"
+#include "config_trapdoor.h"
 #include "thing_effects.h"
 #include "thing_physics.h"
 #include "thing_navigate.h"
@@ -939,13 +940,22 @@ static void set_door_configuration_check(const struct ScriptLine* scline)
     value->shorts[1] = doorvar;
     if (doorvar == 4) // SlabKind
     {
-        value->shorts[2] = get_id(slab_desc, scline->tp[2]) + 1;
-        if (value->shorts[2] <= 0)
+        const char* slab_name = scline->tp[2];
+        long slab_id = get_rid(slab_desc, slab_name);
+        if (slab_id == -1)
         {
-            SCRPTERRLOG("Error slab %s not recognized", scline->tp[2]);
-            DEALLOCATE_SCRIPT_VALUE
-            return;
+            if (parameter_is_number(slab_name))
+            {
+                slab_id = atoi(slab_name);
+            }
+            else
+            {
+                SCRPTERRLOG("Error slab %s not recognized", scline->tp[2]);
+                DEALLOCATE_SCRIPT_VALUE
+                return;
+            }
         }
+        value->shorts[2] = slab_id + 1;
     }
 
     else if (doorvar == 8) // SymbolSprites
@@ -2246,8 +2256,8 @@ const struct CommandDesc command_desc[] = {
   {"LEVEL_UP_CREATURE",                 "PC!AN   ", Cmd_LEVEL_UP_CREATURE, NULL, NULL},
   {"CHANGE_CREATURE_OWNER",             "PC!AP   ", Cmd_CHANGE_CREATURE_OWNER, NULL, NULL},
   {"SET_GAME_RULE",                     "AN      ", Cmd_SET_GAME_RULE, NULL, NULL},
-  {"SET_TRAP_CONFIGURATION",            "AANn    ", Cmd_SET_TRAP_CONFIGURATION, &set_trap_configuration_check, &set_trap_configuration_process},
-  {"SET_DOOR_CONFIGURATION",            "AANn    ", Cmd_SET_DOOR_CONFIGURATION, &set_door_configuration_check, &set_door_configuration_process},
+  {"SET_TRAP_CONFIGURATION",            "AAAn    ", Cmd_SET_TRAP_CONFIGURATION, &set_trap_configuration_check, &set_trap_configuration_process},
+  {"SET_DOOR_CONFIGURATION",            "AAAn    ", Cmd_SET_DOOR_CONFIGURATION, &set_door_configuration_check, &set_door_configuration_process},
   {"SET_OBJECT_CONFIGURATION",          "AAA     ", Cmd_SET_OBJECT_CONFIGURATION, &set_object_configuration_check, &set_object_configuration_process},
   {"SET_CREATURE_CONFIGURATION",        "CAAn    ", Cmd_SET_CREATURE_CONFIGURATION, &set_creature_configuration_check, &set_creature_configuration_process},
   {"SET_SACRIFICE_RECIPE",              "AAA+    ", Cmd_SET_SACRIFICE_RECIPE, &set_sacrifice_recipe_check, &set_sacrifice_recipe_process},
