@@ -70,7 +70,12 @@ const struct NamedCommand game_rule_desc[] = {
   {"PlaceTrapsOnSubtiles",      21},
   {"DiseaseHPTemplePercentage", 22},
   {"DungeonHeartHealth",        23},
-  {NULL,                         0},
+  {"HungerHealthLoss",              24},
+  {"GameTurnsPerHungerHealthLoss",  25},
+  {"FoodHealthGain",                26},
+  {"TortureHealthLoss",             27},
+  {"GameTurnsPerTortureHealthLoss", 28},
+  {NULL,                             0},
 };
 
 
