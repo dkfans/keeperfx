@@ -1985,9 +1985,8 @@ static void change_slab_owner_check(const struct ScriptLine *scline)
         SCRPTERRLOG("Value '%d' out of range. Range 0-85 allowed.", scline->np[1]);
         return;
     }
-
     long filltype = get_id(fill_desc, scline->tp[3]);
-    if ((scline->tp[3] != NULL) && (filltype == -1))
+    if ((scline->tp[3] != NULL) && (strcmp(scline->tp[3], "") != 0) && (filltype == -1))
     {
         SCRPTWRNLOG("Fill type %s not recognized", scline->tp[3]);
     }
