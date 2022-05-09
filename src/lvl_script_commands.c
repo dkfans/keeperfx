@@ -2041,7 +2041,7 @@ static void change_slab_type_check(const struct ScriptLine *scline)
     }
 
     value->shorts[3] = get_id(fill_desc, scline->tp[3]);
-    if ((scline->tp[3] != NULL) && (value->shorts[3] == -1))
+    if ((scline->tp[3] != NULL) && (strcmp(scline->tp[3],"") != 0) && (value->shorts[3] == -1))
     {
         SCRPTWRNLOG("Fill type %s not recognized", scline->tp[3]);
     }
