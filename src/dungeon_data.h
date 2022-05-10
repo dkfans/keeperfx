@@ -313,6 +313,7 @@ struct DungeonAdd
     unsigned char         creature_entrance_level;
     unsigned long         evil_creatures_converted;
     unsigned long         good_creatures_converted;
+    unsigned char         creatures_transferred;
     unsigned long         traps_sold;
     unsigned long         doors_sold;
     unsigned long         manufacture_gold;

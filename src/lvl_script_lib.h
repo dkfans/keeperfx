@@ -249,6 +249,7 @@ enum ScriptVariables {
   SVar_MANUFACTURE_GOLD                = 74,
   SVar_TOTAL_SCORE                     = 75,
   SVar_BONUS_TIME                      = 76,
+  SVar_CREATURES_TRANSFERRED           = 77,
  };
 
 

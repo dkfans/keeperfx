@@ -279,6 +279,9 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned 
         return dungeon->total_score;
     case SVar_BONUS_TIME:
         return (game.bonus_time - game.play_gameturn);
+    case SVar_CREATURES_TRANSFERRED:
+        dungeonadd = get_dungeonadd(plyr_idx);
+        return dungeonadd->creatures_transferred;
     default:
         break;
     };
