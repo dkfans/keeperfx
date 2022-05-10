@@ -1697,7 +1697,7 @@ TbBool frontend_start_new_campaign(const char *cmpgn_fname)
         player->flgfield_6 &= ~PlaF6_PlyrHasQuit;
     }
     player = get_my_player();
-    clear_transfered_creature();
+    clear_transfered_creatures();
     calculate_moon_phase(false,false);
     hide_all_bonus_levels(player);
     update_extra_levels_visibility();
