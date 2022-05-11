@@ -731,7 +731,7 @@ short script_special_transfer_creature(long plyr_idx, long crmodel, long criteri
 static void special_transfer_creature_check(const struct ScriptLine* scline)  //USE_SPECIAL_TRANSFER_CREATURE(PLAYER0,BILE_DEMON,MOST_EXPERIENCED,3)
 {
     long crtr_id = parse_creature_name(scline->tp[1]);
-    unsigned char count = scline->np[3];
+    long count = scline->np[3];
     if (crtr_id == CREATURE_NONE)
     {
         SCRPTERRLOG("Unknown creature, '%s'", scline->tp[1]);
@@ -749,9 +749,9 @@ static void special_transfer_creature_check(const struct ScriptLine* scline)  //
         //SCRPTERRLOG("Parameter has no positive value; discarding command");
         return;
     }
-    if (count > 64)
+    if (count > 255) //todo come up with best number here and log
     {
-        count = 64;
+        count = 255;
     }
     command_add_value(Cmd_USE_SPECIAL_TRANSFER_CREATURE, scline->np[0], crtr_id, select_id, count);
 }

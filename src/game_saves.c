@@ -659,21 +659,22 @@ short load_continue_game(void)
 
 TbBool add_transfered_creature(PlayerNumber plyr_idx, ThingModel model, long explevel)
 {
-    for (int i = 0; i < TRANSFER_CREATURE_STORAGE_COUNT; i++)
+    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
+    if (dungeonadd == INVALID_DUNGEON_ADD)
     {
-        if(intralvl.transferred_creatures[plyr_idx][i].model == 0)
-        {
-            intralvl.transferred_creatures[plyr_idx][i].model = model;
-            intralvl.transferred_creatures[plyr_idx][i].explevel = explevel;
-            return true;
-        }
-        if(i == TRANSFER_CREATURE_STORAGE_COUNT - 1)
-        {
-            WARNLOG("Exeeding max number of transferable creatures (%d)",TRANSFER_CREATURE_STORAGE_COUNT);
-            return false;
-        }
+        //todo log error
+        return false;
     }
-    return false;
+
+    int i = 0;
+    if (dungeonadd->creatures_transferred > 0)
+    {
+        i = (dungeonadd->creatures_transferred % 64);
+    }
+    
+    intralvl.transferred_creatures[plyr_idx][i].model = model;
+    intralvl.transferred_creatures[plyr_idx][i].explevel = explevel;
+    return true;
 }
 
 void clear_transfered_creatures(void)

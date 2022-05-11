@@ -570,8 +570,8 @@ long create_transferred_creatures_on_level(void)
                     {
                         for (long n = 1; n < 16; n++)
                         {
-                            struct Thing* thing = find_hero_gate_of_number(n);
-                            if (!thing_is_invalid(thing))
+                            heartng = find_hero_gate_of_number(n);
+                            if (!thing_is_invalid(heartng))
                                 break;
                         }
                     }
