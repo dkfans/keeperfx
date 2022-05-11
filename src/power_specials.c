@@ -555,19 +555,22 @@ void start_resurrect_creature(struct PlayerInfo *player, struct Thing *thing)
 TbBool create_transferred_creatures_on_level(void)
 {
     TbBool creature_created = false;
-    for (int i = 0; i < TRANSFER_CREATURE_STORAGE_COUNT; i++)
+    for (int p = 0; p < PLAYERS_COUNT; p++)
     {
-        if (intralvl.transferred_creatures[i].model > 0)
+        for (int i = 0; i < TRANSFER_CREATURE_STORAGE_COUNT; i++)
         {
-            struct Thing* thing = get_player_soul_container(my_player_number);
-            struct Coord3d* pos = &(thing->mappos);
-            thing = create_creature(pos, intralvl.transferred_creatures[i].model, 5);
-            if (thing_is_invalid(thing))
+            if (intralvl.transferred_creatures[p][i].model > 0)
             {
-                continue;
+                struct Thing* thing = get_player_soul_container(p);
+                struct Coord3d* pos = &(thing->mappos);
+                thing = create_creature(pos, intralvl.transferred_creatures[p][i].model, 5);
+                if (thing_is_invalid(thing))
+                {
+                    continue;
+                }
+                init_creature_level(thing, intralvl.transferred_creatures[p][i].explevel);
+                creature_created = true;
             }
-            init_creature_level(thing, intralvl.transferred_creatures[i].explevel);
-            creature_created = true;
         }
     }
     clear_transfered_creatures();

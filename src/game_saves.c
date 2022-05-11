@@ -659,22 +659,18 @@ short load_continue_game(void)
 
 TbBool add_transfered_creature(PlayerNumber plyr_idx, ThingModel model, long explevel)
 {
-    if (is_my_player_number(plyr_idx))
+    for (int i = 0; i < TRANSFER_CREATURE_STORAGE_COUNT; i++)
     {
-        for (int i = 0; i < TRANSFER_CREATURE_STORAGE_COUNT; i++)
+        if(intralvl.transferred_creatures[plyr_idx][i].model == 0)
         {
-            if(intralvl.transferred_creatures[i].model == 0)
-            {
-                intralvl.transferred_creatures[i].model = model;
-                intralvl.transferred_creatures[i].explevel = explevel;
-                return true;
-            }
-            if(i == TRANSFER_CREATURE_STORAGE_COUNT - 1)
-            {
-                WARNLOG("Exeeding max number of transferable creatures (%d)",TRANSFER_CREATURE_STORAGE_COUNT);
-                return false;
-            }
-
+            intralvl.transferred_creatures[plyr_idx][i].model = model;
+            intralvl.transferred_creatures[plyr_idx][i].explevel = explevel;
+            return true;
+        }
+        if(i == TRANSFER_CREATURE_STORAGE_COUNT - 1)
+        {
+            WARNLOG("Exeeding max number of transferable creatures (%d)",TRANSFER_CREATURE_STORAGE_COUNT);
+            return false;
         }
     }
     return false;
@@ -682,10 +678,13 @@ TbBool add_transfered_creature(PlayerNumber plyr_idx, ThingModel model, long exp
 
 void clear_transfered_creatures(void)
 {
-    for (int i = 0; i < TRANSFER_CREATURE_STORAGE_COUNT; i++)
+    for (int p = 0; p < PLAYERS_COUNT; p++)
     {
-        intralvl.transferred_creatures[i].model = 0;
-        intralvl.transferred_creatures[i].explevel = 0;
+        for (int i = 0; i < TRANSFER_CREATURE_STORAGE_COUNT; i++)
+        {
+            intralvl.transferred_creatures[p][i].model = 0;
+            intralvl.transferred_creatures[p][i].explevel = 0;
+        }
     }
 }
 
