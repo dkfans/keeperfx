@@ -703,6 +703,7 @@ short script_special_transfer_creature(long plyr_idx, long crmodel, long criteri
 {
     short transferred = 0;
     struct Thing* thing;
+    struct DungeonAdd* dungeonadd;
     struct CreatureControl* cctrl;
     for (int i = 0; i < count; i++)
     {
@@ -713,8 +714,16 @@ short script_special_transfer_creature(long plyr_idx, long crmodel, long criteri
             //SYNCDBG(5, "No matching player %d creature of model %d found to use power on.", (int)plyr_idx, (int)crmodel);
             break;
         }
-        transferred++;
-        add_transfered_creature(plyr_idx, thing->model, cctrl->explevel);
+        
+        if (add_transfered_creature(plyr_idx, thing->model, cctrl->explevel))
+        {
+            transferred++;
+            dungeonadd = get_dungeonadd(plyr_idx);
+            dungeonadd->creatures_transferred++;
+            //remove_thing_from_power_hand_list(thing, plyr_idx);
+            kill_creature(thing, INVALID_THING, -1, CrDed_NoEffects | CrDed_NotReallyDying);
+            create_special_used_effect(&thing->mappos, plyr_idx);
+        }
     }
     return transferred;
 }
@@ -722,27 +731,29 @@ short script_special_transfer_creature(long plyr_idx, long crmodel, long criteri
 static void special_transfer_creature_check(const struct ScriptLine* scline)  //USE_SPECIAL_TRANSFER_CREATURE(PLAYER0,BILE_DEMON,MOST_EXPERIENCED,3)
 {
     long crtr_id = parse_creature_name(scline->tp[1]);
-    unsigned char count = scline->np[4];
+    unsigned char count = scline->np[3];
     if (crtr_id == CREATURE_NONE)
     {
         SCRPTERRLOG("Unknown creature, '%s'", scline->tp[1]);
         return;
     }
-    long select_id = parse_criteria(scline->tp[1]);
+    long select_id = parse_criteria(scline->tp[2]);
     if (select_id == -1) {
-        SCRPTERRLOG("Unknown select criteria, '%s'", scline->tp[1]);
+        SCRPTERRLOG("Unknown select criteria, '%s'", scline->tp[2]);
         return;
     }
     if (count < 1)
     {
-        SCRPTERRLOG("Parameter has no positive value; discarding command");
+        count = 1;
+        //todo handle optional param
+        //SCRPTERRLOG("Parameter has no positive value; discarding command");
         return;
     }
     if (count > 64)
     {
         count = 64;
     }
-    command_add_value(Cmd_LEVEL_UP_CREATURE, scline->np[0], crtr_id, select_id, count);
+    command_add_value(Cmd_USE_SPECIAL_TRANSFER_CREATURE, scline->np[0], crtr_id, select_id, count);
 }
 
 static void special_transfer_creature_process(struct ScriptContext* context)

@@ -93,7 +93,7 @@ struct Thing *get_creature_in_range_around_any_of_enemy_heart(PlayerNumber plyr_
     return INVALID_THING;
 }
 
-static struct Thing *script_get_creature_by_criteria(PlayerNumber plyr_idx, long crmodel, long criteria) {
+struct Thing *script_get_creature_by_criteria(PlayerNumber plyr_idx, long crmodel, long criteria) {
     switch (filter_criteria_type(criteria))
     {
     case CSelCrit_Any:
