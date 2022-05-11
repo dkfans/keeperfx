@@ -552,24 +552,39 @@ void start_resurrect_creature(struct PlayerInfo *player, struct Thing *thing)
     }
 }
 
-TbBool create_transferred_creatures_on_level(void)
+long create_transferred_creatures_on_level(void)
 {
-    TbBool creature_created = false;
+    struct Thing* creatng;
+    struct Thing* heartng;
+    long creature_created = 0;
     for (int p = 0; p < PLAYERS_COUNT; p++)
     {
         for (int i = 0; i < TRANSFER_CREATURE_STORAGE_COUNT; i++)
         {
             if (intralvl.transferred_creatures[p][i].model > 0)
             {
-                struct Thing* thing = get_player_soul_container(p);
-                struct Coord3d* pos = &(thing->mappos);
-                thing = create_creature(pos, intralvl.transferred_creatures[p][i].model, 5);
-                if (thing_is_invalid(thing))
+                heartng = get_player_soul_container(p);
+                if (p == HERO_PLAYER)
+                {
+                    if (thing_is_invalid(heartng))
+                    {
+                        for (long n = 1; n < 16; n++)
+                        {
+                            struct Thing* thing = find_hero_gate_of_number(n);
+                            if (!thing_is_invalid(thing))
+                                break;
+                        }
+                    }
+                }
+
+                struct Coord3d* pos = &(heartng->mappos);
+                creatng = create_creature(pos, intralvl.transferred_creatures[p][i].model, 5);
+                if (thing_is_invalid(creatng))
                 {
                     continue;
                 }
-                init_creature_level(thing, intralvl.transferred_creatures[p][i].explevel);
-                creature_created = true;
+                init_creature_level(creatng, intralvl.transferred_creatures[p][i].explevel);
+                creature_created++;
             }
         }
     }
