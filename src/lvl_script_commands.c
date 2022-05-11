@@ -35,6 +35,7 @@
 #include "creature_states_mood.h"
 #include "room_util.h"
 #include "creature_instances.h"
+#include "lvl_script_value.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -414,9 +415,6 @@ TbBool script_change_creatures_annoyance(PlayerNumber plyr_idx, ThingModel crmod
     return true;
 }
 
-
-
-
 long parse_creature_name(const char *creature_name)
 {
     long ret = get_rid(creature_desc, creature_name);
@@ -694,6 +692,65 @@ static void conceal_map_rect_process(struct ScriptContext *context)
 
     conceal_map_area(context->value->plyr_range, context->value->arg0 - (w>>1), context->value->arg0 + (w>>1) + (w&1),
                      context->value->arg1 - (h>>1), context->value->arg1 + (h>>1) + (h&1), context->value->bytes[11]);
+}
+
+/**
+ * Transfers creatures for a player
+ * @param plyr_idx target player
+ * @param todo
+ */
+short script_special_transfer_creature(long plyr_idx, long crmodel, long criteria, int count)
+{
+    short transferred = 0;
+    struct Thing* thing;
+    struct CreatureControl* cctrl;
+    for (int i = 0; i < count; i++)
+    {
+        thing = script_get_creature_by_criteria(plyr_idx, crmodel, criteria);
+        cctrl = creature_control_get_from_thing(thing);
+        if (thing_is_invalid(thing))
+        {
+            //SYNCDBG(5, "No matching player %d creature of model %d found to use power on.", (int)plyr_idx, (int)crmodel);
+            break;
+        }
+        transferred++;
+        add_transfered_creature(plyr_idx, thing->model, cctrl->explevel);
+    }
+    return transferred;
+}
+
+static void special_transfer_creature_check(const struct ScriptLine* scline)  //USE_SPECIAL_TRANSFER_CREATURE(PLAYER0,BILE_DEMON,MOST_EXPERIENCED,3)
+{
+    long crtr_id = parse_creature_name(scline->tp[1]);
+    unsigned char count = scline->np[4];
+    if (crtr_id == CREATURE_NONE)
+    {
+        SCRPTERRLOG("Unknown creature, '%s'", scline->tp[1]);
+        return;
+    }
+    long select_id = parse_criteria(scline->tp[1]);
+    if (select_id == -1) {
+        SCRPTERRLOG("Unknown select criteria, '%s'", scline->tp[1]);
+        return;
+    }
+    if (count < 1)
+    {
+        SCRPTERRLOG("Parameter has no positive value; discarding command");
+        return;
+    }
+    if (count > 64)
+    {
+        count = 64;
+    }
+    command_add_value(Cmd_LEVEL_UP_CREATURE, scline->np[0], crtr_id, select_id, count);
+}
+
+static void special_transfer_creature_process(struct ScriptContext* context)
+{
+    for (int i = context->plr_start; i < context->plr_end; i++)
+    {
+        script_special_transfer_creature(i, context->value->arg0, context->value->arg1, context->value->arg2);
+    }
 }
 
 static void change_creatures_annoyance_check(const struct ScriptLine* scline)
@@ -2533,6 +2590,7 @@ const struct CommandDesc command_desc[] = {
   {"USE_SPECIAL_MULTIPLY_CREATURES",    "PN      ", Cmd_USE_SPECIAL_MULTIPLY_CREATURES, NULL, NULL},
   {"USE_SPECIAL_MAKE_SAFE",             "P       ", Cmd_USE_SPECIAL_MAKE_SAFE, NULL, NULL},
   {"USE_SPECIAL_LOCATE_HIDDEN_WORLD",   "        ", Cmd_USE_SPECIAL_LOCATE_HIDDEN_WORLD, NULL, NULL},
+  {"USE_SPECIAL_TRANSFER_CREATURE",     "PC!An   ", Cmd_USE_SPECIAL_TRANSFER_CREATURE, &special_transfer_creature_check, &special_transfer_creature_process},
   {"CHANGE_CREATURES_ANNOYANCE",        "PC!AN   ", Cmd_CHANGE_CREATURES_ANNOYANCE, &change_creatures_annoyance_check, &change_creatures_annoyance_process},
   {"ADD_TO_FLAG",                       "PAN     ", Cmd_ADD_TO_FLAG, NULL, NULL},
   {"SET_CAMPAIGN_FLAG",                 "PAN     ", Cmd_SET_CAMPAIGN_FLAG, NULL, NULL},
