@@ -903,18 +903,21 @@ long get_dungeon_control_action_inputs(void)
     {
         if (toggle_main_cheat_menu())
             clear_key_pressed(KC_NUMPADENTER);
+        set_players_packet_action(player, PckA_ToggleCheatMenuStatus, ( (gui_box != NULL) || (gui_cheat_box != NULL) ), 0, 0, 0);
     }
     // also use the main keyboard enter key (while holding shift) for cheat menu
     if (is_key_pressed(KC_RETURN,KMod_SHIFT))
         {
             if (toggle_main_cheat_menu())
                 clear_key_pressed(KC_RETURN);
+            set_players_packet_action(player, PckA_ToggleCheatMenuStatus, ( (gui_box != NULL) || (gui_cheat_box != NULL) ), 0, 0, 0);
         }
     if (is_key_pressed(KC_F12,KMod_DONTCARE))
     {
         // Note that we're using "close", not "toggle". Menu can't be opened here.
         if (close_creature_cheat_menu())
             clear_key_pressed(KC_F12);
+        set_players_packet_action(player, PckA_ToggleCheatMenuStatus, ( (gui_box != NULL) || (gui_cheat_box != NULL) ), 0, 0, 0);
     }
     if (player->view_mode == PVM_IsometricView)
     {
@@ -1156,17 +1159,20 @@ short get_creature_control_action_inputs(void)
     {
         if (toggle_instance_cheat_menu())
             clear_key_pressed(KC_NUMPADENTER);
+        set_players_packet_action(player, PckA_ToggleCheatMenuStatus, ( (gui_box != NULL) || (gui_cheat_box != NULL) ), 0, 0, 0);
     }
     // also use the main keyboard enter key (while holding shift) for cheat menu
     if (is_key_pressed(KC_RETURN,KMod_SHIFT))
         {
             toggle_instance_cheat_menu();
                 clear_key_pressed(KC_RETURN);
+                set_players_packet_action(player, PckA_ToggleCheatMenuStatus, ( (gui_box != NULL) || (gui_cheat_box != NULL) ), 0, 0, 0);
         }
     if (is_key_pressed(KC_F12,KMod_DONTCARE))
     {
         toggle_creature_cheat_menu();
             clear_key_pressed(KC_F12);
+            set_players_packet_action(player, PckA_ToggleCheatMenuStatus, ( (gui_box != NULL) || (gui_cheat_box != NULL) ), 0, 0, 0);
     }
 
     if (player->controlled_thing_idx != 0)
