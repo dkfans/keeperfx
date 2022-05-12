@@ -681,7 +681,13 @@ static void conceal_map_rect_check(const struct ScriptLine *scline)
 {
     TbBool all = strcmp(scline->tp[5], "ALL") == 0;
     if (!all)
+    {
         all = strcmp(scline->tp[5], "1") == 0;
+    }
+    if (!all && strcmp(scline->tp[5], "") != 0)
+    {
+        SCRPTWRNLOG("Hide value \"%s\" not recognized", scline->tp[5]);
+    }
 
     command_add_value(Cmd_CONCEAL_MAP_RECT, scline->np[0], scline->np[1], scline->np[2],
                       (scline->np[4]<<16) | scline->np[3] | (all?1<<24:0));
@@ -1980,9 +1986,8 @@ static void change_slab_owner_check(const struct ScriptLine *scline)
         SCRPTERRLOG("Value '%d' out of range. Range 0-85 allowed.", scline->np[1]);
         return;
     }
-
     long filltype = get_id(fill_desc, scline->tp[3]);
-    if ((scline->tp[3] != NULL) && (filltype == -1))
+    if ((scline->tp[3] != NULL) && (strcmp(scline->tp[3], "") != 0) && (filltype == -1))
     {
         SCRPTWRNLOG("Fill type %s not recognized", scline->tp[3]);
     }
@@ -2042,7 +2047,7 @@ static void change_slab_type_check(const struct ScriptLine *scline)
     }
 
     value->shorts[3] = get_id(fill_desc, scline->tp[3]);
-    if ((scline->tp[3] != NULL) && (value->shorts[3] == -1))
+    if ((scline->tp[3] != NULL) && (strcmp(scline->tp[3],"") != 0) && (value->shorts[3] == -1))
     {
         SCRPTWRNLOG("Fill type %s not recognized", scline->tp[3]);
     }
