@@ -662,7 +662,7 @@ TbBool add_transfered_creature(PlayerNumber plyr_idx, ThingModel model, long exp
     struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
     if (dungeonadd == INVALID_DUNGEON_ADD)
     {
-        //todo log error
+        ERRORDBG(11, "Can't transfer creature; player %d has no dungeon.", (int)plyr_idx);
         return false;
     }
 
