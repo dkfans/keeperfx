@@ -417,12 +417,13 @@ TbBool set_script_flag(PlayerNumber plyr_idx, long flag_id, long value)
         ERRORLOG("Can't set flag; invalid flag id %d.",(int)flag_id);
         return false;
     }
-    struct Dungeon* dungeon = get_dungeon(plyr_idx);
+    struct Dungeon* dungeon       = get_dungeon(plyr_idx);
+    struct DungeonAdd* dungeonAdd = get_dungeonadd(plyr_idx);
     if (dungeon_invalid(dungeon)) {
         ERRORLOG("Can't set flag; player %d has no dungeon",(int)plyr_idx);
         return false;
     }
-    dungeon->script_flags[flag_id] = value;
+    dungeonAdd->script_flags[flag_id] = value;
     return true;
 }
 

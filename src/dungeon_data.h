@@ -222,7 +222,7 @@ struct Dungeon {
     /** Stored information whether player can place blueprints of doors of specific kind (actually, doors are placed instantly). */
     unsigned char door_amount_placeable_[DOOR_TYPES_COUNT];
     struct TurnTimer turn_timers[TURN_TIMERS_COUNT];
-    unsigned char script_flags[SCRIPT_FLAGS_COUNT];
+    unsigned char script_flags_OLD[SCRIPT_FLAGS_COUNT];
     long max_creatures_attracted;
     unsigned char heart_destroy_state;
     long heart_destroy_turn;
@@ -320,6 +320,8 @@ struct DungeonAdd
     long                  cheaper_diggers;
     struct ComputerInfo   computer_info;
     long event_last_run_turn[EVENT_KIND_COUNT];
+    long script_flags[SCRIPT_FLAGS_COUNT];
+
 };
 /******************************************************************************/
 extern struct Dungeon bad_dungeon;
