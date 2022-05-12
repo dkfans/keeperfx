@@ -745,7 +745,7 @@ static void script_transfer_creature_check(const struct ScriptLine* scline)
         SCRPTERRLOG("Unknown select criteria, '%s'", scline->tp[2]);
         return;
     }
-    if (scline->np[3] == '/0')
+    if (scline->np[3] == '\0')
     {
         count = 1;
     }
