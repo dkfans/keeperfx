@@ -320,6 +320,7 @@ struct DungeonAdd
     long                  cheaper_diggers;
     struct ComputerInfo   computer_info;
     long event_last_run_turn[EVENT_KIND_COUNT];
+    TbBool map_revealed;
 };
 /******************************************************************************/
 extern struct Dungeon bad_dungeon;

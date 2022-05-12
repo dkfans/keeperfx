@@ -508,6 +508,8 @@ void reveal_whole_map(struct PlayerInfo *player)
     clear_dig_for_map_rect(player->id_number,0,map_tiles_x,0,map_tiles_y);
     reveal_map_rect(player->id_number,1,map_subtiles_x,1,map_subtiles_y);
     pannel_map_update(0, 0, map_subtiles_x+1, map_subtiles_y+1);
+    struct DungeonAdd* dungeonadd = get_dungeonadd(player->id_number);
+    dungeonadd->map_revealed = true;
 }
 
 void update_blocks_in_area(MapSubtlCoord sx, MapSubtlCoord sy, MapSubtlCoord ex, MapSubtlCoord ey)
