@@ -262,7 +262,7 @@ enum ScriptVariables {
 #define FX_LINE_TIME_PARTS 4
 
 
-
+struct Thing* script_get_creature_by_criteria(PlayerNumber plyr_idx, long crmodel, long criteria);
 long parse_creature_name(const char *creature_name);
 struct ScriptValue *allocate_script_value(void);
 struct Thing *script_process_new_object(long crmodel, TbMapLocation location, long arg);

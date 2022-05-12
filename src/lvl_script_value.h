@@ -25,8 +25,8 @@ extern "C" {
 #endif
 
 void script_process_value(unsigned long var_index, unsigned long plr_range_id, long val2, long val3, long val4, struct ScriptValue *value);
-struct Thing* script_get_creature_by_criteria(PlayerNumber plyr_idx, long crmodel, long criteria);
-
+struct Thing* get_creature_in_range_around_any_of_enemy_heart(PlayerNumber plyr_idx, ThingModel crmodel, MapSubtlDelta range);
+extern long near_map_block_creature_filter_diagonal_random(const struct Thing* thing, MaxTngFilterParam param, long maximizer);
 /******************************************************************************/
 #ifdef __cplusplus
 }
