@@ -492,11 +492,21 @@ void resurrect_creature(struct Thing *boxtng, PlayerNumber owner, ThingModel crm
 
 void transfer_creature(struct Thing *boxtng, struct Thing *transftng, unsigned char plyr_idx)
 {
-    SYNCDBG(7,"Starting");
+    SYNCDBG(7, "Starting");
+    TbBool from_script = false;
     struct DungeonAdd* dungeonadd;
-    if (!thing_exists(boxtng) || (box_thing_to_special(boxtng) != SpcKind_TrnsfrCrtr) ) {
-        ERRORMSG("Invalid transfer box object!");
-        return;
+    struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
+    if (dungeon->dnheart_idx == boxtng->index)
+    {
+        from_script = true;
+    }
+
+    if (!from_script)
+    {
+        if (!thing_exists(boxtng) || (box_thing_to_special(boxtng) != SpcKind_TrnsfrCrtr)) {
+            ERRORMSG("Invalid transfer box object!");
+            return;
+        }
     }
     // Check if 'things' are correct
     if (!thing_exists(transftng) || !thing_is_creature(transftng) || (transftng->owner != plyr_idx)) {
@@ -512,10 +522,13 @@ void transfer_creature(struct Thing *boxtng, struct Thing *transftng, unsigned c
     }
     remove_thing_from_power_hand_list(transftng, plyr_idx);
     kill_creature(transftng, INVALID_THING, -1, CrDed_NoEffects|CrDed_NotReallyDying);
-    create_special_used_effect(&boxtng->mappos, plyr_idx);
-    remove_events_thing_is_attached_to(boxtng);
-    force_any_creature_dragging_owned_thing_to_drop_it(boxtng);
-    delete_thing_structure(boxtng, 0);
+    if (!from_script)
+    {
+        create_special_used_effect(&boxtng->mappos, plyr_idx);
+        remove_events_thing_is_attached_to(boxtng);
+        force_any_creature_dragging_owned_thing_to_drop_it(boxtng);
+        delete_thing_structure(boxtng, 0);
+    }
     if (is_my_player_number(plyr_idx))
       output_message(SMsg_CommonAcknowledge, 0, true);
 }

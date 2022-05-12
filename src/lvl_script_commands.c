@@ -37,6 +37,7 @@
 #include "creature_instances.h"
 #include "lvl_script_value.h"
 #include "power_hand.h"
+#include "power_specials.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -667,13 +668,13 @@ static void display_objective_check(const struct ScriptLine *scline)
 
 static void display_objective_process(struct ScriptContext *context)
 {
-      if ( (my_player_number >= context->plr_start) && (my_player_number < context->plr_end) )
-      {
-          set_general_objective(context->value->arg0,
-              context->value->arg1,
-              stl_num_decode_x(context->value->arg2),
-              stl_num_decode_y(context->value->arg2));
-      }
+    if ( (my_player_number >= context->plr_start) && (my_player_number < context->plr_end) )
+    {
+        set_general_objective(context->value->arg0,
+        context->value->arg1,
+        stl_num_decode_x(context->value->arg2),
+        stl_num_decode_y(context->value->arg2));
+    }
 }
 
 static void conceal_map_rect_check(const struct ScriptLine *scline)
@@ -729,6 +730,21 @@ short script_transfer_creature(long plyr_idx, long crmodel, long criteria, int c
         }
     }
     return transferred;
+}
+
+static void special_transfer_creature_process(struct ScriptContext* context)
+{
+    if ((my_player_number >= context->plr_start) && (my_player_number < context->plr_end))
+    {
+        struct Thing *heartng = get_player_soul_container(context->plr_start);
+        struct PlayerInfo* player = get_my_player();
+        start_transfer_creature(player, heartng);
+    }
+}
+
+static void special_transfer_creature_check(const struct ScriptLine* scline)
+{
+    command_add_value(Cmd_USE_SPECIAL_TRANSFER_CREATURE, scline->np[0],0,0,0);
 }
 
 static void script_transfer_creature_check(const struct ScriptLine* scline)
@@ -2606,7 +2622,7 @@ const struct CommandDesc command_desc[] = {
   {"USE_SPECIAL_MULTIPLY_CREATURES",    "PN      ", Cmd_USE_SPECIAL_MULTIPLY_CREATURES, NULL, NULL},
   {"USE_SPECIAL_MAKE_SAFE",             "P       ", Cmd_USE_SPECIAL_MAKE_SAFE, NULL, NULL},
   {"USE_SPECIAL_LOCATE_HIDDEN_WORLD",   "        ", Cmd_USE_SPECIAL_LOCATE_HIDDEN_WORLD, NULL, NULL},
-  {"USE_SPECIAL_TRANSFER_CREATURE",     "PC!An   ", Cmd_USE_SPECIAL_TRANSFER_CREATURE, &script_transfer_creature_check, &script_transfer_creature_process},
+  {"USE_SPECIAL_TRANSFER_CREATURE",     "P       ", Cmd_USE_SPECIAL_TRANSFER_CREATURE, &special_transfer_creature_check, &special_transfer_creature_process},
   {"TRANSFER_CREATURE",                 "PC!An   ", Cmd_TRANSFER_CREATURE, &script_transfer_creature_check, &script_transfer_creature_process},
   {"CHANGE_CREATURES_ANNOYANCE",        "PC!AN   ", Cmd_CHANGE_CREATURES_ANNOYANCE, &change_creatures_annoyance_check, &change_creatures_annoyance_process},
   {"ADD_TO_FLAG",                       "PAN     ", Cmd_ADD_TO_FLAG, NULL, NULL},
