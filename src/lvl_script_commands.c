@@ -699,7 +699,7 @@ static void conceal_map_rect_process(struct ScriptContext *context)
  * @param plyr_idx target player
  * @param todo
  */
-short script_special_transfer_creature(long plyr_idx, long crmodel, long criteria, int count)
+short script_transfer_creature(long plyr_idx, long crmodel, long criteria, int count)
 {
     short transferred = 0;
     struct Thing* thing;
@@ -728,7 +728,7 @@ short script_special_transfer_creature(long plyr_idx, long crmodel, long criteri
     return transferred;
 }
 
-static void special_transfer_creature_check(const struct ScriptLine* scline)  //USE_SPECIAL_TRANSFER_CREATURE(PLAYER0,BILE_DEMON,MOST_EXPERIENCED,3)
+static void script_transfer_creature_check(const struct ScriptLine* scline)  //USE_SPECIAL_TRANSFER_CREATURE(PLAYER0,BILE_DEMON,MOST_EXPERIENCED,3)
 {
     long crtr_id = parse_creature_name(scline->tp[1]);
     long count = scline->np[3];
@@ -753,14 +753,14 @@ static void special_transfer_creature_check(const struct ScriptLine* scline)  //
     {
         count = 255;
     }
-    command_add_value(Cmd_USE_SPECIAL_TRANSFER_CREATURE, scline->np[0], crtr_id, select_id, count);
+    command_add_value(Cmd_TRANSFER_CREATURE, scline->np[0], crtr_id, select_id, count);
 }
 
-static void special_transfer_creature_process(struct ScriptContext* context)
+static void script_transfer_creature_process(struct ScriptContext* context)
 {
     for (int i = context->plr_start; i < context->plr_end; i++)
     {
-        script_special_transfer_creature(i, context->value->arg0, context->value->arg1, context->value->arg2);
+        script_transfer_creature(i, context->value->arg0, context->value->arg1, context->value->arg2);
     }
 }
 
@@ -2601,7 +2601,8 @@ const struct CommandDesc command_desc[] = {
   {"USE_SPECIAL_MULTIPLY_CREATURES",    "PN      ", Cmd_USE_SPECIAL_MULTIPLY_CREATURES, NULL, NULL},
   {"USE_SPECIAL_MAKE_SAFE",             "P       ", Cmd_USE_SPECIAL_MAKE_SAFE, NULL, NULL},
   {"USE_SPECIAL_LOCATE_HIDDEN_WORLD",   "        ", Cmd_USE_SPECIAL_LOCATE_HIDDEN_WORLD, NULL, NULL},
-  {"USE_SPECIAL_TRANSFER_CREATURE",     "PC!An   ", Cmd_USE_SPECIAL_TRANSFER_CREATURE, &special_transfer_creature_check, &special_transfer_creature_process},
+  {"USE_SPECIAL_TRANSFER_CREATURE",     "PC!An   ", Cmd_USE_SPECIAL_TRANSFER_CREATURE, &script_transfer_creature_check, &script_transfer_creature_process},
+  {"TRANSFER_CREATURE",                 "PC!An   ", Cmd_TRANSFER_CREATURE, &script_transfer_creature_check, &script_transfer_creature_process},
   {"CHANGE_CREATURES_ANNOYANCE",        "PC!AN   ", Cmd_CHANGE_CREATURES_ANNOYANCE, &change_creatures_annoyance_check, &change_creatures_annoyance_process},
   {"ADD_TO_FLAG",                       "PAN     ", Cmd_ADD_TO_FLAG, NULL, NULL},
   {"SET_CAMPAIGN_FLAG",                 "PAN     ", Cmd_SET_CAMPAIGN_FLAG, NULL, NULL},
