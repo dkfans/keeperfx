@@ -36,6 +36,7 @@
 #include "room_util.h"
 #include "creature_instances.h"
 #include "lvl_script_value.h"
+#include "power_hand.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -697,7 +698,9 @@ static void conceal_map_rect_process(struct ScriptContext *context)
 /**
  * Transfers creatures for a player
  * @param plyr_idx target player
- * @param todo
+ * @param crmodel the creature model to transfer
+ * @param criteria the creature selection criterion
+ * @param count the amount of units to transfer
  */
 short script_transfer_creature(long plyr_idx, long crmodel, long criteria, int count)
 {
@@ -709,9 +712,9 @@ short script_transfer_creature(long plyr_idx, long crmodel, long criteria, int c
     {
         thing = script_get_creature_by_criteria(plyr_idx, crmodel, criteria);
         cctrl = creature_control_get_from_thing(thing);
-        if (thing_is_invalid(thing))
+        if ((thing_is_invalid(thing)) && (i == 0))
         {
-            //SYNCDBG(5, "No matching player %d creature of model %d found to use power on.", (int)plyr_idx, (int)crmodel);
+            SYNCDBG(5, "No matching player %d creature of model %d found to transfer.", (int)plyr_idx, (int)crmodel);
             break;
         }
         
@@ -720,15 +723,15 @@ short script_transfer_creature(long plyr_idx, long crmodel, long criteria, int c
             transferred++;
             dungeonadd = get_dungeonadd(plyr_idx);
             dungeonadd->creatures_transferred++;
-            //remove_thing_from_power_hand_list(thing, plyr_idx);
-            kill_creature(thing, INVALID_THING, -1, CrDed_NoEffects | CrDed_NotReallyDying);
+            remove_thing_from_power_hand_list(thing, plyr_idx);
             create_special_used_effect(&thing->mappos, plyr_idx);
+            kill_creature(thing, INVALID_THING, -1, CrDed_NoEffects | CrDed_NotReallyDying);
         }
     }
     return transferred;
 }
 
-static void script_transfer_creature_check(const struct ScriptLine* scline)  //USE_SPECIAL_TRANSFER_CREATURE(PLAYER0,BILE_DEMON,MOST_EXPERIENCED,3)
+static void script_transfer_creature_check(const struct ScriptLine* scline)
 {
     long crtr_id = parse_creature_name(scline->tp[1]);
     long count = scline->np[3];
@@ -742,15 +745,17 @@ static void script_transfer_creature_check(const struct ScriptLine* scline)  //U
         SCRPTERRLOG("Unknown select criteria, '%s'", scline->tp[2]);
         return;
     }
-    if (count < 1)
+    if (scline->np[3] == '/0')
     {
         count = 1;
-        //todo handle optional param
-        //SCRPTERRLOG("Parameter has no positive value; discarding command");
-        return;
     }
-    if (count > 255) //todo come up with best number here and log
+    if (count == 0)
     {
+        SCRPTERRLOG("Transferring 0 creatures of type '%s'", scline->tp[1]);
+    }
+    if (count > 255)
+    {
+        SCRPTWRNLOG("Trying to transfer %d creatures out of a possible 255",count);
         count = 255;
     }
     command_add_value(Cmd_TRANSFER_CREATURE, scline->np[0], crtr_id, select_id, count);
