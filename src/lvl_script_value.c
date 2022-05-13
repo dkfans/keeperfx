@@ -499,16 +499,16 @@ static void set_variable(int player_idx, long var_type, long var_idx, long new_v
     switch (var_type)
     {
     case SVar_FLAG:
-        set_script_flag(player_idx, var_idx, saturate_set_unsigned(new_val, 8));
+        set_script_flag(player_idx, var_idx, new_val);
         break;
     case SVar_CAMPAIGN_FLAG:
         intralvl.campaign_flags[player_idx][var_idx] = new_val;
         break;
     case SVar_BOX_ACTIVATED:
-        dungeonadd->box_info.activated[var_idx] = new_val;
+        dungeonadd->box_info.activated[var_idx] = saturate_set_unsigned(new_val, 8);
         break;
     case SVar_SACRIFICED:
-        dungeon->creature_sacrifice[var_idx] = new_val;
+        dungeon->creature_sacrifice[var_idx] = saturate_set_unsigned(new_val, 8);
         if (find_temple_pool(player_idx, &pos))
         {
             process_sacrifice_creature(&pos, var_idx, player_idx, false);
@@ -1170,7 +1170,6 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
             if (operation == SOpr_INCREASE) computed = current_flag_val + sum;
             if (operation == SOpr_DECREASE) computed = current_flag_val - sum;
             if (operation == SOpr_MULTIPLY) computed = current_flag_val * sum;
-            computed = min(255, max(0, computed));
             SCRIPTDBG(7,"Changing player%d's %d flag from %d to %d based on flag of type %d.", i, val3, current_flag_val, computed, src_flag_type);
             set_variable(i, flag_type, val3, computed);
         }

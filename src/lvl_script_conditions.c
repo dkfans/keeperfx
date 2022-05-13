@@ -170,8 +170,8 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned 
         dungeon = get_dungeon(plyr_idx);
         return dungeon->lvstats.gold_mined;
     case SVar_FLAG:
-        dungeon = get_dungeon(plyr_idx);
-        return dungeon->script_flags[validx];
+        dungeonadd = get_dungeonadd(plyr_idx);
+        return dungeonadd->script_flags[validx];
     case SVar_ROOM_SLABS:
         return get_room_slabs_count(plyr_idx, validx);
     case SVar_DOORS_DESTROYED:
