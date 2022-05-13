@@ -1566,7 +1566,6 @@ void reinit_level_after_load(void)
     struct PlayerInfo *player;
     int i;
     SYNCDBG(6,"Starting");
-    init_custom_sprites(SPRITE_LAST_LEVEL);
     // Reinit structures from within the game
     player = get_my_player();
     player->lens_palette = 0;
