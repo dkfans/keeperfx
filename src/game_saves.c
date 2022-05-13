@@ -657,21 +657,36 @@ short load_continue_game(void)
     return true;
 }
 
-TbBool set_transfered_creature(PlayerNumber plyr_idx, ThingModel model, long explevel)
+TbBool add_transfered_creature(PlayerNumber plyr_idx, ThingModel model, long explevel)
 {
     if (is_my_player_number(plyr_idx))
     {
-        intralvl.transferred_creature.model = model;
-        intralvl.transferred_creature.explevel = explevel;
-        return true;
+        for (int i = 0; i < TRANSFER_CREATURE_STORAGE_COUNT; i++)
+        {
+            if(intralvl.transferred_creatures[i].model == 0)
+            {
+                intralvl.transferred_creatures[i].model = model;
+                intralvl.transferred_creatures[i].explevel = explevel;
+                return true;
+            }
+            if(i == TRANSFER_CREATURE_STORAGE_COUNT - 1)
+            {
+                WARNLOG("Exeeding max number of transferable creatures (%d)",TRANSFER_CREATURE_STORAGE_COUNT);
+                return false;
+            }
+
+        }
     }
     return false;
 }
 
-void clear_transfered_creature(void)
+void clear_transfered_creatures(void)
 {
-    intralvl.transferred_creature.model = 0;
-    intralvl.transferred_creature.explevel = 0;
+    for (int i = 0; i < TRANSFER_CREATURE_STORAGE_COUNT; i++)
+    {
+        intralvl.transferred_creatures[i].model = 0;
+        intralvl.transferred_creatures[i].explevel = 0;
+    }
 }
 
 LevelNumber move_campaign_to_next_level(void)

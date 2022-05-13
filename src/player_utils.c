@@ -158,7 +158,7 @@ void set_player_as_lost_level(struct PlayerInfo *player)
     {
         output_message(SMsg_LevelFailed, 0, true);
         turn_off_all_menus();
-        clear_transfered_creature();
+        clear_transfered_creatures();
     }
     if ((gameadd.classic_bugs_flags & ClscBug_NoHandPurgeOnDefeat) == 0) {
         clear_things_in_hand(player);

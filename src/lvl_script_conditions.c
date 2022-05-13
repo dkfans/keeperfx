@@ -279,6 +279,9 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned 
         return dungeon->total_score;
     case SVar_BONUS_TIME:
         return (game.bonus_time - game.play_gameturn);
+    case SVar_CREATURES_TRANSFERRED:
+        dungeonadd = get_dungeonadd(plyr_idx);
+        return dungeonadd->creatures_transferred;
     default:
         break;
     };
@@ -341,8 +344,34 @@ static void process_condition(struct Condition *condt, int idx)
             new_status = false;
             for (i = plr_start; i < plr_end; i++)
             {
-                long k = get_condition_value(i, condt->variabl_type, condt->variabl_idx);
-                new_status = get_condition_status(condt->operation, k, condt->rvalue);
+                long left_value = get_condition_value(i, condt->variabl_type, condt->variabl_idx);
+
+                long right_value;
+                if (condt->use_second_variable)
+                {
+                    int plr_start_right;
+                    int plr_end_right;
+                    if (get_players_range(condt->plyr_range_right, &plr_start_right, &plr_end_right) < 0)
+                    {
+                        WARNLOG("Invalid player range %d in CONDITION command %d.", (int)condt->plyr_range, (int)condt->variabl_type);
+                        return;
+                    }
+                    for (i = plr_start; i < plr_end; i++)
+                    {
+                        right_value = get_condition_value(i, condt->variabl_type_right, condt->variabl_idx_right);
+                        new_status = get_condition_status(condt->operation, left_value, right_value);
+                        if (new_status != false)
+                        {
+                            break;
+                        }
+                    }
+                }
+                else
+                {
+                    right_value = condt->rvalue;
+                    new_status = get_condition_status(condt->operation, left_value, right_value);
+                }
+
                 if (new_status != false)
                 {
                   break;
@@ -350,6 +379,7 @@ static void process_condition(struct Condition *condt, int idx)
             }
         }
     }
+    
     SYNCDBG(19,"Condition type %d status %d",(int)condt->variabl_type,(int)new_status);
     set_flag_byte(&condt->status, 0x01,  new_status);
     if (((condt->status & 0x01) == 0) || ((condt->status & 0x02) != 0))
@@ -411,6 +441,37 @@ void command_add_condition(long plr_range_id, long opertr_id, long varib_type, l
     condt->variabl_idx = varib_id;
     condt->operation = opertr_id;
     condt->rvalue = value;
+    condt->use_second_variable = false;
+
+    if (condition_stack_pos >= CONDITIONS_COUNT)
+    {
+        gameadd.script.conditions_num++;
+        SCRPTWRNLOG("Conditions too deep in script");
+        return;
+    }
+    if (script_current_condition != CONDITION_ALWAYS)
+    {
+        condition_stack[condition_stack_pos] = script_current_condition;
+        condition_stack_pos++;
+    }
+    script_current_condition = gameadd.script.conditions_num;
+    gameadd.script.conditions_num++;
+}
+
+void command_add_condition_2variables(long plr_range_id, long opertr_id, long varib_type, long varib_id,long plr_range_id_right, long varib_type_right, long varib_id_right)
+{
+    // TODO: replace with pointer to functions
+    struct Condition* condt = &gameadd.script.conditions[gameadd.script.conditions_num];
+    condt->condit_idx = script_current_condition;
+    condt->plyr_range = plr_range_id;
+    condt->variabl_type = varib_type;
+    condt->variabl_idx = varib_id;
+    condt->operation = opertr_id;
+    condt->plyr_range_right = plr_range_id_right;
+    condt->variabl_type_right = varib_type_right;
+    condt->variabl_idx_right = varib_id_right;
+    condt->use_second_variable = true;
+
     if (condition_stack_pos >= CONDITIONS_COUNT)
     {
         gameadd.script.conditions_num++;

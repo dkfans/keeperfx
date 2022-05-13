@@ -934,6 +934,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
     }
     case PckA_SetRoomspaceHighlight:
     {
+        playeradd->roomspace_mode = box_placement_mode;
         if ( (pckt->actn_par2 == 1) || (pckt->actn_par1 == 2) )
         {
             // exit out of click and drag mode
@@ -1307,6 +1308,12 @@ void process_players_creature_control_packet_action(long plyr_idx)
     {
         playeradd = get_playeradd(plyr_idx);
         playeradd->selected_fp_thing_pickup = pckt->actn_par1;
+        break;
+    }
+    case PckA_SetNearestTeleport:
+    {
+        playeradd = get_playeradd(plyr_idx);
+        playeradd->nearest_teleport = pckt->actn_par1;
         break;
     }
   }

@@ -209,7 +209,7 @@ static void post_init_level(void)
     init_dungeons_essential_position();
     if (!is_map_pack())
     {
-        create_transferred_creature_on_level();
+        create_transferred_creatures_on_level();
     }
     update_dungeons_scores();
     update_dungeon_generation_speeds();

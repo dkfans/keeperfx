@@ -240,6 +240,7 @@ struct PlayerInfoAdd {
     struct CheatSelection cheatselection;
     TbBool first_person_dig_claim_mode;
     unsigned char teleport_destination;
+    TbBool nearest_teleport;
     BattleIndex battleid;
     unsigned short selected_fp_thing_pickup;
     struct RoomSpace render_roomspace;

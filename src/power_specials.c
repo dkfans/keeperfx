@@ -493,6 +493,7 @@ void resurrect_creature(struct Thing *boxtng, PlayerNumber owner, ThingModel crm
 void transfer_creature(struct Thing *boxtng, struct Thing *transftng, unsigned char plyr_idx)
 {
     SYNCDBG(7,"Starting");
+    struct DungeonAdd* dungeonadd;
     if (!thing_exists(boxtng) || (box_thing_to_special(boxtng) != SpcKind_TrnsfrCrtr) ) {
         ERRORMSG("Invalid transfer box object!");
         return;
@@ -504,7 +505,11 @@ void transfer_creature(struct Thing *boxtng, struct Thing *transftng, unsigned c
     }
 
     struct CreatureControl* cctrl = creature_control_get_from_thing(transftng);
-    set_transfered_creature(plyr_idx, transftng->model, cctrl->explevel);
+    if (add_transfered_creature(plyr_idx, transftng->model, cctrl->explevel))
+    {
+        dungeonadd = get_dungeonadd(plyr_idx);
+        dungeonadd->creatures_transferred++;
+    }
     remove_thing_from_power_hand_list(transftng, plyr_idx);
     kill_creature(transftng, INVALID_THING, -1, CrDed_NoEffects|CrDed_NotReallyDying);
     create_special_used_effect(&boxtng->mappos, plyr_idx);
@@ -547,22 +552,26 @@ void start_resurrect_creature(struct PlayerInfo *player, struct Thing *thing)
     }
 }
 
-TbBool create_transferred_creature_on_level(void)
+TbBool create_transferred_creatures_on_level(void)
 {
-    if (intralvl.transferred_creature.model > 0)
+    TbBool creature_created = false;
+    for (int i = 0; i < TRANSFER_CREATURE_STORAGE_COUNT; i++)
     {
-        struct Thing* thing = get_player_soul_container(my_player_number);
-        struct Coord3d* pos = &(thing->mappos);
-        thing = create_creature(pos, intralvl.transferred_creature.model, 5);
-        if (thing_is_invalid(thing))
+        if (intralvl.transferred_creatures[i].model > 0)
         {
-          return false;
+            struct Thing* thing = get_player_soul_container(my_player_number);
+            struct Coord3d* pos = &(thing->mappos);
+            thing = create_creature(pos, intralvl.transferred_creatures[i].model, 5);
+            if (thing_is_invalid(thing))
+            {
+                continue;
+            }
+            init_creature_level(thing, intralvl.transferred_creatures[i].explevel);
+            creature_created = true;
         }
-        init_creature_level(thing, intralvl.transferred_creature.explevel);
-        clear_transfered_creature();
-        return true;
     }
-    return false;
+    clear_transfered_creatures();
+    return creature_created;
 }
 
 SpecialKind box_thing_to_special(const struct Thing *thing)

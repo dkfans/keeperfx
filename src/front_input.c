@@ -1076,22 +1076,9 @@ long get_dungeon_control_action_inputs(void)
     }
     if (player->work_state == PSt_CtrlDungeon)
     {
-        if (player->primary_cursor_state == CSt_PickAxe)
+        if ( (player->primary_cursor_state == CSt_PickAxe) || (player->primary_cursor_state == CSt_PowerHand) )
         {
             process_highlight_roomspace_inputs(player->id_number);
-        }
-        else if (player->primary_cursor_state == CSt_PowerHand)
-        {
-            long keycode = 0;
-            struct Packet* pckt = get_packet(my_player_number);
-            if (is_game_key_pressed(Gkey_SellTrapOnSubtile, &keycode, true))
-            {
-                set_packet_action(pckt, PckA_SetRoomspaceSubtile, 0, 0, 0, 0);
-            }
-            else
-            {
-                set_packet_action(pckt, PckA_SetRoomspaceDefault, 0, 0, 0, 0);
-            }
         }
     }
     else if (player->work_state == PSt_BuildRoom)
@@ -1468,6 +1455,20 @@ short get_creature_control_action_inputs(void)
             if (playeradd->first_person_dig_claim_mode)
             {
                 set_players_packet_action(player, PckA_SetFirstPersonDigMode, false, 0, 0, 0);
+            }
+        }
+        if (is_key_pressed(KC_LALT,KMod_DONTCARE))
+        {
+            if (!playeradd->nearest_teleport)
+            {
+                set_players_packet_action(player, PckA_SetNearestTeleport, true, 0, 0, 0);
+            }
+        }
+        else
+        {
+            if (playeradd->nearest_teleport)
+            {
+                set_players_packet_action(player, PckA_SetNearestTeleport, false, 0, 0, 0);
             }
         }
         player->thing_under_hand = 0;
