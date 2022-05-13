@@ -62,26 +62,6 @@ static void player_reveal_map_area(PlayerNumber plyr_idx, long x, long y, long w
   reveal_map_area(plyr_idx, x-(w>>1), x+(w>>1)+(w%1), y-(h>>1), y+(h>>1)+(h%1));
 }
 
-struct Thing *get_creature_in_range_around_any_of_enemy_heart(PlayerNumber plyr_idx, ThingModel crmodel, MapSubtlDelta range)
-{
-    int n = GAME_RANDOM(PLAYERS_COUNT);
-    for (int i = 0; i < PLAYERS_COUNT; i++, n = (n + 1) % PLAYERS_COUNT)
-    {
-        if (!players_are_enemies(plyr_idx, n))
-            continue;
-        struct Thing* heartng = get_player_soul_container(n);
-        if (thing_exists(heartng))
-        {
-            struct Thing* creatng = get_creature_in_range_of_model_owned_and_controlled_by(heartng->mappos.x.val, heartng->mappos.y.val, range, crmodel, plyr_idx);
-            if (!thing_is_invalid(creatng)) {
-                return creatng;
-            }
-        }
-    }
-    return INVALID_THING;
-}
-
-
 /**
  * Kills a creature which meets given criteria.
  * @param plyr_idx The player whose creature will be affected.

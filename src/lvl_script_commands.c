@@ -35,7 +35,6 @@
 #include "creature_states_mood.h"
 #include "room_util.h"
 #include "creature_instances.h"
-#include "lvl_script_value.h"
 #include "power_hand.h"
 #include "power_specials.h"
 

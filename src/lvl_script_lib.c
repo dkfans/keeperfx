@@ -15,7 +15,6 @@
 #include "lvl_script_lib.h"
 #include "lvl_script_conditions.h"
 #include "lvl_script_commands.h"
-#include "lvl_script_value.h"
 
 #include "globals.h"
 #include "thing_factory.h"

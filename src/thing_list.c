@@ -3257,6 +3257,25 @@ TbBool gold_pile_with_maximum_at_xy(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
   return false;
 }
 
+struct Thing* get_creature_in_range_around_any_of_enemy_heart(PlayerNumber plyr_idx, ThingModel crmodel, MapSubtlDelta range)
+{
+    int n = GAME_RANDOM(PLAYERS_COUNT);
+    for (int i = 0; i < PLAYERS_COUNT; i++, n = (n + 1) % PLAYERS_COUNT)
+    {
+        if (!players_are_enemies(plyr_idx, n))
+            continue;
+        struct Thing* heartng = get_player_soul_container(n);
+        if (thing_exists(heartng))
+        {
+            struct Thing* creatng = get_creature_in_range_of_model_owned_and_controlled_by(heartng->mappos.x.val, heartng->mappos.y.val, range, crmodel, plyr_idx);
+            if (!thing_is_invalid(creatng)) {
+                return creatng;
+            }
+        }
+    }
+    return INVALID_THING;
+}
+
 /** Finds creature on revealed subtiles around given position, who is not special digger.
  *
  * @param pos_x Position to search around X coord.

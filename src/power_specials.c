@@ -568,30 +568,33 @@ void start_resurrect_creature(struct PlayerInfo *player, struct Thing *thing)
 long create_transferred_creatures_on_level(void)
 {
     struct Thing* creatng;
-    struct Thing* heartng;
+    struct Thing* srcetng;
     long creature_created = 0;
+    PlayerNumber plyr_idx;
     for (int p = 0; p < PLAYERS_COUNT; p++)
     {
+        plyr_idx = game.neutral_player_num;
         for (int i = 0; i < TRANSFER_CREATURE_STORAGE_COUNT; i++)
         {
             if (intralvl.transferred_creatures[p][i].model > 0)
             {
-                heartng = get_player_soul_container(p);
-                if (p == HERO_PLAYER)
+                srcetng = get_player_soul_container(p);
+                if (p == game.hero_player_num)
                 {
-                    if (thing_is_invalid(heartng))
+                    plyr_idx = p;
+                    if (thing_is_invalid(srcetng))
                     {
                         for (long n = 1; n < 16; n++)
                         {
-                            heartng = find_hero_gate_of_number(n);
-                            if (!thing_is_invalid(heartng))
+                            srcetng = find_hero_gate_of_number(n);
+                            if (!thing_is_invalid(srcetng))
                                 break;
                         }
                     }
                 }
 
-                struct Coord3d* pos = &(heartng->mappos);
-                creatng = create_creature(pos, intralvl.transferred_creatures[p][i].model, 5);
+                struct Coord3d* pos = &(srcetng->mappos);
+                creatng = create_creature(pos, intralvl.transferred_creatures[p][i].model, plyr_idx);
                 if (thing_is_invalid(creatng))
                 {
                     continue;
