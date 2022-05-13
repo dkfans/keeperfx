@@ -962,7 +962,7 @@ static void set_door_configuration_check(const struct ScriptLine* scline)
                 return;
             }
         }
-        value->shorts[2] = slab_id + 1;
+        value->shorts[2] = slab_id;
     }
 
     else if (doorvar == 8) // SymbolSprites
