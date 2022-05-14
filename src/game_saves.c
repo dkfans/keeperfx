@@ -29,6 +29,7 @@
 #include "config_campaigns.h"
 #include "config_creature.h"
 #include "config_compp.h"
+#include "custom_sprites.h"
 #include "front_simple.h"
 #include "frontend.h"
 #include "frontmenu_ingame_tabs.h"
@@ -202,6 +203,7 @@ int load_game_chunks(TbFileHandle fhandle,struct CatalogueEntry *centry)
                     return GLoad_Failed;
                 }
                 // Load configs which may have per-campaign part, and even be modified within a level
+                init_custom_sprites(SPRITE_LAST_LEVEL);
                 load_computer_player_config(CnfLd_Standard);
                 load_stats_files();
                 check_and_auto_fix_stats();
