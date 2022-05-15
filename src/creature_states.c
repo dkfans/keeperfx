@@ -1469,7 +1469,7 @@ short creature_being_dropped(struct Thing *creatng)
             {
                 if (check_out_available_spdigger_drop_tasks(creatng))
                 {
-                    SYNCDBG(3,"No digger job for %s index %d owner %d at (%d,%d)",thing_model_name(creatng),(int)creatng->index,(int)creatng->owner,(int)stl_x,(int)stl_y);
+                    SYNCDBG(3, "The %s index %d owner %d found digger job at (%d,%d)",thing_model_name(creatng),(int)creatng->index,(int)creatng->owner,(int)stl_x,(int)stl_y);
                     cctrl->flgfield_1 &= ~CCFlg_NoCompControl;
                     return 2;
                 }
