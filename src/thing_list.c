@@ -2187,6 +2187,41 @@ long count_player_diggers_not_counting_to_total(PlayerNumber plyr_idx)
     return count_player_list_creatures_of_model_matching_bool_filter(plyr_idx, CREATURE_DIGGER, creature_is_kept_in_custody_by_enemy_or_dying);
 }
 
+GoldAmount compute_player_backpay_total(const struct Dungeon* dungeon)
+{
+    SYNCDBG(18, "Starting");
+    GoldAmount backpay = 0;
+    unsigned long k = 0;
+    int i = dungeon->creatr_list_start;
+    while (i != 0)
+    {
+        struct Thing* thing = thing_get(i);
+        TRACE_THING(thing);
+        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+        if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
+        {
+            ERRORLOG("Jump to invalid creature detected");
+            break;
+        }
+        if (cctrl->paydays_advanced >= 0)
+        {
+            break;
+        }
+        i = cctrl->players_next_creature_idx;
+        // Thing list loop body
+        backpay += calculate_correct_creature_pay(thing);
+        // Thing list loop body ends
+        k++;
+        if (k > CREATURES_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping creatures list");
+            break;
+        }
+    }
+    SYNCDBG(19, "Finished");
+    return backpay;
+}
+
 GoldAmount compute_player_payday_total(const struct Dungeon *dungeon)
 {
     SYNCDBG(18,"Starting");

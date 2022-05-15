@@ -974,5 +974,12 @@ void compute_and_update_player_payday_total(PlayerNumber plyr_idx)
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
     dungeon->creatures_total_pay = compute_player_payday_total(dungeon);
 }
+void compute_and_update_player_backpay_total(PlayerNumber plyr_idx)
+{
+    SYNCDBG(15, "Starting for player %d", (int)plyr_idx);
+    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
+    struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
+    dungeonadd->creatures_total_backpay = compute_player_payday_total(dungeon);
+}
 
 /******************************************************************************/

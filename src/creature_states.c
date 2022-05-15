@@ -2838,11 +2838,18 @@ short creature_take_salary(struct Thing *creatng)
     {
         struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
         if (cctrl->paydays_owed > 0)
+        {
             cctrl->paydays_owed--;
+        }
+        if ((dungeon->total_money_owned >= salary) && (cctrl->paydays_advanced < 0)) //If the creature has missed payday, and there is money again, time to pay up.
+        {
+            cctrl->paydays_owed++;
+            cctrl->paydays_advanced++;
+        }
     }
     set_start_state(creatng);
     struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
-    struct Thing* efftng = create_price_effect(&creatng->mappos, creatng->owner, salary);
+    struct Thing* efftng = create_price_effect(&creatng->mappos, creatng->owner, received);
     if (!(gameadd.classic_bugs_flags & ClscBug_FullyHappyWithGold))
     {
         anger_apply_anger_to_creature_all_types(creatng, crstat->annoy_got_wage);
@@ -3111,6 +3118,10 @@ short creature_wants_salary(struct Thing *creatng)
         if (cctrl->paydays_owed > 0)
         {
             cctrl->paydays_owed--;
+            if (cctrl->paydays_advanced > SCHAR_MIN)
+            {
+                cctrl->paydays_advanced--;
+            }
             struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
             anger_apply_anger_to_creature(creatng, crstat->annoy_no_salary, AngR_NotPaid, 1);
         }
@@ -4486,62 +4497,66 @@ long creature_setup_head_for_treasure_room_door(struct Thing *creatng, struct Ro
     return 0;
 }
 
-long process_creature_needs_a_wage(struct Thing *thing, const struct CreatureStats *crstat)
+long process_creature_needs_a_wage(struct Thing *creatng, const struct CreatureStats *crstat)
 {
-    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     if ((crstat->pay == 0) || (cctrl->paydays_owed == 0)) {
       return 0;
     }
-    if (creature_is_taking_salary_activity(thing)) {
+    if (creature_is_taking_salary_activity(creatng)) {
         return 1;
     }
-    if (!can_change_from_state_to(thing, thing->active_state, CrSt_CreatureWantsSalary)) {
+    if (!can_change_from_state_to(creatng, creatng->active_state, CrSt_CreatureWantsSalary)) {
         return 0;
     }
-    struct Room* room = find_nearest_room_for_thing_with_used_capacity(thing, thing->owner, RoK_TREASURE, NavRtF_Default, 1);
+    struct Room* room = find_nearest_room_for_thing_with_used_capacity(creatng, creatng->owner, RoK_TREASURE, NavRtF_Default, 1);
     if (!room_is_invalid(room))
     {
-        if (external_set_thing_state(thing, CrSt_CreatureWantsSalary))
+        if (external_set_thing_state(creatng, CrSt_CreatureWantsSalary))
         {
-            anger_apply_anger_to_creature(thing, crstat->annoy_got_wage, AngR_NotPaid, 1);
+            anger_apply_anger_to_creature(creatng, crstat->annoy_got_wage, AngR_NotPaid, 1);
             return 1;
         }
         return 0;
     }
-    room = find_any_navigable_room_for_thing_closer_than(thing, thing->owner, RoK_TREASURE, NavRtF_Default, map_subtiles_x / 2 + map_subtiles_y / 2);
+    room = find_any_navigable_room_for_thing_closer_than(creatng, creatng->owner, RoK_TREASURE, NavRtF_Default, map_subtiles_x / 2 + map_subtiles_y / 2);
     if (room_is_invalid(room))
     {
         //if we can't find an unlocked room, try a locked room, to wait in front of the door
-        room = find_nearest_room_for_thing_with_used_capacity(thing, thing->owner, RoK_TREASURE, NavRtF_NoOwner, 1);
+        room = find_nearest_room_for_thing_with_used_capacity(creatng, creatng->owner, RoK_TREASURE, NavRtF_NoOwner, 1);
     }
     if (!room_is_invalid(room))
     {
-        cleanup_current_thing_state(thing);
-        if (creature_setup_head_for_treasure_room_door(thing, room))
+        cleanup_current_thing_state(creatng);
+        if (creature_setup_head_for_treasure_room_door(creatng, room))
         {
             return 1;
         }
-        ERRORLOG("Shit, could not get to treasure room door and I've cleaned up my old state");
-        set_start_state(thing);
+        ERRORLOG("State lost, could not get to treasure room door after cleaning up old state");
+        set_start_state(creatng);
         return 0;
     }
-    struct Dungeon* dungeon = get_players_num_dungeon(thing->owner);
-    room = find_nearest_room_for_thing(thing, thing->owner, RoK_TREASURE, NavRtF_Default);
-    if ((dungeon->total_money_owned >= calculate_correct_creature_pay(thing)) && !room_is_invalid(room))
+    struct Dungeon* dungeon = get_players_num_dungeon(creatng->owner);
+    room = find_nearest_room_for_thing(creatng, creatng->owner, RoK_TREASURE, NavRtF_Default);
+    if ((dungeon->total_money_owned >= calculate_correct_creature_pay(creatng)) && !room_is_invalid(room))
     {
-        cleanup_current_thing_state(thing);
-        if (creature_setup_random_move_for_job_in_room(thing, room, Job_TAKE_SALARY, NavRtF_Default))
+        cleanup_current_thing_state(creatng);
+        if (creature_setup_random_move_for_job_in_room(creatng, room, Job_TAKE_SALARY, NavRtF_Default))
         {
-            thing->continue_state = CrSt_CreatureTakeSalary;
+            creatng->continue_state = CrSt_CreatureTakeSalary;
             cctrl->target_room_id = room->index;
             return 1;
         }
-        ERRORLOG("Shit, could not get to treasure room and I've cleaned up my old state");
-        set_start_state(thing);
+        ERRORLOG("State lost, could not get to treasure room door after cleaning up old state");
+        set_start_state(creatng);
         return 0;
     }
     cctrl->paydays_owed--;
-    anger_apply_anger_to_creature(thing, crstat->annoy_no_salary, AngR_NotPaid, 1);
+    if (cctrl->paydays_advanced > SCHAR_MIN)
+    {
+        cctrl->paydays_advanced--;
+    }
+    anger_apply_anger_to_creature(creatng, crstat->annoy_no_salary, AngR_NotPaid, 1);
     return 0;
 }
 
@@ -4648,22 +4663,32 @@ long anger_process_creature_anger(struct Thing *creatng, const struct CreatureSt
     if (is_my_player_number(creatng->owner))
     {
         struct Dungeon* dungeon;
+        struct DungeonAdd* dungeonadd;
         AnnoyMotive anger_motive = anger_get_creature_anger_type(creatng);
         switch (anger_motive)
         {
         case AngR_NotPaid:
             dungeon = get_players_num_dungeon(creatng->owner);
-            struct Room *room = find_nearest_room_for_thing(creatng, creatng->owner, RoK_TREASURE, NavRtF_Default);
-            if ((dungeon->total_money_owned >= calculate_correct_creature_pay(creatng)) && !room_is_invalid(room))
+            dungeonadd = get_dungeonadd(creatng->owner);
+            struct Room* room = find_nearest_room_for_thing(creatng, creatng->owner, RoK_TREASURE, NavRtF_Default);
+            if (cctrl->paydays_advanced < 0)
             {
-                if (cctrl->paydays_owed <= 0)
+                if ((dungeon->total_money_owned >= dungeonadd->creatures_total_backpay) && !room_is_invalid(room))
                 {
-                    cctrl->paydays_owed++;
+                    cctrl->paydays_advanced++;
+                    if (cctrl->paydays_owed < SCHAR_MAX)
+                    {
+                        cctrl->paydays_owed++; // if there's enough money to pay, go to treasure room now, instead of complaining
+                    }
                 }
                 else
                 {
-                    output_message(SMsg_CreatrAngryAnyReason, MESSAGE_DELAY_CRTR_MOOD, 1);
+                    output_message(SMsg_CreatrAngryNotPaid, MESSAGE_DELAY_CRTR_MOOD, 1);
                 }
+            }
+            if (cctrl->paydays_advanced >= 0)
+            {
+                output_message(SMsg_CreatrAngryAnyReason, MESSAGE_DELAY_CRTR_MOOD, 1);
             }
             else
             {

@@ -317,6 +317,7 @@ struct DungeonAdd
     unsigned long         traps_sold;
     unsigned long         doors_sold;
     unsigned long         manufacture_gold;
+    long                  creatures_total_backpay;
     long                  cheaper_diggers;
     struct ComputerInfo   computer_info;
     long event_last_run_turn[EVENT_KIND_COUNT];
