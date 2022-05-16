@@ -64,7 +64,7 @@ extern "C" {
  * @param thing The hero searching for target.
  * @return Player index, or -1 if no dungeon to attack found.
  */
-TbBool has_available_enemy_dungeon(struct Thing *thing, PlayerNumber plyr_idx)
+TbBool has_available_enemy_dungeon_heart(struct Thing *thing, PlayerNumber plyr_idx)
 {
     SYNCDBG(18,"Starting");
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
@@ -78,7 +78,19 @@ TbBool has_available_enemy_dungeon(struct Thing *thing, PlayerNumber plyr_idx)
     {
         return true;
     }
-    if (players_are_enemies(thing->owner, plyr_idx) && creature_can_get_to_any_of_players_rooms(thing, plyr_idx)) 
+    return false;
+}
+
+TbBool has_available_rooms_to_attack(struct Thing* thing, PlayerNumber plyr_idx)
+{
+    SYNCDBG(18, "Starting");
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    if ((cctrl->byte_8C != 0) || (cctrl->byte_8B != 0))
+    {
+        cctrl->byte_8C = 0;
+        cctrl->byte_8B = 0;
+    }
+    if (players_are_enemies(thing->owner, plyr_idx) && creature_can_get_to_any_of_players_rooms(thing, plyr_idx))
     {
         return true;
     }
@@ -89,34 +101,52 @@ long good_find_best_enemy_dungeon(struct Thing* creatng)
 {
     //return _DK_get_best_dungeon_to_tunnel_to(creatng);
     PlayerNumber best_plyr_idx = -1;
+    PlayerNumber backup_plyr_idx = -1;
     struct PlayerInfo* player;
     struct Dungeon* dungeon;
     long best_score = LONG_MIN;
+    long best_backup_score = LONG_MIN;
     for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
         player = get_player(plyr_idx);
         if (gameadd.classic_bugs_flags & ClscBug_AlwaysTunnelToRed)
         {
-            if (has_available_enemy_dungeon(creatng, plyr_idx))
+            if (creature_can_get_to_dungeon(creatng, plyr_idx))
             {
                 return plyr_idx;
             }
         }
  
         dungeon = get_players_dungeon(player);
-        if (player_exists(player) && !dungeon_invalid(dungeon) && (creatng->owner != plyr_idx) && has_available_enemy_dungeon(creatng, plyr_idx))
+        long score;
+        if (player_exists(player) && !dungeon_invalid(dungeon) && (creatng->owner != plyr_idx))
         {
-            long score = dungeon->total_score;
+            score = dungeon->total_score;
             if (score <= 0)
             {
                 score = 0;
             }
-            if (best_score < score)
+            if (has_available_enemy_dungeon_heart(creatng, plyr_idx))
             {
-                best_score = score;
-                best_plyr_idx = plyr_idx;
+                if (best_score < score)
+                {
+                    best_score = score;
+                    best_plyr_idx = plyr_idx;
+                }
+            }
+            else if ((has_available_rooms_to_attack(creatng, plyr_idx)) && best_plyr_idx == -1)
+            {
+                if (best_backup_score < score)
+                {
+                    best_backup_score = score;
+                    backup_plyr_idx = plyr_idx;
+                }
             }
         }
+    }
+    if (best_plyr_idx == -1)
+    {
+        best_plyr_idx = backup_plyr_idx;
     }
     return best_plyr_idx;
 }
