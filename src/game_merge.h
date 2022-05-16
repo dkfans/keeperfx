@@ -44,7 +44,7 @@ extern "C" {
 #define BONUS_LEVEL_STORAGE_COUNT     6
 #define PLAYERS_FOR_CAMPAIGN_FLAGS    5
 #define CAMPAIGN_FLAGS_PER_PLAYER     8
-#define TRANSFER_CREATURE_STORAGE_COUNT     64
+#define TRANSFER_CREATURE_STORAGE_COUNT     255
 
 // UNSYNC_RANDOM is not synced at all. For synced choices the more specific random is better.
 // So priority is  CREATURE_RANDOM >> PLAYER_RANDOM >> GAME_RANDOM
@@ -134,7 +134,7 @@ struct TextScrollWindow {
  */
 struct IntralevelData {
     unsigned char bonuses_found[BONUS_LEVEL_STORAGE_COUNT];
-    struct CreatureStorage transferred_creatures[TRANSFER_CREATURE_STORAGE_COUNT];
+    struct CreatureStorage transferred_creatures[PLAYERS_COUNT][TRANSFER_CREATURE_STORAGE_COUNT];
     long campaign_flags[PLAYERS_FOR_CAMPAIGN_FLAGS][CAMPAIGN_FLAGS_PER_PLAYER];
 };
 
