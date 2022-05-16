@@ -50,6 +50,7 @@ long compute_player_final_score(struct PlayerInfo *player, long gameplay_score);
 long take_money_from_dungeon_f(PlayerNumber plyr_idx, GoldAmount amount_take, TbBool only_whole_sum, const char *func_name);
 long update_dungeon_generation_speeds(void);
 void compute_and_update_player_payday_total(PlayerNumber plyr_idx);
+void compute_and_update_player_backpay_total(PlayerNumber plyr_idx);
 void calculate_dungeon_area_scores(void);
 
 TbBool player_sell_trap_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y);

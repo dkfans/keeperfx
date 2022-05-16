@@ -165,7 +165,7 @@ unsigned char field_37[2];
     long field_43;
     unsigned char field_47;
     unsigned char paydays_owed;
-    unsigned char prepayments_received;
+    char paydays_advanced;
     long annoy_untrained_turn;
     unsigned long last_roar_turn;
    /** The game enumerates the elements of annoyance array periodically and looks for the highest value.
