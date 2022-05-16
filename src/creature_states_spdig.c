@@ -588,7 +588,7 @@ long check_out_unreinforced_drop_place(struct Thing *thing)
 
                     thing->continue_state = CrSt_ImpArrivesAtReinforce;
                     cctrl->digger.working_stl = stl_num;
-                    cctrl->digger.byte_93 = 0;
+                    cctrl->digger.consecutive_reinforcements = 0;
                     SYNCDBG(8,"Assigned reinforce at (%d,%d) to %s index %d",(int)pos_x,(int)pos_y,thing_model_name(thing),(int)thing->index);
                     return 1;
                 }

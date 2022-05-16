@@ -915,9 +915,9 @@ long instf_reinforce(struct Thing *creatng, long *param)
     if (check_place_to_reinforce(creatng, slb_x, slb_y) <= 0) {
         return 0;
     }
-    if (cctrl->digger.byte_93 <= 25)
+    if (cctrl->digger.consecutive_reinforcements <= 25)
     {
-        cctrl->digger.byte_93++;
+        cctrl->digger.consecutive_reinforcements++;
         if (!S3DEmitterIsPlayingSample(creatng->snd_emitter_id, 63, 0))
         {
             struct PlayerInfo* player;
@@ -931,7 +931,7 @@ long instf_reinforce(struct Thing *creatng, long *param)
         }
         return 0;
     }
-    cctrl->digger.byte_93 = 0;
+    cctrl->digger.consecutive_reinforcements = 0;
     place_and_process_pretty_wall_slab(creatng, slb_x, slb_y);
     struct Coord3d pos;
     pos.x.stl.pos = 128;
