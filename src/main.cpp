@@ -3669,7 +3669,7 @@ long ceiling_init(unsigned long a1, unsigned long a2)
 
 void do_creature_swap(long ncrt_id, long crtr_id)
 {
-    reload_creaturemodel_config(crtr_id, 0);
+    swap_creaturemodel_config(crtr_id, 0);
 //TODO SCRIPT rewrite from DD
   WARNMSG("Swapping creatures is only supported in Deeper Dungeons");
 }
