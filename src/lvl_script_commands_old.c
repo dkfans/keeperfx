@@ -41,11 +41,6 @@ extern "C" {
 /******************************************************************************/
 
 
-const struct NamedCommand newcrtr_desc[] = {
-  {"NEW_CREATURE_A",   1},
-  {"NEW_CREATURE_B",   2},
-  {NULL,               0},
-};
 const struct NamedCommand game_rule_desc[] = {
   {"BodiesForVampire",           1},
   {"PrisonSkeletonChance",       2},

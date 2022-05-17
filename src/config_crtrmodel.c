@@ -2461,12 +2461,12 @@ TbBool load_creaturemodel_config_file(long crtr_model,const char *textname,const
     return result;
 }
 
-TbBool swap_creaturemodel_config(long crmodel, unsigned short flags)
+TbBool swap_creaturemodel_config(long nwcrmodel, long crmodel, unsigned short flags)
 {
     static const char config_global_textname[] = "global creature model config";
     static const char config_campgn_textname[] = "campaing creature model config";
     char conf_fnstr[COMMAND_WORD_LEN];
-    LbStringToLowerCopy(conf_fnstr, "test_demon", COMMAND_WORD_LEN);
+    LbStringToLowerCopy(conf_fnstr, get_conf_parameter_text(newcrtr_desc, nwcrmodel), COMMAND_WORD_LEN);
     if (strlen(conf_fnstr) == 0)
     {
         WARNMSG("Cannot get config file name for creature %d.", crmodel);
