@@ -26,7 +26,6 @@ extern "C" {
 extern const struct CommandDesc command_desc[];
 extern const struct CommandDesc dk1_command_desc[];
 extern const struct CommandDesc subfunction_desc[];
-extern const struct NamedCommand newcrtr_desc[];
 extern const struct NamedCommand player_desc[];
 //extern const struct NamedCommand variable_desc[];
 extern const struct NamedCommand controls_variable_desc[];

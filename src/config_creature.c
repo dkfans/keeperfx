@@ -631,19 +631,19 @@ TbBool parse_creaturetypes_common_blocks(char *buf, long len, const char *config
                 newcrtr_desc[n].name = gameadd.crtr_conf.model[n + 1].name;
                 newcrtr_desc[n].num = n + 1;
                 n++;
-                if (n + 1 >= 2*CREATURE_TYPES_MAX) //todo pick a sensible max
+                if (n + 1 >= CREATURE_TYPES_MAX)
                 {
-                    CONFWRNLOG("Too many species defined with \"%s\" in [%s] block of %s file.",
+                    CONFWRNLOG("Too many extra species defined with \"%s\" in [%s] block of %s file.",
                         COMMAND_TEXT(cmd_num), block_buf, config_textname);
                     break;
                 }
             }
-            if (n + 1 > CREATURE_TYPES_COUNT*2) //todo new max
+            if (n + 1 > CREATURE_TYPES_MAX)
             {
                 CONFWRNLOG("Hard-coded limit exceeded by amount of species defined with \"%s\" in [%s] block of %s file.",
                     COMMAND_TEXT(cmd_num), block_buf, config_textname);
             }
-            while (n < CREATURE_TYPES_MAX*2)
+            while (n < CREATURE_TYPES_MAX)
             {
                 newcrtr_desc[n].name = NULL;
                 newcrtr_desc[n].num = 0;
