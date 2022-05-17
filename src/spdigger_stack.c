@@ -794,11 +794,12 @@ long check_out_unreinforced_area(struct Thing *thing)
     long min_distance = 28;
     
     dungeon = get_dungeon(thing->owner);
-    dstack = dungeon->digger_stack;
+    
 
 
     for ( int i = 0; dungeon->digger_stack_length > i; ++i )
     {
+        dstack = &dungeon->digger_stack[i];
         if (dstack->task_type == DigTsk_ReinforceWall )
         {
             stl_num = dstack->stl_num;
@@ -825,7 +826,6 @@ long check_out_unreinforced_area(struct Thing *thing)
                 }
             }
         }
-        ++dstack;
     }
     if ( distance == 28 || !setup_person_move_to_coord(thing, &reinforce_pos, 0) )
         return 0;
