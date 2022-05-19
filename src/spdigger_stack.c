@@ -1534,7 +1534,7 @@ int add_unclaimed_gold_to_imp_stack(struct Dungeon *dungeon, int max_tasks)
 {
     //return _DK_add_unclaimed_gold_to_imp_stack(dungeon);
     struct Room *room;
-    room = find_room_with_spare_capacity(dungeon->owner, RoK_TREASURE, 1);
+    room = find_room_of_role_with_spare_capacity(dungeon->owner, RoRoF_GoldStorage, 1);
     if (room_is_invalid(room)) {
         return 0;
     }
@@ -1580,15 +1580,15 @@ int add_unclaimed_unconscious_bodies_to_imp_stack(struct Dungeon *dungeon, int m
     int remain_num;
     unsigned long k;
     int i;
-    if (!dungeon_has_room(dungeon, RoK_PRISON)) {
-        SYNCDBG(8,"Dungeon %d has no %s",(int)dungeon->owner,room_code_name(RoK_PRISON));
+    if (!dungeon_has_room_of_role(dungeon, RoRoF_Prison)) {
+        SYNCDBG(8,"Dungeon %d has no %s",(int)dungeon->owner,room_role_code_name(RoK_PRISON));
         return 0;
     }
     if (!player_creature_tends_to(dungeon->owner, CrTend_Imprison)) {
         SYNCDBG(8,"Player %d creatures do not tend to imprison",(int)dungeon->owner);
         return 0;
     }
-    room = find_room_with_spare_capacity(dungeon->owner, RoK_PRISON, 1);
+    room = find_room_of_role_with_spare_capacity(dungeon->owner, RoRoF_Prison, 1);
     const struct StructureList *slist;
     slist = get_list_for_thing_class(TCls_Creature);
     k = 0;
@@ -1646,10 +1646,10 @@ int add_unclaimed_dead_bodies_to_imp_stack(struct Dungeon *dungeon, int max_task
     unsigned long k;
     int i;
     if (!dungeon_has_room(dungeon, RoK_GRAVEYARD)) {
-        SYNCDBG(8,"Dungeon %d has no %s",(int)dungeon->owner,room_code_name(RoK_GRAVEYARD));
+        SYNCDBG(8,"Dungeon %d has no %s",(int)dungeon->owner,room_role_code_name(RoRoF_DeadStorage));
         return 0;
     }
-    room = find_room_with_spare_capacity(dungeon->owner, RoK_GRAVEYARD, 1);
+    room = find_room_of_role_with_spare_capacity(dungeon->owner, RoRoF_DeadStorage, 1);
     const struct StructureList *slist;
     slist = get_list_for_thing_class(TCls_DeadCreature);
     k = 0;
@@ -2283,7 +2283,7 @@ long check_out_imp_has_money_for_treasure_room(struct Thing *thing)
         return 0;
     }
     // Find a treasure room to drop the money
-    room = find_nearest_room_for_thing_with_spare_capacity(thing, thing->owner, RoK_TREASURE, NavRtF_Default, 1);
+    room = find_nearest_room_of_role_for_thing_with_spare_capacity(thing, thing->owner, RoRoF_GoldStorage, NavRtF_Default, 1);
     if (room_is_invalid(room))
     {
         // Check why the treasure room search failed and inform the player
@@ -2434,7 +2434,7 @@ long check_out_imp_last_did(struct Thing *creatng)
   case SDLstJob_UseTraining4:
       if (!creature_can_be_trained(creatng) || !player_can_afford_to_train_creature(creatng))
         break;
-      room = find_nearest_room_for_thing_with_spare_capacity(creatng, creatng->owner, RoK_TRAINING, NavRtF_Default, 1);
+      room = find_nearest_room_of_role_for_thing_with_spare_capacity(creatng, creatng->owner, RoRoF_CrTrainExp, NavRtF_Default, 1);
       if (!room_is_invalid(room))
       {
           if (creature_setup_random_move_for_job_in_room(creatng, room, Job_TRAIN, NavRtF_Default))
@@ -2447,7 +2447,7 @@ long check_out_imp_last_did(struct Thing *creatng)
       }
       if (is_my_player_number(creatng->owner))
       {
-          room = find_room_with_spare_capacity(creatng->owner, RoK_TRAINING, 1);
+          room = find_room_of_role_with_spare_capacity(creatng->owner, RoRoF_CrTrainExp, 1);
           if (room_is_invalid(room)) {
               output_message_room_related_from_computer_or_player_action(creatng->owner, RoK_TRAINING, OMsg_RoomTooSmall);
           }
@@ -2625,7 +2625,7 @@ long check_out_worker_pickup_unconscious(struct Thing *thing, struct DiggerStack
         return 0;
     }
     struct Room * room;
-    room = find_nearest_room_for_thing_with_spare_capacity(thing, thing->owner, RoK_PRISON, NavRtF_Default, 1);
+    room = find_nearest_room_of_role_for_thing_with_spare_capacity(thing, thing->owner, RoRoF_Prison, NavRtF_Default, 1);
     if (room_is_invalid(room))
     {
         update_cannot_find_room_wth_spare_capacity_event(thing->owner, thing, RoK_PRISON);
@@ -2665,7 +2665,7 @@ long check_out_worker_pickup_corpse(struct Thing *creatng, struct DiggerStack *d
         return 0;
     }
     struct Room * room;
-    room = find_nearest_room_for_thing_with_spare_capacity(creatng, creatng->owner, RoK_GRAVEYARD, NavRtF_Default, 1);
+    room = find_nearest_room_of_role_for_thing_with_spare_capacity(creatng, creatng->owner, RoRoF_DeadStorage, NavRtF_Default, 1);
     if (room_is_invalid(room))
     {
         update_cannot_find_room_wth_spare_capacity_event(creatng->owner, creatng, RoK_GRAVEYARD);

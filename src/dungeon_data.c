@@ -239,6 +239,23 @@ TbBool dungeon_has_room(const struct Dungeon *dungeon, RoomKind rkind)
     return (dungeon->room_kind[rkind] > 0);
 }
 
+/** Returns if given dungeon contains a room of given kind.
+ *
+ * @param dungeon Target dungeon.
+ * @param rkind Room kind being checked.
+ * @return
+ */
+TbBool dungeon_has_room_of_role(const struct Dungeon *dungeon, RoomRole rrole)
+{
+    if (dungeon_invalid(dungeon)) {
+        return false;
+    }
+    if ((rkind < 1) || (rkind >= ROOM_TYPES_COUNT)) {
+        return false;
+    }
+    return (dungeon->room_kind[rkind] > 0);
+}
+
 TbBool player_creature_tends_to(PlayerNumber plyr_idx, unsigned short tend_type)
 {
     if (plyr_idx == game.neutral_player_num)

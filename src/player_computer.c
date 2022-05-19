@@ -298,7 +298,8 @@ long computer_finds_nearest_room_to_gold_lookup(const struct Dungeon *dungeon, c
             distance -= LbSqrL(gldlook->num_gold_slabs * STL_PER_SLB);
             distance -= LbSqrL(gldlook->num_gem_slabs * STL_PER_SLB * 4);
             // We can accept longer distances if digging directly to treasure room
-            if (room->kind == RoK_TREASURE)
+            
+            if (room_role_matches(room->kind,RoRoF_GoldStorage))
                 distance -= TREASURE_ROOM_PREFERENCE_WHILE_DIGGING_GOLD;
             if (min_distance > distance)
             {

@@ -2762,7 +2762,7 @@ long task_move_gold_to_treasury(struct Computer2 *comp, struct ComputerTask *cta
     if (!thing_is_invalid(thing))
     {
         struct Room *room;
-        room = find_room_with_spare_capacity(comp->dungeon->owner, RoK_TREASURE, 1);
+        room = find_room_of_role_with_spare_capacity(comp->dungeon->owner, RoRoF_GoldStorage, 1);
         if (!room_is_invalid(room))
         {
             ctask->move_gold.room_idx = room->index;

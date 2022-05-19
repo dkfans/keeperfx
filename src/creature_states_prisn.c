@@ -144,7 +144,7 @@ short creature_drop_body_in_prison(struct Thing *thing)
     }
     struct Room* room = get_room_thing_is_on(thing);
     if ((room->owner != thing->owner) || !room_role_matches(room->kind, RoRoF_Prison) || (room->used_capacity >= room->total_capacity)) {
-        if (creature_drop_thing_to_another_room(thing, room, RoK_PRISON)) {
+        if (creature_drop_thing_to_another_room(thing, room, RoRoF_Prison)) {
             thing->continue_state = CrSt_CreatureDropBodyInPrison;
             return 1;
         }
@@ -166,7 +166,7 @@ struct Thing *find_prisoner_for_thing(struct Thing *creatng)
     TRACE_THING(creatng);
     struct Room* room = INVALID_ROOM;
     if (!is_neutral_thing(creatng)) {
-        room = find_nearest_room_for_thing_with_used_capacity(creatng, creatng->owner, RoK_PRISON, NavRtF_Default, 1);
+        room = find_nearest_room_of_role_for_thing_with_used_capacity(creatng, creatng->owner, RoRoF_Prison, NavRtF_Default, 1);
     }
     if (room_exists(room)) {
         i = room->creatures_list;

@@ -167,7 +167,7 @@ long check_out_hero_has_money_for_treasure_room(struct Thing* thing)
         return 0;
     }
     // Find a treasure room to drop the money
-    room = find_nearest_room_for_thing_with_spare_capacity(thing, thing->owner, RoK_TREASURE, NavRtF_Default, 1);
+    room = find_nearest_room_of_role_for_thing_with_spare_capacity(thing, thing->owner, RoRoF_GoldStorage, NavRtF_Default, 1);
     if (room_is_invalid(room))
     {
         return 0;
@@ -186,7 +186,7 @@ TbBool good_setup_wander_to_exit(struct Thing *creatng)
     if (creature_is_dragging_spellbook(creatng))
     {
         struct Coord3d pos;
-        struct Room* dstroom = find_nearest_room_for_thing_with_spare_capacity(creatng, creatng->owner, RoK_LIBRARY, NavRtF_Default, 1);
+        struct Room* dstroom = find_nearest_room_of_role_for_thing_with_spare_capacity(creatng, creatng->owner, RoRoF_PowersStorage, NavRtF_Default, 1);
         if (!(room_is_invalid(dstroom)) && find_random_valid_position_for_thing_in_room_avoiding_object(creatng, dstroom, &pos))
         {
             SYNCLOG("Can't find a library for hero %s index %d to place stolen spellbook", thing_model_name(creatng), (int)creatng->index);
@@ -199,7 +199,7 @@ TbBool good_setup_wander_to_exit(struct Thing *creatng)
                 }
                 else 
                 {
-                    if (creature_drop_thing_to_another_room(creatng, dstroom, RoK_LIBRARY))
+                    if (creature_drop_thing_to_another_room(creatng, dstroom, RoRoF_PowersStorage))
                     {
                         return true;
                     }
@@ -215,7 +215,7 @@ TbBool good_setup_wander_to_exit(struct Thing *creatng)
         }
         else
         {
-            if (creature_drop_thing_to_another_room(creatng, dstroom, RoK_LIBRARY))
+            if (creature_drop_thing_to_another_room(creatng, dstroom, RoRoF_PowersStorage))
             {
                 return true;
             }
@@ -297,7 +297,7 @@ TbBool good_setup_defend_rooms(struct Thing* creatng)
 
 TbBool good_setup_loot_treasure_room(struct Thing *thing, long dngn_id)
 {
-    struct Room* room = find_random_room_with_used_capacity_creature_can_navigate_to(thing, dngn_id, RoK_TREASURE, NavRtF_Default);
+    struct Room* room = find_random_room_of_role_with_used_capacity_creature_can_navigate_to(thing, dngn_id, RoRoF_GoldStorage, NavRtF_Default);
     if (room_is_invalid(room))
     {
         SYNCDBG(6,"No accessible player %d treasure room found",(int)dngn_id);
@@ -323,7 +323,7 @@ TbBool good_setup_loot_treasure_room(struct Thing *thing, long dngn_id)
 
 TbBool good_setup_loot_research_room(struct Thing *thing, long dngn_id)
 {
-    struct Room* room = find_random_room_with_used_capacity_creature_can_navigate_to(thing, dngn_id, RoK_LIBRARY, NavRtF_Default);
+    struct Room* room = find_random_room_of_role_with_used_capacity_creature_can_navigate_to(thing, dngn_id, RoRoF_PowersStorage, NavRtF_Default);
     if (room_is_invalid(room))
     {
         SYNCDBG(6,"No accessible player %d library found",(int)dngn_id);

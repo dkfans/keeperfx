@@ -501,10 +501,10 @@ short check_and_asimilate_thing_by_room(struct Thing *thing)
     return true;
 }
 
-EventIndex update_cannot_find_room_wth_spare_capacity_event(PlayerNumber plyr_idx, struct Thing *creatng, RoomKind rkind)
+EventIndex update_cannot_find_room_of_role_wth_spare_capacity_event(PlayerNumber plyr_idx, struct Thing *creatng, RoomRole rrole)
 {
     EventIndex evidx = 0;
-    if (player_has_room(plyr_idx, rkind))
+    if (player_has_room_of_role(plyr_idx, rrole))
     {
         // Could not find room to send thing - either no capacity or not navigable
         struct Room *room;
@@ -514,18 +514,18 @@ EventIndex update_cannot_find_room_wth_spare_capacity_event(PlayerNumber plyr_id
             // Find room with lair capacity
             {
                 struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
-                room = find_room_with_spare_capacity(plyr_idx, rkind, crstat->lair_size);
+                room = find_room_of_role_with_spare_capacity(plyr_idx, rrole, crstat->lair_size);
                 break;
             }
         case RoK_TREASURE:
         case RoK_WORKSHOP:
         case RoK_LIBRARY:
             // Find room with item capacity
-            room = find_room_with_spare_room_item_capacity(plyr_idx, rkind);
+            room = find_room_of_role_with_spare_room_item_capacity(plyr_idx, rrole);
             break;
         default:
             // Find room with worker capacity
-            room = find_room_with_spare_capacity(plyr_idx, rkind, 1);
+            room = find_room_of_role_with_spare_capacity(plyr_idx, rrole, 1);
             break;
         }
         if (room_is_invalid(room))
@@ -552,15 +552,15 @@ EventIndex update_cannot_find_room_wth_spare_capacity_event(PlayerNumber plyr_id
         {
             SYNCDBG(5,"Player %d has %s which cannot reach %s",(int)plyr_idx,thing_model_name(creatng),room_code_name(rkind));
             evidx = event_create_event_or_update_nearby_existing_event(
-                creatng->mappos.x.val, creatng->mappos.y.val, EvKind_WorkRoomUnreachable, plyr_idx, rkind);
+                creatng->mappos.x.val, creatng->mappos.y.val, EvKind_WorkRoomUnreachable, plyr_idx, rrole);
             if (evidx > 0) {
-                output_message_room_related_from_computer_or_player_action(plyr_idx, rkind, OMsg_RoomNoRoute);
+                output_message_room_related_from_computer_or_player_action(plyr_idx, find_first_roomkind_with_role(rrole), OMsg_RoomNoRoute);
             }
         }
     } else
     {
         // We simply don't have the room of that kind
-        if ((rkind == RoK_LAIR) || (rkind == RoK_TREASURE) || is_room_available(plyr_idx, rkind))
+        if ((room_role_matches(room->kind,RoRoF_GoldStorage)) || (room_role_matches(room->kind,RoRoF_GoldStorage)) || is_room_available(plyr_idx, rkind))
         {
             switch (rkind)
             {
@@ -577,7 +577,7 @@ EventIndex update_cannot_find_room_wth_spare_capacity_event(PlayerNumber plyr_id
                 break;
             }
             if (evidx > 0) {
-                output_message_room_related_from_computer_or_player_action(plyr_idx, rkind, OMsg_RoomNeeded);
+                output_message_room_related_from_computer_or_player_action(plyr_idx, find_first_roomkind_with_role(rrole), OMsg_RoomNeeded);
             }
         }
     }

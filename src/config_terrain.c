@@ -1513,4 +1513,21 @@ RoomKind slab_corresponding_room(SlabKind slbkind)
     }
     return 0;
 }
+
+/**
+ * Returns room kind which corresponds to given slab kind.
+ * @param slbkind The slab kind to be checked.
+ * @return The corresponding room kind index.
+ */
+RoomKind find_first_roomkind_with_role(RoomRole rrole)
+{
+    for (RoomKind rkind = 0; rkind < slab_conf.room_types_count; rkind++)
+    {
+        if(room_role_matches(rkind,rrole))
+        {
+            return rkind;
+        }
+    }
+    return 0;
+}
 /******************************************************************************/
