@@ -220,7 +220,7 @@ struct CreatureData creature_data[] = {
   };
 /******************************************************************************/
 struct NamedCommand creature_desc[CREATURE_TYPES_MAX];
-struct NamedCommand newcrtr_desc[128];
+struct NamedCommand newcrtr_desc[SWAP_CREATURE_TYPES_MAX];
 struct NamedCommand instance_desc[INSTANCE_TYPES_MAX];
 struct NamedCommand creaturejob_desc[INSTANCE_TYPES_MAX];
 struct NamedCommand angerjob_desc[INSTANCE_TYPES_MAX];
@@ -631,19 +631,19 @@ TbBool parse_creaturetypes_common_blocks(char *buf, long len, const char *config
                 newcrtr_desc[n].name = gameadd.crtr_conf.model[n + 1].name;
                 newcrtr_desc[n].num = n + 1;
                 n++;
-                if (n + 1 >= CREATURE_TYPES_MAX)
+                if (n + 1 >= SWAP_CREATURE_TYPES_MAX)
                 {
                     CONFWRNLOG("Too many extra species defined with \"%s\" in [%s] block of %s file.",
                         COMMAND_TEXT(cmd_num), block_buf, config_textname);
                     break;
                 }
             }
-            if (n + 1 > CREATURE_TYPES_MAX)
+            if (n + 1 > SWAP_CREATURE_TYPES_MAX)
             {
                 CONFWRNLOG("Hard-coded limit exceeded by amount of species defined with \"%s\" in [%s] block of %s file.",
                     COMMAND_TEXT(cmd_num), block_buf, config_textname);
             }
-            while (n < CREATURE_TYPES_MAX)
+            while (n < SWAP_CREATURE_TYPES_MAX)
             {
                 newcrtr_desc[n].name = NULL;
                 newcrtr_desc[n].num = 0;
