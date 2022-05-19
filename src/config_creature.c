@@ -626,10 +626,11 @@ TbBool parse_creaturetypes_common_blocks(char *buf, long len, const char *config
             }
             break;
         case 7: // SWAPCREATURES
-            while (get_conf_parameter_single(buf, &pos, len, gameadd.crtr_conf.model[n + 1].name, COMMAND_WORD_LEN) > 0)
+            while (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {
-                newcrtr_desc[n].name = gameadd.crtr_conf.model[n + 1].name;
+                newcrtr_desc[n].name = word_buf;
                 newcrtr_desc[n].num = n + 1;
+                JUSTMSG("testlog: name is %s", newcrtr_desc[n].name);
                 n++;
                 if (n + 1 >= SWAP_CREATURE_TYPES_MAX)
                 {

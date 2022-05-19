@@ -1177,6 +1177,8 @@ TbBool swap_creature(long ncrt_id, long crtr_id)
 static void command_swap_creature(const char *ncrt_name, const char *crtr_name)
 {
     long ncrt_id = get_rid(newcrtr_desc, ncrt_name);
+    JUSTMSG("testlog swap creature 1 is called %s, or ", newcrtr_desc[1].name);
+    //JUSTMSG("testlog swap creature 1 is called %s, or %s", newcrtr_desc[1].name, new_creature_code_name(ncrt_name));
     if (ncrt_id == -1)
     {
         SCRPTERRLOG("Unknown new creature, '%s'", ncrt_name);
