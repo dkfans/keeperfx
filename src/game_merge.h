@@ -203,6 +203,7 @@ struct GameAdd {
 
     struct Objects thing_objects_data[OBJECT_TYPES_COUNT];
     struct ObjectsConfig object_conf;
+    struct CreatureModelConfig swap_creature_models[CREATURE_TYPES_MAX];
 
     LevelNumber last_level; // Used to restore custom sprites
     struct LevelScript script;
