@@ -310,40 +310,50 @@ long take_money_from_dungeon_f(PlayerNumber plyr_idx, GoldAmount amount_take, Tb
         dungeon->total_money_owned -= offmap_money;
         dungeon->offmap_money_owned = 0;
     }
-    long i = dungeon->room_kind[RoK_TREASURE];
-    unsigned long k = 0;
-    while (i != 0)
+
+    for (RoomKind rkind = 0; rkind < slab_conf.room_types_count; rkind++)
     {
-        struct Room* room = room_get(i);
-        if (room_is_invalid(room))
+        if(room_role_matches(rkind,RoRoF_GoldStorage))
         {
-          ERRORLOG("Jump to invalid room detected");
-          break;
-        }
-        i = room->next_of_owner;
-        // Per-room code
-        if (room->capacity_used_for_storage > 0)
-        {
-            take_remain -= take_money_from_room(room, take_remain);
-            if (take_remain <= 0)
+            long i = dungeon->room_kind[rkind];
+            unsigned long k = 0;
+            while (i != 0)
             {
-                if (is_my_player_number(plyr_idx))
+                struct Room* room = room_get(i);
+                if (room_is_invalid(room))
                 {
-                  if ((total_money >= 1000) && (total_money - amount_take < 1000)) {
-                      output_message(SMsg_GoldLow, MESSAGE_DELAY_TREASURY, true);
-                  }
+                ERRORLOG("Jump to invalid room detected");
+                break;
                 }
-                return amount_take;
+                i = room->next_of_owner;
+                // Per-room code
+                if (room->capacity_used_for_storage > 0)
+                {
+                    take_remain -= take_money_from_room(room, take_remain);
+                    if (take_remain <= 0)
+                    {
+                        if (is_my_player_number(plyr_idx))
+                        {
+                        if ((total_money >= 1000) && (total_money - amount_take < 1000)) {
+                            output_message(SMsg_GoldLow, MESSAGE_DELAY_TREASURY, true);
+                        }
+                        }
+                        return amount_take;
+                    }
+                }
+                // Per-room code ends
+                k++;
+                if (k > ROOMS_COUNT)
+                {
+                ERRORLOG("Infinite loop detected when sweeping rooms list");
+                break;
+                }
             }
         }
-        // Per-room code ends
-        k++;
-        if (k > ROOMS_COUNT)
-        {
-          ERRORLOG("Infinite loop detected when sweeping rooms list");
-          break;
-        }
     }
+
+
+
     WARNLOG("%s: Player %d could not give %d gold, %d was missing; his total gold was %d",func_name,(int)plyr_idx,(int)amount_take,(int)take_remain,(int)total_money);
     return -1;
 }

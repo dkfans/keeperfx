@@ -420,7 +420,7 @@ short check_and_asimilate_thing_by_room(struct Thing *thing)
         if (room_is_invalid(room) || !room_role_matches(room->kind, RoRoF_GoldStorage))
         {
             // No room - delete it, hoard cannot exist outside treasure room
-            ERRORLOG("Found %s outside of %d room; removing",thing_model_name(thing),room_code_name(RoK_TREASURE));
+            ERRORLOG("Found %s outside of %d room; removing",thing_model_name(thing),room_role_code_name(RoRoF_GoldStorage));
             create_gold_pile(&thing->mappos, thing->owner, gold_value);
             delete_thing_structure(thing, 0);
             return false;

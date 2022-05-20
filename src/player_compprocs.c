@@ -1031,7 +1031,7 @@ long computer_setup_dig_to_gold(struct Computer2 *comp, struct ComputerProcess *
 long computer_check_dig_to_gold(struct Computer2 *comp, struct ComputerProcess *cproc)
 {
     // If we have treasure room
-    if (!dungeon_has_room(comp->dungeon, RoK_TREASURE))
+    if (!dungeon_has_room_of_role(comp->dungeon, RoRoF_GoldStorage))
     {
         SYNCDBG(8,"Computer player model %d won't dig for gold - no treasure room.",(int)comp->model);
         return CProcRet_Wait;

@@ -998,7 +998,7 @@ long computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * che
         }
     }
     // Drop imps on gold/gems mining sites
-    if ((money_left < check->param1) && (pwhand_task_choose < 66) && dungeon_has_room(dungeon, RoK_TREASURE))
+    if ((money_left < check->param1) && (pwhand_task_choose < 66) && dungeon_has_room_of_role(dungeon, RoRoF_GoldStorage))
     {
         int num_to_move = 3;
         // If there's already task in progress which uses hand, then don't add more
@@ -1023,7 +1023,7 @@ long computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * che
         }
     }
     // Move any gold laying around to treasure room
-    if ((money_left < check->param1) && dungeon_has_room(dungeon, RoK_TREASURE))
+    if ((money_left < check->param1) && dungeon_has_room_of_role(dungeon, RoRoF_GoldStorage))
     {
         int num_to_move = 10;
         // If there's already task in progress which uses hand, then don't add more
