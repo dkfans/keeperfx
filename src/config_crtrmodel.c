@@ -2461,6 +2461,28 @@ TbBool load_creaturemodel_config_file(long crtr_model,const char *textname,const
     return result;
 }
 
+TbBool load_creaturemodel_config(long crmodel, unsigned short flags)
+{
+    static const char config_global_textname[] = "global creature model config";
+    static const char config_campgn_textname[] = "campaing creature model config";
+    char conf_fnstr[COMMAND_WORD_LEN];
+    LbStringToLowerCopy(conf_fnstr,get_conf_parameter_text(creature_desc,crmodel),COMMAND_WORD_LEN);
+    if (strlen(conf_fnstr) == 0)
+    {
+        WARNMSG("Cannot get config file name for creature %d.",crmodel);
+        return false;
+    }
+    char* fname = prepare_file_fmtpath(FGrp_CrtrData, "%s.cfg", conf_fnstr);
+    TbBool result = load_creaturemodel_config_file(crmodel, config_global_textname, fname, flags);
+    fname = prepare_file_fmtpath(FGrp_CmpgCrtrs,"%s.cfg",conf_fnstr);
+    if (strlen(fname) > 0)
+    {
+        load_creaturemodel_config_file(crmodel,config_campgn_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
+    }
+    //Freeing and exiting
+    return result;
+}
+
 TbBool swap_creaturemodel_config(long nwcrmodel, long crmodel, unsigned short flags)
 {
     static const char config_global_textname[] = "global creature model config";
@@ -2483,26 +2505,27 @@ TbBool swap_creaturemodel_config(long nwcrmodel, long crmodel, unsigned short fl
     return result;
 }
 
-TbBool load_creaturemodel_config(long crmodel, unsigned short flags)
+void do_creature_swap(long ncrt_id, long crtr_id)
 {
-    static const char config_global_textname[] = "global creature model config";
-    static const char config_campgn_textname[] = "campaing creature model config";
-    char conf_fnstr[COMMAND_WORD_LEN];
-    LbStringToLowerCopy(conf_fnstr,get_conf_parameter_text(creature_desc,crmodel),COMMAND_WORD_LEN);
-    if (strlen(conf_fnstr) == 0)
+    swap_creaturemodel_config(ncrt_id, crtr_id, 0);
+    SCRPTLOG("Swapped creature %s out for creature %s", creature_code_name(crtr_id), new_creature_code_name(ncrt_id));
+    creature_stats_updated(crtr_id);
+}
+
+TbBool swap_creature(long ncrt_id, long crtr_id)
+{
+    if ((crtr_id < 0) || (crtr_id >= CREATURE_TYPES_COUNT))
     {
-        WARNMSG("Cannot get config file name for creature %d.",crmodel);
+        ERRORLOG("Creature index %d is invalid", crtr_id);
         return false;
     }
-    char* fname = prepare_file_fmtpath(FGrp_CrtrData, "%s.cfg", conf_fnstr);
-    TbBool result = load_creaturemodel_config_file(crmodel, config_global_textname, fname, flags);
-    fname = prepare_file_fmtpath(FGrp_CmpgCrtrs,"%s.cfg",conf_fnstr);
-    if (strlen(fname) > 0)
+    if (creature_swap_idx[crtr_id] > 0)
     {
-        load_creaturemodel_config_file(crmodel,config_campgn_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
+        ERRORLOG("Creature of index %d already swapped", crtr_id);
+        return false;
     }
-    //Freeing and exiting
-    return result;
+    do_creature_swap(ncrt_id, crtr_id);
+    return true;
 }
 
 /**
