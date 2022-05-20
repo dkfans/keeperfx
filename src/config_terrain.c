@@ -1266,7 +1266,7 @@ TbBool make_all_rooms_researchable(PlayerNumber plyr_idx)
 /**
  * Sets room availability state.
  */
-TbBool set_room_available(PlayerNumber plyr_idx, RoomKind room_idx, long resrch, long avail)
+TbBool set_room_available(PlayerNumber plyr_idx, RoomKind rkind, long resrch, long avail)
 {
     // note that we can't get_players_num_dungeon() because players
     // may be uninitialized yet when this is called.
@@ -1275,17 +1275,17 @@ TbBool set_room_available(PlayerNumber plyr_idx, RoomKind room_idx, long resrch,
         ERRORDBG(11,"Cannot do; player %d has no dungeon",(int)plyr_idx);
         return false;
     }
-    if (room_idx >= ROOM_TYPES_COUNT)
+    if (rkind >= ROOM_TYPES_COUNT)
     {
-        ERRORLOG("Can't add incorrect room %d to player %d",(int)room_idx, (int)plyr_idx);
+        ERRORLOG("Can't add incorrect room %d to player %d",(int)rkind, (int)plyr_idx);
         return false;
     }
-    dungeon->room_resrchable[room_idx] = resrch;
+    dungeon->room_resrchable[rkind] = resrch;
     // This doesnt reset if player has room in the past
     if (resrch != 0)
-        dungeon->room_buildable[room_idx] |= (avail? 1 : 0 );
+        dungeon->room_buildable[rkind] |= (avail? 1 : 0 );
     else
-        dungeon->room_buildable[room_idx] &= ~1;
+        dungeon->room_buildable[rkind] &= ~1;
     return true;
 }
 
@@ -1294,7 +1294,7 @@ TbBool set_room_available(PlayerNumber plyr_idx, RoomKind room_idx, long resrch,
  * Checks only if it's available and if the player is 'alive'.
  * Doesn't check if the player has enough money or map position is on correct spot.
  */
-TbBool is_room_available(PlayerNumber plyr_idx, RoomKind room_idx)
+TbBool is_room_available(PlayerNumber plyr_idx, RoomKind rkind)
 {
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
     // Check if the player even have a dungeon
@@ -1305,13 +1305,48 @@ TbBool is_room_available(PlayerNumber plyr_idx, RoomKind room_idx)
     if (!player_has_heart(plyr_idx)) {
         return false;
     }
-    if (room_idx >= ROOM_TYPES_COUNT)
+    if (rkind >= ROOM_TYPES_COUNT)
     {
-      ERRORLOG("Incorrect room %d (player %d)",(int)room_idx, (int)plyr_idx);
+      ERRORLOG("Incorrect room %d (player %d)",(int)rkind, (int)plyr_idx);
       return false;
     }
-    if (dungeon->room_buildable[room_idx] & 1) {
+    if (dungeon->room_buildable[rkind] & 1) {
         return true;
+    }
+    return false;
+}
+
+/**
+ * Returns if a room that has role can be built by a player.
+ * Checks only if it's available and if the player is 'alive'.
+ * Doesn't check if the player has enough money or map position is on correct spot.
+ */
+TbBool is_room_of_role_available(PlayerNumber plyr_idx, RoomRole rrole)
+{
+    struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
+    // Check if the player even have a dungeon
+    if (dungeon_invalid(dungeon)) {
+        return false;
+    }
+    // Player must have dungeon heart to build rooms
+    if (!player_has_heart(plyr_idx)) {
+        return false;
+    }
+
+    for (RoomKind rkind = 0; rkind < slab_conf.room_types_count; rkind++)
+    {
+        if(room_role_matches(rkind,rrole))
+        {
+            if (rkind >= ROOM_TYPES_COUNT)
+            {
+                //TODO move room_buildable to dungeonadd and make bigger
+                return false;
+            }
+            if (dungeon->room_buildable[rkind] & 1)
+            {
+                return true;
+            }
+        }
     }
     return false;
 }
@@ -1516,7 +1551,7 @@ RoomKind slab_corresponding_room(SlabKind slbkind)
 
 /**
  * Returns room kind which corresponds to given slab kind.
- * @param slbkind The slab kind to be checked.
+ * @param rrole The slab kind to be checked.
  * @return The corresponding room kind index.
  */
 RoomKind find_first_roomkind_with_role(RoomRole rrole)

@@ -316,7 +316,7 @@ void process_player_research(PlayerNumber plyr_idx)
         if (dungeon->magic_resrchable[rsrchval->rkind])
         {
             PowerKind pwkind = rsrchval->rkind;
-            room = find_room_with_spare_room_item_capacity(plyr_idx, RoK_LIBRARY);
+            room = find_room_of_role_with_spare_room_item_capacity(plyr_idx, RoRoF_PowersStorage);
             struct PowerConfigStats* powerst = get_power_model_stats(pwkind);
             if (powerst->artifact_model < 1) {
                 ERRORLOG("Tried to research power with no associated artifact");
@@ -376,7 +376,7 @@ void process_player_research(PlayerNumber plyr_idx)
             dungeon->room_buildable[rkind] |= 3; // Player may build room and may research it again
             if (is_my_player_number(plyr_idx))
                 output_message(SMsg_ResearchedRoom, 0, true);
-            room = find_room_with_spare_room_item_capacity(plyr_idx, RoK_LIBRARY);
+            room = find_room_of_role_with_spare_room_item_capacity(plyr_idx, RoRoF_PowersStorage);
             if (!room_is_invalid(room))
             {
                 pos.x.val = subtile_coord_center(room->central_stl_x);

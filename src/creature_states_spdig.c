@@ -123,7 +123,7 @@ long check_out_unclaimed_unconscious_bodies(struct Thing *spdigtng, long range)
                 {
                     // We have a thing which we should pick - now check if the room we found is correct
                     if (room_is_invalid(room)) {
-                        update_cannot_find_room_wth_spare_capacity_event(spdigtng->owner, spdigtng, RoK_PRISON);
+                        update_cannot_find_room_of_role_wth_spare_capacity_event(spdigtng->owner, spdigtng, RoRoF_Prison);
                         return 0;
                     }
                     if (setup_person_move_to_coord(spdigtng, &thing->mappos, NavRtF_Default)) {
@@ -172,7 +172,7 @@ long check_out_unclaimed_dead_bodies(struct Thing *spdigtng, long range)
                 {
                     // We have a thing which we should pick - now check if the room we found is correct
                     if (room_is_invalid(room)) {
-                        update_cannot_find_room_wth_spare_capacity_event(spdigtng->owner, spdigtng, RoK_GRAVEYARD);
+                        update_cannot_find_room_of_role_wth_spare_capacity_event(spdigtng->owner, spdigtng, RoRoF_DeadStorage);
                         return 0;
                     }
                     if (setup_person_move_to_coord(spdigtng, &thing->mappos, NavRtF_Default)) {
@@ -225,7 +225,7 @@ long check_out_unclaimed_spells(struct Thing *spdigtng, long range)
                     {
                         // We have a thing which we should pick - now check if the room we found is correct
                         if (room_is_invalid(room)) {
-                            update_cannot_find_room_wth_spare_capacity_event(spdigtng->owner, spdigtng, RoK_LIBRARY);
+                            update_cannot_find_room_of_role_wth_spare_capacity_event(spdigtng->owner, spdigtng, RoRoF_PowersStorage);
                             return 0;
                         }
                         if (setup_person_move_to_coord(spdigtng, &thing->mappos, NavRtF_Default)) {
@@ -306,7 +306,7 @@ long check_out_unclaimed_traps(struct Thing *spdigtng, long range)
                     {
                         // We have a thing which we should pick - now check if the room we found is correct
                         if (room_is_invalid(room)) {
-                            update_cannot_find_room_wth_spare_capacity_event(spdigtng->owner, spdigtng, RoK_WORKSHOP);
+                            update_cannot_find_room_of_role_wth_spare_capacity_event(spdigtng->owner, spdigtng, RoRoF_CratesStorage);
                             return 0;
                         }
                         if (setup_person_move_to_coord(spdigtng, &thing->mappos, NavRtF_Default))
@@ -1410,7 +1410,7 @@ short creature_pick_up_unconscious_body(struct Thing *thing)
     if (room_is_invalid(dstroom))
     {
         // Check why the treasure room search failed and inform the player
-        update_cannot_find_room_wth_spare_capacity_event(thing->owner, thing, RoK_PRISON);
+        update_cannot_find_room_of_role_wth_spare_capacity_event(thing->owner, thing, RoRoF_CratesStorage);
         set_start_state(thing);
         return 0;
     }
@@ -1450,7 +1450,7 @@ short creature_picks_up_corpse(struct Thing *creatng)
     if (room_is_invalid(dstroom))
     {
         // Check why the treasure room search failed and inform the player
-        update_cannot_find_room_wth_spare_capacity_event(creatng->owner, creatng, RoK_PRISON);
+        update_cannot_find_room_of_role_wth_spare_capacity_event(creatng->owner, creatng, RoRoF_CratesStorage);
         set_start_state(creatng);
         return 0;
     }

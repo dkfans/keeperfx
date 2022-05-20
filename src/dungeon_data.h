@@ -360,6 +360,7 @@ struct Thing *get_player_soul_container(PlayerNumber plyr_idx);
 TbBool player_has_room(PlayerNumber plyr_idx, RoomKind rkind);
 TbBool player_has_room_of_role(PlayerNumber plyr_idx, RoomRole rrole);
 TbBool dungeon_has_room(const struct Dungeon *dungeon, RoomKind rkind);
+TbBool dungeon_has_room_of_role(const struct Dungeon *dungeon, RoomRole rrole);
 
 TbBool set_creature_tendencies(struct PlayerInfo *player, unsigned short tend_type, TbBool val);
 TbBool toggle_creature_tendencies(struct PlayerInfo *player, unsigned short tend_type);

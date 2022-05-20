@@ -508,18 +508,18 @@ EventIndex update_cannot_find_room_of_role_wth_spare_capacity_event(PlayerNumber
     {
         // Could not find room to send thing - either no capacity or not navigable
         struct Room *room;
-        switch (rkind)
+        switch (rrole)
         {
-        case RoK_LAIR:
+        case RoRoF_LairStorage:
             // Find room with lair capacity
             {
                 struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
                 room = find_room_of_role_with_spare_capacity(plyr_idx, rrole, crstat->lair_size);
                 break;
             }
-        case RoK_TREASURE:
-        case RoK_WORKSHOP:
-        case RoK_LIBRARY:
+        case RoRoF_GoldStorage:
+        case RoRoF_CratesStorage:
+        case RoRoF_PowersStorage:
             // Find room with item capacity
             room = find_room_of_role_with_spare_room_item_capacity(plyr_idx, rrole);
             break;
@@ -530,14 +530,14 @@ EventIndex update_cannot_find_room_of_role_wth_spare_capacity_event(PlayerNumber
         }
         if (room_is_invalid(room))
         {
-            SYNCDBG(5,"Player %d has %s which cannot find large enough %s",(int)plyr_idx,thing_model_name(creatng),room_code_name(rkind));
-            switch (rkind)
+            SYNCDBG(5,"Player %d has %s which cannot find large enough %s",(int)plyr_idx,thing_model_name(creatng),room_role_code_name(rrole));
+            switch (rrole)
             {
-            case RoK_LAIR:
+            case RoRoF_LairStorage:
                 evidx = event_create_event_or_update_nearby_existing_event(
                     creatng->mappos.x.val, creatng->mappos.y.val, EvKind_NoMoreLivingSet, plyr_idx, creatng->index);
                 break;
-            case RoK_TREASURE:
+            case RoRoF_GoldStorage:
                 evidx = event_create_event_or_update_nearby_existing_event(
                     0, 0, EvKind_TreasureRoomFull, plyr_idx, 0);
                 break;
@@ -546,11 +546,11 @@ EventIndex update_cannot_find_room_of_role_wth_spare_capacity_event(PlayerNumber
                 break;
             }
             if (evidx > 0) {
-                output_message_room_related_from_computer_or_player_action(plyr_idx, rkind, OMsg_RoomTooSmall);
+                output_message_room_related_from_computer_or_player_action(plyr_idx, find_first_roomkind_with_role(rrole), OMsg_RoomTooSmall);
             }
         } else
         {
-            SYNCDBG(5,"Player %d has %s which cannot reach %s",(int)plyr_idx,thing_model_name(creatng),room_code_name(rkind));
+            SYNCDBG(5,"Player %d has %s which cannot reach %s",(int)plyr_idx,thing_model_name(creatng),room_role_code_name(rrole));
             evidx = event_create_event_or_update_nearby_existing_event(
                 creatng->mappos.x.val, creatng->mappos.y.val, EvKind_WorkRoomUnreachable, plyr_idx, rrole);
             if (evidx > 0) {
@@ -560,15 +560,15 @@ EventIndex update_cannot_find_room_of_role_wth_spare_capacity_event(PlayerNumber
     } else
     {
         // We simply don't have the room of that kind
-        if ((room_role_matches(room->kind,RoRoF_GoldStorage)) || (room_role_matches(room->kind,RoRoF_GoldStorage)) || is_room_available(plyr_idx, rkind))
+        if (rrole == RoRoF_GoldStorage || rrole == RoRoF_GoldStorage || is_room_of_role_available(plyr_idx, rrole))
         {
-            switch (rkind)
+            switch (rrole)
             {
-            case RoK_LAIR:
+            case RoRoF_LairStorage:
                 evidx = event_create_event_or_update_nearby_existing_event(
                     creatng->mappos.x.val, creatng->mappos.y.val, EvKind_NoMoreLivingSet, plyr_idx, creatng->index);
                 break;
-            case RoK_TREASURE:
+            case RoRoF_GoldStorage:
                 evidx = event_create_event_or_update_nearby_existing_event(
                     0, 0, EvKind_NeedTreasureRoom, plyr_idx, 0);
                 break;

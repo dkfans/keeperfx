@@ -1697,7 +1697,7 @@ short creature_doing_nothing(struct Thing *creatng)
                 SYNCDBG(8,"The %s index %d goes make lair",thing_model_name(creatng),creatng->index);
                 return 1;
             }
-            update_cannot_find_room_wth_spare_capacity_event(creatng->owner, creatng, get_room_for_job(Job_TAKE_SLEEP));
+            update_cannot_find_room_of_role_wth_spare_capacity_event(creatng->owner, creatng, get_room_role_for_job(Job_TAKE_SLEEP));
         }
     }
     if (creature_affected_by_call_to_arms(creatng))
@@ -3069,7 +3069,7 @@ short creature_wants_a_home(struct Thing *creatng)
 struct Room* get_room_for_thing_salary(struct Thing* creatng, unsigned char *navtype)
 {
     RoomKind job_rrole = get_room_role_for_job(Job_TAKE_SALARY);
-    if (!player_has_room(creatng->owner, job_rkind))
+    if (!player_has_room_of_role(creatng->owner, job_rrole))
     {
         return INVALID_ROOM;
     }

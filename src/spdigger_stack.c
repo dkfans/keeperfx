@@ -1511,7 +1511,7 @@ struct Thing *get_next_unclaimed_gold_thing_pickable_by_digger(PlayerNumber owne
                       slb_owner = get_slab_owner_thing_is_on(thing);
                       if ((slb_owner == owner) || (slb_owner == game.neutral_player_num)) {
                           struct Room *room;
-                          room = find_any_navigable_room_for_thing_closer_than(thing, owner, RoK_TREASURE, NavRtF_Default, map_subtiles_x/2 + map_subtiles_y/2);
+                          room = find_any_navigable_room_for_thing_closer_than(thing, owner, RoRoF_GoldStorage, NavRtF_Default, map_subtiles_x/2 + map_subtiles_y/2);
                           if (!room_is_invalid(room)) {
                               return thing;
                           }
@@ -1614,7 +1614,7 @@ int add_unclaimed_unconscious_bodies_to_imp_stack(struct Dungeon *dungeon, int m
                 if (room_is_invalid(room))
                 {
                     // Check why the room search failed and inform the player
-                    update_cannot_find_room_wth_spare_capacity_event(dungeon->owner, thing, RoK_PRISON);
+                    update_cannot_find_room_of_role_wth_spare_capacity_event(dungeon->owner, thing, RoRoF_Prison);
                     break;
                 }
                 SubtlCodedCoords stl_num;
@@ -1676,7 +1676,7 @@ int add_unclaimed_dead_bodies_to_imp_stack(struct Dungeon *dungeon, int max_task
                 if (room_is_invalid(room))
                 {
                     // Check why the room search failed and inform the player
-                    update_cannot_find_room_wth_spare_capacity_event(dungeon->owner, thing, RoK_GRAVEYARD);
+                    update_cannot_find_room_of_role_wth_spare_capacity_event(dungeon->owner, thing, RoRoF_DeadStorage);
                     return 0;
                 }
                 stl_num = get_subtile_number(thing->mappos.x.stl.num,thing->mappos.y.stl.num);
@@ -1700,12 +1700,12 @@ int add_unclaimed_dead_bodies_to_imp_stack(struct Dungeon *dungeon, int max_task
 
 int add_unclaimed_spells_to_imp_stack(struct Dungeon *dungeon, int max_tasks)
 {
-    if (!dungeon_has_room(dungeon, RoK_LIBRARY)) {
-        SYNCDBG(8,"Dungeon %d has no %s",(int)dungeon->owner,room_code_name(RoK_LIBRARY));
+    if (!dungeon_has_room_of_role(dungeon, RoRoF_PowersStorage)) {
+        SYNCDBG(8,"Dungeon %d has no %s",(int)dungeon->owner,room_role_code_name(RoRoF_PowersStorage));
         return 0;
     }
     struct Room *room;
-    room = find_room_with_spare_room_item_capacity(dungeon->owner, RoK_LIBRARY);
+    room = find_room_of_role_with_spare_room_item_capacity(dungeon->owner, RoRoF_PowersStorage);
     int remain_num;
     remain_num = max_tasks;
     long i;
@@ -1733,7 +1733,7 @@ int add_unclaimed_spells_to_imp_stack(struct Dungeon *dungeon, int max_tasks)
             if (room_is_invalid(room))
             {
                 // Check why the room search failed and inform the player
-                update_cannot_find_room_wth_spare_capacity_event(dungeon->owner, thing, RoK_LIBRARY);
+                update_cannot_find_room_of_role_wth_spare_capacity_event(dungeon->owner, thing, RoRoF_PowersStorage);
                 break;
             }
             SubtlCodedCoords stl_num;
@@ -1847,7 +1847,7 @@ int add_unclaimed_traps_to_imp_stack(struct Dungeon *dungeon, int max_tasks)
     SYNCDBG(18,"Starting");
     // Checking if the workshop exists
     struct Room *room;
-    room = find_room_with_spare_room_item_capacity(dungeon->owner, RoK_WORKSHOP);
+    room = find_room_of_role_with_spare_room_item_capacity(dungeon->owner, RoRoF_CratesStorage);
     int remain_num;
     remain_num = max_tasks;
     long i;
@@ -1874,7 +1874,7 @@ int add_unclaimed_traps_to_imp_stack(struct Dungeon *dungeon, int max_tasks)
             if (room_is_invalid(room))
             {
                 // Check why the room search failed and inform the player
-                update_cannot_find_room_wth_spare_capacity_event(dungeon->owner, thing, RoK_WORKSHOP);
+                update_cannot_find_room_of_role_wth_spare_capacity_event(dungeon->owner, thing, RoRoF_CratesStorage);
                 break;
             }
             SubtlCodedCoords stl_num;
@@ -2287,7 +2287,7 @@ long check_out_imp_has_money_for_treasure_room(struct Thing *thing)
     if (room_is_invalid(room))
     {
         // Check why the treasure room search failed and inform the player
-        update_cannot_find_room_wth_spare_capacity_event(thing->owner, thing, RoK_TREASURE);
+        update_cannot_find_room_of_role_wth_spare_capacity_event(thing->owner, thing, RoRoF_GoldStorage);
         return 0;
     }
     if (setup_head_for_empty_treasure_space(thing, room))
@@ -2628,7 +2628,7 @@ long check_out_worker_pickup_unconscious(struct Thing *thing, struct DiggerStack
     room = find_nearest_room_of_role_for_thing_with_spare_capacity(thing, thing->owner, RoRoF_Prison, NavRtF_Default, 1);
     if (room_is_invalid(room))
     {
-        update_cannot_find_room_wth_spare_capacity_event(thing->owner, thing, RoK_PRISON);
+        update_cannot_find_room_of_role_wth_spare_capacity_event(thing->owner, thing, RoRoF_Prison);
         dstack->task_type = DigTsk_None;
         return -1;
     }
@@ -2668,7 +2668,7 @@ long check_out_worker_pickup_corpse(struct Thing *creatng, struct DiggerStack *d
     room = find_nearest_room_of_role_for_thing_with_spare_capacity(creatng, creatng->owner, RoRoF_DeadStorage, NavRtF_Default, 1);
     if (room_is_invalid(room))
     {
-        update_cannot_find_room_wth_spare_capacity_event(creatng->owner, creatng, RoK_GRAVEYARD);
+        update_cannot_find_room_of_role_wth_spare_capacity_event(creatng->owner, creatng, RoRoF_DeadStorage);
         dstack->task_type = DigTsk_None;
         return -1;
     }
@@ -2716,7 +2716,7 @@ long check_out_worker_pickup_spellbook(struct Thing *thing, struct DiggerStack *
     room = find_nearest_room_for_thing_with_spare_item_capacity(thing, thing->owner, RoK_LIBRARY, NavRtF_Default);
     if (room_is_invalid(room))
     {
-        update_cannot_find_room_wth_spare_capacity_event(thing->owner, thing, RoK_LIBRARY);
+        update_cannot_find_room_of_role_wth_spare_capacity_event(thing->owner, thing, RoRoF_PowersStorage);
         dstack->task_type = DigTsk_None;
         return -1;
     }
@@ -2807,7 +2807,7 @@ long check_out_worker_pickup_trap_for_workshop(struct Thing *thing, struct Digge
     room = find_nearest_room_for_thing_with_spare_item_capacity(thing, thing->owner, RoK_WORKSHOP, NavRtF_Default);
     if (room_is_invalid(room))
     {
-        update_cannot_find_room_wth_spare_capacity_event(thing->owner, thing, RoK_WORKSHOP);
+        update_cannot_find_room_of_role_wth_spare_capacity_event(thing->owner, thing, RoRoF_CratesStorage);
         dstack->task_type = DigTsk_None;
         return -1;
     }

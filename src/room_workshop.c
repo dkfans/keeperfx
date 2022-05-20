@@ -630,7 +630,7 @@ short process_player_manufacturing(PlayerNumber plyr_idx)
     if (dungeon->manufacture_progress < (k << 8))
         return true;
     // Try to do the manufacturing
-    struct Room* room = find_room_with_spare_room_item_capacity(plyr_idx, RoK_WORKSHOP);
+    struct Room* room = find_room_of_role_with_spare_room_item_capacity(plyr_idx, RoRoF_CratesStorage);
     if (room_is_invalid(room))
     {
         dungeon->manufacture_class = TCls_Empty;

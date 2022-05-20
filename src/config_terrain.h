@@ -186,6 +186,7 @@ TbBool set_room_available(PlayerNumber plyr_idx, RoomKind room_idx, long resrch,
 TbBool make_available_all_researchable_rooms(PlayerNumber plyr_idx);
 TbBool make_all_rooms_researchable(PlayerNumber plyr_idx);
 TbBool is_room_available(PlayerNumber plyr_idx, RoomKind room_idx);
+TbBool is_room_of_role_available(PlayerNumber plyr_idx, RoomRole rrole);
 ThingModel get_room_create_creature_model(RoomKind room_kind);
 TbBool enemies_may_work_in_room(RoomKind rkind);
 RoomRole get_room_roles(RoomKind rkind);
@@ -196,6 +197,7 @@ TbBool room_never_buildable(RoomKind rkind);
 TbBool room_can_have_ensign(RoomKind rkind);
 SlabKind room_corresponding_slab(RoomKind rkind);
 RoomKind slab_corresponding_room(SlabKind slbkind);
+RoomKind find_first_roomkind_with_role(RoomRole rrole);
 /******************************************************************************/
 #ifdef __cplusplus
 }
