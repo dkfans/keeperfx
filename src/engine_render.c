@@ -3638,12 +3638,21 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing, long
                 {
                     stati = get_creature_state_with_task_completion(thing);
                 }
-                if ((*(short *)&stati->field_26 == 1) || (thing_pointed_at == thing))
-                  state_spridx = stati->sprite_idx;
+                if ((*(short*)&stati->field_26 == 1) || (thing_pointed_at == thing))
+                {
+                    state_spridx = stati->sprite_idx;
+                }
                 switch ( anger_get_creature_anger_type(thing) )
                 {
                 case AngR_NotPaid:
-                    anger_spridx = 52;
+                    if ((cctrl->paydays_owed <= 0) && (cctrl->paydays_advanced >= 0))
+                    {
+                        anger_spridx = 55;
+                    }
+                    else
+                    {
+                        anger_spridx = 52;
+                    }
                     break;
                 case AngR_Hungry:
                     anger_spridx = 59;
