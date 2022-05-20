@@ -52,7 +52,7 @@ struct DoorConfigStats {
     long bigsym_sprite_idx;
     long medsym_sprite_idx;
     long pointer_sprite_idx;
-    unsigned short slbkind;
+    unsigned short slbkind[2];
     long health;
     unsigned short open_speed;
 };

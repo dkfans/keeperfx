@@ -948,7 +948,9 @@ static void set_door_configuration_check(const struct ScriptLine* scline)
     if (doorvar == 4) // SlabKind
     {
         const char* slab_name = scline->tp[2];
+        const char* slab2_name = scline->tp[3];
         long slab_id = get_rid(slab_desc, slab_name);
+        long slab2_id = get_rid(slab_desc, slab2_name);
         if (slab_id == -1)
         {
             if (parameter_is_number(slab_name))
@@ -962,7 +964,21 @@ static void set_door_configuration_check(const struct ScriptLine* scline)
                 return;
             }
         }
+        if (slab2_id == -1)
+        {
+            if (parameter_is_number(slab2_name))
+            {
+                slab_id = atoi(slab2_name);
+            }
+            else
+            {
+                SCRPTERRLOG("Error slab %s not recognized", scline->tp[2]);
+                DEALLOCATE_SCRIPT_VALUE
+                    return;
+            }
+        }
         value->shorts[2] = slab_id;
+        value->shorts[3] = slab2_id;
     }
 
     else if (doorvar == 8) // SymbolSprites
@@ -1013,6 +1029,7 @@ static void set_door_configuration_process(struct ScriptContext *context)
     struct ManfctrConfig *mconf = &gameadd.doors_config[door_type];
     struct ManufactureData *manufctr = get_manufacture_data(gameadd.trapdoor_conf.trap_types_count - 1 + door_type);
     short value = context->value->shorts[2];
+    short value2 = context->value->shorts[3];
     switch (context->value->shorts[1])
     {
         case 2: // ManufactureLevel
@@ -1024,7 +1041,8 @@ static void set_door_configuration_process(struct ScriptContext *context)
         case 4: // SlabKind
             if (door_type < DOOR_TYPES_COUNT)
             {
-                doorst->slbkind = value;
+                doorst->slbkind[0] = value2;
+                doorst->slbkind[1] = value;
             }
             update_all_door_stats();
             break;

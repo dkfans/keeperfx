@@ -769,12 +769,30 @@ TbBool parse_trapdoor_door_blocks(char *buf, long len, const char *config_textna
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = get_id(slab_desc, word_buf);
-              doorst->slbkind = k;
+              doorst->slbkind[1] = k;
+              n++;
           }
-          if (n < 0)
+          else
           {
               CONFWRNLOG("Incorrect slab name \"%s\" in [%s] block of %s file.",
                   word_buf, block_buf, config_textname);
+              break;
+          }
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = get_id(slab_desc, word_buf);
+              doorst->slbkind[0] = k;
+              n++;
+          }
+          else
+          {
+              CONFWRNLOG("Incorrect slab name \"%s\" in [%s] block of %s file.",
+                  word_buf, block_buf, config_textname);
+          }
+          if (n < 2)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
               break;
           }
           break;

@@ -158,7 +158,7 @@ struct Thing *create_door(struct Coord3d *pos, ThingModel tngmodel, unsigned cha
 
     add_thing_to_its_class_list(doortng);
     place_thing_in_mapwho(doortng);
-    place_animating_slab_type_on_map(doorst->slbkind - orient, 0,  doortng->mappos.x.stl.num, doortng->mappos.y.stl.num, plyr_idx);
+    place_animating_slab_type_on_map(doorst->slbkind[orient], 0,  doortng->mappos.x.stl.num, doortng->mappos.y.stl.num, plyr_idx);
     //update_navigation_triangulation(stl_x-1,  stl_y-1, stl_x+2,stl_y+2);
     if ( game.neutral_player_num != plyr_idx )
         ++game.dungeon[plyr_idx].total_doors;
@@ -207,7 +207,7 @@ void lock_door(struct Thing *doortng)
     doortng->door.closing_counter = 0;
     doortng->door.is_locked = 1;
     game.field_14EA4B = 1;
-    place_animating_slab_type_on_map(doorst->slbkind - doortng->door.orientation, 0, stl_x, stl_y, doortng->owner);
+    place_animating_slab_type_on_map(doorst->slbkind[doortng->door.orientation], 0, stl_x, stl_y, doortng->owner);
     update_navigation_triangulation(stl_x-1,  stl_y-1, stl_x+1,stl_y+1);
     pannel_map_update(stl_x-1, stl_y-1, STL_PER_SLB, STL_PER_SLB);
     if (!add_key_on_door(doortng)) {
@@ -399,7 +399,7 @@ long process_door_opening(struct Thing *thing)
     struct DoorConfigStats* doorst = get_door_model_stats(thing->model);
     int old_frame = (thing->door.closing_counter / 256);
     short delta_h = doorst->open_speed;
-    int slbparam = doorst->slbkind - thing->door.orientation;
+    int slbparam = doorst->slbkind[thing->door.orientation];
     if (thing->door.closing_counter + delta_h < 768)
     {
         thing->door.closing_counter += delta_h;
@@ -420,7 +420,7 @@ long process_door_closing(struct Thing *thing)
     int old_frame = (thing->door.closing_counter / 256);
     struct DoorConfigStats* doorst = get_door_model_stats(thing->model);
     int delta_h = doorst->open_speed;
-    int slbparam = doorst->slbkind - thing->door.orientation;
+    int slbparam = doorst->slbkind[thing->door.orientation];
     if ( check_door_should_open(thing) )
     {
         thing->active_state = DorSt_Opening;
