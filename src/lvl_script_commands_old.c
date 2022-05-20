@@ -1147,33 +1147,6 @@ static void command_display_message(int msg_num, const char *range_id)
     command_add_value(Cmd_DISPLAY_MESSAGE, 0, id, msg_num, 0);
 }
 
-void do_creature_swap(long ncrt_id, long crtr_id)
-{
-
-    swap_creaturemodel_config(ncrt_id, crtr_id, 0);
-    SCRPTLOG("Swapped creature %s out for creature %s",creature_code_name(crtr_id), new_creature_code_name(ncrt_id));
-    check_and_auto_fix_stats();
-    creature_stats_updated(crtr_id);
-    //TODO SCRIPT rewrite from DD
-    //WARNMSG("Swapping creatures is only supported in Deeper Dungeons");
-}
-
-TbBool swap_creature(long ncrt_id, long crtr_id)
-{
-    if ((crtr_id < 0) || (crtr_id >= CREATURE_TYPES_COUNT))
-    {
-        ERRORLOG("Creature index %d is invalid", crtr_id);
-        return false;
-    }
-    if (creature_swap_idx[crtr_id] > 0)
-    {
-        ERRORLOG("Creature of index %d already swapped", crtr_id);
-        return false;
-    }
-    do_creature_swap(ncrt_id, crtr_id);
-    return true;
-}
-
 static void command_swap_creature(const char *ncrt_name, const char *crtr_name)
 {
     long ncrt_id = get_rid(newcrtr_desc, ncrt_name);

@@ -155,7 +155,7 @@ struct CommandWord {
 };
 
 struct NamedCommand {
-    char *name;
+    const char *name;
     int num;
 };
 

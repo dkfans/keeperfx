@@ -321,6 +321,30 @@ TbBool get_player_id_f(const char *plrname, long *plr_range_id, const char *func
     return true;
 }
 
+
+void do_creature_swap(long ncrt_id, long crtr_id)
+{
+    swap_creaturemodel_config(ncrt_id, crtr_id, 0);
+    SCRPTLOG("Swapped creature %s out for creature %s", creature_code_name(crtr_id), new_creature_code_name(ncrt_id));
+    creature_stats_updated(crtr_id);
+}
+
+TbBool swap_creature(long ncrt_id, long crtr_id)
+{
+    if ((crtr_id < 0) || (crtr_id >= CREATURE_TYPES_COUNT))
+    {
+        ERRORLOG("Creature index %d is invalid", crtr_id);
+        return false;
+    }
+    if (creature_swap_idx[crtr_id] > 0)
+    {
+        ERRORLOG("Creature of index %d already swapped", crtr_id);
+        return false;
+    }
+    do_creature_swap(ncrt_id, crtr_id);
+    return true;
+}
+
 #ifdef __cplusplus
 }
 #endif
