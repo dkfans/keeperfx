@@ -2310,7 +2310,7 @@ short creature_persuade(struct Thing *creatng)
     TRACE_THING(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     struct Dungeon* dungeon = get_players_num_dungeon(creatng->owner);
-    if ((cctrl->byte_9A > 0) && (dungeon->num_active_creatrs > 1))
+    if ((cctrl->job_stage > 0) && (dungeon->num_active_creatrs > 1))
     {
         struct Thing* perstng = find_random_creature_for_persuade(creatng->owner, &creatng->mappos);
         if (setup_person_move_to_coord(creatng, &perstng->mappos, NavRtF_Default)) {

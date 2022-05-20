@@ -2680,7 +2680,7 @@ TbBool kill_creature(struct Thing *creatng, struct Thing *killertng,
         anger_apply_anger_to_creature(killertng, crstat->annoy_win_battle, AngR_Other, 1);
     }
     if (!creature_control_invalid(cctrlgrp) && ((flags & CrDed_DiedInBattle) != 0)) {
-        cctrlgrp->byte_9A++;
+        cctrlgrp->job_stage++;
     }
     if (!dungeon_invalid(dungeon)) {
         dungeon->hates_player[killertng->owner] += game.fight_hate_kill_value;
