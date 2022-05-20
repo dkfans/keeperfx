@@ -3607,6 +3607,10 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing, long
             stati = get_creature_state_with_task_completion(thing);
             if ( !stati->field_23 )
             {
+                if ((cctrl->spell_flags & CSAfF_MadKilling) != 0)
+                {
+                    stati = &states[CrSt_MadKillingPsycho];
+                } else
                 if (anger_is_creature_livid(thing))
                 {
                     stati = &states[CrSt_CreatureLeavingDungeon];
