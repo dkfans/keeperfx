@@ -404,8 +404,7 @@ short manufacturing(struct Thing *creatng)
     } else
     {
         WARNDBG(9,"The %s index %d owner %d is manufacturing nothing",thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
-        // This may be cause by a creature taking up place in workshop where crate should be created; the creature should take a break
-        if (room->used_capacity >= room->total_capacity) {
+        if (room->used_capacity > room->total_capacity) {
             external_set_thing_state(creatng, CrSt_CreatureGoingHomeToSleep);
             return CrStRet_Modified;
         }
