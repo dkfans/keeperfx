@@ -791,7 +791,6 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
 
 TbBool parse_terrain_room_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
-    struct RoomStats *rstat;
     struct RoomConfigStats *roomst;
     int i;
     // Block name and parameter word store variables
@@ -816,6 +815,8 @@ TbBool parse_terrain_room_blocks(char *buf, long len, const char *config_textnam
             roomst->msg_too_small = 0;
             roomst->msg_no_route = 0;
             roomst->roles = RoRoF_None;
+            roomst->cost = 0;
+            roomst->health = 0;
             if (i < slab_conf.room_types_count)
             {
                 room_desc[i].name = roomst->code_name;
@@ -825,13 +826,6 @@ TbBool parse_terrain_room_blocks(char *buf, long len, const char *config_textnam
                 room_desc[i].name = NULL;
                 room_desc[i].num = 0;
             }
-        }
-        arr_size = slab_conf.room_types_count;
-        for (i=0; i < arr_size; i++)
-        {
-          rstat = &game.room_stats[i];
-          rstat->cost = 0;
-          rstat->health = 0;
         }
     }
     // Parse every numbered block within range
@@ -851,7 +845,6 @@ TbBool parse_terrain_room_blocks(char *buf, long len, const char *config_textnam
             }
             continue;
       }
-      rstat = &game.room_stats[i];
       roomst = &slab_conf.room_cfgstats[i];
       struct RoomData* rdata = room_data_get_for_kind(i);
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(terrain_room_commands,cmd_num)
@@ -886,7 +879,7 @@ TbBool parse_terrain_room_blocks(char *buf, long len, const char *config_textnam
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              rstat->cost = k;
+              roomst->cost = k;
               n++;
             }
             if (n < 1)
@@ -899,7 +892,7 @@ TbBool parse_terrain_room_blocks(char *buf, long len, const char *config_textnam
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              rstat->health = k;
+              roomst->health = k;
               n++;
             }
             if (n < 1)
@@ -1240,7 +1233,7 @@ TbBool make_all_rooms_free(void)
 {
     for (long rkind = 0; rkind < slab_conf.room_types_count; rkind++)
     {
-        struct RoomStats* rstat = &game.room_stats[rkind];
+        struct RoomConfigStats* rstat = get_room_kind_stats(rkind);
         rstat->cost = 0;
     }
     return true;

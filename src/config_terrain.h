@@ -146,6 +146,8 @@ struct RoomConfigStats {
     long msg_needed;
     long msg_too_small;
     long msg_no_route;
+    short cost;
+    unsigned short health;
 };
 
 struct SlabsConfig {

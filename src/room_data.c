@@ -196,20 +196,6 @@ struct RoomData *room_data_get_for_room(const struct Room *room)
   return &room_data[room->kind];
 }
 
-struct RoomStats *room_stats_get_for_kind(RoomKind rkind)
-{
-    if ((rkind < 1) || (rkind > ROOM_TYPES_COUNT_OLD))
-        return &game.room_stats[0];
-    return &game.room_stats[rkind];
-}
-
-struct RoomStats *room_stats_get_for_room(const struct Room *room)
-{
-    if ((room->kind < 1) || (room->kind > ROOM_TYPES_COUNT_OLD))
-        return &game.room_stats[0];
-    return &game.room_stats[room->kind];
-}
-
 long get_room_look_through(RoomKind rkind)
 {
   const long arr_length = sizeof(look_through_rooms)/sizeof(look_through_rooms[0]);

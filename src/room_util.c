@@ -176,7 +176,7 @@ void kill_all_room_slabs_and_contents(struct Room *room)
 void sell_room_slab_when_no_free_room_structures(struct Room *room, long slb_x, long slb_y, unsigned char gnd_slab)
 {
     delete_room_slab_when_no_free_room_structures(slb_x, slb_y, gnd_slab);
-    struct RoomStats* rstat = &game.room_stats[room->kind];
+    struct RoomConfigStats* rstat = get_room_kind_stats(room->kind);
     long revenue = compute_value_percentage(rstat->cost, gameadd.room_sale_percent);
     if (revenue != 0)
     {

@@ -131,7 +131,7 @@ struct Room *keeper_build_room(long stl_x,long stl_y,long plyr_idx,long rkind)
 {
     struct PlayerInfo* player = get_player(plyr_idx);
     struct Dungeon* dungeon = get_players_dungeon(player);
-    struct RoomStats* rstat = room_stats_get_for_kind(rkind);
+    struct RoomConfigStats* roomst = get_room_kind_stats(rkind);
     // Take top left subtile on single subtile boundbox, take center subtile on full slab boundbox
     MapCoord x = ((player->full_slab_cursor == 0) ? slab_subtile(subtile_slab_fast(stl_x), 0) : slab_subtile_center(subtile_slab_fast(stl_x)));
     MapCoord y = ((player->full_slab_cursor == 0) ? slab_subtile(subtile_slab_fast(stl_y), 0) : slab_subtile_center(subtile_slab_fast(stl_y)));
@@ -148,7 +148,7 @@ struct Room *keeper_build_room(long stl_x,long stl_y,long plyr_idx,long rkind)
         }
         struct Coord3d pos;
         set_coords_to_slab_center(&pos, subtile_slab_fast(stl_x), subtile_slab_fast(stl_y));
-        create_price_effect(&pos, plyr_idx, rstat->cost);
+        create_price_effect(&pos, plyr_idx, roomst->cost);
     }
     return room;
 }
@@ -212,8 +212,8 @@ TbBool player_sell_room_at_subtile(long plyr_idx, long stl_x, long stl_y)
         ERRORLOG("No room to delete at subtile (%d,%d)",(int)stl_x,(int)stl_y);
         return false;
     }
-    struct RoomStats* rstat = room_stats_get_for_room(room);
-    long revenue = compute_value_percentage(rstat->cost, gameadd.room_sale_percent);
+    struct RoomConfigStats* roomst = get_room_kind_stats(room);
+    long revenue = compute_value_percentage(roomst->cost, gameadd.room_sale_percent);
     if (room->owner != game.neutral_player_num)
     {
         struct Dungeon* dungeon = get_players_num_dungeon(room->owner);

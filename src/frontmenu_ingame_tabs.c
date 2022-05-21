@@ -503,16 +503,16 @@ void gui_area_big_room_button(struct GuiButton *gbtn)
     }
     lbDisplay.DrawFlags &= ~Lb_TEXT_ONE_COLOR;
 
-    struct RoomStats* rstat = room_stats_get_for_kind(rkind);
+    struct RoomConfigStats* roomst = get_room_kind_stats(rkind);
     if ((player->work_state == PSt_BuildRoom) && (player->boxsize > 1))
     {
-        sprintf(gui_textbuf, "%ld", (long)rstat->cost * player->boxsize);
+        sprintf(gui_textbuf, "%ld", (long)roomst->cost * player->boxsize);
     }
     else
     {
-        sprintf(gui_textbuf, "%ld", (long)rstat->cost);
+        sprintf(gui_textbuf, "%ld", (long)roomst->cost);
     }
-    if (rstat->cost * player->boxsize <= dungeon->total_money_owned)
+    if (roomst->cost * player->boxsize <= dungeon->total_money_owned)
     {
         if ((player->work_state == PSt_BuildRoom) && (player->chosen_room_kind == game.chosen_room_kind)
           && ((game.play_gameturn & 1) == 0))

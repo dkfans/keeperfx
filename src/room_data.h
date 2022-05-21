@@ -144,7 +144,7 @@ struct RoomData {
       short tooltip_stridx;
 };
 
-struct RoomStats {
+struct RoomStatsOLD {
   short cost;
   unsigned short health;
 };
@@ -182,8 +182,6 @@ TbBool room_is_invalid(const struct Room *room);
 TbBool room_exists(const struct Room *room);
 struct RoomData *room_data_get_for_kind(RoomKind rkind);
 struct RoomData *room_data_get_for_room(const struct Room *room);
-struct RoomStats *room_stats_get_for_kind(RoomKind rkind);
-struct RoomStats *room_stats_get_for_room(const struct Room *room);
 
 long get_room_look_through(RoomKind rkind);
 unsigned long compute_room_max_health(unsigned short slabs_count,unsigned short efficiency);

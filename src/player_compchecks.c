@@ -1123,10 +1123,10 @@ TbBool computer_check_for_expand_room_kind(struct Computer2 *comp, struct Comput
 {
     struct Dungeon* dungeon = comp->dungeon;
     {
-        struct RoomStats* rstat = room_stats_get_for_kind(rkind);
+        struct RoomConfigStats* roomst = get_room_kind_stats(rkind);
         // If we don't have money for the room - don't even try
         // Check price for two slabs - after all, we don't want to end up having nothing
-        if (2*rstat->cost >= dungeon->total_money_owned) {
+        if (2*roomst->cost >= dungeon->total_money_owned) {
             return false;
         }
     }
