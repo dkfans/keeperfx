@@ -278,6 +278,7 @@ GoldAmount take_money_from_room(struct Room *room, GoldAmount amount_take)
 long take_money_from_dungeon_f(PlayerNumber plyr_idx, GoldAmount amount_take, TbBool only_whole_sum, const char *func_name)
 {
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
+    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
     if (dungeon_invalid(dungeon)) {
         WARNLOG("%s: Cannot take gold from player %d with no dungeon",func_name,(int)plyr_idx);
         return -1;

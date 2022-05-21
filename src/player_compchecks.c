@@ -215,6 +215,7 @@ long computer_check_move_creatures_to_best_room(struct Computer2 *comp, struct C
 long computer_check_move_creatures_to_room(struct Computer2 *comp, struct ComputerCheck * check)
 {
     struct Dungeon* dungeon = comp->dungeon;
+    struct DungeonAdd* dungeonadd = get_dungeonadd_by_dungeon(dungeon);
     SYNCDBG(8,"Checking player %d for move to %s", (int)dungeon->owner, room_code_name(check->param2));
     int num_to_move = check->param1 * dungeon->num_active_creatrs / 100;
     if (num_to_move <= 0) {
@@ -614,6 +615,7 @@ struct Room *get_opponent_room(struct Computer2 *comp, PlayerNumber plyr_idx)
 {
     static const RoomKind opponent_room_kinds[] = {RoK_DUNGHEART, RoK_PRISON, RoK_LIBRARY, RoK_TREASURE};
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
+    struct DungeonAdd* dungeonadd = get_dungeonadd_by_dungeon(dungeon);
     if (dungeon_invalid(dungeon) || (slab_conf.room_types_count < 1)) {
         return INVALID_ROOM;
     }
@@ -739,6 +741,7 @@ struct Thing *computer_check_creatures_in_dungeon_rooms_of_kind_for_accelerate(s
         return INVALID_THING;
     }
     struct Dungeon* dungeon = comp->dungeon;
+    struct DungeonAdd* dungeonadd = get_dungeonadd_by_dungeon(dungeon);
     if (dungeon_invalid(dungeon))
     {
         ERRORLOG("Invalid computer players dungeon");
@@ -826,7 +829,7 @@ long computer_check_enemy_entrances(struct Computer2 *comp, struct ComputerCheck
             continue;
         }
         struct PlayerInfo* player = get_player(plyr_idx);
-        struct Dungeon* dungeon = get_players_dungeon(player);
+        struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
         long i = dungeonadd->room_kind[RoK_ENTRANCE];
         unsigned long k = 0;
         while (i != 0)
@@ -1132,6 +1135,7 @@ TbBool computer_check_for_expand_room_kind(struct Computer2 *comp, struct Comput
     }
     // Don't allow the room to be made into long, narrow shape
     MapSubtlCoord max_radius = 3 * slab_subtile(LbSqrL(max_slabs), 2) / 4;
+    struct DungeonAdd* dungeonadd = get_dungeonadd_by_dungeon(dungeon);    
     long i = dungeonadd->room_kind[rkind];
     unsigned long k = 0;
     while (i != 0)

@@ -188,6 +188,7 @@ struct ComputerTask * able_to_build_room_at_task(struct Computer2 *comp, RoomKin
 struct ComputerTask * able_to_build_room_from_room(struct Computer2 *comp, RoomKind rkind, RoomKind look_kind, long width_slabs, long height_slabs, long area, long require_perfect)
 {
     struct Dungeon* dungeon = comp->dungeon;
+    struct DungeonAdd* dungeonadd = get_dungeonadd_by_dungeon(dungeon);
     long i = dungeonadd->room_kind[look_kind];
     unsigned long k = 0;
     while (i != 0)
@@ -734,6 +735,7 @@ int computer_find_more_trap_place_locations(struct Computer2 *comp)
 {
     SYNCDBG(8,"Starting");
     struct Dungeon* dungeon = comp->dungeon;
+    struct DungeonAdd* dungeonadd = get_dungeonadd_by_dungeon(dungeon);
     int num_added = 0;
     RoomKind rkind = AI_RANDOM(slab_conf.room_types_count);
     for (int m = 0; m < slab_conf.room_types_count; m++, rkind = (rkind + 1) % slab_conf.room_types_count)
@@ -892,6 +894,7 @@ long computer_pick_training_or_scavenging_creatures_and_place_on_room(struct Com
 long computer_pick_expensive_job_creatures_and_place_on_lair(struct Computer2 *comp, long tasks_limit)
 {
     struct Dungeon* dungeon = comp->dungeon;
+    struct DungeonAdd* dungeonadd = get_dungeonadd_by_dungeon(dungeon);
     struct Room* room = room_get(dungeonadd->room_kind[RoK_LAIR]);
     long new_tasks = 0;
     // If we don't have lair, then don't even bother

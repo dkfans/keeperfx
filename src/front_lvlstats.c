@@ -70,7 +70,7 @@ long calculate_efficiency(PlayerNumber plyr_idx)
 {
     long count = 0;
     long efficiency = 0;
-    struct Dungeon* dungeon = get_dungeon(plyr_idx);
+    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
     for (long rkind = 1; rkind < slab_conf.room_types_count; rkind++)
     {
         long i = dungeonadd->room_kind[rkind];
@@ -105,6 +105,7 @@ long calculate_style(long plyr_idx)
 {
     long area = 0;
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
+    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
     for (long rkind = 1; rkind < slab_conf.room_types_count; rkind++)
     {
         long i = dungeonadd->room_kind[rkind];

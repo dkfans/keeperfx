@@ -208,6 +208,7 @@ TbBool update_dungeon_scores_for_player(struct PlayerInfo *player)
     int i;
     int k;
     struct Dungeon* dungeon = get_players_dungeon(player);
+    struct DungeonAdd* dungeonadd = get_dungeonadd(player);
     if (dungeon_invalid(dungeon)) {
         return false;
     }

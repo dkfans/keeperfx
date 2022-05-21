@@ -55,6 +55,17 @@ struct Dungeon *get_players_dungeon_f(const struct PlayerInfo *player,const char
     return &(game.dungeon[(int)plyr_num]);
 }
 
+struct DungeonAdd *get_players_dungeonadd_f(const struct PlayerInfo *player,const char *func_name)
+{
+    PlayerNumber plyr_num = player->id_number;
+    if (player_invalid(player) || (plyr_num < 0) || (plyr_num >= DUNGEONS_COUNT))
+    {
+        ERRORLOG("%s: Tried to get non-existing dungeon %ld!",func_name,(long)plyr_num);
+        return INVALID_DUNGEON_ADD;
+    }
+    return &(gameadd.dungeon[(int)plyr_num]);
+}
+
 struct Dungeon *get_dungeon_f(PlayerNumber plyr_num,const char *func_name)
 {
     if ((plyr_num < 0) || (plyr_num >= DUNGEONS_COUNT))
@@ -73,6 +84,18 @@ struct DungeonAdd *get_dungeonadd_f(PlayerNumber plyr_num,const char *func_name)
         return INVALID_DUNGEON_ADD;
     }
     return &(gameadd.dungeon[(int)plyr_num]);
+}
+
+struct DungeonAdd *get_dungeonadd_by_dungeon(const struct Dungeon *dungeon)
+{
+    for (int i = 0; i < DUNGEONS_COUNT; i++)
+    {
+        if (dungeon == &game.dungeon[i])
+        {
+            return get_dungeonadd(i);
+        }
+    }
+    return INVALID_DUNGEON_ADD;
 }
 
 TbBool dungeon_invalid(const struct Dungeon *dungeon)
@@ -172,20 +195,6 @@ void player_add_offmap_gold(PlayerNumber plyr_idx, GoldAmount value)
     dungeon->total_money_owned += value;
 }
 
-/** Returns if given player owns a room of given kind.
- *
- * @param plyr_idx Player index being checked.
- * @param rkind Room kind being checked.
- * @return
- */
-TbBool player_has_room(PlayerNumber plyr_idx, RoomKind rkind)
-{
-    if (plyr_idx == game.neutral_player_num)
-        return false;
-    struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
-    return (dungeonadd->room_kind[rkind] > 0);
-}
-
 /** Returns if given player owns a room of given role.
  *
  * @param plyr_idx Player index being checked.
@@ -196,7 +205,7 @@ TbBool player_has_room_of_role(PlayerNumber plyr_idx, RoomRole rrole)
 {
     if (plyr_idx == game.neutral_player_num)
         return false;
-    struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
+    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
     for (RoomKind rkind = 0; rkind < slab_conf.room_types_count; rkind++)
     {
         if (room_role_matches(rkind, rrole))
@@ -233,6 +242,7 @@ TbBool dungeon_has_room(const struct Dungeon *dungeon, RoomKind rkind)
     if (dungeon_invalid(dungeon)) {
         return false;
     }
+    struct DungeonAdd* dungeonadd =  get_dungeonadd_by_dungeon(dungeon);
     if ((rkind < 1) || (rkind >= slab_conf.room_types_count)) {
         return false;
     }
@@ -250,6 +260,7 @@ TbBool dungeon_has_room_of_role(const struct Dungeon *dungeon, RoomRole rrole)
     if (dungeon_invalid(dungeon)) {
         return false;
     }
+    struct DungeonAdd* dungeonadd =  get_dungeonadd_by_dungeon(dungeon);
 
     for (RoomKind rkind = 0; rkind < slab_conf.room_types_count; rkind++)
     {
@@ -481,6 +492,8 @@ TbBool mark_creature_joined_dungeon(struct Thing *creatng)
 
 void init_dungeon_essential_position(struct Dungeon *dungeon)
 {
+    
+    struct DungeonAdd* dungeonadd =  get_dungeonadd_by_dungeon(dungeon);
     struct Room* room = room_get(dungeonadd->room_kind[RoK_DUNGHEART]);
     for (RoomKind rkind = 1; rkind < slab_conf.room_types_count; rkind++)
     {

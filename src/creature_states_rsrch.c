@@ -97,6 +97,7 @@ short at_research_room(struct Thing *thing)
  */
 int get_next_research_item(const struct Dungeon *dungeon)
 {
+    struct DungeonAdd* dungeonadd = get_dungeonadd_by_dungeon(dungeon);
     if (dungeon->research_num == 0)
         return -1;
     for (long resnum = 0; resnum < dungeon->research_num; resnum++)
@@ -142,6 +143,8 @@ int get_next_research_item(const struct Dungeon *dungeon)
 
 TbBool has_new_rooms_to_research(const struct Dungeon *dungeon)
 {
+    struct DungeonAdd* dungeonadd = get_dungeonadd_by_dungeon(dungeon);
+    
     for (long resnum = 0; resnum < dungeon->research_num; resnum++)
     {
         const struct ResearchVal* rsrchval = &dungeon->research[resnum];
@@ -173,6 +176,7 @@ struct ResearchVal *get_players_current_research_val(PlayerNumber plyr_idx)
 TbBool force_complete_current_research(PlayerNumber plyr_idx)
 {
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
+    struct Dungeon* dungeonadd = get_dungeonadd(plyr_idx);
     struct ResearchVal* rsrchval = get_players_current_research_val(plyr_idx);
     if (rsrchval != NULL)
     {

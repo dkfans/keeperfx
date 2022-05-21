@@ -59,8 +59,8 @@ long count_player_rooms_of_type(PlayerNumber plyr_idx, RoomKind rkind)
 {
     // note that we can't get_players_num_dungeon() because players
     // may be uninitialized yet when this is called.
-    struct Dungeon* dungeon = get_dungeon(plyr_idx);
-    if (dungeon_invalid(dungeon))
+    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
+    if (dungeonadd_invalid(dungeonadd))
         return 0;
     long i = dungeonadd->room_kind[rkind];
     unsigned long k = 0;
@@ -139,7 +139,7 @@ long count_player_rooms_entrances(PlayerNumber plyr_idx)
 struct Room *get_player_room_of_kind_nearest_to(PlayerNumber plyr_idx, RoomKind rkind,
     MapSubtlCoord stl_x, MapSubtlCoord stl_y, long *retdist)
 {
-    struct Dungeon* dungeon = get_dungeon(plyr_idx);
+    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
     long nearest_dist = LONG_MAX;
     struct Room* nearest_room = INVALID_ROOM;
     long i = dungeonadd->room_kind[rkind];
@@ -244,7 +244,7 @@ struct Room * find_next_navigable_room_for_thing_with_capacity_and_closer_than(s
 struct Room * find_nearest_navigable_room_for_thing_with_capacity_and_closer_than(struct Thing *thing, PlayerNumber owner, RoomRole rrole, unsigned char nav_flags, long used, long *neardistance)
 {
     SYNCDBG(18,"Searching for %s navigable by %s index %d",room_role_code_name(rrole),thing_model_name(thing),(int)thing->index);
-    struct Dungeon* dungeon = get_dungeon(owner);
+    struct DungeonAdd* dungeonadd = get_dungeonadd(owner);
     struct Room* nearoom = INVALID_ROOM;
     long distance = *neardistance;
     for (RoomKind rkind = 0; rkind < slab_conf.room_types_count; rkind++)
@@ -295,7 +295,7 @@ struct Room *find_nearest_room_of_role_for_thing(struct Thing *thing, PlayerNumb
  */
 struct Room *find_any_navigable_room_for_thing_closer_than(struct Thing *thing, PlayerNumber owner, RoomRole rrole, unsigned char nav_flags, long max_distance)
 {
-    struct Dungeon* dungeon = get_dungeon(owner);
+    struct DungeonAdd* dungeonadd = get_dungeonadd(owner);
     SYNCDBG(18,"Searching for %s navigable by %s index %d",room_role_code_name(rrole),thing_model_name(thing),(int)thing->index);
     long neardistance = max_distance;
     struct Room* nearoom = INVALID_ROOM;

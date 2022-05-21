@@ -1244,8 +1244,8 @@ TbBool make_all_rooms_free(void)
  */
 TbBool make_all_rooms_researchable(PlayerNumber plyr_idx)
 {
-    struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
-    if (dungeon_invalid(dungeon)) {
+    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
+    if (dungeon_invalid(dungeonadd)) {
         ERRORDBG(11,"Cannot do; player %d has no dungeon",(int)plyr_idx);
         return false;
     }
@@ -1263,8 +1263,8 @@ TbBool set_room_available(PlayerNumber plyr_idx, RoomKind rkind, long resrch, lo
 {
     // note that we can't get_players_num_dungeon() because players
     // may be uninitialized yet when this is called.
-    struct Dungeon* dungeon = get_dungeon(plyr_idx);
-    if (dungeon_invalid(dungeon)) {
+    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
+    if (dungeonadd_invalid(dungeonadd)) {
         ERRORDBG(11,"Cannot do; player %d has no dungeon",(int)plyr_idx);
         return false;
     }
@@ -1289,9 +1289,9 @@ TbBool set_room_available(PlayerNumber plyr_idx, RoomKind rkind, long resrch, lo
  */
 TbBool is_room_available(PlayerNumber plyr_idx, RoomKind rkind)
 {
-    struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
+    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
     // Check if the player even have a dungeon
-    if (dungeon_invalid(dungeon)) {
+    if (dungeonadd_invalid(dungeonadd)) {
         return false;
     }
     // Player must have dungeon heart to build rooms
@@ -1316,9 +1316,9 @@ TbBool is_room_available(PlayerNumber plyr_idx, RoomKind rkind)
  */
 TbBool is_room_of_role_available(PlayerNumber plyr_idx, RoomRole rrole)
 {
-    struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
+    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
     // Check if the player even have a dungeon
-    if (dungeon_invalid(dungeon)) {
+    if (dungeonadd_invalid(dungeonadd)) {
         return false;
     }
     // Player must have dungeon heart to build rooms
@@ -1345,8 +1345,9 @@ TbBool is_room_of_role_available(PlayerNumber plyr_idx, RoomRole rrole)
 TbBool make_available_all_researchable_rooms(PlayerNumber plyr_idx)
 {
     SYNCDBG(0,"Starting");
-    struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
-    if (dungeon_invalid(dungeon)) {
+    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
+    // Check if the player even have a dungeon
+    if (dungeonadd_invalid(dungeonadd)) {
         ERRORDBG(11,"Cannot do; player %d has no dungeon",(int)plyr_idx);
         return false;
     }

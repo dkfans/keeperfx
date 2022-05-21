@@ -742,7 +742,6 @@ TbBool creature_could_be_placed_in_better_room(const struct Computer2 *comp, con
 
 CreatureJob get_job_to_place_creature_in_room(const struct Computer2 *comp, const struct Thing *thing)
 {
-    const struct Dungeon *dungeon;
     long chosen_priority;
     CreatureJob chosen_job;
     struct Room *room;
@@ -750,7 +749,8 @@ CreatureJob get_job_to_place_creature_in_room(const struct Computer2 *comp, cons
     long i;
     long k;
 
-    dungeon = comp->dungeon;
+    const struct Dungeon *dungeon = comp->dungeon;
+    const struct DungeonAdd* dungeonadd = get_dungeonadd_by_dungeon(dungeon);
 
     chosen_job = Job_NULL;
     chosen_priority = LONG_MIN;
@@ -1085,21 +1085,19 @@ long task_place_room(struct Computer2 *comp, struct ComputerTask *ctask)
 {
     struct Dungeon *dungeon;
     RoomKind rkind;
-    struct RoomStats *rstat;
     MapSubtlCoord stl_x;
     MapSubtlCoord stl_y;
     int i;
     SYNCDBG(9,"Starting");
     dungeon = comp->dungeon;
     rkind = ctask->create_room.long_80;
-    rstat = room_stats_get_for_kind(rkind);
     struct RoomConfigStats *roomst;
     roomst = &slab_conf.room_cfgstats[rkind];
     // If we don't have money for the room - don't even try
-    if (rstat->cost + 1000 >= dungeon->total_money_owned)
+    if (roomst->cost + 1000 >= dungeon->total_money_owned)
     {
         // Prefer leaving some gold, unless a flag is forcing us to build
-        if (((roomst->flags & RoCFlg_BuildToBroke) == 0) || (rstat->cost >= dungeon->total_money_owned)) {
+        if (((roomst->flags & RoCFlg_BuildToBroke) == 0) || (roomst->cost >= dungeon->total_money_owned)) {
             return 0;
         }
     }
@@ -1217,6 +1215,7 @@ ItemAvailability computer_check_room_available(const struct Computer2 * comp, lo
 {
     struct Dungeon *dungeon;
     dungeon = comp->dungeon;
+    const struct DungeonAdd* dungeonadd = get_dungeonadd_by_dungeon(dungeon);
     if ((rkind < 1) || (rkind >= slab_conf.room_types_count)) {
         return IAvail_Never;
     }

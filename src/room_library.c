@@ -191,6 +191,7 @@ TbBool clear_research_for_all_players(void)
 
 TbBool research_needed(const struct ResearchVal *rsrchval, const struct Dungeon *dungeon)
 {
+    struct DungeonAdd* dungeonadd = get_dungeonadd_by_dungeon(dungeon);
     if (dungeon->research_num == 0)
         return false;
     switch (rsrchval->rtyp)
@@ -284,6 +285,7 @@ void process_player_research(PlayerNumber plyr_idx)
 {
     //_DK_process_player_research(plyr_idx); return;
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
+    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
     if (!player_has_room_of_role(plyr_idx, RoRoF_Research)) {
         return;
     }
@@ -408,7 +410,7 @@ void process_player_research(PlayerNumber plyr_idx)
 
 void research_found_room(PlayerNumber plyr_idx, RoomKind rkind)
 {
-    struct Dungeon* dungeon = get_dungeon(plyr_idx);
+    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
      // Player got room to build instantly
     if ((dungeonadd->room_resrchable[rkind] == 2)
         || (dungeonadd->room_resrchable[rkind] == 3)

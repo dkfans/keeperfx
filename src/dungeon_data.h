@@ -21,6 +21,7 @@
 
 #include "bflib_basics.h"
 #include "config_trapdoor.h"
+#include "config_terrain.h"
 #include "player_computer.h"
 #include "globals.h"
 #include "dungeon_stats.h"
@@ -334,13 +335,16 @@ extern struct DungeonAdd bad_dungeonadd;
 /******************************************************************************/
 struct Dungeon *get_players_num_dungeon_f(long plyr_idx,const char *func_name);
 struct Dungeon *get_players_dungeon_f(const struct PlayerInfo *player,const char *func_name);
+struct DungeonAdd *get_players_dungeonadd_f(const struct PlayerInfo *player,const char *func_name);
 struct Dungeon *get_dungeon_f(PlayerNumber plyr_num,const char *func_name);
 struct DungeonAdd *get_dungeonadd_f(PlayerNumber plyr_num,const char *func_name);
 #define get_players_num_dungeon(plyr_idx) get_players_num_dungeon_f(plyr_idx,__func__)
 #define get_players_dungeon(player) get_players_dungeon_f(player,__func__)
+#define get_players_dungeonadd(player) get_players_dungeonadd_f(player,__func__)
 #define get_dungeon(plyr_idx) get_dungeon_f(plyr_idx,__func__)
 #define get_dungeonadd(plyr_idx) get_dungeonadd_f(plyr_idx,__func__)
 #define get_my_dungeon() get_players_num_dungeon_f(my_player_number,__func__)
+struct DungeonAdd *get_dungeonadd_by_dungeon(const struct Dungeon *dungeon);
 
 TbBool dungeon_invalid(const struct Dungeon *dungeon);
 TbBool dungeonadd_invalid(const struct DungeonAdd *dungeonadd);
@@ -361,7 +365,6 @@ const struct Coord3d *dungeon_get_essential_pos(PlayerNumber plyr_idx);
 TbBool player_has_heart(PlayerNumber plyr_idx);
 struct Thing *get_player_soul_container(PlayerNumber plyr_idx);
 
-TbBool player_has_room(PlayerNumber plyr_idx, RoomKind rkind);
 TbBool player_has_room_of_role(PlayerNumber plyr_idx, RoomRole rrole);
 TbBool dungeon_has_room(const struct Dungeon *dungeon, RoomKind rkind);
 TbBool dungeon_has_room_of_role(const struct Dungeon *dungeon, RoomRole rrole);
