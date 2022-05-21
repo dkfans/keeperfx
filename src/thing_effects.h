@@ -235,7 +235,7 @@ struct EffectGeneratorStats { // sizeof = 57
     long genation_delay_min;
     long genation_delay_max;
     long genation_amount;
-    long effect_sound;
+    long effect_element_model;
     unsigned char field_10;
     long field_11;
     long acc_x_min;
