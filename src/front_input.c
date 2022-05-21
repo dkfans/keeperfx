@@ -884,7 +884,7 @@ long get_dungeon_control_action_inputs(void)
     long mmzoom;
     if (16/mm_units_per_px < 3)
     {
-        mmzoom = (player->minimap_zoom) / (3-16/mm_units_per_px);
+        mmzoom = (player->minimap_zoom) / scale_value_for_resolution_with_upp(2, mm_units_per_px);
     }
     else
         mmzoom = (player->minimap_zoom);
