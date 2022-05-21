@@ -26,7 +26,7 @@
 extern "C" {
 #endif
 
-#define ROOM_TYPES_COUNT      17
+#define ROOM_TYPES_COUNT_OLD      17
 #define SLAB_AROUND_COUNT      4
 #define ROOMS_COUNT          150
 /******************************************************************************/
@@ -34,6 +34,7 @@ enum RoomFlags {
     RoF_Allocated           = 0x01,
 };
 
+//don't use any of these in new code, everything should be done trough config
 enum RoomKinds {
     RoK_NONE                =   0,
     RoK_ENTRANCE            =   1,

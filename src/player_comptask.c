@@ -772,7 +772,7 @@ CreatureJob get_job_to_place_creature_in_room(const struct Computer2 *comp, cons
         RoomKind rkind;
         rkind = get_room_for_job(mvto->job_kind);
         // Find specific room which meets capacity demands
-        i = dungeon->room_kind[rkind];
+        i = dungeonadd->room_kind[rkind];
         room = find_room_with_most_spare_capacity_starting_with(i,&total_spare_cap);
         if (room_is_invalid(room)) {
             SYNCDBG(9,"Cannot assign %s for %s index %d; no room with spares",creature_job_code_name(mvto->job_kind),thing_model_name(thing),(int)thing->index);
@@ -1217,16 +1217,16 @@ ItemAvailability computer_check_room_available(const struct Computer2 * comp, lo
 {
     struct Dungeon *dungeon;
     dungeon = comp->dungeon;
-    if ((rkind < 1) || (rkind >= ROOM_TYPES_COUNT)) {
+    if ((rkind < 1) || (rkind >= slab_conf.room_types_count)) {
         return IAvail_Never;
     }
     if (dungeon_invalid(dungeon)) {
         ERRORLOG("Invalid dungeon in computer player.");
         return IAvail_Never;
     }
-    if (!dungeon->room_resrchable[rkind])
+    if (!dungeonadd->room_resrchable[rkind])
         return IAvail_Never;
-    if ((dungeon->room_buildable[rkind] & 1) == 0)
+    if ((dungeonadd->room_buildable[rkind] & 1) == 0)
         return IAvail_NeedResearch;
     return IAvail_Now;
 }

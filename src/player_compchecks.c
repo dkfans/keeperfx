@@ -230,7 +230,7 @@ long computer_check_move_creatures_to_room(struct Computer2 *comp, struct Comput
         return CTaskRet_Unk4;
     }
     unsigned long k = 0;
-    long i = dungeon->room_kind[check->param2];
+    long i = dungeonadd->room_kind[check->param2];
     while (i != 0)
     {
         struct Room* room = room_get(i);
@@ -620,7 +620,7 @@ struct Room *get_opponent_room(struct Computer2 *comp, PlayerNumber plyr_idx)
     int n = opponent_room_kinds[PLAYER_RANDOM(comp->dungeon->owner, sizeof(opponent_room_kinds) / sizeof(opponent_room_kinds[0]))];
     for (int i = 0; i < slab_conf.room_types_count; i++)
     {
-        struct Room* room = room_get(dungeon->room_kind[n]);
+        struct Room* room = room_get(dungeonadd->room_kind[n]);
         if (room_exists(room)) {
             return room;
         }
@@ -733,7 +733,7 @@ struct Thing *computer_check_creatures_in_room_for_accelerate(struct Computer2 *
 
 struct Thing *computer_check_creatures_in_dungeon_rooms_of_kind_for_accelerate(struct Computer2 *comp, RoomKind rkind)
 {
-    if ((rkind < 1) || (rkind > ROOM_TYPES_COUNT))
+    if ((rkind < 1) || (rkind > slab_conf.room_types_count))
     {
         ERRORLOG("Invalid room kind %d",(int)rkind);
         return INVALID_THING;
@@ -744,7 +744,7 @@ struct Thing *computer_check_creatures_in_dungeon_rooms_of_kind_for_accelerate(s
         ERRORLOG("Invalid computer players dungeon");
         return INVALID_THING;
     }
-    long i = dungeon->room_kind[rkind];
+    long i = dungeonadd->room_kind[rkind];
     unsigned long k = 0;
     while (i != 0)
     {
@@ -827,7 +827,7 @@ long computer_check_enemy_entrances(struct Computer2 *comp, struct ComputerCheck
         }
         struct PlayerInfo* player = get_player(plyr_idx);
         struct Dungeon* dungeon = get_players_dungeon(player);
-        long i = dungeon->room_kind[RoK_ENTRANCE];
+        long i = dungeonadd->room_kind[RoK_ENTRANCE];
         unsigned long k = 0;
         while (i != 0)
         {
@@ -942,11 +942,11 @@ long computer_check_for_place_door(struct Computer2 *comp, struct ComputerCheck 
         long rkind = check->param1;
         if (rkind == 0)
         {
-            rkind = (check->param2 + 1) % ROOM_TYPES_COUNT;
+            rkind = (check->param2 + 1) % slab_conf.room_types_count;
             check->param2 = rkind;
         }
         unsigned long k = 0;
-        long i = dungeon->room_kind[rkind];
+        long i = dungeonadd->room_kind[rkind];
         while (i != 0)
         {
             struct Room* room = room_get(i);
@@ -1132,7 +1132,7 @@ TbBool computer_check_for_expand_room_kind(struct Computer2 *comp, struct Comput
     }
     // Don't allow the room to be made into long, narrow shape
     MapSubtlCoord max_radius = 3 * slab_subtile(LbSqrL(max_slabs), 2) / 4;
-    long i = dungeon->room_kind[rkind];
+    long i = dungeonadd->room_kind[rkind];
     unsigned long k = 0;
     while (i != 0)
     {

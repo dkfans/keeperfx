@@ -1258,7 +1258,7 @@ TbBool make_all_rooms_researchable(PlayerNumber plyr_idx)
     }
     for (long rkind = 0; rkind < slab_conf.room_types_count; rkind++)
     {
-        dungeon->room_resrchable[rkind] = 1;
+        dungeonadd->room_resrchable[rkind] = 1;
     }
     return true;
 }
@@ -1275,17 +1275,17 @@ TbBool set_room_available(PlayerNumber plyr_idx, RoomKind rkind, long resrch, lo
         ERRORDBG(11,"Cannot do; player %d has no dungeon",(int)plyr_idx);
         return false;
     }
-    if (rkind >= ROOM_TYPES_COUNT)
+    if (rkind >= slab_conf.room_types_count)
     {
         ERRORLOG("Can't add incorrect room %d to player %d",(int)rkind, (int)plyr_idx);
         return false;
     }
-    dungeon->room_resrchable[rkind] = resrch;
+    dungeonadd->room_resrchable[rkind] = resrch;
     // This doesnt reset if player has room in the past
     if (resrch != 0)
-        dungeon->room_buildable[rkind] |= (avail? 1 : 0 );
+        dungeonadd->room_buildable[rkind] |= (avail? 1 : 0 );
     else
-        dungeon->room_buildable[rkind] &= ~1;
+        dungeonadd->room_buildable[rkind] &= ~1;
     return true;
 }
 
@@ -1305,12 +1305,12 @@ TbBool is_room_available(PlayerNumber plyr_idx, RoomKind rkind)
     if (!player_has_heart(plyr_idx)) {
         return false;
     }
-    if (rkind >= ROOM_TYPES_COUNT)
+    if (rkind >= slab_conf.room_types_count)
     {
       ERRORLOG("Incorrect room %d (player %d)",(int)rkind, (int)plyr_idx);
       return false;
     }
-    if (dungeon->room_buildable[rkind] & 1) {
+    if (dungeonadd->room_buildable[rkind] & 1) {
         return true;
     }
     return false;
@@ -1337,12 +1337,7 @@ TbBool is_room_of_role_available(PlayerNumber plyr_idx, RoomRole rrole)
     {
         if(room_role_matches(rkind,rrole))
         {
-            if (rkind >= ROOM_TYPES_COUNT)
-            {
-                //TODO move room_buildable to dungeonadd and make bigger
-                return false;
-            }
-            if (dungeon->room_buildable[rkind] & 1)
+            if (dungeonadd->room_buildable[rkind] & 1)
             {
                 return true;
             }
@@ -1362,11 +1357,11 @@ TbBool make_available_all_researchable_rooms(PlayerNumber plyr_idx)
         ERRORDBG(11,"Cannot do; player %d has no dungeon",(int)plyr_idx);
         return false;
     }
-    for (long i = 0; i < ROOM_TYPES_COUNT; i++)
+    for (long i = 0; i < slab_conf.room_types_count; i++)
     {
-        if (dungeon->room_resrchable[i])
+        if (dungeonadd->room_resrchable[i])
         {
-            dungeon->room_buildable[i] = 1;
+            dungeonadd->room_buildable[i] = 1;
         }
     }
     return true;

@@ -105,7 +105,7 @@ struct Dungeon {
     unsigned char creature_tendencies;
     unsigned char field_9;
     unsigned char computer_enabled;
-    unsigned short room_kind[ROOM_TYPES_COUNT];
+    unsigned short room_kind_old[ROOM_TYPES_COUNT_OLD];
     short creatr_list_start;
     short digger_list_start;
     short field_31;
@@ -127,7 +127,7 @@ struct Dungeon {
     short field_5A4[9];//originally was [15], but seem unused
     unsigned char trap_amount_offmap_[TRAP_TYPES_COUNT];
     unsigned char door_amount_offmap_[DOOR_TYPES_COUNT];
-    unsigned char room_slabs_count[ROOM_TYPES_COUNT+1];
+    unsigned char room_slabs_count_OLD[ROOM_TYPES_COUNT_OLD+1];
     int sight_casted_gameturn;
     short sight_casted_thing_idx;
     unsigned char sight_casted_splevel;
@@ -197,8 +197,8 @@ struct Dungeon {
     int current_research_idx;
     unsigned char research_num;
     unsigned char field_F7D_UNUSED;
-    unsigned char room_buildable[ROOM_TYPES_COUNT];
-    unsigned char room_resrchable[ROOM_TYPES_COUNT];
+    unsigned char room_buildable_OLD[ROOM_TYPES_COUNT_OLD];
+    unsigned char room_resrchable_OLD[ROOM_TYPES_COUNT_OLD];
     /** How many creatures are force-enabled for each kind.
      * Force-enabled creature can come from portal without additional conditions,
      * but only until dungeon has up to given amount of their kind. */
@@ -322,6 +322,10 @@ struct DungeonAdd
     struct ComputerInfo   computer_info;
     long event_last_run_turn[EVENT_KIND_COUNT];
     long script_flags[SCRIPT_FLAGS_COUNT];
+    unsigned short room_kind[TERRAIN_ITEMS_MAX];
+    unsigned char room_buildable[TERRAIN_ITEMS_MAX];
+    unsigned char room_resrchable[TERRAIN_ITEMS_MAX];
+    unsigned char room_slabs_count[TERRAIN_ITEMS_MAX+1];
 
 };
 /******************************************************************************/

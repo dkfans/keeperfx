@@ -47,7 +47,7 @@ long calculate_free_lair_space(struct Dungeon * dungeon)
     long cap_used = 0;
     long cap_total = 0;
     unsigned long k = 0;
-    long i = dungeon->room_kind[RoK_LAIR];
+    long i = dungeonadd->room_kind[RoK_LAIR];
     while (i != 0)
     {
         struct Room* room = room_get(i);

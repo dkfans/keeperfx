@@ -323,7 +323,7 @@ void draw_overhead_room_icons(const struct TbRect *map_area, long block_size, Pl
         struct TbSprite* spr = &gui_panel_sprites[57];
         ps_units_per_px = 32 * block_size * 4 / spr->SHeight;
     }
-    long rkind_select = (game.play_gameturn >> 1) % ROOM_TYPES_COUNT;
+    long rkind_select = (game.play_gameturn >> 1) % ROOM_TYPES_COUNT_OLD;
     for (struct Room* room = start_rooms; room < end_rooms; room++)
     {
       if (room_exists(room))

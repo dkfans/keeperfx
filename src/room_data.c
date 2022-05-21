@@ -184,28 +184,28 @@ TbBool room_exists(const struct Room *room)
 
 struct RoomData *room_data_get_for_kind(RoomKind rkind)
 {
-  if ((rkind < 1) || (rkind > ROOM_TYPES_COUNT))
+  if ((rkind < 1) || (rkind > ROOM_TYPES_COUNT_OLD))
     return &room_data[0];
   return &room_data[rkind];
 }
 
 struct RoomData *room_data_get_for_room(const struct Room *room)
 {
-  if ((room->kind < 1) || (room->kind > ROOM_TYPES_COUNT))
+  if ((room->kind < 1) || (room->kind > ROOM_TYPES_COUNT_OLD))
     return &room_data[0];
   return &room_data[room->kind];
 }
 
 struct RoomStats *room_stats_get_for_kind(RoomKind rkind)
 {
-    if ((rkind < 1) || (rkind > ROOM_TYPES_COUNT))
+    if ((rkind < 1) || (rkind > ROOM_TYPES_COUNT_OLD))
         return &game.room_stats[0];
     return &game.room_stats[rkind];
 }
 
 struct RoomStats *room_stats_get_for_room(const struct Room *room)
 {
-    if ((room->kind < 1) || (room->kind > ROOM_TYPES_COUNT))
+    if ((room->kind < 1) || (room->kind > ROOM_TYPES_COUNT_OLD))
         return &game.room_stats[0];
     return &game.room_stats[room->kind];
 }
@@ -230,7 +230,7 @@ long get_room_slabs_count(PlayerNumber plyr_idx, RoomKind rkind)
 {
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
     long count = 0;
-    long i = dungeon->room_kind[rkind];
+    long i = dungeonadd->room_kind[rkind];
     unsigned long k = 0;
     while (i != 0)
     {
@@ -258,7 +258,7 @@ long count_slabs_of_room_type(PlayerNumber plyr_idx, RoomKind rkind)
 {
     long nslabs = 0;
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
-    long i = dungeon->room_kind[rkind];
+    long i = dungeonadd->room_kind[rkind];
     unsigned long k = 0;
     while (i != 0)
     {
@@ -286,7 +286,7 @@ void get_room_kind_total_and_used_capacity(struct Dungeon *dungeon, RoomKind rki
 {
     unsigned int total_capacity = 0;
     unsigned int used_capacity = 0;
-    long i = dungeon->room_kind[rkind];
+    long i = dungeonadd->room_kind[rkind];
     unsigned long k = 0;
     while (i != 0)
     {
@@ -317,7 +317,7 @@ void get_room_kind_total_used_and_storage_capacity(struct Dungeon *dungeon, Room
     unsigned int total_capacity = 0;
     unsigned int used_capacity = 0;
     int storaged_capacity = 0;
-    long i = dungeon->room_kind[rkind];
+    long i = dungeonadd->room_kind[rkind];
     unsigned long k = 0;
     while (i != 0)
     {
@@ -1631,7 +1631,7 @@ void delete_room_structure(struct Room *room)
       if (room->owner != game.neutral_player_num)
       {
           struct Dungeon* dungeon = get_players_num_dungeon(room->owner);
-          unsigned short* wptr = &dungeon->room_kind[room->kind];
+          unsigned short* wptr = &dungeonadd->room_kind[room->kind];
           struct Room* secroom;
           if (room->index == *wptr)
           {
@@ -1872,7 +1872,7 @@ TbBool add_room_to_players_list(struct Room *room, PlayerNumber plyr_idx)
     if (plyr_idx == game.neutral_player_num) {
         return false;
     }
-    if (room->kind >= ROOM_TYPES_COUNT) {
+    if (room->kind >= ROOM_TYPES_COUNT_OLD) {
         ERRORLOG("Room index %d has invalid kind %d",(int)room->index,(int)room->kind);
         return false;
     }
@@ -1883,7 +1883,7 @@ TbBool add_room_to_players_list(struct Room *room, PlayerNumber plyr_idx)
         ERRORLOG("Player %d has no dungeon",(int)plyr_idx);
         return false;
     }
-    long nxroom_id = dungeon->room_kind[room->kind];
+    long nxroom_id = dungeonadd->room_kind[room->kind];
     struct Room* nxroom = room_get(nxroom_id);
     if (room_is_invalid(nxroom))
     {
@@ -1893,8 +1893,15 @@ TbBool add_room_to_players_list(struct Room *room, PlayerNumber plyr_idx)
         room->next_of_owner = nxroom_id;
         nxroom->prev_of_owner = room->index;
     }
-    dungeon->room_kind[room->kind] = room->index;
-    dungeon->room_slabs_count[room->kind]++;
+    dungeonadd->room_kind[room->kind] = room->index;
+
+    //also write it to the old struct for dll compat
+    if (room->kind < ROOM_TYPES_COUNT_OLD) {
+        dungeon->room_kind_old[room->kind] = room->index;
+    }
+    
+
+    dungeonadd->room_slabs_count[room->kind]++;
     return true;
 }
 
@@ -1903,7 +1910,7 @@ TbBool remove_room_from_players_list(struct Room *room, PlayerNumber plyr_idx)
     if (plyr_idx == game.neutral_player_num) {
         return false;
     }
-    if (room->kind >= ROOM_TYPES_COUNT) {
+    if (room->kind >= ROOM_TYPES_COUNT_OLD) {
         ERRORLOG("Room index %d has invalid kind %d",(int)room->index,(int)room->kind);
         return false;
     }
@@ -1919,14 +1926,18 @@ TbBool remove_room_from_players_list(struct Room *room, PlayerNumber plyr_idx)
     if (!room_is_invalid(pvroom)) {
         pvroom->next_of_owner = room->next_of_owner;
     } else {
-        dungeon->room_kind[room->kind] = room->next_of_owner;
+        dungeonadd->room_kind[room->kind] = room->next_of_owner;
+        //also write it to the old struct for dll compat
+        if (room->kind < ROOM_TYPES_COUNT_OLD) {
+            dungeon->room_kind_old[room->kind] =room->next_of_owner;
+        }
     }
     if (!room_is_invalid(nxroom)) {
         nxroom->prev_of_owner = room->prev_of_owner;
     }
     room->next_of_owner = 0;
     room->prev_of_owner = 0;
-    dungeon->room_slabs_count[room->kind]--;
+    dungeonadd->room_slabs_count[room->kind]--;
     return true;
 }
 
@@ -2156,7 +2167,7 @@ long reinitialise_rooms_of_kind(RoomKind rkind, TbBool skip_integration)
     for (unsigned int n = 0; n < DUNGEONS_COUNT; n++)
     {
         struct Dungeon* dungeon = get_dungeon(n);
-        unsigned int i = dungeon->room_kind[rkind];
+        unsigned int i = dungeonadd->room_kind[rkind];
         while (i != 0)
         {
             struct Room* room = room_get(i);
@@ -2187,7 +2198,7 @@ long reinitialise_rooms_of_kind(RoomKind rkind, TbBool skip_integration)
  */
 void reinitialise_map_rooms(void)
 {
-    for (RoomKind rkind = 1; rkind < ROOM_TYPES_COUNT; rkind++)
+    for (RoomKind rkind = 1; rkind < slab_conf.room_types_count; rkind++)
     {
         reinitialise_rooms_of_kind(rkind, false);
     }
@@ -2807,7 +2818,7 @@ struct Room *find_room_of_role_with_spare_room_item_capacity(PlayerNumber plyr_i
     {
         if(room_role_matches(rkind,rrole))
         {
-            room = find_nth_room_of_owner_with_spare_item_capacity_starting_with(dungeon->room_kind[rkind], 0, 1);
+            room = find_nth_room_of_owner_with_spare_item_capacity_starting_with(dungeonadd->room_kind[rkind], 0, 1);
             if(room != INVALID_ROOM){
                 return room;
             }
@@ -2820,7 +2831,7 @@ struct Room *find_room_for_thing_with_used_capacity(const struct Thing *creatng,
 {
     SYNCDBG(18,"Starting");
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
-    long i = dungeon->room_kind[rkind];
+    long i = dungeonadd->room_kind[rkind];
     unsigned long k = 0;
     while (i != 0)
     {
@@ -2874,7 +2885,7 @@ struct Room *find_room_of_role_with_spare_capacity(PlayerNumber owner, RoomRole 
     {
         if(room_role_matches(rkind,rrole))
         {
-            room = find_nth_room_of_owner_with_spare_capacity_starting_with(dungeon->room_kind[rkind], 0, spare);
+            room = find_nth_room_of_owner_with_spare_capacity_starting_with(dungeonadd->room_kind[rkind], 0, spare);
             if(room != INVALID_ROOM)
                 return room;
         }
@@ -3070,7 +3081,7 @@ struct Room *find_nearest_room_of_role_for_thing_with_spare_capacity(struct Thin
         if(room_role_matches(rkind,rrole))
         {
             unsigned long k = 0;
-            int i = dungeon->room_kind[rkind];
+            int i = dungeonadd->room_kind[rkind];
             while (i != 0)
             {
                 struct Room* room = room_get(i);
@@ -3128,7 +3139,7 @@ static long count_rooms_with_used_capacity_creature_can_navigate_to(struct Thing
     {
         if(room_role_matches(rkind,rrole))
         {
-            int i = dungeon->room_kind[rkind];
+            int i = dungeonadd->room_kind[rkind];
             while (i != 0)
             {
                 struct Room* room = room_get(i);
@@ -3178,7 +3189,7 @@ struct Room *find_nth_room_with_used_capacity_creature_can_navigate_to(struct Th
     {
         if(room_role_matches(rkind,rrole))
         {
-            int i = dungeon->room_kind[rkind];
+            int i = dungeonadd->room_kind[rkind];
             while (i != 0)
             {
                 struct Room* room = room_get(i);
@@ -3224,7 +3235,7 @@ struct Room *find_nth_room_with_used_capacity_creature_can_navigate_to(struct Th
  */
 TbBool creature_can_get_to_any_of_players_rooms(struct Thing *thing, PlayerNumber owner)
 {
-    for (RoomKind rkind = 1; rkind < ROOM_TYPES_COUNT; rkind++)
+    for (RoomKind rkind = 1; rkind < slab_conf.room_types_count; rkind++)
     {
         struct Room* room = find_nth_room_with_used_capacity_creature_can_navigate_to(thing, owner, rkind, NavRtF_Default, 0);
         if (!room_is_invalid(room))
@@ -3267,7 +3278,7 @@ struct Room *find_room_nearest_to_position(PlayerNumber plyr_idx, RoomKind rkind
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
     long near_distance = LONG_MAX;
     struct Room* near_room = INVALID_ROOM;
-    long i = dungeon->room_kind[rkind];
+    long i = dungeonadd->room_kind[rkind];
     unsigned long k = 0;
     while (i != 0)
     {
@@ -3368,7 +3379,7 @@ struct Room *get_room_of_given_role_for_thing(const struct Thing *thing, const s
         if (!room_role_matches(rkind, rrole)) {
             continue;
         }
-        long i = dungeon->room_kind[rkind];
+        long i = dungeonadd->room_kind[rkind];
         unsigned long k = 0;
         while (i != 0)
         {
@@ -3419,7 +3430,7 @@ long count_rooms_for_thing(struct Thing *thing, PlayerNumber owner, RoomKind rki
     struct Dungeon* dungeon = get_dungeon(owner);
     long count = 0;
     unsigned long k = 0;
-    int i = dungeon->room_kind[rkind];
+    int i = dungeonadd->room_kind[rkind];
     while (i != 0)
     {
         struct Room* room = room_get(i);
@@ -3462,7 +3473,7 @@ struct Room *find_nth_room_for_thing(struct Thing *thing, PlayerNumber owner, Ro
 {
     struct Dungeon* dungeon = get_dungeon(owner);
     unsigned long k = 0;
-    int i = dungeon->room_kind[rkind];
+    int i = dungeonadd->room_kind[rkind];
     while (i != 0)
     {
         struct Room* room = room_get(i);
@@ -3522,7 +3533,7 @@ long count_rooms_for_thing_with_spare_room_item_capacity(struct Thing *thing, Pl
     struct Dungeon* dungeon = get_dungeon(owner);
     long count = 0;
     unsigned long k = 0;
-    int i = dungeon->room_kind[rkind];
+    int i = dungeonadd->room_kind[rkind];
     while (i != 0)
     {
         struct Room* room = room_get(i);
@@ -3565,7 +3576,7 @@ struct Room *find_nth_room_for_thing_with_spare_room_item_capacity(struct Thing 
 {
     struct Dungeon* dungeon = get_dungeon(owner);
     unsigned long k = 0;
-    int i = dungeon->room_kind[rkind];
+    int i = dungeonadd->room_kind[rkind];
     while (i != 0)
     {
         struct Room* room = room_get(i);
@@ -3763,7 +3774,7 @@ long find_random_valid_position_for_item_in_different_room_avoiding_object(struc
     long i;
     unsigned long k = 0;
     struct Room* room;
-    for (i = dungeon->room_kind[skip_room->kind]; (i != 0); i = room->next_of_owner)
+    for (i = dungeonadd->room_kind[skip_room->kind]; (i != 0); i = room->next_of_owner)
     {
         k++;
         if (k > ROOMS_COUNT)
@@ -3795,7 +3806,7 @@ long find_random_valid_position_for_item_in_different_room_avoiding_object(struc
     int chosen_match_idx = CREATURE_RANDOM(thing, matching_rooms);
     int curr_match_idx = 0;
     k = 0;
-    for (i = dungeon->room_kind[skip_room->kind]; (i != 0); i = room->next_of_owner)
+    for (i = dungeonadd->room_kind[skip_room->kind]; (i != 0); i = room->next_of_owner)
     {
         k++;
         if (k > ROOMS_COUNT)
@@ -4268,7 +4279,7 @@ struct Room *find_nearest_room_for_thing_with_spare_item_capacity(struct Thing *
     struct Room* retroom = INVALID_ROOM;
 
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
-    long i = dungeon->room_kind[rkind];
+    long i = dungeonadd->room_kind[rkind];
     unsigned long k = 0;
     while (i != 0)
     {
@@ -4876,7 +4887,7 @@ void destroy_dungeon_heart_room(PlayerNumber plyr_idx, const struct Thing *heart
     if (room_is_invalid(room) || (room->kind != RoK_DUNGHEART))
     {
         WARNLOG("The heart thing is not in heart room");
-        long i = dungeon->room_kind[RoK_DUNGHEART];
+        long i = dungeonadd->room_kind[RoK_DUNGHEART];
         room = room_get(i);
     }
     if (room_is_invalid(room))
