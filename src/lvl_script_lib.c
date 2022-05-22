@@ -131,6 +131,85 @@ long get_players_range_single_f(long plr_range_id, const char *func_name, long l
     return -2;
 }
 
+static int filter_criteria_type(long desc_type)
+{
+    return desc_type & 0x0F;
+}
+
+static long filter_criteria_loc(long desc_type)
+{
+    return desc_type >> 4;
+}
+
+struct Thing* script_get_creature_by_criteria(PlayerNumber plyr_idx, long crmodel, long criteria)
+{
+    switch (filter_criteria_type(criteria))
+    {
+    case CSelCrit_Any:
+        return get_random_players_creature_of_model(plyr_idx, crmodel);
+    case CSelCrit_MostExperienced:
+        return find_players_highest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Any, plyr_idx, 0);
+    case CSelCrit_MostExpWandering:
+        return find_players_highest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Wandering, plyr_idx, 0);
+    case CSelCrit_MostExpWorking:
+        return find_players_highest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Working, plyr_idx, 0);
+    case CSelCrit_MostExpFighting:
+        return find_players_highest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Fighting, plyr_idx, 0);
+    case CSelCrit_LeastExperienced:
+        return find_players_lowest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Any, plyr_idx, 0);
+    case CSelCrit_LeastExpWandering:
+        return find_players_lowest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Wandering, plyr_idx, 0);
+    case CSelCrit_LeastExpWorking:
+        return find_players_lowest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Working, plyr_idx, 0);
+    case CSelCrit_LeastExpFighting:
+        return find_players_lowest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Fighting, plyr_idx, 0);
+    case CSelCrit_NearOwnHeart:
+    {
+        const struct Coord3d* pos = dungeon_get_essential_pos(plyr_idx);
+        return get_creature_near_and_owned_by(pos->x.val, pos->y.val, plyr_idx, crmodel);
+    }
+    case CSelCrit_NearEnemyHeart:
+        return get_creature_in_range_around_any_of_enemy_heart(plyr_idx, crmodel, 11);
+    case CSelCrit_OnEnemyGround:
+        return get_random_players_creature_of_model_on_territory(plyr_idx, crmodel, 0);
+    case CSelCrit_OnFriendlyGround:
+        return get_random_players_creature_of_model_on_territory(plyr_idx, crmodel, 1);
+    case CSelCrit_OnNeutralGround:
+        return get_random_players_creature_of_model_on_territory(plyr_idx, crmodel, 2);
+    case CSelCrit_NearAP:
+    {
+        int loc = filter_criteria_loc(criteria);
+        struct ActionPoint* apt = action_point_get(loc);
+        if (!action_point_exists(apt))
+        {
+            WARNLOG("Action point is invalid:%d", apt->num);
+            return INVALID_THING;
+        }
+        if (apt->range == 0)
+        {
+            WARNLOG("Action point with zero range:%d", apt->num);
+            return INVALID_THING;
+        }
+        // Action point range should be inside spiral in subtiles
+        int dist = 2 * coord_subtile(apt->range + COORD_PER_STL - 1) + 1;
+        dist = dist * dist;
+
+        Thing_Maximizer_Filter filter = near_map_block_creature_filter_diagonal_random;
+        struct CompoundTngFilterParam param;
+        param.model_id = crmodel;
+        param.plyr_idx = (unsigned char)plyr_idx;
+        param.num1 = apt->mappos.x.val;
+        param.num2 = apt->mappos.y.val;
+        param.num3 = apt->range;
+        return get_thing_spiral_near_map_block_with_filter(apt->mappos.x.val, apt->mappos.y.val,
+            dist,
+            filter, &param);
+    }
+    default:
+        ERRORLOG("Invalid level up criteria %d", (int)criteria);
+        return INVALID_THING;
+    }
+}
 
 char get_player_number_from_value(const char* txt)
 {
@@ -224,6 +303,22 @@ char get_player_number_from_value(const char* txt)
         }
     }
     return id;
+}
+
+#define get_player_id(plrname, plr_range_id) get_player_id_f(plrname, plr_range_id, __func__, text_line_number)
+TbBool get_player_id_f(const char *plrname, long *plr_range_id, const char *func_name, long ln_num)
+{
+    *plr_range_id = get_rid(player_desc, plrname);
+    if (*plr_range_id == -1)
+    {
+      *plr_range_id = get_rid(cmpgn_human_player_options, plrname);
+      if (*plr_range_id == -1)
+      {
+        ERRORMSG("%s(line %lu): Invalid player name, '%s'",func_name,ln_num, plrname);
+        return false;
+      }
+    }
+    return true;
 }
 
 #ifdef __cplusplus

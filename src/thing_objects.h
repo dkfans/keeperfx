@@ -163,6 +163,7 @@ long gold_being_dropped_at_treasury(struct Thing* thing, struct Room* room);
 struct Thing *drop_gold_pile(long value, struct Coord3d *pos);
 struct Thing *create_gold_pot_at(long pos_x, long pos_y, PlayerNumber plyr_idx);
 TbBool add_gold_to_pile(struct Thing *thing, long value);
+struct Thing* create_gold_pile(struct Coord3d* pos, PlayerNumber plyr_idx, long value);
 GoldAmount gold_object_typical_value(ThingModel tngmodel);
 
 void set_call_to_arms_as_birthing(struct Thing *objtng);

@@ -161,7 +161,7 @@ void set_player_as_lost_level(struct PlayerInfo *player)
     {
         output_message(SMsg_LevelFailed, 0, true);
         turn_off_all_menus();
-        clear_transfered_creature();
+        clear_transfered_creatures();
     }
     if ((gameadd.classic_bugs_flags & ClscBug_NoHandPurgeOnDefeat) == 0) {
         clear_things_in_hand(player);
@@ -884,7 +884,9 @@ TbBool player_sell_trap_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     MapSlabCoord slb_x = subtile_slab_fast(stl_x);
     MapSlabCoord slb_y = subtile_slab_fast(stl_y);
     long sell_value = 0;
-    if (is_key_pressed(KC_LALT, KMod_DONTCARE))
+    unsigned long traps_sold;
+    struct PlayerInfo* player = get_player(plyr_idx);
+    if (player->full_slab_cursor == false)
     {
         thing = get_trap_for_position(stl_x, stl_y);
         if (thing_is_invalid(thing))
@@ -892,7 +894,7 @@ TbBool player_sell_trap_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
             return false;
         }
         set_coords_to_subtile_center(&pos,stl_x,stl_y,1);
-        remove_trap_on_subtile(stl_x, stl_y, &sell_value);
+        traps_sold = remove_trap_on_subtile(stl_x, stl_y, &sell_value);
     }
     else
     {
@@ -902,11 +904,11 @@ TbBool player_sell_trap_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
             return false;
         }
         set_coords_to_slab_center(&pos,slb_x,slb_y);
-        remove_traps_around_subtile(slab_subtile_center(slb_x), slab_subtile_center(slb_y), &sell_value);
+        traps_sold = remove_traps_around_subtile(slab_subtile_center(slb_x), slab_subtile_center(slb_y), &sell_value);
     }
 
 	struct DungeonAdd* dungeonadd = get_dungeonadd(thing->owner);
-	dungeonadd->traps_sold++;
+	dungeonadd->traps_sold += traps_sold;
 	dungeonadd->manufacture_gold += sell_value;
 
     struct Dungeon* dungeon = get_players_num_dungeon(thing->owner);
@@ -974,6 +976,13 @@ void compute_and_update_player_payday_total(PlayerNumber plyr_idx)
     SYNCDBG(15,"Starting for player %d",(int)plyr_idx);
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
     dungeon->creatures_total_pay = compute_player_payday_total(dungeon);
+}
+void compute_and_update_player_backpay_total(PlayerNumber plyr_idx)
+{
+    SYNCDBG(15, "Starting for player %d", (int)plyr_idx);
+    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
+    struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
+    dungeonadd->creatures_total_backpay = compute_player_payday_total(dungeon);
 }
 
 /******************************************************************************/

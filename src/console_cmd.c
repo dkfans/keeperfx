@@ -334,6 +334,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
     struct PlayerInfo* player;
     struct Thing* thing;
     struct Dungeon* dungeon;
+    struct DungeonAdd* dungeonadd;
     struct Room* room;
     struct Packet* pckt;
     struct SlabMap *slb;
@@ -580,13 +581,14 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                 dungeon = get_dungeon(id);
                 if (!dungeon_invalid(dungeon))
                 {
+                    dungeonadd = get_dungeonadd(id);
                     if (pr4str == NULL)
                     {
                         targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Player %d flag %d value: %d", id, flg_id, dungeon->script_flags[flg_id]);
                     }
                     else
                     {
-                        dungeon->script_flags[flg_id] = atoi(pr4str);
+                        dungeonadd->script_flags[flg_id] = atoi(pr4str);
                     }
                     return true;
                 }
