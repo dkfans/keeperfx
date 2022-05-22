@@ -624,7 +624,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       player->allocflags &= ~PlaF_NewMPMessage;
       if (player->mp_message_text[0] == '!')
       {
-          if (!cmd_exec(player->id_number, player->mp_message_text))
+          if ( (!cmd_exec(player->id_number, player->mp_message_text)) || ((game.system_flags & GSF_NetworkActive) != 0) )
               message_add(player->id_number, player->mp_message_text);
       }
       else if (player->mp_message_text[0] != '\0')
