@@ -86,7 +86,7 @@ short at_research_room(struct Thing *thing)
     }
     thing->continue_state = get_continue_state_for_job(Job_RESEARCH);
     cctrl->turns_at_job = 0;
-    cctrl->byte_9A = 3;
+    cctrl->job_stage = 3;
     return 1;
 }
 
@@ -277,21 +277,21 @@ short researching(struct Thing *thing)
     // Shall we do some "Standing and thinking"
     if (cctrl->turns_at_job <= 128)
     {
-      if (cctrl->byte_9A == 3)
+      if (cctrl->job_stage == 3)
       {
           // Do some random thinking
           if ((cctrl->turns_at_job % 16) == 0)
           {
               long i = CREATURE_RANDOM(thing, LbFPMath_PI) - LbFPMath_PI / 2;
               cctrl->long_9B = ((long)thing->move_angle_xy + i) & LbFPMath_AngleMask;
-              cctrl->byte_9A = 4;
+              cctrl->job_stage = 4;
           }
       } else
       {
           // Look at different direction while thinking
           if (creature_turn_to_face_angle(thing, cctrl->long_9B) < LbFPMath_PI/18)
           {
-              cctrl->byte_9A = 3;
+              cctrl->job_stage = 3;
           }
       }
       return 1;
@@ -305,7 +305,7 @@ short researching(struct Thing *thing)
     }
     thing->continue_state = get_continue_state_for_job(Job_RESEARCH);
     cctrl->turns_at_job = 0;
-    cctrl->byte_9A = 3;
+    cctrl->job_stage = 3;
     if (cctrl->explevel < 3)
     {
         create_effect(&thing->mappos, TngEff_RoomSparkeSmall, thing->owner);
