@@ -584,7 +584,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                     dungeonadd = get_dungeonadd(id);
                     if (pr4str == NULL)
                     {
-                        targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Player %d flag %d value: %d", id, flg_id, dungeon->script_flags[flg_id]);
+                        targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Player %d flag %d value: %d", id, flg_id, dungeonadd->script_flags[flg_id]);
                     }
                     else
                     {
