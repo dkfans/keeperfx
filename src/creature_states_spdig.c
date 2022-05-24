@@ -57,7 +57,6 @@ const unsigned char reinforce_edges[] = { 3, 0, 0, 3, 0, 1, 2, 2, 1, };
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT short _DK_imp_arrives_at_reinforce(struct Thing *spdigtng);
 DLLIMPORT long _DK_check_out_undug_drop_place(struct Thing *spdigtng);
 DLLIMPORT int _DK_sub_4D2A60(struct Thing* spdigtng, int a2, int a3);
 DLLIMPORT short _DK_check_out_unprettied_spiral(struct Thing* spdigtng, int a2);
@@ -797,10 +796,34 @@ short imp_arrives_at_improve_dungeon(struct Thing *spdigtng)
     return 1;
 }
 
-short imp_arrives_at_reinforce(struct Thing *thing)
+
+
+short imp_arrives_at_reinforce(struct Thing *spdigtng)
 {
-    return _DK_imp_arrives_at_reinforce(thing);
+    MapSubtlCoord stl_x;
+    MapSubtlCoord stl_y;
+    struct CreatureControl* cctrl = creature_control_get_from_thing(spdigtng);
+
+    if ( imp_already_reinforcing_at_excluding(spdigtng,spdigtng->mappos.x.stl.num,spdigtng->mappos.y.stl.num))
+    {
+        if ( !check_out_uncrowded_reinforce_position(spdigtng, cctrl->digger.working_stl, &stl_x, &stl_y)
+            || !setup_person_move_to_position(spdigtng, stl_x, stl_y, 0) )
+        {
+            internal_set_thing_state(spdigtng, CrSt_ImpLastDidJob);
+            return 1;
+        }
+        else
+        {
+            spdigtng->continue_state = CrSt_ImpArrivesAtReinforce;
+        }
+    }
+    else
+    {
+        internal_set_thing_state(spdigtng, CrSt_ImpReinforces);
+    }
+    return 1;
 }
+
 
 short imp_birth(struct Thing *thing)
 {
@@ -1816,7 +1839,7 @@ short creature_arms_trap_first_person(struct Thing *creatng)
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     struct Thing* cratetng = thing_get(cctrl->dragtng_idx);
     struct Thing* traptng = thing_get(cctrl->arming_thing_id);
-    controlled_creature_drop_thing(creatng, cratetng);
+    controlled_creature_drop_thing(creatng, cratetng, get_appropriate_player_for_creature(creatng));
     move_thing_in_map(cratetng, &traptng->mappos);
     rearm_trap(traptng);
     thing_play_sample(traptng, 1000, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);

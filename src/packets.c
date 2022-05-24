@@ -562,6 +562,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
   struct Packet* pckt = get_packet_direct(player->packet_num);
   SYNCDBG(6,"Processing player %d action %d",(int)plyr_idx,(int)pckt->action);
   struct Dungeon *dungeon;
+  struct PlayerInfoAdd* playeradd = get_playeradd(plyr_idx);
   struct Thing *thing;
   int i;
   switch (pckt->action)
@@ -623,7 +624,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       player->allocflags &= ~PlaF_NewMPMessage;
       if (player->mp_message_text[0] == '!')
       {
-          if (!cmd_exec(player->id_number, player->mp_message_text))
+          if ( (!cmd_exec(player->id_number, player->mp_message_text)) || ((game.system_flags & GSF_NetworkActive) != 0) )
               message_add(player->id_number, player->mp_message_text);
       }
       else if (player->mp_message_text[0] != '\0')
@@ -881,6 +882,92 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       set_player_mode(player, pckt->actn_par1);
       set_engine_view(player, player->view_mode_restore);
       return false;
+  case PckA_SetRoomspaceAuto:
+    {
+        playeradd->roomspace_detection_looseness = (unsigned char)pckt->actn_par1;
+        playeradd->roomspace_mode = roomspace_detection_mode;
+        playeradd->one_click_mode_exclusive = false;
+        playeradd->render_roomspace.highlight_mode = false;
+        return false;
+    }
+   case PckA_SetRoomspaceMan:
+    {
+        playeradd->user_defined_roomspace_width = pckt->actn_par1;
+        playeradd->roomspace_width = pckt->actn_par1;
+        playeradd->roomspace_height = pckt->actn_par1;
+        playeradd->roomspace_mode = box_placement_mode;
+        playeradd->one_click_mode_exclusive = false;
+        playeradd->render_roomspace.highlight_mode = false;
+        playeradd->roomspace_no_default = true;
+        return false;
+    }
+    case PckA_SetRoomspaceDrag:
+    {
+        playeradd->roomspace_detection_looseness = DEFAULT_USER_ROOMSPACE_DETECTION_LOOSENESS;
+        playeradd->user_defined_roomspace_width = DEFAULT_USER_ROOMSPACE_WIDTH;
+        playeradd->roomspace_mode = drag_placement_mode;
+        playeradd->one_click_mode_exclusive = true; // Enable GuiLayer_OneClickBridgeBuild layer
+        playeradd->render_roomspace.highlight_mode = false;
+        return false;
+    }
+    case PckA_SetRoomspaceDefault:
+    {
+        playeradd->roomspace_detection_looseness = DEFAULT_USER_ROOMSPACE_DETECTION_LOOSENESS;
+        playeradd->user_defined_roomspace_width = DEFAULT_USER_ROOMSPACE_WIDTH;
+        playeradd->roomspace_width = playeradd->roomspace_height = pckt->actn_par1;
+        playeradd->roomspace_mode = box_placement_mode;
+        playeradd->one_click_mode_exclusive = false;
+        playeradd->roomspace_no_default = false;
+        return false;
+    }
+    case PckA_SetRoomspaceWholeRoom:
+    {
+        playeradd->render_roomspace.highlight_mode = false;
+        playeradd->roomspace_mode = roomspace_detection_mode;
+        return false;
+    }
+    case PckA_SetRoomspaceSubtile:
+    {
+        playeradd->render_roomspace.highlight_mode = false;
+        playeradd->roomspace_mode = single_subtile_mode;
+        return false;
+    }
+    case PckA_SetRoomspaceHighlight:
+    {
+        playeradd->roomspace_mode = box_placement_mode;
+        if ( (pckt->actn_par2 == 1) || (pckt->actn_par1 == 2) )
+        {
+            // exit out of click and drag mode
+            if (playeradd->render_roomspace.drag_mode)
+            {
+                playeradd->one_click_lock_cursor = false;
+                if ((pckt->control_flags & PCtr_LBtnHeld) == PCtr_LBtnHeld)
+                {
+                    playeradd->ignore_next_PCtr_LBtnRelease = true;
+                }
+            }
+            playeradd->render_roomspace.drag_mode = false;
+        }
+        playeradd->roomspace_highlight_mode = pckt->actn_par1;
+        if (pckt->actn_par1 == 2)
+        {
+            playeradd->user_defined_roomspace_width = pckt->actn_par2;
+            playeradd->roomspace_width = pckt->actn_par2;
+            playeradd->roomspace_height = pckt->actn_par2;
+        }
+        else if (pckt->actn_par1 == 0)
+        {
+            reset_dungeon_build_room_ui_variables(plyr_idx);
+            playeradd->roomspace_width = playeradd->roomspace_height = pckt->actn_par2;
+        }
+        playeradd->roomspace_no_default = true;
+        return false;
+    }
+    case PckA_ToggleCheatMenuStatus:
+    {
+        playeradd->cheat_menu_active = (TbBool)pckt->actn_par1;
+        return false;
+    }
     default:
       return process_players_global_cheats_packet_action(plyr_idx, pckt);
   }
@@ -1100,7 +1187,8 @@ void process_players_creature_control_packet_control(long idx)
             }
         }
     }
-    if (pckt->pos_x != 0)
+    struct PlayerInfoAdd* playeradd = get_playeradd(idx);
+    if (!playeradd->cheat_menu_active)
     {
         struct CreatureStats* crstat = creature_stats_get_from_thing(cctng);
         i = pckt->pos_y;
@@ -1146,6 +1234,7 @@ void process_players_creature_control_packet_action(long plyr_idx)
   long i;
   long k;
   player = get_player(plyr_idx);
+  struct PlayerInfoAdd* playeradd;
   pckt = get_packet_direct(player->packet_num);
   SYNCDBG(6,"Processing player %d action %d",(int)plyr_idx,(int)pckt->action);
   switch (pckt->action)
@@ -1205,9 +1294,34 @@ void process_players_creature_control_packet_action(long plyr_idx)
       break;
       case PckA_DirectCtrlDragDrop:
       {
-         direct_control_pick_up_or_drop(player);
+         thing = thing_get(player->controlled_thing_idx);
+         direct_control_pick_up_or_drop(plyr_idx, thing);
          break;
       }
+    case PckA_SetFirstPersonDigMode:
+    {
+        playeradd = get_playeradd(plyr_idx);
+        playeradd->first_person_dig_claim_mode = pckt->actn_par1;
+        break;
+    }
+    case PckA_SwitchTeleportDest:
+    {
+        playeradd = get_playeradd(plyr_idx);
+        playeradd->teleport_destination = pckt->actn_par1;
+        break; 
+    }
+    case PckA_SelectFPPickup:
+    {
+        playeradd = get_playeradd(plyr_idx);
+        playeradd->selected_fp_thing_pickup = pckt->actn_par1;
+        break;
+    }
+    case PckA_SetNearestTeleport:
+    {
+        playeradd = get_playeradd(plyr_idx);
+        playeradd->nearest_teleport = pckt->actn_par1;
+        break;
+    }
   }
 }
 

@@ -23,6 +23,7 @@
 #include "globals.h"
 #include "engine_camera.h"
 #include "bflib_video.h"
+#include "roomspace.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -36,6 +37,7 @@ extern "C" {
 #define HERO_PLAYER             4
 
 #define INVALID_PLAYER (&bad_player)
+#define INVALID_PLAYER_ADD (&bad_playeradd)
 
 #define PLAYER_MP_MESSAGE_LEN  64
 
@@ -234,6 +236,30 @@ struct CheatSelection
     unsigned char chosen_experience_level;
 };
 
+struct PlayerInfoAdd {
+    struct CheatSelection cheatselection;
+    TbBool first_person_dig_claim_mode;
+    unsigned char teleport_destination;
+    TbBool nearest_teleport;
+    BattleIndex battleid;
+    unsigned short selected_fp_thing_pickup;
+    struct RoomSpace render_roomspace;
+    struct RoomSpace roomspace;
+    unsigned char roomspace_mode;
+    int user_defined_roomspace_width;
+    int roomspace_detection_looseness;
+    int roomspace_width;
+    int roomspace_height;
+    TbBool one_click_mode_exclusive;
+    TbBool one_click_lock_cursor;
+    TbBool ignore_next_PCtr_RBtnRelease;
+    TbBool ignore_next_PCtr_LBtnRelease;
+    char swap_to_untag_mode; // 0 = no, 1 = maybe, 2= yes, -1 = disable
+    unsigned char roomspace_highlight_mode;
+    TbBool roomspace_no_default;
+    TbBool cheat_menu_active;
+    };
+
 /******************************************************************************/
 DLLIMPORT extern unsigned char _DK_my_player_number;
 #define my_player_number _DK_my_player_number
@@ -249,10 +275,14 @@ extern unsigned short const player_cubes[];
 extern long neutral_player_number;
 extern long hero_player_number;
 extern struct PlayerInfo bad_player;
+extern struct PlayerInfoAdd bad_playeradd;
 /******************************************************************************/
 struct PlayerInfo *get_player_f(long plyr_idx,const char *func_name);
+struct PlayerInfoAdd *get_playeradd_f(long plyr_idx,const char *func_name);
 #define get_player(plyr_idx) get_player_f(plyr_idx,__func__)
 #define get_my_player() get_player_f(my_player_number,__func__)
+#define get_playeradd(plyr_idx) get_playeradd_f(plyr_idx,__func__)
+#define get_my_playeradd() get_playeradd_f(my_player_number,__func__)
 TbBool player_invalid(const struct PlayerInfo *player);
 TbBool player_exists(const struct PlayerInfo *player);
 TbBool is_my_player(const struct PlayerInfo *player);
@@ -263,7 +293,7 @@ TbBool players_are_mutual_allies(PlayerNumber plyr1_idx, PlayerNumber plyr2_idx)
 TbBool players_creatures_tolerate_each_other(PlayerNumber plyr1_idx, PlayerNumber plyr2_idx);
 TbBool player_is_friendly_or_defeated(PlayerNumber check_plyr_idx, PlayerNumber origin_plyr_idx);
 TbBool set_ally_with_player(PlayerNumber plyridx, PlayerNumber ally_idx, TbBool state);
-void  toggle_ally_with_player(long plyridx, unsigned int allyidx);
+void toggle_ally_with_player(long plyridx, unsigned int allyidx);
 
 void set_player_state(struct PlayerInfo *player, short a1, long a2);
 void set_player_mode(struct PlayerInfo *player, unsigned short nview);

@@ -259,7 +259,7 @@ void internal_add_member_to_group_chain_head(struct Thing *creatng, struct Thing
 /**
  * Removes a creature from group. If the group had size of 2, it is disbanded; otherwise, next
  *   creature becomes a leader without checking whether it's best for it.
- * @param creatng The creatuire to be removed.
+ * @param creatng The creature to be removed.
  * @return True if the group still exists after removal, false otherwise.
  */
 TbBool remove_creature_from_group_without_leader_consideration(struct Thing *creatng)
@@ -316,22 +316,97 @@ TbBool remove_creature_from_group_without_leader_consideration(struct Thing *cre
     return true;
 }
 
+/**
+ * Determines if the creature is a Tunneler or Imp to consider for leadership.
+  * @return 0 if it's no digger, 1 if it's a digger who does not want to be a leader, and 2 if the digger is a preferred leader
+ */
+static short creature_could_be_lead_digger(struct Thing* creatng, struct CreatureControl* cctrl)
+{
+    short potential_leader = 0;
+    if (thing_is_creature_special_digger(creatng))
+    {
+        if (cctrl->party_objective != CHeroTsk_DefendParty)
+        {
+            potential_leader = 2;
+        }
+        else
+        {
+            potential_leader = 1;
+        }
+    }
+    return potential_leader;
+}
+
+/**
+ * Determines if a party has a Tunneler or Imp to consider for leadership.
+ * @param grptng is the creature whos party is considerd
+ * @return 0 if there's no digger, 1 if there's a digger who does not want to be a leader, and 2 if the digger is a preferred leader
+ */
+static short creatures_group_has_special_digger_to_lead(struct Thing* grptng)
+{
+    struct Thing* ctng = INVALID_THING;
+    short potential_leader = 0;
+    struct CreatureControl* cctrl;
+    cctrl = creature_control_get_from_thing(grptng);
+    potential_leader = creature_could_be_lead_digger(grptng, cctrl);
+    if (potential_leader == 2)
+    {
+        return potential_leader;
+    }
+    long i = cctrl->group_info & TngGroup_LeaderIndex;
+    unsigned long k = 0;
+    if (i == 0)
+    {
+        i = grptng->index;
+    }
+    while (i > 0)
+    {
+        ctng = thing_get(i);
+        cctrl = creature_control_get_from_thing(ctng);
+        potential_leader = creature_could_be_lead_digger(ctng, cctrl);
+        if (potential_leader == 2)
+        {
+            return potential_leader;
+        }
+        i = cctrl->next_in_group;
+        k++;
+        if (k > CREATURES_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping creatures group");
+            break;
+        }
+    }
+    return potential_leader;
+}
+
+/**
+ * Finds a creature to become group leader. Considers objectives, diggers and score.
+ * @param grptng is the party member which needs a leader
+ * @return The Creature that should lead the group.
+ */
 struct Thing* get_best_creature_to_lead_group(struct Thing* grptng)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(grptng);
     CrtrExpLevel best_explevel = 0;
     long best_score = 0;
+    short has_digger = 0;
+    TbBool is_digger = 0;
     struct Thing* best_creatng = INVALID_THING;
     long i = cctrl->group_info & TngGroup_LeaderIndex;
     if (i == 0) {
         // One creature is not a group, but we may still get its experience
         i = grptng->index;
     }
+    has_digger = creatures_group_has_special_digger_to_lead(grptng);
     unsigned long k = 0;
     while (i > 0)
     {
         struct Thing* ctng = thing_get(i);
         TRACE_THING(ctng);
+        if (has_digger > 0)
+        {
+            is_digger = thing_is_creature_special_digger(ctng);
+        }
         cctrl = creature_control_get_from_thing(ctng);
         struct CreatureControl* bcctrl = creature_control_get_from_thing(best_creatng);
         if (creature_control_invalid(cctrl))
@@ -343,23 +418,27 @@ struct Thing* get_best_creature_to_lead_group(struct Thing* grptng)
         // Units who are supposed to defend the party, are considered for party leadership last.
         if (cctrl->party_objective != CHeroTsk_DefendParty)
         {
-            // If the current unit does not defend party, overwrite any unit that does.
-            if (bcctrl->party_objective == CHeroTsk_DefendParty)
+            if (has_digger < 2 || is_digger) // if we want a digger, do not consider non-diggers
             {
-                best_explevel = cctrl->explevel;
-                best_score = score;
-                best_creatng = ctng;
-            } else
-            {
-                // Otherwise the level needs to be at least as high
-                if (best_explevel <= cctrl->explevel)
+                // If the current unit does not defend party, overwrite any unit that does.
+                if (bcctrl->party_objective == CHeroTsk_DefendParty)
                 {
-                    // For equal levels, the score is most important
-                    if ((score > best_score) || (cctrl->explevel > best_explevel))
+                    best_explevel = cctrl->explevel;
+                    best_score = score;
+                    best_creatng = ctng;
+                }
+                else
+                {
+                    // Otherwise the level needs to be at least as high
+                    if (best_explevel <= cctrl->explevel)
                     {
-                        best_explevel = cctrl->explevel;
-                        best_score = score;
-                        best_creatng = ctng;
+                        // For equal levels, the score is most important
+                        if ((score > best_score) || (cctrl->explevel > best_explevel))
+                        {
+                            best_explevel = cctrl->explevel;
+                            best_score = score;
+                            best_creatng = ctng;
+                        }
                     }
                 }
             }
@@ -369,14 +448,17 @@ struct Thing* get_best_creature_to_lead_group(struct Thing* grptng)
             // Only look to overwrite other defending unit, or noexisting unit, with this defending unit
             if ((bcctrl->party_objective == CHeroTsk_DefendParty) || (best_creatng == INVALID_THING))
             {
-                if (best_explevel <= cctrl->explevel)
+                if (has_digger < 1 || is_digger) // if we want a digger, do not consider non-diggers
                 {
-                    // For equal levels, the score is most important
-                    if ((score > best_score) || (cctrl->explevel > best_explevel))
+                    if (best_explevel <= cctrl->explevel)
                     {
-                        best_explevel = cctrl->explevel;
-                        best_score = score;
-                        best_creatng = ctng;
+                        // For equal levels, the score is most important
+                        if ((score > best_score) || (cctrl->explevel > best_explevel))
+                        {
+                            best_explevel = cctrl->explevel;
+                            best_score = score;
+                            best_creatng = ctng;
+                        }
                     }
                 }
             }

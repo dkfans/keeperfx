@@ -78,8 +78,6 @@ extern struct TbSprite *swipe_sprites;
 extern struct TbSprite *end_swipe_sprites;
 extern int creature_swap_idx[CREATURE_TYPES_COUNT];
 extern unsigned long creature_create_errors;
-extern unsigned char teleport_destination;
-extern BattleIndex battleid;
 /******************************************************************************/
 struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumber owner);
 long move_creature(struct Thing *thing);
@@ -159,7 +157,6 @@ void change_creature_owner(struct Thing *thing, PlayerNumber nowner);
 struct Thing *find_players_next_creature_of_breed_and_gui_job(long breed_idx, long job_idx, PlayerNumber plyr_idx, unsigned char pick_flags);
 struct Thing *pick_up_creature_of_model_and_gui_job(long breed_idx, long job_idx, PlayerNumber owner, unsigned char pick_flags);
 void go_to_next_creature_of_model_and_gui_job(long crmodel, long job_idx, unsigned char pick_flags);
-struct Thing *find_players_creature_dragging_thing(PlayerNumber plyr_idx, const struct Thing *dragtng);
 struct Thing *find_creature_dragging_thing(const struct Thing *dragtng);
 struct Thing *find_players_highest_score_creature_in_fight_not_affected_by_spell(PlayerNumber plyr_idx, PowerKind pwkind);
 int claim_neutral_creatures_in_sight(struct Thing *creatng, struct Coord3d *pos, int can_see_slabs);
@@ -184,10 +181,10 @@ void illuminate_creature(struct Thing *creatng);
 long get_spell_slot(const struct Thing *thing, SpellKind spkind);
 TbBool free_spell_slot(struct Thing *thing, long slot_idx);
 
-void controlled_creature_pick_thing_up(struct Thing *creatng, struct Thing *picktng);
-void controlled_creature_drop_thing(struct Thing *creatng, struct Thing *droptng);
-void direct_control_pick_up_or_drop(struct PlayerInfo *player);
-void display_controlled_pick_up_thing_name(struct Thing *picktng, unsigned long timeout);
+void controlled_creature_pick_thing_up(struct Thing *creatng, struct Thing *picktng, PlayerNumber plyr_idx);
+void controlled_creature_drop_thing(struct Thing *creatng, struct Thing *droptng, PlayerNumber plyr_idx);
+void direct_control_pick_up_or_drop(PlayerNumber plyr_idx, struct Thing *creatng);
+void display_controlled_pick_up_thing_name(struct Thing *picktng, unsigned long timeout, PlayerNumber plyr_idx);
 struct Thing *controlled_get_thing_to_pick_up(struct Thing *creatng);
 TbBool thing_is_pickable_by_digger(struct Thing *picktng, struct Thing *creatng);
 struct Thing *controlled_get_trap_to_rearm(struct Thing *creatng);
@@ -204,6 +201,7 @@ int get_creature_health_permil(const struct Thing *thing);
 struct Thing *script_create_new_creature(PlayerNumber plyr_idx, ThingModel crmodel, TbMapLocation location, long carried_gold, long crtr_level);
 struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, ThingModel crmodel, TbMapLocation location);
 void script_process_new_creatures(PlayerNumber plyr_idx, long crmodel, long location, long copies_num, long carried_gold, long crtr_level);
+PlayerNumber get_appropriate_player_for_creature(struct Thing *creatng);
 /******************************************************************************/
 #ifdef __cplusplus
 }

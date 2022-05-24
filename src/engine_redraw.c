@@ -90,16 +90,21 @@ static void draw_creature_view_icons(struct Thing* creatng)
         ps_units_per_px = (22 * units_per_pixel) / spr->SHeight;
         y = MyScreenHeight - scale_value_by_horizontal_resolution(spr->SHeight * 2);
     }
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     for (int Spell = SplK_Freeze; Spell < SplK_TimeBomb; Spell++)
     {
         if (creature_affected_by_spell(creatng, Spell))
         {
             struct SpellInfo* spinfo = get_magic_info(Spell);
-            draw_gui_panel_sprite_left(x, y, ps_units_per_px, spinfo->medsym_sprite_idx);
+            long spridx = spinfo->medsym_sprite_idx;
+            if ( (Spell == SplK_Invisibility) && (cctrl->force_visible & 2) )
+            {
+                spridx++;
+            }
+            draw_gui_panel_sprite_left(x, y, ps_units_per_px, spridx);
             x += scale_value_by_horizontal_resolution(spr->SWidth);
         }
     }
-    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     if ( (cctrl->dragtng_idx != 0) && ((creatng->alloc_flags & TAlF_IsDragged) == 0) )
     {
         struct Thing* dragtng = thing_get(cctrl->dragtng_idx);
@@ -139,14 +144,6 @@ static void draw_creature_view_icons(struct Thing* creatng)
             }
         }
         draw_gui_panel_sprite_left(x, y, ps_units_per_px, spr_idx);
-    }
-    else if (first_person_dig_claim_mode)
-    {
-        if (cctrl->active_instance_id == CrInst_FIRST_PERSON_DIG)
-        {
-            x = MyScreenWidth - (scale_value_by_horizontal_resolution(148) / 4);
-            draw_gui_panel_sprite_left(x, y, ps_units_per_px, instance_button_init[CrInst_FIRST_PERSON_DIG].symbol_spridx);
-        }
     }
 }
 
@@ -946,8 +943,8 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
         break;
     case PSt_PlaceTerrain:
     {
-        struct DungeonAdd* dungeonadd = get_dungeonadd(player->id_number);
-        i = get_place_terrain_pointer_graphics(dungeonadd->cheatselection.chosen_terrain_kind);
+        struct PlayerInfoAdd* playeradd = get_playeradd(player->id_number);
+        i = get_place_terrain_pointer_graphics(playeradd->cheatselection.chosen_terrain_kind);
         set_pointer_graphic(i);
         break;
     }

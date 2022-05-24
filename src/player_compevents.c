@@ -168,7 +168,7 @@ long computer_event_battle(struct Computer2 *comp, struct ComputerEvent *cevent,
         SYNCDBG(8,"No creatures to drop for %s",cevent->name);
         return 0;
     }
-    if (!computer_find_non_solid_block(comp, &pos)) {
+    if (!computer_find_safe_non_solid_block(comp, &pos)) {
         SYNCDBG(8,"Drop position is solid for %s",cevent->name);
         return 0;
     }
@@ -309,7 +309,7 @@ long computer_event_battle_test(struct Computer2 *comp, struct ComputerEvent *ce
     if (creatrs_num <= 0) {
         return 4;
     }
-    if (!computer_find_non_solid_block(comp, &pos)) {
+    if (!computer_find_safe_non_solid_block(comp, &pos)) {
         return 4;
     }
     if (computer_able_to_use_power(comp, PwrK_HAND, 1, creatrs_num))
@@ -525,7 +525,7 @@ long computer_event_attack_door(struct Computer2* comp, struct ComputerEvent* ce
         return 0;
     }
 
-    if (!computer_find_non_solid_block(comp, &freepos)) {
+    if (!computer_find_safe_non_solid_block(comp, &freepos)) {
         SYNCDBG(8, "Drop position is solid for %s", cevent->name);
         return 0;
     }
@@ -862,7 +862,7 @@ long computer_event_breach(struct Computer2 *comp, struct ComputerEvent *cevent,
     if (i <= 0) {
         return 4;
     }
-    if (!computer_find_non_solid_block(comp, &pos)) {
+    if (!computer_find_safe_non_solid_block(comp, &pos)) {
         return 4;
     }
     if (!create_task_move_creatures_to_defend(comp, &pos, i, cevent->param2)) {

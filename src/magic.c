@@ -1719,9 +1719,10 @@ TbResult magic_use_power_possess_thing(PlayerNumber plyr_idx, struct Thing *thin
     }
     player = get_player(plyr_idx);
     player->influenced_thing_idx = thing->index;
-    teleport_destination = 18;
-    first_person_dig_claim_mode = false;
-    battleid = 1;
+    struct PlayerInfoAdd* playeradd = get_playeradd(player->id_number);
+    playeradd->first_person_dig_claim_mode = false;
+    playeradd->teleport_destination = 18; // reset to default behaviour
+    playeradd->battleid = 1;
     // Note that setting Direct Control player instance requires player->influenced_thing_idx to be set correctly
     set_player_instance(player, PI_DirctCtrl, 0);
     return Lb_SUCCESS;

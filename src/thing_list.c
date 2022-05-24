@@ -248,7 +248,7 @@ long near_map_block_thing_filter_call_bool_filter(const struct Thing *thing, Max
 {
     if ((param->class_id == -1) || (thing->class_id == param->class_id))
     {
-        if ((param->model_id == -1) || (thing->model == param->model_id))
+        if (thing_matches_model(thing, param->model_id))
         {
             if ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
             {
@@ -280,7 +280,7 @@ long near_thing_pos_thing_filter_is_enemy_which_can_be_attacked_by_creature(cons
 {
     if ((param->class_id == -1) || (thing->class_id == param->class_id))
     {
-        if ((param->model_id == -1) || (thing->model == param->model_id))
+        if (thing_matches_model(thing, param->model_id))
         {
             if ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
             {
@@ -310,7 +310,7 @@ long highest_score_thing_filter_is_enemy_within_distance_which_can_be_attacked_b
 {
     if ((param->class_id == -1) || (thing->class_id == param->class_id))
     {
-        if ((param->model_id == -1) || (thing->model == param->model_id))
+        if (thing_matches_model(thing,param->model_id))
         {
             if ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
             {
@@ -373,7 +373,7 @@ long near_map_block_thing_filter_is_creature_of_model_owned_and_controlled_by(co
 {
     if (thing->class_id == TCls_Creature)
     {
-        if ((param->model_id == CREATURE_ANY) || (thing->model == param->model_id))
+        if (creature_matches_model(thing,param->model_id))
         {
             if ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
             {
@@ -404,7 +404,7 @@ long near_map_block_creature_filter_diagonal_random(const struct Thing *thing, M
 {
     if (thing->class_id == TCls_Creature)
     {
-        if ((param->model_id == -1) || (param->model_id == CREATURE_ANY) || (thing->model == param->model_id))
+        if (creature_matches_model(thing, param->model_id))
         {
             if ((param->plyr_idx == ALL_PLAYERS) || (thing->owner == param->plyr_idx))
             {
@@ -434,7 +434,7 @@ long near_map_block_thing_filter_is_thing_of_class_and_model_owned_by(const stru
 {
     if ((param->class_id == -1) || (thing->class_id == param->class_id))
     {
-        if ((param->model_id == -1) || (param->model_id == CREATURE_ANY) || (thing->model == param->model_id))
+        if (thing_matches_model(thing, param->model_id))
         {
             if ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
             {
@@ -580,7 +580,7 @@ long anywhere_thing_filter_is_of_class_and_model_and_owned_by_or_allied_with(con
 {
     if (thing->class_id == param->class_id)
     {
-        if ((param->model_id == CREATURE_ANY) || (thing->model == param->model_id))
+        if (thing_matches_model(thing, param->model_id))
         {
             if ((param->plyr_idx == -1) || players_are_mutual_allies(thing->owner,param->plyr_idx))
             {
@@ -603,7 +603,7 @@ long anywhere_thing_filter_is_of_class_and_model_and_owned_by(const struct Thing
 {
     if (thing->class_id == param->class_id)
     {
-        if ((param->model_id == -1) || (thing->model == param->model_id))
+        if (thing_matches_model(thing, param->model_id))
         {
             if ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
             {
@@ -660,14 +660,14 @@ long anywhere_thing_filter_is_creature_of_model_training_and_owned_by(const stru
 {
     if (thing->class_id == TCls_Creature)
     {
-      if ((thing->model == param->model_id) || (param->model_id == -1))
+      if (creature_matches_model(thing, param->model_id))
       {
           if ((thing->owner == param->plyr_idx) || (param->plyr_idx == -1))
           {
               if (((int)thing->index != param->num1) || (param->num1 == -1))
               {
                   struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-                  if ((thing->active_state == CrSt_Training) && (cctrl->byte_9A > 1))
+                  if ((thing->active_state == CrSt_Training) && (cctrl->job_stage > 1))
                   {
                       // Return the largest value to stop sweeping
                       return LONG_MAX;
@@ -758,7 +758,7 @@ long anywhere_thing_filter_call_neg_bool_filter(const struct Thing *thing, MaxTn
 {
     if ((param->class_id == -1) || (thing->class_id == param->class_id))
     {
-        if ((param->model_id == -1) || (thing->model == param->model_id))
+        if (thing_matches_model(thing,param->model_id))
         {
             if ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
             {
@@ -784,7 +784,7 @@ long anywhere_thing_filter_is_trap_of_model_armed_and_owned_by(const struct Thin
 {
     if (thing->class_id == TCls_Trap)
     {
-      if ((thing->model == param->model_id) || (param->model_id == -1))
+      if (thing_matches_model(thing, param->model_id))
       {
           if ((thing->owner == param->plyr_idx) || (param->plyr_idx == -1))
           {
@@ -811,7 +811,7 @@ long anywhere_thing_filter_is_door_of_model_locked_and_owned_by(const struct Thi
 {
     if (thing->class_id == TCls_Door)
     {
-      if ((thing->model == param->model_id) || (param->model_id == -1))
+      if (thing_matches_model(thing,param->model_id))
       {
           if ((thing->owner == param->plyr_idx) || (param->plyr_idx == -1))
           {
@@ -1572,7 +1572,7 @@ struct Thing *get_nth_creature_owned_by_and_matching_bool_filter(PlayerNumber pl
     Thing_Maximizer_Filter filter = anywhere_thing_filter_call_bool_filter;
     struct CompoundTngFilterParam param;
     param.class_id = TCls_Creature;
-    param.model_id = -1;
+    param.model_id = CREATURE_ANY;
     param.plyr_idx = plyr_idx;
     param.num1 = -1;
     param.num2 = -1;
@@ -1593,7 +1593,7 @@ struct Thing *get_nth_creature_owned_by_and_failing_bool_filter(PlayerNumber ply
     Thing_Maximizer_Filter filter = anywhere_thing_filter_call_neg_bool_filter;
     struct CompoundTngFilterParam param;
     param.class_id = TCls_Creature;
-    param.model_id = -1;
+    param.model_id = CREATURE_ANY;
     param.plyr_idx = plyr_idx;
     param.num1 = -1;
     param.num2 = -1;
@@ -1607,7 +1607,7 @@ struct Thing *get_nearest_enemy_creature_possible_to_attack_by(struct Thing *cre
     Thing_Maximizer_Filter filter = near_thing_pos_thing_filter_is_enemy_which_can_be_attacked_by_creature;
     struct CompoundTngFilterParam param;
     param.class_id = TCls_Creature;
-    param.model_id = -1;
+    param.model_id = CREATURE_ANY;
     param.plyr_idx = -1;
     param.num1 = creatng->index;
     param.num2 = -1;
@@ -1621,7 +1621,7 @@ struct Thing *get_highest_score_enemy_creature_within_distance_possible_to_attac
     Thing_Maximizer_Filter filter = highest_score_thing_filter_is_enemy_within_distance_which_can_be_attacked_by_creature;
     struct CompoundTngFilterParam param;
     param.class_id = TCls_Creature;
-    param.model_id = -1;
+    param.model_id = CREATURE_ANY;
     param.plyr_idx = -1;
     param.num1 = creatng->index;
     param.num2 = dist;
@@ -1836,7 +1836,7 @@ TbBool electricity_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, c
         max_dist = max_dist * gameadd.friendly_fight_area_range_permil / 1000;
         max_damage = max_damage * gameadd.friendly_fight_area_damage_permil / 1000;
     }
-    MapCoord distance = get_2d_box_distance(pos, &tngdst->mappos);
+    MapCoordDelta distance = get_2d_box_distance(pos, &tngdst->mappos);
     if (distance < max_dist)
     {
         if (tngdst->class_id == TCls_Creature)
@@ -2185,6 +2185,41 @@ long count_player_creatures_not_counting_to_total(PlayerNumber plyr_idx)
 long count_player_diggers_not_counting_to_total(PlayerNumber plyr_idx)
 {
     return count_player_list_creatures_of_model_matching_bool_filter(plyr_idx, CREATURE_DIGGER, creature_is_kept_in_custody_by_enemy_or_dying);
+}
+
+GoldAmount compute_player_backpay_total(const struct Dungeon* dungeon)
+{
+    SYNCDBG(18, "Starting");
+    GoldAmount backpay = 0;
+    unsigned long k = 0;
+    int i = dungeon->creatr_list_start;
+    while (i != 0)
+    {
+        struct Thing* thing = thing_get(i);
+        TRACE_THING(thing);
+        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+        if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
+        {
+            ERRORLOG("Jump to invalid creature detected");
+            break;
+        }
+        if (cctrl->paydays_advanced >= 0)
+        {
+            break;
+        }
+        i = cctrl->players_next_creature_idx;
+        // Thing list loop body
+        backpay += calculate_correct_creature_pay(thing);
+        // Thing list loop body ends
+        k++;
+        if (k > CREATURES_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping creatures list");
+            break;
+        }
+    }
+    SYNCDBG(19, "Finished");
+    return backpay;
 }
 
 GoldAmount compute_player_payday_total(const struct Dungeon *dungeon)
@@ -3255,6 +3290,25 @@ TbBool gold_pile_with_maximum_at_xy(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
         }
   }
   return false;
+}
+
+struct Thing* get_creature_in_range_around_any_of_enemy_heart(PlayerNumber plyr_idx, ThingModel crmodel, MapSubtlDelta range)
+{
+    int n = GAME_RANDOM(PLAYERS_COUNT);
+    for (int i = 0; i < PLAYERS_COUNT; i++, n = (n + 1) % PLAYERS_COUNT)
+    {
+        if (!players_are_enemies(plyr_idx, n))
+            continue;
+        struct Thing* heartng = get_player_soul_container(n);
+        if (thing_exists(heartng))
+        {
+            struct Thing* creatng = get_creature_in_range_of_model_owned_and_controlled_by(heartng->mappos.x.val, heartng->mappos.y.val, range, crmodel, plyr_idx);
+            if (!thing_is_invalid(creatng)) {
+                return creatng;
+            }
+        }
+    }
+    return INVALID_THING;
 }
 
 /** Finds creature on revealed subtiles around given position, who is not special digger.

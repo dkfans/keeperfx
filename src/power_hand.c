@@ -64,7 +64,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT long _DK_can_thing_be_picked_up2_by_player(const struct Thing *thing, unsigned char plyr_idx);
 DLLIMPORT void _DK_stop_creatures_around_hand(char a1, unsigned short value, unsigned short a3);
 /******************************************************************************/
 #ifdef __cplusplus
@@ -201,10 +200,42 @@ long can_thing_be_picked_up_by_player(const struct Thing *thing, PlayerNumber pl
     return can_cast_spell(plyr_idx, PwrK_HAND, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing, CastChk_Default);
 }
 
-long can_thing_be_picked_up2_by_player(const struct Thing *thing, PlayerNumber plyr_idx)
+TbBool can_thing_be_picked_up2_by_player(const struct Thing *thing, PlayerNumber plyr_idx)
 {
-    //TODO: rewrite, then give it better name
-    return _DK_can_thing_be_picked_up2_by_player(thing, plyr_idx);
+    unsigned char state;
+
+    if(!thing_is_creature(thing))
+    {
+        return (thing_is_object(thing) && object_is_pickable_by_hand_for_use(thing, plyr_idx));
+    }
+
+    if ( (game.armageddon_cast_turn > 0) && ( (game.armageddon.count_down + game.armageddon_cast_turn) <= game.play_gameturn) )
+    {
+        return false;
+    }
+    if ( (thing->active_state == CrSt_CreatureUnconscious) || ((thing->alloc_flags & TAlF_IsInLimbo) != 0) || ((thing->state_flags & TF1_InCtrldLimbo) != 0) || (thing->health <= 0) )
+    {
+        return false;
+    }
+    
+    if (thing->active_state == CrSt_MoveToPosition)
+    {
+        state = thing->continue_state;
+    }
+    else 
+    {
+        state = thing->active_state;
+    }
+
+    if ( (state == CrSt_CreatureSacrifice)
+        || (state == CrSt_CreatureBeingSacrificed) || (state == CrSt_CreatureBeingSummoned))
+    {
+        return false;
+    }
+    else
+    {
+        return (thing->owner == plyr_idx);
+    }
 }
 
 void set_power_hand_offset(struct PlayerInfo *player, struct Thing *thing)
@@ -828,8 +859,8 @@ long gold_being_dropped_on_creature(long plyr_idx, struct Thing *goldtng, struct
     if ( !taking_salary )
     {
         cctrl = creature_control_get_from_thing(creatng);
-        if (cctrl->prepayments_received < 255) {
-            cctrl->prepayments_received++;
+        if (cctrl->paydays_advanced < SCHAR_MAX) {
+            cctrl->paydays_advanced++;
         }
     }
     struct CreatureStats *crstat;

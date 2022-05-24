@@ -1268,6 +1268,50 @@ TbBool is_door_built(PlayerNumber plyr_idx, long door_idx)
     return false;
 }
 
+/**
+ * Makes all door types manufacturable.
+ */
+TbBool make_available_all_doors(PlayerNumber plyr_idx)
+{
+  SYNCDBG(0,"Starting");
+  struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
+  if (dungeon_invalid(dungeon)) {
+      ERRORDBG(11,"Cannot make doors available; player %d has no dungeon",(int)plyr_idx);
+      return false;
+  }
+  for (long i = 1; i < gameadd.trapdoor_conf.door_types_count; i++)
+  {
+    if (!set_door_buildable_and_add_to_amount(plyr_idx, i, 1, 0))
+    {
+        ERRORLOG("Could not make door %s available for player %d", door_code_name(i), plyr_idx);
+        return false;
+    }
+  }
+  return true;
+}
+
+/**
+ * Makes all trap types manufacturable.
+ */
+TbBool make_available_all_traps(PlayerNumber plyr_idx)
+{
+  SYNCDBG(0,"Starting");
+  struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
+  if (dungeon_invalid(dungeon)) {
+      ERRORDBG(11,"Cannot make traps available; player %d has no dungeon",(int)plyr_idx);
+      return false;
+  }
+  for (long i = 1; i < gameadd.trapdoor_conf.trap_types_count; i++)
+  {
+    if (!set_trap_buildable_and_add_to_amount(plyr_idx, i, 1, 0))
+    {
+        ERRORLOG("Could not make trap %s available for player %d", trap_code_name(i), plyr_idx);
+        return false;
+    }
+  }
+  return true;
+}
+
 /******************************************************************************/
 #ifdef __cplusplus
 }
