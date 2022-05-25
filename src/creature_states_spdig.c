@@ -1504,7 +1504,7 @@ short creature_picks_up_spell_object(struct Thing *creatng)
     // Create event to inform player about the spell or special (need to be done before pickup due to ownership changes)
     update_library_object_pickup_event(creatng, picktng);
     creature_drag_object(creatng, picktng);
-    if (!setup_person_move_to_coord(creatng, &pos, NavRtF_Default))
+    if (!setup_person_move_backwards_to_coord(creatng, &pos, NavRtF_Default))
     {
         SYNCDBG(8,"Cannot move to (%d,%d)",(int)pos.x.stl.num, (int)pos.y.stl.num);
         set_start_state(creatng);
