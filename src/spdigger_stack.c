@@ -2713,7 +2713,7 @@ long check_out_worker_pickup_spellbook(struct Thing *thing, struct DiggerStack *
         return 0;
     }
     struct Room *room;
-    room = find_nearest_room_for_thing_with_spare_item_capacity(thing, thing->owner, RoK_LIBRARY, NavRtF_Default);
+    room = find_nearest_room_of_role_for_thing_with_spare_item_capacity(thing, thing->owner, RoRoF_PowersStorage, NavRtF_Default);
     if (room_is_invalid(room))
     {
         update_cannot_find_room_of_role_wth_spare_capacity_event(thing->owner, thing, RoRoF_PowersStorage);
@@ -2804,7 +2804,7 @@ long check_out_worker_pickup_trap_for_workshop(struct Thing *thing, struct Digge
         return 0;
     }
     struct Room *room;
-    room = find_nearest_room_for_thing_with_spare_item_capacity(thing, thing->owner, RoK_WORKSHOP, NavRtF_Default);
+    room = find_nearest_room_of_role_for_thing_with_spare_item_capacity(thing, thing->owner, RoRoF_CratesStorage, NavRtF_Default);
     if (room_is_invalid(room))
     {
         update_cannot_find_room_of_role_wth_spare_capacity_event(thing->owner, thing, RoRoF_CratesStorage);

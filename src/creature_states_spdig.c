@@ -202,7 +202,7 @@ long check_out_unclaimed_spells(struct Thing *spdigtng, long range)
         return 0;
     }
     struct CreatureControl* cctrl = creature_control_get_from_thing(spdigtng);
-    struct Room* room = find_nearest_room_for_thing_with_spare_item_capacity(spdigtng, spdigtng->owner, RoK_LIBRARY, NavRtF_Default);
+    struct Room* room = find_nearest_room_of_role_for_thing_with_spare_item_capacity(spdigtng, spdigtng->owner, RoRoF_PowersStorage, NavRtF_Default);
     // We either found a room or not - but we can't generate event based on it yet, because we don't even know if there's any thing to pick
     const struct StructureList* slist = get_list_for_thing_class(TCls_Object);
     unsigned long k = 0;
@@ -266,7 +266,7 @@ long check_out_unclaimed_traps(struct Thing *spdigtng, long range)
         return 0;
     }
     struct CreatureControl* cctrl = creature_control_get_from_thing(spdigtng);
-    struct Room* room = find_nearest_room_for_thing_with_spare_item_capacity(spdigtng, spdigtng->owner, RoK_WORKSHOP, NavRtF_Default);
+    struct Room* room = find_nearest_room_of_role_for_thing_with_spare_item_capacity(spdigtng, spdigtng->owner, RoRoF_CratesStorage, NavRtF_Default);
     // We either found a room or not - but we can't generate event based on it yet, because we don't even know if there's any thing to pick
     const struct StructureList* slist = get_list_for_thing_class(TCls_Object);
     unsigned long k = 0;
@@ -1530,7 +1530,7 @@ short creature_picks_up_crate_for_workshop(struct Thing *creatng)
         return 0;
     }
     // Find room to drag the crate to
-    struct Room* dstroom = find_nearest_room_for_thing_with_spare_item_capacity(creatng, creatng->owner, RoK_WORKSHOP, NavRtF_Default);
+    struct Room* dstroom = find_nearest_room_of_role_for_thing_with_spare_item_capacity(creatng, creatng->owner, RoRoF_CratesStorage, NavRtF_Default);
     if ( room_is_invalid(dstroom) || !find_random_valid_position_for_thing_in_room_avoiding_object(creatng, dstroom, &pos) )
     {
         WARNLOG("Player %d can't pick %s - doesn't have proper %s to store it",(int)creatng->owner,thing_model_name(cratetng),room_code_name(RoK_WORKSHOP));
