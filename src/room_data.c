@@ -4370,73 +4370,65 @@ static void change_ownership_or_delete_object_thing_in_room(struct Room *room, s
     }
     // Handle specific things in rooms for which we have a special re-creation code
     PlayerNumber oldowner;
-    switch (room->kind)
+
+    // Guard post owns only flag, and it must be re-created
+    if (object_is_guard_flag(thing))
     {
-    case RoK_GUARDPOST:
-        // Guard post owns only flag, and it must be re-created
-        if (object_is_guard_flag(thing))
-        {
-            create_guard_flag_object(&thing->mappos, newowner, parent_idx);
-            delete_thing_structure(thing, 0);
-            return;
-        }
-        break;
-    case RoK_LIBRARY:
+        create_guard_flag_object(&thing->mappos, newowner, parent_idx);
+        delete_thing_structure(thing, 0);
+        return;
+    }
+    else if(room_role_matches(room->kind,RoRoF_PowersStorage) && thing_is_spellbook(thing) )
+    {
         // Library owns books, specials and candles; only spellbooks require additional code
-        if (thing_is_spellbook(thing))
-        {
-            oldowner = thing->owner;
-            thing->owner = newowner;
-            if (oldowner != game.neutral_player_num) {
-                remove_power_from_player(book_thing_to_power_kind(thing), oldowner);
-            }
-            if (newowner != game.neutral_player_num) {
-                add_power_to_player(book_thing_to_power_kind(thing), newowner);
-            }
-            return;
+
+        oldowner = thing->owner;
+        thing->owner = newowner;
+        if (oldowner != game.neutral_player_num) {
+            remove_power_from_player(book_thing_to_power_kind(thing), oldowner);
         }
-        break;
-    case RoK_WORKSHOP:
+        if (newowner != game.neutral_player_num) {
+            add_power_to_player(book_thing_to_power_kind(thing), newowner);
+        }
+        return;
+        
+    }
+    else if(room_role_matches(room->kind,RoRoF_CratesStorage) && thing_is_workshop_crate(thing))
+    {
         // Workshop owns trap boxes, machines and anvils; special code for boxes only
-        if (thing_is_workshop_crate(thing))
-        {
-            ThingClass tngclass;
-            ThingModel tngmodel;
-            oldowner = thing->owner;
-            thing->owner = newowner;
-            tngclass = crate_thing_to_workshop_item_class(thing);
-            tngmodel = crate_thing_to_workshop_item_model(thing);
-            remove_workshop_item_from_amount_stored(oldowner, tngclass, tngmodel, WrkCrtF_NoOffmap);
-            remove_workshop_item_from_amount_placeable(oldowner, tngclass, tngmodel);
-            add_workshop_item_to_amounts(newowner, tngclass, tngmodel);
-            return;
-        }
-        break;
-    case RoK_TREASURE:
-        if (thing_is_gold_hoard(thing))
-        {
-            oldowner = thing->owner;
-            struct Dungeon *dungeon;
-            {
-                dungeon = get_dungeon(newowner);
-                dungeon->total_money_owned += thing->valuable.gold_stored;
-            }
-            if (oldowner != game.neutral_player_num)
-            {
-                dungeon = get_dungeon(oldowner);
-                dungeon->total_money_owned -= thing->valuable.gold_stored;
-            }
-            thing->owner = newowner;
-            return;
-        }
-        break;
-    case RoK_GARDEN:
-        if (object_is_infant_food(thing) || object_is_growing_food(thing) || object_is_mature_food(thing))
-        {
-            thing->parent_idx = -1; // All chickens escape
-        }
-        break;
-    case RoK_LAIR:
+        ThingClass tngclass;
+        ThingModel tngmodel;
+        oldowner = thing->owner;
+        thing->owner = newowner;
+        tngclass = crate_thing_to_workshop_item_class(thing);
+        tngmodel = crate_thing_to_workshop_item_model(thing);
+        remove_workshop_item_from_amount_stored(oldowner, tngclass, tngmodel, WrkCrtF_NoOffmap);
+        remove_workshop_item_from_amount_placeable(oldowner, tngclass, tngmodel);
+        add_workshop_item_to_amounts(newowner, tngclass, tngmodel);
+        return;
+     }
+     else if(room_role_matches(room->kind,RoRoF_GoldStorage) && object_is_gold_hoard(thing))
+     {
+         oldowner = thing->owner;
+         struct Dungeon *dungeon;
+         {
+             dungeon = get_dungeon(newowner);
+             dungeon->total_money_owned += thing->valuable.gold_stored;
+         }
+         if (oldowner != game.neutral_player_num)
+         {
+             dungeon = get_dungeon(oldowner);
+             dungeon->total_money_owned -= thing->valuable.gold_stored;
+         }
+         thing->owner = newowner;
+         return;
+    }
+    else if(room_role_matches(room->kind,RoRoF_FoodStorage) && (object_is_infant_food(thing) || object_is_growing_food(thing) || object_is_mature_food(thing)))
+    {
+        thing->parent_idx = -1; // All chickens escape
+    }
+    else if(room_role_matches(room->kind,RoRoF_LairStorage) && thing_is_lair_totem(thing))
+    {
         // Lair - owns creature lairs
         if (objdat->related_creatr_model)
         {
@@ -4457,10 +4449,8 @@ static void change_ownership_or_delete_object_thing_in_room(struct Room *room, s
             }
             return;
         }
-        break;
-    default:
-        break;
     }
+
 
     // If an object has parent slab, then it should change owner with that slab
     if (thing->parent_idx != -1)
