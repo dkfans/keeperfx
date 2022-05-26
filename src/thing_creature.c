@@ -5190,7 +5190,15 @@ TngUpdateRet update_creature(struct Thing *thing)
     {
         struct Thing* tngp = thing_get(cctrl->dragtng_idx);
         if ((tngp->state_flags & TF1_IsDragged1) != 0)
-          move_thing_in_map(tngp, &thing->mappos);
+        {
+            struct Coord3d* tngpos = &thing->mappos;
+            struct Coord3d pvpos;
+            pvpos.x.val = tngpos->x.val - (2 * thing->velocity.x.val);
+            pvpos.y.val = tngpos->y.val - (2 * thing->velocity.y.val);
+            pvpos.z.val = tngpos->z.val;
+
+            move_thing_in_map(tngp, &pvpos);
+        }
     }
     if (update_creature_levels(thing) == -1)
     {
