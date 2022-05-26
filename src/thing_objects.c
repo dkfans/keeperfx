@@ -832,23 +832,22 @@ TbBool object_is_room_equipment(const struct Thing *thing, RoomKind rkind)
  */
 TbBool object_is_room_inventory(const struct Thing *thing, RoomKind rkind)
 {
-    switch (rkind)
-    {
-    case RoK_TREASURE:
-        return object_is_gold_hoard(thing);
-    case RoK_LIBRARY:
-        return thing_is_spellbook(thing) || thing_is_special_box(thing);
-    case RoK_DUNGHEART:
-        return thing_is_dungeon_heart(thing);
-    case RoK_WORKSHOP:
-        return thing_is_workshop_crate(thing);
-    case RoK_GARDEN:
-        return object_is_infant_food(thing) || object_is_growing_food(thing) || object_is_mature_food(thing);
-    case RoK_LAIR:
-        return thing_is_lair_totem(thing);
-    default:
-        return false;
-    }
+
+    if(room_role_matches(rkind,RoRoF_GoldStorage) && object_is_gold_hoard(thing))
+        return true;
+    if(room_role_matches(rkind,RoRoF_PowersStorage) && (thing_is_spellbook(thing) || thing_is_special_box(thing)))
+        return true;
+    if(room_role_matches(rkind,RoRoF_KeeperStorage) && thing_is_dungeon_heart(thing))
+        return true;
+    if(room_role_matches(rkind,RoRoF_CratesStorage) && thing_is_workshop_crate(thing))
+        return true;
+    if(room_role_matches(rkind,RoRoF_FoodStorage) && (object_is_infant_food(thing) || object_is_growing_food(thing) || object_is_mature_food(thing)))
+        return true;
+    if(room_role_matches(rkind,RoRoF_LairStorage) && thing_is_lair_totem(thing))
+        return true;
+
+    return false;
+    
 }
 
 TbBool object_is_unaffected_by_terrain_changes(const struct Thing *thing)
