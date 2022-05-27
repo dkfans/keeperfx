@@ -308,7 +308,7 @@ long process_creature_in_workshop(struct Thing *creatng, struct Room *room)
             break;
         }
         SYNCDBG(19,"No %s post at current pos, the %s goes from %d to search position",room_code_name(room->kind),thing_model_name(creatng),(int)cctrl->job_stage);
-        //setup_move_to_new_workshop_position(creatng, room, 0);
+        setup_move_to_new_workshop_position(creatng, room, 0);
         break;
     case 2:
     {
