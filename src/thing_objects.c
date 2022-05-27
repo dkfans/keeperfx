@@ -830,20 +830,20 @@ TbBool object_is_room_equipment(const struct Thing *thing, RoomKind rkind)
  * @param thing
  * @return
  */
-TbBool object_is_room_inventory(const struct Thing *thing, RoomKind rkind)
+TbBool object_is_room_inventory(const struct Thing *thing, RoomRole rrole)
 {
 
-    if(room_role_matches(rkind,RoRoF_GoldStorage) && object_is_gold_hoard(thing))
+    if((rrole & RoRoF_GoldStorage) && object_is_gold_hoard(thing))
         return true;
-    if(room_role_matches(rkind,RoRoF_PowersStorage) && (thing_is_spellbook(thing) || thing_is_special_box(thing)))
+    if((rrole & RoRoF_PowersStorage) && (thing_is_spellbook(thing) || thing_is_special_box(thing)))
         return true;
-    if(room_role_matches(rkind,RoRoF_KeeperStorage) && thing_is_dungeon_heart(thing))
+    if((rrole & RoRoF_KeeperStorage) && thing_is_dungeon_heart(thing))
         return true;
-    if(room_role_matches(rkind,RoRoF_CratesStorage) && thing_is_workshop_crate(thing))
+    if((rrole & RoRoF_CratesStorage) && thing_is_workshop_crate(thing))
         return true;
-    if(room_role_matches(rkind,RoRoF_FoodStorage) && (object_is_infant_food(thing) || object_is_growing_food(thing) || object_is_mature_food(thing)))
+    if((rrole & RoRoF_FoodStorage) && (object_is_infant_food(thing) || object_is_growing_food(thing) || object_is_mature_food(thing)))
         return true;
-    if(room_role_matches(rkind,RoRoF_LairStorage) && thing_is_lair_totem(thing))
+    if((rrole & RoRoF_LairStorage) && thing_is_lair_totem(thing))
         return true;
 
     return false;

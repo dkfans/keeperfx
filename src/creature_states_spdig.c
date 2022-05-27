@@ -278,7 +278,7 @@ long check_out_unclaimed_traps(struct Thing *spdigtng, long range)
           break;
         i = thing->next_of_class;
         // Per-thing code
-        if (thing_can_be_picked_to_place_in_player_room(thing, spdigtng->owner, RoK_WORKSHOP, TngFRPickF_AllowStoredInOwnedRoom))
+        if (thing_can_be_picked_to_place_in_player_room_of_role(thing, spdigtng->owner, RoRoF_CratesStorage, TngFRPickF_AllowStoredInOwnedRoom))
         {
             if ((range < 0) || get_2d_box_distance(&thing->mappos, &spdigtng->mappos) < range)
             {
@@ -302,7 +302,7 @@ long check_out_unclaimed_traps(struct Thing *spdigtng, long range)
                         }
                     }
                     // No trap to arm - get the crate into workshop, if it's not already on it
-                    if (thing_can_be_picked_to_place_in_player_room(thing, spdigtng->owner, RoK_WORKSHOP, TngFRPickF_Default))
+                    if (thing_can_be_picked_to_place_in_player_room_of_role(thing, spdigtng->owner, RoRoF_CratesStorage, TngFRPickF_Default))
                     {
                         // We have a thing which we should pick - now check if the room we found is correct
                         if (room_is_invalid(room)) {
@@ -1438,7 +1438,7 @@ short creature_picks_up_corpse(struct Thing *creatng)
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     struct Thing* picktng = thing_get(cctrl->pickup_object_id);
     TRACE_THING(picktng);
-    if (!thing_can_be_picked_to_place_in_player_room(picktng, creatng->owner, RoK_LIBRARY, TngFRPickF_Default)
+    if (!thing_can_be_picked_to_place_in_player_room_of_role(picktng, creatng->owner, RoRoF_PowersStorage, TngFRPickF_Default)
      || (get_2d_box_distance(&creatng->mappos, &picktng->mappos) >= subtile_coord(2,0)))
     if ( thing_is_invalid(picktng) || ((picktng->alloc_flags & TAlF_IsDragged) != 0)
       || (get_2d_box_distance(&creatng->mappos, &picktng->mappos) >= 512))
@@ -1482,7 +1482,7 @@ short creature_picks_up_spell_object(struct Thing *creatng)
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     struct Thing* picktng = thing_get(cctrl->pickup_object_id);
     TRACE_THING(picktng);
-    if (!thing_can_be_picked_to_place_in_player_room(picktng, creatng->owner, RoK_LIBRARY, TngFRPickF_Default)
+    if (!thing_can_be_picked_to_place_in_player_room_of_role(picktng, creatng->owner, RoRoF_PowersStorage, TngFRPickF_Default)
      || (get_2d_box_distance(&creatng->mappos, &picktng->mappos) >= subtile_coord(2,0)))
     {
         set_start_state(creatng);
@@ -1523,7 +1523,7 @@ short creature_picks_up_crate_for_workshop(struct Thing *creatng)
     struct Thing* cratetng = thing_get(cctrl->pickup_object_id);
     TRACE_THING(cratetng);
     // Check if everything is right
-    if (!thing_can_be_picked_to_place_in_player_room(cratetng, creatng->owner, RoK_WORKSHOP, TngFRPickF_Default)
+    if (!thing_can_be_picked_to_place_in_player_room_of_role(cratetng, creatng->owner, RoRoF_CratesStorage, TngFRPickF_Default)
      || (get_2d_box_distance(&creatng->mappos, &cratetng->mappos) >= subtile_coord(2,0)))
     {
         set_start_state(creatng);

@@ -1414,17 +1414,17 @@ int add_pretty_and_convert_to_imp_stack(struct Dungeon *dungeon, int max_tasks)
  * @param rkind
  * @return
  */
-TbBool thing_can_be_picked_to_place_in_player_room(const struct Thing* thing, PlayerNumber plyr_idx, RoomKind rkind, unsigned short flags)
+TbBool thing_can_be_picked_to_place_in_player_room_of_role(const struct Thing* thing, PlayerNumber plyr_idx, RoomRole rrole, unsigned short flags)
 {
     if (thing_is_object(thing))
     {
-        if (!object_is_room_inventory(thing, rkind)) {
+        if (!object_is_room_inventory(thing, rrole)) {
             return false;
         }
     } else
     if (thing_is_dead_creature(thing))
     {
-        if (!dead_creature_is_room_inventory(thing, rkind)) {
+        if (!dead_creature_is_room_inventory(thing, rrole)) {
             return false;
         }
     } else
@@ -1501,8 +1501,8 @@ struct Thing *get_next_unclaimed_gold_thing_pickable_by_digger(PlayerNumber owne
         // Per-thing code
         if (thing_is_object(thing) && object_is_gold_pile(thing))
         {
-            // TODO DIGGERS Use thing_can_be_picked_to_place_in_player_room() instead of single conditions
-            //if (thing_can_be_picked_to_place_in_player_room(thing, owner, RoK_TREASURE, TngFRPickF_Default))
+            // TODO DIGGERS Use thing_can_be_picked_to_place_in_player_room_of_role() instead of single conditions
+            //if (thing_can_be_picked_to_place_in_player_room_of_role(thing, owner, RoRoF_GoldStorage, TngFRPickF_Default))
             if (!thing_is_picked_up(thing) && !thing_is_dragged_or_pulled(thing))
             {
                   if (thing_revealed(thing, owner))
@@ -1728,7 +1728,7 @@ int add_unclaimed_spells_to_imp_stack(struct Dungeon *dungeon, int max_tasks)
         if ((dungeon->digger_stack_length >= DIGGER_TASK_MAX_COUNT) || (remain_num <= 0)) {
             break;
         }
-        if (thing_can_be_picked_to_place_in_player_room(thing, dungeon->owner, RoK_LIBRARY, TngFRPickF_Default))
+        if (thing_can_be_picked_to_place_in_player_room_of_role(thing, dungeon->owner, RoRoF_PowersStorage, TngFRPickF_Default))
         {
             if (room_is_invalid(room))
             {
@@ -1869,7 +1869,7 @@ int add_unclaimed_traps_to_imp_stack(struct Dungeon *dungeon, int max_tasks)
         if ((dungeon->digger_stack_length >= DIGGER_TASK_MAX_COUNT) || (remain_num <= 0)) {
             break;
         }
-        if (thing_can_be_picked_to_place_in_player_room(thing, dungeon->owner, RoK_WORKSHOP, TngFRPickF_Default))
+        if (thing_can_be_picked_to_place_in_player_room_of_role(thing, dungeon->owner, RoRoF_CratesStorage, TngFRPickF_Default))
         {
             if (room_is_invalid(room))
             {
@@ -2246,7 +2246,7 @@ struct Thing *check_place_to_pickup_crate(const struct Thing *creatng, MapSubtlC
         }
         i = thing->next_on_mapblk;
         // Per thing code start
-        if (thing_can_be_picked_to_place_in_player_room(thing, creatng->owner, RoK_WORKSHOP, flags))
+        if (thing_can_be_picked_to_place_in_player_room_of_role(thing, creatng->owner, RoRoF_CratesStorage, flags))
         {
             if (n > 0) {
                 n--;

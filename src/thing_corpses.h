@@ -44,7 +44,7 @@ enum DeadCreatureStates {
 TbBool corpse_is_rottable(const struct Thing *thing);
 TbBool corpse_laid_to_rest(const struct Thing* thing);
 TbBool corpse_ready_for_collection(const struct Thing* thing);
-TbBool dead_creature_is_room_inventory(const struct Thing *thing, RoomKind rkind);
+TbBool dead_creature_is_room_inventory(const struct Thing *thing, RoomRole rrole);
 TbBool update_dead_creatures_list(struct Dungeon *dungeon, const struct Thing *thing);
 TbBool update_dead_creatures_list_for_owner(const struct Thing *thing);
 TbBool add_item_to_dead_creature_list(struct Dungeon *dungeon, ThingModel crmodel, long crlevel);
