@@ -1453,7 +1453,7 @@ TbBool thing_can_be_picked_to_place_in_player_room_of_role(const struct Thing* t
     if ((thing->owner == dungeon->owner) && (slabmap_owner(slb) == game.neutral_player_num))
     {
         if (thing_is_object(thing)) {
-            WARNLOG("The %s owner %d found on neutral ground instead of owner's %s",thing_model_name(thing),(int)thing->owner,room_code_name(rkind));
+            WARNLOG("The %s owner %d found on neutral ground instead of owner's %s",thing_model_name(thing),(int)thing->owner,room_role_code_name(rrole));
         }
         return true;
     } else
@@ -1461,7 +1461,7 @@ TbBool thing_can_be_picked_to_place_in_player_room_of_role(const struct Thing* t
     if (!players_are_mutual_allies(dungeon->owner, thing->owner) && (slabmap_owner(slb) == dungeon->owner))
     {
         if (thing_is_object(thing)) {
-            WARNLOG("The %s owner %d found on own ground instead of owner's %s",thing_model_name(thing),(int)thing->owner,room_code_name(rkind));
+            WARNLOG("The %s owner %d found on own ground instead of owner's %s",thing_model_name(thing),(int)thing->owner,room_role_code_name(rrole));
         }
         return true;
     } else
@@ -1474,10 +1474,10 @@ TbBool thing_can_be_picked_to_place_in_player_room_of_role(const struct Thing* t
         }
         struct Room* room;
         room = get_room_thing_is_on(thing);
-        if (room_is_invalid(room) || (room->kind != rkind))
+        if (room_is_invalid(room) || (room_role_matches(room->kind,rrole)))
         {
             if (thing_is_object(thing)) {
-                WARNLOG("The %s owner %d found on his ground but outside %s",thing_model_name(thing),(int)thing->owner,room_code_name(rkind));
+                WARNLOG("The %s owner %d found on his ground but outside %s",thing_model_name(thing),(int)thing->owner,room_role_code_name(rrole));
             }
             return true;
         }

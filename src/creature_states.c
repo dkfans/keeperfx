@@ -2628,7 +2628,7 @@ short creature_search_for_spell_to_steal_in_room(struct Thing *creatng)
     TRACE_THING(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     struct Room* room = subtile_room_get(creatng->mappos.x.stl.num, creatng->mappos.y.stl.num);
-    if (room_is_invalid(room) || (room->kind != RoK_LIBRARY))
+    if (room_is_invalid(room) || !room_role_matches(room->kind,RoRoF_PowersStorage))
     {
         WARNLOG("Cannot steal spell - not on library at (%d,%d)",
             (int)creatng->mappos.x.stl.num, (int)creatng->mappos.y.stl.num);

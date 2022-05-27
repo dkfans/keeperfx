@@ -5986,7 +5986,7 @@ TbBool thing_is_pickable_by_digger(struct Thing *picktng, struct Thing *creatng)
     }
     else if (thing_can_be_picked_to_place_in_player_room_of_role(picktng, creatng->owner, RoRoF_PowersStorage, TngFRPickF_Default))
     {
-        return (get_room_slabs_count(creatng->owner, RoK_LIBRARY) > 0);
+        return (get_room_of_role_slabs_count(creatng->owner, RoRoF_PowersStorage) > 0);
     }
     else if (thing_can_be_picked_to_place_in_player_room_of_role(picktng, creatng->owner, RoRoF_CratesStorage, TngFRPickF_Default))
     {

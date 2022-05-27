@@ -47,7 +47,7 @@ extern "C" {
 /******************************************************************************/
 struct Thing *create_spell_in_library(struct Room *room, ThingModel tngmodel, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    if (room->kind != RoK_LIBRARY) {
+    if (!room_role_matches(room->kind,RoRoF_PowersStorage)) {
         SYNCDBG(4,"Cannot add spell to %s owned by player %d",room_code_name(room->kind),(int)room->owner);
         return INVALID_THING;
     }
@@ -81,7 +81,7 @@ struct Thing *create_spell_in_library(struct Room *room, ThingModel tngmodel, Ma
 
 TbBool remove_spell_from_library(struct Room *room, struct Thing *spelltng, PlayerNumber new_owner)
 {
-    if ( (room->kind != RoK_LIBRARY) || (spelltng->owner != room->owner) ) {
+    if ( (!room_role_matches(room->kind,RoRoF_PowersStorage)) || (spelltng->owner != room->owner) ) {
         SYNCDBG(4,"Spell %s owned by player %d found in a %s owned by player %d, instead of proper library",thing_model_name(spelltng),(int)spelltng->owner,room_code_name(room->kind),(int)room->owner);
         return false;
     }

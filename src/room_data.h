@@ -189,6 +189,7 @@ void set_room_efficiency(struct Room *room);
 void set_room_stats(struct Room *room, TbBool skip_integration);
 void do_room_recalculation(struct Room* room);
 long get_room_slabs_count(PlayerNumber plyr_idx, RoomKind rkind);
+long get_room_of_role_slabs_count(PlayerNumber plyr_idx, RoomRole rrole);
 long get_room_kind_used_capacity_fraction(PlayerNumber plyr_idx, RoomKind room_kind);
 void get_room_kind_total_and_used_capacity(struct Dungeon *dungeon, RoomKind room_kind, long *total_cap, long *used_cap);
 void get_room_kind_total_used_and_storage_capacity(struct Dungeon *dungeon, RoomKind room_kind, long *total_cap, long *used_cap, long *storaged_cap);

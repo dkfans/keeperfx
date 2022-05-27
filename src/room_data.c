@@ -240,6 +240,47 @@ long get_room_slabs_count(PlayerNumber plyr_idx, RoomKind rkind)
     return count;
 }
 
+/**
+ * Recomputes the amount of slabs the player has.
+ * @param plyr_idx
+ * @param rrole
+ */
+long get_room_of_role_slabs_count(PlayerNumber plyr_idx, RoomRole rrole)
+{
+    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
+    long count = 0;
+
+    for (RoomKind rkind = 0; rkind < slab_conf.room_types_count; rkind++)
+    {
+        if(!room_role_matches(rkind,rrole))
+        {
+            continue;
+        }
+        long i = dungeonadd->room_kind[rkind];
+        unsigned long k = 0;
+        while (i != 0)
+        {
+            struct Room* room = room_get(i);
+            if (room_is_invalid(room))
+            {
+                ERRORLOG("Jump to invalid room detected");
+                break;
+            }
+            i = room->next_of_owner;
+            // Per-room code
+            count += room->slabs_count;
+            // Per-room code ends
+            k++;
+            if (k > ROOMS_COUNT)
+            {
+                ERRORLOG("Infinite loop detected when sweeping rooms list");
+                break;
+            }
+        }
+    }
+    return count;
+}
+
 long count_slabs_of_room_type(PlayerNumber plyr_idx, RoomKind rkind)
 {
     long nslabs = 0;

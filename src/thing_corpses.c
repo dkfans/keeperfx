@@ -113,7 +113,7 @@ TbBool dead_creature_is_room_inventory(const struct Thing *thing, RoomRole rrole
     {
         return true;
     }
-    return false
+    return false;
 }
 
 TbBool create_vampire_in_room(struct Room *room)
