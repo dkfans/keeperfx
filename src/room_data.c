@@ -1860,7 +1860,7 @@ TbBool add_room_to_players_list(struct Room *room, PlayerNumber plyr_idx)
     if (plyr_idx == game.neutral_player_num) {
         return false;
     }
-    if (room->kind >= ROOM_TYPES_COUNT_OLD) {
+    if (room->kind >= slab_conf.room_types_count) {
         ERRORLOG("Room index %d has invalid kind %d",(int)room->index,(int)room->kind);
         return false;
     }
@@ -1899,7 +1899,7 @@ TbBool remove_room_from_players_list(struct Room *room, PlayerNumber plyr_idx)
     if (plyr_idx == game.neutral_player_num) {
         return false;
     }
-    if (room->kind >= ROOM_TYPES_COUNT_OLD) {
+    if (room->kind >= slab_conf.room_types_count) {
         ERRORLOG("Room index %d has invalid kind %d",(int)room->index,(int)room->kind);
         return false;
     }
