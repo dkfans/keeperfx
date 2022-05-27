@@ -1410,7 +1410,7 @@ short creature_pick_up_unconscious_body(struct Thing *thing)
     if (room_is_invalid(dstroom))
     {
         // Check why the treasure room search failed and inform the player
-        update_cannot_find_room_of_role_wth_spare_capacity_event(thing->owner, thing, RoRoF_CratesStorage);
+        update_cannot_find_room_of_role_wth_spare_capacity_event(thing->owner, thing, RoRoF_Prison);
         set_start_state(thing);
         return 0;
     }
@@ -1450,7 +1450,7 @@ short creature_picks_up_corpse(struct Thing *creatng)
     if (room_is_invalid(dstroom))
     {
         // Check why the treasure room search failed and inform the player
-        update_cannot_find_room_of_role_wth_spare_capacity_event(creatng->owner, creatng, RoRoF_CratesStorage);
+        update_cannot_find_room_of_role_wth_spare_capacity_event(creatng->owner, creatng, RoRoF_Prison);
         set_start_state(creatng);
         return 0;
     }
