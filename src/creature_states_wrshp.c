@@ -21,6 +21,7 @@
 
 #include "bflib_math.h"
 #include "creature_states.h"
+#include "creature_states_mood.h"
 #include "thing_list.h"
 #include "creature_control.h"
 #include "creature_instances.h"
@@ -374,6 +375,7 @@ long process_creature_in_workshop(struct Thing *creatng, struct Room *room)
         }
         break;
     }
+    process_job_stress_and_going_postal(creatng);
     return 1;
 }
 
