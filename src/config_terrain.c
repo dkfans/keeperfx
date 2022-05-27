@@ -1245,7 +1245,7 @@ TbBool make_all_rooms_free(void)
 TbBool make_all_rooms_researchable(PlayerNumber plyr_idx)
 {
     struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
-    if (dungeon_invalid(dungeonadd)) {
+    if (dungeonadd_invalid(dungeonadd)) {
         ERRORDBG(11,"Cannot do; player %d has no dungeon",(int)plyr_idx);
         return false;
     }
