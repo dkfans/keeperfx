@@ -375,7 +375,7 @@ long process_creature_in_workshop(struct Thing *creatng, struct Room *room)
         }
         break;
     }
-    process_job_stress_and_going_postal(creatng);
+    process_job_stress_and_going_postal(creatng); //This is normally called at thing_navigate to handle all jobs, but since workshops have a special function, call it here too. 
     return 1;
 }
 
