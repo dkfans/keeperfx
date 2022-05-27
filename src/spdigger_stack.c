@@ -1474,7 +1474,7 @@ TbBool thing_can_be_picked_to_place_in_player_room_of_role(const struct Thing* t
         }
         struct Room* room;
         room = get_room_thing_is_on(thing);
-        if (room_is_invalid(room) || (room_role_matches(room->kind,rrole)))
+        if (room_is_invalid(room) || (!room_role_matches(room->kind,rrole)))
         {
             if (thing_is_object(thing)) {
                 WARNLOG("The %s owner %d found on his ground but outside %s",thing_model_name(thing),(int)thing->owner,room_role_code_name(rrole));
