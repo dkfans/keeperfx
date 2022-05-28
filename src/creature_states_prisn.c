@@ -38,6 +38,8 @@
 #include "room_list.h"
 #include "gui_soundmsgs.h"
 #include "game_legacy.h"
+#include "player_instances.h"
+#include "creature_senses.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -345,145 +347,7 @@ TbBool process_prisoner_skelification(struct Thing *thing, struct Room *room)
     prison_convert_creature_to_skeleton(room,thing);
     return true;
 }
-static int __cdecl find_random_thing_in_room(int oclass, int model,struct Room *room)
-{
-  int slabs_list; // esi
-  unsigned int v4; // eax
-  int v5; // ebp
-  signed int v6; // ebx
-  int result; // eax
-  unsigned int v8; // [esp+10h] [ebp-18h]
-  int v9; // [esp+14h] [ebp-14h]
 
-  if ( room <= (Room *)game_rooms )
-  {
-    error(aDDevKeepnewRoo, 5659, aInvalidRoomPas);
-    return 0;
-  }
-  slabs_list = (unsigned __int16)room->slabs_list;
-  game_action_rand_seed = __ROR4__(9377 * game_action_rand_seed + 9439, 13);
-  v8 = game_action_rand_seed % (unsigned int)(unsigned __int16)room->slabs_count;
-  if ( v8 )
-  {
-    v4 = game_action_rand_seed % (unsigned int)(unsigned __int16)room->slabs_count;
-    do
-    {
-      slabs_list = (unsigned __int16)word_72662A[3 * slabs_list];
-      --v4;
-    }
-    while ( v4 );
-  }
-  v9 = 0;
-  if ( !room->slabs_count )
-    return 0;
-LABEL_6:
-  if ( (unsigned __int16)room->slabs_count == v8 )
-  {
-    v8 = 0;
-    slabs_list = (unsigned __int16)room->slabs_list;
-  }
-  v5 = 0;
-  game_action_rand_seed = __ROR4__(9377 * game_action_rand_seed + 9439, 13);
-  v6 = game_action_rand_seed % 9u;
-  while ( 1 )
-  {
-    result = (int)find_base_thing_on_mapwho(
-                    oclass,
-                    model,
-                    v6 % 3 + 3 * (slabs_list % 85),
-                    3 * (slabs_list / 85) + v6 / 3);
-    if ( result )
-      return result;
-    ++v5;
-    v6 = (v6 + 1) % 9;
-    if ( v5 >= 9 )
-    {
-      ++v9;
-      slabs_list = (unsigned __int16)word_72662A[3 * slabs_list];
-      ++v8;
-      if ( (unsigned __int16)room->slabs_count > v9 )
-        goto LABEL_6;
-      return 0;
-    }
-  }
-}
-
-static char *__cdecl get_room_at_pos(int a1)
-{
-  char *result; // eax
-  int v2; // edx
-
-  result = 0;
-  v2 = *(unsigned __int8 *)(a1 + 1);
-  if ( (game_map[1280 * *(unsigned __int8 *)(a1 + 3) + 5 * v2] & 2) != 0 )
-    return &game_rooms[69
-                     * (unsigned __int8)get_room_thing_is_on[510
-                                                           * *((_DWORD *)&map_to_slab + *(unsigned __int8 *)(a1 + 3))
-                                                           + 6 * *((_DWORD *)&map_to_slab + v2)]];
-  return result;
-}
-
-static har __cdecl line_of_room_move_2d(unsigned __int16 *a1, unsigned __int16 *a2, char *a3)
-{
-  int v3; // edi
-  int v4; // esi
-  unsigned __int16 v5; // ax
-  int v6; // ebp
-  int v7; // ebx
-  int v8; // esi
-  int v9; // ebp
-  int v10; // eax
-  int v11; // esi
-  unsigned __int16 v12; // cx
-  int v14; // [esp+10h] [ebp-8h] BYREF
-  unsigned __int16 v15; // [esp+14h] [ebp-4h]
-
-  v3 = 80;
-  v4 = *a2 - *a1;
-  v5 = a1[1];
-  v6 = a2[1] - v5;
-  if ( v4 < 0 )
-  {
-    v4 = *a1 - *a2;
-    v3 = -80;
-  }
-  v7 = 80;
-  if ( v6 < 0 )
-  {
-    v6 = v5 - a2[1];
-    v7 = -80;
-  }
-  v8 = v4 + 1;
-  v9 = v6 + 1;
-  if ( v9 == v8 )
-  {
-    v10 = v8 / 80;
-  }
-  else if ( v9 >= v8 )
-  {
-    v3 = v8 * v3 / v9;
-    v10 = v9 / 80;
-  }
-  else
-  {
-    v7 = v9 * v7 / v8;
-    v10 = v8 / 80;
-  }
-  v11 = v10;
-  v12 = a1[2];
-  v14 = *(_DWORD *)a1;
-  v15 = v12;
-  if ( !v10 )
-    return 1;
-  while ( get_room_at_pos((int)&v14) == a3 )
-  {
-    LOWORD(v14) = v3 + v14;
-    HIWORD(v14) += v7;
-    if ( !--v11 )
-      return 1;
-  }
-  return 0;
-}
 
 
 void food_set_wait_to_be_eaten(struct Thing *thing)
@@ -498,72 +362,60 @@ void food_set_wait_to_be_eaten(struct Thing *thing)
     }
     else
     {
-        thing->food.byte15 = -1;
-        thing->food.byte16 = 127;
+        thing->food.byte_15 = -1;
+        thing->food.byte_16 = 127;
     }
 }
 
-TbBool process_prison_food(struct Thing *thing, struct Room *room)
+TbBool process_prison_food(struct Thing *creatng, struct Room *room)
 {
-    int v2; // ebp
-    struct Thing *base_thing_on_mapwho_at_pos; // eax
-    struct Thing *v4; // edi
-    __int32 result; // eax
-    struct Thing *v6; // eax
-    Thing *v7; // edi
+    struct Thing *foodtng;
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    struct CreatureStats* crstat = creature_stats_get(creatng->model);
 
-    v2 = game_persons_cctrl_lookup[(unsigned __int16)thing->ccontrol_idx];
-    if ( !crstat_hunger_rate[115 * (unsigned __int8)thing->model] )
+    if ( crstat->hunger_rate == 0 )
         return false;
-    base_thing_on_mapwho_at_pos = find_base_thing_on_mapwho_at_pos(1u, 10, &thing->mappos);
-    v4 = base_thing_on_mapwho_at_pos;
-    if ( !base_thing_on_mapwho_at_pos )
+
+    foodtng = get_food_at_subtile_available_to_eat_and_owned_by(creatng->mappos.x.val,creatng->mappos.y.val, -1);
+    if ( thing_is_invalid(foodtng) )
     {
-        if ( (((_BYTE)game_play_gameturn + LOBYTE(thing->index)) & 0x3F) == 0
-        && !find_base_thing_on_mapwho_at_pos(1u, 10, (struct Coord3d *)(v2 + 45)) )
+        long offsetted_gameturn = game.play_gameturn + creatng->index;
+        if ((offsetted_gameturn % 64 == 0)
+        && !get_food_at_subtile_available_to_eat_and_owned_by(cctrl->moveto_pos.x.val,cctrl->moveto_pos.y.val, -1))
         {
-        v6 = (struct Thing *)sub_4BDFC0(1, 10, room);
-        v7 = v6;
-        if ( v6 )
-        {
-            if ( !is_thing_directly_controlled(v6)
-            && line_of_room_move_2d((unsigned __int16 *)&thing->mappos, (unsigned __int16 *)&v7->mappos, &room->field_0)
-            && setup_person_move_to_position(
-                thing,
-                (unsigned __int8)v7->mappos.x_stl_num,
-                (unsigned __int8)v7->mappos.y_stl_num,
-                0) )
+            foodtng = find_random_thing_in_room(1, 10, room); //1,10 = mature_food
+            if ( !thing_is_invalid(foodtng) )
             {
-            thing->continue_state = CrSt_CreatureInPrison;
-            food_set_wait_to_be_eaten((int)v7);
-            return true;
+                if ( !is_thing_directly_controlled(foodtng)
+                && line_of_room_move_2d(
+                    (unsigned __int16 *)&creatng->mappos,
+                    (unsigned __int16 *)&foodtng->mappos,
+                    &room->alloc_flags)
+                && setup_person_move_to_position(
+                    creatng,
+                    foodtng->mappos.x.stl.num,
+                    foodtng->mappos.y.stl.num,
+                    0) )
+                {
+                creatng->continue_state = CrSt_CreatureInPrison;
+                food_set_wait_to_be_eaten(foodtng);
+                return 1;
+                }
             }
         }
-        }
         return false;
     }
-    if ( is_thing_directly_controlled(base_thing_on_mapwho_at_pos) )
+    if ( is_thing_directly_controlled(foodtng) )
         return false;
-    game_action_rand_seed = __ROR4__(9377 * game_action_rand_seed + 9439, 13);
-    thing_play_sample(thing, game_action_rand_seed % 3u + 112, 0x64u, 0, 3u, 0, 2, 256);
-    if ( thing->active_state != CrSt_CreatureInPrison )
-        internal_set_thing_state(thing, CrSt_CreatureInPrison);
-    set_creature_instance(thing, 36, 1, 0, 0);
-    delete_thing_structure(v4, 0);
-    
 
-/*
-    const struct Dungeon* dungeon = get_players_num_dungeon(room->owner);
-    struct CreatureStorage* cstore;
-    if (i >= 0)
-    {
-        cstore = &dungeon->dead_creatures[i];
-        cstore->count++;
-        SYNCDBG(18,"Already in list");
-        return true;
-    }
-*/
-    ++*(_DWORD *)&game_dungeon_0.dead_creatures[2692 * room->owner - 70].model;
+    thing_play_sample(creatng, 112 + UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+    if ( creatng->active_state != 41 )
+        internal_set_thing_state(creatng, 41);
+    set_creature_instance(creatng, 36, 1, 0, 0);
+    delete_thing_structure(foodtng, 0);
+    
+    struct Dungeon* dungeon = get_players_num_dungeon(room->owner);
+    dungeon->lvstats.chickens_eaten++;
     return true;
 }
 

@@ -75,7 +75,7 @@ Thing_Class_Func class_functions[] = {
 unsigned long thing_create_errors = 0;
 
 /******************************************************************************/
-
+DLLIMPORT struct Thing *_DK_find_random_thing_in_room(ThingClass tngclass, ThingModel tngmodel,struct Room *room);
 /******************************************************************************/
 /**
  * Adds thing at beginning of a StructureList.
@@ -1360,6 +1360,11 @@ struct Thing *find_creature_lair_totem_at_subtile(MapSubtlCoord stl_x, MapSubtlC
         }
     }
     return INVALID_THING;
+}
+
+struct Thing *find_random_thing_in_room(ThingClass tngclass, ThingModel tngmodel,struct Room *room)
+{
+    return _DK_find_random_thing_in_room(tngclass, tngmodel, room);
 }
 
 /**
