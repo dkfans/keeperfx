@@ -436,40 +436,40 @@ CrCheckRet process_prison_function(struct Thing *creatng)
         WARNLOG("Room %s owned by player %d is bad work place for %s index %d owner %d", room_code_name(room->kind), (int)room->owner, thing_model_name(creatng), (int)creatng->index, (int)creatng->owner);
         set_start_state(creatng);
         return CrCkRet_Continue;
-  }
-  process_creature_hunger(creatng);
-  struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
-  if (process_prisoner_skelification(creatng, room))
-  {
-      return CrCkRet_Deleted;
-  }
-  else if ((creatng->health < 0) && (!crstat->humanoid_creature))
-  { 
-      if (is_my_player_number(room->owner))
-      {
-          output_message(SMsg_PrisonersStarving, MESSAGE_DELAY_STARVING, 1);
-      }
-  }
-  struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-  if ((cctrl->instance_id == CrInst_NULL) && process_prison_food(creatng, room) )
-    return CrCkRet_Continue;
-  // Breaking from jail is only possible once per some amount of turns,
-  // and only if creature sits in jail for long enough
-  if (((game.play_gameturn % gameadd.time_between_prison_break) == 0) &&
-      (game.play_gameturn > cctrl->imprison.start_gameturn + gameadd.time_in_prison_without_break))
-  {
-      // Check the base jail break condition - whether prison touches enemy land
-      if (jailbreak_possible(room, creatng->owner) && (CREATURE_RANDOM(creatng, 100) < gameadd.prison_break_chance))
-      {
-          if (is_my_player_number(room->owner))
-              output_message(SMsg_PrisonersEscaping, 40, true);
-          else if (is_my_player_number(room->owner))
-              output_message(SMsg_CreatrFreedPrison, 40, true);
-          set_start_state(creatng);
-          return CrCkRet_Continue;
-      }
-  }
-  return CrCkRet_Available;
+    }
+    process_creature_hunger(creatng);
+    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+    if (process_prisoner_skelification(creatng, room))
+    {
+        return CrCkRet_Deleted;
+    }
+    else if ((creatng->health < 0) && (!crstat->humanoid_creature))
+    { 
+        if (is_my_player_number(room->owner))
+        {
+            output_message(SMsg_PrisonersStarving, MESSAGE_DELAY_STARVING, 1);
+        }
+    }
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    if ((cctrl->instance_id == CrInst_NULL) && process_prison_food(creatng, room) )
+        return CrCkRet_Continue;
+    // Breaking from jail is only possible once per some amount of turns,
+    // and only if creature sits in jail for long enough
+    if (((game.play_gameturn % gameadd.time_between_prison_break) == 0) &&
+        (game.play_gameturn > cctrl->imprison.start_gameturn + gameadd.time_in_prison_without_break))
+    {
+        // Check the base jail break condition - whether prison touches enemy land
+        if (jailbreak_possible(room, creatng->owner) && (CREATURE_RANDOM(creatng, 100) < gameadd.prison_break_chance))
+        {
+            if (is_my_player_number(room->owner))
+                output_message(SMsg_PrisonersEscaping, 40, true);
+            else if (is_my_player_number(room->owner))
+                output_message(SMsg_CreatrFreedPrison, 40, true);
+            set_start_state(creatng);
+            return CrCkRet_Continue;
+        }
+    }
+    return CrCkRet_Available;
 }
 
 /******************************************************************************/
