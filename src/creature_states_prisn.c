@@ -352,8 +352,6 @@ TbBool process_prisoner_skelification(struct Thing *thing, struct Room *room)
     return true; //return true even if no skeleton could be created due to creature limit. Otherwise there's a confusing sound message. 
 }
 
-
-
 void food_set_wait_to_be_eaten(struct Thing *thing)
 {
 
@@ -387,7 +385,7 @@ TbBool process_prison_food(struct Thing *creatng, struct Room *room)
        if ((offsetted_gameturn % 64 == 0)
         && thing_is_invalid(get_food_at_subtile_available_to_eat_and_owned_by(cctrl->moveto_pos.x.stl.num,cctrl->moveto_pos.y.stl.num, -1)))
         {
-            foodtng = find_random_thing_in_room(1, 10, room); //1,10 = mature_food
+            foodtng = find_random_thing_in_room(TCls_Object, 10, room); //10 = mature_food
             if ( !thing_is_invalid(foodtng) )
             {
                 if ( !is_thing_directly_controlled(foodtng)
