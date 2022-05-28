@@ -434,7 +434,7 @@ short check_and_asimilate_thing_by_room(struct Thing *thing)
             value_left = gold_value - value_added;
             if (value_left > 0)
             {
-                create_gold_pile(&thing->mappos, thing->owner, gold_value);
+                create_gold_pile(&thing->mappos, thing->owner, value_left);
             }
             return true;
         }

@@ -240,6 +240,7 @@ struct PlayerInfoAdd {
     struct CheatSelection cheatselection;
     TbBool first_person_dig_claim_mode;
     unsigned char teleport_destination;
+    TbBool nearest_teleport;
     BattleIndex battleid;
     unsigned short selected_fp_thing_pickup;
     struct RoomSpace render_roomspace;
@@ -256,6 +257,7 @@ struct PlayerInfoAdd {
     char swap_to_untag_mode; // 0 = no, 1 = maybe, 2= yes, -1 = disable
     unsigned char roomspace_highlight_mode;
     TbBool roomspace_no_default;
+    TbBool cheat_menu_active;
     };
 
 /******************************************************************************/

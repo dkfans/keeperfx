@@ -489,7 +489,6 @@ int draw_overlay_creatures(struct PlayerInfo *player, long units_per_px, long zo
                 {
                     if ((thing->model == gui_creature_type_highlighted) && (game.play_gameturn & 2))
                     {
-                        short pixel_end = get_pixels_scaled_and_zoomed(basic_zoom * 4);
                         short pixels_amount = scale_pixel(basic_zoom * 4);
                         pannel_map_draw_creature_dot(mapos_x + pixels_amount, mapos_y, basepos, col2, basic_zoom, isLowRes);
                         pannel_map_draw_creature_dot(mapos_x - pixels_amount, mapos_y, basepos, col2, basic_zoom, isLowRes);

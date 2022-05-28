@@ -884,7 +884,7 @@ long get_dungeon_control_action_inputs(void)
     long mmzoom;
     if (16/mm_units_per_px < 3)
     {
-        mmzoom = (player->minimap_zoom) / (3-16/mm_units_per_px);
+        mmzoom = (player->minimap_zoom) / scale_value_for_resolution_with_upp(2, mm_units_per_px);
     }
     else
         mmzoom = (player->minimap_zoom);
@@ -902,19 +902,28 @@ long get_dungeon_control_action_inputs(void)
     if (is_key_pressed(KC_NUMPADENTER,KMod_NONE))
     {
         if (toggle_main_cheat_menu())
+        {
             clear_key_pressed(KC_NUMPADENTER);
+        }
+        set_players_packet_action(player, PckA_ToggleCheatMenuStatus, ( (gui_box != NULL) || (gui_cheat_box != NULL) ), 0, 0, 0);
     }
     // also use the main keyboard enter key (while holding shift) for cheat menu
     if (is_key_pressed(KC_RETURN,KMod_SHIFT))
         {
             if (toggle_main_cheat_menu())
+            {
                 clear_key_pressed(KC_RETURN);
+            }
+            set_players_packet_action(player, PckA_ToggleCheatMenuStatus, ( (gui_box != NULL) || (gui_cheat_box != NULL) ), 0, 0, 0);
         }
     if (is_key_pressed(KC_F12,KMod_DONTCARE))
     {
         // Note that we're using "close", not "toggle". Menu can't be opened here.
         if (close_creature_cheat_menu())
+        {
             clear_key_pressed(KC_F12);
+        }
+        set_players_packet_action(player, PckA_ToggleCheatMenuStatus, ( (gui_box != NULL) || (gui_cheat_box != NULL) ), 0, 0, 0);
     }
     if (player->view_mode == PVM_IsometricView)
     {
@@ -1155,18 +1164,23 @@ short get_creature_control_action_inputs(void)
     if (is_key_pressed(KC_NUMPADENTER,KMod_DONTCARE))
     {
         if (toggle_instance_cheat_menu())
+        {
             clear_key_pressed(KC_NUMPADENTER);
+        }
+        set_players_packet_action(player, PckA_ToggleCheatMenuStatus, ( (gui_box != NULL) || (gui_cheat_box != NULL) ), 0, 0, 0);
     }
     // also use the main keyboard enter key (while holding shift) for cheat menu
     if (is_key_pressed(KC_RETURN,KMod_SHIFT))
-        {
-            toggle_instance_cheat_menu();
-                clear_key_pressed(KC_RETURN);
-        }
+    {
+        toggle_instance_cheat_menu();
+        clear_key_pressed(KC_RETURN);
+        set_players_packet_action(player, PckA_ToggleCheatMenuStatus, ( (gui_box != NULL) || (gui_cheat_box != NULL) ), 0, 0, 0);
+    }
     if (is_key_pressed(KC_F12,KMod_DONTCARE))
     {
         toggle_creature_cheat_menu();
-            clear_key_pressed(KC_F12);
+        clear_key_pressed(KC_F12);
+        set_players_packet_action(player, PckA_ToggleCheatMenuStatus, ( (gui_box != NULL) || (gui_cheat_box != NULL) ), 0, 0, 0);
     }
 
     if (player->controlled_thing_idx != 0)
@@ -1457,6 +1471,20 @@ short get_creature_control_action_inputs(void)
                 set_players_packet_action(player, PckA_SetFirstPersonDigMode, false, 0, 0, 0);
             }
         }
+        if (is_key_pressed(KC_LALT,KMod_DONTCARE))
+        {
+            if (!playeradd->nearest_teleport)
+            {
+                set_players_packet_action(player, PckA_SetNearestTeleport, true, 0, 0, 0);
+            }
+        }
+        else
+        {
+            if (playeradd->nearest_teleport)
+            {
+                set_players_packet_action(player, PckA_SetNearestTeleport, false, 0, 0, 0);
+            }
+        }
         player->thing_under_hand = 0;
         struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
         if (cctrl->active_instance_id == CrInst_FIRST_PERSON_DIG)
@@ -1501,7 +1529,7 @@ short get_creature_control_action_inputs(void)
                         player->thing_under_hand = picktng->index;
                         if (first_person_see_item_desc)
                         {
-                            display_controlled_pick_up_thing_name(picktng, 1);
+                            display_controlled_pick_up_thing_name(picktng, 1, player->id_number);
                         }
                     }
                 }

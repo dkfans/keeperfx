@@ -688,6 +688,7 @@ void get_dungeon_build_user_roomspace(struct RoomSpace *roomspace, PlayerNumber 
             best_roomspace.width = playeradd->roomspace_width;
             best_roomspace.height = playeradd->roomspace_height;
             best_roomspace.render_roomspace_as_box = true;
+            best_roomspace.is_roomspace_a_box = true;
     }
     best_roomspace.one_click_mode_exclusive = playeradd->one_click_mode_exclusive;
     *roomspace = best_roomspace; // make sure we can render the correct boundbox to the user
@@ -702,13 +703,16 @@ static void sell_at_point(struct RoomSpace *roomspace)
         {
             player_sell_room_at_subtile(roomspace->plyr_idx,slab_subtile(roomspace->buildx,0), slab_subtile(roomspace->buildy,0));
         }
-        else if (player_sell_door_at_subtile(roomspace->plyr_idx, slab_subtile(roomspace->buildx,0), slab_subtile(roomspace->buildy,0))) // Trying to sell door
+        else
         {
-            // Nothing to do here - door already sold
-        }
-        else if (player_sell_trap_at_subtile(roomspace->plyr_idx, slab_subtile_center(roomspace->buildx), slab_subtile_center(roomspace->buildy))) // Trying to sell trap
-        {
-            // Nothing to do here - trap already sold
+            if (player_sell_door_at_subtile(roomspace->plyr_idx, slab_subtile(roomspace->buildx,0), slab_subtile(roomspace->buildy,0))) // Trying to sell door
+            {
+                // Nothing to do here - door already sold
+            }
+            if (player_sell_trap_at_subtile(roomspace->plyr_idx, slab_subtile_center(roomspace->buildx), slab_subtile_center(roomspace->buildy))) // Trying to sell trap
+            {
+                // Nothing to do here - trap already sold
+            }
         }
     }
 }
@@ -834,22 +838,25 @@ static void keeper_update_roomspace(struct RoomSpace *roomspace)
                           roomspace->plyr_idx, roomspace->rkind);
     }
     // find next point
-    roomspace->buildx++;
-    if (roomspace->buildx > roomspace->right)
+    do
     {
-        roomspace->buildx = roomspace->left;
-        roomspace->buildy++;
+        roomspace->buildx++;
+        if (roomspace->buildx > roomspace->right)
+        {
+            roomspace->buildx = roomspace->left;
+            roomspace->buildy++;
+        }
+        if (!roomspace->is_roomspace_a_box)
+        {
+            find_next_point(roomspace);
+        }
+        if ((roomspace->buildy > roomspace->bottom) || (roomspace->buildx > roomspace->right))
+        {
+            roomspace->is_active = false;
+            return;
+        }
     }
-    if (!roomspace->is_roomspace_a_box)
-    {
-        find_next_point(roomspace);
-    }
-
-    if ((roomspace->buildy > roomspace->bottom) || (roomspace->buildx > roomspace->right))
-    {
-        roomspace->is_active = false;
-        return;
-    }
+    while ( (roomspace->rkind != RoK_SELL) && (!can_build_room_at_slab(roomspace->plyr_idx, roomspace->rkind, roomspace->buildx, roomspace->buildy)) );
 }
 
 void update_roomspaces()
@@ -988,6 +995,7 @@ void process_highlight_roomspace_inputs(PlayerNumber plyr_idx)
     long keycode = 0;
     unsigned short par1, par2;
     struct PlayerInfo* player = get_player(plyr_idx);
+    struct PlayerInfoAdd* playeradd;
     if (!is_game_key_pressed(Gkey_BestRoomSpace, &keycode, true))
     {
         par2 = 1;
@@ -1004,7 +1012,7 @@ void process_highlight_roomspace_inputs(PlayerNumber plyr_idx)
     else if (is_game_key_pressed(Gkey_SquareRoomSpace, &keycode, true)) // Use "modern" click and drag method
     {
         par1 = 2;
-        struct PlayerInfoAdd* playeradd = get_playeradd(plyr_idx);
+        playeradd = get_playeradd(plyr_idx);
         par2 = (playeradd->roomspace_no_default) ? playeradd->user_defined_roomspace_width : DEFAULT_USER_ROOMSPACE_WIDTH;
         if (is_game_key_pressed(Gkey_RoomSpaceIncSize, &keycode, true))
         {
@@ -1025,10 +1033,14 @@ void process_highlight_roomspace_inputs(PlayerNumber plyr_idx)
     {
         if (player->primary_cursor_state == CSt_PowerHand)
         {
-            struct Packet* pckt = get_packet(my_player_number);
-            set_packet_action(pckt, PckA_SetRoomspaceSubtile, 0, 0, 0, 0);
-            return;
+            playeradd = get_playeradd(plyr_idx);
+            if (playeradd->roomspace_mode != single_subtile_mode)
+            {
+                struct Packet* pckt = get_packet(my_player_number);
+                set_packet_action(pckt, PckA_SetRoomspaceSubtile, 0, 0, 0, 0);
+            }
         }
+        return;
     }
     else
     {

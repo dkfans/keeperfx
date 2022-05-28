@@ -667,7 +667,7 @@ long anywhere_thing_filter_is_creature_of_model_training_and_owned_by(const stru
               if (((int)thing->index != param->num1) || (param->num1 == -1))
               {
                   struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-                  if ((thing->active_state == CrSt_Training) && (cctrl->byte_9A > 1))
+                  if ((thing->active_state == CrSt_Training) && (cctrl->job_stage > 1))
                   {
                       // Return the largest value to stop sweeping
                       return LONG_MAX;
@@ -2192,6 +2192,41 @@ long count_player_diggers_not_counting_to_total(PlayerNumber plyr_idx)
     return count_player_list_creatures_of_model_matching_bool_filter(plyr_idx, CREATURE_DIGGER, creature_is_kept_in_custody_by_enemy_or_dying);
 }
 
+GoldAmount compute_player_backpay_total(const struct Dungeon* dungeon)
+{
+    SYNCDBG(18, "Starting");
+    GoldAmount backpay = 0;
+    unsigned long k = 0;
+    int i = dungeon->creatr_list_start;
+    while (i != 0)
+    {
+        struct Thing* thing = thing_get(i);
+        TRACE_THING(thing);
+        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+        if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
+        {
+            ERRORLOG("Jump to invalid creature detected");
+            break;
+        }
+        if (cctrl->paydays_advanced >= 0)
+        {
+            break;
+        }
+        i = cctrl->players_next_creature_idx;
+        // Thing list loop body
+        backpay += calculate_correct_creature_pay(thing);
+        // Thing list loop body ends
+        k++;
+        if (k > CREATURES_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping creatures list");
+            break;
+        }
+    }
+    SYNCDBG(19, "Finished");
+    return backpay;
+}
+
 GoldAmount compute_player_payday_total(const struct Dungeon *dungeon)
 {
     SYNCDBG(18,"Starting");
@@ -3260,6 +3295,25 @@ TbBool gold_pile_with_maximum_at_xy(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
         }
   }
   return false;
+}
+
+struct Thing* get_creature_in_range_around_any_of_enemy_heart(PlayerNumber plyr_idx, ThingModel crmodel, MapSubtlDelta range)
+{
+    int n = GAME_RANDOM(PLAYERS_COUNT);
+    for (int i = 0; i < PLAYERS_COUNT; i++, n = (n + 1) % PLAYERS_COUNT)
+    {
+        if (!players_are_enemies(plyr_idx, n))
+            continue;
+        struct Thing* heartng = get_player_soul_container(n);
+        if (thing_exists(heartng))
+        {
+            struct Thing* creatng = get_creature_in_range_of_model_owned_and_controlled_by(heartng->mappos.x.val, heartng->mappos.y.val, range, crmodel, plyr_idx);
+            if (!thing_is_invalid(creatng)) {
+                return creatng;
+            }
+        }
+    }
+    return INVALID_THING;
 }
 
 /** Finds creature on revealed subtiles around given position, who is not special digger.

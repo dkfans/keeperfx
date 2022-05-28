@@ -3607,6 +3607,10 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing, long
             stati = get_creature_state_with_task_completion(thing);
             if ( !stati->field_23 )
             {
+                if ((cctrl->spell_flags & CSAfF_MadKilling) != 0)
+                {
+                    stati = &states[CrSt_MadKillingPsycho];
+                } else
                 if (anger_is_creature_livid(thing))
                 {
                     stati = &states[CrSt_CreatureLeavingDungeon];
@@ -3638,12 +3642,21 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing, long
                 {
                     stati = get_creature_state_with_task_completion(thing);
                 }
-                if ((*(short *)&stati->field_26 == 1) || (thing_pointed_at == thing))
-                  state_spridx = stati->sprite_idx;
+                if ((*(short*)&stati->field_26 == 1) || (thing_pointed_at == thing))
+                {
+                    state_spridx = stati->sprite_idx;
+                }
                 switch ( anger_get_creature_anger_type(thing) )
                 {
                 case AngR_NotPaid:
-                    anger_spridx = 52;
+                    if ((cctrl->paydays_owed <= 0) && (cctrl->paydays_advanced >= 0))
+                    {
+                        anger_spridx = 55;
+                    }
+                    else
+                    {
+                        anger_spridx = 52;
+                    }
                     break;
                 case AngR_Hungry:
                     anger_spridx = 59;
@@ -3669,6 +3682,10 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing, long
     int bs_units_per_px;
     spr = &button_sprite[70];
     bs_units_per_px = units_per_pixel_ui*2;
+    if (mycam->view_mode == PVM_FrontView)
+    {
+        bs_units_per_px = 17 * units_per_pixel / spr->SHeight;
+    }
     if ( state_spridx || anger_spridx )
     {
         spr = &button_sprite[70];

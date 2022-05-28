@@ -624,7 +624,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       player->allocflags &= ~PlaF_NewMPMessage;
       if (player->mp_message_text[0] == '!')
       {
-          if (!cmd_exec(player->id_number, player->mp_message_text))
+          if ( (!cmd_exec(player->id_number, player->mp_message_text)) || ((game.system_flags & GSF_NetworkActive) != 0) )
               message_add(player->id_number, player->mp_message_text);
       }
       else if (player->mp_message_text[0] != '\0')
@@ -963,6 +963,11 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
         playeradd->roomspace_no_default = true;
         return false;
     }
+    case PckA_ToggleCheatMenuStatus:
+    {
+        playeradd->cheat_menu_active = (TbBool)pckt->actn_par1;
+        return false;
+    }
     default:
       return process_players_global_cheats_packet_action(plyr_idx, pckt);
   }
@@ -1182,7 +1187,8 @@ void process_players_creature_control_packet_control(long idx)
             }
         }
     }
-    if (pckt->pos_x != 0)
+    struct PlayerInfoAdd* playeradd = get_playeradd(idx);
+    if (!playeradd->cheat_menu_active)
     {
         struct CreatureStats* crstat = creature_stats_get_from_thing(cctng);
         i = pckt->pos_y;
@@ -1308,6 +1314,12 @@ void process_players_creature_control_packet_action(long plyr_idx)
     {
         playeradd = get_playeradd(plyr_idx);
         playeradd->selected_fp_thing_pickup = pckt->actn_par1;
+        break;
+    }
+    case PckA_SetNearestTeleport:
+    {
+        playeradd = get_playeradd(plyr_idx);
+        playeradd->nearest_teleport = pckt->actn_par1;
         break;
     }
   }
