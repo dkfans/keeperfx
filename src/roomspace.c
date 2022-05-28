@@ -671,6 +671,34 @@ void get_dungeon_build_user_roomspace(struct RoomSpace *roomspace, PlayerNumber 
     struct RoomStats* rstat = room_stats_get_for_kind(rkind);
     best_roomspace.plyr_idx = plyr_idx;
     best_roomspace.rkind = rkind;
+    MapSlabCoord drag_start_x = slb_x;
+    MapSlabCoord drag_start_y = slb_y;
+    struct Packet* pckt = get_packet_direct(player->packet_num);
+    struct RoomSpace temp_best_room;
+    if (playeradd->ignore_next_PCtr_LBtnRelease)
+    {
+        // because player cancelled a tag/untag with RMB, we need to default back to vanilla 1x1 box
+        playeradd->render_roomspace.drag_mode = false;
+        playeradd->one_click_lock_cursor = false;
+        reset_dungeon_build_room_ui_variables(plyr_idx);
+        best_roomspace = create_box_roomspace(playeradd->render_roomspace, playeradd->roomspace_width, playeradd->roomspace_height, slb_x, slb_y);
+        best_roomspace.highlight_mode = false;
+        best_roomspace.untag_mode = false;
+        best_roomspace.one_click_mode_exclusive = false;
+        best_roomspace = check_roomspace_for_diggable_slabs(best_roomspace, plyr_idx);
+        player->boxsize = best_roomspace.slab_count;
+        *roomspace = best_roomspace;
+        return;
+    }
+    if (!playeradd->render_roomspace.drag_mode) // reset drag start slab
+    {
+        playeradd->render_roomspace.drag_start_x = slb_x;
+        playeradd->render_roomspace.drag_start_y = slb_y;
+    }
+    if ((pckt->control_flags & PCtr_LBtnHeld) == PCtr_LBtnHeld) // highlight "paint mode" enabled
+    {
+        playeradd->one_click_lock_cursor = true;
+    }
     if (mode == roomspace_detection_mode) // room auto-detection mode
     {
         best_roomspace = get_biggest_roomspace(plyr_idx, rkind, slb_x, slb_y, rstat->cost, 0, 32, playeradd->roomspace_detection_looseness);
@@ -678,9 +706,37 @@ void get_dungeon_build_user_roomspace(struct RoomSpace *roomspace, PlayerNumber 
         slb_y = best_roomspace.centreY;
         player->boxsize = best_roomspace.slab_count; // correct number of tiles always returned from get_biggest_roomspace
     }
+    else if ( (mode == drag_placement_mode) && (player->chosen_room_kind != RoK_BRIDGE) )
+    {
+        if (((pckt->control_flags & PCtr_HeldAnyButton) != 0) || ((pckt->control_flags & PCtr_LBtnRelease) != 0))
+        {
+            playeradd->one_click_lock_cursor = true; // Allow click and drag over low slabs (if clicked on high slab)
+            playeradd->one_click_mode_exclusive = true; // Block camera zoom/rotate if Ctrl is held with LMB/RMB
+            drag_start_x = playeradd->render_roomspace.drag_start_x; // if we are dragging, get the starting coords from the slab the player clicked on
+            drag_start_y = playeradd->render_roomspace.drag_start_y;
+        }
+        if (((pckt->control_flags & PCtr_RBtnHeld) != 0) && ((pckt->control_flags & PCtr_LBtnClick) != 0))
+        {
+            playeradd->ignore_next_PCtr_RBtnRelease = true;
+        }
+        if (((pckt->control_flags & PCtr_LBtnHeld) != 0) && ((pckt->control_flags & PCtr_RBtnClick) != 0))
+        {
+            playeradd->ignore_next_PCtr_LBtnRelease = true;
+            playeradd->ignore_next_PCtr_RBtnRelease = true;
+            drag_start_x = slb_x;
+            drag_start_y = slb_y;
+        }
+        temp_best_room = create_box_roomspace_from_drag(best_roomspace, drag_start_x, drag_start_y, slb_x, slb_y);
+        temp_best_room = check_slabs_in_roomspace(temp_best_room, plyr_idx, rkind, rstat->cost);
+        best_roomspace = temp_best_room;
+        player->boxsize = best_roomspace.slab_count;
+        playeradd->roomspace_width = best_roomspace.width;
+        playeradd->roomspace_height = best_roomspace.height;
+        best_roomspace.render_roomspace_as_box = true;
+    }
     else
     {
-        struct RoomSpace temp_best_room = create_box_roomspace(best_roomspace, playeradd->roomspace_width, playeradd->roomspace_height, slb_x, slb_y);
+        temp_best_room = create_box_roomspace(best_roomspace, playeradd->roomspace_width, playeradd->roomspace_height, slb_x, slb_y);
         temp_best_room = check_slabs_in_roomspace(temp_best_room, plyr_idx, rkind, rstat->cost);
         best_roomspace = temp_best_room;
         player->boxsize = best_roomspace.slab_count; // correct number of tiles returned from check_slabs_in_roomspace
@@ -688,7 +744,10 @@ void get_dungeon_build_user_roomspace(struct RoomSpace *roomspace, PlayerNumber 
             best_roomspace.width = playeradd->roomspace_width;
             best_roomspace.height = playeradd->roomspace_height;
             best_roomspace.render_roomspace_as_box = true;
-            best_roomspace.is_roomspace_a_box = true;
+    }
+    if ((playeradd->one_click_lock_cursor) && ((pckt->control_flags & PCtr_LBtnHeld) != 0) && (!best_roomspace.drag_mode))
+    {
+        best_roomspace.is_roomspace_a_box = true;
     }
     best_roomspace.one_click_mode_exclusive = playeradd->one_click_mode_exclusive;
     *roomspace = best_roomspace; // make sure we can render the correct boundbox to the user
@@ -940,10 +999,17 @@ void process_build_roomspace_inputs(PlayerNumber plyr_idx)
         }
     }
     else
-    {
-        int size = numpad_to_value(false);
-        set_packet_action(pckt, PckA_SetRoomspaceDefault, size, 0, 0, 0);
-    }
+        {
+            int size = numpad_to_value(false);
+            if (size > 1)
+            {
+                set_packet_action(pckt, PckA_SetRoomspaceDefault, size, 0, 0, 0);
+            }
+            else
+            {
+                set_packet_action(pckt, PckA_SetRoomspaceDrag, 0, 0, 0, 0);
+            }
+        }
 }
 
 void process_sell_roomspace_inputs(PlayerNumber plyr_idx)

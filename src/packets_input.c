@@ -98,6 +98,13 @@ TbBool process_dungeon_control_packet_dungeon_build_room(long plyr_idx)
     }
     get_dungeon_build_user_roomspace(&playeradd->render_roomspace, player->id_number, player->chosen_room_kind, stl_x, stl_y, playeradd->roomspace_mode);
     long i = tag_cursor_blocks_place_room(player->id_number, stl_x, stl_y, player->full_slab_cursor);
+    if ( (playeradd->roomspace_mode == drag_placement_mode) && (player->chosen_room_kind != RoK_BRIDGE) )
+    {
+       if ((pckt->control_flags & PCtr_LBtnRelease) != PCtr_LBtnRelease)
+       {
+           return false;
+       }
+    }
     if (playeradd->roomspace_mode != drag_placement_mode) // allows the user to hold the left mouse to use "paint mode"
     {
         if ((pckt->control_flags & PCtr_LBtnClick) == 0)
