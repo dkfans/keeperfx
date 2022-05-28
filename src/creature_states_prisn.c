@@ -392,9 +392,9 @@ TbBool process_prison_food(struct Thing *creatng, struct Room *room)
             {
                 if ( !is_thing_directly_controlled(foodtng)
                 && line_of_room_move_2d(
-                    (unsigned __int16 *)&creatng->mappos,
-                    (unsigned __int16 *)&foodtng->mappos,
-                    &room->alloc_flags)
+                    &creatng->mappos,
+                    &foodtng->mappos,
+                    room->alloc_flags)
                 && setup_person_move_to_position(
                     creatng,
                     foodtng->mappos.x.stl.num,
