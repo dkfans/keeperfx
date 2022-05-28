@@ -1634,6 +1634,9 @@ static void set_creature_configuration_process(struct ScriptContext* context)
     case 31: // TOKINGRECOVERY
         crstat->toking_recovery = value;
         break;
+    case 32: // CORPSEVANISHEFFECT
+        crstat->corpse_vanish_effect = value;
+        break;
     case 0: // comment
         break;
     case -1: // end of buffer
