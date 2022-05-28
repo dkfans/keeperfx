@@ -1040,7 +1040,14 @@ int check_crates_on_subtile_for_reposition_in_room(struct Room *room, MapSubtlCo
             // If the thing is in wall, remove it but store to re-create later
             if (thing_in_wall_at(thing, &thing->mappos))
             {
-                return -1; // re-create all
+                if (position_over_floor_level(thing, &thing->mappos)) //If it's inside the floors, simply move it up and count it.
+                {
+                    matching_things_at_subtile++;
+                }
+                else
+                {
+                    return -1; // If it's inside the wall or cannot be moved up, recreate all items.
+                }
             } else
             {
                 matching_things_at_subtile++;
