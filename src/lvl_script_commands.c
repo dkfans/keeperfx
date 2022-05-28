@@ -35,6 +35,8 @@
 #include "creature_states_mood.h"
 #include "room_util.h"
 #include "creature_instances.h"
+#include "power_hand.h"
+#include "power_specials.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -414,9 +416,6 @@ TbBool script_change_creatures_annoyance(PlayerNumber plyr_idx, ThingModel crmod
     return true;
 }
 
-
-
-
 long parse_creature_name(const char *creature_name)
 {
     long ret = get_rid(creature_desc, creature_name);
@@ -668,13 +667,13 @@ static void display_objective_check(const struct ScriptLine *scline)
 
 static void display_objective_process(struct ScriptContext *context)
 {
-      if ( (my_player_number >= context->plr_start) && (my_player_number < context->plr_end) )
-      {
-          set_general_objective(context->value->arg0,
-              context->value->arg1,
-              stl_num_decode_x(context->value->arg2),
-              stl_num_decode_y(context->value->arg2));
-      }
+    if ( (my_player_number >= context->plr_start) && (my_player_number < context->plr_end) )
+    {
+        set_general_objective(context->value->arg0,
+        context->value->arg1,
+        stl_num_decode_x(context->value->arg2),
+        stl_num_decode_y(context->value->arg2));
+    }
 }
 
 static void conceal_map_rect_check(const struct ScriptLine *scline)
@@ -700,6 +699,95 @@ static void conceal_map_rect_process(struct ScriptContext *context)
 
     conceal_map_area(context->value->plyr_range, context->value->arg0 - (w>>1), context->value->arg0 + (w>>1) + (w&1),
                      context->value->arg1 - (h>>1), context->value->arg1 + (h>>1) + (h&1), context->value->bytes[11]);
+}
+
+/**
+ * Transfers creatures for a player
+ * @param plyr_idx target player
+ * @param crmodel the creature model to transfer
+ * @param criteria the creature selection criterion
+ * @param count the amount of units to transfer
+ */
+short script_transfer_creature(long plyr_idx, long crmodel, long criteria, int count)
+{
+    short transferred = 0;
+    struct Thing* thing;
+    struct DungeonAdd* dungeonadd;
+    struct CreatureControl* cctrl;
+    for (int i = 0; i < count; i++)
+    {
+        thing = script_get_creature_by_criteria(plyr_idx, crmodel, criteria);
+        cctrl = creature_control_get_from_thing(thing);
+        if ((thing_is_invalid(thing)) && (i == 0))
+        {
+            SYNCDBG(5, "No matching player %d creature of model %d found to transfer.", (int)plyr_idx, (int)crmodel);
+            break;
+        }
+        
+        if (add_transfered_creature(plyr_idx, thing->model, cctrl->explevel))
+        {
+            transferred++;
+            dungeonadd = get_dungeonadd(plyr_idx);
+            dungeonadd->creatures_transferred++;
+            remove_thing_from_power_hand_list(thing, plyr_idx);
+            create_special_used_effect(&thing->mappos, plyr_idx);
+            kill_creature(thing, INVALID_THING, -1, CrDed_NoEffects | CrDed_NotReallyDying);
+        }
+    }
+    return transferred;
+}
+
+static void special_transfer_creature_process(struct ScriptContext* context)
+{
+    if ((my_player_number >= context->plr_start) && (my_player_number < context->plr_end))
+    {
+        struct Thing *heartng = get_player_soul_container(context->plr_start);
+        struct PlayerInfo* player = get_my_player();
+        start_transfer_creature(player, heartng);
+    }
+}
+
+static void special_transfer_creature_check(const struct ScriptLine* scline)
+{
+    command_add_value(Cmd_USE_SPECIAL_TRANSFER_CREATURE, scline->np[0],0,0,0);
+}
+
+static void script_transfer_creature_check(const struct ScriptLine* scline)
+{
+    long crtr_id = parse_creature_name(scline->tp[1]);
+    long count = scline->np[3];
+    if (crtr_id == CREATURE_NONE)
+    {
+        SCRPTERRLOG("Unknown creature, '%s'", scline->tp[1]);
+        return;
+    }
+    long select_id = parse_criteria(scline->tp[2]);
+    if (select_id == -1) {
+        SCRPTERRLOG("Unknown select criteria, '%s'", scline->tp[2]);
+        return;
+    }
+    if (scline->np[3] == '\0')
+    {
+        count = 1;
+    }
+    if (count == 0)
+    {
+        SCRPTERRLOG("Transferring 0 creatures of type '%s'", scline->tp[1]);
+    }
+    if (count > 255)
+    {
+        SCRPTWRNLOG("Trying to transfer %d creatures out of a possible 255",count);
+        count = 255;
+    }
+    command_add_value(Cmd_TRANSFER_CREATURE, scline->np[0], crtr_id, select_id, count);
+}
+
+static void script_transfer_creature_process(struct ScriptContext* context)
+{
+    for (int i = context->plr_start; i < context->plr_end; i++)
+    {
+        script_transfer_creature(i, context->value->arg0, context->value->arg1, context->value->arg2);
+    }
 }
 
 static void change_creatures_annoyance_check(const struct ScriptLine* scline)
@@ -1310,7 +1398,7 @@ static void create_effects_line_process(struct ScriptContext *context)
     int dy = fx_line->to.y.val - fx_line->from.y.val;
     if ((dx * dx + dy * dy) != 0)
     {
-        float len = sqrt((float)dx * dx + dy * dy);
+        double len = sqrt((double)dx * dx + (double)dy * dy);
         fx_line->total_steps = (int)(len / fx_line->spatial_step) + 1;
 
         int d_cx = -dy * fx_line->curvature / 32;
@@ -2538,6 +2626,8 @@ const struct CommandDesc command_desc[] = {
   {"USE_SPECIAL_MULTIPLY_CREATURES",    "PN      ", Cmd_USE_SPECIAL_MULTIPLY_CREATURES, NULL, NULL},
   {"USE_SPECIAL_MAKE_SAFE",             "P       ", Cmd_USE_SPECIAL_MAKE_SAFE, NULL, NULL},
   {"USE_SPECIAL_LOCATE_HIDDEN_WORLD",   "        ", Cmd_USE_SPECIAL_LOCATE_HIDDEN_WORLD, NULL, NULL},
+  {"USE_SPECIAL_TRANSFER_CREATURE",     "P       ", Cmd_USE_SPECIAL_TRANSFER_CREATURE, &special_transfer_creature_check, &special_transfer_creature_process},
+  {"TRANSFER_CREATURE",                 "PC!An   ", Cmd_TRANSFER_CREATURE, &script_transfer_creature_check, &script_transfer_creature_process},
   {"CHANGE_CREATURES_ANNOYANCE",        "PC!AN   ", Cmd_CHANGE_CREATURES_ANNOYANCE, &change_creatures_annoyance_check, &change_creatures_annoyance_process},
   {"ADD_TO_FLAG",                       "PAN     ", Cmd_ADD_TO_FLAG, NULL, NULL},
   {"SET_CAMPAIGN_FLAG",                 "PAN     ", Cmd_SET_CAMPAIGN_FLAG, NULL, NULL},
