@@ -379,13 +379,13 @@ TbBool process_prison_food(struct Thing *creatng, struct Room *room)
 
     if ( crstat->hunger_rate == 0 )
         return false;
+    foodtng = get_food_at_subtile_available_to_eat_and_owned_by(creatng->mappos.x.stl.num,creatng->mappos.y.stl.num, -1);
 
-    foodtng = get_food_at_subtile_available_to_eat_and_owned_by(creatng->mappos.x.val,creatng->mappos.y.val, -1);
     if ( thing_is_invalid(foodtng) )
     {
         long offsetted_gameturn = game.play_gameturn + creatng->index;
-        if ((offsetted_gameturn % 64 == 0)
-        && !get_food_at_subtile_available_to_eat_and_owned_by(cctrl->moveto_pos.x.val,cctrl->moveto_pos.y.val, -1))
+       if ((offsetted_gameturn % 64 == 0)
+        && thing_is_invalid(get_food_at_subtile_available_to_eat_and_owned_by(cctrl->moveto_pos.x.stl.num,cctrl->moveto_pos.y.stl.num, -1)))
         {
             foodtng = find_random_thing_in_room(1, 10, room); //1,10 = mature_food
             if ( !thing_is_invalid(foodtng) )
