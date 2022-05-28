@@ -413,9 +413,9 @@ TbBool process_prison_food(struct Thing *creatng, struct Room *room)
         return false;
 
     thing_play_sample(creatng, 112 + UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
-    if ( creatng->active_state != 41 )
-        internal_set_thing_state(creatng, 41);
-    set_creature_instance(creatng, 36, 1, 0, 0);
+    if ( creatng->active_state != CrSt_CreatureInPrison )
+        internal_set_thing_state(creatng, CrSt_CreatureInPrison);
+    set_creature_instance(creatng, CrInst_EAT, 1, 0, 0);
     delete_thing_structure(foodtng, 0);
     
     struct Dungeon* dungeon = get_players_num_dungeon(room->owner);
