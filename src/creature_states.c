@@ -2589,14 +2589,14 @@ short creature_pretend_chicken_setup_move(struct Thing *creatng)
         {
             if ( find_random_valid_position_for_thing_in_room(creatng, room, &random_pos) )
             {
-                setup_person_move_close_to_position(creatng,random_pos.x.val,random_pos.y.val, 0);
+                setup_person_move_close_to_position(creatng,random_pos.x.stl.num,random_pos.y.stl.num, 0);
                 internal_set_thing_state(creatng, CrSt_CreaturePretendChickenMove);
                 return 1;
             }
         }
         else if ( get_random_position_in_dungeon_for_creature(creatng->owner, CrWaS_WithinDungeon, creatng, &random_pos) )
         {
-            setup_person_move_close_to_position(creatng,random_pos.x.val,random_pos.y.val, 0);
+            setup_person_move_close_to_position(creatng,random_pos.x.stl.num,random_pos.y.stl.num, 0);
             internal_set_thing_state(creatng, CrSt_CreaturePretendChickenMove);
         }
     }
