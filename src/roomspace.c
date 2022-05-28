@@ -635,6 +635,29 @@ void get_dungeon_sell_user_roomspace(struct RoomSpace *roomspace, PlayerNumber p
     MapSlabCoord slb_x = subtile_slab_fast(stl_x);
     MapSlabCoord slb_y = subtile_slab_fast(stl_y);
     current_roomspace.plyr_idx = plyr_idx;
+    MapSlabCoord drag_start_x = slb_x;
+    MapSlabCoord drag_start_y = slb_y;
+    struct Packet* pckt = get_packet_direct(player->packet_num);
+    if (playeradd->ignore_next_PCtr_LBtnRelease)
+    {
+        // because player cancelled with RMB, we need to default back to vanilla 1x1 box
+        playeradd->render_roomspace.drag_mode = false;
+        playeradd->one_click_lock_cursor = false;
+        reset_dungeon_build_room_ui_variables(plyr_idx);
+        current_roomspace = create_box_roomspace(playeradd->render_roomspace, playeradd->roomspace_width, playeradd->roomspace_height, slb_x, slb_y);
+        current_roomspace.highlight_mode = false;
+        current_roomspace.untag_mode = false;
+        current_roomspace.one_click_mode_exclusive = false;
+        current_roomspace = check_roomspace_for_diggable_slabs(current_roomspace, plyr_idx);
+        player->boxsize = current_roomspace.slab_count;
+        *roomspace = current_roomspace;
+        return;
+    }
+    if (!playeradd->render_roomspace.drag_mode) // reset drag start slab
+    {
+        playeradd->render_roomspace.drag_start_x = slb_x;
+        playeradd->render_roomspace.drag_start_y = slb_y;
+    }
     if (playeradd->roomspace_mode == roomspace_detection_mode)
     {
         current_roomspace = get_current_room_as_roomspace(plyr_idx, slb_x, slb_y);
@@ -653,6 +676,32 @@ void get_dungeon_sell_user_roomspace(struct RoomSpace *roomspace, PlayerNumber p
     else if (playeradd->roomspace_mode == single_subtile_mode)
     {
         current_roomspace = playeradd->render_roomspace;
+    }
+    else if (playeradd->roomspace_mode == drag_placement_mode)
+    {
+        if (((pckt->control_flags & PCtr_HeldAnyButton) != 0) || ((pckt->control_flags & PCtr_LBtnRelease) != 0))
+        {
+            playeradd->one_click_lock_cursor = true; // Allow click and drag over low slabs (if clicked on high slab)
+            drag_start_x = playeradd->render_roomspace.drag_start_x; // if we are dragging, get the starting coords from the slab the player clicked on
+            drag_start_y = playeradd->render_roomspace.drag_start_y;
+        }
+        if (((pckt->control_flags & PCtr_RBtnHeld) != 0) && ((pckt->control_flags & PCtr_LBtnClick) != 0))
+        {
+            playeradd->ignore_next_PCtr_RBtnRelease = true;
+        }
+        if (((pckt->control_flags & PCtr_LBtnHeld) != 0) && ((pckt->control_flags & PCtr_RBtnClick) != 0))
+        {
+            playeradd->ignore_next_PCtr_LBtnRelease = true;
+            playeradd->ignore_next_PCtr_RBtnRelease = true;
+            drag_start_x = slb_x;
+            drag_start_y = slb_y;
+        }
+        current_roomspace.is_roomspace_a_box = true;
+        current_roomspace.render_roomspace_as_box = true;
+        current_roomspace = create_box_roomspace_from_drag(current_roomspace, drag_start_x, drag_start_y, slb_x, slb_y);
+        current_roomspace = check_roomspace_for_sellable_slabs(current_roomspace, plyr_idx);
+        playeradd->roomspace_width = current_roomspace.width;
+        playeradd->roomspace_height = current_roomspace.height;
     }
     player->boxsize = current_roomspace.slab_count;
     current_roomspace.one_click_mode_exclusive = playeradd->one_click_mode_exclusive;
@@ -1052,7 +1101,14 @@ void process_sell_roomspace_inputs(PlayerNumber plyr_idx)
     else
     {
         int size = numpad_to_value(false);
-        set_packet_action(pckt, PckA_SetRoomspaceDefault, size, 0, 0, 0);
+        if (size > 1)
+        {
+            set_packet_action(pckt, PckA_SetRoomspaceDefault, size, 0, 0, 0);
+        }
+        else
+        {
+            set_packet_action(pckt, PckA_SetRoomspaceDrag, 0, 0, 0, 0);
+        }
     }
 }
 

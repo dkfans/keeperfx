@@ -495,14 +495,24 @@ TbBool process_dungeon_control_packet_sell_operation(long plyr_idx)
     player->full_slab_cursor = (playeradd->roomspace_mode != single_subtile_mode);
     get_dungeon_sell_user_roomspace(&playeradd->render_roomspace, player->id_number, stl_x, stl_y);
     tag_cursor_blocks_sell_area(plyr_idx, stl_x, stl_y, player->full_slab_cursor);
-    if ((pckt->control_flags & PCtr_LBtnClick) == 0)
+    if (playeradd->roomspace_mode == drag_placement_mode)
     {
-        if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && (player->full_slab_cursor != 0))
+       if ((pckt->control_flags & PCtr_LBtnRelease) != PCtr_LBtnRelease)
+       {
+           return false;
+       }
+    }
+    else
+    {
+        if ((pckt->control_flags & PCtr_LBtnClick) == 0)
         {
-            player->full_slab_cursor = 0;
-            unset_packet_control(pckt, PCtr_LBtnRelease);
+            if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && (player->full_slab_cursor != 0))
+            {
+                player->full_slab_cursor = 0;
+                unset_packet_control(pckt, PCtr_LBtnRelease);
+            }
+            return false;
         }
-        return false;
     }
     if (player->full_slab_cursor)
     {
