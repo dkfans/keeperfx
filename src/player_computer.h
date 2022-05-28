@@ -679,6 +679,7 @@ int search_spiral_f(struct Coord3d *pos, PlayerNumber owner, int i3, long (*cb)(
 /******************************************************************************/
 ItemAvailability computer_check_room_available(const struct Computer2 * comp, long rkind);
 TbBool computer_find_non_solid_block(const struct Computer2 *comp, struct Coord3d *pos);
+TbBool computer_find_safe_non_solid_block(const struct Computer2* comp, struct Coord3d* pos);
 
 long count_creatures_in_dungeon(const struct Dungeon *dungeon);
 long count_entrances(const struct Computer2 *comp, PlayerNumber plyr_idx);

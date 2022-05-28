@@ -839,7 +839,7 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
                         {
                             clear_messages_from_player(id);
                         }
-                        message_add_timeout(id, 50, "%d/%d", room->health, compute_room_max_health(room->slabs_count, room->efficiency));
+                        targeted_message_add(id, player->id_number, 50, "%d/%d", room->health, compute_room_max_health(room->slabs_count, room->efficiency));
                     }
                     else
                     {

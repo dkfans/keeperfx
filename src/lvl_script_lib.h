@@ -129,35 +129,38 @@ enum TbScriptCommands {
     Cmd_USE_SPECIAL_MULTIPLY_CREATURES    = 116,
     Cmd_USE_SPECIAL_MAKE_SAFE             = 117,
     Cmd_USE_SPECIAL_LOCATE_HIDDEN_WORLD   = 118,
-    Cmd_CHANGE_CREATURES_ANNOYANCE        = 119,
-    Cmd_COMPUTER_DIG_TO_LOCATION          = 120,
-    Cmd_DELETE_FROM_PARTY                 = 121,
-    Cmd_SET_SACRIFICE_RECIPE              = 122,
-    Cmd_REMOVE_SACRIFICE_RECIPE           = 123,
-    Cmd_SET_BOX_TOOLTIP                   = 124,
-    Cmd_SET_BOX_TOOLTIP_ID                = 125,
-    Cmd_CREATE_EFFECTS_LINE               = 126,
-    Cmd_DISPLAY_MESSAGE                   = 127,
-    Cmd_QUICK_MESSAGE                     = 128,
-    Cmd_USE_SPELL_ON_CREATURE             = 129,
-    Cmd_SET_HEART_HEALTH                  = 130,
-    Cmd_ADD_HEART_HEALTH                  = 131,
-    Cmd_CREATURE_ENTRANCE_LEVEL           = 132,
-    Cmd_RANDOMISE_FLAG                    = 133,
-    Cmd_COMPUTE_FLAG                      = 134,
-    Cmd_CONCEAL_MAP_RECT                  = 135,
-    Cmd_DISPLAY_TIMER                     = 136,
-    Cmd_ADD_TO_TIMER                      = 137,
-    Cmd_ADD_BONUS_TIME                    = 138,
-    Cmd_DISPLAY_VARIABLE                  = 139,
-    Cmd_DISPLAY_COUNTDOWN                 = 140,
-    Cmd_HIDE_TIMER                        = 141,
-    Cmd_HIDE_VARIABLE                     = 142,
-    Cmd_CREATE_EFFECT                     = 143,
-    Cmd_CREATE_EFFECT_AT_POS              = 144,
-    Cmd_HEART_LOST_QUICK_OBJECTIVE        = 145,
-    Cmd_HEART_LOST_OBJECTIVE              = 146,
-    Cmd_SET_DOOR                          = 147   
+    Cmd_USE_SPECIAL_TRANSFER_CREATURE     = 119,
+    Cmd_CHANGE_CREATURES_ANNOYANCE        = 120,
+    Cmd_COMPUTER_DIG_TO_LOCATION          = 121,
+    Cmd_DELETE_FROM_PARTY                 = 122,
+    Cmd_SET_SACRIFICE_RECIPE              = 123,
+    Cmd_REMOVE_SACRIFICE_RECIPE           = 124,
+    Cmd_SET_BOX_TOOLTIP                   = 125,
+    Cmd_SET_BOX_TOOLTIP_ID                = 126,
+    Cmd_CREATE_EFFECTS_LINE               = 127,
+    Cmd_DISPLAY_MESSAGE                   = 128,
+    Cmd_QUICK_MESSAGE                     = 129,
+    Cmd_USE_SPELL_ON_CREATURE             = 130,
+    Cmd_SET_HEART_HEALTH                  = 131,
+    Cmd_ADD_HEART_HEALTH                  = 132,
+    Cmd_CREATURE_ENTRANCE_LEVEL           = 133,
+    Cmd_RANDOMISE_FLAG                    = 134,
+    Cmd_COMPUTE_FLAG                      = 135,
+    Cmd_CONCEAL_MAP_RECT                  = 136,
+    Cmd_DISPLAY_TIMER                     = 137,
+    Cmd_ADD_TO_TIMER                      = 138,
+    Cmd_ADD_BONUS_TIME                    = 139,
+    Cmd_DISPLAY_VARIABLE                  = 140,
+    Cmd_DISPLAY_COUNTDOWN                 = 141,
+    Cmd_HIDE_TIMER                        = 142,
+    Cmd_HIDE_VARIABLE                     = 143,
+    Cmd_CREATE_EFFECT                     = 144,
+    Cmd_CREATE_EFFECT_AT_POS              = 145,
+    Cmd_HEART_LOST_QUICK_OBJECTIVE        = 146,
+    Cmd_HEART_LOST_OBJECTIVE              = 147,
+    Cmd_SET_DOOR                          = 148,
+    Cmd_SET_CREATURE_INSTANCE             = 149,    
+    Cmd_TRANSFER_CREATURE                 = 150
 };
 
 struct ScriptLine {
@@ -248,6 +251,7 @@ enum ScriptVariables {
   SVar_MANUFACTURE_GOLD                = 74,
   SVar_TOTAL_SCORE                     = 75,
   SVar_BONUS_TIME                      = 76,
+  SVar_CREATURES_TRANSFERRED           = 77,
  };
 
 
@@ -258,7 +262,7 @@ enum ScriptVariables {
 #define FX_LINE_TIME_PARTS 4
 
 
-
+struct Thing* script_get_creature_by_criteria(PlayerNumber plyr_idx, long crmodel, long criteria);
 long parse_creature_name(const char *creature_name);
 struct ScriptValue *allocate_script_value(void);
 struct Thing *script_process_new_object(long crmodel, TbMapLocation location, long arg);
@@ -272,6 +276,8 @@ long parse_criteria(const char *criteria);
 long get_players_range_single_f(long plr_range_id, const char *func_name, long ln_num);
 TbBool parse_get_varib(const char *varib_name, long *varib_id, long *varib_type);
 char get_player_number_from_value(const char* txt);
+#define get_player_id(plrname, plr_range_id) get_player_id_f(plrname, plr_range_id, __func__, text_line_number)
+TbBool get_player_id_f(const char *plrname, long *plr_range_id, const char *func_name, long ln_num);
 
 #define ALLOCATE_SCRIPT_VALUE(var_index, plr_range_id) \
     struct ScriptValue tmp_value = {0}; \

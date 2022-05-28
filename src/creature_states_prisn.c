@@ -342,10 +342,14 @@ TbBool process_prisoner_skelification(struct Thing *thing, struct Room *room)
     //TODO CONFIG Allow skeletification only if spent specific amount of turns in prison (set low value)
     if (CREATURE_RANDOM(thing, 101) > game.prison_skeleton_chance)
       return false;
-    if (is_my_player_number(room->owner))
-      output_message(SMsg_PrisonMadeSkeleton, 0, true);
-    prison_convert_creature_to_skeleton(room,thing);
-    return true;
+    if (prison_convert_creature_to_skeleton(room, thing))
+    {
+        if (is_my_player_number(room->owner))
+        {
+            output_message(SMsg_PrisonMadeSkeleton, 0, true);
+        }
+    }
+    return true; //return true even if no skeleton could be created due to creature limit. Otherwise there's a confusing sound message. 
 }
 
 long process_prison_food(struct Thing *thing, struct Room *room)

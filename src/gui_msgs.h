@@ -32,10 +32,17 @@ extern "C" {
 /******************************************************************************/
 #pragma pack(1)
 
-struct GuiMessage { // sizeof = 0x45 (69)
+struct GuiMessage_OLD { // sizeof = 0x45 (69)
     char text[64];
 PlayerNumber plyr_idx;
 unsigned long creation_turn;
+};
+
+struct GuiMessage {
+    char text[64];
+PlayerNumber plyr_idx;
+unsigned long creation_turn;
+PlayerNumber target_idx;
 };
 
 #pragma pack()
@@ -49,7 +56,7 @@ void show_game_time_taken(unsigned long fps, unsigned long turns);
 void show_real_time_taken(void);
 void clear_messages_from_player(char plyr_idx);
 void delete_message(unsigned char msg_idx);
-void message_add_timeout(PlayerNumber plyr_idx, unsigned long timeout, const char *fmt_str, ...);
+void targeted_message_add(PlayerNumber plyr_idx, PlayerNumber target_idx, unsigned long timeout, const char *fmt_str, ...);
 /******************************************************************************/
 #ifdef __cplusplus
 }

@@ -74,7 +74,10 @@ DLLIMPORT struct MapOffset _DK_spiral_step[SPIRAL_STEPS_COUNT];
 #define AROUND_TILES_COUNT      9
 extern struct Around const around[];
 #define MID_AROUND_LENGTH 9
+#define LARGE_AROUND_MAX 36
+#define LARGE_AROUND_LIMITED 25
 extern struct Around const mid_around[MID_AROUND_LENGTH];
+extern struct Around const large_around[LARGE_AROUND_MAX];
 extern struct Around const start_at_around[MID_AROUND_LENGTH];
 #define SMALL_AROUND_LENGTH 4
 extern struct Around const small_around[];
