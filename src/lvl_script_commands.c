@@ -1398,7 +1398,7 @@ static void create_effects_line_process(struct ScriptContext *context)
     int dy = fx_line->to.y.val - fx_line->from.y.val;
     if ((dx * dx + dy * dy) != 0)
     {
-        float len = sqrt((float)dx * dx + dy * dy);
+        float len = sqrt((float)abs(dx * dx + dy * dy));
         fx_line->total_steps = (int)(len / fx_line->spatial_step) + 1;
 
         int d_cx = -dy * fx_line->curvature / 32;
