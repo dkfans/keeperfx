@@ -114,7 +114,7 @@ TbBool i_can_allocate_free_thing_structure(unsigned char allocflags)
         ERRORLOG("Cannot allocate thing structure.");
         things_stats_debug_dump();
     }
-    if (game.free_things_start_index > THINGS_COUNT - 2)
+    if ((game.free_things_start_index > THINGS_COUNT - 2) && ((allocflags & FTAF_FreeEffectIfNoSlots) != 0))
     {
         show_onscreen_msg(2 * game.num_fps, "Warning: Cannot create thing, %d/%d thing slots used.", game.free_things_start_index + 1, THINGS_COUNT);
     }

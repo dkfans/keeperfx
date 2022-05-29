@@ -170,10 +170,10 @@ short creature_scavenged_disappear(struct Thing *thing)
 {
     struct Coord3d pos;
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    cctrl->byte_9A--;
-    if (cctrl->byte_9A > 0)
+    cctrl->job_stage--;
+    if (cctrl->job_stage > 0)
     {
-      if ((cctrl->byte_9A == 7) && (cctrl->byte_9B < PLAYERS_COUNT))
+      if ((cctrl->job_stage == 7) && (cctrl->byte_9B < PLAYERS_COUNT))
       {
           //TODO EFFECTS Verify what is wrong here - we want either effect or effect element
           create_effect(&thing->mappos, get_scavenge_effect_element(cctrl->byte_9B), thing->owner);
@@ -194,8 +194,6 @@ short creature_scavenged_disappear(struct Thing *thing)
     {
         move_thing_in_map(thing, &pos);
         anger_set_creature_anger_all_types(thing, 0);
-        struct Dungeon* dungeon = get_dungeon(cctrl->byte_9B);
-        dungeon->creatures_scavenge_gain++;
         if (is_my_player_number(thing->owner))
           output_message(SMsg_MinionScanvenged, 0, true);
         cctrl->byte_9C = thing->owner;
@@ -373,7 +371,7 @@ long turn_creature_to_scavenger(struct Thing *scavtng, struct Thing *calltng)
     }
     {
         struct CreatureControl* cctrl = creature_control_get_from_thing(scavtng);
-        cctrl->byte_9A = 8;
+        cctrl->job_stage = 8;
         cctrl->byte_9B = calltng->owner;
         cctrl->byte_9D = pos.x.stl.num;
         cctrl->byte_9E = pos.y.stl.num;

@@ -861,8 +861,8 @@ long gold_being_dropped_on_creature(long plyr_idx, struct Thing *goldtng, struct
     if ( !taking_salary )
     {
         cctrl = creature_control_get_from_thing(creatng);
-        if (cctrl->prepayments_received < 255) {
-            cctrl->prepayments_received++;
+        if (cctrl->paydays_advanced < SCHAR_MAX) {
+            cctrl->paydays_advanced++;
         }
     }
     struct CreatureStats *crstat;

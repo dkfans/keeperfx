@@ -986,7 +986,7 @@ void count_gold_slabs_wth_effcncy(struct Room *room)
     room->total_capacity = count;
 }
 
-TbBool rectreate_repositioned_crate_in_room_on_subtile(struct Room *room, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct RoomReposition * rrepos)
+TbBool recreate_repositioned_crate_in_room_on_subtile(struct Room *room, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct RoomReposition * rrepos)
 {
     if ((rrepos->used < 0) || (room->used_capacity >= room->total_capacity)) {
         return false;
@@ -1039,7 +1039,14 @@ int check_crates_on_subtile_for_reposition_in_room(struct Room *room, MapSubtlCo
             // If the thing is in wall, remove it but store to re-create later
             if (thing_in_wall_at(thing, &thing->mappos))
             {
-                return -1; // re-create all
+                if (position_over_floor_level(thing, &thing->mappos)) //If it's inside the floors, simply move it up and count it.
+                {
+                    matching_things_at_subtile++;
+                }
+                else
+                {
+                    return -1; // If it's inside the wall or cannot be moved up, recreate all items.
+                }
             } else
             {
                 matching_things_at_subtile++;
@@ -1121,7 +1128,7 @@ void count_and_reposition_crates_in_room_on_subtile(struct Room *room, MapSubtlC
             break;
         case 0:
             // There are no matching things there, something can be re-created
-            rectreate_repositioned_crate_in_room_on_subtile(room, stl_x, stl_y, rrepos);
+            recreate_repositioned_crate_in_room_on_subtile(room, stl_x, stl_y, rrepos);
             break;
         default:
             WARNLOG("Invalid value returned by reposition check");

@@ -64,7 +64,7 @@ extern "C" {
  * @param thing The hero searching for target.
  * @return Player index, or -1 if no dungeon to attack found.
  */
-long good_find_enemy_dungeon(struct Thing *thing)
+TbBool has_available_enemy_dungeon_heart(struct Thing *thing, PlayerNumber plyr_idx)
 {
     SYNCDBG(18,"Starting");
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
@@ -72,34 +72,83 @@ long good_find_enemy_dungeon(struct Thing *thing)
     {
         cctrl->byte_8C = 0;
         cctrl->byte_8B = 0;
-        // Try accessing dungeon heart of undefeated enemy players
-        long i;
-        for (i = 0; i < PLAYERS_COUNT; i++)
+    }
+    // Try accessing dungeon heart of undefeated enemy players
+    if (!player_is_friendly_or_defeated(plyr_idx, thing->owner) && (creature_can_get_to_dungeon(thing, plyr_idx)))
+    {
+        return true;
+    }
+    return false;
+}
+
+TbBool has_available_rooms_to_attack(struct Thing* thing, PlayerNumber plyr_idx)
+{
+    SYNCDBG(18, "Starting");
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    if ((cctrl->byte_8C != 0) || (cctrl->byte_8B != 0))
+    {
+        cctrl->byte_8C = 0;
+        cctrl->byte_8B = 0;
+    }
+    if (players_are_enemies(thing->owner, plyr_idx) && creature_can_get_to_any_of_players_rooms(thing, plyr_idx))
+    {
+        return true;
+    }
+    return false;
+}
+
+long good_find_best_enemy_dungeon(struct Thing* creatng)
+{
+    //return _DK_get_best_dungeon_to_tunnel_to(creatng);
+    PlayerNumber best_plyr_idx = -1;
+    PlayerNumber backup_plyr_idx = -1;
+    struct PlayerInfo* player;
+    struct Dungeon* dungeon;
+    long best_score = LONG_MIN;
+    long best_backup_score = LONG_MIN;
+    for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
+    {
+        player = get_player(plyr_idx);
+        if (gameadd.classic_bugs_flags & ClscBug_AlwaysTunnelToRed)
         {
-            if (player_is_friendly_or_defeated(i, thing->owner)) {
-                continue;
-            }
-            if (creature_can_get_to_dungeon(thing, i))
+            if (creature_can_get_to_dungeon(creatng, plyr_idx))
             {
-                SYNCDBG(8,"The %s index %d can get to enemy player %d",thing_model_name(thing),(int)thing->index,(int)i);
-                return i;
+                return plyr_idx;
             }
         }
-        // Try accessing any room of any non allied players
-        for (i = 0; i < PLAYERS_COUNT; i++)
+ 
+        dungeon = get_players_dungeon(player);
+        long score;
+        if (player_exists(player) && !dungeon_invalid(dungeon) && (creatng->owner != plyr_idx))
         {
-            if (!players_are_enemies(thing->owner, i)) {
-                continue;
-            }
-            if (creature_can_get_to_any_of_players_rooms(thing, i))
+            score = dungeon->total_score;
+            if (score <= 0)
             {
-                SYNCDBG(8,"The %s index %d can get to room of player %d",thing_model_name(thing),(int)thing->index,(int)i);
-                return i;
+                score = 0;
+            }
+            if (has_available_enemy_dungeon_heart(creatng, plyr_idx))
+            {
+                if (best_score < score)
+                {
+                    best_score = score;
+                    best_plyr_idx = plyr_idx;
+                }
+            }
+            else if ((has_available_rooms_to_attack(creatng, plyr_idx)) && best_plyr_idx == -1)
+            {
+                if (best_backup_score < score)
+                {
+                    best_backup_score = score;
+                    backup_plyr_idx = plyr_idx;
+                }
             }
         }
     }
-    SYNCDBG(8,"The %s index %d cannot find an enemy",thing_model_name(thing),(int)thing->index);
-    return -1;
+    if (best_plyr_idx == -1)
+    {
+        best_plyr_idx = backup_plyr_idx;
+    }
+    return best_plyr_idx;
 }
 
 /**
@@ -854,7 +903,7 @@ short good_doing_nothing(struct Thing *creatng)
         if (nturns > 64)
         {
             cctrl->long_8D = game.play_gameturn;
-            cctrl->party.target_plyr_idx = good_find_enemy_dungeon(creatng);
+            cctrl->party.target_plyr_idx = good_find_best_enemy_dungeon(creatng);
         }
         target_plyr_idx = cctrl->party.target_plyr_idx;
         if (target_plyr_idx == -1)
@@ -1034,7 +1083,7 @@ long get_best_dungeon_to_tunnel_to(struct Thing *creatng)
         struct Dungeon* dungeon = get_players_dungeon(player);
         if (player_exists(player) && !dungeon_invalid(dungeon) && (creatng->owner != plyr_idx))
         {
-            long score = dungeon->total_score - 20 * dungeon->total_score * dungeon->field_F7D / 100;
+            long score = dungeon->total_score; //Original code: = dungeon->total_score -20 * dungeon->total_score * dungeon->field_F7D / 100;
             if ((score <= 0) || (gameadd.classic_bugs_flags & ClscBug_AlwaysTunnelToRed))
             {
                 score = 0;
@@ -1211,7 +1260,7 @@ short tunneller_doing_nothing(struct Thing *creatng)
             return 1;
         }
     }
-    cctrl->party.target_plyr_idx = good_find_enemy_dungeon(creatng);
+    cctrl->party.target_plyr_idx = good_find_best_enemy_dungeon(creatng);
     if ( (cctrl->party.target_plyr_idx != -1) && (cctrl->party.target_plyr_idx != CurrentTarget) )
     {
         internal_set_thing_state(creatng, CrSt_GoodDoingNothing);

@@ -671,8 +671,8 @@ short game_is_busy_doing_gui(void)
 {
     struct PlayerInfo *player;
     player = get_my_player();
-    struct DungeonAdd *dungeonadd = get_dungeonadd(player->id_number);
-    if (dungeonadd->one_click_lock_cursor)
+    struct PlayerInfoAdd *playeradd = get_playeradd(player->id_number);
+    if (playeradd->one_click_lock_cursor)
       return false;
     if (!busy_doing_gui)
       return false;
@@ -1547,7 +1547,7 @@ void draw_scrolling_button_string(struct GuiButton *gbtn, const char *text)
   }
   else
   {
-      tx_units_per_px = scale_ui_value((MyScreenWidth >= 640) ? 16 : 32);
+      tx_units_per_px = scale_ui_value_lofi(16);
   }
   if (text_height == 0)
   {
@@ -1718,7 +1718,7 @@ TbBool frontend_start_new_campaign(const char *cmpgn_fname)
         player->flgfield_6 &= ~PlaF6_PlyrHasQuit;
     }
     player = get_my_player();
-    clear_transfered_creature();
+    clear_transfered_creatures();
     calculate_moon_phase(false,false);
     hide_all_bonus_levels(player);
     update_extra_levels_visibility();

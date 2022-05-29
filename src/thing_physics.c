@@ -40,8 +40,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT long _DK_get_thing_height_at_with_radius(const struct Thing *thing, const struct Coord3d *pos, unsigned long a3);
-/******************************************************************************/
 
 
 /******************************************************************************/
@@ -538,7 +536,6 @@ TbBool get_thing_next_position(struct Coord3d *pos, const struct Thing *thing)
 long get_thing_height_at(const struct Thing *thing, const struct Coord3d *pos)
 {
     SYNCDBG(18,"Starting");
-    //return _DK_get_thing_height_at(thing, pos);
     int i;
     if (thing_is_creature(thing)) {
         i = thing_nav_sizexy(thing);
@@ -547,6 +544,12 @@ long get_thing_height_at(const struct Thing *thing, const struct Coord3d *pos)
     }
     int radius = i >> 1;
 
+    return get_thing_height_at_with_radius(thing, pos, radius);
+
+}
+
+long get_thing_height_at_with_radius(const struct Thing *thing, const struct Coord3d *pos, unsigned long radius)
+{
     MapCoord pos_x_beg = max((MapCoord)pos->x.val - radius, 0);
     MapCoord pos_y_beg = max((MapCoord)pos->y.val - radius, 0);
     MapCoord pos_x_end = min((MapCoord)pos->x.val + radius, subtile_coord(map_subtiles_x, COORD_PER_STL - 1));
@@ -561,11 +564,6 @@ long get_thing_height_at(const struct Thing *thing, const struct Coord3d *pos)
         return  pos->z.val;
     else
         return pos_z_floor;
-}
-
-long get_thing_height_at_with_radius(const struct Thing *thing, const struct Coord3d *pos, unsigned long radius)
-{
-    return _DK_get_thing_height_at_with_radius(thing, pos, radius);
 }
 
 TbBool map_is_solid_at_height(MapSubtlCoord stl_x, MapSubtlCoord stl_y, MapCoord height_beg, MapCoord height_end)
@@ -845,6 +843,14 @@ TbBool thing_is_exempt_from_z_axis_clipping(const struct Thing *thing)
     if (thing_is_shot(thing))
     {
         return (!shot_is_boulder(thing));
+    }
+    if (thing->class_id == TCls_EffectElem)
+    {
+        return true;
+    }
+    if (thing->class_id == TCls_Effect)
+    {
+        return true;
     }
     return false;
 }

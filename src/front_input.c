@@ -165,10 +165,11 @@ void update_gui_layer()
     }
 
     struct PlayerInfo* player = get_my_player();
-    if ( ((player->work_state == PSt_Sell) || (player->work_state == PSt_BuildRoom) || (render_roomspace.highlight_mode))  &&
+    struct PlayerInfoAdd* playeradd = get_playeradd(player->id_number);
+    if ( ((player->work_state == PSt_Sell) || (player->work_state == PSt_BuildRoom) || (playeradd->render_roomspace.highlight_mode))  &&
          (is_game_key_pressed(Gkey_BestRoomSpace, NULL, true) || is_game_key_pressed(Gkey_SquareRoomSpace, NULL, true)) )
     {
-        if (render_roomspace.one_click_mode_exclusive)
+        if (playeradd->render_roomspace.one_click_mode_exclusive)
         {
             // Is the user in "one-click bridge building" mode
             set_current_gui_layer(GuiLayer_OneClickBridgeBuild);
@@ -900,7 +901,7 @@ static TbBool get_dungeon_control_action_inputs(struct PacketEx *packet)
     long mmzoom;
     if (16/mm_units_per_px < 3)
     {
-        mmzoom = (player->minimap_zoom) / (3-16/mm_units_per_px);
+        mmzoom = (player->minimap_zoom) / scale_value_for_resolution_with_upp(2, mm_units_per_px);
     }
     else
         mmzoom = (player->minimap_zoom);
@@ -918,19 +919,28 @@ static TbBool get_dungeon_control_action_inputs(struct PacketEx *packet)
     if (is_key_pressed(KC_NUMPADENTER,KMod_NONE))
     {
         if (toggle_main_cheat_menu())
+        {
             clear_key_pressed(KC_NUMPADENTER);
+        }
+        set_players_packet_action(player, PckA_ToggleCheatMenuStatus, ( (gui_box != NULL) || (gui_cheat_box != NULL) ), 0, 0, 0);
     }
     // also use the main keyboard enter key (while holding shift) for cheat menu
     if (is_key_pressed(KC_RETURN,KMod_SHIFT))
         {
             if (toggle_main_cheat_menu())
+            {
                 clear_key_pressed(KC_RETURN);
+            }
+            set_players_packet_action(player, PckA_ToggleCheatMenuStatus, ( (gui_box != NULL) || (gui_cheat_box != NULL) ), 0, 0, 0);
         }
     if (is_key_pressed(KC_F12,KMod_DONTCARE))
     {
         // Note that we're using "close", not "toggle". Menu can't be opened here.
         if (close_creature_cheat_menu())
+        {
             clear_key_pressed(KC_F12);
+        }
+        set_players_packet_action(player, PckA_ToggleCheatMenuStatus, ( (gui_box != NULL) || (gui_cheat_box != NULL) ), 0, 0, 0);
     }
     if (player->view_mode == PVM_IsometricView)
     {
@@ -1021,6 +1031,7 @@ static TbBool get_dungeon_control_action_inputs(struct PacketEx *packet)
         check_set_packet_action(player, packet, PckA_SetMapRotation, angle, 0);
         clear_key_pressed(val);
         lbDisplay.MiddleButton = 0; // WTF is this? and why it is on Display?
+        return 1;
       }
     }
     if (player->view_mode == PVM_FrontView)
@@ -1069,6 +1080,7 @@ static TbBool get_dungeon_control_action_inputs(struct PacketEx *packet)
             packet->packet.actn_par1 = angle;
         }
         clear_key_pressed(val);
+        return 1;
       }
     }
 
@@ -1088,7 +1100,22 @@ static TbBool get_dungeon_control_action_inputs(struct PacketEx *packet)
     {
         return 1;
     }
-    if ( (player->work_state == PSt_PlaceTerrain) || (player->work_state == PSt_MkDigger) || (player->work_state == PSt_MkBadCreatr) || (player->work_state == PSt_MkGoodCreatr) 
+    if (player->work_state == PSt_CtrlDungeon)
+    {
+        if ( (player->primary_cursor_state == CSt_PickAxe) || (player->primary_cursor_state == CSt_PowerHand) )
+        {
+            process_highlight_roomspace_inputs(player->id_number);
+        }
+    }
+    else if (player->work_state == PSt_BuildRoom)
+    {
+        process_build_roomspace_inputs(player->id_number);
+    }
+    else if (player->work_state == PSt_Sell)
+    {
+        process_sell_roomspace_inputs(player->id_number); 
+    }
+    else if ( (player->work_state == PSt_PlaceTerrain) || (player->work_state == PSt_MkDigger) || (player->work_state == PSt_MkBadCreatr) || (player->work_state == PSt_MkGoodCreatr) 
         || (player->work_state == PSt_KillPlayer) || (player->work_state == PSt_HeartHealth) || (player->work_state == PSt_StealRoom) || 
         (player->work_state == PSt_StealSlab) || (player->work_state == PSt_ConvertCreatr) )
     {
@@ -1151,18 +1178,23 @@ static TbBool get_creature_control_action_inputs(struct PacketEx *packet)
     if (is_key_pressed(KC_NUMPADENTER,KMod_DONTCARE))
     {
         if (toggle_instance_cheat_menu())
+        {
             clear_key_pressed(KC_NUMPADENTER);
+        }
+        set_players_packet_action(player, PckA_ToggleCheatMenuStatus, ( (gui_box != NULL) || (gui_cheat_box != NULL) ), 0, 0, 0);
     }
     // also use the main keyboard enter key (while holding shift) for cheat menu
     if (is_key_pressed(KC_RETURN,KMod_SHIFT))
-        {
-            toggle_instance_cheat_menu();
-                clear_key_pressed(KC_RETURN);
-        }
+    {
+        toggle_instance_cheat_menu();
+        clear_key_pressed(KC_RETURN);
+        set_players_packet_action(player, PckA_ToggleCheatMenuStatus, ( (gui_box != NULL) || (gui_cheat_box != NULL) ), 0, 0, 0);
+    }
     if (is_key_pressed(KC_F12,KMod_DONTCARE))
     {
         toggle_creature_cheat_menu();
-            clear_key_pressed(KC_F12);
+        clear_key_pressed(KC_F12);
+        set_players_packet_action(player, PckA_ToggleCheatMenuStatus, ( (gui_box != NULL) || (gui_cheat_box != NULL) ), 0, 0, 0);
     }
 
     if (player->controlled_thing_idx != 0)
@@ -1453,6 +1485,20 @@ static TbBool get_creature_control_action_inputs(struct PacketEx *packet)
                 set_players_packet_action(player, PckA_SetFirstPersonDigMode, false, 0, 0, 0);
             }
         }
+        if (is_key_pressed(KC_LALT,KMod_DONTCARE))
+        {
+            if (!playeradd->nearest_teleport)
+            {
+                set_players_packet_action(player, PckA_SetNearestTeleport, true, 0, 0, 0);
+            }
+        }
+        else
+        {
+            if (playeradd->nearest_teleport)
+            {
+                set_players_packet_action(player, PckA_SetNearestTeleport, false, 0, 0, 0);
+            }
+        }
         player->thing_under_hand = 0;
         struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
         if (cctrl->active_instance_id == CrInst_FIRST_PERSON_DIG)
@@ -1499,7 +1545,7 @@ static TbBool get_creature_control_action_inputs(struct PacketEx *packet)
                         player->thing_under_hand = picktng->index;
                         if (first_person_see_item_desc)
                         {
-                            display_controlled_pick_up_thing_name(picktng, 1);
+                            display_controlled_pick_up_thing_name(picktng, 1, player->id_number);
                         }
                     }
                 }
@@ -1936,7 +1982,7 @@ TbBool get_player_coords_and_context(struct Coord3d *pos, unsigned char *context
   unsigned long x;
   unsigned long y;
   struct PlayerInfo* player = get_my_player();
-  struct DungeonAdd* dungeonadd = get_dungeonadd(player->id_number);
+  struct PlayerInfoAdd* playeradd = get_playeradd(player->id_number);
   if ((pointer_x < 0) || (pointer_y < 0)
    || (pointer_x >= player->engine_window_width/pixel_size)
    || (pointer_y >= player->engine_window_height/pixel_size))
@@ -1953,7 +1999,7 @@ TbBool get_player_coords_and_context(struct Coord3d *pos, unsigned char *context
   unsigned int slb_y = subtile_slab_fast(y);
   struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
   struct SlabAttr* slbattr = get_slab_attrs(slb);
-  if (slab_kind_is_door(slb->kind) && (slabmap_owner(slb) == player->id_number) && (!dungeonadd->one_click_lock_cursor))
+  if (slab_kind_is_door(slb->kind) && (slabmap_owner(slb) == player->id_number) && (!playeradd->one_click_lock_cursor))
   {
     *context = CSt_DoorKey;
     pos->x.val = (x<<8) + top_pointed_at_frac_x;
@@ -1971,13 +2017,13 @@ TbBool get_player_coords_and_context(struct Coord3d *pos, unsigned char *context
     pos->x.val = (x<<8) + top_pointed_at_frac_x;
     pos->y.val = (y<<8) + top_pointed_at_frac_y;
   } else
-  if (((slb_x >= map_tiles_x) || (slb_y >= map_tiles_y)) && (!dungeonadd->one_click_lock_cursor))
+  if (((slb_x >= map_tiles_x) || (slb_y >= map_tiles_y)) && (!playeradd->one_click_lock_cursor))
   {
     *context = CSt_DefaultArrow;
     pos->x.val = (block_pointed_at_x<<8) + pointed_at_frac_x;
     pos->y.val = (block_pointed_at_y<<8) + pointed_at_frac_y;
   } else
-  if (((slbattr->block_flags & (SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0) || (dungeonadd->one_click_lock_cursor))
+  if (((slbattr->block_flags & (SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0) || (playeradd->one_click_lock_cursor))
   {
     *context = CSt_PickAxe;
     pos->x.val = (x<<8) + top_pointed_at_frac_x;

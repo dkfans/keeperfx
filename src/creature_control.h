@@ -166,7 +166,7 @@ struct CreatureControl
     long field_43;
     unsigned char field_47;
     unsigned char paydays_owed;
-    unsigned char prepayments_received;
+    char paydays_advanced;
     long annoy_untrained_turn;
     unsigned long last_roar_turn;
     /** The game enumerates the elements of annoyance array periodically and looks for the highest value.
@@ -266,7 +266,7 @@ struct CreatureControl
         long long_A2x;
   } idle;
   struct {
-    unsigned char byte_9A;
+    unsigned char job_stage;
     unsigned char byte_9B;
     unsigned char byte_9C;
     unsigned char byte_9D;
