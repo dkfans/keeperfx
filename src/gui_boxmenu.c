@@ -302,17 +302,17 @@ void gui_draw_all_boxes(void)
 short gui_box_is_not_valid(struct GuiBox *gbox)
 {
   if (gbox == NULL) return true;
-  return (gbox->field_0 & 0x01) == 0;
+  return (gbox->flags & GBoxF_Allocated) == 0;
 }
 
 void gui_insert_box_at_list_top(struct GuiBox *gbox)
 {
-  if (gbox->field_0 & 0x02)
+  if (gbox->flags & GBoxF_InList)
   {
     ERRORLOG("GuiBox is already in list");
     return;
   }
-  gbox->field_0 |= 0x02;
+  gbox->flags |= GBoxF_InList;
   gbox->next_box = first_box;
   if (first_box != NULL)
       first_box->prev_box = gbox;
@@ -329,7 +329,7 @@ struct GuiBox *gui_allocate_box_structure(void)
         if (gui_box_is_not_valid(gbox))
         {
             gbox->field_1 = i;
-            gbox->field_0 |= 0x01;
+            gbox->flags |= GBoxF_Allocated;
             gui_insert_box_at_list_top(gbox);
             return gbox;
         }
@@ -365,12 +365,12 @@ long gui_calculate_box_height(struct GuiBox *gbox)
 
 void gui_remove_box_from_list(struct GuiBox *gbox)
 {
-  if ((gbox->field_0 & 0x02) == 0)
+  if ((gbox->flags & GBoxF_InList) == 0)
   {
     ERRORLOG("Cannot remove box from list when it is not in one!");
     return;
   }
-  gbox->field_0 &= 0xFDu;
+  gbox->flags &= 0xFDu;
   if ( gbox->prev_box )
       gbox->prev_box->next_box = gbox->next_box;
   else
