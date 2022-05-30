@@ -2573,7 +2573,7 @@ short creature_pretend_chicken_setup_move(struct Thing *creatng)
     {
         room = get_room_thing_is_on(creatng);
 
-        if (room_is_invalid(room) || room->kind != RoK_GARDEN || room->owner != creatng->owner )
+        if (room_is_invalid(room) || room_role_matches(room->kind,RoRoF_FoodStorage) || room->owner != creatng->owner )
         {
             room = find_random_room_for_thing(creatng, creatng->owner, RoK_GARDEN, 0);
         }
