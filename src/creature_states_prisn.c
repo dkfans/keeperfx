@@ -222,7 +222,7 @@ struct Thing *find_prisoner_for_thing(struct Thing *creatng)
     return out_creatng;
 }
 
-short creature_freeze_prisonors(struct Thing *creatng)
+short creature_freeze_prisoners(struct Thing *creatng)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     if (cctrl->instance_id != CrInst_NULL) {
@@ -252,7 +252,6 @@ short creature_freeze_prisonors(struct Thing *creatng)
         creature_move_to(creatng, &victng->mappos, cctrl->max_speed, 0, 0);
     }
     return 1;
-
 }
 
 CrStateRet process_prison_visuals(struct Thing *creatng, struct Room *room)

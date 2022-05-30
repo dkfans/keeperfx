@@ -211,7 +211,7 @@ TngUpdateRet update_dead_creature(struct Thing *thing)
 {
     SYNCDBG(18,"Starting");
     TRACE_THING(thing);
-    unsigned long corpse_age;
+    long corpse_age;
     if ((thing->alloc_flags & TAlF_IsDragged) == 0)
     {
         if (thing->active_state == DCrSt_DramaticDying)

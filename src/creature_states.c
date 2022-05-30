@@ -384,7 +384,7 @@ struct StateInfo states[] = {
   {kinky_torturing, cleanup_torturing, NULL, process_kinky_function, /// [110]
     1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0,  CrStTyp_Idle, 0, 0, 0, 0,  0, 0, 0, 1},
   {mad_killing_psycho, NULL, NULL, NULL,
-    0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, CrStTyp_AngerJob, 0, 0, 0, 0, 55, 1, 0, 1},
+    0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, CrStTyp_AngerJob, 0, 0, 0, 0, 68, 1, 0, 1},
   {creature_search_for_gold_to_steal_in_room, NULL, NULL, move_check_attack_any_door,
     0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, CrStTyp_AngerJob, 0, 0, 0, 0, 55, 1, 0, 1},
   {creature_vandalise_rooms, NULL, NULL, move_check_attack_any_door,
@@ -433,7 +433,7 @@ struct StateInfo states[] = {
     1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1,  CrStTyp_Idle, 1, 1, 0, 0,  0, 0, 0, 0},
   {creature_attack_rooms, NULL, NULL, move_check_attack_any_door,
     0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, CrStTyp_AngerJob, 0, 0, 0, 0, 51, 1, 0, 0},
-  {creature_freeze_prisonors, NULL, NULL, NULL,
+  {creature_freeze_prisoners, NULL, NULL, NULL,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Idle, 0, 0, 0, 0,  0, 0, 0, 1},
   {creature_explore_dungeon, NULL, NULL, NULL,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Idle, 0, 0, 0, 0,  0, 0, 0, 1},
@@ -1307,6 +1307,8 @@ TbBool person_get_somewhere_adjacent_in_room_around_borders_f(struct Thing *thin
  */
 SubtlCodedCoords find_position_around_in_room(const struct Coord3d *pos, PlayerNumber owner, RoomKind rkind, struct Thing* thing)
 {
+    struct SlabMap* slb;// = get_slabmap_for_subtile(pos->x.stl.num, pos->y.stl.num);
+    struct Room* room;
     SubtlCodedCoords stl_num;
     long m = CREATURE_RANDOM(thing, AROUND_MAP_LENGTH);
     for (long n = 0; n < AROUND_MAP_LENGTH; n++)
@@ -1329,10 +1331,10 @@ SubtlCodedCoords find_position_around_in_room(const struct Coord3d *pos, PlayerN
                 break;
             MapSubtlCoord stl_x = stl_num_decode_x(stl_num);
             MapSubtlCoord stl_y = stl_num_decode_y(stl_num);
-            struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
+            slb = get_slabmap_for_subtile(stl_x, stl_y);
             if (slabmap_owner(slb) != owner)
                 break;
-            struct Room* room = room_get(slb->room_index);
+            room = room_get(slb->room_index);
             if (room->kind != rkind)
                 break;
             if (dist > 1)
@@ -1348,22 +1350,13 @@ SubtlCodedCoords find_position_around_in_room(const struct Coord3d *pos, PlayerN
         m = (m + 1) % AROUND_MAP_LENGTH;
     }
     // No position found - at least try to move within the same slab
-    do {
-        stl_num = get_subtile_number(pos->x.stl.num,pos->y.stl.num);
-        struct Map* mapblk = get_map_block_at_pos(stl_num);
-        if ( ((mapblk->flags & SlbAtFlg_IsRoom) != 0) && ((mapblk->flags & SlbAtFlg_Blocking) != 0) )
-            break;
-        MapSubtlCoord stl_x = stl_num_decode_x(stl_num);
-        MapSubtlCoord stl_y = stl_num_decode_y(stl_num);
-        struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
-        if (slabmap_owner(slb) != owner)
-            break;
-        struct Room* room = room_get(slb->room_index);
-        if (room->kind != rkind)
-            break;
-        return stl_num;
-    } while (0);
-    // Failed completely - cannot move
+    slb = get_slabmap_for_subtile(pos->x.stl.num, pos->y.stl.num);
+    room = room_get(slb->room_index);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    if (person_get_somewhere_adjacent_in_room(thing, room, &cctrl->moveto_pos))
+    {
+        return get_subtile_number(cctrl->moveto_pos.x.stl.num, cctrl->moveto_pos.y.stl.num);
+    }
     return 0;
 }
 
@@ -2310,7 +2303,7 @@ short creature_persuade(struct Thing *creatng)
     TRACE_THING(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     struct Dungeon* dungeon = get_players_num_dungeon(creatng->owner);
-    if ((cctrl->byte_9A > 0) && (dungeon->num_active_creatrs > 1))
+    if ((cctrl->job_stage > 0) && (dungeon->num_active_creatrs > 1))
     {
         struct Thing* perstng = find_random_creature_for_persuade(creatng->owner, &creatng->mappos);
         if (setup_person_move_to_coord(creatng, &perstng->mappos, NavRtF_Default)) {

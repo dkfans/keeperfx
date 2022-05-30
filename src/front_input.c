@@ -884,7 +884,7 @@ long get_dungeon_control_action_inputs(void)
     long mmzoom;
     if (16/mm_units_per_px < 3)
     {
-        mmzoom = (player->minimap_zoom) / (3-16/mm_units_per_px);
+        mmzoom = (player->minimap_zoom) / scale_value_for_resolution_with_upp(2, mm_units_per_px);
     }
     else
         mmzoom = (player->minimap_zoom);
@@ -905,7 +905,7 @@ long get_dungeon_control_action_inputs(void)
         {
             clear_key_pressed(KC_NUMPADENTER);
         }
-        set_players_packet_action(player, PckA_ToggleCheatMenuStatus, ( (gui_box != NULL) || (gui_cheat_box != NULL) ), 0, 0, 0);
+        set_players_packet_action(player, PckA_ToggleCheatMenuStatus, ( cheat_menu_is_active() ), 0, 0, 0);
     }
     // also use the main keyboard enter key (while holding shift) for cheat menu
     if (is_key_pressed(KC_RETURN,KMod_SHIFT))
@@ -914,7 +914,7 @@ long get_dungeon_control_action_inputs(void)
             {
                 clear_key_pressed(KC_RETURN);
             }
-            set_players_packet_action(player, PckA_ToggleCheatMenuStatus, ( (gui_box != NULL) || (gui_cheat_box != NULL) ), 0, 0, 0);
+            set_players_packet_action(player, PckA_ToggleCheatMenuStatus, ( cheat_menu_is_active() ), 0, 0, 0);
         }
     if (is_key_pressed(KC_F12,KMod_DONTCARE))
     {
@@ -923,7 +923,7 @@ long get_dungeon_control_action_inputs(void)
         {
             clear_key_pressed(KC_F12);
         }
-        set_players_packet_action(player, PckA_ToggleCheatMenuStatus, ( (gui_box != NULL) || (gui_cheat_box != NULL) ), 0, 0, 0);
+        set_players_packet_action(player, PckA_ToggleCheatMenuStatus, ( cheat_menu_is_active() ), 0, 0, 0);
     }
     if (player->view_mode == PVM_IsometricView)
     {
@@ -1167,20 +1167,20 @@ short get_creature_control_action_inputs(void)
         {
             clear_key_pressed(KC_NUMPADENTER);
         }
-        set_players_packet_action(player, PckA_ToggleCheatMenuStatus, ( (gui_box != NULL) || (gui_cheat_box != NULL) ), 0, 0, 0);
+        set_players_packet_action(player, PckA_ToggleCheatMenuStatus, ( cheat_menu_is_active() ), 0, 0, 0);
     }
     // also use the main keyboard enter key (while holding shift) for cheat menu
     if (is_key_pressed(KC_RETURN,KMod_SHIFT))
     {
         toggle_instance_cheat_menu();
         clear_key_pressed(KC_RETURN);
-        set_players_packet_action(player, PckA_ToggleCheatMenuStatus, ( (gui_box != NULL) || (gui_cheat_box != NULL) ), 0, 0, 0);
+        set_players_packet_action(player, PckA_ToggleCheatMenuStatus, ( cheat_menu_is_active() ), 0, 0, 0);
     }
     if (is_key_pressed(KC_F12,KMod_DONTCARE))
     {
         toggle_creature_cheat_menu();
         clear_key_pressed(KC_F12);
-        set_players_packet_action(player, PckA_ToggleCheatMenuStatus, ( (gui_box != NULL) || (gui_cheat_box != NULL) ), 0, 0, 0);
+        set_players_packet_action(player, PckA_ToggleCheatMenuStatus, ( cheat_menu_is_active() ), 0, 0, 0);
     }
 
     if (player->controlled_thing_idx != 0)
@@ -1529,7 +1529,7 @@ short get_creature_control_action_inputs(void)
                         player->thing_under_hand = picktng->index;
                         if (first_person_see_item_desc)
                         {
-                            display_controlled_pick_up_thing_name(picktng, 1);
+                            display_controlled_pick_up_thing_name(picktng, 1, player->id_number);
                         }
                     }
                 }
@@ -2150,7 +2150,7 @@ void get_creature_control_nonaction_inputs(void)
   pckt->pos_y = 127;
   if ((player->allocflags & PlaF_Unknown8) != 0)
     return;
-TbBool cheat_menu_active = ( (gui_box != NULL) || (gui_cheat_box != NULL) );
+TbBool cheat_menu_active = cheat_menu_is_active();
 if (((MyScreenWidth >> 1) != GetMouseX()) || (GetMouseY() != y))
   {
       if (cheat_menu_active == false)

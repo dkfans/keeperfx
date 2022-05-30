@@ -667,7 +667,7 @@ long anywhere_thing_filter_is_creature_of_model_training_and_owned_by(const stru
               if (((int)thing->index != param->num1) || (param->num1 == -1))
               {
                   struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-                  if ((thing->active_state == CrSt_Training) && (cctrl->byte_9A > 1))
+                  if ((thing->active_state == CrSt_Training) && (cctrl->job_stage > 1))
                   {
                       // Return the largest value to stop sweeping
                       return LONG_MAX;

@@ -323,7 +323,7 @@ TbBool attempt_anger_job_mad_psycho(struct Thing *creatng)
     }
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     cctrl->spell_flags |= CSAfF_MadKilling;
-    cctrl->byte_9A = 0;
+    cctrl->job_stage = 0;
     return true;
 }
 
@@ -345,7 +345,7 @@ TbBool attempt_anger_job_persuade(struct Thing *creatng)
     if (!external_set_thing_state(creatng, CrSt_CreaturePersuade)) {
         return false;
     }
-    cctrl->byte_9A = persuade_count;
+    cctrl->job_stage = persuade_count;
     return true;
 }
 

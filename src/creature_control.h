@@ -259,7 +259,7 @@ unsigned char field_67;
         long long_A2x;
   } idle;
   struct {
-    unsigned char byte_9A;
+    unsigned char job_stage;
     unsigned char byte_9B;
     unsigned char byte_9C;
     unsigned char byte_9D;
