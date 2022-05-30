@@ -21,6 +21,7 @@
 
 #include "bflib_math.h"
 #include "creature_states.h"
+#include "creature_states_mood.h"
 #include "thing_list.h"
 #include "creature_control.h"
 #include "creature_instances.h"
@@ -308,7 +309,7 @@ long process_creature_in_workshop(struct Thing *creatng, struct Room *room)
             break;
         }
         SYNCDBG(19,"No %s post at current pos, the %s goes from %d to search position",room_code_name(room->kind),thing_model_name(creatng),(int)cctrl->job_stage);
-        //setup_move_to_new_workshop_position(creatng, room, 0);
+        setup_move_to_new_workshop_position(creatng, room, 0);
         break;
     case 2:
     {
@@ -374,6 +375,7 @@ long process_creature_in_workshop(struct Thing *creatng, struct Room *room)
         }
         break;
     }
+    process_job_stress_and_going_postal(creatng);
     return 1;
 }
 
