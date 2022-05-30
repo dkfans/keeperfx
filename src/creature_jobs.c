@@ -323,7 +323,7 @@ TbBool attempt_anger_job_mad_psycho(struct Thing *creatng)
     }
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     cctrl->spell_flags |= CSAfF_MadKilling;
-    cctrl->byte_9A = 0;
+    cctrl->job_stage = 0;
     return true;
 }
 
@@ -345,7 +345,7 @@ TbBool attempt_anger_job_persuade(struct Thing *creatng)
     if (!external_set_thing_state(creatng, CrSt_CreaturePersuade)) {
         return false;
     }
-    cctrl->byte_9A = persuade_count;
+    cctrl->job_stage = persuade_count;
     return true;
 }
 
@@ -691,12 +691,12 @@ TbBool creature_can_do_job_for_player(const struct Thing *creatng, PlayerNumber 
     }
     // Check if the job is related to correct player
     struct CreatureJobConfig* jobcfg = get_config_for_job(new_job);
-    if (jobcfg->func_plyr_check == NULL)
+    if (creature_job_player_check_func_list[jobcfg->func_plyr_check_idx] == NULL)
     {
         SYNCDBG(13,"Cannot assign %s for %s index %d owner %d; no check callback",creature_job_code_name(new_job),thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
         return false;
     }
-    if (!jobcfg->func_plyr_check(creatng, plyr_idx, new_job))
+    if (!creature_job_player_check_func_list[jobcfg->func_plyr_check_idx](creatng, plyr_idx, new_job))
     {
         SYNCDBG(13,"Cannot assign %s for %s index %d owner %d; check callback failed",creature_job_code_name(new_job),thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
         return false;
@@ -732,9 +732,9 @@ TbBool send_creature_to_job_for_player(struct Thing *creatng, PlayerNumber plyr_
 {
     SYNCDBG(6,"Starting for %s index %d owner %d and job %s",thing_model_name(creatng),(int)creatng->index,(int)creatng->owner,creature_job_code_name(new_job));
     struct CreatureJobConfig* jobcfg = get_config_for_job(new_job);
-    if (jobcfg->func_plyr_assign != NULL)
+    if (creature_job_player_assign_func_list[jobcfg->func_plyr_assign_idx] != NULL)
     {
-        if (jobcfg->func_plyr_assign(creatng, plyr_idx, new_job))
+        if (creature_job_player_assign_func_list[jobcfg->func_plyr_assign_idx](creatng, plyr_idx, new_job))
         {
             struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
             // Set computer control accordingly to job flags
@@ -875,12 +875,12 @@ TbBool creature_can_do_job_near_position(struct Thing *creatng, MapSubtlCoord st
         return false;
     }
     struct CreatureJobConfig* jobcfg = get_config_for_job(new_job);
-    if (jobcfg->func_cord_check == NULL)
+    if (creature_job_coords_check_func_list[jobcfg->func_cord_check_idx] == NULL)
     {
         SYNCDBG(3,"Cannot assign %s at (%d,%d) for %s index %d owner %d; job has no coord check function",creature_job_code_name(new_job),(int)stl_x,(int)stl_y,thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
         return false;
     }
-    if (!jobcfg->func_cord_check(creatng, stl_x, stl_y, new_job, flags))
+    if (!creature_job_coords_check_func_list[jobcfg->func_cord_check_idx](creatng, stl_x, stl_y, new_job, flags))
     {
         SYNCDBG(3,"Cannot assign %s at (%d,%d) for %s index %d owner %d; coord check not passed",creature_job_code_name(new_job),(int)stl_x,(int)stl_y,thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
         return false;
@@ -905,9 +905,9 @@ TbBool send_creature_to_job_near_position(struct Thing *creatng, MapSubtlCoord s
 {
     SYNCDBG(6,"Starting for %s index %d owner %d and job %s",thing_model_name(creatng),(int)creatng->index,(int)creatng->owner,creature_job_code_name(new_job));
     struct CreatureJobConfig* jobcfg = get_config_for_job(new_job);
-    if (jobcfg->func_cord_assign != NULL)
+    if (creature_job_coords_assign_func_list[jobcfg->func_cord_assign_idx] != NULL)
     {
-        if (jobcfg->func_cord_assign(creatng, stl_x, stl_y, new_job))
+        if (creature_job_coords_assign_func_list[jobcfg->func_cord_assign_idx](creatng, stl_x, stl_y, new_job))
         {
             struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
             // Set computer control accordingly to job flags

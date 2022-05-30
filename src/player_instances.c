@@ -473,7 +473,10 @@ long pinstfe_passenger_control_creature(struct PlayerInfo *player, long *n)
 {
     struct Thing* thing = thing_get(player->influenced_thing_idx);
     if (!thing_is_invalid(thing))
-      control_creature_as_passenger(player, thing);
+    {
+        load_swipe_graphic_for_creature(thing);
+        control_creature_as_passenger(player, thing);
+    }
     set_player_instance(player, PI_CrCtrlFade, false);
     return 0;
 }
@@ -1148,7 +1151,13 @@ struct Room *player_build_room_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Play
         WARNLOG("Player %d tried to build %s on a forbidden subtile (%d,%d)",(int)plyr_idx,
             room_code_name(rkind),(int)stl_x,(int)stl_y);
         if (is_my_player(player))
-            play_non_3d_sample(119);
+        {
+            struct PlayerInfoAdd* playeradd = get_playeradd(plyr_idx);
+            if (!playeradd->roomspace.is_active)
+            {
+                play_non_3d_sample(119);
+            }
+        }
         return INVALID_ROOM;
     }
     // Check if there's a place for new room

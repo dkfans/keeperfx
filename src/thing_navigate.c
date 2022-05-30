@@ -41,11 +41,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT long _DK_creature_turn_to_face_backwards(struct Thing *creatng, struct Coord3d *pos);
-DLLIMPORT long _DK_creature_turn_to_face_angle(struct Thing *creatng, long a2);
-DLLIMPORT unsigned char _DK_get_nearest_valid_position_for_creature_at(struct Thing *creatng, struct Coord3d *pos);
 DLLIMPORT long _DK_get_next_gap_creature_can_fit_in_below_point(struct Thing *creatng, struct Coord3d *pos);
-DLLIMPORT long _DK_thing_covers_same_blocks_in_two_positions(struct Thing *creatng, struct Coord3d *pos1, struct Coord3d *pos2);
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -60,9 +56,57 @@ TbBool creature_can_navigate_to_with_storage_f(const struct Thing *creatng, cons
     return (aret == AridRet_OK);
 }
 
-unsigned char get_nearest_valid_position_for_creature_at(struct Thing *thing, struct Coord3d *pos)
+TbBool get_nearest_valid_position_for_creature_at(struct Thing *thing, struct Coord3d *pos)
 {
-    return _DK_get_nearest_valid_position_for_creature_at(thing, pos);
+    MapSubtlCoord stl_x;
+    MapSubtlCoord stl_y;
+    struct Coord3d spiral_pos;
+    struct Map* mapblk;
+    struct MapOffset* sstep;
+
+    for (int i = 0; i < SPIRAL_STEPS_COUNT; i++)
+    {
+        sstep = &spiral_step[i];
+        stl_x = sstep->h + pos->x.stl.num;
+        stl_y = sstep->v + pos->y.stl.num;
+        if ( stl_x < 0 )
+        {
+            stl_x = 0; 
+        }
+        else if ( stl_x > map_subtiles_x )
+        {
+            stl_x = map_subtiles_x;
+        }
+
+        if ( stl_y < 0 )
+        {
+            stl_y = 0; 
+        }
+        else if ( stl_y > map_subtiles_y )
+        {
+            stl_y = map_subtiles_y;
+        }
+
+        mapblk = get_map_block_at(stl_x, stl_y);
+        
+        if ( (mapblk->flags & SlbAtFlg_Blocking) == 0 )
+        {
+            spiral_pos.x.val = (stl_x << 8) + 128;
+            spiral_pos.y.val = (stl_y << 8) + 128;
+            spiral_pos.z.val = get_thing_height_at(thing, &spiral_pos);
+            if ( !thing_in_wall_at(thing, &spiral_pos) )
+            {
+                pos->x.val = spiral_pos.x.val;
+                pos->y.val = spiral_pos.y.val;
+                pos->z.val = spiral_pos.z.val;
+                return true;
+            }
+        }
+    }
+
+    ERRORLOG("Cannot find valid position to place thing");
+    return false;
+
 }
 
 static void get_nearest_navigable_point_for_thing(struct Thing *thing, struct Coord3d *pos1, struct Coord3d *pos2, NaviRouteFlags flags)
@@ -229,6 +273,10 @@ void move_thing_in_map_f(struct Thing *thing, const struct Coord3d *pos, const c
 {
     SYNCDBG(18,"%s: Starting for %s index %d",func_name,thing_model_name(thing),(int)thing->index);
     TRACE_THING(thing);
+    if (thing->index == 0)
+    {
+        ERRORLOG("Moving deleted object (from %s)", func_name);
+    }
     if ((thing->mappos.x.stl.num == pos->x.stl.num) && (thing->mappos.y.stl.num == pos->y.stl.num))
     {
         SYNCDBG(19,"Moving %s index %d from (%d,%d) to (%d,%d)",thing_model_name(thing),
@@ -326,23 +374,9 @@ long creature_turn_to_face(struct Thing *thing, const struct Coord3d *pos)
     //TODO enable when issue in pathfinding is solved
     /*if (get_2d_box_distance(&thing->mappos, pos) <= 0)
         return -1;*/
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     long angle = get_angle_xy_to(&thing->mappos, pos);
-    long angle_diff = get_angle_difference(thing->move_angle_xy, angle);
-    long angle_sign = get_angle_sign(thing->move_angle_xy, angle);
-    long angle_delta = crstat->max_angle_change;
-    if (angle_delta < 1) {
-        angle_delta = 1;
-    }
-    if (angle_delta > angle_diff) {
-        angle_delta = angle_diff;
-    }
-    if (angle_sign < 0) {
-        angle_delta = -angle_delta;
-    }
-    long i = (thing->move_angle_xy + angle_delta);
-    thing->move_angle_xy = i & LbFPMath_AngleMask;
-    return get_angle_difference(thing->move_angle_xy, angle);
+
+    return creature_turn_to_face_angle(thing,angle);
 }
 
 long creature_turn_to_face_backwards(struct Thing *thing, struct Coord3d *pos)
@@ -350,12 +384,31 @@ long creature_turn_to_face_backwards(struct Thing *thing, struct Coord3d *pos)
     //TODO enable when issue in pathfinding is solved
     /*if (get_2d_box_distance(&thing->mappos, pos) <= 0)
         return -1;*/
-    return _DK_creature_turn_to_face_backwards(thing, pos);
+
+    long angle = (get_angle_xy_to(&thing->mappos, pos)
+        + LbFPMath_PI) & LbFPMath_AngleMask;
+
+    return creature_turn_to_face_angle(thing,angle);
 }
 
-long creature_turn_to_face_angle(struct Thing *thing, long a2)
+long creature_turn_to_face_angle(struct Thing *thing, long angle)
 {
-    return _DK_creature_turn_to_face_angle(thing, a2);
+
+    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    long angle_diff = get_angle_difference(thing->move_angle_xy, angle);
+    long angle_sign = get_angle_sign(thing->move_angle_xy, angle);
+    int angle_delta = crstat->max_angle_change;
+
+    if (angle_delta > angle_diff) {
+        angle_delta = angle_diff;
+    }
+    if (angle_sign < 0) {
+        angle_delta = -angle_delta;
+    }
+
+    thing->move_angle_xy = (thing->move_angle_xy + angle_delta) & LbFPMath_AngleMask;
+
+    return get_angle_difference(thing->move_angle_xy, angle);
 }
 
 long creature_move_to_using_gates(struct Thing *thing, struct Coord3d *pos, MoveSpeed speed, long a4, NaviRouteFlags flags, TbBool backward)
@@ -516,7 +569,7 @@ short move_to_position(struct Thing *creatng)
             SYNCDBG(8,"Couldn't move %s to place required for state %s; reset to state %s",thing_model_name(creatng),creature_state_code_name(cntstat),creatrtng_actstate_name(creatng));
             return CrStRet_ResetOk;
         }
-        // If continuing the job, check for job stress
+        // If continuing the job, check for job stress. Several - but not all - jobs use the move_to_position function.
         process_job_stress_and_going_postal(creatng);
     }
     switch (state_check)
@@ -535,9 +588,20 @@ long get_next_gap_creature_can_fit_in_below_point(struct Thing *thing, struct Co
     return _DK_get_next_gap_creature_can_fit_in_below_point(thing, pos);
 }
 
-long thing_covers_same_blocks_in_two_positions(struct Thing *thing, struct Coord3d *pos1, struct Coord3d *pos2)
+TbBool thing_covers_same_blocks_in_two_positions(struct Thing *thing, struct Coord3d *pos1, struct Coord3d *pos2)
 {
-    return _DK_thing_covers_same_blocks_in_two_positions(thing, pos1, pos2);
+    long nav_radius = thing_nav_sizexy(thing) /2;
+
+    if ((abs((pos2->x.val - nav_radius) - (pos1->x.val - nav_radius)) < COORD_PER_STL)
+     && (abs((pos2->x.val + nav_radius) - (pos1->x.val + nav_radius)) < COORD_PER_STL)
+     && (abs((pos2->y.val - nav_radius) - (pos1->y.val - nav_radius)) < COORD_PER_STL)
+     && (abs((pos2->y.val + nav_radius) - (pos1->y.val + nav_radius)) < COORD_PER_STL)
+     && (abs(pos2->z.val - pos1->z.val) < COORD_PER_STL)
+     && (abs((thing->clipbox_size_yz + pos2->z.val) - (thing->clipbox_size_yz + pos1->z.val)) < COORD_PER_STL) )
+    {
+        return true;
+    }
+    return false;
 }
 
 long get_thing_blocked_flags_at(struct Thing *thing, struct Coord3d *pos)

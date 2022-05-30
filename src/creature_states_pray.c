@@ -46,8 +46,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT short _DK_state_cleanup_in_temple(struct Thing *creatng);
-/******************************************************************************/
 #ifdef __cplusplus
 }
 #endif
@@ -170,9 +168,19 @@ CrCheckRet process_temple_function(struct Thing *thing)
     return CrCkRet_Available;
 }
 
-short state_cleanup_in_temple(struct Thing *thing)
+short state_cleanup_in_temple(struct Thing *creatng)
 {
-  return _DK_state_cleanup_in_temple(thing);
+    struct Dungeon* dungeon = get_dungeon(creatng->owner);
+    if ( dungeon->creatures_praying[creatng->model] > 0 )
+    {
+       dungeon->creatures_praying[creatng->model]--;
+    }
+    else
+    {
+        ERRORLOG("No creature in temple to cleanup");
+    }
+    state_cleanup_in_room(creatng);
+    return 1;
 }
 
 TbBool summon_creature(long model, struct Coord3d *pos, long owner, long explevel)
@@ -310,7 +318,7 @@ void kill_all_players_chickens(PlayerNumber plyr_idx)
         // Per-thing code
         if (thing_exists(thing) && thing_is_mature_food(thing) && (thing->owner == plyr_idx)
           && !thing_is_picked_up(thing)) {
-            thing->byte_17 = 1;
+            thing->food.some_chicken_was_sacrificed = true;
         }
         // Per-thing code ends
         k++;
@@ -535,14 +543,14 @@ long process_sacrifice_award(struct Coord3d *pos, long model, PlayerNumber plyr_
         case SacA_CustomReward:
             if (sac->param > 0) // Zero means do nothing
             {
-                dungeon->script_flags[sac->param - 1]++;
+                dungeonadd->script_flags[sac->param - 1]++;
             }
             ret = SacR_Awarded;
             break;
         case SacA_CustomPunish:
             if (sac->param > 0)
             {
-                dungeon->script_flags[sac->param - 1]++;
+                dungeonadd->script_flags[sac->param - 1]++;
             }
             ret = SacR_Punished;
             break;

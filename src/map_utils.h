@@ -48,6 +48,8 @@ typedef struct CompoundCoordFilterParam * MaxCoordFilterParam;
 /** Definition of a callback type used for selecting best position by maximizing a value. */
 typedef long (*Coord_Maximizer_Filter)(const struct Coord3d *, MaxCoordFilterParam, long);
 
+typedef TbBool (*SlabsFillIterAction)(MapSlabCoord, MapSlabCoord, MaxCoordFilterParam);
+
 struct CompoundCoordFilterParam {
      long plyr_idx;
      long slab_kind;
@@ -64,6 +66,7 @@ struct CompoundCoordFilterParam {
      void *ptr3;
      };
 };
+
 /******************************************************************************/
 DLLIMPORT struct MapOffset _DK_spiral_step[SPIRAL_STEPS_COUNT];
 #define spiral_step _DK_spiral_step
@@ -71,7 +74,10 @@ DLLIMPORT struct MapOffset _DK_spiral_step[SPIRAL_STEPS_COUNT];
 #define AROUND_TILES_COUNT      9
 extern struct Around const around[];
 #define MID_AROUND_LENGTH 9
+#define LARGE_AROUND_MAX 36
+#define LARGE_AROUND_LIMITED 25
 extern struct Around const mid_around[MID_AROUND_LENGTH];
+extern struct Around const large_around[LARGE_AROUND_MAX];
 extern struct Around const start_at_around[MID_AROUND_LENGTH];
 #define SMALL_AROUND_LENGTH 4
 extern struct Around const small_around[];
@@ -83,6 +89,8 @@ void init_spiral_steps(void);
 void get_min_floor_and_ceiling_heights_for_rect(MapSubtlCoord stl_x_beg, MapSubtlCoord stl_y_beg,
     MapSubtlCoord stl_x_end, MapSubtlCoord stl_y_end,
     MapSubtlCoord *floor_height, MapSubtlCoord *ceiling_height);
+
+void slabs_fill_iterate_from_slab(MapSlabCoord src_slab_x, MapSlabCoord src_slab_y, SlabsFillIterAction f_action, MaxCoordFilterParam param);
 
 unsigned int small_around_index_towards_destination(long curr_x,long curr_y,long dest_x,long dest_y);
 
@@ -99,6 +107,14 @@ TbBool get_position_spiral_near_map_block_with_filter(struct Coord3d *retpos, Ma
 long slabs_count_near(MapSlabCoord tx, MapSlabCoord ty, long rad, SlabKind slbkind);
 
 TbBool subtile_is_blocking_wall_or_lava(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx);
+
+enum FillIterType {
+    FillIterType_NoFill,
+    FillIterType_Match,
+    FillIterType_Floor,
+    FillIterType_FloorBridge,
+};
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

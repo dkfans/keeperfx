@@ -34,7 +34,7 @@ const struct NamedCommand player_state_commands[] = {
     {"PLAYER_STATE_NONE",             PSt_None},
     {"PLAYER_STATE_CTRLDUNGEON",      PSt_CtrlDungeon},
     {"PLAYER_STATE_BUILDROOM",        PSt_BuildRoom},
-    {"PLAYER_STATE_MKGOODDIGGER",     PSt_MkGoodDigger},
+    {"PLAYER_STATE_MKGOODDIGGER",     PSt_MkDigger},
     {"PLAYER_STATE_MKGOODCREATR",     PSt_MkGoodCreatr},
     {"PLAYER_STATE_HOLDINHAND",       PSt_HoldInHand},
     {"PLAYER_STATE_CALLTOARMS",       PSt_CallToArms},

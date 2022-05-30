@@ -150,7 +150,35 @@ enum TbPacketAction {
         PckA_LoadViewType,//120
         PckA_PlyrMsgChar    =  121,
         PckA_PlyrMsgClear,
-        PckA_DirectCtrlDragDrop
+        PckA_DirectCtrlDragDrop,
+        PckA_CheatPlaceTerrain,
+        PckA_CheatMakeCreature,
+        PckA_CheatMakeDigger,
+        PckA_CheatStealSlab,
+        PckA_CheatStealRoom,
+        PckA_CheatHeartHealth,
+        PckA_CheatKillPlayer,
+        PckA_CheatConvertCreature,
+        PckA_CheatSwitchTerrain,
+        PckA_CheatSwitchPlayer,
+        PckA_CheatSwitchCreature,
+        PckA_CheatSwitchHero,
+        PckA_CheatSwitchExperience,
+        PckA_CheatCtrlCrtrSetInstnc,
+        PckA_SetFirstPersonDigMode,
+        PckA_SwitchTeleportDest,
+        PckA_SelectFPPickup,
+        PckA_CheatAllDoors,
+        PckA_CheatAllTraps,
+        PckA_SetRoomspaceAuto,
+        PckA_SetRoomspaceMan,
+        PckA_SetRoomspaceDrag,
+        PckA_SetRoomspaceDefault,
+        PckA_SetRoomspaceWholeRoom,
+        PckA_SetRoomspaceSubtile,
+        PckA_SetRoomspaceHighlight,
+        PckA_SetNearestTeleport,
+        PckA_ToggleCheatMenuStatus
 };
 
 /** Packet flags for non-action player operation. */

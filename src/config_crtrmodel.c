@@ -46,38 +46,39 @@ extern "C" {
 /******************************************************************************/
 
 const struct NamedCommand creatmodel_attributes_commands[] = {
-  {"NAME",             1},
-  {"HEALTH",           2},
-  {"HEALREQUIREMENT",  3},
-  {"HEALTHRESHOLD",    4},
-  {"STRENGTH",         5},
-  {"ARMOUR",           6},
-  {"DEXTERITY",        7},
-  {"FEARWOUNDED",      8},
-  {"FEARSTRONGER",     9},
-  {"DEFENCE",         10},
-  {"LUCK",            11},
-  {"RECOVERY",        12},
-  {"HUNGERRATE",      13},
-  {"HUNGERFILL",      14},
-  {"LAIRSIZE",        15},
-  {"HURTBYLAVA",      16},
-  {"BASESPEED",       17},
-  {"GOLDHOLD",        18},
-  {"SIZE",            19},
-  {"ATTACKPREFERENCE",20},
-  {"PAY",             21},
-  {"HEROVSKEEPERCOST",22},
-  {"SLAPSTOKILL",     23},
-  {"CREATURELOYALTY", 24},
-  {"LOYALTYLEVEL",    25},
-  {"DAMAGETOBOULDER", 26},
-  {"THINGSIZE",       27},
-  {"PROPERTIES",      28},
-  {"NAMETEXTID",      29},
-  {"FEARSOMEFACTOR",  30},
-  {"TOKINGRECOVERY",  31},
-  {NULL,               0},
+  {"NAME",                1},
+  {"HEALTH",              2},
+  {"HEALREQUIREMENT",     3},
+  {"HEALTHRESHOLD",       4},
+  {"STRENGTH",            5},
+  {"ARMOUR",              6},
+  {"DEXTERITY",           7},
+  {"FEARWOUNDED",         8},
+  {"FEARSTRONGER",        9},
+  {"DEFENCE",            10},
+  {"LUCK",               11},
+  {"RECOVERY",           12},
+  {"HUNGERRATE",         13},
+  {"HUNGERFILL",         14},
+  {"LAIRSIZE",           15},
+  {"HURTBYLAVA",         16},
+  {"BASESPEED",          17},
+  {"GOLDHOLD",           18},
+  {"SIZE",               19},
+  {"ATTACKPREFERENCE",   20},
+  {"PAY",                21},
+  {"HEROVSKEEPERCOST",   22},
+  {"SLAPSTOKILL",        23},
+  {"CREATURELOYALTY",    24},
+  {"LOYALTYLEVEL",       25},
+  {"DAMAGETOBOULDER",    26},
+  {"THINGSIZE",          27},
+  {"PROPERTIES",         28},
+  {"NAMETEXTID",         29},
+  {"FEARSOMEFACTOR",     30},
+  {"TOKINGRECOVERY",     31},
+  {"CORPSEVANISHEFFECT", 32},
+  {NULL,                  0},
   };
 
 const struct NamedCommand creatmodel_properties_commands[] = {
@@ -162,6 +163,7 @@ const struct NamedCommand creatmodel_appearance_commands[] = {
   {"POSSESSSWIPEINDEX",    3},
   {"NATURALDEATHKIND",     4},
   {"SHOTORIGIN",           5},
+  {"CORPSEVANISHEFFECT",   6},
   {NULL,                   0},
   };
 
@@ -1489,6 +1491,7 @@ TbBool parse_creaturemodel_appearance_blocks(long crtr_model,char *buf,long len,
         creatures[crtr_model].shot_shift_x = 0;
         creatures[crtr_model].shot_shift_y = 0;
         creatures[crtr_model].shot_shift_z = 0;
+        crstat->corpse_vanish_effect = 0;
     }
     // Find the block
     char block_buf[COMMAND_WORD_LEN];
@@ -1593,6 +1596,14 @@ TbBool parse_creaturemodel_appearance_blocks(long crtr_model,char *buf,long len,
             {
               CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s file.",
                   COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
+            break;
+        case 6: // CORPSEVANISHEFFECT
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                crstat->corpse_vanish_effect = k;
+                n++;
             }
             break;
         case 0: // comment

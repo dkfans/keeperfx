@@ -142,6 +142,7 @@ TbBool thing_is_lair_totem(const struct Thing *thing);
 TbBool object_is_room_equipment(const struct Thing *thing, RoomKind rkind);
 TbBool object_is_room_inventory(const struct Thing *thing, RoomKind rkind);
 TbBool object_is_unaffected_by_terrain_changes(const struct Thing *thing);
+TbBool object_can_be_damaged(const struct Thing* thing);
 
 TbBool creature_remove_lair_totem_from_room(struct Thing *creatng, struct Room *room);
 TbBool delete_lair_totem(struct Thing *lairtng);
@@ -162,6 +163,7 @@ long gold_being_dropped_at_treasury(struct Thing* thing, struct Room* room);
 struct Thing *drop_gold_pile(long value, struct Coord3d *pos);
 struct Thing *create_gold_pot_at(long pos_x, long pos_y, PlayerNumber plyr_idx);
 TbBool add_gold_to_pile(struct Thing *thing, long value);
+struct Thing* create_gold_pile(struct Coord3d* pos, PlayerNumber plyr_idx, long value);
 GoldAmount gold_object_typical_value(ThingModel tngmodel);
 
 void set_call_to_arms_as_birthing(struct Thing *objtng);

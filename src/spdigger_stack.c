@@ -334,7 +334,7 @@ void force_any_creature_dragging_owned_thing_to_drop_it(struct Thing *dragtng)
     if (thing_is_dragged_or_pulled(dragtng))
     {
         struct Thing *creatng;
-        creatng = find_players_creature_dragging_thing(dragtng->owner, dragtng);
+        creatng = find_creature_dragging_thing(dragtng);
         // If found a creature dragging the thing, reset it so it will drop the thing
         if (!thing_is_invalid(creatng)) {
             set_start_state(creatng);
@@ -987,7 +987,7 @@ long get_nearest_undug_area_position_for_digger(struct Thing *thing, MapSubtlCoo
         mtask = &dungeon->task_list[i];
         if (mtask->kind == SDDigTask_None)
             continue;
-        if (mtask->kind != SDDigTask_Unknown3)
+        if (mtask->kind != SDDigTask_MineGems)
         {
             SubtlCodedCoords tsk_stl_num;
             MapSubtlCoord tsk_dist;

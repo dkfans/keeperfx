@@ -284,8 +284,8 @@ long count_slabs_of_room_type(PlayerNumber plyr_idx, RoomKind rkind)
 
 void get_room_kind_total_and_used_capacity(struct Dungeon *dungeon, RoomKind rkind, long *total_cap, long *used_cap)
 {
-    int total_capacity = 0;
-    int used_capacity = 0;
+    unsigned int total_capacity = 0;
+    unsigned int used_capacity = 0;
     long i = dungeon->room_kind[rkind];
     unsigned long k = 0;
     while (i != 0)
@@ -314,8 +314,8 @@ void get_room_kind_total_and_used_capacity(struct Dungeon *dungeon, RoomKind rki
 
 void get_room_kind_total_used_and_storage_capacity(struct Dungeon *dungeon, RoomKind rkind, long *total_cap, long *used_cap, long *storaged_cap)
 {
-    int total_capacity = 0;
-    int used_capacity = 0;
+    unsigned int total_capacity = 0;
+    unsigned int used_capacity = 0;
     int storaged_capacity = 0;
     long i = dungeon->room_kind[rkind];
     unsigned long k = 0;
@@ -987,7 +987,7 @@ void count_gold_slabs_wth_effcncy(struct Room *room)
     room->total_capacity = count;
 }
 
-TbBool rectreate_repositioned_crate_in_room_on_subtile(struct Room *room, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct RoomReposition * rrepos)
+TbBool recreate_repositioned_crate_in_room_on_subtile(struct Room *room, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct RoomReposition * rrepos)
 {
     if ((rrepos->used < 0) || (room->used_capacity >= room->total_capacity)) {
         return false;
@@ -1040,7 +1040,14 @@ int check_crates_on_subtile_for_reposition_in_room(struct Room *room, MapSubtlCo
             // If the thing is in wall, remove it but store to re-create later
             if (thing_in_wall_at(thing, &thing->mappos))
             {
-                return -1; // re-create all
+                if (position_over_floor_level(thing, &thing->mappos)) //If it's inside the floors, simply move it up and count it.
+                {
+                    matching_things_at_subtile++;
+                }
+                else
+                {
+                    return -1; // If it's inside the wall or cannot be moved up, recreate all items.
+                }
             } else
             {
                 matching_things_at_subtile++;
@@ -1122,7 +1129,7 @@ void count_and_reposition_crates_in_room_on_subtile(struct Room *room, MapSubtlC
             break;
         case 0:
             // There are no matching things there, something can be re-created
-            rectreate_repositioned_crate_in_room_on_subtile(room, stl_x, stl_y, rrepos);
+            recreate_repositioned_crate_in_room_on_subtile(room, stl_x, stl_y, rrepos);
             break;
         default:
             WARNLOG("Invalid value returned by reposition check");
@@ -1569,7 +1576,7 @@ void count_lair_occupants_on_slab(struct Room *room,MapSlabCoord slb_x, MapSlabC
         struct Thing* lairtng = find_lair_totem_at(slab_subtile(slb_x, ssub_x), slab_subtile(slb_y, ssub_y));
         if (!thing_is_invalid(lairtng))
         {
-            struct Thing* creatng = thing_get(lairtng->belongs_to);
+            struct Thing* creatng = thing_get(lairtng->lair.belongs_to);
             int required_cap = get_required_room_capacity_for_object(RoRoF_LairStorage, 0, creatng->model);
             if (room->used_capacity + required_cap > room->total_capacity)
             {
@@ -2101,7 +2108,7 @@ void create_room_flag(struct Room *room)
             ERRORLOG("Cannot create room flag");
             return;
         }
-        thing->belongs_to = room->index;
+        thing->lair.belongs_to = room->index;
     }
 }
 
@@ -2240,19 +2247,26 @@ TbBool room_create_new_food_at(struct Room *room, MapSubtlCoord stl_x, MapSubtlC
     }
     int required_cap = get_required_room_capacity_for_object(RoRoF_FoodStorage, foodtng->model, 0);
     room->used_capacity += required_cap;
-    foodtng->belongs_to = (foodtng->field_49 << 8) / foodtng->anim_speed - 1;
+    foodtng->food.life_remaining = (foodtng->field_49 << 8) / foodtng->anim_speed - 1;
     return true;
 }
 
 short room_grow_food(struct Room *room)
 {
     //return _DK_room_grow_food(room);
-    if (room->slabs_count < 1) {
+    if (room->slabs_count < 1)
+    {
         ERRORLOG("Room %s index %d has no slabs",room_code_name(room->kind),(int)room->index);
         return 0;
     }
+    if (room->used_capacity > room->total_capacity)
+    {
+        ERRORLOG("Room %s index %d has too much used capacity: %d/%d", room_code_name(room->kind), (int)room->index, room->used_capacity, room->total_capacity);
+        count_food_in_room(room);
+    }
     if ((room->used_capacity >= room->total_capacity)
-      || game.play_gameturn % ((game.food_generation_speed / room->total_capacity) + 1)) {
+      || game.play_gameturn % ((game.food_generation_speed / room->total_capacity) + 1))
+    {
         return 0;
     }
     unsigned long k;
@@ -4027,11 +4041,11 @@ void kill_room_contents_at_subtile(struct Room *room, PlayerNumber plyr_idx, Map
         thing = find_lair_totem_at(stl_x, stl_y);
         if (!thing_is_invalid(thing))
         {
-            if (thing->belongs_to)
+            if (thing->lair.belongs_to)
             {
                 struct Thing *tmptng;
                 struct CreatureControl *cctrl;
-                tmptng = thing_get(thing->belongs_to);
+                tmptng = thing_get(thing->lair.belongs_to);
                 cctrl = creature_control_get_from_thing(tmptng);
                 if (cctrl->lairtng_idx == thing->index) {
                     creature_remove_lair_totem_from_room(tmptng, room);
@@ -4383,11 +4397,11 @@ static void change_ownership_or_delete_object_thing_in_room(struct Room *room, s
         // Lair - owns creature lairs
         if (objdat->related_creatr_model)
         {
-            if (thing->belongs_to)
+            if (thing->lair.belongs_to)
             {
                 struct Thing *tmptng;
                 struct CreatureControl *cctrl;
-                tmptng = thing_get(thing->belongs_to);
+                tmptng = thing_get(thing->lair.belongs_to);
                 cctrl = creature_control_get_from_thing(tmptng);
                 if (cctrl->lairtng_idx == thing->index) {
                     creature_remove_lair_totem_from_room(tmptng, room);

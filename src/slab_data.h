@@ -171,6 +171,8 @@ void copy_block_with_cube_groups(short itm_idx, MapSubtlCoord stl_x, MapSubtlCoo
 void do_slab_efficiency_alteration(MapSlabCoord slb_x, MapSlabCoord slb_y);
 void do_unprettying(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y);
 
+TbBool slab_kind_has_no_ownership(SlabKind slbkind);
+
 /******************************************************************************/
 #include "roomspace.h"
 /******************************************************************************/

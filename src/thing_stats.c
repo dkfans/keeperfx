@@ -95,9 +95,9 @@ const char *thing_class_code_name(int class_id)
  */
 const char *thing_class_and_model_name(int class_id, int model)
 {
-    static char name_buffer[2][32];
+    static char name_buffer[4][64];
     static int bid = 0;
-    bid = (bid+1)%2;
+    bid = (bid+1)%4;
     switch (class_id)
     {
     case TCls_Creature:
@@ -830,6 +830,37 @@ long calculate_gold_digged_out_of_slab_with_single_hit(long damage_did_to_slab, 
     return gold;
 }
 
+long compute_creature_weight(const struct Thing* creatng)
+{
+    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    long eye_height = (crstat->eye_height + (crstat->eye_height * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100);
+    long weight = eye_height >> 2;
+    weight += (crstat->hunger_fill + crstat->lair_size + 1) * cctrl->explevel;
+
+    if (!crstat->affected_by_wind)
+    {
+        weight = weight * 3 / 2;
+    }
+
+    if ((get_creature_model_flags(creatng) & CMF_TremblingFat) != 0)
+    {
+        weight = weight * 3 / 2;
+    }
+
+    if ((get_creature_model_flags(creatng) & CMF_IsDiptera) != 0)
+    {
+        weight = weight / 2;
+    }
+
+    if (crstat->can_go_locked_doors == true)
+    {
+        weight = weight / 10;
+    }
+
+    return weight;
+}
+
 const char *creature_statistic_text(const struct Thing *creatng, CreatureLiveStatId clstat_id)
 {
     const char *text;
@@ -954,14 +985,7 @@ const char *creature_statistic_text(const struct Thing *creatng, CreatureLiveSta
         text = loc_text;
         break;
     case CrLStat_Weight:
-        i = ((crstat->thing_size_xy * crstat->thing_size_yz >> 8) * crstat->thing_size_xy >> 10);
-        i += (crstat->hunger_fill + crstat->lair_size + 1) * cctrl->explevel;
-        if (!crstat->affected_by_wind)
-            i = i*3/2;
-        if ((get_creature_model_flags(creatng) & CMF_TremblingFat) != 0)
-            i = i*3/2;
-        if ((get_creature_model_flags(creatng) & CMF_IsDiptera) != 0)
-            i = i/2;
+        i = compute_creature_weight(creatng);
         snprintf(loc_text,sizeof(loc_text),"%ld", i);
         text = loc_text;
         break;

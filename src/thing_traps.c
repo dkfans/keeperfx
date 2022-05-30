@@ -41,6 +41,7 @@
 
 #include "keeperfx.hpp"
 #include "creature_senses.h"
+#include "cursor_tag.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -382,7 +383,7 @@ void activate_trap_shot_head_for_target90(struct Thing *traptng, struct Thing *c
         shotng->veloc_push_add.y.val += cvect.y;
         shotng->veloc_push_add.z.val += cvect.z;
         shotng->state_flags |= TF1_PushAdd;
-        shotng->hit_type = trapstat->hit_type;
+        shotng->shot.hit_type = trapstat->hit_type;
         if (shotst->firing_sound > 0) {
             thing_play_sample(traptng, shotst->firing_sound+UNSYNC_RANDOM(shotst->firing_sound_variants),
                 NORMAL_PITCH, 0, 3, 0, 6, FULL_LOUDNESS);
@@ -404,7 +405,7 @@ void activate_trap_effect_on_trap(struct Thing *traptng, struct Thing *creatng)
     struct Thing* efftng = create_effect(&traptng->mappos, trapstat->created_itm_model, traptng->owner);
     if (!thing_is_invalid(efftng)) 
     {
-        efftng->hit_type = trapstat->hit_type;
+        efftng->shot_effect.hit_type = trapstat->hit_type;
         SYNCDBG(18,"Created %s",thing_model_name(efftng));
     }
     if(trapstat->created_itm_model == 14) //Word of Power trap
@@ -433,7 +434,7 @@ void activate_trap_shot_on_trap(struct Thing *traptng, struct Thing *creatng)
     }
     struct Thing* shotng = create_shot(&traptng->mappos, trapstat->created_itm_model, traptng->owner);
     if (!thing_is_invalid(shotng)) {
-        shotng->hit_type = trapstat->hit_type;
+        shotng->shot.hit_type = trapstat->hit_type;
         shotng->parent_idx = 0;
         shotng->veloc_push_add.x.val += trapstat->field_30;
         shotng->veloc_push_add.y.val += trapstat->field_32;
@@ -765,8 +766,8 @@ struct Thing *create_trap(struct Coord3d *pos, ThingModel trpkind, PlayerNumber 
     thing->health = trapstat->field_0;
     thing->field_4F &= ~TF4F_Transpar_Flags;
     thing->field_4F |= TF4F_Transpar_4;
-    thing->byte_13 = 0;
-    thing->long_14 = game.play_gameturn;
+    thing->trap.num_shots = 0;
+    thing->trap.rearm_turn = game.play_gameturn;
     if (trapstat->light_1C != 0)
     {
         ilght.mappos.x.val = thing->mappos.x.val;
@@ -827,9 +828,9 @@ void init_traps(void)
  * @return Amount of traps removed.
  */
 
-long remove_trap(struct Thing *traptng, long *sell_value)
+unsigned long remove_trap(struct Thing *traptng, long *sell_value)
 {
-    long total = 0;
+    unsigned long total = 0;
     if (!thing_is_invalid(traptng))
     {
         if (sell_value != NULL)
@@ -858,19 +859,19 @@ long remove_trap(struct Thing *traptng, long *sell_value)
     return total;        
 }
  
-long remove_trap_on_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long *sell_value)
+unsigned long remove_trap_on_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long *sell_value)
 {
     struct Thing* traptng = get_trap_for_position(stl_x, stl_y);
     return remove_trap(traptng, sell_value);
 }
  
-long remove_traps_around_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long *sell_value)
+unsigned long remove_traps_around_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long *sell_value)
 {
-    long total;
+    unsigned long total = 0;
     for (long k = 0; k < AROUND_TILES_COUNT; k++)
     {
         struct Thing* traptng = get_trap_for_position(stl_x + around[k].delta_x, stl_y + around[k].delta_y);
-        total = remove_trap(traptng, sell_value);
+        total += remove_trap(traptng, sell_value);
     }
     return total;
 }
@@ -886,12 +887,12 @@ void external_activate_trap_shot_at_angle(struct Thing *thing, long a2, struct T
         && (trapstat->activation_type != TrpAcT_HeadforTarget90))
     {
         activate_trap(thing, hand);
-        if (thing->byte_13 != 255)
+        if (thing->trap.num_shots != 255)
         {
-            if (thing->byte_13 > 0) {
-                thing->byte_13--;
+            if (thing->trap.num_shots > 0) {
+                thing->trap.num_shots--;
             }
-            if (thing->byte_13 <= 0) {
+            if (thing->trap.num_shots <= 0) {
                 thing->health = -1;
             }
         }
@@ -910,15 +911,15 @@ void external_activate_trap_shot_at_angle(struct Thing *thing, long a2, struct T
     shotng->veloc_push_add.y.val += cvect.y;
     shotng->veloc_push_add.z.val += cvect.z;
     shotng->state_flags |= TF1_PushAdd;
-    shotng->hit_type = trapstat->hit_type;
+    shotng->shot.hit_type = trapstat->hit_type;
     const struct ManfctrConfig* mconf = &gameadd.traps_config[thing->model];
-    thing->long_14 = game.play_gameturn + mconf->shots_delay;
-    if (thing->byte_13 != 255)
+    thing->trap.rearm_turn = game.play_gameturn + mconf->shots_delay;
+    if (thing->trap.num_shots != 255)
     {
-        if (thing->byte_13 > 0) {
-            thing->byte_13--;
+        if (thing->trap.num_shots > 0) {
+            thing->trap.num_shots--;
         }
-        if (thing->byte_13 <= 0) {
+        if (thing->trap.num_shots <= 0) {
             thing->health = -1;
         }
     }
@@ -985,37 +986,6 @@ TbBool can_place_trap_on(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoo
     return false;
 }
 
-TbBool tag_cursor_blocks_place_trap(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long full_slab)
-{
-    SYNCDBG(7,"Starting");
-    MapSlabCoord slb_x = subtile_slab_fast(stl_x);
-    MapSlabCoord slb_y = subtile_slab_fast(stl_y);
-    TbBool can_place = can_place_trap_on(plyr_idx, stl_x, stl_y);
-    int floor_height = floor_height_for_volume_box(plyr_idx, slb_x, slb_y);
-    if (is_my_player_number(plyr_idx))
-    {
-        if (!game_is_busy_doing_gui() && (game.small_map_state != 2))
-        {
-            render_roomspace.is_roomspace_a_box = true;
-            render_roomspace.render_roomspace_as_box = true;
-            if (full_slab)
-            {
-                // Move to first subtile on a slab
-                stl_x = slab_subtile(slb_x,0);
-                stl_y = slab_subtile(slb_y,0);
-                render_roomspace.is_roomspace_a_single_subtile = false;
-                draw_map_volume_box(subtile_coord(stl_x,0), subtile_coord(stl_y,0),
-                subtile_coord(stl_x+STL_PER_SLB,0), subtile_coord(stl_y+STL_PER_SLB,0), floor_height, can_place);
-            }
-            else
-            {
-                render_roomspace.is_roomspace_a_single_subtile = true;
-                draw_map_volume_box(subtile_coord(stl_x,0), subtile_coord(stl_y,0), subtile_coord(stl_x+1,0), subtile_coord(stl_y+1,0), floor_height, can_place);
-            }
-        }
-    }
-    return can_place;
-}
 /******************************************************************************/
 #ifdef __cplusplus
 }
