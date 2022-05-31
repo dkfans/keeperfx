@@ -75,8 +75,6 @@ Thing_Class_Func class_functions[] = {
 unsigned long thing_create_errors = 0;
 
 /******************************************************************************/
-DLLIMPORT struct Thing *_DK_find_random_thing_in_room(ThingClass tngclass, ThingModel tngmodel,struct Room *room);
-/******************************************************************************/
 /**
  * Adds thing at beginning of a StructureList.
  * @param thing
@@ -1364,7 +1362,57 @@ struct Thing *find_creature_lair_totem_at_subtile(MapSubtlCoord stl_x, MapSubtlC
 
 struct Thing *find_random_thing_in_room(ThingClass tngclass, ThingModel tngmodel,struct Room *room)
 {
-    return _DK_find_random_thing_in_room(tngclass, tngmodel, room);
+
+    if ( room_is_invalid(room) )
+    {
+        ERRORLOG("Invalid Room passed");
+        return INVALID_THING;
+    }
+
+    if ( room->slabs_count == 0)
+    {
+        return INVALID_THING;
+    }
+
+    SlabCodedCoords current_slb = room->slabs_list;
+    unsigned int current_slab_idx = GAME_RANDOM(room->slabs_count);
+
+    for (size_t i = 0; i < current_slab_idx; i++)
+    {
+        current_slb = get_next_slab_number_in_room(current_slb);
+    }
+        
+    static const int STL_PER_SLB_2D = STL_PER_SLB * STL_PER_SLB;
+    
+    for (size_t i = 0; i < room->slabs_count; i++)
+    {
+        if ( room->slabs_count == current_slab_idx )
+        {
+            current_slab_idx = 0;
+            current_slb = room->slabs_list;
+        }
+
+        MapSlabCoord slb_x = slb_num_decode_x(current_slb);
+        MapSlabCoord slb_y = slb_num_decode_y(current_slb);
+        
+        unsigned char subtile = GAME_RANDOM(STL_PER_SLB_2D);
+
+        for (size_t j = 0; j < STL_PER_SLB_2D; j++)
+        {
+            MapSubtlCoord stl_x = STL_PER_SLB * (slb_x) + subtile % STL_PER_SLB;
+            MapSubtlCoord stl_y = STL_PER_SLB * (slb_y) + subtile / STL_PER_SLB;
+
+            struct Thing *thing = find_base_thing_on_mapwho(tngclass,tngmodel,stl_x,stl_y);
+
+            if ( !thing_is_invalid(thing) )
+                return thing;
+            subtile = (subtile + 1) % STL_PER_SLB_2D;
+        }
+
+        current_slb = get_next_slab_number_in_room(current_slb);
+        ++current_slab_idx;
+    }
+    return INVALID_THING;
 }
 
 /**

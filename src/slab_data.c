@@ -207,7 +207,7 @@ void slabmap_set_wlb(struct SlabMap *slb, unsigned long wlbflag)
 /**
  * Returns slab number of the next tile in a room, after the given one.
  */
-long get_next_slab_number_in_room(SlabCodedCoords slab_num)
+SlabCodedCoords get_next_slab_number_in_room(SlabCodedCoords slab_num)
 {
     if (slab_num >= map_tiles_x*map_tiles_y)
         return 0;
