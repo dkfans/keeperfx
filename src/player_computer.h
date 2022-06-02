@@ -665,7 +665,7 @@ TbBool create_task_attack_magic(struct Computer2 *comp, const struct Thing *crea
 TbBool computer_able_to_use_power(struct Computer2 *comp, PowerKind pwkind, long pwlevel, long amount);
 long computer_get_room_kind_total_capacity(struct Computer2 *comp, RoomKind room_kind);
 long computer_get_room_kind_free_capacity(struct Computer2 *comp, RoomKind room_kind);
-long computer_finds_nearest_room_to_pos(struct Computer2 *comp, struct Room **retroom, struct Coord3d *nearpos);
+TbBool computer_finds_nearest_room_to_pos(struct Computer2 *comp, struct Room **retroom, struct Coord3d *nearpos);
 long process_tasks(struct Computer2 *comp);
 long computer_check_any_room(struct Computer2* comp, struct ComputerProcess* cproc);
 TbResult game_action(PlayerNumber plyr_idx, unsigned short gaction, unsigned short alevel,
