@@ -110,6 +110,10 @@ pkg/data/tmapa004-32.dat \
 pkg/data/tmapa005-32.dat \
 pkg/data/tmapa006-32.dat \
 pkg/data/tmapa007-32.dat \
+pkg/data/tmapa008-32.dat \
+pkg/data/tmapa009-32.dat \
+pkg/data/tmapa010-32.dat \
+pkg/data/tmapa011-32.dat \
 pkg/data/swipe01-32.dat \
 pkg/data/swipe02-32.dat \
 pkg/data/swipe03-32.dat \
@@ -278,39 +282,37 @@ pkg/data/swipe04-32.dat: gfx/swipes-32/filelist_sticklr.txt pkg/data/palette.dat
 pkg/data/swipe05-32.dat: gfx/swipes-32/filelist_stickrl.txt pkg/data/palette.dat $(PNGTORAW)
 pkg/data/swipe06-32.dat: gfx/swipes-32/filelist_clawsrl.txt pkg/data/palette.dat $(PNGTORAW)
 
-pkg/data/frac%.raw:
+pkg/data/frac%-%.raw:
 	-$(ECHO) 'Building RAW texture: $@'
-	$(PNGTORAW) -o "$@" -p "$(word 2,$^)" -r 255 -f raw -l 100 "$<"
+	$(PNGTORAW) -o "$@" -p "$(word 4,$^)" -r 255 -f raw -l 100 "$<"
 	-$(ECHO) 'Finished building: $@'
 	-$(ECHO) ' '
 
-pkg/data/tmapa%.dat:
+pkg/data/tmapa%-%.dat:
 	-$(ECHO) 'Building RAW texture: $@'
-	$(PNGTORAW) -b -o "$@" -p "$(word 2,$^)" -f raw -l 0 "$<"
+	$(PNGTORAW) -b -o "$@" -p "$(word 4,$^)" -f raw -l 0 "$<"
 	-$(ECHO) 'Finished building: $@'
 	-$(ECHO) ' '
 
-pkg/ldata/%.raw pkg/data/%.raw:
+pkg/ldata/%-%.raw pkg/data/%-%.raw:
 	-$(ECHO) 'Building RAW image: $@'
-	$(PNGTORAW) -o "$@" -p "$(word 2,$^)" -f raw -l 100 "$<"
+	$(PNGTORAW) -o "$@" -p "$(word 4,$^)" -f raw -l 100 "$<"
 	-$(ECHO) 'Finished building: $@'
 	-$(ECHO) ' '
 
-pkg/ldata/%.dat pkg/data/%.dat:
+pkg/ldata/%-%.dat pkg/data/%-%.dat:
 	-$(ECHO) 'Building tabulated sprites: $@'
 	$(MKDIR) "$(@D)"
-	$(PNGTORAW) -b -o "$@" -p "$(word 2,$^)" -f sspr -l 0 "$<"
+	$(PNGTORAW) -b -o "$@" -p "$(word 4,$^)" -f sspr -l 0 "$<"
 	-$(ECHO) 'Finished building: $@'
 	-$(ECHO) ' '
 
-pkg/creatrs/%.jty pkg/data/%.jty:
+pkg/creatrs/%-%.jty pkg/data/%-%.jty:
 	-$(ECHO) 'Building jonty sprites: $@'
 	@$(MKDIR) "$(@D)"
-	$(PNGTORAW) -m -o "$@" -p "$(word 2,$^)" -f jspr -l 0 "$<"
+	$(PNGTORAW) -m -o "$@" -p "$(word 4,$^)" -f jspr -l 0 "$<"
 	-$(ECHO) 'Finished building: $@'
 	-$(ECHO) ' '
-
-ifeq ($(ENABLE_EXTRACT), 1)
 
 # The package is extracted only if targets does not exits; the "|" causes file dates to be ignored
 # Note that ignoring timestamp means it is possible to have outadated files after a new
@@ -328,22 +330,7 @@ gfx/sprites-32/%.txt gfx/sprites-64/%.txt gfx/sprites-128/%.txt \
 gfx/swipes-32/%.txt gfx/swipes-64/%.txt gfx/swipes-128/%.txt \
 gfx/textures-32/%.png gfx/textures-64/%.png gfx/textures-128/%.png \
 gfx/textures-32/%.txt gfx/textures-64/%.txt gfx/textures-128/%.txt \
-gfx/torturescr/%.png gfx/torturescr/%.txt gfx/guimap/%.txt gfx/parchmentbug/%.txt gfx/creatrportrait/%.txt: | gfx/$(GFXSRC_PACKAGE)
-	-$(ECHO) 'Extracting package: $<'
-	7z x -aoa -y -ogfx "$|"
-	-$(ECHO) 'Finished extracting: $<'
-	-$(ECHO) ' '
-
-endif
-
-# Downloading the gfx sources pack
-gfx/$(GFXSRC_PACKAGE):
-	-$(ECHO) 'Downloading package: $@'
-	$(MKDIR) "$(@D)"
-	curl -L -o "$@.dl" "$(GFXSRC_DOWNLOAD)"
-	7z t "$@.dl"
-	$(MV) "$@.dl" "$@"
-	-$(ECHO) 'Finished downloading: $@'
-	-$(ECHO) ' '
+gfx/torturescr/%.png gfx/torturescr/%.txt gfx/guimap/%.txt gfx/parchmentbug/%.txt gfx/creatrportrait/%.txt:
+	git clone --depth=1 https://github.com/dkfans/FXGraphics.git gfx
 
 #******************************************************************************
