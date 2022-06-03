@@ -428,7 +428,6 @@ void set_sprite_view_3d(void)
         }
     }
 }
-HOOK_DK_FUNC(set_sprite_view_3d)
 
 void set_sprite_view_isometric(void)
 {
@@ -460,7 +459,6 @@ void set_sprite_view_isometric(void)
         }
     }
 }
-HOOK_DK_FUNC(set_sprite_view_isometric)
 
 long dummy_sound_line_of_sight(long a1, long a2, long a3, long a4, long a5, long a6)
 {
@@ -524,7 +522,6 @@ void set_engine_view(struct PlayerInfo *player, long val)
     }
     player->view_mode = val;
 }
-HOOK_DK_FUNC(set_engine_view)
 
 void draw_overlay_compass(long base_x, long base_y)
 {

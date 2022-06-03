@@ -657,7 +657,6 @@ long computer_place_thing_in_power_hand(struct Computer2 *comp, struct Thing *th
     comp->tasks_did--;
     return 1;
 }
-HOOK_DK_FUNC(place_thing_in_power_hand)
 
 /**
  * Dumps computer player held creatures on map, without checking if target position is valid.

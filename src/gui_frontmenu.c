@@ -347,8 +347,6 @@ void turn_on_menu(MenuID mnu_idx)
       if (gmnu->field_1F)
         game.active_panel_mnu_idx = mnu_idx;
     }
-    SYNCDBG(8,"End Menu ID %d",(int)mnu_idx);
-    
 }
 
 void set_menu_visible_on(MenuID menu_id)

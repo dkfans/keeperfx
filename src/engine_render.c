@@ -3446,7 +3446,6 @@ static void draw_fastview_mapwho(struct Camera *cam, struct JontySpr *jspr)
     lbDisplay.DrawFlags = flg_mem;
     EngineSpriteDrawUsingAlpha = alpha_mem;
 }
-HOOK_DK_FUNC(draw_fastview_mapwho)
 
 void draw_engine_number(struct Number *num)
 {
@@ -3754,7 +3753,6 @@ static void draw_iso_only_fastview_mapwho(struct Camera *cam, struct JontySpr *s
     if (cam->view_mode == PVM_FrontView)
       draw_fastview_mapwho(cam, spr);
 }
-HOOK_DK_FUNC(draw_iso_only_fastview_mapwho)
 
 #define ROOM_FLAG_PROGRESS_BAR_WIDTH 10
 static void draw_room_flag_top(long x, long y, int units_per_px, const struct Room *room)
@@ -5025,7 +5023,6 @@ void display_drawlist(void)
     if (render_problems > 0)
       WARNLOG("Incurred %lu rendering problems; last was with poly kind %ld",render_problems,render_prob_kind);
 }
-HOOK_DK_FUNC(display_drawlist)
 
 static void prepare_draw_plane_of_engine_columns(long aposc, long bposc, long xcell, long ycell, struct MinMax *mm)
 {
@@ -5365,7 +5362,6 @@ static void display_fast_drawlist(struct Camera *cam)
         WARNLOG("Incurred %lu rendering problems; last was with poly kind %ld",render_problems,render_prob_kind);
     }
 }
-HOOK_DK_FUNC(display_fast_drawlist)
 
 static long convert_world_coord_to_front_view_screen_coord(struct Coord3d* pos, struct Camera* cam, long* x, long* y, long* z)
 {
@@ -6491,7 +6487,6 @@ void draw_jonty_mapwho(struct JontySpr *jspr)
     lbDisplay.DrawFlags = flg_mem;
     EngineSpriteDrawUsingAlpha = alpha_mem;
 }
-HOOK_DK_FUNC(draw_jonty_mapwho)
 
 /** Fills solid area of the sprite in target buffer with color 255.
  *

@@ -700,7 +700,6 @@ void draw_gui_panel_sprite_occentered(long x, long y, int units_per_px, long spr
 void draw_button_sprite_left(long x, long y, int units_per_px, long spridx)
 {
     const struct TbSprite* spr = get_button_sprite(spridx);
-    SYNCDBG(8,"get_button_sprite %d",(int)spr);
     LbSpriteDrawResized(x, y, units_per_px, spr);
 }
 

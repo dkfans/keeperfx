@@ -238,7 +238,6 @@ CrStateRet creature_at_changed_lair(struct Thing *creatng)
     set_start_state(creatng);
     return CrStRet_ResetOk;
 }
-HOOK_DK_FUNC(creature_add_lair_to_room)
 
 CrStateRet creature_at_new_lair(struct Thing *creatng)
 {
