@@ -1198,10 +1198,10 @@ TbBool setup_a_computer_player(PlayerNumber plyr_idx, long comp_model)
         comp->model = 0;
         return false;
     }
-    comp->click_rate = cpt->field_C
-    comp->processes_time = cpt->field_8;
+    comp->click_rate = cpt->click_rate;
+    comp->processes_time = cpt->processes_time;
     comp->max_room_build_tasks = cpt->max_room_build_tasks;
-    comp->turn_begin = cpt->field_14;
+    comp->turn_begin = cpt->turn_begin;
     comp->sim_before_dig = cpt->sim_before_dig;
     comp->field_C = 1;
     comp->task_state = CTaskSt_Select;
@@ -1217,7 +1217,7 @@ TbBool setup_a_computer_player(PlayerNumber plyr_idx, long comp_model)
             oprel->hate_amount = 0;
         }
     }
-    comp->field_1C = cpt->field_4;
+    comp->dig_stack_size = cpt->dig_stack_size;
 
     for (i=0; i < COMPUTER_PROCESSES_COUNT; i++)
     {

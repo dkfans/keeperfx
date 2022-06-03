@@ -906,7 +906,7 @@ long task_dig_room(struct Computer2 *comp, struct ComputerTask *ctask)
     {
         int digger_tasks;
         digger_tasks = dungeon->digger_stack_length;
-        if ((digger_tasks > 0) && (comp->field_1C * dungeon->total_area / 100 <= digger_tasks)) {
+        if ((digger_tasks > 0) && (comp->dig_stack_size * dungeon->total_area / 100 <= digger_tasks)) {
             return 2;
         }
     }
@@ -1941,7 +1941,7 @@ long task_dig_to_gold(struct Computer2 *comp, struct ComputerTask *ctask)
     SYNCDBG(2,"Starting");
     struct Dungeon* dungeon = comp->dungeon;
 
-    i = dungeon->total_area * comp->field_1C / 100;
+    i = dungeon->total_area * comp->dig_stack_size / 100;
     if ((dungeon->digger_stack_length > 0) && (dungeon->digger_stack_length >= i))
     {
         SYNCDBG(6,"Player %d did nothing because digger stack length is over %d",(int)dungeon->owner,(int)i);

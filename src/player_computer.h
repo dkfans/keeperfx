@@ -520,7 +520,7 @@ struct Computer2 { // sizeof = 5322
   unsigned long tasks_did;
   unsigned long processes_time;
   unsigned long click_rate;
-  unsigned long field_1C; // seems to be signed long
+  unsigned long dig_stack_size; // seems to be signed long
   unsigned long sim_before_dig;
   struct Dungeon *dungeon;
   unsigned long model;

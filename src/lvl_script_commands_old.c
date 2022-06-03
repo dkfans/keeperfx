@@ -733,7 +733,7 @@ static void command_set_computer_globals(long plr_range_id, long val1, long val2
       {
           continue;
     }
-    comp->field_1C             = val1;
+    comp->dig_stack_size       = val1;
     comp->processes_time       = val2;
     comp->click_rate           = val3;
     comp->max_room_build_tasks = val4;
