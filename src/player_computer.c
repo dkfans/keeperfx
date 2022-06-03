@@ -1198,10 +1198,10 @@ TbBool setup_a_computer_player(PlayerNumber plyr_idx, long comp_model)
         comp->model = 0;
         return false;
     }
-    comp->field_18 = cpt->field_C;
-    comp->field_14 = cpt->field_8;
+    comp->click_rate = cpt->field_C
+    comp->processes_time = cpt->field_8;
     comp->max_room_build_tasks = cpt->max_room_build_tasks;
-    comp->field_2C = cpt->field_14;
+    comp->turn_begin = cpt->field_14;
     comp->sim_before_dig = cpt->sim_before_dig;
     comp->field_C = 1;
     comp->task_state = CTaskSt_Select;
@@ -1375,7 +1375,7 @@ TbBool process_processes_and_task(struct Computer2 *comp)
   {
     if (comp->tasks_did <= 0)
         return false;
-    if ((game.play_gameturn % comp->field_18) == 0)
+    if ((game.play_gameturn % comp->click_rate) == 0)
         process_tasks(comp);
     switch (comp->task_state)
     {
@@ -1435,7 +1435,7 @@ void process_computer_player2(PlayerNumber plyr_idx)
         ERRORLOG("Computer player %d has invalid dungeon",(int)plyr_idx);
         return;
     }
-    if ((comp->field_14 != 0) && (comp->field_2C <= game.play_gameturn))
+    if ((comp->processes_time != 0) && (comp->turn_begin <= game.play_gameturn))
       comp->tasks_did = 1;
     else
       comp->tasks_did = 0;

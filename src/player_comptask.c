@@ -2010,7 +2010,7 @@ long task_dig_to_gold(struct Computer2 *comp, struct ComputerTask *ctask)
 
     if (ctask->dig.valuable_slabs_tagged >= ctask->dig_to_gold.slabs_dig_count)
     {
-        ctask->field_60 = 700 / comp->field_18;
+        ctask->field_60 = 700 / comp->click_rate;
     }
 
     if (retval == -5)
