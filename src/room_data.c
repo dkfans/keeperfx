@@ -1929,15 +1929,7 @@ TbBool add_room_to_players_list(struct Room *room, PlayerNumber plyr_idx)
         room->next_of_owner = nxroom_id;
         nxroom->prev_of_owner = room->index;
     }
-    dungeonadd->room_kind[room->kind] = room->index;
-
-    //also write it to the old struct for dll compatible
-    if (room->kind < ROOM_TYPES_COUNT_OLD) {
-        struct Dungeon* dungeon = get_dungeon(plyr_idx);
-        dungeon->room_kind_old[room->kind] = room->index;
-    }
-    
-
+    dungeonadd->room_kind[room->kind] = room->index; 
     dungeonadd->room_slabs_count[room->kind]++;
     return true;
 }
@@ -1964,11 +1956,6 @@ TbBool remove_room_from_players_list(struct Room *room, PlayerNumber plyr_idx)
         pvroom->next_of_owner = room->next_of_owner;
     } else {
         dungeonadd->room_kind[room->kind] = room->next_of_owner;
-        //also write it to the old struct for dll compat
-        if (room->kind < ROOM_TYPES_COUNT_OLD) {
-            struct Dungeon* dungeon = get_dungeon(plyr_idx);
-            dungeon->room_kind_old[room->kind] =room->next_of_owner;
-        }
     }
     if (!room_is_invalid(nxroom)) {
         nxroom->prev_of_owner = room->prev_of_owner;
