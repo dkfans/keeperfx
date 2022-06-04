@@ -4405,7 +4405,6 @@ int main(int argc, char *argv[])
   memcpy(_DK_menu_list,menu_list,40*sizeof(struct GuiMenu *));
   memcpy(_DK_player_instance_info,player_instance_info,17*sizeof(struct PlayerInstanceInfo));
   memcpy(_DK_states,states,145*sizeof(struct StateInfo));
-  memcpy(_DK_room_data,room_data,17*sizeof(struct RoomData));
 
 #if (BFDEBUG_LEVEL > 1)
   if (sizeof(struct Game) != SIZEOF_Game)

@@ -131,22 +131,9 @@ struct Room {
     unsigned char flame_stl;
 };
 
-struct RoomData {
-      unsigned char assigned_slab;
-      short medsym_sprite_idx;
-      Room_Update_Func update_total_capacity;
-      Room_Update_Func update_storage_in_room;
-      Room_Update_Func update_workers_in_room;
-      unsigned char field_F; //< Originally was long, but the only used values are 1 and 0
-      unsigned char field_10; //< Unused, originally was part of field_F
-      short field_11; //< Unused, originally was part of field_F
-      short name_stridx;
-      short tooltip_stridx;
-};
-
 struct RoomStatsOLD {
-  short cost;
-  unsigned short health;
+  short cost_unused;
+  unsigned short health_unused;
 };
 
 /** Max. amount of items to be repositioned in a room */
@@ -162,17 +149,14 @@ struct RoomReposition {
 };
 
 #define INVALID_ROOM (&game.rooms[0])
-#define INVALID_ROOM_DATA (&room_data[0])
 
 /******************************************************************************/
-DLLIMPORT extern struct RoomData _DK_room_data[];
 
 #pragma pack()
 /******************************************************************************/
 extern unsigned short const room_effect_elements[];
 extern struct AroundLByte const room_spark_offset[];
-extern struct RoomData room_data[];
-extern RoomKind look_through_rooms[18];
+extern RoomKind look_through_rooms[ROOM_TYPES_COUNT_OLD + 1];
 /******************************************************************************/
 struct Room *room_get(long room_idx);
 struct Room *subtile_room_get(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
@@ -180,8 +164,6 @@ struct Room *slab_room_get(long slb_x, long slb_y);
 struct Room *slab_number_room_get(SlabCodedCoords slab_num);
 TbBool room_is_invalid(const struct Room *room);
 TbBool room_exists(const struct Room *room);
-struct RoomData *room_data_get_for_kind(RoomKind rkind);
-struct RoomData *room_data_get_for_room(const struct Room *room);
 
 long get_room_look_through(RoomKind rkind);
 unsigned long compute_room_max_health(unsigned short slabs_count,unsigned short efficiency);

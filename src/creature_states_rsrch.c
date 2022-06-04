@@ -176,7 +176,6 @@ struct ResearchVal *get_players_current_research_val(PlayerNumber plyr_idx)
 TbBool force_complete_current_research(PlayerNumber plyr_idx)
 {
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
-    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
     struct ResearchVal* rsrchval = get_players_current_research_val(plyr_idx);
     if (rsrchval != NULL)
     {

@@ -80,27 +80,6 @@ RoomKind look_through_rooms[] = {
     RoK_LIBRARY,   RoK_BRIDGE,    RoK_GUARDPOST, RoK_ENTRANCE,
     RoK_TYPES_COUNT,};
 
-struct RoomData room_data[] = {
-  { 0,  0, NULL, NULL, NULL, 0, 0, 0, 0, 0},
-  { 0,  0, NULL, NULL, NULL, 0, 0, 0, 0, 0},//TODO the tooltip string is invalid
-  { 0,  0, NULL, NULL, NULL, 1, 0, 0, 0, 0},
-  { 0,  0, NULL, NULL, NULL, 0, 0, 0, 0, 0},
-  { 0,  0, NULL, NULL, NULL, 1, 0, 0, 0, 0},
-  { 0,  0, NULL, NULL, NULL, 0, 0, 0, 0, 0},
-  { 0,  0, NULL, NULL, NULL, 0, 0, 0, 0, 0},
-  { 0,  0, NULL, NULL, NULL, 0, 0, 0, 0, 0},
-  { 0,  0, NULL, NULL, NULL, 0, 0, 0, 0, 0},
-  { 0,  0, NULL, NULL, NULL, 0, 0, 0, 0, 0},
-  { 0,  0, NULL, NULL, NULL, 1, 0, 0, 0, 0},
-  { 0,  0, NULL, NULL, NULL, 0, 0, 0, 0, 0},
-  { 0,  0, NULL, NULL, NULL, 0, 0, 0, 0, 0},
-  { 0,  0, NULL, NULL, NULL, 1, 0, 0, 0, 0},
-  { 0,  0, NULL, NULL, NULL, 1, 0, 0, 0, 0},
-  { 0,  0, NULL, NULL, NULL, 0, 0, 0, 0, 0},
-  { 0,  0, NULL, NULL, NULL, 0, 0, 0, 0, 0},
-  { 0,  0, NULL, NULL, NULL, 0, 0, 0, 0, 0},
-};
-
 struct AroundLByte const room_spark_offset[] = {
   {-256,  256},
   {-256,    0},
@@ -180,20 +159,6 @@ TbBool room_exists(const struct Room *room)
   if (room_is_invalid(room))
     return false;
   return ((room->alloc_flags & 0x01) != 0);
-}
-
-struct RoomData *room_data_get_for_kind(RoomKind rkind)
-{
-  if ((rkind < 1) || (rkind > ROOM_TYPES_COUNT_OLD))
-    return &room_data[0];
-  return &room_data[rkind];
-}
-
-struct RoomData *room_data_get_for_room(const struct Room *room)
-{
-  if ((room->kind < 1) || (room->kind > ROOM_TYPES_COUNT_OLD))
-    return &room_data[0];
-  return &room_data[room->kind];
 }
 
 long get_room_look_through(RoomKind rkind)
@@ -388,8 +353,8 @@ long get_room_kind_used_capacity_fraction(PlayerNumber plyr_idx, RoomKind room_k
 
 void set_room_stats(struct Room *room, TbBool skip_integration)
 {
-    struct RoomData* rdata = room_data_get_for_room(room);
-    if ((!skip_integration) || (rdata->field_F))
+    const struct RoomConfigStats* roomst = get_room_kind_stats(room->kind);
+    if ((!skip_integration) || (roomst->never_skip_integration))
     {
         do_room_integration(room);
     }
@@ -1771,8 +1736,8 @@ void reset_state_of_creatures_working_in_room(struct Room *wrkroom)
 
 void update_room_total_capacity(struct Room *room)
 {
-    struct RoomData* rdata = room_data_get_for_room(room);
-    Room_Update_Func cb = rdata->update_total_capacity;
+    const struct RoomConfigStats* roomst = get_room_kind_stats(room->kind);
+    Room_Update_Func cb = roomst->update_total_capacity;
     if (cb != NULL) {
         cb(room);
     }
@@ -2470,13 +2435,13 @@ TbBool recalculate_room_health(struct Room* room)
 
 TbBool update_room_contents(struct Room *room)
 {
-    struct RoomData* rdata = room_data_get_for_room(room);
+    const struct RoomConfigStats* roomst = get_room_kind_stats(room->kind);
     SYNCDBG(17,"Starting for %s index %d",room_code_name(room->kind),(int)room->index);
-    Room_Update_Func cb = rdata->update_storage_in_room;
+    Room_Update_Func cb = roomst->update_storage_in_room;
     if (cb != NULL) {
         cb(room);
     }
-    cb = rdata->update_workers_in_room;
+    cb = roomst->update_workers_in_room;
     if (cb != NULL) {
         cb(room);
     }
@@ -4294,15 +4259,15 @@ struct Room *place_room(PlayerNumber owner, RoomKind rkind, MapSubtlCoord stl_x,
     stl_x = stl_slab_starting_subtile(stl_x);
     stl_y = stl_slab_starting_subtile(stl_y);
     // Update slab type on map
-    struct RoomData* rdata = room_data_get_for_room(room);
+    struct RoomConfigStats* roomst = get_room_kind_stats(room->kind);
     long i = get_slab_number(slb_x, slb_y);
     delete_room_slabbed_objects(i);
     if ((rkind == RoK_GUARDPOST) || (rkind == RoK_BRIDGE))
     {
-        place_animating_slab_type_on_map(rdata->assigned_slab, 0, stl_x, stl_y, owner);
+        place_animating_slab_type_on_map(roomst->assigned_slab, 0, stl_x, stl_y, owner);
     } else
     {
-        place_slab_type_on_map(rdata->assigned_slab, stl_x, stl_y, owner, 0);
+        place_slab_type_on_map(roomst->assigned_slab, stl_x, stl_y, owner, 0);
     }
     SYNCDBG(7,"Updating efficiency");
     do_slab_efficiency_alteration(slb_x, slb_y);

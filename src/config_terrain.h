@@ -21,6 +21,7 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
+#include "room_data.h"
 
 #include "config.h"
 
@@ -148,6 +149,11 @@ struct RoomConfigStats {
     long msg_no_route;
     short cost;
     unsigned short health;
+    Room_Update_Func update_total_capacity;
+    Room_Update_Func update_storage_in_room;
+    Room_Update_Func update_workers_in_room;
+    TbBool never_skip_integration;
+
 };
 
 struct SlabsConfig {

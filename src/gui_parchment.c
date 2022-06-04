@@ -337,10 +337,10 @@ void draw_overhead_room_icons(const struct TbRect *map_area, long block_size, Pl
           {
             if (subtile_revealed(room->central_stl_x, room->central_stl_y, plyr_idx))
             {
-                struct RoomData* rdata = room_data_get_for_room(room);
-                if (rdata->medsym_sprite_idx > 0)
+                const struct RoomConfigStats* roomst = get_room_kind_stats(room->kind);
+                if (roomst->medsym_sprite_idx > 0)
                 {
-                    struct TbSprite* spr = &gui_panel_sprites[rdata->medsym_sprite_idx];
+                    struct TbSprite* spr = &gui_panel_sprites[roomst->medsym_sprite_idx];
                     long pos_x = map_area->left + (block_size * room->central_stl_x / STL_PER_SLB) - (spr->SWidth * ps_units_per_px / 16 / 2);
                     long pos_y = map_area->top + (block_size * room->central_stl_y / STL_PER_SLB) - (spr->SHeight * ps_units_per_px / 16 / 2);
                     LbSpriteDrawResized(pos_x, pos_y, ps_units_per_px, spr);

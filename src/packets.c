@@ -212,7 +212,7 @@ TbBool player_sell_room_at_subtile(long plyr_idx, long stl_x, long stl_y)
         ERRORLOG("No room to delete at subtile (%d,%d)",(int)stl_x,(int)stl_y);
         return false;
     }
-    struct RoomConfigStats* roomst = get_room_kind_stats(room);
+    struct RoomConfigStats* roomst = get_room_kind_stats(room->kind);
     long revenue = compute_value_percentage(roomst->cost, gameadd.room_sale_percent);
     if (room->owner != game.neutral_player_num)
     {

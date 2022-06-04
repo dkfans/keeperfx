@@ -222,8 +222,8 @@ TbBool setup_object_tooltips(struct Coord3d *pos)
       if ( (help_tip_time > 20) || (player->work_state == PSt_CreatrQuery) )
       {
           struct CreatureData* crdata = creature_data_get(objdat->related_creatr_model);
-          struct RoomData* rdata = room_data_get_for_kind(RoK_LAIR);                                            //TODO use a separate string for creature lair object than for lair room
-          set_gui_tooltip_box_fmt(5, "%s %s", get_string(crdata->namestr_idx), get_string(rdata->name_stridx)); // (creature) Lair
+          const struct RoomConfigStats* roomst = get_room_kind_stats(RoK_LAIR);                                      //TODO use a separate string for creature lair object than for lair room
+          set_gui_tooltip_box_fmt(5, "%s %s", get_string(crdata->namestr_idx), get_string(roomst->name_stridx)); // (creature) Lair
       } else
       {
         help_tip_time++;
@@ -262,9 +262,10 @@ short setup_room_tooltips(struct Coord3d *pos)
   if (!settings.tooltips_on)
     return false;
   struct Room* room = subtile_room_get(pos->x.stl.num, pos->y.stl.num);
+  const struct RoomConfigStats* roomst = get_room_kind_stats(room->kind);
   if (room_is_invalid(room))
     return false;
-  int stridx = room_data[room->kind].name_stridx;
+  int stridx = roomst->name_stridx;
   if (stridx == GUIStr_Empty)
     return false;
   update_gui_tooltip_target(room);
