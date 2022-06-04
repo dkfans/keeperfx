@@ -99,6 +99,9 @@ enum MousePointerGraphics {
     MousePG_PlaceTrap08  = 158,
     MousePG_PlaceTrap09  = 159,
     MousePG_PlaceTrap10  = 160,
+    MousePG_PlaceTrap10  = 161,
+    MousePG_PlaceTrap10  = 162,
+    MousePG_PlaceTrap10  = 163,
 };
 /******************************************************************************/
 #pragma pack(1)
