@@ -41,6 +41,7 @@
 #include "game_legacy.h"
 #include "game_merge.h"
 #include "frontmenu_ingame_map.h"
+#include "gui_boxmenu.h"
 #include "keeperfx.hpp"
 
 #ifdef __cplusplus
@@ -434,6 +435,8 @@ TbBool load_game(long slot_num)
       dungeon->lvstats.allow_save_score = 1;
     }
     game.loaded_swipe_idx = -1;
+    struct PlayerInfoAdd* playeradd = get_my_playeradd();
+    playeradd->cheat_menu_active = cheat_menu_is_active();
     return true;
 }
 
