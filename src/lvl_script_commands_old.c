@@ -996,7 +996,7 @@ static void command_set_creature_fearsome_factor(const char* crtr_name, long val
     command_add_value(Cmd_SET_CREATURE_FEARSOME_FACTOR, ALL_PLAYERS, crtr_id, val, 0);
 }
 
-static void command_set_creature_property(const char* crtr_name, long property, short val)
+static void command_set_creature_property(const char* crtr_name, const char* property, short val)
 {
     long crtr_id = get_rid(creature_desc, crtr_name);
     if (crtr_id == -1)
@@ -1004,7 +1004,13 @@ static void command_set_creature_property(const char* crtr_name, long property, 
         SCRPTERRLOG("Unknown creature, '%s'", crtr_name);
         return;
     }
-    command_add_value(Cmd_SET_CREATURE_PROPERTY, ALL_PLAYERS, crtr_id, property, val);
+    long prop_id = get_rid(creatmodel_properties_commands, property);
+    if (prop_id == -1)
+    {
+        SCRPTERRLOG("Unknown creature property kind, \"%s\"", property);
+        return;
+    }
+    command_add_value(Cmd_SET_CREATURE_PROPERTY, ALL_PLAYERS, crtr_id, prop_id, val);
 }
 
 /**
@@ -1785,7 +1791,7 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         command_set_creature_fearsome_factor(scline->tp[0], scline->np[1]);
         break;
     case Cmd_SET_CREATURE_PROPERTY:
-        command_set_creature_property(scline->tp[0], scline->np[1], scline->np[2]);
+        command_set_creature_property(scline->tp[0], scline->tp[1], scline->np[2]);
         break;
     case Cmd_IF_SLAB_OWNER:
         command_if_slab_owner(scline->np[0], scline->np[1], scline->np[2]);
