@@ -2731,7 +2731,7 @@ void process_cheat_mode_selection_inputs()
                 {
                     new_value = playeradd->cheatselection.chosen_hero_kind;
                     new_value++;
-                    if (new_value> 13)
+                    if (new_value > Crtr_Samurai)
                     {
                         new_value = 0;
                     }

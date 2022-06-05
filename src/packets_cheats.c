@@ -94,7 +94,7 @@ TbBool packets_process_cheats(
         playeradd->render_roomspace = create_box_roomspace(playeradd->render_roomspace, 1, 1, slb_x, slb_y);
         allowed = tag_cursor_blocks_place_thing(plyr_idx, stl_x, stl_y);
         clear_messages_from_player(playeradd->cheatselection.chosen_player);
-        if (playeradd->cheatselection.chosen_hero_kind == 0)
+        if (playeradd->cheatselection.chosen_hero_kind == Crtr_None)
         {
             sprintf(str, "?");
         }
@@ -110,7 +110,7 @@ TbBool packets_process_cheats(
             {
                 ThingModel crmodel;
                 unsigned char exp;
-                if (playeradd->cheatselection.chosen_hero_kind == 0)
+                if (playeradd->cheatselection.chosen_hero_kind == Crtr_None)
                 {
                     while (1) 
                     {
