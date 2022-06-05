@@ -2733,7 +2733,7 @@ void process_cheat_mode_selection_inputs()
                     new_value++;
                     if (new_value > Crtr_Samurai)
                     {
-                        new_value = 0;
+                        new_value = Crtr_None;
                     }
                     set_players_packet_action(player, PckA_CheatSwitchHero, new_value, 0, 0, 0);
                 }
@@ -2743,7 +2743,7 @@ void process_cheat_mode_selection_inputs()
                     new_value++;
                     if (new_value > 17)
                     {
-                        new_value = 0;
+                        new_value = Crtr_None;
                     }
                     set_players_packet_action(player, PckA_CheatSwitchCreature, new_value, 0, 0, 0);
                 }
