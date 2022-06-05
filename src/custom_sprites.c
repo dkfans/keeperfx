@@ -180,13 +180,17 @@ static void load_system_sprites(short fgroup)
 void init_custom_sprites(LevelNumber lvnum)
 {
     // This is a workaround because get_selected_level_number is zeroed on res change
-    if (lvnum <= 0)
+    if (lvnum == SPRITE_LAST_LEVEL)
     {
         lvnum = gameadd.last_level;
     }
-    else
+    else if (lvnum > 0)
     {
         gameadd.last_level = lvnum;
+    }
+    else
+    {
+        ERRORLOG("Invalid level number %d for loading custom sprites", lvnum);
     }
     // Clear sprite data
     for (int i = 0; i < KEEPERSPRITE_ADD_NUM; i++)
