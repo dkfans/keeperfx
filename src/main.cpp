@@ -1344,7 +1344,7 @@ void update_creatr_model_activities_list(void)
     int num_breeds;
     num_breeds = no_of_breeds_owned;
     // Add to breed activities
-    for (crmodel=1; crmodel < CREATURE_TYPES_COUNT; crmodel++)
+    for (crmodel=Crtr_Wizard; crmodel < CREATURE_TYPES_COUNT; crmodel++)
     {
         if ((dungeon->owned_creatures_of_model[crmodel] > 0)
             && (crmodel != get_players_spectator_model(my_player_number)))
@@ -1365,7 +1365,7 @@ void update_creatr_model_activities_list(void)
         }
     }
     // Remove from breed activities
-    for (crmodel=1; crmodel < CREATURE_TYPES_COUNT; crmodel++)
+    for (crmodel=Crtr_Wizard; crmodel < CREATURE_TYPES_COUNT; crmodel++)
     {
         if ((dungeon->owned_creatures_of_model[crmodel] <= 0)
           && (crmodel != get_players_special_digger_model(my_player_number)))

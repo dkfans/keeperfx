@@ -133,12 +133,12 @@ void play_thing_walking(struct Thing *thing)
             //TODO CONFIG creature model dependency; remove, add config file option for this
             ThingModel crmodel = thing->model;
             unsigned short smpl_pitch;
-            if (crmodel == 19 || crmodel == 24)
-            { //FLY or BUG
+            if (crmodel == Crtr_Fly || crmodel == Crtr_Beetle)
+            {
                 smpl_pitch = 400;
             }
-            else if (crmodel == 27)
-            { //HELL_HOUND
+            else if (crmodel == Crtr_HellHound)
+            {
                 smpl_pitch = 300;
             }
             else

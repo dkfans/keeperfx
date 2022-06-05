@@ -148,8 +148,8 @@ extern struct CreaturePickedUpOffset creature_picked_up_offset[];
 struct CreaturePickedUpOffset *get_creature_picked_up_offset(struct Thing *thing)
 {
     int crmodel = thing->model;
-    if ((crmodel < 1) || (crmodel >= CREATURE_TYPES_COUNT))
-        crmodel = 0;
+    if ((crmodel < Crtr_Wizard) || (crmodel >= CREATURE_TYPES_COUNT))
+        crmodel = Crtr_None;
     return &creature_picked_up_offset[crmodel];
 }
 

@@ -383,7 +383,7 @@ TbBool script_change_creatures_annoyance(PlayerNumber plyr_idx, ThingModel crmod
         }
         i = cctrl->players_next_creature_idx;
         // Per creature code
-        if (thing->model == crmodel || crmodel == 0)
+        if (thing->model == crmodel || crmodel == Crtr_None)
         {
             i = cctrl->players_next_creature_idx;
             if (operation == SOpr_SET)

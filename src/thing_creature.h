@@ -70,6 +70,41 @@ struct CreatureStorage {
   unsigned char count : 4;
 };
 
+enum CreatureModels {
+    Crtr_None = 0,
+    Crtr_Wizard = 1,
+    Crtr_Barbarian = 2,
+    Crtr_Archer = 3,
+    Crtr_Monk = 4,
+    Crtr_Dwarf = 5,
+    Crtr_Knight = 6,
+    Crtr_Avatar = 7,
+    Crtr_Tunneller = 8,
+    Crtr_Witch = 9,
+    Crtr_Giant = 10,
+    Crtr_Fairy = 11,
+    Crtr_Thief = 12,
+    Crtr_Samurai = 13,
+    Crtr_HornedReaper = 14,
+    Crtr_Skeleton = 15,
+    Crtr_Troll = 16,
+    Crtr_Dragon = 17,
+    Crtr_DemonSpawn = 18,
+    Crtr_Fly = 19,
+    Crtr_DarkMistress = 20,
+    Crtr_Warlock = 21,
+    Crtr_BileDemon = 22,
+    Crtr_Imp = 23,
+    Crtr_Beetle = 24,
+    Crtr_Vampire = 25,
+    Crtr_Spider = 26,
+    Crtr_HellHound = 27,
+    Crtr_Ghost = 28,
+    Crtr_Tentacle = 29,
+    Crtr_Orc = 30,
+    Crtr_FloatingSpirit = 31,
+};
+
 static_assert(sizeof(struct CreatureStorage) == 2, "");
 
 #pragma pack()
