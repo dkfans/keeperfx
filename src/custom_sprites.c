@@ -180,8 +180,9 @@ static void load_system_sprites(short fgroup)
 void init_custom_sprites(LevelNumber lvnum)
 {
     // This is a workaround because get_selected_level_number is zeroed on res change
-    if (lvnum == SPRITE_LAST_LEVEL)
+    if (lvnum <= 0)
     {
+
         lvnum = gameadd.last_level;
     }
     else

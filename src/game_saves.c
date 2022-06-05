@@ -203,7 +203,7 @@ int load_game_chunks(TbFileHandle fhandle,struct CatalogueEntry *centry)
                     return GLoad_Failed;
                 }
                 // Load configs which may have per-campaign part, and even be modified within a level
-                init_custom_sprites(SPRITE_LAST_LEVEL);
+                init_custom_sprites(centry->level_num);
                 load_computer_player_config(CnfLd_Standard);
                 load_stats_files();
                 check_and_auto_fix_stats();
