@@ -418,6 +418,7 @@ TbBool set_pointer_graphic(long ptr_idx)
   case MousePG_PlaceTrap11:
   case MousePG_PlaceTrap12:
   case MousePG_PlaceTrap13:
+  case MousePG_PlaceTrap14:
   case MousePG_PlaceDoor01:
   case MousePG_PlaceDoor02:
   case MousePG_PlaceDoor03:
