@@ -91,13 +91,22 @@ unsigned char destroy_effect[][9] = {
  */
 TbBool can_cast_spell_f(PlayerNumber plyr_idx, PowerKind pwkind, MapSubtlCoord stl_x, MapSubtlCoord stl_y, const struct Thing *thing, unsigned long flags, const char *func_name)
 {
+    struct PlayerInfo* player = get_player(plyr_idx);
+    if (player->work_state == PSt_FreeDestroyWalls)
+    {
+        struct SlabAttr *slbattr = get_slab_attrs(get_slabmap_for_subtile(stl_x, stl_y));
+        return ( (slbattr->category == SlbAtCtg_FortifiedWall) || (slbattr->category == SlbAtCtg_FriableDirt) );
+    }
+    else if ( (player->work_state == PSt_FreeCastDisease) || (player->work_state == PSt_FreeTurnChicken) )
+    {
+        return (slab_is_wall(subtile_slab_fast(stl_x), subtile_slab_fast(stl_y)) == false);
+    }
     if ((flags & CastChk_SkipAvailiabilty) == 0)
     {
         if (!is_power_available(plyr_idx, pwkind)) {
             return false;
         }
     }
-    struct PlayerInfo* player = get_player(plyr_idx);
     if (player->work_state == PSt_FreeCtrlDirect)
     {
         return true;
@@ -1180,8 +1189,8 @@ TbResult magic_use_power_time_bomb(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
         ERRORLOG("There was place to create new thing, but creation failed");
         return Lb_OK;
     }
-    thing->veloc_push_add.x.val += ACTION_RANDOM(321) - 160;
-    thing->veloc_push_add.y.val += ACTION_RANDOM(321) - 160;
+    thing->veloc_push_add.x.val += CREATURE_RANDOM(thing, 321) - 160;
+    thing->veloc_push_add.y.val += CREATURE_RANDOM(thing, 321) - 160;
     thing->veloc_push_add.z.val += 40;
     thing->state_flags |= TF1_PushAdd;
     powerst = get_power_model_stats(PwrK_TIMEBOMB);
@@ -1217,8 +1226,8 @@ TbResult magic_use_power_imp(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubt
         return Lb_OK;
     }
     EVM_CREATURE_EVENT("joined", plyr_idx, thing);
-    thing->veloc_push_add.x.val += ACTION_RANDOM(161) - 80;
-    thing->veloc_push_add.y.val += ACTION_RANDOM(161) - 80;
+    thing->veloc_push_add.x.val += CREATURE_RANDOM(thing, 161) - 80;
+    thing->veloc_push_add.y.val += CREATURE_RANDOM(thing, 161) - 80;
     thing->veloc_push_add.z.val += 160;
     thing->state_flags |= TF1_PushAdd;
     thing->move_angle_xy = 0;
@@ -1363,20 +1372,20 @@ TbResult magic_use_power_lightning(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     {
         shtng->mappos.z.val = get_thing_height_at(shtng, &shtng->mappos) + COORD_PER_STL/2;
         shtng->shot.hit_type = THit_CrtrsOnly;
-        shtng->shot.byte_19 = splevel;
+        shtng->shot.spell_level = splevel;
     }
     pwrdynst = get_power_dynamic_stats(PwrK_LIGHTNING);
     shotst = get_shot_model_stats(ShM_GodLightning);
     dungeon->camera_deviate_jump = 256;
     i = pwrdynst->strength[splevel];
-    max_damage = i * shotst->old->damage;
+    max_damage = i * shotst->damage;
     range = (i << 8) / 2;
     if (power_sight_explored(stl_x, stl_y, plyr_idx))
         max_damage /= 4;
     obtng = create_object(&pos, 124, plyr_idx, -1);
     if (!thing_is_invalid(obtng))
     {
-        obtng->byte_13 = splevel;
+        obtng->lightning.spell_level = splevel;
         obtng->field_4F |= TF4F_Unknown01;
     }
     i = electricity_affecting_area(&pos, plyr_idx, range, max_damage);
@@ -1710,9 +1719,10 @@ TbResult magic_use_power_possess_thing(PlayerNumber plyr_idx, struct Thing *thin
     }
     player = get_player(plyr_idx);
     player->influenced_thing_idx = thing->index;
-    teleport_destination = 18;
-    first_person_dig_claim_mode = false;
-    battleid = 1;
+    struct PlayerInfoAdd* playeradd = get_playeradd(player->id_number);
+    playeradd->first_person_dig_claim_mode = false;
+    playeradd->teleport_destination = 18; // reset to default behaviour
+    playeradd->battleid = 1;
     // Note that setting Direct Control player instance requires player->influenced_thing_idx to be set correctly
     set_player_instance(player, PI_DirctCtrl, 0);
     return Lb_SUCCESS;

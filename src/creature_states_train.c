@@ -23,6 +23,7 @@
 
 #include "creature_states.h"
 #include "creature_states_combt.h"
+#include "creature_states_mood.h"
 #include "creature_instances.h"
 #include "thing_list.h"
 #include "creature_control.h"
@@ -155,7 +156,7 @@ void setup_move_to_new_training_position(struct Thing *thing, struct Room *room,
     if ( restart )
       cctrl->training.search_timeout = 50;
     // Try partner training
-    if ((crstat->partner_training > 0) && (ACTION_RANDOM(100) < crstat->partner_training))
+    if ((crstat->partner_training > 0) && (CREATURE_RANDOM(thing, 100) < crstat->partner_training))
     {
         struct Thing* prtng = get_creature_in_training_room_which_could_accept_partner(room, thing);
         if (!thing_is_invalid(prtng))
@@ -204,7 +205,7 @@ void setup_training_search_for_post(struct Thing *creatng)
     long slb_y = -1;
     long min_distance = LONG_MAX;
     struct Thing* traintng = INVALID_THING;
-    long start_slab = ACTION_RANDOM(room->slabs_count);
+    long start_slab = CREATURE_RANDOM(creatng, room->slabs_count);
     long k = start_slab;
     long i = room->slabs_list;
     while (i != 0)
@@ -497,6 +498,7 @@ void process_creature_in_training_room(struct Thing *thing, struct Room *room)
         cctrl->training.search_timeout = 0;
         break;
     }
+    process_job_stress_and_going_postal(thing);
     SYNCDBG(18,"End");
 }
 

@@ -110,6 +110,8 @@ pkg/data/tmapa007.dat \
 pkg/data/tmapa008.dat \
 pkg/data/tmapa009.dat \
 pkg/data/tmapa010.dat \
+pkg/data/tmapa011.dat \
+pkg/data/tmapa012.dat \
 pkg/data/swipe01.dat \
 pkg/data/swipe02.dat \
 pkg/data/swipe03.dat \
@@ -191,76 +193,78 @@ pkg/ldata/front.pal pkg/data/palette.dat:
 # mark palette files precious to make sure they're not auto-removed after dependencies are built
 .PRECIOUS: pkg/ldata/torture.pal pkg/ldata/front.pal pkg/data/palette.dat
 
-pkg/ldata/lndflag_ens.dat: gfx/landview_ensign/filelist_lndflag.txt pkg/campgns/keeporig_lnd/rgmap00.pal $(PNGTORAW) $(RNC)
-pkg/ldata/netflag_ens.dat: gfx/landview_ensign/filelist_netflag.txt pkg/campgns/keeporig_lnd/rgmap00.pal $(PNGTORAW) $(RNC)
-pkg/ldata/lndflag_pin.dat: gfx/landview_pinpnt/filelist_lndflag.txt pkg/campgns/keeporig_lnd/rgmap00.pal $(PNGTORAW) $(RNC)
-pkg/ldata/netflag_pin.dat: gfx/landview_pinpnt/filelist_netflag.txt pkg/campgns/keeporig_lnd/rgmap00.pal $(PNGTORAW) $(RNC)
-pkg/ldata/maphand.dat: gfx/landview_hand/filelist_maphand.txt pkg/campgns/keeporig_lnd/rgmap00.pal $(PNGTORAW) $(RNC)
-pkg/ldata/netfont.dat: gfx/font_net/filelist_netfont.txt pkg/campgns/keeporig_lnd/rgmap00.pal $(PNGTORAW) $(RNC)
+pkg/ldata/lndflag_ens.dat: gfx/landview_ensign/filelist_lndflag.txt pkg/campgns/keeporig_lnd/rgmap00.pal $(PNGTORAW)
+pkg/ldata/netflag_ens.dat: gfx/landview_ensign/filelist_netflag.txt pkg/campgns/keeporig_lnd/rgmap00.pal $(PNGTORAW)
+pkg/ldata/lndflag_pin.dat: gfx/landview_pinpnt/filelist_lndflag.txt pkg/campgns/keeporig_lnd/rgmap00.pal $(PNGTORAW)
+pkg/ldata/netflag_pin.dat: gfx/landview_pinpnt/filelist_netflag.txt pkg/campgns/keeporig_lnd/rgmap00.pal $(PNGTORAW)
+pkg/ldata/maphand.dat: gfx/landview_hand/filelist_maphand.txt pkg/campgns/keeporig_lnd/rgmap00.pal $(PNGTORAW)
+pkg/ldata/netfont.dat: gfx/font_net/filelist_netfont.txt pkg/campgns/keeporig_lnd/rgmap00.pal $(PNGTORAW)
 
-pkg/ldata/fronttor.dat: gfx/torturescr/filelist_fronttor.txt pkg/ldata/torture.pal $(PNGTORAW) $(RNC)
-pkg/ldata/door01.dat: gfx/torturescr/filelist_tortr_doora.txt pkg/ldata/torture.pal $(PNGTORAW) $(RNC)
-pkg/ldata/door02.dat: gfx/torturescr/filelist_tortr_doorb.txt pkg/ldata/torture.pal $(PNGTORAW) $(RNC)
-pkg/ldata/door03.dat: gfx/torturescr/filelist_tortr_doorc.txt pkg/ldata/torture.pal $(PNGTORAW) $(RNC)
-pkg/ldata/door04.dat: gfx/torturescr/filelist_tortr_doord.txt pkg/ldata/torture.pal $(PNGTORAW) $(RNC)
-pkg/ldata/door05.dat: gfx/torturescr/filelist_tortr_doore.txt pkg/ldata/torture.pal $(PNGTORAW) $(RNC)
-pkg/ldata/door06.dat: gfx/torturescr/filelist_tortr_doorf.txt pkg/ldata/torture.pal $(PNGTORAW) $(RNC)
-pkg/ldata/door07.dat: gfx/torturescr/filelist_tortr_doorg.txt pkg/ldata/torture.pal $(PNGTORAW) $(RNC)
-pkg/ldata/door08.dat: gfx/torturescr/filelist_tortr_doorh.txt pkg/ldata/torture.pal $(PNGTORAW) $(RNC)
-pkg/ldata/door09.dat: gfx/torturescr/filelist_tortr_doori.txt pkg/ldata/torture.pal $(PNGTORAW) $(RNC)
-pkg/ldata/torture.raw: gfx/torturescr/tortr_background.png pkg/ldata/torture.pal $(PNGTORAW) $(RNC)
+pkg/ldata/fronttor.dat: gfx/torturescr/filelist_fronttor.txt pkg/ldata/torture.pal $(PNGTORAW)
+pkg/ldata/door01.dat: gfx/torturescr/filelist_tortr_doora.txt pkg/ldata/torture.pal $(PNGTORAW)
+pkg/ldata/door02.dat: gfx/torturescr/filelist_tortr_doorb.txt pkg/ldata/torture.pal $(PNGTORAW)
+pkg/ldata/door03.dat: gfx/torturescr/filelist_tortr_doorc.txt pkg/ldata/torture.pal $(PNGTORAW)
+pkg/ldata/door04.dat: gfx/torturescr/filelist_tortr_doord.txt pkg/ldata/torture.pal $(PNGTORAW)
+pkg/ldata/door05.dat: gfx/torturescr/filelist_tortr_doore.txt pkg/ldata/torture.pal $(PNGTORAW)
+pkg/ldata/door06.dat: gfx/torturescr/filelist_tortr_doorf.txt pkg/ldata/torture.pal $(PNGTORAW)
+pkg/ldata/door07.dat: gfx/torturescr/filelist_tortr_doorg.txt pkg/ldata/torture.pal $(PNGTORAW)
+pkg/ldata/door08.dat: gfx/torturescr/filelist_tortr_doorh.txt pkg/ldata/torture.pal $(PNGTORAW)
+pkg/ldata/door09.dat: gfx/torturescr/filelist_tortr_doori.txt pkg/ldata/torture.pal $(PNGTORAW)
+pkg/ldata/torture.raw: gfx/torturescr/tortr_background.png pkg/ldata/torture.pal $(PNGTORAW)
 
-pkg/ldata/front.raw: gfx/frontend-64/front_background-64.png pkg/ldata/front.pal $(PNGTORAW) $(RNC)
-pkg/ldata/frontbit.dat: gfx/frontend-64/filelist_frontbit.txt pkg/ldata/front.pal $(PNGTORAW) $(RNC)
-pkg/ldata/frontft1.dat: gfx/font_front_hdr_red-64/filelist_frontft1.txt pkg/ldata/front.pal $(PNGTORAW) $(RNC)
-pkg/ldata/frontft2.dat: gfx/font_front_std_red-64/filelist_frontft2.txt pkg/ldata/front.pal $(PNGTORAW) $(RNC)
-pkg/ldata/frontft3.dat: gfx/font_front_std_ylw-64/filelist_frontft3.txt pkg/ldata/front.pal $(PNGTORAW) $(RNC)
-pkg/ldata/frontft4.dat: gfx/font_front_std_dkr-64/filelist_frontft4.txt pkg/ldata/front.pal $(PNGTORAW) $(RNC)
+pkg/ldata/front.raw: gfx/frontend-64/front_background-64.png pkg/ldata/front.pal $(PNGTORAW)
+pkg/ldata/frontbit.dat: gfx/frontend-64/filelist_frontbit.txt pkg/ldata/front.pal $(PNGTORAW)
+pkg/ldata/frontft1.dat: gfx/font_front_hdr_red-64/filelist_frontft1.txt pkg/ldata/front.pal $(PNGTORAW)
+pkg/ldata/frontft2.dat: gfx/font_front_std_red-64/filelist_frontft2.txt pkg/ldata/front.pal $(PNGTORAW)
+pkg/ldata/frontft3.dat: gfx/font_front_std_ylw-64/filelist_frontft3.txt pkg/ldata/front.pal $(PNGTORAW)
+pkg/ldata/frontft4.dat: gfx/font_front_std_dkr-64/filelist_frontft4.txt pkg/ldata/front.pal $(PNGTORAW)
 
-pkg/data/frac00.raw: gfx/textures-32/frac00.png gfx/textures-32/fract_bw.pal $(PNGTORAW) $(RNC)
-pkg/data/frac01.raw: gfx/textures-32/frac01.png gfx/textures-32/fract_bw.pal $(PNGTORAW) $(RNC)
-pkg/data/frac02.raw: gfx/textures-32/frac02.png gfx/textures-32/fract_bw.pal $(PNGTORAW) $(RNC)
-pkg/data/frac03.raw: gfx/textures-32/frac03.png gfx/textures-32/fract_bw.pal $(PNGTORAW) $(RNC)
-pkg/data/frac04.raw: gfx/textures-32/frac04.png gfx/textures-32/fract_bw.pal $(PNGTORAW) $(RNC)
-pkg/data/frac05.raw: gfx/textures-32/frac05.png gfx/textures-32/fract_bw.pal $(PNGTORAW) $(RNC)
-pkg/data/frac06.raw: gfx/textures-32/frac06.png gfx/textures-32/fract_bw.pal $(PNGTORAW) $(RNC)
-pkg/data/frac07.raw: gfx/textures-32/frac07.png gfx/textures-32/fract_bw.pal $(PNGTORAW) $(RNC)
-pkg/data/frac08.raw: gfx/textures-32/frac08.png gfx/textures-32/fract_bw.pal $(PNGTORAW) $(RNC)
+pkg/data/frac00.raw: gfx/textures-32/frac00.png gfx/textures-32/fract_bw.pal $(PNGTORAW)
+pkg/data/frac01.raw: gfx/textures-32/frac01.png gfx/textures-32/fract_bw.pal $(PNGTORAW)
+pkg/data/frac02.raw: gfx/textures-32/frac02.png gfx/textures-32/fract_bw.pal $(PNGTORAW)
+pkg/data/frac03.raw: gfx/textures-32/frac03.png gfx/textures-32/fract_bw.pal $(PNGTORAW)
+pkg/data/frac04.raw: gfx/textures-32/frac04.png gfx/textures-32/fract_bw.pal $(PNGTORAW)
+pkg/data/frac05.raw: gfx/textures-32/frac05.png gfx/textures-32/fract_bw.pal $(PNGTORAW)
+pkg/data/frac06.raw: gfx/textures-32/frac06.png gfx/textures-32/fract_bw.pal $(PNGTORAW)
+pkg/data/frac07.raw: gfx/textures-32/frac07.png gfx/textures-32/fract_bw.pal $(PNGTORAW)
+pkg/data/frac08.raw: gfx/textures-32/frac08.png gfx/textures-32/fract_bw.pal $(PNGTORAW)
 
-pkg/data/tmapa000.dat: gfx/textures-32/filelist_tmapa000.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
-pkg/data/tmapa001.dat: gfx/textures-32/filelist_tmapa001.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
-pkg/data/tmapa002.dat: gfx/textures-32/filelist_tmapa002.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
-pkg/data/tmapa003.dat: gfx/textures-32/filelist_tmapa003.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
-pkg/data/tmapa004.dat: gfx/textures-32/filelist_tmapa004.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
-pkg/data/tmapa005.dat: gfx/textures-32/filelist_tmapa005.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
-pkg/data/tmapa006.dat: gfx/textures-32/filelist_tmapa006.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
-pkg/data/tmapa007.dat: gfx/textures-32/filelist_tmapa007.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
-pkg/data/tmapa008.dat: gfx/textures-32/filelist_tmapa008.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
-pkg/data/tmapa009.dat: gfx/textures-32/filelist_tmapa009.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
-pkg/data/tmapa010.dat: gfx/textures-32/filelist_tmapa010.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
+pkg/data/tmapa000.dat: gfx/textures-32/filelist_tmapa000.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/tmapa001.dat: gfx/textures-32/filelist_tmapa001.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/tmapa002.dat: gfx/textures-32/filelist_tmapa002.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/tmapa003.dat: gfx/textures-32/filelist_tmapa003.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/tmapa004.dat: gfx/textures-32/filelist_tmapa004.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/tmapa005.dat: gfx/textures-32/filelist_tmapa005.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/tmapa006.dat: gfx/textures-32/filelist_tmapa006.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/tmapa007.dat: gfx/textures-32/filelist_tmapa007.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/tmapa008.dat: gfx/textures-32/filelist_tmapa008.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/tmapa009.dat: gfx/textures-32/filelist_tmapa009.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/tmapa010.dat: gfx/textures-32/filelist_tmapa010.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/tmapa011.dat: gfx/textures-32/filelist_tmapa011.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/tmapa012.dat: gfx/textures-32/filelist_tmapa012.txt pkg/data/palette.dat $(PNGTORAW)
 
-pkg/data/gmap32.raw: gfx/guimap/gmap-32.png pkg/data/palette.dat $(PNGTORAW) $(RNC)
-pkg/data/gmap64.raw: gfx/guimap/gmap-64.png pkg/data/palette.dat $(PNGTORAW) $(RNC)
-pkg/data/gmapbug.dat: gfx/parchmentbug/filelist-gbug.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
-pkg/data/legal32.raw: gfx/loading/legal-32.png pkg/data/legal32.pal $(PNGTORAW) $(RNC)
-pkg/data/legal64.raw: gfx/loading/legal-64.png pkg/data/legal64.pal $(PNGTORAW) $(RNC)
-pkg/data/startfx32.raw: gfx/loading/startupfx-32.png pkg/data/startfx32.pal $(PNGTORAW) $(RNC)
-pkg/data/startfx64.raw: gfx/loading/startupfx-64.png pkg/data/startfx64.pal $(PNGTORAW) $(RNC)
-pkg/data/loading32.raw: gfx/loading/loading-32.png pkg/data/loading32.pal $(PNGTORAW) $(RNC)
-pkg/data/loading64.raw: gfx/loading/loading-64.png pkg/data/loading64.pal $(PNGTORAW) $(RNC)
-pkg/data/nocd.raw: gfx/loading/nocd-32.png pkg/data/nocd.pal $(PNGTORAW) $(RNC)
-pkg/data/gui2-64.dat: gfx/gui2-64/filelist_gui2.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
-pkg/data/gui2-32.dat: gfx/gui2-32/filelist_gui2.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
-pkg/data/gui1-64.dat: gfx/gui1-64/filelist_gui1.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
-pkg/data/gui1-32.dat: gfx/gui1-32/filelist_gui1.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
-pkg/data/pointer64.dat: gfx/pointer-64/filelist_pointer.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
-pkg/data/pointer32.dat: gfx/pointer-64/filelist_lpointer.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
-pkg/data/points64.dat: gfx/pointer-64/filelist_points.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
-pkg/data/points32.dat: gfx/pointer-64/filelist_lpoints.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
-pkg/data/font1-64.dat: gfx/font_simp-64/filelist_font1.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
-pkg/data/font1-32.dat: gfx/font_simp-32/filelist_font1.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
-pkg/data/font2-32.dat: gfx/font2-32/filelist_font2.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
-pkg/data/font2-64.dat: gfx/font2-64/filelist_font2.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
+pkg/data/gmap32.raw: gfx/guimap/gmap-32.png pkg/data/palette.dat $(PNGTORAW)
+pkg/data/gmap64.raw: gfx/guimap/gmap-64.png pkg/data/palette.dat $(PNGTORAW)
+pkg/data/gmapbug.dat: gfx/parchmentbug/filelist-gbug.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/legal32.raw: gfx/loading/legal-32.png pkg/data/legal32.pal $(PNGTORAW)
+pkg/data/legal64.raw: gfx/loading/legal-64.png pkg/data/legal64.pal $(PNGTORAW)
+pkg/data/startfx32.raw: gfx/loading/startupfx-32.png pkg/data/startfx32.pal $(PNGTORAW)
+pkg/data/startfx64.raw: gfx/loading/startupfx-64.png pkg/data/startfx64.pal $(PNGTORAW)
+pkg/data/loading32.raw: gfx/loading/loading-32.png pkg/data/loading32.pal $(PNGTORAW)
+pkg/data/loading64.raw: gfx/loading/loading-64.png pkg/data/loading64.pal $(PNGTORAW)
+pkg/data/nocd.raw: gfx/loading/nocd-32.png pkg/data/nocd.pal $(PNGTORAW)
+pkg/data/gui2-64.dat: gfx/gui2-64/filelist_gui2.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/gui2-32.dat: gfx/gui2-32/filelist_gui2.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/gui1-64.dat: gfx/gui1-64/filelist_gui1.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/gui1-32.dat: gfx/gui1-32/filelist_gui1.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/pointer64.dat: gfx/pointer-64/filelist_pointer.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/pointer32.dat: gfx/pointer-64/filelist_lpointer.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/points64.dat: gfx/pointer-64/filelist_points.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/points32.dat: gfx/pointer-64/filelist_lpoints.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/font1-64.dat: gfx/font_simp-64/filelist_font1.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/font1-32.dat: gfx/font_simp-32/filelist_font1.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/font2-32.dat: gfx/font2-32/filelist_font2.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/font2-64.dat: gfx/font2-64/filelist_font2.txt pkg/data/palette.dat $(PNGTORAW)
 pkg/data/creature.jty: gfx/sprites-32/animlist.txt pkg/data/palette.dat $(PNGTORAW)
 
 pkg/data/swipe01.dat: gfx/swipes-32/filelist_bhandrl.txt pkg/data/palette.dat $(PNGTORAW)
@@ -273,21 +277,18 @@ pkg/data/swipe06.dat: gfx/swipes-32/filelist_clawsrl.txt pkg/data/palette.dat $(
 pkg/data/frac%.raw:
 	-$(ECHO) 'Building RAW texture: $@'
 	$(PNGTORAW) -o "$@" -p "$(word 2,$^)" -r 255 -f raw -l 100 "$<"
-	-$(RNC) "$@"
 	-$(ECHO) 'Finished building: $@'
 	-$(ECHO) ' '
 
 pkg/data/tmapa%.dat:
 	-$(ECHO) 'Building RAW texture: $@'
 	$(PNGTORAW) -b -o "$@" -p "$(word 2,$^)" -f raw -l 0 "$<"
-	-$(RNC) "$@"
 	-$(ECHO) 'Finished building: $@'
 	-$(ECHO) ' '
 
 pkg/ldata/%.raw pkg/data/%.raw:
 	-$(ECHO) 'Building RAW image: $@'
 	$(PNGTORAW) -o "$@" -p "$(word 2,$^)" -f raw -l 100 "$<"
-	-$(RNC) "$@"
 	-$(ECHO) 'Finished building: $@'
 	-$(ECHO) ' '
 
@@ -295,7 +296,6 @@ pkg/ldata/%.dat pkg/data/%.dat:
 	-$(ECHO) 'Building tabulated sprites: $@'
 	$(MKDIR) "$(@D)"
 	$(PNGTORAW) -b -o "$@" -p "$(word 2,$^)" -f sspr -l 0 "$<"
-	-$(RNC) "$@"
 	-$(ECHO) 'Finished building: $@'
 	-$(ECHO) ' '
 
@@ -305,8 +305,6 @@ pkg/creatrs/%.jty pkg/data/%.jty:
 	$(PNGTORAW) -m -o "$@" -p "$(word 2,$^)" -f jspr -l 0 "$<"
 	-$(ECHO) 'Finished building: $@'
 	-$(ECHO) ' '
-
-ifeq ($(ENABLE_EXTRACT), 1)
 
 # The package is extracted only if targets does not exits; the "|" causes file dates to be ignored
 # Note that ignoring timestamp means it is possible to have outadated files after a new
@@ -324,22 +322,7 @@ gfx/sprites-32/%.txt gfx/sprites-64/%.txt gfx/sprites-128/%.txt \
 gfx/swipes-32/%.txt gfx/swipes-64/%.txt gfx/swipes-128/%.txt \
 gfx/textures-32/%.png gfx/textures-64/%.png gfx/textures-128/%.png \
 gfx/textures-32/%.txt gfx/textures-64/%.txt gfx/textures-128/%.txt \
-gfx/torturescr/%.png gfx/torturescr/%.txt gfx/guimap/%.txt gfx/parchmentbug/%.txt gfx/creatrportrait/%.txt: | gfx/$(GFXSRC_PACKAGE)
-	-$(ECHO) 'Extracting package: $<'
-	7z x -aoa -y -ogfx "$|"
-	-$(ECHO) 'Finished extracting: $<'
-	-$(ECHO) ' '
-
-endif
-
-# Downloading the gfx sources pack
-gfx/$(GFXSRC_PACKAGE):
-	-$(ECHO) 'Downloading package: $@'
-	$(MKDIR) "$(@D)"
-	curl -L -o "$@.dl" "$(GFXSRC_DOWNLOAD)"
-	7z t "$@.dl"
-	$(MV) "$@.dl" "$@"
-	-$(ECHO) 'Finished downloading: $@'
-	-$(ECHO) ' '
+gfx/torturescr/%.png gfx/torturescr/%.txt gfx/guimap/%.txt gfx/parchmentbug/%.txt gfx/creatrportrait/%.txt:
+	git clone --depth=1 https://github.com/dkfans/FXGraphics.git gfx
 
 #******************************************************************************

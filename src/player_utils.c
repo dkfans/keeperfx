@@ -100,30 +100,33 @@ void set_player_as_won_level(struct PlayerInfo *player)
       //WARNLOG("Player fate is already decided to %d",(int)player->victory_state);
       return;
   }
-  if (is_my_player(player))
-    frontstats_initialise();
-  player->victory_state = VicS_WonLevel;
+  TbBool my_player = (is_my_player(player));
   struct Dungeon* dungeon = get_dungeon(player->id_number);
-  if ( timer_enabled() )
+  if (my_player)
   {
-    if (TimerGame)
-    {
-        TimerTurns = dungeon->lvstats.hopes_dashed;
-        update_time();
-    }
-    else
-    {
-        show_real_time_taken();
-    }
-    struct GameTime GameT = get_game_time(dungeon->lvstats.hopes_dashed, game.num_fps);
-    SYNCMSG("Won level %ld. Total turns taken: %ld (%02d:%02d:%02d at %d fps). Real time elapsed: %02d:%02d:%02d:%03d.", game.loaded_level_number, dungeon->lvstats.hopes_dashed, GameT.Hours, GameT.Minutes, GameT.Seconds, game.num_fps, Timer.Hours, Timer.Minutes, Timer.Seconds, Timer.MSeconds);
+      frontstats_initialise();
+      if ( timer_enabled() )
+      {
+        if (TimerGame)
+        {
+            TimerTurns = dungeon->lvstats.hopes_dashed;
+            update_time();
+        }
+        else
+        {
+            show_real_time_taken();
+        }
+        struct GameTime GameT = get_game_time(dungeon->lvstats.hopes_dashed, game.num_fps);
+        SYNCMSG("Won level %ld. Total turns taken: %ld (%02d:%02d:%02d at %d fps). Real time elapsed: %02d:%02d:%02d:%03d.", game.loaded_level_number, dungeon->lvstats.hopes_dashed, GameT.Hours, GameT.Minutes, GameT.Seconds, game.num_fps, Timer.Hours, Timer.Minutes, Timer.Seconds, Timer.MSeconds);
+      }
   }
+  player->victory_state = VicS_WonLevel;
   // Computing player score
   dungeon->lvstats.player_score = compute_player_final_score(player, dungeon->max_gameplay_score);
   dungeon->lvstats.allow_save_score = 1;
   if ((game.system_flags & GSF_NetworkActive) == 0)
     player->field_4EB = game.play_gameturn + 300;
-  if (is_my_player(player))
+  if (my_player)
   {
     if (lord_of_the_land_in_prison_or_tortured())
     {
@@ -147,7 +150,9 @@ void set_player_as_lost_level(struct PlayerInfo *player)
     }
     SYNCLOG("Player %d lost",(int)player->id_number);
     if (is_my_player(player))
+    {
         frontstats_initialise();
+    }
     player->victory_state = VicS_LostLevel;
     struct Dungeon* dungeon = get_dungeon(player->id_number);
     // Computing player score
@@ -156,7 +161,7 @@ void set_player_as_lost_level(struct PlayerInfo *player)
     {
         output_message(SMsg_LevelFailed, 0, true);
         turn_off_all_menus();
-        clear_transfered_creature();
+        clear_transfered_creatures();
     }
     if ((gameadd.classic_bugs_flags & ClscBug_NoHandPurgeOnDefeat) == 0) {
         clear_things_in_hand(player);
@@ -509,7 +514,7 @@ TbBool check_map_explored_at_current_pos(struct Thing *creatng)
 
 void init_keeper_map_exploration_by_creatures(struct PlayerInfo *player)
 {
-    do_to_players_all_creatures_of_model(player->id_number, -1, check_map_explored_at_current_pos);
+    do_to_players_all_creatures_of_model(player->id_number, CREATURE_ANY, check_map_explored_at_current_pos);
 }
 
 void init_player_as_single_keeper(struct PlayerInfo *player)
@@ -517,8 +522,8 @@ void init_player_as_single_keeper(struct PlayerInfo *player)
     struct InitLight ilght;
     memset(&ilght, 0, sizeof(struct InitLight));
     player->field_4CD = 0;
-    ilght.field_0 = 2560;
-    ilght.field_2 = 48;
+    ilght.radius = 2560;
+    ilght.intensity = 48;
     ilght.field_3 = 5;
     ilght.is_dynamic = 1;
     unsigned short idx = light_create_light(&ilght);
@@ -879,7 +884,9 @@ TbBool player_sell_trap_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     MapSlabCoord slb_x = subtile_slab_fast(stl_x);
     MapSlabCoord slb_y = subtile_slab_fast(stl_y);
     long sell_value = 0;
-    if (is_key_pressed(KC_LALT, KMod_DONTCARE))
+    unsigned long traps_sold;
+    struct PlayerInfo* player = get_player(plyr_idx);
+    if (player->full_slab_cursor == false)
     {
         thing = get_trap_for_position(stl_x, stl_y);
         if (thing_is_invalid(thing))
@@ -887,7 +894,7 @@ TbBool player_sell_trap_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
             return false;
         }
         set_coords_to_subtile_center(&pos,stl_x,stl_y,1);
-        remove_trap_on_subtile(stl_x, stl_y, &sell_value);
+        traps_sold = remove_trap_on_subtile(stl_x, stl_y, &sell_value);
     }
     else
     {
@@ -897,11 +904,11 @@ TbBool player_sell_trap_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
             return false;
         }
         set_coords_to_slab_center(&pos,slb_x,slb_y);
-        remove_traps_around_subtile(slab_subtile_center(slb_x), slab_subtile_center(slb_y), &sell_value);
+        traps_sold = remove_traps_around_subtile(slab_subtile_center(slb_x), slab_subtile_center(slb_y), &sell_value);
     }
 
 	struct DungeonAdd* dungeonadd = get_dungeonadd(thing->owner);
-	dungeonadd->traps_sold++;
+	dungeonadd->traps_sold += traps_sold;
 	dungeonadd->manufacture_gold += sell_value;
 
     struct Dungeon* dungeon = get_players_num_dungeon(thing->owner);
@@ -939,7 +946,7 @@ TbBool player_sell_door_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
 
 	struct Dungeon* dungeon = get_players_num_dungeon(thing->owner);
 	dungeon->camera_deviate_jump = 192;
-	long sell_value = gameadd.doors_config[thing->model].selling_value;
+    long sell_value = compute_value_percentage(gameadd.doors_config[thing->model].selling_value, gameadd.door_sale_percent);
 
 	struct DungeonAdd* dungeonadd = get_dungeonadd(thing->owner);
 	dungeonadd->doors_sold++;
@@ -970,42 +977,12 @@ void compute_and_update_player_payday_total(PlayerNumber plyr_idx)
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
     dungeon->creatures_total_pay = compute_player_payday_total(dungeon);
 }
-
-PlayerNumber get_selected_player_for_cheat(PlayerNumber defplayer)
+void compute_and_update_player_backpay_total(PlayerNumber plyr_idx)
 {
-        if (is_key_pressed(KC_NUMPAD0, KMod_DONTCARE))
-        {
-            return 0;
-            clear_key_pressed(KC_NUMPAD0);
-        }
-        else if (is_key_pressed(KC_NUMPAD1, KMod_DONTCARE))
-        {
-            return 1;
-            clear_key_pressed(KC_NUMPAD1);
-        }
-        else if (is_key_pressed(KC_NUMPAD2, KMod_DONTCARE))
-        {
-            return 2;
-            clear_key_pressed(KC_NUMPAD2);
-        }
-        else if (is_key_pressed(KC_NUMPAD3, KMod_DONTCARE))
-        {
-            return 3;
-            clear_key_pressed(KC_NUMPAD3);
-        }
-        else if (is_key_pressed(KC_NUMPAD4, KMod_DONTCARE))
-        {
-            return 4;
-            clear_key_pressed(KC_NUMPAD4);
-        }
-        else if (is_key_pressed(KC_NUMPAD5, KMod_DONTCARE))
-        {
-            return 5;
-            clear_key_pressed(KC_NUMPAD5);
-        }
-        else
-        {
-            return defplayer;
-        }
+    SYNCDBG(15, "Starting for player %d", (int)plyr_idx);
+    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
+    struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
+    dungeonadd->creatures_total_backpay = compute_player_payday_total(dungeon);
 }
+
 /******************************************************************************/

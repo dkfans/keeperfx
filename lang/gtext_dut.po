@@ -21,15 +21,15 @@ msgstr ""
 "Project-Id-Version: GUI Strings for KeeperFX\n"
 "Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
-"PO-Revision-Date: 2014-10-28 21:23+0100\n"
-"Last-Translator: Tomasz Lis <listom@gmail.com>\n"
+"PO-Revision-Date: 2022-05-29 13:52+0200\n"
+"Last-Translator: qqluqq\n"
 "Language-Team: KeeperFX Team <code.google.com>\n"
 "Language: nl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Poedit-SourceCharset: utf-8\n"
-"X-Generator: Poedit 1.5.7\n"
+"X-Generator: Poedit 3.0.1\n"
 
 #. Generic victory message
 #: guitext:0
@@ -1626,7 +1626,6 @@ msgstr ""
 
 #. Level Bonus 2 objective
 #: guitext:143
-#, fuzzy
 msgctxt "In-game message"
 msgid ""
 "You are indeed a twisted soul, master. You made the Imps extinct with "
@@ -1723,7 +1722,6 @@ msgstr ""
 
 #. Level Bonus 4 objective
 #: guitext:153
-#, fuzzy
 msgctxt "In-game message"
 msgid ""
 "This region of the underworld will test your ability to traverse the network "
@@ -1731,9 +1729,10 @@ msgid ""
 "where a legendary warrior is imprisoned. That warrior will serve you well in "
 "the future."
 msgstr ""
-"Dit gebied van de onderwereld test je vaardigheid een doolhof van grotten te "
-"doorkruisen. Tijd is hier je grootste vijand. Versla de tijd en je vindt de "
-"gevangen legendarische krijger. Deze krijger zal je in de toekomst goed dienen."
+"Dit gebied van de onderwereld zal je vermogen om het netwerk van grotten te "
+"doorkruisen op de proef stellen. Inderdaad, de tijd is hier je vijand. "
+"Versla het en je zult vinden waar een legendarische krijger gevangen zit. "
+"Die krijger zal je in de toekomst goed van pas komen."
 
 #. Level Mistle objective
 #: guitext:154
@@ -1986,110 +1985,112 @@ msgstr "Boe"
 #: guitext:202
 msgctxt "Level name"
 msgid "Eversmile"
-msgstr "LACHRIJK"
+msgstr "Lachrijk"
 
 #: guitext:203
 msgctxt "Level name"
 msgid "Cosyton"
-msgstr "WELBEHAGEN"
+msgstr "Welbehagen"
 
 #: guitext:204
 msgctxt "Level name"
 msgid "Waterdream Warm"
-msgstr "WATERLAND"
+msgstr "Waterland"
 
 #: guitext:205
 msgctxt "Level name"
 msgid "Flowerhat"
-msgstr "BLOEMENKIND"
+msgstr "Bloemenkind"
 
 #: guitext:206
 msgctxt "Level name"
 msgid "Lushmeadow-on-Down"
-msgstr "GROENOORD"
+msgstr "Groenoord"
 
 #: guitext:207
 msgctxt "Level name"
 msgid "Snuggledell"
-msgstr "KNUFFELDAL"
+msgstr "Knuffeldal"
 
 #: guitext:208
 msgctxt "Level name"
 msgid "Wishvale"
-msgstr "WENSVALLEI"
+msgstr "Wensvalei"
 
 #: guitext:209
 msgctxt "Level name"
 msgid "Tickle"
-msgstr "PRETKERK"
+msgstr "Pretkerk"
 
 #: guitext:210
 msgctxt "Level name"
 msgid "Moonbrush Wood"
-msgstr "MAANWOUD"
+msgstr "Maanwoud"
 
 #: guitext:211
 msgctxt "Level name"
 msgid "Nevergrim"
-msgstr "ZONNEVANG"
+msgstr "Zonnevang"
 
 #: guitext:212
 msgctxt "Level name"
 msgid "Hearth"
-msgstr "HAARDSTEDE"
+msgstr "Haardstede"
 
 #: guitext:213
 msgctxt "Level name"
 msgid "Elf's Dance"
-msgstr "ELVENSCHANS"
+msgstr "Elvenschans"
 
 #: guitext:214
 msgctxt "Level name"
 msgid "Buffy Oak"
-msgstr "ZELOOTSKERKE"
+msgstr "Zelootskerke"
 
 #: guitext:215
 msgctxt "Level name"
 msgid "Sleepiburgh"
-msgstr "SLAAPBURG"
+msgstr "Slaapburg"
 
 #: guitext:216
 msgctxt "Level name"
 msgid "Woodly Rhyme"
-msgstr "BOSRIJM"
+msgstr "Bosrijm"
 
 #: guitext:217
 msgctxt "Level name"
 msgid "Tulipscent"
-msgstr "TULPENBURG"
+msgstr "Tulpenburg"
 
 #: guitext:218
 msgctxt "Level name"
 msgid "Mirthshire"
-msgstr "VREUGDELAND"
+msgstr "Vreugdeland"
 
 #: guitext:219
 msgctxt "Level name"
 msgid "Blaise End"
-msgstr "VREDESTEIN"
+msgstr "Vredestein"
 
 #: guitext:220
 msgctxt "Level name"
 msgid "Mistle"
-msgstr "EDEN"
+msgstr "Eden"
 
 #: guitext:221
 msgctxt "Level name"
 msgid "Skybird Trill"
-msgstr "VOGELZANG"
+msgstr "Vogelzang"
 
 #: guitext:222
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Name and Health: Each creature has its own name. Behind is the creature "
 "health bar. The higher the red bar, the better health the creature is in."
-msgstr "Naam en Gezondheid: [23.4]"
+msgstr ""
+"Naam en gezondheid: Elk wezen heeft zijn eigen naam. Daarachter staat de "
+"gezondheidsbalk van het wezen. Hoe hoger de rode balk, hoe gezonder het "
+"wezen is."
 
 #: guitext:223
 #, fuzzy
@@ -2112,10 +2113,9 @@ msgid "Cancel"
 msgstr "Annuleren"
 
 #: guitext:226
-#, fuzzy
 msgctxt "Creature spell"
 msgid "Arrow: The basic ranged weapon, effective at long distance."
-msgstr "Pijl: [25.4]"
+msgstr "Pijl: Het basis afstandswapen, effectief op lange afstand."
 
 #: guitext:227
 #, fuzzy
@@ -2349,10 +2349,9 @@ msgid ""
 msgstr "Kuiken: [26.2]"
 
 #: guitext:257
-#, fuzzy
 msgctxt "Creature spell"
 msgid "Time Bomb: Turns your creature into a suicidal bomber."
-msgstr "Tijdbom"
+msgstr "Tijdbom: Verandert je schepsel in een zelfmoordterrorist."
 
 #: guitext:258
 msgctxt "Creature name"
@@ -2500,14 +2499,13 @@ msgid "Monk"
 msgstr "Monnik"
 
 #: guitext:287
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Query: Select this and left click on a creature to view information on that "
 "creature and track it on screen. LMB select."
 msgstr ""
 "Info: Selecteer dit en klik op een wezen voor meer informatie over dat "
-"wezen. LMK: Selecteren. [5.9]"
+"wezen. LMK: Selecteren."
 
 #: guitext:288
 msgctxt "Menu interface item"
@@ -2959,12 +2957,12 @@ msgstr "IRQ"
 #: guitext:356
 msgctxt "Menu interface item"
 msgid "Statistics"
-msgstr "STATISTIEKEN"
+msgstr "Statistieken"
 
 #: guitext:357
 msgctxt "Menu interface item"
 msgid "Level Completed"
-msgstr "LEVEL GEWONNEN"
+msgstr "Level Gewonnen"
 
 #: guitext:358
 msgctxt "Menu interface item"
@@ -2974,12 +2972,12 @@ msgstr "NIET GEBRUIKT"
 #: guitext:359
 msgctxt "Menu interface, Main Menu item"
 msgid "Quit"
-msgstr "STOPPEN"
+msgstr "Stoppen"
 
 #: guitext:360
 msgctxt "Menu interface, Main Menu item"
 msgid "Start New Game"
-msgstr "NIEUW SPEL STARTEN"
+msgstr "Nieuw Spel Starten"
 
 #: guitext:361
 msgctxt "Unused"
@@ -2989,7 +2987,7 @@ msgstr "Dit is een verhaal over moed, eer en hoe lekker Helden smaken..."
 #: guitext:362
 msgctxt "Credits"
 msgid "Designed By"
-msgstr "ONTWORPEN DOOR"
+msgstr "Ontworpen Door"
 
 #: guitext:363
 msgctxt "Credits"
@@ -3944,12 +3942,13 @@ msgid "Unable to join game"
 msgstr "Kan Niet Meedoen"
 
 #: guitext:544
-#, fuzzy
 msgctxt "Slab description"
 msgid ""
 "Gems: Infinite wealth for your Imps to extract. Cannot be destroyed, but "
 "takes longer to mine than Gold."
-msgstr "Edelstenen: onbegrensde rijkdom door Dondersteentjes gedolven. [12.3]"
+msgstr ""
+"Edelstenen: Oneindige rijkdom voor je Dondersteentjes om te delven. Kan niet "
+"vernietigd worden, maar het duurt langer om te delven dan goud."
 
 #: guitext:545
 #, fuzzy
@@ -3970,28 +3969,24 @@ msgid "Avatar"
 msgstr "Avatar"
 
 #: guitext:548
-#, fuzzy
 msgctxt "In-game interface description"
 msgid "Toggle Computer Assistant: Currently - Aggressive. LMB toggle."
-msgstr "Computerhulp bladeren: Nu: Agressief. LMK: bladeren. [3.2.4]"
+msgstr "Schakel Computerhulp: Nu: Agressief. LMK: omschakelen."
 
 #: guitext:549
-#, fuzzy
 msgctxt "In-game interface description"
 msgid "Toggle Computer Assistant: Currently - Defensive. LMB toggle."
-msgstr "Computerhulp bladeren: Nu: Defensief. LMK: bladeren. [3.2.4]"
+msgstr "Schakel Computerhulp: Nu: Defensief. LMK: omschakelen."
 
 #: guitext:550
-#, fuzzy
 msgctxt "In-game interface description"
 msgid "Toggle Computer Assistant: Currently - Construction Only. LMB toggle."
-msgstr "Computerhulp bladeren: Nu: Alleen Constructie. LMK: bladeren. [3.2.4]"
+msgstr "Schakel Computerhulp: Nu: Enkel Constructie. LMK: omschakelen."
 
 #: guitext:551
-#, fuzzy
 msgctxt "In-game interface description"
 msgid "Toggle Computer Assistant: Currently - Move Only. LMB toggle."
-msgstr "Computerhulp bladeren: Nu: Alleen Verplaatsen. LMK: bladeren. [3.2.4]"
+msgstr "Schakel Computerhulp: Nu: Enkel Verplaatsen. LMK: omschakelen."
 
 #: guitext:552
 msgctxt "In-game tab with rooms"
@@ -4264,14 +4259,13 @@ msgstr ""
 "RMK: inzoomen. [21.3]"
 
 #: guitext:597
-#, fuzzy
 msgctxt "Door description"
 msgid ""
 "Magic Door: A special door, highly resistant to physical damage but "
 "susceptible to magical damage. LMB select. RMB zoom."
 msgstr ""
 "Magische Deur: Een speciale deur met hoge weerstand tegen fysiek geweld, "
-"maar uiterst kwestbaar voor magie. LMK: selecteren. RMK: inzoomen. [21.4]"
+"maar uiterst kwestbaar voor magie. LMK: selecteren. RMK: inzoomen."
 
 #: guitext:598
 msgctxt "Room name"
@@ -4692,10 +4686,9 @@ msgstr ""
 "LMK: selecteren. [18.9]"
 
 #: guitext:662
-#, fuzzy
 msgctxt "Keeper spell description"
 msgid "Time Bomb: Turns your creature into a suicidal bomber."
-msgstr "Tijdbom"
+msgstr "Tijdbom: Verandert je schepsel in een zelfmoordterrorist."
 
 #: guitext:663
 msgctxt "Keeper spell description"
@@ -4969,7 +4962,7 @@ msgstr "Speciale kerker gevonden: LMK: bladeren. RMK: wissen."
 #: guitext:716
 msgctxt "Menu interface, Main Menu item; In-game interface, Options title"
 msgid "Options"
-msgstr "OPTIES"
+msgstr "Opties"
 
 #: guitext:717
 msgctxt "In-game interface item"
@@ -6340,7 +6333,6 @@ msgstr ""
 
 #. DD Level Dixaroc objective after wizard is dead
 #: guitext:932
-#, fuzzy
 msgctxt "In-game message"
 msgid ""
 "Your magical powers are restored Keeper. You can finally show these fools "
@@ -6460,7 +6452,7 @@ msgstr "Aaskamer vaardigheid: Hoe snel het wezen werkt in de aaskamer."
 #: guitext:956
 msgctxt "In-game interface description"
 msgid "Training Cost: Gold used for training the creature."
-msgstr ""
+msgstr "Trainingskosten: Goud gebruikt om het wezen te trainen."
 
 #: guitext:957
 msgctxt "In-game interface description"
@@ -6699,3 +6691,13 @@ msgstr "Klap Camera"
 msgctxt "Dungeon special decription"
 msgid "Mysterious Box: There's no telling what this will do."
 msgstr "Mysterieuze Doos: Er valt niet te achterhalen wat dit zal doen."
+
+#: guitext:1006
+msgctxt "Network game message"
+msgid "Joined player has different map version from host."
+msgstr "Spelers hebben verschillende versies van het level."
+
+#: guitext:1007
+msgctxt "In-game interface description"
+msgid "Display Resolution: Switch to the next configured display resolution. LMB toggle. RMB display current resolution."
+msgstr "Scherm Resolutie: Schakel om naar volgende geconfigureerde resolutie. LMK volgende. RMK: toon huidige resolutie."

@@ -258,19 +258,15 @@ void update(void);
 
 TbBool can_thing_be_queried(struct Thing *thing, PlayerNumber plyr_idx);
 struct Thing *get_queryable_object_near(MapCoord pos_x, MapCoord pos_y, long plyr_idx);
-TbBool tag_cursor_blocks_sell_area(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long full_slab);
 long packet_place_door(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, ThingModel dormodel, unsigned char a5);
-TbBool tag_cursor_blocks_place_room(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long full_slab);
-TbBool tag_cursor_blocks_place_door(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 TbBool all_dungeons_destroyed(const struct PlayerInfo *win_player);
 void reset_gui_based_on_player_mode(void);
 void reinit_tagged_blocks_for_player(PlayerNumber plyr_idx);
 void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long a3, long a4);
-void draw_lightning(const struct Coord3d *pos1, const struct Coord3d *pos2, long a3, long a4);
+void draw_lightning(const struct Coord3d* pos1, const struct Coord3d* pos2, long eeinterspace, long eemodel);
 void toggle_hero_health_flowers(void);
 void check_players_won(void);
 void check_players_lost(void);
-void process_dungeon_devastation_effects(void);
 void process_things_in_dungeon_hand(void);
 void process_payday(void);
 
@@ -285,9 +281,9 @@ void reset_script_timers_and_flags(void);
 void add_creature_to_pool(long kind, long amount, unsigned long a3);
 void draw_texture(long a1, long a2, long a3, long a4, long a5, long a6, long a7);
 
-void tag_cursor_blocks_dig(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long full_slab);
-void tag_cursor_blocks_thing_in_hand(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, int is_special_digger, long full_slab);
 short zoom_to_next_annoyed_creature(void);
+
+TbBool LbIsFrozenOrPaused(void); // from bflib_inputctrl.cpp
 
 short ceiling_set_info(long height_max, long height_min, long step);
 void set_mouse_light(struct PlayerInfo *player);
@@ -310,13 +306,14 @@ void affect_nearby_enemy_creatures_with_wind(struct Thing *thing);
 void affect_nearby_stuff_with_vortex(struct Thing *thing);
 void affect_nearby_friends_with_alarm(struct Thing *thing);
 long apply_wallhug_force_to_boulder(struct Thing *thing);
+long process_boulder_collision(struct Thing *boulder, struct Coord3d *pos, int direction_x, int direction_y);
 void lightning_modify_palette(struct Thing *thing);
 unsigned long lightning_is_close_to_player(struct PlayerInfo *player, struct Coord3d *pos);
 
 unsigned long seed_check_random(unsigned long range, unsigned long *seed, const char *func_name, unsigned long place);
 void init_lookups(void);
 void place_single_slab_type_on_map(SlabKind slbkind, MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber plyr_idx);
-void shuffle_unattached_things_on_slab(long a1, long a2);
+void shuffle_unattached_things_on_slab(long stl_x, long stl_y);
 void turn_off_query(PlayerNumber plyr_idx);
 TbBool set_gamma(char corrlvl, TbBool do_set);
 void level_lost_go_first_person(PlayerNumber plyr_idx);
@@ -346,14 +343,12 @@ void initialise_map_health(void);
 void setup_3d(void);
 void setup_stuff(void);
 long ceiling_init(unsigned long a1, unsigned long a2);
-void process_dungeon_destroy(struct Thing *thing);
 void give_shooter_drained_health(struct Thing *shooter, long health_delta);
 long get_foot_creature_has_down(struct Thing *thing);
 void process_keeper_spell_effect(struct Thing *thing);
 
 TbPixel get_player_path_colour(unsigned short owner);
 
-void startup_network_game(TbBool local);
 void startup_saved_packet_game(void);
 void faststartup_saved_packet_game(void);
 void reinit_level_after_load(void);

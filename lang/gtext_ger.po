@@ -2959,27 +2959,27 @@ msgstr "MEHR..."
 #: guitext:334
 msgctxt "In-game message"
 msgid "Level completed - press Escape to continue"
-msgstr "LEVEL ABGESCHLOSSEN - ZUM FORTFAHREN LEERTASTE DRÜCKEN"
+msgstr "Level abgeschlossen - zum fortfahren Leertaste drücken"
 
 #: guitext:335
 msgctxt "In-game message"
 msgid "You have been defeated. Press Space to restart."
-msgstr "LEVEL VERLOREN - ZUM NEUSTARTEN LEERTASTE DRÜCKEN"
+msgstr "Level verloren - zum neustarten Leertaste drücken"
 
 #: guitext:336
 msgctxt "On-screen message"
 msgid "Recording FLIC"
-msgstr "FLIC AUFNEHMEN"
+msgstr "Flic Aufnehmen"
 
 #: guitext:337
 msgctxt "On-screen message"
 msgid "Error recording FLIC"
-msgstr "FEHLER BEI FLIC-AUFNAHME"
+msgstr "Fehler Bei Flic-Aufnahme"
 
 #: guitext:338
 msgctxt "On-screen message"
 msgid "Finished recording FLIC"
-msgstr "FLIC-AUFNAHME BEENDET"
+msgstr "Flic-Aufnahme Beendet"
 
 #: guitext:339
 msgctxt "Unused"
@@ -6643,7 +6643,7 @@ msgctxt "In-game interface description"
 msgid ""
 "Armour: Part of the damage which won't affect creature health. The higher "
 "the number, the larger part of damage is discarded."
-msgstr "Ein Teil des Schadens, der die Gesundheit der Kreaturen nicht beeinträchtigt. Der höhere "
+msgstr "Rüstung: Ein Teil des Schadens, der die Gesundheit der Kreaturen nicht beeinträchtigt. Der höhere "
 "Die Zahl, der größte Teil des Schadens wird verworfen."
 
 #: guitext:950
@@ -6664,7 +6664,6 @@ msgstr "Forschungsfähigkeit: Wie schnell die Kreatur in der Bibliothek arbeitet
 "Je besser die Leistung der Kreatur."
 
 #: guitext:953
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Manufacture Skill: How fast the creature works in Workshop. The higher the "
@@ -6674,7 +6673,6 @@ msgstr ""
 "Fähigkeitsstufe, je besser die Leistung der Kreatur ist." 
 
 #: guitext:954
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Training Skill: How fast the creature works on training. The higher the "
@@ -6682,7 +6680,6 @@ msgid ""
 msgstr "Trainingsfähigkeit: Wie schnell die Kreatur am Training arbeitet."
 
 #: guitext:955
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Scavenge Skill: How fast the creature works on scavenging. The higher the "
@@ -6768,7 +6765,7 @@ msgstr ""
 #: guitext:967
 msgctxt "Menu interface item"
 msgid "Toggle Message"
-msgstr "NACHRICHT WECHSELN"
+msgstr "Nachricht Wechseln"
 
 #: guitext:968
 msgctxt "Menu interface item"
@@ -6939,3 +6936,12 @@ msgstr "Kamera einrasten"
 msgctxt "Dungeon special decription"
 msgid "Mysterious Box: There's no telling what this will do."
 msgstr "Mysteriöse Box: Es ist nicht abzusehen, was dies bewirken wird."
+
+#: guitext:1006
+msgctxt "Network game message"
+msgid "Joined player has different map version from host."
+
+#: guitext:1007
+msgctxt "In-game interface description"
+msgid "Display Resolution: Switch to the next configured display resolution. LMB toggle. RMB display current resolution."
+msgstr "Anzeigeauflösung: Wechseln Sie zur nächsten konfigurierten Anzeigeauflösung. LMT umschalten. RMT zeigt die aktuelle Auflösung an."

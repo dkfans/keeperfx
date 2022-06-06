@@ -52,7 +52,7 @@ extern struct GuiBoxOption gui_instance_option_list[];
 */
 
 long gf_change_player_state(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag);
-long gf_change_player_instance(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag);
+long gf_change_creature_instance(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag);
 long gf_give_controlled_creature_spells(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag);
 long gf_research_rooms(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag);
 long gf_make_everything_free(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag);
@@ -63,36 +63,39 @@ long gf_all_researchable(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsign
 long gfa_can_give_controlled_creature_spells(struct GuiBox *gbox, struct GuiBoxOption *goptn, long *tag);
 long gfa_controlled_creature_has_instance(struct GuiBox *gbox, struct GuiBoxOption *goptn, long *tag);
 long gf_decide_victory(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag);
+long gfa_single_player_mode(struct GuiBox* gbox, struct GuiBoxOption* goptn, long* tag);
+long gf_all_doors(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag);
+long gf_all_traps(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag);
 
 struct GuiBoxOption gui_main_cheat_list[] = { //gui_main_option_list in beta
-  {"Null mode",                1,           NULL,      gf_change_player_state, 0, 0, 0,            PSt_None, 0, 0, 0, 0},
-  {"Place tunneller mode",     1,           NULL,      gf_change_player_state, 0, 0, 0,    PSt_MkGoodDigger, 0, 0, 0, 0},
-  {"Place creature mode",      1,           NULL,      gf_change_player_state, 0, 0, 0,     PSt_MkBadCreatr, 0, 0, 0, 0},
-  {"Place hero mode",          1,           NULL,      gf_change_player_state, 0, 0, 0,    PSt_MkGoodCreatr, 0, 0, 0, 0},
-  {"Destroy walls mode",       1,           NULL,      gf_change_player_state, 0, 0, 0,PSt_FreeDestroyWalls, 0, 0, 0, 0},
-  {"Disease mode",             1,           NULL,      gf_change_player_state, 0, 0, 0, PSt_FreeCastDisease, 0, 0, 0, 0},
-  {"Peter mode",               1,           NULL,      gf_change_player_state, 0, 0, 0, PSt_FreeTurnChicken, 0, 0, 0, 0},
-  {"Create gold mode",         1,           NULL,      gf_change_player_state, 0, 0, 0,       PSt_MkGoldPot, 0, 0, 0, 0},
-  {"Steal room mode",          1,           NULL,      gf_change_player_state, 0, 0, 0,       PSt_StealRoom, 0, 0, 0, 0},
-  {"Destroy room mode",        1,           NULL,      gf_change_player_state, 0, 0, 0,     PSt_DestroyRoom, 0, 0, 0, 0},
-  {"Steal slab mode",          1,           NULL,      gf_change_player_state, 0, 0, 0,       PSt_StealSlab, 0, 0, 0, 0},
-  {"Place terrain mode",       1,           NULL,      gf_change_player_state, 0, 0, 0,    PSt_PlaceTerrain, 0, 0, 0, 0},
-  {"",                         2,           NULL,                        NULL, 0, 0, 0,            PSt_None, 0, 0, 0, 0},
-  {"Passenger control mode",   1,           NULL,      gf_change_player_state, 0, 0, 0, PSt_FreeCtrlPassngr, 0, 0, 0, 0},
-  {"Direct control mode",      1,           NULL,      gf_change_player_state, 0, 0, 0,  PSt_FreeCtrlDirect, 0, 0, 0, 0},
-  {"Order creature mode",      1,           NULL,      gf_change_player_state, 0, 0, 0,     PSt_OrderCreatr, 0, 0, 0, 0},
-  {"Kill creature mode",       1,           NULL,      gf_change_player_state, 0, 0, 0,      PSt_KillCreatr, 0, 0, 0, 0},
-  {"Destroy thing mode",       1,           NULL,      gf_change_player_state, 0, 0, 0,    PSt_DestroyThing, 0, 0, 0, 0},
-  {"Turncoat mode",            1,           NULL,      gf_change_player_state, 0, 0, 0,   PSt_ConvertCreatr, 0, 0, 0, 0},
-  {"Level up mode",            1,           NULL,      gf_change_player_state, 0, 0, 0, PSt_LevelCreatureUp, 0, 0, 0, 0},
-  {"Level down mode",          1,           NULL,    gf_change_player_state, 0, 0, 0, PSt_LevelCreatureDown, 0, 0, 0, 0},
-  {"Query mode",               1,           NULL,      gf_change_player_state, 0, 0, 0,  PSt_CreatrQueryAll, 0, 0, 0, 0},
-  {"Make happy mode",          1,           NULL,      gf_change_player_state, 0, 0, 0,         PSt_MkHappy, 0, 0, 0, 0},
-  {"Make angry mode",          1,           NULL,      gf_change_player_state, 0, 0, 0,         PSt_MkAngry, 0, 0, 0, 0},
-  {"",                         2,           NULL,                        NULL, 0, 0, 0,            PSt_None, 0, 0, 0, 0},
-  {"Kill player mode",         1,           NULL,      gf_change_player_state, 0, 0, 0,      PSt_KillPlayer, 0, 0, 0, 0},
-  {"Edit heart health",        1,           NULL,      gf_change_player_state, 0, 0, 0,     PSt_HeartHealth, 0, 0, 0, 0},
-  {"!",                        0,           NULL,                        NULL, 0, 0, 0,            PSt_None, 0, 0, 0, 0},
+  {"Null mode",                1,           NULL,              gf_change_player_state, 0, 0, 0,               PSt_None, 0, 0, 0, true},
+  {"Place digger mode",        1,           NULL,              gf_change_player_state, 0, 0, 0,           PSt_MkDigger, 0, 0, 0, true},
+  {"Place creature mode",      1,           NULL,              gf_change_player_state, 0, 0, 0,        PSt_MkBadCreatr, 0, 0, 0, true},
+  {"Place hero mode",          1,           NULL,              gf_change_player_state, 0, 0, 0,       PSt_MkGoodCreatr, 4, 0, 0, true},
+  {"Destroy walls mode",       1,           NULL,              gf_change_player_state, 0, 0, 0,   PSt_FreeDestroyWalls, 0, 0, 0, true},
+  {"Disease mode",             1,           NULL,              gf_change_player_state, 0, 0, 0,    PSt_FreeCastDisease, 0, 0, 0, true},
+  {"Peter mode",               1,           NULL,              gf_change_player_state, 0, 0, 0,    PSt_FreeTurnChicken, 0, 0, 0, true},
+  {"Create gold mode",         1,           NULL,              gf_change_player_state, 0, 0, 0,          PSt_MkGoldPot, 0, 0, 0, true},
+  {"Steal room mode",          1,           NULL,              gf_change_player_state, 0, 0, 0,          PSt_StealRoom, 0, 0, 0, true},
+  {"Destroy room mode",        1,           NULL,              gf_change_player_state, 0, 0, 0,        PSt_DestroyRoom, 0, 0, 0, true},
+  {"Steal slab mode",          1,           NULL,              gf_change_player_state, 0, 0, 0,          PSt_StealSlab, 0, 0, 0, true},
+  {"Place terrain mode",       1,           NULL,              gf_change_player_state, 0, 0, 0,       PSt_PlaceTerrain, 0, 0, 0, true},
+  {"",                         2,           NULL,                       NULL, 0, 0, 0,                        PSt_None, 0, 0, 0, false},
+  {"Passenger control mode",   1,           NULL,              gf_change_player_state, 0, 0, 0,    PSt_FreeCtrlPassngr, 0, 0, 0, true},
+  {"Direct control mode",      1,           NULL,              gf_change_player_state, 0, 0, 0,     PSt_FreeCtrlDirect, 0, 0, 0, true},
+  {"Order creature mode",      1,           NULL,              gf_change_player_state, 0, 0, 0,        PSt_OrderCreatr, 0, 0, 0, true},
+  {"Kill creature mode",       1,           NULL,              gf_change_player_state, 0, 0, 0,         PSt_KillCreatr, 0, 0, 0, true},
+  {"Destroy thing mode",       1,           NULL,              gf_change_player_state, 0, 0, 0,       PSt_DestroyThing, 0, 0, 0, true},
+  {"Turncoat mode",            1,           NULL,              gf_change_player_state, 0, 0, 0,      PSt_ConvertCreatr, 0, 0, 0, true},
+  {"Level up mode",            1,           NULL,              gf_change_player_state, 0, 0, 0,    PSt_LevelCreatureUp, 0, 0, 0, true},
+  {"Level down mode",          1,           NULL,              gf_change_player_state, 0, 0, 0,  PSt_LevelCreatureDown, 0, 0, 0, true},
+  {"Query mode",               1,           NULL,              gf_change_player_state, 0, 0, 0,     PSt_CreatrQueryAll, 0, 0, 0, true},
+  {"Make happy mode",          1,           NULL,              gf_change_player_state, 0, 0, 0,            PSt_MkHappy, 0, 0, 0, true},
+  {"Make angry mode",          1,           NULL,              gf_change_player_state, 0, 0, 0,            PSt_MkAngry, 0, 0, 0, true},
+  {"",                         2,           NULL,                        NULL, 0, 0, 0,                       PSt_None, 0, 0, 0, false},
+  {"Kill player mode",         1,           NULL,              gf_change_player_state, 0, 0, 0,         PSt_KillPlayer, 0, 0, 0, true},
+  {"Edit heart health",        1,  gfa_single_player_mode,     gf_change_player_state, 0, 0, 0,        PSt_HeartHealth, 0, 0, 0, true},
+  {"!",                        0,           NULL,                        NULL, 0, 0, 0,                       PSt_None, 0, 0, 0, false},
 };
 
 struct GuiBoxOption gui_creature_cheat_option_list[] = {
@@ -103,43 +106,46 @@ struct GuiBoxOption gui_creature_cheat_option_list[] = {
  {"All rooms and magic researchable",1,     NULL,         gf_all_researchable, 0, 0, 0,               0, 0, 0, 0, 0},
  {"Research all magic",        1,           NULL,           gf_research_magic, 0, 0, 0,               0, 0, 0, 0, 0},
  {"Research all rooms",        1,           NULL,           gf_research_rooms, 0, 0, 0,               0, 0, 0, 0, 0},
+ {"All doors manufacturable",  1,           NULL,           gf_all_doors,      0, 0, 0,               0, 0, 0, 0, 0},
+ {"All traps manufacturable",  1,           NULL,           gf_all_traps,      0, 0, 0,               0, 0, 0, 0, 0},
  {"Win the level instantly",   1,           NULL,           gf_decide_victory, 0, 0, 0,               1, 0, 0, 0, 0},
  {"Lose the level instantly",  1,           NULL,           gf_decide_victory, 0, 0, 0,               0, 0, 0, 0, 0},
  {"!",                         0,           NULL,                        NULL, 0, 0, 0,               0, 0, 0, 0, 0},
 };
 
 struct GuiBoxOption gui_instance_option_list[] = {
- {"Fireball",1,gfa_controlled_creature_has_instance,gf_change_player_instance, 5, 0, 0,  5, 0, 0, 0, 0},
- {"Meteor",1, gfa_controlled_creature_has_instance, gf_change_player_instance, 6, 0, 0,  6, 0, 0, 0, 0},
- {"Freeze",1, gfa_controlled_creature_has_instance, gf_change_player_instance, 7, 0, 0,  7, 0, 0, 0, 0},
- {"Armour",1, gfa_controlled_creature_has_instance, gf_change_player_instance, 8, 0, 0,  8, 0, 0, 0, 0},
- {"Lightning",1,gfa_controlled_creature_has_instance,gf_change_player_instance,9, 0, 0,  9, 0, 0, 0, 0},
- {"Rebound",1,gfa_controlled_creature_has_instance, gf_change_player_instance,10, 0, 0, 10, 0, 0, 0, 0},
- {"Heal",1,   gfa_controlled_creature_has_instance, gf_change_player_instance,11, 0, 0, 11, 0, 0, 0, 0},
- {"Poison Cloud",1,gfa_controlled_creature_has_instance,gf_change_player_instance,12,0,0,12,0, 0, 0, 0},
- {"Invisibility",1,gfa_controlled_creature_has_instance,gf_change_player_instance,13,0,0,13,0, 0, 0, 0},
- {"Teleport",1,gfa_controlled_creature_has_instance,gf_change_player_instance,14, 0, 0, 14, 0, 0, 0, 0},
- {"Speed", 1, gfa_controlled_creature_has_instance, gf_change_player_instance,15, 0, 0, 15, 0, 0, 0, 0},
- {"Slow",  1, gfa_controlled_creature_has_instance, gf_change_player_instance,16, 0, 0, 16, 0, 0, 0, 0},
- {"Drain", 1, gfa_controlled_creature_has_instance, gf_change_player_instance,17, 0, 0, 17, 0, 0, 0, 0},
- {"Fear",  1, gfa_controlled_creature_has_instance, gf_change_player_instance,18, 0, 0, 18, 0, 0, 0, 0},
- {"Missile",1,gfa_controlled_creature_has_instance, gf_change_player_instance,19, 0, 0, 19, 0, 0, 0, 0},
- {"Homer", 1, gfa_controlled_creature_has_instance, gf_change_player_instance,20, 0, 0, 20, 0, 0, 0, 0},
- {"Breath",1, gfa_controlled_creature_has_instance, gf_change_player_instance,21, 0, 0, 21, 0, 0, 0, 0},
- {"Wind",  1, gfa_controlled_creature_has_instance, gf_change_player_instance,22, 0, 0, 22, 0, 0, 0, 0},
- {"Light", 1, gfa_controlled_creature_has_instance, gf_change_player_instance,23, 0, 0, 23, 0, 0, 0, 0},
- {"Fly",   1, gfa_controlled_creature_has_instance, gf_change_player_instance,24, 0, 0, 24, 0, 0, 0, 0},
- {"Sight", 1, gfa_controlled_creature_has_instance, gf_change_player_instance,25, 0, 0, 25, 0, 0, 0, 0},
- {"Grenade",1,gfa_controlled_creature_has_instance, gf_change_player_instance,26, 0, 0, 26, 0, 0, 0, 0},
- {"Hail",  1, gfa_controlled_creature_has_instance, gf_change_player_instance,27, 0, 0, 27, 0, 0, 0, 0},
- {"WOP",   1, gfa_controlled_creature_has_instance, gf_change_player_instance,28, 0, 0, 28, 0, 0, 0, 0},
- {"Fart",  1, gfa_controlled_creature_has_instance, gf_change_player_instance,29, 0, 0, 29, 0, 0, 0, 0},
- {"Dig",   1, gfa_controlled_creature_has_instance, gf_change_player_instance,39, 0, 0, 39, 0, 0, 0, 0},
- {"Arrow", 1, gfa_controlled_creature_has_instance, gf_change_player_instance, 4, 0, 0,  4, 0, 0, 0, 0},
- {"Group", 1, gfa_controlled_creature_has_instance, gf_change_player_instance,40, 0, 0, 40, 0, 0, 0, 0},
- {"Disease",1,gfa_controlled_creature_has_instance, gf_change_player_instance,41, 0, 0, 41, 0, 0, 0, 0},
- {"Chicken",1,gfa_controlled_creature_has_instance, gf_change_player_instance,42, 0, 0, 42, 0, 0, 0, 0},
- {"!",     0,                          NULL,                             NULL, 0, 0, 0,  0, 0, 0, 0, 0},
+ {"Fireball",1,NULL,gf_change_creature_instance, CrInst_FIREBALL, 0, 0,  CrInst_FIREBALL, 0, 0, 0, true},
+ {"Meteor",1, NULL, gf_change_creature_instance, CrInst_FIRE_BOMB, 0, 0,  CrInst_FIRE_BOMB, 0, 0, 0, true},
+ {"Freeze",1, NULL, gf_change_creature_instance, CrInst_FREEZE, 0, 0,  CrInst_FREEZE, 0, 0, 0, true},
+ {"Armour",1, NULL, gf_change_creature_instance, CrInst_ARMOUR, 0, 0,  CrInst_ARMOUR, 0, 0, 0, true},
+ {"Lightning",1,NULL,gf_change_creature_instance,CrInst_LIGHTNING, 0, 0,  CrInst_LIGHTNING, 0, 0, 0, true},
+ {"Rebound",1,NULL, gf_change_creature_instance,CrInst_REBOUND, 0, 0, CrInst_REBOUND, 0, 0, 0, true},
+ {"Heal",1,   NULL, gf_change_creature_instance,CrInst_HEAL, 0, 0, CrInst_HEAL, 0, 0, 0, true},
+ {"Poison Cloud",1,NULL,gf_change_creature_instance,CrInst_POISON_CLOUD,0,0,CrInst_POISON_CLOUD,0, 0, 0, true},
+ {"Invisibility",1,NULL,gf_change_creature_instance,CrInst_INVISIBILITY,0,0,CrInst_INVISIBILITY,0, 0, 0, true},
+ {"Teleport",1,NULL,gf_change_creature_instance,CrInst_TELEPORT, 0, 0, CrInst_TELEPORT, 0, 0, 0, true},
+ {"Speed", 1, NULL, gf_change_creature_instance,CrInst_SPEED, 0, 0, CrInst_SPEED, 0, 0, 0, true},
+ {"Slow",  1, NULL, gf_change_creature_instance,CrInst_SLOW, 0, 0, CrInst_SLOW, 0, 0, 0, true},
+ {"Drain", 1, NULL, gf_change_creature_instance,CrInst_DRAIN, 0, 0, CrInst_DRAIN, 0, 0, 0, true},
+ {"Fear",  1, NULL, gf_change_creature_instance,CrInst_FEAR, 0, 0, CrInst_FEAR, 0, 0, 0, true},
+ {"Missile",1,NULL, gf_change_creature_instance,CrInst_MISSILE, 0, 0, CrInst_MISSILE, 0, 0, 0, true},
+ {"Homer", 1, NULL, gf_change_creature_instance,CrInst_NAVIGATING_MISSILE, 0, 0, CrInst_NAVIGATING_MISSILE, 0, 0, 0, true},
+ {"Breath",1, NULL, gf_change_creature_instance,CrInst_FLAME_BREATH, 0, 0, CrInst_FLAME_BREATH, 0, 0, 0, true},
+ {"Wind",  1, NULL, gf_change_creature_instance,CrInst_WIND, 0, 0, CrInst_WIND, 0, 0, 0, true},
+ {"Light", 1, NULL, gf_change_creature_instance,CrInst_LIGHT, 0, 0, CrInst_LIGHT, 0, 0, 0, true},
+ {"Fly",   1, NULL, gf_change_creature_instance,CrInst_FLY, 0, 0, CrInst_FLY, 0, 0, 0, true},
+ {"Sight", 1, NULL, gf_change_creature_instance,CrInst_SIGHT, 0, 0, CrInst_SIGHT, 0, 0, 0, true},
+ {"Grenade",1,NULL, gf_change_creature_instance,CrInst_GRENADE, 0, 0, CrInst_GRENADE, 0, 0, 0, true},
+ {"Hail",  1, NULL, gf_change_creature_instance,CrInst_HAILSTORM, 0, 0, CrInst_HAILSTORM, 0, 0, 0, true},
+ {"WOP",   1, NULL, gf_change_creature_instance,CrInst_WORD_OF_POWER, 0, 0, CrInst_WORD_OF_POWER, 0, 0, 0, true},
+ {"Fart",  1, NULL, gf_change_creature_instance,CrInst_FART, 0, 0, CrInst_FART, 0, 0, 0, true},
+ {"Dig",   1, NULL, gf_change_creature_instance,CrInst_FIRST_PERSON_DIG, 0, 0, CrInst_FIRST_PERSON_DIG, 0, 0, 0, true},
+ {"Arrow", 1, NULL, gf_change_creature_instance, CrInst_FIRE_ARROW, 0, 0,  CrInst_FIRE_ARROW, 0, 0, 0, true},
+ {"Lizard", 1, NULL, gf_change_creature_instance,CrInst_LIZARD, 0, 0, CrInst_LIZARD, 0, 0, 0, true},
+ {"Disease",1,NULL, gf_change_creature_instance,CrInst_CAST_SPELL_DISEASE, 0, 0, CrInst_CAST_SPELL_DISEASE, 0, 0, 0, true},
+ {"Chicken",1,NULL, gf_change_creature_instance,CrInst_CAST_SPELL_CHICKEN, 0, 0, CrInst_CAST_SPELL_CHICKEN, 0, 0, 0, true},
+ {"Time Bomb",1,NULL, gf_change_creature_instance,CrInst_CAST_SPELL_TIME_BOMB, 0, 0, CrInst_CAST_SPELL_TIME_BOMB, 0, 0, 0, true},
+ {"!",     0,                          NULL,                             NULL, 0, 0, 0,  0, 0, 0, 0, false},
 };
 
 // Boxes used for service/cheat menu
@@ -158,7 +164,7 @@ struct DraggingBox dragging_box;
 long gf_change_player_state(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag)
 {
   // Note: reworked from beta and unchecked
-  struct PlayerInfo *player=get_my_player();
+  struct PlayerInfo *player = get_my_player();
   set_players_packet_action(player, PckA_SetPlyrState, tag[0], tag[1], 0, 0);
   struct GuiBoxOption* guop = gbox->optn_list;
   while (guop->label[0] != '!')
@@ -181,10 +187,10 @@ long gf_decide_victory(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned
   return 1;
 }
 
-long gf_change_player_instance(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag)
+long gf_change_creature_instance(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag)
 {
     struct PlayerInfo* player = get_my_player();
-    set_players_packet_action(player, PckA_CtrlCrtrSetInstnc, *tag, 0, 0, 0);
+    set_players_packet_action(player, PckA_CheatCtrlCrtrSetInstnc, *tag, 0, 0, 0);
     return 1;
 }
 
@@ -264,6 +270,22 @@ long gfa_controlled_creature_has_instance(struct GuiBox *gbox, struct GuiBoxOpti
     return creature_instance_is_available(thing, *tag);
 }
 
+long gf_all_doors(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag)
+{
+    struct PlayerInfo* player = get_my_player();
+    //  if (player->cheat_mode == 0) return false; -- there's no cheat_mode flag yet
+    set_players_packet_action(player, PckA_CheatAllDoors, 0, 0, 0, 0);
+    return 1;
+}
+
+long gf_all_traps(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag)
+{
+    struct PlayerInfo* player = get_my_player();
+    //  if (player->cheat_mode == 0) return false; -- there's no cheat_mode flag yet
+    set_players_packet_action(player, PckA_CheatAllTraps, 0, 0, 0, 0);
+    return 1;
+}
+
 void gui_draw_all_boxes(void)
 {
   SYNCDBG(5,"Starting");
@@ -280,17 +302,17 @@ void gui_draw_all_boxes(void)
 short gui_box_is_not_valid(struct GuiBox *gbox)
 {
   if (gbox == NULL) return true;
-  return (gbox->field_0 & 0x01) == 0;
+  return (gbox->flags & GBoxF_Allocated) == 0;
 }
 
 void gui_insert_box_at_list_top(struct GuiBox *gbox)
 {
-  if (gbox->field_0 & 0x02)
+  if (gbox->flags & GBoxF_InList)
   {
     ERRORLOG("GuiBox is already in list");
     return;
   }
-  gbox->field_0 |= 0x02;
+  gbox->flags |= GBoxF_InList;
   gbox->next_box = first_box;
   if (first_box != NULL)
       first_box->prev_box = gbox;
@@ -307,7 +329,7 @@ struct GuiBox *gui_allocate_box_structure(void)
         if (gui_box_is_not_valid(gbox))
         {
             gbox->field_1 = i;
-            gbox->field_0 |= 0x01;
+            gbox->flags |= GBoxF_Allocated;
             gui_insert_box_at_list_top(gbox);
             return gbox;
         }
@@ -343,12 +365,12 @@ long gui_calculate_box_height(struct GuiBox *gbox)
 
 void gui_remove_box_from_list(struct GuiBox *gbox)
 {
-  if ((gbox->field_0 & 0x02) == 0)
+  if ((gbox->flags & GBoxF_InList) == 0)
   {
     ERRORLOG("Cannot remove box from list when it is not in one!");
     return;
   }
-  gbox->field_0 &= 0xFDu;
+  gbox->flags &= 0xFDu;
   if ( gbox->prev_box )
       gbox->prev_box->next_box = gbox->next_box;
   else
@@ -562,7 +584,7 @@ struct GuiBoxOption *gui_get_box_option_point_over(struct GuiBox *gbox, long x, 
             long width = LbTextStringWidth(gboptn->label) * ((long)pixel_size);
             if ((x >= sx) && (x < sx + width))
             {
-                if ((gboptn->numfield_4 == 2) || (gboptn->field_26 == 0))
+                if ((gboptn->numfield_4 == 2) || (gboptn->enabled == 0))
                     return NULL;
                 return gboptn;
             }
@@ -596,7 +618,7 @@ struct GuiBoxOption *gui_move_active_box_option(struct GuiBox *gbox, int val)
   {
     goptn = &gbox->optn_list[opt_num];
     if (goptn->callback != NULL)
-      goptn->callback(gbox, goptn, 1, &goptn->field_19);
+      goptn->callback(gbox, goptn, 1, &goptn->cb_param1);
 //TODO GUI: activate option
     return goptn;
   }
@@ -640,10 +662,10 @@ void gui_draw_box(struct GuiBox *gbox)
         while (goptn->label[0] != '!')
         {
           if (goptn->active_cb != NULL)
-            goptn->field_26 = (goptn->active_cb)(gbox, goptn, &goptn->field_D);
+            goptn->enabled = (goptn->active_cb)(gbox, goptn, &goptn->acb_param1);
           else
-            goptn->field_26 = 1;
-          if (!goptn->field_26)
+            goptn->enabled = 1;
+          if (!goptn->enabled)
             lbDisplay.DrawColour = colours[0][0][0];
           else
             lbDisplay.DrawColour = colours[3][3][3];
@@ -672,10 +694,10 @@ void gui_draw_box(struct GuiBox *gbox)
         while (goptn->label[0] != '!')
         {
             if (goptn->active_cb != NULL)
-              goptn->field_26 = (goptn->active_cb)(gbox, goptn, &goptn->field_D);
+              goptn->enabled = (goptn->active_cb)(gbox, goptn, &goptn->acb_param1);
             else
-              goptn->field_26 = 1;
-            if (!goptn->field_26)
+              goptn->enabled = 1;
+            if (!goptn->enabled)
               lbDisplay.DrawColour = colours[0][0][0];
             else
             if ( ((gbox == gbox_over) && (goptn == goptn_over) && (gbox != dragging_box.gbox)) ||
@@ -710,7 +732,7 @@ TbBool gui_process_option_inputs(struct GuiBox *gbox, struct GuiBoxOption *goptn
     if (goptn->numfield_4 == 1)
     {
       if (goptn->callback != NULL)
-        goptn->callback(gbox, goptn, button_num, &goptn->field_19);
+        goptn->callback(gbox, goptn, button_num, &goptn->cb_param1);
     }
     return true;
   }
@@ -830,6 +852,36 @@ short gui_process_inputs(void)
 */
     SYNCDBG(9,"Returning %s",result?"true":"false");
     return result;
+}
+
+TbBool point_is_over_gui_box(ScreenCoord x, ScreenCoord y)
+{
+    struct GuiBox *gbox = gui_get_box_point_over(x, y);
+    return (gbox != NULL);
+}
+
+long gfa_single_player_mode(struct GuiBox* gbox, struct GuiBoxOption* goptn, long* tag)
+{
+    return ((game.system_flags & GSF_NetworkActive) == 0);
+}
+
+TbBool cheat_menu_is_active()
+{
+    if (!gui_box_is_not_valid(gui_box))
+    {
+        if ((gui_box->flags & GBoxF_InList) != 0)
+        {
+            return true;
+        }
+    }
+    if (!gui_box_is_not_valid(gui_cheat_box))
+    {
+        if ((gui_cheat_box->flags & GBoxF_InList) != 0)
+        {
+            return true;
+        }
+    }
+    return false;
 }
 
 /******************************************************************************/

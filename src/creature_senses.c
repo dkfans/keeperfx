@@ -34,8 +34,6 @@
 #include "game_legacy.h"
 
 /******************************************************************************/
-DLLIMPORT unsigned char _DK_line_of_sight_2d(const struct Coord3d *pos1, const struct Coord3d *pos2);
-/******************************************************************************/
 TbBool sibling_line_of_sight_ignoring_door(const struct Coord3d *prevpos,
     const struct Coord3d *nextpos, const struct Thing *doortng)
 {
@@ -677,9 +675,72 @@ TbBool jonty_creature_can_see_thing_including_lava_check(const struct Thing *cre
     }
 }
 
-TbBool line_of_sight_2d(const struct Coord3d *pos1, const struct Coord3d *pos2)
+TbBool line_of_sight_2d(const struct Coord3d *frpos, const struct Coord3d *topos)
 {
-    return _DK_line_of_sight_2d(pos1, pos2);
+
+    MapCoordDelta pos_delta_x;
+    MapCoordDelta pos_delta_y;
+    MapCoordDelta ray_point_delta_x;
+    MapCoordDelta ray_point_delta_y;
+
+    long ray_end_point;
+    long ray_current_point;
+    struct Coord3d ray_point_pos;
+    static const long RAY_RESOLUTION = 80;
+        
+    pos_delta_x = abs(topos->x.val - frpos->x.val);
+    pos_delta_y = abs(topos->y.val - frpos->y.val);
+
+    if ( frpos->x.val > topos->x.val )
+    {
+        ray_point_delta_x = -RAY_RESOLUTION;
+    }
+    else
+    {
+        ray_point_delta_x = RAY_RESOLUTION;
+    }
+    
+    if ( frpos->y.val > topos->y.val )
+    {
+        ray_point_delta_y = -RAY_RESOLUTION;
+    }
+    else
+    {
+        ray_point_delta_y = RAY_RESOLUTION;
+    }
+    
+    if ( pos_delta_y == pos_delta_x )
+    {
+      ray_end_point = (pos_delta_x + 1) / RAY_RESOLUTION;
+    }
+    else if ( pos_delta_y > pos_delta_x )
+    {
+      ray_point_delta_x = (pos_delta_x + 1) * ray_point_delta_x / (pos_delta_y + 1);
+      ray_end_point = (pos_delta_y + 1) / RAY_RESOLUTION;
+    }
+    else
+    {
+      ray_point_delta_y = (pos_delta_y + 1) * ray_point_delta_y / (pos_delta_x + 1);
+      ray_end_point = (pos_delta_x + 1) / RAY_RESOLUTION;
+    }
+    
+    ray_current_point = ray_end_point;
+    ray_point_pos.x = frpos->x;
+    ray_point_pos.y = frpos->y;
+    ray_point_pos.z = frpos->z;
+
+    if ( ray_end_point == 0 )
+      return true;
+
+    while ( !point_in_map_is_solid(&ray_point_pos) )
+    {
+      ray_point_pos.x.val += ray_point_delta_x;
+      ray_point_pos.y.val += ray_point_delta_y;
+      ray_current_point--;
+      if ( ray_current_point == 0 )
+        return true;
+    }
+    return false;
 }
 
 TbBool line_of_sight_3d(const struct Coord3d *frpos, const struct Coord3d *topos)

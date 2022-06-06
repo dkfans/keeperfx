@@ -389,6 +389,7 @@ void remove_thing_from_battle_list(struct Thing *thing)
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     if (!thing_is_creature(thing) || creature_control_invalid(cctrl)) {
       ERRORLOG("Creature should have been already removed due to death");
+      return;
     }
     struct CreatureBattle* battle = creature_battle_get(cctrl->battle_id);
     // Change next index in prev creature
@@ -532,6 +533,8 @@ void update_battle_events(BattleIndex battle_id)
     unsigned short owner_flags = 0;
     MapCoord map_x = -1;
     MapCoord map_y = -1;
+    MapCoord map_z = -1;
+    struct DungeonAdd* dungeonadd;
     unsigned long k = 0;
     struct CreatureBattle* battle = creature_battle_get(battle_id);
     int i = battle->first_creatr;
@@ -550,6 +553,7 @@ void update_battle_events(BattleIndex battle_id)
         owner_flags |= (1 << thing->owner);
         map_x = thing->mappos.x.val;
         map_y = thing->mappos.y.val;
+        map_z = thing->mappos.z.val;
         // Per thing code ends
         k++;
         if (k > CREATURES_COUNT)
@@ -562,7 +566,12 @@ void update_battle_events(BattleIndex battle_id)
     {
         if ((i == game.hero_player_num) || (i == game.neutral_player_num))
             continue;
-        if ((1 << i) & owner_flags) {
+        if ((1 << i) & owner_flags) 
+        {
+            dungeonadd = get_dungeonadd(i);
+            dungeonadd->last_combat_location.x.val = map_x;
+            dungeonadd->last_combat_location.y.val = map_y;
+            dungeonadd->last_combat_location.z.val = map_z;
             if ((1 << i) == owner_flags) {
                 event_create_event_or_update_old_event(map_x, map_y, EvKind_FriendlyFight, i, 0);
             } else {
@@ -2479,9 +2488,9 @@ long waiting_combat_move(struct Thing *figtng, struct Thing *enmtng, long enmdis
     // Randomly jump waiting for combat
     if (thing_touching_floor(figtng))
     {
-        if (ACTION_RANDOM(6) == 0)
+        if (CREATURE_RANDOM(figtng, 6) == 0)
         {
-            figtng->veloc_push_add.z.val += ACTION_RANDOM(80) + 40;
+            figtng->veloc_push_add.z.val += CREATURE_RANDOM(figtng, 80) + 40;
             figtng->state_flags |= TF1_PushAdd;
         }
     }
@@ -2843,9 +2852,9 @@ TbBool creature_look_for_enemy_heart_combat(struct Thing *thing)
     return true;
 }
 
-struct Thing *check_for_door_to_fight(const struct Thing *thing)
+struct Thing *check_for_door_to_fight(struct Thing *thing)
 {
-    long m = ACTION_RANDOM(SMALL_AROUND_SLAB_LENGTH);
+    long m = CREATURE_RANDOM(thing, SMALL_AROUND_SLAB_LENGTH);
     for (long n = 0; n < SMALL_AROUND_SLAB_LENGTH; n++)
     {
         MapSlabCoord slb_x = subtile_slab_fast(thing->mappos.x.stl.num) + (long)small_around[m].delta_x;
@@ -2923,7 +2932,7 @@ TbResult creature_retreat_from_combat(struct Thing *figtng, struct Thing *enmtng
     // Second try
     pos.x.val = figtng->mappos.x.val;
     pos.y.val = figtng->mappos.y.val;
-    if (ACTION_RANDOM(2) == 0)
+    if (CREATURE_RANDOM(figtng, 2) == 0)
         i = 1;
     else
         i = -1;
@@ -2954,7 +2963,7 @@ short creature_attack_rooms(struct Thing *creatng)
         return 1;
     }
     // If we're not (or no longer) on room tile, find adjacent one
-    int n = ACTION_RANDOM(SMALL_AROUND_LENGTH);
+    int n = CREATURE_RANDOM(creatng, SMALL_AROUND_LENGTH);
     for (int i = 0; i < SMALL_AROUND_LENGTH; i++)
     {
         MapSubtlCoord stl_x = creatng->mappos.x.stl.num + STL_PER_SLB * (int)small_around[n].delta_x;

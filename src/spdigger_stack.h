@@ -57,7 +57,7 @@ enum SpecialDiggerDigTaskKinds {
     SDDigTask_None = 0,
     SDDigTask_DigEarth,
     SDDigTask_MineGold,
-    SDDigTask_Unknown3,
+    SDDigTask_MineGems,
 };
 
 enum ThingForRoomPickabilityFlags {
@@ -109,6 +109,7 @@ TbBool imp_will_soon_be_arming_trap(struct Thing *traptng);
 TbBool imp_will_soon_be_working_at_excluding(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 TbBool imp_will_soon_be_getting_object(PlayerNumber plyr_idx, const struct Thing *objtng);
 TbBool is_digging_indestructible_place(const struct Thing *creatng);
+long imp_already_reinforcing_at_excluding(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 
 TbBool thing_can_be_picked_to_place_in_player_room(const struct Thing* thing, PlayerNumber plyr_idx, RoomKind rkind, unsigned short flags);
 long get_random_mining_undug_area_position_for_digger_drop(PlayerNumber plyr_idx, MapSubtlCoord *retstl_x, MapSubtlCoord *retstl_y);

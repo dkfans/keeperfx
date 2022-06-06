@@ -27,7 +27,7 @@ extern "C" {
 #endif
 /******************************************************************************/
 #define EVENT_BUTTONS_COUNT    12
-#define EVENT_KIND_COUNT       31
+#define EVENT_KIND_COUNT       34
 #define EVENTS_COUNT          100
 #define INVALID_EVENT &game.event[0]
 
@@ -63,6 +63,9 @@ enum EventKinds {
     EvKind_FriendlyFight,
     EvKind_WorkRoomUnreachable,
     EvKind_StorageRoomUnreachable, //30
+    EvKind_PrisonerStarving,
+    EvKind_TorturedHurt,
+    EvKind_EnemyDoor,
 };
 
 enum EventFlags {
@@ -109,7 +112,7 @@ EventIndex event_create_event_or_update_nearby_existing_event(MapCoord map_x, Ma
 EventIndex event_create_event_or_update_same_target_existing_event(MapCoord map_x, MapCoord map_y, EventKind evkind, unsigned char dngn_id, long target);
 EventIndex event_create_event_or_update_old_event(MapCoord map_x, MapCoord map_y, EventKind evkind, unsigned char dngn_id, long target);
 void event_initialise_all(void);
-long event_move_player_towards_event(struct PlayerInfo *player, long var);
+long event_move_player_towards_event(struct PlayerInfo *player, long event_idx);
 struct Event *event_create_event(MapCoord map_x, MapCoord map_y, EventKind evkind, unsigned char dngn_id, long msg_id);
 struct Event *event_allocate_free_event_structure(void);
 void event_initialise_event(struct Event *event, MapCoord map_x, MapCoord map_y, EventKind evkind, unsigned char dngn_id, long msg_id);

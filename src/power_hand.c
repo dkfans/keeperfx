@@ -64,7 +64,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT long _DK_can_thing_be_picked_up2_by_player(const struct Thing *thing, unsigned char plyr_idx);
 DLLIMPORT void _DK_stop_creatures_around_hand(char a1, unsigned short value, unsigned short a3);
 /******************************************************************************/
 #ifdef __cplusplus
@@ -84,11 +83,11 @@ struct Thing *create_gold_for_hand_grab(struct Thing *thing, long owner)
         GoldAmount gold_req;
         if (lbKeyOn[KC_LCONTROL])
         {
-            gold_req = thing->long_13;
+            gold_req = thing->valuable.gold_stored;
         }
         else
         {
-            gold_req = thing->long_13 / 4 + 1;
+            gold_req = thing->valuable.gold_stored / 4 + 1;
         }
         if (gold_req <= 100)
             gold_req = 100;
@@ -112,12 +111,12 @@ struct Thing *create_gold_for_hand_grab(struct Thing *thing, long owner)
         objtng = create_object(&pos, 43, game.neutral_player_num, -1);
         if (!thing_is_invalid(objtng))
         {
-            objtng->long_13 = gold_picked;
+            objtng->valuable.gold_stored = gold_picked;
             pos.z.val += 128;
             struct Thing *efftng;
-            efftng = create_effect_element(&pos, 0x29u, owner);
+            efftng = create_effect_element(&pos, TngEffElm_Price, owner);
             if (!thing_is_invalid(efftng))
-                efftng->long_13 = gold_picked;
+                efftng->price_effect.number = gold_picked;
         }
     }
     return objtng;
@@ -201,10 +200,42 @@ long can_thing_be_picked_up_by_player(const struct Thing *thing, PlayerNumber pl
     return can_cast_spell(plyr_idx, PwrK_HAND, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing, CastChk_Default);
 }
 
-long can_thing_be_picked_up2_by_player(const struct Thing *thing, PlayerNumber plyr_idx)
+TbBool can_thing_be_picked_up2_by_player(const struct Thing *thing, PlayerNumber plyr_idx)
 {
-    //TODO: rewrite, then give it better name
-    return _DK_can_thing_be_picked_up2_by_player(thing, plyr_idx);
+    unsigned char state;
+
+    if(!thing_is_creature(thing))
+    {
+        return (thing_is_object(thing) && object_is_pickable_by_hand_for_use(thing, plyr_idx));
+    }
+
+    if ( (game.armageddon_cast_turn > 0) && ( (game.armageddon.count_down + game.armageddon_cast_turn) <= game.play_gameturn) )
+    {
+        return false;
+    }
+    if ( (thing->active_state == CrSt_CreatureUnconscious) || ((thing->alloc_flags & TAlF_IsInLimbo) != 0) || ((thing->state_flags & TF1_InCtrldLimbo) != 0) || (thing->health <= 0) )
+    {
+        return false;
+    }
+    
+    if (thing->active_state == CrSt_MoveToPosition)
+    {
+        state = thing->continue_state;
+    }
+    else 
+    {
+        state = thing->active_state;
+    }
+
+    if ( (state == CrSt_CreatureSacrifice)
+        || (state == CrSt_CreatureBeingSacrificed) || (state == CrSt_CreatureBeingSummoned))
+    {
+        return false;
+    }
+    else
+    {
+        return (thing->owner == plyr_idx);
+    }
 }
 
 void set_power_hand_offset(struct PlayerInfo *player, struct Thing *thing)
@@ -258,6 +289,7 @@ struct Thing *process_object_being_picked_up(struct Thing *thing, long plyr_idx)
     case 3:
     case 6:
     case 43:
+    case 136:
       i = thing->creature.gold_carried;
       if (i != 0)
       {
@@ -750,13 +782,13 @@ void drop_gold_coins(const struct Coord3d *pos, long value, long plyr_idx)
 {
     struct Coord3d locpos;
     int i;
-    locpos.z.val = get_ceiling_height_at(pos) - ACTION_RANDOM(128);
+    locpos.z.val = get_ceiling_height_at(pos) - PLAYER_RANDOM(plyr_idx, 128);
     for (i = 0; i < 8; i++)
     {
         if (i > 0)
         {
             long angle;
-            angle = ACTION_RANDOM(2*LbFPMath_PI);
+            angle = PLAYER_RANDOM(plyr_idx, 2*LbFPMath_PI);
             locpos.x.val = pos->x.val + distance_with_angle_to_coord_x(127, angle);
             locpos.y.val = pos->y.val + distance_with_angle_to_coord_y(127, angle);
         } else
@@ -770,7 +802,7 @@ void drop_gold_coins(const struct Coord3d *pos, long value, long plyr_idx)
             break;
         if (i > 0)
         {
-            thing->fall_acceleration += ACTION_RANDOM(thing->fall_acceleration) - thing->fall_acceleration / 2;
+            thing->fall_acceleration += PLAYER_RANDOM(plyr_idx, thing->fall_acceleration) - thing->fall_acceleration / 2;
             thing->valuable.gold_stored = 0;
         } else
         {
@@ -827,8 +859,8 @@ long gold_being_dropped_on_creature(long plyr_idx, struct Thing *goldtng, struct
     if ( !taking_salary )
     {
         cctrl = creature_control_get_from_thing(creatng);
-        if (cctrl->prepayments_received < 255) {
-            cctrl->prepayments_received++;
+        if (cctrl->paydays_advanced < SCHAR_MAX) {
+            cctrl->paydays_advanced++;
         }
     }
     struct CreatureStats *crstat;
@@ -1370,9 +1402,11 @@ TbBool is_dangerous_drop_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
     if (subtile_has_sacrificial_on_top(stl_x, stl_y)) {
         return true;
     }
-    //long cube_id;
-    //cube_id = get_top_cube_at(stl_x, stl_y, NULL);
-    //TODO do the same with entrance cube
+    struct Room* droproom = (subtile_room_get(stl_x, stl_y));
+    if (room_role_matches(droproom->kind, RoRoF_CrPoolLeave))
+    {
+        return true;
+    }
     return false;
 }
 

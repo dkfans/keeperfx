@@ -43,6 +43,7 @@
 #include "power_hand.h"
 #include "room_data.h"
 #include "game_legacy.h"
+#include "game_merge.h"
 #include "keeperfx.hpp"
 
 #ifdef __cplusplus
@@ -628,12 +629,12 @@ long count_entrances(const struct Computer2 *comp, PlayerNumber plyr_idx)
 
 long count_creatures_in_dungeon(const struct Dungeon *dungeon)
 {
-    return count_player_list_creatures_of_model(dungeon->creatr_list_start, 0);
+    return count_player_list_creatures_of_model(dungeon->creatr_list_start, CREATURE_ANY);
 }
 
 long count_diggers_in_dungeon(const struct Dungeon *dungeon)
 {
-    return count_player_list_creatures_of_model(dungeon->digger_list_start, 0);
+    return count_player_list_creatures_of_model(dungeon->digger_list_start, CREATURE_ANY);
 }
 
 /**
@@ -1070,6 +1071,34 @@ TbBool computer_find_non_solid_block(const struct Computer2 *comp, struct Coord3
 }
 
 /**
+ * Modifies given position into nearest one where creature can be dropped.
+ * Excludes dangerous tiles.
+ * @param comp
+ * @param pos
+ */
+TbBool computer_find_safe_non_solid_block(const struct Computer2* comp, struct Coord3d* pos)
+{
+    //return _DK_computer_find_non_solid_block(comp, pos);
+    for (unsigned long n = 0; n < LARGE_AROUND_LIMITED; n++)
+    {
+        MapSubtlCoord arstl_x = pos->x.stl.num + STL_PER_SLB * large_around[n].delta_x;
+        MapSubtlCoord arstl_y = pos->y.stl.num + STL_PER_SLB * large_around[n].delta_y;
+        for (unsigned long k = 0; k < MID_AROUND_LENGTH; k++)
+        {
+            MapSubtlCoord sstl_x = arstl_x + start_at_around[k].delta_x;
+            MapSubtlCoord sstl_y = arstl_y + start_at_around[k].delta_y;
+            if (can_drop_thing_here(sstl_x, sstl_y, comp->dungeon->owner, 0) && !is_dangerous_drop_subtile(sstl_x, sstl_y))
+            {
+                pos->x.val = subtile_coord_center(sstl_x);
+                pos->y.val = subtile_coord_center(sstl_y);
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+/**
  * Returns whether computer player is able to use given keeper power.
  * Originally was computer_able_to_use_magic(), returning 0..4.
  * @param comp
@@ -1157,6 +1186,9 @@ TbBool setup_a_computer_player(PlayerNumber plyr_idx, long comp_model)
         return false;
     }
     LbMemorySet(comp, 0, sizeof(struct Computer2));
+    comp->events = &get_dungeonadd(plyr_idx)->computer_info.events[0];
+    comp->checks = &get_dungeonadd(plyr_idx)->computer_info.checks[0];
+
     struct ComputerProcessTypes* cpt = get_computer_process_type_template(comp_model);
     comp->dungeon = get_players_num_dungeon(plyr_idx);
     comp->model = comp_model;
@@ -1229,6 +1261,33 @@ TbBool setup_a_computer_player(PlayerNumber plyr_idx, long comp_model)
             break;
         }
         LbMemoryCopy(newevnt, event, sizeof(struct ComputerEvent));
+    }
+    return true;
+}
+
+
+TbBool script_support_setup_player_as_computer_keeper(PlayerNumber plyridx, long comp_model)
+{
+    struct PlayerInfo* player = get_player(plyridx);
+    if (player_invalid(player)) {
+        SCRPTWRNLOG("Tried to set up invalid player %d",(int)plyridx);
+        return false;
+    }
+    // It uses >= because the count will be one higher than
+    // the actual highest possible computer model number.
+    if ((comp_model < 0) || (comp_model >= COMPUTER_MODELS_COUNT)) {
+        SCRPTWRNLOG("Tried to set up player %d as outranged computer model %d",(int)plyridx,(int)comp_model);
+        comp_model = 0;
+    }
+    player->allocflags |= PlaF_Allocated;
+    player->id_number = plyridx;
+    player->is_active = 1;
+    player->allocflags |= PlaF_CompCtrl;
+    init_player_start(player, false);
+    if (!setup_a_computer_player(plyridx, comp_model)) {
+        player->allocflags &= ~PlaF_CompCtrl;
+        player->allocflags &= ~PlaF_Allocated;
+        return false;
     }
     return true;
 }
@@ -1525,6 +1584,8 @@ void setup_computer_players2(void)
         }
 #endif
       }
+      get_computer_player(i)->events = &get_dungeonadd(i)->computer_info.events[0];
+      get_computer_player(i)->checks = &get_dungeonadd(i)->computer_info.checks[0];
     }
   }
 }
@@ -1552,6 +1613,8 @@ void restore_computer_player_after_load(void)
             continue;
         }
         comp->dungeon = get_players_dungeon(player);
+        comp->events = &get_dungeonadd(plyr_idx)->computer_info.events[0];
+        comp->checks = &get_dungeonadd(plyr_idx)->computer_info.checks[0];
         struct ComputerProcessTypes* cpt = get_computer_process_type_template(comp->model);
 
         long i;

@@ -383,7 +383,7 @@ msgstr ""
 #: guitext:48
 msgctxt "In-game message"
 msgid ""
-"The Necromancer you oppose has created phylactery to protect himself from death. It will be probably difficult to defeat "
+"The Necromancer you oppose has created phylacteries to protect himself from death. It will probably be difficult to defeat "
 "him once and for all?"
 msgstr ""
 

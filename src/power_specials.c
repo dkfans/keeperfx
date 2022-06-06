@@ -181,7 +181,7 @@ TbBool steal_hero(struct PlayerInfo *player, struct Coord3d *pos)
     struct Dungeon* herodngn = get_players_num_dungeon(game.hero_player_num);
     unsigned long k = 0;
     if (herodngn->num_active_creatrs > 0) {
-        heronum = ACTION_RANDOM(herodngn->num_active_creatrs);
+        heronum = PLAYER_RANDOM(game.hero_player_num, herodngn->num_active_creatrs);
         i = herodngn->creatr_list_start;
         SYNCDBG(4,"Selecting random creature %d out of %d heroes",(int)heronum,(int)herodngn->num_active_creatrs);
     } else {
@@ -235,7 +235,7 @@ TbBool steal_hero(struct PlayerInfo *player, struct Coord3d *pos)
     }
     else
     {
-        i = ACTION_RANDOM(sizeof(prefer_steal_models)/sizeof(prefer_steal_models[0]));
+        i = PLAYER_RANDOM(game.hero_player_num, sizeof(prefer_steal_models)/sizeof(prefer_steal_models[0]));
         struct Thing* creatng = create_creature(pos, prefer_steal_models[i], player->id_number);
         if (thing_is_invalid(creatng))
             return false;
@@ -492,10 +492,21 @@ void resurrect_creature(struct Thing *boxtng, PlayerNumber owner, ThingModel crm
 
 void transfer_creature(struct Thing *boxtng, struct Thing *transftng, unsigned char plyr_idx)
 {
-    SYNCDBG(7,"Starting");
-    if (!thing_exists(boxtng) || (box_thing_to_special(boxtng) != SpcKind_TrnsfrCrtr) ) {
-        ERRORMSG("Invalid transfer box object!");
-        return;
+    SYNCDBG(7, "Starting");
+    TbBool from_script = false;
+    struct DungeonAdd* dungeonadd;
+    struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
+    if (dungeon->dnheart_idx == boxtng->index)
+    {
+        from_script = true;
+    }
+
+    if (!from_script)
+    {
+        if (!thing_exists(boxtng) || (box_thing_to_special(boxtng) != SpcKind_TrnsfrCrtr)) {
+            ERRORMSG("Invalid transfer box object!");
+            return;
+        }
     }
     // Check if 'things' are correct
     if (!thing_exists(transftng) || !thing_is_creature(transftng) || (transftng->owner != plyr_idx)) {
@@ -504,13 +515,20 @@ void transfer_creature(struct Thing *boxtng, struct Thing *transftng, unsigned c
     }
 
     struct CreatureControl* cctrl = creature_control_get_from_thing(transftng);
-    set_transfered_creature(plyr_idx, transftng->model, cctrl->explevel);
+    if (add_transfered_creature(plyr_idx, transftng->model, cctrl->explevel))
+    {
+        dungeonadd = get_dungeonadd(plyr_idx);
+        dungeonadd->creatures_transferred++;
+    }
     remove_thing_from_power_hand_list(transftng, plyr_idx);
     kill_creature(transftng, INVALID_THING, -1, CrDed_NoEffects|CrDed_NotReallyDying);
-    create_special_used_effect(&boxtng->mappos, plyr_idx);
-    remove_events_thing_is_attached_to(boxtng);
-    force_any_creature_dragging_owned_thing_to_drop_it(boxtng);
-    delete_thing_structure(boxtng, 0);
+    if (!from_script)
+    {
+        create_special_used_effect(&boxtng->mappos, plyr_idx);
+        remove_events_thing_is_attached_to(boxtng);
+        force_any_creature_dragging_owned_thing_to_drop_it(boxtng);
+        delete_thing_structure(boxtng, 0);
+    }
     if (is_my_player_number(plyr_idx))
       output_message(SMsg_CommonAcknowledge, 0, true);
 }
@@ -547,22 +565,47 @@ void start_resurrect_creature(struct PlayerInfo *player, struct Thing *thing)
     }
 }
 
-TbBool create_transferred_creature_on_level(void)
+long create_transferred_creatures_on_level(void)
 {
-    if (intralvl.transferred_creature.model > 0)
+    struct Thing* creatng;
+    struct Thing* srcetng;
+    long creature_created = 0;
+    PlayerNumber plyr_idx;
+    for (int p = 0; p < PLAYERS_COUNT; p++)
     {
-        struct Thing* thing = get_player_soul_container(my_player_number);
-        struct Coord3d* pos = &(thing->mappos);
-        thing = create_creature(pos, intralvl.transferred_creature.model, 5);
-        if (thing_is_invalid(thing))
+        plyr_idx = game.neutral_player_num;
+        for (int i = 0; i < TRANSFER_CREATURE_STORAGE_COUNT; i++)
         {
-          return false;
+            if (intralvl.transferred_creatures[p][i].model > 0)
+            {
+                srcetng = get_player_soul_container(p);
+                if (p == game.hero_player_num)
+                {
+                    plyr_idx = p;
+                    if (thing_is_invalid(srcetng))
+                    {
+                        for (long n = 1; n < 16; n++)
+                        {
+                            srcetng = find_hero_gate_of_number(n);
+                            if (!thing_is_invalid(srcetng))
+                                break;
+                        }
+                    }
+                }
+
+                struct Coord3d* pos = &(srcetng->mappos);
+                creatng = create_creature(pos, intralvl.transferred_creatures[p][i].model, plyr_idx);
+                if (thing_is_invalid(creatng))
+                {
+                    continue;
+                }
+                init_creature_level(creatng, intralvl.transferred_creatures[p][i].explevel);
+                creature_created++;
+            }
         }
-        init_creature_level(thing, intralvl.transferred_creature.explevel);
-        clear_transfered_creature();
-        return true;
     }
-    return false;
+    clear_transfered_creatures();
+    return creature_created;
 }
 
 SpecialKind box_thing_to_special(const struct Thing *thing)

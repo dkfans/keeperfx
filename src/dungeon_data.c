@@ -59,7 +59,7 @@ struct Dungeon *get_dungeon_f(PlayerNumber plyr_num,const char *func_name)
 {
     if ((plyr_num < 0) || (plyr_num >= DUNGEONS_COUNT))
     {
-        ERRORLOG("%s: Tried to get non-existing dungeon %ld!",func_name,(long)plyr_num);
+        ERRORLOG("%s: Tried to get non-existing dungeon %d!", func_name, plyr_num);
         return INVALID_DUNGEON;
     }
     return &(game.dungeon[(int)plyr_num]);
@@ -310,6 +310,10 @@ TbBool set_trap_buildable_and_add_to_amount(PlayerNumber plyr_idx, ThingModel tn
     {
         dungeonadd->mnfct_info.trap_build_flags[tngmodel] |= MnfBldF_Manufacturable;
     }
+    else
+    {
+        dungeonadd->mnfct_info.trap_build_flags[tngmodel] &= ~MnfBldF_Manufacturable;
+    }
     dungeonadd->mnfct_info.trap_amount_offmap[tngmodel] += amount;
     dungeonadd->mnfct_info.trap_amount_placeable[tngmodel] += amount;
     if (amount > 0)
@@ -331,7 +335,13 @@ TbBool set_door_buildable_and_add_to_amount(PlayerNumber plyr_idx, ThingModel tn
         return false;
     }
     if (buildable)
+    {
         dungeonadd->mnfct_info.door_build_flags[tngmodel] |= MnfBldF_Manufacturable;
+    }
+    else
+    {
+       dungeonadd->mnfct_info.door_build_flags[tngmodel] &= ~MnfBldF_Manufacturable;
+    }
     dungeonadd->mnfct_info.door_amount_offmap[tngmodel] += amount;
     dungeonadd->mnfct_info.door_amount_placeable[tngmodel] += amount;
     if (amount > 0)
@@ -387,18 +397,33 @@ TbBool restart_script_timer(PlayerNumber plyr_idx, long timer_id)
     return true;
 }
 
+void add_to_script_timer(PlayerNumber plyr_idx, unsigned char timer_id, long value)
+{
+    if (timer_id >= TURN_TIMERS_COUNT) {
+        ERRORLOG("Can't manipulate timer; invalid timer id %d.",(int)timer_id);
+        return;
+    }
+    struct Dungeon* dungeon = get_dungeon(plyr_idx);
+    if (dungeon_invalid(dungeon)) {
+        ERRORLOG("Can't manipulate timer; player %d has no dungeon.",(int)plyr_idx);
+        return;
+    }
+    dungeon->turn_timers[timer_id].count -= value;
+}
+
 TbBool set_script_flag(PlayerNumber plyr_idx, long flag_id, long value)
 {
     if ( (flag_id < 0) || (flag_id >= SCRIPT_FLAGS_COUNT) ) {
         ERRORLOG("Can't set flag; invalid flag id %d.",(int)flag_id);
         return false;
     }
-    struct Dungeon* dungeon = get_dungeon(plyr_idx);
+    struct Dungeon* dungeon       = get_dungeon(plyr_idx);
+    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
     if (dungeon_invalid(dungeon)) {
         ERRORLOG("Can't set flag; player %d has no dungeon",(int)plyr_idx);
         return false;
     }
-    dungeon->script_flags[flag_id] = value;
+    dungeonadd->script_flags[flag_id] = value;
     return true;
 }
 

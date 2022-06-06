@@ -32,8 +32,8 @@
 #include "creature_graphics.h"
 #include "game_legacy.h"
 #include "engine_arrays.h"
-#include "gui_topmsg.h" 
 #include "kjm_input.h"
+#include "gui_topmsg.h" 
 
 #ifdef __cplusplus
 extern "C" {
@@ -92,10 +92,6 @@ struct Thing *allocate_free_thing_structure_f(unsigned char allocflags, const ch
 
 TbBool i_can_allocate_free_thing_structure(unsigned char allocflags)
 {
-    if (game.free_things_start_index > THINGS_COUNT - 5)
-    {
-        show_onscreen_msg(game.num_fps, "Warning: thing slots used %d/%d", game.free_things_start_index+1, THINGS_COUNT);
-    }
     // Check if there are free slots
     if (game.free_things_start_index < THINGS_COUNT-1)
         return true;
@@ -103,13 +99,19 @@ TbBool i_can_allocate_free_thing_structure(unsigned char allocflags)
     if ((allocflags & FTAF_FreeEffectIfNoSlots) != 0)
     {
         if (game.thing_lists[TngList_EffectElems].index > 0)
+        {
             return true;
+        }
     }
     // Couldn't find free slot - fail
     if ((allocflags & FTAF_LogFailures) != 0)
     {
         ERRORLOG("Cannot allocate thing structure.");
         things_stats_debug_dump();
+    }
+    if ((game.free_things_start_index > THINGS_COUNT - 2) && ((allocflags & FTAF_FreeEffectIfNoSlots) != 0))
+    {
+        show_onscreen_msg(2 * game.num_fps, "Warning: Cannot create thing, %d/%d thing slots used.", game.free_things_start_index + 1, THINGS_COUNT);
     }
     return false;
 }
@@ -256,7 +258,7 @@ void set_thing_draw(struct Thing *thing, long anim, long speed, long scale, char
     } else
     if (start_frame == -1)
     {
-      i = ACTION_RANDOM(thing->field_49);
+      i = CREATURE_RANDOM(thing, thing->field_49);
       thing->field_48 = i;
       thing->field_40 = i << 8;
     } else
@@ -293,7 +295,7 @@ void query_thing(struct Thing *thing)
         if (querytng->class_id == TCls_Trap)
         {
             struct ManfctrConfig *mconf = &gameadd.traps_config[querytng->model];
-            sprintf(output, "Shots: %d/%d", querytng->trap.num_shots, mconf->shots);
+            sprintf((char*)health, "Shots: %d/%d", querytng->trap.num_shots, mconf->shots);
         }
         else
         {

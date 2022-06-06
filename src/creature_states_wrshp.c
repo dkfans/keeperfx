@@ -21,6 +21,7 @@
 
 #include "bflib_math.h"
 #include "creature_states.h"
+#include "creature_states_mood.h"
 #include "thing_list.h"
 #include "creature_control.h"
 #include "creature_instances.h"
@@ -129,7 +130,7 @@ struct Thing *get_other_creature_manufacturing_on_subtile(PlayerNumber plyr_idx,
         if (thing_is_creature(thing) && (thing->active_state == CrSt_Manufacturing) && (thing->index != othertng->index))
         {
             struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-            if ((cctrl->byte_9A > 1) && (thing->owner == plyr_idx)) {
+            if ((cctrl->job_stage > 1) && (thing->owner == plyr_idx)) {
                 return thing;
             }
         }
@@ -187,8 +188,8 @@ TbBool setup_move_to_new_workshop_position(struct Thing *thing, struct Room *roo
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     if ( a3 )
         cctrl->byte_9E = 50;
-    cctrl->byte_9A = 1;
-    SubtlCodedCoords stl_num = find_position_around_in_room(&thing->mappos, thing->owner, room->kind);
+    cctrl->job_stage = 1;
+    SubtlCodedCoords stl_num = find_position_around_in_room(&thing->mappos, thing->owner, room->kind, thing);
     if (stl_num <= 0)
     {
         WARNLOG("Could not find position around in %s of %d slabs",room_code_name(room->kind),(int)room->slabs_count);
@@ -223,7 +224,7 @@ void setup_workshop_search_for_post(struct Thing *creatng)
     struct Thing* postng = INVALID_THING;
     struct Room* room = get_room_thing_is_on(creatng);
     // Find a random slab in the room to be used as our starting point
-    long i = ACTION_RANDOM(room->slabs_count);
+    long i = CREATURE_RANDOM(creatng, room->slabs_count);
     unsigned long n = room->slabs_list;
     while (i > 0)
     {
@@ -276,8 +277,8 @@ long process_creature_in_workshop(struct Thing *creatng, struct Room *room)
     long mvret;
     MapSlabCoord slb_x;
     MapSlabCoord slb_y;
-    SYNCDBG(19,"Work in %s, the %s in state %d",room_code_name(room->kind),thing_model_name(creatng),(int)cctrl->byte_9A);
-    switch (cctrl->byte_9A)
+    SYNCDBG(19,"Work in %s, the %s in state %d",room_code_name(room->kind),thing_model_name(creatng),(int)cctrl->job_stage);
+    switch (cctrl->job_stage)
     {
     case 1:
         cctrl->byte_9E--;
@@ -291,7 +292,7 @@ long process_creature_in_workshop(struct Thing *creatng, struct Room *room)
         if (mvret != 1)
         {
             if (mvret == -1) {
-                SYNCDBG(9,"Room %s move problem, the %s goes from %d to start state",room_code_name(room->kind),thing_model_name(creatng),(int)cctrl->byte_9A);
+                SYNCDBG(9,"Room %s move problem, the %s goes from %d to start state",room_code_name(room->kind),thing_model_name(creatng),(int)cctrl->job_stage);
                 set_start_state(creatng);
             }
             break;
@@ -302,12 +303,12 @@ long process_creature_in_workshop(struct Thing *creatng, struct Room *room)
         objtng = get_workshop_equipment_to_work_with_on_subtile(creatng->owner, slab_subtile_center(slb_x),slab_subtile_center(slb_y));
         if (!thing_is_invalid(objtng))
         {
-            SYNCDBG(19,"Got %s post, the %s goes from %d to 2",room_code_name(room->kind),thing_model_name(creatng),(int)cctrl->byte_9A);
-            cctrl->byte_9A = 2;
+            SYNCDBG(19,"Got %s post, the %s goes from %d to 2",room_code_name(room->kind),thing_model_name(creatng),(int)cctrl->job_stage);
+            cctrl->job_stage = 2;
             cctrl->byte_9E = 100;
             break;
         }
-        SYNCDBG(19,"No %s post at current pos, the %s goes from %d to search position",room_code_name(room->kind),thing_model_name(creatng),(int)cctrl->byte_9A);
+        SYNCDBG(19,"No %s post at current pos, the %s goes from %d to search position",room_code_name(room->kind),thing_model_name(creatng),(int)cctrl->job_stage);
         setup_move_to_new_workshop_position(creatng, room, 0);
         break;
     case 2:
@@ -320,11 +321,11 @@ long process_creature_in_workshop(struct Thing *creatng, struct Room *room)
             cctrl->byte_9C = slab_subtile_center(slb_x);
             cctrl->byte_9D = slab_subtile_center(slb_y);
             setup_workshop_move(creatng, stl_num);
-            cctrl->byte_9A = 3;
+            cctrl->job_stage = 3;
             break;
         }
-        SYNCDBG(9,"No free adjacent %s post, the %s goes from %d to search position",room_code_name(room->kind),thing_model_name(creatng),(int)cctrl->byte_9A);
         setup_move_to_new_workshop_position(creatng, room, 1);
+        SYNCDBG(9,"No free adjacent %s post, the %s goes from %d to search position",room_code_name(room->kind),thing_model_name(creatng),(int)cctrl->job_stage);
         break;
     }
     case 3:
@@ -333,7 +334,7 @@ long process_creature_in_workshop(struct Thing *creatng, struct Room *room)
         if (mvret != 1)
         {
             if (mvret == -1) {
-                SYNCDBG(9,"Room %s move problem, the %s goes from %d to start state",room_code_name(room->kind),thing_model_name(creatng),(int)cctrl->byte_9A);
+                SYNCDBG(9,"Room %s move problem, the %s goes from %d to start state",room_code_name(room->kind),thing_model_name(creatng),(int)cctrl->job_stage);
                 set_start_state(creatng);
             }
             break;
@@ -341,11 +342,11 @@ long process_creature_in_workshop(struct Thing *creatng, struct Room *room)
         struct Thing *mnfc_creatng;
         mnfc_creatng = get_other_creature_manufacturing_on_subtile(creatng->owner, creatng->mappos.x.stl.num, creatng->mappos.y.stl.num, creatng);
         if (thing_is_invalid(mnfc_creatng)) {
-            cctrl->byte_9A = 4;
+            cctrl->job_stage = 4;
             break;
         }
         // Position used by another manufacturer
-        SYNCDBG(9,"The %s post already in use, the %s goes from %d to search position",room_code_name(room->kind),thing_model_name(creatng),(int)cctrl->byte_9A);
+        SYNCDBG(9,"The %s post already in use, the %s goes from %d to search position",room_code_name(room->kind),thing_model_name(creatng),(int)cctrl->job_stage);
         setup_move_to_new_workshop_position(creatng, room, 1);
         break;
     }
@@ -356,7 +357,7 @@ long process_creature_in_workshop(struct Thing *creatng, struct Room *room)
         pos.y.val = subtile_coord_center(cctrl->byte_9D);
         if (creature_turn_to_face(creatng, &pos) < LbFPMath_PI/18)
         {
-            cctrl->byte_9A = 5;
+            cctrl->job_stage = 5;
             cctrl->byte_9B = 75;
         }
         break;
@@ -366,7 +367,7 @@ long process_creature_in_workshop(struct Thing *creatng, struct Room *room)
         cctrl->byte_9B--;
         if (cctrl->byte_9B <= 0)
         {
-            SYNCDBG(9,"Room %s move counter %d, the %s keeps moving in state %d",room_code_name(room->kind),(int)cctrl->byte_9B,thing_model_name(creatng),(int)cctrl->byte_9A);
+            SYNCDBG(9,"Room %s move counter %d, the %s keeps moving in state %d",room_code_name(room->kind),(int)cctrl->byte_9B,thing_model_name(creatng),(int)cctrl->job_stage);
             setup_move_to_new_workshop_position(creatng, room, 1);
         } else
         if ((cctrl->byte_9B % 8) == 0) {
@@ -374,6 +375,7 @@ long process_creature_in_workshop(struct Thing *creatng, struct Room *room)
         }
         break;
     }
+    process_job_stress_and_going_postal(creatng);
     return 1;
 }
 
@@ -404,8 +406,7 @@ short manufacturing(struct Thing *creatng)
     } else
     {
         WARNDBG(9,"The %s index %d owner %d is manufacturing nothing",thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
-        // This may be cause by a creature taking up place in workshop where crate should be created; the creature should take a break
-        if (room->used_capacity >= room->total_capacity) {
+        if (room->used_capacity > room->total_capacity) {
             external_set_thing_state(creatng, CrSt_CreatureGoingHomeToSleep);
             return CrStRet_Modified;
         }

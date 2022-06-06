@@ -60,13 +60,68 @@
 #include "keeperfx.hpp"
 #include "vidfade.h"
 #include "kjm_input.h"
+#include "custom_sprites.h"
+
+struct Around const draw_square[] = {
+{ 0, 0},
+{ 1, 0},{ 1, 1},{ 0, 1},{-1, 1},{-1, 0},{-1,-1},{ 0,-1},
+{ 1,-1},{ 2,-1},{ 2, 0},{ 2, 1},{ 2, 2},{ 1, 2},{ 0, 2},
+{-1, 2},{-2, 2},{-2, 1},{-2, 0},{-2,-1},{-2,-2},{-1,-2},
+{ 0,-2},{ 1,-2},{ 2,-2},{ 3,-2},{ 3,-1},{ 3, 0},{ 3, 1},
+{ 3, 2},{ 3, 3},{ 2, 3},{ 1, 3},{ 0, 3},{-1, 3},{-2, 3}
+};
+
+const short pixels_needed[] = {
+    1,
+    1,
+    AROUND_2x2_PIXEL,
+    AROUND_3x3_PIXEL,
+    AROUND_4x4_PIXEL,
+    AROUND_5x5_PIXEL,
+    AROUND_6x6_PIXEL,
+};
 
 /******************************************************************************/
 /******************************************************************************/
+
+short scale_pixel(long basic_zoom)
+{
+    short pixels_per_map_dot = 5;
+    if (basic_zoom >= ONE_PIXEL)
+    {
+        pixels_per_map_dot = 1;
+    }
+    else if (basic_zoom >= TWO_PIXELS)
+    {
+        pixels_per_map_dot = 2;
+    }
+    else if (basic_zoom >= THREE_PIXELS)
+    {
+        pixels_per_map_dot = 3;
+    }
+    else if (basic_zoom >= FOUR_PIXELS)
+    {
+        pixels_per_map_dot = 4;
+    } // 128 = 5
+
+    short draw_pixels = scale_fixed_DK_value(pixels_per_map_dot) * 2 / 5;
+    if (draw_pixels > 6)
+    {
+        draw_pixels = 6; // We just support 6 pixels for now
+    }
+    return draw_pixels;
+}
+
+short get_pixels_scaled_and_zoomed(long basic_zoom)
+{
+    short draw_pixels = scale_pixel(basic_zoom);
+    return pixels_needed[draw_pixels];
+}
+
 void gui_zoom_in(struct GuiButton *gbtn)
 {
     struct PlayerInfo* player = get_my_player();
-    if (player->minimap_zoom > 0x80) {
+    if (player->minimap_zoom > 128) {
         set_players_packet_action(player, PckA_SetMinimapConf, player->minimap_zoom >> 1, 0, 0, 0);
     }
 }
@@ -74,7 +129,7 @@ void gui_zoom_in(struct GuiButton *gbtn)
 void gui_zoom_out(struct GuiButton *gbtn)
 {
     struct PlayerInfo* player = get_my_player();
-    if (player->minimap_zoom < 0x800) {
+    if (player->minimap_zoom < 2048) {
         set_players_packet_action(player, PckA_SetMinimapConf, player->minimap_zoom << 1, 0, 0, 0);
     }
 }
@@ -868,6 +923,20 @@ void gui_go_to_next_door(struct GuiButton *gbtn)
     game.manufactr_tooltip = manufctr->tooltip_stridx;
 }
 
+void gui_over_creature_button(struct GuiButton* gbtn)
+{
+    SYNCDBG(8, "Starting");
+    long i = gbtn->btype_value & LbBFeF_IntValueMask;
+    ThingModel crmodel;
+    if (i > 0) {
+        crmodel = breed_activities[(top_of_breed_list + i) % CREATURE_TYPES_COUNT];
+    }
+    else {
+        crmodel = get_players_special_digger_model(my_player_number);
+    }
+    gui_creature_type_highlighted = crmodel;
+}
+
 void gui_over_door_button(struct GuiButton *gbtn)
 {
     int manufctr_idx = (long)gbtn->content;
@@ -1066,7 +1135,7 @@ void maintain_door(struct GuiButton *gbtn)
 
 void maintain_big_trap(struct GuiButton *gbtn)
 {
-    int manufctr_idx = game.manufactr_element % MANUFCTR_TYPES_COUNT;
+    int manufctr_idx = game.manufactr_element % gameadd.trapdoor_conf.manufacture_types_count;
     struct ManufactureData* manufctr = get_manufacture_data(manufctr_idx);
     gbtn->content = (unsigned long *)manufctr_idx;
     gbtn->sprite_idx = game.manufactr_spridx;
@@ -1090,7 +1159,7 @@ void draw_centred_string64k(const char *text, short x, short y, short base_w, sh
     LbTextSetJustifyWindow((x - (dst_w / 2)), y, dst_w);
     LbTextSetClipWindow( (x - (dst_w / 2)), y, dst_w, 16*dst_w/base_w);
     lbDisplay.DrawFlags |= Lb_TEXT_HALIGN_CENTER;
-    LbTextDrawResized(0, -6*dst_w/base_w, 16*dst_w/base_w, text);
+    LbTextDrawResized(0, -6*dst_w/base_w, (22 * units_per_pixel) / LbTextLineHeight(), text);
     LbTextSetJustifyWindow(0, 0, LbGraphicsScreenWidth());
     LbTextSetClipWindow(0, 0, LbGraphicsScreenWidth(), LbGraphicsScreenHeight());
     LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
@@ -1149,9 +1218,9 @@ void gui_creature_query_background1(struct GuiMenu *gmnu)
     if (thing_is_creature(ctrltng) && (ctrltng->ccontrol_idx > 0))
     {
         long spr_idx = get_creature_model_graphics(ctrltng->model, CGI_QuerySymbol);
-        struct TbSprite* spr = &button_sprite[spr_idx];
+        const struct TbSprite* spr = get_button_sprite(spr_idx);
         int bs_units_per_px = (gmnu->width * 35 / 100) * 16 / spr->SWidth;
-        LbSpriteDrawResized(portrt_x + 12*units_per_px/16, portrt_y + 12*units_per_px/16, bs_units_per_px, &button_sprite[spr_idx]);
+        LbSpriteDrawResized(portrt_x + 12*units_per_px/16, portrt_y + 12*units_per_px/16, bs_units_per_px, get_button_sprite(spr_idx));
     }
     {
         struct TbSprite* spr = &gui_panel_sprites[464];
@@ -1838,7 +1907,7 @@ void maintain_event_button(struct GuiButton *gbtn)
     {
         activate_event_box(evidx);
     }
-    gbtn->sprite_idx = event_button_info[event->kind].field_0;
+    gbtn->sprite_idx = event_button_info[event->kind].bttn_sprite;
     if (((event->kind == EvKind_FriendlyFight) || (event->kind == EvKind_EnemyFight))
         && ((event->mappos_x != 0) || (event->mappos_y != 0)) && ((game.play_gameturn & 0x01) != 0))
     {
@@ -1910,7 +1979,7 @@ void maintain_prison_bar(struct GuiButton *gbtn)
     }
 }
 
-void maintain_room_and_creature_button(struct GuiButton *gbtn)
+void maintain_room_button(struct GuiButton *gbtn)
 {
     PlayerNumber plyr_idx = (int)gbtn->content;
     struct PlayerInfo* player = get_player(plyr_idx);
@@ -1925,41 +1994,65 @@ void maintain_room_and_creature_button(struct GuiButton *gbtn)
         gbtn->tooltip_stridx = 201;
     }
 }
+void maintain_creature_button(struct GuiButton* gbtn)
+{
+    PlayerNumber plyr_idx = (int)gbtn->content;
+    struct PlayerInfo* player = get_player(plyr_idx);
+    if (player_exists(player))
+    {
+        if (player_has_heart(plyr_idx))
+        {
+            gbtn->sprite_idx = 323 + (plyr_idx * 2);
+        }
+        else
+        {
+            gbtn->sprite_idx = 535 + (plyr_idx);
+        }
+        gbtn->btype_value &= LbBFeF_IntValueMask;
+        gbtn->flags |= LbBtnF_Enabled;
+    }
+    else
+    {
+        gbtn->btype_value |= LbBFeF_NoMouseOver;
+        gbtn->flags &= ~LbBtnF_Enabled;
+        gbtn->tooltip_stridx = 201;
+    }
+}
 
 void pick_up_next_wanderer(struct GuiButton *gbtn)
 {
     unsigned short pick_flags = get_creature_pick_flags(1);
-    pick_up_creature_of_model_and_gui_job(-1, CrGUIJob_Wandering, my_player_number, pick_flags);
+    pick_up_creature_of_model_and_gui_job(CREATURE_ANY, CrGUIJob_Wandering, my_player_number, pick_flags);
 }
 
 void gui_go_to_next_wanderer(struct GuiButton *gbtn)
 {
     unsigned short pick_flags = get_creature_pick_flags(0);
-    go_to_next_creature_of_model_and_gui_job(-1, CrGUIJob_Wandering, pick_flags);
+    go_to_next_creature_of_model_and_gui_job(CREATURE_ANY, CrGUIJob_Wandering, pick_flags);
 }
 
 void pick_up_next_worker(struct GuiButton *gbtn)
 {
     unsigned short pick_flags = get_creature_pick_flags(1);
-    pick_up_creature_of_model_and_gui_job(-1, CrGUIJob_Working, my_player_number, pick_flags);
+    pick_up_creature_of_model_and_gui_job(CREATURE_ANY, CrGUIJob_Working, my_player_number, pick_flags);
 }
 
 void gui_go_to_next_worker(struct GuiButton *gbtn)
 {
     unsigned short pick_flags = get_creature_pick_flags(0);
-    go_to_next_creature_of_model_and_gui_job(-1, CrGUIJob_Working, pick_flags);
+    go_to_next_creature_of_model_and_gui_job(CREATURE_ANY, CrGUIJob_Working, pick_flags);
 }
 
 void pick_up_next_fighter(struct GuiButton *gbtn)
 {
     unsigned short pick_flags = get_creature_pick_flags(1);
-    pick_up_creature_of_model_and_gui_job(-1, CrGUIJob_Fighting, my_player_number, pick_flags);
+    pick_up_creature_of_model_and_gui_job(CREATURE_ANY, CrGUIJob_Fighting, my_player_number, pick_flags);
 }
 
 void gui_go_to_next_fighter(struct GuiButton *gbtn)
 {
     unsigned short pick_flags = get_creature_pick_flags(0);
-    go_to_next_creature_of_model_and_gui_job(-1, CrGUIJob_Fighting, pick_flags);
+    go_to_next_creature_of_model_and_gui_job(CREATURE_ANY, CrGUIJob_Fighting, pick_flags);
 }
 
 void gui_area_payday_button(struct GuiButton *gbtn)
@@ -2127,7 +2220,7 @@ void draw_whole_status_panel(void)
     lbDisplay.DrawFlags = 0;
     LbTiledSpriteDraw(0, 0, fs_units_per_px, &status_panel, gui_panel_sprites);
     // Draws gold amount; note that button_sprite[] is used instead of full font
-    draw_gold_total(player->id_number, gmnu->pos_x + gmnu->width/2, gmnu->pos_y + gmnu->height*67/200, bs_units_per_px, dungeon->total_money_owned);
+    draw_gold_total(player->id_number, gmnu->pos_x + gmnu->width/2, gmnu->pos_y + gmnu->height*67/200, fs_units_per_px, dungeon->total_money_owned);
     if (16/mm_units_per_px < 3)
         mmzoom = (player->minimap_zoom) / scale_value_for_resolution_with_upp(2,mm_units_per_px);
     else
@@ -2218,6 +2311,12 @@ void update_trap_tab_to_config(void)
         default:
             break;
         }
+    }
+    // Update active menu
+    if ( menu_is_active(GMnu_TRAP) )
+    {
+        turn_off_menu(GMnu_TRAP);
+        turn_on_menu(GMnu_TRAP);
     }
 }
 

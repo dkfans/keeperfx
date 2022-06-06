@@ -27,6 +27,7 @@
 #include "gui_draw.h"
 #include "frontend.h"
 #include "game_legacy.h"
+#include "frontmenu_ingame_evnt.h"
 
 #include "keeperfx.hpp"
 
@@ -44,77 +45,98 @@ void message_draw(void)
     }
     int h = LbTextLineHeight();
     long y = 28 * units_per_pixel / 16;
+    if (game.armageddon_cast_turn != 0)
+    {
+        if ( (bonus_timer_enabled()) || (script_timer_enabled()) || display_variable_enabled() )
+        {
+            y += h*units_per_pixel/16;
+        }
+    }
     for (int i = 0; i < game.active_messages_count; i++)
     {
-        long x = 148 * units_per_pixel / 16;
-        LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
-        set_flag_word(&lbDisplay.DrawFlags,Lb_TEXT_ONE_COLOR,false);
-        LbTextDrawResized(x+32*units_per_pixel/16, y, tx_units_per_px, gameadd.messages[i].text);
-        unsigned long spr_idx = 0;
-        TbBool IsCreature = false; 
-        TbBool IsCreatureSpell = false; 
-        TbBool IsRoom = false;
-        TbBool IsKeeperSpell = false;
-        TbBool IsQuery = false;
-        TbBool NotPlayer = ((char)gameadd.messages[i].plyr_idx < 0);
-        if (NotPlayer)
+        if ( (gameadd.messages[i].target_idx == my_player_number) || (gameadd.messages[i].target_idx == -1) )
         {
-            IsCreature = ( ((char)gameadd.messages[i].plyr_idx >= -31) && ((char)gameadd.messages[i].plyr_idx <= -1) );
-            IsCreatureSpell = ((char)gameadd.messages[i].plyr_idx >= -78) && ((char)gameadd.messages[i].plyr_idx <= -32);
-            IsRoom = ((char)gameadd.messages[i].plyr_idx >= -94) && ((char)gameadd.messages[i].plyr_idx <= -79);
-            IsKeeperSpell = ((char)gameadd.messages[i].plyr_idx >= -113) && ((char)gameadd.messages[i].plyr_idx <= -95);
-            IsQuery = ((char)gameadd.messages[i].plyr_idx >= -123) && ((char)gameadd.messages[i].plyr_idx <= -114);
-            if (IsCreature)
+            long x = 148 * units_per_pixel / 16;
+            LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
+            set_flag_word(&lbDisplay.DrawFlags,Lb_TEXT_ONE_COLOR,false);
+            LbTextDrawResized(x+32*units_per_pixel/16, y, tx_units_per_px, gameadd.messages[i].text);
+            unsigned long spr_idx = 0;
+            TbBool IsCreature = false; 
+            TbBool IsCreatureSpell = false; 
+            TbBool IsRoom = false;
+            TbBool IsKeeperSpell = false;
+            TbBool IsQuery = false;
+            TbBool NotPlayer = ((char)gameadd.messages[i].plyr_idx < 0);
+            if (NotPlayer)
             {
-                spr_idx = get_creature_model_graphics(((~gameadd.messages[i].plyr_idx) + 1), CGI_HandSymbol);
-                x -= (7 * units_per_pixel / 16);
-                y -= (20 * units_per_pixel / 16);
+                IsCreature = ( ((char)gameadd.messages[i].plyr_idx >= -31) && ((char)gameadd.messages[i].plyr_idx <= -1) );
+                IsCreatureSpell = ((char)gameadd.messages[i].plyr_idx >= -78) && ((char)gameadd.messages[i].plyr_idx <= -32);
+                IsRoom = ((char)gameadd.messages[i].plyr_idx >= -94) && ((char)gameadd.messages[i].plyr_idx <= -79);
+                IsKeeperSpell = ((char)gameadd.messages[i].plyr_idx >= -113) && ((char)gameadd.messages[i].plyr_idx <= -95);
+                IsQuery = ((char)gameadd.messages[i].plyr_idx >= -123) && ((char)gameadd.messages[i].plyr_idx <= -114);
+                if (IsCreature)
+                {
+                    spr_idx = get_creature_model_graphics(((~gameadd.messages[i].plyr_idx) + 1), CGI_HandSymbol);
+                    x -= (7 * units_per_pixel / 16);
+                    y -= (20 * units_per_pixel / 16);
+                }
+                else if (IsCreatureSpell)
+                {
+                    spr_idx = instance_button_init[~(char)(((char)gameadd.messages[i].plyr_idx) + 31) + 1].symbol_spridx;
+                    x -= (10 * units_per_pixel / 16);
+                    y -= (10 * units_per_pixel / 16);
+                }
+                else if (IsRoom)
+                {
+                    struct RoomData* rdata = room_data_get_for_kind(~(char)(((char)gameadd.messages[i].plyr_idx) + 78) + 1);
+                    spr_idx = rdata->medsym_sprite_idx;
+                    x -= (10 * units_per_pixel / 16);
+                    y -= (10 * units_per_pixel / 16);
+                }
+                else if (IsKeeperSpell)
+                {
+                    struct PowerConfigStats* powerst = get_power_model_stats(~(char)(((char)gameadd.messages[i].plyr_idx) + 94) + 1);
+                    spr_idx = powerst->medsym_sprite_idx;
+                    x -= (10 * units_per_pixel / 16);
+                    y -= (10 * units_per_pixel / 16);
+                }
+                else if (IsQuery)
+                {
+                    spr_idx = (~(char)(((char)gameadd.messages[i].plyr_idx) + 113) + 1) + 330;
+                    x -= (10 * units_per_pixel / 16);
+                    y -= (10 * units_per_pixel / 16);
+                }
             }
-            else if (IsCreatureSpell)
+            else
             {
-                spr_idx = instance_button_init[~(char)(((char)gameadd.messages[i].plyr_idx) + 31) + 1].symbol_spridx;
-                x -= (10 * units_per_pixel / 16);
-                y -= (10 * units_per_pixel / 16);
+                if (gameadd.messages[i].plyr_idx == game.hero_player_num)
+                {
+                    spr_idx = 533;
+                }
+                else if (gameadd.messages[i].plyr_idx == game.neutral_player_num)
+                {
+                    spr_idx = ((game.play_gameturn >> 1) & 3) + 488;
+                }
+                else
+                {
+                    spr_idx = ((player_has_heart(gameadd.messages[i].plyr_idx)) ? 488 : 535) + gameadd.messages[i].plyr_idx;
+                }
             }
-            else if (IsRoom)
+            if (gameadd.messages[i].plyr_idx != 127)
             {
-                struct RoomData* rdata = room_data_get_for_kind(~(char)(((char)gameadd.messages[i].plyr_idx) + 78) + 1);
-                spr_idx = rdata->medsym_sprite_idx;
-                x -= (10 * units_per_pixel / 16);
-                y -= (10 * units_per_pixel / 16);
+                draw_gui_panel_sprite_left(x, y, ps_units_per_px, spr_idx);
             }
-            else if (IsKeeperSpell)
+            y += h*units_per_pixel/16;
+            if (NotPlayer)
             {
-                struct PowerConfigStats* powerst = get_power_model_stats(~(char)(((char)gameadd.messages[i].plyr_idx) + 94) + 1);
-                spr_idx = powerst->medsym_sprite_idx;
-                x -= (10 * units_per_pixel / 16);
-                y -= (10 * units_per_pixel / 16);
-            }
-            else if (IsQuery)
-            {
-                spr_idx = (~(char)(((char)gameadd.messages[i].plyr_idx) + 113) + 1) + 330;
-                x -= (10 * units_per_pixel / 16);
-                y -= (10 * units_per_pixel / 16);
-            }
-        }
-        else
-        {
-            spr_idx = 488+gameadd.messages[i].plyr_idx;
-        }
-        if (gameadd.messages[i].plyr_idx != 127)
-        {
-            draw_gui_panel_sprite_left(x, y, ps_units_per_px, spr_idx);
-        }
-        y += h*units_per_pixel/16;
-        if (NotPlayer)
-        {
-            if (IsCreature)
-            {
-                y += (20 * units_per_pixel / 16);
-            }
-            else if ( (IsCreatureSpell) || (IsRoom) || (IsKeeperSpell) || (IsQuery) )
-            {
-                y += (10 * units_per_pixel / 16);
+                if (IsCreature)
+                {
+                    y += (20 * units_per_pixel / 16);
+                }
+                else if ( (IsCreatureSpell) || (IsRoom) || (IsKeeperSpell) || (IsQuery) )
+                {
+                    y += (10 * units_per_pixel / 16);
+                }
             }
         }        
     }
@@ -181,6 +203,7 @@ void message_add(PlayerNumber plyr_idx, const char *text)
     strncpy(gameadd.messages[0].text, text, sizeof(gameadd.messages[0].text) - 1);
     gameadd.messages[0].plyr_idx = plyr_idx;
     gameadd.messages[0].creation_turn = game.play_gameturn + GUI_MESSAGES_DELAY;
+    gameadd.messages[0].target_idx = -1;
     if (game.active_messages_count < GUI_MESSAGES_COUNT) {
         game.active_messages_count++;
     }
@@ -201,7 +224,7 @@ void message_add_fmt(PlayerNumber plyr_idx, const char *fmt_str, ...)
     va_end(val);
 }
 
-void message_add_timeout(PlayerNumber plyr_idx, unsigned long timeout, const char *fmt_str, ...)
+void targeted_message_add(PlayerNumber plyr_idx, PlayerNumber target_idx, unsigned long timeout, const char *fmt_str, ...)
 {
     va_list val;
     va_start(val, fmt_str);
@@ -215,6 +238,7 @@ void message_add_timeout(PlayerNumber plyr_idx, unsigned long timeout, const cha
     strncpy(gameadd.messages[0].text, full_msg_text, sizeof(gameadd.messages[0].text) - 1);
     gameadd.messages[0].plyr_idx = plyr_idx;
     gameadd.messages[0].creation_turn = game.play_gameturn + timeout;
+    gameadd.messages[0].target_idx = target_idx;
     if (game.active_messages_count < GUI_MESSAGES_COUNT) {
         game.active_messages_count++;
     }
@@ -225,13 +249,13 @@ void show_game_time_taken(unsigned long fps, unsigned long turns)
 {
     struct GameTime gt = get_game_time(turns, fps);
     struct PlayerInfo* player = get_my_player();
-    message_add_fmt(player->id_number, "%s: %02ld:%02ld:%02ld", get_string(746), gt.Hours, gt.Minutes, gt.Seconds);
+    targeted_message_add(player->id_number, player->id_number, GUI_MESSAGES_DELAY, "%s: %02ld:%02ld:%02ld", get_string(746), gt.Hours, gt.Minutes, gt.Seconds);
 }
 
 void show_real_time_taken(void)
 {
     update_time();
     struct PlayerInfo* player = get_my_player();
-    message_add_fmt(player->id_number, "%s: %02ld:%02ld:%02ld:%03ld", get_string(746), Timer.Hours, Timer.Minutes, Timer.Seconds, Timer.MSeconds);
+    targeted_message_add(player->id_number, player->id_number, GUI_MESSAGES_DELAY, "%s: %02ld:%02ld:%02ld:%03ld", get_string(746), Timer.Hours, Timer.Minutes, Timer.Seconds, Timer.MSeconds);
 }
 /******************************************************************************/

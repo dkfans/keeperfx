@@ -118,6 +118,8 @@ TbBool is_door_placeable(PlayerNumber plyr_idx, long door_idx);
 TbBool is_door_buildable(PlayerNumber plyr_idx, long door_idx);
 TbBool is_door_built(PlayerNumber plyr_idx, long door_idx);
 TbBool create_manufacture_array_from_trapdoor_data(void);
+TbBool make_available_all_doors(PlayerNumber plyr_idx);
+TbBool make_available_all_traps(PlayerNumber plyr_idx);
 
 /******************************************************************************/
 #ifdef __cplusplus

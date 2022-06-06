@@ -42,7 +42,6 @@ DLLIMPORT long _DK_anim_counter;
 
 extern unsigned char block_mem[TEXTURE_FILES_COUNT * TEXTURE_BLOCKS_STAT_COUNT * 32 * 32];
 extern unsigned char *block_ptrs[TEXTURE_FILES_COUNT * TEXTURE_BLOCKS_COUNT];
-extern unsigned char slab_ext_data[85 * 85];
 extern long block_dimension;
 /******************************************************************************/
 void setup_texture_block_mem(void);

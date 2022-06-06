@@ -6604,13 +6604,13 @@ msgstr ""
 msgctxt "In-game interface description"
 msgid ""
 "Health: How much health points the creature has left to lose."
-msgstr ""
+msgstr "Zdrowie: Ilość punktów zdrowia, która pozostała stworowi."
 
 #: guitext:966
 msgctxt "In-game interface description"
 msgid ""
 "Health: The maximum amount of health points for this creature."
-msgstr ""
+msgstr "Zdrowie: Maksymalna ilość punktów zdrowia stwora.""
 
 #: guitext:967
 msgctxt "Menu interface item"
@@ -6660,17 +6660,17 @@ msgstr ""
 #: guitext:976 guitext:977 guitext:978 guitext:979 guitext:980
 msgctxt "Unused"
 msgid "Moo3"
-msgstr ""
+msgstr "Muuu3"
 
 #: guitext:981
 msgctxt "Trap names"
 msgid "Special Trap"
-msgstr ""
+msgstr "Pułapka specjalna"
 
 #: guitext:982
 msgctxt "Trap names"
 msgid "Freeze Trap"
-msgstr ""
+msgstr "Pułapka zamrażająca"
 
 #: guitext:983
 msgctxt "Trap names"
@@ -6695,7 +6695,7 @@ msgstr ""
 #: guitext:987
 msgctxt "Trap names"
 msgid "Wind Trap"
-msgstr ""
+msgstr "Pułapka huraganu"
 
 #: guitext:988
 msgctxt "Trap names"
@@ -6705,37 +6705,37 @@ msgstr ""
 #: guitext:989
 msgctxt "Trap names"
 msgid "Chicken Trap"
-msgstr ""
+msgstr "Pułapka kurczaka"
 
 #: guitext:990
 msgctxt "Trap names"
 msgid "Disease Trap"
-msgstr ""
+msgstr "Pułapka choroby"
 
 #: guitext:991
 msgctxt "Trap names"
 msgid "Power Trap"
-msgstr ""
+msgstr "Pułapka mocy"
 
 #: guitext:992
 msgctxt "Trap names"
 msgid "Switch"
-msgstr ""
+msgstr "Przełącznik"
 
 #: guitext:993
 msgctxt "Trap names"
 msgid "Hidden Switch"
-msgstr ""
+msgstr "Ukryty Przełącznik"
 
 #: guitext:994
 msgctxt "Door name"
 msgid "Special Door"
-msgstr ""
+msgstr "Drzwi specjalne"
 
 #: guitext:995
 msgctxt "Door name"
 msgid "Hidden Door"
-msgstr ""
+msgstr "Ukryte Drzwi"
 
 #: guitext:996
 msgctxt "Mouse"
@@ -6750,7 +6750,7 @@ msgstr ""
 #: guitext:998
 msgctxt "Mouse"
 msgid "Mouse Button"
-msgstr ""
+msgstr "Przycisk Myszy"
 
 #: guitext:999
 msgctxt "Game controls"
@@ -6765,17 +6765,17 @@ msgstr ""
 #: guitext:1001
 msgctxt "Game controls"
 msgid "Increase Room Size"
-msgstr ""
+msgstr "Zwiększ Rozmiar Komanty"
 
 #: guitext:1002
 msgctxt "Game controls"
 msgid "Decrease Room Size"
-msgstr ""
+msgstr "Zmniejsz Rozmiar Komnaty"
 
 #: guitext:1003
 msgctxt "Game controls"
 msgid "Precision Sell"
-msgstr ""
+msgstr "Precyzyjne Sprzedanie"
 
 #: guitext:1004
 msgctxt "Game controls"
@@ -6785,4 +6785,14 @@ msgstr ""
 #: guitext:1005
 msgctxt "Dungeon special decription"
 msgid "Mysterious Box: There's no telling what this will do."
+msgstr "Tajemnicze Pudło: Niewiadomo co to zrobi"
+
+#: guitext:1006
+msgctxt "Network game message"
+msgid "Joined player has different map version from host."
+msgstr "Gracz który dołączył ma inną wersję mapy od hosta"
+
+#: guitext:1007
+msgctxt "In-game interface description"
+msgid "Display Resolution: Switch to the next configured display resolution. LMB toggle. RMB display current resolution."
 msgstr ""
