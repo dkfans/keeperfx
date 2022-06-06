@@ -41,6 +41,7 @@
 #include "game_legacy.h"
 #include "game_merge.h"
 #include "frontmenu_ingame_map.h"
+#include "gui_boxmenu.h"
 #include "keeperfx.hpp"
 
 #ifdef __cplusplus
@@ -203,7 +204,7 @@ int load_game_chunks(TbFileHandle fhandle,struct CatalogueEntry *centry)
                     return GLoad_Failed;
                 }
                 // Load configs which may have per-campaign part, and even be modified within a level
-                init_custom_sprites(SPRITE_LAST_LEVEL);
+                init_custom_sprites(centry->level_num);
                 load_computer_player_config(CnfLd_Standard);
                 load_stats_files();
                 check_and_auto_fix_stats();
@@ -434,6 +435,8 @@ TbBool load_game(long slot_num)
       dungeon->lvstats.allow_save_score = 1;
     }
     game.loaded_swipe_idx = -1;
+    struct PlayerInfoAdd* playeradd = get_my_playeradd();
+    playeradd->cheat_menu_active = cheat_menu_is_active();
     return true;
 }
 
