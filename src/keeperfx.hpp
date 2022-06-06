@@ -64,7 +64,7 @@ extern "C" {
 #define SPELL_POINTER_GROUPS   14
 // Amount of instances; it's 17, 18 or 19
 #define PLAYER_INSTANCES_COUNT 19
-#define ZOOM_KEY_ROOMS_COUNT   14
+#define ZOOM_KEY_ROOMS_COUNT   15
 
 enum ModeFlags {
     MFlg_IsDemoMode         =  0x01,
