@@ -2601,13 +2601,13 @@ msgstr "Netzwerk-Menü"
 #: guitext:290
 msgctxt "Menu interface item"
 msgid "Main Menu"
-msgstr "HAUPTMENÜ"
+msgstr "Hauptmenü"
 
 #: guitext:343
 #, fuzzy
 msgctxt "Menu interface, Main Menu title"
 msgid "Main Menu"
-msgstr "HAUPTMENÜ"
+msgstr "Hauptmenü"
 
 #: guitext:291
 #, fuzzy
@@ -2954,7 +2954,7 @@ msgstr "Benutztes Gebiet: Euer Dungeon-Gebiet. [12.1]"
 #: guitext:333
 msgctxt "In-game interface item"
 msgid "More..."
-msgstr "MEHR..."
+msgstr "Mehr..."
 
 #: guitext:334
 msgctxt "In-game message"
@@ -3009,37 +3009,37 @@ msgstr "Menü laden"
 #: guitext:345
 msgctxt "Menu interface, Main Menu item"
 msgid "Load Game"
-msgstr "SPIEL LADEN"
+msgstr "Spiel laden"
 
 #: guitext:346
 msgctxt "Menu interface, Main Menu item"
 msgid "Continue Game"
-msgstr "SPIEL FORTSETZEN"
+msgstr "Spiel fortsetzen"
 
 #: guitext:347
 msgctxt "Menu interface, Main Menu item"
 msgid "Multiplayer"
-msgstr "MEHRSPIELER"
+msgstr "Mehrspieler"
 
 #: guitext:348
 msgctxt "Menu interface item"
 msgid "Return to Main Menu"
-msgstr "ZURÜCK ZUM HAUPTMENÜ"
+msgstr "Zurück zum Hauptmenü"
 
 #: guitext:349
 msgctxt "Menu interface item"
 msgid "Play Intro"
-msgstr "INTRO"
+msgstr "Intro"
 
 #: guitext:350
 msgctxt "Menu interface item"
 msgid "Service Menu"
-msgstr "MEHRSPIELER-MENÜ"
+msgstr "Mehrspieler-menü"
 
 #: guitext:351
 msgctxt "Menu interface item"
 msgid "Session Menu"
-msgstr "SITZUNGS-MENÜ"
+msgstr "Sitzungs-menü"
 
 #: guitext:352
 msgctxt "Menu interface item"
@@ -3064,7 +3064,7 @@ msgstr "IRQ"
 #: guitext:356
 msgctxt "Menu interface item"
 msgid "Statistics"
-msgstr "STATISTIKEN"
+msgstr "Statistiken"
 
 #: guitext:357
 msgctxt "Menu interface item"
@@ -3079,12 +3079,12 @@ msgstr "LEER"
 #: guitext:359
 msgctxt "Menu interface, Main Menu item"
 msgid "Quit"
-msgstr "VERLASSEN"
+msgstr "Verlassen"
 
 #: guitext:360
 msgctxt "Menu interface, Main Menu item"
 msgid "Start New Game"
-msgstr "NEUES SPIEL STARTEN"
+msgstr "Neues Spiel starten"
 
 #: guitext:361
 msgctxt "Unused"
@@ -3275,58 +3275,58 @@ msgstr "ART DER VERBINDUNG"
 #: guitext:398
 msgctxt "Menu interface item"
 msgid "Messages"
-msgstr "MITTEILUNGEN"
+msgstr "Mitteilungen"
 
 #: guitext:399
 msgctxt "Menu interface item"
 msgid "Create Game"
-msgstr "SPIEL ERSTELLEN"
+msgstr "Spiel erstellen"
 
 #: guitext:400
 msgctxt "Menu interface item"
 msgid "Join Game"
-msgstr "TEILNEHMEN"
+msgstr "Teilnehmen"
 
 #: guitext:401
 msgctxt "Menu interface item"
 msgid "Start Game"
-msgstr "SPIEL STARTEN"
+msgstr "Spiel starten"
 
 #: guitext:402
 msgctxt "Menu interface item"
 msgid "Game Menu"
-msgstr "SPIELE-SESSION"
+msgstr "Spiele-session"
 
 #: guitext:403
 msgctxt "Menu interface item"
 msgid "Cancel"
-msgstr "ABBRECHEN"
+msgstr "Abbrechen"
 
 #: guitext:404
 msgctxt "Menu interface item"
 msgid "No Name"
-msgstr "KEIN NAME"
+msgstr "Kein name"
 
 #: guitext:405
 msgctxt "Menu interface item"
 msgid "Players"
-msgstr "SPIELER"
+msgstr "Spieler"
 
 #. Creature experience level
 #: guitext:406
 msgctxt "Menu interface item"
 msgid "Level"
-msgstr "LEVEL"
+msgstr "Level"
 
 #: guitext:407
 msgctxt "Menu interface item"
 msgid "Levels"
-msgstr "LEVEL"
+msgstr "Level"
 
 #: guitext:408
 msgctxt "Menu interface item"
 msgid "Games"
-msgstr "SPIELE"
+msgstr "Spiele"
 
 #: guitext:409
 msgctxt "Menu interface item"
@@ -3336,12 +3336,12 @@ msgstr "MODEM-MENÜ"
 #: guitext:410
 msgctxt "Menu interface item"
 msgid "Serial Menu"
-msgstr "SERIELLE VERBINDUNG"
+msgstr "Serielle verbindung"
 
 #: guitext:411
 msgctxt "Menu interface item"
 msgid "Init"
-msgstr "INITIALISIEREN"
+msgstr "Initialisieren"
 
 #: guitext:412
 msgctxt "Menu interface item"
@@ -3361,17 +3361,17 @@ msgstr "ANNEHMEN"
 #: guitext:415
 msgctxt "Menu interface item"
 msgid "Start"
-msgstr "START"
+msgstr "Start"
 
 #: guitext:416
 msgctxt "Menu interface item"
 msgid "Ally"
-msgstr "VERBÜNDETER"
+msgstr "Verbündeter"
 
 #: guitext:417
 msgctxt "Menu interface item"
 msgid "Alliance"
-msgstr "BÜNDNIS"
+msgstr "Bündnis"
 
 #: guitext:418
 msgctxt "Menu interface item"
@@ -3381,7 +3381,7 @@ msgstr "MITWIRKENDE"
 #: guitext:419
 msgctxt "Menu interface item"
 msgid "Ok"
-msgstr "OK"
+msgstr "Ok"
 
 #: guitext:420
 msgctxt "Dungeon special decription"
@@ -3447,12 +3447,12 @@ msgstr "Kreaturen-Transfer"
 #: guitext:430
 msgctxt "Menu interface item"
 msgid "Bonus"
-msgstr "BONUS"
+msgstr "Bonus"
 
 #: guitext:431
 msgctxt "Menu interface, Main Menu item"
 msgid "High Score Table"
-msgstr "HIGHSCORE-TABELLE"
+msgstr "Highscore-tabelle"
 
 #: guitext:432
 msgctxt "Menu interface item"
@@ -3670,12 +3670,12 @@ msgstr "Zum Gebiet zoomen."
 #: guitext:467
 msgctxt "Menu interface item"
 msgid "No mouse installed"
-msgstr "KEINE MAUS INSTALLIERT"
+msgstr "Keine Maus installiert"
 
 #: guitext:468
 msgctxt "Menu interface item"
 msgid "Define keys"
-msgstr "TASTEN DEFINIEREN"
+msgstr "Tasten definieren"
 
 #: guitext:469
 msgctxt "Game controls"
@@ -3685,12 +3685,12 @@ msgstr "Mit Spieler verbünden"
 #: guitext:470
 msgctxt "Game controls"
 msgid "Press a key"
-msgstr "TASTE DRÜCKEN"
+msgstr "Taste drücken"
 
 #: guitext:471
 msgctxt "Game controls"
 msgid "UP"
-msgstr "HOCH"
+msgstr "Hoch"
 
 #: guitext:472
 msgctxt "Game controls"
@@ -3715,7 +3715,7 @@ msgstr "Rotieren"
 #: guitext:476
 msgctxt "Game controls"
 msgid "SPEED"
-msgstr "BESCHLEUNIGEN"
+msgstr "Beschleunigen"
 
 #: guitext:477
 msgctxt "Game controls"
@@ -4005,7 +4005,7 @@ msgstr "Wählen"
 #: guitext:534
 msgctxt "Network game message"
 msgid "Continue"
-msgstr "FORTFAHREN"
+msgstr "Fortfahren"
 
 #: guitext:535
 msgctxt "Network game message"
@@ -5156,17 +5156,17 @@ msgstr "Grafik-Optionen"
 #: guitext:718
 msgctxt "In-game interface item"
 msgid "Sound Options"
-msgstr "SOUND-OPTIONEN"
+msgstr "Sound-optionen"
 
 #: guitext:719
 msgctxt "In-game interface item"
 msgid "Load"
-msgstr "LADEN"
+msgstr "Laden"
 
 #: guitext:720
 msgctxt "In-game interface item"
 msgid "Save"
-msgstr "SPEICHERN"
+msgstr "Speichern"
 
 #: guitext:721
 msgctxt "In-game interface item"
@@ -5866,7 +5866,7 @@ msgstr ""
 #: guitext:840
 msgctxt "Menu interface item"
 msgid "Return to options menu"
-msgstr "ZURÜCK ZUM OPTIONS-MENÜ"
+msgstr "Zurück zum Options-menü"
 
 #: guitext:841
 msgctxt "Menu interface item"
@@ -5916,7 +5916,7 @@ msgstr "Empfindlichkeit"
 #: guitext:850
 msgctxt "Menu interface item"
 msgid "Mouse Options"
-msgstr "MAUS-OPTIONEN"
+msgstr "Maus-optionen"
 
 #: guitext:851
 msgctxt "Menu interface item"
@@ -5926,17 +5926,17 @@ msgstr "Maus"
 #: guitext:852
 msgctxt "Menu interface item"
 msgid "Undo Pickup"
-msgstr "AUFN. RÜCKG."
+msgstr "Aufn. Rückg."
 
 #: guitext:853
 msgctxt "Menu interface item"
 msgid "Pause"
-msgstr "PAUSE"
+msgstr "Pause"
 
 #: guitext:854
 msgctxt "Menu interface item"
 msgid "Map"
-msgstr "KARTE"
+msgstr "Karte"
 
 #: guitext:855
 msgctxt "On-screen message"
@@ -5951,7 +5951,7 @@ msgstr "Auflösung kann nicht geändert werden"
 #: guitext:857
 msgctxt "Menu interface item"
 msgid "Query"
-msgstr "INFO"
+msgstr "Info"
 
 #: guitext:858
 msgctxt "Credits"
@@ -6086,7 +6086,7 @@ msgstr "ZUSÄTZLICHES SKRIPT"
 #: guitext:885
 msgctxt "Easter egg"
 msgid "Happy Birthday"
-msgstr "GEBURTSTAGS-GRÜSSE"
+msgstr "Glückwunsch zum Geburtstag"
 
 #: guitext:886
 msgctxt "Menu interface message"
