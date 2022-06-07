@@ -2150,16 +2150,16 @@ void get_creature_control_nonaction_inputs(void)
   pckt->pos_y = 127;
   if ((player->allocflags & PlaF_Unknown8) != 0)
     return;
-struct PlayerInfoAdd* playeradd = get_my_playeradd();
+TbBool no_turn = (lbDisplay.MouseSprite != &pointer_sprites[MousePG_Invisible]);
 if (((MyScreenWidth >> 1) != GetMouseX()) || (GetMouseY() != y))
   {
-      if (playeradd->cheat_menu_active == false)
+      if (no_turn == false)
       {
           LbMouseSetPositionInitial((MyScreenWidth/pixel_size) >> 1, y/pixel_size); // use LbMouseSetPositionInitial because we don't want to keep moving the host cursor
       }
   }
   // Set pos_x and pos_y
-  if (playeradd->cheat_menu_active == false)
+  if (no_turn == false)
   {
       if (settings.first_person_move_invert)
         pckt->pos_y = 255 * ((long)MyScreenHeight - y) / MyScreenHeight;
