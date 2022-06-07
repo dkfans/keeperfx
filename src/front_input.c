@@ -2151,7 +2151,8 @@ void get_creature_control_nonaction_inputs(void)
   pckt->pos_y = 127;
   if ((player->allocflags & PlaF_Unknown8) != 0)
     return;
-TbBool no_turn = (lbDisplay.MouseSprite != &pointer_sprites[MousePG_Invisible]);
+  struct PlayerInfoAdd* playeradd = get_my_playeradd();
+  TbBool no_turn = ( (playeradd->cheat_menu_active) && (lbDisplay.MouseSprite != &pointer_sprites[MousePG_Invisible]) );
 if (((MyScreenWidth >> 1) != GetMouseX()) || (GetMouseY() != y))
   {
       if (no_turn == false)
