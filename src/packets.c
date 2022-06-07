@@ -908,6 +908,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
         playeradd->roomspace_mode = drag_placement_mode;
         playeradd->one_click_mode_exclusive = true; // Enable GuiLayer_OneClickBridgeBuild layer
         playeradd->render_roomspace.highlight_mode = false;
+        playeradd->roomspace_no_default = false;
         return false;
     }
     case PckA_SetRoomspaceDefault:
