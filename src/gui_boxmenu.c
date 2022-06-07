@@ -867,7 +867,21 @@ long gfa_single_player_mode(struct GuiBox* gbox, struct GuiBoxOption* goptn, lon
 
 TbBool cheat_menu_is_active()
 {
-    return ( (!gui_box_is_not_valid(gui_box)) || (!gui_box_is_not_valid(gui_cheat_box)) );
+    if (!gui_box_is_not_valid(gui_box))
+    {
+        if ((gui_box->flags & GBoxF_InList) != 0)
+        {
+            return true;
+        }
+    }
+    if (!gui_box_is_not_valid(gui_cheat_box))
+    {
+        if ((gui_cheat_box->flags & GBoxF_InList) != 0)
+        {
+            return true;
+        }
+    }
+    return false;
 }
 
 /******************************************************************************/

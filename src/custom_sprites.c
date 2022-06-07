@@ -184,9 +184,13 @@ void init_custom_sprites(LevelNumber lvnum)
     {
         lvnum = gameadd.last_level;
     }
-    else
+    else if (lvnum > 0)
     {
         gameadd.last_level = lvnum;
+    }
+    else
+    {
+        ERRORLOG("Invalid level number %d for loading custom sprites", lvnum);
     }
     // Clear sprite data
     for (int i = 0; i < KEEPERSPRITE_ADD_NUM; i++)
