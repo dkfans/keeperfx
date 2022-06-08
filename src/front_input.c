@@ -899,32 +899,30 @@ long get_dungeon_control_action_inputs(void)
     {
         clear_key_pressed(KC_F8);
         toggle_tooltips();
+        return 1;
     }
     if (is_key_pressed(KC_NUMPADENTER,KMod_NONE))
     {
-        if (toggle_main_cheat_menu())
-        {
-            clear_key_pressed(KC_NUMPADENTER);
-        }
+        toggle_main_cheat_menu();
         set_players_packet_action(player, PckA_ToggleCheatMenuStatus, ( cheat_menu_is_active() ), 0, 0, 0);
+        clear_key_pressed(KC_NUMPADENTER);
+        return 1;
     }
     // also use the main keyboard enter key (while holding shift) for cheat menu
     if (is_key_pressed(KC_RETURN,KMod_SHIFT))
-        {
-            if (toggle_main_cheat_menu())
-            {
-                clear_key_pressed(KC_RETURN);
-            }
-            set_players_packet_action(player, PckA_ToggleCheatMenuStatus, ( cheat_menu_is_active() ), 0, 0, 0);
-        }
+    {
+        toggle_main_cheat_menu();
+        set_players_packet_action(player, PckA_ToggleCheatMenuStatus, ( cheat_menu_is_active() ), 0, 0, 0);
+        clear_key_pressed(KC_RETURN);
+        return 1;
+    }
     if (is_key_pressed(KC_F12,KMod_DONTCARE))
     {
         // Note that we're using "close", not "toggle". Menu can't be opened here.
-        if (close_creature_cheat_menu())
-        {
-            clear_key_pressed(KC_F12);
-        }
+        close_creature_cheat_menu();
         set_players_packet_action(player, PckA_ToggleCheatMenuStatus, ( cheat_menu_is_active() ), 0, 0, 0);
+        clear_key_pressed(KC_F12);
+        return 1;
     }
     if (player->view_mode == PVM_IsometricView)
     {
@@ -936,6 +934,7 @@ long get_dungeon_control_action_inputs(void)
       {
           clear_key_pressed(KC_TAB);
           toggle_gui();
+          return 1;
       }
       // Middle mouse camera actions for IsometricView
       if (is_game_key_pressed(Gkey_SnapCamera, &val, true))
@@ -1028,6 +1027,7 @@ long get_dungeon_control_action_inputs(void)
       {
           clear_key_pressed(KC_TAB);
           toggle_gui();
+          return 1;
       }
       // Middle mouse camera actions for FrontView
       if (is_game_key_pressed(Gkey_SnapCamera, &val, true))
@@ -1119,6 +1119,7 @@ long get_dungeon_control_action_inputs(void)
     {
         clear_key_pressed(KC_F);
         toggle_hero_health_flowers();
+        return 1;
     }
     get_status_panel_keyboard_action_inputs();
     return 0;
