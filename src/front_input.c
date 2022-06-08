@@ -2335,10 +2335,7 @@ short get_inputs(void)
         return false;
     }
     SYNCDBG(5,"Starting");
-    if (gui_process_inputs())
-    {
-        return true;
-    }
+    gui_process_inputs();
     if (player->victory_state == VicS_LostLevel)
     {
         if (player->is_active != 1)
