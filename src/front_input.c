@@ -903,6 +903,7 @@ long get_dungeon_control_action_inputs(void)
     }
     if (is_key_pressed(KC_NUMPADENTER,KMod_NONE))
     {
+        toggle_main_cheat_menu();
         set_players_packet_action(player, PckA_ToggleCheatMenuStatus, ( cheat_menu_is_active() ), 0, 0, 0);
         clear_key_pressed(KC_NUMPADENTER);
         return 1;
@@ -910,6 +911,7 @@ long get_dungeon_control_action_inputs(void)
     // also use the main keyboard enter key (while holding shift) for cheat menu
     if (is_key_pressed(KC_RETURN,KMod_SHIFT))
     {
+        toggle_main_cheat_menu();
         set_players_packet_action(player, PckA_ToggleCheatMenuStatus, ( cheat_menu_is_active() ), 0, 0, 0);
         clear_key_pressed(KC_RETURN);
         return 1;
@@ -1676,6 +1678,7 @@ short get_map_action_inputs(void)
       }
       if (is_key_pressed(KC_NUMPADENTER,KMod_NONE))
       {
+          toggle_main_cheat_menu();
           set_players_packet_action(player, PckA_ToggleCheatMenuStatus, ( cheat_menu_is_active() ), 0, 0, 0);
           clear_key_pressed(KC_NUMPADENTER);
           return true;
@@ -1683,6 +1686,7 @@ short get_map_action_inputs(void)
       // also use the main keyboard enter key (while holding shift) for cheat menu
       if (is_key_pressed(KC_RETURN,KMod_SHIFT))
       {
+          toggle_main_cheat_menu();
           set_players_packet_action(player, PckA_ToggleCheatMenuStatus, ( cheat_menu_is_active() ), 0, 0, 0);
           clear_key_pressed(KC_RETURN);
           return true;
