@@ -1676,14 +1676,16 @@ short get_map_action_inputs(void)
       }
       if (is_key_pressed(KC_NUMPADENTER,KMod_NONE))
       {
-          if (toggle_main_cheat_menu())
-            clear_key_pressed(KC_NUMPADENTER);
+          toggle_main_cheat_menu();
+          set_players_packet_action(player, PckA_ToggleCheatMenuStatus, ( cheat_menu_is_active() ), 0, 0, 0);
+          clear_key_pressed(KC_NUMPADENTER);
       }
       // also use the main keyboard enter key (while holding shift) for cheat menu
       if (is_key_pressed(KC_RETURN,KMod_SHIFT))
       {
-          if (toggle_main_cheat_menu())
-            clear_key_pressed(KC_RETURN);
+          toggle_main_cheat_menu();
+          set_players_packet_action(player, PckA_ToggleCheatMenuStatus, ( cheat_menu_is_active() ), 0, 0, 0);
+          clear_key_pressed(KC_RETURN);
       }
       long keycode;
       if (is_game_key_pressed(Gkey_SwitchToMap, &keycode, false))
