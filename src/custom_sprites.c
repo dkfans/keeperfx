@@ -94,6 +94,9 @@ static int num_added_icons = 0;
 int num_icons_total = GUI_PANEL_SPRITES_COUNT;
 unsigned char base_pal[PALETTE_SIZE];
 
+static unsigned char big_scratch_data[1024*1024*16] = {0};
+unsigned char *big_scratch = big_scratch_data;
+
 static void init_pal_conversion();
 
 static void compress_raw(struct TbHugeSprite *sprite, unsigned char *src_buf, int x, int y, int w, int h);
@@ -634,7 +637,7 @@ static int read_png_icon(unzFile zip, const char *path, const char *subpath, int
         return 0;
     }
 
-    unsigned char *dst_buf = scratch;
+    unsigned char *dst_buf = big_scratch;
     spng_decode_image(ctx, dst_buf, out_size, fmt, SPNG_DECODE_TRNS);
 
     if (sprite.SWidth >= 255 || sprite.SHeight >= 255)
@@ -714,8 +717,13 @@ static int read_png_data(unzFile zip, const char *path, struct SpriteContext *co
         return 0;
     }
 
-    unsigned char *dst_buf = scratch;
-    spng_decode_image(ctx, dst_buf, out_size, fmt, SPNG_DECODE_TRNS);
+    unsigned char *dst_buf = big_scratch;
+    if (spng_decode_image(ctx, dst_buf, out_size, fmt, SPNG_DECODE_TRNS))
+    {
+        ERRORLOG("Unable to decode %s/%s", path, subpath);
+        spng_ctx_free(ctx);
+        return 0;
+    }
 
     // This should be enough except rare cases like transparent checkerboard
     int dst_w = (int) context->sprite.SWidth;
@@ -1001,13 +1009,14 @@ collect_sprites(const char *path, unzFile zip, const char *blender_scene, struct
         {
             ud_lst = value_dict_get(node, "td");
             prev_sz = value_array_size(value_array_get(ud_lst, 0));
+            // first good loaded sprite will be loaded at this pointers (topdown in this case)
             context->id_ptr = &context->td_id;
             context->id_sz_ptr = &context->td_sz;
         }
         else
         {
             ud_lst = value_dict_get(node, "fp");
-            context->id_ptr = &context->fp_id;
+            context->id_ptr = &context->fp_id; // First person case
             context->id_sz_ptr = &context->fp_sz;
         }
         for (int lr = 0; lr < (context->rotatable ? 5 : 1); lr++) // If sprite is rotatable
@@ -1027,7 +1036,11 @@ collect_sprites(const char *path, unzFile zip, const char *blender_scene, struct
             {
                 VALUE *itm = value_array_get(lr_list, frame);
                 const char *name = value_string(value_dict_get(itm, "file"));
-
+                if (name == NULL)
+                {
+                    WARNLOG("Invalid sprite file record in '%s/sprites.json'", path);
+                    return 1;
+                }
                 if (unzLocateFile(zip, name, 0))
                 {
                     WARNLOG("Png '%s' not found in '%s'", name, path);
@@ -1035,9 +1048,29 @@ collect_sprites(const char *path, unzFile zip, const char *blender_scene, struct
                 }
                 if (UNZ_OK != unzOpenCurrentFile(zip))
                 {
+                    WARNLOG("Unable to open '%s/%s'", path, name);
                     return 1;
                 }
-                read_png_data(zip, path, context, name, fp, node, itm);
+                short store_p = *context->id_ptr;
+                short store_sz = *context->id_sz_ptr;
+                struct KeeperSprite *store_ksp = context->ksp_first;
+                unsigned char store_ksp_fc = 0;
+                if (store_ksp)
+                    store_ksp_fc = context->ksp_first->FramesCount;
+
+                if (!read_png_data(zip, path, context, name, fp, node, itm))
+                {
+                    // Reverting possible changes
+                    *context->id_ptr = store_p;
+                    *context->id_sz_ptr = store_sz;
+                    context->ksp_first = store_ksp;
+                    if (store_ksp)
+                        context->ksp_first->FramesCount = store_ksp_fc;
+
+                    unzCloseCurrentFile(zip);
+                    WARNLOG("Unable to read '%s/%s'", path, name);
+                    return 1;
+                }
                 if (UNZ_OK != unzCloseCurrentFile(zip))
                 {
                     return 1;
@@ -1056,8 +1089,15 @@ collect_sprites(const char *path, unzFile zip, const char *blender_scene, struct
 
     if (prev_sz != value_array_size(value_array_get(ud_lst, 0)))
     {
-        ERRORLOG("Should have same amount of TD and FP frames");
+        ERRORLOG("%s/sprite.json should have same amount of TD and FP frames", path);
+        return 1;
     }
+    if (context->fp_sz != context->td_sz)
+    {
+        ERRORLOG("%s/sprite.json should have same amount of TD and FP frames (2)", path);
+        return 1;
+    }
+    // Installing frames into arrays ()
     for (int i = context->td_sz - 1; i >= 0; i--)
     {
         short fp_id = context->fp_id + i;
@@ -1157,13 +1197,13 @@ add_custom_json(const char *path, const char *name, TbBool (*process)(const char
         return 0;
     }
 
-    if (unzReadCurrentFile(zip, scratch, zip_info.uncompressed_size) != zip_info.uncompressed_size)
+    if (unzReadCurrentFile(zip, big_scratch, zip_info.uncompressed_size) != zip_info.uncompressed_size)
     {
         WARNLOG("Unable to read %s/%s", path, name);
         unzClose(zip);
         return 0;
     }
-    scratch[zip_info.uncompressed_size] = 0;
+    big_scratch[zip_info.uncompressed_size] = 0;
 
     if (UNZ_OK != unzCloseCurrentFile(zip))
     {
@@ -1171,7 +1211,7 @@ add_custom_json(const char *path, const char *name, TbBool (*process)(const char
         return 0;
     }
 
-    int ret = json_dom_parse((char *) scratch, zip_info.uncompressed_size, NULL, 0, &root, &json_input_pos);
+    int ret = json_dom_parse((char *) big_scratch, zip_info.uncompressed_size, NULL, 0, &root, &json_input_pos);
     if (ret)
     {
 
