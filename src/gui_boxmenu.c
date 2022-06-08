@@ -424,6 +424,11 @@ short gui_move_box(struct GuiBox *gbox, long x, long y, unsigned short fdflags)
       gbox->pos_y = y - (gbox->height >> 1);
       result = true;
       break;
+  case Fnt_CenterLeftPos:
+      gbox->pos_x = x - (gbox->width >> 2);
+      gbox->pos_y = y - (gbox->height >> 2);
+      result = true;
+      break;
   default:
       result = false;
       break;
@@ -452,7 +457,7 @@ short toggle_main_cheat_menu(void)
     if ((game.flags_font & FFlg_AlexCheat) == 0)
       return false;
     gui_box = gui_create_box(mouse_x,mouse_y,gui_main_cheat_list);
-    gui_move_box(gui_box, mouse_x, mouse_y, Fnt_CenterPos);
+    gui_move_box(gui_box, mouse_x, mouse_y, Fnt_CenterLeftPos);
   } else
   {
     gui_delete_box(gui_box);
@@ -467,12 +472,15 @@ short toggle_main_cheat_menu(void)
  */
 short toggle_instance_cheat_menu(void)
 {
+    long mouse_x = GetMouseX();
+    long mouse_y = GetMouseY();
     // Toggle cheat menu
     if ((gui_box==NULL) || (gui_box_is_not_valid(gui_box)))
     {
         if ((game.flags_font & FFlg_AlexCheat) == 0)
             return false;
         gui_box = gui_create_box(200,20,gui_instance_option_list);
+        gui_move_box(gui_box, mouse_x, mouse_y, Fnt_CenterLeftPos);
 /*
           player->unknownbyte  |= 0x08;
           game.unknownbyte |= 0x08;
@@ -495,11 +503,14 @@ short toggle_instance_cheat_menu(void)
  */
 TbBool open_creature_cheat_menu(void)
 {
+  long mouse_x = GetMouseX();
+  long mouse_y = GetMouseY();
   if ((game.flags_font & FFlg_AlexCheat) == 0)
     return false;
   if (!gui_box_is_not_valid(gui_cheat_box))
     return false;
   gui_cheat_box = gui_create_box(150,20,gui_creature_cheat_option_list);
+  gui_move_box(gui_cheat_box, mouse_x, mouse_y, Fnt_CenterLeftPos);
   return (!gui_box_is_not_valid(gui_cheat_box));
 }
 

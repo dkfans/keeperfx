@@ -33,6 +33,7 @@ enum TbFontDrawFlags {
   Fnt_LeftJustify   = 0x00,
   Fnt_RightJustify  = 0x01,
   Fnt_CenterPos     = 0x02,
+  Fnt_CenterLeftPos = 0x03,
   };
 
 /******************************************************************************/
