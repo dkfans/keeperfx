@@ -965,6 +965,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
     }
     case PckA_ToggleCheatMenuStatus:
     {
+        toggle_main_cheat_menu();
         playeradd->cheat_menu_active = (TbBool)pckt->actn_par1;
         return false;
     }
