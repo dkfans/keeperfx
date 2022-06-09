@@ -37,6 +37,7 @@
 #include "thing_shots.h"
 #include "thing_navigate.h"
 #include "creature_states_lair.h"
+#include "player_utils.h"
 #include "power_hand.h"
 #include "room_data.h"
 #include "room_jobs.h"
@@ -50,9 +51,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-/******************************************************************************/
-DLLIMPORT short _DK_creature_attempt_to_damage_walls(struct Thing *creatng);
-DLLIMPORT short _DK_creature_damage_walls(struct Thing *creatng);
 /******************************************************************************/
 TbBool combat_has_line_of_sight(const struct Thing *creatng, const struct Thing *enmtng, MapCoordDelta enmdist);
 /******************************************************************************/
@@ -2980,13 +2978,61 @@ short creature_attack_rooms(struct Thing *creatng)
 short creature_attempt_to_damage_walls(struct Thing *creatng)
 {
     TRACE_THING(creatng);
-    return _DK_creature_attempt_to_damage_walls(creatng);
+    struct Coord3d pos;
+
+    if ( get_random_position_in_dungeon_for_creature(creatng->owner, CrWaS_WithinDungeon, creatng, &pos)
+        && external_set_thing_state(creatng, CrSt_CreatureAttemptToDamageWalls) )
+    {
+        setup_person_move_to_position(creatng, pos.x.stl.num, pos.y.stl.num, 0);
+        creatng->continue_state = CrSt_CreatureAttemptToDamageWalls;
+        return 1;
+    }
+    else
+    {
+        set_start_state(creatng);
+        return 0;
+    }
 }
 
 short creature_damage_walls(struct Thing *creatng)
 {
     TRACE_THING(creatng);
-    return _DK_creature_damage_walls(creatng);
+    struct Coord3d pos;
+
+    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
+    if ( cctrl->damadge_wall_coords != 0 )
+    {
+        MapSubtlCoord stl_x = stl_num_decode_x(cctrl->damadge_wall_coords);
+        MapSubtlCoord stl_y = stl_num_decode_y(cctrl->damadge_wall_coords);
+        struct Map* mapblk = get_map_block_at_pos(cctrl->damadge_wall_coords);
+
+        struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
+
+
+        if ((mapblk->flags & SlbAtFlg_Blocking) != 0
+            && (creatng->owner == slabmap_owner(slb)))
+        {
+            struct SlabAttr* slbattr = get_slab_attrs(slb);
+            if ((slbattr->category == SlbAtCtg_FortifiedWall))
+            {
+                if ( !cctrl->instance_id )
+                {
+                    pos.x.val = subtile_coord_center(stl_x);
+                    pos.x.val = subtile_coord_center(stl_y);
+
+                    if ( !creature_turn_to_face(creatng, &pos) )
+                        set_creature_instance(creatng, CrInst_DAMAGE_WALL, 1, 0, 0);
+                }
+            }
+        }
+        return 1;
+    }
+    else
+    {
+        set_start_state(creatng);
+        return 0;
+    }
+
 }
 
 /**
