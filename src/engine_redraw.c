@@ -591,6 +591,19 @@ void redraw_creature_view(void)
     gui_draw_all_boxes();
     draw_tooltip();
     draw_creature_view_icons(thing);
+    if (!gui_box_is_not_valid(gui_cheat_box_3))
+    {
+        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+        if (!creature_control_invalid(cctrl))
+        {
+            struct GuiBoxOption* guop = gui_cheat_box_3->optn_list;
+            while (guop->label[0] != '!')
+            {
+              guop->active = (cctrl->active_instance_id == guop->cb_param1);
+              guop++;
+            }
+        }
+    }
 }
 
 void smooth_screen_area(unsigned char *scrbuf, long x, long y, long w, long h, long scanln)
