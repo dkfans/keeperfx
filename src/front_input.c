@@ -2144,10 +2144,14 @@ void get_creature_control_nonaction_inputs(void)
   pckt->pos_y = 127;
   if ((player->allocflags & PlaF_Unknown8) != 0)
     return;
+TbBool lock_z = point_is_over_gui_box(x, y);
 if (((MyScreenWidth >> 1) != GetMouseX()) || (GetMouseY() != y))
   {
-    LbMouseSetPositionInitial((MyScreenWidth/pixel_size) >> 1, y/pixel_size); // use LbMouseSetPositionInitial because we don't want to keep moving the host cursor
+      if (!lock_z)
+        LbMouseSetPositionInitial((MyScreenWidth/pixel_size) >> 1, y/pixel_size); // use LbMouseSetPositionInitial because we don't want to keep moving the host cursor
   }
+  if (!lock_z)
+  {
     if (settings.first_person_move_invert)
     pckt->pos_y = 255 * ((long)MyScreenHeight - y) / MyScreenHeight;
     else
@@ -2174,7 +2178,7 @@ if (((MyScreenWidth >> 1) != GetMouseX()) || (GetMouseY() != y))
     pckt->pos_x = map_subtiles_x;
     if (pckt->pos_y > map_subtiles_y)
     pckt->pos_y = map_subtiles_y;
-
+  }
     // Now do user actions
     if (thing_is_invalid(thing))
     return;
