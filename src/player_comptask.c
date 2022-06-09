@@ -2159,9 +2159,9 @@ static struct Thing *find_creature_for_call_to_arms(struct Computer2 *comp, TbBo
     thing = INVALID_THING;
     highest_score = INT_MAX;
 
-    for (struct Thing *i = thing_get_f(comp->dungeon->creatr_list_start); 
+    for (struct Thing *i = thing_get(comp->dungeon->creatr_list_start); 
         !thing_is_invalid(i); 
-        i = thing_get_f(creature_control_get_from_thing(i).players_next_creature_idx))
+        i = thing_get(creature_control_get_from_thing(i)->players_next_creature_idx))
     {
         struct CreatureControl *cctrl = creature_control_get_from_thing(i);
 
@@ -2178,7 +2178,7 @@ static struct Thing *find_creature_for_call_to_arms(struct Computer2 *comp, TbBo
             state = i->active_state;
         struct StateInfo *stati = get_thing_state_info_num(state);
 
-        if ( (cctrl.spell_flags & CSAfF_Rebound) != 0 )
+        if ( (cctrl->spell_flags & CSAfF_Rebound) != 0 )
         {
             if ( !stati->react_to_cta )
                 continue;
