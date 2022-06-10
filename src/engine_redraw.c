@@ -145,6 +145,14 @@ static void draw_creature_view_icons(struct Thing* creatng)
         }
         draw_gui_panel_sprite_left(x, y, ps_units_per_px, spr_idx);
     }
+    else
+    {
+        if (!creature_instance_is_available(creatng, cctrl->active_instance_id))
+        {
+            x = MyScreenWidth - (scale_value_by_horizontal_resolution(148) / 4);
+            draw_gui_panel_sprite_left(x, y, ps_units_per_px, instance_button_init[cctrl->active_instance_id].symbol_spridx);
+        }
+    }
 }
 
 void setup_engine_window(long x, long y, long width, long height)
