@@ -1160,6 +1160,11 @@ short get_creature_control_action_inputs(void)
         get_gui_inputs(1);
     if (is_key_pressed(KC_NUMPADENTER,KMod_DONTCARE))
     {
+        // Note that we're using "close", not "toggle". Menu can't be opened here.
+        if (close_main_cheat_menu())
+        {
+            clear_key_pressed(KC_NUMPADENTER);
+        } else
         if (toggle_instance_cheat_menu())
         {
             clear_key_pressed(KC_NUMPADENTER);

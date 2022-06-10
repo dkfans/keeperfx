@@ -451,6 +451,19 @@ short gui_move_box(struct GuiBox *gbox, long x, long y, unsigned short fdflags)
 }
 
 /**
+ * Closes cheat menu.
+ * Returns true if the menu was closed.
+ */
+TbBool close_main_cheat_menu(void)
+{
+    if (gui_box_is_not_valid(gui_cheat_box_1))
+        return false;
+    gui_delete_box(gui_cheat_box_1);
+    gui_cheat_box_1 = NULL;
+    return true;
+}
+
+/**
  * Toggles cheat menu. It should not allow cheats in Network mode.
  * @return Gives true if the menu was toggled, false if cheat is not allowed.
  */
@@ -480,12 +493,19 @@ short toggle_instance_cheat_menu(void)
 {
     long mouse_x = GetMouseX();
     long mouse_y = GetMouseY();
-    if ((gui_cheat_box_3==NULL) || (gui_box_is_not_valid(gui_cheat_box_3)))
+    if (gui_box_is_not_valid(gui_cheat_box_3))
     {
         if ((game.flags_font & FFlg_AlexCheat) == 0)
             return false;
        gui_cheat_box_3 = gui_create_box(200,20,gui_instance_option_list);
-       gui_move_box(gui_cheat_box_3, mouse_x, mouse_y, Fnt_CenterLeftPos);
+       if (gui_cheat_box_3 == NULL)
+       {
+           return false;
+       }
+       else
+       {
+           gui_move_box(gui_cheat_box_3, mouse_x, mouse_y, Fnt_CenterLeftPos);
+       }
 /*
           player->unknownbyte  |= 0x08;
           game.unknownbyte |= 0x08;
