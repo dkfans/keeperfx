@@ -407,6 +407,11 @@ struct GuiBox *gui_create_box(long x, long y, struct GuiBoxOption *optn_list)
 
 short gui_move_box(struct GuiBox *gbox, long x, long y, unsigned short fdflags)
 {
+    if (gbox == NULL)
+    {
+        ERRORLOG("Trying to move cheat box that does not exist");
+        return false;
+    }
   short result;
   switch (fdflags)
   {
@@ -479,8 +484,8 @@ short toggle_instance_cheat_menu(void)
     {
         if ((game.flags_font & FFlg_AlexCheat) == 0)
             return false;
-        gui_cheat_box_3 = gui_create_box(200,20,gui_instance_option_list);
-        gui_move_box(gui_cheat_box_3, mouse_x, mouse_y, Fnt_CenterLeftPos);
+       gui_cheat_box_3 = gui_create_box(200,20,gui_instance_option_list);
+       gui_move_box(gui_cheat_box_3, mouse_x, mouse_y, Fnt_CenterLeftPos);
 /*
           player->unknownbyte  |= 0x08;
           game.unknownbyte |= 0x08;
