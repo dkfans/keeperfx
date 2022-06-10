@@ -1173,8 +1173,16 @@ short get_creature_control_action_inputs(void)
     // also use the main keyboard enter key (while holding shift) for cheat menu
     if (is_key_pressed(KC_RETURN,KMod_SHIFT))
     {
-        toggle_instance_cheat_menu();
-        clear_key_pressed(KC_RETURN);
+        // Note that we're using "close", not "toggle". Menu can't be opened here.
+        if (close_main_cheat_menu())
+        {
+            clear_key_pressed(KC_RETURN);
+        }
+        else
+        {
+            toggle_instance_cheat_menu();
+            clear_key_pressed(KC_RETURN);
+        }
     }
     if (is_key_pressed(KC_F12,KMod_DONTCARE))
     {
