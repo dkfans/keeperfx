@@ -485,6 +485,19 @@ short toggle_main_cheat_menu(void)
   return true;
 }
 
+
+/**
+ * Closes cheat menu.
+ * Returns true if the menu was closed.
+ */
+TbBool close_instance_cheat_menu(void)
+{
+    if (gui_box_is_not_valid(gui_cheat_box_3))
+        return false;
+    gui_delete_box(gui_cheat_box_3);
+    gui_cheat_box_3 = NULL;
+    return true;
+}
 /**
  * Toggles cheat menu. It should not allow cheats in Network mode.
  * @return Gives true if the menu was toggled, false if cheat is not allowed.

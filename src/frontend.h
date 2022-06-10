@@ -410,6 +410,7 @@ void display_objectives(PlayerNumber plyr_idx,long x,long y);
 short toggle_main_cheat_menu(void);
 TbBool close_main_cheat_menu(void);
 short toggle_instance_cheat_menu(void);
+TbBool close_instance_cheat_menu(void);
 TbBool open_creature_cheat_menu(void);
 TbBool close_creature_cheat_menu(void);
 TbBool toggle_creature_cheat_menu(void);

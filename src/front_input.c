@@ -901,6 +901,11 @@ long get_dungeon_control_action_inputs(void)
     }
     if (is_key_pressed(KC_NUMPADENTER,KMod_NONE))
     {
+        if (close_instance_cheat_menu())
+        {
+            clear_key_pressed(KC_NUMPADENTER);
+        }
+        else
         if (toggle_main_cheat_menu())
         {
             clear_key_pressed(KC_NUMPADENTER);
@@ -909,6 +914,11 @@ long get_dungeon_control_action_inputs(void)
     // also use the main keyboard enter key (while holding shift) for cheat menu
     if (is_key_pressed(KC_RETURN,KMod_SHIFT))
         {
+            if (close_instance_cheat_menu())
+            {
+                clear_key_pressed(KC_RETURN);
+            }
+        else
             if (toggle_main_cheat_menu())
             {
                 clear_key_pressed(KC_RETURN);
