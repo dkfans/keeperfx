@@ -5146,7 +5146,7 @@ msgstr ""
 #: guitext:716
 msgctxt "Menu interface, Main Menu item; In-game interface, Options title"
 msgid "Options"
-msgstr "OPTIONEN"
+msgstr "Optionen"
 
 #: guitext:717
 msgctxt "In-game interface item"
