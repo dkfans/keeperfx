@@ -47,8 +47,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT short _DK_creature_scavenged_reappear(struct Thing *scavtng);
-/******************************************************************************/
 #ifdef __cplusplus
 }
 #endif
@@ -176,7 +174,7 @@ short creature_scavenged_disappear(struct Thing *thing)
       if ((cctrl->job_stage == 7) && (cctrl->byte_9B < PLAYERS_COUNT))
       {
           //TODO EFFECTS Verify what is wrong here - we want either effect or effect element
-          create_effect(&thing->mappos, get_scavenge_effect_element(cctrl->byte_9B), thing->owner);
+          create_effect(&thing->mappos, get_scavenge_effect(cctrl->byte_9B), thing->owner);
       }
       return 0;
     }
@@ -211,7 +209,10 @@ short creature_scavenged_disappear(struct Thing *thing)
 
 short creature_scavenged_reappear(struct Thing *thing)
 {
-    return _DK_creature_scavenged_reappear(thing);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    create_effect(&thing->mappos, get_scavenge_effect(cctrl->byte_9C), thing->owner);
+    set_start_state(thing);
+    return 0;
 }
 
 /**
