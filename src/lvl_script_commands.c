@@ -935,6 +935,8 @@ static void set_trap_configuration_process(struct ScriptContext *context)
             break;
         case 2: // TooltipTextID
             trapst->tooltip_stridx = value;
+            manufctr->tooltip_stridx = trapst->tooltip_stridx;
+            update_trap_tab_to_config();
             break;
         case 3: // SymbolSprites
         {
