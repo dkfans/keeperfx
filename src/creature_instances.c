@@ -699,8 +699,8 @@ long instf_damage_wall(struct Thing *creatng, long *param)
     MapSubtlCoord stl_y;
     {
         struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-        stl_x = stl_num_decode_x(cctrl->damadge_wall_coords);
-        stl_y = stl_num_decode_y(cctrl->damadge_wall_coords);
+        stl_x = stl_num_decode_x(cctrl->damage_wall_coords);
+        stl_y = stl_num_decode_y(cctrl->damage_wall_coords);
     }
     struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
     if (slb->health > 2)

@@ -404,7 +404,7 @@ unsigned char field_211[6];
 unsigned char field_27F;
     short conscious_back_turns;
     short countdown_282; // signed
-    unsigned short damadge_wall_coords;
+    unsigned short damage_wall_coords;
     unsigned char joining_age;
     unsigned char blood_type;
     struct Coord3d flee_pos;

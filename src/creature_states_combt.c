@@ -3000,11 +3000,11 @@ short creature_damage_walls(struct Thing *creatng)
     struct Coord3d pos;
 
     struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
-    if ( cctrl->damadge_wall_coords != 0 )
+    if ( cctrl->damage_wall_coords != 0 )
     {
-        MapSubtlCoord stl_x = stl_num_decode_x(cctrl->damadge_wall_coords);
-        MapSubtlCoord stl_y = stl_num_decode_y(cctrl->damadge_wall_coords);
-        struct Map* mapblk = get_map_block_at_pos(cctrl->damadge_wall_coords);
+        MapSubtlCoord stl_x = stl_num_decode_x(cctrl->damage_wall_coords);
+        MapSubtlCoord stl_y = stl_num_decode_y(cctrl->damage_wall_coords);
+        struct Map* mapblk = get_map_block_at_pos(cctrl->damage_wall_coords);
 
         struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
 
