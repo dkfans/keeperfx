@@ -24,16 +24,16 @@
 #include "player_data.h"
 #include "dungeon_data.h"
 #include "thing_data.h"
+#include "thing_navigate.h"
 #include "creature_control.h"
 #include "config_creature.h"
 #include "gui_soundmsgs.h"
 #include "game_legacy.h"
+#include "front_simple.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-/******************************************************************************/
-DLLIMPORT struct Room *_DK_get_best_new_lair_for_creature(struct Thing *creatng);
 
 /******************************************************************************/
 #ifdef __cplusplus
@@ -101,8 +101,129 @@ long calculate_free_lair_space(struct Dungeon * dungeon)
     return cap_total - cap_used - cap_required;
 }
 
-struct Room *get_best_new_lair_for_creature(struct Thing *thing)
+static short get_lair_score(TbBool room_has_units_of_same_kind,TbBool room_has_units_of_different_kind,TbBool room_has_lair_enemy)
 {
-    return _DK_get_best_new_lair_for_creature(thing);
+    if ( room_has_units_of_same_kind )
+    {
+        if ( room_has_units_of_different_kind )
+        {
+            if ( room_has_lair_enemy )
+            {
+                return 2;
+            }
+            else
+            {
+                return 5;
+            }
+        }
+        else
+        {
+            return 6;
+        }
+    }
+    else if ( room_has_units_of_different_kind )
+    {
+        if ( room_has_lair_enemy )
+        {
+            return 1;
+        }
+        else
+        {
+            return 3;
+        }
+    }
+    else
+    {
+        return 4;
+    }
+}
+
+struct Room *get_best_new_lair_for_creature(struct Thing *creatng)
+{
+    struct Room *room;
+    char best_score = 0;
+
+    const struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+    struct Dungeon* dungeon = get_dungeon(creatng->owner);
+
+    short *room_scores = (short *)scratch;
+    memset(scratch, 0, ROOMS_COUNT);
+
+
+    for (RoomKind rkind = 0; rkind < ROOM_TYPES_COUNT; rkind++)
+    {
+        if(room_role_matches(rkind,RoRoF_LairStorage))
+        {
+            room = room_get(dungeon->room_kind[rkind]);
+            while (!room_is_invalid(room))
+            {
+                if ( room_has_enough_free_capacity_for_creature_job(room, creatng, Job_TAKE_SLEEP) && creature_can_head_for_room(creatng, room, 0) )
+                {
+                    TbBool room_has_units_of_same_kind = false;
+                    TbBool room_has_units_of_different_kind = false;
+                    TbBool room_has_lair_enemy = false;
+                    for ( ThingModel model = 0; model < CREATURE_TYPES_COUNT; ++model )
+                    {
+                        if ( room_has_units_of_same_kind && room_has_units_of_different_kind && room_has_lair_enemy )
+                            break;
+                        if ( room->content_per_model[model] > 0) 
+                        {
+                            if ( creatng->model == model )
+                            {
+                                room_has_units_of_same_kind = true;
+                            }
+                            else
+                            {
+                                room_has_units_of_different_kind = true;
+                                if ( crstat->lair_enemy == model )
+                                room_has_lair_enemy = true;
+                            }
+                        }
+                    }
+                    char lair_score = get_lair_score(room_has_units_of_same_kind,room_has_units_of_different_kind,room_has_lair_enemy);
+                    room_scores[room->index] = lair_score;
+                    if (best_score < lair_score)
+                        best_score = lair_score;
+                }
+                room = room_get(room->next_of_owner);
+            }
+        }
+    }
+        
+    if (best_score == 0)
+    {
+        return INVALID_ROOM;
+    }
+
+    struct Room *nearest_room = INVALID_ROOM;
+    MapCoordDelta distance;
+    MapCoordDelta min_distance = INT_MAX;
+    struct Coord3d room_center_pos;
+
+    for (RoomKind rkind = 0; rkind < ROOM_TYPES_COUNT; rkind++)
+    {
+        if(room_role_matches(rkind,RoRoF_LairStorage))
+        {
+            room = room_get(dungeon->room_kind[rkind]);
+            while (!room_is_invalid(room))
+            {
+                if ( room_scores[room->index] == best_score )
+                {
+                    room_center_pos.x.stl.pos = room->central_stl_x;
+                    room_center_pos.y.stl.pos = room->central_stl_y;
+                    room_center_pos.z.val = 256;
+                    distance = get_2d_box_distance(&creatng->mappos, &room_center_pos);
+
+                    if ( min_distance > distance )
+                    {
+                        min_distance = distance;
+                        nearest_room = room;
+                    }
+                }
+                room = room_get(room->next_of_owner);
+            }
+        }
+    }
+    return nearest_room;
 }
 /******************************************************************************/
