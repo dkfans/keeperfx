@@ -177,7 +177,7 @@ enum TbPacketAction {
         PckA_SetRoomspaceWholeRoom,
         PckA_SetRoomspaceSubtile,
         PckA_SetRoomspaceHighlight,
-        PckA_SetNearestTeleport
+        PckA_SetNearestTeleport,
 };
 
 /** Packet flags for non-action player operation. */

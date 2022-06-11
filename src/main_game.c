@@ -28,6 +28,7 @@
 #include "vidfade.h"
 #include "vidmode.h"
 #include "custom_sprites.h"
+#include "gui_boxmenu.h"
 
 extern TbBool force_player_num;
 
@@ -42,6 +43,7 @@ CoroutineLoopState set_not_has_quit(CoroutineLoop *context);
 void reset_script_timers_and_flags(void)
 {
     struct Dungeon *dungeon;
+    struct DungeonAdd *dungeonadd;
     int plyr_idx;
     int k;
     TbBool freeplay = is_map_pack();
@@ -51,6 +53,7 @@ void reset_script_timers_and_flags(void)
         add_power_to_player(PwrK_SLAP, plyr_idx);
         add_power_to_player(PwrK_POSSESS, plyr_idx);
         dungeon = get_dungeon(plyr_idx);
+        dungeonadd = get_dungeonadd(plyr_idx);
         for (k=0; k<TURN_TIMERS_COUNT; k++)
         {
             memset(&dungeon->turn_timers[k], 0, sizeof(struct TurnTimer));
@@ -58,7 +61,7 @@ void reset_script_timers_and_flags(void)
         }
         for (k=0; k<SCRIPT_FLAGS_COUNT; k++)
         {
-            dungeon->script_flags[k] = 0;
+            dungeonadd->script_flags[k] = 0;
             if (freeplay)
             {
                 intralvl.campaign_flags[plyr_idx][k] = 0;

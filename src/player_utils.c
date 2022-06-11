@@ -100,30 +100,33 @@ void set_player_as_won_level(struct PlayerInfo *player)
       //WARNLOG("Player fate is already decided to %d",(int)player->victory_state);
       return;
   }
-  if (is_my_player(player))
-    frontstats_initialise();
-  player->victory_state = VicS_WonLevel;
+  TbBool my_player = (is_my_player(player));
   struct Dungeon* dungeon = get_dungeon(player->id_number);
-  if ( timer_enabled() )
+  if (my_player)
   {
-    if (TimerGame)
-    {
-        TimerTurns = dungeon->lvstats.hopes_dashed;
-        update_time();
-    }
-    else
-    {
-        show_real_time_taken();
-    }
-    struct GameTime GameT = get_game_time(dungeon->lvstats.hopes_dashed, game.num_fps);
-    SYNCMSG("Won level %ld. Total turns taken: %ld (%02d:%02d:%02d at %d fps). Real time elapsed: %02d:%02d:%02d:%03d.", game.loaded_level_number, dungeon->lvstats.hopes_dashed, GameT.Hours, GameT.Minutes, GameT.Seconds, game.num_fps, Timer.Hours, Timer.Minutes, Timer.Seconds, Timer.MSeconds);
+      frontstats_initialise();
+      if ( timer_enabled() )
+      {
+        if (TimerGame)
+        {
+            TimerTurns = dungeon->lvstats.hopes_dashed;
+            update_time();
+        }
+        else
+        {
+            show_real_time_taken();
+        }
+        struct GameTime GameT = get_game_time(dungeon->lvstats.hopes_dashed, game.num_fps);
+        SYNCMSG("Won level %ld. Total turns taken: %ld (%02d:%02d:%02d at %d fps). Real time elapsed: %02d:%02d:%02d:%03d.", game.loaded_level_number, dungeon->lvstats.hopes_dashed, GameT.Hours, GameT.Minutes, GameT.Seconds, game.num_fps, Timer.Hours, Timer.Minutes, Timer.Seconds, Timer.MSeconds);
+      }
   }
+  player->victory_state = VicS_WonLevel;
   // Computing player score
   dungeon->lvstats.player_score = compute_player_final_score(player, dungeon->max_gameplay_score);
   dungeon->lvstats.allow_save_score = 1;
   if ((game.system_flags & GSF_NetworkActive) == 0)
     player->field_4EB = game.play_gameturn + 300;
-  if (is_my_player(player))
+  if (my_player)
   {
     if (lord_of_the_land_in_prison_or_tortured())
     {
@@ -973,6 +976,13 @@ void compute_and_update_player_payday_total(PlayerNumber plyr_idx)
     SYNCDBG(15,"Starting for player %d",(int)plyr_idx);
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
     dungeon->creatures_total_pay = compute_player_payday_total(dungeon);
+}
+void compute_and_update_player_backpay_total(PlayerNumber plyr_idx)
+{
+    SYNCDBG(15, "Starting for player %d", (int)plyr_idx);
+    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
+    struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
+    dungeonadd->creatures_total_backpay = compute_player_payday_total(dungeon);
 }
 
 /******************************************************************************/

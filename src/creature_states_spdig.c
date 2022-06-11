@@ -58,8 +58,6 @@ extern "C" {
 #endif
 /******************************************************************************/
 DLLIMPORT long _DK_check_out_undug_drop_place(struct Thing *spdigtng);
-DLLIMPORT int _DK_sub_4D2A60(struct Thing* spdigtng, int a2, int a3);
-DLLIMPORT short _DK_check_out_unprettied_spiral(struct Thing* spdigtng, int a2);
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -453,23 +451,47 @@ long check_out_unclaimed_gold(struct Thing *spdigtng, long range)
     return 0;
 }
 
-long check_out_unprettied_drop_place(struct Thing *thing)
+static TbBool check_out_place_for_pretty_behind_door(struct Thing *spdigting, MapCoord slb_x, MapCoord slb_y)
 {
-    int v1 = map_to_slab[thing->mappos.x.stl.num];
-    int v2 = map_to_slab[thing->mappos.y.stl.num];
-    int a3 = 3 * v2 + 1;
-    if (check_place_to_pretty_excluding(thing, map_to_slab[thing->mappos.x.stl.num], v2)
-        && !imp_will_soon_be_working_at_excluding(thing, 3 * v1 + 1, a3)
-        && setup_person_move_to_position(thing, 3 * v1 + 1, a3, 0))
+    for ( int i = 0; i < SMALL_AROUND_LENGTH; ++i )
     {
-        thing->continue_state = 9;
-        return 1;
+        if ( slab_is_my_door(spdigting->owner, slb_x + small_around[i].delta_x, slb_y + small_around[i].delta_y) )
+        {
+            MapCoord around_slb_x = slb_x + 2 * small_around[i].delta_x;
+            MapCoord around_slb_y = slb_y + 2 * small_around[i].delta_y;
+            MapSubtlCoord around_stl_x = slab_subtile_center(around_slb_x);
+            MapSubtlCoord around_stl_y = slab_subtile_center(around_slb_y);
+            if ( check_place_to_pretty_excluding(spdigting, around_slb_x, around_slb_y)
+                && !imp_will_soon_be_working_at_excluding(spdigting, around_slb_x, around_slb_y)
+                && setup_person_move_to_position(spdigting, around_stl_x, around_stl_y, 0) )
+            {
+                spdigting->continue_state = CrSt_ImpArrivesAtImproveDungeon;
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+TbBool check_out_unprettied_drop_place(struct Thing *thing)
+{
+    MapCoord slb_x = subtile_slab_fast(thing->mappos.x.stl.num);
+    MapCoord slb_y = subtile_slab_fast(thing->mappos.y.stl.num);
+    MapSubtlCoord stl_x = slab_subtile_center(slb_x);
+    MapSubtlCoord stl_y = slab_subtile_center(slb_y);
+
+    if (check_place_to_pretty_excluding(thing, slb_x, slb_y)
+        && !imp_will_soon_be_working_at_excluding(thing, stl_x, stl_y)
+        && setup_person_move_to_position(thing, stl_x, stl_y, 0))
+    {
+        thing->continue_state = CrSt_ImpArrivesAtImproveDungeon;
+        return true;
     }
 
-    if (_DK_check_out_unprettied_spiral(thing, 1))
-        return 1;
+    if (check_out_unprettied_spiral(thing, 1))
+        return true;
 
-    return _DK_sub_4D2A60(thing, v1, v2) >= 1u;
+    return check_out_place_for_pretty_behind_door(thing, slb_x, slb_y);
 }
 
 long check_out_object_for_trap(struct Thing *spdigtng, struct Thing *traptng)
@@ -1504,7 +1526,7 @@ short creature_picks_up_spell_object(struct Thing *creatng)
     // Create event to inform player about the spell or special (need to be done before pickup due to ownership changes)
     update_library_object_pickup_event(creatng, picktng);
     creature_drag_object(creatng, picktng);
-    if (!setup_person_move_to_coord(creatng, &pos, NavRtF_Default))
+    if (!setup_person_move_backwards_to_coord(creatng, &pos, NavRtF_Default))
     {
         SYNCDBG(8,"Cannot move to (%d,%d)",(int)pos.x.stl.num, (int)pos.y.stl.num);
         set_start_state(creatng);

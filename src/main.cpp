@@ -1566,7 +1566,6 @@ void reinit_level_after_load(void)
     struct PlayerInfo *player;
     int i;
     SYNCDBG(6,"Starting");
-    init_custom_sprites(SPRITE_LAST_LEVEL);
     // Reinit structures from within the game
     player = get_my_player();
     player->lens_palette = 0;
@@ -2341,9 +2340,9 @@ void count_players_creatures_being_paid(int *creatures_count)
             {
                 struct CreatureControl *cctrl;
                 cctrl = creature_control_get_from_thing(thing);
-                if (cctrl->prepayments_received > 0)
+                if (cctrl->paydays_advanced > 0)
                 {
-                    cctrl->prepayments_received--;
+                    cctrl->paydays_advanced--;
                 } else
                 {
                     cctrl->paydays_owed++;
@@ -2376,6 +2375,7 @@ void process_payday(void)
         if (player_exists(player) && (player->is_active == 1))
         {
             compute_and_update_player_payday_total(plyr_idx);
+            compute_and_update_player_backpay_total(plyr_idx);
         }
     }
     if (game.pay_day_gap <= game.pay_day_progress)

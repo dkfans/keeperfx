@@ -569,7 +569,7 @@ short move_to_position(struct Thing *creatng)
             SYNCDBG(8,"Couldn't move %s to place required for state %s; reset to state %s",thing_model_name(creatng),creature_state_code_name(cntstat),creatrtng_actstate_name(creatng));
             return CrStRet_ResetOk;
         }
-        // If continuing the job, check for job stress
+        // If continuing the job, check for job stress. Several - but not all - jobs use the move_to_position function.
         process_job_stress_and_going_postal(creatng);
     }
     switch (state_check)
