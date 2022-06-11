@@ -144,17 +144,17 @@ struct Room *get_best_new_lair_for_creature(struct Thing *creatng)
     char best_score = 0;
 
     const struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
-    struct Dungeon* dungeon = get_dungeon(creatng->owner);
+    struct DungeonAdd* dungeonadd = get_dungeonadd(creatng->owner);
 
     short *room_scores = (short *)scratch;
     memset(scratch, 0, ROOMS_COUNT);
 
 
-    for (RoomKind rkind = 0; rkind < ROOM_TYPES_COUNT; rkind++)
+    for (RoomKind rkind = 0; rkind < slab_conf.room_types_count; rkind++)
     {
         if(room_role_matches(rkind,RoRoF_LairStorage))
         {
-            room = room_get(dungeon->room_kind[rkind]);
+            room = room_get(dungeonadd->room_kind[rkind]);
             while (!room_is_invalid(room))
             {
                 if ( room_has_enough_free_capacity_for_creature_job(room, creatng, Job_TAKE_SLEEP) && creature_can_head_for_room(creatng, room, 0) )
@@ -200,11 +200,11 @@ struct Room *get_best_new_lair_for_creature(struct Thing *creatng)
     MapCoordDelta min_distance = INT_MAX;
     struct Coord3d room_center_pos;
 
-    for (RoomKind rkind = 0; rkind < ROOM_TYPES_COUNT; rkind++)
+    for (RoomKind rkind = 0; rkind < slab_conf.room_types_count; rkind++)
     {
         if(room_role_matches(rkind,RoRoF_LairStorage))
         {
-            room = room_get(dungeon->room_kind[rkind]);
+            room = room_get(dungeonadd->room_kind[rkind]);
             while (!room_is_invalid(room))
             {
                 if ( room_scores[room->index] == best_score )
