@@ -1297,7 +1297,7 @@ RoomIndex find_my_next_room_of_type(RoomKind rkind)
 
 RoomIndex find_next_room_of_type(PlayerNumber plyr_idx, RoomKind rkind)
 {
-    RoomIndex next_room[slab_conf.room_types_count];
+    static RoomIndex next_room[TERRAIN_ITEMS_MAX];
     if (next_room[rkind] > 0)
     {
         struct Room* room = room_get(next_room[rkind]);
