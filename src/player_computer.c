@@ -568,12 +568,12 @@ void get_opponent(struct Computer2 *comp, struct THate hates[])
 
 TbBool computer_finds_nearest_room_to_pos(struct Computer2 *comp, struct Room **retroom, struct Coord3d *nearpos){
     long nearest_distance = LONG_MAX;
-    struct Dungeon* dungeon = comp->dungeon;
+    struct DungeonAdd* dungeonadd = get_dungeonadd_by_dungeon(comp->dungeon);
     *retroom = NULL;
 
-    for (RoomKind i = 0; i < ROOM_TYPES_COUNT; i++)
+    for (RoomKind i = 0; i < slab_conf.room_types_count; i++)
     {
-        struct Room* room = room_get(dungeon->room_kind[i]);
+        struct Room* room = room_get(dungeonadd->room_kind[i]);
         
         while (!room_is_invalid(room))
         {
