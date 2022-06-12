@@ -1241,8 +1241,8 @@ TbBool make_all_rooms_free(void)
 {
     for (long rkind = 0; rkind < slab_conf.room_types_count; rkind++)
     {
-        struct RoomConfigStats* rstat = get_room_kind_stats(rkind);
-        rstat->cost = 0;
+        struct RoomConfigStats* roomst = get_room_kind_stats(rkind);
+        roomst->cost = 0;
     }
     return true;
 }
