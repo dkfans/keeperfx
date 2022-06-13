@@ -5408,8 +5408,6 @@ static long convert_world_coord_to_front_view_screen_coord(struct Coord3d* pos, 
             break;
     }
 
-    *z_out = 0;
-
     return result;
 }
 
