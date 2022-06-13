@@ -1383,70 +1383,40 @@ TbResult magic_use_power_hand(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSub
 
 void stop_creatures_around_hand(PlayerNumber plyr_idx, MapSubtlCoord stl_x,  MapSubtlCoord stl_y)
 {
-    unsigned __int16 i; // di
-    int v4; // eax
-    __int16 delta_y; // dx
-    struct Thing *thing; // ebp
 
-    for ( i = 0; i < MID_AROUND_LENGTH; ++i )
+    for ( size_t i = 0; i < MID_AROUND_LENGTH; ++i )
     {
-        v4 = i;
-        delta_y = mid_around[v4].delta_y;
+        struct Map* mapblk = get_map_block_at(stl_x + mid_around[i].delta_x, stl_y + mid_around[i].delta_y);
+        if(mapblk == INVALID_MAP_BLOCK)
+            continue;
 
-
-
-
-
-
-/*
-
-    i = get_mapwho_thing_index(mapblk);
-    while (i != 0)
-    {
-        thing = thing_get(i);
-        TRACE_THING(thing);
-        if (thing_is_invalid(thing))
+        unsigned long k = 0;
+        long j = get_mapwho_thing_index(mapblk);
+        while (j != 0)
         {
-            ERRORLOG("Jump to invalid thing detected");
-            break;
-        }
-        i = thing->next_on_mapblk;
-        // Per thing code start
-        
-        // Per thing code end
-        k++;
-        if (k > THINGS_COUNT)
-        {
-            ERRORLOG("Infinite loop detected when sweeping things list");
-            break_mapwho_infinite_chain(mapblk);
-            break;
-        }
-    }
-
-*/
-
-
-
-
-
-
-        if ( (unsigned __int16)(stl_x + mid_around[v4].delta_x) < 0x100u && (unsigned __int16)(delta_y + stl_y) < 0x100u )
-        {
-            for ( thing = *(Thing **)((char *)&game_things_lookup
-                                + ((*(int *)((char *)&get_mapwho_thing_index[320 * (unsigned __int16)(delta_y + stl_y)]
-                                            + 5 * (unsigned __int16)(stl_x + mid_around[i].delta_x)) & 0x3FF800u) >> 9));
-                    thing > game_things_lookup;
-                    thing = *(&game_things_lookup + (unsigned __int16)thing->next_on_mapblk) )
-
-
+            struct Thing* thing = thing_get(j);
+            TRACE_THING(thing);
+            if (thing_is_invalid(thing))
             {
+                ERRORLOG("Jump to invalid thing detected");
+                break;
+            }
+            j = thing->next_on_mapblk;
+            // Per thing code start
                 if ( thing_is_creature(thing) && can_thing_be_picked_up_by_player(thing, plyr_idx) && thing->owner == plyr_idx )
                 {
                     struct CreatureControl  *cctrl = creature_control_get_from_thing(thing);
-                    cctrl.field_302 = 20
+                    cctrl->field_302 = 20;
                 }
+            // Per thing code end
+            k++;
+            if (k > THINGS_COUNT)
+            {
+                ERRORLOG("Infinite loop detected when sweeping things list");
+                break_mapwho_infinite_chain(mapblk);
+                break;
             }
-        }
+        }        
     }
 }
 
