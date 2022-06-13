@@ -5366,8 +5366,9 @@ static void display_fast_drawlist(struct Camera *cam)
 // Returns 1 if projected point is withing player's window, 0 otherwise
 static long project_point_helper(struct PlayerInfo *player, int zoom, int a1, int a2, int a3, unsigned short pos_z, long *x_out, long *y_out, long *z_out)
 {
-    int v11, v13_top_byte;
+    int v11;
     int64_t v13;
+    uint8_t v13_byte4;
     short window_width = player->engine_window_width;
     short window_height = player->engine_window_height;
 
@@ -5375,8 +5376,8 @@ static long project_point_helper(struct PlayerInfo *player, int zoom, int a1, in
     v11 = zoom * (a1 - a3) >> 8;
     *z_out = window_height - ((v11 + ((uint16_t)(window_height & 0xFFFE) << 7)) >> 8) + 64;
     v13 = zoom * *(int16_t *)&pos_z << 7;
-    v13_top_byte = (*((uint8_t *)&(v13)+4));
-    *y_out = (v11 + ((uint16_t)(window_height & 0xFFFE) << 7) - ((v13_top_byte + (signed int)v13) >> 16)) >> 8;
+    v13_byte4 = *((uint8_t *)&v13 + 4);
+    *y_out = (v11 + ((uint16_t)(window_height & 0xFFFE) << 7) - ((v13_byte4 + (signed int)v13) >> 16)) >> 8;
 
     return (*x_out >= 0 && *x_out < window_width && *y_out >= 0 && *y_out < window_height);
 }
