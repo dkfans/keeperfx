@@ -5383,6 +5383,7 @@ static long project_point_helper(struct PlayerInfo *player, int zoom, int a1, in
 static long convert_world_coord_to_front_view_screen_coord(struct Coord3d* pos, struct Camera* cam, long* x_out, long* y_out, long* z_out)
 {
     int zoom;   // TODO: Change this to correct name
+    int a1, a2, a3;
     long result = 0;
     struct PlayerInfo* player = get_my_player();
 
@@ -5392,19 +5393,31 @@ static long convert_world_coord_to_front_view_screen_coord(struct Coord3d* pos, 
     switch ( ((unsigned int)(cam->orient_a + 256) >> 9) & 3 )
     {
         case 0:
-            result = project_point_helper(player, zoom, pos->y.val, pos->x.val - cam->mappos.x.val, cam->mappos.y.val, pos->z.val, x_out, y_out, z_out);
+            a1 = *(uint16_t *)&pos->y.val;
+            a2 = *(uint16_t *)&pos->x.val - *(uint16_t *)&cam->mappos.x.val;
+            a3 = *(uint16_t *)&cam->mappos.y.val;
+            result = project_point_helper(player, zoom, a1, a2, a3, pos->z.val, x_out, y_out, z_out);
             break;
 
         case 1:
-            result = project_point_helper(player, zoom, cam->mappos.x.val, pos->y.val - cam->mappos.y.val, pos->x.val, pos->z.val, x_out, y_out, z_out);
+            a1 = *(uint16_t *)&cam->mappos.x.val;
+            a2 = *(uint16_t *)&pos->y.val - *(uint16_t *)&cam->mappos.y.val;
+            a3 = *(uint16_t *)&pos->x.val;
+            result = project_point_helper(player, zoom, a1, a2, a3, pos->z.val, x_out, y_out, z_out);
             break;
 
         case 2:
-            result = project_point_helper(player, zoom, cam->mappos.x.val, cam->mappos.x.val - pos->x.val, pos->y.val, pos->z.val, x_out, y_out, z_out);
+            a1 = *(uint16_t *)&cam->mappos.x.val;
+            a2 = *(uint16_t *)&cam->mappos.x.val - *(uint16_t *)&pos->x.val;
+            a3 = *(uint16_t *)&pos->y.val;
+            result = project_point_helper(player, zoom, a1, a2, a3, pos->z.val, x_out, y_out, z_out);
             break;
 
         case 3:
-            result = project_point_helper(player, zoom, pos->x.val, cam->mappos.y.val - pos->y.val, cam->mappos.x.val, pos->z.val, x_out, y_out, z_out);
+            a1 = *(uint16_t *)&pos->x.val;
+            a2 = *(uint16_t *)&cam->mappos.y.val - *(uint16_t *)&pos->y.val;
+            a3 = *(uint16_t *)&cam->mappos.x.val;
+            result = project_point_helper(player, zoom, a1, a2, a3, pos->z.val, x_out, y_out, z_out);
             break;
     }
 
