@@ -5387,6 +5387,7 @@ static long convert_world_coord_to_front_view_screen_coord(struct Coord3d* pos, 
     int engine_window_height;
     long result = 0;
     struct PlayerInfo* player = get_my_player();
+    int test = 0;
 
     // return _DK_convert_world_coord_to_front_view_screen_coord(pos, cam, x, y, z);
 
