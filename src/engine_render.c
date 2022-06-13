@@ -5386,9 +5386,8 @@ static long convert_world_coord_to_front_view_screen_coord(struct Coord3d* pos, 
     long result = 0;
     struct PlayerInfo* player = get_my_player();
 
-    return _DK_convert_world_coord_to_front_view_screen_coord(pos, cam, x_out, y_out, z_out);
+    // return _DK_convert_world_coord_to_front_view_screen_coord(pos, cam, x_out, y_out, z_out);
 
-#if 0
     zoom = 32 * cam->zoom / 256;
     switch ( ((unsigned int)(cam->orient_a + 256) >> 9) & 3 )
     {
@@ -5410,7 +5409,6 @@ static long convert_world_coord_to_front_view_screen_coord(struct Coord3d* pos, 
     }
 
     return result;
-#endif
 }
 
 static void add_thing_sprite_to_polypool(struct Thing *thing, long scr_x, long scr_y, long a4, long bckt_idx)
