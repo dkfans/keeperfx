@@ -5372,7 +5372,7 @@ static long project_point_helper(struct PlayerInfo *player, int zoom, int a1, in
 
     *x_out = (zoom * a2 >> 16) + (*(uint16_t *)&window_width >> 1);
     v11 = zoom * (a1 - a3) >> 8;
-    *z_out = window_height - ((v11 + ((window_height & 0xFFFE) << 7)) >> 8) + 64;
+    *z_out = window_height - ((v11 + ((uint16_t)(window_height & 0xFFFE) << 7)) >> 8) + 64;
     v13 = zoom * *(int16_t *)&pos_z << 7;
     v13_top_byte = (*((uint8_t *)&(v13)+3));
     *y_out = (v11 + ((uint16_t)(window_height & 0xFFFE) << 7) - ((v13_top_byte + (signed int)v13) >> 16)) >> 8;
