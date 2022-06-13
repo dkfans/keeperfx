@@ -64,8 +64,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT void _DK_stop_creatures_around_hand(char a1, unsigned short value, unsigned short a3);
-/******************************************************************************/
 #ifdef __cplusplus
 }
 #endif
@@ -1383,9 +1381,73 @@ TbResult magic_use_power_hand(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSub
     return Lb_SUCCESS;
 }
 
-void stop_creatures_around_hand(char a1, unsigned short a2, unsigned short a3)
+void stop_creatures_around_hand(PlayerNumber plyr_idx, MapSubtlCoord stl_x,  MapSubtlCoord stl_y)
 {
-  _DK_stop_creatures_around_hand(a1, a2, a3);
+    unsigned __int16 i; // di
+    int v4; // eax
+    __int16 delta_y; // dx
+    struct Thing *thing; // ebp
+
+    for ( i = 0; i < MID_AROUND_LENGTH; ++i )
+    {
+        v4 = i;
+        delta_y = mid_around[v4].delta_y;
+
+
+
+
+
+
+/*
+
+    i = get_mapwho_thing_index(mapblk);
+    while (i != 0)
+    {
+        thing = thing_get(i);
+        TRACE_THING(thing);
+        if (thing_is_invalid(thing))
+        {
+            ERRORLOG("Jump to invalid thing detected");
+            break;
+        }
+        i = thing->next_on_mapblk;
+        // Per thing code start
+        
+        // Per thing code end
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break_mapwho_infinite_chain(mapblk);
+            break;
+        }
+    }
+
+*/
+
+
+
+
+
+
+        if ( (unsigned __int16)(stl_x + mid_around[v4].delta_x) < 0x100u && (unsigned __int16)(delta_y + stl_y) < 0x100u )
+        {
+            for ( thing = *(Thing **)((char *)&game_things_lookup
+                                + ((*(int *)((char *)&get_mapwho_thing_index[320 * (unsigned __int16)(delta_y + stl_y)]
+                                            + 5 * (unsigned __int16)(stl_x + mid_around[i].delta_x)) & 0x3FF800u) >> 9));
+                    thing > game_things_lookup;
+                    thing = *(&game_things_lookup + (unsigned __int16)thing->next_on_mapblk) )
+
+
+            {
+                if ( thing_is_creature(thing) && can_thing_be_picked_up_by_player(thing, plyr_idx) && thing->owner == plyr_idx )
+                {
+                    struct CreatureControl  *cctrl = creature_control_get_from_thing(thing);
+                    cctrl.field_302 = 20
+                }
+            }
+        }
+    }
 }
 
 TbBool slap_object(struct Thing *thing)
