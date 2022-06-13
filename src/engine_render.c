@@ -5408,7 +5408,7 @@ static long convert_world_coord_to_front_view_screen_coord(struct Coord3d* pos, 
             break;
     }
 
-    JUSTMSG("convert_world_coord_to_front_view_screen_coord: %d, %d, %d, %d, %d, %d", pos->x.val, pos->y.val, pos->z.val, *x_out, *y_out, *z_out);
+    JUSTLOG("convert_world_coord_to_front_view_screen_coord: %d, %d, %d, %d, %d, %d", pos->x.val, pos->y.val, pos->z.val, *x_out, *y_out, *z_out);
 
     return result;
 }
