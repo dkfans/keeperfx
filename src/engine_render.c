@@ -5363,20 +5363,19 @@ static void display_fast_drawlist(struct Camera *cam)
     }
 }
 
-#define BYTEn(x, n)   (*((uint8_t*)&(x)+n))   // TODO: Move this to a header file
-
 // Returns 1 if projected point is withing player's window, 0 otherwise
 static long project_point_helper(struct PlayerInfo *player, int zoom, int a1, int a2, int a3, int pos_z, long *x_out, long *y_out, long *z_out)
 {
-    int v11, v13;
+    int v11, v13, v13_top_byte;
     int window_width = player->engine_window_width;
     int window_height = player->engine_window_height;
 
-    *x_out = (zoom * a2 >> 16) + window_width >> 1;
+    *x_out = ((zoom * a2 >> 16) + window_width) >> 1;
     v11 = zoom * (a1 - a3) >> 8;
     *z_out = window_height - ((v11 + ((window_height & 0xFFFE) << 7)) >> 8) + 64;
     v13 = zoom * pos_z << 7;
-    *y_out = (v11 + ((window_height & 0xFFFE) << 7) - ((BYTEn(v13, 4) + v13) >> 16)) >> 8;
+    v13_top_byte = (*((uint8_t*)&(v13)+3));
+    *y_out = (v11 + ((window_height & 0xFFFE) << 7) - ((v13_top_byte + v13) >> 16)) >> 8;
 
     return (*x_out >= 0 && *x_out < window_width && *y_out >= 0 && *y_out < window_height);
 }
@@ -5384,10 +5383,8 @@ static long project_point_helper(struct PlayerInfo *player, int zoom, int a1, in
 static long convert_world_coord_to_front_view_screen_coord(struct Coord3d* pos, struct Camera* cam, long* x_out, long* y_out, long* z_out)
 {
     int zoom;   // TODO: Change this to correct name
-    int engine_window_height;
     long result = 0;
     struct PlayerInfo* player = get_my_player();
-    int test = 0;
 
     // return _DK_convert_world_coord_to_front_view_screen_coord(pos, cam, x, y, z);
 
