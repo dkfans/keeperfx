@@ -5385,6 +5385,7 @@ static long project_point_helper(struct PlayerInfo *player, int zoom, int a1, in
 static long convert_world_coord_to_front_view_screen_coord(struct Coord3d* pos, struct Camera* cam, long* x_out, long* y_out, long* z_out)
 {
     int zoom;   // TODO: Change this to correct name
+    unsigned int orientation;
     int a1, a2, a3;
     long result = 0;
     struct PlayerInfo* player = get_my_player();
@@ -5392,7 +5393,11 @@ static long convert_world_coord_to_front_view_screen_coord(struct Coord3d* pos, 
     // return _DK_convert_world_coord_to_front_view_screen_coord(pos, cam, x_out, y_out, z_out);
 
     zoom = 32 * cam->zoom / 256;
-    switch ( ((unsigned int)(cam->orient_a + 256) >> 9) & 3 )
+    orientation = ((unsigned int)(cam->orient_a + 256) >> 9) & 3;
+
+    JUSTLOG("orientation=%d", orientation);
+
+    switch ( orientation )
     {
         case 0:
             a1 = *(uint16_t *)&pos->y.val;
