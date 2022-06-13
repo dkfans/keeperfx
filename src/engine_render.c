@@ -5365,7 +5365,27 @@ static void display_fast_drawlist(struct Camera *cam)
 
 static long convert_world_coord_to_front_view_screen_coord(struct Coord3d* pos, struct Camera* cam, long* x, long* y, long* z)
 {
-    return _DK_convert_world_coord_to_front_view_screen_coord(pos, cam, x, y, z);
+    int zoom;   // TODO: Change this to correct name
+    long result = 0;
+
+    zoom = 32 * cam->zoom / 256;
+    switch ( ((unsigned int)(cam->orient_a + 256) >> 9) & 3 )
+    {
+        case 0:
+            goto calculate;
+
+        case 1:
+            goto calculate;
+
+        case 2:
+            goto calculate;
+
+        case 3:
+    calculate:
+            break;
+    }
+
+    // return _DK_convert_world_coord_to_front_view_screen_coord(pos, cam, x, y, z);
 }
 
 static void add_thing_sprite_to_polypool(struct Thing *thing, long scr_x, long scr_y, long a4, long bckt_idx)
