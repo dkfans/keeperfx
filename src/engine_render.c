@@ -5367,10 +5367,10 @@ static void display_fast_drawlist(struct Camera *cam)
 static long project_point_helper(struct PlayerInfo *player, int zoom, int a1, int a2, int a3, int pos_z, long *x_out, long *y_out, long *z_out)
 {
     int v11, v13, v13_top_byte;
-    int window_width = player->engine_window_width;
-    int window_height = player->engine_window_height;
+    short window_width = player->engine_window_width;
+    short window_height = player->engine_window_height;
 
-    *x_out = ((zoom * a2 >> 16) + window_width) >> 1;
+    *x_out = (zoom * a2 >> 16) + (*(uint16_t *)&window_width >> 1);
     v11 = zoom * (a1 - a3) >> 8;
     *z_out = window_height - ((v11 + ((window_height & 0xFFFE) << 7)) >> 8) + 64;
     v13 = zoom * pos_z << 7;
