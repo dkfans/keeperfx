@@ -128,6 +128,11 @@ struct Room *droom = &_DK_game.rooms[25];
 //static
 TbClockMSec last_loop_time=0;
 
+float frame_time_in_ms;
+float previous_time_in_ms;
+float process_turn_time;
+float fast_delta_time;
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -2800,7 +2805,6 @@ void update(void)
     }
 
     message_update();
-    update_all_players_cameras();
     update_player_sounds();
     game.field_14EA4B = 0;
     SYNCDBG(6,"Finished");
@@ -3324,26 +3328,26 @@ TbBool keeper_screen_swap(void)
  * Waits until the next game turn. Delay is usually controlled by
  * num_fps variable.
  */
-TbBool keeper_wait_for_next_turn(void)
-{
-    if ((game.numfield_D & GNFldD_Unkn10) != 0)
-    {
-        // No idea when such situation occurs
-        TbClockMSec sleep_end = last_loop_time + 1000;
-        LbSleepUntil(sleep_end);
-        last_loop_time = LbTimerClock();
-        return true;
-    }
-    if (game.frame_skip == 0)
-    {
-        // Standard delaying system
-        TbClockMSec sleep_end = last_loop_time + 1000/game.num_fps;
-        LbSleepUntil(sleep_end);
-        last_loop_time = LbTimerClock();
-        return true;
-    }
-    return false;
-}
+//TbBool keeper_wait_for_next_turn(void)
+//{
+//    if ((game.numfield_D & GNFldD_Unkn10) != 0)
+//    {
+//        // No idea when such situation occurs
+//        TbClockMSec sleep_end = last_loop_time + 1000;
+//        LbSleepUntil(sleep_end);
+//        last_loop_time = LbTimerClock();
+//        return true;
+//    }
+//    if (game.frame_skip == 0)
+//    {
+//        // Standard delaying system
+//        TbClockMSec sleep_end = last_loop_time + 1000/game.num_fps;
+//        LbSleepUntil(sleep_end);
+//        last_loop_time = LbTimerClock();
+//        return true;
+//    }
+//    return false;
+//}
 
 TbBool keeper_wait_for_screen_focus(void)
 {
@@ -3366,6 +3370,34 @@ TbBool keeper_wait_for_screen_focus(void)
         LbSleepFor(50);
     } while ((!exit_keeper) && (!quit_game));
     return false;
+}
+
+
+void fast_update(void)
+{
+    update_all_players_cameras();
+    
+    // Check if we should redraw screen in this turn
+    short do_draw = display_should_be_updated_this_turn() || (!LbIsActive());
+    if (do_draw)
+        keeper_screen_redraw();
+    keeper_wait_for_screen_focus();
+    // Move the graphics window to center of screen buffer and swap screen
+    if (do_draw)
+        keeper_screen_swap();
+
+    TbClockMSec current_time_in_ms = LbTimerClock();
+    
+    frame_time_in_ms = (current_time_in_ms - previous_time_in_ms);
+    previous_time_in_ms = current_time_in_ms;
+    // Delta time for the fast-loop (as opposed to the game-turns loop)
+    float target_fps = game.num_fps;
+    fast_delta_time = (frame_time_in_ms/1000.0) / (1.0/target_fps);
+
+    // Fix for when initially loading the map, frametime takes too long. Possibly other circumstances too.
+    if (fast_delta_time > 1.0) {fast_delta_time = 1.0;}
+
+    //JUSTLOG("%f", frame_time_in_ms);
 }
 
 void keeper_gameplay_loop(void)
@@ -3393,72 +3425,78 @@ void keeper_gameplay_loop(void)
     //the main gameplay loop starts
     while ((!quit_game) && (!exit_keeper))
     {
-        if ((game.flags_font & FFlg_unk10) != 0)
-        {
-          if (game.play_gameturn == 4)
-              LbNetwork_ChangeExchangeTimeout(0);
-        }
+        fast_update();
+
+        process_turn_time += fast_delta_time;
+        if (process_turn_time >= 1.0) {
+            process_turn_time -= 1.0; // -= is more accurate than setting process_turn_time to 0
+
+            if ((game.flags_font & FFlg_unk10) != 0)
+            {
+                if (game.play_gameturn == 4)
+                    LbNetwork_ChangeExchangeTimeout(0);
+            }
+
+            // Check if we should redraw screen in this turn
+            do_draw = display_should_be_updated_this_turn() || (!LbIsActive());
 
 #ifdef AUTOTESTING
-        if ((start_params.autotest_flags & ATF_ExitOnTurn) && (start_params.autotest_exit_turn == game.play_gameturn))
-        {
-            quit_game = true;
-            exit_keeper = true;
-            break;
-        }
-        evm_stat(1, "turn val=%ld,action_seed=%ld,unsync_seed=%ld", game.play_gameturn, game.action_rand_seed, game.unsync_rand_seed);
-        if (start_params.autotest_flags & ATF_FixedSeed)
-        {
-            game.action_rand_seed = game.play_gameturn;
-            game.unsync_rand_seed = game.play_gameturn;
-            srand(game.play_gameturn);
-        }
-#endif
-        // Check if we should redraw screen in this turn
-        do_draw = display_should_be_updated_this_turn() || (!LbIsActive());
-
-        LbWindowsControl();
-        input_eastegg();
-        input();
-        update();
-
-        if (quit_game || exit_keeper)
-            do_draw = false;
-
-        if ( do_draw )
-            keeper_screen_redraw();
-        keeper_wait_for_screen_focus();
-        // Direct information/error messages
-        if (LbScreenLock() == Lb_SUCCESS)
-        {
-            if ( do_draw )
-                perform_any_screen_capturing();
-            draw_onscreen_direct_messages();
-            LbScreenUnlock();
-        }
-
-        // Music and sound control
-        if ( !SoundDisabled )
-        {
-            if ( (game.turns_fastforward == 0) && (!game.numfield_149F38) )
+            if ((start_params.autotest_flags & ATF_ExitOnTurn) && (start_params.autotest_exit_turn == game.play_gameturn))
             {
-                MonitorStreamedSoundTrack();
-                process_sound_heap();
+                quit_game = true;
+                exit_keeper = true;
+                break;
             }
+            evm_stat(1, "turn val=%ld,action_seed=%ld,unsync_seed=%ld", game.play_gameturn, game.action_rand_seed, game.unsync_rand_seed);
+            if (start_params.autotest_flags & ATF_FixedSeed)
+            {
+                game.action_rand_seed = game.play_gameturn;
+                game.unsync_rand_seed = game.play_gameturn;
+                srand(game.play_gameturn);
+            }
+#endif
+            
+            LbWindowsControl();
+            input_eastegg();
+            input();
+            update();
+
+
+            if (quit_game || exit_keeper)
+                do_draw = false;
+
+            // Direct information/error messages
+            if (LbScreenLock() == Lb_SUCCESS)
+            {
+                if (do_draw)
+                    perform_any_screen_capturing();
+                draw_onscreen_direct_messages();
+                LbScreenUnlock();
+            }
+
+            // Music and sound control
+            if (!SoundDisabled)
+            {
+                if ((game.turns_fastforward == 0) && (!game.numfield_149F38))
+                {
+                    MonitorStreamedSoundTrack();
+                    process_sound_heap();
+                }
+            }
+
+
+
+            // Make delay if the machine is too fast
+            //if ((!game.packet_load_enable) || (game.turns_fastforward == 0))
+            //    keeper_wait_for_next_turn();
+            if (game.turns_packetoff == game.play_gameturn)
+                exit_keeper = 1;
         }
-
-        // Move the graphics window to center of screen buffer and swap screen
-        if ( do_draw )
-            keeper_screen_swap();
-
-        // Make delay if the machine is too fast
-        if ( (!game.packet_load_enable) || (game.turns_fastforward == 0) )
-            keeper_wait_for_next_turn();
-        if (game.turns_packetoff == game.play_gameturn)
-            exit_keeper = 1;
+        
     } // end while
     SYNCDBG(0,"Gameplay loop finished after %lu turns",(unsigned long)game.play_gameturn);
 }
+
 
 TbBool can_thing_be_queried(struct Thing *thing, PlayerNumber plyr_idx)
 {
@@ -3834,7 +3872,7 @@ static TbBool wait_at_frontend(void)
         fade_palette_in = 0;
       } else
       {
-        LbSleepUntil(fe_last_loop_time + 30);
+          LbSleepUntil(1);//fe_last_loop_time + 30);
       }
       fe_last_loop_time = LbTimerClock();
     } while (!finish_menu);

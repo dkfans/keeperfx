@@ -143,6 +143,7 @@ static unsigned long render_problems;
 static long render_prob_kind;
 static long sp_x, sp_y, sp_dx, sp_dy;
 
+float wibble_animation_time;
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -1080,6 +1081,10 @@ void fill_in_points_isometric(long bstl_x, long bstl_y, struct MinMax *mm)
 
 void frame_wibble_generate(void)
 {
+    wibble_animation_time += fast_delta_time;
+    if (wibble_animation_time < 1.0) { return; }
+    wibble_animation_time -= 1.0;
+
     //_DK_frame_wibble_generate(); return;
     int i;
     struct WibbleTable *wibl;

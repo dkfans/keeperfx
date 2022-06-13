@@ -34,7 +34,8 @@
 #include "dungeon_data.h"
 #include "config_settings.h"
 #include "player_instances.h"
-
+#include "keeperfx.hpp"
+#include "math.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -324,9 +325,9 @@ unsigned long scale_camera_zoom_to_screen(unsigned long zoom_lvl)
     return  ((zoom_lvl*size_wide) >> 8) + ((zoom_lvl*size_narr) >> 8);
 }
 
-void view_set_camera_y_inertia(struct Camera *cam, long delta, long ilimit)
+void view_set_camera_y_inertia(struct Camera *cam, float delta, float ilimit)
 {
-    long abslimit = abs(ilimit);
+    float abslimit = fabs(ilimit);
     cam->inertia_y += delta;
     if (cam->inertia_y < -abslimit) {
         cam->inertia_y = -abslimit;
@@ -337,9 +338,9 @@ void view_set_camera_y_inertia(struct Camera *cam, long delta, long ilimit)
     cam->in_active_movement_y = true;
 }
 
-void view_set_camera_x_inertia(struct Camera *cam, long delta, long ilimit)
+void view_set_camera_x_inertia(struct Camera *cam, float delta, float ilimit)
 {
-    long abslimit = abs(ilimit);
+    float abslimit = fabs(ilimit);
     cam->inertia_x += delta;
     if (cam->inertia_x < -abslimit) {
         cam->inertia_x = -abslimit;
@@ -350,10 +351,10 @@ void view_set_camera_x_inertia(struct Camera *cam, long delta, long ilimit)
     cam->in_active_movement_x = true;
 }
 
-void view_set_camera_rotation_inertia(struct Camera *cam, long delta, long ilimit)
+void view_set_camera_rotation_inertia(struct Camera *cam, float delta, float ilimit)
 {
-    int limit_val = abs(ilimit);
-    int new_val = delta + cam->inertia_rotation;
+    float limit_val = fabs(ilimit);
+    float new_val = delta + cam->inertia_rotation;
     cam->inertia_rotation = new_val;
     if (new_val < -limit_val)
     {
@@ -596,7 +597,7 @@ void view_move_camera_down(struct Camera *cam, long distance)
     
 }
 
-void view_process_camera_inertia(struct Camera *cam)
+void view_process_camera_inertia(struct Camera *cam) // Fast-loop
 {
     int i;
     i = cam->inertia_x;
@@ -606,10 +607,8 @@ void view_process_camera_inertia(struct Camera *cam)
     if (i < 0) {
         view_move_camera_left(cam, abs(i));
     }
-    if ( cam->in_active_movement_x ) {
-        cam->in_active_movement_x = false;
-    } else {
-        cam->inertia_x /= 2;
+    if ( cam->in_active_movement_x == false ) {
+        cam->inertia_x *= 1.00 - (0.50 * fast_delta_time);
     }
     i = cam->inertia_y;
     if (i > 0) {
@@ -618,22 +617,18 @@ void view_process_camera_inertia(struct Camera *cam)
     if (i < 0) {
         view_move_camera_up(cam, abs(i));
     }
-    if (cam->in_active_movement_y) {
-        cam->in_active_movement_y = false;
-    } else {
-        cam->inertia_y /= 2;
+    if (cam->in_active_movement_y == false) {
+        cam->inertia_y *= 1.00 - (0.50 * fast_delta_time);
     }
     if (cam->inertia_rotation) {
         cam->orient_a = (cam->inertia_rotation + cam->orient_a) & LbFPMath_AngleMask;
     }
-    if (cam->in_active_movement_rotation) {
-        cam->in_active_movement_rotation = false;
-    } else {
-        cam->inertia_rotation /= 2;
+    if (cam->in_active_movement_rotation == false) {
+        cam->inertia_rotation *= 1.00 - (0.50 * fast_delta_time);
     }
 }
 
-void update_player_camera(struct PlayerInfo *player)
+void update_player_camera(struct PlayerInfo *player) // Fast-loop
 {
     struct Dungeon *dungeon;
     dungeon = get_players_dungeon(player);
@@ -669,7 +664,7 @@ void update_player_camera(struct PlayerInfo *player)
     }
 }
 
-void update_all_players_cameras(void)
+void update_all_players_cameras(void) // Fast-loop
 {
   int i;
   struct PlayerInfo *player;

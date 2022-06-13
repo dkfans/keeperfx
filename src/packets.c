@@ -322,30 +322,36 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
     struct Packet* pckt = get_packet_direct(player->packet_num);
     SYNCDBG(6,"Processing player %d action %d",(int)plyr_idx,(int)pckt->action);
     struct Camera* cam = player->acamera;
-    long inter_val;
+    float inter_val;
     switch (cam->view_mode)
     {
     case PVM_IsometricView:
-        inter_val = 2560000 / cam->zoom;
+        inter_val = 2560000.0 / cam->zoom;
         break;
     case PVM_FrontView:
-        inter_val = 12800000 / cam->zoom;
+        inter_val = 12800000.0 / cam->zoom;
         break;
     default:
-        inter_val = 256;
+        inter_val = 256.0;
         break;
     }
     if (pckt->additional_packet_values & PCAdV_SpeedupPressed)
-      inter_val *= 3;
+      inter_val *= 3.0;
+
+    inter_val *= fast_delta_time;
+
+    cam->in_active_movement_x = false;
+    cam->in_active_movement_y = false;
+    cam->in_active_movement_rotation = false;
 
     if ((pckt->control_flags & PCtr_MoveUp) != 0)
-        view_set_camera_y_inertia(cam, -inter_val/4, -inter_val);
+        view_set_camera_y_inertia(cam, -inter_val/4.0, -inter_val);
     if ((pckt->control_flags & PCtr_MoveDown) != 0)
-        view_set_camera_y_inertia(cam, inter_val/4, inter_val);
+        view_set_camera_y_inertia(cam, inter_val/4.0, inter_val);
     if ((pckt->control_flags & PCtr_MoveLeft) != 0)
-        view_set_camera_x_inertia(cam, -inter_val/4, -inter_val);
+        view_set_camera_x_inertia(cam, -inter_val/4.0, -inter_val);
     if ((pckt->control_flags & PCtr_MoveRight) != 0)
-        view_set_camera_x_inertia(cam, inter_val/4, inter_val);
+        view_set_camera_x_inertia(cam, inter_val/4.0, inter_val);
     if ((pckt->control_flags & PCtr_ViewRotateCCW) != 0)
     {
         switch (cam->view_mode)

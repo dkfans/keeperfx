@@ -68,9 +68,9 @@ struct Camera {
     int zoom;
     int inertia_rotation;
     TbBool in_active_movement_rotation;
-    long inertia_x;
+    float inertia_x;
     TbBool in_active_movement_x;
-    long inertia_y;
+    float inertia_y;
     TbBool in_active_movement_y;
 };
 
@@ -107,9 +107,9 @@ unsigned long adjust_min_camera_zoom(struct Camera *cam, int showgui);
 unsigned long scale_camera_zoom_to_screen(unsigned long zoom_lvl);
 void update_camera_zoom_bounds(struct Camera *cam,unsigned long zoom_max,unsigned long zoom_min);
 
-void view_set_camera_y_inertia(struct Camera *cam, long a2, long a3);
-void view_set_camera_x_inertia(struct Camera *cam, long a2, long a3);
-void view_set_camera_rotation_inertia(struct Camera *cam, long a2, long a3);
+void view_set_camera_y_inertia(struct Camera *cam, float a2, float a3);
+void view_set_camera_x_inertia(struct Camera *cam, float a2, float a3);
+void view_set_camera_rotation_inertia(struct Camera *cam, float a2, float a3);
 
 void update_all_players_cameras(void);
 void init_player_cameras(struct PlayerInfo *player);
