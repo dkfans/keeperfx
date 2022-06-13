@@ -5395,8 +5395,6 @@ static long convert_world_coord_to_front_view_screen_coord(struct Coord3d* pos, 
     zoom = 32 * cam->zoom / 256;
     orientation = ((unsigned int)(cam->orient_a + 256) >> 9) & 3;
 
-    JUSTLOG("orientation=%d", orientation);
-
     switch ( orientation )
     {
         case 0:
@@ -5414,7 +5412,7 @@ static long convert_world_coord_to_front_view_screen_coord(struct Coord3d* pos, 
             break;
 
         case 2:
-            a1 = *(uint16_t *)&cam->mappos.x.val;
+            a1 = *(uint16_t *)&cam->mappos.y.val;
             a2 = *(uint16_t *)&cam->mappos.x.val - *(uint16_t *)&pos->x.val;
             a3 = *(uint16_t *)&pos->y.val;
             result = project_point_helper(player, zoom, a1, a2, a3, pos->z.val, x_out, y_out, z_out);
