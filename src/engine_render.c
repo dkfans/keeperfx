@@ -5363,14 +5363,30 @@ static void display_fast_drawlist(struct Camera *cam)
     }
 }
 
-#define BYTEn(x, n)   (*((_BYTE*)&(x)+n))   // TODO: Move this to a header file
+#define BYTEn(x, n)   (*((uint8_t*)&(x)+n))   // TODO: Move this to a header file
 
-static long convert_world_coord_to_front_view_screen_coord(struct Coord3d* pos, struct Camera* cam, long* x, long* y, long* z)
+// Returns 1 if projected point is withing player's window, 0 otherwise
+static long project_point_helper(struct PlayerInfo *player, int zoom, int a1, int a2, int a3, int pos_z, long *x_out, long *y_out, long *z_out)
+{
+    int v11, v13;
+    int window_width = player->engine_window_width;
+    int window_height = player->engine_window_height;
+
+    *x_out = (zoom * a2 >> 16) + window_width >> 1;
+    v11 = zoom * (a1 - a3) >> 8;
+    *z_out = window_height - ((v11 + ((window_height & 0xFFFE) << 7)) >> 8) + 64;
+    v13 = zoom * pos_z << 7;
+    *y_out = (v11 + ((window_height & 0xFFFE) << 7) - ((BYTEn(v13, 4) + v13) >> 16)) >> 8;
+
+    return (*x_out >= 0 && *x_out < window_width && *y_out >= 0 && *y_out < window_height);
+}
+
+static long convert_world_coord_to_front_view_screen_coord(struct Coord3d* pos, struct Camera* cam, long* x_out, long* y_out, long* z_out)
 {
     int zoom;   // TODO: Change this to correct name
-    int v8, v9, v10, v11, v13;
     int engine_window_height;
     long result = 0;
+    struct PlayerInfo* player = get_my_player();
 
     // return _DK_convert_world_coord_to_front_view_screen_coord(pos, cam, x, y, z);
 
@@ -5378,35 +5394,19 @@ static long convert_world_coord_to_front_view_screen_coord(struct Coord3d* pos, 
     switch ( ((unsigned int)(cam->orient_a + 256) >> 9) & 3 )
     {
         case 0:
-            v8 = pos->y.stl.pos;
-            v9 = pos->x.stl.pos - cam->mappos.x.stl.pos;
-            v10 = cam->mappos.y.stl.pos;
-            goto calculate;
+            result = project_point_helper(player, zoom, pos->y.val, pos->x.val - cam->mappos.x.val, cam->mappos.y.val, pos->z.val, x_out, y_out, z_out);
+            break;
 
         case 1:
-            v8 = cam->mappos.x.stl.pos;
-            v9 = pos->y.stl.pos - cam->mappos.y.stl.pos;
-            v10 = pos->x.stl.pos;
-            goto calculate;
+            result = project_point_helper(player, zoom, cam->mappos.x.val, pos->y.val - cam->mappos.y.val, pos->x.val, pos->z.val, x_out, y_out, z_out);
+            break;
 
         case 2:
-            v8 = cam->mappos.x.stl.pos;
-            v9 = cam->mappos.x.stl.pos - pos->x.stl.pos;
-            v10 = pos->y.stl.pos;
-            goto calculate;
+            result = project_point_helper(player, zoom, cam->mappos.x.val, cam->mappos.x.val - pos->x.val, pos->y.val, pos->z.val, x_out, y_out, z_out);
+            break;
 
         case 3:
-            v8 = pos->x.stl.pos;
-            v9 = cam->mappos.y.stl.pos - pos->y.stl.pos;
-            v10 = cam->mappos.x.stl.pos;
-calculate:
-            *x = (zoom * v9 >> 16) + game.players[my_player_number].engine_window_width >> 1;
-            v11 = zoom * (v8 - v10) >> 8;
-            engine_window_height = game.players[my_player_number].engine_window_height;
-            *z = engine_window_height - ((v11 + ((engine_window_height & 0xFFFE) << 7)) >> 8) + 64;
-            v13 = zoom * pos->z.stl.pos << 7;
-            *y = (v11 + ((engine_window_height & 0xFFFE) << 7) - ((BYTE(v13, 4) + v13) >> 16)) >> 8;
-            result = (*x >= 0) && (*x < game.players[my_player_number].engine_window_width) && (*y >= 0) && (*y < game.players[my_player_number].engine_window_height);
+            result = project_point_helper(player, zoom, pos->x.val, cam->mappos.y.val - pos->y.val, cam->mappos.x.val, pos->z.val, x_out, y_out, z_out);
             break;
     }
 
