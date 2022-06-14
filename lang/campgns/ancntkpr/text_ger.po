@@ -1850,12 +1850,12 @@ msgstr "Benutztes Gebiet: Euer Dungeon-Gebiet. [12.1]"
 #: guitext:334
 msgctxt "In-game message"
 msgid "Level completed - press Escape to continue"
-msgstr "LEVEL ABGESCHLOSSEN - ZUM FORTFAHREN LEERTASTE DRÜCKEN"
+msgstr "Level abgeschlossen - zum fortfahren Leertaste drücken"
 
 #: guitext:335
 msgctxt "In-game message"
 msgid "You have been defeated. Press Space to restart."
-msgstr "LEVEL VERLOREN - ZUM NEUSTARTEN LEERTASTE DRÜCKEN"
+msgstr "Level verloren - zum neustarten Leertaste drücken"
 
 #: guitext:336 guitext:337 guitext:338 guitext:339 guitext:340 guitext:341
 #: guitext:342 guitext:344 guitext:345 guitext:346 guitext:347 guitext:348
@@ -1870,10 +1870,15 @@ msgstr "LEVEL VERLOREN - ZUM NEUSTARTEN LEERTASTE DRÜCKEN"
 #: guitext:397 guitext:398 guitext:399 guitext:400 guitext:401 guitext:402
 #: guitext:403 guitext:404 guitext:405 guitext:406 guitext:407 guitext:408
 #: guitext:409 guitext:410 guitext:411 guitext:412 guitext:413 guitext:414
-#: guitext:415 guitext:416 guitext:417 guitext:418 guitext:419
+#: guitext:415 guitext:416 guitext:417 guitext:418
 msgctxt "Unused"
 msgid "Moo5"
 msgstr "ungenutzt"
+
+#: guitext:419
+msgctxt "Menu interface item"
+msgid "Ok"
+msgstr "Ok"
 
 #: guitext:420
 msgctxt "Dungeon special decription"
