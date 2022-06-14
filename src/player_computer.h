@@ -518,13 +518,13 @@ struct Computer2 { // sizeof = 5322
   unsigned long gameturn_wait;
   unsigned long field_C;
   unsigned long tasks_did;
-  unsigned long field_14;
-  unsigned long field_18;
-  unsigned long field_1C; // seems to be signed long
+  unsigned long processes_time;
+  unsigned long click_rate;
+  unsigned long dig_stack_size; // seems to be signed long
   unsigned long sim_before_dig;
   struct Dungeon *dungeon;
   unsigned long model;
-  unsigned long field_2C;
+  unsigned long turn_begin;
   unsigned long max_room_build_tasks;
   unsigned long field_34;
   struct ComputerProcess processes[COMPUTER_PROCESSES_COUNT+1];
