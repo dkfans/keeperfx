@@ -1613,7 +1613,7 @@ short creature_change_to_chicken(struct Thing *creatng)
     creatng->state_flags &= ~TF1_Unkn10;
     creatng->active_state = CrSt_CreaturePretendChickenSetupMove;
     creatng->continue_state = CrSt_Unused;
-    cctrl->field_302 = 0;
+    cctrl->stopped_for_hand_turns = 0;
     clear_creature_instance(creatng);
     return 1;
 }
@@ -4254,7 +4254,7 @@ TbBool internal_set_thing_state(struct Thing *thing, CrtrStateId nState)
     thing->state_flags &= ~TF1_Unkn10;
     thing->continue_state = CrSt_Unused;
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    cctrl->field_302 = 0;
+    cctrl->stopped_for_hand_turns = 0;
     clear_creature_instance(thing);
     return true;
 }
@@ -4275,7 +4275,7 @@ TbBool initialise_thing_state_f(struct Thing *thing, CrtrStateId nState, const c
         return false;
     }
     cctrl->target_room_id = 0;
-    cctrl->field_302 = 0;
+    cctrl->stopped_for_hand_turns = 0;
     if ((cctrl->flgfield_1 & CCFlg_IsInRoomList) != 0)
     {
         WARNLOG("%s: The %s stays in room list even after cleanup",func_name,thing_model_name(thing));

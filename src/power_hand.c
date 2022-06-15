@@ -1406,7 +1406,7 @@ void stop_creatures_around_hand(PlayerNumber plyr_idx, MapSubtlCoord stl_x,  Map
                 if ( thing_is_creature(thing) && can_thing_be_picked_up_by_player(thing, plyr_idx) && thing->owner == plyr_idx )
                 {
                     struct CreatureControl  *cctrl = creature_control_get_from_thing(thing);
-                    cctrl->field_302 = 20;
+                    cctrl->stopped_for_hand_turns = 20;
                 }
             // Per thing code end
             k++;
