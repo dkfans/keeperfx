@@ -37,8 +37,7 @@ enum TooltipFlags {
 };
 
 /******************************************************************************/
-DLLIMPORT extern float _DK_tooltip_scroll_offset;
-#define tooltip_scroll_offset _DK_tooltip_scroll_offset
+float tooltip_scroll_offset;
 DLLIMPORT extern long _DK_tooltip_scroll_timer;
 #define tooltip_scroll_timer _DK_tooltip_scroll_timer
 DLLIMPORT extern struct ToolTipBox _DK_tool_tip_box;
