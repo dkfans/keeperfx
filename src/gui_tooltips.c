@@ -429,7 +429,7 @@ void draw_tooltip_slab64k(char *tttext, long pos_x, long pos_y, long ttwidth, lo
             if (-ttwidth >= tooltip_scroll_offset)
               tooltip_scroll_offset = viswidth;
             else
-              tooltip_scroll_offset -= 4;
+              tooltip_scroll_offset -= 4.0*fast_delta_time;
         } else
         {
             tooltip_scroll_timer--;
@@ -553,7 +553,6 @@ void draw_tooltip(void)
         draw_tooltip_at(tool_tip_box.pos_x,tool_tip_box.pos_y,tool_tip_box.text);
     }
     LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
-    set_flag_byte(&tool_tip_box.flags,TTip_Visible,false);
 }
 
 /******************************************************************************/

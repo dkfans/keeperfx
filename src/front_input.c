@@ -2380,6 +2380,9 @@ short get_inputs(void)
             return true;
         }
     }
+
+    set_flag_byte(&tool_tip_box.flags,TTip_Visible,false); // This had to be moved here because it messed up the tooltips when it was in fast_update()
+
     TbBool inp_handled = false;
     if (((game.operation_flags & GOF_Paused) == 0) || ((game.operation_flags & GOF_WorldInfluence) != 0))
         inp_handled = get_gui_inputs(1);
