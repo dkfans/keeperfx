@@ -2187,9 +2187,9 @@ struct Thing* check_place_to_pickup_gold(struct Thing* thing, MapSubtlCoord stl_
     return INVALID_THING;
 }
 
-struct Thing *check_place_to_pickup_spell(struct Thing *thing, long a2, long a3)
+struct Thing *check_place_to_pickup_spell(struct Thing *thing, long stl_x, long stl_y)
 {
-    return _DK_check_place_to_pickup_spell(thing, a2, a3);
+    return _DK_check_place_to_pickup_spell(thing, stl_x, stl_y);
 }
 
 struct Thing *check_place_to_pickup_unconscious_body(struct Thing *thing, long a2, long a3)
