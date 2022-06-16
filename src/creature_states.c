@@ -87,7 +87,6 @@ extern "C" {
 /* Please note that functions returning 'short' are not ment to return true/false only! */
 /******************************************************************************/
 DLLIMPORT long _DK_move_check_can_damage_wall(struct Thing *creatng);
-DLLIMPORT long _DK_move_check_on_head_for_room(struct Thing *creatng);
 DLLIMPORT long _DK_move_check_persuade(struct Thing *creatng);
 DLLIMPORT long _DK_get_best_position_outside_room(struct Thing *creatng, struct Coord3d *pos, struct Room *room);
 /******************************************************************************/
@@ -3383,7 +3382,6 @@ CrCheckRet move_check_kill_creatures(struct Thing *creatng)
 
 CrCheckRet move_check_near_dungeon_heart(struct Thing *creatng)
 {
-    //return _DK_move_check_near_dungeon_heart(creatng);
     if (is_neutral_thing(creatng))
     {
         if (change_creature_owner_if_near_dungeon_heart(creatng)) {
@@ -3395,7 +3393,20 @@ CrCheckRet move_check_near_dungeon_heart(struct Thing *creatng)
 
 CrCheckRet move_check_on_head_for_room(struct Thing *creatng)
 {
-  return _DK_move_check_on_head_for_room(creatng);
+    struct Room *room_thing_is_on;
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+
+    if ( cctrl->target_room_id == 0 )
+    {
+        return 0;
+    }
+    room_thing_is_on = get_room_thing_is_on(creatng);
+    if ( room_is_invalid(room_thing_is_on) || room_thing_is_on->index != cctrl->target_room_id )
+    {
+        return 0;
+    }
+    internal_set_thing_state(creatng, creatng->continue_state);
+    return 1;
 }
 
 CrCheckRet move_check_persuade(struct Thing *creatng)
