@@ -57,7 +57,6 @@ DLLIMPORT long _DK_check_out_unreinforced_place(struct Thing *creatng);
 DLLIMPORT long _DK_check_out_unreinforced_area(struct Thing *creatng);
 DLLIMPORT struct Thing *_DK_check_place_to_pickup_gold(struct Thing *creatng, long stl_x, long stl_y);
 DLLIMPORT struct Thing *_DK_check_place_to_pickup_spell(struct Thing *creatng, long slb_x, long slb_y);
-DLLIMPORT struct Thing *_DK_check_place_to_pickup_unconscious_body(struct Thing *creatng, long slb_x, long slb_y);
 DLLIMPORT long _DK_imp_will_soon_be_converting_at_excluding(struct Thing *creatng, long slb_x, long slb_y);
 DLLIMPORT long _DK_imp_already_reinforcing_at_excluding(struct Thing *creatng, long stl_x, long stl_y);
 /******************************************************************************/
@@ -2192,9 +2191,23 @@ struct Thing *check_place_to_pickup_spell(struct Thing *thing, long a2, long a3)
     return _DK_check_place_to_pickup_spell(thing, a2, a3);
 }
 
-struct Thing *check_place_to_pickup_unconscious_body(struct Thing *thing, long a2, long a3)
+struct Thing *check_place_to_pickup_unconscious_body(struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    return _DK_check_place_to_pickup_unconscious_body(thing, a2, a3);
+    // return _DK_check_place_to_pickup_unconscious_body(thing, a2, a3);
+    struct Map* mapblk = get_map_block_at(stl_x, stl_y);
+    struct Thing *result = thing_get(get_mapwho_thing_index(mapblk));
+    if (thing_is_invalid(result))
+      return INVALID_THING;
+    while ( result->class_id != TCls_Creature
+         || result->owner == thing->owner
+         || result->active_state != CrSt_CreatureUnconscious
+         || (result->state_flags & TF1_IsDragged1) != 0 )
+    {
+      result = thing_get(result->next_on_mapblk);
+      if (thing_is_invalid(result))
+        return INVALID_THING;
+    }
+    return result;
 }
 
 long check_place_to_reinforce(struct Thing *creatng, MapSlabCoord slb_x, MapSlabCoord slb_y)
