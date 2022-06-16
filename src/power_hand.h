@@ -70,7 +70,7 @@ TbBool thing_slappable(const struct Thing *thing, long plyr_idx);
 
 struct Thing *create_power_hand(PlayerNumber owner);
 void delete_power_hand(PlayerNumber owner);
-void stop_creatures_around_hand(char a1, unsigned short a2, unsigned short a3);
+void stop_creatures_around_hand(PlayerNumber plyr_idx, MapSubtlCoord stl_x,  MapSubtlCoord stl_y);
 
 TbBool place_thing_in_power_hand(struct Thing *thing, PlayerNumber plyr_idx);
 TbBool remove_creature_from_power_hand(struct Thing *thing, PlayerNumber plyr_idx);
