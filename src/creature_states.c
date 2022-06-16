@@ -86,7 +86,6 @@ extern "C" {
 #define CREATURE_GUI_STATES_COUNT 3
 /* Please note that functions returning 'short' are not ment to return true/false only! */
 /******************************************************************************/
-DLLIMPORT short _DK_creature_pretend_chicken_setup_move(struct Thing *creatng);
 DLLIMPORT long _DK_move_check_can_damage_wall(struct Thing *creatng);
 DLLIMPORT long _DK_move_check_persuade(struct Thing *creatng);
 DLLIMPORT long _DK_get_best_position_outside_room(struct Thing *creatng, struct Coord3d *pos, struct Room *room);
@@ -2557,7 +2556,43 @@ short creature_pretend_chicken_move(struct Thing *creatng)
 
 short creature_pretend_chicken_setup_move(struct Thing *creatng)
 {
-  return _DK_creature_pretend_chicken_setup_move(creatng);
+    struct Room *room;
+    struct Coord3d random_pos;
+    
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+
+    if ((cctrl->stateblock_flags & CCSpl_ChickenRel) != 0)
+    {
+        return 1;
+    }
+    
+    long offsetted_gameturn = game.play_gameturn + creatng->index;
+
+    if ( (offsetted_gameturn % 16) == 0 )
+    {
+        room = get_room_thing_is_on(creatng);
+
+        if (room_is_invalid(room) || !room_role_matches(room->kind,RoRoF_FoodStorage) || room->owner != creatng->owner )
+        {
+            room = find_random_room_for_thing(creatng, creatng->owner, RoK_GARDEN, 0);
+        }
+
+        if ( !room_is_invalid(room) )
+        {
+            if ( find_random_valid_position_for_thing_in_room(creatng, room, &random_pos) )
+            {
+                setup_person_move_close_to_position(creatng,random_pos.x.stl.num,random_pos.y.stl.num, 0);
+                internal_set_thing_state(creatng, CrSt_CreaturePretendChickenMove);
+                return 1;
+            }
+        }
+        else if ( get_random_position_in_dungeon_for_creature(creatng->owner, CrWaS_WithinDungeon, creatng, &random_pos) )
+        {
+            setup_person_move_close_to_position(creatng,random_pos.x.stl.num,random_pos.y.stl.num, 0);
+            internal_set_thing_state(creatng, CrSt_CreaturePretendChickenMove);
+        }
+    }
+    return 1;
 }
 
 /**

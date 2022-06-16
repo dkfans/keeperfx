@@ -257,7 +257,6 @@ struct PlayerInfoAdd {
     char swap_to_untag_mode; // 0 = no, 1 = maybe, 2= yes, -1 = disable
     unsigned char roomspace_highlight_mode;
     TbBool roomspace_no_default;
-    TbBool cheat_menu_active;
     };
 
 /******************************************************************************/

@@ -354,17 +354,15 @@ int draw_overlay_spells_and_boxes(struct PlayerInfo *player, long units_per_px, 
                 RealScreenCoord basepos;
                 basepos = MapDiagonalLength/2;
                 // Do the drawing
-                if ((thing->trap.revealed) || (player->id_number == thing->owner))
+                if (thing_is_special_box(thing) || thing_is_spellbook(thing))
                 {
-                    if (thing_is_special_box(thing) || thing_is_spellbook(thing)) {
-                        short pixel_end = get_pixels_scaled_and_zoomed(basic_zoom);
-                        int p;
-                        for (p = 0; p < pixel_end; p++)
-                        {
-                            pannel_map_draw_pixel(mapos_x + basepos + draw_square[p].delta_x, mapos_y + basepos + draw_square[p].delta_y, colours[15][0][15]);
-                        }
-                        n++;
+                    short pixel_end = get_pixels_scaled_and_zoomed(basic_zoom);
+                    int p;
+                    for (p = 0; p < pixel_end; p++)
+                    {
+                        pannel_map_draw_pixel(mapos_x + basepos + draw_square[p].delta_x, mapos_y + basepos + draw_square[p].delta_y, colours[15][0][15]);
                     }
+                    n++;
                 }
             }
         }

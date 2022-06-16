@@ -1047,11 +1047,14 @@ void place_single_slab_fill_style_array(MapSlabCoord slb_x, MapSlabCoord slb_y, 
 
 void place_single_slab_set_torch_places(SlabKind slbkind, MapSlabCoord slb_x, MapSlabCoord slb_y, short *slab_type_list)
 {
+    struct SlabMap* slb;
+    struct SlabAttr* slbattr;
     SlabKind undecorated_slbkind;
     unsigned short torch_flags;
     if (slbkind == SlbT_TORCHDIRT) {
         undecorated_slbkind = SlbT_EARTH;
-    } else {
+    } 
+    else {
         undecorated_slbkind = slbkind + 4;
     }
     torch_flags = torch_flags_for_slab(slb_x, slb_y);
@@ -1060,18 +1063,46 @@ void place_single_slab_set_torch_places(SlabKind slbkind, MapSlabCoord slb_x, Ma
         slab_type_list[3] = undecorated_slbkind;
         slab_type_list[5] = undecorated_slbkind;
         if ((slb_y + slb_x) & 1)
-          slab_type_list[1] = undecorated_slbkind;
+        {
+            slb = get_slabmap_block(slb_x, slb_y-1);
+            slbattr = get_slab_attrs(slb);
+            if (slbattr->category != SlbAtCtg_RoomInterior)
+            {
+                slab_type_list[1] = undecorated_slbkind;
+            }
+        }
         else
-          slab_type_list[7] = undecorated_slbkind;
+        {
+            slb = get_slabmap_block(slb_x, slb_y+1);
+            slbattr = get_slab_attrs(slb);
+            if (slbattr->category != SlbAtCtg_RoomInterior)
+            {
+                slab_type_list[7] = undecorated_slbkind;
+            }
+        }
     } else
     if ((torch_flags & 0x02) != 0)
     {
         slab_type_list[1] = undecorated_slbkind;
         slab_type_list[7] = undecorated_slbkind;
         if ((slb_y + slb_x) & 1)
-          slab_type_list[3] = undecorated_slbkind;
+        {
+            slb = get_slabmap_block(slb_x-1, slb_y);
+            slbattr = get_slab_attrs(slb);
+            if (slbattr->category != SlbAtCtg_RoomInterior)
+            {
+                slab_type_list[3] = undecorated_slbkind;
+            }
+        }
         else
-          slab_type_list[5] = undecorated_slbkind;
+        {
+            slb = get_slabmap_block(slb_x+1, slb_y);
+            slbattr = get_slab_attrs(slb);
+            if (slbattr->category != SlbAtCtg_RoomInterior)
+            {
+                slab_type_list[5] = undecorated_slbkind;
+            }
+        }
     }
 }
 
