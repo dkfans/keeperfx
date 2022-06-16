@@ -2199,9 +2199,9 @@ struct Thing *check_place_to_pickup_spell(struct Thing *creatng, MapSubtlCoord s
       return INVALID_THING;
     while (!thing_can_be_picked_to_place_in_player_room(rettng, creatng->owner, RoK_LIBRARY, TngFRPickF_Default))
     {
-          rettng = thing_get(rettng->next_on_mapblk);
-          if (thing_is_invalid(rettng))
-            return INVALID_THING;
+        rettng = thing_get(rettng->next_on_mapblk);
+        if (thing_is_invalid(rettng))
+        return INVALID_THING;
     }
     return rettng;
 }
