@@ -2191,23 +2191,23 @@ struct Thing *check_place_to_pickup_spell(struct Thing *thing, long a2, long a3)
     return _DK_check_place_to_pickup_spell(thing, a2, a3);
 }
 
-struct Thing *check_place_to_pickup_unconscious_body(struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+struct Thing *check_place_to_pickup_unconscious_body(struct Thing *spdigtng, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     // return _DK_check_place_to_pickup_unconscious_body(thing, a2, a3);
     struct Map* mapblk = get_map_block_at(stl_x, stl_y);
-    struct Thing *result = thing_get(get_mapwho_thing_index(mapblk));
-    if (thing_is_invalid(result))
+    struct Thing *thing = thing_get(get_mapwho_thing_index(mapblk));
+    if (thing_is_invalid(thing))
       return INVALID_THING;
-    while ( result->class_id != TCls_Creature
-         || result->owner == thing->owner
-         || result->active_state != CrSt_CreatureUnconscious
-         || (result->state_flags & TF1_IsDragged1) != 0 )
+    while ( thing->class_id != TCls_Creature
+         || thing->owner == spdigtng->owner
+         || thing->active_state != CrSt_CreatureUnconscious
+         || (thing->state_flags & TF1_IsDragged1) != 0 )
     {
-      result = thing_get(result->next_on_mapblk);
-      if (thing_is_invalid(result))
+      thing = thing_get(thing->next_on_mapblk);
+      if (thing_is_invalid(thing))
         return INVALID_THING;
     }
-    return result;
+    return thing;
 }
 
 long check_place_to_reinforce(struct Thing *creatng, MapSlabCoord slb_x, MapSlabCoord slb_y)
