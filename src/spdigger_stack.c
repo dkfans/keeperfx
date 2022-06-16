@@ -2186,11 +2186,20 @@ struct Thing* check_place_to_pickup_gold(struct Thing* thing, MapSubtlCoord stl_
     return INVALID_THING;
 }
 
+TbBool creature_can_pickup_library_object_at_subtile(struct Thing* spdigtng, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+    struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
+    if (slabmap_owner(slb) != spdigtng->owner)
+    {
+        return false;
+    }
+    return true;
+}
+
 struct Thing *check_place_to_pickup_spell(struct Thing *spdigtng, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     struct Thing *rettng;
-    struct SlabMap *slb = get_slabmap_for_subtile(stl_x, stl_y);
-    if (slabmap_owner(slb) != spdigtng->owner)
+    if (!creature_can_pickup_library_object_at_subtile(spdigtng, stl_x, stl_y))
     {
         return INVALID_THING;
     }
