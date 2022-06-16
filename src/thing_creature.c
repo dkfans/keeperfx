@@ -5995,8 +5995,8 @@ TbBool thing_is_pickable_by_digger(struct Thing *picktng, struct Thing *creatng)
     }
     else if (thing_can_be_picked_to_place_in_player_room(picktng, creatng->owner, RoK_LIBRARY, TngFRPickF_Default))
     {
-        sectng = check_place_to_pickup_spell(picktng, picktng->mappos.x.stl.num, picktng->mappos.y.stl.num);
-        if ( (thing_is_invalid(sectng)) && (slabmap_owner(slb) != creatng->owner) )
+        sectng = check_place_to_pickup_spell(creatng, picktng->mappos.x.stl.num, picktng->mappos.y.stl.num);
+        if (thing_is_invalid(sectng))
         {
             return false;
         }
