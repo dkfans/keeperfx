@@ -2191,9 +2191,9 @@ struct Thing *check_place_to_pickup_spell(struct Thing *creatng, MapSubtlCoord s
     // return _DK_check_place_to_pickup_spell(thing, stl_x, stl_y);
     struct Thing *rettng;
     struct SlabMap *slb = get_slabmap_for_subtile(stl_x, stl_y);
-    struct Map* mapblk = get_map_block_at(stl_x, stl_y);
     if ( slabmap_owner(slb) != creatng->owner )
       return INVALID_THING;
+    struct Map* mapblk = get_map_block_at(stl_x, stl_y);
     rettng = thing_get(get_mapwho_thing_index(mapblk));
     if (thing_is_invalid(rettng))
       return INVALID_THING;
@@ -2201,7 +2201,7 @@ struct Thing *check_place_to_pickup_spell(struct Thing *creatng, MapSubtlCoord s
     {
         rettng = thing_get(rettng->next_on_mapblk);
         if (thing_is_invalid(rettng))
-        return INVALID_THING;
+          return INVALID_THING;
     }
     return rettng;
 }
