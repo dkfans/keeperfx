@@ -2186,18 +2186,18 @@ struct Thing* check_place_to_pickup_gold(struct Thing* thing, MapSubtlCoord stl_
     return INVALID_THING;
 }
 
-struct Thing *check_place_to_pickup_spell(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+struct Thing *check_place_to_pickup_spell(struct Thing *spdigtng, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     // return _DK_check_place_to_pickup_spell(thing, stl_x, stl_y);
     struct Thing *rettng;
     struct SlabMap *slb = get_slabmap_for_subtile(stl_x, stl_y);
-    if ( slabmap_owner(slb) != creatng->owner )
+    if ( slabmap_owner(slb) != spdigtng->owner )
       return INVALID_THING;
     struct Map* mapblk = get_map_block_at(stl_x, stl_y);
     rettng = thing_get(get_mapwho_thing_index(mapblk));
     if (thing_is_invalid(rettng))
       return INVALID_THING;
-    while (!thing_can_be_picked_to_place_in_player_room(rettng, creatng->owner, RoK_LIBRARY, TngFRPickF_Default))
+    while (!thing_can_be_picked_to_place_in_player_room(rettng, spdigtng->owner, RoK_LIBRARY, TngFRPickF_Default))
     {
         rettng = thing_get(rettng->next_on_mapblk);
         if (thing_is_invalid(rettng))
