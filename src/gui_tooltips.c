@@ -43,6 +43,8 @@
 #include "game_legacy.h"
 #include "keeperfx.hpp"
 
+float tooltip_scroll_offset;
+
 #ifdef __cplusplus
 extern "C" {
 #endif
