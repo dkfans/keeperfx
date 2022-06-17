@@ -5103,7 +5103,7 @@ TngUpdateRet update_creature(struct Thing *thing)
         cctrl->force_visible--;
     if (cctrl->byte_8B == 0)
         cctrl->byte_8B = game.field_14EA4B;
-    if (cctrl->field_302 == 0) {
+    if (cctrl->stopped_for_hand_turns == 0) {
         process_creature_instance(thing);
     }
     update_creature_count(thing);
@@ -5111,9 +5111,9 @@ TngUpdateRet update_creature(struct Thing *thing)
     {
         if ((cctrl->stateblock_flags == 0) || creature_state_cannot_be_blocked(thing))
         {
-            if (cctrl->field_302 > 0)
+            if (cctrl->stopped_for_hand_turns > 0)
             {
-                cctrl->field_302--;
+                cctrl->stopped_for_hand_turns--;
             } else
             if (process_creature_state(thing) == TUFRet_Deleted)
             {
@@ -5136,9 +5136,9 @@ TngUpdateRet update_creature(struct Thing *thing)
     {
         if ((cctrl->stateblock_flags == 0) || creature_state_cannot_be_blocked(thing))
         {
-            if (cctrl->field_302 > 0)
+            if (cctrl->stopped_for_hand_turns > 0)
             {
-                cctrl->field_302--;
+                cctrl->stopped_for_hand_turns--;
             } else
             if (process_creature_state(thing) == TUFRet_Deleted)
             {
@@ -5994,6 +5994,10 @@ TbBool thing_is_pickable_by_digger(struct Thing *picktng, struct Thing *creatng)
     }
     else if (thing_can_be_picked_to_place_in_player_room_of_role(picktng, creatng->owner, RoRoF_PowersStorage, TngFRPickF_Default))
     {
+        if(!creature_can_pickup_library_object_at_subtile(creatng, picktng->mappos.x.stl.num, picktng->mappos.y.stl.num))
+        {
+            return false;
+        }
         return (get_room_of_role_slabs_count(creatng->owner, RoRoF_PowersStorage) > 0);
     }
     else if (thing_can_be_picked_to_place_in_player_room_of_role(picktng, creatng->owner, RoRoF_CratesStorage, TngFRPickF_Default))
