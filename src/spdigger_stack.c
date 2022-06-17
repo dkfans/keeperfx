@@ -2210,7 +2210,7 @@ struct Thing *check_place_to_pickup_spell(struct Thing *spdigtng, MapSubtlCoord 
         return INVALID_THING;
     }
     unsigned long k = 0;
-    while (!thing_can_be_picked_to_place_in_player_room(rettng, spdigtng->owner, RoK_LIBRARY, TngFRPickF_Default))
+    while (!thing_can_be_picked_to_place_in_player_room_of_role(rettng, spdigtng->owner, RoRoF_PowersStorage, TngFRPickF_Default))
     {
         rettng = thing_get(rettng->next_on_mapblk);
         if (thing_is_invalid(rettng))
