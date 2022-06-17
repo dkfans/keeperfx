@@ -42,7 +42,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT void _DK_set_slab_explored_flags(unsigned char flag, long tgslb_x, long tgslb_y);
 DLLIMPORT long _DK_ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey);
 DLLIMPORT long _DK_element_top_face_texture(struct Map *map);
 DLLIMPORT void _DK_shuffle_unattached_things_on_slab(long a1, long stl_x);
@@ -371,7 +370,24 @@ TbBool set_slab_explored(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord
 
 void set_slab_explored_flags(unsigned char flag, long slb_x, long slb_y)
 {
-    _DK_set_slab_explored_flags(flag, slb_x, slb_y);
+
+    MapSubtlCoord stl_x = subtile_coord_center(slb_x);
+    MapSubtlCoord stl_y = subtile_coord_center(slb_y);
+
+    int shifted_flag = flag << 28;
+    struct Map* mapblk = get_map_block_at(stl_x, stl_y);
+
+    if ( true | (mapblk->data >> 28) != flag  )
+    {
+        for (size_t n = 1; n < MID_AROUND_LENGTH; n++)
+        {
+            MapSlabCoord arstl_x = stl_x + mid_around[n].delta_x;
+            MapSlabCoord arstl_y = stl_y + mid_around[n].delta_y;
+            mapblk = get_map_block_at(arstl_x, arstl_y);
+            mapblk->data = (shifted_flag ^ (shifted_flag ^ mapblk->data)) & 0xFFFFFFF;
+        }
+        pannel_map_update(slab_subtile(slb_x,0), slab_subtile(slb_y,0), 3, 3);
+    }
 }
 
 void neutralise_enemy_block(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber domn_plyr_idx)
