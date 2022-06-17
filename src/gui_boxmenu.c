@@ -149,8 +149,9 @@ struct GuiBoxOption gui_instance_option_list[] = {
 };
 
 // Boxes used for service/cheat menu
-struct GuiBox *gui_box=NULL;
-struct GuiBox *gui_cheat_box=NULL;
+struct GuiBox *gui_cheat_box_1=NULL;
+struct GuiBox *gui_cheat_box_2=NULL;
+struct GuiBox *gui_cheat_box_3=NULL;
 
 struct GuiBox *first_box=NULL;
 struct GuiBox *last_box=NULL;
@@ -406,6 +407,11 @@ struct GuiBox *gui_create_box(long x, long y, struct GuiBoxOption *optn_list)
 
 short gui_move_box(struct GuiBox *gbox, long x, long y, unsigned short fdflags)
 {
+    if (gbox == NULL)
+    {
+        ERRORLOG("Trying to move cheat box that does not exist");
+        return false;
+    }
   short result;
   switch (fdflags)
   {
@@ -424,6 +430,11 @@ short gui_move_box(struct GuiBox *gbox, long x, long y, unsigned short fdflags)
       gbox->pos_y = y - (gbox->height >> 1);
       result = true;
       break;
+  case Fnt_CenterLeftPos:
+      gbox->pos_x = x - (gbox->width >> 2);
+      gbox->pos_y = y - (gbox->height >> 2);
+      result = true;
+      break;
   default:
       result = false;
       break;
@@ -440,6 +451,19 @@ short gui_move_box(struct GuiBox *gbox, long x, long y, unsigned short fdflags)
 }
 
 /**
+ * Closes cheat menu.
+ * Returns true if the menu was closed.
+ */
+TbBool close_main_cheat_menu(void)
+{
+    if (gui_box_is_not_valid(gui_cheat_box_1))
+        return false;
+    gui_delete_box(gui_cheat_box_1);
+    gui_cheat_box_1 = NULL;
+    return true;
+}
+
+/**
  * Toggles cheat menu. It should not allow cheats in Network mode.
  * @return Gives true if the menu was toggled, false if cheat is not allowed.
  */
@@ -447,40 +471,62 @@ short toggle_main_cheat_menu(void)
 {
   long mouse_x = GetMouseX();
   long mouse_y = GetMouseY();
-  if ((gui_box==NULL) || (gui_box_is_not_valid(gui_box)))
+  if ((gui_cheat_box_1==NULL) || (gui_box_is_not_valid(gui_cheat_box_1)))
   {
     if ((game.flags_font & FFlg_AlexCheat) == 0)
       return false;
-    gui_box = gui_create_box(mouse_x,mouse_y,gui_main_cheat_list);
-    gui_move_box(gui_box, mouse_x, mouse_y, Fnt_CenterPos);
+    gui_cheat_box_1 = gui_create_box(mouse_x,mouse_y,gui_main_cheat_list);
+    gui_move_box(gui_cheat_box_1, mouse_x, mouse_y, Fnt_CenterLeftPos);
   } else
   {
-    gui_delete_box(gui_box);
-    gui_box=NULL;
+    gui_delete_box(gui_cheat_box_1);
+    gui_cheat_box_1=NULL;
   }
   return true;
 }
 
+
+/**
+ * Closes cheat menu.
+ * Returns true if the menu was closed.
+ */
+TbBool close_instance_cheat_menu(void)
+{
+    if (gui_box_is_not_valid(gui_cheat_box_3))
+        return false;
+    gui_delete_box(gui_cheat_box_3);
+    gui_cheat_box_3 = NULL;
+    return true;
+}
 /**
  * Toggles cheat menu. It should not allow cheats in Network mode.
  * @return Gives true if the menu was toggled, false if cheat is not allowed.
  */
 short toggle_instance_cheat_menu(void)
 {
-    // Toggle cheat menu
-    if ((gui_box==NULL) || (gui_box_is_not_valid(gui_box)))
+    long mouse_x = GetMouseX();
+    long mouse_y = GetMouseY();
+    if (gui_box_is_not_valid(gui_cheat_box_3))
     {
         if ((game.flags_font & FFlg_AlexCheat) == 0)
             return false;
-        gui_box = gui_create_box(200,20,gui_instance_option_list);
+       gui_cheat_box_3 = gui_create_box(200,20,gui_instance_option_list);
+       if (gui_cheat_box_3 == NULL)
+       {
+           return false;
+       }
+       else
+       {
+           gui_move_box(gui_cheat_box_3, mouse_x, mouse_y, Fnt_CenterLeftPos);
+       }
 /*
           player->unknownbyte  |= 0x08;
           game.unknownbyte |= 0x08;
 */
     } else
     {
-        gui_delete_box(gui_box);
-        gui_box=NULL;
+        gui_delete_box(gui_cheat_box_3);
+        gui_cheat_box_3=NULL;
 /*
           player->unknownbyte &= 0xF7;
           game.unknownbyte &= 0xF7;
@@ -495,12 +541,15 @@ short toggle_instance_cheat_menu(void)
  */
 TbBool open_creature_cheat_menu(void)
 {
+  long mouse_x = GetMouseX();
+  long mouse_y = GetMouseY();
   if ((game.flags_font & FFlg_AlexCheat) == 0)
     return false;
-  if (!gui_box_is_not_valid(gui_cheat_box))
+  if (!gui_box_is_not_valid(gui_cheat_box_2))
     return false;
-  gui_cheat_box = gui_create_box(150,20,gui_creature_cheat_option_list);
-  return (!gui_box_is_not_valid(gui_cheat_box));
+  gui_cheat_box_2 = gui_create_box(150,20,gui_creature_cheat_option_list);
+  gui_move_box(gui_cheat_box_2, mouse_x, mouse_y, Fnt_CenterLeftPos);
+  return (!gui_box_is_not_valid(gui_cheat_box_2));
 }
 
 /**
@@ -509,10 +558,10 @@ TbBool open_creature_cheat_menu(void)
  */
 TbBool close_creature_cheat_menu(void)
 {
-  if (gui_box_is_not_valid(gui_cheat_box))
+  if (gui_box_is_not_valid(gui_cheat_box_2))
     return false;
-  gui_delete_box(gui_cheat_box);
-  gui_cheat_box = NULL;
+  gui_delete_box(gui_cheat_box_2);
+  gui_cheat_box_2 = NULL;
   return true;
 }
 
@@ -523,7 +572,7 @@ TbBool close_creature_cheat_menu(void)
 TbBool toggle_creature_cheat_menu(void)
 {
   // Cheat sub-menus
-  if (gui_box_is_not_valid(gui_cheat_box))
+  if (gui_box_is_not_valid(gui_cheat_box_2))
   {
     return open_creature_cheat_menu();
   } else
@@ -867,7 +916,28 @@ long gfa_single_player_mode(struct GuiBox* gbox, struct GuiBoxOption* goptn, lon
 
 TbBool cheat_menu_is_active()
 {
-    return ( (!gui_box_is_not_valid(gui_box)) || (!gui_box_is_not_valid(gui_cheat_box)) );
+    if (!gui_box_is_not_valid(gui_cheat_box_1))
+    {
+        if ((gui_cheat_box_1->flags & GBoxF_InList) != 0)
+        {
+            return true;
+        }
+    }
+    if (!gui_box_is_not_valid(gui_cheat_box_2))
+    {
+        if ((gui_cheat_box_2->flags & GBoxF_InList) != 0)
+        {
+            return true;
+        }
+    }
+    if (!gui_box_is_not_valid(gui_cheat_box_3))
+    {
+        if ((gui_cheat_box_3->flags & GBoxF_InList) != 0)
+        {
+            return true;
+        }
+    }
+    return false;
 }
 
 /******************************************************************************/

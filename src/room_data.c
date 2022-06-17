@@ -53,8 +53,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT unsigned short _DK_i_can_allocate_free_room_structure(void);
-/******************************************************************************/
 extern void research_found_room(PlayerNumber plyr_idx, RoomKind rkind);
 
 void count_slabs_all_only(struct Room *room);
@@ -2143,13 +2141,18 @@ struct Room *allocate_free_room_structure(void)
 
 unsigned short i_can_allocate_free_room_structure(void)
 {
-  unsigned short ret = _DK_i_can_allocate_free_room_structure();
-  if (ret == 0)
-  {
-      SYNCDBG(3,"No slot for next room");
-  }
-  return ret;
+    for ( int i = 1; i < ROOMS_COUNT; ++i )
+    {
+        struct Room* room = &game.rooms[i];
+        if ((room->alloc_flags & 0x01) == 0)
+        {
+            return i;
+        }
+    }
+    SYNCDBG(3,"No slot for next room");
+    return 0;
 }
+
 
 /**
  * Re-initializes all players rooms of specific kind.

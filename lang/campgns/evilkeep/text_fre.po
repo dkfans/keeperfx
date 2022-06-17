@@ -2385,10 +2385,15 @@ msgstr ""
 #: guitext:397 guitext:398 guitext:399 guitext:400 guitext:401 guitext:402
 #: guitext:403 guitext:404 guitext:405 guitext:406 guitext:407 guitext:408
 #: guitext:409 guitext:410 guitext:411 guitext:412 guitext:413 guitext:414
-#: guitext:415 guitext:416 guitext:417 guitext:418 guitext:419
+#: guitext:415 guitext:416 guitext:417 guitext:418
 msgctxt "Unused"
 msgid "Moo5"
 msgstr "Meuh5"
+
+#: guitext:419
+msgctxt "Menu interface item"
+msgid "Ok"
+msgstr "Ok"
 
 #: guitext:420
 msgctxt "Dungeon special decription"
