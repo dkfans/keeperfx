@@ -898,10 +898,15 @@ msgstr "Niveau Perdu - Appuyez sur la barre d'espacement pour recommencer."
 #: guitext:376 guitext:377 guitext:378 guitext:379 guitext:380 guitext:381 guitext:382 guitext:383 guitext:384 guitext:385 guitext:386 guitext:387 guitext:388
 #: guitext:389 guitext:390 guitext:391 guitext:392 guitext:393 guitext:394 guitext:395 guitext:396 guitext:397 guitext:398 guitext:399 guitext:400 guitext:401
 #: guitext:402 guitext:403 guitext:404 guitext:405 guitext:406 guitext:407 guitext:408 guitext:409 guitext:410 guitext:411 guitext:412 guitext:413 guitext:414
-#: guitext:415 guitext:416 guitext:417 guitext:418 guitext:419
+#: guitext:415 guitext:416 guitext:417 guitext:418
 msgctxt "Unused"
 msgid "Moo5"
 msgstr "Moo5"
+
+#: guitext:419
+msgctxt "Menu interface item"
+msgid "Ok"
+msgstr "Ok"
 
 #: guitext:420
 msgctxt "Dungeon special description"
