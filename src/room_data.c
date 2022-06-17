@@ -107,7 +107,6 @@ const short slab_around[] = { -85, 1, 85, -1 };
 /******************************************************************************/
 DLLIMPORT short _DK_delete_room_slab_when_no_free_room_structures(long a1, long plyr_idx, unsigned char a3);
 DLLIMPORT void _DK_free_room_structure(struct Room *room);
-DLLIMPORT struct Room * _DK_pick_random_room(PlayerNumber newowner, int rkind);
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -4332,9 +4331,39 @@ struct Room *find_nearest_room_of_role_for_thing_with_spare_item_capacity(struct
     return retroom;
 }
 
-struct Room * pick_random_room(PlayerNumber plyr_idx, RoomKind rkind)
+struct Room * pick_random_room_of_role(PlayerNumber plyr_idx, RoomRole rrole)
 {
-    return _DK_pick_random_room(plyr_idx, rkind);
+    struct Room *room = INVALID_ROOM;
+    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
+
+
+    if ( !player_has_room_of_role(plyr_idx,rrole) )
+        return INVALID_ROOM;
+
+    int rand = PLAYER_RANDOM(plyr_idx, count_player_slabs_of_rooms_with_role(plyr_idx, rrole));
+
+    for (RoomKind rkind = 0; rkind < slab_conf.room_types_count; rkind++)
+    {
+        if (room_role_matches(rkind, rrole))
+        {
+
+            room = room_get(dungeonadd->room_kind[rkind]);
+            while ( !room_is_invalid(room) )
+            {
+                if ( rand == 0 )
+                    return room;
+                --rand;
+                room = room_get(room->next_of_owner);
+            }
+        }
+    }
+
+    if ( room_is_invalid(room) )
+    {
+        ERRORLOG("Room not found");
+        return INVALID_ROOM;
+    }
+    return INVALID_ROOM;
 }
 
 TbBool remove_item_from_room_capacity(struct Room *room)

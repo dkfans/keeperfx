@@ -198,7 +198,7 @@ void player_add_offmap_gold(PlayerNumber plyr_idx, GoldAmount value)
 /** Returns if given player owns a room of given role.
  *
  * @param plyr_idx Player index being checked.
- * @param rkind Room kind being checked.
+ * @param rrole Room role being checked.
  * @return
  */
 TbBool player_has_room_of_role(PlayerNumber plyr_idx, RoomRole rrole)
@@ -215,6 +215,28 @@ TbBool player_has_room_of_role(PlayerNumber plyr_idx, RoomRole rrole)
         }
     }
     return false;
+}
+
+/** counts all slabs of any room with the given role.
+ *
+ * @param plyr_idx Player index being checked.
+ * @param rrole Room role being checked.
+ * @return
+ */
+long count_player_slabs_of_rooms_with_role(PlayerNumber plyr_idx, RoomRole rrole)
+{
+    if (plyr_idx == game.neutral_player_num)
+        return 0;
+    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
+    int count = 0;
+    for (RoomKind rkind = 0; rkind < slab_conf.room_types_count; rkind++)
+    {
+        if (room_role_matches(rkind, rrole))
+        {
+            count += dungeonadd->room_slabs_count[rkind];
+        }
+    }
+    return count;
 }
 
 struct Thing *get_player_soul_container(PlayerNumber plyr_idx)

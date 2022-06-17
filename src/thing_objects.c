@@ -1265,7 +1265,7 @@ TbBool temple_check_for_arachnid_join_dungeon(struct Dungeon *dungeon)
             (dungeon->owned_creatures_of_model[crmodel] < 4))
         {
             SYNCLOG("Conditions to trigger arachnid met");
-            struct Room* room = pick_random_room(dungeon->owner, RoK_ENTRANCE);
+            struct Room* room = pick_random_room_of_role(dungeon->owner, RoRoF_CrPoolSpawn);
             if (room_is_invalid(room))
             {
                 ERRORLOG("Could not get a random entrance for player %d",(int)dungeon->owner);

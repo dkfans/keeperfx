@@ -252,7 +252,7 @@ TbBool find_random_valid_position_for_thing_in_room_avoiding_object_excluding_ro
 struct Room *find_nearest_room_of_role_for_thing_with_spare_item_capacity(struct Thing *thing, PlayerNumber plyr_idx, RoomRole rrole, unsigned char nav_flags);
 struct Room *find_random_room_for_thing(struct Thing *thing, PlayerNumber owner, RoomKind rkind, unsigned char nav_flags);
 struct Room * find_random_room_of_role_for_thing_with_spare_room_item_capacity(struct Thing *thing, PlayerNumber owner, RoomRole rrole, unsigned char nav_flags);
-struct Room * pick_random_room(PlayerNumber plyr_idx, RoomKind rkind);
+struct Room * pick_random_room_of_role(PlayerNumber plyr_idx, RoomRole rrole);
 /******************************************************************************/
 #ifdef __cplusplus
 }
