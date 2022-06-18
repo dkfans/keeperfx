@@ -1,5 +1,6 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+#include <chrono>
 
 #include "keeperfx.hpp"
 
@@ -128,10 +129,13 @@ struct Room *droom = &_DK_game.rooms[25];
 //static
 TbClockMSec last_loop_time=0;
 
-float frame_time_in_ms;
-float previous_time_in_ms;
-float process_turn_time;
+std::chrono::high_resolution_clock::time_point previous_time_in_nanoseconds;
+std::chrono::high_resolution_clock::time_point current_time_in_nanoseconds;
+
+long double process_turn_time;
 float fast_delta_time;
+
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -3388,18 +3392,17 @@ void fast_update(void)
     if (do_draw)
         keeper_screen_swap();
     
+    current_time_in_nanoseconds = std::chrono::high_resolution_clock::now();
+    long double frame_time_in_nanoseconds = std::chrono::duration_cast<std::chrono::nanoseconds>(current_time_in_nanoseconds-previous_time_in_nanoseconds).count();
+    previous_time_in_nanoseconds = current_time_in_nanoseconds;
 
-    TbClockMSec current_time_in_ms = LbTimerClock();
-    
-    frame_time_in_ms = (current_time_in_ms - previous_time_in_ms);
-    previous_time_in_ms = current_time_in_ms;
     // Delta time for the fast-loop (as opposed to the game-turns loop)
-    float target_fps = game.num_fps;
-    fast_delta_time = (frame_time_in_ms/1000.0) / (1.0/target_fps);
+    // game.num_fps is target FPS
+    fast_delta_time = (frame_time_in_nanoseconds/1000000000.0) * game.num_fps;
 
     // Fix for when initially loading the map, frametime takes too long. Possibly other circumstances too.
     if (fast_delta_time > 1.0) {fast_delta_time = 1.0;}
-    //JUSTLOG("%f", frame_time_in_ms);
+    //JUSTLOG("%f", float(frame_time_in_nanoseconds)); // Convert to float if you want to read it in the log.
 }
 
 void keeper_gameplay_loop(void)
