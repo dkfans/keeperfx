@@ -1129,7 +1129,7 @@ static void set_door_configuration_process(struct ScriptContext *context)
             mconf->manufct_required = value;
             break;
         case 4: // SlabKind
-            if (door_type < DOOR_TYPES_COUNT)
+            if (door_type < gameadd.trapdoor_conf.door_types_count)
             {
                 doorst->slbkind[0] = value2;
                 doorst->slbkind[1] = value;
@@ -1137,7 +1137,7 @@ static void set_door_configuration_process(struct ScriptContext *context)
             update_all_door_stats();
             break;
         case 5: // Health
-            if (door_type < DOOR_TYPES_COUNT)
+            if (door_type < gameadd.trapdoor_conf.door_types_count)
             {
                 doorst->health = value;
             }
@@ -1182,7 +1182,7 @@ static void set_door_configuration_process(struct ScriptContext *context)
             update_trap_tab_to_config();
             break;
         case 13: // OpenSpeed
-            if (door_type < DOOR_TYPES_COUNT)
+            if (door_type < gameadd.trapdoor_conf.door_types_count)
             {
                 doorst->open_speed = value;
             }
