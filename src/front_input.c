@@ -901,20 +901,28 @@ long get_dungeon_control_action_inputs(void)
     }
     if (is_key_pressed(KC_NUMPADENTER,KMod_NONE))
     {
+        if (close_instance_cheat_menu())
+        {
+            clear_key_pressed(KC_NUMPADENTER);
+        }
+        else
         if (toggle_main_cheat_menu())
         {
             clear_key_pressed(KC_NUMPADENTER);
         }
-        set_players_packet_action(player, PckA_ToggleCheatMenuStatus, ( cheat_menu_is_active() ), 0, 0, 0);
     }
     // also use the main keyboard enter key (while holding shift) for cheat menu
     if (is_key_pressed(KC_RETURN,KMod_SHIFT))
         {
+            if (close_instance_cheat_menu())
+            {
+                clear_key_pressed(KC_RETURN);
+            }
+        else
             if (toggle_main_cheat_menu())
             {
                 clear_key_pressed(KC_RETURN);
             }
-            set_players_packet_action(player, PckA_ToggleCheatMenuStatus, ( cheat_menu_is_active() ), 0, 0, 0);
         }
     if (is_key_pressed(KC_F12,KMod_DONTCARE))
     {
@@ -923,7 +931,6 @@ long get_dungeon_control_action_inputs(void)
         {
             clear_key_pressed(KC_F12);
         }
-        set_players_packet_action(player, PckA_ToggleCheatMenuStatus, ( cheat_menu_is_active() ), 0, 0, 0);
     }
     if (player->view_mode == PVM_IsometricView)
     {
@@ -1163,24 +1170,34 @@ short get_creature_control_action_inputs(void)
         get_gui_inputs(1);
     if (is_key_pressed(KC_NUMPADENTER,KMod_DONTCARE))
     {
+        // Note that we're using "close", not "toggle". Menu can't be opened here.
+        if (close_main_cheat_menu())
+        {
+            clear_key_pressed(KC_NUMPADENTER);
+        } else
         if (toggle_instance_cheat_menu())
         {
             clear_key_pressed(KC_NUMPADENTER);
         }
-        set_players_packet_action(player, PckA_ToggleCheatMenuStatus, ( cheat_menu_is_active() ), 0, 0, 0);
     }
     // also use the main keyboard enter key (while holding shift) for cheat menu
     if (is_key_pressed(KC_RETURN,KMod_SHIFT))
     {
-        toggle_instance_cheat_menu();
-        clear_key_pressed(KC_RETURN);
-        set_players_packet_action(player, PckA_ToggleCheatMenuStatus, ( cheat_menu_is_active() ), 0, 0, 0);
+        // Note that we're using "close", not "toggle". Menu can't be opened here.
+        if (close_main_cheat_menu())
+        {
+            clear_key_pressed(KC_RETURN);
+        }
+        else
+        {
+            toggle_instance_cheat_menu();
+            clear_key_pressed(KC_RETURN);
+        }
     }
     if (is_key_pressed(KC_F12,KMod_DONTCARE))
     {
         toggle_creature_cheat_menu();
         clear_key_pressed(KC_F12);
-        set_players_packet_action(player, PckA_ToggleCheatMenuStatus, ( cheat_menu_is_active() ), 0, 0, 0);
     }
 
     if (player->controlled_thing_idx != 0)
@@ -2150,68 +2167,61 @@ void get_creature_control_nonaction_inputs(void)
   pckt->pos_y = 127;
   if ((player->allocflags & PlaF_Unknown8) != 0)
     return;
-struct PlayerInfoAdd* playeradd = get_my_playeradd();
 if (((MyScreenWidth >> 1) != GetMouseX()) || (GetMouseY() != y))
   {
-      if (playeradd->cheat_menu_active == false)
-      {
-          LbMouseSetPositionInitial((MyScreenWidth/pixel_size) >> 1, y/pixel_size); // use LbMouseSetPositionInitial because we don't want to keep moving the host cursor
-      }
+    LbMouseSetPositionInitial((MyScreenWidth/pixel_size) >> 1, y/pixel_size); // use LbMouseSetPositionInitial because we don't want to keep moving the host cursor
   }
-  // Set pos_x and pos_y
-  if (playeradd->cheat_menu_active == false)
-  {
-      if (settings.first_person_move_invert)
-        pckt->pos_y = 255 * ((long)MyScreenHeight - y) / MyScreenHeight;
-      else
-        pckt->pos_y = 255 * y / MyScreenHeight;
-      pckt->pos_x = 255 * x / MyScreenWidth;
-      // Update the position based on current settings
-      long i = settings.first_person_move_sensitivity + 1;
-      x = pckt->pos_x - 127;
-      y = pckt->pos_y - 127;
-      if (i < 6)
-      {
-          k = 5 - settings.first_person_move_sensitivity;
-          pckt->pos_x = x/k + 127;
-          pckt->pos_y = y/k + 127;
-      } else
-      if (i > 6)
-      {
-          k = settings.first_person_move_sensitivity - 5;
-          pckt->pos_x = k*x + 127;
-          pckt->pos_y = k*y + 127;
-      }
-      // Bound posx and pos_y
-      if (pckt->pos_x > map_subtiles_x)
-        pckt->pos_x = map_subtiles_x;
-      if (pckt->pos_y > map_subtiles_y)
-        pckt->pos_y = map_subtiles_y;
-  }
-      // Now do user actions
-      if (thing_is_invalid(thing))
-        return;
-      if (thing->class_id == TCls_Creature)
-      {
-          if ( left_button_clicked )
-          {
-              left_button_clicked = 0;
-              left_button_released = 0;
-          }
-          if ( right_button_clicked )
-          {
-              right_button_clicked = 0;
-              right_button_released = 0;
-          }
-          if ( is_game_key_pressed(Gkey_MoveLeft, NULL, true) || is_key_pressed(KC_LEFT,KMod_DONTCARE) )
-              set_packet_control(pckt, PCtr_MoveLeft);
-          if ( is_game_key_pressed(Gkey_MoveRight, NULL, true) || is_key_pressed(KC_RIGHT,KMod_DONTCARE) )
-              set_packet_control(pckt, PCtr_MoveRight);
-          if ( is_game_key_pressed(Gkey_MoveUp, NULL, true) || is_key_pressed(KC_UP,KMod_DONTCARE) )
-              set_packet_control(pckt, PCtr_MoveUp);
-          if ( is_game_key_pressed(Gkey_MoveDown, NULL, true) || is_key_pressed(KC_DOWN,KMod_DONTCARE) )
-              set_packet_control(pckt, PCtr_MoveDown);
-      }
+    if (settings.first_person_move_invert)
+    pckt->pos_y = 255 * ((long)MyScreenHeight - y) / MyScreenHeight;
+    else
+    pckt->pos_y = 255 * y / MyScreenHeight;
+    pckt->pos_x = 255 * x / MyScreenWidth;
+    // Update the position based on current settings
+    long i = settings.first_person_move_sensitivity + 1;
+    x = pckt->pos_x - 127;
+    y = pckt->pos_y - 127;
+    if (i < 6)
+    {
+        k = 5 - settings.first_person_move_sensitivity;
+        pckt->pos_x = x/k + 127;
+        pckt->pos_y = y/k + 127;
+    } else
+    if (i > 6)
+    {
+        k = settings.first_person_move_sensitivity - 5;
+        pckt->pos_x = k*x + 127;
+        pckt->pos_y = k*y + 127;
+    }
+    // Bound posx and pos_y
+    if (pckt->pos_x > map_subtiles_x)
+    pckt->pos_x = map_subtiles_x;
+    if (pckt->pos_y > map_subtiles_y)
+    pckt->pos_y = map_subtiles_y;
+
+    // Now do user actions
+    if (thing_is_invalid(thing))
+    return;
+    if (thing->class_id == TCls_Creature)
+    {
+        if (left_button_clicked)
+        {
+            left_button_clicked = 0;
+            left_button_released = 0;
+        }
+        if (right_button_clicked)
+        {
+            right_button_clicked = 0;
+            right_button_released = 0;
+        }
+        if (is_game_key_pressed(Gkey_MoveLeft, NULL, true) || is_key_pressed(KC_LEFT, KMod_DONTCARE))
+            set_packet_control(pckt, PCtr_MoveLeft);
+        if (is_game_key_pressed(Gkey_MoveRight, NULL, true) || is_key_pressed(KC_RIGHT, KMod_DONTCARE))
+            set_packet_control(pckt, PCtr_MoveRight);
+        if (is_game_key_pressed(Gkey_MoveUp, NULL, true) || is_key_pressed(KC_UP, KMod_DONTCARE))
+            set_packet_control(pckt, PCtr_MoveUp);
+        if (is_game_key_pressed(Gkey_MoveDown, NULL, true) || is_key_pressed(KC_DOWN, KMod_DONTCARE))
+            set_packet_control(pckt, PCtr_MoveDown);
+    }
 }
 
 static void speech_pickup_of_gui_job(int job_idx)
@@ -2348,10 +2358,7 @@ short get_inputs(void)
         return false;
     }
     SYNCDBG(5,"Starting");
-    if (gui_process_inputs())
-    {
-        return true;
-    }
+    gui_process_inputs();
     if (player->victory_state == VicS_LostLevel)
     {
         if (player->is_active != 1)
