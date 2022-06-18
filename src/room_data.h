@@ -241,7 +241,7 @@ MapCoordDelta get_distance_to_room(const struct Coord3d *pos, const struct Room 
 TbBool initialise_map_rooms(void);
 void init_room_sparks(struct Room *room);
 void replace_room_slab(struct Room *room, MapSlabCoord slb_x, MapSlabCoord slb_y, unsigned char owner, unsigned char a5);
-short delete_room_slab_when_no_free_room_structures(long a1, long a2, unsigned char a3);
+void delete_room_slab_when_no_free_room_structures(MapCoord slb_x, MapCoord slb_y, unsigned char gnd_slab);
 long calculate_room_efficiency(const struct Room *room);
 void kill_room_slab_and_contents(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y);
 void free_room_structure(struct Room *room);
