@@ -2437,7 +2437,7 @@ static void find_closest_lights_on_list(struct NearestLights *nlgt, long *nlgt_d
     {
         struct Light *lgt;
         lgt = &game.lish.lights[i];
-        i = lgt->field_26;
+        i = lgt->next_in_list;
         // Per-light code
         if ((lgt->flags & 1) != 0)
         {

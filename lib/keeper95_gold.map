@@ -37,6 +37,7 @@
  0001:00004EA0       heapmgr_free_handle
  0001:00004F70       heapmgr_complete_defrag
  0001:00005380       light_render_area
+ 0001:00005F80       light_render_light
  0001:00005730       light_signal_update_in_area
  0001:000057B0       light_create_light
  0001:00005970       light_delete_light

@@ -518,13 +518,13 @@ struct Computer2 { // sizeof = 5322
   unsigned long gameturn_wait;
   unsigned long field_C;
   unsigned long tasks_did;
-  unsigned long field_14;
-  unsigned long field_18;
-  unsigned long field_1C; // seems to be signed long
+  unsigned long processes_time;
+  unsigned long click_rate;
+  unsigned long dig_stack_size; // seems to be signed long
   unsigned long sim_before_dig;
   struct Dungeon *dungeon;
   unsigned long model;
-  unsigned long field_2C;
+  unsigned long turn_begin;
   unsigned long max_room_build_tasks;
   unsigned long field_34;
   struct ComputerProcess processes[COMPUTER_PROCESSES_COUNT+1];
@@ -665,7 +665,7 @@ TbBool create_task_attack_magic(struct Computer2 *comp, const struct Thing *crea
 TbBool computer_able_to_use_power(struct Computer2 *comp, PowerKind pwkind, long pwlevel, long amount);
 long computer_get_room_kind_total_capacity(struct Computer2 *comp, RoomKind room_kind);
 long computer_get_room_kind_free_capacity(struct Computer2 *comp, RoomKind room_kind);
-long computer_finds_nearest_room_to_pos(struct Computer2 *comp, struct Room **retroom, struct Coord3d *nearpos);
+TbBool computer_finds_nearest_room_to_pos(struct Computer2 *comp, struct Room **retroom, struct Coord3d *nearpos);
 long process_tasks(struct Computer2 *comp);
 long computer_check_any_room(struct Computer2* comp, struct ComputerProcess* cproc);
 TbResult game_action(PlayerNumber plyr_idx, unsigned short gaction, unsigned short alevel,
