@@ -613,7 +613,7 @@ void light_set_light_intensity(long idx, unsigned char intensity)
           stat_light_needs_updating = 1;
         }
         lgt->intensity = intensity;
-        if ( *(unsigned short *)&lgt->field_1C[8] < intensity )
+        if ( lgt->field_24 < intensity )
           lgt->flags |= LgtF_Unkn08;
       }
     }
@@ -781,15 +781,12 @@ static void light_render_area(MapSubtlCoord startx, MapSubtlCoord starty, MapSub
 {
   struct Light *light; // esi
   int range; // ebx
-  __int64 v6; // rax
-  char v7; // al
   int v8; // eax
   char *v9; // edx
-  __int16 *v10; // ebx
+  unsigned __int16 *v10; // ebx
   int v11; // ebp
   __int16 *v12; // edi
-  __int16 *v13; // esi
-  __int64 v16; // rax
+  unsigned __int16 *v13; // esi
   unsigned __int8 v17; // al
   unsigned __int8 v18; // cl
   unsigned __int8 v19; // cl
@@ -797,7 +794,6 @@ static void light_render_area(MapSubtlCoord startx, MapSubtlCoord starty, MapSub
   __int16 v21; // ax
   MapSubtlDelta half_width_y; // [esp+10h] [ebp-10h]
   MapSubtlDelta half_width_x; // [esp+14h] [ebp-Ch]
-  MapSubtlCoord centre_x; // [esp+1Ch] [ebp-4h]
 
   light_rendered_dynamic_lights = 0;
   light_rendered_optimised_dynamic_lights = 0;
@@ -805,7 +801,6 @@ static void light_render_area(MapSubtlCoord startx, MapSubtlCoord starty, MapSub
   light_out_of_date_stat_lights = 0;
   half_width_x = (endx - startx) / 2 + 1;
   half_width_y = (endy - starty) / 2 + 1;
-  centre_x = half_width_x + startx;
   if ( game.lish.field_4614D )
   {
     for ( light = &game.lish.lights[game.thing_lists[TngList_StaticLights].index];
@@ -816,11 +811,10 @@ static void light_render_area(MapSubtlCoord startx, MapSubtlCoord starty, MapSub
       {
         ++light_out_of_date_stat_lights;
         range = light->range;
-        v6 = centre_x - light->mappos.x.stl.num;
 
         
 
-        if ( (int)((HIDWORD(v6) ^ v6) - HIDWORD(v6)) < half_width_x + range
+        if ( (int)abs(half_width_x + startx - light->mappos.x.stl.num) < half_width_x + range 
           && (int)abs(half_width_y + starty - light->mappos.y.stl.num) < half_width_y + range )
         {
           ++light_updated_stat_lights;
@@ -852,8 +846,7 @@ static void light_render_area(MapSubtlCoord startx, MapSubtlCoord starty, MapSub
     for ( light = &game.lish.lights[game.thing_lists[TngList_DynamLights].index]; light > game.lish.lights; light = &game.lish.lights[light->next_in_list] )
     {
       range = light->range;
-      v16 = centre_x - light->mappos.x.stl.num;
-      if ( (int)((HIDWORD(v16) ^ v16) - HIDWORD(v16)) < half_width_x + range
+      if ( (int)abs(half_width_x + startx - light->mappos.x.stl.num) < half_width_x + range 
         && (int)abs(half_width_y + starty - light->mappos.y.stl.num) < half_width_y + range )
       {
         ++light_rendered_dynamic_lights;
@@ -903,7 +896,7 @@ static void light_render_area(MapSubtlCoord startx, MapSubtlCoord starty, MapSub
           else
           {
             v19 = light->intensity;
-            v20 = HIBYTE(light->field_7);
+            v20 = light->field_7;
             if ( v19 - (unsigned __int8)light->field_3[1] <= v20 )
             {
               light->intensity = v20;

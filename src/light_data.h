@@ -53,7 +53,8 @@ struct Light { // sizeof = 46
   unsigned char field_3[2];
   unsigned char range;
   unsigned char field_6;
-  unsigned short field_7;
+  unsigned char field_7;
+  unsigned char field_8;
   unsigned char field_9;
   unsigned char field_A[4];
   unsigned short index;
