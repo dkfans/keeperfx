@@ -2178,7 +2178,7 @@ static struct Thing *find_creature_for_call_to_arms(struct Computer2 *comp, TbBo
             state = i->active_state;
         struct StateInfo *stati = get_thing_state_info_num(state);
 
-        if ( (cctrl->spell_flags & CSAfF_Rebound) != 0 )
+        if ( (cctrl->spell_flags & CSAfF_CalledToArms) != 0 )
         {
             if ( !stati->react_to_cta )
                 continue;
