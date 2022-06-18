@@ -190,8 +190,8 @@ struct Dungeon {
     int task_count;
     int field_E93[3];
     unsigned char owner;
-    int camera_deviate_quake;
-    int camera_deviate_jump;
+    float camera_deviate_quake;
+    float camera_deviate_jump;
     long score;
     struct ResearchVal research[DUNGEON_RESEARCH_COUNT];
     int current_research_idx;

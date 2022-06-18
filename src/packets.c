@@ -140,11 +140,11 @@ struct Room *keeper_build_room(long stl_x,long stl_y,long plyr_idx,long rkind)
     {
         if (player->boxsize > 1)
         {
-            dungeon->camera_deviate_jump = 240;
+            dungeon->camera_deviate_jump = 240.0;
         }
         else
         {
-            dungeon->camera_deviate_jump = 192;
+            dungeon->camera_deviate_jump = 192.0;
         }
         struct Coord3d pos;
         set_coords_to_slab_center(&pos, subtile_slab_fast(stl_x), subtile_slab_fast(stl_y));
@@ -218,7 +218,7 @@ TbBool player_sell_room_at_subtile(long plyr_idx, long stl_x, long stl_y)
     {
         struct Dungeon* dungeon = get_players_num_dungeon(room->owner);
         dungeon->rooms_destroyed++;
-        dungeon->camera_deviate_jump = 192;
+        dungeon->camera_deviate_jump = 192.0;
     }
     delete_room_slab(subtile_slab_fast(stl_x), subtile_slab_fast(stl_y), 0);
     if (is_my_player_number(plyr_idx))

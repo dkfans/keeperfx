@@ -44,6 +44,8 @@
 #include "keeperfx.hpp"
 
 float tooltip_scroll_offset;
+float tooltip_scroll_timer;
+float help_tip_time;
 
 #ifdef __cplusplus
 extern "C" {
@@ -61,7 +63,7 @@ const char jtytext[] = "Jonty here   : ...I am writing this at 4am on Keepers la
 static inline void reset_scrolling_tooltip(void)
 {
     tooltip_scroll_offset = 0;
-    tooltip_scroll_timer = 25;
+    tooltip_scroll_timer = 25.0;
     set_flag_byte(&tool_tip_box.flags,TTip_NeedReset,false);
 }
 
@@ -130,13 +132,13 @@ TbBool setup_trap_tooltips(struct Coord3d *pos)
     if ((thing->trap.revealed == 0) && (player->id_number != thing->owner))
         return false;
     update_gui_tooltip_target(thing);
-    if ((help_tip_time > 20) || (player->work_state == PSt_CreatrQuery))
+    if ((help_tip_time > 20.0) || (player->work_state == PSt_CreatrQuery))
     {
         struct TrapConfigStats* trapst = get_trap_model_stats(thing->model);
         set_gui_tooltip_box_fmt(4,"%s",get_string(trapst->name_stridx));
     } else
     {
-        help_tip_time++;
+        help_tip_time += fast_delta_time;
     }
     return true;
 }
@@ -208,12 +210,12 @@ TbBool setup_object_tooltips(struct Coord3d *pos)
     if (object_is_hero_gate(thing))
     {
       update_gui_tooltip_target(thing);
-      if ( (help_tip_time > 20) || (player->work_state == PSt_CreatrQuery) )
+      if ( (help_tip_time > 20.0) || (player->work_state == PSt_CreatrQuery) )
       {
           set_gui_tooltip_box_fmt(5,"%s",get_string(CpgStr_TerrainHeroEntranceDesc)); // Hero Gate tooltip
       } else
       {
-        help_tip_time++;
+        help_tip_time += fast_delta_time;
       }
       return true;
     }
@@ -221,14 +223,14 @@ TbBool setup_object_tooltips(struct Coord3d *pos)
     if (objdat->related_creatr_model)
     {
       update_gui_tooltip_target(thing);
-      if ( (help_tip_time > 20) || (player->work_state == PSt_CreatrQuery) )
+      if ( (help_tip_time > 20.0) || (player->work_state == PSt_CreatrQuery) )
       {
           struct CreatureData* crdata = creature_data_get(objdat->related_creatr_model);
           struct RoomData* rdata = room_data_get_for_kind(RoK_LAIR);                                            //TODO use a separate string for creature lair object than for lair room
           set_gui_tooltip_box_fmt(5, "%s %s", get_string(crdata->namestr_idx), get_string(rdata->name_stridx)); // (creature) Lair
       } else
       {
-        help_tip_time++;
+        help_tip_time += fast_delta_time;
       }
       return true;
     }
@@ -248,12 +250,12 @@ short setup_land_tooltips(struct Coord3d *pos)
     return false;
   update_gui_tooltip_target((void *)skind);
   struct PlayerInfo* player = get_my_player();
-  if ( (help_tip_time > 20) || (player->work_state == PSt_CreatrQuery) )
+  if ( (help_tip_time > 20.0) || (player->work_state == PSt_CreatrQuery) )
   {
       set_gui_tooltip_box_fmt(2,"%s",get_string(slbattr->tooltip_stridx));
   } else
   {
-    help_tip_time++;
+    help_tip_time += fast_delta_time;
   }
   return true;
 }
@@ -271,12 +273,12 @@ short setup_room_tooltips(struct Coord3d *pos)
     return false;
   update_gui_tooltip_target(room);
   struct PlayerInfo* player = get_my_player();
-  if ( (help_tip_time > 20) || (player->work_state == PSt_CreatrQuery) )
+  if ( (help_tip_time > 20.0) || (player->work_state == PSt_CreatrQuery) )
   {
     set_gui_tooltip_box_fmt(1,"%s",get_string(stridx));
   } else
   {
-    help_tip_time++;
+    help_tip_time += fast_delta_time;
   }
   return true;
 }
@@ -434,7 +436,7 @@ void draw_tooltip_slab64k(char *tttext, long pos_x, long pos_y, long ttwidth, lo
               tooltip_scroll_offset -= 4.0*fast_delta_time;
         } else
         {
-            tooltip_scroll_timer--;
+            tooltip_scroll_timer -= 1.0 * fast_delta_time;
             if (tooltip_scroll_timer < 0)
               tooltip_scroll_offset = 0;
         }

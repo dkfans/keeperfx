@@ -3106,7 +3106,7 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                         destroy_door(doortng);
                         if (is_my_player_number(dungeon->owner))
                             play_non_3d_sample(115);
-                        dungeon->camera_deviate_jump = 192;
+                        dungeon->camera_deviate_jump = 192.0;
                         if (value != 0)
                         {
                             struct Coord3d pos;
@@ -3142,7 +3142,7 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                         remove_traps_around_subtile(stl_x, stl_y, &value);
                         if (is_my_player_number(dungeon->owner))
                             play_non_3d_sample(115);
-                        dungeon->camera_deviate_jump = 192;
+                        dungeon->camera_deviate_jump = 192.0;
                         if (value != 0)
                         {
                             struct Coord3d pos;

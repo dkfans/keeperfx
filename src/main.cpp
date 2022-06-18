@@ -2757,7 +2757,7 @@ void update(void)
 
     if ((game.operation_flags & GOF_Paused) == 0)
         update_light_render_area();
-    process_packets();
+    
     if (quit_game || exit_keeper) {
         return;
     }
@@ -3375,8 +3375,10 @@ TbBool keeper_wait_for_screen_focus(void)
 
 void fast_update(void)
 {
+    input();
+    process_packets();
     update_all_players_cameras();
-    
+
     // Check if we should redraw screen in this turn
     short do_draw = display_should_be_updated_this_turn() || (!LbIsActive());
     if (do_draw)
@@ -3385,6 +3387,7 @@ void fast_update(void)
     // Move the graphics window to center of screen buffer and swap screen
     if (do_draw)
         keeper_screen_swap();
+    
 
     TbClockMSec current_time_in_ms = LbTimerClock();
     
@@ -3396,7 +3399,6 @@ void fast_update(void)
 
     // Fix for when initially loading the map, frametime takes too long. Possibly other circumstances too.
     if (fast_delta_time > 1.0) {fast_delta_time = 1.0;}
-
     //JUSTLOG("%f", frame_time_in_ms);
 }
 
@@ -3458,7 +3460,6 @@ void keeper_gameplay_loop(void)
             
             LbWindowsControl();
             input_eastegg();
-            input();
             update();
 
 

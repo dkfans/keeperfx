@@ -328,7 +328,7 @@ unsigned long scale_camera_zoom_to_screen(unsigned long zoom_lvl)
 void view_set_camera_y_inertia(struct Camera *cam, float delta, float ilimit)
 {
     float abslimit = fabs(ilimit);
-    cam->inertia_y += delta;
+    cam->inertia_y += delta * fast_delta_time;
     if (cam->inertia_y < -abslimit) {
         cam->inertia_y = -abslimit;
     } else
@@ -341,7 +341,7 @@ void view_set_camera_y_inertia(struct Camera *cam, float delta, float ilimit)
 void view_set_camera_x_inertia(struct Camera *cam, float delta, float ilimit)
 {
     float abslimit = fabs(ilimit);
-    cam->inertia_x += delta;
+    cam->inertia_x += delta * fast_delta_time;
     if (cam->inertia_x < -abslimit) {
         cam->inertia_x = -abslimit;
     } else
@@ -354,7 +354,7 @@ void view_set_camera_x_inertia(struct Camera *cam, float delta, float ilimit)
 void view_set_camera_rotation_inertia(struct Camera *cam, float delta, float ilimit)
 {
     float limit_val = fabs(ilimit);
-    float new_val = delta + cam->inertia_rotation;
+    float new_val = delta + (cam->inertia_rotation * fast_delta_time);
     cam->inertia_rotation = new_val;
     if (new_val < -limit_val)
     {
@@ -621,7 +621,8 @@ void view_process_camera_inertia(struct Camera *cam) // Fast-loop
         cam->inertia_y *= 1.00 - (0.50 * fast_delta_time);
     }
     if (cam->inertia_rotation) {
-        cam->orient_a = (cam->inertia_rotation + cam->orient_a) & LbFPMath_AngleMask;
+        int inertia_as_int = cam->inertia_rotation;
+        cam->orient_a = (inertia_as_int + cam->orient_a) & LbFPMath_AngleMask;
     }
     if (cam->in_active_movement_rotation == false) {
         cam->inertia_rotation *= 1.00 - (0.50 * fast_delta_time);
@@ -656,11 +657,13 @@ void update_player_camera(struct PlayerInfo *player) // Fast-loop
         player->cameras[CamIV_Isometric].mappos.y.val = cam->mappos.y.val;
         break;
     }
-    if (dungeon->camera_deviate_quake) {
-        dungeon->camera_deviate_quake--;
+    if (dungeon->camera_deviate_quake > 0) {
+        dungeon->camera_deviate_quake -= fast_delta_time;
+        if (dungeon->camera_deviate_quake < 0) {dungeon->camera_deviate_quake = 0;}
     }
     if (dungeon->camera_deviate_jump > 0) {
-        dungeon->camera_deviate_jump -= 32;
+        dungeon->camera_deviate_jump -= 32.0 * fast_delta_time;
+        if (dungeon->camera_deviate_jump < 0) {dungeon->camera_deviate_jump = 0;}
     }
 }
 

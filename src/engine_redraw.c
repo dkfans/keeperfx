@@ -643,8 +643,9 @@ void make_camera_deviations(struct PlayerInfo *player,struct Dungeon *dungeon)
     }
     if (dungeon->camera_deviate_jump != 0)
     {
-      x += ( (dungeon->camera_deviate_jump * LbSinL(player->acamera->orient_a) >> 8) >> 8);
-      y += (-(dungeon->camera_deviate_jump * LbCosL(player->acamera->orient_a) >> 8) >> 8);
+        int deviate_jump_as_int = dungeon->camera_deviate_jump;
+        x += ( (deviate_jump_as_int * LbSinL(player->acamera->orient_a) >> 8) >> 8);
+        y += (-(deviate_jump_as_int * LbCosL(player->acamera->orient_a) >> 8) >> 8);
     }
     if ((dungeon->camera_deviate_quake != 0) || (dungeon->camera_deviate_jump != 0))
     {

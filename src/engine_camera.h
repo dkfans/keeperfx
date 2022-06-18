@@ -66,7 +66,7 @@ struct Camera {
     int orient_c;
     int field_13;
     int zoom;
-    int inertia_rotation;
+    float inertia_rotation;
     TbBool in_active_movement_rotation;
     float inertia_x;
     TbBool in_active_movement_x;

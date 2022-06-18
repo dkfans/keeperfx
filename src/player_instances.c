@@ -1238,7 +1238,7 @@ TbBool player_place_trap_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumb
         rearm_trap(traptng);
         dungeon->lvstats.traps_armed++;
     }
-    dungeon->camera_deviate_jump = 192;
+    dungeon->camera_deviate_jump = 192.0;
     if (is_my_player_number(plyr_idx))
     {
         play_non_3d_sample(117);
@@ -1274,7 +1274,7 @@ TbBool player_place_door_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumb
         dungeonadd->mnfct_info.door_amount_placeable[tngmodel] = 0;
         break;
     }
-    dungeon->camera_deviate_jump = 192;
+    dungeon->camera_deviate_jump = 192.0;
     if (is_my_player_number(plyr_idx))
     {
         play_non_3d_sample(117);

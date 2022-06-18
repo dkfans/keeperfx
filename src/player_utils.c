@@ -916,7 +916,7 @@ TbBool player_sell_trap_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     {
         play_non_3d_sample(115);
     }
-    dungeon->camera_deviate_jump = 192;
+    dungeon->camera_deviate_jump = 192.0;
     if (sell_value != 0)
     {
         create_price_effect(&pos, plyr_idx, sell_value);
@@ -945,7 +945,7 @@ TbBool player_sell_door_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     }
 
 	struct Dungeon* dungeon = get_players_num_dungeon(thing->owner);
-	dungeon->camera_deviate_jump = 192;
+	dungeon->camera_deviate_jump = 192.0;
     long sell_value = compute_value_percentage(gameadd.doors_config[thing->model].selling_value, gameadd.door_sale_percent);
 
 	struct DungeonAdd* dungeonadd = get_dungeonadd(thing->owner);

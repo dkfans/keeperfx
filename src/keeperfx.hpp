@@ -172,8 +172,6 @@ DLLIMPORT extern short _DK_drag_menu_y;
 #define drag_menu_y _DK_drag_menu_y
 DLLIMPORT extern unsigned short _DK_tool_tip_time;
 #define tool_tip_time _DK_tool_tip_time
-DLLIMPORT extern unsigned short _DK_help_tip_time;
-#define help_tip_time _DK_help_tip_time
 DLLIMPORT extern long _DK_pointer_x;
 #define pointer_x _DK_pointer_x
 DLLIMPORT extern long _DK_pointer_y;

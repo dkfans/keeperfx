@@ -7116,15 +7116,20 @@ static void do_map_who_for_thing(struct Thing *thing)
         rotpers(&ecor, &camera_matrix);
         if (getpoly < poly_pool_end)
         {
-            if (game.play_gameturn - thing->roomflag2.turntime == 1)
+            if (game.play_gameturn - thing->roomflag2.turntime == 1) // This means it's been drawing within the camera view for 1 turn
             {
-              if (thing->roomflag2.byte_19 < 40)
-                thing->roomflag2.byte_19++;
+                if (thing->roomflag2.byte_19 < 40) {
+                    thing->roomflag2.byte_19++;
+                }
             } else
             {
-                thing->roomflag2.byte_19 = 0;
+                if (game.play_gameturn - thing->roomflag2.turntime > 1) {
+                    thing->roomflag2.byte_19 = 0;
+                }
             }
+
             thing->roomflag2.turntime = game.play_gameturn;
+
             if (thing->roomflag2.byte_19 == 40)
             {
                 bckt_idx = (ecor.z - 64) / 16 - 6;
@@ -7214,24 +7219,29 @@ static void draw_frontview_thing_on_element(struct Thing *thing, struct Map *map
         convert_world_coord_to_front_view_screen_coord(&thing->mappos,cam,&cx,&cy,&cz);
         if (is_free_space_in_poly_pool(1))
         {
-          if (game.play_gameturn - thing->roomflag2.turntime != 1)
-          {
-              thing->roomflag2.byte_19 = 0;
-          } else
-          if (thing->roomflag2.byte_19 < 40)
-          {
-              thing->roomflag2.byte_19++;
-          }
-          thing->roomflag2.turntime = game.play_gameturn;
-          if (thing->roomflag2.byte_19 == 40)
-          {
-              add_room_flag_pole_to_polypool(cx, cy, thing->roomflag.room_idx, cz-3);
-              if (is_free_space_in_poly_pool(1))
-              {
-                  add_room_flag_top_to_polypool(cx, cy, thing->roomflag.room_idx, 1);
-              }
-          }
-        }
+            if (game.play_gameturn - thing->roomflag2.turntime == 1)
+            {
+                if (thing->roomflag2.byte_19 < 40) {
+                    thing->roomflag2.byte_19++;
+                }
+            } else
+            {
+                if (game.play_gameturn - thing->roomflag2.turntime > 1) {
+                    thing->roomflag2.byte_19 = 0;
+                }
+            }
+        
+            thing->roomflag2.turntime = game.play_gameturn;
+
+            if (thing->roomflag2.byte_19 == 40)
+            {
+                add_room_flag_pole_to_polypool(cx, cy, thing->roomflag.room_idx, cz-3);
+                if (is_free_space_in_poly_pool(1))
+                {
+                    add_room_flag_top_to_polypool(cx, cy, thing->roomflag.room_idx, 1);
+                }
+            }
+            }
         break;
     case 6:
         convert_world_coord_to_front_view_screen_coord(&thing->mappos,cam,&cx,&cy,&cz);

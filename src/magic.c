@@ -1376,7 +1376,7 @@ TbResult magic_use_power_lightning(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     }
     pwrdynst = get_power_dynamic_stats(PwrK_LIGHTNING);
     shotst = get_shot_model_stats(ShM_GodLightning);
-    dungeon->camera_deviate_jump = 256;
+    dungeon->camera_deviate_jump = 256.0;
     i = pwrdynst->strength[splevel];
     max_damage = i * shotst->damage;
     range = (i << 8) / 2;
