@@ -59,7 +59,7 @@ struct LightsShadows { // sizeof = 164886
     struct ShadowCache shadow_cache[SHADOW_CACHE_COUNT];
     unsigned short stat_light_map[256*256];
     long field_46149;
-    char field_4614D;
+    char light_enabled;
     char field_4614E;
     int field_4614F;
     int field_46153;

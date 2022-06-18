@@ -631,7 +631,7 @@ void light_set_light_intensity(long idx, unsigned char intensity)
 void clear_stat_light_map(void)
 {
     game.lish.field_46149 = 32;
-    game.lish.field_4614D = 0;
+    game.lish.light_enabled = 0;
     game.lish.field_4614F = 0;
     for (unsigned long y = 0; y < (map_subtiles_y + 1); y++)
     {
@@ -761,11 +761,11 @@ void light_set_lights_on(char state)
     if (state)
     {
         game.lish.field_46149 = 10;
-        game.lish.field_4614D = 1;
+        game.lish.light_enabled = 1;
     } else
     {
         game.lish.field_46149 = 32;
-        game.lish.field_4614D = 0;
+        game.lish.light_enabled = 0;
     }
     // Enable lights on all but bounding subtiles
     light_stat_light_map_clear_area(0, 0, map_subtiles_x, map_subtiles_y);
@@ -801,7 +801,7 @@ static void light_render_area(MapSubtlCoord startx, MapSubtlCoord starty, MapSub
   light_out_of_date_stat_lights = 0;
   half_width_x = (endx - startx) / 2 + 1;
   half_width_y = (endy - starty) / 2 + 1;
-  if ( game.lish.field_4614D )
+  if ( game.lish.light_enabled )
   {
     for ( light = &game.lish.lights[game.thing_lists[TngList_StaticLights].index];
           light > game.lish.lights; 
@@ -841,7 +841,7 @@ static void light_render_area(MapSubtlCoord startx, MapSubtlCoord starty, MapSub
     }
     while ( v11 );
   }
-  if ( game.lish.field_4614D )
+  if ( game.lish.light_enabled )
   {
     for ( light = &game.lish.lights[game.thing_lists[TngList_DynamLights].index]; light > game.lish.lights; light = &game.lish.lights[light->next_in_list] )
     {

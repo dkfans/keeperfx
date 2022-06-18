@@ -638,7 +638,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
   case PckA_ToggleLights:
       if (is_my_player(player))
       {
-          light_set_lights_on(game.lish.field_4614D == 0);
+          light_set_lights_on(game.lish.light_enabled == 0);
       }
       return 1;
   case PckA_SwitchScrnRes:
