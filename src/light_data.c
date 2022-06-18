@@ -781,7 +781,6 @@ static void light_render_area(MapSubtlCoord startx, MapSubtlCoord starty, MapSub
 {
   struct Light *light; // esi
   int range; // ebx
-  int v8; // eax
   char *v9; // edx
   unsigned __int16 *v10; // ebx
   int v11; // ebp
@@ -824,9 +823,9 @@ static void light_render_area(MapSubtlCoord startx, MapSubtlCoord starty, MapSub
       }
     }
   }
-  v8 = startx + (starty << 8);
-  v9 = (char *)&game.lish.subtile_lightness + v8 * 2;
-  v10 = &game.lish.stat_light_map[v8];
+  SubtlCodedCoords start_num = get_subtile_number(startx, starty);
+  v9 = (char *)&game.lish.subtile_lightness + start_num * 2;
+  v10 = &game.lish.stat_light_map[start_num];
   if ( starty <= (unsigned int)endy )
   {
     v11 = endy - starty + 1;
