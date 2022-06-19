@@ -21,6 +21,7 @@
 #include "globals.h"
 #include "bflib_basics.h"
 #include "bflib_memory.h"
+#include "bflib_math.h"
 
 #include "player_data.h"
 #include "map_data.h"
@@ -33,7 +34,12 @@ extern "C" {
 #endif
 /******************************************************************************/
 DLLIMPORT void _DK_light_initialise_lighting_tables(void);
-DLLIMPORT void _DK_light_render_light(struct Light* light);
+
+DLLIMPORT TbBool _DK_light_render_light_sub1_sub2(int a1, SubtlCodedCoords stl_num, int a3);
+DLLIMPORT char _DK_light_render_light_sub1(struct Light *lgt, int radius, int a3, unsigned int a4);
+DLLIMPORT char _DK_light_render_light_sub2(struct Light *lgt, int radius, int a3, unsigned int a4);
+DLLIMPORT int _DK_light_render_light_sub3(struct Light *lgt, int radius, int a3, unsigned int a4);
+DLLIMPORT int _DK_light_render_light_sub1_sub1(unsigned int a1,unsigned int a2,int a3,unsigned int a4,unsigned int a5,int *a6,int *a7);
 
 /******************************************************************************/
 struct Light *light_allocate_light(void)
@@ -632,7 +638,7 @@ void clear_stat_light_map(void)
 {
     game.lish.field_46149 = 32;
     game.lish.light_enabled = 0;
-    game.lish.field_4614F = 0;
+    game.lish.light_rand_seed = 0;
     for (unsigned long y = 0; y < (map_subtiles_y + 1); y++)
     {
         for (unsigned long x = 0; x < (map_subtiles_x + 1); x++)
@@ -771,10 +777,729 @@ void light_set_lights_on(char state)
     light_stat_light_map_clear_area(0, 0, map_subtiles_x, map_subtiles_y);
     light_signal_stat_light_update_in_area(1, 1, map_subtiles_x, map_subtiles_y);
 }
-
-void light_render_light(struct Light* light)
+//sub_4080B0
+__int32 light_render_light_sub1_sub1(
+        unsigned int a1,
+        unsigned int a2,
+        int a3,
+        unsigned int a4,
+        unsigned int a5,
+        int *a6,
+        int *a7)
 {
-  _DK_light_render_light(light);
+  return _DK_light_render_light_sub1_sub1(a1,a2,a3,a4,a5,a6,a7);
+}
+
+//sub_408530
+TbBool light_render_light_sub1_sub2(int a1, SubtlCodedCoords stl_num, int a3)
+{
+  return _DK_light_render_light_sub1_sub2(a1, stl_num, a3);
+/*
+    struct Map* mapblk = get_map_block_at_pos(stl_num);
+    if (map_block_invalid(mapblk))
+        return false;
+    unsigned long k = 0;
+    long i = get_mapwho_thing_index(mapblk);
+
+
+  return (unsigned __int8)*(&game.columns_data[(i + 5 * a1) & 0x7FF)].bitfields) >> 4 > a3;
+  */
+}
+
+//sub_4072E0
+char light_render_light_sub1(struct Light *lgt, int radius, int a3, unsigned int a4)
+{
+  return _DK_light_render_light_sub1(lgt, radius, a3, a4);
+}
+//sub_407770
+char light_render_light_sub2(struct Light *lgt, int radius, int a3, unsigned int a4)
+{
+  return _DK_light_render_light_sub2(lgt, radius, a3, a4);
+}
+//sub_407C70
+int light_render_light_sub3(struct Light *lgt, int radius, int a3, unsigned int a4)
+{
+  return _DK_light_render_light_sub3(lgt, radius, a3, a4);
+}
+
+const struct Proportion proportions2[] = {
+    {-256, 11585},
+    {-255, 11563},
+    {-255, 11540},
+    {-254, 11518},
+    {-253, 11495},
+    {-253, 11473},
+    {-252, 11450},
+    {-251, 11428},
+    {-251, 11406},
+    {-250, 11383},
+    {-250, 11361},
+    {-249, 11339},
+    {-248, 11317},
+    {-248, 11295},
+    {-247, 11273},
+    {-246, 11251},
+    {-245, 11229},
+    {-245, 11207},
+    {-244, 11185},
+    {-243, 11164},
+    {-243, 11142},
+    {-242, 11120},
+    {-241, 11099},
+    {-241, 11077},
+    {-240, 11056},
+    {-239, 11034},
+    {-239, 11013},
+    {-238, 10991},
+    {-237, 10970},
+    {-236, 10949},
+    {-236, 10928},
+    {-235, 10906},
+    {-234, 10885},
+    {-234, 10864},
+    {-233, 10843},
+    {-232, 10822},
+    {-231, 10801},
+    {-231, 10781},
+    {-230, 10760},
+    {-229, 10739},
+    {-228, 10718},
+    {-228, 10698},
+    {-227, 10677},
+    {-226, 10657},
+    {-225, 10636},
+    {-225, 10616},
+    {-224, 10596},
+    {-223, 10575},
+    {-222, 10555},
+    {-222, 10535},
+    {-221, 10515},
+    {-220, 10495},
+    {-219, 10475},
+    {-219, 10455},
+    {-218, 10435},
+    {-217, 10415},
+    {-216, 10396},
+    {-215, 10376},
+    {-215, 10356},
+    {-214, 10337},
+    {-213, 10317},
+    {-212, 10298},
+    {-211, 10279},
+    {-211, 10259},
+    {-210, 10240},
+    {-209, 10221},
+    {-208, 10202},
+    {-207, 10183},
+    {-206, 10164},
+    {-206, 10145},
+    {-205, 10126},
+    {-204, 10107},
+    {-203, 10088},
+    {-202, 10070},
+    {-201, 10051},
+    {-201, 10033},
+    {-200, 10014},
+    {-199, 9996},
+    {-198, 9978},
+    {-197, 9959},
+    {-196, 9941},
+    {-195, 9923},
+    {-195, 9905},
+    {-194, 9887},
+    {-193, 9869},
+    {-192, 9851},
+    {-191, 9834},
+    {-190, 9816},
+    {-189, 9798},
+    {-188, 9781},
+    {-188, 9764},
+    {-187, 9746},
+    {-186, 9729},
+    {-185, 9712},
+    {-184, 9694},
+    {-183, 9677},
+    {-182, 9660},
+    {-181, 9643},
+    {-180, 9627},
+    {-179, 9610},
+    {-178, 9593},
+    {-177, 9577},
+    {-177, 9560},
+    {-176, 9544},
+    {-175, 9527},
+    {-174, 9511},
+    {-173, 9495},
+    {-172, 9479},
+    {-171, 9462},
+    {-170, 9447},
+    {-169, 9431},
+    {-168, 9415},
+    {-167, 9399},
+    {-166, 9383},
+    {-165, 9368},
+    {-164, 9352},
+    {-163, 9337},
+    {-162, 9322},
+    {-161, 9306},
+    {-160, 9291},
+    {-159, 9276},
+    {-158, 9261},
+    {-157, 9246},
+    {-156, 9232},
+    {-155, 9217},
+    {-154, 9202},
+    {-153, 9188},
+    {-152, 9173},
+    {-151, 9159},
+    {-150, 9145},
+    {-149, 9130},
+    {-148, 9116},
+    {-147, 9102},
+    {-146, 9089},
+    {-145, 9075},
+    {-144, 9061},
+    {-143, 9047},
+    {-142, 9034},
+    {-141, 9020},
+    {-140, 9007},
+    {-139, 8994},
+    {-138, 8981},
+    {-137, 8968},
+    {-135, 8955},
+    {-134, 8942},
+    {-133, 8929},
+    {-132, 8916},
+    {-131, 8904},
+    {-130, 8891},
+    {-129, 8879},
+    {-128, 8866},
+    {-127, 8854},
+    {-126, 8842},
+    {-125, 8830},
+    {-124, 8818},
+    {-122, 8807},
+    {-121, 8795},
+    {-120, 8783},
+    {-119, 8772},
+    {-118, 8760},
+    {-117, 8749},
+    {-116, 8738},
+    {-115, 8727},
+    {-114, 8716},
+    {-112, 8705},
+    {-111, 8694},
+    {-110, 8684},
+    {-109, 8673},
+    {-108, 8662},
+    {-107, 8652},
+    {-106, 8642},
+    {-104, 8632},
+    {-103, 8622},
+    {-102, 8612},
+    {-101, 8602},
+    {-100, 8592},
+    {-99, 8583},
+    {-98, 8573},
+    {-96, 8564},
+    {-95, 8555},
+    {-94, 8545},
+    {-93, 8536},
+    {-92, 8527},
+    {-91, 8519},
+    {-89, 8510},
+    {-88, 8501},
+    {-87, 8493},
+    {-86, 8484},
+    {-85, 8476},
+    {-83, 8468},
+    {-82, 8460},
+    {-81, 8452},
+    {-80, 8444},
+    {-79, 8436},
+    {-77, 8429},
+    {-76, 8421},
+    {-75, 8414},
+    {-74, 8407},
+    {-73, 8400},
+    {-71, 8393},
+    {-70, 8386},
+    {-69, 8379},
+    {-68, 8372},
+    {-67, 8366},
+    {-65, 8359},
+    {-64, 8353},
+    {-63, 8347},
+    {-62, 8341},
+    {-60, 8335},
+    {-59, 8329},
+    {-58, 8323},
+    {-57, 8318},
+    {-55, 8312},
+    {-54, 8307},
+    {-53, 8302},
+    {-52, 8296},
+    {-51, 8291},
+    {-49, 8287},
+    {-48, 8282},
+    {-47, 8277},
+    {-46, 8273},
+    {-44, 8268},
+    {-43, 8264},
+    {-42, 8260},
+    {-41, 8256},
+    {-39, 8252},
+    {-38, 8248},
+    {-37, 8244},
+    {-36, 8241},
+    {-34, 8237},
+    {-33, 8234},
+    {-32, 8231},
+    {-30, 8228},
+    {-29, 8225},
+    {-28, 8222},
+    {-27, 8220},
+    {-25, 8217},
+    {-24, 8215},
+    {-23, 8212},
+    {-22, 8210},
+    {-20, 8208},
+    {-19, 8206},
+    {-18, 8204},
+    {-17, 8203},
+    {-15, 8201},
+    {-14, 8200},
+    {-13, 8198},
+    {-11, 8197},
+    {-10, 8196},
+    { -9, 8195},
+    { -8, 8194},
+    { -6, 8194},
+    { -5, 8193},
+    { -4, 8193},
+    { -3, 8192},
+    { -1, 8192},
+    {  0, 8192},
+    {  1, 8192},
+    {  3, 8192},
+    {  4, 8193},
+    {  5, 8193},
+    {  6, 8194},
+    {  8, 8194},
+    {  9, 8195},
+    { 10, 8196},
+    { 11, 8197},
+    { 13, 8198},
+    { 14, 8200},
+    { 15, 8201},
+    { 17, 8203},
+    { 18, 8204},
+    { 19, 8206},
+    { 20, 8208},
+    { 22, 8210},
+    { 23, 8212},
+    { 24, 8215},
+    { 25, 8217},
+    { 27, 8220},
+    { 28, 8222},
+    { 29, 8225},
+    { 30, 8228},
+    { 32, 8231},
+    { 33, 8234},
+    { 34, 8237},
+    { 36, 8241},
+    { 37, 8244},
+    { 38, 8248},
+    { 39, 8252},
+    { 41, 8256},
+    { 42, 8260},
+    { 43, 8264},
+    { 44, 8268},
+    { 46, 8273},
+    { 47, 8277},
+    { 48, 8282},
+    { 49, 8287},
+    { 51, 8291},
+    { 52, 8296},
+    { 53, 8302},
+    { 54, 8307},
+    { 55, 8312},
+    { 57, 8318},
+    { 58, 8323},
+    { 59, 8329},
+    { 60, 8335},
+    { 62, 8341},
+    { 63, 8347},
+    { 64, 8353},
+    { 65, 8359},
+    { 67, 8366},
+    { 68, 8372},
+    { 69, 8379},
+    { 70, 8386},
+    { 71, 8393},
+    { 73, 8400},
+    { 74, 8407},
+    { 75, 8414},
+    { 76, 8421},
+    { 77, 8429},
+    { 79, 8436},
+    { 80, 8444},
+    { 81, 8452},
+    { 82, 8460},
+    { 83, 8468},
+    { 85, 8476},
+    { 86, 8484},
+    { 87, 8493},
+    { 88, 8501},
+    { 89, 8510},
+    { 91, 8519},
+    { 92, 8527},
+    { 93, 8536},
+    { 94, 8545},
+    { 95, 8555},
+    { 96, 8564},
+    { 98, 8573},
+    { 99, 8583},
+    {100, 8592},
+    {101, 8602},
+    {102, 8612},
+    {103, 8622},
+    {104, 8632},
+    {106, 8642},
+    {107, 8652},
+    {108, 8662},
+    {109, 8673},
+    {110, 8684},
+    {111, 8694},
+    {112, 8705},
+    {114, 8716},
+    {115, 8727},
+    {116, 8738},
+    {117, 8749},
+    {118, 8760},
+    {119, 8772},
+    {120, 8783},
+    {121, 8795},
+    {122, 8807},
+    {124, 8818},
+    {125, 8830},
+    {126, 8842},
+    {127, 8854},
+    {128, 8866},
+    {129, 8879},
+    {130, 8891},
+    {131, 8904},
+    {132, 8916},
+    {133, 8929},
+    {134, 8942},
+    {135, 8955},
+    {137, 8968},
+    {138, 8981},
+    {139, 8994},
+    {140, 9007},
+    {141, 9020},
+    {142, 9034},
+    {143, 9047},
+    {144, 9061},
+    {145, 9075},
+    {146, 9089},
+    {147, 9102},
+    {148, 9116},
+    {149, 9130},
+    {150, 9145},
+    {151, 9159},
+    {152, 9173},
+    {153, 9188},
+    {154, 9202},
+    {155, 9217},
+    {156, 9232},
+    {157, 9246},
+    {158, 9261},
+    {159, 9276},
+    {160, 9291},
+    {161, 9306},
+    {162, 9322},
+    {163, 9337},
+    {164, 9352},
+    {165, 9368},
+    {166, 9383},
+    {167, 9399},
+    {168, 9415},
+    {169, 9431},
+    {170, 9447},
+    {171, 9462},
+    {172, 9479},
+    {173, 9495},
+    {174, 9511},
+    {175, 9527},
+    {176, 9544},
+    {177, 9560},
+    {177, 9577},
+    {178, 9593},
+    {179, 9610},
+    {180, 9627},
+    {181, 9643},
+    {182, 9660},
+    {183, 9677},
+    {184, 9694},
+    {185, 9712},
+    {186, 9729},
+    {187, 9746},
+    {188, 9764},
+    {188, 9781},
+    {189, 9798},
+    {190, 9816},
+    {191, 9834},
+    {192, 9851},
+    {193, 9869},
+    {194, 9887},
+    {195, 9905},
+    {195, 9923},
+    {196, 9941},
+    {197, 9959},
+    {198, 9978},
+    {199, 9996},
+    {200, 10014},
+    {201, 10033},
+    {201, 10051},
+    {202, 10070},
+    {203, 10088},
+    {204, 10107},
+    {205, 10126},
+    {206, 10145},
+    {206, 10164},
+    {207, 10183},
+    {208, 10202},
+    {209, 10221},
+    {210, 10240},
+    {211, 10259},
+    {211, 10279},
+    {212, 10298},
+    {213, 10317},
+    {214, 10337},
+    {215, 10356},
+    {215, 10376},
+    {216, 10396},
+    {217, 10415},
+    {218, 10435},
+    {219, 10455},
+    {219, 10475},
+    {220, 10495},
+    {221, 10515},
+    {222, 10535},
+    {222, 10555},
+    {223, 10575},
+    {224, 10596},
+    {225, 10616},
+    {225, 10636},
+    {226, 10657},
+    {227, 10677},
+    {228, 10698},
+    {228, 10718},
+    {229, 10739},
+    {230, 10760},
+    {231, 10781},
+    {231, 10801},
+    {232, 10822},
+    {233, 10843},
+    {234, 10864},
+    {234, 10885},
+    {235, 10906},
+    {236, 10928},
+    {236, 10949},
+    {237, 10970},
+    {238, 10991},
+    {239, 11013},
+    {239, 11034},
+    {240, 11056},
+    {241, 11077},
+    {241, 11099},
+    {242, 11120},
+    {243, 11142},
+    {243, 11164},
+    {244, 11185},
+    {245, 11207},
+    {245, 11229},
+    {246, 11251},
+    {247, 11273},
+    {248, 11295},
+    {248, 11317},
+    {249, 11339},
+    {250, 11361},
+    {250, 11383},
+    {251, 11406},
+    {251, 11428},
+    {252, 11450},
+    {253, 11473},
+    {253, 11495},
+    {254, 11518},
+    {255, 11540},
+    {255, 11563},
+    {256, 11585},
+};
+
+char light_render_light(struct Light* lgt)
+{
+ int intensity; // ecx
+  int v2; // edi
+  int v3; // ecx
+  int v4; // eax
+  int range; // eax
+  short light_x_val; // ebx
+  int v7; // eax
+  int v8_x; // ecx
+  int light_y_val; // edx
+  int v8_y; // ecx
+  int v11; // ecx
+  unsigned int v12; // eax
+  unsigned short *v13; // ecx
+  int some_x; // edi
+  int v19; // eax
+  int radius; // [esp+10h] [ebp-38h]
+  int v22; // [esp+14h] [ebp-34h]
+  int some_y; // [esp+18h] [ebp-30h]
+  unsigned long shadow_cache_pointer; // [esp+20h] [ebp-28h]
+  int v26; // [esp+24h] [ebp-24h]
+  int stl_x; // [esp+28h] [ebp-20h]
+  int stl_y; // [esp+2Ch] [ebp-1Ch]
+  char flags; // [esp+30h] [ebp-18h]
+  int v30; // [esp+38h] [ebp-10h]
+  int v31; // [esp+3Ch] [ebp-Ch]
+  char v32; // [esp+40h] [ebp-8h]
+  int v33; // [esp+44h] [ebp-4h]
+
+  radius = lgt->radius;
+  if ( (lgt->flags2 & 0xFE) != 0 )
+  {
+    intensity = lgt->intensity;
+    v2 = (intensity - 1) << 8;
+    v3 = (intensity << 8) + 257;
+    v22 = v2 + LIGHT_RANDOM(513);
+    /*
+    game.lish.field_4614F = __ROR4__(9377 * game.lish.field_4614F + 9439, 13);
+    intensity = light->intensity;
+    v2 = (intensity - 1) << 8;
+    v3 = (intensity << 8) + 257;
+    v22 = game.lish.field_4614F % 0x201u + v2;
+    */
+  }
+  else
+  {
+    v3 = lgt->intensity << 8;
+    v22 = v3;
+  }
+  v4 = radius;
+  flags = lgt->flags;
+  v32 = lgt->flags & 4;
+  if ( v32 )
+  {
+    if ( radius < lgt->field_9 << 8 )
+      v4 = lgt->field_9 << 8;
+    if ( v3 < lgt->field_24 << 8 )
+      v3 = lgt->field_24 << 8;
+  }
+  if ( v3 >= game.lish.field_46149 << 8 )
+  {
+    range = (v3 - (game.lish.field_46149 << 8)) / (v3 / (v4 / 256)) + 1;
+    if ( range >= 31 )
+      range = 31;
+  }
+  else
+  {
+    range = 0;
+  }
+
+  lgt->range = range;
+  if ( radius > 0 && v22 > 0 )
+  {
+    if ( v32 )
+    {
+      if ( (flags & 0x40) != 0 )
+      {
+        range = light_render_light_sub1(lgt, radius, v22, range);
+      }
+      else if ( (flags & 8) != 0 )
+      {
+        range = light_render_light_sub2(lgt, radius, v22, range);
+        lgt->flags &= ~8u;
+      }
+      else
+      {
+        v7 = range << 8;
+
+        light_x_val = lgt->mappos.x.val;
+        v8_x = (unsigned __int16)light_x_val - v7;
+        if ( v8_x <= 0 )
+          v8_x = 0;
+        stl_x = v8_x;
+
+        light_y_val = lgt->mappos.y.val;
+        v8_y = (unsigned __int16)light_y_val - v7;
+        if ( v8_y <= 0 )
+          v8_y = 0;
+        stl_y = v8_y;
+
+        v11 = v7 + light_x_val;
+        if ( v7 + light_x_val >= 0xFFFF )
+          v11 = 0xFFFF;
+        v12 = light_y_val + v7;
+        v26 = v11;
+        if ( v12 >= 0xFFFF )
+          v12 = 0xFFFF;
+        v30 = v12;
+        v33 = stl_x / 256 - v11 / 256 + 255;
+        some_y = stl_y;
+
+
+        v13 = game.lish.subtile_lightness + 256 * (stl_y / 256) + stl_x / 256;
+
+
+       //get_subtile_lightness(&game.lish,stl_x,  stl_y);
+
+
+        range = *game.lish.shadow_cache[lgt->shadow_index].field_1;
+        v31 = range;
+        if ( v30 >= stl_y )
+        {
+          shadow_cache_pointer = game.lish.shadow_cache[lgt->shadow_index].field_1;
+          do
+          {
+            some_x = stl_x;
+
+
+            for ( size_t i = 0; some_x <= v26; ++i )
+            {
+              if ( (light_bitmask[i] & v31) != 0 )
+              {
+                struct Coord3d pos;
+                pos.x.val = some_x;
+                pos.y.val = some_y;
+                MapCoordDelta dist = get_2d_distance(&lgt->mappos, &pos);
+                
+                v19 = v22 * (radius - dist) / radius;
+                if ( (unsigned __int16)*v13 < v19 )
+                  *v13 = v19;
+              }
+              some_x += 256;
+              ++v13;
+            }
+
+            v13 += v33;
+            some_y += 256;
+            range = *((int*)shadow_cache_pointer + 1);
+            shadow_cache_pointer += 4;
+            v31 = range;
+          }
+          while ( v30 >= some_y );
+        }
+      }
+    }
+    else
+    {
+      range = light_render_light_sub3(lgt, radius, v22, range);
+    }
+  }
+  return range;
 }
 
 static void light_render_area(MapSubtlCoord startx, MapSubtlCoord starty, MapSubtlCoord endx, MapSubtlCoord endy)
@@ -800,6 +1525,9 @@ static void light_render_area(MapSubtlCoord startx, MapSubtlCoord starty, MapSub
   light_out_of_date_stat_lights = 0;
   half_width_x = (endx - startx) / 2 + 1;
   half_width_y = (endy - starty) / 2 + 1;
+
+
+  // this block applies to static lights
   if ( game.lish.light_enabled )
   {
     for ( lgt = &game.lish.lights[game.thing_lists[TngList_StaticLights].index];
@@ -823,6 +1551,8 @@ static void light_render_area(MapSubtlCoord startx, MapSubtlCoord starty, MapSub
       }
     }
   }
+
+
   SubtlCodedCoords start_num = get_subtile_number(startx, starty);
   v9 = (char *)&game.lish.subtile_lightness + start_num * 2;
   v10 = &game.lish.stat_light_map[start_num];

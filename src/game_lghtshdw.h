@@ -61,7 +61,7 @@ struct LightsShadows { // sizeof = 164886
     long field_46149;
     char light_enabled;
     char field_4614E;
-    int field_4614F;
+    unsigned long light_rand_seed;
     int field_46153;
     unsigned short subtile_lightness[256*256];
 };
