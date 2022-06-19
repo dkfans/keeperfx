@@ -50,7 +50,8 @@ struct Light { // sizeof = 46
   unsigned char flags;
   unsigned char flags2;
   unsigned char intensity;
-  unsigned char field_3[2];
+  unsigned char field_3;
+  unsigned char field_4;
   unsigned char range;
   unsigned char field_6;
   unsigned char field_7;
