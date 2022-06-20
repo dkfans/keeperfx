@@ -728,12 +728,12 @@ static void command_set_computer_globals(long plr_range_id, long val1, long val2
       {
           continue;
     }
-    comp->field_1C = val1;
-    comp->field_14 = val2;
-    comp->field_18 = val3;
+    comp->dig_stack_size       = val1;
+    comp->processes_time       = val2;
+    comp->click_rate           = val3;
     comp->max_room_build_tasks = val4;
-    comp->field_2C = val5;
-    comp->sim_before_dig = val6;
+    comp->turn_begin           = val5;
+    comp->sim_before_dig       = val6;
   }
 }
 

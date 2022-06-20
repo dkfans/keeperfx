@@ -181,10 +181,10 @@ void illuminate_creature(struct Thing *creatng);
 long get_spell_slot(const struct Thing *thing, SpellKind spkind);
 TbBool free_spell_slot(struct Thing *thing, long slot_idx);
 
-void controlled_creature_pick_thing_up(struct Thing *creatng, struct Thing *picktng);
+void controlled_creature_pick_thing_up(struct Thing *creatng, struct Thing *picktng, PlayerNumber plyr_idx);
 void controlled_creature_drop_thing(struct Thing *creatng, struct Thing *droptng, PlayerNumber plyr_idx);
 void direct_control_pick_up_or_drop(PlayerNumber plyr_idx, struct Thing *creatng);
-void display_controlled_pick_up_thing_name(struct Thing *picktng, unsigned long timeout);
+void display_controlled_pick_up_thing_name(struct Thing *picktng, unsigned long timeout, PlayerNumber plyr_idx);
 struct Thing *controlled_get_thing_to_pick_up(struct Thing *creatng);
 TbBool thing_is_pickable_by_digger(struct Thing *picktng, struct Thing *creatng);
 struct Thing *controlled_get_trap_to_rearm(struct Thing *creatng);

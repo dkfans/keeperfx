@@ -141,7 +141,7 @@ struct ObjectConfig objects_config_UNUSED[103];
 char field_117DA[14];
     // Traps and doors config; note that eventually we'll want to merge it with trapdoor_conf
     struct ManfctrConfig traps_config_[TRAP_TYPES_COUNT];
-    struct ManfctrConfig doors_config_[DOOR_TYPES_COUNT];
+    struct ManfctrConfig doors_config_[DOOR_TYPES_COUNT_OLD];
     struct SpellConfig spells_config[30];
     struct Things things;
     struct Persons persons;
@@ -339,7 +339,7 @@ long field_1516FB;
     long boulder_reduce_health_wall;
     long boulder_reduce_health_slap;
     long boulder_reduce_health_room;
-    struct GuiMessage messages_[3];
+    struct GuiMessage_OLD messages_[3];
     unsigned char active_messages_count;
     // Moved bonuses_foudn to IntralevelData
     unsigned char ex_intralvl_plug[6];

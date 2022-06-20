@@ -2680,7 +2680,7 @@ TbBool kill_creature(struct Thing *creatng, struct Thing *killertng,
         anger_apply_anger_to_creature(killertng, crstat->annoy_win_battle, AngR_Other, 1);
     }
     if (!creature_control_invalid(cctrlgrp) && ((flags & CrDed_DiedInBattle) != 0)) {
-        cctrlgrp->byte_9A++;
+        cctrlgrp->job_stage++;
     }
     if (!dungeon_invalid(dungeon)) {
         dungeon->hates_player[killertng->owner] += game.fight_hate_kill_value;
@@ -5103,7 +5103,7 @@ TngUpdateRet update_creature(struct Thing *thing)
         cctrl->force_visible--;
     if (cctrl->byte_8B == 0)
         cctrl->byte_8B = game.field_14EA4B;
-    if (cctrl->field_302 == 0) {
+    if (cctrl->stopped_for_hand_turns == 0) {
         process_creature_instance(thing);
     }
     update_creature_count(thing);
@@ -5111,9 +5111,9 @@ TngUpdateRet update_creature(struct Thing *thing)
     {
         if ((cctrl->stateblock_flags == 0) || creature_state_cannot_be_blocked(thing))
         {
-            if (cctrl->field_302 > 0)
+            if (cctrl->stopped_for_hand_turns > 0)
             {
-                cctrl->field_302--;
+                cctrl->stopped_for_hand_turns--;
             } else
             if (process_creature_state(thing) == TUFRet_Deleted)
             {
@@ -5136,9 +5136,9 @@ TngUpdateRet update_creature(struct Thing *thing)
     {
         if ((cctrl->stateblock_flags == 0) || creature_state_cannot_be_blocked(thing))
         {
-            if (cctrl->field_302 > 0)
+            if (cctrl->stopped_for_hand_turns > 0)
             {
-                cctrl->field_302--;
+                cctrl->stopped_for_hand_turns--;
             } else
             if (process_creature_state(thing) == TUFRet_Deleted)
             {
@@ -5190,7 +5190,15 @@ TngUpdateRet update_creature(struct Thing *thing)
     {
         struct Thing* tngp = thing_get(cctrl->dragtng_idx);
         if ((tngp->state_flags & TF1_IsDragged1) != 0)
-          move_thing_in_map(tngp, &thing->mappos);
+        {
+            struct Coord3d* tngpos = &thing->mappos;
+            struct Coord3d pvpos;
+            pvpos.x.val = tngpos->x.val - (2 * thing->velocity.x.val);
+            pvpos.y.val = tngpos->y.val - (2 * thing->velocity.y.val);
+            pvpos.z.val = tngpos->z.val;
+
+            move_thing_in_map(tngp, &pvpos);
+        }
     }
     if (update_creature_levels(thing) == -1)
     {
@@ -5516,7 +5524,7 @@ void script_process_new_creatures(PlayerNumber plyr_idx, long crmodel, long loca
     }
 }
 
-void controlled_creature_pick_thing_up(struct Thing *creatng, struct Thing *picktng)
+void controlled_creature_pick_thing_up(struct Thing *creatng, struct Thing *picktng, PlayerNumber plyr_idx)
 {
     if (picktng->class_id == TCls_Creature)
     {
@@ -5542,7 +5550,7 @@ void controlled_creature_pick_thing_up(struct Thing *creatng, struct Thing *pick
     struct CreatureSound* crsound = get_creature_sound(creatng, CrSnd_Hurt);
     unsigned short smpl_idx = crsound->index + 1;
     thing_play_sample(creatng, smpl_idx, 90, 0, 3, 0, 2, FULL_LOUDNESS * 5/4);
-    display_controlled_pick_up_thing_name(picktng, (GUI_MESSAGES_DELAY >> 4));
+    display_controlled_pick_up_thing_name(picktng, (GUI_MESSAGES_DELAY >> 4), plyr_idx);
 }
 
 void controlled_creature_drop_thing(struct Thing *creatng, struct Thing *droptng, PlayerNumber plyr_idx)
@@ -5805,7 +5813,7 @@ void direct_control_pick_up_or_drop(PlayerNumber plyr_idx, struct Thing *creatng
                     }
                 }
             }
-            controlled_creature_pick_thing_up(creatng, picktng);
+            controlled_creature_pick_thing_up(creatng, picktng, plyr_idx);
         }
         else
         {
@@ -5827,7 +5835,7 @@ void direct_control_pick_up_or_drop(PlayerNumber plyr_idx, struct Thing *creatng
     }
 }
 
-void display_controlled_pick_up_thing_name(struct Thing *picktng, unsigned long timeout)
+void display_controlled_pick_up_thing_name(struct Thing *picktng, unsigned long timeout, PlayerNumber plyr_idx)
 {
     char id;
     char str[255] = {'\0'};
@@ -5915,7 +5923,7 @@ void display_controlled_pick_up_thing_name(struct Thing *picktng, unsigned long 
         return;
     }
     zero_messages();
-    message_add_timeout(id, timeout, str);
+    targeted_message_add(id, plyr_idx, timeout, str);
 }
 
 struct Thing *controlled_get_thing_to_pick_up(struct Thing *creatng)
@@ -5986,6 +5994,10 @@ TbBool thing_is_pickable_by_digger(struct Thing *picktng, struct Thing *creatng)
     }
     else if (thing_can_be_picked_to_place_in_player_room(picktng, creatng->owner, RoK_LIBRARY, TngFRPickF_Default))
     {
+        if(!creature_can_pickup_library_object_at_subtile(creatng, picktng->mappos.x.stl.num, picktng->mappos.y.stl.num))
+        {
+            return false;
+        }
         return (get_room_slabs_count(creatng->owner, RoK_LIBRARY) > 0);
     }
     else if (thing_can_be_picked_to_place_in_player_room(picktng, creatng->owner, RoK_WORKSHOP, TngFRPickF_Default))
