@@ -126,7 +126,6 @@ unsigned char const slabs_to_centre_peices[] = {
 unsigned short const room_effect_elements[] = { TngEffElm_RedFlame, TngEffElm_BlueFlame, TngEffElm_GreenFlame, TngEffElm_YellowFlame, TngEffElm_None, TngEffElm_None };
 const short slab_around[] = { -85, 1, 85, -1 };
 /******************************************************************************/
-DLLIMPORT short _DK_delete_room_slab_when_no_free_room_structures(long a1, long plyr_idx, unsigned char a3);
 DLLIMPORT struct Room * _DK_pick_random_room(PlayerNumber newowner, int rkind);
 /******************************************************************************/
 #ifdef __cplusplus
@@ -3580,10 +3579,80 @@ struct Room * find_random_room_for_thing_with_spare_room_item_capacity(struct Th
     return find_nth_room_for_thing_with_spare_room_item_capacity(thing, owner, rkind, nav_flags, selected);
 }
 
-short delete_room_slab_when_no_free_room_structures(long a1, long a2, unsigned char a3)
+
+
+void delete_room_slab_when_no_free_room_structures(MapCoord slb_x, MapCoord slb_y, unsigned char gnd_slab)
 {
     SYNCDBG(8,"Starting");
-    return _DK_delete_room_slab_when_no_free_room_structures(a1, a2, a3);
+
+    struct Room *room;
+    SlabCodedCoords room_slab;
+
+
+    struct SlabMap *slb = get_slabmap_block(slb_x, slb_y);
+    room = room_get(slb->room_index);
+
+    SlabCodedCoords slb_num = get_slab_number(slb_x, slb_y);
+
+    if ( room_is_invalid(room) )
+    {
+        ERRORLOG("This is not a room slab");
+        return;
+    }
+
+    decrease_room_area(room->owner, 1);
+    kill_room_slab_and_contents(room->owner, slb_x, slb_y);
+    if ( room->slabs_count == 1 )
+    {
+        delete_room_flag(room);
+        replace_room_slab(room, slb_x, slb_y, room->owner, gnd_slab);
+        room_slab = room->slabs_list;
+        if ( room_slab )
+        {
+            do
+            {
+                MapCoord roomslb_x = slb_num_decode_x(room_slab);
+                MapCoord roomslb_y = slb_num_decode_y(room_slab);
+                struct SlabMap* roomslb = get_slabmap_block(roomslb_x, roomslb_y);    
+                room_slab = roomslb->next_in_room;
+                kill_room_slab_and_contents(room->owner, roomslb_x, roomslb_y);
+                roomslb->next_in_room = 0;
+            }
+            while ( room_slab );
+        }
+        delete_room_flag(room);
+        free_room_structure(room);
+        do_slab_efficiency_alteration(slb_x, slb_y);
+    }
+    else
+    {
+        room_slab = room->slabs_list;
+        if ( slb_num == room_slab )
+        {
+            delete_room_flag(room);
+            room->slabs_list = get_next_slab_number_in_room(slb_num);
+            create_room_flag(room);
+        }
+        else if ( room->slabs_list )
+        {
+            MapCoord roomslb_x = slb_num_decode_x(room_slab);
+            MapCoord roomslb_y = slb_num_decode_y(room_slab);
+            struct SlabMap* roomslb = get_slabmap_block(roomslb_x, roomslb_y);
+            do
+            {
+                roomslb_x = slb_num_decode_x(room_slab);
+                roomslb_y = slb_num_decode_y(room_slab);
+                roomslb = get_slabmap_block(roomslb_x, roomslb_y);
+                room_slab = roomslb->next_in_room;
+                if ( roomslb->next_in_room == slb_num )
+                    roomslb->next_in_room = slb->next_in_room;
+                room_slab = roomslb->next_in_room;
+            }
+            while ( roomslb->next_in_room != 0 );
+        }
+        replace_room_slab(room, slb_x, slb_y, room->owner, gnd_slab);
+        slb->next_in_room = 0;
+    }
 }
 
 TbBool find_random_valid_position_for_thing_in_room_avoiding_object_excluding_room_slab(struct Thing *thing, struct Room *room, struct Coord3d *pos, long slbnum)

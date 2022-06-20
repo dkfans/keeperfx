@@ -27,6 +27,7 @@
 #include "custom_sprites.h"
 #include "gui_soundmsgs.h"
 #include "config_effects.h"
+#include "config_trapdoor.h"
 #include "thing_effects.h"
 #include "thing_physics.h"
 #include "thing_navigate.h"
@@ -149,20 +150,6 @@ const struct NamedCommand creature_select_criteria_desc[] = {
   {"ON_NEUTRAL_GROUND",    CSelCrit_OnNeutralGround},
   {"ANYWHERE",             CSelCrit_Any},
   {NULL,                   0},
-};
-
-const struct NamedCommand door_config_desc[] = {
-  {"ManufactureLevel",      1},
-  {"ManufactureRequired",   2},
-  {"Health",                3},
-  {"SellingValue",          4},
-  {"NametextId",            5},
-  {"TooltipTextId",         6},
-  {"Crate",                 7},
-  {"SymbolSprites",         8},
-  {"PointerSprites",        9},
-  {"PanelTabIndex",        10},
-  {NULL,                    0},
 };
 
 const struct NamedCommand trap_config_desc[] = {
@@ -1038,7 +1025,7 @@ static void set_door_configuration_check(const struct ScriptLine* scline)
         return;
     }
 
-    short doorvar = get_id(door_config_desc, scline->tp[1]);
+    short doorvar = get_id(trapdoor_door_commands, scline->tp[1]);
     if (doorvar == -1)
     {
         SCRPTERRLOG("Unknown door variable");
@@ -1048,7 +1035,43 @@ static void set_door_configuration_check(const struct ScriptLine* scline)
 
     value->shorts[0] = door_id;
     value->shorts[1] = doorvar;
-    if (doorvar == 8) // SymbolSprites
+    if (doorvar == 4) // SlabKind
+    {
+        const char* slab_name = scline->tp[2];
+        const char* slab2_name = scline->tp[3];
+        long slab_id = get_rid(slab_desc, slab_name);
+        long slab2_id = get_rid(slab_desc, slab2_name);
+        if (slab_id == -1)
+        {
+            if (parameter_is_number(slab_name))
+            {
+                slab_id = atoi(slab_name);
+            }
+            else
+            {
+                SCRPTERRLOG("Error slab %s not recognized", scline->tp[2]);
+                DEALLOCATE_SCRIPT_VALUE
+                return;
+            }
+        }
+        if (slab2_id == -1)
+        {
+            if (parameter_is_number(slab2_name))
+            {
+                slab_id = atoi(slab2_name);
+            }
+            else
+            {
+                SCRPTERRLOG("Error slab %s not recognized", scline->tp[2]);
+                DEALLOCATE_SCRIPT_VALUE
+                    return;
+            }
+        }
+        value->shorts[2] = slab_id;
+        value->shorts[3] = slab2_id;
+    }
+
+    else if (doorvar == 8) // SymbolSprites
     {
         char *tmp = malloc(strlen(scline->tp[2]) + strlen(scline->tp[3]) + 3);
         // Pass two vars along as one merged val like: first\nsecond\m
@@ -1096,37 +1119,45 @@ static void set_door_configuration_process(struct ScriptContext *context)
     struct ManfctrConfig *mconf = &gameadd.doors_config[door_type];
     struct ManufactureData *manufctr = get_manufacture_data(gameadd.trapdoor_conf.trap_types_count - 1 + door_type);
     short value = context->value->shorts[2];
+    short value2 = context->value->shorts[3];
     switch (context->value->shorts[1])
     {
-        case 1: // ManufactureLevel
+        case 2: // ManufactureLevel
             mconf->manufct_level = value;
             break;
-        case 2: // ManufactureRequired
+        case 3: // ManufactureRequired
             mconf->manufct_required = value;
             break;
-        case 3: // Health
-            if (door_type < DOOR_TYPES_COUNT)
+        case 4: // SlabKind
+            if (door_type < gameadd.trapdoor_conf.door_types_count)
             {
-                door_stats[door_type][0].health = value;
-                door_stats[door_type][1].health = value;
+                doorst->slbkind[0] = value2;
+                doorst->slbkind[1] = value;
             }
             update_all_door_stats();
             break;
-        case 4: //SellingValue
+        case 5: // Health
+            if (door_type < gameadd.trapdoor_conf.door_types_count)
+            {
+                doorst->health = value;
+            }
+            update_all_door_stats();
+            break;
+        case 6: //SellingValue
             mconf->selling_value = value;
             break;
-        case 5: // NametextId
+        case 7: // NametextId
             doorst->name_stridx = value;
             break;
-        case 6: // TooltipTextId
+        case 8: // TooltipTextId
             doorst->tooltip_stridx = value;
             break;
-        case 7: // Crate
+        case 9: // Crate
             gameadd.object_conf.object_to_door_or_trap[value] = door_type;
             gameadd.object_conf.workshop_object_class[value] = TCls_Door;
             gameadd.trapdoor_conf.door_to_object[door_type] = value;
             break;
-        case 8: //SymbolSprites
+        case 10: //SymbolSprites
             {
                 doorst->bigsym_sprite_idx = get_icon_id(context->value->str2); // First
                 doorst->medsym_sprite_idx = get_icon_id(context->value->str2 + strlen(context->value->str2) + 1); // Second
@@ -1139,16 +1170,22 @@ static void set_door_configuration_process(struct ScriptContext *context)
                 update_trap_tab_to_config();
             }
             break;
-        case 9: // PointerSprites
+        case 11: // PointerSprites
             doorst->pointer_sprite_idx = get_icon_id(context->value->str2);
             if (doorst->pointer_sprite_idx < 0)
                 doorst->pointer_sprite_idx = bad_icon_id;
             update_trap_tab_to_config();
             break;
-        case 10: // PanelTabIndex
+        case 12: // PanelTabIndex
             doorst->panel_tab_idx = value;
             manufctr->panel_tab_idx = value;
             update_trap_tab_to_config();
+            break;
+        case 13: // OpenSpeed
+            if (door_type < gameadd.trapdoor_conf.door_types_count)
+            {
+                doorst->open_speed = value;
+            }
             break;
         default:
             WARNMSG("Unsupported Door configuration, variable %d.", context->value->shorts[1]);
@@ -2642,8 +2679,8 @@ const struct CommandDesc command_desc[] = {
   {"LEVEL_UP_CREATURE",                 "PC!AN   ", Cmd_LEVEL_UP_CREATURE, NULL, NULL},
   {"CHANGE_CREATURE_OWNER",             "PC!AP   ", Cmd_CHANGE_CREATURE_OWNER, NULL, NULL},
   {"SET_GAME_RULE",                     "AN      ", Cmd_SET_GAME_RULE, NULL, NULL},
-  {"SET_TRAP_CONFIGURATION",            "AANn    ", Cmd_SET_TRAP_CONFIGURATION, &set_trap_configuration_check, &set_trap_configuration_process},
-  {"SET_DOOR_CONFIGURATION",            "AANn    ", Cmd_SET_DOOR_CONFIGURATION, &set_door_configuration_check, &set_door_configuration_process},
+  {"SET_TRAP_CONFIGURATION",            "AAAn    ", Cmd_SET_TRAP_CONFIGURATION, &set_trap_configuration_check, &set_trap_configuration_process},
+  {"SET_DOOR_CONFIGURATION",            "AAAn    ", Cmd_SET_DOOR_CONFIGURATION, &set_door_configuration_check, &set_door_configuration_process},
   {"SET_OBJECT_CONFIGURATION",          "AAA     ", Cmd_SET_OBJECT_CONFIGURATION, &set_object_configuration_check, &set_object_configuration_process},
   {"SET_CREATURE_CONFIGURATION",        "CAAn    ", Cmd_SET_CREATURE_CONFIGURATION, &set_creature_configuration_check, &set_creature_configuration_process},
   {"SET_SACRIFICE_RECIPE",              "AAA+    ", Cmd_SET_SACRIFICE_RECIPE, &set_sacrifice_recipe_check, &set_sacrifice_recipe_process},
