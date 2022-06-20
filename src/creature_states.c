@@ -86,9 +86,7 @@ extern "C" {
 #define CREATURE_GUI_STATES_COUNT 3
 /* Please note that functions returning 'short' are not ment to return true/false only! */
 /******************************************************************************/
-DLLIMPORT short _DK_creature_pretend_chicken_setup_move(struct Thing *creatng);
 DLLIMPORT long _DK_move_check_can_damage_wall(struct Thing *creatng);
-DLLIMPORT long _DK_move_check_on_head_for_room(struct Thing *creatng);
 DLLIMPORT long _DK_move_check_persuade(struct Thing *creatng);
 DLLIMPORT long _DK_get_best_position_outside_room(struct Thing *creatng, struct Coord3d *pos, struct Room *room);
 /******************************************************************************/
@@ -1614,7 +1612,7 @@ short creature_change_to_chicken(struct Thing *creatng)
     creatng->state_flags &= ~TF1_Unkn10;
     creatng->active_state = CrSt_CreaturePretendChickenSetupMove;
     creatng->continue_state = CrSt_Unused;
-    cctrl->field_302 = 0;
+    cctrl->stopped_for_hand_turns = 0;
     clear_creature_instance(creatng);
     return 1;
 }
@@ -2558,7 +2556,43 @@ short creature_pretend_chicken_move(struct Thing *creatng)
 
 short creature_pretend_chicken_setup_move(struct Thing *creatng)
 {
-  return _DK_creature_pretend_chicken_setup_move(creatng);
+    struct Room *room;
+    struct Coord3d random_pos;
+    
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+
+    if ((cctrl->stateblock_flags & CCSpl_ChickenRel) != 0)
+    {
+        return 1;
+    }
+    
+    long offsetted_gameturn = game.play_gameturn + creatng->index;
+
+    if ( (offsetted_gameturn % 16) == 0 )
+    {
+        room = get_room_thing_is_on(creatng);
+
+        if (room_is_invalid(room) || !room_role_matches(room->kind,RoRoF_FoodStorage) || room->owner != creatng->owner )
+        {
+            room = find_random_room_for_thing(creatng, creatng->owner, RoK_GARDEN, 0);
+        }
+
+        if ( !room_is_invalid(room) )
+        {
+            if ( find_random_valid_position_for_thing_in_room(creatng, room, &random_pos) )
+            {
+                setup_person_move_close_to_position(creatng,random_pos.x.stl.num,random_pos.y.stl.num, 0);
+                internal_set_thing_state(creatng, CrSt_CreaturePretendChickenMove);
+                return 1;
+            }
+        }
+        else if ( get_random_position_in_dungeon_for_creature(creatng->owner, CrWaS_WithinDungeon, creatng, &random_pos) )
+        {
+            setup_person_move_close_to_position(creatng,random_pos.x.stl.num,random_pos.y.stl.num, 0);
+            internal_set_thing_state(creatng, CrSt_CreaturePretendChickenMove);
+        }
+    }
+    return 1;
 }
 
 /**
@@ -3348,7 +3382,6 @@ CrCheckRet move_check_kill_creatures(struct Thing *creatng)
 
 CrCheckRet move_check_near_dungeon_heart(struct Thing *creatng)
 {
-    //return _DK_move_check_near_dungeon_heart(creatng);
     if (is_neutral_thing(creatng))
     {
         if (change_creature_owner_if_near_dungeon_heart(creatng)) {
@@ -3360,7 +3393,20 @@ CrCheckRet move_check_near_dungeon_heart(struct Thing *creatng)
 
 CrCheckRet move_check_on_head_for_room(struct Thing *creatng)
 {
-  return _DK_move_check_on_head_for_room(creatng);
+    struct Room *room_thing_is_on;
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+
+    if ( cctrl->target_room_id == 0 )
+    {
+        return 0;
+    }
+    room_thing_is_on = get_room_thing_is_on(creatng);
+    if ( room_is_invalid(room_thing_is_on) || room_thing_is_on->index != cctrl->target_room_id )
+    {
+        return 0;
+    }
+    internal_set_thing_state(creatng, creatng->continue_state);
+    return 1;
 }
 
 CrCheckRet move_check_persuade(struct Thing *creatng)
@@ -4219,7 +4265,7 @@ TbBool internal_set_thing_state(struct Thing *thing, CrtrStateId nState)
     thing->state_flags &= ~TF1_Unkn10;
     thing->continue_state = CrSt_Unused;
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    cctrl->field_302 = 0;
+    cctrl->stopped_for_hand_turns = 0;
     clear_creature_instance(thing);
     return true;
 }
@@ -4240,7 +4286,7 @@ TbBool initialise_thing_state_f(struct Thing *thing, CrtrStateId nState, const c
         return false;
     }
     cctrl->target_room_id = 0;
-    cctrl->field_302 = 0;
+    cctrl->stopped_for_hand_turns = 0;
     if ((cctrl->flgfield_1 & CCFlg_IsInRoomList) != 0)
     {
         WARNLOG("%s: The %s stays in room list even after cleanup",func_name,thing_model_name(thing));

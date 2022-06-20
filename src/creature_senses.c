@@ -34,6 +34,8 @@
 #include "game_legacy.h"
 
 /******************************************************************************/
+DLLIMPORT TbBool _DK_line_of_room_move_2d(const struct Coord3d *frpos, const struct Coord3d *topos, char alloc_flags);
+/******************************************************************************/
 TbBool sibling_line_of_sight_ignoring_door(const struct Coord3d *prevpos,
     const struct Coord3d *nextpos, const struct Thing *doortng)
 {
@@ -938,6 +940,11 @@ TbBool nowibble_line_of_sight_3d(const struct Coord3d *frpos, const struct Coord
         distance--;
     }
     return true;
+}
+
+TbBool line_of_room_move_2d(const struct Coord3d *frpos, const struct Coord3d *topos, char alloc_flags)
+{
+    return _DK_line_of_room_move_2d(frpos, topos, alloc_flags);
 }
 
 long get_explore_sight_distance_in_slabs(const struct Thing *thing)
