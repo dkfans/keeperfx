@@ -4202,11 +4202,11 @@ void free_room_structure(struct Room *room)
     PlayerNumber owner = room->owner;
     if ( game.neutral_player_num != owner )
     {
-        struct Dungeon *dungeon = get_dungeon(owner);
+        struct DungeonAdd *dungeonadd = get_dungeonadd(owner);
 
-        if ( room->index == dungeon->room_kind[room->kind] )
+        if ( room->index == dungeonadd->room_kind[room->kind] )
         {
-            dungeon->room_kind[room->kind] = room->next_of_owner;
+            dungeonadd->room_kind[room->kind] = room->next_of_owner;
             struct Room *next_room = room_get(room->next_of_owner);
             next_room->prev_of_owner = 0;
         }
@@ -4217,7 +4217,7 @@ void free_room_structure(struct Room *room)
             struct Room *prev_room = room_get(room->prev_of_owner);
             prev_room->next_of_owner = room->next_of_owner;
         }
-        --dungeon->room_slabs_count[room->kind];
+        --dungeonadd->room_slabs_count[room->kind];
     }
     delete_room_structure(room);
 }
