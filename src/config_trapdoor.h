@@ -52,6 +52,9 @@ struct DoorConfigStats {
     long bigsym_sprite_idx;
     long medsym_sprite_idx;
     long pointer_sprite_idx;
+    unsigned short slbkind[2];
+    long health;
+    unsigned short open_speed;
 };
 
 struct TrapConfigStats {
@@ -96,6 +99,7 @@ struct TrapDoorConfig {
 extern const char keeper_trapdoor_file[];
 extern struct NamedCommand trap_desc[TRAPDOOR_TYPES_MAX];
 extern struct NamedCommand door_desc[TRAPDOOR_TYPES_MAX];
+extern const struct NamedCommand trapdoor_door_commands[];
 /******************************************************************************/
 TbBool load_trapdoor_config(const char *conf_fname,unsigned short flags);
 

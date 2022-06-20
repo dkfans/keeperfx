@@ -171,7 +171,6 @@ const struct MyLookup lookup[] = {
 };
 
 /******************************************************************************/
-DLLIMPORT struct Thing *_DK_find_creature_for_call_to_arms(struct Computer2 *comp, long a2);
 DLLIMPORT long _DK_count_creatures_in_call_to_arms(struct Computer2 *comp);
 DLLIMPORT struct ComputerTask *_DK_get_free_task(struct Computer2 *comp, long basestl_y);
 DLLIMPORT int _DK_search_spiral(struct Coord3d *pos, int owner, int i3, long (*cb)(long, long, long));
@@ -2151,9 +2150,51 @@ long count_creatures_at_call_to_arms(struct Computer2 *comp)
     return count_player_list_creatures_of_model_matching_bool_filter(dungeon->owner, -1, creature_is_called_to_arms);
 }
 
-struct Thing *find_creature_for_call_to_arms(struct Computer2 *comp, long a2)
+static struct Thing *find_creature_for_call_to_arms(struct Computer2 *comp, TbBool prefer_high_scoring)
 {
-    return _DK_find_creature_for_call_to_arms(comp, a2);
+    struct Thing *thing;
+    int highest_score;
+    char state;
+    thing = INVALID_THING;
+    highest_score = INT_MAX;
+
+    for (struct Thing *i = thing_get(comp->dungeon->creatr_list_start); 
+        !thing_is_invalid(i); 
+        i = thing_get(creature_control_get_from_thing(i)->players_next_creature_idx))
+    {
+        struct CreatureControl *cctrl = creature_control_get_from_thing(i);
+
+        if ( (i->alloc_flags & TAlF_IsInLimbo) != 0 )
+            continue;
+        if ( (i->state_flags & TAlF_IsInMapWho) != 0 )
+            continue;
+        if ( i->active_state == CrSt_CreatureUnconscious )
+            continue;
+
+        if ( i->active_state == CrSt_MoveToPosition )
+            state = i->continue_state;
+        else
+            state = i->active_state;
+        struct StateInfo *stati = get_thing_state_info_num(state);
+
+        if ( (cctrl->spell_flags & CSAfF_CalledToArms) != 0 )
+        {
+            if ( !stati->react_to_cta )
+                continue;
+        }
+
+        if ( !stati->react_to_cta || !can_change_from_state_to(i, i->active_state, CrSt_ArriveAtCallToArms) )
+            continue;
+
+        if ( prefer_high_scoring )
+        {
+            if ( game.creature_scores[i->model].value[cctrl->explevel] < highest_score && !thing_is_invalid(thing) )
+                continue;
+            highest_score = game.creature_scores[i->model].value[cctrl->explevel];
+        }
+        thing = i;
+    }
+    return thing;
 }
 
 long count_creatures_in_call_to_arms(struct Computer2 *comp)
@@ -2182,7 +2223,7 @@ long task_magic_call_to_arms(struct Computer2 *comp, struct ComputerTask *ctask)
         }
         // If not, cast CTA on position of next creature
         struct Thing *creatng;
-        creatng = find_creature_for_call_to_arms(comp, 1);
+        creatng = find_creature_for_call_to_arms(comp, true);
         if (!thing_is_invalid(creatng))
         {
           if (try_game_action(comp, dungeon->owner, GA_UsePwrCall2Arms, 8, creatng->mappos.x.stl.num, creatng->mappos.y.stl.num, 1, 1) > Lb_OK) {

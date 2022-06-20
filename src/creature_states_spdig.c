@@ -57,8 +57,6 @@ const unsigned char reinforce_edges[] = { 3, 0, 0, 3, 0, 1, 2, 2, 1, };
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT long _DK_check_out_undug_drop_place(struct Thing *spdigtng);
-/******************************************************************************/
 #ifdef __cplusplus
 }
 #endif
@@ -397,9 +395,49 @@ long check_out_unconverted_drop_place(struct Thing *thing)
     return 0;
 }
 
-long check_out_undug_drop_place(struct Thing *thing)
-{
-    return _DK_check_out_undug_drop_place(thing);
+static TbBool check_out_undug_drop_place(struct Thing *spdigtng)
+{  
+
+    struct CreatureControl* cctrl = creature_control_get_from_thing(spdigtng);
+
+    MapCoord slb_x = subtile_slab_fast(spdigtng->mappos.x.stl.num);
+    MapCoord slb_y = subtile_slab_fast(spdigtng->mappos.y.stl.num);
+    MapSubtlCoord stl_x = slab_subtile_center(slb_x);
+    MapSubtlCoord stl_y = slab_subtile_center(slb_y);
+    MapSubtlCoord dig_place_stl_x = 0;
+    MapSubtlCoord dig_place_stl_y = 0;
+    SubtlCodedCoords stl_num;
+    int task_idx = 0;
+    int rand = CREATURE_RANDOM(spdigtng,3);
+
+    for (long n = 0; n < SMALL_AROUND_LENGTH; n++)
+    {
+        MapSubtlCoord check_stl_x = stl_x + STL_PER_SLB * (int)small_around[rand].delta_x;
+        MapSubtlCoord check_stl_y = stl_y + STL_PER_SLB * (int)small_around[rand].delta_y;
+
+        stl_num =  get_subtile_number(check_stl_x,check_stl_y);
+
+        task_idx = find_dig_from_task_list(spdigtng->owner, stl_num);
+        if ( task_idx != -1
+            && check_place_to_dig_and_get_position(spdigtng, stl_num, &dig_place_stl_x, &dig_place_stl_y)
+            && setup_person_move_to_position(spdigtng, dig_place_stl_x, dig_place_stl_y, 0) )
+        {
+            break;
+        }
+        rand = (rand + 1) % 4;
+        if ( n >= SMALL_AROUND_LENGTH - 1 )
+            return false;
+    }
+
+    cctrl->digger.task_idx = task_idx;
+    cctrl->digger.task_stl = stl_num;
+    struct Dungeon* dungeon = get_dungeon(spdigtng->owner);
+    struct MapTask* mtask = get_dungeon_task_list_entry(dungeon, task_idx);
+    if ( mtask->kind == SDDigTask_MineGold )
+        spdigtng->continue_state = CrSt_ImpArrivesAtMineGold;
+    else
+        spdigtng->continue_state = CrSt_ImpArrivesAtDigDirt;
+    return true;
 }
 
 long check_out_unclaimed_gold(struct Thing *spdigtng, long range)

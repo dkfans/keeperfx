@@ -127,7 +127,7 @@ struct Dungeon {
     unsigned short guijob_angry_creatrs_count[CREATURE_TYPES_COUNT][3];
     short field_5A4[9];//originally was [15], but seem unused
     unsigned char trap_amount_offmap_[TRAP_TYPES_COUNT];
-    unsigned char door_amount_offmap_[DOOR_TYPES_COUNT];
+    unsigned char door_amount_offmap_[DOOR_TYPES_COUNT_OLD];
     unsigned char room_slabs_count_OLD[ROOM_TYPES_COUNT_OLD+1];
     int sight_casted_gameturn;
     short sight_casted_thing_idx;
@@ -217,11 +217,11 @@ struct Dungeon {
     /** Amount of traps of every kind for which we can place blueprints. This include both off-map traps and on-map trap boxes.*/
     unsigned char trap_amount_placeable_[TRAP_TYPES_COUNT];
     /** Amount of doors of every kind which are stored in workshops. Only on-map door crates which exist in workshop are mentioned here.*/
-    unsigned char door_amount_stored_[DOOR_TYPES_COUNT];
+    unsigned char door_amount_stored_[DOOR_TYPES_COUNT_OLD];
     /** Stored flag information about players manufacture of doors of specific kind. */
-    unsigned char door_build_flags_[DOOR_TYPES_COUNT];
+    unsigned char door_build_flags_[DOOR_TYPES_COUNT_OLD];
     /** Stored information whether player can place blueprints of doors of specific kind (actually, doors are placed instantly). */
-    unsigned char door_amount_placeable_[DOOR_TYPES_COUNT];
+    unsigned char door_amount_placeable_[DOOR_TYPES_COUNT_OLD];
     struct TurnTimer turn_timers[TURN_TIMERS_COUNT];
     unsigned char script_flags_OLD[SCRIPT_FLAGS_COUNT];
     long max_creatures_attracted;
