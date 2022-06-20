@@ -439,6 +439,8 @@ LABEL_10:
 
 void update_player_camera_fp(struct Camera *cam, struct Thing *thing)
 {
+
+    
     struct CreatureStatsOLD *creature_stats_OLD = &game.creature_stats_OLD[thing->model];
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
@@ -458,8 +460,6 @@ void update_player_camera_fp(struct Camera *cam, struct Thing *thing)
   unsigned __int16 move_angle_xy; // ax
   int v6; // edx
   int v7; // ebp
-  char movement_flags; // al
-  __int16 v9; // dx
   __int16 camHeight; // bp
   int v11; // eax
   int v12; // edx
@@ -470,12 +470,9 @@ void update_player_camera_fp(struct Camera *cam, struct Thing *thing)
   unsigned __int16 v17; // ax
   int v18; // eax
   int v19; // eax
-  char model; // al
   unsigned __int16 move_angle_z; // ax
   int byte16; // eax
-  __int16 v23; // ax
   __int16 v24; // bx
-  unsigned __int16 v25; // ax
   int v26; // eax
   __int16 v27; // dx
   __int16 v28; // ax
@@ -500,30 +497,32 @@ void update_player_camera_fp(struct Camera *cam, struct Thing *thing)
     if ( v6 >= 0 )
     {
       if ( v6 > 0xFFFF )
-        LOWORD(v6) = -1;
+        v6 = -1 * abs(v6);
     }
     else
     {
-      LOWORD(v6) = 0;
+      v6 = 0;
     }
     if ( v7 >= 0 )
     {
       if ( v7 > 0xFFFF )
-        LOWORD(v7) = -1;
+        v7 = -1 * abs(v7);
     }
     else
     {
-      LOWORD(v7) = 0;
+      v7 = 0;
     }
     
-    movement_flags = thing->movement_flags;
     cam->mappos.x.val = v6;
     cam->mappos.y.val = v7;
-    if ( (movement_flags & 0x20) != 0 )
+
+    
+return;
+
+
+    if ( (thing->movement_flags & TMvF_Flying) != 0 )
     {
-      v9 = thing->mappos.z.val;
-      cam->mappos.z.val = v9;
-      cam->mappos.z.val = v9 + crstat->eye_height;
+      cam->mappos.z.val = thing->mappos.z.val + crstat->eye_height;
       cam->orient_a = thing->move_angle_xy;
       cam->orient_b = thing->move_angle_z;
       cam->orient_c = *(__int16 *)cctrl->field_CC;
@@ -556,17 +555,20 @@ void update_player_camera_fp(struct Camera *cam, struct Thing *thing)
       }
     }
     v18 = thing->mappos.x.stl.num + (thing->mappos.y.stl.num << 8);
+    /*
     v19 = (int)(((*(int *)((char *)dword_6CC96D           + 5 * v18) & 0xF000000u) >> 24 << 8)
               + ((*(int *)((char *)&dword_6CC968          + 5 * v18) & 0xF000000u) >> 24 << 8)
               + ((*(int *)((char *)&dword_6CC46D          + 5 * v18) & 0xF000000u) >> 24 << 8)
               + ((*(int *)((char *)get_mapwho_thing_index + 5 * v18) & 0xF000000u) >> 24 << 8))
         / 4;
+
     if ( cam->mappos.z.val > v19 - 64 )
       cam->mappos.z.val = v19 - 64;
+      */
+
   }
   else
   {
-    model = thing->model;
     cam->mappos.x.val = thing->mappos.x.val;
     cam->mappos.y.val = thing->mappos.y.val;
     if ( thing_is_mature_food(thing) )
@@ -581,19 +583,17 @@ void update_player_camera_fp(struct Camera *cam, struct Thing *thing)
       if ( byte16 )
       {
         if ( byte16 <= 3 )
-          v23 = -116 * byte16 + 2048;
+          thing->move_angle_z = -116 * byte16 + 2048;
         else
-          v23 = 116 * byte16 + 1352;
-        thing->move_angle_z = v23;
+          thing->move_angle_z = 116 * byte16 + 1352;
       }
     }
     else
     {
       v24 = cam->mappos.z.val;
       cam->orient_a = thing->move_angle_xy;
-      v25 = thing->move_angle_z;
+      cam->orient_b = thing->move_angle_z;
       cam->orient_c = 0;
-      cam->orient_b = v25;
       v26 = thing->mappos.z.val;
       if ( v26 + 32 <= v24 )
       {
@@ -613,6 +613,7 @@ void update_player_camera_fp(struct Camera *cam, struct Thing *thing)
       }
     }
   }
+  
 }
 
 
