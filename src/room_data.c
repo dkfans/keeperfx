@@ -126,7 +126,6 @@ unsigned char const slabs_to_centre_peices[] = {
 unsigned short const room_effect_elements[] = { TngEffElm_RedFlame, TngEffElm_BlueFlame, TngEffElm_GreenFlame, TngEffElm_YellowFlame, TngEffElm_None, TngEffElm_None };
 const short slab_around[] = { -85, 1, 85, -1 };
 /******************************************************************************/
-DLLIMPORT void _DK_free_room_structure(struct Room *room);
 DLLIMPORT struct Room * _DK_pick_random_room(PlayerNumber newowner, int rkind);
 /******************************************************************************/
 #ifdef __cplusplus
@@ -4151,7 +4150,27 @@ void kill_room_slab_and_contents(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapS
 
 void free_room_structure(struct Room *room)
 {
-  _DK_free_room_structure(room);
+    PlayerNumber owner = room->owner;
+    if ( game.neutral_player_num != owner )
+    {
+        struct Dungeon *dungeon = get_dungeon(owner);
+
+        if ( room->index == dungeon->room_kind[room->kind] )
+        {
+            dungeon->room_kind[room->kind] = room->next_of_owner;
+            struct Room *next_room = room_get(room->next_of_owner);
+            next_room->prev_of_owner = 0;
+        }
+        else
+        {
+            struct Room *next_room = room_get(room->next_of_owner);
+            next_room->prev_of_owner = room->prev_of_owner;
+            struct Room *prev_room = room_get(room->prev_of_owner);
+            prev_room->next_of_owner = room->next_of_owner;
+        }
+        --dungeon->room_slabs_count[room->kind];
+    }
+    delete_room_structure(room);
 }
 
 void reset_creatures_rooms(struct Room *room)
