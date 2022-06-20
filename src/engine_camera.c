@@ -48,9 +48,6 @@ long camera_zoom;
 #endif
 /******************************************************************************/
 
-DLLIMPORT void _DK_update_player_camera_fp(struct Camera *cam, struct Thing *thing);
-
-
 MapCoordDelta get_3d_box_distance(const struct Coord3d *pos1, const struct Coord3d *pos2)
 {
     long dist_y = abs(pos2->y.val - (long)pos1->y.val);
@@ -411,6 +408,35 @@ void init_player_cameras(struct PlayerInfo *player)
     cam->zoom = settings.frontview_zoom_level;
 }
 
+static int get_walking_bob_direction(struct Thing *thing)
+{
+  int a1plus64; // eax
+  int result; // eax
+  TbBool biggernThen1408; // cc
+
+  a1plus64 = thing->field_40;
+  if ( a1plus64 >= 0 && a1plus64 >= 256 )
+  {
+    if ( a1plus64 < 640 )
+    {
+      result = 1;
+      goto LABEL_10;
+    }
+    if ( a1plus64 >= 1024 )
+    {
+      biggernThen1408 = a1plus64 < 1408;
+      result = 1;
+      if ( biggernThen1408 )
+        goto LABEL_10;
+    }
+  }
+  result = -1;
+LABEL_10:
+  if ( thing->anim_speed < 0 )
+    return -result;
+  return result;
+}
+
 void update_player_camera_fp(struct Camera *cam, struct Thing *thing)
 {
     struct CreatureStatsOLD *creature_stats_OLD = &game.creature_stats_OLD[thing->model];
@@ -426,8 +452,179 @@ void update_player_camera_fp(struct Camera *cam, struct Thing *thing)
     {
         creature_stats_OLD->eye_height = chicken_height + (chicken_height * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100;
     }
-    _DK_update_player_camera_fp(cam, thing);
+
+
+  char direction; // al
+  unsigned __int16 move_angle_xy; // ax
+  int v6; // edx
+  int v7; // ebp
+  char movement_flags; // al
+  __int16 v9; // dx
+  __int16 camHeight; // bp
+  int v11; // eax
+  int v12; // edx
+  __int16 v13; // dx
+  unsigned __int16 v14; // bp
+  __int16 v15; // dx
+  __int16 v16; // bx
+  unsigned __int16 v17; // ax
+  int v18; // eax
+  int v19; // eax
+  char model; // al
+  unsigned __int16 move_angle_z; // ax
+  int byte16; // eax
+  __int16 v23; // ax
+  __int16 v24; // bx
+  unsigned __int16 v25; // ax
+  int v26; // eax
+  __int16 v27; // dx
+  __int16 v28; // ax
+  __int16 v29; // dx
+  __int16 v30; // ax
+  int v31; // [esp+14h] [ebp-4h]
+
+  direction = get_walking_bob_direction(thing);
+  if ( thing_is_creature(thing) )
+  {
+    if ( cctrl->move_speed && (unsigned __int16)thing->field_60 >= thing->mappos.z.val )
+      cctrl->field_1E9 = 16 * direction;
+    else
+      cctrl->field_1E9 = 0;
+    move_angle_xy = thing->move_angle_xy;
+
+    v6 = move_coord_with_angle_x(thing->mappos.x.val,-90,move_angle_xy);
+    v7 = move_coord_with_angle_y(thing->mappos.y.val,-90,move_angle_xy);
+
+
+
+    if ( v6 >= 0 )
+    {
+      if ( v6 > 0xFFFF )
+        LOWORD(v6) = -1;
+    }
+    else
+    {
+      LOWORD(v6) = 0;
+    }
+    if ( v7 >= 0 )
+    {
+      if ( v7 > 0xFFFF )
+        LOWORD(v7) = -1;
+    }
+    else
+    {
+      LOWORD(v7) = 0;
+    }
+    
+    movement_flags = thing->movement_flags;
+    cam->mappos.x.val = v6;
+    cam->mappos.y.val = v7;
+    if ( (movement_flags & 0x20) != 0 )
+    {
+      v9 = thing->mappos.z.val;
+      cam->mappos.z.val = v9;
+      cam->mappos.z.val = v9 + crstat->eye_height;
+      cam->orient_a = thing->move_angle_xy;
+      cam->orient_b = thing->move_angle_z;
+      cam->orient_c = *(__int16 *)cctrl->field_CC;
+    }
+    else
+    {
+      cam->orient_a = thing->move_angle_xy;
+      camHeight = cam->mappos.z.val;
+      cam->orient_b = thing->move_angle_z;
+      cam->orient_c = 0;
+      v31 = thing->mappos.z.val;
+      v11 = crstat->eye_height;
+      v12 = cctrl->field_1E9;
+      if ( (unsigned __int16)v11 + v31 <= camHeight )
+      {
+        v15 = camHeight + (v31 + v12 - camHeight + v11) / 2;
+        cam->mappos.z.val = v15;
+        v16 = cctrl->field_1E9;
+        v17 = crstat->eye_height;
+        if ( v17 + thing->mappos.z.val + v16 > v15 )
+          cam->mappos.z.val = v17 + thing->mappos.z.val + v16;
+      }
+      else
+      {
+        v13 = camHeight + (v31 + v12 - camHeight + v11) / 2;
+        cam->mappos.z.val = v13;
+        v14 = crstat->eye_height;
+        if ( v14 + thing->mappos.z.val + cctrl->field_1E9 < v13 )
+          cam->mappos.z.val = v14 + thing->mappos.z.val + cctrl->field_1E9;
+      }
+    }
+    v18 = thing->mappos.x.stl.num + (thing->mappos.y.stl.num << 8);
+    v19 = (int)(((*(int *)((char *)dword_6CC96D           + 5 * v18) & 0xF000000u) >> 24 << 8)
+              + ((*(int *)((char *)&dword_6CC968          + 5 * v18) & 0xF000000u) >> 24 << 8)
+              + ((*(int *)((char *)&dword_6CC46D          + 5 * v18) & 0xF000000u) >> 24 << 8)
+              + ((*(int *)((char *)get_mapwho_thing_index + 5 * v18) & 0xF000000u) >> 24 << 8))
+        / 4;
+    if ( cam->mappos.z.val > v19 - 64 )
+      cam->mappos.z.val = v19 - 64;
+  }
+  else
+  {
+    model = thing->model;
+    cam->mappos.x.val = thing->mappos.x.val;
+    cam->mappos.y.val = thing->mappos.y.val;
+    if ( thing_is_mature_food(thing) )
+    {
+      cam->mappos.z.val = thing->mappos.z.val + 240;
+      cam->orient_a = thing->move_angle_xy;
+      move_angle_z = thing->move_angle_z;
+      cam->orient_c = 0;
+      cam->orient_b = move_angle_z;
+      byte16 = thing->food.byte_16;
+      thing->move_angle_z = 0;
+      if ( byte16 )
+      {
+        if ( byte16 <= 3 )
+          v23 = -116 * byte16 + 2048;
+        else
+          v23 = 116 * byte16 + 1352;
+        thing->move_angle_z = v23;
+      }
+    }
+    else
+    {
+      v24 = cam->mappos.z.val;
+      cam->orient_a = thing->move_angle_xy;
+      v25 = thing->move_angle_z;
+      cam->orient_c = 0;
+      cam->orient_b = v25;
+      v26 = thing->mappos.z.val;
+      if ( v26 + 32 <= v24 )
+      {
+        v29 = v24 + (v26 - v24 + 64) / 2;
+        cam->mappos.z.val = v29;
+        v30 = thing->mappos.z.val;
+        if ( v30 + 64 > v29 )
+          cam->mappos.z.val = v30 + 64;
+      }
+      else
+      {
+        v27 = v24 + (v26 - v24 + 64) / 2;
+        cam->mappos.z.val = v27;
+        v28 = thing->mappos.z.val;
+        if ( v28 + 64 < v27 )
+          cam->mappos.z.val = v28 + 64;
+      }
+    }
+  }
 }
+
+
+
+  
+
+
+
+
+
+
+
 
 void view_move_camera_left(struct Camera *cam, long distance)
 {
