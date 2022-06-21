@@ -152,8 +152,6 @@ struct RoomConfigStats {
     Room_Update_Func update_total_capacity;
     Room_Update_Func update_storage_in_room;
     Room_Update_Func update_workers_in_room;
-    TbBool never_skip_integration;
-
 };
 
 struct SlabsConfig {

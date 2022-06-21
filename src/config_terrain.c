@@ -77,7 +77,6 @@ const struct NamedCommand terrain_room_commands[] = {
   {"USEDCAPACITY",   14},
   {"AMBIENTSNDSAMPLE",15},
   {"ROLES",          16},
-  {"NEVERSKIPINTIGRATION",17},
   {NULL,              0},
 };
 
@@ -1136,19 +1135,6 @@ TbBool parse_terrain_room_blocks(char *buf, long len, const char *config_textnam
                     CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%s] block of %s file.",
                         COMMAND_TEXT(cmd_num),word_buf,block_buf,config_textname);
                 }
-            }
-            break;
-        case 17: // NEVERSKIPINTIGRATION
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              roomst->never_skip_integration = k;
-              n++;
-            }
-            if (n < 1)
-            {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
         case 0: // comment

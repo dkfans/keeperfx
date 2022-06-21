@@ -168,7 +168,6 @@ TbBool room_exists(const struct Room *room);
 long get_room_look_through(RoomKind rkind);
 unsigned long compute_room_max_health(unsigned short slabs_count,unsigned short efficiency);
 void set_room_efficiency(struct Room *room);
-void set_room_stats(struct Room *room, TbBool skip_integration);
 void do_room_recalculation(struct Room* room);
 long get_room_slabs_count(PlayerNumber plyr_idx, RoomKind rkind);
 long get_room_of_role_slabs_count(PlayerNumber plyr_idx, RoomRole rrole);

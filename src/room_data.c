@@ -345,14 +345,7 @@ long get_room_kind_used_capacity_fraction(PlayerNumber plyr_idx, RoomKind room_k
     return (used_capacity * 256) / total_capacity;
 }
 
-void set_room_stats(struct Room *room, TbBool skip_integration)
-{
-    const struct RoomConfigStats* roomst = get_room_kind_stats(room->kind);
-    if ((!skip_integration) || (roomst->never_skip_integration))
-    {
-        do_room_integration(room);
-    }
-}
+
 
 void set_room_efficiency(struct Room *room)
 {
@@ -2150,7 +2143,7 @@ unsigned short i_can_allocate_free_room_structure(void)
  * @param skip_integration
  * @return Total amount of rooms which were reinitialized.
  */
-long reinitialise_rooms_of_kind(RoomKind rkind, TbBool skip_integration)
+long reinitialise_rooms_of_kind(RoomKind rkind)
 {
     unsigned int k = 0;
     for (unsigned int n = 0; n < DUNGEONS_COUNT; n++)
@@ -2167,7 +2160,7 @@ long reinitialise_rooms_of_kind(RoomKind rkind, TbBool skip_integration)
             }
             i = room->next_of_owner;
             // Per-room code starts
-            set_room_stats(room, skip_integration);
+            do_room_integration(room);
             // Per-room code ends
             k++;
             if (k > ROOMS_COUNT)
@@ -2189,7 +2182,7 @@ void reinitialise_map_rooms(void)
 {
     for (RoomKind rkind = 1; rkind < slab_conf.room_types_count; rkind++)
     {
-        reinitialise_rooms_of_kind(rkind, false);
+        reinitialise_rooms_of_kind(rkind);
     }
 }
 
@@ -2215,7 +2208,7 @@ TbBool initialise_map_rooms(void)
                 room = INVALID_ROOM;
             if (!room_is_invalid(room))
             {
-                set_room_stats(room, false);
+                do_room_integration(room);
             }
         }
     }
