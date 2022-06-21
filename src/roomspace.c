@@ -899,8 +899,16 @@ void keeper_sell_roomspace(PlayerNumber plyr_idx, struct RoomSpace *roomspace)
     memcpy(&playeradd->roomspace, roomspace, sizeof(playeradd->roomspace));
     // Init
     playeradd->roomspace.is_active = true;
-    playeradd->roomspace.buildx = roomspace->left;
-    playeradd->roomspace.buildy = roomspace->top;
+    if (!playeradd->roomspace.drag_mode)
+    {
+        playeradd->roomspace.buildx = roomspace->left;
+        playeradd->roomspace.buildy = roomspace->top;
+    }
+    else
+    {
+        playeradd->roomspace.buildx = roomspace->drag_start_x;
+        playeradd->roomspace.buildy = roomspace->drag_start_y;
+    }
     if (!roomspace->is_roomspace_a_box)
     {
         // We want to find first point
@@ -919,8 +927,16 @@ void keeper_build_roomspace(PlayerNumber plyr_idx, struct RoomSpace *roomspace)
     memcpy(&playeradd->roomspace, roomspace, sizeof(playeradd->roomspace));
     // Init
     playeradd->roomspace.is_active = true;
-    playeradd->roomspace.buildx = roomspace->left;
-    playeradd->roomspace.buildy = roomspace->top;
+    if (!playeradd->roomspace.drag_mode)
+    {
+        playeradd->roomspace.buildx = roomspace->left;
+        playeradd->roomspace.buildy = roomspace->top;
+    }
+    else
+    {
+        playeradd->roomspace.buildx = roomspace->drag_start_x;
+        playeradd->roomspace.buildy = roomspace->drag_start_y;
+    }
     if (!roomspace->is_roomspace_a_box)
     {
         playeradd->roomspace.buildx--; // We want to find first point
@@ -942,29 +958,117 @@ static void keeper_update_roomspace(struct RoomSpace *roomspace)
             roomspace->is_active = false;
             return;
         }
-        keeper_build_room(slab_subtile(roomspace->buildx, 0), slab_subtile(roomspace->buildy, 0),
-                          roomspace->plyr_idx, roomspace->rkind);
+            keeper_build_room(slab_subtile(roomspace->buildx, 0), slab_subtile(roomspace->buildy, 0),
+            roomspace->plyr_idx, roomspace->rkind);
     }
     // find next point
-    do
+    if (roomspace->drag_mode)
     {
-        roomspace->buildx++;
-        if (roomspace->buildx > roomspace->right)
+        if (roomspace->drag_start_y > roomspace->drag_end_y)
         {
-            roomspace->buildx = roomspace->left;
-            roomspace->buildy++;
+            if (roomspace->drag_start_x > roomspace->drag_end_x)
+            {
+                // bottom-right to top-left
+                do
+                {
+                    roomspace->buildx--;
+                    if (roomspace->buildx < roomspace->left)
+                    {
+                        roomspace->buildx = roomspace->right;
+                        roomspace->buildy--;
+                    }
+                    if ((roomspace->buildy < roomspace->top) || (roomspace->buildx < roomspace->left))
+                    {
+                        roomspace->is_active = false;
+                        return;
+                    }
+                }
+                while ( (roomspace->rkind != RoK_SELL) && (!can_build_room_at_slab(roomspace->plyr_idx, roomspace->rkind, roomspace->buildx, roomspace->buildy)) );
+            }
+            else
+            {
+                // bottom-right or bottom-left to top-right
+                do
+                {
+                    roomspace->buildx++;
+                    if (roomspace->buildx > roomspace->right)
+                    {
+                        roomspace->buildx = roomspace->left;
+                        roomspace->buildy--;
+                    }
+                    if ((roomspace->buildy < roomspace->top) || (roomspace->buildx > roomspace->right))
+                    {
+                        roomspace->is_active = false;
+                        return;
+                    }
+                }
+                while ( (roomspace->rkind != RoK_SELL) && (!can_build_room_at_slab(roomspace->plyr_idx, roomspace->rkind, roomspace->buildx, roomspace->buildy)) );
+            }
         }
-        if (!roomspace->is_roomspace_a_box)
+        else
         {
-            find_next_point(roomspace);
-        }
-        if ((roomspace->buildy > roomspace->bottom) || (roomspace->buildx > roomspace->right))
-        {
-            roomspace->is_active = false;
-            return;
+            if (roomspace->drag_start_x > roomspace->drag_end_x)
+            {
+                // top-right to bottom-left
+                do
+                {
+                    roomspace->buildx--;
+                    if (roomspace->buildx < roomspace->left)
+                    {
+                        roomspace->buildx = roomspace->right;
+                        roomspace->buildy++;
+                    }
+                    if ((roomspace->buildy > roomspace->bottom) || (roomspace->buildx < roomspace->left))
+                    {
+                        roomspace->is_active = false;
+                        return;
+                    }
+                }
+                while ( (roomspace->rkind != RoK_SELL) && (!can_build_room_at_slab(roomspace->plyr_idx, roomspace->rkind, roomspace->buildx, roomspace->buildy)) );
+            }
+            else
+            {
+                // top-left to bottom-right
+                do
+                {
+                    roomspace->buildx++;
+                    if (roomspace->buildx > roomspace->right)
+                    {
+                        roomspace->buildx = roomspace->left;
+                        roomspace->buildy++;
+                    }
+                    if ((roomspace->buildy > roomspace->bottom) || (roomspace->buildx > roomspace->right))
+                    {
+                        roomspace->is_active = false;
+                        return;
+                    }
+                }
+                while ( (roomspace->rkind != RoK_SELL) && (!can_build_room_at_slab(roomspace->plyr_idx, roomspace->rkind, roomspace->buildx, roomspace->buildy)) );
+            }
         }
     }
-    while ( (roomspace->rkind != RoK_SELL) && (!can_build_room_at_slab(roomspace->plyr_idx, roomspace->rkind, roomspace->buildx, roomspace->buildy)) );
+    else
+    {
+        do
+        {
+            roomspace->buildx++;
+            if (roomspace->buildx > roomspace->right)
+            {
+                roomspace->buildx = roomspace->left;
+                roomspace->buildy++;
+            }
+            if (!roomspace->is_roomspace_a_box)
+            {
+                find_next_point(roomspace);
+            }
+            if ((roomspace->buildy > roomspace->bottom) || (roomspace->buildx > roomspace->right))
+            {
+                roomspace->is_active = false;
+                return;
+            }
+        }
+        while ( (roomspace->rkind != RoK_SELL) && (!can_build_room_at_slab(roomspace->plyr_idx, roomspace->rkind, roomspace->buildx, roomspace->buildy)) );
+    }
 }
 
 void update_roomspaces()
