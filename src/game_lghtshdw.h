@@ -45,8 +45,7 @@ struct UnkStruc6 { // sizeof = 8
 
 struct ShadowCache { // sizeof = 129
   unsigned char flags;
-  unsigned char field_1[127];
-  unsigned char field_80;
+  unsigned int field_1[32];
 };
 
 /**

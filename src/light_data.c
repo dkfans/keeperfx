@@ -802,7 +802,7 @@ TbBool light_render_light_sub1_sub2(int a1, SubtlCodedCoords stl_num, int a3)
     long i = get_mapwho_thing_index(mapblk);
 
 
-  return (unsigned __int8)*(&game.columns_data[(i + 5 * a1) & 0x7FF)].bitfields) >> 4 > a3;
+  return (unsigned char)*(&game.columns_data[(i + 5 * a1) & 0x7FF)].bitfields) >> 4 > a3;
   */
 }
 
@@ -825,33 +825,33 @@ int light_render_light_sub3(struct Light *lgt, int radius, int a3, unsigned int 
 
 char light_render_light(struct Light* lgt)
 {
- int intensity; // ecx
-  int v2; // edi
-  int v3; // ecx
-  int v4; // eax
-  int range; // eax
-  short light_x_val; // ebx
-  int v7; // eax
-  int v8_x; // ecx
-  int light_y_val; // edx
-  int v8_y; // ecx
-  int v11; // ecx
-  unsigned int v12; // eax
-  unsigned short *v13; // ecx
-  int some_x; // edi
-  int v19; // eax
-  int radius; // [esp+10h] [ebp-38h]
-  int v22; // [esp+14h] [ebp-34h]
-  int some_y; // [esp+18h] [ebp-30h]
-  unsigned long shadow_cache_pointer; // [esp+20h] [ebp-28h]
-  int v26; // [esp+24h] [ebp-24h]
-  int stl_x; // [esp+28h] [ebp-20h]
-  int stl_y; // [esp+2Ch] [ebp-1Ch]
-  char flags; // [esp+30h] [ebp-18h]
-  int v30; // [esp+38h] [ebp-10h]
-  int v31; // [esp+3Ch] [ebp-Ch]
-  char v32; // [esp+40h] [ebp-8h]
-  int v33; // [esp+44h] [ebp-4h]
+ int intensity;
+  int v2;
+  int v3;
+  int v4;
+  int range;
+  unsigned short light_x_val;
+  unsigned short light_y_val;
+  int v7;
+  int v8_x;
+  int v8_y;
+  int v11;
+  unsigned int v12;
+  unsigned short *v13;
+  int some_x;
+  int some_y;
+  int v19;
+  int radius;
+  int v22;
+  unsigned int shadow_cache_pointer;
+  int v26;
+  int stl_x;
+  int stl_y;
+  char flags;
+  int v30;
+  int v31;
+  char v32;
+  int v33;
 
   radius = lgt->radius;
   if ( (lgt->flags2 & 0xFE) != 0 )
@@ -906,13 +906,13 @@ char light_render_light(struct Light* lgt)
         v7 = range << 8;
 
         light_x_val = lgt->mappos.x.val;
-        v8_x = (unsigned __int16)light_x_val - v7;
+        v8_x = light_x_val - v7;
         if ( v8_x <= 0 )
           v8_x = 0;
         stl_x = v8_x;
 
         light_y_val = lgt->mappos.y.val;
-        v8_y = (unsigned __int16)light_y_val - v7;
+        v8_y = light_y_val - v7;
         if ( v8_y <= 0 )
           v8_y = 0;
         stl_y = v8_y;
@@ -939,7 +939,6 @@ char light_render_light(struct Light* lgt)
           {
             some_x = stl_x;
 
-
             for ( size_t i = 0; some_x <= v26; ++i )
             {
               if ( (light_bitmask[i] & v31) != 0 )
@@ -950,7 +949,7 @@ char light_render_light(struct Light* lgt)
                 MapCoordDelta dist = get_2d_distance(&lgt->mappos, &pos);
                 
                 v19 = v22 * (radius - dist) / radius;
-                if ( (unsigned __int16)*v13 < v19 )
+                if ( (unsigned short)*v13 < v19 )
                   *v13 = v19;
               }
               some_x += 256;
@@ -977,20 +976,20 @@ char light_render_light(struct Light* lgt)
 
 static void light_render_area(MapSubtlCoord startx, MapSubtlCoord starty, MapSubtlCoord endx, MapSubtlCoord endy)
 {
-  struct Light *lgt; // esi
-  int range; // ebx
-  char *v9; // edx
-  unsigned __int16 *v10; // ebx
-  int v11; // ebp
-  __int16 *v12; // edi
-  unsigned __int16 *v13; // esi
-  unsigned __int8 v17; // al
-  unsigned __int8 v18; // cl
-  unsigned __int8 v19; // cl
-  unsigned __int8 v20; // al
-  __int16 v21; // ax
-  MapSubtlDelta half_width_y; // [esp+10h] [ebp-10h]
-  MapSubtlDelta half_width_x; // [esp+14h] [ebp-Ch]
+  struct Light *lgt;
+  int range;
+  char *v9;
+  unsigned short *v10;
+  int v11;
+  short *v12;
+  unsigned short *v13;
+  unsigned  v17;
+  unsigned char v18;
+  unsigned char v19;
+  unsigned char v20;
+  short v21;
+  MapSubtlDelta half_width_y;
+  MapSubtlDelta half_width_x;
 
   light_rendered_dynamic_lights = 0;
   light_rendered_optimised_dynamic_lights = 0;
@@ -1034,7 +1033,7 @@ static void light_render_area(MapSubtlCoord startx, MapSubtlCoord starty, MapSub
     v11 = endy - starty + 1;
     do
     {
-      v12 = (__int16 *)v9;
+      v12 = (short *)v9;
       v13 = v10;
       v9 += 512;
       v10 += 256;
