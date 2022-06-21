@@ -1081,7 +1081,7 @@ void fill_in_points_isometric(long bstl_x, long bstl_y, struct MinMax *mm)
 
 void frame_wibble_generate(void)
 {
-    wibble_animation_time += fast_delta_time;
+    wibble_animation_time += delta_time;
     if (wibble_animation_time < 1.0) { return; }
     wibble_animation_time -= 1.0;
 

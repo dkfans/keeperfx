@@ -133,9 +133,8 @@ std::chrono::high_resolution_clock::time_point previous_time_in_nanoseconds;
 std::chrono::high_resolution_clock::time_point current_time_in_nanoseconds;
 
 long double process_turn_time;
-float fast_delta_time;
-
-
+float delta_time;
+bool delta_time_setting_is_enabled = true;
 
 #ifdef __cplusplus
 extern "C" {
@@ -2761,7 +2760,7 @@ void update(void)
 
     if ((game.operation_flags & GOF_Paused) == 0)
         update_light_render_area();
-    
+    if (delta_time_setting_is_enabled == false) {process_packets();}
     if (quit_game || exit_keeper) {
         return;
     }
@@ -2809,7 +2808,9 @@ void update(void)
     }
 
     message_update();
+    if (delta_time_setting_is_enabled == false) {update_all_players_cameras();}
     update_player_sounds();
+    // game.play_gameturn is increased by 1 inside update_player_sounds()
     game.field_14EA4B = 0;
     SYNCDBG(6,"Finished");
 }
@@ -3286,7 +3287,7 @@ void packet_load_find_frame_rate(unsigned long incr)
 /**
  * Checks if the game screen needs redrawing.
  */
-short display_should_be_updated_this_turn(void)
+bool display_should_be_updated_this_turn(void)
 {
     if ((game.operation_flags & GOF_Paused) != 0)
       return true;
@@ -3332,26 +3333,26 @@ TbBool keeper_screen_swap(void)
  * Waits until the next game turn. Delay is usually controlled by
  * num_fps variable.
  */
-//TbBool keeper_wait_for_next_turn(void)
-//{
-//    if ((game.numfield_D & GNFldD_Unkn10) != 0)
-//    {
-//        // No idea when such situation occurs
-//        TbClockMSec sleep_end = last_loop_time + 1000;
-//        LbSleepUntil(sleep_end);
-//        last_loop_time = LbTimerClock();
-//        return true;
-//    }
-//    if (game.frame_skip == 0)
-//    {
-//        // Standard delaying system
-//        TbClockMSec sleep_end = last_loop_time + 1000/game.num_fps;
-//        LbSleepUntil(sleep_end);
-//        last_loop_time = LbTimerClock();
-//        return true;
-//    }
-//    return false;
-//}
+TbBool keeper_wait_for_next_turn(void)
+{
+    if ((game.numfield_D & GNFldD_Unkn10) != 0)
+    {
+        // No idea when such situation occurs
+        TbClockMSec sleep_end = last_loop_time + 1000;
+        LbSleepUntil(sleep_end);
+        last_loop_time = LbTimerClock();
+        return true;
+    }
+    if (game.frame_skip == 0)
+    {
+        // Standard delaying system
+        TbClockMSec sleep_end = last_loop_time + 1000/game.num_fps;
+        LbSleepUntil(sleep_end);
+        last_loop_time = LbTimerClock();
+        return true;
+    }
+    return false;
+}
 
 TbBool keeper_wait_for_screen_focus(void)
 {
@@ -3376,38 +3377,37 @@ TbBool keeper_wait_for_screen_focus(void)
     return false;
 }
 
-
-void fast_update(void)
+float get_delta_time(void)
 {
-    input();
-    process_packets();
-    update_all_players_cameras();
-
-    // Check if we should redraw screen in this turn
-    short do_draw = display_should_be_updated_this_turn() || (!LbIsActive());
-    if (do_draw)
-        keeper_screen_redraw();
-    keeper_wait_for_screen_focus();
-    // Move the graphics window to center of screen buffer and swap screen
-    if (do_draw)
-        keeper_screen_swap();
+    if (delta_time_setting_is_enabled == false) {
+        return 1;
+    }
     
     current_time_in_nanoseconds = std::chrono::high_resolution_clock::now();
     long double frame_time_in_nanoseconds = std::chrono::duration_cast<std::chrono::nanoseconds>(current_time_in_nanoseconds-previous_time_in_nanoseconds).count();
     previous_time_in_nanoseconds = current_time_in_nanoseconds;
-
-    // Delta time for the fast-loop (as opposed to the game-turns loop)
+    
+    JUSTLOG("%f", float(frame_time_in_nanoseconds)); // Convert to float if you want to read it in the log.
+    // Delta time for the fast-loop's fast_update(), as opposed to the game-turns loop
     // game.num_fps is target FPS
-    fast_delta_time = (frame_time_in_nanoseconds/1000000000.0) * game.num_fps;
+    float calculated_delta_time = (frame_time_in_nanoseconds/1000000000.0) * game.num_fps;
+    if (calculated_delta_time > 1.0) {calculated_delta_time = 1.0;} // Fix for when initially loading the map, frametime takes too long. Possibly other circumstances too.
+    return calculated_delta_time;
+}
 
-    // Fix for when initially loading the map, frametime takes too long. Possibly other circumstances too.
-    if (fast_delta_time > 1.0) {fast_delta_time = 1.0;}
-    //JUSTLOG("%f", float(frame_time_in_nanoseconds)); // Convert to float if you want to read it in the log.
+void fast_update(void)
+{
+    // For each of these, have a 'if (delta_time_setting_is_enabled == false)' check when they're called in update()
+    // ************************** //
+    input();
+    process_packets();
+    update_all_players_cameras();
+    // ************************** //
 }
 
 void keeper_gameplay_loop(void)
 {
-    short do_draw;
+    bool do_draw;
     struct PlayerInfo *player;
     SYNCDBG(5,"Starting");
     player = get_my_player();
@@ -3426,26 +3426,24 @@ void keeper_gameplay_loop(void)
 
     KeeperSpeechClearEvents();
     LbErrorParachuteUpdate(); // For some reasone parachute keeps changing; Remove when won't be needed anymore
-
+    
     //the main gameplay loop starts
     while ((!quit_game) && (!exit_keeper))
     {
-        fast_update();
+        do_draw = false;
 
-        process_turn_time += fast_delta_time;
+        delta_time = get_delta_time();
+        process_turn_time += delta_time;
         if (process_turn_time >= 1.0) {
             process_turn_time -= 1.0; // -= is more accurate than setting process_turn_time to 0
 
             if ((game.flags_font & FFlg_unk10) != 0)
             {
-                if (game.play_gameturn == 4)
-                    LbNetwork_ChangeExchangeTimeout(0);
+            if (game.play_gameturn == 4)
+                LbNetwork_ChangeExchangeTimeout(0);
             }
 
-            // Check if we should redraw screen in this turn
-            do_draw = display_should_be_updated_this_turn() || (!LbIsActive());
-
-#ifdef AUTOTESTING
+    #ifdef AUTOTESTING
             if ((start_params.autotest_flags & ATF_ExitOnTurn) && (start_params.autotest_exit_turn == game.play_gameturn))
             {
                 quit_game = true;
@@ -3459,44 +3457,67 @@ void keeper_gameplay_loop(void)
                 game.unsync_rand_seed = game.play_gameturn;
                 srand(game.play_gameturn);
             }
-#endif
-            
+    #endif
+            // Check if we should redraw screen in this turn
+            do_draw = display_should_be_updated_this_turn() || (!LbIsActive());
+
             LbWindowsControl();
             input_eastegg();
+            if (delta_time_setting_is_enabled == false) {input();}
             update();
 
-
-            if (quit_game || exit_keeper)
-                do_draw = false;
-
-            // Direct information/error messages
-            if (LbScreenLock() == Lb_SUCCESS)
-            {
-                if (do_draw)
-                    perform_any_screen_capturing();
-                draw_onscreen_direct_messages();
-                LbScreenUnlock();
-            }
-
             // Music and sound control
-            if (!SoundDisabled)
+            if ( !SoundDisabled )
             {
-                if ((game.turns_fastforward == 0) && (!game.numfield_149F38))
+                if ( (game.turns_fastforward == 0) && (!game.numfield_149F38) )
                 {
                     MonitorStreamedSoundTrack();
                     process_sound_heap();
                 }
             }
 
-
-
-            // Make delay if the machine is too fast
-            //if ((!game.packet_load_enable) || (game.turns_fastforward == 0))
-            //    keeper_wait_for_next_turn();
             if (game.turns_packetoff == game.play_gameturn)
                 exit_keeper = 1;
         }
         
+        if (delta_time_setting_is_enabled == true) {
+            fast_update();
+            do_draw = display_should_be_updated_this_turn() || (!LbIsActive());
+        }
+
+        // *************************************************************************** //
+        if (quit_game || exit_keeper)
+            do_draw = false;
+
+        // Draw everything
+        if ( do_draw )
+            keeper_screen_redraw();
+        
+        // If game window is minimized or not in focus then sleep here until it's not
+        keeper_wait_for_screen_focus();
+        
+        // Direct information/error messages
+        if (LbScreenLock() == Lb_SUCCESS)
+        {
+            if ( do_draw )
+                perform_any_screen_capturing();
+            draw_onscreen_direct_messages();
+            LbScreenUnlock();
+        }
+
+        // Move the graphics window to center of screen buffer and swap screen
+        if ( do_draw )
+            keeper_screen_swap();
+        
+        // *************************************************************************** //
+
+
+        if (delta_time_setting_is_enabled == false) {
+            // Make delay if the machine is too fast
+            if ( (!game.packet_load_enable) || (game.turns_fastforward == 0) )
+                keeper_wait_for_next_turn();
+        }
+
     } // end while
     SYNCDBG(0,"Gameplay loop finished after %lu turns",(unsigned long)game.play_gameturn);
 }

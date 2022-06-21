@@ -138,7 +138,7 @@ TbBool setup_trap_tooltips(struct Coord3d *pos)
         set_gui_tooltip_box_fmt(4,"%s",get_string(trapst->name_stridx));
     } else
     {
-        help_tip_time += fast_delta_time;
+        help_tip_time += delta_time;
     }
     return true;
 }
@@ -215,7 +215,7 @@ TbBool setup_object_tooltips(struct Coord3d *pos)
           set_gui_tooltip_box_fmt(5,"%s",get_string(CpgStr_TerrainHeroEntranceDesc)); // Hero Gate tooltip
       } else
       {
-        help_tip_time += fast_delta_time;
+        help_tip_time += delta_time;
       }
       return true;
     }
@@ -230,7 +230,7 @@ TbBool setup_object_tooltips(struct Coord3d *pos)
           set_gui_tooltip_box_fmt(5, "%s %s", get_string(crdata->namestr_idx), get_string(rdata->name_stridx)); // (creature) Lair
       } else
       {
-        help_tip_time += fast_delta_time;
+        help_tip_time += delta_time;
       }
       return true;
     }
@@ -255,7 +255,7 @@ short setup_land_tooltips(struct Coord3d *pos)
       set_gui_tooltip_box_fmt(2,"%s",get_string(slbattr->tooltip_stridx));
   } else
   {
-    help_tip_time += fast_delta_time;
+    help_tip_time += delta_time;
   }
   return true;
 }
@@ -278,7 +278,7 @@ short setup_room_tooltips(struct Coord3d *pos)
     set_gui_tooltip_box_fmt(1,"%s",get_string(stridx));
   } else
   {
-    help_tip_time += fast_delta_time;
+    help_tip_time += delta_time;
   }
   return true;
 }
@@ -433,10 +433,10 @@ void draw_tooltip_slab64k(char *tttext, long pos_x, long pos_y, long ttwidth, lo
             if (-ttwidth >= tooltip_scroll_offset)
               tooltip_scroll_offset = viswidth;
             else
-              tooltip_scroll_offset -= 4.0*fast_delta_time;
+              tooltip_scroll_offset -= 4.0*delta_time;
         } else
         {
-            tooltip_scroll_timer -= 1.0 * fast_delta_time;
+            tooltip_scroll_timer -= 1.0 * delta_time;
             if (tooltip_scroll_timer < 0)
               tooltip_scroll_offset = 0;
         }

@@ -247,7 +247,7 @@ extern struct GuiBox *gui_cheat_box_1;
 extern struct GuiBox *gui_cheat_box_2;
 extern struct GuiBox *gui_cheat_box_3;
 extern int test_variable;
-extern float fast_delta_time;
+extern float delta_time;
 extern struct StartupParameters start_params;
 
 //Functions - reworked

@@ -162,7 +162,7 @@ void project_point_to_wall_on_angle(const struct Coord3d *pos1, struct Coord3d *
 
 void view_zoom_camera_in(struct Camera *cam, long limit_max, long limit_min)
 {
-    zoom_camera_timer += fast_delta_time;
+    zoom_camera_timer += delta_time;
     if (zoom_camera_timer < 1.0) { return; }
     zoom_camera_timer -= 1.0;
 
@@ -227,7 +227,7 @@ void set_camera_zoom(struct Camera *cam, long new_zoom)
 
 void view_zoom_camera_out(struct Camera *cam, long limit_max, long limit_min)
 {
-    zoom_camera_timer += fast_delta_time;
+    zoom_camera_timer += delta_time;
     if (zoom_camera_timer < 1.0) { return; }
     zoom_camera_timer -= 1.0;
 
@@ -335,10 +335,10 @@ unsigned long scale_camera_zoom_to_screen(unsigned long zoom_lvl)
     return  ((zoom_lvl*size_wide) >> 8) + ((zoom_lvl*size_narr) >> 8);
 }
 
-void view_set_camera_y_inertia(struct Camera *cam, float delta, float ilimit)
+void view_set_camera_y_inertia(struct Camera *cam, float inertia_speed, float ilimit)
 {
     float abslimit = fabs(ilimit);
-    cam->inertia_y += delta * fast_delta_time;
+    cam->inertia_y += inertia_speed * delta_time;
     if (cam->inertia_y < -abslimit) {
         cam->inertia_y = -abslimit;
     } else
@@ -348,10 +348,10 @@ void view_set_camera_y_inertia(struct Camera *cam, float delta, float ilimit)
     cam->in_active_movement_y = true;
 }
 
-void view_set_camera_x_inertia(struct Camera *cam, float delta, float ilimit)
+void view_set_camera_x_inertia(struct Camera *cam, float inertia_speed, float ilimit)
 {
     float abslimit = fabs(ilimit);
-    cam->inertia_x += delta * fast_delta_time;
+    cam->inertia_x += inertia_speed * delta_time;
     if (cam->inertia_x < -abslimit) {
         cam->inertia_x = -abslimit;
     } else
@@ -361,10 +361,10 @@ void view_set_camera_x_inertia(struct Camera *cam, float delta, float ilimit)
     cam->in_active_movement_x = true;
 }
 
-void view_set_camera_rotation_inertia(struct Camera *cam, float delta, float ilimit)
+void view_set_camera_rotation_inertia(struct Camera *cam, float inertia_speed, float ilimit)
 {
     float limit_val = fabs(ilimit);
-    float new_val = delta + (cam->inertia_rotation * fast_delta_time);
+    float new_val = inertia_speed + (cam->inertia_rotation * delta_time);
     cam->inertia_rotation = new_val;
     if (new_val < -limit_val)
     {
@@ -618,7 +618,7 @@ void view_process_camera_inertia(struct Camera *cam) // Fast-loop
         view_move_camera_left(cam, abs(i));
     }
     if ( cam->in_active_movement_x == false ) {
-        cam->inertia_x *= 1.00 - (0.50 * fast_delta_time);
+        cam->inertia_x *= 1.00 - (0.50 * delta_time);
     }
     i = cam->inertia_y;
     if (i > 0) {
@@ -628,14 +628,14 @@ void view_process_camera_inertia(struct Camera *cam) // Fast-loop
         view_move_camera_up(cam, abs(i));
     }
     if (cam->in_active_movement_y == false) {
-        cam->inertia_y *= 1.00 - (0.50 * fast_delta_time);
+        cam->inertia_y *= 1.00 - (0.50 * delta_time);
     }
     if (cam->inertia_rotation) {
         int inertia_as_int = cam->inertia_rotation;
         cam->orient_a = (inertia_as_int + cam->orient_a) & LbFPMath_AngleMask;
     }
     if (cam->in_active_movement_rotation == false) {
-        cam->inertia_rotation *= 1.00 - (0.50 * fast_delta_time);
+        cam->inertia_rotation *= 1.00 - (0.50 * delta_time);
     }
 }
 
@@ -668,11 +668,11 @@ void update_player_camera(struct PlayerInfo *player) // Fast-loop
         break;
     }
     if (dungeon->camera_deviate_quake > 0) {
-        dungeon->camera_deviate_quake -= fast_delta_time;
+        dungeon->camera_deviate_quake -= delta_time;
         if (dungeon->camera_deviate_quake < 0) {dungeon->camera_deviate_quake = 0;}
     }
     if (dungeon->camera_deviate_jump > 0) {
-        dungeon->camera_deviate_jump -= 32.0 * fast_delta_time;
+        dungeon->camera_deviate_jump -= 32.0 * delta_time;
         if (dungeon->camera_deviate_jump < 0) {dungeon->camera_deviate_jump = 0;}
     }
 }

@@ -338,7 +338,7 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
     if (pckt->additional_packet_values & PCAdV_SpeedupPressed)
       inter_val *= 3.0;
 
-    inter_val *= fast_delta_time;
+    inter_val *= delta_time;
 
     cam->in_active_movement_x = false;
     cam->in_active_movement_y = false;
