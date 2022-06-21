@@ -3427,6 +3427,9 @@ void keeper_gameplay_loop(void)
     KeeperSpeechClearEvents();
     LbErrorParachuteUpdate(); // For some reasone parachute keeps changing; Remove when won't be needed anymore
     
+    // Force delta_time_setting_is_enabled to false when playing multiplayer. Because it doesn't currently work with multiplayer.
+    if (game.game_kind != GKind_LocalGame) {delta_time_setting_is_enabled = false;}
+
     //the main gameplay loop starts
     while ((!quit_game) && (!exit_keeper))
     {
