@@ -825,25 +825,92 @@ static void sell_at_point(struct RoomSpace *roomspace)
     }
 }
 
-static void find_next_point(struct RoomSpace *roomspace)
+static void find_next_point(struct RoomSpace *roomspace, unsigned char mode)
 {
     // these store the coordinates of roomspace.slab_grid[][], rather than the in-game map coordinates
     int room_x = roomspace->buildx - roomspace->left;
     int room_y = roomspace->buildy - roomspace->top;
-    while ((roomspace->buildy <= roomspace->bottom) && (roomspace->buildx <= roomspace->right))
+    switch(mode)
     {
-        if (roomspace->slab_grid[room_x][room_y]) // the slab is part of the room
+        case 0: // top-left to bottom-right
         {
+            while ((roomspace->buildy <= roomspace->bottom) && (roomspace->buildx <= roomspace->right))
+            {
+                if (roomspace->slab_grid[room_x][room_y]) // the slab is part of the room
+                {
+                    break;
+                }
+                room_x++;
+                roomspace->buildx++;
+                if (roomspace->buildx > roomspace->right)
+                {
+                    room_x = 0;
+                    roomspace->buildx = roomspace->left;
+                    room_y++;
+                    roomspace->buildy++;
+                }
+            }
             break;
         }
-        room_x++;
-        roomspace->buildx++;
-        if (roomspace->buildx > roomspace->right)
+        case 1: // bottom-right to top-left
         {
-            room_x = 0;
-            roomspace->buildx = roomspace->left;
-            room_y++;
-            roomspace->buildy++;
+            while ((roomspace->buildy >= roomspace->top) && (roomspace->buildx >= roomspace->left))
+            {
+                if (roomspace->slab_grid[room_x][room_y]) // the slab is part of the room
+                {
+                    break;
+                }
+                room_x--;
+                roomspace->buildx--;
+                if (roomspace->buildx < roomspace->left)
+                {
+                    room_x = 0;
+                    roomspace->buildx = roomspace->right;
+                    room_y--;
+                    roomspace->buildy--;
+                }
+            }
+            break;
+        }
+        case 2: // top-right to bottom-left
+        {
+            while ((roomspace->buildy <= roomspace->bottom) && (roomspace->buildx >= roomspace->left))
+            {
+                if (roomspace->slab_grid[room_x][room_y]) // the slab is part of the room
+                {
+                    break;
+                }
+                room_x--;
+                roomspace->buildx--;
+                if (roomspace->buildx < roomspace->left)
+                {
+                    room_x = 0;
+                    roomspace->buildx = roomspace->right;
+                    room_y++;
+                    roomspace->buildy++;
+                }
+            }
+            break;
+        }
+        case 3: // bottom-left to top-right
+        {
+            while ((roomspace->buildy >= roomspace->top) && (roomspace->buildx <= roomspace->right))
+            {
+                if (roomspace->slab_grid[room_x][room_y]) // the slab is part of the room
+                {
+                    break;
+                }
+                room_x++;
+                roomspace->buildx++;
+                if (roomspace->buildx > roomspace->right)
+                {
+                    room_x = 0;
+                    roomspace->buildx = roomspace->left;
+                    room_y--;
+                    roomspace->buildy--;
+                }
+            }
+            break;
         }
     }
 }
@@ -912,7 +979,7 @@ void keeper_sell_roomspace(PlayerNumber plyr_idx, struct RoomSpace *roomspace)
     if (!roomspace->is_roomspace_a_box)
     {
         // We want to find first point
-        find_next_point(&playeradd->roomspace);
+        find_next_point(&playeradd->roomspace, 0);
     }
 }
 
@@ -940,7 +1007,7 @@ void keeper_build_roomspace(PlayerNumber plyr_idx, struct RoomSpace *roomspace)
     if (!roomspace->is_roomspace_a_box)
     {
         playeradd->roomspace.buildx--; // We want to find first point
-        find_next_point(&playeradd->roomspace);
+        find_next_point(&playeradd->roomspace, 0);
     }
 }
 
@@ -977,6 +1044,10 @@ static void keeper_update_roomspace(struct RoomSpace *roomspace)
                         roomspace->buildx = roomspace->right;
                         roomspace->buildy--;
                     }
+                    if (!roomspace->is_roomspace_a_box)
+                    {
+                        find_next_point(roomspace, 1);
+                    }
                     if ((roomspace->buildy < roomspace->top) || (roomspace->buildx < roomspace->left))
                     {
                         roomspace->is_active = false;
@@ -995,6 +1066,10 @@ static void keeper_update_roomspace(struct RoomSpace *roomspace)
                     {
                         roomspace->buildx = roomspace->left;
                         roomspace->buildy--;
+                    }
+                    if (!roomspace->is_roomspace_a_box)
+                    {
+                        find_next_point(roomspace, 3);
                     }
                     if ((roomspace->buildy < roomspace->top) || (roomspace->buildx > roomspace->right))
                     {
@@ -1018,6 +1093,10 @@ static void keeper_update_roomspace(struct RoomSpace *roomspace)
                         roomspace->buildx = roomspace->right;
                         roomspace->buildy++;
                     }
+                    if (!roomspace->is_roomspace_a_box)
+                    {
+                        find_next_point(roomspace, 2);
+                    }
                     if ((roomspace->buildy > roomspace->bottom) || (roomspace->buildx < roomspace->left))
                     {
                         roomspace->is_active = false;
@@ -1036,6 +1115,10 @@ static void keeper_update_roomspace(struct RoomSpace *roomspace)
                     {
                         roomspace->buildx = roomspace->left;
                         roomspace->buildy++;
+                    }
+                    if (!roomspace->is_roomspace_a_box)
+                    {
+                        find_next_point(roomspace, 0);
                     }
                     if ((roomspace->buildy > roomspace->bottom) || (roomspace->buildx > roomspace->right))
                     {
@@ -1059,7 +1142,7 @@ static void keeper_update_roomspace(struct RoomSpace *roomspace)
             }
             if (!roomspace->is_roomspace_a_box)
             {
-                find_next_point(roomspace);
+                find_next_point(roomspace, 0);
             }
             if ((roomspace->buildy > roomspace->bottom) || (roomspace->buildx > roomspace->right))
             {
