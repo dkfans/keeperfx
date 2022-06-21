@@ -26,7 +26,6 @@ extern "C" {
 extern const struct CommandDesc command_desc[];
 extern const struct CommandDesc dk1_command_desc[];
 extern const struct CommandDesc subfunction_desc[];
-extern const struct NamedCommand newcrtr_desc[];
 extern const struct NamedCommand player_desc[];
 //extern const struct NamedCommand variable_desc[];
 extern const struct NamedCommand controls_variable_desc[];
@@ -37,7 +36,6 @@ extern const struct NamedCommand hero_objective_desc[];
 extern const struct NamedCommand msgtype_desc[];
 extern const struct NamedCommand tendency_desc[];
 extern const struct NamedCommand creature_select_criteria_desc[];
-extern const struct NamedCommand door_config_desc[];
 extern const struct NamedCommand trap_config_desc[];
 extern const struct NamedCommand gui_button_group_desc[];
 extern const struct NamedCommand campaign_flag_desc[];
