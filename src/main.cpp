@@ -3381,6 +3381,11 @@ float get_delta_time(void)
 {
     if (delta_time_setting_is_enabled == false) {
         return 1;
+    } else {
+        // Allow frame skip to work correctly when delta_time_setting_is_enabled is true
+        if ( (game.frame_skip != 0) && ((game.play_gameturn % game.frame_skip) != 0)) {
+            return 1;
+        }
     }
     
     current_time_in_nanoseconds = std::chrono::high_resolution_clock::now();
