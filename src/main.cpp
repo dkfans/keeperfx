@@ -3392,7 +3392,7 @@ float get_delta_time(void)
     long double frame_time_in_nanoseconds = std::chrono::duration_cast<std::chrono::nanoseconds>(current_time_in_nanoseconds-previous_time_in_nanoseconds).count();
     previous_time_in_nanoseconds = current_time_in_nanoseconds;
     
-    JUSTLOG("%f", float(frame_time_in_nanoseconds)); // Convert to float if you want to read it in the log.
+    //JUSTLOG("%f", float(frame_time_in_nanoseconds)); // Convert to float if you want to read it in the log.
     // Delta time for the fast-loop's fast_update(), as opposed to the game-turns loop
     // game.num_fps is target FPS
     float calculated_delta_time = (frame_time_in_nanoseconds/1000000000.0) * game.num_fps;

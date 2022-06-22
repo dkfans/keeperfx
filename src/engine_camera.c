@@ -43,7 +43,6 @@ extern "C" {
 /******************************************************************************/
 /******************************************************************************/
 long camera_zoom;
-float zoom_camera_timer; // Haven't bothered to make zoom in and out smooth yet.
 
 /******************************************************************************/
 #ifdef __cplusplus
@@ -162,10 +161,6 @@ void project_point_to_wall_on_angle(const struct Coord3d *pos1, struct Coord3d *
 
 void view_zoom_camera_in(struct Camera *cam, long limit_max, long limit_min)
 {
-    zoom_camera_timer += delta_time;
-    if (zoom_camera_timer < 1.0) { return; }
-    zoom_camera_timer -= 1.0;
-
     long new_zoom;
     long old_zoom = get_camera_zoom(cam);
     switch (cam->view_mode)
@@ -227,10 +222,6 @@ void set_camera_zoom(struct Camera *cam, long new_zoom)
 
 void view_zoom_camera_out(struct Camera *cam, long limit_max, long limit_min)
 {
-    zoom_camera_timer += delta_time;
-    if (zoom_camera_timer < 1.0) { return; }
-    zoom_camera_timer -= 1.0;
-
     long new_zoom;
     long old_zoom = get_camera_zoom(cam);
     switch (cam->view_mode)

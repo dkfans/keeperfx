@@ -93,6 +93,8 @@
 
 #include "music_player.h"
 
+float zoom_camera_timer; // Haven't bothered to make zoom in and out smooth yet.
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -378,50 +380,54 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
     }
     unsigned long zoom_min = adjust_min_camera_zoom(cam, game.operation_flags & GOF_ShowGui); // = CAMERA_ZOOM_MIN (+300 if gui is hidden in Isometric view)
     unsigned long zoom_max = CAMERA_ZOOM_MAX;
-    if (pckt->control_flags & PCtr_ViewZoomIn)
-    {
-        switch (cam->view_mode)
+    zoom_camera_timer += delta_time;
+    if (zoom_camera_timer >= 1.0) {
+        zoom_camera_timer -= 1.0;
+        if (pckt->control_flags & PCtr_ViewZoomIn)
         {
-        case PVM_IsometricView:
-            view_zoom_camera_in(cam, zoom_max, zoom_min);
-            update_camera_zoom_bounds(cam, zoom_max, zoom_min);
-            if (is_my_player(player))
+            switch (cam->view_mode)
             {
-                settings.isometric_view_zoom_level = cam->zoom;
-                save_settings();
+            case PVM_IsometricView:
+                view_zoom_camera_in(cam, zoom_max, zoom_min);
+                update_camera_zoom_bounds(cam, zoom_max, zoom_min);
+                if (is_my_player(player))
+                {
+                    settings.isometric_view_zoom_level = cam->zoom;
+                    save_settings();
+                }
+                break;
+            default:
+                view_zoom_camera_in(cam, zoom_max, zoom_min);
+                break;
             }
-            break;
-        default:
-            view_zoom_camera_in(cam, zoom_max, zoom_min);
-            break;
-        }
-        if (is_my_player(player))
-        {
-            settings.frontview_zoom_level = cam->zoom;
-            save_settings();
-        }
-    }
-    if (pckt->control_flags & PCtr_ViewZoomOut)
-    {
-        switch (cam->view_mode)
-        {
-        case PVM_IsometricView:
-            view_zoom_camera_out(cam, zoom_max, zoom_min);
-            update_camera_zoom_bounds(cam, zoom_max, zoom_min);
-            if (is_my_player(player))
-            {
-                settings.isometric_view_zoom_level = cam->zoom;
-                save_settings();
-            }
-            break;
-        default:
-            view_zoom_camera_out(cam, zoom_max, zoom_min);
             if (is_my_player(player))
             {
                 settings.frontview_zoom_level = cam->zoom;
                 save_settings();
             }
-            break;
+        }
+        if (pckt->control_flags & PCtr_ViewZoomOut)
+        {
+            switch (cam->view_mode)
+            {
+            case PVM_IsometricView:
+                view_zoom_camera_out(cam, zoom_max, zoom_min);
+                update_camera_zoom_bounds(cam, zoom_max, zoom_min);
+                if (is_my_player(player))
+                {
+                    settings.isometric_view_zoom_level = cam->zoom;
+                    save_settings();
+                }
+                break;
+            default:
+                view_zoom_camera_out(cam, zoom_max, zoom_min);
+                if (is_my_player(player))
+                {
+                    settings.frontview_zoom_level = cam->zoom;
+                    save_settings();
+                }
+                break;
+            }
         }
     }
     process_dungeon_control_packet_clicks(plyr_idx);
