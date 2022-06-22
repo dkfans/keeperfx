@@ -266,7 +266,7 @@ unsigned char field_51;   // Tint color (from colours)
     unsigned short solid_size_xy;
     unsigned short solid_size_yz;
     short health; //signed
-unsigned short field_60;
+unsigned short floor_height;
     unsigned short light_id;
     short ccontrol_idx;
     unsigned char snd_emitter_id;

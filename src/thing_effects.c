@@ -859,7 +859,7 @@ TngUpdateRet update_effect_element(struct Thing *elemtng)
     // Set dynamic properties of the effect
     if (!eestats->field_12)
     {
-        if (elemtng->field_60 >= (int)elemtng->mappos.z.val)
+        if (elemtng->floor_height >= (int)elemtng->mappos.z.val)
           elemtng->anim_speed = 0;
     }
     if (eestats->field_15)

@@ -408,23 +408,25 @@ void init_player_cameras(struct PlayerInfo *player)
     cam->zoom = settings.frontview_zoom_level;
 }
 
+DLLIMPORT int _DK_get_walking_bob_direction(struct Thing *thing);
+
 static int get_walking_bob_direction(struct Thing *thing)
 {
-  int a1plus64; // eax
-  int result; // eax
-  TbBool biggernThen1408; // cc
+  int field40;
+  int result;
+  TbBool biggernThen1408;
 
-  a1plus64 = thing->field_40;
-  if ( a1plus64 >= 0 && a1plus64 >= 256 )
+  field40 = thing->field_40;
+  if ( field40 >= 0 && field40 >= 256 )
   {
-    if ( a1plus64 < 640 )
+    if ( field40 < 640 )
     {
       result = 1;
       goto LABEL_10;
     }
-    if ( a1plus64 >= 1024 )
+    if ( field40 >= 1024 )
     {
-      biggernThen1408 = a1plus64 < 1408;
+      biggernThen1408 = field40 < 1408;
       result = 1;
       if ( biggernThen1408 )
         goto LABEL_10;
@@ -435,210 +437,180 @@ LABEL_10:
   if ( thing->anim_speed < 0 )
     return -result;
   return result;
+  
 }
 
 void update_player_camera_fp(struct Camera *cam, struct Thing *thing)
 {
 
-    
-    struct CreatureStatsOLD *creature_stats_OLD = &game.creature_stats_OLD[thing->model];
+    int pos_x;
+    int pos_y;
+    short camHeight;
+    int v12;
+    short v13;
+    short v15;
+    short v16;
+    int v19;
+    unsigned short move_angle_z;
+    int byte16;
+    short v24;
+    int v26;
+    short v27;
+    short v28;
+    short v29;
+    short v30;
+    int thing_height;
+
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
-    int chicken_height = 100;
+    static const int chicken_height = 100;
+    int eye_height;
     TbBool chicken = (creature_affected_by_spell(thing, SplK_Chicken));
     if (!chicken)
     {
-        creature_stats_OLD->eye_height = crstat->eye_height + (crstat->eye_height * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100;
+        eye_height = crstat->eye_height + (crstat->eye_height * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100;
     }
     else
     {
-        creature_stats_OLD->eye_height = chicken_height + (chicken_height * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100;
+        eye_height = chicken_height + (chicken_height * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100;
     }
 
-
-  char direction; // al
-  unsigned __int16 move_angle_xy; // ax
-  int pos_x; // edx
-  int pos_y; // ebp
-  __int16 camHeight; // bp
-  int v11; // eax
-  int v12; // edx
-  __int16 v13; // dx
-  unsigned __int16 v14; // bp
-  __int16 v15; // dx
-  __int16 v16; // bx
-  unsigned __int16 v17; // ax
-  int v18; // eax
-  int v19; // eax
-  unsigned __int16 move_angle_z; // ax
-  int byte16; // eax
-  __int16 v24; // bx
-  int v26; // eax
-  __int16 v27; // dx
-  __int16 v28; // ax
-  __int16 v29; // dx
-  __int16 v30; // ax
-  int v31; // [esp+14h] [ebp-4h]
-
-  direction = get_walking_bob_direction(thing);
-  if ( thing_is_creature(thing) )
-  {
-    if ( cctrl->move_speed && (unsigned __int16)thing->field_60 >= thing->mappos.z.val )
-      cctrl->field_1E9 = 16 * direction;
-    else
-      cctrl->field_1E9 = 0;
-    move_angle_xy = thing->move_angle_xy;
-
-    pos_x = move_coord_with_angle_x(thing->mappos.x.val,-90,move_angle_xy);
-    pos_y = move_coord_with_angle_y(thing->mappos.y.val,-90,move_angle_xy);
-
-
-
-    if ( pos_x >= 0 )
+    char direction = get_walking_bob_direction(thing);
+    if ( thing_is_creature(thing) )
     {
-      if ( pos_x > 0xFFFF )
-        pos_x = -1 * abs(pos_x);
-    }
-    else
-    {
-      pos_x = 0;
-    }
-    if ( pos_y >= 0 )
-    {
-      if ( pos_y > 0xFFFF )
-        pos_y = -1 * abs(pos_y);
-    }
-    else
-    {
-      pos_y = 0;
-    }
-    
-    cam->mappos.x.val = pos_x;
-    cam->mappos.y.val = pos_y;
-
-    
-    if ( (thing->movement_flags & TMvF_Flying) != 0 )
-    {
-      cam->mappos.z.val = thing->mappos.z.val + crstat->eye_height;
-      cam->orient_a = thing->move_angle_xy;
-      cam->orient_b = thing->move_angle_z;
-      cam->orient_c = cctrl->field_CC;
-    }
-    else
-    {
-      cam->orient_a = thing->move_angle_xy;
-      camHeight = cam->mappos.z.val;
-      cam->orient_b = thing->move_angle_z;
-      cam->orient_c = 0;
-      v31 = thing->mappos.z.val;
-      v11 = crstat->eye_height;
-      v12 = cctrl->field_1E9;
-      if ( (unsigned __int16)v11 + v31 <= camHeight )
-      {
-        v15 = camHeight + (v31 + v12 - camHeight + v11) / 2;
-        cam->mappos.z.val = v15;
-        v16 = cctrl->field_1E9;
-        v17 = crstat->eye_height;
-        if ( v17 + thing->mappos.z.val + v16 > v15 )
-          cam->mappos.z.val = v17 + thing->mappos.z.val + v16;
-      }
-      else
-      {
-        v13 = camHeight + (v31 + v12 - camHeight + v11) / 2;
-        cam->mappos.z.val = v13;
-        v14 = crstat->eye_height;
-        if ( v14 + thing->mappos.z.val + cctrl->field_1E9 < v13 )
-          cam->mappos.z.val = v14 + thing->mappos.z.val + cctrl->field_1E9;
-      }
-    }
-
-    //v18 = thing->mappos.x.stl.num + (thing->mappos.y.stl.num << 8);
-
-/*
-    
-    v19 = (int)(((*(int *)((char *)dword_6CC96D           + 5 * v18) & 0xF000000u) >> 24 << 8)
-              + ((*(int *)((char *)&dword_6CC968          + 5 * v18) & 0xF000000u) >> 24 << 8)
-              + ((*(int *)((char *)&dword_6CC46D          + 5 * v18) & 0xF000000u) >> 24 << 8)
-              + ((*(int *)((char *)get_mapwho_thing_index + 5 * v18) & 0xF000000u) >> 24 << 8))
-        / 4;
-      
-*/
-    struct Map* mapblk1 = get_map_block_at(thing->mappos.x.stl.num,     thing->mappos.y.stl.num);
-    struct Map* mapblk2 = get_map_block_at(thing->mappos.x.stl.num + 1, thing->mappos.y.stl.num);
-    struct Map* mapblk3 = get_map_block_at(thing->mappos.x.stl.num,     thing->mappos.y.stl.num + 1);
-    struct Map* mapblk4 = get_map_block_at(thing->mappos.x.stl.num + 1, thing->mappos.y.stl.num + 1);
-
-    //take avarage
-
-    v19 = (((mapblk1->data & 0xF000000u) >> 24 << 8) +
-           ((mapblk2->data & 0xF000000u) >> 24 << 8) +
-           ((mapblk3->data & 0xF000000u) >> 24 << 8) +
-           ((mapblk4->data & 0xF000000u) >> 24 << 8))/4;
-
-/*
-
-    if ( cam->mappos.z.val > v19 - 64 )
-      cam->mappos.z.val = v19 - 64;
-*/
-  }
-  else
-  {
-    cam->mappos.x.val = thing->mappos.x.val;
-    cam->mappos.y.val = thing->mappos.y.val;
-    if ( thing_is_mature_food(thing) )
-    {
-      cam->mappos.z.val = thing->mappos.z.val + 240;
-      cam->orient_a = thing->move_angle_xy;
-      move_angle_z = thing->move_angle_z;
-      cam->orient_c = 0;
-      cam->orient_b = move_angle_z;
-      byte16 = thing->food.byte_16;
-      thing->move_angle_z = 0;
-      if ( byte16 )
-      {
-        if ( byte16 <= 3 )
-          thing->move_angle_z = -116 * byte16 + 2048;
+        if ( cctrl->move_speed && thing->floor_height >= thing->mappos.z.val )
+            cctrl->bob_direction = 16 * direction;
         else
-          thing->move_angle_z = 116 * byte16 + 1352;
-      }
+            cctrl->bob_direction = 0;
+
+        pos_x = move_coord_with_angle_x(thing->mappos.x.val,-90,thing->move_angle_xy);
+        pos_y = move_coord_with_angle_y(thing->mappos.y.val,-90,thing->move_angle_xy);
+
+        if ( pos_x >= 0 )
+        {
+            if ( pos_x > 0xFFFF )
+                pos_x = -1 * abs(pos_x);
+        }
+        else
+        {
+            pos_x = 0;
+        }
+        if ( pos_y >= 0 )
+        {
+            if ( pos_y > 0xFFFF )
+                pos_y = -1 * abs(pos_y);
+        }
+        else
+        {
+            pos_y = 0;
+        }
+        
+        cam->mappos.x.val = pos_x;
+        cam->mappos.y.val = pos_y;
+
+        
+        if ( (thing->movement_flags & TMvF_Flying) != 0 )
+        {
+            cam->mappos.z.val = thing->mappos.z.val + eye_height;
+            cam->orient_a = thing->move_angle_xy;
+            cam->orient_b = thing->move_angle_z;
+            cam->orient_c = cctrl->field_CC;
+        }
+        else
+        {
+            cam->orient_a = thing->move_angle_xy;
+            camHeight = cam->mappos.z.val;
+            cam->orient_b = thing->move_angle_z;
+            cam->orient_c = 0;
+            thing_height = thing->mappos.z.val;
+            if ( eye_height + thing_height <= camHeight )
+            {
+                v15 = camHeight + (thing_height + cctrl->bob_direction - camHeight + eye_height) / 2;
+                cam->mappos.z.val = v15;
+                if ( eye_height + thing->mappos.z.val + cctrl->bob_direction > v15 )
+                    cam->mappos.z.val = eye_height + thing->mappos.z.val + cctrl->bob_direction;
+            }
+            else
+            {
+                v13 = camHeight + (thing_height + cctrl->bob_direction - camHeight + eye_height) / 2;
+                cam->mappos.z.val = v13;
+                if ( eye_height + thing->mappos.z.val + cctrl->bob_direction < v13 )
+                    cam->mappos.z.val = eye_height + thing->mappos.z.val + cctrl->bob_direction;
+            }
+        }
+/*
+        SubtlCodedCoords v18 = thing->mappos.x.stl.num + (thing->mappos.y.stl.num << 8);
+        v19 = (int)(((*(int *)((char *)dword_6CC96D           + 5 * v18) & 0xF000000u) >> 24 << 8)
+                  + ((*(int *)((char *)&dword_6CC968          + 5 * v18) & 0xF000000u) >> 24 << 8)
+                  + ((*(int *)((char *)&dword_6CC46D          + 5 * v18) & 0xF000000u) >> 24 << 8)
+                  + ((*(int *)((char *)get_mapwho_thing_index + 5 * v18) & 0xF000000u) >> 24 << 8))
+            / 4;
+        */
+    
+   
+        struct Map* mapblk1 = get_map_block_at(thing->mappos.x.stl.num,     thing->mappos.y.stl.num);
+        struct Map* mapblk2 = get_map_block_at(thing->mappos.x.stl.num + 1, thing->mappos.y.stl.num);
+        struct Map* mapblk3 = get_map_block_at(thing->mappos.x.stl.num,     thing->mappos.y.stl.num + 1);
+        struct Map* mapblk4 = get_map_block_at(thing->mappos.x.stl.num + 1, thing->mappos.y.stl.num + 1);
+
+
+        v19 = (((mapblk1->data & 0xF000000u) >> 24 << 8) +
+               ((mapblk2->data & 0xF000000u) >> 24 << 8) +
+               ((mapblk3->data & 0xF000000u) >> 24 << 8) +
+               ((mapblk4->data & 0xF000000u) >> 24 << 8))/4;
+
+        if ( cam->mappos.z.val > v19 - 64 )
+            cam->mappos.z.val = v19 - 64;
+
     }
     else
     {
-      v24 = cam->mappos.z.val;
-      cam->orient_a = thing->move_angle_xy;
-      cam->orient_b = thing->move_angle_z;
-      cam->orient_c = 0;
-      v26 = thing->mappos.z.val;
-      if ( v26 + 32 <= v24 )
-      {
-        v29 = v24 + (v26 - v24 + 64) / 2;
-        cam->mappos.z.val = v29;
-        v30 = thing->mappos.z.val;
-        if ( v30 + 64 > v29 )
-          cam->mappos.z.val = v30 + 64;
-      }
-      else
-      {
-        v27 = v24 + (v26 - v24 + 64) / 2;
-        cam->mappos.z.val = v27;
-        v28 = thing->mappos.z.val;
-        if ( v28 + 64 < v27 )
-          cam->mappos.z.val = v28 + 64;
-      }
+        cam->mappos.x.val = thing->mappos.x.val;
+        cam->mappos.y.val = thing->mappos.y.val;
+        if ( thing_is_mature_food(thing) )
+        {
+            cam->mappos.z.val = thing->mappos.z.val + 240;
+            cam->orient_a = thing->move_angle_xy;
+            move_angle_z = thing->move_angle_z;
+            cam->orient_c = 0;
+            cam->orient_b = move_angle_z;
+            byte16 = thing->food.byte_16;
+            thing->move_angle_z = 0;
+            if ( byte16 )
+            {
+                if ( byte16 <= 3 )
+                thing->move_angle_z = -116 * byte16 + 2048;
+                else
+                thing->move_angle_z = 116 * byte16 + 1352;
+            }
+        }
+        else
+        {
+            v24 = cam->mappos.z.val;
+            cam->orient_a = thing->move_angle_xy;
+            cam->orient_b = thing->move_angle_z;
+            cam->orient_c = 0;
+            v26 = thing->mappos.z.val;
+            if ( v26 + 32 <= v24 )
+            {
+                v29 = v24 + (v26 - v24 + 64) / 2;
+                cam->mappos.z.val = v29;
+                v30 = thing->mappos.z.val;
+                if ( v30 + 64 > v29 )
+                cam->mappos.z.val = v30 + 64;
+            }
+            else
+            {
+                v27 = v24 + (v26 - v24 + 64) / 2;
+                cam->mappos.z.val = v27;
+                v28 = thing->mappos.z.val;
+                if ( v28 + 64 < v27 )
+                cam->mappos.z.val = v28 + 64;
+            }
+        }
     }
-  }
   
 }
-
-
-
-  
-
-
-
-
-
-
 
 
 void view_move_camera_left(struct Camera *cam, long distance)

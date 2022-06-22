@@ -1823,7 +1823,7 @@ TngUpdateRet move_object(struct Thing *thing)
             move_thing_in_map(thing, &pos);
         }
     }
-    thing->field_60 = get_thing_height_at(thing, &thing->mappos);
+    thing->floor_height = get_thing_height_at(thing, &thing->mappos);
     return TUFRet_Modified;
 }
 

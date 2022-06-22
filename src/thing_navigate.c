@@ -294,7 +294,7 @@ void move_thing_in_map_f(struct Thing *thing, const struct Coord3d *pos, const c
         thing->mappos.z.val = pos->z.val;
         place_thing_in_mapwho(thing);
     }
-    thing->field_60 = get_thing_height_at(thing, &thing->mappos);
+    thing->floor_height = get_thing_height_at(thing, &thing->mappos);
 }
 
 TbBool move_creature_to_nearest_valid_position(struct Thing *thing)

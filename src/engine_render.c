@@ -7055,7 +7055,7 @@ static void do_map_who_for_thing(struct Thing *thing)
         ecor.x = ((long)thing->mappos.x.val - map_x_pos);
         ecor.z = (map_y_pos - (long)thing->mappos.y.val);
         ecor.field_8 = 0;
-        ecor.y = ((long)thing->field_60 - map_z_pos);
+        ecor.y = ((long)thing->floor_height - map_z_pos);
         if (thing_is_creature(thing) && ((thing->movement_flags & TMvF_Unknown04) == 0))
         {
             int count;

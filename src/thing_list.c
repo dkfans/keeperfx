@@ -2924,7 +2924,7 @@ TbBool update_thing(struct Thing *thing)
     SYNCDBG(18,"Class function end ok");
     if ((thing->movement_flags & TMvF_Unknown40) == 0)
     {
-        if (thing->mappos.z.val > thing->field_60)
+        if (thing->mappos.z.val > thing->floor_height)
         {
             if (thing->veloc_base.x.val != 0)
                 thing->veloc_base.x.val = thing->veloc_base.x.val * (256 - (int)thing->field_24) / 256;
@@ -2956,7 +2956,7 @@ TbBool update_thing(struct Thing *thing)
               thing->veloc_base.x.val = thing->veloc_base.x.val * (256 - (int)thing->field_23) / 256;
             if (thing->veloc_base.y.val != 0)
               thing->veloc_base.y.val = thing->veloc_base.y.val * (256 - (int)thing->field_23) / 256;
-            thing->mappos.z.val = thing->field_60;
+            thing->mappos.z.val = thing->floor_height;
             if ((thing->movement_flags & TMvF_Unknown08) != 0)
             {
               thing->veloc_base.z.val = 0;
