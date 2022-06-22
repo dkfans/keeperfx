@@ -458,8 +458,8 @@ void update_player_camera_fp(struct Camera *cam, struct Thing *thing)
 
   char direction; // al
   unsigned __int16 move_angle_xy; // ax
-  int v6; // edx
-  int v7; // ebp
+  int pos_x; // edx
+  int pos_y; // ebp
   __int16 camHeight; // bp
   int v11; // eax
   int v12; // edx
@@ -489,43 +489,40 @@ void update_player_camera_fp(struct Camera *cam, struct Thing *thing)
       cctrl->field_1E9 = 0;
     move_angle_xy = thing->move_angle_xy;
 
-    v6 = move_coord_with_angle_x(thing->mappos.x.val,-90,move_angle_xy);
-    v7 = move_coord_with_angle_y(thing->mappos.y.val,-90,move_angle_xy);
+    pos_x = move_coord_with_angle_x(thing->mappos.x.val,-90,move_angle_xy);
+    pos_y = move_coord_with_angle_y(thing->mappos.y.val,-90,move_angle_xy);
 
 
 
-    if ( v6 >= 0 )
+    if ( pos_x >= 0 )
     {
-      if ( v6 > 0xFFFF )
-        v6 = -1 * abs(v6);
+      if ( pos_x > 0xFFFF )
+        pos_x = -1 * abs(pos_x);
     }
     else
     {
-      v6 = 0;
+      pos_x = 0;
     }
-    if ( v7 >= 0 )
+    if ( pos_y >= 0 )
     {
-      if ( v7 > 0xFFFF )
-        v7 = -1 * abs(v7);
+      if ( pos_y > 0xFFFF )
+        pos_y = -1 * abs(pos_y);
     }
     else
     {
-      v7 = 0;
+      pos_y = 0;
     }
     
-    cam->mappos.x.val = v6;
-    cam->mappos.y.val = v7;
+    cam->mappos.x.val = pos_x;
+    cam->mappos.y.val = pos_y;
 
     
-return;
-
-
     if ( (thing->movement_flags & TMvF_Flying) != 0 )
     {
       cam->mappos.z.val = thing->mappos.z.val + crstat->eye_height;
       cam->orient_a = thing->move_angle_xy;
       cam->orient_b = thing->move_angle_z;
-      cam->orient_c = *(__int16 *)cctrl->field_CC;
+      cam->orient_c = cctrl->field_CC;
     }
     else
     {
@@ -554,18 +551,35 @@ return;
           cam->mappos.z.val = v14 + thing->mappos.z.val + cctrl->field_1E9;
       }
     }
-    v18 = thing->mappos.x.stl.num + (thing->mappos.y.stl.num << 8);
-    /*
+
+    //v18 = thing->mappos.x.stl.num + (thing->mappos.y.stl.num << 8);
+
+/*
+    
     v19 = (int)(((*(int *)((char *)dword_6CC96D           + 5 * v18) & 0xF000000u) >> 24 << 8)
               + ((*(int *)((char *)&dword_6CC968          + 5 * v18) & 0xF000000u) >> 24 << 8)
               + ((*(int *)((char *)&dword_6CC46D          + 5 * v18) & 0xF000000u) >> 24 << 8)
               + ((*(int *)((char *)get_mapwho_thing_index + 5 * v18) & 0xF000000u) >> 24 << 8))
         / 4;
+      
+*/
+    struct Map* mapblk1 = get_map_block_at(thing->mappos.x.stl.num,     thing->mappos.y.stl.num);
+    struct Map* mapblk2 = get_map_block_at(thing->mappos.x.stl.num + 1, thing->mappos.y.stl.num);
+    struct Map* mapblk3 = get_map_block_at(thing->mappos.x.stl.num,     thing->mappos.y.stl.num + 1);
+    struct Map* mapblk4 = get_map_block_at(thing->mappos.x.stl.num + 1, thing->mappos.y.stl.num + 1);
+
+    //take avarage
+
+    v19 = (((mapblk1->data & 0xF000000u) >> 24 << 8) +
+           ((mapblk2->data & 0xF000000u) >> 24 << 8) +
+           ((mapblk3->data & 0xF000000u) >> 24 << 8) +
+           ((mapblk4->data & 0xF000000u) >> 24 << 8))/4;
+
+/*
 
     if ( cam->mappos.z.val > v19 - 64 )
       cam->mappos.z.val = v19 - 64;
-      */
-
+*/
   }
   else
   {
