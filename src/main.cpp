@@ -3224,7 +3224,7 @@ void engine(struct PlayerInfo *player, struct Camera *cam)
     mz = cam->mappos.z.val;
     pointer_x = (GetMouseX() - player->engine_window_x) / pixel_size;
     pointer_y = (GetMouseY() - player->engine_window_y) / pixel_size;
-    lens = (cam->field_13 * ((long)MyScreenWidth))/pixel_size / 320;
+    lens = scale_ui_value_lofi(cam->field_13);
     if (lens_mode == 0)
         update_blocks_pointed();
     LbScreenStoreGraphicsWindow(&grwnd);
