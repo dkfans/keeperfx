@@ -408,8 +408,6 @@ void init_player_cameras(struct PlayerInfo *player)
     cam->zoom = settings.frontview_zoom_level;
 }
 
-DLLIMPORT int _DK_get_walking_bob_direction(struct Thing *thing);
-
 static int get_walking_bob_direction(struct Thing *thing)
 {
   int field40;
@@ -557,7 +555,7 @@ void update_player_camera_fp(struct Camera *cam, struct Thing *thing)
         v19 = (((mapblk1->data & 0xF000000u) >> 24 << 8) +
                ((mapblk2->data & 0xF000000u) >> 24 << 8) +
                ((mapblk3->data & 0xF000000u) >> 24 << 8) +
-               ((mapblk4->data & 0xF000000u) >> 24 << 8))/4;
+               ((mapblk4->data & 0xF000000u) >> 24 << 8) )/4;
 
         if ( cam->mappos.z.val > v19 - 64 )
             cam->mappos.z.val = v19 - 64;
