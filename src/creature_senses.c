@@ -944,7 +944,60 @@ TbBool nowibble_line_of_sight_3d(const struct Coord3d *frpos, const struct Coord
 
 TbBool line_of_room_move_2d(const struct Coord3d *frpos, const struct Coord3d *topos, struct Room *room)
 {
-    return _DK_line_of_room_move_2d(frpos, topos, room);
+    MapCoordDelta delta_x;
+    MapCoordDelta delta_y;
+    int distance_per_step_x;
+    int distance_per_step_y;
+    int ray_end_point;
+    int ray_current_point;
+    struct Coord3d ray_point_pos;
+    static const long RAY_RESOLUTION = 80;
+
+    distance_per_step_x = RAY_RESOLUTION;
+    delta_x = topos->x.val - frpos->x.val;
+    delta_y = topos->y.val - frpos->y.val;
+    if ( delta_x < 0 )
+    {
+        delta_x = frpos->x.val - topos->x.val;
+        distance_per_step_x = -RAY_RESOLUTION;
+    }
+    distance_per_step_y = RAY_RESOLUTION;
+    if ( delta_y < 0 )
+    {
+        delta_y = frpos->y.val - topos->y.val;
+        distance_per_step_y = -RAY_RESOLUTION;
+    }
+
+    if ( delta_y == delta_x )
+    {
+        ray_end_point = (delta_x + 1) / RAY_RESOLUTION;
+    }
+    else if ( delta_y >= delta_x )
+    {
+        distance_per_step_x = (delta_x + 1) * distance_per_step_x / (delta_y + 1);
+        ray_end_point = (delta_y + 1) / RAY_RESOLUTION;
+    }
+    else
+    {
+        distance_per_step_y = (delta_y + 1) * distance_per_step_y / (delta_x + 1);
+        ray_end_point = (delta_x + 1) / RAY_RESOLUTION;
+    }
+    ray_current_point = ray_end_point;
+    ray_point_pos.x.val = frpos->x.val;
+    ray_point_pos.y.val = frpos->y.val;
+    ray_point_pos.z.val = frpos->z.val;
+
+
+    if ( !ray_end_point )
+        return 1;
+    while ( get_room_at_pos(&ray_point_pos) == room )
+    {
+        ray_point_pos.x.val += distance_per_step_x;
+        ray_point_pos.y.val += distance_per_step_y;
+        if ( !--ray_current_point )
+        return 1;
+    }
+    return 0;
 }
 
 long get_explore_sight_distance_in_slabs(const struct Thing *thing)

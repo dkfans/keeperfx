@@ -177,6 +177,7 @@ void get_room_kind_total_used_and_storage_capacity(struct Dungeon *dungeon, Room
 TbBool thing_is_on_any_room_tile(const struct Thing *thing);
 TbBool thing_is_on_own_room_tile(const struct Thing *thing);
 struct Room *get_room_thing_is_on(const struct Thing *thing);
+struct Room *get_room_at_pos(struct Coord3d *pos);
 void reinitialise_map_rooms(void);
 struct Thing *find_gold_hoarde_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 
