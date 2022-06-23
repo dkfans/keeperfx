@@ -839,29 +839,29 @@ void update_thing_animation(struct Thing *thing)
     {
       cctrl = creature_control_get_from_thing(thing);
       if (!creature_control_invalid(cctrl))
-        cctrl->field_CE = thing->field_40;
+        cctrl->field_CE = thing->anim_time;
     }
     if ((thing->anim_speed != 0) && (thing->field_49 != 0))
     {
-        thing->field_40 += thing->anim_speed;
+        thing->anim_time += thing->anim_speed;
         i = (thing->field_49 << 8);
         if (i <= 0) i = 256;
-        while (thing->field_40  < 0)
+        while (thing->anim_time  < 0)
         {
-          thing->field_40 += i;
+          thing->anim_time += i;
         }
-        if (thing->field_40 > i-1)
+        if (thing->anim_time > i-1)
         {
           if (thing->field_4F & TF4F_Unknown40)
           {
             thing->anim_speed = 0;
-            thing->field_40 = i-1;
+            thing->anim_time = i-1;
           } else
           {
-            thing->field_40 %= i;
+            thing->anim_time %= i;
           }
         }
-        thing->field_48 = (thing->field_40 >> 8) & 0xFF;
+        thing->field_48 = (thing->anim_time >> 8) & 0xFF;
     }
     if (thing->field_4A != 0)
     {

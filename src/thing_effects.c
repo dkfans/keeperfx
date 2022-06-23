@@ -948,7 +948,7 @@ TngUpdateRet update_effect_element(struct Thing *elemtng)
     elemtng->move_angle_xy = get_angle_xy_to_vec(&elemtng->veloc_base);
     elemtng->field_48 = prop_val;
     elemtng->anim_speed = 0;
-    elemtng->field_40 = (prop_val & 0xff) << 8;
+    elemtng->anim_time = (prop_val & 0xff) << 8;
     SYNCDBG(18,"Finished");
     return TUFRet_Modified;
 }

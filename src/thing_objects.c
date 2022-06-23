@@ -1067,7 +1067,7 @@ long food_moves(struct Thing *objtng)
             objtng->food.angle = CREATURE_RANDOM(objtng, 0x7FF);
             objtng->food.byte_16 = 0;
         } else
-        if ((objtng->anim_speed * objtng->field_49 <= objtng->anim_speed + objtng->field_40) && (objtng->food.byte_16 < 5))
+        if ((objtng->anim_speed * objtng->field_49 <= objtng->anim_speed + objtng->anim_time) && (objtng->food.byte_16 < 5))
         {
             objtng->food.byte_16--;
         }
@@ -1407,16 +1407,16 @@ void update_dungeon_heart_beat(struct Thing *heartng)
         long long k = 384 * (long)(objconf->health - heartng->health) / objconf->health;
         k = base_heart_beat_rate / (k + 128);
         light_set_light_intensity(heartng->light_id, light_get_light_intensity(heartng->light_id) + (i*36/k));
-        heartng->field_40 += (i*base_heart_beat_rate/k);
-        if (heartng->field_40 < 0)
+        heartng->anim_time += (i*base_heart_beat_rate/k);
+        if (heartng->anim_time < 0)
         {
-            heartng->field_40 = 0;
+            heartng->anim_time = 0;
             light_set_light_intensity(heartng->light_id, 20);
             heartng->heart.beat_direction = 1;
         }
-        if (heartng->field_40 > base_heart_beat_rate-1)
+        if (heartng->anim_time > base_heart_beat_rate-1)
         {
-            heartng->field_40 = base_heart_beat_rate-1;
+            heartng->anim_time = base_heart_beat_rate-1;
             light_set_light_intensity(heartng->light_id, 56);
             heartng->heart.beat_direction = (unsigned char)-1;
             if ( bounce )
@@ -1428,7 +1428,7 @@ void update_dungeon_heart_beat(struct Thing *heartng)
             }
             bounce = !bounce;
         }
-        k = (((unsigned long long)heartng->field_40 >> 32) & 0xFF) + heartng->field_40;
+        k = (((unsigned long long)heartng->anim_time >> 32) & 0xFF) + heartng->anim_time;
         heartng->field_48 = (k >> 8) & 0xFF;
         if (LbIsFrozenOrPaused())
         {
