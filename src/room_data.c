@@ -2809,43 +2809,51 @@ struct Room *find_room_of_role_with_spare_room_item_capacity(PlayerNumber plyr_i
     return INVALID_ROOM;
 }
 
-struct Room *find_room_for_thing_with_used_capacity(const struct Thing *creatng, PlayerNumber plyr_idx, RoomKind rkind, unsigned char nav_flags, long min_used_cap)
+struct Room *find_room_of_role_for_thing_with_used_capacity(const struct Thing *creatng, PlayerNumber plyr_idx, RoomRole rrole, unsigned char nav_flags, long min_used_cap)
 {
     SYNCDBG(18,"Starting");
     struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
-    long i = dungeonadd->room_kind[rkind];
     unsigned long k = 0;
-    while (i != 0)
+    for (RoomKind rkind = 0; rkind < slab_conf.room_types_count; rkind++)
     {
-        struct Room* room = room_get(i);
-        if (room_is_invalid(room))
+        if(!room_role_matches(rkind,rrole))
         {
-            ERRORLOG("Jump to invalid room detected");
-            break;
+            continue;
         }
-        i = room->next_of_owner;
-        // Per-room code
-        struct Coord3d pos;
-        if ((room->used_capacity >= min_used_cap) && find_first_valid_position_for_thing_anywhere_in_room(creatng, room, &pos))
+        long i = dungeonadd->room_kind[rkind];
+        while (i != 0)
         {
-            if (thing_is_creature(creatng))
+            struct Room* room = room_get(i);
+            if (room_is_invalid(room))
             {
-                if (creature_can_navigate_to(creatng, &pos, nav_flags)) {
+                ERRORLOG("Jump to invalid room detected");
+                break;
+            }
+            i = room->next_of_owner;
+            // Per-room code
+            struct Coord3d pos;
+            if ((room->used_capacity >= min_used_cap) && find_first_valid_position_for_thing_anywhere_in_room(creatng, room, &pos))
+            {
+                if (thing_is_creature(creatng))
+                {
+                    if (creature_can_navigate_to(creatng, &pos, nav_flags)) {
+                        return room;
+                    }
+                } else
+                {
                     return room;
                 }
-            } else
+            }
+            // Per-room code ends
+            k++;
+            if (k > ROOMS_COUNT)
             {
-                return room;
+                ERRORLOG("Infinite loop detected when sweeping rooms list");
+                break;
             }
         }
-        // Per-room code ends
-        k++;
-        if (k > ROOMS_COUNT)
-        {
-            ERRORLOG("Infinite loop detected when sweeping rooms list");
-            break;
-        }
     }
+
     return INVALID_ROOM;
 }
 

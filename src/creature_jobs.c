@@ -517,13 +517,13 @@ TbBool is_correct_position_to_perform_job(const struct Thing *creatng, MapSubtlC
 {
     const struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
     const struct Room* room = subtile_room_get(stl_x, stl_y);
-    RoomKind job_rkind = get_room_for_job(new_job);
-    if (job_rkind != RoK_NONE)
+    RoomRole job_rrole = get_room_role_for_job(new_job);
+    if (job_rrole != RoRoF_None)
     {
         if (room_is_invalid(room)) {
             return false;
         }
-        if (room->kind != job_rkind) {
+        if (!room_role_matches(room->kind,job_rrole)) {
             return false;
         }
     }
@@ -561,7 +561,7 @@ TbBool creature_can_do_scavenging_for_player(const struct Thing *creatng, Player
 TbBool creature_can_freeze_prisoners_for_player(const struct Thing *creatng, PlayerNumber plyr_idx, CreatureJob new_job)
 {
     // To freeze prisoners, our prison can't be empty
-    struct Room* room = find_room_for_thing_with_used_capacity(creatng, creatng->owner, get_room_for_job(Job_FREEZE_PRISONERS), NavRtF_Default, 1);
+    struct Room* room = find_room_of_role_for_thing_with_used_capacity(creatng, creatng->owner, get_room_role_for_job(Job_FREEZE_PRISONERS), NavRtF_Default, 1);
     return creature_instance_is_available(creatng, CrInst_FREEZE) && !room_is_invalid(room);
 }
 
@@ -1046,10 +1046,10 @@ TbBool attempt_job_sleep_in_lair_near_pos(struct Thing *creatng, MapSubtlCoord s
 
 TbBool attempt_job_in_state_on_room_content_for_player(struct Thing *creatng, PlayerNumber plyr_idx, CreatureJob new_job)
 {
-    RoomKind rkind = get_room_for_job(new_job);
-    struct Room* room = find_room_for_thing_with_used_capacity(creatng, creatng->owner, rkind, NavRtF_Default, 1);
+    RoomRole rrole = get_room_role_for_job(new_job);
+    struct Room* room = find_room_of_role_for_thing_with_used_capacity(creatng, creatng->owner, rrole, NavRtF_Default, 1);
     if (room_is_invalid(room)) {
-        WARNLOG("Could not find room %s to perform job %s by %s index %d owner %d",room_code_name(rkind),creature_job_code_name(new_job),thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
+        WARNLOG("Could not find room %s to perform job %s by %s index %d owner %d",room_role_code_name(rrole),creature_job_code_name(new_job),thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
         return false;
     }
     internal_set_thing_state(creatng, get_initial_state_for_job(new_job));
