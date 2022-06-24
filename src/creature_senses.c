@@ -987,15 +987,16 @@ TbBool line_of_room_move_2d(const struct Coord3d *frpos, const struct Coord3d *t
 
 
     if ( !ray_end_point )
-        return 1;
+        return true;
     while ( get_room_at_pos(&ray_point_pos) == room )
     {
         ray_point_pos.x.val += distance_per_step_x;
         ray_point_pos.y.val += distance_per_step_y;
-        if ( !--ray_current_point )
-        return 1;
+        ray_current_point--;
+        if ( ray_current_point == 0 )
+            return true;
     }
-    return 0;
+    return false;
 }
 
 long get_explore_sight_distance_in_slabs(const struct Thing *thing)
