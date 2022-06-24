@@ -66,7 +66,7 @@ short at_research_room(struct Thing *thing)
         return 0;
     }
     struct Room* room = get_room_thing_is_on(thing);
-    if (!room_initially_valid_as_type_for_thing(room, get_room_for_job(Job_RESEARCH), thing))
+    if (!room_initially_valid_as_type_for_thing(room, get_room_role_for_job(Job_RESEARCH), thing))
     {
         WARNLOG("Room %s owned by player %d is invalid for %s index %d",room_code_name(room->kind),(int)room->owner,thing_model_name(thing),(int)thing->index);
         set_start_state(thing);

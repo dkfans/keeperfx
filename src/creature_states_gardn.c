@@ -199,7 +199,7 @@ short creature_arrived_at_garden(struct Thing *thing)
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     cctrl->target_room_id = 0;
     struct Room* room = get_room_thing_is_on(thing);
-    if (!room_initially_valid_as_type_for_thing(room, get_room_for_job(Job_TAKE_FEED), thing))
+    if (!room_initially_valid_as_type_for_thing(room, get_room_role_for_job(Job_TAKE_FEED), thing))
     {
         WARNLOG("Room %s owned by player %d is invalid for %s index %d",
             room_code_name(room->kind),(int)room->owner,thing_model_name(thing),(int)thing->index);

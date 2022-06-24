@@ -349,7 +349,7 @@ void process_person_moods_and_needs(struct Thing *thing);
 TbBool restore_creature_flight_flag(struct Thing *creatng);
 TbBool attempt_to_destroy_enemy_room(struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 
-TbBool room_initially_valid_as_type_for_thing(const struct Room *room, RoomKind rkind, const struct Thing *thing);
+TbBool room_initially_valid_as_type_for_thing(const struct Room *room, RoomRole rrole, const struct Thing *thing);
 TbBool room_still_valid_as_type_for_thing(const struct Room *room, RoomKind rkind, const struct Thing *thing);
 TbBool creature_job_in_room_no_longer_possible_f(const struct Room *room, CreatureJob jobpref, const struct Thing *thing, const char *func_name);
 #define creature_job_in_room_no_longer_possible(room, jobpref, thing) creature_job_in_room_no_longer_possible_f(room, jobpref, thing, __func__)

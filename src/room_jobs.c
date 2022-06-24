@@ -384,7 +384,7 @@ TbBool creature_setup_random_move_for_job_in_room_f(struct Thing *creatng, struc
 
 TbBool room_is_correct_to_perform_job(const struct Thing *creatng, const struct Room *room, CreatureJob jobpref)
 {
-    if ((get_room_for_job(jobpref) != RoK_NONE) && (room->kind != get_room_for_job(jobpref))) {
+    if ((get_room_role_for_job(jobpref) != RoRoF_None) && (!room_role_matches(room->kind,get_room_role_for_job(jobpref)))) {
         return false;
     }
     if (creatng->owner == room->owner)

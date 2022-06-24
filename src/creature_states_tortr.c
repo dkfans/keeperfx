@@ -52,7 +52,7 @@ short at_kinky_torture_room(struct Thing *thing)
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     cctrl->target_room_id = 0;
     struct Room* room = get_room_thing_is_on(thing);
-    if (!room_initially_valid_as_type_for_thing(room, get_room_for_job(Job_KINKY_TORTURE), thing))
+    if (!room_initially_valid_as_type_for_thing(room, get_room_role_for_job(Job_KINKY_TORTURE), thing))
     {
         WARNLOG("Room %s owned by player %d is invalid for %s",room_code_name(room->kind),(int)room->owner,thing_model_name(thing));
         set_start_state(thing);
@@ -84,7 +84,7 @@ short at_torture_room(struct Thing *thing)
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     cctrl->target_room_id = 0;
     struct Room* room = get_room_thing_is_on(thing);
-    if (!room_initially_valid_as_type_for_thing(room, get_room_for_job(Job_PAINFUL_TORTURE), thing))
+    if (!room_initially_valid_as_type_for_thing(room, get_room_role_for_job(Job_PAINFUL_TORTURE), thing))
     {
         WARNLOG("Room %s owned by player %d is invalid for %s",room_code_name(room->kind),(int)room->owner,thing_model_name(thing));
         set_start_state(thing);

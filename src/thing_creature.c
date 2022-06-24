@@ -3450,7 +3450,7 @@ struct Room *get_creature_lair_room(const struct Thing *creatng)
 TbBool creature_has_lair_room(const struct Thing *creatng)
 {
     struct Room* room = get_creature_lair_room(creatng);
-    if (!room_is_invalid(room) && (room->kind == get_room_for_job(Job_TAKE_SLEEP))) {
+    if (!room_is_invalid(room) && room_role_matches(room->kind,get_room_role_for_job(Job_TAKE_SLEEP))) {
         return true;
     }
     return false;

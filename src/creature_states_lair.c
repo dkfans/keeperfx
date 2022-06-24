@@ -224,7 +224,7 @@ CrStateRet creature_at_changed_lair(struct Thing *creatng)
         return CrStRet_ResetFail;
     }
     struct Room* room = get_room_thing_is_on(creatng);
-    if (!room_initially_valid_as_type_for_thing(room, get_room_for_job(Job_TAKE_SLEEP), creatng))
+    if (!room_initially_valid_as_type_for_thing(room, get_room_role_for_job(Job_TAKE_SLEEP), creatng))
     {
         WARNLOG("Room %s owned by player %d is invalid for %s index %d",room_code_name(room->kind),(int)room->owner,thing_model_name(creatng),(int)creatng->index);
         set_start_state(creatng);
@@ -312,7 +312,7 @@ short creature_change_lair(struct Thing *thing)
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     cctrl->target_room_id = 0;
     struct Room* room = get_room_thing_is_on(thing);
-    if (!room_initially_valid_as_type_for_thing(room, get_room_for_job(Job_TAKE_SLEEP), thing))
+    if (!room_initially_valid_as_type_for_thing(room, get_room_role_for_job(Job_TAKE_SLEEP), thing))
     {
         set_start_state(thing);
         return 0;
@@ -373,7 +373,7 @@ short at_lair_to_sleep(struct Thing *thing)
         return 0;
     }
     struct Room* room = get_room_thing_is_on(thing);
-    if (!room_initially_valid_as_type_for_thing(room, get_room_for_job(Job_TAKE_SLEEP), thing))
+    if (!room_initially_valid_as_type_for_thing(room, get_room_role_for_job(Job_TAKE_SLEEP), thing))
     {
         WARNLOG("Room %s owned by player %d is invalid for %s index %d owner %d",room_code_name(room->kind),(int)room->owner,thing_model_name(thing),(int)thing->index,(int)thing->owner);
         set_start_state(thing);

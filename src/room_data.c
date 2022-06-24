@@ -2621,7 +2621,7 @@ TbBool clear_dig_on_room_slabs(struct Room *room, PlayerNumber plyr_idx)
 
 TbBool room_has_enough_free_capacity_for_creature_job(const struct Room *room, const struct Thing *creatng, CreatureJob jobpref)
 {
-    if (room->kind != get_room_for_job(jobpref)) {
+    if (!room_role_matches(room->kind,get_room_role_for_job(jobpref))) {
         return false;
     }
     int required_cap = get_required_room_capacity_for_job(jobpref, creatng->model);

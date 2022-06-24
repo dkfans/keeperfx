@@ -63,7 +63,7 @@ TbBool creature_can_do_scavenging(const struct Thing *creatng)
 short at_scavenger_room(struct Thing *thing)
 {
     struct Room* room = get_room_thing_is_on(thing);
-    if (!room_initially_valid_as_type_for_thing(room, get_room_for_job(Job_SCAVENGE), thing))
+    if (!room_initially_valid_as_type_for_thing(room, get_room_role_for_job(Job_SCAVENGE), thing))
     {
         WARNLOG("Room %s owned by player %d is invalid for %s index %d",room_code_name(room->kind),(int)room->owner,thing_model_name(thing),(int)thing->index);
         set_start_state(thing);
@@ -454,7 +454,7 @@ TbBool creature_scavenge_from_creature_pool(struct Thing *calltng)
 {
     struct Coord3d pos;
     struct Room* room = get_room_thing_is_on(calltng);
-    if (!room_initially_valid_as_type_for_thing(room, RoK_SCAVENGER, calltng)) {
+    if (!room_initially_valid_as_type_for_thing(room, RoRoF_CrScavenge, calltng)) {
         WARNLOG("Room %s owned by player %d is bad work place for %s index %d owner %d",room_code_name(room->kind),(int)room->owner,thing_model_name(calltng),(int)calltng->index,(int)calltng->owner);
         return false;
     }

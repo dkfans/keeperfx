@@ -3152,7 +3152,7 @@ short creature_wants_salary(struct Thing *creatng)
             struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
             anger_apply_anger_to_creature(creatng, crstat->annoy_no_salary, AngR_NotPaid, 1);
         }
-        SYNCDBG(5, "No player %d %s with used capacity found to pay %s", (int)creatng->owner, room_code_name(get_room_for_job(Job_TAKE_SALARY)), thing_model_name(creatng));
+        SYNCDBG(5, "No player %d %s with used capacity found to pay %s", (int)creatng->owner, room_role_code_name(get_room_role_for_job(Job_TAKE_SALARY)), thing_model_name(creatng));
         set_start_state(creatng);
         return 1;
     }
@@ -3655,12 +3655,12 @@ short person_sulking(struct Thing *creatng)
  * @param thing The thing which seeks for work room.
  * @return True if the room can be used, false otherwise.
  */
-TbBool room_initially_valid_as_type_for_thing(const struct Room *room, RoomKind rkind, const struct Thing *thing)
+TbBool room_initially_valid_as_type_for_thing(const struct Room *room, RoomRole rrole, const struct Thing *thing)
 {
     if (!room_exists(room)) {
         return false;
     }
-    if (room->kind != rkind) {
+    if (!room_role_matches(room->kind,rrole)) {
         return false;
     }
     return ((room->owner == thing->owner) || enemies_may_work_in_room(room->kind));
