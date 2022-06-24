@@ -3562,7 +3562,7 @@ short person_sulk_at_lair(struct Thing *creatng)
     struct Room* room = get_room_thing_is_on(creatng);
     // Usually we use creature_job_in_room_no_longer_possible() for checking rooms
     // but sulking in lair is a special case, we can't compare room id as it's not working in room
-    if (!room_still_valid_as_type_for_thing(room, RoK_LAIR, creatng))
+    if (!room_still_valid_as_type_for_thing(room, RoRoF_LairStorage, creatng))
     {
         WARNLOG("Room %s index %d is not valid %s for %s owned by player %d to work in",
             room_code_name(room->kind),(int)room->index,room_code_name(RoK_LAIR),
@@ -3670,16 +3670,16 @@ TbBool room_initially_valid_as_type_for_thing(const struct Room *room, RoomRole 
  * Returns if the room is a valid place for a thing for thing which is already working in that room.
  * Used to check if creatures are working in correct rooms.
  * @param room The work room to be checked.
- * @param rkind Room kind required for work.
+ * @param rrole Room role required for work.
  * @param thing The thing which is working in the room.
  * @return True if the room can still be used, false otherwise.
  */
-TbBool room_still_valid_as_type_for_thing(const struct Room *room, RoomKind rkind, const struct Thing *thing)
+TbBool room_still_valid_as_type_for_thing(const struct Room *room, RoomRole rrole, const struct Thing *thing)
 {
     if (!room_exists(room)) {
         return false;
     }
-    if (room->kind != rkind) {
+    if (!room_role_matches(room->kind,rrole)) {
         return false;
     }
     return ((room->owner == thing->owner) || enemies_may_work_in_room(room->kind));
@@ -3695,18 +3695,18 @@ TbBool room_still_valid_as_type_for_thing(const struct Room *room, RoomKind rkin
  */
 TbBool creature_job_in_room_no_longer_possible_f(const struct Room *room, CreatureJob jobpref, const struct Thing *thing, const char *func_name)
 {
-    RoomKind rkind = get_room_for_job(jobpref);
+    RoomRole rrole = get_room_role_for_job(jobpref);
     if (!room_exists(room))
     {
         SYNCLOG("%s: The %s owned by player %d can no longer work in %s because former work room doesn't exist",
-            func_name,thing_model_name(thing),(int)thing->owner,room_code_name(rkind));
+            func_name,thing_model_name(thing),(int)thing->owner,room_role_code_name(rrole));
         // Note that if given room doesn't exist, it do not mean this
         return true;
     }
-    if (!room_still_valid_as_type_for_thing(room, rkind, thing))
+    if (!room_still_valid_as_type_for_thing(room, rrole, thing))
     {
         WARNLOG("%s: Room %s index %d is not valid %s for %s owned by player %d to work in",
-            func_name,room_code_name(room->kind),(int)room->index,room_code_name(rkind),
+            func_name,room_code_name(room->kind),(int)room->index,room_role_code_name(rrole),
             thing_model_name(thing),(int)thing->owner);
         return true;
     }
@@ -3714,7 +3714,7 @@ TbBool creature_job_in_room_no_longer_possible_f(const struct Room *room, Creatu
     {
         // This is not an error, because room index is often changed, ie. when room is expanded or its slab sold
         SYNCDBG(2,"%s: Room %s index %d is not the %s which %s owned by player %d selected to work in",
-            func_name,room_code_name(room->kind),(int)room->index,room_code_name(rkind),
+            func_name,room_code_name(room->kind),(int)room->index,room_role_code_name(rrole),
             thing_model_name(thing),(int)thing->owner);
         return true;
     }

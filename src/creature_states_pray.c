@@ -148,7 +148,7 @@ long process_temple_cure(struct Thing *creatng)
 CrCheckRet process_temple_function(struct Thing *thing)
 {
     struct Room* room = get_room_thing_is_on(thing);
-    if (!room_still_valid_as_type_for_thing(room, get_room_for_job(Job_TEMPLE_PRAY), thing))
+    if (!room_still_valid_as_type_for_thing(room, get_room_role_for_job(Job_TEMPLE_PRAY), thing))
     {
         remove_creature_from_work_room(thing);
         set_start_state(thing);

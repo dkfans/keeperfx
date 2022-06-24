@@ -428,7 +428,7 @@ TbBool process_prison_food(struct Thing *creatng, struct Room *room)
 CrCheckRet process_prison_function(struct Thing *creatng)
 {
     struct Room* room = get_room_creature_works_in(creatng);
-    if (!room_still_valid_as_type_for_thing(room, RoK_PRISON, creatng))
+    if (!room_still_valid_as_type_for_thing(room, RoRoF_Prison, creatng))
     {
         WARNLOG("Room %s owned by player %d is bad work place for %s index %d owner %d", room_code_name(room->kind), (int)room->owner, thing_model_name(creatng), (int)creatng->index, (int)creatng->owner);
         set_start_state(creatng);

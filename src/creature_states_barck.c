@@ -60,7 +60,7 @@ short at_barrack_room(struct Thing *creatng)
 short barracking(struct Thing *creatng)
 {
     struct Room* room = get_room_thing_is_on(creatng);
-    if (!room_still_valid_as_type_for_thing(room, get_room_for_job(Job_BARRACK), creatng))
+    if (!room_still_valid_as_type_for_thing(room, get_room_role_for_job(Job_BARRACK), creatng))
     {
         WARNLOG("Room %s owned by player %d is bad work place for %s index %d owner %d",room_code_name(room->kind),(int)room->owner,thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
         remove_creature_from_work_room(creatng);

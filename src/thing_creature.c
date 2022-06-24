@@ -219,7 +219,7 @@ long check_for_first_person_barrack_party(struct Thing *grthing)
         return 0;
     }
     struct Room* room = get_room_thing_is_on(grthing);
-    if (!room_still_valid_as_type_for_thing(room, RoK_BARRACKS, grthing))
+    if (!room_still_valid_as_type_for_thing(room, RoRoF_CrMakeGroup, grthing))
     {
         SYNCDBG(2,"Room %s owned by player %d does not allow the %s index %d owner %d to lead a party",room_code_name(room->kind),(int)room->owner,thing_model_name(grthing),(int)grthing->index,(int)grthing->owner);
         return 0;

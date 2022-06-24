@@ -504,7 +504,7 @@ CrCheckRet process_scavenge_function(struct Thing *calltng)
     struct CreatureControl* callctrl = creature_control_get_from_thing(calltng);
     struct Dungeon* calldngn = get_dungeon(calltng->owner);
     struct Room* room = get_room_creature_works_in(calltng);
-    if ( !room_still_valid_as_type_for_thing(room, RoK_SCAVENGER, calltng) )
+    if ( !room_still_valid_as_type_for_thing(room, RoRoF_CrScavenge, calltng) )
     {
         WARNLOG("Room %s owned by player %d is bad work place for %s owned by played %d",room_code_name(room->kind),(int)room->owner,thing_model_name(calltng),(int)calltng->owner);
         set_start_state(calltng);

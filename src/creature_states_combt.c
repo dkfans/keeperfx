@@ -1648,7 +1648,7 @@ long guard_post_combat_move(struct Thing *thing, long cntn_crstate)
         return 0;
     }
     room = room_get(cctrl->last_work_room_id);
-    if (!room_still_valid_as_type_for_thing(room, get_room_for_job(Job_GUARD), thing))
+    if (!room_still_valid_as_type_for_thing(room, get_room_role_for_job(Job_GUARD), thing))
     {
         cctrl->job_assigned = 0;
         return 0;

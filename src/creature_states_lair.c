@@ -243,7 +243,7 @@ CrStateRet creature_at_new_lair(struct Thing *creatng)
 {
     TRACE_THING(creatng);
     struct Room* room = get_room_thing_is_on(creatng);
-    if ( !room_still_valid_as_type_for_thing(room, get_room_for_job(Job_TAKE_SLEEP), creatng) )
+    if ( !room_still_valid_as_type_for_thing(room, get_room_role_for_job(Job_TAKE_SLEEP), creatng) )
     {
         WARNLOG("Room %s owned by player %d is bad work place for %s index %d owner %d",room_code_name(room->kind),(int)room->owner,thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
         set_start_state(creatng);

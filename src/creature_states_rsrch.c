@@ -213,7 +213,7 @@ CrCheckRet process_research_function(struct Thing *creatng)
         return CrCkRet_Continue;
     }
     struct Room* room = get_room_creature_works_in(creatng);
-    if ( !room_still_valid_as_type_for_thing(room, get_room_for_job(Job_RESEARCH), creatng) ) {
+    if ( !room_still_valid_as_type_for_thing(room, get_room_role_for_job(Job_RESEARCH), creatng) ) {
         WARNLOG("Room %s owned by player %d is bad work place for %s index %d owner %d",
             room_code_name(room->kind), (int)room->owner, thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
         set_start_state(creatng);
