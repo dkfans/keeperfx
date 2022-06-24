@@ -213,14 +213,18 @@ struct RoomSpace check_slabs_in_roomspace(struct RoomSpace roomspace, PlayerNumb
         }
     }
     roomspace.total_roomspace_cost = roomspace.slab_count * rkind_cost;
-    if (roomspace.slab_count != (roomspace.width * roomspace.height))
+    struct PlayerInfoAdd* playeradd = get_playeradd(plyr_idx);
+    if (playeradd->roomspace_mode != drag_placement_mode) // don't alter the roomspace in drag mode
     {
-        roomspace.is_roomspace_a_box = false;
-        roomspace.render_roomspace_as_box = false;
-    }
-    if ((roomspace.slab_count == 0) || (roomspace.slab_count > MAX_USER_ROOMSPACE_WIDTH * MAX_USER_ROOMSPACE_WIDTH))
-    {
-        roomspace = create_box_roomspace(roomspace, 1, 1, roomspace.centreX, roomspace.centreY);
+        if (roomspace.slab_count != (roomspace.width * roomspace.height))
+        {
+            roomspace.is_roomspace_a_box = false;
+            roomspace.render_roomspace_as_box = false;
+        }
+        if ((roomspace.slab_count == 0) || (roomspace.slab_count > MAX_USER_ROOMSPACE_WIDTH * MAX_USER_ROOMSPACE_WIDTH))
+        {
+            roomspace = create_box_roomspace(roomspace, 1, 1, roomspace.centreX, roomspace.centreY);
+        }
     }
     return roomspace;
 }
