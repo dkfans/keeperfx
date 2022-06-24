@@ -1638,12 +1638,12 @@ long guard_post_combat_move(struct Thing *thing, long cntn_crstate)
     //return _DK_guard_post_combat_move(thing, a2);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct Room* room = get_room_thing_is_on(thing);
-    if (!room_is_invalid(room) && (room->kind == get_room_for_job(Job_GUARD)) && (cctrl->last_work_room_id == room->index)) {
+    if (!room_is_invalid(room) && (room_role_matches(room->kind,get_room_role_for_job(Job_GUARD))) && (cctrl->last_work_room_id == room->index)) {
         return 0;
     }
     if (cctrl->last_work_room_id <= 0)
     {
-        ERRORLOG("Cannot get to %s",room_code_name(get_room_for_job(Job_GUARD)));
+        ERRORLOG("Cannot get to %s",room_role_code_name(get_room_role_for_job(Job_GUARD)));
         cctrl->job_assigned = 0;
         return 0;
     }

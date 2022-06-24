@@ -1202,7 +1202,7 @@ long computer_check_prison_tendency(struct Computer2* comp, struct ComputerCheck
     SYNCDBG(8, "Starting");
     struct Dungeon* dungeon = comp->dungeon;
     struct PlayerInfo* player = get_player(comp->dungeon->owner);
-    RoomKind room = get_room_for_job(Job_CAPTIVITY);
+    RoomRole rrole = get_room_role_for_job(Job_CAPTIVITY);
 
     int status = check->param1;
     int min_capacity = check->param2;
@@ -1213,7 +1213,7 @@ long computer_check_prison_tendency(struct Computer2* comp, struct ComputerCheck
         SYNCDBG(8, "Prison tendency handled manually by script, aborting.");
         return CTaskRet_Unk1;
     }
-    int total_capacity = computer_get_room_kind_total_capacity(comp, room);
+    int total_capacity = computer_get_room_role_total_capacity(comp, rrole);
     // Enough prison capacity to enable imprisonment
     if ((total_capacity >= min_capacity) && (dungeon->num_active_creatrs < max_units))
     {

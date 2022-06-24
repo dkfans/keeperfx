@@ -229,14 +229,14 @@ short creature_eating_at_garden(struct Thing *creatng)
     }
     struct Room* room = INVALID_ROOM;
     room = get_room_thing_is_on(foodtng);
-    if (room_is_invalid(room) || (room->kind != get_room_for_job(Job_TAKE_FEED))) {
+    if (room_is_invalid(room) || (!room_role_matches(room->kind,get_room_role_for_job(Job_TAKE_FEED)))) {
         set_start_state(creatng);
         return 0;
     }
     if (!thing_can_be_eaten(foodtng))
     {
         WARNLOG("Tried to eat %s index %d which cannot be eaten now but is in %s",
-            thing_model_name(foodtng),(int)foodtng->index,room_code_name(get_room_for_job(Job_TAKE_FEED)));
+            thing_model_name(foodtng),(int)foodtng->index,room_role_code_name(get_room_role_for_job(Job_TAKE_FEED)));
         set_start_state(creatng);
         return 0;
     }

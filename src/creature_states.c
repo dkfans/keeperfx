@@ -1624,7 +1624,7 @@ TbBool creature_try_going_to_lazy_sleep(struct Thing *creatng)
     if (room_is_invalid(room)) {
         return false;
     }
-    if ((room->kind != get_room_for_job(Job_TAKE_SLEEP)) || (room->owner != creatng->owner)) {
+    if ((!room_role_matches(room->kind,get_room_role_for_job(Job_TAKE_SLEEP))) || (room->owner != creatng->owner)) {
         ERRORLOG("The %s index %d has lair in invalid room",thing_model_name(creatng),(int)creatng->index);
         return false;
     }

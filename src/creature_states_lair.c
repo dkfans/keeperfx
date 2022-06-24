@@ -450,7 +450,7 @@ short creature_sleep(struct Thing *thing)
         return 0;
     }
     struct Room* room = get_room_thing_is_on(thing);
-    if (room_is_invalid(room) || (room->kind != get_room_for_job(Job_TAKE_SLEEP))
+    if (room_is_invalid(room) || (!room_role_matches(room->kind,get_room_role_for_job(Job_TAKE_SLEEP)))
         || (cctrl->lair_room_id != room->index) || (room->owner != thing->owner)) {
         set_start_state(thing);
         return 0;
