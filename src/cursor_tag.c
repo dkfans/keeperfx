@@ -216,23 +216,35 @@ TbBool tag_cursor_blocks_place_room(PlayerNumber plyr_idx, MapSubtlCoord stl_x, 
     struct PlayerInfo *player;
     player = get_player(plyr_idx);
     int floor_height_z = floor_height_for_volume_box(plyr_idx, slb_x, slb_y);
-    TbBool allowed = false;
+    unsigned char colour = SLC_RED;
     if(can_build_roomspace(plyr_idx, player->chosen_room_kind, playeradd->render_roomspace) > 0)
     {
-        allowed = true;
+        if (playeradd->roomspace_mode == drag_placement_mode)
+        {
+            if (playeradd->render_roomspace.invalid_slabs_count == 0)
+            {
+                colour = SLC_GREEN;
+            }
+            else
+            {
+                colour = SLC_GREENFLASH;
+            }
+        }
+        else
+        {
+            colour = SLC_GREEN;
+        }
     }
     else
     {
-        #if (BFDEBUG_LEVEL > 7)
-            struct SlabMap* slb = get_slabmap_block(slb_x, slb_y); //inside condition because otherwise it would throw a build warning for not using this variable.
-            SYNCDBG(7,"Cannot build %s on %s slabs centered at (%d,%d)", room_code_name(player->chosen_room_kind), slab_code_name(slb->kind), (int)slb_x, (int)slb_y);
-        #endif
+        struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
+        SYNCDBG(7,"Cannot build %s on %s slabs centered at (%d,%d)", room_code_name(player->chosen_room_kind), slab_code_name(slb->kind), (int)slb_x, (int)slb_y);
     }
     
     if (is_my_player_number(plyr_idx) && !game_is_busy_doing_gui() && (game.small_map_state != 2))
     {
         map_volume_box.visible = 1;
-        map_volume_box.color = allowed;
+        map_volume_box.color = colour;
         map_volume_box.beg_x = (!full_slab ? (subtile_coord(stl_x, 0)) : subtile_coord(((playeradd->render_roomspace.centreX - calc_distance_from_roomspace_centre(playeradd->render_roomspace.width,0)) * STL_PER_SLB), 0));
         map_volume_box.beg_y = (!full_slab ? (subtile_coord(stl_y, 0)) : subtile_coord(((playeradd->render_roomspace.centreY - calc_distance_from_roomspace_centre(playeradd->render_roomspace.height,0)) * STL_PER_SLB), 0));
         map_volume_box.end_x = (!full_slab ? (subtile_coord(stl_x + 1, 0)) : subtile_coord((((playeradd->render_roomspace.centreX + calc_distance_from_roomspace_centre(playeradd->render_roomspace.width,(playeradd->render_roomspace.width % 2 == 0))) + 1) * STL_PER_SLB), 0));
@@ -240,7 +252,7 @@ TbBool tag_cursor_blocks_place_room(PlayerNumber plyr_idx, MapSubtlCoord stl_x, 
         map_volume_box.floor_height_z = floor_height_z;
         playeradd->render_roomspace.is_roomspace_a_single_subtile = !full_slab;
     }
-    return allowed;
+    return (colour != SLC_RED);
 }
 
 void tag_cursor_blocks_place_terrain(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
