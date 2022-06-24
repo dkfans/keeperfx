@@ -745,7 +745,6 @@ CreatureJob get_job_to_place_creature_in_room(const struct Computer2 *comp, cons
     CreatureJob chosen_job;
     struct Room *room;
     long total_spare_cap;
-    long i;
     long k;
 
     const struct Dungeon *dungeon = comp->dungeon;
@@ -768,11 +767,8 @@ CreatureJob get_job_to_place_creature_in_room(const struct Computer2 *comp, cons
             SYNCDBG(9,"Cannot assign %s for %s index %d; no worker needed",creature_job_code_name(mvto->job_kind),thing_model_name(thing),(int)thing->index);
             continue;
         }
-        RoomKind rkind;
-        rkind = get_room_for_job(mvto->job_kind);
         // Find specific room which meets capacity demands
-        i = dungeonadd->room_kind[rkind];
-        room = find_room_with_most_spare_capacity_starting_with(i,&total_spare_cap);
+        room = find_room_of_role_with_most_spare_capacity(dungeonadd,rrole,&total_spare_cap);
         if (room_is_invalid(room)) {
             SYNCDBG(9,"Cannot assign %s for %s index %d; no room with spares",creature_job_code_name(mvto->job_kind),thing_model_name(thing),(int)thing->index);
             continue;
