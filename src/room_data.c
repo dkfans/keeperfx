@@ -2951,44 +2951,53 @@ struct Room *find_nth_room_of_owner_with_spare_item_capacity_starting_with(long 
     return INVALID_ROOM;
 }
 
-struct Room *find_room_with_most_spare_capacity_starting_with(long room_idx, long *total_spare_cap)
+struct Room *find_room_of_role_with_most_spare_capacity(const struct DungeonAdd *dungeonadd,RoomRole rrole, long *total_spare_cap)
 {
     SYNCDBG(18,"Starting");
     long loc_total_spare_cap = 0;
     struct Room* max_spare_room = INVALID_ROOM;
     long max_spare_cap = 0;
     unsigned long k = 0;
-    int i = room_idx;
-    while (i != 0)
+
+    for (RoomKind rkind = 0; rkind < slab_conf.room_types_count; rkind++)
     {
-        struct Room* room = room_get(i);
-        if (room_is_invalid(room))
+        if(room_role_matches(rkind,rrole))
         {
-            ERRORLOG("Jump to invalid room detected");
-            break;
-        }
-        i = room->next_of_owner;
-        // Per-room code
-        if (room->total_capacity > room->used_capacity)
-        {
-            long delta = room->total_capacity - room->used_capacity;
-            loc_total_spare_cap += delta;
-            if (max_spare_cap < delta)
+            int i = dungeonadd->room_kind[rkind];
+            while (i != 0)
             {
-                max_spare_cap = delta;
-                max_spare_room = room;
+                struct Room* room = room_get(i);
+                if (room_is_invalid(room))
+                {
+                    ERRORLOG("Jump to invalid room detected");
+                    break;
+                }
+                i = room->next_of_owner;
+                // Per-room code
+                if (room->total_capacity > room->used_capacity)
+                {
+                    long delta = room->total_capacity - room->used_capacity;
+                    loc_total_spare_cap += delta;
+                    if (max_spare_cap < delta)
+                    {
+                        max_spare_cap = delta;
+                        max_spare_room = room;
+                    }
+                }
+                // Per-room code ends
+                k++;
+                if (k > ROOMS_COUNT)
+                {
+                ERRORLOG("Infinite loop detected when sweeping rooms list");
+                break;
+                }
             }
         }
-        // Per-room code ends
-        k++;
-        if (k > ROOMS_COUNT)
-        {
-          ERRORLOG("Infinite loop detected when sweeping rooms list");
-          break;
-        }
     }
+
+
     if (total_spare_cap != NULL)
-       (*total_spare_cap) = loc_total_spare_cap;
+    (*total_spare_cap) = loc_total_spare_cap;
     return max_spare_room;
 }
 
