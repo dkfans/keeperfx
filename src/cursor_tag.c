@@ -237,8 +237,10 @@ TbBool tag_cursor_blocks_place_room(PlayerNumber plyr_idx, MapSubtlCoord stl_x, 
     }
     else
     {
-        struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
-        SYNCDBG(7,"Cannot build %s on %s slabs centered at (%d,%d)", room_code_name(player->chosen_room_kind), slab_code_name(slb->kind), (int)slb_x, (int)slb_y);
+        #if (BFDEBUG_LEVEL > 7)
+            struct SlabMap* slb = get_slabmap_block(slb_x, slb_y); //inside condition because otherwise it would throw a build warning for not using this variable.
+            SYNCDBG(7,"Cannot build %s on %s slabs centered at (%d,%d)", room_code_name(player->chosen_room_kind), slab_code_name(slb->kind), (int)slb_x, (int)slb_y);
+        #endif
     }
     
     if (is_my_player_number(plyr_idx) && !game_is_busy_doing_gui() && (game.small_map_state != 2))
