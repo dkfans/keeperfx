@@ -832,12 +832,13 @@ static void sell_at_point(struct RoomSpace *roomspace)
 static void find_next_point(struct RoomSpace *roomspace, unsigned char mode)
 {
     // these store the coordinates of roomspace.slab_grid[][], rather than the in-game map coordinates
-    int room_x = roomspace->buildx - roomspace->left;
-    int room_y = roomspace->buildy - roomspace->top;
+    int room_x, room_y;
     switch(mode)
     {
         case 0: // top-left to bottom-right
         {
+            room_x = 0;
+            room_y = 0;
             while ((roomspace->buildy <= roomspace->bottom) && (roomspace->buildx <= roomspace->right))
             {
                 if (roomspace->slab_grid[room_x][room_y]) // the slab is part of the room
@@ -858,6 +859,8 @@ static void find_next_point(struct RoomSpace *roomspace, unsigned char mode)
         }
         case 1: // bottom-right to top-left
         {
+            room_x = roomspace->width - 1;
+            room_y = roomspace->height - 1;
             while ((roomspace->buildy >= roomspace->top) && (roomspace->buildx >= roomspace->left))
             {
                 if (roomspace->slab_grid[room_x][room_y]) // the slab is part of the room
@@ -868,7 +871,7 @@ static void find_next_point(struct RoomSpace *roomspace, unsigned char mode)
                 roomspace->buildx--;
                 if (roomspace->buildx < roomspace->left)
                 {
-                    room_x = 0;
+                    room_x = roomspace->width - 1;
                     roomspace->buildx = roomspace->right;
                     room_y--;
                     roomspace->buildy--;
@@ -878,6 +881,8 @@ static void find_next_point(struct RoomSpace *roomspace, unsigned char mode)
         }
         case 2: // top-right to bottom-left
         {
+            room_x = roomspace->width - 1;
+            room_y = 0;
             while ((roomspace->buildy <= roomspace->bottom) && (roomspace->buildx >= roomspace->left))
             {
                 if (roomspace->slab_grid[room_x][room_y]) // the slab is part of the room
@@ -888,7 +893,7 @@ static void find_next_point(struct RoomSpace *roomspace, unsigned char mode)
                 roomspace->buildx--;
                 if (roomspace->buildx < roomspace->left)
                 {
-                    room_x = 0;
+                    room_x = roomspace->width - 1;
                     roomspace->buildx = roomspace->right;
                     room_y++;
                     roomspace->buildy++;
@@ -898,6 +903,8 @@ static void find_next_point(struct RoomSpace *roomspace, unsigned char mode)
         }
         case 3: // bottom-left to top-right
         {
+            room_x = 0;
+            room_y = roomspace->height - 1;
             while ((roomspace->buildy >= roomspace->top) && (roomspace->buildx <= roomspace->right))
             {
                 if (roomspace->slab_grid[room_x][room_y]) // the slab is part of the room
