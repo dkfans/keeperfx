@@ -1069,7 +1069,7 @@ static void keeper_update_roomspace(struct RoomSpace *roomspace)
             }
             else
             {
-                // bottom-right or bottom-left to top-right
+                // bottom-left to top-right
                 do
                 {
                     roomspace->buildx++;
