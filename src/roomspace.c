@@ -837,8 +837,8 @@ static void find_next_point(struct RoomSpace *roomspace, unsigned char mode)
     {
         case 0: // top-left to bottom-right
         {
-            room_x = 0;
-            room_y = 0;
+            room_x = roomspace->buildx - roomspace->left;
+            room_y = roomspace->buildy - roomspace->top;
             while ((roomspace->buildy <= roomspace->bottom) && (roomspace->buildx <= roomspace->right))
             {
                 if (roomspace->slab_grid[room_x][room_y]) // the slab is part of the room
@@ -859,8 +859,8 @@ static void find_next_point(struct RoomSpace *roomspace, unsigned char mode)
         }
         case 1: // bottom-right to top-left
         {
-            room_x = roomspace->width - 1;
-            room_y = roomspace->height - 1;
+            room_x = roomspace->right - roomspace->buildx;
+            room_y = roomspace->bottom - roomspace->buildy;
             while ((roomspace->buildy >= roomspace->top) && (roomspace->buildx >= roomspace->left))
             {
                 if (roomspace->slab_grid[room_x][room_y]) // the slab is part of the room
@@ -881,8 +881,8 @@ static void find_next_point(struct RoomSpace *roomspace, unsigned char mode)
         }
         case 2: // top-right to bottom-left
         {
-            room_x = roomspace->width - 1;
-            room_y = 0;
+            room_x = roomspace->right - roomspace->buildx;
+            room_y = roomspace->buildy - roomspace->top;
             while ((roomspace->buildy <= roomspace->bottom) && (roomspace->buildx >= roomspace->left))
             {
                 if (roomspace->slab_grid[room_x][room_y]) // the slab is part of the room
@@ -903,8 +903,8 @@ static void find_next_point(struct RoomSpace *roomspace, unsigned char mode)
         }
         case 3: // bottom-left to top-right
         {
-            room_x = 0;
-            room_y = roomspace->height - 1;
+            room_x = roomspace->buildx - roomspace->left;
+            room_y = roomspace->bottom - roomspace->buildy;
             while ((roomspace->buildy >= roomspace->top) && (roomspace->buildx <= roomspace->right))
             {
                 if (roomspace->slab_grid[room_x][room_y]) // the slab is part of the room
