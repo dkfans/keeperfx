@@ -120,10 +120,24 @@ TbBool tag_cursor_blocks_sell_area(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     struct SlabMap *slb;
     slb = get_slabmap_block(slb_x, slb_y);
     int floor_height_z = floor_height_for_volume_box(plyr_idx, slb_x, slb_y);
-    TbBool allowed = false;
+    unsigned char colour = SLC_RED;
     if (playeradd->render_roomspace.slab_count > 0 && full_slab)
     {
-        allowed = true; // roomspace selling support is basic, this makes roomspace selling work over any slabtype
+        if (playeradd->roomspace_mode == drag_placement_mode)
+        {
+            if (playeradd->render_roomspace.invalid_slabs_count == 0)
+            {
+                colour = SLC_GREEN;
+            }
+            else
+            {
+                colour = SLC_GREENFLASH;
+            }
+        }
+        else
+        {
+            colour = SLC_GREEN; // roomspace selling support is basic, this makes roomspace selling work over any slabtype
+        }
     }
     else if (floor_height_z == 1)
     {
@@ -131,13 +145,13 @@ TbBool tag_cursor_blocks_sell_area(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
             || ((!full_slab) ? (subtile_has_trap_on(stl_x, stl_y)) : (slab_has_trap_on(slb_x, slb_y))) ) ) ) )
             && ( slb->kind != SlbT_ENTRANCE && slb->kind != SlbT_DUNGHEART ) )
         {
-            allowed = true;
+            colour = SLC_GREEN;
         }
     }
     if ( is_my_player_number(plyr_idx) && !game_is_busy_doing_gui() && game.small_map_state != 2 )
     {
         map_volume_box.visible = 1;
-        map_volume_box.color = allowed;
+        map_volume_box.color = colour;
         map_volume_box.beg_x = (!full_slab ? (subtile_coord(stl_x, 0)) : subtile_coord(((playeradd->render_roomspace.centreX - calc_distance_from_roomspace_centre(playeradd->render_roomspace.width,0)) * STL_PER_SLB), 0));
         map_volume_box.beg_y = (!full_slab ? (subtile_coord(stl_y, 0)) : subtile_coord(((playeradd->render_roomspace.centreY - calc_distance_from_roomspace_centre(playeradd->render_roomspace.height,0)) * STL_PER_SLB), 0));
         map_volume_box.end_x = (!full_slab ? (subtile_coord(stl_x + 1, 0)) : subtile_coord((((playeradd->render_roomspace.centreX + calc_distance_from_roomspace_centre(playeradd->render_roomspace.width,(playeradd->render_roomspace.width % 2 == 0))) + 1) * STL_PER_SLB), 0));
@@ -145,7 +159,7 @@ TbBool tag_cursor_blocks_sell_area(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
         map_volume_box.floor_height_z = floor_height_z;
         playeradd->render_roomspace.is_roomspace_a_single_subtile = !full_slab;
     }
-    return allowed;
+    return (colour != SLC_RED);
 }
 
 TbBool tag_cursor_blocks_place_door(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
