@@ -90,6 +90,7 @@ struct RoomSpace {
     MapSlabCoord drag_end_x;
     MapSlabCoord drag_end_y;
     TbBool drag_mode;
+    unsigned char drag_direction;
 };
 /******************************************************************************/
 /******************************************************************************/
@@ -105,8 +106,7 @@ int can_build_roomspace_of_dimensions(PlayerNumber plyr_idx, RoomKind rkind,
 int can_build_fancy_roomspace(PlayerNumber plyr_idx, RoomKind rkind,
     struct RoomSpace roomspace);
 
-struct RoomSpace check_slabs_in_roomspace(struct RoomSpace roomspace,
-    PlayerNumber plyr_idx, RoomKind rkind, short rkind_cost);
+struct RoomSpace check_slabs_in_roomspace(struct RoomSpace roomspace, short rkind_cost);
 
 int can_build_roomspace_of_dimensions_loose(PlayerNumber plyr_idx,
     RoomKind rkind, MapSlabCoord slb_x, MapSlabCoord slb_y, int width,
@@ -136,6 +136,8 @@ void process_sell_roomspace_inputs(PlayerNumber plyr_idx);
 void process_highlight_roomspace_inputs(PlayerNumber plyr_idx);
 
 void reset_dungeon_build_room_ui_variables(PlayerNumber plyr_idx);
+
+void update_slab_grid(struct RoomSpace* roomspace, unsigned char mode, TbBool sell);
 /******************************************************************************/
 #include "roomspace_detection.h"
 /******************************************************************************/

@@ -439,7 +439,7 @@ struct RoomSpace get_biggest_roomspace(PlayerNumber plyr_idx, RoomKind rkind,
     }
     struct RoomQuery room_query = { rkind_cost, total_player_money, mode, 0, maxRoomWidth, minRoomWidth, minRoomWidth, subRoomCheckCount, bestRoomsCount, best_room, best_corridor, cursor_x, cursor_y, cursor_x, cursor_y, plyr_idx, rkind, minimumRatio, minimumComparisonRatio, false, false, leniency, total_player_money, 0, true, false, roomspace_discovery_looseness};
     find_composite_roomspace(&room_query);
-    room_query.best_room = check_slabs_in_roomspace(room_query.best_room, plyr_idx, rkind, rkind_cost);
+    room_query.best_room = check_slabs_in_roomspace(room_query.best_room, rkind_cost);
     if (room_query.best_room.slab_count > 0)
     {
         return room_query.best_room;
