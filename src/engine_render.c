@@ -60,8 +60,6 @@ extern "C" {
 #endif
 /******************************************************************************/
 DLLIMPORT long _DK_convert_world_coord_to_front_view_screen_coord(struct Coord3d *pos, struct Camera *cam, long *x, long *y, long *z);
-DLLIMPORT void _DK_do_a_trig_gourad_tr(struct EngineCoord *ep1, struct EngineCoord *ep2, struct EngineCoord *ep3, short plane_end, long scale);
-DLLIMPORT void _DK_do_a_trig_gourad_bl(struct EngineCoord *ep1, struct EngineCoord *ep2, struct EngineCoord *ep3, short plane_end, long scale);
 DLLIMPORT void _DK_do_a_gpoly_gourad_tr(struct EngineCoord *ec1, struct EngineCoord *ec2, struct EngineCoord *ec3, short plane_end, int a5);
 DLLIMPORT void _DK_do_a_gpoly_unlit_tr(struct EngineCoord *ec1, struct EngineCoord *ec2, struct EngineCoord *ec3, short plane_end);
 DLLIMPORT void _DK_do_a_gpoly_unlit_bl(struct EngineCoord *ec1, struct EngineCoord *ec2, struct EngineCoord *ec3, short plane_end);
@@ -2415,20 +2413,20 @@ void process_isometric_map_volume_box(long x, long y, long z, PlayerNumber plyr_
 }
 static void do_a_trig_gourad_tr(struct EngineCoord *ep1, struct EngineCoord *ep2, struct EngineCoord *ep3, short textr_idx, long a5)
 {
- __int16 v5; // bx
-  __int16 v6; // si
-  __int16 v7; // cx
+ short v5; // bx
+  short v6; // si
+  short v7; // cx
   int z; // eax
   int v9; // edi
   struct BasicUnk09 *v10; // ebp
   int v11; // ecx
-  __int32 v12; // edx
+  int v12; // edx
   int v13; // edx
   int v14; // ecx
-  __int32 v15; // edx
+  int v15; // edx
   int v16; // edx
   int v17; // ecx
-  __int32 v18; // edx
+  int v18; // edx
   int v19; // edx
   int v20; // ecx
   int v21; // edi
@@ -2468,18 +2466,18 @@ static void do_a_trig_gourad_tr(struct EngineCoord *ep1, struct EngineCoord *ep2
   struct BasicQ *v55; // ebx
   struct BasicUnk09 *v56; // ecx
   int v57; // edi
-  __int32 v58; // edx
+  int v58; // edx
   int v59; // edx
   int v60; // edi
-  __int32 v61; // edx
+  int v61; // edx
   int v62; // edx
   int v63; // edi
-  __int32 v64; // edx
+  int v64; // edx
 
   v5 = ep3->field_8;
   v6 = ep2->field_8;
   v7 = ep1->field_8;
-  if ( ((unsigned __int16)v7 & (unsigned __int16)(v6 & v5) & 0x1F8) == 0
+  if ( ((unsigned short)v7 & (unsigned short)(v6 & v5) & 0x1F8) == 0
     && (ep1->view_height - ep2->view_height) * (ep3->view_width - ep2->view_width)
      + (ep3->view_height - ep2->view_height) * (ep2->view_width - ep1->view_width) > 0 )
   {
@@ -2872,7 +2870,457 @@ static void do_a_trig_gourad_tr(struct EngineCoord *ep1, struct EngineCoord *ep2
 
 static void do_a_trig_gourad_bl(struct EngineCoord *ep1, struct EngineCoord *ep2, struct EngineCoord *ep3, short a4, long a5)
 {
-    _DK_do_a_trig_gourad_bl(ep1, ep2, ep3, a4, a5);
+    short v5; // si
+    short v6; // cx
+    int z; // eax
+    int v8; // edi
+    struct BasicUnk09 *v9; // ebp
+    int v10; // ecx
+    int v11; // edx
+    int v12; // edx
+    int v13; // ecx
+    int v14; // edx
+    int v15; // edx
+    int v16; // ecx
+    int v17; // edx
+    int v18; // edx
+    int v19; // ecx
+    int v20; // edi
+    int v21; // edi
+    int v22; // edi
+    int v23; // edi
+    struct BasicUnk09 *v24; // ebx
+    int v25; // esi
+    int v26; // eax
+    int v27; // ecx
+    struct PolyPoint *v28; // esi
+    struct XYZ *v29; // ebp
+    int v30; // esi
+    int v31; // esi
+    int v32; // eax
+    int v33; // edi
+    int v34; // edi
+    int v35; // ecx
+    int v36; // eax
+    struct XYZ *v37; // ebp
+    struct BasicUnk09 *v38; // ebx
+    int v39; // esi
+    int v40; // eax
+    int v41; // ecx
+    struct PolyPoint *v42; // esi
+    struct XYZ *v43; // ebp
+    int v44; // esi
+    struct BasicUnk09 *v45; // ebx
+    int v46; // esi
+    int v47; // eax
+    int v48; // ecx
+    struct PolyPoint *v49; // esi
+    struct XYZ *v50; // ebp
+    int v51; // esi
+    struct XYZ *v52; // edx
+    struct XYZ *v53; // ebp
+    struct BasicUnk09 *v54; // ecx
+    int v55; // edi
+    int v56; // edx
+    int v57; // edx
+    int v58; // edi
+    int v59; // edx
+    int v60; // edx
+    int v61; // edi
+    int v62; // edx
+    short v63; // [esp+10h] [ebp-Ch]
+
+    v63 = ep1->field_8;
+    v5 = ep3->field_8;
+    v6 = ep2->field_8;
+    if ( ((unsigned short)v6 & (unsigned short)(v5 & v63) & 0x1F8) == 0
+        && (ep2->view_width - ep1->view_width) * (ep3->view_height - ep2->view_height)
+        + (ep3->view_width - ep2->view_width) * (ep1->view_height - ep2->view_height) > 0 )
+    {
+        z = ep1->z;
+        if ( z < ep2->z )
+            z = ep2->z;
+        if ( z < ep3->z )
+            z = ep3->z;
+        v8 = z / 16;
+        if ( getpoly < poly_pool_end )
+        {
+        if ( (((unsigned __int8)v63 | (unsigned __int8)(v5 | v6)) & 3) != 0 )
+        {
+            v9 = (struct BasicUnk09 *)getpoly;
+            getpoly += 104;
+            v9->subtype = splittypes[16 * (ep3->field_8 & 3) + 4 * (ep1->field_8 & 3) + (ep2->field_8 & 3)];
+            v9->b.next = buckets[v8];
+            v9->b.kind = 9;
+            buckets[v8] = &v9->b;
+            v9->block = a4;
+            v10 = ep1->field_C;
+            v9->p1.field_0 = ep1->view_width;
+            v9->p1.field_4 = ep1->view_height;
+            v9->p1.field_8 = 0x1FFFFF;
+            v9->p1.field_C = 0x1FFFFF;
+            v11 = ep1->field_A;
+            if ( a5 >= 0 )
+                v11 = (v11 * (3 * a5 + 81920)) >> 17;
+            if ( v10 <= fade_min )
+            {
+                v12 = v11 << 8;
+            }
+            else if ( v10 < fade_max )
+            {
+                v12 = v11 * (fade_scaler - v10) / fade_range + 0x8000;
+            }
+            else
+            {
+                v12 = 0x8000;
+            }
+            v9->p1.field_10 = v12;
+            v13 = ep2->field_C;
+            v9->p2.field_0 = ep2->view_width;
+            v9->p2.field_4 = ep2->view_height;
+            v9->p2.field_8 = 0;
+            v9->p2.field_C = 0x1FFFFF;
+            v14 = ep2->field_A;
+            if ( a5 >= 0 )
+                v14 = (v14 * (3 * a5 + 81920)) >> 17;
+            if ( v13 <= fade_min )
+            {
+                v15 = v14 << 8;
+            }
+            else if ( v13 < fade_max )
+            {
+                v15 = v14 * (fade_scaler - v13) / fade_range + 0x8000;
+            }
+            else
+            {
+                v15 = 0x8000;
+            }
+            v9->p2.field_10 = v15;
+            v16 = ep3->field_C;
+            v9->p3.field_0 = ep3->view_width;
+            v9->p3.field_4 = ep3->view_height;
+            v9->p3.field_8 = 0;
+            v9->p3.field_C = 0;
+            v17 = ep3->field_A;
+            if ( a5 >= 0 )
+            v17 = (v17 * (3 * a5 + 81920)) >> 17;
+            if ( v16 <= fade_min )
+            {
+                v18 = v17 << 8;
+            }
+            else if ( v16 < fade_max )
+            {
+                v18 = v17 * (fade_scaler - v16) / fade_range + 0x8000;
+            }
+            else
+            {
+                v18 = 0x8000;
+            }
+            v9->p3.field_10 = v18;
+            v19 = ep1->z;
+            if ( v19 >= 32 )
+            {
+                v31 = ep2->z;
+                v32 = ep3->z;
+                if ( v31 >= 32 )
+                {
+                    if ( v32 >= 32 )
+                    {
+                    v9->c1.x = ep1->x;
+                    v9->c1.y = ep1->y;
+                    v9->c1.z = ep1->z;
+                    v52 = &v9->c2;
+                    v9->c2.x = ep2->x;
+                    v53 = &v9->c3;
+                    v52->y = ep2->y;
+                    v52->z = ep2->z;
+                    v53->x = ep3->x;
+                    v53->y = ep3->y;
+                    v53->z = ep3->z;
+                    }
+                    else
+                    {
+                    v45 = (struct BasicUnk09 *)getpoly;
+                    getpoly += 104;
+                    v45->subtype = splittypes[16 * (ep3->field_8 & 3) + 4 * (ep1->field_8 & 3) + (ep2->field_8 & 3)];
+                    v45->b.next = buckets[v8];
+                    v45->b.kind = 9;
+                    buckets[v8] = &v45->b;
+                    v45->block = a4;
+                    v9->c1.x = ep1->x;
+                    v9->c1.y = ep1->y;
+                    v9->c1.z = ep1->z;
+                    v9->c2.x = ep2->x;
+                    v9->c2.y = ep2->y;
+                    v9->c2.z = ep2->z;
+                    memcpy(&v45->p3, &v9->p3, sizeof(v45->p3));
+                    memcpy(&v45->p2, &v9->p2, sizeof(v45->p2));
+                    v46 = ((32 - ep3->z) << 8) / (ep1->z - ep3->z);
+                    v9->c3.x = ep3->x + ((v46 * (ep1->x - ep3->x)) >> 8);
+                    v9->c3.y = ep3->y + ((v46 * (ep1->y - ep3->y)) >> 8);
+                    v9->c3.z = 32;
+                    perspective(&v9->c3, &v9->p3);
+                    v9->p3.field_8 += (v46 * (v9->p1.field_8 - v9->p3.field_8)) >> 8;
+                    v9->p3.field_C += (v46 * (v9->p1.field_C - v9->p3.field_C)) >> 8;
+                    v47 = v9->p3.field_10;
+                    v48 = (v46 * (v9->p1.field_10 - v47)) >> 8;
+                    v49 = &v9->p3;
+                    v50 = &v9->c3;
+                    v50[-3].z = v47 + v48;
+                    memcpy(&v45->p1, v49, sizeof(v45->p1));
+                    v45->c1.x = v50->x;
+                    v45->c1.y = v50->y;
+                    v45->c1.z = v50->z;
+                    v45->c2.x = ep2->x;
+                    v45->c2.y = ep2->y;
+                    v45->c2.z = ep2->z;
+                    v51 = ((32 - ep3->z) << 8) / (ep2->z - ep3->z);
+                    v45->c3.x = ep3->x + ((v51 * (ep2->x - ep3->x)) >> 8);
+                    v45->c3.y = ep3->y + ((v51 * (ep2->y - ep3->y)) >> 8);
+                    v45->c3.z = 32;
+                    perspective(&v45->c3, &v45->p3);
+                    v45->p3.field_8 += (v51 * (v45->p2.field_8 - v45->p3.field_8)) >> 8;
+                    v45->p3.field_C += (v51 * (v45->p2.field_C - v45->p3.field_C)) >> 8;
+                    v45->p3.field_10 += (v51 * (v45->p2.field_10 - v45->p3.field_10)) >> 8;
+                    }
+                }
+                else if ( v32 >= 32 )
+                {
+                    v38 = (struct BasicUnk09 *)getpoly;
+                    getpoly += 104;
+                    v38->subtype = splittypes[16 * (ep3->field_8 & 3) + 4 * (ep1->field_8 & 3) + (ep2->field_8 & 3)];
+                    v38->b.next = buckets[v8];
+                    v38->b.kind = 9;
+                    buckets[v8] = &v38->b;
+                    v38->block = a4;
+                    v9->c1.x = ep1->x;
+                    v9->c1.y = ep1->y;
+                    v9->c1.z = ep1->z;
+                    v9->c3.x = ep3->x;
+                    v9->c3.y = ep3->y;
+                    v9->c3.z = ep3->z;
+                    memcpy(&v38->p2, &v9->p2, sizeof(v38->p2));
+                    memcpy(&v38->p3, &v9->p3, sizeof(v38->p3));
+                    v39 = ((32 - ep2->z) << 8) / (ep1->z - ep2->z);
+                    v9->c2.x = ep2->x + ((v39 * (ep1->x - ep2->x)) >> 8);
+                    v9->c2.y = ep2->y + ((v39 * (ep1->y - ep2->y)) >> 8);
+                    v9->c2.z = 32;
+                    perspective(&v9->c2, &v9->p2);
+                    v9->p2.field_8 += (v39 * (v9->p1.field_8 - v9->p2.field_8)) >> 8;
+                    v9->p2.field_C += (v39 * (v9->p1.field_C - v9->p2.field_C)) >> 8;
+                    v40 = v9->p2.field_10;
+                    v41 = (v39 * (v9->p1.field_10 - v40)) >> 8;
+                    v42 = &v9->p2;
+                    v43 = &v9->c2;
+                    v43[-3].x = v40 + v41;
+                    memcpy(&v38->p1, v42, sizeof(v38->p1));
+                    v38->c1.x = v43->x;
+                    v38->c1.y = v43->y;
+                    v38->c1.z = v43->z;
+                    v38->c3.x = ep3->x;
+                    v38->c3.y = ep3->y;
+                    v38->c3.z = ep3->z;
+                    v44 = ((32 - ep2->z) << 8) / (ep3->z - ep2->z);
+                    v38->c2.x = ep2->x + ((v44 * (ep3->x - ep2->x)) >> 8);
+                    v38->c2.y = ep2->y + ((v44 * (ep3->y - ep2->y)) >> 8);
+                    v38->c2.z = 32;
+                    perspective(&v38->c2, &v38->p2);
+                    v38->p2.field_8 += (v44 * (v38->p3.field_8 - v38->p2.field_8)) >> 8;
+                    v38->p2.field_C += (v44 * (v38->p3.field_C - v38->p2.field_C)) >> 8;
+                    v38->p2.field_10 += (v44 * (v38->p3.field_10 - v38->p2.field_10)) >> 8;
+                }
+                else
+                {
+                    v33 = ((32 - v31) << 8) / (v19 - v31);
+                    v9->c2.x = ep2->x + ((v33 * (ep1->x - ep2->x)) >> 8);
+                    v9->c2.y = ep2->y + ((v33 * (ep1->y - ep2->y)) >> 8);
+                    v9->c2.z = 32;
+                    perspective(&v9->c2, &v9->p2);
+                    v9->p2.field_8 += (v33 * (v9->p1.field_8 - v9->p2.field_8)) >> 8;
+                    v9->p2.field_C += (v33 * (v9->p1.field_C - v9->p2.field_C)) >> 8;
+                    v9->p2.field_10 += (v33 * (v9->p1.field_10 - v9->p2.field_10)) >> 8;
+                    v34 = ((32 - ep3->z) << 8) / (ep1->z - ep3->z);
+                    v9->c3.x = ep3->x + ((v34 * (ep1->x - ep3->x)) >> 8);
+                    v9->c3.y = ep3->y + ((v34 * (ep1->y - ep3->y)) >> 8);
+                    v9->c3.z = 32;
+                    perspective(&v9->c3, &v9->p3);
+                    v9->p3.field_8 += (v34 * (v9->p1.field_8 - v9->p3.field_8)) >> 8;
+                    v9->p3.field_C += (v34 * (v9->p1.field_C - v9->p3.field_C)) >> 8;
+                    v35 = v9->p1.field_10;
+                    v36 = v9->p3.field_10;
+                    v37 = &v9->c1;
+                    v37[-1].z = v36 + ((v34 * (v35 - v36)) >> 8);
+                    v37->x = ep1->x;
+                    v37->y = ep1->y;
+                    v37->z = ep1->z;
+                }
+            }
+            else if ( ep2->z >= 32 )
+            {
+                if ( ep3->z >= 32 )
+                {
+                    v24 = (struct BasicUnk09 *)getpoly;
+                    getpoly += 104;
+                    v24->subtype = splittypes[16 * (ep3->field_8 & 3) + 4 * (ep1->field_8 & 3) + (ep2->field_8 & 3)];
+                    v24->b.next = buckets[v8];
+                    v24->b.kind = 9;
+                    buckets[v8] = &v24->b;
+                    v24->block = a4;
+                    v9->c2.x = ep2->x;
+                    v9->c2.y = ep2->y;
+                    v9->c2.z = ep2->z;
+                    v9->c3.x = ep3->x;
+                    v9->c3.y = ep3->y;
+                    v9->c3.z = ep3->z;
+                    memcpy(&v24->p1, &v9->p1, sizeof(v24->p1));
+                    memcpy(&v24->p3, &v9->p3, sizeof(v24->p3));
+                    v25 = ((32 - ep1->z) << 8) / (ep2->z - ep1->z);
+                    v9->c1.x = ep1->x + ((v25 * (ep2->x - ep1->x)) >> 8);
+                    v9->c1.y = ep1->y + ((v25 * (ep2->y - ep1->y)) >> 8);
+                    v9->c1.z = 32;
+                    perspective(&v9->c1, &v9->p1);
+                    v9->p1.field_8 += (v25 * (v9->p2.field_8 - v9->p1.field_8)) >> 8;
+                    v9->p1.field_C += (v25 * (v9->p2.field_C - v9->p1.field_C)) >> 8;
+                    v26 = v9->p1.field_10;
+                    v27 = (v25 * (v9->p2.field_10 - v26)) >> 8;
+                    v28 = &v9->p1;
+                    v29 = &v9->c1;
+                    v29[-4].y = v26 + v27;
+                    memcpy(&v24->p2, v28, sizeof(v24->p2));
+                    v24->c2.x = v29->x;
+                    v24->c2.y = v29->y;
+                    v24->c2.z = v29->z;
+                    v24->c3.x = ep3->x;
+                    v24->c3.y = ep3->y;
+                    v24->c3.z = ep3->z;
+                    v30 = ((32 - ep1->z) << 8) / (ep3->z - ep1->z);
+                    v24->c1.x = ep1->x + ((v30 * (ep3->x - ep1->x)) >> 8);
+                    v24->c1.y = ep1->y + ((v30 * (ep3->y - ep1->y)) >> 8);
+                    v24->c1.z = 32;
+                    perspective(&v24->c1, &v24->p1);
+                    v24->p1.field_8 += (v30 * (v24->p3.field_8 - v24->p1.field_8)) >> 8;
+                    v24->p1.field_C += (v30 * (v24->p3.field_C - v24->p1.field_C)) >> 8;
+                    v24->p1.field_10 += (v30 * (v24->p3.field_10 - v24->p1.field_10)) >> 8;
+                }
+                else
+                {
+                    v9->c2.x = ep2->x;
+                    v9->c2.y = ep2->y;
+                    v9->c2.z = ep2->z;
+                    v22 = ((32 - ep1->z) << 8) / (ep2->z - ep1->z);
+                    v9->c1.x = ep1->x + ((v22 * (ep2->x - ep1->x)) >> 8);
+                    v9->c1.y = ep1->y + ((v22 * (ep2->y - ep1->y)) >> 8);
+                    v9->c1.z = 32;
+                    perspective(&v9->c1, &v9->p1);
+                    v9->p1.field_8 += (v22 * (v9->p2.field_8 - v9->p1.field_8)) >> 8;
+                    v9->p1.field_C += (v22 * (v9->p2.field_C - v9->p1.field_C)) >> 8;
+                    v9->p1.field_10 += (v22 * (v9->p2.field_10 - v9->p1.field_10)) >> 8;
+                    v23 = ((32 - ep3->z) << 8) / (ep2->z - ep3->z);
+                    v9->c3.x = ep3->x + ((v23 * (ep2->x - ep3->x)) >> 8);
+                    v9->c3.y = ep3->y + ((v23 * (ep2->y - ep3->y)) >> 8);
+                    v9->c3.z = 32;
+                    perspective(&v9->c3, &v9->p3);
+                    v9->p3.field_8 += (v23 * (v9->p2.field_8 - v9->p3.field_8)) >> 8;
+                    v9->p3.field_C += (v23 * (v9->p2.field_C - v9->p3.field_C)) >> 8;
+                    v9->p3.field_10 += (v23 * (v9->p2.field_10 - v9->p3.field_10)) >> 8;
+                }
+            }
+            else
+            {
+                v9->c3.x = ep3->x;
+                v9->c3.y = ep3->y;
+                v9->c3.z = ep3->z;
+                v20 = ((32 - ep1->z) << 8) / (ep3->z - ep1->z);
+                v9->c1.x = ep1->x + ((v20 * (ep3->x - ep1->x)) >> 8);
+                v9->c1.y = ep1->y + ((v20 * (ep3->y - ep1->y)) >> 8);
+                v9->c1.z = 32;
+                perspective(&v9->c1, &v9->p1);
+                v9->p1.field_8 += (v20 * (v9->p3.field_8 - v9->p1.field_8)) >> 8;
+                v9->p1.field_C += (v20 * (v9->p3.field_C - v9->p1.field_C)) >> 8;
+                v9->p1.field_10 += (v20 * (v9->p3.field_10 - v9->p1.field_10)) >> 8;
+                v21 = ((32 - ep2->z) << 8) / (ep3->z - ep2->z);
+                v9->c2.x = ep2->x + ((v21 * (ep3->x - ep2->x)) >> 8);
+                v9->c2.y = ep2->y + ((v21 * (ep3->y - ep2->y)) >> 8);
+                v9->c2.z = 32;
+                perspective(&v9->c2, &v9->p2);
+                v9->p2.field_8 += (v21 * (v9->p3.field_8 - v9->p2.field_8)) >> 8;
+                v9->p2.field_C += (v21 * (v9->p3.field_C - v9->p2.field_C)) >> 8;
+                v9->p2.field_10 += (v21 * (v9->p3.field_10 - v9->p2.field_10)) >> 8;
+                }
+            }
+            else
+            {
+                v54 = (struct BasicUnk09 *)getpoly;
+                getpoly += 68;
+                v54->b.next = buckets[v8];
+                v54->b.kind = 0;
+                buckets[v8] = &v54->b;
+                v54->block = a4;
+                v55 = ep1->field_C;
+                v54->p1.field_0 = ep1->view_width;
+                v54->p1.field_4 = ep1->view_height;
+                v54->p1.field_8 = 0x1FFFFF;
+                v54->p1.field_C = 0x1FFFFF;
+                v56 = ep1->field_A;
+                if ( a5 >= 0 )
+                v56 = (v56 * (3 * a5 + 81920)) >> 17;
+                if ( v55 <= fade_min )
+                {
+                v57 = v56 << 8;
+                }
+                else if ( v55 < fade_max )
+                {
+                v57 = v56 * (fade_scaler - v55) / fade_range + 0x8000;
+                }
+                else
+                {
+                v57 = 0x8000;
+                }
+                v54->p1.field_10 = v57;
+                v58 = ep2->field_C;
+                v54->p2.field_0 = ep2->view_width;
+                v54->p2.field_4 = ep2->view_height;
+                v54->p2.field_8 = 0;
+                v54->p2.field_C = 0x1FFFFF;
+                v59 = ep2->field_A;
+                if ( a5 >= 0 )
+                v59 = (v59 * (3 * a5 + 81920)) >> 17;
+                if ( v58 <= fade_min )
+                {
+                v60 = v59 << 8;
+                }
+                else if ( v58 < fade_max )
+                {
+                v60 = v59 * (fade_scaler - v58) / fade_range + 0x8000;
+                }
+                else
+                {
+                v60 = 0x8000;
+                }
+                v54->p2.field_10 = v60;
+                v61 = ep3->field_C;
+                v54->p3.field_0 = ep3->view_width;
+                v54->p3.field_4 = ep3->view_height;
+                v54->p3.field_8 = 0;
+                v54->p3.field_C = 0;
+                v62 = ep3->field_A;
+                if ( a5 >= 0 )
+                v62 = (v62 * (3 * a5 + 81920)) >> 17;
+                if ( v61 <= fade_min )
+                {
+                v54->p3.field_10 = v62 << 8;
+                }
+                else if ( v61 < fade_max )
+                {
+                v54->p3.field_10 = v62 * (fade_scaler - v61) / fade_range + 0x8000;
+                }
+                else
+                {
+                v54->p3.field_10 = 0x8000;
+                }
+            }
+        }
+    }
 }
 
 static TbBool add_light_to_nearest_list(struct NearestLights* nlgt, long* nlgt_dist, const struct Light* lgt, long dist)
