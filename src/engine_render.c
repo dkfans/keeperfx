@@ -2840,9 +2840,69 @@ void do_a_plane_of_engine_columns_perspective(long stl_x, long stl_y, long plane
     }
 }
 
-static void do_a_gpoly_gourad_tr(struct EngineCoord *ec1, struct EngineCoord *ec2, struct EngineCoord *ec3, short a4, int a5)
+static void do_a_gpoly_gourad_tr(struct EngineCoord *ec1, struct EngineCoord *ec2, struct EngineCoord *ec3, short textr_id, int a5)
 {
-    _DK_do_a_gpoly_gourad_tr(ec1, ec2, ec3, a4, a5); return;
+    int z; // eax
+    struct BasicUnk00 *v6; // ebx
+    int v7; // eax
+    struct BasicUnk00 *v8; // edx
+    struct BasicQ *v9; // ebp
+    int *v10; // ebp
+    int v11; // ebx
+    struct PolyPoint *v12; // ebp
+    int *v13; // edx
+    int v14; // [esp+10h] [ebp-8h]
+    int v15; // [esp+14h] [ebp-4h]
+
+    if ( (ec1->field_8 & (unsigned __int16)(ec2->field_8 & ec3->field_8) & 0x1F8) == 0
+        && (ec2->view_width - ec1->view_width) * (ec3->view_height - ec2->view_height)
+        + (ec1->view_height - ec2->view_height) * (ec3->view_width - ec2->view_width) > 0 )
+    {
+        z = ec1->z;
+        if ( z < ec2->z )
+        z = ec2->z;
+        if ( z < ec3->z )
+        z = ec3->z;
+        v6 = (struct BasicUnk00 *)getpoly;
+        v7 = z / 16;
+        if ( getpoly < poly_pool_end )
+        {
+            v8 = (struct BasicUnk00 *)getpoly;
+            v9 = buckets[v7];
+            getpoly += 68;
+            v6->b.next = v9;
+            v10 = &v6->p1.field_0;
+            v6->b.kind = 0;
+            buckets[v7] = &v6->b;
+            v6->block = textr_id;
+            v14 = ec1->field_A;
+            v15 = ec2->field_A;
+            v11 = ec3->field_A;
+            if ( a5 >= 0 )
+            {
+                v14 = (4 * v14 * (a5 + 0x4000)) >> 17;
+                v15 = (4 * v15 * (a5 + 0x4000)) >> 17;
+                v11 = (4 * (a5 + 0x4000) * v11) >> 17;
+            }
+            *v10 = ec1->view_width;
+            v10[1] = ec1->view_height;
+            v10[2] = 0;
+            v10[3] = 0;
+            v10[4] = v14 << 8;
+            v12 = &v8->p2;
+            v8->p2.field_0 = ec2->view_width;
+            v13 = &v8->p3.field_0;
+            v12->field_4 = ec2->view_height;
+            v12->field_8 = 0x1FFFFF;
+            v12->field_C = 0;
+            v12->field_10 = v15 << 8;
+            *v13 = ec3->view_width;
+            v13[1] = ec3->view_height;
+            v13[2] = 0x1FFFFF;
+            v13[3] = 0x1FFFFF;
+            v13[4] = v11 << 8;
+        }
+    }
 }
 
 static void do_a_gpoly_unlit_tr(struct EngineCoord *ec1, struct EngineCoord *ec2, struct EngineCoord *ec3, short a4)
@@ -2855,9 +2915,57 @@ static void do_a_gpoly_unlit_bl(struct EngineCoord *ec1, struct EngineCoord *ec2
     _DK_do_a_gpoly_unlit_bl(ec1, ec2, ec3, a4); return;
 }
 
-static void do_a_gpoly_gourad_bl(struct EngineCoord *ec1, struct EngineCoord *ec2, struct EngineCoord *ec3, short a4, int a5)
+static void do_a_gpoly_gourad_bl(struct EngineCoord *ec1, struct EngineCoord *ec2, struct EngineCoord *ec3, short textr_id, int a5)
 {
-    _DK_do_a_gpoly_gourad_bl(ec1, ec2, ec3, a4, a5); return;
+
+    _DK_do_a_gpoly_gourad_bl(ec1, ec2, ec3, textr_id, a5); return;
+
+/*
+    JUSTLOG("BasicQ %d",sizeof(struct BasicQ));
+    JUSTLOG("BasicUnk00 %d",sizeof(struct BasicUnk00));
+    JUSTLOG("BasicUnk01 %d",sizeof(struct BasicUnk01));
+    JUSTLOG("BasicUnk02 %d",sizeof(struct BasicUnk02));
+    JUSTLOG("BasicUnk03 %d",sizeof(struct BasicUnk03));
+    JUSTLOG("BasicUnk04 %d",sizeof(struct BasicUnk04));
+    JUSTLOG("BasicUnk05 %d",sizeof(struct BasicUnk05));
+    JUSTLOG("BasicUnk06 %d",sizeof(struct BasicUnk06));
+    JUSTLOG("BasicUnk07 %d",sizeof(struct BasicUnk07));
+    JUSTLOG("RotoSpr  %d",sizeof(struct RotoSpr ));
+    JUSTLOG("BasicUnk09  %d",sizeof(struct BasicUnk09 ));
+    JUSTLOG("BasicUnk10  %d",sizeof(struct BasicUnk10 ));
+    JUSTLOG("JontySpr  %d",sizeof(struct JontySpr ));
+    JUSTLOG("KeeperSpr  %d",sizeof(struct KeeperSpr ));
+    JUSTLOG("BasicUnk13  %d",sizeof(struct BasicUnk13 ));
+    JUSTLOG("BasicUnk14  %d",sizeof(struct BasicUnk14 ));
+    JUSTLOG("TexturedQuad %d",sizeof(struct TexturedQuad));
+    JUSTLOG("Number  %d",sizeof(struct Number ));
+    JUSTLOG("RoomFlag  %d",sizeof(struct RoomFlag ));
+    
+
+do_a_gpoly_gourad_bl: BasicQ 5
+do_a_gpoly_gourad_bl: BasicUnk00 68
+do_a_gpoly_gourad_bl: BasicUnk01 68
+do_a_gpoly_gourad_bl: BasicUnk02 18
+do_a_gpoly_gourad_bl: BasicUnk03 28
+do_a_gpoly_gourad_bl: BasicUnk04 26
+do_a_gpoly_gourad_bl: BasicUnk05 29
+do_a_gpoly_gourad_bl: BasicUnk06 26
+do_a_gpoly_gourad_bl: BasicUnk07 29
+do_a_gpoly_gourad_bl: RotoSpr  28
+do_a_gpoly_gourad_bl: BasicUnk09  104
+do_a_gpoly_gourad_bl: BasicUnk10  68
+do_a_gpoly_gourad_bl: JontySpr  28
+do_a_gpoly_gourad_bl: KeeperSpr  95
+do_a_gpoly_gourad_bl: BasicUnk13  31
+do_a_gpoly_gourad_bl: BasicUnk14  24
+do_a_gpoly_gourad_bl: TexturedQuad 46
+do_a_gpoly_gourad_bl: Number  20
+do_a_gpoly_gourad_bl: RoomFlag  16
+
+*/
+
+
+
 }
 
 void do_a_plane_of_engine_columns_cluedo(long stl_x, long stl_y, long plane_start, long plane_end)
