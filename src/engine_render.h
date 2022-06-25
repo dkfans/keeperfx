@@ -24,6 +24,7 @@
 #include "game_legacy.h"
 #include "bflib_render.h"
 #include "bflib_sprite.h"
+#include "engine_lenses.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -214,15 +215,9 @@ struct BasicUnk09 {
     struct PolyPoint p1;
     struct PolyPoint p2;
     struct PolyPoint p3;
-    long field_44;
-    long field_48;
-    long field_4C;
-    long field_50;
-    long field_54;
-    long field_58;
-    long field_5C;
-    long field_60;
-    long field_64;
+    struct XYZ c1;
+    struct XYZ c2;
+    struct XYZ c3;
 };
 
 struct BasicUnk10 {
