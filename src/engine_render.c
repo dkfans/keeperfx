@@ -2464,7 +2464,7 @@ static void do_a_trig_gourad_tr(struct EngineCoord *ep1, struct EngineCoord *ep2
   struct XYZ *v53;
   struct XYZ *v54;
   struct BasicQ *v55;
-  struct BasicUnk09 *v56;
+  struct BasicUnk00 *v56;
   int v57;
   int v58;
   int v59;
@@ -2492,7 +2492,7 @@ static void do_a_trig_gourad_tr(struct EngineCoord *ep1, struct EngineCoord *ep2
       if ( (((unsigned __int8)v5 | (unsigned __int8)(v6 | v7)) & 3) != 0 )
       {
         v10 = (struct BasicUnk09 *)getpoly;
-        getpoly += 104;
+        getpoly += sizeof(struct BasicUnk09);
         v10->subtype = splittypes[16 * (ep3->field_8 & 3) + 4 * (ep1->field_8 & 3) + (ep2->field_8 & 3)];
         v10->b.next = buckets[v9];
         v10->b.kind = 9;
@@ -2585,7 +2585,7 @@ static void do_a_trig_gourad_tr(struct EngineCoord *ep1, struct EngineCoord *ep2
             else
             {
               v46 = (struct BasicUnk09 *)getpoly;
-              getpoly += 104;
+              getpoly += sizeof(struct BasicUnk09);
               v46->subtype = splittypes[16 * (ep3->field_8 & 3) + 4 * (ep1->field_8 & 3) + (ep2->field_8 & 3)];
               v46->b.next = buckets[v9];
               v46->b.kind = 9;
@@ -2631,7 +2631,7 @@ static void do_a_trig_gourad_tr(struct EngineCoord *ep1, struct EngineCoord *ep2
           else if ( v33 >= 32 )
           {
             v39 = (struct BasicUnk09 *)getpoly;
-            getpoly += 104;
+            getpoly += sizeof(struct BasicUnk09);
             v39->subtype = splittypes[16 * (ep3->field_8 & 3) + 4 * (ep1->field_8 & 3) + (ep2->field_8 & 3)];
             v39->b.next = buckets[v9];
             v39->b.kind = 9;
@@ -2704,7 +2704,7 @@ static void do_a_trig_gourad_tr(struct EngineCoord *ep1, struct EngineCoord *ep2
           if ( ep3->z >= 32 )
           {
             v25 = (struct BasicUnk09 *)getpoly;
-            getpoly += 104;
+            getpoly += sizeof(struct BasicUnk09);
             v25->subtype = splittypes[16 * (ep3->field_8 & 3) + 4 * (ep1->field_8 & 3) + (ep2->field_8 & 3)];
             v25->b.next = buckets[v9];
             v25->b.kind = 9;
@@ -2795,8 +2795,8 @@ static void do_a_trig_gourad_tr(struct EngineCoord *ep1, struct EngineCoord *ep2
       else
       {
         v55 = buckets[v9];
-        v56 = (struct BasicUnk09 *)getpoly;
-        getpoly += 68;
+        v56 = (struct BasicUnk00 *)getpoly;
+        getpoly += sizeof(struct BasicUnk00);
         v56->b.next = v55;
         v56->b.kind = 0;
         buckets[v9] = &v56->b;
@@ -2919,7 +2919,7 @@ static void do_a_trig_gourad_bl(struct EngineCoord *ep1, struct EngineCoord *ep2
     int v51;
     struct XYZ *v52;
     struct XYZ *v53;
-    struct BasicUnk09 *v54;
+    struct BasicUnk00 *v54;
     int v55;
     int v56;
     int v57;
@@ -2948,7 +2948,7 @@ static void do_a_trig_gourad_bl(struct EngineCoord *ep1, struct EngineCoord *ep2
         if ( (((unsigned __int8)v63 | (unsigned __int8)(v5 | v6)) & 3) != 0 )
         {
             v9 = (struct BasicUnk09 *)getpoly;
-            getpoly += 104;
+            getpoly += sizeof(struct BasicUnk09);
             v9->subtype = splittypes[16 * (ep3->field_8 & 3) + 4 * (ep1->field_8 & 3) + (ep2->field_8 & 3)];
             v9->b.next = buckets[v8];
             v9->b.kind = 9;
@@ -3041,7 +3041,7 @@ static void do_a_trig_gourad_bl(struct EngineCoord *ep1, struct EngineCoord *ep2
                     else
                     {
                     v45 = (struct BasicUnk09 *)getpoly;
-                    getpoly += 104;
+                    getpoly += sizeof(struct BasicUnk09);
                     v45->subtype = splittypes[16 * (ep3->field_8 & 3) + 4 * (ep1->field_8 & 3) + (ep2->field_8 & 3)];
                     v45->b.next = buckets[v8];
                     v45->b.kind = 9;
@@ -3087,7 +3087,7 @@ static void do_a_trig_gourad_bl(struct EngineCoord *ep1, struct EngineCoord *ep2
                 else if ( v32 >= 32 )
                 {
                     v38 = (struct BasicUnk09 *)getpoly;
-                    getpoly += 104;
+                    getpoly += sizeof(struct BasicUnk09);
                     v38->subtype = splittypes[16 * (ep3->field_8 & 3) + 4 * (ep1->field_8 & 3) + (ep2->field_8 & 3)];
                     v38->b.next = buckets[v8];
                     v38->b.kind = 9;
@@ -3160,7 +3160,7 @@ static void do_a_trig_gourad_bl(struct EngineCoord *ep1, struct EngineCoord *ep2
                 if ( ep3->z >= 32 )
                 {
                     v24 = (struct BasicUnk09 *)getpoly;
-                    getpoly += 104;
+                    getpoly += sizeof(struct BasicUnk09);
                     v24->subtype = splittypes[16 * (ep3->field_8 & 3) + 4 * (ep1->field_8 & 3) + (ep2->field_8 & 3)];
                     v24->b.next = buckets[v8];
                     v24->b.kind = 9;
@@ -3250,8 +3250,8 @@ static void do_a_trig_gourad_bl(struct EngineCoord *ep1, struct EngineCoord *ep2
             }
             else
             {
-                v54 = (struct BasicUnk09 *)getpoly;
-                getpoly += 68;
+                v54 = (struct BasicUnk00 *)getpoly;
+                getpoly += sizeof(struct BasicUnk00);
                 v54->b.next = buckets[v8];
                 v54->b.kind = 0;
                 buckets[v8] = &v54->b;
