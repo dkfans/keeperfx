@@ -2413,66 +2413,66 @@ void process_isometric_map_volume_box(long x, long y, long z, PlayerNumber plyr_
 }
 static void do_a_trig_gourad_tr(struct EngineCoord *ep1, struct EngineCoord *ep2, struct EngineCoord *ep3, short textr_idx, long a5)
 {
- short v5; // bx
-  short v6; // si
-  short v7; // cx
-  int z; // eax
-  int v9; // edi
-  struct BasicUnk09 *v10; // ebp
-  int v11; // ecx
-  int v12; // edx
-  int v13; // edx
-  int v14; // ecx
-  int v15; // edx
-  int v16; // edx
-  int v17; // ecx
-  int v18; // edx
-  int v19; // edx
-  int v20; // ecx
-  int v21; // edi
-  int v22; // edi
-  int v23; // edi
-  int v24; // edi
-  struct BasicUnk09 *v25; // ebx
-  int v26; // esi
-  int v27; // eax
-  int v28; // ecx
-  struct PolyPoint *v29; // esi
-  struct XYZ *v30; // ebp
-  int v31; // esi
-  int v32; // esi
-  int v33; // eax
-  int v34; // edi
-  int v35; // edi
-  int v36; // ecx
-  int v37; // eax
-  struct XYZ *v38; // ebp
-  struct BasicUnk09 *v39; // ebx
-  int v40; // esi
-  int v41; // eax
-  int v42; // ecx
-  struct PolyPoint *v43; // esi
-  struct XYZ *v44; // ebp
-  int v45; // esi
-  struct BasicUnk09 *v46; // ebx
-  int v47; // esi
-  int v48; // eax
-  int v49; // ecx
-  struct PolyPoint *v50; // esi
-  struct XYZ *v51; // ebp
-  int v52; // esi
-  struct XYZ *v53; // edx
-  struct XYZ *v54; // ebp
-  struct BasicQ *v55; // ebx
-  struct BasicUnk09 *v56; // ecx
-  int v57; // edi
-  int v58; // edx
-  int v59; // edx
-  int v60; // edi
-  int v61; // edx
-  int v62; // edx
-  int v63; // edi
-  int v64; // edx
+ short v5;
+  short v6;
+  short v7;
+  int z;
+  int v9;
+  struct BasicUnk09 *v10;
+  int v11;
+  int v12;
+  int v13;
+  int v14;
+  int v15;
+  int v16;
+  int v17;
+  int v18;
+  int v19;
+  int v20;
+  int v21;
+  int v22;
+  int v23;
+  int v24;
+  struct BasicUnk09 *v25;
+  int v26;
+  int v27;
+  int v28;
+  struct PolyPoint *v29;
+  struct XYZ *v30;
+  int v31;
+  int v32;
+  int v33;
+  int v34;
+  int v35;
+  int v36;
+  int v37;
+  struct XYZ *v38;
+  struct BasicUnk09 *v39;
+  int v40;
+  int v41;
+  int v42;
+  struct PolyPoint *v43;
+  struct XYZ *v44;
+  int v45;
+  struct BasicUnk09 *v46;
+  int v47;
+  int v48;
+  int v49;
+  struct PolyPoint *v50;
+  struct XYZ *v51;
+  int v52;
+  struct XYZ *v53;
+  struct XYZ *v54;
+  struct BasicQ *v55;
+  struct BasicUnk09 *v56;
+  int v57;
+  int v58;
+  int v59;
+  int v60;
+  int v61;
+  int v62;
+  int v63;
+  int v64;
 
   v5 = ep3->field_8;
   v6 = ep2->field_8;
@@ -2870,65 +2870,65 @@ static void do_a_trig_gourad_tr(struct EngineCoord *ep1, struct EngineCoord *ep2
 
 static void do_a_trig_gourad_bl(struct EngineCoord *ep1, struct EngineCoord *ep2, struct EngineCoord *ep3, short a4, long a5)
 {
-    short v5; // si
-    short v6; // cx
-    int z; // eax
-    int v8; // edi
-    struct BasicUnk09 *v9; // ebp
-    int v10; // ecx
-    int v11; // edx
-    int v12; // edx
-    int v13; // ecx
-    int v14; // edx
-    int v15; // edx
-    int v16; // ecx
-    int v17; // edx
-    int v18; // edx
-    int v19; // ecx
-    int v20; // edi
-    int v21; // edi
-    int v22; // edi
-    int v23; // edi
-    struct BasicUnk09 *v24; // ebx
-    int v25; // esi
-    int v26; // eax
-    int v27; // ecx
-    struct PolyPoint *v28; // esi
-    struct XYZ *v29; // ebp
-    int v30; // esi
-    int v31; // esi
-    int v32; // eax
-    int v33; // edi
-    int v34; // edi
-    int v35; // ecx
-    int v36; // eax
-    struct XYZ *v37; // ebp
-    struct BasicUnk09 *v38; // ebx
-    int v39; // esi
-    int v40; // eax
-    int v41; // ecx
-    struct PolyPoint *v42; // esi
-    struct XYZ *v43; // ebp
-    int v44; // esi
-    struct BasicUnk09 *v45; // ebx
-    int v46; // esi
-    int v47; // eax
-    int v48; // ecx
-    struct PolyPoint *v49; // esi
-    struct XYZ *v50; // ebp
-    int v51; // esi
-    struct XYZ *v52; // edx
-    struct XYZ *v53; // ebp
-    struct BasicUnk09 *v54; // ecx
-    int v55; // edi
-    int v56; // edx
-    int v57; // edx
-    int v58; // edi
-    int v59; // edx
-    int v60; // edx
-    int v61; // edi
-    int v62; // edx
-    short v63; // [esp+10h] [ebp-Ch]
+    short v5;
+    short v6;
+    int z;
+    int v8;
+    struct BasicUnk09 *v9;
+    int v10;
+    int v11;
+    int v12;
+    int v13;
+    int v14;
+    int v15;
+    int v16;
+    int v17;
+    int v18;
+    int v19;
+    int v20;
+    int v21;
+    int v22;
+    int v23;
+    struct BasicUnk09 *v24;
+    int v25;
+    int v26;
+    int v27;
+    struct PolyPoint *v28;
+    struct XYZ *v29;
+    int v30;
+    int v31;
+    int v32;
+    int v33;
+    int v34;
+    int v35;
+    int v36;
+    struct XYZ *v37;
+    struct BasicUnk09 *v38;
+    int v39;
+    int v40;
+    int v41;
+    struct PolyPoint *v42;
+    struct XYZ *v43;
+    int v44;
+    struct BasicUnk09 *v45;
+    int v46;
+    int v47;
+    int v48;
+    struct PolyPoint *v49;
+    struct XYZ *v50;
+    int v51;
+    struct XYZ *v52;
+    struct XYZ *v53;
+    struct BasicUnk09 *v54;
+    int v55;
+    int v56;
+    int v57;
+    int v58;
+    int v59;
+    int v60;
+    int v61;
+    int v62;
+    short v63;
 
     v63 = ep1->field_8;
     v5 = ep3->field_8;
