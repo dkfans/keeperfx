@@ -391,7 +391,7 @@ TbBool process_prison_food(struct Thing *creatng, struct Room *room)
                 && line_of_room_move_2d(
                     &creatng->mappos,
                     &foodtng->mappos,
-                    room->alloc_flags)
+                    room)
                 && setup_person_move_to_position(
                     creatng,
                     foodtng->mappos.x.stl.num,

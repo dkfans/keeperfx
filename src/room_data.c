@@ -2530,6 +2530,11 @@ struct Room *get_room_thing_is_on(const struct Thing *thing)
     return subtile_room_get(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
 }
 
+struct Room *get_room_at_pos(struct Coord3d *pos)
+{
+     return subtile_room_get(pos->x.stl.num, pos->y.stl.num);
+}
+
 void init_room_sparks(struct Room *room)
 {
     if (room->kind == RoK_DUNGHEART) {
