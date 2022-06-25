@@ -2906,14 +2906,96 @@ static void do_a_gpoly_gourad_tr(struct EngineCoord *ec1, struct EngineCoord *ec
     }
 }
 
-static void do_a_gpoly_unlit_tr(struct EngineCoord *ec1, struct EngineCoord *ec2, struct EngineCoord *ec3, short a4)
+static void do_a_gpoly_unlit_tr(struct EngineCoord *ec1, struct EngineCoord *ec2, struct EngineCoord *ec3, short textr_id)
 {
-    _DK_do_a_gpoly_unlit_tr(ec1, ec2, ec3, a4); return;
+    int z; // eax
+    struct BasicUnk00 *v5; // ebx
+    int v6; // eax
+    struct BasicUnk00 *v7; // edx
+    struct BasicQ *v8; // ebp
+
+    if ( (ec1->field_8 & (unsigned __int16)(ec2->field_8 & ec3->field_8) & 0x1F8) == 0
+        && (ec3->view_width - ec2->view_width) * (ec1->view_height - ec2->view_height)
+        + (ec3->view_height - ec2->view_height) * (ec2->view_width - ec1->view_width) > 0 )
+    {
+        z = ec1->z;
+        if ( z < ec2->z )
+        z = ec2->z;
+        if ( z < ec3->z )
+        z = ec3->z;
+        v5 = (struct BasicUnk00 *)getpoly;
+        v6 = z / 16;
+        if ( getpoly < poly_pool_end )
+        {
+            v7 = (struct BasicUnk00 *)getpoly;
+            v8 = buckets[v6];
+            getpoly += 68;
+            v5->b.next = v8;
+            v5->b.kind = 0;
+            buckets[v6] = &v5->b;
+            v5->block = textr_id;
+            v5->p1.field_0 = ec1->view_width;
+            v5->p1.field_4 = ec1->view_height;
+            v5->p1.field_8 = 0;
+            v5->p1.field_C = 0;
+            v5->p1.field_10 = (ec1->field_A + 3072) << 8;
+            v5->p2.field_0 = ec2->view_width;
+            v5->p2.field_4 = ec2->view_height;
+            v5->p2.field_8 = 0x1FFFFF;
+            v5->p2.field_C = 0;
+            v5->p2.field_10 = (ec2->field_A + 3072) << 8;
+            v7->p3.field_0 = ec3->view_width;
+            v7->p3.field_4 = ec3->view_height;
+            v7->p3.field_8 = 0x1FFFFF;
+            v7->p3.field_C = 0x1FFFFF;
+            v7->p3.field_10 = (ec3->field_A + 3072) << 8;
+        }
+    }
 }
 
-static void do_a_gpoly_unlit_bl(struct EngineCoord *ec1, struct EngineCoord *ec2, struct EngineCoord *ec3, short a4)
+static void do_a_gpoly_unlit_bl(struct EngineCoord *ec1, struct EngineCoord *ec2, struct EngineCoord *ec3, short textr_id)
 {
-    _DK_do_a_gpoly_unlit_bl(ec1, ec2, ec3, a4); return;
+    int z; // eax
+    struct BasicUnk00 *v5; // ebx
+    int v6; // eax
+    struct BasicQ *v7; // ebp
+
+    if ( (ec1->field_8 & (unsigned __int16)(ec2->field_8 & ec3->field_8) & 0x1F8) == 0
+        && (ec3->view_width - ec2->view_width) * (ec1->view_height - ec2->view_height)
+        + (ec3->view_height - ec2->view_height) * (ec2->view_width - ec1->view_width) > 0 )
+    {
+        z = ec1->z;
+        if ( z < ec2->z )
+        z = ec2->z;
+        if ( z < ec3->z )
+        z = ec3->z;
+        v5 = (struct BasicUnk00 *)getpoly;
+        v6 = z / 16;
+        if ( getpoly < poly_pool_end )
+        {
+        v7 = buckets[v6];
+        getpoly += 68;
+        v5->b.next = v7;
+        v5->b.kind = 0;
+        buckets[v6] = &v5->b;
+        v5->block = textr_id;
+        v5->p1.field_0 = ec1->view_width;
+        v5->p1.field_4 = ec1->view_height;
+        v5->p1.field_8 = 0x1FFFFF;
+        v5->p1.field_C = 0x1FFFFF;
+        v5->p1.field_10 = (ec1->field_A + 3072) << 8;
+        v5->p2.field_0 = ec2->view_width;
+        v5->p2.field_4 = ec2->view_height;
+        v5->p2.field_8 = 0;
+        v5->p2.field_C = 0x1FFFFF;
+        v5->p2.field_10 = (ec2->field_A + 3072) << 8;
+        v5->p3.field_0 = ec3->view_width;
+        v5->p3.field_4 = ec3->view_height;
+        v5->p3.field_8 = 0;
+        v5->p3.field_C = 0;
+        v5->p3.field_10 = (ec3->field_A + 3072) << 8;
+        }
+    }
 }
 
 static void do_a_gpoly_gourad_bl(struct EngineCoord *ec1, struct EngineCoord *ec2, struct EngineCoord *ec3, short textr_id, int a5)
