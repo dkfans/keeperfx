@@ -291,11 +291,15 @@ struct RoomSpace check_roomspace_for_sellable_slabs(struct RoomSpace roomspace, 
         }
     }
     roomspace.total_roomspace_cost = 0;
-    if (roomspace.slab_count != (roomspace.width * roomspace.height))
+    struct PlayerInfoAdd* playeradd = get_playeradd(plyr_idx);
+    if (playeradd->roomspace_mode != drag_placement_mode) // don't alter the roomspace in drag mode
     {
-        if (roomspace.slab_count != 0) // this ensures we show an empty "red" bounding box
+        if (roomspace.slab_count != (roomspace.width * roomspace.height))
         {
-            roomspace.is_roomspace_a_box = false;
+            if (roomspace.slab_count != 0) // this ensures we show an empty "red" bounding box
+            {
+                roomspace.is_roomspace_a_box = false;
+            }
         }
     }
     return roomspace;
