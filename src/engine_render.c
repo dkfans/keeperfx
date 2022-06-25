@@ -2870,7 +2870,7 @@ static void do_a_gpoly_gourad_tr(struct EngineCoord *ec1, struct EngineCoord *ec
         {
             v8 = (struct BasicUnk00 *)getpoly;
             v9 = buckets[v7];
-            getpoly += 68;
+            getpoly += sizeof(struct BasicUnk00);
             v6->b.next = v9;
             polypoint1 = &v6->p1;
             v6->b.kind = 0;
@@ -2930,7 +2930,7 @@ static void do_a_gpoly_unlit_tr(struct EngineCoord *ec1, struct EngineCoord *ec2
         {
             v7 = (struct BasicUnk00 *)getpoly;
             v8 = buckets[v6];
-            getpoly += 68;
+            getpoly += sizeof(struct BasicUnk00);
             v5->b.next = v8;
             v5->b.kind = 0;
             buckets[v6] = &v5->b;
@@ -2976,7 +2976,7 @@ static void do_a_gpoly_unlit_bl(struct EngineCoord *ec1, struct EngineCoord *ec2
         if ( getpoly < poly_pool_end )
         {
         v7 = buckets[v6];
-        getpoly += 68;
+        getpoly += sizeof(struct BasicUnk00);
         v5->b.next = v7;
         v5->b.kind = 0;
         buckets[v6] = &v5->b;
