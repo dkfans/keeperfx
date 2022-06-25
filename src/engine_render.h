@@ -38,8 +38,8 @@ extern "C" {
 #define KEEPERSPRITE_ADD_NUM 2048
 
 enum QKinds {
-    QK_PolyTriangle = 0,
-    QK_PolyTriangleSimp,
+    QK_PolygonTriangle = 0,
+    QK_PolygonTriangleSimp,
     QK_PolyMode0,
     QK_PolyMode4,
     QK_TrigMode2,
@@ -47,17 +47,17 @@ enum QKinds {
     QK_TrigMode3,
     QK_TrigMode6,
     QK_RotableSprite,
-    QK_Unknown9,
+    QK_1stPersonNearPolygonTriangle,
     QK_Unknown10,
     QK_JontySprite,
-    QK_KeeperSprite,
-    QK_ClippedLine,
-    QK_StatusSprites,
+    QK_CreatureShadow,
+    QK_SlabSelector,
+    QK_CreatureStatusSprite,
     QK_TextureQuad,
-    QK_IntegerValue,
-    QK_RoomFlagPole,
+    QK_FloatingGoldText,
+    QK_RoomFlagBottomPole,
     QK_JontyISOSprite,
-    QK_RoomFlagTop,
+    QK_RoomFlagStatusBox,
     QK_Unknown20,
 };
 

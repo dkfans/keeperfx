@@ -1917,7 +1917,7 @@ static void create_line_element(long a1, long a2, long a3, long a4, long bckt_id
     poly = (struct BasicUnk13 *)getpoly;
     getpoly += sizeof(struct BasicUnk13);
     poly->b.next = buckets[bckt_idx];
-    poly->b.kind = QK_ClippedLine;
+    poly->b.kind = QK_SlabSelector;
     buckets[bckt_idx] = (struct BasicQ *)poly;
     if (pixel_size > 0)
     {
@@ -1946,7 +1946,7 @@ static void create_line_segment(struct EngineCoord *start, struct EngineCoord *e
     poly = (struct BasicUnk13 *)getpoly;
     getpoly += sizeof(struct BasicUnk13);
     poly->b.next = buckets[bckt_idx];
-    poly->b.kind = QK_ClippedLine;
+    poly->b.kind = QK_SlabSelector;
     buckets[bckt_idx] = (struct BasicQ *)poly;
     // Fill parameters
     if (pixel_size > 0)
@@ -2668,7 +2668,7 @@ static void add_draw_status_box(struct Thing *thing, struct EngineCoord *ecor)
         return;
     getpoly += sizeof(struct BasicUnk14);
     poly->b.next = buckets[bckt_idx];
-    poly->b.kind = QK_StatusSprites;
+    poly->b.kind = QK_CreatureStatusSprite;
     buckets[bckt_idx] = (struct BasicQ *)poly;
     poly->thing = thing;
     poly->x = coord.view_width;
@@ -4808,30 +4808,30 @@ static void draw_unkn09(struct BasicUnk09 *unk09)
         break;
     }
 }
-void display_drawlist(void)
+void display_drawlist(void) // Draws isometric and 1st person view. Not frontview.
 {
     struct PlayerInfo *player;
     const struct Camera *cam;
     union {
-      struct BasicQ *b;
-      struct BasicUnk00 *unk00;
-      struct BasicUnk01 *unk01;
-      struct BasicUnk02 *unk02;
-      struct BasicUnk03 *unk03;
-      struct BasicUnk04 *unk04;
-      struct BasicUnk05 *unk05;
-      struct BasicUnk06 *unk06;
-      struct BasicUnk07 *unk07;
-      struct RotoSpr *rotSpr;
-      struct BasicUnk09 *unk09;
-      struct BasicUnk10 *unk10;
-      struct JontySpr *jonSpr;
-      struct KeeperSpr *keepSpr;
-      struct BasicUnk13 *unk13;
-      struct BasicUnk14 *unk14;
-      struct TexturedQuad *txquad;
-      struct Number *number;
-      struct RoomFlag *roomFlg;
+        struct BasicQ *b;
+        struct BasicUnk00 *unk00;
+        struct BasicUnk01 *unk01;
+        struct BasicUnk02 *unk02;
+        struct BasicUnk03 *unk03;
+        struct BasicUnk04 *unk04;
+        struct BasicUnk05 *unk05;
+        struct BasicUnk06 *unk06;
+        struct BasicUnk07 *unk07;
+        struct RotoSpr *rotSpr;
+        struct BasicUnk09 *unk09;
+        struct BasicUnk10 *unk10;
+        struct JontySpr *jonSpr;
+        struct KeeperSpr *keepSpr;
+        struct BasicUnk13 *unk13;
+        struct BasicUnk14 *unk14;
+        struct TexturedQuad *txquad;
+        struct Number *number;
+        struct RoomFlag *roomFlg;
     } item;
     long bucket_num;
     struct PolyPoint point_a;
@@ -4846,179 +4846,197 @@ void display_drawlist(void)
     thing_pointed_at = 0;
     for (bucket_num = BUCKETS_COUNT-1; bucket_num > 0; bucket_num--)
     {
-      for (item.b = buckets[bucket_num]; item.b != NULL; item.b = item.b->next)
-      {
-        //JUSTLOG("%d",(int)item.b->kind);
-        switch ( item.b->kind )
+        for (item.b = buckets[bucket_num]; item.b != NULL; item.b = item.b->next)
         {
-        case QK_PolyTriangle: // Used in dungeon view and FAR part of FPS view
-          vec_mode = VM_Unknown5;
-          vec_map = block_ptrs[item.unk00->block];
-          draw_gpoly(&item.unk00->p1, &item.unk00->p2, &item.unk00->p3);
-          break;
-        case QK_PolyTriangleSimp:
-          vec_mode = VM_Unknown7;
-          vec_colour = ((item.unk01->p3.field_10 + item.unk01->p2.field_10 + item.unk01->p1.field_10)/3) >> 16;
-          vec_map = block_ptrs[item.unk01->block];
-          trig(&item.unk01->p1, &item.unk01->p2, &item.unk01->p3);
-          break;
-        case QK_PolyMode0:
-          vec_mode = VM_Unknown0;
-          vec_colour = item.unk02->colour;
-          point_a.field_0 = item.unk02->x1;
-          point_a.field_4 = item.unk02->y1;
-          point_b.field_0 = item.unk02->x2;
-          point_b.field_4 = item.unk02->y2;
-          point_c.field_0 = item.unk02->x3;
-          point_c.field_4 = item.unk02->y3;
-          draw_gpoly(&point_a, &point_b, &point_c);
-          break;
-        case QK_PolyMode4:
-          vec_mode = VM_Unknown4;
-          vec_colour = item.unk03->colour;
-          point_a.field_0 = item.unk03->x1;
-          point_a.field_4 = item.unk03->y1;
-          point_b.field_0 = item.unk03->x2;
-          point_b.field_4 = item.unk03->y2;
-          point_c.field_0 = item.unk03->x3;
-          point_c.field_4 = item.unk03->y3;
-          point_a.field_10 = item.unk03->vf1 << 16;
-          point_b.field_10 = item.unk03->vf2 << 16;
-          point_c.field_10 = item.unk03->vf3 << 16;
-          draw_gpoly(&point_a, &point_b, &point_c);
-          break;
-        case QK_TrigMode2:
-          vec_mode = VM_Unknown2;
-          point_a.field_0 = item.unk04->x1;
-          point_a.field_4 = item.unk04->y1;
-          point_b.field_0 = item.unk04->x2;
-          point_b.field_4 = item.unk04->y2;
-          point_c.field_0 = item.unk04->x3;
-          point_c.field_4 = item.unk04->y3;
-          point_a.field_8 = item.unk04->uf1 << 16;
-          point_a.field_C = item.unk04->vf1 << 16;
-          point_b.field_8 = item.unk04->uf2 << 16;
-          point_b.field_C = item.unk04->vf2 << 16;
-          point_c.field_8 = item.unk04->uf3 << 16;
-          point_c.field_C = item.unk04->vf3 << 16;
-          trig(&point_a, &point_b, &point_c);
-          break;
-        case QK_PolyMode5:
-          vec_mode = VM_Unknown5;
-          point_a.field_0 = item.unk05->x1;
-          point_a.field_4 = item.unk05->y1;
-          point_b.field_0 = item.unk05->x2;
-          point_b.field_4 = item.unk05->y2;
-          point_c.field_0 = item.unk05->x3;
-          point_c.field_4 = item.unk05->y3;
-          point_a.field_8 = item.unk05->uf1 << 16;
-          point_a.field_C = item.unk05->vf1 << 16;
-          point_b.field_8 = item.unk05->uf2 << 16;
-          point_b.field_C = item.unk05->vf2 << 16;
-          point_c.field_8 = item.unk05->uf3 << 16;
-          point_c.field_C = item.unk05->vf3 << 16;
-          point_a.field_10 = item.unk05->wf1 << 16;
-          point_b.field_10 = item.unk05->wf2 << 16;
-          point_c.field_10 = item.unk05->wf3 << 16;
-          draw_gpoly(&point_a, &point_b, &point_c);
-          break;
-        case QK_TrigMode3:
-          vec_mode = VM_Unknown3;
-          point_a.field_0 = item.unk06->x1;
-          point_a.field_4 = item.unk06->y1;
-          point_b.field_0 = item.unk06->x2;
-          point_b.field_4 = item.unk06->y2;
-          point_c.field_0 = item.unk06->x3;
-          point_c.field_4 = item.unk06->y3;
-          point_a.field_8 = item.unk06->uf1 << 16;
-          point_a.field_C = item.unk06->vf1 << 16;
-          point_b.field_8 = item.unk06->uf2 << 16;
-          point_b.field_C = item.unk06->vf2 << 16;
-          point_c.field_8 = item.unk06->uf3 << 16;
-          point_c.field_C = item.unk06->vf3 << 16;
-          trig(&point_a, &point_b, &point_c);
-          break;
-        case QK_TrigMode6:
-          vec_mode = VM_Unknown6;
-          point_a.field_0 = item.unk07->x1;
-          point_a.field_4 = item.unk07->y1;
-          point_b.field_0 = item.unk07->x2;
-          point_b.field_4 = item.unk07->y2;
-          point_c.field_0 = item.unk07->x3;
-          point_c.field_4 = item.unk07->y3;
-          point_a.field_8 = item.unk07->uf1 << 16;
-          point_a.field_C = item.unk07->vf1 << 16;
-          point_b.field_8 = item.unk07->uf2 << 16;
-          point_b.field_C = item.unk07->vf2 << 16;
-          point_c.field_8 = item.unk07->uf3 << 16;
-          point_c.field_C = item.unk07->vf3 << 16;
-          point_a.field_10 = item.unk07->wf1 << 16;
-          point_b.field_10 = item.unk07->wf2 << 16;
-          point_c.field_10 = item.unk07->wf3 << 16;
-          trig(&point_a, &point_b, &point_c);
-          break;
-        case QK_RotableSprite:
-          draw_map_who(item.rotSpr);
-          break;
-        case QK_Unknown9:
-          draw_unkn09(item.unk09);
-          break;
-        case QK_Unknown10:
-          vec_mode = VM_Unknown0;
-          vec_colour = item.unk10->field_6;
-          draw_gpoly(&item.unk10->p1, &item.unk10->p2, &item.unk10->p3);
-          break;
-        case QK_JontySprite:
-          draw_jonty_mapwho(item.jonSpr);
-          break;
-        case QK_KeeperSprite:
-          draw_keepsprite_unscaled_in_buffer(item.keepSpr->field_5C, item.keepSpr->field_58, item.keepSpr->field_5E, scratch);
-          vec_map = scratch;
-          vec_mode = VM_Unknown10;
-          vec_colour = item.keepSpr->p1.field_10;
-          trig(&item.keepSpr->p1, &item.keepSpr->p2, &item.keepSpr->p3);
-          trig(&item.keepSpr->p1, &item.keepSpr->p3, &item.keepSpr->p4);
-          break;
-        case QK_ClippedLine:
-          draw_clipped_line(item.unk13->p.field_0,item.unk13->p.field_4,item.unk13->p.field_8,item.unk13->p.field_C,item.unk13->p.field_10);
-          break;
-        case QK_StatusSprites:
-          player = get_my_player();
-          cam = player->acamera;
-          if (cam != NULL)
-          {
-              if ((cam->view_mode == PVM_IsometricView) || (cam->view_mode == PVM_FrontView)) {
-                  // Status sprites grow smaller slower than zoom
-                  int status_zoom;
-                  status_zoom = (camera_zoom+CAMERA_ZOOM_MAX)/2;
-                  draw_status_sprites(item.unk14->x, item.unk14->y, item.unk14->thing, status_zoom*16/units_per_pixel);
-              }
-          }
-          break;
-        case QK_IntegerValue:
-          draw_engine_number(item.number);
-          break;
-        case QK_RoomFlagPole:
-          draw_engine_room_flagpole(item.roomFlg);
-          break;
-        case QK_JontyISOSprite:
-          player = get_my_player();
-          cam = player->acamera;
-          if (cam != NULL)
-          {
-            if (cam->view_mode == PVM_IsometricView)
-              draw_jonty_mapwho(item.jonSpr);
-          }
-          break;
-        case QK_RoomFlagTop:
-          draw_engine_room_flag_top(item.roomFlg);
-          break;
-        default:
-          render_problems++;
-          render_prob_kind = item.b->kind;
-          break;
+            //JUSTLOG("%d",(int)item.b->kind);
+            switch ( item.b->kind )
+            {
+            case QK_PolygonTriangle: // All textured polygons for isometric and 'far' textures in 1st person view
+                vec_mode = VM_Unknown5;
+                vec_map = block_ptrs[item.unk00->block];
+                draw_gpoly(&item.unk00->p1, &item.unk00->p2, &item.unk00->p3);
+                break;
+            case QK_PolygonTriangleSimp: // ?
+                if (game.play_gameturn % 2 == 0) { // Flash on and off so we can identify what this is!
+                    vec_mode = VM_Unknown7;
+                    vec_colour = ((item.unk01->p3.field_10 + item.unk01->p2.field_10 + item.unk01->p1.field_10)/3) >> 16;
+                    vec_map = block_ptrs[item.unk01->block];
+                    trig(&item.unk01->p1, &item.unk01->p2, &item.unk01->p3);
+                }
+                break;
+            case QK_PolyMode0: // ?
+                if (game.play_gameturn % 2 == 0) { // Flash on and off so we can identify what this is!
+                    vec_mode = VM_Unknown0;
+                    vec_colour = item.unk02->colour;
+                    point_a.field_0 = item.unk02->x1;
+                    point_a.field_4 = item.unk02->y1;
+                    point_b.field_0 = item.unk02->x2;
+                    point_b.field_4 = item.unk02->y2;
+                    point_c.field_0 = item.unk02->x3;
+                    point_c.field_4 = item.unk02->y3;
+                    draw_gpoly(&point_a, &point_b, &point_c);
+                }
+                break;
+            case QK_PolyMode4: // ?
+                if (game.play_gameturn % 2 == 0) { // Flash on and off so we can identify what this is!
+                    vec_mode = VM_Unknown4;
+                    vec_colour = item.unk03->colour;
+                    point_a.field_0 = item.unk03->x1;
+                    point_a.field_4 = item.unk03->y1;
+                    point_b.field_0 = item.unk03->x2;
+                    point_b.field_4 = item.unk03->y2;
+                    point_c.field_0 = item.unk03->x3;
+                    point_c.field_4 = item.unk03->y3;
+                    point_a.field_10 = item.unk03->vf1 << 16;
+                    point_b.field_10 = item.unk03->vf2 << 16;
+                    point_c.field_10 = item.unk03->vf3 << 16;
+                    draw_gpoly(&point_a, &point_b, &point_c);
+                }
+                break;
+            case QK_TrigMode2: // ?
+                if (game.play_gameturn % 2 == 0) { // Flash on and off so we can identify what this is!
+                    vec_mode = VM_Unknown2;
+                    point_a.field_0 = item.unk04->x1;
+                    point_a.field_4 = item.unk04->y1;
+                    point_b.field_0 = item.unk04->x2;
+                    point_b.field_4 = item.unk04->y2;
+                    point_c.field_0 = item.unk04->x3;
+                    point_c.field_4 = item.unk04->y3;
+                    point_a.field_8 = item.unk04->uf1 << 16;
+                    point_a.field_C = item.unk04->vf1 << 16;
+                    point_b.field_8 = item.unk04->uf2 << 16;
+                    point_b.field_C = item.unk04->vf2 << 16;
+                    point_c.field_8 = item.unk04->uf3 << 16;
+                    point_c.field_C = item.unk04->vf3 << 16;
+                    trig(&point_a, &point_b, &point_c);
+                }
+                break;
+            case QK_PolyMode5: // ?
+            if (game.play_gameturn % 2 == 0) { // Flash on and off so we can identify what this is!
+                    vec_mode = VM_Unknown5;
+                    point_a.field_0 = item.unk05->x1;
+                    point_a.field_4 = item.unk05->y1;
+                    point_b.field_0 = item.unk05->x2;
+                    point_b.field_4 = item.unk05->y2;
+                    point_c.field_0 = item.unk05->x3;
+                    point_c.field_4 = item.unk05->y3;
+                    point_a.field_8 = item.unk05->uf1 << 16;
+                    point_a.field_C = item.unk05->vf1 << 16;
+                    point_b.field_8 = item.unk05->uf2 << 16;
+                    point_b.field_C = item.unk05->vf2 << 16;
+                    point_c.field_8 = item.unk05->uf3 << 16;
+                    point_c.field_C = item.unk05->vf3 << 16;
+                    point_a.field_10 = item.unk05->wf1 << 16;
+                    point_b.field_10 = item.unk05->wf2 << 16;
+                    point_c.field_10 = item.unk05->wf3 << 16;
+                    draw_gpoly(&point_a, &point_b, &point_c);
+                }
+                break;
+            case QK_TrigMode3: // ?
+                if (game.play_gameturn % 2 == 0) { // Flash on and off so we can identify what this is!
+                    vec_mode = VM_Unknown3;
+                    point_a.field_0 = item.unk06->x1;
+                    point_a.field_4 = item.unk06->y1;
+                    point_b.field_0 = item.unk06->x2;
+                    point_b.field_4 = item.unk06->y2;
+                    point_c.field_0 = item.unk06->x3;
+                    point_c.field_4 = item.unk06->y3;
+                    point_a.field_8 = item.unk06->uf1 << 16;
+                    point_a.field_C = item.unk06->vf1 << 16;
+                    point_b.field_8 = item.unk06->uf2 << 16;
+                    point_b.field_C = item.unk06->vf2 << 16;
+                    point_c.field_8 = item.unk06->uf3 << 16;
+                    point_c.field_C = item.unk06->vf3 << 16;
+                    trig(&point_a, &point_b, &point_c);
+                }
+                break;
+            case QK_TrigMode6: // ?
+                if (game.play_gameturn % 2 == 0) { // Flash on and off so we can identify what this is!
+                    vec_mode = VM_Unknown6;
+                    point_a.field_0 = item.unk07->x1;
+                    point_a.field_4 = item.unk07->y1;
+                    point_b.field_0 = item.unk07->x2;
+                    point_b.field_4 = item.unk07->y2;
+                    point_c.field_0 = item.unk07->x3;
+                    point_c.field_4 = item.unk07->y3;
+                    point_a.field_8 = item.unk07->uf1 << 16;
+                    point_a.field_C = item.unk07->vf1 << 16;
+                    point_b.field_8 = item.unk07->uf2 << 16;
+                    point_b.field_C = item.unk07->vf2 << 16;
+                    point_c.field_8 = item.unk07->uf3 << 16;
+                    point_c.field_C = item.unk07->vf3 << 16;
+                    point_a.field_10 = item.unk07->wf1 << 16;
+                    point_b.field_10 = item.unk07->wf2 << 16;
+                    point_c.field_10 = item.unk07->wf3 << 16;
+                    trig(&point_a, &point_b, &point_c);
+                }
+                break;
+            case QK_RotableSprite: // ?
+                if (game.play_gameturn % 2 == 0) { // Flash on and off so we can identify what this is!
+                    draw_map_who(item.rotSpr);
+                }
+                break;
+            case QK_1stPersonNearPolygonTriangle: // 'Near' textures (closest to camera) in 1st person view
+                    draw_unkn09(item.unk09);
+                break;
+            case QK_Unknown10: // ?
+                if (game.play_gameturn % 2 == 0) { // Flash on and off so we can identify what this is!
+                    vec_mode = VM_Unknown0;
+                    vec_colour = item.unk10->field_6;
+                    draw_gpoly(&item.unk10->p1, &item.unk10->p2, &item.unk10->p3);
+                }
+                break;
+            case QK_JontySprite: // All creatures and things in isometric and 1st person view
+                draw_jonty_mapwho(item.jonSpr);
+                break;
+            case QK_CreatureShadow: // Shadows of creatures in isometric and 1st person view
+                draw_keepsprite_unscaled_in_buffer(item.keepSpr->field_5C, item.keepSpr->field_58, item.keepSpr->field_5E, scratch);
+                vec_map = scratch;
+                vec_mode = VM_Unknown10;
+                vec_colour = item.keepSpr->p1.field_10;
+                trig(&item.keepSpr->p1, &item.keepSpr->p2, &item.keepSpr->p3);
+                trig(&item.keepSpr->p1, &item.keepSpr->p3, &item.keepSpr->p4);
+                break;
+            case QK_SlabSelector: // Selection outline box for placing/digging slabs
+                draw_clipped_line(item.unk13->p.field_0,item.unk13->p.field_4,item.unk13->p.field_8,item.unk13->p.field_C,item.unk13->p.field_10);
+                break;
+            case QK_CreatureStatusSprite: // Status flower above creature heads
+                player = get_my_player();
+                cam = player->acamera;
+                if (cam != NULL)
+                {
+                    // Status sprite grows smaller slower than zoom
+                    int status_zoom;
+                    status_zoom = (camera_zoom+CAMERA_ZOOM_MAX)/2;
+                    draw_status_sprites(item.unk14->x, item.unk14->y, item.unk14->thing, status_zoom*16/units_per_pixel);
+                }
+                break;
+            case QK_FloatingGoldText: // Floating gold text when placing or selling a slab
+                draw_engine_number(item.number);
+                break;
+            case QK_RoomFlagBottomPole: // The bottom pole part, doesn't affect the status sitting on top of the pole
+                draw_engine_room_flagpole(item.roomFlg);
+                break;
+            case QK_JontyISOSprite: // ?
+                if (game.play_gameturn % 2 == 0) { // Flash on and off so we can identify what this is!
+                    player = get_my_player();
+                    cam = player->acamera;
+                    if (cam != NULL)
+                    {
+                        if (cam->view_mode == PVM_IsometricView)
+                        draw_jonty_mapwho(item.jonSpr);
+                    }
+                }
+                break;
+            case QK_RoomFlagStatusBox: // The status sitting on top of the pole
+                draw_engine_room_flag_top(item.roomFlg);
+                break;
+            default:
+                render_problems++;
+                render_prob_kind = item.b->kind;
+                break;
+            }
         }
-      }
     }
     if (render_problems > 0)
       WARNLOG("Incurred %lu rendering problems; last was with poly kind %ld",render_problems,render_prob_kind);
@@ -5288,29 +5306,29 @@ static void draw_texturedquad_block(struct TexturedQuad *txquad)
     }
 }
 
-static void display_fast_drawlist(struct Camera *cam)
+static void display_fast_drawlist(struct Camera *cam) // Draws frontview only. Not isometric or 1st person view.
 {
     int bucket_num;
     union {
-      struct BasicQ *b;
-      struct BasicUnk00 *unk00;
-      struct BasicUnk01 *unk01;
-      struct BasicUnk02 *unk02;
-      struct BasicUnk03 *unk03;
-      struct BasicUnk04 *unk04;
-      struct BasicUnk05 *unk05;
-      struct BasicUnk06 *unk06;
-      struct BasicUnk07 *unk07;
-      struct RotoSpr *rotSpr;
-      struct BasicUnk09 *unk09;
-      struct BasicUnk10 *unk10;
-      struct JontySpr *jonSpr;
-      struct KeeperSpr *unk12;
-      struct BasicUnk13 *unk13;
-      struct BasicUnk14 *unk14;
-      struct TexturedQuad *txquad;
-      struct Number *number;
-      struct RoomFlag *roomFlg;
+        struct BasicQ *b;
+        struct BasicUnk00 *unk00;
+        struct BasicUnk01 *unk01;
+        struct BasicUnk02 *unk02;
+        struct BasicUnk03 *unk03;
+        struct BasicUnk04 *unk04;
+        struct BasicUnk05 *unk05;
+        struct BasicUnk06 *unk06;
+        struct BasicUnk07 *unk07;
+        struct RotoSpr *rotSpr;
+        struct BasicUnk09 *unk09;
+        struct BasicUnk10 *unk10;
+        struct JontySpr *jonSpr;
+        struct KeeperSpr *unk12;
+        struct BasicUnk13 *unk13;
+        struct BasicUnk14 *unk14;
+        struct TexturedQuad *txquad;
+        struct Number *number;
+        struct RoomFlag *roomFlg;
     } item;
     // Color rendering array pointers used by draw_keepersprite()
     render_fade_tables = pixmap.fade_tables;
@@ -5324,31 +5342,31 @@ static void display_fast_drawlist(struct Camera *cam)
         {
             switch (item.b->kind)
             {
-            case QK_JontySprite:
+            case QK_JontySprite: // Creatures and things
                 draw_fastview_mapwho(cam, item.jonSpr);
                 break;
-            case QK_ClippedLine:
+            case QK_SlabSelector: // Selection outline box for placing/digging slabs
                 draw_clipped_line(item.unk13->p.field_0,item.unk13->p.field_4,item.unk13->p.field_8,item.unk13->p.field_C,item.unk13->p.field_10);
                 break;
-            case QK_StatusSprites:
+            case QK_CreatureStatusSprite: // Status flower above creature heads
                 if (pixel_size == 1)
                     draw_status_sprites(item.unk14->x, item.unk14->y, item.unk14->thing, 48*256);
                 else
                     draw_status_sprites(item.unk14->x, item.unk14->y, item.unk14->thing, 16*256);
                 break;
-            case QK_TextureQuad:
+            case QK_TextureQuad: // Textured polygons
                 draw_texturedquad_block(item.txquad);
                 break;
-            case QK_IntegerValue:
+            case QK_FloatingGoldText: // Floating gold text when placing or selling a slab
                 draw_engine_number(item.number);
                 break;
-            case QK_RoomFlagPole:
+            case QK_RoomFlagBottomPole: // The bottom pole part, doesn't affect the status sitting on top of the pole
                 draw_engine_room_flagpole(item.roomFlg);
                 break;
-            case QK_JontyISOSprite:
+            case QK_JontyISOSprite: // ?
                 draw_iso_only_fastview_mapwho(cam, item.jonSpr);
                 break;
-            case QK_RoomFlagTop:
+            case QK_RoomFlagStatusBox: // The status sitting on top of the pole
                 draw_engine_room_flag_top(item.roomFlg);
                 break;
             default:
@@ -5424,7 +5442,7 @@ static void create_status_box_element(struct Thing *thing, long a2, long a3, lon
     poly = (struct BasicUnk14 *)getpoly;
     getpoly += sizeof(struct BasicUnk14);
     poly->b.next = buckets[bckt_idx];
-    poly->b.kind = QK_StatusSprites;
+    poly->b.kind = QK_CreatureStatusSprite;
     buckets[bckt_idx] = (struct BasicQ *)poly;
     poly->thing = thing;
     if (pixel_size > 0)
@@ -5505,7 +5523,7 @@ static void add_number_to_polypool(long x, long y, long number, long bckt_idx)
     poly = (struct Number *)getpoly;
     getpoly += sizeof(struct Number);
     poly->b.next = buckets[bckt_idx];
-    poly->b.kind = QK_IntegerValue;
+    poly->b.kind = QK_FloatingGoldText;
     buckets[bckt_idx] = (struct BasicQ *)poly;
     if (pixel_size > 0)
     {
@@ -5526,7 +5544,7 @@ static void add_room_flag_pole_to_polypool(long x, long y, long room_idx, long b
     poly = (struct RoomFlag *)getpoly;
     getpoly += sizeof(struct RoomFlag);
     poly->b.next = buckets[bckt_idx];
-    poly->b.kind = QK_RoomFlagPole;
+    poly->b.kind = QK_RoomFlagBottomPole;
     buckets[bckt_idx] = (struct BasicQ *)poly;
     if (pixel_size > 0)
     {
@@ -5547,7 +5565,7 @@ static void add_room_flag_top_to_polypool(long x, long y, long room_idx, long bc
     poly = (struct RoomFlag *)getpoly;
     getpoly += sizeof(struct RoomFlag);
     poly->b.next = buckets[bckt_idx];
-    poly->b.kind = QK_RoomFlagTop;
+    poly->b.kind = QK_RoomFlagStatusBox;
     buckets[bckt_idx] = (struct BasicQ *)poly;
     if (pixel_size > 0)
     {
