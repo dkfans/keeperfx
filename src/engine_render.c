@@ -2842,17 +2842,18 @@ void do_a_plane_of_engine_columns_perspective(long stl_x, long stl_y, long plane
 
 static void do_a_gpoly_gourad_tr(struct EngineCoord *ec1, struct EngineCoord *ec2, struct EngineCoord *ec3, short textr_id, int a5)
 {
-    int z; // eax
-    struct BasicUnk00 *v6; // ebx
-    int v7; // eax
-    struct BasicUnk00 *v8; // edx
-    struct BasicQ *v9; // ebp
-    int *v10; // ebp
-    int v11; // ebx
-    struct PolyPoint *v12; // ebp
-    int *v13; // edx
-    int v14; // [esp+10h] [ebp-8h]
-    int v15; // [esp+14h] [ebp-4h]
+    //BasicUnk00 in this function could also be BasicUnk01 or BasicUnk10 idk all 3 pretty similar
+    int z;
+    struct BasicUnk00 *v6;
+    int v7;
+    struct BasicUnk00 *v8;
+    struct BasicQ *v9;
+    struct PolyPoint *polypoint1;
+    struct PolyPoint *polypoint2;
+    struct PolyPoint *polypoint3;
+    int ec1_fieldA;
+    int ec2_fieldA;
+    int ec3_fieldA;
 
     if ( (ec1->field_8 & (unsigned __int16)(ec2->field_8 & ec3->field_8) & 0x1F8) == 0
         && (ec2->view_width - ec1->view_width) * (ec3->view_height - ec2->view_height)
@@ -2871,36 +2872,36 @@ static void do_a_gpoly_gourad_tr(struct EngineCoord *ec1, struct EngineCoord *ec
             v9 = buckets[v7];
             getpoly += 68;
             v6->b.next = v9;
-            v10 = &v6->p1.field_0;
+            polypoint1 = &v6->p1;
             v6->b.kind = 0;
             buckets[v7] = &v6->b;
             v6->block = textr_id;
-            v14 = ec1->field_A;
-            v15 = ec2->field_A;
-            v11 = ec3->field_A;
+            ec1_fieldA = ec1->field_A;
+            ec2_fieldA = ec2->field_A;
+            ec3_fieldA = ec3->field_A;
             if ( a5 >= 0 )
             {
-                v14 = (4 * v14 * (a5 + 0x4000)) >> 17;
-                v15 = (4 * v15 * (a5 + 0x4000)) >> 17;
-                v11 = (4 * (a5 + 0x4000) * v11) >> 17;
+                ec1_fieldA = (4 * ec1_fieldA * (a5 + 0x4000)) >> 17;
+                ec2_fieldA = (4 * ec2_fieldA * (a5 + 0x4000)) >> 17;
+                ec3_fieldA = (4 * (a5 + 0x4000) * ec3_fieldA) >> 17;
             }
-            *v10 = ec1->view_width;
-            v10[1] = ec1->view_height;
-            v10[2] = 0;
-            v10[3] = 0;
-            v10[4] = v14 << 8;
-            v12 = &v8->p2;
+            polypoint1->field_0 = ec1->view_width;
+            polypoint1->field_4 = ec1->view_height;
+            polypoint1->field_8 = 0;
+            polypoint1->field_C = 0;
+            polypoint1->field_10 = ec1_fieldA << 8;
+            polypoint2 = &v8->p2;
             v8->p2.field_0 = ec2->view_width;
-            v13 = &v8->p3.field_0;
-            v12->field_4 = ec2->view_height;
-            v12->field_8 = 0x1FFFFF;
-            v12->field_C = 0;
-            v12->field_10 = v15 << 8;
-            *v13 = ec3->view_width;
-            v13[1] = ec3->view_height;
-            v13[2] = 0x1FFFFF;
-            v13[3] = 0x1FFFFF;
-            v13[4] = v11 << 8;
+            polypoint3 = &v8->p3;
+            polypoint2->field_4 = ec2->view_height;
+            polypoint2->field_8 = 0x1FFFFF;
+            polypoint2->field_C = 0;
+            polypoint2->field_10 = ec2_fieldA << 8;
+            polypoint3->field_0 = ec3->view_width;
+            polypoint3->field_4 = ec3->view_height;
+            polypoint3->field_8 = 0x1FFFFF;
+            polypoint3->field_C = 0x1FFFFF;
+            polypoint3->field_10 = ec3_fieldA << 8;
         }
     }
 }
@@ -2917,8 +2918,69 @@ static void do_a_gpoly_unlit_bl(struct EngineCoord *ec1, struct EngineCoord *ec2
 
 static void do_a_gpoly_gourad_bl(struct EngineCoord *ec1, struct EngineCoord *ec2, struct EngineCoord *ec3, short textr_id, int a5)
 {
+    //BasicUnk00 in this function could also be BasicUnk01 or BasicUnk10 idk all 3 pretty similar
 
-    _DK_do_a_gpoly_gourad_bl(ec1, ec2, ec3, textr_id, a5); return;
+    int z;
+    struct BasicUnk00 *v6;
+    int zdiv16;
+    struct BasicUnk00 *poly_ptr;
+    struct BasicQ *v9;
+    int ec1_fieldA;
+    int ec2_fieldA;
+    int ec3_fieldA;
+    struct PolyPoint *polypoint2;
+    struct PolyPoint *polypoint3;
+    struct PolyPoint *polypoint1;
+
+    if ( (ec1->field_8 & (unsigned __int16)(ec2->field_8 & ec3->field_8) & 0x1F8) == 0
+        && (ec3->view_height - ec2->view_height) * (ec2->view_width - ec1->view_width)
+        + (ec1->view_height - ec2->view_height) * (ec3->view_width - ec2->view_width) > 0 )
+    {
+        z = ec1->z;
+        if ( z < ec2->z )
+        z = ec2->z;
+        if ( z < ec3->z )
+        z = ec3->z;
+        v6 = (struct BasicUnk00 *)getpoly;
+        zdiv16 = z / 16;
+        if ( getpoly < poly_pool_end )
+        {
+            poly_ptr = (struct BasicUnk00 *)getpoly;
+            v9 = buckets[zdiv16];
+            getpoly += sizeof(struct BasicUnk00);
+            v6->b.next = v9;
+            polypoint1 = &v6->p1;
+            v6->b.kind = 0;
+            buckets[zdiv16] = &v6->b;
+            v6->block = textr_id;
+            ec1_fieldA = ec1->field_A;
+            ec2_fieldA = ec2->field_A;
+            ec3_fieldA = ec3->field_A;
+            if ( a5 >= 0 )
+            {
+                ec1_fieldA = (4 * (a5 + 0x4000) * ec1_fieldA) >> 17;
+                ec2_fieldA = (4 * (a5 + 0x4000) * ec2_fieldA) >> 17;
+                ec3_fieldA = (4 * (a5 + 0x4000) * ec3_fieldA) >> 17;
+            }
+            polypoint1->field_0 = ec1->view_width;
+            polypoint2 = &poly_ptr->p2;
+            polypoint1->field_4 = ec1->view_height;
+            polypoint1->field_8 = 0x1FFFFF;
+            polypoint1->field_C = 0x1FFFFF;
+            polypoint1->field_10 = ec1_fieldA << 8;
+            poly_ptr->p2.field_0 = ec2->view_width;
+            polypoint3 = &poly_ptr->p3;
+            polypoint2->field_4 = ec2->view_height;
+            polypoint2->field_8 = 0;
+            polypoint2->field_C = 0x1FFFFF;
+            polypoint2->field_10 = ec2_fieldA << 8;
+            polypoint3->field_0 = ec3->view_width;
+            polypoint3->field_4 = ec3->view_height;
+            polypoint3->field_8 = 0;
+            polypoint3->field_C = 0;
+            polypoint3->field_10 = ec3_fieldA << 8;
+        }
+    }
 
 /*
     JUSTLOG("BasicQ %d",sizeof(struct BasicQ));
