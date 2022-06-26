@@ -315,8 +315,6 @@ void startup_network_game(CoroutineLoop *context, TbBool local)
     setup_count_players(); // It is reset by init_level
     int args[COROUTINE_ARGS] = {ShouldAssignCpuKeepers, 0};
     coroutine_add_args(context, &startup_network_game_tail, args);
-    struct PlayerInfoAdd* playeradd = get_my_playeradd();
-    playeradd->cheat_menu_active = cheat_menu_is_active();
 }
 
 static CoroutineLoopState startup_network_game_tail(CoroutineLoop *context)

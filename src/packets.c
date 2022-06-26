@@ -131,7 +131,7 @@ struct Room *keeper_build_room(long stl_x,long stl_y,long plyr_idx,long rkind)
 {
     struct PlayerInfo* player = get_player(plyr_idx);
     struct Dungeon* dungeon = get_players_dungeon(player);
-    struct RoomStats* rstat = room_stats_get_for_kind(rkind);
+    struct RoomConfigStats* roomst = get_room_kind_stats(rkind);
     // Take top left subtile on single subtile boundbox, take center subtile on full slab boundbox
     MapCoord x = ((player->full_slab_cursor == 0) ? slab_subtile(subtile_slab_fast(stl_x), 0) : slab_subtile_center(subtile_slab_fast(stl_x)));
     MapCoord y = ((player->full_slab_cursor == 0) ? slab_subtile(subtile_slab_fast(stl_y), 0) : slab_subtile_center(subtile_slab_fast(stl_y)));
@@ -148,7 +148,7 @@ struct Room *keeper_build_room(long stl_x,long stl_y,long plyr_idx,long rkind)
         }
         struct Coord3d pos;
         set_coords_to_slab_center(&pos, subtile_slab_fast(stl_x), subtile_slab_fast(stl_y));
-        create_price_effect(&pos, plyr_idx, rstat->cost);
+        create_price_effect(&pos, plyr_idx, roomst->cost);
     }
     return room;
 }
@@ -212,8 +212,8 @@ TbBool player_sell_room_at_subtile(long plyr_idx, long stl_x, long stl_y)
         ERRORLOG("No room to delete at subtile (%d,%d)",(int)stl_x,(int)stl_y);
         return false;
     }
-    struct RoomStats* rstat = room_stats_get_for_room(room);
-    long revenue = compute_value_percentage(rstat->cost, gameadd.room_sale_percent);
+    struct RoomConfigStats* roomst = get_room_kind_stats(room->kind);
+    long revenue = compute_value_percentage(roomst->cost, gameadd.room_sale_percent);
     if (room->owner != game.neutral_player_num)
     {
         struct Dungeon* dungeon = get_players_num_dungeon(room->owner);
@@ -963,11 +963,6 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
         playeradd->roomspace_no_default = true;
         return false;
     }
-    case PckA_ToggleCheatMenuStatus:
-    {
-        playeradd->cheat_menu_active = (TbBool)pckt->actn_par1;
-        return false;
-    }
     default:
       return process_players_global_cheats_packet_action(plyr_idx, pckt);
   }
@@ -1165,6 +1160,12 @@ void process_players_creature_control_packet_control(long idx)
                     }
                 }
             }
+            else
+            {
+                inst_inf = creature_instance_info_get(i);
+                n = get_human_controlled_creature_target(cctng, inst_inf->field_1D);
+                set_creature_instance(cctng, i, 1, n, 0);
+            }
         }
     }
     if ((pckt->control_flags & PCtr_LBtnHeld) != 0)
@@ -1187,41 +1188,37 @@ void process_players_creature_control_packet_control(long idx)
             }
         }
     }
-    struct PlayerInfoAdd* playeradd = get_playeradd(idx);
-    if (!playeradd->cheat_menu_active)
+    struct CreatureStats* crstat = creature_stats_get_from_thing(cctng);
+    i = pckt->pos_y;
+    if (i < 5)
+        i = 5;
+    else
+    if (i > 250)
+        i = 250;
+    long k = i - 127;
+    long angle = (pckt->pos_x - 127) / player->field_14;
+    if (angle != 0)
     {
-        struct CreatureStats* crstat = creature_stats_get_from_thing(cctng);
-        i = pckt->pos_y;
-        if (i < 5)
-          i = 5;
+        if (angle < -32)
+            angle = -32;
         else
-        if (i > 250)
-          i = 250;
-        long k = i - 127;
-        long angle = (pckt->pos_x - 127) / player->field_14;
-        if (angle != 0)
-        {
-          if (angle < -32)
-              angle = -32;
-          else
-          if (angle > 32)
-              angle = 32;
-          ccctrl->field_6C += 56 * angle / 32;
-        }
-        long angle_limit = crstat->max_angle_change;
-        if (angle_limit < 1)
-            angle_limit = 1;
-        angle = ccctrl->field_6C;
-        if (angle < -angle_limit)
-            angle = -angle_limit;
-        else
-        if (angle > angle_limit)
-            angle = angle_limit;
-        cctng->move_angle_xy = (cctng->move_angle_xy + angle) & LbFPMath_AngleMask;
-        cctng->move_angle_z = (227 * k / 127) & LbFPMath_AngleMask;
-        ccctrl->field_CC = 170 * angle / angle_limit;
-        ccctrl->field_6C = 4 * angle / 8;
+        if (angle > 32)
+            angle = 32;
+        ccctrl->field_6C += 56 * angle / 32;
     }
+    long angle_limit = crstat->max_angle_change;
+    if (angle_limit < 1)
+        angle_limit = 1;
+    angle = ccctrl->field_6C;
+    if (angle < -angle_limit)
+        angle = -angle_limit;
+    else
+    if (angle > angle_limit)
+        angle = angle_limit;
+    cctng->move_angle_xy = (cctng->move_angle_xy + angle) & LbFPMath_AngleMask;
+    cctng->move_angle_z = (227 * k / 127) & LbFPMath_AngleMask;
+    ccctrl->field_CC = 170 * angle / angle_limit;
+    ccctrl->field_6C = 4 * angle / 8;
 }
 
 void process_players_creature_control_packet_action(long plyr_idx)
@@ -1286,10 +1283,19 @@ void process_players_creature_control_packet_action(long plyr_idx)
         break;
       i = pckt->actn_par1;
       inst_inf = creature_instance_info_get(i);
-      k = (!inst_inf->instant) ? get_human_controlled_creature_target(thing, inst_inf->field_1D) : 0;
-      set_creature_instance(thing, i, 1, k, 0);
-      if ( (plyr_idx == my_player_number) && creature_instance_is_available(thing,i) ) {
-          instant_instance_selected(i);
+      if (!inst_inf->instant)
+      {
+        cctrl->active_instance_id = i;
+      } else
+      if (cctrl->instance_id == CrInst_NULL)
+      {
+          i = pckt->actn_par1;
+          inst_inf = creature_instance_info_get(i);
+          k = get_human_controlled_creature_target(thing, inst_inf->field_1D);
+          set_creature_instance(thing, i, 1, k, 0);
+          if (plyr_idx == my_player_number) {
+              instant_instance_selected(i);
+          }
       }
       break;
       case PckA_DirectCtrlDragDrop:

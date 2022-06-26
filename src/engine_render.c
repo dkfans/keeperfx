@@ -2840,24 +2840,230 @@ void do_a_plane_of_engine_columns_perspective(long stl_x, long stl_y, long plane
     }
 }
 
-static void do_a_gpoly_gourad_tr(struct EngineCoord *ec1, struct EngineCoord *ec2, struct EngineCoord *ec3, short a4, int a5)
+static void do_a_gpoly_gourad_tr(struct EngineCoord *ec1, struct EngineCoord *ec2, struct EngineCoord *ec3, short textr_id, int a5)
 {
-    _DK_do_a_gpoly_gourad_tr(ec1, ec2, ec3, a4, a5); return;
+    //BasicUnk00 in this function could also be BasicUnk01 or BasicUnk10 idk all 3 pretty similar
+    int z;
+    struct BasicUnk00 *v6;
+    int v7;
+    struct BasicUnk00 *v8;
+    struct BasicQ *v9;
+    struct PolyPoint *polypoint1;
+    struct PolyPoint *polypoint2;
+    struct PolyPoint *polypoint3;
+    int ec1_fieldA;
+    int ec2_fieldA;
+    int ec3_fieldA;
+
+    if ( (ec1->field_8 & (unsigned __int16)(ec2->field_8 & ec3->field_8) & 0x1F8) == 0
+        && (ec2->view_width - ec1->view_width) * (ec3->view_height - ec2->view_height)
+        + (ec1->view_height - ec2->view_height) * (ec3->view_width - ec2->view_width) > 0 )
+    {
+        z = ec1->z;
+        if ( z < ec2->z )
+        z = ec2->z;
+        if ( z < ec3->z )
+        z = ec3->z;
+        v6 = (struct BasicUnk00 *)getpoly;
+        v7 = z / 16;
+        if ( getpoly < poly_pool_end )
+        {
+            v8 = (struct BasicUnk00 *)getpoly;
+            v9 = buckets[v7];
+            getpoly += sizeof(struct BasicUnk00);
+            v6->b.next = v9;
+            polypoint1 = &v6->p1;
+            v6->b.kind = 0;
+            buckets[v7] = &v6->b;
+            v6->block = textr_id;
+            ec1_fieldA = ec1->field_A;
+            ec2_fieldA = ec2->field_A;
+            ec3_fieldA = ec3->field_A;
+            if ( a5 >= 0 )
+            {
+                ec1_fieldA = (4 * ec1_fieldA * (a5 + 0x4000)) >> 17;
+                ec2_fieldA = (4 * ec2_fieldA * (a5 + 0x4000)) >> 17;
+                ec3_fieldA = (4 * (a5 + 0x4000) * ec3_fieldA) >> 17;
+            }
+            polypoint1->field_0 = ec1->view_width;
+            polypoint1->field_4 = ec1->view_height;
+            polypoint1->field_8 = 0;
+            polypoint1->field_C = 0;
+            polypoint1->field_10 = ec1_fieldA << 8;
+            polypoint2 = &v8->p2;
+            v8->p2.field_0 = ec2->view_width;
+            polypoint3 = &v8->p3;
+            polypoint2->field_4 = ec2->view_height;
+            polypoint2->field_8 = 0x1FFFFF;
+            polypoint2->field_C = 0;
+            polypoint2->field_10 = ec2_fieldA << 8;
+            polypoint3->field_0 = ec3->view_width;
+            polypoint3->field_4 = ec3->view_height;
+            polypoint3->field_8 = 0x1FFFFF;
+            polypoint3->field_C = 0x1FFFFF;
+            polypoint3->field_10 = ec3_fieldA << 8;
+        }
+    }
 }
 
-static void do_a_gpoly_unlit_tr(struct EngineCoord *ec1, struct EngineCoord *ec2, struct EngineCoord *ec3, short a4)
+static void do_a_gpoly_unlit_tr(struct EngineCoord *ec1, struct EngineCoord *ec2, struct EngineCoord *ec3, short textr_id)
 {
-    _DK_do_a_gpoly_unlit_tr(ec1, ec2, ec3, a4); return;
+    //BasicUnk00 in this function could also be BasicUnk01 or BasicUnk10 idk all 3 pretty similar
+    int z;
+    struct BasicUnk00 *v5;
+    int v6;
+    struct BasicUnk00 *v7;
+    struct BasicQ *v8;
+
+    if ( (ec1->field_8 & (unsigned __int16)(ec2->field_8 & ec3->field_8) & 0x1F8) == 0
+        && (ec3->view_width - ec2->view_width) * (ec1->view_height - ec2->view_height)
+        + (ec3->view_height - ec2->view_height) * (ec2->view_width - ec1->view_width) > 0 )
+    {
+        z = ec1->z;
+        if ( z < ec2->z )
+        z = ec2->z;
+        if ( z < ec3->z )
+        z = ec3->z;
+        v5 = (struct BasicUnk00 *)getpoly;
+        v6 = z / 16;
+        if ( getpoly < poly_pool_end )
+        {
+            v7 = (struct BasicUnk00 *)getpoly;
+            v8 = buckets[v6];
+            getpoly += sizeof(struct BasicUnk00);
+            v5->b.next = v8;
+            v5->b.kind = 0;
+            buckets[v6] = &v5->b;
+            v5->block = textr_id;
+            v5->p1.field_0 = ec1->view_width;
+            v5->p1.field_4 = ec1->view_height;
+            v5->p1.field_8 = 0;
+            v5->p1.field_C = 0;
+            v5->p1.field_10 = (ec1->field_A + 3072) << 8;
+            v5->p2.field_0 = ec2->view_width;
+            v5->p2.field_4 = ec2->view_height;
+            v5->p2.field_8 = 0x1FFFFF;
+            v5->p2.field_C = 0;
+            v5->p2.field_10 = (ec2->field_A + 3072) << 8;
+            v7->p3.field_0 = ec3->view_width;
+            v7->p3.field_4 = ec3->view_height;
+            v7->p3.field_8 = 0x1FFFFF;
+            v7->p3.field_C = 0x1FFFFF;
+            v7->p3.field_10 = (ec3->field_A + 3072) << 8;
+        }
+    }
 }
 
-static void do_a_gpoly_unlit_bl(struct EngineCoord *ec1, struct EngineCoord *ec2, struct EngineCoord *ec3, short a4)
+static void do_a_gpoly_unlit_bl(struct EngineCoord *ec1, struct EngineCoord *ec2, struct EngineCoord *ec3, short textr_id)
 {
-    _DK_do_a_gpoly_unlit_bl(ec1, ec2, ec3, a4); return;
+    //BasicUnk00 in this function could also be BasicUnk01 or BasicUnk10 idk all 3 pretty similar
+    int z;
+    struct BasicUnk00 *v5;
+    int v6;
+    struct BasicQ *v7;
+
+    if ( (ec1->field_8 & (unsigned __int16)(ec2->field_8 & ec3->field_8) & 0x1F8) == 0
+        && (ec3->view_width - ec2->view_width) * (ec1->view_height - ec2->view_height)
+        + (ec3->view_height - ec2->view_height) * (ec2->view_width - ec1->view_width) > 0 )
+    {
+        z = ec1->z;
+        if ( z < ec2->z )
+        z = ec2->z;
+        if ( z < ec3->z )
+        z = ec3->z;
+        v5 = (struct BasicUnk00 *)getpoly;
+        v6 = z / 16;
+        if ( getpoly < poly_pool_end )
+        {
+        v7 = buckets[v6];
+        getpoly += sizeof(struct BasicUnk00);
+        v5->b.next = v7;
+        v5->b.kind = 0;
+        buckets[v6] = &v5->b;
+        v5->block = textr_id;
+        v5->p1.field_0 = ec1->view_width;
+        v5->p1.field_4 = ec1->view_height;
+        v5->p1.field_8 = 0x1FFFFF;
+        v5->p1.field_C = 0x1FFFFF;
+        v5->p1.field_10 = (ec1->field_A + 3072) << 8;
+        v5->p2.field_0 = ec2->view_width;
+        v5->p2.field_4 = ec2->view_height;
+        v5->p2.field_8 = 0;
+        v5->p2.field_C = 0x1FFFFF;
+        v5->p2.field_10 = (ec2->field_A + 3072) << 8;
+        v5->p3.field_0 = ec3->view_width;
+        v5->p3.field_4 = ec3->view_height;
+        v5->p3.field_8 = 0;
+        v5->p3.field_C = 0;
+        v5->p3.field_10 = (ec3->field_A + 3072) << 8;
+        }
+    }
 }
 
-static void do_a_gpoly_gourad_bl(struct EngineCoord *ec1, struct EngineCoord *ec2, struct EngineCoord *ec3, short a4, int a5)
+static void do_a_gpoly_gourad_bl(struct EngineCoord *ec1, struct EngineCoord *ec2, struct EngineCoord *ec3, short textr_id, int a5)
 {
-    _DK_do_a_gpoly_gourad_bl(ec1, ec2, ec3, a4, a5); return;
+    //BasicUnk00 in this function could also be BasicUnk01 or BasicUnk10 idk all 3 pretty similar
+    int z;
+    struct BasicUnk00 *v6;
+    int zdiv16;
+    struct BasicUnk00 *poly_ptr;
+    struct BasicQ *v9;
+    int ec1_fieldA;
+    int ec2_fieldA;
+    int ec3_fieldA;
+    struct PolyPoint *polypoint2;
+    struct PolyPoint *polypoint3;
+    struct PolyPoint *polypoint1;
+
+    if ( (ec1->field_8 & (unsigned __int16)(ec2->field_8 & ec3->field_8) & 0x1F8) == 0
+        && (ec3->view_height - ec2->view_height) * (ec2->view_width - ec1->view_width)
+        + (ec1->view_height - ec2->view_height) * (ec3->view_width - ec2->view_width) > 0 )
+    {
+        z = ec1->z;
+        if ( z < ec2->z )
+        z = ec2->z;
+        if ( z < ec3->z )
+        z = ec3->z;
+        v6 = (struct BasicUnk00 *)getpoly;
+        zdiv16 = z / 16;
+        if ( getpoly < poly_pool_end )
+        {
+            poly_ptr = (struct BasicUnk00 *)getpoly;
+            v9 = buckets[zdiv16];
+            getpoly += sizeof(struct BasicUnk00);
+            v6->b.next = v9;
+            polypoint1 = &v6->p1;
+            v6->b.kind = 0;
+            buckets[zdiv16] = &v6->b;
+            v6->block = textr_id;
+            ec1_fieldA = ec1->field_A;
+            ec2_fieldA = ec2->field_A;
+            ec3_fieldA = ec3->field_A;
+            if ( a5 >= 0 )
+            {
+                ec1_fieldA = (4 * (a5 + 0x4000) * ec1_fieldA) >> 17;
+                ec2_fieldA = (4 * (a5 + 0x4000) * ec2_fieldA) >> 17;
+                ec3_fieldA = (4 * (a5 + 0x4000) * ec3_fieldA) >> 17;
+            }
+            polypoint1->field_0 = ec1->view_width;
+            polypoint2 = &poly_ptr->p2;
+            polypoint1->field_4 = ec1->view_height;
+            polypoint1->field_8 = 0x1FFFFF;
+            polypoint1->field_C = 0x1FFFFF;
+            polypoint1->field_10 = ec1_fieldA << 8;
+            poly_ptr->p2.field_0 = ec2->view_width;
+            polypoint3 = &poly_ptr->p3;
+            polypoint2->field_4 = ec2->view_height;
+            polypoint2->field_8 = 0;
+            polypoint2->field_C = 0x1FFFFF;
+            polypoint2->field_10 = ec2_fieldA << 8;
+            polypoint3->field_0 = ec3->view_width;
+            polypoint3->field_4 = ec3->view_height;
+            polypoint3->field_8 = 0;
+            polypoint3->field_C = 0;
+            polypoint3->field_10 = ec3_fieldA << 8;
+        }
+    }
 }
 
 void do_a_plane_of_engine_columns_cluedo(long stl_x, long stl_y, long plane_start, long plane_end)

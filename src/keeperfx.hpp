@@ -245,8 +245,9 @@ DLLIMPORT unsigned char *_DK_lightning_palette;
 // Variables inside the main module
 extern TbClockMSec last_loop_time;
 extern short default_loc_player;
-extern struct GuiBox *gui_box;
-extern struct GuiBox *gui_cheat_box;
+extern struct GuiBox *gui_cheat_box_1;
+extern struct GuiBox *gui_cheat_box_2;
+extern struct GuiBox *gui_cheat_box_3;
 extern int test_variable;
 extern struct StartupParameters start_params;
 
@@ -294,7 +295,6 @@ void clear_game_for_save(void);
 void clear_complete_game(void);
 void clear_things_and_persons_data(void);
 void clear_computer(void);
-TbBool swap_creature(long ncrt_id, long crtr_id);
 void engine(struct PlayerInfo *player, struct Camera *cam);
 void draw_gold_total(PlayerNumber plyr_idx, long scr_x, long scr_y, long units_per_px, long long value);
 void draw_mini_things_in_hand(long x, long y);

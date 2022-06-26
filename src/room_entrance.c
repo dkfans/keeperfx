@@ -300,7 +300,7 @@ TbBool generate_creature_at_random_entrance(struct Dungeon * dungeon, ThingModel
 {
     SYNCDBG(9,"Starting");
 
-    struct Room* room = pick_random_room(dungeon->owner, RoK_ENTRANCE);
+    struct Room* room = pick_random_room_of_role(dungeon->owner, RoRoF_CrPoolSpawn);
     if (room_is_invalid(room))
     {
         ERRORLOG("Could not get a random entrance for player %d",(int)dungeon->owner);

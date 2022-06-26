@@ -1136,7 +1136,7 @@ struct Room *player_build_room_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Play
 {
     struct PlayerInfo* player = get_player(plyr_idx);
     struct Dungeon* dungeon = get_players_dungeon(player);
-    struct RoomStats* rstat = room_stats_get_for_kind(rkind);
+    struct RoomConfigStats* roomst = get_room_kind_stats(rkind);
     // Check if we are allowed to build the room
     if (!is_room_available(plyr_idx, rkind)) {
         // It shouldn't be possible to select unavailable room
@@ -1170,9 +1170,9 @@ struct Room *player_build_room_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Play
     {
         player->boxsize++;
     }
-    if (dungeon->total_money_owned >= rstat->cost * player->boxsize)
+    if (dungeon->total_money_owned >= roomst->cost * player->boxsize)
     {
-        if (take_money_from_dungeon(plyr_idx, rstat->cost, 1) < 0)
+        if (take_money_from_dungeon(plyr_idx, roomst->cost, 1) < 0)
         {
             if (is_my_player(player))
                 output_message(SMsg_GoldNotEnough, 0, true);
