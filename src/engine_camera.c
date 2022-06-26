@@ -475,7 +475,7 @@ void update_player_camera_fp(struct Camera *cam, struct Thing *thing)
     if ( thing_is_creature(thing) )
     {
         if ( cctrl->move_speed && thing->floor_height >= thing->mappos.z.val )
-            cctrl->bob_direction =  direction;
+            cctrl->bob_direction =  16 * direction;
         else
             cctrl->bob_direction = 0;
 
