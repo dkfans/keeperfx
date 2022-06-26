@@ -4844,6 +4844,8 @@ void display_drawlist(void) // Draws isometric and 1st person view. Not frontvie
     render_alpha = (unsigned char *)&alpha_sprite_table;
     render_problems = 0;
     thing_pointed_at = 0;
+
+    // The bucket list is the final step in drawing something to the screen. Visuals are added to the bucket list in previous functions.
     for (bucket_num = BUCKETS_COUNT-1; bucket_num > 0; bucket_num--)
     {
         for (item.b = buckets[bucket_num]; item.b != NULL; item.b = item.b->next)
@@ -4856,13 +4858,13 @@ void display_drawlist(void) // Draws isometric and 1st person view. Not frontvie
                 vec_map = block_ptrs[item.unk00->block];
                 draw_gpoly(&item.unk00->p1, &item.unk00->p2, &item.unk00->p3);
                 break;
-            case QK_PolygonTriangleSimp: // ?
+            case QK_PolygonTriangleSimp: // Possibly unused
                 vec_mode = VM_Unknown7;
                 vec_colour = ((item.unk01->p3.field_10 + item.unk01->p2.field_10 + item.unk01->p1.field_10)/3) >> 16;
                 vec_map = block_ptrs[item.unk01->block];
                 trig(&item.unk01->p1, &item.unk01->p2, &item.unk01->p3);
                 break;
-            case QK_PolyMode0: // ?
+            case QK_PolyMode0: // Possibly unused
                 vec_mode = VM_Unknown0;
                 vec_colour = item.unk02->colour;
                 point_a.field_0 = item.unk02->x1;
@@ -4873,7 +4875,7 @@ void display_drawlist(void) // Draws isometric and 1st person view. Not frontvie
                 point_c.field_4 = item.unk02->y3;
                 draw_gpoly(&point_a, &point_b, &point_c);
                 break;
-            case QK_PolyMode4: // ?
+            case QK_PolyMode4: // Possibly unused
                 vec_mode = VM_Unknown4;
                 vec_colour = item.unk03->colour;
                 point_a.field_0 = item.unk03->x1;
@@ -4887,7 +4889,7 @@ void display_drawlist(void) // Draws isometric and 1st person view. Not frontvie
                 point_c.field_10 = item.unk03->vf3 << 16;
                 draw_gpoly(&point_a, &point_b, &point_c);
                 break;
-            case QK_TrigMode2: // ?
+            case QK_TrigMode2: // Possibly unused
                 vec_mode = VM_Unknown2;
                 point_a.field_0 = item.unk04->x1;
                 point_a.field_4 = item.unk04->y1;
@@ -4903,7 +4905,7 @@ void display_drawlist(void) // Draws isometric and 1st person view. Not frontvie
                 point_c.field_C = item.unk04->vf3 << 16;
                 trig(&point_a, &point_b, &point_c);
                 break;
-            case QK_PolyMode5: // ?
+            case QK_PolyMode5: // Possibly unused
                 vec_mode = VM_Unknown5;
                 point_a.field_0 = item.unk05->x1;
                 point_a.field_4 = item.unk05->y1;
@@ -4922,7 +4924,7 @@ void display_drawlist(void) // Draws isometric and 1st person view. Not frontvie
                 point_c.field_10 = item.unk05->wf3 << 16;
                 draw_gpoly(&point_a, &point_b, &point_c);
                 break;
-            case QK_TrigMode3: // ?
+            case QK_TrigMode3: // Possibly unused
                 vec_mode = VM_Unknown3;
                 point_a.field_0 = item.unk06->x1;
                 point_a.field_4 = item.unk06->y1;
@@ -4938,7 +4940,7 @@ void display_drawlist(void) // Draws isometric and 1st person view. Not frontvie
                 point_c.field_C = item.unk06->vf3 << 16;
                 trig(&point_a, &point_b, &point_c);
                 break;
-            case QK_TrigMode6: // ?
+            case QK_TrigMode6: // Possibly unused
                 vec_mode = VM_Unknown6;
                 point_a.field_0 = item.unk07->x1;
                 point_a.field_4 = item.unk07->y1;
@@ -4957,13 +4959,13 @@ void display_drawlist(void) // Draws isometric and 1st person view. Not frontvie
                 point_c.field_10 = item.unk07->wf3 << 16;
                 trig(&point_a, &point_b, &point_c);
                 break;
-            case QK_RotableSprite: // ?
+            case QK_RotableSprite: // Possibly unused
                 draw_map_who(item.rotSpr);
                 break;
-            case QK_1stPersonNearPolygonTriangle: // 'Near' textures (closest to camera) in 1st person view
+            case QK_PolygonNearFP: // 'Near' textured polygons (closer to camera) in 1st person view
                 draw_unkn09(item.unk09);
                 break;
-            case QK_Unknown10: // ?
+            case QK_Unknown10: // Possibly unused
                 vec_mode = VM_Unknown0;
                 vec_colour = item.unk10->field_6;
                 draw_gpoly(&item.unk10->p1, &item.unk10->p2, &item.unk10->p3);
@@ -5343,7 +5345,7 @@ static void display_fast_drawlist(struct Camera *cam) // Draws frontview only. N
             case QK_RoomFlagBottomPole: // The bottom pole part, doesn't affect the status sitting on top of the pole
                 draw_engine_room_flagpole(item.roomFlg);
                 break;
-            case QK_JontyISOSprite: // ?
+            case QK_JontyISOSprite: // Possibly unused
                 draw_iso_only_fastview_mapwho(cam, item.jonSpr);
                 break;
             case QK_RoomFlagStatusBox: // The status sitting on top of the pole

@@ -47,7 +47,7 @@ enum QKinds {
     QK_TrigMode3,
     QK_TrigMode6,
     QK_RotableSprite,
-    QK_1stPersonNearPolygonTriangle,
+    QK_PolygonNearFP,
     QK_Unknown10,
     QK_JontySprite,
     QK_CreatureShadow,
