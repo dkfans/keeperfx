@@ -173,7 +173,6 @@ const struct MyLookup lookup[] = {
 /******************************************************************************/
 DLLIMPORT long _DK_count_creatures_in_call_to_arms(struct Computer2 *comp);
 DLLIMPORT struct ComputerTask *_DK_get_free_task(struct Computer2 *comp, long basestl_y);
-DLLIMPORT int _DK_search_spiral(struct Coord3d *pos, int owner, int i3, long (*cb)(long, long, long));
 DLLIMPORT long _DK_other_build_here(struct Computer2 *comp, long a2, long round_directn, long plyr_idx, long slabs_dist);
 /******************************************************************************/
 #ifdef __cplusplus
@@ -1892,7 +1891,66 @@ long check_for_gold(MapSubtlCoord basestl_x, MapSubtlCoord basestl_y, long plyr_
 int search_spiral_f(struct Coord3d *pos, PlayerNumber owner, int i3, long (*cb)(MapSubtlCoord, MapSubtlCoord, long), const char *func_name)
 {
     SYNCDBG(7,"%s: Starting at (%d,%d)",func_name,pos->x.stl.num,pos->y.stl.num);
-    long retval = _DK_search_spiral(pos, owner, i3, cb);
+   
+    int v4;
+    MapSubtlCoord stl_x;
+    MapSubtlCoord stl_y;
+    int v6;
+    int v7;
+    int v8;
+    int result;
+    int v12;
+    char i;
+    int v14;
+    int v15;
+
+    v4 = 0;
+    stl_x = pos->x.stl.num;
+    stl_y = pos->y.stl.num;
+    v6 = 0;
+    v12 = 0;
+    for ( i = 0; ; ++i )
+    {
+        if ( (i & 1) != 0 )
+            ++v12;
+        v7 = v12;
+        v14 = lookup[v6].delta_x;
+        v15 = lookup[v6].delta_y;
+        if ( v12 )
+            break;
+    LABEL_10:
+        v6 = (v6 + 1) & 3;
+    }
+
+
+    while ( 1 )
+    {
+        if ( stl_x < map_subtiles_x && stl_y < map_subtiles_y )
+        {
+            v8 = cb(stl_x, stl_y, owner);
+            if ( v8 )
+                break;
+            if ( ++v4 >= i3 )
+                return v4;
+        }
+        --v7;
+        stl_y += v15;
+        stl_x += v14;
+        if ( !v7 )
+            goto LABEL_10;
+    }
+    result = v4;
+    pos->x.stl.num = stl_x;
+    pos->y.stl.num = stl_y;
+    if ( v8 == -1 )
+        return -v4;
+    return result;
+
+
+
+    int retval;
+
+
     SYNCDBG(8,"%s: Finished with %d",func_name,(int)retval);
 
     return retval;
