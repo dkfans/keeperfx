@@ -55,7 +55,6 @@ extern "C" {
 /******************************************************************************/
 DLLIMPORT long _DK_check_out_unreinforced_place(struct Thing *creatng);
 DLLIMPORT long _DK_check_out_unreinforced_area(struct Thing *creatng);
-DLLIMPORT struct Thing *_DK_check_place_to_pickup_gold(struct Thing *creatng, long stl_x, long stl_y);
 DLLIMPORT long _DK_imp_will_soon_be_converting_at_excluding(struct Thing *creatng, long slb_x, long slb_y);
 DLLIMPORT long _DK_imp_already_reinforcing_at_excluding(struct Thing *creatng, long stl_x, long stl_y);
 /******************************************************************************/
@@ -2162,7 +2161,6 @@ struct Thing *check_place_to_pickup_dead_body(struct Thing *creatng, long stl_x,
 }
 
 struct Thing* check_place_to_pickup_gold(struct Thing* thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
-//return _DK_check_place_to_pickup_gold(thing, stl_x, stl_y);
 {
     struct Map* mapblk = get_map_block_at(stl_x, stl_y);
     unsigned long k = 0;
@@ -2230,19 +2228,26 @@ struct Thing *check_place_to_pickup_spell(struct Thing *spdigtng, MapSubtlCoord 
 
 struct Thing *check_place_to_pickup_unconscious_body(struct Thing *spdigtng, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    // return _DK_check_place_to_pickup_unconscious_body(thing, a2, a3);
     struct Map* mapblk = get_map_block_at(stl_x, stl_y);
     struct Thing *thing = thing_get(get_mapwho_thing_index(mapblk));
+    unsigned long k = 0;
     if (thing_is_invalid(thing))
-      return INVALID_THING;
+        return INVALID_THING;
     while ( thing->class_id != TCls_Creature
          || thing->owner == spdigtng->owner
          || thing->active_state != CrSt_CreatureUnconscious
          || (thing->state_flags & TF1_IsDragged1) != 0 )
     {
-      thing = thing_get(thing->next_on_mapblk);
-      if (thing_is_invalid(thing))
-        return INVALID_THING;
+        thing = thing_get(thing->next_on_mapblk);
+        if (thing_is_invalid(thing))
+            return INVALID_THING;
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break_mapwho_infinite_chain(mapblk);
+            break;
+        }
     }
     return thing;
 }
