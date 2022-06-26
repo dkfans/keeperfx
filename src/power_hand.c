@@ -527,7 +527,7 @@ void draw_power_hand(void)
     struct Thing *thing;
     struct Thing *picktng;
     struct Room *room;
-    struct RoomData *rdata;
+    struct RoomConfigStats* roomst;
     player = get_my_player();
     if ((player->flgfield_6 & PlaF6_Unknown01) != 0)
         return;
@@ -559,8 +559,9 @@ void draw_power_hand(void)
         room = subtile_room_get(stl_x,stl_y);
         if ((!room_is_invalid(room)) && (subtile_revealed(stl_x, stl_y, player->id_number)))
         {
-            rdata = room_data_get_for_room(room);
-            draw_gui_panel_sprite_centered(GetMouseX()+scale_ui_value(24), GetMouseY()+scale_ui_value(32), ps_units_per_px, rdata->medsym_sprite_idx);
+            roomst = get_room_kind_stats(room->kind);
+            
+            draw_gui_panel_sprite_centered(GetMouseX()+scale_ui_value(24), GetMouseY()+scale_ui_value(32), ps_units_per_px, roomst->medsym_sprite_idx);
         }
         if ((!power_hand_is_empty(player)) && (game.small_map_state == 1))
         {

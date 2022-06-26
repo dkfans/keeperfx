@@ -341,7 +341,7 @@ short creature_choose_room_for_lair_site(struct Thing *thing)
     struct Room* room = get_best_new_lair_for_creature(thing);
     if (room_is_invalid(room))
     {
-        update_cannot_find_room_wth_spare_capacity_event(thing->owner, thing, get_room_for_job(Job_TAKE_SLEEP));
+        update_cannot_find_room_of_role_wth_spare_capacity_event(thing->owner, thing, get_room_role_for_job(Job_TAKE_SLEEP));
         set_start_state(thing);
         return 0;
     }

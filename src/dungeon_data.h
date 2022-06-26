@@ -21,6 +21,7 @@
 
 #include "bflib_basics.h"
 #include "config_trapdoor.h"
+#include "config_terrain.h"
 #include "player_computer.h"
 #include "globals.h"
 #include "dungeon_stats.h"
@@ -105,7 +106,7 @@ struct Dungeon {
     unsigned char creature_tendencies;
     unsigned char field_9;
     unsigned char computer_enabled;
-    unsigned short room_kind[ROOM_TYPES_COUNT];
+    unsigned short room_kind_old[ROOM_TYPES_COUNT_OLD];
     short creatr_list_start;
     short digger_list_start;
     short field_31;
@@ -127,7 +128,7 @@ struct Dungeon {
     short field_5A4[9];//originally was [15], but seem unused
     unsigned char trap_amount_offmap_[TRAP_TYPES_COUNT];
     unsigned char door_amount_offmap_[DOOR_TYPES_COUNT_OLD];
-    unsigned char room_slabs_count[ROOM_TYPES_COUNT+1];
+    unsigned char room_slabs_count_OLD[ROOM_TYPES_COUNT_OLD+1];
     int sight_casted_gameturn;
     short sight_casted_thing_idx;
     unsigned char sight_casted_splevel;
@@ -197,8 +198,8 @@ struct Dungeon {
     int current_research_idx;
     unsigned char research_num;
     unsigned char field_F7D_UNUSED;
-    unsigned char room_buildable[ROOM_TYPES_COUNT];
-    unsigned char room_resrchable[ROOM_TYPES_COUNT];
+    unsigned char room_buildable_OLD[ROOM_TYPES_COUNT_OLD];
+    unsigned char room_resrchable_OLD[ROOM_TYPES_COUNT_OLD];
     /** How many creatures are force-enabled for each kind.
      * Force-enabled creature can come from portal without additional conditions,
      * but only until dungeon has up to given amount of their kind. */
@@ -322,6 +323,10 @@ struct DungeonAdd
     struct ComputerInfo   computer_info;
     long event_last_run_turn[EVENT_KIND_COUNT];
     long script_flags[SCRIPT_FLAGS_COUNT];
+    unsigned short room_kind[TERRAIN_ITEMS_MAX];
+    unsigned char room_buildable[TERRAIN_ITEMS_MAX];
+    unsigned char room_resrchable[TERRAIN_ITEMS_MAX];
+    unsigned char room_slabs_count[TERRAIN_ITEMS_MAX+1];
 
 };
 /******************************************************************************/
@@ -330,13 +335,16 @@ extern struct DungeonAdd bad_dungeonadd;
 /******************************************************************************/
 struct Dungeon *get_players_num_dungeon_f(long plyr_idx,const char *func_name);
 struct Dungeon *get_players_dungeon_f(const struct PlayerInfo *player,const char *func_name);
+struct DungeonAdd *get_players_dungeonadd_f(const struct PlayerInfo *player,const char *func_name);
 struct Dungeon *get_dungeon_f(PlayerNumber plyr_num,const char *func_name);
 struct DungeonAdd *get_dungeonadd_f(PlayerNumber plyr_num,const char *func_name);
 #define get_players_num_dungeon(plyr_idx) get_players_num_dungeon_f(plyr_idx,__func__)
 #define get_players_dungeon(player) get_players_dungeon_f(player,__func__)
+#define get_players_dungeonadd(player) get_players_dungeonadd_f(player,__func__)
 #define get_dungeon(plyr_idx) get_dungeon_f(plyr_idx,__func__)
 #define get_dungeonadd(plyr_idx) get_dungeonadd_f(plyr_idx,__func__)
 #define get_my_dungeon() get_players_num_dungeon_f(my_player_number,__func__)
+struct DungeonAdd *get_dungeonadd_by_dungeon(const struct Dungeon *dungeon);
 
 TbBool dungeon_invalid(const struct Dungeon *dungeon);
 TbBool dungeonadd_invalid(const struct DungeonAdd *dungeonadd);
@@ -357,9 +365,10 @@ const struct Coord3d *dungeon_get_essential_pos(PlayerNumber plyr_idx);
 TbBool player_has_heart(PlayerNumber plyr_idx);
 struct Thing *get_player_soul_container(PlayerNumber plyr_idx);
 
-TbBool player_has_room(PlayerNumber plyr_idx, RoomKind rkind);
 TbBool player_has_room_of_role(PlayerNumber plyr_idx, RoomRole rrole);
 TbBool dungeon_has_room(const struct Dungeon *dungeon, RoomKind rkind);
+TbBool dungeon_has_room_of_role(const struct Dungeon *dungeon, RoomRole rrole);
+long count_player_slabs_of_rooms_with_role(PlayerNumber plyr_idx, RoomRole rrole);
 
 TbBool set_creature_tendencies(struct PlayerInfo *player, unsigned short tend_type, TbBool val);
 TbBool toggle_creature_tendencies(struct PlayerInfo *player, unsigned short tend_type);

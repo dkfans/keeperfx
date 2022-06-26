@@ -716,9 +716,9 @@ TbBool find_temple_pool(int player_idx, struct Coord3d *pos)
 {
     struct Room *best_room = NULL;
     long max_value = 0;
-    struct Dungeon *dungeon = get_dungeon(player_idx);
+    struct DungeonAdd *dungeonadd = get_dungeonadd(player_idx);
 
-    int k = 0, i = dungeon->room_kind[RoK_TEMPLE];
+    int k = 0, i = dungeonadd->room_kind[RoK_TEMPLE];
     while (i != 0)
     {
         struct Room* room = room_get(i);
