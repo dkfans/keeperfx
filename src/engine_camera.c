@@ -444,11 +444,9 @@ void update_player_camera_fp(struct Camera *cam, struct Thing *thing)
     int pos_x;
     int pos_y;
     short camHeight;
-    int v12;
     short v13;
     short v15;
-    short v16;
-    int v19;
+    int avg_filled_stl;
     unsigned short move_angle_z;
     int byte16;
     short cam_z_val;
@@ -552,13 +550,13 @@ void update_player_camera_fp(struct Camera *cam, struct Thing *thing)
         struct Map* mapblk4 = get_map_block_at(thing->mappos.x.stl.num + 1, thing->mappos.y.stl.num + 1);
 
 
-        v19 = (((mapblk1->data & 0xF000000u) >> 24 << 8) +
-               ((mapblk2->data & 0xF000000u) >> 24 << 8) +
-               ((mapblk3->data & 0xF000000u) >> 24 << 8) +
-               ((mapblk4->data & 0xF000000u) >> 24 << 8) )/4;
-
-        if ( cam->mappos.z.val > v19 - 64 )
-            cam->mappos.z.val = v19 - 64;
+        avg_filled_stl = ((get_mapblk_filled_subtiles(mapblk1) * COORD_PER_STL) +
+                          (get_mapblk_filled_subtiles(mapblk2) * COORD_PER_STL) +
+                          (get_mapblk_filled_subtiles(mapblk3) * COORD_PER_STL) +
+                          (get_mapblk_filled_subtiles(mapblk4) * COORD_PER_STL) )/4;
+ 
+        if ( cam->mappos.z.val > avg_filled_stl - 64 )
+            cam->mappos.z.val = avg_filled_stl - 64;
 
     }
     else
@@ -577,9 +575,9 @@ void update_player_camera_fp(struct Camera *cam, struct Thing *thing)
             if ( byte16 )
             {
                 if ( byte16 <= 3 )
-                thing->move_angle_z = -116 * byte16 + 2048;
+                    thing->move_angle_z = -116 * byte16 + 2048;
                 else
-                thing->move_angle_z = 116 * byte16 + 1352;
+                    thing->move_angle_z = 116 * byte16 + 1352;
             }
         }
         else
@@ -595,7 +593,7 @@ void update_player_camera_fp(struct Camera *cam, struct Thing *thing)
                 cam->mappos.z.val = v29;
                 v30 = thing->mappos.z.val;
                 if ( v30 + 64 > v29 )
-                cam->mappos.z.val = v30 + 64;
+                    cam->mappos.z.val = v30 + 64;
             }
             else
             {
@@ -603,7 +601,7 @@ void update_player_camera_fp(struct Camera *cam, struct Thing *thing)
                 cam->mappos.z.val = v27;
                 v28 = thing->mappos.z.val;
                 if ( v28 + 64 < v27 )
-                cam->mappos.z.val = v28 + 64;
+                    cam->mappos.z.val = v28 + 64;
             }
         }
     }
