@@ -37,6 +37,7 @@
 #include "spdigger_stack.h"
 #include "frontmenu_ingame_map.h"
 #include "game_legacy.h"
+#include "engine_render.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -44,7 +45,6 @@ extern "C" {
 /******************************************************************************/
 DLLIMPORT void _DK_set_slab_explored_flags(unsigned char flag, long tgslb_x, long tgslb_y);
 DLLIMPORT long _DK_ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey);
-DLLIMPORT long _DK_element_top_face_texture(struct Map *map);
 DLLIMPORT void _DK_shuffle_unattached_things_on_slab(long a1, long stl_x);
 DLLIMPORT void _DK_delete_attached_things_on_slab(long slb_x, long slb_y);
 
@@ -2263,9 +2263,34 @@ long ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey)
     return _DK_ceiling_partially_recompute_heights(sx, sy, ex, ey);
 }
 
-long element_top_face_texture(struct Map *map)
+long element_top_face_texture(struct Map *mapblk)
 {
-  return _DK_element_top_face_texture(map);
+    struct Column *col;
+    unsigned int data = mapblk->data;
+    TbBool map_block_revealed = map_block_revealed_bit(mapblk, player_bit);
+    int result = data & 0x7FF;
+
+    if ( !map_block_revealed || (result != 0) )
+    {
+        if ( map_block_revealed )
+        {
+            col = get_map_column(mapblk);
+        }
+        else
+        {
+            col = get_column(game.unrevealed_column_idx);
+        }
+        if ( (col->bitfields & CLF_FLOOR_MASK) != 0 )
+        {
+            struct CubeAttribs *cubed = &game.cubes_data[col->cubes[get_column_floor_filled_subtiles(col) - 1]];
+            return cubed->texture_id[4];
+        }
+        else
+        {
+            return col->baseblock;
+        }
+    }
+    return result;
 }
 
 TbBool point_in_map_is_solid_ignoring_door(const struct Coord3d *pos, const struct Thing *doortng)
