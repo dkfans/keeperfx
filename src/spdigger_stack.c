@@ -2233,10 +2233,10 @@ struct Thing *check_place_to_pickup_unconscious_body(struct Thing *spdigtng, Map
     unsigned long k = 0;
     if (thing_is_invalid(thing))
         return INVALID_THING;
-    while ( thing->class_id != TCls_Creature
+    while (!thing_is_creature(thing)
          || thing->owner == spdigtng->owner
          || thing->active_state != CrSt_CreatureUnconscious
-         || (thing->state_flags & TF1_IsDragged1) != 0 )
+         || thing_is_dragged_or_pulled(thing))
     {
         thing = thing_get(thing->next_on_mapblk);
         if (thing_is_invalid(thing))
