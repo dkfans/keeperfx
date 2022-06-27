@@ -51,6 +51,8 @@ extern "C" {
 
 // Deprecated. Used only once. Maybe it is sound-specific UNSYNC_RANDOM
 #define SOUND_RANDOM(range) LbRandomSeries(range, &sound_seed, __func__, __LINE__, "sound")
+// Used only once. Maybe it is light-specific UNSYNC_RANDOM
+#define LIGHT_RANDOM(range) LbRandomSeries(range, &game.lish.light_rand_seed, __func__, __LINE__, "light")
 // This RNG should not be used to affect anything related affecting game state
 #define UNSYNC_RANDOM(range) LbRandomSeries(range, &game.unsync_rand_seed, __func__, __LINE__, "unsync")
 // This RNG should be used only for "whole game" events (i.e. from script)
