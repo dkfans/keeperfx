@@ -125,7 +125,6 @@ TbBool tag_cursor_blocks_sell_area(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     {
         colour = SLC_GREEN; // roomspace selling support is basic, this makes roomspace selling work over any slabtype
     }
-    }
     else if (floor_height_z == 1)
     {
         if ( ( ((subtile_is_sellable_room(plyr_idx, stl_x, stl_y)) || ( (slabmap_owner(slb) == plyr_idx) && ( (slab_is_door(slb_x, slb_y))
