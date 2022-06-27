@@ -455,8 +455,8 @@ void go_on_then_activate_the_event_box(PlayerNumber plyr_idx, EventIndex evidx)
         case EvKind_NewRoomResrch:
         {
             other_off = 1;
-            struct RoomData* rdata = room_data_get_for_kind(event->target);
-            i = rdata->name_stridx;
+            const struct RoomConfigStats* roomst = get_room_kind_stats(event->target);
+            i = roomst->name_stridx;
             text = buf_sprintf("%s:\n%s",game.evntbox_scroll_window.text, get_string(i));
             strncpy(game.evntbox_scroll_window.text,text,MESSAGE_TEXT_LEN-1);
             turn_on_menu(GMnu_TEXT_INFO);
@@ -539,8 +539,8 @@ void go_on_then_activate_the_event_box(PlayerNumber plyr_idx, EventIndex evidx)
         case EvKind_StorageRoomUnreachable:
         {
             other_off = 1;
-            struct RoomData* rdata = room_data_get_for_kind(event->target);
-            i = rdata->name_stridx;
+            const struct RoomConfigStats* roomst = get_room_kind_stats(event->target);
+            i = roomst->name_stridx;
             text = buf_sprintf("%s:\n%s",game.evntbox_scroll_window.text,get_string(i));
             strncpy(game.evntbox_scroll_window.text,text,MESSAGE_TEXT_LEN-1);
             turn_on_menu(GMnu_TEXT_INFO);

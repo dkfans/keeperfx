@@ -446,8 +446,8 @@ long find_room_type_capacity_total_percentage(PlayerNumber plyr_idx, RoomKind rk
 {
     int used_cap = 0;
     int total_cap = 0;
-    struct Dungeon* dungeon = get_dungeon(plyr_idx);
-    long i = dungeon->room_kind[rkind];
+    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
+    long i = dungeonadd->room_kind[rkind];
     unsigned long k = 0;
     while (i != 0)
     {
@@ -503,16 +503,16 @@ void gui_area_big_room_button(struct GuiButton *gbtn)
     }
     lbDisplay.DrawFlags &= ~Lb_TEXT_ONE_COLOR;
 
-    struct RoomStats* rstat = room_stats_get_for_kind(rkind);
+    struct RoomConfigStats* roomst = get_room_kind_stats(rkind);
     if ((player->work_state == PSt_BuildRoom) && (player->boxsize > 1))
     {
-        sprintf(gui_textbuf, "%ld", (long)rstat->cost * player->boxsize);
+        sprintf(gui_textbuf, "%ld", (long)roomst->cost * player->boxsize);
     }
     else
     {
-        sprintf(gui_textbuf, "%ld", (long)rstat->cost);
+        sprintf(gui_textbuf, "%ld", (long)roomst->cost);
     }
-    if (rstat->cost * player->boxsize <= dungeon->total_money_owned)
+    if (roomst->cost * player->boxsize <= dungeon->total_money_owned)
     {
         if ((player->work_state == PSt_BuildRoom) && (player->chosen_room_kind == game.chosen_room_kind)
           && ((game.play_gameturn & 1) == 0))
@@ -1024,15 +1024,15 @@ void maintain_big_spell(struct GuiButton *gbtn)
 void maintain_room(struct GuiButton *gbtn)
 {
     RoomKind rkind = (long)gbtn->content;
-    struct Dungeon* dungeon = get_players_num_dungeon(my_player_number);
-    if ((rkind < 1) || (rkind >= ROOM_TYPES_COUNT)) {
+    struct DungeonAdd* dungeonadd = get_dungeonadd(my_player_number);
+    if ((rkind < 1) || (rkind >= slab_conf.room_types_count)) {
         return;
     }
-    if (dungeon_invalid(dungeon)) {
+    if (dungeonadd_invalid(dungeonadd)) {
         ERRORDBG(8,"Cannot do; player %d has no dungeon",(int)my_player_number);
         return;
     }
-    if (dungeon->room_buildable[rkind] & 1) {
+    if (dungeonadd->room_buildable[rkind] & 1) {
         gbtn->btype_value &= LbBFeF_IntValueMask;
         gbtn->flags |= LbBtnF_Enabled;
     } else {
@@ -1044,18 +1044,18 @@ void maintain_room(struct GuiButton *gbtn)
 void maintain_big_room(struct GuiButton *gbtn)
 {
     long rkind = game.chosen_room_kind;
-    struct Dungeon* dungeon = get_players_num_dungeon(my_player_number);
-    if ((rkind < 1) || (rkind >= ROOM_TYPES_COUNT)) {
+    struct DungeonAdd* dungeonadd = get_dungeonadd(my_player_number);
+    if ((rkind < 1) || (rkind >= slab_conf.room_types_count)) {
         return;
     }
-    if (dungeon_invalid(dungeon)) {
+    if (dungeonadd_invalid(dungeonadd)) {
         ERRORDBG(8,"Cannot do; player %d has no dungeon",(int)my_player_number);
         return;
     }
     gbtn->content = (unsigned long *)rkind;
     gbtn->sprite_idx = game.chosen_room_spridx;
     gbtn->tooltip_stridx = game.chosen_room_tooltip;
-    if (dungeon->room_buildable[rkind] & 1) {
+    if (dungeonadd->room_buildable[rkind] & 1) {
         gbtn->btype_value &= LbBFeF_IntValueMask;
         gbtn->flags |= LbBtnF_Enabled;
     } else {
@@ -1297,7 +1297,7 @@ RoomIndex find_my_next_room_of_type(RoomKind rkind)
 
 RoomIndex find_next_room_of_type(PlayerNumber plyr_idx, RoomKind rkind)
 {
-    static RoomIndex next_room[ROOM_TYPES_COUNT];
+    static RoomIndex next_room[TERRAIN_ITEMS_MAX];
     if (next_room[rkind] > 0)
     {
         struct Room* room = room_get(next_room[rkind]);
@@ -1308,8 +1308,8 @@ RoomIndex find_next_room_of_type(PlayerNumber plyr_idx, RoomKind rkind)
     }
     if (next_room[rkind] <= 0)
     {
-        struct Dungeon* dungeon = get_dungeon(plyr_idx);
-        next_room[rkind] = dungeon->room_kind[rkind];
+        struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
+        next_room[rkind] = dungeonadd->room_kind[rkind];
     }
     return next_room[rkind];
 }
@@ -1358,17 +1358,18 @@ void gui_area_room_button(struct GuiButton *gbtn)
     RoomKind rkind = (long)gbtn->content;
     draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, 24);
     struct Dungeon* dungeon = get_my_dungeon();
-    if ((dungeon->room_buildable[rkind] & 1) // One can build it now
-         || (dungeon->room_resrchable[rkind] == 1) // One can research it at any time
-         || (dungeon->room_resrchable[rkind] == 2) // One can research it and get instantly then found
-         || ((dungeon->room_resrchable[rkind] == 4) && (dungeon->room_buildable[rkind] & 2)) // Player able to research
+    struct DungeonAdd* dungeonadd = get_dungeonadd(my_player_number);
+    if ((dungeonadd->room_buildable[rkind] & 1) // One can build it now
+         || (dungeonadd->room_resrchable[rkind] == 1) // One can research it at any time
+         || (dungeonadd->room_resrchable[rkind] == 2) // One can research it and get instantly then found
+         || ((dungeonadd->room_resrchable[rkind] == 4) && (dungeonadd->room_buildable[rkind] & 2)) // Player able to research
          )
     {
         if ((gbtn->flags & LbBtnF_Enabled) != 0)
         {
-            if (dungeon->room_kind[rkind] > 0)
+            if (dungeonadd->room_kind[rkind] > 0)
                 draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, 27);
-            int spr_idx = (dungeon->total_money_owned < game.room_stats[rkind].cost) + gbtn->sprite_idx;
+            int spr_idx = (dungeon->total_money_owned < get_room_kind_stats(rkind)->cost) + gbtn->sprite_idx;
             if ((gbtn->gbactn_1 == 0) && (gbtn->gbactn_2 == 0)) {
                 draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, spr_idx);
             } else {

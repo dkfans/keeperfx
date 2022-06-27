@@ -69,6 +69,7 @@ const long definable_key_string[] = {
     CpgStr_RoomKind1+12,
     CpgStr_RoomKind1+13,
     CpgStr_RoomKind1+14,
+    CpgStr_RoomKind2,
     GUIStr_StateFight,
     GUIStr_StateAnnoyed,
     CpgStr_PowerKind1,//TODO not GUI string

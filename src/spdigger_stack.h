@@ -111,8 +111,9 @@ TbBool imp_will_soon_be_getting_object(PlayerNumber plyr_idx, const struct Thing
 TbBool is_digging_indestructible_place(const struct Thing *creatng);
 long imp_already_reinforcing_at_excluding(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 
-TbBool thing_can_be_picked_to_place_in_player_room(const struct Thing* thing, PlayerNumber plyr_idx, RoomKind rkind, unsigned short flags);
+TbBool thing_can_be_picked_to_place_in_player_room_of_role(const struct Thing* thing, PlayerNumber plyr_idx, RoomRole rrole, unsigned short flags);
 long get_random_mining_undug_area_position_for_digger_drop(PlayerNumber plyr_idx, MapSubtlCoord *retstl_x, MapSubtlCoord *retstl_y);
+TbBool creature_can_pickup_library_object_at_subtile(struct Thing* spdigtng, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 
 TbBool imp_stack_update(struct Thing *creatng);
 TbBool check_out_imp_stack(struct Thing *creatng);
@@ -129,6 +130,7 @@ long check_out_uncrowded_reinforce_position(struct Thing *thing, SubtlCodedCoord
 long check_out_unconverted_spiral(struct Thing *thing, long nslabs);
 void force_any_creature_dragging_owned_thing_to_drop_it(struct Thing *dragtng);
 void force_any_creature_dragging_thing_to_drop_it(struct Thing *dragtng);
+long check_out_unprettied_spiral(struct Thing *thing, long nslabs);
 /******************************************************************************/
 #ifdef __cplusplus
 }
