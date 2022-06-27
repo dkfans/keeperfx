@@ -3434,10 +3434,9 @@ TbBool thing_is_creature_special_digger(const struct Thing *thing)
 
 void anger_set_creature_anger_all_types(struct Thing *thing, long new_value)
 {
-    // _DK_anger_set_creature_anger_all_types(thing, a2);
     if (creature_can_get_angry(thing))
     {
-      for (AnnoyMotive anger_type = AngR_NotPaid; anger_type < AngR_ListEnd; anger_type++ )
+      for (AnnoyMotive anger_type = 1; anger_type < AngR_ListEnd; anger_type++ )
       {
         anger_set_creature_anger(thing, new_value, anger_type);
       }
