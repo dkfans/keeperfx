@@ -39,7 +39,7 @@ DLLIMPORT TbBool _DK_light_render_light_sub1_sub2(int a1, SubtlCodedCoords stl_n
 DLLIMPORT char _DK_light_render_light_sub1(struct Light *lgt, int radius, int a3, unsigned int a4);
 DLLIMPORT char _DK_light_render_light_sub2(struct Light *lgt, int radius, int a3, unsigned int a4);
 DLLIMPORT int _DK_light_render_light_sub3(struct Light *lgt, int radius, int a3, unsigned int a4);
-DLLIMPORT int _DK_light_render_light_sub1_sub1(unsigned int a1,unsigned int a2,int a3,unsigned int a4,unsigned int a5,int *a6,int *a7);
+DLLIMPORT int _DK_light_render_light_sub1_sub1(unsigned int a1,unsigned int a2,int a3,unsigned int a4,unsigned int a5,long *a6,long *a7);
 
 /******************************************************************************/
 struct Light *light_allocate_light(void)
@@ -778,22 +778,22 @@ void light_set_lights_on(char state)
     light_signal_stat_light_update_in_area(1, 1, map_subtiles_x, map_subtiles_y);
 }
 //sub_4080B0
-__int32 light_render_light_sub1_sub1(
+static __int32 light_render_light_sub1_sub1(
         unsigned int a1,
         unsigned int a2,
         int a3,
         unsigned int a4,
         unsigned int a5,
-        int *a6,
-        int *a7)
+        long *a6,
+        long *a7)
 {
   return _DK_light_render_light_sub1_sub1(a1,a2,a3,a4,a5,a6,a7);
 }
 
 //sub_408530
-TbBool light_render_light_sub1_sub2(int a1, SubtlCodedCoords stl_num, int a3)
+static TbBool light_render_light_sub1_sub2(MapSubtlCoord stl_x, MapSubtlCoord stl_y, MapSubtlCoord stl_z)
 {
-  return _DK_light_render_light_sub1_sub2(a1, stl_num, a3);
+  return _DK_light_render_light_sub1_sub2(stl_x, stl_y, stl_z);
 /*
     struct Map* mapblk = get_map_block_at_pos(stl_num);
     if (map_block_invalid(mapblk))
@@ -806,33 +806,33 @@ TbBool light_render_light_sub1_sub2(int a1, SubtlCodedCoords stl_num, int a3)
   */
 }
 
-//sub_4072E0
-char light_render_light_sub1(struct Light *lgt, int radius, int a3, unsigned int max_1DD41_idx)
+/**
+ * don't know when this is used, light_render_light_dynamic_2 seems to render all dynamic lights
+ */
+static char light_render_light_dynamic_1(struct Light *lgt, int radius, int a3, unsigned int max_1DD41_idx)
 {
-  //return _DK_light_render_light_sub1(lgt, radius, a3, max_1DD41_idx);
-  
-  unsigned int light_stl_num; // eax
-  short *stl_lightness_ptr; // esi
-  unsigned int _1DD41_idx; // eax
-  signed int unk_4_x; // ebx
-  signed int unk_4_y; // eax
-  int diagonal_length; // ecx
-  int v10; // eax
-  struct UnkStruc6 *unk6_ptr; // ebp
-  MapSubtlCoord stl_x; // eax MAPDST
-  MapSubtlCoord stl_y; // ebx
-  unsigned int unk_1_y; // esi
-  __int32 shadow_limit_idx1; // eax
-  unsigned __int8 v16; // cl
-  int v17; // edx MAPDST
-  unsigned char *shadow_limit_ptr; // edi
-  int v21; // eax
-  char *shadow_limit_ptr2; // edi
-  unsigned int shadow_limit_something_size; // edx
-  int v24; // eax
-  signed int unk_2_x; // edi
-  signed int unk_2_y; // eax
-  int diagonal_length2; // ecx
+  unsigned int light_stl_num;
+  short *stl_lightness_ptr;
+  unsigned int _1DD41_idx;
+  signed int unk_4_x;
+  signed int unk_4_y;
+  int diagonal_length;
+  int v10;
+  struct UnkStruc6 *unk6_ptr;
+  MapSubtlCoord stl_x;
+  MapSubtlCoord stl_y;
+  unsigned int unk_1_y;
+  __int32 shadow_limit_idx1;
+  unsigned __int8 v16;
+  int v17;
+  unsigned char *shadow_limit_ptr;
+  int v21;
+  unsigned char *shadow_limit_ptr2;
+  unsigned int shadow_limit_something_size;
+  int v24;
+  signed int unk_2_x;
+  signed int unk_2_y;
+  int diagonal_length2;
   long shadow_limit_idx2;
   long shadow_limit_idx3;
   MapCoord light_val_x;
@@ -840,19 +840,20 @@ char light_render_light_sub1(struct Light *lgt, int radius, int a3, unsigned int
   MapSubtlCoord light_stl_z;
   MapSubtlCoord light_stl_x;
   MapSubtlCoord light_stl_y;
-  TbBool v37; // [esp+34h] [ebp-Ch]
-  unsigned int unk_1_x; // [esp+38h] [ebp-8h]
-  short *stl_lightness_ptr2; // [esp+3Ch] [ebp-4h]
+  TbBool v37;
+  unsigned int unk_1_x;
+  short *stl_lightness_ptr2;
 
   light_val_x = lgt->mappos.x.val;
   light_val_y = lgt->mappos.y.val;
   light_stl_x = light_val_x >> 8;
   light_stl_y = light_val_y >> 8;
-  light_stl_z = *(short *)&lgt->mappos.z.val / 256;
+  light_stl_z = lgt->mappos.z.val / 256;
   memset(game.lish.shadow_limits, 0, sizeof(game.lish.shadow_limits));
   light_stl_num = (light_val_y >> 8 << 8) + (light_val_x >> 8);
   stl_lightness_ptr = (short *)&game.lish.subtile_lightness + light_stl_num;
 
+  _1DD41_idx = get_floor_filled_subtiles_at(light_stl_x,light_stl_y);
   if ( get_floor_filled_subtiles_at(light_stl_x,light_stl_y) <= light_stl_z )
   {
     unk_4_x = abs(light_val_x - (light_stl_x << 8));
@@ -872,7 +873,7 @@ char light_render_light_sub1(struct Light *lgt, int radius, int a3, unsigned int
           break;
         stl_x = light_stl_x + unk6_ptr->delta_x;
         stl_y = light_stl_y + unk6_ptr->delta_y;
-        if ( stl_x < 0x100 && stl_y < 0x100 )
+        if ( stl_x < map_subtiles_x && stl_y < map_subtiles_y )
         {
           unk_1_y = stl_y << 8;
           unk_1_x = stl_x << 8;
@@ -984,18 +985,18 @@ LABEL_37:
   
 }
 //sub_407770
-char light_render_light_sub2(struct Light *lgt, int radius, int a3, unsigned int max_1DD41_idx)
+static char light_render_light_dynamic_2(struct Light *lgt, int radius, int a3, unsigned int max_1DD41_idx)
 {
   return _DK_light_render_light_sub2(lgt, radius, a3, max_1DD41_idx);
 }
 //sub_407C70
-int light_render_light_sub3(struct Light *lgt, int radius, int a3, unsigned int max_1DD41_idx)
+static int light_render_light_static(struct Light *lgt, int radius, int a3, unsigned int max_1DD41_idx)
 {
   return _DK_light_render_light_sub3(lgt, radius, a3, max_1DD41_idx);
 }
 
 
-char light_render_light(struct Light* lgt)
+static char light_render_light(struct Light* lgt)
 {
  int intensity;
   int rand_minimum;
@@ -1068,11 +1069,11 @@ char light_render_light(struct Light* lgt)
     {
       if ( (flags & 0x40) != 0 )
       {
-        _1DD41_idx = light_render_light_sub1(lgt, radius, v22, _1DD41_idx);
+        _1DD41_idx = light_render_light_dynamic_1(lgt, radius, v22, _1DD41_idx);
       }
       else if ( (flags & LgtF_Unkn08) != 0 )
       {
-        _1DD41_idx = light_render_light_sub2(lgt, radius, v22, _1DD41_idx);
+        _1DD41_idx = light_render_light_dynamic_2(lgt, radius, v22, _1DD41_idx);
         lgt->flags &= ~LgtF_Unkn08;
       }
       else
@@ -1142,7 +1143,7 @@ char light_render_light(struct Light* lgt)
     }
     else
     {
-      _1DD41_idx = light_render_light_sub3(lgt, radius, v22, _1DD41_idx);
+      _1DD41_idx = light_render_light_static(lgt, radius, v22, _1DD41_idx);
     }
   }
   return _1DD41_idx;
