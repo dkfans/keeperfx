@@ -38,8 +38,8 @@ extern "C" {
 struct UnkStruc6 { // sizeof = 8
   unsigned char field_0;
   unsigned char field_1;
-  unsigned char field_2;
-  unsigned char field_3;
+  unsigned char delta_x;
+  unsigned char delta_y;
   unsigned long field_4;
 };
 
@@ -59,9 +59,9 @@ struct LightsShadows { // sizeof = 164886
     unsigned short stat_light_map[256*256];
     long field_46149;
     char light_enabled;
-    char field_4614E;
+    char lighting_tables_initialised;
     unsigned long light_rand_seed;
-    int field_46153;
+    int _1DD41_idx;
     unsigned short subtile_lightness[256*256];
 };
 
