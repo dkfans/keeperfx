@@ -123,21 +123,8 @@ TbBool tag_cursor_blocks_sell_area(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     unsigned char colour = SLC_RED;
     if (playeradd->render_roomspace.slab_count > 0 && full_slab)
     {
-        if (playeradd->roomspace_mode == drag_placement_mode)
-        {
-            if (playeradd->render_roomspace.invalid_slabs_count == 0)
-            {
-                colour = SLC_GREEN;
-            }
-            else
-            {
-                colour = SLC_GREENFLASH;
-            }
-        }
-        else
-        {
-            colour = SLC_GREEN; // roomspace selling support is basic, this makes roomspace selling work over any slabtype
-        }
+        colour = SLC_GREEN; // roomspace selling support is basic, this makes roomspace selling work over any slabtype
+    }
     }
     else if (floor_height_z == 1)
     {
@@ -233,21 +220,7 @@ TbBool tag_cursor_blocks_place_room(PlayerNumber plyr_idx, MapSubtlCoord stl_x, 
     unsigned char colour = SLC_RED;
     if(can_build_roomspace(plyr_idx, player->chosen_room_kind, playeradd->render_roomspace) > 0)
     {
-        if (playeradd->roomspace_mode == drag_placement_mode)
-        {
-            if (playeradd->render_roomspace.invalid_slabs_count == 0)
-            {
-                colour = SLC_GREEN;
-            }
-            else
-            {
-                colour = SLC_GREENFLASH;
-            }
-        }
-        else
-        {
-            colour = SLC_GREEN;
-        }
+        colour = SLC_GREEN;
     }
     else
     {
@@ -256,7 +229,6 @@ TbBool tag_cursor_blocks_place_room(PlayerNumber plyr_idx, MapSubtlCoord stl_x, 
             SYNCDBG(7,"Cannot build %s on %s slabs centered at (%d,%d)", room_code_name(player->chosen_room_kind), slab_code_name(slb->kind), (int)slb_x, (int)slb_y);
         #endif
     }
-    
     if (is_my_player_number(plyr_idx) && !game_is_busy_doing_gui() && (game.small_map_state != 2))
     {
         map_volume_box.visible = 1;
