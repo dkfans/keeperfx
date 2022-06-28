@@ -1895,31 +1895,31 @@ int search_spiral_f(struct Coord3d *pos, PlayerNumber owner, int i3, long (*cb)(
     int v4;
     MapSubtlCoord stl_x;
     MapSubtlCoord stl_y;
-    int v6;
+    int lookup_idx;
     int v7;
-    int v8;
+    int check_fn_result;
     int result;
     int v12;
     char i;
-    int v14;
-    int v15;
+    int delta_x;
+    int delta_y;
 
     v4 = 0;
     stl_x = pos->x.stl.num;
     stl_y = pos->y.stl.num;
-    v6 = 0;
+    lookup_idx = 0;
     v12 = 0;
     for ( i = 0; ; ++i )
     {
         if ( (i & 1) != 0 )
             ++v12;
         v7 = v12;
-        v14 = lookup[v6].delta_x;
-        v15 = lookup[v6].delta_y;
+        delta_x = lookup[lookup_idx].delta_x;
+        delta_y = lookup[lookup_idx].delta_y;
         if ( v12 )
             break;
     LABEL_10:
-        v6 = (v6 + 1) & 3;
+        lookup_idx = (lookup_idx + 1) & 3;
     }
 
 
@@ -1927,22 +1927,22 @@ int search_spiral_f(struct Coord3d *pos, PlayerNumber owner, int i3, long (*cb)(
     {
         if ( stl_x < map_subtiles_x && stl_y < map_subtiles_y )
         {
-            v8 = cb(stl_x, stl_y, owner);
-            if ( v8 )
+            check_fn_result = cb(stl_x, stl_y, owner);
+            if ( check_fn_result )
                 break;
             if ( ++v4 >= i3 )
                 return v4;
         }
         --v7;
-        stl_y += v15;
-        stl_x += v14;
+        stl_y += delta_y;
+        stl_x += delta_x;
         if ( !v7 )
             goto LABEL_10;
     }
     result = v4;
     pos->x.stl.num = stl_x;
     pos->y.stl.num = stl_y;
-    if ( v8 == -1 )
+    if ( check_fn_result == -1 )
         return -v4;
     return result;
 
