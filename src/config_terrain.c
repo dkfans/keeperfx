@@ -791,7 +791,6 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
 
 TbBool parse_terrain_room_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
-    struct RoomStats *rstat;
     struct RoomConfigStats *roomst;
     int i;
     // Block name and parameter word store variables
@@ -816,6 +815,8 @@ TbBool parse_terrain_room_blocks(char *buf, long len, const char *config_textnam
             roomst->msg_too_small = 0;
             roomst->msg_no_route = 0;
             roomst->roles = RoRoF_None;
+            roomst->cost = 0;
+            roomst->health = 0;
             if (i < slab_conf.room_types_count)
             {
                 room_desc[i].name = roomst->code_name;
@@ -825,13 +826,6 @@ TbBool parse_terrain_room_blocks(char *buf, long len, const char *config_textnam
                 room_desc[i].name = NULL;
                 room_desc[i].num = 0;
             }
-        }
-        arr_size = slab_conf.room_types_count;
-        for (i=0; i < arr_size; i++)
-        {
-          rstat = &game.room_stats[i];
-          rstat->cost = 0;
-          rstat->health = 0;
         }
     }
     // Parse every numbered block within range
@@ -851,9 +845,7 @@ TbBool parse_terrain_room_blocks(char *buf, long len, const char *config_textnam
             }
             continue;
       }
-      rstat = &game.room_stats[i];
       roomst = &slab_conf.room_cfgstats[i];
-      struct RoomData* rdata = room_data_get_for_kind(i);
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(terrain_room_commands,cmd_num)
       while (pos<len)
       {
@@ -886,7 +878,7 @@ TbBool parse_terrain_room_blocks(char *buf, long len, const char *config_textnam
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              rstat->cost = k;
+              roomst->cost = k;
               n++;
             }
             if (n < 1)
@@ -899,7 +891,7 @@ TbBool parse_terrain_room_blocks(char *buf, long len, const char *config_textnam
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              rstat->health = k;
+              roomst->health = k;
               n++;
             }
             if (n < 1)
@@ -941,7 +933,6 @@ TbBool parse_terrain_room_blocks(char *buf, long len, const char *config_textnam
               if (k >= 0)
               {
                   roomst->assigned_slab = k;
-                  rdata->assigned_slab = k;
                   n++;
               }
             }
@@ -999,7 +990,6 @@ TbBool parse_terrain_room_blocks(char *buf, long len, const char *config_textnam
               if (k > 0)
               {
                   roomst->name_stridx = k;
-                  rdata->name_stridx = k;
                   n++;
               }
             }
@@ -1016,7 +1006,6 @@ TbBool parse_terrain_room_blocks(char *buf, long len, const char *config_textnam
               if (k > 0)
               {
                   roomst->tooltip_stridx = k;
-                  rdata->tooltip_stridx = k;
                   n++;
               }
             }
@@ -1042,7 +1031,6 @@ TbBool parse_terrain_room_blocks(char *buf, long len, const char *config_textnam
                 if (k >= 0)
                 {
                     roomst->medsym_sprite_idx = k;
-                    rdata->medsym_sprite_idx = k;
                     n++;
                 }
             }
@@ -1050,7 +1038,6 @@ TbBool parse_terrain_room_blocks(char *buf, long len, const char *config_textnam
             {
                 roomst->bigsym_sprite_idx = bad_icon_id;
                 roomst->medsym_sprite_idx = bad_icon_id;
-                rdata->medsym_sprite_idx = bad_icon_id;
                 CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
                     COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
@@ -1092,7 +1079,7 @@ TbBool parse_terrain_room_blocks(char *buf, long len, const char *config_textnam
             k = recognize_conf_parameter(buf,&pos,len,terrain_room_total_capacity_func_type);
             if (k > 0)
             {
-                rdata->update_total_capacity = terrain_room_total_capacity_func_list[k];
+                roomst->update_total_capacity = terrain_room_total_capacity_func_list[k];
                 n++;
             }
             if (n < 1)
@@ -1105,13 +1092,13 @@ TbBool parse_terrain_room_blocks(char *buf, long len, const char *config_textnam
             k = recognize_conf_parameter(buf,&pos,len,terrain_room_used_capacity_func_type);
             if (k > 0)
             {
-                rdata->update_storage_in_room = terrain_room_used_capacity_func_list[k];
+                roomst->update_storage_in_room = terrain_room_used_capacity_func_list[k];
                 n++;
             }
             k = recognize_conf_parameter(buf,&pos,len,terrain_room_used_capacity_func_type);
             if (k > 0)
             {
-                rdata->update_workers_in_room = terrain_room_used_capacity_func_list[k];
+                roomst->update_workers_in_room = terrain_room_used_capacity_func_list[k];
                 n++;
             }
             if (n < 2)
@@ -1240,8 +1227,8 @@ TbBool make_all_rooms_free(void)
 {
     for (long rkind = 0; rkind < slab_conf.room_types_count; rkind++)
     {
-        struct RoomStats* rstat = &game.room_stats[rkind];
-        rstat->cost = 0;
+        struct RoomConfigStats* roomst = get_room_kind_stats(rkind);
+        roomst->cost = 0;
     }
     return true;
 }
@@ -1251,14 +1238,14 @@ TbBool make_all_rooms_free(void)
  */
 TbBool make_all_rooms_researchable(PlayerNumber plyr_idx)
 {
-    struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
-    if (dungeon_invalid(dungeon)) {
+    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
+    if (dungeonadd_invalid(dungeonadd)) {
         ERRORDBG(11,"Cannot do; player %d has no dungeon",(int)plyr_idx);
         return false;
     }
     for (long rkind = 0; rkind < slab_conf.room_types_count; rkind++)
     {
-        dungeon->room_resrchable[rkind] = 1;
+        dungeonadd->room_resrchable[rkind] = 1;
     }
     return true;
 }
@@ -1266,26 +1253,26 @@ TbBool make_all_rooms_researchable(PlayerNumber plyr_idx)
 /**
  * Sets room availability state.
  */
-TbBool set_room_available(PlayerNumber plyr_idx, RoomKind room_idx, long resrch, long avail)
+TbBool set_room_available(PlayerNumber plyr_idx, RoomKind rkind, long resrch, long avail)
 {
     // note that we can't get_players_num_dungeon() because players
     // may be uninitialized yet when this is called.
-    struct Dungeon* dungeon = get_dungeon(plyr_idx);
-    if (dungeon_invalid(dungeon)) {
+    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
+    if (dungeonadd_invalid(dungeonadd)) {
         ERRORDBG(11,"Cannot do; player %d has no dungeon",(int)plyr_idx);
         return false;
     }
-    if (room_idx >= ROOM_TYPES_COUNT)
+    if (rkind >= slab_conf.room_types_count)
     {
-        ERRORLOG("Can't add incorrect room %d to player %d",(int)room_idx, (int)plyr_idx);
+        ERRORLOG("Can't add incorrect room %d to player %d",(int)rkind, (int)plyr_idx);
         return false;
     }
-    dungeon->room_resrchable[room_idx] = resrch;
+    dungeonadd->room_resrchable[rkind] = resrch;
     // This doesnt reset if player has room in the past
     if (resrch != 0)
-        dungeon->room_buildable[room_idx] |= (avail? 1 : 0 );
+        dungeonadd->room_buildable[rkind] |= (avail? 1 : 0 );
     else
-        dungeon->room_buildable[room_idx] &= ~1;
+        dungeonadd->room_buildable[rkind] &= ~1;
     return true;
 }
 
@@ -1294,24 +1281,54 @@ TbBool set_room_available(PlayerNumber plyr_idx, RoomKind room_idx, long resrch,
  * Checks only if it's available and if the player is 'alive'.
  * Doesn't check if the player has enough money or map position is on correct spot.
  */
-TbBool is_room_available(PlayerNumber plyr_idx, RoomKind room_idx)
+TbBool is_room_available(PlayerNumber plyr_idx, RoomKind rkind)
 {
-    struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
+    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
     // Check if the player even have a dungeon
-    if (dungeon_invalid(dungeon)) {
+    if (dungeonadd_invalid(dungeonadd)) {
         return false;
     }
     // Player must have dungeon heart to build rooms
     if (!player_has_heart(plyr_idx)) {
         return false;
     }
-    if (room_idx >= ROOM_TYPES_COUNT)
+    if (rkind >= slab_conf.room_types_count)
     {
-      ERRORLOG("Incorrect room %d (player %d)",(int)room_idx, (int)plyr_idx);
+      ERRORLOG("Incorrect room %d (player %d)",(int)rkind, (int)plyr_idx);
       return false;
     }
-    if (dungeon->room_buildable[room_idx] & 1) {
+    if (dungeonadd->room_buildable[rkind] & 1) {
         return true;
+    }
+    return false;
+}
+
+/**
+ * Returns if a room that has role can be built by a player.
+ * Checks only if it's available and if the player is 'alive'.
+ * Doesn't check if the player has enough money or map position is on correct spot.
+ */
+TbBool is_room_of_role_available(PlayerNumber plyr_idx, RoomRole rrole)
+{
+    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
+    // Check if the player even have a dungeon
+    if (dungeonadd_invalid(dungeonadd)) {
+        return false;
+    }
+    // Player must have dungeon heart to build rooms
+    if (!player_has_heart(plyr_idx)) {
+        return false;
+    }
+
+    for (RoomKind rkind = 0; rkind < slab_conf.room_types_count; rkind++)
+    {
+        if(room_role_matches(rkind,rrole))
+        {
+            if (dungeonadd->room_buildable[rkind] & 1)
+            {
+                return true;
+            }
+        }
     }
     return false;
 }
@@ -1322,16 +1339,17 @@ TbBool is_room_available(PlayerNumber plyr_idx, RoomKind room_idx)
 TbBool make_available_all_researchable_rooms(PlayerNumber plyr_idx)
 {
     SYNCDBG(0,"Starting");
-    struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
-    if (dungeon_invalid(dungeon)) {
+    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
+    // Check if the player even have a dungeon
+    if (dungeonadd_invalid(dungeonadd)) {
         ERRORDBG(11,"Cannot do; player %d has no dungeon",(int)plyr_idx);
         return false;
     }
-    for (long i = 0; i < ROOM_TYPES_COUNT; i++)
+    for (long i = 0; i < slab_conf.room_types_count; i++)
     {
-        if (dungeon->room_resrchable[i])
+        if (dungeonadd->room_resrchable[i])
         {
-            dungeon->room_buildable[i] = 1;
+            dungeonadd->room_buildable[i] = 1;
         }
     }
     return true;
@@ -1510,6 +1528,23 @@ RoomKind slab_corresponding_room(SlabKind slbkind)
         struct RoomConfigStats* roomst = get_room_kind_stats(rkind);
         if (roomst->assigned_slab == slbkind)
             return rkind;
+    }
+    return 0;
+}
+
+/**
+ * Returns room kind which corresponds to given slab kind.
+ * @param rrole The slab kind to be checked.
+ * @return The corresponding room kind index.
+ */
+RoomKind find_first_roomkind_with_role(RoomRole rrole)
+{
+    for (RoomKind rkind = 0; rkind < slab_conf.room_types_count; rkind++)
+    {
+        if(room_role_matches(rkind,rrole))
+        {
+            return rkind;
+        }
     }
     return 0;
 }

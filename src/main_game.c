@@ -28,6 +28,7 @@
 #include "vidfade.h"
 #include "vidmode.h"
 #include "custom_sprites.h"
+#include "gui_boxmenu.h"
 
 extern TbBool force_player_num;
 

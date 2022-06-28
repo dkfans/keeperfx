@@ -21,6 +21,7 @@
 
 #include "bflib_math.h"
 #include "creature_states.h"
+#include "creature_states_mood.h"
 #include "thing_list.h"
 #include "creature_control.h"
 #include "config_creature.h"
@@ -84,6 +85,7 @@ CrStateRet guarding(struct Thing *thing)
         cctrl->moveto_pos.y.val = thing->mappos.y.val;
         cctrl->moveto_pos.z.val = thing->mappos.z.val;
     }
+    process_job_stress_and_going_postal(thing);
     return CrStRet_Modified;
 }
 

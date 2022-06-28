@@ -67,6 +67,11 @@ enum TbButtonFlags {
     LbBtnF_Unknown80  =  0x80,
 };
 
+enum GBoxFlags {
+    GBoxF_Allocated = 0x01,
+    GBoxF_InList = 0x02,
+};
+
 union GuiVariant {
     long lval;
     long *lptr;
@@ -94,7 +99,7 @@ struct GuiBoxOption {
 };
 
 struct GuiBox {
-char field_0;
+    char flags;
     short field_1;
     long pos_x;
     long pos_y;

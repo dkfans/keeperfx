@@ -23,6 +23,7 @@
 
 #include "creature_states.h"
 #include "creature_states_combt.h"
+#include "creature_states_mood.h"
 #include "creature_instances.h"
 #include "thing_list.h"
 #include "creature_control.h"
@@ -497,6 +498,7 @@ void process_creature_in_training_room(struct Thing *thing, struct Room *room)
         cctrl->training.search_timeout = 0;
         break;
     }
+    process_job_stress_and_going_postal(thing);
     SYNCDBG(18,"End");
 }
 

@@ -439,7 +439,7 @@ unsigned short shot_shift_z;
     unsigned char alarm_stl_y;
     unsigned long field_2FA;
     unsigned long field_2FE;
-    unsigned char field_302;
+    unsigned char stopped_for_hand_turns;
     long following_leader_since;
     unsigned char follow_leader_fails;
 };
