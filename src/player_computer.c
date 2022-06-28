@@ -1069,6 +1069,7 @@ long count_creatures_for_defend_pickup(struct Computer2 *comp)
   struct Thing *i;
   struct Dungeon *dungeon = comp->dungeon;
   int count = 0;
+  int k = 0;
 
   for ( i = thing_get(dungeon->creatr_list_start);
         !thing_is_invalid(i);
@@ -1094,12 +1095,19 @@ long count_creatures_for_defend_pickup(struct Computer2 *comp)
                     ( crtr_state != CrSt_CreatureBeingDropped ))
                 {
                     struct CreatureStats* crstat = creature_stats_get_from_thing(i);
-                    if (100 * i->health / (35 * crstat->health * cctrl->explevel / 100 + crstat->health) > 20 )
+                    if (100 * i->health / (gameadd.crtr_conf.exp.health_increase_on_exp * crstat->health * cctrl->explevel / 100 + crstat->health) > 20 )
                     {
                         ++count;
                     }
                 }
             }
+        }
+
+        k++;
+        if (k > CREATURES_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping creatures list");
+            break;
         }
     }
     return count;
