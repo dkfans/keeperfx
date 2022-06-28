@@ -517,7 +517,7 @@ EventIndex update_cannot_find_room_of_role_wth_spare_capacity_event(PlayerNumber
                 room = find_room_of_role_with_spare_capacity(plyr_idx, rrole, crstat->lair_size);
                 break;
             }
-        case RoRoF_GoldStorage:
+        // For Treasure rooms, the item capacity is the amount of gold, not the number of gold hoardes.
         case RoRoF_CratesStorage:
         case RoRoF_PowersStorage:
             // Find room with item capacity
