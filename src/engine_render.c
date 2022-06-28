@@ -3340,7 +3340,7 @@ static void find_closest_lights_on_list(struct NearestLights *nlgt, long *nlgt_d
         lgt = &game.lish.lights[i];
         i = lgt->next_in_list;
         // Per-light code
-        if ((lgt->flags & 1) != 0)
+        if ((lgt->flags & LgtF_Allocated) != 0)
         {
             long dist;
             dist = get_2d_box_distance(pos, &lgt->mappos);

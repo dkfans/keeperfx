@@ -463,7 +463,7 @@ void light_signal_stat_light_update_in_area(long x1, long y1, long x2, long y2)
           stat_light_needs_updating = 1;
           i++;
           lgt->flags |= LgtF_Unkn08;
-          lgt->flags &= 0x7F;
+          lgt->flags &= ~LgtF_Unkn80;
         }
       }
     }
@@ -1020,7 +1020,6 @@ static char light_render_light(struct Light* lgt)
   int v26;
   int stl_x;
   int stl_y;
-  char flags;
   int v30;
   int v31;
   char is_dynamic;
@@ -1040,7 +1039,6 @@ static char light_render_light(struct Light* lgt)
     v22 = v3;
   }
   v4 = radius;
-  flags = lgt->flags;
   is_dynamic = lgt->flags & LgtF_Dynamic;
   if ( is_dynamic )
   {
@@ -1067,11 +1065,11 @@ static char light_render_light(struct Light* lgt)
   {
     if ( is_dynamic )
     {
-      if ( (flags & 0x40) != 0 )
+      if ( (lgt->flags & LgtF_Unkn40) != 0 )
       {
         _1DD41_idx = light_render_light_dynamic_1(lgt, radius, v22, _1DD41_idx);
       }
-      else if ( (flags & LgtF_Unkn08) != 0 )
+      else if ( (lgt->flags & LgtF_Unkn08) != 0 )
       {
         _1DD41_idx = light_render_light_dynamic_2(lgt, radius, v22, _1DD41_idx);
         lgt->flags &= ~LgtF_Unkn08;
@@ -1177,7 +1175,7 @@ static void light_render_area(MapSubtlCoord startx, MapSubtlCoord starty, MapSub
           lgt > game.lish.lights; 
           lgt = &game.lish.lights[lgt->next_in_list] )
     {
-      if ( (lgt->flags & 0x88) != 0 )
+      if ( (lgt->flags & (LgtF_Unkn80 | LgtF_Unkn08)) != 0 )
       {
         ++light_out_of_date_stat_lights;
         range = lgt->range;
@@ -1189,7 +1187,7 @@ static void light_render_area(MapSubtlCoord startx, MapSubtlCoord starty, MapSub
         {
           ++light_updated_stat_lights;
           light_render_light(lgt);
-          lgt->flags &= 0x77;
+          lgt->flags &= ~(LgtF_Unkn80 | LgtF_Unkn08);
         }
       }
     }
@@ -1224,7 +1222,7 @@ static void light_render_area(MapSubtlCoord startx, MapSubtlCoord starty, MapSub
         ++light_rendered_dynamic_lights;
         if ( (lgt->flags & LgtF_Unkn08) == 0 )
           ++light_rendered_optimised_dynamic_lights;
-        if ( (lgt->flags & 0x10) != 0 )
+        if ( (lgt->flags & LgtF_Unkn10) != 0 )
         {
           if ( lgt->field_6 == 1 )
           {
@@ -1249,7 +1247,7 @@ static void light_render_area(MapSubtlCoord startx, MapSubtlCoord starty, MapSub
           }
           lgt->flags |= LgtF_Unkn08;
         }
-        if ( (lgt->flags & 0x20) != 0 )
+        if ( (lgt->flags & LgtF_Unkn20) != 0 )
         {
           if ( lgt->field_3 == 1 )
           {
