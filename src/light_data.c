@@ -813,12 +813,12 @@ static char light_render_light_dynamic_1(struct Light *lgt, int radius, int a3, 
 {
   unsigned int light_stl_num;
   short *stl_lightness_ptr;
-  unsigned int _1DD41_idx;
+  unsigned int lighting_tables_idx;
   signed int unk_4_x;
   signed int unk_4_y;
   int diagonal_length;
   int v10;
-  struct UnkStruc6 *unk6_ptr;
+  struct LightingTable *unk6_ptr;
   MapSubtlCoord stl_x;
   MapSubtlCoord stl_y;
   unsigned int unk_1_y;
@@ -853,7 +853,7 @@ static char light_render_light_dynamic_1(struct Light *lgt, int radius, int a3, 
   light_stl_num = (light_val_y >> 8 << 8) + (light_val_x >> 8);
   stl_lightness_ptr = (short *)&game.lish.subtile_lightness + light_stl_num;
 
-  _1DD41_idx = get_floor_filled_subtiles_at(light_stl_x,light_stl_y);
+  lighting_tables_idx = get_floor_filled_subtiles_at(light_stl_x,light_stl_y);
   if ( get_floor_filled_subtiles_at(light_stl_x,light_stl_y) <= light_stl_z )
   {
     unk_4_x = abs(light_val_x - (light_stl_x << 8));
@@ -862,14 +862,14 @@ static char light_render_light_dynamic_1(struct Light *lgt, int radius, int a3, 
     v10 = a3 * (radius - diagonal_length) / radius;
     if ( (unsigned short)*stl_lightness_ptr < v10 )
       *stl_lightness_ptr = v10;
-    unk6_ptr = (struct UnkStruc6 *)game.lish.field_1DD41;
-    _1DD41_idx = game.lish._1DD41_idx;
-    if ( &game.lish.field_1DD41[8 * game.lish._1DD41_idx] > game.lish.field_1DD41 )
+    unk6_ptr = (struct LightingTable *)game.lish.lighting_tables;
+    lighting_tables_idx = game.lish.lighting_tables_idx;
+    if ( &game.lish.lighting_tables[8 * game.lish.lighting_tables_idx] > game.lish.lighting_tables )
     {
       do
       {
-        _1DD41_idx = (unsigned __int8)unk6_ptr->field_1;
-        if ( _1DD41_idx > max_1DD41_idx )
+        lighting_tables_idx = (unsigned __int8)unk6_ptr->field_1;
+        if ( lighting_tables_idx > max_1DD41_idx )
           break;
         stl_x = light_stl_x + unk6_ptr->delta_x;
         stl_y = light_stl_y + unk6_ptr->delta_y;
@@ -967,21 +967,21 @@ LABEL_37:
               unk_2_x = abs(light_val_x - unk_1_x);
               unk_2_y = abs(light_val_y - unk_1_y);
               diagonal_length2 = LbDiagonalLength(unk_2_x,unk_2_y);
-              _1DD41_idx = a3 * (radius - diagonal_length2) / radius;
-              if ( _1DD41_idx <= game.lish.field_46149 )
-                return _1DD41_idx;
-              if ( (unsigned short)*stl_lightness_ptr2 < _1DD41_idx )
-                *stl_lightness_ptr2 = _1DD41_idx;
+              lighting_tables_idx = a3 * (radius - diagonal_length2) / radius;
+              if ( lighting_tables_idx <= game.lish.field_46149 )
+                return lighting_tables_idx;
+              if ( (unsigned short)*stl_lightness_ptr2 < lighting_tables_idx )
+                *stl_lightness_ptr2 = lighting_tables_idx;
             }
           }
         }
         ++unk6_ptr;
-        _1DD41_idx = game.lish._1DD41_idx;
+        lighting_tables_idx = game.lish.lighting_tables_idx;
       }
-      while ( &game.lish.field_1DD41[8 * game.lish._1DD41_idx] > unk6_ptr );
+      while ( &game.lish.lighting_tables[8 * game.lish.lighting_tables_idx] > unk6_ptr );
     }
   }
-  return _1DD41_idx;
+  return lighting_tables_idx;
   
 }
 //sub_407770
@@ -1060,23 +1060,23 @@ static char light_render_light(struct Light* lgt)
 
   lgt->range = range;
 
-  int _1DD41_idx = range;
+  int lighting_tables_idx = range;
   if ( radius > 0 && v22 > 0 )
   {
     if ( is_dynamic )
     {
       if ( (lgt->flags & LgtF_Unkn40) != 0 )
       {
-        _1DD41_idx = light_render_light_dynamic_1(lgt, radius, v22, _1DD41_idx);
+        lighting_tables_idx = light_render_light_dynamic_1(lgt, radius, v22, lighting_tables_idx);
       }
       else if ( (lgt->flags & LgtF_Unkn08) != 0 )
       {
-        _1DD41_idx = light_render_light_dynamic_2(lgt, radius, v22, _1DD41_idx);
+        lighting_tables_idx = light_render_light_dynamic_2(lgt, radius, v22, lighting_tables_idx);
         lgt->flags &= ~LgtF_Unkn08;
       }
       else
       {
-        v7 = _1DD41_idx << 8;
+        v7 = lighting_tables_idx << 8;
 
         light_x_val = lgt->mappos.x.val;
         v8_x = light_x_val - v7;
@@ -1103,8 +1103,8 @@ static char light_render_light(struct Light* lgt)
 
         v13 = game.lish.subtile_lightness + 256 * (stl_y / 256) + stl_x / 256;
 
-        _1DD41_idx = *game.lish.shadow_cache[lgt->shadow_index].field_1;
-        v31 = _1DD41_idx;
+        lighting_tables_idx = *game.lish.shadow_cache[lgt->shadow_index].field_1;
+        v31 = lighting_tables_idx;
         if ( v30 >= stl_y )
         {
           shadow_cache_pointer = game.lish.shadow_cache[lgt->shadow_index].field_1;
@@ -1131,9 +1131,9 @@ static char light_render_light(struct Light* lgt)
 
             v13 += v33;
             some_y += 256;
-            _1DD41_idx = *((int*)shadow_cache_pointer + 1);
+            lighting_tables_idx = *((int*)shadow_cache_pointer + 1);
             shadow_cache_pointer += 4;
-            v31 = _1DD41_idx;
+            v31 = lighting_tables_idx;
           }
           while ( v30 >= some_y );
         }
@@ -1141,10 +1141,10 @@ static char light_render_light(struct Light* lgt)
     }
     else
     {
-      _1DD41_idx = light_render_light_static(lgt, radius, v22, _1DD41_idx);
+      lighting_tables_idx = light_render_light_static(lgt, radius, v22, lighting_tables_idx);
     }
   }
-  return _1DD41_idx;
+  return lighting_tables_idx;
 }
 
 static void light_render_area(MapSubtlCoord startx, MapSubtlCoord starty, MapSubtlCoord endx, MapSubtlCoord endy)

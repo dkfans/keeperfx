@@ -35,7 +35,7 @@ extern "C" {
 /******************************************************************************/
 #pragma pack(1)
 
-struct UnkStruc6 { // sizeof = 8
+struct LightingTable { // sizeof = 8
   unsigned char field_0;
   unsigned char field_1;
   unsigned char delta_x;
@@ -52,7 +52,7 @@ struct ShadowCache { // sizeof = 129
  * Structure which stores data of lights and shadows system.
  */
 struct LightsShadows { // sizeof = 164886
-    struct UnkStruc6 field_1DD41[1024];
+    struct LightingTable lighting_tables[1024];
     unsigned char shadow_limits[SHADOW_LIMITS_COUNT];
     struct Light lights[LIGHTS_COUNT];
     struct ShadowCache shadow_cache[SHADOW_CACHE_COUNT];
