@@ -3018,7 +3018,7 @@ short creature_damage_walls(struct Thing *creatng)
                 if ( !cctrl->instance_id )
                 {
                     pos.x.val = subtile_coord_center(stl_x);
-                    pos.x.val = subtile_coord_center(stl_y);
+                    pos.y.val = subtile_coord_center(stl_y);
 
                     if ( !creature_turn_to_face(creatng, &pos) )
                         set_creature_instance(creatng, CrInst_DAMAGE_WALL, 1, 0, 0);
