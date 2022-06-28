@@ -3013,25 +3013,23 @@ short creature_damage_walls(struct Thing *creatng)
             && (creatng->owner == slabmap_owner(slb)))
         {
             struct SlabAttr* slbattr = get_slab_attrs(slb);
-            if ((slbattr->category == SlbAtCtg_FortifiedWall))
+            if (slbattr->category == SlbAtCtg_FortifiedWall)
             {
                 if ( !cctrl->instance_id )
                 {
                     pos.x.val = subtile_coord_center(stl_x);
                     pos.y.val = subtile_coord_center(stl_y);
-
                     if ( !creature_turn_to_face(creatng, &pos) )
+                    {
                         set_creature_instance(creatng, CrInst_DAMAGE_WALL, 1, 0, 0);
+                    }
                 }
+                return 1;
             }
         }
-        return 1;
     }
-    else
-    {
-        set_start_state(creatng);
-        return 0;
-    }
+    set_start_state(creatng);
+    return 0;
 
 }
 
