@@ -1888,72 +1888,60 @@ long check_for_gold(MapSubtlCoord basestl_x, MapSubtlCoord basestl_y, long plyr_
     return 0;
 }
 
-int search_spiral_f(struct Coord3d *pos, PlayerNumber owner, int i3, long (*cb)(MapSubtlCoord, MapSubtlCoord, long), const char *func_name)
+int search_spiral_f(struct Coord3d *pos, PlayerNumber owner, int area_total, long (*cb)(MapSubtlCoord, MapSubtlCoord, long), const char *func_name)
 {
     SYNCDBG(7,"%s: Starting at (%d,%d)",func_name,pos->x.stl.num,pos->y.stl.num);
    
-    int v4;
+    int valid_area;
     MapSubtlCoord stl_x;
     MapSubtlCoord stl_y;
     int lookup_idx;
-    int v7;
+    int j;
     int check_fn_result;
-    int result;
-    int v12;
+    int bi_loop_counter;
     char i;
     int delta_x;
     int delta_y;
 
-    v4 = 0;
+    valid_area = 0;
     stl_x = pos->x.stl.num;
     stl_y = pos->y.stl.num;
     lookup_idx = 0;
-    v12 = 0;
+    bi_loop_counter = 0;
     for ( i = 0; ; ++i )
     {
         if ( (i & 1) != 0 )
-            ++v12;
-        v7 = v12;
+            ++bi_loop_counter;
+        j = bi_loop_counter;
         delta_x = lookup[lookup_idx].delta_x;
         delta_y = lookup[lookup_idx].delta_y;
-        if ( v12 )
-            break;
-    LABEL_10:
-        lookup_idx = (lookup_idx + 1) & 3;
-    }
-
-
-    while ( 1 )
-    {
-        if ( stl_x < map_subtiles_x && stl_y < map_subtiles_y )
+        if ( bi_loop_counter )
         {
-            check_fn_result = cb(stl_x, stl_y, owner);
-            if ( check_fn_result )
-                break;
-            if ( ++v4 >= i3 )
-                return v4;
+            do
+            {
+                if ( stl_x < map_subtiles_x && stl_y < map_subtiles_y )
+                {
+                    check_fn_result = cb(stl_x, stl_y, owner);
+                    if ( check_fn_result )
+                    {
+                        pos->x.stl.num = stl_x;
+                        pos->y.stl.num = stl_y;
+                        if ( check_fn_result == -1 )
+                            return -valid_area;
+                        return valid_area;
+                    }
+                    valid_area++;
+                    if ( valid_area >= area_total )
+                        return valid_area;
+                }
+                --j;
+                stl_y += delta_y;
+                stl_x += delta_x;
+            }
+            while ( j );
         }
-        --v7;
-        stl_y += delta_y;
-        stl_x += delta_x;
-        if ( !v7 )
-            goto LABEL_10;
+        lookup_idx = (lookup_idx + 1) % 4;
     }
-    result = v4;
-    pos->x.stl.num = stl_x;
-    pos->y.stl.num = stl_y;
-    if ( check_fn_result == -1 )
-        return -v4;
-    return result;
-
-
-
-    int retval;
-
-
-    SYNCDBG(8,"%s: Finished with %d",func_name,(int)retval);
-
-    return retval;
 }
 
 long find_next_gold(struct Computer2 * comp, struct ComputerTask * ctask)
