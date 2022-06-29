@@ -1069,7 +1069,9 @@ short setup_game(void)
   features_enabled |= Ft_LockCursorInPossession; // lock the mouse cursor to the window, when the user enters possession mode (when the cursor is already unlocked)
   features_enabled &= ~Ft_PauseMusicOnGamePause; // don't pause the music, if the user pauses the game
   features_enabled &= ~Ft_MuteAudioOnLoseFocus; // don't mute the audio, if the game window loses focus
-
+  features_enabled &= ~Ft_SkipHeartZoom; // don't skip the dungeon heart zoom in
+  features_enabled &= ~Ft_SkipSplashScreens; // don't skip splash screens
+  
   // Configuration file
   if ( !load_configuration() )
   {
@@ -1084,22 +1086,27 @@ short setup_game(void)
       ERRORLOG("Error on allocation/loading of legal_load_files.");
       return 0;
   }
-
+    
   // View the legal screen
-
   if (!setup_screen_mode_zero(get_frontend_vidmode()))
   {
       ERRORLOG("Unable to set display mode for legal screen");
       return 0;
   }
 
-  result = init_actv_bitmap_screen(RBmp_SplashLegal);
- if ( result )
- {
-     result = show_actv_bitmap_screen(3000);
-     free_actv_bitmap_screen();
- } else
-      SYNCLOG("Legal image skipped");
+  if (is_feature_on(Ft_SkipSplashScreens) == false)
+  {
+      result = init_actv_bitmap_screen(RBmp_SplashLegal);
+      if ( result )
+      {
+          result = show_actv_bitmap_screen(3000);
+          free_actv_bitmap_screen();
+      } else
+          SYNCLOG("Legal image skipped");
+  } else {
+        // Make the white screen into a black screen faster
+        draw_clear_screen();
+  }
 
   // Now do more setup
   // Prepare the Game structure
@@ -1113,17 +1120,19 @@ short setup_game(void)
   // init_sound(). This will probably change when we'll move sound
   // to SDL - then we'll put that line earlier, before setup_game().
   LbErrorParachuteInstall();
+  if (is_feature_on(Ft_SkipSplashScreens) == false)
+  {
+    // View second splash screen
+    result = init_actv_bitmap_screen(RBmp_SplashFx);
+    if ( result )
+    {
+        result = show_actv_bitmap_screen(4000);
+        free_actv_bitmap_screen();
+    } else
+        SYNCLOG("startup_fx image skipped");
+  }
 
-  // View second splash screen
-  result = init_actv_bitmap_screen(RBmp_SplashFx);
- if ( result )
- {
-     result = show_actv_bitmap_screen(4000);
-     free_actv_bitmap_screen();
- } else
-      SYNCLOG("startup_fx image skipped");
   draw_clear_screen();
-
   // View Bullfrog company logo animation when new moon
   if ( is_new_moon )
     if ( !game.no_intro )
@@ -3906,7 +3915,9 @@ void game_loop(void)
       {
         if (game.numfield_15 == -1)
         {
-          set_player_instance(player, PI_HeartZoom, 0);
+            if (is_feature_on(Ft_SkipHeartZoom) == false) {
+                set_player_instance(player, PI_HeartZoom, 0);
+            }
         } else
         {
           game.numfield_15 = -1;

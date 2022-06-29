@@ -80,6 +80,8 @@ enum TbFeature {
     Ft_LockCursorInPossession = 0x1000,
     Ft_PauseMusicOnGamePause  = 0x2000,
     Ft_MuteAudioOnLoseFocus   = 0x4000,
+    Ft_SkipHeartZoom          = 0x8000,
+    Ft_SkipSplashScreens      = 0x10000,
 };
 
 enum TbExtraLevels {

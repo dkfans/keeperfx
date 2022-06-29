@@ -123,6 +123,8 @@ const struct NamedCommand conf_commands[] = {
   {"LOCK_CURSOR_IN_POSSESSION"     , 19},
   {"PAUSE_MUSIC_WHEN_GAME_PAUSED"  , 20},
   {"MUTE_AUDIO_ON_FOCUS_LOST"      , 21},
+  {"SKIP_SPLASH_SCREENS"           , 22},
+  {"SKIP_HEART_ZOOM"               , 23},
   {NULL,                   0},
   };
 
@@ -1027,6 +1029,32 @@ short load_configuration(void)
               features_enabled |= Ft_MuteAudioOnLoseFocus;
           else
               features_enabled &= ~Ft_MuteAudioOnLoseFocus;
+          break;
+        case 22: //SKIP_SPLASH_SCREENS
+          i = recognize_conf_parameter(buf,&pos,len,logicval_type);
+          if (i <= 0)
+          {
+              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
+                COMMAND_TEXT(cmd_num),config_textname);
+            break;
+          }
+          if (i == 1)
+              features_enabled |= Ft_SkipSplashScreens;
+          else
+              features_enabled &= ~Ft_SkipSplashScreens;
+          break;
+        case 23: //SKIP_HEART_ZOOM
+          i = recognize_conf_parameter(buf,&pos,len,logicval_type);
+          if (i <= 0)
+          {
+              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
+                COMMAND_TEXT(cmd_num),config_textname);
+            break;
+          }
+          if (i == 1)
+              features_enabled |= Ft_SkipHeartZoom;
+          else
+              features_enabled &= ~Ft_SkipHeartZoom;
           break;
       case 0: // comment
           break;
