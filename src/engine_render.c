@@ -5345,7 +5345,7 @@ static void display_fast_drawlist(struct Camera *cam) // Draws frontview only. N
             case QK_RoomFlagBottomPole: // The bottom pole part, doesn't affect the status sitting on top of the pole
                 draw_engine_room_flagpole(item.roomFlg);
                 break;
-            case QK_JontyISOSprite: // Possibly unused
+            case QK_JontyISOSprite: // Spinning Key
                 draw_iso_only_fastview_mapwho(cam, item.jonSpr);
                 break;
             case QK_RoomFlagStatusBox: // The status sitting on top of the pole
