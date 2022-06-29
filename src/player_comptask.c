@@ -1892,36 +1892,26 @@ int search_spiral_f(struct Coord3d *pos, PlayerNumber owner, int area_total, lon
 {
     SYNCDBG(7,"%s: Starting at (%d,%d)",func_name,pos->x.stl.num,pos->y.stl.num);
    
-    int valid_area;
-    MapSubtlCoord stl_x;
-    MapSubtlCoord stl_y;
-    int lookup_idx;
-    int j;
-    int check_fn_result;
-    int bi_loop_counter;
-    char i;
-    int delta_x;
-    int delta_y;
+    int valid_area = 0;
+    MapSubtlCoord stl_x = pos->x.stl.num;
+    MapSubtlCoord stl_y = pos->y.stl.num;
+    int lookup_idx = 0;
+    int bi_loop_counter = 0;
 
-    valid_area = 0;
-    stl_x = pos->x.stl.num;
-    stl_y = pos->y.stl.num;
-    lookup_idx = 0;
-    bi_loop_counter = 0;
-    for ( i = 0; ; ++i )
+    for ( char i = 0; ; ++i )
     {
         if ( (i & 1) != 0 )
             ++bi_loop_counter;
-        j = bi_loop_counter;
-        delta_x = lookup[lookup_idx].delta_x;
-        delta_y = lookup[lookup_idx].delta_y;
+        int j = bi_loop_counter;
+        MapSubtlDelta delta_x = lookup[lookup_idx].delta_x;
+        MapSubtlDelta delta_y = lookup[lookup_idx].delta_y;
         if ( bi_loop_counter )
         {
             do
             {
                 if ( stl_x < map_subtiles_x && stl_y < map_subtiles_y )
                 {
-                    check_fn_result = cb(stl_x, stl_y, owner);
+                    int check_fn_result = cb(stl_x, stl_y, owner);
                     if ( check_fn_result )
                     {
                         pos->x.stl.num = stl_x;
