@@ -64,9 +64,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT long _DK_can_thing_be_picked_up2_by_player(const struct Thing *thing, unsigned char plyr_idx);
-DLLIMPORT void _DK_stop_creatures_around_hand(char a1, unsigned short value, unsigned short a3);
-/******************************************************************************/
 #ifdef __cplusplus
 }
 #endif
@@ -84,11 +81,11 @@ struct Thing *create_gold_for_hand_grab(struct Thing *thing, long owner)
         GoldAmount gold_req;
         if (lbKeyOn[KC_LCONTROL])
         {
-            gold_req = thing->long_13;
+            gold_req = thing->valuable.gold_stored;
         }
         else
         {
-            gold_req = thing->long_13 / 4 + 1;
+            gold_req = thing->valuable.gold_stored / 4 + 1;
         }
         if (gold_req <= 100)
             gold_req = 100;
@@ -112,12 +109,12 @@ struct Thing *create_gold_for_hand_grab(struct Thing *thing, long owner)
         objtng = create_object(&pos, 43, game.neutral_player_num, -1);
         if (!thing_is_invalid(objtng))
         {
-            objtng->long_13 = gold_picked;
+            objtng->valuable.gold_stored = gold_picked;
             pos.z.val += 128;
             struct Thing *efftng;
             efftng = create_effect_element(&pos, TngEffElm_Price, owner);
             if (!thing_is_invalid(efftng))
-                efftng->long_13 = gold_picked;
+                efftng->price_effect.number = gold_picked;
         }
     }
     return objtng;
@@ -201,10 +198,42 @@ long can_thing_be_picked_up_by_player(const struct Thing *thing, PlayerNumber pl
     return can_cast_spell(plyr_idx, PwrK_HAND, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing, CastChk_Default);
 }
 
-long can_thing_be_picked_up2_by_player(const struct Thing *thing, PlayerNumber plyr_idx)
+TbBool can_thing_be_picked_up2_by_player(const struct Thing *thing, PlayerNumber plyr_idx)
 {
-    //TODO: rewrite, then give it better name
-    return _DK_can_thing_be_picked_up2_by_player(thing, plyr_idx);
+    unsigned char state;
+
+    if(!thing_is_creature(thing))
+    {
+        return (thing_is_object(thing) && object_is_pickable_by_hand_for_use(thing, plyr_idx));
+    }
+
+    if ( (game.armageddon_cast_turn > 0) && ( (game.armageddon.count_down + game.armageddon_cast_turn) <= game.play_gameturn) )
+    {
+        return false;
+    }
+    if ( (thing->active_state == CrSt_CreatureUnconscious) || ((thing->alloc_flags & TAlF_IsInLimbo) != 0) || ((thing->state_flags & TF1_InCtrldLimbo) != 0) || (thing->health <= 0) )
+    {
+        return false;
+    }
+    
+    if (thing->active_state == CrSt_MoveToPosition)
+    {
+        state = thing->continue_state;
+    }
+    else 
+    {
+        state = thing->active_state;
+    }
+
+    if ( (state == CrSt_CreatureSacrifice)
+        || (state == CrSt_CreatureBeingSacrificed) || (state == CrSt_CreatureBeingSummoned))
+    {
+        return false;
+    }
+    else
+    {
+        return (thing->owner == plyr_idx);
+    }
 }
 
 void set_power_hand_offset(struct PlayerInfo *player, struct Thing *thing)
@@ -498,7 +527,7 @@ void draw_power_hand(void)
     struct Thing *thing;
     struct Thing *picktng;
     struct Room *room;
-    struct RoomData *rdata;
+    struct RoomConfigStats* roomst;
     player = get_my_player();
     if ((player->flgfield_6 & PlaF6_Unknown01) != 0)
         return;
@@ -530,8 +559,9 @@ void draw_power_hand(void)
         room = subtile_room_get(stl_x,stl_y);
         if ((!room_is_invalid(room)) && (subtile_revealed(stl_x, stl_y, player->id_number)))
         {
-            rdata = room_data_get_for_room(room);
-            draw_gui_panel_sprite_centered(GetMouseX()+scale_ui_value(24), GetMouseY()+scale_ui_value(32), ps_units_per_px, rdata->medsym_sprite_idx);
+            roomst = get_room_kind_stats(room->kind);
+            
+            draw_gui_panel_sprite_centered(GetMouseX()+scale_ui_value(24), GetMouseY()+scale_ui_value(32), ps_units_per_px, roomst->medsym_sprite_idx);
         }
         if ((!power_hand_is_empty(player)) && (game.small_map_state == 1))
         {
@@ -828,8 +858,8 @@ long gold_being_dropped_on_creature(long plyr_idx, struct Thing *goldtng, struct
     if ( !taking_salary )
     {
         cctrl = creature_control_get_from_thing(creatng);
-        if (cctrl->prepayments_received < 255) {
-            cctrl->prepayments_received++;
+        if (cctrl->paydays_advanced < SCHAR_MAX) {
+            cctrl->paydays_advanced++;
         }
     }
     struct CreatureStats *crstat;
@@ -1352,9 +1382,43 @@ TbResult magic_use_power_hand(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSub
     return Lb_SUCCESS;
 }
 
-void stop_creatures_around_hand(char a1, unsigned short a2, unsigned short a3)
+void stop_creatures_around_hand(PlayerNumber plyr_idx, MapSubtlCoord stl_x,  MapSubtlCoord stl_y)
 {
-  _DK_stop_creatures_around_hand(a1, a2, a3);
+
+    for ( size_t i = 0; i < MID_AROUND_LENGTH; ++i )
+    {
+        struct Map* mapblk = get_map_block_at(stl_x + mid_around[i].delta_x, stl_y + mid_around[i].delta_y);
+        if(mapblk == INVALID_MAP_BLOCK)
+            continue;
+
+        unsigned long k = 0;
+        long j = get_mapwho_thing_index(mapblk);
+        while (j != 0)
+        {
+            struct Thing* thing = thing_get(j);
+            TRACE_THING(thing);
+            if (thing_is_invalid(thing))
+            {
+                ERRORLOG("Jump to invalid thing detected");
+                break;
+            }
+            j = thing->next_on_mapblk;
+            // Per thing code start
+                if ( thing_is_creature(thing) && can_thing_be_picked_up_by_player(thing, plyr_idx) && thing->owner == plyr_idx )
+                {
+                    struct CreatureControl  *cctrl = creature_control_get_from_thing(thing);
+                    cctrl->stopped_for_hand_turns = 20;
+                }
+            // Per thing code end
+            k++;
+            if (k > THINGS_COUNT)
+            {
+                ERRORLOG("Infinite loop detected when sweeping things list");
+                break_mapwho_infinite_chain(mapblk);
+                break;
+            }
+        }        
+    }
 }
 
 TbBool slap_object(struct Thing *thing)

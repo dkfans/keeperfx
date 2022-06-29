@@ -37,6 +37,7 @@ enum roomspace_placement_modes {
     box_placement_mode = 0, // fixed width/height (default)
     drag_placement_mode = 1, // fixed 1x1 roomspace, can hold left click to paint
     roomspace_detection_mode = 2, // find biggest/best roomspace under cursor
+    single_subtile_mode = 3,
 };
 
 // 
@@ -91,9 +92,6 @@ struct RoomSpace {
     TbBool drag_mode;
 };
 /******************************************************************************/
-extern int user_defined_roomspace_width;
-extern int roomspace_detection_looseness;
-extern struct RoomSpace render_roomspace;
 /******************************************************************************/
 int calc_distance_from_roomspace_centre(int total_distance, TbBool offset);
 
@@ -121,18 +119,23 @@ struct RoomSpace get_current_room_as_roomspace(PlayerNumber current_plyr_idx,
                                                MapSlabCoord cursor_x, 
                                                MapSlabCoord cursor_y);
 
-void get_dungeon_highlight_user_roomspace(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
+void get_dungeon_highlight_user_roomspace(struct RoomSpace *roomspace, PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 
-void get_dungeon_sell_user_roomspace(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
+void get_dungeon_sell_user_roomspace(struct RoomSpace *roomspace, PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 
-void get_dungeon_build_user_roomspace(PlayerNumber plyr_idx, RoomKind rkind,
-    MapSubtlCoord stl_x, MapSubtlCoord stl_y, int *mode, TbBool drag_check);
+void get_dungeon_build_user_roomspace(struct RoomSpace *roomspace, PlayerNumber plyr_idx, RoomKind rkind, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned char mode);
 
 void keeper_highlight_roomspace(PlayerNumber plyr_idx, struct RoomSpace *roomspace, int task_allowance_reduction);
-void keeper_sell_roomspace(struct RoomSpace *roomspace);
-void keeper_build_roomspace(struct RoomSpace *roomspace);
+void keeper_sell_roomspace(PlayerNumber plyr_idx, struct RoomSpace *roomspace);
+void keeper_build_roomspace(PlayerNumber plyr_idx, struct RoomSpace *roomspace);
 
 void update_roomspaces();
+
+void process_build_roomspace_inputs(PlayerNumber plyr_idx);
+void process_sell_roomspace_inputs(PlayerNumber plyr_idx);
+void process_highlight_roomspace_inputs(PlayerNumber plyr_idx);
+
+void reset_dungeon_build_room_ui_variables(PlayerNumber plyr_idx);
 /******************************************************************************/
 #include "roomspace_detection.h"
 /******************************************************************************/

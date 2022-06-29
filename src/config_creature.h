@@ -30,6 +30,7 @@ extern "C" {
 #endif
 
 #define CREATURE_TYPES_MAX 64
+#define SWAP_CREATURE_TYPES_MAX 64
 #define INSTANCE_TYPES_MAX 64
 #define CREATURE_STATES_MAX 256
 
@@ -211,10 +212,10 @@ typedef TbBool (*Creature_Job_Coords_Assign_Func)(struct Thing *creatng, MapSubt
 
 struct CreatureJobConfig {
     char name[COMMAND_WORD_LEN];
-    Creature_Job_Player_Check_Func func_plyr_check;
-    Creature_Job_Player_Assign_Func func_plyr_assign;
-    Creature_Job_Coords_Check_Func func_cord_check;
-    Creature_Job_Coords_Assign_Func func_cord_assign;
+    unsigned char func_plyr_check_idx;
+    unsigned char func_plyr_assign_idx;
+    unsigned char func_cord_check_idx;
+    unsigned char func_cord_assign_idx;
     RoomRole room_role;
     EventKind event_kind;
     /** The state creature should go into when job is started. */
@@ -274,6 +275,7 @@ struct CreatureConfig {
 /******************************************************************************/
 extern const char keeper_creaturetp_file[];
 extern struct NamedCommand creature_desc[];
+extern struct NamedCommand newcrtr_desc[];
 extern struct NamedCommand angerjob_desc[];
 extern struct NamedCommand creaturejob_desc[];
 extern struct NamedCommand attackpref_desc[];
@@ -293,6 +295,7 @@ TbBool creature_stats_invalid(const struct CreatureStats *crstat);
 void creature_stats_updated(ThingModel crstat_idx);
 void check_and_auto_fix_stats(void);
 const char *creature_code_name(ThingModel crmodel);
+const char* new_creature_code_name(ThingModel crmodel);
 long creature_model_id(const char * name);
 const char *creature_own_name(const struct Thing *creatng);
 TbBool is_creature_model_wildcard(ThingModel crmodel);

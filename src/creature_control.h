@@ -165,7 +165,7 @@ unsigned char field_37[2];
     long field_43;
     unsigned char field_47;
     unsigned char paydays_owed;
-    unsigned char prepayments_received;
+    char paydays_advanced;
     long annoy_untrained_turn;
     unsigned long last_roar_turn;
    /** The game enumerates the elements of annoyance array periodically and looks for the highest value.
@@ -259,7 +259,7 @@ unsigned char field_67;
         long long_A2x;
   } idle;
   struct {
-    unsigned char byte_9A;
+    unsigned char job_stage;
     unsigned char byte_9B;
     unsigned char byte_9C;
     unsigned char byte_9D;
@@ -439,9 +439,9 @@ unsigned short shot_shift_z;
     unsigned char alarm_stl_y;
     unsigned long field_2FA;
     unsigned long field_2FE;
-    unsigned char field_302;
-    long field_303;
-    unsigned char field_307;
+    unsigned char stopped_for_hand_turns;
+    long following_leader_since;
+    unsigned char follow_leader_fails;
 };
 
 struct CreatureStatsOLD { // sizeof = 230
@@ -646,6 +646,7 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     short annoy_going_postal;
     short toking_recovery;
     TbBool illuminated;
+    char corpse_vanish_effect;
 };
 
 struct Persons {

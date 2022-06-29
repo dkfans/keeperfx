@@ -45,12 +45,22 @@ unsigned short const player_cubes[] = {0x00C0, 0x00C1, 0x00C2, 0x00C3, 0x00C7, 0
 long neutral_player_number = NEUTRAL_PLAYER;
 long hero_player_number = HERO_PLAYER;
 struct PlayerInfo bad_player;
+struct PlayerInfoAdd bad_playeradd;
 /******************************************************************************/
 struct PlayerInfo *get_player_f(long plyr_idx,const char *func_name)
 {
     if ((plyr_idx >= 0) && (plyr_idx < PLAYERS_COUNT))
+    {
         return &game.players[plyr_idx];
-    ERRORMSG("%s: Tried to get non-existing player %d!",func_name,(int)plyr_idx);
+    }
+    if (plyr_idx == game.neutral_player_num) // Suppress error for never existing but valid neutral 'player'
+    {
+        SYNCDBG(3, "%s: Tried to get neutral player!",func_name);
+    }
+    else
+    {
+        ERRORMSG("%s: Tried to get non-existing player %d!",func_name,(int)plyr_idx);
+    }
     return INVALID_PLAYER;
 }
 
@@ -201,8 +211,11 @@ void clear_players(void)
         struct PlayerInfo* player = &game.players[i];
         LbMemorySet(player, 0, sizeof(struct PlayerInfo));
         player->id_number = PLAYERS_COUNT;
+        struct PlayerInfoAdd* playeradd = &gameadd.players[i];
+        LbMemorySet(playeradd, 0, sizeof(struct PlayerInfoAdd));
     }
     LbMemorySet(&bad_player, 0, sizeof(struct PlayerInfo));
+    LbMemorySet(&bad_playeradd, 0, sizeof(struct PlayerInfoAdd));
     bad_player.id_number = PLAYERS_COUNT;
     game.hero_player_num = hero_player_number;
     game.active_players_count = 0;
@@ -233,6 +246,7 @@ TbBool set_ally_with_player(PlayerNumber plyridx, PlayerNumber ally_idx, TbBool 
 
 void set_player_state(struct PlayerInfo *player, short nwrk_state, long chosen_kind)
 {
+  struct PlayerInfoAdd* playeradd;
   SYNCDBG(6,"Player %d state %s to %s",(int)player->id_number,player_state_code_name(player->work_state),player_state_code_name(nwrk_state));
   // Selecting the same state again - update only 2nd parameter
   if (player->work_state == nwrk_state)
@@ -298,6 +312,17 @@ void set_player_state(struct PlayerInfo *player, short nwrk_state, long chosen_k
   case PSt_PlaceDoor:
       player->chosen_door_kind = chosen_kind;
       break;
+  case PSt_MkGoodCreatr:
+      playeradd = get_playeradd(player->id_number);
+      clear_messages_from_player(playeradd->cheatselection.chosen_player);
+        playeradd->cheatselection.chosen_player = game.hero_player_num;
+        break;
+    case PSt_MkBadCreatr:
+    case PSt_MkDigger:
+    playeradd = get_playeradd(player->id_number);
+    clear_messages_from_player(playeradd->cheatselection.chosen_player);
+        playeradd->cheatselection.chosen_player = player->id_number;
+        break;
   default:
       break;
   }
@@ -391,5 +416,22 @@ void reset_player_mode(struct PlayerInfo *player, unsigned short nview)
     default:
       break;
   }
+}
+
+struct PlayerInfoAdd *get_playeradd_f(long plyr_idx,const char *func_name)
+{
+    if ((plyr_idx >= 0) && (plyr_idx < PLAYERS_COUNT))
+    {
+        return &gameadd.players[plyr_idx];
+    }
+    if (plyr_idx == game.neutral_player_num) // Suppress error for never existing but valid neutral 'player'
+    {
+        SYNCDBG(3, "%s: Tried to get neutral player!",func_name);
+    }
+    else
+    {
+        ERRORMSG("%s: Tried to get non-existing player %d!",func_name,(int)plyr_idx);
+    }
+    return INVALID_PLAYER_ADD;
 }
 /******************************************************************************/

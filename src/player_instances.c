@@ -472,7 +472,10 @@ long pinstfe_passenger_control_creature(struct PlayerInfo *player, long *n)
 {
     struct Thing* thing = thing_get(player->influenced_thing_idx);
     if (!thing_is_invalid(thing))
-      control_creature_as_passenger(player, thing);
+    {
+        load_swipe_graphic_for_creature(thing);
+        control_creature_as_passenger(player, thing);
+    }
     set_player_instance(player, PI_CrCtrlFade, false);
     return 0;
 }
@@ -1133,7 +1136,7 @@ struct Room *player_build_room_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Play
 {
     struct PlayerInfo* player = get_player(plyr_idx);
     struct Dungeon* dungeon = get_players_dungeon(player);
-    struct RoomStats* rstat = room_stats_get_for_kind(rkind);
+    struct RoomConfigStats* roomst = get_room_kind_stats(rkind);
     // Check if we are allowed to build the room
     if (!is_room_available(plyr_idx, rkind)) {
         // It shouldn't be possible to select unavailable room
@@ -1147,7 +1150,13 @@ struct Room *player_build_room_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Play
         WARNLOG("Player %d tried to build %s on a forbidden subtile (%d,%d)",(int)plyr_idx,
             room_code_name(rkind),(int)stl_x,(int)stl_y);
         if (is_my_player(player))
-            play_non_3d_sample(119);
+        {
+            struct PlayerInfoAdd* playeradd = get_playeradd(plyr_idx);
+            if (!playeradd->roomspace.is_active)
+            {
+                play_non_3d_sample(119);
+            }
+        }
         return INVALID_ROOM;
     }
     // Check if there's a place for new room
@@ -1161,9 +1170,9 @@ struct Room *player_build_room_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Play
     {
         player->boxsize++;
     }
-    if (dungeon->total_money_owned >= rstat->cost * player->boxsize)
+    if (dungeon->total_money_owned >= roomst->cost * player->boxsize)
     {
-        if (take_money_from_dungeon(plyr_idx, rstat->cost, 1) < 0)
+        if (take_money_from_dungeon(plyr_idx, roomst->cost, 1) < 0)
         {
             if (is_my_player(player))
                 output_message(SMsg_GoldNotEnough, 0, true);

@@ -27,6 +27,7 @@
 #include "front_input.h"
 #include "config_settings.h"
 #include "game_legacy.h"
+#include "gui_boxmenu.h"
 
 #include "keeperfx.hpp"
 
@@ -91,11 +92,20 @@ int point_is_over_gui_menu(long x, long y)
 
 void update_busy_doing_gui_on_menu(void)
 {
-    int gidx = point_is_over_gui_menu(GetMouseX(), GetMouseY());
-    if (gidx == -1)
-        busy_doing_gui = 0;
-    else
+    long x = GetMouseX();
+    long y = GetMouseY();
+    if (point_is_over_gui_box(x, y))
+    {
         busy_doing_gui = 1;
+    }
+    else
+    {
+        int gidx = point_is_over_gui_menu(x, y);
+        if (gidx == -1)
+            busy_doing_gui = 0;
+        else
+            busy_doing_gui = 1;
+    }
 }
 
 void turn_off_menu(MenuID mnu_idx)

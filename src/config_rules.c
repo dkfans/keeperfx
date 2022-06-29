@@ -89,6 +89,7 @@ const struct NamedCommand rules_game_classicbugs_commands[] = {
   {"FAINTED_IMMUNE_TO_BOULDER",  10},
   {"REBIRTH_KEEPS_SPELLS",       11},
   {"STUN_FRIENDLY_UNITS",        12},
+  {"PASSIVE_NEUTRALS",           13},
   {NULL,                          0},
   };
 
@@ -671,6 +672,10 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
                   break;
               case 12: // STUN_FRIENDLY_UNITS
                   gameadd.classic_bugs_flags |= ClscBug_FriendlyFaint;
+                  n++;
+                  break;
+              case 13: // PASSIVE_NEUTRALS
+                  gameadd.classic_bugs_flags |= ClscBug_PassiveNeutrals;
                   n++;
                   break;
               default:

@@ -244,7 +244,7 @@ TbBool attempt_anger_job_steal_gold(struct Thing *creatng)
         return false;
     }
     struct Coord3d pos;
-    struct Room* room = find_nearest_room_for_thing_with_used_capacity(creatng, creatng->owner, RoK_TREASURE, NavRtF_NoOwner, 1);
+    struct Room* room = find_nearest_room_of_role_for_thing_with_used_capacity(creatng, creatng->owner, RoRoF_GoldStorage, NavRtF_NoOwner, 1);
     if (room_is_invalid(room)) {
         return false;
     }
@@ -284,7 +284,7 @@ TbBool attempt_anger_job_leave_dungeon(struct Thing *creatng)
     if (!can_change_from_state_to(creatng, creatng->active_state, CrSt_CreatureLeaves)) {
         return false;
     }
-    struct Room* room = find_nearest_room_for_thing(creatng, creatng->owner, get_room_for_job(Job_EXEMPT), NavRtF_Default);
+    struct Room* room = find_nearest_room_of_role_for_thing(creatng, creatng->owner, get_room_role_for_job(Job_EXEMPT), NavRtF_Default);
     if (room_is_invalid(room)) {
         return false;
     }
@@ -323,7 +323,7 @@ TbBool attempt_anger_job_mad_psycho(struct Thing *creatng)
     }
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     cctrl->spell_flags |= CSAfF_MadKilling;
-    cctrl->byte_9A = 0;
+    cctrl->job_stage = 0;
     return true;
 }
 
@@ -345,7 +345,7 @@ TbBool attempt_anger_job_persuade(struct Thing *creatng)
     if (!external_set_thing_state(creatng, CrSt_CreaturePersuade)) {
         return false;
     }
-    cctrl->byte_9A = persuade_count;
+    cctrl->job_stage = persuade_count;
     return true;
 }
 
@@ -691,20 +691,20 @@ TbBool creature_can_do_job_for_player(const struct Thing *creatng, PlayerNumber 
     }
     // Check if the job is related to correct player
     struct CreatureJobConfig* jobcfg = get_config_for_job(new_job);
-    if (jobcfg->func_plyr_check == NULL)
+    if (creature_job_player_check_func_list[jobcfg->func_plyr_check_idx] == NULL)
     {
         SYNCDBG(13,"Cannot assign %s for %s index %d owner %d; no check callback",creature_job_code_name(new_job),thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
         return false;
     }
-    if (!jobcfg->func_plyr_check(creatng, plyr_idx, new_job))
+    if (!creature_job_player_check_func_list[jobcfg->func_plyr_check_idx](creatng, plyr_idx, new_job))
     {
         SYNCDBG(13,"Cannot assign %s for %s index %d owner %d; check callback failed",creature_job_code_name(new_job),thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
         return false;
     }
-    RoomKind job_rkind = get_room_for_job(new_job);
-    if (job_rkind != RoK_NONE)
+    RoomRole job_rrole = get_room_role_for_job(new_job);
+    if (job_rrole != RoRoF_None)
     {
-        if (!player_has_room(plyr_idx, job_rkind))
+        if (!player_has_room_of_role(plyr_idx, job_rrole))
         {
             SYNCDBG(3,"Cannot assign %s in player %d room for %s index %d owner %d; no required room built",creature_job_code_name(new_job),(int)plyr_idx,thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
             if ((flags & JobChk_PlayMsgOnFail) != 0) {
@@ -714,7 +714,7 @@ TbBool creature_can_do_job_for_player(const struct Thing *creatng, PlayerNumber 
         }
         if ((get_flags_for_job(new_job) & JoKF_NeedsCapacity) != 0)
         {
-            struct Room* room = find_room_with_spare_capacity(plyr_idx, job_rkind, 1);
+            struct Room* room = find_room_of_role_with_spare_capacity(plyr_idx, job_rrole, 1);
             if (room_is_invalid(room))
             {
                 SYNCDBG(3,"Cannot assign %s in player %d room for %s index %d owner %d; not enough room capacity",creature_job_code_name(new_job),(int)plyr_idx,thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
@@ -732,9 +732,9 @@ TbBool send_creature_to_job_for_player(struct Thing *creatng, PlayerNumber plyr_
 {
     SYNCDBG(6,"Starting for %s index %d owner %d and job %s",thing_model_name(creatng),(int)creatng->index,(int)creatng->owner,creature_job_code_name(new_job));
     struct CreatureJobConfig* jobcfg = get_config_for_job(new_job);
-    if (jobcfg->func_plyr_assign != NULL)
+    if (creature_job_player_assign_func_list[jobcfg->func_plyr_assign_idx] != NULL)
     {
-        if (jobcfg->func_plyr_assign(creatng, plyr_idx, new_job))
+        if (creature_job_player_assign_func_list[jobcfg->func_plyr_assign_idx](creatng, plyr_idx, new_job))
         {
             struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
             // Set computer control accordingly to job flags
@@ -875,12 +875,12 @@ TbBool creature_can_do_job_near_position(struct Thing *creatng, MapSubtlCoord st
         return false;
     }
     struct CreatureJobConfig* jobcfg = get_config_for_job(new_job);
-    if (jobcfg->func_cord_check == NULL)
+    if (creature_job_coords_check_func_list[jobcfg->func_cord_check_idx] == NULL)
     {
         SYNCDBG(3,"Cannot assign %s at (%d,%d) for %s index %d owner %d; job has no coord check function",creature_job_code_name(new_job),(int)stl_x,(int)stl_y,thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
         return false;
     }
-    if (!jobcfg->func_cord_check(creatng, stl_x, stl_y, new_job, flags))
+    if (!creature_job_coords_check_func_list[jobcfg->func_cord_check_idx](creatng, stl_x, stl_y, new_job, flags))
     {
         SYNCDBG(3,"Cannot assign %s at (%d,%d) for %s index %d owner %d; coord check not passed",creature_job_code_name(new_job),(int)stl_x,(int)stl_y,thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
         return false;
@@ -905,9 +905,9 @@ TbBool send_creature_to_job_near_position(struct Thing *creatng, MapSubtlCoord s
 {
     SYNCDBG(6,"Starting for %s index %d owner %d and job %s",thing_model_name(creatng),(int)creatng->index,(int)creatng->owner,creature_job_code_name(new_job));
     struct CreatureJobConfig* jobcfg = get_config_for_job(new_job);
-    if (jobcfg->func_cord_assign != NULL)
+    if (creature_job_coords_assign_func_list[jobcfg->func_cord_assign_idx] != NULL)
     {
-        if (jobcfg->func_cord_assign(creatng, stl_x, stl_y, new_job))
+        if (creature_job_coords_assign_func_list[jobcfg->func_cord_assign_idx](creatng, stl_x, stl_y, new_job))
         {
             struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
             // Set computer control accordingly to job flags
@@ -952,12 +952,12 @@ TbBool creature_can_do_job_for_computer_player_in_room_role(const struct Thing *
 TbBool attempt_job_work_in_room_for_player(struct Thing *creatng, PlayerNumber plyr_idx, CreatureJob new_job)
 {
     struct Room *room;
-    RoomKind rkind = get_room_for_job(new_job);
-    SYNCDBG(6,"Starting for %s index %d owner %d and job %s in %s room",thing_model_name(creatng),(int)creatng->index,(int)creatng->owner,creature_job_code_name(new_job),room_code_name(rkind));
+    RoomRole rrole = get_room_role_for_job(new_job);
+    SYNCDBG(6,"Starting for %s index %d owner %d and job %s in %s room",thing_model_name(creatng),(int)creatng->index,(int)creatng->owner,creature_job_code_name(new_job),room_role_code_name(rrole));
     if ((get_flags_for_job(new_job) & JoKF_NeedsCapacity) != 0) {
-        room = find_nearest_room_for_thing_with_spare_capacity(creatng, creatng->owner, rkind, NavRtF_Default, 1);
+        room = find_nearest_room_of_role_for_thing_with_spare_capacity(creatng, creatng->owner, rrole, NavRtF_Default, 1);
     } else {
-        room = find_nearest_room_for_thing(creatng, creatng->owner, rkind, NavRtF_Default);
+        room = find_nearest_room_of_role_for_thing(creatng, creatng->owner, rrole, NavRtF_Default);
     }
     if (room_is_invalid(room)) {
         return false;

@@ -518,13 +518,13 @@ struct Computer2 { // sizeof = 5322
   unsigned long gameturn_wait;
   unsigned long field_C;
   unsigned long tasks_did;
-  unsigned long field_14;
-  unsigned long field_18;
-  unsigned long field_1C; // seems to be signed long
+  unsigned long processes_time;
+  unsigned long click_rate;
+  unsigned long dig_stack_size; // seems to be signed long
   unsigned long sim_before_dig;
   struct Dungeon *dungeon;
   unsigned long model;
-  unsigned long field_2C;
+  unsigned long turn_begin;
   unsigned long max_room_build_tasks;
   unsigned long field_34;
   struct ComputerProcess processes[COMPUTER_PROCESSES_COUNT+1];
@@ -665,7 +665,7 @@ TbBool create_task_attack_magic(struct Computer2 *comp, const struct Thing *crea
 TbBool computer_able_to_use_power(struct Computer2 *comp, PowerKind pwkind, long pwlevel, long amount);
 long computer_get_room_kind_total_capacity(struct Computer2 *comp, RoomKind room_kind);
 long computer_get_room_kind_free_capacity(struct Computer2 *comp, RoomKind room_kind);
-long computer_finds_nearest_room_to_pos(struct Computer2 *comp, struct Room **retroom, struct Coord3d *nearpos);
+TbBool computer_finds_nearest_room_to_pos(struct Computer2 *comp, struct Room **retroom, struct Coord3d *nearpos);
 long process_tasks(struct Computer2 *comp);
 long computer_check_any_room(struct Computer2* comp, struct ComputerProcess* cproc);
 TbResult game_action(PlayerNumber plyr_idx, unsigned short gaction, unsigned short alevel,
@@ -679,6 +679,7 @@ int search_spiral_f(struct Coord3d *pos, PlayerNumber owner, int i3, long (*cb)(
 /******************************************************************************/
 ItemAvailability computer_check_room_available(const struct Computer2 * comp, long rkind);
 TbBool computer_find_non_solid_block(const struct Computer2 *comp, struct Coord3d *pos);
+TbBool computer_find_safe_non_solid_block(const struct Computer2* comp, struct Coord3d* pos);
 
 long count_creatures_in_dungeon(const struct Dungeon *dungeon);
 long count_entrances(const struct Computer2 *comp, PlayerNumber plyr_idx);
@@ -699,6 +700,8 @@ TbBool computer_force_dump_held_things_on_map(struct Computer2 *comp, const stru
 TbBool computer_force_dump_specific_held_thing(struct Computer2 *comp, struct Thing *thing, const struct Coord3d *pos);
 TbBool thing_is_in_computer_power_hand_list(const struct Thing *thing, PlayerNumber plyr_idx);
 struct Thing* find_creature_for_defend_pickup(struct Computer2* comp);
+
+TbBool script_support_setup_player_as_computer_keeper(PlayerNumber plyridx, long comp_model);
 /******************************************************************************/
 #ifdef __cplusplus
 }

@@ -36,7 +36,7 @@ enum PlayerStates {
     PSt_None = 0,
     PSt_CtrlDungeon,
     PSt_BuildRoom,
-    PSt_MkGoodDigger,
+    PSt_MkDigger,
     PSt_MkGoodCreatr,
     PSt_HoldInHand, // 5
     PSt_CallToArms,

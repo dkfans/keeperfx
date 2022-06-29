@@ -112,7 +112,7 @@ EventIndex event_create_event_or_update_nearby_existing_event(MapCoord map_x, Ma
 EventIndex event_create_event_or_update_same_target_existing_event(MapCoord map_x, MapCoord map_y, EventKind evkind, unsigned char dngn_id, long target);
 EventIndex event_create_event_or_update_old_event(MapCoord map_x, MapCoord map_y, EventKind evkind, unsigned char dngn_id, long target);
 void event_initialise_all(void);
-long event_move_player_towards_event(struct PlayerInfo *player, long var);
+long event_move_player_towards_event(struct PlayerInfo *player, long event_idx);
 struct Event *event_create_event(MapCoord map_x, MapCoord map_y, EventKind evkind, unsigned char dngn_id, long msg_id);
 struct Event *event_allocate_free_event_structure(void);
 void event_initialise_event(struct Event *event, MapCoord map_x, MapCoord map_y, EventKind evkind, unsigned char dngn_id, long msg_id);

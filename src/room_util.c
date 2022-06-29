@@ -116,7 +116,7 @@ void recompute_rooms_count_in_dungeons(void)
     {
         struct Dungeon* dungeon = get_dungeon(i);
         dungeon->total_rooms = 0;
-        for (RoomKind rkind = 1; rkind < ROOM_TYPES_COUNT; rkind++)
+        for (RoomKind rkind = 1; rkind < slab_conf.room_types_count; rkind++)
         {
             if (!room_never_buildable(rkind))
             {
@@ -176,8 +176,8 @@ void kill_all_room_slabs_and_contents(struct Room *room)
 void sell_room_slab_when_no_free_room_structures(struct Room *room, long slb_x, long slb_y, unsigned char gnd_slab)
 {
     delete_room_slab_when_no_free_room_structures(slb_x, slb_y, gnd_slab);
-    struct RoomStats* rstat = &game.room_stats[room->kind];
-    long revenue = compute_value_percentage(rstat->cost, gameadd.room_sale_percent);
+    struct RoomConfigStats* roomst = get_room_kind_stats(room->kind);
+    long revenue = compute_value_percentage(roomst->cost, gameadd.room_sale_percent);
     if (revenue != 0)
     {
         struct Coord3d pos;
@@ -372,6 +372,29 @@ TbBool replace_slab_from_script(MapSlabCoord slb_x, MapSlabCoord slb_y, unsigned
     return true;
 }
 
+void change_slab_owner_from_script(MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber plyr_idx)
+{
+    struct SlabMap *slb = get_slabmap_block(slb_x, slb_y);
+    if (slb->room_index)
+    {
+        struct Room* room = room_get(slb->room_index);
+        take_over_room(room, plyr_idx);
+    } else
+    if (slb->kind >= SlbT_WALLDRAPE && slb->kind <= SlbT_CLAIMED) //All slabs that can be owned but aren't rooms
+    {
+        short slbkind;
+        if (slb->kind == SlbT_PATH)
+        {
+            slbkind = SlbT_CLAIMED;
+        }
+        else
+        {
+            slbkind = slb->kind;
+        }
+        place_slab_type_on_map(slbkind, slab_subtile(slb_x, 0), slab_subtile(slb_y, 0), plyr_idx, 0);
+    }
+}
+
 /**
  * Updates thing interaction with rooms. Sometimes deletes the given thing.
  * @param thing Thing to be checked, and assimilated or deleted.
@@ -390,18 +413,34 @@ short check_and_asimilate_thing_by_room(struct Thing *thing)
     if (thing_is_gold_hoard(thing))
     {
         room = get_room_thing_is_on(thing);
+        long wealth_size_holds = gameadd.gold_per_hoard / get_wealth_size_types_count();
+        unsigned long gold_value = wealth_size_holds * (get_wealth_size_of_gold_hoard_object(thing) + 1);
+        unsigned long value_left;
+        unsigned long value_added;
         if (room_is_invalid(room) || !room_role_matches(room->kind, RoRoF_GoldStorage))
         {
             // No room - delete it, hoard cannot exist outside treasure room
-            ERRORLOG("Found %s outside of %d room; removing",thing_model_name(thing),room_code_name(RoK_TREASURE));
+            ERRORLOG("Found %s outside of %s room; removing",thing_model_name(thing),room_role_code_name(RoRoF_GoldStorage));
+            create_gold_pile(&thing->mappos, thing->owner, gold_value);
             delete_thing_structure(thing, 0);
             return false;
         }
-        long wealth_size_holds = gameadd.gold_per_hoard / get_wealth_size_types_count();
-        unsigned long n = wealth_size_holds * (get_wealth_size_of_gold_hoard_object(thing) + 1);
-        thing->owner = room->owner;
-        add_gold_to_hoarde(thing, room, n);
-        return true;
+        MapSubtlCoord stl_x = thing->mappos.x.stl.num - 1;
+        MapSubtlCoord stl_y = thing->mappos.y.stl.num - 1;
+        if (!((stl_x % 3) || (stl_y % 3))) // Only accept hoards on a center subtile.
+        {
+            thing->owner = room->owner;
+            value_added = add_gold_to_hoarde(thing, room, gold_value);
+            value_left = gold_value - value_added;
+            if (value_left > 0)
+            {
+                create_gold_pile(&thing->mappos, thing->owner, value_left);
+            }
+            return true;
+        }
+        create_gold_pile(&thing->mappos, thing->owner, gold_value);
+        delete_thing_structure(thing, 0);
+        return false;
     }
     if (thing_is_spellbook(thing))
     {
@@ -462,43 +501,43 @@ short check_and_asimilate_thing_by_room(struct Thing *thing)
     return true;
 }
 
-EventIndex update_cannot_find_room_wth_spare_capacity_event(PlayerNumber plyr_idx, struct Thing *creatng, RoomKind rkind)
+EventIndex update_cannot_find_room_of_role_wth_spare_capacity_event(PlayerNumber plyr_idx, struct Thing *creatng, RoomRole rrole)
 {
     EventIndex evidx = 0;
-    if (player_has_room(plyr_idx, rkind))
+    if (player_has_room_of_role(plyr_idx, rrole))
     {
         // Could not find room to send thing - either no capacity or not navigable
         struct Room *room;
-        switch (rkind)
+        switch (rrole)
         {
-        case RoK_LAIR:
+        case RoRoF_LairStorage:
             // Find room with lair capacity
             {
                 struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
-                room = find_room_with_spare_capacity(plyr_idx, rkind, crstat->lair_size);
+                room = find_room_of_role_with_spare_capacity(plyr_idx, rrole, crstat->lair_size);
                 break;
             }
-        case RoK_TREASURE:
-        case RoK_WORKSHOP:
-        case RoK_LIBRARY:
+        case RoRoF_GoldStorage:
+        case RoRoF_CratesStorage:
+        case RoRoF_PowersStorage:
             // Find room with item capacity
-            room = find_room_with_spare_room_item_capacity(plyr_idx, rkind);
+            room = find_room_of_role_with_spare_room_item_capacity(plyr_idx, rrole);
             break;
         default:
             // Find room with worker capacity
-            room = find_room_with_spare_capacity(plyr_idx, rkind, 1);
+            room = find_room_of_role_with_spare_capacity(plyr_idx, rrole, 1);
             break;
         }
         if (room_is_invalid(room))
         {
-            SYNCDBG(5,"Player %d has %s which cannot find large enough %s",(int)plyr_idx,thing_model_name(creatng),room_code_name(rkind));
-            switch (rkind)
+            SYNCDBG(5,"Player %d has %s which cannot find large enough %s",(int)plyr_idx,thing_model_name(creatng),room_role_code_name(rrole));
+            switch (rrole)
             {
-            case RoK_LAIR:
+            case RoRoF_LairStorage:
                 evidx = event_create_event_or_update_nearby_existing_event(
                     creatng->mappos.x.val, creatng->mappos.y.val, EvKind_NoMoreLivingSet, plyr_idx, creatng->index);
                 break;
-            case RoK_TREASURE:
+            case RoRoF_GoldStorage:
                 evidx = event_create_event_or_update_nearby_existing_event(
                     0, 0, EvKind_TreasureRoomFull, plyr_idx, 0);
                 break;
@@ -507,29 +546,29 @@ EventIndex update_cannot_find_room_wth_spare_capacity_event(PlayerNumber plyr_id
                 break;
             }
             if (evidx > 0) {
-                output_message_room_related_from_computer_or_player_action(plyr_idx, rkind, OMsg_RoomTooSmall);
+                output_message_room_related_from_computer_or_player_action(plyr_idx, find_first_roomkind_with_role(rrole), OMsg_RoomTooSmall);
             }
         } else
         {
-            SYNCDBG(5,"Player %d has %s which cannot reach %s",(int)plyr_idx,thing_model_name(creatng),room_code_name(rkind));
+            SYNCDBG(5,"Player %d has %s which cannot reach %s",(int)plyr_idx,thing_model_name(creatng),room_role_code_name(rrole));
             evidx = event_create_event_or_update_nearby_existing_event(
-                creatng->mappos.x.val, creatng->mappos.y.val, EvKind_WorkRoomUnreachable, plyr_idx, rkind);
+                creatng->mappos.x.val, creatng->mappos.y.val, EvKind_WorkRoomUnreachable, plyr_idx, rrole);
             if (evidx > 0) {
-                output_message_room_related_from_computer_or_player_action(plyr_idx, rkind, OMsg_RoomNoRoute);
+                output_message_room_related_from_computer_or_player_action(plyr_idx, find_first_roomkind_with_role(rrole), OMsg_RoomNoRoute);
             }
         }
     } else
     {
         // We simply don't have the room of that kind
-        if ((rkind == RoK_LAIR) || (rkind == RoK_TREASURE) || is_room_available(plyr_idx, rkind))
+        if (rrole == RoRoF_GoldStorage || rrole == RoRoF_GoldStorage || is_room_of_role_available(plyr_idx, rrole))
         {
-            switch (rkind)
+            switch (rrole)
             {
-            case RoK_LAIR:
+            case RoRoF_LairStorage:
                 evidx = event_create_event_or_update_nearby_existing_event(
                     creatng->mappos.x.val, creatng->mappos.y.val, EvKind_NoMoreLivingSet, plyr_idx, creatng->index);
                 break;
-            case RoK_TREASURE:
+            case RoRoF_GoldStorage:
                 evidx = event_create_event_or_update_nearby_existing_event(
                     0, 0, EvKind_NeedTreasureRoom, plyr_idx, 0);
                 break;
@@ -538,7 +577,7 @@ EventIndex update_cannot_find_room_wth_spare_capacity_event(PlayerNumber plyr_id
                 break;
             }
             if (evidx > 0) {
-                output_message_room_related_from_computer_or_player_action(plyr_idx, rkind, OMsg_RoomNeeded);
+                output_message_room_related_from_computer_or_player_action(plyr_idx, find_first_roomkind_with_role(rrole), OMsg_RoomNeeded);
             }
         }
     }

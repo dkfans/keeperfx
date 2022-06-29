@@ -24,6 +24,7 @@
 #include "game_legacy.h"
 #include "bflib_render.h"
 #include "bflib_sprite.h"
+#include "engine_lenses.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -214,15 +215,9 @@ struct BasicUnk09 {
     struct PolyPoint p1;
     struct PolyPoint p2;
     struct PolyPoint p3;
-    long field_44;
-    long field_48;
-    long field_4C;
-    long field_50;
-    long field_54;
-    long field_58;
-    long field_5C;
-    long field_60;
-    long field_64;
+    struct XYZ c1;
+    struct XYZ c2;
+    struct XYZ c3;
 };
 
 struct BasicUnk10 {
@@ -540,8 +535,8 @@ void do_a_plane_of_engine_columns_isometric(long a1, long a2, long a3, long a4);
 void find_gamut(void);
 void fiddle_gamut(long a1, long a2);
 int floor_height_for_volume_box(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y);
-void process_isometric_map_volume_box(long x, long y, long z);
-void process_frontview_map_volume_box(struct Camera *cam, unsigned char stl_width);
+void process_isometric_map_volume_box(long x, long y, long z, PlayerNumber plyr_idx);
+void process_frontview_map_volume_box(struct Camera *cam, unsigned char stl_width, PlayerNumber plyr_idx);
 void rotpers_parallel_3(struct EngineCoord *epos, struct M33 *matx, long zoom);
 void rotate_base_axis(struct M33 *matx, short a2, unsigned char a3);
 void fill_in_points_perspective(long a1, long a2, struct MinMax *mm);

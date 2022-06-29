@@ -145,7 +145,7 @@ void set_whole_slab_owner(MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber o
 PlayerNumber get_slab_owner_thing_is_on(const struct Thing *thing);
 unsigned long slabmap_wlb(struct SlabMap *slb);
 void slabmap_set_wlb(struct SlabMap *slb, unsigned long wlbflag);
-long get_next_slab_number_in_room(SlabCodedCoords slab_num);
+SlabCodedCoords get_next_slab_number_in_room(SlabCodedCoords slab_num);
 long calculate_effeciency_score_for_room_slab(SlabCodedCoords slab_num, PlayerNumber plyr_idx);
 
 TbBool slab_is_safe_land(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y);
@@ -170,6 +170,8 @@ void update_map_collide(SlabKind slbkind, MapSubtlCoord stl_x, MapSubtlCoord stl
 void copy_block_with_cube_groups(short itm_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 void do_slab_efficiency_alteration(MapSlabCoord slb_x, MapSlabCoord slb_y);
 void do_unprettying(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y);
+
+TbBool slab_kind_has_no_ownership(SlabKind slbkind);
 
 /******************************************************************************/
 #include "roomspace.h"

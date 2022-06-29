@@ -47,7 +47,7 @@ extern "C" {
 /******************************************************************************/
 struct Thing *create_spell_in_library(struct Room *room, ThingModel tngmodel, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    if (room->kind != RoK_LIBRARY) {
+    if (!room_role_matches(room->kind,RoRoF_PowersStorage)) {
         SYNCDBG(4,"Cannot add spell to %s owned by player %d",room_code_name(room->kind),(int)room->owner);
         return INVALID_THING;
     }
@@ -81,7 +81,7 @@ struct Thing *create_spell_in_library(struct Room *room, ThingModel tngmodel, Ma
 
 TbBool remove_spell_from_library(struct Room *room, struct Thing *spelltng, PlayerNumber new_owner)
 {
-    if ( (room->kind != RoK_LIBRARY) || (spelltng->owner != room->owner) ) {
+    if ( (!room_role_matches(room->kind,RoRoF_PowersStorage)) || (spelltng->owner != room->owner) ) {
         SYNCDBG(4,"Spell %s owned by player %d found in a %s owned by player %d, instead of proper library",thing_model_name(spelltng),(int)spelltng->owner,room_code_name(room->kind),(int)room->owner);
         return false;
     }
@@ -191,6 +191,7 @@ TbBool clear_research_for_all_players(void)
 
 TbBool research_needed(const struct ResearchVal *rsrchval, const struct Dungeon *dungeon)
 {
+    struct DungeonAdd* dungeonadd = get_dungeonadd_by_dungeon(dungeon);
     if (dungeon->research_num == 0)
         return false;
     switch (rsrchval->rtyp)
@@ -202,16 +203,16 @@ TbBool research_needed(const struct ResearchVal *rsrchval, const struct Dungeon 
         }
         break;
     case RsCat_Room:
-        if ((dungeon->room_buildable[rsrchval->rkind] & 1) == 0)
+        if ((dungeonadd->room_buildable[rsrchval->rkind] & 1) == 0)
         {
             // Is available for research
-            if (dungeon->room_resrchable[rsrchval->rkind] == 1)
+            if (dungeonadd->room_resrchable[rsrchval->rkind] == 1)
                 return true;
             // Is available for research and reseach instantly completes when the room is first captured
-            else if (dungeon->room_resrchable[rsrchval->rkind] == 2)
+            else if (dungeonadd->room_resrchable[rsrchval->rkind] == 2)
                 return true;
             // Is not available for research until the room is first captured
-            else if ( (dungeon->room_resrchable[rsrchval->rkind] == 4) && (dungeon->room_buildable[rsrchval->rkind] & 2))
+            else if ( (dungeonadd->room_resrchable[rsrchval->rkind] == 4) && (dungeonadd->room_buildable[rsrchval->rkind] & 2))
                 return true;
         }
         break;
@@ -284,6 +285,7 @@ void process_player_research(PlayerNumber plyr_idx)
 {
     //_DK_process_player_research(plyr_idx); return;
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
+    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
     if (!player_has_room_of_role(plyr_idx, RoRoF_Research)) {
         return;
     }
@@ -316,7 +318,7 @@ void process_player_research(PlayerNumber plyr_idx)
         if (dungeon->magic_resrchable[rsrchval->rkind])
         {
             PowerKind pwkind = rsrchval->rkind;
-            room = find_room_with_spare_room_item_capacity(plyr_idx, RoK_LIBRARY);
+            room = find_room_of_role_with_spare_room_item_capacity(plyr_idx, RoRoF_PowersStorage);
             struct PowerConfigStats* powerst = get_power_model_stats(pwkind);
             if (powerst->artifact_model < 1) {
                 ERRORLOG("Tried to research power with no associated artifact");
@@ -335,7 +337,7 @@ void process_player_research(PlayerNumber plyr_idx)
                 ERRORLOG("Could not create %s artifact",power_code_name(pwkind));
                 return;
             }
-            room = find_random_room_for_thing_with_spare_room_item_capacity(spelltng, plyr_idx, RoK_LIBRARY, 0);
+            room = find_random_room_of_role_for_thing_with_spare_room_item_capacity(spelltng, plyr_idx, RoRoF_PowersStorage, 0);
             if (room_is_invalid(room))
             {
                 ERRORLOG("There should be %s for %s artifact, but not found",room_code_name(RoK_LIBRARY),power_code_name(pwkind));
@@ -368,15 +370,15 @@ void process_player_research(PlayerNumber plyr_idx)
         break;
     }
     case RsCat_Room:
-        if (dungeon->room_resrchable[rsrchval->rkind])
+        if (dungeonadd->room_resrchable[rsrchval->rkind])
         {
             RoomKind rkind;
             rkind = rsrchval->rkind;
             event_create_event(0, 0, EvKind_NewRoomResrch, plyr_idx, rkind);
-            dungeon->room_buildable[rkind] |= 3; // Player may build room and may research it again
+            dungeonadd->room_buildable[rkind] |= 3; // Player may build room and may research it again
             if (is_my_player_number(plyr_idx))
                 output_message(SMsg_ResearchedRoom, 0, true);
-            room = find_room_with_spare_room_item_capacity(plyr_idx, RoK_LIBRARY);
+            room = find_room_of_role_with_spare_room_item_capacity(plyr_idx, RoRoF_PowersStorage);
             if (!room_is_invalid(room))
             {
                 pos.x.val = subtile_coord_center(room->central_stl_x);
@@ -408,18 +410,18 @@ void process_player_research(PlayerNumber plyr_idx)
 
 void research_found_room(PlayerNumber plyr_idx, RoomKind rkind)
 {
-    struct Dungeon* dungeon = get_dungeon(plyr_idx);
+    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
      // Player got room to build instantly
-    if ((dungeon->room_resrchable[rkind] == 2)
-        || (dungeon->room_resrchable[rkind] == 3)
+    if ((dungeonadd->room_resrchable[rkind] == 2)
+        || (dungeonadd->room_resrchable[rkind] == 3)
         )
     {
-        dungeon->room_buildable[rkind] = 3;
+        dungeonadd->room_buildable[rkind] = 3;
     }
     else
     {
         // Player may research room then it is claimed
-        dungeon->room_buildable[rkind] |= 2; 
+        dungeonadd->room_buildable[rkind] |= 2; 
     }
 }
 /******************************************************************************/

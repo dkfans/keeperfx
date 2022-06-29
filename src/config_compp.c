@@ -932,19 +932,19 @@ short parse_computer_player_computer_blocks(char *buf, long len, const char *con
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              cpt->field_4 = k;
+              cpt->dig_stack_size = k;
               n++;
             }
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              cpt->field_8 = k;
+              cpt->processes_time = k;
               n++;
             }
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              cpt->field_C = k;
+              cpt->click_rate = k;
               n++;
             }
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
@@ -956,7 +956,7 @@ short parse_computer_player_computer_blocks(char *buf, long len, const char *con
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              cpt->field_14 = k;
+              cpt->turn_begin = k;
               n++;
             }
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)

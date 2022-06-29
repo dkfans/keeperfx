@@ -411,10 +411,19 @@ TbBool set_pointer_graphic(long ptr_idx)
   case MousePG_PlaceTrap04:
   case MousePG_PlaceTrap05:
   case MousePG_PlaceTrap06:
+  case MousePG_PlaceTrap07:
+  case MousePG_PlaceTrap08:
+  case MousePG_PlaceTrap09:
+  case MousePG_PlaceTrap10:
+  case MousePG_PlaceTrap11:
+  case MousePG_PlaceTrap12:
+  case MousePG_PlaceTrap13:
+  case MousePG_PlaceTrap14:
   case MousePG_PlaceDoor01:
   case MousePG_PlaceDoor02:
   case MousePG_PlaceDoor03:
   case MousePG_PlaceDoor04:
+  case MousePG_Mystery:
       spr = &pointer_sprites[ptr_idx];
       x = 12; y = 38;
       break;
@@ -463,6 +472,21 @@ TbBool set_pointer_graphic(long ptr_idx)
   case 103:
       spr = &pointer_sprites[ptr_idx];
       x = 12; y = 15;
+      break;
+  case MousePG_PlaceImpRock:
+  case MousePG_PlaceGold:
+  case MousePG_PlaceEarth:
+  case MousePG_PlaceWall:
+  case MousePG_PlacePath:
+  case MousePG_PlaceClaimed:
+  case MousePG_PlaceLava:
+  case MousePG_PlaceWater:
+  case MousePG_PlaceGems:
+  case MousePG_MkDigger:
+  case MousePG_MkCreature:
+  case MousePG_MvCreature:
+      spr = &pointer_sprites[ptr_idx];
+      x = 12; y = 38;
       break;
   default:
       spr = get_new_icon_sprite(ptr_idx);
@@ -928,8 +952,13 @@ TbScreenMode switch_to_next_video_mode(void)
     }
     SYNCLOG("Switched video to %s (mode %d)", get_vidmode_name(scrmode),(int)scrmode);
     save_settings();
+    TbBool reload_video = (menu_is_active(GMnu_VIDEO));
     reinit_all_menus();
     init_custom_sprites(SPRITE_LAST_LEVEL);
+    if (reload_video)
+    {
+        turn_on_menu(GMnu_VIDEO);
+    }
     return scrmode;
 }
 
