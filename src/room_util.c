@@ -560,7 +560,7 @@ EventIndex update_cannot_find_room_of_role_wth_spare_capacity_event(PlayerNumber
     } else
     {
         // We simply don't have the room of that kind
-        if (rrole == RoRoF_GoldStorage || rrole == RoRoF_GoldStorage || is_room_of_role_available(plyr_idx, rrole))
+        if (rrole == RoRoF_LairStorage || rrole == RoRoF_GoldStorage || is_room_of_role_available(plyr_idx, rrole))
         {
             switch (rrole)
             {
