@@ -638,7 +638,7 @@ void get_dungeon_sell_user_roomspace(struct RoomSpace *roomspace, PlayerNumber p
         current_roomspace.is_roomspace_a_box = true;
         current_roomspace.render_roomspace_as_box = true;
         current_roomspace = create_box_roomspace(current_roomspace, playeradd->roomspace_width, playeradd->roomspace_height, slb_x, slb_y);
-        current_roomspace.drag_direction = 0;
+        current_roomspace.drag_direction = top_left_to_bottom_right;
         current_roomspace = check_roomspace_for_sellable_slabs(current_roomspace, plyr_idx);
     }
     else if (playeradd->roomspace_mode == single_subtile_mode)
@@ -671,26 +671,22 @@ void get_dungeon_sell_user_roomspace(struct RoomSpace *roomspace, PlayerNumber p
         {
             if (roomspace->drag_start_x > roomspace->drag_end_x)
             {
-                // bottom-right to top-left
-                current_roomspace.drag_direction = 1;
+                current_roomspace.drag_direction = bottom_right_to_top_left;
             }
             else
             {
-                // bottom-right or bottom-left to top-right
-                current_roomspace.drag_direction = 3;
+                current_roomspace.drag_direction = bottom_left_to_top_right;
             }
         }
         else
         {
             if (roomspace->drag_start_x > roomspace->drag_end_x)
             {
-                // top-right to bottom-left
-                current_roomspace.drag_direction = 2;
+                current_roomspace.drag_direction = top_right_to_bottom_left;
             }
             else
             {
-                // top-left to bottom-right
-                current_roomspace.drag_direction = 0;
+                current_roomspace.drag_direction = top_left_to_bottom_right;
             }
         }
         current_roomspace = check_roomspace_for_sellable_slabs(current_roomspace, plyr_idx);
@@ -774,26 +770,22 @@ void get_dungeon_build_user_roomspace(struct RoomSpace *roomspace, PlayerNumber 
         {
             if (roomspace->drag_start_x > roomspace->drag_end_x)
             {
-                // bottom-right to top-left
-                temp_best_room.drag_direction = 1;
+                temp_best_room.drag_direction = bottom_right_to_top_left;
             }
             else
             {
-                // bottom-right or bottom-left to top-right
-                temp_best_room.drag_direction = 3;
+                temp_best_room.drag_direction = bottom_left_to_top_right;
             }
         }
         else
         {
             if (roomspace->drag_start_x > roomspace->drag_end_x)
             {
-                // top-right to bottom-left
-                temp_best_room.drag_direction = 2;
+                temp_best_room.drag_direction = top_right_to_bottom_left;
             }
             else
             {
-                // top-left to bottom-right
-                temp_best_room.drag_direction = 0;
+                temp_best_room.drag_direction = top_left_to_bottom_right;
             }
         }
         temp_best_room = check_slabs_in_roomspace(temp_best_room, rstat->cost);
@@ -806,7 +798,7 @@ void get_dungeon_build_user_roomspace(struct RoomSpace *roomspace, PlayerNumber 
     else
     {
         temp_best_room = create_box_roomspace(best_roomspace, playeradd->roomspace_width, playeradd->roomspace_height, slb_x, slb_y);
-        temp_best_room.drag_direction = 0;
+        temp_best_room.drag_direction = top_left_to_bottom_right;
         temp_best_room = check_slabs_in_roomspace(temp_best_room, rstat->cost);
         best_roomspace = temp_best_room;
         player->boxsize = best_roomspace.slab_count; // correct number of tiles returned from check_slabs_in_roomspace
@@ -1057,9 +1049,8 @@ static void keeper_update_roomspace(struct RoomSpace *roomspace)
     {
         switch (roomspace->drag_direction)
         {
-            case 0:
+            case top_left_to_bottom_right:
             {
-                // top-left to bottom-right
                 do
                 {
                     roomspace->buildx++;
@@ -1081,9 +1072,8 @@ static void keeper_update_roomspace(struct RoomSpace *roomspace)
                 while ( (roomspace->rkind != RoK_SELL) && (!can_build_room_at_slab(roomspace->plyr_idx, roomspace->rkind, roomspace->buildx, roomspace->buildy)) );
                 break;
             }
-            case 1:
+            case bottom_right_to_top_left:
             {
-                // bottom-right to top-left
                 do
                 {
                     roomspace->buildx--;
@@ -1105,9 +1095,8 @@ static void keeper_update_roomspace(struct RoomSpace *roomspace)
                 while ( (roomspace->rkind != RoK_SELL) && (!can_build_room_at_slab(roomspace->plyr_idx, roomspace->rkind, roomspace->buildx, roomspace->buildy)) );
                 break;
             }
-            case 2:
+            case top_right_to_bottom_left:
             {
-                // top-right to bottom-left
                 do
                 {
                     roomspace->buildx--;
@@ -1129,9 +1118,8 @@ static void keeper_update_roomspace(struct RoomSpace *roomspace)
                 while ( (roomspace->rkind != RoK_SELL) && (!can_build_room_at_slab(roomspace->plyr_idx, roomspace->rkind, roomspace->buildx, roomspace->buildy)) );
                 break;
             }
-            case 3:
+            case bottom_left_to_top_right:
             {
-                // bottom-right or bottom-left to top-right
                 do
                 {
                     roomspace->buildx++;
@@ -1167,7 +1155,7 @@ static void keeper_update_roomspace(struct RoomSpace *roomspace)
             }
             if (!roomspace->is_roomspace_a_box)
             {
-                find_next_point(roomspace, 0);
+                find_next_point(roomspace, top_left_to_bottom_right);
             }
             if ((roomspace->buildy > roomspace->bottom) || (roomspace->buildx > roomspace->right))
             {
@@ -1390,7 +1378,7 @@ void update_slab_grid(struct RoomSpace* roomspace, unsigned char mode, TbBool se
     TbBool can;
     switch (mode)
     {
-        case 0: // top-left to bottom-right
+        case top_left_to_bottom_right:
         {
             for (y = 0; y < roomspace->height; y++)
             {
@@ -1416,7 +1404,7 @@ void update_slab_grid(struct RoomSpace* roomspace, unsigned char mode, TbBool se
             }
             break;
         }
-        case 1: // bottom-right to top-left
+        case bottom_right_to_top_left:
         {
             for (y = 0; y < roomspace->height; y++)
             {
@@ -1442,7 +1430,7 @@ void update_slab_grid(struct RoomSpace* roomspace, unsigned char mode, TbBool se
             }
             break;
         }
-        case 2: // top-right to bottom-left
+        case top_right_to_bottom_left:
         {
             for (y = 0; y < roomspace->height; y++)
             {
@@ -1468,7 +1456,7 @@ void update_slab_grid(struct RoomSpace* roomspace, unsigned char mode, TbBool se
             }
             break;
         }
-        case 3: // bottom-left to top-right
+        case bottom_left_to_top_right:
         {
             for (y = 0; y < roomspace->height; y++)
             {

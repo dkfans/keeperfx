@@ -54,6 +54,13 @@ enum roomspace_tolerance_layers {
     tolerate_other_claimed_path = 9,
 };
 
+enum roomspace_directions {
+    top_left_to_bottom_right = 0,
+    bottom_right_to_top_left = 1,
+    top_right_to_bottom_left = 2,
+    bottom_left_to_top_right = 3,
+};
+
 // RoomSpace describes a space or "roomspace" - i.e. a collection of slabs that are a valid
 // location from the currently selected room type (when placing rooms).
 // The 2D array of booleans, slab_grid[][] describes each of the slabs within
