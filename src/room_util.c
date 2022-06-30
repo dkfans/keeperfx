@@ -517,7 +517,7 @@ EventIndex update_cannot_find_room_of_role_wth_spare_capacity_event(PlayerNumber
                 room = find_room_of_role_with_spare_capacity(plyr_idx, rrole, crstat->lair_size);
                 break;
             }
-        case RoRoF_GoldStorage:
+        // For Treasure rooms, the item capacity is the amount of gold, not the number of gold hoardes.
         case RoRoF_CratesStorage:
         case RoRoF_PowersStorage:
             // Find room with item capacity
@@ -551,10 +551,11 @@ EventIndex update_cannot_find_room_of_role_wth_spare_capacity_event(PlayerNumber
         } else
         {
             SYNCDBG(5,"Player %d has %s which cannot reach %s",(int)plyr_idx,thing_model_name(creatng),room_role_code_name(rrole));
+            RoomKind rkind = find_first_roomkind_with_role(rrole);
             evidx = event_create_event_or_update_nearby_existing_event(
-                creatng->mappos.x.val, creatng->mappos.y.val, EvKind_WorkRoomUnreachable, plyr_idx, rrole);
+                creatng->mappos.x.val, creatng->mappos.y.val, EvKind_WorkRoomUnreachable, plyr_idx, rkind);
             if (evidx > 0) {
-                output_message_room_related_from_computer_or_player_action(plyr_idx, find_first_roomkind_with_role(rrole), OMsg_RoomNoRoute);
+                output_message_room_related_from_computer_or_player_action(plyr_idx, rkind, OMsg_RoomNoRoute);
             }
         }
     } else
