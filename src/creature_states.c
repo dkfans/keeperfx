@@ -3312,29 +3312,26 @@ CrCheckRet move_check_attack_any_door(struct Thing *creatng)
     return 1;
 }
 
-TbBool sub_48D4E0(int plyr_idx, int slb_x, int slb_y)
+static TbBool slab_is_good_spot_to_stand_to_damage_wall(int plyr_idx, int slb_x, int slb_y)
 {
-  int v3; // ecx
+    struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
 
-  v3 = (unsigned __int8)game_slabmap[510 * slb_y + 6 * slb_x];
-  return (slabmap_owner[510 * *((_DWORD *)&map_to_slab + 3 * slb_y) + 6 * *((_DWORD *)&map_to_slab + 3 * slb_x)] & 7) == plyr_idx
-      && byte_5133D2[22 * v3]
-      && v3 != 13
-      && v3 != 12;
+    return (slabmap_owner(slb) == plyr_idx &&
+            slab_is_safe_land(plyr_idx, slb_x, slb_y) &&
+            !slab_is_liquid(slb_x, slb_y));
 }
 
 CrCheckRet move_check_can_damage_wall(struct Thing *creatng)
 {
     char *sar; // esi
-    int v2; // ecx
-    int v3; // edi
+    int stl_x; // ecx
+    int stl_y; // edi
     int v5; // edi
     int around_idx; // ebx
     int v7; // ebp
     __int32 unk_x; // esi
     __int32 unk_y; // edi
     struct Coord3d pos; // [esp+10h] [ebp-18h] BYREF
-    int v11; // [esp+18h] [ebp-10h]
     int y_stl_num; // [esp+1Ch] [ebp-Ch]
     int unk_2_x; // [esp+20h] [ebp-8h]
     int unk_2_y; // [esp+24h] [ebp-4h]
@@ -3368,46 +3365,49 @@ CrCheckRet move_check_can_damage_wall(struct Thing *creatng)
         return 0;
 
 
+    SubtlCodedCoords stl_num = get_subtile_number(stl_x, stl_y);
 
-  v11 = v2 + (v3 << 8);
-  unk_2_x = ((v11 >> 31) ^ (unsigned __int8)abs32(v11)) - (v11 >> 31);
-  v5 = v11 / 256 - y_stl_num;
-  unk_2_y = v11 / 256;
-  if ( (int)abs32(v5) >= (int)abs32(unk_2_x - *(_DWORD *)&pos.x_stl_pos) )
-  {
-    around_idx = v5 > 0 ? 0 : 2;
-  }
-  else
-  {
-    around_idx = 3;
-    if ( unk_2_x - *(_DWORD *)&pos.x_stl_pos <= 0 )
-      around_idx = 1;
-  }
-  v7 = 0;
-  while ( 1 )
-  {
-    unk_x = unk_2_x + 2 * small_around[2 * around_idx];
-    unk_y = unk_2_y + 2 * small_around[2 * around_idx + 1];
-    if ( sub_48D4E0(creatng->owner, *((_DWORD *)&map_to_slab + unk_x), *((_DWORD *)&map_to_slab + unk_y)) )
+    unk_2_x = ((stl_num >> 31) ^ (unsigned __int8)abs(stl_num)) - (stl_num >> 31);
+
+    unk_2_y = stl_num / 256;
+
+    v5 = stl_num / 256 - y_stl_num;
+    
+    if ( (int)abs(v5) >= (int)abs(unk_2_x - *(_DWORD *)&pos.x_stl_pos) )
     {
-      pos.x.val = (unk_x << 8) + 128;
-      pos.y.val = (unk_y << 8) + 128;
-      pos.z.val = get_thing_height_at(creatng, &pos);
-      if ( creature_can_navigate_to_with_storage(creatng, &pos, 0) != -1 )
-        break;
+        around_idx = v5 > 0 ? 0 : 2;
     }
-    ++v7;
-    around_idx = (around_idx + 1) % 4;
-    if ( v7 >= 4 )
-      return 1;
-  }
-  if ( setup_person_move_to_position(creatng, unk_x, unk_y, 0) )
-  {
-    creatng->continue_state = CrSt_CreatureDamageWalls;
-    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    cctrl->damage_wall_coords = v11;
-  }
-  return 1;
+    else
+    {
+        around_idx = 3;
+        if ( unk_2_x - *(_DWORD *)&pos.x_stl_pos <= 0 )
+        around_idx = 1;
+    }
+    v7 = 0;
+    while ( 1 )
+    {
+        unk_x = unk_2_x + 2 * small_around[2 * around_idx];
+        unk_y = unk_2_y + 2 * small_around[2 * around_idx + 1];
+        if ( slab_is_good_spot_to_stand_to_damage_wall(creatng->owner, *((_DWORD *)&map_to_slab + unk_x), *((_DWORD *)&map_to_slab + unk_y)) )
+        {
+        pos.x.val = (unk_x << 8) + 128;
+        pos.y.val = (unk_y << 8) + 128;
+        pos.z.val = get_thing_height_at(creatng, &pos);
+        if ( creature_can_navigate_to_with_storage(creatng, &pos, 0) != -1 )
+            break;
+        }
+        ++v7;
+        around_idx = (around_idx + 1) % 4;
+        if ( v7 >= 4 )
+        return 1;
+    }
+    if ( setup_person_move_to_position(creatng, unk_x, unk_y, 0) )
+    {
+        creatng->continue_state = CrSt_CreatureDamageWalls;
+        struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+        cctrl->damage_wall_coords = stl_num;
+    }
+    return 1;
 }
 
 CrAttackType creature_can_have_combat_with_creature_on_slab(struct Thing *creatng, MapSlabCoord slb_x, MapSlabCoord slb_y, struct Thing ** enemytng)
