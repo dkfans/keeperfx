@@ -828,7 +828,6 @@ long computer_check_enemy_entrances(struct Computer2 *comp, struct ComputerCheck
         if (players_are_mutual_allies(comp->dungeon->owner, plyr_idx)) {
             continue;
         }
-        struct PlayerInfo* player = get_player(plyr_idx);
         struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
         long i = dungeonadd->room_kind[RoK_ENTRANCE];
         unsigned long k = 0;
