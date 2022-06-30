@@ -2060,7 +2060,13 @@ TbBool set_power_available(PlayerNumber plyr_idx, PowerKind pwkind, long resrch,
     if (avail <= 0)
     {
         if (is_power_available(plyr_idx, pwkind))
+        {
             remove_power_from_player(pwkind, plyr_idx);
+        }
+        return true;
+    }
+    if (is_power_available(plyr_idx, pwkind))
+    {
         return true;
     }
     return add_power_to_player(pwkind, plyr_idx);
