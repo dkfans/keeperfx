@@ -1041,8 +1041,7 @@ static void keeper_update_roomspace(struct RoomSpace *roomspace)
             roomspace->is_active = false;
             return;
         }
-            keeper_build_room(slab_subtile(roomspace->buildx, 0), slab_subtile(roomspace->buildy, 0),
-            roomspace->plyr_idx, roomspace->rkind);
+        keeper_build_room(slab_subtile(roomspace->buildx, 0), slab_subtile(roomspace->buildy, 0), roomspace->plyr_idx, roomspace->rkind);
     }
     // find next point
     if (roomspace->drag_mode)
