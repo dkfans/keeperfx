@@ -3323,29 +3323,19 @@ static TbBool slab_is_good_spot_to_stand_to_damage_wall(int plyr_idx, int slb_x,
 
 CrCheckRet move_check_can_damage_wall(struct Thing *creatng)
 {
-    char *sar; // esi
-    int stl_x; // ecx
-    int stl_y; // edi
-    int v5; // edi
     int around_idx; // ebx
-    int v7; // ebp
-    __int32 unk_x; // esi
-    __int32 unk_y; // edi
     struct Coord3d pos; // [esp+10h] [ebp-18h] BYREF
-    int y_stl_num; // [esp+1Ch] [ebp-Ch]
-    int unk_2_x; // [esp+20h] [ebp-8h]
-    int unk_2_y; // [esp+24h] [ebp-4h]
-
+    MapSubtlCoord stl_x;
+    MapSubtlCoord stl_y;
     pos.x.val = creatng->mappos.x.val;
     pos.y.val = creatng->mappos.y.val;
-    y_stl_num = creatng->mappos.y.stl.num;
 
 
     TbBool wall_found = false;
     for (int i = 0; i < SMALL_AROUND_LENGTH; i++)
     {
-        MapSubtlCoord stl_x = STL_PER_SLB * ((creatng->mappos.x.stl.pos + STL_PER_SLB * small_around[i].delta_x) / STL_PER_SLB) + 1;
-        MapSubtlCoord stl_y = STL_PER_SLB * ((creatng->mappos.y.stl.pos + STL_PER_SLB * small_around[i].delta_y) / STL_PER_SLB) + 1;
+        stl_x = STL_PER_SLB * ((creatng->mappos.x.stl.pos + STL_PER_SLB * small_around[i].delta_x) / STL_PER_SLB) + 1;
+        stl_y = STL_PER_SLB * ((creatng->mappos.y.stl.pos + STL_PER_SLB * small_around[i].delta_y) / STL_PER_SLB) + 1;
 
         struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
         PlayerNumber slab_owner = slabmap_owner(slb);
@@ -3364,44 +3354,47 @@ CrCheckRet move_check_can_damage_wall(struct Thing *creatng)
     if (!wall_found)
         return 0;
 
-
     SubtlCodedCoords stl_num = get_subtile_number(stl_x, stl_y);
 
-    unk_2_x = ((stl_num >> 31) ^ (unsigned __int8)abs(stl_num)) - (stl_num >> 31);
+    MapSubtlDelta delta_x = stl_x - creatng->mappos.x.stl.num;
+    MapSubtlDelta delta_y = stl_y - creatng->mappos.y.stl.num;
 
-    unk_2_y = stl_num / 256;
-
-    v5 = stl_num / 256 - y_stl_num;
-    
-    if ( (int)abs(v5) >= (int)abs(unk_2_x - *(_DWORD *)&pos.x_stl_pos) )
+    if ( abs(delta_y) >= abs(delta_x) )
     {
-        around_idx = v5 > 0 ? 0 : 2;
+        if ( delta_y <= 0 )
+            around_idx = 2;
+        else
+            around_idx = 0;
     }
     else
     {
-        around_idx = 3;
-        if ( unk_2_x - *(_DWORD *)&pos.x_stl_pos <= 0 )
-        around_idx = 1;
+        if ( delta_x <= 0 )
+            around_idx = 1;
+        else
+            around_idx = 3;
     }
-    v7 = 0;
+
+    int i = 0;
+    MapSubtlCoord ar_stl_x;
+    MapSubtlCoord ar_stl_y;
     while ( 1 )
     {
-        unk_x = unk_2_x + 2 * small_around[2 * around_idx];
-        unk_y = unk_2_y + 2 * small_around[2 * around_idx + 1];
-        if ( slab_is_good_spot_to_stand_to_damage_wall(creatng->owner, *((_DWORD *)&map_to_slab + unk_x), *((_DWORD *)&map_to_slab + unk_y)) )
+        ar_stl_x = stl_x + 2 * small_around[around_idx].delta_x;
+        ar_stl_y = stl_y + 2 * small_around[around_idx].delta_y;
+        if ( slab_is_good_spot_to_stand_to_damage_wall(creatng->owner, subtile_slab(ar_stl_x), subtile_slab(ar_stl_y)) )
         {
-        pos.x.val = (unk_x << 8) + 128;
-        pos.y.val = (unk_y << 8) + 128;
-        pos.z.val = get_thing_height_at(creatng, &pos);
-        if ( creature_can_navigate_to_with_storage(creatng, &pos, 0) != -1 )
-            break;
+            pos.x.val = subtile_coord_center(ar_stl_x);
+            pos.y.val = subtile_coord_center(ar_stl_y);
+            pos.z.val = get_thing_height_at(creatng, &pos);
+            if ( creature_can_navigate_to_with_storage(creatng, &pos, 0) != -1 )
+                break;
         }
-        ++v7;
-        around_idx = (around_idx + 1) % 4;
-        if ( v7 >= 4 )
-        return 1;
+        ++i;
+        around_idx = (around_idx + 1) % SMALL_AROUND_LENGTH;
+        if ( i >= SMALL_AROUND_LENGTH )
+            return 1;
     }
-    if ( setup_person_move_to_position(creatng, unk_x, unk_y, 0) )
+    if ( setup_person_move_to_position(creatng, ar_stl_x, ar_stl_y, 0) )
     {
         creatng->continue_state = CrSt_CreatureDamageWalls;
         struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
