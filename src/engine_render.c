@@ -2391,7 +2391,7 @@ void process_isometric_map_volume_box(long x, long y, long z, PlayerNumber plyr_
             // This is a "2-line" square box
             // i.e. an "accurate" box with an outer square box
             map_volume_box.color = line_color;
-            create_fancy_map_volume_box(current_playeradd->render_roomspace, x, y, z, SLC_BROWN, true);
+            create_fancy_map_volume_box(current_playeradd->render_roomspace, x, y, z, (current_playeradd->render_roomspace.slab_count == 0) ? SLC_RED : SLC_BROWN, true);
         }
     }
     else
@@ -8147,7 +8147,7 @@ void process_frontview_map_volume_box(struct Camera *cam, unsigned char stl_widt
             // This is a "2-line" square box
             // i.e. an "accurate" box with an outer square box
             map_volume_box.color = line_color;
-            create_fancy_frontview_map_volume_box(current_playeradd->render_roomspace, cam, stl_width, SLC_BROWN, true);
+            create_fancy_frontview_map_volume_box(current_playeradd->render_roomspace, cam, stl_width, (current_playeradd->render_roomspace.slab_count == 0) ? SLC_RED : SLC_BROWN, true);
         }
     }
     else
