@@ -788,7 +788,7 @@ void get_dungeon_build_user_roomspace(struct RoomSpace *roomspace, PlayerNumber 
                 temp_best_room.drag_direction = top_left_to_bottom_right;
             }
         }
-        temp_best_room = check_slabs_in_roomspace(temp_best_room, rstat->cost);
+        temp_best_room = check_slabs_in_roomspace(temp_best_room, roomst->cost);
         best_roomspace = temp_best_room;
         player->boxsize = best_roomspace.slab_count;
         playeradd->roomspace_width = best_roomspace.width;
@@ -799,7 +799,7 @@ void get_dungeon_build_user_roomspace(struct RoomSpace *roomspace, PlayerNumber 
     {
         temp_best_room = create_box_roomspace(best_roomspace, playeradd->roomspace_width, playeradd->roomspace_height, slb_x, slb_y);
         temp_best_room.drag_direction = top_left_to_bottom_right;
-        temp_best_room = check_slabs_in_roomspace(temp_best_room, rstat->cost);
+        temp_best_room = check_slabs_in_roomspace(temp_best_room, roomst->cost);
         best_roomspace = temp_best_room;
         player->boxsize = best_roomspace.slab_count; // correct number of tiles returned from check_slabs_in_roomspace
             // Make sure the "outer box" bounding is drawn with square room mode
