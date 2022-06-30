@@ -152,7 +152,7 @@ TbBool thing_affected_by_spell(const struct Thing *thing, SpellKind spkind);
 GameTurnDelta get_spell_duration_left_on_thing_f(const struct Thing *thing, SpellKind spkind, const char *func_name);
 #define get_spell_duration_left_on_thing(thing, spkind) get_spell_duration_left_on_thing_f(thing, spkind, __func__)
 
-void anger_set_creature_anger_all_types(struct Thing *thing, long a2);
+void anger_set_creature_anger_all_types(struct Thing *thing, long new_value);
 void change_creature_owner(struct Thing *thing, PlayerNumber nowner);
 struct Thing *find_players_next_creature_of_breed_and_gui_job(long breed_idx, long job_idx, PlayerNumber plyr_idx, unsigned char pick_flags);
 struct Thing *pick_up_creature_of_model_and_gui_job(long breed_idx, long job_idx, PlayerNumber owner, unsigned char pick_flags);

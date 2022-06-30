@@ -45,8 +45,7 @@ struct UnkStruc6 { // sizeof = 8
 
 struct ShadowCache { // sizeof = 129
   unsigned char flags;
-  unsigned char field_1[127];
-  unsigned char field_80;
+  unsigned int field_1[32];
 };
 
 /**
@@ -59,9 +58,9 @@ struct LightsShadows { // sizeof = 164886
     struct ShadowCache shadow_cache[SHADOW_CACHE_COUNT];
     unsigned short stat_light_map[256*256];
     long field_46149;
-    char field_4614D;
+    char light_enabled;
     char field_4614E;
-    int field_4614F;
+    unsigned long light_rand_seed;
     int field_46153;
     unsigned short subtile_lightness[256*256];
 };

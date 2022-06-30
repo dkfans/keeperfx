@@ -38,8 +38,8 @@ TbBool can_afford_roomspace(PlayerNumber plyr_idx, RoomKind rkind, int slab_coun
 {
     struct PlayerInfo* player = get_player(plyr_idx);
     struct Dungeon* dungeon = get_players_dungeon(player);
-    struct RoomStats* rstat = room_stats_get_for_kind(rkind);
-    return (slab_count * rstat->cost <= dungeon->total_money_owned);
+    struct RoomConfigStats* roomst = get_room_kind_stats(rkind);
+    return (slab_count * roomst->cost <= dungeon->total_money_owned);
 }
 
 int calc_distance_from_roomspace_centre(int total_distance, TbBool offset)
@@ -711,7 +711,7 @@ void get_dungeon_build_user_roomspace(struct RoomSpace *roomspace, PlayerNumber 
     struct RoomSpace best_roomspace;
     best_roomspace.is_roomspace_a_box = true;
     best_roomspace.render_roomspace_as_box = true;
-    struct RoomStats* rstat = room_stats_get_for_kind(rkind);
+    struct RoomConfigStats* roomst = get_room_kind_stats(rkind);
     best_roomspace.plyr_idx = plyr_idx;
     best_roomspace.rkind = rkind;
     MapSlabCoord drag_start_x = slb_x;
@@ -744,7 +744,7 @@ void get_dungeon_build_user_roomspace(struct RoomSpace *roomspace, PlayerNumber 
     }
     if (mode == roomspace_detection_mode) // room auto-detection mode
     {
-        best_roomspace = get_biggest_roomspace(plyr_idx, rkind, slb_x, slb_y, rstat->cost, 0, 32, playeradd->roomspace_detection_looseness);
+        best_roomspace = get_biggest_roomspace(plyr_idx, rkind, slb_x, slb_y, roomst->cost, 0, 32, playeradd->roomspace_detection_looseness);
         slb_x = best_roomspace.centreX;
         slb_y = best_roomspace.centreY;
         player->boxsize = best_roomspace.slab_count; // correct number of tiles always returned from get_biggest_roomspace

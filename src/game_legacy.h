@@ -221,7 +221,7 @@ short field_14BB65[592];
     struct Coord3d pos_14C006;
     struct Packet packets[PACKETS_COUNT];
     struct CreatureStatsOLD creature_stats_OLD[CREATURE_TYPES_COUNT]; // New stats are in GameAdd
-    struct RoomStats room_stats[ROOM_TYPES_COUNT];
+    struct RoomStatsOLD room_stats_OLD[ROOM_TYPES_COUNT_OLD];
     struct MagicStats keeper_power_stats[POWER_TYPES_COUNT];
     struct ActionPoint action_points[ACTN_POINTS_COUNT];
 char active_players_count;

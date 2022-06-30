@@ -98,7 +98,7 @@ long check_out_unclaimed_unconscious_bodies(struct Thing *spdigtng, long range)
         return 0;
     }
     struct CreatureControl* cctrl = creature_control_get_from_thing(spdigtng);
-    struct Room* room = find_nearest_room_for_thing_with_spare_capacity(spdigtng, spdigtng->owner, RoK_PRISON, NavRtF_Default, 1);
+    struct Room* room = find_nearest_room_of_role_for_thing_with_spare_capacity(spdigtng, spdigtng->owner, RoRoF_Prison, NavRtF_Default, 1);
     // We either found a room or not - but we can't generate event based on it yet, because we don't even know if there's any thing to pick
     const struct StructureList* slist = get_list_for_thing_class(TCls_Creature);
     unsigned long k = 0;
@@ -119,7 +119,7 @@ long check_out_unclaimed_unconscious_bodies(struct Thing *spdigtng, long range)
                 {
                     // We have a thing which we should pick - now check if the room we found is correct
                     if (room_is_invalid(room)) {
-                        update_cannot_find_room_wth_spare_capacity_event(spdigtng->owner, spdigtng, RoK_PRISON);
+                        update_cannot_find_room_of_role_wth_spare_capacity_event(spdigtng->owner, spdigtng, RoRoF_Prison);
                         return 0;
                     }
                     if (setup_person_move_to_coord(spdigtng, &thing->mappos, NavRtF_Default)) {
@@ -147,7 +147,7 @@ long check_out_unclaimed_dead_bodies(struct Thing *spdigtng, long range)
         return 0;
     }
     struct CreatureControl* cctrl = creature_control_get_from_thing(spdigtng);
-    struct Room* room = find_nearest_room_for_thing_with_spare_capacity(spdigtng, spdigtng->owner, RoK_GRAVEYARD, NavRtF_Default, 1);
+    struct Room* room = find_nearest_room_of_role_for_thing_with_spare_capacity(spdigtng, spdigtng->owner, RoRoF_DeadStorage, NavRtF_Default, 1);
     // We either found a room or not - but we can't generate event based on it yet, because we don't even know if there's any thing to pick
     const struct StructureList* slist = get_list_for_thing_class(TCls_DeadCreature);
     unsigned long k = 0;
@@ -168,7 +168,7 @@ long check_out_unclaimed_dead_bodies(struct Thing *spdigtng, long range)
                 {
                     // We have a thing which we should pick - now check if the room we found is correct
                     if (room_is_invalid(room)) {
-                        update_cannot_find_room_wth_spare_capacity_event(spdigtng->owner, spdigtng, RoK_GRAVEYARD);
+                        update_cannot_find_room_of_role_wth_spare_capacity_event(spdigtng->owner, spdigtng, RoRoF_DeadStorage);
                         return 0;
                     }
                     if (setup_person_move_to_coord(spdigtng, &thing->mappos, NavRtF_Default)) {
@@ -198,7 +198,7 @@ long check_out_unclaimed_spells(struct Thing *spdigtng, long range)
         return 0;
     }
     struct CreatureControl* cctrl = creature_control_get_from_thing(spdigtng);
-    struct Room* room = find_nearest_room_for_thing_with_spare_item_capacity(spdigtng, spdigtng->owner, RoK_LIBRARY, NavRtF_Default);
+    struct Room* room = find_nearest_room_of_role_for_thing_with_spare_item_capacity(spdigtng, spdigtng->owner, RoRoF_PowersStorage, NavRtF_Default);
     // We either found a room or not - but we can't generate event based on it yet, because we don't even know if there's any thing to pick
     const struct StructureList* slist = get_list_for_thing_class(TCls_Object);
     unsigned long k = 0;
@@ -221,7 +221,7 @@ long check_out_unclaimed_spells(struct Thing *spdigtng, long range)
                     {
                         // We have a thing which we should pick - now check if the room we found is correct
                         if (room_is_invalid(room)) {
-                            update_cannot_find_room_wth_spare_capacity_event(spdigtng->owner, spdigtng, RoK_LIBRARY);
+                            update_cannot_find_room_of_role_wth_spare_capacity_event(spdigtng->owner, spdigtng, RoRoF_PowersStorage);
                             return 0;
                         }
                         if (setup_person_move_to_coord(spdigtng, &thing->mappos, NavRtF_Default)) {
@@ -262,7 +262,7 @@ long check_out_unclaimed_traps(struct Thing *spdigtng, long range)
         return 0;
     }
     struct CreatureControl* cctrl = creature_control_get_from_thing(spdigtng);
-    struct Room* room = find_nearest_room_for_thing_with_spare_item_capacity(spdigtng, spdigtng->owner, RoK_WORKSHOP, NavRtF_Default);
+    struct Room* room = find_nearest_room_of_role_for_thing_with_spare_item_capacity(spdigtng, spdigtng->owner, RoRoF_CratesStorage, NavRtF_Default);
     // We either found a room or not - but we can't generate event based on it yet, because we don't even know if there's any thing to pick
     const struct StructureList* slist = get_list_for_thing_class(TCls_Object);
     unsigned long k = 0;
@@ -274,7 +274,7 @@ long check_out_unclaimed_traps(struct Thing *spdigtng, long range)
           break;
         i = thing->next_of_class;
         // Per-thing code
-        if (thing_can_be_picked_to_place_in_player_room(thing, spdigtng->owner, RoK_WORKSHOP, TngFRPickF_AllowStoredInOwnedRoom))
+        if (thing_can_be_picked_to_place_in_player_room_of_role(thing, spdigtng->owner, RoRoF_CratesStorage, TngFRPickF_AllowStoredInOwnedRoom))
         {
             if ((range < 0) || get_2d_box_distance(&thing->mappos, &spdigtng->mappos) < range)
             {
@@ -298,11 +298,11 @@ long check_out_unclaimed_traps(struct Thing *spdigtng, long range)
                         }
                     }
                     // No trap to arm - get the crate into workshop, if it's not already on it
-                    if (thing_can_be_picked_to_place_in_player_room(thing, spdigtng->owner, RoK_WORKSHOP, TngFRPickF_Default))
+                    if (thing_can_be_picked_to_place_in_player_room_of_role(thing, spdigtng->owner, RoRoF_CratesStorage, TngFRPickF_Default))
                     {
                         // We have a thing which we should pick - now check if the room we found is correct
                         if (room_is_invalid(room)) {
-                            update_cannot_find_room_wth_spare_capacity_event(spdigtng->owner, spdigtng, RoK_WORKSHOP);
+                            update_cannot_find_room_of_role_wth_spare_capacity_event(spdigtng->owner, spdigtng, RoRoF_CratesStorage);
                             return 0;
                         }
                         if (setup_person_move_to_coord(spdigtng, &thing->mappos, NavRtF_Default))
@@ -1086,10 +1086,10 @@ short imp_drops_gold(struct Thing *spdigtng)
         return 1;
     }
     struct Room* room = get_room_thing_is_on(spdigtng);
-    if (room_is_invalid(room) || (room->owner != spdigtng->owner) || (room->kind != RoK_TREASURE))
+    if (room_is_invalid(room) || (room->owner != spdigtng->owner) || (!room_role_matches(room->kind,RoRoF_GoldStorage)))
     {
         WARNLOG("Tried to drop gold in %s of player %d, but room %s owned by played %d is no longer valid to do that",
-            room_code_name(RoK_TREASURE),(int)spdigtng->owner,room_code_name(room->kind),(int)room->owner);
+            room_role_code_name(RoRoF_GoldStorage),(int)spdigtng->owner,room_code_name(room->kind),(int)room->owner);
         internal_set_thing_state(spdigtng, CrSt_ImpLastDidJob);
         return 1;
     }
@@ -1379,24 +1379,24 @@ short imp_toking(struct Thing *creatng)
  * @param thing The creature dragging another thing.
  * @return Gives true if the setup to the new room has succeeded.
  */
-TbBool creature_drop_thing_to_another_room(struct Thing *thing, struct Room *skiproom, signed char rkind)
+TbBool creature_drop_thing_to_another_room(struct Thing *thing, struct Room *skiproom, RoomRole rrole)
 {
     struct Coord3d pos;
     TRACE_THING(thing);
-    struct Room* ownroom = find_nearest_room_for_thing_with_spare_capacity(thing, thing->owner, rkind, NavRtF_Default, 1);
+    struct Room* ownroom = find_nearest_room_of_role_for_thing_with_spare_capacity(thing, thing->owner, rrole, NavRtF_Default, 1);
     if ( room_is_invalid(ownroom) || (ownroom->index == skiproom->index) )
     {
-        WARNLOG("Couldn't find a new %s for object dragged by %s owned by %d",room_code_name(rkind),thing_model_name(thing),(int)thing->owner);
+        WARNLOG("Couldn't find a new %s for object dragged by %s owned by %d",room_role_code_name(rrole),thing_model_name(thing),(int)thing->owner);
         return false;
     }
     if (!find_random_valid_position_for_thing_in_room_avoiding_object(thing, ownroom, &pos) )
     {
-        WARNLOG("Couldn't find a new destination in %s for object dragged by %s owned by %d",room_code_name(rkind),thing_model_name(thing),(int)thing->owner);
+        WARNLOG("Couldn't find a new destination in %s for object dragged by %s owned by %d",room_role_code_name(rrole),thing_model_name(thing),(int)thing->owner);
         return false;
     }
     if (!setup_person_move_to_coord(thing, &pos, NavRtF_Default))
     {
-        SYNCDBG(8,"Cannot move %s to %s at subtile (%d,%d)",thing_model_name(thing),room_code_name(rkind),(int)pos.x.stl.num,(int)pos.y.stl.num);
+        SYNCDBG(8,"Cannot move %s to %s at subtile (%d,%d)",thing_model_name(thing),room_role_code_name(rrole),(int)pos.x.stl.num,(int)pos.y.stl.num);
         return false;
     }
     return true;
@@ -1466,11 +1466,11 @@ short creature_pick_up_unconscious_body(struct Thing *thing)
          set_start_state(thing);
          return 0;
     }
-    struct Room* dstroom = find_nearest_room_for_thing_with_spare_capacity(thing, thing->owner, RoK_PRISON, NavRtF_Default, 1);
+    struct Room* dstroom = find_nearest_room_of_role_for_thing_with_spare_capacity(thing, thing->owner, RoRoF_Prison, NavRtF_Default, 1);
     if (room_is_invalid(dstroom))
     {
         // Check why the treasure room search failed and inform the player
-        update_cannot_find_room_wth_spare_capacity_event(thing->owner, thing, RoK_PRISON);
+        update_cannot_find_room_of_role_wth_spare_capacity_event(thing->owner, thing, RoRoF_Prison);
         set_start_state(thing);
         return 0;
     }
@@ -1498,7 +1498,7 @@ short creature_picks_up_corpse(struct Thing *creatng)
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     struct Thing* picktng = thing_get(cctrl->pickup_object_id);
     TRACE_THING(picktng);
-    if (!thing_can_be_picked_to_place_in_player_room(picktng, creatng->owner, RoK_LIBRARY, TngFRPickF_Default)
+    if (!thing_can_be_picked_to_place_in_player_room_of_role(picktng, creatng->owner, RoRoF_PowersStorage, TngFRPickF_Default)
      || (get_2d_box_distance(&creatng->mappos, &picktng->mappos) >= subtile_coord(2,0)))
     if ( thing_is_invalid(picktng) || ((picktng->alloc_flags & TAlF_IsDragged) != 0)
       || (get_2d_box_distance(&creatng->mappos, &picktng->mappos) >= 512))
@@ -1506,11 +1506,11 @@ short creature_picks_up_corpse(struct Thing *creatng)
         set_start_state(creatng);
         return 0;
     }
-    struct Room* dstroom = find_nearest_room_for_thing_with_spare_capacity(creatng, creatng->owner, RoK_GRAVEYARD, NavRtF_Default, 1);
+    struct Room* dstroom = find_nearest_room_of_role_for_thing_with_spare_capacity(creatng, creatng->owner, RoRoF_DeadStorage, NavRtF_Default, 1);
     if (room_is_invalid(dstroom))
     {
         // Check why the treasure room search failed and inform the player
-        update_cannot_find_room_wth_spare_capacity_event(creatng->owner, creatng, RoK_PRISON);
+        update_cannot_find_room_of_role_wth_spare_capacity_event(creatng->owner, creatng, RoRoF_Prison);
         set_start_state(creatng);
         return 0;
     }
@@ -1542,17 +1542,17 @@ short creature_picks_up_spell_object(struct Thing *creatng)
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     struct Thing* picktng = thing_get(cctrl->pickup_object_id);
     TRACE_THING(picktng);
-    if (!thing_can_be_picked_to_place_in_player_room(picktng, creatng->owner, RoK_LIBRARY, TngFRPickF_Default)
+    if (!thing_can_be_picked_to_place_in_player_room_of_role(picktng, creatng->owner, RoRoF_PowersStorage, TngFRPickF_Default)
      || (get_2d_box_distance(&creatng->mappos, &picktng->mappos) >= subtile_coord(2,0)))
     {
         set_start_state(creatng);
         return 0;
     }
     struct Room* enmroom = get_room_thing_is_on(picktng);
-    struct Room* dstroom = find_nearest_room_for_thing_with_spare_capacity(creatng, creatng->owner, RoK_LIBRARY, NavRtF_Default, 1);
+    struct Room* dstroom = find_nearest_room_of_role_for_thing_with_spare_capacity(creatng, creatng->owner, RoRoF_PowersStorage, NavRtF_Default, 1);
     if ( room_is_invalid(dstroom) || !find_random_valid_position_for_thing_in_room_avoiding_object(creatng, dstroom, &pos) )
     {
-        WARNLOG("Player %d can't pick %s - doesn't have proper %s to store it",(int)creatng->owner,thing_model_name(picktng),room_code_name(RoK_LIBRARY));
+        WARNLOG("Player %d can't pick %s - doesn't have proper %s to store it",(int)creatng->owner,thing_model_name(picktng),room_role_code_name(RoRoF_PowersStorage));
         set_start_state(creatng);
         return 0;
     }
@@ -1583,14 +1583,14 @@ short creature_picks_up_crate_for_workshop(struct Thing *creatng)
     struct Thing* cratetng = thing_get(cctrl->pickup_object_id);
     TRACE_THING(cratetng);
     // Check if everything is right
-    if (!thing_can_be_picked_to_place_in_player_room(cratetng, creatng->owner, RoK_WORKSHOP, TngFRPickF_Default)
+    if (!thing_can_be_picked_to_place_in_player_room_of_role(cratetng, creatng->owner, RoRoF_CratesStorage, TngFRPickF_Default)
      || (get_2d_box_distance(&creatng->mappos, &cratetng->mappos) >= subtile_coord(2,0)))
     {
         set_start_state(creatng);
         return 0;
     }
     // Find room to drag the crate to
-    struct Room* dstroom = find_nearest_room_for_thing_with_spare_item_capacity(creatng, creatng->owner, RoK_WORKSHOP, NavRtF_Default);
+    struct Room* dstroom = find_nearest_room_of_role_for_thing_with_spare_item_capacity(creatng, creatng->owner, RoRoF_CratesStorage, NavRtF_Default);
     if ( room_is_invalid(dstroom) || !find_random_valid_position_for_thing_in_room_avoiding_object(creatng, dstroom, &pos) )
     {
         WARNLOG("Player %d can't pick %s - doesn't have proper %s to store it",(int)creatng->owner,thing_model_name(cratetng),room_code_name(RoK_WORKSHOP));
@@ -1686,7 +1686,7 @@ short creature_drops_corpse_in_graveyard(struct Thing *creatng)
     if ( room_is_invalid(room) )
     {
         WARNLOG("Tried to drop %s index %d in %s, but room no longer exists",thing_model_name(deadtng),(int)deadtng->index,room_code_name(RoK_GRAVEYARD));
-        if (creature_drop_thing_to_another_room(creatng, room, RoK_GRAVEYARD)) {
+        if (creature_drop_thing_to_another_room(creatng, room, RoRoF_DeadStorage)) {
             creatng->continue_state = CrSt_CreatureDropsCorpseInGraveyard;
             return 1;
         }
@@ -1698,7 +1698,7 @@ short creature_drops_corpse_in_graveyard(struct Thing *creatng)
         || (room->used_capacity >= room->total_capacity) )
     {
         WARNLOG("Tried to drop %s index %d in %s, but room won't accept it",thing_model_name(deadtng),(int)deadtng->index,room_code_name(RoK_GRAVEYARD));
-        if (creature_drop_thing_to_another_room(creatng, room, RoK_GRAVEYARD)) {
+        if (creature_drop_thing_to_another_room(creatng, room, RoRoF_DeadStorage)) {
             creatng->continue_state = CrSt_CreatureDropsCorpseInGraveyard;
             return 1;
         }
@@ -1737,7 +1737,7 @@ short creature_drops_crate_in_workshop(struct Thing *thing)
     if ( room_is_invalid(room) )
     {
         SYNCDBG(7,"Tried to drop %s index %d in %s, but room no longer exists",thing_model_name(cratetng),(int)cratetng->index,room_code_name(RoK_WORKSHOP));
-        if (creature_drop_thing_to_another_room(thing, room, RoK_WORKSHOP)) {
+        if (creature_drop_thing_to_another_room(thing, room, RoRoF_CratesStorage)) {
             thing->continue_state = CrSt_CreatureDropsCrateInWorkshop;
             return 1;
         }
@@ -1748,7 +1748,7 @@ short creature_drops_crate_in_workshop(struct Thing *thing)
         || (room->used_capacity >= room->total_capacity))
     {
         SYNCDBG(7,"Tried to drop %s index %d in %s, but room won't accept it",thing_model_name(cratetng),(int)cratetng->index,room_code_name(RoK_WORKSHOP));
-        if (creature_drop_thing_to_another_room(thing, room, RoK_WORKSHOP)) {
+        if (creature_drop_thing_to_another_room(thing, room, RoRoF_CratesStorage)) {
             thing->continue_state = CrSt_CreatureDropsCrateInWorkshop;
             return 1;
         }
@@ -1802,7 +1802,7 @@ short creature_drops_spell_object_in_library(struct Thing *creatng)
     if ( room_is_invalid(room) )
     {
         WARNLOG("Tried to drop %s index %d in %s, but room no longer exists",thing_model_name(spelltng),(int)spelltng->index,room_code_name(RoK_LIBRARY));
-        if (creature_drop_thing_to_another_room(creatng, room, RoK_LIBRARY)) {
+        if (creature_drop_thing_to_another_room(creatng, room, RoRoF_PowersStorage)) {
             creatng->continue_state = CrSt_CreatureDropsSpellObjectInLibrary;
             return 1;
         }
@@ -1813,7 +1813,7 @@ short creature_drops_spell_object_in_library(struct Thing *creatng)
         || (room->used_capacity >= room->total_capacity))
     {
         WARNLOG("Tried to drop %s index %d in %s room, but room won't accept it",thing_model_name(spelltng),(int)spelltng->index,room_code_name(RoK_LIBRARY));
-        if (creature_drop_thing_to_another_room(creatng, room, RoK_LIBRARY)) {
+        if (creature_drop_thing_to_another_room(creatng, room, RoRoF_PowersStorage)) {
             creatng->continue_state = CrSt_CreatureDropsSpellObjectInLibrary;
             return 1;
         }

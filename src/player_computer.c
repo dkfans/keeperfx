@@ -82,9 +82,6 @@ char const move_creature_to_best_text[] = "MOVE CREATURE TO BEST ROOM";
 char const computer_check_hates_text[] = "COMPUTER CHECK HATES";
 
 /******************************************************************************/
-DLLIMPORT long _DK_count_creatures_for_defend_pickup(struct Computer2 *comp);
-
-/******************************************************************************/
 // Function definition needed to compare pointers - remove pending
 long computer_setup_dig_to_gold(struct Computer2 *comp, struct ComputerProcess *cproc);
 long computer_check_dig_to_gold(struct Computer2 *comp, struct ComputerProcess *cproc);
@@ -187,7 +184,8 @@ struct ComputerTask * able_to_build_room_at_task(struct Computer2 *comp, RoomKin
 struct ComputerTask * able_to_build_room_from_room(struct Computer2 *comp, RoomKind rkind, RoomKind look_kind, long width_slabs, long height_slabs, long area, long require_perfect)
 {
     struct Dungeon* dungeon = comp->dungeon;
-    long i = dungeon->room_kind[look_kind];
+    struct DungeonAdd* dungeonadd = get_dungeonadd_by_dungeon(dungeon);
+    long i = dungeonadd->room_kind[look_kind];
     unsigned long k = 0;
     while (i != 0)
     {
@@ -286,7 +284,7 @@ long computer_finds_nearest_room_to_gold_lookup(const struct Dungeon *dungeon, c
     gold_pos.y.stl.num = gldlook->y_stl_num;
     long min_distance = LONG_MAX;
     long distance = LONG_MAX;
-    for (long rkind = 1; rkind < ROOM_TYPES_COUNT; rkind++)
+    for (long rkind = 1; rkind < slab_conf.room_types_count; rkind++)
     {
         struct Room* room = find_room_nearest_to_position(dungeon->owner, rkind, &gold_pos, &distance);
         if (!room_is_invalid(room))
@@ -297,7 +295,8 @@ long computer_finds_nearest_room_to_gold_lookup(const struct Dungeon *dungeon, c
             distance -= LbSqrL(gldlook->num_gold_slabs * STL_PER_SLB);
             distance -= LbSqrL(gldlook->num_gem_slabs * STL_PER_SLB * 4);
             // We can accept longer distances if digging directly to treasure room
-            if (room->kind == RoK_TREASURE)
+            
+            if (room_role_matches(room->kind,RoRoF_GoldStorage))
                 distance -= TREASURE_ROOM_PREFERENCE_WHILE_DIGGING_GOLD;
             if (min_distance > distance)
             {
@@ -566,12 +565,12 @@ void get_opponent(struct Computer2 *comp, struct THate hates[])
 
 TbBool computer_finds_nearest_room_to_pos(struct Computer2 *comp, struct Room **retroom, struct Coord3d *nearpos){
     long nearest_distance = LONG_MAX;
-    struct Dungeon* dungeon = comp->dungeon;
+    struct DungeonAdd* dungeonadd = get_dungeonadd_by_dungeon(comp->dungeon);
     *retroom = NULL;
 
-    for (RoomKind i = 0; i < ROOM_TYPES_COUNT; i++)
+    for (RoomKind i = 0; i < slab_conf.room_types_count; i++)
     {
-        struct Room* room = room_get(dungeon->room_kind[i]);
+        struct Room* room = room_get(dungeonadd->room_kind[i]);
         
         while (!room_is_invalid(room))
         {
@@ -758,12 +757,13 @@ int computer_find_more_trap_place_locations(struct Computer2 *comp)
 {
     SYNCDBG(8,"Starting");
     struct Dungeon* dungeon = comp->dungeon;
+    struct DungeonAdd* dungeonadd = get_dungeonadd_by_dungeon(dungeon);
     int num_added = 0;
-    RoomKind rkind = AI_RANDOM(ROOM_TYPES_COUNT);
-    for (int m = 0; m < ROOM_TYPES_COUNT; m++, rkind = (rkind + 1) % ROOM_TYPES_COUNT)
+    RoomKind rkind = AI_RANDOM(slab_conf.room_types_count);
+    for (int m = 0; m < slab_conf.room_types_count; m++, rkind = (rkind + 1) % slab_conf.room_types_count)
     {
         unsigned long k = 0;
-        int i = dungeon->room_kind[rkind];
+        int i = dungeonadd->room_kind[rkind];
         while (i != 0)
         {
             struct Room* room = room_get(i);
@@ -916,7 +916,8 @@ long computer_pick_training_or_scavenging_creatures_and_place_on_room(struct Com
 long computer_pick_expensive_job_creatures_and_place_on_lair(struct Computer2 *comp, long tasks_limit)
 {
     struct Dungeon* dungeon = comp->dungeon;
-    struct Room* room = room_get(dungeon->room_kind[RoK_LAIR]);
+    struct DungeonAdd* dungeonadd = get_dungeonadd_by_dungeon(dungeon);
+    struct Room* room = room_get(dungeonadd->room_kind[RoK_LAIR]);
     long new_tasks = 0;
     // If we don't have lair, then don't even bother
     if (room_is_invalid(room)) {
@@ -1022,7 +1023,7 @@ long computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * che
         }
     }
     // Drop imps on gold/gems mining sites
-    if ((money_left < check->param1) && (pwhand_task_choose < 66) && dungeon_has_room(dungeon, RoK_TREASURE))
+    if ((money_left < check->param1) && (pwhand_task_choose < 66) && dungeon_has_room_of_role(dungeon, RoRoF_GoldStorage))
     {
         int num_to_move = 3;
         // If there's already task in progress which uses hand, then don't add more
@@ -1047,7 +1048,7 @@ long computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * che
         }
     }
     // Move any gold laying around to treasure room
-    if ((money_left < check->param1) && dungeon_has_room(dungeon, RoK_TREASURE))
+    if ((money_left < check->param1) && dungeon_has_room_of_role(dungeon, RoRoF_GoldStorage))
     {
         int num_to_move = 10;
         // If there's already task in progress which uses hand, then don't add more
@@ -1065,7 +1066,51 @@ long computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * che
 
 long count_creatures_for_defend_pickup(struct Computer2 *comp)
 {
-    return _DK_count_creatures_for_defend_pickup(comp);
+  struct Thing *i;
+  struct Dungeon *dungeon = comp->dungeon;
+  int count = 0;
+  int k = 0;
+
+  for ( i = thing_get(dungeon->creatr_list_start);
+        !thing_is_invalid(i);
+        i = thing_get(creature_control_get_from_thing(i)->players_next_creature_idx) )
+    {
+        if ( can_thing_be_picked_up_by_player(i, dungeon->owner) )
+        {   
+            struct CreatureControl* cctrl = creature_control_get_from_thing(i);
+            if ( !cctrl->combat_flags )
+            {
+                int crtr_state = get_creature_state_besides_move(i);
+                if (( crtr_state != CrSt_CreatureCombatFlee ) &&
+                    ( crtr_state != CrSt_ArriveAtAlarm ) &&
+                    ((cctrl->spell_flags & CSAfF_CalledToArms) == 0 ) &&
+                    ( crtr_state != CrSt_CreatureGoingHomeToSleep ) &&
+                    ( crtr_state != CrSt_CreatureSleep ) &&
+                    ( crtr_state != CrSt_AtLairToSleep ) &&
+                    ( crtr_state != CrSt_CreatureChooseRoomForLairSite ) &&
+                    ( crtr_state != CrSt_CreatureAtNewLair ) &&
+                    ( crtr_state != CrSt_CreatureWantsAHome ) &&
+                    ( crtr_state != CrSt_CreatureChangeLair ) &&
+                    ( crtr_state != CrSt_CreatureAtChangedLair ) &&
+                    ( crtr_state != CrSt_CreatureBeingDropped ))
+                {
+                    struct CreatureStats* crstat = creature_stats_get_from_thing(i);
+                    if (100 * i->health / (gameadd.crtr_conf.exp.health_increase_on_exp * crstat->health * cctrl->explevel / 100 + crstat->health) > 20 )
+                    {
+                        ++count;
+                    }
+                }
+            }
+        }
+
+        k++;
+        if (k > CREATURES_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping creatures list");
+            break;
+        }
+    }
+    return count;
 }
 
 /**
