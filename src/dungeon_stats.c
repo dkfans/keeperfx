@@ -140,8 +140,8 @@ unsigned long compute_dungeon_rooms_variety_score(long room_types, long total_ar
 {
     if (room_types < 0)
         room_types = 0;
-    if (room_types > ROOM_TYPES_COUNT)
-        room_types = ROOM_TYPES_COUNT;
+    if (room_types > slab_conf.room_types_count)
+        room_types = slab_conf.room_types_count;
     if (total_area < 0)
         total_area = 0;
     if (total_area >= 512)
@@ -208,13 +208,14 @@ TbBool update_dungeon_scores_for_player(struct PlayerInfo *player)
     int i;
     int k;
     struct Dungeon* dungeon = get_players_dungeon(player);
+    struct DungeonAdd* dungeonadd = get_players_dungeonadd(player);
     if (dungeon_invalid(dungeon)) {
         return false;
     }
     unsigned long manage_efficiency = 0;
     unsigned long max_manage_efficiency = 0;
     {
-        manage_efficiency += 40 * compute_dungeon_rooms_attraction_score(dungeon->room_slabs_count[RoK_ENTRANCE],
+        manage_efficiency += 40 * compute_dungeon_rooms_attraction_score(dungeonadd->room_slabs_count[RoK_ENTRANCE],
             dungeon->room_manage_area, dungeon->portal_scavenge_boost);
         max_manage_efficiency += 40 * compute_dungeon_rooms_attraction_score(LONG_MAX, LONG_MAX, LONG_MAX);
     }
@@ -226,13 +227,13 @@ TbBool update_dungeon_scores_for_player(struct PlayerInfo *player)
     {
         // Compute amount of different types of rooms built
         unsigned long room_types = 0;
-        for (i=0; i < ROOM_TYPES_COUNT; i++)
+        for (i=0; i < slab_conf.room_types_count; i++)
         {
-            if (dungeon->room_slabs_count[i] > 0)
+            if (dungeonadd->room_slabs_count[i] > 0)
                 room_types++;
         }
         manage_efficiency += 40 * compute_dungeon_rooms_variety_score(room_types, dungeon->total_area);
-        max_manage_efficiency += 40 * compute_dungeon_rooms_variety_score(ROOM_TYPES_COUNT, LONG_MAX);
+        max_manage_efficiency += 40 * compute_dungeon_rooms_variety_score(slab_conf.room_types_count, LONG_MAX);
     }
     {
         manage_efficiency += compute_dungeon_train_research_manufctr_wealth_score(dungeon->total_experience_creatures_gained,

@@ -26,7 +26,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-#define DOOR_TYPES_COUNT        5
+#define DOOR_TYPES_COUNT_OLD        5
 /******************************************************************************/
 #pragma pack(1)
 
@@ -41,16 +41,7 @@ enum DoorStates {
 
 struct Thing;
 
-struct DoorStats { // sizeof = 8
-    unsigned short slbkind;
-    long health;
-    unsigned short field_6;
-};
-
 /******************************************************************************/
-DLLIMPORT extern struct DoorStats _DK_door_stats[5][2];
-#define door_stats _DK_door_stats
-DLLIMPORT extern unsigned char _DK_door_to_object[DOOR_TYPES_COUNT];
 
 #pragma pack()
 /******************************************************************************/

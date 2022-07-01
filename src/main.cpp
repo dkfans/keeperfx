@@ -3667,28 +3667,6 @@ long ceiling_init(unsigned long a1, unsigned long a2)
     return 1;
 }
 
-void do_creature_swap(long ncrt_id, long crtr_id)
-{
-//TODO SCRIPT rewrite from DD
-  WARNMSG("Swapping creatures is only supported in Deeper Dungeons");
-}
-
-TbBool swap_creature(long ncrt_id, long crtr_id)
-{
-    if ((crtr_id < 0) || (crtr_id >= CREATURE_TYPES_COUNT))
-    {
-        ERRORLOG("Creature index %d is invalid", crtr_id);
-        return false;
-    }
-    if (creature_swap_idx[crtr_id] > 0)
-    {
-        ERRORLOG("Creature of index %d already swapped", crtr_id);
-        return false;
-    }
-    do_creature_swap(ncrt_id, crtr_id);
-    return true;
-}
-
 static TbBool wait_at_frontend(void)
 {
     struct PlayerInfo *player;
@@ -4405,7 +4383,6 @@ int main(int argc, char *argv[])
   memcpy(_DK_menu_list,menu_list,40*sizeof(struct GuiMenu *));
   memcpy(_DK_player_instance_info,player_instance_info,17*sizeof(struct PlayerInstanceInfo));
   memcpy(_DK_states,states,145*sizeof(struct StateInfo));
-  memcpy(_DK_room_data,room_data,17*sizeof(struct RoomData));
 
 #if (BFDEBUG_LEVEL > 1)
   if (sizeof(struct Game) != SIZEOF_Game)

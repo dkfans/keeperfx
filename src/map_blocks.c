@@ -991,7 +991,7 @@ void delete_attached_lights_on_slab(MapSlabCoord slb_x, MapSlabCoord slb_y)
         {
             struct Light *lgt;
             lgt = &game.lish.lights[i];
-            i = lgt->field_26;
+            i = lgt->next_in_list;
             // Per-light code
             int lgtstl_x;
             int lgtstl_y;
