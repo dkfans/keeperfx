@@ -137,7 +137,6 @@ struct Creatures creatures_NEW[] = {
 extern struct TbLoadFiles swipe_load_file[];
 extern struct TbSetupSprite swipe_setup_sprites[];
 /******************************************************************************/
-DLLIMPORT void _DK_anger_set_creature_anger_all_types(struct Thing *creatng, long reason);
 DLLIMPORT struct Thing *_DK_get_creature_near(unsigned short pos_x, unsigned short pos_y);
 DLLIMPORT struct Thing *_DK_get_creature_near_with_filter(unsigned short pos_x, unsigned short pos_y, Thing_Filter filter, long no_effects);
 DLLIMPORT struct Thing *_DK_get_creature_near_for_controlling(unsigned char a1, long reason, long targtng_idx);
@@ -219,7 +218,7 @@ long check_for_first_person_barrack_party(struct Thing *grthing)
         return 0;
     }
     struct Room* room = get_room_thing_is_on(grthing);
-    if (!room_still_valid_as_type_for_thing(room, RoK_BARRACKS, grthing))
+    if (!room_still_valid_as_type_for_thing(room, RoRoF_CrMakeGroup, grthing))
     {
         SYNCDBG(2,"Room %s owned by player %d does not allow the %s index %d owner %d to lead a party",room_code_name(room->kind),(int)room->owner,thing_model_name(grthing),(int)grthing->index,(int)grthing->owner);
         return 0;
@@ -3433,9 +3432,15 @@ TbBool thing_is_creature_special_digger(const struct Thing *thing)
   return ((get_creature_model_flags(thing) & CMF_IsSpecDigger) != 0);
 }
 
-void anger_set_creature_anger_all_types(struct Thing *thing, long a2)
+void anger_set_creature_anger_all_types(struct Thing *thing, long new_value)
 {
-    _DK_anger_set_creature_anger_all_types(thing, a2);
+    if (creature_can_get_angry(thing))
+    {
+      for (AnnoyMotive anger_type = 1; anger_type < AngR_ListEnd; anger_type++ )
+      {
+        anger_set_creature_anger(thing, new_value, anger_type);
+      }
+    }
 }
 
 struct Room *get_creature_lair_room(const struct Thing *creatng)
@@ -3450,7 +3455,7 @@ struct Room *get_creature_lair_room(const struct Thing *creatng)
 TbBool creature_has_lair_room(const struct Thing *creatng)
 {
     struct Room* room = get_creature_lair_room(creatng);
-    if (!room_is_invalid(room) && (room->kind == get_room_for_job(Job_TAKE_SLEEP))) {
+    if (!room_is_invalid(room) && room_role_matches(room->kind,get_room_role_for_job(Job_TAKE_SLEEP))) {
         return true;
     }
     return false;

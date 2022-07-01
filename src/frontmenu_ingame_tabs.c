@@ -2207,7 +2207,6 @@ void draw_whole_status_panel(void)
     struct GuiMenu *gmnu;
     int fs_units_per_px;
     int mm_units_per_px;
-    int bs_units_per_px;
     {
         int mnu_num = menu_id_to_number(GMnu_MAIN);
         gmnu = get_active_menu(mnu_num);
@@ -2215,7 +2214,6 @@ void draw_whole_status_panel(void)
         if (mm_units_per_px < 1)
             mm_units_per_px = 1;
         fs_units_per_px = (gmnu->height * 16 + 8) / LbTiledSpriteHeight(&status_panel, gui_panel_sprites);
-        bs_units_per_px = gmnu->width * 4 / 35;
     }
     lbDisplay.DrawColour = colours[15][15][15];
     lbDisplay.DrawFlags = 0;
@@ -2229,6 +2227,11 @@ void draw_whole_status_panel(void)
     pannel_map_draw_slabs(player->minimap_pos_x, player->minimap_pos_y, mm_units_per_px, mmzoom);
     long basic_zoom = player->minimap_zoom;
     pannel_map_draw_overlay_things(mm_units_per_px, mmzoom, basic_zoom);
+    unsigned char placefill_threshold = (LbScreenHeight() >= 400) ? 80 : 40;
+    if (LbScreenHeight() - gmnu->height >= placefill_threshold)
+    {
+        draw_placefiller(0, gmnu->pos_y + gmnu->height, fs_units_per_px);
+    }
 }
 
 void gui_set_button_flashing(long btn_idx, long gameturns)
@@ -2358,5 +2361,11 @@ void update_powers_tab_to_config(void)
         ibtn->draw_call = gui_area_spell_button;
         ibtn->maintain_call = maintain_spell;
     }
+}
+
+void draw_placefiller(long scr_x, long scr_y, long units_per_px)
+{
+    struct TbSprite* spr = &gui_panel_sprites[547];
+    LbSpriteDrawResized(scr_x, scr_y, units_per_px, spr);
 }
 /******************************************************************************/
