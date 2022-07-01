@@ -4576,7 +4576,7 @@ long process_creature_needs_a_wage(struct Thing *creatng, const struct CreatureS
         return 0;
     }
     struct Dungeon* dungeon = get_players_num_dungeon(creatng->owner);
-    room = get_player_room_of_kind_nearest_to(creatng->owner, RoK_TREASURE, creatng->mappos.x.stl.num, creatng->mappos.y.stl.num, 0); //get_first_room_kind_for_job(RoRoF_GoldStorage)
+    room = find_nearest_room_of_role_for_thing(creatng, creatng->owner, RoRoF_GoldStorage, NavRtF_NoOwner);
     if ((dungeon->total_money_owned >= calculate_correct_creature_pay(creatng)) && !room_is_invalid(room))
     {
         cleanup_current_thing_state(creatng);
