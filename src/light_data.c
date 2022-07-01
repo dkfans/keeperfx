@@ -1107,7 +1107,7 @@ static char light_render_light(struct Light* lgt)
         v31 = lighting_tables_idx;
         if ( v30 >= stl_y )
         {
-          shadow_cache_pointer = game.lish.shadow_cache[lgt->shadow_index].field_1;
+          shadow_cache_pointer = (int)game.lish.shadow_cache[lgt->shadow_index].field_1;
           do
           {
             some_x = stl_x;
