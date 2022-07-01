@@ -312,7 +312,7 @@ struct CreatureInstanceConfig *get_config_for_instance(CrInstance inst_id);
 const char *creature_instance_code_name(CrInstance inst_id);
 /******************************************************************************/
 struct CreatureJobConfig *get_config_for_job(CreatureJob job_flags);
-RoomKind get_room_for_job(CreatureJob job_flags);
+RoomKind get_first_room_kind_for_job(CreatureJob job_flags);
 RoomRole get_room_role_for_job(CreatureJob job_flags);
 EventKind get_event_for_job(CreatureJob job_flags);
 CrtrStateId get_initial_state_for_job(CreatureJob jobpref);

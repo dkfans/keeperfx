@@ -2626,7 +2626,7 @@ TbBool clear_dig_on_room_slabs(struct Room *room, PlayerNumber plyr_idx)
 
 TbBool room_has_enough_free_capacity_for_creature_job(const struct Room *room, const struct Thing *creatng, CreatureJob jobpref)
 {
-    if (room->kind != get_room_for_job(jobpref)) {
+    if (!room_role_matches(room->kind,get_room_role_for_job(jobpref))) {
         return false;
     }
     int required_cap = get_required_room_capacity_for_job(jobpref, creatng->model);
@@ -2814,43 +2814,51 @@ struct Room *find_room_of_role_with_spare_room_item_capacity(PlayerNumber plyr_i
     return INVALID_ROOM;
 }
 
-struct Room *find_room_for_thing_with_used_capacity(const struct Thing *creatng, PlayerNumber plyr_idx, RoomKind rkind, unsigned char nav_flags, long min_used_cap)
+struct Room *find_room_of_role_for_thing_with_used_capacity(const struct Thing *creatng, PlayerNumber plyr_idx, RoomRole rrole, unsigned char nav_flags, long min_used_cap)
 {
     SYNCDBG(18,"Starting");
     struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
-    long i = dungeonadd->room_kind[rkind];
     unsigned long k = 0;
-    while (i != 0)
+    for (RoomKind rkind = 0; rkind < slab_conf.room_types_count; rkind++)
     {
-        struct Room* room = room_get(i);
-        if (room_is_invalid(room))
+        if(!room_role_matches(rkind,rrole))
         {
-            ERRORLOG("Jump to invalid room detected");
-            break;
+            continue;
         }
-        i = room->next_of_owner;
-        // Per-room code
-        struct Coord3d pos;
-        if ((room->used_capacity >= min_used_cap) && find_first_valid_position_for_thing_anywhere_in_room(creatng, room, &pos))
+        long i = dungeonadd->room_kind[rkind];
+        while (i != 0)
         {
-            if (thing_is_creature(creatng))
+            struct Room* room = room_get(i);
+            if (room_is_invalid(room))
             {
-                if (creature_can_navigate_to(creatng, &pos, nav_flags)) {
+                ERRORLOG("Jump to invalid room detected");
+                break;
+            }
+            i = room->next_of_owner;
+            // Per-room code
+            struct Coord3d pos;
+            if ((room->used_capacity >= min_used_cap) && find_first_valid_position_for_thing_anywhere_in_room(creatng, room, &pos))
+            {
+                if (thing_is_creature(creatng))
+                {
+                    if (creature_can_navigate_to(creatng, &pos, nav_flags)) {
+                        return room;
+                    }
+                } else
+                {
                     return room;
                 }
-            } else
+            }
+            // Per-room code ends
+            k++;
+            if (k > ROOMS_COUNT)
             {
-                return room;
+                ERRORLOG("Infinite loop detected when sweeping rooms list");
+                break;
             }
         }
-        // Per-room code ends
-        k++;
-        if (k > ROOMS_COUNT)
-        {
-            ERRORLOG("Infinite loop detected when sweeping rooms list");
-            break;
-        }
     }
+
     return INVALID_ROOM;
 }
 
@@ -2948,44 +2956,53 @@ struct Room *find_nth_room_of_owner_with_spare_item_capacity_starting_with(long 
     return INVALID_ROOM;
 }
 
-struct Room *find_room_with_most_spare_capacity_starting_with(long room_idx, long *total_spare_cap)
+struct Room *find_room_of_role_with_most_spare_capacity(const struct DungeonAdd *dungeonadd,RoomRole rrole, long *total_spare_cap)
 {
     SYNCDBG(18,"Starting");
     long loc_total_spare_cap = 0;
     struct Room* max_spare_room = INVALID_ROOM;
     long max_spare_cap = 0;
     unsigned long k = 0;
-    int i = room_idx;
-    while (i != 0)
+
+    for (RoomKind rkind = 0; rkind < slab_conf.room_types_count; rkind++)
     {
-        struct Room* room = room_get(i);
-        if (room_is_invalid(room))
+        if(room_role_matches(rkind,rrole))
         {
-            ERRORLOG("Jump to invalid room detected");
-            break;
-        }
-        i = room->next_of_owner;
-        // Per-room code
-        if (room->total_capacity > room->used_capacity)
-        {
-            long delta = room->total_capacity - room->used_capacity;
-            loc_total_spare_cap += delta;
-            if (max_spare_cap < delta)
+            int i = dungeonadd->room_kind[rkind];
+            while (i != 0)
             {
-                max_spare_cap = delta;
-                max_spare_room = room;
+                struct Room* room = room_get(i);
+                if (room_is_invalid(room))
+                {
+                    ERRORLOG("Jump to invalid room detected");
+                    break;
+                }
+                i = room->next_of_owner;
+                // Per-room code
+                if (room->total_capacity > room->used_capacity)
+                {
+                    long delta = room->total_capacity - room->used_capacity;
+                    loc_total_spare_cap += delta;
+                    if (max_spare_cap < delta)
+                    {
+                        max_spare_cap = delta;
+                        max_spare_room = room;
+                    }
+                }
+                // Per-room code ends
+                k++;
+                if (k > ROOMS_COUNT)
+                {
+                ERRORLOG("Infinite loop detected when sweeping rooms list");
+                break;
+                }
             }
         }
-        // Per-room code ends
-        k++;
-        if (k > ROOMS_COUNT)
-        {
-          ERRORLOG("Infinite loop detected when sweeping rooms list");
-          break;
-        }
     }
+
+
     if (total_spare_cap != NULL)
-       (*total_spare_cap) = loc_total_spare_cap;
+    (*total_spare_cap) = loc_total_spare_cap;
     return max_spare_room;
 }
 

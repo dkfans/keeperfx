@@ -66,7 +66,7 @@ short at_research_room(struct Thing *thing)
         return 0;
     }
     struct Room* room = get_room_thing_is_on(thing);
-    if (!room_initially_valid_as_type_for_thing(room, get_room_for_job(Job_RESEARCH), thing))
+    if (!room_initially_valid_as_type_for_thing(room, get_room_role_for_job(Job_RESEARCH), thing))
     {
         WARNLOG("Room %s owned by player %d is invalid for %s index %d",room_code_name(room->kind),(int)room->owner,thing_model_name(thing),(int)thing->index);
         set_start_state(thing);
@@ -213,7 +213,7 @@ CrCheckRet process_research_function(struct Thing *creatng)
         return CrCkRet_Continue;
     }
     struct Room* room = get_room_creature_works_in(creatng);
-    if ( !room_still_valid_as_type_for_thing(room, get_room_for_job(Job_RESEARCH), creatng) ) {
+    if ( !room_still_valid_as_type_for_thing(room, get_room_role_for_job(Job_RESEARCH), creatng) ) {
         WARNLOG("Room %s owned by player %d is bad work place for %s index %d owner %d",
             room_code_name(room->kind), (int)room->owner, thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
         set_start_state(creatng);
