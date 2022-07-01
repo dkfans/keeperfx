@@ -5662,7 +5662,7 @@ void controlled_creature_drop_thing(struct Thing *creatng, struct Thing *droptng
                     }
                     else
                     {
-                        WARNLOG("Adding %s index %d to %s room capacity failed",thing_model_name(droptng),(int)droptng->index,room_code_name(RoK_LIBRARY));
+                        WARNLOG("Adding %s index %d to %s room capacity failed",thing_model_name(droptng),(int)droptng->index,room_role_code_name(RoRoF_PowersStorage));
                         if (is_my_player_number(plyr_idx))
                         {
                             output_message(SMsg_LibraryTooSmall, 0, true);
@@ -5685,7 +5685,7 @@ void controlled_creature_drop_thing(struct Thing *creatng, struct Thing *droptng
                     }
                     else
                     {
-                        WARNLOG("Adding %s index %d to %s room capacity failed",thing_model_name(droptng),(int)droptng->index,room_code_name(RoK_WORKSHOP));
+                        WARNLOG("Adding %s index %d to %s room capacity failed",thing_model_name(droptng),(int)droptng->index,room_role_code_name(RoRoF_CratesStorage));
                         if (is_my_player_number(plyr_idx))
                         {
                             output_message(SMsg_WorkshopTooSmall, 0, true);

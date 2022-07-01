@@ -3512,9 +3512,8 @@ struct Room *find_nth_room_for_thing(struct Thing *thing, PlayerNumber owner, Ro
     return INVALID_ROOM;
 }
 
-struct Room *find_random_room_for_thing(struct Thing *thing, PlayerNumber owner, RoomKind rkind, unsigned char nav_flags)
+struct Room *find_random_room_of_role_for_thing(struct Thing *thing, PlayerNumber owner, RoomRole rrole, unsigned char nav_flags)
 {
-    //return _DK_find_random_room_for_thing(thing, plyr_idx, rkind, a4);
     SYNCDBG(18,"Starting");
     long count = count_rooms_for_thing(thing, owner, rkind, nav_flags);
     if (count < 1)

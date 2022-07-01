@@ -185,7 +185,7 @@ short creature_scavenged_disappear(struct Thing *thing)
     struct Room* room = subtile_room_get(stl_x, stl_y);
     if (room_is_invalid(room) || !room_role_matches(room->kind, RoRoF_CrScavenge))
     {
-        ERRORLOG("Room %s at (%d,%d) disappeared",room_code_name(RoK_SCAVENGER),(int)stl_x,(int)stl_y);
+        ERRORLOG("Room of role %s at (%d,%d) disappeared",room_role_code_name(RoRoF_CrScavenge),(int)stl_x,(int)stl_y);
         kill_creature(thing, INVALID_THING, -1, CrDed_NoEffects);
         return -1;
     }
