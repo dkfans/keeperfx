@@ -318,8 +318,12 @@ static TbBool script_command_param_to_number(char type_chr, struct ScriptLine *s
     {
         char* text;
         scline->np[idx] = strtol(scline->tp[idx], &text, 0);
-        if (text != &scline->tp[idx][strlen(scline->tp[idx])]) {
-            SCRPTWRNLOG("Numerical value \"%s\" interpreted as %ld", scline->tp[idx], scline->np[idx]);
+        if (!extended)
+        {
+            if (text != &scline->tp[idx][strlen(scline->tp[idx])])
+            {
+                SCRPTWRNLOG("Numerical value \"%s\" interpreted as %ld", scline->tp[idx], scline->np[idx]);
+            }
         }
         break;
     }
@@ -382,15 +386,6 @@ static TbBool script_command_param_to_number(char type_chr, struct ScriptLine *s
         }
         scline->np[idx] = opertr_id;
         };break;
-    case 'X': {
-        long prop_id = get_rid(creatmodel_properties_commands, scline->tp[idx]);
-        if (prop_id == -1)
-        {
-            SCRPTERRLOG("Unknown creature property kind, \"%s\"", scline->tp[idx]);
-            return false;
-        }
-        scline->np[idx] = prop_id;
-    }; break;
     case 'A':
         break;
     case '!': // extended sign
