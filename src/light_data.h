@@ -60,7 +60,7 @@ struct Light { // sizeof = 46
   unsigned char field_6;
   unsigned char field_7;
   unsigned char field_8;
-  unsigned char field_9;
+  unsigned char min_radius;
   unsigned char field_A[4];
   unsigned short index;
   unsigned short shadow_index;
@@ -72,7 +72,7 @@ struct Light { // sizeof = 46
   unsigned short field_1E;
   unsigned short field_20;
   unsigned short field_22;
-  unsigned short field_24;
+  unsigned short min_intensity;
   unsigned short next_in_list;
   struct Coord3d mappos;
 };

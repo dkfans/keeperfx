@@ -619,7 +619,7 @@ void light_set_light_intensity(long idx, unsigned char intensity)
           stat_light_needs_updating = 1;
         }
         lgt->intensity = intensity;
-        if ( lgt->field_24 < intensity )
+        if ( lgt->min_intensity < intensity )
           lgt->flags |= LgtF_Unkn08;
       }
     }
@@ -1042,10 +1042,10 @@ static char light_render_light(struct Light* lgt)
   is_dynamic = lgt->flags & LgtF_Dynamic;
   if ( is_dynamic )
   {
-    if ( radius < lgt->field_9 << 8 )
-      v4 = lgt->field_9 << 8;
-    if ( v3 < lgt->field_24 << 8 )
-      v3 = lgt->field_24 << 8;
+    if ( radius < lgt->min_radius << 8 )
+      v4 = lgt->min_radius << 8;
+    if ( v3 < lgt->min_intensity << 8 )
+      v3 = lgt->min_intensity << 8;
   }
   if ( v3 >= game.lish.field_46149 << 8 )
   {
@@ -1349,8 +1349,8 @@ void light_set_light_minimum_size_to_cache(long lgt_id, long a2, long a3)
         lgt->flags &= ~LgtF_Unkn02;
         if ( lgt->flags & LgtF_Dynamic )
         {
-          lgt->field_9 = a2;
-          lgt->field_24 = a3;
+          lgt->min_radius = a2;
+          lgt->min_intensity = a3;
         }
         else
         {
