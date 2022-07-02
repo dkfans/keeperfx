@@ -185,8 +185,6 @@ DLLIMPORT unsigned char _DK_menu_ids[3];
 #define menu_ids _DK_menu_ids
 DLLIMPORT unsigned char _DK_new_objective;
 #define new_objective _DK_new_objective
-DLLIMPORT char _DK_gui_error_text[256];
-#define gui_error_text _DK_gui_error_text
 DLLIMPORT extern int _DK_frontend_menu_state;
 #define frontend_menu_state _DK_frontend_menu_state
 DLLIMPORT extern int _DK_load_game_scroll_offset;
