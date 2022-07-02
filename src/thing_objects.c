@@ -1742,10 +1742,15 @@ TngUpdateRet object_update_object_scale(struct Thing *objtng)
     return 1;
 }
 
+DLLIMPORT int _DK_lbCosTable[2048];
+#define lbCosTable _DK_lbCosTable
+DLLIMPORT int _DK_lbSinTable[2048];
+#define lbSinTable _DK_lbSinTable
+
 TngUpdateRet object_update_power_sight(struct Thing *objtng)
 {
     
- int owner; // ecx
+  int owner; // ecx
   struct Dungeon *dungeon; // ebx
   int sight_casted_splevel; // eax
   unsigned int max_time_active; // ecx
@@ -1757,7 +1762,7 @@ TngUpdateRet object_update_power_sight(struct Thing *objtng)
   int v10; // eax
   int v11; // edi
   int v12; // ecx
-  int v13; // kr08_4
+  int strength; // kr08_4
   int v14;
   int shift_x; // eax
   int shift_y; // ecx
@@ -1770,6 +1775,8 @@ TngUpdateRet object_update_power_sight(struct Thing *objtng)
   int v25; // edi
   int v26; // eax
   int v27; // ebx
+  int *v28; // ebp
+  int v29; // eax
   __int16 v30; // ax
   struct Coord3d pos; // [esp+10h] [ebp-10h] BYREF
   int v32; // [esp+18h] [ebp-8h]
@@ -1842,13 +1849,14 @@ TngUpdateRet object_update_power_sight(struct Thing *objtng)
       close_time_2 = power_sight_close_instance_time[splevel];
       v23 = 4 * close_time_2;
       v24 = close_time_2 - v20;
+      v25 = 4;
       v26 = 8 * (pwrdynst->strength[splevel] / 4) / v23;
       v27 = 4 * v24 * v26;
       v32 = v26;
 
-      
-      v25 = 4;
+          /*  
       int angle = 0;
+
       do
       {
         do
@@ -1859,6 +1867,27 @@ TngUpdateRet object_update_power_sight(struct Thing *objtng)
           create_effect_element(&pos, effkind[objtng->owner], objtng->owner);
         }
         while ( angle < 2 * LbFPMath_PI );
+        v27 -= v32;
+        --v25;
+      }
+      while ( v25 );
+      return 1;
+
+      */
+
+
+      do
+      {
+        v28 = lbSinTable;
+        do
+        {
+          v29 = *v28;
+          v28 += 64;
+          pos.x.val = objtng->mappos.x.val + ((unsigned int)(v27 * v29) >> 16);
+          pos.y.val = objtng->mappos.y.val + (-((v27 * v28[448]) >> 8) >> 8);
+          create_effect_element(&pos, effkind[objtng->owner], objtng->owner);
+        }
+        while ( v28 < &lbCosTable[1536] );
         v27 -= v32;
         --v25;
       }
@@ -1875,9 +1904,9 @@ TngUpdateRet object_update_power_sight(struct Thing *objtng)
       v12 = v11;
       if ( v11 >= 0 )
       {
-        v13 = pwrdynst->strength[dungeon->sight_casted_splevel];
-        if ( v13 / 4 < v11 )
-          v12 = v13 / 4;
+        strength = pwrdynst->strength[dungeon->sight_casted_splevel];
+        if ( strength / 4 < v11 )
+          v12 = strength / 4;
       }
       else
       {
@@ -1885,17 +1914,20 @@ TngUpdateRet object_update_power_sight(struct Thing *objtng)
       }
       v14 = (v11 & 0x1F) << 8;
 
+      MapCoord pos_x = objtng->mappos.x.val + (__int16)((v12 * *(int *)((char *)lbSinTable + v14)) >> 13);
+      MapCoord pos_y = objtng->mappos.y.val + (-(__int16)((v12 * *(int *)((char *)lbCosTable + v14)) >> 5) >> 8);
 
-      MapCoord pos_x = move_coord_with_angle_x(objtng->mappos.x.val,v12,v14);
-      MapCoord pos_y = move_coord_with_angle_y(objtng->mappos.x.val,v12,v14);
+      //  MapCoord pos_x = move_coord_with_angle_x(objtng->mappos.x.val,v12,v14);
+       // MapCoord pos_y = move_coord_with_angle_y(objtng->mappos.y.val,v12,v14);
+
       if ( pos_x >= 0 && pos_x < 65280 && pos_y >= 0 && pos_y < 65280 )
       {
         pos.z.val = 1408;
         pos.x.val = pos_x;
         pos.y.val = pos_y;
         create_effect_element(&pos, effkind[objtng->owner], objtng->owner);
-        shift_x = pos.x.stl.num - objtng->mappos.x.stl.num + 13;
-        shift_y = pos.y.stl.num - objtng->mappos.y.stl.num + 13;
+        shift_x = pos.x.stl.pos - objtng->mappos.x.stl.pos + 13;
+        shift_y = pos.y.stl.pos - objtng->mappos.y.stl.pos + 13;
         dungeon->soe_explored_flags[shift_y][shift_x] = pos.x.val < 0xFF00u
                                                    && pos.y.val < 0xFF00u;
       }
