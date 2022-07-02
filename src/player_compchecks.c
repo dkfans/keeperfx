@@ -991,7 +991,7 @@ long computer_check_neutral_places(struct Computer2 *comp, struct ComputerCheck 
     }
     struct OpponentRelation* oprel = &comp->opponent_relations[game.neutral_player_num];
     struct Room* near_room = INVALID_ROOM;
-    int near_dist = LONG_MAX;
+    int near_dist = INT_MAX;
     struct Coord3d* near_pos = &oprel->pos_A[0];
     for (int i = 0; i < COMPUTER_SPARK_POSITIONS_COUNT; i++)
     {
