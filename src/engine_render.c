@@ -7719,7 +7719,7 @@ static void sprite_to_sbuff(const TbSpriteData sprdata, unsigned char *outbuf, i
             break;
           sprd += cval;
           // Fill area per-byte until we get 32bit-aligned position
-          while ((unsigned int)out & 3)
+          while ((ptrdiff_t)out & 3)
           {
               *out = 0xFF;
               out++;
