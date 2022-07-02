@@ -42,9 +42,9 @@ struct EffectsConfig {
     struct EffectConfigStats effect_cfgstats[EFFECTS_TYPES_MAX];
 };
 /******************************************************************************/
-DLLIMPORT long _DK_imp_spangle_effects[];
+DLLIMPORT long * _DK_imp_spangle_effects;
 /******************************************************************************/
-extern const char keeper_effects_file[];
+extern const char * keeper_effects_file;
 extern struct NamedCommand effect_desc[EFFECTS_TYPES_MAX];
 extern long const imp_spangle_effects[];
 extern struct EffectsConfig effects_conf;

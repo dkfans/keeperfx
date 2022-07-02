@@ -33,7 +33,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-const char keeper_effects_file[]="effects.cfg";
+const char * keeper_effects_file = "effects.cfg";
 
 const struct NamedCommand effects_common_commands[] = {
   {"EFFECTSCOUNT",    1},

@@ -52,7 +52,7 @@ struct GuiButton;
 //#define gui_panel_sprites _DK_gui_panel_sprites
 //DLLIMPORT struct TbSprite *_DK_end_gui_panel_sprites;
 //#define end_gui_panel_sprites _DK_end_gui_panel_sprites
-extern struct TbSprite gui_panel_sprites[];
+extern struct TbSprite gui_panel_sprites[GUI_PANEL_SPRITES_COUNT + GUI_PANEL_SPRITES_NEW];
 extern struct TbSprite *end_gui_panel_sprites;
 extern int num_icons_total;
 

@@ -25,6 +25,7 @@
 #include "bflib_render.h"
 #include "bflib_sprite.h"
 #include "engine_lenses.h"
+#include "creature_graphics.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -36,7 +37,6 @@ extern "C" {
 #define KEEPSPRITE_LENGTH 9149
 
 #define KEEPERSPRITE_ADD_OFFSET 16384
-#define KEEPERSPRITE_ADD_NUM 2048
 
 enum QKinds {
     QK_PolygonStandard = 0,
@@ -498,9 +498,9 @@ DLLIMPORT struct Thing *_DK_thing_being_displayed;
 #define thing_being_displayed _DK_thing_being_displayed
 DLLIMPORT unsigned char _DK_thing_being_displayed_is_creature;
 #define thing_being_displayed_is_creature _DK_thing_being_displayed_is_creature
-DLLIMPORT extern struct EngineCol _DK_ecs1[];
+DLLIMPORT extern struct EngineCol * _DK_ecs1;
 #define ecs1 _DK_ecs1
-DLLIMPORT extern struct EngineCol _DK_ecs2[];
+DLLIMPORT extern struct EngineCol * _DK_ecs2;
 #define ecs2 _DK_ecs2
 DLLIMPORT extern struct EngineCol *_DK_front_ec;
 #define front_ec _DK_front_ec
