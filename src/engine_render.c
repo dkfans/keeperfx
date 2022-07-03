@@ -2409,9 +2409,9 @@ static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct 
     struct BasicUnk09 *triangle_bucket_near_3;
     struct BasicUnk09 *triangle_bucket_near_4;
     struct BasicUnk00 *triangle_bucket_far;
-    struct PolyPoint *polypoint_1;
-    struct PolyPoint *polypoint_2;
-    struct PolyPoint *polypoint_3;
+    struct PolyPoint *polypoint1;
+    struct PolyPoint *polypoint2;
+    struct PolyPoint *polypoint3;
     struct XYZ *xyz1;
     struct XYZ *xyz2;
     struct XYZ *xyz3;
@@ -2587,10 +2587,10 @@ static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct 
                             triangle_bucket_near_1->p3.field_C += (bread * (triangle_bucket_near_1->p1.field_C - triangle_bucket_near_1->p3.field_C)) >> 8;
                             corn = triangle_bucket_near_1->p3.field_10;
                             almond = (bread * (triangle_bucket_near_1->p1.field_10 - corn)) >> 8;
-                            polypoint_3 = &triangle_bucket_near_1->p3;
+                            polypoint3 = &triangle_bucket_near_1->p3;
                             xyz4 = &triangle_bucket_near_1->c3;
                             xyz4[-3].z = corn + almond;
-                            memcpy(&triangle_bucket_near_4->p1, polypoint_3, sizeof(triangle_bucket_near_4->p1));
+                            memcpy(&triangle_bucket_near_4->p1, polypoint3, sizeof(triangle_bucket_near_4->p1));
                             triangle_bucket_near_4->c1.x = xyz4->x;
                             triangle_bucket_near_4->c1.y = xyz4->y;
                             triangle_bucket_near_4->c1.z = xyz4->z;
@@ -2633,10 +2633,10 @@ static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct 
                         triangle_bucket_near_1->p2.field_C += (lettuce * (triangle_bucket_near_1->p1.field_C - triangle_bucket_near_1->p2.field_C)) >> 8;
                         sandwich = triangle_bucket_near_1->p2.field_10;
                         walnut = (lettuce * (triangle_bucket_near_1->p1.field_10 - sandwich)) >> 8;
-                        polypoint_2 = &triangle_bucket_near_1->p2;
+                        polypoint2 = &triangle_bucket_near_1->p2;
                         xyz3 = &triangle_bucket_near_1->c2;
                         xyz3[-3].x = sandwich + walnut;
-                        memcpy(&triangle_bucket_near_3->p1, polypoint_2, sizeof(triangle_bucket_near_3->p1));
+                        memcpy(&triangle_bucket_near_3->p1, polypoint2, sizeof(triangle_bucket_near_3->p1));
                         triangle_bucket_near_3->c1.x = xyz3->x;
                         triangle_bucket_near_3->c1.y = xyz3->y;
                         triangle_bucket_near_3->c1.z = xyz3->z;
@@ -2706,10 +2706,10 @@ static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct 
                         triangle_bucket_near_1->p1.field_C += (prawns * (triangle_bucket_near_1->p2.field_C - triangle_bucket_near_1->p1.field_C)) >> 8;
                         cauliflower = triangle_bucket_near_1->p1.field_10;
                         paprika = (prawns * (triangle_bucket_near_1->p2.field_10 - cauliflower)) >> 8;
-                        polypoint_1 = &triangle_bucket_near_1->p1;
+                        polypoint1 = &triangle_bucket_near_1->p1;
                         xyz1 = &triangle_bucket_near_1->c1;
                         xyz1[-4].y = cauliflower + paprika;
-                        memcpy(&triangle_bucket_near_2->p2, polypoint_1, sizeof(triangle_bucket_near_2->p2));
+                        memcpy(&triangle_bucket_near_2->p2, polypoint1, sizeof(triangle_bucket_near_2->p2));
                         triangle_bucket_near_2->c2.x = xyz1->x;
                         triangle_bucket_near_2->c2.y = xyz1->y;
                         triangle_bucket_near_2->c2.z = xyz1->z;
@@ -2861,9 +2861,9 @@ static void do_a_trig_gourad_bl(struct EngineCoord *engine_coordinate_1, struct 
     struct BasicUnk09 *triangle_bucket_near_3;
     struct BasicUnk09 *triangle_bucket_near_4;
     struct BasicUnk00 *triangle_bucket_far;
-    struct PolyPoint *polypoint_1;
-    struct PolyPoint *polypoint_2;
-    struct PolyPoint *polypoint_3;
+    struct PolyPoint *polypoint1;
+    struct PolyPoint *polypoint2;
+    struct PolyPoint *polypoint3;
     struct XYZ *xyz1;
     struct XYZ *xyz2;
     struct XYZ *xyz3;
@@ -3044,10 +3044,10 @@ static void do_a_trig_gourad_bl(struct EngineCoord *engine_coordinate_1, struct 
                             triangle_bucket_near_1->p3.field_C += (bread * (triangle_bucket_near_1->p1.field_C - triangle_bucket_near_1->p3.field_C)) >> 8;
                             corn = triangle_bucket_near_1->p3.field_10;
                             almond = (bread * (triangle_bucket_near_1->p1.field_10 - corn)) >> 8;
-                            polypoint_3 = &triangle_bucket_near_1->p3;
+                            polypoint3 = &triangle_bucket_near_1->p3;
                             xyz4 = &triangle_bucket_near_1->c3;
                             xyz4[-3].z = corn + almond;
-                            memcpy(&triangle_bucket_near_4->p1, polypoint_3, sizeof(triangle_bucket_near_4->p1));
+                            memcpy(&triangle_bucket_near_4->p1, polypoint3, sizeof(triangle_bucket_near_4->p1));
                             triangle_bucket_near_4->c1.x = xyz4->x;
                             triangle_bucket_near_4->c1.y = xyz4->y;
                             triangle_bucket_near_4->c1.z = xyz4->z;
@@ -3090,10 +3090,10 @@ static void do_a_trig_gourad_bl(struct EngineCoord *engine_coordinate_1, struct 
                         triangle_bucket_near_1->p2.field_C += (lettuce * (triangle_bucket_near_1->p1.field_C - triangle_bucket_near_1->p2.field_C)) >> 8;
                         sandwich = triangle_bucket_near_1->p2.field_10;
                         walnut = (lettuce * (triangle_bucket_near_1->p1.field_10 - sandwich)) >> 8;
-                        polypoint_2 = &triangle_bucket_near_1->p2;
+                        polypoint2 = &triangle_bucket_near_1->p2;
                         xyz3 = &triangle_bucket_near_1->c2;
                         xyz3[-3].x = sandwich + walnut;
-                        memcpy(&triangle_bucket_near_3->p1, polypoint_2, sizeof(triangle_bucket_near_3->p1));
+                        memcpy(&triangle_bucket_near_3->p1, polypoint2, sizeof(triangle_bucket_near_3->p1));
                         triangle_bucket_near_3->c1.x = xyz3->x;
                         triangle_bucket_near_3->c1.y = xyz3->y;
                         triangle_bucket_near_3->c1.z = xyz3->z;
@@ -3163,10 +3163,10 @@ static void do_a_trig_gourad_bl(struct EngineCoord *engine_coordinate_1, struct 
                         triangle_bucket_near_1->p1.field_C += (prawns * (triangle_bucket_near_1->p2.field_C - triangle_bucket_near_1->p1.field_C)) >> 8;
                         cauliflower = triangle_bucket_near_1->p1.field_10;
                         paprika = (prawns * (triangle_bucket_near_1->p2.field_10 - cauliflower)) >> 8;
-                        polypoint_1 = &triangle_bucket_near_1->p1;
+                        polypoint1 = &triangle_bucket_near_1->p1;
                         xyz1 = &triangle_bucket_near_1->c1;
                         xyz1[-4].y = cauliflower + paprika;
-                        memcpy(&triangle_bucket_near_2->p2, polypoint_1, sizeof(triangle_bucket_near_2->p2));
+                        memcpy(&triangle_bucket_near_2->p2, polypoint1, sizeof(triangle_bucket_near_2->p2));
                         triangle_bucket_near_2->c2.x = xyz1->x;
                         triangle_bucket_near_2->c2.y = xyz1->y;
                         triangle_bucket_near_2->c2.z = xyz1->z;
@@ -3752,9 +3752,9 @@ static void do_a_gpoly_gourad_tr(struct EngineCoord *ec1, struct EngineCoord *ec
     int v7;
     struct BasicUnk00 *v8;
     struct BasicQ *v9;
-    struct PolyPoint *polypoint_1;
-    struct PolyPoint *polypoint_2;
-    struct PolyPoint *polypoint_3;
+    struct PolyPoint *polypoint1;
+    struct PolyPoint *polypoint2;
+    struct PolyPoint *polypoint3;
     int ec1_fieldA;
     int ec2_fieldA;
     int ec3_fieldA;
@@ -3776,7 +3776,7 @@ static void do_a_gpoly_gourad_tr(struct EngineCoord *ec1, struct EngineCoord *ec
             v9 = buckets[v7];
             getpoly += sizeof(struct BasicUnk00);
             v6->b.next = v9;
-            polypoint_1 = &v6->p1;
+            polypoint1 = &v6->p1;
             v6->b.kind = 0;
             buckets[v7] = &v6->b;
             v6->block = textr_id;
@@ -3789,23 +3789,23 @@ static void do_a_gpoly_gourad_tr(struct EngineCoord *ec1, struct EngineCoord *ec
                 ec2_fieldA = (4 * ec2_fieldA * (a5 + 0x4000)) >> 17;
                 ec3_fieldA = (4 * (a5 + 0x4000) * ec3_fieldA) >> 17;
             }
-            polypoint_1->field_0 = ec1->view_width;
-            polypoint_1->field_4 = ec1->view_height;
-            polypoint_1->field_8 = 0;
-            polypoint_1->field_C = 0;
-            polypoint_1->field_10 = ec1_fieldA << 8;
-            polypoint_2 = &v8->p2;
+            polypoint1->field_0 = ec1->view_width;
+            polypoint1->field_4 = ec1->view_height;
+            polypoint1->field_8 = 0;
+            polypoint1->field_C = 0;
+            polypoint1->field_10 = ec1_fieldA << 8;
+            polypoint2 = &v8->p2;
             v8->p2.field_0 = ec2->view_width;
-            polypoint_3 = &v8->p3;
-            polypoint_2->field_4 = ec2->view_height;
-            polypoint_2->field_8 = 0x1FFFFF;
-            polypoint_2->field_C = 0;
-            polypoint_2->field_10 = ec2_fieldA << 8;
-            polypoint_3->field_0 = ec3->view_width;
-            polypoint_3->field_4 = ec3->view_height;
-            polypoint_3->field_8 = 0x1FFFFF;
-            polypoint_3->field_C = 0x1FFFFF;
-            polypoint_3->field_10 = ec3_fieldA << 8;
+            polypoint3 = &v8->p3;
+            polypoint2->field_4 = ec2->view_height;
+            polypoint2->field_8 = 0x1FFFFF;
+            polypoint2->field_C = 0;
+            polypoint2->field_10 = ec2_fieldA << 8;
+            polypoint3->field_0 = ec3->view_width;
+            polypoint3->field_4 = ec3->view_height;
+            polypoint3->field_8 = 0x1FFFFF;
+            polypoint3->field_C = 0x1FFFFF;
+            polypoint3->field_10 = ec3_fieldA << 8;
         }
     }
 }
@@ -3915,9 +3915,9 @@ static void do_a_gpoly_gourad_bl(struct EngineCoord *ec1, struct EngineCoord *ec
     int ec1_fieldA;
     int ec2_fieldA;
     int ec3_fieldA;
-    struct PolyPoint *polypoint_2;
-    struct PolyPoint *polypoint_3;
-    struct PolyPoint *polypoint_1;
+    struct PolyPoint *polypoint2;
+    struct PolyPoint *polypoint3;
+    struct PolyPoint *polypoint1;
 
     if ( (ec1->field_8 & (unsigned __int16)(ec2->field_8 & ec3->field_8) & 0x1F8) == 0
         && (ec3->view_height - ec2->view_height) * (ec2->view_width - ec1->view_width)
@@ -3936,7 +3936,7 @@ static void do_a_gpoly_gourad_bl(struct EngineCoord *ec1, struct EngineCoord *ec
             v9 = buckets[zdiv16];
             getpoly += sizeof(struct BasicUnk00);
             v6->b.next = v9;
-            polypoint_1 = &v6->p1;
+            polypoint1 = &v6->p1;
             v6->b.kind = 0;
             buckets[zdiv16] = &v6->b;
             v6->block = textr_id;
@@ -3949,23 +3949,23 @@ static void do_a_gpoly_gourad_bl(struct EngineCoord *ec1, struct EngineCoord *ec
                 ec2_fieldA = (4 * (a5 + 0x4000) * ec2_fieldA) >> 17;
                 ec3_fieldA = (4 * (a5 + 0x4000) * ec3_fieldA) >> 17;
             }
-            polypoint_1->field_0 = ec1->view_width;
-            polypoint_2 = &poly_ptr->p2;
-            polypoint_1->field_4 = ec1->view_height;
-            polypoint_1->field_8 = 0x1FFFFF;
-            polypoint_1->field_C = 0x1FFFFF;
-            polypoint_1->field_10 = ec1_fieldA << 8;
+            polypoint1->field_0 = ec1->view_width;
+            polypoint2 = &poly_ptr->p2;
+            polypoint1->field_4 = ec1->view_height;
+            polypoint1->field_8 = 0x1FFFFF;
+            polypoint1->field_C = 0x1FFFFF;
+            polypoint1->field_10 = ec1_fieldA << 8;
             poly_ptr->p2.field_0 = ec2->view_width;
-            polypoint_3 = &poly_ptr->p3;
-            polypoint_2->field_4 = ec2->view_height;
-            polypoint_2->field_8 = 0;
-            polypoint_2->field_C = 0x1FFFFF;
-            polypoint_2->field_10 = ec2_fieldA << 8;
-            polypoint_3->field_0 = ec3->view_width;
-            polypoint_3->field_4 = ec3->view_height;
-            polypoint_3->field_8 = 0;
-            polypoint_3->field_C = 0;
-            polypoint_3->field_10 = ec3_fieldA << 8;
+            polypoint3 = &poly_ptr->p3;
+            polypoint2->field_4 = ec2->view_height;
+            polypoint2->field_8 = 0;
+            polypoint2->field_C = 0x1FFFFF;
+            polypoint2->field_10 = ec2_fieldA << 8;
+            polypoint3->field_0 = ec3->view_width;
+            polypoint3->field_4 = ec3->view_height;
+            polypoint3->field_8 = 0;
+            polypoint3->field_C = 0;
+            polypoint3->field_10 = ec3_fieldA << 8;
         }
     }
 }
