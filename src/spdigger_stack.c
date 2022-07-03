@@ -2487,10 +2487,13 @@ long check_out_imp_last_did(struct Thing *creatng)
       }
       break;
   case SDLstJob_NonDiggerTask:
-      if (attempt_job_preference(creatng, cctrl->job_assigned))
+      if (creature_can_do_job_for_player(creatng, creatng->owner, cctrl->job_assigned, JobChk_None))
       {
-          cctrl->job_assigned_check_turn = game.play_gameturn;
-          return true;
+          if (send_creature_to_job_for_player(creatng, creatng->owner, cctrl->job_assigned))
+          {
+              cctrl->job_assigned_check_turn = game.play_gameturn;
+              return true;
+          }
       }
       break;
   case SDLstJob_ReinforceWall9:
