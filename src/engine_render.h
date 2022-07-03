@@ -312,7 +312,7 @@ struct EngineCoord { // sizeof = 28
   long view_width;
   long view_height;
   unsigned short field_8; // frustum culling?
-  unsigned short field_A;
+  unsigned short field_A; // lightness?
   long field_C; // distance to camera?
   long x;
   long y;

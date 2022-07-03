@@ -2402,35 +2402,26 @@ void process_isometric_map_volume_box(long x, long y, long z, PlayerNumber plyr_
     map_volume_box.color = default_color;
 }
 
-static void do_a_trig_gourad_tr(struct EngineCoord *pos3d_1, struct EngineCoord *pos3d_2, struct EngineCoord *pos3d_3, short textr_idx, long argument5)
+static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct EngineCoord *engine_coordinate_2, struct EngineCoord *engine_coordinate_3, short textr_idx, long argument5)
 {
-    struct BasicUnk09 *mustard;
-    struct BasicUnk09 *sugar;
-    struct BasicUnk09 *grape;
-    struct BasicUnk09 *cereal;
-    struct BasicUnk00 *potato;
-    struct PolyPoint *peaches;
-    struct PolyPoint *porridge;
-    struct PolyPoint *watermelon;
-    struct XYZ *muffin;
-    struct XYZ *doughnut;
-    struct XYZ *biscuit;
-    struct XYZ *chocolate;
-    struct XYZ *cheese;
-    struct XYZ *pumpkin;
-    short pos1_frustum;
-    short pos2_frustum;
-    short pos3_frustum;
+    struct BasicUnk09 *triangle_bucket_near_1;
+    struct BasicUnk09 *triangle_bucket_near_2;
+    struct BasicUnk09 *triangle_bucket_near_3;
+    struct BasicUnk09 *triangle_bucket_near_4;
+    struct BasicUnk00 *triangle_bucket_far;
+    struct PolyPoint *polypoint_1;
+    struct PolyPoint *polypoint_2;
+    struct PolyPoint *polypoint_3;
+    struct XYZ *xyz1;
+    struct XYZ *xyz2;
+    struct XYZ *xyz3;
+    struct XYZ *xyz4;
+    struct XYZ *xyz5;
+    struct XYZ *xyz6;
     int z;
     int divided_z;
-    int capsicum;
-    int blueberries;
     int honeydew;
-    int icecream;
-    int pancake;
     int yogurt;
-    int spaghetti;
-    int peanut;
     int onion;
     int apricots;
     int olives;
@@ -2455,435 +2446,435 @@ static void do_a_trig_gourad_tr(struct EngineCoord *pos3d_1, struct EngineCoord 
     int corn;
     int almond;
     int lemon;
-    int carrot;
-    int pineapple;
     int mango;
-    int banana;
-    int orange;
     int apple;
-    int cactus;
-    int pepper;
-    pos1_frustum = pos3d_1->field_8;
-    pos2_frustum = pos3d_2->field_8;
-    pos3_frustum = pos3d_3->field_8;
+    short coordinate_1_frustum = engine_coordinate_1->field_8;
+    short coordinate_2_frustum = engine_coordinate_2->field_8;
+    short coordinate_3_frustum = engine_coordinate_3->field_8;
     
-    if (((unsigned short)pos1_frustum & (unsigned short)(pos2_frustum & pos3_frustum) & 0x1F8) == 0 && (pos3d_1->view_height - pos3d_2->view_height) * (pos3d_3->view_width - pos3d_2->view_width) + (pos3d_3->view_height - pos3d_2->view_height) * (pos3d_2->view_width - pos3d_1->view_width) > 0)
+    if (((unsigned short)coordinate_1_frustum & (unsigned short)(coordinate_2_frustum & coordinate_3_frustum) & 0x1F8) == 0 && (engine_coordinate_1->view_height - engine_coordinate_2->view_height) * (engine_coordinate_3->view_width - engine_coordinate_2->view_width) + (engine_coordinate_3->view_height - engine_coordinate_2->view_height) * (engine_coordinate_2->view_width - engine_coordinate_1->view_width) > 0)
     {
-        z = pos3d_1->z;
-        if (pos3d_2->z > z)
-            z = pos3d_2->z;
-        if (pos3d_3->z > z)
-            z = pos3d_3->z;
+        z = engine_coordinate_1->z;
+        if (engine_coordinate_2->z > z)
+            z = engine_coordinate_2->z;
+        if (engine_coordinate_3->z > z)
+            z = engine_coordinate_3->z;
         divided_z = z / 16;
         if (getpoly < poly_pool_end)
         {
-            if ((((unsigned __int8)pos3_frustum | (unsigned __int8)(pos2_frustum | pos1_frustum)) & 3) != 0)
+            if ((((unsigned __int8)coordinate_3_frustum | (unsigned __int8)(coordinate_2_frustum | coordinate_1_frustum)) & 3) != 0)
             {
-                mustard = (struct BasicUnk09 *)getpoly;
+                triangle_bucket_near_1 = (struct BasicUnk09 *)getpoly;
                 getpoly += sizeof(struct BasicUnk09);
-                mustard->subtype = splittypes[16 * (pos3d_3->field_8 & 3) + 4 * (pos3d_1->field_8 & 3) + (pos3d_2->field_8 & 3)];
-                mustard->b.next = buckets[divided_z];
-                mustard->b.kind = 9;
-                buckets[divided_z] = &mustard->b;
-                mustard->block = textr_idx;
-                capsicum = pos3d_1->field_C;
-                mustard->p1.field_0 = pos3d_1->view_width;
-                mustard->p1.field_4 = pos3d_1->view_height;
-                mustard->p1.field_8 = 0;
-                mustard->p1.field_C = 0;
-                blueberries = pos3d_1->field_A;
+                triangle_bucket_near_1->subtype = splittypes[16 * (engine_coordinate_3->field_8 & 3) + 4 * (engine_coordinate_1->field_8 & 3) + (engine_coordinate_2->field_8 & 3)];
+                triangle_bucket_near_1->b.next = buckets[divided_z];
+                triangle_bucket_near_1->b.kind = 9;
+                buckets[divided_z] = &triangle_bucket_near_1->b;
+                triangle_bucket_near_1->block = textr_idx;
+                triangle_bucket_near_1->p1.field_0 = engine_coordinate_1->view_width;
+                triangle_bucket_near_1->p1.field_4 = engine_coordinate_1->view_height;
+                triangle_bucket_near_1->p1.field_8 = 0;
+                triangle_bucket_near_1->p1.field_C = 0;
+
+                int coordinate_1_lightness = engine_coordinate_1->field_A;
+                int coordinate_1_distance = engine_coordinate_1->field_C;
+
                 if (argument5 >= 0)
-                    blueberries = (blueberries * (3 * argument5 + 81920)) >> 17;
-                if (fade_min >= capsicum)
+                    coordinate_1_lightness = (coordinate_1_lightness * (3 * argument5 + 81920)) >> 17;
+                if (fade_min >= coordinate_1_distance)
                 {
-                    honeydew = blueberries << 8;
+                    honeydew = coordinate_1_lightness << 8;
                 }
-                else if (fade_max > capsicum)
+                else if (fade_max > coordinate_1_distance)
                 {
-                    honeydew = blueberries * (fade_scaler - capsicum) / fade_range + 0x8000;
+                    honeydew = coordinate_1_lightness * (fade_scaler - coordinate_1_distance) / fade_range + 0x8000;
                 }
                 else
                 {
                     honeydew = 0x8000;
                 }
-                mustard->p1.field_10 = honeydew;
-                icecream = pos3d_2->field_C;
-                mustard->p2.field_0 = pos3d_2->view_width;
-                mustard->p2.field_4 = pos3d_2->view_height;
-                mustard->p2.field_8 = 0x1FFFFF;
-                mustard->p2.field_C = 0;
-                pancake = pos3d_2->field_A;
+                triangle_bucket_near_1->p1.field_10 = honeydew;
+                triangle_bucket_near_1->p2.field_0 = engine_coordinate_2->view_width;
+                triangle_bucket_near_1->p2.field_4 = engine_coordinate_2->view_height;
+                triangle_bucket_near_1->p2.field_8 = 0x1FFFFF;
+                triangle_bucket_near_1->p2.field_C = 0;
+                
+                int coordinate_2_lightness = engine_coordinate_2->field_A;
+                int coordinate_2_distance = engine_coordinate_2->field_C;
+
                 if (argument5 >= 0)
-                    pancake = (pancake * (3 * argument5 + 81920)) >> 17;
-                if (icecream <= fade_min)
+                    coordinate_2_lightness = (coordinate_2_lightness * (3 * argument5 + 81920)) >> 17;
+                if (coordinate_2_distance <= fade_min)
                 {
-                    yogurt = pancake << 8;
+                    yogurt = coordinate_2_lightness << 8;
                 }
-                else if (icecream < fade_max)
+                else if (coordinate_2_distance < fade_max)
                 {
-                    yogurt = pancake * (fade_scaler - icecream) / fade_range + 0x8000;
+                    yogurt = coordinate_2_lightness * (fade_scaler - coordinate_2_distance) / fade_range + 0x8000;
                 }
                 else
                 {
                     yogurt = 0x8000;
                 }
-                mustard->p2.field_10 = yogurt;
-                spaghetti = pos3d_3->field_C;
-                mustard->p3.field_0 = pos3d_3->view_width;
-                mustard->p3.field_4 = pos3d_3->view_height;
-                mustard->p3.field_8 = 0x1FFFFF;
-                mustard->p3.field_C = 0x1FFFFF;
-                peanut = pos3d_3->field_A;
+                triangle_bucket_near_1->p2.field_10 = yogurt;
+                triangle_bucket_near_1->p3.field_0 = engine_coordinate_3->view_width;
+                triangle_bucket_near_1->p3.field_4 = engine_coordinate_3->view_height;
+                triangle_bucket_near_1->p3.field_8 = 0x1FFFFF;
+                triangle_bucket_near_1->p3.field_C = 0x1FFFFF;
+
+                int coordinate_3_lightness = engine_coordinate_3->field_A;
+                int coordinate_3_distance = engine_coordinate_3->field_C;
+
                 if (argument5 >= 0)
-                    peanut = (peanut * (3 * argument5 + 81920)) >> 17;
-                if (fade_min >= spaghetti)
+                    coordinate_3_lightness = (coordinate_3_lightness * (3 * argument5 + 81920)) >> 17;
+                if (fade_min >= coordinate_3_distance)
                 {
-                    onion = peanut << 8;
+                    onion = coordinate_3_lightness << 8;
                 }
-                else if (fade_max > spaghetti)
+                else if (fade_max > coordinate_3_distance)
                 {
-                    onion = peanut * (fade_scaler - spaghetti) / fade_range + 0x8000;
+                    onion = coordinate_3_lightness * (fade_scaler - coordinate_3_distance) / fade_range + 0x8000;
                 }
                 else
                 {
                     onion = 0x8000;
                 }
-                mustard->p3.field_10 = onion;
-                apricots = pos3d_1->z;
+                triangle_bucket_near_1->p3.field_10 = onion;
+                apricots = engine_coordinate_1->z;
                 if (apricots >= 32)
                 {
-                    pizza = pos3d_2->z;
-                    cucumber = pos3d_3->z;
+                    pizza = engine_coordinate_2->z;
+                    cucumber = engine_coordinate_3->z;
                     if (pizza >= 32)
                     {
                         if (cucumber >= 32)
                         {
-                            mustard->c1.x = pos3d_1->x;
-                            mustard->c1.y = pos3d_1->y;
-                            mustard->c1.z = pos3d_1->z;
-                            cheese = &mustard->c2;
-                            mustard->c2.x = pos3d_2->x;
-                            pumpkin = &mustard->c3;
-                            cheese->y = pos3d_2->y;
-                            cheese->z = pos3d_2->z;
-                            pumpkin->x = pos3d_3->x;
-                            pumpkin->y = pos3d_3->y;
-                            pumpkin->z = pos3d_3->z;
+                            triangle_bucket_near_1->c1.x = engine_coordinate_1->x;
+                            triangle_bucket_near_1->c1.y = engine_coordinate_1->y;
+                            triangle_bucket_near_1->c1.z = engine_coordinate_1->z;
+                            xyz5 = &triangle_bucket_near_1->c2;
+                            triangle_bucket_near_1->c2.x = engine_coordinate_2->x;
+                            xyz6 = &triangle_bucket_near_1->c3;
+                            xyz5->y = engine_coordinate_2->y;
+                            xyz5->z = engine_coordinate_2->z;
+                            xyz6->x = engine_coordinate_3->x;
+                            xyz6->y = engine_coordinate_3->y;
+                            xyz6->z = engine_coordinate_3->z;
                         }
                         else
                         {
-                            cereal = (struct BasicUnk09 *)getpoly;
+                            triangle_bucket_near_4 = (struct BasicUnk09 *)getpoly;
                             getpoly += sizeof(struct BasicUnk09);
-                            cereal->subtype = splittypes[16 * (pos3d_3->field_8 & 3) + 4 * (pos3d_1->field_8 & 3) + (pos3d_2->field_8 & 3)];
-                            cereal->b.next = buckets[divided_z];
-                            cereal->b.kind = 9;
-                            buckets[divided_z] = &cereal->b;
-                            cereal->block = textr_idx;
-                            mustard->c1.x = pos3d_1->x;
-                            mustard->c1.y = pos3d_1->y;
-                            mustard->c1.z = pos3d_1->z;
-                            mustard->c2.x = pos3d_2->x;
-                            mustard->c2.y = pos3d_2->y;
-                            mustard->c2.z = pos3d_2->z;
-                            memcpy(&cereal->p3, &mustard->p3, sizeof(cereal->p3));
-                            memcpy(&cereal->p2, &mustard->p2, sizeof(cereal->p2));
-                            bread = ((32 - pos3d_3->z) << 8) / (pos3d_1->z - pos3d_3->z);
-                            mustard->c3.x = pos3d_3->x + ((bread * (pos3d_1->x - pos3d_3->x)) >> 8);
-                            mustard->c3.y = pos3d_3->y + ((bread * (pos3d_1->y - pos3d_3->y)) >> 8);
-                            mustard->c3.z = 32;
-                            perspective(&mustard->c3, &mustard->p3);
-                            mustard->p3.field_8 += (bread * (mustard->p1.field_8 - mustard->p3.field_8)) >> 8;
-                            mustard->p3.field_C += (bread * (mustard->p1.field_C - mustard->p3.field_C)) >> 8;
-                            corn = mustard->p3.field_10;
-                            almond = (bread * (mustard->p1.field_10 - corn)) >> 8;
-                            watermelon = &mustard->p3;
-                            chocolate = &mustard->c3;
-                            chocolate[-3].z = corn + almond;
-                            memcpy(&cereal->p1, watermelon, sizeof(cereal->p1));
-                            cereal->c1.x = chocolate->x;
-                            cereal->c1.y = chocolate->y;
-                            cereal->c1.z = chocolate->z;
-                            cereal->c2.x = pos3d_2->x;
-                            cereal->c2.y = pos3d_2->y;
-                            cereal->c2.z = pos3d_2->z;
-                            lemon = ((32 - pos3d_3->z) << 8) / (pos3d_2->z - pos3d_3->z);
-                            cereal->c3.x = pos3d_3->x + ((lemon * (pos3d_2->x - pos3d_3->x)) >> 8);
-                            cereal->c3.y = pos3d_3->y + ((lemon * (pos3d_2->y - pos3d_3->y)) >> 8);
-                            cereal->c3.z = 32;
-                            perspective(&cereal->c3, &cereal->p3);
-                            cereal->p3.field_8 += (lemon * (cereal->p2.field_8 - cereal->p3.field_8)) >> 8;
-                            cereal->p3.field_C += (lemon * (cereal->p2.field_C - cereal->p3.field_C)) >> 8;
-                            cereal->p3.field_10 += (lemon * (cereal->p2.field_10 - cereal->p3.field_10)) >> 8;
+                            triangle_bucket_near_4->subtype = splittypes[16 * (engine_coordinate_3->field_8 & 3) + 4 * (engine_coordinate_1->field_8 & 3) + (engine_coordinate_2->field_8 & 3)];
+                            triangle_bucket_near_4->b.next = buckets[divided_z];
+                            triangle_bucket_near_4->b.kind = 9;
+                            buckets[divided_z] = &triangle_bucket_near_4->b;
+                            triangle_bucket_near_4->block = textr_idx;
+                            triangle_bucket_near_1->c1.x = engine_coordinate_1->x;
+                            triangle_bucket_near_1->c1.y = engine_coordinate_1->y;
+                            triangle_bucket_near_1->c1.z = engine_coordinate_1->z;
+                            triangle_bucket_near_1->c2.x = engine_coordinate_2->x;
+                            triangle_bucket_near_1->c2.y = engine_coordinate_2->y;
+                            triangle_bucket_near_1->c2.z = engine_coordinate_2->z;
+                            memcpy(&triangle_bucket_near_4->p3, &triangle_bucket_near_1->p3, sizeof(triangle_bucket_near_4->p3));
+                            memcpy(&triangle_bucket_near_4->p2, &triangle_bucket_near_1->p2, sizeof(triangle_bucket_near_4->p2));
+                            bread = ((32 - engine_coordinate_3->z) << 8) / (engine_coordinate_1->z - engine_coordinate_3->z);
+                            triangle_bucket_near_1->c3.x = engine_coordinate_3->x + ((bread * (engine_coordinate_1->x - engine_coordinate_3->x)) >> 8);
+                            triangle_bucket_near_1->c3.y = engine_coordinate_3->y + ((bread * (engine_coordinate_1->y - engine_coordinate_3->y)) >> 8);
+                            triangle_bucket_near_1->c3.z = 32;
+                            perspective(&triangle_bucket_near_1->c3, &triangle_bucket_near_1->p3);
+                            triangle_bucket_near_1->p3.field_8 += (bread * (triangle_bucket_near_1->p1.field_8 - triangle_bucket_near_1->p3.field_8)) >> 8;
+                            triangle_bucket_near_1->p3.field_C += (bread * (triangle_bucket_near_1->p1.field_C - triangle_bucket_near_1->p3.field_C)) >> 8;
+                            corn = triangle_bucket_near_1->p3.field_10;
+                            almond = (bread * (triangle_bucket_near_1->p1.field_10 - corn)) >> 8;
+                            polypoint_3 = &triangle_bucket_near_1->p3;
+                            xyz4 = &triangle_bucket_near_1->c3;
+                            xyz4[-3].z = corn + almond;
+                            memcpy(&triangle_bucket_near_4->p1, polypoint_3, sizeof(triangle_bucket_near_4->p1));
+                            triangle_bucket_near_4->c1.x = xyz4->x;
+                            triangle_bucket_near_4->c1.y = xyz4->y;
+                            triangle_bucket_near_4->c1.z = xyz4->z;
+                            triangle_bucket_near_4->c2.x = engine_coordinate_2->x;
+                            triangle_bucket_near_4->c2.y = engine_coordinate_2->y;
+                            triangle_bucket_near_4->c2.z = engine_coordinate_2->z;
+                            lemon = ((32 - engine_coordinate_3->z) << 8) / (engine_coordinate_2->z - engine_coordinate_3->z);
+                            triangle_bucket_near_4->c3.x = engine_coordinate_3->x + ((lemon * (engine_coordinate_2->x - engine_coordinate_3->x)) >> 8);
+                            triangle_bucket_near_4->c3.y = engine_coordinate_3->y + ((lemon * (engine_coordinate_2->y - engine_coordinate_3->y)) >> 8);
+                            triangle_bucket_near_4->c3.z = 32;
+                            perspective(&triangle_bucket_near_4->c3, &triangle_bucket_near_4->p3);
+                            triangle_bucket_near_4->p3.field_8 += (lemon * (triangle_bucket_near_4->p2.field_8 - triangle_bucket_near_4->p3.field_8)) >> 8;
+                            triangle_bucket_near_4->p3.field_C += (lemon * (triangle_bucket_near_4->p2.field_C - triangle_bucket_near_4->p3.field_C)) >> 8;
+                            triangle_bucket_near_4->p3.field_10 += (lemon * (triangle_bucket_near_4->p2.field_10 - triangle_bucket_near_4->p3.field_10)) >> 8;
                         }
                     }
                     else if (cucumber >= 32)
                     {
-                        grape = (struct BasicUnk09 *)getpoly;
+                        triangle_bucket_near_3 = (struct BasicUnk09 *)getpoly;
                         getpoly += sizeof(struct BasicUnk09);
-                        grape->subtype = splittypes[16 * (pos3d_3->field_8 & 3) + 4 * (pos3d_1->field_8 & 3) + (pos3d_2->field_8 & 3)];
-                        grape->b.next = buckets[divided_z];
-                        grape->b.kind = 9;
-                        buckets[divided_z] = &grape->b;
-                        grape->block = textr_idx;
-                        mustard->c1.x = pos3d_1->x;
-                        mustard->c1.y = pos3d_1->y;
-                        mustard->c1.z = pos3d_1->z;
-                        mustard->c3.x = pos3d_3->x;
-                        mustard->c3.y = pos3d_3->y;
-                        mustard->c3.z = pos3d_3->z;
-                        memcpy(&grape->p2, &mustard->p2, sizeof(grape->p2));
-                        memcpy(&grape->p3, &mustard->p3, sizeof(grape->p3));
-                        lettuce = ((32 - pos3d_2->z) << 8) / (pos3d_1->z - pos3d_2->z);
-                        mustard->c2.x = pos3d_2->x + ((lettuce * (pos3d_1->x - pos3d_2->x)) >> 8);
-                        mustard->c2.y = pos3d_2->y + ((lettuce * (pos3d_1->y - pos3d_2->y)) >> 8);
-                        mustard->c2.z = 32;
-                        perspective(&mustard->c2, &mustard->p2);
-                        mustard->p2.field_8 += (lettuce * (mustard->p1.field_8 - mustard->p2.field_8)) >> 8;
-                        mustard->p2.field_C += (lettuce * (mustard->p1.field_C - mustard->p2.field_C)) >> 8;
-                        sandwich = mustard->p2.field_10;
-                        walnut = (lettuce * (mustard->p1.field_10 - sandwich)) >> 8;
-                        porridge = &mustard->p2;
-                        biscuit = &mustard->c2;
-                        biscuit[-3].x = sandwich + walnut;
-                        memcpy(&grape->p1, porridge, sizeof(grape->p1));
-                        grape->c1.x = biscuit->x;
-                        grape->c1.y = biscuit->y;
-                        grape->c1.z = biscuit->z;
-                        grape->c3.x = pos3d_3->x;
-                        grape->c3.y = pos3d_3->y;
-                        grape->c3.z = pos3d_3->z;
-                        avocado = ((32 - pos3d_2->z) << 8) / (pos3d_3->z - pos3d_2->z);
-                        grape->c2.x = pos3d_2->x + ((avocado * (pos3d_3->x - pos3d_2->x)) >> 8);
-                        grape->c2.y = pos3d_2->y + ((avocado * (pos3d_3->y - pos3d_2->y)) >> 8);
-                        grape->c2.z = 32;
-                        perspective(&grape->c2, &grape->p2);
-                        grape->p2.field_8 += (avocado * (grape->p3.field_8 - grape->p2.field_8)) >> 8;
-                        grape->p2.field_C += (avocado * (grape->p3.field_C - grape->p2.field_C)) >> 8;
-                        grape->p2.field_10 += (avocado * (grape->p3.field_10 - grape->p2.field_10)) >> 8;
+                        triangle_bucket_near_3->subtype = splittypes[16 * (engine_coordinate_3->field_8 & 3) + 4 * (engine_coordinate_1->field_8 & 3) + (engine_coordinate_2->field_8 & 3)];
+                        triangle_bucket_near_3->b.next = buckets[divided_z];
+                        triangle_bucket_near_3->b.kind = 9;
+                        buckets[divided_z] = &triangle_bucket_near_3->b;
+                        triangle_bucket_near_3->block = textr_idx;
+                        triangle_bucket_near_1->c1.x = engine_coordinate_1->x;
+                        triangle_bucket_near_1->c1.y = engine_coordinate_1->y;
+                        triangle_bucket_near_1->c1.z = engine_coordinate_1->z;
+                        triangle_bucket_near_1->c3.x = engine_coordinate_3->x;
+                        triangle_bucket_near_1->c3.y = engine_coordinate_3->y;
+                        triangle_bucket_near_1->c3.z = engine_coordinate_3->z;
+                        memcpy(&triangle_bucket_near_3->p2, &triangle_bucket_near_1->p2, sizeof(triangle_bucket_near_3->p2));
+                        memcpy(&triangle_bucket_near_3->p3, &triangle_bucket_near_1->p3, sizeof(triangle_bucket_near_3->p3));
+                        lettuce = ((32 - engine_coordinate_2->z) << 8) / (engine_coordinate_1->z - engine_coordinate_2->z);
+                        triangle_bucket_near_1->c2.x = engine_coordinate_2->x + ((lettuce * (engine_coordinate_1->x - engine_coordinate_2->x)) >> 8);
+                        triangle_bucket_near_1->c2.y = engine_coordinate_2->y + ((lettuce * (engine_coordinate_1->y - engine_coordinate_2->y)) >> 8);
+                        triangle_bucket_near_1->c2.z = 32;
+                        perspective(&triangle_bucket_near_1->c2, &triangle_bucket_near_1->p2);
+                        triangle_bucket_near_1->p2.field_8 += (lettuce * (triangle_bucket_near_1->p1.field_8 - triangle_bucket_near_1->p2.field_8)) >> 8;
+                        triangle_bucket_near_1->p2.field_C += (lettuce * (triangle_bucket_near_1->p1.field_C - triangle_bucket_near_1->p2.field_C)) >> 8;
+                        sandwich = triangle_bucket_near_1->p2.field_10;
+                        walnut = (lettuce * (triangle_bucket_near_1->p1.field_10 - sandwich)) >> 8;
+                        polypoint_2 = &triangle_bucket_near_1->p2;
+                        xyz3 = &triangle_bucket_near_1->c2;
+                        xyz3[-3].x = sandwich + walnut;
+                        memcpy(&triangle_bucket_near_3->p1, polypoint_2, sizeof(triangle_bucket_near_3->p1));
+                        triangle_bucket_near_3->c1.x = xyz3->x;
+                        triangle_bucket_near_3->c1.y = xyz3->y;
+                        triangle_bucket_near_3->c1.z = xyz3->z;
+                        triangle_bucket_near_3->c3.x = engine_coordinate_3->x;
+                        triangle_bucket_near_3->c3.y = engine_coordinate_3->y;
+                        triangle_bucket_near_3->c3.z = engine_coordinate_3->z;
+                        avocado = ((32 - engine_coordinate_2->z) << 8) / (engine_coordinate_3->z - engine_coordinate_2->z);
+                        triangle_bucket_near_3->c2.x = engine_coordinate_2->x + ((avocado * (engine_coordinate_3->x - engine_coordinate_2->x)) >> 8);
+                        triangle_bucket_near_3->c2.y = engine_coordinate_2->y + ((avocado * (engine_coordinate_3->y - engine_coordinate_2->y)) >> 8);
+                        triangle_bucket_near_3->c2.z = 32;
+                        perspective(&triangle_bucket_near_3->c2, &triangle_bucket_near_3->p2);
+                        triangle_bucket_near_3->p2.field_8 += (avocado * (triangle_bucket_near_3->p3.field_8 - triangle_bucket_near_3->p2.field_8)) >> 8;
+                        triangle_bucket_near_3->p2.field_C += (avocado * (triangle_bucket_near_3->p3.field_C - triangle_bucket_near_3->p2.field_C)) >> 8;
+                        triangle_bucket_near_3->p2.field_10 += (avocado * (triangle_bucket_near_3->p3.field_10 - triangle_bucket_near_3->p2.field_10)) >> 8;
                     }
                     else
                     {
                         steak = ((32 - pizza) << 8) / (apricots - pizza);
-                        mustard->c2.x = pos3d_2->x + ((steak * (pos3d_1->x - pos3d_2->x)) >> 8);
-                        mustard->c2.y = pos3d_2->y + ((steak * (pos3d_1->y - pos3d_2->y)) >> 8);
-                        mustard->c2.z = 32;
-                        perspective(&mustard->c2, &mustard->p2);
-                        mustard->p2.field_8 += (steak * (mustard->p1.field_8 - mustard->p2.field_8)) >> 8;
-                        mustard->p2.field_C += (steak * (mustard->p1.field_C - mustard->p2.field_C)) >> 8;
-                        mustard->p2.field_10 += (steak * (mustard->p1.field_10 - mustard->p2.field_10)) >> 8;
-                        tomato = ((32 - pos3d_3->z) << 8) / (pos3d_1->z - pos3d_3->z);
-                        mustard->c3.x = pos3d_3->x + ((tomato * (pos3d_1->x - pos3d_3->x)) >> 8);
-                        mustard->c3.y = pos3d_3->y + ((tomato * (pos3d_1->y - pos3d_3->y)) >> 8);
-                        mustard->c3.z = 32;
-                        perspective(&mustard->c3, &mustard->p3);
-                        mustard->p3.field_8 += (tomato * (mustard->p1.field_8 - mustard->p3.field_8)) >> 8;
-                        mustard->p3.field_C += (tomato * (mustard->p1.field_C - mustard->p3.field_C)) >> 8;
-                        cabbage = mustard->p1.field_10;
-                        coconut = mustard->p3.field_10;
-                        doughnut = &mustard->c1;
-                        doughnut[-1].z = coconut + ((tomato * (cabbage - coconut)) >> 8);
-                        doughnut->x = pos3d_1->x;
-                        doughnut->y = pos3d_1->y;
-                        doughnut->z = pos3d_1->z;
+                        triangle_bucket_near_1->c2.x = engine_coordinate_2->x + ((steak * (engine_coordinate_1->x - engine_coordinate_2->x)) >> 8);
+                        triangle_bucket_near_1->c2.y = engine_coordinate_2->y + ((steak * (engine_coordinate_1->y - engine_coordinate_2->y)) >> 8);
+                        triangle_bucket_near_1->c2.z = 32;
+                        perspective(&triangle_bucket_near_1->c2, &triangle_bucket_near_1->p2);
+                        triangle_bucket_near_1->p2.field_8 += (steak * (triangle_bucket_near_1->p1.field_8 - triangle_bucket_near_1->p2.field_8)) >> 8;
+                        triangle_bucket_near_1->p2.field_C += (steak * (triangle_bucket_near_1->p1.field_C - triangle_bucket_near_1->p2.field_C)) >> 8;
+                        triangle_bucket_near_1->p2.field_10 += (steak * (triangle_bucket_near_1->p1.field_10 - triangle_bucket_near_1->p2.field_10)) >> 8;
+                        tomato = ((32 - engine_coordinate_3->z) << 8) / (engine_coordinate_1->z - engine_coordinate_3->z);
+                        triangle_bucket_near_1->c3.x = engine_coordinate_3->x + ((tomato * (engine_coordinate_1->x - engine_coordinate_3->x)) >> 8);
+                        triangle_bucket_near_1->c3.y = engine_coordinate_3->y + ((tomato * (engine_coordinate_1->y - engine_coordinate_3->y)) >> 8);
+                        triangle_bucket_near_1->c3.z = 32;
+                        perspective(&triangle_bucket_near_1->c3, &triangle_bucket_near_1->p3);
+                        triangle_bucket_near_1->p3.field_8 += (tomato * (triangle_bucket_near_1->p1.field_8 - triangle_bucket_near_1->p3.field_8)) >> 8;
+                        triangle_bucket_near_1->p3.field_C += (tomato * (triangle_bucket_near_1->p1.field_C - triangle_bucket_near_1->p3.field_C)) >> 8;
+                        cabbage = triangle_bucket_near_1->p1.field_10;
+                        coconut = triangle_bucket_near_1->p3.field_10;
+                        xyz2 = &triangle_bucket_near_1->c1;
+                        xyz2[-1].z = coconut + ((tomato * (cabbage - coconut)) >> 8);
+                        xyz2->x = engine_coordinate_1->x;
+                        xyz2->y = engine_coordinate_1->y;
+                        xyz2->z = engine_coordinate_1->z;
                     }
                 }
-                else if (pos3d_2->z >= 32)
+                else if (engine_coordinate_2->z >= 32)
                 {
-                    if (pos3d_3->z >= 32)
+                    if (engine_coordinate_3->z >= 32)
                     {
-                        sugar = (struct BasicUnk09 *)getpoly;
+                        triangle_bucket_near_2 = (struct BasicUnk09 *)getpoly;
                         getpoly += sizeof(struct BasicUnk09);
-                        sugar->subtype = splittypes[16 * (pos3d_3->field_8 & 3) + 4 * (pos3d_1->field_8 & 3) + (pos3d_2->field_8 & 3)];
-                        sugar->b.next = buckets[divided_z];
-                        sugar->b.kind = 9;
-                        buckets[divided_z] = &sugar->b;
-                        sugar->block = textr_idx;
-                        mustard->c2.x = pos3d_2->x;
-                        mustard->c2.y = pos3d_2->y;
-                        mustard->c2.z = pos3d_2->z;
-                        mustard->c3.x = pos3d_3->x;
-                        mustard->c3.y = pos3d_3->y;
-                        mustard->c3.z = pos3d_3->z;
-                        memcpy(&sugar->p1, &mustard->p1, sizeof(sugar->p1));
-                        memcpy(&sugar->p3, &mustard->p3, sizeof(sugar->p3));
-                        prawns = ((32 - pos3d_1->z) << 8) / (pos3d_2->z - pos3d_1->z);
-                        mustard->c1.x = pos3d_1->x + ((prawns * (pos3d_2->x - pos3d_1->x)) >> 8);
-                        mustard->c1.y = pos3d_1->y + ((prawns * (pos3d_2->y - pos3d_1->y)) >> 8);
-                        mustard->c1.z = 32;
-                        perspective(&mustard->c1, &mustard->p1);
-                        mustard->p1.field_8 += (prawns * (mustard->p2.field_8 - mustard->p1.field_8)) >> 8;
-                        mustard->p1.field_C += (prawns * (mustard->p2.field_C - mustard->p1.field_C)) >> 8;
-                        cauliflower = mustard->p1.field_10;
-                        paprika = (prawns * (mustard->p2.field_10 - cauliflower)) >> 8;
-                        peaches = &mustard->p1;
-                        muffin = &mustard->c1;
-                        muffin[-4].y = cauliflower + paprika;
-                        memcpy(&sugar->p2, peaches, sizeof(sugar->p2));
-                        sugar->c2.x = muffin->x;
-                        sugar->c2.y = muffin->y;
-                        sugar->c2.z = muffin->z;
-                        sugar->c3.x = pos3d_3->x;
-                        sugar->c3.y = pos3d_3->y;
-                        sugar->c3.z = pos3d_3->z;
-                        sausage = ((32 - pos3d_1->z) << 8) / (pos3d_3->z - pos3d_1->z);
-                        sugar->c1.x = pos3d_1->x + ((sausage * (pos3d_3->x - pos3d_1->x)) >> 8);
-                        sugar->c1.y = pos3d_1->y + ((sausage * (pos3d_3->y - pos3d_1->y)) >> 8);
-                        sugar->c1.z = 32;
-                        perspective(&sugar->c1, &sugar->p1);
-                        sugar->p1.field_8 += (sausage * (sugar->p3.field_8 - sugar->p1.field_8)) >> 8;
-                        sugar->p1.field_C += (sausage * (sugar->p3.field_C - sugar->p1.field_C)) >> 8;
-                        sugar->p1.field_10 += (sausage * (sugar->p3.field_10 - sugar->p1.field_10)) >> 8;
+                        triangle_bucket_near_2->subtype = splittypes[16 * (engine_coordinate_3->field_8 & 3) + 4 * (engine_coordinate_1->field_8 & 3) + (engine_coordinate_2->field_8 & 3)];
+                        triangle_bucket_near_2->b.next = buckets[divided_z];
+                        triangle_bucket_near_2->b.kind = 9;
+                        buckets[divided_z] = &triangle_bucket_near_2->b;
+                        triangle_bucket_near_2->block = textr_idx;
+                        triangle_bucket_near_1->c2.x = engine_coordinate_2->x;
+                        triangle_bucket_near_1->c2.y = engine_coordinate_2->y;
+                        triangle_bucket_near_1->c2.z = engine_coordinate_2->z;
+                        triangle_bucket_near_1->c3.x = engine_coordinate_3->x;
+                        triangle_bucket_near_1->c3.y = engine_coordinate_3->y;
+                        triangle_bucket_near_1->c3.z = engine_coordinate_3->z;
+                        memcpy(&triangle_bucket_near_2->p1, &triangle_bucket_near_1->p1, sizeof(triangle_bucket_near_2->p1));
+                        memcpy(&triangle_bucket_near_2->p3, &triangle_bucket_near_1->p3, sizeof(triangle_bucket_near_2->p3));
+                        prawns = ((32 - engine_coordinate_1->z) << 8) / (engine_coordinate_2->z - engine_coordinate_1->z);
+                        triangle_bucket_near_1->c1.x = engine_coordinate_1->x + ((prawns * (engine_coordinate_2->x - engine_coordinate_1->x)) >> 8);
+                        triangle_bucket_near_1->c1.y = engine_coordinate_1->y + ((prawns * (engine_coordinate_2->y - engine_coordinate_1->y)) >> 8);
+                        triangle_bucket_near_1->c1.z = 32;
+                        perspective(&triangle_bucket_near_1->c1, &triangle_bucket_near_1->p1);
+                        triangle_bucket_near_1->p1.field_8 += (prawns * (triangle_bucket_near_1->p2.field_8 - triangle_bucket_near_1->p1.field_8)) >> 8;
+                        triangle_bucket_near_1->p1.field_C += (prawns * (triangle_bucket_near_1->p2.field_C - triangle_bucket_near_1->p1.field_C)) >> 8;
+                        cauliflower = triangle_bucket_near_1->p1.field_10;
+                        paprika = (prawns * (triangle_bucket_near_1->p2.field_10 - cauliflower)) >> 8;
+                        polypoint_1 = &triangle_bucket_near_1->p1;
+                        xyz1 = &triangle_bucket_near_1->c1;
+                        xyz1[-4].y = cauliflower + paprika;
+                        memcpy(&triangle_bucket_near_2->p2, polypoint_1, sizeof(triangle_bucket_near_2->p2));
+                        triangle_bucket_near_2->c2.x = xyz1->x;
+                        triangle_bucket_near_2->c2.y = xyz1->y;
+                        triangle_bucket_near_2->c2.z = xyz1->z;
+                        triangle_bucket_near_2->c3.x = engine_coordinate_3->x;
+                        triangle_bucket_near_2->c3.y = engine_coordinate_3->y;
+                        triangle_bucket_near_2->c3.z = engine_coordinate_3->z;
+                        sausage = ((32 - engine_coordinate_1->z) << 8) / (engine_coordinate_3->z - engine_coordinate_1->z);
+                        triangle_bucket_near_2->c1.x = engine_coordinate_1->x + ((sausage * (engine_coordinate_3->x - engine_coordinate_1->x)) >> 8);
+                        triangle_bucket_near_2->c1.y = engine_coordinate_1->y + ((sausage * (engine_coordinate_3->y - engine_coordinate_1->y)) >> 8);
+                        triangle_bucket_near_2->c1.z = 32;
+                        perspective(&triangle_bucket_near_2->c1, &triangle_bucket_near_2->p1);
+                        triangle_bucket_near_2->p1.field_8 += (sausage * (triangle_bucket_near_2->p3.field_8 - triangle_bucket_near_2->p1.field_8)) >> 8;
+                        triangle_bucket_near_2->p1.field_C += (sausage * (triangle_bucket_near_2->p3.field_C - triangle_bucket_near_2->p1.field_C)) >> 8;
+                        triangle_bucket_near_2->p1.field_10 += (sausage * (triangle_bucket_near_2->p3.field_10 - triangle_bucket_near_2->p1.field_10)) >> 8;
                     }
                     else
                     {
-                        mustard->c2.x = pos3d_2->x;
-                        mustard->c2.y = pos3d_2->y;
-                        mustard->c2.z = pos3d_2->z;
-                        cherries = ((32 - pos3d_1->z) << 8) / (pos3d_2->z - pos3d_1->z);
-                        mustard->c1.x = pos3d_1->x + ((cherries * (pos3d_2->x - pos3d_1->x)) >> 8);
-                        mustard->c1.y = pos3d_1->y + ((cherries * (pos3d_2->y - pos3d_1->y)) >> 8);
-                        mustard->c1.z = 32;
-                        perspective(&mustard->c1, &mustard->p1);
-                        mustard->p1.field_8 += (cherries * (mustard->p2.field_8 - mustard->p1.field_8)) >> 8;
-                        mustard->p1.field_C += (cherries * (mustard->p2.field_C - mustard->p1.field_C)) >> 8;
-                        mustard->p1.field_10 += (cherries * (mustard->p2.field_10 - mustard->p1.field_10)) >> 8;
-                        mushroom = ((32 - pos3d_3->z) << 8) / (pos3d_2->z - pos3d_3->z);
-                        mustard->c3.x = pos3d_3->x + ((mushroom * (pos3d_2->x - pos3d_3->x)) >> 8);
-                        mustard->c3.y = pos3d_3->y + ((mushroom * (pos3d_2->y - pos3d_3->y)) >> 8);
-                        mustard->c3.z = 32;
-                        perspective(&mustard->c3, &mustard->p3);
-                        mustard->p3.field_8 += (mushroom * (mustard->p2.field_8 - mustard->p3.field_8)) >> 8;
-                        mustard->p3.field_C += (mushroom * (mustard->p2.field_C - mustard->p3.field_C)) >> 8;
-                        mustard->p3.field_10 += (mushroom * (mustard->p2.field_10 - mustard->p3.field_10)) >> 8;
+                        triangle_bucket_near_1->c2.x = engine_coordinate_2->x;
+                        triangle_bucket_near_1->c2.y = engine_coordinate_2->y;
+                        triangle_bucket_near_1->c2.z = engine_coordinate_2->z;
+                        cherries = ((32 - engine_coordinate_1->z) << 8) / (engine_coordinate_2->z - engine_coordinate_1->z);
+                        triangle_bucket_near_1->c1.x = engine_coordinate_1->x + ((cherries * (engine_coordinate_2->x - engine_coordinate_1->x)) >> 8);
+                        triangle_bucket_near_1->c1.y = engine_coordinate_1->y + ((cherries * (engine_coordinate_2->y - engine_coordinate_1->y)) >> 8);
+                        triangle_bucket_near_1->c1.z = 32;
+                        perspective(&triangle_bucket_near_1->c1, &triangle_bucket_near_1->p1);
+                        triangle_bucket_near_1->p1.field_8 += (cherries * (triangle_bucket_near_1->p2.field_8 - triangle_bucket_near_1->p1.field_8)) >> 8;
+                        triangle_bucket_near_1->p1.field_C += (cherries * (triangle_bucket_near_1->p2.field_C - triangle_bucket_near_1->p1.field_C)) >> 8;
+                        triangle_bucket_near_1->p1.field_10 += (cherries * (triangle_bucket_near_1->p2.field_10 - triangle_bucket_near_1->p1.field_10)) >> 8;
+                        mushroom = ((32 - engine_coordinate_3->z) << 8) / (engine_coordinate_2->z - engine_coordinate_3->z);
+                        triangle_bucket_near_1->c3.x = engine_coordinate_3->x + ((mushroom * (engine_coordinate_2->x - engine_coordinate_3->x)) >> 8);
+                        triangle_bucket_near_1->c3.y = engine_coordinate_3->y + ((mushroom * (engine_coordinate_2->y - engine_coordinate_3->y)) >> 8);
+                        triangle_bucket_near_1->c3.z = 32;
+                        perspective(&triangle_bucket_near_1->c3, &triangle_bucket_near_1->p3);
+                        triangle_bucket_near_1->p3.field_8 += (mushroom * (triangle_bucket_near_1->p2.field_8 - triangle_bucket_near_1->p3.field_8)) >> 8;
+                        triangle_bucket_near_1->p3.field_C += (mushroom * (triangle_bucket_near_1->p2.field_C - triangle_bucket_near_1->p3.field_C)) >> 8;
+                        triangle_bucket_near_1->p3.field_10 += (mushroom * (triangle_bucket_near_1->p2.field_10 - triangle_bucket_near_1->p3.field_10)) >> 8;
                     }
                 }
                 else
                 {
-                    mustard->c3.x = pos3d_3->x;
-                    mustard->c3.y = pos3d_3->y;
-                    mustard->c3.z = pos3d_3->z;
-                    olives = ((32 - pos3d_1->z) << 8) / (pos3d_3->z - pos3d_1->z);
-                    mustard->c1.x = pos3d_1->x + ((olives * (pos3d_3->x - pos3d_1->x)) >> 8);
-                    mustard->c1.y = pos3d_1->y + ((olives * (pos3d_3->y - pos3d_1->y)) >> 8);
-                    mustard->c1.z = 32;
-                    perspective(&mustard->c1, &mustard->p1);
-                    mustard->p1.field_8 += (olives * (mustard->p3.field_8 - mustard->p1.field_8)) >> 8;
-                    mustard->p1.field_C += (olives * (mustard->p3.field_C - mustard->p1.field_C)) >> 8;
-                    mustard->p1.field_10 += (olives * (mustard->p3.field_10 - mustard->p1.field_10)) >> 8;
-                    macaroni = ((32 - pos3d_2->z) << 8) / (pos3d_3->z - pos3d_2->z);
-                    mustard->c2.x = pos3d_2->x + ((macaroni * (pos3d_3->x - pos3d_2->x)) >> 8);
-                    mustard->c2.y = pos3d_2->y + ((macaroni * (pos3d_3->y - pos3d_2->y)) >> 8);
-                    mustard->c2.z = 32;
-                    perspective(&mustard->c2, &mustard->p2);
-                    mustard->p2.field_8 += (macaroni * (mustard->p3.field_8 - mustard->p2.field_8)) >> 8;
-                    mustard->p2.field_C += (macaroni * (mustard->p3.field_C - mustard->p2.field_C)) >> 8;
-                    mustard->p2.field_10 += (macaroni * (mustard->p3.field_10 - mustard->p2.field_10)) >> 8;
+                    triangle_bucket_near_1->c3.x = engine_coordinate_3->x;
+                    triangle_bucket_near_1->c3.y = engine_coordinate_3->y;
+                    triangle_bucket_near_1->c3.z = engine_coordinate_3->z;
+                    olives = ((32 - engine_coordinate_1->z) << 8) / (engine_coordinate_3->z - engine_coordinate_1->z);
+                    triangle_bucket_near_1->c1.x = engine_coordinate_1->x + ((olives * (engine_coordinate_3->x - engine_coordinate_1->x)) >> 8);
+                    triangle_bucket_near_1->c1.y = engine_coordinate_1->y + ((olives * (engine_coordinate_3->y - engine_coordinate_1->y)) >> 8);
+                    triangle_bucket_near_1->c1.z = 32;
+                    perspective(&triangle_bucket_near_1->c1, &triangle_bucket_near_1->p1);
+                    triangle_bucket_near_1->p1.field_8 += (olives * (triangle_bucket_near_1->p3.field_8 - triangle_bucket_near_1->p1.field_8)) >> 8;
+                    triangle_bucket_near_1->p1.field_C += (olives * (triangle_bucket_near_1->p3.field_C - triangle_bucket_near_1->p1.field_C)) >> 8;
+                    triangle_bucket_near_1->p1.field_10 += (olives * (triangle_bucket_near_1->p3.field_10 - triangle_bucket_near_1->p1.field_10)) >> 8;
+                    macaroni = ((32 - engine_coordinate_2->z) << 8) / (engine_coordinate_3->z - engine_coordinate_2->z);
+                    triangle_bucket_near_1->c2.x = engine_coordinate_2->x + ((macaroni * (engine_coordinate_3->x - engine_coordinate_2->x)) >> 8);
+                    triangle_bucket_near_1->c2.y = engine_coordinate_2->y + ((macaroni * (engine_coordinate_3->y - engine_coordinate_2->y)) >> 8);
+                    triangle_bucket_near_1->c2.z = 32;
+                    perspective(&triangle_bucket_near_1->c2, &triangle_bucket_near_1->p2);
+                    triangle_bucket_near_1->p2.field_8 += (macaroni * (triangle_bucket_near_1->p3.field_8 - triangle_bucket_near_1->p2.field_8)) >> 8;
+                    triangle_bucket_near_1->p2.field_C += (macaroni * (triangle_bucket_near_1->p3.field_C - triangle_bucket_near_1->p2.field_C)) >> 8;
+                    triangle_bucket_near_1->p2.field_10 += (macaroni * (triangle_bucket_near_1->p3.field_10 - triangle_bucket_near_1->p2.field_10)) >> 8;
                 }
             }
             else
             {
-                potato = (struct BasicUnk00 *)getpoly;
+                triangle_bucket_far = (struct BasicUnk00 *)getpoly;
                 getpoly += sizeof(struct BasicUnk00);
-                potato->b.next = buckets[divided_z];
-                potato->b.kind = 0;
-                buckets[divided_z] = &potato->b;
-                potato->block = textr_idx;
-                carrot = pos3d_1->field_C;
-                potato->p1.field_0 = pos3d_1->view_width;
-                potato->p1.field_4 = pos3d_1->view_height;
-                potato->p1.field_8 = 0;
-                potato->p1.field_C = 0;
-                pineapple = pos3d_1->field_A;
+                triangle_bucket_far->b.next = buckets[divided_z];
+                triangle_bucket_far->b.kind = 0;
+                buckets[divided_z] = &triangle_bucket_far->b;
+
+                triangle_bucket_far->block = textr_idx;
+                triangle_bucket_far->p1.field_0 = engine_coordinate_1->view_width;
+                triangle_bucket_far->p1.field_4 = engine_coordinate_1->view_height;
+                triangle_bucket_far->p1.field_8 = 0;
+                triangle_bucket_far->p1.field_C = 0;
+                
+                int coordinate_1_lightness = engine_coordinate_1->field_A;
+                int coordinate_1_distance = engine_coordinate_1->field_C;
+
                 if (argument5 >= 0)
-                    pineapple = (pineapple * (3 * argument5 + 81920)) >> 17;
-                if (carrot <= fade_min)
+                    coordinate_1_lightness = (coordinate_1_lightness * (3 * argument5 + 81920)) >> 17;
+                if (coordinate_1_distance <= fade_min)
                 {
-                    mango = pineapple << 8;
+                    mango = coordinate_1_lightness << 8;
                 }
-                else if (carrot < fade_max)
+                else if (coordinate_1_distance < fade_max)
                 {
-                    mango = pineapple * (fade_scaler - carrot) / fade_range + 0x8000;
+                    mango = coordinate_1_lightness * (fade_scaler - coordinate_1_distance) / fade_range + 0x8000;
                 }
                 else
                 {
                     mango = 0x8000;
                 }
-                potato->p1.field_10 = mango;
-                banana = pos3d_2->field_C;
-                potato->p2.field_0 = pos3d_2->view_width;
-                potato->p2.field_4 = pos3d_2->view_height;
-                potato->p2.field_8 = 0x1FFFFF;
-                potato->p2.field_C = 0;
-                orange = pos3d_2->field_A;
+                triangle_bucket_far->p1.field_10 = mango;
+                triangle_bucket_far->p2.field_0 = engine_coordinate_2->view_width;
+                triangle_bucket_far->p2.field_4 = engine_coordinate_2->view_height;
+                triangle_bucket_far->p2.field_8 = 0x1FFFFF;
+                triangle_bucket_far->p2.field_C = 0;
+                
+                int coordinate_2_lightness = engine_coordinate_2->field_A;
+                int coordinate_2_distance = engine_coordinate_2->field_C;
+
                 if (argument5 >= 0)
-                    orange = (orange * (3 * argument5 + 81920)) >> 17;
-                if (banana <= fade_min)
+                    coordinate_2_lightness = (coordinate_2_lightness * (3 * argument5 + 81920)) >> 17;
+                if (coordinate_2_distance <= fade_min)
                 {
-                    apple = orange << 8;
+                    apple = coordinate_2_lightness << 8;
                 }
-                else if (banana < fade_max)
+                else if (coordinate_2_distance < fade_max)
                 {
-                    apple = orange * (fade_scaler - banana) / fade_range + 0x8000;
+                    apple = coordinate_2_lightness * (fade_scaler - coordinate_2_distance) / fade_range + 0x8000;
                 }
                 else
                 {
                     apple = 0x8000;
                 }
-                potato->p2.field_10 = apple;
-                cactus = pos3d_3->field_C;
-                potato->p3.field_0 = pos3d_3->view_width;
-                potato->p3.field_4 = pos3d_3->view_height;
-                potato->p3.field_8 = 0x1FFFFF;
-                potato->p3.field_C = 0x1FFFFF;
-                pepper = pos3d_3->field_A;
+
+                triangle_bucket_far->p2.field_10 = apple;
+                triangle_bucket_far->p3.field_0 = engine_coordinate_3->view_width;
+                triangle_bucket_far->p3.field_4 = engine_coordinate_3->view_height;
+                triangle_bucket_far->p3.field_8 = 0x1FFFFF;
+                triangle_bucket_far->p3.field_C = 0x1FFFFF;
+                
+                int coordinate_3_lightness = engine_coordinate_3->field_A;
+                int coordinate_3_distance = engine_coordinate_3->field_C;
+
                 if (argument5 >= 0)
-                    pepper = (pepper * (3 * argument5 + 81920)) >> 17;
-                if (cactus <= fade_min)
+                    coordinate_3_lightness = (coordinate_3_lightness * (3 * argument5 + 81920)) >> 17;
+                if (coordinate_3_distance <= fade_min)
                 {
-                    potato->p3.field_10 = pepper << 8;
+                    triangle_bucket_far->p3.field_10 = coordinate_3_lightness << 8;
                 }
-                else if (cactus < fade_max)
+                else if (coordinate_3_distance < fade_max)
                 {
-                    potato->p3.field_10 = pepper * (fade_scaler - cactus) / fade_range + 0x8000;
+                    triangle_bucket_far->p3.field_10 = coordinate_3_lightness * (fade_scaler - coordinate_3_distance) / fade_range + 0x8000;
                 }
                 else
                 {
-                    potato->p3.field_10 = 0x8000;
+                    triangle_bucket_far->p3.field_10 = 0x8000;
                 }
             }
         }
     }
 }
 
-static void do_a_trig_gourad_bl(struct EngineCoord *pos3d_1, struct EngineCoord *pos3d_2, struct EngineCoord *pos3d_3, short argument4, long argument5)
+static void do_a_trig_gourad_bl(struct EngineCoord *engine_coordinate_1, struct EngineCoord *engine_coordinate_2, struct EngineCoord *engine_coordinate_3, short argument4, long argument5)
 {
-    struct BasicUnk09 *mustard;
-    struct BasicUnk09 *sugar;
-    struct BasicUnk09 *grape;
-    struct BasicUnk09 *cereal;
-    struct BasicUnk00 *potato;
-    struct PolyPoint *peaches;
-    struct PolyPoint *porridge;
-    struct PolyPoint *watermelon;
-    struct XYZ *muffin;
-    struct XYZ *doughnut;
-    struct XYZ *biscuit;
-    struct XYZ *chocolate;
-    struct XYZ *cheese;
-    struct XYZ *pumpkin;
-    short pos1_frustum;
-    short pos2_frustum;
-    short pos3_frustum;
+    struct BasicUnk09 *triangle_bucket_near_1;
+    struct BasicUnk09 *triangle_bucket_near_2;
+    struct BasicUnk09 *triangle_bucket_near_3;
+    struct BasicUnk09 *triangle_bucket_near_4;
+    struct BasicUnk00 *triangle_bucket_far;
+    struct PolyPoint *polypoint_1;
+    struct PolyPoint *polypoint_2;
+    struct PolyPoint *polypoint_3;
+    struct XYZ *xyz1;
+    struct XYZ *xyz2;
+    struct XYZ *xyz3;
+    struct XYZ *xyz4;
+    struct XYZ *xyz5;
+    struct XYZ *xyz6;
+
     int z;
     int divided_z;
-    int capsicum;
-    int blueberries;
     int honeydew;
-    int icecream;
-    int pancake;
     int yogurt;
-    int spaghetti;
-    int peanut;
     int onion;
     int apricots;
     int olives;
@@ -2908,400 +2899,412 @@ static void do_a_trig_gourad_bl(struct EngineCoord *pos3d_1, struct EngineCoord 
     int corn;
     int almond;
     int lemon;
-    int carrot;
-    int pineapple;
     int mango;
-    int banana;
-    int orange;
     int apple;
-    int cactus;
-    int pepper;
-    pos1_frustum = pos3d_1->field_8;
-    pos2_frustum = pos3d_2->field_8;
-    pos3_frustum = pos3d_3->field_8;
 
-    if (((unsigned short)pos2_frustum & (unsigned short)(pos3_frustum & pos1_frustum) & 0x1F8) == 0 && (pos3d_2->view_width - pos3d_1->view_width) * (pos3d_3->view_height - pos3d_2->view_height) + (pos3d_3->view_width - pos3d_2->view_width) * (pos3d_1->view_height - pos3d_2->view_height) > 0)
+    short coordinate_1_frustum = engine_coordinate_1->field_8;
+    short coordinate_2_frustum = engine_coordinate_2->field_8;
+    short coordinate_3_frustum = engine_coordinate_3->field_8;
+
+    if (((unsigned short)coordinate_2_frustum & (unsigned short)(coordinate_3_frustum & coordinate_1_frustum) & 0x1F8) == 0 && (engine_coordinate_2->view_width - engine_coordinate_1->view_width) * (engine_coordinate_3->view_height - engine_coordinate_2->view_height) + (engine_coordinate_3->view_width - engine_coordinate_2->view_width) * (engine_coordinate_1->view_height - engine_coordinate_2->view_height) > 0)
     {
-        z = pos3d_1->z;
-        if (z < pos3d_2->z)
-            z = pos3d_2->z;
-        if (z < pos3d_3->z)
-            z = pos3d_3->z;
+        z = engine_coordinate_1->z;
+        if (z < engine_coordinate_2->z)
+            z = engine_coordinate_2->z;
+        if (z < engine_coordinate_3->z)
+            z = engine_coordinate_3->z;
         divided_z = z / 16;
         if (getpoly < poly_pool_end)
         {
-            if ((((unsigned __int8)pos1_frustum | (unsigned __int8)(pos3_frustum | pos2_frustum)) & 3) != 0)
+            if ((((unsigned __int8)coordinate_1_frustum | (unsigned __int8)(coordinate_3_frustum | coordinate_2_frustum)) & 3) != 0)
             {
-                mustard = (struct BasicUnk09 *)getpoly;
+                triangle_bucket_near_1 = (struct BasicUnk09 *)getpoly;
                 getpoly += sizeof(struct BasicUnk09);
-                mustard->subtype = splittypes[16 * (pos3d_3->field_8 & 3) + 4 * (pos3d_1->field_8 & 3) + (pos3d_2->field_8 & 3)];
-                mustard->b.next = buckets[divided_z];
-                mustard->b.kind = 9;
-                buckets[divided_z] = &mustard->b;
-                mustard->block = argument4;
-                capsicum = pos3d_1->field_C;
-                mustard->p1.field_0 = pos3d_1->view_width;
-                mustard->p1.field_4 = pos3d_1->view_height;
-                mustard->p1.field_8 = 0x1FFFFF;
-                mustard->p1.field_C = 0x1FFFFF;
-                blueberries = pos3d_1->field_A;
+                triangle_bucket_near_1->subtype = splittypes[16 * (engine_coordinate_3->field_8 & 3) + 4 * (engine_coordinate_1->field_8 & 3) + (engine_coordinate_2->field_8 & 3)];
+                triangle_bucket_near_1->b.next = buckets[divided_z];
+                triangle_bucket_near_1->b.kind = 9;
+                buckets[divided_z] = &triangle_bucket_near_1->b;
+                triangle_bucket_near_1->block = argument4;
+                
+                triangle_bucket_near_1->p1.field_0 = engine_coordinate_1->view_width;
+                triangle_bucket_near_1->p1.field_4 = engine_coordinate_1->view_height;
+                triangle_bucket_near_1->p1.field_8 = 0x1FFFFF;
+                triangle_bucket_near_1->p1.field_C = 0x1FFFFF;
+                
+                int coordinate_1_lightness = engine_coordinate_1->field_A;
+                int coordinate_1_distance = engine_coordinate_1->field_C;
+
                 if (argument5 >= 0)
-                    blueberries = (blueberries * (3 * argument5 + 81920)) >> 17;
-                if (capsicum <= fade_min)
+                    coordinate_1_lightness = (coordinate_1_lightness * (3 * argument5 + 81920)) >> 17;
+                if (coordinate_1_distance <= fade_min)
                 {
-                    honeydew = blueberries << 8;
+                    honeydew = coordinate_1_lightness << 8;
                 }
-                else if (capsicum < fade_max)
+                else if (coordinate_1_distance < fade_max)
                 {
-                    honeydew = blueberries * (fade_scaler - capsicum) / fade_range + 0x8000;
+                    honeydew = coordinate_1_lightness * (fade_scaler - coordinate_1_distance) / fade_range + 0x8000;
                 }
                 else
                 {
                     honeydew = 0x8000;
                 }
-                mustard->p1.field_10 = honeydew;
-                icecream = pos3d_2->field_C;
-                mustard->p2.field_0 = pos3d_2->view_width;
-                mustard->p2.field_4 = pos3d_2->view_height;
-                mustard->p2.field_8 = 0;
-                mustard->p2.field_C = 0x1FFFFF;
-                pancake = pos3d_2->field_A;
+
+                triangle_bucket_near_1->p1.field_10 = honeydew;
+                triangle_bucket_near_1->p2.field_0 = engine_coordinate_2->view_width;
+                triangle_bucket_near_1->p2.field_4 = engine_coordinate_2->view_height;
+                triangle_bucket_near_1->p2.field_8 = 0;
+                triangle_bucket_near_1->p2.field_C = 0x1FFFFF;
+                
+                int coordinate_2_lightness = engine_coordinate_2->field_A;
+                int coordinate_2_distance = engine_coordinate_2->field_C;
+
                 if (argument5 >= 0)
-                    pancake = (pancake * (3 * argument5 + 81920)) >> 17;
-                if (icecream <= fade_min)
+                    coordinate_2_lightness = (coordinate_2_lightness * (3 * argument5 + 81920)) >> 17;
+                if (coordinate_2_distance <= fade_min)
                 {
-                    yogurt = pancake << 8;
+                    yogurt = coordinate_2_lightness << 8;
                 }
-                else if (icecream < fade_max)
+                else if (coordinate_2_distance < fade_max)
                 {
-                    yogurt = pancake * (fade_scaler - icecream) / fade_range + 0x8000;
+                    yogurt = coordinate_2_lightness * (fade_scaler - coordinate_2_distance) / fade_range + 0x8000;
                 }
                 else
                 {
                     yogurt = 0x8000;
                 }
-                mustard->p2.field_10 = yogurt;
-                spaghetti = pos3d_3->field_C;
-                mustard->p3.field_0 = pos3d_3->view_width;
-                mustard->p3.field_4 = pos3d_3->view_height;
-                mustard->p3.field_8 = 0;
-                mustard->p3.field_C = 0;
-                peanut = pos3d_3->field_A;
+                triangle_bucket_near_1->p2.field_10 = yogurt;
+                
+                triangle_bucket_near_1->p3.field_0 = engine_coordinate_3->view_width;
+                triangle_bucket_near_1->p3.field_4 = engine_coordinate_3->view_height;
+                triangle_bucket_near_1->p3.field_8 = 0;
+                triangle_bucket_near_1->p3.field_C = 0;
+                
+                int coordinate_3_lightness = engine_coordinate_3->field_A;
+                int coordinate_3_distance = engine_coordinate_3->field_C;
+
                 if (argument5 >= 0)
-                    peanut = (peanut * (3 * argument5 + 81920)) >> 17;
-                if (spaghetti <= fade_min)
+                    coordinate_3_lightness = (coordinate_3_lightness * (3 * argument5 + 81920)) >> 17;
+                if (coordinate_3_distance <= fade_min)
                 {
-                    onion = peanut << 8;
+                    onion = coordinate_3_lightness << 8;
                 }
-                else if (spaghetti < fade_max)
+                else if (coordinate_3_distance < fade_max)
                 {
-                    onion = peanut * (fade_scaler - spaghetti) / fade_range + 0x8000;
+                    onion = coordinate_3_lightness * (fade_scaler - coordinate_3_distance) / fade_range + 0x8000;
                 }
                 else
                 {
                     onion = 0x8000;
                 }
-                mustard->p3.field_10 = onion;
-                apricots = pos3d_1->z;
+                triangle_bucket_near_1->p3.field_10 = onion;
+                apricots = engine_coordinate_1->z;
                 if (apricots >= 32)
                 {
-                    pizza = pos3d_2->z;
-                    cucumber = pos3d_3->z;
+                    pizza = engine_coordinate_2->z;
+                    cucumber = engine_coordinate_3->z;
                     if (pizza >= 32)
                     {
                         if (cucumber >= 32)
                         {
-                            mustard->c1.x = pos3d_1->x;
-                            mustard->c1.y = pos3d_1->y;
-                            mustard->c1.z = pos3d_1->z;
-                            cheese = &mustard->c2;
-                            mustard->c2.x = pos3d_2->x;
-                            pumpkin = &mustard->c3;
-                            cheese->y = pos3d_2->y;
-                            cheese->z = pos3d_2->z;
-                            pumpkin->x = pos3d_3->x;
-                            pumpkin->y = pos3d_3->y;
-                            pumpkin->z = pos3d_3->z;
+                            triangle_bucket_near_1->c1.x = engine_coordinate_1->x;
+                            triangle_bucket_near_1->c1.y = engine_coordinate_1->y;
+                            triangle_bucket_near_1->c1.z = engine_coordinate_1->z;
+                            xyz5 = &triangle_bucket_near_1->c2;
+                            triangle_bucket_near_1->c2.x = engine_coordinate_2->x;
+                            xyz6 = &triangle_bucket_near_1->c3;
+                            xyz5->y = engine_coordinate_2->y;
+                            xyz5->z = engine_coordinate_2->z;
+                            xyz6->x = engine_coordinate_3->x;
+                            xyz6->y = engine_coordinate_3->y;
+                            xyz6->z = engine_coordinate_3->z;
                         }
                         else
                         {
-                            cereal = (struct BasicUnk09 *)getpoly;
+                            triangle_bucket_near_4 = (struct BasicUnk09 *)getpoly;
                             getpoly += sizeof(struct BasicUnk09);
-                            cereal->subtype = splittypes[16 * (pos3d_3->field_8 & 3) + 4 * (pos3d_1->field_8 & 3) + (pos3d_2->field_8 & 3)];
-                            cereal->b.next = buckets[divided_z];
-                            cereal->b.kind = 9;
-                            buckets[divided_z] = &cereal->b;
-                            cereal->block = argument4;
-                            mustard->c1.x = pos3d_1->x;
-                            mustard->c1.y = pos3d_1->y;
-                            mustard->c1.z = pos3d_1->z;
-                            mustard->c2.x = pos3d_2->x;
-                            mustard->c2.y = pos3d_2->y;
-                            mustard->c2.z = pos3d_2->z;
-                            memcpy(&cereal->p3, &mustard->p3, sizeof(cereal->p3));
-                            memcpy(&cereal->p2, &mustard->p2, sizeof(cereal->p2));
-                            bread = ((32 - pos3d_3->z) << 8) / (pos3d_1->z - pos3d_3->z);
-                            mustard->c3.x = pos3d_3->x + ((bread * (pos3d_1->x - pos3d_3->x)) >> 8);
-                            mustard->c3.y = pos3d_3->y + ((bread * (pos3d_1->y - pos3d_3->y)) >> 8);
-                            mustard->c3.z = 32;
-                            perspective(&mustard->c3, &mustard->p3);
-                            mustard->p3.field_8 += (bread * (mustard->p1.field_8 - mustard->p3.field_8)) >> 8;
-                            mustard->p3.field_C += (bread * (mustard->p1.field_C - mustard->p3.field_C)) >> 8;
-                            corn = mustard->p3.field_10;
-                            almond = (bread * (mustard->p1.field_10 - corn)) >> 8;
-                            watermelon = &mustard->p3;
-                            chocolate = &mustard->c3;
-                            chocolate[-3].z = corn + almond;
-                            memcpy(&cereal->p1, watermelon, sizeof(cereal->p1));
-                            cereal->c1.x = chocolate->x;
-                            cereal->c1.y = chocolate->y;
-                            cereal->c1.z = chocolate->z;
-                            cereal->c2.x = pos3d_2->x;
-                            cereal->c2.y = pos3d_2->y;
-                            cereal->c2.z = pos3d_2->z;
-                            lemon = ((32 - pos3d_3->z) << 8) / (pos3d_2->z - pos3d_3->z);
-                            cereal->c3.x = pos3d_3->x + ((lemon * (pos3d_2->x - pos3d_3->x)) >> 8);
-                            cereal->c3.y = pos3d_3->y + ((lemon * (pos3d_2->y - pos3d_3->y)) >> 8);
-                            cereal->c3.z = 32;
-                            perspective(&cereal->c3, &cereal->p3);
-                            cereal->p3.field_8 += (lemon * (cereal->p2.field_8 - cereal->p3.field_8)) >> 8;
-                            cereal->p3.field_C += (lemon * (cereal->p2.field_C - cereal->p3.field_C)) >> 8;
-                            cereal->p3.field_10 += (lemon * (cereal->p2.field_10 - cereal->p3.field_10)) >> 8;
+                            triangle_bucket_near_4->subtype = splittypes[16 * (engine_coordinate_3->field_8 & 3) + 4 * (engine_coordinate_1->field_8 & 3) + (engine_coordinate_2->field_8 & 3)];
+                            triangle_bucket_near_4->b.next = buckets[divided_z];
+                            triangle_bucket_near_4->b.kind = 9;
+                            buckets[divided_z] = &triangle_bucket_near_4->b;
+                            triangle_bucket_near_4->block = argument4;
+                            triangle_bucket_near_1->c1.x = engine_coordinate_1->x;
+                            triangle_bucket_near_1->c1.y = engine_coordinate_1->y;
+                            triangle_bucket_near_1->c1.z = engine_coordinate_1->z;
+                            triangle_bucket_near_1->c2.x = engine_coordinate_2->x;
+                            triangle_bucket_near_1->c2.y = engine_coordinate_2->y;
+                            triangle_bucket_near_1->c2.z = engine_coordinate_2->z;
+                            memcpy(&triangle_bucket_near_4->p3, &triangle_bucket_near_1->p3, sizeof(triangle_bucket_near_4->p3));
+                            memcpy(&triangle_bucket_near_4->p2, &triangle_bucket_near_1->p2, sizeof(triangle_bucket_near_4->p2));
+                            bread = ((32 - engine_coordinate_3->z) << 8) / (engine_coordinate_1->z - engine_coordinate_3->z);
+                            triangle_bucket_near_1->c3.x = engine_coordinate_3->x + ((bread * (engine_coordinate_1->x - engine_coordinate_3->x)) >> 8);
+                            triangle_bucket_near_1->c3.y = engine_coordinate_3->y + ((bread * (engine_coordinate_1->y - engine_coordinate_3->y)) >> 8);
+                            triangle_bucket_near_1->c3.z = 32;
+                            perspective(&triangle_bucket_near_1->c3, &triangle_bucket_near_1->p3);
+                            triangle_bucket_near_1->p3.field_8 += (bread * (triangle_bucket_near_1->p1.field_8 - triangle_bucket_near_1->p3.field_8)) >> 8;
+                            triangle_bucket_near_1->p3.field_C += (bread * (triangle_bucket_near_1->p1.field_C - triangle_bucket_near_1->p3.field_C)) >> 8;
+                            corn = triangle_bucket_near_1->p3.field_10;
+                            almond = (bread * (triangle_bucket_near_1->p1.field_10 - corn)) >> 8;
+                            polypoint_3 = &triangle_bucket_near_1->p3;
+                            xyz4 = &triangle_bucket_near_1->c3;
+                            xyz4[-3].z = corn + almond;
+                            memcpy(&triangle_bucket_near_4->p1, polypoint_3, sizeof(triangle_bucket_near_4->p1));
+                            triangle_bucket_near_4->c1.x = xyz4->x;
+                            triangle_bucket_near_4->c1.y = xyz4->y;
+                            triangle_bucket_near_4->c1.z = xyz4->z;
+                            triangle_bucket_near_4->c2.x = engine_coordinate_2->x;
+                            triangle_bucket_near_4->c2.y = engine_coordinate_2->y;
+                            triangle_bucket_near_4->c2.z = engine_coordinate_2->z;
+                            lemon = ((32 - engine_coordinate_3->z) << 8) / (engine_coordinate_2->z - engine_coordinate_3->z);
+                            triangle_bucket_near_4->c3.x = engine_coordinate_3->x + ((lemon * (engine_coordinate_2->x - engine_coordinate_3->x)) >> 8);
+                            triangle_bucket_near_4->c3.y = engine_coordinate_3->y + ((lemon * (engine_coordinate_2->y - engine_coordinate_3->y)) >> 8);
+                            triangle_bucket_near_4->c3.z = 32;
+                            perspective(&triangle_bucket_near_4->c3, &triangle_bucket_near_4->p3);
+                            triangle_bucket_near_4->p3.field_8 += (lemon * (triangle_bucket_near_4->p2.field_8 - triangle_bucket_near_4->p3.field_8)) >> 8;
+                            triangle_bucket_near_4->p3.field_C += (lemon * (triangle_bucket_near_4->p2.field_C - triangle_bucket_near_4->p3.field_C)) >> 8;
+                            triangle_bucket_near_4->p3.field_10 += (lemon * (triangle_bucket_near_4->p2.field_10 - triangle_bucket_near_4->p3.field_10)) >> 8;
                         }
                     }
                     else if (cucumber >= 32)
                     {
-                        grape = (struct BasicUnk09 *)getpoly;
+                        triangle_bucket_near_3 = (struct BasicUnk09 *)getpoly;
                         getpoly += sizeof(struct BasicUnk09);
-                        grape->subtype = splittypes[16 * (pos3d_3->field_8 & 3) + 4 * (pos3d_1->field_8 & 3) + (pos3d_2->field_8 & 3)];
-                        grape->b.next = buckets[divided_z];
-                        grape->b.kind = 9;
-                        buckets[divided_z] = &grape->b;
-                        grape->block = argument4;
-                        mustard->c1.x = pos3d_1->x;
-                        mustard->c1.y = pos3d_1->y;
-                        mustard->c1.z = pos3d_1->z;
-                        mustard->c3.x = pos3d_3->x;
-                        mustard->c3.y = pos3d_3->y;
-                        mustard->c3.z = pos3d_3->z;
-                        memcpy(&grape->p2, &mustard->p2, sizeof(grape->p2));
-                        memcpy(&grape->p3, &mustard->p3, sizeof(grape->p3));
-                        lettuce = ((32 - pos3d_2->z) << 8) / (pos3d_1->z - pos3d_2->z);
-                        mustard->c2.x = pos3d_2->x + ((lettuce * (pos3d_1->x - pos3d_2->x)) >> 8);
-                        mustard->c2.y = pos3d_2->y + ((lettuce * (pos3d_1->y - pos3d_2->y)) >> 8);
-                        mustard->c2.z = 32;
-                        perspective(&mustard->c2, &mustard->p2);
-                        mustard->p2.field_8 += (lettuce * (mustard->p1.field_8 - mustard->p2.field_8)) >> 8;
-                        mustard->p2.field_C += (lettuce * (mustard->p1.field_C - mustard->p2.field_C)) >> 8;
-                        sandwich = mustard->p2.field_10;
-                        walnut = (lettuce * (mustard->p1.field_10 - sandwich)) >> 8;
-                        porridge = &mustard->p2;
-                        biscuit = &mustard->c2;
-                        biscuit[-3].x = sandwich + walnut;
-                        memcpy(&grape->p1, porridge, sizeof(grape->p1));
-                        grape->c1.x = biscuit->x;
-                        grape->c1.y = biscuit->y;
-                        grape->c1.z = biscuit->z;
-                        grape->c3.x = pos3d_3->x;
-                        grape->c3.y = pos3d_3->y;
-                        grape->c3.z = pos3d_3->z;
-                        avocado = ((32 - pos3d_2->z) << 8) / (pos3d_3->z - pos3d_2->z);
-                        grape->c2.x = pos3d_2->x + ((avocado * (pos3d_3->x - pos3d_2->x)) >> 8);
-                        grape->c2.y = pos3d_2->y + ((avocado * (pos3d_3->y - pos3d_2->y)) >> 8);
-                        grape->c2.z = 32;
-                        perspective(&grape->c2, &grape->p2);
-                        grape->p2.field_8 += (avocado * (grape->p3.field_8 - grape->p2.field_8)) >> 8;
-                        grape->p2.field_C += (avocado * (grape->p3.field_C - grape->p2.field_C)) >> 8;
-                        grape->p2.field_10 += (avocado * (grape->p3.field_10 - grape->p2.field_10)) >> 8;
+                        triangle_bucket_near_3->subtype = splittypes[16 * (engine_coordinate_3->field_8 & 3) + 4 * (engine_coordinate_1->field_8 & 3) + (engine_coordinate_2->field_8 & 3)];
+                        triangle_bucket_near_3->b.next = buckets[divided_z];
+                        triangle_bucket_near_3->b.kind = 9;
+                        buckets[divided_z] = &triangle_bucket_near_3->b;
+                        triangle_bucket_near_3->block = argument4;
+                        triangle_bucket_near_1->c1.x = engine_coordinate_1->x;
+                        triangle_bucket_near_1->c1.y = engine_coordinate_1->y;
+                        triangle_bucket_near_1->c1.z = engine_coordinate_1->z;
+                        triangle_bucket_near_1->c3.x = engine_coordinate_3->x;
+                        triangle_bucket_near_1->c3.y = engine_coordinate_3->y;
+                        triangle_bucket_near_1->c3.z = engine_coordinate_3->z;
+                        memcpy(&triangle_bucket_near_3->p2, &triangle_bucket_near_1->p2, sizeof(triangle_bucket_near_3->p2));
+                        memcpy(&triangle_bucket_near_3->p3, &triangle_bucket_near_1->p3, sizeof(triangle_bucket_near_3->p3));
+                        lettuce = ((32 - engine_coordinate_2->z) << 8) / (engine_coordinate_1->z - engine_coordinate_2->z);
+                        triangle_bucket_near_1->c2.x = engine_coordinate_2->x + ((lettuce * (engine_coordinate_1->x - engine_coordinate_2->x)) >> 8);
+                        triangle_bucket_near_1->c2.y = engine_coordinate_2->y + ((lettuce * (engine_coordinate_1->y - engine_coordinate_2->y)) >> 8);
+                        triangle_bucket_near_1->c2.z = 32;
+                        perspective(&triangle_bucket_near_1->c2, &triangle_bucket_near_1->p2);
+                        triangle_bucket_near_1->p2.field_8 += (lettuce * (triangle_bucket_near_1->p1.field_8 - triangle_bucket_near_1->p2.field_8)) >> 8;
+                        triangle_bucket_near_1->p2.field_C += (lettuce * (triangle_bucket_near_1->p1.field_C - triangle_bucket_near_1->p2.field_C)) >> 8;
+                        sandwich = triangle_bucket_near_1->p2.field_10;
+                        walnut = (lettuce * (triangle_bucket_near_1->p1.field_10 - sandwich)) >> 8;
+                        polypoint_2 = &triangle_bucket_near_1->p2;
+                        xyz3 = &triangle_bucket_near_1->c2;
+                        xyz3[-3].x = sandwich + walnut;
+                        memcpy(&triangle_bucket_near_3->p1, polypoint_2, sizeof(triangle_bucket_near_3->p1));
+                        triangle_bucket_near_3->c1.x = xyz3->x;
+                        triangle_bucket_near_3->c1.y = xyz3->y;
+                        triangle_bucket_near_3->c1.z = xyz3->z;
+                        triangle_bucket_near_3->c3.x = engine_coordinate_3->x;
+                        triangle_bucket_near_3->c3.y = engine_coordinate_3->y;
+                        triangle_bucket_near_3->c3.z = engine_coordinate_3->z;
+                        avocado = ((32 - engine_coordinate_2->z) << 8) / (engine_coordinate_3->z - engine_coordinate_2->z);
+                        triangle_bucket_near_3->c2.x = engine_coordinate_2->x + ((avocado * (engine_coordinate_3->x - engine_coordinate_2->x)) >> 8);
+                        triangle_bucket_near_3->c2.y = engine_coordinate_2->y + ((avocado * (engine_coordinate_3->y - engine_coordinate_2->y)) >> 8);
+                        triangle_bucket_near_3->c2.z = 32;
+                        perspective(&triangle_bucket_near_3->c2, &triangle_bucket_near_3->p2);
+                        triangle_bucket_near_3->p2.field_8 += (avocado * (triangle_bucket_near_3->p3.field_8 - triangle_bucket_near_3->p2.field_8)) >> 8;
+                        triangle_bucket_near_3->p2.field_C += (avocado * (triangle_bucket_near_3->p3.field_C - triangle_bucket_near_3->p2.field_C)) >> 8;
+                        triangle_bucket_near_3->p2.field_10 += (avocado * (triangle_bucket_near_3->p3.field_10 - triangle_bucket_near_3->p2.field_10)) >> 8;
                     }
                     else
                     {
                         steak = ((32 - pizza) << 8) / (apricots - pizza);
-                        mustard->c2.x = pos3d_2->x + ((steak * (pos3d_1->x - pos3d_2->x)) >> 8);
-                        mustard->c2.y = pos3d_2->y + ((steak * (pos3d_1->y - pos3d_2->y)) >> 8);
-                        mustard->c2.z = 32;
-                        perspective(&mustard->c2, &mustard->p2);
-                        mustard->p2.field_8 += (steak * (mustard->p1.field_8 - mustard->p2.field_8)) >> 8;
-                        mustard->p2.field_C += (steak * (mustard->p1.field_C - mustard->p2.field_C)) >> 8;
-                        mustard->p2.field_10 += (steak * (mustard->p1.field_10 - mustard->p2.field_10)) >> 8;
-                        tomato = ((32 - pos3d_3->z) << 8) / (pos3d_1->z - pos3d_3->z);
-                        mustard->c3.x = pos3d_3->x + ((tomato * (pos3d_1->x - pos3d_3->x)) >> 8);
-                        mustard->c3.y = pos3d_3->y + ((tomato * (pos3d_1->y - pos3d_3->y)) >> 8);
-                        mustard->c3.z = 32;
-                        perspective(&mustard->c3, &mustard->p3);
-                        mustard->p3.field_8 += (tomato * (mustard->p1.field_8 - mustard->p3.field_8)) >> 8;
-                        mustard->p3.field_C += (tomato * (mustard->p1.field_C - mustard->p3.field_C)) >> 8;
-                        cabbage = mustard->p1.field_10;
-                        coconut = mustard->p3.field_10;
-                        doughnut = &mustard->c1;
-                        doughnut[-1].z = coconut + ((tomato * (cabbage - coconut)) >> 8);
-                        doughnut->x = pos3d_1->x;
-                        doughnut->y = pos3d_1->y;
-                        doughnut->z = pos3d_1->z;
+                        triangle_bucket_near_1->c2.x = engine_coordinate_2->x + ((steak * (engine_coordinate_1->x - engine_coordinate_2->x)) >> 8);
+                        triangle_bucket_near_1->c2.y = engine_coordinate_2->y + ((steak * (engine_coordinate_1->y - engine_coordinate_2->y)) >> 8);
+                        triangle_bucket_near_1->c2.z = 32;
+                        perspective(&triangle_bucket_near_1->c2, &triangle_bucket_near_1->p2);
+                        triangle_bucket_near_1->p2.field_8 += (steak * (triangle_bucket_near_1->p1.field_8 - triangle_bucket_near_1->p2.field_8)) >> 8;
+                        triangle_bucket_near_1->p2.field_C += (steak * (triangle_bucket_near_1->p1.field_C - triangle_bucket_near_1->p2.field_C)) >> 8;
+                        triangle_bucket_near_1->p2.field_10 += (steak * (triangle_bucket_near_1->p1.field_10 - triangle_bucket_near_1->p2.field_10)) >> 8;
+                        tomato = ((32 - engine_coordinate_3->z) << 8) / (engine_coordinate_1->z - engine_coordinate_3->z);
+                        triangle_bucket_near_1->c3.x = engine_coordinate_3->x + ((tomato * (engine_coordinate_1->x - engine_coordinate_3->x)) >> 8);
+                        triangle_bucket_near_1->c3.y = engine_coordinate_3->y + ((tomato * (engine_coordinate_1->y - engine_coordinate_3->y)) >> 8);
+                        triangle_bucket_near_1->c3.z = 32;
+                        perspective(&triangle_bucket_near_1->c3, &triangle_bucket_near_1->p3);
+                        triangle_bucket_near_1->p3.field_8 += (tomato * (triangle_bucket_near_1->p1.field_8 - triangle_bucket_near_1->p3.field_8)) >> 8;
+                        triangle_bucket_near_1->p3.field_C += (tomato * (triangle_bucket_near_1->p1.field_C - triangle_bucket_near_1->p3.field_C)) >> 8;
+                        cabbage = triangle_bucket_near_1->p1.field_10;
+                        coconut = triangle_bucket_near_1->p3.field_10;
+                        xyz2 = &triangle_bucket_near_1->c1;
+                        xyz2[-1].z = coconut + ((tomato * (cabbage - coconut)) >> 8);
+                        xyz2->x = engine_coordinate_1->x;
+                        xyz2->y = engine_coordinate_1->y;
+                        xyz2->z = engine_coordinate_1->z;
                     }
                 }
-                else if (pos3d_2->z >= 32)
+                else if (engine_coordinate_2->z >= 32)
                 {
-                    if (pos3d_3->z >= 32)
+                    if (engine_coordinate_3->z >= 32)
                     {
-                        sugar = (struct BasicUnk09 *)getpoly;
+                        triangle_bucket_near_2 = (struct BasicUnk09 *)getpoly;
                         getpoly += sizeof(struct BasicUnk09);
-                        sugar->subtype = splittypes[16 * (pos3d_3->field_8 & 3) + 4 * (pos3d_1->field_8 & 3) + (pos3d_2->field_8 & 3)];
-                        sugar->b.next = buckets[divided_z];
-                        sugar->b.kind = 9;
-                        buckets[divided_z] = &sugar->b;
-                        sugar->block = argument4;
-                        mustard->c2.x = pos3d_2->x;
-                        mustard->c2.y = pos3d_2->y;
-                        mustard->c2.z = pos3d_2->z;
-                        mustard->c3.x = pos3d_3->x;
-                        mustard->c3.y = pos3d_3->y;
-                        mustard->c3.z = pos3d_3->z;
-                        memcpy(&sugar->p1, &mustard->p1, sizeof(sugar->p1));
-                        memcpy(&sugar->p3, &mustard->p3, sizeof(sugar->p3));
-                        prawns = ((32 - pos3d_1->z) << 8) / (pos3d_2->z - pos3d_1->z);
-                        mustard->c1.x = pos3d_1->x + ((prawns * (pos3d_2->x - pos3d_1->x)) >> 8);
-                        mustard->c1.y = pos3d_1->y + ((prawns * (pos3d_2->y - pos3d_1->y)) >> 8);
-                        mustard->c1.z = 32;
-                        perspective(&mustard->c1, &mustard->p1);
-                        mustard->p1.field_8 += (prawns * (mustard->p2.field_8 - mustard->p1.field_8)) >> 8;
-                        mustard->p1.field_C += (prawns * (mustard->p2.field_C - mustard->p1.field_C)) >> 8;
-                        cauliflower = mustard->p1.field_10;
-                        paprika = (prawns * (mustard->p2.field_10 - cauliflower)) >> 8;
-                        peaches = &mustard->p1;
-                        muffin = &mustard->c1;
-                        muffin[-4].y = cauliflower + paprika;
-                        memcpy(&sugar->p2, peaches, sizeof(sugar->p2));
-                        sugar->c2.x = muffin->x;
-                        sugar->c2.y = muffin->y;
-                        sugar->c2.z = muffin->z;
-                        sugar->c3.x = pos3d_3->x;
-                        sugar->c3.y = pos3d_3->y;
-                        sugar->c3.z = pos3d_3->z;
-                        sausage = ((32 - pos3d_1->z) << 8) / (pos3d_3->z - pos3d_1->z);
-                        sugar->c1.x = pos3d_1->x + ((sausage * (pos3d_3->x - pos3d_1->x)) >> 8);
-                        sugar->c1.y = pos3d_1->y + ((sausage * (pos3d_3->y - pos3d_1->y)) >> 8);
-                        sugar->c1.z = 32;
-                        perspective(&sugar->c1, &sugar->p1);
-                        sugar->p1.field_8 += (sausage * (sugar->p3.field_8 - sugar->p1.field_8)) >> 8;
-                        sugar->p1.field_C += (sausage * (sugar->p3.field_C - sugar->p1.field_C)) >> 8;
-                        sugar->p1.field_10 += (sausage * (sugar->p3.field_10 - sugar->p1.field_10)) >> 8;
+                        triangle_bucket_near_2->subtype = splittypes[16 * (engine_coordinate_3->field_8 & 3) + 4 * (engine_coordinate_1->field_8 & 3) + (engine_coordinate_2->field_8 & 3)];
+                        triangle_bucket_near_2->b.next = buckets[divided_z];
+                        triangle_bucket_near_2->b.kind = 9;
+                        buckets[divided_z] = &triangle_bucket_near_2->b;
+                        triangle_bucket_near_2->block = argument4;
+                        triangle_bucket_near_1->c2.x = engine_coordinate_2->x;
+                        triangle_bucket_near_1->c2.y = engine_coordinate_2->y;
+                        triangle_bucket_near_1->c2.z = engine_coordinate_2->z;
+                        triangle_bucket_near_1->c3.x = engine_coordinate_3->x;
+                        triangle_bucket_near_1->c3.y = engine_coordinate_3->y;
+                        triangle_bucket_near_1->c3.z = engine_coordinate_3->z;
+                        memcpy(&triangle_bucket_near_2->p1, &triangle_bucket_near_1->p1, sizeof(triangle_bucket_near_2->p1));
+                        memcpy(&triangle_bucket_near_2->p3, &triangle_bucket_near_1->p3, sizeof(triangle_bucket_near_2->p3));
+                        prawns = ((32 - engine_coordinate_1->z) << 8) / (engine_coordinate_2->z - engine_coordinate_1->z);
+                        triangle_bucket_near_1->c1.x = engine_coordinate_1->x + ((prawns * (engine_coordinate_2->x - engine_coordinate_1->x)) >> 8);
+                        triangle_bucket_near_1->c1.y = engine_coordinate_1->y + ((prawns * (engine_coordinate_2->y - engine_coordinate_1->y)) >> 8);
+                        triangle_bucket_near_1->c1.z = 32;
+                        perspective(&triangle_bucket_near_1->c1, &triangle_bucket_near_1->p1);
+                        triangle_bucket_near_1->p1.field_8 += (prawns * (triangle_bucket_near_1->p2.field_8 - triangle_bucket_near_1->p1.field_8)) >> 8;
+                        triangle_bucket_near_1->p1.field_C += (prawns * (triangle_bucket_near_1->p2.field_C - triangle_bucket_near_1->p1.field_C)) >> 8;
+                        cauliflower = triangle_bucket_near_1->p1.field_10;
+                        paprika = (prawns * (triangle_bucket_near_1->p2.field_10 - cauliflower)) >> 8;
+                        polypoint_1 = &triangle_bucket_near_1->p1;
+                        xyz1 = &triangle_bucket_near_1->c1;
+                        xyz1[-4].y = cauliflower + paprika;
+                        memcpy(&triangle_bucket_near_2->p2, polypoint_1, sizeof(triangle_bucket_near_2->p2));
+                        triangle_bucket_near_2->c2.x = xyz1->x;
+                        triangle_bucket_near_2->c2.y = xyz1->y;
+                        triangle_bucket_near_2->c2.z = xyz1->z;
+                        triangle_bucket_near_2->c3.x = engine_coordinate_3->x;
+                        triangle_bucket_near_2->c3.y = engine_coordinate_3->y;
+                        triangle_bucket_near_2->c3.z = engine_coordinate_3->z;
+                        sausage = ((32 - engine_coordinate_1->z) << 8) / (engine_coordinate_3->z - engine_coordinate_1->z);
+                        triangle_bucket_near_2->c1.x = engine_coordinate_1->x + ((sausage * (engine_coordinate_3->x - engine_coordinate_1->x)) >> 8);
+                        triangle_bucket_near_2->c1.y = engine_coordinate_1->y + ((sausage * (engine_coordinate_3->y - engine_coordinate_1->y)) >> 8);
+                        triangle_bucket_near_2->c1.z = 32;
+                        perspective(&triangle_bucket_near_2->c1, &triangle_bucket_near_2->p1);
+                        triangle_bucket_near_2->p1.field_8 += (sausage * (triangle_bucket_near_2->p3.field_8 - triangle_bucket_near_2->p1.field_8)) >> 8;
+                        triangle_bucket_near_2->p1.field_C += (sausage * (triangle_bucket_near_2->p3.field_C - triangle_bucket_near_2->p1.field_C)) >> 8;
+                        triangle_bucket_near_2->p1.field_10 += (sausage * (triangle_bucket_near_2->p3.field_10 - triangle_bucket_near_2->p1.field_10)) >> 8;
                     }
                     else
                     {
-                        mustard->c2.x = pos3d_2->x;
-                        mustard->c2.y = pos3d_2->y;
-                        mustard->c2.z = pos3d_2->z;
-                        cherries = ((32 - pos3d_1->z) << 8) / (pos3d_2->z - pos3d_1->z);
-                        mustard->c1.x = pos3d_1->x + ((cherries * (pos3d_2->x - pos3d_1->x)) >> 8);
-                        mustard->c1.y = pos3d_1->y + ((cherries * (pos3d_2->y - pos3d_1->y)) >> 8);
-                        mustard->c1.z = 32;
-                        perspective(&mustard->c1, &mustard->p1);
-                        mustard->p1.field_8 += (cherries * (mustard->p2.field_8 - mustard->p1.field_8)) >> 8;
-                        mustard->p1.field_C += (cherries * (mustard->p2.field_C - mustard->p1.field_C)) >> 8;
-                        mustard->p1.field_10 += (cherries * (mustard->p2.field_10 - mustard->p1.field_10)) >> 8;
-                        mushroom = ((32 - pos3d_3->z) << 8) / (pos3d_2->z - pos3d_3->z);
-                        mustard->c3.x = pos3d_3->x + ((mushroom * (pos3d_2->x - pos3d_3->x)) >> 8);
-                        mustard->c3.y = pos3d_3->y + ((mushroom * (pos3d_2->y - pos3d_3->y)) >> 8);
-                        mustard->c3.z = 32;
-                        perspective(&mustard->c3, &mustard->p3);
-                        mustard->p3.field_8 += (mushroom * (mustard->p2.field_8 - mustard->p3.field_8)) >> 8;
-                        mustard->p3.field_C += (mushroom * (mustard->p2.field_C - mustard->p3.field_C)) >> 8;
-                        mustard->p3.field_10 += (mushroom * (mustard->p2.field_10 - mustard->p3.field_10)) >> 8;
+                        triangle_bucket_near_1->c2.x = engine_coordinate_2->x;
+                        triangle_bucket_near_1->c2.y = engine_coordinate_2->y;
+                        triangle_bucket_near_1->c2.z = engine_coordinate_2->z;
+                        cherries = ((32 - engine_coordinate_1->z) << 8) / (engine_coordinate_2->z - engine_coordinate_1->z);
+                        triangle_bucket_near_1->c1.x = engine_coordinate_1->x + ((cherries * (engine_coordinate_2->x - engine_coordinate_1->x)) >> 8);
+                        triangle_bucket_near_1->c1.y = engine_coordinate_1->y + ((cherries * (engine_coordinate_2->y - engine_coordinate_1->y)) >> 8);
+                        triangle_bucket_near_1->c1.z = 32;
+                        perspective(&triangle_bucket_near_1->c1, &triangle_bucket_near_1->p1);
+                        triangle_bucket_near_1->p1.field_8 += (cherries * (triangle_bucket_near_1->p2.field_8 - triangle_bucket_near_1->p1.field_8)) >> 8;
+                        triangle_bucket_near_1->p1.field_C += (cherries * (triangle_bucket_near_1->p2.field_C - triangle_bucket_near_1->p1.field_C)) >> 8;
+                        triangle_bucket_near_1->p1.field_10 += (cherries * (triangle_bucket_near_1->p2.field_10 - triangle_bucket_near_1->p1.field_10)) >> 8;
+                        mushroom = ((32 - engine_coordinate_3->z) << 8) / (engine_coordinate_2->z - engine_coordinate_3->z);
+                        triangle_bucket_near_1->c3.x = engine_coordinate_3->x + ((mushroom * (engine_coordinate_2->x - engine_coordinate_3->x)) >> 8);
+                        triangle_bucket_near_1->c3.y = engine_coordinate_3->y + ((mushroom * (engine_coordinate_2->y - engine_coordinate_3->y)) >> 8);
+                        triangle_bucket_near_1->c3.z = 32;
+                        perspective(&triangle_bucket_near_1->c3, &triangle_bucket_near_1->p3);
+                        triangle_bucket_near_1->p3.field_8 += (mushroom * (triangle_bucket_near_1->p2.field_8 - triangle_bucket_near_1->p3.field_8)) >> 8;
+                        triangle_bucket_near_1->p3.field_C += (mushroom * (triangle_bucket_near_1->p2.field_C - triangle_bucket_near_1->p3.field_C)) >> 8;
+                        triangle_bucket_near_1->p3.field_10 += (mushroom * (triangle_bucket_near_1->p2.field_10 - triangle_bucket_near_1->p3.field_10)) >> 8;
                     }
                 }
                 else
                 {
-                    mustard->c3.x = pos3d_3->x;
-                    mustard->c3.y = pos3d_3->y;
-                    mustard->c3.z = pos3d_3->z;
-                    olives = ((32 - pos3d_1->z) << 8) / (pos3d_3->z - pos3d_1->z);
-                    mustard->c1.x = pos3d_1->x + ((olives * (pos3d_3->x - pos3d_1->x)) >> 8);
-                    mustard->c1.y = pos3d_1->y + ((olives * (pos3d_3->y - pos3d_1->y)) >> 8);
-                    mustard->c1.z = 32;
-                    perspective(&mustard->c1, &mustard->p1);
-                    mustard->p1.field_8 += (olives * (mustard->p3.field_8 - mustard->p1.field_8)) >> 8;
-                    mustard->p1.field_C += (olives * (mustard->p3.field_C - mustard->p1.field_C)) >> 8;
-                    mustard->p1.field_10 += (olives * (mustard->p3.field_10 - mustard->p1.field_10)) >> 8;
-                    macaroni = ((32 - pos3d_2->z) << 8) / (pos3d_3->z - pos3d_2->z);
-                    mustard->c2.x = pos3d_2->x + ((macaroni * (pos3d_3->x - pos3d_2->x)) >> 8);
-                    mustard->c2.y = pos3d_2->y + ((macaroni * (pos3d_3->y - pos3d_2->y)) >> 8);
-                    mustard->c2.z = 32;
-                    perspective(&mustard->c2, &mustard->p2);
-                    mustard->p2.field_8 += (macaroni * (mustard->p3.field_8 - mustard->p2.field_8)) >> 8;
-                    mustard->p2.field_C += (macaroni * (mustard->p3.field_C - mustard->p2.field_C)) >> 8;
-                    mustard->p2.field_10 += (macaroni * (mustard->p3.field_10 - mustard->p2.field_10)) >> 8;
+                    triangle_bucket_near_1->c3.x = engine_coordinate_3->x;
+                    triangle_bucket_near_1->c3.y = engine_coordinate_3->y;
+                    triangle_bucket_near_1->c3.z = engine_coordinate_3->z;
+                    olives = ((32 - engine_coordinate_1->z) << 8) / (engine_coordinate_3->z - engine_coordinate_1->z);
+                    triangle_bucket_near_1->c1.x = engine_coordinate_1->x + ((olives * (engine_coordinate_3->x - engine_coordinate_1->x)) >> 8);
+                    triangle_bucket_near_1->c1.y = engine_coordinate_1->y + ((olives * (engine_coordinate_3->y - engine_coordinate_1->y)) >> 8);
+                    triangle_bucket_near_1->c1.z = 32;
+                    perspective(&triangle_bucket_near_1->c1, &triangle_bucket_near_1->p1);
+                    triangle_bucket_near_1->p1.field_8 += (olives * (triangle_bucket_near_1->p3.field_8 - triangle_bucket_near_1->p1.field_8)) >> 8;
+                    triangle_bucket_near_1->p1.field_C += (olives * (triangle_bucket_near_1->p3.field_C - triangle_bucket_near_1->p1.field_C)) >> 8;
+                    triangle_bucket_near_1->p1.field_10 += (olives * (triangle_bucket_near_1->p3.field_10 - triangle_bucket_near_1->p1.field_10)) >> 8;
+                    macaroni = ((32 - engine_coordinate_2->z) << 8) / (engine_coordinate_3->z - engine_coordinate_2->z);
+                    triangle_bucket_near_1->c2.x = engine_coordinate_2->x + ((macaroni * (engine_coordinate_3->x - engine_coordinate_2->x)) >> 8);
+                    triangle_bucket_near_1->c2.y = engine_coordinate_2->y + ((macaroni * (engine_coordinate_3->y - engine_coordinate_2->y)) >> 8);
+                    triangle_bucket_near_1->c2.z = 32;
+                    perspective(&triangle_bucket_near_1->c2, &triangle_bucket_near_1->p2);
+                    triangle_bucket_near_1->p2.field_8 += (macaroni * (triangle_bucket_near_1->p3.field_8 - triangle_bucket_near_1->p2.field_8)) >> 8;
+                    triangle_bucket_near_1->p2.field_C += (macaroni * (triangle_bucket_near_1->p3.field_C - triangle_bucket_near_1->p2.field_C)) >> 8;
+                    triangle_bucket_near_1->p2.field_10 += (macaroni * (triangle_bucket_near_1->p3.field_10 - triangle_bucket_near_1->p2.field_10)) >> 8;
                 }
             }
             else
             {
-                potato = (struct BasicUnk00 *)getpoly;
+                triangle_bucket_far = (struct BasicUnk00 *)getpoly;
                 getpoly += sizeof(struct BasicUnk00);
-                potato->b.next = buckets[divided_z];
-                potato->b.kind = 0;
-                buckets[divided_z] = &potato->b;
-                potato->block = argument4;
-                carrot = pos3d_1->field_C;
-                potato->p1.field_0 = pos3d_1->view_width;
-                potato->p1.field_4 = pos3d_1->view_height;
-                potato->p1.field_8 = 0x1FFFFF;
-                potato->p1.field_C = 0x1FFFFF;
-                pineapple = pos3d_1->field_A;
+                triangle_bucket_far->b.next = buckets[divided_z];
+                triangle_bucket_far->b.kind = 0;
+                buckets[divided_z] = &triangle_bucket_far->b;
+                triangle_bucket_far->block = argument4;
+                
+                triangle_bucket_far->p1.field_0 = engine_coordinate_1->view_width;
+                triangle_bucket_far->p1.field_4 = engine_coordinate_1->view_height;
+                triangle_bucket_far->p1.field_8 = 0x1FFFFF;
+                triangle_bucket_far->p1.field_C = 0x1FFFFF;
+                
+                int coordinate_1_lightness = engine_coordinate_1->field_A;
+                int coordinate_1_distance = engine_coordinate_1->field_C;
+
                 if (argument5 >= 0)
-                    pineapple = (pineapple * (3 * argument5 + 81920)) >> 17;
-                if (carrot <= fade_min)
+                    coordinate_1_lightness = (coordinate_1_lightness * (3 * argument5 + 81920)) >> 17;
+                if (coordinate_1_distance <= fade_min)
                 {
-                    mango = pineapple << 8;
+                    mango = coordinate_1_lightness << 8;
                 }
-                else if (carrot < fade_max)
+                else if (coordinate_1_distance < fade_max)
                 {
-                    mango = pineapple * (fade_scaler - carrot) / fade_range + 0x8000;
+                    mango = coordinate_1_lightness * (fade_scaler - coordinate_1_distance) / fade_range + 0x8000;
                 }
                 else
                 {
                     mango = 0x8000;
                 }
-                potato->p1.field_10 = mango;
-                banana = pos3d_2->field_C;
-                potato->p2.field_0 = pos3d_2->view_width;
-                potato->p2.field_4 = pos3d_2->view_height;
-                potato->p2.field_8 = 0;
-                potato->p2.field_C = 0x1FFFFF;
-                orange = pos3d_2->field_A;
+                triangle_bucket_far->p1.field_10 = mango;
+                triangle_bucket_far->p2.field_0 = engine_coordinate_2->view_width;
+                triangle_bucket_far->p2.field_4 = engine_coordinate_2->view_height;
+                triangle_bucket_far->p2.field_8 = 0;
+                triangle_bucket_far->p2.field_C = 0x1FFFFF;
+                
+                int coordinate_2_lightness = engine_coordinate_2->field_A;
+                int coordinate_2_distance = engine_coordinate_2->field_C;
+
                 if (argument5 >= 0)
-                    orange = (orange * (3 * argument5 + 81920)) >> 17;
-                if (banana <= fade_min)
+                    coordinate_2_lightness = (coordinate_2_lightness * (3 * argument5 + 81920)) >> 17;
+                if (coordinate_2_distance <= fade_min)
                 {
-                    apple = orange << 8;
+                    apple = coordinate_2_lightness << 8;
                 }
-                else if (banana < fade_max)
+                else if (coordinate_2_distance < fade_max)
                 {
-                    apple = orange * (fade_scaler - banana) / fade_range + 0x8000;
+                    apple = coordinate_2_lightness * (fade_scaler - coordinate_2_distance) / fade_range + 0x8000;
                 }
                 else
                 {
                     apple = 0x8000;
                 }
-                potato->p2.field_10 = apple;
-                cactus = pos3d_3->field_C;
-                potato->p3.field_0 = pos3d_3->view_width;
-                potato->p3.field_4 = pos3d_3->view_height;
-                potato->p3.field_8 = 0;
-                potato->p3.field_C = 0;
-                pepper = pos3d_3->field_A;
+                
+                triangle_bucket_far->p2.field_10 = apple;
+                triangle_bucket_far->p3.field_0 = engine_coordinate_3->view_width;
+                triangle_bucket_far->p3.field_4 = engine_coordinate_3->view_height;
+                triangle_bucket_far->p3.field_8 = 0;
+                triangle_bucket_far->p3.field_C = 0;
+
+                int coordinate_3_lightness = engine_coordinate_3->field_A;
+                int coordinate_3_distance = engine_coordinate_3->field_C;
+
                 if (argument5 >= 0)
-                    pepper = (pepper * (3 * argument5 + 81920)) >> 17;
-                if (cactus <= fade_min)
+                    coordinate_3_lightness = (coordinate_3_lightness * (3 * argument5 + 81920)) >> 17;
+                if (coordinate_3_distance <= fade_min)
                 {
-                    potato->p3.field_10 = pepper << 8;
+                    triangle_bucket_far->p3.field_10 = coordinate_3_lightness << 8;
                 }
-                else if (cactus < fade_max)
+                else if (coordinate_3_distance < fade_max)
                 {
-                    potato->p3.field_10 = pepper * (fade_scaler - cactus) / fade_range + 0x8000;
+                    triangle_bucket_far->p3.field_10 = coordinate_3_lightness * (fade_scaler - coordinate_3_distance) / fade_range + 0x8000;
                 }
                 else
                 {
-                    potato->p3.field_10 = 0x8000;
+                    triangle_bucket_far->p3.field_10 = 0x8000;
                 }
             }
         }
@@ -3749,9 +3752,9 @@ static void do_a_gpoly_gourad_tr(struct EngineCoord *ec1, struct EngineCoord *ec
     int v7;
     struct BasicUnk00 *v8;
     struct BasicQ *v9;
-    struct PolyPoint *polypoint1;
-    struct PolyPoint *polypoint2;
-    struct PolyPoint *polypoint3;
+    struct PolyPoint *polypoint_1;
+    struct PolyPoint *polypoint_2;
+    struct PolyPoint *polypoint_3;
     int ec1_fieldA;
     int ec2_fieldA;
     int ec3_fieldA;
@@ -3773,7 +3776,7 @@ static void do_a_gpoly_gourad_tr(struct EngineCoord *ec1, struct EngineCoord *ec
             v9 = buckets[v7];
             getpoly += sizeof(struct BasicUnk00);
             v6->b.next = v9;
-            polypoint1 = &v6->p1;
+            polypoint_1 = &v6->p1;
             v6->b.kind = 0;
             buckets[v7] = &v6->b;
             v6->block = textr_id;
@@ -3786,23 +3789,23 @@ static void do_a_gpoly_gourad_tr(struct EngineCoord *ec1, struct EngineCoord *ec
                 ec2_fieldA = (4 * ec2_fieldA * (a5 + 0x4000)) >> 17;
                 ec3_fieldA = (4 * (a5 + 0x4000) * ec3_fieldA) >> 17;
             }
-            polypoint1->field_0 = ec1->view_width;
-            polypoint1->field_4 = ec1->view_height;
-            polypoint1->field_8 = 0;
-            polypoint1->field_C = 0;
-            polypoint1->field_10 = ec1_fieldA << 8;
-            polypoint2 = &v8->p2;
+            polypoint_1->field_0 = ec1->view_width;
+            polypoint_1->field_4 = ec1->view_height;
+            polypoint_1->field_8 = 0;
+            polypoint_1->field_C = 0;
+            polypoint_1->field_10 = ec1_fieldA << 8;
+            polypoint_2 = &v8->p2;
             v8->p2.field_0 = ec2->view_width;
-            polypoint3 = &v8->p3;
-            polypoint2->field_4 = ec2->view_height;
-            polypoint2->field_8 = 0x1FFFFF;
-            polypoint2->field_C = 0;
-            polypoint2->field_10 = ec2_fieldA << 8;
-            polypoint3->field_0 = ec3->view_width;
-            polypoint3->field_4 = ec3->view_height;
-            polypoint3->field_8 = 0x1FFFFF;
-            polypoint3->field_C = 0x1FFFFF;
-            polypoint3->field_10 = ec3_fieldA << 8;
+            polypoint_3 = &v8->p3;
+            polypoint_2->field_4 = ec2->view_height;
+            polypoint_2->field_8 = 0x1FFFFF;
+            polypoint_2->field_C = 0;
+            polypoint_2->field_10 = ec2_fieldA << 8;
+            polypoint_3->field_0 = ec3->view_width;
+            polypoint_3->field_4 = ec3->view_height;
+            polypoint_3->field_8 = 0x1FFFFF;
+            polypoint_3->field_C = 0x1FFFFF;
+            polypoint_3->field_10 = ec3_fieldA << 8;
         }
     }
 }
@@ -3912,9 +3915,9 @@ static void do_a_gpoly_gourad_bl(struct EngineCoord *ec1, struct EngineCoord *ec
     int ec1_fieldA;
     int ec2_fieldA;
     int ec3_fieldA;
-    struct PolyPoint *polypoint2;
-    struct PolyPoint *polypoint3;
-    struct PolyPoint *polypoint1;
+    struct PolyPoint *polypoint_2;
+    struct PolyPoint *polypoint_3;
+    struct PolyPoint *polypoint_1;
 
     if ( (ec1->field_8 & (unsigned __int16)(ec2->field_8 & ec3->field_8) & 0x1F8) == 0
         && (ec3->view_height - ec2->view_height) * (ec2->view_width - ec1->view_width)
@@ -3933,7 +3936,7 @@ static void do_a_gpoly_gourad_bl(struct EngineCoord *ec1, struct EngineCoord *ec
             v9 = buckets[zdiv16];
             getpoly += sizeof(struct BasicUnk00);
             v6->b.next = v9;
-            polypoint1 = &v6->p1;
+            polypoint_1 = &v6->p1;
             v6->b.kind = 0;
             buckets[zdiv16] = &v6->b;
             v6->block = textr_id;
@@ -3946,23 +3949,23 @@ static void do_a_gpoly_gourad_bl(struct EngineCoord *ec1, struct EngineCoord *ec
                 ec2_fieldA = (4 * (a5 + 0x4000) * ec2_fieldA) >> 17;
                 ec3_fieldA = (4 * (a5 + 0x4000) * ec3_fieldA) >> 17;
             }
-            polypoint1->field_0 = ec1->view_width;
-            polypoint2 = &poly_ptr->p2;
-            polypoint1->field_4 = ec1->view_height;
-            polypoint1->field_8 = 0x1FFFFF;
-            polypoint1->field_C = 0x1FFFFF;
-            polypoint1->field_10 = ec1_fieldA << 8;
+            polypoint_1->field_0 = ec1->view_width;
+            polypoint_2 = &poly_ptr->p2;
+            polypoint_1->field_4 = ec1->view_height;
+            polypoint_1->field_8 = 0x1FFFFF;
+            polypoint_1->field_C = 0x1FFFFF;
+            polypoint_1->field_10 = ec1_fieldA << 8;
             poly_ptr->p2.field_0 = ec2->view_width;
-            polypoint3 = &poly_ptr->p3;
-            polypoint2->field_4 = ec2->view_height;
-            polypoint2->field_8 = 0;
-            polypoint2->field_C = 0x1FFFFF;
-            polypoint2->field_10 = ec2_fieldA << 8;
-            polypoint3->field_0 = ec3->view_width;
-            polypoint3->field_4 = ec3->view_height;
-            polypoint3->field_8 = 0;
-            polypoint3->field_C = 0;
-            polypoint3->field_10 = ec3_fieldA << 8;
+            polypoint_3 = &poly_ptr->p3;
+            polypoint_2->field_4 = ec2->view_height;
+            polypoint_2->field_8 = 0;
+            polypoint_2->field_C = 0x1FFFFF;
+            polypoint_2->field_10 = ec2_fieldA << 8;
+            polypoint_3->field_0 = ec3->view_width;
+            polypoint_3->field_4 = ec3->view_height;
+            polypoint_3->field_8 = 0;
+            polypoint_3->field_C = 0;
+            polypoint_3->field_10 = ec3_fieldA << 8;
         }
     }
 }
