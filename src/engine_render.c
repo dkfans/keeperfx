@@ -2465,6 +2465,7 @@ static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct 
                 {
                     honeydew = 0x8000;
                 }
+                
                 triangle_bucket_near_1->p1.field_10 = honeydew;
                 triangle_bucket_near_1->p2.field_0 = engine_coordinate_2->view_width;
                 triangle_bucket_near_1->p2.field_4 = engine_coordinate_2->view_height;
@@ -2490,6 +2491,7 @@ static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct 
                 {
                     yogurt = 0x8000;
                 }
+
                 triangle_bucket_near_1->p2.field_10 = yogurt;
                 triangle_bucket_near_1->p3.field_0 = engine_coordinate_3->view_width;
                 triangle_bucket_near_1->p3.field_4 = engine_coordinate_3->view_height;
@@ -2515,6 +2517,7 @@ static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct 
                 {
                     onion = 0x8000;
                 }
+
                 triangle_bucket_near_1->p3.field_10 = onion;
                 
                 int coordinate_1_z = engine_coordinate_1->z;
@@ -2562,10 +2565,8 @@ static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct 
                             perspective(&triangle_bucket_near_1->c3, &triangle_bucket_near_1->p3);
                             triangle_bucket_near_1->p3.field_8 += (toast * (triangle_bucket_near_1->p1.field_8 - triangle_bucket_near_1->p3.field_8)) >> 8;
                             triangle_bucket_near_1->p3.field_C += (toast * (triangle_bucket_near_1->p1.field_C - triangle_bucket_near_1->p3.field_C)) >> 8;
-                            
                             int popcorn = triangle_bucket_near_1->p3.field_10;
                             int almond = (toast * (triangle_bucket_near_1->p1.field_10 - popcorn)) >> 8;
-
                             polypoint3 = &triangle_bucket_near_1->p3;
                             xyz4 = &triangle_bucket_near_1->c3;
                             xyz4[-3].z = popcorn + almond;
@@ -2576,7 +2577,6 @@ static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct 
                             triangle_bucket_near_4->c2.x = engine_coordinate_2->x;
                             triangle_bucket_near_4->c2.y = engine_coordinate_2->y;
                             triangle_bucket_near_4->c2.z = engine_coordinate_2->z;
-                            
                             int lemon = ((32 - engine_coordinate_3->z) << 8) / (engine_coordinate_2->z - engine_coordinate_3->z);
                             triangle_bucket_near_4->c3.x = engine_coordinate_3->x + ((lemon * (engine_coordinate_2->x - engine_coordinate_3->x)) >> 8);
                             triangle_bucket_near_4->c3.y = engine_coordinate_3->y + ((lemon * (engine_coordinate_2->y - engine_coordinate_3->y)) >> 8);
@@ -2604,7 +2604,6 @@ static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct 
                         triangle_bucket_near_1->c3.z = engine_coordinate_3->z;
                         memcpy(&triangle_bucket_near_3->p2, &triangle_bucket_near_1->p2, sizeof(triangle_bucket_near_3->p2));
                         memcpy(&triangle_bucket_near_3->p3, &triangle_bucket_near_1->p3, sizeof(triangle_bucket_near_3->p3));
-                        
                         int lettuce = ((32 - engine_coordinate_2->z) << 8) / (engine_coordinate_1->z - engine_coordinate_2->z);
                         triangle_bucket_near_1->c2.x = engine_coordinate_2->x + ((lettuce * (engine_coordinate_1->x - engine_coordinate_2->x)) >> 8);
                         triangle_bucket_near_1->c2.y = engine_coordinate_2->y + ((lettuce * (engine_coordinate_1->y - engine_coordinate_2->y)) >> 8);
@@ -2612,7 +2611,6 @@ static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct 
                         perspective(&triangle_bucket_near_1->c2, &triangle_bucket_near_1->p2);
                         triangle_bucket_near_1->p2.field_8 += (lettuce * (triangle_bucket_near_1->p1.field_8 - triangle_bucket_near_1->p2.field_8)) >> 8;
                         triangle_bucket_near_1->p2.field_C += (lettuce * (triangle_bucket_near_1->p1.field_C - triangle_bucket_near_1->p2.field_C)) >> 8;
-                        
                         int sandwich = triangle_bucket_near_1->p2.field_10;
                         int walnut = (lettuce * (triangle_bucket_near_1->p1.field_10 - sandwich)) >> 8;
                         polypoint2 = &triangle_bucket_near_1->p2;
@@ -2625,7 +2623,6 @@ static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct 
                         triangle_bucket_near_3->c3.x = engine_coordinate_3->x;
                         triangle_bucket_near_3->c3.y = engine_coordinate_3->y;
                         triangle_bucket_near_3->c3.z = engine_coordinate_3->z;
-                        
                         int avocado = ((32 - engine_coordinate_2->z) << 8) / (engine_coordinate_3->z - engine_coordinate_2->z);
                         triangle_bucket_near_3->c2.x = engine_coordinate_2->x + ((avocado * (engine_coordinate_3->x - engine_coordinate_2->x)) >> 8);
                         triangle_bucket_near_3->c2.y = engine_coordinate_2->y + ((avocado * (engine_coordinate_3->y - engine_coordinate_2->y)) >> 8);
@@ -2787,6 +2784,7 @@ static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct 
                 {
                     mango = 0x8000;
                 }
+
                 triangle_bucket_far->p1.field_10 = mango;
                 triangle_bucket_far->p2.field_0 = engine_coordinate_2->view_width;
                 triangle_bucket_far->p2.field_4 = engine_coordinate_2->view_height;
@@ -2824,6 +2822,7 @@ static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct 
 
                 if (argument5 >= 0)
                     coordinate_3_lightness = (coordinate_3_lightness * (3 * argument5 + 81920)) >> 17;
+                
                 if (coordinate_3_distance <= fade_min)
                 {
                     triangle_bucket_far->p3.field_10 = coordinate_3_lightness << 8;
@@ -2931,6 +2930,7 @@ static void do_a_trig_gourad_bl(struct EngineCoord *engine_coordinate_1, struct 
                 {
                     yogurt = 0x8000;
                 }
+
                 triangle_bucket_near_1->p2.field_10 = yogurt;
                 triangle_bucket_near_1->p3.field_0 = engine_coordinate_3->view_width;
                 triangle_bucket_near_1->p3.field_4 = engine_coordinate_3->view_height;
@@ -2956,6 +2956,7 @@ static void do_a_trig_gourad_bl(struct EngineCoord *engine_coordinate_1, struct 
                 {
                     onion = 0x8000;
                 }
+
                 triangle_bucket_near_1->p3.field_10 = onion;
                 
                 int coordinate_1_z = engine_coordinate_1->z;
@@ -3003,10 +3004,8 @@ static void do_a_trig_gourad_bl(struct EngineCoord *engine_coordinate_1, struct 
                             perspective(&triangle_bucket_near_1->c3, &triangle_bucket_near_1->p3);
                             triangle_bucket_near_1->p3.field_8 += (toast * (triangle_bucket_near_1->p1.field_8 - triangle_bucket_near_1->p3.field_8)) >> 8;
                             triangle_bucket_near_1->p3.field_C += (toast * (triangle_bucket_near_1->p1.field_C - triangle_bucket_near_1->p3.field_C)) >> 8;
-                            
                             int popcorn = triangle_bucket_near_1->p3.field_10;
                             int almond = (toast * (triangle_bucket_near_1->p1.field_10 - popcorn)) >> 8;
-
                             polypoint3 = &triangle_bucket_near_1->p3;
                             xyz4 = &triangle_bucket_near_1->c3;
                             xyz4[-3].z = popcorn + almond;
@@ -3017,7 +3016,6 @@ static void do_a_trig_gourad_bl(struct EngineCoord *engine_coordinate_1, struct 
                             triangle_bucket_near_4->c2.x = engine_coordinate_2->x;
                             triangle_bucket_near_4->c2.y = engine_coordinate_2->y;
                             triangle_bucket_near_4->c2.z = engine_coordinate_2->z;
-                            
                             int lemon = ((32 - engine_coordinate_3->z) << 8) / (engine_coordinate_2->z - engine_coordinate_3->z);
                             triangle_bucket_near_4->c3.x = engine_coordinate_3->x + ((lemon * (engine_coordinate_2->x - engine_coordinate_3->x)) >> 8);
                             triangle_bucket_near_4->c3.y = engine_coordinate_3->y + ((lemon * (engine_coordinate_2->y - engine_coordinate_3->y)) >> 8);
@@ -3045,7 +3043,6 @@ static void do_a_trig_gourad_bl(struct EngineCoord *engine_coordinate_1, struct 
                         triangle_bucket_near_1->c3.z = engine_coordinate_3->z;
                         memcpy(&triangle_bucket_near_3->p2, &triangle_bucket_near_1->p2, sizeof(triangle_bucket_near_3->p2));
                         memcpy(&triangle_bucket_near_3->p3, &triangle_bucket_near_1->p3, sizeof(triangle_bucket_near_3->p3));
-                        
                         int lettuce = ((32 - engine_coordinate_2->z) << 8) / (engine_coordinate_1->z - engine_coordinate_2->z);
                         triangle_bucket_near_1->c2.x = engine_coordinate_2->x + ((lettuce * (engine_coordinate_1->x - engine_coordinate_2->x)) >> 8);
                         triangle_bucket_near_1->c2.y = engine_coordinate_2->y + ((lettuce * (engine_coordinate_1->y - engine_coordinate_2->y)) >> 8);
@@ -3053,7 +3050,6 @@ static void do_a_trig_gourad_bl(struct EngineCoord *engine_coordinate_1, struct 
                         perspective(&triangle_bucket_near_1->c2, &triangle_bucket_near_1->p2);
                         triangle_bucket_near_1->p2.field_8 += (lettuce * (triangle_bucket_near_1->p1.field_8 - triangle_bucket_near_1->p2.field_8)) >> 8;
                         triangle_bucket_near_1->p2.field_C += (lettuce * (triangle_bucket_near_1->p1.field_C - triangle_bucket_near_1->p2.field_C)) >> 8;
-                        
                         int sandwich = triangle_bucket_near_1->p2.field_10;
                         int walnut = (lettuce * (triangle_bucket_near_1->p1.field_10 - sandwich)) >> 8;
                         polypoint2 = &triangle_bucket_near_1->p2;
@@ -3066,7 +3062,6 @@ static void do_a_trig_gourad_bl(struct EngineCoord *engine_coordinate_1, struct 
                         triangle_bucket_near_3->c3.x = engine_coordinate_3->x;
                         triangle_bucket_near_3->c3.y = engine_coordinate_3->y;
                         triangle_bucket_near_3->c3.z = engine_coordinate_3->z;
-                        
                         int avocado = ((32 - engine_coordinate_2->z) << 8) / (engine_coordinate_3->z - engine_coordinate_2->z);
                         triangle_bucket_near_3->c2.x = engine_coordinate_2->x + ((avocado * (engine_coordinate_3->x - engine_coordinate_2->x)) >> 8);
                         triangle_bucket_near_3->c2.y = engine_coordinate_2->y + ((avocado * (engine_coordinate_3->y - engine_coordinate_2->y)) >> 8);
@@ -3228,6 +3223,7 @@ static void do_a_trig_gourad_bl(struct EngineCoord *engine_coordinate_1, struct 
                 {
                     mango = 0x8000;
                 }
+                
                 triangle_bucket_far->p1.field_10 = mango;
                 triangle_bucket_far->p2.field_0 = engine_coordinate_2->view_width;
                 triangle_bucket_far->p2.field_4 = engine_coordinate_2->view_height;
@@ -3265,6 +3261,7 @@ static void do_a_trig_gourad_bl(struct EngineCoord *engine_coordinate_1, struct 
 
                 if (argument5 >= 0)
                     coordinate_3_lightness = (coordinate_3_lightness * (3 * argument5 + 81920)) >> 17;
+                
                 if (coordinate_3_distance <= fade_min)
                 {
                     triangle_bucket_far->p3.field_10 = coordinate_3_lightness << 8;
