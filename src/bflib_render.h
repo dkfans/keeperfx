@@ -65,11 +65,11 @@ enum VecModes {
 
 
 struct PolyPoint { // sizeof = 20
-  long field_0;
-  long field_4;
-  long field_8;
-  long field_C;
-  long field_10;
+  long field_0; // "view_width"?
+  long field_4; // "view_height"?
+  long field_8; // frustum culling?
+  long field_C; // distance?
+  long field_10; // lighting?
 };
 
 struct GtBlock { // sizeof = 48
