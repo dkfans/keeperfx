@@ -605,11 +605,11 @@ void get_dungeon_sell_user_roomspace(struct RoomSpace *roomspace, PlayerNumber p
     MapSlabCoord drag_start_x = slb_x;
     MapSlabCoord drag_start_y = slb_y;
     struct Packet* pckt = get_packet_direct(player->packet_num);
+    playeradd->one_click_lock_cursor = false;
     if (playeradd->ignore_next_PCtr_LBtnRelease)
     {
         // because player cancelled with RMB, we need to default back to vanilla 1x1 box
         playeradd->render_roomspace.drag_mode = false;
-        playeradd->one_click_lock_cursor = false;
         reset_dungeon_build_room_ui_variables(plyr_idx);
         current_roomspace = create_box_roomspace(playeradd->render_roomspace, playeradd->roomspace_width, playeradd->roomspace_height, slb_x, slb_y);
         current_roomspace.highlight_mode = false;
@@ -714,11 +714,11 @@ void get_dungeon_build_user_roomspace(struct RoomSpace *roomspace, PlayerNumber 
     MapSlabCoord drag_start_y = slb_y;
     struct Packet* pckt = get_packet_direct(player->packet_num);
     struct RoomSpace temp_best_room;
+    playeradd->one_click_lock_cursor = false;
     if (playeradd->ignore_next_PCtr_LBtnRelease)
     {
         // because player cancelled a tag/untag with RMB, we need to default back to vanilla 1x1 box
         playeradd->render_roomspace.drag_mode = false;
-        playeradd->one_click_lock_cursor = false;
         reset_dungeon_build_room_ui_variables(plyr_idx);
         best_roomspace = create_box_roomspace(playeradd->render_roomspace, playeradd->roomspace_width, playeradd->roomspace_height, slb_x, slb_y);
         best_roomspace.highlight_mode = false;
