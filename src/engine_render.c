@@ -2424,12 +2424,12 @@ static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct 
     
     if (((unsigned short)coordinate_1_frustum & (unsigned short)(coordinate_2_frustum & coordinate_3_frustum) & 0x1F8) == 0 && (engine_coordinate_1->view_height - engine_coordinate_2->view_height) * (engine_coordinate_3->view_width - engine_coordinate_2->view_width) + (engine_coordinate_3->view_height - engine_coordinate_2->view_height) * (engine_coordinate_2->view_width - engine_coordinate_1->view_width) > 0)
     {
-        int choose_z = engine_coordinate_1->z;
-        if (engine_coordinate_2->z > choose_z)
-            choose_z = engine_coordinate_2->z;
-        if (engine_coordinate_3->z > choose_z)
-            choose_z = engine_coordinate_3->z;
-        int divided_z = choose_z / 16;
+        int choose_largest_z = engine_coordinate_1->z;
+        if (engine_coordinate_2->z > choose_largest_z)
+            choose_largest_z = engine_coordinate_2->z;
+        if (engine_coordinate_3->z > choose_largest_z)
+            choose_largest_z = engine_coordinate_3->z;
+        int divided_z = choose_largest_z / 16;
         if (getpoly < poly_pool_end)
         {
             if ((((unsigned __int8)coordinate_3_frustum | (unsigned __int8)(coordinate_2_frustum | coordinate_1_frustum)) & 3) != 0)
@@ -2914,12 +2914,12 @@ static void do_a_trig_gourad_bl(struct EngineCoord *engine_coordinate_1, struct 
 
     if (((unsigned short)coordinate_2_frustum & (unsigned short)(coordinate_3_frustum & coordinate_1_frustum) & 0x1F8) == 0 && (engine_coordinate_2->view_width - engine_coordinate_1->view_width) * (engine_coordinate_3->view_height - engine_coordinate_2->view_height) + (engine_coordinate_3->view_width - engine_coordinate_2->view_width) * (engine_coordinate_1->view_height - engine_coordinate_2->view_height) > 0)
     {
-        int choose_z = engine_coordinate_1->z;
-        if (choose_z < engine_coordinate_2->z)
-            choose_z = engine_coordinate_2->z;
-        if (choose_z < engine_coordinate_3->z)
-            choose_z = engine_coordinate_3->z;
-        int divided_z = choose_z / 16;
+        int choose_smallest_z = engine_coordinate_1->z;
+        if (choose_smallest_z < engine_coordinate_2->z)
+            choose_smallest_z = engine_coordinate_2->z;
+        if (choose_smallest_z < engine_coordinate_3->z)
+            choose_smallest_z = engine_coordinate_3->z;
+        int divided_z = choose_smallest_z / 16;
         if (getpoly < poly_pool_end)
         {
             if ((((unsigned __int8)coordinate_1_frustum | (unsigned __int8)(coordinate_3_frustum | coordinate_2_frustum)) & 3) != 0)
