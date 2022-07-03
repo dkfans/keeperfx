@@ -2393,7 +2393,6 @@ long check_out_imp_last_did(struct Thing *creatng)
 {
   struct CreatureControl *cctrl;
   struct Dungeon *dungeon;
-  struct Room *room;
   cctrl = creature_control_get_from_thing(creatng);
   SYNCDBG(19,"Starting for %s index %d, last did %d repeated %d times",thing_model_name(creatng),(int)creatng->index,(int)cctrl->digger.last_did_job,(int)cctrl->digger.task_repeats);
   TRACE_THING(creatng);
