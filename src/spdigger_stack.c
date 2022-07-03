@@ -2488,7 +2488,7 @@ long check_out_imp_last_did(struct Thing *creatng)
       }
       break;
   case SDLstJob_NonDiggerTask:
-      if (attempt_job_preference(creatng, cctrl->job_assigned));
+      if (attempt_job_preference(creatng, cctrl->job_assigned))
       {
           cctrl->job_assigned_check_turn = game.play_gameturn;
           return true;
