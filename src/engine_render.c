@@ -2404,12 +2404,25 @@ void process_isometric_map_volume_box(long x, long y, long z, PlayerNumber plyr_
 
 static void do_a_trig_gourad_tr(struct EngineCoord *pos3d_1, struct EngineCoord *pos3d_2, struct EngineCoord *pos3d_3, short textr_idx, long argument5)
 {
-    short pos3_frustum;
-    short pos2_frustum;
+    struct BasicUnk09 *mustard;
+    struct BasicUnk09 *sugar;
+    struct BasicUnk09 *grape;
+    struct BasicUnk09 *cereal;
+    struct BasicUnk00 *potato;
+    struct PolyPoint *peaches;
+    struct PolyPoint *porridge;
+    struct PolyPoint *watermelon;
+    struct XYZ *muffin;
+    struct XYZ *doughnut;
+    struct XYZ *biscuit;
+    struct XYZ *chocolate;
+    struct XYZ *cheese;
+    struct XYZ *pumpkin;
     short pos1_frustum;
+    short pos2_frustum;
+    short pos3_frustum;
     int z;
     int divided_z;
-    struct BasicUnk09 *mustard;
     int capsicum;
     int blueberries;
     int honeydew;
@@ -2424,12 +2437,9 @@ static void do_a_trig_gourad_tr(struct EngineCoord *pos3d_1, struct EngineCoord 
     int macaroni;
     int cherries;
     int mushroom;
-    struct BasicUnk09 *sugar;
     int prawns;
     int cauliflower;
     int paprika;
-    struct PolyPoint *peaches;
-    struct XYZ *muffin;
     int sausage;
     int pizza;
     int cucumber;
@@ -2437,25 +2447,14 @@ static void do_a_trig_gourad_tr(struct EngineCoord *pos3d_1, struct EngineCoord 
     int tomato;
     int cabbage;
     int coconut;
-    struct XYZ *doughnut;
-    struct BasicUnk09 *grape;
     int lettuce;
     int sandwich;
     int walnut;
-    struct PolyPoint *porridge;
-    struct XYZ *biscuit;
     int avocado;
-    struct BasicUnk09 *cereal;
     int bread;
     int corn;
     int almond;
-    struct PolyPoint *watermelon;
-    struct XYZ *chocolate;
     int lemon;
-    struct XYZ *cheese;
-    struct XYZ *pumpkin;
-    struct BasicUnk00 *potato;
-    struct BasicQ *broccoli;
     int carrot;
     int pineapple;
     int mango;
@@ -2464,10 +2463,10 @@ static void do_a_trig_gourad_tr(struct EngineCoord *pos3d_1, struct EngineCoord 
     int apple;
     int cactus;
     int pepper;
-    
-    pos3_frustum = pos3d_3->field_8;
-    pos2_frustum = pos3d_2->field_8;
     pos1_frustum = pos3d_1->field_8;
+    pos2_frustum = pos3d_2->field_8;
+    pos3_frustum = pos3d_3->field_8;
+    
     if (((unsigned short)pos1_frustum & (unsigned short)(pos2_frustum & pos3_frustum) & 0x1F8) == 0 && (pos3d_1->view_height - pos3d_2->view_height) * (pos3d_3->view_width - pos3d_2->view_width) + (pos3d_3->view_height - pos3d_2->view_height) * (pos3d_2->view_width - pos3d_1->view_width) > 0)
     {
         z = pos3d_1->z;
@@ -2783,10 +2782,9 @@ static void do_a_trig_gourad_tr(struct EngineCoord *pos3d_1, struct EngineCoord 
             }
             else
             {
-                broccoli = buckets[divided_z];
                 potato = (struct BasicUnk00 *)getpoly;
                 getpoly += sizeof(struct BasicUnk00);
-                potato->b.next = broccoli;
+                potato->b.next = buckets[divided_z];
                 potato->b.kind = 0;
                 buckets[divided_z] = &potato->b;
                 potato->block = textr_idx;
@@ -2859,11 +2857,25 @@ static void do_a_trig_gourad_tr(struct EngineCoord *pos3d_1, struct EngineCoord 
 
 static void do_a_trig_gourad_bl(struct EngineCoord *pos3d_1, struct EngineCoord *pos3d_2, struct EngineCoord *pos3d_3, short argument4, long argument5)
 {
-    short pos3_frustum;
+    struct BasicUnk09 *mustard;
+    struct BasicUnk09 *sugar;
+    struct BasicUnk09 *grape;
+    struct BasicUnk09 *cereal;
+    struct BasicUnk00 *potato;
+    struct PolyPoint *peaches;
+    struct PolyPoint *porridge;
+    struct PolyPoint *watermelon;
+    struct XYZ *muffin;
+    struct XYZ *doughnut;
+    struct XYZ *biscuit;
+    struct XYZ *chocolate;
+    struct XYZ *cheese;
+    struct XYZ *pumpkin;
+    short pos1_frustum;
     short pos2_frustum;
+    short pos3_frustum;
     int z;
     int divided_z;
-    struct BasicUnk09 *mustard;
     int capsicum;
     int blueberries;
     int honeydew;
@@ -2878,12 +2890,9 @@ static void do_a_trig_gourad_bl(struct EngineCoord *pos3d_1, struct EngineCoord 
     int macaroni;
     int cherries;
     int mushroom;
-    struct BasicUnk09 *sugar;
     int prawns;
     int cauliflower;
     int paprika;
-    struct PolyPoint *peaches;
-    struct XYZ *muffin;
     int sausage;
     int pizza;
     int cucumber;
@@ -2891,24 +2900,14 @@ static void do_a_trig_gourad_bl(struct EngineCoord *pos3d_1, struct EngineCoord 
     int tomato;
     int cabbage;
     int coconut;
-    struct XYZ *doughnut;
-    struct BasicUnk09 *grape;
     int lettuce;
     int sandwich;
     int walnut;
-    struct PolyPoint *porridge;
-    struct XYZ *biscuit;
     int avocado;
-    struct BasicUnk09 *cereal;
     int bread;
     int corn;
     int almond;
-    struct PolyPoint *watermelon;
-    struct XYZ *chocolate;
     int lemon;
-    struct XYZ *cheese;
-    struct XYZ *pumpkin;
-    struct BasicUnk00 *potato;
     int carrot;
     int pineapple;
     int mango;
@@ -2917,11 +2916,10 @@ static void do_a_trig_gourad_bl(struct EngineCoord *pos3d_1, struct EngineCoord 
     int apple;
     int cactus;
     int pepper;
-    short pos1_frustum;
-
     pos1_frustum = pos3d_1->field_8;
-    pos3_frustum = pos3d_3->field_8;
     pos2_frustum = pos3d_2->field_8;
+    pos3_frustum = pos3d_3->field_8;
+
     if (((unsigned short)pos2_frustum & (unsigned short)(pos3_frustum & pos1_frustum) & 0x1F8) == 0 && (pos3d_2->view_width - pos3d_1->view_width) * (pos3d_3->view_height - pos3d_2->view_height) + (pos3d_3->view_width - pos3d_2->view_width) * (pos3d_1->view_height - pos3d_2->view_height) > 0)
     {
         z = pos3d_1->z;
