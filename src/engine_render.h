@@ -311,9 +311,9 @@ struct RoomFlag { // BasicQ type 17,19
 struct EngineCoord { // sizeof = 28
   long view_width;
   long view_height;
-  unsigned short field_8;
+  unsigned short field_8; // frustum culling?
   unsigned short field_A;
-  long field_C;
+  long field_C; // distance to camera?
   long x;
   long y;
   long z;
