@@ -990,9 +990,11 @@ TbBool attempt_job_work_in_room_near_pos(struct Thing *creatng, MapSubtlCoord st
     }
     creatng->continue_state = get_arrive_at_state_for_job(new_job);
     cctrl->target_room_id = room->index;
-    if ((new_job == Job_TRAIN) && (thing_is_creature_special_digger(creatng))) {
+    if (thing_is_creature_special_digger(creatng))
+    {
         cctrl->digger.task_repeats = 0;
-        cctrl->digger.last_did_job = SDLstJob_UseTraining4;
+        cctrl->job_assigned = new_job;
+        cctrl->digger.last_did_job = SDLstJob_NonDiggerTask;
     }
     return true;
 }
