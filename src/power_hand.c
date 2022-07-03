@@ -64,8 +64,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT void _DK_stop_creatures_around_hand(char a1, unsigned short value, unsigned short a3);
-/******************************************************************************/
 #ifdef __cplusplus
 }
 #endif
@@ -529,7 +527,7 @@ void draw_power_hand(void)
     struct Thing *thing;
     struct Thing *picktng;
     struct Room *room;
-    struct RoomData *rdata;
+    struct RoomConfigStats* roomst;
     player = get_my_player();
     if ((player->flgfield_6 & PlaF6_Unknown01) != 0)
         return;
@@ -561,8 +559,9 @@ void draw_power_hand(void)
         room = subtile_room_get(stl_x,stl_y);
         if ((!room_is_invalid(room)) && (subtile_revealed(stl_x, stl_y, player->id_number)))
         {
-            rdata = room_data_get_for_room(room);
-            draw_gui_panel_sprite_centered(GetMouseX()+scale_ui_value(24), GetMouseY()+scale_ui_value(32), ps_units_per_px, rdata->medsym_sprite_idx);
+            roomst = get_room_kind_stats(room->kind);
+            
+            draw_gui_panel_sprite_centered(GetMouseX()+scale_ui_value(24), GetMouseY()+scale_ui_value(32), ps_units_per_px, roomst->medsym_sprite_idx);
         }
         if ((!power_hand_is_empty(player)) && (game.small_map_state == 1))
         {
@@ -1383,9 +1382,43 @@ TbResult magic_use_power_hand(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSub
     return Lb_SUCCESS;
 }
 
-void stop_creatures_around_hand(char a1, unsigned short a2, unsigned short a3)
+void stop_creatures_around_hand(PlayerNumber plyr_idx, MapSubtlCoord stl_x,  MapSubtlCoord stl_y)
 {
-  _DK_stop_creatures_around_hand(a1, a2, a3);
+
+    for ( size_t i = 0; i < MID_AROUND_LENGTH; ++i )
+    {
+        struct Map* mapblk = get_map_block_at(stl_x + mid_around[i].delta_x, stl_y + mid_around[i].delta_y);
+        if(mapblk == INVALID_MAP_BLOCK)
+            continue;
+
+        unsigned long k = 0;
+        long j = get_mapwho_thing_index(mapblk);
+        while (j != 0)
+        {
+            struct Thing* thing = thing_get(j);
+            TRACE_THING(thing);
+            if (thing_is_invalid(thing))
+            {
+                ERRORLOG("Jump to invalid thing detected");
+                break;
+            }
+            j = thing->next_on_mapblk;
+            // Per thing code start
+                if ( thing_is_creature(thing) && can_thing_be_picked_up_by_player(thing, plyr_idx) && thing->owner == plyr_idx )
+                {
+                    struct CreatureControl  *cctrl = creature_control_get_from_thing(thing);
+                    cctrl->stopped_for_hand_turns = 20;
+                }
+            // Per thing code end
+            k++;
+            if (k > THINGS_COUNT)
+            {
+                ERRORLOG("Infinite loop detected when sweeping things list");
+                break_mapwho_infinite_chain(mapblk);
+                break;
+            }
+        }        
+    }
 }
 
 TbBool slap_object(struct Thing *thing)

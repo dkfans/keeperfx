@@ -86,9 +86,7 @@ extern "C" {
 #define CREATURE_GUI_STATES_COUNT 3
 /* Please note that functions returning 'short' are not ment to return true/false only! */
 /******************************************************************************/
-DLLIMPORT short _DK_creature_pretend_chicken_setup_move(struct Thing *creatng);
 DLLIMPORT long _DK_move_check_can_damage_wall(struct Thing *creatng);
-DLLIMPORT long _DK_move_check_on_head_for_room(struct Thing *creatng);
 DLLIMPORT long _DK_move_check_persuade(struct Thing *creatng);
 DLLIMPORT long _DK_get_best_position_outside_room(struct Thing *creatng, struct Coord3d *pos, struct Room *room);
 /******************************************************************************/
@@ -1614,7 +1612,7 @@ short creature_change_to_chicken(struct Thing *creatng)
     creatng->state_flags &= ~TF1_Unkn10;
     creatng->active_state = CrSt_CreaturePretendChickenSetupMove;
     creatng->continue_state = CrSt_Unused;
-    cctrl->field_302 = 0;
+    cctrl->stopped_for_hand_turns = 0;
     clear_creature_instance(creatng);
     return 1;
 }
@@ -1626,7 +1624,7 @@ TbBool creature_try_going_to_lazy_sleep(struct Thing *creatng)
     if (room_is_invalid(room)) {
         return false;
     }
-    if ((room->kind != get_room_for_job(Job_TAKE_SLEEP)) || (room->owner != creatng->owner)) {
+    if ((!room_role_matches(room->kind,get_room_role_for_job(Job_TAKE_SLEEP))) || (room->owner != creatng->owner)) {
         ERRORLOG("The %s index %d has lair in invalid room",thing_model_name(creatng),(int)creatng->index);
         return false;
     }
@@ -1683,14 +1681,14 @@ short creature_doing_nothing(struct Thing *creatng)
         {
             int required_cap = get_required_room_capacity_for_object(RoRoF_LairStorage, 0, creatng->model);
             cctrl->tasks_check_turn = game.play_gameturn;
-            struct Room* room = find_nearest_room_for_thing_with_spare_capacity(creatng, creatng->owner, get_room_for_job(Job_TAKE_SLEEP), NavRtF_Default, required_cap);
+            struct Room* room = find_nearest_room_of_role_for_thing_with_spare_capacity(creatng, creatng->owner, get_room_role_for_job(Job_TAKE_SLEEP), NavRtF_Default, required_cap);
             if (!room_is_invalid(room))
             {
                 internal_set_thing_state(creatng, CrSt_CreatureWantsAHome);
                 SYNCDBG(8,"The %s index %d goes make lair",thing_model_name(creatng),creatng->index);
                 return 1;
             }
-            update_cannot_find_room_wth_spare_capacity_event(creatng->owner, creatng, get_room_for_job(Job_TAKE_SLEEP));
+            update_cannot_find_room_of_role_wth_spare_capacity_event(creatng->owner, creatng, get_room_role_for_job(Job_TAKE_SLEEP));
         }
     }
     if (creature_affected_by_call_to_arms(creatng))
@@ -2172,7 +2170,7 @@ short setup_creature_leaves_or_dies(struct Thing *creatng)
 {
     TRACE_THING(creatng);
     // Try heading for nearest entrance
-    struct Room* room = find_nearest_room_for_thing(creatng, creatng->owner, RoK_ENTRANCE, NavRtF_Default);
+    struct Room* room = find_nearest_room_of_role_for_thing(creatng, creatng->owner, RoRoF_CrPoolLeave, NavRtF_Default);
     if (room_is_invalid(room))
     {
         kill_creature(creatng, INVALID_THING, -1, CrDed_Default);
@@ -2207,7 +2205,7 @@ short creature_leaves_or_dies(struct Thing *creatng)
 short creature_leaving_dungeon(struct Thing *creatng)
 {
     TRACE_THING(creatng);
-    struct Room* room = find_nearest_room_for_thing(creatng, creatng->owner, RoK_ENTRANCE, NavRtF_Default);
+    struct Room* room = find_nearest_room_of_role_for_thing(creatng, creatng->owner, RoRoF_CrPoolLeave, NavRtF_Default);
     if (room_is_invalid(room))
     {
         set_start_state(creatng);
@@ -2265,7 +2263,7 @@ struct Thing *find_random_creature_for_persuade(PlayerNumber plyr_idx, struct Co
 
 TbBool make_creature_leave_dungeon(struct Thing *creatng)
 {
-    struct Room* room = find_nearest_room_for_thing(creatng, creatng->owner, RoK_ENTRANCE, NavRtF_Default);
+    struct Room* room = find_nearest_room_of_role_for_thing(creatng, creatng->owner, RoRoF_CrPoolLeave, NavRtF_Default);
     if (room_is_invalid(room)) {
         set_start_state(creatng);
         return false;
@@ -2558,7 +2556,43 @@ short creature_pretend_chicken_move(struct Thing *creatng)
 
 short creature_pretend_chicken_setup_move(struct Thing *creatng)
 {
-  return _DK_creature_pretend_chicken_setup_move(creatng);
+    struct Room *room;
+    struct Coord3d random_pos;
+    
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+
+    if ((cctrl->stateblock_flags & CCSpl_ChickenRel) != 0)
+    {
+        return 1;
+    }
+    
+    long offsetted_gameturn = game.play_gameturn + creatng->index;
+
+    if ( (offsetted_gameturn % 16) == 0 )
+    {
+        room = get_room_thing_is_on(creatng);
+
+        if (room_is_invalid(room) || !room_role_matches(room->kind,RoRoF_FoodStorage) || room->owner != creatng->owner )
+        {
+            room = find_random_room_for_thing(creatng, creatng->owner, RoK_GARDEN, 0);
+        }
+
+        if ( !room_is_invalid(room) )
+        {
+            if ( find_random_valid_position_for_thing_in_room(creatng, room, &random_pos) )
+            {
+                setup_person_move_close_to_position(creatng,random_pos.x.stl.num,random_pos.y.stl.num, 0);
+                internal_set_thing_state(creatng, CrSt_CreaturePretendChickenMove);
+                return 1;
+            }
+        }
+        else if ( get_random_position_in_dungeon_for_creature(creatng->owner, CrWaS_WithinDungeon, creatng, &random_pos) )
+        {
+            setup_person_move_close_to_position(creatng,random_pos.x.stl.num,random_pos.y.stl.num, 0);
+            internal_set_thing_state(creatng, CrSt_CreaturePretendChickenMove);
+        }
+    }
+    return 1;
 }
 
 /**
@@ -2621,7 +2655,7 @@ short creature_search_for_spell_to_steal_in_room(struct Thing *creatng)
     TRACE_THING(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     struct Room* room = subtile_room_get(creatng->mappos.x.stl.num, creatng->mappos.y.stl.num);
-    if (room_is_invalid(room) || (room->kind != RoK_LIBRARY))
+    if (room_is_invalid(room) || !room_role_matches(room->kind,RoRoF_PowersStorage))
     {
         WARNLOG("Cannot steal spell - not on library at (%d,%d)",
             (int)creatng->mappos.x.stl.num, (int)creatng->mappos.y.stl.num);
@@ -3061,20 +3095,20 @@ short creature_wants_a_home(struct Thing *creatng)
 
 struct Room* get_room_for_thing_salary(struct Thing* creatng, unsigned char *navtype)
 {
-    RoomKind job_rkind = get_room_for_job(Job_TAKE_SALARY);
-    if (!player_has_room(creatng->owner, job_rkind))
+    RoomKind job_rrole = get_room_role_for_job(Job_TAKE_SALARY);
+    if (!player_has_room_of_role(creatng->owner, job_rrole))
     {
         return INVALID_ROOM;
     }
         
-    struct Room* room = find_nearest_room_for_thing_with_used_capacity(creatng, creatng->owner, job_rkind, NavRtF_Default, 1);
+    struct Room* room = find_nearest_room_of_role_for_thing_with_used_capacity(creatng, creatng->owner, job_rrole, NavRtF_Default, 1);
     if (!room_is_invalid(room))
     {
         return room;
     }
     else
     {
-        room = find_nearest_room_for_thing_with_used_capacity(creatng, creatng->owner, job_rkind, NavRtF_NoOwner, 1);
+        room = find_nearest_room_of_role_for_thing_with_used_capacity(creatng, creatng->owner, job_rrole, NavRtF_NoOwner, 1);
     }
     if (room_is_invalid(room))
     {
@@ -3083,11 +3117,11 @@ struct Room* get_room_for_thing_salary(struct Thing* creatng, unsigned char *nav
         if (dungeon->offmap_money_owned >= salary)
         {
             
-            room = find_nearest_room_for_thing(creatng, creatng->owner, job_rkind, NavRtF_Default);
+            room = find_nearest_room_of_role_for_thing(creatng, creatng->owner, job_rrole, NavRtF_Default);
             if (room_is_invalid(room))
             {
                 // There seem to be a correct room, but we can't reach it
-                output_message_room_related_from_computer_or_player_action(creatng->owner, job_rkind, OMsg_RoomNoRoute);
+                output_message_room_related_from_computer_or_player_action(creatng->owner, job_rrole, OMsg_RoomNoRoute);
             }
         }
     }
@@ -3118,7 +3152,7 @@ short creature_wants_salary(struct Thing *creatng)
             struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
             anger_apply_anger_to_creature(creatng, crstat->annoy_no_salary, AngR_NotPaid, 1);
         }
-        SYNCDBG(5, "No player %d %s with used capacity found to pay %s", (int)creatng->owner, room_code_name(get_room_for_job(Job_TAKE_SALARY)), thing_model_name(creatng));
+        SYNCDBG(5, "No player %d %s with used capacity found to pay %s", (int)creatng->owner, room_role_code_name(get_room_role_for_job(Job_TAKE_SALARY)), thing_model_name(creatng));
         set_start_state(creatng);
         return 1;
     }
@@ -3348,7 +3382,6 @@ CrCheckRet move_check_kill_creatures(struct Thing *creatng)
 
 CrCheckRet move_check_near_dungeon_heart(struct Thing *creatng)
 {
-    //return _DK_move_check_near_dungeon_heart(creatng);
     if (is_neutral_thing(creatng))
     {
         if (change_creature_owner_if_near_dungeon_heart(creatng)) {
@@ -3360,7 +3393,20 @@ CrCheckRet move_check_near_dungeon_heart(struct Thing *creatng)
 
 CrCheckRet move_check_on_head_for_room(struct Thing *creatng)
 {
-  return _DK_move_check_on_head_for_room(creatng);
+    struct Room *room_thing_is_on;
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+
+    if ( cctrl->target_room_id == 0 )
+    {
+        return 0;
+    }
+    room_thing_is_on = get_room_thing_is_on(creatng);
+    if ( room_is_invalid(room_thing_is_on) || room_thing_is_on->index != cctrl->target_room_id )
+    {
+        return 0;
+    }
+    internal_set_thing_state(creatng, creatng->continue_state);
+    return 1;
 }
 
 CrCheckRet move_check_persuade(struct Thing *creatng)
@@ -3516,7 +3562,7 @@ short person_sulk_at_lair(struct Thing *creatng)
     struct Room* room = get_room_thing_is_on(creatng);
     // Usually we use creature_job_in_room_no_longer_possible() for checking rooms
     // but sulking in lair is a special case, we can't compare room id as it's not working in room
-    if (!room_still_valid_as_type_for_thing(room, RoK_LAIR, creatng))
+    if (!room_still_valid_as_type_for_thing(room, RoRoF_LairStorage, creatng))
     {
         WARNLOG("Room %s index %d is not valid %s for %s owned by player %d to work in",
             room_code_name(room->kind),(int)room->index,room_code_name(RoK_LAIR),
@@ -3609,12 +3655,12 @@ short person_sulking(struct Thing *creatng)
  * @param thing The thing which seeks for work room.
  * @return True if the room can be used, false otherwise.
  */
-TbBool room_initially_valid_as_type_for_thing(const struct Room *room, RoomKind rkind, const struct Thing *thing)
+TbBool room_initially_valid_as_type_for_thing(const struct Room *room, RoomRole rrole, const struct Thing *thing)
 {
     if (!room_exists(room)) {
         return false;
     }
-    if (room->kind != rkind) {
+    if (!room_role_matches(room->kind,rrole)) {
         return false;
     }
     return ((room->owner == thing->owner) || enemies_may_work_in_room(room->kind));
@@ -3624,16 +3670,16 @@ TbBool room_initially_valid_as_type_for_thing(const struct Room *room, RoomKind 
  * Returns if the room is a valid place for a thing for thing which is already working in that room.
  * Used to check if creatures are working in correct rooms.
  * @param room The work room to be checked.
- * @param rkind Room kind required for work.
+ * @param rrole Room role required for work.
  * @param thing The thing which is working in the room.
  * @return True if the room can still be used, false otherwise.
  */
-TbBool room_still_valid_as_type_for_thing(const struct Room *room, RoomKind rkind, const struct Thing *thing)
+TbBool room_still_valid_as_type_for_thing(const struct Room *room, RoomRole rrole, const struct Thing *thing)
 {
     if (!room_exists(room)) {
         return false;
     }
-    if (room->kind != rkind) {
+    if (!room_role_matches(room->kind,rrole)) {
         return false;
     }
     return ((room->owner == thing->owner) || enemies_may_work_in_room(room->kind));
@@ -3649,18 +3695,18 @@ TbBool room_still_valid_as_type_for_thing(const struct Room *room, RoomKind rkin
  */
 TbBool creature_job_in_room_no_longer_possible_f(const struct Room *room, CreatureJob jobpref, const struct Thing *thing, const char *func_name)
 {
-    RoomKind rkind = get_room_for_job(jobpref);
+    RoomRole rrole = get_room_role_for_job(jobpref);
     if (!room_exists(room))
     {
         SYNCLOG("%s: The %s owned by player %d can no longer work in %s because former work room doesn't exist",
-            func_name,thing_model_name(thing),(int)thing->owner,room_code_name(rkind));
+            func_name,thing_model_name(thing),(int)thing->owner,room_role_code_name(rrole));
         // Note that if given room doesn't exist, it do not mean this
         return true;
     }
-    if (!room_still_valid_as_type_for_thing(room, rkind, thing))
+    if (!room_still_valid_as_type_for_thing(room, rrole, thing))
     {
         WARNLOG("%s: Room %s index %d is not valid %s for %s owned by player %d to work in",
-            func_name,room_code_name(room->kind),(int)room->index,room_code_name(rkind),
+            func_name,room_code_name(room->kind),(int)room->index,room_role_code_name(rrole),
             thing_model_name(thing),(int)thing->owner);
         return true;
     }
@@ -3668,7 +3714,7 @@ TbBool creature_job_in_room_no_longer_possible_f(const struct Room *room, Creatu
     {
         // This is not an error, because room index is often changed, ie. when room is expanded or its slab sold
         SYNCDBG(2,"%s: Room %s index %d is not the %s which %s owned by player %d selected to work in",
-            func_name,room_code_name(room->kind),(int)room->index,room_code_name(rkind),
+            func_name,room_code_name(room->kind),(int)room->index,room_role_code_name(rrole),
             thing_model_name(thing),(int)thing->owner);
         return true;
     }
@@ -4219,7 +4265,7 @@ TbBool internal_set_thing_state(struct Thing *thing, CrtrStateId nState)
     thing->state_flags &= ~TF1_Unkn10;
     thing->continue_state = CrSt_Unused;
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    cctrl->field_302 = 0;
+    cctrl->stopped_for_hand_turns = 0;
     clear_creature_instance(thing);
     return true;
 }
@@ -4240,7 +4286,7 @@ TbBool initialise_thing_state_f(struct Thing *thing, CrtrStateId nState, const c
         return false;
     }
     cctrl->target_room_id = 0;
-    cctrl->field_302 = 0;
+    cctrl->stopped_for_hand_turns = 0;
     if ((cctrl->flgfield_1 & CCFlg_IsInRoomList) != 0)
     {
         WARNLOG("%s: The %s stays in room list even after cleanup",func_name,thing_model_name(thing));
@@ -4502,7 +4548,7 @@ long process_creature_needs_a_wage(struct Thing *creatng, const struct CreatureS
     if (!can_change_from_state_to(creatng, creatng->active_state, CrSt_CreatureWantsSalary)) {
         return 0;
     }
-    struct Room* room = find_nearest_room_for_thing_with_used_capacity(creatng, creatng->owner, RoK_TREASURE, NavRtF_Default, 1);
+    struct Room* room = find_nearest_room_of_role_for_thing_with_used_capacity(creatng, creatng->owner, RoRoF_GoldStorage, NavRtF_Default, 1);
     if (!room_is_invalid(room))
     {
         if (external_set_thing_state(creatng, CrSt_CreatureWantsSalary))
@@ -4512,11 +4558,11 @@ long process_creature_needs_a_wage(struct Thing *creatng, const struct CreatureS
         }
         return 0;
     }
-    room = find_any_navigable_room_for_thing_closer_than(creatng, creatng->owner, RoK_TREASURE, NavRtF_Default, map_subtiles_x / 2 + map_subtiles_y / 2);
+    room = find_any_navigable_room_for_thing_closer_than(creatng, creatng->owner, RoRoF_GoldStorage, NavRtF_Default, map_subtiles_x / 2 + map_subtiles_y / 2);
     if (room_is_invalid(room))
     {
         //if we can't find an unlocked room, try a locked room, to wait in front of the door
-        room = find_nearest_room_for_thing_with_used_capacity(creatng, creatng->owner, RoK_TREASURE, NavRtF_NoOwner, 1);
+        room = find_nearest_room_of_role_for_thing_with_used_capacity(creatng, creatng->owner, RoRoF_GoldStorage, NavRtF_NoOwner, 1);
     }
     if (!room_is_invalid(room))
     {
@@ -4530,14 +4576,12 @@ long process_creature_needs_a_wage(struct Thing *creatng, const struct CreatureS
         return 0;
     }
     struct Dungeon* dungeon = get_players_num_dungeon(creatng->owner);
-    room = find_nearest_room_for_thing(creatng, creatng->owner, RoK_TREASURE, NavRtF_Default);
+    room = find_nearest_room_of_role_for_thing(creatng, creatng->owner, RoRoF_GoldStorage, NavRtF_NoOwner);
     if ((dungeon->total_money_owned >= calculate_correct_creature_pay(creatng)) && !room_is_invalid(room))
     {
         cleanup_current_thing_state(creatng);
-        if (creature_setup_random_move_for_job_in_room(creatng, room, Job_TAKE_SALARY, NavRtF_Default))
+        if (creature_setup_head_for_treasure_room_door(creatng, room))
         {
-            creatng->continue_state = CrSt_CreatureTakeSalary;
-            cctrl->target_room_id = room->index;
             return 1;
         }
         ERRORLOG("State lost, could not get to treasure room door after cleaning up old state");
@@ -4590,7 +4634,7 @@ long process_creature_needs_to_eat(struct Thing *creatng, const struct CreatureS
         anger_apply_anger_to_creature(creatng, crstat->annoy_no_hatchery, AngR_Hungry, 1);
         return 0;
     }
-    struct Room* nroom = find_nearest_room_for_thing_with_used_capacity(creatng, creatng->owner, RoK_GARDEN, NavRtF_Default, 1);
+    struct Room* nroom = find_nearest_room_of_role_for_thing_with_used_capacity(creatng, creatng->owner, RoRoF_FoodStorage, NavRtF_Default, 1);
     if (room_is_invalid(nroom))
     {
         cctrl->garden_eat_check_turn = game.play_gameturn;
@@ -4663,7 +4707,7 @@ long anger_process_creature_anger(struct Thing *creatng, const struct CreatureSt
         case AngR_NotPaid:
             dungeon = get_players_num_dungeon(creatng->owner);
             dungeonadd = get_dungeonadd(creatng->owner);
-            struct Room* room = find_nearest_room_for_thing(creatng, creatng->owner, RoK_TREASURE, NavRtF_Default);
+            struct Room* room = find_nearest_room_of_role_for_thing(creatng, creatng->owner, RoRoF_GoldStorage, NavRtF_Default);
             if (cctrl->paydays_advanced < 0)
             {
                 if ((dungeon->total_money_owned >= dungeonadd->creatures_total_backpay) && !room_is_invalid(room))

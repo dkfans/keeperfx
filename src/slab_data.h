@@ -145,7 +145,7 @@ void set_whole_slab_owner(MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber o
 PlayerNumber get_slab_owner_thing_is_on(const struct Thing *thing);
 unsigned long slabmap_wlb(struct SlabMap *slb);
 void slabmap_set_wlb(struct SlabMap *slb, unsigned long wlbflag);
-long get_next_slab_number_in_room(SlabCodedCoords slab_num);
+SlabCodedCoords get_next_slab_number_in_room(SlabCodedCoords slab_num);
 long calculate_effeciency_score_for_room_slab(SlabCodedCoords slab_num, PlayerNumber plyr_idx);
 
 TbBool slab_is_safe_land(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y);
