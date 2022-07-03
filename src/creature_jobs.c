@@ -1015,6 +1015,12 @@ TbBool attempt_job_work_in_room_and_cure_near_pos(struct Thing *creatng, MapSubt
     creatng->continue_state = get_arrive_at_state_for_job(new_job);
     cctrl->target_room_id = room->index;
     process_temple_cure(creatng);
+    if (thing_is_creature_special_digger(creatng))
+    {
+        cctrl->digger.task_repeats = 0;
+        cctrl->job_assigned = new_job;
+        cctrl->digger.last_did_job = SDLstJob_NonDiggerTask;
+    }
     return true;
 }
 
