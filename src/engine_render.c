@@ -302,12 +302,12 @@ void update_engine_settings(struct PlayerInfo *player)
  */
 static void poly_pool_end_reserve(int nitems)
 {
-    poly_pool_end = &poly_pool[sizeof(poly_pool)-(nitems*sizeof(struct BasicUnk13)-1)];
+    poly_pool_end = &poly_pool[sizeof(poly_pool)-(nitems*sizeof(struct BucketKindSlabSelector)-1)];
 }
 
 static TbBool is_free_space_in_poly_pool(int nitems)
 {
-    return (getpoly+(nitems*sizeof(struct BasicUnk13)) <= poly_pool_end);
+    return (getpoly+(nitems*sizeof(struct BucketKindSlabSelector)) <= poly_pool_end);
 }
 
 void rotpers_parallel_3(struct EngineCoord *epos, struct M33 *matx, long zoom)
@@ -1908,7 +1908,7 @@ int floor_height_for_volume_box(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSl
 
 static void create_line_element(long a1, long a2, long a3, long a4, long bckt_idx, TbPixel color)
 {
-    struct BasicUnk13 *poly;
+    struct BucketKindSlabSelector *poly;
     if (!is_free_space_in_poly_pool(1))
     {
         return;
@@ -1918,8 +1918,8 @@ static void create_line_element(long a1, long a2, long a3, long a4, long bckt_id
     else
     if (bckt_idx < 0)
         bckt_idx = 0;
-    poly = (struct BasicUnk13 *)getpoly;
-    getpoly += sizeof(struct BasicUnk13);
+    poly = (struct BucketKindSlabSelector *)getpoly;
+    getpoly += sizeof(struct BucketKindSlabSelector);
     poly->b.next = buckets[bckt_idx];
     poly->b.kind = QK_SlabSelector;
     buckets[bckt_idx] = (struct BasicQ *)poly;
@@ -1935,7 +1935,7 @@ static void create_line_element(long a1, long a2, long a3, long a4, long bckt_id
 
 static void create_line_segment(struct EngineCoord *start, struct EngineCoord *end, TbPixel color)
 {
-    struct BasicUnk13 *poly;
+    struct BucketKindSlabSelector *poly;
     long bckt_idx;
     if (!is_free_space_in_poly_pool(1))
         return;
@@ -1947,8 +1947,8 @@ static void create_line_segment(struct EngineCoord *start, struct EngineCoord *e
     if (bckt_idx < 0)
         bckt_idx = 0;
     // Add to bucket
-    poly = (struct BasicUnk13 *)getpoly;
-    getpoly += sizeof(struct BasicUnk13);
+    poly = (struct BucketKindSlabSelector *)getpoly;
+    getpoly += sizeof(struct BucketKindSlabSelector);
     poly->b.next = buckets[bckt_idx];
     poly->b.kind = QK_SlabSelector;
     buckets[bckt_idx] = (struct BasicQ *)poly;
@@ -2404,11 +2404,11 @@ void process_isometric_map_volume_box(long x, long y, long z, PlayerNumber plyr_
 
 static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct EngineCoord *engine_coordinate_2, struct EngineCoord *engine_coordinate_3, short textr_idx, long argument5)
 {
-    struct BasicUnk09 *triangle_bucket_near_1;
-    struct BasicUnk09 *triangle_bucket_near_2;
-    struct BasicUnk09 *triangle_bucket_near_3;
-    struct BasicUnk09 *triangle_bucket_near_4;
-    struct BasicUnk00 *triangle_bucket_far;
+    struct BucketKindPolygonNearFP *triangle_bucket_near_1;
+    struct BucketKindPolygonNearFP *triangle_bucket_near_2;
+    struct BucketKindPolygonNearFP *triangle_bucket_near_3;
+    struct BucketKindPolygonNearFP *triangle_bucket_near_4;
+    struct BucketKindPolygonStandard *triangle_bucket_far;
     struct PolyPoint *polypoint1;
     struct PolyPoint *polypoint2;
     struct PolyPoint *polypoint3;
@@ -2434,8 +2434,8 @@ static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct 
         {
             if ((((unsigned __int8)coordinate_3_frustum | (unsigned __int8)(coordinate_2_frustum | coordinate_1_frustum)) & 3) != 0)
             {
-                triangle_bucket_near_1 = (struct BasicUnk09 *)getpoly;
-                getpoly += sizeof(struct BasicUnk09);
+                triangle_bucket_near_1 = (struct BucketKindPolygonNearFP *)getpoly;
+                getpoly += sizeof(struct BucketKindPolygonNearFP);
                 triangle_bucket_near_1->subtype = splittypes[16 * (engine_coordinate_3->field_8 & 3) + 4 * (engine_coordinate_1->field_8 & 3) + (engine_coordinate_2->field_8 & 3)];
                 triangle_bucket_near_1->b.next = buckets[divided_z];
                 triangle_bucket_near_1->b.kind = 9;
@@ -2543,8 +2543,8 @@ static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct 
                         }
                         else
                         {
-                            triangle_bucket_near_4 = (struct BasicUnk09 *)getpoly;
-                            getpoly += sizeof(struct BasicUnk09);
+                            triangle_bucket_near_4 = (struct BucketKindPolygonNearFP *)getpoly;
+                            getpoly += sizeof(struct BucketKindPolygonNearFP);
                             triangle_bucket_near_4->subtype = splittypes[16 * (engine_coordinate_3->field_8 & 3) + 4 * (engine_coordinate_1->field_8 & 3) + (engine_coordinate_2->field_8 & 3)];
                             triangle_bucket_near_4->b.next = buckets[divided_z];
                             triangle_bucket_near_4->b.kind = 9;
@@ -2589,8 +2589,8 @@ static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct 
                     }
                     else if (coordinate_3_z >= 32)
                     {
-                        triangle_bucket_near_3 = (struct BasicUnk09 *)getpoly;
-                        getpoly += sizeof(struct BasicUnk09);
+                        triangle_bucket_near_3 = (struct BucketKindPolygonNearFP *)getpoly;
+                        getpoly += sizeof(struct BucketKindPolygonNearFP);
                         triangle_bucket_near_3->subtype = splittypes[16 * (engine_coordinate_3->field_8 & 3) + 4 * (engine_coordinate_1->field_8 & 3) + (engine_coordinate_2->field_8 & 3)];
                         triangle_bucket_near_3->b.next = buckets[divided_z];
                         triangle_bucket_near_3->b.kind = 9;
@@ -2662,8 +2662,8 @@ static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct 
                 {
                     if (engine_coordinate_3->z >= 32)
                     {
-                        triangle_bucket_near_2 = (struct BasicUnk09 *)getpoly;
-                        getpoly += sizeof(struct BasicUnk09);
+                        triangle_bucket_near_2 = (struct BucketKindPolygonNearFP *)getpoly;
+                        getpoly += sizeof(struct BucketKindPolygonNearFP);
                         triangle_bucket_near_2->subtype = splittypes[16 * (engine_coordinate_3->field_8 & 3) + 4 * (engine_coordinate_1->field_8 & 3) + (engine_coordinate_2->field_8 & 3)];
                         triangle_bucket_near_2->b.next = buckets[divided_z];
                         triangle_bucket_near_2->b.kind = 9;
@@ -2753,8 +2753,8 @@ static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct 
             }
             else
             {
-                triangle_bucket_far = (struct BasicUnk00 *)getpoly;
-                getpoly += sizeof(struct BasicUnk00);
+                triangle_bucket_far = (struct BucketKindPolygonStandard *)getpoly;
+                getpoly += sizeof(struct BucketKindPolygonStandard);
                 triangle_bucket_far->b.next = buckets[divided_z];
                 triangle_bucket_far->b.kind = 0;
                 buckets[divided_z] = &triangle_bucket_far->b;
@@ -2842,11 +2842,11 @@ static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct 
 
 static void do_a_trig_gourad_bl(struct EngineCoord *engine_coordinate_1, struct EngineCoord *engine_coordinate_2, struct EngineCoord *engine_coordinate_3, short argument4, long argument5)
 {
-    struct BasicUnk09 *triangle_bucket_near_1;
-    struct BasicUnk09 *triangle_bucket_near_2;
-    struct BasicUnk09 *triangle_bucket_near_3;
-    struct BasicUnk09 *triangle_bucket_near_4;
-    struct BasicUnk00 *triangle_bucket_far;
+    struct BucketKindPolygonNearFP *triangle_bucket_near_1;
+    struct BucketKindPolygonNearFP *triangle_bucket_near_2;
+    struct BucketKindPolygonNearFP *triangle_bucket_near_3;
+    struct BucketKindPolygonNearFP *triangle_bucket_near_4;
+    struct BucketKindPolygonStandard *triangle_bucket_far;
     struct PolyPoint *polypoint1;
     struct PolyPoint *polypoint2;
     struct PolyPoint *polypoint3;
@@ -2872,8 +2872,8 @@ static void do_a_trig_gourad_bl(struct EngineCoord *engine_coordinate_1, struct 
         {
             if ((((unsigned __int8)coordinate_1_frustum | (unsigned __int8)(coordinate_3_frustum | coordinate_2_frustum)) & 3) != 0)
             {
-                triangle_bucket_near_1 = (struct BasicUnk09 *)getpoly;
-                getpoly += sizeof(struct BasicUnk09);
+                triangle_bucket_near_1 = (struct BucketKindPolygonNearFP *)getpoly;
+                getpoly += sizeof(struct BucketKindPolygonNearFP);
                 triangle_bucket_near_1->subtype = splittypes[16 * (engine_coordinate_3->field_8 & 3) + 4 * (engine_coordinate_1->field_8 & 3) + (engine_coordinate_2->field_8 & 3)];
                 triangle_bucket_near_1->b.next = buckets[divided_z];
                 triangle_bucket_near_1->b.kind = 9;
@@ -2982,8 +2982,8 @@ static void do_a_trig_gourad_bl(struct EngineCoord *engine_coordinate_1, struct 
                         }
                         else
                         {
-                            triangle_bucket_near_4 = (struct BasicUnk09 *)getpoly;
-                            getpoly += sizeof(struct BasicUnk09);
+                            triangle_bucket_near_4 = (struct BucketKindPolygonNearFP *)getpoly;
+                            getpoly += sizeof(struct BucketKindPolygonNearFP);
                             triangle_bucket_near_4->subtype = splittypes[16 * (engine_coordinate_3->field_8 & 3) + 4 * (engine_coordinate_1->field_8 & 3) + (engine_coordinate_2->field_8 & 3)];
                             triangle_bucket_near_4->b.next = buckets[divided_z];
                             triangle_bucket_near_4->b.kind = 9;
@@ -3028,8 +3028,8 @@ static void do_a_trig_gourad_bl(struct EngineCoord *engine_coordinate_1, struct 
                     }
                     else if (coordinate_3_z >= 32)
                     {
-                        triangle_bucket_near_3 = (struct BasicUnk09 *)getpoly;
-                        getpoly += sizeof(struct BasicUnk09);
+                        triangle_bucket_near_3 = (struct BucketKindPolygonNearFP *)getpoly;
+                        getpoly += sizeof(struct BucketKindPolygonNearFP);
                         triangle_bucket_near_3->subtype = splittypes[16 * (engine_coordinate_3->field_8 & 3) + 4 * (engine_coordinate_1->field_8 & 3) + (engine_coordinate_2->field_8 & 3)];
                         triangle_bucket_near_3->b.next = buckets[divided_z];
                         triangle_bucket_near_3->b.kind = 9;
@@ -3101,8 +3101,8 @@ static void do_a_trig_gourad_bl(struct EngineCoord *engine_coordinate_1, struct 
                 {
                     if (engine_coordinate_3->z >= 32)
                     {
-                        triangle_bucket_near_2 = (struct BasicUnk09 *)getpoly;
-                        getpoly += sizeof(struct BasicUnk09);
+                        triangle_bucket_near_2 = (struct BucketKindPolygonNearFP *)getpoly;
+                        getpoly += sizeof(struct BucketKindPolygonNearFP);
                         triangle_bucket_near_2->subtype = splittypes[16 * (engine_coordinate_3->field_8 & 3) + 4 * (engine_coordinate_1->field_8 & 3) + (engine_coordinate_2->field_8 & 3)];
                         triangle_bucket_near_2->b.next = buckets[divided_z];
                         triangle_bucket_near_2->b.kind = 9;
@@ -3192,8 +3192,8 @@ static void do_a_trig_gourad_bl(struct EngineCoord *engine_coordinate_1, struct 
             }
             else
             {
-                triangle_bucket_far = (struct BasicUnk00 *)getpoly;
-                getpoly += sizeof(struct BasicUnk00);
+                triangle_bucket_far = (struct BucketKindPolygonStandard *)getpoly;
+                getpoly += sizeof(struct BucketKindPolygonStandard);
                 triangle_bucket_far->b.next = buckets[divided_z];
                 triangle_bucket_far->b.kind = 0;
                 buckets[divided_z] = &triangle_bucket_far->b;
@@ -3438,11 +3438,11 @@ static void create_shadows(struct Thing *thing, struct EngineCoord *ecor, struct
     if (bckt_idx > 702) {
         bckt_idx = 702;
     }
-    struct KeeperSpr * kspr;
-    kspr = (struct KeeperSpr *)getpoly;
+    struct BucketKindCreatureShadow * kspr;
+    kspr = (struct BucketKindCreatureShadow *)getpoly;
     struct BasicQ *prev_bckt;
     prev_bckt = buckets[bckt_idx];
-    getpoly += sizeof(struct KeeperSpr);
+    getpoly += sizeof(struct BucketKindCreatureShadow);
     kspr->b.next = prev_bckt;
     kspr->b.kind = 12;
     buckets[bckt_idx] = (struct BasicQ *)kspr;
@@ -3535,12 +3535,12 @@ static void add_draw_status_box(struct Thing *thing, struct EngineCoord *ecor)
     else if (bckt_idx > BUCKETS_COUNT-2)
         bckt_idx = BUCKETS_COUNT-2;
 
-    struct BasicUnk14* poly = (struct BasicUnk14*)getpoly;
+    struct BucketKindCreatureStatus* poly = (struct BucketKindCreatureStatus*)getpoly;
     if (getpoly >= poly_pool_end)
         return;
-    getpoly += sizeof(struct BasicUnk14);
+    getpoly += sizeof(struct BucketKindCreatureStatus);
     poly->b.next = buckets[bckt_idx];
-    poly->b.kind = QK_CreatureStatusSprite;
+    poly->b.kind = QK_CreatureStatus;
     buckets[bckt_idx] = (struct BasicQ *)poly;
     poly->thing = thing;
     poly->x = coord.view_width;
@@ -3714,11 +3714,11 @@ void do_a_plane_of_engine_columns_perspective(long stl_x, long stl_y, long plane
 
 static void do_a_gpoly_gourad_tr(struct EngineCoord *ec1, struct EngineCoord *ec2, struct EngineCoord *ec3, short textr_id, int a5)
 {
-    //BasicUnk00 in this function could also be BasicUnk01 or BasicUnk10 idk all 3 pretty similar
+    //BucketKindPolygonStandard in this function could also be BucketKindPolygonSimple or BucketKindBasicUnk10 idk all 3 pretty similar
     int z;
-    struct BasicUnk00 *v6;
+    struct BucketKindPolygonStandard *v6;
     int v7;
-    struct BasicUnk00 *v8;
+    struct BucketKindPolygonStandard *v8;
     struct BasicQ *v9;
     struct PolyPoint *polypoint1;
     struct PolyPoint *polypoint2;
@@ -3736,13 +3736,13 @@ static void do_a_gpoly_gourad_tr(struct EngineCoord *ec1, struct EngineCoord *ec
         z = ec2->z;
         if ( z < ec3->z )
         z = ec3->z;
-        v6 = (struct BasicUnk00 *)getpoly;
+        v6 = (struct BucketKindPolygonStandard *)getpoly;
         v7 = z / 16;
         if ( getpoly < poly_pool_end )
         {
-            v8 = (struct BasicUnk00 *)getpoly;
+            v8 = (struct BucketKindPolygonStandard *)getpoly;
             v9 = buckets[v7];
-            getpoly += sizeof(struct BasicUnk00);
+            getpoly += sizeof(struct BucketKindPolygonStandard);
             v6->b.next = v9;
             polypoint1 = &v6->p1;
             v6->b.kind = 0;
@@ -3780,11 +3780,11 @@ static void do_a_gpoly_gourad_tr(struct EngineCoord *ec1, struct EngineCoord *ec
 
 static void do_a_gpoly_unlit_tr(struct EngineCoord *ec1, struct EngineCoord *ec2, struct EngineCoord *ec3, short textr_id)
 {
-    //BasicUnk00 in this function could also be BasicUnk01 or BasicUnk10 idk all 3 pretty similar
+    //BucketKindPolygonStandard in this function could also be BucketKindPolygonSimple or BucketKindBasicUnk10 idk all 3 pretty similar
     int z;
-    struct BasicUnk00 *v5;
+    struct BucketKindPolygonStandard *v5;
     int v6;
-    struct BasicUnk00 *v7;
+    struct BucketKindPolygonStandard *v7;
     struct BasicQ *v8;
 
     if ( (ec1->field_8 & (unsigned __int16)(ec2->field_8 & ec3->field_8) & 0x1F8) == 0
@@ -3796,13 +3796,13 @@ static void do_a_gpoly_unlit_tr(struct EngineCoord *ec1, struct EngineCoord *ec2
         z = ec2->z;
         if ( z < ec3->z )
         z = ec3->z;
-        v5 = (struct BasicUnk00 *)getpoly;
+        v5 = (struct BucketKindPolygonStandard *)getpoly;
         v6 = z / 16;
         if ( getpoly < poly_pool_end )
         {
-            v7 = (struct BasicUnk00 *)getpoly;
+            v7 = (struct BucketKindPolygonStandard *)getpoly;
             v8 = buckets[v6];
-            getpoly += sizeof(struct BasicUnk00);
+            getpoly += sizeof(struct BucketKindPolygonStandard);
             v5->b.next = v8;
             v5->b.kind = 0;
             buckets[v6] = &v5->b;
@@ -3828,9 +3828,9 @@ static void do_a_gpoly_unlit_tr(struct EngineCoord *ec1, struct EngineCoord *ec2
 
 static void do_a_gpoly_unlit_bl(struct EngineCoord *ec1, struct EngineCoord *ec2, struct EngineCoord *ec3, short textr_id)
 {
-    //BasicUnk00 in this function could also be BasicUnk01 or BasicUnk10 idk all 3 pretty similar
+    //BucketKindPolygonStandard in this function could also be BucketKindPolygonSimple or BucketKindBasicUnk10 idk all 3 pretty similar
     int z;
-    struct BasicUnk00 *v5;
+    struct BucketKindPolygonStandard *v5;
     int v6;
     struct BasicQ *v7;
 
@@ -3843,12 +3843,12 @@ static void do_a_gpoly_unlit_bl(struct EngineCoord *ec1, struct EngineCoord *ec2
         z = ec2->z;
         if ( z < ec3->z )
         z = ec3->z;
-        v5 = (struct BasicUnk00 *)getpoly;
+        v5 = (struct BucketKindPolygonStandard *)getpoly;
         v6 = z / 16;
         if ( getpoly < poly_pool_end )
         {
         v7 = buckets[v6];
-        getpoly += sizeof(struct BasicUnk00);
+        getpoly += sizeof(struct BucketKindPolygonStandard);
         v5->b.next = v7;
         v5->b.kind = 0;
         buckets[v6] = &v5->b;
@@ -3874,11 +3874,11 @@ static void do_a_gpoly_unlit_bl(struct EngineCoord *ec1, struct EngineCoord *ec2
 
 static void do_a_gpoly_gourad_bl(struct EngineCoord *ec1, struct EngineCoord *ec2, struct EngineCoord *ec3, short textr_id, int a5)
 {
-    //BasicUnk00 in this function could also be BasicUnk01 or BasicUnk10 idk all 3 pretty similar
+    //BucketKindPolygonStandard in this function could also be BucketKindPolygonSimple or BucketKindBasicUnk10 idk all 3 pretty similar
     int z;
-    struct BasicUnk00 *v6;
+    struct BucketKindPolygonStandard *v6;
     int zdiv16;
-    struct BasicUnk00 *poly_ptr;
+    struct BucketKindPolygonStandard *poly_ptr;
     struct BasicQ *v9;
     int ec1_fieldA;
     int ec2_fieldA;
@@ -3896,13 +3896,13 @@ static void do_a_gpoly_gourad_bl(struct EngineCoord *ec1, struct EngineCoord *ec
         z = ec2->z;
         if ( z < ec3->z )
         z = ec3->z;
-        v6 = (struct BasicUnk00 *)getpoly;
+        v6 = (struct BucketKindPolygonStandard *)getpoly;
         zdiv16 = z / 16;
         if ( getpoly < poly_pool_end )
         {
-            poly_ptr = (struct BasicUnk00 *)getpoly;
+            poly_ptr = (struct BucketKindPolygonStandard *)getpoly;
             v9 = buckets[zdiv16];
-            getpoly += sizeof(struct BasicUnk00);
+            getpoly += sizeof(struct BucketKindPolygonStandard);
             v6->b.next = v9;
             polypoint1 = &v6->p1;
             v6->b.kind = 0;
@@ -4336,7 +4336,7 @@ void draw_map_volume_box(long cor1_x, long cor1_y, long cor2_x, long cor2_y, lon
 }
 
 static unsigned short get_thing_shade(struct Thing* thing);
-static void draw_fastview_mapwho(struct Camera *cam, struct JontySpr *jspr)
+static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprite *jspr)
 {
     unsigned short flg_mem;
     unsigned char alpha_mem;
@@ -4525,7 +4525,7 @@ static void draw_fastview_mapwho(struct Camera *cam, struct JontySpr *jspr)
     EngineSpriteDrawUsingAlpha = alpha_mem;
 }
 
-void draw_engine_number(struct Number *num)
+void draw_engine_number(struct BucketKindFloatingGoldText *num)
 {
     struct PlayerInfo *player;
     unsigned short flg_mem;
@@ -4562,7 +4562,7 @@ void draw_engine_number(struct Number *num)
     lbDisplay.DrawFlags = flg_mem;
 }
 
-void draw_engine_room_flagpole(struct RoomFlag *rflg)
+void draw_engine_room_flagpole(struct BucketKindRoomFlag *rflg)
 {
     struct Room *room;
     lbDisplay.DrawFlags &= ~Lb_SPRITE_FLIP_HORIZ;
@@ -4826,7 +4826,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing, long
     lbDisplay.DrawFlags = flg_mem;
 }
 
-static void draw_iso_only_fastview_mapwho(struct Camera *cam, struct JontySpr *spr)
+static void draw_iso_only_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprite *spr)
 {
     if (cam->view_mode == PVM_FrontView)
       draw_fastview_mapwho(cam, spr);
@@ -4882,7 +4882,7 @@ static void draw_room_flag_top(long x, long y, int units_per_px, const struct Ro
 }
 #undef ROOM_FLAG_PROGRESS_BAR_WIDTH
 
-static void draw_engine_room_flag_top(struct RoomFlag *rflg)
+static void draw_engine_room_flag_top(struct BucketKindRoomFlag *rflg)
 {
     lbDisplay.DrawFlags &= ~Lb_SPRITE_FLIP_HORIZ;
     struct Room *room;
@@ -5109,12 +5109,12 @@ static void draw_clipped_line(long x1, long y1, long x2, long y2, TbPixel color)
     }
 }
 
-static void draw_map_who(struct RotoSpr *spr)
+static void draw_map_who(struct BucketKindRotableSprite *spr)
 {
     // empty
 }
 
-static void draw_unkn09(struct BasicUnk09 *unk09)
+static void draw_unkn09(struct BucketKindPolygonNearFP *unk09)
 {
     struct XYZ coord_a;
     struct XYZ coord_b;
@@ -5893,24 +5893,24 @@ void display_drawlist(void) // Draws isometric and 1st person view. Not frontvie
     const struct Camera *cam;
     union {
         struct BasicQ *b;
-        struct BasicUnk00 *unk00;
-        struct BasicUnk01 *unk01;
-        struct BasicUnk02 *unk02;
-        struct BasicUnk03 *unk03;
-        struct BasicUnk04 *unk04;
-        struct BasicUnk05 *unk05;
-        struct BasicUnk06 *unk06;
-        struct BasicUnk07 *unk07;
-        struct RotoSpr *rotSpr;
-        struct BasicUnk09 *unk09;
-        struct BasicUnk10 *unk10;
-        struct JontySpr *jonSpr;
-        struct KeeperSpr *keepSpr;
-        struct BasicUnk13 *unk13;
-        struct BasicUnk14 *unk14;
-        struct TexturedQuad *txquad;
-        struct Number *number;
-        struct RoomFlag *roomFlg;
+        struct BucketKindPolygonStandard *polygonStandard;
+        struct BucketKindPolygonSimple *polygonSimple;
+        struct BucketKindPolyMode0 *polyMode0;
+        struct BucketKindPolyMode4 *polyMode4;
+        struct BucketKindTrigMode2 *trigMode2;
+        struct BucketKindPolyMode5 *polyMode5;
+        struct BucketKindTrigMode3 *trigMode3;
+        struct BucketKindTrigMode6 *trigMode6;
+        struct BucketKindRotableSprite *rotableSprite;
+        struct BucketKindPolygonNearFP *polygonNearFP;
+        struct BucketKindBasicUnk10 *basicUnk10;
+        struct BucketKindJontySprite *jontySprite;
+        struct BucketKindCreatureShadow *creatureShadow;
+        struct BucketKindSlabSelector *slabSelector;
+        struct BucketKindCreatureStatus *creatureStatus;
+        struct BucketKindTexturedQuad *texturedQuad;
+        struct BucketKindFloatingGoldText *floatingGoldText;
+        struct BucketKindRoomFlag *roomFlag;
     } item;
     long bucket_num;
     struct PolyPoint point_a;
@@ -5932,138 +5932,143 @@ void display_drawlist(void) // Draws isometric and 1st person view. Not frontvie
             //JUSTLOG("%d",(int)item.b->kind);
             switch ( item.b->kind )
             {
-            case QK_PolygonTriangle: // All textured polygons for isometric and 'far' textures in 1st person view
+            case QK_PolygonStandard: // All textured polygons for isometric and 'far' textures in 1st person view
                 vec_mode = VM_Unknown5;
-                vec_map = block_ptrs[item.unk00->block];
-                draw_gpoly(&item.unk00->p1, &item.unk00->p2, &item.unk00->p3);
+                vec_map = block_ptrs[item.polygonStandard->block];
+                draw_gpoly(&item.polygonStandard->p1, &item.polygonStandard->p2, &item.polygonStandard->p3);
                 break;
-            case QK_PolygonTriangleSimp: // Possibly unused
+            case QK_PolygonSimple: // Possibly unused
                 vec_mode = VM_Unknown7;
-                vec_colour = ((item.unk01->p3.field_10 + item.unk01->p2.field_10 + item.unk01->p1.field_10)/3) >> 16;
-                vec_map = block_ptrs[item.unk01->block];
-                trig(&item.unk01->p1, &item.unk01->p2, &item.unk01->p3);
+                vec_colour = ((item.polygonSimple->p3.field_10 + item.polygonSimple->p2.field_10 + item.polygonSimple->p1.field_10)/3) >> 16;
+                vec_map = block_ptrs[item.polygonSimple->block];
+                trig(&item.polygonSimple->p1, &item.polygonSimple->p2, &item.polygonSimple->p3);
                 break;
             case QK_PolyMode0: // Possibly unused
                 vec_mode = VM_Unknown0;
-                vec_colour = item.unk02->colour;
-                point_a.field_0 = item.unk02->x1;
-                point_a.field_4 = item.unk02->y1;
-                point_b.field_0 = item.unk02->x2;
-                point_b.field_4 = item.unk02->y2;
-                point_c.field_0 = item.unk02->x3;
-                point_c.field_4 = item.unk02->y3;
+                vec_colour = item.polyMode0->colour;
+                point_a.field_0 = item.polyMode0->x1;
+                point_a.field_4 = item.polyMode0->y1;
+                point_b.field_0 = item.polyMode0->x2;
+                point_b.field_4 = item.polyMode0->y2;
+                point_c.field_0 = item.polyMode0->x3;
+                point_c.field_4 = item.polyMode0->y3;
                 draw_gpoly(&point_a, &point_b, &point_c);
                 break;
             case QK_PolyMode4: // Possibly unused
                 vec_mode = VM_Unknown4;
-                vec_colour = item.unk03->colour;
-                point_a.field_0 = item.unk03->x1;
-                point_a.field_4 = item.unk03->y1;
-                point_b.field_0 = item.unk03->x2;
-                point_b.field_4 = item.unk03->y2;
-                point_c.field_0 = item.unk03->x3;
-                point_c.field_4 = item.unk03->y3;
-                point_a.field_10 = item.unk03->vf1 << 16;
-                point_b.field_10 = item.unk03->vf2 << 16;
-                point_c.field_10 = item.unk03->vf3 << 16;
+                vec_colour = item.polyMode4->colour;
+                point_a.field_0 = item.polyMode4->x1;
+                point_a.field_4 = item.polyMode4->y1;
+                point_b.field_0 = item.polyMode4->x2;
+                point_b.field_4 = item.polyMode4->y2;
+                point_c.field_0 = item.polyMode4->x3;
+                point_c.field_4 = item.polyMode4->y3;
+                point_a.field_10 = item.polyMode4->vf1 << 16;
+                point_b.field_10 = item.polyMode4->vf2 << 16;
+                point_c.field_10 = item.polyMode4->vf3 << 16;
                 draw_gpoly(&point_a, &point_b, &point_c);
                 break;
             case QK_TrigMode2: // Possibly unused
                 vec_mode = VM_Unknown2;
-                point_a.field_0 = item.unk04->x1;
-                point_a.field_4 = item.unk04->y1;
-                point_b.field_0 = item.unk04->x2;
-                point_b.field_4 = item.unk04->y2;
-                point_c.field_0 = item.unk04->x3;
-                point_c.field_4 = item.unk04->y3;
-                point_a.field_8 = item.unk04->uf1 << 16;
-                point_a.field_C = item.unk04->vf1 << 16;
-                point_b.field_8 = item.unk04->uf2 << 16;
-                point_b.field_C = item.unk04->vf2 << 16;
-                point_c.field_8 = item.unk04->uf3 << 16;
-                point_c.field_C = item.unk04->vf3 << 16;
+                point_a.field_0 = item.trigMode2->x1;
+                point_a.field_4 = item.trigMode2->y1;
+                point_b.field_0 = item.trigMode2->x2;
+                point_b.field_4 = item.trigMode2->y2;
+                point_c.field_0 = item.trigMode2->x3;
+                point_c.field_4 = item.trigMode2->y3;
+                point_a.field_8 = item.trigMode2->uf1 << 16;
+                point_a.field_C = item.trigMode2->vf1 << 16;
+                point_b.field_8 = item.trigMode2->uf2 << 16;
+                point_b.field_C = item.trigMode2->vf2 << 16;
+                point_c.field_8 = item.trigMode2->uf3 << 16;
+                point_c.field_C = item.trigMode2->vf3 << 16;
                 trig(&point_a, &point_b, &point_c);
                 break;
             case QK_PolyMode5: // Possibly unused
                 vec_mode = VM_Unknown5;
-                point_a.field_0 = item.unk05->x1;
-                point_a.field_4 = item.unk05->y1;
-                point_b.field_0 = item.unk05->x2;
-                point_b.field_4 = item.unk05->y2;
-                point_c.field_0 = item.unk05->x3;
-                point_c.field_4 = item.unk05->y3;
-                point_a.field_8 = item.unk05->uf1 << 16;
-                point_a.field_C = item.unk05->vf1 << 16;
-                point_b.field_8 = item.unk05->uf2 << 16;
-                point_b.field_C = item.unk05->vf2 << 16;
-                point_c.field_8 = item.unk05->uf3 << 16;
-                point_c.field_C = item.unk05->vf3 << 16;
-                point_a.field_10 = item.unk05->wf1 << 16;
-                point_b.field_10 = item.unk05->wf2 << 16;
-                point_c.field_10 = item.unk05->wf3 << 16;
+                point_a.field_0 = item.polyMode5->x1;
+                point_a.field_4 = item.polyMode5->y1;
+                point_b.field_0 = item.polyMode5->x2;
+                point_b.field_4 = item.polyMode5->y2;
+                point_c.field_0 = item.polyMode5->x3;
+                point_c.field_4 = item.polyMode5->y3;
+                point_a.field_8 = item.polyMode5->uf1 << 16;
+                point_a.field_C = item.polyMode5->vf1 << 16;
+                point_b.field_8 = item.polyMode5->uf2 << 16;
+                point_b.field_C = item.polyMode5->vf2 << 16;
+                point_c.field_8 = item.polyMode5->uf3 << 16;
+                point_c.field_C = item.polyMode5->vf3 << 16;
+                point_a.field_10 = item.polyMode5->wf1 << 16;
+                point_b.field_10 = item.polyMode5->wf2 << 16;
+                point_c.field_10 = item.polyMode5->wf3 << 16;
                 draw_gpoly(&point_a, &point_b, &point_c);
                 break;
             case QK_TrigMode3: // Possibly unused
                 vec_mode = VM_Unknown3;
-                point_a.field_0 = item.unk06->x1;
-                point_a.field_4 = item.unk06->y1;
-                point_b.field_0 = item.unk06->x2;
-                point_b.field_4 = item.unk06->y2;
-                point_c.field_0 = item.unk06->x3;
-                point_c.field_4 = item.unk06->y3;
-                point_a.field_8 = item.unk06->uf1 << 16;
-                point_a.field_C = item.unk06->vf1 << 16;
-                point_b.field_8 = item.unk06->uf2 << 16;
-                point_b.field_C = item.unk06->vf2 << 16;
-                point_c.field_8 = item.unk06->uf3 << 16;
-                point_c.field_C = item.unk06->vf3 << 16;
+                point_a.field_0 = item.trigMode3->x1;
+                point_a.field_4 = item.trigMode3->y1;
+                point_b.field_0 = item.trigMode3->x2;
+                point_b.field_4 = item.trigMode3->y2;
+                point_c.field_0 = item.trigMode3->x3;
+                point_c.field_4 = item.trigMode3->y3;
+                point_a.field_8 = item.trigMode3->uf1 << 16;
+                point_a.field_C = item.trigMode3->vf1 << 16;
+                point_b.field_8 = item.trigMode3->uf2 << 16;
+                point_b.field_C = item.trigMode3->vf2 << 16;
+                point_c.field_8 = item.trigMode3->uf3 << 16;
+                point_c.field_C = item.trigMode3->vf3 << 16;
                 trig(&point_a, &point_b, &point_c);
                 break;
             case QK_TrigMode6: // Possibly unused
                 vec_mode = VM_Unknown6;
-                point_a.field_0 = item.unk07->x1;
-                point_a.field_4 = item.unk07->y1;
-                point_b.field_0 = item.unk07->x2;
-                point_b.field_4 = item.unk07->y2;
-                point_c.field_0 = item.unk07->x3;
-                point_c.field_4 = item.unk07->y3;
-                point_a.field_8 = item.unk07->uf1 << 16;
-                point_a.field_C = item.unk07->vf1 << 16;
-                point_b.field_8 = item.unk07->uf2 << 16;
-                point_b.field_C = item.unk07->vf2 << 16;
-                point_c.field_8 = item.unk07->uf3 << 16;
-                point_c.field_C = item.unk07->vf3 << 16;
-                point_a.field_10 = item.unk07->wf1 << 16;
-                point_b.field_10 = item.unk07->wf2 << 16;
-                point_c.field_10 = item.unk07->wf3 << 16;
+                point_a.field_0 = item.trigMode6->x1;
+                point_a.field_4 = item.trigMode6->y1;
+                point_b.field_0 = item.trigMode6->x2;
+                point_b.field_4 = item.trigMode6->y2;
+                point_c.field_0 = item.trigMode6->x3;
+                point_c.field_4 = item.trigMode6->y3;
+                point_a.field_8 = item.trigMode6->uf1 << 16;
+                point_a.field_C = item.trigMode6->vf1 << 16;
+                point_b.field_8 = item.trigMode6->uf2 << 16;
+                point_b.field_C = item.trigMode6->vf2 << 16;
+                point_c.field_8 = item.trigMode6->uf3 << 16;
+                point_c.field_C = item.trigMode6->vf3 << 16;
+                point_a.field_10 = item.trigMode6->wf1 << 16;
+                point_b.field_10 = item.trigMode6->wf2 << 16;
+                point_c.field_10 = item.trigMode6->wf3 << 16;
                 trig(&point_a, &point_b, &point_c);
                 break;
             case QK_RotableSprite: // Possibly unused
-                draw_map_who(item.rotSpr);
+                draw_map_who(item.rotableSprite);
                 break;
             case QK_PolygonNearFP: // 'Near' textured polygons (closer to camera) in 1st person view
-                draw_unkn09(item.unk09);
+                draw_unkn09(item.polygonNearFP);
                 break;
             case QK_Unknown10: // Possibly unused
                 vec_mode = VM_Unknown0;
-                vec_colour = item.unk10->field_6;
-                draw_gpoly(&item.unk10->p1, &item.unk10->p2, &item.unk10->p3);
+                vec_colour = item.basicUnk10->field_6;
+                draw_gpoly(&item.basicUnk10->p1, &item.basicUnk10->p2, &item.basicUnk10->p3);
                 break;
             case QK_JontySprite: // All creatures and things in isometric and 1st person view
-                draw_jonty_mapwho(item.jonSpr);
+                draw_jonty_mapwho(item.jontySprite);
                 break;
             case QK_CreatureShadow: // Shadows of creatures in isometric and 1st person view
-                draw_keepsprite_unscaled_in_buffer(item.keepSpr->field_5C, item.keepSpr->field_58, item.keepSpr->field_5E, scratch);
+                draw_keepsprite_unscaled_in_buffer(item.creatureShadow->field_5C, item.creatureShadow->field_58, item.creatureShadow->field_5E, scratch);
                 vec_map = scratch;
                 vec_mode = VM_Unknown10;
-                vec_colour = item.keepSpr->p1.field_10;
-                trig(&item.keepSpr->p1, &item.keepSpr->p2, &item.keepSpr->p3);
-                trig(&item.keepSpr->p1, &item.keepSpr->p3, &item.keepSpr->p4);
+                vec_colour = item.creatureShadow->p1.field_10;
+                trig(&item.creatureShadow->p1, &item.creatureShadow->p2, &item.creatureShadow->p3);
+                trig(&item.creatureShadow->p1, &item.creatureShadow->p3, &item.creatureShadow->p4);
                 break;
             case QK_SlabSelector: // Selection outline box for placing/digging slabs
-                draw_clipped_line(item.unk13->p.field_0,item.unk13->p.field_4,item.unk13->p.field_8,item.unk13->p.field_C,item.unk13->p.field_10);
+                draw_clipped_line(
+                    item.slabSelector->p.field_0,
+                    item.slabSelector->p.field_4,
+                    item.slabSelector->p.field_8,
+                    item.slabSelector->p.field_C,
+                    item.slabSelector->p.field_10);
                 break;
-            case QK_CreatureStatusSprite: // Status flower above creature heads
+            case QK_CreatureStatus: // Status flower above creature heads
                 player = get_my_player();
                 cam = player->acamera;
                 if (cam != NULL)
@@ -6071,14 +6076,14 @@ void display_drawlist(void) // Draws isometric and 1st person view. Not frontvie
                     // Status sprite grows smaller slower than zoom
                     int status_zoom;
                     status_zoom = (camera_zoom+CAMERA_ZOOM_MAX)/2;
-                    draw_status_sprites(item.unk14->x, item.unk14->y, item.unk14->thing, status_zoom*16/units_per_pixel);
+                    draw_status_sprites(item.creatureStatus->x, item.creatureStatus->y, item.creatureStatus->thing, status_zoom*16/units_per_pixel);
                 }
                 break;
             case QK_FloatingGoldText: // Floating gold text when placing or selling a slab
-                draw_engine_number(item.number);
+                draw_engine_number(item.floatingGoldText);
                 break;
             case QK_RoomFlagBottomPole: // The bottom pole part, doesn't affect the status sitting on top of the pole
-                draw_engine_room_flagpole(item.roomFlg);
+                draw_engine_room_flagpole(item.roomFlag);
                 break;
             case QK_JontyISOSprite: // Spinning key
                 player = get_my_player();
@@ -6086,11 +6091,11 @@ void display_drawlist(void) // Draws isometric and 1st person view. Not frontvie
                 if (cam != NULL)
                 {
                     if (cam->view_mode == PVM_IsometricView)
-                    draw_jonty_mapwho(item.jonSpr);
+                    draw_jonty_mapwho(item.jontySprite);
                 }
                 break;
             case QK_RoomFlagStatusBox: // The status sitting on top of the pole
-                draw_engine_room_flag_top(item.roomFlg);
+                draw_engine_room_flag_top(item.roomFlag);
                 break;
             default:
                 render_problems++;
@@ -6282,7 +6287,7 @@ static void clear_fast_bucket_list(void)
     LbMemorySet(buckets, 0, sizeof(buckets));
 }
 
-static void draw_texturedquad_block(struct TexturedQuad *txquad)
+static void draw_texturedquad_block(struct BucketKindTexturedQuad *txquad)
 {
     if (!UseFastBlockDraw)
     {
@@ -6372,24 +6377,26 @@ static void display_fast_drawlist(struct Camera *cam) // Draws frontview only. N
     int bucket_num;
     union {
         struct BasicQ *b;
-        struct BasicUnk00 *unk00;
-        struct BasicUnk01 *unk01;
-        struct BasicUnk02 *unk02;
-        struct BasicUnk03 *unk03;
-        struct BasicUnk04 *unk04;
-        struct BasicUnk05 *unk05;
-        struct BasicUnk06 *unk06;
-        struct BasicUnk07 *unk07;
-        struct RotoSpr *rotSpr;
-        struct BasicUnk09 *unk09;
-        struct BasicUnk10 *unk10;
-        struct JontySpr *jonSpr;
-        struct KeeperSpr *unk12;
-        struct BasicUnk13 *unk13;
-        struct BasicUnk14 *unk14;
-        struct TexturedQuad *txquad;
-        struct Number *number;
-        struct RoomFlag *roomFlg;
+        // Unused in display_fast_drawlist()
+        struct BucketKindPolygonStandard *polygonStandard;
+        struct BucketKindPolygonSimple *polygonSimple;
+        struct BucketKindPolyMode0 *polyMode0;
+        struct BucketKindPolyMode4 *polyMode4;
+        struct BucketKindTrigMode2 *trigMode2;
+        struct BucketKindPolyMode5 *polyMode5;
+        struct BucketKindTrigMode3 *trigMode3;
+        struct BucketKindTrigMode6 *trigMode6;
+        struct BucketKindRotableSprite *rotableSprite;
+        struct BucketKindPolygonNearFP *polygonNearFP;
+        struct BucketKindBasicUnk10 *basicUnk10;
+        struct BucketKindCreatureShadow *creatureShadow;
+        // Used
+        struct BucketKindJontySprite *jontySprite;
+        struct BucketKindSlabSelector *slabSelector;
+        struct BucketKindCreatureStatus *creatureStatus;
+        struct BucketKindTexturedQuad *texturedQuad;
+        struct BucketKindFloatingGoldText *floatingGoldText;
+        struct BucketKindRoomFlag *roomFlag;
     } item;
     // Color rendering array pointers used by draw_keepersprite()
     render_fade_tables = pixmap.fade_tables;
@@ -6404,31 +6411,36 @@ static void display_fast_drawlist(struct Camera *cam) // Draws frontview only. N
             switch (item.b->kind)
             {
             case QK_JontySprite: // Creatures and things
-                draw_fastview_mapwho(cam, item.jonSpr);
+                draw_fastview_mapwho(cam, item.jontySprite);
                 break;
             case QK_SlabSelector: // Selection outline box for placing/digging slabs
-                draw_clipped_line(item.unk13->p.field_0,item.unk13->p.field_4,item.unk13->p.field_8,item.unk13->p.field_C,item.unk13->p.field_10);
+                draw_clipped_line(
+                    item.slabSelector->p.field_0,
+                    item.slabSelector->p.field_4,
+                    item.slabSelector->p.field_8,
+                    item.slabSelector->p.field_C,
+                    item.slabSelector->p.field_10);
                 break;
-            case QK_CreatureStatusSprite: // Status flower above creature heads
+            case QK_CreatureStatus: // Status flower above creature heads
                 if (pixel_size == 1)
-                    draw_status_sprites(item.unk14->x, item.unk14->y, item.unk14->thing, 48*256);
+                    draw_status_sprites(item.creatureStatus->x, item.creatureStatus->y, item.creatureStatus->thing, 48*256);
                 else
-                    draw_status_sprites(item.unk14->x, item.unk14->y, item.unk14->thing, 16*256);
+                    draw_status_sprites(item.creatureStatus->x, item.creatureStatus->y, item.creatureStatus->thing, 16*256);
                 break;
             case QK_TextureQuad: // Textured polygons
-                draw_texturedquad_block(item.txquad);
+                draw_texturedquad_block(item.texturedQuad);
                 break;
             case QK_FloatingGoldText: // Floating gold text when placing or selling a slab
-                draw_engine_number(item.number);
+                draw_engine_number(item.floatingGoldText);
                 break;
             case QK_RoomFlagBottomPole: // The bottom pole part, doesn't affect the status sitting on top of the pole
-                draw_engine_room_flagpole(item.roomFlg);
+                draw_engine_room_flagpole(item.roomFlag);
                 break;
             case QK_JontyISOSprite: // Spinning Key
-                draw_iso_only_fastview_mapwho(cam, item.jonSpr);
+                draw_iso_only_fastview_mapwho(cam, item.jontySprite);
                 break;
             case QK_RoomFlagStatusBox: // The status sitting on top of the pole
-                draw_engine_room_flag_top(item.roomFlg);
+                draw_engine_room_flag_top(item.roomFlag);
                 break;
             default:
                 render_problems++;
@@ -6449,14 +6461,14 @@ static long convert_world_coord_to_front_view_screen_coord(struct Coord3d* pos, 
 
 static void add_thing_sprite_to_polypool(struct Thing *thing, long scr_x, long scr_y, long a4, long bckt_idx)
 {
-    struct JontySpr *poly;
+    struct BucketKindJontySprite *poly;
     if (bckt_idx >= BUCKETS_COUNT)
         bckt_idx = BUCKETS_COUNT-1;
     else
     if (bckt_idx < 0)
         bckt_idx = 0;
-    poly = (struct JontySpr *)getpoly;
-    getpoly += sizeof(struct JontySpr);
+    poly = (struct BucketKindJontySprite *)getpoly;
+    getpoly += sizeof(struct BucketKindJontySprite);
     poly->b.next = buckets[bckt_idx];
     poly->b.kind = QK_JontySprite;
     buckets[bckt_idx] = (struct BasicQ *)poly;
@@ -6471,14 +6483,14 @@ static void add_thing_sprite_to_polypool(struct Thing *thing, long scr_x, long s
 
 static void add_unkn18_to_polypool(struct Thing *thing, long scr_x, long scr_y, long a4, long bckt_idx)
 {
-    struct JontySpr *poly;
+    struct BucketKindJontySprite *poly;
     if (bckt_idx >= BUCKETS_COUNT)
       bckt_idx = BUCKETS_COUNT-1;
     else
     if (bckt_idx < 0)
       bckt_idx = 0;
-    poly = (struct JontySpr *)getpoly;
-    getpoly += sizeof(struct JontySpr);
+    poly = (struct BucketKindJontySprite *)getpoly;
+    getpoly += sizeof(struct BucketKindJontySprite);
     poly->b.next = buckets[bckt_idx];
     poly->b.kind = QK_JontyISOSprite;
     buckets[bckt_idx] = (struct BasicQ *)poly;
@@ -6493,17 +6505,17 @@ static void add_unkn18_to_polypool(struct Thing *thing, long scr_x, long scr_y, 
 
 static void create_status_box_element(struct Thing *thing, long a2, long a3, long a4, long bckt_idx)
 {
-    struct BasicUnk14 *poly;
+    struct BucketKindCreatureStatus *poly;
     if (bckt_idx >= BUCKETS_COUNT) {
       bckt_idx = BUCKETS_COUNT-1;
     } else
     if (bckt_idx < 0) {
       bckt_idx = 0;
     }
-    poly = (struct BasicUnk14 *)getpoly;
-    getpoly += sizeof(struct BasicUnk14);
+    poly = (struct BucketKindCreatureStatus *)getpoly;
+    getpoly += sizeof(struct BucketKindCreatureStatus);
     poly->b.next = buckets[bckt_idx];
-    poly->b.kind = QK_CreatureStatusSprite;
+    poly->b.kind = QK_CreatureStatus;
     buckets[bckt_idx] = (struct BasicQ *)poly;
     poly->thing = thing;
     if (pixel_size > 0)
@@ -6521,14 +6533,14 @@ static void create_fast_view_status_box(struct Thing *thing, long x, long y)
 
 static void add_textruredquad_to_polypool(long x, long y, long texture_idx, long a7, long a8, long lightness, long a9, long bckt_idx)
 {
-    struct TexturedQuad *poly;
+    struct BucketKindTexturedQuad *poly;
     if (bckt_idx >= BUCKETS_COUNT)
       bckt_idx = BUCKETS_COUNT-1;
     else
     if (bckt_idx < 0)
       bckt_idx = 0;
-    poly = (struct TexturedQuad *)getpoly;
-    getpoly += sizeof(struct TexturedQuad);
+    poly = (struct BucketKindTexturedQuad *)getpoly;
+    getpoly += sizeof(struct BucketKindTexturedQuad);
     poly->b.next = buckets[bckt_idx];
     poly->b.kind = QK_TextureQuad;
     buckets[bckt_idx] = (struct BasicQ *)poly;
@@ -6548,14 +6560,14 @@ static void add_textruredquad_to_polypool(long x, long y, long texture_idx, long
 
 static void add_lgttextrdquad_to_polypool(long x, long y, long texture_idx, long a6, long a7, long a8, long lg0, long lg1, long lg2, long lg3, long bckt_idx)
 {
-    struct TexturedQuad *poly;
+    struct BucketKindTexturedQuad *poly;
     if (bckt_idx >= BUCKETS_COUNT)
       bckt_idx = BUCKETS_COUNT-1;
     else
     if (bckt_idx < 0)
       bckt_idx = 0;
-    poly = (struct TexturedQuad *)getpoly;
-    getpoly += sizeof(struct TexturedQuad);
+    poly = (struct BucketKindTexturedQuad *)getpoly;
+    getpoly += sizeof(struct BucketKindTexturedQuad);
     poly->b.next = buckets[bckt_idx];
     poly->b.kind = QK_TextureQuad;
     buckets[bckt_idx] = (struct BasicQ *)poly;
@@ -6575,14 +6587,14 @@ static void add_lgttextrdquad_to_polypool(long x, long y, long texture_idx, long
 
 static void add_number_to_polypool(long x, long y, long number, long bckt_idx)
 {
-    struct Number *poly;
+    struct BucketKindFloatingGoldText *poly;
     if (bckt_idx >= BUCKETS_COUNT)
       bckt_idx = BUCKETS_COUNT-1;
     else
     if (bckt_idx < 0)
       bckt_idx = 0;
-    poly = (struct Number *)getpoly;
-    getpoly += sizeof(struct Number);
+    poly = (struct BucketKindFloatingGoldText *)getpoly;
+    getpoly += sizeof(struct BucketKindFloatingGoldText);
     poly->b.next = buckets[bckt_idx];
     poly->b.kind = QK_FloatingGoldText;
     buckets[bckt_idx] = (struct BasicQ *)poly;
@@ -6596,14 +6608,14 @@ static void add_number_to_polypool(long x, long y, long number, long bckt_idx)
 
 static void add_room_flag_pole_to_polypool(long x, long y, long room_idx, long bckt_idx)
 {
-    struct RoomFlag *poly;
+    struct BucketKindRoomFlag *poly;
     if (bckt_idx >= BUCKETS_COUNT)
       bckt_idx = BUCKETS_COUNT-1;
     else
     if (bckt_idx < 0)
       bckt_idx = 0;
-    poly = (struct RoomFlag *)getpoly;
-    getpoly += sizeof(struct RoomFlag);
+    poly = (struct BucketKindRoomFlag *)getpoly;
+    getpoly += sizeof(struct BucketKindRoomFlag);
     poly->b.next = buckets[bckt_idx];
     poly->b.kind = QK_RoomFlagBottomPole;
     buckets[bckt_idx] = (struct BasicQ *)poly;
@@ -6617,14 +6629,14 @@ static void add_room_flag_pole_to_polypool(long x, long y, long room_idx, long b
 
 static void add_room_flag_top_to_polypool(long x, long y, long room_idx, long bckt_idx)
 {
-    struct RoomFlag *poly;
+    struct BucketKindRoomFlag *poly;
     if (bckt_idx >= BUCKETS_COUNT)
       bckt_idx = BUCKETS_COUNT-1;
     else
     if (bckt_idx < 0)
       bckt_idx = 0;
-    poly = (struct RoomFlag *)getpoly;
-    getpoly += sizeof(struct RoomFlag);
+    poly = (struct BucketKindRoomFlag *)getpoly;
+    getpoly += sizeof(struct BucketKindRoomFlag);
     poly->b.next = buckets[bckt_idx];
     poly->b.kind = QK_RoomFlagStatusBox;
     buckets[bckt_idx] = (struct BasicQ *)poly;
@@ -7291,7 +7303,7 @@ void process_keeper_sprite(short x, short y, unsigned short kspr_base, short ksp
     }
 }
 
-static void process_keeper_speedup_sprite(struct JontySpr *jspr, long angle, long scale)
+static void process_keeper_speedup_sprite(struct BucketKindJontySprite *jspr, long angle, long scale)
 {
     struct PlayerInfo *player;
     struct Thing *thing;
@@ -7351,7 +7363,7 @@ static void process_keeper_speedup_sprite(struct JontySpr *jspr, long angle, lon
     process_keeper_sprite(jspr->scr_x+add_x, jspr->scr_y+add_y, graph_id2, angle, nframe2, transp2);
 }
 
-static void prepare_jonty_remap_and_scale(long *scale, const struct JontySpr *jspr)
+static void prepare_jonty_remap_and_scale(long *scale, const struct BucketKindJontySprite *jspr)
 {
     long i;
     struct Thing *thing;
@@ -7444,7 +7456,7 @@ void draw_mapwho_ariadne_path(struct Thing *thing)
     }
 }
 
-void draw_jonty_mapwho(struct JontySpr *jspr)
+void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
 {
     unsigned short flg_mem;
     unsigned char alpha_mem;

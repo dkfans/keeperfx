@@ -105,9 +105,9 @@ enum AutotestFlags {
 #pragma pack(1)
 
 struct TbLoadFiles;
-struct RoomFlag;
-struct Number;
-struct JontySpr;
+struct BucketKindRoomFlag;
+struct BucketKindFloatingGoldText;
+struct BucketKindJontySprite;
 
 // Windows-standard structure
 /*struct _GUID {
