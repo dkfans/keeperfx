@@ -1786,8 +1786,9 @@ TngUpdateRet object_update_power_sight(struct Thing *objtng)
   objtng->health = 2;
   dungeon = get_dungeon(owner);
 
+
    const struct MagicStats *pwrdynst = get_power_dynamic_stats(PwrK_SIGHT);
-   static const long effkind[] = {43, 86, 87, 88};
+   static const enum ThingEffectElements effkind[] = {TngEffElm_RedTwinkle, TngEffElm_BlueTwinkle, TngEffElm_GreenTwinkle, TngEffElm_YellowTwinkle};
 
 
   if ( !S3DEmitterIsPlayingSample((unsigned __int8)objtng->snd_emitter_id, 51, 0) )
@@ -1802,7 +1803,7 @@ TngUpdateRet object_update_power_sight(struct Thing *objtng)
     sight_casted_gameturn = dungeon->sight_casted_gameturn;
     v32 = max_active_div_16 / close_time;
     time_active = game.play_gameturn - sight_casted_gameturn;
-    if ( game.play_gameturn - sight_casted_gameturn >= 0 )
+    if ( (int)game.play_gameturn - sight_casted_gameturn >= 0 )
     {
       if ( max_active_div_16 < time_active )
         time_active = max_active_div_16;
@@ -1815,7 +1816,7 @@ TngUpdateRet object_update_power_sight(struct Thing *objtng)
     dungeon->sight_casted_gameturn = game.play_gameturn - max_time_active;
     dungeon->sight_casted_gameturn = v8;
   }
-  time_active_2 = game.play_gameturn - dungeon->sight_casted_gameturn;  
+  time_active_2 = game.play_gameturn - dungeon->sight_casted_gameturn;
   v10 = pwrdynst->strength[(unsigned __int8)dungeon->sight_casted_splevel];
   if ( v10 <= time_active_2 )
   {
@@ -1854,7 +1855,7 @@ TngUpdateRet object_update_power_sight(struct Thing *objtng)
       v27 = 4 * v24 * v26;
       v32 = v26;
 
-          /*  
+          
       int angle = 0;
 
       do
@@ -1873,9 +1874,8 @@ TngUpdateRet object_update_power_sight(struct Thing *objtng)
       while ( v25 );
       return 1;
 
-      */
 
-
+/*
       do
       {
         v28 = lbSinTable;
@@ -1893,6 +1893,7 @@ TngUpdateRet object_update_power_sight(struct Thing *objtng)
       }
       while ( v25 );
       return 1;
+      */
     }
   }
   else
@@ -1915,10 +1916,10 @@ TngUpdateRet object_update_power_sight(struct Thing *objtng)
       v14 = (v11 & 0x1F) << 8;
 
       MapCoord pos_x = objtng->mappos.x.val + (__int16)((v12 * *(int *)((char *)lbSinTable + v14)) >> 13);
-      MapCoord pos_y = objtng->mappos.y.val + (-(__int16)((v12 * *(int *)((char *)lbCosTable + v14)) >> 5) >> 8);
+      MapCoord pos_y = (-(char)((v12 * *(int *)((char *)lbCosTable + v14)) >> 5) >> 8) + (unsigned __int16)objtng->mappos.y.val;
 
-      //  MapCoord pos_x = move_coord_with_angle_x(objtng->mappos.x.val,v12,v14);
-       // MapCoord pos_y = move_coord_with_angle_y(objtng->mappos.y.val,v12,v14);
+        //MapCoord pos_x = move_coord_with_angle_x(objtng->mappos.x.val,v12 * 8,v14);
+        //MapCoord pos_y = move_coord_with_angle_y(objtng->mappos.y.val,v12 * 8,v14);
 
       if ( pos_x >= 0 && pos_x < 65280 && pos_y >= 0 && pos_y < 65280 )
       {
