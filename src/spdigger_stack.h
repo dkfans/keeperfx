@@ -45,7 +45,7 @@ enum SpecialLastJobKinds {
     SDLstJob_DigOrMine,
     SDLstJob_ConvImprDungeon,
     SDLstJob_ReinforceWall3,
-    SDLstJob_UseTraining4,
+    SDLstJob_NonDiggerTask,
     SDLstJob_Unkn5,
     SDLstJob_Unkn6,
     SDLstJob_Unkn7,

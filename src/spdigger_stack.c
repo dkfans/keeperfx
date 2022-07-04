@@ -22,6 +22,7 @@
 #include "bflib_basics.h"
 #include "bflib_math.h"
 
+#include "creature_jobs.h"
 #include "creature_states.h"
 #include "creature_states_combt.h"
 #include "creature_states_train.h"
@@ -2392,7 +2393,6 @@ long check_out_imp_last_did(struct Thing *creatng)
 {
   struct CreatureControl *cctrl;
   struct Dungeon *dungeon;
-  struct Room *room;
   cctrl = creature_control_get_from_thing(creatng);
   SYNCDBG(19,"Starting for %s index %d, last did %d repeated %d times",thing_model_name(creatng),(int)creatng->index,(int)cctrl->digger.last_did_job,(int)cctrl->digger.task_repeats);
   TRACE_THING(creatng);
@@ -2486,25 +2486,13 @@ long check_out_imp_last_did(struct Thing *creatng)
           return true;
       }
       break;
-  case SDLstJob_UseTraining4:
-      if (!creature_can_be_trained(creatng) || !player_can_afford_to_train_creature(creatng))
-        break;
-      room = find_nearest_room_of_role_for_thing_with_spare_capacity(creatng, creatng->owner, RoRoF_CrTrainExp, NavRtF_Default, 1);
-      if (!room_is_invalid(room))
+  case SDLstJob_NonDiggerTask:
+      if (creature_can_do_job_for_player(creatng, creatng->owner, cctrl->job_assigned, JobChk_None))
       {
-          if (creature_setup_random_move_for_job_in_room(creatng, room, Job_TRAIN, NavRtF_Default))
+          if (send_creature_to_job_for_player(creatng, creatng->owner, cctrl->job_assigned))
           {
-              cctrl->digger.task_repeats++;
-              creatng->continue_state = CrSt_AtTrainingRoom;
-              cctrl->target_room_id = room->index;
+              cctrl->job_assigned_check_turn = game.play_gameturn;
               return true;
-          }
-      }
-      if (is_my_player_number(creatng->owner))
-      {
-          room = find_room_of_role_with_spare_capacity(creatng->owner, RoRoF_CrTrainExp, 1);
-          if (room_is_invalid(room)) {
-              output_message_room_related_from_computer_or_player_action(creatng->owner, RoK_TRAINING, OMsg_RoomTooSmall);
           }
       }
       break;
