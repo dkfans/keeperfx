@@ -31,6 +31,7 @@
 #include "front_simple.h"
 #include "player_data.h"
 #include "player_instances.h"
+#include "keeperfx.hpp"
 
 #ifdef __cplusplus
 extern "C" {
@@ -242,7 +243,10 @@ void ProperForcedFadePalette(unsigned char *pal, long fade_steps, enum TbPalette
         while (LbPaletteFade(pal, fade_steps, Lb_PALETTE_FADE_OPEN) < fade_steps)
         {
           last_loop_time += lbFadeDelay;
-          LbSleepUntil(last_loop_time);
+          
+          if (is_feature_on(Ft_SkipSplashScreens) == false) {
+              LbSleepUntil(last_loop_time);
+          }
         }
     } else
     if (pal != NULL)

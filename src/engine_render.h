@@ -39,8 +39,8 @@ extern "C" {
 #define KEEPERSPRITE_ADD_NUM 2048
 
 enum QKinds {
-    QK_PolygonTriangle = 0,
-    QK_PolygonTriangleSimp,
+    QK_PolygonStandard = 0,
+    QK_PolygonSimple,
     QK_PolyMode0,
     QK_PolyMode4,
     QK_TrigMode2,
@@ -53,7 +53,7 @@ enum QKinds {
     QK_JontySprite,
     QK_CreatureShadow,
     QK_SlabSelector,
-    QK_CreatureStatusSprite,
+    QK_CreatureStatus,
     QK_TextureQuad,
     QK_FloatingGoldText,
     QK_RoomFlagBottomPole,
@@ -73,7 +73,7 @@ struct BasicQ { // sizeof = 5
   QKind kind;
 };
 
-struct BasicUnk00 {
+struct BucketKindPolygonStandard {
     struct BasicQ b;
     unsigned char field_5;
     unsigned short block;
@@ -82,7 +82,7 @@ struct BasicUnk00 {
     struct PolyPoint p3;
 };
 
-struct BasicUnk01 {
+struct BucketKindPolygonSimple {
     struct BasicQ b;
     unsigned char field_5;
     unsigned short block;
@@ -91,7 +91,7 @@ struct BasicUnk01 {
     struct PolyPoint p3;
 };
 
-struct BasicUnk02 {
+struct BucketKindPolyMode0 {
     struct BasicQ b;
     unsigned char colour;
     unsigned short x1;
@@ -102,7 +102,7 @@ struct BasicUnk02 {
     unsigned short y3;
 };
 
-struct BasicUnk03 {
+struct BucketKindPolyMode4 {
     struct BasicQ b;
     unsigned char colour;
     unsigned short x1;
@@ -119,7 +119,7 @@ struct BasicUnk03 {
     unsigned char field_19[3];
 };
 
-struct BasicUnk04 {
+struct BucketKindTrigMode2 {
     struct BasicQ b;
     unsigned char field_5;
     unsigned short x1;
@@ -137,46 +137,7 @@ struct BasicUnk04 {
     unsigned char vf3;
 };
 
-struct BasicUnk05 {
-    struct BasicQ b;
-    unsigned char field_5;
-    unsigned short x1;
-    unsigned short y1;
-    unsigned short x2;
-    unsigned short y2;
-    unsigned short x3;
-    unsigned short y3;
-    unsigned short field_12;
-    unsigned char uf1;
-    unsigned char vf1;
-    unsigned char uf2;
-    unsigned char vf2;
-    unsigned char uf3;
-    unsigned char vf3;
-    unsigned char wf1;
-    unsigned char wf2;
-    unsigned char wf3;
-};
-
-struct BasicUnk06 {
-    struct BasicQ b;
-    unsigned char field_5;
-    unsigned short x1;
-    unsigned short y1;
-    unsigned short x2;
-    unsigned short y2;
-    unsigned short x3;
-    unsigned short y3;
-    unsigned short field_12;
-    unsigned char uf1;
-    unsigned char vf1;
-    unsigned char uf2;
-    unsigned char vf2;
-    unsigned char uf3;
-    unsigned char vf3;
-};
-
-struct BasicUnk07 {
+struct BucketKindPolyMode5 {
     struct BasicQ b;
     unsigned char field_5;
     unsigned short x1;
@@ -197,7 +158,46 @@ struct BasicUnk07 {
     unsigned char wf3;
 };
 
-struct RotoSpr {
+struct BucketKindTrigMode3 {
+    struct BasicQ b;
+    unsigned char field_5;
+    unsigned short x1;
+    unsigned short y1;
+    unsigned short x2;
+    unsigned short y2;
+    unsigned short x3;
+    unsigned short y3;
+    unsigned short field_12;
+    unsigned char uf1;
+    unsigned char vf1;
+    unsigned char uf2;
+    unsigned char vf2;
+    unsigned char uf3;
+    unsigned char vf3;
+};
+
+struct BucketKindTrigMode6 {
+    struct BasicQ b;
+    unsigned char field_5;
+    unsigned short x1;
+    unsigned short y1;
+    unsigned short x2;
+    unsigned short y2;
+    unsigned short x3;
+    unsigned short y3;
+    unsigned short field_12;
+    unsigned char uf1;
+    unsigned char vf1;
+    unsigned char uf2;
+    unsigned char vf2;
+    unsigned char uf3;
+    unsigned char vf3;
+    unsigned char wf1;
+    unsigned char wf2;
+    unsigned char wf3;
+};
+
+struct BucketKindRotableSprite {
     struct BasicQ b;
     unsigned char field_5[3];
     long field_8;
@@ -208,7 +208,7 @@ struct RotoSpr {
     unsigned char field_19[3];
 };
 
-struct BasicUnk09 {
+struct BucketKindPolygonNearFP {
     struct BasicQ b;
     unsigned char subtype;
     unsigned short block;
@@ -220,7 +220,7 @@ struct BasicUnk09 {
     struct XYZ c3;
 };
 
-struct BasicUnk10 {
+struct BucketKindBasicUnk10 {
     struct BasicQ b;
     unsigned char field_5;
     unsigned char field_6;
@@ -230,7 +230,7 @@ struct BasicUnk10 {
     struct PolyPoint p3;
 };
 
-struct JontySpr {  // BasicQ type 11,18
+struct BucketKindJontySprite {  // BasicQ type 11,18
     struct BasicQ b;
     unsigned char field_5[3];
     struct Thing *thing;
@@ -241,7 +241,7 @@ struct JontySpr {  // BasicQ type 11,18
     unsigned char field_19[3];
 };
 
-struct KeeperSpr {
+struct BucketKindCreatureShadow {
     struct BasicQ b;
     unsigned char field_5;
     unsigned short field_6;
@@ -254,7 +254,7 @@ struct KeeperSpr {
     unsigned char field_5E;
 };
 
-struct BasicUnk13 {
+struct BucketKindSlabSelector {
     struct BasicQ b;
     unsigned char field_5;
     unsigned short field_6;
@@ -262,7 +262,7 @@ struct BasicUnk13 {
     unsigned char field_19[3];
 };
 
-struct BasicUnk14 { // sizeof = 24
+struct BucketKindCreatureStatus { // sizeof = 24
     struct BasicQ b;
     unsigned char padding[3];
     struct Thing *thing;
@@ -277,7 +277,7 @@ struct NearestLights {
 };
 
 
-struct TexturedQuad { // sizeof = 46
+struct BucketKindTexturedQuad { // sizeof = 46
     struct BasicQ b;
     unsigned char field_5;
     long field_6;
@@ -292,7 +292,7 @@ struct TexturedQuad { // sizeof = 46
     long field_2A;
 };
 
-struct Number { // BasicQ type 16
+struct BucketKindFloatingGoldText { // BasicQ type 16
     struct BasicQ b;
     unsigned char field_5[3];
     long x;
@@ -300,7 +300,7 @@ struct Number { // BasicQ type 16
     long lvl;
 };
 
-struct RoomFlag { // BasicQ type 17,19
+struct BucketKindRoomFlag { // BasicQ type 17,19
     struct BasicQ b;
     unsigned char field_5;
     unsigned short lvl;
@@ -311,9 +311,9 @@ struct RoomFlag { // BasicQ type 17,19
 struct EngineCoord { // sizeof = 28
   long view_width;
   long view_height;
-  unsigned short field_8;
-  unsigned short field_A;
-  long field_C;
+  unsigned short field_8; // frustum culling?
+  unsigned short field_A; // lightness?
+  long field_C; // distance to camera?
   long x;
   long y;
   long z;
@@ -546,12 +546,12 @@ void frame_wibble_generate(void);
 void setup_rotate_stuff(long a1, long a2, long a3, long a4, long a5, long a6, long a7, long a8);
 
 void process_keeper_sprite(short x, short y, unsigned short a3, short kspr_angle, unsigned char a5, long a6);
-void draw_engine_number(struct Number *num);
-void draw_engine_room_flagpole(struct RoomFlag *rflg);
+void draw_engine_number(struct BucketKindFloatingGoldText *num);
+void draw_engine_room_flagpole(struct BucketKindRoomFlag *rflg);
 void draw_status_sprites(long a1, long a2, struct Thing *thing, long a4);
 void draw_keepsprite_unscaled_in_buffer(unsigned short kspr_n, short a2, unsigned char a3, unsigned char *a4);
 void draw_mapwho_ariadne_path(struct Thing *thing);
-void draw_jonty_mapwho(struct JontySpr *jspr);
+void draw_jonty_mapwho(struct BucketKindJontySprite *jspr);
 void draw_map_volume_box(long cor1_x, long cor1_y, long cor2_x, long cor2_y, long floor_height_z, unsigned char color);
 unsigned short choose_health_sprite(struct Thing *thing);
 
