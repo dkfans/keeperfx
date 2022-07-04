@@ -3917,13 +3917,18 @@ void game_loop(void)
         {
             if (is_feature_on(Ft_SkipHeartZoom) == false) {
                 set_player_instance(player, PI_HeartZoom, 0);
+            } else { 
+                toggle_status_menu(1); // Required when skipping PI_HeartZoom
             }
         } else
         {
           game.numfield_15 = -1;
           set_flag_byte(&game.operation_flags,GOF_Paused,false);
         }
+      } else {
+          toggle_status_menu(1); // Required when skipping PI_HeartZoom
       }
+        
       unsigned long starttime;
       unsigned long endtime;
       struct Dungeon *dungeon;
