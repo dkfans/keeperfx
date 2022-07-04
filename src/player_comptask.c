@@ -173,7 +173,6 @@ const struct MyLookup lookup[] = {
 /******************************************************************************/
 DLLIMPORT long _DK_count_creatures_in_call_to_arms(struct Computer2 *comp);
 DLLIMPORT struct ComputerTask *_DK_get_free_task(struct Computer2 *comp, long basestl_y);
-DLLIMPORT int _DK_search_spiral(struct Coord3d *pos, int owner, int i3, long (*cb)(long, long, long));
 DLLIMPORT long _DK_other_build_here(struct Computer2 *comp, long a2, long round_directn, long plyr_idx, long slabs_dist);
 /******************************************************************************/
 #ifdef __cplusplus
@@ -1885,13 +1884,50 @@ long check_for_gold(MapSubtlCoord basestl_x, MapSubtlCoord basestl_y, long plyr_
     return 0;
 }
 
-int search_spiral_f(struct Coord3d *pos, PlayerNumber owner, int i3, long (*cb)(MapSubtlCoord, MapSubtlCoord, long), const char *func_name)
+int search_spiral_f(struct Coord3d *pos, PlayerNumber owner, int area_total, long (*cb)(MapSubtlCoord, MapSubtlCoord, long), const char *func_name)
 {
     SYNCDBG(7,"%s: Starting at (%d,%d)",func_name,pos->x.stl.num,pos->y.stl.num);
-    long retval = _DK_search_spiral(pos, owner, i3, cb);
-    SYNCDBG(8,"%s: Finished with %d",func_name,(int)retval);
+   
+    int valid_area = 0;
+    MapSubtlCoord stl_x = pos->x.stl.num;
+    MapSubtlCoord stl_y = pos->y.stl.num;
+    int lookup_idx = 0;
+    int bi_loop_counter = 0;
 
-    return retval;
+    for ( char i = 0; ; ++i )
+    {
+        if ( (i & 1) != 0 )
+            ++bi_loop_counter;
+        int j = bi_loop_counter;
+        MapSubtlDelta delta_x = lookup[lookup_idx].delta_x;
+        MapSubtlDelta delta_y = lookup[lookup_idx].delta_y;
+        if ( bi_loop_counter )
+        {
+            do
+            {
+                if ( stl_x < map_subtiles_x && stl_y < map_subtiles_y )
+                {
+                    int check_fn_result = cb(stl_x, stl_y, owner);
+                    if ( check_fn_result )
+                    {
+                        pos->x.stl.num = stl_x;
+                        pos->y.stl.num = stl_y;
+                        if ( check_fn_result == -1 )
+                            return -valid_area;
+                        return valid_area;
+                    }
+                    valid_area++;
+                    if ( valid_area >= area_total )
+                        return valid_area;
+                }
+                --j;
+                stl_y += delta_y;
+                stl_x += delta_x;
+            }
+            while ( j );
+        }
+        lookup_idx = (lookup_idx + 1) % 4;
+    }
 }
 
 long find_next_gold(struct Computer2 * comp, struct ComputerTask * ctask)
