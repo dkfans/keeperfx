@@ -537,6 +537,7 @@ long pinstfs_passenger_leave_creature(struct PlayerInfo *player, long *n)
     player->palette_fade_step_possession = 11;
     turn_off_all_window_menus();
     turn_off_query_menus();
+    turn_off_all_panel_menus();
     turn_on_main_panel_menu();
     set_flag_byte(&game.operation_flags, GOF_ShowPanel, (game.operation_flags & GOF_ShowGui) != 0);
   }
