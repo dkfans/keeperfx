@@ -39,7 +39,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT short _DK_hug_round(struct Thing *creatng, struct Coord3d *pos1, struct Coord3d *pos2, unsigned short a4, long *a5);
 DLLIMPORT signed char _DK_get_starting_angle_and_side_of_hug(struct Thing *creatng, struct Coord3d *pos, long *a3, unsigned char *a4, long a5, unsigned char direction);
 DLLIMPORT long _DK_check_forward_for_prospective_hugs(struct Thing *creatng, struct Coord3d *pos, long a3, long a4, long a5, long direction, unsigned char a7);
 DLLIMPORT long _DK_get_map_index_of_first_block_thing_colliding_with_travelling_to(struct Thing *creatng, struct Coord3d *startpos, struct Coord3d *endpos, long a4, unsigned char a5);
@@ -195,9 +194,15 @@ long get_angle_of_wall_hug(struct Thing *creatng, long a2, long a3, unsigned cha
     return -1;
 }
 
-short hug_round(struct Thing *creatng, struct Coord3d *pos1, struct Coord3d *pos2, unsigned short a4, long *a5)
+static short hug_round(struct Thing *creatng, struct Coord3d *pos1, struct Coord3d *pos2, unsigned short round_idx, long *hug_val)
 {
     return _DK_hug_round(creatng, pos1, pos2, a4, a5);
+                            pos1_stl_y += 3 * small_around[around_idx2].delta_y;
+    }
+    pos1->y.stl.pos = v44;
+    result = 0;
+    *hug_val -= i;
+    return result;
 }
 
 long slab_wall_hug_route(struct Thing *thing, struct Coord3d *pos, long max_val)
