@@ -2438,7 +2438,7 @@ static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct 
                 getpoly += sizeof(struct BucketKindPolygonNearFP);
                 triangle_bucket_near_1->subtype = splittypes[16 * (engine_coordinate_3->field_8 & 3) + 4 * (engine_coordinate_1->field_8 & 3) + (engine_coordinate_2->field_8 & 3)];
                 triangle_bucket_near_1->b.next = buckets[divided_z];
-                triangle_bucket_near_1->b.kind = 9;
+                triangle_bucket_near_1->b.kind = QK_PolygonNearFP;
                 buckets[divided_z] = &triangle_bucket_near_1->b;
                 triangle_bucket_near_1->block = textr_idx;
                 triangle_bucket_near_1->p1.field_0 = engine_coordinate_1->view_width;
@@ -2547,7 +2547,7 @@ static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct 
                             getpoly += sizeof(struct BucketKindPolygonNearFP);
                             triangle_bucket_near_4->subtype = splittypes[16 * (engine_coordinate_3->field_8 & 3) + 4 * (engine_coordinate_1->field_8 & 3) + (engine_coordinate_2->field_8 & 3)];
                             triangle_bucket_near_4->b.next = buckets[divided_z];
-                            triangle_bucket_near_4->b.kind = 9;
+                            triangle_bucket_near_4->b.kind = QK_PolygonNearFP;
                             buckets[divided_z] = &triangle_bucket_near_4->b;
                             triangle_bucket_near_4->block = textr_idx;
                             triangle_bucket_near_1->c1.x = engine_coordinate_1->x;
@@ -2604,7 +2604,7 @@ static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct 
                         getpoly += sizeof(struct BucketKindPolygonNearFP);
                         triangle_bucket_near_3->subtype = splittypes[16 * (engine_coordinate_3->field_8 & 3) + 4 * (engine_coordinate_1->field_8 & 3) + (engine_coordinate_2->field_8 & 3)];
                         triangle_bucket_near_3->b.next = buckets[divided_z];
-                        triangle_bucket_near_3->b.kind = 9;
+                        triangle_bucket_near_3->b.kind = QK_PolygonNearFP;
                         buckets[divided_z] = &triangle_bucket_near_3->b;
                         triangle_bucket_near_3->block = textr_idx;
                         triangle_bucket_near_1->c1.x = engine_coordinate_1->x;
@@ -2696,7 +2696,7 @@ static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct 
                         getpoly += sizeof(struct BucketKindPolygonNearFP);
                         triangle_bucket_near_2->subtype = splittypes[16 * (engine_coordinate_3->field_8 & 3) + 4 * (engine_coordinate_1->field_8 & 3) + (engine_coordinate_2->field_8 & 3)];
                         triangle_bucket_near_2->b.next = buckets[divided_z];
-                        triangle_bucket_near_2->b.kind = 9;
+                        triangle_bucket_near_2->b.kind = QK_PolygonNearFP;
                         buckets[divided_z] = &triangle_bucket_near_2->b;
                         triangle_bucket_near_2->block = textr_idx;
                         triangle_bucket_near_1->c2.x = engine_coordinate_2->x;
@@ -2808,7 +2808,7 @@ static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct 
                 triangle_bucket_far = (struct BucketKindPolygonStandard *)getpoly;
                 getpoly += sizeof(struct BucketKindPolygonStandard);
                 triangle_bucket_far->b.next = buckets[divided_z];
-                triangle_bucket_far->b.kind = 0;
+                triangle_bucket_far->b.kind = QK_PolygonStandard;
                 buckets[divided_z] = &triangle_bucket_far->b;
 
                 triangle_bucket_far->block = textr_idx;
@@ -2928,7 +2928,7 @@ static void do_a_trig_gourad_bl(struct EngineCoord *engine_coordinate_1, struct 
                 getpoly += sizeof(struct BucketKindPolygonNearFP);
                 triangle_bucket_near_1->subtype = splittypes[16 * (engine_coordinate_3->field_8 & 3) + 4 * (engine_coordinate_1->field_8 & 3) + (engine_coordinate_2->field_8 & 3)];
                 triangle_bucket_near_1->b.next = buckets[divided_z];
-                triangle_bucket_near_1->b.kind = 9;
+                triangle_bucket_near_1->b.kind = QK_PolygonNearFP;
                 buckets[divided_z] = &triangle_bucket_near_1->b;
                 triangle_bucket_near_1->block = argument4;
                 
@@ -3038,7 +3038,7 @@ static void do_a_trig_gourad_bl(struct EngineCoord *engine_coordinate_1, struct 
                             getpoly += sizeof(struct BucketKindPolygonNearFP);
                             triangle_bucket_near_4->subtype = splittypes[16 * (engine_coordinate_3->field_8 & 3) + 4 * (engine_coordinate_1->field_8 & 3) + (engine_coordinate_2->field_8 & 3)];
                             triangle_bucket_near_4->b.next = buckets[divided_z];
-                            triangle_bucket_near_4->b.kind = 9;
+                            triangle_bucket_near_4->b.kind = QK_PolygonNearFP;
                             buckets[divided_z] = &triangle_bucket_near_4->b;
                             triangle_bucket_near_4->block = argument4;
                             triangle_bucket_near_1->c1.x = engine_coordinate_1->x;
@@ -3095,7 +3095,7 @@ static void do_a_trig_gourad_bl(struct EngineCoord *engine_coordinate_1, struct 
                         getpoly += sizeof(struct BucketKindPolygonNearFP);
                         triangle_bucket_near_3->subtype = splittypes[16 * (engine_coordinate_3->field_8 & 3) + 4 * (engine_coordinate_1->field_8 & 3) + (engine_coordinate_2->field_8 & 3)];
                         triangle_bucket_near_3->b.next = buckets[divided_z];
-                        triangle_bucket_near_3->b.kind = 9;
+                        triangle_bucket_near_3->b.kind = QK_PolygonNearFP;
                         buckets[divided_z] = &triangle_bucket_near_3->b;
                         triangle_bucket_near_3->block = argument4;
                         triangle_bucket_near_1->c1.x = engine_coordinate_1->x;
@@ -3187,7 +3187,7 @@ static void do_a_trig_gourad_bl(struct EngineCoord *engine_coordinate_1, struct 
                         getpoly += sizeof(struct BucketKindPolygonNearFP);
                         triangle_bucket_near_2->subtype = splittypes[16 * (engine_coordinate_3->field_8 & 3) + 4 * (engine_coordinate_1->field_8 & 3) + (engine_coordinate_2->field_8 & 3)];
                         triangle_bucket_near_2->b.next = buckets[divided_z];
-                        triangle_bucket_near_2->b.kind = 9;
+                        triangle_bucket_near_2->b.kind = QK_PolygonNearFP;
                         buckets[divided_z] = &triangle_bucket_near_2->b;
                         triangle_bucket_near_2->block = argument4;
                         triangle_bucket_near_1->c2.x = engine_coordinate_2->x;
@@ -3299,7 +3299,7 @@ static void do_a_trig_gourad_bl(struct EngineCoord *engine_coordinate_1, struct 
                 triangle_bucket_far = (struct BucketKindPolygonStandard *)getpoly;
                 getpoly += sizeof(struct BucketKindPolygonStandard);
                 triangle_bucket_far->b.next = buckets[divided_z];
-                triangle_bucket_far->b.kind = 0;
+                triangle_bucket_far->b.kind = QK_PolygonStandard;
                 buckets[divided_z] = &triangle_bucket_far->b;
                 triangle_bucket_far->block = argument4;
                 
