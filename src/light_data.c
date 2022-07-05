@@ -22,6 +22,7 @@
 #include "bflib_basics.h"
 #include "bflib_memory.h"
 #include "bflib_math.h"
+#include "bflib_planar.h"
 
 #include "player_data.h"
 #include "map_data.h"
@@ -33,7 +34,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT void _DK_light_initialise_lighting_tables(void);
 
 DLLIMPORT TbBool _DK_light_render_light_sub1_sub2(int a1, SubtlCodedCoords stl_num, int a3);
 DLLIMPORT char _DK_light_render_light_sub1(struct Light *lgt, int radius, int a3, unsigned int a4);
@@ -678,9 +678,128 @@ void light_delete_light(long idx)
     light_free_light(lgt);
 }
 
-void light_initialise_lighting_tables(void)
+static void light_initialise_lighting_tables(void)
 {
-  _DK_light_initialise_lighting_tables();
+  int v0;
+  int lighting_tables_idx;
+  signed int delta_x_val;
+  signed int delta_y_val;
+  char v4;
+  int v5;
+  struct LightingTable *lighting_table_a;
+  char v9;
+  struct LightingTable *lighting_table_1;
+  struct LightingTable *lighting_table_2;
+  int distance;
+  int delta_y;
+  int delta_x;
+  int angle;
+  int field_4;
+  int max_angle;
+  int min_angle;
+
+  return;
+
+  distance = 1;
+  v0 = 0;
+  lighting_tables_idx = 0;
+  do
+  {
+    angle = 0;
+    do
+    {
+      delta_x = distance_with_angle_to_coord_x(distance, angle);
+      delta_y = distance_with_angle_to_coord_y(distance, angle);
+      delta_x_val = abs(delta_x << 8);
+      delta_y_val = abs(delta_y << 8);
+
+      field_4 = LbDiagonalLength(delta_x_val, delta_y_val);
+
+      if (delta_x || delta_y)
+      {
+        do
+        {
+          v4 = 0;
+          v5 = 0;
+          lighting_table_a = &game.lish.lighting_tables[0];
+          while (lighting_table_a->field_0)
+          {
+            if (lighting_table_a->delta_x == delta_x && lighting_table_a->delta_y == delta_y)
+            {
+              v4 = 1;
+              v0 = v5;
+              break;
+            }
+            ++lighting_table_a;
+            ++v5;
+            if (lighting_table_a >= &game.lish.lighting_tables[1024])
+              break;
+          }
+          if (v4)
+          {
+            if (game.lish.lighting_tables[v0].distance == distance)
+              break;
+            if (v0 < 1023)
+            {
+              int i = v0;
+              do
+              {
+                if (!game.lish.lighting_tables[i].field_0)
+                  break;
+                game.lish.lighting_tables[i].field_0 = game.lish.lighting_tables[i + 1].field_0;
+                game.lish.lighting_tables[i].distance = game.lish.lighting_tables[i + 1].distance;
+                game.lish.lighting_tables[i].field_4 = game.lish.lighting_tables[i + 1].field_4;
+                ++i;
+              } while (i < 1023);
+            }
+            --lighting_tables_idx;
+          }
+          else
+          {
+            game.lish.lighting_tables[lighting_tables_idx].field_0 = 1;
+            game.lish.lighting_tables[lighting_tables_idx].delta_x = delta_x;
+            game.lish.lighting_tables[lighting_tables_idx].delta_y = delta_y;
+            game.lish.lighting_tables[lighting_tables_idx].distance = distance;
+            game.lish.lighting_tables[lighting_tables_idx].field_4 = field_4;
+            lighting_tables_idx++;
+            //get_max_and_min_angles_from_origin(128, 128, delta_x, delta_y, delta_x + 1, delta_y + 1, &max_angle, &min_angle);
+          }
+        } while (v4);
+      }
+      ++angle;
+    } while (angle < 2048);
+    ++distance;
+  } while (distance < 16);
+  game.lish.lighting_tables_idx = lighting_tables_idx;
+
+  do
+  {
+    v9 = 0;
+    lighting_table_1 = &game.lish.lighting_tables[0];
+    do
+    {
+      if (!lighting_table_1->field_0)
+        break;
+      lighting_table_2 = lighting_table_1 + 1;
+      if (!lighting_table_2->field_0)
+        break;
+      if (lighting_table_1->field_4 > lighting_table_2->field_4)
+      {
+        char swap_field_0 = lighting_table_1->field_0;
+        char swap_field_1 = lighting_table_1->distance;
+        long swap_field_4 = lighting_table_1->field_4;
+
+        lighting_table_1->field_0 = lighting_table_2->field_0;
+        lighting_table_1->distance = lighting_table_2->distance;
+        lighting_table_1->field_4 = lighting_table_2->field_4;
+        lighting_table_2->field_0 = swap_field_0;
+        lighting_table_2->distance = swap_field_1;
+        lighting_table_2->field_4 = swap_field_4;
+        v9 = 1;
+      }
+      ++lighting_table_1;
+    } while (lighting_table_2 < &game.lish.lighting_tables[1023]);
+  } while (v9);
 }
 
 void light_initialise(void)

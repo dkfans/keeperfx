@@ -37,7 +37,7 @@ extern "C" {
 
 struct LightingTable { // sizeof = 8
   unsigned char field_0;
-  unsigned char field_1;
+  unsigned char distance;
   unsigned char delta_x;
   unsigned char delta_y;
   unsigned long field_4;
