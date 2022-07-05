@@ -964,8 +964,8 @@ LABEL_35:
             if ( v24 )
             {
 LABEL_37:
-              unk_2_x = abs(light_val_x - unk_1_x);
-              unk_2_y = abs(light_val_y - unk_1_y);
+              unk_2_x = max(light_val_x,unk_1_x) - min(light_val_x, unk_1_x);
+              unk_2_y = max(light_val_y,unk_1_y) - max(light_val_y, unk_1_y);
               diagonal_length2 = LbDiagonalLength(unk_2_x,unk_2_y);
               lighting_tables_idx = a3 * (radius - diagonal_length2) / radius;
               if ( lighting_tables_idx <= game.lish.field_46149 )
