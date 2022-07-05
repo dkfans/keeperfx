@@ -777,6 +777,8 @@ void light_set_lights_on(char state)
     light_stat_light_map_clear_area(0, 0, map_subtiles_x, map_subtiles_y);
     light_signal_stat_light_update_in_area(1, 1, map_subtiles_x, map_subtiles_y);
 }
+
+/*
 //sub_4080B0
 static __int32 light_render_light_sub1_sub1(
         unsigned int a1,
@@ -794,17 +796,9 @@ static __int32 light_render_light_sub1_sub1(
 static TbBool light_render_light_sub1_sub2(MapSubtlCoord stl_x, MapSubtlCoord stl_y, MapSubtlCoord stl_z)
 {
   return _DK_light_render_light_sub1_sub2(stl_x, stl_y, stl_z);
-/*
-    struct Map* mapblk = get_map_block_at_pos(stl_num);
-    if (map_block_invalid(mapblk))
-        return false;
-    unsigned long k = 0;
-    long i = get_mapwho_thing_index(mapblk);
 
-
-  return (unsigned char)*(&game.columns_data[(i + 5 * a1) & 0x7FF)].bitfields) >> 4 > a3;
-  */
 }
+*/
 
 //sub_407770
 static char light_render_light_dynamic_2(struct Light *lgt, int radius, int a3, unsigned int max_1DD41_idx)
