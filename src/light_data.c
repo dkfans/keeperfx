@@ -777,6 +777,8 @@ void light_set_lights_on(char state)
     light_stat_light_map_clear_area(0, 0, map_subtiles_x, map_subtiles_y);
     light_signal_stat_light_update_in_area(1, 1, map_subtiles_x, map_subtiles_y);
 }
+
+/*
 //sub_4080B0
 static __int32 light_render_light_sub1_sub1(
         unsigned int a1,
@@ -794,196 +796,10 @@ static __int32 light_render_light_sub1_sub1(
 static TbBool light_render_light_sub1_sub2(MapSubtlCoord stl_x, MapSubtlCoord stl_y, MapSubtlCoord stl_z)
 {
   return _DK_light_render_light_sub1_sub2(stl_x, stl_y, stl_z);
-/*
-    struct Map* mapblk = get_map_block_at_pos(stl_num);
-    if (map_block_invalid(mapblk))
-        return false;
-    unsigned long k = 0;
-    long i = get_mapwho_thing_index(mapblk);
 
-
-  return (unsigned char)*(&game.columns_data[(i + 5 * a1) & 0x7FF)].bitfields) >> 4 > a3;
-  */
 }
+*/
 
-/**
- * don't know when this is used, light_render_light_dynamic_2 seems to render all dynamic lights
- */
-static char light_render_light_dynamic_1(struct Light *lgt, int radius, int a3, unsigned int max_1DD41_idx)
-{
-  unsigned int light_stl_num;
-  short *stl_lightness_ptr;
-  unsigned int lighting_tables_idx;
-  signed int unk_4_x;
-  signed int unk_4_y;
-  int diagonal_length;
-  int v10;
-  struct LightingTable *unk6_ptr;
-  MapSubtlCoord stl_x;
-  MapSubtlCoord stl_y;
-  unsigned int unk_1_y;
-  __int32 shadow_limit_idx1;
-  unsigned __int8 v16;
-  int v17;
-  unsigned char *shadow_limit_ptr;
-  int v21;
-  unsigned char *shadow_limit_ptr2;
-  unsigned int shadow_limit_something_size;
-  int v24;
-  signed int unk_2_x;
-  signed int unk_2_y;
-  int diagonal_length2;
-  long shadow_limit_idx2;
-  long shadow_limit_idx3;
-  MapCoord light_val_x;
-  MapCoord light_val_y;
-  MapSubtlCoord light_stl_z;
-  MapSubtlCoord light_stl_x;
-  MapSubtlCoord light_stl_y;
-  TbBool v37;
-  unsigned int unk_1_x;
-  short *stl_lightness_ptr2;
-
-  light_val_x = lgt->mappos.x.val;
-  light_val_y = lgt->mappos.y.val;
-  light_stl_x = light_val_x >> 8;
-  light_stl_y = light_val_y >> 8;
-  light_stl_z = lgt->mappos.z.val / 256;
-  memset(game.lish.shadow_limits, 0, sizeof(game.lish.shadow_limits));
-  light_stl_num = (light_val_y >> 8 << 8) + (light_val_x >> 8);
-  stl_lightness_ptr = (short *)&game.lish.subtile_lightness + light_stl_num;
-
-  lighting_tables_idx = get_floor_filled_subtiles_at(light_stl_x,light_stl_y);
-  if ( get_floor_filled_subtiles_at(light_stl_x,light_stl_y) <= light_stl_z )
-  {
-    unk_4_x = abs(light_val_x - (light_stl_x << 8));
-    unk_4_y = abs(light_val_y - (light_val_y >> 8 << 8));
-    diagonal_length = LbDiagonalLength(unk_4_x,unk_4_y);
-    v10 = a3 * (radius - diagonal_length) / radius;
-    if ( (unsigned short)*stl_lightness_ptr < v10 )
-      *stl_lightness_ptr = v10;
-    unk6_ptr = (struct LightingTable *)game.lish.lighting_tables;
-    lighting_tables_idx = game.lish.lighting_tables_idx;
-    if ( &game.lish.lighting_tables[8 * game.lish.lighting_tables_idx] > game.lish.lighting_tables )
-    {
-      do
-      {
-        lighting_tables_idx = (unsigned __int8)unk6_ptr->field_1;
-        if ( lighting_tables_idx > max_1DD41_idx )
-          break;
-        stl_x = light_stl_x + unk6_ptr->delta_x;
-        stl_y = light_stl_y + unk6_ptr->delta_y;
-        if ( stl_x < map_subtiles_x && stl_y < map_subtiles_y )
-        {
-          unk_1_y = stl_y << 8;
-          unk_1_x = stl_x << 8;
-          shadow_limit_idx1 = LbArcTanAngle((stl_x << 8) - light_val_x, (stl_y << 8) - light_val_y) & 0x7FF;
-          if ( (unsigned __int8)stl_x < (unsigned __int8)light_stl_x )
-            v16 = ((unsigned __int8)stl_y < (unsigned __int8)light_stl_y) + 3;
-          else
-            v16 = 2 - ((unsigned __int8)stl_y < (unsigned __int8)light_stl_y);
-          v17 = v16;
-          if ( game.lish.shadow_limits[shadow_limit_idx1] )
-          {
-            light_render_light_sub1_sub1(
-              light_val_x,
-              light_val_y,
-              v17,
-              stl_x,
-              stl_y,
-              &shadow_limit_idx2,
-              &shadow_limit_idx3);
-            shadow_limit_ptr = &game.lish.shadow_limits[shadow_limit_idx2];
-
-      
-            if ( (!game.lish.shadow_limits[shadow_limit_idx2] || !game.lish.shadow_limits[shadow_limit_idx3])
-              && get_floor_filled_subtiles_at(stl_x,stl_y) > light_stl_z )
-            {
-              if ( shadow_limit_idx3 < shadow_limit_idx2 )
-              {
-                memset(shadow_limit_ptr, 1u, 2047 - shadow_limit_idx2);
-                memset(game.lish.shadow_limits, 1u, shadow_limit_idx3);
-              }
-              else
-              {
-                memset(shadow_limit_ptr, 1u, shadow_limit_idx3 - shadow_limit_idx2);
-              }
-            }
-          }
-          else
-          {
-            stl_lightness_ptr2 = (short *)&game.lish.subtile_lightness + unk_1_y + stl_x;
-
-            v21 = get_floor_filled_subtiles_at(stl_x,stl_y);
-            v37 = v21 > light_stl_z;
-            if ( v21 > light_stl_z )
-            {
-              light_render_light_sub1_sub1(
-                light_val_x,
-                light_val_y,
-                v17,
-                stl_x,
-                stl_y,
-                &shadow_limit_idx2,
-                &shadow_limit_idx3);
-              if ( shadow_limit_idx3 < shadow_limit_idx2 )
-              {
-                memset(&game.lish.shadow_limits[shadow_limit_idx2], 1u, 2047 - shadow_limit_idx2);
-                shadow_limit_something_size = shadow_limit_idx3;
-                shadow_limit_ptr2 = game.lish.shadow_limits;
-              }
-              else
-              {
-                shadow_limit_ptr2 = &game.lish.shadow_limits[shadow_limit_idx2];
-                shadow_limit_something_size = shadow_limit_idx3 - shadow_limit_idx2;
-              }
-              memset(shadow_limit_ptr2, 1u, shadow_limit_something_size);
-            }
-            if ( !v37 )
-              goto LABEL_37;
-            switch ( v17 )
-            {
-              case 1:
-                if ( get_floor_filled_subtiles_at(stl_x,stl_y) <= light_stl_z )
-                  goto LABEL_35;
-                goto LABEL_34;
-              case 3:
-                if ( !light_render_light_sub1_sub2(stl_x, stl_y - 1, light_stl_z) )
-                  goto LABEL_35;
-                v24 = 0;
-                break;
-              case 4:
-LABEL_34:
-                v24 = 0;
-                break;
-              default:
-LABEL_35:
-                v24 = 1;
-                break;
-            }
-            if ( v24 )
-            {
-LABEL_37:
-              unk_2_x = abs(light_val_x - unk_1_x);
-              unk_2_y = abs(light_val_y - unk_1_y);
-              diagonal_length2 = LbDiagonalLength(unk_2_x,unk_2_y);
-              lighting_tables_idx = a3 * (radius - diagonal_length2) / radius;
-              if ( lighting_tables_idx <= game.lish.field_46149 )
-                return lighting_tables_idx;
-              if ( (unsigned short)*stl_lightness_ptr2 < lighting_tables_idx )
-                *stl_lightness_ptr2 = lighting_tables_idx;
-            }
-          }
-        }
-        ++unk6_ptr;
-        lighting_tables_idx = game.lish.lighting_tables_idx;
-      }
-      while ( &game.lish.lighting_tables[8 * game.lish.lighting_tables_idx] > unk6_ptr );
-    }
-  }
-  return lighting_tables_idx;
-  
-}
 //sub_407770
 static char light_render_light_dynamic_2(struct Light *lgt, int radius, int a3, unsigned int max_1DD41_idx)
 {
@@ -1067,7 +883,8 @@ static char light_render_light(struct Light* lgt)
     {
       if ( (lgt->flags & LgtF_Unkn40) != 0 )
       {
-        lighting_tables_idx = light_render_light_dynamic_1(lgt, radius, v22, lighting_tables_idx);
+        ERRORLOG("flag LgtF_Unkn40 is used after all?");
+        //lighting_tables_idx = light_render_light_dynamic_1(lgt, radius, v22, lighting_tables_idx);
       }
       else if ( (lgt->flags & LgtF_Unkn08) != 0 )
       {
