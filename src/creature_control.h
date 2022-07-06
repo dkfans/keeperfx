@@ -647,6 +647,7 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     short toking_recovery;
     TbBool illuminated;
     char corpse_vanish_effect;
+    short footstep_pitch;
 };
 
 struct Persons {
