@@ -58,7 +58,7 @@ enum ObjectModelFlags {
 #pragma pack(1)
 
 struct ObjectConfig { // sizeof=0x1D
-    long health;
+long health;
 char fall_acceleration;
 char light_unaffected;
 char is_heart;
@@ -75,6 +75,7 @@ struct ObjectConfigStats {
     long genre;
     long name_stridx;
     long map_icon;
+    TbBool is_heart;
 };
 
 struct ObjectsConfig {

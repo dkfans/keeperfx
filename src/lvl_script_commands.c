@@ -1746,6 +1746,10 @@ static void set_object_configuration_process(struct ScriptContext *context)
         case 18: // MAPICON
             objst->map_icon = context->value->arg2;
             break;
+        case 19: // ISHEARTH
+            objst->is_heart = context->value->arg2;
+            //todo reset heart
+            break;
         default:
             WARNMSG("Unsupported Object configuration, variable %d.", context->value->arg1);
             break;

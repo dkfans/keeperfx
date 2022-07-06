@@ -206,7 +206,7 @@ Thing_Class_Func object_update_functions[OBJECT_TYPES_MAX] = {
     NULL,
     NULL,
     NULL,
-    NULL,
+    object_update_dungeon_heart, //todo remove
     NULL,
     NULL,
     NULL,
@@ -655,8 +655,8 @@ TbBool thing_is_dungeon_heart(const struct Thing *thing)
         return false;
     if (thing->class_id != TCls_Object)
         return false;
-    struct ObjectConfig* objconf = get_object_model_stats2(thing->model);
-    return (objconf->is_heart) != 0;
+    struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
+    return (objst->is_heart) != 0;
 }
 
 TbBool thing_is_mature_food(const struct Thing *thing)
@@ -1434,7 +1434,7 @@ void update_dungeon_heart_beat(struct Thing *heartng)
     {
         long i = (char)heartng->heart.beat_direction;
         heartng->anim_speed = 0;
-        struct ObjectConfig* objconf = get_object_model_stats2(5);
+        struct ObjectConfig* objconf = get_object_model_stats2(gameadd.dungeon_heart_model);
         long long k = 384 * (long)(objconf->health - heartng->health) / objconf->health;
         k = base_heart_beat_rate / (k + 128);
         light_set_light_intensity(heartng->light_id, light_get_light_intensity(heartng->light_id) + (i*36/k));
@@ -1477,7 +1477,7 @@ TngUpdateRet object_update_dungeon_heart(struct Thing *heartng)
     SYNCDBG(18,"Starting");
     if ((heartng->health > 0) && (game.dungeon_heart_heal_time != 0))
     {
-        struct ObjectConfig* objconf = get_object_model_stats2(5);
+        struct ObjectConfig* objconf = get_object_model_stats2(gameadd.dungeon_heart_model);
         if ((game.play_gameturn % game.dungeon_heart_heal_time) == 0)
         {
             heartng->health += game.dungeon_heart_heal_health;

@@ -570,8 +570,8 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
             {
               k = atoi(word_buf);
               game.dungeon_heart_health = k;
-              game.objects_config[5].health = k;
-              gameadd.object_conf.base_config[5].health = k;
+              game.objects_config[gameadd.dungeon_heart_model].health = k;
+              gameadd.object_conf.base_config[gameadd.dungeon_heart_model].health = k;
               n++;
             }
             if (n < 1)
