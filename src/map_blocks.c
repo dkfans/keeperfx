@@ -2283,7 +2283,7 @@ long element_top_face_texture(struct Map *mapblk)
         }
         if ( (col->bitfields & CLF_CEILING_MASK) != 0 )
         {
-            cubed = &game.cubes_data[col->cubes[4]];
+            cubed = &game.cubes_data[col->cubes[COLUMN_STACK_HEIGHT-get_column_ceiling_filled_subtiles(col)-1]];
             return cubed->texture_id[4];
         }
         else if ((col->bitfields & CLF_FLOOR_MASK) != 0)
