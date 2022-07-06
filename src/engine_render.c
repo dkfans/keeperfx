@@ -6177,10 +6177,12 @@ void display_drawlist(void) // Draws isometric and 1st person view. Not frontvie
                 cam = player->acamera;
                 if (cam != NULL)
                 {
-                    // Status sprite grows smaller slower than zoom
-                    int status_zoom;
-                    status_zoom = (camera_zoom+CAMERA_ZOOM_MAX)/2;
-                    draw_status_sprites(item.creatureStatus->x, item.creatureStatus->y, item.creatureStatus->thing, status_zoom*16/units_per_pixel);
+                    if (cam->view_mode == PVM_IsometricView)
+                    {
+                        // Status sprite grows smaller slower than zoom
+                        int status_zoom = (camera_zoom + CAMERA_ZOOM_MAX) / 2;
+                        draw_status_sprites(item.creatureStatus->x, item.creatureStatus->y, item.creatureStatus->thing, status_zoom * 16 / units_per_pixel);
+                    }
                 }
                 break;
             case QK_FloatingGoldText: // Floating gold text when placing or selling a slab
