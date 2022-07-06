@@ -273,6 +273,11 @@ TbPixel get_overhead_mapblock_color(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Pl
           {
             pixval = 85;
           } else
+          if (slb->kind == SlbT_PURPLE)
+          {
+              pixval = 255;
+          }
+          else
           if (owner == game.neutral_player_num)
           {
             pixval = 4;
