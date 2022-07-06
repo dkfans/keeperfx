@@ -59,12 +59,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT long _DK_convert_world_coord_to_front_view_screen_coord(struct Coord3d *pos, struct Camera *cam, long *x, long *y, long *z);
-DLLIMPORT void _DK_do_a_gpoly_gourad_tr(struct EngineCoord *ec1, struct EngineCoord *ec2, struct EngineCoord *ec3, short plane_end, int a5);
-DLLIMPORT void _DK_do_a_gpoly_unlit_tr(struct EngineCoord *ec1, struct EngineCoord *ec2, struct EngineCoord *ec3, short plane_end);
-DLLIMPORT void _DK_do_a_gpoly_unlit_bl(struct EngineCoord *ec1, struct EngineCoord *ec2, struct EngineCoord *ec3, short plane_end);
-DLLIMPORT void _DK_do_a_gpoly_gourad_bl(struct EngineCoord *ec1, struct EngineCoord *ec2, struct EngineCoord *ec3, short plane_end, int a5);
-/******************************************************************************/
 static const unsigned short shield_offset[] = {
  0x0,  0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x118, 0x80,
  0x80, 0x100,  0x80,  0x80, 0x100, 0x100, 0x138,  0x80,  0x80, 0x138,  0x80,  0x80, 0x100,  0x80, 0x80, 0x100,
@@ -6558,8 +6552,17 @@ static void display_fast_drawlist(struct Camera *cam) // Draws frontview only. N
     }
 }
 
-// Returns 1 if projected point is withing player's window, 0 otherwise
-static long project_point_helper(struct PlayerInfo *player, int zoom, int a1, int a2, int a3, unsigned short pos_z, long *x_out, long *y_out, long *z_out)
+/**
+ * sub of convert_world_coord_to_front_view_screen_coord for a single point
+ * 
+ * @param player The player determine the point for
+ * @param zoom The zoom level of the camera
+ * @param vertical_delta The vertical difference between the camera and the pos
+ * @param horizontal_delta The horizontal difference between the camera and the pos 
+ * @return true if projected point is withing player's window, false otherwise
+ */
+ 
+static TbBool project_point_helper(struct PlayerInfo *player, int zoom, MapCoordDelta vertical_delta, MapCoordDelta horizontal_delta, MapCoord pos_z, long *x_out, long *y_out, long *z_out)
 {
     int v11;
     int64_t v13;
@@ -6567,8 +6570,8 @@ static long project_point_helper(struct PlayerInfo *player, int zoom, int a1, in
     short window_width = player->engine_window_width;
     short window_height = player->engine_window_height;
 
-    *x_out = (zoom * a2 >> 16) + (*(uint16_t *)&window_width >> 1);
-    v11 = zoom * (a1 - a3) >> 8;
+    *x_out = (zoom * horizontal_delta >> 16) + (*(uint16_t *)&window_width >> 1);
+    v11 = zoom * vertical_delta >> 8;
     *z_out = window_height - ((v11 + ((uint16_t)(window_height & 0xFFFE) << 7)) >> 8) + 64;
     v13 = zoom * *(int16_t *)&pos_z << 7;
     v13_byte4 = *((uint8_t *)&v13 + 4);
@@ -6577,47 +6580,51 @@ static long project_point_helper(struct PlayerInfo *player, int zoom, int a1, in
     return (*x_out >= 0 && *x_out < window_width && *y_out >= 0 && *y_out < window_height);
 }
 
-static long convert_world_coord_to_front_view_screen_coord(struct Coord3d* pos, struct Camera* cam, long* x_out, long* y_out, long* z_out)
+/**
+ * determines where on the screen an object should be drawn
+ * 
+ * @param player The player determine the point for
+ * @param cam The camera to use for the point
+ * @param x_out The x position of the object relative to the camera
+ * @param y_out The y position of the object relative to the camera
+ * @param z_out The z position of the object relative to the camera
+ * @return true if projected point is withing player's window, false otherwise
+ */
+static TbBool convert_world_coord_to_front_view_screen_coord(struct Coord3d* pos, struct Camera* cam, long* x_out, long* y_out, long* z_out)
 {
-    int zoom;   // TODO: Change this to correct name
+    int zoom;
     unsigned int orientation;
-    int a1, a2, a3;
+    int vertical_delta, horizontal_delta;
     long result = 0;
     struct PlayerInfo* player = get_my_player();
 
-    // return _DK_convert_world_coord_to_front_view_screen_coord(pos, cam, x_out, y_out, z_out);
-
     zoom = 32 * cam->zoom / 256;
-    orientation = ((unsigned int)(cam->orient_a + 256) >> 9) & 3;
+    orientation = ((unsigned int)(cam->orient_a + (LbFPMath_PI / 4)) >> 9) & 3;
 
     switch ( orientation )
     {
         case 0:
-            a1 = *(uint16_t *)&pos->y.val;
-            a2 = *(uint16_t *)&pos->x.val - *(uint16_t *)&cam->mappos.x.val;
-            a3 = *(uint16_t *)&cam->mappos.y.val;
-            result = project_point_helper(player, zoom, a1, a2, a3, pos->z.val, x_out, y_out, z_out);
+            vertical_delta = pos->y.val - cam->mappos.y.val;
+            horizontal_delta = pos->x.val - cam->mappos.x.val;
+            result = project_point_helper(player, zoom, vertical_delta, horizontal_delta, pos->z.val, x_out, y_out, z_out);
             break;
 
         case 1:
-            a1 = *(uint16_t *)&cam->mappos.x.val;
-            a2 = *(uint16_t *)&pos->y.val - *(uint16_t *)&cam->mappos.y.val;
-            a3 = *(uint16_t *)&pos->x.val;
-            result = project_point_helper(player, zoom, a1, a2, a3, pos->z.val, x_out, y_out, z_out);
+            vertical_delta = cam->mappos.x.val - pos->x.val;
+            horizontal_delta = pos->y.val - cam->mappos.y.val;
+            result = project_point_helper(player, zoom, vertical_delta, horizontal_delta, pos->z.val, x_out, y_out, z_out);
             break;
 
         case 2:
-            a1 = *(uint16_t *)&cam->mappos.y.val;
-            a2 = *(uint16_t *)&cam->mappos.x.val - *(uint16_t *)&pos->x.val;
-            a3 = *(uint16_t *)&pos->y.val;
-            result = project_point_helper(player, zoom, a1, a2, a3, pos->z.val, x_out, y_out, z_out);
+            vertical_delta = cam->mappos.y.val - pos->y.val;
+            horizontal_delta = cam->mappos.x.val - pos->x.val;
+            result = project_point_helper(player, zoom, vertical_delta, horizontal_delta, pos->z.val, x_out, y_out, z_out);
             break;
 
         case 3:
-            a1 = *(uint16_t *)&pos->x.val;
-            a2 = *(uint16_t *)&cam->mappos.y.val - *(uint16_t *)&pos->y.val;
-            a3 = *(uint16_t *)&cam->mappos.x.val;
-            result = project_point_helper(player, zoom, a1, a2, a3, pos->z.val, x_out, y_out, z_out);
+            vertical_delta = pos->x.val - cam->mappos.x.val;
+            horizontal_delta = cam->mappos.y.val - pos->y.val;
+            result = project_point_helper(player, zoom, vertical_delta, horizontal_delta, pos->z.val, x_out, y_out, z_out);
             break;
     }
 
