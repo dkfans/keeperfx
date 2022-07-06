@@ -166,7 +166,7 @@ TbBool packets_process_cheats(
                     room = subtile_room_get(stl_x, stl_y);
                     if (room_exists(room))
                     {
-                        if (room->kind == RoK_TREASURE)
+                        if (room_role_matches(room->kind,RoRoF_GoldStorage))
                         {
                             count_gold_hoardes_in_room(room);
                         }

@@ -309,7 +309,7 @@ void query_thing(struct Thing *thing)
             sprintf((char*)health, "Health: %d", querytng->health);
             if (querytng->class_id == TCls_Door)
             {
-                sprintf(output, "%s/%ld", health, door_stats[querytng->model][0].health);
+                sprintf(output, "%s/%ln", health, &gameadd.trapdoor_conf.door_cfgstats[querytng->model].health);
             }
             else if (querytng->class_id == TCls_Object)
             {

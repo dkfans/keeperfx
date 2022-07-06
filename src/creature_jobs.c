@@ -244,7 +244,7 @@ TbBool attempt_anger_job_steal_gold(struct Thing *creatng)
         return false;
     }
     struct Coord3d pos;
-    struct Room* room = find_nearest_room_for_thing_with_used_capacity(creatng, creatng->owner, RoK_TREASURE, NavRtF_NoOwner, 1);
+    struct Room* room = find_nearest_room_of_role_for_thing_with_used_capacity(creatng, creatng->owner, RoRoF_GoldStorage, NavRtF_NoOwner, 1);
     if (room_is_invalid(room)) {
         return false;
     }
@@ -284,7 +284,7 @@ TbBool attempt_anger_job_leave_dungeon(struct Thing *creatng)
     if (!can_change_from_state_to(creatng, creatng->active_state, CrSt_CreatureLeaves)) {
         return false;
     }
-    struct Room* room = find_nearest_room_for_thing(creatng, creatng->owner, get_room_for_job(Job_EXEMPT), NavRtF_Default);
+    struct Room* room = find_nearest_room_of_role_for_thing(creatng, creatng->owner, get_room_role_for_job(Job_EXEMPT), NavRtF_Default);
     if (room_is_invalid(room)) {
         return false;
     }
@@ -517,13 +517,13 @@ TbBool is_correct_position_to_perform_job(const struct Thing *creatng, MapSubtlC
 {
     const struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
     const struct Room* room = subtile_room_get(stl_x, stl_y);
-    RoomKind job_rkind = get_room_for_job(new_job);
-    if (job_rkind != RoK_NONE)
+    RoomRole job_rrole = get_room_role_for_job(new_job);
+    if (job_rrole != RoRoF_None)
     {
         if (room_is_invalid(room)) {
             return false;
         }
-        if (room->kind != job_rkind) {
+        if (!room_role_matches(room->kind,job_rrole)) {
             return false;
         }
     }
@@ -561,7 +561,7 @@ TbBool creature_can_do_scavenging_for_player(const struct Thing *creatng, Player
 TbBool creature_can_freeze_prisoners_for_player(const struct Thing *creatng, PlayerNumber plyr_idx, CreatureJob new_job)
 {
     // To freeze prisoners, our prison can't be empty
-    struct Room* room = find_room_for_thing_with_used_capacity(creatng, creatng->owner, get_room_for_job(Job_FREEZE_PRISONERS), NavRtF_Default, 1);
+    struct Room* room = find_room_of_role_for_thing_with_used_capacity(creatng, creatng->owner, get_room_role_for_job(Job_FREEZE_PRISONERS), NavRtF_Default, 1);
     return creature_instance_is_available(creatng, CrInst_FREEZE) && !room_is_invalid(room);
 }
 
@@ -701,25 +701,25 @@ TbBool creature_can_do_job_for_player(const struct Thing *creatng, PlayerNumber 
         SYNCDBG(13,"Cannot assign %s for %s index %d owner %d; check callback failed",creature_job_code_name(new_job),thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
         return false;
     }
-    RoomKind job_rkind = get_room_for_job(new_job);
-    if (job_rkind != RoK_NONE)
+    RoomRole job_rrole = get_room_role_for_job(new_job);
+    if (job_rrole != RoRoF_None)
     {
-        if (!player_has_room(plyr_idx, job_rkind))
+        if (!player_has_room_of_role(plyr_idx, job_rrole))
         {
             SYNCDBG(3,"Cannot assign %s in player %d room for %s index %d owner %d; no required room built",creature_job_code_name(new_job),(int)plyr_idx,thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
             if ((flags & JobChk_PlayMsgOnFail) != 0) {
-                output_message_room_related_from_computer_or_player_action(plyr_idx, get_room_for_job(new_job), OMsg_RoomNeeded);
+                output_message_room_related_from_computer_or_player_action(plyr_idx, get_first_room_kind_for_job(new_job), OMsg_RoomNeeded);
             }
             return false;
         }
         if ((get_flags_for_job(new_job) & JoKF_NeedsCapacity) != 0)
         {
-            struct Room* room = find_room_with_spare_capacity(plyr_idx, job_rkind, 1);
+            struct Room* room = find_room_of_role_with_spare_capacity(plyr_idx, job_rrole, 1);
             if (room_is_invalid(room))
             {
                 SYNCDBG(3,"Cannot assign %s in player %d room for %s index %d owner %d; not enough room capacity",creature_job_code_name(new_job),(int)plyr_idx,thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
                 if ((flags & JobChk_PlayMsgOnFail) != 0) {
-                    output_message_room_related_from_computer_or_player_action(plyr_idx, get_room_for_job(new_job), OMsg_RoomTooSmall);
+                    output_message_room_related_from_computer_or_player_action(plyr_idx, get_first_room_kind_for_job(new_job), OMsg_RoomTooSmall);
                 }
                 return false;
             }
@@ -952,12 +952,12 @@ TbBool creature_can_do_job_for_computer_player_in_room_role(const struct Thing *
 TbBool attempt_job_work_in_room_for_player(struct Thing *creatng, PlayerNumber plyr_idx, CreatureJob new_job)
 {
     struct Room *room;
-    RoomKind rkind = get_room_for_job(new_job);
-    SYNCDBG(6,"Starting for %s index %d owner %d and job %s in %s room",thing_model_name(creatng),(int)creatng->index,(int)creatng->owner,creature_job_code_name(new_job),room_code_name(rkind));
+    RoomRole rrole = get_room_role_for_job(new_job);
+    SYNCDBG(6,"Starting for %s index %d owner %d and job %s in %s room",thing_model_name(creatng),(int)creatng->index,(int)creatng->owner,creature_job_code_name(new_job),room_role_code_name(rrole));
     if ((get_flags_for_job(new_job) & JoKF_NeedsCapacity) != 0) {
-        room = find_nearest_room_for_thing_with_spare_capacity(creatng, creatng->owner, rkind, NavRtF_Default, 1);
+        room = find_nearest_room_of_role_for_thing_with_spare_capacity(creatng, creatng->owner, rrole, NavRtF_Default, 1);
     } else {
-        room = find_nearest_room_for_thing(creatng, creatng->owner, rkind, NavRtF_Default);
+        room = find_nearest_room_of_role_for_thing(creatng, creatng->owner, rrole, NavRtF_Default);
     }
     if (room_is_invalid(room)) {
         return false;
@@ -990,9 +990,11 @@ TbBool attempt_job_work_in_room_near_pos(struct Thing *creatng, MapSubtlCoord st
     }
     creatng->continue_state = get_arrive_at_state_for_job(new_job);
     cctrl->target_room_id = room->index;
-    if ((new_job == Job_TRAIN) && (creatng->model == get_players_special_digger_model(room->owner))) {
+    if (thing_is_creature_special_digger(creatng))
+    {
         cctrl->digger.task_repeats = 0;
-        cctrl->digger.last_did_job = SDLstJob_UseTraining4;
+        cctrl->job_assigned = new_job;
+        cctrl->digger.last_did_job = SDLstJob_NonDiggerTask;
     }
     return true;
 }
@@ -1013,6 +1015,12 @@ TbBool attempt_job_work_in_room_and_cure_near_pos(struct Thing *creatng, MapSubt
     creatng->continue_state = get_arrive_at_state_for_job(new_job);
     cctrl->target_room_id = room->index;
     process_temple_cure(creatng);
+    if (thing_is_creature_special_digger(creatng))
+    {
+        cctrl->digger.task_repeats = 0;
+        cctrl->job_assigned = new_job;
+        cctrl->digger.last_did_job = SDLstJob_NonDiggerTask;
+    }
     return true;
 }
 
@@ -1046,10 +1054,10 @@ TbBool attempt_job_sleep_in_lair_near_pos(struct Thing *creatng, MapSubtlCoord s
 
 TbBool attempt_job_in_state_on_room_content_for_player(struct Thing *creatng, PlayerNumber plyr_idx, CreatureJob new_job)
 {
-    RoomKind rkind = get_room_for_job(new_job);
-    struct Room* room = find_room_for_thing_with_used_capacity(creatng, creatng->owner, rkind, NavRtF_Default, 1);
+    RoomRole rrole = get_room_role_for_job(new_job);
+    struct Room* room = find_room_of_role_for_thing_with_used_capacity(creatng, creatng->owner, rrole, NavRtF_Default, 1);
     if (room_is_invalid(room)) {
-        WARNLOG("Could not find room %s to perform job %s by %s index %d owner %d",room_code_name(rkind),creature_job_code_name(new_job),thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
+        WARNLOG("Could not find room %s to perform job %s by %s index %d owner %d",room_role_code_name(rrole),creature_job_code_name(new_job),thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
         return false;
     }
     internal_set_thing_state(creatng, get_initial_state_for_job(new_job));

@@ -98,7 +98,7 @@ short creature_arrived_at_prison(struct Thing *creatng)
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     cctrl->target_room_id = 0;
     struct Room* room = get_room_thing_is_on(creatng);
-    if (!room_initially_valid_as_type_for_thing(room, get_room_for_job(Job_CAPTIVITY), creatng))
+    if (!room_initially_valid_as_type_for_thing(room, get_room_role_for_job(Job_CAPTIVITY), creatng))
     {
         WARNLOG("Room %s owned by player %d is invalid for %s index %d",room_code_name(room->kind),(int)room->owner,thing_model_name(creatng),(int)creatng->index);
         set_start_state(creatng);
@@ -144,7 +144,7 @@ short creature_drop_body_in_prison(struct Thing *thing)
     }
     struct Room* room = get_room_thing_is_on(thing);
     if ((room->owner != thing->owner) || !room_role_matches(room->kind, RoRoF_Prison) || (room->used_capacity >= room->total_capacity)) {
-        if (creature_drop_thing_to_another_room(thing, room, RoK_PRISON)) {
+        if (creature_drop_thing_to_another_room(thing, room, RoRoF_Prison)) {
             thing->continue_state = CrSt_CreatureDropBodyInPrison;
             return 1;
         }
@@ -166,7 +166,7 @@ struct Thing *find_prisoner_for_thing(struct Thing *creatng)
     TRACE_THING(creatng);
     struct Room* room = INVALID_ROOM;
     if (!is_neutral_thing(creatng)) {
-        room = find_nearest_room_for_thing_with_used_capacity(creatng, creatng->owner, RoK_PRISON, NavRtF_Default, 1);
+        room = find_nearest_room_of_role_for_thing_with_used_capacity(creatng, creatng->owner, RoRoF_Prison, NavRtF_Default, 1);
     }
     if (room_exists(room)) {
         i = room->creatures_list;
@@ -391,7 +391,7 @@ TbBool process_prison_food(struct Thing *creatng, struct Room *room)
                 && line_of_room_move_2d(
                     &creatng->mappos,
                     &foodtng->mappos,
-                    room->alloc_flags)
+                    room)
                 && setup_person_move_to_position(
                     creatng,
                     foodtng->mappos.x.stl.num,
@@ -428,7 +428,7 @@ TbBool process_prison_food(struct Thing *creatng, struct Room *room)
 CrCheckRet process_prison_function(struct Thing *creatng)
 {
     struct Room* room = get_room_creature_works_in(creatng);
-    if (!room_still_valid_as_type_for_thing(room, RoK_PRISON, creatng))
+    if (!room_still_valid_as_type_for_thing(room, RoRoF_Prison, creatng))
     {
         WARNLOG("Room %s owned by player %d is bad work place for %s index %d owner %d", room_code_name(room->kind), (int)room->owner, thing_model_name(creatng), (int)creatng->index, (int)creatng->owner);
         set_start_state(creatng);

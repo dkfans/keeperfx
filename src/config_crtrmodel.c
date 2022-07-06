@@ -78,6 +78,7 @@ const struct NamedCommand creatmodel_attributes_commands[] = {
   {"FEARSOMEFACTOR",     30},
   {"TOKINGRECOVERY",     31},
   {"CORPSEVANISHEFFECT", 32},
+  {"FOOTSTEPPITCH",      33},
   {NULL,                  0},
   };
 
@@ -164,6 +165,7 @@ const struct NamedCommand creatmodel_appearance_commands[] = {
   {"NATURALDEATHKIND",     4},
   {"SHOTORIGIN",           5},
   {"CORPSEVANISHEFFECT",   6},
+  {"FOOTSTEPPITCH",        7},
   {NULL,                   0},
   };
 
@@ -1491,6 +1493,7 @@ TbBool parse_creaturemodel_appearance_blocks(long crtr_model,char *buf,long len,
         creatures[crtr_model].shot_shift_x = 0;
         creatures[crtr_model].shot_shift_y = 0;
         creatures[crtr_model].shot_shift_z = 0;
+        crstat->footstep_pitch = 100;
         crstat->corpse_vanish_effect = 0;
     }
     // Find the block
@@ -1606,6 +1609,13 @@ TbBool parse_creaturemodel_appearance_blocks(long crtr_model,char *buf,long len,
                 n++;
             }
             break;
+        case 7: // FOOTSTEPPITCH
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                crstat->footstep_pitch = k;
+                n++;
+            }
         case 0: // comment
             break;
         case -1: // end of buffer
@@ -2482,6 +2492,51 @@ TbBool load_creaturemodel_config(long crmodel, unsigned short flags)
     }
     //Freeing and exiting
     return result;
+}
+
+TbBool swap_creaturemodel_config(long nwcrmodel, long crmodel, unsigned short flags)
+{
+    static const char config_global_textname[] = "global creature model config";
+    static const char config_campgn_textname[] = "campaing creature model config";
+    char conf_fnstr[COMMAND_WORD_LEN];
+    LbStringToLowerCopy(conf_fnstr, get_conf_parameter_text(newcrtr_desc, nwcrmodel), COMMAND_WORD_LEN);
+    if (strlen(conf_fnstr) == 0)
+    {
+        WARNMSG("Cannot get config file name for creature %d.", crmodel);
+        return false;
+    }
+    char* fname = prepare_file_fmtpath(FGrp_CrtrData, "%s.cfg", conf_fnstr);
+    TbBool result = load_creaturemodel_config_file(crmodel, config_global_textname, fname, flags);
+    fname = prepare_file_fmtpath(FGrp_CmpgCrtrs, "%s.cfg", conf_fnstr);
+    if (strlen(fname) > 0)
+    {
+        load_creaturemodel_config_file(crmodel, config_campgn_textname, fname, flags | CnfLd_AcceptPartial | CnfLd_IgnoreErrors);
+    }
+    //Freeing and exiting
+    return result;
+}
+
+void do_creature_swap(long ncrt_id, long crtr_id)
+{
+    swap_creaturemodel_config(ncrt_id, crtr_id, 0);
+    SCRPTLOG("Swapped creature %s out for creature %s", creature_code_name(crtr_id), new_creature_code_name(ncrt_id));
+    creature_stats_updated(crtr_id);
+}
+
+TbBool swap_creature(long ncrt_id, long crtr_id)
+{
+    if ((crtr_id < 0) || (crtr_id >= CREATURE_TYPES_COUNT))
+    {
+        ERRORLOG("Creature index %d is invalid", crtr_id);
+        return false;
+    }
+    if (creature_swap_idx[crtr_id] > 0)
+    {
+        ERRORLOG("Creature of index %d already swapped", crtr_id);
+        return false;
+    }
+    do_creature_swap(ncrt_id, crtr_id);
+    return true;
 }
 
 /**

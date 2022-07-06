@@ -3376,7 +3376,7 @@ msgstr "Bündnis"
 #: guitext:418
 msgctxt "Menu interface item"
 msgid "Credits"
-msgstr "MITWIRKENDE"
+msgstr "Mitwirkende"
 
 #: guitext:419
 msgctxt "Menu interface item"
