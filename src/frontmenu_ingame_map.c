@@ -708,7 +708,7 @@ void pannel_map_update_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSu
             }  else
             if (slb->kind == SlbT_PURPLE)
             {
-                col = 8;
+                col = 176;
             } else {
                 col = owner_col + 170;
             }
@@ -950,8 +950,8 @@ void setup_pannel_colours(void)
         PannelColours[n + 5] = pixmap.ghost[bkcol + 140*256];
         PannelColours[n + 6] = 146;
         PannelColours[n + 7] = 85;
-        PannelColours[n + 8] = 255;
-        n = pncol_idx + 9;
+        PannelColours[n + 176] = 255;
+        n = pncol_idx + 8;
         int i;
         int k;
         for (i=17; i > 0; i--)
