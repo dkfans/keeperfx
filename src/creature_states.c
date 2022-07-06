@@ -3465,12 +3465,10 @@ char new_slab_tunneller_check_for_breaches(struct Thing *creatng)
         if (cctrl->byte_8A & (1 << i))
             continue;
 
-        if (!creature_can_navigate_to(
-                creatng,
-                &game.things.lookup[dgn->dnheart_idx]->mappos,
-                0))
+        if (!subtile_revealed(creatng->mappos.x.stl.num, creatng->mappos.y.stl.num, i))
             continue;
-        if (!((game.map[creatng->mappos.x.stl.num + (creatng->mappos.y.stl.num << 8)].data >> 28) & (1 << i)))
+
+        if (!creature_can_navigate_to(creatng, &game.things.lookup[dgn->dnheart_idx]->mappos, NavRtF_Default))
             continue;
 
         cctrl->byte_8A |= 1 << i;
