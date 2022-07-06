@@ -2266,6 +2266,7 @@ long ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey)
 long element_top_face_texture(struct Map *mapblk)
 {
     struct Column *col;
+    struct CubeAttribs* cubed;
     unsigned int data = mapblk->data;
     TbBool map_block_revealed = map_block_revealed_bit(mapblk, player_bit);
     int result = data & 0x7FF;
@@ -2280,9 +2281,14 @@ long element_top_face_texture(struct Map *mapblk)
         {
             col = get_column(game.unrevealed_column_idx);
         }
-        if ( (col->bitfields & CLF_FLOOR_MASK) != 0 )
+        if ( (col->bitfields & CLF_CEILING_MASK) != 0 )
         {
-            struct CubeAttribs *cubed = &game.cubes_data[col->cubes[get_column_floor_filled_subtiles(col) - 1]];
+            cubed = &game.cubes_data[col->cubes[4]];
+            return cubed->texture_id[4];
+        }
+        else if ((col->bitfields & CLF_FLOOR_MASK) != 0)
+        {
+            cubed = &game.cubes_data[col->cubes[get_column_floor_filled_subtiles(col) - 1]];
             return cubed->texture_id[4];
         }
         else
