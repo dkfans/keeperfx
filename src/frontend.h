@@ -126,10 +126,6 @@ DLLIMPORT struct GuiButtonInit * _DK_frontend_net_session_buttons;
 DLLIMPORT struct GuiButtonInit * _DK_frontend_net_start_buttons;
 DLLIMPORT struct GuiButtonInit _DK_frontend_net_modem_buttons[37];
 DLLIMPORT struct GuiButtonInit _DK_frontend_net_serial_buttons[22];
-DLLIMPORT struct GuiButtonInit * _DK_frontend_statistics_buttons;
-DLLIMPORT struct GuiButtonInit * _DK_autopilot_menu_buttons;
-DLLIMPORT struct GuiButtonInit * _DK_frontend_define_keys_buttons;
-DLLIMPORT struct GuiButtonInit * _DK_frontend_option_buttons;
 
 DLLIMPORT char _DK_info_tag;
 #define info_tag _DK_info_tag
