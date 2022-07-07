@@ -245,7 +245,7 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                 if (gameadd.object_conf.object_types_count == OBJECT_TYPES_MAX - 1)
                 {
                     gameadd.object_conf.object_types_count = tmodel;
-                    JUSTMSG("Loaded %d object types", gameadd.object_conf.object_types_count);
+                    JUSTMSG("Loaded %d object types from %s", gameadd.object_conf.object_types_count, config_textname);
                     break;
                 }
                 WARNMSG("Block [%s] not found in %s file.", block_buf, config_textname);
@@ -256,7 +256,7 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                 if (tmodel > gameadd.object_conf.object_types_count)
                 {
                     gameadd.object_conf.object_types_count = tmodel;
-                    JUSTMSG("Extended to %d object types", gameadd.object_conf.object_types_count);
+                    JUSTMSG("Extended to %d object types from %s", gameadd.object_conf.object_types_count, config_textname);
                     break;
                 }
             }

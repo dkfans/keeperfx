@@ -404,7 +404,7 @@ unsigned char field_211[6];
 unsigned char field_27F;
     short conscious_back_turns;
     short countdown_282; // signed
-    unsigned short field_284;
+    unsigned short damage_wall_coords;
     unsigned char joining_age;
     unsigned char blood_type;
     struct Coord3d flee_pos;
@@ -439,7 +439,7 @@ unsigned short shot_shift_z;
     unsigned char alarm_stl_y;
     unsigned long field_2FA;
     unsigned long field_2FE;
-    unsigned char field_302;
+    unsigned char stopped_for_hand_turns;
     long following_leader_since;
     unsigned char follow_leader_fails;
 };
@@ -647,6 +647,7 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     short toking_recovery;
     TbBool illuminated;
     char corpse_vanish_effect;
+    short footstep_pitch;
 };
 
 struct Persons {

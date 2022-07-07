@@ -145,7 +145,7 @@ int cmd_comp_list(PlayerNumber plyr_idx, int max_count,
     )
 {
     close_creature_cheat_menu();
-    //gui_cheat_box
+    //gui_cheat_box_2
     int i = 0;
     struct Computer2 *comp;
     comp = get_computer_player(plyr_idx);
@@ -197,7 +197,7 @@ static void cmd_comp_procs(PlayerNumber plyr_idx)
     cmd_comp_procs_data[i].label = "!";
     cmd_comp_procs_data[i].numfield_4 = 0;
 
-    gui_cheat_box = gui_create_box(my_mouse_x, 20, cmd_comp_procs_data);
+    gui_cheat_box_2 = gui_create_box(my_mouse_x, 20, cmd_comp_procs_data);
 }
 
 static const char *get_event_name(struct Computer2 *comp, int i)
@@ -215,7 +215,7 @@ static void cmd_comp_events(PlayerNumber plyr_idx)
         &get_event_name, &get_event_flags, NULL);
     cmd_comp_events_data[0].active_cb = NULL;
 
-    gui_cheat_box = gui_create_box(my_mouse_x, 20, cmd_comp_events_data);
+    gui_cheat_box_2 = gui_create_box(my_mouse_x, 20, cmd_comp_events_data);
 }
 
 
@@ -249,7 +249,7 @@ static void cmd_comp_checks(PlayerNumber plyr_idx)
         &get_check_name, &get_check_flags, &cmd_comp_checks_click);
     cmd_comp_checks_data[0].active_cb = NULL;
 
-    gui_cheat_box = gui_create_box(my_mouse_x, 20, cmd_comp_checks_data);
+    gui_cheat_box_2 = gui_create_box(my_mouse_x, 20, cmd_comp_checks_data);
 }
 
 static char *cmd_strtok(char *tail)
@@ -654,7 +654,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                     room = subtile_room_get(stl_x, stl_y);
                     if (room_exists(room))
                     {
-                        if (room->kind == RoK_TREASURE)
+                        if (room_role_matches(room->kind,RoRoF_GoldStorage))
                         {
                             count_gold_hoardes_in_room(room);
                         }

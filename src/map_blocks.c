@@ -37,6 +37,7 @@
 #include "spdigger_stack.h"
 #include "frontmenu_ingame_map.h"
 #include "game_legacy.h"
+#include "engine_render.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -44,7 +45,6 @@ extern "C" {
 /******************************************************************************/
 DLLIMPORT void _DK_set_slab_explored_flags(unsigned char flag, long tgslb_x, long tgslb_y);
 DLLIMPORT long _DK_ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey);
-DLLIMPORT long _DK_element_top_face_texture(struct Map *map);
 DLLIMPORT void _DK_shuffle_unattached_things_on_slab(long a1, long stl_x);
 DLLIMPORT void _DK_delete_attached_things_on_slab(long slb_x, long slb_y);
 
@@ -991,7 +991,7 @@ void delete_attached_lights_on_slab(MapSlabCoord slb_x, MapSlabCoord slb_y)
         {
             struct Light *lgt;
             lgt = &game.lish.lights[i];
-            i = lgt->field_26;
+            i = lgt->next_in_list;
             // Per-light code
             int lgtstl_x;
             int lgtstl_y;
@@ -1047,11 +1047,14 @@ void place_single_slab_fill_style_array(MapSlabCoord slb_x, MapSlabCoord slb_y, 
 
 void place_single_slab_set_torch_places(SlabKind slbkind, MapSlabCoord slb_x, MapSlabCoord slb_y, short *slab_type_list)
 {
+    struct SlabMap* slb;
+    struct SlabAttr* slbattr;
     SlabKind undecorated_slbkind;
     unsigned short torch_flags;
     if (slbkind == SlbT_TORCHDIRT) {
         undecorated_slbkind = SlbT_EARTH;
-    } else {
+    } 
+    else {
         undecorated_slbkind = slbkind + 4;
     }
     torch_flags = torch_flags_for_slab(slb_x, slb_y);
@@ -1060,18 +1063,46 @@ void place_single_slab_set_torch_places(SlabKind slbkind, MapSlabCoord slb_x, Ma
         slab_type_list[3] = undecorated_slbkind;
         slab_type_list[5] = undecorated_slbkind;
         if ((slb_y + slb_x) & 1)
-          slab_type_list[1] = undecorated_slbkind;
+        {
+            slb = get_slabmap_block(slb_x, slb_y-1);
+            slbattr = get_slab_attrs(slb);
+            if (slbattr->category != SlbAtCtg_RoomInterior)
+            {
+                slab_type_list[1] = undecorated_slbkind;
+            }
+        }
         else
-          slab_type_list[7] = undecorated_slbkind;
+        {
+            slb = get_slabmap_block(slb_x, slb_y+1);
+            slbattr = get_slab_attrs(slb);
+            if (slbattr->category != SlbAtCtg_RoomInterior)
+            {
+                slab_type_list[7] = undecorated_slbkind;
+            }
+        }
     } else
     if ((torch_flags & 0x02) != 0)
     {
         slab_type_list[1] = undecorated_slbkind;
         slab_type_list[7] = undecorated_slbkind;
         if ((slb_y + slb_x) & 1)
-          slab_type_list[3] = undecorated_slbkind;
+        {
+            slb = get_slabmap_block(slb_x-1, slb_y);
+            slbattr = get_slab_attrs(slb);
+            if (slbattr->category != SlbAtCtg_RoomInterior)
+            {
+                slab_type_list[3] = undecorated_slbkind;
+            }
+        }
         else
-          slab_type_list[5] = undecorated_slbkind;
+        {
+            slb = get_slabmap_block(slb_x+1, slb_y);
+            slbattr = get_slab_attrs(slb);
+            if (slbattr->category != SlbAtCtg_RoomInterior)
+            {
+                slab_type_list[5] = undecorated_slbkind;
+            }
+        }
     }
 }
 
@@ -2232,9 +2263,34 @@ long ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey)
     return _DK_ceiling_partially_recompute_heights(sx, sy, ex, ey);
 }
 
-long element_top_face_texture(struct Map *map)
+long element_top_face_texture(struct Map *mapblk)
 {
-  return _DK_element_top_face_texture(map);
+    struct Column *col;
+    unsigned int data = mapblk->data;
+    TbBool map_block_revealed = map_block_revealed_bit(mapblk, player_bit);
+    int result = data & 0x7FF;
+
+    if ( !map_block_revealed || (result != 0) )
+    {
+        if ( map_block_revealed )
+        {
+            col = get_map_column(mapblk);
+        }
+        else
+        {
+            col = get_column(game.unrevealed_column_idx);
+        }
+        if ( (col->bitfields & CLF_FLOOR_MASK) != 0 )
+        {
+            struct CubeAttribs *cubed = &game.cubes_data[col->cubes[get_column_floor_filled_subtiles(col) - 1]];
+            return cubed->texture_id[4];
+        }
+        else
+        {
+            return col->baseblock;
+        }
+    }
+    return result;
 }
 
 TbBool point_in_map_is_solid_ignoring_door(const struct Coord3d *pos, const struct Thing *doortng)

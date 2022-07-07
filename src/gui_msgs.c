@@ -88,8 +88,8 @@ void message_draw(void)
                 }
                 else if (IsRoom)
                 {
-                    struct RoomData* rdata = room_data_get_for_kind(~(char)(((char)gameadd.messages[i].plyr_idx) + 78) + 1);
-                    spr_idx = rdata->medsym_sprite_idx;
+                    const struct RoomConfigStats* roomst = get_room_kind_stats(~(char)(((char)gameadd.messages[i].plyr_idx) + 78) + 1);
+                    spr_idx = roomst->medsym_sprite_idx;
                     x -= (10 * units_per_pixel / 16);
                     y -= (10 * units_per_pixel / 16);
                 }

@@ -81,6 +81,7 @@ TbBool creature_can_navigate_to_f(const struct Thing *thing, struct Coord3d *pos
 TbBool creature_can_navigate_to_with_storage_f(const struct Thing *crtng, const struct Coord3d *pos, NaviRouteFlags flags, const char *func_name);
 #define creature_can_navigate_to_with_storage(crtng,pos,flags) creature_can_navigate_to_with_storage_f(crtng,pos,flags,__func__)
 TbBool creature_can_get_to_dungeon(struct Thing *thing, PlayerNumber plyr_idx);
+TbBool creature_can_head_for_room(struct Thing *thing, struct Room *room, int flags);
 struct Thing *find_hero_door_hero_can_navigate_to(struct Thing *herotng);
 TbBool get_nearest_valid_position_for_creature_at(struct Thing *thing, struct Coord3d *pos);
 

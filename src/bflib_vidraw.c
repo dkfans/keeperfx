@@ -25,6 +25,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
+#include <stddef.h>
 #include "globals.h"
 
 #include "bflib_video.h"
@@ -1711,9 +1712,9 @@ void LbPixelBlockCopyForward(TbPixel * dst, const TbPixel * src, long len)
 {
     TbPixel px;
     unsigned long pxquad;
-    if ( !((int)dst & 3) || ((px = *src, ++src, *dst = px, ++dst, --len, len)
-     && (!((int)dst & 3) || ((px = *src, ++src, *dst = px, ++dst, --len, len)
-     && (!((int)dst & 3) ||  (px = *src, ++src, *dst = px, ++dst, --len, len))))) )
+    if ( !((ptrdiff_t)dst & 3) || ((px = *src, ++src, *dst = px, ++dst, --len, len)
+     && (!((ptrdiff_t)dst & 3) || ((px = *src, ++src, *dst = px, ++dst, --len, len)
+     && (!((ptrdiff_t)dst & 3) ||  (px = *src, ++src, *dst = px, ++dst, --len, len))))) )
     {
         long l;
         for ( l = len>>2; l > 0; l--)

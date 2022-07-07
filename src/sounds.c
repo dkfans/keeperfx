@@ -86,6 +86,7 @@ void play_thing_walking(struct Thing *thing)
 {
     struct PlayerInfo* myplyr = get_my_player();
     struct Camera* cam = myplyr->acamera;
+    struct CreatureStats* crstat;
     { // Skip the thing if its distance to camera is too big
         MapSubtlDelta dist_x = coord_subtile(abs(cam->mappos.x.val - (MapCoordDelta)thing->mappos.x.val));
         MapSubtlDelta dist_y = coord_subtile(abs(cam->mappos.y.val - (MapCoordDelta)thing->mappos.y.val));
@@ -130,24 +131,10 @@ void play_thing_walking(struct Thing *thing)
                 cctrl->mood_flags |=  (UNSYNC_RANDOM(4) << 2);
                 cctrl->field_67 &= ~0x1F;
             }
-            //TODO CONFIG creature model dependency; remove, add config file option for this
-            ThingModel crmodel = thing->model;
-            unsigned short smpl_pitch;
-            if (crmodel == 19 || crmodel == 24)
-            { //FLY or BUG
-                smpl_pitch = 400;
-            }
-            else if (crmodel == 27)
-            { //HELL_HOUND
-                smpl_pitch = 300;
-            }
-            else
-            {
-                smpl_pitch = 100;
-            }
-            thing_play_sample(thing, smpl_idx, smpl_pitch, 0, 3, 3, 1, loudness);
+            crstat = creature_stats_get(thing->model);
+            thing_play_sample(thing, smpl_idx, crstat->footstep_pitch, 0, 3, 3, 1, loudness);
             if ((thing->movement_flags & TMvF_IsOnWater) != 0) {
-                thing_play_sample(thing, 21 + SOUND_RANDOM(4), 90 + SOUND_RANDOM(20), 0, 3, 3, 1, FULL_LOUDNESS);
+                thing_play_sample(thing, 21 + UNSYNC_RANDOM(4), 90 + UNSYNC_RANDOM(20), 0, 3, 3, 1, FULL_LOUDNESS);
             }
         }
     }

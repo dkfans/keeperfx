@@ -94,6 +94,9 @@ static int num_added_icons = 0;
 int num_icons_total = GUI_PANEL_SPRITES_COUNT;
 unsigned char base_pal[PALETTE_SIZE];
 
+static unsigned char big_scratch_data[1024*1024*16] = {0};
+unsigned char *big_scratch = big_scratch_data;
+
 static void init_pal_conversion();
 
 static void compress_raw(struct TbHugeSprite *sprite, unsigned char *src_buf, int x, int y, int w, int h);
@@ -634,7 +637,7 @@ static int read_png_icon(unzFile zip, const char *path, const char *subpath, int
         return 0;
     }
 
-    unsigned char *dst_buf = scratch;
+    unsigned char *dst_buf = big_scratch;
     spng_decode_image(ctx, dst_buf, out_size, fmt, SPNG_DECODE_TRNS);
 
     if (sprite.SWidth >= 255 || sprite.SHeight >= 255)
@@ -714,7 +717,7 @@ static int read_png_data(unzFile zip, const char *path, struct SpriteContext *co
         return 0;
     }
 
-    unsigned char *dst_buf = scratch;
+    unsigned char *dst_buf = big_scratch;
     if (spng_decode_image(ctx, dst_buf, out_size, fmt, SPNG_DECODE_TRNS))
     {
         ERRORLOG("Unable to decode %s/%s", path, subpath);
@@ -1194,13 +1197,13 @@ add_custom_json(const char *path, const char *name, TbBool (*process)(const char
         return 0;
     }
 
-    if (unzReadCurrentFile(zip, scratch, zip_info.uncompressed_size) != zip_info.uncompressed_size)
+    if (unzReadCurrentFile(zip, big_scratch, zip_info.uncompressed_size) != zip_info.uncompressed_size)
     {
         WARNLOG("Unable to read %s/%s", path, name);
         unzClose(zip);
         return 0;
     }
-    scratch[zip_info.uncompressed_size] = 0;
+    big_scratch[zip_info.uncompressed_size] = 0;
 
     if (UNZ_OK != unzCloseCurrentFile(zip))
     {
@@ -1208,7 +1211,7 @@ add_custom_json(const char *path, const char *name, TbBool (*process)(const char
         return 0;
     }
 
-    int ret = json_dom_parse((char *) scratch, zip_info.uncompressed_size, NULL, 0, &root, &json_input_pos);
+    int ret = json_dom_parse((char *) big_scratch, zip_info.uncompressed_size, NULL, 0, &root, &json_input_pos);
     if (ret)
     {
 

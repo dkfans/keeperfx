@@ -594,7 +594,7 @@ long computer_event_handle_prisoner(struct Computer2* comp, struct ComputerEvent
     {
         if (!creature_requires_healing(creatng))
         {
-            destroom = find_room_with_spare_capacity(dungeon->owner, RoK_TORTURE, 1);
+            destroom = find_room_of_role_with_spare_capacity(dungeon->owner, RoRoF_Torture, 1);
             if (!room_is_invalid(destroom))
             {
 
@@ -662,7 +662,7 @@ long computer_event_save_tortured(struct Computer2* comp, struct ComputerEvent* 
     TbBool can_return = false;
     if (dungeon_has_room(dungeon, RoK_PRISON))
     {
-        destroom = find_room_with_spare_capacity(dungeon->owner, RoK_PRISON, 1);
+        destroom = find_room_of_role_with_spare_capacity(dungeon->owner, RoRoF_Prison, 1);
         if (!room_is_invalid(destroom))
         {
             can_return = true;
@@ -826,7 +826,7 @@ long computer_event_check_payday(struct Computer2 *comp, struct ComputerEvent *c
         }
     }
     // Move any gold laying around to treasure room
-    if (dungeon_has_room(dungeon, RoK_TREASURE))
+    if (dungeon_has_room_of_role(dungeon, RoRoF_GoldStorage))
     {
         // If there's already task in progress which uses hand, then don't add more
         // content; the hand could be used by wrong task by mistake

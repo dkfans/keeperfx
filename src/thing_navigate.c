@@ -369,6 +369,13 @@ TbBool creature_can_get_to_dungeon(struct Thing *creatng, PlayerNumber plyr_idx)
     return creature_can_navigate_to(creatng, &heartng->mappos, NavRtF_Default);
 }
 
+TbBool creature_can_head_for_room(struct Thing *thing, struct Room *room, int flags)
+{
+    struct Coord3d pos;
+    return find_first_valid_position_for_thing_anywhere_in_room(thing, room, &pos)
+        && creature_can_navigate_to_with_storage(thing, &pos, flags);
+}
+
 long creature_turn_to_face(struct Thing *thing, const struct Coord3d *pos)
 {
     //TODO enable when issue in pathfinding is solved
