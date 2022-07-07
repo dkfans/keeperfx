@@ -81,7 +81,12 @@ void process_dungeon_destroy(struct Thing* heartng)
     plyr_idx = heartng->owner;
     //_DK_process_dungeon_destroy(heartng); return;
     dungeon = get_dungeon(plyr_idx);
-    if (dungeon->heart_destroy_state == 0) {
+    if (dungeon->heart_destroy_state == 0)
+    {
+        return;
+    }
+    if (heartng->index != dungeon->dnheart_idx)
+    {
         return;
     }
     powerful_magic_breaking_sparks(heartng);
@@ -141,14 +146,6 @@ void process_dungeon_destroy(struct Thing* heartng)
         efftng = create_effect(central_pos, TngEff_WoPExplosion, plyr_idx);
         if (!thing_is_invalid(efftng))
             efftng->shot_effect.hit_type = THit_HeartOnlyNotOwn;
-        if (gameadd.heart_lost_display_message)
-        {
-            if (is_my_player_number(heartng->owner))
-            {
-                const char *objective = (gameadd.heart_lost_quick_message) ? gameadd.quick_messages[gameadd.heart_lost_message_id] : get_string(gameadd.heart_lost_message_id);
-                process_objective(objective, gameadd.heart_lost_message_target, 0, 0);
-            }
-        }
         destroy_dungeon_heart_room(plyr_idx, heartng);
         delete_thing_structure(heartng, 0);
     }
@@ -163,6 +160,14 @@ void process_dungeon_destroy(struct Thing* heartng)
         }
         else
         {
+            if (gameadd.heart_lost_display_message)
+            {
+                if (is_my_player_number(heartng->owner))
+                {
+                    const char* objective = (gameadd.heart_lost_quick_message) ? gameadd.quick_messages[gameadd.heart_lost_message_id] : get_string(gameadd.heart_lost_message_id);
+                    process_objective(objective, gameadd.heart_lost_message_target, 0, 0);
+                }
+            }
             // If this is the last heart the player had, finish him
             setup_all_player_creatures_and_diggers_leave_or_die(plyr_idx);
             player->allied_players = (1 << player->id_number);
