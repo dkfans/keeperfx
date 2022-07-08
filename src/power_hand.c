@@ -336,28 +336,29 @@ struct Thing *process_object_being_picked_up(struct Thing *thing, long plyr_idx)
   return picktng;
 }
 
-void set_power_hand_graphic(long plyr_idx, long a2, long a3)
+void set_power_hand_graphic(unsigned char plyr_idx, long AnimationID, long AnimationSpeed)
 {
   struct PlayerInfo *player;
   struct Thing *thing;
   player = get_player(plyr_idx);
   if (player->hand_busy_until_turn >= game.play_gameturn)
   {
-    if ((a2 == 786) || (a2 == 787))
+    if ((AnimationID == 786) || (AnimationID == 787))
       player->hand_busy_until_turn = 0;
   }
   if (player->hand_busy_until_turn < game.play_gameturn)
   {
-    if (player->field_C != a2)
+    if (player->field_C != AnimationID)
     {
-      player->field_C = a2;
+      player->field_C = AnimationID;
       thing = thing_get(player->hand_thing_idx);
-      if ((a2 == 782) || (a2 == 781))
+      if ((AnimationID == 782) || (AnimationID == 781))
       {
-        set_thing_draw(thing, a2, a3, gameadd.crtr_conf.sprite_size, 0, 0, 2);
+          //set_thing_draw(thing, AnimationID, AnimationSpeed, gameadd.crtr_conf.sprite_size, 0, 0, 2);
+        set_thing_draw(thing, AnimationID, AnimationSpeed, 30, 0, 0, 2);
       } else
       {
-        set_thing_draw(thing, a2, a3, gameadd.crtr_conf.sprite_size, 1, 0, 2);
+        set_thing_draw(thing, AnimationID, AnimationSpeed, 60, 1, 0, 2);
       }
       thing = get_first_thing_in_power_hand(player);
       set_power_hand_offset(player,thing);
@@ -1193,6 +1194,7 @@ struct Thing *create_power_hand(PlayerNumber owner)
     struct PlayerInfo *player;
     struct Thing *thing;
     struct Thing *grabtng;
+    struct Objects* objdat;
     struct Coord3d pos;
     pos.x.val = 0;
     pos.y.val = 0;
@@ -1208,14 +1210,17 @@ struct Thing *create_power_hand(PlayerNumber owner)
     grabtng = get_first_thing_in_power_hand(player);
     if (thing_is_invalid(thing))
     {
-      set_power_hand_graphic(owner, 782, 256);
+      objdat = get_objects_data(37);
+      set_power_hand_graphic(owner, objdat->sprite_anim_idx, objdat->anim_speed);
     } else
     if ((grabtng->class_id == TCls_Object) && object_is_gold_pile(grabtng))
     {
-        set_power_hand_graphic(owner, 781, 256);
+        objdat = get_objects_data(127);
+        set_power_hand_graphic(owner, objdat->sprite_anim_idx, objdat->anim_speed);
     } else
     {
-        set_power_hand_graphic(owner, 784, 256);
+        objdat = get_objects_data(38);
+        set_power_hand_graphic(owner, objdat->sprite_anim_idx, objdat->anim_speed);
     }
     place_thing_in_limbo(thing);
     return thing;
