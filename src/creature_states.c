@@ -87,7 +87,6 @@ extern "C" {
 /* Please note that functions returning 'short' are not ment to return true/false only! */
 /******************************************************************************/
 DLLIMPORT long _DK_move_check_can_damage_wall(struct Thing *creatng);
-DLLIMPORT long _DK_move_check_persuade(struct Thing *creatng);
 DLLIMPORT long _DK_get_best_position_outside_room(struct Thing *creatng, struct Coord3d *pos, struct Room *room);
 /******************************************************************************/
 short already_at_call_to_arms(struct Thing *creatng);
@@ -3411,7 +3410,60 @@ CrCheckRet move_check_on_head_for_room(struct Thing *creatng)
 
 CrCheckRet move_check_persuade(struct Thing *creatng)
 {
-  return _DK_move_check_persuade(creatng);
+    struct Thing *group_leader;
+    TbBool creature_is_leader;
+    struct Thing *i;
+    struct Thing *i_leader;
+
+    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
+    if (cctrl->job_stage)
+    {
+        group_leader = get_group_leader(creatng);
+        if (group_leader == creatng)
+        {
+            creature_is_leader = true;
+        }
+        else
+        {
+            creature_is_leader = false;
+            if (group_leader)
+                disband_creatures_group(creatng);
+        }
+
+        MapSubtlCoord base_stl_x = creatng->mappos.x.stl.pos - creatng->mappos.x.stl.pos % 3;
+        MapSubtlCoord base_stl_y = creatng->mappos.y.stl.pos - creatng->mappos.y.stl.pos % 3;
+       
+        for (MapSubtlDelta stl_offset_x = 0; stl_offset_x < STL_PER_SLB; stl_offset_x++)
+        {
+            for (MapSubtlDelta stl_offset_y = 0; stl_offset_y < STL_PER_SLB; stl_offset_y++)
+            {
+                struct Map* mapblk = get_map_block_at(base_stl_x + stl_offset_x, base_stl_y + stl_offset_y);
+                for ( i = thing_get(get_mapwho_thing_index(mapblk));
+                      !thing_is_invalid(i);
+                      i = thing_get(i->next_on_mapblk) )
+                {
+                    if (i->owner != creatng->owner || !thing_is_creature(i) || i == creatng || i->model == get_players_special_digger_model(creatng->owner))
+                        continue;
+                    i_leader = get_group_leader(i);
+                    if (i_leader)
+                    {
+                        if (i_leader == creatng)
+                            continue;
+                        remove_creature_from_group(i);
+                    }
+                    if ((creature_is_leader && add_creature_to_group(i, creatng)) || add_creature_to_group_as_leader(creatng, i))
+                    {
+                        cctrl->job_stage--;
+                        if (cctrl->job_stage == 0)
+                        {
+                            return 0;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return 0;
 }
 
 CrCheckRet move_check_wait_at_door_for_wage(struct Thing *creatng)
