@@ -593,7 +593,7 @@ long shot_kill_object(struct Thing *shotng, struct Thing *target)
 {
     if (thing_is_dungeon_heart(target))
     {
-        target->active_state = 3;
+        target->active_state = ObSt_BeingDestroyed;
         target->health = -1;
         if (is_my_player_number(shotng->owner))
         {
