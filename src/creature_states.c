@@ -3410,18 +3410,10 @@ CrCheckRet move_check_on_head_for_room(struct Thing *creatng)
 
 CrCheckRet move_check_persuade(struct Thing *creatng)
 {
- // return _DK_move_check_persuade(creatng);
-    
-    int v1;
     struct Thing *group_leader;
     TbBool creature_is_leader;
     struct Thing *i;
     struct Thing *i_leader;
-    TbBool v6;
-    int v8;
-    int v9;
-    long p_data;
-    int v11;
 
     struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
     if (cctrl->job_stage)
@@ -3429,24 +3421,23 @@ CrCheckRet move_check_persuade(struct Thing *creatng)
         group_leader = get_group_leader(creatng);
         if (group_leader == creatng)
         {
-            creature_is_leader = 1;
+            creature_is_leader = true;
         }
         else
         {
-            creature_is_leader = 0;
+            creature_is_leader = false;
             if (group_leader)
                 disband_creatures_group(creatng);
         }
 
-        struct Map* mapblk = get_map_block_at(creatng->mappos.y.stl.pos - creatng->mappos.y.stl.pos % 3, creatng->mappos.x.stl.pos - creatng->mappos.x.stl.pos % 3);
+        MapSubtlCoord base_stl_x = creatng->mappos.x.stl.pos - creatng->mappos.x.stl.pos % 3;
+        MapSubtlCoord base_stl_y = creatng->mappos.y.stl.pos - creatng->mappos.y.stl.pos % 3;
        
-        v11 = STL_PER_SLB;
-        do
+        for (MapSubtlDelta stl_offset_x = 0; stl_offset_x < STL_PER_SLB; stl_offset_x++)
         {
-            v8 = STL_PER_SLB;
-            v9 = p_data;
-            do
+            for (MapSubtlDelta stl_offset_y = 0; stl_offset_y < STL_PER_SLB; stl_offset_y++)
             {
+                struct Map* mapblk = get_map_block_at(base_stl_x + stl_offset_x, base_stl_y + stl_offset_y);
                 for ( i = thing_get(get_mapwho_thing_index(mapblk));
                       !thing_is_invalid(i);
                       i = thing_get(i->next_on_mapblk) )
@@ -3462,20 +3453,17 @@ CrCheckRet move_check_persuade(struct Thing *creatng)
                     }
                     if ((creature_is_leader && add_creature_to_group(i, creatng)) || add_creature_to_group_as_leader(creatng, i))
                     {
-                        --cctrl->job_stage;
+                        cctrl->job_stage--;
+                        if (cctrl->job_stage == 0)
+                        {
+                            return 0;
+                        }
                     }
                 }
-                v6 = v8 == 1;
-                v9 += 320;
-                --v8;
-            } while (!v6);
-            v6 = v11 == 1;
-            p_data = (int *)((char *)p_data + 5);
-            --v11;
-        } while (!v6);
+            }
+        }
     }
     return 0;
-    
 }
 
 CrCheckRet move_check_wait_at_door_for_wage(struct Thing *creatng)
