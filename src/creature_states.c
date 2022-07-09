@@ -87,7 +87,6 @@ extern "C" {
 /* Please note that functions returning 'short' are not ment to return true/false only! */
 /******************************************************************************/
 DLLIMPORT long _DK_move_check_can_damage_wall(struct Thing *creatng);
-DLLIMPORT long _DK_move_check_persuade(struct Thing *creatng);
 DLLIMPORT long _DK_get_best_position_outside_room(struct Thing *creatng, struct Coord3d *pos, struct Room *room);
 /******************************************************************************/
 short already_at_call_to_arms(struct Thing *creatng);
@@ -3411,7 +3410,72 @@ CrCheckRet move_check_on_head_for_room(struct Thing *creatng)
 
 CrCheckRet move_check_persuade(struct Thing *creatng)
 {
-  return _DK_move_check_persuade(creatng);
+ // return _DK_move_check_persuade(creatng);
+    
+    int v1;
+    struct Thing *group_leader;
+    TbBool creature_is_leader;
+    struct Thing *i;
+    struct Thing *i_leader;
+    TbBool v6;
+    int v8;
+    int v9;
+    long p_data;
+    int v11;
+
+    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
+    if (cctrl->job_stage)
+    {
+        group_leader = get_group_leader(creatng);
+        if (group_leader == creatng)
+        {
+            creature_is_leader = 1;
+        }
+        else
+        {
+            creature_is_leader = 0;
+            if (group_leader)
+                disband_creatures_group(creatng);
+        }
+
+        struct Map* mapblk = get_map_block_at(creatng->mappos.y.stl.pos - creatng->mappos.y.stl.pos % 3, creatng->mappos.x.stl.pos - creatng->mappos.x.stl.pos % 3);
+       
+        v11 = STL_PER_SLB;
+        do
+        {
+            v8 = STL_PER_SLB;
+            v9 = p_data;
+            do
+            {
+                for ( i = thing_get(get_mapwho_thing_index(mapblk));
+                      !thing_is_invalid(i);
+                      i = thing_get(i->next_on_mapblk) )
+                {
+                    if (i->owner != creatng->owner || !thing_is_creature(i) || i == creatng || i->model == get_players_special_digger_model(creatng->owner))
+                        continue;
+                    i_leader = get_group_leader(i);
+                    if (i_leader)
+                    {
+                        if (i_leader == creatng)
+                            continue;
+                        remove_creature_from_group(i);
+                    }
+                    if ((creature_is_leader && add_creature_to_group(i, creatng)) || add_creature_to_group_as_leader(creatng, i))
+                    {
+                        --cctrl->job_stage;
+                    }
+                }
+                v6 = v8 == 1;
+                v9 += 320;
+                --v8;
+            } while (!v6);
+            v6 = v11 == 1;
+            p_data = (int *)((char *)p_data + 5);
+            --v11;
+        } while (!v6);
+    }
+    return 0;
+    
 }
 
 CrCheckRet move_check_wait_at_door_for_wage(struct Thing *creatng)
