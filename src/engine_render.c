@@ -6562,20 +6562,21 @@ static void display_fast_drawlist(struct Camera *cam) // Draws frontview only. N
  * @return true if projected point is withing player's window, false otherwise
  */
  
+#define UNKNOWN_PPH_MASK 0xFFFE
 static TbBool project_point_helper(struct PlayerInfo *player, int zoom, MapCoordDelta vertical_delta, MapCoordDelta horizontal_delta, MapCoord pos_z, long *x_out, long *y_out, long *z_out)
 {
-    int v11;
-    int64_t v13;
-    uint8_t v13_byte4;
+    int vertical_shift;
+    long new_zoom;
+    char offset;
     short window_width = player->engine_window_width;
     short window_height = player->engine_window_height;
 
-    *x_out = (zoom * horizontal_delta >> 16) + (*(uint16_t *)&window_width >> 1);
-    v11 = zoom * vertical_delta >> 8;
-    *z_out = window_height - ((v11 + ((uint16_t)(window_height & 0xFFFE) << 7)) >> 8) + 64;
-    v13 = zoom * *(int16_t *)&pos_z << 7;
-    v13_byte4 = *((uint8_t *)&v13 + 4);
-    *y_out = (v11 + ((uint16_t)(window_height & 0xFFFE) << 7) - ((v13_byte4 + (signed int)v13) >> 16)) >> 8;
+    *x_out = (zoom * horizontal_delta >> 16) + (window_width / 2);
+    vertical_shift = zoom * vertical_delta >> 8;
+    *z_out = window_height - ((vertical_shift + ((window_height & UNKNOWN_PPH_MASK) << 7)) >> 8) + 64;
+    new_zoom = zoom/128 * pos_z;
+    offset = new_zoom + 4;
+    *y_out = (vertical_shift + ((window_height & UNKNOWN_PPH_MASK) << 7) - ((offset + new_zoom) >> 16)) >> 8;
 
     return (*x_out >= 0 && *x_out < window_width && *y_out >= 0 && *y_out < window_height);
 }
