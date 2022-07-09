@@ -354,11 +354,10 @@ void set_power_hand_graphic(unsigned char plyr_idx, long AnimationID, long Anima
       thing = thing_get(player->hand_thing_idx);
       if ((AnimationID == 782) || (AnimationID == 781))
       {
-          //set_thing_draw(thing, AnimationID, AnimationSpeed, gameadd.crtr_conf.sprite_size, 0, 0, 2);
-        set_thing_draw(thing, AnimationID, AnimationSpeed, 30, 0, 0, 2);
+        set_thing_draw(thing, AnimationID, AnimationSpeed, gameadd.crtr_conf.sprite_size, 0, 0, 2);
       } else
       {
-        set_thing_draw(thing, AnimationID, AnimationSpeed, 60, 1, 0, 2);
+        set_thing_draw(thing, AnimationID, AnimationSpeed, gameadd.crtr_conf.sprite_size, 1, 0, 2);
       }
       thing = get_first_thing_in_power_hand(player);
       set_power_hand_offset(player,thing);
