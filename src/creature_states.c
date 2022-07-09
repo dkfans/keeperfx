@@ -3502,6 +3502,8 @@ char new_slab_tunneller_check_for_breaches(struct Thing *creatng)
 {
     TRACE_THING(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    struct Map* mapblk;
+    struct Column* col;
 
     // NB: the code assumes PLAYERS_COUNT = DUNGEONS_COUNT
     for (int i = 0; i < PLAYERS_COUNT; ++i)
@@ -3514,15 +3516,20 @@ char new_slab_tunneller_check_for_breaches(struct Thing *creatng)
         if (!dgn->dnheart_idx)
             continue;
 
+        // Player dungeon already broken into
         if (cctrl->byte_8A & (1 << i))
             continue;
 
-        if (!creature_can_navigate_to(
-                creatng,
-                &game.things.lookup[dgn->dnheart_idx]->mappos,
-                0))
+        if (!subtile_revealed(creatng->mappos.x.stl.num, creatng->mappos.y.stl.num, i))
             continue;
-        if (!((game.map[creatng->mappos.x.stl.num + (creatng->mappos.y.stl.num << 8)].data >> 28) & (1 << i)))
+
+        //If there is a ceiling, the tunneler is invisible too. For tunnels.
+        mapblk = get_map_block_at(creatng->mappos.x.stl.num, creatng->mappos.y.stl.num);
+        col = get_map_column(mapblk);
+        if ((col->bitfields & CLF_CEILING_MASK) != 0)
+            continue;
+
+        if (!creature_can_navigate_to(creatng, &game.things.lookup[dgn->dnheart_idx]->mappos, NavRtF_Default))
             continue;
 
         cctrl->byte_8A |= 1 << i;
