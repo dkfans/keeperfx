@@ -545,7 +545,6 @@ int script_recognize_params(char **line, const struct CommandDesc *cmd_desc, str
                         if (funscline->tp[fi][0] == '\0') {
                             break;
                         }
-                        else
                         if (toupper(chr) == 'A')
                         {
                             // Values which do not support range
