@@ -1818,9 +1818,9 @@ void create_dirt_rubble_for_dug_slab(MapSlabCoord slb_x, MapSlabCoord slb_y)
     {
         for (x = stl_x; x < stl_x+STL_PER_SLB; x++)
         {
+            z = get_floor_filled_subtiles_at(x, y);
             if (z > 0) 
             {
-                z = get_floor_filled_subtiles_at(x, y);
                 create_dirt_rubble_for_dug_block(x, y, z, game.neutral_player_num);
             }
         }
