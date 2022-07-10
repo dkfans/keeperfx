@@ -327,13 +327,23 @@ static TbBool script_command_param_to_number(char type_chr, struct ScriptLine *s
         }
         break;
     }
-    case 'P':{
+    case 'P': 
+    {
         long plr_range_id;
-        if (!get_player_id(scline->tp[idx], &plr_range_id)) {
+
+        if (scline->tp[idx] == NULL)
+        {
+            JUSTMSG("testlog: Yes, we got a NULL");
+            scline->np[idx] = ALL_PLAYERS;
+        }
+        JUSTMSG("testlog: Nos, we got a '%s'", scline->tp[idx]);
+        if (!get_player_id(scline->tp[idx], &plr_range_id))
+        {
             return false;
         }
         scline->np[idx] = plr_range_id;
-        };break;
+        break;
+    }
     case 'C':{
         long crtr_id = get_rid(creature_desc, scline->tp[idx]);
         if (extended)
@@ -540,8 +550,14 @@ int script_recognize_params(char **line, const struct CommandDesc *cmd_desc, str
                     for (fi = 0, ri = 0; fi < COMMANDDESC_ARGS_COUNT; fi++, ri++)
                     {
                         if (funscline->tp[fi][0] == '\0') {
-                            break;
+                            //break;
                         }
+                        if (toupper(chr) == 'p')
+                        {
+                            // Values which do not support range
+                            JUSTMSG("testlog: we got a p");
+                        }
+                        else
                         if (toupper(chr) == 'A')
                         {
                             // Values which do not support range
@@ -663,7 +679,7 @@ int script_recognize_params(char **line, const struct CommandDesc *cmd_desc, str
             LbMemoryFree(funscline);
         }
         if (scline->tp[dst][0] == '\0') {
-          break;
+         // break;
         }
         if (*para_level > expect_level+2) {
             SCRPTWRNLOG("Parameter %d of command \"%s\", value \"%s\", is at too high paraenesis level %d", dst + 1, scline->tcmnd, scline->tp[dst], (int)*para_level);
@@ -960,7 +976,7 @@ static void process_party(struct PartyTrigger* pr_trig)
     case TrgF_CREATE_OBJECT:
         n |= ((pr_trig->crtr_level & 7) << 7);
         SYNCDBG(6, "Adding object %d at location %d", (int)n, (int)pr_trig->location);
-        script_process_new_object(n, pr_trig->location, pr_trig->carried_gold);
+        script_process_new_object(n, pr_trig->location, pr_trig->carried_gold, pr_trig->plyr_idx);
         break;
     case TrgF_CREATE_PARTY:
         SYNCDBG(6, "Adding player %d party %d at location %d", (int)pr_trig->plyr_idx, (int)n, (int)pr_trig->location);
