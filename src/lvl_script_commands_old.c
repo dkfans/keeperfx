@@ -153,7 +153,7 @@ static void command_add_party_to_level(long plr_range_id, const char *prtname, c
     }
 }
 
-static void command_add_object_to_level(const char *obj_name, const char *locname, long arg, const char* playername) //unsigned long plr_range_id)
+static void command_add_object_to_level(const char *obj_name, const char *locname, long arg, const char* playername)
 {
     TbMapLocation location;
     long obj_id = get_rid(object_desc, obj_name);
@@ -167,16 +167,13 @@ static void command_add_object_to_level(const char *obj_name, const char *locnam
         SCRPTERRLOG("Too many ADD_CREATURE commands in script");
         return;
     }
-    char id = get_rid(player_desc, playername);
-    JUSTMSG("testlog on the command itself we have %d from %s", id, playername);
-    if (id == -1)
-        id = PLAYER_NEUTRAL;
-    // Verify player
-    long plr_id = get_players_range_single(id);
-    if (plr_id < 0) {
-        SCRPTERRLOG("Given owning player is not supported in this command");
-        return;
+    long plr_id = get_rid(player_desc, playername);
+
+    if ((plr_id == -1) || (plr_id == ALL_PLAYERS))
+    {
+        plr_id = PLAYER_NEUTRAL;
     }
+
     // Recognize place where party is created
     if (!get_map_location_id(locname, &location))
         return;
@@ -188,7 +185,7 @@ static void command_add_object_to_level(const char *obj_name, const char *locnam
         struct PartyTrigger* pr_trig = &gameadd.script.party_triggers[gameadd.script.party_triggers_num % PARTY_TRIGGERS_COUNT];
         pr_trig->flags = TrgF_CREATE_OBJECT;
         pr_trig->flags |= next_command_reusable?TrgF_REUSABLE:0;
-        pr_trig->plyr_idx = plr_id; //That is because script is inside `struct Game` and it is not possible to enlarge it
+        pr_trig->plyr_idx = plr_id;
         pr_trig->creatr_id = obj_id & 0x7F;
         pr_trig->crtr_level = ((obj_id >> 7) & 7); // No more than 1023 different classes of objects :)
         pr_trig->carried_gold = arg;

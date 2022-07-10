@@ -330,13 +330,6 @@ static TbBool script_command_param_to_number(char type_chr, struct ScriptLine *s
     case 'P': 
     {
         long plr_range_id;
-
-        if (scline->tp[idx] == NULL)
-        {
-            JUSTMSG("testlog: Yes, we got a NULL");
-            scline->np[idx] = ALL_PLAYERS;
-        }
-        JUSTMSG("testlog: Nos, we got a '%s'", scline->tp[idx]);
         if (!get_player_id(scline->tp[idx], &plr_range_id))
         {
             return false;
@@ -550,12 +543,7 @@ int script_recognize_params(char **line, const struct CommandDesc *cmd_desc, str
                     for (fi = 0, ri = 0; fi < COMMANDDESC_ARGS_COUNT; fi++, ri++)
                     {
                         if (funscline->tp[fi][0] == '\0') {
-                            //break;
-                        }
-                        if (toupper(chr) == 'p')
-                        {
-                            // Values which do not support range
-                            JUSTMSG("testlog: we got a p");
+                            break;
                         }
                         else
                         if (toupper(chr) == 'A')
@@ -679,7 +667,7 @@ int script_recognize_params(char **line, const struct CommandDesc *cmd_desc, str
             LbMemoryFree(funscline);
         }
         if (scline->tp[dst][0] == '\0') {
-         // break;
+          break;
         }
         if (*para_level > expect_level+2) {
             SCRPTWRNLOG("Parameter %d of command \"%s\", value \"%s\", is at too high paraenesis level %d", dst + 1, scline->tcmnd, scline->tp[dst], (int)*para_level);
