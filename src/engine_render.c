@@ -59,12 +59,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT long _DK_convert_world_coord_to_front_view_screen_coord(struct Coord3d *pos, struct Camera *cam, long *x, long *y, long *z);
-DLLIMPORT void _DK_do_a_gpoly_gourad_tr(struct EngineCoord *ec1, struct EngineCoord *ec2, struct EngineCoord *ec3, short plane_end, int a5);
-DLLIMPORT void _DK_do_a_gpoly_unlit_tr(struct EngineCoord *ec1, struct EngineCoord *ec2, struct EngineCoord *ec3, short plane_end);
-DLLIMPORT void _DK_do_a_gpoly_unlit_bl(struct EngineCoord *ec1, struct EngineCoord *ec2, struct EngineCoord *ec3, short plane_end);
-DLLIMPORT void _DK_do_a_gpoly_gourad_bl(struct EngineCoord *ec1, struct EngineCoord *ec2, struct EngineCoord *ec3, short plane_end, int a5);
-/******************************************************************************/
 static const unsigned short shield_offset[] = {
  0x0,  0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x118, 0x80,
  0x80, 0x100,  0x80,  0x80, 0x100, 0x100, 0x138,  0x80,  0x80, 0x138,  0x80,  0x80, 0x100,  0x80, 0x80, 0x100,
@@ -302,12 +296,12 @@ void update_engine_settings(struct PlayerInfo *player)
  */
 static void poly_pool_end_reserve(int nitems)
 {
-    poly_pool_end = &poly_pool[sizeof(poly_pool)-(nitems*sizeof(struct BasicUnk13)-1)];
+    poly_pool_end = &poly_pool[sizeof(poly_pool)-(nitems*sizeof(struct BucketKindSlabSelector)-1)];
 }
 
 static TbBool is_free_space_in_poly_pool(int nitems)
 {
-    return (getpoly+(nitems*sizeof(struct BasicUnk13)) <= poly_pool_end);
+    return (getpoly+(nitems*sizeof(struct BucketKindSlabSelector)) <= poly_pool_end);
 }
 
 void rotpers_parallel_3(struct EngineCoord *epos, struct M33 *matx, long zoom)
@@ -1908,7 +1902,7 @@ int floor_height_for_volume_box(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSl
 
 static void create_line_element(long a1, long a2, long a3, long a4, long bckt_idx, TbPixel color)
 {
-    struct BasicUnk13 *poly;
+    struct BucketKindSlabSelector *poly;
     if (!is_free_space_in_poly_pool(1))
     {
         return;
@@ -1918,8 +1912,8 @@ static void create_line_element(long a1, long a2, long a3, long a4, long bckt_id
     else
     if (bckt_idx < 0)
         bckt_idx = 0;
-    poly = (struct BasicUnk13 *)getpoly;
-    getpoly += sizeof(struct BasicUnk13);
+    poly = (struct BucketKindSlabSelector *)getpoly;
+    getpoly += sizeof(struct BucketKindSlabSelector);
     poly->b.next = buckets[bckt_idx];
     poly->b.kind = QK_SlabSelector;
     buckets[bckt_idx] = (struct BasicQ *)poly;
@@ -1935,7 +1929,7 @@ static void create_line_element(long a1, long a2, long a3, long a4, long bckt_id
 
 static void create_line_segment(struct EngineCoord *start, struct EngineCoord *end, TbPixel color)
 {
-    struct BasicUnk13 *poly;
+    struct BucketKindSlabSelector *poly;
     long bckt_idx;
     if (!is_free_space_in_poly_pool(1))
         return;
@@ -1947,8 +1941,8 @@ static void create_line_segment(struct EngineCoord *start, struct EngineCoord *e
     if (bckt_idx < 0)
         bckt_idx = 0;
     // Add to bucket
-    poly = (struct BasicUnk13 *)getpoly;
-    getpoly += sizeof(struct BasicUnk13);
+    poly = (struct BucketKindSlabSelector *)getpoly;
+    getpoly += sizeof(struct BucketKindSlabSelector);
     poly->b.next = buckets[bckt_idx];
     poly->b.kind = QK_SlabSelector;
     buckets[bckt_idx] = (struct BasicQ *)poly;
@@ -2391,7 +2385,7 @@ void process_isometric_map_volume_box(long x, long y, long z, PlayerNumber plyr_
             // This is a "2-line" square box
             // i.e. an "accurate" box with an outer square box
             map_volume_box.color = line_color;
-            create_fancy_map_volume_box(current_playeradd->render_roomspace, x, y, z, SLC_BROWN, true);
+            create_fancy_map_volume_box(current_playeradd->render_roomspace, x, y, z, (current_playeradd->render_roomspace.slab_count == 0) ? SLC_RED : SLC_BROWN, true);
         }
     }
     else
@@ -2401,912 +2395,982 @@ void process_isometric_map_volume_box(long x, long y, long z, PlayerNumber plyr_
     }
     map_volume_box.color = default_color;
 }
-static void do_a_trig_gourad_tr(struct EngineCoord *ep1, struct EngineCoord *ep2, struct EngineCoord *ep3, short textr_idx, long a5)
+
+static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct EngineCoord *engine_coordinate_2, struct EngineCoord *engine_coordinate_3, short textr_idx, long argument5)
 {
- short v5;
-  short v6;
-  short v7;
-  int z;
-  int v9;
-  struct BasicUnk09 *v10;
-  int v11;
-  int v12;
-  int v13;
-  int v14;
-  int v15;
-  int v16;
-  int v17;
-  int v18;
-  int v19;
-  int v20;
-  int v21;
-  int v22;
-  int v23;
-  int v24;
-  struct BasicUnk09 *v25;
-  int v26;
-  int v27;
-  int v28;
-  struct PolyPoint *v29;
-  struct XYZ *v30;
-  int v31;
-  int v32;
-  int v33;
-  int v34;
-  int v35;
-  int v36;
-  int v37;
-  struct XYZ *v38;
-  struct BasicUnk09 *v39;
-  int v40;
-  int v41;
-  int v42;
-  struct PolyPoint *v43;
-  struct XYZ *v44;
-  int v45;
-  struct BasicUnk09 *v46;
-  int v47;
-  int v48;
-  int v49;
-  struct PolyPoint *v50;
-  struct XYZ *v51;
-  int v52;
-  struct XYZ *v53;
-  struct XYZ *v54;
-  struct BasicQ *v55;
-  struct BasicUnk00 *v56;
-  int v57;
-  int v58;
-  int v59;
-  int v60;
-  int v61;
-  int v62;
-  int v63;
-  int v64;
-
-  v5 = ep3->field_8;
-  v6 = ep2->field_8;
-  v7 = ep1->field_8;
-  if ( ((unsigned short)v7 & (unsigned short)(v6 & v5) & 0x1F8) == 0
-    && (ep1->view_height - ep2->view_height) * (ep3->view_width - ep2->view_width)
-     + (ep3->view_height - ep2->view_height) * (ep2->view_width - ep1->view_width) > 0 )
-  {
-    z = ep1->z;
-    if ( ep2->z > z )
-      z = ep2->z;
-    if ( ep3->z > z )
-      z = ep3->z;
-    v9 = z / 16;
-    if ( getpoly < poly_pool_end )
+    struct BucketKindPolygonNearFP *triangle_bucket_near_1;
+    struct BucketKindPolygonNearFP *triangle_bucket_near_2;
+    struct BucketKindPolygonNearFP *triangle_bucket_near_3;
+    struct BucketKindPolygonNearFP *triangle_bucket_near_4;
+    struct BucketKindPolygonStandard *triangle_bucket_far;
+    struct PolyPoint *polypoint1;
+    struct PolyPoint *polypoint2;
+    struct PolyPoint *polypoint3;
+    struct XYZ *xyz1;
+    struct XYZ *xyz2;
+    struct XYZ *xyz3;
+    struct XYZ *xyz4;
+    struct XYZ *xyz5;
+    struct XYZ *xyz6;
+    short coordinate_1_frustum = engine_coordinate_1->field_8;
+    short coordinate_2_frustum = engine_coordinate_2->field_8;
+    short coordinate_3_frustum = engine_coordinate_3->field_8;
+    
+    if (((unsigned short)coordinate_1_frustum & (unsigned short)(coordinate_2_frustum & coordinate_3_frustum) & 0x1F8) == 0 && (engine_coordinate_1->view_height - engine_coordinate_2->view_height) * (engine_coordinate_3->view_width - engine_coordinate_2->view_width) + (engine_coordinate_3->view_height - engine_coordinate_2->view_height) * (engine_coordinate_2->view_width - engine_coordinate_1->view_width) > 0)
     {
-      if ( (((unsigned __int8)v5 | (unsigned __int8)(v6 | v7)) & 3) != 0 )
-      {
-        v10 = (struct BasicUnk09 *)getpoly;
-        getpoly += sizeof(struct BasicUnk09);
-        v10->subtype = splittypes[16 * (ep3->field_8 & 3) + 4 * (ep1->field_8 & 3) + (ep2->field_8 & 3)];
-        v10->b.next = buckets[v9];
-        v10->b.kind = 9;
-        buckets[v9] = &v10->b;
-        v10->block = textr_idx;
-        v11 = ep1->field_C;
-        v10->p1.field_0 = ep1->view_width;
-        v10->p1.field_4 = ep1->view_height;
-        v10->p1.field_8 = 0;
-        v10->p1.field_C = 0;
-        v12 = ep1->field_A;
-        if ( a5 >= 0 )
-          v12 = (v12 * (3 * a5 + 81920)) >> 17;
-        if ( fade_min >= v11 )
+        int choose_largest_z = engine_coordinate_1->z;
+        if (engine_coordinate_2->z > choose_largest_z)
+            choose_largest_z = engine_coordinate_2->z;
+        if (engine_coordinate_3->z > choose_largest_z)
+            choose_largest_z = engine_coordinate_3->z;
+        int divided_z = choose_largest_z / 16;
+        if (getpoly < poly_pool_end)
         {
-          v13 = v12 << 8;
-        }
-        else if ( fade_max > v11 )
-        {
-          v13 = v12 * (fade_scaler - v11) / fade_range + 0x8000;
-        }
-        else
-        {
-          v13 = 0x8000;
-        }
-        v10->p1.field_10 = v13;
-        v14 = ep2->field_C;
-        v10->p2.field_0 = ep2->view_width;
-        v10->p2.field_4 = ep2->view_height;
-        v10->p2.field_8 = 0x1FFFFF;
-        v10->p2.field_C = 0;
-        v15 = ep2->field_A;
-        if ( a5 >= 0 )
-          v15 = (v15 * (3 * a5 + 81920)) >> 17;
-        if ( v14 <= fade_min )
-        {
-          v16 = v15 << 8;
-        }
-        else if ( v14 < fade_max )
-        {
-          v16 = v15 * (fade_scaler - v14) / fade_range + 0x8000;
-        }
-        else
-        {
-          v16 = 0x8000;
-        }
-        v10->p2.field_10 = v16;
-        v17 = ep3->field_C;
-        v10->p3.field_0 = ep3->view_width;
-        v10->p3.field_4 = ep3->view_height;
-        v10->p3.field_8 = 0x1FFFFF;
-        v10->p3.field_C = 0x1FFFFF;
-        v18 = ep3->field_A;
-        if ( a5 >= 0 )
-          v18 = (v18 * (3 * a5 + 81920)) >> 17;
-        if ( fade_min >= v17 )
-        {
-          v19 = v18 << 8;
-        }
-        else if ( fade_max > v17 )
-        {
-          v19 = v18 * (fade_scaler - v17) / fade_range + 0x8000;
-        }
-        else
-        {
-          v19 = 0x8000;
-        }
-        v10->p3.field_10 = v19;
-        v20 = ep1->z;
-        if ( v20 >= 32 )
-        {
-          v32 = ep2->z;
-          v33 = ep3->z;
-          if ( v32 >= 32 )
-          {
-            if ( v33 >= 32 )
+            if ((((unsigned __int8)coordinate_3_frustum | (unsigned __int8)(coordinate_2_frustum | coordinate_1_frustum)) & 3) != 0)
             {
-              v10->c1.x = ep1->x;
-              v10->c1.y = ep1->y;
-              v10->c1.z = ep1->z;
-              v53 = &v10->c2;
-              v10->c2.x = ep2->x;
-              v54 = &v10->c3;
-              v53->y = ep2->y;
-              v53->z = ep2->z;
-              v54->x = ep3->x;
-              v54->y = ep3->y;
-              v54->z = ep3->z;
-            }
-            else
-            {
-              v46 = (struct BasicUnk09 *)getpoly;
-              getpoly += sizeof(struct BasicUnk09);
-              v46->subtype = splittypes[16 * (ep3->field_8 & 3) + 4 * (ep1->field_8 & 3) + (ep2->field_8 & 3)];
-              v46->b.next = buckets[v9];
-              v46->b.kind = 9;
-              buckets[v9] = &v46->b;
-              v46->block = textr_idx;
-              v10->c1.x = ep1->x;
-              v10->c1.y = ep1->y;
-              v10->c1.z = ep1->z;
-              v10->c2.x = ep2->x;
-              v10->c2.y = ep2->y;
-              v10->c2.z = ep2->z;
-              memcpy(&v46->p3, &v10->p3, sizeof(v46->p3));
-              memcpy(&v46->p2, &v10->p2, sizeof(v46->p2));
-              v47 = ((32 - ep3->z) << 8) / (ep1->z - ep3->z);
-              v10->c3.x = ep3->x + ((v47 * (ep1->x - ep3->x)) >> 8);
-              v10->c3.y = ep3->y + ((v47 * (ep1->y - ep3->y)) >> 8);
-              v10->c3.z = 32;
-              perspective(&v10->c3, &v10->p3);
-              v10->p3.field_8 += (v47 * (v10->p1.field_8 - v10->p3.field_8)) >> 8;
-              v10->p3.field_C += (v47 * (v10->p1.field_C - v10->p3.field_C)) >> 8;
-              v48 = v10->p3.field_10;
-              v49 = (v47 * (v10->p1.field_10 - v48)) >> 8;
-              v50 = &v10->p3;
-              v51 = &v10->c3;
-              v51[-3].z = v48 + v49;
-              memcpy(&v46->p1, v50, sizeof(v46->p1));
-              v46->c1.x = v51->x;
-              v46->c1.y = v51->y;
-              v46->c1.z = v51->z;
-              v46->c2.x = ep2->x;
-              v46->c2.y = ep2->y;
-              v46->c2.z = ep2->z;
-              v52 = ((32 - ep3->z) << 8) / (ep2->z - ep3->z);
-              v46->c3.x = ep3->x + ((v52 * (ep2->x - ep3->x)) >> 8);
-              v46->c3.y = ep3->y + ((v52 * (ep2->y - ep3->y)) >> 8);
-              v46->c3.z = 32;
-              perspective(&v46->c3, &v46->p3);
-              v46->p3.field_8 += (v52 * (v46->p2.field_8 - v46->p3.field_8)) >> 8;
-              v46->p3.field_C += (v52 * (v46->p2.field_C - v46->p3.field_C)) >> 8;
-              v46->p3.field_10 += (v52 * (v46->p2.field_10 - v46->p3.field_10)) >> 8;
-            }
-          }
-          else if ( v33 >= 32 )
-          {
-            v39 = (struct BasicUnk09 *)getpoly;
-            getpoly += sizeof(struct BasicUnk09);
-            v39->subtype = splittypes[16 * (ep3->field_8 & 3) + 4 * (ep1->field_8 & 3) + (ep2->field_8 & 3)];
-            v39->b.next = buckets[v9];
-            v39->b.kind = 9;
-            buckets[v9] = &v39->b;
-            v39->block = textr_idx;
-            v10->c1.x = ep1->x;
-            v10->c1.y = ep1->y;
-            v10->c1.z = ep1->z;
-            v10->c3.x = ep3->x;
-            v10->c3.y = ep3->y;
-            v10->c3.z = ep3->z;
-            memcpy(&v39->p2, &v10->p2, sizeof(v39->p2));
-            memcpy(&v39->p3, &v10->p3, sizeof(v39->p3));
-            v40 = ((32 - ep2->z) << 8) / (ep1->z - ep2->z);
-            v10->c2.x = ep2->x + ((v40 * (ep1->x - ep2->x)) >> 8);
-            v10->c2.y = ep2->y + ((v40 * (ep1->y - ep2->y)) >> 8);
-            v10->c2.z = 32;
-            perspective(&v10->c2, &v10->p2);
-            v10->p2.field_8 += (v40 * (v10->p1.field_8 - v10->p2.field_8)) >> 8;
-            v10->p2.field_C += (v40 * (v10->p1.field_C - v10->p2.field_C)) >> 8;
-            v41 = v10->p2.field_10;
-            v42 = (v40 * (v10->p1.field_10 - v41)) >> 8;
-            v43 = &v10->p2;
-            v44 = &v10->c2;
-            v44[-3].x = v41 + v42;
-            memcpy(&v39->p1, v43, sizeof(v39->p1));
-            v39->c1.x = v44->x;
-            v39->c1.y = v44->y;
-            v39->c1.z = v44->z;
-            v39->c3.x = ep3->x;
-            v39->c3.y = ep3->y;
-            v39->c3.z = ep3->z;
-            v45 = ((32 - ep2->z) << 8) / (ep3->z - ep2->z);
-            v39->c2.x = ep2->x + ((v45 * (ep3->x - ep2->x)) >> 8);
-            v39->c2.y = ep2->y + ((v45 * (ep3->y - ep2->y)) >> 8);
-            v39->c2.z = 32;
-            perspective(&v39->c2, &v39->p2);
-            v39->p2.field_8 += (v45 * (v39->p3.field_8 - v39->p2.field_8)) >> 8;
-            v39->p2.field_C += (v45 * (v39->p3.field_C - v39->p2.field_C)) >> 8;
-            v39->p2.field_10 += (v45 * (v39->p3.field_10 - v39->p2.field_10)) >> 8;
-          }
-          else
-          {
-            v34 = ((32 - v32) << 8) / (v20 - v32);
-            v10->c2.x = ep2->x + ((v34 * (ep1->x - ep2->x)) >> 8);
-            v10->c2.y = ep2->y + ((v34 * (ep1->y - ep2->y)) >> 8);
-            v10->c2.z = 32;
-            perspective(&v10->c2, &v10->p2);
-            v10->p2.field_8 += (v34 * (v10->p1.field_8 - v10->p2.field_8)) >> 8;
-            v10->p2.field_C += (v34 * (v10->p1.field_C - v10->p2.field_C)) >> 8;
-            v10->p2.field_10 += (v34 * (v10->p1.field_10 - v10->p2.field_10)) >> 8;
-            v35 = ((32 - ep3->z) << 8) / (ep1->z - ep3->z);
-            v10->c3.x = ep3->x + ((v35 * (ep1->x - ep3->x)) >> 8);
-            v10->c3.y = ep3->y + ((v35 * (ep1->y - ep3->y)) >> 8);
-            v10->c3.z = 32;
-            perspective(&v10->c3, &v10->p3);
-            v10->p3.field_8 += (v35 * (v10->p1.field_8 - v10->p3.field_8)) >> 8;
-            v10->p3.field_C += (v35 * (v10->p1.field_C - v10->p3.field_C)) >> 8;
-            v36 = v10->p1.field_10;
-            v37 = v10->p3.field_10;
-            v38 = &v10->c1;
-            v38[-1].z = v37 + ((v35 * (v36 - v37)) >> 8);
-            v38->x = ep1->x;
-            v38->y = ep1->y;
-            v38->z = ep1->z;
-          }
-        }
-        else if ( ep2->z >= 32 )
-        {
-          if ( ep3->z >= 32 )
-          {
-            v25 = (struct BasicUnk09 *)getpoly;
-            getpoly += sizeof(struct BasicUnk09);
-            v25->subtype = splittypes[16 * (ep3->field_8 & 3) + 4 * (ep1->field_8 & 3) + (ep2->field_8 & 3)];
-            v25->b.next = buckets[v9];
-            v25->b.kind = 9;
-            buckets[v9] = &v25->b;
-            v25->block = textr_idx;
-            v10->c2.x = ep2->x;
-            v10->c2.y = ep2->y;
-            v10->c2.z = ep2->z;
-            v10->c3.x = ep3->x;
-            v10->c3.y = ep3->y;
-            v10->c3.z = ep3->z;
-            memcpy(&v25->p1, &v10->p1, sizeof(v25->p1));
-            memcpy(&v25->p3, &v10->p3, sizeof(v25->p3));
-            v26 = ((32 - ep1->z) << 8) / (ep2->z - ep1->z);
-            v10->c1.x = ep1->x + ((v26 * (ep2->x - ep1->x)) >> 8);
-            v10->c1.y = ep1->y + ((v26 * (ep2->y - ep1->y)) >> 8);
-            v10->c1.z = 32;
-            perspective(&v10->c1, &v10->p1);
-            v10->p1.field_8 += (v26 * (v10->p2.field_8 - v10->p1.field_8)) >> 8;
-            v10->p1.field_C += (v26 * (v10->p2.field_C - v10->p1.field_C)) >> 8;
-            v27 = v10->p1.field_10;
-            v28 = (v26 * (v10->p2.field_10 - v27)) >> 8;
-            v29 = &v10->p1;
-            v30 = &v10->c1;
-            v30[-4].y = v27 + v28;
-            memcpy(&v25->p2, v29, sizeof(v25->p2));
-            v25->c2.x = v30->x;
-            v25->c2.y = v30->y;
-            v25->c2.z = v30->z;
-            v25->c3.x = ep3->x;
-            v25->c3.y = ep3->y;
-            v25->c3.z = ep3->z;
-            v31 = ((32 - ep1->z) << 8) / (ep3->z - ep1->z);
-            v25->c1.x = ep1->x + ((v31 * (ep3->x - ep1->x)) >> 8);
-            v25->c1.y = ep1->y + ((v31 * (ep3->y - ep1->y)) >> 8);
-            v25->c1.z = 32;
-            perspective(&v25->c1, &v25->p1);
-            v25->p1.field_8 += (v31 * (v25->p3.field_8 - v25->p1.field_8)) >> 8;
-            v25->p1.field_C += (v31 * (v25->p3.field_C - v25->p1.field_C)) >> 8;
-            v25->p1.field_10 += (v31 * (v25->p3.field_10 - v25->p1.field_10)) >> 8;
-          }
-          else
-          {
-            v10->c2.x = ep2->x;
-            v10->c2.y = ep2->y;
-            v10->c2.z = ep2->z;
-            v23 = ((32 - ep1->z) << 8) / (ep2->z - ep1->z);
-            v10->c1.x = ep1->x + ((v23 * (ep2->x - ep1->x)) >> 8);
-            v10->c1.y = ep1->y + ((v23 * (ep2->y - ep1->y)) >> 8);
-            v10->c1.z = 32;
-            perspective(&v10->c1, &v10->p1);
-            v10->p1.field_8 += (v23 * (v10->p2.field_8 - v10->p1.field_8)) >> 8;
-            v10->p1.field_C += (v23 * (v10->p2.field_C - v10->p1.field_C)) >> 8;
-            v10->p1.field_10 += (v23 * (v10->p2.field_10 - v10->p1.field_10)) >> 8;
-            v24 = ((32 - ep3->z) << 8) / (ep2->z - ep3->z);
-            v10->c3.x = ep3->x + ((v24 * (ep2->x - ep3->x)) >> 8);
-            v10->c3.y = ep3->y + ((v24 * (ep2->y - ep3->y)) >> 8);
-            v10->c3.z = 32;
-            perspective(&v10->c3, &v10->p3);
-            v10->p3.field_8 += (v24 * (v10->p2.field_8 - v10->p3.field_8)) >> 8;
-            v10->p3.field_C += (v24 * (v10->p2.field_C - v10->p3.field_C)) >> 8;
-            v10->p3.field_10 += (v24 * (v10->p2.field_10 - v10->p3.field_10)) >> 8;
-          }
-        }
-        else
-        {
-          v10->c3.x = ep3->x;
-          v10->c3.y = ep3->y;
-          v10->c3.z = ep3->z;
-          v21 = ((32 - ep1->z) << 8) / (ep3->z - ep1->z);
-          v10->c1.x = ep1->x + ((v21 * (ep3->x - ep1->x)) >> 8);
-          v10->c1.y = ep1->y + ((v21 * (ep3->y - ep1->y)) >> 8);
-          v10->c1.z = 32;
-          perspective(&v10->c1, &v10->p1);
-          v10->p1.field_8 += (v21 * (v10->p3.field_8 - v10->p1.field_8)) >> 8;
-          v10->p1.field_C += (v21 * (v10->p3.field_C - v10->p1.field_C)) >> 8;
-          v10->p1.field_10 += (v21 * (v10->p3.field_10 - v10->p1.field_10)) >> 8;
-          v22 = ((32 - ep2->z) << 8) / (ep3->z - ep2->z);
-          v10->c2.x = ep2->x + ((v22 * (ep3->x - ep2->x)) >> 8);
-          v10->c2.y = ep2->y + ((v22 * (ep3->y - ep2->y)) >> 8);
-          v10->c2.z = 32;
-          perspective(&v10->c2, &v10->p2);
-          v10->p2.field_8 += (v22 * (v10->p3.field_8 - v10->p2.field_8)) >> 8;
-          v10->p2.field_C += (v22 * (v10->p3.field_C - v10->p2.field_C)) >> 8;
-          v10->p2.field_10 += (v22 * (v10->p3.field_10 - v10->p2.field_10)) >> 8;
-        }
-      }
-      else
-      {
-        v55 = buckets[v9];
-        v56 = (struct BasicUnk00 *)getpoly;
-        getpoly += sizeof(struct BasicUnk00);
-        v56->b.next = v55;
-        v56->b.kind = 0;
-        buckets[v9] = &v56->b;
-        v56->block = textr_idx;
-        v57 = ep1->field_C;
-        v56->p1.field_0 = ep1->view_width;
-        v56->p1.field_4 = ep1->view_height;
-        v56->p1.field_8 = 0;
-        v56->p1.field_C = 0;
-        v58 = ep1->field_A;
-        if ( a5 >= 0 )
-          v58 = (v58 * (3 * a5 + 81920)) >> 17;
-        if ( v57 <= fade_min )
-        {
-          v59 = v58 << 8;
-        }
-        else if ( v57 < fade_max )
-        {
-          v59 = v58 * (fade_scaler - v57) / fade_range + 0x8000;
-        }
-        else
-        {
-          v59 = 0x8000;
-        }
-        v56->p1.field_10 = v59;
-        v60 = ep2->field_C;
-        v56->p2.field_0 = ep2->view_width;
-        v56->p2.field_4 = ep2->view_height;
-        v56->p2.field_8 = 0x1FFFFF;
-        v56->p2.field_C = 0;
-        v61 = ep2->field_A;
-        if ( a5 >= 0 )
-          v61 = (v61 * (3 * a5 + 81920)) >> 17;
-        if ( v60 <= fade_min )
-        {
-          v62 = v61 << 8;
-        }
-        else if ( v60 < fade_max )
-        {
-          v62 = v61 * (fade_scaler - v60) / fade_range + 0x8000;
-        }
-        else
-        {
-          v62 = 0x8000;
-        }
-        v56->p2.field_10 = v62;
-        v63 = ep3->field_C;
-        v56->p3.field_0 = ep3->view_width;
-        v56->p3.field_4 = ep3->view_height;
-        v56->p3.field_8 = 0x1FFFFF;
-        v56->p3.field_C = 0x1FFFFF;
-        v64 = ep3->field_A;
-        if ( a5 >= 0 )
-          v64 = (v64 * (3 * a5 + 81920)) >> 17;
-        if ( v63 <= fade_min )
-        {
-          v56->p3.field_10 = v64 << 8;
-        }
-        else if ( v63 < fade_max )
-        {
-          v56->p3.field_10 = v64 * (fade_scaler - v63) / fade_range + 0x8000;
-        }
-        else
-        {
-          v56->p3.field_10 = 0x8000;
-        }
-      }
-    }
-  }
-}
+                triangle_bucket_near_1 = (struct BucketKindPolygonNearFP *)getpoly;
+                getpoly += sizeof(struct BucketKindPolygonNearFP);
+                triangle_bucket_near_1->subtype = splittypes[16 * (engine_coordinate_3->field_8 & 3) + 4 * (engine_coordinate_1->field_8 & 3) + (engine_coordinate_2->field_8 & 3)];
+                triangle_bucket_near_1->b.next = buckets[divided_z];
+                triangle_bucket_near_1->b.kind = QK_PolygonNearFP;
+                buckets[divided_z] = &triangle_bucket_near_1->b;
+                triangle_bucket_near_1->block = textr_idx;
+                triangle_bucket_near_1->p1.field_0 = engine_coordinate_1->view_width;
+                triangle_bucket_near_1->p1.field_4 = engine_coordinate_1->view_height;
+                triangle_bucket_near_1->p1.field_8 = 0;
+                triangle_bucket_near_1->p1.field_C = 0;
 
-static void do_a_trig_gourad_bl(struct EngineCoord *ep1, struct EngineCoord *ep2, struct EngineCoord *ep3, short a4, long a5)
-{
-    short v5;
-    short v6;
-    int z;
-    int v8;
-    struct BasicUnk09 *v9;
-    int v10;
-    int v11;
-    int v12;
-    int v13;
-    int v14;
-    int v15;
-    int v16;
-    int v17;
-    int v18;
-    int v19;
-    int v20;
-    int v21;
-    int v22;
-    int v23;
-    struct BasicUnk09 *v24;
-    int v25;
-    int v26;
-    int v27;
-    struct PolyPoint *v28;
-    struct XYZ *v29;
-    int v30;
-    int v31;
-    int v32;
-    int v33;
-    int v34;
-    int v35;
-    int v36;
-    struct XYZ *v37;
-    struct BasicUnk09 *v38;
-    int v39;
-    int v40;
-    int v41;
-    struct PolyPoint *v42;
-    struct XYZ *v43;
-    int v44;
-    struct BasicUnk09 *v45;
-    int v46;
-    int v47;
-    int v48;
-    struct PolyPoint *v49;
-    struct XYZ *v50;
-    int v51;
-    struct XYZ *v52;
-    struct XYZ *v53;
-    struct BasicUnk00 *v54;
-    int v55;
-    int v56;
-    int v57;
-    int v58;
-    int v59;
-    int v60;
-    int v61;
-    int v62;
-    short v63;
+                int coordinate_1_lightness = engine_coordinate_1->field_A;
+                int coordinate_1_distance = engine_coordinate_1->field_C;
 
-    v63 = ep1->field_8;
-    v5 = ep3->field_8;
-    v6 = ep2->field_8;
-    if ( ((unsigned short)v6 & (unsigned short)(v5 & v63) & 0x1F8) == 0
-        && (ep2->view_width - ep1->view_width) * (ep3->view_height - ep2->view_height)
-        + (ep3->view_width - ep2->view_width) * (ep1->view_height - ep2->view_height) > 0 )
-    {
-        z = ep1->z;
-        if ( z < ep2->z )
-            z = ep2->z;
-        if ( z < ep3->z )
-            z = ep3->z;
-        v8 = z / 16;
-        if ( getpoly < poly_pool_end )
-        {
-        if ( (((unsigned __int8)v63 | (unsigned __int8)(v5 | v6)) & 3) != 0 )
-        {
-            v9 = (struct BasicUnk09 *)getpoly;
-            getpoly += sizeof(struct BasicUnk09);
-            v9->subtype = splittypes[16 * (ep3->field_8 & 3) + 4 * (ep1->field_8 & 3) + (ep2->field_8 & 3)];
-            v9->b.next = buckets[v8];
-            v9->b.kind = 9;
-            buckets[v8] = &v9->b;
-            v9->block = a4;
-            v10 = ep1->field_C;
-            v9->p1.field_0 = ep1->view_width;
-            v9->p1.field_4 = ep1->view_height;
-            v9->p1.field_8 = 0x1FFFFF;
-            v9->p1.field_C = 0x1FFFFF;
-            v11 = ep1->field_A;
-            if ( a5 >= 0 )
-                v11 = (v11 * (3 * a5 + 81920)) >> 17;
-            if ( v10 <= fade_min )
-            {
-                v12 = v11 << 8;
-            }
-            else if ( v10 < fade_max )
-            {
-                v12 = v11 * (fade_scaler - v10) / fade_range + 0x8000;
-            }
-            else
-            {
-                v12 = 0x8000;
-            }
-            v9->p1.field_10 = v12;
-            v13 = ep2->field_C;
-            v9->p2.field_0 = ep2->view_width;
-            v9->p2.field_4 = ep2->view_height;
-            v9->p2.field_8 = 0;
-            v9->p2.field_C = 0x1FFFFF;
-            v14 = ep2->field_A;
-            if ( a5 >= 0 )
-                v14 = (v14 * (3 * a5 + 81920)) >> 17;
-            if ( v13 <= fade_min )
-            {
-                v15 = v14 << 8;
-            }
-            else if ( v13 < fade_max )
-            {
-                v15 = v14 * (fade_scaler - v13) / fade_range + 0x8000;
-            }
-            else
-            {
-                v15 = 0x8000;
-            }
-            v9->p2.field_10 = v15;
-            v16 = ep3->field_C;
-            v9->p3.field_0 = ep3->view_width;
-            v9->p3.field_4 = ep3->view_height;
-            v9->p3.field_8 = 0;
-            v9->p3.field_C = 0;
-            v17 = ep3->field_A;
-            if ( a5 >= 0 )
-            v17 = (v17 * (3 * a5 + 81920)) >> 17;
-            if ( v16 <= fade_min )
-            {
-                v18 = v17 << 8;
-            }
-            else if ( v16 < fade_max )
-            {
-                v18 = v17 * (fade_scaler - v16) / fade_range + 0x8000;
-            }
-            else
-            {
-                v18 = 0x8000;
-            }
-            v9->p3.field_10 = v18;
-            v19 = ep1->z;
-            if ( v19 >= 32 )
-            {
-                v31 = ep2->z;
-                v32 = ep3->z;
-                if ( v31 >= 32 )
+                if (argument5 >= 0)
+                    coordinate_1_lightness = (coordinate_1_lightness * (3 * argument5 + 81920)) >> 17;
+                
+                int apply_lighting_to_triangle_nearby_1;
+                if (fade_min >= coordinate_1_distance)
                 {
-                    if ( v32 >= 32 )
+                    apply_lighting_to_triangle_nearby_1 = coordinate_1_lightness << 8;
+                }
+                else if (fade_max > coordinate_1_distance)
+                {
+                    apply_lighting_to_triangle_nearby_1 = coordinate_1_lightness * (fade_scaler - coordinate_1_distance) / fade_range + 0x8000;
+                }
+                else
+                {
+                    apply_lighting_to_triangle_nearby_1 = 0x8000;
+                }
+                
+                triangle_bucket_near_1->p1.field_10 = apply_lighting_to_triangle_nearby_1;
+                triangle_bucket_near_1->p2.field_0 = engine_coordinate_2->view_width;
+                triangle_bucket_near_1->p2.field_4 = engine_coordinate_2->view_height;
+                triangle_bucket_near_1->p2.field_8 = 0x1FFFFF;
+                triangle_bucket_near_1->p2.field_C = 0;
+                
+                int coordinate_2_lightness = engine_coordinate_2->field_A;
+                int coordinate_2_distance = engine_coordinate_2->field_C;
+
+                if (argument5 >= 0)
+                    coordinate_2_lightness = (coordinate_2_lightness * (3 * argument5 + 81920)) >> 17;
+
+                int apply_lighting_to_triangle_nearby_2;
+                if (coordinate_2_distance <= fade_min)
+                {
+                    apply_lighting_to_triangle_nearby_2 = coordinate_2_lightness << 8;
+                }
+                else if (coordinate_2_distance < fade_max)
+                {
+                    apply_lighting_to_triangle_nearby_2 = coordinate_2_lightness * (fade_scaler - coordinate_2_distance) / fade_range + 0x8000;
+                }
+                else
+                {
+                    apply_lighting_to_triangle_nearby_2 = 0x8000;
+                }
+
+                triangle_bucket_near_1->p2.field_10 = apply_lighting_to_triangle_nearby_2;
+                triangle_bucket_near_1->p3.field_0 = engine_coordinate_3->view_width;
+                triangle_bucket_near_1->p3.field_4 = engine_coordinate_3->view_height;
+                triangle_bucket_near_1->p3.field_8 = 0x1FFFFF;
+                triangle_bucket_near_1->p3.field_C = 0x1FFFFF;
+
+                int coordinate_3_lightness = engine_coordinate_3->field_A;
+                int coordinate_3_distance = engine_coordinate_3->field_C;
+
+                if (argument5 >= 0)
+                    coordinate_3_lightness = (coordinate_3_lightness * (3 * argument5 + 81920)) >> 17;
+
+                int apply_lighting_to_triangle_nearby_3;
+                if (fade_min >= coordinate_3_distance)
+                {
+                    apply_lighting_to_triangle_nearby_3 = coordinate_3_lightness << 8;
+                }
+                else if (fade_max > coordinate_3_distance)
+                {
+                    apply_lighting_to_triangle_nearby_3 = coordinate_3_lightness * (fade_scaler - coordinate_3_distance) / fade_range + 0x8000;
+                }
+                else
+                {
+                    apply_lighting_to_triangle_nearby_3 = 0x8000;
+                }
+
+                triangle_bucket_near_1->p3.field_10 = apply_lighting_to_triangle_nearby_3;
+                
+                int coordinate_1_z = engine_coordinate_1->z;
+                if (coordinate_1_z >= 32)
+                {
+                    int coordinate_2_z = engine_coordinate_2->z;
+                    int coordinate_3_z = engine_coordinate_3->z;
+                    if (coordinate_2_z >= 32)
                     {
-                    v9->c1.x = ep1->x;
-                    v9->c1.y = ep1->y;
-                    v9->c1.z = ep1->z;
-                    v52 = &v9->c2;
-                    v9->c2.x = ep2->x;
-                    v53 = &v9->c3;
-                    v52->y = ep2->y;
-                    v52->z = ep2->z;
-                    v53->x = ep3->x;
-                    v53->y = ep3->y;
-                    v53->z = ep3->z;
+                        if (coordinate_3_z >= 32)
+                        {
+                            triangle_bucket_near_1->c1.x = engine_coordinate_1->x;
+                            triangle_bucket_near_1->c1.y = engine_coordinate_1->y;
+                            triangle_bucket_near_1->c1.z = engine_coordinate_1->z;
+                            xyz5 = &triangle_bucket_near_1->c2;
+                            triangle_bucket_near_1->c2.x = engine_coordinate_2->x;
+                            xyz6 = &triangle_bucket_near_1->c3;
+                            xyz5->y = engine_coordinate_2->y;
+                            xyz5->z = engine_coordinate_2->z;
+                            xyz6->x = engine_coordinate_3->x;
+                            xyz6->y = engine_coordinate_3->y;
+                            xyz6->z = engine_coordinate_3->z;
+                        }
+                        else
+                        {
+                            triangle_bucket_near_4 = (struct BucketKindPolygonNearFP *)getpoly;
+                            getpoly += sizeof(struct BucketKindPolygonNearFP);
+                            triangle_bucket_near_4->subtype = splittypes[16 * (engine_coordinate_3->field_8 & 3) + 4 * (engine_coordinate_1->field_8 & 3) + (engine_coordinate_2->field_8 & 3)];
+                            triangle_bucket_near_4->b.next = buckets[divided_z];
+                            triangle_bucket_near_4->b.kind = QK_PolygonNearFP;
+                            buckets[divided_z] = &triangle_bucket_near_4->b;
+                            triangle_bucket_near_4->block = textr_idx;
+                            triangle_bucket_near_1->c1.x = engine_coordinate_1->x;
+                            triangle_bucket_near_1->c1.y = engine_coordinate_1->y;
+                            triangle_bucket_near_1->c1.z = engine_coordinate_1->z;
+                            triangle_bucket_near_1->c2.x = engine_coordinate_2->x;
+                            triangle_bucket_near_1->c2.y = engine_coordinate_2->y;
+                            triangle_bucket_near_1->c2.z = engine_coordinate_2->z;
+                            memcpy(&triangle_bucket_near_4->p3, &triangle_bucket_near_1->p3, sizeof(triangle_bucket_near_4->p3));
+                            memcpy(&triangle_bucket_near_4->p2, &triangle_bucket_near_1->p2, sizeof(triangle_bucket_near_4->p2));
+                            
+                            // Don't know what this is.
+                            int toast = ((32 - engine_coordinate_3->z) << 8) / (engine_coordinate_1->z - engine_coordinate_3->z);
+                            
+                            triangle_bucket_near_1->c3.x = engine_coordinate_3->x + ((toast * (engine_coordinate_1->x - engine_coordinate_3->x)) >> 8);
+                            triangle_bucket_near_1->c3.y = engine_coordinate_3->y + ((toast * (engine_coordinate_1->y - engine_coordinate_3->y)) >> 8);
+                            triangle_bucket_near_1->c3.z = 32;
+                            perspective(&triangle_bucket_near_1->c3, &triangle_bucket_near_1->p3);
+                            triangle_bucket_near_1->p3.field_8 += (toast * (triangle_bucket_near_1->p1.field_8 - triangle_bucket_near_1->p3.field_8)) >> 8;
+                            triangle_bucket_near_1->p3.field_C += (toast * (triangle_bucket_near_1->p1.field_C - triangle_bucket_near_1->p3.field_C)) >> 8;
+                            
+                            // ?
+                            int popcorn = triangle_bucket_near_1->p3.field_10;
+
+                            // ?
+                            int almond = (toast * (triangle_bucket_near_1->p1.field_10 - popcorn)) >> 8;
+
+                            polypoint3 = &triangle_bucket_near_1->p3;
+                            xyz4 = &triangle_bucket_near_1->c3;
+                            xyz4[-3].z = popcorn + almond;
+                            memcpy(&triangle_bucket_near_4->p1, polypoint3, sizeof(triangle_bucket_near_4->p1));
+                            triangle_bucket_near_4->c1.x = xyz4->x;
+                            triangle_bucket_near_4->c1.y = xyz4->y;
+                            triangle_bucket_near_4->c1.z = xyz4->z;
+                            triangle_bucket_near_4->c2.x = engine_coordinate_2->x;
+                            triangle_bucket_near_4->c2.y = engine_coordinate_2->y;
+                            triangle_bucket_near_4->c2.z = engine_coordinate_2->z;
+                            
+                            // ?
+                            int lemon = ((32 - engine_coordinate_3->z) << 8) / (engine_coordinate_2->z - engine_coordinate_3->z);
+
+                            triangle_bucket_near_4->c3.x = engine_coordinate_3->x + ((lemon * (engine_coordinate_2->x - engine_coordinate_3->x)) >> 8);
+                            triangle_bucket_near_4->c3.y = engine_coordinate_3->y + ((lemon * (engine_coordinate_2->y - engine_coordinate_3->y)) >> 8);
+                            triangle_bucket_near_4->c3.z = 32;
+                            perspective(&triangle_bucket_near_4->c3, &triangle_bucket_near_4->p3);
+                            triangle_bucket_near_4->p3.field_8 += (lemon * (triangle_bucket_near_4->p2.field_8 - triangle_bucket_near_4->p3.field_8)) >> 8;
+                            triangle_bucket_near_4->p3.field_C += (lemon * (triangle_bucket_near_4->p2.field_C - triangle_bucket_near_4->p3.field_C)) >> 8;
+                            triangle_bucket_near_4->p3.field_10 += (lemon * (triangle_bucket_near_4->p2.field_10 - triangle_bucket_near_4->p3.field_10)) >> 8;
+                        }
+                    }
+                    else if (coordinate_3_z >= 32)
+                    {
+                        triangle_bucket_near_3 = (struct BucketKindPolygonNearFP *)getpoly;
+                        getpoly += sizeof(struct BucketKindPolygonNearFP);
+                        triangle_bucket_near_3->subtype = splittypes[16 * (engine_coordinate_3->field_8 & 3) + 4 * (engine_coordinate_1->field_8 & 3) + (engine_coordinate_2->field_8 & 3)];
+                        triangle_bucket_near_3->b.next = buckets[divided_z];
+                        triangle_bucket_near_3->b.kind = QK_PolygonNearFP;
+                        buckets[divided_z] = &triangle_bucket_near_3->b;
+                        triangle_bucket_near_3->block = textr_idx;
+                        triangle_bucket_near_1->c1.x = engine_coordinate_1->x;
+                        triangle_bucket_near_1->c1.y = engine_coordinate_1->y;
+                        triangle_bucket_near_1->c1.z = engine_coordinate_1->z;
+                        triangle_bucket_near_1->c3.x = engine_coordinate_3->x;
+                        triangle_bucket_near_1->c3.y = engine_coordinate_3->y;
+                        triangle_bucket_near_1->c3.z = engine_coordinate_3->z;
+                        memcpy(&triangle_bucket_near_3->p2, &triangle_bucket_near_1->p2, sizeof(triangle_bucket_near_3->p2));
+                        memcpy(&triangle_bucket_near_3->p3, &triangle_bucket_near_1->p3, sizeof(triangle_bucket_near_3->p3));
+                        
+                        // ?
+                        int lettuce = ((32 - engine_coordinate_2->z) << 8) / (engine_coordinate_1->z - engine_coordinate_2->z);
+                        
+                        triangle_bucket_near_1->c2.x = engine_coordinate_2->x + ((lettuce * (engine_coordinate_1->x - engine_coordinate_2->x)) >> 8);
+                        triangle_bucket_near_1->c2.y = engine_coordinate_2->y + ((lettuce * (engine_coordinate_1->y - engine_coordinate_2->y)) >> 8);
+                        triangle_bucket_near_1->c2.z = 32;
+                        perspective(&triangle_bucket_near_1->c2, &triangle_bucket_near_1->p2);
+                        triangle_bucket_near_1->p2.field_8 += (lettuce * (triangle_bucket_near_1->p1.field_8 - triangle_bucket_near_1->p2.field_8)) >> 8;
+                        triangle_bucket_near_1->p2.field_C += (lettuce * (triangle_bucket_near_1->p1.field_C - triangle_bucket_near_1->p2.field_C)) >> 8;
+                        
+                        // ?
+                        int sandwich = triangle_bucket_near_1->p2.field_10;
+                        // ?
+                        int walnut = (lettuce * (triangle_bucket_near_1->p1.field_10 - sandwich)) >> 8;
+                        
+                        polypoint2 = &triangle_bucket_near_1->p2;
+                        xyz3 = &triangle_bucket_near_1->c2;
+                        xyz3[-3].x = sandwich + walnut;
+                        memcpy(&triangle_bucket_near_3->p1, polypoint2, sizeof(triangle_bucket_near_3->p1));
+                        triangle_bucket_near_3->c1.x = xyz3->x;
+                        triangle_bucket_near_3->c1.y = xyz3->y;
+                        triangle_bucket_near_3->c1.z = xyz3->z;
+                        triangle_bucket_near_3->c3.x = engine_coordinate_3->x;
+                        triangle_bucket_near_3->c3.y = engine_coordinate_3->y;
+                        triangle_bucket_near_3->c3.z = engine_coordinate_3->z;
+                        
+                        // ?
+                        int avocado = ((32 - engine_coordinate_2->z) << 8) / (engine_coordinate_3->z - engine_coordinate_2->z);
+                        
+                        triangle_bucket_near_3->c2.x = engine_coordinate_2->x + ((avocado * (engine_coordinate_3->x - engine_coordinate_2->x)) >> 8);
+                        triangle_bucket_near_3->c2.y = engine_coordinate_2->y + ((avocado * (engine_coordinate_3->y - engine_coordinate_2->y)) >> 8);
+                        triangle_bucket_near_3->c2.z = 32;
+                        perspective(&triangle_bucket_near_3->c2, &triangle_bucket_near_3->p2);
+                        triangle_bucket_near_3->p2.field_8 += (avocado * (triangle_bucket_near_3->p3.field_8 - triangle_bucket_near_3->p2.field_8)) >> 8;
+                        triangle_bucket_near_3->p2.field_C += (avocado * (triangle_bucket_near_3->p3.field_C - triangle_bucket_near_3->p2.field_C)) >> 8;
+                        triangle_bucket_near_3->p2.field_10 += (avocado * (triangle_bucket_near_3->p3.field_10 - triangle_bucket_near_3->p2.field_10)) >> 8;
                     }
                     else
                     {
-                    v45 = (struct BasicUnk09 *)getpoly;
-                    getpoly += sizeof(struct BasicUnk09);
-                    v45->subtype = splittypes[16 * (ep3->field_8 & 3) + 4 * (ep1->field_8 & 3) + (ep2->field_8 & 3)];
-                    v45->b.next = buckets[v8];
-                    v45->b.kind = 9;
-                    buckets[v8] = &v45->b;
-                    v45->block = a4;
-                    v9->c1.x = ep1->x;
-                    v9->c1.y = ep1->y;
-                    v9->c1.z = ep1->z;
-                    v9->c2.x = ep2->x;
-                    v9->c2.y = ep2->y;
-                    v9->c2.z = ep2->z;
-                    memcpy(&v45->p3, &v9->p3, sizeof(v45->p3));
-                    memcpy(&v45->p2, &v9->p2, sizeof(v45->p2));
-                    v46 = ((32 - ep3->z) << 8) / (ep1->z - ep3->z);
-                    v9->c3.x = ep3->x + ((v46 * (ep1->x - ep3->x)) >> 8);
-                    v9->c3.y = ep3->y + ((v46 * (ep1->y - ep3->y)) >> 8);
-                    v9->c3.z = 32;
-                    perspective(&v9->c3, &v9->p3);
-                    v9->p3.field_8 += (v46 * (v9->p1.field_8 - v9->p3.field_8)) >> 8;
-                    v9->p3.field_C += (v46 * (v9->p1.field_C - v9->p3.field_C)) >> 8;
-                    v47 = v9->p3.field_10;
-                    v48 = (v46 * (v9->p1.field_10 - v47)) >> 8;
-                    v49 = &v9->p3;
-                    v50 = &v9->c3;
-                    v50[-3].z = v47 + v48;
-                    memcpy(&v45->p1, v49, sizeof(v45->p1));
-                    v45->c1.x = v50->x;
-                    v45->c1.y = v50->y;
-                    v45->c1.z = v50->z;
-                    v45->c2.x = ep2->x;
-                    v45->c2.y = ep2->y;
-                    v45->c2.z = ep2->z;
-                    v51 = ((32 - ep3->z) << 8) / (ep2->z - ep3->z);
-                    v45->c3.x = ep3->x + ((v51 * (ep2->x - ep3->x)) >> 8);
-                    v45->c3.y = ep3->y + ((v51 * (ep2->y - ep3->y)) >> 8);
-                    v45->c3.z = 32;
-                    perspective(&v45->c3, &v45->p3);
-                    v45->p3.field_8 += (v51 * (v45->p2.field_8 - v45->p3.field_8)) >> 8;
-                    v45->p3.field_C += (v51 * (v45->p2.field_C - v45->p3.field_C)) >> 8;
-                    v45->p3.field_10 += (v51 * (v45->p2.field_10 - v45->p3.field_10)) >> 8;
+                        // ?
+                        int steak = ((32 - coordinate_2_z) << 8) / (coordinate_1_z - coordinate_2_z);
+                        
+                        triangle_bucket_near_1->c2.x = engine_coordinate_2->x + ((steak * (engine_coordinate_1->x - engine_coordinate_2->x)) >> 8);
+                        triangle_bucket_near_1->c2.y = engine_coordinate_2->y + ((steak * (engine_coordinate_1->y - engine_coordinate_2->y)) >> 8);
+                        triangle_bucket_near_1->c2.z = 32;
+                        perspective(&triangle_bucket_near_1->c2, &triangle_bucket_near_1->p2);
+                        triangle_bucket_near_1->p2.field_8 += (steak * (triangle_bucket_near_1->p1.field_8 - triangle_bucket_near_1->p2.field_8)) >> 8;
+                        triangle_bucket_near_1->p2.field_C += (steak * (triangle_bucket_near_1->p1.field_C - triangle_bucket_near_1->p2.field_C)) >> 8;
+                        triangle_bucket_near_1->p2.field_10 += (steak * (triangle_bucket_near_1->p1.field_10 - triangle_bucket_near_1->p2.field_10)) >> 8;
+                        
+                        // ?
+                        int tomato = ((32 - engine_coordinate_3->z) << 8) / (engine_coordinate_1->z - engine_coordinate_3->z);
+                        
+                        triangle_bucket_near_1->c3.x = engine_coordinate_3->x + ((tomato * (engine_coordinate_1->x - engine_coordinate_3->x)) >> 8);
+                        triangle_bucket_near_1->c3.y = engine_coordinate_3->y + ((tomato * (engine_coordinate_1->y - engine_coordinate_3->y)) >> 8);
+                        triangle_bucket_near_1->c3.z = 32;
+                        perspective(&triangle_bucket_near_1->c3, &triangle_bucket_near_1->p3);
+                        triangle_bucket_near_1->p3.field_8 += (tomato * (triangle_bucket_near_1->p1.field_8 - triangle_bucket_near_1->p3.field_8)) >> 8;
+                        triangle_bucket_near_1->p3.field_C += (tomato * (triangle_bucket_near_1->p1.field_C - triangle_bucket_near_1->p3.field_C)) >> 8;
+                        
+                        // ?
+                        int cabbage = triangle_bucket_near_1->p1.field_10;
+                        // ?
+                        int coconut = triangle_bucket_near_1->p3.field_10;
+                        
+                        xyz2 = &triangle_bucket_near_1->c1;
+                        xyz2[-1].z = coconut + ((tomato * (cabbage - coconut)) >> 8);
+                        xyz2->x = engine_coordinate_1->x;
+                        xyz2->y = engine_coordinate_1->y;
+                        xyz2->z = engine_coordinate_1->z;
                     }
                 }
-                else if ( v32 >= 32 )
+                else if (engine_coordinate_2->z >= 32)
                 {
-                    v38 = (struct BasicUnk09 *)getpoly;
-                    getpoly += sizeof(struct BasicUnk09);
-                    v38->subtype = splittypes[16 * (ep3->field_8 & 3) + 4 * (ep1->field_8 & 3) + (ep2->field_8 & 3)];
-                    v38->b.next = buckets[v8];
-                    v38->b.kind = 9;
-                    buckets[v8] = &v38->b;
-                    v38->block = a4;
-                    v9->c1.x = ep1->x;
-                    v9->c1.y = ep1->y;
-                    v9->c1.z = ep1->z;
-                    v9->c3.x = ep3->x;
-                    v9->c3.y = ep3->y;
-                    v9->c3.z = ep3->z;
-                    memcpy(&v38->p2, &v9->p2, sizeof(v38->p2));
-                    memcpy(&v38->p3, &v9->p3, sizeof(v38->p3));
-                    v39 = ((32 - ep2->z) << 8) / (ep1->z - ep2->z);
-                    v9->c2.x = ep2->x + ((v39 * (ep1->x - ep2->x)) >> 8);
-                    v9->c2.y = ep2->y + ((v39 * (ep1->y - ep2->y)) >> 8);
-                    v9->c2.z = 32;
-                    perspective(&v9->c2, &v9->p2);
-                    v9->p2.field_8 += (v39 * (v9->p1.field_8 - v9->p2.field_8)) >> 8;
-                    v9->p2.field_C += (v39 * (v9->p1.field_C - v9->p2.field_C)) >> 8;
-                    v40 = v9->p2.field_10;
-                    v41 = (v39 * (v9->p1.field_10 - v40)) >> 8;
-                    v42 = &v9->p2;
-                    v43 = &v9->c2;
-                    v43[-3].x = v40 + v41;
-                    memcpy(&v38->p1, v42, sizeof(v38->p1));
-                    v38->c1.x = v43->x;
-                    v38->c1.y = v43->y;
-                    v38->c1.z = v43->z;
-                    v38->c3.x = ep3->x;
-                    v38->c3.y = ep3->y;
-                    v38->c3.z = ep3->z;
-                    v44 = ((32 - ep2->z) << 8) / (ep3->z - ep2->z);
-                    v38->c2.x = ep2->x + ((v44 * (ep3->x - ep2->x)) >> 8);
-                    v38->c2.y = ep2->y + ((v44 * (ep3->y - ep2->y)) >> 8);
-                    v38->c2.z = 32;
-                    perspective(&v38->c2, &v38->p2);
-                    v38->p2.field_8 += (v44 * (v38->p3.field_8 - v38->p2.field_8)) >> 8;
-                    v38->p2.field_C += (v44 * (v38->p3.field_C - v38->p2.field_C)) >> 8;
-                    v38->p2.field_10 += (v44 * (v38->p3.field_10 - v38->p2.field_10)) >> 8;
+                    if (engine_coordinate_3->z >= 32)
+                    {
+                        triangle_bucket_near_2 = (struct BucketKindPolygonNearFP *)getpoly;
+                        getpoly += sizeof(struct BucketKindPolygonNearFP);
+                        triangle_bucket_near_2->subtype = splittypes[16 * (engine_coordinate_3->field_8 & 3) + 4 * (engine_coordinate_1->field_8 & 3) + (engine_coordinate_2->field_8 & 3)];
+                        triangle_bucket_near_2->b.next = buckets[divided_z];
+                        triangle_bucket_near_2->b.kind = QK_PolygonNearFP;
+                        buckets[divided_z] = &triangle_bucket_near_2->b;
+                        triangle_bucket_near_2->block = textr_idx;
+                        triangle_bucket_near_1->c2.x = engine_coordinate_2->x;
+                        triangle_bucket_near_1->c2.y = engine_coordinate_2->y;
+                        triangle_bucket_near_1->c2.z = engine_coordinate_2->z;
+                        triangle_bucket_near_1->c3.x = engine_coordinate_3->x;
+                        triangle_bucket_near_1->c3.y = engine_coordinate_3->y;
+                        triangle_bucket_near_1->c3.z = engine_coordinate_3->z;
+                        memcpy(&triangle_bucket_near_2->p1, &triangle_bucket_near_1->p1, sizeof(triangle_bucket_near_2->p1));
+                        memcpy(&triangle_bucket_near_2->p3, &triangle_bucket_near_1->p3, sizeof(triangle_bucket_near_2->p3));
+                        
+                        // ?
+                        int prawns = ((32 - engine_coordinate_1->z) << 8) / (engine_coordinate_2->z - engine_coordinate_1->z);
+                        
+                        triangle_bucket_near_1->c1.x = engine_coordinate_1->x + ((prawns * (engine_coordinate_2->x - engine_coordinate_1->x)) >> 8);
+                        triangle_bucket_near_1->c1.y = engine_coordinate_1->y + ((prawns * (engine_coordinate_2->y - engine_coordinate_1->y)) >> 8);
+                        triangle_bucket_near_1->c1.z = 32;
+                        perspective(&triangle_bucket_near_1->c1, &triangle_bucket_near_1->p1);
+                        triangle_bucket_near_1->p1.field_8 += (prawns * (triangle_bucket_near_1->p2.field_8 - triangle_bucket_near_1->p1.field_8)) >> 8;
+                        triangle_bucket_near_1->p1.field_C += (prawns * (triangle_bucket_near_1->p2.field_C - triangle_bucket_near_1->p1.field_C)) >> 8;
+                        
+                        // ?
+                        int cauliflower = triangle_bucket_near_1->p1.field_10;
+                        // ?
+                        int paprika = (prawns * (triangle_bucket_near_1->p2.field_10 - cauliflower)) >> 8;
+                        
+                        polypoint1 = &triangle_bucket_near_1->p1;
+                        xyz1 = &triangle_bucket_near_1->c1;
+                        xyz1[-4].y = cauliflower + paprika;
+                        memcpy(&triangle_bucket_near_2->p2, polypoint1, sizeof(triangle_bucket_near_2->p2));
+                        triangle_bucket_near_2->c2.x = xyz1->x;
+                        triangle_bucket_near_2->c2.y = xyz1->y;
+                        triangle_bucket_near_2->c2.z = xyz1->z;
+                        triangle_bucket_near_2->c3.x = engine_coordinate_3->x;
+                        triangle_bucket_near_2->c3.y = engine_coordinate_3->y;
+                        triangle_bucket_near_2->c3.z = engine_coordinate_3->z;
+                        
+                        // ?
+                        int sausage = ((32 - engine_coordinate_1->z) << 8) / (engine_coordinate_3->z - engine_coordinate_1->z);
+                        
+                        triangle_bucket_near_2->c1.x = engine_coordinate_1->x + ((sausage * (engine_coordinate_3->x - engine_coordinate_1->x)) >> 8);
+                        triangle_bucket_near_2->c1.y = engine_coordinate_1->y + ((sausage * (engine_coordinate_3->y - engine_coordinate_1->y)) >> 8);
+                        triangle_bucket_near_2->c1.z = 32;
+                        perspective(&triangle_bucket_near_2->c1, &triangle_bucket_near_2->p1);
+                        triangle_bucket_near_2->p1.field_8 += (sausage * (triangle_bucket_near_2->p3.field_8 - triangle_bucket_near_2->p1.field_8)) >> 8;
+                        triangle_bucket_near_2->p1.field_C += (sausage * (triangle_bucket_near_2->p3.field_C - triangle_bucket_near_2->p1.field_C)) >> 8;
+                        triangle_bucket_near_2->p1.field_10 += (sausage * (triangle_bucket_near_2->p3.field_10 - triangle_bucket_near_2->p1.field_10)) >> 8;
+                    }
+                    else
+                    {
+                        triangle_bucket_near_1->c2.x = engine_coordinate_2->x;
+                        triangle_bucket_near_1->c2.y = engine_coordinate_2->y;
+                        triangle_bucket_near_1->c2.z = engine_coordinate_2->z;
+                        
+                        // ?
+                        int cherries = ((32 - engine_coordinate_1->z) << 8) / (engine_coordinate_2->z - engine_coordinate_1->z);
+                        
+                        triangle_bucket_near_1->c1.x = engine_coordinate_1->x + ((cherries * (engine_coordinate_2->x - engine_coordinate_1->x)) >> 8);
+                        triangle_bucket_near_1->c1.y = engine_coordinate_1->y + ((cherries * (engine_coordinate_2->y - engine_coordinate_1->y)) >> 8);
+                        triangle_bucket_near_1->c1.z = 32;
+                        perspective(&triangle_bucket_near_1->c1, &triangle_bucket_near_1->p1);
+                        triangle_bucket_near_1->p1.field_8 += (cherries * (triangle_bucket_near_1->p2.field_8 - triangle_bucket_near_1->p1.field_8)) >> 8;
+                        triangle_bucket_near_1->p1.field_C += (cherries * (triangle_bucket_near_1->p2.field_C - triangle_bucket_near_1->p1.field_C)) >> 8;
+                        triangle_bucket_near_1->p1.field_10 += (cherries * (triangle_bucket_near_1->p2.field_10 - triangle_bucket_near_1->p1.field_10)) >> 8;
+                        
+                        // ?
+                        int mushroom = ((32 - engine_coordinate_3->z) << 8) / (engine_coordinate_2->z - engine_coordinate_3->z);
+                        
+                        triangle_bucket_near_1->c3.x = engine_coordinate_3->x + ((mushroom * (engine_coordinate_2->x - engine_coordinate_3->x)) >> 8);
+                        triangle_bucket_near_1->c3.y = engine_coordinate_3->y + ((mushroom * (engine_coordinate_2->y - engine_coordinate_3->y)) >> 8);
+                        triangle_bucket_near_1->c3.z = 32;
+                        perspective(&triangle_bucket_near_1->c3, &triangle_bucket_near_1->p3);
+                        triangle_bucket_near_1->p3.field_8 += (mushroom * (triangle_bucket_near_1->p2.field_8 - triangle_bucket_near_1->p3.field_8)) >> 8;
+                        triangle_bucket_near_1->p3.field_C += (mushroom * (triangle_bucket_near_1->p2.field_C - triangle_bucket_near_1->p3.field_C)) >> 8;
+                        triangle_bucket_near_1->p3.field_10 += (mushroom * (triangle_bucket_near_1->p2.field_10 - triangle_bucket_near_1->p3.field_10)) >> 8;
+                    }
                 }
                 else
                 {
-                    v33 = ((32 - v31) << 8) / (v19 - v31);
-                    v9->c2.x = ep2->x + ((v33 * (ep1->x - ep2->x)) >> 8);
-                    v9->c2.y = ep2->y + ((v33 * (ep1->y - ep2->y)) >> 8);
-                    v9->c2.z = 32;
-                    perspective(&v9->c2, &v9->p2);
-                    v9->p2.field_8 += (v33 * (v9->p1.field_8 - v9->p2.field_8)) >> 8;
-                    v9->p2.field_C += (v33 * (v9->p1.field_C - v9->p2.field_C)) >> 8;
-                    v9->p2.field_10 += (v33 * (v9->p1.field_10 - v9->p2.field_10)) >> 8;
-                    v34 = ((32 - ep3->z) << 8) / (ep1->z - ep3->z);
-                    v9->c3.x = ep3->x + ((v34 * (ep1->x - ep3->x)) >> 8);
-                    v9->c3.y = ep3->y + ((v34 * (ep1->y - ep3->y)) >> 8);
-                    v9->c3.z = 32;
-                    perspective(&v9->c3, &v9->p3);
-                    v9->p3.field_8 += (v34 * (v9->p1.field_8 - v9->p3.field_8)) >> 8;
-                    v9->p3.field_C += (v34 * (v9->p1.field_C - v9->p3.field_C)) >> 8;
-                    v35 = v9->p1.field_10;
-                    v36 = v9->p3.field_10;
-                    v37 = &v9->c1;
-                    v37[-1].z = v36 + ((v34 * (v35 - v36)) >> 8);
-                    v37->x = ep1->x;
-                    v37->y = ep1->y;
-                    v37->z = ep1->z;
-                }
-            }
-            else if ( ep2->z >= 32 )
-            {
-                if ( ep3->z >= 32 )
-                {
-                    v24 = (struct BasicUnk09 *)getpoly;
-                    getpoly += sizeof(struct BasicUnk09);
-                    v24->subtype = splittypes[16 * (ep3->field_8 & 3) + 4 * (ep1->field_8 & 3) + (ep2->field_8 & 3)];
-                    v24->b.next = buckets[v8];
-                    v24->b.kind = 9;
-                    buckets[v8] = &v24->b;
-                    v24->block = a4;
-                    v9->c2.x = ep2->x;
-                    v9->c2.y = ep2->y;
-                    v9->c2.z = ep2->z;
-                    v9->c3.x = ep3->x;
-                    v9->c3.y = ep3->y;
-                    v9->c3.z = ep3->z;
-                    memcpy(&v24->p1, &v9->p1, sizeof(v24->p1));
-                    memcpy(&v24->p3, &v9->p3, sizeof(v24->p3));
-                    v25 = ((32 - ep1->z) << 8) / (ep2->z - ep1->z);
-                    v9->c1.x = ep1->x + ((v25 * (ep2->x - ep1->x)) >> 8);
-                    v9->c1.y = ep1->y + ((v25 * (ep2->y - ep1->y)) >> 8);
-                    v9->c1.z = 32;
-                    perspective(&v9->c1, &v9->p1);
-                    v9->p1.field_8 += (v25 * (v9->p2.field_8 - v9->p1.field_8)) >> 8;
-                    v9->p1.field_C += (v25 * (v9->p2.field_C - v9->p1.field_C)) >> 8;
-                    v26 = v9->p1.field_10;
-                    v27 = (v25 * (v9->p2.field_10 - v26)) >> 8;
-                    v28 = &v9->p1;
-                    v29 = &v9->c1;
-                    v29[-4].y = v26 + v27;
-                    memcpy(&v24->p2, v28, sizeof(v24->p2));
-                    v24->c2.x = v29->x;
-                    v24->c2.y = v29->y;
-                    v24->c2.z = v29->z;
-                    v24->c3.x = ep3->x;
-                    v24->c3.y = ep3->y;
-                    v24->c3.z = ep3->z;
-                    v30 = ((32 - ep1->z) << 8) / (ep3->z - ep1->z);
-                    v24->c1.x = ep1->x + ((v30 * (ep3->x - ep1->x)) >> 8);
-                    v24->c1.y = ep1->y + ((v30 * (ep3->y - ep1->y)) >> 8);
-                    v24->c1.z = 32;
-                    perspective(&v24->c1, &v24->p1);
-                    v24->p1.field_8 += (v30 * (v24->p3.field_8 - v24->p1.field_8)) >> 8;
-                    v24->p1.field_C += (v30 * (v24->p3.field_C - v24->p1.field_C)) >> 8;
-                    v24->p1.field_10 += (v30 * (v24->p3.field_10 - v24->p1.field_10)) >> 8;
-                }
-                else
-                {
-                    v9->c2.x = ep2->x;
-                    v9->c2.y = ep2->y;
-                    v9->c2.z = ep2->z;
-                    v22 = ((32 - ep1->z) << 8) / (ep2->z - ep1->z);
-                    v9->c1.x = ep1->x + ((v22 * (ep2->x - ep1->x)) >> 8);
-                    v9->c1.y = ep1->y + ((v22 * (ep2->y - ep1->y)) >> 8);
-                    v9->c1.z = 32;
-                    perspective(&v9->c1, &v9->p1);
-                    v9->p1.field_8 += (v22 * (v9->p2.field_8 - v9->p1.field_8)) >> 8;
-                    v9->p1.field_C += (v22 * (v9->p2.field_C - v9->p1.field_C)) >> 8;
-                    v9->p1.field_10 += (v22 * (v9->p2.field_10 - v9->p1.field_10)) >> 8;
-                    v23 = ((32 - ep3->z) << 8) / (ep2->z - ep3->z);
-                    v9->c3.x = ep3->x + ((v23 * (ep2->x - ep3->x)) >> 8);
-                    v9->c3.y = ep3->y + ((v23 * (ep2->y - ep3->y)) >> 8);
-                    v9->c3.z = 32;
-                    perspective(&v9->c3, &v9->p3);
-                    v9->p3.field_8 += (v23 * (v9->p2.field_8 - v9->p3.field_8)) >> 8;
-                    v9->p3.field_C += (v23 * (v9->p2.field_C - v9->p3.field_C)) >> 8;
-                    v9->p3.field_10 += (v23 * (v9->p2.field_10 - v9->p3.field_10)) >> 8;
+                    triangle_bucket_near_1->c3.x = engine_coordinate_3->x;
+                    triangle_bucket_near_1->c3.y = engine_coordinate_3->y;
+                    triangle_bucket_near_1->c3.z = engine_coordinate_3->z;
+                    
+                    // ?
+                    int olives = ((32 - engine_coordinate_1->z) << 8) / (engine_coordinate_3->z - engine_coordinate_1->z);
+                    
+                    triangle_bucket_near_1->c1.x = engine_coordinate_1->x + ((olives * (engine_coordinate_3->x - engine_coordinate_1->x)) >> 8);
+                    triangle_bucket_near_1->c1.y = engine_coordinate_1->y + ((olives * (engine_coordinate_3->y - engine_coordinate_1->y)) >> 8);
+                    triangle_bucket_near_1->c1.z = 32;
+                    perspective(&triangle_bucket_near_1->c1, &triangle_bucket_near_1->p1);
+                    triangle_bucket_near_1->p1.field_8 += (olives * (triangle_bucket_near_1->p3.field_8 - triangle_bucket_near_1->p1.field_8)) >> 8;
+                    triangle_bucket_near_1->p1.field_C += (olives * (triangle_bucket_near_1->p3.field_C - triangle_bucket_near_1->p1.field_C)) >> 8;
+                    triangle_bucket_near_1->p1.field_10 += (olives * (triangle_bucket_near_1->p3.field_10 - triangle_bucket_near_1->p1.field_10)) >> 8;
+                    
+                    // ?
+                    int macaroni = ((32 - engine_coordinate_2->z) << 8) / (engine_coordinate_3->z - engine_coordinate_2->z);
+                    
+                    triangle_bucket_near_1->c2.x = engine_coordinate_2->x + ((macaroni * (engine_coordinate_3->x - engine_coordinate_2->x)) >> 8);
+                    triangle_bucket_near_1->c2.y = engine_coordinate_2->y + ((macaroni * (engine_coordinate_3->y - engine_coordinate_2->y)) >> 8);
+                    triangle_bucket_near_1->c2.z = 32;
+                    perspective(&triangle_bucket_near_1->c2, &triangle_bucket_near_1->p2);
+                    triangle_bucket_near_1->p2.field_8 += (macaroni * (triangle_bucket_near_1->p3.field_8 - triangle_bucket_near_1->p2.field_8)) >> 8;
+                    triangle_bucket_near_1->p2.field_C += (macaroni * (triangle_bucket_near_1->p3.field_C - triangle_bucket_near_1->p2.field_C)) >> 8;
+                    triangle_bucket_near_1->p2.field_10 += (macaroni * (triangle_bucket_near_1->p3.field_10 - triangle_bucket_near_1->p2.field_10)) >> 8;
                 }
             }
             else
             {
-                v9->c3.x = ep3->x;
-                v9->c3.y = ep3->y;
-                v9->c3.z = ep3->z;
-                v20 = ((32 - ep1->z) << 8) / (ep3->z - ep1->z);
-                v9->c1.x = ep1->x + ((v20 * (ep3->x - ep1->x)) >> 8);
-                v9->c1.y = ep1->y + ((v20 * (ep3->y - ep1->y)) >> 8);
-                v9->c1.z = 32;
-                perspective(&v9->c1, &v9->p1);
-                v9->p1.field_8 += (v20 * (v9->p3.field_8 - v9->p1.field_8)) >> 8;
-                v9->p1.field_C += (v20 * (v9->p3.field_C - v9->p1.field_C)) >> 8;
-                v9->p1.field_10 += (v20 * (v9->p3.field_10 - v9->p1.field_10)) >> 8;
-                v21 = ((32 - ep2->z) << 8) / (ep3->z - ep2->z);
-                v9->c2.x = ep2->x + ((v21 * (ep3->x - ep2->x)) >> 8);
-                v9->c2.y = ep2->y + ((v21 * (ep3->y - ep2->y)) >> 8);
-                v9->c2.z = 32;
-                perspective(&v9->c2, &v9->p2);
-                v9->p2.field_8 += (v21 * (v9->p3.field_8 - v9->p2.field_8)) >> 8;
-                v9->p2.field_C += (v21 * (v9->p3.field_C - v9->p2.field_C)) >> 8;
-                v9->p2.field_10 += (v21 * (v9->p3.field_10 - v9->p2.field_10)) >> 8;
+                triangle_bucket_far = (struct BucketKindPolygonStandard *)getpoly;
+                getpoly += sizeof(struct BucketKindPolygonStandard);
+                triangle_bucket_far->b.next = buckets[divided_z];
+                triangle_bucket_far->b.kind = QK_PolygonStandard;
+                buckets[divided_z] = &triangle_bucket_far->b;
+
+                triangle_bucket_far->block = textr_idx;
+                triangle_bucket_far->p1.field_0 = engine_coordinate_1->view_width;
+                triangle_bucket_far->p1.field_4 = engine_coordinate_1->view_height;
+                triangle_bucket_far->p1.field_8 = 0;
+                triangle_bucket_far->p1.field_C = 0;
+                
+                int coordinate_1_lightness = engine_coordinate_1->field_A;
+                int coordinate_1_distance = engine_coordinate_1->field_C;
+
+                if (argument5 >= 0)
+                    coordinate_1_lightness = (coordinate_1_lightness * (3 * argument5 + 81920)) >> 17;
+                
+                int apply_lighting_to_triangle_far_1;
+                if (coordinate_1_distance <= fade_min)
+                {
+                    apply_lighting_to_triangle_far_1 = coordinate_1_lightness << 8;
+                }
+                else if (coordinate_1_distance < fade_max)
+                {
+                    apply_lighting_to_triangle_far_1 = coordinate_1_lightness * (fade_scaler - coordinate_1_distance) / fade_range + 0x8000;
+                }
+                else
+                {
+                    apply_lighting_to_triangle_far_1 = 0x8000;
+                }
+
+                triangle_bucket_far->p1.field_10 = apply_lighting_to_triangle_far_1;
+                triangle_bucket_far->p2.field_0 = engine_coordinate_2->view_width;
+                triangle_bucket_far->p2.field_4 = engine_coordinate_2->view_height;
+                triangle_bucket_far->p2.field_8 = 0x1FFFFF;
+                triangle_bucket_far->p2.field_C = 0;
+                
+                int coordinate_2_lightness = engine_coordinate_2->field_A;
+                int coordinate_2_distance = engine_coordinate_2->field_C;
+
+                if (argument5 >= 0)
+                    coordinate_2_lightness = (coordinate_2_lightness * (3 * argument5 + 81920)) >> 17;
+                
+                int apply_lighting_to_triangle_far_2;
+                if (coordinate_2_distance <= fade_min)
+                {
+                    apply_lighting_to_triangle_far_2 = coordinate_2_lightness << 8;
+                }
+                else if (coordinate_2_distance < fade_max)
+                {
+                    apply_lighting_to_triangle_far_2 = coordinate_2_lightness * (fade_scaler - coordinate_2_distance) / fade_range + 0x8000;
+                }
+                else
+                {
+                    apply_lighting_to_triangle_far_2 = 0x8000;
+                }
+
+                triangle_bucket_far->p2.field_10 = apply_lighting_to_triangle_far_2;
+                triangle_bucket_far->p3.field_0 = engine_coordinate_3->view_width;
+                triangle_bucket_far->p3.field_4 = engine_coordinate_3->view_height;
+                triangle_bucket_far->p3.field_8 = 0x1FFFFF;
+                triangle_bucket_far->p3.field_C = 0x1FFFFF;
+                
+                int coordinate_3_lightness = engine_coordinate_3->field_A;
+                int coordinate_3_distance = engine_coordinate_3->field_C;
+
+                if (argument5 >= 0)
+                    coordinate_3_lightness = (coordinate_3_lightness * (3 * argument5 + 81920)) >> 17;
+                
+                if (coordinate_3_distance <= fade_min)
+                {
+                    triangle_bucket_far->p3.field_10 = coordinate_3_lightness << 8;
+                }
+                else if (coordinate_3_distance < fade_max)
+                {
+                    triangle_bucket_far->p3.field_10 = coordinate_3_lightness * (fade_scaler - coordinate_3_distance) / fade_range + 0x8000;
+                }
+                else
+                {
+                    triangle_bucket_far->p3.field_10 = 0x8000;
+                }
+            }
+        }
+    }
+}
+
+static void do_a_trig_gourad_bl(struct EngineCoord *engine_coordinate_1, struct EngineCoord *engine_coordinate_2, struct EngineCoord *engine_coordinate_3, short argument4, long argument5)
+{
+    struct BucketKindPolygonNearFP *triangle_bucket_near_1;
+    struct BucketKindPolygonNearFP *triangle_bucket_near_2;
+    struct BucketKindPolygonNearFP *triangle_bucket_near_3;
+    struct BucketKindPolygonNearFP *triangle_bucket_near_4;
+    struct BucketKindPolygonStandard *triangle_bucket_far;
+    struct PolyPoint *polypoint1;
+    struct PolyPoint *polypoint2;
+    struct PolyPoint *polypoint3;
+    struct XYZ *xyz1;
+    struct XYZ *xyz2;
+    struct XYZ *xyz3;
+    struct XYZ *xyz4;
+    struct XYZ *xyz5;
+    struct XYZ *xyz6;
+    short coordinate_1_frustum = engine_coordinate_1->field_8;
+    short coordinate_2_frustum = engine_coordinate_2->field_8;
+    short coordinate_3_frustum = engine_coordinate_3->field_8;
+
+    if (((unsigned short)coordinate_2_frustum & (unsigned short)(coordinate_3_frustum & coordinate_1_frustum) & 0x1F8) == 0 && (engine_coordinate_2->view_width - engine_coordinate_1->view_width) * (engine_coordinate_3->view_height - engine_coordinate_2->view_height) + (engine_coordinate_3->view_width - engine_coordinate_2->view_width) * (engine_coordinate_1->view_height - engine_coordinate_2->view_height) > 0)
+    {
+        int choose_smallest_z = engine_coordinate_1->z;
+        if (choose_smallest_z < engine_coordinate_2->z)
+            choose_smallest_z = engine_coordinate_2->z;
+        if (choose_smallest_z < engine_coordinate_3->z)
+            choose_smallest_z = engine_coordinate_3->z;
+        int divided_z = choose_smallest_z / 16;
+        if (getpoly < poly_pool_end)
+        {
+            if ((((unsigned __int8)coordinate_1_frustum | (unsigned __int8)(coordinate_3_frustum | coordinate_2_frustum)) & 3) != 0)
+            {
+                triangle_bucket_near_1 = (struct BucketKindPolygonNearFP *)getpoly;
+                getpoly += sizeof(struct BucketKindPolygonNearFP);
+                triangle_bucket_near_1->subtype = splittypes[16 * (engine_coordinate_3->field_8 & 3) + 4 * (engine_coordinate_1->field_8 & 3) + (engine_coordinate_2->field_8 & 3)];
+                triangle_bucket_near_1->b.next = buckets[divided_z];
+                triangle_bucket_near_1->b.kind = QK_PolygonNearFP;
+                buckets[divided_z] = &triangle_bucket_near_1->b;
+                triangle_bucket_near_1->block = argument4;
+                
+                triangle_bucket_near_1->p1.field_0 = engine_coordinate_1->view_width;
+                triangle_bucket_near_1->p1.field_4 = engine_coordinate_1->view_height;
+                triangle_bucket_near_1->p1.field_8 = 0x1FFFFF;
+                triangle_bucket_near_1->p1.field_C = 0x1FFFFF;
+                
+                int coordinate_1_lightness = engine_coordinate_1->field_A;
+                int coordinate_1_distance = engine_coordinate_1->field_C;
+
+                if (argument5 >= 0)
+                    coordinate_1_lightness = (coordinate_1_lightness * (3 * argument5 + 81920)) >> 17;
+                
+                int apply_lighting_to_triangle_nearby_1;
+                if (coordinate_1_distance <= fade_min)
+                {
+                    apply_lighting_to_triangle_nearby_1 = coordinate_1_lightness << 8;
+                }
+                else if (coordinate_1_distance < fade_max)
+                {
+                    apply_lighting_to_triangle_nearby_1 = coordinate_1_lightness * (fade_scaler - coordinate_1_distance) / fade_range + 0x8000;
+                }
+                else
+                {
+                    apply_lighting_to_triangle_nearby_1 = 0x8000;
+                }
+
+                triangle_bucket_near_1->p1.field_10 = apply_lighting_to_triangle_nearby_1;
+                triangle_bucket_near_1->p2.field_0 = engine_coordinate_2->view_width;
+                triangle_bucket_near_1->p2.field_4 = engine_coordinate_2->view_height;
+                triangle_bucket_near_1->p2.field_8 = 0;
+                triangle_bucket_near_1->p2.field_C = 0x1FFFFF;
+                
+                int coordinate_2_lightness = engine_coordinate_2->field_A;
+                int coordinate_2_distance = engine_coordinate_2->field_C;
+
+                if (argument5 >= 0)
+                    coordinate_2_lightness = (coordinate_2_lightness * (3 * argument5 + 81920)) >> 17;
+                
+                int apply_lighting_to_triangle_nearby_2;
+                if (coordinate_2_distance <= fade_min)
+                {
+                    apply_lighting_to_triangle_nearby_2 = coordinate_2_lightness << 8;
+                }
+                else if (coordinate_2_distance < fade_max)
+                {
+                    apply_lighting_to_triangle_nearby_2 = coordinate_2_lightness * (fade_scaler - coordinate_2_distance) / fade_range + 0x8000;
+                }
+                else
+                {
+                    apply_lighting_to_triangle_nearby_2 = 0x8000;
+                }
+
+                triangle_bucket_near_1->p2.field_10 = apply_lighting_to_triangle_nearby_2;
+                triangle_bucket_near_1->p3.field_0 = engine_coordinate_3->view_width;
+                triangle_bucket_near_1->p3.field_4 = engine_coordinate_3->view_height;
+                triangle_bucket_near_1->p3.field_8 = 0;
+                triangle_bucket_near_1->p3.field_C = 0;
+                
+                int coordinate_3_lightness = engine_coordinate_3->field_A;
+                int coordinate_3_distance = engine_coordinate_3->field_C;
+
+                if (argument5 >= 0)
+                    coordinate_3_lightness = (coordinate_3_lightness * (3 * argument5 + 81920)) >> 17;
+                
+                int apply_lighting_to_triangle_nearby_3;
+                if (coordinate_3_distance <= fade_min)
+                {
+                    apply_lighting_to_triangle_nearby_3 = coordinate_3_lightness << 8;
+                }
+                else if (coordinate_3_distance < fade_max)
+                {
+                    apply_lighting_to_triangle_nearby_3 = coordinate_3_lightness * (fade_scaler - coordinate_3_distance) / fade_range + 0x8000;
+                }
+                else
+                {
+                    apply_lighting_to_triangle_nearby_3 = 0x8000;
+                }
+
+                triangle_bucket_near_1->p3.field_10 = apply_lighting_to_triangle_nearby_3;
+                
+                int coordinate_1_z = engine_coordinate_1->z;
+                if (coordinate_1_z >= 32)
+                {
+                    int coordinate_2_z = engine_coordinate_2->z;
+                    int coordinate_3_z = engine_coordinate_3->z;
+                    if (coordinate_2_z >= 32)
+                    {
+                        if (coordinate_3_z >= 32)
+                        {
+                            triangle_bucket_near_1->c1.x = engine_coordinate_1->x;
+                            triangle_bucket_near_1->c1.y = engine_coordinate_1->y;
+                            triangle_bucket_near_1->c1.z = engine_coordinate_1->z;
+                            xyz5 = &triangle_bucket_near_1->c2;
+                            triangle_bucket_near_1->c2.x = engine_coordinate_2->x;
+                            xyz6 = &triangle_bucket_near_1->c3;
+                            xyz5->y = engine_coordinate_2->y;
+                            xyz5->z = engine_coordinate_2->z;
+                            xyz6->x = engine_coordinate_3->x;
+                            xyz6->y = engine_coordinate_3->y;
+                            xyz6->z = engine_coordinate_3->z;
+                        }
+                        else
+                        {
+                            triangle_bucket_near_4 = (struct BucketKindPolygonNearFP *)getpoly;
+                            getpoly += sizeof(struct BucketKindPolygonNearFP);
+                            triangle_bucket_near_4->subtype = splittypes[16 * (engine_coordinate_3->field_8 & 3) + 4 * (engine_coordinate_1->field_8 & 3) + (engine_coordinate_2->field_8 & 3)];
+                            triangle_bucket_near_4->b.next = buckets[divided_z];
+                            triangle_bucket_near_4->b.kind = QK_PolygonNearFP;
+                            buckets[divided_z] = &triangle_bucket_near_4->b;
+                            triangle_bucket_near_4->block = argument4;
+                            triangle_bucket_near_1->c1.x = engine_coordinate_1->x;
+                            triangle_bucket_near_1->c1.y = engine_coordinate_1->y;
+                            triangle_bucket_near_1->c1.z = engine_coordinate_1->z;
+                            triangle_bucket_near_1->c2.x = engine_coordinate_2->x;
+                            triangle_bucket_near_1->c2.y = engine_coordinate_2->y;
+                            triangle_bucket_near_1->c2.z = engine_coordinate_2->z;
+                            memcpy(&triangle_bucket_near_4->p3, &triangle_bucket_near_1->p3, sizeof(triangle_bucket_near_4->p3));
+                            memcpy(&triangle_bucket_near_4->p2, &triangle_bucket_near_1->p2, sizeof(triangle_bucket_near_4->p2));
+                            
+                            // ?
+                            int toast = ((32 - engine_coordinate_3->z) << 8) / (engine_coordinate_1->z - engine_coordinate_3->z);
+                            
+                            triangle_bucket_near_1->c3.x = engine_coordinate_3->x + ((toast * (engine_coordinate_1->x - engine_coordinate_3->x)) >> 8);
+                            triangle_bucket_near_1->c3.y = engine_coordinate_3->y + ((toast * (engine_coordinate_1->y - engine_coordinate_3->y)) >> 8);
+                            triangle_bucket_near_1->c3.z = 32;
+                            perspective(&triangle_bucket_near_1->c3, &triangle_bucket_near_1->p3);
+                            triangle_bucket_near_1->p3.field_8 += (toast * (triangle_bucket_near_1->p1.field_8 - triangle_bucket_near_1->p3.field_8)) >> 8;
+                            triangle_bucket_near_1->p3.field_C += (toast * (triangle_bucket_near_1->p1.field_C - triangle_bucket_near_1->p3.field_C)) >> 8;
+                            
+                            // ?
+                            int popcorn = triangle_bucket_near_1->p3.field_10;
+                            
+                            // ?
+                            int almond = (toast * (triangle_bucket_near_1->p1.field_10 - popcorn)) >> 8;
+                            
+                            polypoint3 = &triangle_bucket_near_1->p3;
+                            xyz4 = &triangle_bucket_near_1->c3;
+                            xyz4[-3].z = popcorn + almond;
+                            memcpy(&triangle_bucket_near_4->p1, polypoint3, sizeof(triangle_bucket_near_4->p1));
+                            triangle_bucket_near_4->c1.x = xyz4->x;
+                            triangle_bucket_near_4->c1.y = xyz4->y;
+                            triangle_bucket_near_4->c1.z = xyz4->z;
+                            triangle_bucket_near_4->c2.x = engine_coordinate_2->x;
+                            triangle_bucket_near_4->c2.y = engine_coordinate_2->y;
+                            triangle_bucket_near_4->c2.z = engine_coordinate_2->z;
+                            
+                            // ?
+                            int lemon = ((32 - engine_coordinate_3->z) << 8) / (engine_coordinate_2->z - engine_coordinate_3->z);
+                            
+                            triangle_bucket_near_4->c3.x = engine_coordinate_3->x + ((lemon * (engine_coordinate_2->x - engine_coordinate_3->x)) >> 8);
+                            triangle_bucket_near_4->c3.y = engine_coordinate_3->y + ((lemon * (engine_coordinate_2->y - engine_coordinate_3->y)) >> 8);
+                            triangle_bucket_near_4->c3.z = 32;
+                            perspective(&triangle_bucket_near_4->c3, &triangle_bucket_near_4->p3);
+                            triangle_bucket_near_4->p3.field_8 += (lemon * (triangle_bucket_near_4->p2.field_8 - triangle_bucket_near_4->p3.field_8)) >> 8;
+                            triangle_bucket_near_4->p3.field_C += (lemon * (triangle_bucket_near_4->p2.field_C - triangle_bucket_near_4->p3.field_C)) >> 8;
+                            triangle_bucket_near_4->p3.field_10 += (lemon * (triangle_bucket_near_4->p2.field_10 - triangle_bucket_near_4->p3.field_10)) >> 8;
+                        }
+                    }
+                    else if (coordinate_3_z >= 32)
+                    {
+                        triangle_bucket_near_3 = (struct BucketKindPolygonNearFP *)getpoly;
+                        getpoly += sizeof(struct BucketKindPolygonNearFP);
+                        triangle_bucket_near_3->subtype = splittypes[16 * (engine_coordinate_3->field_8 & 3) + 4 * (engine_coordinate_1->field_8 & 3) + (engine_coordinate_2->field_8 & 3)];
+                        triangle_bucket_near_3->b.next = buckets[divided_z];
+                        triangle_bucket_near_3->b.kind = QK_PolygonNearFP;
+                        buckets[divided_z] = &triangle_bucket_near_3->b;
+                        triangle_bucket_near_3->block = argument4;
+                        triangle_bucket_near_1->c1.x = engine_coordinate_1->x;
+                        triangle_bucket_near_1->c1.y = engine_coordinate_1->y;
+                        triangle_bucket_near_1->c1.z = engine_coordinate_1->z;
+                        triangle_bucket_near_1->c3.x = engine_coordinate_3->x;
+                        triangle_bucket_near_1->c3.y = engine_coordinate_3->y;
+                        triangle_bucket_near_1->c3.z = engine_coordinate_3->z;
+                        memcpy(&triangle_bucket_near_3->p2, &triangle_bucket_near_1->p2, sizeof(triangle_bucket_near_3->p2));
+                        memcpy(&triangle_bucket_near_3->p3, &triangle_bucket_near_1->p3, sizeof(triangle_bucket_near_3->p3));
+                        
+                        // ?
+                        int lettuce = ((32 - engine_coordinate_2->z) << 8) / (engine_coordinate_1->z - engine_coordinate_2->z);
+                        
+                        triangle_bucket_near_1->c2.x = engine_coordinate_2->x + ((lettuce * (engine_coordinate_1->x - engine_coordinate_2->x)) >> 8);
+                        triangle_bucket_near_1->c2.y = engine_coordinate_2->y + ((lettuce * (engine_coordinate_1->y - engine_coordinate_2->y)) >> 8);
+                        triangle_bucket_near_1->c2.z = 32;
+                        perspective(&triangle_bucket_near_1->c2, &triangle_bucket_near_1->p2);
+                        triangle_bucket_near_1->p2.field_8 += (lettuce * (triangle_bucket_near_1->p1.field_8 - triangle_bucket_near_1->p2.field_8)) >> 8;
+                        triangle_bucket_near_1->p2.field_C += (lettuce * (triangle_bucket_near_1->p1.field_C - triangle_bucket_near_1->p2.field_C)) >> 8;
+                        
+                        // ?
+                        int sandwich = triangle_bucket_near_1->p2.field_10;
+                        // ?
+                        int walnut = (lettuce * (triangle_bucket_near_1->p1.field_10 - sandwich)) >> 8;
+                        
+                        polypoint2 = &triangle_bucket_near_1->p2;
+                        xyz3 = &triangle_bucket_near_1->c2;
+                        xyz3[-3].x = sandwich + walnut;
+                        memcpy(&triangle_bucket_near_3->p1, polypoint2, sizeof(triangle_bucket_near_3->p1));
+                        triangle_bucket_near_3->c1.x = xyz3->x;
+                        triangle_bucket_near_3->c1.y = xyz3->y;
+                        triangle_bucket_near_3->c1.z = xyz3->z;
+                        triangle_bucket_near_3->c3.x = engine_coordinate_3->x;
+                        triangle_bucket_near_3->c3.y = engine_coordinate_3->y;
+                        triangle_bucket_near_3->c3.z = engine_coordinate_3->z;
+                        
+                        // ?
+                        int avocado = ((32 - engine_coordinate_2->z) << 8) / (engine_coordinate_3->z - engine_coordinate_2->z);
+                        
+                        triangle_bucket_near_3->c2.x = engine_coordinate_2->x + ((avocado * (engine_coordinate_3->x - engine_coordinate_2->x)) >> 8);
+                        triangle_bucket_near_3->c2.y = engine_coordinate_2->y + ((avocado * (engine_coordinate_3->y - engine_coordinate_2->y)) >> 8);
+                        triangle_bucket_near_3->c2.z = 32;
+                        perspective(&triangle_bucket_near_3->c2, &triangle_bucket_near_3->p2);
+                        triangle_bucket_near_3->p2.field_8 += (avocado * (triangle_bucket_near_3->p3.field_8 - triangle_bucket_near_3->p2.field_8)) >> 8;
+                        triangle_bucket_near_3->p2.field_C += (avocado * (triangle_bucket_near_3->p3.field_C - triangle_bucket_near_3->p2.field_C)) >> 8;
+                        triangle_bucket_near_3->p2.field_10 += (avocado * (triangle_bucket_near_3->p3.field_10 - triangle_bucket_near_3->p2.field_10)) >> 8;
+                    }
+                    else
+                    {
+                        // ?
+                        int steak = ((32 - coordinate_2_z) << 8) / (coordinate_1_z - coordinate_2_z);
+                        
+                        triangle_bucket_near_1->c2.x = engine_coordinate_2->x + ((steak * (engine_coordinate_1->x - engine_coordinate_2->x)) >> 8);
+                        triangle_bucket_near_1->c2.y = engine_coordinate_2->y + ((steak * (engine_coordinate_1->y - engine_coordinate_2->y)) >> 8);
+                        triangle_bucket_near_1->c2.z = 32;
+                        perspective(&triangle_bucket_near_1->c2, &triangle_bucket_near_1->p2);
+                        triangle_bucket_near_1->p2.field_8 += (steak * (triangle_bucket_near_1->p1.field_8 - triangle_bucket_near_1->p2.field_8)) >> 8;
+                        triangle_bucket_near_1->p2.field_C += (steak * (triangle_bucket_near_1->p1.field_C - triangle_bucket_near_1->p2.field_C)) >> 8;
+                        triangle_bucket_near_1->p2.field_10 += (steak * (triangle_bucket_near_1->p1.field_10 - triangle_bucket_near_1->p2.field_10)) >> 8;
+                        
+                        // ?
+                        int tomato = ((32 - engine_coordinate_3->z) << 8) / (engine_coordinate_1->z - engine_coordinate_3->z);
+                        
+                        triangle_bucket_near_1->c3.x = engine_coordinate_3->x + ((tomato * (engine_coordinate_1->x - engine_coordinate_3->x)) >> 8);
+                        triangle_bucket_near_1->c3.y = engine_coordinate_3->y + ((tomato * (engine_coordinate_1->y - engine_coordinate_3->y)) >> 8);
+                        triangle_bucket_near_1->c3.z = 32;
+                        perspective(&triangle_bucket_near_1->c3, &triangle_bucket_near_1->p3);
+                        triangle_bucket_near_1->p3.field_8 += (tomato * (triangle_bucket_near_1->p1.field_8 - triangle_bucket_near_1->p3.field_8)) >> 8;
+                        triangle_bucket_near_1->p3.field_C += (tomato * (triangle_bucket_near_1->p1.field_C - triangle_bucket_near_1->p3.field_C)) >> 8;
+                        
+                        // ?
+                        int cabbage = triangle_bucket_near_1->p1.field_10;
+                        // ?
+                        int coconut = triangle_bucket_near_1->p3.field_10;
+                        
+                        xyz2 = &triangle_bucket_near_1->c1;
+                        xyz2[-1].z = coconut + ((tomato * (cabbage - coconut)) >> 8);
+                        xyz2->x = engine_coordinate_1->x;
+                        xyz2->y = engine_coordinate_1->y;
+                        xyz2->z = engine_coordinate_1->z;
+                    }
+                }
+                else if (engine_coordinate_2->z >= 32)
+                {
+                    if (engine_coordinate_3->z >= 32)
+                    {
+                        triangle_bucket_near_2 = (struct BucketKindPolygonNearFP *)getpoly;
+                        getpoly += sizeof(struct BucketKindPolygonNearFP);
+                        triangle_bucket_near_2->subtype = splittypes[16 * (engine_coordinate_3->field_8 & 3) + 4 * (engine_coordinate_1->field_8 & 3) + (engine_coordinate_2->field_8 & 3)];
+                        triangle_bucket_near_2->b.next = buckets[divided_z];
+                        triangle_bucket_near_2->b.kind = QK_PolygonNearFP;
+                        buckets[divided_z] = &triangle_bucket_near_2->b;
+                        triangle_bucket_near_2->block = argument4;
+                        triangle_bucket_near_1->c2.x = engine_coordinate_2->x;
+                        triangle_bucket_near_1->c2.y = engine_coordinate_2->y;
+                        triangle_bucket_near_1->c2.z = engine_coordinate_2->z;
+                        triangle_bucket_near_1->c3.x = engine_coordinate_3->x;
+                        triangle_bucket_near_1->c3.y = engine_coordinate_3->y;
+                        triangle_bucket_near_1->c3.z = engine_coordinate_3->z;
+                        memcpy(&triangle_bucket_near_2->p1, &triangle_bucket_near_1->p1, sizeof(triangle_bucket_near_2->p1));
+                        memcpy(&triangle_bucket_near_2->p3, &triangle_bucket_near_1->p3, sizeof(triangle_bucket_near_2->p3));
+                        
+                        // ?
+                        int prawns = ((32 - engine_coordinate_1->z) << 8) / (engine_coordinate_2->z - engine_coordinate_1->z);
+                        
+                        triangle_bucket_near_1->c1.x = engine_coordinate_1->x + ((prawns * (engine_coordinate_2->x - engine_coordinate_1->x)) >> 8);
+                        triangle_bucket_near_1->c1.y = engine_coordinate_1->y + ((prawns * (engine_coordinate_2->y - engine_coordinate_1->y)) >> 8);
+                        triangle_bucket_near_1->c1.z = 32;
+                        perspective(&triangle_bucket_near_1->c1, &triangle_bucket_near_1->p1);
+                        triangle_bucket_near_1->p1.field_8 += (prawns * (triangle_bucket_near_1->p2.field_8 - triangle_bucket_near_1->p1.field_8)) >> 8;
+                        triangle_bucket_near_1->p1.field_C += (prawns * (triangle_bucket_near_1->p2.field_C - triangle_bucket_near_1->p1.field_C)) >> 8;
+                        
+                        // ?
+                        int cauliflower = triangle_bucket_near_1->p1.field_10;
+                        // ?
+                        int paprika = (prawns * (triangle_bucket_near_1->p2.field_10 - cauliflower)) >> 8;
+                        
+                        polypoint1 = &triangle_bucket_near_1->p1;
+                        xyz1 = &triangle_bucket_near_1->c1;
+                        xyz1[-4].y = cauliflower + paprika;
+                        memcpy(&triangle_bucket_near_2->p2, polypoint1, sizeof(triangle_bucket_near_2->p2));
+                        triangle_bucket_near_2->c2.x = xyz1->x;
+                        triangle_bucket_near_2->c2.y = xyz1->y;
+                        triangle_bucket_near_2->c2.z = xyz1->z;
+                        triangle_bucket_near_2->c3.x = engine_coordinate_3->x;
+                        triangle_bucket_near_2->c3.y = engine_coordinate_3->y;
+                        triangle_bucket_near_2->c3.z = engine_coordinate_3->z;
+                        
+                        // ?
+                        int sausage = ((32 - engine_coordinate_1->z) << 8) / (engine_coordinate_3->z - engine_coordinate_1->z);
+                        
+                        triangle_bucket_near_2->c1.x = engine_coordinate_1->x + ((sausage * (engine_coordinate_3->x - engine_coordinate_1->x)) >> 8);
+                        triangle_bucket_near_2->c1.y = engine_coordinate_1->y + ((sausage * (engine_coordinate_3->y - engine_coordinate_1->y)) >> 8);
+                        triangle_bucket_near_2->c1.z = 32;
+                        perspective(&triangle_bucket_near_2->c1, &triangle_bucket_near_2->p1);
+                        triangle_bucket_near_2->p1.field_8 += (sausage * (triangle_bucket_near_2->p3.field_8 - triangle_bucket_near_2->p1.field_8)) >> 8;
+                        triangle_bucket_near_2->p1.field_C += (sausage * (triangle_bucket_near_2->p3.field_C - triangle_bucket_near_2->p1.field_C)) >> 8;
+                        triangle_bucket_near_2->p1.field_10 += (sausage * (triangle_bucket_near_2->p3.field_10 - triangle_bucket_near_2->p1.field_10)) >> 8;
+                    }
+                    else
+                    {
+                        triangle_bucket_near_1->c2.x = engine_coordinate_2->x;
+                        triangle_bucket_near_1->c2.y = engine_coordinate_2->y;
+                        triangle_bucket_near_1->c2.z = engine_coordinate_2->z;
+                        
+                        // ?
+                        int cherries = ((32 - engine_coordinate_1->z) << 8) / (engine_coordinate_2->z - engine_coordinate_1->z);
+                        
+                        triangle_bucket_near_1->c1.x = engine_coordinate_1->x + ((cherries * (engine_coordinate_2->x - engine_coordinate_1->x)) >> 8);
+                        triangle_bucket_near_1->c1.y = engine_coordinate_1->y + ((cherries * (engine_coordinate_2->y - engine_coordinate_1->y)) >> 8);
+                        triangle_bucket_near_1->c1.z = 32;
+                        perspective(&triangle_bucket_near_1->c1, &triangle_bucket_near_1->p1);
+                        triangle_bucket_near_1->p1.field_8 += (cherries * (triangle_bucket_near_1->p2.field_8 - triangle_bucket_near_1->p1.field_8)) >> 8;
+                        triangle_bucket_near_1->p1.field_C += (cherries * (triangle_bucket_near_1->p2.field_C - triangle_bucket_near_1->p1.field_C)) >> 8;
+                        triangle_bucket_near_1->p1.field_10 += (cherries * (triangle_bucket_near_1->p2.field_10 - triangle_bucket_near_1->p1.field_10)) >> 8;
+                        
+                        // ?
+                        int mushroom = ((32 - engine_coordinate_3->z) << 8) / (engine_coordinate_2->z - engine_coordinate_3->z);
+                        
+                        triangle_bucket_near_1->c3.x = engine_coordinate_3->x + ((mushroom * (engine_coordinate_2->x - engine_coordinate_3->x)) >> 8);
+                        triangle_bucket_near_1->c3.y = engine_coordinate_3->y + ((mushroom * (engine_coordinate_2->y - engine_coordinate_3->y)) >> 8);
+                        triangle_bucket_near_1->c3.z = 32;
+                        perspective(&triangle_bucket_near_1->c3, &triangle_bucket_near_1->p3);
+                        triangle_bucket_near_1->p3.field_8 += (mushroom * (triangle_bucket_near_1->p2.field_8 - triangle_bucket_near_1->p3.field_8)) >> 8;
+                        triangle_bucket_near_1->p3.field_C += (mushroom * (triangle_bucket_near_1->p2.field_C - triangle_bucket_near_1->p3.field_C)) >> 8;
+                        triangle_bucket_near_1->p3.field_10 += (mushroom * (triangle_bucket_near_1->p2.field_10 - triangle_bucket_near_1->p3.field_10)) >> 8;
+                    }
+                }
+                else
+                {
+                    triangle_bucket_near_1->c3.x = engine_coordinate_3->x;
+                    triangle_bucket_near_1->c3.y = engine_coordinate_3->y;
+                    triangle_bucket_near_1->c3.z = engine_coordinate_3->z;
+                    
+                    // ?
+                    int olives = ((32 - engine_coordinate_1->z) << 8) / (engine_coordinate_3->z - engine_coordinate_1->z);
+                    
+                    triangle_bucket_near_1->c1.x = engine_coordinate_1->x + ((olives * (engine_coordinate_3->x - engine_coordinate_1->x)) >> 8);
+                    triangle_bucket_near_1->c1.y = engine_coordinate_1->y + ((olives * (engine_coordinate_3->y - engine_coordinate_1->y)) >> 8);
+                    triangle_bucket_near_1->c1.z = 32;
+                    perspective(&triangle_bucket_near_1->c1, &triangle_bucket_near_1->p1);
+                    triangle_bucket_near_1->p1.field_8 += (olives * (triangle_bucket_near_1->p3.field_8 - triangle_bucket_near_1->p1.field_8)) >> 8;
+                    triangle_bucket_near_1->p1.field_C += (olives * (triangle_bucket_near_1->p3.field_C - triangle_bucket_near_1->p1.field_C)) >> 8;
+                    triangle_bucket_near_1->p1.field_10 += (olives * (triangle_bucket_near_1->p3.field_10 - triangle_bucket_near_1->p1.field_10)) >> 8;
+                    
+                    // ?
+                    int macaroni = ((32 - engine_coordinate_2->z) << 8) / (engine_coordinate_3->z - engine_coordinate_2->z);
+                    
+                    triangle_bucket_near_1->c2.x = engine_coordinate_2->x + ((macaroni * (engine_coordinate_3->x - engine_coordinate_2->x)) >> 8);
+                    triangle_bucket_near_1->c2.y = engine_coordinate_2->y + ((macaroni * (engine_coordinate_3->y - engine_coordinate_2->y)) >> 8);
+                    triangle_bucket_near_1->c2.z = 32;
+                    perspective(&triangle_bucket_near_1->c2, &triangle_bucket_near_1->p2);
+                    triangle_bucket_near_1->p2.field_8 += (macaroni * (triangle_bucket_near_1->p3.field_8 - triangle_bucket_near_1->p2.field_8)) >> 8;
+                    triangle_bucket_near_1->p2.field_C += (macaroni * (triangle_bucket_near_1->p3.field_C - triangle_bucket_near_1->p2.field_C)) >> 8;
+                    triangle_bucket_near_1->p2.field_10 += (macaroni * (triangle_bucket_near_1->p3.field_10 - triangle_bucket_near_1->p2.field_10)) >> 8;
                 }
             }
             else
             {
-                v54 = (struct BasicUnk00 *)getpoly;
-                getpoly += sizeof(struct BasicUnk00);
-                v54->b.next = buckets[v8];
-                v54->b.kind = 0;
-                buckets[v8] = &v54->b;
-                v54->block = a4;
-                v55 = ep1->field_C;
-                v54->p1.field_0 = ep1->view_width;
-                v54->p1.field_4 = ep1->view_height;
-                v54->p1.field_8 = 0x1FFFFF;
-                v54->p1.field_C = 0x1FFFFF;
-                v56 = ep1->field_A;
-                if ( a5 >= 0 )
-                v56 = (v56 * (3 * a5 + 81920)) >> 17;
-                if ( v55 <= fade_min )
+                triangle_bucket_far = (struct BucketKindPolygonStandard *)getpoly;
+                getpoly += sizeof(struct BucketKindPolygonStandard);
+                triangle_bucket_far->b.next = buckets[divided_z];
+                triangle_bucket_far->b.kind = QK_PolygonStandard;
+                buckets[divided_z] = &triangle_bucket_far->b;
+                triangle_bucket_far->block = argument4;
+                
+                triangle_bucket_far->p1.field_0 = engine_coordinate_1->view_width;
+                triangle_bucket_far->p1.field_4 = engine_coordinate_1->view_height;
+                triangle_bucket_far->p1.field_8 = 0x1FFFFF;
+                triangle_bucket_far->p1.field_C = 0x1FFFFF;
+                
+                int coordinate_1_lightness = engine_coordinate_1->field_A;
+                int coordinate_1_distance = engine_coordinate_1->field_C;
+
+                if (argument5 >= 0)
+                    coordinate_1_lightness = (coordinate_1_lightness * (3 * argument5 + 81920)) >> 17;
+                
+                int apply_lighting_to_triangle_far_1;
+                if (coordinate_1_distance <= fade_min)
                 {
-                v57 = v56 << 8;
+                    apply_lighting_to_triangle_far_1 = coordinate_1_lightness << 8;
                 }
-                else if ( v55 < fade_max )
+                else if (coordinate_1_distance < fade_max)
                 {
-                v57 = v56 * (fade_scaler - v55) / fade_range + 0x8000;
-                }
-                else
-                {
-                v57 = 0x8000;
-                }
-                v54->p1.field_10 = v57;
-                v58 = ep2->field_C;
-                v54->p2.field_0 = ep2->view_width;
-                v54->p2.field_4 = ep2->view_height;
-                v54->p2.field_8 = 0;
-                v54->p2.field_C = 0x1FFFFF;
-                v59 = ep2->field_A;
-                if ( a5 >= 0 )
-                v59 = (v59 * (3 * a5 + 81920)) >> 17;
-                if ( v58 <= fade_min )
-                {
-                v60 = v59 << 8;
-                }
-                else if ( v58 < fade_max )
-                {
-                v60 = v59 * (fade_scaler - v58) / fade_range + 0x8000;
+                    apply_lighting_to_triangle_far_1 = coordinate_1_lightness * (fade_scaler - coordinate_1_distance) / fade_range + 0x8000;
                 }
                 else
                 {
-                v60 = 0x8000;
+                    apply_lighting_to_triangle_far_1 = 0x8000;
                 }
-                v54->p2.field_10 = v60;
-                v61 = ep3->field_C;
-                v54->p3.field_0 = ep3->view_width;
-                v54->p3.field_4 = ep3->view_height;
-                v54->p3.field_8 = 0;
-                v54->p3.field_C = 0;
-                v62 = ep3->field_A;
-                if ( a5 >= 0 )
-                v62 = (v62 * (3 * a5 + 81920)) >> 17;
-                if ( v61 <= fade_min )
+                
+                triangle_bucket_far->p1.field_10 = apply_lighting_to_triangle_far_1;
+                triangle_bucket_far->p2.field_0 = engine_coordinate_2->view_width;
+                triangle_bucket_far->p2.field_4 = engine_coordinate_2->view_height;
+                triangle_bucket_far->p2.field_8 = 0;
+                triangle_bucket_far->p2.field_C = 0x1FFFFF;
+                
+                int coordinate_2_lightness = engine_coordinate_2->field_A;
+                int coordinate_2_distance = engine_coordinate_2->field_C;
+
+                if (argument5 >= 0)
+                    coordinate_2_lightness = (coordinate_2_lightness * (3 * argument5 + 81920)) >> 17;
+                
+                int apply_lighting_to_triangle_far_2;
+                if (coordinate_2_distance <= fade_min)
                 {
-                v54->p3.field_10 = v62 << 8;
+                    apply_lighting_to_triangle_far_2 = coordinate_2_lightness << 8;
                 }
-                else if ( v61 < fade_max )
+                else if (coordinate_2_distance < fade_max)
                 {
-                v54->p3.field_10 = v62 * (fade_scaler - v61) / fade_range + 0x8000;
+                    apply_lighting_to_triangle_far_2 = coordinate_2_lightness * (fade_scaler - coordinate_2_distance) / fade_range + 0x8000;
                 }
                 else
                 {
-                v54->p3.field_10 = 0x8000;
+                    apply_lighting_to_triangle_far_2 = 0x8000;
+                }
+                
+                triangle_bucket_far->p2.field_10 = apply_lighting_to_triangle_far_2;
+                triangle_bucket_far->p3.field_0 = engine_coordinate_3->view_width;
+                triangle_bucket_far->p3.field_4 = engine_coordinate_3->view_height;
+                triangle_bucket_far->p3.field_8 = 0;
+                triangle_bucket_far->p3.field_C = 0;
+
+                int coordinate_3_lightness = engine_coordinate_3->field_A;
+                int coordinate_3_distance = engine_coordinate_3->field_C;
+
+                if (argument5 >= 0)
+                    coordinate_3_lightness = (coordinate_3_lightness * (3 * argument5 + 81920)) >> 17;
+                
+                if (coordinate_3_distance <= fade_min)
+                {
+                    triangle_bucket_far->p3.field_10 = coordinate_3_lightness << 8;
+                }
+                else if (coordinate_3_distance < fade_max)
+                {
+                    triangle_bucket_far->p3.field_10 = coordinate_3_lightness * (fade_scaler - coordinate_3_distance) / fade_range + 0x8000;
+                }
+                else
+                {
+                    triangle_bucket_far->p3.field_10 = 0x8000;
                 }
             }
         }
@@ -3340,7 +3404,7 @@ static void find_closest_lights_on_list(struct NearestLights *nlgt, long *nlgt_d
         lgt = &game.lish.lights[i];
         i = lgt->next_in_list;
         // Per-light code
-        if ((lgt->flags & 1) != 0)
+        if ((lgt->flags & LgtF_Allocated) != 0)
         {
             long dist;
             dist = get_2d_box_distance(pos, &lgt->mappos);
@@ -3472,11 +3536,11 @@ static void create_shadows(struct Thing *thing, struct EngineCoord *ecor, struct
     if (bckt_idx > 702) {
         bckt_idx = 702;
     }
-    struct KeeperSpr * kspr;
-    kspr = (struct KeeperSpr *)getpoly;
+    struct BucketKindCreatureShadow * kspr;
+    kspr = (struct BucketKindCreatureShadow *)getpoly;
     struct BasicQ *prev_bckt;
     prev_bckt = buckets[bckt_idx];
-    getpoly += sizeof(struct KeeperSpr);
+    getpoly += sizeof(struct BucketKindCreatureShadow);
     kspr->b.next = prev_bckt;
     kspr->b.kind = 12;
     buckets[bckt_idx] = (struct BasicQ *)kspr;
@@ -3569,12 +3633,12 @@ static void add_draw_status_box(struct Thing *thing, struct EngineCoord *ecor)
     else if (bckt_idx > BUCKETS_COUNT-2)
         bckt_idx = BUCKETS_COUNT-2;
 
-    struct BasicUnk14* poly = (struct BasicUnk14*)getpoly;
+    struct BucketKindCreatureStatus* poly = (struct BucketKindCreatureStatus*)getpoly;
     if (getpoly >= poly_pool_end)
         return;
-    getpoly += sizeof(struct BasicUnk14);
+    getpoly += sizeof(struct BucketKindCreatureStatus);
     poly->b.next = buckets[bckt_idx];
-    poly->b.kind = QK_CreatureStatusSprite;
+    poly->b.kind = QK_CreatureStatus;
     buckets[bckt_idx] = (struct BasicQ *)poly;
     poly->thing = thing;
     poly->x = coord.view_width;
@@ -3748,11 +3812,11 @@ void do_a_plane_of_engine_columns_perspective(long stl_x, long stl_y, long plane
 
 static void do_a_gpoly_gourad_tr(struct EngineCoord *ec1, struct EngineCoord *ec2, struct EngineCoord *ec3, short textr_id, int a5)
 {
-    //BasicUnk00 in this function could also be BasicUnk01 or BasicUnk10 idk all 3 pretty similar
+    //BucketKindPolygonStandard in this function could also be BucketKindPolygonSimple or BucketKindBasicUnk10 idk all 3 pretty similar
     int z;
-    struct BasicUnk00 *v6;
+    struct BucketKindPolygonStandard *v6;
     int v7;
-    struct BasicUnk00 *v8;
+    struct BucketKindPolygonStandard *v8;
     struct BasicQ *v9;
     struct PolyPoint *polypoint1;
     struct PolyPoint *polypoint2;
@@ -3770,13 +3834,13 @@ static void do_a_gpoly_gourad_tr(struct EngineCoord *ec1, struct EngineCoord *ec
         z = ec2->z;
         if ( z < ec3->z )
         z = ec3->z;
-        v6 = (struct BasicUnk00 *)getpoly;
+        v6 = (struct BucketKindPolygonStandard *)getpoly;
         v7 = z / 16;
         if ( getpoly < poly_pool_end )
         {
-            v8 = (struct BasicUnk00 *)getpoly;
+            v8 = (struct BucketKindPolygonStandard *)getpoly;
             v9 = buckets[v7];
-            getpoly += sizeof(struct BasicUnk00);
+            getpoly += sizeof(struct BucketKindPolygonStandard);
             v6->b.next = v9;
             polypoint1 = &v6->p1;
             v6->b.kind = 0;
@@ -3814,11 +3878,11 @@ static void do_a_gpoly_gourad_tr(struct EngineCoord *ec1, struct EngineCoord *ec
 
 static void do_a_gpoly_unlit_tr(struct EngineCoord *ec1, struct EngineCoord *ec2, struct EngineCoord *ec3, short textr_id)
 {
-    //BasicUnk00 in this function could also be BasicUnk01 or BasicUnk10 idk all 3 pretty similar
+    //BucketKindPolygonStandard in this function could also be BucketKindPolygonSimple or BucketKindBasicUnk10 idk all 3 pretty similar
     int z;
-    struct BasicUnk00 *v5;
+    struct BucketKindPolygonStandard *v5;
     int v6;
-    struct BasicUnk00 *v7;
+    struct BucketKindPolygonStandard *v7;
     struct BasicQ *v8;
 
     if ( (ec1->field_8 & (unsigned __int16)(ec2->field_8 & ec3->field_8) & 0x1F8) == 0
@@ -3830,13 +3894,13 @@ static void do_a_gpoly_unlit_tr(struct EngineCoord *ec1, struct EngineCoord *ec2
         z = ec2->z;
         if ( z < ec3->z )
         z = ec3->z;
-        v5 = (struct BasicUnk00 *)getpoly;
+        v5 = (struct BucketKindPolygonStandard *)getpoly;
         v6 = z / 16;
         if ( getpoly < poly_pool_end )
         {
-            v7 = (struct BasicUnk00 *)getpoly;
+            v7 = (struct BucketKindPolygonStandard *)getpoly;
             v8 = buckets[v6];
-            getpoly += sizeof(struct BasicUnk00);
+            getpoly += sizeof(struct BucketKindPolygonStandard);
             v5->b.next = v8;
             v5->b.kind = 0;
             buckets[v6] = &v5->b;
@@ -3862,9 +3926,9 @@ static void do_a_gpoly_unlit_tr(struct EngineCoord *ec1, struct EngineCoord *ec2
 
 static void do_a_gpoly_unlit_bl(struct EngineCoord *ec1, struct EngineCoord *ec2, struct EngineCoord *ec3, short textr_id)
 {
-    //BasicUnk00 in this function could also be BasicUnk01 or BasicUnk10 idk all 3 pretty similar
+    //BucketKindPolygonStandard in this function could also be BucketKindPolygonSimple or BucketKindBasicUnk10 idk all 3 pretty similar
     int z;
-    struct BasicUnk00 *v5;
+    struct BucketKindPolygonStandard *v5;
     int v6;
     struct BasicQ *v7;
 
@@ -3877,12 +3941,12 @@ static void do_a_gpoly_unlit_bl(struct EngineCoord *ec1, struct EngineCoord *ec2
         z = ec2->z;
         if ( z < ec3->z )
         z = ec3->z;
-        v5 = (struct BasicUnk00 *)getpoly;
+        v5 = (struct BucketKindPolygonStandard *)getpoly;
         v6 = z / 16;
         if ( getpoly < poly_pool_end )
         {
         v7 = buckets[v6];
-        getpoly += sizeof(struct BasicUnk00);
+        getpoly += sizeof(struct BucketKindPolygonStandard);
         v5->b.next = v7;
         v5->b.kind = 0;
         buckets[v6] = &v5->b;
@@ -3908,11 +3972,11 @@ static void do_a_gpoly_unlit_bl(struct EngineCoord *ec1, struct EngineCoord *ec2
 
 static void do_a_gpoly_gourad_bl(struct EngineCoord *ec1, struct EngineCoord *ec2, struct EngineCoord *ec3, short textr_id, int a5)
 {
-    //BasicUnk00 in this function could also be BasicUnk01 or BasicUnk10 idk all 3 pretty similar
+    //BucketKindPolygonStandard in this function could also be BucketKindPolygonSimple or BucketKindBasicUnk10 idk all 3 pretty similar
     int z;
-    struct BasicUnk00 *v6;
+    struct BucketKindPolygonStandard *v6;
     int zdiv16;
-    struct BasicUnk00 *poly_ptr;
+    struct BucketKindPolygonStandard *poly_ptr;
     struct BasicQ *v9;
     int ec1_fieldA;
     int ec2_fieldA;
@@ -3930,13 +3994,13 @@ static void do_a_gpoly_gourad_bl(struct EngineCoord *ec1, struct EngineCoord *ec
         z = ec2->z;
         if ( z < ec3->z )
         z = ec3->z;
-        v6 = (struct BasicUnk00 *)getpoly;
+        v6 = (struct BucketKindPolygonStandard *)getpoly;
         zdiv16 = z / 16;
         if ( getpoly < poly_pool_end )
         {
-            poly_ptr = (struct BasicUnk00 *)getpoly;
+            poly_ptr = (struct BucketKindPolygonStandard *)getpoly;
             v9 = buckets[zdiv16];
-            getpoly += sizeof(struct BasicUnk00);
+            getpoly += sizeof(struct BucketKindPolygonStandard);
             v6->b.next = v9;
             polypoint1 = &v6->p1;
             v6->b.kind = 0;
@@ -4370,7 +4434,7 @@ void draw_map_volume_box(long cor1_x, long cor1_y, long cor2_x, long cor2_y, lon
 }
 
 static unsigned short get_thing_shade(struct Thing* thing);
-static void draw_fastview_mapwho(struct Camera *cam, struct JontySpr *jspr)
+static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprite *jspr)
 {
     unsigned short flg_mem;
     unsigned char alpha_mem;
@@ -4559,7 +4623,7 @@ static void draw_fastview_mapwho(struct Camera *cam, struct JontySpr *jspr)
     EngineSpriteDrawUsingAlpha = alpha_mem;
 }
 
-void draw_engine_number(struct Number *num)
+void draw_engine_number(struct BucketKindFloatingGoldText *num)
 {
     struct PlayerInfo *player;
     unsigned short flg_mem;
@@ -4596,7 +4660,7 @@ void draw_engine_number(struct Number *num)
     lbDisplay.DrawFlags = flg_mem;
 }
 
-void draw_engine_room_flagpole(struct RoomFlag *rflg)
+void draw_engine_room_flagpole(struct BucketKindRoomFlag *rflg)
 {
     struct Room *room;
     lbDisplay.DrawFlags &= ~Lb_SPRITE_FLIP_HORIZ;
@@ -4860,7 +4924,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing, long
     lbDisplay.DrawFlags = flg_mem;
 }
 
-static void draw_iso_only_fastview_mapwho(struct Camera *cam, struct JontySpr *spr)
+static void draw_iso_only_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprite *spr)
 {
     if (cam->view_mode == PVM_FrontView)
       draw_fastview_mapwho(cam, spr);
@@ -4916,7 +4980,7 @@ static void draw_room_flag_top(long x, long y, int units_per_px, const struct Ro
 }
 #undef ROOM_FLAG_PROGRESS_BAR_WIDTH
 
-static void draw_engine_room_flag_top(struct RoomFlag *rflg)
+static void draw_engine_room_flag_top(struct BucketKindRoomFlag *rflg)
 {
     lbDisplay.DrawFlags &= ~Lb_SPRITE_FLIP_HORIZ;
     struct Room *room;
@@ -5143,12 +5207,12 @@ static void draw_clipped_line(long x1, long y1, long x2, long y2, TbPixel color)
     }
 }
 
-static void draw_map_who(struct RotoSpr *spr)
+static void draw_map_who(struct BucketKindRotableSprite *spr)
 {
     // empty
 }
 
-static void draw_unkn09(struct BasicUnk09 *unk09)
+static void draw_unkn09(struct BucketKindPolygonNearFP *unk09)
 {
     struct XYZ coord_a;
     struct XYZ coord_b;
@@ -5927,24 +5991,24 @@ void display_drawlist(void) // Draws isometric and 1st person view. Not frontvie
     const struct Camera *cam;
     union {
         struct BasicQ *b;
-        struct BasicUnk00 *unk00;
-        struct BasicUnk01 *unk01;
-        struct BasicUnk02 *unk02;
-        struct BasicUnk03 *unk03;
-        struct BasicUnk04 *unk04;
-        struct BasicUnk05 *unk05;
-        struct BasicUnk06 *unk06;
-        struct BasicUnk07 *unk07;
-        struct RotoSpr *rotSpr;
-        struct BasicUnk09 *unk09;
-        struct BasicUnk10 *unk10;
-        struct JontySpr *jonSpr;
-        struct KeeperSpr *keepSpr;
-        struct BasicUnk13 *unk13;
-        struct BasicUnk14 *unk14;
-        struct TexturedQuad *txquad;
-        struct Number *number;
-        struct RoomFlag *roomFlg;
+        struct BucketKindPolygonStandard *polygonStandard;
+        struct BucketKindPolygonSimple *polygonSimple;
+        struct BucketKindPolyMode0 *polyMode0;
+        struct BucketKindPolyMode4 *polyMode4;
+        struct BucketKindTrigMode2 *trigMode2;
+        struct BucketKindPolyMode5 *polyMode5;
+        struct BucketKindTrigMode3 *trigMode3;
+        struct BucketKindTrigMode6 *trigMode6;
+        struct BucketKindRotableSprite *rotableSprite;
+        struct BucketKindPolygonNearFP *polygonNearFP;
+        struct BucketKindBasicUnk10 *basicUnk10;
+        struct BucketKindJontySprite *jontySprite;
+        struct BucketKindCreatureShadow *creatureShadow;
+        struct BucketKindSlabSelector *slabSelector;
+        struct BucketKindCreatureStatus *creatureStatus;
+        struct BucketKindTexturedQuad *texturedQuad;
+        struct BucketKindFloatingGoldText *floatingGoldText;
+        struct BucketKindRoomFlag *roomFlag;
     } item;
     long bucket_num;
     struct PolyPoint point_a;
@@ -5966,153 +6030,160 @@ void display_drawlist(void) // Draws isometric and 1st person view. Not frontvie
             //JUSTLOG("%d",(int)item.b->kind);
             switch ( item.b->kind )
             {
-            case QK_PolygonTriangle: // All textured polygons for isometric and 'far' textures in 1st person view
+            case QK_PolygonStandard: // All textured polygons for isometric and 'far' textures in 1st person view
                 vec_mode = VM_Unknown5;
-                vec_map = block_ptrs[item.unk00->block];
-                draw_gpoly(&item.unk00->p1, &item.unk00->p2, &item.unk00->p3);
+                vec_map = block_ptrs[item.polygonStandard->block];
+                draw_gpoly(&item.polygonStandard->p1, &item.polygonStandard->p2, &item.polygonStandard->p3);
                 break;
-            case QK_PolygonTriangleSimp: // Possibly unused
+            case QK_PolygonSimple: // Possibly unused
                 vec_mode = VM_Unknown7;
-                vec_colour = ((item.unk01->p3.field_10 + item.unk01->p2.field_10 + item.unk01->p1.field_10)/3) >> 16;
-                vec_map = block_ptrs[item.unk01->block];
-                trig(&item.unk01->p1, &item.unk01->p2, &item.unk01->p3);
+                vec_colour = ((item.polygonSimple->p3.field_10 + item.polygonSimple->p2.field_10 + item.polygonSimple->p1.field_10)/3) >> 16;
+                vec_map = block_ptrs[item.polygonSimple->block];
+                trig(&item.polygonSimple->p1, &item.polygonSimple->p2, &item.polygonSimple->p3);
                 break;
             case QK_PolyMode0: // Possibly unused
                 vec_mode = VM_Unknown0;
-                vec_colour = item.unk02->colour;
-                point_a.field_0 = item.unk02->x1;
-                point_a.field_4 = item.unk02->y1;
-                point_b.field_0 = item.unk02->x2;
-                point_b.field_4 = item.unk02->y2;
-                point_c.field_0 = item.unk02->x3;
-                point_c.field_4 = item.unk02->y3;
+                vec_colour = item.polyMode0->colour;
+                point_a.field_0 = item.polyMode0->x1;
+                point_a.field_4 = item.polyMode0->y1;
+                point_b.field_0 = item.polyMode0->x2;
+                point_b.field_4 = item.polyMode0->y2;
+                point_c.field_0 = item.polyMode0->x3;
+                point_c.field_4 = item.polyMode0->y3;
                 draw_gpoly(&point_a, &point_b, &point_c);
                 break;
             case QK_PolyMode4: // Possibly unused
                 vec_mode = VM_Unknown4;
-                vec_colour = item.unk03->colour;
-                point_a.field_0 = item.unk03->x1;
-                point_a.field_4 = item.unk03->y1;
-                point_b.field_0 = item.unk03->x2;
-                point_b.field_4 = item.unk03->y2;
-                point_c.field_0 = item.unk03->x3;
-                point_c.field_4 = item.unk03->y3;
-                point_a.field_10 = item.unk03->vf1 << 16;
-                point_b.field_10 = item.unk03->vf2 << 16;
-                point_c.field_10 = item.unk03->vf3 << 16;
+                vec_colour = item.polyMode4->colour;
+                point_a.field_0 = item.polyMode4->x1;
+                point_a.field_4 = item.polyMode4->y1;
+                point_b.field_0 = item.polyMode4->x2;
+                point_b.field_4 = item.polyMode4->y2;
+                point_c.field_0 = item.polyMode4->x3;
+                point_c.field_4 = item.polyMode4->y3;
+                point_a.field_10 = item.polyMode4->vf1 << 16;
+                point_b.field_10 = item.polyMode4->vf2 << 16;
+                point_c.field_10 = item.polyMode4->vf3 << 16;
                 draw_gpoly(&point_a, &point_b, &point_c);
                 break;
             case QK_TrigMode2: // Possibly unused
                 vec_mode = VM_Unknown2;
-                point_a.field_0 = item.unk04->x1;
-                point_a.field_4 = item.unk04->y1;
-                point_b.field_0 = item.unk04->x2;
-                point_b.field_4 = item.unk04->y2;
-                point_c.field_0 = item.unk04->x3;
-                point_c.field_4 = item.unk04->y3;
-                point_a.field_8 = item.unk04->uf1 << 16;
-                point_a.field_C = item.unk04->vf1 << 16;
-                point_b.field_8 = item.unk04->uf2 << 16;
-                point_b.field_C = item.unk04->vf2 << 16;
-                point_c.field_8 = item.unk04->uf3 << 16;
-                point_c.field_C = item.unk04->vf3 << 16;
+                point_a.field_0 = item.trigMode2->x1;
+                point_a.field_4 = item.trigMode2->y1;
+                point_b.field_0 = item.trigMode2->x2;
+                point_b.field_4 = item.trigMode2->y2;
+                point_c.field_0 = item.trigMode2->x3;
+                point_c.field_4 = item.trigMode2->y3;
+                point_a.field_8 = item.trigMode2->uf1 << 16;
+                point_a.field_C = item.trigMode2->vf1 << 16;
+                point_b.field_8 = item.trigMode2->uf2 << 16;
+                point_b.field_C = item.trigMode2->vf2 << 16;
+                point_c.field_8 = item.trigMode2->uf3 << 16;
+                point_c.field_C = item.trigMode2->vf3 << 16;
                 trig(&point_a, &point_b, &point_c);
                 break;
             case QK_PolyMode5: // Possibly unused
                 vec_mode = VM_Unknown5;
-                point_a.field_0 = item.unk05->x1;
-                point_a.field_4 = item.unk05->y1;
-                point_b.field_0 = item.unk05->x2;
-                point_b.field_4 = item.unk05->y2;
-                point_c.field_0 = item.unk05->x3;
-                point_c.field_4 = item.unk05->y3;
-                point_a.field_8 = item.unk05->uf1 << 16;
-                point_a.field_C = item.unk05->vf1 << 16;
-                point_b.field_8 = item.unk05->uf2 << 16;
-                point_b.field_C = item.unk05->vf2 << 16;
-                point_c.field_8 = item.unk05->uf3 << 16;
-                point_c.field_C = item.unk05->vf3 << 16;
-                point_a.field_10 = item.unk05->wf1 << 16;
-                point_b.field_10 = item.unk05->wf2 << 16;
-                point_c.field_10 = item.unk05->wf3 << 16;
+                point_a.field_0 = item.polyMode5->x1;
+                point_a.field_4 = item.polyMode5->y1;
+                point_b.field_0 = item.polyMode5->x2;
+                point_b.field_4 = item.polyMode5->y2;
+                point_c.field_0 = item.polyMode5->x3;
+                point_c.field_4 = item.polyMode5->y3;
+                point_a.field_8 = item.polyMode5->uf1 << 16;
+                point_a.field_C = item.polyMode5->vf1 << 16;
+                point_b.field_8 = item.polyMode5->uf2 << 16;
+                point_b.field_C = item.polyMode5->vf2 << 16;
+                point_c.field_8 = item.polyMode5->uf3 << 16;
+                point_c.field_C = item.polyMode5->vf3 << 16;
+                point_a.field_10 = item.polyMode5->wf1 << 16;
+                point_b.field_10 = item.polyMode5->wf2 << 16;
+                point_c.field_10 = item.polyMode5->wf3 << 16;
                 draw_gpoly(&point_a, &point_b, &point_c);
                 break;
             case QK_TrigMode3: // Possibly unused
                 vec_mode = VM_Unknown3;
-                point_a.field_0 = item.unk06->x1;
-                point_a.field_4 = item.unk06->y1;
-                point_b.field_0 = item.unk06->x2;
-                point_b.field_4 = item.unk06->y2;
-                point_c.field_0 = item.unk06->x3;
-                point_c.field_4 = item.unk06->y3;
-                point_a.field_8 = item.unk06->uf1 << 16;
-                point_a.field_C = item.unk06->vf1 << 16;
-                point_b.field_8 = item.unk06->uf2 << 16;
-                point_b.field_C = item.unk06->vf2 << 16;
-                point_c.field_8 = item.unk06->uf3 << 16;
-                point_c.field_C = item.unk06->vf3 << 16;
+                point_a.field_0 = item.trigMode3->x1;
+                point_a.field_4 = item.trigMode3->y1;
+                point_b.field_0 = item.trigMode3->x2;
+                point_b.field_4 = item.trigMode3->y2;
+                point_c.field_0 = item.trigMode3->x3;
+                point_c.field_4 = item.trigMode3->y3;
+                point_a.field_8 = item.trigMode3->uf1 << 16;
+                point_a.field_C = item.trigMode3->vf1 << 16;
+                point_b.field_8 = item.trigMode3->uf2 << 16;
+                point_b.field_C = item.trigMode3->vf2 << 16;
+                point_c.field_8 = item.trigMode3->uf3 << 16;
+                point_c.field_C = item.trigMode3->vf3 << 16;
                 trig(&point_a, &point_b, &point_c);
                 break;
             case QK_TrigMode6: // Possibly unused
                 vec_mode = VM_Unknown6;
-                point_a.field_0 = item.unk07->x1;
-                point_a.field_4 = item.unk07->y1;
-                point_b.field_0 = item.unk07->x2;
-                point_b.field_4 = item.unk07->y2;
-                point_c.field_0 = item.unk07->x3;
-                point_c.field_4 = item.unk07->y3;
-                point_a.field_8 = item.unk07->uf1 << 16;
-                point_a.field_C = item.unk07->vf1 << 16;
-                point_b.field_8 = item.unk07->uf2 << 16;
-                point_b.field_C = item.unk07->vf2 << 16;
-                point_c.field_8 = item.unk07->uf3 << 16;
-                point_c.field_C = item.unk07->vf3 << 16;
-                point_a.field_10 = item.unk07->wf1 << 16;
-                point_b.field_10 = item.unk07->wf2 << 16;
-                point_c.field_10 = item.unk07->wf3 << 16;
+                point_a.field_0 = item.trigMode6->x1;
+                point_a.field_4 = item.trigMode6->y1;
+                point_b.field_0 = item.trigMode6->x2;
+                point_b.field_4 = item.trigMode6->y2;
+                point_c.field_0 = item.trigMode6->x3;
+                point_c.field_4 = item.trigMode6->y3;
+                point_a.field_8 = item.trigMode6->uf1 << 16;
+                point_a.field_C = item.trigMode6->vf1 << 16;
+                point_b.field_8 = item.trigMode6->uf2 << 16;
+                point_b.field_C = item.trigMode6->vf2 << 16;
+                point_c.field_8 = item.trigMode6->uf3 << 16;
+                point_c.field_C = item.trigMode6->vf3 << 16;
+                point_a.field_10 = item.trigMode6->wf1 << 16;
+                point_b.field_10 = item.trigMode6->wf2 << 16;
+                point_c.field_10 = item.trigMode6->wf3 << 16;
                 trig(&point_a, &point_b, &point_c);
                 break;
             case QK_RotableSprite: // Possibly unused
-                draw_map_who(item.rotSpr);
+                draw_map_who(item.rotableSprite);
                 break;
             case QK_PolygonNearFP: // 'Near' textured polygons (closer to camera) in 1st person view
-                draw_unkn09(item.unk09);
+                draw_unkn09(item.polygonNearFP);
                 break;
             case QK_Unknown10: // Possibly unused
                 vec_mode = VM_Unknown0;
-                vec_colour = item.unk10->field_6;
-                draw_gpoly(&item.unk10->p1, &item.unk10->p2, &item.unk10->p3);
+                vec_colour = item.basicUnk10->field_6;
+                draw_gpoly(&item.basicUnk10->p1, &item.basicUnk10->p2, &item.basicUnk10->p3);
                 break;
             case QK_JontySprite: // All creatures and things in isometric and 1st person view
-                draw_jonty_mapwho(item.jonSpr);
+                draw_jonty_mapwho(item.jontySprite);
                 break;
             case QK_CreatureShadow: // Shadows of creatures in isometric and 1st person view
-                draw_keepsprite_unscaled_in_buffer(item.keepSpr->field_5C, item.keepSpr->field_58, item.keepSpr->field_5E, scratch);
+                draw_keepsprite_unscaled_in_buffer(item.creatureShadow->field_5C, item.creatureShadow->field_58, item.creatureShadow->field_5E, scratch);
                 vec_map = scratch;
                 vec_mode = VM_Unknown10;
-                vec_colour = item.keepSpr->p1.field_10;
-                trig(&item.keepSpr->p1, &item.keepSpr->p2, &item.keepSpr->p3);
-                trig(&item.keepSpr->p1, &item.keepSpr->p3, &item.keepSpr->p4);
+                vec_colour = item.creatureShadow->p1.field_10;
+                trig(&item.creatureShadow->p1, &item.creatureShadow->p2, &item.creatureShadow->p3);
+                trig(&item.creatureShadow->p1, &item.creatureShadow->p3, &item.creatureShadow->p4);
                 break;
             case QK_SlabSelector: // Selection outline box for placing/digging slabs
-                draw_clipped_line(item.unk13->p.field_0,item.unk13->p.field_4,item.unk13->p.field_8,item.unk13->p.field_C,item.unk13->p.field_10);
+                draw_clipped_line(
+                    item.slabSelector->p.field_0,
+                    item.slabSelector->p.field_4,
+                    item.slabSelector->p.field_8,
+                    item.slabSelector->p.field_C,
+                    item.slabSelector->p.field_10);
                 break;
-            case QK_CreatureStatusSprite: // Status flower above creature heads
+            case QK_CreatureStatus: // Status flower above creature heads
                 player = get_my_player();
                 cam = player->acamera;
                 if (cam != NULL)
                 {
-                    // Status sprite grows smaller slower than zoom
-                    int status_zoom;
-                    status_zoom = (camera_zoom+CAMERA_ZOOM_MAX)/2;
-                    draw_status_sprites(item.unk14->x, item.unk14->y, item.unk14->thing, status_zoom*16/units_per_pixel);
+                    if (cam->view_mode == PVM_IsometricView)
+                    {
+                        // Status sprite grows smaller slower than zoom
+                        int status_zoom = (camera_zoom + CAMERA_ZOOM_MAX) / 2;
+                        draw_status_sprites(item.creatureStatus->x, item.creatureStatus->y, item.creatureStatus->thing, status_zoom * 16 / units_per_pixel);
+                    }
                 }
                 break;
             case QK_FloatingGoldText: // Floating gold text when placing or selling a slab
-                draw_engine_number(item.number);
+                draw_engine_number(item.floatingGoldText);
                 break;
             case QK_RoomFlagBottomPole: // The bottom pole part, doesn't affect the status sitting on top of the pole
-                draw_engine_room_flagpole(item.roomFlg);
+                draw_engine_room_flagpole(item.roomFlag);
                 break;
             case QK_JontyISOSprite: // Spinning key
                 player = get_my_player();
@@ -6120,11 +6191,11 @@ void display_drawlist(void) // Draws isometric and 1st person view. Not frontvie
                 if (cam != NULL)
                 {
                     if (cam->view_mode == PVM_IsometricView)
-                    draw_jonty_mapwho(item.jonSpr);
+                    draw_jonty_mapwho(item.jontySprite);
                 }
                 break;
             case QK_RoomFlagStatusBox: // The status sitting on top of the pole
-                draw_engine_room_flag_top(item.roomFlg);
+                draw_engine_room_flag_top(item.roomFlag);
                 break;
             default:
                 render_problems++;
@@ -6316,7 +6387,7 @@ static void clear_fast_bucket_list(void)
     LbMemorySet(buckets, 0, sizeof(buckets));
 }
 
-static void draw_texturedquad_block(struct TexturedQuad *txquad)
+static void draw_texturedquad_block(struct BucketKindTexturedQuad *txquad)
 {
     if (!UseFastBlockDraw)
     {
@@ -6406,24 +6477,26 @@ static void display_fast_drawlist(struct Camera *cam) // Draws frontview only. N
     int bucket_num;
     union {
         struct BasicQ *b;
-        struct BasicUnk00 *unk00;
-        struct BasicUnk01 *unk01;
-        struct BasicUnk02 *unk02;
-        struct BasicUnk03 *unk03;
-        struct BasicUnk04 *unk04;
-        struct BasicUnk05 *unk05;
-        struct BasicUnk06 *unk06;
-        struct BasicUnk07 *unk07;
-        struct RotoSpr *rotSpr;
-        struct BasicUnk09 *unk09;
-        struct BasicUnk10 *unk10;
-        struct JontySpr *jonSpr;
-        struct KeeperSpr *unk12;
-        struct BasicUnk13 *unk13;
-        struct BasicUnk14 *unk14;
-        struct TexturedQuad *txquad;
-        struct Number *number;
-        struct RoomFlag *roomFlg;
+        // Unused in display_fast_drawlist()
+        struct BucketKindPolygonStandard *polygonStandard;
+        struct BucketKindPolygonSimple *polygonSimple;
+        struct BucketKindPolyMode0 *polyMode0;
+        struct BucketKindPolyMode4 *polyMode4;
+        struct BucketKindTrigMode2 *trigMode2;
+        struct BucketKindPolyMode5 *polyMode5;
+        struct BucketKindTrigMode3 *trigMode3;
+        struct BucketKindTrigMode6 *trigMode6;
+        struct BucketKindRotableSprite *rotableSprite;
+        struct BucketKindPolygonNearFP *polygonNearFP;
+        struct BucketKindBasicUnk10 *basicUnk10;
+        struct BucketKindCreatureShadow *creatureShadow;
+        // Used
+        struct BucketKindJontySprite *jontySprite;
+        struct BucketKindSlabSelector *slabSelector;
+        struct BucketKindCreatureStatus *creatureStatus;
+        struct BucketKindTexturedQuad *texturedQuad;
+        struct BucketKindFloatingGoldText *floatingGoldText;
+        struct BucketKindRoomFlag *roomFlag;
     } item;
     // Color rendering array pointers used by draw_keepersprite()
     render_fade_tables = pixmap.fade_tables;
@@ -6438,31 +6511,36 @@ static void display_fast_drawlist(struct Camera *cam) // Draws frontview only. N
             switch (item.b->kind)
             {
             case QK_JontySprite: // Creatures and things
-                draw_fastview_mapwho(cam, item.jonSpr);
+                draw_fastview_mapwho(cam, item.jontySprite);
                 break;
             case QK_SlabSelector: // Selection outline box for placing/digging slabs
-                draw_clipped_line(item.unk13->p.field_0,item.unk13->p.field_4,item.unk13->p.field_8,item.unk13->p.field_C,item.unk13->p.field_10);
+                draw_clipped_line(
+                    item.slabSelector->p.field_0,
+                    item.slabSelector->p.field_4,
+                    item.slabSelector->p.field_8,
+                    item.slabSelector->p.field_C,
+                    item.slabSelector->p.field_10);
                 break;
-            case QK_CreatureStatusSprite: // Status flower above creature heads
+            case QK_CreatureStatus: // Status flower above creature heads
                 if (pixel_size == 1)
-                    draw_status_sprites(item.unk14->x, item.unk14->y, item.unk14->thing, 48*256);
+                    draw_status_sprites(item.creatureStatus->x, item.creatureStatus->y, item.creatureStatus->thing, 48*256);
                 else
-                    draw_status_sprites(item.unk14->x, item.unk14->y, item.unk14->thing, 16*256);
+                    draw_status_sprites(item.creatureStatus->x, item.creatureStatus->y, item.creatureStatus->thing, 16*256);
                 break;
             case QK_TextureQuad: // Textured polygons
-                draw_texturedquad_block(item.txquad);
+                draw_texturedquad_block(item.texturedQuad);
                 break;
             case QK_FloatingGoldText: // Floating gold text when placing or selling a slab
-                draw_engine_number(item.number);
+                draw_engine_number(item.floatingGoldText);
                 break;
             case QK_RoomFlagBottomPole: // The bottom pole part, doesn't affect the status sitting on top of the pole
-                draw_engine_room_flagpole(item.roomFlg);
+                draw_engine_room_flagpole(item.roomFlag);
                 break;
             case QK_JontyISOSprite: // Spinning Key
-                draw_iso_only_fastview_mapwho(cam, item.jonSpr);
+                draw_iso_only_fastview_mapwho(cam, item.jontySprite);
                 break;
             case QK_RoomFlagStatusBox: // The status sitting on top of the pole
-                draw_engine_room_flag_top(item.roomFlg);
+                draw_engine_room_flag_top(item.roomFlag);
                 break;
             default:
                 render_problems++;
@@ -6476,21 +6554,96 @@ static void display_fast_drawlist(struct Camera *cam) // Draws frontview only. N
     }
 }
 
-static long convert_world_coord_to_front_view_screen_coord(struct Coord3d* pos, struct Camera* cam, long* x, long* y, long* z)
+/**
+ * sub of convert_world_coord_to_front_view_screen_coord for a single point
+ * 
+ * @param player The player determine the point for
+ * @param zoom The zoom level of the camera
+ * @param vertical_delta The vertical difference between the camera and the pos
+ * @param horizontal_delta The horizontal difference between the camera and the pos 
+ * @return true if projected point is withing player's window, false otherwise
+ */
+ 
+#define UNKNOWN_PPH_MASK 0xFFFE
+static TbBool project_point_helper(struct PlayerInfo *player, int zoom, MapCoordDelta vertical_delta, MapCoordDelta horizontal_delta, MapCoord pos_z, long *x_out, long *y_out, long *z_out)
 {
-    return _DK_convert_world_coord_to_front_view_screen_coord(pos, cam, x, y, z);
+    int vertical_shift;
+    int64_t new_zoom;
+    uint8_t offset;
+    short window_width = player->engine_window_width;
+    short window_height = player->engine_window_height;
+
+    *x_out = (zoom * horizontal_delta >> 16) + (*(uint16_t *)&window_width / 2);
+    vertical_shift = zoom * vertical_delta >> 8;
+    *z_out = window_height - ((vertical_shift + ((uint16_t)(window_height & UNKNOWN_PPH_MASK) << 7)) >> 8) + 64;
+    new_zoom = zoom * *(int16_t *)&pos_z << 7;
+    offset = *((uint8_t *)&new_zoom + 4);
+    *y_out = (vertical_shift + ((uint16_t)(window_height & UNKNOWN_PPH_MASK) << 7) - ((offset + (signed int)new_zoom) >> 16)) >> 8;
+
+    return (*x_out >= 0 && *x_out < window_width && *y_out >= 0 && *y_out < window_height);
+}
+
+/**
+ * determines where on the screen an object should be drawn
+ * 
+ * @param player The player determine the point for
+ * @param cam The camera to use for the point
+ * @param x_out The x position of the object relative to the camera
+ * @param y_out The y position of the object relative to the camera
+ * @param z_out The z position of the object relative to the camera
+ * @return true if projected point is withing player's window, false otherwise
+ */
+static TbBool convert_world_coord_to_front_view_screen_coord(struct Coord3d* pos, struct Camera* cam, long* x_out, long* y_out, long* z_out)
+{
+    int zoom;
+    unsigned int orientation;
+    int vertical_delta, horizontal_delta;
+    long result = 0;
+    struct PlayerInfo* player = get_my_player();
+
+    zoom = 32 * cam->zoom / 256;
+    orientation = ((unsigned int)(cam->orient_a + (LbFPMath_PI / 4)) >> 9) & 3;
+
+    switch ( orientation )
+    {
+        case 0:
+            vertical_delta = pos->y.val - cam->mappos.y.val;
+            horizontal_delta = pos->x.val - cam->mappos.x.val;
+            result = project_point_helper(player, zoom, vertical_delta, horizontal_delta, pos->z.val, x_out, y_out, z_out);
+            break;
+
+        case 1:
+            vertical_delta = cam->mappos.x.val - pos->x.val;
+            horizontal_delta = pos->y.val - cam->mappos.y.val;
+            result = project_point_helper(player, zoom, vertical_delta, horizontal_delta, pos->z.val, x_out, y_out, z_out);
+            break;
+
+        case 2:
+            vertical_delta = cam->mappos.y.val - pos->y.val;
+            horizontal_delta = cam->mappos.x.val - pos->x.val;
+            result = project_point_helper(player, zoom, vertical_delta, horizontal_delta, pos->z.val, x_out, y_out, z_out);
+            break;
+
+        case 3:
+            vertical_delta = pos->x.val - cam->mappos.x.val;
+            horizontal_delta = cam->mappos.y.val - pos->y.val;
+            result = project_point_helper(player, zoom, vertical_delta, horizontal_delta, pos->z.val, x_out, y_out, z_out);
+            break;
+    }
+
+    return result;
 }
 
 static void add_thing_sprite_to_polypool(struct Thing *thing, long scr_x, long scr_y, long a4, long bckt_idx)
 {
-    struct JontySpr *poly;
+    struct BucketKindJontySprite *poly;
     if (bckt_idx >= BUCKETS_COUNT)
         bckt_idx = BUCKETS_COUNT-1;
     else
     if (bckt_idx < 0)
         bckt_idx = 0;
-    poly = (struct JontySpr *)getpoly;
-    getpoly += sizeof(struct JontySpr);
+    poly = (struct BucketKindJontySprite *)getpoly;
+    getpoly += sizeof(struct BucketKindJontySprite);
     poly->b.next = buckets[bckt_idx];
     poly->b.kind = QK_JontySprite;
     buckets[bckt_idx] = (struct BasicQ *)poly;
@@ -6505,14 +6658,14 @@ static void add_thing_sprite_to_polypool(struct Thing *thing, long scr_x, long s
 
 static void add_unkn18_to_polypool(struct Thing *thing, long scr_x, long scr_y, long a4, long bckt_idx)
 {
-    struct JontySpr *poly;
+    struct BucketKindJontySprite *poly;
     if (bckt_idx >= BUCKETS_COUNT)
       bckt_idx = BUCKETS_COUNT-1;
     else
     if (bckt_idx < 0)
       bckt_idx = 0;
-    poly = (struct JontySpr *)getpoly;
-    getpoly += sizeof(struct JontySpr);
+    poly = (struct BucketKindJontySprite *)getpoly;
+    getpoly += sizeof(struct BucketKindJontySprite);
     poly->b.next = buckets[bckt_idx];
     poly->b.kind = QK_JontyISOSprite;
     buckets[bckt_idx] = (struct BasicQ *)poly;
@@ -6527,17 +6680,17 @@ static void add_unkn18_to_polypool(struct Thing *thing, long scr_x, long scr_y, 
 
 static void create_status_box_element(struct Thing *thing, long a2, long a3, long a4, long bckt_idx)
 {
-    struct BasicUnk14 *poly;
+    struct BucketKindCreatureStatus *poly;
     if (bckt_idx >= BUCKETS_COUNT) {
       bckt_idx = BUCKETS_COUNT-1;
     } else
     if (bckt_idx < 0) {
       bckt_idx = 0;
     }
-    poly = (struct BasicUnk14 *)getpoly;
-    getpoly += sizeof(struct BasicUnk14);
+    poly = (struct BucketKindCreatureStatus *)getpoly;
+    getpoly += sizeof(struct BucketKindCreatureStatus);
     poly->b.next = buckets[bckt_idx];
-    poly->b.kind = QK_CreatureStatusSprite;
+    poly->b.kind = QK_CreatureStatus;
     buckets[bckt_idx] = (struct BasicQ *)poly;
     poly->thing = thing;
     if (pixel_size > 0)
@@ -6555,14 +6708,14 @@ static void create_fast_view_status_box(struct Thing *thing, long x, long y)
 
 static void add_textruredquad_to_polypool(long x, long y, long texture_idx, long a7, long a8, long lightness, long a9, long bckt_idx)
 {
-    struct TexturedQuad *poly;
+    struct BucketKindTexturedQuad *poly;
     if (bckt_idx >= BUCKETS_COUNT)
       bckt_idx = BUCKETS_COUNT-1;
     else
     if (bckt_idx < 0)
       bckt_idx = 0;
-    poly = (struct TexturedQuad *)getpoly;
-    getpoly += sizeof(struct TexturedQuad);
+    poly = (struct BucketKindTexturedQuad *)getpoly;
+    getpoly += sizeof(struct BucketKindTexturedQuad);
     poly->b.next = buckets[bckt_idx];
     poly->b.kind = QK_TextureQuad;
     buckets[bckt_idx] = (struct BasicQ *)poly;
@@ -6582,14 +6735,14 @@ static void add_textruredquad_to_polypool(long x, long y, long texture_idx, long
 
 static void add_lgttextrdquad_to_polypool(long x, long y, long texture_idx, long a6, long a7, long a8, long lg0, long lg1, long lg2, long lg3, long bckt_idx)
 {
-    struct TexturedQuad *poly;
+    struct BucketKindTexturedQuad *poly;
     if (bckt_idx >= BUCKETS_COUNT)
       bckt_idx = BUCKETS_COUNT-1;
     else
     if (bckt_idx < 0)
       bckt_idx = 0;
-    poly = (struct TexturedQuad *)getpoly;
-    getpoly += sizeof(struct TexturedQuad);
+    poly = (struct BucketKindTexturedQuad *)getpoly;
+    getpoly += sizeof(struct BucketKindTexturedQuad);
     poly->b.next = buckets[bckt_idx];
     poly->b.kind = QK_TextureQuad;
     buckets[bckt_idx] = (struct BasicQ *)poly;
@@ -6609,14 +6762,14 @@ static void add_lgttextrdquad_to_polypool(long x, long y, long texture_idx, long
 
 static void add_number_to_polypool(long x, long y, long number, long bckt_idx)
 {
-    struct Number *poly;
+    struct BucketKindFloatingGoldText *poly;
     if (bckt_idx >= BUCKETS_COUNT)
       bckt_idx = BUCKETS_COUNT-1;
     else
     if (bckt_idx < 0)
       bckt_idx = 0;
-    poly = (struct Number *)getpoly;
-    getpoly += sizeof(struct Number);
+    poly = (struct BucketKindFloatingGoldText *)getpoly;
+    getpoly += sizeof(struct BucketKindFloatingGoldText);
     poly->b.next = buckets[bckt_idx];
     poly->b.kind = QK_FloatingGoldText;
     buckets[bckt_idx] = (struct BasicQ *)poly;
@@ -6630,14 +6783,14 @@ static void add_number_to_polypool(long x, long y, long number, long bckt_idx)
 
 static void add_room_flag_pole_to_polypool(long x, long y, long room_idx, long bckt_idx)
 {
-    struct RoomFlag *poly;
+    struct BucketKindRoomFlag *poly;
     if (bckt_idx >= BUCKETS_COUNT)
       bckt_idx = BUCKETS_COUNT-1;
     else
     if (bckt_idx < 0)
       bckt_idx = 0;
-    poly = (struct RoomFlag *)getpoly;
-    getpoly += sizeof(struct RoomFlag);
+    poly = (struct BucketKindRoomFlag *)getpoly;
+    getpoly += sizeof(struct BucketKindRoomFlag);
     poly->b.next = buckets[bckt_idx];
     poly->b.kind = QK_RoomFlagBottomPole;
     buckets[bckt_idx] = (struct BasicQ *)poly;
@@ -6651,14 +6804,14 @@ static void add_room_flag_pole_to_polypool(long x, long y, long room_idx, long b
 
 static void add_room_flag_top_to_polypool(long x, long y, long room_idx, long bckt_idx)
 {
-    struct RoomFlag *poly;
+    struct BucketKindRoomFlag *poly;
     if (bckt_idx >= BUCKETS_COUNT)
       bckt_idx = BUCKETS_COUNT-1;
     else
     if (bckt_idx < 0)
       bckt_idx = 0;
-    poly = (struct RoomFlag *)getpoly;
-    getpoly += sizeof(struct RoomFlag);
+    poly = (struct BucketKindRoomFlag *)getpoly;
+    getpoly += sizeof(struct BucketKindRoomFlag);
     poly->b.next = buckets[bckt_idx];
     poly->b.kind = QK_RoomFlagStatusBox;
     buckets[bckt_idx] = (struct BasicQ *)poly;
@@ -7325,7 +7478,7 @@ void process_keeper_sprite(short x, short y, unsigned short kspr_base, short ksp
     }
 }
 
-static void process_keeper_speedup_sprite(struct JontySpr *jspr, long angle, long scale)
+static void process_keeper_speedup_sprite(struct BucketKindJontySprite *jspr, long angle, long scale)
 {
     struct PlayerInfo *player;
     struct Thing *thing;
@@ -7385,7 +7538,7 @@ static void process_keeper_speedup_sprite(struct JontySpr *jspr, long angle, lon
     process_keeper_sprite(jspr->scr_x+add_x, jspr->scr_y+add_y, graph_id2, angle, nframe2, transp2);
 }
 
-static void prepare_jonty_remap_and_scale(long *scale, const struct JontySpr *jspr)
+static void prepare_jonty_remap_and_scale(long *scale, const struct BucketKindJontySprite *jspr)
 {
     long i;
     struct Thing *thing;
@@ -7478,7 +7631,7 @@ void draw_mapwho_ariadne_path(struct Thing *thing)
     }
 }
 
-void draw_jonty_mapwho(struct JontySpr *jspr)
+void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
 {
     unsigned short flg_mem;
     unsigned char alpha_mem;
@@ -7637,7 +7790,7 @@ static void sprite_to_sbuff(const TbSpriteData sprdata, unsigned char *outbuf, i
             break;
           sprd += cval;
           // Fill area per-byte until we get 32bit-aligned position
-          while ((unsigned int)out & 3)
+          while ((ptrdiff_t)out & 3)
           {
               *out = 0xFF;
               out++;
@@ -8147,7 +8300,7 @@ void process_frontview_map_volume_box(struct Camera *cam, unsigned char stl_widt
             // This is a "2-line" square box
             // i.e. an "accurate" box with an outer square box
             map_volume_box.color = line_color;
-            create_fancy_frontview_map_volume_box(current_playeradd->render_roomspace, cam, stl_width, SLC_BROWN, true);
+            create_fancy_frontview_map_volume_box(current_playeradd->render_roomspace, cam, stl_width, (current_playeradd->render_roomspace.slab_count == 0) ? SLC_RED : SLC_BROWN, true);
         }
     }
     else

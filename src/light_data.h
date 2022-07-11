@@ -44,6 +44,10 @@ enum LightFlags {
     LgtF_Unkn02       = 0x02,
     LgtF_Dynamic      = 0x04,
     LgtF_Unkn08       = 0x08,
+    LgtF_Unkn10       = 0x10,
+    LgtF_Unkn20       = 0x20,
+    LgtF_Unkn40       = 0x40,
+    LgtF_Unkn80       = 0x80,
 };
 
 struct Light { // sizeof = 46
@@ -56,7 +60,7 @@ struct Light { // sizeof = 46
   unsigned char field_6;
   unsigned char field_7;
   unsigned char field_8;
-  unsigned char field_9;
+  unsigned char min_radius;
   unsigned char field_A[4];
   unsigned short index;
   unsigned short shadow_index;
@@ -68,7 +72,7 @@ struct Light { // sizeof = 46
   unsigned short field_1E;
   unsigned short field_20;
   unsigned short field_22;
-  unsigned short field_24;
+  unsigned short min_intensity;
   unsigned short next_in_list;
   struct Coord3d mappos;
 };

@@ -1078,6 +1078,37 @@ struct Thing *find_players_dungeon_heart(PlayerNumber plyridx)
     return INVALID_THING;
 }
 
+struct Thing* find_players_backup_dungeon_heart(PlayerNumber plyridx)
+{
+    struct Dungeon* dungeon = get_dungeon(plyridx);
+    int k = 0;
+    int i = game.thing_lists[TngList_Objects].index;
+    while (i != 0)
+    {
+        struct Thing* thing = thing_get(i);
+        if (thing_is_invalid(thing))
+        {
+            ERRORLOG("Jump to invalid thing detected");
+            break;
+        }
+        i = thing->next_of_class;
+        // Per-thing code
+        if (thing_is_dungeon_heart(thing) && (thing->owner == plyridx) && (thing->index != dungeon->dnheart_idx))
+        {
+            return thing;
+        }
+        // Per-thing code ends
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
+        }
+    }
+    SYNCDBG(6, "No secondary heart for player %d", (int)plyridx);
+    return INVALID_THING;
+}
+
 /**
  * Initializes start position of the player.
  * Finds players dungeon heart and initializes players start position.
@@ -1088,6 +1119,7 @@ void init_player_start(struct PlayerInfo *player, TbBool keep_prev)
 {
     struct Thing* thing = find_players_dungeon_heart(player->id_number);
     struct Dungeon* dungeon = get_players_dungeon(player);
+    struct DungeonAdd* dungeonadd = get_players_dungeonadd(player);
     if (dungeon_invalid(dungeon)) {
         WARNLOG("Tried to init player %d which has no dungeon",(int)player->id_number);
         return;
@@ -1108,6 +1140,15 @@ void init_player_start(struct PlayerInfo *player, TbBool keep_prev)
             dungeon->mappos.x.val = subtile_coord_center(map_subtiles_x/2);
             dungeon->mappos.y.val = subtile_coord_center(map_subtiles_y/2);
             dungeon->mappos.z.val = subtile_coord_center(map_subtiles_z/2);
+        }
+    }
+
+    dungeonadd->backup_heart_idx = 0;
+    struct Thing* scndthing = find_players_backup_dungeon_heart(player->id_number);
+    {
+        if (!thing_is_invalid(thing))
+        {
+            dungeonadd->backup_heart_idx = scndthing->index;
         }
     }
 }

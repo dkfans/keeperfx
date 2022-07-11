@@ -449,12 +449,24 @@ long computer_check_build_all_rooms(struct Computer2 *comp, struct ComputerProce
     return CProcRet_Wait;
 }
 
-long computer_get_room_kind_total_capacity(struct Computer2 *comp, RoomKind room_kind)
+long computer_get_room_role_total_capacity(struct Computer2 *comp, RoomRole rrole)
 {
     struct Dungeon* dungeon = comp->dungeon;
-    long used_capacity;
-    long total_capacity;
-    get_room_kind_total_and_used_capacity(dungeon, room_kind, &total_capacity, &used_capacity);
+    long used_capacity_kind;
+    long total_capacity_kind;
+    long total_capacity = 0;
+    
+  
+    for (RoomKind rkind = 0; rkind < slab_conf.room_types_count; rkind++)
+    {
+        if(room_role_matches(rkind,rrole))
+        {
+
+            get_room_kind_total_and_used_capacity(dungeon, rkind, &total_capacity_kind, &used_capacity_kind);
+            total_capacity += total_capacity_kind;
+        }
+    }
+    
     return total_capacity;
 }
 

@@ -1069,7 +1069,9 @@ short setup_game(void)
   features_enabled |= Ft_LockCursorInPossession; // lock the mouse cursor to the window, when the user enters possession mode (when the cursor is already unlocked)
   features_enabled &= ~Ft_PauseMusicOnGamePause; // don't pause the music, if the user pauses the game
   features_enabled &= ~Ft_MuteAudioOnLoseFocus; // don't mute the audio, if the game window loses focus
-
+  features_enabled &= ~Ft_SkipHeartZoom; // don't skip the dungeon heart zoom in
+  features_enabled &= ~Ft_SkipSplashScreens; // don't skip splash screens
+  
   // Configuration file
   if ( !load_configuration() )
   {
@@ -1084,22 +1086,27 @@ short setup_game(void)
       ERRORLOG("Error on allocation/loading of legal_load_files.");
       return 0;
   }
-
+    
   // View the legal screen
-
   if (!setup_screen_mode_zero(get_frontend_vidmode()))
   {
       ERRORLOG("Unable to set display mode for legal screen");
       return 0;
   }
 
-  result = init_actv_bitmap_screen(RBmp_SplashLegal);
- if ( result )
- {
-     result = show_actv_bitmap_screen(3000);
-     free_actv_bitmap_screen();
- } else
-      SYNCLOG("Legal image skipped");
+  if (is_feature_on(Ft_SkipSplashScreens) == false)
+  {
+      result = init_actv_bitmap_screen(RBmp_SplashLegal);
+      if ( result )
+      {
+          result = show_actv_bitmap_screen(3000);
+          free_actv_bitmap_screen();
+      } else
+          SYNCLOG("Legal image skipped");
+  } else {
+        // Make the white screen into a black screen faster
+        draw_clear_screen();
+  }
 
   // Now do more setup
   // Prepare the Game structure
@@ -1113,17 +1120,19 @@ short setup_game(void)
   // init_sound(). This will probably change when we'll move sound
   // to SDL - then we'll put that line earlier, before setup_game().
   LbErrorParachuteInstall();
+  if (is_feature_on(Ft_SkipSplashScreens) == false)
+  {
+    // View second splash screen
+    result = init_actv_bitmap_screen(RBmp_SplashFx);
+    if ( result )
+    {
+        result = show_actv_bitmap_screen(4000);
+        free_actv_bitmap_screen();
+    } else
+        SYNCLOG("startup_fx image skipped");
+  }
 
-  // View second splash screen
-  result = init_actv_bitmap_screen(RBmp_SplashFx);
- if ( result )
- {
-     result = show_actv_bitmap_screen(4000);
-     free_actv_bitmap_screen();
- } else
-      SYNCLOG("startup_fx image skipped");
   draw_clear_screen();
-
   // View Bullfrog company logo animation when new moon
   if ( is_new_moon )
     if ( !game.no_intro )
@@ -2222,16 +2231,17 @@ void check_players_lost(void)
 {
   long i;
   SYNCDBG(8,"Starting");
-  //_DK_check_players_lost(); return;
+  struct PlayerInfo* player;
+  struct DungeonAdd* dungeonadd;
   for (i=0; i < PLAYERS_COUNT; i++)
   {
-      struct PlayerInfo *player;
       player = get_player(i);
+      dungeonadd = get_players_dungeonadd(player);
       if (player_exists(player) && (player->is_active == 1))
       {
           struct Thing *heartng;
           heartng = get_player_soul_container(i);
-          if ((!thing_exists(heartng) || (heartng->active_state == ObSt_BeingDestroyed)) && (player->victory_state == VicS_Undecided))
+          if ((!thing_exists(heartng) || ((heartng->active_state == ObSt_BeingDestroyed) && !(dungeonadd->backup_heart_idx > 0))) && (player->victory_state == VicS_Undecided))
           {
             event_kill_all_players_events(i);
             set_player_as_lost_level(player);
@@ -2615,7 +2625,7 @@ TngUpdateRet damage_creatures_with_physical_force(struct Thing *thing, ModTngFil
         apply_damage_to_thing_and_display_health(thing, param->num2, DmgT_Physical, param->num1);
         if (thing->health >= 0)
         {
-            if ((thing->alloc_flags & TAlF_IsControlled) == 0)
+            if (((thing->alloc_flags & TAlF_IsControlled) == 0) && !creature_is_kept_in_custody(thing))
             {
                 if (get_creature_state_besides_interruptions(thing) != CrSt_CreatureEscapingDeath)
                 {
@@ -3906,13 +3916,20 @@ void game_loop(void)
       {
         if (game.numfield_15 == -1)
         {
-          set_player_instance(player, PI_HeartZoom, 0);
+            if (is_feature_on(Ft_SkipHeartZoom) == false) {
+                set_player_instance(player, PI_HeartZoom, 0);
+            } else { 
+                toggle_status_menu(1); // Required when skipping PI_HeartZoom
+            }
         } else
         {
           game.numfield_15 = -1;
           set_flag_byte(&game.operation_flags,GOF_Paused,false);
         }
+      } else {
+          toggle_status_menu(1); // Required when skipping PI_HeartZoom
       }
+        
       unsigned long starttime;
       unsigned long endtime;
       struct Dungeon *dungeon;
