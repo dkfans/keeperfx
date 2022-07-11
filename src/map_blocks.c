@@ -1814,12 +1814,13 @@ void create_dirt_rubble_for_dug_slab(MapSlabCoord slb_x, MapSlabCoord slb_y)
     long z;
     stl_x = STL_PER_SLB * slb_x;
     stl_y = STL_PER_SLB * slb_y;
-    z = get_floor_filled_subtiles_at(stl_x, stl_y);
     for (y = stl_y; y < stl_y+STL_PER_SLB; y++)
     {
         for (x = stl_x; x < stl_x+STL_PER_SLB; x++)
         {
-            if (z > 0) {
+            z = get_floor_filled_subtiles_at(x, y);
+            if (z > 0) 
+            {
                 create_dirt_rubble_for_dug_block(x, y, z, game.neutral_player_num);
             }
         }
@@ -2266,6 +2267,7 @@ long ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey)
 long element_top_face_texture(struct Map *mapblk)
 {
     struct Column *col;
+    struct CubeAttribs* cubed;
     unsigned int data = mapblk->data;
     TbBool map_block_revealed = map_block_revealed_bit(mapblk, player_bit);
     int result = data & 0x7FF;
@@ -2280,9 +2282,14 @@ long element_top_face_texture(struct Map *mapblk)
         {
             col = get_column(game.unrevealed_column_idx);
         }
-        if ( (col->bitfields & CLF_FLOOR_MASK) != 0 )
+        if ( (col->bitfields & CLF_CEILING_MASK) != 0 )
         {
-            struct CubeAttribs *cubed = &game.cubes_data[col->cubes[get_column_floor_filled_subtiles(col) - 1]];
+            cubed = &game.cubes_data[col->cubes[COLUMN_STACK_HEIGHT-get_column_ceiling_filled_subtiles(col)-1]];
+            return cubed->texture_id[4];
+        }
+        else if ((col->bitfields & CLF_FLOOR_MASK) != 0)
+        {
+            cubed = &game.cubes_data[col->cubes[get_column_floor_filled_subtiles(col) - 1]];
             return cubed->texture_id[4];
         }
         else
