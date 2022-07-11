@@ -59,12 +59,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT long _DK_convert_world_coord_to_front_view_screen_coord(struct Coord3d *pos, struct Camera *cam, long *x, long *y, long *z);
-DLLIMPORT void _DK_do_a_gpoly_gourad_tr(struct EngineCoord *ec1, struct EngineCoord *ec2, struct EngineCoord *ec3, short plane_end, int a5);
-DLLIMPORT void _DK_do_a_gpoly_unlit_tr(struct EngineCoord *ec1, struct EngineCoord *ec2, struct EngineCoord *ec3, short plane_end);
-DLLIMPORT void _DK_do_a_gpoly_unlit_bl(struct EngineCoord *ec1, struct EngineCoord *ec2, struct EngineCoord *ec3, short plane_end);
-DLLIMPORT void _DK_do_a_gpoly_gourad_bl(struct EngineCoord *ec1, struct EngineCoord *ec2, struct EngineCoord *ec3, short plane_end, int a5);
-/******************************************************************************/
 static const unsigned short shield_offset[] = {
  0x0,  0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x118, 0x80,
  0x80, 0x100,  0x80,  0x80, 0x100, 0x100, 0x138,  0x80,  0x80, 0x138,  0x80,  0x80, 0x100,  0x80, 0x80, 0x100,
@@ -6560,9 +6554,84 @@ static void display_fast_drawlist(struct Camera *cam) // Draws frontview only. N
     }
 }
 
-static long convert_world_coord_to_front_view_screen_coord(struct Coord3d* pos, struct Camera* cam, long* x, long* y, long* z)
+/**
+ * sub of convert_world_coord_to_front_view_screen_coord for a single point
+ * 
+ * @param player The player determine the point for
+ * @param zoom The zoom level of the camera
+ * @param vertical_delta The vertical difference between the camera and the pos
+ * @param horizontal_delta The horizontal difference between the camera and the pos 
+ * @return true if projected point is withing player's window, false otherwise
+ */
+ 
+#define UNKNOWN_PPH_MASK 0xFFFE
+static TbBool project_point_helper(struct PlayerInfo *player, int zoom, MapCoordDelta vertical_delta, MapCoordDelta horizontal_delta, MapCoord pos_z, long *x_out, long *y_out, long *z_out)
 {
-    return _DK_convert_world_coord_to_front_view_screen_coord(pos, cam, x, y, z);
+    int vertical_shift;
+    int64_t new_zoom;
+    uint8_t offset;
+    short window_width = player->engine_window_width;
+    short window_height = player->engine_window_height;
+
+    *x_out = (zoom * horizontal_delta >> 16) + (*(uint16_t *)&window_width / 2);
+    vertical_shift = zoom * vertical_delta >> 8;
+    *z_out = window_height - ((vertical_shift + ((uint16_t)(window_height & UNKNOWN_PPH_MASK) << 7)) >> 8) + 64;
+    new_zoom = zoom * *(int16_t *)&pos_z << 7;
+    offset = *((uint8_t *)&new_zoom + 4);
+    *y_out = (vertical_shift + ((uint16_t)(window_height & UNKNOWN_PPH_MASK) << 7) - ((offset + (signed int)new_zoom) >> 16)) >> 8;
+
+    return (*x_out >= 0 && *x_out < window_width && *y_out >= 0 && *y_out < window_height);
+}
+
+/**
+ * determines where on the screen an object should be drawn
+ * 
+ * @param player The player determine the point for
+ * @param cam The camera to use for the point
+ * @param x_out The x position of the object relative to the camera
+ * @param y_out The y position of the object relative to the camera
+ * @param z_out The z position of the object relative to the camera
+ * @return true if projected point is withing player's window, false otherwise
+ */
+static TbBool convert_world_coord_to_front_view_screen_coord(struct Coord3d* pos, struct Camera* cam, long* x_out, long* y_out, long* z_out)
+{
+    int zoom;
+    unsigned int orientation;
+    int vertical_delta, horizontal_delta;
+    long result = 0;
+    struct PlayerInfo* player = get_my_player();
+
+    zoom = 32 * cam->zoom / 256;
+    orientation = ((unsigned int)(cam->orient_a + (LbFPMath_PI / 4)) >> 9) & 3;
+
+    switch ( orientation )
+    {
+        case 0:
+            vertical_delta = pos->y.val - cam->mappos.y.val;
+            horizontal_delta = pos->x.val - cam->mappos.x.val;
+            result = project_point_helper(player, zoom, vertical_delta, horizontal_delta, pos->z.val, x_out, y_out, z_out);
+            break;
+
+        case 1:
+            vertical_delta = cam->mappos.x.val - pos->x.val;
+            horizontal_delta = pos->y.val - cam->mappos.y.val;
+            result = project_point_helper(player, zoom, vertical_delta, horizontal_delta, pos->z.val, x_out, y_out, z_out);
+            break;
+
+        case 2:
+            vertical_delta = cam->mappos.y.val - pos->y.val;
+            horizontal_delta = cam->mappos.x.val - pos->x.val;
+            result = project_point_helper(player, zoom, vertical_delta, horizontal_delta, pos->z.val, x_out, y_out, z_out);
+            break;
+
+        case 3:
+            vertical_delta = pos->x.val - cam->mappos.x.val;
+            horizontal_delta = cam->mappos.y.val - pos->y.val;
+            result = project_point_helper(player, zoom, vertical_delta, horizontal_delta, pos->z.val, x_out, y_out, z_out);
+            break;
+    }
+
+    return result;
 }
 
 static void add_thing_sprite_to_polypool(struct Thing *thing, long scr_x, long scr_y, long a4, long bckt_idx)
