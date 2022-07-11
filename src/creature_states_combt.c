@@ -1086,7 +1086,7 @@ TbBool set_creature_combat_state(struct Thing *fighter, struct Thing *enemy, CrA
     }
     figctrl->combat.attack_type = attack_type;
     // If creatures weren't at combat before, then play a speech
-    if ((enmctrl->combat_flags & (CmbtF_Melee|CmbtF_Ranged)) == 0)
+    if ((enmctrl->combat_flags & (CmbtF_Melee|CmbtF_Ranged|CmbtF_Waiting)) == 0)
     {
       if (is_my_player_number(fighter->owner))
       {
