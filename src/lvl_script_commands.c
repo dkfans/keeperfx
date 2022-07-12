@@ -1027,6 +1027,9 @@ static void set_door_configuration_check(const struct ScriptLine* scline)
 
     const char *doorname = scline->tp[0];
     short door_id = get_id(door_desc, doorname);
+    const char* valuestring = scline->tp[2];
+    long newvalue;
+
     if (door_id == -1)
     {
         SCRPTERRLOG("Unknown door, '%s'", doorname);
@@ -1097,15 +1100,25 @@ static void set_door_configuration_check(const struct ScriptLine* scline)
             return;
         }
     }
-    else if (doorvar != 9) // PointerSprites
+    else if (doorvar != 9) // Not PointerSprites
     {
-        if ((scline->np[2] > 0xFFFF) || (scline->np[2] < 0))
+        if (parameter_is_number(valuestring))
         {
-            SCRPTERRLOG("Value out of range: %d", scline->np[2]);
+            newvalue = atoi(valuestring);
+            if ((newvalue > USHRT_MAX) || (newvalue < 0))
+            {
+                SCRPTERRLOG("Value out of range: %d", newvalue);
+                DEALLOCATE_SCRIPT_VALUE
+                return;
+            }
+            value->shorts[2] = newvalue;
+        }
+        else
+        {
+            SCRPTERRLOG("Door property %s needs a number value, '%s' is invalid.", scline->tp[1], scline->tp[2]);
             DEALLOCATE_SCRIPT_VALUE
             return;
         }
-        value->shorts[2] = (short)scline->np[2];
     }
     else
     {
@@ -1117,7 +1130,7 @@ static void set_door_configuration_check(const struct ScriptLine* scline)
             return;
         }
     }
-    SCRIPTDBG(7, "Setting door %s property %s to %d", doorname, doorvar, value->shorts[2]);
+    SCRIPTDBG(7, "Setting door %s property %s to %d", doorname, scline->tp[1], value->shorts[2]);
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
