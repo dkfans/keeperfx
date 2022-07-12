@@ -3238,7 +3238,7 @@ struct Thing *get_creature_near_with_filter(unsigned short pos_x, unsigned short
 
 struct Thing *get_creature_near_for_controlling(PlayerNumber plyr_idx, MapCoord x, MapCoord y)
 {
-    MapCoordDelta nearest_distance = 0xFFFF;
+    MapCoordDelta nearest_distance = LONG_MAX;
     struct Thing *nearest_thing = INVALID_THING;
 
     for (long k = 0; k < AROUND_TILES_COUNT; k++)
