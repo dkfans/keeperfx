@@ -139,7 +139,6 @@ extern struct TbSetupSprite swipe_setup_sprites[];
 /******************************************************************************/
 DLLIMPORT struct Thing *_DK_get_creature_near(unsigned short pos_x, unsigned short pos_y);
 DLLIMPORT struct Thing *_DK_get_creature_near_with_filter(unsigned short pos_x, unsigned short pos_y, Thing_Filter filter, long no_effects);
-DLLIMPORT struct Thing *_DK_get_creature_near_for_controlling(unsigned char a1, long reason, long targtng_idx);
 DLLIMPORT unsigned short _DK_find_next_annoyed_creature(unsigned char a1, unsigned short reason);
 DLLIMPORT long _DK_get_human_controlled_creature_target(struct Thing *creatng, long reason);
 /******************************************************************************/
@@ -3237,9 +3236,44 @@ struct Thing *get_creature_near_with_filter(unsigned short pos_x, unsigned short
     return _DK_get_creature_near_with_filter(pos_x, pos_y, filter, param);
 }
 
-struct Thing *get_creature_near_for_controlling(unsigned char a1, long a2, long a3)
+struct Thing *get_creature_near_for_controlling(PlayerNumber plyr_idx, MapCoord x, MapCoord y)
 {
-  return _DK_get_creature_near_for_controlling(a1, a2, a3);
+    MapCoordDelta nearest_distance = LONG_MAX;
+    struct Thing *nearest_thing = INVALID_THING;
+
+    for (long k = 0; k < AROUND_TILES_COUNT; k++)
+    {
+        
+        MapSubtlCoord stl_x = coord_subtile(x) + around[k].delta_x;
+        MapSubtlCoord stl_y = coord_subtile(y) + around[k].delta_y;
+        struct Map* mapblk = get_map_block_at(stl_x, stl_y);
+        unsigned long j = 0;
+        for (int i = get_mapwho_thing_index(mapblk); i != 0;)
+        {
+            struct Thing* thing = thing_get(i);
+            i = thing->next_on_mapblk;
+
+
+            if (can_cast_spell(plyr_idx,PwrK_POSSESS,stl_x,stl_y,thing,CastChk_Default ))
+            {
+                MapCoordDelta distance = get_2d_box_distance_xy(thing->mappos.x.val, thing->mappos.y.val, x, y);
+                if (distance < nearest_distance)
+                {
+                    nearest_distance = distance;
+                    nearest_thing = thing;
+                }
+            }
+            
+            j++;
+            if (j > THINGS_COUNT)
+            {
+                ERRORLOG("Infinite loop detected when sweeping things list");
+                break_mapwho_infinite_chain(mapblk);
+                break;
+            }
+        }
+    }
+    return nearest_thing;
 }
 
 /**
