@@ -807,6 +807,8 @@ static void set_trap_configuration_check(const struct ScriptLine* scline)
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
 
     const char *trapname = scline->tp[0];
+    const char *valuestring = scline->tp[2];
+    long newvalue;
     short trap_id = get_id(trap_desc, trapname);
     if (trap_id == -1)
     {
@@ -842,18 +844,25 @@ static void set_trap_configuration_check(const struct ScriptLine* scline)
             return;
         }
     }
-    else if (
-        (trapvar != 4) && // PointerSprites
-        (trapvar != 12) // Model
-        )
+    else if ((trapvar != 4) && (trapvar != 12))  // PointerSprites && Model
     {
-        if ((scline->np[2] > 0xFFFF) || (scline->np[2] < 0))
+        if (parameter_is_number(valuestring))
         {
-            SCRPTERRLOG("Value out of range: %d", scline->np[2]);
+            newvalue = atoi(valuestring);
+            if ((newvalue > USHRT_MAX) || (newvalue < 0))
+            {
+                SCRPTERRLOG("Value out of range: %d", newvalue);
+                DEALLOCATE_SCRIPT_VALUE
+                return;
+            }
+            value->shorts[2] = newvalue;
+        }
+        else 
+        {
+            SCRPTERRLOG("Trap property %s needs a number value, '%s' is invalid.", scline->tp[1], scline->tp[2]);
             DEALLOCATE_SCRIPT_VALUE
             return;
         }
-        value->shorts[2] = (short)scline->np[2];
     }
     else
     {
@@ -865,7 +874,7 @@ static void set_trap_configuration_check(const struct ScriptLine* scline)
             return;
         }
     }
-    SCRIPTDBG(7, "Setting trap %s property %d to %d", trapname, trapvar, value->shorts[2]);
+    SCRIPTDBG(7, "Setting trap %s property %s to %d", trapname, scline->tp[1], value->shorts[2]);
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
