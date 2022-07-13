@@ -3202,7 +3202,7 @@ unsigned short find_next_annoyed_creature(PlayerNumber plyr_idx, unsigned short 
          current_annoyed_creature->active_state == CrSt_CreatureUnconscious)
     {
         creatng = thing_get(dungeon->creatr_list_start);
-        if (!thing_is_invalid(creatng))
+        if (thing_is_invalid(creatng))
         {
             dungeon->zoom_annoyed_creature_idx = 0;
         }
