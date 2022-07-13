@@ -201,7 +201,7 @@ TbBool creature_will_do_combat(const struct Thing *thing)
 
 long get_combat_distance(const struct Thing *thing, const struct Thing *enmtng)
 {
-    long dist = get_2d_box_distance(&thing->mappos, &enmtng->mappos);
+    long dist = get_2d_distance(&thing->mappos, &enmtng->mappos);
     long avgc = ((long)enmtng->clipbox_size_xy + (long)thing->clipbox_size_xy) / 2;
     if (dist < avgc)
         return 0;
