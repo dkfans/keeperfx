@@ -849,7 +849,7 @@ static void set_trap_configuration_check(const struct ScriptLine* scline)
         if (parameter_is_number(valuestring))
         {
             newvalue = atoi(valuestring);
-            if ((newvalue > USHRT_MAX) || (newvalue < 0))
+            if ((newvalue > SHORT_MAX) || (newvalue < 0))
             {
                 SCRPTERRLOG("Value out of range: %d", newvalue);
                 DEALLOCATE_SCRIPT_VALUE
@@ -1105,7 +1105,7 @@ static void set_door_configuration_check(const struct ScriptLine* scline)
         if (parameter_is_number(valuestring))
         {
             newvalue = atoi(valuestring);
-            if ((newvalue > USHRT_MAX) || (newvalue < 0))
+            if ((newvalue > SHORT_MAX) || (newvalue < 0))
             {
                 SCRPTERRLOG("Value out of range: %d", newvalue);
                 DEALLOCATE_SCRIPT_VALUE
