@@ -3185,9 +3185,80 @@ void set_creature_instance(struct Thing *thing, CrInstance inst_idx, long a2, lo
     }
 }
 
-unsigned short find_next_annoyed_creature(unsigned char a1, unsigned short a2)
+unsigned short find_next_annoyed_creature(PlayerNumber plyr_idx, unsigned short current_annoyed_creature_idx)
 {
-  return _DK_find_next_annoyed_creature(a1, a2);
+    struct Thing *current_annoyed_creature = thing_get(current_annoyed_creature_idx);
+    struct Thing **current_ptr = &current_annoyed_creature;
+    struct Dungeon *dungeon = get_dungeon(plyr_idx);
+    struct Thing *thing_3;
+    struct Thing *thing_4;
+    unsigned __int16 result;
+    struct Thing *creatng;
+
+    if ((current_annoyed_creature->alloc_flags & TAlF_Exists) == 0 ||
+         !thing_is_creature(current_annoyed_creature) || 
+         (current_annoyed_creature->alloc_flags & TAlF_IsInLimbo) != 0 || 
+         (current_annoyed_creature->state_flags & TAlF_IsInMapWho) != 0 || 
+         current_annoyed_creature->active_state == CrSt_CreatureUnconscious)
+    {
+        creatng = thing_get(dungeon->creatr_list_start);
+        if (!thing_is_invalid(creatng))
+        {
+        LABEL_34:
+            result = 0;
+            dungeon->zoom_annoyed_creature_idx = 0;
+        }
+        else
+        {
+            while (!anger_is_creature_angry(creatng))
+            {
+                struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+                creatng = thing_get(cctrl->players_next_creature_idx);
+                if (thing_is_invalid(creatng))
+                    goto LABEL_34;
+            }
+            dungeon->zoom_annoyed_creature_idx = creatng->index;
+            return creatng->index;
+        }
+    }
+    else
+    {
+        thing_3 = *(&game_things_lookup + *(unsigned __int16 *)(*((_DWORD *)&game_persons_cctrl_lookup[0].index + (unsigned __int16)(*(&game_things_lookup + (unsigned __int16)dungeon->zoom_annoyed_creature_idx))->ccontrol_idx) + 31));
+
+        
+        if ((thing_3->alloc_flags & 1) == 0 || thing_3->class_id != 5 || (thing_3->alloc_flags & 0x10) != 0 || (thing_3->state_flags & 2) != 0 || thing_3->active_state == 67 || thing_3 <= game_things_lookup)
+        {
+        LABEL_19:
+            thing_4 = *(&game_things_lookup + (unsigned __int16)dungeon->creatr_list_start);
+            if (*current_ptr != thing_4)
+            {
+                while (thing_4 > game_things_lookup)
+                {
+                    if (anger_is_creature_angry(thing_4) && (thing_4->alloc_flags & 1) != 0 && thing_4->class_id == 5 && (thing_4->alloc_flags & 0x10) == 0 && (thing_4->state_flags & 2) == 0 && thing_4->active_state != 67)
+                    {
+                        dungeon->zoom_annoyed_creature_idx = thing_4->index;
+                        return thing_4->index;
+                    }
+                    thing_4 = *(&game_things_lookup + *(unsigned __int16 *)(*((_DWORD *)&game_persons_cctrl_lookup[0].index + (unsigned __int16)thing_4->ccontrol_idx) + 31));
+                    if (*current_ptr == thing_4)
+                        return dungeon->zoom_annoyed_creature_idx;
+                }
+            }
+            return dungeon->zoom_annoyed_creature_idx;
+        }
+        else
+        {
+            while (!anger_is_creature_angry(thing_3) || (thing_3->alloc_flags & 1) == 0 || thing_3->class_id != 5 || (thing_3->alloc_flags & 0x10) != 0 || (thing_3->state_flags & 2) != 0 || thing_3->active_state == 67)
+            {
+                thing_3 = *(&game_things_lookup + *(unsigned __int16 *)(*((_DWORD *)&game_persons_cctrl_lookup[0].index + (unsigned __int16)thing_3->ccontrol_idx) + 31));
+                if (thing_3 <= game_things_lookup)
+                    goto LABEL_19;
+            }
+            dungeon->zoom_annoyed_creature_idx = thing_3->index;
+            return thing_3->index;
+        }
+    }
+    return result;
 }
 
 void draw_creature_view(struct Thing *thing)
