@@ -3241,11 +3241,11 @@ unsigned short find_next_annoyed_creature(PlayerNumber plyr_idx, unsigned short 
                 while (!thing_is_invalid(thing_4))
                 {
                     if (anger_is_creature_angry(thing_4) &&
-                        (thing_4->alloc_flags & 1) != 0 &&
-                        thing_4->class_id == 5 &&
-                        (thing_4->alloc_flags & 0x10) == 0 &&
-                        (thing_4->state_flags & 2) == 0 &&
-                        thing_4->active_state != 67)
+                        (thing_4->alloc_flags & TAlF_Exists) != 0 &&
+                        thing_is_creature(thing_4) &&
+                        (thing_4->alloc_flags & TAlF_IsInLimbo) == 0 &&
+                        (thing_4->state_flags & TAlF_IsInMapWho) == 0 &&
+                        thing_4->active_state != CrSt_CreatureUnconscious)
                     {
                         dungeon->zoom_annoyed_creature_idx = thing_4->index;
                         return thing_4->index;
