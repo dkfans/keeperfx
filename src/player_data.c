@@ -301,7 +301,7 @@ void set_player_state(struct PlayerInfo *player, short nwrk_state, long chosen_k
               break;
           }
           player->hand_thing_idx = thing->index;
-          set_power_hand_graphic(player->id_number, 785, 256);
+          set_power_hand_graphic(player->id_number, thing->anim_sprite, thing->anim_speed);
           place_thing_in_limbo(thing);
           break;
       }
