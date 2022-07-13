@@ -42,7 +42,7 @@ unsigned long object_is_pickable_by_hand_for_use(const struct Thing *thing, long
 TbBool thing_is_pickable_by_hand(struct PlayerInfo *player, const struct Thing *thing);
 void set_power_hand_offset(struct PlayerInfo *player, struct Thing *thing);
 struct Thing *process_object_being_picked_up(struct Thing *thing, long a2);
-void set_power_hand_graphic(long a1, long a2, long a3);
+void set_power_hand_graphic(unsigned char plyr_idx, long AnimationID, long AnimationSpeed);
 TbBool power_hand_is_empty(const struct PlayerInfo *player);
 TbBool power_hand_is_full(const struct PlayerInfo *player);
 struct Thing *get_first_thing_in_power_hand(struct PlayerInfo *player);

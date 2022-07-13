@@ -2661,11 +2661,13 @@ TbBool kill_creature(struct Thing *creatng, struct Thing *killertng,
     if (!creature_control_invalid(cctrlgrp)) {
         cctrlgrp->kills_num++;
     }
-    if (is_my_player_number(creatng->owner)) {
-        output_message(SMsg_BattleDeath, MESSAGE_DELAY_BATTLE, true);
+    if (is_my_player_number(creatng->owner))
+    {
+        output_message_far_from_thing(creatng, SMsg_BattleDeath, MESSAGE_DELAY_BATTLE, true);
     } else
-    if (is_my_player_number(killertng->owner)) {
-        output_message(SMsg_BattleWon, MESSAGE_DELAY_BATTLE, true);
+    if (is_my_player_number(killertng->owner))
+    {
+        output_message_far_from_thing(creatng, SMsg_BattleWon, MESSAGE_DELAY_BATTLE, true);
     }
     if (is_hero_thing(killertng))
     {

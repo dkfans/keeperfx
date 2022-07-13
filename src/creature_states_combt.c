@@ -1086,19 +1086,19 @@ TbBool set_creature_combat_state(struct Thing *fighter, struct Thing *enemy, CrA
     }
     figctrl->combat.attack_type = attack_type;
     // If creatures weren't at combat before, then play a speech
-    if ((enmctrl->combat_flags & (CmbtF_Melee|CmbtF_Ranged)) == 0)
+    if ((enmctrl->combat_flags & (CmbtF_Melee|CmbtF_Ranged|CmbtF_Waiting)) == 0)
     {
       if (is_my_player_number(fighter->owner))
       {
           if (is_my_player_number(enemy->owner)) {
-              output_message(SMsg_FingthingFriends, MESSAGE_DELAY_FIGHT, 1);
+              output_message_far_from_thing(fighter,SMsg_FingthingFriends, MESSAGE_DELAY_FIGHT, 1);
           } else {
-              output_message(SMsg_CreatureAttacking, MESSAGE_DELAY_FIGHT, 1);
+              output_message_far_from_thing(fighter,SMsg_CreatureAttacking, MESSAGE_DELAY_FIGHT, 1);
           }
       } else
       {
           if (is_my_player_number(enemy->owner)) {
-            output_message(SMsg_CreatureDefending, MESSAGE_DELAY_FIGHT, 1);
+              output_message_far_from_thing(enemy,SMsg_CreatureDefending, MESSAGE_DELAY_FIGHT, 1);
           }
       }
     }

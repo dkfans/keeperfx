@@ -135,15 +135,18 @@ long pinstfs_hand_grab(struct PlayerInfo *player, long *n)
 {
     struct Dungeon* dungeon = get_players_dungeon(player);
     struct Thing* thing = thing_get(player->hand_thing_idx);
+    struct Objects* objdat;
     if (dungeon->num_things_in_hand > 0)
     {
         dungeon->field_43 = 60;
         dungeon->field_53 = 40;
-  }
-  if (!thing_is_invalid(thing))
-    set_power_hand_graphic(player->id_number, 783, 256);
-  return 0;
-
+    }
+    if (!thing_is_invalid(thing))
+    {
+        objdat = get_objects_data(38);
+        set_power_hand_graphic(player->id_number, objdat->sprite_anim_idx, objdat->anim_speed);
+    }
+    return 0;
 }
 
 long pinstfm_hand_grab(struct PlayerInfo *player, long *n)
@@ -172,6 +175,7 @@ long pinstfe_hand_grab(struct PlayerInfo *player, long *n)
     SYNCDBG(8,"Starting");
     struct Thing* dsttng = thing_get(player->influenced_thing_idx);
     struct Thing* grabtng = thing_get(player->hand_thing_idx);
+    struct Objects* objdat;
     if (dsttng->creation_turn != player->influenced_thing_creation) {
         WARNLOG("The thing index %d is no longer the same",(int)player->influenced_thing_idx);
         player->influenced_thing_creation = 0;
@@ -186,8 +190,10 @@ long pinstfe_hand_grab(struct PlayerInfo *player, long *n)
     }
     // Update sprites for the creature in hand, and power hand itself
     set_power_hand_offset(player, get_first_thing_in_power_hand(player));
-    if (!thing_is_invalid(grabtng)) {
-        set_power_hand_graphic(player->id_number, 784, 256);
+    if (!thing_is_invalid(grabtng)) 
+    {
+        objdat = get_objects_data(38);
+        set_power_hand_graphic(player->id_number, objdat->sprite_anim_idx+1, objdat->anim_speed);
     }
     return 0;
 }
@@ -196,9 +202,13 @@ long pinstfs_hand_drop(struct PlayerInfo *player, long *n)
 {
     struct Dungeon* dungeon = get_players_dungeon(player);
     struct Thing* thing = thing_get(player->hand_thing_idx);
+    struct Objects* objdat;
     player->influenced_thing_idx = dungeon->things_in_hand[0];
     if (!thing_is_invalid(thing))
-      set_power_hand_graphic(player->id_number, 783, -256);
+    {
+        objdat = get_objects_data(38);
+        set_power_hand_graphic(player->id_number, objdat->sprite_anim_idx, -objdat->anim_speed);
+    }
     return 0;
 }
 
@@ -206,10 +216,14 @@ long pinstfe_hand_drop(struct PlayerInfo *player, long *n)
 {
     struct Dungeon* dungeon = get_players_dungeon(player);
     struct Thing* thing = thing_get(player->hand_thing_idx);
+    struct Objects* objdat;
     dungeon->field_43 = 60;
     dungeon->field_53 = 40;
     if (!thing_is_invalid(thing))
-      set_power_hand_graphic(player->id_number, 782, 256);
+    {
+        objdat = get_objects_data(37);
+        set_power_hand_graphic(player->id_number, objdat->sprite_anim_idx, objdat->anim_speed);
+    }
     player->influenced_thing_idx = 0;
     return 0;
 }
@@ -217,8 +231,12 @@ long pinstfe_hand_drop(struct PlayerInfo *player, long *n)
 long pinstfs_hand_whip(struct PlayerInfo *player, long *n)
 {
     struct Thing* thing = thing_get(player->hand_thing_idx);
+    struct Objects* objdat;
     if (!thing_is_invalid(thing))
-      set_power_hand_graphic(player->id_number, 786, 256);
+    {
+        objdat = get_objects_data(39);
+        set_power_hand_graphic(player->id_number, objdat->sprite_anim_idx+1, objdat->anim_speed);
+    }
     return 0;
 }
 
@@ -310,8 +328,11 @@ long pinstfm_hand_drop(struct PlayerInfo *player, long *n)
 long pinstfs_hand_whip_end(struct PlayerInfo *player, long *n)
 {
     struct Thing* thing = thing_get(player->hand_thing_idx);
-    if (!thing_is_invalid(thing)) {
-        set_power_hand_graphic(player->id_number, 787, 256);
+    struct Objects* objdat;
+    if (!thing_is_invalid(thing)) 
+    {
+        objdat = get_objects_data(39);
+        set_power_hand_graphic(player->id_number, objdat->sprite_anim_idx + 2, objdat->anim_speed);
     }
     return 0;
 }
@@ -319,8 +340,11 @@ long pinstfs_hand_whip_end(struct PlayerInfo *player, long *n)
 long pinstfe_hand_whip_end(struct PlayerInfo *player, long *n)
 {
     struct Thing* thing = thing_get(player->hand_thing_idx);
-    if (!thing_is_invalid(thing)) {
-        set_power_hand_graphic(player->id_number, 785, 256);
+    struct Objects* objdat;
+    if (!thing_is_invalid(thing))
+    {
+        objdat = get_objects_data(39);
+        set_power_hand_graphic(player->id_number, objdat->sprite_anim_idx, objdat->anim_speed);
     }
     return 0;
 }

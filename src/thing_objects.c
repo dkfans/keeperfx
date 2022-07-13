@@ -432,11 +432,13 @@ struct Thing *create_object(const struct Coord3d *pos, unsigned short model, uns
       thing->parent_idx = parent_idx;
     LbMemoryCopy(&thing->mappos, pos, sizeof(struct Coord3d));
     struct ObjectConfig* objconf = get_object_model_stats2(model);
-    struct Objects* objdat = get_objects_data_for_thing(thing);
+    struct Objects* objdat = get_objects_data(model);
     thing->clipbox_size_xy = objdat->size_xy;
     thing->clipbox_size_yz = objdat->size_yz;
     thing->solid_size_xy = objdat->size_xy;
     thing->solid_size_yz = objdat->size_yz;
+    thing->anim_speed = objdat->anim_speed;
+    thing->anim_sprite = objdat->sprite_anim_idx;
     thing->health = saturate_set_signed(objconf->health,16);
     thing->fall_acceleration = objconf->fall_acceleration;
     thing->field_23 = 204;
