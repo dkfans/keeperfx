@@ -51,7 +51,7 @@ msgstr "第一个任务已经完成了。你杀死了你可悲的对手，这片
 msgctxt "In-game message"
 msgid ""
 "Powerful barbarians reign this land. But they do not know that in a certain "
-"cave on the east, lives the Avatar. I've heard he mastered several "
+"cave to the west, lives the Avatar. I've heard he mastered several "
 "interesting incantations. Perhaps it is proper to visit him?"
 msgstr "强大的野蛮人们统治着这个王国。不过他们并不知道，"
 "圣者就居住在西边的洞穴里。我听说他研究出了好几种有趣的魔法。"
