@@ -139,7 +139,6 @@ extern struct TbSetupSprite swipe_setup_sprites[];
 /******************************************************************************/
 DLLIMPORT struct Thing *_DK_get_creature_near(unsigned short pos_x, unsigned short pos_y);
 DLLIMPORT struct Thing *_DK_get_creature_near_with_filter(unsigned short pos_x, unsigned short pos_y, Thing_Filter filter, long no_effects);
-DLLIMPORT unsigned short _DK_find_next_annoyed_creature(unsigned char a1, unsigned short reason);
 DLLIMPORT long _DK_get_human_controlled_creature_target(struct Thing *creatng, long reason);
 /******************************************************************************/
 /**
@@ -3260,7 +3259,8 @@ unsigned short find_next_annoyed_creature(PlayerNumber plyr_idx, unsigned short 
         }
         else
         {
-            while (!anger_is_creature_angry(thing_3) || (thing_3->alloc_flags & 1) == 0 || thing_3->class_id != 5 || (thing_3->alloc_flags & 0x10) != 0 || (thing_3->state_flags & 2) != 0 || thing_3->active_state == 67)
+            while (!anger_is_creature_angry(thing_3) || (thing_3->alloc_flags & TAlF_Exists) == 0 || !thing_is_creature(thing_3) ||
+                   (thing_3->alloc_flags & TAlF_IsInLimbo) != 0 || (thing_3->state_flags & TAlF_IsInMapWho) != 0 || thing_3->active_state == CrSt_CreatureUnconscious)
             {
                 struct CreatureControl* cctrl = creature_control_get_from_thing(thing_3);
                 thing_3 =thing_get(cctrl->players_next_creature_idx);
