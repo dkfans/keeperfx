@@ -171,6 +171,7 @@ TbBool process_dungeon_power_hand_state(long plyr_idx)
     MapCoord y = ((unsigned short)pckt->pos_y);
     MapSubtlCoord stl_x = coord_subtile(x);
     MapSubtlCoord stl_y = coord_subtile(y);
+    struct Objects* objdat;
 
     player->additional_flags &= ~PlaAF_ChosenSubTileIsHigh;
     if ((player->secondary_cursor_state != CSt_DefaultArrow) && (player->secondary_cursor_state != CSt_PowerHand))
@@ -217,17 +218,20 @@ TbBool process_dungeon_power_hand_state(long plyr_idx)
             thing = get_first_thing_in_power_hand(player);
             if ((player->thing_under_hand != 0) || thing_is_invalid(thing))
             {
-                set_power_hand_graphic(plyr_idx, 782, 256);
+                objdat = get_objects_data(37);
+                set_power_hand_graphic(plyr_idx, objdat->sprite_anim_idx, objdat->anim_speed);
                 if (!thing_is_invalid(thing))
                     thing->field_4F |= TF4F_Unknown01;
             } else
             if ((thing->class_id == TCls_Object) && object_is_gold_pile(thing))
             {
-                set_power_hand_graphic(plyr_idx, 781, 256);
+                objdat = get_objects_data(127);
+                set_power_hand_graphic(plyr_idx, objdat->sprite_anim_idx, objdat->anim_speed);
                 thing->field_4F &= ~TF4F_Unknown01;
             } else
             {
-                set_power_hand_graphic(plyr_idx, 784, 256);
+                objdat = get_objects_data(38);
+                set_power_hand_graphic(plyr_idx, objdat->sprite_anim_idx + 1, objdat->anim_speed);
                 thing->field_4F &= ~TF4F_Unknown01;
             }
         }

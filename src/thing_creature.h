@@ -102,7 +102,7 @@ TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *t
 TbBool control_creature_as_passenger(struct PlayerInfo *player, struct Thing *thing);
 void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing);
 long get_human_controlled_creature_target(struct Thing *thing, long a2);
-struct Thing *get_creature_near_for_controlling(unsigned char a1, long a2, long a3);
+struct Thing *get_creature_near_for_controlling(PlayerNumber plyr_idx, MapCoord x, MapCoord y);
 
 TbBool load_swipe_graphic_for_creature(const struct Thing *thing);
 void free_swipe_graphic(void);
