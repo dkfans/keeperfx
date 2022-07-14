@@ -1786,11 +1786,11 @@ void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rotate_pre
     {
         return; // don't pan the camera if the mouse has left the window
     }
-    long mx = my_mouse_x;
-    long my = my_mouse_y;
-    long edge_scrolling_border = max(4, scale_fixed_DK_value(4));
     if ((features_enabled & Ft_DisableCursorCameraPanning) == 0)
     {
+        long mx = my_mouse_x;
+        long my = my_mouse_y;
+        long edge_scrolling_border = max(4, scale_fixed_DK_value(4));
         if (mx <= edge_scrolling_border)
         {
             if ( is_game_key_pressed(Gkey_MoveLeft, NULL, false) || is_key_pressed(KC_LEFT,KMod_DONTCARE) )
