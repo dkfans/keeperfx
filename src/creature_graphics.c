@@ -38,7 +38,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-short creature_graphics[][22] = {
+short creature_graphics_old[][22] = {
   {   0,   0,   0,   0,   0,   0,   0,  0,   0,  0,   0,
       0,   0,   0,   0,   0,   0,   0,  0,   0,   0,   0,},
   { 426, 424, 424, 428,   0,   0,   0,  0, 430, 436, 442,
@@ -294,7 +294,7 @@ short get_creature_model_graphics(long crmodel, unsigned short seq_idx)
       ERRORLOG("Invalid model %d graphics sequence %d",crmodel,seq_idx);
       crmodel = 0;
   }
-  return creature_graphics[crmodel][seq_idx];
+  return gameadd.crtr_conf.creature_graphics[crmodel][seq_idx];
 }
 
 void set_creature_model_graphics(long crmodel, unsigned short seq_idx, unsigned long val)
@@ -307,7 +307,7 @@ void set_creature_model_graphics(long crmodel, unsigned short seq_idx, unsigned 
         ERRORLOG("Invalid model %d graphics sequence %d",crmodel,seq_idx);
         return;
     }
-    creature_graphics[crmodel][seq_idx] = val;
+    gameadd.crtr_conf.creature_graphics[crmodel][seq_idx] = val;
 }
 
 short get_creature_anim(struct Thing *thing, unsigned short seq_idx)
