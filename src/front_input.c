@@ -1789,41 +1789,44 @@ void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rotate_pre
     long mx = my_mouse_x;
     long my = my_mouse_y;
     long edge_scrolling_border = max(4, scale_fixed_DK_value(4));
-    if (mx <= edge_scrolling_border)
+    if ((features_enabled & Ft_DisableCursorCameraPanning) == 0)
     {
-        if ( is_game_key_pressed(Gkey_MoveLeft, NULL, false) || is_key_pressed(KC_LEFT,KMod_DONTCARE) )
+        if (mx <= edge_scrolling_border)
         {
-          if (!rotate_pressed)
-            pckt->additional_packet_values |= PCAdV_SpeedupPressed;
+            if ( is_game_key_pressed(Gkey_MoveLeft, NULL, false) || is_key_pressed(KC_LEFT,KMod_DONTCARE) )
+            {
+              if (!rotate_pressed)
+                pckt->additional_packet_values |= PCAdV_SpeedupPressed;
+            }
+            set_packet_control(pckt, PCtr_MoveLeft);
         }
-        set_packet_control(pckt, PCtr_MoveLeft);
-    }
-    if (mx >= MyScreenWidth-edge_scrolling_border)
-    {
-        if ( is_game_key_pressed(Gkey_MoveRight, NULL, false) || is_key_pressed(KC_RIGHT,KMod_DONTCARE) )
+        else if (mx >= MyScreenWidth-edge_scrolling_border)
         {
-          if (!rotate_pressed)
-            pckt->additional_packet_values |= PCAdV_SpeedupPressed;
+            if ( is_game_key_pressed(Gkey_MoveRight, NULL, false) || is_key_pressed(KC_RIGHT,KMod_DONTCARE) )
+            {
+              if (!rotate_pressed)
+                pckt->additional_packet_values |= PCAdV_SpeedupPressed;
+            }
+            set_packet_control(pckt, PCtr_MoveRight);
         }
-        set_packet_control(pckt, PCtr_MoveRight);
-    }
-    if (my <= edge_scrolling_border)
-    {
-        if ( is_game_key_pressed(Gkey_MoveUp, NULL, false) || is_key_pressed(KC_UP,KMod_DONTCARE) )
+        else if (my <= edge_scrolling_border)
         {
-          if (!rotate_pressed)
-            pckt->additional_packet_values |= PCAdV_SpeedupPressed;
+            if ( is_game_key_pressed(Gkey_MoveUp, NULL, false) || is_key_pressed(KC_UP,KMod_DONTCARE) )
+            {
+              if (!rotate_pressed)
+                pckt->additional_packet_values |= PCAdV_SpeedupPressed;
+            }
+            set_packet_control(pckt, PCtr_MoveUp);
         }
-        set_packet_control(pckt, PCtr_MoveUp);
-    }
-    if (my >= MyScreenHeight-edge_scrolling_border)
-    {
-        if ( is_game_key_pressed(Gkey_MoveDown, NULL, false) || is_key_pressed(KC_DOWN,KMod_DONTCARE) )
+        else if (my >= MyScreenHeight-edge_scrolling_border)
         {
-          if (!rotate_pressed)
-            pckt->additional_packet_values |= PCAdV_SpeedupPressed;
+            if ( is_game_key_pressed(Gkey_MoveDown, NULL, false) || is_key_pressed(KC_DOWN,KMod_DONTCARE) )
+            {
+              if (!rotate_pressed)
+                pckt->additional_packet_values |= PCAdV_SpeedupPressed;
+            }
+            set_packet_control(pckt, PCtr_MoveDown);
         }
-        set_packet_control(pckt, PCtr_MoveDown);
     }
 }
 
