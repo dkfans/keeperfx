@@ -164,7 +164,7 @@ TbBool parse_cubes_cube_blocks(char *buf, long len, const char *config_textname,
             continue;
         }
         objst = &cube_conf.cube_cfgstats[i];
-        struct CubeAttribs* cubed = &game.cubes_data[i];
+        struct CubeAttribs* cubed = &gameadd.cubes_data[i];
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(cubes_cube_commands,cmd_num)
         while (pos<len)
         {
@@ -254,12 +254,13 @@ TbBool load_cubes_config_file(const char *textname, const char *fname, unsigned 
             WARNMSG("The %s file \"%s\" doesn't exist or is too small.",textname,fname);
         return false;
     }
-    if (len > MAX_CONFIG_FILE_SIZE)
+    // Need a much larger .cfg file for extended cubes count, so skip this max size check.
+    /*if (len > MAX_CONFIG_FILE_SIZE)
     {
         if ((flags & CnfLd_IgnoreErrors) == 0)
             WARNMSG("The %s file \"%s\" is too large.",textname,fname);
         return false;
-    }
+    }*/
     char* buf = (char*)LbMemoryAlloc(len + 256);
     if (buf == NULL)
         return false;
@@ -337,7 +338,7 @@ void clear_cubes(void)
 {
     for (int i = 0; i < CUBE_ITEMS_MAX; i++)
     {
-        struct CubeAttribs* cubed = &game.cubes_data[i];
+        struct CubeAttribs* cubed = &gameadd.cubes_data[i];
         int n;
         for (n = 0; n < CUBE_TEXTURES; n++)
         {
@@ -392,7 +393,7 @@ long load_cube_file(void)
         struct CubeAttribs* cubuf = (struct CubeAttribs*)&buf[4];
         for (long i = 0; i < count; i++)
         {
-            struct CubeAttribs* cubed = &game.cubes_data[i];
+            struct CubeAttribs* cubed = &gameadd.cubes_data[i];
             int n;
             for (n=0; n < CUBE_TEXTURES; n++) {
                 cubed->texture_id[n] = cubuf->texture_id[n];
