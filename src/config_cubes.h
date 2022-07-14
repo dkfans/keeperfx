@@ -37,7 +37,7 @@ extern "C" {
 /******************************************************************************/
 #pragma pack(1)
 
-struct CubeAttribs {
+struct CubeAttribs { // sizeof=0x12
     unsigned short texture_id[CUBE_TEXTURES];
     unsigned char field_C[CUBE_TEXTURES];
 };
