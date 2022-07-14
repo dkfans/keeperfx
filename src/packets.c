@@ -987,7 +987,7 @@ void process_map_packet_clicks(long plyr_idx)
     SYNCDBG(7,"Starting");
     packet_left_button_double_clicked[plyr_idx] = 0;
     struct Packet* pckt = get_packet(plyr_idx);
-    if ((pckt->control_flags & PCtr_Unknown4000) == 0)
+    if ((pckt->control_flags & PCtr_Gui) == 0)
     {
         update_double_click_detection(plyr_idx);
     }
