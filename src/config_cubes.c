@@ -254,13 +254,6 @@ TbBool load_cubes_config_file(const char *textname, const char *fname, unsigned 
             WARNMSG("The %s file \"%s\" doesn't exist or is too small.",textname,fname);
         return false;
     }
-    // Need a much larger .cfg file for extended cubes count, so skip this max size check.
-    /*if (len > MAX_CONFIG_FILE_SIZE)
-    {
-        if ((flags & CnfLd_IgnoreErrors) == 0)
-            WARNMSG("The %s file \"%s\" is too large.",textname,fname);
-        return false;
-    }*/
     char* buf = (char*)LbMemoryAlloc(len + 256);
     if (buf == NULL)
         return false;
@@ -365,11 +358,6 @@ long load_cube_file(void)
     if (len < MIN_CONFIG_FILE_SIZE)
     {
         WARNMSG("The %s file \"%s\" doesn't exist or is too small.",textname,fname);
-        return false;
-    }
-    if (len > MAX_CONFIG_FILE_SIZE)
-    {
-        WARNMSG("The %s file \"%s\" is too large.",textname,fname);
         return false;
     }
     char* buf = (char*)LbMemoryAlloc(len + 256);
