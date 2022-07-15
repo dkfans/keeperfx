@@ -3063,7 +3063,7 @@ long get_creature_speed(const struct Thing *thing)
     return speed;
 }
 
-short get_creature_eye_height(struct Thing *creatng)
+short get_creature_eye_height(const struct Thing *creatng)
 {
     struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
@@ -3120,11 +3120,13 @@ long get_human_controlled_creature_target(struct Thing *thing, long primary_targ
     TbBool v15;
     int v17;
     int *v18;
-    int *p_data;
+    unsigned long *p_data;
     int v20;
     int v21;
     int v22;
     int v23;
+
+    return;
 
     index = 0;
     stl_x = thing->mappos.x.stl.pos;
@@ -3133,96 +3135,98 @@ long get_human_controlled_creature_target(struct Thing *thing, long primary_targ
         stl_x_2 = 0;
     v5 = stl_x + 20;
     v17 = stl_x_2;
-    if (v5 >= 255)
+    if (v5 >= map_subtiles_x)
         v5 = 255;
     v20 = v5;
     stl_y = thing->mappos.y.stl.pos;
     v7 = stl_y + 20;
-    if (stl_y + 20 >= 255)
+    if (stl_y + 20 >= map_subtiles_y)
         v7 = 255;
     v21 = 0x7FFFFFFF;
     stl_y_2 = stl_y - 20;
     if (stl_y_2 <= 0)
         stl_y_2 = 0;
-    if (v7 >= stl_y_2)
-    {
-        v23 = v7 - stl_y_2 + 1;
 
-        
-        p_data = &game__map[256 * stl_y_2 + 257 + stl_x_2].data;
-        do
+    if (v7 < stl_y_2)
+    {
+        return 0;
+    }
+
+    v23 = v7 - stl_y_2 + 1;
+
+    p_data = &game.map[256 * stl_y_2 + 257 + stl_x_2].data;
+    do
+    {
+        if (v17 <= v20)
         {
-            if (v17 <= v20)
+            v18 = p_data;
+            v22 = v20 - v17 + 1;
+            do
             {
-                v18 = p_data;
-                v22 = v20 - v17 + 1;
-                do
+                struct Map *mapblk = get_map_block_at(stl_x_2, stl_y_2);
+                for (i = thing_get(get_mapwho_thing_index(mapblk));
+                     !thing_is_invalid(i);
+                     i = thing_get(i->next_on_mapblk))
                 {
-                    struct Map *mapblk = get_map_block_at(stl_x_2, stl_y_2);
-                    for (i = thing_get(get_mapwho_thing_index(mapblk));
-                         !thing_is_invalid(i);
-                         i = thing_get(i->next_on_mapblk))
+                    if (i != thing)
                     {
-                        if (i != thing)
+                        switch (primary_target)
                         {
-                            switch (primary_target)
-                            {
-                            case 1:
-                            case 7:
-                                class_id = i->class_id;
-                                if (class_id == 5 || class_id == 1 && i->model == 5)
-                                    goto LABEL_38;
-                                break;
-                            case 2:
-                                if (i->class_id == 5)
-                                    goto LABEL_38;
-                                break;
-                            case 3:
-                                v11 = i->class_id;
-                                if ((v11 == 5 || v11 == 1 && i->model == 5) && i->owner != thing->owner)
-                                    goto LABEL_38;
-                                break;
-                            case 4:
-                                if (i->class_id == 5 && i->owner != thing->owner)
-                                    goto LABEL_38;
-                                break;
-                            case 5:
-                                v12 = i->class_id;
-                                if ((v12 == 5 || v12 == 1 && i->model == 5) && i->owner == thing->owner)
-                                    goto LABEL_38;
-                                break;
-                            case 6:
-                                if (i->class_id == 5 && i->owner == thing->owner)
-                                    goto LABEL_38;
-                                break;
-                            case 8:
+                        case 1:
+                        case 7:
+                            class_id = i->class_id;
+                            if (class_id == 5 || class_id == 1 && i->model == 5)
                                 goto LABEL_38;
-                            default:
-                                ERRORLOG("Illegal primary target type for shot: %d", (int)primary_target);
-                            LABEL_38:
-                                angle_xy_to = get_angle_xy_to(&thing->mappos, &i->mappos);
-                                angle_difference = get_angle_difference(angle_xy_to, (unsigned __int16)thing->move_angle_xy);
-                                if (angle_difference >= 39 || !creature_can_see_thing(thing, i))
-                                    angle_difference = 0x7FFFFFFF;
-                                if (v21 > angle_difference)
-                                {
-                                    v21 = angle_difference;
-                                    index = (unsigned __int16)i->index;
-                                }
-                                break;
+                            break;
+                        case 2:
+                            if (i->class_id == 5)
+                                goto LABEL_38;
+                            break;
+                        case 3:
+                            v11 = i->class_id;
+                            if ((v11 == 5 || v11 == 1 && i->model == 5) && i->owner != thing->owner)
+                                goto LABEL_38;
+                            break;
+                        case 4:
+                            if (i->class_id == 5 && i->owner != thing->owner)
+                                goto LABEL_38;
+                            break;
+                        case 5:
+                            v12 = i->class_id;
+                            if ((v12 == 5 || v12 == 1 && i->model == 5) && i->owner == thing->owner)
+                                goto LABEL_38;
+                            break;
+                        case 6:
+                            if (i->class_id == 5 && i->owner == thing->owner)
+                                goto LABEL_38;
+                            break;
+                        case 8:
+                            goto LABEL_38;
+                        default:
+                            ERRORLOG("Illegal primary target type for shot: %d", (int)primary_target);
+                        LABEL_38:
+                            angle_xy_to = get_angle_xy_to(&thing->mappos, &i->mappos);
+                            angle_difference = get_angle_difference(angle_xy_to, (unsigned __int16)thing->move_angle_xy);
+                            if (angle_difference >= 39 || !creature_can_see_thing(thing, i))
+                                angle_difference = LONG_MAX;
+                            if (v21 > angle_difference)
+                            {
+                                v21 = angle_difference;
+                                index = (unsigned __int16)i->index;
                             }
+                            break;
                         }
                     }
-                    v15 = v22 == 1;
-                    v18 = (int *)((char *)v18 + 5);
-                    --v22;
-                } while (!v15);
-            }
-            v15 = v23 == 1;
-            p_data += 320;
-            --v23;
-        } while (!v15);
-    }
+                }
+                v15 = v22 == 1;
+                v18 = (int *)((char *)v18 + 5);
+                --v22;
+            } while (!v15);
+        }
+        v15 = v23 == 1;
+        p_data += 320;
+        --v23;
+    } while (!v15);
     return index;
 }
 

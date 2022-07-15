@@ -963,6 +963,8 @@ void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing
     player->allocflags &= ~PlaF_Unknown8;
     set_engine_view(player, player->view_mode_restore);
     long i = player->acamera->orient_a;
+    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     long k = thing->mappos.z.val + get_creature_eye_height(thing);
     player->cameras[CamIV_Isometric].mappos.x.val = thing->mappos.x.val + distance_with_angle_to_coord_x(k,i);
     player->cameras[CamIV_Isometric].mappos.y.val = thing->mappos.y.val + distance_with_angle_to_coord_y(k,i);
