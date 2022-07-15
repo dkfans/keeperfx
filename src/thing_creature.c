@@ -3224,50 +3224,53 @@ unsigned short find_next_annoyed_creature(PlayerNumber plyr_idx, unsigned short 
         cctrl = creature_control_get_from_thing(thing_get(dungeon->zoom_annoyed_creature_idx));
         creatng = thing_get(cctrl->players_next_creature_idx);
 
-        if ((creatng->alloc_flags & TAlF_Exists) == 0 ||
-            !thing_is_creature(creatng) ||
-            (creatng->alloc_flags & TAlF_IsInLimbo) != 0 ||
-            (creatng->state_flags & TAlF_IsInMapWho) != 0 ||
-            creatng->active_state == CrSt_CreatureUnconscious ||
-            thing_is_invalid(creatng))
+        if ((creatng->alloc_flags & TAlF_Exists) &&
+            thing_is_creature(creatng) &&
+            (creatng->alloc_flags & TAlF_IsInLimbo) == 0 &&
+            (creatng->state_flags & TAlF_IsInMapWho) == 0 &&
+            creatng->active_state != CrSt_CreatureUnconscious &&
+            !thing_is_invalid(creatng))
         {
-        LABEL_19:
-            creatng = thing_get(dungeon->creatr_list_start);
-            if (*current_ptr != creatng)
-            {
-                while (!thing_is_invalid(creatng))
-                {
-                    if (anger_is_creature_angry(creatng) &&
-                        (creatng->alloc_flags & TAlF_Exists) != 0 &&
-                        thing_is_creature(creatng) &&
-                        (creatng->alloc_flags & TAlF_IsInLimbo) == 0 &&
-                        (creatng->state_flags & TAlF_IsInMapWho) == 0 &&
-                        creatng->active_state != CrSt_CreatureUnconscious)
-                    {
-                        dungeon->zoom_annoyed_creature_idx = creatng->index;
-                        return creatng->index;
-                    }
-                    cctrl = creature_control_get_from_thing(creatng);
-                    creatng = thing_get(cctrl->players_next_creature_idx);
-                    if (*current_ptr == creatng)
-                        return dungeon->zoom_annoyed_creature_idx;
-                }
-            }
-            return dungeon->zoom_annoyed_creature_idx;
-        }
-        else
-        {
+            TbBool found = true;
             while (!anger_is_creature_angry(creatng) || (creatng->alloc_flags & TAlF_Exists) == 0 || !thing_is_creature(creatng) ||
                    (creatng->alloc_flags & TAlF_IsInLimbo) != 0 || (creatng->state_flags & TAlF_IsInMapWho) != 0 || creatng->active_state == CrSt_CreatureUnconscious)
             {
                 cctrl = creature_control_get_from_thing(creatng);
                 creatng =thing_get(cctrl->players_next_creature_idx);
                 if ( thing_is_invalid(creatng))
-                    goto LABEL_19;
+                {
+                    found = false;
+                    break;
+                }
             }
-            dungeon->zoom_annoyed_creature_idx = creatng->index;
-            return creatng->index;
+            if (found)
+            {
+                dungeon->zoom_annoyed_creature_idx = creatng->index;
+                return creatng->index;
+            }
         }
+        creatng = thing_get(dungeon->creatr_list_start);
+        if (*current_ptr != creatng)
+        {
+            while (!thing_is_invalid(creatng))
+            {
+                if (anger_is_creature_angry(creatng) &&
+                    (creatng->alloc_flags & TAlF_Exists) != 0 &&
+                    thing_is_creature(creatng) &&
+                    (creatng->alloc_flags & TAlF_IsInLimbo) == 0 &&
+                    (creatng->state_flags & TAlF_IsInMapWho) == 0 &&
+                    creatng->active_state != CrSt_CreatureUnconscious)
+                {
+                    dungeon->zoom_annoyed_creature_idx = creatng->index;
+                    return creatng->index;
+                }
+                cctrl = creature_control_get_from_thing(creatng);
+                creatng = thing_get(cctrl->players_next_creature_idx);
+                if (*current_ptr == creatng)
+                    return dungeon->zoom_annoyed_creature_idx;
+            }
+        }
+        return dungeon->zoom_annoyed_creature_idx;
     }
     return 0;
 }
