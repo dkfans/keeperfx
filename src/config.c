@@ -125,6 +125,7 @@ const struct NamedCommand conf_commands[] = {
   {"MUTE_AUDIO_ON_FOCUS_LOST"      , 21},
   {"DISABLE_SPLASH_SCREENS"        , 22},
   {"SKIP_HEART_ZOOM"               , 23},
+  {"CURSOR_EDGE_CAMERA_PANNING"    , 24},
   {NULL,                   0},
   };
 
@@ -1055,6 +1056,19 @@ short load_configuration(void)
               features_enabled |= Ft_SkipHeartZoom;
           else
               features_enabled &= ~Ft_SkipHeartZoom;
+          break;
+        case 24: //CURSOR_EDGE_CAMERA_PANNING
+          i = recognize_conf_parameter(buf,&pos,len,logicval_type);
+          if (i <= 0)
+          {
+              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
+                COMMAND_TEXT(cmd_num),config_textname);
+            break;
+          }
+          if (i == 1)
+              features_enabled &= ~Ft_DisableCursorCameraPanning;
+          else
+              features_enabled |= Ft_DisableCursorCameraPanning;
           break;
       case 0: // comment
           break;
