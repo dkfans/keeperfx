@@ -640,7 +640,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
     SYNCDBG(6,"Starting for player %d state %s",(int)plyr_idx,player_state_code_name(player->work_state));
     player->full_slab_cursor = 1;
     packet_left_button_double_clicked[plyr_idx] = 0;
-    if ((pckt->control_flags & PCtr_Unknown4000) != 0)
+    if ((pckt->control_flags & PCtr_Gui) != 0)
         return false;
     TbBool ret = true;
 

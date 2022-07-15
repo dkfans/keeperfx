@@ -23,6 +23,7 @@
 #include "bflib_basics.h"
 #include "globals.h"
 
+#include "config_cubes.h"
 #include "config_creature.h"
 #include "config_crtrmodel.h"
 #include "config_objects.h"
@@ -182,6 +183,7 @@ struct GameAdd {
     unsigned short disease_to_temple_pct;
     TbBool place_traps_on_subtiles;
     unsigned long gold_per_hoard;
+    struct CubeAttribs cubes_data[CUBE_ITEMS_MAX];
 
 #define TRAPDOOR_TYPES_MAX 128
 

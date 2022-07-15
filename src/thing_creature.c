@@ -139,7 +139,6 @@ extern struct TbSetupSprite swipe_setup_sprites[];
 /******************************************************************************/
 DLLIMPORT struct Thing *_DK_get_creature_near(unsigned short pos_x, unsigned short pos_y);
 DLLIMPORT struct Thing *_DK_get_creature_near_with_filter(unsigned short pos_x, unsigned short pos_y, Thing_Filter filter, long no_effects);
-DLLIMPORT unsigned short _DK_find_next_annoyed_creature(unsigned char a1, unsigned short reason);
 DLLIMPORT long _DK_get_human_controlled_creature_target(struct Thing *creatng, long reason);
 /******************************************************************************/
 /**
@@ -3187,9 +3186,95 @@ void set_creature_instance(struct Thing *thing, CrInstance inst_idx, long a2, lo
     }
 }
 
-unsigned short find_next_annoyed_creature(unsigned char a1, unsigned short a2)
+unsigned short find_next_annoyed_creature(PlayerNumber plyr_idx, unsigned short current_annoyed_creature_idx)
 {
-  return _DK_find_next_annoyed_creature(a1, a2);
+    struct Thing *current_annoyed_creature = thing_get(current_annoyed_creature_idx);
+    struct Thing **current_ptr = &current_annoyed_creature;
+    struct Dungeon *dungeon = get_dungeon(plyr_idx);
+    struct Thing *creatng;
+    struct CreatureControl* cctrl;
+
+    if ((current_annoyed_creature->alloc_flags & TAlF_Exists) == 0 ||
+         !thing_is_creature(current_annoyed_creature) || 
+         (current_annoyed_creature->alloc_flags & TAlF_IsInLimbo) != 0 || 
+         (current_annoyed_creature->state_flags & TAlF_IsInMapWho) != 0 || 
+         current_annoyed_creature->active_state == CrSt_CreatureUnconscious)
+    {
+        creatng = thing_get(dungeon->creatr_list_start);
+        if (thing_is_invalid(creatng))
+        {
+            dungeon->zoom_annoyed_creature_idx = 0;
+        }
+        else
+        {
+            while (!anger_is_creature_angry(creatng))
+            {
+                cctrl = creature_control_get_from_thing(creatng);
+                creatng = thing_get(cctrl->players_next_creature_idx);
+                if (thing_is_invalid(creatng))
+                {
+                    dungeon->zoom_annoyed_creature_idx = 0;
+                    return 0;
+                }
+            }
+            dungeon->zoom_annoyed_creature_idx = creatng->index;
+            return creatng->index;
+        }
+    }
+    else
+    {
+        cctrl = creature_control_get_from_thing(thing_get(dungeon->zoom_annoyed_creature_idx));
+        creatng = thing_get(cctrl->players_next_creature_idx);
+
+        if ((creatng->alloc_flags & TAlF_Exists) &&
+            thing_is_creature(creatng) &&
+            (creatng->alloc_flags & TAlF_IsInLimbo) == 0 &&
+            (creatng->state_flags & TAlF_IsInMapWho) == 0 &&
+            creatng->active_state != CrSt_CreatureUnconscious &&
+            !thing_is_invalid(creatng))
+        {
+            TbBool found = true;
+            while (!anger_is_creature_angry(creatng) || (creatng->alloc_flags & TAlF_Exists) == 0 || !thing_is_creature(creatng) ||
+                   (creatng->alloc_flags & TAlF_IsInLimbo) != 0 || (creatng->state_flags & TAlF_IsInMapWho) != 0 || creatng->active_state == CrSt_CreatureUnconscious)
+            {
+                cctrl = creature_control_get_from_thing(creatng);
+                creatng =thing_get(cctrl->players_next_creature_idx);
+                if ( thing_is_invalid(creatng))
+                {
+                    found = false;
+                    break;
+                }
+            }
+            if (found)
+            {
+                dungeon->zoom_annoyed_creature_idx = creatng->index;
+                return creatng->index;
+            }
+        }
+        creatng = thing_get(dungeon->creatr_list_start);
+        if (*current_ptr != creatng)
+        {
+            while (!thing_is_invalid(creatng))
+            {
+                if (anger_is_creature_angry(creatng) &&
+                    (creatng->alloc_flags & TAlF_Exists) != 0 &&
+                    thing_is_creature(creatng) &&
+                    (creatng->alloc_flags & TAlF_IsInLimbo) == 0 &&
+                    (creatng->state_flags & TAlF_IsInMapWho) == 0 &&
+                    creatng->active_state != CrSt_CreatureUnconscious)
+                {
+                    dungeon->zoom_annoyed_creature_idx = creatng->index;
+                    return creatng->index;
+                }
+                cctrl = creature_control_get_from_thing(creatng);
+                creatng = thing_get(cctrl->players_next_creature_idx);
+                if (*current_ptr == creatng)
+                    return dungeon->zoom_annoyed_creature_idx;
+            }
+        }
+        return dungeon->zoom_annoyed_creature_idx;
+    }
+    return 0;
 }
 
 void draw_creature_view(struct Thing *thing)
