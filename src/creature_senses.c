@@ -202,7 +202,7 @@ TbBool line_of_sight_3d_ignoring_specific_door(const struct Coord3d *frpos,
     nextpos.x.val = prevpos.x.val + increase_x;
     nextpos.y.val = prevpos.y.val + increase_y;
     nextpos.z.val = prevpos.z.val + increase_z;
-    while (distance > COORD_PER_STL)
+    while (distance > 1)
     {
         if (point_in_map_is_solid_ignoring_door(&nextpos, doortng)) {
             return false;
@@ -809,7 +809,7 @@ TbBool line_of_sight_3d(const struct Coord3d *frpos, const struct Coord3d *topos
     nextpos.x.val = prevpos.x.val + increase_x;
     nextpos.y.val = prevpos.y.val + increase_y;
     nextpos.z.val = prevpos.z.val + increase_z;
-    while (distance > COORD_PER_STL)
+    while (distance > 1)
     {
         if (point_in_map_is_solid(&nextpos)) {
             SYNCDBG(7, "Player cannot see through (%d,%d) due to linear path solid flags (downcount %d)",
