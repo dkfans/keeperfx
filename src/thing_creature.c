@@ -3067,8 +3067,18 @@ short get_creature_eye_height(struct Thing *creatng)
 {
     struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    TbBool chicken = (creature_affected_by_spell(creatng, SplK_Chicken));
+    int base_height;
+    if (chicken)
+    {
+        base_height = 100;
+    }
+    else
+    {
+        base_height = crstat->base_eye_height;
+    }
 
-    return (crstat->base_eye_height + (crstat->base_eye_height * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100);
+    return (base_height + (base_height * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100);
 }
 
 TbBool creature_can_see_thing(struct Thing *creatng, struct Thing *thing)
