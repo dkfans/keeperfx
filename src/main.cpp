@@ -134,7 +134,6 @@ extern "C" {
 
 // DLLIMPORT int _DK_can_thing_be_queried(struct Thing *thing, long a2);
 DLLIMPORT long _DK_ceiling_init(unsigned long a1, unsigned long a2);
-DLLIMPORT void _DK_update_flames_nearest_camera(struct Camera *camera);
 DLLIMPORT long _DK_ceiling_block_is_solid_including_corners_return_height(long a1, long a2, long a3);
 // Now variables
 DLLIMPORT extern HINSTANCE _DK_hInstance;
@@ -2431,9 +2430,61 @@ void process_dungeons(void)
 
 void update_flames_nearest_camera(struct Camera *camera)
 {
-  if (camera == NULL)
-    return;
-  _DK_update_flames_nearest_camera(camera);
+    if (camera == NULL)
+        return;
+    Thing *shotng;
+    __int32 distance;
+    int v3;
+    int v4;
+    int *v5;
+    struct Thing *thing;
+    unsigned __int8 snd_emitter_id;
+    int v9[2];
+    int v10;
+    int v11[3];
+    void *retaddr;
+
+    v9[0] = 1280;
+    v9[1] = 1280;
+    v10 = 1280;
+    if (byte_515828)
+    {
+        memset(v11, 0, sizeof(v11));
+        for (shotng = thing_get(shots_list.index);
+             !thing_is_invalid(shotng);
+             shotng = thing_get(shotng->next_in_class))
+        {
+            struct Objects* objdat = get_objects_data_for_thing(shotng);
+            if (objdat.has_flames)
+            {
+                distance = get_2d_box_distance(&camera->mappos, &shotng->mappos);
+                if (distance < v9[0])
+                {
+                    v3 = 2;
+                    do
+                    {
+                        v4 = v9[v3 - 1];
+                        v11[v3] = v11[v3 - 1];
+                        v9[v3--] = v4;
+                    } while (v3 * 4);
+                    v9[0] = distance;
+                    v11[0] = (unsigned __int16)shotng->index;
+                }
+            }
+        }
+        v5 = v11;
+        do
+        {
+            if (!*v5)
+                break;
+            thing = *(&game_things_lookup + *v5);
+            snd_emitter_id = thing->snd_emitter_id;
+            if (!snd_emitter_id || !S3DEmitterIsPlayingSample(snd_emitter_id, 78, 0))
+                thing_play_sample(thing, 78, 0x64u, -1, 3u, 1u, 2, 256);
+            ++v5;
+        } while (v5 < (int *)&retaddr);
+    }
+    byte_515828 = ((unsigned __int8)byte_515828 + 1) % 4;
 }
 
 void update_near_creatures_for_footsteps(long *near_creatures, const struct Coord3d *srcpos)
