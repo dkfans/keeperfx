@@ -1786,7 +1786,7 @@ void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rotate_pre
     {
         return; // don't pan the camera if the mouse has left the window
     }
-    if ((features_enabled & Ft_DisableCursorCameraPanning) == 0)
+    if (is_feature_on(Ft_DisableCursorCameraPanning) == false)
     {
         long mx = my_mouse_x;
         long my = my_mouse_y;
