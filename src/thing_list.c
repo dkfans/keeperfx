@@ -3564,6 +3564,25 @@ struct Thing *get_creature_near_and_owned_by(MapCoord pos_x, MapCoord pos_y, Pla
     return get_thing_near_revealed_map_block_with_filter(pos_x, pos_y, filter, &param);
 }
 
+/** Finds creature on revealed subtiles around given position.
+ *
+ * @param pos_x Position to search around X coord.
+ * @param pos_y Position to search around Y coord.
+ * @return The creature thing pointer, or invalid thing pointer if not found.
+ */
+struct Thing *get_creature_near(MapCoord pos_x, MapCoord pos_y)
+{
+    SYNCDBG(19,"Starting");
+    Thing_Maximizer_Filter filter = near_map_block_thing_filter_is_owned_by;
+    struct CompoundTngFilterParam param;
+    param.class_id = TCls_Creature;
+    param.plyr_idx = -1;
+    param.model_id = CREATURE_ANY;
+    param.num1 = pos_x;
+    param.num2 = pos_y;
+    return get_thing_near_revealed_map_block_with_filter(pos_x, pos_y, filter, &param);
+}
+
 /** Finds creature on all subtiles around given position, who belongs to given player or allied one.
  *
  * @param pos_x Position to search around X coord.
