@@ -53,8 +53,6 @@ extern "C" {
 DLLIMPORT unsigned char _DK_backup_explored[26][26];
 #define backup_explored _DK_backup_explored
 /******************************************************************************/
-DLLIMPORT void _DK_remove_explored_flags_for_power_sight(struct PlayerInfo *player);
-/******************************************************************************/
 #ifdef __cplusplus
 }
 #endif
@@ -633,7 +631,42 @@ void update_explored_flags_for_power_sight(struct PlayerInfo *player)
 
 void remove_explored_flags_for_power_sight(struct PlayerInfo *player)
 {
-    SYNCDBG(9,"Starting");
-    _DK_remove_explored_flags_for_power_sight(player);
+    SYNCDBG(9, "Starting");
+    int v1;
+    int v2;
+    int v3;
+    int v4;
+    unsigned __int8 v5;
+    struct Dungeon *dungeon = get_players_dungeon(player);
+
+    if (dungeon->sight_casted_thing_idx)
+    {
+        v4 = 0;
+        struct Thing *thing = thing_get(dungeon->sight_casted_thing_idx);
+        v4 = 0;
+        MapSubtlCoord start_stl_y = thing->mappos.y.stl.pos - 13;
+        MapSubtlCoord start_stl_x = thing->mappos.x.stl.pos - 13;
+        do
+        {
+            v1 = 0;
+            do
+            {
+                if (dungeon->soe_explored_flags[v4 * 26 + v1])
+                {
+                    v2 = start_stl_x + v1 + ((v4 + start_stl_y) << 8);
+                    v3 = game__map[v2 + 257].data & (~(1 << player->id_number << 28) | 0xFFFFFFF);
+                    game__map[v2 + 257].data = v3;
+                    v5 = backup_explored[v4][v1];
+                    game__map[v2 + 257].data = v3 | (((1 << player->id_number) & (v5 << player->id_number)) << 28);
+                    if ((v5 & 2) != 0)
+                        game__map[v2 + 257].flags |= 0x80u;
+                    if ((v5 & 4) != 0)
+                        game__map[v2 + 257].flags |= 4u;
+                }
+                ++v1;
+            } while (v1 < 26);
+            ++v4;
+        } while (v4 < 26);
+    }
 }
 /******************************************************************************/
