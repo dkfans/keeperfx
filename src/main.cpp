@@ -2433,7 +2433,7 @@ void update_flames_nearest_camera(struct Camera *camera)
 {
     if (camera == NULL)
         return;
-    Thing *shotng;
+    Thing *objtng;
     __int32 distance;
     int v3;
     int v4;
@@ -2451,14 +2451,14 @@ void update_flames_nearest_camera(struct Camera *camera)
     if (flames_timer)
     {
         memset(v11, 0, sizeof(v11));
-        for (shotng = thing_get(get_list_for_thing_class(TCls_Shot)->index);
-             !thing_is_invalid(shotng);
-             shotng = thing_get(shotng->next_of_class))
+        for (objtng = thing_get(get_list_for_thing_class(TngList_Objects)->index);
+             !thing_is_invalid(objtng);
+             objtng = thing_get(objtng->next_of_class))
         {
-            struct Objects* objdat = get_objects_data_for_thing(shotng);
+            struct Objects* objdat = get_objects_data_for_thing(objtng);
             if (objdat->has_flames)
             {
-                distance = get_2d_box_distance(&camera->mappos, &shotng->mappos);
+                distance = get_2d_box_distance(&camera->mappos, &objtng->mappos);
                 if (distance < v9[0])
                 {
                     v3 = 2;
@@ -2469,7 +2469,7 @@ void update_flames_nearest_camera(struct Camera *camera)
                         v9[v3--] = v4;
                     } while (v3 * 4);
                     v9[0] = distance;
-                    v11[0] = (unsigned __int16)shotng->index;
+                    v11[0] = (unsigned __int16)objtng->index;
                 }
             }
         }
