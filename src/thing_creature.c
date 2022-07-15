@@ -3063,9 +3063,9 @@ long get_creature_speed(const struct Thing *thing)
     return speed;
 }
 
-long get_human_controlled_creature_target(struct Thing *thing, long a2)
+long get_human_controlled_creature_target(struct Thing *thing, long primary_target)
 {
-  return _DK_get_human_controlled_creature_target(thing, a2);
+  return _DK_get_human_controlled_creature_target(thing, primary_target);
 }
 
 long creature_instance_has_reset(const struct Thing *thing, long inst_idx)
