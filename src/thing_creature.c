@@ -137,8 +137,6 @@ struct Creatures creatures_NEW[] = {
 extern struct TbLoadFiles swipe_load_file[];
 extern struct TbSetupSprite swipe_setup_sprites[];
 /******************************************************************************/
-DLLIMPORT long _DK_get_human_controlled_creature_target(struct Thing *creatng, long reason);
-/******************************************************************************/
 /**
  * Returns creature health scaled 0..1000.
  * @param thing The creature thing.
@@ -3125,8 +3123,6 @@ long get_human_controlled_creature_target(struct Thing *thing, long primary_targ
         stl_y_upper = map_subtiles_y;
     if (stl_y_lower <= 0)
         stl_y_lower = 0;
-
-
 
     if (stl_y_upper < stl_y_lower)
     {
