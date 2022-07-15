@@ -65,7 +65,7 @@ msgid ""
 "cave to the west, lives the Avatar. I've heard he mastered several "
 "interesting incantations. Perhaps it is proper to visit him?"
 msgstr ""
-"W tej krainie panuja potezni barbarzyncy. Podobno na wschodzie w pewnej "
+"W tej krainie panuja potezni barbarzyncy. Podobno na zachodzie w pewnej "
 "jaskini mieszka Avatar, slyszalem ze posiada on kilka zaklec. Moze warto by "
 "go odwiedzic?"
 
