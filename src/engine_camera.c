@@ -414,13 +414,12 @@ void init_player_cameras(struct PlayerInfo *player)
 void update_player_camera_fp(struct Camera *cam, struct Thing *thing)
 {
     struct CreatureStatsOLD *creature_stats_OLD = &game.creature_stats_OLD[thing->model];
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
     int chicken_height = 100;
     TbBool chicken = (creature_affected_by_spell(thing, SplK_Chicken));
     if (!chicken)
     {
-        creature_stats_OLD->eye_height = crstat->eye_height + (crstat->eye_height * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100;
+        creature_stats_OLD->eye_height = get_creature_eye_height(thing);
     }
     else
     {

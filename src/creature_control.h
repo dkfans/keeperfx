@@ -573,7 +573,7 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     unsigned char grow_up_level;
     TbBool entrance_force;
     short max_angle_change;
-    short eye_height;
+    short base_eye_height;
   short field_57[14];
   short field_73;
     unsigned short size_xy;

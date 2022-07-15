@@ -269,7 +269,7 @@ TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *t
         return false;
       cam = player->acamera;
       crstat = creature_stats_get(get_players_special_digger_model(player->id_number));
-      cam->mappos.z.val += (crstat->eye_height + (crstat->eye_height * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100);
+      cam->mappos.z.val += get_creature_eye_height(thing);
       return true;
     }
     TbBool chicken = (creature_affected_by_spell(thing, SplK_Chicken));
@@ -3063,6 +3063,35 @@ long get_creature_speed(const struct Thing *thing)
     return speed;
 }
 
+short get_creature_eye_height(struct Thing *creatng)
+{
+    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+
+    return (crstat->base_eye_height + (crstat->base_eye_height * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100);
+}
+
+TbBool creature_can_see_thing(struct Thing *creatng, struct Thing *thing)
+{
+    struct Coord3d thing_pos;
+    struct Coord3d creat_pos;
+
+    creat_pos.x.val = creatng->mappos.x.val;
+    creat_pos.y.val = creatng->mappos.y.val;
+    creat_pos.z.val = creatng->mappos.z.val;
+
+    thing_pos.x.val = thing->mappos.x.val;
+    thing_pos.y.val = thing->mappos.y.val;
+    thing_pos.z.val = thing->mappos.z.val;
+
+    creat_pos.z.val += get_creature_eye_height(creatng);
+
+    if (line_of_sight_3d(&creat_pos, &thing_pos))
+        return 1;
+    thing_pos.z.val += thing->clipbox_size_yz;
+    return line_of_sight_3d(&creat_pos, &thing_pos) != 0;
+}
+
 long get_human_controlled_creature_target(struct Thing *thing, long primary_target)
 {
     long index;
@@ -3109,7 +3138,7 @@ long get_human_controlled_creature_target(struct Thing *thing, long primary_targ
     {
         v23 = v7 - stl_y_2 + 1;
 
-        //struct Map *mapblk = get_map_block_at(stl_x_2, stl_y_2);
+        
         p_data = &game__map[256 * stl_y_2 + 257 + stl_x_2].data;
         do
         {
@@ -3119,9 +3148,10 @@ long get_human_controlled_creature_target(struct Thing *thing, long primary_targ
                 v22 = v20 - v17 + 1;
                 do
                 {
-                    for (i = *(Thing **)((char *)&game_things_lookup + ((*v18 & 0x3FF800u) >> 9));
-                         i != game_things_lookup;
-                         i = *(&game_things_lookup + (unsigned __int16)i->next_on_mapblk))
+                    struct Map *mapblk = get_map_block_at(stl_x_2, stl_y_2);
+                    for (i = thing_get(get_mapwho_thing_index(mapblk));
+                         !thing_is_invalid(i);
+                         i = thing_get(i->next_on_mapblk))
                     {
                         if (i != thing)
                         {

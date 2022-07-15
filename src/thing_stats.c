@@ -832,9 +832,7 @@ long calculate_gold_digged_out_of_slab_with_single_hit(long damage_did_to_slab, 
 
 long compute_creature_weight(const struct Thing* creatng)
 {
-    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
-    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    long eye_height = (crstat->eye_height + (crstat->eye_height * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100);
+    long eye_height = get_creature_eye_height(creatng);
     long weight = eye_height >> 2;
     weight += (crstat->hunger_fill + crstat->lair_size + 1) * cctrl->explevel;
 
