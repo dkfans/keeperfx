@@ -57,7 +57,6 @@ extern "C" {
 DLLIMPORT long _DK_check_out_unreinforced_place(struct Thing *creatng);
 DLLIMPORT long _DK_check_out_unreinforced_area(struct Thing *creatng);
 DLLIMPORT long _DK_imp_will_soon_be_converting_at_excluding(struct Thing *creatng, long slb_x, long slb_y);
-DLLIMPORT long _DK_imp_already_reinforcing_at_excluding(struct Thing *creatng, long stl_x, long stl_y);
 /******************************************************************************/
 long const dig_pos[] = {0, -1, 1};
 
@@ -1940,7 +1939,38 @@ TbBool slab_is_players_land(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCo
 
 long imp_already_reinforcing_at_excluding(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    return _DK_imp_already_reinforcing_at_excluding(creatng, stl_x, stl_y);
+    struct Map *mapblk;
+    mapblk = get_map_block_at(stl_x, stl_y);
+    struct Thing *thing;
+    long i;
+    unsigned long k;
+    k = 0;
+    i = get_mapwho_thing_index(mapblk);
+    while (i != 0)
+    {
+        thing = thing_get(i);
+        TRACE_THING(thing);
+        if (thing_is_invalid(thing))
+        {
+            ERRORLOG("Jump to invalid thing detected");
+            break;
+        }
+        i = thing->next_on_mapblk;
+        // Per thing code start
+        if(thing_is_creature(thing) && thing != creatng && (thing->alloc_flags & TAlF_IsInLimbo) == 0 && (thing->state_flags & TF1_InCtrldLimbo) == 0 && thing->active_state == CrSt_ImpReinforces)
+        {
+            return 1;
+        }
+        // Per thing code end
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break_mapwho_infinite_chain(mapblk);
+            break;
+        }
+    }
+    return 0;
 }
 int get_nearest_small_around_side_of_slab(MapCoord dstcor_x, MapCoord dstcor_y, MapCoord srccor_x, MapCoord srccor_y)
 {
