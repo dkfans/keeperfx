@@ -1049,6 +1049,7 @@ short setup_game(void)
   features_enabled &= ~Ft_MuteAudioOnLoseFocus; // don't mute the audio, if the game window loses focus
   features_enabled &= ~Ft_SkipHeartZoom; // don't skip the dungeon heart zoom in
   features_enabled &= ~Ft_SkipSplashScreens; // don't skip splash screens
+  features_enabled &= ~Ft_DisableCursorCameraPanning; // don't disable cursor camera panning
   
   // Configuration file
   if ( !load_configuration() )

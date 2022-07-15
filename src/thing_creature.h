@@ -126,7 +126,7 @@ HitPoints apply_damage_to_thing_and_display_health(struct Thing *thing, HitPoint
 void process_creature_standing_on_corpses_at(struct Thing *thing, struct Coord3d *pos);
 long creature_instance_has_reset(const struct Thing *thing, long a2);
 void set_creature_instance(struct Thing *thing, CrInstance inst_idx, long a2, long targtng_idx, const struct Coord3d *pos);
-unsigned short find_next_annoyed_creature(unsigned char a1, unsigned short a2);
+unsigned short find_next_annoyed_creature(PlayerNumber plyr_idx, unsigned short current_annoyed_creature_idx);
 void draw_creature_view(struct Thing *thing);
 
 TbBool creature_is_for_dungeon_diggers_list(const struct Thing *creatng);
