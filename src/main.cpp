@@ -2441,17 +2441,15 @@ void update_flames_nearest_camera(struct Camera *camera)
     struct Thing *thing;
     unsigned __int8 snd_emitter_id;
     int v9[2];
-    int v10;
     int v11[3];
     void *retaddr;
 
     v9[0] = 1280;
     v9[1] = 1280;
-    v10 = 1280;
     if (flames_timer)
     {
         memset(v11, 0, sizeof(v11));
-        for (objtng = thing_get(get_list_for_thing_class(TngList_Objects)->index);
+        for (objtng = thing_get(get_list_for_thing_class(TCls_Object)->index);
              !thing_is_invalid(objtng);
              objtng = thing_get(objtng->next_of_class))
         {
