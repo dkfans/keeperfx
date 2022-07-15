@@ -127,6 +127,7 @@ struct Room *droom = &_DK_game.rooms[25];
 
 //static
 TbClockMSec last_loop_time=0;
+static char flames_timer;
 
 #ifdef __cplusplus
 extern "C" {
@@ -2447,15 +2448,15 @@ void update_flames_nearest_camera(struct Camera *camera)
     v9[0] = 1280;
     v9[1] = 1280;
     v10 = 1280;
-    if (byte_515828)
+    if (flames_timer)
     {
         memset(v11, 0, sizeof(v11));
-        for (shotng = thing_get(shots_list.index);
+        for (shotng = thing_get(get_list_for_thing_class(TCls_Shot)->index);
              !thing_is_invalid(shotng);
-             shotng = thing_get(shotng->next_in_class))
+             shotng = thing_get(shotng->next_of_class))
         {
             struct Objects* objdat = get_objects_data_for_thing(shotng);
-            if (objdat.has_flames)
+            if (objdat->has_flames)
             {
                 distance = get_2d_box_distance(&camera->mappos, &shotng->mappos);
                 if (distance < v9[0])
@@ -2477,14 +2478,14 @@ void update_flames_nearest_camera(struct Camera *camera)
         {
             if (!*v5)
                 break;
-            thing = *(&game_things_lookup + *v5);
+            thing = thing_get(*v5);
             snd_emitter_id = thing->snd_emitter_id;
             if (!snd_emitter_id || !S3DEmitterIsPlayingSample(snd_emitter_id, 78, 0))
                 thing_play_sample(thing, 78, 0x64u, -1, 3u, 1u, 2, 256);
             ++v5;
         } while (v5 < (int *)&retaddr);
     }
-    byte_515828 = ((unsigned __int8)byte_515828 + 1) % 4;
+    flames_timer = ((unsigned __int8)flames_timer + 1) % 4;
 }
 
 void update_near_creatures_for_footsteps(long *near_creatures, const struct Coord3d *srcpos)
