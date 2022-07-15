@@ -120,8 +120,8 @@ ThingModel crate_to_workshop_item_model(ThingModel tngmodel)
 
 ThingClass crate_thing_to_workshop_item_class(const struct Thing *thing)
 {
-    if (thing_is_invalid(thing) || (thing->class_id != TCls_Object))
-        return gameadd.object_conf.workshop_object_class[0];
+    if (!thing_is_workshop_crate(thing))
+        return thing->class_id;
     ThingModel tngmodel = thing->model;
     if ((tngmodel <= 0) || (tngmodel >= gameadd.object_conf.object_types_count))
         return gameadd.object_conf.workshop_object_class[0];
@@ -245,7 +245,7 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                 if (gameadd.object_conf.object_types_count == OBJECT_TYPES_MAX - 1)
                 {
                     gameadd.object_conf.object_types_count = tmodel;
-                    JUSTMSG("Loaded %d object types", gameadd.object_conf.object_types_count);
+                    JUSTMSG("Loaded %d object types from %s", gameadd.object_conf.object_types_count, config_textname);
                     break;
                 }
                 WARNMSG("Block [%s] not found in %s file.", block_buf, config_textname);
@@ -256,7 +256,7 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                 if (tmodel > gameadd.object_conf.object_types_count)
                 {
                     gameadd.object_conf.object_types_count = tmodel;
-                    JUSTMSG("Extended to %d object types", gameadd.object_conf.object_types_count);
+                    JUSTMSG("Extended to %d object types from %s", gameadd.object_conf.object_types_count, config_textname);
                     break;
                 }
             }
@@ -559,12 +559,6 @@ TbBool load_objects_config_file(const char *textname, const char *fname, unsigne
     {
         if ((flags & CnfLd_IgnoreErrors) == 0)
             WARNMSG("The %s file \"%s\" doesn't exist or is too small.",textname,fname);
-        return false;
-    }
-    if (len > MAX_CONFIG_FILE_SIZE)
-    {
-        if ((flags & CnfLd_IgnoreErrors) == 0)
-            WARNMSG("The %s file \"%s\" is too large.",textname,fname);
         return false;
     }
     char* buf = (char*)LbMemoryAlloc(len + 256);

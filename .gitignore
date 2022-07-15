@@ -16,3 +16,9 @@ build*/
 *.cache
 .vscode
 /libexterns
+docs/html
+docs/latex
+*.o
+*.Po
+*.d
+*.Tpo

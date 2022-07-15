@@ -54,6 +54,7 @@ const struct NamedCommand creaturetype_common_commands[] = {
   {"ANGERJOBSCOUNT",         4},
   {"ATTACKPREFERENCESCOUNT", 5},
   {"SPRITESIZE",             6},
+  {"SWAPCREATURES",          7},
   {NULL,                     0},
   };
 
@@ -219,6 +220,7 @@ struct CreatureData creature_data[] = {
   };
 /******************************************************************************/
 struct NamedCommand creature_desc[CREATURE_TYPES_MAX];
+struct NamedCommand newcrtr_desc[SWAP_CREATURE_TYPES_MAX];
 struct NamedCommand instance_desc[INSTANCE_TYPES_MAX];
 struct NamedCommand creaturejob_desc[INSTANCE_TYPES_MAX];
 struct NamedCommand angerjob_desc[INSTANCE_TYPES_MAX];
@@ -445,6 +447,17 @@ const char *creature_code_name(ThingModel crmodel)
 }
 
 /**
+ * Returns Code Name (name to use in script file) of given swap creature model.
+ */
+const char* new_creature_code_name(ThingModel crmodel)
+{
+    const char* name = get_conf_parameter_text(newcrtr_desc, crmodel);
+    if (name[0] != '\0')
+        return name;
+    return "INVALID";
+}
+
+/**
  * Returns the creature associated with a given model name.
  * Linear lookup time so don't use in tight loop.
  * @param name
@@ -610,6 +623,31 @@ TbBool parse_creaturetypes_common_blocks(char *buf, long len, const char *config
             {
                 CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
                     COMMAND_TEXT(cmd_num), block_buf, config_textname);
+            }
+            break;
+        case 7: // SWAPCREATURES
+            while (get_conf_parameter_single(buf, &pos, len, gameadd.swap_creature_models[n + 1].name, COMMAND_WORD_LEN) > 0)
+            {
+                newcrtr_desc[n].name = gameadd.swap_creature_models[n + 1].name;
+                newcrtr_desc[n].num = n + 1;
+                n++;
+                if (n + 1 >= SWAP_CREATURE_TYPES_MAX)
+                {
+                    CONFWRNLOG("Too many extra species defined with \"%s\" in [%s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                    break;
+                }
+            }
+            if (n + 1 > SWAP_CREATURE_TYPES_MAX)
+            {
+                CONFWRNLOG("Hard-coded limit exceeded by amount of species defined with \"%s\" in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), block_buf, config_textname);
+            }
+            while (n < SWAP_CREATURE_TYPES_MAX)
+            {
+                newcrtr_desc[n].name = NULL;
+                newcrtr_desc[n].num = 0;
+                n++;
             }
             break;
         case 0: // comment
@@ -1208,10 +1246,10 @@ TbBool parse_creaturetype_job_blocks(char *buf, long len, const char *config_tex
             jobcfg->initial_crstate = CrSt_Unused;
             jobcfg->continue_crstate = CrSt_Unused;
             jobcfg->job_flags = 0;
-            jobcfg->func_plyr_check = NULL;
-            jobcfg->func_plyr_assign = NULL;
-            jobcfg->func_cord_check = NULL;
-            jobcfg->func_cord_assign = NULL;
+            jobcfg->func_plyr_check_idx = 0;
+            jobcfg->func_plyr_assign_idx = 0;
+            jobcfg->func_cord_check_idx = 0;
+            jobcfg->func_cord_assign_idx = 0;
             if (i < gameadd.crtr_conf.jobs_count)
             {
                 creaturejob_desc[i].name = gameadd.crtr_conf.jobs[i].name;
@@ -1369,18 +1407,18 @@ TbBool parse_creaturetype_job_blocks(char *buf, long len, const char *config_tex
                 }
                 break;
             case 7: // PLAYERFUNCTIONS
-                jobcfg->func_plyr_check = NULL;
-                jobcfg->func_plyr_assign = NULL;
+                jobcfg->func_plyr_check_idx = 0;
+                jobcfg->func_plyr_assign_idx = 0;
                 k = recognize_conf_parameter(buf,&pos,len,creature_job_player_check_func_type);
                 if (k > 0)
                 {
-                    jobcfg->func_plyr_check = creature_job_player_check_func_list[k];
+                    jobcfg->func_plyr_check_idx = k;
                     n++;
                 }
                 k = recognize_conf_parameter(buf,&pos,len,creature_job_player_assign_func_type);
                 if (k > 0)
                 {
-                    jobcfg->func_plyr_assign = creature_job_player_assign_func_list[k];
+                    jobcfg->func_plyr_assign_idx = k;
                     n++;
                 }
                 if (n < 2)
@@ -1390,18 +1428,18 @@ TbBool parse_creaturetype_job_blocks(char *buf, long len, const char *config_tex
                 }
                 break;
             case 8: // COORDSFUNCTIONS
-                jobcfg->func_cord_check = NULL;
-                jobcfg->func_cord_assign = NULL;
+                jobcfg->func_cord_check_idx = 0;
+                jobcfg->func_cord_assign_idx = 0;
                 k = recognize_conf_parameter(buf,&pos,len,creature_job_coords_check_func_type);
                 if (k > 0)
                 {
-                    jobcfg->func_cord_check = creature_job_coords_check_func_list[k];
+                    jobcfg->func_cord_check_idx = k;
                     n++;
                 }
                 k = recognize_conf_parameter(buf,&pos,len,creature_job_coords_assign_func_type);
                 if (k > 0)
                 {
-                    jobcfg->func_cord_assign = creature_job_coords_assign_func_list[k];
+                    jobcfg->func_cord_assign_idx = k;
                     n++;
                 }
                 if (n < 2)
@@ -1620,12 +1658,6 @@ TbBool load_creaturetypes_config_file(const char *textname, const char *fname, u
     {
         if ((flags & CnfLd_IgnoreErrors) == 0)
             WARNMSG("The %s file \"%s\" doesn't exist or is too small.",textname,fname);
-        return false;
-    }
-    if (len > MAX_CONFIG_FILE_SIZE)
-    {
-        if ((flags & CnfLd_IgnoreErrors) == 0)
-            WARNMSG("The %s file \"%s\" is too large.",textname,fname);
         return false;
     }
     char* buf = (char*)LbMemoryAlloc(len + 256);
@@ -2076,7 +2108,7 @@ CreatureJob get_jobs_enemies_may_do_in_room(RoomKind rkind)
  * @param job_flags
  * @return
  */
-RoomKind get_room_for_job(CreatureJob job_flags)
+RoomKind get_first_room_kind_for_job(CreatureJob job_flags)
 {
     struct CreatureJobConfig* jobcfg = get_config_for_job(job_flags);
     for (RoomKind rkind = 0; rkind < slab_conf.room_types_count; rkind++)

@@ -43,7 +43,6 @@ TbBool player_has_lost(PlayerNumber plyr_idx);
 TbBool player_cannot_win(PlayerNumber plyr_idx);
 void set_player_as_won_level(struct PlayerInfo *player);
 void set_player_as_lost_level(struct PlayerInfo *player);
-PlayerNumber get_selected_player_for_cheat(PlayerNumber defplayer);
 
 long compute_player_final_score(struct PlayerInfo *player, long gameplay_score);
 
@@ -51,6 +50,7 @@ long compute_player_final_score(struct PlayerInfo *player, long gameplay_score);
 long take_money_from_dungeon_f(PlayerNumber plyr_idx, GoldAmount amount_take, TbBool only_whole_sum, const char *func_name);
 long update_dungeon_generation_speeds(void);
 void compute_and_update_player_payday_total(PlayerNumber plyr_idx);
+void compute_and_update_player_backpay_total(PlayerNumber plyr_idx);
 void calculate_dungeon_area_scores(void);
 
 TbBool player_sell_trap_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y);

@@ -149,7 +149,35 @@ enum TbPacketAction {
         PckA_SaveViewType,
         PckA_LoadViewType,//120
         PckA_PlyrMsgChar    =  121,
-        PckA_PlyrMsgClear
+        PckA_PlyrMsgClear,
+        PckA_DirectCtrlDragDrop,
+        PckA_CheatPlaceTerrain,
+        PckA_CheatMakeCreature,
+        PckA_CheatMakeDigger,
+        PckA_CheatStealSlab,
+        PckA_CheatStealRoom,
+        PckA_CheatHeartHealth,
+        PckA_CheatKillPlayer,
+        PckA_CheatConvertCreature,
+        PckA_CheatSwitchTerrain,
+        PckA_CheatSwitchPlayer,
+        PckA_CheatSwitchCreature,
+        PckA_CheatSwitchHero,
+        PckA_CheatSwitchExperience,
+        PckA_CheatCtrlCrtrSetInstnc,
+        PckA_SetFirstPersonDigMode,
+        PckA_SwitchTeleportDest,
+        PckA_SelectFPPickup,
+        PckA_CheatAllDoors,
+        PckA_CheatAllTraps,
+        PckA_SetRoomspaceAuto,
+        PckA_SetRoomspaceMan,
+        PckA_SetRoomspaceDrag,
+        PckA_SetRoomspaceDefault,
+        PckA_SetRoomspaceWholeRoom,
+        PckA_SetRoomspaceSubtile,
+        PckA_SetRoomspaceHighlight,
+        PckA_SetNearestTeleport,
 };
 
 /** Packet flags for non-action player operation. */
@@ -169,7 +197,7 @@ enum TbPacketControl {
         PCtr_RBtnHeld       = 0x0800,
         PCtr_LBtnRelease    = 0x1000,
         PCtr_RBtnRelease    = 0x2000,
-        PCtr_Unknown4000    = 0x4000,
+        PCtr_Gui            = 0x4000,
         PCtr_MapCoordsValid = 0x8000,
 };
 

@@ -55,17 +55,18 @@ enum GameKeys {
     Gkey_ZoomRoom12,
     Gkey_ZoomRoom13,
     Gkey_ZoomRoom14,
-    Gkey_ZoomToFight, // 25
+    Gkey_ZoomRoom15, // 25
+    Gkey_ZoomToFight, 
     Gkey_ZoomCrAnnoyed,
     Gkey_CrtrContrlMod,
     Gkey_CrtrQueryMod,
-    Gkey_DumpToOldPos,
-    Gkey_TogglePause, // 30
+    Gkey_DumpToOldPos, // 30
+    Gkey_TogglePause,
     Gkey_SwitchToMap,
     Gkey_ToggleMessage,
     Gkey_SnapCamera,
-    Gkey_BestRoomSpace,
-    Gkey_SquareRoomSpace, // 35
+    Gkey_BestRoomSpace, // 35
+    Gkey_SquareRoomSpace,
     Gkey_RoomSpaceIncSize,
     Gkey_RoomSpaceDecSize,
     Gkey_SellTrapOnSubtile,
@@ -111,7 +112,8 @@ extern unsigned short const zoom_key_room_order[];
 TbBool check_if_mouse_is_over_button(const struct GuiButton *gbtn);
 long get_current_gui_layer();
 TbBool check_current_gui_layer(long layer_id);
-
+void process_cheat_mode_selection_inputs();
+TbBool process_cheat_heart_health_inputs(short *value);
 /******************************************************************************/
 #ifdef __cplusplus
 }

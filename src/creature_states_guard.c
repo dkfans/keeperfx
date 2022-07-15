@@ -21,6 +21,7 @@
 
 #include "bflib_math.h"
 #include "creature_states.h"
+#include "creature_states_mood.h"
 #include "thing_list.h"
 #include "creature_control.h"
 #include "config_creature.h"
@@ -42,7 +43,7 @@ short at_guard_post_room(struct Thing *thing)
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     cctrl->target_room_id = 0;
     struct Room* room = get_room_thing_is_on(thing);
-    if (!room_initially_valid_as_type_for_thing(room, get_room_for_job(Job_GUARD), thing))
+    if (!room_initially_valid_as_type_for_thing(room, get_room_role_for_job(Job_GUARD), thing))
     {
         WARNLOG("Room %s owned by player %d is invalid for %s index %d",room_code_name(room->kind),(int)room->owner,thing_model_name(thing),(int)thing->index);
         set_start_state(thing);
@@ -84,6 +85,7 @@ CrStateRet guarding(struct Thing *thing)
         cctrl->moveto_pos.y.val = thing->mappos.y.val;
         cctrl->moveto_pos.z.val = thing->mappos.z.val;
     }
+    process_job_stress_and_going_postal(thing);
     return CrStRet_Modified;
 }
 

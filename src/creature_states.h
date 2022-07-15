@@ -330,6 +330,7 @@ void creature_drop_dragged_object(struct Thing *crtng, struct Thing *dragtng);
 void creature_drag_object(struct Thing *creatng, struct Thing *dragtng);
 TbBool creature_is_dragging_something(const struct Thing *creatng);
 TbBool creature_is_dragging_spellbook(const struct Thing *creatng);
+void stop_creature_being_dragged_by(struct Thing *dragtng, struct Thing *creatng);
 
 void make_creature_conscious(struct Thing *creatng);
 void make_creature_unconscious(struct Thing *creatng);
@@ -348,8 +349,8 @@ void process_person_moods_and_needs(struct Thing *thing);
 TbBool restore_creature_flight_flag(struct Thing *creatng);
 TbBool attempt_to_destroy_enemy_room(struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 
-TbBool room_initially_valid_as_type_for_thing(const struct Room *room, RoomKind rkind, const struct Thing *thing);
-TbBool room_still_valid_as_type_for_thing(const struct Room *room, RoomKind rkind, const struct Thing *thing);
+TbBool room_initially_valid_as_type_for_thing(const struct Room *room, RoomRole rrole, const struct Thing *thing);
+TbBool room_still_valid_as_type_for_thing(const struct Room *room, RoomRole rrole, const struct Thing *thing);
 TbBool creature_job_in_room_no_longer_possible_f(const struct Room *room, CreatureJob jobpref, const struct Thing *thing, const char *func_name);
 #define creature_job_in_room_no_longer_possible(room, jobpref, thing) creature_job_in_room_no_longer_possible_f(room, jobpref, thing, __func__)
 TbBool creature_free_for_sleep(const struct Thing *thing,  CrtrStateId state);
@@ -399,6 +400,8 @@ TbBool creature_state_cannot_be_blocked(const struct Thing *thing);
 
 TbBool setup_move_off_lava(struct Thing* thing);
 TbBool setup_move_out_of_cave_in(struct Thing* thing);
+
+struct Room* get_room_xy(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 
 /******************************************************************************/
 #ifdef __cplusplus

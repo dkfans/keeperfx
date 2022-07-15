@@ -64,7 +64,7 @@ extern "C" {
 #define SPELL_POINTER_GROUPS   14
 // Amount of instances; it's 17, 18 or 19
 #define PLAYER_INSTANCES_COUNT 19
-#define ZOOM_KEY_ROOMS_COUNT   14
+#define ZOOM_KEY_ROOMS_COUNT   15
 
 enum ModeFlags {
     MFlg_IsDemoMode         =  0x01,
@@ -105,9 +105,6 @@ enum AutotestFlags {
 #pragma pack(1)
 
 struct TbLoadFiles;
-struct RoomFlag;
-struct Number;
-struct JontySpr;
 
 // Windows-standard structure
 /*struct _GUID {
@@ -245,8 +242,9 @@ DLLIMPORT unsigned char *_DK_lightning_palette;
 // Variables inside the main module
 extern TbClockMSec last_loop_time;
 extern short default_loc_player;
-extern struct GuiBox *gui_box;
-extern struct GuiBox *gui_cheat_box;
+extern struct GuiBox *gui_cheat_box_1;
+extern struct GuiBox *gui_cheat_box_2;
+extern struct GuiBox *gui_cheat_box_3;
 extern int test_variable;
 extern struct StartupParameters start_params;
 
@@ -258,15 +256,12 @@ void update(void);
 
 TbBool can_thing_be_queried(struct Thing *thing, PlayerNumber plyr_idx);
 struct Thing *get_queryable_object_near(MapCoord pos_x, MapCoord pos_y, long plyr_idx);
-TbBool tag_cursor_blocks_sell_area(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long full_slab);
 long packet_place_door(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, ThingModel dormodel, unsigned char a5);
-TbBool tag_cursor_blocks_place_room(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long full_slab);
-TbBool tag_cursor_blocks_place_door(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 TbBool all_dungeons_destroyed(const struct PlayerInfo *win_player);
 void reset_gui_based_on_player_mode(void);
 void reinit_tagged_blocks_for_player(PlayerNumber plyr_idx);
 void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long a3, long a4);
-void draw_lightning(const struct Coord3d *pos1, const struct Coord3d *pos2, long a3, long a4);
+void draw_lightning(const struct Coord3d* pos1, const struct Coord3d* pos2, long eeinterspace, long eemodel);
 void toggle_hero_health_flowers(void);
 void check_players_won(void);
 void check_players_lost(void);
@@ -284,8 +279,6 @@ void reset_script_timers_and_flags(void);
 void add_creature_to_pool(long kind, long amount, unsigned long a3);
 void draw_texture(long a1, long a2, long a3, long a4, long a5, long a6, long a7);
 
-void tag_cursor_blocks_dig(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long full_slab);
-void tag_cursor_blocks_thing_in_hand(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, int is_special_digger, long full_slab);
 short zoom_to_next_annoyed_creature(void);
 
 TbBool LbIsFrozenOrPaused(void); // from bflib_inputctrl.cpp
@@ -299,7 +292,6 @@ void clear_game_for_save(void);
 void clear_complete_game(void);
 void clear_things_and_persons_data(void);
 void clear_computer(void);
-TbBool swap_creature(long ncrt_id, long crtr_id);
 void engine(struct PlayerInfo *player, struct Camera *cam);
 void draw_gold_total(PlayerNumber plyr_idx, long scr_x, long scr_y, long units_per_px, long long value);
 void draw_mini_things_in_hand(long x, long y);
@@ -311,13 +303,14 @@ void affect_nearby_enemy_creatures_with_wind(struct Thing *thing);
 void affect_nearby_stuff_with_vortex(struct Thing *thing);
 void affect_nearby_friends_with_alarm(struct Thing *thing);
 long apply_wallhug_force_to_boulder(struct Thing *thing);
+long process_boulder_collision(struct Thing *boulder, struct Coord3d *pos, int direction_x, int direction_y);
 void lightning_modify_palette(struct Thing *thing);
 unsigned long lightning_is_close_to_player(struct PlayerInfo *player, struct Coord3d *pos);
 
 unsigned long seed_check_random(unsigned long range, unsigned long *seed, const char *func_name, unsigned long place);
 void init_lookups(void);
 void place_single_slab_type_on_map(SlabKind slbkind, MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber plyr_idx);
-void shuffle_unattached_things_on_slab(long a1, long a2);
+void shuffle_unattached_things_on_slab(long stl_x, long stl_y);
 void turn_off_query(PlayerNumber plyr_idx);
 TbBool set_gamma(char corrlvl, TbBool do_set);
 void level_lost_go_first_person(PlayerNumber plyr_idx);

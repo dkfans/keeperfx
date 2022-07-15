@@ -89,6 +89,7 @@ const struct NamedCommand rules_game_classicbugs_commands[] = {
   {"FAINTED_IMMUNE_TO_BOULDER",  10},
   {"REBIRTH_KEEPS_SPELLS",       11},
   {"STUN_FRIENDLY_UNITS",        12},
+  {"PASSIVE_NEUTRALS",           13},
   {NULL,                          0},
   };
 
@@ -671,6 +672,10 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
                   break;
               case 12: // STUN_FRIENDLY_UNITS
                   gameadd.classic_bugs_flags |= ClscBug_FriendlyFaint;
+                  n++;
+                  break;
+              case 13: // PASSIVE_NEUTRALS
+                  gameadd.classic_bugs_flags |= ClscBug_PassiveNeutrals;
                   n++;
                   break;
               default:
@@ -2240,12 +2245,6 @@ TbBool load_rules_config_file(const char *textname, const char *fname, unsigned 
     {
         if ((flags & CnfLd_IgnoreErrors) == 0)
             WARNMSG("The %s file \"%s\" doesn't exist or is too small.",textname,fname);
-        return false;
-    }
-    if (len > MAX_CONFIG_FILE_SIZE)
-    {
-        if ((flags & CnfLd_IgnoreErrors) == 0)
-            WARNMSG("The %s file \"%s\" is too large.",textname,fname);
         return false;
     }
     char* buf = (char*)LbMemoryAlloc(len + 256);

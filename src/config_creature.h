@@ -24,12 +24,14 @@
 
 #include "config.h"
 #include "thing_creature.h"
+#include "creature_graphics.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 #define CREATURE_TYPES_MAX 64
+#define SWAP_CREATURE_TYPES_MAX 64
 #define INSTANCE_TYPES_MAX 64
 #define CREATURE_STATES_MAX 256
 
@@ -211,10 +213,10 @@ typedef TbBool (*Creature_Job_Coords_Assign_Func)(struct Thing *creatng, MapSubt
 
 struct CreatureJobConfig {
     char name[COMMAND_WORD_LEN];
-    Creature_Job_Player_Check_Func func_plyr_check;
-    Creature_Job_Player_Assign_Func func_plyr_assign;
-    Creature_Job_Coords_Check_Func func_cord_check;
-    Creature_Job_Coords_Assign_Func func_cord_assign;
+    unsigned char func_plyr_check_idx;
+    unsigned char func_plyr_assign_idx;
+    unsigned char func_cord_check_idx;
+    unsigned char func_cord_assign_idx;
     RoomRole room_role;
     EventKind event_kind;
     /** The state creature should go into when job is started. */
@@ -268,12 +270,14 @@ struct CreatureConfig {
     ThingModel special_digger_good;
     ThingModel special_digger_evil;
     ThingModel spectator_breed;
+    short creature_graphics[CREATURE_TYPES_COUNT][CREATURE_GRAPHICS_INSTANCES];
     long sprite_size;
 };
 
 /******************************************************************************/
 extern const char keeper_creaturetp_file[];
 extern struct NamedCommand creature_desc[];
+extern struct NamedCommand newcrtr_desc[];
 extern struct NamedCommand angerjob_desc[];
 extern struct NamedCommand creaturejob_desc[];
 extern struct NamedCommand attackpref_desc[];
@@ -293,6 +297,7 @@ TbBool creature_stats_invalid(const struct CreatureStats *crstat);
 void creature_stats_updated(ThingModel crstat_idx);
 void check_and_auto_fix_stats(void);
 const char *creature_code_name(ThingModel crmodel);
+const char* new_creature_code_name(ThingModel crmodel);
 long creature_model_id(const char * name);
 const char *creature_own_name(const struct Thing *creatng);
 TbBool is_creature_model_wildcard(ThingModel crmodel);
@@ -309,7 +314,7 @@ struct CreatureInstanceConfig *get_config_for_instance(CrInstance inst_id);
 const char *creature_instance_code_name(CrInstance inst_id);
 /******************************************************************************/
 struct CreatureJobConfig *get_config_for_job(CreatureJob job_flags);
-RoomKind get_room_for_job(CreatureJob job_flags);
+RoomKind get_first_room_kind_for_job(CreatureJob job_flags);
 RoomRole get_room_role_for_job(CreatureJob job_flags);
 EventKind get_event_for_job(CreatureJob job_flags);
 CrtrStateId get_initial_state_for_job(CreatureJob jobpref);

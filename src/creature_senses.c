@@ -34,8 +34,6 @@
 #include "game_legacy.h"
 
 /******************************************************************************/
-DLLIMPORT unsigned char _DK_line_of_sight_2d(const struct Coord3d *pos1, const struct Coord3d *pos2);
-/******************************************************************************/
 TbBool sibling_line_of_sight_ignoring_door(const struct Coord3d *prevpos,
     const struct Coord3d *nextpos, const struct Thing *doortng)
 {
@@ -204,7 +202,7 @@ TbBool line_of_sight_3d_ignoring_specific_door(const struct Coord3d *frpos,
     nextpos.x.val = prevpos.x.val + increase_x;
     nextpos.y.val = prevpos.y.val + increase_y;
     nextpos.z.val = prevpos.z.val + increase_z;
-    while (distance > 0)
+    while (distance > 1)
     {
         if (point_in_map_is_solid_ignoring_door(&nextpos, doortng)) {
             return false;
@@ -383,7 +381,7 @@ TbBool jonty_line_of_sight_3d_including_lava_check_ignoring_specific_door(const 
     nextpos.x.val = prevpos.x.val + increase_x;
     nextpos.y.val = prevpos.y.val + increase_y;
     nextpos.z.val = prevpos.z.val + increase_z;
-    while (distance > 0)
+    while (distance > 1)
     {
         if (get_point_in_map_solid_flags_ignoring_door(&nextpos, doortng) & 0x01) {
             return false;
@@ -563,7 +561,7 @@ TbBool jonty_line_of_sight_3d_including_lava_check_ignoring_own_door(const struc
     nextpos.y.val = prevpos.y.val + increase_y;
     nextpos.z.val = prevpos.z.val + increase_z;
 
-    while (distance > 0)
+    while (distance > 1)
     {
         if (get_point_in_map_solid_flags_ignoring_own_door(&nextpos, plyr_idx) & 0x01) {
             SYNCDBG(17, "Player %d cannot see through (%d,%d) due to linear path solid flags (downcount %d)",
@@ -677,9 +675,72 @@ TbBool jonty_creature_can_see_thing_including_lava_check(const struct Thing *cre
     }
 }
 
-TbBool line_of_sight_2d(const struct Coord3d *pos1, const struct Coord3d *pos2)
+TbBool line_of_sight_2d(const struct Coord3d *frpos, const struct Coord3d *topos)
 {
-    return _DK_line_of_sight_2d(pos1, pos2);
+
+    MapCoordDelta pos_delta_x;
+    MapCoordDelta pos_delta_y;
+    MapCoordDelta ray_point_delta_x;
+    MapCoordDelta ray_point_delta_y;
+
+    long ray_end_point;
+    long ray_current_point;
+    struct Coord3d ray_point_pos;
+    static const long RAY_RESOLUTION = 80;
+        
+    pos_delta_x = abs(topos->x.val - frpos->x.val);
+    pos_delta_y = abs(topos->y.val - frpos->y.val);
+
+    if ( frpos->x.val > topos->x.val )
+    {
+        ray_point_delta_x = -RAY_RESOLUTION;
+    }
+    else
+    {
+        ray_point_delta_x = RAY_RESOLUTION;
+    }
+    
+    if ( frpos->y.val > topos->y.val )
+    {
+        ray_point_delta_y = -RAY_RESOLUTION;
+    }
+    else
+    {
+        ray_point_delta_y = RAY_RESOLUTION;
+    }
+    
+    if ( pos_delta_y == pos_delta_x )
+    {
+      ray_end_point = (pos_delta_x + 1) / RAY_RESOLUTION;
+    }
+    else if ( pos_delta_y > pos_delta_x )
+    {
+      ray_point_delta_x = (pos_delta_x + 1) * ray_point_delta_x / (pos_delta_y + 1);
+      ray_end_point = (pos_delta_y + 1) / RAY_RESOLUTION;
+    }
+    else
+    {
+      ray_point_delta_y = (pos_delta_y + 1) * ray_point_delta_y / (pos_delta_x + 1);
+      ray_end_point = (pos_delta_x + 1) / RAY_RESOLUTION;
+    }
+    
+    ray_current_point = ray_end_point;
+    ray_point_pos.x = frpos->x;
+    ray_point_pos.y = frpos->y;
+    ray_point_pos.z = frpos->z;
+
+    if ( ray_end_point == 0 )
+      return true;
+
+    while ( !point_in_map_is_solid(&ray_point_pos) )
+    {
+      ray_point_pos.x.val += ray_point_delta_x;
+      ray_point_pos.y.val += ray_point_delta_y;
+      ray_current_point--;
+      if ( ray_current_point == 0 )
+        return true;
+    }
+    return false;
 }
 
 TbBool line_of_sight_3d(const struct Coord3d *frpos, const struct Coord3d *topos)
@@ -748,7 +809,7 @@ TbBool line_of_sight_3d(const struct Coord3d *frpos, const struct Coord3d *topos
     nextpos.x.val = prevpos.x.val + increase_x;
     nextpos.y.val = prevpos.y.val + increase_y;
     nextpos.z.val = prevpos.z.val + increase_z;
-    while (distance > 0)
+    while (distance > 1)
     {
         if (point_in_map_is_solid(&nextpos)) {
             SYNCDBG(7, "Player cannot see through (%d,%d) due to linear path solid flags (downcount %d)",
@@ -855,7 +916,7 @@ TbBool nowibble_line_of_sight_3d(const struct Coord3d *frpos, const struct Coord
     nextpos.x.val = prevpos.x.val + increase_x;
     nextpos.y.val = prevpos.y.val + increase_y;
     nextpos.z.val = prevpos.z.val + increase_z;
-    while (distance > 0)
+    while (distance > 1)
     {
         if (point_in_map_is_solid(&nextpos)) {
             SYNCDBG(7, "Player cannot see through (%d,%d) due to linear path solid flags (downcount %d)",
@@ -877,6 +938,65 @@ TbBool nowibble_line_of_sight_3d(const struct Coord3d *frpos, const struct Coord
         distance--;
     }
     return true;
+}
+
+TbBool line_of_room_move_2d(const struct Coord3d *frpos, const struct Coord3d *topos, struct Room *room)
+{
+    MapCoordDelta delta_x;
+    MapCoordDelta delta_y;
+    int distance_per_step_x;
+    int distance_per_step_y;
+    int ray_end_point;
+    int ray_current_point;
+    struct Coord3d ray_point_pos;
+    static const long RAY_RESOLUTION = 80;
+
+    distance_per_step_x = RAY_RESOLUTION;
+    delta_x = topos->x.val - frpos->x.val;
+    delta_y = topos->y.val - frpos->y.val;
+    if ( delta_x < 0 )
+    {
+        delta_x = frpos->x.val - topos->x.val;
+        distance_per_step_x = -RAY_RESOLUTION;
+    }
+    distance_per_step_y = RAY_RESOLUTION;
+    if ( delta_y < 0 )
+    {
+        delta_y = frpos->y.val - topos->y.val;
+        distance_per_step_y = -RAY_RESOLUTION;
+    }
+
+    if ( delta_y == delta_x )
+    {
+        ray_end_point = (delta_x + 1) / RAY_RESOLUTION;
+    }
+    else if ( delta_y >= delta_x )
+    {
+        distance_per_step_x = (delta_x + 1) * distance_per_step_x / (delta_y + 1);
+        ray_end_point = (delta_y + 1) / RAY_RESOLUTION;
+    }
+    else
+    {
+        distance_per_step_y = (delta_y + 1) * distance_per_step_y / (delta_x + 1);
+        ray_end_point = (delta_x + 1) / RAY_RESOLUTION;
+    }
+    ray_current_point = ray_end_point;
+    ray_point_pos.x.val = frpos->x.val;
+    ray_point_pos.y.val = frpos->y.val;
+    ray_point_pos.z.val = frpos->z.val;
+
+
+    if ( !ray_end_point )
+        return true;
+    while ( get_room_at_pos(&ray_point_pos) == room )
+    {
+        ray_point_pos.x.val += distance_per_step_x;
+        ray_point_pos.y.val += distance_per_step_y;
+        ray_current_point--;
+        if ( ray_current_point == 0 )
+            return true;
+    }
+    return false;
 }
 
 long get_explore_sight_distance_in_slabs(const struct Thing *thing)

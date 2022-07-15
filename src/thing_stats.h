@@ -103,6 +103,7 @@ long calculate_correct_creature_maxspeed(const struct Thing *thing);
 long calculate_correct_creature_pay(const struct Thing *thing);
 long calculate_correct_creature_scavenge_required(const struct Thing *thing, PlayerNumber callplyr_idx);
 long compute_creature_work_value_for_room_role(const struct Thing *creatng, RoomRole rrole, long efficiency);
+long compute_creature_weight(const struct Thing* creatng);
 
 const char *creature_statistic_text(const struct Thing *creatng, CreatureLiveStatId cstat_id);
 

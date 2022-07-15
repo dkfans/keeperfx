@@ -361,10 +361,7 @@ void play_creature_sound_and_create_sound_thing(struct Thing *thing, long snd_id
 
 void reset_creature_eye_lens(struct Thing *thing)
 {
-    if (is_my_player_number(thing->owner))
-    {
-        setup_eye_lens(0);
-    }
+    setup_eye_lens(0);
 }
 
 TbBool creature_can_gain_experience(const struct Thing *thing)

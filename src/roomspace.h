@@ -37,6 +37,7 @@ enum roomspace_placement_modes {
     box_placement_mode = 0, // fixed width/height (default)
     drag_placement_mode = 1, // fixed 1x1 roomspace, can hold left click to paint
     roomspace_detection_mode = 2, // find biggest/best roomspace under cursor
+    single_subtile_mode = 3,
 };
 
 // 
@@ -51,6 +52,13 @@ enum roomspace_tolerance_layers {
     tolerate_rock = 7,
     tolerate_unclaimed_path = 8,
     tolerate_other_claimed_path = 9,
+};
+
+enum roomspace_directions {
+    top_left_to_bottom_right = 0,
+    bottom_right_to_top_left = 1,
+    top_right_to_bottom_left = 2,
+    bottom_left_to_top_right = 3,
 };
 
 // RoomSpace describes a space or "roomspace" - i.e. a collection of slabs that are a valid
@@ -89,11 +97,9 @@ struct RoomSpace {
     MapSlabCoord drag_end_x;
     MapSlabCoord drag_end_y;
     TbBool drag_mode;
+    unsigned char drag_direction;
 };
 /******************************************************************************/
-extern int user_defined_roomspace_width;
-extern int roomspace_detection_looseness;
-extern struct RoomSpace render_roomspace;
 /******************************************************************************/
 int calc_distance_from_roomspace_centre(int total_distance, TbBool offset);
 
@@ -107,8 +113,7 @@ int can_build_roomspace_of_dimensions(PlayerNumber plyr_idx, RoomKind rkind,
 int can_build_fancy_roomspace(PlayerNumber plyr_idx, RoomKind rkind,
     struct RoomSpace roomspace);
 
-struct RoomSpace check_slabs_in_roomspace(struct RoomSpace roomspace,
-    PlayerNumber plyr_idx, RoomKind rkind, short rkind_cost);
+struct RoomSpace check_slabs_in_roomspace(struct RoomSpace roomspace, short rkind_cost);
 
 int can_build_roomspace_of_dimensions_loose(PlayerNumber plyr_idx,
     RoomKind rkind, MapSlabCoord slb_x, MapSlabCoord slb_y, int width,
@@ -121,18 +126,25 @@ struct RoomSpace get_current_room_as_roomspace(PlayerNumber current_plyr_idx,
                                                MapSlabCoord cursor_x, 
                                                MapSlabCoord cursor_y);
 
-void get_dungeon_highlight_user_roomspace(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
+void get_dungeon_highlight_user_roomspace(struct RoomSpace *roomspace, PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 
-void get_dungeon_sell_user_roomspace(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
+void get_dungeon_sell_user_roomspace(struct RoomSpace *roomspace, PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 
-void get_dungeon_build_user_roomspace(PlayerNumber plyr_idx, RoomKind rkind,
-    MapSubtlCoord stl_x, MapSubtlCoord stl_y, int *mode, TbBool drag_check);
+void get_dungeon_build_user_roomspace(struct RoomSpace *roomspace, PlayerNumber plyr_idx, RoomKind rkind, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned char mode);
 
 void keeper_highlight_roomspace(PlayerNumber plyr_idx, struct RoomSpace *roomspace, int task_allowance_reduction);
-void keeper_sell_roomspace(struct RoomSpace *roomspace);
-void keeper_build_roomspace(struct RoomSpace *roomspace);
+void keeper_sell_roomspace(PlayerNumber plyr_idx, struct RoomSpace *roomspace);
+void keeper_build_roomspace(PlayerNumber plyr_idx, struct RoomSpace *roomspace);
 
 void update_roomspaces();
+
+void process_build_roomspace_inputs(PlayerNumber plyr_idx);
+void process_sell_roomspace_inputs(PlayerNumber plyr_idx);
+void process_highlight_roomspace_inputs(PlayerNumber plyr_idx);
+
+void reset_dungeon_build_room_ui_variables(PlayerNumber plyr_idx);
+
+void update_slab_grid(struct RoomSpace* roomspace, unsigned char mode, TbBool sell);
 /******************************************************************************/
 #include "roomspace_detection.h"
 /******************************************************************************/

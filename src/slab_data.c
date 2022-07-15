@@ -207,7 +207,7 @@ void slabmap_set_wlb(struct SlabMap *slb, unsigned long wlbflag)
 /**
  * Returns slab number of the next tile in a room, after the given one.
  */
-long get_next_slab_number_in_room(SlabCodedCoords slab_num)
+SlabCodedCoords get_next_slab_number_in_room(SlabCodedCoords slab_num)
 {
     if (slab_num >= map_tiles_x*map_tiles_y)
         return 0;
@@ -664,8 +664,8 @@ void unfill_reinforced_corners(PlayerNumber keep_plyr_idx, MapSlabCoord base_slb
         MapSlabCoord y = base_slb_y + small_around[n].delta_y;
         struct SlabMap *slb = get_slabmap_block(x, y);
         struct SlabAttr* slbattr = get_slab_attrs(slb);
-        if ( (((slbattr->category == SlbAtCtg_FortifiedGround) || (slbattr->block_flags & SlbAtFlg_IsRoom) || ((slbattr->block_flags & SlbAtFlg_IsDoor)) )) 
-        && (slabmap_owner(slb) == keep_plyr_idx ) )
+        if ( ( (((slbattr->category == SlbAtCtg_FortifiedGround) || (slbattr->block_flags & SlbAtFlg_IsRoom) || ((slbattr->block_flags & SlbAtFlg_IsDoor)) )) 
+      && (slabmap_owner(slb) == keep_plyr_idx) ) || (slbattr->category == SlbAtCtg_Unclaimed) )
         {
             for (int k = -1; k < 2; k+=2)
             {
@@ -721,6 +721,12 @@ void do_unprettying(PlayerNumber keep_plyr_idx, MapSlabCoord slb_x, MapSlabCoord
             }
         }
     }
+}
+
+TbBool slab_kind_has_no_ownership(SlabKind slbkind)
+{
+    return ( (slbkind == SlbT_ROCK) || (slbkind == SlbT_GOLD) || (slbkind == SlbT_GEMS) || (slbkind == SlbT_EARTH) || (slbkind == SlbT_TORCHDIRT)
+            || (slbkind == SlbT_PATH) || (slab_kind_is_liquid(slbkind)) );
 }
 /******************************************************************************/
 #ifdef __cplusplus

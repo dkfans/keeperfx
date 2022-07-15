@@ -46,26 +46,16 @@ DLLIMPORT long _DK_get_map_index_of_first_block_thing_colliding_with_travelling_
 DLLIMPORT long _DK_get_map_index_of_first_block_thing_colliding_with_at(struct Thing *creatng, struct Coord3d *pos, long a3, unsigned char a4);
 /******************************************************************************/
 struct Around const my_around_eight[] = {
-  { 0,-1},
-  { 1,-1},
-  { 1, 0},
-  { 1, 1},
-  { 0, 1},
-  {-1, 1},
-  {-1, 0},
-  {-1,-1},
+  { 0,-1}, { 1,-1},
+  { 1, 0}, { 1, 1},
+  { 0, 1}, {-1, 1},
+  {-1, 0}, {-1,-1},
 };
 
 struct Around const my_around_nine[] = {
-  {-1,-1},
-  { 0,-1},
-  { 1,-1},
-  {-1, 0},
-  { 0, 0},
-  { 1, 0},
-  {-1, 1},
-  { 0, 1},
-  { 1, 1},
+  {-1,-1}, { 0,-1}, { 1,-1},
+  {-1, 0}, { 0, 0}, { 1, 0},
+  {-1, 1}, { 0, 1}, { 1, 1},
 };
 
 short const around_map[] = {-257, -256, -255, -1, 0, 1, 255, 256, 257};
@@ -76,16 +66,11 @@ const unsigned short small_around_pos[] = {
   0xFF00, 0x0001, 0x0100, 0xFFFF,
 };
 
+
 struct Around const start_at_around[] = {
-    { 0,  0},
-    {-1, -1},
-    {-1,  0},
-    {-1,  1},
-    { 0, -1},
-    { 0,  1},
-    { 1, -1},
-    { 1,  0},
-    { 1,  1},
+    { 0,  0}, {-1, -1}, {-1,  0},
+    {-1,  1}, { 0, -1}, { 0,  1},
+    { 1, -1}, { 1,  0}, { 1,  1},
 };
 
 /******************************************************************************/
@@ -625,7 +610,7 @@ TbBool find_approach_position_to_subtile(const struct Coord3d *srcpos, MapSubtlC
         struct Map* mapblk = get_map_block_at(tmpos.x.stl.num, tmpos.y.stl.num);
         if ((!map_block_invalid(mapblk)) && ((mapblk->flags & SlbAtFlg_Blocking) == 0))
         {
-            long dist = get_2d_box_distance(srcpos, &tmpos);
+            MapCoordDelta dist = get_2d_box_distance(srcpos, &tmpos);
             if (min_dist > dist)
             {
                 min_dist = dist;

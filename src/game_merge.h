@@ -23,6 +23,7 @@
 #include "bflib_basics.h"
 #include "globals.h"
 
+#include "config_cubes.h"
 #include "config_creature.h"
 #include "config_crtrmodel.h"
 #include "config_objects.h"
@@ -44,12 +45,15 @@ extern "C" {
 #define BONUS_LEVEL_STORAGE_COUNT     6
 #define PLAYERS_FOR_CAMPAIGN_FLAGS    5
 #define CAMPAIGN_FLAGS_PER_PLAYER     8
+#define TRANSFER_CREATURE_STORAGE_COUNT     255
 
 // UNSYNC_RANDOM is not synced at all. For synced choices the more specific random is better.
 // So priority is  CREATURE_RANDOM >> PLAYER_RANDOM >> GAME_RANDOM
 
 // Deprecated. Used only once. Maybe it is sound-specific UNSYNC_RANDOM
 #define SOUND_RANDOM(range) LbRandomSeries(range, &sound_seed, __func__, __LINE__, "sound")
+// Used only once. Maybe it is light-specific UNSYNC_RANDOM
+#define LIGHT_RANDOM(range) LbRandomSeries(range, &game.lish.light_rand_seed, __func__, __LINE__, "light")
 // This RNG should not be used to affect anything related affecting game state
 #define UNSYNC_RANDOM(range) LbRandomSeries(range, &game.unsync_rand_seed, __func__, __LINE__, "unsync")
 // This RNG should be used only for "whole game" events (i.e. from script)
@@ -65,6 +69,8 @@ extern "C" {
 // It should be replaced either with CREATURE_RANDOM or with UNSYNC_RANDOM on case by case basis.
 #define EFFECT_RANDOM(thing, range) \
     LbRandomSeries(range, &game.action_rand_seed, __func__, __LINE__, "effect")
+#define ACTION_RANDOM(range) \
+    LbRandomSeries(range, &game.action_rand_seed, __func__, __LINE__, "action")
 
 enum GameSystemFlags {
     GSF_NetworkActive    = 0x0001,
@@ -98,6 +104,7 @@ enum ClassicBugFlags {
     ClscBug_FaintedImmuneToBoulder = 0x0200,
     ClscBug_RebirthKeepsSpells     = 0x0400,
     ClscBug_FriendlyFaint          = 0x0800,
+    ClscBug_PassiveNeutrals        = 0x1000,
 };
 
 enum GameFlags2 {
@@ -130,7 +137,7 @@ struct TextScrollWindow {
  */
 struct IntralevelData {
     unsigned char bonuses_found[BONUS_LEVEL_STORAGE_COUNT];
-    struct CreatureStorage transferred_creature;
+    struct CreatureStorage transferred_creatures[PLAYERS_COUNT][TRANSFER_CREATURE_STORAGE_COUNT];
     long campaign_flags[PLAYERS_FOR_CAMPAIGN_FLAGS][CAMPAIGN_FLAGS_PER_PLAYER];
 };
 
@@ -176,6 +183,7 @@ struct GameAdd {
     unsigned short disease_to_temple_pct;
     TbBool place_traps_on_subtiles;
     unsigned long gold_per_hoard;
+    struct CubeAttribs cubes_data[CUBE_ITEMS_MAX];
 
 #define TRAPDOOR_TYPES_MAX 128
 
@@ -199,6 +207,7 @@ struct GameAdd {
 
     struct Objects thing_objects_data[OBJECT_TYPES_COUNT];
     struct ObjectsConfig object_conf;
+    struct CreatureModelConfig swap_creature_models[SWAP_CREATURE_TYPES_MAX];
 
     LevelNumber last_level; // Used to restore custom sprites
     struct LevelScript script;
@@ -215,6 +224,7 @@ struct GameAdd {
     unsigned long heart_lost_message_id;
     long heart_lost_message_target;
     unsigned char slab_ext_data[85 * 85];
+    struct PlayerInfoAdd players[PLAYERS_COUNT];
 };
 
 extern unsigned long game_flags2; // Should be reset to zero on new level

@@ -145,6 +145,7 @@ const struct NamedCommand shotmodel_properties_commands[] = {
   {"WITHSTAND_WATER_HIT", 16},
   {"NO_AIR_DAMAGE",       17},
   {"WIND_IMMUNE",         18},
+  {"FIXED_DAMAGE",        19},
   {NULL,                   0},
   };
 
@@ -723,6 +724,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           shotst->speed = 0;
           shotst->wind_immune = 0;
           shotst->animation_transparency = 0;
+          shotst->fixed_damage = 0;
       }
   }
   // Load the file
@@ -945,6 +947,10 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                 break;
             case 18: // WIND_IMMUNE
                 shotst->wind_immune = 1;
+                n++;
+                break;
+            case 19: // FIXED_DAMAGE
+                shotst->fixed_damage = 1;
                 n++;
                 break;
             default:
@@ -1817,12 +1823,6 @@ TbBool load_magic_config_file(const char *textname, const char *fname, unsigned 
             WARNMSG("The %s file \"%s\" doesn't exist or is too small.",textname,fname);
         return false;
     }
-    if (len > MAX_CONFIG_FILE_SIZE)
-    {
-        if ((flags & CnfLd_IgnoreErrors) == 0)
-            WARNMSG("The %s file \"%s\" is too large.",textname,fname);
-        return false;
-    }
     char* buf = (char*)LbMemoryAlloc(len + 256);
     if (buf == NULL)
         return false;
@@ -2054,7 +2054,13 @@ TbBool set_power_available(PlayerNumber plyr_idx, PowerKind pwkind, long resrch,
     if (avail <= 0)
     {
         if (is_power_available(plyr_idx, pwkind))
+        {
             remove_power_from_player(pwkind, plyr_idx);
+        }
+        return true;
+    }
+    if (is_power_available(plyr_idx, pwkind))
+    {
         return true;
     }
     return add_power_to_player(pwkind, plyr_idx);
@@ -2129,7 +2135,7 @@ TbBool make_available_all_researchable_powers(PlayerNumber plyr_idx)
   TbBool ret = true;
   struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
   if (dungeon_invalid(dungeon)) {
-      ERRORDBG(11,"Cannot do; player %d has no dungeon",(int)plyr_idx);
+      ERRORDBG(11,"Cannot make research available; player %d has no dungeon",(int)plyr_idx);
       return false;
   }
   for (long i = 0; i < KEEPER_POWERS_COUNT; i++)

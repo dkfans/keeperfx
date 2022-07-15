@@ -42,7 +42,7 @@ unsigned long object_is_pickable_by_hand_for_use(const struct Thing *thing, long
 TbBool thing_is_pickable_by_hand(struct PlayerInfo *player, const struct Thing *thing);
 void set_power_hand_offset(struct PlayerInfo *player, struct Thing *thing);
 struct Thing *process_object_being_picked_up(struct Thing *thing, long a2);
-void set_power_hand_graphic(long a1, long a2, long a3);
+void set_power_hand_graphic(unsigned char plyr_idx, long AnimationID, long AnimationSpeed);
 TbBool power_hand_is_empty(const struct PlayerInfo *player);
 TbBool power_hand_is_full(const struct PlayerInfo *player);
 struct Thing *get_first_thing_in_power_hand(struct PlayerInfo *player);
@@ -57,7 +57,7 @@ TbBool remove_first_thing_from_power_hand_list(PlayerNumber plyr_idx);
 TbBool thing_is_in_power_hand_list(const struct Thing *thing, PlayerNumber plyr_idx);
 
 long can_thing_be_picked_up_by_player(const struct Thing *thing, PlayerNumber plyr_idx);
-long can_thing_be_picked_up2_by_player(const struct Thing *thing, PlayerNumber plyr_idx);
+TbBool can_thing_be_picked_up2_by_player(const struct Thing *thing, PlayerNumber plyr_idx);
 
 TbBool thing_is_picked_up(const struct Thing *thing);
 TbBool thing_is_picked_up_by_owner(const struct Thing *thing);
@@ -70,7 +70,7 @@ TbBool thing_slappable(const struct Thing *thing, long plyr_idx);
 
 struct Thing *create_power_hand(PlayerNumber owner);
 void delete_power_hand(PlayerNumber owner);
-void stop_creatures_around_hand(char a1, unsigned short a2, unsigned short a3);
+void stop_creatures_around_hand(PlayerNumber plyr_idx, MapSubtlCoord stl_x,  MapSubtlCoord stl_y);
 
 TbBool place_thing_in_power_hand(struct Thing *thing, PlayerNumber plyr_idx);
 TbBool remove_creature_from_power_hand(struct Thing *thing, PlayerNumber plyr_idx);

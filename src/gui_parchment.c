@@ -255,7 +255,7 @@ TbPixel get_overhead_mapblock_color(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Pl
           {
             pixval = player_highlight_colours[owner];
           } else
-          if (thing->trap_door_active_state)
+          if (thing->door.is_locked)
           {
             pixval = 79;
           } else
@@ -273,6 +273,11 @@ TbPixel get_overhead_mapblock_color(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Pl
           {
             pixval = 85;
           } else
+          if (slb->kind == SlbT_PURPLE)
+          {
+              pixval = 255;
+          }
+          else
           if (owner == game.neutral_player_num)
           {
             pixval = 4;
@@ -323,7 +328,7 @@ void draw_overhead_room_icons(const struct TbRect *map_area, long block_size, Pl
         struct TbSprite* spr = &gui_panel_sprites[57];
         ps_units_per_px = 32 * block_size * 4 / spr->SHeight;
     }
-    long rkind_select = (game.play_gameturn >> 1) % ROOM_TYPES_COUNT;
+    long rkind_select = (game.play_gameturn >> 1) % slab_conf.room_types_count;
     for (struct Room* room = start_rooms; room < end_rooms; room++)
     {
       if (room_exists(room))
@@ -337,10 +342,10 @@ void draw_overhead_room_icons(const struct TbRect *map_area, long block_size, Pl
           {
             if (subtile_revealed(room->central_stl_x, room->central_stl_y, plyr_idx))
             {
-                struct RoomData* rdata = room_data_get_for_room(room);
-                if (rdata->medsym_sprite_idx > 0)
+                const struct RoomConfigStats* roomst = get_room_kind_stats(room->kind);
+                if (roomst->medsym_sprite_idx > 0)
                 {
-                    struct TbSprite* spr = &gui_panel_sprites[rdata->medsym_sprite_idx];
+                    struct TbSprite* spr = &gui_panel_sprites[roomst->medsym_sprite_idx];
                     long pos_x = map_area->left + (block_size * room->central_stl_x / STL_PER_SLB) - (spr->SWidth * ps_units_per_px / 16 / 2);
                     long pos_y = map_area->top + (block_size * room->central_stl_y / STL_PER_SLB) - (spr->SHeight * ps_units_per_px / 16 / 2);
                     LbSpriteDrawResized(pos_x, pos_y, ps_units_per_px, spr);
@@ -375,12 +380,9 @@ int draw_overhead_call_to_arms(const struct TbRect *map_area, long block_size, P
 
 int draw_overhead_creatures(const struct TbRect *map_area, long block_size, PlayerNumber plyr_idx)
 {
-    TbBool isLowRes = 0;
-    if (lbDisplay.PhysicalScreenWidth <= 640)
-    {
-        isLowRes = 1;
-    }
-
+    TbPixel col;
+    short pixel_end;
+    int p;
     int n = 0;
     int k = 0;
     const struct StructureList* slist = get_list_for_thing_class(TCls_Creature);
@@ -410,27 +412,17 @@ int draw_overhead_creatures(const struct TbRect *map_area, long block_size, Play
                 long pos_y = map_area->top + block_size * (int)thing->mappos.y.stl.num / STL_PER_SLB;
                 if (thing->owner == plyr_idx)
                 {
-                    LbDrawPixel(pos_x, pos_y, col2);
+                    col = col2;
 
-                    // These only draw if screen resolution is high (not the 640x480)
-                    // TODO: scale appropriately for windowed mode
-                    if (!isLowRes)
-                    {
-                        LbDrawPixel(pos_x+1, pos_y, col2);
-                        LbDrawPixel(pos_x, pos_y+1, col2);
-                        LbDrawPixel(pos_x+1, pos_y+1, col2);
-                    }
-                } else
+                }
+                else
                 {
-                    LbDrawPixel(pos_x, pos_y, col1);
-                    // These only draw if screen resolution is high (not the 640x480)
-                    // TODO: scale appropriately for windowed mode
-                    if (!isLowRes)
-                    {
-                        LbDrawPixel(pos_x+1, pos_y, col1);
-                        LbDrawPixel(pos_x, pos_y+1, col1);
-                        LbDrawPixel(pos_x+1, pos_y+1, col1);
-                    }
+                    col = col1;
+                }
+                pixel_end = get_pixels_scaled_and_zoomed(TWO_PIXELS);
+                for (p = 0; p < pixel_end; p++)
+                {
+                    LbDrawPixel(pos_x + draw_square[p].delta_x, pos_y+draw_square[p].delta_y, col);
                 }
                 n++;
             } else
@@ -438,7 +430,6 @@ int draw_overhead_creatures(const struct TbRect *map_area, long block_size, Play
             if (is_hero_tunnelling_to_attack(thing))
             {
                 struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-                TbPixel col;
                 if ((game.play_gameturn & 4) == 0)
                 {
                     col1 = player_room_colours[(int)(cctrl->party.target_plyr_idx>=0?cctrl->party.target_plyr_idx:0)];
@@ -459,14 +450,10 @@ int draw_overhead_creatures(const struct TbRect *map_area, long block_size, Play
                         break;
                     long pos_x = map_area->left + block_size * stl_num_decode_x(memberpos) / STL_PER_SLB;
                     long pos_y = map_area->top + block_size * stl_num_decode_y(memberpos) / STL_PER_SLB;
-                    LbDrawPixel(pos_x, pos_y, col);
-                    // These only draw if screen resolution is high (not the 640x480)
-                    // TODO: scale appropriately for windowed mode
-                    if (!isLowRes)
+                    pixel_end = get_pixels_scaled_and_zoomed(TWO_PIXELS);
+                    for (p = 0; p < pixel_end; p++)
                     {
-                        LbDrawPixel(pos_x+1, pos_y, col);
-                        LbDrawPixel(pos_x, pos_y+1, col);
-                        LbDrawPixel(pos_x+1, pos_y+1, col);
+                        LbDrawPixel(pos_x + draw_square[p].delta_x, pos_y + draw_square[p].delta_y, col);
                     }
                     n++;
                 }
@@ -503,17 +490,21 @@ int draw_overhead_traps(const struct TbRect *map_area, long block_size, PlayerNu
         {
             if (thing->owner == plyr_idx)
             {
-                if ( (thing->trap_door_active_state) || (thing->owner == plyr_idx) )
+                if ( (thing->trap.revealed) || (thing->owner == plyr_idx) )
                 {
                     long pos_x = map_area->left + (block_size * (int)thing->mappos.x.stl.num / STL_PER_SLB) + ((block_size + 1)/5);
                     long pos_y = map_area->top + (block_size * (int)thing->mappos.y.stl.num / STL_PER_SLB) + ((block_size + 1)/5);
-                    LbDrawPixel(pos_x, pos_y, 60);
-                    if (block_size > 4)
+                    short pixels_amount = scale_pixel(ONE_PIXEL);
+                    short pixel_end = get_pixels_scaled_and_zoomed(ONE_PIXEL);
+                    short colour = 60;
+                    for (int p = 0; p < pixel_end; p++)
                     {
-                        LbDrawPixel(pos_x + 1, pos_y, 60);
-                        LbDrawPixel(pos_x - 1, pos_y, 60);
-                        LbDrawPixel(pos_x, pos_y + 1, 60);
-                        LbDrawPixel(pos_x, pos_y - 1, 60);
+                        // Draw a cross
+                        LbDrawPixel(pos_x + draw_square[p].delta_x, pos_y + draw_square[p].delta_y, colour);
+                        LbDrawPixel(pos_x + pixels_amount + draw_square[p].delta_x, pos_y + draw_square[p].delta_y, colour);
+                        LbDrawPixel(pos_x - pixels_amount + draw_square[p].delta_x, pos_y + draw_square[p].delta_y, colour);
+                        LbDrawPixel(pos_x + draw_square[p].delta_x, pos_y + pixels_amount + draw_square[p].delta_y, colour);
+                        LbDrawPixel(pos_x + draw_square[p].delta_x, pos_y - pixels_amount + draw_square[p].delta_y, colour);
                     }
                     n++;
                 }
@@ -554,8 +545,11 @@ int draw_overhead_spells(const struct TbRect *map_area, long block_size, PlayerN
               {
                   long pos_x = map_area->left + block_size * (int)thing->mappos.x.stl.num / STL_PER_SLB  + ((block_size + 1)/5);
                   long pos_y = map_area->top + block_size * (int)thing->mappos.y.stl.num / STL_PER_SLB + ((block_size + 1)/5);
-                  LbDrawPixel(pos_x, pos_y, colours[15][0][15]);
-                  n++;
+                  short pixel_end = get_pixels_scaled_and_zoomed(TWO_PIXELS);
+                  for (int p = 0; p < pixel_end; p++)
+                  {
+                      LbDrawPixel(pos_x + draw_square[p].delta_x, pos_y + draw_square[p].delta_y, colours[15][0][15]);
+                  }
               }
             }
         }
@@ -672,7 +666,7 @@ void draw_zoom_box_things_on_mapblk(struct Map *mapblk,unsigned short subtile_si
             }
             case TCls_Trap:
             {
-                if ((!thing->trap_door_active_state) && (player->id_number != thing->owner))
+                if ((!thing->trap.revealed) && (player->id_number != thing->owner))
                     break;
                 struct ManufactureData* manufctr = get_manufacture_data(get_manufacture_data_index_for_thing(thing->class_id, thing->model));
                 spridx = manufctr->medsym_sprite_idx;
@@ -773,8 +767,35 @@ void draw_zoom_box(void)
 {
     struct PlayerInfo* player = get_my_player();
 
-    long draw_tiles_x = 13;
-    long draw_tiles_y = 13;
+    long draw_tiles = 13;
+    long subtile_unscaled = 8;
+    if (player->minimap_zoom == 128)
+    {
+        draw_tiles = 6;
+        subtile_unscaled = 18;
+    } else
+    if (player->minimap_zoom == 256)
+    {
+        draw_tiles = 9;
+        subtile_unscaled = 12;
+    } else
+    if (player->minimap_zoom == 512)
+    {
+        draw_tiles = 12;
+        subtile_unscaled = 9;
+    } else
+    if (player->minimap_zoom == 1024)
+    {
+        draw_tiles = 18;
+        subtile_unscaled = 6;
+    } else
+    if (player->minimap_zoom == 2048)
+    {
+        draw_tiles = 36;
+        subtile_unscaled = 3;
+    }
+    long draw_tiles_x = draw_tiles;
+    long draw_tiles_y = draw_tiles;
 
     // Sizes of the parchment map on which we're drawing
     // Needed only to figure out map position pointed by cursor
@@ -785,7 +806,7 @@ void draw_zoom_box(void)
     long mouse_y = GetMouseY();
 
     // zoom box block size
-    const int subtile_size = scale_value_for_resolution(8);
+    const int subtile_size = scale_value_for_resolution(subtile_unscaled);
 
     // Drawing coordinates
     long scrtop_x = mouse_x + scale_value_for_resolution(24);

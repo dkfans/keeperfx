@@ -33,11 +33,11 @@ extern "C" {
 
 struct ComputerProcessTypes {
   char *name;
-  long field_4;
-  long field_8;
-  long field_C;
+  long dig_stack_size;
+  long processes_time;
+  long click_rate;
   long max_room_build_tasks;
-  long field_14;
+  long turn_begin;
   long sim_before_dig;
   long field_1C;
   struct ComputerProcess *processes[COMPUTER_PROCESSES_COUNT];
