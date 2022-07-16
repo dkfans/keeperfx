@@ -1356,18 +1356,19 @@ long get_corridor(struct Coord3d *pos1, struct Coord3d * pos2, unsigned char rou
 
 static TbBool other_build_here(struct Computer2 *comp, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long width_slabs, long height_slabs)
 {
+
     __int32 v5;
     struct ComputerTask *task;
     char ttype;
     __int16 v9;
     int v10;
-    int v11;
     int v12;
     signed int v13;
-    int v14;
     int v16;
     __int32 idk_x;
     __int32 idk_y;
+    int idk_x_2;
+    int idk_y_2;
 
 
     v5 = height_slabs;
@@ -1379,11 +1380,9 @@ static TbBool other_build_here(struct Computer2 *comp, MapSubtlCoord stl_x, MapS
     task = get_computer_task(comp->task_idx);
 
     if ( task <= (struct ComputerTask *)game.computer_task )
-        return 1;
+        return true;
     while ( 1 )
     {
-
-
         ttype = task->ttype;
         if ( ttype == CTT_DigRoomPassage || ttype == CTT_DigRoom || ttype == CTT_CheckRoomDug || ttype == CTT_PlaceRoom )
         {
@@ -1391,24 +1390,25 @@ static TbBool other_build_here(struct Computer2 *comp, MapSubtlCoord stl_x, MapS
         if ( v9 <= task->create_room.height )
             v9 = task->create_room.height;
         v10 = 3 * v9;
-        v11 = task->pos_64.y.stl.num - v10 / 2;
-        if ( v11 <= 0 )
-            v11 = 0;
+        idk_y_2 = task->pos_64.y.stl.num - v10 / 2;
+        if ( idk_y_2 <= 0 )
+            idk_y_2 = 0;
         v12 = v16;
+        
         if ( v16 <= v10 )
             v12 = v10;
         v13 = v12 + 3;
-        v14 = task->pos_64.x.stl.num - v10 / 2;
-        if ( v14 <= 0 )
-            v14 = 0;
-        if ( (int)abs(v14 - idk_x) <= v13 && (int)abs(v11 - idk_y) <= v13 )
+        idk_x_2 = task->pos_64.x.stl.num - v10 / 2;
+        if ( idk_x_2 <= 0 )
+            idk_x_2 = 0;
+        if ( (int)abs(idk_x_2 - idk_x) <= v13 && (int)abs(idk_y_2 - idk_y) <= v13 )
             break;
         }
         task = get_computer_task(task->next_task);
         if ( task <= (struct ComputerTask *)game.computer_task )
-            return 1;
+            return true;
     }
-    return 0;
+    return false;
 }
 
 struct ComputerTask * able_to_build_room(struct Computer2 *comp, struct Coord3d *pos, RoomKind rkind, long width_slabs, long height_slabs, long max_slabs_dist, long perfect)
