@@ -676,8 +676,6 @@ struct CreatureSounds {
 
 #pragma pack()
 /******************************************************************************/
-extern struct CreatureSounds creature_sounds[];
-/******************************************************************************/
 struct CreatureControl *creature_control_get(long cctrl_idx);
 struct CreatureControl *creature_control_get_from_thing(const struct Thing *thing);
 TbBool creature_control_invalid(const struct CreatureControl *cctrl);
