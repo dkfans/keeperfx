@@ -1937,27 +1937,28 @@ TbBool slab_is_players_land(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCo
     return (slabmap_owner(slb) == plyr_idx);
 }
 
-TbBool imp_already_reinforcing_at_excluding(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+TbBool imp_already_reinforcing_at_excluding(struct Thing *spdigtng, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     struct Map *mapblk;
     mapblk = get_map_block_at(stl_x, stl_y);
-    struct Thing *thing;
+    struct Thing *loop_thing;
     long i;
     unsigned long k;
     k = 0;
     i = get_mapwho_thing_index(mapblk);
     while (i != 0)
     {
-        thing = thing_get(i);
-        TRACE_THING(thing);
-        if (thing_is_invalid(thing))
+        loop_thing = thing_get(i);
+        TRACE_THING(loop_thing);
+        if (thing_is_invalid(loop_thing))
         {
             ERRORLOG("Jump to invalid thing detected");
             break;
         }
-        i = thing->next_on_mapblk;
+        i = loop_thing->next_on_mapblk;
         // Per thing code start
-        if(thing_is_creature(thing) && thing != creatng && (thing->alloc_flags & TAlF_IsInLimbo) == 0 && (thing->state_flags & TF1_InCtrldLimbo) == 0 && thing->active_state == CrSt_ImpReinforces)
+
+        if(thing_is_creature(loop_thing) && (loop_thing != spdigtng) && !thing_is_picked_up(loop_thing) && loop_thing->active_state == CrSt_ImpReinforces)
         {
             return true;
         }
