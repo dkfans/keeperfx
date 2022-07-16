@@ -100,7 +100,7 @@ struct SlabMap {
       short next_in_room;
       unsigned char room_index;
       unsigned char health;
-      unsigned char field_5;
+      unsigned char flags;
 };
 
 struct SlabSet { // sizeof = 18
@@ -123,7 +123,9 @@ struct SlabObj { // sizeof = 13
 /******************************************************************************/
 #define INVALID_SLABMAP_BLOCK (&bad_slabmap_block)
 #define AROUND_SLAB_LENGTH 9
+#define AROUND_SLAB_EIGHT_LENGTH 8
 extern const short around_slab[];
+extern const short around_slab_eight[];
 #define SMALL_AROUND_SLAB_LENGTH 4
 extern const short small_around_slab[];
 /******************************************************************************/

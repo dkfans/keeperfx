@@ -87,7 +87,6 @@ extern "C" {
 /* Please note that functions returning 'short' are not ment to return true/false only! */
 /******************************************************************************/
 DLLIMPORT long _DK_move_check_can_damage_wall(struct Thing *creatng);
-DLLIMPORT long _DK_get_best_position_outside_room(struct Thing *creatng, struct Coord3d *pos, struct Room *room);
 /******************************************************************************/
 short already_at_call_to_arms(struct Thing *creatng);
 short arrive_at_alarm(struct Thing *creatng);
@@ -1862,9 +1861,83 @@ short creature_escaping_death(struct Thing *creatng)
     return 0;
 }
 
-long get_best_position_outside_room(struct Thing *creatng, struct Coord3d *pos, struct Room *room)
+static TbBool is_slab_type_walkable(SlabKind slbkind)
 {
-    return _DK_get_best_position_outside_room(creatng, pos, room);
+    struct SlabAttr *slbattr = get_slab_kind_attrs(slbkind);
+    return (slbattr->block_flags & 0x19) == 0;
+}
+
+static long get_best_position_outside_room(struct Thing *creatng, struct Coord3d *pos, struct Room *room)
+{
+    int v3;
+    SlabCodedCoords room_slab;
+    unsigned int v5;
+    int v6;
+    __int16 *v7;
+    int v8;
+    int v9;
+    int v11;
+    unsigned int v12;
+    int v13;
+    int v14;
+    int v15;
+    int current_slb_kind;
+
+
+    struct SlabMap* current_slb = get_slabmap_for_subtile(creatng->mappos.x.stl.pos, creatng->mappos.y.stl.pos);
+    current_slb_kind = current_slb->kind;
+    room_slab = room->slabs_list;
+    v15 = current_slb->flags & 7;
+
+    
+    v12 = CREATURE_RANDOM(creatng, room->slabs_count);
+
+    if (v12)
+    {
+        v5 = v12;
+        do
+        {
+            room_slab = get_slabmap_direct(room_slab)->next_in_room;
+            --v5;
+        } while (v5);
+    }
+    v13 = 0;
+    if (room->slabs_count)
+    {
+        do
+        {
+            if ((unsigned __int16)room->slabs_count == v12)
+            {
+                v12 = 0;
+                room_slab = (unsigned __int16)room->slabs_list;
+            }
+            v6 = 0;
+
+
+            for (int i = 0; i < AROUND_SLAB_EIGHT_LENGTH; i++)
+            {
+                SlabCodedCoords ar_slb_no = around_slab_eight[i] + room_slab;
+                struct SlabMap* around_slb = get_slabmap_direct(ar_slb_no);                
+                v9 = around_slb->flags & 7;
+
+                if (is_slab_type_walkable(around_slb->kind) && (around_slb->kind != current_slb_kind || v15 != v9))
+                {
+                    pos->x.stl.pos = 3 * (ar_slb_no % 85) + 1;
+                    pos->y.stl.pos = 3 * (ar_slb_no / 85) + 1;
+                    pos->z.val = get_thing_height_at(creatng, pos);
+                    return creature_can_navigate_to_with_storage(creatng, pos, 0) != 0;
+                }
+                ++v6;
+            }
+
+
+            room_slab = get_slabmap_direct(room_slab)->next_in_room;
+            ++v13;
+            ++v12;
+        }
+        while (v13 < room->slabs_count);
+    }
+    return -1;
 }
 
 short creature_evacuate_room(struct Thing *creatng)
