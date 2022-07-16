@@ -89,7 +89,7 @@ struct GuiBoxOption gui_main_cheat_list[] = { //gui_main_option_list in beta
   {"Turncoat mode",            1,           NULL,              gf_change_player_state, 0, 0, 0,      PSt_ConvertCreatr, 0, 0, 0, true},
   {"Level up mode",            1,           NULL,              gf_change_player_state, 0, 0, 0,    PSt_LevelCreatureUp, 0, 0, 0, true},
   {"Level down mode",          1,           NULL,              gf_change_player_state, 0, 0, 0,  PSt_LevelCreatureDown, 0, 0, 0, true},
-  {"Query mode",               1,           NULL,              gf_change_player_state, 0, 0, 0,     PSt_QueryAll, 0, 0, 0, true},
+  {"Query mode",               1,           NULL,              gf_change_player_state, 0, 0, 0,           PSt_QueryAll, 0, 0, 0, true},
   {"Make happy mode",          1,           NULL,              gf_change_player_state, 0, 0, 0,            PSt_MkHappy, 0, 0, 0, true},
   {"Make angry mode",          1,           NULL,              gf_change_player_state, 0, 0, 0,            PSt_MkAngry, 0, 0, 0, true},
   {"",                         2,           NULL,                        NULL, 0, 0, 0,                       PSt_None, 0, 0, 0, false},
