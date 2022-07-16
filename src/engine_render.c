@@ -4504,7 +4504,8 @@ static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprit
 //
     if ((thing->class_id == TCls_Creature)
         || (thing->class_id == TCls_Object)
-        || (thing->class_id == TCls_DeadCreature))
+        || (thing->class_id == TCls_DeadCreature)
+        || (player->work_state == PSt_QueryAll))
     {
         if ((player->thing_under_hand == thing->index) && (game.play_gameturn & 2))
         {
