@@ -219,22 +219,8 @@ Thing_Class_Func object_update_functions[OBJECT_TYPES_MAX] = {
  * Originally was named objects[].
  */
 
-/*  initial_state;field_1;field_2;
-field_3;
-field_4;
-sprite_anim_idx;
-anim_speed;
-size_xy;
-size_yz;
-sprite_size_max;
-field_F;
-has_flames;
-draw_class;
-destroy_on_lava;
-related_creatr_model;
-own_category;
-destroy_on_liquid;
-rotation_flag;*/
+/*  initial_state;field_1;field_2;field_3;field_4;sprite_anim_idx;anim_speed;size_xy;size_yz;sprite_size_max;field_F;has_flames;
+draw_class;destroy_on_lava;related_creatr_model;own_category;destroy_on_liquid;rotation_flag;*/
 struct Objects objects_data_init[OBJECT_TYPES_MAX] = {
   {0, 0, 0, 0, 0,   0, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown0, 0, 0}, //0
   {0, 0, 0, 0, 0, 930, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown3, 1, 0}, //1 BARREL
