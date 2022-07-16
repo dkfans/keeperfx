@@ -1869,33 +1869,32 @@ static TbBool is_slab_type_walkable(SlabKind slbkind)
 
 static long get_best_position_outside_room(struct Thing *creatng, struct Coord3d *pos, struct Room *room)
 {
-    int ar_slb_flg_unk;
     int room_slabs_counter;
 
     struct SlabMap* current_slb = get_slabmap_for_subtile(creatng->mappos.x.stl.pos, creatng->mappos.y.stl.pos);
     int current_slb_kind = current_slb->kind;
     SlabCodedCoords room_slab = room->slabs_list;
-    int current_flg_unk = current_slb->flags & 7;
+    PlayerNumber current_owner = slabmap_owner(current_slb);
     unsigned int room_slb_idx = CREATURE_RANDOM(creatng, room->slabs_count);
 
     if (room_slb_idx)
     {
-        unsigned int  v5 = room_slb_idx;
+        unsigned int slb_counter = room_slb_idx;
         do
         {
             room_slab = get_slabmap_direct(room_slab)->next_in_room;
-            --v5;
-        } while (v5);
+            --slb_counter;
+        } while (slb_counter);
     }
     room_slabs_counter = 0;
     if (room->slabs_count)
     {
         do
         {
-            if ((unsigned __int16)room->slabs_count == room_slb_idx)
+            if (room->slabs_count == room_slb_idx)
             {
                 room_slb_idx = 0;
-                room_slab = (unsigned __int16)room->slabs_list;
+                room_slab = room->slabs_list;
             }
 
 
@@ -1903,9 +1902,9 @@ static long get_best_position_outside_room(struct Thing *creatng, struct Coord3d
             {
                 SlabCodedCoords ar_slb_no = around_slab_eight[i] + room_slab;
                 struct SlabMap* around_slb = get_slabmap_direct(ar_slb_no);                
-                ar_slb_flg_unk = around_slb->flags & 7;
+                PlayerNumber ar_slb_owner = slabmap_owner(around_slb);
 
-                if (is_slab_type_walkable(around_slb->kind) && (around_slb->kind != current_slb_kind || current_flg_unk != ar_slb_flg_unk))
+                if (is_slab_type_walkable(around_slb->kind) && (around_slb->kind != current_slb_kind || current_owner != ar_slb_owner))
                 {
                     pos->x.stl.pos = 3 * (ar_slb_no % 85) + 1;
                     pos->y.stl.pos = 3 * (ar_slb_no / 85) + 1;
