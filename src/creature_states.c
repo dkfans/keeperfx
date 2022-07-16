@@ -1861,12 +1861,6 @@ short creature_escaping_death(struct Thing *creatng)
     return 0;
 }
 
-static TbBool is_slab_type_walkable(SlabKind slbkind)
-{
-    struct SlabAttr *slbattr = get_slab_kind_attrs(slbkind);
-    return (slbattr->block_flags & 0x19) == 0;
-}
-
 static long get_best_position_outside_room(struct Thing *creatng, struct Coord3d *pos, struct Room *room)
 {
     int room_slabs_counter;
