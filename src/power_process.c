@@ -632,41 +632,39 @@ void update_explored_flags_for_power_sight(struct PlayerInfo *player)
 void remove_explored_flags_for_power_sight(struct PlayerInfo *player)
 {
     SYNCDBG(9, "Starting");
-    int v1;
-    int v2;
     int v3;
-    int v4;
     unsigned __int8 v5;
     struct Dungeon *dungeon = get_players_dungeon(player);
 
     if (dungeon->sight_casted_thing_idx)
     {
-        v4 = 0;
-        struct Thing *thing = thing_get(dungeon->sight_casted_thing_idx);
-        v4 = 0;
-        MapSubtlCoord start_stl_y = thing->mappos.y.stl.pos - 13;
-        MapSubtlCoord start_stl_x = thing->mappos.x.stl.pos - 13;
+        struct Thing *sightng = thing_get(dungeon->sight_casted_thing_idx);
+        MapSubtlCoord start_stl_y = sightng->mappos.y.stl.pos - MAX_SOE_RADIUS;
+        MapSubtlCoord start_stl_x = sightng->mappos.x.stl.pos - MAX_SOE_RADIUS;
+
+        MapSubtlDelta shift_y = 0;
         do
         {
-            v1 = 0;
+            MapSubtlDelta shift_x = 0;
             do
             {
-                if (dungeon->soe_explored_flags[v4 * 26 + v1])
+                if (dungeon->soe_explored_flags[shift_y][shift_x])
                 {
-                    v2 = start_stl_x + v1 + ((v4 + start_stl_y) << 8);
-                    v3 = game__map[v2 + 257].data & (~(1 << player->id_number << 28) | 0xFFFFFFF);
-                    game__map[v2 + 257].data = v3;
-                    v5 = backup_explored[v4][v1];
-                    game__map[v2 + 257].data = v3 | (((1 << player->id_number) & (v5 << player->id_number)) << 28);
+                    struct Map* mapblk = get_map_block_at((start_stl_x + shift_x + 1),(start_stl_y + shift_y + 1));
+
+                    v3 = mapblk->data & (~(1 << player->id_number << 28) | 0xFFFFFFF);
+                    mapblk->data = v3;
+                    v5 = backup_explored[shift_y][shift_x];
+                    mapblk->data = v3 | (((1 << player->id_number) & (v5 << player->id_number)) << 28);
                     if ((v5 & 2) != 0)
-                        game__map[v2 + 257].flags |= 0x80u;
+                        mapblk->flags |= 0x80u;
                     if ((v5 & 4) != 0)
-                        game__map[v2 + 257].flags |= 4u;
+                        mapblk->flags |= 4u;
                 }
-                ++v1;
-            } while (v1 < 26);
-            ++v4;
-        } while (v4 < 26);
+                ++shift_x;
+            } while (shift_x < (2 * MAX_SOE_RADIUS));
+            ++shift_y;
+        } while (shift_y < (2 * MAX_SOE_RADIUS));
     }
 }
 /******************************************************************************/
