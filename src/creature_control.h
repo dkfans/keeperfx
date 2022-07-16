@@ -660,6 +660,7 @@ struct CreatureSound {
     long count;
 };
 
+#define CREATURE_SOUND_INSTANCES 11
 struct CreatureSounds {
     struct CreatureSound foot;
     struct CreatureSound hit;
@@ -675,8 +676,6 @@ struct CreatureSounds {
 };
 
 #pragma pack()
-/******************************************************************************/
-extern struct CreatureSounds creature_sounds[];
 /******************************************************************************/
 struct CreatureControl *creature_control_get(long cctrl_idx);
 struct CreatureControl *creature_control_get_from_thing(const struct Thing *thing);
