@@ -1937,7 +1937,7 @@ TbBool slab_is_players_land(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCo
     return (slabmap_owner(slb) == plyr_idx);
 }
 
-long imp_already_reinforcing_at_excluding(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+TbBool imp_already_reinforcing_at_excluding(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     struct Map *mapblk;
     mapblk = get_map_block_at(stl_x, stl_y);
@@ -1959,7 +1959,7 @@ long imp_already_reinforcing_at_excluding(struct Thing *creatng, MapSubtlCoord s
         // Per thing code start
         if(thing_is_creature(thing) && thing != creatng && (thing->alloc_flags & TAlF_IsInLimbo) == 0 && (thing->state_flags & TF1_InCtrldLimbo) == 0 && thing->active_state == CrSt_ImpReinforces)
         {
-            return 1;
+            return true;
         }
         // Per thing code end
         k++;
@@ -1970,7 +1970,7 @@ long imp_already_reinforcing_at_excluding(struct Thing *creatng, MapSubtlCoord s
             break;
         }
     }
-    return 0;
+    return false;
 }
 int get_nearest_small_around_side_of_slab(MapCoord dstcor_x, MapCoord dstcor_y, MapCoord srccor_x, MapCoord srccor_y)
 {
