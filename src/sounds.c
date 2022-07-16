@@ -638,13 +638,13 @@ void sound_reinit_after_load(void)
     init_messages();
 }
 
-void stop_thing_playing_sample(struct Thing *heartng, short a2)
+void stop_thing_playing_sample(struct Thing *thing, short smpl_idx)
 {
-    unsigned char eidx = heartng->snd_emitter_id;
+    unsigned char eidx = thing->snd_emitter_id;
     if (eidx > 0)
     {
-        if (S3DEmitterIsPlayingSample(eidx, a2, 0)) {
-            S3DDeleteSampleFromEmitter(eidx, a2, 0);
+        if (S3DEmitterIsPlayingSample(eidx, smpl_idx, 0)) {
+            S3DDeleteSampleFromEmitter(eidx, smpl_idx, 0);
         }
     }
 }

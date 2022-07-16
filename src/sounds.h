@@ -98,7 +98,7 @@ void process_3d_sounds(void);
 void process_sound_heap(void);
 
 void thing_play_sample(struct Thing *thing, short smptbl_idx, unsigned short a3, char a4, unsigned char a5, unsigned char a6, long a7, long loudness);
-void stop_thing_playing_sample(struct Thing *heartng, short a2);
+void stop_thing_playing_sample(struct Thing *thing, short smpl_idx);
 void play_thing_walking(struct Thing *thing);
 
 TbBool ambient_sound_prepare(void);

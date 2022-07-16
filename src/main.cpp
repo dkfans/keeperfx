@@ -104,6 +104,7 @@
 #include "room_list.h"
 #include "game_loop.h"
 #include "music_player.h"
+#include "creature_senses.h"
 
 #ifdef AUTOTESTING
 #include "event_monitoring.h"
@@ -2429,13 +2430,13 @@ void process_dungeons(void)
   SYNCDBG(9,"Finished");
 }
 
-void update_flames_nearest_camera(struct Camera *camera)
+void update_flames_nearest_thing(struct Thing *thing)
 {
-      if (camera == NULL)
-        return;
+    if (thing_is_invalid(thing))
+      return;
     Thing *objtng;
     MapCoordDelta new_distance;
-    struct Thing *thing;
+    struct Thing *flametng;
     unsigned short nearest_torches[3];
     MapCoordDelta torch_distances[2] = {1280, 1280};
     int i;
@@ -2449,27 +2450,37 @@ void update_flames_nearest_camera(struct Camera *camera)
             struct Objects* objdat = get_objects_data_for_thing(objtng);
             if (objdat->has_flames)
             {
-                new_distance = get_2d_box_distance(&camera->mappos, &objtng->mappos);
-                if (new_distance < torch_distances[0])
+                new_distance = get_2d_box_distance(&thing->mappos, &objtng->mappos);
+                if (creature_can_hear_within_distance(thing, new_distance))
                 {
-                    for (i = 2; i > 0; i --)
+                    if (new_distance < torch_distances[0])
                     {
-                        MapCoordDelta dist = torch_distances[i-1];
-                        nearest_torches[i] = nearest_torches[i-1];
-                        torch_distances[i] = dist;
+                        for (i = 2; i > 0; i --)
+                        {
+                            MapCoordDelta dist = torch_distances[i-1];
+                            nearest_torches[i] = nearest_torches[i-1];
+                            torch_distances[i] = dist;
+                        }
+                        torch_distances[0] = new_distance;
+                        nearest_torches[0] = objtng->index;
                     }
-                    torch_distances[0] = new_distance;
-                    nearest_torches[0] = objtng->index;
+                }
+                else
+                {
+                    stop_thing_playing_sample(objtng, 78);
                 }
             }
         }
         for (i = 0; i < (sizeof(nearest_torches) / sizeof(nearest_torches[0])); i++)
         {
-            thing = thing_get(nearest_torches[i]);
-            if (!thing_is_invalid(thing))
+            flametng = thing_get(nearest_torches[i]);
+            if (!thing_is_invalid(flametng))
             {
-                if (!S3DEmitterIsPlayingSample(thing->snd_emitter_id, 78, 0))
-                    thing_play_sample(thing, 78, NORMAL_PITCH, -1, 3, 1, 2, FULL_LOUDNESS);
+                if (!S3DEmitterIsPlayingSample(flametng->snd_emitter_id, 78, 0))
+                {
+                    long volume = line_of_sight_2d(&thing->mappos, &flametng->mappos) ? FULL_LOUDNESS : 128;
+                    thing_play_sample(flametng, 78, NORMAL_PITCH, -1, 3, 1, 2, volume);
+                }
             }
         }
     }
@@ -2816,7 +2827,10 @@ void update(void)
         process_action_points();
         player = get_my_player();
         if (player->view_mode == PVM_CreatureView)
-            update_flames_nearest_camera(player->acamera);
+        {
+            struct Thing *thing = thing_get(player->controlled_thing_idx);
+            update_flames_nearest_thing(thing);
+        }
         update_footsteps_nearest_camera(player->acamera);
         PaletteFadePlayer(player);
         process_armageddon();
