@@ -172,7 +172,6 @@ const struct MyLookup lookup[] = {
 
 /******************************************************************************/
 DLLIMPORT long _DK_count_creatures_in_call_to_arms(struct Computer2 *comp);
-DLLIMPORT struct ComputerTask *_DK_get_free_task(struct Computer2 *comp, long basestl_y);
 DLLIMPORT long _DK_other_build_here(struct Computer2 *comp, long a2, long round_directn, long plyr_idx, long slabs_dist);
 /******************************************************************************/
 #ifdef __cplusplus
@@ -521,9 +520,45 @@ TbBool is_task_in_progress(struct Computer2 *comp, ComputerTaskType ttype)
     return !computer_task_invalid(ctask);
 }
 
-struct ComputerTask *get_free_task(struct Computer2 *comp, long a2)
+static struct ComputerTask *get_free_task(struct Computer2 *comp, long a2)
 {
-    return _DK_get_free_task(comp, a2);
+
+    struct ComputerTask *v2;
+    struct ComputerTask *result;
+    struct ComputerTask *v4;
+    int next_task;
+
+    v2 = &game.computer_task[1];
+    while ((v2->flags & 1) != 0)
+    {
+        if (++v2 >= (struct ComputerTask *)&game.computer)
+            return 0;
+    }
+    memset(v2, 0, sizeof(struct ComputerTask));
+    v4 = &game.computer_task[(unsigned __int16)comp->task_idx];
+    if (v4 > game.computer_task)
+    {
+        if (!a2)
+        {
+            if (v4->next_task)
+            {
+                do
+                {
+                    next_task = (unsigned __int16)v4->next_task;
+                    v4 = &game.computer_task[(unsigned __int16)v4->next_task];
+                } while (game.computer_task[next_task].next_task);
+            }
+            v4->next_task = v2 - game.computer_task;
+            goto LABEL_12;
+        }
+        v2->next_task = comp->task_idx;
+    }
+    comp->task_idx = v2 - game.computer_task;
+LABEL_12:
+    v2->flags |= 1u;
+    result = v2;
+    v2->created_turn = game.play_gameturn;
+    return result;
 }
 
 TbBool is_task_in_progress_using_hand(struct Computer2 *comp)
