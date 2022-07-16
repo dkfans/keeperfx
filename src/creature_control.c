@@ -228,35 +228,35 @@ struct CreatureSound *get_creature_sound(struct Thing *thing, long snd_idx)
     {
         ERRORLOG("Trying to get sound for undefined creature type %d",(int)cmodel);
         // Return dummy element
-        return &gameadd.crtr_conf.creature_sounds[0]->foot;
+        return &gameadd.crtr_conf.creature_sounds[0].foot;
     }
     switch (snd_idx)
     {
     case CrSnd_Hurt:
-        return &gameadd.crtr_conf.creature_sounds[cmodel]->hurt;
+        return &gameadd.crtr_conf.creature_sounds[cmodel].hurt;
     case CrSnd_Hit:
-        return &gameadd.crtr_conf.creature_sounds[cmodel]->hit;
+        return &gameadd.crtr_conf.creature_sounds[cmodel].hit;
     case CrSnd_Happy:
-        return &gameadd.crtr_conf.creature_sounds[cmodel]->happy;
+        return &gameadd.crtr_conf.creature_sounds[cmodel].happy;
     case CrSnd_Sad:
-        return &gameadd.crtr_conf.creature_sounds[cmodel]->sad;
+        return &gameadd.crtr_conf.creature_sounds[cmodel].sad;
     case CrSnd_Hang:
-        return &gameadd.crtr_conf.creature_sounds[cmodel]->hang;
+        return &gameadd.crtr_conf.creature_sounds[cmodel].hang;
     case CrSnd_Drop:
-        return &gameadd.crtr_conf.creature_sounds[cmodel]->drop;
+        return &gameadd.crtr_conf.creature_sounds[cmodel].drop;
     case CrSnd_Torture:
-        return &gameadd.crtr_conf.creature_sounds[cmodel]->torture;
+        return &gameadd.crtr_conf.creature_sounds[cmodel].torture;
     case CrSnd_Slap:
-        return &gameadd.crtr_conf.creature_sounds[cmodel]->slap;
+        return &gameadd.crtr_conf.creature_sounds[cmodel].slap;
     case CrSnd_Die:
-        return &gameadd.crtr_conf.creature_sounds[cmodel]->die;
+        return &gameadd.crtr_conf.creature_sounds[cmodel].die;
     case CrSnd_Foot:
-        return &gameadd.crtr_conf.creature_sounds[cmodel]->foot;
+        return &gameadd.crtr_conf.creature_sounds[cmodel].foot;
     case CrSnd_Fight:
-        return &gameadd.crtr_conf.creature_sounds[cmodel]->fight;
+        return &gameadd.crtr_conf.creature_sounds[cmodel].fight;
     default:
         // Return dummy element
-        return &gameadd.crtr_conf.creature_sounds[0]->foot;
+        return &gameadd.crtr_conf.creature_sounds[0].foot;
     }
 }
 

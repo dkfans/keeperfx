@@ -272,8 +272,8 @@ struct CreatureConfig {
     ThingModel special_digger_evil;
     ThingModel spectator_breed;
     short creature_graphics[CREATURE_TYPES_COUNT][CREATURE_GRAPHICS_INSTANCES];
-    struct CreatureSounds creature_sounds[CREATURE_TYPES_COUNT][CREATURE_SOUND_INSTANCES];
     long sprite_size;
+    struct CreatureSounds creature_sounds[CREATURE_TYPES_COUNT];
 };
 
 /******************************************************************************/

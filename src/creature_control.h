@@ -660,7 +660,6 @@ struct CreatureSound {
     long count;
 };
 
-#define CREATURE_SOUND_INSTANCES 11
 struct CreatureSounds {
     struct CreatureSound foot;
     struct CreatureSound hit;
