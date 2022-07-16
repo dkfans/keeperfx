@@ -98,6 +98,13 @@ TbBool process_dungeon_control_packet_dungeon_build_room(long plyr_idx)
     }
     get_dungeon_build_user_roomspace(&playeradd->render_roomspace, player->id_number, player->chosen_room_kind, stl_x, stl_y, playeradd->roomspace_mode);
     long i = tag_cursor_blocks_place_room(player->id_number, stl_x, stl_y, player->full_slab_cursor);
+    if ( (playeradd->roomspace_mode == drag_placement_mode) && (player->chosen_room_kind != RoK_BRIDGE) )
+    {
+       if ((pckt->control_flags & PCtr_LBtnRelease) != PCtr_LBtnRelease)
+       {
+           return false;
+       }
+    }
     if (playeradd->roomspace_mode != drag_placement_mode) // allows the user to hold the left mouse to use "paint mode"
     {
         if ((pckt->control_flags & PCtr_LBtnClick) == 0)
@@ -164,6 +171,7 @@ TbBool process_dungeon_power_hand_state(long plyr_idx)
     MapCoord y = ((unsigned short)pckt->pos_y);
     MapSubtlCoord stl_x = coord_subtile(x);
     MapSubtlCoord stl_y = coord_subtile(y);
+    struct Objects* objdat;
 
     player->additional_flags &= ~PlaAF_ChosenSubTileIsHigh;
     if ((player->secondary_cursor_state != CSt_DefaultArrow) && (player->secondary_cursor_state != CSt_PowerHand))
@@ -210,17 +218,20 @@ TbBool process_dungeon_power_hand_state(long plyr_idx)
             thing = get_first_thing_in_power_hand(player);
             if ((player->thing_under_hand != 0) || thing_is_invalid(thing))
             {
-                set_power_hand_graphic(plyr_idx, 782, 256);
+                objdat = get_objects_data(37);
+                set_power_hand_graphic(plyr_idx, objdat->sprite_anim_idx, objdat->anim_speed);
                 if (!thing_is_invalid(thing))
                     thing->field_4F |= TF4F_Unknown01;
             } else
             if ((thing->class_id == TCls_Object) && object_is_gold_pile(thing))
             {
-                set_power_hand_graphic(plyr_idx, 781, 256);
+                objdat = get_objects_data(127);
+                set_power_hand_graphic(plyr_idx, objdat->sprite_anim_idx, objdat->anim_speed);
                 thing->field_4F &= ~TF4F_Unknown01;
             } else
             {
-                set_power_hand_graphic(plyr_idx, 784, 256);
+                objdat = get_objects_data(38);
+                set_power_hand_graphic(plyr_idx, objdat->sprite_anim_idx + 1, objdat->anim_speed);
                 thing->field_4F &= ~TF4F_Unknown01;
             }
         }
@@ -488,14 +499,24 @@ TbBool process_dungeon_control_packet_sell_operation(long plyr_idx)
     player->full_slab_cursor = (playeradd->roomspace_mode != single_subtile_mode);
     get_dungeon_sell_user_roomspace(&playeradd->render_roomspace, player->id_number, stl_x, stl_y);
     tag_cursor_blocks_sell_area(plyr_idx, stl_x, stl_y, player->full_slab_cursor);
-    if ((pckt->control_flags & PCtr_LBtnClick) == 0)
+    if (playeradd->roomspace_mode == drag_placement_mode)
     {
-        if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && (player->full_slab_cursor != 0))
+       if ((pckt->control_flags & PCtr_LBtnRelease) != PCtr_LBtnRelease)
+       {
+           return false;
+       }
+    }
+    else
+    {
+        if ((pckt->control_flags & PCtr_LBtnClick) == 0)
         {
-            player->full_slab_cursor = 0;
-            unset_packet_control(pckt, PCtr_LBtnRelease);
+            if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && (player->full_slab_cursor != 0))
+            {
+                player->full_slab_cursor = 0;
+                unset_packet_control(pckt, PCtr_LBtnRelease);
+            }
+            return false;
         }
-        return false;
     }
     if (player->full_slab_cursor)
     {
@@ -619,7 +640,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
     SYNCDBG(6,"Starting for player %d state %s",(int)plyr_idx,player_state_code_name(player->work_state));
     player->full_slab_cursor = 1;
     packet_left_button_double_clicked[plyr_idx] = 0;
-    if ((pckt->control_flags & PCtr_Unknown4000) != 0)
+    if ((pckt->control_flags & PCtr_Gui) != 0)
         return false;
     TbBool ret = true;
 

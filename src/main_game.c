@@ -195,6 +195,7 @@ static void init_level(void)
     game.manufactr_element = 0;
     game.manufactr_spridx = 0;
     game.manufactr_tooltip = 0;
+    JUSTMSG("Started level %d from %s", get_selected_level_number(), campaign.name);
 }
 
 static void post_init_level(void)

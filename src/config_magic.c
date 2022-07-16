@@ -1823,12 +1823,6 @@ TbBool load_magic_config_file(const char *textname, const char *fname, unsigned 
             WARNMSG("The %s file \"%s\" doesn't exist or is too small.",textname,fname);
         return false;
     }
-    if (len > MAX_CONFIG_FILE_SIZE)
-    {
-        if ((flags & CnfLd_IgnoreErrors) == 0)
-            WARNMSG("The %s file \"%s\" is too large.",textname,fname);
-        return false;
-    }
     char* buf = (char*)LbMemoryAlloc(len + 256);
     if (buf == NULL)
         return false;
@@ -2060,7 +2054,13 @@ TbBool set_power_available(PlayerNumber plyr_idx, PowerKind pwkind, long resrch,
     if (avail <= 0)
     {
         if (is_power_available(plyr_idx, pwkind))
+        {
             remove_power_from_player(pwkind, plyr_idx);
+        }
+        return true;
+    }
+    if (is_power_available(plyr_idx, pwkind))
+    {
         return true;
     }
     return add_power_to_player(pwkind, plyr_idx);

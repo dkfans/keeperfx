@@ -1660,12 +1660,6 @@ TbBool load_creaturetypes_config_file(const char *textname, const char *fname, u
             WARNMSG("The %s file \"%s\" doesn't exist or is too small.",textname,fname);
         return false;
     }
-    if (len > MAX_CONFIG_FILE_SIZE)
-    {
-        if ((flags & CnfLd_IgnoreErrors) == 0)
-            WARNMSG("The %s file \"%s\" is too large.",textname,fname);
-        return false;
-    }
     char* buf = (char*)LbMemoryAlloc(len + 256);
     if (buf == NULL)
         return false;
@@ -2114,7 +2108,7 @@ CreatureJob get_jobs_enemies_may_do_in_room(RoomKind rkind)
  * @param job_flags
  * @return
  */
-RoomKind get_room_for_job(CreatureJob job_flags)
+RoomKind get_first_room_kind_for_job(CreatureJob job_flags)
 {
     struct CreatureJobConfig* jobcfg = get_config_for_job(job_flags);
     for (RoomKind rkind = 0; rkind < slab_conf.room_types_count; rkind++)

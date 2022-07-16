@@ -23,6 +23,7 @@
 #include "bflib_basics.h"
 #include "globals.h"
 
+#include "config_cubes.h"
 #include "config_creature.h"
 #include "config_crtrmodel.h"
 #include "config_objects.h"
@@ -51,6 +52,8 @@ extern "C" {
 
 // Deprecated. Used only once. Maybe it is sound-specific UNSYNC_RANDOM
 #define SOUND_RANDOM(range) LbRandomSeries(range, &sound_seed, __func__, __LINE__, "sound")
+// Used only once. Maybe it is light-specific UNSYNC_RANDOM
+#define LIGHT_RANDOM(range) LbRandomSeries(range, &game.lish.light_rand_seed, __func__, __LINE__, "light")
 // This RNG should not be used to affect anything related affecting game state
 #define UNSYNC_RANDOM(range) LbRandomSeries(range, &game.unsync_rand_seed, __func__, __LINE__, "unsync")
 // This RNG should be used only for "whole game" events (i.e. from script)
@@ -180,6 +183,7 @@ struct GameAdd {
     unsigned short disease_to_temple_pct;
     TbBool place_traps_on_subtiles;
     unsigned long gold_per_hoard;
+    struct CubeAttribs cubes_data[CUBE_ITEMS_MAX];
 
 #define TRAPDOOR_TYPES_MAX 128
 

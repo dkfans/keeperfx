@@ -828,7 +828,6 @@ long computer_check_enemy_entrances(struct Computer2 *comp, struct ComputerCheck
         if (players_are_mutual_allies(comp->dungeon->owner, plyr_idx)) {
             continue;
         }
-        struct PlayerInfo* player = get_player(plyr_idx);
         struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
         long i = dungeonadd->room_kind[RoK_ENTRANCE];
         unsigned long k = 0;
@@ -992,7 +991,7 @@ long computer_check_neutral_places(struct Computer2 *comp, struct ComputerCheck 
     }
     struct OpponentRelation* oprel = &comp->opponent_relations[game.neutral_player_num];
     struct Room* near_room = INVALID_ROOM;
-    int near_dist = LONG_MAX;
+    int near_dist = INT_MAX;
     struct Coord3d* near_pos = &oprel->pos_A[0];
     for (int i = 0; i < COMPUTER_SPARK_POSITIONS_COUNT; i++)
     {
@@ -1202,7 +1201,7 @@ long computer_check_prison_tendency(struct Computer2* comp, struct ComputerCheck
     SYNCDBG(8, "Starting");
     struct Dungeon* dungeon = comp->dungeon;
     struct PlayerInfo* player = get_player(comp->dungeon->owner);
-    RoomKind room = get_room_for_job(Job_CAPTIVITY);
+    RoomRole rrole = get_room_role_for_job(Job_CAPTIVITY);
 
     int status = check->param1;
     int min_capacity = check->param2;
@@ -1213,7 +1212,7 @@ long computer_check_prison_tendency(struct Computer2* comp, struct ComputerCheck
         SYNCDBG(8, "Prison tendency handled manually by script, aborting.");
         return CTaskRet_Unk1;
     }
-    int total_capacity = computer_get_room_kind_total_capacity(comp, room);
+    int total_capacity = computer_get_room_role_total_capacity(comp, rrole);
     // Enough prison capacity to enable imprisonment
     if ((total_capacity >= min_capacity) && (dungeon->num_active_creatrs < max_units))
     {

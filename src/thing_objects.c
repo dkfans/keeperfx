@@ -391,7 +391,6 @@ struct CallToArmsGraphics call_to_arms_graphics[] = {
 
 /******************************************************************************/
 DLLIMPORT long _DK_object_update_power_sight(struct Thing *objtng);
-DLLIMPORT struct Thing * _DK_find_base_thing_on_mapwho_excluding_self(struct Thing *gldtng);
 /******************************************************************************/
 void define_custom_object(int obj_id, short anim_idx)
 {
@@ -433,11 +432,13 @@ struct Thing *create_object(const struct Coord3d *pos, unsigned short model, uns
       thing->parent_idx = parent_idx;
     LbMemoryCopy(&thing->mappos, pos, sizeof(struct Coord3d));
     struct ObjectConfig* objconf = get_object_model_stats2(model);
-    struct Objects* objdat = get_objects_data_for_thing(thing);
+    struct Objects* objdat = get_objects_data(model);
     thing->clipbox_size_xy = objdat->size_xy;
     thing->clipbox_size_yz = objdat->size_yz;
     thing->solid_size_xy = objdat->size_xy;
     thing->solid_size_yz = objdat->size_yz;
+    thing->anim_speed = objdat->anim_speed;
+    thing->anim_sprite = objdat->sprite_anim_idx;
     thing->health = saturate_set_signed(objconf->health,16);
     thing->fall_acceleration = objconf->fall_acceleration;
     thing->field_23 = 204;
@@ -1342,9 +1343,42 @@ void process_object_sacrifice(struct Thing *thing, long sacowner)
     }
 }
 
+
+/**
+ * Finds a thing with the same location, class and model as the provided thing
+ * @param thing The thing you want to find something similar to.
+ * @return other thing that matches location, class and model
+ */
 struct Thing *find_base_thing_on_mapwho_excluding_self(struct Thing *thing)
 {
-    return _DK_find_base_thing_on_mapwho_excluding_self(thing);
+    struct Map* mapblk = get_map_block_at(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
+    unsigned long k = 0;
+    long i = get_mapwho_thing_index(mapblk);
+    while (i != 0)
+    {
+        struct Thing* result = thing_get(i);
+        TRACE_THING(result);
+        if (thing_is_invalid(result))
+        {
+            ERRORLOG("Jump to invalid thing detected");
+            break;
+        }
+        i = result->next_on_mapblk;
+        // Per thing code start
+        if (result->class_id == thing->class_id && thing->model == result->model && thing != result)
+        {
+            return result;
+        }
+        // Per thing code end
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break_mapwho_infinite_chain(mapblk);
+            break;
+        }
+    }
+    return INVALID_THING;
 }
 
 long object_being_dropped(struct Thing *thing)

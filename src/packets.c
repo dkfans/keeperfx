@@ -638,7 +638,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
   case PckA_ToggleLights:
       if (is_my_player(player))
       {
-          light_set_lights_on(game.lish.field_4614D == 0);
+          light_set_lights_on(game.lish.light_enabled == 0);
       }
       return 1;
   case PckA_SwitchScrnRes:
@@ -908,6 +908,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
         playeradd->roomspace_mode = drag_placement_mode;
         playeradd->one_click_mode_exclusive = true; // Enable GuiLayer_OneClickBridgeBuild layer
         playeradd->render_roomspace.highlight_mode = false;
+        playeradd->roomspace_no_default = false;
         return false;
     }
     case PckA_SetRoomspaceDefault:
@@ -986,7 +987,7 @@ void process_map_packet_clicks(long plyr_idx)
     SYNCDBG(7,"Starting");
     packet_left_button_double_clicked[plyr_idx] = 0;
     struct Packet* pckt = get_packet(plyr_idx);
-    if ((pckt->control_flags & PCtr_Unknown4000) == 0)
+    if ((pckt->control_flags & PCtr_Gui) == 0)
     {
         update_double_click_detection(plyr_idx);
     }
