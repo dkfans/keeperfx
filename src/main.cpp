@@ -2432,13 +2432,27 @@ void process_dungeons(void)
 
 void update_flames_nearest_thing(struct Thing *thing)
 {
-    if (thing_is_invalid(thing))
-      return;
+      if (thing_is_invalid(thing))
+        return;
     Thing *objtng;
     MapCoordDelta new_distance;
     struct Thing *flametng;
     unsigned short nearest_torches[3];
-    MapCoordDelta torch_distances[2] = {1280, 1280};
+    MapCoordDelta torch_distances[2];
+    long hearing_range;
+    if (thing->class_id == TCls_Creature)
+    {
+        struct CreatureStats* crstat = creature_stats_get(thing->model);
+        hearing_range = (long)subtile_coord(crstat->hearing, 0);
+        torch_distances[0] = hearing_range;
+        torch_distances[1] = hearing_range;
+    }
+    else
+    {
+        hearing_range = 2560;
+        torch_distances[0] = hearing_range;
+        torch_distances[1] = hearing_range;
+    }
     int i;
     if (flames_timer)
     {
