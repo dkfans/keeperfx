@@ -1900,8 +1900,9 @@ static long get_best_position_outside_room(struct Thing *creatng, struct Coord3d
 
                 if (is_slab_type_walkable(around_slb->kind) && (around_slb->kind != current_slb_kind || current_owner != ar_slb_owner))
                 {
-                    pos->x.stl.pos = 3 * (ar_slb_no % 85) + 1;
-                    pos->y.stl.pos = 3 * (ar_slb_no / 85) + 1;
+                    
+                    pos->x.stl.pos = stl_num_decode_x(ar_slb_no);
+                    pos->y.stl.pos = stl_num_decode_y(ar_slb_no);
                     pos->z.val = get_thing_height_at(creatng, pos);
                     return creature_can_navigate_to_with_storage(creatng, pos, 0) != 0;
                 }
