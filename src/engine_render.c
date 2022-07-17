@@ -128,6 +128,20 @@ unsigned char const height_masks[] = {
   8, 8, 8, 8, 8, 8, 8, 8,
   8, 8, 8, 8, 8, 8, 8, 8,
 };
+// View distance related
+struct MinMax minmaxs[MINMAX_LENGTH];
+unsigned char *getpoly;
+unsigned char poly_pool[POLY_POOL_SIZE];
+unsigned char *poly_pool_end;
+struct BasicQ *buckets[BUCKETS_COUNT];
+long cells_away;
+long max_i_can_see;
+struct EngineCol ecs1[MINMAX_LENGTH-1];
+struct EngineCol ecs2[MINMAX_LENGTH-1];
+struct EngineCol *front_ec;
+struct EngineCol *back_ec;
+
+int countTrianglesAddedToBucket = 0;
 
 static int water_wibble_angle = 0;
 //static unsigned char temp_cluedo_mode;
@@ -137,9 +151,6 @@ static long sp_x, sp_y, sp_dx, sp_dy;
 
 DLLIMPORT char _DK_splittypes[64];
 #define splittypes _DK_splittypes
-
-
-
 
 /******************************************************************************/
 #ifdef __cplusplus
@@ -176,8 +187,21 @@ static void get_floor_pointed_at(long x, long y, long *floor_x, long *floor_y)
     sor_hn = (((long long)hori_offset[0] * ofs_y) / 2LL);
     der_hp = ((long long)vert_offset[0] * (long long)hori_offset[1]) / 8LL;
     der_hn = ((long long)hori_offset[0] * (long long)vert_offset[1]) / 8LL;
-    *floor_y = ((sor_vp-sor_vn) / ((der_vp-der_vn)>>8)) >> 2;
-    *floor_x = ((sor_hp-sor_hn) / ((der_hp-der_hn)>>8)) >> 2;
+    
+    // Prevents crashing when zooming out too far, this code might be unnecessary if we just set CAMERA_ZOOM_MIN to a reasonable number
+    long long preventDivisionByZero1 = ((der_vp-der_vn)>>8);
+    long long preventDivisionByZero2 = ((der_hp-der_hn)>>8);
+    if (preventDivisionByZero1 != 0) {
+        *floor_y = ( (sor_vp-sor_vn) / preventDivisionByZero1 ) >> 2;
+    } else {
+        *floor_y = ( (sor_vp-sor_vn)) >> 2;
+    }
+    if (preventDivisionByZero2 != 0) {
+        *floor_x = ( (sor_hp-sor_hn) / preventDivisionByZero2 ) >> 2;
+    } else {
+        *floor_x = ( (sor_hp-sor_hn)) >> 2;
+    }
+
 }
 
 static long compute_cells_away(void)
@@ -297,6 +321,7 @@ void update_engine_settings(struct PlayerInfo *player)
 static void poly_pool_end_reserve(int nitems)
 {
     poly_pool_end = &poly_pool[sizeof(poly_pool)-(nitems*sizeof(struct BucketKindSlabSelector)-1)];
+    //poly_pool_end = &poly_pool[sizeof(poly_pool)-(nitems*sizeof(struct BucketKindSlabSelector))]; //Doing this fixes the warning
 }
 
 static TbBool is_free_space_in_poly_pool(int nitems)
@@ -517,7 +542,7 @@ void fill_in_points_perspective(long bstl_x, long bstl_y, struct MinMax *mm)
     stl_x = mmin + bstl_x;
     apos += subtile_coord(mmin,0);
     struct EngineCol *ecol;
-    ecol = &front_ec[mmin + 31];
+    ecol = &front_ec[mmin + MINMAX_ALMOST_HALF];
     unsigned long mask_unrev;
     {
         struct Column *col;
@@ -662,7 +687,7 @@ void fill_in_points_cluedo(long bstl_x, long bstl_y, struct MinMax *mm)
     stl_x = mmin + bstl_x;
     apos += (mmin << 8);
     struct EngineCol *ecol;
-    ecol = &front_ec[mmin + 31];
+    ecol = &front_ec[mmin + MINMAX_ALMOST_HALF];
     unsigned long mask_unrev;
     {
         struct Column *col;
@@ -884,7 +909,7 @@ void fill_in_points_isometric(long bstl_x, long bstl_y, struct MinMax *mm)
     clip = clip_min | clip_max | lim_max | lim_min;
     apos += (mmin << 8);
     struct EngineCol *ecol;
-    ecol = &front_ec[mmin + 31];
+    ecol = &front_ec[mmin + MINMAX_ALMOST_HALF];
     unsigned long mask_unrev;
     {
         struct Column *col;
@@ -1200,8 +1225,8 @@ void find_gamut(void)
         struct MinMax *mml;
         struct MinMax *mmr;
         cell_lim = cells_away + 1;
-        mml = &minmaxs[31];
-        mmr = &minmaxs[31];
+        mml = &minmaxs[MINMAX_ALMOST_HALF];
+        mmr = &minmaxs[MINMAX_ALMOST_HALF];
         for (cell_cur = 0; cell_cur < cell_lim; cell_cur++)
         {
             long dist;
@@ -1244,7 +1269,7 @@ void find_gamut(void)
     if (scr_h1 < cells_h)
     {
         delta = ((scr_w1 - cells_w) << 8) / (scr_h1 - cells_h);
-        mm = &minmaxs[-cells_away + 31];
+        mm = &minmaxs[-cells_away + MINMAX_ALMOST_HALF];
         mbase = delta * (-cells_away - cells_h);
         for (cell_curr = -cells_away; cell_curr <= cells_away; cell_curr++)
         {
@@ -1259,7 +1284,7 @@ void find_gamut(void)
     if (scr_h1 > cells_h)
     {
         delta = ((scr_w1 - cells_w) << 8) / (scr_h1 - cells_h);
-        mm = &minmaxs[-cells_away + 31];
+        mm = &minmaxs[-cells_away + MINMAX_ALMOST_HALF];
         mbase = delta * (-cells_away - cells_h);
         for (cell_curr = -cells_away; cell_curr <= cells_away; cell_curr++)
         {
@@ -1274,7 +1299,7 @@ void find_gamut(void)
     {
         if (scr_w1 <= cells_w)
         {
-            mm = &minmaxs[cells_h + 31];
+            mm = &minmaxs[cells_h + MINMAX_ALMOST_HALF];
             for (cell_curr = cells_h; cell_curr >= -cells_away; cell_curr--)
             {
                 mm->max = 0;
@@ -1283,7 +1308,7 @@ void find_gamut(void)
             }
         } else
         {
-            mm = &minmaxs[cells_h + 31];
+            mm = &minmaxs[cells_h + MINMAX_ALMOST_HALF];
             for (cell_curr = cells_h; cell_curr <= cells_away; cell_curr++)
             {
                 mm->max = 0;
@@ -1296,7 +1321,7 @@ void find_gamut(void)
     if (scr_h2 < cells_h)
     {
         delta = ((scr_w2 - cells_w) << 8) / (scr_h2 - cells_h);
-        mm = &minmaxs[-cells_away + 31];
+        mm = &minmaxs[-cells_away + MINMAX_ALMOST_HALF];
         mbase = delta * (-cells_away - cells_h);
         for (cell_curr = -cells_away; cell_curr <= cells_away; cell_curr++)
         {
@@ -1311,7 +1336,7 @@ void find_gamut(void)
     if (scr_h2 > cells_h)
     {
         delta = ((scr_w2 - cells_w) << 8) / (scr_h2 - cells_h);
-        mm = &minmaxs[-cells_away + 31];
+        mm = &minmaxs[-cells_away + MINMAX_ALMOST_HALF];
         mbase = delta * (-cells_away - cells_h);
         for (cell_curr = -cells_away; cell_curr <= cells_away; cell_curr++)
         {
@@ -1326,7 +1351,7 @@ void find_gamut(void)
     {
         if (cells_w <= scr_w2)
         {
-            mm = &minmaxs[cells_h + 31];
+            mm = &minmaxs[cells_h + MINMAX_ALMOST_HALF];
             for ( ; cells_h >= -cells_away; cells_h--)
             {
                 mm->max = 0;
@@ -1335,7 +1360,7 @@ void find_gamut(void)
             }
         } else
         {
-            mm = &minmaxs[cells_h + 31];
+            mm = &minmaxs[cells_h + MINMAX_ALMOST_HALF];
             for ( ; cells_away >= cells_h; cells_h++)
             {
                 mm->max = 0;
@@ -1728,12 +1753,12 @@ static void fiddle_gamut_set_base(long *floor_x, long *floor_y, long pos_x, long
 {
     floor_x[0] -= pos_x;
     floor_x[1] -= pos_x;
-    floor_y[0] += 32 - pos_y;
+    floor_y[0] += (MINMAX_LENGTH/2) - pos_y;
     floor_x[2] -= pos_x;
-    floor_y[1] += 32 - pos_y;
-    floor_y[2] += 32 - pos_y;
+    floor_y[1] += (MINMAX_LENGTH/2) - pos_y;
+    floor_y[2] += (MINMAX_LENGTH/2) - pos_y;
     floor_x[3] -= pos_x;
-    floor_y[3] += 32 - pos_y;
+    floor_y[3] += (MINMAX_LENGTH/2) - pos_y;
 }
 
 static void fiddle_gamut_set_minmaxes(long *floor_x, long *floor_y, long max_tiles)
@@ -1880,7 +1905,7 @@ void fiddle_gamut(long pos_x, long pos_y)
         fiddle_gamut_find_limits(floor_x, floor_y, ewwidth, ewheight, ewzoom);
         // Place the area at proper base coords
         fiddle_gamut_set_base(floor_x, floor_y, pos_x, pos_y);
-        fiddle_gamut_set_minmaxes(floor_x, floor_y, 30);
+        fiddle_gamut_set_minmaxes(floor_x, floor_y, (MINMAX_LENGTH/2)-2);
         break;
     }
 }
@@ -3682,8 +3707,8 @@ void do_a_plane_of_engine_columns_perspective(long stl_x, long stl_y, long plane
         clip_end = 255 - stl_x;
     struct EngineCol *bec;
     struct EngineCol *fec;
-    bec = &back_ec[clip_start + 31];
-    fec = &front_ec[clip_start + 31];
+    bec = &back_ec[clip_start + MINMAX_ALMOST_HALF];
+    fec = &front_ec[clip_start + MINMAX_ALMOST_HALF];
     blank_colmn = get_column(game.unrevealed_column_idx);
     center_block_idx = clip_start + stl_x + (stl_y << 8);
     for (i = clip_end-clip_start; i > 0; i--)
@@ -3838,6 +3863,7 @@ static void do_a_gpoly_gourad_tr(struct EngineCoord *ec1, struct EngineCoord *ec
         v7 = z / 16;
         if ( getpoly < poly_pool_end )
         {
+            countTrianglesAddedToBucket += 1;
             v8 = (struct BucketKindPolygonStandard *)getpoly;
             v9 = buckets[v7];
             getpoly += sizeof(struct BucketKindPolygonStandard);
@@ -3898,6 +3924,7 @@ static void do_a_gpoly_unlit_tr(struct EngineCoord *ec1, struct EngineCoord *ec2
         v6 = z / 16;
         if ( getpoly < poly_pool_end )
         {
+            countTrianglesAddedToBucket += 1;
             v7 = (struct BucketKindPolygonStandard *)getpoly;
             v8 = buckets[v6];
             getpoly += sizeof(struct BucketKindPolygonStandard);
@@ -3945,6 +3972,7 @@ static void do_a_gpoly_unlit_bl(struct EngineCoord *ec1, struct EngineCoord *ec2
         v6 = z / 16;
         if ( getpoly < poly_pool_end )
         {
+            countTrianglesAddedToBucket += 1;
         v7 = buckets[v6];
         getpoly += sizeof(struct BucketKindPolygonStandard);
         v5->b.next = v7;
@@ -3998,6 +4026,7 @@ static void do_a_gpoly_gourad_bl(struct EngineCoord *ec1, struct EngineCoord *ec
         zdiv16 = z / 16;
         if ( getpoly < poly_pool_end )
         {
+            countTrianglesAddedToBucket += 1;
             poly_ptr = (struct BucketKindPolygonStandard *)getpoly;
             v9 = buckets[zdiv16];
             getpoly += sizeof(struct BucketKindPolygonStandard);
@@ -4145,8 +4174,8 @@ void do_a_plane_of_engine_columns_cluedo(long stl_x, long stl_y, long plane_star
 
         struct EngineCol *bec;
         struct EngineCol *fec;
-        bec = &back_ec[xaval + 31 + xidx];
-        fec = &front_ec[xaval + 31 + xidx];
+        bec = &back_ec[xaval + MINMAX_ALMOST_HALF + xidx];
+        fec = &front_ec[xaval + MINMAX_ALMOST_HALF + xidx];
         unsigned short mask;
         int ncor;
         for (mask=1,ncor=0; mask <= solidmsk_cur; mask*=2,ncor++)
@@ -4242,6 +4271,7 @@ void do_a_plane_of_engine_columns_isometric(long stl_x, long stl_y, long plane_s
     if ((stl_y < 1) || (stl_y > 254)) {
         return;
     }
+    
     long xaval;
     long xbval;
     TbBool xaclip;
@@ -4333,8 +4363,8 @@ void do_a_plane_of_engine_columns_isometric(long stl_x, long stl_y, long plane_s
 
         struct EngineCol *bec;
         struct EngineCol *fec;
-        bec = &back_ec[xaval + 31 + xidx];
-        fec = &front_ec[xaval + 31 + xidx];
+        bec = &back_ec[xaval + MINMAX_ALMOST_HALF + xidx];
+        fec = &front_ec[xaval + MINMAX_ALMOST_HALF + xidx];
         unsigned short mask;
         int ncor;
         for (mask=1,ncor=0; mask <= solidmsk_cur; mask*=2,ncor++)
@@ -6021,16 +6051,22 @@ void display_drawlist(void) // Draws isometric and 1st person view. Not frontvie
     render_alpha = (unsigned char *)&alpha_sprite_table;
     render_problems = 0;
     thing_pointed_at = 0;
-
+    
+    int countNumberOfPolygonStandard = 0;
+    int countBucketItems = 0;
     // The bucket list is the final step in drawing something to the screen. Visuals are added to the bucket list in previous functions.
     for (bucket_num = BUCKETS_COUNT-1; bucket_num > 0; bucket_num--)
     {
         for (item.b = buckets[bucket_num]; item.b != NULL; item.b = item.b->next)
         {
-            //JUSTLOG("%d",(int)item.b->kind);
+            countBucketItems += 1;
+            //JUSTLOG("bucket_num = %d", bucket_num);
+            //JUSTLOG("item.b = %p", item.b);
+            //JUSTLOG("item.b->kind = %d",(int)item.b->kind);
             switch ( item.b->kind )
             {
             case QK_PolygonStandard: // All textured polygons for isometric and 'far' textures in 1st person view
+                countNumberOfPolygonStandard += 1;
                 vec_mode = VM_Unknown5;
                 vec_map = block_ptrs[item.polygonStandard->block];
                 draw_gpoly(&item.polygonStandard->p1, &item.polygonStandard->p2, &item.polygonStandard->p3);
@@ -6183,7 +6219,7 @@ void display_drawlist(void) // Draws isometric and 1st person view. Not frontvie
                 draw_engine_number(item.floatingGoldText);
                 break;
             case QK_RoomFlagBottomPole: // The bottom pole part, doesn't affect the status sitting on top of the pole
-                draw_engine_room_flagpole(item.roomFlag);
+                //draw_engine_room_flagpole(item.roomFlag);
                 break;
             case QK_JontyISOSprite: // Spinning key
                 player = get_my_player();
@@ -6195,7 +6231,7 @@ void display_drawlist(void) // Draws isometric and 1st person view. Not frontvie
                 }
                 break;
             case QK_RoomFlagStatusBox: // The status sitting on top of the pole
-                draw_engine_room_flag_top(item.roomFlag);
+                //draw_engine_room_flag_top(item.roomFlag);
                 break;
             default:
                 render_problems++;
@@ -6206,6 +6242,10 @@ void display_drawlist(void) // Draws isometric and 1st person view. Not frontvie
     }
     if (render_problems > 0)
       WARNLOG("Incurred %lu rendering problems; last was with poly kind %ld",render_problems,render_prob_kind);
+    
+    
+    JUSTLOG("countBucketItems = %d", countBucketItems);
+    JUSTLOG("PolygonStandard drawn = %d", countNumberOfPolygonStandard);
 }
 
 static void prepare_draw_plane_of_engine_columns(long aposc, long bposc, long xcell, long ycell, struct MinMax *mm)
@@ -6283,20 +6323,24 @@ static void draw_plane_of_engine_columns(long aposc, long bposc, long xcell, lon
  */
 static void draw_view_map_plane(long aposc, long bposc, long xcell, long ycell)
 {
+    int countPlanesOfEngineColumns = 0;
     struct MinMax *mm;
     long i;
-    i = 31-cells_away;
+    i = MINMAX_ALMOST_HALF-cells_away;
     if (i < 0)
         i = 0;
     mm = &minmaxs[i];
     prepare_draw_plane_of_engine_columns(aposc, bposc, xcell, ycell, mm);
+    
     for (i = 2*cells_away-1; i > 0; i--)
     {
+        countPlanesOfEngineColumns += 1;
         ycell++;
         bposc -= (map_subtiles_y+1);
         mm++;
         draw_plane_of_engine_columns(aposc, bposc, xcell, ycell, mm);
     }
+    JUSTLOG("countPlanesOfEngineColumns = %d",countPlanesOfEngineColumns);
 }
 
 void draw_view(struct Camera *cam, unsigned char a2)
@@ -6350,26 +6394,33 @@ void draw_view(struct Camera *cam, unsigned char a2)
     }
     view_alt = z;
     if (lens_mode != 0)
-    {
+    { // 1st person
         cells_away = max_i_can_see;
         update_fade_limits(cells_away);
         fade_range = (fade_max - fade_min) >> 8;
         setup_rotate_stuff(x, y, z, fade_max, fade_min, lens, cam_map_angle, map_roll);
     }
     else
-    {
+    { // isometric and straight view
         fade_min = 1000000;
         setup_rotate_stuff(x, y, z, fade_max, fade_min, camera_zoom/pixel_size, cam_map_angle, map_roll);
         do_perspective_rotation(x, y, z);
         cells_away = compute_cells_away();
     }
+    
+    JUSTLOG("cells_away = %d", cells_away);
+
     xcell = (x >> 8);
     aposc = -(x & 0xFF);
     bposc = (cells_away << 8) + (y & 0xFF);
     ycell = (y >> 8) - (cells_away+1);
     find_gamut();
     fiddle_gamut(xcell, ycell + (cells_away+1));
+    
+    countTrianglesAddedToBucket = 0;
     draw_view_map_plane(aposc, bposc, xcell, ycell);
+    JUSTLOG("countTrianglesAddedToBucket = %d", countTrianglesAddedToBucket);
+    
     if (map_volume_box.visible)
     {
         poly_pool_end_reserve(0);
@@ -6504,6 +6555,7 @@ static void display_fast_drawlist(struct Camera *cam) // Draws frontview only. N
     render_alpha = (unsigned char *)&alpha_sprite_table;
     render_problems = 0;
     thing_pointed_at = 0;
+    
     for (bucket_num = BUCKETS_COUNT-1; bucket_num >= 0; bucket_num--)
     {
         for (item.b = buckets[bucket_num]; item.b != NULL; item.b = item.b->next)

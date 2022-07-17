@@ -32,6 +32,7 @@ extern "C" {
 /******************************************************************************/
 #pragma pack(1)
 
+#define POLY_POOL_SIZE 16777216 //262144
 #define BUCKETS_COUNT 704
 #define KEEPSPRITE_LENGTH 9149
 
@@ -328,7 +329,7 @@ struct M33 { // sizeof = 48
 };
 
 struct EngineCol {
-    struct EngineCoord cors[16];
+    struct EngineCoord cors[MINMAX_LENGTH/4]; // Originally 16, when MINMAX_LENGTH was 64
 };
 
 struct SideOri {
@@ -375,15 +376,12 @@ struct stripey_line {
 };
 
 extern struct stripey_line colored_stripey_lines[];
+
+extern unsigned char poly_pool[POLY_POOL_SIZE];
+extern unsigned char *poly_pool_end;
+extern long cells_away;
+
 /******************************************************************************/
-DLLIMPORT unsigned char *_DK_getpoly;
-#define getpoly _DK_getpoly
-DLLIMPORT unsigned char _DK_poly_pool[0x40000];
-#define poly_pool _DK_poly_pool
-DLLIMPORT unsigned char *_DK_poly_pool_end;
-#define poly_pool_end _DK_poly_pool_end
-DLLIMPORT struct BasicQ *_DK_buckets[BUCKETS_COUNT];
-#define buckets _DK_buckets
 DLLIMPORT Offset _DK_vert_offset[3];
 #define vert_offset _DK_vert_offset
 DLLIMPORT Offset _DK_hori_offset[3];
@@ -398,8 +396,6 @@ DLLIMPORT long _DK_floor_pointed_at_x;
 #define floor_pointed_at_x _DK_floor_pointed_at_x
 DLLIMPORT long _DK_floor_pointed_at_y;
 #define floor_pointed_at_y _DK_floor_pointed_at_y
-DLLIMPORT long _DK_cells_away;
-#define cells_away _DK_cells_away
 DLLIMPORT long _DK_fade_max;
 #define fade_max _DK_fade_max
 DLLIMPORT long _DK_fade_scaler;
@@ -444,8 +440,6 @@ DLLIMPORT long _DK_split1at;
 #define split1at _DK_split1at
 DLLIMPORT long _DK_split2at;
 #define split2at _DK_split2at
-DLLIMPORT long _DK_max_i_can_see;
-#define max_i_can_see _DK_max_i_can_see
 DLLIMPORT long _DK_view_height_over_2;
 #define view_height_over_2 _DK_view_height_over_2
 DLLIMPORT long _DK_view_width_over_2;
@@ -498,14 +492,6 @@ DLLIMPORT struct Thing *_DK_thing_being_displayed;
 #define thing_being_displayed _DK_thing_being_displayed
 DLLIMPORT unsigned char _DK_thing_being_displayed_is_creature;
 #define thing_being_displayed_is_creature _DK_thing_being_displayed_is_creature
-DLLIMPORT extern struct EngineCol _DK_ecs1[];
-#define ecs1 _DK_ecs1
-DLLIMPORT extern struct EngineCol _DK_ecs2[];
-#define ecs2 _DK_ecs2
-DLLIMPORT extern struct EngineCol *_DK_front_ec;
-#define front_ec _DK_front_ec
-DLLIMPORT extern struct EngineCol *_DK_back_ec;
-#define back_ec _DK_back_ec
 DLLIMPORT long _DK_global_scaler;
 #define global_scaler _DK_global_scaler
 DLLIMPORT long _DK_water_source_cutoff;
