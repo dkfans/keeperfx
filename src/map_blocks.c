@@ -46,7 +46,6 @@ extern "C" {
 DLLIMPORT void _DK_set_slab_explored_flags(unsigned char flag, long tgslb_x, long tgslb_y);
 DLLIMPORT long _DK_ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey);
 DLLIMPORT void _DK_shuffle_unattached_things_on_slab(long a1, long stl_x);
-DLLIMPORT void _DK_delete_attached_things_on_slab(long slb_x, long slb_y);
 
 const signed short slab_element_around_eight[] = {
     -3, -2, 1, 4, 3, 2, -1, -4
@@ -535,9 +534,38 @@ long delete_unwanted_things_from_liquid_slab(MapSlabCoord slb_x, MapSlabCoord sl
     return removed_num;
 }
 
-void delete_attached_things_on_slab(long slb_x, long slb_y)
+static void delete_attached_things_on_slab(long slb_x, long slb_y)
 {
-    _DK_delete_attached_things_on_slab(slb_x, slb_y); return;
+    MapSubtlCoord stl_x = slab_subtile(slb_x,0);
+    MapSubtlCoord stl_y = slab_subtile(slb_y,0);
+
+    for (MapSubtlCoord y = stl_y; y < stl_y+STL_PER_SLB; y++)
+    {
+        for (MapSubtlCoord x = stl_x; x < stl_x+STL_PER_SLB; x++)
+        {
+            struct Map *mapblk = get_map_block_at(x,y);
+            if (mapblk == INVALID_MAP_BLOCK)
+            {
+                continue;
+            }
+            struct Thing *thing = thing_get(get_mapwho_thing_index(mapblk));
+            if ( !thing_is_invalid(thing))
+            {
+                struct Thing *next_thing;
+                do
+                {
+                    next_thing = thing_get(thing->next_on_mapblk);
+                    if (thing->parent_idx == (85 * slb_y + slb_x))
+                    {
+                        char class_id = thing->class_id;
+                        if (class_id == TCls_Object || class_id == TCls_EffectGen)
+                            delete_thing_structure(thing, 0);
+                    }
+                    thing = next_thing;
+                } while (!thing_is_invalid(next_thing));
+            }
+        }
+    }
 }
 
 static TbBool get_against(unsigned char agnst_plyr_idx, long agnst_slbkind, long slb_x, long slb_y)
