@@ -54,9 +54,6 @@
 #include "kjm_input.h"
 
 /******************************************************************************/
-/******************************************************************************/
-DLLIMPORT void _DK_fill_in_explored_area(unsigned char plyr_idx, short stl_x, short stl_y);
-/******************************************************************************/
 TbBool player_has_won(PlayerNumber plyr_idx)
 {
     struct PlayerInfo* player = get_player(plyr_idx);
@@ -496,7 +493,198 @@ TbBool map_position_initially_explored_for_player(PlayerNumber plyr_idx, MapSlab
 
 void fill_in_explored_area(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    _DK_fill_in_explored_area(plyr_idx, stl_x, stl_y); return;
+
+    char *v3;
+    unsigned char *v4;
+    int v5;
+    struct SlabMap *v6;
+    int v7;
+    unsigned int *v8;
+    int block_flags;
+    struct Map *v10;
+    int v11;
+    int data;
+    int v13;
+    char *v14;
+    char v15;
+    char v16;
+    char v17;
+    char v18;
+    char *i;
+    char *v20;
+    int v21;
+    int v22;
+    int j;
+    unsigned int v24;
+    int v25;
+    char *v26;
+    int v27;
+    unsigned int *v28;
+    char *v29;
+    unsigned int v30;
+
+
+int dword_522148[20] =
+{
+  0, 0,    0,      16777216,  -67108864,
+  0, 0,    131072, 33095680,  -33554432,
+  0, 1024, 62976,  16777216,  -50331648,
+  3, 1011, 195328, 33357824,  0
+}; // weak
+char byte_522198[1] = { '\0' }; // weak
+char byte_522199[11] =
+{
+  '\0',
+  '\x01',
+  '\xFF',
+  '\x01',
+  '\x01',
+  '\xFF',
+  '\x01',
+  '\xFF',
+  '\xFF',
+  '\0',
+  '\0'
+};
+
+    v3 = scratch;
+    v4 = scratch;
+    v26 = (char *)scratch + 7225;
+    memset((void *)scratch, 0, 0x1C38u);
+    v4[7224] = 0;
+    v5 = 0;
+    v6 = game.slabmap;
+    v28 = &map_to_slab[1];
+    do
+    {
+        v7 = 0;
+        v8 = &map_to_slab[1];
+        do
+        {
+            struct SlabAttr *slbattr = get_slab_attrs(v6);
+            block_flags = slbattr->block_flags;
+            if ((block_flags & 0x29) != 0 || (block_flags & 0x40) != 0 && (game.slabmap[85 * *v28 + *v8].field_5 & 7) != plyr_idx)
+            {
+                v3[v7 + v5] = 1;
+            }
+            v8 += STL_PER_SLB;
+            ++v6;
+            ++v7;
+        } while (v8 < &map_to_slab[270]);
+
+        v5 += 85;
+        v28 += 3;
+    } while (v5 < 7225);
+    v10 = &game.map[257];
+    v11 = 0x10000;
+    do
+    {
+        data = v10->data;
+        ++v10;
+        --v11;
+        v10[-1].data = ((~(1 << plyr_idx) << 28) | 0xFFFFFFF) & data;
+    } while (v11);
+    v30 = 0;
+    v24 = 0;
+    v27 = stl_x / 3;
+    v25 = stl_y / 3;
+    v3[85 * v25 + v27] |= 2u;
+    v29 = v26;
+    do
+    {
+        v13 = 0;
+        v14 = &v3[85 * v25 + v27];
+        v15 = *(v14 - 1);
+        if ((v15 & 1) != 0)
+        {
+            v13 = 8;
+            *(v14 - 1) = v15 | 2;
+        }
+        else if ((v15 & 2) == 0)
+        {
+            *(v14 - 1) = v15 | 2;
+            ++v24;
+            v26[2 * v24 - 2] = v27 - 1;
+            v26[2 * v24 - 1] = v25;
+        }
+        v16 = v14[1];
+        if ((v16 & 1) != 0)
+        {
+            v13 |= 2u;
+            v14[1] = v16 | 2;
+        }
+        else if ((v16 & 2) == 0)
+        {
+            v14[1] = v16 | 2;
+            ++v24;
+            v26[2 * v24 - 2] = v27 + 1;
+            v26[2 * v24 - 1] = v25;
+        }
+        v17 = *(v14 - 85);
+        if ((v17 & 1) != 0)
+        {
+            v13 |= 1u;
+            *(v14 - 85) = v17 | 2;
+        }
+        else if ((v17 & 2) == 0)
+        {
+            *(v14 - 85) = v17 | 2;
+            ++v24;
+            v26[2 * v24 - 2] = v27;
+            v26[2 * v24 - 1] = v25 - 1;
+        }
+        v18 = v14[85];
+        if ((v18 & 1) != 0)
+        {
+            v13 |= 4u;
+            v14[85] = v18 | 2;
+        }
+        else if ((v18 & 2) == 0)
+        {
+            v14[85] = v18 | 2;
+            ++v24;
+            v26[2 * v24 - 2] = v27;
+            v26[2 * v24 - 1] = v25 + 1;
+        }
+        for (i = (char *)dword_522148 + 5 * v13; *(int *)i; i = (char *)dword_522148 + 5 * v13)
+        {
+            if (v13 == 15)
+            {
+                v13 = 0;
+                *(v14 - 84) |= 2u;
+                v14[86] |= 2u;
+                v14[84] |= 2u;
+                *(v14 - 86) |= 2u;
+            }
+            else
+            {
+                v20 = &v3[85 * v25 + 85 * byte_522199[2 * *(int *)i] + byte_522198[2 * *(int *)i]];
+                v20[v27] |= 2u;
+                v13 &= i[4];
+            }
+        }
+        v29 += 2;
+        ++v30;
+        v27 = *(v29 - 2);
+        v25 = *(v29 - 1);
+    } while (v24 >= v30);
+    v21 = 0;
+    v22 = 0;
+    do
+    {
+        for (j = 0; j < 85; ++j)
+        {
+            if ((v3[j + v21] & 2) != 0)
+            {
+                clear_slab_dig(j, v22, plyr_idx);
+                set_slab_explored(plyr_idx, j, v22);
+            }
+        }
+        v21 += 85;
+        ++v22;
+    } while (v21 < 7225);
+    pannel_map_update(0, 0, 256, 256);
+    
 }
 
 void init_keeper_map_exploration_by_terrain(struct PlayerInfo *player)
