@@ -733,7 +733,7 @@ void update_flames_nearest_thing(struct Thing *thing)
                 new_distance = get_2d_box_distance(&thing->mappos, &objtng->mappos);
                 if (creature_can_hear_within_distance(thing, new_distance))
                 {
-                    if (new_distance < torch_distances[0])
+                    if (new_distance <= torch_distances[0])
                     {
                         for (i = 2; i > 0; i --)
                         {
