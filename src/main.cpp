@@ -104,7 +104,6 @@
 #include "room_list.h"
 #include "game_loop.h"
 #include "music_player.h"
-#include "creature_senses.h"
 
 #ifdef AUTOTESTING
 #include "event_monitoring.h"
