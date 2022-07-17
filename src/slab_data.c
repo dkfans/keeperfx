@@ -255,7 +255,7 @@ TbBool slab_is_wall(MapSlabCoord slb_x, MapSlabCoord slb_y)
 TbBool is_slab_type_walkable(SlabKind slbkind)
 {
     struct SlabAttr *slbattr = get_slab_kind_attrs(slbkind);
-    return (slbattr->block_flags & 0x19) == 0;
+    return (slbattr->block_flags & (SlbAtFlg_Blocking | SlbAtFlg_Digable | SlbAtFlg_Valuable)) == 0;
 }
 
 TbBool slab_kind_is_animated(SlabKind slbkind)
