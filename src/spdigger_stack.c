@@ -777,15 +777,15 @@ static int check_out_unreinforced_spiral(struct Thing *thing, int a2)
    __int32 v2; // esi
   __int32 v3; // ebp
   int v4; // eax
-  unsigned __int16 v5; // bx
+  unsigned __int16 stl_nuù; // bx
   int v7; // [esp+10h] [ebp-24h]
   int v8; // [esp+14h] [ebp-20h]
   int v9; // [esp+18h] [ebp-1Ch]
   int v10; // [esp+1Ch] [ebp-18h]
   struct Around *v11; // [esp+20h] [ebp-14h]
   struct CreatureControl *cctrl; // [esp+24h] [ebp-10h]
-  __int32 a4; // [esp+2Ch] [ebp-8h] BYREF
-  __int32 a3; // [esp+30h] [ebp-4h] BYREF
+  __int32 stl_y; // [esp+2Ch] [ebp-8h] BYREF
+  __int32 stl_x; // [esp+30h] [ebp-4h] BYREF
 
   cctrl = creature_control_get_from_thing(thing);
   v10 = 0;
@@ -812,18 +812,18 @@ static int check_out_unreinforced_spiral(struct Thing *thing, int a2)
             v3 += v11->delta_y;
             if ( v2 >= 0 && v2 < 85 && v3 >= 0 && v3 < 85 && check_place_to_reinforce(thing, v2, v3) > 0 )
             {
-              v5 = 3 * v2 + 1 + ((3 * (short)v3 + 1) << 8);
-              if ( check_out_uncrowded_reinforce_position(thing, v5, &a3, &a4) )
+              stl_nuù = 3 * v2 + 1 + ((3 * (short)v3 + 1) << 8);
+              if ( check_out_uncrowded_reinforce_position(thing, stl_nuù, &stl_x, &stl_y) )
               {
-                if ( setup_person_move_to_position(thing, a3, a4, 0) )
+                if ( setup_person_move_to_position(thing, stl_x, stl_y, 0) )
                   break;
               }
             }
             if ( v7 <= ++v8 )
               goto LABEL_12;
           }
-          thing->continue_state = 97;
-          cctrl->digger.working_stl = v5;
+          thing->continue_state = CrSt_ImpArrivesAtReinforce;
+          cctrl->digger.working_stl = stl_nuù;
           cctrl->digger.byte_93 = 0;
           return 1;
         }
@@ -843,7 +843,6 @@ LABEL_12:
 
 static long check_out_unreinforced_place(struct Thing *thing)
 {
-    return 0;
     unsigned __int16 working_stl;
     __int32 v2;
     __int32 v3;
@@ -856,7 +855,7 @@ static long check_out_unreinforced_place(struct Thing *thing)
     __int32 x;
     __int32 y;
     int stl_num;
-    struct CreatureControl *v13;
+    struct CreatureControl *cctrl3;
     struct CreatureControl *cctrl2;
     struct CreatureControl *cctrl;
     __int32 stl_y_2;
@@ -918,10 +917,10 @@ static long check_out_unreinforced_place(struct Thing *thing)
                 return check_out_unreinforced_spiral(thing, 1) != 0;
             }
         }
-        thing->continue_state = 97;
-        v13 = cctrl;
+        thing->continue_state = CrSt_ImpArrivesAtReinforce;
+        cctrl3 = cctrl;
         cctrl->digger.working_stl = stl_num;
-        v13->digger.byte_93 = 0;
+        cctrl3->digger.byte_93 = 0;
         return 1;
     }
     return result;
