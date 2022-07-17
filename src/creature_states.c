@@ -4108,7 +4108,7 @@ TbBool creature_can_hear_within_distance(const struct Thing *thing, long dist)
     }
     else if (thing_is_mature_food(thing))
     {
-        return (dist <= 11362); // 13 subtiles
+        return (dist <= 2560); // 10 subtiles
     }
     else
     {
