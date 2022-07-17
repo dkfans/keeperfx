@@ -128,7 +128,6 @@ struct Room *droom = &_DK_game.rooms[25];
 
 //static
 TbClockMSec last_loop_time=0;
-static char flames_timer;
 
 #ifdef __cplusplus
 extern "C" {
@@ -2428,77 +2427,6 @@ void process_dungeons(void)
   process_payday();
   process_things_in_dungeon_hand();
   SYNCDBG(9,"Finished");
-}
-
-void update_flames_nearest_thing(struct Thing *thing)
-{
-      if (thing_is_invalid(thing))
-        return;
-    Thing *objtng;
-    MapCoordDelta new_distance;
-    struct Thing *flametng;
-    unsigned short nearest_torches[3];
-    MapCoordDelta torch_distances[2];
-    long hearing_range;
-    if (thing->class_id == TCls_Creature)
-    {
-        struct CreatureStats* crstat = creature_stats_get(thing->model);
-        hearing_range = (long)subtile_coord(crstat->hearing, 0);
-        torch_distances[0] = hearing_range;
-        torch_distances[1] = hearing_range;
-    }
-    else
-    {
-        hearing_range = 2560;
-        torch_distances[0] = hearing_range;
-        torch_distances[1] = hearing_range;
-    }
-    int i;
-    if (flames_timer)
-    {
-        memset(nearest_torches, 0, sizeof(nearest_torches));
-        for (objtng = thing_get(get_list_for_thing_class(TCls_Object)->index);
-             !thing_is_invalid(objtng);
-             objtng = thing_get(objtng->next_of_class))
-        {
-            struct Objects* objdat = get_objects_data_for_thing(objtng);
-            if (objdat->has_flames)
-            {
-                new_distance = get_2d_box_distance(&thing->mappos, &objtng->mappos);
-                if (creature_can_hear_within_distance(thing, new_distance))
-                {
-                    if (new_distance < torch_distances[0])
-                    {
-                        for (i = 2; i > 0; i --)
-                        {
-                            MapCoordDelta dist = torch_distances[i-1];
-                            nearest_torches[i] = nearest_torches[i-1];
-                            torch_distances[i] = dist;
-                        }
-                        torch_distances[0] = new_distance;
-                        nearest_torches[0] = objtng->index;
-                    }
-                }
-                else
-                {
-                    stop_thing_playing_sample(objtng, 78);
-                }
-            }
-        }
-        for (i = 0; i < (sizeof(nearest_torches) / sizeof(nearest_torches[0])); i++)
-        {
-            flametng = thing_get(nearest_torches[i]);
-            if (!thing_is_invalid(flametng))
-            {
-                if (!S3DEmitterIsPlayingSample(flametng->snd_emitter_id, 78, 0))
-                {
-                    long volume = line_of_sight_2d(&thing->mappos, &flametng->mappos) ? FULL_LOUDNESS : 128;
-                    thing_play_sample(flametng, 78, NORMAL_PITCH, -1, 3, 1, 2, volume);
-                }
-            }
-        }
-    }
-    flames_timer = (flames_timer + 1) % 4;
 }
 
 void update_near_creatures_for_footsteps(long *near_creatures, const struct Coord3d *srcpos)

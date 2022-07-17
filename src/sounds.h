@@ -107,6 +107,8 @@ struct Thing *create_ambient_sound(const struct Coord3d *pos, ThingModel model, 
 
 void mute_audio(TbBool mute);
 void pause_music(TbBool pause);
+
+void update_flames_nearest_thing(struct Thing *thing);
 /******************************************************************************/
 #ifdef __cplusplus
 }
