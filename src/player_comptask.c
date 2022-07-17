@@ -171,7 +171,6 @@ const struct MyLookup lookup[] = {
 };
 
 /******************************************************************************/
-DLLIMPORT long _DK_count_creatures_in_call_to_arms(struct Computer2 *comp);
 DLLIMPORT struct ComputerTask *_DK_get_free_task(struct Computer2 *comp, long basestl_y);
 DLLIMPORT long _DK_other_build_here(struct Computer2 *comp, long a2, long round_directn, long plyr_idx, long slabs_dist);
 /******************************************************************************/
@@ -2231,7 +2230,24 @@ static struct Thing *find_creature_for_call_to_arms(struct Computer2 *comp, TbBo
 
 long count_creatures_in_call_to_arms(struct Computer2 *comp)
 {
-    return _DK_count_creatures_in_call_to_arms(comp);
+    struct Thing* i;
+    int num_creatures = 0;
+    int k = 0;
+
+    for (i = thing_get(comp->dungeon->creatr_list_start);
+         !thing_is_invalid(i);
+         i = thing_get(creature_control_get_from_thing(i)->players_next_creature_idx))
+    {
+        if (get_creature_state_besides_move(i) == CrSt_AlreadyAtCallToArms)
+            num_creatures++;
+        k++;
+        if (k > CREATURES_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when counting creatures in call to arms");
+            return num_creatures;
+        }
+    }
+    return num_creatures;
 }
 
 long task_magic_call_to_arms(struct Computer2 *comp, struct ComputerTask *ctask)
