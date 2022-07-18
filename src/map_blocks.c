@@ -45,7 +45,6 @@ extern "C" {
 /******************************************************************************/
 DLLIMPORT void _DK_set_slab_explored_flags(unsigned char flag, long tgslb_x, long tgslb_y);
 DLLIMPORT long _DK_ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey);
-DLLIMPORT void _DK_shuffle_unattached_things_on_slab(long a1, long stl_x);
 
 const signed short slab_element_around_eight[] = {
     -3, -2, 1, 4, 3, 2, -1, -4
@@ -1341,7 +1340,81 @@ void place_single_slab_type_on_map(SlabKind slbkind, MapSlabCoord slb_x, MapSlab
 
 void shuffle_unattached_things_on_slab(long stl_x, long stl_y)
 {
-    _DK_shuffle_unattached_things_on_slab(stl_x, stl_y);
+
+    int *thing_idx2;
+    struct Thing *thing;
+    struct Thing *next_thing;
+    enum ThingClassIndex class_id;
+    int own_category;
+    TbBool v7;
+    __int32 v8;
+    int *thing_idx;
+    __int32 v10;
+    __int32 v11;
+    int v12;
+
+    if (3 * stl_y < 3 * stl_y + 3)
+    {
+        v8 = 3 * stl_x;
+        v12 = 3;
+        thing_idx = &game__map[768 * stl_y + 257 + 3 * stl_x].data;
+        v10 = 3 * stl_x + 3;
+        while (v8 >= v10)
+        {
+        LABEL_19:
+            v7 = v12 == 1;
+            thing_idx += 320;
+            --v12;
+            if (v7)
+                return;
+        }
+        thing_idx2 = thing_idx;
+        v11 = v10 - v8;
+        while (1)
+        {
+            //thing = thing_get(get_mapwho_thing_index())
+            
+            thing = *(Thing **)((char *)&game_things_lookup + ((*thing_idx2 & 0x3FF800u) >> 9));
+            if (thing != game_things_lookup)
+                break;
+        LABEL_18:
+            thing_idx2 = (int *)((char *)thing_idx2 + 5);
+            if (!--v11)
+                goto LABEL_19;
+        }
+        while (1)
+        {
+            next_thing = *(&game_things_lookup + (unsigned __int16)thing->next_on_mapblk);
+            if ((unsigned __int16)thing->parent_idx != 85 * stl_y + stl_x)
+            {
+                class_id = thing->class_id;
+                if (class_id == TCls_Object)
+                {
+                    own_category = (unsigned __int8)objects[(unsigned __int8)thing->model].own_category;
+                    if (own_category == 1)
+                    {
+                        if ((unsigned __int8)((unsigned __int8)game_columns_data[*thing_idx2 & 0x7FF].bitfields >> 4) <= 4u || (unsigned __int8)move_object_to_nearest_free_position(thing))
+                        {
+                            goto LABEL_17;
+                        }
+                    }
+                    else if (own_category != 2)
+                    {
+                        goto LABEL_17;
+                    }
+                }
+                else if (class_id != TCls_EffectGen)
+                {
+                    goto LABEL_17;
+                }
+                delete_thing_structure(thing, 0);
+            }
+        LABEL_17:
+            thing = next_thing;
+            if (next_thing == game_things_lookup)
+                goto LABEL_18;
+        }
+    }
 }
 
 void dump_slab_on_map(SlabKind slbkind, long slabct_num, MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber owner)
