@@ -876,6 +876,43 @@ unsigned short get_slide_z_coord(const struct Thing *thing, const struct Coord3d
   }
   return ((((z_pos + clipbox_size) & 0xFFFFFF00) - clipbox_size) - 1);
 }
+
+int move_object_to_nearest_free_position(struct Thing *thing)
+{           
+    int result;         
+    struct Coord3d pos;
+
+    struct MapOffset *offset = spiral_step;
+    int nav_radius = thing_nav_sizexy(thing) / 2;
+
+    int k = 0;
+    int v8 = thing->mappos.x.stl.pos;
+    int v9 = thing->mappos.y.stl.pos;
+
+    while (1)
+    {
+        MapSubtlCoord stl_x = offset->h + v8;
+        MapSubtlCoord stl_y = offset->v + v9;
+        if (stl_x < map_subtiles_x && stl_x >= 0 && stl_y < map_subtiles_y && stl_y >= 0 && (game.map[256 * stl_y + 257 + stl_x].flags & 0x10) == 0 && !find_base_thing_on_mapwho(1u, 0xFFFFu, stl_x, stl_y))
+        {
+            pos.x.val = subtile_coord_center(stl_x);
+            pos.y.val = subtile_coord_center(stl_y);
+            pos.z.val = get_thing_height_at_with_radius(thing, &pos, nav_radius);
+            if (!thing_in_wall_at_with_radius(thing, &pos, nav_radius))
+                break;
+        }
+        ++offset;
+        k++;
+        if (k >= 120)
+        {
+            ERRORLOG("Could not find a nearby space for thing Class:%d Model:%d",thing->class_id,thing->model);
+            return 0;
+        }
+    }
+    pos.z.val = get_thing_height_at(thing, &pos);
+    move_thing_in_map(thing, &pos);
+    return 1;
+}
 /******************************************************************************/
 #ifdef __cplusplus
 }

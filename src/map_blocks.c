@@ -1338,81 +1338,58 @@ void place_single_slab_type_on_map(SlabKind slbkind, MapSlabCoord slb_x, MapSlab
     place_slab_objects(slb_x, slb_y, slab_number_list, plyr_idx);
 }
 
-void shuffle_unattached_things_on_slab(long stl_x, long stl_y)
-{
 
-    int *thing_idx2;
-    struct Thing *thing;
+static void shuffle_unattached_things_on_slab(MapSlabCoord slb_x, MapSlabCoord slb_y)
+{
     struct Thing *next_thing;
     enum ThingClassIndex class_id;
     int own_category;
-    TbBool v7;
-    __int32 v8;
-    int *thing_idx;
-    __int32 v10;
-    __int32 v11;
-    int v12;
 
-    if (3 * stl_y < 3 * stl_y + 3)
+    MapSubtlCoord start_stl_x = slab_subtile(slb_x, 0);
+    MapSubtlCoord start_stl_y = slab_subtile(slb_y, 0);
+
+    for (MapSubtlCoord stl_x = start_stl_x; stl_x < start_stl_x + STL_PER_SLB; stl_x++)
     {
-        v8 = 3 * stl_x;
-        v12 = 3;
-        thing_idx = &game__map[768 * stl_y + 257 + 3 * stl_x].data;
-        v10 = 3 * stl_x + 3;
-        while (v8 >= v10)
+        for (MapSubtlDelta stl_y = start_stl_y; stl_y < start_stl_y + STL_PER_SLB; stl_y++)
         {
-        LABEL_19:
-            v7 = v12 == 1;
-            thing_idx += 320;
-            --v12;
-            if (v7)
-                return;
-        }
-        thing_idx2 = thing_idx;
-        v11 = v10 - v8;
-        while (1)
-        {
-            //thing = thing_get(get_mapwho_thing_index())
-            
-            thing = *(Thing **)((char *)&game_things_lookup + ((*thing_idx2 & 0x3FF800u) >> 9));
-            if (thing != game_things_lookup)
-                break;
-        LABEL_18:
-            thing_idx2 = (int *)((char *)thing_idx2 + 5);
-            if (!--v11)
-                goto LABEL_19;
-        }
-        while (1)
-        {
-            next_thing = *(&game_things_lookup + (unsigned __int16)thing->next_on_mapblk);
-            if ((unsigned __int16)thing->parent_idx != 85 * stl_y + stl_x)
+            struct Map *mapblk = get_map_block_at(stl_x, stl_y);
+            struct Thing *thing = thing_get(get_mapwho_thing_index(mapblk));
+
+            while (!thing_is_invalid(thing))
             {
-                class_id = thing->class_id;
-                if (class_id == TCls_Object)
+                next_thing = thing_get(thing->next_on_mapblk);
+                if (thing->parent_idx != get_slab_number(slb_x,slb_y))
                 {
-                    own_category = (unsigned __int8)objects[(unsigned __int8)thing->model].own_category;
-                    if (own_category == 1)
+                    TbBool delete_thing = true;
+                    class_id = thing->class_id;
+                    if (class_id == TCls_Object)
                     {
-                        if ((unsigned __int8)((unsigned __int8)game_columns_data[*thing_idx2 & 0x7FF].bitfields >> 4) <= 4u || (unsigned __int8)move_object_to_nearest_free_position(thing))
+                        struct Objects *objdat = get_objects_data_for_thing(thing);
+
+                        own_category = objdat->own_category;
+                        if (own_category == ObOC_Unknown1)
                         {
-                            goto LABEL_17;
+                            if ((get_map_floor_filled_subtiles(mapblk) <= 4) || move_object_to_nearest_free_position(thing))
+                            {
+                                delete_thing = false;
+                            }
+                        }
+                        else if (own_category != ObOC_Unknown2)
+                        {
+                            delete_thing = false;
                         }
                     }
-                    else if (own_category != 2)
+                    else if (class_id != TCls_EffectGen)
                     {
-                        goto LABEL_17;
+                        delete_thing = false;
+                    }
+                    if (delete_thing)
+                    {
+                        delete_thing_structure(thing, 0);
                     }
                 }
-                else if (class_id != TCls_EffectGen)
-                {
-                    goto LABEL_17;
-                }
-                delete_thing_structure(thing, 0);
+                thing = next_thing;
             }
-        LABEL_17:
-            thing = next_thing;
-            if (next_thing == game_things_lookup)
-                goto LABEL_18;
         }
     }
 }
