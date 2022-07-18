@@ -777,7 +777,7 @@ static int check_out_unreinforced_spiral(struct Thing *thing, int a2)
    __int32 v2; // esi
   __int32 v3; // ebp
   int v4; // eax
-  unsigned __int16 stl_num; // bx
+  unsigned __int16 stl_nuù; // bx
   int v7; // [esp+10h] [ebp-24h]
   int v8; // [esp+14h] [ebp-20h]
   int v9; // [esp+18h] [ebp-1Ch]
@@ -812,8 +812,8 @@ static int check_out_unreinforced_spiral(struct Thing *thing, int a2)
             v3 += v11->delta_y;
             if ( v2 >= 0 && v2 < 85 && v3 >= 0 && v3 < 85 && check_place_to_reinforce(thing, v2, v3) > 0 )
             {
-              stl_num = 3 * v2 + 1 + ((3 * (short)v3 + 1) << 8);
-              if ( check_out_uncrowded_reinforce_position(thing, stl_num, &stl_x, &stl_y) )
+              stl_nuù = 3 * v2 + 1 + ((3 * (short)v3 + 1) << 8);
+              if ( check_out_uncrowded_reinforce_position(thing, stl_nuù, &stl_x, &stl_y) )
               {
                 if ( setup_person_move_to_position(thing, stl_x, stl_y, 0) )
                   break;
@@ -823,7 +823,7 @@ static int check_out_unreinforced_spiral(struct Thing *thing, int a2)
               goto LABEL_12;
           }
           thing->continue_state = CrSt_ImpArrivesAtReinforce;
-          cctrl->digger.working_stl = stl_num;
+          cctrl->digger.working_stl = stl_nuù;
           cctrl->digger.byte_93 = 0;
           return 1;
         }
