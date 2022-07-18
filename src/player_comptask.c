@@ -2228,8 +2228,11 @@ static struct Thing *find_creature_for_call_to_arms(struct Computer2 *comp, TbBo
     return thing;
 }
 
+DLLIMPORT long _DK_count_creatures_in_call_to_arms(struct Computer2 *comp);
+
 long count_creatures_in_call_to_arms(struct Computer2 *comp)
 {
+    long old = _DK_count_creatures_in_call_to_arms(comp);
     struct Thing* i;
     int num_creatures = 0;
     int k = 0;
@@ -2246,6 +2249,14 @@ long count_creatures_in_call_to_arms(struct Computer2 *comp)
             ERRORLOG("Infinite loop detected when counting creatures in call to arms");
             return num_creatures;
         }
+    }
+
+    if(num_creatures != old)
+    {
+        ERRORLOG("Count of creatures in call to arms is wrong - %d instead of %d",num_creatures,old);
+    }else
+    {
+        JUSTLOG("Count of creatures in call to arms is correct - %d",num_creatures);
     }
     return num_creatures;
 }
