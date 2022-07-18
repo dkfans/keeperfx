@@ -709,7 +709,7 @@ void update_flames_nearest_thing(struct Thing *thing)
     if (thing->class_id == TCls_Creature)
     {
         struct CreatureStats* crstat = creature_stats_get(thing->model);
-        hearing_range = (long)subtile_coord(crstat->hearing, 0);
+        hearing_range = (long)subtile_coord(crstat->hearing, 0) / 2;
         torch_distances[0] = hearing_range;
         torch_distances[1] = hearing_range;
     }
