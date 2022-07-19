@@ -44,7 +44,6 @@ extern "C" {
 #endif
 /******************************************************************************/
 DLLIMPORT void _DK_set_slab_explored_flags(unsigned char flag, long tgslb_x, long tgslb_y);
-DLLIMPORT long _DK_ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey);
 DLLIMPORT void _DK_shuffle_unattached_things_on_slab(long a1, long stl_x);
 
 const signed short slab_element_around_eight[] = {
@@ -2287,9 +2286,254 @@ void check_map_explored(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoor
     clear_dig_and_set_explored_can_see_y(slb_x, slb_y, creatng->owner, can_see_slabs);
 }
 
+int sub_45E0E0(int a1)
+{
+  unsigned __int8 i; // dl
+
+  if ( !*(short *)(a1 + 3) )
+    return 0;
+  for ( i = 7; !*(short *)(a1 + 2 * i + 8); --i )
+    ;
+  return i + 1;
+}
+
+TbBool sub_448DB0(int a1)
+{
+  return (game.map[a1 + 257].flags & 0x10) != 0
+      || (game.columns_data[game.map[a1 + 257].data & 0x7FF].bitfields & 0xE) != 0;
+}
+
+int __cdecl sub_448D70(int a1)
+{
+  unsigned __int8 bitfields; // cl
+
+  bitfields = game.columns_data[game.map[a1 + 257].data & 0x7FF].bitfields;
+  if ( (bitfields & 0xE) != 0 )
+    return sub_45E0E0((int)&game.columns_data[game.map[a1 + 257].data & 0x7FF]);
+  else
+    return bitfields >> 4;
+}
+
+static int dword_555DA8;
+
+DLLIMPORT extern unsigned char *_DK_scratch;
+#define scratch _DK_scratch
+
 long ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey)
 {
-    return _DK_ceiling_partially_recompute_heights(sx, sy, ex, ey);
+  int v4; // edx
+  int v5; // eax
+  int v6; // eax
+  int v7; // ecx
+  int v8; // eax
+  int v9; // eax
+  int v10; // ebp
+  int v11; // ebx
+  int v12; // esi
+  int *p_data; // edi
+  unsigned __int8 bitfields; // cl
+  char v15; // al
+  unsigned __int8 v16; // cl
+  int v17; // ecx
+  int v18; // ecx
+  int v19; // ebx
+  struct MapOffset *v20; // edx
+  int v21; // ebp
+  int v22; // esi
+  int v23; // edi
+  int v24; // ecx
+  TbBool v25; // zf
+  signed int v27; // ecx
+  signed int v28; // eax
+  int v29; // edi
+  int v30; // [esp+10h] [ebp-18h]
+  int *v31; // [esp+10h] [ebp-18h]
+  int v32; // [esp+14h] [ebp-14h]
+  __int32 v33; // [esp+14h] [ebp-14h]
+  int v34; // [esp+18h] [ebp-10h]
+  int v35; // [esp+1Ch] [ebp-Ch]
+  int v36; // [esp+20h] [ebp-8h]
+  __int32 v37; // [esp+20h] [ebp-8h]
+  int v38; // [esp+24h] [ebp-4h]
+  __int32 xa; // [esp+2Ch] [ebp+4h]
+  __int32 ya; // [esp+30h] [ebp+8h]
+  int wa; // [esp+34h] [ebp+Ch]
+  int ha; // [esp+38h] [ebp+10h]
+
+  v4 = game.field_14A80C;
+  if ( game.field_14A80C >= 4 )
+    v4 = 4;
+  xa = (sx - v4) & ((sx - v4 <= 0) - 1);
+  v5 = v4 + ex;
+  ya = (sy - v4) & ((sy - v4 <= 0) - 1);
+  if ( v4 + ex >= 256 )
+    v5 = 256;
+  wa = v5;
+  v6 = v4 + ey;
+  if ( v4 + ey >= 256 )
+    v6 = 256;
+  ha = v6;
+  dword_555DA8 = (int)scratch;
+  v32 = (xa - game.field_14A80C) & ((xa - game.field_14A80C <= 0) - 1);
+  v7 = (ya - game.field_14A80C) & ((ya - game.field_14A80C <= 0) - 1);
+  v8 = game.field_14A80C + wa;
+  if ( game.field_14A80C + wa >= 256 )
+    v8 = 256;
+  v35 = v8;
+  v9 = game.field_14A80C + ha;
+  if ( game.field_14A80C + ha >= 256 )
+    v9 = 256;
+  v10 = (ya - game.field_14A80C) & ((ya - game.field_14A80C <= 0) - 1);
+  v36 = v9;
+  if ( v9 > v7 )
+  {
+    v30 = (v7 << 8) + v32;
+    while ( 1 )
+    {
+      v11 = v32;
+      v12 = v30;
+      if ( v32 < v35 )
+        break;
+LABEL_33:
+      ++v10;
+      v30 += 256;
+      if ( v36 <= v10 )
+        goto LABEL_34;
+    }
+    p_data = &game.map[v30 + 257].data;
+    while ( 1 )
+    {
+      if ( sub_448DB0(v12) )
+      {
+        bitfields = game.columns_data[*p_data & 0x7FF].bitfields;
+        if ( (bitfields & 0xE) != 0 )
+          v15 = sub_45E0E0((int)&game.columns_data[*p_data & 0x7FF]);
+        else
+          v15 = bitfields >> 4;
+        goto LABEL_32;
+      }
+      if ( v11 <= 0 )
+        break;
+      if ( sub_448DB0(v12 - 1) )
+      {
+        v16 = game.columns_data[*(int *)((char *)p_data - 5) & 0x7FF].bitfields;
+        if ( (v16 & 0xE) != 0 )
+          v15 = sub_45E0E0((int)&game.columns_data[*(int *)((char *)p_data - 5) & 0x7FF]);
+        else
+          v15 = v16 >> 4;
+        goto LABEL_32;
+      }
+      if ( v10 <= 0 )
+      {
+LABEL_31:
+        v15 = -1;
+        goto LABEL_32;
+      }
+      if ( sub_448DB0(v12 - 256) )
+        goto LABEL_26;
+      if ( !sub_448DB0(v12 - 257) )
+        goto LABEL_31;
+      v15 = sub_448D70(v12 - 257);
+LABEL_32:
+      ++v11;
+      p_data = (int *)((char *)p_data + 5);
+      ++v12;
+      *(char *)(dword_555DA8 + v12 - 1) = v15;
+      if ( v11 >= v35 )
+        goto LABEL_33;
+    }
+    if ( v10 <= 0 || !sub_448DB0(v12 - 256) )
+      goto LABEL_31;
+LABEL_26:
+    v15 = sub_448D70(v12 - 256);
+    goto LABEL_32;
+  }
+LABEL_34:
+  if ( ha > ya )
+  {
+    v38 = (ya << 8) + xa;
+    v33 = ha - ya;
+    do
+    {
+      v34 = v38;
+      if ( wa > xa )
+      {
+        v31 = &game.map[v38 + 257].data;
+        v37 = wa - xa;
+        do
+        {
+          v17 = *(char *)(dword_555DA8 + v34);
+          if ( v17 <= -1 )
+          {
+            v18 = ((v34 >> 31) ^ (unsigned __int8)abs(v34)) - (v34 >> 31);
+            v19 = 0;
+            v20 = spiral_step;
+            if ( game.field_14A810 <= 0 )
+            {
+LABEL_46:
+              v17 = game.field_14A804;
+            }
+            else
+            {
+              while ( 1 )
+              {
+                v21 = v20->h + v18;
+                v22 = v34 / 256 + v20->v;
+                if ( v21 >= 0 && v21 < 256 && v22 >= 0 && v22 < 256 )
+                {
+                  v23 = *(char *)(dword_555DA8 + v34 + v20->both);
+                  if ( v23 > -1 )
+                    break;
+                }
+                ++v19;
+                ++v20;
+                if ( v19 >= game.field_14A810 )
+                  goto LABEL_46;
+              }
+              v27 = abs(-v20->h);
+              v28 = abs(-v20->v);
+              if ( v27 <= v28 )
+                v27 = v28;
+              if ( v23 >= game.field_14A804 )
+              {
+                if ( v23 <= game.field_14A804 )
+                {
+                  v17 = *(char *)(dword_555DA8 + v34 + v20->both);
+                }
+                else
+                {
+                  v29 = v23 - game.field_14A814 * v27;
+                  if ( v29 <= game.field_14A808 )
+                    v29 = game.field_14A808;
+                  v17 = v29;
+                }
+              }
+              else
+              {
+                v17 = v23 + game.field_14A814 * v27;
+                if ( v17 >= game.field_14A804 )
+                  v17 = game.field_14A804;
+              }
+            }
+          }
+          v24 = *v31 ^ (*v31 ^ (v17 << 24)) & 0xF000000;
+          ++v34;
+          v25 = v37 == 1;
+          v31 = (int *)((char *)v31 + 5);
+          --v37;
+          *(int *)((char *)v31 - 5) = v24;
+        }
+        while ( !v25 );
+      }
+      v25 = v33 == 1;
+      v38 += 256;
+      --v33;
+    }
+    while ( !v25 );
+  }
+  return 1;
+
+
 }
 
 long element_top_face_texture(struct Map *mapblk)
