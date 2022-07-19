@@ -2176,9 +2176,24 @@ long task_dig_to_attack(struct Computer2 *comp, struct ComputerTask *ctask)
 
 long count_creatures_at_call_to_arms(struct Computer2 *comp)
 {
-    struct Dungeon *dungeon;
-    dungeon = comp->dungeon;
-    return count_player_list_creatures_of_model_matching_bool_filter(dungeon->owner, CREATURE_ANY, creature_is_called_to_arms);
+    struct Thing* i;
+    int num_creatures = 0;
+    int k = 0;
+
+    for (i = thing_get(comp->dungeon->creatr_list_start);
+         !thing_is_invalid(i);
+         i = thing_get(creature_control_get_from_thing(i)->players_next_creature_idx))
+    {
+        if (get_creature_state_besides_move(i) == CrSt_AlreadyAtCallToArms)
+            num_creatures++;
+        k++;
+        if (k > CREATURES_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when counting creatures in call to arms");
+            return num_creatures;
+        }
+    }
+    return num_creatures;
 }
 
 static struct Thing *find_creature_for_call_to_arms(struct Computer2 *comp, TbBool prefer_high_scoring)
@@ -2228,6 +2243,13 @@ static struct Thing *find_creature_for_call_to_arms(struct Computer2 *comp, TbBo
     return thing;
 }
 
+long count_creatures_in_call_to_arms(struct Computer2 *comp)
+{
+    struct Dungeon *dungeon;
+    dungeon = comp->dungeon;
+    return count_player_list_creatures_of_model_matching_bool_filter(dungeon->owner, CREATURE_ANY, creature_is_called_to_arms);
+}
+
 long task_magic_call_to_arms(struct Computer2 *comp, struct ComputerTask *ctask)
 {
     SYNCDBG(9,"Starting");
@@ -2243,7 +2265,7 @@ long task_magic_call_to_arms(struct Computer2 *comp, struct ComputerTask *ctask)
         ctask->field_60 = 18;
         ctask->lastrun_turn = game.play_gameturn;
         // If gathered enough creatures, go to next task state
-        if (count_creatures_at_call_to_arms(comp) >= ctask->magic_cta.repeat_num) {
+        if (count_creatures_in_call_to_arms(comp) >= ctask->magic_cta.repeat_num) {
             ctask->task_state = CTaskSt_Wait;
             return CTaskRet_Unk2;
         }
@@ -2261,7 +2283,7 @@ long task_magic_call_to_arms(struct Computer2 *comp, struct ComputerTask *ctask)
           return CTaskRet_Unk4;
         }
         // If there is no next creature, but we've gathered at least half of the amount, go to next state with what we have
-        if (count_creatures_at_call_to_arms(comp) > ctask->magic_cta.repeat_num - ctask->magic_cta.repeat_num / 2) {
+        if (count_creatures_in_call_to_arms(comp) > ctask->magic_cta.repeat_num - ctask->magic_cta.repeat_num / 2) {
             ctask->task_state = CTaskSt_Wait;
             return CTaskRet_Unk4;
         }
