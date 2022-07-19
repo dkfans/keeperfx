@@ -28,6 +28,7 @@
 #include "map_utils.h"
 #include "thing_effects.h"
 #include "thing_objects.h"
+#include "thing_physics.h"
 #include "config_terrain.h"
 #include "config_settings.h"
 #include "config_creature.h"
