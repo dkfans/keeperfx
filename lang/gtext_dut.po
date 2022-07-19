@@ -6790,7 +6790,7 @@ msgstr "Nikolais Kasteel"
 #: guitext:1027
 msgctxt "Menu interface item""
 msgid "A Dungeon Keeper - New Game+"
-msgstr "Dungeon Keeper - Nieuw Spel+"
+msgstr ""
 
 #: guitext:1028
 msgctxt "Menu interface item""
