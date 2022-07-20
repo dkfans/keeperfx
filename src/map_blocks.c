@@ -1343,8 +1343,8 @@ void place_single_slab_type_on_map(SlabKind slbkind, MapSlabCoord slb_x, MapSlab
 static void shuffle_unattached_things_on_slab(MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
     struct Thing *next_thing;
-    enum ThingClassIndex class_id;
     int own_category;
+    unsigned long k = 0;
 
     MapSubtlCoord start_stl_x = slab_subtile(slb_x, 0);
     MapSubtlCoord start_stl_y = slab_subtile(slb_y, 0);
@@ -1355,7 +1355,6 @@ static void shuffle_unattached_things_on_slab(MapSlabCoord slb_x, MapSlabCoord s
         {
             struct Map *mapblk = get_map_block_at(stl_x, stl_y);
             struct Thing *thing = thing_get(get_mapwho_thing_index(mapblk));
-            k = 0;
             while (!thing_is_invalid(thing))
             {
                 next_thing = thing_get(thing->next_on_mapblk);
