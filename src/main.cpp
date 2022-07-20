@@ -127,7 +127,6 @@ struct Room *droom = &_DK_game.rooms[25];
 
 //static
 TbClockMSec last_loop_time=0;
-static char flames_timer;
 
 #ifdef __cplusplus
 extern "C" {
@@ -2429,53 +2428,6 @@ void process_dungeons(void)
   SYNCDBG(9,"Finished");
 }
 
-void update_flames_nearest_camera(struct Camera *camera)
-{
-      if (camera == NULL)
-        return;
-    Thing *objtng;
-    MapCoordDelta new_distance;
-    struct Thing *thing;
-    unsigned short nearest_torches[3];
-    MapCoordDelta torch_distances[2] = {1280, 1280};
-    int i;
-    if (flames_timer)
-    {
-        memset(nearest_torches, 0, sizeof(nearest_torches));
-        for (objtng = thing_get(get_list_for_thing_class(TCls_Object)->index);
-             !thing_is_invalid(objtng);
-             objtng = thing_get(objtng->next_of_class))
-        {
-            struct Objects* objdat = get_objects_data_for_thing(objtng);
-            if (objdat->has_flames)
-            {
-                new_distance = get_2d_box_distance(&camera->mappos, &objtng->mappos);
-                if (new_distance < torch_distances[0])
-                {
-                    for (i = 2; i > 0; i --)
-                    {
-                        MapCoordDelta dist = torch_distances[i-1];
-                        nearest_torches[i] = nearest_torches[i-1];
-                        torch_distances[i] = dist;
-                    }
-                    torch_distances[0] = new_distance;
-                    nearest_torches[0] = objtng->index;
-                }
-            }
-        }
-        for (i = 0; i < (sizeof(nearest_torches) / sizeof(nearest_torches[0])); i++)
-        {
-            thing = thing_get(nearest_torches[i]);
-            if (!thing_is_invalid(thing))
-            {
-                if (!S3DEmitterIsPlayingSample(thing->snd_emitter_id, 78, 0))
-                    thing_play_sample(thing, 78, NORMAL_PITCH, -1, 3, 1, 2, FULL_LOUDNESS);
-            }
-        }
-    }
-    flames_timer = (flames_timer + 1) % 4;
-}
-
 void update_near_creatures_for_footsteps(long *near_creatures, const struct Coord3d *srcpos)
 {
     long near_distance[3];
@@ -2816,7 +2768,10 @@ void update(void)
         process_action_points();
         player = get_my_player();
         if (player->view_mode == PVM_CreatureView)
-            update_flames_nearest_camera(player->acamera);
+        {
+            struct Thing *thing = thing_get(player->controlled_thing_idx);
+            update_flames_nearest_thing(thing);
+        }
         update_footsteps_nearest_camera(player->acamera);
         PaletteFadePlayer(player);
         process_armageddon();
