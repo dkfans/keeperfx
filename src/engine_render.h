@@ -329,7 +329,7 @@ struct M33 { // sizeof = 48
 };
 
 struct EngineCol {
-    struct EngineCoord cors[MINMAX_LENGTH/4]; // Originally 16, when MINMAX_LENGTH was 64
+    struct EngineCoord cors[16];
 };
 
 struct SideOri {

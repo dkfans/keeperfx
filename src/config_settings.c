@@ -167,7 +167,7 @@ short save_settings(void)
 
 int get_max_i_can_see_from_settings(void)
 {
-    //return (MINMAX_LENGTH/2)-2; // Use this instead when adjusting MINMAX_LENGTH
+    return (MINMAX_LENGTH/2)-2; // Use this instead when adjusting MINMAX_LENGTH
     return i_can_see_levels[settings.view_distance % 4];
 }
 /******************************************************************************/

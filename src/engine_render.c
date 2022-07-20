@@ -3473,6 +3473,8 @@ static long find_closest_lights(const struct Coord3d* pos, struct NearestLights*
 
 static void create_shadows(struct Thing *thing, struct EngineCoord *ecor, struct Coord3d *pos)
 {
+    // Check to make sure this function draws shadows further than original view distance
+
     //_DK_create_shadows(thing, ecor, pos); return;
     short mv_angle;
     short sh_angle;
