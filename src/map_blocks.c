@@ -536,12 +536,12 @@ long delete_unwanted_things_from_liquid_slab(MapSlabCoord slb_x, MapSlabCoord sl
 
 static void delete_attached_things_on_slab(long slb_x, long slb_y)
 {
-    MapSubtlCoord stl_x = slab_subtile(slb_x,0);
-    MapSubtlCoord stl_y = slab_subtile(slb_y,0);
+    MapSubtlCoord stl_x = slab_subtile(slb_x,-1);
+    MapSubtlCoord stl_y = slab_subtile(slb_y,-1);
 
-    for (MapSubtlCoord y = stl_y; y < stl_y+STL_PER_SLB; y++)
+    for (MapSubtlCoord y = stl_y; y < stl_y+STL_PER_SLB+2; y++)
     {
-        for (MapSubtlCoord x = stl_x; x < stl_x+STL_PER_SLB; x++)
+        for (MapSubtlCoord x = stl_x; x < stl_x+STL_PER_SLB+2; x++)
         {
             struct Map *mapblk = get_map_block_at(x,y);
             if (mapblk == INVALID_MAP_BLOCK)
