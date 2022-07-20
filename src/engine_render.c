@@ -305,7 +305,7 @@ void update_engine_settings(struct PlayerInfo *player)
     }
     me_pointed_at = NULL;
     me_distance = 100000000;
-    max_i_can_see = get_creature_can_see_subtiles();
+    max_i_can_see = get_max_i_can_see_from_settings();
     if (lens_mode != 0)
       temp_cluedo_mode = 0;
     else
@@ -1905,7 +1905,7 @@ void fiddle_gamut(long pos_x, long pos_y)
         fiddle_gamut_find_limits(floor_x, floor_y, ewwidth, ewheight, ewzoom);
         // Place the area at proper base coords
         fiddle_gamut_set_base(floor_x, floor_y, pos_x, pos_y);
-        fiddle_gamut_set_minmaxes(floor_x, floor_y, (MINMAX_LENGTH/2)-2);
+        fiddle_gamut_set_minmaxes(floor_x, floor_y, max_i_can_see);
         break;
     }
 }

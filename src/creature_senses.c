@@ -1008,7 +1008,7 @@ long get_explore_sight_distance_in_slabs(const struct Thing *thing)
     if (!is_thing_some_way_controlled(thing)) {
         dist = 7;
     } else {
-        dist = get_creature_can_see_subtiles() / STL_PER_SLB;
+        dist = get_max_i_can_see_from_settings() / STL_PER_SLB;
         if (dist <= 7)
             dist = 7;
     }
