@@ -1355,15 +1355,14 @@ static void shuffle_unattached_things_on_slab(MapSlabCoord slb_x, MapSlabCoord s
         {
             struct Map *mapblk = get_map_block_at(stl_x, stl_y);
             struct Thing *thing = thing_get(get_mapwho_thing_index(mapblk));
-
+            k = 0;
             while (!thing_is_invalid(thing))
             {
                 next_thing = thing_get(thing->next_on_mapblk);
                 if (thing->parent_idx != get_slab_number(slb_x,slb_y))
                 {
                     TbBool delete_thing = true;
-                    class_id = thing->class_id;
-                    if (class_id == TCls_Object)
+                    if (thing_is_object(thing))
                     {
                         struct Objects *objdat = get_objects_data_for_thing(thing);
 
@@ -1380,7 +1379,7 @@ static void shuffle_unattached_things_on_slab(MapSlabCoord slb_x, MapSlabCoord s
                             delete_thing = false;
                         }
                     }
-                    else if (class_id != TCls_EffectGen)
+                    else if (thing->class_id != TCls_EffectGen)
                     {
                         delete_thing = false;
                     }
@@ -1390,6 +1389,13 @@ static void shuffle_unattached_things_on_slab(MapSlabCoord slb_x, MapSlabCoord s
                     }
                 }
                 thing = next_thing;
+                k++;
+                if (k > THINGS_COUNT)
+                {
+                    ERRORLOG("Infinite loop detected when sweeping things list");
+                    break_mapwho_infinite_chain(mapblk);
+                    break;
+                }
             }
         }
     }
