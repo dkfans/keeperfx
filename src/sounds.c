@@ -703,7 +703,7 @@ void update_flames_nearest_thing(struct Thing *thing)
     struct Thing *objtng;
     MapCoordDelta new_distance;
     struct Thing *flametng;
-    unsigned short nearest_torches[3];
+    ThingIndex nearest_torches[3];
     MapCoordDelta torch_distances[2];
     long hearing_range;
     if (thing->class_id == TCls_Creature)
