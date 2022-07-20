@@ -555,7 +555,7 @@ static void delete_attached_things_on_slab(long slb_x, long slb_y)
                 do
                 {
                     next_thing = thing_get(thing->next_on_mapblk);
-                    if (thing->parent_idx == (85 * slb_y + slb_x))
+                    if (thing->parent_idx == get_slab_number(slb_x,slb_y))
                     {
                         char class_id = thing->class_id;
                         if (class_id == TCls_Object || class_id == TCls_EffectGen)
