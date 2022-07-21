@@ -429,29 +429,35 @@ void update_player_camera_fp(struct Camera *cam, struct Thing *thing)
     _DK_update_player_camera_fp(cam, thing);
 }
 
+long get_camera_zoom_limit(struct Camera* cam)
+{
+    return (5500 - (cam->zoom / 3));
+}
+
 void view_move_camera_left(struct Camera *cam, long distance)
 {
   
     int pos_x;
     int pos_y;
     int parchment_pos_x;
-  
+
+    long limit = get_camera_zoom_limit(cam);
     if ( cam->view_mode == PVM_IsometricView || cam->view_mode == PVM_FrontView)
     {
-
+            
         pos_x = cam->mappos.x.val - FIXED_POLAR_TO_X(cam->orient_a + 512,distance);
         pos_y = cam->mappos.y.val + FIXED_POLAR_TO_Y(cam->orient_a + 512,distance);
 
-        if ( pos_x < 0 )
-            pos_x = 0;
-        if ( pos_x > 0xFFFF )
-            pos_x = -1;
+        if ( pos_x < limit)
+            pos_x = limit;
+        if ( pos_x + limit > 0xFFFF )
+            pos_x = -(limit + 1);
 
-        if ( pos_y < 0 )
-            pos_y = 0;
-        if ( pos_y > 0xFFFF )
-            pos_y = -1;
-
+        if ( pos_y < limit)
+            pos_y = limit;
+        if ( pos_y + limit > 0xFFFF )
+            pos_y = -(limit + 1);
+        JUSTMSG("zoom = %d, setting = %d, pos = %dm, limit = %d, units_per_pixel = %d", cam->zoom, settings.isometric_view_zoom_level, pos_x, limit, units_per_pixel);
         cam->mappos.x.val = pos_x;
         cam->mappos.y.val = pos_y;
         return;
@@ -480,19 +486,19 @@ void view_move_camera_right(struct Camera *cam, long distance)
   
     if ( cam->view_mode == PVM_IsometricView || cam->view_mode == PVM_FrontView)
     {
-
         pos_x = cam->mappos.x.val + FIXED_POLAR_TO_X(cam->orient_a + 512,distance);
         pos_y = cam->mappos.y.val - FIXED_POLAR_TO_Y(cam->orient_a + 512,distance);
 
-        if ( pos_x < 0 )
-            pos_x = 0;
-        if ( pos_x > 0xFFFF )
-            pos_x = -1;
+        long limit = get_camera_zoom_limit(cam);
+        if ( pos_x < limit)
+            pos_x = limit;
+        if ( pos_x + limit > 0xFFFF )
+            pos_x = -(limit + 1);
 
-        if ( pos_y < 0 )
-            pos_y = 0;
-        if ( pos_y > 0xFFFF )
-            pos_y = -1;
+        if ( pos_y < limit)
+            pos_y = limit;
+        if ( pos_y + limit > 0xFFFF )
+            pos_y = -(limit + 1);
 
         cam->mappos.x.val = pos_x;
         cam->mappos.y.val = pos_y;
