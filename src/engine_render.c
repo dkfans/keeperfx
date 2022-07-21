@@ -141,8 +141,6 @@ struct EngineCol ecs2[MINMAX_LENGTH-1];
 struct EngineCol *front_ec;
 struct EngineCol *back_ec;
 
-int countTrianglesAddedToBucket = 0;
-
 static int water_wibble_angle = 0;
 //static unsigned char temp_cluedo_mode;
 static unsigned long render_problems;
@@ -321,7 +319,6 @@ void update_engine_settings(struct PlayerInfo *player)
 static void poly_pool_end_reserve(int nitems)
 {
     poly_pool_end = &poly_pool[sizeof(poly_pool)-(nitems*sizeof(struct BucketKindSlabSelector)-1)];
-    //poly_pool_end = &poly_pool[sizeof(poly_pool)-(nitems*sizeof(struct BucketKindSlabSelector))]; //Doing this fixes the warning
 }
 
 static TbBool is_free_space_in_poly_pool(int nitems)
@@ -975,8 +972,8 @@ void fill_in_points_isometric(long bstl_x, long bstl_y, struct MinMax *mm)
     if (hview_z < 32) {
         hview_z = 0;
     } else
-    if (hview_z >= 11232) {
-        hview_z = 11232;
+    if (hview_z >= 30000) { // Originally 11232, increased for view distance
+        hview_z = 30000; // Originally 11232, increased for view distance
     }
     long eview_w;
     long eview_h;
@@ -1071,8 +1068,8 @@ void fill_in_points_isometric(long bstl_x, long bstl_y, struct MinMax *mm)
             if (ecord->z < 32) {
                 ecord->z = 0;
             } else
-            if (ecord->z >= 11232) {
-                ecord->z = 11232;
+            if (ecord->z >= 30000) { // Originally 11232, increased for view distance
+                ecord->z = 30000; // Originally 11232, increased for view distance
             }
             if (ecord->view_width < 0) {
                 ecord->field_8 |= 0x08;
@@ -3865,7 +3862,6 @@ static void do_a_gpoly_gourad_tr(struct EngineCoord *ec1, struct EngineCoord *ec
         v7 = z / 16;
         if ( getpoly < poly_pool_end )
         {
-            countTrianglesAddedToBucket += 1;
             v8 = (struct BucketKindPolygonStandard *)getpoly;
             v9 = buckets[v7];
             getpoly += sizeof(struct BucketKindPolygonStandard);
@@ -3926,7 +3922,6 @@ static void do_a_gpoly_unlit_tr(struct EngineCoord *ec1, struct EngineCoord *ec2
         v6 = z / 16;
         if ( getpoly < poly_pool_end )
         {
-            countTrianglesAddedToBucket += 1;
             v7 = (struct BucketKindPolygonStandard *)getpoly;
             v8 = buckets[v6];
             getpoly += sizeof(struct BucketKindPolygonStandard);
@@ -3974,7 +3969,6 @@ static void do_a_gpoly_unlit_bl(struct EngineCoord *ec1, struct EngineCoord *ec2
         v6 = z / 16;
         if ( getpoly < poly_pool_end )
         {
-            countTrianglesAddedToBucket += 1;
         v7 = buckets[v6];
         getpoly += sizeof(struct BucketKindPolygonStandard);
         v5->b.next = v7;
@@ -4028,7 +4022,6 @@ static void do_a_gpoly_gourad_bl(struct EngineCoord *ec1, struct EngineCoord *ec
         zdiv16 = z / 16;
         if ( getpoly < poly_pool_end )
         {
-            countTrianglesAddedToBucket += 1;
             poly_ptr = (struct BucketKindPolygonStandard *)getpoly;
             v9 = buckets[zdiv16];
             getpoly += sizeof(struct BucketKindPolygonStandard);
@@ -6055,21 +6048,17 @@ void display_drawlist(void) // Draws isometric and 1st person view. Not frontvie
     render_problems = 0;
     thing_pointed_at = 0;
     
-    int countNumberOfPolygonStandard = 0;
-    int countBucketItems = 0;
     // The bucket list is the final step in drawing something to the screen. Visuals are added to the bucket list in previous functions.
     for (bucket_num = BUCKETS_COUNT-1; bucket_num > 0; bucket_num--)
     {
         for (item.b = buckets[bucket_num]; item.b != NULL; item.b = item.b->next)
         {
-            countBucketItems += 1;
             //JUSTLOG("bucket_num = %d", bucket_num);
             //JUSTLOG("item.b = %p", item.b);
             //JUSTLOG("item.b->kind = %d",(int)item.b->kind);
             switch ( item.b->kind )
             {
             case QK_PolygonStandard: // All textured polygons for isometric and 'far' textures in 1st person view
-                countNumberOfPolygonStandard += 1;
                 vec_mode = VM_Unknown5;
                 vec_map = block_ptrs[item.polygonStandard->block];
                 draw_gpoly(&item.polygonStandard->p1, &item.polygonStandard->p2, &item.polygonStandard->p3);
@@ -6222,7 +6211,7 @@ void display_drawlist(void) // Draws isometric and 1st person view. Not frontvie
                 draw_engine_number(item.floatingGoldText);
                 break;
             case QK_RoomFlagBottomPole: // The bottom pole part, doesn't affect the status sitting on top of the pole
-                //draw_engine_room_flagpole(item.roomFlag);
+                draw_engine_room_flagpole(item.roomFlag);
                 break;
             case QK_JontyISOSprite: // Spinning key
                 player = get_my_player();
@@ -6234,7 +6223,7 @@ void display_drawlist(void) // Draws isometric and 1st person view. Not frontvie
                 }
                 break;
             case QK_RoomFlagStatusBox: // The status sitting on top of the pole
-                //draw_engine_room_flag_top(item.roomFlag);
+                draw_engine_room_flag_top(item.roomFlag);
                 break;
             default:
                 render_problems++;
@@ -6245,10 +6234,6 @@ void display_drawlist(void) // Draws isometric and 1st person view. Not frontvie
     }
     if (render_problems > 0)
       WARNLOG("Incurred %lu rendering problems; last was with poly kind %ld",render_problems,render_prob_kind);
-    
-    
-    JUSTLOG("countBucketItems = %d", countBucketItems);
-    JUSTLOG("PolygonStandard drawn = %d", countNumberOfPolygonStandard);
 }
 
 static void prepare_draw_plane_of_engine_columns(long aposc, long bposc, long xcell, long ycell, struct MinMax *mm)
@@ -6420,9 +6405,7 @@ void draw_view(struct Camera *cam, unsigned char a2)
     find_gamut();
     fiddle_gamut(xcell, ycell + (cells_away+1));
     
-    countTrianglesAddedToBucket = 0;
     draw_view_map_plane(aposc, bposc, xcell, ycell);
-    JUSTLOG("countTrianglesAddedToBucket = %d", countTrianglesAddedToBucket);
     
     if (map_volume_box.visible)
     {
