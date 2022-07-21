@@ -1376,7 +1376,7 @@ static void fiddle_half_gamut(long start_stl_x, long start_stl_y, long step, lon
     long stl_xp;
     long stl_xn;
 
-    end_stl_x = start_stl_x + minmaxs[32].min;
+    end_stl_x = start_stl_x + minmaxs[(MINMAX_LENGTH/2)].min;
     for (stl_xc=start_stl_x; 1; stl_xc--)
     {
         if (stl_xc < end_stl_x) {
@@ -1421,10 +1421,10 @@ static void fiddle_half_gamut(long start_stl_x, long start_stl_y, long step, lon
     {
         stl_x_min = min(min(stl_xn, stl_xp), stl_xc);
         set_x_min = true;
-        minmaxs[32].min = stl_x_min - start_stl_x;
+        minmaxs[(MINMAX_LENGTH/2)].min = stl_x_min - start_stl_x;
     }
 
-    end_stl_x = start_stl_x + minmaxs[32].max;
+    end_stl_x = start_stl_x + minmaxs[(MINMAX_LENGTH/2)].max;
     for (stl_xc=start_stl_x; 1; stl_xc++)
     {
         if (stl_xc > end_stl_x) {
@@ -1469,13 +1469,13 @@ static void fiddle_half_gamut(long start_stl_x, long start_stl_y, long step, lon
     {
         stl_x_max = max(max(stl_xn, stl_xp), stl_xc);
         set_x_max = true;
-        minmaxs[32].max = stl_x_max - start_stl_x + 1;
+        minmaxs[(MINMAX_LENGTH/2)].max = stl_x_max - start_stl_x + 1;
     }
 
     struct MinMax *mm;
     long stl_y;
     stl_y = start_stl_y + step;
-    mm = &minmaxs[step + 32];
+    mm = &minmaxs[step + (MINMAX_LENGTH/2)];
     long n;
     for (n=1; n < a4; n++)
     {
