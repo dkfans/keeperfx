@@ -972,8 +972,8 @@ void fill_in_points_isometric(long bstl_x, long bstl_y, struct MinMax *mm)
     if (hview_z < 32) {
         hview_z = 0;
     } else
-    if (hview_z >= 30000) { // Originally 11232, increased for view distance
-        hview_z = 30000; // Originally 11232, increased for view distance
+    if (hview_z >= 35000) { // Originally 11232, increased for view distance
+        hview_z = 35000; // Originally 11232, increased for view distance
     }
     long eview_w;
     long eview_h;
@@ -1068,8 +1068,8 @@ void fill_in_points_isometric(long bstl_x, long bstl_y, struct MinMax *mm)
             if (ecord->z < 32) {
                 ecord->z = 0;
             } else
-            if (ecord->z >= 30000) { // Originally 11232, increased for view distance
-                ecord->z = 30000; // Originally 11232, increased for view distance
+            if (ecord->z >= 35000) { // Originally 11232, increased for view distance
+                ecord->z = 35000; // Originally 11232, increased for view distance
             }
             if (ecord->view_width < 0) {
                 ecord->field_8 |= 0x08;
