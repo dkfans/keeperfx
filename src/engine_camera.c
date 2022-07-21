@@ -189,8 +189,8 @@ void view_zoom_camera_in(struct Camera *cam, long limit_max, long limit_min)
         new_zoom = (100 * old_zoom) / 85;
         if (new_zoom == old_zoom)
             new_zoom++;
-        if (new_zoom < 16384) {
-            new_zoom = 16384;
+        if (new_zoom < 1489) { //Originally 16384, decreased for view distance
+            new_zoom = 1489;
         } else
         if (new_zoom > 65536) {
             new_zoom = 65536;
@@ -250,8 +250,8 @@ void view_zoom_camera_out(struct Camera *cam, long limit_max, long limit_min)
         new_zoom = (85 * old_zoom) / 100;
         if (new_zoom == old_zoom)
             new_zoom--;
-        if (new_zoom < 16384) {
-            new_zoom = 16384;
+        if (new_zoom < 1489) { //Originally 16384, decreased for view distance
+            new_zoom = 1489;
         } else
         if (new_zoom > 65536) {
             new_zoom = 65536;
