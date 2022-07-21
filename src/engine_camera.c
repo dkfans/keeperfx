@@ -441,10 +441,10 @@ void view_move_camera_left(struct Camera *cam, long distance)
     int pos_y;
     int parchment_pos_x;
 
-    long limit = get_camera_zoom_limit(cam);
     if ( cam->view_mode == PVM_IsometricView || cam->view_mode == PVM_FrontView)
     {
-            
+        long limit = get_camera_zoom_limit(cam);
+        long vertical_offset = 2 * STL_PER_SLB * COORD_PER_STL;
         pos_x = cam->mappos.x.val - FIXED_POLAR_TO_X(cam->orient_a + 512,distance);
         pos_y = cam->mappos.y.val + FIXED_POLAR_TO_Y(cam->orient_a + 512,distance);
 
@@ -453,10 +453,10 @@ void view_move_camera_left(struct Camera *cam, long distance)
         if ( pos_x + limit > 0xFFFF )
             pos_x = -(limit + 1);
 
-        if ( pos_y < 0)
-            pos_y = 0;
-        if ( pos_y > 0xFFFF )
-            pos_y = -1;
+        if (pos_y + vertical_offset < limit)
+            pos_y = limit - vertical_offset;
+        if (pos_y - vertical_offset + limit > 0xFFFF)
+            pos_y = 0xFFFF - limit + vertical_offset;
         cam->mappos.x.val = pos_x;
         cam->mappos.y.val = pos_y;
         return;
@@ -489,15 +489,16 @@ void view_move_camera_right(struct Camera *cam, long distance)
         pos_y = cam->mappos.y.val - FIXED_POLAR_TO_Y(cam->orient_a + 512,distance);
 
         long limit = get_camera_zoom_limit(cam);
+        long vertical_offset = 2 * STL_PER_SLB * COORD_PER_STL;
         if ( pos_x < limit)
             pos_x = limit;
         if ( pos_x + limit > 0xFFFF )
             pos_x = -(limit + 1);
 
-        if ( pos_y < 0)
-            pos_y = 0;
-        if ( pos_y > 0xFFFF )
-            pos_y = -1;
+        if (pos_y + vertical_offset < limit)
+            pos_y = limit - vertical_offset;
+        if (pos_y - vertical_offset + limit > 0xFFFF)
+            pos_y = 0xFFFF - limit + vertical_offset;
 
         cam->mappos.x.val = pos_x;
         cam->mappos.y.val = pos_y;
@@ -532,10 +533,10 @@ void view_move_camera_up(struct Camera *cam, long distance)
         pos_x = cam->mappos.x.val + FIXED_POLAR_TO_X(cam->orient_a,distance);
         pos_y = cam->mappos.y.val - FIXED_POLAR_TO_Y(cam->orient_a,distance);
 
-        if ( pos_x < 0 )
-            pos_x = 0;
-        if ( pos_x > 0xFFFF )
-            pos_x = -1;
+        if (pos_x < limit)
+            pos_x = limit;
+        if (pos_x + limit > 0xFFFF)
+            pos_x = -(limit + 1);
 
         if ( pos_y + vertical_offset < limit)
             pos_y = limit - vertical_offset;
@@ -573,10 +574,10 @@ void view_move_camera_down(struct Camera *cam, long distance)
         pos_x = cam->mappos.x.val - FIXED_POLAR_TO_X(cam->orient_a,distance);
         pos_y = cam->mappos.y.val + FIXED_POLAR_TO_Y(cam->orient_a,distance);
 
-        if ( pos_x < 0 )
-            pos_x = 0;
-        if ( pos_x > 0xFFFF )
-            pos_x = -1;
+        if (pos_x < limit)
+            pos_x = limit;
+        if (pos_x + limit > 0xFFFF)
+            pos_x = -(limit + 1);
 
         if (pos_y - vertical_offset < limit)
             pos_y = limit + vertical_offset;
