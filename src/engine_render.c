@@ -6075,9 +6075,7 @@ void display_drawlist(void) // Draws isometric and 1st person view. Not frontvie
     {
         for (item.b = buckets[bucket_num]; item.b != NULL; item.b = item.b->next)
         {
-            //JUSTLOG("bucket_num = %d", bucket_num);
-            //JUSTLOG("item.b = %p", item.b);
-            //JUSTLOG("item.b->kind = %d",(int)item.b->kind);
+            //JUSTLOG("%d",(int)item.b->kind);
             switch ( item.b->kind )
             {
             case QK_PolygonStandard: // All textured polygons for isometric and 'far' textures in 1st person view
@@ -6333,7 +6331,6 @@ static void draw_plane_of_engine_columns(long aposc, long bposc, long xcell, lon
  */
 static void draw_view_map_plane(long aposc, long bposc, long xcell, long ycell)
 {
-    int countPlanesOfEngineColumns = 0;
     struct MinMax *mm;
     long i;
     i = MINMAX_ALMOST_HALF-cells_away;
@@ -6344,7 +6341,6 @@ static void draw_view_map_plane(long aposc, long bposc, long xcell, long ycell)
     
     for (i = 2*cells_away-1; i > 0; i--)
     {
-        countPlanesOfEngineColumns += 1;
         ycell++;
         bposc -= (map_subtiles_y+1);
         mm++;
@@ -6423,14 +6419,14 @@ void draw_view(struct Camera *cam, unsigned char a2)
     ycell = (y >> 8) - (cells_away+1);
     find_gamut();
     fiddle_gamut(xcell, ycell + (cells_away+1));
-    
     draw_view_map_plane(aposc, bposc, xcell, ycell);
-    
+
     if (map_volume_box.visible)
     {
         poly_pool_end_reserve(0);
         process_isometric_map_volume_box(x, y, z, my_player_number);
     }
+
     cam->zoom = zoom_mem;//TODO [zoom] remove when all cam->zoom will be changed to camera_zoom
     display_drawlist();
     map_volume_box.visible = 0;

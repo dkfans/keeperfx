@@ -376,11 +376,9 @@ struct stripey_line {
 };
 
 extern struct stripey_line colored_stripey_lines[];
-
 extern unsigned char poly_pool[POLY_POOL_SIZE];
 extern unsigned char *poly_pool_end;
 extern long cells_away;
-
 /******************************************************************************/
 DLLIMPORT Offset _DK_vert_offset[3];
 #define vert_offset _DK_vert_offset
