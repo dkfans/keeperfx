@@ -4549,6 +4549,18 @@ long process_creature_needs_to_heal_critical(struct Thing *creatng)
     if (get_creature_health_permil(creatng) >= gameadd.critical_health_permil) {
         return 0;
     }
+    if (creature_instance_is_available(creatng, CrInst_HEAL))
+    {
+        if (creature_instance_has_reset(creatng, CrInst_HEAL))
+        {
+            if ((creatng->alloc_flags & TAlF_IsControlled) == 0)
+            {
+                creature_cast_spell(creatng, SplK_Heal, cctrl->explevel, 0, 0);
+                cctrl->instance_use_turn[CrInst_HEAL] = game.play_gameturn;
+                return 1;
+            }
+        }
+    }
     if (!creature_can_do_healing_sleep(creatng))
     {
         // Creature needs healing but cannot heal in lair - try toking
@@ -4868,8 +4880,24 @@ long anger_process_creature_anger(struct Thing *creatng, const struct CreatureSt
 
 long process_creature_needs_to_heal(struct Thing *creatng, const struct CreatureStats *crstat)
 {
+    if (!creature_requires_healing(creatng))
+    {
+        return 0;
+    }
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    if (!creature_can_do_healing_sleep(creatng) || !creature_requires_healing(creatng)) {
+    if (creature_instance_is_available(creatng, CrInst_HEAL))
+    {
+        if (creature_instance_has_reset(creatng, CrInst_HEAL))
+        {
+            if ((creatng->alloc_flags & TAlF_IsControlled) == 0)
+            {
+                creature_cast_spell(creatng, SplK_Heal, cctrl->explevel, 0, 0);
+                cctrl->instance_use_turn[CrInst_HEAL] = game.play_gameturn;
+                return 1;
+            }
+        }
+    }
+    if (!creature_can_do_healing_sleep(creatng)) {
         return 0;
     }
     if (creature_is_doing_lair_activity(creatng)) {
