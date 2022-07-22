@@ -157,6 +157,17 @@ DLLIMPORT char _DK_splittypes[64];
 /******************************************************************************/
 static void do_map_who(short tnglist_idx);
 /******************************************************************************/
+static float zoomed_percent() {
+    struct PlayerInfo *myplyr;
+    myplyr = get_my_player();
+    const struct Camera *cam;
+    cam = myplyr->acamera;
+    float range_min = CAMERA_ZOOM_MIN;
+    float range_max = CAMERA_ZOOM_MAX;
+    float range_input = cam->zoom;
+    return ((range_input - range_min)) / (range_max - range_min);
+}
+
 static void get_floor_pointed_at(long x, long y, long *floor_x, long *floor_y)
 {
     long long ofs_x;
@@ -4702,22 +4713,28 @@ void draw_engine_room_flagpole(struct BucketKindRoomFlag *rflg)
     {
         if (settings.roomflags_on)
         {
-            int scale;
+            float minimum_scale = 0.25; // Size multiplier when fully zoomed out
+            float maximum_scale = 2.00; // Size multiplier when fully zoomed in
+            float scale_pole_width = lerp(minimum_scale, maximum_scale, zoomed_percent());
+
             int deltay;
             int height;
-            scale = cam->zoom;
-            if (cam->view_mode == PVM_FrontView)
-              scale = 4094;
-            deltay = (scale << 7 >> 13)*units_per_pixel/16;
-            height = (2 * (71 * scale) >> 13);
+            int zoom_factor = cam->zoom;
+            if (cam->view_mode == PVM_FrontView) {
+                zoom_factor = 2047;
+                scale_pole_width = 0.75;
+            }
+
+            deltay = (zoom_factor << 7 >> 13)*units_per_pixel/16;
+            height = (2 * (71 * zoom_factor) >> 13);
             LbDrawBox(rflg->x,
                       rflg->y - deltay,
-                      (4 * units_per_pixel + 8) / 16,
+                      ((4*scale_pole_width) * units_per_pixel + 8) / 16,
                       (height * units_per_pixel + 8) / 16,
                       colours[3][1][0]);
-            LbDrawBox(rflg->x + 2 * units_per_pixel / 16,
+            LbDrawBox(rflg->x + (2*scale_pole_width) * (units_per_pixel) / 16,
                       rflg->y - deltay,
-                      (2 * units_per_pixel + 8) / 16,
+                      ((2*scale_pole_width) * units_per_pixel + 8) / 16,
                       (height * units_per_pixel + 8) / 16,
                       colours[1][0][0]);
         }
@@ -5023,13 +5040,18 @@ static void draw_engine_room_flag_top(struct BucketKindRoomFlag *rflg)
     {
         if (settings.roomflags_on)
         {
-            int scale;
-            int deltay;
-            scale = cam->zoom;
-            if (cam->view_mode == PVM_FrontView)
-                scale = 4094;
-            deltay = (scale << 7 >> 13)*units_per_pixel/16;
-            draw_room_flag_top(rflg->x, rflg->y - deltay, units_per_pixel, room);
+            float minimum_scale = 0.25; // Size multiplier when fully zoomed out
+            float maximum_scale = 2.00; // Size multiplier when fully zoomed in
+            float scale = lerp(minimum_scale, maximum_scale, zoomed_percent());
+            
+            int zoom_factor = cam->zoom;
+            if (cam->view_mode == PVM_FrontView) {
+                zoom_factor = 2047;
+                scale = 0.5;
+            }
+
+            int top_of_pole_offset = (zoom_factor << 7 >> 13)*(units_per_pixel)/16;
+            draw_room_flag_top(rflg->x, rflg->y - top_of_pole_offset, (units_per_pixel*scale), room);
         }
     }
 }
@@ -6328,7 +6350,6 @@ static void draw_view_map_plane(long aposc, long bposc, long xcell, long ycell)
         mm++;
         draw_plane_of_engine_columns(aposc, bposc, xcell, ycell, mm);
     }
-    JUSTLOG("countPlanesOfEngineColumns = %d",countPlanesOfEngineColumns);
 }
 
 void draw_view(struct Camera *cam, unsigned char a2)
@@ -6395,8 +6416,6 @@ void draw_view(struct Camera *cam, unsigned char a2)
         do_perspective_rotation(x, y, z);
         cells_away = compute_cells_away();
     }
-    
-    JUSTLOG("cells_away = %d", cells_away);
 
     xcell = (x >> 8);
     aposc = -(x & 0xFF);
@@ -8409,6 +8428,10 @@ static void do_map_who_for_thing(struct Thing *thing)
         }
         break;
     case 5:
+        // Hide flags if very zoomed out, for more atmospheric overview
+        if (camera_zoom < 2000) {
+            break;
+        }
         ecor.x = ((long)thing->mappos.x.val - map_x_pos);
         ecor.z = (map_y_pos - (long)thing->mappos.y.val);
         ecor.y = ((long)thing->mappos.z.val - map_z_pos);
