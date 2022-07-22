@@ -6684,12 +6684,12 @@ msgstr "増強された原キャンペーン"
 #: guitext:1028
 msgctxt "Menu interface item""
 msgid "Post Ancient Keeper campaign"
-msgstr "エンシェント・キーパー後・キャンペーン"
+msgstr "エンシェント・キーパー後キャンペーン"
 
 #: guitext:1029
 msgctxt "Menu interface item""
 msgid "Post Undead Keeper campaign"
-msgstr "アンデッド・キーパー後・キャンペーン"
+msgstr "アンデッド・キーパー後キャンペーン"
 
 #: guitext:1030
 msgctxt "Menu interface item""
