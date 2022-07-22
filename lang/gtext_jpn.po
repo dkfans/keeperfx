@@ -6704,7 +6704,7 @@ msgstr "主君の復讐"
 #: guitext:1032
 msgctxt "Menu interface item""
 msgid "Twin Keepers Campaign"
-msgstr "ツイン・キーパー・キャンペーン"
+msgstr "ツイン・キーパーズ・キャンペーン"
 
 #: guitext:1033
 msgctxt "Menu interface item""
