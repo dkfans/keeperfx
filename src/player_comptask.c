@@ -522,42 +522,42 @@ TbBool is_task_in_progress(struct Computer2 *comp, ComputerTaskType ttype)
 static struct ComputerTask *get_free_task(struct Computer2 *comp, long a2)
 {
 
-    struct ComputerTask *v2;
-    struct ComputerTask *result;
-    struct ComputerTask *v4;
+    struct ComputerTask *task_a;
+    struct ComputerTask *task_result;
+    struct ComputerTask *task_b;
     int next_task;
 
-    v2 = &game.computer_task[1];
-    while ((v2->flags & 1) != 0)
+    task_a = &game.computer_task[1];
+    while ((task_a->flags & ComTsk_Unkn0001) != 0)
     {
-        if (++v2 >= (struct ComputerTask *)&game.computer)
+        if (++task_a >= (struct ComputerTask *)&game.computer)
             return 0;
     }
-    memset(v2, 0, sizeof(struct ComputerTask));
-    v4 = &game.computer_task[(unsigned __int16)comp->task_idx];
-    if (v4 > game.computer_task)
+    memset(task_a, 0, sizeof(struct ComputerTask));
+    task_b = &game.computer_task[(unsigned __int16)comp->task_idx];
+    if (task_b > game.computer_task)
     {
         if (!a2)
         {
-            if (v4->next_task)
+            if (task_b->next_task)
             {
                 do
                 {
-                    next_task = (unsigned __int16)v4->next_task;
-                    v4 = &game.computer_task[(unsigned __int16)v4->next_task];
+                    next_task = (unsigned __int16)task_b->next_task;
+                    task_b = &game.computer_task[(unsigned __int16)task_b->next_task];
                 } while (game.computer_task[next_task].next_task);
             }
-            v4->next_task = v2 - game.computer_task;
+            task_b->next_task = task_a - game.computer_task;
             goto LABEL_12;
         }
-        v2->next_task = comp->task_idx;
+        task_a->next_task = comp->task_idx;
     }
-    comp->task_idx = v2 - game.computer_task;
+    comp->task_idx = task_a - game.computer_task;
 LABEL_12:
-    v2->flags |= 1u;
-    result = v2;
-    v2->created_turn = game.play_gameturn;
-    return result;
+    task_a->flags |= ComTsk_Unkn0001;
+    task_result = task_a;
+    task_a->created_turn = game.play_gameturn;
+    return task_result;
 }
 
 TbBool is_task_in_progress_using_hand(struct Computer2 *comp)
