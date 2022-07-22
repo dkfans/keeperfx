@@ -196,21 +196,8 @@ static void get_floor_pointed_at(long x, long y, long *floor_x, long *floor_y)
     sor_hn = (((long long)hori_offset[0] * ofs_y) / 2LL);
     der_hp = ((long long)vert_offset[0] * (long long)hori_offset[1]) / 8LL;
     der_hn = ((long long)hori_offset[0] * (long long)vert_offset[1]) / 8LL;
-    
-    // Prevents crashing when zooming out too far, this code might be unnecessary if we just set CAMERA_ZOOM_MIN to a reasonable number
-    long long preventDivisionByZero1 = ((der_vp-der_vn)>>8);
-    long long preventDivisionByZero2 = ((der_hp-der_hn)>>8);
-    if (preventDivisionByZero1 != 0) {
-        *floor_y = ( (sor_vp-sor_vn) / preventDivisionByZero1 ) >> 2;
-    } else {
-        *floor_y = ( (sor_vp-sor_vn)) >> 2;
-    }
-    if (preventDivisionByZero2 != 0) {
-        *floor_x = ( (sor_hp-sor_hn) / preventDivisionByZero2 ) >> 2;
-    } else {
-        *floor_x = ( (sor_hp-sor_hn)) >> 2;
-    }
-
+    *floor_y = ((sor_vp-sor_vn) / ((der_vp-der_vn)>>8)) >> 2;
+    *floor_x = ((sor_hp-sor_hn) / ((der_hp-der_hn)>>8)) >> 2;
 }
 
 static long compute_cells_away(void)
@@ -3481,8 +3468,6 @@ static long find_closest_lights(const struct Coord3d* pos, struct NearestLights*
 
 static void create_shadows(struct Thing *thing, struct EngineCoord *ecor, struct Coord3d *pos)
 {
-    // Check to make sure this function draws shadows further than original view distance
-
     //_DK_create_shadows(thing, ecor, pos); return;
     short mv_angle;
     short sh_angle;
