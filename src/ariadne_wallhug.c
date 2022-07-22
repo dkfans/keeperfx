@@ -34,6 +34,7 @@
 #include "creature_control.h"
 #include "creature_states.h"
 #include "config_creature.h"
+#include "game_legacy.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -358,9 +359,135 @@ void set_hugging_pos_using_blocked_flags(struct Coord3d *dstpos, struct Thing *c
     dstpos->z.val = tmpos.z.val;
 }
 
-long get_map_index_of_first_block_thing_colliding_with_at(struct Thing *creatng, struct Coord3d *pos, long a3, unsigned char a4)
+int door_will_open_for_thing(struct Thing *doortng, struct Thing *creatng)
 {
-    return _DK_get_map_index_of_first_block_thing_colliding_with_at(creatng, pos, a3, a4);
+  char owner; // dl
+  char v3; // cl
+  __int32 result; // eax
+
+  result = 0;
+  if ( !doortng->door.is_locked && creatng->class_id == TCls_Creature )
+  {
+    owner = doortng->owner;
+    v3 = creatng->owner;
+    if ( owner == v3
+      || owner != (unsigned __int8)game.neutral_player_num
+      && v3 != (unsigned __int8)game.neutral_player_num
+      && ((unsigned __int8)game.players[owner].allied_players & (1 << v3)) != 0
+      && v3 != (unsigned __int8)game.neutral_player_num
+      && owner != (unsigned __int8)game.neutral_player_num
+      && ((unsigned __int8)game.players[v3].allied_players & (1 << owner)) != 0 )
+    {
+      return 1;
+    }
+  }
+  return result;
+}
+
+static long get_map_index_of_first_block_thing_colliding_with_at(struct Thing *creatng, struct Coord3d *pos, long a3, unsigned char a4)
+{
+    long old = _DK_get_map_index_of_first_block_thing_colliding_with_at(creatng, pos, a3, a4);
+    long new = 54321;
+
+    int val_x;
+    int nav_radius;
+    int start_stl_x;
+    int end_stl_x;
+    int y_val;
+    int end_stl_y;
+    int start_stl_y;
+    unsigned int *v11;
+    __int32 v12;
+    unsigned int *v13;
+    struct Map *mapblk;
+    struct Thing *door_for_position;
+    __int32 pos_y;
+    __int32 pos_x;
+    struct Map *i;
+    int v20;
+    __int32 v21;
+
+    nav_radius = thing_nav_sizexy(creatng) / 2;
+    start_stl_x = ((unsigned __int16)pos->x.val - nav_radius) / 256;
+    if (start_stl_x <= 0)
+        start_stl_x = 0;
+    pos_x = start_stl_x;
+    val_x = pos->x.val;
+    end_stl_x = (val_x + nav_radius) / 256 + 1;
+    if (end_stl_x >= 255)
+        end_stl_x = 255;
+    v20 = end_stl_x;
+
+    y_val = (unsigned __int16)pos->y.val;
+    end_stl_y = ((unsigned __int16)y_val + nav_radius) / 256 + 1;
+    if (end_stl_y >= 255)
+        end_stl_y = 255;
+    v21 = end_stl_y;
+    start_stl_y = (y_val - nav_radius) / 256;
+    if (start_stl_y <= 0)
+        start_stl_y = 0;
+    pos_y = start_stl_y;
+
+
+    if (start_stl_y >= v21)
+    {
+        new = -1;
+        goto LABEL_TEST_RETURN;
+        return -1;
+    }
+    v11 = &map_to_slab[start_stl_y];
+    for (i = &game.map[256 * start_stl_y + 257 + pos_x];; i += 256)
+    {
+        v12 = pos_x;
+        if (pos_x < v20)
+            break;
+    LABEL_21:
+        ++v11;
+        if (++pos_y >= v21)
+        {
+            new = -1;
+            goto LABEL_TEST_RETURN;
+            return -1;
+        }
+    }
+    v13 = &map_to_slab[pos_x];
+    mapblk = i;
+    while (1)
+    {
+        if (((unsigned __int8)a3 & mapblk->flags) == 0 && game.slabmap[85 * *v11 + *v13].kind || ((unsigned __int8)a3 & mapblk->flags & 0x20) != 0 && ((1 << (game.slabmap[85 * *v11 + *v13].field_5 & 7)) & a4) != 0)
+        {
+            goto LABEL_20;
+        }
+        if ((mapblk->flags & 0x40) == 0)
+        {
+            new = v12 + (pos_y << 8);
+            goto LABEL_TEST_RETURN;
+            return v12 + (pos_y << 8);
+        }
+        door_for_position = get_door_for_position(v12, pos_y);
+        if (!door_for_position || !door_will_open_for_thing(door_for_position, creatng))
+        {
+            new = v12 + (pos_y << 8);
+            goto LABEL_TEST_RETURN;
+            return v12 + (pos_y << 8);
+        }
+    LABEL_20:
+        ++v13;
+        ++mapblk;
+        if (++v12 >= v20)
+            goto LABEL_21;
+    }
+
+
+    LABEL_TEST_RETURN:
+    if (new == old)
+        ERRORLOG("same value as old %d",old);
+    else
+        ERRORLOG("different value than old %d/%d",old,new);
+    return new;
+
+
+
 }
 
 long creature_cannot_move_directly_to_with_collide_sub(struct Thing *creatng, struct Coord3d pos, long a3, unsigned char a4)
