@@ -316,7 +316,7 @@ void update_engine_settings(struct PlayerInfo *player)
  */
 static void poly_pool_end_reserve(int nitems)
 {
-    poly_pool_end = &poly_pool[sizeof(poly_pool)-(nitems*sizeof(struct BucketKindSlabSelector)-1)];
+    poly_pool_end = &poly_pool[sizeof(poly_pool)-(nitems*sizeof(struct BucketKindSlabSelector))];
 }
 
 static TbBool is_free_space_in_poly_pool(int nitems)
