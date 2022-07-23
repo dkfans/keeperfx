@@ -586,26 +586,21 @@ TbBool thing_can_continue_direct_line_to(struct Thing *creatng, struct Coord3d *
         && creature_cannot_move_directly_to_with_collide(creatng, &posa, a4, a6) != 4;
 }
 
-static long check_forward_for_prospective_hugs(struct Thing *creatng, struct Coord3d *a2, long angle, long navi_field_1, long a5, long speed, unsigned char a7)
+static long check_forward_for_prospective_hugs(struct Thing *creatng, struct Coord3d *a2, long angle, long navi_field_1, long a3, long speed, unsigned char a4)
 {
     TbBool bool_1;
     int nav_radius;
     struct Coord3d *v10;
     __int16 v11;
-    struct Coord3d *p_mappos;
     int v15;
     __int32 v16;
     int v19;
     int v21;
-    coord3d_axis v23;
     int v24;
-    coord3d_axis v25;
-    coord3d_axis v27;
     struct Coord3d pos;
     struct Coord3d next_pos;
-    short v30_x;
-    short v30_y;
-    coord3d_axis v31;
+    struct Coord3d pos_3;
+
 
     bool_1 = 0;
     struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
@@ -613,7 +608,7 @@ static long check_forward_for_prospective_hugs(struct Thing *creatng, struct Coo
     nav_radius = thing_nav_sizexy(creatng) / 2;
     switch (angle)
     {
-        case ANGLE_NORTH:
+        case 0:
             v10 = a2;
             if ((int)(((unsigned __int16)a2->y.val - nav_radius) & 0xFFFFFF00) < (int)(((unsigned __int16)creatng->mappos.y.val - nav_radius) & 0xFFFFFF00))
             {
@@ -670,7 +665,6 @@ static long check_forward_for_prospective_hugs(struct Thing *creatng, struct Coo
         return 0;
     if ( navi->field_1[0] == 1 )
     {
-        p_mappos = &creatng->mappos;
         v15 = (((unsigned __int8)angle_to_quadrant(angle) - 1) & 3) << 9;
         
         next_pos.x.val = move_coord_with_angle_x(creatng->mappos.x.val,speed,v15);
@@ -679,18 +673,16 @@ static long check_forward_for_prospective_hugs(struct Thing *creatng, struct Coo
         v16 = angle;
         if (creature_cannot_move_directly_to_with_collide(creatng, &next_pos, angle, a4) == 4)
         {
-            v30 = p_mappos->x.val;
-            v31.val = creatng->mappos.z.val;
-            p_mappos->x.val = pos.x.val;
-            creatng->mappos.z = pos.z.val;
+            pos_3 = creatng->mappos;
+            creatng->mappos.x.val = pos.x.val;
+            creatng->mappos.z.val = pos.z.val;
             v19 = (((unsigned __int8)angle_to_quadrant(angle) - 1) & 3) << 9;
-            next_pos.x.val = p_mappos->x.val + ((unsigned int)(speed * lbSinTable[v19]) >> 16);
-            next_pos.y.val = creatng->mappos.y.val + (-((speed * lbCosTable[v19]) >> 8) >> 8);
+            next_pos.x.val = move_coord_with_angle_x(creatng->mappos.x.val,speed,v19);
+            next_pos.y.val = move_coord_with_angle_y(creatng->mappos.y.val,speed,v19);
             next_pos.z.val = get_thing_height_at(creatng, &next_pos);
             if (creature_cannot_move_directly_to_with_collide(creatng, &next_pos, a3, a4) != 4)
                 goto LABEL_26;
-            p_mappos->x.val = v30;
-            creatng->mappos.z.val = v31.val;
+            pos_3 = creatng->mappos;
         }
     }
     else
@@ -699,36 +691,30 @@ static long check_forward_for_prospective_hugs(struct Thing *creatng, struct Coo
     }
     if ( navi->field_1[0] != 2 )
         return 0;
-    p_mappos = &creatng->mappos;
     v21 = (((unsigned __int8)angle_to_quadrant(angle) + 1) & 3) << 9;
-    next_pos.x.val = creatng->mappos.x.val + ((unsigned int)(speed * lbSinTable[v21]) >> 16);
-    next_pos.y.val = creatng->mappos.y.val + (-((speed * lbCosTable[v21]) >> 8) >> 8);
+    next_pos.x.val = move_coord_with_angle_x(creatng->mappos.x.val,speed,v21);
+    next_pos.y.val = move_coord_with_angle_y(creatng->mappos.y.val,speed,v21);
     next_pos.z.val = get_thing_height_at(creatng, &next_pos);
     if (creature_cannot_move_directly_to_with_collide(creatng, &next_pos, v16, a4) != 4)
         return 0;
-    v30 = *(_DWORD *)&p_mappos->x.val;
-    v31.val = creatng->mappos.z.val;
-    v23.val = (__int16)pos.z;
-    *(_DWORD *)&p_mappos->x.val = *(_DWORD *)&pos.x.val;
-    creatng->mappos.z = v23;
+    pos_3 = creatng->mappos;
+    creatng->mappos.x.val = pos.x.val;
+    creatng->mappos.y.val = pos.y.val;
+    creatng->mappos.z.val = pos.z.val;
     v24 = (((unsigned __int8)angle_to_quadrant(angle) + 1) & 3) << 9;
-    next_pos.x.val = p_mappos->x.val + ((unsigned int)(speed * lbSinTable[v24]) >> 16);
-    next_pos.y.val = creatng->mappos.y.val + (-((speed * lbCosTable[v24]) >> 8) >> 8);
+    next_pos.x.val = move_coord_with_angle_x(creatng->mappos.x.val,speed,v24);
+    next_pos.y.val = move_coord_with_angle_y(creatng->mappos.y.val,speed,v24);
     next_pos.z.val = get_thing_height_at(creatng, &next_pos);
     if (creature_cannot_move_directly_to_with_collide(creatng, &next_pos, v16, a4) == 4)
     {
-        v25.val = v31.val;
-        *(_DWORD *)&p_mappos->x.val = v30;
-        creatng->mappos.z = v25;
+        creatng->mappos = pos_3;
         return 0;
     }
 LABEL_26:
-    v27.val = (__int16)pos.z;
     v10->x.val = pos.x.val;
     v10->y.val = pos.y.val;
-    v10->z = v27;
-    *(_DWORD *)&p_mappos->x.val = v30;
-    creatng->mappos.z = v31;
+    v10->z.val = pos.z.val;
+    creatng->mappos = pos_3;
     return 1;
 }
 
