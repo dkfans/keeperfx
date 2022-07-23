@@ -588,9 +588,7 @@ TbBool thing_can_continue_direct_line_to(struct Thing *creatng, struct Coord3d *
 
 static long check_forward_for_prospective_hugs(struct Thing *creatng, struct Coord3d *a2, long angle, long navi_field_1, long a3, long speed, unsigned char a4)
 {
-    TbBool bool_1;
     int nav_radius;
-    struct Coord3d *v10;
     __int16 v11;
     int v15;
     __int32 v16;
@@ -602,14 +600,12 @@ static long check_forward_for_prospective_hugs(struct Thing *creatng, struct Coo
     struct Coord3d pos_3;
 
 
-    bool_1 = 0;
     struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
     struct Navigation *navi = &cctrl->navi;
     nav_radius = thing_nav_sizexy(creatng) / 2;
     switch (angle)
     {
         case 0:
-            v10 = a2;
             if ((int)(((unsigned __int16)a2->y.val - nav_radius) & 0xFFFFFF00) < (int)(((unsigned __int16)creatng->mappos.y.val - nav_radius) & 0xFFFFFF00))
             {
                 pos.x.val = a2->x.val;
@@ -617,10 +613,10 @@ static long check_forward_for_prospective_hugs(struct Thing *creatng, struct Coo
                 pos.y.stl.num = -1;
                 pos.y.val -= nav_radius;
                 pos.z.val = get_thing_height_at(creatng, &pos);
-                bool_1 = 1;
+                break;
             }
+            return 0;
         case 512:
-            v10 = a2;
             if ((int)((nav_radius + (unsigned __int16)a2->x.val) & 0xFFFFFF00) > (int)((nav_radius + (unsigned __int16)creatng->mappos.x.val) & 0xFFFFFF00))
             {
                 pos.y.val = a2->y.val;
@@ -628,11 +624,10 @@ static long check_forward_for_prospective_hugs(struct Thing *creatng, struct Coo
                 pos.x.stl.num = 0;
                 pos.x.val += nav_radius;
                 pos.z.val = get_thing_height_at(creatng, &pos);
-                bool_1 = 1;
+                break;
             }
-            break;
+            return 0;
         case 1024:
-            v10 = a2;
             if ((int)((nav_radius + (unsigned __int16)a2->y.val) & 0xFFFFFF00) > (int)((nav_radius + (unsigned __int16)creatng->mappos.y.val) & 0xFFFFFF00))
             {
                 v11 = creatng->mappos.y.val - nav_radius + 256;
@@ -641,11 +636,10 @@ static long check_forward_for_prospective_hugs(struct Thing *creatng, struct Coo
                 pos.y.stl.num = 0;
                 pos.y.val += nav_radius;
                 pos.z.val = get_thing_height_at(creatng, &pos);
-                bool_1 = 1;
+                break;
             }
-            break;
+            return 0;
         case 1536:
-            v10 = a2;
             if ((int)(((unsigned __int16)a2->x.val - nav_radius) & 0xFFFFFF00) < (int)(((unsigned __int16)creatng->mappos.x.val - nav_radius) & 0xFFFFFF00))
             {
                 pos.y.val = a2->y.val;
@@ -653,16 +647,12 @@ static long check_forward_for_prospective_hugs(struct Thing *creatng, struct Coo
                 pos.x.stl.num = -1;
                 pos.x.val -= nav_radius;
                 pos.z.val = get_thing_height_at(creatng, &pos);
-                bool_1 = 1;
+                break;
             }
-            break;
-
+            return 0;
         default:
-            v10 = a2;
-            break;
+            return 0;
     }
-    if (!bool_1)
-        return 0;
     if ( navi->field_1[0] == 1 )
     {
         v15 = (((unsigned __int8)angle_to_quadrant(angle) - 1) & 3) << 9;
@@ -711,9 +701,9 @@ static long check_forward_for_prospective_hugs(struct Thing *creatng, struct Coo
         return 0;
     }
 LABEL_26:
-    v10->x.val = pos.x.val;
-    v10->y.val = pos.y.val;
-    v10->z.val = pos.z.val;
+    a2->x.val = pos.x.val;
+    a2->y.val = pos.y.val;
+    a2->z.val = pos.z.val;
     creatng->mappos = pos_3;
     return 1;
 }
