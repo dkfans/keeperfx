@@ -3987,13 +3987,9 @@ void kill_room_contents_at_subtile(struct Room *room, PlayerNumber plyr_idx, Map
             if (creature_is_being_sacrificed(thing))
             {
                 kill_creature(thing, INVALID_THING, -1, CrDed_NoEffects);
-            } else
+            } else if (creature_is_working_in_room(thing, room))
             {
-                struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
-                if (cctrl->work_room_id == room->index)
-                {
-                    set_start_state(thing);
-                }
+                set_start_state(thing);
             }
         }
         // Per thing code end
