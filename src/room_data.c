@@ -3988,9 +3988,12 @@ void kill_room_contents_at_subtile(struct Room *room, PlayerNumber plyr_idx, Map
             {
                 kill_creature(thing, INVALID_THING, -1, CrDed_NoEffects);
             } else
-            if (room->owner == thing->owner)
             {
-                set_start_state(thing);
+                struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+                if (cctrl->work_room_id == room->index)
+                {
+                    set_start_state(thing);
+                }
             }
         }
         // Per thing code end
