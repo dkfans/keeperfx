@@ -519,44 +519,45 @@ TbBool is_task_in_progress(struct Computer2 *comp, ComputerTaskType ttype)
     return !computer_task_invalid(ctask);
 }
 
-static struct ComputerTask *get_free_task(struct Computer2 *comp, long a2)
+static struct ComputerTask *get_free_task(struct Computer2 *comp, TbBool a2)
 {
 
-    struct ComputerTask *task_a;
     struct ComputerTask *task_result;
-    struct ComputerTask *task_b;
+    struct ComputerTask *current_task;
     int next_task;
 
-    task_a = &game.computer_task[1];
-    while ((task_a->flags & ComTsk_Unkn0001) != 0)
+    task_result = &game.computer_task[1];
+    while ((task_result->flags & ComTsk_Unkn0001) != 0)
     {
-        if (++task_a >= (struct ComputerTask *)&game.computer)
+        if (++task_result >= (struct ComputerTask *)&game.computer)
             return 0;
     }
-    memset(task_a, 0, sizeof(struct ComputerTask));
-    task_b = &game.computer_task[(unsigned __int16)comp->task_idx];
-    if (task_b > game.computer_task)
+    memset(task_result, 0, sizeof(struct ComputerTask));
+    current_task = &game.computer_task[comp->task_idx];
+    if (current_task > game.computer_task)
     {
         if (!a2)
         {
-            if (task_b->next_task)
+            if (current_task->next_task)
             {
                 do
                 {
-                    next_task = (unsigned __int16)task_b->next_task;
-                    task_b = &game.computer_task[(unsigned __int16)task_b->next_task];
+                    next_task = current_task->next_task;
+                    current_task = &game.computer_task[current_task->next_task];
                 } while (game.computer_task[next_task].next_task);
             }
-            task_b->next_task = task_a - game.computer_task;
-            goto LABEL_12;
+            current_task->next_task = task_result - game.computer_task;
+
+            task_result->flags |= ComTsk_Unkn0001;
+            task_result->created_turn = game.play_gameturn;
+            return task_result;
         }
-        task_a->next_task = comp->task_idx;
+        task_result->next_task = comp->task_idx;
     }
-    comp->task_idx = task_a - game.computer_task;
-LABEL_12:
-    task_a->flags |= ComTsk_Unkn0001;
-    task_result = task_a;
-    task_a->created_turn = game.play_gameturn;
+    comp->task_idx = task_result - game.computer_task;
+
+    task_result->flags |= ComTsk_Unkn0001;
+    task_result->created_turn = game.play_gameturn;
     return task_result;
 }
 
