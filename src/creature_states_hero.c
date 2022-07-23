@@ -1346,7 +1346,7 @@ long creature_tunnel_to(struct Thing *creatng, struct Coord3d *pos, short speed)
     MapCoordDelta dist = get_2d_distance(&creatng->mappos, &cctrl->navi.pos_next);
     if (dist <= 16)
     {
-        creature_turn_to_face_angle(creatng, cctrl->navi.field_D);
+        creature_turn_to_face_angle(creatng, cctrl->navi.angle);
         creature_set_speed(creatng, 0);
         return 0;
     }
