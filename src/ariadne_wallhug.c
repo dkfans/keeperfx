@@ -600,10 +600,10 @@ static long check_forward_for_prospective_hugs(struct Thing *creatng, struct Coo
     switch (angle)
     {
         case ANGLE_NORTH:
-            if ((int)(((unsigned __int16)pos_a->y.val - nav_radius) & 0xFFFFFF00) < (int)(((unsigned __int16)creatng->mappos.y.val - nav_radius) & 0xFFFFFF00))
+            if ((int)((pos_a->y.val - nav_radius) & 0xFFFFFF00) < (int)((creatng->mappos.y.val - nav_radius) & 0xFFFFFF00))
             {
                 pos.x.val = pos_a->x.val;
-                pos.y.stl.pos = (unsigned __int16)(nav_radius + creatng->mappos.y.val - 256) / COORD_PER_STL;
+                pos.y.stl.pos = (nav_radius + creatng->mappos.y.val - 256) / COORD_PER_STL;
                 pos.y.stl.num = -1;
                 pos.y.val -= nav_radius;
                 pos.z.val = get_thing_height_at(creatng, &pos);
@@ -611,10 +611,10 @@ static long check_forward_for_prospective_hugs(struct Thing *creatng, struct Coo
             }
             return 0;
         case ANGLE_EAST:
-            if ((int)((nav_radius + (unsigned __int16)pos_a->x.val) & 0xFFFFFF00) > (int)((nav_radius + (unsigned __int16)creatng->mappos.x.val) & 0xFFFFFF00))
+            if ((int)((nav_radius + pos_a->x.val) & 0xFFFFFF00) > (int)((nav_radius + creatng->mappos.x.val) & 0xFFFFFF00))
             {
                 pos.y.val = pos_a->y.val;
-                pos.x.stl.pos = (unsigned __int16)(creatng->mappos.x.val - nav_radius + 256) / COORD_PER_STL;
+                pos.x.stl.pos = (creatng->mappos.x.val - nav_radius + 256) / COORD_PER_STL;
                 pos.x.stl.num = 0;
                 pos.x.val += nav_radius;
                 pos.z.val = get_thing_height_at(creatng, &pos);
@@ -622,7 +622,7 @@ static long check_forward_for_prospective_hugs(struct Thing *creatng, struct Coo
             }
             return 0;
         case ANGLE_SOUTH:
-            if ((int)((nav_radius + (unsigned __int16)pos_a->y.val) & 0xFFFFFF00) > (int)((nav_radius + (unsigned __int16)creatng->mappos.y.val) & 0xFFFFFF00))
+            if ((int)((nav_radius + pos_a->y.val) & 0xFFFFFF00) > (int)((nav_radius + creatng->mappos.y.val) & 0xFFFFFF00))
             {
                 pos.x.val = pos_a->x.val;
                 pos.y.stl.pos = (creatng->mappos.y.val - nav_radius + 256) / COORD_PER_STL;
@@ -648,7 +648,7 @@ static long check_forward_for_prospective_hugs(struct Thing *creatng, struct Coo
     }
     if ( navi->field_1[0] == 1 )
     {
-        quadrant_angle = (((unsigned __int8)angle_to_quadrant(angle) - 1) & 3) << 9;
+        quadrant_angle = (((unsigned char)angle_to_quadrant(angle) - 1) & 3) << 9;
         
         next_pos.x.val = move_coord_with_angle_x(creatng->mappos.x.val,speed,quadrant_angle);
         next_pos.y.val = move_coord_with_angle_y(creatng->mappos.y.val,speed,quadrant_angle);
@@ -658,7 +658,7 @@ static long check_forward_for_prospective_hugs(struct Thing *creatng, struct Coo
             pos_3 = creatng->mappos;
             creatng->mappos.x.val = pos.x.val;
             creatng->mappos.z.val = pos.z.val;
-            quadrant_angle = (((unsigned __int8)angle_to_quadrant(angle) - 1) & 3) << 9;
+            quadrant_angle = (((unsigned char)angle_to_quadrant(angle) - 1) & 3) << 9;
             next_pos.x.val = move_coord_with_angle_x(creatng->mappos.x.val,speed,quadrant_angle);
             next_pos.y.val = move_coord_with_angle_y(creatng->mappos.y.val,speed,quadrant_angle);
             next_pos.z.val = get_thing_height_at(creatng, &next_pos);
@@ -673,7 +673,7 @@ static long check_forward_for_prospective_hugs(struct Thing *creatng, struct Coo
     }
     if ( navi->field_1[0] != 2 )
         return 0;
-    quadrant_angle = (((unsigned __int8)angle_to_quadrant(angle) + 1) & 3) << 9;
+    quadrant_angle = (((unsigned char)angle_to_quadrant(angle) + 1) & 3) << 9;
     next_pos.x.val = move_coord_with_angle_x(creatng->mappos.x.val,speed,quadrant_angle);
     next_pos.y.val = move_coord_with_angle_y(creatng->mappos.y.val,speed,quadrant_angle);
     next_pos.z.val = get_thing_height_at(creatng, &next_pos);
@@ -681,7 +681,7 @@ static long check_forward_for_prospective_hugs(struct Thing *creatng, struct Coo
         return 0;
     pos_3 = creatng->mappos;
     creatng->mappos = pos;
-    quadrant_angle = (((unsigned __int8)angle_to_quadrant(angle) + 1) & 3) << 9;
+    quadrant_angle = (((unsigned char)angle_to_quadrant(angle) + 1) & 3) << 9;
     next_pos.x.val = move_coord_with_angle_x(creatng->mappos.x.val,speed,quadrant_angle);
     next_pos.y.val = move_coord_with_angle_y(creatng->mappos.y.val,speed,quadrant_angle);
     next_pos.z.val = get_thing_height_at(creatng, &next_pos);
