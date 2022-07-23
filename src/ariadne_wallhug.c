@@ -587,7 +587,7 @@ TbBool thing_can_continue_direct_line_to(struct Thing *creatng, struct Coord3d *
         && creature_cannot_move_directly_to_with_collide(creatng, &posa, a4, a6) != 4;
 }
 
-static long check_forward_for_prospective_hugs(struct Thing *creatng, struct Coord3d *pos_a, long angle, long navi_field_1, long a3, long speed, unsigned char a4)
+static TbBool check_forward_for_prospective_hugs(struct Thing *creatng, struct Coord3d *pos_a, long angle, long navi_field_1, long a3, long speed, unsigned char a4)
 {
     int quadrant_angle;
     struct Coord3d pos;
@@ -609,7 +609,7 @@ static long check_forward_for_prospective_hugs(struct Thing *creatng, struct Coo
                 pos.z.val = get_thing_height_at(creatng, &pos);
                 break;
             }
-            return 0;
+            return false;
         case ANGLE_EAST:
             if ((int)((nav_radius + pos_a->x.val) & 0xFFFFFF00) > (int)((nav_radius + creatng->mappos.x.val) & 0xFFFFFF00))
             {
@@ -620,7 +620,7 @@ static long check_forward_for_prospective_hugs(struct Thing *creatng, struct Coo
                 pos.z.val = get_thing_height_at(creatng, &pos);
                 break;
             }
-            return 0;
+            return false;
         case ANGLE_SOUTH:
             if ((int)((nav_radius + pos_a->y.val) & 0xFFFFFF00) > (int)((nav_radius + creatng->mappos.y.val) & 0xFFFFFF00))
             {
@@ -631,7 +631,7 @@ static long check_forward_for_prospective_hugs(struct Thing *creatng, struct Coo
                 pos.z.val = get_thing_height_at(creatng, &pos);
                 break;
             }
-            return 0;
+            return false;
         case ANGLE_WEST:
             if ((int)((pos_a->x.val - nav_radius) & 0xFFFFFF00) < (int)((creatng->mappos.x.val - nav_radius) & 0xFFFFFF00))
             {
@@ -642,9 +642,9 @@ static long check_forward_for_prospective_hugs(struct Thing *creatng, struct Coo
                 pos.z.val = get_thing_height_at(creatng, &pos);
                 break;
             }
-            return 0;
+            return false;
         default:
-            return 0;
+            return false;
     }
     if ( navi->field_1[0] == 1 )
     {
@@ -672,13 +672,13 @@ static long check_forward_for_prospective_hugs(struct Thing *creatng, struct Coo
         }
     }
     if ( navi->field_1[0] != 2 )
-        return 0;
+        return false;
     quadrant_angle = (((unsigned char)angle_to_quadrant(angle) + 1) & 3) << 9;
     next_pos.x.val = move_coord_with_angle_x(creatng->mappos.x.val,speed,quadrant_angle);
     next_pos.y.val = move_coord_with_angle_y(creatng->mappos.y.val,speed,quadrant_angle);
     next_pos.z.val = get_thing_height_at(creatng, &next_pos);
     if (creature_cannot_move_directly_to_with_collide(creatng, &next_pos, angle, a4) != 4)
-        return 0;
+        return false;
     pos_3 = creatng->mappos;
     creatng->mappos = pos;
     quadrant_angle = (((unsigned char)angle_to_quadrant(angle) + 1) & 3) << 9;
@@ -690,11 +690,11 @@ static long check_forward_for_prospective_hugs(struct Thing *creatng, struct Coo
     if (creature_cannot_move_directly_to_with_collide(creatng, &next_pos, angle, a4) == 4)
     {
         creatng->mappos = pos_3;
-        return 0;
+        return false;
     }
     *pos_a = pos;
     creatng->mappos = pos_3;
-    return 1;
+    return true;
 }
 
 TbBool find_approach_position_to_subtile(const struct Coord3d *srcpos, MapSubtlCoord stl_x, MapSubtlCoord stl_y, MoveSpeed spacing, struct Coord3d *aproachpos)
