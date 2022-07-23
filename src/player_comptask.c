@@ -519,7 +519,7 @@ TbBool is_task_in_progress(struct Computer2 *comp, ComputerTaskType ttype)
     return !computer_task_invalid(ctask);
 }
 
-static struct ComputerTask *get_free_task(struct Computer2 *comp, TbBool a2)
+static struct ComputerTask *get_free_task(struct Computer2 *comp, TbBool use_comp_task)
 {
 
     struct ComputerTask *task_result;
@@ -536,7 +536,7 @@ static struct ComputerTask *get_free_task(struct Computer2 *comp, TbBool a2)
     current_task = &game.computer_task[comp->task_idx];
     if (current_task > game.computer_task)
     {
-        if (!a2)
+        if (!use_comp_task)
         {
             if (current_task->next_task)
             {
