@@ -1388,10 +1388,6 @@ short creature_being_dropped(struct Thing *creatng)
     cctrl->flgfield_1 |= CCFlg_NoCompControl;
     // Cannot teleport for a few turns after being dropped
     delay_teleport(creatng);
-    if (thing_is_creature_special_digger(creatng))
-    {
-        delay_heal_sleep(creatng);
-    }
     set_flee_delay(creatng);
     MapSubtlCoord stl_x = creatng->mappos.x.stl.num;
     MapSubtlCoord stl_y = creatng->mappos.y.stl.num;
@@ -1465,6 +1461,7 @@ short creature_being_dropped(struct Thing *creatng)
                 {
                     SYNCDBG(3, "The %s index %d owner %d found digger job at (%d,%d)",thing_model_name(creatng),(int)creatng->index,(int)creatng->owner,(int)stl_x,(int)stl_y);
                     cctrl->flgfield_1 &= ~CCFlg_NoCompControl;
+                    delay_heal_sleep(creatng);
                     return 2;
                 }
             }
