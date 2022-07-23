@@ -1388,6 +1388,10 @@ short creature_being_dropped(struct Thing *creatng)
     cctrl->flgfield_1 |= CCFlg_NoCompControl;
     // Cannot teleport for a few turns after being dropped
     delay_teleport(creatng);
+    if (thing_is_creature_special_digger(creatng))
+    {
+        delay_heal_sleep(creatng);
+    }
     set_flee_delay(creatng);
     MapSubtlCoord stl_x = creatng->mappos.x.stl.num;
     MapSubtlCoord stl_y = creatng->mappos.y.stl.num;
@@ -4549,44 +4553,47 @@ long process_creature_needs_to_heal_critical(struct Thing *creatng)
     if (get_creature_health_permil(creatng) >= gameadd.critical_health_permil) {
         return 0;
     }
-    if (!creature_can_do_healing_sleep(creatng))
+    if (game.play_gameturn >= cctrl->healing_sleep_check_turn)
     {
-        // Creature needs healing but cannot heal in lair - try toking
-        struct SlabMap* slb = get_slabmap_thing_is_on(creatng);
-        if (slabmap_owner(slb) != creatng->owner) {
-            return 0;
+        if (!creature_can_do_healing_sleep(creatng))
+        {
+            // Creature needs healing but cannot heal in lair - try toking
+            struct SlabMap* slb = get_slabmap_thing_is_on(creatng);
+            if (slabmap_owner(slb) != creatng->owner) {
+                return 0;
+            }
+            if (!creature_free_for_sleep(creatng, CrSt_CreatureGoingToSafetyForToking)) {
+                return 0;
+            }
+            if (creature_is_doing_toking(creatng)) {
+                return 0;
+            }
+            if (external_set_thing_state(creatng, CrSt_CreatureGoingToSafetyForToking)) {
+                creatng->continue_state = CrSt_ImpDoingNothing;
+                cctrl->countdown_282 = 200;
+                return 1;
+            }
         }
-        if (!creature_free_for_sleep(creatng, CrSt_CreatureGoingToSafetyForToking)) {
-            return 0;
-        }
-        if (creature_is_doing_toking(creatng)) {
-            return 0;
-        }
-        if (external_set_thing_state(creatng, CrSt_CreatureGoingToSafetyForToking)) {
-            creatng->continue_state = CrSt_ImpDoingNothing;
-            cctrl->countdown_282 = 200;
+        if (creature_is_doing_lair_activity(creatng)) {
             return 1;
         }
-    }
-    if (creature_is_doing_lair_activity(creatng)) {
-        return 1;
-    }
-    if (!creature_free_for_sleep(creatng, CrSt_CreatureGoingHomeToSleep)) {
-        return 0;
-    }
-    if ( (game.play_gameturn - cctrl->healing_sleep_check_turn > 128) &&
-      ((cctrl->lair_room_id != 0) || !room_is_invalid(get_best_new_lair_for_creature(creatng))) )
-    {
-        SYNCDBG(4,"Healing critical for %s",thing_model_name(creatng));
-        if (external_set_thing_state(creatng, CrSt_CreatureGoingHomeToSleep)) {
-            return 1;
+        if (!creature_free_for_sleep(creatng, CrSt_CreatureGoingHomeToSleep)) {
+            return 0;
         }
-    } else
-    {
-        struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
-        anger_apply_anger_to_creature(creatng, crstat->annoy_no_lair, AngR_NoLair, 1);
+        if ( (game.play_gameturn - cctrl->healing_sleep_check_turn > 128) &&
+          ((cctrl->lair_room_id != 0) || !room_is_invalid(get_best_new_lair_for_creature(creatng))) )
+        {
+            SYNCDBG(4,"Healing critical for %s",thing_model_name(creatng));
+            if (external_set_thing_state(creatng, CrSt_CreatureGoingHomeToSleep)) {
+                return 1;
+            }
+        } else
+        {
+            struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+            anger_apply_anger_to_creature(creatng, crstat->annoy_no_lair, AngR_NoLair, 1);
+        }
+        cctrl->healing_sleep_check_turn = game.play_gameturn;
     }
-    cctrl->healing_sleep_check_turn = game.play_gameturn;
     return 0;
 }
 
