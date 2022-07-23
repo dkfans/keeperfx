@@ -671,7 +671,11 @@ static long check_forward_for_prospective_hugs(struct Thing *creatng, struct Coo
             next_pos.y.val = move_coord_with_angle_y(creatng->mappos.y.val,speed,v19);
             next_pos.z.val = get_thing_height_at(creatng, &next_pos);
             if (creature_cannot_move_directly_to_with_collide(creatng, &next_pos, a3, a4) != 4)
-                goto LABEL_26;
+            {
+                *a2 = pos;
+                creatng->mappos = pos_3;
+                 return 1;
+            }
             pos_3 = creatng->mappos;
         }
     }
@@ -700,10 +704,7 @@ static long check_forward_for_prospective_hugs(struct Thing *creatng, struct Coo
         creatng->mappos = pos_3;
         return 0;
     }
-LABEL_26:
-    a2->x.val = pos.x.val;
-    a2->y.val = pos.y.val;
-    a2->z.val = pos.z.val;
+    *a2 = pos;
     creatng->mappos = pos_3;
     return 1;
 }
