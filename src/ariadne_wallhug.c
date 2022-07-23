@@ -589,7 +589,6 @@ TbBool thing_can_continue_direct_line_to(struct Thing *creatng, struct Coord3d *
 static long check_forward_for_prospective_hugs(struct Thing *creatng, struct Coord3d *a2, long angle, long navi_field_1, long a3, long speed, unsigned char a4)
 {
     int nav_radius;
-    __int16 v11;
     int v15;
     __int32 v16;
     int v19;
@@ -609,7 +608,7 @@ static long check_forward_for_prospective_hugs(struct Thing *creatng, struct Coo
             if ((int)(((unsigned __int16)a2->y.val - nav_radius) & 0xFFFFFF00) < (int)(((unsigned __int16)creatng->mappos.y.val - nav_radius) & 0xFFFFFF00))
             {
                 pos.x.val = a2->x.val;
-                pos.y.stl.pos = (unsigned __int16)(nav_radius + creatng->mappos.y.val - 256) >> 8;
+                pos.y.stl.pos = (unsigned __int16)(nav_radius + creatng->mappos.y.val - 256) / COORD_PER_STL;
                 pos.y.stl.num = -1;
                 pos.y.val -= nav_radius;
                 pos.z.val = get_thing_height_at(creatng, &pos);
@@ -620,7 +619,7 @@ static long check_forward_for_prospective_hugs(struct Thing *creatng, struct Coo
             if ((int)((nav_radius + (unsigned __int16)a2->x.val) & 0xFFFFFF00) > (int)((nav_radius + (unsigned __int16)creatng->mappos.x.val) & 0xFFFFFF00))
             {
                 pos.y.val = a2->y.val;
-                pos.x.stl.pos = (unsigned __int16)(creatng->mappos.x.val - nav_radius + 256) >> 8;
+                pos.x.stl.pos = (unsigned __int16)(creatng->mappos.x.val - nav_radius + 256) / COORD_PER_STL;
                 pos.x.stl.num = 0;
                 pos.x.val += nav_radius;
                 pos.z.val = get_thing_height_at(creatng, &pos);
@@ -630,9 +629,8 @@ static long check_forward_for_prospective_hugs(struct Thing *creatng, struct Coo
         case 1024:
             if ((int)((nav_radius + (unsigned __int16)a2->y.val) & 0xFFFFFF00) > (int)((nav_radius + (unsigned __int16)creatng->mappos.y.val) & 0xFFFFFF00))
             {
-                v11 = creatng->mappos.y.val - nav_radius + 256;
                 pos.x.val = a2->x.val;
-                pos.y.stl.pos = HIBYTE(v11);
+                pos.y.stl.pos = (creatng->mappos.y.val - nav_radius + 256) / COORD_PER_STL;
                 pos.y.stl.num = 0;
                 pos.y.val += nav_radius;
                 pos.z.val = get_thing_height_at(creatng, &pos);
@@ -643,7 +641,7 @@ static long check_forward_for_prospective_hugs(struct Thing *creatng, struct Coo
             if ((int)(((unsigned __int16)a2->x.val - nav_radius) & 0xFFFFFF00) < (int)(((unsigned __int16)creatng->mappos.x.val - nav_radius) & 0xFFFFFF00))
             {
                 pos.y.val = a2->y.val;
-                pos.x.stl.pos = (unsigned __int16)(nav_radius + creatng->mappos.x.val - 256) >> 8;
+                pos.x.stl.pos = (unsigned __int16)(nav_radius + creatng->mappos.x.val - 256) / COORD_PER_STL;
                 pos.x.stl.num = -1;
                 pos.x.val -= nav_radius;
                 pos.z.val = get_thing_height_at(creatng, &pos);
