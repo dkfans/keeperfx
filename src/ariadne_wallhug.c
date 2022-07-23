@@ -588,20 +588,14 @@ TbBool thing_can_continue_direct_line_to(struct Thing *creatng, struct Coord3d *
 
 static long check_forward_for_prospective_hugs(struct Thing *creatng, struct Coord3d *a2, long angle, long navi_field_1, long a3, long speed, unsigned char a4)
 {
-    int nav_radius;
-    int v15;
-    __int32 v16;
-    int v19;
-    int v21;
-    int v24;
+    int quadrant_angle;
     struct Coord3d pos;
     struct Coord3d next_pos;
     struct Coord3d pos_3;
 
-
     struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
     struct Navigation *navi = &cctrl->navi;
-    nav_radius = thing_nav_sizexy(creatng) / 2;
+    MapCoordDelta nav_radius = thing_nav_sizexy(creatng) / 2;
     switch (angle)
     {
         case 0:
@@ -653,20 +647,19 @@ static long check_forward_for_prospective_hugs(struct Thing *creatng, struct Coo
     }
     if ( navi->field_1[0] == 1 )
     {
-        v15 = (((unsigned __int8)angle_to_quadrant(angle) - 1) & 3) << 9;
+        quadrant_angle = (((unsigned __int8)angle_to_quadrant(angle) - 1) & 3) << 9;
         
-        next_pos.x.val = move_coord_with_angle_x(creatng->mappos.x.val,speed,v15);
-        next_pos.y.val = move_coord_with_angle_y(creatng->mappos.y.val,speed,v15);
+        next_pos.x.val = move_coord_with_angle_x(creatng->mappos.x.val,speed,quadrant_angle);
+        next_pos.y.val = move_coord_with_angle_y(creatng->mappos.y.val,speed,quadrant_angle);
         next_pos.z.val = get_thing_height_at(creatng, &next_pos);
-        v16 = angle;
         if (creature_cannot_move_directly_to_with_collide(creatng, &next_pos, angle, a4) == 4)
         {
             pos_3 = creatng->mappos;
             creatng->mappos.x.val = pos.x.val;
             creatng->mappos.z.val = pos.z.val;
-            v19 = (((unsigned __int8)angle_to_quadrant(angle) - 1) & 3) << 9;
-            next_pos.x.val = move_coord_with_angle_x(creatng->mappos.x.val,speed,v19);
-            next_pos.y.val = move_coord_with_angle_y(creatng->mappos.y.val,speed,v19);
+            quadrant_angle = (((unsigned __int8)angle_to_quadrant(angle) - 1) & 3) << 9;
+            next_pos.x.val = move_coord_with_angle_x(creatng->mappos.x.val,speed,quadrant_angle);
+            next_pos.y.val = move_coord_with_angle_y(creatng->mappos.y.val,speed,quadrant_angle);
             next_pos.z.val = get_thing_height_at(creatng, &next_pos);
             if (creature_cannot_move_directly_to_with_collide(creatng, &next_pos, a3, a4) != 4)
             {
@@ -677,27 +670,23 @@ static long check_forward_for_prospective_hugs(struct Thing *creatng, struct Coo
             pos_3 = creatng->mappos;
         }
     }
-    else
-    {
-        v16 = angle;
-    }
     if ( navi->field_1[0] != 2 )
         return 0;
-    v21 = (((unsigned __int8)angle_to_quadrant(angle) + 1) & 3) << 9;
-    next_pos.x.val = move_coord_with_angle_x(creatng->mappos.x.val,speed,v21);
-    next_pos.y.val = move_coord_with_angle_y(creatng->mappos.y.val,speed,v21);
+    quadrant_angle = (((unsigned __int8)angle_to_quadrant(angle) + 1) & 3) << 9;
+    next_pos.x.val = move_coord_with_angle_x(creatng->mappos.x.val,speed,quadrant_angle);
+    next_pos.y.val = move_coord_with_angle_y(creatng->mappos.y.val,speed,quadrant_angle);
     next_pos.z.val = get_thing_height_at(creatng, &next_pos);
-    if (creature_cannot_move_directly_to_with_collide(creatng, &next_pos, v16, a4) != 4)
+    if (creature_cannot_move_directly_to_with_collide(creatng, &next_pos, angle, a4) != 4)
         return 0;
     pos_3 = creatng->mappos;
     creatng->mappos.x.val = pos.x.val;
     creatng->mappos.y.val = pos.y.val;
     creatng->mappos.z.val = pos.z.val;
-    v24 = (((unsigned __int8)angle_to_quadrant(angle) + 1) & 3) << 9;
-    next_pos.x.val = move_coord_with_angle_x(creatng->mappos.x.val,speed,v24);
-    next_pos.y.val = move_coord_with_angle_y(creatng->mappos.y.val,speed,v24);
+    quadrant_angle = (((unsigned __int8)angle_to_quadrant(angle) + 1) & 3) << 9;
+    next_pos.x.val = move_coord_with_angle_x(creatng->mappos.x.val,speed,quadrant_angle);
+    next_pos.y.val = move_coord_with_angle_y(creatng->mappos.y.val,speed,quadrant_angle);
     next_pos.z.val = get_thing_height_at(creatng, &next_pos);
-    if (creature_cannot_move_directly_to_with_collide(creatng, &next_pos, v16, a4) == 4)
+    if (creature_cannot_move_directly_to_with_collide(creatng, &next_pos, angle, a4) == 4)
     {
         creatng->mappos = pos_3;
         return 0;
