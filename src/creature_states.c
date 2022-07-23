@@ -1464,6 +1464,10 @@ short creature_being_dropped(struct Thing *creatng)
                     delay_heal_sleep(creatng);
                     return 2;
                 }
+                else
+                {
+                    cctrl->healing_sleep_check_turn = game.play_gameturn;
+                }
             }
         }
         // Do combat, if we can
