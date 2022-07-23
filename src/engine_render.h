@@ -34,8 +34,9 @@ extern "C" {
 
 #define POLY_POOL_SIZE 16777216 // Originally 262144, increased for view distance
 #define BUCKETS_COUNT 4224 // Originally 704, increased for view distance
-#define KEEPSPRITE_LENGTH 9149
+#define Z_DRAW_DISTANCE_MAX 35000 // Originally 11232, increased for view distance
 
+#define KEEPSPRITE_LENGTH 9149
 #define KEEPERSPRITE_ADD_OFFSET 16384
 #define KEEPERSPRITE_ADD_NUM 2048
 

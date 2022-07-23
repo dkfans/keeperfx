@@ -750,8 +750,8 @@ void fill_in_points_cluedo(long bstl_x, long bstl_y, struct MinMax *mm)
     if (hview_z < 32) {
         hview_z = 0;
     } else
-    if (hview_z >= 35000) { // Originally 11232, increased for view distance
-        hview_z = 35000; // Originally 11232, increased for view distance
+    if (hview_z >= Z_DRAW_DISTANCE_MAX) {
+        hview_z = Z_DRAW_DISTANCE_MAX;
     }
     int dview_w;
     int dview_h;
@@ -836,8 +836,8 @@ void fill_in_points_cluedo(long bstl_x, long bstl_y, struct MinMax *mm)
             if (ecord->z < 32) {
                 ecord->z = 0;
             } else
-            if (ecord->z >= 35000) { // Originally 11232, increased for view distance
-                ecord->z = 35000; // Originally 11232, increased for view distance
+            if (ecord->z >= Z_DRAW_DISTANCE_MAX) {
+                ecord->z = Z_DRAW_DISTANCE_MAX;
             }
             if (ecord->view_width < 0) {
                 ecord->field_8 |= 0x08;
@@ -970,8 +970,8 @@ void fill_in_points_isometric(long bstl_x, long bstl_y, struct MinMax *mm)
     if (hview_z < 32) {
         hview_z = 0;
     } else
-    if (hview_z >= 35000) { // Originally 11232, increased for view distance
-        hview_z = 35000; // Originally 11232, increased for view distance
+    if (hview_z >= Z_DRAW_DISTANCE_MAX) {
+        hview_z = Z_DRAW_DISTANCE_MAX;
     }
     long eview_w;
     long eview_h;
@@ -1066,8 +1066,8 @@ void fill_in_points_isometric(long bstl_x, long bstl_y, struct MinMax *mm)
             if (ecord->z < 32) {
                 ecord->z = 0;
             } else
-            if (ecord->z >= 35000) { // Originally 11232, increased for view distance
-                ecord->z = 35000; // Originally 11232, increased for view distance
+            if (ecord->z >= Z_DRAW_DISTANCE_MAX) {
+                ecord->z = Z_DRAW_DISTANCE_MAX;
             }
             if (ecord->view_width < 0) {
                 ecord->field_8 |= 0x08;
