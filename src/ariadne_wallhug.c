@@ -42,7 +42,6 @@ extern "C" {
 DLLIMPORT short _DK_hug_round(struct Thing *creatng, struct Coord3d *pos1, struct Coord3d *pos2, unsigned short a4, long *a5);
 DLLIMPORT signed char _DK_get_starting_angle_and_side_of_hug(struct Thing *creatng, struct Coord3d *pos, long *a3, unsigned char *a4, long a5, unsigned char direction);
 DLLIMPORT long _DK_check_forward_for_prospective_hugs(struct Thing *creatng, struct Coord3d *pos, long a3, long a4, long a5, long direction, unsigned char a7);
-DLLIMPORT long _DK_get_map_index_of_first_block_thing_colliding_with_travelling_to(struct Thing *creatng, struct Coord3d *startpos, struct Coord3d *endpos, long a4, unsigned char a5);
 DLLIMPORT long _DK_get_map_index_of_first_block_thing_colliding_with_at(struct Thing *creatng, struct Coord3d *pos, long a3, unsigned char a4);
 /******************************************************************************/
 struct Around const my_around_eight[] = {
@@ -623,9 +622,134 @@ TbBool find_approach_position_to_subtile(const struct Coord3d *srcpos, MapSubtlC
     return (min_dist < LONG_MAX);
 }
 
-long get_map_index_of_first_block_thing_colliding_with_travelling_to(struct Thing *creatng, struct Coord3d *startpos, struct Coord3d *endpos, long a4, unsigned char a5)
+static SubtlCodedCoords get_map_index_of_first_block_thing_colliding_with_travelling_to(struct Thing *creatng, struct Coord3d *startpos, struct Coord3d *endpos, long mapblk_flags, unsigned char slabmap_flags)
 {
-    return _DK_get_map_index_of_first_block_thing_colliding_with_travelling_to(creatng, startpos, endpos, a4, a5);
+    coord3d_axis v5;     // ax
+    coord3d_axis v6;     // cx
+    int v7;              // eax
+    coord3d_axis v8;     // cx
+    Coord3d *p_mappos;   // esi
+    coord3d_axis v10;    // dx
+    coord3d_axis v11;    // ax
+    __int32 stl_num;     // eax
+    coord3d_axis v13;    // dx
+    coord3d_axis v14;    // ax
+    coord3d_axis v15;    // dx
+    coord3d_axis v16;    // ax
+    coord3d_axis v17;    // ax
+    coord3d_axis v18;    // dx
+    coord3d_axis v19;    // ax
+    coord3d_axis v20;    // dx
+    coord3d_axis v21;    // ax
+    coord3d_axis v22;    // ax
+    struct Coord3d pos;  // [esp+10h] [ebp-24h] BYREF
+    struct Coord3d pos1; // [esp+18h] [ebp-1Ch] BYREF
+    int v26;             // [esp+20h] [ebp-14h]
+    int v27;             // [esp+24h] [ebp-10h]
+    coord3d_axis v28;    // [esp+28h] [ebp-Ch]
+    int v29;             // [esp+2Ch] [ebp-8h]
+    int v30;             // [esp+30h] [ebp-4h]
+
+    v5.val = (__int16)startpos->z;
+    *(_DWORD *)&pos1.x.val = *(_DWORD *)&startpos->x.val;
+    v6.val = (__int16)endpos->x;
+    pos1.z = v5;
+    v7 = (unsigned __int16)pos1.x.val - (unsigned __int16)v6.val;
+    v8.val = (__int16)endpos->y;
+    v30 = v7;
+    p_mappos = &creatng->mappos;
+    v10.val = (__int16)creatng->mappos.z;
+    v29 = (unsigned __int16)pos1.y.val - (unsigned __int16)v8.val;
+    v26 = 0;
+    v27 = *(_DWORD *)&creatng->mappos.x.val;
+    LOBYTE(v7) = endpos->x.stl.pos;
+    v28.val = v10.val;
+    if ((_BYTE)v7 == pos1.x.stl.pos || endpos->y.stl.pos == pos1.y.stl.pos)
+    {
+        stl_num = get_map_index_of_first_block_thing_colliding_with_at(creatng, endpos, mapblk_flags, slabmap_flags);
+        if (stl_num < 0)
+            goto LABEL_29;
+        goto LABEL_28;
+    }
+    if (!cross_x_boundary_first(&pos1, endpos))
+    {
+        if (cross_y_boundary_first(&pos1, endpos))
+        {
+            pos = pos1;
+            if (endpos->y.val <= (unsigned int)pos1.y.val)
+                v17.val = (pos1.y.val & 0xFF00) - 1;
+            else
+                v17.val = (pos1.y.val + 256) & 0xFF00;
+            pos.y = v17;
+            pos.x.val = (int)(v30 * abs32((unsigned __int16)v17.val - HIWORD(v27))) / v29 + v27;
+            pos.z.val = pos1.z.val;
+            stl_num = get_map_index_of_first_block_thing_colliding_with_at(creatng, &pos, mapblk_flags, slabmap_flags);
+            if (stl_num >= 0)
+                goto LABEL_28;
+            v18.val = (__int16)creatng->mappos.z;
+            *(_DWORD *)&pos1.x.val = *(_DWORD *)&p_mappos->x.val;
+            pos1.z = v18;
+            v19.val = endpos->x.val <= (unsigned int)pos1.x.val ? (pos1.x.val & 0xFF00) - 1 : (pos1.x.val + 256) & 0xFF00;
+            pos.x = v19;
+            pos.y.val = (int)(v29 * abs32((unsigned __int16)v19.val - (unsigned __int16)v27)) / v30 + HIWORD(v27);
+            pos.z.val = pos1.z.val;
+            stl_num = get_map_index_of_first_block_thing_colliding_with_at(creatng, &pos, mapblk_flags, slabmap_flags);
+            if (stl_num >= 0)
+                goto LABEL_28;
+            v20.val = (__int16)creatng->mappos.z;
+            *(_DWORD *)&pos1.x.val = *(_DWORD *)&p_mappos->x.val;
+            v21.val = (__int16)endpos->y;
+            pos1.z = v20;
+            pos.x.val = endpos->x.val;
+            pos.y = v21;
+            pos.z = v20;
+            stl_num = get_map_index_of_first_block_thing_colliding_with_at(creatng, &pos, mapblk_flags, slabmap_flags);
+            if (stl_num >= 0)
+                goto LABEL_28;
+            goto LABEL_29;
+        }
+        stl_num = get_map_index_of_first_block_thing_colliding_with_at(creatng, endpos, mapblk_flags, slabmap_flags);
+        if (stl_num < 0)
+            goto LABEL_29;
+    LABEL_28:
+        v26 = stl_num;
+        goto LABEL_29;
+    }
+    if (endpos->x.val <= (unsigned int)pos1.x.val)
+        v11.val = (pos1.x.val & 0xFF00) - 1;
+    else
+        v11.val = (pos1.x.val + 256) & 0xFF00;
+    pos.x = v11;
+    pos.y.val = (int)(v29 * abs32((unsigned __int16)v11.val - (unsigned __int16)v27)) / v30 + HIWORD(v27);
+    pos.z.val = pos1.z.val;
+    stl_num = get_map_index_of_first_block_thing_colliding_with_at(creatng, &pos, mapblk_flags, slabmap_flags);
+    if (stl_num >= 0)
+        goto LABEL_28;
+    v13.val = (__int16)creatng->mappos.z;
+    *(_DWORD *)&pos1.x.val = *(_DWORD *)&p_mappos->x.val;
+    pos1.z = v13;
+    v14.val = endpos->y.val <= (unsigned int)pos1.y.val ? (pos1.y.val & 0xFF00) - 1 : (pos1.y.val + 256) & 0xFF00;
+    pos.y = v14;
+    pos.x.val = (int)(v30 * abs32((unsigned __int16)v14.val - HIWORD(v27))) / v29 + v27;
+    pos.z.val = pos1.z.val;
+    stl_num = get_map_index_of_first_block_thing_colliding_with_at(creatng, &pos, mapblk_flags, slabmap_flags);
+    if (stl_num >= 0)
+        goto LABEL_28;
+    v15.val = (__int16)creatng->mappos.z;
+    *(_DWORD *)&pos1.x.val = *(_DWORD *)&p_mappos->x.val;
+    v16.val = (__int16)endpos->y;
+    pos1.z = v15;
+    pos.x.val = endpos->x.val;
+    pos.y = v16;
+    pos.z = v15;
+    stl_num = get_map_index_of_first_block_thing_colliding_with_at(creatng, &pos, mapblk_flags, slabmap_flags);
+    if (stl_num >= 0)
+        goto LABEL_28;
+LABEL_29:
+    v22.val = v28.val;
+    *(_DWORD *)&p_mappos->x.val = v27;
+    creatng->mappos.z = v22;
+    return v26;
 }
 
 TbBool navigation_push_towards_target(struct Navigation *navi, struct Thing *creatng, const struct Coord3d *pos, MoveSpeed speed, MoveSpeed nav_radius, unsigned char a3)
