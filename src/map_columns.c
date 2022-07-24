@@ -545,12 +545,9 @@ TbBool cube_is_lava(long cube_id)
     return (cube_id == 40) || (cube_id == 41);
 }
 
-TbBool cube_is_path(long cube_id)
+TbBool cube_is_unclaimed_path(long cube_id)
 {
-    return ( (cube_id == 0) || ( (cube_id >= 25) && (cube_id <= 29) ) || (cube_id == 46)
-    || ( (cube_id >= 126) && (cube_id <= 136 ) )
-    || ( (cube_id >= 146) && (cube_id <= 148) )
-    || (cube_id == 198) || (cube_id == 199) );
+    return ( (cube_id == 0) || ( (cube_id >= 25) && (cube_id <= 29) ) );
 }
 
 /**

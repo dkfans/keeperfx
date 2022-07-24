@@ -584,7 +584,7 @@ TbBool can_cast_power_at_xy(PlayerNumber plyr_idx, PowerKind pwkind,
     }
     PlayerNumber slb_owner;
     slb_owner = slabmap_owner(slb);
-    TbBool subtile_is_liquid_or_path = ( (subtile_is_liquid(stl_x, stl_y)) || (subtile_is_path(stl_x, stl_y)) );
+    TbBool subtile_is_liquid_or_path = ( (subtile_is_liquid(stl_x, stl_y)) || (subtile_is_unclaimed_path(stl_x, stl_y)) );
     if ( ((mapblk->flags & SlbAtFlg_Blocking) != 0) && (!subtile_is_liquid_or_path) )
     {
         if ((can_cast & PwCast_Claimable) != 0)
