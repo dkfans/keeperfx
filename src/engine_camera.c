@@ -42,6 +42,7 @@ extern "C" {
 /******************************************************************************/
 /******************************************************************************/
 long camera_zoom;
+float zoomed_percent;
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -50,6 +51,25 @@ long camera_zoom;
 
 DLLIMPORT void _DK_update_player_camera_fp(struct Camera *cam, struct Thing *thing);
 
+void calculate_zoomed_percent(struct Camera *cam) {
+    float range_input = cam->zoom;
+    float range_min;
+    float range_max;
+    switch (cam->view_mode) {
+        case PVM_IsometricView:
+            range_min = CAMERA_ZOOM_MIN;
+            range_max = CAMERA_ZOOM_MAX;
+            break;
+        case PVM_FrontView:
+            range_min = FRONTVIEW_CAMERA_ZOOM_MIN;
+            range_max = FRONTVIEW_CAMERA_ZOOM_MAX;
+            break;
+        default:
+            zoomed_percent = 0;
+            return;
+    }
+    zoomed_percent = ((range_input - range_min)) / (range_max - range_min);
+}
 
 MapCoordDelta get_3d_box_distance(const struct Coord3d *pos1, const struct Coord3d *pos2)
 {
@@ -189,11 +209,11 @@ void view_zoom_camera_in(struct Camera *cam, long limit_max, long limit_min)
         new_zoom = (100 * old_zoom) / 85;
         if (new_zoom == old_zoom)
             new_zoom++;
-        if (new_zoom < 1489) { //Originally 16384, decreased for view distance
-            new_zoom = 1489;
+        if (new_zoom < FRONTVIEW_CAMERA_ZOOM_MIN) { //Originally 16384, adjusted for view distance
+            new_zoom = FRONTVIEW_CAMERA_ZOOM_MIN;
         } else
-        if (new_zoom > 65536) {
-            new_zoom = 65536;
+        if (new_zoom > FRONTVIEW_CAMERA_ZOOM_MAX) {
+            new_zoom = FRONTVIEW_CAMERA_ZOOM_MAX;
         }
         break;
     default:
@@ -250,11 +270,11 @@ void view_zoom_camera_out(struct Camera *cam, long limit_max, long limit_min)
         new_zoom = (85 * old_zoom) / 100;
         if (new_zoom == old_zoom)
             new_zoom--;
-        if (new_zoom < 1489) { //Originally 16384, decreased for view distance
-            new_zoom = 1489;
+        if (new_zoom < FRONTVIEW_CAMERA_ZOOM_MIN) {
+            new_zoom = FRONTVIEW_CAMERA_ZOOM_MIN;
         } else
-        if (new_zoom > 65536) {
-            new_zoom = 65536;
+        if (new_zoom > FRONTVIEW_CAMERA_ZOOM_MAX) {
+            new_zoom = FRONTVIEW_CAMERA_ZOOM_MAX;
         }
         break;
     default:

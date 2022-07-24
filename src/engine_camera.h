@@ -34,10 +34,12 @@ struct M33;
 struct EngineCol;
 struct PlayerInfo;
 
-// Camera constants; max zoom is when everything is large
-#define CAMERA_ZOOM_MIN      520 // Originally 4100, decreased for view distance
-#define CAMERA_ZOOM_MAX    12000
-#define MINMAX_LENGTH        512 // Originally 64, increased for view distance
+// Camera constants; zoom max is zoomed in (everything large), zoom min is zoomed out (everything small)
+#define CAMERA_ZOOM_MAX 12000
+#define CAMERA_ZOOM_MIN 520 // Originally 4100, adjusted for view distance
+#define FRONTVIEW_CAMERA_ZOOM_MAX 65536
+#define FRONTVIEW_CAMERA_ZOOM_MIN 3000 // Originally 16384, adjusted for view distance
+#define MINMAX_LENGTH 512 // Originally 64, adjusted for view distance
 #define MINMAX_ALMOST_HALF ((MINMAX_LENGTH/2)-1)
 
 enum CameraIndexValues {
@@ -83,6 +85,9 @@ DLLIMPORT extern struct EngineCoord _DK_object_origin;
 
 #pragma pack()
 /******************************************************************************/
+extern float zoomed_percent;
+void calculate_zoomed_percent(struct Camera *cam);
+
 
 extern long camera_zoom;
 /******************************************************************************/

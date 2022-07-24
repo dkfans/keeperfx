@@ -32,9 +32,9 @@ extern "C" {
 /******************************************************************************/
 #pragma pack(1)
 
-#define POLY_POOL_SIZE 16777216 // Originally 262144, increased for view distance
-#define BUCKETS_COUNT 4224 // Originally 704, increased for view distance
-#define Z_DRAW_DISTANCE_MAX 35000 // Originally 11232, increased for view distance
+#define POLY_POOL_SIZE 16777216 // Originally 262144, adjusted for view distance
+#define BUCKETS_COUNT 4224 // Originally 704, adjusted for view distance
+#define Z_DRAW_DISTANCE_MAX 35000 // Originally 11232, adjusted for view distance
 
 #define KEEPSPRITE_LENGTH 9149
 #define KEEPERSPRITE_ADD_OFFSET 16384
@@ -533,7 +533,7 @@ void setup_rotate_stuff(long a1, long a2, long a3, long a4, long a5, long a6, lo
 void process_keeper_sprite(short x, short y, unsigned short a3, short kspr_angle, unsigned char a5, long a6);
 void draw_engine_number(struct BucketKindFloatingGoldText *num);
 void draw_engine_room_flagpole(struct BucketKindRoomFlag *rflg);
-void draw_status_sprites(long a1, long a2, struct Thing *thing, long a4);
+void draw_status_sprites(long a1, long a2, struct Thing *thing);
 void draw_keepsprite_unscaled_in_buffer(unsigned short kspr_n, short a2, unsigned char a3, unsigned char *a4);
 void draw_mapwho_ariadne_path(struct Thing *thing);
 void draw_jonty_mapwho(struct BucketKindJontySprite *jspr);
