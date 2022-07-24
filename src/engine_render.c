@@ -141,7 +141,7 @@ struct EngineCol ecs2[MINMAX_LENGTH-1];
 struct EngineCol *front_ec;
 struct EngineCol *back_ec;
 
-float zoomed_percent;
+float zoomed_range;
 
 static int water_wibble_angle = 0;
 //static unsigned char temp_cluedo_mode;
@@ -4648,8 +4648,8 @@ void draw_engine_number(struct BucketKindFloatingGoldText *num)
     long h;
     long pos_x;
 
-    // 1st argument: the scale when fully zoomed out. 2nd argument: the scale when fully zoomed in.
-    float scale_by_zoom = lerp(0.25, 2.00, zoomed_percent);
+    // 1st argument: the scale when fully zoomed out. 2nd argument: the scale at base level zoom
+    float scale_by_zoom = lerp(0.25, 1.00, zoomed_range);
 
     flg_mem = lbDisplay.DrawFlags;
     player = get_my_player();
@@ -4680,9 +4680,9 @@ void draw_engine_number(struct BucketKindFloatingGoldText *num)
 
 void draw_engine_room_flagpole(struct BucketKindRoomFlag *rflg)
 {
-    struct Room *room;
     lbDisplay.DrawFlags &= ~Lb_SPRITE_FLIP_HORIZ;
-    room = room_get(rflg->lvl);
+
+    struct Room *room = room_get(rflg->lvl);
     if (!room_exists(room) || !room_can_have_ensign(room->kind)) {
         return;
     }
@@ -4693,9 +4693,9 @@ void draw_engine_room_flagpole(struct BucketKindRoomFlag *rflg)
     {
         if (settings.roomflags_on)
         {
-            // 1st argument: the scale when fully zoomed out. 2nd argument: the scale when fully zoomed in.
-            float scale_by_zoom = lerp(0.25, 2.00, zoomed_percent);
-
+            // 1st argument: the scale when fully zoomed out. 2nd argument: the scale at base level zoom
+            float scale_by_zoom = lerp(0.25, 1.00, zoomed_range);
+            
             int deltay;
             int height;
             int zoom_factor = cam->zoom;
@@ -4755,8 +4755,8 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
     const struct Camera *cam = player->acamera;
     if (cam == NULL) {return;}
     
-    // 1st argument: the scale when fully zoomed out. 2nd argument: the scale when fully zoomed in.
-    float scale_by_zoom = lerp(0.25, 2.00, zoomed_percent);
+    // 1st argument: the scale when fully zoomed out. 2nd argument: the scale at base level zoom
+    float scale_by_zoom = lerp(0.25, 1.00, zoomed_range);
     int base_size;
     switch (cam->view_mode) {
         case PVM_IsometricView:
@@ -5017,8 +5017,8 @@ static void draw_room_flag_top(long x, long y, int units_per_px, const struct Ro
 static void draw_engine_room_flag_top(struct BucketKindRoomFlag *rflg)
 {
     lbDisplay.DrawFlags &= ~Lb_SPRITE_FLIP_HORIZ;
-    struct Room *room;
-    room = room_get(rflg->lvl);
+    
+    struct Room *room = room_get(rflg->lvl);
     if (!room_exists(room) || !room_can_have_ensign(room->kind)) {
         return;
     }
@@ -5029,8 +5029,8 @@ static void draw_engine_room_flag_top(struct BucketKindRoomFlag *rflg)
     {
         if (settings.roomflags_on)
         {
-            // 1st argument: the scale when fully zoomed out. 2nd argument: the scale when fully zoomed in.
-            float scale_by_zoom = lerp(0.25, 2.00, zoomed_percent);
+            // 1st argument: the scale when fully zoomed out. 2nd argument: the scale at base level zoom
+            float scale_by_zoom = lerp(0.25, 1.00, zoomed_range);
 
             int zoom_factor = cam->zoom;
             if (cam->view_mode == PVM_FrontView) {
@@ -6337,7 +6337,7 @@ void draw_view(struct Camera *cam, unsigned char a2)
     long aposc;
     long bposc;
     SYNCDBG(9,"Starting");
-    calculate_zoomed_percent(cam);
+    calculate_zoomed_range(cam);
     camera_zoom = scale_camera_zoom_to_screen(cam->zoom);
     zoom_mem = cam->zoom;//TODO [zoom] remove when all cam->zoom will be changed to camera_zoom
     cam->zoom = camera_zoom;//TODO [zoom] remove when all cam->zoom will be changed to camera_zoom
@@ -8400,7 +8400,7 @@ static void do_map_who_for_thing(struct Thing *thing)
         break;
     case 5:
         // Hide status flags when full zoomed out, for atmospheric overview
-        if (zoomed_percent == 0) {
+        if (zoomed_range == 0) {
             break;
         }
 
@@ -8506,7 +8506,7 @@ static void draw_frontview_thing_on_element(struct Thing *thing, struct Map *map
         break;
     case 5:
         // Hide status flags when full zoomed out, for atmospheric overview
-        if (zoomed_percent == 0) {
+        if (zoomed_range == 0) {
             break;
         }
         convert_world_coord_to_front_view_screen_coord(&thing->mappos,cam,&cx,&cy,&cz);
@@ -8599,7 +8599,7 @@ void draw_frontview_engine(struct Camera *cam)
     player = get_my_player();
     if (cam->zoom > FRONTVIEW_CAMERA_ZOOM_MAX)
         cam->zoom = FRONTVIEW_CAMERA_ZOOM_MAX;
-    calculate_zoomed_percent(cam);
+    calculate_zoomed_range(cam);
     camera_zoom = scale_camera_zoom_to_screen(cam->zoom);
     zoom_mem = cam->zoom;//TODO [zoom] remove when all cam->zoom will be changed to camera_zoom
     cam->zoom = camera_zoom;//TODO [zoom] remove when all cam->zoom will be changed to camera_zoom

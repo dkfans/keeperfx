@@ -42,7 +42,7 @@ extern "C" {
 /******************************************************************************/
 /******************************************************************************/
 long camera_zoom;
-float zoomed_percent;
+float zoomed_range;
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -51,24 +51,31 @@ float zoomed_percent;
 
 DLLIMPORT void _DK_update_player_camera_fp(struct Camera *cam, struct Thing *thing);
 
-void calculate_zoomed_percent(struct Camera *cam) {
+void calculate_zoomed_range(struct Camera *cam) {
+    // zoomed_range is the current camera zoom converted to a percentage that ranges between base level zoom and fully zoomed out.
+
     float range_input = cam->zoom;
     float range_min;
     float range_max;
     switch (cam->view_mode) {
         case PVM_IsometricView:
-            range_min = CAMERA_ZOOM_MIN;
-            range_max = CAMERA_ZOOM_MAX;
+            range_min = CAMERA_ZOOM_MIN; // Fully zoomed out
+            range_max = 8192; // Base zoom level
             break;
         case PVM_FrontView:
-            range_min = FRONTVIEW_CAMERA_ZOOM_MIN;
-            range_max = FRONTVIEW_CAMERA_ZOOM_MAX;
+            range_min = FRONTVIEW_CAMERA_ZOOM_MIN; // Fully zoomed out
+            range_max = 45000; // Base zoom level
             break;
         default:
-            zoomed_percent = 0;
+            zoomed_range = 0;
             return;
     }
-    zoomed_percent = ((range_input - range_min)) / (range_max - range_min);
+    if (range_input < range_min) {
+        range_input = range_min;
+    } else if (range_input > range_max) {
+        range_input = range_max;
+    }
+    zoomed_range = ((range_input - range_min)) / (range_max - range_min);
 }
 
 MapCoordDelta get_3d_box_distance(const struct Coord3d *pos1, const struct Coord3d *pos2)
