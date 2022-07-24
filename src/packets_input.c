@@ -261,6 +261,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
     {
         if (player->primary_cursor_state == CSt_PickAxe)
         {
+            player->thing_under_hand = 0;
             get_dungeon_highlight_user_roomspace(&playeradd->render_roomspace, player->id_number, stl_x, stl_y);
             tag_cursor_blocks_dig(player->id_number, stl_x, stl_y, player->full_slab_cursor);
         }
