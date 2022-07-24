@@ -4649,7 +4649,7 @@ void draw_engine_number(struct BucketKindFloatingGoldText *num)
     long pos_x;
 
     // 1st argument: the scale when fully zoomed out. 2nd argument: the scale at base level zoom
-    float scale_by_zoom = lerp(0.25, 1.00, zoomed_range);
+    float scale_by_zoom = lerp(0.15, 1.00, zoomed_range);
 
     flg_mem = lbDisplay.DrawFlags;
     player = get_my_player();
@@ -4694,7 +4694,7 @@ void draw_engine_room_flagpole(struct BucketKindRoomFlag *rflg)
         if (settings.roomflags_on)
         {
             // 1st argument: the scale when fully zoomed out. 2nd argument: the scale at base level zoom
-            float scale_by_zoom = lerp(0.25, 1.00, zoomed_range);
+            float scale_by_zoom = lerp(0.15, 1.00, zoomed_range);
             
             int deltay;
             int height;
@@ -4756,7 +4756,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
     if (cam == NULL) {return;}
     
     // 1st argument: the scale when fully zoomed out. 2nd argument: the scale at base level zoom
-    float scale_by_zoom = lerp(0.25, 1.00, zoomed_range);
+    float scale_by_zoom = lerp(0.15, 1.00, zoomed_range);
     int base_size;
     switch (cam->view_mode) {
         case PVM_IsometricView:
@@ -5030,7 +5030,7 @@ static void draw_engine_room_flag_top(struct BucketKindRoomFlag *rflg)
         if (settings.roomflags_on)
         {
             // 1st argument: the scale when fully zoomed out. 2nd argument: the scale at base level zoom
-            float scale_by_zoom = lerp(0.25, 1.00, zoomed_range);
+            float scale_by_zoom = lerp(0.15, 1.00, zoomed_range);
 
             int zoom_factor = cam->zoom;
             if (cam->view_mode == PVM_FrontView) {
