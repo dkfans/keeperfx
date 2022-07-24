@@ -545,6 +545,14 @@ TbBool cube_is_lava(long cube_id)
     return (cube_id == 40) || (cube_id == 41);
 }
 
+TbBool cube_is_path(long cube_id)
+{
+    return ( (cube_id == 0) || ( (cube_id >= 25) && (cube_id <= 29) ) || (cube_id == 46)
+    || ( (cube_id >= 126) && (cube_id <= 136 ) )
+    || ( (cube_id >= 146) && (cube_id <= 148) )
+    || (cube_id == 198) || (cube_id == 199) );
+}
+
 /**
  * Returns if given cube is a sacrificial ground or magic door surface.
  * @param cube_id
@@ -594,6 +602,18 @@ TbBool subtile_has_sacrificial_on_top(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
     i = get_top_cube_at(stl_x, stl_y, &cube_pos);
     // Only low ground cubes are really sacrificial - high ground is most likely magic door
     return cube_pos<4 && cube_is_sacrificial(i);
+}
+
+TbBool subtile_is_liquid(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+    return ( (subtile_has_water_on_top(stl_x, stl_y)) || (subtile_has_lava_on_top(stl_x, stl_y)) );
+}
+
+TbBool subtile_is_path(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+    long i;
+    i = get_top_cube_at(stl_x, stl_y, NULL);
+    return cube_is_path(i);
 }
 
 /******************************************************************************/
