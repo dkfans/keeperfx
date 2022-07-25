@@ -698,7 +698,6 @@ static void light_initialise_lighting_tables(void)
   int field_4;
   int max_angle;
   int min_angle;
-
   distance = 1;
   v0 = 0;
   lighting_tables_idx = 0;
@@ -711,9 +710,7 @@ static void light_initialise_lighting_tables(void)
       delta_y = distance_with_angle_to_coord_y(distance, angle);
       delta_x_val = abs(delta_x << 8);
       delta_y_val = abs(delta_y << 8);
-
       field_4 = LbDiagonalLength(delta_x_val, delta_y_val);
-
       if (delta_x || delta_y)
       {
         do
@@ -776,35 +773,57 @@ static void light_initialise_lighting_tables(void)
   } while (distance < 16);
   game.lish.lighting_tables_idx = lighting_tables_idx;
 
-
   do
   {
     v9 = 0;
     lighting_table_1 = &game.lish.lighting_tables[0];
     do
     {
-      if (!lighting_table_1->field_0)
+      if ( !lighting_table_1->field_0 )
         break;
       lighting_table_2 = lighting_table_1 + 1;
-      if (!lighting_table_2->field_0)
+      if ( !lighting_table_1[1].field_0 )
         break;
-      if (lighting_table_1->field_4 > lighting_table_2->field_4)
+      int v12 = lighting_table_1->field_4;
+      if ( v12 > lighting_table_1[1].field_4 )
       {
-        char swap_field_0 = lighting_table_1->field_0;
-        char swap_field_1 = lighting_table_1->distance;
-        long swap_field_4 = lighting_table_1->field_4;
+        int v13 = lighting_table_1[1].field_4;
+        char v22_0 = lighting_table_1->field_0;
+        char v22_x = lighting_table_1->delta_x;
+        char v22_y = lighting_table_1->delta_y;
+        char v22_4 = lighting_table_1->field_4;
 
-        lighting_table_1->field_0 = lighting_table_2->field_0;
-        lighting_table_1->distance = lighting_table_2->distance;
-        lighting_table_1->field_4 = lighting_table_2->field_4;
-        lighting_table_2->field_0 = swap_field_0;
-        lighting_table_2->distance = swap_field_1;
-        lighting_table_2->field_4 = swap_field_4;
+        char v14_0 = lighting_table_2->field_0;
+        char v14_x = lighting_table_2->delta_x;
+        char v14_y = lighting_table_2->delta_y;
+        char v14_4 = lighting_table_2->field_4;
+        int v23 = v12;
+
+        lighting_table_1->field_0 = v14_0;
+        lighting_table_1->delta_x = v14_x; 
+        lighting_table_1->delta_y = v14_y; 
+        lighting_table_1->field_4 = v14_4; 
+
+        char v15_0 = v22_0;
+        char v15_x = v22_x;
+        char v15_y = v22_y;
+        char v15_4 = v22_4;
+        lighting_table_1->field_4 = v13;
+        int v16 = v23;
+
+        lighting_table_2->field_0 = v15_0;
+        lighting_table_2->delta_x = v15_x;
+        lighting_table_2->delta_y = v15_y;
+        lighting_table_2->field_4 = v15_4;
+
+        lighting_table_1[1].field_4 = v16;
         v9 = 1;
       }
       ++lighting_table_1;
-    } while (lighting_table_2 < &game.lish.lighting_tables[1023]);
-  } while (v9);
+    }
+    while ( lighting_table_2 < &game.lish.lighting_tables[1023] );
+  }
+  while ( v9 );
 }
 
 void light_initialise(void)
