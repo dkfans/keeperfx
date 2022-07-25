@@ -4753,8 +4753,10 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
 {
     struct PlayerInfo *player = get_my_player();
     const struct Camera *cam = player->acamera;
-    if (cam == NULL) {return;}
-    
+    if (cam == NULL) {
+        return;
+    }
+
     // 1st argument: the scale when fully zoomed out. 2nd argument: the scale at base level zoom
     float scale_by_zoom = lerp(0.15, 1.00, zoomed_range);
     int base_size;
@@ -4896,6 +4898,12 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
     int bs_units_per_px;
     spr = &button_sprite[70];
     bs_units_per_px = units_per_pixel_ui * 2 * scale_by_zoom;
+
+    if (cam->view_mode == PVM_FrontView) {
+        float closeness_to_creature = 14.0; // Using float makes a difference in precision here
+        scrpos_y -= (spr->SHeight/closeness_to_creature) * bs_units_per_px;
+    }
+
     if ( state_spridx || anger_spridx )
     {
         spr = &button_sprite[70];
@@ -4903,6 +4911,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
         h = (base_size * spr->SHeight * bs_units_per_px/16) >> 13;
         LbSpriteDrawScaled(scrpos_x - w / 2, scrpos_y - h, spr, w, h);
     }
+
     lbDisplay.DrawFlags &= ~Lb_SPRITE_TRANSPAR8;
     lbDisplay.DrawFlags &= ~Lb_SPRITE_TRANSPAR4;
     if (((game.play_gameturn & 4) == 0) && (anger_spridx > 0))
@@ -4913,8 +4922,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
         LbSpriteDrawScaled(scrpos_x - w / 2, scrpos_y - h, spr, w, h);
         spr = get_button_sprite(state_spridx);
         h_add += spr->SHeight * bs_units_per_px/16;
-    }
-    else if ( state_spridx )
+    } else if ( state_spridx )
     {
         spr = get_button_sprite(state_spridx);
         w = (base_size * spr->SWidth * bs_units_per_px/16) >> 13;
@@ -4922,6 +4930,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
         LbSpriteDrawScaled(scrpos_x - w / 2, scrpos_y - h, spr, w, h);
         h_add += h;
     }
+
     if ((thing->lair.spr_size > 0) && (health_spridx > 0) && ((game.play_gameturn & 1) != 0))
     {
         int flash_owner;
@@ -6731,7 +6740,7 @@ static void create_status_box_element(struct Thing *thing, long a2, long a3, lon
 
 static void create_fast_view_status_box(struct Thing *thing, long x, long y)
 {
-    create_status_box_element(thing, x, y - (shield_offset[thing->model]+thing->clipbox_size_yz) / 12, y, 1);
+    create_status_box_element(thing, x, y, y, 1);
 }
 
 static void add_textruredquad_to_polypool(long x, long y, long texture_idx, long a7, long a8, long lightness, long a9, long bckt_idx)
