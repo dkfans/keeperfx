@@ -687,6 +687,7 @@ static void light_initialise_lighting_tables(void)
   char v4;
   int v5;
   struct LightingTable *lighting_table_a;
+  struct LightingTable *lighting_table_b;
   char v9;
   struct LightingTable *lighting_table_1;
   struct LightingTable *lighting_table_2;
@@ -697,8 +698,6 @@ static void light_initialise_lighting_tables(void)
   int field_4;
   int max_angle;
   int min_angle;
-
-  return;
 
   distance = 1;
   v0 = 0;
@@ -722,9 +721,9 @@ static void light_initialise_lighting_tables(void)
           v4 = 0;
           v5 = 0;
           lighting_table_a = &game.lish.lighting_tables[0];
-          while (lighting_table_a->field_0)
+          while ( lighting_table_a->field_0 )
           {
-            if (lighting_table_a->delta_x == delta_x && lighting_table_a->delta_y == delta_y)
+            if ( lighting_table_a->delta_x == delta_x && lighting_table_a->delta_y == delta_y )
             {
               v4 = 1;
               v0 = v5;
@@ -732,25 +731,28 @@ static void light_initialise_lighting_tables(void)
             }
             ++lighting_table_a;
             ++v5;
-            if (lighting_table_a >= &game.lish.lighting_tables[1024])
+            if ( lighting_table_a >= (struct LightingTable *)game.lish.shadow_limits )
               break;
           }
-          if (v4)
+          if ( v4 )
           {
-            if (game.lish.lighting_tables[v0].distance == distance)
+            if ( (unsigned __int8)game.lish.lighting_tables[v0].distance == distance )
               break;
-            if (v0 < 1023)
+            if ( v0 < 1023 )
             {
-              int i = v0;
+              lighting_table_b = &game.lish.lighting_tables[v0];
               do
               {
-                if (!game.lish.lighting_tables[i].field_0)
+                if ( !lighting_table_b->field_0 )
                   break;
-                game.lish.lighting_tables[i].field_0 = game.lish.lighting_tables[i + 1].field_0;
-                game.lish.lighting_tables[i].distance = game.lish.lighting_tables[i + 1].distance;
-                game.lish.lighting_tables[i].field_4 = game.lish.lighting_tables[i + 1].field_4;
-                ++i;
-              } while (i < 1023);
+                lighting_table_b->field_0 = lighting_table_b[1].field_0;
+                lighting_table_b->distance = lighting_table_b[1].distance;
+                lighting_table_b->delta_x = lighting_table_b[1].delta_x;
+                lighting_table_b->delta_y = lighting_table_b[1].delta_y;
+                lighting_table_b->field_4 = lighting_table_b[1].field_4;
+                ++lighting_table_b;
+              }
+              while ( lighting_table_b < &game.lish.lighting_tables[1023] );
             }
             --lighting_tables_idx;
           }
@@ -761,16 +763,19 @@ static void light_initialise_lighting_tables(void)
             game.lish.lighting_tables[lighting_tables_idx].delta_y = delta_y;
             game.lish.lighting_tables[lighting_tables_idx].distance = distance;
             game.lish.lighting_tables[lighting_tables_idx].field_4 = field_4;
-            lighting_tables_idx++;
             //get_max_and_min_angles_from_origin(128, 128, delta_x, delta_y, delta_x + 1, delta_y + 1, &max_angle, &min_angle);
           }
-        } while (v4);
+        }
+        while ( v4 );
       }
       ++angle;
-    } while (angle < 2048);
+                JUSTLOG("3");
+    } while (angle < 2 * LbFPMath_PI);
     ++distance;
+                JUSTLOG("4");
   } while (distance < 16);
   game.lish.lighting_tables_idx = lighting_tables_idx;
+
 
   do
   {
