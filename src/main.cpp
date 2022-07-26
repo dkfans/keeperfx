@@ -134,7 +134,6 @@ extern "C" {
 
 // DLLIMPORT int _DK_can_thing_be_queried(struct Thing *thing, long a2);
 DLLIMPORT long _DK_ceiling_init(unsigned long a1, unsigned long a2);
-DLLIMPORT void _DK_update_flames_nearest_camera(struct Camera *camera);
 DLLIMPORT long _DK_ceiling_block_is_solid_including_corners_return_height(long a1, long a2, long a3);
 // Now variables
 DLLIMPORT extern HINSTANCE _DK_hInstance;
@@ -2429,13 +2428,6 @@ void process_dungeons(void)
   SYNCDBG(9,"Finished");
 }
 
-void update_flames_nearest_camera(struct Camera *camera)
-{
-  if (camera == NULL)
-    return;
-  _DK_update_flames_nearest_camera(camera);
-}
-
 void update_near_creatures_for_footsteps(long *near_creatures, const struct Coord3d *srcpos)
 {
     long near_distance[3];
@@ -2776,7 +2768,10 @@ void update(void)
         process_action_points();
         player = get_my_player();
         if (player->view_mode == PVM_CreatureView)
-            update_flames_nearest_camera(player->acamera);
+        {
+            struct Thing *thing = thing_get(player->controlled_thing_idx);
+            update_flames_nearest_thing(thing);
+        }
         update_footsteps_nearest_camera(player->acamera);
         PaletteFadePlayer(player);
         process_armageddon();

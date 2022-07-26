@@ -171,9 +171,6 @@ const struct MyLookup lookup[] = {
 };
 
 /******************************************************************************/
-DLLIMPORT long _DK_count_creatures_in_call_to_arms(struct Computer2 *comp);
-DLLIMPORT struct ComputerTask *_DK_get_free_task(struct Computer2 *comp, long basestl_y);
-/******************************************************************************/
 #ifdef __cplusplus
 }
 #endif
@@ -520,9 +517,46 @@ TbBool is_task_in_progress(struct Computer2 *comp, ComputerTaskType ttype)
     return !computer_task_invalid(ctask);
 }
 
-struct ComputerTask *get_free_task(struct Computer2 *comp, long a2)
+static struct ComputerTask *get_free_task(struct Computer2 *comp, TbBool use_comp_task)
 {
-    return _DK_get_free_task(comp, a2);
+
+    struct ComputerTask *task_result;
+    struct ComputerTask *current_task;
+    int next_task;
+
+    task_result = &game.computer_task[1];
+    while ((task_result->flags & ComTsk_Unkn0001) != 0)
+    {
+        if (++task_result >= (struct ComputerTask *)&game.computer)
+            return 0;
+    }
+    memset(task_result, 0, sizeof(struct ComputerTask));
+    current_task = &game.computer_task[comp->task_idx];
+    if (current_task > game.computer_task)
+    {
+        if (!use_comp_task)
+        {
+            if (current_task->next_task)
+            {
+                do
+                {
+                    next_task = current_task->next_task;
+                    current_task = &game.computer_task[current_task->next_task];
+                } while (game.computer_task[next_task].next_task);
+            }
+            current_task->next_task = task_result - game.computer_task;
+
+            task_result->flags |= ComTsk_Unkn0001;
+            task_result->created_turn = game.play_gameturn;
+            return task_result;
+        }
+        task_result->next_task = comp->task_idx;
+    }
+    comp->task_idx = task_result - game.computer_task;
+
+    task_result->flags |= ComTsk_Unkn0001;
+    task_result->created_turn = game.play_gameturn;
+    return task_result;
 }
 
 TbBool is_task_in_progress_using_hand(struct Computer2 *comp)
@@ -2228,9 +2262,24 @@ long task_dig_to_attack(struct Computer2 *comp, struct ComputerTask *ctask)
 
 long count_creatures_at_call_to_arms(struct Computer2 *comp)
 {
-    struct Dungeon *dungeon;
-    dungeon = comp->dungeon;
-    return count_player_list_creatures_of_model_matching_bool_filter(dungeon->owner, -1, creature_is_called_to_arms);
+    struct Thing* i;
+    int num_creatures = 0;
+    int k = 0;
+
+    for (i = thing_get(comp->dungeon->creatr_list_start);
+         !thing_is_invalid(i);
+         i = thing_get(creature_control_get_from_thing(i)->players_next_creature_idx))
+    {
+        if (get_creature_state_besides_move(i) == CrSt_AlreadyAtCallToArms)
+            num_creatures++;
+        k++;
+        if (k > CREATURES_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when counting creatures in call to arms");
+            return num_creatures;
+        }
+    }
+    return num_creatures;
 }
 
 static struct Thing *find_creature_for_call_to_arms(struct Computer2 *comp, TbBool prefer_high_scoring)
@@ -2282,7 +2331,9 @@ static struct Thing *find_creature_for_call_to_arms(struct Computer2 *comp, TbBo
 
 long count_creatures_in_call_to_arms(struct Computer2 *comp)
 {
-    return _DK_count_creatures_in_call_to_arms(comp);
+    struct Dungeon *dungeon;
+    dungeon = comp->dungeon;
+    return count_player_list_creatures_of_model_matching_bool_filter(dungeon->owner, CREATURE_ANY, creature_is_called_to_arms);
 }
 
 long task_magic_call_to_arms(struct Computer2 *comp, struct ComputerTask *ctask)
