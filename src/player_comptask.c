@@ -1388,32 +1388,29 @@ long get_corridor(struct Coord3d *pos1, struct Coord3d * pos2, unsigned char rou
     return 0;
 }
 
-static TbBool other_build_here(struct Computer2 *comp, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long width_slabs, long height_slabs)
+static TbBool other_build_here(struct Computer2 *comp, MapSubtlCoord stl_x, MapSubtlCoord stl_y, MapSlabDelta width_slabs, MapSlabDelta height_slabs)
 {
 
-    __int32 v5;
-    struct ComputerTask *task;
     char ttype;
     __int16 v9;
     int v10;
     int v12;
     signed int v13;
-    int v16;
     __int32 idk_x;
     __int32 idk_y;
     int idk_x_2;
     int idk_y_2;
 
 
-    v5 = height_slabs;
+    MapSlabDelta long_edge_length = height_slabs;
     if ( height_slabs <= width_slabs )
-        v5 = width_slabs;
-    v16 = 3 * v5;
-    idk_x = (stl_x - 3 * v5) & ((stl_x - 3 * v5 <= 0) - 1);
-    idk_y = (stl_y - 3 * v5) & ((stl_y - 3 * v5 <= 0) - 1);
-    task = get_computer_task(comp->task_idx);
+        long_edge_length = width_slabs;
+    MapSubtlDelta long_edge_length_subtl = 3 * long_edge_length;
+    idk_x = (stl_x - long_edge_length_subtl) & ((stl_x - long_edge_length_subtl <= 0) - 1);
+    idk_y = (stl_y - long_edge_length_subtl) & ((stl_y - long_edge_length_subtl <= 0) - 1);
+    struct ComputerTask *task = get_computer_task(comp->task_idx);
 
-    if ( task <= (struct ComputerTask *)game.computer_task )
+    if ( task <= &game.computer_task[0] )
         return true;
     while ( 1 )
     {
@@ -1427,9 +1424,9 @@ static TbBool other_build_here(struct Computer2 *comp, MapSubtlCoord stl_x, MapS
         idk_y_2 = task->pos_64.y.stl.num - v10 / 2;
         if ( idk_y_2 <= 0 )
             idk_y_2 = 0;
-        v12 = v16;
+        v12 = long_edge_length_subtl;
         
-        if ( v16 <= v10 )
+        if ( long_edge_length_subtl <= v10 )
             v12 = v10;
         v13 = v12 + 3;
         idk_x_2 = task->pos_64.x.stl.num - v10 / 2;
@@ -1439,7 +1436,7 @@ static TbBool other_build_here(struct Computer2 *comp, MapSubtlCoord stl_x, MapS
             break;
         }
         task = get_computer_task(task->next_task);
-        if ( task <= (struct ComputerTask *)game.computer_task )
+        if ( task <= &game.computer_task[0] )
             return true;
     }
     return false;
