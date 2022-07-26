@@ -3311,95 +3311,82 @@ CrCheckRet move_check_attack_any_door(struct Thing *creatng)
     return 1;
 }
 
-static TbBool slab_is_good_spot_to_stand_to_damage_wall(int plyr_idx, int slb_x, int slb_y)
+static TbBool is_good_spot_to_stand_to_damage_wall(int plyr_idx, MapSubtlCoord x, MapSubtlCoord y)
 {
-    struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
+    const int slab_x = subtile_slab(x);
+    const int slab_y = subtile_slab(y);
+    struct SlabMap* slb = get_slabmap_block(slab_x, slab_y);
 
     return (slabmap_owner(slb) == plyr_idx &&
-            slab_is_safe_land(plyr_idx, slb_x, slb_y) &&
-            !slab_is_liquid(slb_x, slb_y));
+            slab_is_safe_land(plyr_idx, slab_x, slab_y) &&
+            !slab_is_liquid(slab_x, slab_y));
+}
+
+void instruct_creature_to_damage_wall(struct Thing *creatng, MapSubtlCoord wall_x, MapSubtlCoord wall_y)
+{
+    const MapSubtlDelta delta_x = wall_x - creatng->mappos.x.stl.num;
+    const MapSubtlDelta delta_y = wall_y - creatng->mappos.y.stl.num;
+    int start_idx = 0;
+
+    if ( abs(delta_y) >= abs(delta_x) )
+    {
+        if ( delta_y <= 0 )
+            start_idx = 2;
+        else
+            start_idx = 0;
+    }
+    else
+    {
+        if ( delta_x <= 0 )
+            start_idx = 1;
+        else
+            start_idx = 3;
+    }
+
+    for (int i = 0; i < SMALL_AROUND_LENGTH; ++i)
+    {
+        const int around_idx = (start_idx + i) % SMALL_AROUND_LENGTH;
+        const MapSubtlCoord stand_x = wall_x + (2 * small_around[around_idx].delta_x);
+        const MapSubtlCoord stand_y = wall_y + (2 * small_around[around_idx].delta_y);
+        if ( is_good_spot_to_stand_to_damage_wall(creatng->owner, stand_x, stand_y) )
+        {
+            struct Coord3d pos;
+            pos.x.val = subtile_coord_center(stand_x);
+            pos.y.val = subtile_coord_center(stand_y);
+            pos.z.val = get_thing_height_at(creatng, &pos);
+            if ( creature_can_navigate_to_with_storage(creatng, &pos, 0) != -1 ) {
+                if ( setup_person_move_to_position(creatng, stand_x, stand_y, 0) )
+                {
+                    creatng->continue_state = CrSt_CreatureDamageWalls;
+                    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+                    cctrl->damage_wall_coords = get_subtile_number(wall_x, wall_y);
+                }
+            }
+        }
+    }
 }
 
 CrCheckRet move_check_can_damage_wall(struct Thing *creatng)
 {
-    int around_idx; // ebx
-    struct Coord3d pos; // [esp+10h] [ebp-18h] BYREF
-    MapSubtlCoord stl_x;
-    MapSubtlCoord stl_y;
-    pos.x.val = creatng->mappos.x.val;
-    pos.y.val = creatng->mappos.y.val;
-
-
-    TbBool wall_found = false;
     for (int i = 0; i < SMALL_AROUND_LENGTH; i++)
     {
-        stl_x = STL_PER_SLB * ((creatng->mappos.x.stl.pos + STL_PER_SLB * small_around[i].delta_x) / STL_PER_SLB) + 1;
-        stl_y = STL_PER_SLB * ((creatng->mappos.y.stl.pos + STL_PER_SLB * small_around[i].delta_y) / STL_PER_SLB) + 1;
+        const MapSubtlCoord wall_x = creatng->mappos.x.stl.num + (small_around[i].delta_x * STL_PER_SLB);
+        const MapSubtlCoord wall_y = creatng->mappos.y.stl.num + (small_around[i].delta_y * STL_PER_SLB);
 
-        struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
+        struct SlabMap* slb = get_slabmap_for_subtile(wall_x, wall_y);
         PlayerNumber slab_owner = slabmap_owner(slb);
-        struct Map* mapblk = get_map_block_at(stl_x, stl_y);
+        struct Map* mapblk = get_map_block_at(wall_x, wall_y);
         struct SlabAttr* slbattr = get_slab_attrs(slb);
 
         if ( (mapblk->flags & SlbAtFlg_Blocking) != 0
             && slab_owner == creatng->owner
             && slbattr->category == SlbAtCtg_FortifiedWall )
         {
-            wall_found = true;
-            break;
-        }
-    }
-
-    if (!wall_found)
-        return 0;
-
-    SubtlCodedCoords stl_num = get_subtile_number(stl_x, stl_y);
-
-    MapSubtlDelta delta_x = stl_x - creatng->mappos.x.stl.num;
-    MapSubtlDelta delta_y = stl_y - creatng->mappos.y.stl.num;
-
-    if ( abs(delta_y) >= abs(delta_x) )
-    {
-        if ( delta_y <= 0 )
-            around_idx = 2;
-        else
-            around_idx = 0;
-    }
-    else
-    {
-        if ( delta_x <= 0 )
-            around_idx = 1;
-        else
-            around_idx = 3;
-    }
-
-    int i = 0;
-    MapSubtlCoord ar_stl_x;
-    MapSubtlCoord ar_stl_y;
-    while ( 1 )
-    {
-        ar_stl_x = stl_x + 2 * small_around[around_idx].delta_x;
-        ar_stl_y = stl_y + 2 * small_around[around_idx].delta_y;
-        if ( slab_is_good_spot_to_stand_to_damage_wall(creatng->owner, subtile_slab(ar_stl_x), subtile_slab(ar_stl_y)) )
-        {
-            pos.x.val = subtile_coord_center(ar_stl_x);
-            pos.y.val = subtile_coord_center(ar_stl_y);
-            pos.z.val = get_thing_height_at(creatng, &pos);
-            if ( creature_can_navigate_to_with_storage(creatng, &pos, 0) != -1 )
-                break;
-        }
-        ++i;
-        around_idx = (around_idx + 1) % SMALL_AROUND_LENGTH;
-        if ( i >= SMALL_AROUND_LENGTH )
+            instruct_creature_to_damage_wall(creatng, wall_x, wall_y);
             return 1;
+        }
     }
-    if ( setup_person_move_to_position(creatng, ar_stl_x, ar_stl_y, 0) )
-    {
-        creatng->continue_state = CrSt_CreatureDamageWalls;
-        struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-        cctrl->damage_wall_coords = stl_num;
-    }
-    return 1;
+    return 0;
 }
 
 CrAttackType creature_can_have_combat_with_creature_on_slab(struct Thing *creatng, MapSlabCoord slb_x, MapSlabCoord slb_y, struct Thing ** enemytng)
