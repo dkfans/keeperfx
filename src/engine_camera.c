@@ -458,7 +458,12 @@ void update_player_camera_fp(struct Camera *cam, struct Thing *thing)
 
 unsigned long get_camera_zoom_limit(struct Camera* cam)
 {
-    long limit = (FRONTVIEW_CAMERA_ZOOM_MAX / 85 * 11/6) * (CAMERA_ZOOM_MAX / cam->zoom);
+    if (cam->view_mode == PVM_FrontView)
+    {
+        //todo Implement a limit for this view mode too.
+        return 0;
+    }
+    long limit = (FRONTVIEW_CAMERA_ZOOM_MAX / 85 * 5/3) * (CAMERA_ZOOM_MAX / cam->zoom);
     if (limit > 0)
     {
         return limit;
