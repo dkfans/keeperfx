@@ -2161,6 +2161,11 @@ void set_mouse_light(struct PlayerInfo *player)
             }
             light_turn_light_on(player->field_460);
             light_set_light_position(player->field_460, &pos);
+            if (camera_zoom > 0)
+            {
+                light_set_light_intensity(player->field_460, (48 * (camera_zoom + CAMERA_ZOOM_MAX) / (2 * CAMERA_ZOOM_MAX)));
+                light_set_light_radius(player->field_460, (2560 * 8000 / camera_zoom));
+            }
         }
         else
         {

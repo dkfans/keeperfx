@@ -634,6 +634,19 @@ void light_set_light_intensity(long idx, unsigned char intensity)
   }
 }
 
+void light_set_light_radius(long idx, unsigned short radius)
+{
+    struct Light* lgt = &game.lish.lights[idx];
+    if (!light_is_invalid(lgt))
+    {
+        lgt->radius = radius;
+    }
+    else
+    {
+        ERRORLOG("Attempt to set intensity of invalid light");
+    }
+}
+
 void clear_stat_light_map(void)
 {
     game.lish.field_46149 = 32;
@@ -1153,7 +1166,7 @@ void update_light_render_area(void)
     light_render_area(startx, starty, endx, endy);
 }
 
-void light_set_light_minimum_size_to_cache(long lgt_id, long a2, long a3)
+void light_set_light_minimum_size_to_cache(long lgt_id, long radius, long intensity)
 {
   struct Light *lgt;
   if ( lgt_id )
@@ -1166,8 +1179,8 @@ void light_set_light_minimum_size_to_cache(long lgt_id, long a2, long a3)
         lgt->flags &= ~LgtF_Unkn02;
         if ( lgt->flags & LgtF_Dynamic )
         {
-          lgt->min_radius = a2;
-          lgt->min_intensity = a3;
+          lgt->min_radius = radius;
+          lgt->min_intensity = intensity;
         }
         else
         {
