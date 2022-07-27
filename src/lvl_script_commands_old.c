@@ -153,7 +153,7 @@ static void command_add_party_to_level(long plr_range_id, const char *prtname, c
     }
 }
 
-static void command_add_object_to_level(const char *obj_name, const char *locname, long arg)
+static void command_add_object_to_level(const char *obj_name, const char *locname, long arg, const char* playername)
 {
     TbMapLocation location;
     long obj_id = get_rid(object_desc, obj_name);
@@ -167,18 +167,25 @@ static void command_add_object_to_level(const char *obj_name, const char *locnam
         SCRPTERRLOG("Too many ADD_CREATURE commands in script");
         return;
     }
+    long plr_id = get_rid(player_desc, playername);
+
+    if ((plr_id == -1) || (plr_id == ALL_PLAYERS))
+    {
+        plr_id = PLAYER_NEUTRAL;
+    }
+
     // Recognize place where party is created
     if (!get_map_location_id(locname, &location))
         return;
     if (get_script_current_condition() == CONDITION_ALWAYS)
     {
-        script_process_new_object(obj_id, location, arg);
+        script_process_new_object(obj_id, location, arg, plr_id);
     } else
     {
         struct PartyTrigger* pr_trig = &gameadd.script.party_triggers[gameadd.script.party_triggers_num % PARTY_TRIGGERS_COUNT];
         pr_trig->flags = TrgF_CREATE_OBJECT;
         pr_trig->flags |= next_command_reusable?TrgF_REUSABLE:0;
-        pr_trig->plyr_idx = 0; //That is because script is inside `struct Game` and it is not possible to enlarge it
+        pr_trig->plyr_idx = plr_id;
         pr_trig->creatr_id = obj_id & 0x7F;
         pr_trig->crtr_level = ((obj_id >> 7) & 7); // No more than 1023 different classes of objects :)
         pr_trig->carried_gold = arg;
@@ -1674,7 +1681,7 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         command_add_creature_to_level(scline->np[0], scline->tp[1], scline->tp[2], scline->np[3], scline->np[4], scline->np[5]);
         break;
     case Cmd_ADD_OBJECT_TO_LEVEL:
-        command_add_object_to_level(scline->tp[0], scline->tp[1], scline->np[2]);
+        command_add_object_to_level(scline->tp[0], scline->tp[1], scline->np[2], scline->tp[3]);
         break;
     case Cmd_ENDIF:
         pop_condition();

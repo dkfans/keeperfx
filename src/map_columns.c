@@ -526,7 +526,7 @@ void init_top_texture_to_cube_table(void)
         for (i=1; i < CUBE_ITEMS_MAX; i++)
         {
             struct CubeAttribs * cubed;
-            cubed = &game.cubes_data[i];
+            cubed = &gameadd.cubes_data[i];
             if (cubed->texture_id[4] == n) {
                 game.field_14BB65[n] = i;
                 break;

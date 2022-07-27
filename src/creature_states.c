@@ -86,7 +86,6 @@ extern "C" {
 #define CREATURE_GUI_STATES_COUNT 3
 /* Please note that functions returning 'short' are not ment to return true/false only! */
 /******************************************************************************/
-DLLIMPORT long _DK_move_check_can_damage_wall(struct Thing *creatng);
 DLLIMPORT long _DK_get_best_position_outside_room(struct Thing *creatng, struct Coord3d *pos, struct Room *room);
 /******************************************************************************/
 short already_at_call_to_arms(struct Thing *creatng);
@@ -3312,9 +3311,82 @@ CrCheckRet move_check_attack_any_door(struct Thing *creatng)
     return 1;
 }
 
+static TbBool is_good_spot_to_stand_to_damage_wall(int plyr_idx, MapSubtlCoord x, MapSubtlCoord y)
+{
+    const int slab_x = subtile_slab(x);
+    const int slab_y = subtile_slab(y);
+    struct SlabMap* slb = get_slabmap_block(slab_x, slab_y);
+
+    return (slabmap_owner(slb) == plyr_idx &&
+            slab_is_safe_land(plyr_idx, slab_x, slab_y) &&
+            !slab_is_liquid(slab_x, slab_y));
+}
+
+void instruct_creature_to_damage_wall(struct Thing *creatng, MapSubtlCoord wall_x, MapSubtlCoord wall_y)
+{
+    const MapSubtlDelta delta_x = wall_x - creatng->mappos.x.stl.num;
+    const MapSubtlDelta delta_y = wall_y - creatng->mappos.y.stl.num;
+    int start_idx = 0;
+
+    if ( abs(delta_y) >= abs(delta_x) )
+    {
+        if ( delta_y <= 0 )
+            start_idx = 2;
+        else
+            start_idx = 0;
+    }
+    else
+    {
+        if ( delta_x <= 0 )
+            start_idx = 1;
+        else
+            start_idx = 3;
+    }
+
+    for (int i = 0; i < SMALL_AROUND_LENGTH; ++i)
+    {
+        const int around_idx = (start_idx + i) % SMALL_AROUND_LENGTH;
+        const MapSubtlCoord stand_x = wall_x + (2 * small_around[around_idx].delta_x);
+        const MapSubtlCoord stand_y = wall_y + (2 * small_around[around_idx].delta_y);
+        if ( is_good_spot_to_stand_to_damage_wall(creatng->owner, stand_x, stand_y) )
+        {
+            struct Coord3d pos;
+            pos.x.val = subtile_coord_center(stand_x);
+            pos.y.val = subtile_coord_center(stand_y);
+            pos.z.val = get_thing_height_at(creatng, &pos);
+            if ( creature_can_navigate_to_with_storage(creatng, &pos, 0) != -1 ) {
+                if ( setup_person_move_to_position(creatng, stand_x, stand_y, 0) )
+                {
+                    creatng->continue_state = CrSt_CreatureDamageWalls;
+                    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+                    cctrl->damage_wall_coords = get_subtile_number(wall_x, wall_y);
+                }
+            }
+        }
+    }
+}
+
 CrCheckRet move_check_can_damage_wall(struct Thing *creatng)
 {
-  return _DK_move_check_can_damage_wall(creatng);
+    for (int i = 0; i < SMALL_AROUND_LENGTH; i++)
+    {
+        const MapSubtlCoord wall_x = creatng->mappos.x.stl.num + (small_around[i].delta_x * STL_PER_SLB);
+        const MapSubtlCoord wall_y = creatng->mappos.y.stl.num + (small_around[i].delta_y * STL_PER_SLB);
+
+        struct SlabMap* slb = get_slabmap_for_subtile(wall_x, wall_y);
+        PlayerNumber slab_owner = slabmap_owner(slb);
+        struct Map* mapblk = get_map_block_at(wall_x, wall_y);
+        struct SlabAttr* slbattr = get_slab_attrs(slb);
+
+        if ( (mapblk->flags & SlbAtFlg_Blocking) != 0
+            && slab_owner == creatng->owner
+            && slbattr->category == SlbAtCtg_FortifiedWall )
+        {
+            instruct_creature_to_damage_wall(creatng, wall_x, wall_y);
+            return 1;
+        }
+    }
+    return 0;
 }
 
 CrAttackType creature_can_have_combat_with_creature_on_slab(struct Thing *creatng, MapSlabCoord slb_x, MapSlabCoord slb_y, struct Thing ** enemytng)
@@ -4101,8 +4173,19 @@ TbBool get_random_position_in_dungeon_for_creature(PlayerNumber plyr_idx, unsign
 
 TbBool creature_can_hear_within_distance(const struct Thing *thing, long dist)
 {
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    return subtile_coord(crstat->hearing,0) >= dist;
+    if (thing_is_creature(thing))
+    {
+        struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+        return subtile_coord(crstat->hearing,0) >= dist;
+    }
+    else if (thing_is_mature_food(thing))
+    {
+        return (dist <= 2560); // 10 subtiles
+    }
+    else
+    {
+        return false;
+    }
 }
 
 long get_thing_navigation_distance(struct Thing* creatng, struct Coord3d* pos, unsigned char resetOwnerPlayerNavigating)

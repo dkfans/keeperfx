@@ -134,9 +134,6 @@ extern "C" {
 
 // DLLIMPORT int _DK_can_thing_be_queried(struct Thing *thing, long a2);
 DLLIMPORT long _DK_ceiling_init(unsigned long a1, unsigned long a2);
-DLLIMPORT void __stdcall _DK_IsRunningMark(void);
-DLLIMPORT void __stdcall _DK_IsRunningUnmark(void);
-DLLIMPORT void _DK_update_flames_nearest_camera(struct Camera *camera);
 DLLIMPORT long _DK_ceiling_block_is_solid_including_corners_return_height(long a1, long a2, long a3);
 // Now variables
 DLLIMPORT extern HINSTANCE _DK_hInstance;
@@ -982,26 +979,6 @@ short ceiling_set_info(long height_max, long height_min, long step)
     return 1;
 }
 
-void IsRunningMark(void)
-{
-    _DK_IsRunningMark();
-/*  HKEY hKey;
-  if ( !RegCreateKeyA(HKEY_LOCAL_MACHINE, "SOFTWARE\\Bullfrog Productions Ltd\\Dungeon Keeper\\IsRunning", &hKey) )
-    RegCloseKey(hKey);*/
-}
-
-void IsRunningUnmark(void)
-{
-    _DK_IsRunningUnmark();
-    /*HKEY hKey;
-    if ( !RegOpenKeyExA(HKEY_LOCAL_MACHINE, "SOFTWARE\\Bullfrog Productions Ltd\\Dungeon Keeper\\IsRunning",
-            0, 0x20019u, &hKey) )
-    {
-        RegCloseKey(hKey);
-        RegDeleteKeyA(HKEY_LOCAL_MACHINE, "SOFTWARE\\Bullfrog Productions Ltd\\Dungeon Keeper\\IsRunning");
-    }*/
-}
-
 /**
  * Initial video setup - loads only most important files to show startup screens.
  */
@@ -1071,6 +1048,7 @@ short setup_game(void)
   features_enabled &= ~Ft_MuteAudioOnLoseFocus; // don't mute the audio, if the game window loses focus
   features_enabled &= ~Ft_SkipHeartZoom; // don't skip the dungeon heart zoom in
   features_enabled &= ~Ft_SkipSplashScreens; // don't skip splash screens
+  features_enabled &= ~Ft_DisableCursorCameraPanning; // don't disable cursor camera panning
   
   // Configuration file
   if ( !load_configuration() )
@@ -1181,7 +1159,6 @@ short setup_game(void)
 
   if ( result )
   {
-      IsRunningMark();
       if ( !initial_setup() )
         result = 0;
   }
@@ -2451,13 +2428,6 @@ void process_dungeons(void)
   SYNCDBG(9,"Finished");
 }
 
-void update_flames_nearest_camera(struct Camera *camera)
-{
-  if (camera == NULL)
-    return;
-  _DK_update_flames_nearest_camera(camera);
-}
-
 void update_near_creatures_for_footsteps(long *near_creatures, const struct Coord3d *srcpos)
 {
     long near_distance[3];
@@ -2798,7 +2768,10 @@ void update(void)
         process_action_points();
         player = get_my_player();
         if (player->view_mode == PVM_CreatureView)
-            update_flames_nearest_camera(player->acamera);
+        {
+            struct Thing *thing = thing_get(player->controlled_thing_idx);
+            update_flames_nearest_thing(thing);
+        }
         update_footsteps_nearest_camera(player->acamera);
         PaletteFadePlayer(player);
         process_armageddon();
@@ -3977,7 +3950,6 @@ void game_loop(void)
 short reset_game(void)
 {
     SYNCDBG(6,"Starting");
-    IsRunningUnmark();
 
     KeeperSpeechExit();
 

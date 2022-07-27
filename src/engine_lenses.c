@@ -122,8 +122,8 @@ void rotpers_parallel(struct EngineCoord *epos, const struct M33 *matx)
     if (tz < 32) {
         tz = 0;
     } else
-    if (tz >= 11232) {
-        tz = 11232;
+    if (tz >= Z_DRAW_DISTANCE_MAX) {
+        tz = Z_DRAW_DISTANCE_MAX;
     }
     epos->view_width = tx;
     epos->view_height = ty;
