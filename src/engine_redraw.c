@@ -1112,6 +1112,9 @@ void redraw_display(void)
     {
         draw_timer();
     }
+
+    draw_frametime();
+
     if (((game.operation_flags & GOF_Paused) != 0) && ((game.operation_flags & GOF_WorldInfluence) == 0))
     {
           LbTextSetFont(winfont);

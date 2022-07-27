@@ -2,6 +2,7 @@
 #include <windows.h>
 
 #include "keeperfx.hpp"
+#include <chrono>
 
 #include "bflib_coroutine.h"
 #include "bflib_math.h"
@@ -112,6 +113,15 @@
 #ifdef _MSC_VER
 #define strcasecmp _stricmp
 #endif
+
+#define TimePoint std::chrono::high_resolution_clock::time_point
+#define TimeNow std::chrono::high_resolution_clock::now()
+
+float frametime_ms;
+float frametime_ms_logic;
+float frametime_ms_draw;
+float frametime_ms_sleep;
+
 
 int test_variable;
 
@@ -3351,6 +3361,12 @@ TbBool keeper_wait_for_screen_focus(void)
     return false;
 }
 
+float end_frametime_measurement(TimePoint measurement) {
+    long double nanoseconds = std::chrono::duration_cast<std::chrono::nanoseconds>(TimeNow - measurement).count();
+    long double milliseconds = nanoseconds/1000000000.0;
+    return milliseconds;
+}
+
 void keeper_gameplay_loop(void)
 {
     short do_draw;
@@ -3376,6 +3392,9 @@ void keeper_gameplay_loop(void)
     //the main gameplay loop starts
     while ((!quit_game) && (!exit_keeper))
     {
+        TimePoint measure_frametime = TimeNow;
+        TimePoint measure_frametime_of_logic = TimeNow;
+        
         if ((game.flags_font & FFlg_unk10) != 0)
         {
           if (game.play_gameturn == 4)
@@ -3404,9 +3423,14 @@ void keeper_gameplay_loop(void)
         input_eastegg();
         input();
         update();
-
+        
         if (quit_game || exit_keeper)
             do_draw = false;
+        
+        //JUSTLOG("Logic: %f", end_frametime_measurement(measure_frametime_of_logic));
+        frametime_ms_logic = end_frametime_measurement(measure_frametime_of_logic);
+
+        TimePoint measure_frametime_of_draw = TimeNow;
 
         if ( do_draw )
             keeper_screen_redraw();
@@ -3433,12 +3457,21 @@ void keeper_gameplay_loop(void)
         // Move the graphics window to center of screen buffer and swap screen
         if ( do_draw )
             keeper_screen_swap();
+        
+        JUSTLOG("Draw: %f", end_frametime_measurement(measure_frametime_of_draw));
+        frametime_ms_draw = end_frametime_measurement(measure_frametime_of_draw);
+        TimePoint measure_frametime_of_sleep = TimeNow;
 
         // Make delay if the machine is too fast
         if ( (!game.packet_load_enable) || (game.turns_fastforward == 0) )
             keeper_wait_for_next_turn();
+        
         if (game.turns_packetoff == game.play_gameturn)
             exit_keeper = 1;
+        //JUSTLOG("Sleep: %f", end_frametime_measurement(measure_frametime_of_sleep));
+        frametime_ms_sleep = end_frametime_measurement(measure_frametime_of_sleep);
+
+        frametime_ms = end_frametime_measurement(measure_frametime);
     } // end while
     SYNCDBG(0,"Gameplay loop finished after %lu turns",(unsigned long)game.play_gameturn);
 }

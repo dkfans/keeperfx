@@ -539,4 +539,37 @@ void draw_script_variable(PlayerNumber plyr_idx, unsigned char valtype, unsigned
     LbTextDrawResized(0, 0, tx_units_per_px, text);
     LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
 }
+
+
+void draw_frametime()
+{
+    char *text;
+    LbTextSetFont(winfont);
+    lbDisplay.DrawFlags = Lb_TEXT_HALIGN_RIGHT;
+    int tx_units_per_px = (11 * units_per_pixel) / LbTextLineHeight();
+    for(int i = 0; i < 5; i++) {
+        
+        switch (i) {
+            case 0:
+                //text = buf_sprintf("Added: together %f ms", frametime_ms_logic+frametime_ms_draw+frametime_ms_sleep);
+                text = buf_sprintf("Frametime: %f ms", frametime_ms);
+                break;
+            case 1:
+                text = buf_sprintf("", 0);
+                break;
+            case 2:
+                text = buf_sprintf("Logic: %f ms", frametime_ms_logic);
+                break;
+            case 3:
+                text = buf_sprintf("Draw: %f ms", frametime_ms_draw);
+                break;
+            case 4:
+                text = buf_sprintf("Sleep: %f ms", frametime_ms_sleep);
+                break;
+                
+        }
+        LbTextDrawResized(0, (24+i)*tx_units_per_px, tx_units_per_px, text);
+    }
+    //LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
+}
 /******************************************************************************/

@@ -247,6 +247,11 @@ extern struct GuiBox *gui_cheat_box_3;
 extern int test_variable;
 extern struct StartupParameters start_params;
 
+extern float frametime_ms;
+extern float frametime_ms_logic;
+extern float frametime_ms_draw;
+extern float frametime_ms_sleep;
+
 //Functions - reworked
 short setup_game(void);
 void game_loop(void);

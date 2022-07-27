@@ -55,6 +55,7 @@ short zoom_to_fight(PlayerNumber plyr_idx);
 void draw_bonus_timer(void);
 TbBool bonus_timer_enabled(void);
 void draw_timer(void);
+void draw_frametime(void);
 TbBool timer_enabled(void);
 TbBool script_timer_enabled(void);
 void draw_script_timer(PlayerNumber plyr_idx, unsigned char timer_id, unsigned long limit, TbBool real);
