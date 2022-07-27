@@ -77,6 +77,7 @@ unsigned long LbRandomSeries(unsigned long range, unsigned long *seed, const cha
 TbBool LbNumberSignsSame(long num_a, long num_b);
 char LbCompareMultiplications(long mul1a, long mul1b, long mul2a, long mul2b);
 long LbDiagonalLength(long a, long b);
+float lerp(float a, float b, float f);
 
 /******************************************************************************/
 #ifdef __cplusplus
