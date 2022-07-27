@@ -919,10 +919,8 @@ LABEL_70:
 		v40 = v49 * v49 + v46;
 	else
 		v40 = v46 - v49 * v49;
-	v41.val = (__int16)pos_52.z.val;
 	v46 = v40;
-	*(_DWORD *)&creatng->mappos.x.val = *(_DWORD *)&pos_52.x.val;
-	creatng->mappos.z.val = v41.val;
+	creatng->mappos = pos_52;
 	creatng->move_angle_xy = move_angle_xy;
 	memcpy(navi, v54, 0x2Du); // actually copying Navigation + field_211
 	return v46;
@@ -1002,7 +1000,7 @@ int get_starting_angle_and_side_of_hug_sub1(
 		}
 		v13.z.val = get_thing_height_at(creatng, &v13);
 	}
-	pos = &v13;
+	*pos = v13;
 	return hugging_blocked_flags;
 }
 
