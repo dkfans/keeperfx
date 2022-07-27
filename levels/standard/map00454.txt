@@ -223,7 +223,7 @@ REM ****************************************************************************
 REM Level scripts
 REM ****************************************************************************
 
-REM: Portal limit is 22 creatures not counting heroes
+REM Portal limit is 22 creatures not counting heroes
 IF(PLAYER0,EVIL_CREATURES <= 21)
 	NEXT_COMMAND_REUSABLE
 	MAX_CREATURES(PLAYER0,60)
@@ -381,7 +381,7 @@ ENDIF
 
 REM After 33 minutes a party shall come from the central hills. Barbarians from the center will follow.
 IF(PLAYER0,GAME_TURN >= 39600)
-	REM: Player is expected to have 2 bile demons, orc, demon spawn, sorceror, few skeletons and a low level hero
+	REM Player is expected to have 2 bile demons, orc, demon spawn, sorceror, few skeletons and a low level hero
 	ADD_TUNNELLER_PARTY_TO_LEVEL(PLAYER_GOOD,Hillfolk,10,DUNGEON,0,3,250)
 ENDIF
 
@@ -393,7 +393,7 @@ IF_ACTION_POINT(10,PLAYER0)
 	SET_FLAG(PLAYER0,FLAG2,1)
 ENDIF
 IF(PLAYER0,FLAG2 >= 1)
-	REM: Player is expected to have 4 bile demons, orc, demon spawn, sorceror, few skeletons and a few low level heroes
+	REM Player is expected to have 4 bile demons, orc, demon spawn, sorceror, few skeletons and a few low level heroes
 	ADD_TUNNELLER_PARTY_TO_LEVEL(PLAYER_GOOD,Breach,5,DUNGEON,0,4,417)
 	ADD_TUNNELLER_PARTY_TO_LEVEL(PLAYER_GOOD,Breach,13,DUNGEON,1,4,2000)
 ENDIF
@@ -418,7 +418,7 @@ IF_ACTION_POINT(16,PLAYER0)
 	ADD_TUNNELLER_PARTY_TO_LEVEL(PLAYER_GOOD,Rogues,11,DUNGEON,0,6,200)
 ENDIF
 
-REM:Defend the hatchery. 
+REM Defend the hatchery. 
 IF_ACTION_POINT(12,PLAYER0)
 	REM Player is expected to have 5-7 bile demons, orc, demon spawn, sorceror, troll and several heroes
 	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,Chickensave,-1,1)

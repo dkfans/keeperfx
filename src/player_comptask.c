@@ -171,7 +171,6 @@ const struct MyLookup lookup[] = {
 };
 
 /******************************************************************************/
-DLLIMPORT struct ComputerTask *_DK_get_free_task(struct Computer2 *comp, long basestl_y);
 DLLIMPORT long _DK_other_build_here(struct Computer2 *comp, long a2, long round_directn, long plyr_idx, long slabs_dist);
 /******************************************************************************/
 #ifdef __cplusplus
@@ -520,9 +519,46 @@ TbBool is_task_in_progress(struct Computer2 *comp, ComputerTaskType ttype)
     return !computer_task_invalid(ctask);
 }
 
-struct ComputerTask *get_free_task(struct Computer2 *comp, long a2)
+static struct ComputerTask *get_free_task(struct Computer2 *comp, TbBool use_comp_task)
 {
-    return _DK_get_free_task(comp, a2);
+
+    struct ComputerTask *task_result;
+    struct ComputerTask *current_task;
+    int next_task;
+
+    task_result = &game.computer_task[1];
+    while ((task_result->flags & ComTsk_Unkn0001) != 0)
+    {
+        if (++task_result >= (struct ComputerTask *)&game.computer)
+            return 0;
+    }
+    memset(task_result, 0, sizeof(struct ComputerTask));
+    current_task = &game.computer_task[comp->task_idx];
+    if (current_task > game.computer_task)
+    {
+        if (!use_comp_task)
+        {
+            if (current_task->next_task)
+            {
+                do
+                {
+                    next_task = current_task->next_task;
+                    current_task = &game.computer_task[current_task->next_task];
+                } while (game.computer_task[next_task].next_task);
+            }
+            current_task->next_task = task_result - game.computer_task;
+
+            task_result->flags |= ComTsk_Unkn0001;
+            task_result->created_turn = game.play_gameturn;
+            return task_result;
+        }
+        task_result->next_task = comp->task_idx;
+    }
+    comp->task_idx = task_result - game.computer_task;
+
+    task_result->flags |= ComTsk_Unkn0001;
+    task_result->created_turn = game.play_gameturn;
+    return task_result;
 }
 
 TbBool is_task_in_progress_using_hand(struct Computer2 *comp)
