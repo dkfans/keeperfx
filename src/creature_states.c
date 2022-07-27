@@ -4152,8 +4152,19 @@ TbBool get_random_position_in_dungeon_for_creature(PlayerNumber plyr_idx, unsign
 
 TbBool creature_can_hear_within_distance(const struct Thing *thing, long dist)
 {
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    return subtile_coord(crstat->hearing,0) >= dist;
+    if (thing_is_creature(thing))
+    {
+        struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+        return subtile_coord(crstat->hearing,0) >= dist;
+    }
+    else if (thing_is_mature_food(thing))
+    {
+        return (dist <= 2560); // 10 subtiles
+    }
+    else
+    {
+        return false;
+    }
 }
 
 long get_thing_navigation_distance(struct Thing* creatng, struct Coord3d* pos, unsigned char resetOwnerPlayerNavigating)

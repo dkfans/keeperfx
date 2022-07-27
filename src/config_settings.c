@@ -35,7 +35,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-unsigned char i_can_see_levels[] = {15, 20, 25, 30,};
+unsigned char i_can_see_levels[] = {30, 62, 126, 254,};
 struct GameSettings settings;
 /******************************************************************************/
 #ifdef __cplusplus
@@ -165,7 +165,7 @@ short save_settings(void)
     return true;
 }
 
-int get_creature_can_see_subtiles(void)
+int get_max_i_can_see_from_settings(void)
 {
     return i_can_see_levels[settings.view_distance % 4];
 }
