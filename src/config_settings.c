@@ -35,7 +35,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-unsigned char i_can_see_levels[] = {30, 62, 126, 254,};
+unsigned char i_can_see_levels[] = {30, 45, 60, 254,};
 struct GameSettings settings;
 /******************************************************************************/
 #ifdef __cplusplus
