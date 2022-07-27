@@ -1391,7 +1391,6 @@ long get_corridor(struct Coord3d *pos1, struct Coord3d * pos2, unsigned char rou
 static TbBool other_build_here(struct Computer2 *comp, MapSubtlCoord stl_x, MapSubtlCoord stl_y, MapSlabDelta width_slabs, MapSlabDelta height_slabs)
 {
 
-    char ttype;
     __int16 v9;
     int v10;
     int v12;
@@ -1405,7 +1404,7 @@ static TbBool other_build_here(struct Computer2 *comp, MapSubtlCoord stl_x, MapS
     MapSlabDelta long_edge_length = height_slabs;
     if ( height_slabs <= width_slabs )
         long_edge_length = width_slabs;
-    MapSubtlDelta long_edge_length_subtl = 3 * long_edge_length;
+    MapSubtlDelta long_edge_length_subtl = STL_PER_SLB * long_edge_length;
     idk_x = (stl_x - long_edge_length_subtl) & ((stl_x - long_edge_length_subtl <= 0) - 1);
     idk_y = (stl_y - long_edge_length_subtl) & ((stl_y - long_edge_length_subtl <= 0) - 1);
     struct ComputerTask *task = get_computer_task(comp->task_idx);
@@ -1414,7 +1413,7 @@ static TbBool other_build_here(struct Computer2 *comp, MapSubtlCoord stl_x, MapS
         return true;
     while ( 1 )
     {
-        ttype = task->ttype;
+        char ttype = task->ttype;
         if ( ttype == CTT_DigRoomPassage || ttype == CTT_DigRoom || ttype == CTT_CheckRoomDug || ttype == CTT_PlaceRoom )
         {
         v9 = task->create_room.width;
