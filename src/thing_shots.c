@@ -254,13 +254,13 @@ void process_dig_shot_hit_wall(struct Thing *thing, long blocked_flags)
         k = thing->move_angle_xy & 0xFC00;
         if (k != 0)
         {
-          stl_x = slab_subtile_center(coord_slab(thing->mappos.x.val) - 1);
-          stl_y = slab_subtile_center(coord_slab(thing->mappos.y.val));
+          stl_x = thing->mappos.x.stl.num - 1;
+          stl_y = thing->mappos.y.stl.num;
         }
         else
         {
-          stl_x = slab_subtile_center(coord_slab(thing->mappos.x.val) + 1);
-          stl_y = slab_subtile_center(coord_slab(thing->mappos.y.val));
+          stl_x = thing->mappos.x.stl.num + 1;
+          stl_y = thing->mappos.y.stl.num;
         }
     } else
     if (blocked_flags & SlbBloF_WalledY)
@@ -268,18 +268,18 @@ void process_dig_shot_hit_wall(struct Thing *thing, long blocked_flags)
         k = thing->move_angle_xy & 0xFE00;
         if ((k != 0) && (k != 0x0600))
         {
-          stl_x = slab_subtile_center(coord_slab(thing->mappos.x.val));
-          stl_y = slab_subtile_center(coord_slab(thing->mappos.y.val) + 1);
+          stl_x = thing->mappos.x.stl.num;
+          stl_y = thing->mappos.y.stl.num + 1;
         }
         else
         {
-          stl_x = slab_subtile_center(coord_slab(thing->mappos.x.val));
-          stl_y = slab_subtile_center(coord_slab(thing->mappos.y.val) - 1);
+          stl_x = thing->mappos.x.stl.num;
+          stl_y = thing->mappos.y.stl.num - 1;
         }
     } else
     {
-        stl_x = coord_subtile(thing->mappos.x.val);
-        stl_y = coord_subtile(thing->mappos.y.val);
+        stl_x = thing->mappos.x.stl.num;
+        stl_y = thing->mappos.y.stl.num;
     }
 
     struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
