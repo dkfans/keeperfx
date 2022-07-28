@@ -987,4 +987,10 @@ void delay_teleport(struct Thing *creatng)
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     cctrl->instance_use_turn[CrInst_TELEPORT] = game.play_gameturn + 100;
 }
+
+void delay_heal_sleep(struct Thing *creatng)
+{
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    cctrl->healing_sleep_check_turn = game.play_gameturn + 600;
+}
 /******************************************************************************/
