@@ -584,7 +584,8 @@ TbBool can_cast_power_at_xy(PlayerNumber plyr_idx, PowerKind pwkind,
     }
     PlayerNumber slb_owner;
     slb_owner = slabmap_owner(slb);
-    if ((mapblk->flags & SlbAtFlg_Blocking) != 0)
+    TbBool subtile_is_liquid_or_path = ( (subtile_is_liquid(stl_x, stl_y)) || (subtile_is_unclaimed_path(stl_x, stl_y)) );
+    if ( ((mapblk->flags & SlbAtFlg_Blocking) != 0) && (!subtile_is_liquid_or_path) )
     {
         if ((can_cast & PwCast_Claimable) != 0)
         {
@@ -626,7 +627,7 @@ TbBool can_cast_power_at_xy(PlayerNumber plyr_idx, PowerKind pwkind,
     {
         if ((can_cast & PwCast_Claimable) != 0)
         {
-            if (slab_kind_is_liquid(slb->kind))
+            if (subtile_is_liquid(stl_x, stl_y))
             {
                   return false;
             }
@@ -639,6 +640,10 @@ TbBool can_cast_power_at_xy(PlayerNumber plyr_idx, PowerKind pwkind,
         if ((can_cast & PwCast_UnclmdGround) != 0)
         {
             if (slbattr->category == SlbAtCtg_Unclaimed) {
+                return true;
+            }
+            if (subtile_is_liquid_or_path)
+            {
                 return true;
             }
         }
