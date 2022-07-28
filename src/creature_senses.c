@@ -565,7 +565,7 @@ TbBool jonty_line_of_sight_3d_including_lava_check_ignoring_own_door(const struc
     nextpos.y.val = prevpos.y.val + increase_y;
     nextpos.z.val = prevpos.z.val + increase_z;
 
-    while (distance > 1)
+    while (distance > 0) //At 0 so units won't shoot through walled corners.
     {
         if (get_point_in_map_solid_flags_ignoring_own_door(&nextpos, plyr_idx) & 0x01) {
             SYNCDBG(17, "Player %d cannot see through (%d,%d) due to linear path solid flags (downcount %d)",
