@@ -522,7 +522,7 @@ void get_player_gui_clicks(void)
 
   if ( game_is_busy_doing_gui() )
   {
-    set_players_packet_control(player, 0x4000u);
+    set_players_packet_control(player, PCtr_Gui);
   }
 }
 

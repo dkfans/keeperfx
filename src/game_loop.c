@@ -76,20 +76,28 @@ void initialise_devastate_dungeon_from_heart(PlayerNumber plyr_idx)
 
 void process_dungeon_destroy(struct Thing* heartng)
 {
-    struct Dungeon* dungeon;
-    long plyr_idx;
-    plyr_idx = heartng->owner;
-    //_DK_process_dungeon_destroy(heartng); return;
-    dungeon = get_dungeon(plyr_idx);
-    if (dungeon->heart_destroy_state == 0) {
+    long plyr_idx = heartng->owner;
+    struct Dungeon* dungeon = get_dungeon(plyr_idx);
+    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
+
+    if (dungeon->heart_destroy_state == 0)
+    {
         return;
     }
+    if (heartng->index != dungeon->dnheart_idx)
+    {
+        return;
+    }
+
+    TbBool no_backup = !(dungeonadd->backup_heart_idx > 0);
+
     powerful_magic_breaking_sparks(heartng);
     const struct Coord3d* central_pos;
     central_pos = &heartng->mappos;
     switch (dungeon->heart_destroy_state)
     {
     case 1:
+        if (no_backup)
         initialise_devastate_dungeon_from_heart(plyr_idx);
         dungeon->heart_destroy_turn++;
         if (dungeon->heart_destroy_turn < 32)
@@ -120,12 +128,14 @@ void process_dungeon_destroy(struct Thing* heartng)
         // Drop all held things, by keeper
         if ((dungeon->num_things_in_hand > 0) && ((gameadd.classic_bugs_flags & ClscBug_NoHandPurgeOnDefeat) == 0))
         {
-            dump_all_held_things_on_map(plyr_idx, central_pos->x.stl.num, central_pos->y.stl.num);
+            if (no_backup)
+                dump_all_held_things_on_map(plyr_idx, central_pos->x.stl.num, central_pos->y.stl.num);
         }
         // Drop all held things, by computer player
         struct Computer2* comp;
         comp = get_computer_player(plyr_idx);
-        computer_force_dump_held_things_on_map(comp, central_pos);
+        if (no_backup)
+            computer_force_dump_held_things_on_map(comp, central_pos);
         // Now if players things are still in hand - they must be kept by enemies
         // Got to next phase
         dungeon->heart_destroy_state = 4;
@@ -141,14 +151,6 @@ void process_dungeon_destroy(struct Thing* heartng)
         efftng = create_effect(central_pos, TngEff_WoPExplosion, plyr_idx);
         if (!thing_is_invalid(efftng))
             efftng->shot_effect.hit_type = THit_HeartOnlyNotOwn;
-        if (gameadd.heart_lost_display_message)
-        {
-            if (is_my_player_number(heartng->owner))
-            {
-                const char *objective = (gameadd.heart_lost_quick_message) ? gameadd.quick_messages[gameadd.heart_lost_message_id] : get_string(gameadd.heart_lost_message_id);
-                process_objective(objective, gameadd.heart_lost_message_target, 0, 0);
-            }
-        }
         destroy_dungeon_heart_room(plyr_idx, heartng);
         delete_thing_structure(heartng, 0);
     }
@@ -163,6 +165,14 @@ void process_dungeon_destroy(struct Thing* heartng)
         }
         else
         {
+            if (gameadd.heart_lost_display_message)
+            {
+                if (is_my_player_number(heartng->owner))
+                {
+                    const char* objective = (gameadd.heart_lost_quick_message) ? gameadd.quick_messages[gameadd.heart_lost_message_id] : get_string(gameadd.heart_lost_message_id);
+                    process_objective(objective, gameadd.heart_lost_message_target, 0, 0);
+                }
+            }
             // If this is the last heart the player had, finish him
             setup_all_player_creatures_and_diggers_leave_or_die(plyr_idx);
             player->allied_players = (1 << player->id_number);
