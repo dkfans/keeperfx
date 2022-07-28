@@ -45,6 +45,8 @@
 
 unsigned long TimerTurns = 0;
 
+int debug_display_frametime = 0;
+
 /******************************************************************************/
 void gui_open_event(struct GuiButton *gbtn)
 {
@@ -441,6 +443,11 @@ TbBool timer_enabled(void)
   return ((game_flags2 & GF2_Timer) != 0);
 }
 
+TbBool frametime_enabled(void)
+{
+  return (debug_display_frametime != 0);
+}
+
 TbBool script_timer_enabled(void)
 {
   return ((game.flags_gui & GGUI_ScriptTimer) != 0);
@@ -540,36 +547,62 @@ void draw_script_variable(PlayerNumber plyr_idx, unsigned char valtype, unsigned
     LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
 }
 
-
+float get_highest_frametime_ms;
+float get_highest_frametime_ms_logic;
+float get_highest_frametime_ms_draw;
+float get_highest_frametime_ms_sleep;
+float display_frametime_ms;
+float display_frametime_ms_logic;
+float display_frametime_ms_draw;
+float display_frametime_ms_sleep;
 void draw_frametime()
 {
+    if (debug_display_frametime == 2) { // Once per second display the highest
+        get_highest_frametime_ms = max(frametime_ms, get_highest_frametime_ms);
+        get_highest_frametime_ms_logic = max(frametime_ms_logic, get_highest_frametime_ms_logic);
+        get_highest_frametime_ms_draw = max(frametime_ms_draw, get_highest_frametime_ms_draw);
+        get_highest_frametime_ms_sleep = max(frametime_ms_sleep, get_highest_frametime_ms_sleep);
+        if (game.play_gameturn % game.num_fps == 0) {
+            display_frametime_ms = get_highest_frametime_ms;
+            display_frametime_ms_logic = get_highest_frametime_ms_logic;
+            display_frametime_ms_draw = get_highest_frametime_ms_draw;
+            display_frametime_ms_sleep = get_highest_frametime_ms_sleep;
+            get_highest_frametime_ms = 0;
+            get_highest_frametime_ms_logic = 0;
+            get_highest_frametime_ms_draw = 0;
+            get_highest_frametime_ms_sleep = 0;
+        }
+    } else {
+        display_frametime_ms = frametime_ms;
+        display_frametime_ms_logic = frametime_ms_logic;
+        display_frametime_ms_draw = frametime_ms_draw;
+        display_frametime_ms_sleep = frametime_ms_sleep;
+    }
+    
     char *text;
     LbTextSetFont(winfont);
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_RIGHT;
     int tx_units_per_px = (11 * units_per_pixel) / LbTextLineHeight();
     for(int i = 0; i < 5; i++) {
-        
         switch (i) {
             case 0:
                 //text = buf_sprintf("Added: together %f ms", frametime_ms_logic+frametime_ms_draw+frametime_ms_sleep);
-                text = buf_sprintf("Frametime: %f ms", frametime_ms);
+                text = buf_sprintf("Frametime: %f ms", display_frametime_ms);
                 break;
             case 1:
                 text = buf_sprintf("", 0);
                 break;
             case 2:
-                text = buf_sprintf("Logic: %f ms", frametime_ms_logic);
+                text = buf_sprintf("Logic: %f ms", display_frametime_ms_logic);
                 break;
             case 3:
-                text = buf_sprintf("Draw: %f ms", frametime_ms_draw);
+                text = buf_sprintf("Draw: %f ms", display_frametime_ms_draw);
                 break;
             case 4:
-                text = buf_sprintf("Sleep: %f ms", frametime_ms_sleep);
+                text = buf_sprintf("Sleep: %f ms", display_frametime_ms_sleep);
                 break;
-                
         }
         LbTextDrawResized(0, (24+i)*tx_units_per_px, tx_units_per_px, text);
     }
-    //LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
 }
 /******************************************************************************/

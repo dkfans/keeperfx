@@ -3363,7 +3363,7 @@ TbBool keeper_wait_for_screen_focus(void)
 
 float end_frametime_measurement(TimePoint measurement) {
     long double nanoseconds = std::chrono::duration_cast<std::chrono::nanoseconds>(TimeNow - measurement).count();
-    long double milliseconds = nanoseconds/1000000000.0;
+    long double milliseconds = nanoseconds/1000000.0;
     return milliseconds;
 }
 
@@ -3427,9 +3427,7 @@ void keeper_gameplay_loop(void)
         if (quit_game || exit_keeper)
             do_draw = false;
         
-        //JUSTLOG("Logic: %f", end_frametime_measurement(measure_frametime_of_logic));
         frametime_ms_logic = end_frametime_measurement(measure_frametime_of_logic);
-
         TimePoint measure_frametime_of_draw = TimeNow;
 
         if ( do_draw )
@@ -3458,7 +3456,6 @@ void keeper_gameplay_loop(void)
         if ( do_draw )
             keeper_screen_swap();
         
-        JUSTLOG("Draw: %f", end_frametime_measurement(measure_frametime_of_draw));
         frametime_ms_draw = end_frametime_measurement(measure_frametime_of_draw);
         TimePoint measure_frametime_of_sleep = TimeNow;
 
@@ -3468,9 +3465,8 @@ void keeper_gameplay_loop(void)
         
         if (game.turns_packetoff == game.play_gameturn)
             exit_keeper = 1;
-        //JUSTLOG("Sleep: %f", end_frametime_measurement(measure_frametime_of_sleep));
+        
         frametime_ms_sleep = end_frametime_measurement(measure_frametime_of_sleep);
-
         frametime_ms = end_frametime_measurement(measure_frametime);
     } // end while
     SYNCDBG(0,"Gameplay loop finished after %lu turns",(unsigned long)game.play_gameturn);
