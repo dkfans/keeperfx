@@ -99,10 +99,13 @@ long get_ceiling_height_at_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 TbBool cube_is_water(long cube_id);
 TbBool cube_is_lava(long cube_id);
 TbBool cube_is_sacrificial(long cube_id);
+TbBool cube_is_unclaimed_path(long cube_id);
 
 TbBool subtile_has_water_on_top(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 TbBool subtile_has_lava_on_top(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 TbBool subtile_has_sacrificial_on_top(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
+TbBool subtile_is_liquid(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
+TbBool subtile_is_unclaimed_path(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 
 /******************************************************************************/
 #ifdef __cplusplus
