@@ -3424,12 +3424,12 @@ void keeper_gameplay_loop(void)
         input();
         update();
         
+        frametime_ms_logic = end_frametime_measurement(measure_frametime_of_logic);
+        TimePoint measure_frametime_of_draw = TimeNow;
+        
         if (quit_game || exit_keeper)
             do_draw = false;
         
-        frametime_ms_logic = end_frametime_measurement(measure_frametime_of_logic);
-        TimePoint measure_frametime_of_draw = TimeNow;
-
         if ( do_draw )
             keeper_screen_redraw();
         keeper_wait_for_screen_focus();
