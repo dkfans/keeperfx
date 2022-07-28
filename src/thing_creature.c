@@ -6092,7 +6092,7 @@ TbBool thing_is_pickable_by_digger(struct Thing *picktng, struct Thing *creatng)
     if (object_is_gold_pile(picktng))
     {
         struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
-        return ( ( (slabmap_owner(slb) == creatng->owner) || ( (subtile_is_liquid(picktng->mappos.x.stl.num, picktng->mappos.y.stl.num)) || (subtile_is_unclaimed_path(picktng->mappos.x.stl.num, picktng->mappos.y.stl.num)) ) ) &&
+        return ( ( (slabmap_owner(slb) == creatng->owner) || ( (subtile_is_unclaimed_path(picktng->mappos.x.stl.num, picktng->mappos.y.stl.num)) || (subtile_is_liquid(picktng->mappos.x.stl.num, picktng->mappos.y.stl.num)) ) ) &&
                   (creatng->creature.gold_carried < crstat->gold_hold) );
     }
     else if (thing_is_creature(picktng))
