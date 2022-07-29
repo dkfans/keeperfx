@@ -1863,61 +1863,45 @@ short creature_escaping_death(struct Thing *creatng)
 
 static long get_best_position_outside_room(struct Thing *creatng, struct Coord3d *pos, struct Room *room)
 {
-    int room_slabs_counter;
-
     struct SlabMap* current_slb = get_slabmap_for_subtile(creatng->mappos.x.stl.num, creatng->mappos.y.stl.num);
     int current_slb_kind = current_slb->kind;
     SlabCodedCoords room_slab = room->slabs_list;
     PlayerNumber current_owner = slabmap_owner(current_slb);
-    unsigned int room_slb_idx = CREATURE_RANDOM(creatng, room->slabs_count);
 
-    if (room_slb_idx)
-    {
-        unsigned int slb_counter = room_slb_idx;
-        do
-        {
-            room_slab = get_slabmap_direct(room_slab)->next_in_room;
-            --slb_counter;
-        } while (slb_counter);
+    // pick random slab in room slab list
+    const unsigned int room_slb_idx = CREATURE_RANDOM(creatng, room->slabs_count);
+    for (int i = 0; i < room_slb_idx; ++i) {
+        room_slab = get_slabmap_direct(room_slab)->next_in_room;
     }
-    room_slabs_counter = 0;
-    if (room->slabs_count)
+
+    // for each room slab, find a nearby slab that's outside the current room
+    for (int j = 0; j < room->slabs_count; ++j)
     {
-        do
+        for (int i = 0; i < AROUND_SLAB_EIGHT_LENGTH; i++)
         {
-            if (room->slabs_count == room_slb_idx)
+            SlabCodedCoords ar_slb_no = around_slab_eight[i] + room_slab;
+            struct SlabMap* around_slb = get_slabmap_direct(ar_slb_no);
+            PlayerNumber ar_slb_owner = slabmap_owner(around_slb);
+            if (is_slab_type_walkable(around_slb->kind) && (around_slb->kind != current_slb_kind || current_owner != ar_slb_owner))
             {
-                room_slb_idx = 0;
-                room_slab = room->slabs_list;
-            }
-
-
-            for (int i = 0; i < AROUND_SLAB_EIGHT_LENGTH; i++)
-            {
-                SlabCodedCoords ar_slb_no = around_slab_eight[i] + room_slab;
-                struct SlabMap* around_slb = get_slabmap_direct(ar_slb_no);
-                PlayerNumber ar_slb_owner = slabmap_owner(around_slb);
-                if (is_slab_type_walkable(around_slb->kind) && (around_slb->kind != current_slb_kind || current_owner != ar_slb_owner))
-                {
-                    struct Coord3d target;
-                    target.x.val = slab_subtile_center(slb_num_decode_x(ar_slb_no));
-                    target.y.val = slab_subtile_center(slb_num_decode_y(ar_slb_no));
-                    target.z.val = get_thing_height_at(creatng, pos);
-                    if (creature_can_navigate_to_with_storage(creatng, &target, 0)) {
-                        pos->x.val = target.x.val;
-                        pos->y.val = target.y.val;
-                        pos->z.val = target.z.val;
-                        return 0;
-                    }
+                struct Coord3d target;
+                target.x.val = slab_subtile_center(slb_num_decode_x(ar_slb_no));
+                target.y.val = slab_subtile_center(slb_num_decode_y(ar_slb_no));
+                target.z.val = get_thing_height_at(creatng, pos);
+                if (creature_can_navigate_to_with_storage(creatng, &target, 0)) {
+                    pos->x.val = target.x.val;
+                    pos->y.val = target.y.val;
+                    pos->z.val = target.z.val;
+                    return 0;
                 }
             }
-
-
-            room_slab = get_slabmap_direct(room_slab)->next_in_room;
-            ++room_slabs_counter;
-            ++room_slb_idx;
         }
-        while (room_slabs_counter < room->slabs_count);
+        // wrap around
+        if (j + room_slb_idx == room->slabs_count - 1) {
+            room_slab = room->slabs_list;
+        } else {
+            room_slab = get_slabmap_direct(room_slab)->next_in_room;
+        }
     }
     return -1;
 }
