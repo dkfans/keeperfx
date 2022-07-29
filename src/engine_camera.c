@@ -470,11 +470,11 @@ void update_player_camera_fp(struct Camera *cam, struct Thing *thing)
         eye_height = crstat->eye_height + (crstat->eye_height * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100;
     }
 
-    char direction = get_walking_bob_direction(thing);
     if ( thing_is_creature(thing) )
     {
+        // apply square wave as head bob motion, could be improved by using sine wave instead
         if ( cctrl->move_speed && thing->floor_height >= thing->mappos.z.val )
-            cctrl->head_bob =  16 * direction;
+            cctrl->head_bob = 16 * get_walking_bob_direction(thing);
         else
             cctrl->head_bob = 0;
 
