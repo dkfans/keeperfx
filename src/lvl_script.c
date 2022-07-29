@@ -318,18 +318,25 @@ static TbBool script_command_param_to_number(char type_chr, struct ScriptLine *s
     {
         char* text;
         scline->np[idx] = strtol(scline->tp[idx], &text, 0);
-        if (text != &scline->tp[idx][strlen(scline->tp[idx])]) {
-            SCRPTWRNLOG("Numerical value \"%s\" interpreted as %ld", scline->tp[idx], scline->np[idx]);
+        if (!extended)
+        {
+            if (text != &scline->tp[idx][strlen(scline->tp[idx])])
+            {
+                SCRPTWRNLOG("Numerical value \"%s\" interpreted as %ld", scline->tp[idx], scline->np[idx]);
+            }
         }
         break;
     }
-    case 'P':{
+    case 'P': 
+    {
         long plr_range_id;
-        if (!get_player_id(scline->tp[idx], &plr_range_id)) {
+        if (!get_player_id(scline->tp[idx], &plr_range_id))
+        {
             return false;
         }
         scline->np[idx] = plr_range_id;
-        };break;
+        break;
+    }
     case 'C':{
         long crtr_id = get_rid(creature_desc, scline->tp[idx]);
         if (extended)
@@ -382,15 +389,6 @@ static TbBool script_command_param_to_number(char type_chr, struct ScriptLine *s
         }
         scline->np[idx] = opertr_id;
         };break;
-    case 'X': {
-        long prop_id = get_rid(creatmodel_properties_commands, scline->tp[idx]);
-        if (prop_id == -1)
-        {
-            SCRPTERRLOG("Unknown creature property kind, \"%s\"", scline->tp[idx]);
-            return false;
-        }
-        scline->np[idx] = prop_id;
-    }; break;
     case 'A':
         break;
     case '!': // extended sign
@@ -965,7 +963,7 @@ static void process_party(struct PartyTrigger* pr_trig)
     case TrgF_CREATE_OBJECT:
         n |= ((pr_trig->crtr_level & 7) << 7);
         SYNCDBG(6, "Adding object %d at location %d", (int)n, (int)pr_trig->location);
-        script_process_new_object(n, pr_trig->location, pr_trig->carried_gold);
+        script_process_new_object(n, pr_trig->location, pr_trig->carried_gold, pr_trig->plyr_idx);
         break;
     case TrgF_CREATE_PARTY:
         SYNCDBG(6, "Adding player %d party %d at location %d", (int)pr_trig->plyr_idx, (int)n, (int)pr_trig->location);

@@ -547,7 +547,7 @@ TbBool packets_process_cheats(
             set_packet_action(pckt, PckA_CheatHeartHealth, playeradd->cheatselection.chosen_player, new_health, 0, 0);
         }
         break;
-        case PSt_CreatrQueryAll:
+        case PSt_QueryAll:
         case PSt_CreatrInfoAll:
             *influence_own_creatures = 1;
             thing = get_creature_near(x, y);

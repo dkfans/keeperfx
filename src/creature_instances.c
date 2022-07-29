@@ -699,8 +699,8 @@ long instf_damage_wall(struct Thing *creatng, long *param)
     MapSubtlCoord stl_y;
     {
         struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-        stl_x = stl_num_decode_x(cctrl->field_284);
-        stl_y = stl_num_decode_y(cctrl->field_284);
+        stl_x = stl_num_decode_x(cctrl->damage_wall_coords);
+        stl_y = stl_num_decode_y(cctrl->damage_wall_coords);
     }
     struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
     if (slb->health > 2)
@@ -986,5 +986,11 @@ void delay_teleport(struct Thing *creatng)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     cctrl->instance_use_turn[CrInst_TELEPORT] = game.play_gameturn + 100;
+}
+
+void delay_heal_sleep(struct Thing *creatng)
+{
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    cctrl->healing_sleep_check_turn = game.play_gameturn + 600;
 }
 /******************************************************************************/

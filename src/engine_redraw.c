@@ -948,7 +948,7 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
     case PSt_CreatrQuery:
     case PSt_CreatrInfo:
     case PSt_CreatrInfoAll:
-    case PSt_CreatrQueryAll:
+    case PSt_QueryAll:
         set_pointer_graphic(MousePG_Query);
         break;
     case PSt_PlaceTrap:
@@ -1171,7 +1171,11 @@ TbBool keeper_screen_redraw(void)
 {
     SYNCDBG(5,"Starting");
     struct PlayerInfo* player = get_my_player();
-    LbScreenClear(0);
+    if (lens_mode != 0) {
+        LbScreenClear(144); // Very dark green
+    } else {
+        LbScreenClear(0);
+    }
     if (LbScreenLock() == Lb_SUCCESS)
     {
         setup_engine_window(player->engine_window_x, player->engine_window_y,
