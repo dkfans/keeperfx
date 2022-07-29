@@ -602,7 +602,7 @@ void draw_frametime()
                 text = buf_sprintf("Sleep: %f ms", display_frametime_ms_sleep);
                 break;
         }
-        LbTextDrawResized(0, (24+i)*tx_units_per_px, tx_units_per_px, text);
+        LbTextDrawResized(0, (28+i)*tx_units_per_px, tx_units_per_px, text);
     }
 }
 /******************************************************************************/
