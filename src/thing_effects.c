@@ -955,7 +955,7 @@ TngUpdateRet update_effect_element(struct Thing *elemtng)
 
 struct Thing *create_effect_generator(struct Coord3d *pos, unsigned short model, unsigned short range, unsigned short owner, long parent_idx)
 {
-  
+
     if (!i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots))
     {
         ERRORDBG(3,"Cannot create effect generator model %d for player %d. There are too many things allocated.",(int)model,(int)owner);
@@ -1049,7 +1049,7 @@ long move_effect(struct Thing *efftng)
             efftng->mappos.z.val = pos.z.val;
             place_thing_in_mapwho(efftng);
         }
-        efftng->field_60 = get_thing_height_at(efftng, &efftng->mappos);
+        efftng->floor_height = get_thing_height_at(efftng, &efftng->mappos);
     }
     return 1;
 }
@@ -1415,7 +1415,7 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
                     tngdst->state_flags |= TF1_PushAdd;
                     affected = true;
                 }
-            } 
+            }
         }
     }
     return affected;
