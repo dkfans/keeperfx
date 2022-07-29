@@ -455,10 +455,6 @@ static int get_walking_bob_direction(struct Thing *thing)
 
 void update_player_camera_fp(struct Camera *cam, struct Thing *thing)
 {
-
-    int pos_x;
-    int pos_y;
-
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
 
@@ -482,8 +478,8 @@ void update_player_camera_fp(struct Camera *cam, struct Thing *thing)
         else
             cctrl->head_bob = 0;
 
-        pos_x = move_coord_with_angle_x(thing->mappos.x.val,-90,thing->move_angle_xy);
-        pos_y = move_coord_with_angle_y(thing->mappos.y.val,-90,thing->move_angle_xy);
+        int pos_x = move_coord_with_angle_x(thing->mappos.x.val,-90,thing->move_angle_xy);
+        int pos_y = move_coord_with_angle_y(thing->mappos.y.val,-90,thing->move_angle_xy);
 
         if ( pos_x >= 0 )
         {
@@ -517,18 +513,17 @@ void update_player_camera_fp(struct Camera *cam, struct Thing *thing)
         }
         else
         {
+            cam->mappos.z.val = cam->mappos.z.val + (thing->mappos.z.val + cctrl->head_bob - cam->mappos.z.val + eye_height) / 2;
             cam->orient_a = thing->move_angle_xy;
             cam->orient_b = thing->move_angle_z;
             cam->orient_c = 0;
             if ( eye_height + thing->mappos.z.val <= cam->mappos.z.val )
             {
-                cam->mappos.z.val = cam->mappos.z.val + (thing->mappos.z.val + cctrl->head_bob - cam->mappos.z.val + eye_height) / 2;
                 if ( eye_height + thing->mappos.z.val + cctrl->head_bob > cam->mappos.z.val )
                     cam->mappos.z.val = eye_height + thing->mappos.z.val + cctrl->head_bob;
             }
             else
             {
-                cam->mappos.z.val = cam->mappos.z.val + (thing->mappos.z.val + cctrl->head_bob - cam->mappos.z.val + eye_height) / 2;
                 if ( eye_height + thing->mappos.z.val + cctrl->head_bob < cam->mappos.z.val )
                     cam->mappos.z.val = eye_height + thing->mappos.z.val + cctrl->head_bob;
             }
