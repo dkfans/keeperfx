@@ -458,19 +458,7 @@ void update_player_camera_fp(struct Camera *cam, struct Thing *thing)
 
     int pos_x;
     int pos_y;
-    short camHeight;
-    short v13;
-    short v15;
     int avg_filled_stl;
-    unsigned short move_angle_z;
-    int byte16;
-    short cam_z_val;
-    int thing_z_val;
-    short v27;
-    short v28;
-    short v29;
-    short v30;
-    int thing_height;
 
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
@@ -530,22 +518,18 @@ void update_player_camera_fp(struct Camera *cam, struct Thing *thing)
         else
         {
             cam->orient_a = thing->move_angle_xy;
-            camHeight = cam->mappos.z.val;
             cam->orient_b = thing->move_angle_z;
             cam->orient_c = 0;
-            thing_height = thing->mappos.z.val;
-            if ( eye_height + thing_height <= camHeight )
+            if ( eye_height + thing->mappos.z.val <= cam->mappos.z.val )
             {
-                v15 = camHeight + (thing_height + cctrl->head_bob - camHeight + eye_height) / 2;
-                cam->mappos.z.val = v15;
-                if ( eye_height + thing->mappos.z.val + cctrl->head_bob > v15 )
+                cam->mappos.z.val = cam->mappos.z.val + (thing->mappos.z.val + cctrl->head_bob - cam->mappos.z.val + eye_height) / 2;
+                if ( eye_height + thing->mappos.z.val + cctrl->head_bob > cam->mappos.z.val )
                     cam->mappos.z.val = eye_height + thing->mappos.z.val + cctrl->head_bob;
             }
             else
             {
-                v13 = camHeight + (thing_height + cctrl->head_bob - camHeight + eye_height) / 2;
-                cam->mappos.z.val = v13;
-                if ( eye_height + thing->mappos.z.val + cctrl->head_bob < v13 )
+                cam->mappos.z.val = cam->mappos.z.val + (thing->mappos.z.val + cctrl->head_bob - cam->mappos.z.val + eye_height) / 2;
+                if ( eye_height + thing->mappos.z.val + cctrl->head_bob < cam->mappos.z.val )
                     cam->mappos.z.val = eye_height + thing->mappos.z.val + cctrl->head_bob;
             }
         }
@@ -582,41 +566,33 @@ void update_player_camera_fp(struct Camera *cam, struct Thing *thing)
         {
             cam->mappos.z.val = thing->mappos.z.val + 240;
             cam->orient_a = thing->move_angle_xy;
-            move_angle_z = thing->move_angle_z;
             cam->orient_c = 0;
-            cam->orient_b = move_angle_z;
-            byte16 = thing->food.byte_16;
+            cam->orient_b = thing->move_angle_z;
             thing->move_angle_z = 0;
-            if ( byte16 )
+            if ( thing->food.byte_16 )
             {
-                if ( byte16 <= 3 )
-                    thing->move_angle_z = -116 * byte16 + 2048;
+                if ( thing->food.byte_16 <= 3 )
+                    thing->move_angle_z = -116 * thing->food.byte_16 + 2048;
                 else
-                    thing->move_angle_z = 116 * byte16 + 1352;
+                    thing->move_angle_z = 116 * thing->food.byte_16 + 1352;
             }
         }
         else
         {
-            cam_z_val = cam->mappos.z.val;
             cam->orient_a = thing->move_angle_xy;
             cam->orient_b = thing->move_angle_z;
             cam->orient_c = 0;
-            thing_z_val = thing->mappos.z.val;
-            if ( thing_z_val + 32 <= cam_z_val )
+            if ( thing->mappos.z.val + 32 <= cam->mappos.z.val )
             {
-                v29 = cam_z_val + (thing_z_val - cam_z_val + 64) / 2;
-                cam->mappos.z.val = v29;
-                v30 = thing->mappos.z.val;
-                if ( v30 + 64 > v29 )
-                    cam->mappos.z.val = v30 + 64;
+                cam->mappos.z.val = cam->mappos.z.val + (thing->mappos.z.val - cam->mappos.z.val + 64) / 2;
+                if ( thing->mappos.z.val + 64 > cam->mappos.z.val )
+                    cam->mappos.z.val = thing->mappos.z.val + 64;
             }
             else
             {
-                v27 = cam_z_val + (thing_z_val - cam_z_val + 64) / 2;
-                cam->mappos.z.val = v27;
-                v28 = thing->mappos.z.val;
-                if ( v28 + 64 < v27 )
-                    cam->mappos.z.val = v28 + 64;
+                cam->mappos.z.val = cam->mappos.z.val + (thing->mappos.z.val - cam->mappos.z.val + 64) / 2;
+                if ( thing->mappos.z.val + 64 < cam->mappos.z.val )
+                    cam->mappos.z.val = thing->mappos.z.val + 64;
             }
         }
     }
