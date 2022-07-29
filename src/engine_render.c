@@ -7955,6 +7955,9 @@ void draw_keepsprite_unscaled_in_buffer(unsigned short kspr_n, short angle, unsi
             return;
         }
         keepsprite_id = a3 + kspr_idx;
+        if (keepsprite_id >= KEEPSPRITE_LENGTH) {
+            return;
+        }
         kspr = &kspr_arr[a3];
         fill_w = kspr->FrameWidth;
         fill_h = kspr->FrameHeight;
@@ -7992,6 +7995,9 @@ void draw_keepsprite_unscaled_in_buffer(unsigned short kspr_n, short angle, unsi
         fill_w = kspr->SWidth;
         fill_h = kspr->SHeight;
         keepsprite_id = a3 + quarter * kspr->FramesCount + kspr_idx;
+        if (keepsprite_id >= KEEPSPRITE_LENGTH) {
+            return;
+        }
         if ( flip_range )
         {
             tmpbuf = outbuf;
