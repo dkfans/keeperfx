@@ -392,7 +392,7 @@ unsigned char field_67;
     struct CastedSpellData casted_spells[CREATURE_MAX_SPELLS_CASTED_AT];
     /** Current active skill instance. */
     char active_instance_id;
-    unsigned char bob_direction;
+    char head_bob;
     struct Navigation navi;
 unsigned char field_211[6];
     /* Creature movement path data. */

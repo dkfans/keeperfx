@@ -490,9 +490,9 @@ void update_player_camera_fp(struct Camera *cam, struct Thing *thing)
     if ( thing_is_creature(thing) )
     {
         if ( cctrl->move_speed && thing->floor_height >= thing->mappos.z.val )
-            cctrl->bob_direction =  16 * direction;
+            cctrl->head_bob =  16 * direction;
         else
-            cctrl->bob_direction = 0;
+            cctrl->head_bob = 0;
 
         pos_x = move_coord_with_angle_x(thing->mappos.x.val,-90,thing->move_angle_xy);
         pos_y = move_coord_with_angle_y(thing->mappos.y.val,-90,thing->move_angle_xy);
@@ -536,17 +536,17 @@ void update_player_camera_fp(struct Camera *cam, struct Thing *thing)
             thing_height = thing->mappos.z.val;
             if ( eye_height + thing_height <= camHeight )
             {
-                v15 = camHeight + (thing_height + cctrl->bob_direction - camHeight + eye_height) / 2;
+                v15 = camHeight + (thing_height + cctrl->head_bob - camHeight + eye_height) / 2;
                 cam->mappos.z.val = v15;
-                if ( eye_height + thing->mappos.z.val + cctrl->bob_direction > v15 )
-                    cam->mappos.z.val = eye_height + thing->mappos.z.val + cctrl->bob_direction;
+                if ( eye_height + thing->mappos.z.val + cctrl->head_bob > v15 )
+                    cam->mappos.z.val = eye_height + thing->mappos.z.val + cctrl->head_bob;
             }
             else
             {
-                v13 = camHeight + (thing_height + cctrl->bob_direction - camHeight + eye_height) / 2;
+                v13 = camHeight + (thing_height + cctrl->head_bob - camHeight + eye_height) / 2;
                 cam->mappos.z.val = v13;
-                if ( eye_height + thing->mappos.z.val + cctrl->bob_direction < v13 )
-                    cam->mappos.z.val = eye_height + thing->mappos.z.val + cctrl->bob_direction;
+                if ( eye_height + thing->mappos.z.val + cctrl->head_bob < v13 )
+                    cam->mappos.z.val = eye_height + thing->mappos.z.val + cctrl->head_bob;
             }
         }
 /*
