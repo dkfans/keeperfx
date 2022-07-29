@@ -458,7 +458,6 @@ void update_player_camera_fp(struct Camera *cam, struct Thing *thing)
 
     int pos_x;
     int pos_y;
-    int avg_filled_stl;
 
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
@@ -534,15 +533,6 @@ void update_player_camera_fp(struct Camera *cam, struct Thing *thing)
                     cam->mappos.z.val = eye_height + thing->mappos.z.val + cctrl->head_bob;
             }
         }
-/*
-        SubtlCodedCoords v18 = thing->mappos.x.stl.num + (thing->mappos.y.stl.num << 8);
-        v19 = (int)(((*(int *)((char *)dword_6CC96D           + 5 * v18) & 0xF000000u) >> 24 << 8)
-                  + ((*(int *)((char *)&dword_6CC968          + 5 * v18) & 0xF000000u) >> 24 << 8)
-                  + ((*(int *)((char *)&dword_6CC46D          + 5 * v18) & 0xF000000u) >> 24 << 8)
-                  + ((*(int *)((char *)get_mapwho_thing_index + 5 * v18) & 0xF000000u) >> 24 << 8))
-            / 4;
-        */
-
 
         struct Map* mapblk1 = get_map_block_at(thing->mappos.x.stl.num,     thing->mappos.y.stl.num);
         struct Map* mapblk2 = get_map_block_at(thing->mappos.x.stl.num + 1, thing->mappos.y.stl.num);
@@ -550,13 +540,13 @@ void update_player_camera_fp(struct Camera *cam, struct Thing *thing)
         struct Map* mapblk4 = get_map_block_at(thing->mappos.x.stl.num + 1, thing->mappos.y.stl.num + 1);
 
 
-        avg_filled_stl = ((get_mapblk_filled_subtiles(mapblk1) * COORD_PER_STL) +
+        const int ceiling = ((get_mapblk_filled_subtiles(mapblk1) * COORD_PER_STL) +
                           (get_mapblk_filled_subtiles(mapblk2) * COORD_PER_STL) +
                           (get_mapblk_filled_subtiles(mapblk3) * COORD_PER_STL) +
                           (get_mapblk_filled_subtiles(mapblk4) * COORD_PER_STL) )/4;
 
-        if ( cam->mappos.z.val > avg_filled_stl - 64 )
-            cam->mappos.z.val = avg_filled_stl - 64;
+        if ( cam->mappos.z.val > ceiling - 64 )
+            cam->mappos.z.val = ceiling - 64;
 
     }
     else
