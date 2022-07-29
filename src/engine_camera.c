@@ -528,11 +528,11 @@ void update_player_camera_fp(struct Camera *cam, struct Thing *thing)
         {
             pos_y = 0;
         }
-        
+
         cam->mappos.x.val = pos_x;
         cam->mappos.y.val = pos_y;
 
-        
+
         if ( (thing->movement_flags & TMvF_Flying) != 0 )
         {
             cam->mappos.z.val = thing->mappos.z.val + eye_height;
@@ -570,8 +570,8 @@ void update_player_camera_fp(struct Camera *cam, struct Thing *thing)
                   + ((*(int *)((char *)get_mapwho_thing_index + 5 * v18) & 0xF000000u) >> 24 << 8))
             / 4;
         */
-    
-   
+
+
         struct Map* mapblk1 = get_map_block_at(thing->mappos.x.stl.num,     thing->mappos.y.stl.num);
         struct Map* mapblk2 = get_map_block_at(thing->mappos.x.stl.num + 1, thing->mappos.y.stl.num);
         struct Map* mapblk3 = get_map_block_at(thing->mappos.x.stl.num,     thing->mappos.y.stl.num + 1);
@@ -582,7 +582,7 @@ void update_player_camera_fp(struct Camera *cam, struct Thing *thing)
                           (get_mapblk_filled_subtiles(mapblk2) * COORD_PER_STL) +
                           (get_mapblk_filled_subtiles(mapblk3) * COORD_PER_STL) +
                           (get_mapblk_filled_subtiles(mapblk4) * COORD_PER_STL) )/4;
- 
+
         if ( cam->mappos.z.val > avg_filled_stl - 64 )
             cam->mappos.z.val = avg_filled_stl - 64;
 
@@ -633,16 +633,16 @@ void update_player_camera_fp(struct Camera *cam, struct Thing *thing)
             }
         }
     }
-  
+
 }
 
 void view_move_camera_left(struct Camera *cam, long distance)
 {
-  
+
     int pos_x;
     int pos_y;
     int parchment_pos_x;
-  
+
     if ( cam->view_mode == PVM_IsometricView || cam->view_mode == PVM_FrontView)
     {
 
@@ -663,7 +663,7 @@ void view_move_camera_left(struct Camera *cam, long distance)
         cam->mappos.y.val = pos_y;
         return;
     }
-  
+
     else if ( cam->view_mode == PVM_ParchmentView )
     {
         parchment_pos_x = cam->mappos.x.val - distance;
@@ -676,7 +676,7 @@ void view_move_camera_left(struct Camera *cam, long distance)
         cam->mappos.x.stl.pos = parchment_pos_x;
 
     }
-    
+
 }
 
 void view_move_camera_right(struct Camera *cam, long distance)
@@ -684,7 +684,7 @@ void view_move_camera_right(struct Camera *cam, long distance)
     int pos_x;
     int pos_y;
     int parchment_pos_x;
-  
+
     if ( cam->view_mode == PVM_IsometricView || cam->view_mode == PVM_FrontView)
     {
 
@@ -705,7 +705,7 @@ void view_move_camera_right(struct Camera *cam, long distance)
         cam->mappos.y.val = pos_y;
         return;
     }
-  
+
     else if ( cam->view_mode == PVM_ParchmentView )
     {
         parchment_pos_x = cam->mappos.x.val + distance;
@@ -718,7 +718,7 @@ void view_move_camera_right(struct Camera *cam, long distance)
         cam->mappos.x.stl.pos = parchment_pos_x;
 
     }
-    
+
 }
 
 void view_move_camera_up(struct Camera *cam, long distance)
@@ -726,7 +726,7 @@ void view_move_camera_up(struct Camera *cam, long distance)
     int pos_x;
     int pos_y;
     int parchment_pos_y;
-  
+
     if ( cam->view_mode == PVM_IsometricView || cam->view_mode == PVM_FrontView)
     {
 
@@ -766,7 +766,7 @@ void view_move_camera_down(struct Camera *cam, long distance)
     int pos_x;
     int pos_y;
     int parchment_pos_y;
-  
+
     if ( cam->view_mode == PVM_IsometricView || cam->view_mode == PVM_FrontView)
     {
 
@@ -787,7 +787,7 @@ void view_move_camera_down(struct Camera *cam, long distance)
         cam->mappos.y.val = pos_y;
         return;
     }
-  
+
     else if ( cam->view_mode == PVM_ParchmentView )
     {
         parchment_pos_y = cam->mappos.y.val - distance;
@@ -800,7 +800,7 @@ void view_move_camera_down(struct Camera *cam, long distance)
         cam->mappos.y.stl.pos = parchment_pos_y;
 
     }
-    
+
 }
 
 void view_process_camera_inertia(struct Camera *cam)
