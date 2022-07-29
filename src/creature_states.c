@@ -1863,10 +1863,10 @@ short creature_escaping_death(struct Thing *creatng)
 
 static long get_best_position_outside_room(struct Thing *creatng, struct Coord3d *pos, struct Room *room)
 {
-    struct SlabMap* current_slb = get_slabmap_for_subtile(creatng->mappos.x.stl.num, creatng->mappos.y.stl.num);
-    int current_slb_kind = current_slb->kind;
+    const struct SlabMap * const current_slb = get_slabmap_for_subtile(creatng->mappos.x.stl.num, creatng->mappos.y.stl.num);
+    const int current_slb_kind = current_slb->kind;
     SlabCodedCoords room_slab = room->slabs_list;
-    PlayerNumber current_owner = slabmap_owner(current_slb);
+    const PlayerNumber current_owner = slabmap_owner(current_slb);
 
     // pick random slab in room slab list
     const unsigned int room_slb_idx = CREATURE_RANDOM(creatng, room->slabs_count);
@@ -1879,9 +1879,9 @@ static long get_best_position_outside_room(struct Thing *creatng, struct Coord3d
     {
         for (int i = 0; i < AROUND_SLAB_EIGHT_LENGTH; i++)
         {
-            SlabCodedCoords ar_slb_no = around_slab_eight[i] + room_slab;
-            struct SlabMap* around_slb = get_slabmap_direct(ar_slb_no);
-            PlayerNumber ar_slb_owner = slabmap_owner(around_slb);
+            const SlabCodedCoords ar_slb_no = around_slab_eight[i] + room_slab;
+            const struct SlabMap * const around_slb = get_slabmap_direct(ar_slb_no);
+            const PlayerNumber ar_slb_owner = slabmap_owner(around_slb);
             if (is_slab_type_walkable(around_slb->kind) && (around_slb->kind != current_slb_kind || current_owner != ar_slb_owner))
             {
                 struct Coord3d target;
