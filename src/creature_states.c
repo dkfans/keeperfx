@@ -86,7 +86,6 @@ extern "C" {
 #define CREATURE_GUI_STATES_COUNT 3
 /* Please note that functions returning 'short' are not ment to return true/false only! */
 /******************************************************************************/
-DLLIMPORT long _DK_move_check_can_damage_wall(struct Thing *creatng);
 /******************************************************************************/
 short already_at_call_to_arms(struct Thing *creatng);
 short arrive_at_alarm(struct Thing *creatng);
