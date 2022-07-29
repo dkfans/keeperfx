@@ -128,6 +128,7 @@ unsigned char const height_masks[] = {
   8, 8, 8, 8, 8, 8, 8, 8,
   8, 8, 8, 8, 8, 8, 8, 8,
 };
+
 // View distance related
 struct MinMax minmaxs[MINMAX_LENGTH];
 unsigned char *getpoly;
@@ -136,11 +137,11 @@ unsigned char *poly_pool_end;
 struct BasicQ *buckets[BUCKETS_COUNT];
 long cells_away;
 long max_i_can_see;
+const int MAX_I_CAN_SEE_OVERHEAD = (MINMAX_LENGTH/2)-2;
 struct EngineCol ecs1[MINMAX_LENGTH-1];
 struct EngineCol ecs2[MINMAX_LENGTH-1];
 struct EngineCol *front_ec;
 struct EngineCol *back_ec;
-
 float zoomed_range;
 
 static int water_wibble_angle = 0;
@@ -192,7 +193,7 @@ static void get_floor_pointed_at(long x, long y, long *floor_x, long *floor_y)
     *floor_x = ((sor_hp-sor_hn) / ((der_hp-der_hn)>>8)) >> 2;
 }
 
-static long compute_cells_away(void)
+static long compute_cells_away(void) // For overhead view, not for 1st person view
 {
     long half_width;
     long half_height;
@@ -215,13 +216,15 @@ static long compute_cells_away(void)
     get_floor_pointed_at(xcell, ycell, &xmin, &ymin);
     xcell = abs(ymax - ymin);
     ycell = abs(xmax - xmin);
-    if (ycell >= xcell)
+    if (ycell >= xcell) {
         ncells_a = ycell + (xcell >> 1);
-    else
+    } else {
         ncells_a = xcell + (ycell >> 1);
+    }
     ncells_a += 2;
-    if (ncells_a > max_i_can_see)
-      ncells_a = max_i_can_see;
+    if (ncells_a > MAX_I_CAN_SEE_OVERHEAD) {
+        ncells_a = MAX_I_CAN_SEE_OVERHEAD;
+    }
     return ncells_a;
 }
 
@@ -1892,7 +1895,7 @@ void fiddle_gamut(long pos_x, long pos_y)
         fiddle_gamut_find_limits(floor_x, floor_y, ewwidth, ewheight, ewzoom);
         // Place the area at proper base coords
         fiddle_gamut_set_base(floor_x, floor_y, pos_x, pos_y);
-        fiddle_gamut_set_minmaxes(floor_x, floor_y, max_i_can_see);
+        fiddle_gamut_set_minmaxes(floor_x, floor_y, MAX_I_CAN_SEE_OVERHEAD);
         break;
     }
 }
