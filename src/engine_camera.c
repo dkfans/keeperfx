@@ -462,16 +462,17 @@ void update_player_camera_fp(struct Camera *cam, struct Thing *thing)
 
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
-    static const int chicken_height = 100;
+
+    // adjust eye height based on creature level and chicken state
     int eye_height;
-    TbBool chicken = (creature_affected_by_spell(thing, SplK_Chicken));
-    if (!chicken)
+    if (creature_affected_by_spell(thing, SplK_Chicken))
     {
-        eye_height = crstat->eye_height + (crstat->eye_height * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100;
+        static const int chicken_height = 100;
+        eye_height = chicken_height + (chicken_height * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100;
     }
     else
     {
-        eye_height = chicken_height + (chicken_height * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100;
+        eye_height = crstat->eye_height + (crstat->eye_height * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100;
     }
 
     char direction = get_walking_bob_direction(thing);
