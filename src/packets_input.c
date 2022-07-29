@@ -429,6 +429,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
             player->secondary_cursor_state = CSt_DefaultArrow;
             player->additional_flags &= ~PlaAF_NoThingUnderPowerHand;
         }
+        stop_tagging_interpolation();
     }
 
     if ((pckt->control_flags & PCtr_RBtnRelease) != 0)

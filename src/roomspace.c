@@ -29,6 +29,9 @@
 
 #include "keeperfx.hpp"
 
+int previously_tagged_x = -1;
+int previously_tagged_y = -1;
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -928,6 +931,11 @@ static void find_next_point(struct RoomSpace *roomspace, unsigned char mode)
     }
 }
 
+void stop_tagging_interpolation() {
+    previously_tagged_x = -1;
+    previously_tagged_y = -1;
+}
+
 void keeper_highlight_roomspace(PlayerNumber plyr_idx, struct RoomSpace *roomspace, int task_allowance_reduction)
 {
     if (!roomspace->tag_for_dig)
@@ -944,24 +952,62 @@ void keeper_highlight_roomspace(PlayerNumber plyr_idx, struct RoomSpace *roomspa
     int task_allowance = MAPTASKS_COUNT - task_allowance_reduction;
     for (int y = 0; y < roomspace->height; y++)
     {
-        int current_y = roomspace->top + y;
+        int tagged_y = roomspace->top + y;
         for (int x = 0; x < roomspace->width; x++)
         {
-            int current_x = roomspace->left + x;
-            MapSubtlCoord stl_cx = stl_slab_center_subtile(current_x * STL_PER_SLB);
-            MapSubtlCoord stl_cy = stl_slab_center_subtile(current_y * STL_PER_SLB);
-            if (!tag_for_digging) // if the chosen slab is tagged for digging...
+            int tagged_x = roomspace->left + x;
+            
+            // Tag a line of slabs inbetween previously tagged position and current tagged position
+            int draw_path_x;
+            int draw_path_y;
+            if (previously_tagged_x == -1 || previously_tagged_y == -1)
             {
-                untag_blocks_for_digging_in_rectangle_around(stl_cx, stl_cy, plyr_idx); // untag the slab for digging
+                draw_path_x = tagged_x;
+                draw_path_y = tagged_y;
+            } else {
+                draw_path_x = previously_tagged_x;
+                draw_path_y = previously_tagged_y;
             }
-            else if (dungeon->task_count < task_allowance)
+            
+            while (true)
             {
-                tag_blocks_for_digging_in_rectangle_around(stl_cx, stl_cy, plyr_idx); // tag the slab for digging (add_task_list_entry is run by this which will increase dungeon->task_count by 1)
-            }
-            else if (is_my_player(player))
-            {
-                output_message(SMsg_WorkerJobsLimit, 500, true); // show an error message if the task limit (MAPTASKS_COUNT) has been reached
-                return;
+                previously_tagged_x = draw_path_x;
+                previously_tagged_y = draw_path_y;
+                MapSubtlCoord stl_cx = stl_slab_center_subtile(draw_path_x * STL_PER_SLB);
+                MapSubtlCoord stl_cy = stl_slab_center_subtile(draw_path_y * STL_PER_SLB);
+                if (!tag_for_digging) // if the chosen slab is tagged for digging...
+                {
+                    untag_blocks_for_digging_in_rectangle_around(stl_cx, stl_cy, plyr_idx); // untag the slab for digging
+                }
+                else if (dungeon->task_count < task_allowance)
+                {
+                    tag_blocks_for_digging_in_rectangle_around(stl_cx, stl_cy, plyr_idx); // tag the slab for digging (add_task_list_entry is run by this which will increase dungeon->task_count by 1)
+                }
+                else if (is_my_player(player))
+                {
+                    output_message(SMsg_WorkerJobsLimit, 500, true); // show an error message if the task limit (MAPTASKS_COUNT) has been reached
+                    return;
+                }
+                
+                if (draw_path_x != tagged_x || draw_path_y != tagged_y) {
+                    // Choose the axis that has more ground to cover.
+                    if (abs(draw_path_x-tagged_x) > abs(draw_path_y-tagged_y)) {
+                        if (draw_path_x < tagged_x) {
+                            draw_path_x += 1;
+                        } else {
+                            draw_path_x -= 1;
+                        }
+                    } else {
+                        if (draw_path_y < tagged_y) {
+                            draw_path_y += 1;
+                        } else {
+                            draw_path_y -= 1;
+                        }
+                    }
+                } else {
+                    // Exit the While loop because the path has been drawn to the tagged_x & tagged_y
+                    break;
+                }
             }
         }
     }
