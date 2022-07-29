@@ -1139,6 +1139,7 @@ TbResult magic_use_power_destroy_walls(PlayerNumber plyr_idx, MapSubtlCoord stl_
                 if (slbattr->category == SlbAtCtg_FortifiedWall)
                 {
                     place_slab_type_on_map(SlbT_EARTH, slab_subtile_center(slb_x),slab_subtile_center(slb_y), plyr_idx, 0);
+                    create_dirt_rubble_for_dug_slab(slb_x, slb_y);
                     do_slab_efficiency_alteration(slb_x, slb_y);
                 } else
                 if (slab_kind_is_friable_dirt(slb->kind))
