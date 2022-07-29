@@ -1865,7 +1865,7 @@ static long get_best_position_outside_room(struct Thing *creatng, struct Coord3d
 {
     int room_slabs_counter;
 
-    struct SlabMap* current_slb = get_slabmap_for_subtile(creatng->mappos.x.stl.pos, creatng->mappos.y.stl.pos);
+    struct SlabMap* current_slb = get_slabmap_for_subtile(creatng->mappos.x.stl.num, creatng->mappos.y.stl.num);
     int current_slb_kind = current_slb->kind;
     SlabCodedCoords room_slab = room->slabs_list;
     PlayerNumber current_owner = slabmap_owner(current_slb);
@@ -1897,14 +1897,18 @@ static long get_best_position_outside_room(struct Thing *creatng, struct Coord3d
                 SlabCodedCoords ar_slb_no = around_slab_eight[i] + room_slab;
                 struct SlabMap* around_slb = get_slabmap_direct(ar_slb_no);
                 PlayerNumber ar_slb_owner = slabmap_owner(around_slb);
-
                 if (is_slab_type_walkable(around_slb->kind) && (around_slb->kind != current_slb_kind || current_owner != ar_slb_owner))
                 {
-                    
-                    pos->x.stl.pos = stl_num_decode_x(ar_slb_no);
-                    pos->y.stl.pos = stl_num_decode_y(ar_slb_no);
-                    pos->z.val = get_thing_height_at(creatng, pos);
-                    return creature_can_navigate_to_with_storage(creatng, pos, 0) != 0;
+                    struct Coord3d target;
+                    target.x.val = slab_subtile_center(slb_num_decode_x(ar_slb_no));
+                    target.y.val = slab_subtile_center(slb_num_decode_y(ar_slb_no));
+                    target.z.val = get_thing_height_at(creatng, pos);
+                    if (creature_can_navigate_to_with_storage(creatng, &target, 0)) {
+                        pos->x.val = target.x.val;
+                        pos->y.val = target.y.val;
+                        pos->z.val = target.z.val;
+                        return 0;
+                    }
                 }
             }
 
