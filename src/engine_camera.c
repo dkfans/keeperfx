@@ -438,32 +438,19 @@ void init_player_cameras(struct PlayerInfo *player)
 
 static int get_walking_bob_direction(struct Thing *thing)
 {
-  int anim_time;
-  int result;
-  TbBool biggernThen1408;
-
-  anim_time = thing->anim_time;
-  if ( anim_time >= 0 && anim_time >= 256 )
-  {
-    if ( anim_time < 640 )
+    const int anim_time = thing->anim_time;
+    if ( anim_time >= 256 && anim_time < 640 )
     {
-      result = 1;
-      goto LABEL_10;
+        return ( thing->anim_speed < 0 ) ? -1 : 1;
     }
-    if ( anim_time >= 1024 )
+    else if ( anim_time >= 1024 && anim_time < 1408 )
     {
-      biggernThen1408 = anim_time < 1408;
-      result = 1;
-      if ( biggernThen1408 )
-        goto LABEL_10;
+        return ( thing->anim_speed < 0 ) ? -1 : 1;
     }
-  }
-  result = -1;
-LABEL_10:
-  if ( thing->anim_speed < 0 )
-    return -result;
-  return result;
-  
+    else
+    {
+        return ( thing->anim_speed < 0 ) ? 1 : -1;
+    }
 }
 
 void update_player_camera_fp(struct Camera *cam, struct Thing *thing)
