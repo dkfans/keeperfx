@@ -6198,8 +6198,8 @@ void display_drawlist(void) // Draws isometric and 1st person view. Not frontvie
                 draw_jonty_mapwho(item.jontySprite);
                 break;
             case QK_CreatureShadow: // Shadows of creatures in isometric and 1st person view
-                draw_keepsprite_unscaled_in_buffer(item.creatureShadow->field_5C, item.creatureShadow->field_58, item.creatureShadow->field_5E, scratch);
-                vec_map = scratch;
+                draw_keepsprite_unscaled_in_buffer(item.creatureShadow->field_5C, item.creatureShadow->field_58, item.creatureShadow->field_5E, big_scratch);
+                vec_map = big_scratch;
                 vec_mode = VM_Unknown10;
                 vec_colour = item.creatureShadow->p1.field_10;
                 trig(&item.creatureShadow->p1, &item.creatureShadow->p2, &item.creatureShadow->p3);
