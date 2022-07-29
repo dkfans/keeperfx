@@ -608,6 +608,14 @@ TbBool subtile_is_liquid(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 
 TbBool subtile_is_unclaimed_path(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
+    MapSlabCoord slb_x = subtile_slab_fast(stl_x);
+    MapSlabCoord slb_y = subtile_slab_fast(stl_y);
+    struct SlabMap *slb = get_slabmap_block(slb_x, slb_y);
+    struct SlabAttr *slbattr = get_slab_attrs(slb);
+    if (slbattr->category == SlbAtCtg_RoomInterior)
+    {
+        return false;
+    }
     long i;
     i = get_top_cube_at(stl_x, stl_y, NULL);
     return cube_is_unclaimed_path(i);
