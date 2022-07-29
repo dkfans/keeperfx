@@ -236,7 +236,7 @@ TbBool give_gold_to_creature_or_drop_on_map_when_digging(struct Thing *creatng, 
     return true;
 }
 
-void process_dig_shot_hit_wall(struct Thing *thing, long blocked_flags)
+SubtlCodedCoords process_dig_shot_hit_wall(struct Thing *thing, long blocked_flags, short *health)
 {
     MapSubtlCoord stl_x;
     MapSubtlCoord stl_y;
@@ -247,7 +247,7 @@ void process_dig_shot_hit_wall(struct Thing *thing, long blocked_flags)
     if (!thing_exists(diggertng))
     {
         ERRORLOG("Digging shot hit wall, but there's no digger creature index %d.",thing->parent_idx);
-        return;
+        return 0;
     }
     if (blocked_flags & SlbBloF_WalledX)
     {
@@ -281,9 +281,9 @@ void process_dig_shot_hit_wall(struct Thing *thing, long blocked_flags)
         stl_x = thing->mappos.x.stl.num;
         stl_y = thing->mappos.y.stl.num;
     }
-
+    SubtlCodedCoords result = get_subtile_number(stl_x, stl_y);
     struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
-
+    *health = slb->health;
     // You can only dig your own tiles or non-fortified neutral ground (dirt/gold)
     // If you're not the tile owner, unless the classic bug mode is enabled.
     if (!(gameadd.classic_bugs_flags & ClscBug_BreakNeutralWalls))
@@ -295,7 +295,7 @@ void process_dig_shot_hit_wall(struct Thing *thing, long blocked_flags)
             if (slbattr->category == SlbAtCtg_FortifiedWall)
             {
                 // digging not allowed
-                return;
+                return result;
             }
         }
     }
@@ -303,7 +303,7 @@ void process_dig_shot_hit_wall(struct Thing *thing, long blocked_flags)
     {
         if ((slabmap_owner(slb) != game.neutral_player_num) && (slabmap_owner(slb) != diggertng->owner))
         {
-            return;
+            return result;
         }
     }
 
@@ -323,7 +323,7 @@ void process_dig_shot_hit_wall(struct Thing *thing, long blocked_flags)
                     if (room->owner == diggertng->owner)
                     {
                         gold_being_dropped_at_treasury(gldtng, room);
-                        return;
+                        return result;
                     }
                 }
             }
@@ -333,11 +333,11 @@ void process_dig_shot_hit_wall(struct Thing *thing, long blocked_flags)
     // Doors cannot be dug
     if ((mapblk->flags & SlbAtFlg_IsDoor) != 0)
     {
-        return;
+        return result;
     }
     if ((mapblk->flags & SlbAtFlg_Blocking) == 0)
     {
-        return;
+        return result;
     }
     int damage = thing->shot.damage;
     if ((damage >= slb->health) && !slab_kind_is_indestructible(slb->kind))
@@ -365,6 +365,7 @@ void process_dig_shot_hit_wall(struct Thing *thing, long blocked_flags)
             give_gold_to_creature_or_drop_on_map_when_digging(diggertng, stl_x, stl_y, damage);
         }
     }
+    return result;
 }
 
 struct Thing *create_shot_hit_effect(struct Coord3d *effpos, long effowner, long eff_kind, long snd_idx, long snd_range)
@@ -406,9 +407,12 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
     TbBool destroy_shot = 0;
     struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
     long blocked_flags = get_thing_blocked_flags_at(shotng, pos);
-    if (shotst->model_flags & ShMF_Digging)
+    TbBool digging = (shotst->model_flags & ShMF_Digging);
+    SubtlCodedCoords hit_stl_num;
+    short old_health;
+    if (digging)
     {
-        process_dig_shot_hit_wall(shotng, blocked_flags);
+        hit_stl_num = process_dig_shot_hit_wall(shotng, blocked_flags, &old_health);
     }
 
     // If blocked by a higher wall
@@ -472,9 +476,42 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
                 apply_damage_to_thing(doortng, i, shotst->damage_type, -1);
             } else
             {
-                efftng = create_shot_hit_effect(&shotng->mappos, shotng->owner, shotst->hit_generic.effect_model, shotst->hit_generic.sndsample_idx, shotst->hit_generic.sndsample_range);
-                if (!shotst->hit_generic.withstand)
+                long smpl_idx;
+                long range;
+                long eff_kind;
+                struct Coord3d pos;
+                long eff_owner;
+                if (digging)
                 {
+                    struct SlabMap* slb = get_slabmap_for_subtile(stl_num_decode_x(hit_stl_num), stl_num_decode_y(hit_stl_num));
+                    if ( (old_health > slb->health) || (slb->kind == SlbT_GEMS) )
+                    {
+                        smpl_idx = 63;
+                        range = 6;
+                        eff_kind = TngEff_RockChips;
+                        struct Thing *diggertng = thing_get(shotng->parent_idx);
+                        pos = diggertng->mappos;
+                        eff_owner = diggertng->owner;
+                    }
+                    else
+                    {
+                        smpl_idx = shotst->hit_generic.sndsample_idx;
+                        range = shotst->hit_generic.sndsample_range;
+                        eff_kind = shotst->hit_generic.effect_model;
+                        pos = shotng->mappos;
+                        eff_owner = shotng->owner;
+                    }
+                }
+                else
+                {
+                    smpl_idx = shotst->hit_generic.sndsample_idx;
+                    range = shotst->hit_generic.sndsample_range;
+                    eff_kind = shotst->hit_generic.effect_model;
+                    pos = shotng->mappos;
+                    eff_owner = shotng->owner;
+                }
+                efftng = create_shot_hit_effect(&pos, eff_owner, eff_kind, smpl_idx, range);
+                if (!shotst->hit_generic.withstand) {
                     destroy_shot = 1;
                 }
             }
