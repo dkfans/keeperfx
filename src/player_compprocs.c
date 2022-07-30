@@ -1158,16 +1158,10 @@ long computer_check_safe_attack(struct Computer2 *comp, struct ComputerProcess *
 
 static long computer_look_for_opponent(struct Computer2 *comp, MapSubtlCoord stl_x, MapSubtlCoord stl_y, MapSubtlDelta range)
 {
-    unsigned __int32 x_pos;
-    unsigned __int8 slab_owner;
-    unsigned __int8 kind;
     int slab_owner_bit;
     int block_flags;
     int current_idx;
-    int v16;
     struct Coord3d *pos;
-    int v21;
-    unsigned int v26;
 
     struct Dungeon *dungeon = comp->dungeon;
     long computer_player_bit = 1 << dungeon->owner;
@@ -1204,7 +1198,7 @@ static long computer_look_for_opponent(struct Computer2 *comp, MapSubtlCoord stl
     {
         while (1)
         {
-            x_pos = stl_x_current;
+            stl_x_current = stl_x_start;
             if (stl_x_current < stl_x_end)
                 break;
         LABEL_23:
@@ -1212,32 +1206,31 @@ static long computer_look_for_opponent(struct Computer2 *comp, MapSubtlCoord stl
             if (stl_y_end <= stl_y_current)
                 goto LABEL_24;
         }
-        v26 = 85 * map_to_slab[stl_y_current];
         while (1)
         {
-            slab_owner = game.slabmap[v26 + map_to_slab[x_pos]].flags & 7;
-            v21 = slab_owner;
+            struct SlabMap *slb = get_slabmap_for_subtile(stl_x_current, stl_y_current);
+            
+            PlayerNumber slab_owner = slabmap_owner(slb);
             if (dungeon->owner != slab_owner)
             {
-                kind = game.slabmap[85 * (stl_y_current / STL_PER_SLB) + x_pos / STL_PER_SLB].kind;
-                struct SlabAttr *slbattr = get_slab_kind_attrs(kind);
-                if (slab_owner != game.neutral_player_num || (( (slbattr->block_flags & 0x29) == 0) && kind != SlbT_LAVA))
+                struct SlabAttr *slbattr = get_slab_kind_attrs(slb->kind);
+                if (slab_owner != game.neutral_player_num || (( (slbattr->block_flags & 0x29) == 0) && slb->kind != SlbT_LAVA))
                 {
                     slab_owner_bit = 1 << slab_owner;
-                    if ((computer_player_bit & (1 << slab_owner)) == 0 && (game.slabmap[85 * map_to_slab[stl_y_current] + map_to_slab[x_pos]].flags & 7) == slab_owner)
+                    if ((computer_player_bit & (1 << slab_owner)) == 0 && (game.slabmap[85 * map_to_slab[stl_y_current] + map_to_slab[stl_x_current]].flags & 7) == slab_owner)
                     {
                         if ((block_flags = slbattr->block_flags,
                              ((block_flags & SlbAtFlg_Blocking) == 0) &&
-                                kind != SlbT_LAVA) ||
+                                slb->kind != SlbT_LAVA) ||
                             (block_flags & 2) != 0)
                         {
                             computer_player_bit |= slab_owner_bit;
-                            current_idx = comp->opponent_relations[v21].next_idx;
-                            v16 = v21;
-                            pos = &comp->opponent_relations[v21].pos_A[current_idx];
-                            comp->opponent_relations[v16].next_idx = (current_idx + 1) % COMPUTER_SPARK_POSITIONS_COUNT;
-                            comp->opponent_relations[v16].field_0 = game.play_gameturn;
-                            pos->x.stl.pos = x_pos;
+                            current_idx = comp->opponent_relations[slab_owner].next_idx;
+                            slab_owner = slab_owner;
+                            pos = &comp->opponent_relations[slab_owner].pos_A[current_idx];
+                            comp->opponent_relations[slab_owner].next_idx = (current_idx + 1) % COMPUTER_SPARK_POSITIONS_COUNT;
+                            comp->opponent_relations[slab_owner].field_0 = game.play_gameturn;
+                            pos->x.stl.pos = stl_x_current;
                             pos->x.stl.num = 0;
                             pos->y.stl.pos = stl_y_current;
                             pos->y.stl.num = 0;
@@ -1247,8 +1240,8 @@ static long computer_look_for_opponent(struct Computer2 *comp, MapSubtlCoord stl
                     }
                 }
             }
-            x_pos += STL_PER_SLB;
-            if (stl_x_end <= x_pos)
+            stl_x_current += STL_PER_SLB;
+            if (stl_x_end <= stl_x_current)
                 goto LABEL_23;
         }
     }
