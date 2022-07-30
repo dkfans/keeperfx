@@ -537,8 +537,9 @@ long instf_dig(struct Thing *creatng, long *param)
     {
         if (!slab_kind_is_indestructible(slb->kind))
             slb->health -= dig_damage;
-        thing_play_sample(creatng, 63 + UNSYNC_RANDOM(6), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
-        create_effect(&creatng->mappos, TngEff_RockChips, creatng->owner);
+        struct ShotConfigStats* shotst = get_shot_model_stats(ShM_Dig);
+        thing_play_sample(creatng, shotst->dig.sndsample_idx + UNSYNC_RANDOM(shotst->dig.sndsample_range), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+        create_effect(&creatng->mappos, shotst->dig.effect_model, creatng->owner);
         if (taskkind == SDDigTask_MineGold)
         {
             gold = calculate_gold_digged_out_of_slab_with_single_hit(dig_damage, creatng->owner, cctrl->explevel, slb);
