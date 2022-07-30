@@ -1163,7 +1163,7 @@ static long computer_look_for_opponent(struct Computer2 *comp, MapSubtlCoord stl
     unsigned __int8 kind;
     int slab_owner_bit;
     int block_flags;
-    int v15;
+    int current_idx;
     int v16;
     struct Coord3d *pos;
     int v21;
@@ -1188,7 +1188,6 @@ static long computer_look_for_opponent(struct Computer2 *comp, MapSubtlCoord stl
     MapSubtlCoord stl_y_end = 3 * ((radius + stl_y) / 3);
     if (stl_y_end >= map_subtiles_y)
         stl_y_end = map_subtiles_y;
-
         
     MapSubtlCoord stl_x_current = stl_x_start;
     MapSubtlCoord stl_y_current = stl_y_start;
@@ -1228,15 +1227,15 @@ static long computer_look_for_opponent(struct Computer2 *comp, MapSubtlCoord stl
                     if ((computer_player_bit & (1 << slab_owner)) == 0 && (game.slabmap[85 * map_to_slab[stl_y_current] + map_to_slab[x_pos]].flags & 7) == slab_owner)
                     {
                         if ((block_flags = slbattr->block_flags,
-                             ((block_flags & 0x10) == 0) &&
+                             ((block_flags & SlbAtFlg_Blocking) == 0) &&
                                 kind != SlbT_LAVA) ||
                             (block_flags & 2) != 0)
                         {
                             computer_player_bit |= slab_owner_bit;
-                            v15 = comp->opponent_relations[v21].field_4;
+                            current_idx = comp->opponent_relations[v21].next_idx;
                             v16 = v21;
-                            pos = &comp->opponent_relations[v21].pos_A[v15];
-                            comp->opponent_relations[v16].field_4 = (v15 + 1) % 64;
+                            pos = &comp->opponent_relations[v21].pos_A[current_idx];
+                            comp->opponent_relations[v16].next_idx = (current_idx + 1) % COMPUTER_SPARK_POSITIONS_COUNT;
                             comp->opponent_relations[v16].field_0 = game.play_gameturn;
                             pos->x.stl.pos = x_pos;
                             pos->x.stl.num = 0;
