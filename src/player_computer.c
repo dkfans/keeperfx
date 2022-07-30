@@ -154,7 +154,7 @@ struct ComputerTask * able_to_build_room_at_task(struct Computer2 *comp, RoomKin
             unsigned short max_radius = ctask->create_room.width / 2;
             if (max_radius <= ctask->create_room.height / 2)
               max_radius = ctask->create_room.height / 2;
-            struct ComputerTask* roomtask = able_to_build_room(comp, &ctask->pos_64, rkind, width_slabs, height_slabs, area + max_radius + 1, a6);
+            struct ComputerTask* roomtask = able_to_build_room(comp, &ctask->new_room_pos, rkind, width_slabs, height_slabs, area + max_radius + 1, a6);
             if (!computer_task_invalid(roomtask)) {
                 return roomtask;
             }
@@ -331,8 +331,8 @@ long computer_finds_nearest_task_to_gold(const struct Computer2 *comp, const str
         // Per-task code
         if ( ((ctask->flags & ComTsk_Unkn0001) != 0) && ((ctask->flags & ComTsk_Unkn0002) != 0) )
         {
-            MapCoordDelta delta_x = ctask->pos_64.x.val - (MapCoordDelta)task_pos.x.val;
-            MapCoordDelta delta_y = ctask->pos_64.y.val - (MapCoordDelta)task_pos.y.val;
+            MapCoordDelta delta_x = ctask->new_room_pos.x.val - (MapCoordDelta)task_pos.x.val;
+            MapCoordDelta delta_y = ctask->new_room_pos.y.val - (MapCoordDelta)task_pos.y.val;
             long distance = LbDiagonalLength(abs(delta_x), abs(delta_y));
             // Convert to subtiles
             distance = coord_subtile(distance);
@@ -403,7 +403,7 @@ long computer_finds_nearest_room_to_gold(struct Computer2 *comp, struct Coord3d 
         new_dist = computer_finds_nearest_task_to_gold(comp, gldlook, &ctask);
         if (dig_distance > new_dist)
         {
-            spos = &ctask->pos_64;
+            spos = &ctask->new_room_pos;
             dig_distance = new_dist;
             gldlooksel = gldlook;
             SYNCDBG(8,"Distance from task at (%d,%d) is %d",(int)spos->x.stl.num,(int)spos->y.stl.num,(int)dig_distance);
