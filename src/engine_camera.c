@@ -60,11 +60,11 @@ void calculate_zoomed_range(struct Camera *cam) {
     switch (cam->view_mode) {
         case PVM_IsometricView:
             range_min = CAMERA_ZOOM_MIN; // Fully zoomed out
-            range_max = 8192; // Base zoom level
+            range_max = 4100; // Base zoom level
             break;
         case PVM_FrontView:
             range_min = FRONTVIEW_CAMERA_ZOOM_MIN; // Fully zoomed out
-            range_max = 45000; // Base zoom level
+            range_max = 32768; // Base zoom level
             break;
         default:
             zoomed_range = 0;

@@ -4765,13 +4765,13 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
     int base_size;
     switch (cam->view_mode) {
         case PVM_IsometricView:
-            base_size = 32*256;
+            base_size = 16*256;
             break;
         case PVM_FrontView:
-            base_size = 32*256;
+            base_size = 16*256;
             break;
         case PVM_ParchmentView:
-            base_size = 32*256;
+            base_size = 16*256;
             break;
         default:
             return; // Do not draw if camera is 1st person
@@ -4903,8 +4903,8 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
     bs_units_per_px = units_per_pixel_ui * 2 * scale_by_zoom;
 
     if (cam->view_mode == PVM_FrontView) {
-        float closeness_to_creature = 14.0; // Using float makes a difference in precision here
-        scrpos_y -= (spr->SHeight/closeness_to_creature) * bs_units_per_px;
+        float flower_distance = 20.00; // Higher number means flower is further away from creature
+        scrpos_y -= (flower_distance/spr->SHeight) * bs_units_per_px;
     }
 
     if ( state_spridx || anger_spridx )
