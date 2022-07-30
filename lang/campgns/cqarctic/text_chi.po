@@ -51,7 +51,7 @@ msgstr "第一个任务已经完成了。你杀死了你可悲的对手，这片
 msgctxt "In-game message"
 msgid ""
 "Powerful barbarians reign this land. But they do not know that in a certain "
-"cave on the east, lives the Avatar. I've heard he mastered several "
+"cave to the west, lives the Avatar. I've heard he mastered several "
 "interesting incantations. Perhaps it is proper to visit him?"
 msgstr "强大的野蛮人们统治着这个王国。不过他们并不知道，"
 "圣者就居住在西边的洞穴里。我听说他研究出了好几种有趣的魔法。"
@@ -680,10 +680,15 @@ msgstr "任务失败 - 按ESCAPE键重新开始"
 #: guitext:397 guitext:398 guitext:399 guitext:400 guitext:401 guitext:402
 #: guitext:403 guitext:404 guitext:405 guitext:406 guitext:407 guitext:408
 #: guitext:409 guitext:410 guitext:411 guitext:412 guitext:413 guitext:414
-#: guitext:415 guitext:416 guitext:417 guitext:418 guitext:419
+#: guitext:415 guitext:416 guitext:417 guitext:418
 msgctxt "Unused"
 msgid "Moo5"
 msgstr ""
+
+#: guitext:419
+msgctxt "Menu interface item"
+msgid "Ok"
+msgstr "确定"
 
 #: guitext:420
 msgctxt "Dungeon special decription"

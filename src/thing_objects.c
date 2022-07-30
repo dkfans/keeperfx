@@ -218,6 +218,9 @@ Thing_Class_Func object_update_functions[OBJECT_TYPES_MAX] = {
  *
  * Originally was named objects[].
  */
+
+/*  initial_state;field_1;field_2;field_3;field_4;sprite_anim_idx;anim_speed;size_xy;size_yz;sprite_size_max;field_F;has_flames;
+draw_class;destroy_on_lava;related_creatr_model;own_category;destroy_on_liquid;rotation_flag;*/
 struct Objects objects_data_init[OBJECT_TYPES_MAX] = {
   {0, 0, 0, 0, 0,   0, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown0, 0, 0}, //0
   {0, 0, 0, 0, 0, 930, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown3, 1, 0}, //1 BARREL
@@ -391,7 +394,6 @@ struct CallToArmsGraphics call_to_arms_graphics[] = {
 
 /******************************************************************************/
 DLLIMPORT long _DK_object_update_power_sight(struct Thing *objtng);
-DLLIMPORT struct Thing * _DK_find_base_thing_on_mapwho_excluding_self(struct Thing *gldtng);
 /******************************************************************************/
 void define_custom_object(int obj_id, short anim_idx)
 {
@@ -433,11 +435,13 @@ struct Thing *create_object(const struct Coord3d *pos, unsigned short model, uns
       thing->parent_idx = parent_idx;
     LbMemoryCopy(&thing->mappos, pos, sizeof(struct Coord3d));
     struct ObjectConfig* objconf = get_object_model_stats2(model);
-    struct Objects* objdat = get_objects_data_for_thing(thing);
+    struct Objects* objdat = get_objects_data(model);
     thing->clipbox_size_xy = objdat->size_xy;
     thing->clipbox_size_yz = objdat->size_yz;
     thing->solid_size_xy = objdat->size_xy;
     thing->solid_size_yz = objdat->size_yz;
+    thing->anim_speed = objdat->anim_speed;
+    thing->anim_sprite = objdat->sprite_anim_idx;
     thing->health = saturate_set_signed(objconf->health,16);
     thing->fall_acceleration = objconf->fall_acceleration;
     thing->field_23 = 204;
@@ -830,25 +834,24 @@ TbBool object_is_room_equipment(const struct Thing *thing, RoomKind rkind)
  * @param thing
  * @return
  */
-TbBool object_is_room_inventory(const struct Thing *thing, RoomKind rkind)
+TbBool object_is_room_inventory(const struct Thing *thing, RoomRole rrole)
 {
-    switch (rkind)
-    {
-    case RoK_TREASURE:
-        return object_is_gold_hoard(thing);
-    case RoK_LIBRARY:
-        return thing_is_spellbook(thing) || thing_is_special_box(thing);
-    case RoK_DUNGHEART:
-        return thing_is_dungeon_heart(thing);
-    case RoK_WORKSHOP:
-        return thing_is_workshop_crate(thing);
-    case RoK_GARDEN:
-        return object_is_infant_food(thing) || object_is_growing_food(thing) || object_is_mature_food(thing);
-    case RoK_LAIR:
-        return thing_is_lair_totem(thing);
-    default:
-        return false;
-    }
+
+    if((rrole & RoRoF_GoldStorage) && object_is_gold_hoard(thing))
+        return true;
+    if((rrole & RoRoF_PowersStorage) && (thing_is_spellbook(thing) || thing_is_special_box(thing)))
+        return true;
+    if((rrole & RoRoF_KeeperStorage) && thing_is_dungeon_heart(thing))
+        return true;
+    if((rrole & RoRoF_CratesStorage) && thing_is_workshop_crate(thing))
+        return true;
+    if((rrole & RoRoF_FoodStorage) && (object_is_infant_food(thing) || object_is_growing_food(thing) || object_is_mature_food(thing)))
+        return true;
+    if((rrole & RoRoF_LairStorage) && thing_is_lair_totem(thing))
+        return true;
+
+    return false;
+    
 }
 
 TbBool object_is_unaffected_by_terrain_changes(const struct Thing *thing)
@@ -1266,7 +1269,7 @@ TbBool temple_check_for_arachnid_join_dungeon(struct Dungeon *dungeon)
             (dungeon->owned_creatures_of_model[crmodel] < 4))
         {
             SYNCLOG("Conditions to trigger arachnid met");
-            struct Room* room = pick_random_room(dungeon->owner, RoK_ENTRANCE);
+            struct Room* room = pick_random_room_of_role(dungeon->owner, RoRoF_CrPoolSpawn);
             if (room_is_invalid(room))
             {
                 ERRORLOG("Could not get a random entrance for player %d",(int)dungeon->owner);
@@ -1343,9 +1346,42 @@ void process_object_sacrifice(struct Thing *thing, long sacowner)
     }
 }
 
+
+/**
+ * Finds a thing with the same location, class and model as the provided thing
+ * @param thing The thing you want to find something similar to.
+ * @return other thing that matches location, class and model
+ */
 struct Thing *find_base_thing_on_mapwho_excluding_self(struct Thing *thing)
 {
-    return _DK_find_base_thing_on_mapwho_excluding_self(thing);
+    struct Map* mapblk = get_map_block_at(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
+    unsigned long k = 0;
+    long i = get_mapwho_thing_index(mapblk);
+    while (i != 0)
+    {
+        struct Thing* result = thing_get(i);
+        TRACE_THING(result);
+        if (thing_is_invalid(result))
+        {
+            ERRORLOG("Jump to invalid thing detected");
+            break;
+        }
+        i = result->next_on_mapblk;
+        // Per thing code start
+        if (result->class_id == thing->class_id && thing->model == result->model && thing != result)
+        {
+            return result;
+        }
+        // Per thing code end
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break_mapwho_infinite_chain(mapblk);
+            break;
+        }
+    }
+    return INVALID_THING;
 }
 
 long object_being_dropped(struct Thing *thing)

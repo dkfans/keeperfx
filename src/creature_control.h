@@ -165,7 +165,7 @@ unsigned char field_37[2];
     long field_43;
     unsigned char field_47;
     unsigned char paydays_owed;
-    unsigned char prepayments_received;
+    char paydays_advanced;
     long annoy_untrained_turn;
     unsigned long last_roar_turn;
    /** The game enumerates the elements of annoyance array periodically and looks for the highest value.
@@ -259,7 +259,7 @@ unsigned char field_67;
         long long_A2x;
   } idle;
   struct {
-    unsigned char byte_9A;
+    unsigned char job_stage;
     unsigned char byte_9B;
     unsigned char byte_9C;
     unsigned char byte_9D;
@@ -404,7 +404,7 @@ unsigned char field_211[6];
 unsigned char field_27F;
     short conscious_back_turns;
     short countdown_282; // signed
-    unsigned short field_284;
+    unsigned short damage_wall_coords;
     unsigned char joining_age;
     unsigned char blood_type;
     struct Coord3d flee_pos;
@@ -439,7 +439,7 @@ unsigned short shot_shift_z;
     unsigned char alarm_stl_y;
     unsigned long field_2FA;
     unsigned long field_2FE;
-    unsigned char field_302;
+    unsigned char stopped_for_hand_turns;
     long following_leader_since;
     unsigned char follow_leader_fails;
 };
@@ -647,6 +647,7 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     short toking_recovery;
     TbBool illuminated;
     char corpse_vanish_effect;
+    short footstep_pitch;
 };
 
 struct Persons {
@@ -674,8 +675,6 @@ struct CreatureSounds {
 };
 
 #pragma pack()
-/******************************************************************************/
-extern struct CreatureSounds creature_sounds[];
 /******************************************************************************/
 struct CreatureControl *creature_control_get(long cctrl_idx);
 struct CreatureControl *creature_control_get_from_thing(const struct Thing *thing);

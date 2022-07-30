@@ -66,6 +66,7 @@ IF(PLAYER0,CAMPAIGN_FLAG3 <= 2)
 		REM Using a timer to make sure add creature command will be executed
 		SET_TIMER(PLAYER0,TIMER1)
 		SET_FLAG(PLAYER0,FLAG1,1)
+		ADD_OBJECT_TO_LEVEL(SPECBOX_TRANSFR,2,0)
 	ENDIF
 
 	IF(PLAYER0,FLAG1 == 1)
@@ -95,17 +96,44 @@ IF(PLAYER0,TIMER1 >= 100)
 	WIN_GAME
 	BONUS_LEVEL_TIME(0)
 	IF(PLAYER0,HELL_HOUND <= 0)
-		SET_FLAG(PLAYER0,CAMPAIGN_FLAG3,2)
+		IF(PLAYER0,CREATURES_TRANSFERRED > 0)
+			IF(PLAYER0,FLAG6 != 1)
+				IF(PLAYER0,FLAG7 == 0)
+					REM There is a creature transferred, and it's not the Hound, so it must be the Warlock.
+					SET_FLAG(PLAYER0,CAMPAIGN_FLAG3,2)
+					SET_FLAG(PLAYER0,FLAG7,1)
+				ENDIF
+			ENDIF
+		ENDIF
+		IF(PLAYER0,CREATURES_TRANSFERRED == 0)
+			REM No Hound and nothing transferred, this means the hound has died.
+			SET_FLAG(PLAYER0,FLAG7,2)
+		ENDIF
 	ENDIF
 ENDIF
 
 IF(PLAYER0,SORCEROR >= 1)
 	SET_FLAG(PLAYER0,CAMPAIGN_FLAG4,1)
 ENDIF
+
 IF(PLAYER0,CAMPAIGN_FLAG4 >= 1)
-	IF(PLAYER0,GAME_TURN >= 60)
-		IF(PLAYER0,SORCEROR <= 0)
-			SET_FLAG(PLAYER0,CAMPAIGN_FLAG4,2)
+	IF(PLAYER0,FLAG1 == 1)
+		IF(PLAYER0,GAME_TURN >= 60)
+			IF(PLAYER0,SORCEROR <= 0)
+				IF(PLAYER0,CREATURES_TRANSFERRED > 0)
+					IF(PLAYER0,FLAG7 != 1)
+						IF(PLAYER0,FLAG6 == 0)
+							REM There's a creature transfer, but it's not the hound, so it must be the warlock.
+							SET_FLAG(PLAYER0,CAMPAIGN_FLAG4,2)
+							SET_FLAG(PLAYER0,FLAG6,1)
+						ENDIF
+					ENDIF
+				ENDIF
+				IF(PLAYER0,CREATURES_TRANSFERRED == 0)
+					REM The Warlock is gone, but there's no creature transfer yet, so it must have died.
+					SET_FLAG(PLAYER0,FLAG6,2)
+				ENDIF
+			ENDIF
 		ENDIF
 	ENDIF
 ENDIF

@@ -320,10 +320,10 @@ TbBool remove_creature_from_group_without_leader_consideration(struct Thing *cre
  * Determines if the creature is a Tunneler or Imp to consider for leadership.
   * @return 0 if it's no digger, 1 if it's a digger who does not want to be a leader, and 2 if the digger is a preferred leader
  */
-static short creature_could_be_lead_digger(struct Thing* crtng, struct CreatureControl* cctrl)
+static short creature_could_be_lead_digger(struct Thing* creatng, struct CreatureControl* cctrl)
 {
     short potential_leader = 0;
-    if (thing_is_creature_special_digger(crtng))
+    if (thing_is_creature_special_digger(creatng))
     {
         if (cctrl->party_objective != CHeroTsk_DefendParty)
         {

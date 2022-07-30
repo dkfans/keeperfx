@@ -1937,7 +1937,7 @@ long ma_triangle_route(long ttriA, long ttriB, long *routecost)
     NAVIDBG(19,"Selecting route");
     if (par_fwd < par_bak)
     {
-        for (i=0; i <= sizeof(tree_route)/sizeof(tree_route[0]); i++)
+        for (i=0; i < sizeof(tree_route)/sizeof(tree_route[0]); i++)
         {
              tree_route[i] = route_fwd[i];
         }

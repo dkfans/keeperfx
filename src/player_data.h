@@ -23,6 +23,7 @@
 #include "globals.h"
 #include "engine_camera.h"
 #include "bflib_video.h"
+#include "roomspace.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -199,8 +200,8 @@ char field_462;
     char chosen_trap_kind;
     char chosen_door_kind;
     char field_4A7[4];
-    short cursor_stl_x; // current x coord of subtile under the mouse cursor
-    short cursor_stl_y; // current y coord of subtile under the mouse cursor
+    short cursor_clicked_subtile_x; // x coord of subtile clicked by mouse cursor
+    short cursor_clicked_subtile_y; // y coord of subtile clicked by mouse cursor
     unsigned char cursor_button_down; // left or right button down (whilst using the bounding box cursor)
     /** Player instance, from PlayerInstanceNum enum. */
     unsigned char instance_num;
@@ -239,8 +240,27 @@ struct PlayerInfoAdd {
     struct CheatSelection cheatselection;
     TbBool first_person_dig_claim_mode;
     unsigned char teleport_destination;
+    TbBool nearest_teleport;
     BattleIndex battleid;
     unsigned short selected_fp_thing_pickup;
+    struct RoomSpace render_roomspace;
+    struct RoomSpace roomspace;
+    unsigned char roomspace_mode;
+    int user_defined_roomspace_width;
+    int roomspace_detection_looseness;
+    int roomspace_width;
+    int roomspace_height;
+    TbBool one_click_mode_exclusive;
+    TbBool one_click_lock_cursor;
+    TbBool ignore_next_PCtr_RBtnRelease;
+    TbBool ignore_next_PCtr_LBtnRelease;
+    char swap_to_untag_mode; // 0 = no, 1 = maybe, 2= yes, -1 = disable
+    unsigned char roomspace_highlight_mode;
+    TbBool roomspace_no_default;
+    short cursor_subtile_x;
+    short cursor_subtile_y;
+    short previous_cursor_subtile_x;
+    short previous_cursor_subtile_y;
     };
 
 /******************************************************************************/

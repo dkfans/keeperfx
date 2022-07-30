@@ -197,9 +197,12 @@ struct MessageQueueEntry { // sizeof = 9
      long delay;
 };
 
+struct Thing;
+
 #pragma pack()
 /******************************************************************************/
 TbBool output_message(long msg_idx, long delay, TbBool queue);
+TbBool output_message_far_from_thing(struct Thing* thing, long msg_idx, long delay, TbBool queue);
 TbBool message_already_in_queue(long msg_idx);
 TbBool add_message_to_queue(long msg_idx, long delay);
 TbBool message_queue_empty(void);
