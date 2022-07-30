@@ -479,7 +479,7 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
                 long smpl_idx;
                 long range;
                 long eff_kind;
-                struct Coord3d pos;
+                struct Coord3d eff_pos;
                 long eff_owner;
                 if (digging)
                 {
@@ -490,7 +490,7 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
                         range = 6;
                         eff_kind = TngEff_RockChips;
                         struct Thing *diggertng = thing_get(shotng->parent_idx);
-                        pos = diggertng->mappos;
+                        eff_pos = diggertng->mappos;
                         eff_owner = diggertng->owner;
                     }
                     else
@@ -498,7 +498,7 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
                         smpl_idx = shotst->hit_generic.sndsample_idx;
                         range = shotst->hit_generic.sndsample_range;
                         eff_kind = shotst->hit_generic.effect_model;
-                        pos = shotng->mappos;
+                        eff_pos = shotng->mappos;
                         eff_owner = shotng->owner;
                     }
                 }
@@ -507,10 +507,10 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
                     smpl_idx = shotst->hit_generic.sndsample_idx;
                     range = shotst->hit_generic.sndsample_range;
                     eff_kind = shotst->hit_generic.effect_model;
-                    pos = shotng->mappos;
+                    eff_pos = shotng->mappos;
                     eff_owner = shotng->owner;
                 }
-                efftng = create_shot_hit_effect(&pos, eff_owner, eff_kind, smpl_idx, range);
+                efftng = create_shot_hit_effect(&eff_pos, eff_owner, eff_kind, smpl_idx, range);
                 if (!shotst->hit_generic.withstand) {
                     destroy_shot = 1;
                 }
