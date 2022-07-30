@@ -404,7 +404,7 @@ long pinstfm_control_creature(struct PlayerInfo *player, long *n)
     }
     if (player->view_mode != PVM_FrontView)
     {
-        view_zoom_camera_in(cam, 30000, 6000);
+        view_zoom_camera_in(cam, 30000, 0);
         // Compute new camera angle
         long mv_a = (thing->move_angle_xy - cam->orient_a) & LbFPMath_AngleMask;
         if (mv_a > LbFPMath_PI)
@@ -537,7 +537,7 @@ long pinstfm_leave_creature(struct PlayerInfo *player, long *n)
 {
     if (player->view_mode != PVM_FrontView)
     {
-        view_zoom_camera_out(player->acamera, 30000, 6000);
+        view_zoom_camera_out(player->acamera, 30000, 0);
         if (get_camera_zoom(player->acamera) < player->dungeon_camera_zoom) {
             set_camera_zoom(player->acamera, player->dungeon_camera_zoom);
         }
@@ -588,7 +588,7 @@ long pinstfs_query_creature(struct PlayerInfo *player, long *n)
     struct Thing* thing = thing_get(player->influenced_thing_idx);
     player->dungeon_camera_zoom = get_camera_zoom(player->acamera);
     set_selected_creature(player, thing);
-    unsigned char state = ( (player->work_state == PSt_CreatrQueryAll) || (player->work_state == PSt_CreatrInfoAll) ) ? PSt_CreatrInfoAll : PSt_CreatrInfo;
+    unsigned char state = ( (player->work_state == PSt_QueryAll) || (player->work_state == PSt_CreatrInfoAll) ) ? PSt_CreatrInfoAll : PSt_CreatrInfo;
     set_player_state(player, state, 0);
     return 0;
 }
