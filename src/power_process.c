@@ -632,8 +632,8 @@ void update_explored_flags_for_power_sight(struct PlayerInfo *player)
 void remove_explored_flags_for_power_sight(struct PlayerInfo *player)
 {
     SYNCDBG(9, "Starting");
-    int v3;
-    unsigned __int8 v5;
+    int data;
+    unsigned __int8 backup_flags;
     struct Dungeon *dungeon = get_players_dungeon(player);
 
     if (dungeon->sight_casted_thing_idx)
@@ -652,14 +652,14 @@ void remove_explored_flags_for_power_sight(struct PlayerInfo *player)
                 {
                     struct Map* mapblk = get_map_block_at((start_stl_x + shift_x + 1),(start_stl_y + shift_y + 1));
 
-                    v3 = mapblk->data & (~(1 << player->id_number << 28) | 0xFFFFFFF);
-                    mapblk->data = v3;
-                    v5 = backup_explored[shift_y][shift_x];
-                    mapblk->data = v3 | (((1 << player->id_number) & (v5 << player->id_number)) << 28);
-                    if ((v5 & 2) != 0)
-                        mapblk->flags |= 0x80u;
-                    if ((v5 & 4) != 0)
-                        mapblk->flags |= 4u;
+                    data = mapblk->data & (~(1 << player->id_number << 28) | 0xFFFFFFF);
+                    mapblk->data = data;
+                    backup_flags = backup_explored[shift_y][shift_x];
+                    mapblk->data = data | (((1 << player->id_number) & (backup_flags << player->id_number)) << 28);
+                    if ((backup_flags & 2) != 0)
+                        mapblk->flags |= SlbAtFlg_TaggedValuable;
+                    if ((backup_flags & 4) != 0)
+                        mapblk->flags |= SlbAtFlg_Unexplored;
                 }
                 ++shift_x;
             } while (shift_x < (2 * MAX_SOE_RADIUS));
