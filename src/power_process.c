@@ -633,7 +633,7 @@ void remove_explored_flags_for_power_sight(struct PlayerInfo *player)
 {
     SYNCDBG(9, "Starting");
     int data;
-    unsigned __int8 backup_flags;
+    unsigned char backup_flags;
     struct Dungeon *dungeon = get_players_dungeon(player);
 
     if (dungeon->sight_casted_thing_idx)
