@@ -1208,7 +1208,7 @@ static long computer_look_for_opponent(struct Computer2 *comp, MapSubtlCoord stl
             if (stl_x_current < stl_x_end)
                 break;
         LABEL_23:
-            stl_y_current += 3;
+            stl_y_current += STL_PER_SLB;
             if (stl_y_end <= stl_y_current)
                 goto LABEL_24;
         }
@@ -1219,7 +1219,7 @@ static long computer_look_for_opponent(struct Computer2 *comp, MapSubtlCoord stl
             v21 = slab_owner;
             if (dungeon->owner != slab_owner)
             {
-                kind = game.slabmap[85 * (stl_y_current / 3) + x_pos / 3].kind;
+                kind = game.slabmap[85 * (stl_y_current / STL_PER_SLB) + x_pos / STL_PER_SLB].kind;
                 struct SlabAttr *slbattr = get_slab_kind_attrs(kind);
                 if (slab_owner != game.neutral_player_num || (( (slbattr->block_flags & 0x29) == 0) && kind != SlbT_LAVA))
                 {
@@ -1247,7 +1247,7 @@ static long computer_look_for_opponent(struct Computer2 *comp, MapSubtlCoord stl
                     }
                 }
             }
-            x_pos += 3;
+            x_pos += STL_PER_SLB;
             if (stl_x_end <= x_pos)
                 goto LABEL_23;
         }
