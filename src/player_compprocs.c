@@ -1166,40 +1166,34 @@ static long computer_look_for_opponent(struct Computer2 *comp, MapSubtlCoord stl
     int v15;
     int v16;
     struct Coord3d *pos;
-    unsigned __int32 y_pos;
-    __int32 computer_player_bit;
     int v21;
-    struct Dungeon *dungeon;
-    unsigned __int32 v23;
-    unsigned __int32 v24;
-    unsigned __int32 v25;
     unsigned int v26;
 
-    dungeon = comp->dungeon;
-    computer_player_bit = 1 << dungeon->owner;
+    struct Dungeon *dungeon = comp->dungeon;
+    long computer_player_bit = 1 << dungeon->owner;
     MapSubtlDelta radius = range / 2;
 
     MapSubtlCoord stl_x_start = 3 * ((stl_x - range / 2) / 3);
     if (stl_x_start <= 0)
         stl_x_start = 0;
-    v23 = stl_x_start;
 
     MapSubtlCoord stl_y_start = 3 * ((stl_y - radius) / 3);
     if (stl_y_start <= 0)
         stl_y_start = 0;
-    y_pos = stl_y_start;
 
     MapSubtlCoord stl_x_end = 3 * ((radius + stl_x) / 3);
     if (stl_x_end >= map_subtiles_x)
         stl_x_end = map_subtiles_x;
-    v24 = stl_x_end;
 
     MapSubtlCoord stl_y_end = 3 * ((radius + stl_y) / 3);
     if (stl_y_end >= map_subtiles_y)
         stl_y_end = map_subtiles_y;
-    v25 = stl_y_end;
 
-    if (stl_y_end <= y_pos)
+        
+    MapSubtlCoord stl_x_current = stl_x_start;
+    MapSubtlCoord stl_y_current = stl_y_start;
+
+    if (stl_y_end <= stl_y_current)
     {
     LABEL_24:
         if (1 << dungeon->owner == computer_player_bit)
@@ -1211,27 +1205,27 @@ static long computer_look_for_opponent(struct Computer2 *comp, MapSubtlCoord stl
     {
         while (1)
         {
-            x_pos = v23;
-            if (v23 < v24)
+            x_pos = stl_x_current;
+            if (stl_x_current < stl_x_end)
                 break;
         LABEL_23:
-            y_pos += 3;
-            if (v25 <= y_pos)
+            stl_y_current += 3;
+            if (stl_y_end <= stl_y_current)
                 goto LABEL_24;
         }
-        v26 = 85 * map_to_slab[y_pos];
+        v26 = 85 * map_to_slab[stl_y_current];
         while (1)
         {
-            slab_owner = game.slabmap[v26 + map_to_slab[x_pos]].field_5 & 7;
+            slab_owner = game.slabmap[v26 + map_to_slab[x_pos]].flags & 7;
             v21 = slab_owner;
             if (dungeon->owner != slab_owner)
             {
-                kind = game.slabmap[85 * (y_pos / 3) + x_pos / 3].kind;
+                kind = game.slabmap[85 * (stl_y_current / 3) + x_pos / 3].kind;
                 struct SlabAttr *slbattr = get_slab_kind_attrs(kind);
                 if (slab_owner != game.neutral_player_num || (( (slbattr->block_flags & 0x29) == 0) && kind != SlbT_LAVA))
                 {
                     slab_owner_bit = 1 << slab_owner;
-                    if ((computer_player_bit & (1 << slab_owner)) == 0 && (game.slabmap[85 * map_to_slab[y_pos] + map_to_slab[x_pos]].field_5 & 7) == slab_owner)
+                    if ((computer_player_bit & (1 << slab_owner)) == 0 && (game.slabmap[85 * map_to_slab[stl_y_current] + map_to_slab[x_pos]].flags & 7) == slab_owner)
                     {
                         if ((block_flags = slbattr->block_flags,
                              ((block_flags & 0x10) == 0) &&
@@ -1246,7 +1240,7 @@ static long computer_look_for_opponent(struct Computer2 *comp, MapSubtlCoord stl
                             comp->opponent_relations[v16].field_0 = game.play_gameturn;
                             pos->x.stl.pos = x_pos;
                             pos->x.stl.num = 0;
-                            pos->y.stl.pos = y_pos;
+                            pos->y.stl.pos = stl_y_current;
                             pos->y.stl.num = 0;
                             if ((1 << (game.neutral_player_num + 1)) - computer_player_bit == 1)
                                 return computer_player_bit;
@@ -1255,7 +1249,7 @@ static long computer_look_for_opponent(struct Computer2 *comp, MapSubtlCoord stl
                 }
             }
             x_pos += 3;
-            if (v24 <= x_pos)
+            if (stl_x_end <= x_pos)
                 goto LABEL_23;
         }
     }
