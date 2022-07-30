@@ -1167,19 +1167,19 @@ static long computer_look_for_opponent(struct Computer2 *comp, MapSubtlCoord stl
     long computer_player_bit = 1 << dungeon->owner;
     MapSubtlDelta radius = range / 2;
 
-    MapSubtlCoord stl_x_start = 3 * ((stl_x - range / 2) / 3);
+    MapSubtlCoord stl_x_start = STL_PER_SLB * ((stl_x - radius) / STL_PER_SLB);
     if (stl_x_start <= 0)
         stl_x_start = 0;
 
-    MapSubtlCoord stl_y_start = 3 * ((stl_y - radius) / 3);
+    MapSubtlCoord stl_y_start = STL_PER_SLB * ((stl_y - radius) / STL_PER_SLB);
     if (stl_y_start <= 0)
         stl_y_start = 0;
 
-    MapSubtlCoord stl_x_end = 3 * ((radius + stl_x) / 3);
+    MapSubtlCoord stl_x_end = STL_PER_SLB * ((stl_x + radius) / STL_PER_SLB);
     if (stl_x_end >= map_subtiles_x)
         stl_x_end = map_subtiles_x;
 
-    MapSubtlCoord stl_y_end = 3 * ((radius + stl_y) / 3);
+    MapSubtlCoord stl_y_end = STL_PER_SLB* ((stl_y + radius) / STL_PER_SLB);
     if (stl_y_end >= map_subtiles_y)
         stl_y_end = map_subtiles_y;
         
