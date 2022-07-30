@@ -41,8 +41,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT long _DK_computer_look_for_opponent(struct Computer2 *comp, long stl_x, long stl_y, long a4);
-/******************************************************************************/
 long computer_setup_any_room(struct Computer2 *comp, struct ComputerProcess *cproc);
 long computer_setup_dig_to_entrance(struct Computer2 *comp, struct ComputerProcess *cproc);
 long computer_setup_dig_to_gold(struct Computer2 *comp, struct ComputerProcess *cproc);
@@ -1158,9 +1156,109 @@ long computer_check_safe_attack(struct Computer2 *comp, struct ComputerProcess *
     return computer_check_attack_with_filter(comp, cproc, hate_filter_enemy_with_not_many_creatures);
 }
 
-long computer_look_for_opponent(struct Computer2 *comp, long stl_x, long stl_y, long a4)
+static long computer_look_for_opponent(struct Computer2 *comp, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long a4)
 {
-   return _DK_computer_look_for_opponent(comp, stl_x, stl_y, a4);
+    __int32 v4;
+    __int32 v5;
+    __int32 v6;
+    __int32 v7;
+    __int32 v8;
+    unsigned __int32 x_pos;
+    unsigned __int8 v10;
+    unsigned __int8 kind;
+    int v12;
+    int block_flags;
+    int v15;
+    int v16;
+    struct Coord3d *pos;
+    unsigned __int32 y_pos;
+    __int32 computer_player_bit;
+    int v21;
+    struct Dungeon *dungeon;
+    unsigned __int32 v23;
+    unsigned __int32 v24;
+    unsigned __int32 v25;
+    unsigned int v26;
+
+    dungeon = comp->dungeon;
+    computer_player_bit = 1 << dungeon->owner;
+    v4 = a4 / 2;
+    v5 = 3 * ((stl_x - a4 / 2) / 3);
+    if (v5 <= 0)
+        v5 = 0;
+    v23 = v5;
+    v6 = 3 * ((stl_y - v4) / 3);
+    if (v6 <= 0)
+        v6 = 0;
+    y_pos = v6;
+    v7 = 3 * ((v4 + stl_x) / 3);
+    if (v7 >= 255)
+        v7 = 255;
+    v24 = v7;
+    v8 = 3 * ((v4 + stl_y) / 3);
+    if (v8 >= 255)
+        v8 = 255;
+    v25 = v8;
+    if (v8 <= y_pos)
+    {
+    LABEL_24:
+        if (1 << dungeon->owner == computer_player_bit)
+            return -1;
+        else
+            return computer_player_bit;
+    }
+    else
+    {
+        while (1)
+        {
+            x_pos = v23;
+            if (v23 < v24)
+                break;
+        LABEL_23:
+            y_pos += 3;
+            if (v25 <= y_pos)
+                goto LABEL_24;
+        }
+        v26 = 85 * map_to_slab[y_pos];
+        while (1)
+        {
+            v10 = game.slabmap[v26 + map_to_slab[x_pos]].field_5 & 7;
+            v21 = v10;
+            if (dungeon->owner != v10)
+            {
+                kind = game.slabmap[85 * (y_pos / 3) + x_pos / 3].kind;
+                struct SlabAttr *slbattr = get_slab_kind_attrs(kind);
+                if (v10 != game.neutral_player_num || (( (slbattr->block_flags & 0x29) == 0) && kind != SlbT_LAVA))
+                {
+                    v12 = 1 << v10;
+                    if ((computer_player_bit & (1 << v10)) == 0 && (game.slabmap[85 * map_to_slab[y_pos] + map_to_slab[x_pos]].field_5 & 7) == v10)
+                    {
+                        if ((block_flags = slbattr->block_flags,
+                             ((block_flags & 0x10) == 0) &&
+                                kind != SlbT_LAVA) ||
+                            (block_flags & 2) != 0)
+                        {
+                            computer_player_bit |= v12;
+                            v15 = comp->opponent_relations[v21].field_4;
+                            v16 = v21;
+                            pos = &comp->opponent_relations[v21].pos_A[v15];
+                            comp->opponent_relations[v16].field_4 = (v15 + 1) % 64;
+                            comp->opponent_relations[v16].field_0 = game.play_gameturn;
+                            pos->x.stl.pos = x_pos;
+                            pos->x.stl.num = 0;
+                            pos->y.stl.pos = y_pos;
+                            pos->y.stl.num = 0;
+                            if ((1 << (game.neutral_player_num + 1)) - computer_player_bit == 1)
+                                return computer_player_bit;
+                        }
+                    }
+                }
+            }
+            x_pos += 3;
+            if (v24 <= x_pos)
+                goto LABEL_23;
+        }
+    }
 }
 
 long computer_process_sight_of_evil(struct Computer2 *comp, struct ComputerProcess *cproc)
