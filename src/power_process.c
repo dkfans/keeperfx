@@ -639,8 +639,8 @@ void remove_explored_flags_for_power_sight(struct PlayerInfo *player)
     if (dungeon->sight_casted_thing_idx)
     {
         struct Thing *sightng = thing_get(dungeon->sight_casted_thing_idx);
-        MapSubtlCoord start_stl_y = sightng->mappos.y.stl.pos - MAX_SOE_RADIUS;
-        MapSubtlCoord start_stl_x = sightng->mappos.x.stl.pos - MAX_SOE_RADIUS;
+        MapSubtlCoord start_stl_y = sightng->mappos.y.stl.num - MAX_SOE_RADIUS;
+        MapSubtlCoord start_stl_x = sightng->mappos.x.stl.num - MAX_SOE_RADIUS;
 
         MapSubtlDelta shift_y = 0;
         do
@@ -650,7 +650,7 @@ void remove_explored_flags_for_power_sight(struct PlayerInfo *player)
             {
                 if (dungeon->soe_explored_flags[shift_y][shift_x])
                 {
-                    struct Map* mapblk = get_map_block_at((start_stl_x + shift_x + 1),(start_stl_y + shift_y + 1));
+                    struct Map* mapblk = get_map_block_at((start_stl_x + shift_x ),(start_stl_y + shift_y ));
 
                     data = mapblk->data & (~(1 << player->id_number << 28) | 0xFFFFFFF);
                     mapblk->data = data;
