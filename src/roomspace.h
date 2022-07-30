@@ -146,8 +146,6 @@ void reset_dungeon_build_room_ui_variables(PlayerNumber plyr_idx);
 
 void update_slab_grid(struct RoomSpace* roomspace, unsigned char mode, TbBool sell);
 
-void stop_tagging_interpolation();
-
 /******************************************************************************/
 #include "roomspace_detection.h"
 /******************************************************************************/

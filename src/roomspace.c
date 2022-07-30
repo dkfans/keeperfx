@@ -29,9 +29,6 @@
 
 #include "keeperfx.hpp"
 
-int previously_tagged_x = -1;
-int previously_tagged_y = -1;
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -931,48 +928,25 @@ static void find_next_point(struct RoomSpace *roomspace, unsigned char mode)
     }
 }
 
-void stop_tagging_interpolation() {
-    previously_tagged_x = -1;
-    previously_tagged_y = -1;
-}
-
 void keeper_highlight_roomspace(PlayerNumber plyr_idx, struct RoomSpace *roomspace, int task_allowance_reduction)
 {
-    if (!roomspace->tag_for_dig)
-    {
-        return;
-    }
-    if ( (!can_dig_here(stl_slab_center_subtile(roomspace->centreX * STL_PER_SLB), stl_slab_center_subtile(roomspace->centreY * STL_PER_SLB), plyr_idx, true)) && (roomspace->width == 1) && (roomspace->height == 1) )
-    {
-        return;
-    }
     struct PlayerInfo* player = get_player(plyr_idx);
+    struct PlayerInfoAdd* playeradd = get_playeradd(plyr_idx);
     struct Dungeon* dungeon = get_players_dungeon(player);
     TbBool tag_for_digging = ((player->allocflags & PlaF_ChosenSlabHasActiveTask) == 0);
     int task_allowance = MAPTASKS_COUNT - task_allowance_reduction;
     for (int y = 0; y < roomspace->height; y++)
     {
-        int tagged_y = roomspace->top + y;
+        int current_y = roomspace->top + y;
         for (int x = 0; x < roomspace->width; x++)
         {
-            int tagged_x = roomspace->left + x;
+            int current_x = roomspace->left + x;
             
-            // Tag a line of slabs inbetween previously tagged position and current tagged position
-            int draw_path_x;
-            int draw_path_y;
-            if (previously_tagged_x == -1 || previously_tagged_y == -1)
-            {
-                draw_path_x = tagged_x;
-                draw_path_y = tagged_y;
-            } else {
-                draw_path_x = previously_tagged_x;
-                draw_path_y = previously_tagged_y;
-            }
-            
+            // Tag a line of slabs inbetween previous mouse slab position and current mouse slab position
+            int draw_path_x = playeradd->previous_cursor_subtile_x / STL_PER_SLB;
+            int draw_path_y = playeradd->previous_cursor_subtile_y / STL_PER_SLB;
             while (true)
             {
-                previously_tagged_x = draw_path_x;
-                previously_tagged_y = draw_path_y;
                 MapSubtlCoord stl_cx = stl_slab_center_subtile(draw_path_x * STL_PER_SLB);
                 MapSubtlCoord stl_cy = stl_slab_center_subtile(draw_path_y * STL_PER_SLB);
                 if (!tag_for_digging) // if the chosen slab is tagged for digging...
@@ -989,23 +963,23 @@ void keeper_highlight_roomspace(PlayerNumber plyr_idx, struct RoomSpace *roomspa
                     return;
                 }
                 
-                if (draw_path_x != tagged_x || draw_path_y != tagged_y) {
+                if (draw_path_x != current_x || draw_path_y != current_y) {
                     // Choose the axis that has more ground to cover.
-                    if (abs(draw_path_x-tagged_x) > abs(draw_path_y-tagged_y)) {
-                        if (draw_path_x < tagged_x) {
+                    if (abs(draw_path_x-current_x) > abs(draw_path_y-current_y)) {
+                        if (draw_path_x < current_x) {
                             draw_path_x += 1;
                         } else {
                             draw_path_x -= 1;
                         }
                     } else {
-                        if (draw_path_y < tagged_y) {
+                        if (draw_path_y < current_y) {
                             draw_path_y += 1;
                         } else {
                             draw_path_y -= 1;
                         }
                     }
                 } else {
-                    // Exit the While loop because the path has been drawn to the tagged_x & tagged_y
+                    // Exit the While loop because the path has been drawn to the current_x & current_y
                     break;
                 }
             }
