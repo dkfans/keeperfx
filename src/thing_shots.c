@@ -324,11 +324,12 @@ SubtlCodedCoords process_dig_shot_hit_wall(struct Thing *thing, long blocked_fla
                         gldtng = drop_gold_pile(diggertng->creature.gold_carried, &diggertng->mappos);
                         diggertng->creature.gold_carried = 0;
                         gold_being_dropped_at_treasury(gldtng, room);
-                        return result;
                     }
                 }
             }
         }
+        // Room pillars cannot be dug
+        return result;
     }
 
     // Doors cannot be dug
