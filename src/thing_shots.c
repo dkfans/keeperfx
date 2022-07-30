@@ -481,34 +481,23 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
                 long eff_kind;
                 struct Coord3d eff_pos;
                 long eff_owner;
-                if (digging)
-                {
-                    struct SlabMap* slb = get_slabmap_for_subtile(stl_num_decode_x(hit_stl_num), stl_num_decode_y(hit_stl_num));
-                    if ( (old_health > slb->health) || (slb->kind == SlbT_GEMS) )
-                    {
-                        smpl_idx = shotst->dig.sndsample_idx;
-                        range = shotst->dig.sndsample_range;
-                        eff_kind = shotst->dig.effect_model;
-                        struct Thing *diggertng = thing_get(shotng->parent_idx);
-                        eff_pos = diggertng->mappos;
-                        eff_owner = diggertng->owner;
-                    }
-                    else
-                    {
-                        smpl_idx = shotst->hit_generic.sndsample_idx;
-                        range = shotst->hit_generic.sndsample_range;
-                        eff_kind = shotst->hit_generic.effect_model;
-                        eff_pos = shotng->mappos;
-                        eff_owner = shotng->owner;
-                    }
-                }
-                else
+                struct SlabMap* slb = get_slabmap_for_subtile(stl_num_decode_x(hit_stl_num), stl_num_decode_y(hit_stl_num));
+                if ( ( (old_health <= slb->health) && (slb->kind != SlbT_GEMS) ) || (!digging) )
                 {
                     smpl_idx = shotst->hit_generic.sndsample_idx;
                     range = shotst->hit_generic.sndsample_range;
                     eff_kind = shotst->hit_generic.effect_model;
                     eff_pos = shotng->mappos;
                     eff_owner = shotng->owner;
+                }
+                else
+                {
+                    smpl_idx = shotst->dig.sndsample_idx;
+                    range = shotst->dig.sndsample_range;
+                    eff_kind = shotst->dig.effect_model;
+                    struct Thing *diggertng = thing_get(shotng->parent_idx);
+                    eff_pos = diggertng->mappos;
+                    eff_owner = diggertng->owner;
                 }
                 efftng = create_shot_hit_effect(&eff_pos, eff_owner, eff_kind, smpl_idx, range);
                 if (!shotst->hit_generic.withstand) {
