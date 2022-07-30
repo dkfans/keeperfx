@@ -513,8 +513,8 @@ void fill_in_explored_area(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlC
     char *i;
     char *v20;
     int v21;
-    int v22;
-    int j;
+    int slb_y;
+    int slb_x;
     unsigned int v24;
     int v25;
     char *v26;
@@ -531,20 +531,13 @@ int dword_522148[20] =
   0, 1024, 62976,  16777216,  -50331648,
   3, 1011, 195328, 33357824,  0
 }; // weak
-char byte_522198[1] = { '\0' }; // weak
+char byte_522198[1] = { 0 };
 char byte_522199[11] =
 {
-  '\0',
-  '\x01',
-  '\xFF',
-  '\x01',
-  '\x01',
-  '\xFF',
-  '\x01',
-  '\xFF',
-  '\xFF',
-  '\0',
-  '\0'
+  0,1,-1,1,
+  1,  -1,  1,
+  -1,  -1,
+  0,  0
 };
 
     v3 = scratch;
@@ -563,7 +556,7 @@ char byte_522199[11] =
         {
             struct SlabAttr *slbattr = get_slab_attrs(v6);
             block_flags = slbattr->block_flags;
-            if ((block_flags & 0x29) != 0 || (block_flags & 0x40) != 0 && (game.slabmap[85 * *v28 + *v8].field_5 & 7) != plyr_idx)
+            if ((block_flags & 0x29) != 0 || (block_flags & 0x40) != 0 && (game.slabmap[85 * *v28 + *v8].flags & 7) != plyr_idx)
             {
                 v3[v7 + v5] = 1;
             }
@@ -669,19 +662,19 @@ char byte_522199[11] =
         v25 = *(v29 - 1);
     } while (v24 >= v30);
     v21 = 0;
-    v22 = 0;
+    slb_y = 0;
     do
     {
-        for (j = 0; j < 85; ++j)
+        for (slb_x = 0; slb_x < map_tiles_x; ++slb_x)
         {
-            if ((v3[j + v21] & 2) != 0)
+            if ((v3[slb_x + v21] & 2) != 0)
             {
-                clear_slab_dig(j, v22, plyr_idx);
-                set_slab_explored(plyr_idx, j, v22);
+                clear_slab_dig(slb_x, slb_y, plyr_idx);
+                set_slab_explored(plyr_idx, slb_x, slb_y);
             }
         }
         v21 += 85;
-        ++v22;
+        ++slb_y;
     } while (v21 < 7225);
     pannel_map_update(0, 0, 256, 256);
     
