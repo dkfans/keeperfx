@@ -22,6 +22,7 @@
 #include "bflib_basics.h"
 #include "bflib_math.h"
 
+#include "creature_jobs.h"
 #include "creature_states.h"
 #include "creature_states_combt.h"
 #include "creature_states_train.h"
@@ -56,7 +57,6 @@ extern "C" {
 DLLIMPORT long _DK_check_out_unreinforced_place(struct Thing *creatng);
 DLLIMPORT long _DK_check_out_unreinforced_area(struct Thing *creatng);
 DLLIMPORT long _DK_imp_will_soon_be_converting_at_excluding(struct Thing *creatng, long slb_x, long slb_y);
-DLLIMPORT long _DK_imp_already_reinforcing_at_excluding(struct Thing *creatng, long stl_x, long stl_y);
 /******************************************************************************/
 long const dig_pos[] = {0, -1, 1};
 
@@ -1937,9 +1937,41 @@ TbBool slab_is_players_land(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCo
     return (slabmap_owner(slb) == plyr_idx);
 }
 
-long imp_already_reinforcing_at_excluding(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+TbBool imp_already_reinforcing_at_excluding(struct Thing *spdigtng, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    return _DK_imp_already_reinforcing_at_excluding(creatng, stl_x, stl_y);
+    struct Map *mapblk;
+    mapblk = get_map_block_at(stl_x, stl_y);
+    struct Thing *loop_thing;
+    long i;
+    unsigned long k;
+    k = 0;
+    i = get_mapwho_thing_index(mapblk);
+    while (i != 0)
+    {
+        loop_thing = thing_get(i);
+        TRACE_THING(loop_thing);
+        if (thing_is_invalid(loop_thing))
+        {
+            ERRORLOG("Jump to invalid thing detected");
+            break;
+        }
+        i = loop_thing->next_on_mapblk;
+        // Per thing code start
+
+        if(thing_is_creature(loop_thing) && (loop_thing != spdigtng) && !thing_is_picked_up(loop_thing) && loop_thing->active_state == CrSt_ImpReinforces)
+        {
+            return true;
+        }
+        // Per thing code end
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break_mapwho_infinite_chain(mapblk);
+            break;
+        }
+    }
+    return false;
 }
 int get_nearest_small_around_side_of_slab(MapCoord dstcor_x, MapCoord dstcor_y, MapCoord srccor_x, MapCoord srccor_y)
 {
@@ -2392,7 +2424,6 @@ long check_out_imp_last_did(struct Thing *creatng)
 {
   struct CreatureControl *cctrl;
   struct Dungeon *dungeon;
-  struct Room *room;
   cctrl = creature_control_get_from_thing(creatng);
   SYNCDBG(19,"Starting for %s index %d, last did %d repeated %d times",thing_model_name(creatng),(int)creatng->index,(int)cctrl->digger.last_did_job,(int)cctrl->digger.task_repeats);
   TRACE_THING(creatng);
@@ -2486,25 +2517,13 @@ long check_out_imp_last_did(struct Thing *creatng)
           return true;
       }
       break;
-  case SDLstJob_UseTraining4:
-      if (!creature_can_be_trained(creatng) || !player_can_afford_to_train_creature(creatng))
-        break;
-      room = find_nearest_room_of_role_for_thing_with_spare_capacity(creatng, creatng->owner, RoRoF_CrTrainExp, NavRtF_Default, 1);
-      if (!room_is_invalid(room))
+  case SDLstJob_NonDiggerTask:
+      if (creature_can_do_job_for_player(creatng, creatng->owner, cctrl->job_assigned, JobChk_None))
       {
-          if (creature_setup_random_move_for_job_in_room(creatng, room, Job_TRAIN, NavRtF_Default))
+          if (send_creature_to_job_for_player(creatng, creatng->owner, cctrl->job_assigned))
           {
-              cctrl->digger.task_repeats++;
-              creatng->continue_state = CrSt_AtTrainingRoom;
-              cctrl->target_room_id = room->index;
+              cctrl->job_assigned_check_turn = game.play_gameturn;
               return true;
-          }
-      }
-      if (is_my_player_number(creatng->owner))
-      {
-          room = find_room_of_role_with_spare_capacity(creatng->owner, RoRoF_CrTrainExp, 1);
-          if (room_is_invalid(room)) {
-              output_message_room_related_from_computer_or_player_action(creatng->owner, RoK_TRAINING, OMsg_RoomTooSmall);
           }
       }
       break;

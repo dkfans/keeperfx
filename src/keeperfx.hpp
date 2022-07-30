@@ -60,7 +60,6 @@ extern "C" {
 #define LEGAL_HEIGHT 480
 
 #define LENSES_COUNT           15
-#define MINMAXS_COUNT          64
 #define SPELL_POINTER_GROUPS   14
 // Amount of instances; it's 17, 18 or 19
 #define PLAYER_INSTANCES_COUNT 19
@@ -105,9 +104,6 @@ enum AutotestFlags {
 #pragma pack(1)
 
 struct TbLoadFiles;
-struct RoomFlag;
-struct Number;
-struct JontySpr;
 
 // Windows-standard structure
 /*struct _GUID {

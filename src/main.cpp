@@ -134,9 +134,6 @@ extern "C" {
 
 // DLLIMPORT int _DK_can_thing_be_queried(struct Thing *thing, long a2);
 DLLIMPORT long _DK_ceiling_init(unsigned long a1, unsigned long a2);
-DLLIMPORT void __stdcall _DK_IsRunningMark(void);
-DLLIMPORT void __stdcall _DK_IsRunningUnmark(void);
-DLLIMPORT void _DK_update_flames_nearest_camera(struct Camera *camera);
 DLLIMPORT long _DK_ceiling_block_is_solid_including_corners_return_height(long a1, long a2, long a3);
 // Now variables
 DLLIMPORT extern HINSTANCE _DK_hInstance;
@@ -982,26 +979,6 @@ short ceiling_set_info(long height_max, long height_min, long step)
     return 1;
 }
 
-void IsRunningMark(void)
-{
-    _DK_IsRunningMark();
-/*  HKEY hKey;
-  if ( !RegCreateKeyA(HKEY_LOCAL_MACHINE, "SOFTWARE\\Bullfrog Productions Ltd\\Dungeon Keeper\\IsRunning", &hKey) )
-    RegCloseKey(hKey);*/
-}
-
-void IsRunningUnmark(void)
-{
-    _DK_IsRunningUnmark();
-    /*HKEY hKey;
-    if ( !RegOpenKeyExA(HKEY_LOCAL_MACHINE, "SOFTWARE\\Bullfrog Productions Ltd\\Dungeon Keeper\\IsRunning",
-            0, 0x20019u, &hKey) )
-    {
-        RegCloseKey(hKey);
-        RegDeleteKeyA(HKEY_LOCAL_MACHINE, "SOFTWARE\\Bullfrog Productions Ltd\\Dungeon Keeper\\IsRunning");
-    }*/
-}
-
 /**
  * Initial video setup - loads only most important files to show startup screens.
  */
@@ -1069,7 +1046,10 @@ short setup_game(void)
   features_enabled |= Ft_LockCursorInPossession; // lock the mouse cursor to the window, when the user enters possession mode (when the cursor is already unlocked)
   features_enabled &= ~Ft_PauseMusicOnGamePause; // don't pause the music, if the user pauses the game
   features_enabled &= ~Ft_MuteAudioOnLoseFocus; // don't mute the audio, if the game window loses focus
-
+  features_enabled &= ~Ft_SkipHeartZoom; // don't skip the dungeon heart zoom in
+  features_enabled &= ~Ft_SkipSplashScreens; // don't skip splash screens
+  features_enabled &= ~Ft_DisableCursorCameraPanning; // don't disable cursor camera panning
+  
   // Configuration file
   if ( !load_configuration() )
   {
@@ -1084,22 +1064,27 @@ short setup_game(void)
       ERRORLOG("Error on allocation/loading of legal_load_files.");
       return 0;
   }
-
+    
   // View the legal screen
-
   if (!setup_screen_mode_zero(get_frontend_vidmode()))
   {
       ERRORLOG("Unable to set display mode for legal screen");
       return 0;
   }
 
-  result = init_actv_bitmap_screen(RBmp_SplashLegal);
- if ( result )
- {
-     result = show_actv_bitmap_screen(3000);
-     free_actv_bitmap_screen();
- } else
-      SYNCLOG("Legal image skipped");
+  if (is_feature_on(Ft_SkipSplashScreens) == false)
+  {
+      result = init_actv_bitmap_screen(RBmp_SplashLegal);
+      if ( result )
+      {
+          result = show_actv_bitmap_screen(3000);
+          free_actv_bitmap_screen();
+      } else
+          SYNCLOG("Legal image skipped");
+  } else {
+        // Make the white screen into a black screen faster
+        draw_clear_screen();
+  }
 
   // Now do more setup
   // Prepare the Game structure
@@ -1113,17 +1098,19 @@ short setup_game(void)
   // init_sound(). This will probably change when we'll move sound
   // to SDL - then we'll put that line earlier, before setup_game().
   LbErrorParachuteInstall();
+  if (is_feature_on(Ft_SkipSplashScreens) == false)
+  {
+    // View second splash screen
+    result = init_actv_bitmap_screen(RBmp_SplashFx);
+    if ( result )
+    {
+        result = show_actv_bitmap_screen(4000);
+        free_actv_bitmap_screen();
+    } else
+        SYNCLOG("startup_fx image skipped");
+  }
 
-  // View second splash screen
-  result = init_actv_bitmap_screen(RBmp_SplashFx);
- if ( result )
- {
-     result = show_actv_bitmap_screen(4000);
-     free_actv_bitmap_screen();
- } else
-      SYNCLOG("startup_fx image skipped");
   draw_clear_screen();
-
   // View Bullfrog company logo animation when new moon
   if ( is_new_moon )
     if ( !game.no_intro )
@@ -1172,7 +1159,6 @@ short setup_game(void)
 
   if ( result )
   {
-      IsRunningMark();
       if ( !initial_setup() )
         result = 0;
   }
@@ -2222,16 +2208,17 @@ void check_players_lost(void)
 {
   long i;
   SYNCDBG(8,"Starting");
-  //_DK_check_players_lost(); return;
+  struct PlayerInfo* player;
+  struct DungeonAdd* dungeonadd;
   for (i=0; i < PLAYERS_COUNT; i++)
   {
-      struct PlayerInfo *player;
       player = get_player(i);
+      dungeonadd = get_players_dungeonadd(player);
       if (player_exists(player) && (player->is_active == 1))
       {
           struct Thing *heartng;
           heartng = get_player_soul_container(i);
-          if ((!thing_exists(heartng) || (heartng->active_state == ObSt_BeingDestroyed)) && (player->victory_state == VicS_Undecided))
+          if ((!thing_exists(heartng) || ((heartng->active_state == ObSt_BeingDestroyed) && !(dungeonadd->backup_heart_idx > 0))) && (player->victory_state == VicS_Undecided))
           {
             event_kill_all_players_events(i);
             set_player_as_lost_level(player);
@@ -2439,13 +2426,6 @@ void process_dungeons(void)
   process_payday();
   process_things_in_dungeon_hand();
   SYNCDBG(9,"Finished");
-}
-
-void update_flames_nearest_camera(struct Camera *camera)
-{
-  if (camera == NULL)
-    return;
-  _DK_update_flames_nearest_camera(camera);
 }
 
 void update_near_creatures_for_footsteps(long *near_creatures, const struct Coord3d *srcpos)
@@ -2788,7 +2768,10 @@ void update(void)
         process_action_points();
         player = get_my_player();
         if (player->view_mode == PVM_CreatureView)
-            update_flames_nearest_camera(player->acamera);
+        {
+            struct Thing *thing = thing_get(player->controlled_thing_idx);
+            update_flames_nearest_thing(thing);
+        }
         update_footsteps_nearest_camera(player->acamera);
         PaletteFadePlayer(player);
         process_armageddon();
@@ -3906,13 +3889,20 @@ void game_loop(void)
       {
         if (game.numfield_15 == -1)
         {
-          set_player_instance(player, PI_HeartZoom, 0);
+            if (is_feature_on(Ft_SkipHeartZoom) == false) {
+                set_player_instance(player, PI_HeartZoom, 0);
+            } else { 
+                toggle_status_menu(1); // Required when skipping PI_HeartZoom
+            }
         } else
         {
           game.numfield_15 = -1;
           set_flag_byte(&game.operation_flags,GOF_Paused,false);
         }
+      } else {
+          toggle_status_menu(1); // Required when skipping PI_HeartZoom
       }
+        
       unsigned long starttime;
       unsigned long endtime;
       struct Dungeon *dungeon;
@@ -3960,7 +3950,6 @@ void game_loop(void)
 short reset_game(void)
 {
     SYNCDBG(6,"Starting");
-    IsRunningUnmark();
 
     KeeperSpeechExit();
 

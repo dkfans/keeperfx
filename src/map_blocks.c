@@ -37,6 +37,7 @@
 #include "spdigger_stack.h"
 #include "frontmenu_ingame_map.h"
 #include "game_legacy.h"
+#include "engine_render.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -44,9 +45,7 @@ extern "C" {
 /******************************************************************************/
 DLLIMPORT void _DK_set_slab_explored_flags(unsigned char flag, long tgslb_x, long tgslb_y);
 DLLIMPORT long _DK_ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey);
-DLLIMPORT long _DK_element_top_face_texture(struct Map *map);
 DLLIMPORT void _DK_shuffle_unattached_things_on_slab(long a1, long stl_x);
-DLLIMPORT void _DK_delete_attached_things_on_slab(long slb_x, long slb_y);
 
 const signed short slab_element_around_eight[] = {
     -3, -2, 1, 4, 3, 2, -1, -4
@@ -535,9 +534,46 @@ long delete_unwanted_things_from_liquid_slab(MapSlabCoord slb_x, MapSlabCoord sl
     return removed_num;
 }
 
-void delete_attached_things_on_slab(long slb_x, long slb_y)
+static void delete_attached_things_on_slab(long slb_x, long slb_y)
 {
-    _DK_delete_attached_things_on_slab(slb_x, slb_y); return;
+    MapSubtlCoord stl_x = slab_subtile(slb_x,-1);
+    MapSubtlCoord stl_y = slab_subtile(slb_y,-1);
+
+    unsigned long k = 0;
+    for (MapSubtlCoord y = stl_y; y < stl_y+STL_PER_SLB+2; y++)
+    {
+        for (MapSubtlCoord x = stl_x; x < stl_x+STL_PER_SLB+2; x++)
+        {
+            struct Map *mapblk = get_map_block_at(x,y);
+            if (mapblk == INVALID_MAP_BLOCK)
+            {
+                continue;
+            }
+            struct Thing *thing = thing_get(get_mapwho_thing_index(mapblk));
+            if ( !thing_is_invalid(thing))
+            {
+                struct Thing *next_thing;
+                do
+                {
+                    next_thing = thing_get(thing->next_on_mapblk);
+                    if (thing->parent_idx == get_slab_number(slb_x,slb_y))
+                    {
+                        char class_id = thing->class_id;
+                        if (class_id == TCls_Object || class_id == TCls_EffectGen)
+                            delete_thing_structure(thing, 0);
+                    }
+                    thing = next_thing;
+                    k++;
+                    if (k > THINGS_COUNT)
+                    {
+                        ERRORLOG("Infinite loop detected when sweeping things list");
+                        break_mapwho_infinite_chain(mapblk);
+                        break;
+                    }
+                } while (!thing_is_invalid(next_thing));
+            }
+        }
+    }
 }
 
 static TbBool get_against(unsigned char agnst_plyr_idx, long agnst_slbkind, long slb_x, long slb_y)
@@ -1814,12 +1850,13 @@ void create_dirt_rubble_for_dug_slab(MapSlabCoord slb_x, MapSlabCoord slb_y)
     long z;
     stl_x = STL_PER_SLB * slb_x;
     stl_y = STL_PER_SLB * slb_y;
-    z = get_floor_filled_subtiles_at(stl_x, stl_y);
     for (y = stl_y; y < stl_y+STL_PER_SLB; y++)
     {
         for (x = stl_x; x < stl_x+STL_PER_SLB; x++)
         {
-            if (z > 0) {
+            z = get_floor_filled_subtiles_at(x, y);
+            if (z > 0) 
+            {
                 create_dirt_rubble_for_dug_block(x, y, z, game.neutral_player_num);
             }
         }
@@ -2263,9 +2300,40 @@ long ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey)
     return _DK_ceiling_partially_recompute_heights(sx, sy, ex, ey);
 }
 
-long element_top_face_texture(struct Map *map)
+long element_top_face_texture(struct Map *mapblk)
 {
-  return _DK_element_top_face_texture(map);
+    struct Column *col;
+    struct CubeAttribs* cubed;
+    unsigned int data = mapblk->data;
+    TbBool map_block_revealed = map_block_revealed_bit(mapblk, player_bit);
+    int result = data & 0x7FF;
+
+    if ( !map_block_revealed || (result != 0) )
+    {
+        if ( map_block_revealed )
+        {
+            col = get_map_column(mapblk);
+        }
+        else
+        {
+            col = get_column(game.unrevealed_column_idx);
+        }
+        if ( (col->bitfields & CLF_CEILING_MASK) != 0 )
+        {
+            cubed = &gameadd.cubes_data[col->cubes[COLUMN_STACK_HEIGHT-get_column_ceiling_filled_subtiles(col)-1]];
+            return cubed->texture_id[4];
+        }
+        else if ((col->bitfields & CLF_FLOOR_MASK) != 0)
+        {
+            cubed = &gameadd.cubes_data[col->cubes[get_column_floor_filled_subtiles(col) - 1]];
+            return cubed->texture_id[4];
+        }
+        else
+        {
+            return col->baseblock;
+        }
+    }
+    return result;
 }
 
 TbBool point_in_map_is_solid_ignoring_door(const struct Coord3d *pos, const struct Thing *doortng)

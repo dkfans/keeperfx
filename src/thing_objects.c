@@ -219,6 +219,9 @@ Thing_Class_Func object_update_functions[OBJECT_TYPES_MAX] = {
  *
  * Originally was named objects[].
  */
+
+/*  initial_state;field_1;field_2;field_3;field_4;sprite_anim_idx;anim_speed;size_xy;size_yz;sprite_size_max;field_F;has_flames;
+draw_class;destroy_on_lava;related_creatr_model;own_category;destroy_on_liquid;rotation_flag;*/
 struct Objects objects_data_init[OBJECT_TYPES_MAX] = {
   {0, 0, 0, 0, 0,   0, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown0, 0, 0}, //0
   {0, 0, 0, 0, 0, 930, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown3, 1, 0}, //1 BARREL
@@ -431,11 +434,13 @@ struct Thing *create_object(const struct Coord3d *pos, unsigned short model, uns
       thing->parent_idx = parent_idx;
     LbMemoryCopy(&thing->mappos, pos, sizeof(struct Coord3d));
     struct ObjectConfig* objconf = get_object_model_stats2(model);
-    struct Objects* objdat = get_objects_data_for_thing(thing);
+    struct Objects* objdat = get_objects_data(model);
     thing->clipbox_size_xy = objdat->size_xy;
     thing->clipbox_size_yz = objdat->size_yz;
     thing->solid_size_xy = objdat->size_xy;
     thing->solid_size_yz = objdat->size_yz;
+    thing->anim_speed = objdat->anim_speed;
+    thing->anim_sprite = objdat->sprite_anim_idx;
     thing->health = saturate_set_signed(objconf->health,16);
     thing->fall_acceleration = objconf->fall_acceleration;
     thing->field_23 = 204;
