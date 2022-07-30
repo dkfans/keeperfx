@@ -1867,7 +1867,7 @@ TngUpdateRet object_update_power_sight(struct Thing *objtng)
           angle += 64;
           pos.x.val = move_coord_with_angle_x(objtng->mappos.x.val,v27,angle);
           pos.y.val = move_coord_with_angle_y(objtng->mappos.y.val,v27,angle);
-          create_effect_element(&pos, effkind[objtng->owner], objtng->owner);
+          create_effect_element(&pos, twinkle_eff_elements[objtng->owner], objtng->owner);
         }
         while ( angle < 2 * LbFPMath_PI );
         v27 -= v32;
@@ -1893,8 +1893,8 @@ TngUpdateRet object_update_power_sight(struct Thing *objtng)
       }
       while ( v25 );
       return 1;
-    }
     */
+    }
   }
   else
   {
