@@ -4765,13 +4765,13 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
     int base_size;
     switch (cam->view_mode) {
         case PVM_IsometricView:
-            base_size = 28*256;
+            base_size = 16*256;
             break;
         case PVM_FrontView:
-            base_size = 28*256;
+            base_size = 16*256;
             break;
         case PVM_ParchmentView:
-            base_size = 28*256;
+            base_size = 16*256;
             break;
         default:
             return; // Do not draw if camera is 1st person
