@@ -1747,6 +1747,8 @@ TngUpdateRet object_update_object_scale(struct Thing *objtng)
     return 1;
 }
 
+
+//TODO remove dllimports
 DLLIMPORT int _DK_lbCosTable[2048];
 #define lbCosTable _DK_lbCosTable
 DLLIMPORT int _DK_lbSinTable[2048];
@@ -1754,8 +1756,7 @@ DLLIMPORT int _DK_lbSinTable[2048];
 
 TngUpdateRet object_update_power_sight(struct Thing *objtng)
 {
-    
-  int owner; // ecx
+   int owner; // ecx
   struct Dungeon *dungeon; // ebx
   int sight_casted_splevel; // eax
   unsigned int max_time_active; // ecx
@@ -1768,7 +1769,7 @@ TngUpdateRet object_update_power_sight(struct Thing *objtng)
   int v11; // edi
   int v12; // ecx
   int strength; // kr08_4
-  int v14;
+  int v14; // ebp
   int shift_x; // eax
   int shift_y; // ecx
   int result; // eax
@@ -1790,14 +1791,12 @@ TngUpdateRet object_update_power_sight(struct Thing *objtng)
   owner = objtng->owner;
   objtng->health = 2;
   dungeon = get_dungeon(owner);
-
-
-   const struct MagicStats *pwrdynst = get_power_dynamic_stats(PwrK_SIGHT);
-   static const enum ThingEffectElements effkind[] = {TngEffElm_RedTwinkle, TngEffElm_BlueTwinkle, TngEffElm_GreenTwinkle, TngEffElm_YellowTwinkle};
-
+  
+  const struct MagicStats *pwrdynst = get_power_dynamic_stats(PwrK_SIGHT);
+  static const enum ThingEffectElements twinkle_eff_elements[] = {TngEffElm_RedTwinkle, TngEffElm_BlueTwinkle, TngEffElm_GreenTwinkle, TngEffElm_YellowTwinkle};
 
   if ( !S3DEmitterIsPlayingSample((unsigned __int8)objtng->snd_emitter_id, 51, 0) )
-    thing_play_sample(objtng, 51, 0x64u, -1, 3u, 1u, 3, 256);
+    thing_play_sample(objtng, 51, NORMAL_PITCH, -1, 3u, 1u, 3, FULL_LOUDNESS);
   sight_casted_splevel = (unsigned __int8)dungeon->sight_casted_splevel;
   max_time_active = pwrdynst->strength[sight_casted_splevel];
   if ( game.play_gameturn - objtng->creation_turn >= max_time_active
@@ -1808,7 +1807,7 @@ TngUpdateRet object_update_power_sight(struct Thing *objtng)
     sight_casted_gameturn = dungeon->sight_casted_gameturn;
     v32 = max_active_div_16 / close_time;
     time_active = game.play_gameturn - sight_casted_gameturn;
-    if ( (int)game.play_gameturn - sight_casted_gameturn >= 0 )
+    if ( game.play_gameturn - sight_casted_gameturn >= 0 )
     {
       if ( max_active_div_16 < time_active )
         time_active = max_active_div_16;
@@ -1822,7 +1821,7 @@ TngUpdateRet object_update_power_sight(struct Thing *objtng)
     dungeon->sight_casted_gameturn = v8;
   }
   time_active_2 = game.play_gameturn - dungeon->sight_casted_gameturn;
-  v10 = pwrdynst->strength[(unsigned __int8)dungeon->sight_casted_splevel];
+  v10 = pwrdynst->strength[sight_casted_splevel];
   if ( v10 <= time_active_2 )
   {
     v20 = time_active_2 - v10;
@@ -1831,10 +1830,9 @@ TngUpdateRet object_update_power_sight(struct Thing *objtng)
       if ( (dungeon->computer_enabled & 4) != 0 )
       {
         dungeon->sight_casted_gameturn = game.play_gameturn;
-        pos.x.val = ((unsigned __int8)dungeon->sight_casted_stl_x << 8) + 128;
-        v30 = (unsigned __int8)dungeon->sight_casted_stl_y << 8;
+        pos.x.val = subtile_coord_center(dungeon->sight_casted_stl_x);
         pos.z.val = 1408;
-        pos.y.val = v30 + 128;
+        pos.y.val = subtile_coord_center(dungeon->sight_casted_stl_y);
         memset(dungeon->soe_explored_flags, 0, sizeof(dungeon->soe_explored_flags));
         move_thing_in_map(objtng, &pos);
         result = 1;
@@ -1860,7 +1858,6 @@ TngUpdateRet object_update_power_sight(struct Thing *objtng)
       v27 = 4 * v24 * v26;
       v32 = v26;
 
-          
       int angle = 0;
 
       do
@@ -1878,8 +1875,6 @@ TngUpdateRet object_update_power_sight(struct Thing *objtng)
       }
       while ( v25 );
       return 1;
-
-
 /*
       do
       {
@@ -1890,7 +1885,7 @@ TngUpdateRet object_update_power_sight(struct Thing *objtng)
           v28 += 64;
           pos.x.val = objtng->mappos.x.val + ((unsigned int)(v27 * v29) >> 16);
           pos.y.val = objtng->mappos.y.val + (-((v27 * v28[448]) >> 8) >> 8);
-          create_effect_element(&pos, effkind[objtng->owner], objtng->owner);
+          create_effect_element(&pos, twinkle_eff_elements[objtng->owner], objtng->owner);
         }
         while ( v28 < &lbCosTable[1536] );
         v27 -= v32;
@@ -1898,8 +1893,8 @@ TngUpdateRet object_update_power_sight(struct Thing *objtng)
       }
       while ( v25 );
       return 1;
-      */
     }
+    */
   }
   else
   {
@@ -1910,7 +1905,7 @@ TngUpdateRet object_update_power_sight(struct Thing *objtng)
       v12 = v11;
       if ( v11 >= 0 )
       {
-        strength = pwrdynst->strength[dungeon->sight_casted_splevel];
+        strength = pwrdynst->strength[(unsigned __int8)dungeon->sight_casted_splevel];
         if ( strength / 4 < v11 )
           v12 = strength / 4;
       }
@@ -1919,23 +1914,19 @@ TngUpdateRet object_update_power_sight(struct Thing *objtng)
         v12 = 0;
       }
       v14 = (v11 & 0x1F) << 8;
-
-      MapCoord pos_x = objtng->mappos.x.val + (__int16)((v12 * *(int *)((char *)lbSinTable + v14)) >> 13);
+      MapCoord pos_x = (unsigned __int16)objtng->mappos.x.val + (__int16)((v12 * *(int *)((char *)lbSinTable + v14)) >> 13);
       MapCoord pos_y = (-(char)((v12 * *(int *)((char *)lbCosTable + v14)) >> 5) >> 8) + (unsigned __int16)objtng->mappos.y.val;
-
         //MapCoord pos_x = move_coord_with_angle_x(objtng->mappos.x.val,v12 * 8,v14);
         //MapCoord pos_y = move_coord_with_angle_y(objtng->mappos.y.val,v12 * 8,v14);
-
       if ( pos_x >= 0 && pos_x < 65280 && pos_y >= 0 && pos_y < 65280 )
       {
         pos.z.val = 1408;
         pos.x.val = pos_x;
         pos.y.val = pos_y;
-        create_effect_element(&pos, effkind[objtng->owner], objtng->owner);
+        create_effect_element(&pos, twinkle_eff_elements[objtng->owner], objtng->owner);
         shift_x = pos.x.stl.pos - objtng->mappos.x.stl.pos + 13;
         shift_y = pos.y.stl.pos - objtng->mappos.y.stl.pos + 13;
-        dungeon->soe_explored_flags[shift_y][shift_x] = pos.x.val < 0xFF00u
-                                                   && pos.y.val < 0xFF00u;
+        dungeon->soe_explored_flags[shift_y][shift_x] = pos.x.val < 0xFF00u && pos.y.val < 0xFF00u;
       }
       ++v11;
       --v32;
@@ -1944,7 +1935,6 @@ TngUpdateRet object_update_power_sight(struct Thing *objtng)
     return 1;
   }
   return result;
-  
 }
 
 #define NUM_ANGLES 16
