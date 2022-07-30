@@ -486,9 +486,9 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
                     struct SlabMap* slb = get_slabmap_for_subtile(stl_num_decode_x(hit_stl_num), stl_num_decode_y(hit_stl_num));
                     if ( (old_health > slb->health) || (slb->kind == SlbT_GEMS) )
                     {
-                        smpl_idx = 63;
-                        range = 6;
-                        eff_kind = TngEff_RockChips;
+                        smpl_idx = shotst->dig.sndsample_idx;
+                        range = shotst->dig.sndsample_range;
+                        eff_kind = shotst->dig.effect_model;
                         struct Thing *diggertng = thing_get(shotng->parent_idx);
                         eff_pos = diggertng->mappos;
                         eff_owner = diggertng->owner;
