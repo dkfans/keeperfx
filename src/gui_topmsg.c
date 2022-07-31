@@ -121,7 +121,7 @@ TbBool draw_onscreen_direct_messages(void)
     }
     else
     {
-        tx_units_per_px = scale_ui_value((MyScreenWidth >= 640) ? 16 : 32);
+        tx_units_per_px = scale_ui_value_lofi(16);
     }
     // Display in-game message for debug purposes
     if ((onscreen_msg_turns > 0) || erstat_check())

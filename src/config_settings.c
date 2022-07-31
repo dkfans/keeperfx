@@ -35,7 +35,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-unsigned char i_can_see_levels[] = {15, 20, 25, 30,};
+unsigned char i_can_see_levels[] = {30, 45, 60, 254,};
 struct GameSettings settings;
 /******************************************************************************/
 #ifdef __cplusplus
@@ -83,6 +83,7 @@ void setup_default_settings(void)
           {KC_H, KMod_SHIFT},                // Gkey_ZoomRoom12
           {KC_G, KMod_SHIFT},                // Gkey_ZoomRoom13
           {KC_B, KMod_SHIFT},                // Gkey_ZoomRoom14
+          {KC_P, KMod_CONTROL},              // Gkey_ZoomRoom15
           {KC_F, KMod_NONE},                 // Gkey_ZoomToFight
           {KC_A, KMod_ALT},                  // Gkey_ZoomCrAnnoyed
           {KC_LSHIFT, KMod_NONE},            // Gkey_CrtrContrlMod
@@ -164,7 +165,7 @@ short save_settings(void)
     return true;
 }
 
-int get_creature_can_see_subtiles(void)
+int get_max_i_can_see_from_settings(void)
 {
     return i_can_see_levels[settings.view_distance % 4];
 }

@@ -77,7 +77,7 @@ enum PlayerStates {
     PSt_LevelCreatureDown,
     PSt_KillPlayer,
     PSt_HeartHealth,
-    PSt_CreatrQueryAll,
+    PSt_QueryAll,
     PSt_MkHappy,
     PSt_MkAngry,
     PSt_PlaceTerrain,
