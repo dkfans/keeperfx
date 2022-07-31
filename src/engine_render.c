@@ -1948,8 +1948,12 @@ static void create_line_segment(struct EngineCoord *start, struct EngineCoord *e
     long bckt_idx;
     if (!is_free_space_in_poly_pool(1))
         return;
-    // Get bucket index
-    bckt_idx = (start->z+end->z)/2 / 16 - 2;
+    
+    // Reducing line_z will make the lines look cleaner, but the "fancy_map_volume_box" vertical lines become more visible.
+    float line_z = 0.99;
+    bckt_idx = (( (start->z*line_z) + (end->z*line_z) ) / 32) - 2;
+    // Original calculation:  bckt_idx = (start->z+end->z)/2 / 16 - 2;
+
     if (bckt_idx >= BUCKETS_COUNT)
         bckt_idx = BUCKETS_COUNT-1;
     else
@@ -3548,8 +3552,8 @@ static void create_shadows(struct Thing *thing, struct EngineCoord *ecor, struct
     if (bckt_idx < 0) {
         bckt_idx = 0;
     } else
-    if (bckt_idx > 702) {
-        bckt_idx = 702;
+    if (bckt_idx > BUCKETS_COUNT-2) {
+        bckt_idx = BUCKETS_COUNT-2;
     }
     struct BucketKindCreatureShadow * kspr;
     kspr = (struct BucketKindCreatureShadow *)getpoly;
