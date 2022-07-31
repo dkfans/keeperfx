@@ -312,8 +312,7 @@ SubtlCodedCoords process_dig_shot_hit_wall(struct Thing *thing, long blocked_fla
     {
         if (diggertng->creature.gold_carried > 0)
         {
-            struct Thing* gldtng = drop_gold_pile(diggertng->creature.gold_carried, &diggertng->mappos);
-            diggertng->creature.gold_carried = 0;
+            struct Thing* gldtng;
             struct Room* room;
             room = get_room_xy(stl_x, stl_y);
             if (!room_is_invalid(room))
@@ -322,12 +321,15 @@ SubtlCodedCoords process_dig_shot_hit_wall(struct Thing *thing, long blocked_fla
                 {
                     if (room->owner == diggertng->owner)
                     {
+                        gldtng = drop_gold_pile(diggertng->creature.gold_carried, &diggertng->mappos);
+                        diggertng->creature.gold_carried = 0;
                         gold_being_dropped_at_treasury(gldtng, room);
-                        return result;
                     }
                 }
             }
         }
+        // Room pillars cannot be dug
+        return result;
     }
 
     // Doors cannot be dug
@@ -476,16 +478,21 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
                 apply_damage_to_thing(doortng, i, shotst->damage_type, -1);
             } else
             {
-                struct SlabMap* slb = get_slabmap_for_subtile(stl_num_decode_x(hit_stl_num), stl_num_decode_y(hit_stl_num));
-                if ( ( (old_health <= slb->health) && (slb->kind != SlbT_GEMS) ) || (!digging) )
+                short eff_kind = shotst->hit_generic.effect_model;
+                short smpl_idx = shotst->hit_generic.sndsample_idx;
+                unsigned char range = shotst->hit_generic.sndsample_range;
+                if (digging)
                 {
-                    efftng = create_shot_hit_effect(&shotng->mappos, shotng->owner, shotst->hit_generic.effect_model, shotst->hit_generic.sndsample_idx, shotst->hit_generic.sndsample_range);
+                    struct SlabMap* slb = get_slabmap_for_subtile(stl_num_decode_x(hit_stl_num), stl_num_decode_y(hit_stl_num));
+                    if ((old_health > slb->health) || (slb->kind == SlbT_GEMS))
+                    {
+                        smpl_idx = shotst->dig.sndsample_idx;
+                        range = shotst->dig.sndsample_range;
+                        eff_kind = shotst->dig.effect_model;
+                    }
                 }
-                else
-                {
-                    struct Thing *diggertng = thing_get(shotng->parent_idx);
-                    efftng = create_shot_hit_effect(&diggertng->mappos, diggertng->owner, shotst->dig.effect_model, shotst->dig.sndsample_idx, shotst->dig.sndsample_range);
-                }
+                efftng = create_shot_hit_effect(&shotng->mappos, shotng->owner, eff_kind, smpl_idx, range);
+
                 if (!shotst->hit_generic.withstand) {
                     destroy_shot = 1;
                 }
