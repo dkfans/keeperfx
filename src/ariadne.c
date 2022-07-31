@@ -2982,7 +2982,7 @@ AriadneReturn ariadne_update_state_on_line(struct Thing *thing, struct Ariadne *
     return AridRet_OK;
 }
 
-static TbBool ariadne_check_forward_for_wallhug_gap(struct Thing *thing, struct Ariadne *arid, struct Coord3d *pos, long hug_angle)
+static TbBool ariadne_check_forward_for_wallhug_gap_new(struct Thing *thing, struct Ariadne *arid, struct Coord3d *pos, long hug_angle)
 {
     TbBool cant_move_to_pos_directly;
     struct Coord3d nav_boundry_pos;
@@ -3043,7 +3043,6 @@ static TbBool ariadne_check_forward_for_wallhug_gap(struct Thing *thing, struct 
     else 
         return 0;
 
-
     long quadrant = (((unsigned __int8)angle_to_quadrant(hug_angle) + num) & 3) << 9;
 
     potentional_next_pos_2d.x.val = move_coord_with_angle_x(thing->mappos.x.val,arid->move_speed,quadrant);
@@ -3082,6 +3081,23 @@ static TbBool ariadne_check_forward_for_wallhug_gap(struct Thing *thing, struct 
         return true;
     }
     return true;
+}
+
+DLLIMPORT TbBool _DK_ariadne_check_forward_for_wallhug_gap(struct Thing *thing, struct Ariadne *arid, struct Coord3d *pos, long hug_angle);
+static TbBool ariadne_check_forward_for_wallhug_gap(struct Thing *thing, struct Ariadne *arid, struct Coord3d *pos, long hug_angle)
+{
+ TbBool old = _DK_ariadne_check_forward_for_wallhug_gap(thing, arid, pos, hug_angle);
+ TbBool new = ariadne_check_forward_for_wallhug_gap_new(thing, arid, pos, hug_angle);
+
+    if (old != new)
+    {
+    ERRORLOG("Old and new functions return different results %d, %d",(int)old,(int)new);
+    }
+    else
+    {
+       ERRORLOG("Old and new functions return the same result %d",(int)old);
+    }
+    return new;
 }
 
 TbBool ariadne_creature_on_circular_hug(const struct Thing *thing, const struct Ariadne *arid)
