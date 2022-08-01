@@ -29,6 +29,7 @@
 #include "creature_states_mood.h"
 #include "config_creature.h"
 #include "config_crtrstates.h"
+#include "map_blocks.h"
 #include "thing_list.h"
 #include "thing_objects.h"
 #include "thing_stats.h"
@@ -40,8 +41,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-/******************************************************************************/
-DLLIMPORT long _DK_get_next_gap_creature_can_fit_in_below_point(struct Thing *creatng, struct Coord3d *pos);
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -590,9 +589,184 @@ short move_to_position(struct Thing *creatng)
     }
 }
 
+long get_next_gap_creature_can_fit_in_below_point_new(struct Thing *thing, struct Coord3d *pos)
+{
+    MapCoordDelta clipbox_size_xy;
+    unsigned int v4;
+    int y_val;
+    unsigned int stl_x;
+    unsigned int v8;
+    int v9;
+    struct Map *mapblk;
+    struct Column *v11;
+    unsigned int v12;
+    unsigned int v13;
+    unsigned int v14;
+    unsigned int v15;
+    unsigned int v16;
+    struct Map *v17;
+    struct Column *v18;
+    unsigned int v19;
+    unsigned int v20;
+    unsigned int v21;
+    unsigned int v22;
+    struct Column *v23;
+    unsigned __int8 v24;
+    unsigned int v25;
+    unsigned int v26;
+    __int32 result;
+    unsigned int v28;
+    unsigned int floor_height;
+    unsigned int v30;
+    unsigned int v31;
+    unsigned int stl_y;
+    unsigned int v33;
+    unsigned int i;
+    unsigned int v35;
+    int v36;
+
+    if (thing->class_id == TCls_Creature)
+        clipbox_size_xy = thing_nav_sizexy(thing);
+    else
+        clipbox_size_xy = thing->clipbox_size_xy;
+    MapCoordDelta nav_radius = clipbox_size_xy >> 1;
+    v4 = (pos->x.val - nav_radius) & ((pos->x.val - nav_radius < 0) - 1);
+    y_val = pos->y.val;
+    stl_x = nav_radius + pos->x.val;
+    v35 = (y_val - nav_radius) & ((y_val - nav_radius < 0) - 1);
+
+
+    if ((int)stl_x >= 0xFFFF)
+        stl_x = 0xFFFF;
+    stl_y = y_val + nav_radius;
+    if (y_val + nav_radius >= 0xFFFF)
+        stl_y = 0xFFFF;
+
+
+    floor_height = 0;
+    v30 = 15;
+
+    for (i = v35; i < stl_y; i += 256)
+    {
+        v8 = v4;
+        if (v4 < stl_x)
+        {
+            v31 = i;
+            v36 = BYTE1(i) << 8;
+            do
+            {
+                v33 = v8;
+                v9 = v36 + BYTE1(v8);
+                mapblk = &game.map[v9 + 257];
+                v11 = &game.columns_data[game.map[v9 + 257].data & 0x7FF];
+                v12 = (unsigned __int8)game.columns_data[game.map[v9 + 257].data & 0x7FF].bitfields >> 4;
+                if (floor_height < v12)
+                    floor_height = v12;
+                if ((v11->bitfields & 0xE) != 0)
+                {
+                    v13 = 8 - ((unsigned __int8)(v11->bitfields & 0xE) >> 1);
+                    if (v13 >= v30)
+                        v13 = v30;
+                    v30 = v13;
+                }
+                else
+                {
+                    v14 = (mapblk->data & 0xF000000u) >> 24;
+                    if (v14 >= v30)
+                        v14 = v30;
+                    v30 = v14;
+                }
+                v8 += 256;
+            } while (v8 < stl_x);
+        }
+    }
+    v15 = v35;
+    if (v35 < stl_y)
+    {
+        v31 = stl_x;
+        v33 = BYTE1(stl_x);
+        do
+        {
+            v31 = v15;
+            v16 = v33 + (BYTE1(v15) << 8);
+            v17 = &game.map[v16 + 257];
+            v18 = &game.columns_data[game.map[v16 + 257].data & 0x7FF];
+            v19 = (unsigned __int8)game.columns_data[game.map[v16 + 257].data & 0x7FF].bitfields >> 4;
+            if (floor_height < v19)
+                floor_height = v19;
+            if ((v18->bitfields & 0xE) != 0)
+            {
+                v20 = 8 - ((unsigned __int8)(v18->bitfields & 0xE) >> 1);
+                if (v20 >= v30)
+                    v20 = v30;
+                v30 = v20;
+            }
+            else
+            {
+                v21 = (v17->data & 0xF000000u) >> 24;
+                if (v21 >= v30)
+                    v21 = v30;
+                v30 = v21;
+            }
+            v15 += 256;
+        } while (v15 < stl_y);
+    }
+    if (v4 < stl_x)
+    {
+        v31 = stl_y;
+        v33 = BYTE1(stl_y) << 8;
+        do
+        {
+            v31 = v4;
+            v22 = v33 + BYTE1(v4);
+            v23 = &game.columns_data[game.map[v22 + 257].data & 0x7FF];
+            v24 = (unsigned __int8)game.columns_data[game.map[v22 + 257].data & 0x7FF].bitfields >> 4;
+            if (floor_height < v24)
+                floor_height = v24;
+            if ((v23->bitfields & 0xE) != 0)
+            {
+                v25 = 8 - ((unsigned __int8)(v23->bitfields & 0xE) >> 1);
+                if (v25 >= v30)
+                    v25 = v30;
+                v30 = v25;
+            }
+            else
+            {
+                v26 = (game.map[v22 + 257].data & 0xF000000u) >> 24;
+                if (v26 >= v30)
+                    v26 = v30;
+                v30 = v26;
+            }
+            v4 += 256;
+        } while (v4 < stl_x);
+    }
+MapSubtlCoord ceiling_height;
+    update_floor_and_ceiling_heights_at(stl_x, stl_y, (__int32 *)&floor_height,&ceiling_height);
+    floor_height <<= 8;
+    v30 <<= 8;
+    result = pos->z.val;
+    if (floor_height <= result)
+    {
+        v28 = v30 - (unsigned __int16)thing->clipbox_size_yz;
+        if (floor_height < v28)
+            return v28 - 1;
+    }
+    return result;
+}
+
+//TODO remove testcode
+DLLIMPORT long _DK_get_next_gap_creature_can_fit_in_below_point(struct Thing *creatng, struct Coord3d *pos);
 long get_next_gap_creature_can_fit_in_below_point(struct Thing *thing, struct Coord3d *pos)
 {
-    return _DK_get_next_gap_creature_can_fit_in_below_point(thing, pos);
+    long old = _DK_get_next_gap_creature_can_fit_in_below_point(thing, pos);
+    long new = get_next_gap_creature_can_fit_in_below_point_new(thing, pos);
+
+    if (old == new)
+        JUSTLOG("get_next_gap_creature_can_fit_in_below_point: old and new are equal %d", old);
+    else
+        JUSTLOG("get_next_gap_creature_can_fit_in_below_point: old and new are different %d,%s", old,new);
+
+    return new;
 }
 
 TbBool thing_covers_same_blocks_in_two_positions(struct Thing *thing, struct Coord3d *pos1, struct Coord3d *pos2)
