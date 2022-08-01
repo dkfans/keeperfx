@@ -539,7 +539,7 @@ void destroy_food(struct Thing *foodtng)
     if (object_is_mature_food(foodtng))
     {
         struct Thing* efftng = create_effect(&foodtng->mappos, TngEff_FeatherPuff, plyr_idx);
-        if (!thing_is_invalid(efftng)) 
+        if (!thing_is_invalid(efftng))
         {
             thing_play_sample(efftng, 112 + UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
         }
@@ -850,7 +850,7 @@ TbBool object_is_room_inventory(const struct Thing *thing, RoomRole rrole)
         return true;
 
     return false;
-    
+
 }
 
 TbBool object_is_unaffected_by_terrain_changes(const struct Thing *thing)
@@ -1000,7 +1000,7 @@ long food_moves(struct Thing *objtng)
                 {
                     if (hatchroom->kind == RoK_GARDEN)
                     {
-                        update_room_contents(hatchroom);                    
+                        update_room_contents(hatchroom);
                     }
                 }
                 objtng->parent_idx = -1;
