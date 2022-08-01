@@ -382,6 +382,8 @@ unsigned short player_guardflag_objects[] = {115, 116, 117, 118,  0, 119};
  */
 unsigned short dungeon_flame_objects[] =    {111, 120, 121, 122,  0,   0};
 unsigned short lightning_spangles[] = {TngEffElm_RedTwinkle3, TngEffElm_BlueTwinke2, TngEffElm_GreenTwinkle2, TngEffElm_YellowTwinkle2, TngEffElm_None, TngEffElm_None};
+unsigned short twinkle_eff_elements[] = {TngEffElm_RedTwinkle, TngEffElm_BlueTwinkle, TngEffElm_GreenTwinkle, TngEffElm_YellowTwinkle, TngEffElm_None, TngEffElm_None};
+
 unsigned short gold_hoard_objects[] = {52, 52, 53, 54, 55, 56};
 unsigned short food_grow_objects[] = {40, 41, 42};
 
@@ -1750,15 +1752,7 @@ TngUpdateRet object_update_object_scale(struct Thing *objtng)
 TngUpdateRet object_update_power_sight(struct Thing *objtng)
 {
     int result; // eax
-
     objtng->health = 2;
-
-    static const enum ThingEffectElements twinkle_eff_elements[] = {
-        TngEffElm_RedTwinkle,
-        TngEffElm_BlueTwinkle,
-        TngEffElm_GreenTwinkle,
-        TngEffElm_YellowTwinkle,
-    };
 
     struct Dungeon * dungeon = get_dungeon(objtng->owner);
 
