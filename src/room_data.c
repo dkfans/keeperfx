@@ -3241,7 +3241,7 @@ TbBool creature_can_get_to_any_of_players_rooms(struct Thing *thing, PlayerNumbe
 {
     for (RoomKind rkind = 1; rkind < slab_conf.room_types_count; rkind++)
     {
-        struct Room* room = find_nth_room_with_used_capacity_creature_can_navigate_to(thing, owner, rkind, NavRtF_Default, 0);
+        struct Room* room = find_nth_room_with_used_capacity_creature_can_navigate_to(thing, owner, rkind, NavRtF_NoOwner, 0);
         if (!room_is_invalid(room))
             return true;
     }
