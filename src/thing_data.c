@@ -254,18 +254,18 @@ void set_thing_draw(struct Thing *thing, long anim, long speed, long scale, char
     {
       i = keepersprite_frames(thing->anim_sprite) - 1;
       thing->field_48 = i;
-      thing->field_40 = i << 8;
+      thing->anim_time = i << 8;
     } else
     if (start_frame == -1)
     {
       i = CREATURE_RANDOM(thing, thing->field_49);
       thing->field_48 = i;
-      thing->field_40 = i << 8;
+      thing->anim_time = i << 8;
     } else
     {
       i = start_frame;
       thing->field_48 = i;
-      thing->field_40 = i << 8;
+      thing->anim_time = i << 8;
     }
 }
 

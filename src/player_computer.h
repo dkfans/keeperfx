@@ -357,7 +357,7 @@ struct ComputerTask { // sizeof = 148
     };
     long lastrun_turn;
     long field_60;
-    struct Coord3d pos_64; // new room position?
+    struct Coord3d new_room_pos;
     struct Coord3d pos_6A;
     union {
     struct {

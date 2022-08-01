@@ -383,7 +383,7 @@ void update_creature_graphic_anim(struct Thing *thing)
         {
             update_creature_anim(thing, 256, 0);
         } else
-        if (thing->field_60 < thing->mappos.z.val)
+        if (thing->floor_height < thing->mappos.z.val)
         {
             update_creature_anim(thing, 256, 0);
         } else
@@ -410,7 +410,7 @@ void update_creature_graphic_anim(struct Thing *thing)
         {
             update_creature_anim_td(thing, 256, 820);
         } else
-        if (thing->field_60 < thing->mappos.z.val)
+        if (thing->floor_height < thing->mappos.z.val)
         {
             update_creature_anim_td(thing, 256, 820);
         } else

@@ -859,7 +859,7 @@ TngUpdateRet update_effect_element(struct Thing *elemtng)
     // Set dynamic properties of the effect
     if (!eestats->field_12)
     {
-        if (elemtng->field_60 >= (int)elemtng->mappos.z.val)
+        if (elemtng->floor_height >= (int)elemtng->mappos.z.val)
           elemtng->anim_speed = 0;
     }
     if (eestats->field_15)
@@ -948,14 +948,14 @@ TngUpdateRet update_effect_element(struct Thing *elemtng)
     elemtng->move_angle_xy = get_angle_xy_to_vec(&elemtng->veloc_base);
     elemtng->field_48 = prop_val;
     elemtng->anim_speed = 0;
-    elemtng->field_40 = (prop_val & 0xff) << 8;
+    elemtng->anim_time = (prop_val & 0xff) << 8;
     SYNCDBG(18,"Finished");
     return TUFRet_Modified;
 }
 
 struct Thing *create_effect_generator(struct Coord3d *pos, unsigned short model, unsigned short range, unsigned short owner, long parent_idx)
 {
-  
+
     if (!i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots))
     {
         ERRORDBG(3,"Cannot create effect generator model %d for player %d. There are too many things allocated.",(int)model,(int)owner);
@@ -1049,7 +1049,7 @@ long move_effect(struct Thing *efftng)
             efftng->mappos.z.val = pos.z.val;
             place_thing_in_mapwho(efftng);
         }
-        efftng->field_60 = get_thing_height_at(efftng, &efftng->mappos);
+        efftng->floor_height = get_thing_height_at(efftng, &efftng->mappos);
     }
     return 1;
 }
@@ -1415,7 +1415,7 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
                     tngdst->state_flags |= TF1_PushAdd;
                     affected = true;
                 }
-            } 
+            }
         }
     }
     return affected;
