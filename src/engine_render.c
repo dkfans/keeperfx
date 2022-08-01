@@ -1950,7 +1950,7 @@ static void create_line_segment(struct EngineCoord *start, struct EngineCoord *e
         return;
     
     // Reducing line_z will make the lines look cleaner, but the "fancy_map_volume_box" vertical lines become more visible.
-    float line_z = 0.99;
+    float line_z = 0.994;
     bckt_idx = (( (start->z*line_z) + (end->z*line_z) ) / 32) - 2;
     // Original calculation:  bckt_idx = (start->z+end->z)/2 / 16 - 2;
 
