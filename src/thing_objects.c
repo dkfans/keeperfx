@@ -1747,13 +1747,6 @@ TngUpdateRet object_update_object_scale(struct Thing *objtng)
     return 1;
 }
 
-
-//TODO remove dllimports
-DLLIMPORT int _DK_lbCosTable[2048];
-#define lbCosTable _DK_lbCosTable
-DLLIMPORT int _DK_lbSinTable[2048];
-#define lbSinTable _DK_lbSinTable
-
 TngUpdateRet object_update_power_sight(struct Thing *objtng)
 {
     int result; // eax
@@ -1770,7 +1763,7 @@ TngUpdateRet object_update_power_sight(struct Thing *objtng)
     int sight_casted_splevel = dungeon->sight_casted_splevel;
 
     const struct MagicStats *pwrdynst = get_power_dynamic_stats(PwrK_SIGHT);
-    unsigned int max_time_active = pwrdynst->strength[sight_casted_splevel];
+    int max_time_active = pwrdynst->strength[sight_casted_splevel];
 
     if ( game.play_gameturn - objtng->creation_turn >= max_time_active
         && game.play_gameturn - dungeon->sight_casted_gameturn < max_time_active )
@@ -1814,64 +1807,49 @@ TngUpdateRet object_update_power_sight(struct Thing *objtng)
         }
         else
         {
-            int v25 = 4;
-            const int v26 = 8 * (pwrdynst->strength[dungeon->sight_casted_splevel] / 4) / (4 * power_sight_close_instance_time[dungeon->sight_casted_splevel]);
-            int v27 = 4 * (power_sight_close_instance_time[dungeon->sight_casted_splevel] - ((game.play_gameturn - dungeon->sight_casted_gameturn) - max_time_active)) * v26;
-            const int v32 = v26;
-            do
-            {
-                int * v28 = lbSinTable;
-                do
-                {
-                    struct Coord3d pos;
-                    pos.x.val = objtng->mappos.x.val + ((unsigned int)(v27 * (*v28)) >> 16);
-                    v28 += 64;
-                    pos.y.val = objtng->mappos.y.val + (-((v27 * v28[448]) >> 8) >> 8);
-                    pos.z.val = 1408;
-                    create_effect_element(&pos, effkind[objtng->owner], objtng->owner);
-                }
-                while ( v28 < &lbCosTable[1536] );
-                v27 -= v32;
-                --v25;
+            // draw 32 particles in a collapsing starburst pattern
+            const int anim_time = (game.play_gameturn - dungeon->sight_casted_gameturn);
+            const int anim_radius = 4 * anim_time;
+            const int close_radius = 32 * (power_sight_close_instance_time[dungeon->sight_casted_splevel] - (anim_time - max_time_active));
+            const int max_duration_radius = max_time_active / 4;
+            const int strength_radius = pwrdynst->strength[dungeon->sight_casted_splevel] / 4;
+            const int radius = max(0, min(min(min(close_radius, max_duration_radius), anim_radius), strength_radius));
+            for (int i = 0; i < 32; ++i) {
+                const int step = ((2*LbFPMath_PI) / 32);
+                const int angle = step * i;
+                struct Coord3d pos;
+                pos.x.val = objtng->mappos.x.val + ((radius * LbSinL(angle)) / 8192);
+                pos.y.val = objtng->mappos.y.val + ((radius * LbCosL(angle)) / 8192);
+                pos.z.val = 1408;
+                create_effect_element(&pos, effkind[objtng->owner], objtng->owner);
             }
-            while ( v25 );
             return 1;
         }
     }
     else
     {
-        int v32 = 4;
-        int v11 = 4 * (game.play_gameturn - dungeon->sight_casted_gameturn);
-        do
-        {
-            int v12 = v11;
-            if ( v11 >= 0 )
-            {
-                if ( max_time_active / 4 < v11 )
-                    v12 = max_time_active / 4;
-            }
-            else
-            {
-                v12 = 0;
-            }
-            const int v14 = (v11 & 0x1F) << 8;
-            const int pos_x = (unsigned __int16)objtng->mappos.x.val + (__int16)((v12 * *(int *)((char *)lbSinTable + v14)) >> 13);
-            const int pos_y = (-(char)((v12 * *(int *)((char *)lbCosTable + v14)) >> 5) >> 8) + (unsigned __int16)objtng->mappos.y.val;
-            if ( pos_x >= 0 && pos_x < 65280 && pos_y >= 0 && pos_y < 65280 )
-            {
-                struct Coord3d pos;
-                pos.z.val = 1408;
-                pos.x.val = pos_x;
-                pos.y.val = pos_y;
-                create_effect_element(&pos, effkind[objtng->owner], objtng->owner);
-                const int shift_x = pos.x.stl.pos - objtng->mappos.x.stl.pos + 13;
-                const int shift_y = pos.y.stl.pos - objtng->mappos.y.stl.pos + 13;
+        // draw 32 particles in an expanding radial pattern, 4 at a time, exploring terrain as we go
+        const int anim_time = (game.play_gameturn - dungeon->sight_casted_gameturn);
+        const int anim_radius = 4 * anim_time;
+        const int max_duration_radius = max_time_active / 4;
+        const int strength_radius = pwrdynst->strength[dungeon->sight_casted_splevel] / 4;
+        const int radius = max(0, min(min(max_duration_radius, anim_radius), strength_radius));
+        for (int i = 0; i < 4; ++i) {
+            const int step = ((2*LbFPMath_PI) / 32);
+            const int angle = step * ((4 * anim_time) + i);
+            const int pos_x = objtng->mappos.x.val + ((radius * LbSinL(angle)) / 8192);
+            const int pos_y = objtng->mappos.y.val + ((radius * LbCosL(angle)) / 8192);
+            struct Coord3d pos;
+            pos.x.val = pos_x;
+            pos.y.val = pos_y;
+            pos.z.val = 1408;
+            create_effect_element(&pos, effkind[objtng->owner], objtng->owner);
+            if ( pos_x >= 0 && pos_x < 65280 && pos_y >= 0 && pos_y < 65280 ) {
+                const int shift_x = pos.x.stl.num - objtng->mappos.x.stl.num + 13;
+                const int shift_y = pos.y.stl.num - objtng->mappos.y.stl.num + 13;
                 dungeon->soe_explored_flags[shift_y][shift_x] = pos.x.val < 0xFF00u && pos.y.val < 0xFF00u;
             }
-            ++v11;
-            --v32;
         }
-        while ( v32 );
         return 1;
     }
     return result;
