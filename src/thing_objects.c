@@ -1753,11 +1753,17 @@ TngUpdateRet object_update_power_sight(struct Thing *objtng)
 
     objtng->health = 2;
 
-    static const long effkind[] = {43, 86, 87, 88};
+    static const enum ThingEffectElements twinkle_eff_elements[] = {
+        TngEffElm_RedTwinkle,
+        TngEffElm_BlueTwinkle,
+        TngEffElm_GreenTwinkle,
+        TngEffElm_YellowTwinkle,
+    };
+
     struct Dungeon * dungeon = get_dungeon(objtng->owner);
 
     if ( !S3DEmitterIsPlayingSample(objtng->snd_emitter_id, 51, 0) ) {
-        thing_play_sample(objtng, 51, 0x64u, -1, 3u, 1u, 3, 256);
+        thing_play_sample(objtng, 51, NORMAL_PITCH, -1, 3, 1, 3, FULL_LOUDNESS);
     }
 
     int sight_casted_splevel = dungeon->sight_casted_splevel;
@@ -1821,7 +1827,7 @@ TngUpdateRet object_update_power_sight(struct Thing *objtng)
                 pos.x.val = objtng->mappos.x.val + ((radius * LbSinL(angle)) / 8192);
                 pos.y.val = objtng->mappos.y.val + ((radius * LbCosL(angle)) / 8192);
                 pos.z.val = 1408;
-                create_effect_element(&pos, effkind[objtng->owner], objtng->owner);
+                create_effect_element(&pos, twinkle_eff_elements[objtng->owner], objtng->owner);
             }
             return 1;
         }
@@ -1843,7 +1849,7 @@ TngUpdateRet object_update_power_sight(struct Thing *objtng)
             pos.x.val = pos_x;
             pos.y.val = pos_y;
             pos.z.val = 1408;
-            create_effect_element(&pos, effkind[objtng->owner], objtng->owner);
+            create_effect_element(&pos, twinkle_eff_elements[objtng->owner], objtng->owner);
             if ( pos_x >= 0 && pos_x < 65280 && pos_y >= 0 && pos_y < 65280 ) {
                 const int shift_x = pos.x.stl.num - objtng->mappos.x.stl.num + 13;
                 const int shift_y = pos.y.stl.num - objtng->mappos.y.stl.num + 13;
