@@ -1755,9 +1755,10 @@ TngUpdateRet object_update_power_sight(struct Thing *objtng)
     objtng->health = 2;
 
     struct Dungeon * dungeon = get_dungeon(objtng->owner);
+    struct PowerConfigStats* powerst = get_power_model_stats(PwrK_SIGHT);
 
-    if ( !S3DEmitterIsPlayingSample(objtng->snd_emitter_id, 51, 0) ) {
-        thing_play_sample(objtng, 51, NORMAL_PITCH, -1, 3, 1, 3, FULL_LOUDNESS);
+    if ( !S3DEmitterIsPlayingSample(objtng->snd_emitter_id, powerst->select_sound_idx, 0) ) {
+        thing_play_sample(objtng, powerst->select_sound_idx, NORMAL_PITCH, -1, 3, 1, 3, FULL_LOUDNESS);
     }
 
     int sight_casted_splevel = dungeon->sight_casted_splevel;
