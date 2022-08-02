@@ -60,6 +60,8 @@ const struct NamedCommand objects_object_commands[] = {
   {"LIGHTRADIUS",      16},
   {"LIGHTISDYNAMIC",   17},
   {"MAPICON",          18},
+  {"AUDIBLE",          19},
+  {"SAMPLE",           20},
   {NULL,                0},
   };
 
@@ -531,6 +533,36 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                     CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
                         COMMAND_TEXT(cmd_num), block_buf, config_textname);
                 }
+                break;
+            case 19: // AUDIBLE
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    n = atoi(word_buf);
+                    objdat->has_sound = n;
+                    n++;
+                }
+                if (n <= 0)
+                {
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                }
+                break;
+            case 20: // SAMPLE
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    n = atoi(word_buf);
+                    if ( (n >= 0) && (n <= USHRT_MAX) )
+                    {
+                        objdat->smpl_idx = n;
+                    }
+                    else
+                    {
+                        CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                    }
+                    n++;
+                }
+                break;
             case 0: // comment
                 break;
             case -1: // end of buffer

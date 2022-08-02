@@ -71,7 +71,7 @@ struct Objects {
     short size_yz;
     short sprite_size_max;
     unsigned char field_F;      // Lower 2 bits are transparency flags
-    TbBool has_flames;
+    TbBool has_sound;
     unsigned char draw_class;
     unsigned char destroy_on_lava;
     /** Creature model related to the object, ie for lairs - which creature lair it is. */
@@ -79,6 +79,7 @@ struct Objects {
     unsigned char own_category;
     unsigned char destroy_on_liquid;
     unsigned char rotation_flag;
+    unsigned short smpl_idx;
 };
 
 struct CallToArmsGraphics {

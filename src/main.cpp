@@ -2770,7 +2770,7 @@ void update(void)
         if (player->view_mode == PVM_CreatureView)
         {
             struct Thing *thing = thing_get(player->controlled_thing_idx);
-            update_flames_nearest_thing(thing);
+            update_first_person_object_ambience(thing);
         }
         update_footsteps_nearest_camera(player->acamera);
         PaletteFadePlayer(player);
