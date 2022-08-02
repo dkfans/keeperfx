@@ -22,6 +22,7 @@
 #include "bflib_basics.h"
 #include "bflib_memory.h"
 #include "bflib_dernc.h"
+#include "bflib_sound.h"
 
 #include "config.h"
 #include "config_creature.h"
@@ -551,7 +552,7 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
                     n = atoi(word_buf);
-                    if ( (n >= 0) && (n <= USHRT_MAX) )
+                    if ( (n >= 0) && (n <= (samples_in_bank - 1)) )
                     {
                         objdat->smpl_idx = n;
                     }
