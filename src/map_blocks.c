@@ -368,25 +368,20 @@ TbBool set_slab_explored(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord
     return true;
 }
 
-void set_slab_explored_flags(unsigned char flag, long slb_x, long slb_y)
+// only used by mine_out_block
+void set_slab_explored_flags(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
-
-    MapSubtlCoord stl_x = subtile_coord_center(slb_x);
-    MapSubtlCoord stl_y = subtile_coord_center(slb_y);
-
-    int shifted_flag = flag << 28;
-    struct Map* mapblk = get_map_block_at(stl_x, stl_y);
-
-    if ( true | (mapblk->data >> 28) != flag  )
-    {
-        for (size_t n = 1; n < MID_AROUND_LENGTH; n++)
-        {
-            MapSlabCoord arstl_x = stl_x + mid_around[n].delta_x;
-            MapSlabCoord arstl_y = stl_y + mid_around[n].delta_y;
-            mapblk = get_map_block_at(arstl_x, arstl_y);
-            mapblk->data = (shifted_flag ^ (shifted_flag ^ mapblk->data)) & 0xFFFFFFF;
-        }
-        pannel_map_update(slab_subtile(slb_x,0), slab_subtile(slb_y,0), 3, 3);
+    if (!subtile_revealed(slab_subtile_center(slb_x), slab_subtile_center(slb_y), plyr_idx)) {
+        reveal_map_subtile(slab_subtile(slb_x,0), slab_subtile(slb_y,0), plyr_idx);
+        reveal_map_subtile(slab_subtile(slb_x,1), slab_subtile(slb_y,0), plyr_idx);
+        reveal_map_subtile(slab_subtile(slb_x,2), slab_subtile(slb_y,0), plyr_idx);
+        reveal_map_subtile(slab_subtile(slb_x,0), slab_subtile(slb_y,1), plyr_idx);
+        reveal_map_subtile(slab_subtile(slb_x,1), slab_subtile(slb_y,1), plyr_idx);
+        reveal_map_subtile(slab_subtile(slb_x,2), slab_subtile(slb_y,1), plyr_idx);
+        reveal_map_subtile(slab_subtile(slb_x,0), slab_subtile(slb_y,2), plyr_idx);
+        reveal_map_subtile(slab_subtile(slb_x,1), slab_subtile(slb_y,2), plyr_idx);
+        reveal_map_subtile(slab_subtile(slb_x,2), slab_subtile(slb_y,2), plyr_idx);
+        pannel_map_update(slab_subtile(slb_x,0), slab_subtile(slb_y,0), STL_PER_SLB, STL_PER_SLB);
     }
 }
 
