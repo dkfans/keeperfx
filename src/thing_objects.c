@@ -40,6 +40,7 @@
 #include "map_data.h"
 #include "map_columns.h"
 #include "map_utils.h"
+#include "magic.h"
 #include "room_entrance.h"
 #include "gui_topmsg.h"
 #include "gui_soundmsgs.h"
@@ -381,6 +382,8 @@ unsigned short player_guardflag_objects[] = {115, 116, 117, 118,  0, 119};
  */
 unsigned short dungeon_flame_objects[] =    {111, 120, 121, 122,  0,   0};
 unsigned short lightning_spangles[] = {TngEffElm_RedTwinkle3, TngEffElm_BlueTwinke2, TngEffElm_GreenTwinkle2, TngEffElm_YellowTwinkle2, TngEffElm_None, TngEffElm_None};
+unsigned short twinkle_eff_elements[] = {TngEffElm_RedTwinkle, TngEffElm_BlueTwinkle, TngEffElm_GreenTwinkle, TngEffElm_YellowTwinkle, TngEffElm_None, TngEffElm_None};
+
 unsigned short gold_hoard_objects[] = {52, 52, 53, 54, 55, 56};
 unsigned short food_grow_objects[] = {40, 41, 42};
 
@@ -392,8 +395,6 @@ struct CallToArmsGraphics call_to_arms_graphics[] = {
     {  0,   0,   0}
 };
 
-/******************************************************************************/
-DLLIMPORT long _DK_object_update_power_sight(struct Thing *objtng);
 /******************************************************************************/
 void define_custom_object(int obj_id, short anim_idx)
 {
@@ -540,7 +541,7 @@ void destroy_food(struct Thing *foodtng)
     if (object_is_mature_food(foodtng))
     {
         struct Thing* efftng = create_effect(&foodtng->mappos, TngEff_FeatherPuff, plyr_idx);
-        if (!thing_is_invalid(efftng)) 
+        if (!thing_is_invalid(efftng))
         {
             thing_play_sample(efftng, 112 + UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
         }
@@ -851,7 +852,7 @@ TbBool object_is_room_inventory(const struct Thing *thing, RoomRole rrole)
         return true;
 
     return false;
-    
+
 }
 
 TbBool object_is_unaffected_by_terrain_changes(const struct Thing *thing)
@@ -1001,7 +1002,7 @@ long food_moves(struct Thing *objtng)
                 {
                     if (hatchroom->kind == RoK_GARDEN)
                     {
-                        update_room_contents(hatchroom);                    
+                        update_room_contents(hatchroom);
                     }
                 }
                 objtng->parent_idx = -1;
@@ -1750,7 +1751,109 @@ TngUpdateRet object_update_object_scale(struct Thing *objtng)
 
 TngUpdateRet object_update_power_sight(struct Thing *objtng)
 {
-    return _DK_object_update_power_sight(objtng);
+    int result; // eax
+    objtng->health = 2;
+
+    struct Dungeon * dungeon = get_dungeon(objtng->owner);
+    struct PowerConfigStats* powerst = get_power_model_stats(PwrK_SIGHT);
+
+    if ( !S3DEmitterIsPlayingSample(objtng->snd_emitter_id, powerst->select_sound_idx, 0) ) {
+        thing_play_sample(objtng, powerst->select_sound_idx, NORMAL_PITCH, -1, 3, 1, 3, FULL_LOUDNESS);
+    }
+
+    int sight_casted_splevel = dungeon->sight_casted_splevel;
+
+    const struct MagicStats *pwrdynst = get_power_dynamic_stats(PwrK_SIGHT);
+    int max_time_active = pwrdynst->strength[sight_casted_splevel];
+
+    if ( game.play_gameturn - objtng->creation_turn >= max_time_active
+        && game.play_gameturn - dungeon->sight_casted_gameturn < max_time_active )
+    {
+        int time_active = game.play_gameturn - dungeon->sight_casted_gameturn;
+        if ( game.play_gameturn - dungeon->sight_casted_gameturn >= 0 )
+        {
+            if ( max_time_active / 16 < time_active )
+                time_active = max_time_active / 16;
+        }
+        else
+        {
+            time_active = 0;
+        }
+        const int v32 = (max_time_active / 16) / power_sight_close_instance_time[sight_casted_splevel];
+        dungeon->sight_casted_gameturn = game.play_gameturn - max_time_active + time_active / v32 - power_sight_close_instance_time[sight_casted_splevel];
+    }
+    if ( max_time_active <= game.play_gameturn - dungeon->sight_casted_gameturn )
+    {
+        if ( power_sight_close_instance_time[dungeon->sight_casted_splevel] <= (game.play_gameturn - dungeon->sight_casted_gameturn) - max_time_active )
+        {
+            if ( (dungeon->computer_enabled & 4) != 0 )
+            {
+                dungeon->sight_casted_gameturn = game.play_gameturn;
+                struct Coord3d pos;
+                pos.x.val = (dungeon->sight_casted_stl_x << 8) + 128;
+                pos.z.val = 1408;
+                pos.y.val = (dungeon->sight_casted_stl_y << 8) + 128;
+                memset(dungeon->soe_explored_flags, 0, sizeof(dungeon->soe_explored_flags));
+                move_thing_in_map(objtng, &pos);
+                result = 1;
+                dungeon->computer_enabled &= ~4u;
+            }
+            else
+            {
+                dungeon->sight_casted_thing_idx = 0;
+                memset(dungeon->soe_explored_flags, 0, sizeof(dungeon->soe_explored_flags));
+                delete_thing_structure(objtng, 0);
+                return 0;
+            }
+        }
+        else
+        {
+            // draw 32 particles in a collapsing starburst pattern
+            const int anim_time = (game.play_gameturn - dungeon->sight_casted_gameturn);
+            const int anim_radius = 4 * anim_time;
+            const int close_radius = 32 * (power_sight_close_instance_time[dungeon->sight_casted_splevel] - (anim_time - max_time_active));
+            const int max_duration_radius = max_time_active / 4;
+            const int strength_radius = pwrdynst->strength[dungeon->sight_casted_splevel] / 4;
+            const int radius = max(0, min(min(min(close_radius, max_duration_radius), anim_radius), strength_radius));
+            for (int i = 0; i < 32; ++i) {
+                const int step = ((2*LbFPMath_PI) / 32);
+                const int angle = step * i;
+                struct Coord3d pos;
+                pos.x.val = objtng->mappos.x.val + ((radius * LbSinL(angle)) / 8192);
+                pos.y.val = objtng->mappos.y.val + ((radius * LbCosL(angle)) / 8192);
+                pos.z.val = 1408;
+                create_effect_element(&pos, twinkle_eff_elements[objtng->owner], objtng->owner);
+            }
+            return 1;
+        }
+    }
+    else
+    {
+        // draw 32 particles in an expanding radial pattern, 4 at a time, exploring terrain as we go
+        const int anim_time = (game.play_gameturn - dungeon->sight_casted_gameturn);
+        const int anim_radius = 4 * anim_time;
+        const int max_duration_radius = max_time_active / 4;
+        const int strength_radius = pwrdynst->strength[dungeon->sight_casted_splevel] / 4;
+        const int radius = max(0, min(min(max_duration_radius, anim_radius), strength_radius));
+        for (int i = 0; i < 4; ++i) {
+            const int step = ((2*LbFPMath_PI) / 32);
+            const int angle = step * ((4 * anim_time) + i);
+            const int pos_x = objtng->mappos.x.val + ((radius * LbSinL(angle)) / 8192);
+            const int pos_y = objtng->mappos.y.val + ((radius * LbCosL(angle)) / 8192);
+            struct Coord3d pos;
+            pos.x.val = pos_x;
+            pos.y.val = pos_y;
+            pos.z.val = 1408;
+            create_effect_element(&pos, twinkle_eff_elements[objtng->owner], objtng->owner);
+            if ( pos_x >= 0 && pos_x < 65280 && pos_y >= 0 && pos_y < 65280 ) {
+                const int shift_x = pos.x.stl.num - objtng->mappos.x.stl.num + 13;
+                const int shift_y = pos.y.stl.num - objtng->mappos.y.stl.num + 13;
+                dungeon->soe_explored_flags[shift_y][shift_x] = pos.x.val < 0xFF00u && pos.y.val < 0xFF00u;
+            }
+        }
+        return 1;
+    }
+    return result;
 }
 
 #define NUM_ANGLES 16
