@@ -42,14 +42,39 @@ extern "C" {
 /******************************************************************************/
 /******************************************************************************/
 long camera_zoom;
+float zoomed_range;
 /******************************************************************************/
 #ifdef __cplusplus
 }
 #endif
 /******************************************************************************/
 
-DLLIMPORT void _DK_update_player_camera_fp(struct Camera *cam, struct Thing *thing);
+void calculate_zoomed_range(struct Camera *cam) {
+    // zoomed_range is the current camera zoom converted to a percentage that ranges between base level zoom and fully zoomed out.
 
+    float range_input = cam->zoom;
+    float range_min;
+    float range_max;
+    switch (cam->view_mode) {
+        case PVM_IsometricView:
+            range_min = CAMERA_ZOOM_MIN; // Fully zoomed out
+            range_max = 4100; // Base zoom level
+            break;
+        case PVM_FrontView:
+            range_min = FRONTVIEW_CAMERA_ZOOM_MIN; // Fully zoomed out
+            range_max = 32768; // Base zoom level
+            break;
+        default:
+            zoomed_range = 0;
+            return;
+    }
+    if (range_input < range_min) {
+        range_input = range_min;
+    } else if (range_input > range_max) {
+        range_input = range_max;
+    }
+    zoomed_range = ((range_input - range_min)) / (range_max - range_min);
+}
 
 MapCoordDelta get_3d_box_distance(const struct Coord3d *pos1, const struct Coord3d *pos2)
 {
@@ -189,11 +214,11 @@ void view_zoom_camera_in(struct Camera *cam, long limit_max, long limit_min)
         new_zoom = (100 * old_zoom) / 85;
         if (new_zoom == old_zoom)
             new_zoom++;
-        if (new_zoom < 16384) {
-            new_zoom = 16384;
+        if (new_zoom < FRONTVIEW_CAMERA_ZOOM_MIN) { //Originally 16384, adjusted for view distance
+            new_zoom = FRONTVIEW_CAMERA_ZOOM_MIN;
         } else
-        if (new_zoom > 65536) {
-            new_zoom = 65536;
+        if (new_zoom > FRONTVIEW_CAMERA_ZOOM_MAX) {
+            new_zoom = FRONTVIEW_CAMERA_ZOOM_MAX;
         }
         break;
     default:
@@ -250,11 +275,11 @@ void view_zoom_camera_out(struct Camera *cam, long limit_max, long limit_min)
         new_zoom = (85 * old_zoom) / 100;
         if (new_zoom == old_zoom)
             new_zoom--;
-        if (new_zoom < 16384) {
-            new_zoom = 16384;
+        if (new_zoom < FRONTVIEW_CAMERA_ZOOM_MIN) {
+            new_zoom = FRONTVIEW_CAMERA_ZOOM_MIN;
         } else
-        if (new_zoom > 65536) {
-            new_zoom = 65536;
+        if (new_zoom > FRONTVIEW_CAMERA_ZOOM_MAX) {
+            new_zoom = FRONTVIEW_CAMERA_ZOOM_MAX;
         }
         break;
     default:
@@ -411,31 +436,162 @@ void init_player_cameras(struct PlayerInfo *player)
     cam->zoom = settings.frontview_zoom_level;
 }
 
-void update_player_camera_fp(struct Camera *cam, struct Thing *thing)
+static int get_walking_bob_direction(struct Thing *thing)
 {
-    struct CreatureStatsOLD *creature_stats_OLD = &game.creature_stats_OLD[thing->model];
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
-    int chicken_height = 100;
-    TbBool chicken = (creature_affected_by_spell(thing, SplK_Chicken));
-    if (!chicken)
+    const int anim_time = thing->anim_time;
+    if ( anim_time >= 256 && anim_time < 640 )
     {
-        creature_stats_OLD->eye_height = crstat->eye_height + (crstat->eye_height * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100;
+        return ( thing->anim_speed < 0 ) ? -1 : 1;
+    }
+    else if ( anim_time >= 1024 && anim_time < 1408 )
+    {
+        return ( thing->anim_speed < 0 ) ? -1 : 1;
     }
     else
     {
-        creature_stats_OLD->eye_height = chicken_height + (chicken_height * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100;
+        return ( thing->anim_speed < 0 ) ? 1 : -1;
     }
-    _DK_update_player_camera_fp(cam, thing);
+}
+
+void update_player_camera_fp(struct Camera *cam, struct Thing *thing)
+{
+    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+
+    // adjust eye height based on creature level and chicken state
+    int eye_height;
+    if (creature_affected_by_spell(thing, SplK_Chicken))
+    {
+        static const int chicken_height = 100;
+        eye_height = chicken_height + (chicken_height * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100;
+    }
+    else
+    {
+        eye_height = crstat->eye_height + (crstat->eye_height * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100;
+    }
+
+    if ( thing_is_creature(thing) )
+    {
+        // apply square wave as head bob motion, could be improved by using sine wave instead
+        if ( cctrl->move_speed && thing->floor_height >= thing->mappos.z.val )
+            cctrl->head_bob = 16 * get_walking_bob_direction(thing);
+        else
+            cctrl->head_bob = 0;
+
+        int pos_x = move_coord_with_angle_x(thing->mappos.x.val,-90,thing->move_angle_xy);
+        int pos_y = move_coord_with_angle_y(thing->mappos.y.val,-90,thing->move_angle_xy);
+
+        if ( pos_x >= 0 )
+        {
+            if ( pos_x > 0xFFFF )
+                pos_x = -1 * abs(pos_x);
+        }
+        else
+        {
+            pos_x = 0;
+        }
+        if ( pos_y >= 0 )
+        {
+            if ( pos_y > 0xFFFF )
+                pos_y = -1 * abs(pos_y);
+        }
+        else
+        {
+            pos_y = 0;
+        }
+
+        cam->mappos.x.val = pos_x;
+        cam->mappos.y.val = pos_y;
+
+
+        if ( (thing->movement_flags & TMvF_Flying) != 0 )
+        {
+            cam->mappos.z.val = thing->mappos.z.val + eye_height;
+            cam->orient_a = thing->move_angle_xy;
+            cam->orient_b = thing->move_angle_z;
+            cam->orient_c = cctrl->field_CC;
+        }
+        else
+        {
+            cam->mappos.z.val = cam->mappos.z.val + (thing->mappos.z.val + cctrl->head_bob - cam->mappos.z.val + eye_height) / 2;
+            cam->orient_a = thing->move_angle_xy;
+            cam->orient_b = thing->move_angle_z;
+            cam->orient_c = 0;
+            if ( eye_height + thing->mappos.z.val <= cam->mappos.z.val )
+            {
+                if ( eye_height + thing->mappos.z.val + cctrl->head_bob > cam->mappos.z.val )
+                    cam->mappos.z.val = eye_height + thing->mappos.z.val + cctrl->head_bob;
+            }
+            else
+            {
+                if ( eye_height + thing->mappos.z.val + cctrl->head_bob < cam->mappos.z.val )
+                    cam->mappos.z.val = eye_height + thing->mappos.z.val + cctrl->head_bob;
+            }
+        }
+
+        struct Map* mapblk1 = get_map_block_at(thing->mappos.x.stl.num,     thing->mappos.y.stl.num);
+        struct Map* mapblk2 = get_map_block_at(thing->mappos.x.stl.num + 1, thing->mappos.y.stl.num);
+        struct Map* mapblk3 = get_map_block_at(thing->mappos.x.stl.num,     thing->mappos.y.stl.num + 1);
+        struct Map* mapblk4 = get_map_block_at(thing->mappos.x.stl.num + 1, thing->mappos.y.stl.num + 1);
+
+
+        const int ceiling = ((get_mapblk_filled_subtiles(mapblk1) * COORD_PER_STL) +
+                          (get_mapblk_filled_subtiles(mapblk2) * COORD_PER_STL) +
+                          (get_mapblk_filled_subtiles(mapblk3) * COORD_PER_STL) +
+                          (get_mapblk_filled_subtiles(mapblk4) * COORD_PER_STL) )/4;
+
+        if ( cam->mappos.z.val > ceiling - 64 )
+            cam->mappos.z.val = ceiling - 64;
+
+    }
+    else
+    {
+        cam->mappos.x.val = thing->mappos.x.val;
+        cam->mappos.y.val = thing->mappos.y.val;
+        if ( thing_is_mature_food(thing) )
+        {
+            cam->mappos.z.val = thing->mappos.z.val + 240;
+            cam->orient_a = thing->move_angle_xy;
+            cam->orient_c = 0;
+            cam->orient_b = thing->move_angle_z;
+            thing->move_angle_z = 0;
+            if ( thing->food.byte_16 )
+            {
+                if ( thing->food.byte_16 <= 3 )
+                    thing->move_angle_z = -116 * thing->food.byte_16 + 2048;
+                else
+                    thing->move_angle_z = 116 * thing->food.byte_16 + 1352;
+            }
+        }
+        else
+        {
+            cam->orient_a = thing->move_angle_xy;
+            cam->orient_b = thing->move_angle_z;
+            cam->orient_c = 0;
+            if ( thing->mappos.z.val + 32 <= cam->mappos.z.val )
+            {
+                cam->mappos.z.val = cam->mappos.z.val + (thing->mappos.z.val - cam->mappos.z.val + 64) / 2;
+                if ( thing->mappos.z.val + 64 > cam->mappos.z.val )
+                    cam->mappos.z.val = thing->mappos.z.val + 64;
+            }
+            else
+            {
+                cam->mappos.z.val = cam->mappos.z.val + (thing->mappos.z.val - cam->mappos.z.val + 64) / 2;
+                if ( thing->mappos.z.val + 64 < cam->mappos.z.val )
+                    cam->mappos.z.val = thing->mappos.z.val + 64;
+            }
+        }
+    }
+
 }
 
 void view_move_camera_left(struct Camera *cam, long distance)
 {
-  
+
     int pos_x;
     int pos_y;
     int parchment_pos_x;
-  
+
     if ( cam->view_mode == PVM_IsometricView || cam->view_mode == PVM_FrontView)
     {
 
@@ -456,7 +612,7 @@ void view_move_camera_left(struct Camera *cam, long distance)
         cam->mappos.y.val = pos_y;
         return;
     }
-  
+
     else if ( cam->view_mode == PVM_ParchmentView )
     {
         parchment_pos_x = cam->mappos.x.val - distance;
@@ -469,7 +625,7 @@ void view_move_camera_left(struct Camera *cam, long distance)
         cam->mappos.x.stl.pos = parchment_pos_x;
 
     }
-    
+
 }
 
 void view_move_camera_right(struct Camera *cam, long distance)
@@ -477,7 +633,7 @@ void view_move_camera_right(struct Camera *cam, long distance)
     int pos_x;
     int pos_y;
     int parchment_pos_x;
-  
+
     if ( cam->view_mode == PVM_IsometricView || cam->view_mode == PVM_FrontView)
     {
 
@@ -498,7 +654,7 @@ void view_move_camera_right(struct Camera *cam, long distance)
         cam->mappos.y.val = pos_y;
         return;
     }
-  
+
     else if ( cam->view_mode == PVM_ParchmentView )
     {
         parchment_pos_x = cam->mappos.x.val + distance;
@@ -511,7 +667,7 @@ void view_move_camera_right(struct Camera *cam, long distance)
         cam->mappos.x.stl.pos = parchment_pos_x;
 
     }
-    
+
 }
 
 void view_move_camera_up(struct Camera *cam, long distance)
@@ -519,7 +675,7 @@ void view_move_camera_up(struct Camera *cam, long distance)
     int pos_x;
     int pos_y;
     int parchment_pos_y;
-  
+
     if ( cam->view_mode == PVM_IsometricView || cam->view_mode == PVM_FrontView)
     {
 
@@ -559,7 +715,7 @@ void view_move_camera_down(struct Camera *cam, long distance)
     int pos_x;
     int pos_y;
     int parchment_pos_y;
-  
+
     if ( cam->view_mode == PVM_IsometricView || cam->view_mode == PVM_FrontView)
     {
 
@@ -580,7 +736,7 @@ void view_move_camera_down(struct Camera *cam, long distance)
         cam->mappos.y.val = pos_y;
         return;
     }
-  
+
     else if ( cam->view_mode == PVM_ParchmentView )
     {
         parchment_pos_y = cam->mappos.y.val - distance;
@@ -593,7 +749,7 @@ void view_move_camera_down(struct Camera *cam, long distance)
         cam->mappos.y.stl.pos = parchment_pos_y;
 
     }
-    
+
 }
 
 void view_process_camera_inertia(struct Camera *cam)

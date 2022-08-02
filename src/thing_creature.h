@@ -102,7 +102,7 @@ TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *t
 TbBool control_creature_as_passenger(struct PlayerInfo *player, struct Thing *thing);
 void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing);
 long get_human_controlled_creature_target(struct Thing *thing, long a2);
-struct Thing *get_creature_near_for_controlling(unsigned char a1, long a2, long a3);
+struct Thing *get_creature_near_for_controlling(PlayerNumber plyr_idx, MapCoord x, MapCoord y);
 
 TbBool load_swipe_graphic_for_creature(const struct Thing *thing);
 void free_swipe_graphic(void);
@@ -120,15 +120,13 @@ struct Thing *get_enemy_soul_container_creature_can_see(struct Thing *thing);
 TbBool thing_can_be_eaten(struct Thing *thing);
 void food_eaten_by_creature(struct Thing *foodtng, struct Thing *creatng);
 short creature_take_wage_from_gold_pile(struct Thing *crthing,struct Thing *obthing);
-struct Thing *get_creature_near(unsigned short pos_x, unsigned short pos_y);
-struct Thing *get_creature_near_with_filter(unsigned short pos_x, unsigned short pos_y, Thing_Filter filter, FilterParam param);
 void anger_apply_anger_to_creature_f(struct Thing *thing, long anger, AnnoyMotive reason, long a3, const char *func_name);
 #define anger_apply_anger_to_creature(thing, anger, reason, a3) anger_apply_anger_to_creature_f(thing, anger, reason, a3, __func__)
 HitPoints apply_damage_to_thing_and_display_health(struct Thing *thing, HitPoints dmg, DamageType damage_type, PlayerNumber inflicting_plyr_idx);
 void process_creature_standing_on_corpses_at(struct Thing *thing, struct Coord3d *pos);
 long creature_instance_has_reset(const struct Thing *thing, long a2);
 void set_creature_instance(struct Thing *thing, CrInstance inst_idx, long a2, long targtng_idx, const struct Coord3d *pos);
-unsigned short find_next_annoyed_creature(unsigned char a1, unsigned short a2);
+unsigned short find_next_annoyed_creature(PlayerNumber plyr_idx, unsigned short current_annoyed_creature_idx);
 void draw_creature_view(struct Thing *thing);
 
 TbBool creature_is_for_dungeon_diggers_list(const struct Thing *creatng);
@@ -152,7 +150,7 @@ TbBool thing_affected_by_spell(const struct Thing *thing, SpellKind spkind);
 GameTurnDelta get_spell_duration_left_on_thing_f(const struct Thing *thing, SpellKind spkind, const char *func_name);
 #define get_spell_duration_left_on_thing(thing, spkind) get_spell_duration_left_on_thing_f(thing, spkind, __func__)
 
-void anger_set_creature_anger_all_types(struct Thing *thing, long a2);
+void anger_set_creature_anger_all_types(struct Thing *thing, long new_value);
 void change_creature_owner(struct Thing *thing, PlayerNumber nowner);
 struct Thing *find_players_next_creature_of_breed_and_gui_job(long breed_idx, long job_idx, PlayerNumber plyr_idx, unsigned char pick_flags);
 struct Thing *pick_up_creature_of_model_and_gui_job(long breed_idx, long job_idx, PlayerNumber owner, unsigned char pick_flags);

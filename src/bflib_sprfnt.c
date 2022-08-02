@@ -1594,14 +1594,14 @@ int LbTextStringPartWidthM(const char *text, int part, long units_per_px)
  */
 int LbTextStringWidth(const char *text)
 {
-    return LbTextStringPartWidth(text, LONG_MAX);
+    return LbTextStringPartWidth(text, INT_MAX);
 }
 
 int LbTextStringWidthM(const char *text, long units_per_px)
 {
     if ((dbc_initialized) && (dbc_enabled))
     {
-        return LbTextStringPartWidthM(text, LONG_MAX, units_per_px);
+        return LbTextStringPartWidthM(text, INT_MAX, units_per_px);
     }
     else
     {

@@ -91,7 +91,6 @@ DLLIMPORT unsigned long _DK_sound_seed;
 /******************************************************************************/
 TbBool init_sound_heap_two_banks(unsigned char *heap_mem, long heap_size, char *snd_fname, char *spc_fname, long a5);
 TbBool init_sound(void);
-void randomize_sound_font(void);
 void sound_reinit_after_load(void);
 
 void update_player_sounds(void);
@@ -99,7 +98,7 @@ void process_3d_sounds(void);
 void process_sound_heap(void);
 
 void thing_play_sample(struct Thing *thing, short smptbl_idx, unsigned short a3, char a4, unsigned char a5, unsigned char a6, long a7, long loudness);
-void stop_thing_playing_sample(struct Thing *heartng, short a2);
+void stop_thing_playing_sample(struct Thing *thing, short smpl_idx);
 void play_thing_walking(struct Thing *thing);
 
 TbBool ambient_sound_prepare(void);
@@ -108,6 +107,8 @@ struct Thing *create_ambient_sound(const struct Coord3d *pos, ThingModel model, 
 
 void mute_audio(TbBool mute);
 void pause_music(TbBool pause);
+
+void update_flames_nearest_thing(struct Thing *thing);
 /******************************************************************************/
 #ifdef __cplusplus
 }

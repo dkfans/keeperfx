@@ -135,13 +135,13 @@ char numfield_1A;
     unsigned char numfield_1B;
     struct PlayerInfo players[PLAYERS_COUNT];
     struct Column columns_data[COLUMNS_COUNT];
-    struct CubeAttribs cubes_data[CUBE_ITEMS_MAX];
+    struct CubeAttribs cubes_data_UNUSED[CUBE_ITEMS_MAX_OLD];
     struct ObjectConfig objects_config[OBJECT_TYPES_COUNT_ORIGINAL];
 struct ObjectConfig objects_config_UNUSED[103];
 char field_117DA[14];
     // Traps and doors config; note that eventually we'll want to merge it with trapdoor_conf
-    struct ManfctrConfig traps_config_[TRAP_TYPES_COUNT];
-    struct ManfctrConfig doors_config_[DOOR_TYPES_COUNT];
+    struct ManfctrConfig traps_config_UNUSED[TRAP_TYPES_COUNT];
+    struct ManfctrConfig doors_config_UNUSED[DOOR_TYPES_COUNT_OLD];
     struct SpellConfig spells_config[30];
     struct Things things;
     struct Persons persons;
@@ -204,7 +204,7 @@ char field_14A83C;
     unsigned short free_things[THINGS_COUNT-1];
     /** Index of the first used element in free things array. All elements BEYOND this index are free. If all things are free, it is set to 0. */
     unsigned short free_things_start_index;
-    unsigned long play_gameturn;
+    long play_gameturn;
     unsigned long pckt_gameturn;
     /** Synchronized random seed. used for game actions, as it's always identical for clients of network game. */
     unsigned long action_rand_seed;
@@ -221,7 +221,7 @@ short field_14BB65[592];
     struct Coord3d pos_14C006;
     struct Packet packets[PACKETS_COUNT];
     struct CreatureStatsOLD creature_stats_OLD[CREATURE_TYPES_COUNT]; // New stats are in GameAdd
-    struct RoomStats room_stats[ROOM_TYPES_COUNT];
+    struct RoomStatsOLD room_stats_OLD[ROOM_TYPES_COUNT_OLD];
     struct MagicStats keeper_power_stats[POWER_TYPES_COUNT];
     struct ActionPoint action_points[ACTN_POINTS_COUNT];
 char active_players_count;

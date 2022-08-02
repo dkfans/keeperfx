@@ -135,15 +135,18 @@ long pinstfs_hand_grab(struct PlayerInfo *player, long *n)
 {
     struct Dungeon* dungeon = get_players_dungeon(player);
     struct Thing* thing = thing_get(player->hand_thing_idx);
+    struct Objects* objdat;
     if (dungeon->num_things_in_hand > 0)
     {
         dungeon->field_43 = 60;
         dungeon->field_53 = 40;
-  }
-  if (!thing_is_invalid(thing))
-    set_power_hand_graphic(player->id_number, 783, 256);
-  return 0;
-
+    }
+    if (!thing_is_invalid(thing))
+    {
+        objdat = get_objects_data(38);
+        set_power_hand_graphic(player->id_number, objdat->sprite_anim_idx, objdat->anim_speed);
+    }
+    return 0;
 }
 
 long pinstfm_hand_grab(struct PlayerInfo *player, long *n)
@@ -172,6 +175,7 @@ long pinstfe_hand_grab(struct PlayerInfo *player, long *n)
     SYNCDBG(8,"Starting");
     struct Thing* dsttng = thing_get(player->influenced_thing_idx);
     struct Thing* grabtng = thing_get(player->hand_thing_idx);
+    struct Objects* objdat;
     if (dsttng->creation_turn != player->influenced_thing_creation) {
         WARNLOG("The thing index %d is no longer the same",(int)player->influenced_thing_idx);
         player->influenced_thing_creation = 0;
@@ -186,8 +190,10 @@ long pinstfe_hand_grab(struct PlayerInfo *player, long *n)
     }
     // Update sprites for the creature in hand, and power hand itself
     set_power_hand_offset(player, get_first_thing_in_power_hand(player));
-    if (!thing_is_invalid(grabtng)) {
-        set_power_hand_graphic(player->id_number, 784, 256);
+    if (!thing_is_invalid(grabtng)) 
+    {
+        objdat = get_objects_data(38);
+        set_power_hand_graphic(player->id_number, objdat->sprite_anim_idx+1, objdat->anim_speed);
     }
     return 0;
 }
@@ -196,9 +202,13 @@ long pinstfs_hand_drop(struct PlayerInfo *player, long *n)
 {
     struct Dungeon* dungeon = get_players_dungeon(player);
     struct Thing* thing = thing_get(player->hand_thing_idx);
+    struct Objects* objdat;
     player->influenced_thing_idx = dungeon->things_in_hand[0];
     if (!thing_is_invalid(thing))
-      set_power_hand_graphic(player->id_number, 783, -256);
+    {
+        objdat = get_objects_data(38);
+        set_power_hand_graphic(player->id_number, objdat->sprite_anim_idx, -objdat->anim_speed);
+    }
     return 0;
 }
 
@@ -206,10 +216,14 @@ long pinstfe_hand_drop(struct PlayerInfo *player, long *n)
 {
     struct Dungeon* dungeon = get_players_dungeon(player);
     struct Thing* thing = thing_get(player->hand_thing_idx);
+    struct Objects* objdat;
     dungeon->field_43 = 60;
     dungeon->field_53 = 40;
     if (!thing_is_invalid(thing))
-      set_power_hand_graphic(player->id_number, 782, 256);
+    {
+        objdat = get_objects_data(37);
+        set_power_hand_graphic(player->id_number, objdat->sprite_anim_idx, objdat->anim_speed);
+    }
     player->influenced_thing_idx = 0;
     return 0;
 }
@@ -217,8 +231,12 @@ long pinstfe_hand_drop(struct PlayerInfo *player, long *n)
 long pinstfs_hand_whip(struct PlayerInfo *player, long *n)
 {
     struct Thing* thing = thing_get(player->hand_thing_idx);
+    struct Objects* objdat;
     if (!thing_is_invalid(thing))
-      set_power_hand_graphic(player->id_number, 786, 256);
+    {
+        objdat = get_objects_data(39);
+        set_power_hand_graphic(player->id_number, objdat->sprite_anim_idx+1, objdat->anim_speed);
+    }
     return 0;
 }
 
@@ -310,8 +328,11 @@ long pinstfm_hand_drop(struct PlayerInfo *player, long *n)
 long pinstfs_hand_whip_end(struct PlayerInfo *player, long *n)
 {
     struct Thing* thing = thing_get(player->hand_thing_idx);
-    if (!thing_is_invalid(thing)) {
-        set_power_hand_graphic(player->id_number, 787, 256);
+    struct Objects* objdat;
+    if (!thing_is_invalid(thing)) 
+    {
+        objdat = get_objects_data(39);
+        set_power_hand_graphic(player->id_number, objdat->sprite_anim_idx + 2, objdat->anim_speed);
     }
     return 0;
 }
@@ -319,8 +340,11 @@ long pinstfs_hand_whip_end(struct PlayerInfo *player, long *n)
 long pinstfe_hand_whip_end(struct PlayerInfo *player, long *n)
 {
     struct Thing* thing = thing_get(player->hand_thing_idx);
-    if (!thing_is_invalid(thing)) {
-        set_power_hand_graphic(player->id_number, 785, 256);
+    struct Objects* objdat;
+    if (!thing_is_invalid(thing))
+    {
+        objdat = get_objects_data(39);
+        set_power_hand_graphic(player->id_number, objdat->sprite_anim_idx, objdat->anim_speed);
     }
     return 0;
 }
@@ -380,7 +404,7 @@ long pinstfm_control_creature(struct PlayerInfo *player, long *n)
     }
     if (player->view_mode != PVM_FrontView)
     {
-        view_zoom_camera_in(cam, 30000, 6000);
+        view_zoom_camera_in(cam, 30000, 0);
         // Compute new camera angle
         long mv_a = (thing->move_angle_xy - cam->orient_a) & LbFPMath_AngleMask;
         if (mv_a > LbFPMath_PI)
@@ -513,7 +537,7 @@ long pinstfm_leave_creature(struct PlayerInfo *player, long *n)
 {
     if (player->view_mode != PVM_FrontView)
     {
-        view_zoom_camera_out(player->acamera, 30000, 6000);
+        view_zoom_camera_out(player->acamera, 30000, 0);
         if (get_camera_zoom(player->acamera) < player->dungeon_camera_zoom) {
             set_camera_zoom(player->acamera, player->dungeon_camera_zoom);
         }
@@ -537,6 +561,7 @@ long pinstfs_passenger_leave_creature(struct PlayerInfo *player, long *n)
     player->palette_fade_step_possession = 11;
     turn_off_all_window_menus();
     turn_off_query_menus();
+    turn_off_all_panel_menus();
     turn_on_main_panel_menu();
     set_flag_byte(&game.operation_flags, GOF_ShowPanel, (game.operation_flags & GOF_ShowGui) != 0);
   }
@@ -563,7 +588,7 @@ long pinstfs_query_creature(struct PlayerInfo *player, long *n)
     struct Thing* thing = thing_get(player->influenced_thing_idx);
     player->dungeon_camera_zoom = get_camera_zoom(player->acamera);
     set_selected_creature(player, thing);
-    unsigned char state = ( (player->work_state == PSt_CreatrQueryAll) || (player->work_state == PSt_CreatrInfoAll) ) ? PSt_CreatrInfoAll : PSt_CreatrInfo;
+    unsigned char state = ( (player->work_state == PSt_QueryAll) || (player->work_state == PSt_CreatrInfoAll) ) ? PSt_CreatrInfoAll : PSt_CreatrInfo;
     set_player_state(player, state, 0);
     return 0;
 }
@@ -1136,7 +1161,7 @@ struct Room *player_build_room_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Play
 {
     struct PlayerInfo* player = get_player(plyr_idx);
     struct Dungeon* dungeon = get_players_dungeon(player);
-    struct RoomStats* rstat = room_stats_get_for_kind(rkind);
+    struct RoomConfigStats* roomst = get_room_kind_stats(rkind);
     // Check if we are allowed to build the room
     if (!is_room_available(plyr_idx, rkind)) {
         // It shouldn't be possible to select unavailable room
@@ -1170,9 +1195,9 @@ struct Room *player_build_room_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Play
     {
         player->boxsize++;
     }
-    if (dungeon->total_money_owned >= rstat->cost * player->boxsize)
+    if (dungeon->total_money_owned >= roomst->cost * player->boxsize)
     {
-        if (take_money_from_dungeon(plyr_idx, rstat->cost, 1) < 0)
+        if (take_money_from_dungeon(plyr_idx, roomst->cost, 1) < 0)
         {
             if (is_my_player(player))
                 output_message(SMsg_GoldNotEnough, 0, true);

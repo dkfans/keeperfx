@@ -373,12 +373,6 @@ TbBool load_effects_config_file(const char *textname, const char *fname, unsigne
             WARNMSG("The %s file \"%s\" doesn't exist or is too small.",textname,fname);
         return false;
     }
-    if (len > MAX_CONFIG_FILE_SIZE)
-    {
-        if ((flags & CnfLd_IgnoreErrors) == 0)
-            WARNMSG("The %s file \"%s\" is too large.",textname,fname);
-        return false;
-    }
     char* buf = (char*)LbMemoryAlloc(len + 256);
     if (buf == NULL)
         return false;

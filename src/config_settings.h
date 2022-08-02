@@ -83,7 +83,7 @@ void copy_settings_to_dk_settings(void);
 TbBool load_settings(void);
 short save_settings(void);
 
-int get_creature_can_see_subtiles(void);
+int get_max_i_can_see_from_settings(void);
 /******************************************************************************/
 #ifdef __cplusplus
 }

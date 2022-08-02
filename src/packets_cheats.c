@@ -166,7 +166,7 @@ TbBool packets_process_cheats(
                     room = subtile_room_get(stl_x, stl_y);
                     if (room_exists(room))
                     {
-                        if (room->kind == RoK_TREASURE)
+                        if (room_role_matches(room->kind,RoRoF_GoldStorage))
                         {
                             count_gold_hoardes_in_room(room);
                         }
@@ -547,7 +547,7 @@ TbBool packets_process_cheats(
             set_packet_action(pckt, PckA_CheatHeartHealth, playeradd->cheatselection.chosen_player, new_health, 0, 0);
         }
         break;
-        case PSt_CreatrQueryAll:
+        case PSt_QueryAll:
         case PSt_CreatrInfoAll:
             *influence_own_creatures = 1;
             thing = get_creature_near(x, y);

@@ -131,7 +131,7 @@ struct Room *keeper_build_room(long stl_x,long stl_y,long plyr_idx,long rkind)
 {
     struct PlayerInfo* player = get_player(plyr_idx);
     struct Dungeon* dungeon = get_players_dungeon(player);
-    struct RoomStats* rstat = room_stats_get_for_kind(rkind);
+    struct RoomConfigStats* roomst = get_room_kind_stats(rkind);
     // Take top left subtile on single subtile boundbox, take center subtile on full slab boundbox
     MapCoord x = ((player->full_slab_cursor == 0) ? slab_subtile(subtile_slab_fast(stl_x), 0) : slab_subtile_center(subtile_slab_fast(stl_x)));
     MapCoord y = ((player->full_slab_cursor == 0) ? slab_subtile(subtile_slab_fast(stl_y), 0) : slab_subtile_center(subtile_slab_fast(stl_y)));
@@ -148,7 +148,7 @@ struct Room *keeper_build_room(long stl_x,long stl_y,long plyr_idx,long rkind)
         }
         struct Coord3d pos;
         set_coords_to_slab_center(&pos, subtile_slab_fast(stl_x), subtile_slab_fast(stl_y));
-        create_price_effect(&pos, plyr_idx, rstat->cost);
+        create_price_effect(&pos, plyr_idx, roomst->cost);
     }
     return room;
 }
@@ -212,8 +212,8 @@ TbBool player_sell_room_at_subtile(long plyr_idx, long stl_x, long stl_y)
         ERRORLOG("No room to delete at subtile (%d,%d)",(int)stl_x,(int)stl_y);
         return false;
     }
-    struct RoomStats* rstat = room_stats_get_for_room(room);
-    long revenue = compute_value_percentage(rstat->cost, gameadd.room_sale_percent);
+    struct RoomConfigStats* roomst = get_room_kind_stats(room->kind);
+    long revenue = compute_value_percentage(roomst->cost, gameadd.room_sale_percent);
     if (room->owner != game.neutral_player_num)
     {
         struct Dungeon* dungeon = get_players_num_dungeon(room->owner);
@@ -638,7 +638,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
   case PckA_ToggleLights:
       if (is_my_player(player))
       {
-          light_set_lights_on(game.lish.field_4614D == 0);
+          light_set_lights_on(game.lish.light_enabled == 0);
       }
       return 1;
   case PckA_SwitchScrnRes:
@@ -908,6 +908,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
         playeradd->roomspace_mode = drag_placement_mode;
         playeradd->one_click_mode_exclusive = true; // Enable GuiLayer_OneClickBridgeBuild layer
         playeradd->render_roomspace.highlight_mode = false;
+        playeradd->roomspace_no_default = false;
         return false;
     }
     case PckA_SetRoomspaceDefault:
@@ -986,7 +987,7 @@ void process_map_packet_clicks(long plyr_idx)
     SYNCDBG(7,"Starting");
     packet_left_button_double_clicked[plyr_idx] = 0;
     struct Packet* pckt = get_packet(plyr_idx);
-    if ((pckt->control_flags & PCtr_Unknown4000) == 0)
+    if ((pckt->control_flags & PCtr_Gui) == 0)
     {
         update_double_click_detection(plyr_idx);
     }

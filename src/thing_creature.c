@@ -137,11 +137,6 @@ struct Creatures creatures_NEW[] = {
 extern struct TbLoadFiles swipe_load_file[];
 extern struct TbSetupSprite swipe_setup_sprites[];
 /******************************************************************************/
-DLLIMPORT void _DK_anger_set_creature_anger_all_types(struct Thing *creatng, long reason);
-DLLIMPORT struct Thing *_DK_get_creature_near(unsigned short pos_x, unsigned short pos_y);
-DLLIMPORT struct Thing *_DK_get_creature_near_with_filter(unsigned short pos_x, unsigned short pos_y, Thing_Filter filter, long no_effects);
-DLLIMPORT struct Thing *_DK_get_creature_near_for_controlling(unsigned char a1, long reason, long targtng_idx);
-DLLIMPORT unsigned short _DK_find_next_annoyed_creature(unsigned char a1, unsigned short reason);
 DLLIMPORT long _DK_get_human_controlled_creature_target(struct Thing *creatng, long reason);
 /******************************************************************************/
 /**
@@ -219,7 +214,7 @@ long check_for_first_person_barrack_party(struct Thing *grthing)
         return 0;
     }
     struct Room* room = get_room_thing_is_on(grthing);
-    if (!room_still_valid_as_type_for_thing(room, RoK_BARRACKS, grthing))
+    if (!room_still_valid_as_type_for_thing(room, RoRoF_CrMakeGroup, grthing))
     {
         SYNCDBG(2,"Room %s owned by player %d does not allow the %s index %d owner %d to lead a party",room_code_name(room->kind),(int)room->owner,thing_model_name(grthing),(int)grthing->index,(int)grthing->owner);
         return 0;
@@ -2663,11 +2658,13 @@ TbBool kill_creature(struct Thing *creatng, struct Thing *killertng,
     if (!creature_control_invalid(cctrlgrp)) {
         cctrlgrp->kills_num++;
     }
-    if (is_my_player_number(creatng->owner)) {
-        output_message(SMsg_BattleDeath, MESSAGE_DELAY_BATTLE, true);
+    if (is_my_player_number(creatng->owner))
+    {
+        output_message_far_from_thing(creatng, SMsg_BattleDeath, MESSAGE_DELAY_BATTLE, true);
     } else
-    if (is_my_player_number(killertng->owner)) {
-        output_message(SMsg_BattleWon, MESSAGE_DELAY_BATTLE, true);
+    if (is_my_player_number(killertng->owner))
+    {
+        output_message_far_from_thing(creatng, SMsg_BattleWon, MESSAGE_DELAY_BATTLE, true);
     }
     if (is_hero_thing(killertng))
     {
@@ -3187,9 +3184,95 @@ void set_creature_instance(struct Thing *thing, CrInstance inst_idx, long a2, lo
     }
 }
 
-unsigned short find_next_annoyed_creature(unsigned char a1, unsigned short a2)
+unsigned short find_next_annoyed_creature(PlayerNumber plyr_idx, unsigned short current_annoyed_creature_idx)
 {
-  return _DK_find_next_annoyed_creature(a1, a2);
+    struct Thing *current_annoyed_creature = thing_get(current_annoyed_creature_idx);
+    struct Thing **current_ptr = &current_annoyed_creature;
+    struct Dungeon *dungeon = get_dungeon(plyr_idx);
+    struct Thing *creatng;
+    struct CreatureControl* cctrl;
+
+    if ((current_annoyed_creature->alloc_flags & TAlF_Exists) == 0 ||
+         !thing_is_creature(current_annoyed_creature) || 
+         (current_annoyed_creature->alloc_flags & TAlF_IsInLimbo) != 0 || 
+         (current_annoyed_creature->state_flags & TAlF_IsInMapWho) != 0 || 
+         current_annoyed_creature->active_state == CrSt_CreatureUnconscious)
+    {
+        creatng = thing_get(dungeon->creatr_list_start);
+        if (thing_is_invalid(creatng))
+        {
+            dungeon->zoom_annoyed_creature_idx = 0;
+        }
+        else
+        {
+            while (!anger_is_creature_angry(creatng))
+            {
+                cctrl = creature_control_get_from_thing(creatng);
+                creatng = thing_get(cctrl->players_next_creature_idx);
+                if (thing_is_invalid(creatng))
+                {
+                    dungeon->zoom_annoyed_creature_idx = 0;
+                    return 0;
+                }
+            }
+            dungeon->zoom_annoyed_creature_idx = creatng->index;
+            return creatng->index;
+        }
+    }
+    else
+    {
+        cctrl = creature_control_get_from_thing(thing_get(dungeon->zoom_annoyed_creature_idx));
+        creatng = thing_get(cctrl->players_next_creature_idx);
+
+        if ((creatng->alloc_flags & TAlF_Exists) &&
+            thing_is_creature(creatng) &&
+            (creatng->alloc_flags & TAlF_IsInLimbo) == 0 &&
+            (creatng->state_flags & TAlF_IsInMapWho) == 0 &&
+            creatng->active_state != CrSt_CreatureUnconscious &&
+            !thing_is_invalid(creatng))
+        {
+            TbBool found = true;
+            while (!anger_is_creature_angry(creatng) || (creatng->alloc_flags & TAlF_Exists) == 0 || !thing_is_creature(creatng) ||
+                   (creatng->alloc_flags & TAlF_IsInLimbo) != 0 || (creatng->state_flags & TAlF_IsInMapWho) != 0 || creatng->active_state == CrSt_CreatureUnconscious)
+            {
+                cctrl = creature_control_get_from_thing(creatng);
+                creatng =thing_get(cctrl->players_next_creature_idx);
+                if ( thing_is_invalid(creatng))
+                {
+                    found = false;
+                    break;
+                }
+            }
+            if (found)
+            {
+                dungeon->zoom_annoyed_creature_idx = creatng->index;
+                return creatng->index;
+            }
+        }
+        creatng = thing_get(dungeon->creatr_list_start);
+        if (*current_ptr != creatng)
+        {
+            while (!thing_is_invalid(creatng))
+            {
+                if (anger_is_creature_angry(creatng) &&
+                    (creatng->alloc_flags & TAlF_Exists) != 0 &&
+                    thing_is_creature(creatng) &&
+                    (creatng->alloc_flags & TAlF_IsInLimbo) == 0 &&
+                    (creatng->state_flags & TAlF_IsInMapWho) == 0 &&
+                    creatng->active_state != CrSt_CreatureUnconscious)
+                {
+                    dungeon->zoom_annoyed_creature_idx = creatng->index;
+                    return creatng->index;
+                }
+                cctrl = creature_control_get_from_thing(creatng);
+                creatng = thing_get(cctrl->players_next_creature_idx);
+                if (*current_ptr == creatng)
+                    return dungeon->zoom_annoyed_creature_idx;
+            }
+        }
+        return dungeon->zoom_annoyed_creature_idx;
+    }
+    return 0;
 }
 
 void draw_creature_view(struct Thing *thing)
@@ -3228,19 +3311,44 @@ void draw_creature_view(struct Thing *thing)
       MyScreenWidth/pixel_size, MyScreenHeight/pixel_size, game.numfield_1B);
 }
 
-struct Thing *get_creature_near(unsigned short pos_x, unsigned short pos_y)
+struct Thing *get_creature_near_for_controlling(PlayerNumber plyr_idx, MapCoord x, MapCoord y)
 {
-    return _DK_get_creature_near(pos_x, pos_y);
-}
+    MapCoordDelta nearest_distance = LONG_MAX;
+    struct Thing *nearest_thing = INVALID_THING;
 
-struct Thing *get_creature_near_with_filter(unsigned short pos_x, unsigned short pos_y, Thing_Filter filter, FilterParam param)
-{
-    return _DK_get_creature_near_with_filter(pos_x, pos_y, filter, param);
-}
+    for (long k = 0; k < AROUND_TILES_COUNT; k++)
+    {
+        
+        MapSubtlCoord stl_x = coord_subtile(x) + around[k].delta_x;
+        MapSubtlCoord stl_y = coord_subtile(y) + around[k].delta_y;
+        struct Map* mapblk = get_map_block_at(stl_x, stl_y);
+        unsigned long j = 0;
+        for (int i = get_mapwho_thing_index(mapblk); i != 0;)
+        {
+            struct Thing* thing = thing_get(i);
+            i = thing->next_on_mapblk;
 
-struct Thing *get_creature_near_for_controlling(unsigned char a1, long a2, long a3)
-{
-  return _DK_get_creature_near_for_controlling(a1, a2, a3);
+
+            if (can_cast_spell(plyr_idx,PwrK_POSSESS,stl_x,stl_y,thing,CastChk_Default ))
+            {
+                MapCoordDelta distance = get_2d_box_distance_xy(thing->mappos.x.val, thing->mappos.y.val, x, y);
+                if (distance < nearest_distance)
+                {
+                    nearest_distance = distance;
+                    nearest_thing = thing;
+                }
+            }
+            
+            j++;
+            if (j > THINGS_COUNT)
+            {
+                ERRORLOG("Infinite loop detected when sweeping things list");
+                break_mapwho_infinite_chain(mapblk);
+                break;
+            }
+        }
+    }
+    return nearest_thing;
 }
 
 /**
@@ -3433,9 +3541,15 @@ TbBool thing_is_creature_special_digger(const struct Thing *thing)
   return ((get_creature_model_flags(thing) & CMF_IsSpecDigger) != 0);
 }
 
-void anger_set_creature_anger_all_types(struct Thing *thing, long a2)
+void anger_set_creature_anger_all_types(struct Thing *thing, long new_value)
 {
-    _DK_anger_set_creature_anger_all_types(thing, a2);
+    if (creature_can_get_angry(thing))
+    {
+      for (AnnoyMotive anger_type = 1; anger_type < AngR_ListEnd; anger_type++ )
+      {
+        anger_set_creature_anger(thing, new_value, anger_type);
+      }
+    }
 }
 
 struct Room *get_creature_lair_room(const struct Thing *creatng)
@@ -3450,7 +3564,7 @@ struct Room *get_creature_lair_room(const struct Thing *creatng)
 TbBool creature_has_lair_room(const struct Thing *creatng)
 {
     struct Room* room = get_creature_lair_room(creatng);
-    if (!room_is_invalid(room) && (room->kind == get_room_for_job(Job_TAKE_SLEEP))) {
+    if (!room_is_invalid(room) && room_role_matches(room->kind,get_room_role_for_job(Job_TAKE_SLEEP))) {
         return true;
     }
     return false;
@@ -5103,7 +5217,7 @@ TngUpdateRet update_creature(struct Thing *thing)
         cctrl->force_visible--;
     if (cctrl->byte_8B == 0)
         cctrl->byte_8B = game.field_14EA4B;
-    if (cctrl->field_302 == 0) {
+    if (cctrl->stopped_for_hand_turns == 0) {
         process_creature_instance(thing);
     }
     update_creature_count(thing);
@@ -5111,9 +5225,9 @@ TngUpdateRet update_creature(struct Thing *thing)
     {
         if ((cctrl->stateblock_flags == 0) || creature_state_cannot_be_blocked(thing))
         {
-            if (cctrl->field_302 > 0)
+            if (cctrl->stopped_for_hand_turns > 0)
             {
-                cctrl->field_302--;
+                cctrl->stopped_for_hand_turns--;
             } else
             if (process_creature_state(thing) == TUFRet_Deleted)
             {
@@ -5136,9 +5250,9 @@ TngUpdateRet update_creature(struct Thing *thing)
     {
         if ((cctrl->stateblock_flags == 0) || creature_state_cannot_be_blocked(thing))
         {
-            if (cctrl->field_302 > 0)
+            if (cctrl->stopped_for_hand_turns > 0)
             {
-                cctrl->field_302--;
+                cctrl->stopped_for_hand_turns--;
             } else
             if (process_creature_state(thing) == TUFRet_Deleted)
             {
@@ -5978,7 +6092,7 @@ TbBool thing_is_pickable_by_digger(struct Thing *picktng, struct Thing *creatng)
     if (object_is_gold_pile(picktng))
     {
         struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
-        return ( ( (slabmap_owner(slb) == creatng->owner) || (slb->kind == SlbT_PATH) || (slab_kind_is_liquid(slb->kind)) ) &&
+        return ( ( (slabmap_owner(slb) == creatng->owner) || (subtile_is_unclaimed_path(picktng->mappos.x.stl.num, picktng->mappos.y.stl.num)) || (subtile_is_liquid(picktng->mappos.x.stl.num, picktng->mappos.y.stl.num)) ) &&
                   (creatng->creature.gold_carried < crstat->gold_hold) );
     }
     else if (thing_is_creature(picktng))
@@ -5992,11 +6106,15 @@ TbBool thing_is_pickable_by_digger(struct Thing *picktng, struct Thing *creatng)
     {
         return ( (get_room_slabs_count(creatng->owner, RoK_GRAVEYARD) > 0) && (corpse_ready_for_collection(picktng)) );
     }
-    else if (thing_can_be_picked_to_place_in_player_room(picktng, creatng->owner, RoK_LIBRARY, TngFRPickF_Default))
+    else if (thing_can_be_picked_to_place_in_player_room_of_role(picktng, creatng->owner, RoRoF_PowersStorage, TngFRPickF_Default))
     {
-        return (get_room_slabs_count(creatng->owner, RoK_LIBRARY) > 0);
+        if(!creature_can_pickup_library_object_at_subtile(creatng, picktng->mappos.x.stl.num, picktng->mappos.y.stl.num))
+        {
+            return false;
+        }
+        return (get_room_of_role_slabs_count(creatng->owner, RoRoF_PowersStorage) > 0);
     }
-    else if (thing_can_be_picked_to_place_in_player_room(picktng, creatng->owner, RoK_WORKSHOP, TngFRPickF_Default))
+    else if (thing_can_be_picked_to_place_in_player_room_of_role(picktng, creatng->owner, RoRoF_CratesStorage, TngFRPickF_Default))
     {
         return (get_room_slabs_count(creatng->owner, RoK_WORKSHOP) > 0);
     }

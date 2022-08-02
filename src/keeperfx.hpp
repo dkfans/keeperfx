@@ -60,7 +60,6 @@ extern "C" {
 #define LEGAL_HEIGHT 480
 
 #define LENSES_COUNT           15
-#define MINMAXS_COUNT          64
 #define SPELL_POINTER_GROUPS   14
 // Amount of instances; it's 17, 18 or 19
 #define PLAYER_INSTANCES_COUNT 19
@@ -105,9 +104,6 @@ enum AutotestFlags {
 #pragma pack(1)
 
 struct TbLoadFiles;
-struct RoomFlag;
-struct Number;
-struct JontySpr;
 
 // Windows-standard structure
 /*struct _GUID {
@@ -295,7 +291,6 @@ void clear_game_for_save(void);
 void clear_complete_game(void);
 void clear_things_and_persons_data(void);
 void clear_computer(void);
-TbBool swap_creature(long ncrt_id, long crtr_id);
 void engine(struct PlayerInfo *player, struct Camera *cam);
 void draw_gold_total(PlayerNumber plyr_idx, long scr_x, long scr_y, long units_per_px, long long value);
 void draw_mini_things_in_hand(long x, long y);

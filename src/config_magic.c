@@ -95,6 +95,9 @@ const struct NamedCommand magic_shot_commands[] = {
   {"HITLAVAEFFECT",         32},
   {"HITCREATURESOUND",      33},
   {"ANIMATIONTRANSPARENCY", 34},
+  {"DIGSOUND",              35},
+  {"DIGSOUNDVARIANTS",      36},
+  {"DIGEFFECT",             37},
   {NULL,                     0},
   };
 
@@ -1297,6 +1300,45 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
           break;
+      case 35: //DIGSOUND
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->dig.sndsample_idx = k;
+              n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 36: //DIGSOUNDVARIANTS
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->dig.sndsample_range = k;
+              n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 37: //DIGEFFECT
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->dig.effect_model = k;
+              n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
       case 0: // comment
           break;
       case -1: // end of buffer
@@ -1823,12 +1865,6 @@ TbBool load_magic_config_file(const char *textname, const char *fname, unsigned 
             WARNMSG("The %s file \"%s\" doesn't exist or is too small.",textname,fname);
         return false;
     }
-    if (len > MAX_CONFIG_FILE_SIZE)
-    {
-        if ((flags & CnfLd_IgnoreErrors) == 0)
-            WARNMSG("The %s file \"%s\" is too large.",textname,fname);
-        return false;
-    }
     char* buf = (char*)LbMemoryAlloc(len + 256);
     if (buf == NULL)
         return false;
@@ -2060,7 +2096,13 @@ TbBool set_power_available(PlayerNumber plyr_idx, PowerKind pwkind, long resrch,
     if (avail <= 0)
     {
         if (is_power_available(plyr_idx, pwkind))
+        {
             remove_power_from_player(pwkind, plyr_idx);
+        }
+        return true;
+    }
+    if (is_power_available(plyr_idx, pwkind))
+    {
         return true;
     }
     return add_power_to_player(pwkind, plyr_idx);

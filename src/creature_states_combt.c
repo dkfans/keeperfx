@@ -37,6 +37,7 @@
 #include "thing_shots.h"
 #include "thing_navigate.h"
 #include "creature_states_lair.h"
+#include "player_utils.h"
 #include "power_hand.h"
 #include "room_data.h"
 #include "room_jobs.h"
@@ -50,9 +51,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-/******************************************************************************/
-DLLIMPORT short _DK_creature_attempt_to_damage_walls(struct Thing *creatng);
-DLLIMPORT short _DK_creature_damage_walls(struct Thing *creatng);
 /******************************************************************************/
 TbBool combat_has_line_of_sight(const struct Thing *creatng, const struct Thing *enmtng, MapCoordDelta enmdist);
 /******************************************************************************/
@@ -203,7 +201,7 @@ TbBool creature_will_do_combat(const struct Thing *thing)
 
 long get_combat_distance(const struct Thing *thing, const struct Thing *enmtng)
 {
-    long dist = get_2d_box_distance(&thing->mappos, &enmtng->mappos);
+    long dist = get_2d_distance(&thing->mappos, &enmtng->mappos);
     long avgc = ((long)enmtng->clipbox_size_xy + (long)thing->clipbox_size_xy) / 2;
     if (dist < avgc)
         return 0;
@@ -1088,19 +1086,19 @@ TbBool set_creature_combat_state(struct Thing *fighter, struct Thing *enemy, CrA
     }
     figctrl->combat.attack_type = attack_type;
     // If creatures weren't at combat before, then play a speech
-    if ((enmctrl->combat_flags & (CmbtF_Melee|CmbtF_Ranged)) == 0)
+    if ((enmctrl->combat_flags & (CmbtF_Melee|CmbtF_Ranged|CmbtF_Waiting)) == 0)
     {
       if (is_my_player_number(fighter->owner))
       {
           if (is_my_player_number(enemy->owner)) {
-              output_message(SMsg_FingthingFriends, MESSAGE_DELAY_FIGHT, 1);
+              output_message_far_from_thing(fighter,SMsg_FingthingFriends, MESSAGE_DELAY_FIGHT, 1);
           } else {
-              output_message(SMsg_CreatureAttacking, MESSAGE_DELAY_FIGHT, 1);
+              output_message_far_from_thing(fighter,SMsg_CreatureAttacking, MESSAGE_DELAY_FIGHT, 1);
           }
       } else
       {
           if (is_my_player_number(enemy->owner)) {
-            output_message(SMsg_CreatureDefending, MESSAGE_DELAY_FIGHT, 1);
+              output_message_far_from_thing(enemy,SMsg_CreatureDefending, MESSAGE_DELAY_FIGHT, 1);
           }
       }
     }
@@ -1638,17 +1636,17 @@ long guard_post_combat_move(struct Thing *thing, long cntn_crstate)
     //return _DK_guard_post_combat_move(thing, a2);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct Room* room = get_room_thing_is_on(thing);
-    if (!room_is_invalid(room) && (room->kind == get_room_for_job(Job_GUARD)) && (cctrl->last_work_room_id == room->index)) {
+    if (!room_is_invalid(room) && (room_role_matches(room->kind,get_room_role_for_job(Job_GUARD))) && (cctrl->last_work_room_id == room->index)) {
         return 0;
     }
     if (cctrl->last_work_room_id <= 0)
     {
-        ERRORLOG("Cannot get to %s",room_code_name(get_room_for_job(Job_GUARD)));
+        ERRORLOG("Cannot get to %s",room_role_code_name(get_room_role_for_job(Job_GUARD)));
         cctrl->job_assigned = 0;
         return 0;
     }
     room = room_get(cctrl->last_work_room_id);
-    if (!room_still_valid_as_type_for_thing(room, get_room_for_job(Job_GUARD), thing))
+    if (!room_still_valid_as_type_for_thing(room, get_room_role_for_job(Job_GUARD), thing))
     {
         cctrl->job_assigned = 0;
         return 0;
@@ -2980,13 +2978,59 @@ short creature_attack_rooms(struct Thing *creatng)
 short creature_attempt_to_damage_walls(struct Thing *creatng)
 {
     TRACE_THING(creatng);
-    return _DK_creature_attempt_to_damage_walls(creatng);
+    struct Coord3d pos;
+
+    if ( get_random_position_in_dungeon_for_creature(creatng->owner, CrWaS_WithinDungeon, creatng, &pos)
+        && external_set_thing_state(creatng, CrSt_CreatureAttemptToDamageWalls) )
+    {
+        setup_person_move_to_position(creatng, pos.x.stl.num, pos.y.stl.num, 0);
+        creatng->continue_state = CrSt_CreatureAttemptToDamageWalls;
+        return 1;
+    }
+    else
+    {
+        set_start_state(creatng);
+        return 0;
+    }
 }
 
 short creature_damage_walls(struct Thing *creatng)
 {
     TRACE_THING(creatng);
-    return _DK_creature_damage_walls(creatng);
+    struct Coord3d pos;
+
+    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
+    if ( cctrl->damage_wall_coords != 0 )
+    {
+        MapSubtlCoord stl_x = stl_num_decode_x(cctrl->damage_wall_coords);
+        MapSubtlCoord stl_y = stl_num_decode_y(cctrl->damage_wall_coords);
+        struct Map* mapblk = get_map_block_at_pos(cctrl->damage_wall_coords);
+
+        struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
+
+
+        if ((mapblk->flags & SlbAtFlg_Blocking) != 0
+            && (creatng->owner == slabmap_owner(slb)))
+        {
+            struct SlabAttr* slbattr = get_slab_attrs(slb);
+            if (slbattr->category == SlbAtCtg_FortifiedWall)
+            {
+                if ( !cctrl->instance_id )
+                {
+                    pos.x.val = subtile_coord_center(stl_x);
+                    pos.y.val = subtile_coord_center(stl_y);
+                    if ( !creature_turn_to_face(creatng, &pos) )
+                    {
+                        set_creature_instance(creatng, CrInst_DAMAGE_WALL, 1, 0, 0);
+                    }
+                }
+                return 1;
+            }
+        }
+    }
+    set_start_state(creatng);
+    return 0;
+
 }
 
 /**

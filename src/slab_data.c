@@ -36,6 +36,7 @@ extern "C" {
 #endif
 /******************************************************************************/
 const short around_slab[] = {-86, -85, -84,  -1,   0,   1,  84,  85,  86};
+const short around_slab_eight[] = {-86, -85, -84,  -1,   1,  84,  85,  86};
 const short small_around_slab[] = {-85,   1,  85,  -1};
 struct SlabMap bad_slabmap_block;
 /******************************************************************************/
@@ -154,7 +155,7 @@ long slabmap_owner(const struct SlabMap *slb)
 {
     if (slabmap_block_invalid(slb))
         return 5;
-    return slb->field_5 & 0x07;
+    return slb->flags & 0x07;
 }
 
 /**
@@ -164,7 +165,7 @@ void slabmap_set_owner(struct SlabMap *slb, PlayerNumber owner)
 {
     if (slabmap_block_invalid(slb))
         return;
-    slb->field_5 ^= (slb->field_5 ^ owner) & 0x07;
+    slb->flags ^= (slb->flags ^ owner) & 0x07;
 }
 
 /**
@@ -191,7 +192,7 @@ unsigned long slabmap_wlb(struct SlabMap *slb)
 {
     if (slabmap_block_invalid(slb))
         return 0;
-    return (slb->field_5 >> 3) & 0x03;
+    return (slb->flags >> 3) & 0x03;
 }
 
 /**
@@ -201,7 +202,7 @@ void slabmap_set_wlb(struct SlabMap *slb, unsigned long wlbflag)
 {
     if (slabmap_block_invalid(slb))
         return;
-    slb->field_5 ^= (slb->field_5 ^ (wlbflag << 3)) & 0x18;
+    slb->flags ^= (slb->flags ^ (wlbflag << 3)) & 0x18;
 }
 
 /**
@@ -249,6 +250,12 @@ TbBool slab_is_wall(MapSlabCoord slb_x, MapSlabCoord slb_y)
     {
         return false;
     }
+}
+
+TbBool is_slab_type_walkable(SlabKind slbkind)
+{
+    struct SlabAttr *slbattr = get_slab_kind_attrs(slbkind);
+    return (slbattr->block_flags & (SlbAtFlg_Blocking | SlbAtFlg_Digable | SlbAtFlg_Valuable)) == 0;
 }
 
 TbBool slab_kind_is_animated(SlabKind slbkind)
