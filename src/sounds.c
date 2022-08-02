@@ -711,15 +711,14 @@ void update_first_person_object_ambience(struct Thing *thing)
     {
         struct CreatureStats* crstat = creature_stats_get(thing->model);
         hearing_range = (long)subtile_coord(crstat->hearing, 0) / 2;
-        sound_distances[0] = hearing_range;
-        sound_distances[1] = hearing_range;
     }
     else
     {
         hearing_range = 2560;
-        sound_distances[0] = hearing_range;
-        sound_distances[1] = hearing_range;
     }
+    sound_distances[0] = hearing_range;
+    sound_distances[1] = hearing_range;
+    sound_distances[2] = hearing_range;
     int i;
     if (ambience_timer)
     {
