@@ -297,6 +297,7 @@ void draw_mini_things_in_hand(long x, long y);
 TbBool screen_to_map(struct Camera *camera, long screen_x, long screen_y, struct Coord3d *mappos);
 void update_creatr_model_activities_list(void);
 void find_map_location_coords(long location, long *x, long *y, int plyr_idx, const char *func_name);
+TbBool any_player_close_enough_to_see(const struct Coord3d *pos);
 void affect_nearby_enemy_creatures_with_wind(struct Thing *thing);
 void affect_nearby_stuff_with_vortex(struct Thing *thing);
 void affect_nearby_friends_with_alarm(struct Thing *thing);

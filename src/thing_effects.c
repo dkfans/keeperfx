@@ -516,6 +516,9 @@ struct Thing *create_effect_element(const struct Coord3d *pos, unsigned short ee
     if (!i_can_allocate_free_thing_structure(FTAF_Default)) {
         return INVALID_THING;
     }
+    if (!any_player_close_enough_to_see(pos)) {
+        return INVALID_THING;
+    }
     struct EffectElementStats* eestat = get_effect_element_model_stats(eelmodel);
     struct InitLight ilght;
     LbMemorySet(&ilght, 0, sizeof(struct InitLight));
@@ -1201,6 +1204,11 @@ TngUpdateRet process_effect_generator(struct Thing *thing)
         delete_thing_structure(thing, 0);
         return TUFRet_Deleted;
     }
+    if ( !any_player_close_enough_to_see(&thing->mappos) )
+    {
+        SYNCDBG(18,"No player sees %s at (%d,%d,%d)",thing_model_name(thing),(int)thing->mappos.x.stl.num,(int)thing->mappos.y.stl.num,(int)thing->mappos.z.stl.num);
+        return TUFRet_Modified;
+    }
     if (thing->effect_generator.generation_delay > 0)
         thing->effect_generator.generation_delay--;
     if (thing->effect_generator.generation_delay > 0)
@@ -1868,7 +1876,10 @@ TngUpdateRet update_effect(struct Thing *efftng)
     }
     update_effect_light_intensity(efftng);
     // Effect generators can be used to generate effect elements
-    effect_generate_effect_elements(efftng);
+    if ( (effnfo->field_11 == 0) || any_player_close_enough_to_see(&efftng->mappos) )
+    {
+        effect_generate_effect_elements(efftng);
+    }
     // Let the effect affect area
     switch (effnfo->area_affect_type)
     {

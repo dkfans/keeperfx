@@ -809,6 +809,24 @@ void draw_lightning(const struct Coord3d *pos1, const struct Coord3d *pos2, long
     }
 }
 
+TbBool any_player_close_enough_to_see(const struct Coord3d *pos)
+{
+    struct PlayerInfo *player;
+    int i;
+    for (i=0; i < PLAYERS_COUNT; i++)
+    {
+      player = get_player(i);
+      if ( (player_exists(player)) && ((player->allocflags & PlaF_CompCtrl) == 0))
+      {
+        if (player->acamera == NULL)
+          continue;
+        if (get_2d_box_distance(&player->acamera->mappos, pos) <= (24 << 8))
+          return true;
+      }
+    }
+    return false;
+}
+
 void update_thing_animation(struct Thing *thing)
 {
     SYNCDBG(18,"Starting for %s",thing_model_name(thing));
