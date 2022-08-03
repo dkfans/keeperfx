@@ -254,7 +254,7 @@ SubtlCodedCoords process_dig_shot_hit_wall(struct Thing *thing, long blocked_fla
         case SlbBloF_WalledX:
         {
             k = thing->move_angle_xy & 0xFC00;
-            if (k != ANGLE_NORTH)
+            if (k != 0)
             {
               stl_x = thing->mappos.x.stl.num - 1;
               stl_y = thing->mappos.y.stl.num;
