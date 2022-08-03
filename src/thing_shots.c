@@ -661,11 +661,11 @@ static TbBool shot_hit_object_at(struct Thing *shotng, struct Thing *target, str
     }
     if (thing_is_dungeon_heart(target))
     {
-        if (shotng->model == 21) //TODO CONFIG shot model dependency, make config option instead
+        if (shotng->model == ShM_SwingSword) //TODO CONFIG shot model dependency, make config option instead
         {
-            thing_play_sample(target, 134+UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
+            thing_play_sample(target, 136, NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
         } else
-        if (shotng->model == 22) //TODO CONFIG shot model dependency, make config option instead
+        if (shotng->model == ShM_SwingFist) //TODO CONFIG shot model dependency, make config option instead
         {
             thing_play_sample(target, 144+UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
         }
