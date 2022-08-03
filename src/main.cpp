@@ -116,12 +116,8 @@
 
 #define TimePoint std::chrono::high_resolution_clock::time_point
 #define TimeNow std::chrono::high_resolution_clock::now()
-
-float frametime_ms;
-float frametime_ms_logic;
-float frametime_ms_draw;
-float frametime_ms_sleep;
-
+TimePoint initialized_time_point;
+struct FrametimeMeasurements frametime_measurements;
 
 int test_variable;
 
@@ -163,6 +159,36 @@ struct TimerTime Timer;
 TbBool TimerGame = false;
 TbBool TimerNoReset = false;
 TbBool TimerFreeze = false;
+
+/******************************************************************************/
+
+void frametime_start_measurement(int frametime_kind) {
+    long double current_nanoseconds = std::chrono::duration_cast<std::chrono::nanoseconds>(TimeNow - initialized_time_point).count();
+    long double current_milliseconds = current_nanoseconds/1000000.0;
+    frametime_measurements.starting_measurement[frametime_kind] = float(current_milliseconds);
+}
+
+void frametime_end_measurement(int frametime_kind) {
+    long double current_nanoseconds = std::chrono::duration_cast<std::chrono::nanoseconds>(TimeNow - initialized_time_point).count();
+    long double current_milliseconds = current_nanoseconds/1000000.0;
+    float result = float(current_milliseconds) - frametime_measurements.starting_measurement[frametime_kind];
+    frametime_measurements.frametime_current[frametime_kind] = result;
+    // Always set frametime_get_max to highest frametime, then reset it to 0 in frametime_end_all_measurements() once every second.
+    if (frametime_measurements.frametime_current[frametime_kind] > frametime_measurements.frametime_get_max[frametime_kind]) {
+        frametime_measurements.frametime_get_max[frametime_kind] = frametime_measurements.frametime_current[frametime_kind];
+    }
+}
+
+void frametime_end_all_measurements() {
+    // Display the frametime of the previous frame only, do not display the current frametime. Drawing the "frametime_current" is a bad idea, because frametimes are displayed on screen half-way through the rest of the measurements.
+    for (int i = 0; i < TOTAL_FRAMETIME_KINDS; i++) {
+        frametime_measurements.frametime_display[i] = frametime_measurements.frametime_current[i];
+        if (game.play_gameturn % game.num_fps == 0) {
+            frametime_measurements.frametime_display_max[i] = frametime_measurements.frametime_get_max[i];
+            frametime_measurements.frametime_get_max[i] = 0;
+        }
+    }
+}
 
 TbPixel get_player_path_colour(unsigned short owner)
 {
@@ -3361,12 +3387,6 @@ TbBool keeper_wait_for_screen_focus(void)
     return false;
 }
 
-float end_frametime_measurement(TimePoint measurement) {
-    long double nanoseconds = std::chrono::duration_cast<std::chrono::nanoseconds>(TimeNow - measurement).count();
-    long double milliseconds = nanoseconds/1000000.0;
-    return milliseconds;
-}
-
 void keeper_gameplay_loop(void)
 {
     short do_draw;
@@ -3388,12 +3408,12 @@ void keeper_gameplay_loop(void)
 
     KeeperSpeechClearEvents();
     LbErrorParachuteUpdate(); // For some reasone parachute keeps changing; Remove when won't be needed anymore
-
+    initialized_time_point = TimeNow;
     //the main gameplay loop starts
     while ((!quit_game) && (!exit_keeper))
     {
-        TimePoint measure_frametime = TimeNow;
-        TimePoint measure_frametime_of_logic = TimeNow;
+        frametime_start_measurement(Frametime_FullFrame);
+        frametime_start_measurement(Frametime_Logic);
         
         if ((game.flags_font & FFlg_unk10) != 0)
         {
@@ -3424,8 +3444,8 @@ void keeper_gameplay_loop(void)
         input();
         update();
         
-        frametime_ms_logic = end_frametime_measurement(measure_frametime_of_logic);
-        TimePoint measure_frametime_of_draw = TimeNow;
+        frametime_end_measurement(Frametime_Logic);
+        frametime_start_measurement(Frametime_Draw);
         
         if (quit_game || exit_keeper)
             do_draw = false;
@@ -3456,8 +3476,8 @@ void keeper_gameplay_loop(void)
         if ( do_draw )
             keeper_screen_swap();
         
-        frametime_ms_draw = end_frametime_measurement(measure_frametime_of_draw);
-        TimePoint measure_frametime_of_sleep = TimeNow;
+        frametime_end_measurement(Frametime_Draw);
+        frametime_start_measurement(Frametime_Sleep);
 
         // Make delay if the machine is too fast
         if ( (!game.packet_load_enable) || (game.turns_fastforward == 0) )
@@ -3466,8 +3486,9 @@ void keeper_gameplay_loop(void)
         if (game.turns_packetoff == game.play_gameturn)
             exit_keeper = 1;
         
-        frametime_ms_sleep = end_frametime_measurement(measure_frametime_of_sleep);
-        frametime_ms = end_frametime_measurement(measure_frametime);
+        frametime_end_measurement(Frametime_Sleep);
+        frametime_end_measurement(Frametime_FullFrame);
+        frametime_end_all_measurements();
     } // end while
     SYNCDBG(0,"Gameplay loop finished after %lu turns",(unsigned long)game.play_gameturn);
 }

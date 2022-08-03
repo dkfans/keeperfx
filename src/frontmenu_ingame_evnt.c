@@ -547,59 +547,31 @@ void draw_script_variable(PlayerNumber plyr_idx, unsigned char valtype, unsigned
     LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
 }
 
-float get_highest_frametime_ms;
-float get_highest_frametime_ms_logic;
-float get_highest_frametime_ms_draw;
-float get_highest_frametime_ms_sleep;
-float display_frametime_ms;
-float display_frametime_ms_logic;
-float display_frametime_ms_draw;
-float display_frametime_ms_sleep;
 void draw_frametime()
 {
-    if (debug_display_frametime == 2) { // Once per second display the highest
-        get_highest_frametime_ms = max(frametime_ms, get_highest_frametime_ms);
-        get_highest_frametime_ms_logic = max(frametime_ms_logic, get_highest_frametime_ms_logic);
-        get_highest_frametime_ms_draw = max(frametime_ms_draw, get_highest_frametime_ms_draw);
-        get_highest_frametime_ms_sleep = max(frametime_ms_sleep, get_highest_frametime_ms_sleep);
-        if (game.play_gameturn % game.num_fps == 0) {
-            display_frametime_ms = get_highest_frametime_ms;
-            display_frametime_ms_logic = get_highest_frametime_ms_logic;
-            display_frametime_ms_draw = get_highest_frametime_ms_draw;
-            display_frametime_ms_sleep = get_highest_frametime_ms_sleep;
-            get_highest_frametime_ms = 0;
-            get_highest_frametime_ms_logic = 0;
-            get_highest_frametime_ms_draw = 0;
-            get_highest_frametime_ms_sleep = 0;
-        }
-    } else {
-        display_frametime_ms = frametime_ms;
-        display_frametime_ms_logic = frametime_ms_logic;
-        display_frametime_ms_draw = frametime_ms_draw;
-        display_frametime_ms_sleep = frametime_ms_sleep;
-    }
-    
+    float display_value;
     char *text;
     LbTextSetFont(winfont);
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_RIGHT;
     int tx_units_per_px = (11 * units_per_pixel) / LbTextLineHeight();
-    for(int i = 0; i < 5; i++) {
+    for (int i = 0; i < TOTAL_FRAMETIME_KINDS; i++) {
+        if (debug_display_frametime == 1) {
+            display_value = frametime_measurements.frametime_display[i];
+        } else {
+            display_value = frametime_measurements.frametime_display_max[i];
+        }
         switch (i) {
-            case 0:
-                //text = buf_sprintf("Added: together %f ms", frametime_ms_logic+frametime_ms_draw+frametime_ms_sleep);
-                text = buf_sprintf("Frametime: %f ms", display_frametime_ms);
+            case Frametime_FullFrame:
+                text = buf_sprintf("Full frametime: %f ms", display_value);
                 break;
-            case 1:
-                text = buf_sprintf("", 0);
+            case Frametime_Logic:
+                text = buf_sprintf("Logic: %f ms", display_value);
                 break;
-            case 2:
-                text = buf_sprintf("Logic: %f ms", display_frametime_ms_logic);
+            case Frametime_Draw:
+                text = buf_sprintf("Draw: %f ms", display_value);
                 break;
-            case 3:
-                text = buf_sprintf("Draw: %f ms", display_frametime_ms_draw);
-                break;
-            case 4:
-                text = buf_sprintf("Sleep: %f ms", display_frametime_ms_sleep);
+            case Frametime_Sleep:
+                text = buf_sprintf("Sleep: %f ms", display_value);
                 break;
         }
         LbTextDrawResized(0, (28+i)*tx_units_per_px, tx_units_per_px, text);
