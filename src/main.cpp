@@ -2,6 +2,7 @@
 #include <windows.h>
 
 #include "keeperfx.hpp"
+#include <chrono>
 
 #include "bflib_coroutine.h"
 #include "bflib_math.h"
@@ -113,6 +114,11 @@
 #define strcasecmp _stricmp
 #endif
 
+#define TimePoint std::chrono::high_resolution_clock::time_point
+#define TimeNow std::chrono::high_resolution_clock::now()
+TimePoint initialized_time_point;
+struct FrametimeMeasurements frametime_measurements;
+
 int test_variable;
 
 char cmndline[CMDLN_MAXLEN+1];
@@ -153,6 +159,36 @@ struct TimerTime Timer;
 TbBool TimerGame = false;
 TbBool TimerNoReset = false;
 TbBool TimerFreeze = false;
+
+/******************************************************************************/
+
+void frametime_start_measurement(int frametime_kind) {
+    long double current_nanoseconds = std::chrono::duration_cast<std::chrono::nanoseconds>(TimeNow - initialized_time_point).count();
+    long double current_milliseconds = current_nanoseconds/1000000.0;
+    frametime_measurements.starting_measurement[frametime_kind] = float(current_milliseconds);
+}
+
+void frametime_end_measurement(int frametime_kind) {
+    long double current_nanoseconds = std::chrono::duration_cast<std::chrono::nanoseconds>(TimeNow - initialized_time_point).count();
+    long double current_milliseconds = current_nanoseconds/1000000.0;
+    float result = float(current_milliseconds) - frametime_measurements.starting_measurement[frametime_kind];
+    frametime_measurements.frametime_current[frametime_kind] = result;
+    // Always set frametime_get_max to highest frametime, then reset it to 0 in frametime_end_all_measurements() once every second.
+    if (frametime_measurements.frametime_current[frametime_kind] > frametime_measurements.frametime_get_max[frametime_kind]) {
+        frametime_measurements.frametime_get_max[frametime_kind] = frametime_measurements.frametime_current[frametime_kind];
+    }
+}
+
+void frametime_end_all_measurements() {
+    // Display the frametime of the previous frame only, do not display the current frametime. Drawing the "frametime_current" is a bad idea, because frametimes are displayed on screen half-way through the rest of the measurements.
+    for (int i = 0; i < TOTAL_FRAMETIME_KINDS; i++) {
+        frametime_measurements.frametime_display[i] = frametime_measurements.frametime_current[i];
+        if (game.play_gameturn % game.num_fps == 0) {
+            frametime_measurements.frametime_display_max[i] = frametime_measurements.frametime_get_max[i];
+            frametime_measurements.frametime_get_max[i] = 0;
+        }
+    }
+}
 
 TbPixel get_player_path_colour(unsigned short owner)
 {
@@ -3379,10 +3415,13 @@ void keeper_gameplay_loop(void)
 
     KeeperSpeechClearEvents();
     LbErrorParachuteUpdate(); // For some reasone parachute keeps changing; Remove when won't be needed anymore
-
+    initialized_time_point = TimeNow;
     //the main gameplay loop starts
     while ((!quit_game) && (!exit_keeper))
     {
+        frametime_start_measurement(Frametime_FullFrame);
+        frametime_start_measurement(Frametime_Logic);
+        
         if ((game.flags_font & FFlg_unk10) != 0)
         {
           if (game.play_gameturn == 4)
@@ -3411,10 +3450,13 @@ void keeper_gameplay_loop(void)
         input_eastegg();
         input();
         update();
-
+        
+        frametime_end_measurement(Frametime_Logic);
+        frametime_start_measurement(Frametime_Draw);
+        
         if (quit_game || exit_keeper)
             do_draw = false;
-
+        
         if ( do_draw )
             keeper_screen_redraw();
         keeper_wait_for_screen_focus();
@@ -3440,12 +3482,20 @@ void keeper_gameplay_loop(void)
         // Move the graphics window to center of screen buffer and swap screen
         if ( do_draw )
             keeper_screen_swap();
+        
+        frametime_end_measurement(Frametime_Draw);
+        frametime_start_measurement(Frametime_Sleep);
 
         // Make delay if the machine is too fast
         if ( (!game.packet_load_enable) || (game.turns_fastforward == 0) )
             keeper_wait_for_next_turn();
+        
         if (game.turns_packetoff == game.play_gameturn)
             exit_keeper = 1;
+        
+        frametime_end_measurement(Frametime_Sleep);
+        frametime_end_measurement(Frametime_FullFrame);
+        frametime_end_all_measurements();
     } // end while
     SYNCDBG(0,"Gameplay loop finished after %lu turns",(unsigned long)game.play_gameturn);
 }
