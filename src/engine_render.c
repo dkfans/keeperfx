@@ -5569,7 +5569,7 @@ static void draw_unkn09(struct BucketKindPolygonNearFP *unk09)
         draw_gpoly(&point_c, &point_b, &point_d);
         draw_gpoly(&point_d, &point_b, &unk09->p3);
         break;
-    case 11:
+    case 11: // Flickers in 1st person
         vec_mode = VM_Unknown5;
         coord_a.x = (unk09->c2.x + unk09->c1.x) >> 1;
         coord_a.y = (unk09->c2.y + unk09->c1.y) >> 1;
