@@ -249,37 +249,76 @@ SubtlCodedCoords process_dig_shot_hit_wall(struct Thing *thing, long blocked_fla
         ERRORLOG("Digging shot hit wall, but there's no digger creature index %d.",thing->parent_idx);
         return 0;
     }
-    if (blocked_flags & SlbBloF_WalledX)
+    switch ( blocked_flags )
     {
-        k = thing->move_angle_xy & 0xFC00;
-        if (k != 0)
+        case SlbBloF_WalledX:
         {
-          stl_x = thing->mappos.x.stl.num - 1;
-          stl_y = thing->mappos.y.stl.num;
+            k = thing->move_angle_xy & 0xFC00;
+            if (k != ANGLE_NORTH)
+            {
+              stl_x = thing->mappos.x.stl.num - 1;
+              stl_y = thing->mappos.y.stl.num;
+            }
+            else
+            {
+              stl_x = thing->mappos.x.stl.num + 1;
+              stl_y = thing->mappos.y.stl.num;
+            }
+            break;
         }
-        else
+        case SlbBloF_WalledY:
         {
-          stl_x = thing->mappos.x.stl.num + 1;
-          stl_y = thing->mappos.y.stl.num;
+            k = thing->move_angle_xy & 0xFE00;
+            if ((k != ANGLE_NORTH) && (k != ANGLE_WEST))
+            {
+              stl_x = thing->mappos.x.stl.num;
+              stl_y = thing->mappos.y.stl.num + 1;
+            }
+            else
+            {
+              stl_x = thing->mappos.x.stl.num;
+              stl_y = thing->mappos.y.stl.num - 1;
+            }
+            break;
         }
-    } else
-    if (blocked_flags & SlbBloF_WalledY)
-    {
-        k = thing->move_angle_xy & 0xFE00;
-        if ((k != 0) && (k != 0x0600))
+        case SlbBloF_WalledX|SlbBloF_WalledY|SlbBloF_WalledZ:
         {
-          stl_x = thing->mappos.x.stl.num;
-          stl_y = thing->mappos.y.stl.num + 1;
+            k = (thing->move_angle_xy & 0xFF00) | 256;
+            switch(k)
+            {
+                case ANGLE_NORTHEAST:
+                {
+                    stl_x = thing->mappos.x.stl.num + 1;
+                    stl_y = thing->mappos.y.stl.num - 1;
+                    break;
+                }
+                case ANGLE_SOUTHEAST:
+                {
+                    stl_x = thing->mappos.x.stl.num + 1;
+                    stl_y = thing->mappos.y.stl.num + 1;
+                    break;
+                }
+                case ANGLE_SOUTHWEST:
+                {
+                    stl_x = thing->mappos.x.stl.num - 1;
+                    stl_y = thing->mappos.y.stl.num + 1;
+                    break;
+                }
+                case ANGLE_NORTHWEST:
+                {
+                    stl_x = thing->mappos.x.stl.num - 1;
+                    stl_y = thing->mappos.y.stl.num - 1;
+                    break;
+                }
+            }
+            break;
         }
-        else
+        default:
         {
-          stl_x = thing->mappos.x.stl.num;
-          stl_y = thing->mappos.y.stl.num - 1;
+            stl_x = thing->mappos.x.stl.num;
+            stl_y = thing->mappos.y.stl.num;
+            break;
         }
-    } else
-    {
-        stl_x = thing->mappos.x.stl.num;
-        stl_y = thing->mappos.y.stl.num;
     }
     SubtlCodedCoords result = get_subtile_number(stl_x, stl_y);
     struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
@@ -412,6 +451,10 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
     TbBool digging = (shotst->model_flags & ShMF_Digging);
     SubtlCodedCoords hit_stl_num;
     short old_health;
+    short eff_kind;
+    short smpl_idx;
+    unsigned char range;
+    struct SlabMap* slb;
     if (digging)
     {
         hit_stl_num = process_dig_shot_hit_wall(shotng, blocked_flags, &old_health);
@@ -444,12 +487,25 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
                 destroy_shot = 1;
             }
         } else
-        {
-            efftng = create_shot_hit_effect(&shotng->mappos, shotng->owner, shotst->hit_generic.effect_model, shotst->hit_generic.sndsample_idx, shotst->hit_generic.sndsample_range);
-            if (!shotst->hit_generic.withstand) {
-                destroy_shot = 1;
+            {
+                eff_kind = shotst->hit_generic.effect_model;
+                smpl_idx = shotst->hit_generic.sndsample_idx;
+                range = shotst->hit_generic.sndsample_range;
+                if (digging)
+                {
+                    slb = get_slabmap_for_subtile(stl_num_decode_x(hit_stl_num), stl_num_decode_y(hit_stl_num));
+                    if ((old_health > slb->health) || (slb->kind == SlbT_GEMS))
+                    {
+                        smpl_idx = shotst->dig.sndsample_idx;
+                        range = shotst->dig.sndsample_range;
+                        eff_kind = shotst->dig.effect_model;
+                    }
+                }
+                efftng = create_shot_hit_effect(&shotng->mappos, shotng->owner, eff_kind, smpl_idx, range);
+                if (!shotst->hit_generic.withstand) {
+                    destroy_shot = 1;
+                }
             }
-        }
     }
 
     if ( !destroy_shot )
@@ -478,12 +534,12 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
                 apply_damage_to_thing(doortng, i, shotst->damage_type, -1);
             } else
             {
-                short eff_kind = shotst->hit_generic.effect_model;
-                short smpl_idx = shotst->hit_generic.sndsample_idx;
-                unsigned char range = shotst->hit_generic.sndsample_range;
+                eff_kind = shotst->hit_generic.effect_model;
+                smpl_idx = shotst->hit_generic.sndsample_idx;
+                range = shotst->hit_generic.sndsample_range;
                 if (digging)
                 {
-                    struct SlabMap* slb = get_slabmap_for_subtile(stl_num_decode_x(hit_stl_num), stl_num_decode_y(hit_stl_num));
+                    slb = get_slabmap_for_subtile(stl_num_decode_x(hit_stl_num), stl_num_decode_y(hit_stl_num));
                     if ((old_health > slb->health) || (slb->kind == SlbT_GEMS))
                     {
                         smpl_idx = shotst->dig.sndsample_idx;
