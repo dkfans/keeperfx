@@ -562,7 +562,7 @@ void draw_frametime()
         }
         switch (i) {
             case Frametime_FullFrame:
-                text = buf_sprintf("Full frametime: %f ms", display_value);
+                text = buf_sprintf("Frametime: %f ms", display_value);
                 break;
             case Frametime_Logic:
                 text = buf_sprintf("Logic: %f ms", display_value);
@@ -576,5 +576,6 @@ void draw_frametime()
         }
         LbTextDrawResized(0, (28+i)*tx_units_per_px, tx_units_per_px, text);
     }
+    lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
 }
 /******************************************************************************/
