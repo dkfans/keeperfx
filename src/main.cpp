@@ -813,16 +813,23 @@ TbBool any_player_close_enough_to_see(const struct Coord3d *pos)
 {
     struct PlayerInfo *player;
     int i;
+    short limit = 24 * COORD_PER_STL;
     for (i=0; i < PLAYERS_COUNT; i++)
     {
-      player = get_player(i);
-      if ( (player_exists(player)) && ((player->allocflags & PlaF_CompCtrl) == 0))
-      {
-        if (player->acamera == NULL)
-          continue;
-        if (get_2d_box_distance(&player->acamera->mappos, pos) <= (24 << 8))
-          return true;
-      }
+        player = get_player(i);
+        if ( (player_exists(player)) && ((player->allocflags & PlaF_CompCtrl) == 0))
+        {
+            if (player->acamera == NULL)
+                continue;
+            if (player->acamera->zoom >= CAMERA_ZOOM_MIN)
+            {
+                limit = SHRT_MAX - (2 * player->acamera->zoom);
+            }
+            if (get_2d_box_distance(&player->acamera->mappos, pos) <= limit)
+            {
+                return true;
+            }
+        }
     }
     return false;
 }
