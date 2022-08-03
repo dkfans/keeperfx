@@ -61,8 +61,7 @@ const struct NamedCommand objects_object_commands[] = {
   {"LIGHTRADIUS",      16},
   {"LIGHTISDYNAMIC",   17},
   {"MAPICON",          18},
-  {"AUDIBLE",          19},
-  {"SAMPLE",           20},
+  {"SAMPLE",           19},
   {NULL,                0},
   };
 
@@ -535,26 +534,13 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                         COMMAND_TEXT(cmd_num), block_buf, config_textname);
                 }
                 break;
-            case 19: // AUDIBLE
-                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-                {
-                    n = atoi(word_buf);
-                    objdat->has_sound = n;
-                    n++;
-                }
-                if (n <= 0)
-                {
-                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
-                }
-                break;
-            case 20: // SAMPLE
+            case 19: // SAMPLE
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
                     n = atoi(word_buf);
                     if ( (n >= 0) && (n <= (samples_in_bank - 1)) )
                     {
-                        objdat->smpl_idx = n;
+                        objdat->fp_smpl_idx = n;
                     }
                     else
                     {

@@ -728,7 +728,7 @@ void update_first_person_object_ambience(struct Thing *thing)
              objtng = thing_get(objtng->next_of_class))
         {
             objdat = get_objects_data_for_thing(objtng);
-            if (objdat->has_sound)
+            if (objdat->fp_smpl_idx != 0)
             {
                 new_distance = get_2d_box_distance(&thing->mappos, &objtng->mappos);
                 if (new_distance <= hearing_range)
@@ -747,7 +747,7 @@ void update_first_person_object_ambience(struct Thing *thing)
                 }
                 else
                 {
-                    stop_thing_playing_sample(objtng, objdat->smpl_idx);
+                    stop_thing_playing_sample(objtng, objdat->fp_smpl_idx);
                 }
             }
         }
@@ -757,10 +757,10 @@ void update_first_person_object_ambience(struct Thing *thing)
             if (!thing_is_invalid(audtng))
             {
                 objdat = get_objects_data_for_thing(audtng);
-                if (!S3DEmitterIsPlayingSample(audtng->snd_emitter_id, objdat->smpl_idx, 0))
+                if (!S3DEmitterIsPlayingSample(audtng->snd_emitter_id, objdat->fp_smpl_idx, 0))
                 {
                     long volume = line_of_sight_2d(&thing->mappos, &audtng->mappos) ? FULL_LOUDNESS : 128;
-                    thing_play_sample(audtng, objdat->smpl_idx, NORMAL_PITCH, -1, 3, 1, 2, volume);
+                    thing_play_sample(audtng, objdat->fp_smpl_idx, NORMAL_PITCH, -1, 3, 1, 2, volume);
                 }
             }
         }
