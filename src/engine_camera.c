@@ -469,6 +469,7 @@ void update_player_camera_fp(struct Camera *cam, struct Thing *thing)
     {
         eye_height = crstat->eye_height + (crstat->eye_height * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100;
     }
+    creature_stats_OLD->eye_height = eye_height; //todo Remove when creature_stats_OLD value is no longer used in dll
 
     if ( thing_is_creature(thing) )
     {
@@ -582,7 +583,6 @@ void update_player_camera_fp(struct Camera *cam, struct Thing *thing)
             }
         }
     }
-    creature_stats_OLD->eye_height = eye_height;
 }
 
 void view_move_camera_left(struct Camera *cam, long distance)
