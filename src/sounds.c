@@ -314,6 +314,14 @@ void update_player_sounds(void)
             }
         }
     }
+    
+    // Music and sound control
+    if ( !SoundDisabled ) {
+        if ( (game.turns_fastforward == 0) && (!game.numfield_149F38) ) {
+            MonitorStreamedSoundTrack();
+            process_sound_heap();
+        }
+    }
     SYNCDBG(9,"Finished");
 }
 
