@@ -240,7 +240,7 @@ SubtlCodedCoords process_dig_shot_hit_wall(struct Thing *thing, long blocked_fla
 {
     MapSubtlCoord stl_x;
     MapSubtlCoord stl_y;
-    unsigned long k;
+    unsigned short k;
     struct Thing* diggertng = INVALID_THING;
     if (thing->index != thing->parent_idx)
       diggertng = thing_get(thing->parent_idx);
@@ -315,7 +315,7 @@ SubtlCodedCoords process_dig_shot_hit_wall(struct Thing *thing, long blocked_fla
                     break;
                 }
             }
-            can_dig = block_has_diggable_side(diggertng->owner, subtile_slab_fast(stl_x), subtile_slab_fast(stl_y));
+            can_dig = subtile_is_diggable_at_diagonal_angle(thing, k, stl_x, stl_y);
             break;
         }
         default:
