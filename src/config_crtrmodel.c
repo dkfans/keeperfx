@@ -1611,7 +1611,6 @@ TbBool parse_creaturemodel_appearance_blocks(long crtr_model,char *buf,long len,
             }
             break;
         case 7: // FOOTSTEPPITCH
-            JUSTMSG("testlog do footstep", crtr_model);
             if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
