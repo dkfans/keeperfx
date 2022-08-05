@@ -316,7 +316,7 @@ SubtlCodedCoords process_dig_shot_hit_wall(struct Thing *thing, long blocked_fla
                 }
                 default:
                 {
-                    ERRORLOG("Tried to dig from subtile %d, %d diagonally, but angle was not diagonal: thing move angle was %d, and got a digging angle of %d.", thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing->move_angle_xy, k);
+                    ERRORLOG("Tried to dig from subtile (%d, %d) diagonally, but angle was not diagonal: thing move angle was %d, and got a digging angle of %d.", thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing->move_angle_xy, k);
                     stl_x = thing->mappos.x.stl.num;
                     stl_y = thing->mappos.y.stl.num;
                     break;
