@@ -287,7 +287,7 @@ SubtlCodedCoords process_dig_shot_hit_wall(struct Thing *thing, long blocked_fla
         case SlbBloF_WalledX|SlbBloF_WalledY:
         case SlbBloF_WalledX|SlbBloF_WalledY|SlbBloF_WalledZ:
         {
-            k = (thing->move_angle_xy & 0xFF00) | 256;
+            k = (thing->move_angle_xy & 0x700) | 256;
             switch(k)
             {
                 case ANGLE_NORTHEAST:
