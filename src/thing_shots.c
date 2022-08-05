@@ -287,7 +287,7 @@ SubtlCodedCoords process_dig_shot_hit_wall(struct Thing *thing, long blocked_fla
         case SlbBloF_WalledX|SlbBloF_WalledY:
         case SlbBloF_WalledX|SlbBloF_WalledY|SlbBloF_WalledZ:
         {
-            k = (thing->move_angle_xy & 0xFF00) | 256;
+            k = (thing->move_angle_xy & 0x700) | 256;
             switch(k)
             {
                 case ANGLE_NORTHEAST:
@@ -312,6 +312,13 @@ SubtlCodedCoords process_dig_shot_hit_wall(struct Thing *thing, long blocked_fla
                 {
                     stl_x = thing->mappos.x.stl.num - 1;
                     stl_y = thing->mappos.y.stl.num - 1;
+                    break;
+                }
+                default:
+                {
+                    ERRORLOG("Tried to dig from subtile (%d, %d) diagonally, but angle was not diagonal: thing move angle was %d, and got a digging angle of %d.", thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing->move_angle_xy, k);
+                    stl_x = thing->mappos.x.stl.num;
+                    stl_y = thing->mappos.y.stl.num;
                     break;
                 }
             }
