@@ -3409,7 +3409,7 @@ void gameplay_loop_logic() {
     {
         quit_game = true;
         exit_keeper = true;
-        break;
+        return;
     }
     evm_stat(1, "turn val=%ld,action_seed=%ld,unsync_seed=%ld", game.play_gameturn, game.action_rand_seed, game.unsync_rand_seed);
     if (start_params.autotest_flags & ATF_FixedSeed)
