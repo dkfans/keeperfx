@@ -357,6 +357,24 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
         }
         return true;
     }
+    else if (strcasecmp(parstr, "frametime") == 0 || strcasecmp(parstr, "ft") == 0)
+    {
+        if (debug_display_frametime == 1) { // If already displaying, then turn off
+            debug_display_frametime = 0;
+        } else {
+            debug_display_frametime = 1;
+        }
+        return true;
+    }
+    else if (strcasecmp(parstr, "frametime.max") == 0 || strcasecmp(parstr, "ft.max") == 0)
+    {
+        if (debug_display_frametime == 2) { // If already displaying, then turn off
+            debug_display_frametime = 0;
+        } else {
+            debug_display_frametime = 2;
+        }
+        return true;
+    }
     else if (strcasecmp(parstr, "quit") == 0)
     {
         quit_game = 1;

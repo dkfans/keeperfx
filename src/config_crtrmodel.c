@@ -78,6 +78,7 @@ const struct NamedCommand creatmodel_attributes_commands[] = {
   {"FEARSOMEFACTOR",     30},
   {"TOKINGRECOVERY",     31},
   {"CORPSEVANISHEFFECT", 32},
+  {"FOOTSTEPPITCH",      33},
   {NULL,                  0},
   };
 
@@ -164,6 +165,7 @@ const struct NamedCommand creatmodel_appearance_commands[] = {
   {"NATURALDEATHKIND",     4},
   {"SHOTORIGIN",           5},
   {"CORPSEVANISHEFFECT",   6},
+  {"FOOTSTEPPITCH",        7},
   {NULL,                   0},
   };
 
@@ -1491,6 +1493,7 @@ TbBool parse_creaturemodel_appearance_blocks(long crtr_model,char *buf,long len,
         creatures[crtr_model].shot_shift_x = 0;
         creatures[crtr_model].shot_shift_y = 0;
         creatures[crtr_model].shot_shift_z = 0;
+        crstat->footstep_pitch = 100;
         crstat->corpse_vanish_effect = 0;
     }
     // Find the block
@@ -1606,6 +1609,13 @@ TbBool parse_creaturemodel_appearance_blocks(long crtr_model,char *buf,long len,
                 n++;
             }
             break;
+        case 7: // FOOTSTEPPITCH
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                crstat->footstep_pitch = k;
+                n++;
+            }
         case 0: // comment
             break;
         case -1: // end of buffer
@@ -2076,11 +2086,8 @@ TbBool parse_creaturemodel_sprites_blocks(long crtr_model,char *buf,long len,con
           char word_buf[COMMAND_WORD_LEN];
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
-            k = atoi(word_buf);
-            if ((k == 0) && (strcmp(word_buf, "0") != 0))
-            {
-                CONFWRNLOG("Custom animations are not supported yet");
-            }
+            struct Objects obj_tmp;
+            k = get_anim_id(word_buf, &obj_tmp);
             set_creature_model_graphics(crtr_model, cmd_num-1, k);
             n++;
           }
@@ -2135,13 +2142,13 @@ TbBool parse_creaturemodel_sounds_blocks(long crtr_model,char *buf,long len,cons
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                creature_sounds[crtr_model].hurt.index = k;
+                gameadd.crtr_conf.creature_sounds[crtr_model].hurt.index = k;
                 n++;
             }
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                creature_sounds[crtr_model].hurt.count = k;
+                gameadd.crtr_conf.creature_sounds[crtr_model].hurt.count = k;
                 n++;
             }            
             if (n < 1)
@@ -2154,13 +2161,13 @@ TbBool parse_creaturemodel_sounds_blocks(long crtr_model,char *buf,long len,cons
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                creature_sounds[crtr_model].hit.index = k;
+                gameadd.crtr_conf.creature_sounds[crtr_model].hit.index = k;
                 n++;
             }
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                creature_sounds[crtr_model].hit.count = k;
+                gameadd.crtr_conf.creature_sounds[crtr_model].hit.count = k;
                 n++;
             }
             if (n < 1)
@@ -2173,13 +2180,13 @@ TbBool parse_creaturemodel_sounds_blocks(long crtr_model,char *buf,long len,cons
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                creature_sounds[crtr_model].happy.index = k;
+                gameadd.crtr_conf.creature_sounds[crtr_model].happy.index = k;
                 n++;
             }
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                creature_sounds[crtr_model].happy.count = k;
+                gameadd.crtr_conf.creature_sounds[crtr_model].happy.count = k;
                 n++;
             }            
             if (n < 1)
@@ -2192,13 +2199,13 @@ TbBool parse_creaturemodel_sounds_blocks(long crtr_model,char *buf,long len,cons
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                creature_sounds[crtr_model].sad.index = k;
+                gameadd.crtr_conf.creature_sounds[crtr_model].sad.index = k;
                 n++;
             }
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                creature_sounds[crtr_model].sad.count = k;
+                gameadd.crtr_conf.creature_sounds[crtr_model].sad.count = k;
                 n++;
             }            
             if (n < 1)
@@ -2211,13 +2218,13 @@ TbBool parse_creaturemodel_sounds_blocks(long crtr_model,char *buf,long len,cons
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              creature_sounds[crtr_model].hang.index = k;
+              gameadd.crtr_conf.creature_sounds[crtr_model].hang.index = k;
               n++;
             }
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              creature_sounds[crtr_model].hang.count = k;
+              gameadd.crtr_conf.creature_sounds[crtr_model].hang.count = k;
               n++;
             }
             if (n < 1)
@@ -2230,13 +2237,13 @@ TbBool parse_creaturemodel_sounds_blocks(long crtr_model,char *buf,long len,cons
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              creature_sounds[crtr_model].drop.index = k;
+              gameadd.crtr_conf.creature_sounds[crtr_model].drop.index = k;
               n++;
             }
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              creature_sounds[crtr_model].drop.count = k;
+              gameadd.crtr_conf.creature_sounds[crtr_model].drop.count = k;
               n++;
             }
             if (n < 1)
@@ -2249,13 +2256,13 @@ TbBool parse_creaturemodel_sounds_blocks(long crtr_model,char *buf,long len,cons
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              creature_sounds[crtr_model].torture.index = k;
+              gameadd.crtr_conf.creature_sounds[crtr_model].torture.index = k;
               n++;
             }
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              creature_sounds[crtr_model].torture.count = k;
+              gameadd.crtr_conf.creature_sounds[crtr_model].torture.count = k;
               n++;
             }
             if (n < 1)
@@ -2268,13 +2275,13 @@ TbBool parse_creaturemodel_sounds_blocks(long crtr_model,char *buf,long len,cons
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              creature_sounds[crtr_model].slap.index = k;
+              gameadd.crtr_conf.creature_sounds[crtr_model].slap.index = k;
               n++;
             }
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              creature_sounds[crtr_model].slap.count = k;
+              gameadd.crtr_conf.creature_sounds[crtr_model].slap.count = k;
               n++;
             }
             if (n < 1)
@@ -2287,13 +2294,13 @@ TbBool parse_creaturemodel_sounds_blocks(long crtr_model,char *buf,long len,cons
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              creature_sounds[crtr_model].die.index = k;
+              gameadd.crtr_conf.creature_sounds[crtr_model].die.index = k;
               n++;
             }
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              creature_sounds[crtr_model].die.count = k;
+              gameadd.crtr_conf.creature_sounds[crtr_model].die.count = k;
               n++;
             }
             if (n < 1)
@@ -2306,13 +2313,13 @@ TbBool parse_creaturemodel_sounds_blocks(long crtr_model,char *buf,long len,cons
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              creature_sounds[crtr_model].foot.index = k;
+              gameadd.crtr_conf.creature_sounds[crtr_model].foot.index = k;
               n++;
             }
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              creature_sounds[crtr_model].foot.count = k;
+              gameadd.crtr_conf.creature_sounds[crtr_model].foot.count = k;
               n++;
             }
             if (n < 1)
@@ -2325,13 +2332,13 @@ TbBool parse_creaturemodel_sounds_blocks(long crtr_model,char *buf,long len,cons
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              creature_sounds[crtr_model].fight.index = k;
+              gameadd.crtr_conf.creature_sounds[crtr_model].fight.index = k;
               n++;
             }
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              creature_sounds[crtr_model].fight.count = k;
+              gameadd.crtr_conf.creature_sounds[crtr_model].fight.count = k;
               n++;
             }
             if (n < 1)
@@ -2363,12 +2370,6 @@ TbBool load_creaturemodel_config_file(long crtr_model,const char *textname,const
     {
         if ((flags & CnfLd_IgnoreErrors) == 0)
             WARNMSG("The %s file \"%s\" doesn't exist or is too small.",textname,fname);
-        return false;
-    }
-    if (len > MAX_CONFIG_FILE_SIZE)
-    {
-        if ((flags & CnfLd_IgnoreErrors) == 0)
-            WARNMSG("The %s file \"%s\" is too large.",textname,fname);
         return false;
     }
     char* buf = (char*)LbMemoryAlloc(len + 256);
