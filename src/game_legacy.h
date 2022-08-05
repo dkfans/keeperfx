@@ -223,7 +223,7 @@ short field_14BB65[592];
     struct CreatureStatsOLD creature_stats_OLD[CREATURE_TYPES_COUNT]; // New stats are in GameAdd
     struct RoomStatsOLD room_stats_OLD[ROOM_TYPES_COUNT_OLD];
     struct MagicStats keeper_power_stats[POWER_TYPES_COUNT];
-    struct ActionPoint action_points[ACTN_POINTS_COUNT];
+    struct ActionPoint action_points_OLD[ACTN_POINTS_COUNT_OLD];
 char active_players_count;
     unsigned char hero_player_num;
     unsigned char neutral_player_num;

@@ -23,6 +23,7 @@
 #include "bflib_basics.h"
 #include "globals.h"
 
+#include "actionpt.h"
 #include "config_cubes.h"
 #include "config_creature.h"
 #include "config_crtrmodel.h"
@@ -201,6 +202,7 @@ struct GameAdd {
     struct ScriptFxLine   fx_lines[FX_LINES_COUNT];
     int                   active_fx_lines;
 
+    struct ActionPoint action_points[ACTN_POINTS_COUNT];
     struct DungeonAdd dungeon[DUNGEONS_COUNT];
 
     struct ThingAdd things[THINGS_COUNT];
