@@ -249,6 +249,7 @@ SubtlCodedCoords process_dig_shot_hit_wall(struct Thing *thing, long blocked_fla
         ERRORLOG("Digging shot hit wall, but there's no digger creature index %d.",thing->parent_idx);
         return 0;
     }
+    TbBool can_dig;
     switch ( blocked_flags )
     {
         case SlbBloF_WalledX:
@@ -264,6 +265,7 @@ SubtlCodedCoords process_dig_shot_hit_wall(struct Thing *thing, long blocked_fla
               stl_x = thing->mappos.x.stl.num + 1;
               stl_y = thing->mappos.y.stl.num;
             }
+            can_dig = true;
             break;
         }
         case SlbBloF_WalledY:
@@ -279,6 +281,7 @@ SubtlCodedCoords process_dig_shot_hit_wall(struct Thing *thing, long blocked_fla
               stl_x = thing->mappos.x.stl.num;
               stl_y = thing->mappos.y.stl.num - 1;
             }
+            can_dig = true;
             break;
         }
         case SlbBloF_WalledX|SlbBloF_WalledY:
@@ -312,12 +315,14 @@ SubtlCodedCoords process_dig_shot_hit_wall(struct Thing *thing, long blocked_fla
                     break;
                 }
             }
+            can_dig = block_has_diggable_side(diggertng->owner, subtile_slab_fast(stl_x), subtile_slab_fast(stl_y));
             break;
         }
         default:
         {
             stl_x = thing->mappos.x.stl.num;
             stl_y = thing->mappos.y.stl.num;
+            can_dig = true;
             break;
         }
     }
@@ -381,30 +386,33 @@ SubtlCodedCoords process_dig_shot_hit_wall(struct Thing *thing, long blocked_fla
     {
         return result;
     }
-    int damage = thing->shot.damage;
-    if ((damage >= slb->health) && !slab_kind_is_indestructible(slb->kind))
+    if (can_dig)
     {
-        if ((mapblk->flags & SlbAtFlg_Valuable) != 0)
-        { // Valuables require counting gold
-            give_gold_to_creature_or_drop_on_map_when_digging(diggertng, stl_x, stl_y, damage);
-            mine_out_block(stl_x, stl_y, diggertng->owner);
-            thing_play_sample(diggertng, 72+UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+        int damage = thing->shot.damage;
+        if ((damage >= slb->health) && !slab_kind_is_indestructible(slb->kind))
+        {
+            if ((mapblk->flags & SlbAtFlg_Valuable) != 0)
+            { // Valuables require counting gold
+                give_gold_to_creature_or_drop_on_map_when_digging(diggertng, stl_x, stl_y, damage);
+                mine_out_block(stl_x, stl_y, diggertng->owner);
+                thing_play_sample(diggertng, 72+UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+            } else
+            if ((mapblk->flags & SlbAtFlg_IsDoor) == 0)
+            { // All non-gold and non-door slabs are just destroyed
+                dig_out_block(stl_x, stl_y, diggertng->owner);
+                thing_play_sample(diggertng, 72+UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+            }
+            check_map_explored(diggertng, stl_x, stl_y);
         } else
-        if ((mapblk->flags & SlbAtFlg_IsDoor) == 0)
-        { // All non-gold and non-door slabs are just destroyed
-            dig_out_block(stl_x, stl_y, diggertng->owner);
-            thing_play_sample(diggertng, 72+UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
-        }
-        check_map_explored(diggertng, stl_x, stl_y);
-    } else
-    {
-        if (!slab_kind_is_indestructible(slb->kind))
         {
-            slb->health -= damage;
-        }
-        if ((mapblk->flags & SlbAtFlg_Valuable) != 0)
-        {
-            give_gold_to_creature_or_drop_on_map_when_digging(diggertng, stl_x, stl_y, damage);
+            if (!slab_kind_is_indestructible(slb->kind))
+            {
+                slb->health -= damage;
+            }
+            if ((mapblk->flags & SlbAtFlg_Valuable) != 0)
+            {
+                give_gold_to_creature_or_drop_on_map_when_digging(diggertng, stl_x, stl_y, damage);
+            }
         }
     }
     return result;
