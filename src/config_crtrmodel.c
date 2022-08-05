@@ -1622,7 +1622,6 @@ TbBool parse_creaturemodel_appearance_blocks(long crtr_model,char *buf,long len,
             if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                JUSTMSG("testlog set for model %d to %d", crtr_model, k);
                 creature_picked_up_offset[crtr_model].delta_x = k;
                 n++;
             }
