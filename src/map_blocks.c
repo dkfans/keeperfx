@@ -659,15 +659,6 @@ unsigned long remove_unwanted_things_from_floor_slab(MapSlabCoord slb_x, MapSlab
                     break;
                 }
                 case TCls_Object:
-                {
-                    if ( (!object_is_gold(thing)) && (!object_is_hero_gate(thing)) && (!thing_is_spellbook(thing)) &&
-                    (!thing_is_special_box(thing)) && (!thing_is_workshop_crate(thing)) )
-                    {
-                        destroy_object(thing);
-                        removed_num++;
-                    }
-                    break;
-                }
                 case TCls_Creature:
                 case TCls_DeadCreature:
                 case TCls_Shot:
