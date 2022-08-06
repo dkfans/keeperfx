@@ -480,14 +480,14 @@ long delete_all_object_things_from_slab(MapSlabCoord slb_x, MapSlabCoord slb_y, 
     return removed_num;
 }
 
-long delete_unwanted_things_from_liquid_slab(MapSlabCoord slb_x, MapSlabCoord slb_y, long rmeffect)
+unsigned long delete_unwanted_things_from_liquid_slab(MapSlabCoord slb_x, MapSlabCoord slb_y, long rmeffect)
 {
     SubtlCodedCoords stl_num;
     struct Thing *thing;
     struct Map *mapblk;
     struct Objects *objdat;
     struct Coord3d pos;
-    long removed_num;
+    unsigned long removed_num;
     unsigned long k;
     long i;
     long n;
@@ -522,6 +522,11 @@ long delete_unwanted_things_from_liquid_slab(MapSlabCoord slb_x, MapSlabCoord sl
                     delete_thing_structure(thing, 0);
                     removed_num++;
                 }
+            }
+            else if (thing->class_id == TCls_Door)
+            {
+                remove_key_on_door(thing);
+                delete_thing_structure(thing, 0);
             }
             // Per thing code ends
             k++;
