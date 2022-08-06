@@ -39,6 +39,7 @@
 #include "game_legacy.h"
 #include "engine_render.h"
 #include "thing_navigate.h"
+#include "thing_physics.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -530,6 +531,161 @@ long delete_unwanted_things_from_liquid_slab(MapSlabCoord slb_x, MapSlabCoord sl
                 break_mapwho_infinite_chain(mapblk);
                 break;
             }
+        }
+    }
+    return removed_num;
+}
+
+unsigned long remove_unwanted_things_from_wall_slab(MapSlabCoord slb_x, MapSlabCoord slb_y)
+{
+    SubtlCodedCoords stl_num = get_subtile_number_at_slab_center(slb_x, slb_y);
+    struct Thing *thing;
+    struct Map *mapblk;
+    unsigned long removed_num = 0;
+    unsigned long k;
+    long i;
+    long n;
+    for (n=0; n < AROUND_MAP_LENGTH; n++)
+    {
+        mapblk = get_map_block_at_pos(stl_num+around_map[n]);
+        k = 0;
+        i = get_mapwho_thing_index(mapblk);
+        while (i != 0)
+        {
+            thing = thing_get(i);
+            if (thing_is_invalid(thing))
+            {
+                WARNLOG("Jump out of things array");
+                break;
+            }
+            i = thing->next_on_mapblk;
+            // Per thing code
+            if (thing_in_wall_at(thing, &thing->mappos))
+            {
+                switch(thing->class_id)
+                {
+                    case TCls_Door:
+                    {
+                        // using destroy_door places claimed path, which we don't want
+                        remove_key_on_door(thing);
+                        delete_thing_structure(thing, 0);
+                        removed_num++;
+                        break;
+                    }
+                    case TCls_Effect:
+                    {
+                        destroy_effect_thing(thing);
+                        removed_num++;
+                        break;
+                    }
+                    case TCls_Object:
+                    {
+                        if ( (object_is_gold(thing)) || (thing_is_spellbook(thing)) || (thing_is_special_box(thing)) || (thing_is_workshop_crate(thing)) )
+                        {
+                            move_creature_to_nearest_valid_position(thing);
+                        }
+                        else
+                        {
+                            destroy_object(thing);
+                            removed_num++;
+                        }
+                        break;
+                    }
+                    case TCls_Creature:
+                    case TCls_DeadCreature:
+                    {
+                        move_creature_to_nearest_valid_position(thing);
+                        break;
+                    }
+                    default:
+                    {
+                        delete_thing_structure(thing, 0);
+                        removed_num++;
+                        break;
+                    }
+                    break;
+                }
+            }
+            // Per thing code ends
+            k++;
+            if (k > THINGS_COUNT)
+            {
+                ERRORLOG("Infinite loop detected when sweeping things list");
+                break_mapwho_infinite_chain(mapblk);
+                break;
+            }
+        }
+    }
+    return removed_num;
+}
+
+unsigned long remove_unwanted_things_from_floor_slab(MapSlabCoord slb_x, MapSlabCoord slb_y)
+{
+    SubtlCodedCoords stl_num = get_subtile_number_at_slab_center(slb_x, slb_y);
+    struct Thing *thing;
+    struct Map *mapblk;
+    unsigned long removed_num = 0;
+    unsigned long k;
+    long i;
+    long n;
+    for (n=0; n < AROUND_MAP_LENGTH; n++)
+    {
+        mapblk = get_map_block_at_pos(stl_num+around_map[n]);
+        k = 0;
+        i = get_mapwho_thing_index(mapblk);
+        while (i != 0)
+        {
+            thing = thing_get(i);
+            if (thing_is_invalid(thing))
+            {
+                WARNLOG("Jump out of things array");
+                break;
+            }
+            i = thing->next_on_mapblk;
+            // Per thing code
+            switch(thing->class_id)
+            {
+                case TCls_Door:
+                {
+                    // using destroy_door places claimed path, which we don't want
+                    remove_key_on_door(thing);
+                    delete_thing_structure(thing, 0);
+                    removed_num++;
+                    break;
+                }
+                case TCls_Object:
+                {
+                    if ( (!object_is_gold(thing)) && (!object_is_hero_gate(thing)) && (!thing_is_spellbook(thing)) &&
+                    (!thing_is_special_box(thing)) && (!thing_is_workshop_crate(thing)) )
+                    {
+                        destroy_object(thing);
+                        removed_num++;
+                    }
+                    break;
+                }
+                case TCls_Creature:
+                case TCls_DeadCreature:
+                case TCls_Shot:
+                case TCls_Effect:
+                {
+                    break;
+                }
+                default:
+                {
+                    delete_thing_structure(thing, 0);
+                    removed_num++;
+                    break;
+                }
+                break;
+            }
+        }
+        // Per thing code ends
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break_mapwho_infinite_chain(mapblk);
+            break;
         }
     }
     return removed_num;
@@ -1505,7 +1661,7 @@ void place_animating_slab_type_on_map(SlabKind slbkind, char ani_frame, MapSubtl
     }
     if (slbkind == SlbT_GEMS)
     {
-        delete_all_object_things_from_slab(slb_x, slb_y, 0);
+        remove_unwanted_things_from_wall_slab(slb_x, slb_y);
     }
 }
 
@@ -1668,26 +1824,34 @@ void place_slab_type_on_map_f(SlabKind nslab, MapSubtlCoord stl_x, MapSubtlCoord
       update_blocks_around_slab(slb_x,slb_y);
     switch (nslab)
     {
-    case SlbT_EARTH:
-    case SlbT_TORCHDIRT:
-    case SlbT_ROCK:
-    case SlbT_GOLD:
-    case SlbT_GEMS:
-    case SlbT_WALLDRAPE:
-    case SlbT_WALLTORCH:
-    case SlbT_WALLWTWINS:
-    case SlbT_WALLWWOMAN:
-    case SlbT_WALLPAIRSHR:
-        delete_all_object_things_from_slab(slb_x, slb_y, 0);
-        break;
-    case SlbT_LAVA:
-        delete_unwanted_things_from_liquid_slab(slb_x, slb_y, 17);
-        break;
-    case SlbT_WATER:
-        delete_unwanted_things_from_liquid_slab(slb_x, slb_y, 21);
-        break;
+        case SlbT_ROCK ... SlbT_DAMAGEDWALL:
+        case SlbT_GEMS:
+        case SlbT_ENTRANCE_WALL:
+        case SlbT_TREASURE_WALL:
+        case SlbT_LIBRARY_WALL:
+        case SlbT_PRISON_WALL:
+        case SlbT_TORTURE_WALL:
+        case SlbT_TRAINING_WALL:
+        case SlbT_DUNGHEART_WALL:
+        case SlbT_WORKSHOP_WALL:
+        case SlbT_SCAVENGER_WALL:
+        case SlbT_TEMPLE_WALL:
+        case SlbT_GRAVEYARD_WALL:
+        case SlbT_GARDEN_WALL:
+        case SlbT_LAIR_WALL:
+        case SlbT_BARRACKS_WALL:
+            remove_unwanted_things_from_wall_slab(slb_x, slb_y);
+            break;
+        case SlbT_LAVA:
+            delete_unwanted_things_from_liquid_slab(slb_x, slb_y, 17);
+            break;
+        case SlbT_WATER:
+            delete_unwanted_things_from_liquid_slab(slb_x, slb_y, 21);
+            break;
+        default:
+            remove_unwanted_things_from_floor_slab(slb_x, slb_y);
+            break;
     }
-
 }
 
 void replace_map_slab_when_destroyed(MapSlabCoord slb_x, MapSlabCoord slb_y)
