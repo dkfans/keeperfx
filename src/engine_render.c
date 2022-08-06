@@ -3639,10 +3639,6 @@ static void create_shadows(struct Thing *thing, struct EngineCoord *ecor, struct
 // Creature status flower above head in isometric view
 static void add_draw_status_box(struct Thing *thing, struct EngineCoord *ecor)
 {
-    // Hide status flowers when fully zoomed out, for atmospheric overview
-    if (hud_scale == 0) {
-        return;
-    }
     //_DK_create_status_box(thing, ecor); return;
     struct EngineCoord coord = *ecor;
     coord.y += (uint16_t)thing->clipbox_size_yz + shield_offset[thing->model];
@@ -6732,10 +6728,6 @@ static void add_unkn18_to_polypool(struct Thing *thing, long scr_x, long scr_y, 
 // Creature status flower above head in FrontView
 static void create_status_box_element(struct Thing *thing, long a2, long a3, long a4, long bckt_idx) //
 {
-    // Hide status flowers when fully zoomed out, for atmospheric overview
-    if (hud_scale == 0) {
-        return;
-    }
     struct BucketKindCreatureStatus *poly;
     if (bckt_idx >= BUCKETS_COUNT) {
       bckt_idx = BUCKETS_COUNT-1;
