@@ -142,7 +142,7 @@ struct EngineCol ecs1[MINMAX_LENGTH-1];
 struct EngineCol ecs2[MINMAX_LENGTH-1];
 struct EngineCol *front_ec;
 struct EngineCol *back_ec;
-float zoomed_range;
+float hud_scale;
 
 static int water_wibble_angle = 0;
 //static unsigned char temp_cluedo_mode;
@@ -3636,8 +3636,13 @@ static void create_shadows(struct Thing *thing, struct EngineCoord *ecor, struct
     kspr->field_5E = thing->field_48;
 }
 
+// Creature status flower above head in isometric view
 static void add_draw_status_box(struct Thing *thing, struct EngineCoord *ecor)
 {
+    // Hide status flowers when fully zoomed out, for atmospheric overview
+    if (hud_scale == 0) {
+        return;
+    }
     //_DK_create_status_box(thing, ecor); return;
     struct EngineCoord coord = *ecor;
     coord.y += (uint16_t)thing->clipbox_size_yz + shield_offset[thing->model];
@@ -4656,7 +4661,7 @@ void draw_engine_number(struct BucketKindFloatingGoldText *num)
     long pos_x;
 
     // 1st argument: the scale when fully zoomed out. 2nd argument: the scale at base level zoom
-    float scale_by_zoom = lerp(0.15, 1.00, zoomed_range);
+    float scale_by_zoom = lerp(0.15, 1.00, hud_scale);
 
     flg_mem = lbDisplay.DrawFlags;
     player = get_my_player();
@@ -4701,7 +4706,7 @@ void draw_engine_room_flagpole(struct BucketKindRoomFlag *rflg)
         if (settings.roomflags_on)
         {
             // 1st argument: the scale when fully zoomed out. 2nd argument: the scale at base level zoom
-            float scale_by_zoom = lerp(0.15, 1.00, zoomed_range);
+            float scale_by_zoom = lerp(0.15, 1.00, hud_scale);
 
             int deltay;
             int height;
@@ -4764,18 +4769,18 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
         return;
     }
 
-    // 1st argument: the scale when fully zoomed out. 2nd argument: the scale at base level zoom
-    float scale_by_zoom = lerp(0.15, 1.00, zoomed_range);
-    int base_size;
+    float scale_by_zoom;
+    int base_size = 16*256;
     switch (cam->view_mode) {
         case PVM_IsometricView:
-            base_size = 16*256;
+            // 1st argument: the scale when fully zoomed out. 2nd argument: the scale at base level zoom
+            scale_by_zoom = lerp(0.15, 1.00, hud_scale);
             break;
         case PVM_FrontView:
-            base_size = 16*256;
+            scale_by_zoom = lerp(0.15, 1.00, hud_scale);
             break;
         case PVM_ParchmentView:
-            base_size = 16*256;
+            scale_by_zoom = 1;
             break;
         default:
             return; // Do not draw if camera is 1st person
@@ -4808,90 +4813,92 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
 
     CrtrExpLevel exp;
     exp = min(cctrl->explevel,9);
-
-    health_spridx = choose_health_sprite(thing);
-    if (is_my_player_number(thing->owner))
+    if (cam->view_mode != PVM_ParchmentView)
     {
-        lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
-        cctrl = creature_control_get_from_thing(thing);
-        if (cctrl->field_43 - game.play_gameturn != -1)
+        health_spridx = choose_health_sprite(thing);
+        if (is_my_player_number(thing->owner))
         {
-            cctrl->field_47 = 0;
-        }
-        else if (cctrl->field_47 < 40)
-        {
-            cctrl->field_47++;
-        }
-        cctrl->field_43 = game.play_gameturn;
-        if (cctrl->field_47 == 40)
-        {
-            struct StateInfo *stati;
-            stati = get_creature_state_with_task_completion(thing);
-            if (!stati->field_23)
+            lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
+            cctrl = creature_control_get_from_thing(thing);
+            if (cctrl->field_43 - game.play_gameturn != -1)
             {
-                if ((cctrl->spell_flags & CSAfF_MadKilling) != 0)
+                cctrl->field_47 = 0;
+            }
+            else if (cctrl->field_47 < 40)
+            {
+                cctrl->field_47++;
+            }
+            cctrl->field_43 = game.play_gameturn;
+            if (cctrl->field_47 == 40)
+            {
+                struct StateInfo *stati;
+                stati = get_creature_state_with_task_completion(thing);
+                if (!stati->field_23)
                 {
-                    stati = &states[CrSt_MadKillingPsycho];
-                }
-                else if (anger_is_creature_livid(thing))
-                {
-                    stati = &states[CrSt_CreatureLeavingDungeon];
-                }
-                else if (creature_is_called_to_arms(thing))
-                {
-                    stati = &states[CrSt_ArriveAtCallToArms];
-                }
-                else if (creature_is_at_alarm(thing))
-                {
-                    stati = &states[CrSt_ArriveAtAlarm];
-                }
-                else if (anger_is_creature_angry(thing))
-                {
-                    stati = &states[CrSt_PersonSulkAtLair];
-                }
-                else if (hunger_is_creature_hungry(thing))
-                {
-                    stati = &states[CrSt_CreatureArrivedAtGarden];
-                }
-                else if (creature_requires_healing(thing))
-                {
-                    stati = &states[CrSt_CreatureSleep];
-                }
-                else if (cctrl->paydays_owed)
-                {
-                    stati = &states[CrSt_CreatureWantsSalary];
-                }
-                else
-                {
-                    stati = get_creature_state_with_task_completion(thing);
-                }
-                if ((*(short *)&stati->field_26 == 1) || (thing_pointed_at == thing))
-                {
-                    state_spridx = stati->sprite_idx;
-                }
-                switch (anger_get_creature_anger_type(thing))
-                {
-                case AngR_NotPaid:
-                    if ((cctrl->paydays_owed <= 0) && (cctrl->paydays_advanced >= 0))
+                    if ((cctrl->spell_flags & CSAfF_MadKilling) != 0)
                     {
-                        anger_spridx = 55;
+                        stati = &states[CrSt_MadKillingPsycho];
+                    }
+                    else if (anger_is_creature_livid(thing))
+                    {
+                        stati = &states[CrSt_CreatureLeavingDungeon];
+                    }
+                    else if (creature_is_called_to_arms(thing))
+                    {
+                        stati = &states[CrSt_ArriveAtCallToArms];
+                    }
+                    else if (creature_is_at_alarm(thing))
+                    {
+                        stati = &states[CrSt_ArriveAtAlarm];
+                    }
+                    else if (anger_is_creature_angry(thing))
+                    {
+                        stati = &states[CrSt_PersonSulkAtLair];
+                    }
+                    else if (hunger_is_creature_hungry(thing))
+                    {
+                        stati = &states[CrSt_CreatureArrivedAtGarden];
+                    }
+                    else if (creature_requires_healing(thing))
+                    {
+                        stati = &states[CrSt_CreatureSleep];
+                    }
+                    else if (cctrl->paydays_owed)
+                    {
+                        stati = &states[CrSt_CreatureWantsSalary];
                     }
                     else
                     {
-                        anger_spridx = 52;
+                        stati = get_creature_state_with_task_completion(thing);
                     }
-                    break;
-                case AngR_Hungry:
-                    anger_spridx = 59;
-                    break;
-                case AngR_NoLair:
-                    anger_spridx = 54;
-                    break;
-                case AngR_Other:
-                    anger_spridx = 55;
-                    break;
-                default:
-                    break;
+                    if ((*(short *)&stati->field_26 == 1) || (thing_pointed_at == thing))
+                    {
+                        state_spridx = stati->sprite_idx;
+                    }
+                    switch (anger_get_creature_anger_type(thing))
+                    {
+                    case AngR_NotPaid:
+                        if ((cctrl->paydays_owed <= 0) && (cctrl->paydays_advanced >= 0))
+                        {
+                            anger_spridx = 55;
+                        }
+                        else
+                        {
+                            anger_spridx = 52;
+                        }
+                        break;
+                    case AngR_Hungry:
+                        anger_spridx = 59;
+                        break;
+                    case AngR_NoLair:
+                        anger_spridx = 54;
+                        break;
+                    case AngR_Other:
+                        anger_spridx = 55;
+                        break;
+                    default:
+                        break;
+                    }
                 }
             }
         }
@@ -5046,7 +5053,7 @@ static void draw_engine_room_flag_top(struct BucketKindRoomFlag *rflg)
         if (settings.roomflags_on)
         {
             // 1st argument: the scale when fully zoomed out. 2nd argument: the scale at base level zoom
-            float scale_by_zoom = lerp(0.15, 1.00, zoomed_range);
+            float scale_by_zoom = lerp(0.15, 1.00, hud_scale);
 
             int zoom_factor = cam->zoom;
             if (cam->view_mode == PVM_FrontView) {
@@ -6353,7 +6360,7 @@ void draw_view(struct Camera *cam, unsigned char a2)
     long aposc;
     long bposc;
     SYNCDBG(9,"Starting");
-    calculate_zoomed_range(cam);
+    calculate_hud_scale(cam);
     camera_zoom = scale_camera_zoom_to_screen(cam->zoom);
     zoom_mem = cam->zoom;//TODO [zoom] remove when all cam->zoom will be changed to camera_zoom
     cam->zoom = camera_zoom;//TODO [zoom] remove when all cam->zoom will be changed to camera_zoom
@@ -6722,8 +6729,13 @@ static void add_unkn18_to_polypool(struct Thing *thing, long scr_x, long scr_y, 
     poly->field_14 = a4;
 }
 
-static void create_status_box_element(struct Thing *thing, long a2, long a3, long a4, long bckt_idx)
+// Creature status flower above head in FrontView
+static void create_status_box_element(struct Thing *thing, long a2, long a3, long a4, long bckt_idx) //
 {
+    // Hide status flowers when fully zoomed out, for atmospheric overview
+    if (hud_scale == 0) {
+        return;
+    }
     struct BucketKindCreatureStatus *poly;
     if (bckt_idx >= BUCKETS_COUNT) {
       bckt_idx = BUCKETS_COUNT-1;
@@ -8425,7 +8437,7 @@ static void do_map_who_for_thing(struct Thing *thing)
         break;
     case 5:
         // Hide status flags when full zoomed out, for atmospheric overview
-        if (zoomed_range == 0) {
+        if (hud_scale == 0) {
             break;
         }
 
@@ -8531,7 +8543,7 @@ static void draw_frontview_thing_on_element(struct Thing *thing, struct Map *map
         break;
     case 5:
         // Hide status flags when full zoomed out, for atmospheric overview
-        if (zoomed_range == 0) {
+        if (hud_scale == 0) {
             break;
         }
         convert_world_coord_to_front_view_screen_coord(&thing->mappos,cam,&cx,&cy,&cz);
@@ -8624,7 +8636,7 @@ void draw_frontview_engine(struct Camera *cam)
     player = get_my_player();
     if (cam->zoom > FRONTVIEW_CAMERA_ZOOM_MAX)
         cam->zoom = FRONTVIEW_CAMERA_ZOOM_MAX;
-    calculate_zoomed_range(cam);
+    calculate_hud_scale(cam);
     camera_zoom = scale_camera_zoom_to_screen(cam->zoom);
     zoom_mem = cam->zoom;//TODO [zoom] remove when all cam->zoom will be changed to camera_zoom
     cam->zoom = camera_zoom;//TODO [zoom] remove when all cam->zoom will be changed to camera_zoom
