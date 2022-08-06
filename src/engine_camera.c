@@ -42,16 +42,16 @@ extern "C" {
 /******************************************************************************/
 /******************************************************************************/
 long camera_zoom;
-float zoomed_range;
+float hud_scale;
 /******************************************************************************/
 #ifdef __cplusplus
 }
 #endif
 /******************************************************************************/
 
-void calculate_zoomed_range(struct Camera *cam) {
-    // zoomed_range is the current camera zoom converted to a percentage that ranges between base level zoom and fully zoomed out.
-
+void calculate_hud_scale(struct Camera *cam) {
+    // hud_scale is the current camera zoom converted to a percentage that ranges between base level zoom and fully zoomed out.
+    // HUD items: creature status flowers, room flags, popup gold numbers. They scale with the zoom.
     float range_input = cam->zoom;
     float range_min;
     float range_max;
@@ -65,7 +65,7 @@ void calculate_zoomed_range(struct Camera *cam) {
             range_max = 32768; // Base zoom level
             break;
         default:
-            zoomed_range = 0;
+            hud_scale = 0;
             return;
     }
     if (range_input < range_min) {
@@ -73,7 +73,7 @@ void calculate_zoomed_range(struct Camera *cam) {
     } else if (range_input > range_max) {
         range_input = range_max;
     }
-    zoomed_range = ((range_input - range_min)) / (range_max - range_min);
+    hud_scale = ((range_input - range_min)) / (range_max - range_min);
 }
 
 MapCoordDelta get_3d_box_distance(const struct Coord3d *pos1, const struct Coord3d *pos2)
