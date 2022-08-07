@@ -588,23 +588,35 @@ TbBool find_pressure_trigger_trap_target_passing_by_subtile(const struct Thing *
     return false;
 }
 
-TbBool update_trap_trigger_pressure(struct Thing *traptng)
+TbBool update_trap_trigger_pressure(struct Thing *traptng, TbBool whole_slab)
 {
-    MapSlabCoord slb_x = subtile_slab_fast(traptng->mappos.x.stl.num);
-    MapSlabCoord slb_y = subtile_slab_fast(traptng->mappos.y.stl.num);
-    MapSubtlCoord end_stl_x = slab_subtile(slb_x, 2);
-    MapSubtlCoord end_stl_y = slab_subtile(slb_y, 2);
-    for (MapSubtlCoord stl_y = slab_subtile(slb_y, 0); stl_y <= end_stl_y; stl_y++)
+    struct Thing* creatng;
+    if (whole_slab)
     {
-        for (MapSubtlCoord stl_x = slab_subtile(slb_x, 0); stl_x <= end_stl_x; stl_x++)
+        MapSlabCoord slb_x = subtile_slab_fast(traptng->mappos.x.stl.num);
+        MapSlabCoord slb_y = subtile_slab_fast(traptng->mappos.y.stl.num);
+        MapSubtlCoord end_stl_x = slab_subtile(slb_x, 2);
+        MapSubtlCoord end_stl_y = slab_subtile(slb_y, 2);
+        for (MapSubtlCoord stl_y = slab_subtile(slb_y, 0); stl_y <= end_stl_y; stl_y++)
         {
-            struct Thing* creatng = INVALID_THING;
-            if (find_pressure_trigger_trap_target_passing_by_subtile(traptng, stl_x, stl_y, &creatng))
+            for (MapSubtlCoord stl_x = slab_subtile(slb_x, 0); stl_x <= end_stl_x; stl_x++)
             {
-                activate_trap(traptng, creatng);
-                return true;
+                creatng = INVALID_THING;
+                if (find_pressure_trigger_trap_target_passing_by_subtile(traptng, stl_x, stl_y, &creatng))
+                {
+                    activate_trap(traptng, creatng);
+                    return true;
+                }
             }
-
+        }
+    }
+    else
+    {
+        creatng = INVALID_THING;
+        if (find_pressure_trigger_trap_target_passing_by_subtile(traptng, traptng->mappos.x.stl.num, traptng->mappos.y.stl.num, &creatng))
+        {
+            activate_trap(traptng, creatng);
+            return true;
         }
     }
     return false;
@@ -634,7 +646,7 @@ TngUpdateRet update_trap_trigger(struct Thing *traptng)
         do_trig = update_trap_trigger_line_of_sight_90(traptng);
         break;
     case TrpTrg_Pressure:
-        do_trig = update_trap_trigger_pressure(traptng);
+        do_trig = update_trap_trigger_pressure(traptng, (!gameadd.place_traps_on_subtiles));
         break;
     case TrpTrg_LineOfSight:
         do_trig = update_trap_trigger_line_of_sight(traptng);
