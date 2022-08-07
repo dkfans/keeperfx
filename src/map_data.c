@@ -231,12 +231,20 @@ void set_mapblk_filled_subtiles(struct Map *mapblk, long height)
     mapblk->data |= (height << 24) & 0xF000000;
 }
 
+// Reveal subtile for given player
 void reveal_map_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx)
 {
     unsigned short nflag = (1 << plyr_idx);
     struct Map* mapblk = get_map_block_at(stl_x, stl_y);
     unsigned long i = (mapblk->data >> 28) | nflag;
     mapblk->data |= (i & 0x0F) << 28;
+}
+
+// Reveal subtile for given player, concealing for other players
+void reveal_map_subtile_excl(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx)
+{
+    struct Map* mapblk = get_map_block_at(stl_x, stl_y);
+    mapblk->data &= 0x0FFFFFFF + (plyr_idx << 28);
 }
 
 TbBool subtile_revealed(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx)

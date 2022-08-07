@@ -370,16 +370,16 @@ TbBool set_slab_explored(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord
 // only used by mine_out_block
 void set_slab_explored_flags(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
-    if (!subtile_revealed(slab_subtile_center(slb_x), slab_subtile_center(slb_y), plyr_idx)) {
-        reveal_map_subtile(slab_subtile(slb_x,0), slab_subtile(slb_y,0), plyr_idx);
-        reveal_map_subtile(slab_subtile(slb_x,1), slab_subtile(slb_y,0), plyr_idx);
-        reveal_map_subtile(slab_subtile(slb_x,2), slab_subtile(slb_y,0), plyr_idx);
-        reveal_map_subtile(slab_subtile(slb_x,0), slab_subtile(slb_y,1), plyr_idx);
-        reveal_map_subtile(slab_subtile(slb_x,1), slab_subtile(slb_y,1), plyr_idx);
-        reveal_map_subtile(slab_subtile(slb_x,2), slab_subtile(slb_y,1), plyr_idx);
-        reveal_map_subtile(slab_subtile(slb_x,0), slab_subtile(slb_y,2), plyr_idx);
-        reveal_map_subtile(slab_subtile(slb_x,1), slab_subtile(slb_y,2), plyr_idx);
-        reveal_map_subtile(slab_subtile(slb_x,2), slab_subtile(slb_y,2), plyr_idx);
+    if (subtile_revealed(slab_subtile_center(slb_x), slab_subtile_center(slb_y), plyr_idx)) {
+        reveal_map_subtile_excl(slab_subtile(slb_x,0), slab_subtile(slb_y,0), plyr_idx);
+        reveal_map_subtile_excl(slab_subtile(slb_x,1), slab_subtile(slb_y,0), plyr_idx);
+        reveal_map_subtile_excl(slab_subtile(slb_x,2), slab_subtile(slb_y,0), plyr_idx);
+        reveal_map_subtile_excl(slab_subtile(slb_x,0), slab_subtile(slb_y,1), plyr_idx);
+        reveal_map_subtile_excl(slab_subtile(slb_x,1), slab_subtile(slb_y,1), plyr_idx);
+        reveal_map_subtile_excl(slab_subtile(slb_x,2), slab_subtile(slb_y,1), plyr_idx);
+        reveal_map_subtile_excl(slab_subtile(slb_x,0), slab_subtile(slb_y,2), plyr_idx);
+        reveal_map_subtile_excl(slab_subtile(slb_x,1), slab_subtile(slb_y,2), plyr_idx);
+        reveal_map_subtile_excl(slab_subtile(slb_x,2), slab_subtile(slb_y,2), plyr_idx);
         pannel_map_update(slab_subtile(slb_x,0), slab_subtile(slb_y,0), STL_PER_SLB, STL_PER_SLB);
     }
 }
