@@ -625,11 +625,7 @@ int get_starting_angle_and_side_of_hug_sub2(
     int move_delta,
     int a6)
 {
-    union coord3d_axis v10;
     __int16 nav_radius;
-    union coord3d_axis v12;
-    union coord3d_axis v14;
-    union coord3d_axis v15;
     int v16;
     __int16 v17;
     __int16 v18;
@@ -637,18 +633,11 @@ int get_starting_angle_and_side_of_hug_sub2(
     __int16 v20;
     __int32 v21;
     __int32 v25;
-    union coord3d_axis v26;
     char v27;
-    union coord3d_axis v28;
-    union coord3d_axis v30;
-    union coord3d_axis v31;
-    union coord3d_axis v32;
     __int16 v33;
-    union coord3d_axis v37;
     __int32 v38;
     __int32 _2d_distance_squared;
     int v40;
-    union coord3d_axis v41;
     char v43;
     __int16 move_angle_xy;
     struct Coord3d pos;
@@ -672,22 +661,20 @@ int get_starting_angle_and_side_of_hug_sub2(
     navi->field_5 = get_2d_distance_squared(&creatng->mappos, &navi->pos_final);
     v49 = 0;
     hugging_blocked_flags = get_hugging_blocked_flags(creatng, arg8, a2, a6);
-    v10.val = creatng->mappos.x.val;
     nav_radius = thing_nav_sizexy(creatng) / 2;
-    v12.val = creatng->mappos.y.val;
-    pos.x.val = v10.val;
-    pos.y.val = v12.val;
+    pos.x.val = creatng->mappos.x.val;
+    pos.y.val = creatng->mappos.y.val;
     if ((hugging_blocked_flags & 1) != 0)
     {
-        if (arg8->x.val >= (unsigned int)v10.val)
+        if (arg8->x.val >= creatng->mappos.x.val)
         {
-            pos.x.stl.pos = (unsigned __int16)(nav_radius + v10.val) >> 8;
+            pos.x.stl.pos = creatng->mappos.x.pos;
             pos.x.stl.num = -1;
             pos.x.val -= nav_radius;
         }
         else
         {
-            pos.x.stl.pos = (unsigned __int16)(v10.val - nav_radius) >> 8;
+            pos.x.stl.pos = (unsigned __int16)(creatng->mappos.x.val - nav_radius) >> 8;
             pos.x.stl.num = 1;
             pos.x.val += nav_radius;
         }
@@ -711,29 +698,27 @@ int get_starting_angle_and_side_of_hug_sub2(
     }
     if ((hugging_blocked_flags & 4) != 0)
     {
-        v14.val = creatng->mappos.x.val;
-        if (arg8->x.val >= (unsigned int)v14.val)
+        if (arg8->x.val >= creatng->mappos.x.val)
         {
-            pos.x.stl.pos = (unsigned __int16)(nav_radius + v14.val) >> 8;
+            pos.x.stl.pos = creatng->mappos.x.pos;
             pos.x.stl.num = -1;
             pos.x.val -= nav_radius;
         }
         else
         {
-            pos.x.stl.pos = (unsigned __int16)(v14.val - nav_radius) >> 8;
+            pos.x.stl.pos = creatng->mappos.x.pos;
             pos.x.stl.num = 1;
             pos.x.val += nav_radius;
         }
-        v15.val = creatng->mappos.y.val;
-        if (arg8->y.val >= (unsigned int)v15.val)
+        if (arg8->y.val >= creatng->mappos.y.val)
         {
-            pos.y.stl.pos = (unsigned __int16)(nav_radius + v15.val) >> 8;
+            pos.y.stl.pos = (nav_radius + creatng->mappos.y.val) >> 8;
             pos.y.stl.num = -1;
             pos.y.val -= nav_radius;
         }
         else
         {
-            pos.y.stl.pos = (unsigned __int16)(v15.val - nav_radius) >> 8;
+            pos.y.stl.pos = (creatng->mappos.y.val - nav_radius) >> 8;
             pos.y.stl.num = 1;
             pos.y.val += nav_radius;
         }
@@ -800,23 +785,21 @@ int get_starting_angle_and_side_of_hug_sub2(
             if (creature_cannot_move_directly_to_with_collide(creatng, &v47, a2, a6) == 4)
             {
                 v25 = get_hugging_blocked_flags(creatng, &v47, a2, 0);
-                v26.val = creatng->mappos.y.val;
                 hugging_blocked_flags = v25;
                 v27 = v25;
-                v28.val = creatng->mappos.x.val;
-                pos.x.val = v28.val;
-                pos.y.val = v26.val;
+                pos.x.val = creatng->mappos.x.val;
+                pos.y.val = creatng->mappos.y.val;
                 if ((v27 & 1) != 0)
                 {
-                    if (v47.x.val >= (unsigned int)v28.val)
+                    if (v47.x.val >= creatng->mappos.x.val)
                     {
-                        pos.x.stl.pos = (unsigned __int16)(nav_radius + v28.val) >> 8;
+                        pos.x.stl.pos = (unsigned __int16)(nav_radius + creatng->mappos.x.val) >> 8;
                         pos.x.stl.num = -1;
                         pos.x.val -= nav_radius;
                     }
                     else
                     {
-                        pos.x.stl.pos = (unsigned __int16)(v28.val - nav_radius) >> 8;
+                        pos.x.stl.pos = (unsigned __int16)(creatng->mappos.x.val - nav_radius) >> 8;
                         pos.x.stl.num = 1;
                         pos.x.val += nav_radius;
                     }
@@ -824,16 +807,15 @@ int get_starting_angle_and_side_of_hug_sub2(
                 }
                 if ((hugging_blocked_flags & 2) != 0)
                 {
-                    v30.val = creatng->mappos.y.val;
-                    if (v47.y.val >= (unsigned int)v30.val)
+                    if (v47.y.val >= creatng->mappos.y.val)
                     {
-                        pos.y.stl.pos = (unsigned __int16)(nav_radius + v30.val) >> 8;
+                        pos.y.stl.pos = (unsigned __int16)(nav_radius + creatng->mappos.y.val) >> 8;
                         pos.y.stl.num = -1;
                         pos.y.val -= nav_radius;
                     }
                     else
                     {
-                        pos.y.stl.pos = (unsigned __int16)(v30.val - nav_radius) >> 8;
+                        pos.y.stl.pos = (unsigned __int16)(creatng->mappos.y.val - nav_radius) >> 8;
                         pos.y.stl.num = 1;
                         pos.y.val += nav_radius;
                     }
@@ -841,29 +823,27 @@ int get_starting_angle_and_side_of_hug_sub2(
                 }
                 if ((hugging_blocked_flags & 4) != 0)
                 {
-                    v31.val = creatng->mappos.x.val;
-                    if (v47.x.val >= (unsigned int)v31.val)
+                    if (v47.x.val >= creatng->mappos.x.val)
                     {
-                        pos.x.stl.pos = (unsigned __int16)(nav_radius + v31.val) >> 8;
+                        pos.x.stl.pos = (unsigned __int16)(nav_radius + creatng->mappos.x.val) >> 8;
                         pos.x.stl.num = -1;
                         pos.x.val -= nav_radius;
                     }
                     else
                     {
-                        pos.x.stl.pos = (unsigned __int16)(v31.val - nav_radius) >> 8;
+                        pos.x.stl.pos = (unsigned __int16)(creatng->mappos.x.val - nav_radius) >> 8;
                         pos.x.stl.num = 1;
                         pos.x.val += nav_radius;
                     }
-                    v32.val = creatng->mappos.y.val;
-                    if (v47.y.val >= (unsigned int)v32.val)
+                    if (v47.y.val >= (unsigned int)creatng->mappos.y.val)
                     {
-                        pos.y.stl.pos = (unsigned __int16)(nav_radius + v32.val) >> 8;
+                        pos.y.stl.pos = (unsigned __int16)(nav_radius + creatng->mappos.y.val) >> 8;
                         pos.y.stl.num = -1;
                         pos.y.val -= nav_radius;
                     }
                     else
                     {
-                        pos.y.stl.pos = (unsigned __int16)(v32.val - nav_radius) >> 8;
+                        pos.y.stl.pos = (unsigned __int16)(creatng->mappos.y.val - nav_radius) >> 8;
                         pos.y.stl.num = 1;
                         pos.y.val += nav_radius;
                     }
@@ -895,9 +875,7 @@ int get_starting_angle_and_side_of_hug_sub2(
                 a2,
                 move_delta,
                 a6);
-            v37.val = v47.z.val;
-            *(_DWORD *)&creatng->mappos.x.val = *(_DWORD *)&v47.x.val;
-            creatng->mappos.z.val = v37.val;
+            creatng->mappos = v47;
         }
         v49 += move_delta;
         v38 = get_2d_distance_squared(&creatng->mappos, &navi->pos_final);
