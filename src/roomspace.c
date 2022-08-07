@@ -930,15 +930,8 @@ static void find_next_point(struct RoomSpace *roomspace, unsigned char mode)
 
 void keeper_highlight_roomspace(PlayerNumber plyr_idx, struct RoomSpace *roomspace, int task_allowance_reduction)
 {
-    if (!roomspace->tag_for_dig)
-    {
-        return;
-    }
-    if ( (!can_dig_here(stl_slab_center_subtile(roomspace->centreX * STL_PER_SLB), stl_slab_center_subtile(roomspace->centreY * STL_PER_SLB), plyr_idx, true)) && (roomspace->width == 1) && (roomspace->height == 1) )
-    {
-        return;
-    }
     struct PlayerInfo* player = get_player(plyr_idx);
+    struct PlayerInfoAdd* playeradd = get_playeradd(plyr_idx);
     struct Dungeon* dungeon = get_players_dungeon(player);
     TbBool tag_for_digging = ((player->allocflags & PlaF_ChosenSlabHasActiveTask) == 0);
     int task_allowance = MAPTASKS_COUNT - task_allowance_reduction;
@@ -948,20 +941,47 @@ void keeper_highlight_roomspace(PlayerNumber plyr_idx, struct RoomSpace *roomspa
         for (int x = 0; x < roomspace->width; x++)
         {
             int current_x = roomspace->left + x;
-            MapSubtlCoord stl_cx = stl_slab_center_subtile(current_x * STL_PER_SLB);
-            MapSubtlCoord stl_cy = stl_slab_center_subtile(current_y * STL_PER_SLB);
-            if (!tag_for_digging) // if the chosen slab is tagged for digging...
+            
+            // Tag a line of slabs inbetween previous mouse slab position and current mouse slab position
+            int draw_path_x = playeradd->previous_cursor_subtile_x / STL_PER_SLB;
+            int draw_path_y = playeradd->previous_cursor_subtile_y / STL_PER_SLB;
+            while (true)
             {
-                untag_blocks_for_digging_in_rectangle_around(stl_cx, stl_cy, plyr_idx); // untag the slab for digging
-            }
-            else if (dungeon->task_count < task_allowance)
-            {
-                tag_blocks_for_digging_in_rectangle_around(stl_cx, stl_cy, plyr_idx); // tag the slab for digging (add_task_list_entry is run by this which will increase dungeon->task_count by 1)
-            }
-            else if (is_my_player(player))
-            {
-                output_message(SMsg_WorkerJobsLimit, 500, true); // show an error message if the task limit (MAPTASKS_COUNT) has been reached
-                return;
+                MapSubtlCoord stl_cx = stl_slab_center_subtile(draw_path_x * STL_PER_SLB);
+                MapSubtlCoord stl_cy = stl_slab_center_subtile(draw_path_y * STL_PER_SLB);
+                if (!tag_for_digging) // if the chosen slab is tagged for digging...
+                {
+                    untag_blocks_for_digging_in_rectangle_around(stl_cx, stl_cy, plyr_idx); // untag the slab for digging
+                }
+                else if (dungeon->task_count < task_allowance)
+                {
+                    tag_blocks_for_digging_in_rectangle_around(stl_cx, stl_cy, plyr_idx); // tag the slab for digging (add_task_list_entry is run by this which will increase dungeon->task_count by 1)
+                }
+                else if (is_my_player(player))
+                {
+                    output_message(SMsg_WorkerJobsLimit, 500, true); // show an error message if the task limit (MAPTASKS_COUNT) has been reached
+                    return;
+                }
+                
+                if (draw_path_x != current_x || draw_path_y != current_y) {
+                    // Choose the axis that has more ground to cover.
+                    if (abs(draw_path_x-current_x) > abs(draw_path_y-current_y)) {
+                        if (draw_path_x < current_x) {
+                            draw_path_x += 1;
+                        } else {
+                            draw_path_x -= 1;
+                        }
+                    } else {
+                        if (draw_path_y < current_y) {
+                            draw_path_y += 1;
+                        } else {
+                            draw_path_y -= 1;
+                        }
+                    }
+                } else {
+                    // Exit the While loop because the path has been drawn to the current_x & current_y
+                    break;
+                }
             }
         }
     }

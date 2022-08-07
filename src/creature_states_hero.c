@@ -113,33 +113,39 @@ long good_find_best_enemy_dungeon(struct Thing* creatng)
         {
             if (creature_can_get_to_dungeon(creatng, plyr_idx))
             {
+                if (player_is_friendly_or_defeated(plyr_idx, creatng->owner)) {
+                    continue;
+                }
                 return plyr_idx;
             }
         }
- 
-        dungeon = get_players_dungeon(player);
-        long score;
-        if (player_exists(player) && !dungeon_invalid(dungeon) && (creatng->owner != plyr_idx))
+        else
         {
-            score = dungeon->total_score;
-            if (score <= 0)
+
+            dungeon = get_players_dungeon(player);
+            long score;
+            if (player_exists(player) && !dungeon_invalid(dungeon) && (creatng->owner != plyr_idx))
             {
-                score = 0;
-            }
-            if (has_available_enemy_dungeon_heart(creatng, plyr_idx))
-            {
-                if (best_score < score)
+                score = dungeon->total_score;
+                if (score <= 0)
                 {
-                    best_score = score;
-                    best_plyr_idx = plyr_idx;
+                    score = 0;
                 }
-            }
-            else if ((has_available_rooms_to_attack(creatng, plyr_idx)) && best_plyr_idx == -1)
-            {
-                if (best_backup_score < score)
+                if (has_available_enemy_dungeon_heart(creatng, plyr_idx))
                 {
-                    best_backup_score = score;
-                    backup_plyr_idx = plyr_idx;
+                    if (best_score < score)
+                    {
+                        best_score = score;
+                        best_plyr_idx = plyr_idx;
+                    }
+                }
+                else if ((has_available_rooms_to_attack(creatng, plyr_idx)) && best_plyr_idx == -1)
+                {
+                    if (best_backup_score < score)
+                    {
+                        best_backup_score = score;
+                        backup_plyr_idx = plyr_idx;
+                    }
                 }
             }
         }

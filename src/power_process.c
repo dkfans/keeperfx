@@ -53,8 +53,6 @@ extern "C" {
 DLLIMPORT unsigned char _DK_backup_explored[26][26];
 #define backup_explored _DK_backup_explored
 /******************************************************************************/
-DLLIMPORT void _DK_remove_explored_flags_for_power_sight(struct PlayerInfo *player);
-/******************************************************************************/
 #ifdef __cplusplus
 }
 #endif
@@ -633,7 +631,40 @@ void update_explored_flags_for_power_sight(struct PlayerInfo *player)
 
 void remove_explored_flags_for_power_sight(struct PlayerInfo *player)
 {
-    SYNCDBG(9,"Starting");
-    _DK_remove_explored_flags_for_power_sight(player);
+    SYNCDBG(9, "Starting");
+    int data;
+    unsigned char backup_flags;
+    struct Dungeon *dungeon = get_players_dungeon(player);
+
+    if (dungeon->sight_casted_thing_idx)
+    {
+        struct Thing *sightng = thing_get(dungeon->sight_casted_thing_idx);
+        MapSubtlCoord start_stl_y = sightng->mappos.y.stl.num - MAX_SOE_RADIUS;
+        MapSubtlCoord start_stl_x = sightng->mappos.x.stl.num - MAX_SOE_RADIUS;
+
+        MapSubtlDelta shift_y = 0;
+        do
+        {
+            MapSubtlDelta shift_x = 0;
+            do
+            {
+                if (dungeon->soe_explored_flags[shift_y][shift_x])
+                {
+                    struct Map* mapblk = get_map_block_at((start_stl_x + shift_x ),(start_stl_y + shift_y ));
+
+                    data = mapblk->data & (~(1 << player->id_number << 28) | 0xFFFFFFF);
+                    mapblk->data = data;
+                    backup_flags = backup_explored[shift_y][shift_x];
+                    mapblk->data = data | (((1 << player->id_number) & (backup_flags << player->id_number)) << 28);
+                    if ((backup_flags & 2) != 0)
+                        mapblk->flags |= SlbAtFlg_TaggedValuable;
+                    if ((backup_flags & 4) != 0)
+                        mapblk->flags |= SlbAtFlg_Unexplored;
+                }
+                ++shift_x;
+            } while (shift_x < (2 * MAX_SOE_RADIUS));
+            ++shift_y;
+        } while (shift_y < (2 * MAX_SOE_RADIUS));
+    }
 }
 /******************************************************************************/
