@@ -854,7 +854,7 @@ TbBool subtile_is_diggable_for_player(PlayerNumber plyr_idx, MapSubtlCoord stl_x
         {
             return true;
         }
-        if (!(((slbattr->is_diggable) == 0) || 
+        if (!(((slbattr->is_diggable) == 0) ||
         ((slabmap_owner(slb) != plyr_idx) && ((slbattr->block_flags & SlbAtFlg_Filled) != 0))))
         {
             return true;
