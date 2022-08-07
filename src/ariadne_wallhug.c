@@ -251,15 +251,6 @@ long slab_wall_hug_route(struct Thing *thing, struct Coord3d *pos, long max_val)
     return 0;
 }
 
-// One axis of Coord3d
-union coord3d_axis {
-	unsigned short val;
-	struct {
-		unsigned char pos;
-		unsigned char num;
-	} stl;
-};
-
 
 unsigned short get_hugging_blocked_flags(struct Thing *creatng, struct Coord3d *pos, long a3, unsigned char a4)
 {
@@ -599,7 +590,6 @@ TbBool thing_can_continue_direct_line_to(struct Thing *creatng, struct Coord3d *
 #define HIBYTE(x) (*((char*)&(x)+1))
 #define HIWORD(x) (*((short*)&(x)+1))
 #define HIDWORD(x) (*((_DWORD*)&(x)+1))
-inline uint32_t abs32(int32_t x) { return x >= 0 ? x : -x; }
 
 struct HugStart {
 	short field_0;
@@ -990,7 +980,6 @@ signed char get_starting_angle_and_side_of_hug(
     long a5,
     unsigned char a6)
 {
-    union coord3d_axis v6;
     int v9;
     int v10;
     char hugging_blocked_flags;
@@ -1004,7 +993,6 @@ signed char get_starting_angle_and_side_of_hug(
     int v19;
     int v20;
     int v21;
-    union coord3d_axis v22;
     int v23;
     int32_t angle_of_wall_hug;
     int16_t v25;
@@ -1012,7 +1000,6 @@ signed char get_starting_angle_and_side_of_hug(
     int16_t v27;
     int32_t _2d_distance_squared;
     int v29;
-    union coord3d_axis v30;
     int v31;
     int8_t result;
     char v33;
@@ -1029,24 +1016,21 @@ signed char get_starting_angle_and_side_of_hug(
     int v44;
     int v45;
     int v46;
-    union coord3d_axis v47;
+    short v47;
     char v49[48];
 
-    v6.val = creatng->mappos.y.val;
 
     struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
     struct Navigation *navi = &cctrl->navi;
     const short max_speed = cctrl->max_speed;
 
-    int v7; // eax
-    LOWORD(v7) = creatng->mappos.x.val;
-    v43.x.stl.num = (uint16_t)v6.val - (uint16_t)pos->y.val <= 0;
-    v38 = (uint16_t)v7 - (uint16_t)pos->x.val <= 0;
-    v9 = (uint16_t)v6.val - navi->pos_final.y.val;
+    v43.x.stl.num = creatng->mappos.y.val - (uint16_t)pos->y.val <= 0;
+    v38 = (uint16_t)creatng->mappos.x.val - (uint16_t)pos->x.val <= 0;
+    v9 = creatng->mappos.y.val - navi->pos_final.y.val;
     v49[0] = v9 <= 0;
-    v10 = (uint16_t)v7 - navi->pos_final.x.val;
+    v10 = (uint16_t)creatng->mappos.x.val - navi->pos_final.x.val;
     LOBYTE(v46) = v10 <= 0;
-    LOBYTE(v44) = (int)abs32(v10) < (int)abs32(v9);
+    LOBYTE(v44) = (int)abs(v10) < (int)abs(v9);
     hugging_blocked_flags = get_hugging_blocked_flags(creatng, pos, a5, a6);
     if ((hugging_blocked_flags & 1) != 0)
     {
@@ -1085,9 +1069,8 @@ signed char get_starting_angle_and_side_of_hug(
     }
     v41 = 0x7FFFFFFF;
     v35 = v15;
-    v22.val = creatng->mappos.z.val;
     v46 = *(_DWORD *)&creatng->mappos.x.val;
-    v47.val = v22.val;
+    v47 = creatng->mappos.z.val;
     move_angle_xy = creatng->move_angle_xy;
     memcpy(v49, navi, 0x2Du); // copy navi + field_211
     creatng->move_angle_xy = v39;
@@ -1197,10 +1180,9 @@ LABEL_40:
         v29 = v45 * v45 + v41;
     else
         v29 = v41 - v45 * v45;
-    v30.val = v47.val;
     v42 = v29;
     *(_DWORD *)&creatng->mappos.x.val = v46;
-    creatng->mappos.z.val = v30.val;
+    creatng->mappos.z.val = v47;
     creatng->move_angle_xy = move_angle_xy;
     memcpy(navi, v49, 0x2Du); // copy navi and field_211
     v31 = get_starting_angle_and_side_of_hug_sub2(creatng, navi, pos, a5, v37, v35, max_speed, 255, a6);
