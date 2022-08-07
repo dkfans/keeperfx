@@ -668,7 +668,7 @@ int get_starting_angle_and_side_of_hug_sub2(
     {
         if (arg8->x.val >= creatng->mappos.x.val)
         {
-            pos.x.stl.pos = creatng->mappos.x.pos;
+            pos.x.stl.pos = creatng->mappos.x.stl.pos;
             pos.x.stl.num = -1;
             pos.x.val -= nav_radius;
         }
@@ -700,13 +700,13 @@ int get_starting_angle_and_side_of_hug_sub2(
     {
         if (arg8->x.val >= creatng->mappos.x.val)
         {
-            pos.x.stl.pos = creatng->mappos.x.pos;
+            pos.x.stl.pos = creatng->mappos.x.stl.pos;
             pos.x.stl.num = -1;
             pos.x.val -= nav_radius;
         }
         else
         {
-            pos.x.stl.pos = creatng->mappos.x.pos;
+            pos.x.stl.pos = creatng->mappos.x.stl.pos;
             pos.x.stl.num = 1;
             pos.x.val += nav_radius;
         }
