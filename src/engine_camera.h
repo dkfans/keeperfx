@@ -85,8 +85,8 @@ DLLIMPORT extern struct EngineCoord _DK_object_origin;
 
 #pragma pack()
 /******************************************************************************/
-extern float zoomed_range;
-void calculate_zoomed_range(struct Camera *cam);
+extern float hud_scale;
+void calculate_hud_scale(struct Camera *cam);
 
 extern long camera_zoom;
 /******************************************************************************/

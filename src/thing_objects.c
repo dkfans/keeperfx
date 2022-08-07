@@ -220,18 +220,18 @@ Thing_Class_Func object_update_functions[OBJECT_TYPES_MAX] = {
  * Originally was named objects[].
  */
 
-/*  initial_state;field_1;field_2;field_3;field_4;sprite_anim_idx;anim_speed;size_xy;size_yz;sprite_size_max;field_F;has_flames;
+/*  initial_state;field_1;field_2;field_3;field_4;sprite_anim_idx;anim_speed;size_xy;size_yz;sprite_size_max;field_F;fp_smpl_idx;
 draw_class;destroy_on_lava;related_creatr_model;own_category;destroy_on_liquid;rotation_flag;*/
 struct Objects objects_data_init[OBJECT_TYPES_MAX] = {
   {0, 0, 0, 0, 0,   0, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown0, 0, 0}, //0
   {0, 0, 0, 0, 0, 930, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown3, 1, 0}, //1 BARREL
-  {0, 0, 1, 0, 1, 962, 0x0100,    0,    0, 300, 0, 1, 2, 0,  0, ObOC_Unknown2, 1, 0}, //2 TORCH
+  {0, 0, 1, 0, 1, 962, 0x0100,    0,    0, 300, 0, 78, 2, 0,  0, ObOC_Unknown2, 1, 0}, //2 TORCH
   {0, 0, 0, 0, 0, 934, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 1, 0}, //3 GOLD_CHEST
-  {0, 0, 0, 0, 0, 950, 0x0100,    0,    0, 300, 0, 1, 2, 0,  0, ObOC_Unknown3, 1, 0}, //4 STATUE_LIT
+  {0, 0, 0, 0, 0, 950, 0x0100,    0,    0, 300, 0, 78, 2, 0,  0, ObOC_Unknown3, 1, 0}, //4 STATUE_LIT
   {0, 0, 0, 0, 0, 948, 0x0100,0x200,0x200, 525, 0, 0, 2, 0,  0, ObOC_Unknown0, 0, 0}, //5 SOUL_CONTAINER
   {0, 0, 0, 0, 0, 934, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 1, 0}, //6 GOLD_POT
-  {0, 0, 0, 0, 1, 962, 0x0100,    0,    0, 300, 0, 1, 2, 0,  0, ObOC_Unknown2, 1, 0}, //7 TORCH_UNLIT
-  {0, 0, 0, 0, 0, 950, 0x0100,    0,    0, 300, 0, 1, 2, 0,  0, ObOC_Unknown3, 1, 0}, //8 STATUE_UNLIT
+  {0, 0, 0, 0, 1, 962, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown2, 1, 0}, //7 TORCH_UNLIT
+  {0, 0, 0, 0, 0, 950, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown3, 1, 0}, //8 STATUE_UNLIT
   {2, 0, 0, 0, 0, 893, 0x0008, 0x80, 0x80, 300, 0, 0, 2, 1,  0, ObOC_Unknown2, 1, 0}, //9 CHICKEN_GRW
   {1, 0, 0, 0, 0, 819, 0x0100, 0x80, 0x80, 300, 0, 0, 2, 0,  0, ObOC_Unknown2, 1, 0}, //10 CHICKEN_MAT
   {0, 0, 0, 0, 1, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0, 0}, //11 SPELLBOOK
@@ -251,7 +251,7 @@ struct Objects objects_data_init[OBJECT_TYPES_MAX] = {
   {0, 0, 0, 0, 0,   0, 0x0100,    0,    0, 300, 0, 0, 5, 0,  0, ObOC_Unknown0, 0, 0}, //25 ROOM_FLAG
   {0, 0, 0, 0, 0, 789, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown2, 1, 0}, //26 ANVIL
   {0, 0, 0, 0, 0, 796, 0x0100,    0,    0, 200, 0, 0, 2, 1,  0, ObOC_Unknown2, 1, 0}, //27 PRISON_BAR
-  {0, 0, 1, 0, 0, 791, 0x0100,    0,    0, 300, 0, 1, 2, 0,  0, ObOC_Unknown3, 1, 0}, //28 CANDLE_UNLIT
+  {0, 0, 1, 0, 0, 791, 0x0100,    0,    0, 300, 0, 78, 2, 0,  0, ObOC_Unknown3, 1, 0}, //28 CANDLESTICK
   {0, 0, 0, 0, 0, 793, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown2, 1, 0}, //29 GRAVE_STONE
   {0, 0, 0, 0, 0, 905, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown3, 1, 0}, //30 STATUE_SKELETON
   {0, 0, 1, 0, 0, 795, 0x0100,    0,    0, 375, 0, 0, 2, 1,  0, ObOC_Unknown2, 1, 0}, //31 TRAINING_POST

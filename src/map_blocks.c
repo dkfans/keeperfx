@@ -38,6 +38,7 @@
 #include "frontmenu_ingame_map.h"
 #include "game_legacy.h"
 #include "engine_render.h"
+#include "thing_navigate.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -2565,6 +2566,54 @@ char point_in_map_is_solid_including_lava_check_ignoring_door(struct Coord3d *po
 {
 
 }*/
+
+TbBool subtile_is_diggable_at_diagonal_angle(struct Thing *thing, unsigned short angle, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+    if ( (subtile_slab_fast(stl_x) == subtile_slab_fast(thing->mappos.x.stl.num)) && (subtile_slab_fast(stl_y) == subtile_slab_fast(thing->mappos.y.stl.num)) )
+    {
+        return true;
+    }
+    MapSubtlCoord check_stl_x, check_stl_y;
+    switch(angle)
+    {
+        case ANGLE_NORTHEAST:
+        {
+            check_stl_x = stl_x - 1;
+            check_stl_y = stl_y + 1;
+            break;
+        }
+        case ANGLE_SOUTHEAST:
+        {
+            check_stl_x = stl_x - 1;
+            check_stl_y = stl_y - 1;
+            break;
+        }
+        case ANGLE_SOUTHWEST:
+        {
+            check_stl_x = stl_x + 1;
+            check_stl_y = stl_y - 1;
+            break;
+        }
+        case ANGLE_NORTHWEST:
+        {
+            check_stl_x = stl_x + 1;
+            check_stl_y = stl_y + 1;
+            break;
+        }
+        default:
+        {
+            check_stl_x = stl_x;
+            check_stl_y = stl_y;
+            break;
+        }
+        break;
+    }
+    if ( (!slab_is_wall(subtile_slab_fast(stl_x), subtile_slab_fast(check_stl_y))) || (!slab_is_wall(subtile_slab_fast(check_stl_x), subtile_slab_fast(stl_y))) )
+    {
+        return true;
+    }
+    return false;
+}
 /******************************************************************************/
 #ifdef __cplusplus
 }

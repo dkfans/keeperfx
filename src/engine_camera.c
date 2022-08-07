@@ -42,16 +42,16 @@ extern "C" {
 /******************************************************************************/
 /******************************************************************************/
 long camera_zoom;
-float zoomed_range;
+float hud_scale;
 /******************************************************************************/
 #ifdef __cplusplus
 }
 #endif
 /******************************************************************************/
 
-void calculate_zoomed_range(struct Camera *cam) {
-    // zoomed_range is the current camera zoom converted to a percentage that ranges between base level zoom and fully zoomed out.
-
+void calculate_hud_scale(struct Camera *cam) {
+    // hud_scale is the current camera zoom converted to a percentage that ranges between base level zoom and fully zoomed out.
+    // HUD items: creature status flowers, room flags, popup gold numbers. They scale with the zoom.
     float range_input = cam->zoom;
     float range_min;
     float range_max;
@@ -65,7 +65,7 @@ void calculate_zoomed_range(struct Camera *cam) {
             range_max = 32768; // Base zoom level
             break;
         default:
-            zoomed_range = 0;
+            hud_scale = 0;
             return;
     }
     if (range_input < range_min) {
@@ -73,7 +73,7 @@ void calculate_zoomed_range(struct Camera *cam) {
     } else if (range_input > range_max) {
         range_input = range_max;
     }
-    zoomed_range = ((range_input - range_min)) / (range_max - range_min);
+    hud_scale = ((range_input - range_min)) / (range_max - range_min);
 }
 
 MapCoordDelta get_3d_box_distance(const struct Coord3d *pos1, const struct Coord3d *pos2)
@@ -457,7 +457,7 @@ void update_player_camera_fp(struct Camera *cam, struct Thing *thing)
 {
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
-
+    struct CreatureStatsOLD* creature_stats_OLD = &game.creature_stats_OLD[thing->model];
     // adjust eye height based on creature level and chicken state
     int eye_height;
     if (creature_affected_by_spell(thing, SplK_Chicken))
@@ -469,6 +469,7 @@ void update_player_camera_fp(struct Camera *cam, struct Thing *thing)
     {
         eye_height = crstat->eye_height + (crstat->eye_height * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100;
     }
+    creature_stats_OLD->eye_height = eye_height; //todo Remove when creature_stats_OLD value is no longer used in dll
 
     if ( thing_is_creature(thing) )
     {
@@ -582,7 +583,6 @@ void update_player_camera_fp(struct Camera *cam, struct Thing *thing)
             }
         }
     }
-
 }
 
 void view_move_camera_left(struct Camera *cam, long distance)
