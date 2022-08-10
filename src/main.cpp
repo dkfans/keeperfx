@@ -3455,6 +3455,7 @@ void gameplay_loop_logic()
 
 void gameplay_loop_draw()
 {
+    // Floats are used a lot in the drawing related functions. But keep in mind integers are typically preferred for logic related functions.
     frametime_start_measurement(Frametime_Draw);
     if (quit_game || exit_keeper) {
         do_draw = false;
