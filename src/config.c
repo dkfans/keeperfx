@@ -126,6 +126,7 @@ const struct NamedCommand conf_commands[] = {
   {"DISABLE_SPLASH_SCREENS"        , 22},
   {"SKIP_HEART_ZOOM"               , 23},
   {"CURSOR_EDGE_CAMERA_PANNING"    , 24},
+  {"DELTA_TIME"                    , 25},
   {NULL,                   0},
   };
 
@@ -1069,6 +1070,19 @@ short load_configuration(void)
               features_enabled &= ~Ft_DisableCursorCameraPanning;
           else
               features_enabled |= Ft_DisableCursorCameraPanning;
+          break;
+        case 25: //DELTA_TIME
+          i = recognize_conf_parameter(buf,&pos,len,logicval_type);
+          if (i <= 0)
+          {
+              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
+                COMMAND_TEXT(cmd_num),config_textname);
+            break;
+          }
+          if (i == 1)
+              features_enabled |= Ft_DeltaTime;
+          else
+              features_enabled &= ~Ft_DeltaTime;
           break;
       case 0: // comment
           break;

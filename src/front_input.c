@@ -2585,7 +2585,7 @@ short get_gui_inputs(short gameplay_on)
       over_slider_button = -1;
       do_sound_menu_click();
   }
-
+  set_flag_byte(&tool_tip_box.flags,TTip_Visible,false);
   gui_button_tooltip_update(gmbtn_idx);
   if (gui_slider_button_inputs(over_slider_button))
       return true;

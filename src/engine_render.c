@@ -145,6 +145,7 @@ struct EngineCol *back_ec;
 float hud_scale;
 
 static int water_wibble_angle = 0;
+static float water_wibble_float = 0;
 //static unsigned char temp_cluedo_mode;
 static unsigned long render_problems;
 static long render_prob_kind;
@@ -1107,7 +1108,9 @@ void frame_wibble_generate(void)
         wibl->field_C = osc >> 6;
         wibl++;
     }
-    water_wibble_angle = (water_wibble_angle + LbFPMath_PI/22) & LbFPMath_AngleMask;
+    water_wibble_float += (LbFPMath_PI / 22) * gameadd.delta_time;
+    int water_wibble_int = water_wibble_float;
+    water_wibble_angle = water_wibble_int & LbFPMath_AngleMask;
     int zoom;
     {
         struct PlayerInfo *myplyr;
@@ -6426,7 +6429,6 @@ void draw_view(struct Camera *cam, unsigned char a2)
 
     cam->zoom = zoom_mem;//TODO [zoom] remove when all cam->zoom will be changed to camera_zoom
     display_drawlist();
-    map_volume_box.visible = 0;
     SYNCDBG(9,"Finished");
 }
 
@@ -8369,16 +8371,33 @@ void process_frontview_map_volume_box(struct Camera *cam, unsigned char stl_widt
 }
 static void do_map_who_for_thing(struct Thing *thing)
 {
+    int prev_pos_x, prev_pos_y, prev_pos_z, next_pos_x, next_pos_y, next_pos_z;
+    struct ThingAdd* thingadd = get_thingadd(thing->index);
     int bckt_idx;
     struct EngineCoord ecor;
     struct NearestLights nearlgt;
     switch (thing->field_50 >> 2) // draw_class
     {
     case 2:
-        ecor.x = ((long)thing->mappos.x.val - map_x_pos);
-        ecor.z = (map_y_pos - (long)thing->mappos.y.val);
+        next_pos_x = ((long)thing->mappos.x.val - map_x_pos);
+        next_pos_y = ((long)thing->floor_height - map_z_pos);
+        next_pos_z = (map_y_pos - (long)thing->mappos.y.val);
+
+        if (thing->creation_turn == game.play_gameturn-1) { // If thing was created on this turn then it has no "previous position". (-1 because game turns has already increased by 1 at the bottom of update())
+            prev_pos_x = next_pos_x;
+            prev_pos_y = next_pos_y;
+            prev_pos_z = next_pos_z;
+        } else {
+            prev_pos_x = ((long)thingadd->previous_mappos.x.val - map_x_pos);
+            prev_pos_y = ((long)thingadd->previous_floor_height - map_z_pos);
+            prev_pos_z = (map_y_pos - (long)thingadd->previous_mappos.y.val);
+        }
+        
+        ecor.x = lerp(prev_pos_x, next_pos_x, gameadd.process_turn_time);
+        ecor.y = lerp(prev_pos_y, next_pos_y, gameadd.process_turn_time);
+        ecor.z = lerp(prev_pos_z, next_pos_z, gameadd.process_turn_time);
+
         ecor.field_8 = 0;
-        ecor.y = ((long)thing->floor_height - map_z_pos);
         if (thing_is_creature(thing) && ((thing->movement_flags & TMvF_Unknown04) == 0))
         {
             int count;
@@ -8445,7 +8464,9 @@ static void do_map_who_for_thing(struct Thing *thing)
                 thing->roomflag2.byte_19++;
             } else
             {
-                thing->roomflag2.byte_19 = 0;
+                if (game.play_gameturn - thing->roomflag2.turntime > 1) {
+                    thing->roomflag2.byte_19 = 0;
+                }
             }
             thing->roomflag2.turntime = game.play_gameturn;
             if (thing->roomflag2.byte_19 == 40)

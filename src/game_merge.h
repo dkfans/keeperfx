@@ -225,6 +225,8 @@ struct GameAdd {
     long heart_lost_message_target;
     unsigned char slab_ext_data[85 * 85];
     struct PlayerInfoAdd players[PLAYERS_COUNT];
+    float delta_time;
+    long double process_turn_time;
 };
 
 extern unsigned long game_flags2; // Should be reset to zero on new level

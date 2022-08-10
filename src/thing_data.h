@@ -291,6 +291,8 @@ enum ThingAddFlags
 struct ThingAdd // Additional thing data
 {
     unsigned long flags; //ThingAddFlags
+    struct Coord3d previous_mappos; // Used for delta time interpolating render position
+    unsigned short previous_floor_height; // Used for delta time interpolating render position
 };
 
 #pragma pack()

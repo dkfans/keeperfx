@@ -55,11 +55,13 @@ const char jtytext[] = "Jonty here   : ...I am writing this at 4am on Keepers la
     "and the little one, Crofty, Scooper, Jason Stanton [a cup of coffee], Aaron Senna, Mike Dorell, Ian Howie, Helen Thain, Alex Forest-Hay, Lee Hazelwood, Vicky Arnold, Guy Simmons, Shin, Val Taylor.... If I forgot you I am sorry... but sleep is due to me... and I have a dream to live...";
 
 /******************************************************************************/
+float tooltip_scroll_offset;
+float tooltip_scroll_timer;
 
 static inline void reset_scrolling_tooltip(void)
 {
     tooltip_scroll_offset = 0;
-    tooltip_scroll_timer = 25;
+    tooltip_scroll_timer = 25.0;
     set_flag_byte(&tool_tip_box.flags,TTip_NeedReset,false);
 }
 
@@ -430,10 +432,10 @@ void draw_tooltip_slab64k(char *tttext, long pos_x, long pos_y, long ttwidth, lo
             if (-ttwidth >= tooltip_scroll_offset)
               tooltip_scroll_offset = viswidth;
             else
-              tooltip_scroll_offset -= 4;
+              tooltip_scroll_offset -= 4.0 * gameadd.delta_time;
         } else
         {
-            tooltip_scroll_timer--;
+            tooltip_scroll_timer -= 1.0 * gameadd.delta_time;
             if (tooltip_scroll_timer < 0)
               tooltip_scroll_offset = 0;
         }
@@ -554,7 +556,6 @@ void draw_tooltip(void)
         draw_tooltip_at(tool_tip_box.pos_x,tool_tip_box.pos_y,tool_tip_box.text);
     }
     LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
-    set_flag_byte(&tool_tip_box.flags,TTip_Visible,false);
 }
 
 /******************************************************************************/

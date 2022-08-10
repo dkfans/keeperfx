@@ -119,6 +119,8 @@
 TimePoint initialized_time_point;
 struct FrametimeMeasurements frametime_measurements;
 
+TimePoint delta_time_previous_timepoint;
+
 int test_variable;
 
 char cmndline[CMDLN_MAXLEN+1];
@@ -1095,6 +1097,7 @@ short setup_game(void)
   features_enabled &= ~Ft_SkipHeartZoom; // don't skip the dungeon heart zoom in
   features_enabled &= ~Ft_SkipSplashScreens; // don't skip splash screens
   features_enabled &= ~Ft_DisableCursorCameraPanning; // don't disable cursor camera panning
+  features_enabled &= ~Ft_DeltaTime; // don't enable delta time
   
   // Configuration file
   if ( !load_configuration() )
@@ -3397,7 +3400,30 @@ TbBool keeper_wait_for_screen_focus(void)
     return false;
 }
 
-void gameplay_loop_logic() {
+float get_delta_time(void)
+{
+    // Allow frame skip to work correctly when delta time is enabled
+    if ( (game.frame_skip != 0) && ((game.play_gameturn % game.frame_skip) != 0)) {
+        return 1.0;
+    }
+    long double frame_time_in_nanoseconds = std::chrono::duration_cast<std::chrono::nanoseconds>(TimeNow - delta_time_previous_timepoint).count();
+    delta_time_previous_timepoint = TimeNow;
+    float calculated_delta_time = (frame_time_in_nanoseconds/1000000000.0) * game.num_fps;
+    if (calculated_delta_time > 1.0) { // Fix for when initially loading the map, frametime takes too long. Possibly other circumstances too.
+        calculated_delta_time = 1.0;
+    }
+    return calculated_delta_time;
+}
+
+void gameplay_loop_logic()
+{
+    if (is_feature_on(Ft_DeltaTime) == true) {
+        if (gameadd.process_turn_time < 1.0) {
+            return;
+        }
+        gameadd.process_turn_time -= 1.0;
+    }
+
     frametime_start_measurement(Frametime_Logic);
     if ((game.flags_font & FFlg_unk10) != 0)
     {
@@ -3427,7 +3453,8 @@ void gameplay_loop_logic() {
     frametime_end_measurement(Frametime_Logic);
 }
 
-void gameplay_loop_draw() {
+void gameplay_loop_draw()
+{
     frametime_start_measurement(Frametime_Draw);
     if (quit_game || exit_keeper) {
         do_draw = false;
@@ -3451,11 +3478,20 @@ void gameplay_loop_draw() {
     frametime_end_measurement(Frametime_Draw);
 }
 
-void gameplay_loop_sleep() {
+void gameplay_loop_timestep()
+{
     frametime_start_measurement(Frametime_Sleep);
-    // Make delay if the machine is too fast
-    if ( (!game.packet_load_enable) || (game.turns_fastforward == 0) ) {
-        keeper_wait_for_next_turn();
+    if (is_feature_on(Ft_DeltaTime) == true) {
+        gameadd.delta_time = get_delta_time();
+        gameadd.process_turn_time += gameadd.delta_time;
+    } else {
+        // Set to 1 so that these variables don't affect anything. (if something is multiplied by 1 it doesn't change)
+        gameadd.delta_time = 1;
+        gameadd.process_turn_time = 1;
+        // Make delay if the machine is too fast
+        if ( (!game.packet_load_enable) || (game.turns_fastforward == 0) ) {
+            keeper_wait_for_next_turn();
+        }
     }
     if (game.turns_packetoff == game.play_gameturn) {
         exit_keeper = 1;
@@ -3488,7 +3524,7 @@ void keeper_gameplay_loop(void)
         frametime_start_measurement(Frametime_FullFrame);
         gameplay_loop_logic();
         gameplay_loop_draw();
-        gameplay_loop_sleep();
+        gameplay_loop_timestep();
         frametime_end_measurement(Frametime_FullFrame);
     } // end while
     SYNCDBG(0,"Gameplay loop finished after %lu turns",(unsigned long)game.play_gameturn);
