@@ -23,6 +23,7 @@
 #include "bflib_basics.h"
 
 #include "config.h"
+#include "creature_control.h"
 #include "thing_creature.h"
 #include "creature_graphics.h"
 
@@ -272,6 +273,7 @@ struct CreatureConfig {
     ThingModel spectator_breed;
     short creature_graphics[CREATURE_TYPES_COUNT][CREATURE_GRAPHICS_INSTANCES];
     long sprite_size;
+    struct CreatureSounds creature_sounds[CREATURE_TYPES_COUNT];
 };
 
 /******************************************************************************/

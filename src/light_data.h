@@ -22,7 +22,7 @@
 #include "globals.h"
 #include "bflib_basics.h"
 
-#define LIGHT_MAX_RANGE        30
+#define LIGHT_MAX_RANGE      3000 //512 might be enough to cover the whole map? How does this value affect performance?
 #define LIGHTS_COUNT          400
 #define MINIMUM_LIGHTNESS    8192
 
@@ -124,7 +124,6 @@ DLLIMPORT long _DK_light_out_of_date_stat_lights;
 void clear_stat_light_map(void);
 void update_light_render_area(void);
 void light_delete_light(long idx);
-void light_initialise_lighting_tables(void);
 void light_initialise(void);
 void light_turn_light_off(long num);
 void light_turn_light_on(long num);

@@ -392,7 +392,7 @@ unsigned char field_67;
     struct CastedSpellData casted_spells[CREATURE_MAX_SPELLS_CASTED_AT];
     /** Current active skill instance. */
     char active_instance_id;
-    unsigned char field_1E9;
+    char head_bob;
     struct Navigation navi;
 unsigned char field_211[6];
     /* Creature movement path data. */
@@ -675,8 +675,6 @@ struct CreatureSounds {
 };
 
 #pragma pack()
-/******************************************************************************/
-extern struct CreatureSounds creature_sounds[];
 /******************************************************************************/
 struct CreatureControl *creature_control_get(long cctrl_idx);
 struct CreatureControl *creature_control_get_from_thing(const struct Thing *thing);

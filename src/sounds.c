@@ -39,6 +39,10 @@
 #include "game_legacy.h"
 #include "config_settings.h"
 #include "music_player.h"
+#include "creature_senses.h"
+#include "map_data.h"
+#include "creature_states.h"
+#include "thing_objects.h"
 
 #include "keeperfx.hpp"
 
@@ -54,6 +58,7 @@ const char foot_down_sound_sample_variant[] = {
 
 char sound_dir[64] = "SOUND";
 int atmos_sound_frequency = 800;
+static char ambience_timer;
 /******************************************************************************/
 void thing_play_sample(struct Thing *thing, short smptbl_idx, unsigned short pitch, char a4, unsigned char a5, unsigned char a6, long a7, long loudness)
 {
@@ -102,7 +107,7 @@ void play_thing_walking(struct Thing *thing)
     }
     long loudness = (myplyr->view_mode == PVM_CreatureView) ? (FULL_LOUDNESS) : (FULL_LOUDNESS / 5);
     // Flying diptera has a buzzing noise sound
-    if ((get_creature_model_flags(thing) & CMF_IsDiptera) && ((thing->movement_flags & TMvF_Flying) != 0) && (thing->field_60 < (int)thing->mappos.z.val))
+    if ((get_creature_model_flags(thing) & CMF_IsDiptera) && ((thing->movement_flags & TMvF_Flying) != 0) && (thing->floor_height < (int)thing->mappos.z.val))
     {
         if ( !S3DEmitterIsPlayingSample(thing->snd_emitter_id, 25, 0) ) {
             thing_play_sample(thing, 25, 100, -1, 2, 0, 2, loudness);
@@ -307,6 +312,14 @@ void update_player_sounds(void)
                     }
                 }
             }
+        }
+    }
+    
+    // Music and sound control
+    if ( !SoundDisabled ) {
+        if ( (game.turns_fastforward == 0) && (!game.numfield_149F38) ) {
+            MonitorStreamedSoundTrack();
+            process_sound_heap();
         }
     }
     SYNCDBG(9,"Finished");
@@ -638,13 +651,13 @@ void sound_reinit_after_load(void)
     init_messages();
 }
 
-void stop_thing_playing_sample(struct Thing *heartng, short a2)
+void stop_thing_playing_sample(struct Thing *thing, short smpl_idx)
 {
-    unsigned char eidx = heartng->snd_emitter_id;
+    unsigned char eidx = thing->snd_emitter_id;
     if (eidx > 0)
     {
-        if (S3DEmitterIsPlayingSample(eidx, a2, 0)) {
-            S3DDeleteSampleFromEmitter(eidx, a2, 0);
+        if (S3DEmitterIsPlayingSample(eidx, smpl_idx, 0)) {
+            S3DDeleteSampleFromEmitter(eidx, smpl_idx, 0);
         }
     }
 }
@@ -689,6 +702,78 @@ void pause_music(TbBool pause)
             ResumeMusicPlayer();
         }
     }
+}
+
+void update_first_person_object_ambience(struct Thing *thing)
+{
+      if (thing_is_invalid(thing))
+        return;
+    struct Thing *objtng;
+    MapCoordDelta new_distance;
+    struct Thing *audtng;
+    ThingIndex nearest_sounds[3];
+    MapCoordDelta sound_distances[3];
+    long hearing_range;
+    struct Objects* objdat;
+    if (thing->class_id == TCls_Creature)
+    {
+        struct CreatureStats* crstat = creature_stats_get(thing->model);
+        hearing_range = (long)subtile_coord(crstat->hearing, 0) / 2;
+    }
+    else
+    {
+        hearing_range = 2560;
+    }
+    sound_distances[0] = hearing_range;
+    sound_distances[1] = hearing_range;
+    sound_distances[2] = hearing_range;
+    int i;
+    if (ambience_timer)
+    {
+        memset(nearest_sounds, 0, sizeof(nearest_sounds));
+        for (objtng = thing_get(get_list_for_thing_class(TCls_Object)->index);
+             !thing_is_invalid(objtng);
+             objtng = thing_get(objtng->next_of_class))
+        {
+            objdat = get_objects_data_for_thing(objtng);
+            if (objdat->fp_smpl_idx != 0)
+            {
+                new_distance = get_2d_box_distance(&thing->mappos, &objtng->mappos);
+                if (new_distance <= hearing_range)
+                {
+                    if (new_distance <= sound_distances[0])
+                    {
+                        for (i = 2; i > 0; i --)
+                        {
+                            MapCoordDelta dist = sound_distances[i-1];
+                            nearest_sounds[i] = nearest_sounds[i-1];
+                            sound_distances[i] = dist;
+                        }
+                        sound_distances[0] = new_distance;
+                        nearest_sounds[0] = objtng->index;
+                    }
+                }
+                else
+                {
+                    stop_thing_playing_sample(objtng, objdat->fp_smpl_idx);
+                }
+            }
+        }
+        for (i = 0; i < (sizeof(nearest_sounds) / sizeof(nearest_sounds[0])); i++)
+        {
+            audtng = thing_get(nearest_sounds[i]);
+            if (!thing_is_invalid(audtng))
+            {
+                objdat = get_objects_data_for_thing(audtng);
+                if (!S3DEmitterIsPlayingSample(audtng->snd_emitter_id, objdat->fp_smpl_idx, 0))
+                {
+                    long volume = line_of_sight_2d(&thing->mappos, &audtng->mappos) ? FULL_LOUDNESS : 128;
+                    thing_play_sample(audtng, objdat->fp_smpl_idx, NORMAL_PITCH, -1, 3, 1, 2, volume);
+                }
+            }
+        }
+    }
+    ambience_timer = (ambience_timer + 1) % 4;
 }
 /******************************************************************************/
 #ifdef __cplusplus

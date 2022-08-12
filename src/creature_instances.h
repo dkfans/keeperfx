@@ -135,6 +135,7 @@ int creature_instance_get_available_number_for_pos(struct Thing *thing, int req_
 CrInstance creature_instance_get_available_id_for_pos(struct Thing *thing, int req_avail_pos);
 
 void delay_teleport(struct Thing *creatng);
+void delay_heal_sleep(struct Thing *creatng);
 /******************************************************************************/
 #ifdef __cplusplus
 }
