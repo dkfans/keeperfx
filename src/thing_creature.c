@@ -3114,7 +3114,7 @@ long get_human_controlled_creature_target(struct Thing *thing, long primary_targ
     creature_stats_OLD->eye_height = get_creature_eye_height(thing);
     long old = _DK_get_human_controlled_creature_target(thing, primary_target);
 
-    MapSubtlCoord stl_x = thing->mappos.x.stl.pos;
+    MapSubtlCoord stl_x = thing->mappos.x.stl.num;
     MapSubtlCoord stl_x_lower = stl_x - range;
     MapSubtlCoord stl_x_upper = stl_x + range;
     if (stl_x - range <= 0)
@@ -3123,7 +3123,7 @@ long get_human_controlled_creature_target(struct Thing *thing, long primary_targ
         stl_x_upper = map_subtiles_x;
 
 
-    MapSubtlCoord stl_y = thing->mappos.y.stl.pos;
+    MapSubtlCoord stl_y = thing->mappos.y.stl.num;
     MapSubtlCoord stl_y_lower = stl_y - range;
     MapSubtlCoord stl_y_upper = stl_y + range;
     if (stl_y + range >= map_subtiles_y)
