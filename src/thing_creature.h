@@ -101,14 +101,14 @@ long get_creature_speed(const struct Thing *thing);
 TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *thing);
 TbBool control_creature_as_passenger(struct PlayerInfo *player, struct Thing *thing);
 void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing);
-long get_human_controlled_creature_target(struct Thing *thing, long primary_target);
+ThingIndex get_human_controlled_creature_target(struct Thing *thing, long primary_target);
 struct Thing *get_creature_near_for_controlling(PlayerNumber plyr_idx, MapCoord x, MapCoord y);
 
 TbBool load_swipe_graphic_for_creature(const struct Thing *thing);
 void free_swipe_graphic(void);
 void draw_swipe_graphic(void);
 
-ThingIndex creature_available_for_combat_this_turn(struct Thing *thing);
+long creature_available_for_combat_this_turn(struct Thing *thing);
 TbBool set_creature_object_combat(struct Thing *crthing, struct Thing *obthing);
 TbBool set_creature_door_combat(struct Thing *crthing, struct Thing *obthing);
 void creature_fire_shot(struct Thing *firing,struct  Thing *target, ThingModel shot_model, char shot_lvl, unsigned char hit_type);
