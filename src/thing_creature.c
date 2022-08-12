@@ -3137,7 +3137,6 @@ ThingIndex get_human_controlled_creature_target(struct Thing *thing, long primar
     }
     if (stl_y_upper >= stl_y_lower)
     {
-        struct Map *mapblk;
         for (MapSubtlDelta y_step = ((stl_y_upper - stl_y_lower) + 1); y_step > 0; y_step--)
         {
             MapSubtlCoord x = stl_x_lower;
@@ -3145,7 +3144,7 @@ ThingIndex get_human_controlled_creature_target(struct Thing *thing, long primar
             {
                 for (MapSubtlDelta x_step = ((stl_x_upper - stl_x_lower) + 1); x_step > 0; x_step--)
                 {
-                    mapblk = get_map_block_at(x, stl_y_lower);
+                    struct Map *mapblk = get_map_block_at(x, stl_y_lower);
                     for (i = thing_get(get_mapwho_thing_index(mapblk));
                          !thing_is_invalid(i);
                          i = thing_get(i->next_on_mapblk))
