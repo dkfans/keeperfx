@@ -3107,7 +3107,7 @@ long get_human_controlled_creature_target(struct Thing *thing, long primary_targ
     static const int range;
     static const int max_hit_angle;
 
-    MapSubtlCoord stl_x = thing->mappos.x.stl.pos;
+    MapSubtlCoord stl_x = thing->mappos.x.stl.num;
     MapSubtlCoord stl_x_lower = stl_x - range;
     MapSubtlCoord stl_x_upper = stl_x + range;
     if (stl_x - range <= 0)
@@ -3116,7 +3116,7 @@ long get_human_controlled_creature_target(struct Thing *thing, long primary_targ
         stl_x_upper = map_subtiles_x;
 
 
-    MapSubtlCoord stl_y = thing->mappos.y.stl.pos;
+    MapSubtlCoord stl_y = thing->mappos.y.stl.num;
     MapSubtlCoord stl_y_lower = stl_y - range;
     MapSubtlCoord stl_y_upper = stl_y + range;
     if (stl_y + range >= map_subtiles_y)
