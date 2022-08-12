@@ -3097,6 +3097,8 @@ TbBool creature_can_see_thing(struct Thing *creatng, struct Thing *thing)
     return line_of_sight_3d(&creat_pos, &thing_pos) != 0;
 }
 
+DLLIMPORT long _DK_get_human_controlled_creature_target(struct Thing *creatng, long primary_target);
+
 long get_human_controlled_creature_target(struct Thing *thing, long primary_target)
 {
     long index = 0;
@@ -3104,10 +3106,15 @@ long get_human_controlled_creature_target(struct Thing *thing, long primary_targ
     long angle_xy_to;
     long angle_difference;
     int smallest_angle_diff = INT_MAX;
-    static const int range;
-    static const int max_hit_angle;
+    static const int range = 20;
+    static const int max_hit_angle = 39;
 
-    MapSubtlCoord stl_x = thing->mappos.x.stl.num;
+
+    struct CreatureStatsOLD* creature_stats_OLD = &game.creature_stats_OLD[thing->model];
+    creature_stats_OLD->eye_height = get_creature_eye_height(thing);
+    long old = _DK_get_human_controlled_creature_target(thing, primary_target);
+
+    MapSubtlCoord stl_x = thing->mappos.x.stl.pos;
     MapSubtlCoord stl_x_lower = stl_x - range;
     MapSubtlCoord stl_x_upper = stl_x + range;
     if (stl_x - range <= 0)
@@ -3116,7 +3123,7 @@ long get_human_controlled_creature_target(struct Thing *thing, long primary_targ
         stl_x_upper = map_subtiles_x;
 
 
-    MapSubtlCoord stl_y = thing->mappos.y.stl.num;
+    MapSubtlCoord stl_y = thing->mappos.y.stl.pos;
     MapSubtlCoord stl_y_lower = stl_y - range;
     MapSubtlCoord stl_y_upper = stl_y + range;
     if (stl_y + range >= map_subtiles_y)
@@ -3125,7 +3132,9 @@ long get_human_controlled_creature_target(struct Thing *thing, long primary_targ
         stl_y_lower = 0;
 
     if (stl_y_upper < stl_y_lower)
-    {
+    {   
+        if (old)
+            JUSTLOG("should be impossible old=%d",(int)old);
         return 0;
     }
 
@@ -3202,6 +3211,12 @@ long get_human_controlled_creature_target(struct Thing *thing, long primary_targ
         stl_y_lower++;
         --y_step;
     } while (y_step);
+
+    
+    if (index == old)
+        JUSTLOG("ok %d",(int)old);
+    else
+        JUSTLOG("not ok old=%d new=%d",(int)old,(int)index);
     return index;
 }
 
