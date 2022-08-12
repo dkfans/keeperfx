@@ -3151,39 +3151,34 @@ ThingIndex get_human_controlled_creature_target(struct Thing *thing, long primar
                     {
                         if (i != thing)
                         {
-                            TbBool is_valid_target = false;
+                            TbBool is_valid_target;
                             switch (primary_target)
                             {
                                 case 1:
                                 case 7:
-                                    if (thing_is_creature(i) || thing_is_dungeon_heart(i))
-                                        is_valid_target = true;
+                                    is_valid_target = (thing_is_creature(i) || thing_is_dungeon_heart(i));
                                     break;
                                 case 2:
-                                    if (thing_is_creature(i))
-                                        is_valid_target = true;
+                                    is_valid_target = (thing_is_creature(i));
                                     break;
                                 case 3:
-                                    if ((thing_is_creature(i) || thing_is_dungeon_heart(i)) && i->owner != thing->owner)
-                                        is_valid_target = true;
+                                    is_valid_target = ((thing_is_creature(i) || thing_is_dungeon_heart(i)) && i->owner != thing->owner);
                                     break;
                                 case 4:
-                                    if (thing_is_creature(i) && i->owner != thing->owner)
-                                        is_valid_target = true;
+                                    is_valid_target = (thing_is_creature(i) && i->owner != thing->owner);
                                     break;
                                 case 5:
-                                    if ((thing_is_creature(i) || thing_is_dungeon_heart(i)) && i->owner == thing->owner)
-                                        is_valid_target = true;
+                                    is_valid_target = ((thing_is_creature(i) || thing_is_dungeon_heart(i)) && i->owner == thing->owner);
                                     break;
                                 case 6:
-                                    if (thing_is_creature(i) && i->owner == thing->owner)
-                                        is_valid_target = true;
+                                    is_valid_target = (thing_is_creature(i) && i->owner == thing->owner);
                                     break;
                                 case 8:
                                     is_valid_target = true;
                                     break;
                                 default:
                                     ERRORLOG("Illegal primary target type for shot: %d", (int)primary_target);
+                                    is_valid_target = false;
                                     break;
                             }
                             if (is_valid_target)
