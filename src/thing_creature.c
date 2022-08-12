@@ -3099,9 +3099,9 @@ TbBool creature_can_see_thing(struct Thing *creatng, struct Thing *thing)
 
 DLLIMPORT long _DK_get_human_controlled_creature_target(struct Thing *creatng, long primary_target);
 
-long get_human_controlled_creature_target(struct Thing *thing, long primary_target)
+ThingIndex get_human_controlled_creature_target(struct Thing *thing, long primary_target)
 {
-    long index = 0;
+    ThingIndex index = 0;
     struct Thing *i;
     long angle_xy_to;
     long angle_difference;
@@ -3114,21 +3114,19 @@ long get_human_controlled_creature_target(struct Thing *thing, long primary_targ
     creature_stats_OLD->eye_height = get_creature_eye_height(thing);
     long old = _DK_get_human_controlled_creature_target(thing, primary_target);
 
-    MapSubtlCoord stl_x = thing->mappos.x.stl.num;
-    MapSubtlCoord stl_x_lower = stl_x - range;
-    MapSubtlCoord stl_x_upper = stl_x + range;
-    if (stl_x - range <= 0)
+    short stl_x = thing->mappos.x.stl.num;
+    short stl_x_lower = stl_x - range;
+    short stl_x_upper = stl_x + range;
+    if ((stl_x - range) < 0)
         stl_x_lower = 0;
-    if (stl_x_upper >= map_subtiles_x)
+    if (stl_x_upper > map_subtiles_x)
         stl_x_upper = map_subtiles_x;
-
-
-    MapSubtlCoord stl_y = thing->mappos.y.stl.num;
-    MapSubtlCoord stl_y_lower = stl_y - range;
-    MapSubtlCoord stl_y_upper = stl_y + range;
-    if (stl_y + range >= map_subtiles_y)
+    short stl_y = thing->mappos.y.stl.num;
+    short stl_y_lower = stl_y - range;
+    short stl_y_upper = stl_y + range;
+    if (stl_y + range > map_subtiles_y)
         stl_y_upper = map_subtiles_y;
-    if (stl_y_lower <= 0)
+    if (stl_y_lower < 0)
         stl_y_lower = 0;
 
     if (stl_y_upper < stl_y_lower)
@@ -3137,87 +3135,84 @@ long get_human_controlled_creature_target(struct Thing *thing, long primary_targ
             JUSTLOG("should be impossible old=%d",(int)old);
         return 0;
     }
-
-    MapSubtlDelta y_step = stl_y_upper - stl_y_lower + 1;
-
-    do
+    if (stl_y_upper >= stl_y_lower)
     {
-        if (stl_x_lower <= stl_x_upper)
+        struct Map *mapblk;
+        for (MapSubtlDelta y_step = ((stl_y_upper - stl_y_lower) + 1); y_step > 0; y_step--)
         {
-            MapSubtlDelta x_step = stl_x_upper - stl_x_lower + 1;
-            do
+            MapSubtlCoord x = stl_x_lower;
+            if (x <= stl_x_upper)
             {
-                struct Map *mapblk = get_map_block_at(stl_x_lower, stl_y_lower);
-                for (i = thing_get(get_mapwho_thing_index(mapblk));
-                     !thing_is_invalid(i);
-                     i = thing_get(i->next_on_mapblk))
+                for (MapSubtlDelta x_step = ((stl_x_upper - stl_x_lower) + 1); x_step > 0; x_step--)
                 {
-                    if (i != thing)
+                    mapblk = get_map_block_at(x, stl_y_lower);
+                    for (i = thing_get(get_mapwho_thing_index(mapblk));
+                         !thing_is_invalid(i);
+                         i = thing_get(i->next_on_mapblk))
                     {
-                        TbBool is_valid_target = false;
-                        switch (primary_target)
+                        if (i != thing)
                         {
-                        case 1:
-                        case 7:
-                            if (thing_is_creature(i) || thing_is_dungeon_heart(i))
-                                is_valid_target = true;
-                            break;
-                        case 2:
-                            if (thing_is_creature(i))
-                                is_valid_target = true;
-                            break;
-                        case 3:
-                            if ((thing_is_creature(i) || thing_is_dungeon_heart(i)) && i->owner != thing->owner)
-                                is_valid_target = true;
-                            break;
-                        case 4:
-                            if (thing_is_creature(i) && i->owner != thing->owner)
-                                is_valid_target = true;
-                            break;
-                        case 5:
-                            if ((thing_is_creature(i) || thing_is_dungeon_heart(i)) && i->owner == thing->owner)
-                                is_valid_target = true;
-                            break;
-                        case 6:
-                            if (thing_is_creature(i) && i->owner == thing->owner)
-                                is_valid_target = true;
-                            break;
-                        case 8:
-                            is_valid_target = true;
-                            break;
-                        default:
-                            ERRORLOG("Illegal primary target type for shot: %d", (int)primary_target);
-                            break;
-                        }
-
-                        if (is_valid_target)
-                        {
-                            angle_xy_to = get_angle_xy_to(&thing->mappos, &i->mappos);
-                            angle_difference = get_angle_difference(angle_xy_to, (unsigned __int16)thing->move_angle_xy);
-                            if (angle_difference >= max_hit_angle || !creature_can_see_thing(thing, i))
-                                angle_difference = LONG_MAX;
-                            if (smallest_angle_diff > angle_difference)
+                            TbBool is_valid_target = false;
+                            switch (primary_target)
                             {
-                                smallest_angle_diff = angle_difference;
-                                index = (unsigned __int16)i->index;
+                                case 1:
+                                case 7:
+                                    if (thing_is_creature(i) || thing_is_dungeon_heart(i))
+                                        is_valid_target = true;
+                                    break;
+                                case 2:
+                                    if (thing_is_creature(i))
+                                        is_valid_target = true;
+                                    break;
+                                case 3:
+                                    if ((thing_is_creature(i) || thing_is_dungeon_heart(i)) && i->owner != thing->owner)
+                                        is_valid_target = true;
+                                    break;
+                                case 4:
+                                    if (thing_is_creature(i) && i->owner != thing->owner)
+                                        is_valid_target = true;
+                                    break;
+                                case 5:
+                                    if ((thing_is_creature(i) || thing_is_dungeon_heart(i)) && i->owner == thing->owner)
+                                        is_valid_target = true;
+                                    break;
+                                case 6:
+                                    if (thing_is_creature(i) && i->owner == thing->owner)
+                                        is_valid_target = true;
+                                    break;
+                                case 8:
+                                    is_valid_target = true;
+                                    break;
+                                default:
+                                    ERRORLOG("Illegal primary target type for shot: %d", (int)primary_target);
+                                    break;
+                            }
+                            if (is_valid_target)
+                            {
+                                angle_xy_to = get_angle_xy_to(&thing->mappos, &i->mappos);
+                                angle_difference = get_angle_difference(angle_xy_to, thing->move_angle_xy);
+                                if (angle_difference >= max_hit_angle || !creature_can_see_thing(thing, i))
+                                    angle_difference = LONG_MAX;
+                                if (smallest_angle_diff > angle_difference)
+                                {
+                                    smallest_angle_diff = angle_difference;
+                                    index = i->index;
+                                }
                             }
                         }
                     }
+                    x++;
                 }
-                stl_x_lower++;
-                --x_step;
-            } while (x_step);
+            }
+            stl_y_lower++;
         }
-        stl_y_lower++;
-        --y_step;
-    } while (y_step);
-
-    
+    }
     if (index == old)
         JUSTLOG("ok %d",(int)old);
     else
         JUSTLOG("not ok old=%d new=%d",(int)old,(int)index);
     return index;
+}
 }
 
 long creature_instance_has_reset(const struct Thing *thing, long inst_idx)
