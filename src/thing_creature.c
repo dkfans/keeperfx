@@ -3207,7 +3207,6 @@ ThingIndex get_human_controlled_creature_target(struct Thing *thing, long primar
         JUSTLOG("not ok old=%d new=%d",(int)old,(int)index);
     return index;
 }
-}
 
 long creature_instance_has_reset(const struct Thing *thing, long inst_idx)
 {
