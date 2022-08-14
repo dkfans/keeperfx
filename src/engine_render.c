@@ -3557,11 +3557,9 @@ static void create_shadows(struct Thing *thing, struct EngineCoord *ecor, struct
     }
     struct BucketKindCreatureShadow * kspr;
     kspr = (struct BucketKindCreatureShadow *)getpoly;
-    struct BasicQ *prev_bckt;
-    prev_bckt = buckets[bckt_idx];
     getpoly += sizeof(struct BucketKindCreatureShadow);
-    kspr->b.next = prev_bckt;
-    kspr->b.kind = 12;
+    kspr->b.next = buckets[bckt_idx];
+    kspr->b.kind = QK_CreatureShadow;
     buckets[bckt_idx] = (struct BasicQ *)kspr;
 
     int pdim_w;
@@ -3631,9 +3629,9 @@ static void create_shadows(struct Thing *thing, struct EngineCoord *ecor, struct
     }
 
     kspr->p1.S = dist_sq;
-    kspr->field_58 = angle;
-    kspr->field_5C = thing->anim_sprite;
-    kspr->field_5E = thing->field_48;
+    kspr->angle = angle;
+    kspr->anim_sprite = thing->anim_sprite;
+    kspr->thing_field48 = thing->field_48;
 }
 
 // Creature status flower above head in isometric view
@@ -6205,7 +6203,7 @@ void display_drawlist(void) // Draws isometric and 1st person view. Not frontvie
                 draw_jonty_mapwho(item.jontySprite);
                 break;
             case QK_CreatureShadow: // Shadows of creatures in isometric and 1st person view
-                draw_keepsprite_unscaled_in_buffer(item.creatureShadow->field_5C, item.creatureShadow->field_58, item.creatureShadow->field_5E, big_scratch);
+                draw_keepsprite_unscaled_in_buffer(item.creatureShadow->anim_sprite, item.creatureShadow->angle, item.creatureShadow->thing_field48, big_scratch);
                 vec_map = big_scratch;
                 vec_mode = VM_Unknown10;
                 vec_colour = item.creatureShadow->p1.S;
@@ -7934,11 +7932,12 @@ static void sprite_to_sbuff_xflip(const TbSpriteData sprdata, unsigned char *out
     }
 }
 
-void draw_keepsprite_unscaled_in_buffer(unsigned short kspr_n, short angle, unsigned char a3, unsigned char *outbuf)
+void draw_keepsprite_unscaled_in_buffer(unsigned short kspr_n, short angle, unsigned char field48, unsigned char *outbuf)
 {
     struct KeeperSprite *kspr_arr;
     unsigned long kspr_idx;
     struct KeeperSprite *kspr;
+    TbSpriteData sprite_data;
     unsigned int keepsprite_id;
     unsigned char *tmpbuf;
     int skip_w;
@@ -7963,11 +7962,20 @@ void draw_keepsprite_unscaled_in_buffer(unsigned short kspr_n, short angle, unsi
         {
             return;
         }
-        keepsprite_id = a3 + kspr_idx;
-        if (keepsprite_id >= KEEPSPRITE_LENGTH) {
-            return; // don't try to draw shadows for custom sprites or game will crash
+        keepsprite_id = field48 + kspr_idx;
+        if (keepsprite_id >= KEEPERSPRITE_ADD_OFFSET)
+        {
+            sprite_data = keepersprite_add[keepsprite_id - KEEPERSPRITE_ADD_OFFSET];
         }
-        kspr = &kspr_arr[a3];
+        else if (keepsprite_id >= KEEPSPRITE_LENGTH)
+        {
+            return; // WTF?!!
+        }
+        else
+        {
+            sprite_data = *keepsprite[keepsprite_id];
+        }
+        kspr = &kspr_arr[field48];
         fill_w = kspr->FrameWidth;
         fill_h = kspr->FrameHeight;
         if ( flip_range )
@@ -7980,7 +7988,7 @@ void draw_keepsprite_unscaled_in_buffer(unsigned short kspr_n, short angle, unsi
                 LbMemorySet(tmpbuf, 0, fill_w);
                 tmpbuf += 256;
             }
-            sprite_to_sbuff_xflip(*keepsprite[keepsprite_id], &outbuf[256 * skip_h + skip_w], kspr->SHeight, 256);
+            sprite_to_sbuff_xflip(sprite_data, &outbuf[256 * skip_h + skip_w], kspr->SHeight, 256);
         }
         else
         {
@@ -7993,7 +8001,7 @@ void draw_keepsprite_unscaled_in_buffer(unsigned short kspr_n, short angle, unsi
                 LbMemorySet(tmpbuf, 0, fill_w);
                 tmpbuf += 256;
             }
-            sprite_to_sbuff(*keepsprite[keepsprite_id], &outbuf[256 * skip_h + skip_w], kspr->SHeight, 256);
+            sprite_to_sbuff(sprite_data, &outbuf[256 * skip_h + skip_w], kspr->SHeight, 256);
         }
     }
     else if (kspr_arr->Rotable == 2)
@@ -8002,12 +8010,21 @@ void draw_keepsprite_unscaled_in_buffer(unsigned short kspr_n, short angle, unsi
         {
             return;
         }
-        kspr = &kspr_arr[a3 + quarter * kspr_arr->FramesCount];
+        kspr = &kspr_arr[field48 + quarter * kspr_arr->FramesCount];
         fill_w = kspr->SWidth;
         fill_h = kspr->SHeight;
-        keepsprite_id = a3 + quarter * kspr->FramesCount + kspr_idx;
-        if (keepsprite_id >= KEEPSPRITE_LENGTH) {
-            return; // don't try to draw shadows for custom sprites or game will crash
+        keepsprite_id = field48 + quarter * kspr->FramesCount + kspr_idx;
+        if (keepsprite_id >= KEEPERSPRITE_ADD_OFFSET)
+        {
+            sprite_data = keepersprite_add[keepsprite_id - KEEPERSPRITE_ADD_OFFSET];
+        }
+        else if (keepsprite_id >= KEEPSPRITE_LENGTH)
+        {
+            return; // WTF?!!
+        }
+        else
+        {
+            sprite_data = *keepsprite[keepsprite_id];
         }
         if ( flip_range )
         {
@@ -8017,8 +8034,9 @@ void draw_keepsprite_unscaled_in_buffer(unsigned short kspr_n, short angle, unsi
                 LbMemorySet(tmpbuf, 0, fill_w);
                 tmpbuf += 256;
             }
-            sprite_to_sbuff_xflip(*keepsprite[keepsprite_id], &outbuf[kspr->SWidth], kspr->SHeight, 256);
-        } else
+            sprite_to_sbuff_xflip(sprite_data, &outbuf[kspr->SWidth], kspr->SHeight, 256);
+        }
+        else
         {
             tmpbuf = outbuf;
             for (i = fill_h; i > 0; i--)
@@ -8026,7 +8044,7 @@ void draw_keepsprite_unscaled_in_buffer(unsigned short kspr_n, short angle, unsi
                 LbMemorySet(tmpbuf, 0, fill_w);
                 tmpbuf += 256;
             }
-            sprite_to_sbuff(*keepsprite[keepsprite_id], &outbuf[0], kspr->SHeight, 256);
+            sprite_to_sbuff(sprite_data, &outbuf[0], kspr->SHeight, 256);
         }
     }
 }
