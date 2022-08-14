@@ -25,6 +25,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
+#include <stddef.h>
 #include "globals.h"
 
 #include "bflib_video.h"
@@ -1711,9 +1712,9 @@ void LbPixelBlockCopyForward(TbPixel * dst, const TbPixel * src, long len)
 {
     TbPixel px;
     unsigned long pxquad;
-    if ( !((int)dst & 3) || ((px = *src, ++src, *dst = px, ++dst, --len, len)
-     && (!((int)dst & 3) || ((px = *src, ++src, *dst = px, ++dst, --len, len)
-     && (!((int)dst & 3) ||  (px = *src, ++src, *dst = px, ++dst, --len, len))))) )
+    if ( !((ptrdiff_t)dst & 3) || ((px = *src, ++src, *dst = px, ++dst, --len, len)
+     && (!((ptrdiff_t)dst & 3) || ((px = *src, ++src, *dst = px, ++dst, --len, len)
+     && (!((ptrdiff_t)dst & 3) ||  (px = *src, ++src, *dst = px, ++dst, --len, len))))) )
     {
         long l;
         for ( l = len>>2; l > 0; l--)
@@ -2020,7 +2021,6 @@ void LbSpriteSetScalingData(long x, long y, long swidth, long sheight, long dwid
         scale_up = false;
     // Checking whether to select simple scaling creation, or more comprehensive one - with clipping
     if ((swidth <= 0) || (dwidth <= 0)) {
-        WARNLOG("Tried scaling width %ld -> %ld", swidth, dwidth);
         LbSpriteClearScalingWidth();
     } else
     // Normally it would be enough to check if ((dwidth+y) >= gwidth), but due to rounding we need to add swidth
@@ -2031,7 +2031,6 @@ void LbSpriteSetScalingData(long x, long y, long swidth, long sheight, long dwid
         LbSpriteSetScalingWidthSimple(x, swidth, dwidth);
     }
     if ((sheight <= 0) || (dheight <= 0)) {
-        WARNLOG("Tried scaling height %ld -> %ld", sheight, dheight);
         LbSpriteClearScalingHeight();
     } else
     // Normally it would be enough to check if ((dheight+y) >= gheight), but our simple rounding may enlarge the image
@@ -2051,7 +2050,6 @@ void SetAlphaScalingData(long x, long y, long swidth, long sheight, long dwidth,
     if ((dwidth <= swidth) && (dheight <= sheight))
         alpha_scale_up = false;
     if ((swidth <= 0) || (dwidth <= 0)) {
-        WARNLOG("Tried scaling width %ld -> %ld", swidth, dwidth);
         LbSpriteClearAlphaScalingWidth();
     } else
     if ((x < 0) || ((dwidth+x) >= gwidth))
@@ -2061,7 +2059,6 @@ void SetAlphaScalingData(long x, long y, long swidth, long sheight, long dwidth,
         LbSpriteSetAlphaScalingWidthSimple(x, swidth, dwidth);
     }
     if ((sheight <= 0) || (dheight <= 0)) {
-        WARNLOG("Tried scaling height %ld -> %ld", sheight, dheight);
         LbSpriteClearAlphaScalingHeight();
     } else
     if ((y < 0) || ((dheight+y) >= gheight))

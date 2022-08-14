@@ -337,7 +337,7 @@ void find_location_pos(long location, PlayerNumber plyr_idx, struct Coord3d *pos
 TbBool get_map_location_id_f(const char *locname, TbMapLocation *location, const char *func_name, long ln_num)
 {
     // If there's no locname, then coordinates are set directly as (x,y)
-    if (locname == NULL)
+    if (locname == NULL || *locname == '\0')
     {
       *location = MLoc_NONE;
       return true;

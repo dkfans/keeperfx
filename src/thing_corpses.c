@@ -107,15 +107,13 @@ TbBool corpse_ready_for_collection(const struct Thing* thing)
  * @param thing
  * @return
  */
-TbBool dead_creature_is_room_inventory(const struct Thing *thing, RoomKind rkind)
+TbBool dead_creature_is_room_inventory(const struct Thing *thing, RoomRole rrole)
 {
-    switch (rkind)
+    if((rrole & RoRoF_DeadStorage) && corpse_is_rottable(thing))
     {
-    case RoK_GRAVEYARD:
-        return corpse_is_rottable(thing);
-    default:
-        return false;
+        return true;
     }
+    return false;
 }
 
 TbBool create_vampire_in_room(struct Room *room)
@@ -204,7 +202,7 @@ long move_dead_creature(struct Thing *thing)
     } else
     {
         // Even if no velocity, update field_60
-        thing->field_60 = get_thing_height_at(thing, &thing->mappos);
+        thing->floor_height = get_thing_height_at(thing, &thing->mappos);
     }
     return 1;
 }
@@ -213,6 +211,7 @@ TngUpdateRet update_dead_creature(struct Thing *thing)
 {
     SYNCDBG(18,"Starting");
     TRACE_THING(thing);
+    long corpse_age;
     if ((thing->alloc_flags & TAlF_IsDragged) == 0)
     {
         if (thing->active_state == DCrSt_DramaticDying)
@@ -235,7 +234,7 @@ TngUpdateRet update_dead_creature(struct Thing *thing)
         } else
         if (corpse_laid_to_rest(thing))
         {
-            if ( corpse_is_rottable(thing) )
+            if (corpse_is_rottable(thing))
             {
                 if (thing->health > 0)
                     thing->health--;
@@ -255,9 +254,13 @@ TngUpdateRet update_dead_creature(struct Thing *thing)
             }
         } else
         {
-            if (game.play_gameturn - thing->creation_turn > game.body_remains_for) {
+            corpse_age = game.play_gameturn - thing->creation_turn;
+            #define VANISH_EFFECT_DELAY 60
+            if (((corpse_age > game.body_remains_for) ||(!corpse_is_rottable(thing) && (corpse_age > VANISH_EFFECT_DELAY)))
+                && !(is_thing_directly_controlled(thing) || is_thing_passenger_controlled(thing)))
+            {
                 EVM_CREATURE_EVENT("remove", thing->owner, thing);
-                delete_thing_structure(thing, 0);
+                delete_corpse(thing);
                 return TUFRet_Deleted;
             }
         }
@@ -505,6 +508,23 @@ struct Thing *destroy_creature_and_create_corpse(struct Thing *thing, long crpsc
         }
     }
     return deadtng;
+}
+
+void delete_corpse(struct Thing *deadtng)
+{
+    struct CreatureStats* crstat = creature_stats_get(deadtng->model);
+    if (crstat->corpse_vanish_effect != 0)
+    {
+       if (crstat->corpse_vanish_effect > 0)
+       {
+            create_effect(&deadtng->mappos, crstat->corpse_vanish_effect, deadtng->owner);
+       }
+       else
+       {
+            create_effect_element(&deadtng->mappos, ~(crstat->corpse_vanish_effect)+1, deadtng->owner);
+       }            
+    }
+    delete_thing_structure(deadtng, 0);
 }
 
 /******************************************************************************/

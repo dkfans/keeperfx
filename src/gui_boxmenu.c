@@ -63,37 +63,39 @@ long gf_all_researchable(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsign
 long gfa_can_give_controlled_creature_spells(struct GuiBox *gbox, struct GuiBoxOption *goptn, long *tag);
 long gfa_controlled_creature_has_instance(struct GuiBox *gbox, struct GuiBoxOption *goptn, long *tag);
 long gf_decide_victory(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag);
-TbBool gfa_single_player_mode(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag);
+long gfa_single_player_mode(struct GuiBox* gbox, struct GuiBoxOption* goptn, long* tag);
+long gf_all_doors(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag);
+long gf_all_traps(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag);
 
 struct GuiBoxOption gui_main_cheat_list[] = { //gui_main_option_list in beta
-  {"Null mode",                1,           NULL,              gf_change_player_state, 0, 0, 0,            PSt_None, 0, 0, 0, true},
-  {"Place digger mode",        1,           NULL,              gf_change_player_state, 0, 0, 0,        PSt_MkDigger, 0, 0, 0, true},
-  {"Place creature mode",      1,           NULL,              gf_change_player_state, 0, 0, 0,     PSt_MkBadCreatr, 0, 0, 0, true},
-  {"Place hero mode",          1,           NULL,              gf_change_player_state, 0, 0, 0,    PSt_MkGoodCreatr, 4, 0, 0, true},
-  {"Destroy walls mode",       1,           NULL,              gf_change_player_state, 0, 0, 0,PSt_FreeDestroyWalls, 0, 0, 0, true},
-  {"Disease mode",             1,           NULL,              gf_change_player_state, 0, 0, 0, PSt_FreeCastDisease, 0, 0, 0, true},
-  {"Peter mode",               1,           NULL,              gf_change_player_state, 0, 0, 0, PSt_FreeTurnChicken, 0, 0, 0, true},
-  {"Create gold mode",         1,           NULL,              gf_change_player_state, 0, 0, 0,       PSt_MkGoldPot, 0, 0, 0, true},
-  {"Steal room mode",          1,           NULL,              gf_change_player_state, 0, 0, 0,       PSt_StealRoom, 0, 0, 0, true},
-  {"Destroy room mode",        1,           NULL,              gf_change_player_state, 0, 0, 0,     PSt_DestroyRoom, 0, 0, 0, true},
-  {"Steal slab mode",          1,           NULL,              gf_change_player_state, 0, 0, 0,       PSt_StealSlab, 0, 0, 0, true},
-  {"Place terrain mode",       1,           NULL,              gf_change_player_state, 0, 0, 0,    PSt_PlaceTerrain, 0, 0, 0, true},
-  {"",                         2,           NULL,                       NULL, 0, 0, 0,            PSt_None, 0, 0, 0, false},
-  {"Passenger control mode",   1,           NULL,              gf_change_player_state, 0, 0, 0, PSt_FreeCtrlPassngr, 0, 0, 0, true},
-  {"Direct control mode",      1,           NULL,              gf_change_player_state, 0, 0, 0,  PSt_FreeCtrlDirect, 0, 0, 0, true},
-  {"Order creature mode",      1,           NULL,              gf_change_player_state, 0, 0, 0,     PSt_OrderCreatr, 0, 0, 0, true},
-  {"Kill creature mode",       1,           NULL,              gf_change_player_state, 0, 0, 0,      PSt_KillCreatr, 0, 0, 0, true},
-  {"Destroy thing mode",       1,           NULL,              gf_change_player_state, 0, 0, 0,    PSt_DestroyThing, 0, 0, 0, true},
-  {"Turncoat mode",            1,           NULL,              gf_change_player_state, 0, 0, 0,   PSt_ConvertCreatr, 0, 0, 0, true},
-  {"Level up mode",            1,           NULL,              gf_change_player_state, 0, 0, 0, PSt_LevelCreatureUp, 0, 0, 0, true},
-  {"Level down mode",          1,           NULL,              gf_change_player_state, 0, 0, 0, PSt_LevelCreatureDown, 0, 0, 0, true},
-  {"Query mode",               1,           NULL,              gf_change_player_state, 0, 0, 0,  PSt_CreatrQueryAll, 0, 0, 0, true},
-  {"Make happy mode",          1,           NULL,              gf_change_player_state, 0, 0, 0,         PSt_MkHappy, 0, 0, 0, true},
-  {"Make angry mode",          1,           NULL,              gf_change_player_state, 0, 0, 0,         PSt_MkAngry, 0, 0, 0, true},
-  {"",                         2,           NULL,                        NULL, 0, 0, 0,            PSt_None, 0, 0, 0, false},
-  {"Kill player mode",         1,           NULL,              gf_change_player_state, 0, 0, 0,      PSt_KillPlayer, 0, 0, 0, true},
-  {"Edit heart health",        1,  gfa_single_player_mode,      gf_change_player_state, 0, 0, 0,     PSt_HeartHealth, 0, 0, 0, true},
-  {"!",                        0,           NULL,                        NULL, 0, 0, 0,            PSt_None, 0, 0, 0, false},
+  {"Null mode",                1,           NULL,              gf_change_player_state, 0, 0, 0,               PSt_None, 0, 0, 0, true},
+  {"Place digger mode",        1,           NULL,              gf_change_player_state, 0, 0, 0,           PSt_MkDigger, 0, 0, 0, true},
+  {"Place creature mode",      1,           NULL,              gf_change_player_state, 0, 0, 0,        PSt_MkBadCreatr, 0, 0, 0, true},
+  {"Place hero mode",          1,           NULL,              gf_change_player_state, 0, 0, 0,       PSt_MkGoodCreatr, 4, 0, 0, true},
+  {"Destroy walls mode",       1,           NULL,              gf_change_player_state, 0, 0, 0,   PSt_FreeDestroyWalls, 0, 0, 0, true},
+  {"Disease mode",             1,           NULL,              gf_change_player_state, 0, 0, 0,    PSt_FreeCastDisease, 0, 0, 0, true},
+  {"Peter mode",               1,           NULL,              gf_change_player_state, 0, 0, 0,    PSt_FreeTurnChicken, 0, 0, 0, true},
+  {"Create gold mode",         1,           NULL,              gf_change_player_state, 0, 0, 0,          PSt_MkGoldPot, 0, 0, 0, true},
+  {"Steal room mode",          1,           NULL,              gf_change_player_state, 0, 0, 0,          PSt_StealRoom, 0, 0, 0, true},
+  {"Destroy room mode",        1,           NULL,              gf_change_player_state, 0, 0, 0,        PSt_DestroyRoom, 0, 0, 0, true},
+  {"Steal slab mode",          1,           NULL,              gf_change_player_state, 0, 0, 0,          PSt_StealSlab, 0, 0, 0, true},
+  {"Place terrain mode",       1,           NULL,              gf_change_player_state, 0, 0, 0,       PSt_PlaceTerrain, 0, 0, 0, true},
+  {"",                         2,           NULL,                       NULL, 0, 0, 0,                        PSt_None, 0, 0, 0, false},
+  {"Passenger control mode",   1,           NULL,              gf_change_player_state, 0, 0, 0,    PSt_FreeCtrlPassngr, 0, 0, 0, true},
+  {"Direct control mode",      1,           NULL,              gf_change_player_state, 0, 0, 0,     PSt_FreeCtrlDirect, 0, 0, 0, true},
+  {"Order creature mode",      1,           NULL,              gf_change_player_state, 0, 0, 0,        PSt_OrderCreatr, 0, 0, 0, true},
+  {"Kill creature mode",       1,           NULL,              gf_change_player_state, 0, 0, 0,         PSt_KillCreatr, 0, 0, 0, true},
+  {"Destroy thing mode",       1,           NULL,              gf_change_player_state, 0, 0, 0,       PSt_DestroyThing, 0, 0, 0, true},
+  {"Turncoat mode",            1,           NULL,              gf_change_player_state, 0, 0, 0,      PSt_ConvertCreatr, 0, 0, 0, true},
+  {"Level up mode",            1,           NULL,              gf_change_player_state, 0, 0, 0,    PSt_LevelCreatureUp, 0, 0, 0, true},
+  {"Level down mode",          1,           NULL,              gf_change_player_state, 0, 0, 0,  PSt_LevelCreatureDown, 0, 0, 0, true},
+  {"Query mode",               1,           NULL,              gf_change_player_state, 0, 0, 0,           PSt_QueryAll, 0, 0, 0, true},
+  {"Make happy mode",          1,           NULL,              gf_change_player_state, 0, 0, 0,            PSt_MkHappy, 0, 0, 0, true},
+  {"Make angry mode",          1,           NULL,              gf_change_player_state, 0, 0, 0,            PSt_MkAngry, 0, 0, 0, true},
+  {"",                         2,           NULL,                        NULL, 0, 0, 0,                       PSt_None, 0, 0, 0, false},
+  {"Kill player mode",         1,           NULL,              gf_change_player_state, 0, 0, 0,         PSt_KillPlayer, 0, 0, 0, true},
+  {"Edit heart health",        1,  gfa_single_player_mode,     gf_change_player_state, 0, 0, 0,        PSt_HeartHealth, 0, 0, 0, true},
+  {"!",                        0,           NULL,                        NULL, 0, 0, 0,                       PSt_None, 0, 0, 0, false},
 };
 
 struct GuiBoxOption gui_creature_cheat_option_list[] = {
@@ -104,6 +106,8 @@ struct GuiBoxOption gui_creature_cheat_option_list[] = {
  {"All rooms and magic researchable",1,     NULL,         gf_all_researchable, 0, 0, 0,               0, 0, 0, 0, 0},
  {"Research all magic",        1,           NULL,           gf_research_magic, 0, 0, 0,               0, 0, 0, 0, 0},
  {"Research all rooms",        1,           NULL,           gf_research_rooms, 0, 0, 0,               0, 0, 0, 0, 0},
+ {"All doors manufacturable",  1,           NULL,           gf_all_doors,      0, 0, 0,               0, 0, 0, 0, 0},
+ {"All traps manufacturable",  1,           NULL,           gf_all_traps,      0, 0, 0,               0, 0, 0, 0, 0},
  {"Win the level instantly",   1,           NULL,           gf_decide_victory, 0, 0, 0,               1, 0, 0, 0, 0},
  {"Lose the level instantly",  1,           NULL,           gf_decide_victory, 0, 0, 0,               0, 0, 0, 0, 0},
  {"!",                         0,           NULL,                        NULL, 0, 0, 0,               0, 0, 0, 0, 0},
@@ -145,8 +149,9 @@ struct GuiBoxOption gui_instance_option_list[] = {
 };
 
 // Boxes used for service/cheat menu
-struct GuiBox *gui_box=NULL;
-struct GuiBox *gui_cheat_box=NULL;
+struct GuiBox *gui_cheat_box_1=NULL;
+struct GuiBox *gui_cheat_box_2=NULL;
+struct GuiBox *gui_cheat_box_3=NULL;
 
 struct GuiBox *first_box=NULL;
 struct GuiBox *last_box=NULL;
@@ -266,6 +271,22 @@ long gfa_controlled_creature_has_instance(struct GuiBox *gbox, struct GuiBoxOpti
     return creature_instance_is_available(thing, *tag);
 }
 
+long gf_all_doors(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag)
+{
+    struct PlayerInfo* player = get_my_player();
+    //  if (player->cheat_mode == 0) return false; -- there's no cheat_mode flag yet
+    set_players_packet_action(player, PckA_CheatAllDoors, 0, 0, 0, 0);
+    return 1;
+}
+
+long gf_all_traps(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag)
+{
+    struct PlayerInfo* player = get_my_player();
+    //  if (player->cheat_mode == 0) return false; -- there's no cheat_mode flag yet
+    set_players_packet_action(player, PckA_CheatAllTraps, 0, 0, 0, 0);
+    return 1;
+}
+
 void gui_draw_all_boxes(void)
 {
   SYNCDBG(5,"Starting");
@@ -282,17 +303,17 @@ void gui_draw_all_boxes(void)
 short gui_box_is_not_valid(struct GuiBox *gbox)
 {
   if (gbox == NULL) return true;
-  return (gbox->field_0 & 0x01) == 0;
+  return (gbox->flags & GBoxF_Allocated) == 0;
 }
 
 void gui_insert_box_at_list_top(struct GuiBox *gbox)
 {
-  if (gbox->field_0 & 0x02)
+  if (gbox->flags & GBoxF_InList)
   {
     ERRORLOG("GuiBox is already in list");
     return;
   }
-  gbox->field_0 |= 0x02;
+  gbox->flags |= GBoxF_InList;
   gbox->next_box = first_box;
   if (first_box != NULL)
       first_box->prev_box = gbox;
@@ -309,7 +330,7 @@ struct GuiBox *gui_allocate_box_structure(void)
         if (gui_box_is_not_valid(gbox))
         {
             gbox->field_1 = i;
-            gbox->field_0 |= 0x01;
+            gbox->flags |= GBoxF_Allocated;
             gui_insert_box_at_list_top(gbox);
             return gbox;
         }
@@ -345,12 +366,12 @@ long gui_calculate_box_height(struct GuiBox *gbox)
 
 void gui_remove_box_from_list(struct GuiBox *gbox)
 {
-  if ((gbox->field_0 & 0x02) == 0)
+  if ((gbox->flags & GBoxF_InList) == 0)
   {
     ERRORLOG("Cannot remove box from list when it is not in one!");
     return;
   }
-  gbox->field_0 &= 0xFDu;
+  gbox->flags &= 0xFDu;
   if ( gbox->prev_box )
       gbox->prev_box->next_box = gbox->next_box;
   else
@@ -386,6 +407,11 @@ struct GuiBox *gui_create_box(long x, long y, struct GuiBoxOption *optn_list)
 
 short gui_move_box(struct GuiBox *gbox, long x, long y, unsigned short fdflags)
 {
+    if (gbox == NULL)
+    {
+        ERRORLOG("Trying to move cheat box that does not exist");
+        return false;
+    }
   short result;
   switch (fdflags)
   {
@@ -404,6 +430,11 @@ short gui_move_box(struct GuiBox *gbox, long x, long y, unsigned short fdflags)
       gbox->pos_y = y - (gbox->height >> 1);
       result = true;
       break;
+  case Fnt_CenterLeftPos:
+      gbox->pos_x = x - (gbox->width >> 2);
+      gbox->pos_y = y - (gbox->height >> 2);
+      result = true;
+      break;
   default:
       result = false;
       break;
@@ -420,6 +451,19 @@ short gui_move_box(struct GuiBox *gbox, long x, long y, unsigned short fdflags)
 }
 
 /**
+ * Closes cheat menu.
+ * Returns true if the menu was closed.
+ */
+TbBool close_main_cheat_menu(void)
+{
+    if (gui_box_is_not_valid(gui_cheat_box_1))
+        return false;
+    gui_delete_box(gui_cheat_box_1);
+    gui_cheat_box_1 = NULL;
+    return true;
+}
+
+/**
  * Toggles cheat menu. It should not allow cheats in Network mode.
  * @return Gives true if the menu was toggled, false if cheat is not allowed.
  */
@@ -427,40 +471,62 @@ short toggle_main_cheat_menu(void)
 {
   long mouse_x = GetMouseX();
   long mouse_y = GetMouseY();
-  if ((gui_box==NULL) || (gui_box_is_not_valid(gui_box)))
+  if ((gui_cheat_box_1==NULL) || (gui_box_is_not_valid(gui_cheat_box_1)))
   {
     if ((game.flags_font & FFlg_AlexCheat) == 0)
       return false;
-    gui_box = gui_create_box(mouse_x,mouse_y,gui_main_cheat_list);
-    gui_move_box(gui_box, mouse_x, mouse_y, Fnt_CenterPos);
+    gui_cheat_box_1 = gui_create_box(mouse_x,mouse_y,gui_main_cheat_list);
+    gui_move_box(gui_cheat_box_1, mouse_x, mouse_y, Fnt_CenterLeftPos);
   } else
   {
-    gui_delete_box(gui_box);
-    gui_box=NULL;
+    gui_delete_box(gui_cheat_box_1);
+    gui_cheat_box_1=NULL;
   }
   return true;
 }
 
+
+/**
+ * Closes cheat menu.
+ * Returns true if the menu was closed.
+ */
+TbBool close_instance_cheat_menu(void)
+{
+    if (gui_box_is_not_valid(gui_cheat_box_3))
+        return false;
+    gui_delete_box(gui_cheat_box_3);
+    gui_cheat_box_3 = NULL;
+    return true;
+}
 /**
  * Toggles cheat menu. It should not allow cheats in Network mode.
  * @return Gives true if the menu was toggled, false if cheat is not allowed.
  */
 short toggle_instance_cheat_menu(void)
 {
-    // Toggle cheat menu
-    if ((gui_box==NULL) || (gui_box_is_not_valid(gui_box)))
+    long mouse_x = GetMouseX();
+    long mouse_y = GetMouseY();
+    if (gui_box_is_not_valid(gui_cheat_box_3))
     {
         if ((game.flags_font & FFlg_AlexCheat) == 0)
             return false;
-        gui_box = gui_create_box(200,20,gui_instance_option_list);
+       gui_cheat_box_3 = gui_create_box(200,20,gui_instance_option_list);
+       if (gui_cheat_box_3 == NULL)
+       {
+           return false;
+       }
+       else
+       {
+           gui_move_box(gui_cheat_box_3, mouse_x, mouse_y, Fnt_CenterLeftPos);
+       }
 /*
           player->unknownbyte  |= 0x08;
           game.unknownbyte |= 0x08;
 */
     } else
     {
-        gui_delete_box(gui_box);
-        gui_box=NULL;
+        gui_delete_box(gui_cheat_box_3);
+        gui_cheat_box_3=NULL;
 /*
           player->unknownbyte &= 0xF7;
           game.unknownbyte &= 0xF7;
@@ -475,12 +541,15 @@ short toggle_instance_cheat_menu(void)
  */
 TbBool open_creature_cheat_menu(void)
 {
+  long mouse_x = GetMouseX();
+  long mouse_y = GetMouseY();
   if ((game.flags_font & FFlg_AlexCheat) == 0)
     return false;
-  if (!gui_box_is_not_valid(gui_cheat_box))
+  if (!gui_box_is_not_valid(gui_cheat_box_2))
     return false;
-  gui_cheat_box = gui_create_box(150,20,gui_creature_cheat_option_list);
-  return (!gui_box_is_not_valid(gui_cheat_box));
+  gui_cheat_box_2 = gui_create_box(150,20,gui_creature_cheat_option_list);
+  gui_move_box(gui_cheat_box_2, mouse_x, mouse_y, Fnt_CenterLeftPos);
+  return (!gui_box_is_not_valid(gui_cheat_box_2));
 }
 
 /**
@@ -489,10 +558,10 @@ TbBool open_creature_cheat_menu(void)
  */
 TbBool close_creature_cheat_menu(void)
 {
-  if (gui_box_is_not_valid(gui_cheat_box))
+  if (gui_box_is_not_valid(gui_cheat_box_2))
     return false;
-  gui_delete_box(gui_cheat_box);
-  gui_cheat_box = NULL;
+  gui_delete_box(gui_cheat_box_2);
+  gui_cheat_box_2 = NULL;
   return true;
 }
 
@@ -503,7 +572,7 @@ TbBool close_creature_cheat_menu(void)
 TbBool toggle_creature_cheat_menu(void)
 {
   // Cheat sub-menus
-  if (gui_box_is_not_valid(gui_cheat_box))
+  if (gui_box_is_not_valid(gui_cheat_box_2))
   {
     return open_creature_cheat_menu();
   } else
@@ -840,9 +909,35 @@ TbBool point_is_over_gui_box(ScreenCoord x, ScreenCoord y)
     return (gbox != NULL);
 }
 
-TbBool gfa_single_player_mode(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag)
+long gfa_single_player_mode(struct GuiBox* gbox, struct GuiBoxOption* goptn, long* tag)
 {
     return ((game.system_flags & GSF_NetworkActive) == 0);
+}
+
+TbBool cheat_menu_is_active()
+{
+    if (!gui_box_is_not_valid(gui_cheat_box_1))
+    {
+        if ((gui_cheat_box_1->flags & GBoxF_InList) != 0)
+        {
+            return true;
+        }
+    }
+    if (!gui_box_is_not_valid(gui_cheat_box_2))
+    {
+        if ((gui_cheat_box_2->flags & GBoxF_InList) != 0)
+        {
+            return true;
+        }
+    }
+    if (!gui_box_is_not_valid(gui_cheat_box_3))
+    {
+        if ((gui_cheat_box_3->flags & GBoxF_InList) != 0)
+        {
+            return true;
+        }
+    }
+    return false;
 }
 
 /******************************************************************************/

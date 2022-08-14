@@ -18,3 +18,7 @@ build*/
 /libexterns
 docs/html
 docs/latex
+*.o
+*.Po
+*.d
+*.Tpo

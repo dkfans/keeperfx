@@ -54,9 +54,11 @@
 #include "config_strings.h"
 #include "config_terrain.h"
 #include "config_players.h"
+#include "config_magic.h"
 #include "magic.h"
 #include "game_merge.h"
 #include "game_legacy.h"
+#include "creature_instances.h"
 #include "packets.h"
 
 #include "keeperfx.hpp"
@@ -76,6 +78,83 @@ void redraw_frontview(void);
 long xtab[640][2];
 long ytab[480][2];
 /******************************************************************************/
+static void draw_creature_view_icons(struct Thing* creatng)
+{
+    struct GuiMenu *gmnu = get_active_menu(menu_id_to_number(GMnu_MAIN));
+    ScreenCoord x = gmnu->width + scale_value_by_horizontal_resolution(5);
+    ScreenCoord y;
+    struct TbSprite* spr;
+    int ps_units_per_px;
+    {
+        spr = &gui_panel_sprites[488];
+        ps_units_per_px = (22 * units_per_pixel) / spr->SHeight;
+        y = MyScreenHeight - scale_value_by_horizontal_resolution(spr->SHeight * 2);
+    }
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    for (int Spell = SplK_Freeze; Spell < SplK_TimeBomb; Spell++)
+    {
+        if (creature_affected_by_spell(creatng, Spell))
+        {
+            struct SpellInfo* spinfo = get_magic_info(Spell);
+            long spridx = spinfo->medsym_sprite_idx;
+            if ( (Spell == SplK_Invisibility) && (cctrl->force_visible & 2) )
+            {
+                spridx++;
+            }
+            draw_gui_panel_sprite_left(x, y, ps_units_per_px, spridx);
+            x += scale_value_by_horizontal_resolution(spr->SWidth);
+        }
+    }
+    if ( (cctrl->dragtng_idx != 0) && ((creatng->alloc_flags & TAlF_IsDragged) == 0) )
+    {
+        struct Thing* dragtng = thing_get(cctrl->dragtng_idx);
+        unsigned long spr_idx;
+        x = MyScreenWidth - (scale_value_by_horizontal_resolution(148) / 4);
+        switch(dragtng->class_id)
+        {
+            case TCls_Object:
+            {
+                struct RoomConfigStats *roomst;
+                if (thing_is_workshop_crate(dragtng))
+                {
+                    roomst = get_room_kind_stats(RoK_WORKSHOP);
+                }
+                else
+                {
+                    roomst = get_room_kind_stats(RoK_LIBRARY);
+                }
+                spr_idx = roomst->medsym_sprite_idx;
+                break;
+            }
+            case TCls_DeadCreature:
+            case TCls_Creature:
+            {
+                y -= scale_value_by_horizontal_resolution(spr->SHeight / 2);
+                spr_idx = get_creature_model_graphics(dragtng->model, CGI_HandSymbol);
+                if (dragtng->class_id == TCls_DeadCreature)
+                {
+                    spr_idx++;
+                }
+                break;
+            }
+            default:
+            {
+                spr_idx = 0;
+                break;
+            }
+        }
+        draw_gui_panel_sprite_left(x, y, ps_units_per_px, spr_idx);
+    }
+    else
+    {
+        if (!creature_instance_is_available(creatng, cctrl->active_instance_id))
+        {
+            x = MyScreenWidth - (scale_value_by_horizontal_resolution(148) / 4);
+            draw_gui_panel_sprite_left(x, y, ps_units_per_px, instance_button_init[cctrl->active_instance_id].symbol_spridx);
+        }
+    }
+}
+
 void setup_engine_window(long x, long y, long width, long height)
 {
     SYNCDBG(6,"Starting for size (%ld,%ld) at (%ld,%ld)",width,height,x,y);
@@ -350,7 +429,7 @@ void set_sprite_view_3d(void)
                             n = thing->field_48;
                         }
                         thing->field_48 = n;
-                        thing->field_40 = n << 8;
+                        thing->anim_time = n << 8;
                     }
                 }
             }
@@ -381,7 +460,7 @@ void set_sprite_view_isometric(void)
                             n = thing->field_48;
                         }
                         thing->field_48 = n;
-                        thing->field_40 = n << 8;
+                        thing->anim_time = n << 8;
                     }
                 }
             }
@@ -519,6 +598,20 @@ void redraw_creature_view(void)
     message_draw();
     gui_draw_all_boxes();
     draw_tooltip();
+    draw_creature_view_icons(thing);
+    if (!gui_box_is_not_valid(gui_cheat_box_3))
+    {
+        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+        if (!creature_control_invalid(cctrl))
+        {
+            struct GuiBoxOption* guop = gui_cheat_box_3->optn_list;
+            while (guop->label[0] != '!')
+            {
+              guop->active = (cctrl->active_instance_id == guop->cb_param1);
+              guop++;
+            }
+        }
+    }
 }
 
 void smooth_screen_area(unsigned char *scrbuf, long x, long y, long w, long h, long scanln)
@@ -855,7 +948,7 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
     case PSt_CreatrQuery:
     case PSt_CreatrInfo:
     case PSt_CreatrInfoAll:
-    case PSt_CreatrQueryAll:
+    case PSt_QueryAll:
         set_pointer_graphic(MousePG_Query);
         break;
     case PSt_PlaceTrap:
@@ -871,8 +964,8 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
         break;
     case PSt_PlaceTerrain:
     {
-        struct DungeonAdd* dungeonadd = get_dungeonadd(player->id_number);
-        i = get_place_terrain_pointer_graphics(dungeonadd->cheatselection.chosen_terrain_kind);
+        struct PlayerInfoAdd* playeradd = get_playeradd(player->id_number);
+        i = get_place_terrain_pointer_graphics(playeradd->cheatselection.chosen_terrain_kind);
         set_pointer_graphic(i);
         break;
     }
@@ -908,7 +1001,7 @@ void process_pointer_graphic(void)
         break;
     case PVT_CreatureContrl:
     case PVT_CreaturePasngr:
-        if ( ((game.numfield_D & GNFldD_CreaturePasngr) != 0) || (gui_box != NULL) || (gui_cheat_box != NULL) )
+        if ( ((game.numfield_D & GNFldD_CreaturePasngr) != 0) || (cheat_menu_is_active()) )
           set_pointer_graphic(MousePG_Arrow);
         else
           set_pointer_graphic(MousePG_Invisible);
@@ -1019,6 +1112,11 @@ void redraw_display(void)
     {
         draw_timer();
     }
+    if (frametime_enabled())
+    {
+        draw_frametime();
+    }
+
     if (((game.operation_flags & GOF_Paused) != 0) && ((game.operation_flags & GOF_WorldInfluence) == 0))
     {
           LbTextSetFont(winfont);
@@ -1078,7 +1176,11 @@ TbBool keeper_screen_redraw(void)
 {
     SYNCDBG(5,"Starting");
     struct PlayerInfo* player = get_my_player();
-    LbScreenClear(0);
+    if (lens_mode != 0) {
+        LbScreenClear(144); // Very dark green
+    } else {
+        LbScreenClear(0);
+    }
     if (LbScreenLock() == Lb_SUCCESS)
     {
         setup_engine_window(player->engine_window_x, player->engine_window_y,

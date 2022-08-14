@@ -6585,3 +6585,128 @@ msgstr "不思議な箱: 此れの作用は不明だ。"
 msgctxt "Network game message"
 msgid "Joined player has different map version from host."
 msgstr "参加しているプレイヤーのマップ版はホストの版とは違う。"
+
+#: guitext:1007
+msgctxt "In-game interface description"
+msgid "Display Resolution: Switch to the next configured display resolution. LMB toggle. RMB display current resolution."
+msgstr "画面解像度: 次の設定された画面解像度に切り替わる。左クリックで切り替え。右クリックで現行の設定を示す。"
+
+#: guitext:1008 guitext:1009 guitext:1010
+msgctxt "Unused"
+msgid "Moo4"
+msgstr ""
+
+#: guitext:1011
+msgctxt "Menu interface item""
+msgid "Dungeon Keeper original campaign"
+msgstr "ダンジョンキーパーの原キャンペーン"
+
+#: guitext:1012
+msgctxt "Menu interface item""
+msgid "Assmist Isle"
+msgstr "アッスミスト島"
+
+#: guitext:1013
+msgctxt "Menu interface item""
+msgid "Ancient Keeper campaign"
+msgstr "エンシェント・キーパー・キャンペーン"
+
+#: guitext:1014
+msgctxt "Menu interface item""
+msgid "Burdened Imps' Level Pack"
+msgstr "Burdened Impのレベルパック"
+
+#: guitext:1015
+msgctxt "Menu interface item""
+msgid "Conquest of the Arctic"
+msgstr "北極圏の征服"
+
+#: guitext:1016
+msgctxt "Menu interface item""
+msgid "The Destiny of Ninja"
+msgstr "忍者の運命"
+
+#: guitext:1017
+msgctxt "Menu interface item""
+msgid "DzjeeAr's  6-level campaign"
+msgstr "DzjeeArの６面レベルキャンペーン"
+
+#: guitext:1018
+msgctxt "Menu interface item""
+msgid "DzjeeAr's 10-level campaign"
+msgstr "DzjeeArの１０面レベルキャンペーン"
+
+#: guitext:1019
+msgctxt "Menu interface item""
+msgid "DzjeeAr's 25-level campaign"
+msgstr "DzjeeArの２５面レベルキャンペーン"
+
+#: guitext:1020
+msgctxt "Menu interface item""
+msgid "Evil Keeper campaign"
+msgstr "邪悪なキーパー・キャンペーン"
+
+#: guitext:1021
+msgctxt "Menu interface item""
+msgid "Grinics' KReign campaign"
+msgstr "GrinicのKReignキャンペーン"
+
+#: guitext:1022
+msgctxt "Menu interface item""
+msgid "Japanese DKMaps8 pack"
+msgstr "日本製DKMap8パック"
+
+#: guitext:1023
+msgctxt "Menu interface item""
+msgid "KDK Levels"
+msgstr "KDKレベル"
+
+#: guitext:1024
+msgctxt "Menu interface item""
+msgid "Good Campaign"
+msgstr "勇者キャンペーン"
+
+#: guitext:1025
+msgctxt "Menu interface item""
+msgid "Lord Vexer campaign"
+msgstr "ヴェクサー卿キャンペーン"
+
+#: guitext:1026
+msgctxt "Menu interface item""
+msgid "Nikolai's Castles campaign"
+msgstr "ニコライの城キャンペーン"
+
+#: guitext:1027
+msgctxt "Menu interface item""
+msgid "A Dungeon Keeper - New Game+"
+msgstr "増強された原キャンペーン"
+
+#: guitext:1028
+msgctxt "Menu interface item""
+msgid "Post Ancient Keeper campaign"
+msgstr "エンシェント・キーパー後キャンペーン"
+
+#: guitext:1029
+msgctxt "Menu interface item""
+msgid "Post Undead Keeper campaign"
+msgstr "アンデッド・キーパー後キャンペーン"
+
+#: guitext:1030
+msgctxt "Menu interface item""
+msgid "Quest for the Hero campaign"
+msgstr "勇者の探求キャンペーン"
+
+#: guitext:1031
+msgctxt "Menu interface item""
+msgid "Revenge of the Lord"
+msgstr "主君の復讐"
+
+#: guitext:1032
+msgctxt "Menu interface item""
+msgid "Twin Keepers Campaign"
+msgstr "ツイン・キーパーズ・キャンペーン"
+
+#: guitext:1033
+msgctxt "Menu interface item""
+msgid "Undead Keeper campaign"
+msgstr "アンデッド・キーパー・キャンペーン"

@@ -45,6 +45,7 @@
 #include "gui_soundmsgs.h"
 #include "sounds.h"
 #include "game_legacy.h"
+#include "player_instances.h"
 
 #include "keeperfx.hpp"
 
@@ -159,8 +160,6 @@ struct InstanceInfo instance_info[] = {
     {0, 16,  4,  4,  2,   1,   1,  5,  0,  0,  3, NULL,                              {0,0}},
     {0,  8,  4,  4,  2,   1,   1,  6,  0,  0,  3, NULL,                              {0,0}},
 };
-
-TbBool first_person_dig_claim_mode = false;
 
 /******************************************************************************/
 #ifdef __cplusplus
@@ -538,8 +537,9 @@ long instf_dig(struct Thing *creatng, long *param)
     {
         if (!slab_kind_is_indestructible(slb->kind))
             slb->health -= dig_damage;
-        thing_play_sample(creatng, 63 + UNSYNC_RANDOM(6), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
-        create_effect(&creatng->mappos, TngEff_RockChips, creatng->owner);
+        struct ShotConfigStats* shotst = get_shot_model_stats(ShM_Dig);
+        thing_play_sample(creatng, shotst->dig.sndsample_idx + UNSYNC_RANDOM(shotst->dig.sndsample_range), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+        create_effect(&creatng->mappos, shotst->dig.effect_model, creatng->owner);
         if (taskkind == SDDigTask_MineGold)
         {
             gold = calculate_gold_digged_out_of_slab_with_single_hit(dig_damage, creatng->owner, cctrl->explevel, slb);
@@ -646,7 +646,6 @@ long instf_destroy(struct Thing *creatng, long *param)
         volume = FULL_LOUDNESS;
     }
     thing_play_sample(creatng, 128 + UNSYNC_RANDOM(3), 200, 0, 3, 0, 2, volume);
-
     decrease_dungeon_area(prev_owner, 1);
     neutralise_enemy_block(creatng->mappos.x.stl.num, creatng->mappos.y.stl.num, creatng->owner);
     remove_traps_around_subtile(slab_subtile_center(slb_x), slab_subtile_center(slb_y), NULL);
@@ -678,14 +677,14 @@ long instf_attack_room_slab(struct Thing *creatng, long *param)
         struct Dungeon* dungeon = get_dungeon(room->owner);
         dungeon->rooms_destroyed++;
     }
-    if (!delete_room_slab(coord_slab(creatng->mappos.x.val), coord_slab(creatng->mappos.y.val), 1))
-    {
-        ERRORLOG("Cannot delete %s room tile destroyed by %s index %d",room_code_name(room->kind),thing_model_name(creatng),(int)creatng->index);
-        return 0;
-    }
     if (count_slabs_of_room_type(room->owner, room->kind) <= 1)
     {
         event_create_event_or_update_nearby_existing_event(coord_slab(creatng->mappos.x.val), coord_slab(creatng->mappos.y.val), EvKind_RoomLost, room->owner, room->kind);
+    }
+    if (!delete_room_slab(coord_slab(creatng->mappos.x.val), coord_slab(creatng->mappos.y.val), 1))
+    {
+        ERRORLOG("Cannot delete %s room tile destroyed by %s index %d", room_code_name(room->kind), thing_model_name(creatng), (int)creatng->index);
+        return 0;
     }
     create_effect(&creatng->mappos, TngEff_Explosion3, creatng->owner);
     thing_play_sample(creatng, 47, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
@@ -701,17 +700,23 @@ long instf_damage_wall(struct Thing *creatng, long *param)
     MapSubtlCoord stl_y;
     {
         struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-        stl_x = stl_num_decode_x(cctrl->field_284);
-        stl_y = stl_num_decode_y(cctrl->field_284);
+        stl_x = stl_num_decode_x(cctrl->damage_wall_coords);
+        stl_y = stl_num_decode_y(cctrl->damage_wall_coords);
     }
+    struct Coord3d pos = creatng->mappos;
     struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
     if (slb->health > 2)
     {
+        create_effect(&pos, TngEff_RockChips, creatng->owner);
         slb->health -= 2;
     } else
     {
-        place_slab_type_on_map(2, stl_x, stl_y, creatng->owner, 0);
-        do_slab_efficiency_alteration(subtile_slab_fast(stl_x), subtile_slab_fast(stl_y));
+        MapSlabCoord slb_x = subtile_slab_fast(stl_x);
+        MapSlabCoord slb_y = subtile_slab_fast(stl_y);
+        place_slab_type_on_map(SlbT_EARTH, stl_x, stl_y, creatng->owner, 0);
+        do_slab_efficiency_alteration(slb_x, slb_y);
+        create_dirt_rubble_for_dug_slab(slb_x, slb_y);
+        thing_play_sample(creatng, 73, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     }
     thing_play_sample(creatng, 63+UNSYNC_RANDOM(6), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     return 1;
@@ -746,7 +751,7 @@ long instf_fart(struct Thing *creatng, long *param)
 long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    struct PlayerInfo* player = get_my_player();
+    struct PlayerInfo* player = get_player(get_appropriate_player_for_creature(creatng));
     TRACE_THING(creatng);
     struct SlabMap* slb;
     MapSubtlCoord ahead_stl_x = creatng->mappos.x.stl.num;
@@ -755,8 +760,11 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
     MapSlabCoord slb_y = subtile_slab_fast(creatng->mappos.y.stl.num);
     if (check_place_to_pretty_excluding(creatng, slb_x, slb_y))
     {
-        instf_pretty_path(creatng, NULL);
-        return 1;
+        if (cctrl->dragtng_idx == 0)
+        {
+            instf_pretty_path(creatng, NULL);
+            return 1;
+        }
     }
     MapSlabCoord ahead_slb_x = slb_x;
     MapSlabCoord ahead_slb_y = slb_y;
@@ -780,7 +788,8 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
         ahead_stl_x++;
         ahead_slb_x++;
     }
-    if ( (player->thing_under_hand != 0) || (cctrl->dragtng_idx != 0) )
+    struct PlayerInfoAdd* playeradd = get_playeradd(player->id_number);
+    if ( (playeradd->selected_fp_thing_pickup != 0) || (cctrl->dragtng_idx != 0) )
     {
         set_players_packet_action(player, PckA_DirectCtrlDragDrop, 0, 0, 0, 0);
         return 1;
@@ -809,10 +818,11 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
             }
         }
     }
-    if ( (first_person_dig_claim_mode) || (!subtile_diggable) )
+    TbBool dig = true;
+    slb = get_slabmap_block(slb_x, slb_y);
+    if ( check_place_to_convert_excluding(creatng, slb_x, slb_y) )
     {
-        slb = get_slabmap_block(slb_x, slb_y);
-        if ( check_place_to_convert_excluding(creatng, slb_x, slb_y) )
+        if (!playeradd->first_person_dig_claim_mode)
         {
             struct SlabAttr* slbattr = get_slab_attrs(slb);
             instf_destroy(creatng, NULL);
@@ -836,7 +846,7 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
                         {
                             clear_messages_from_player(id);
                         }
-                        message_add_timeout(id, 50, "%d/%d", room->health, compute_room_max_health(room->slabs_count, room->efficiency));
+                        targeted_message_add(id, player->id_number, 50, "%d/%d", room->health, compute_room_max_health(room->slabs_count, room->efficiency));
                     }
                     else
                     {
@@ -849,29 +859,30 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
             }
             return 1;
         }
-        else
+    }
+    else if (playeradd->first_person_dig_claim_mode)
+    {
+        if (slabmap_owner(slb) == creatng->owner)
         {
-            if (slabmap_owner(slb) == creatng->owner)
+            MapSlabCoord ahead_sslb_x = subtile_slab_fast(ahead_stl_x);
+            MapSlabCoord ahead_sslb_y = subtile_slab_fast(ahead_stl_y);
+            if ( check_place_to_reinforce(creatng, ahead_sslb_x, ahead_sslb_y) )
             {
-                MapSlabCoord ahead_sslb_x = subtile_slab_fast(ahead_stl_x);
-                MapSlabCoord ahead_sslb_y = subtile_slab_fast(ahead_stl_y);
-                if ( check_place_to_reinforce(creatng, ahead_sslb_x, ahead_sslb_y) )
+                struct SlabMap* ahead_sslb = get_slabmap_block(ahead_sslb_x, ahead_sslb_y);
+                if ((ahead_sslb->kind >= SlbT_EARTH) && (ahead_sslb->kind <= SlbT_TORCHDIRT))
                 {
-                    struct SlabMap* ahead_sslb = get_slabmap_block(ahead_sslb_x, ahead_sslb_y);
-                    if ((ahead_sslb->kind >= SlbT_EARTH) && (ahead_sslb->kind <= SlbT_TORCHDIRT))
+                    if (slab_by_players_land(creatng->owner, ahead_sslb_x, ahead_sslb_y))
                     {
-                        if (slab_by_players_land(creatng->owner, ahead_sslb_x, ahead_sslb_y))
-                        {
-                            cctrl->digger.working_stl = get_subtile_number(ahead_stl_x, ahead_stl_y);
-                            instf_reinforce(creatng, NULL);
-                            return 1;
-                        } 
-                    }
+                        cctrl->digger.working_stl = get_subtile_number(ahead_stl_x, ahead_stl_y);
+                        instf_reinforce(creatng, NULL);
+                        return 1;
+                    } 
                 }
             }
         }
+        dig = false;
     }
-    if (first_person_dig_claim_mode == false)
+    if (dig)
     {
         //TODO CONFIG shot model dependency
         long locparam = ShM_Dig;
@@ -982,5 +993,11 @@ void delay_teleport(struct Thing *creatng)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     cctrl->instance_use_turn[CrInst_TELEPORT] = game.play_gameturn + 100;
+}
+
+void delay_heal_sleep(struct Thing *creatng)
+{
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    cctrl->healing_sleep_check_turn = game.play_gameturn + 600;
 }
 /******************************************************************************/

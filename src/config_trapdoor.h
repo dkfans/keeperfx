@@ -52,6 +52,9 @@ struct DoorConfigStats {
     long bigsym_sprite_idx;
     long medsym_sprite_idx;
     long pointer_sprite_idx;
+    unsigned short slbkind[2];
+    long health;
+    unsigned short open_speed;
 };
 
 struct TrapConfigStats {
@@ -96,6 +99,7 @@ struct TrapDoorConfig {
 extern const char keeper_trapdoor_file[];
 extern struct NamedCommand trap_desc[TRAPDOOR_TYPES_MAX];
 extern struct NamedCommand door_desc[TRAPDOOR_TYPES_MAX];
+extern const struct NamedCommand trapdoor_door_commands[];
 /******************************************************************************/
 TbBool load_trapdoor_config(const char *conf_fname,unsigned short flags);
 
@@ -118,6 +122,8 @@ TbBool is_door_placeable(PlayerNumber plyr_idx, long door_idx);
 TbBool is_door_buildable(PlayerNumber plyr_idx, long door_idx);
 TbBool is_door_built(PlayerNumber plyr_idx, long door_idx);
 TbBool create_manufacture_array_from_trapdoor_data(void);
+TbBool make_available_all_doors(PlayerNumber plyr_idx);
+TbBool make_available_all_traps(PlayerNumber plyr_idx);
 
 /******************************************************************************/
 #ifdef __cplusplus

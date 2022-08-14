@@ -37,12 +37,11 @@
 #include "power_hand.h"
 #include "game_legacy.h"
 #include "player_states.h"
+#include "player_instances.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-/******************************************************************************/
-DLLIMPORT long _DK_event_move_player_towards_event(struct PlayerInfo *player, long var);
 
 /******************************************************************************/
 TbBool event_is_invalid(const struct Event *event)
@@ -181,9 +180,15 @@ void event_initialise_all(void)
     }
 }
 
-long event_move_player_towards_event(struct PlayerInfo *player, long var)
+long event_move_player_towards_event(struct PlayerInfo *player, long event_idx)
 {
-  return _DK_event_move_player_towards_event(player,var);
+    struct Event* event = &game.event[event_idx];
+
+    player->zoom_to_pos_x = event->mappos_x;
+    player->zoom_to_pos_y = event->mappos_y;
+
+    set_player_instance(player, PI_ZoomToPos, 0);
+    return 1;
 }
 
 struct Event *event_create_event(MapCoord map_x, MapCoord map_y, EventKind evkind, unsigned char dngn_id, long target)
@@ -450,8 +455,8 @@ void go_on_then_activate_the_event_box(PlayerNumber plyr_idx, EventIndex evidx)
         case EvKind_NewRoomResrch:
         {
             other_off = 1;
-            struct RoomData* rdata = room_data_get_for_kind(event->target);
-            i = rdata->name_stridx;
+            const struct RoomConfigStats* roomst = get_room_kind_stats(event->target);
+            i = roomst->name_stridx;
             text = buf_sprintf("%s:\n%s",game.evntbox_scroll_window.text, get_string(i));
             strncpy(game.evntbox_scroll_window.text,text,MESSAGE_TEXT_LEN-1);
             turn_on_menu(GMnu_TEXT_INFO);
@@ -534,8 +539,8 @@ void go_on_then_activate_the_event_box(PlayerNumber plyr_idx, EventIndex evidx)
         case EvKind_StorageRoomUnreachable:
         {
             other_off = 1;
-            struct RoomData* rdata = room_data_get_for_kind(event->target);
-            i = rdata->name_stridx;
+            const struct RoomConfigStats* roomst = get_room_kind_stats(event->target);
+            i = roomst->name_stridx;
             text = buf_sprintf("%s:\n%s",game.evntbox_scroll_window.text,get_string(i));
             strncpy(game.evntbox_scroll_window.text,text,MESSAGE_TEXT_LEN-1);
             turn_on_menu(GMnu_TEXT_INFO);

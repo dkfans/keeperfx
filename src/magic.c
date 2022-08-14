@@ -584,7 +584,8 @@ TbBool can_cast_power_at_xy(PlayerNumber plyr_idx, PowerKind pwkind,
     }
     PlayerNumber slb_owner;
     slb_owner = slabmap_owner(slb);
-    if ((mapblk->flags & SlbAtFlg_Blocking) != 0)
+    TbBool subtile_is_liquid_or_path = ( (subtile_is_liquid(stl_x, stl_y)) || (subtile_is_unclaimed_path(stl_x, stl_y)) );
+    if ( ((mapblk->flags & SlbAtFlg_Blocking) != 0) && (!subtile_is_liquid_or_path) )
     {
         if ((can_cast & PwCast_Claimable) != 0)
         {
@@ -626,7 +627,7 @@ TbBool can_cast_power_at_xy(PlayerNumber plyr_idx, PowerKind pwkind,
     {
         if ((can_cast & PwCast_Claimable) != 0)
         {
-            if (slab_kind_is_liquid(slb->kind))
+            if (subtile_is_liquid(stl_x, stl_y))
             {
                   return false;
             }
@@ -639,6 +640,10 @@ TbBool can_cast_power_at_xy(PlayerNumber plyr_idx, PowerKind pwkind,
         if ((can_cast & PwCast_UnclmdGround) != 0)
         {
             if (slbattr->category == SlbAtCtg_Unclaimed) {
+                return true;
+            }
+            if (subtile_is_liquid_or_path)
+            {
                 return true;
             }
         }
@@ -1134,6 +1139,7 @@ TbResult magic_use_power_destroy_walls(PlayerNumber plyr_idx, MapSubtlCoord stl_
                 if (slbattr->category == SlbAtCtg_FortifiedWall)
                 {
                     place_slab_type_on_map(SlbT_EARTH, slab_subtile_center(slb_x),slab_subtile_center(slb_y), plyr_idx, 0);
+                    create_dirt_rubble_for_dug_slab(slb_x, slb_y);
                     do_slab_efficiency_alteration(slb_x, slb_y);
                 } else
                 if (slab_kind_is_friable_dirt(slb->kind))
@@ -1719,9 +1725,10 @@ TbResult magic_use_power_possess_thing(PlayerNumber plyr_idx, struct Thing *thin
     }
     player = get_player(plyr_idx);
     player->influenced_thing_idx = thing->index;
-    teleport_destination = 18;
-    first_person_dig_claim_mode = false;
-    battleid = 1;
+    struct PlayerInfoAdd* playeradd = get_playeradd(player->id_number);
+    playeradd->first_person_dig_claim_mode = false;
+    playeradd->teleport_destination = 18; // reset to default behaviour
+    playeradd->battleid = 1;
     // Note that setting Direct Control player instance requires player->influenced_thing_idx to be set correctly
     set_player_instance(player, PI_DirctCtrl, 0);
     return Lb_SUCCESS;

@@ -2,6 +2,7 @@
 #include <windows.h>
 
 #include "keeperfx.hpp"
+#include <chrono>
 
 #include "bflib_coroutine.h"
 #include "bflib_math.h"
@@ -22,6 +23,7 @@
 #include "bflib_mouse.h"
 #include "bflib_filelst.h"
 #include "bflib_network.h"
+#include "bflib_planar.h"
 
 #include "custom_sprites.h"
 #include "version.h"
@@ -68,6 +70,7 @@
 #include "thing_doors.h"
 #include "thing_traps.h"
 #include "thing_navigate.h"
+#include "thing_shots.h"
 #include "thing_factory.h"
 #include "slab_data.h"
 #include "room_data.h"
@@ -111,12 +114,17 @@
 #define strcasecmp _stricmp
 #endif
 
+#define TimePoint std::chrono::high_resolution_clock::time_point
+#define TimeNow std::chrono::high_resolution_clock::now()
+TimePoint initialized_time_point;
+struct FrametimeMeasurements frametime_measurements;
+
 int test_variable;
 
 char cmndline[CMDLN_MAXLEN+1];
 unsigned short bf_argc;
 char *bf_argv[CMDLN_MAXLEN+1];
-
+short do_draw;
 short default_loc_player = 0;
 TbBool force_player_num = false;
 struct StartupParameters start_params;
@@ -132,10 +140,6 @@ extern "C" {
 
 // DLLIMPORT int _DK_can_thing_be_queried(struct Thing *thing, long a2);
 DLLIMPORT long _DK_ceiling_init(unsigned long a1, unsigned long a2);
-DLLIMPORT long _DK_apply_wallhug_force_to_boulder(struct Thing *thing);
-DLLIMPORT void __stdcall _DK_IsRunningMark(void);
-DLLIMPORT void __stdcall _DK_IsRunningUnmark(void);
-DLLIMPORT void _DK_update_flames_nearest_camera(struct Camera *camera);
 DLLIMPORT long _DK_ceiling_block_is_solid_including_corners_return_height(long a1, long a2, long a3);
 // Now variables
 DLLIMPORT extern HINSTANCE _DK_hInstance;
@@ -155,6 +159,39 @@ struct TimerTime Timer;
 TbBool TimerGame = false;
 TbBool TimerNoReset = false;
 TbBool TimerFreeze = false;
+
+/******************************************************************************/
+
+void frametime_set_all_measurements_to_be_displayed() {
+    // Display the frametime of the previous frame only, not the current frametime. Drawing "frametime_current" is a bad idea because frametimes are displayed on screen half-way through the rest of the measurements.
+    for (int i = 0; i < TOTAL_FRAMETIME_KINDS; i++) {
+        frametime_measurements.frametime_display[i] = frametime_measurements.frametime_current[i];
+        if (game.play_gameturn % game.num_fps == 0) {
+            frametime_measurements.frametime_display_max[i] = frametime_measurements.frametime_get_max[i];
+            frametime_measurements.frametime_get_max[i] = 0;
+        }
+    }
+}
+
+void frametime_start_measurement(int frametime_kind) {
+    long double current_nanoseconds = std::chrono::duration_cast<std::chrono::nanoseconds>(TimeNow - initialized_time_point).count();
+    long double current_milliseconds = current_nanoseconds/1000000.0;
+    frametime_measurements.starting_measurement[frametime_kind] = float(current_milliseconds);
+}
+
+void frametime_end_measurement(int frametime_kind) {
+    long double current_nanoseconds = std::chrono::duration_cast<std::chrono::nanoseconds>(TimeNow - initialized_time_point).count();
+    long double current_milliseconds = current_nanoseconds/1000000.0;
+    float result = float(current_milliseconds) - frametime_measurements.starting_measurement[frametime_kind];
+    frametime_measurements.frametime_current[frametime_kind] = result;
+    // Always set frametime_get_max to highest frametime, then reset it to 0 in frametime_end_all_measurements() once every second.
+    if (frametime_measurements.frametime_current[frametime_kind] > frametime_measurements.frametime_get_max[frametime_kind]) {
+        frametime_measurements.frametime_get_max[frametime_kind] = frametime_measurements.frametime_current[frametime_kind];
+    }
+    if (frametime_kind == Frametime_FullFrame) {
+        frametime_set_all_measurements_to_be_displayed();
+    }
+}
 
 TbPixel get_player_path_colour(unsigned short owner)
 {
@@ -432,7 +469,162 @@ void affect_nearby_friends_with_alarm(struct Thing *traptng)
 
 long apply_wallhug_force_to_boulder(struct Thing *thing)
 {
-  return _DK_apply_wallhug_force_to_boulder(thing);
+  unsigned short angle;
+  long collide;
+  unsigned short new_angle;
+  struct Coord3d pos2;
+  struct Coord3d pos;
+  struct ShotConfigStats *shotst = get_shot_model_stats(thing->model);
+  short speed = shotst->speed;
+  pos.x.val = move_coord_with_angle_x(thing->mappos.x.val,speed,thing->move_angle_xy);
+  pos.y.val = move_coord_with_angle_y(thing->mappos.y.val,speed,thing->move_angle_xy);
+  pos.z.val = thing->mappos.z.val;
+  if ( (ACTION_RANDOM(8) == 0) && (!thing->velocity.z.val ) )
+  {
+    if ( thing_touching_floor(thing) )
+    {
+      long top_cube = get_top_cube_at(thing->mappos.x.stl.num, thing->mappos.y.stl.num, NULL);
+      if ( ((top_cube & 0xFFFFFFFE) != 0x28) && (top_cube != 39) )
+      {
+        thing->veloc_push_add.z.val += 48;
+        thing->state_flags |= TF1_PushAdd;
+      }
+    }
+  }
+  if ( thing_in_wall_at(thing, &pos) )
+  {
+    long blocked_flags = get_thing_blocked_flags_at(thing, &pos);
+    if ( blocked_flags & SlbBloF_WalledX )
+    {
+      angle = thing->move_angle_xy;
+      if ( (angle) && (angle <= ANGLE_SOUTH) )
+        collide = process_boulder_collision(thing, &pos, 1, 0);
+      else
+        collide = process_boulder_collision(thing, &pos, -1, 0);
+    }
+    else if ( blocked_flags & SlbBloF_WalledY )
+    {
+      angle = thing->move_angle_xy;
+      if ( (angle <= ANGLE_EAST) || (angle > ANGLE_WEST) )
+        collide = process_boulder_collision(thing, &pos, 0, -1);
+      else
+        collide = process_boulder_collision(thing, &pos, 0, 1);
+    }
+    else
+    {
+      collide = 0;
+    }
+    if ( collide != 1 )
+    {
+      if ( (thing->model != ShM_SolidBoulder) && (collide == 0) )
+      {
+        thing->health -= game.boulder_reduce_health_wall;
+      }
+      slide_thing_against_wall_at(thing, &pos, blocked_flags);
+      if ( blocked_flags & SlbBloF_WalledX )
+      {
+        angle = thing->move_angle_xy;
+        if ( (angle) && ( (angle <= ANGLE_EAST) || (angle > ANGLE_WEST) ) )
+        {
+          unsigned short y = thing->mappos.y.val;
+          pos2.x.val = thing->mappos.x.val;
+          pos2.z.val = 0;
+          pos2.y.val = y - STL_PER_SLB * speed;
+          pos2.z.val = get_thing_height_at(thing, &pos2);
+          new_angle = (thing_in_wall_at(thing, &pos2) < 1) ? ANGLE_NORTH : ANGLE_SOUTH;
+        }
+        else
+        {
+          pos2.x.val = thing->mappos.x.val;
+          pos2.z.val = 0;
+          pos2.y.val = thing->mappos.y.val + STL_PER_SLB * speed;
+          pos2.z.val = get_thing_height_at(thing, &pos2);
+          new_angle = (thing_in_wall_at(thing, &pos2) < 1) ? ANGLE_SOUTH : ANGLE_NORTH;
+        }
+      }
+      else if ( blocked_flags & SlbBloF_WalledY )
+      {
+        angle = thing->move_angle_xy;
+        if ( (angle) && (angle <= ANGLE_SOUTH) ) 
+        {
+          pos2.z.val = 0;
+          pos2.y.val = thing->mappos.y.val;
+          pos2.x.val = thing->mappos.x.val + STL_PER_SLB * speed;
+          pos2.z.val = get_thing_height_at(thing, &pos2);
+          new_angle = (thing_in_wall_at(thing, &pos2) < 1) ? ANGLE_EAST : ANGLE_WEST;
+        }
+        else
+        {
+          unsigned short x = thing->mappos.x.val;
+          pos2.z.val = 0;
+          pos2.y.val = thing->mappos.y.val;
+          pos2.x.val = x - STL_PER_SLB * speed;
+          pos2.z.val = get_thing_height_at(thing, &pos2);
+          new_angle = (thing_in_wall_at(thing, &pos2) < 1) ? ANGLE_WEST : ANGLE_EAST;
+        }
+      }
+      else
+      {
+        ERRORLOG("Cannot find boulder wall hug angle!");
+        new_angle = 0;
+      }
+      thing->move_angle_xy = new_angle;
+    }
+  }
+  angle = thing->move_angle_xy;
+  thing->velocity.x.val = distance_with_angle_to_coord_x(shotst->speed,angle);
+  thing->velocity.y.val = distance_with_angle_to_coord_y(shotst->speed,angle);
+  return 0;
+}
+
+long process_boulder_collision(struct Thing *boulder, struct Coord3d *pos, int direction_x, int direction_y)
+{ 
+    unsigned short boulder_radius = (boulder->clipbox_size_xy >> 1);
+    MapSubtlCoord pos_x = (pos->x.val + boulder_radius * direction_x) >> 8;
+    MapSubtlCoord pos_y = (pos->y.val + boulder_radius * direction_y) >> 8;
+    MapSubtlCoord stl_x = stl_slab_center_subtile(pos_x);
+    MapSubtlCoord stl_y = stl_slab_center_subtile(pos_y);
+
+    struct Room *room = subtile_room_get(stl_x, stl_y);
+    if (room_exists(room))
+    {
+        if (room->kind == RoK_GUARDPOST)  // Collide with Guardposts
+        {
+            if (room->owner != game.neutral_player_num)
+            {
+                struct Dungeon *dungeon = get_dungeon(room->owner);
+                if (!dungeon_invalid(dungeon))
+                {
+                    dungeon->rooms_destroyed++; // add to player stats
+                }
+            }
+            delete_room_slab(subtile_slab(stl_x), subtile_slab(stl_y), 0); // destroy guardpost
+            for (long k = 0; k < AROUND_TILES_COUNT; k++)
+            {
+                create_dirt_rubble_for_dug_block(stl_x + around[k].delta_x, stl_y + around[k].delta_y, 4, room->owner);
+            }
+            if (boulder->model != ShM_SolidBoulder) // Solid Boulder (shot20) takes no damage when destroying guardposts
+            {
+                boulder->health -= game.boulder_reduce_health_room; // decrease boulder health
+            }
+            return 1; // guardpost destroyed
+        }
+    }
+    else
+    {
+        if (subtile_has_door_thing_on(stl_x, stl_y)) // Collide with Doors
+        {
+            struct Thing *doortng = get_door_for_position(stl_x, stl_y);
+            short door_health = doortng->health;
+            doortng->health -= boulder->health; // decrease door health
+            boulder->health -= door_health; // decrease boulder health
+            if (doortng->health <= 0)
+            {
+                return 2; // door destroyed
+            }
+        }
+    }
+    return 0; // Default: No collision OR boulder destroyed on door
 }
 
 void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long delta_step, long num_per_step)
@@ -660,16 +852,23 @@ TbBool any_player_close_enough_to_see(const struct Coord3d *pos)
 {
     struct PlayerInfo *player;
     int i;
+    short limit = 24 * COORD_PER_STL;
     for (i=0; i < PLAYERS_COUNT; i++)
     {
-      player = get_player(i);
-      if ( (player_exists(player)) && ((player->allocflags & PlaF_CompCtrl) == 0))
-      {
-        if (player->acamera == NULL)
-          continue;
-        if (get_2d_box_distance(&player->acamera->mappos, pos) <= (24 << 8))
-          return true;
-      }
+        player = get_player(i);
+        if ( (player_exists(player)) && ((player->allocflags & PlaF_CompCtrl) == 0))
+        {
+            if (player->acamera == NULL)
+                continue;
+            if (player->acamera->zoom >= CAMERA_ZOOM_MIN)
+            {
+                limit = SHRT_MAX - (2 * player->acamera->zoom);
+            }
+            if (get_2d_box_distance(&player->acamera->mappos, pos) <= limit)
+            {
+                return true;
+            }
+        }
     }
     return false;
 }
@@ -683,29 +882,29 @@ void update_thing_animation(struct Thing *thing)
     {
       cctrl = creature_control_get_from_thing(thing);
       if (!creature_control_invalid(cctrl))
-        cctrl->field_CE = thing->field_40;
+        cctrl->field_CE = thing->anim_time;
     }
     if ((thing->anim_speed != 0) && (thing->field_49 != 0))
     {
-        thing->field_40 += thing->anim_speed;
+        thing->anim_time += thing->anim_speed;
         i = (thing->field_49 << 8);
         if (i <= 0) i = 256;
-        while (thing->field_40  < 0)
+        while (thing->anim_time  < 0)
         {
-          thing->field_40 += i;
+          thing->anim_time += i;
         }
-        if (thing->field_40 > i-1)
+        if (thing->anim_time > i-1)
         {
           if (thing->field_4F & TF4F_Unknown40)
           {
             thing->anim_speed = 0;
-            thing->field_40 = i-1;
+            thing->anim_time = i-1;
           } else
           {
-            thing->field_40 %= i;
+            thing->anim_time %= i;
           }
         }
-        thing->field_48 = (thing->field_40 >> 8) & 0xFF;
+        thing->field_48 = (thing->anim_time >> 8) & 0xFF;
     }
     if (thing->field_4A != 0)
     {
@@ -826,26 +1025,6 @@ short ceiling_set_info(long height_max, long height_min, long step)
     return 1;
 }
 
-void IsRunningMark(void)
-{
-    _DK_IsRunningMark();
-/*  HKEY hKey;
-  if ( !RegCreateKeyA(HKEY_LOCAL_MACHINE, "SOFTWARE\\Bullfrog Productions Ltd\\Dungeon Keeper\\IsRunning", &hKey) )
-    RegCloseKey(hKey);*/
-}
-
-void IsRunningUnmark(void)
-{
-    _DK_IsRunningUnmark();
-    /*HKEY hKey;
-    if ( !RegOpenKeyExA(HKEY_LOCAL_MACHINE, "SOFTWARE\\Bullfrog Productions Ltd\\Dungeon Keeper\\IsRunning",
-            0, 0x20019u, &hKey) )
-    {
-        RegCloseKey(hKey);
-        RegDeleteKeyA(HKEY_LOCAL_MACHINE, "SOFTWARE\\Bullfrog Productions Ltd\\Dungeon Keeper\\IsRunning");
-    }*/
-}
-
 /**
  * Initial video setup - loads only most important files to show startup screens.
  */
@@ -913,7 +1092,10 @@ short setup_game(void)
   features_enabled |= Ft_LockCursorInPossession; // lock the mouse cursor to the window, when the user enters possession mode (when the cursor is already unlocked)
   features_enabled &= ~Ft_PauseMusicOnGamePause; // don't pause the music, if the user pauses the game
   features_enabled &= ~Ft_MuteAudioOnLoseFocus; // don't mute the audio, if the game window loses focus
-
+  features_enabled &= ~Ft_SkipHeartZoom; // don't skip the dungeon heart zoom in
+  features_enabled &= ~Ft_SkipSplashScreens; // don't skip splash screens
+  features_enabled &= ~Ft_DisableCursorCameraPanning; // don't disable cursor camera panning
+  
   // Configuration file
   if ( !load_configuration() )
   {
@@ -928,22 +1110,27 @@ short setup_game(void)
       ERRORLOG("Error on allocation/loading of legal_load_files.");
       return 0;
   }
-
+    
   // View the legal screen
-
   if (!setup_screen_mode_zero(get_frontend_vidmode()))
   {
       ERRORLOG("Unable to set display mode for legal screen");
       return 0;
   }
 
-  result = init_actv_bitmap_screen(RBmp_SplashLegal);
- if ( result )
- {
-     result = show_actv_bitmap_screen(3000);
-     free_actv_bitmap_screen();
- } else
-      SYNCLOG("Legal image skipped");
+  if (is_feature_on(Ft_SkipSplashScreens) == false)
+  {
+      result = init_actv_bitmap_screen(RBmp_SplashLegal);
+      if ( result )
+      {
+          result = show_actv_bitmap_screen(3000);
+          free_actv_bitmap_screen();
+      } else
+          SYNCLOG("Legal image skipped");
+  } else {
+        // Make the white screen into a black screen faster
+        draw_clear_screen();
+  }
 
   // Now do more setup
   // Prepare the Game structure
@@ -957,17 +1144,19 @@ short setup_game(void)
   // init_sound(). This will probably change when we'll move sound
   // to SDL - then we'll put that line earlier, before setup_game().
   LbErrorParachuteInstall();
+  if (is_feature_on(Ft_SkipSplashScreens) == false)
+  {
+    // View second splash screen
+    result = init_actv_bitmap_screen(RBmp_SplashFx);
+    if ( result )
+    {
+        result = show_actv_bitmap_screen(4000);
+        free_actv_bitmap_screen();
+    } else
+        SYNCLOG("startup_fx image skipped");
+  }
 
-  // View second splash screen
-  result = init_actv_bitmap_screen(RBmp_SplashFx);
- if ( result )
- {
-     result = show_actv_bitmap_screen(4000);
-     free_actv_bitmap_screen();
- } else
-      SYNCLOG("startup_fx image skipped");
   draw_clear_screen();
-
   // View Bullfrog company logo animation when new moon
   if ( is_new_moon )
     if ( !game.no_intro )
@@ -1016,7 +1205,6 @@ short setup_game(void)
 
   if ( result )
   {
-      IsRunningMark();
       if ( !initial_setup() )
         result = 0;
   }
@@ -1410,7 +1598,6 @@ void reinit_level_after_load(void)
     struct PlayerInfo *player;
     int i;
     SYNCDBG(6,"Starting");
-    init_custom_sprites(SPRITE_LAST_LEVEL);
     // Reinit structures from within the game
     player = get_my_player();
     player->lens_palette = 0;
@@ -2067,16 +2254,17 @@ void check_players_lost(void)
 {
   long i;
   SYNCDBG(8,"Starting");
-  //_DK_check_players_lost(); return;
+  struct PlayerInfo* player;
+  struct DungeonAdd* dungeonadd;
   for (i=0; i < PLAYERS_COUNT; i++)
   {
-      struct PlayerInfo *player;
       player = get_player(i);
+      dungeonadd = get_players_dungeonadd(player);
       if (player_exists(player) && (player->is_active == 1))
       {
           struct Thing *heartng;
           heartng = get_player_soul_container(i);
-          if ((!thing_exists(heartng) || (heartng->active_state == ObSt_BeingDestroyed)) && (player->victory_state == VicS_Undecided))
+          if ((!thing_exists(heartng) || ((heartng->active_state == ObSt_BeingDestroyed) && !(dungeonadd->backup_heart_idx > 0))) && (player->victory_state == VicS_Undecided))
           {
             event_kill_all_players_events(i);
             set_player_as_lost_level(player);
@@ -2185,9 +2373,9 @@ void count_players_creatures_being_paid(int *creatures_count)
             {
                 struct CreatureControl *cctrl;
                 cctrl = creature_control_get_from_thing(thing);
-                if (cctrl->prepayments_received > 0)
+                if (cctrl->paydays_advanced > 0)
                 {
-                    cctrl->prepayments_received--;
+                    cctrl->paydays_advanced--;
                 } else
                 {
                     cctrl->paydays_owed++;
@@ -2220,6 +2408,7 @@ void process_payday(void)
         if (player_exists(player) && (player->is_active == 1))
         {
             compute_and_update_player_payday_total(plyr_idx);
+            compute_and_update_player_backpay_total(plyr_idx);
         }
     }
     if (game.pay_day_gap <= game.pay_day_progress)
@@ -2285,13 +2474,6 @@ void process_dungeons(void)
   SYNCDBG(9,"Finished");
 }
 
-void update_flames_nearest_camera(struct Camera *camera)
-{
-  if (camera == NULL)
-    return;
-  _DK_update_flames_nearest_camera(camera);
-}
-
 void update_near_creatures_for_footsteps(long *near_creatures, const struct Coord3d *srcpos)
 {
     long near_distance[3];
@@ -2333,7 +2515,7 @@ void update_near_creatures_for_footsteps(long *near_creatures, const struct Coor
                 ndist = get_2d_box_distance(srcpos, &thing->mappos);
                 if (ndist < near_distance[0])
                 {
-                    if (((cctrl->distance_to_destination != 0) && ((int)thing->field_60 >= (int)thing->mappos.z.val))
+                    if (((cctrl->distance_to_destination != 0) && ((int)thing->floor_height >= (int)thing->mappos.z.val))
                       || ((thing->movement_flags & TMvF_Flying) != 0))
                     {
                         // Insert the new item to our list
@@ -2459,7 +2641,7 @@ TngUpdateRet damage_creatures_with_physical_force(struct Thing *thing, ModTngFil
         apply_damage_to_thing_and_display_health(thing, param->num2, DmgT_Physical, param->num1);
         if (thing->health >= 0)
         {
-            if ((thing->alloc_flags & TAlF_IsControlled) == 0)
+            if (((thing->alloc_flags & TAlF_IsControlled) == 0) && !creature_is_kept_in_custody(thing))
             {
                 if (get_creature_state_besides_interruptions(thing) != CrSt_CreatureEscapingDeath)
                 {
@@ -2632,7 +2814,10 @@ void update(void)
         process_action_points();
         player = get_my_player();
         if (player->view_mode == PVM_CreatureView)
-            update_flames_nearest_camera(player->acamera);
+        {
+            struct Thing *thing = thing_get(player->controlled_thing_idx);
+            update_first_person_object_ambience(thing);
+        }
         update_footsteps_nearest_camera(player->acamera);
         PaletteFadePlayer(player);
         process_armageddon();
@@ -3212,94 +3397,99 @@ TbBool keeper_wait_for_screen_focus(void)
     return false;
 }
 
+void gameplay_loop_logic() {
+    frametime_start_measurement(Frametime_Logic);
+    if ((game.flags_font & FFlg_unk10) != 0)
+    {
+        if (game.play_gameturn == 4)
+            LbNetwork_ChangeExchangeTimeout(0);
+    }
+#ifdef AUTOTESTING
+    if ((start_params.autotest_flags & ATF_ExitOnTurn) && (start_params.autotest_exit_turn == game.play_gameturn))
+    {
+        quit_game = true;
+        exit_keeper = true;
+        return;
+    }
+    evm_stat(1, "turn val=%ld,action_seed=%ld,unsync_seed=%ld", game.play_gameturn, game.action_rand_seed, game.unsync_rand_seed);
+    if (start_params.autotest_flags & ATF_FixedSeed)
+    {
+        game.action_rand_seed = game.play_gameturn;
+        game.unsync_rand_seed = game.play_gameturn;
+        srand(game.play_gameturn);
+    }
+#endif
+    do_draw = display_should_be_updated_this_turn() || (!LbIsActive());
+    LbWindowsControl();
+    input_eastegg();
+    input();
+    update();
+    frametime_end_measurement(Frametime_Logic);
+}
+
+void gameplay_loop_draw() {
+    frametime_start_measurement(Frametime_Draw);
+    if (quit_game || exit_keeper) {
+        do_draw = false;
+    }
+    if ( do_draw ) {
+        keeper_screen_redraw();
+    }
+    keeper_wait_for_screen_focus();
+    // Direct information/error messages
+    if (LbScreenLock() == Lb_SUCCESS) {
+        if ( do_draw ) {
+            perform_any_screen_capturing();
+        }
+        draw_onscreen_direct_messages();
+        LbScreenUnlock();
+    }
+    // Move the graphics window to center of screen buffer and swap screen
+    if ( do_draw ) {
+        keeper_screen_swap();
+    }
+    frametime_end_measurement(Frametime_Draw);
+}
+
+void gameplay_loop_sleep() {
+    frametime_start_measurement(Frametime_Sleep);
+    // Make delay if the machine is too fast
+    if ( (!game.packet_load_enable) || (game.turns_fastforward == 0) ) {
+        keeper_wait_for_next_turn();
+    }
+    if (game.turns_packetoff == game.play_gameturn) {
+        exit_keeper = 1;
+    }
+    frametime_end_measurement(Frametime_Sleep);
+}
+
 void keeper_gameplay_loop(void)
 {
-    short do_draw;
     struct PlayerInfo *player;
     SYNCDBG(5,"Starting");
     player = get_my_player();
     PaletteSetPlayerPalette(player, engine_palette);
-    if ((game.operation_flags & GOF_SingleLevel) != 0)
+    if ((game.operation_flags & GOF_SingleLevel) != 0) {
         initialise_eye_lenses();
-
+    }
 #ifdef AUTOTESTING
     if ((start_params.autotest_flags & ATF_AI_Player) != 0)
     {
         toggle_computer_player(player->id_number);
     }
 #endif
-
     SYNCDBG(0,"Entering the gameplay loop for level %d",(int)get_loaded_level_number());
-
     KeeperSpeechClearEvents();
     LbErrorParachuteUpdate(); // For some reasone parachute keeps changing; Remove when won't be needed anymore
-
+    initialized_time_point = TimeNow;
     //the main gameplay loop starts
     while ((!quit_game) && (!exit_keeper))
     {
-        if ((game.flags_font & FFlg_unk10) != 0)
-        {
-          if (game.play_gameturn == 4)
-              LbNetwork_ChangeExchangeTimeout(0);
-        }
-
-#ifdef AUTOTESTING
-        if ((start_params.autotest_flags & ATF_ExitOnTurn) && (start_params.autotest_exit_turn == game.play_gameturn))
-        {
-            quit_game = true;
-            exit_keeper = true;
-            break;
-        }
-        evm_stat(1, "turn val=%ld,action_seed=%ld,unsync_seed=%ld", game.play_gameturn, game.action_rand_seed, game.unsync_rand_seed);
-        if (start_params.autotest_flags & ATF_FixedSeed)
-        {
-            game.action_rand_seed = game.play_gameturn;
-            game.unsync_rand_seed = game.play_gameturn;
-            srand(game.play_gameturn);
-        }
-#endif
-        // Check if we should redraw screen in this turn
-        do_draw = display_should_be_updated_this_turn() || (!LbIsActive());
-
-        LbWindowsControl();
-        input_eastegg();
-        input();
-        update();
-
-        if (quit_game || exit_keeper)
-            do_draw = false;
-
-        if ( do_draw )
-            keeper_screen_redraw();
-        keeper_wait_for_screen_focus();
-        // Direct information/error messages
-        if (LbScreenLock() == Lb_SUCCESS)
-        {
-            if ( do_draw )
-                perform_any_screen_capturing();
-            draw_onscreen_direct_messages();
-            LbScreenUnlock();
-        }
-
-        // Music and sound control
-        if ( !SoundDisabled )
-        {
-            if ( (game.turns_fastforward == 0) && (!game.numfield_149F38) )
-            {
-                MonitorStreamedSoundTrack();
-                process_sound_heap();
-            }
-        }
-
-        // Move the graphics window to center of screen buffer and swap screen
-        if ( do_draw )
-            keeper_screen_swap();
-
-        // Make delay if the machine is too fast
-        if ( (!game.packet_load_enable) || (game.turns_fastforward == 0) )
-            keeper_wait_for_next_turn();
-        if (game.turns_packetoff == game.play_gameturn)
-            exit_keeper = 1;
+        frametime_start_measurement(Frametime_FullFrame);
+        gameplay_loop_logic();
+        gameplay_loop_draw();
+        gameplay_loop_sleep();
+        frametime_end_measurement(Frametime_FullFrame);
     } // end while
     SYNCDBG(0,"Gameplay loop finished after %lu turns",(unsigned long)game.play_gameturn);
 }
@@ -3509,28 +3699,6 @@ long ceiling_init(unsigned long a1, unsigned long a2)
         }
     }
     return 1;
-}
-
-void do_creature_swap(long ncrt_id, long crtr_id)
-{
-//TODO SCRIPT rewrite from DD
-  WARNMSG("Swapping creatures is only supported in Deeper Dungeons");
-}
-
-TbBool swap_creature(long ncrt_id, long crtr_id)
-{
-    if ((crtr_id < 0) || (crtr_id >= CREATURE_TYPES_COUNT))
-    {
-        ERRORLOG("Creature index %d is invalid", crtr_id);
-        return false;
-    }
-    if (creature_swap_idx[crtr_id] > 0)
-    {
-        ERRORLOG("Creature of index %d already swapped", crtr_id);
-        return false;
-    }
-    do_creature_swap(ncrt_id, crtr_id);
-    return true;
 }
 
 static TbBool wait_at_frontend(void)
@@ -3772,13 +3940,20 @@ void game_loop(void)
       {
         if (game.numfield_15 == -1)
         {
-          set_player_instance(player, PI_HeartZoom, 0);
+            if (is_feature_on(Ft_SkipHeartZoom) == false) {
+                set_player_instance(player, PI_HeartZoom, 0);
+            } else { 
+                toggle_status_menu(1); // Required when skipping PI_HeartZoom
+            }
         } else
         {
           game.numfield_15 = -1;
           set_flag_byte(&game.operation_flags,GOF_Paused,false);
         }
+      } else {
+          toggle_status_menu(1); // Required when skipping PI_HeartZoom
       }
+        
       unsigned long starttime;
       unsigned long endtime;
       struct Dungeon *dungeon;
@@ -3826,7 +4001,6 @@ void game_loop(void)
 short reset_game(void)
 {
     SYNCDBG(6,"Starting");
-    IsRunningUnmark();
 
     KeeperSpeechExit();
 
@@ -4249,7 +4423,6 @@ int main(int argc, char *argv[])
   memcpy(_DK_menu_list,menu_list,40*sizeof(struct GuiMenu *));
   memcpy(_DK_player_instance_info,player_instance_info,17*sizeof(struct PlayerInstanceInfo));
   memcpy(_DK_states,states,145*sizeof(struct StateInfo));
-  memcpy(_DK_room_data,room_data,17*sizeof(struct RoomData));
 
 #if (BFDEBUG_LEVEL > 1)
   if (sizeof(struct Game) != SIZEOF_Game)
