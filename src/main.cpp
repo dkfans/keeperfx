@@ -180,6 +180,9 @@ void set_previous_values() {
 
 long interpolate(long variable_to_interpolate, long previous, long current)
 {
+    if (gameadd.delta_time == 1) {
+        return current;
+    }
     // future: by using the predicted future position in the interpolation calculation, we can remove input lag (or visual lag).
     long future = current + (current - previous);
     // 0.5 is definitely accurate. Tested by rotating the camera while comparing the minimap's rotation with the camera's rotation in a video recording.
@@ -189,6 +192,9 @@ long interpolate(long variable_to_interpolate, long previous, long current)
 
 long interpolate_angle(long variable_to_interpolate, long previous, long current)
 {
+    if (gameadd.delta_time == 1) {
+        return current;
+    }
     long future = current + (current - previous);
     // If you want to reduce 1st person camera acceleration/deceleration then change it in the logic, not here.
     long desired_value = lerp_angle(current, future, 0.5);
