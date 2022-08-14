@@ -572,6 +572,7 @@ short get_global_inputs(void)
           if (menu_is_active(GMnu_QUIT))
           {
               set_players_packet_action(player, PckA_Unknown001, 0, 0, 0, 0);
+              clear_key_pressed(KC_RETURN);
               return true;
           }
         set_players_packet_action(player, PckA_PlyrMsgBegin, 0, 0, 0, 0);
