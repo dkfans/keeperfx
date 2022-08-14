@@ -77,6 +77,21 @@ struct Camera {
     TbBool in_active_movement_y;
 };
 
+extern long previous_cam_mappos_x;
+extern long previous_cam_mappos_y;
+extern long previous_cam_mappos_z;
+extern long interpolated_cam_mappos_x;
+extern long interpolated_cam_mappos_y;
+extern long interpolated_cam_mappos_z;
+extern long previous_cam_orient_a;
+extern long previous_cam_orient_b;
+extern long previous_cam_orient_c;
+extern long interpolated_cam_orient_a;
+extern long interpolated_cam_orient_b;
+extern long interpolated_cam_orient_c;
+extern long previous_camera_zoom;
+extern long interpolated_camera_zoom;
+
 /******************************************************************************/
 DLLIMPORT extern struct M33 _DK_camera_matrix;
 #define camera_matrix _DK_camera_matrix

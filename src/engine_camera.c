@@ -43,6 +43,21 @@ extern "C" {
 /******************************************************************************/
 long camera_zoom;
 float hud_scale;
+
+long previous_cam_mappos_x;
+long previous_cam_mappos_y;
+long previous_cam_mappos_z;
+long interpolated_cam_mappos_x;
+long interpolated_cam_mappos_y;
+long interpolated_cam_mappos_z;
+long previous_cam_orient_a;
+long previous_cam_orient_b;
+long previous_cam_orient_c;
+long interpolated_cam_orient_a;
+long interpolated_cam_orient_b;
+long interpolated_cam_orient_c;
+long previous_camera_zoom;
+long interpolated_camera_zoom;
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -791,10 +806,9 @@ void view_process_camera_inertia(struct Camera *cam)
 
 void update_player_camera(struct PlayerInfo *player)
 {
-    struct Dungeon *dungeon;
-    dungeon = get_players_dungeon(player);
-    struct Camera *cam;
-    cam = player->acamera;
+    struct Dungeon *dungeon = get_players_dungeon(player);
+    struct Camera *cam = player->acamera;
+    
     view_process_camera_inertia(cam);
     switch (cam->view_mode)
     {

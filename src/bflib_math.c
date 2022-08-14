@@ -813,4 +813,10 @@ float lerp(float a, float b, float f)
     return (a * (1.0 - f)) + (b * f);
 }
 
+long lerp_angle(long from, long to, float weight) {
+    long difference = (to - from) % 2048;
+    long distance = ((2 * difference) % 2048) - difference;
+    return from + distance * weight;
+}
+
 /******************************************************************************/

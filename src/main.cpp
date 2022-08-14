@@ -164,6 +164,37 @@ TbBool TimerFreeze = false;
 
 /******************************************************************************/
 
+void set_previous_values() {
+    // Used for interpolation mainly
+    struct PlayerInfo* player = get_my_player();
+    struct PlayerInfoAdd* playeradd = get_playeradd(player->id_number);
+    struct Camera *cam = player->acamera;
+    previous_cam_mappos_x = cam->mappos.x.val;
+    previous_cam_mappos_y = cam->mappos.y.val;
+    previous_cam_mappos_z = cam->mappos.z.val;
+    previous_cam_orient_a = cam->orient_a;
+    previous_cam_orient_b = cam->orient_b;
+    previous_cam_orient_c = cam->orient_c;
+    previous_camera_zoom = cam->zoom;
+}
+
+long interpolate(long variable_to_interpolate, long previous, long current)
+{
+    // future: by using the predicted future position in the interpolation calculation, we can remove input lag (or visual lag).
+    long future = current + (current - previous);
+    // 0.5 is definitely accurate. Tested by rotating the camera while comparing the minimap's rotation with the camera's rotation in a video recording.
+    long desired_value = lerp(current, future, 0.5);
+    return lerp(variable_to_interpolate, desired_value, gameadd.delta_time);
+}
+
+long interpolate_angle(long variable_to_interpolate, long previous, long current)
+{
+    long future = current + (current - previous);
+    // If you want to reduce 1st person camera acceleration/deceleration then change it in the logic, not here.
+    long desired_value = lerp_angle(current, future, 0.5);
+    return lerp_angle(variable_to_interpolate, desired_value, gameadd.delta_time);
+}
+
 void frametime_set_all_measurements_to_be_displayed() {
     // Display the frametime of the previous frame only, not the current frametime. Drawing "frametime_current" is a bad idea because frametimes are displayed on screen half-way through the rest of the measurements.
     for (int i = 0; i < TOTAL_FRAMETIME_KINDS; i++) {
@@ -2794,6 +2825,7 @@ void update(void)
     if ((game.operation_flags & GOF_Paused) == 0)
     {
         player = get_my_player();
+        set_previous_values();
         if (player->additional_flags & PlaAF_LightningPaletteIsActive)
         {
             PaletteSetPlayerPalette(player, engine_palette);
