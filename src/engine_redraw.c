@@ -429,7 +429,7 @@ void set_sprite_view_3d(void)
                             n = thing->field_48;
                         }
                         thing->field_48 = n;
-                        thing->field_40 = n << 8;
+                        thing->anim_time = n << 8;
                     }
                 }
             }
@@ -460,7 +460,7 @@ void set_sprite_view_isometric(void)
                             n = thing->field_48;
                         }
                         thing->field_48 = n;
-                        thing->field_40 = n << 8;
+                        thing->anim_time = n << 8;
                     }
                 }
             }
@@ -1112,6 +1112,11 @@ void redraw_display(void)
     {
         draw_timer();
     }
+    if (frametime_enabled())
+    {
+        draw_frametime();
+    }
+
     if (((game.operation_flags & GOF_Paused) != 0) && ((game.operation_flags & GOF_WorldInfluence) == 0))
     {
           LbTextSetFont(winfont);

@@ -54,6 +54,15 @@ extern TbBool packets_process_cheats(
 
 extern void update_double_click_detection(long plyr_idx);
 
+void remember_cursor_subtile(struct PlayerInfo *player) {
+    struct PlayerInfoAdd* playeradd = get_playeradd(player->id_number);
+    struct Packet* pckt = get_packet_direct(player->packet_num);
+    playeradd->previous_cursor_subtile_x = playeradd->cursor_subtile_x;
+    playeradd->previous_cursor_subtile_y = playeradd->cursor_subtile_y;
+    playeradd->cursor_subtile_x = coord_subtile(((unsigned short)pckt->pos_x));
+    playeradd->cursor_subtile_y = coord_subtile(((unsigned short)pckt->pos_y));
+}
+
 void set_tag_untag_mode(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     struct PlayerInfo* player = get_player(plyr_idx);
@@ -208,6 +217,7 @@ TbBool process_dungeon_power_hand_state(long plyr_idx)
             player->additional_flags |= PlaAF_ChosenSubTileIsHigh;
             get_dungeon_highlight_user_roomspace(&playeradd->render_roomspace, player->id_number, stl_x, stl_y);
             tag_cursor_blocks_dig(player->id_number, stl_x, stl_y, player->full_slab_cursor);
+            player->thing_under_hand = 0;
         }
     }
     if (player->hand_thing_idx != 0)
@@ -261,13 +271,14 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
     {
         if (player->primary_cursor_state == CSt_PickAxe)
         {
+            player->thing_under_hand = 0;
             get_dungeon_highlight_user_roomspace(&playeradd->render_roomspace, player->id_number, stl_x, stl_y);
             tag_cursor_blocks_dig(player->id_number, stl_x, stl_y, player->full_slab_cursor);
         }
         if ((pckt->control_flags & PCtr_LBtnClick) != 0)
         {
-            player->cursor_stl_x = stl_x;
-            player->cursor_stl_y = stl_y;
+            player->cursor_clicked_subtile_x = stl_x;
+            player->cursor_clicked_subtile_y = stl_y;
             player->cursor_button_down = 1;
             player->secondary_cursor_state = player->primary_cursor_state;
             switch (player->primary_cursor_state)
@@ -276,10 +287,10 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
                     set_tag_untag_mode(plyr_idx, stl_x, stl_y);
                     break;
                 case CSt_DoorKey:
-                    thing = get_door_for_position(player->cursor_stl_x, player->cursor_stl_y);
+                    thing = get_door_for_position(player->cursor_clicked_subtile_x, player->cursor_clicked_subtile_y);
                     if (thing_is_invalid(thing))
                     {
-                        ERRORLOG("Door thing not found at map pos (%d,%d)",(int)player->cursor_stl_x,(int)player->cursor_stl_y);
+                        ERRORLOG("Door thing not found at map pos (%d,%d)",(int)player->cursor_clicked_subtile_x,(int)player->cursor_clicked_subtile_y);
                         break;
                     }
                     if (thing->door.is_locked)
@@ -299,8 +310,8 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
         }
         if ((pckt->control_flags & PCtr_RBtnClick) != 0)
         {
-            player->cursor_stl_x = stl_x;
-            player->cursor_stl_y = stl_y;
+            player->cursor_clicked_subtile_x = stl_x;
+            player->cursor_clicked_subtile_y = stl_y;
             player->cursor_button_down = 1;
             unset_packet_control(pckt, PCtr_RBtnClick);
         }
@@ -644,6 +655,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         return false;
     TbBool ret = true;
 
+    remember_cursor_subtile(player);
     process_dungeon_control_packet_spell_overcharge(plyr_idx);
     if ((pckt->control_flags & PCtr_RBtnHeld) != 0)
     {
@@ -660,6 +672,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
     MapCoord y = ((unsigned short)pckt->pos_y);
     MapSubtlCoord stl_x = coord_subtile(x);
     MapSubtlCoord stl_y = coord_subtile(y);
+
     short influence_own_creatures = false;
     long i;
     MapSlabCoord slb_x = subtile_slab_fast(stl_x);

@@ -45,7 +45,7 @@ extern "C" {
 /******************************************************************************/
 TbBool thing_touching_floor(const struct Thing *thing)
 {
-    return (thing->field_60 == thing->mappos.z.val);
+    return (thing->floor_height == thing->mappos.z.val);
 }
 
 TbBool thing_touching_flight_altitude(const struct Thing *thing)

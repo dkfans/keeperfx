@@ -247,7 +247,7 @@ unsigned char field_21;
     struct CoordDelta3d velocity;
     // Push when moving; needs to be signed
     short anim_speed;
-    long field_40; // animation time (measured in 1/256 of a frame)
+    long anim_time; // animation time (measured in 1/256 of a frame)
 unsigned short anim_sprite;
     unsigned short sprite_size;
 
@@ -266,7 +266,7 @@ unsigned char field_51;   // Tint color (from colours)
     unsigned short solid_size_xy;
     unsigned short solid_size_yz;
     short health; //signed
-unsigned short field_60;
+unsigned short floor_height;
     unsigned short light_id;
     short ccontrol_idx;
     unsigned char snd_emitter_id;
