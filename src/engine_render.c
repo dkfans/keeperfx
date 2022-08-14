@@ -8433,7 +8433,9 @@ static void do_map_who_for_thing(struct Thing *thing)
             }
         }
         // Height movement, falling or going up steps. This is applied after shadows, because shadows are always drawn at the floor height.
-        ecor.y = (render_pos_y - map_z_pos);
+        //ecor.y = (render_pos_y - map_z_pos); // Unfinished
+        ecor.y = (current_pos_y - map_z_pos);
+        
 
         if (thing->class_id == TCls_Creature)
         {
