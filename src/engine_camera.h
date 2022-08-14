@@ -67,7 +67,7 @@ struct Camera {
     int orient_a;
     int orient_b;
     int orient_c;
-    int field_13;
+    int horizontal_fov; // Horizontal Field of View in degrees
     int zoom;
     int inertia_rotation;
     TbBool in_active_movement_rotation;
@@ -106,7 +106,7 @@ void view_zoom_camera_in(struct Camera *cam, long limit_max, long limit_min);
 void set_camera_zoom(struct Camera *cam, long val);
 void view_zoom_camera_out(struct Camera *cam, long limit_max, long limit_min);
 long get_camera_zoom(struct Camera *cam);
-unsigned long adjust_min_camera_zoom(struct Camera *cam, int showgui);
+unsigned long adjust_min_camera_zoom(struct Camera *cam, long width, long height, long status_panel_width);
 unsigned long scale_camera_zoom_to_screen(unsigned long zoom_lvl);
 void update_camera_zoom_bounds(struct Camera *cam,unsigned long zoom_max,unsigned long zoom_min);
 

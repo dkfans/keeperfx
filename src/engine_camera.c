@@ -322,19 +322,56 @@ long get_camera_zoom(struct Camera *cam)
     }
 }
 
-/** When the menu is hidden in Isometric view, show less of the map (at max zoom out)
-    because the increased view exceeds the render array, and we want to hide the graphical glitches it causes)
-    otherwise this function just sets zoom_min = CAMERA_ZOOM_MIN
+/** Adjusts the minimum zoom amount if the wider or narrower aspect ratio of the window will cause glitched slabs to appear (i.e. render limit exceeded)
+ *  NOTE: This function can be removed, and calls to it can be replaced with CAMERA_ZOOM_MIN when the render limit is removed.
  *
- * @param cam The current player's camera.\
- * @param showgui Whether the side-menu is visible or not (you should pass "game.operation_flags & GOF_ShowGui".\
+ * @param cam The current player's camera
+ * @param width The game engine width (accounting for the sidebar menu)
+ * @param height The game engine height
+ * @param status_panel_width - the width of the side menu (this should be 0 if the menu is hidden)
  */
-unsigned long adjust_min_camera_zoom(struct Camera *cam, int showgui)
+unsigned long adjust_min_camera_zoom(struct Camera *cam, long width, long height, long status_panel_width)
 {
-  unsigned long zoom_min = CAMERA_ZOOM_MIN;
-  if (showgui == 0 && cam->view_mode == PVM_IsometricView)
-    zoom_min += 300; // a higher value is a nearer zoom
-  return zoom_min;
+    unsigned long zoom_min = CAMERA_ZOOM_MIN; // a higher value is a nearer zoom
+    if (cam->view_mode != PVM_IsometricView)
+    {
+        return zoom_min; // only apply limit to iso mode
+    }
+    //return zoom_min; // uncomment this line to quickly disable the zoom limiting.
+    long aspect_ratio = 100 * width / height; // (*100 to help with rounding)
+    long max_aspect_ratio = 145; // (14.5/10 = 1.45 *100 to help with rounding)
+    long full_width = width + status_panel_width; // we want to compare full screen ar
+    long flipped_aspect_ratio = 200 * height / full_width; // (*200 to help with rounding)
+    long reference_flipped_aspect_ratio = 125; // (10/16 = 0.625 * 200 to help with rounding)
+    if (flipped_aspect_ratio > reference_flipped_aspect_ratio) // game window is narrower than 16:10
+    {
+        // values from testing at 4:3 with menu hidden with 0.4.7 and at 600x800 in kfx
+        aspect_ratio = (100 * full_width / height); // (*100 to help with rounding)
+        long reference_aspect_ratio = 75; // (600/800 = 0.75 *100 to help with rounding)
+        long reference_zoom_difference_without_menu = aspect_ratio * 2700 / reference_aspect_ratio; // 2575 measured needed zoom difference from 640x400 to 600x800 (with menu hidden)
+        long reference_zoom_difference_with_menu = 2050; // 1900 measured needed zoom difference from 640x400 to 600x800 (with menu shown)
+        long reference_ar_difference = 141; // 0.708 measured ar difference from 640x400 to 640x480 (*200 to help with rounding)
+        long relative_height = flipped_aspect_ratio;
+        long comparison_height = reference_flipped_aspect_ratio;
+        if (status_panel_width == 0)
+        {
+            zoom_min +=(relative_height-comparison_height)*reference_zoom_difference_without_menu/reference_ar_difference;
+        }
+        else
+        {
+            zoom_min +=(relative_height-comparison_height)*reference_zoom_difference_with_menu/reference_ar_difference;
+        }
+    }
+    else if (aspect_ratio > max_aspect_ratio) // (engine window has AR greater than 14.5/10 [approx cut off])
+    {
+        // from testing at 21:9 with menu hidden
+        long reference_zoom_difference = 1500; // 1605 measured needed zoom difference from 16:10 to 21:9
+        long reference_ar_difference = 88; // 0.125 measured ar difference from 16:10 to 21:9 (*100 to help with rounding)
+        long relative_width = aspect_ratio;
+        long comparison_width = max_aspect_ratio;
+        zoom_min +=(relative_width-comparison_width)*reference_zoom_difference/reference_ar_difference;
+    }
+    return zoom_min;
 }
 
 /** Scales camera zoom for current screen resolution.
@@ -344,9 +381,7 @@ unsigned long adjust_min_camera_zoom(struct Camera *cam, int showgui)
  */
 unsigned long scale_camera_zoom_to_screen(unsigned long zoom_lvl)
 {
-    unsigned long size_narr = ((pixel_size * units_per_pixel_min) << 7) / 10;
-    unsigned long size_wide = (pixel_size * units_per_pixel) << 3;
-    return  ((zoom_lvl*size_wide) >> 8) + ((zoom_lvl*size_narr) >> 8);
+    return scale_fixed_DK_value(zoom_lvl);
 }
 
 void view_set_camera_y_inertia(struct Camera *cam, long delta, long ilimit)
@@ -405,7 +440,7 @@ void init_player_cameras(struct PlayerInfo *player)
     cam->mappos.z.val = 256;
     cam->orient_b = 0;
     cam->orient_c = 0;
-    cam->field_13 = 188;
+    cam->horizontal_fov = first_person_horizontal_fov;
     cam->orient_a = LbFPMath_PI/2;
     cam->view_mode = PVM_CreatureView;
 
@@ -414,7 +449,7 @@ void init_player_cameras(struct PlayerInfo *player)
     cam->mappos.y.val = heartng->mappos.y.val;
     cam->mappos.z.val = 0;
     cam->orient_c = 0;
-    cam->field_13 = 188;
+    cam->horizontal_fov = 94;
     cam->orient_b = -266;
     cam->orient_a = LbFPMath_PI/4;
     cam->view_mode = PVM_IsometricView;
@@ -424,14 +459,14 @@ void init_player_cameras(struct PlayerInfo *player)
     cam->mappos.x.val = 0;
     cam->mappos.y.val = 0;
     cam->mappos.z.val = 32;
-    cam->field_13 = 188;
+    cam->horizontal_fov = 94;
     cam->view_mode = PVM_ParchmentView;
 
     cam = &player->cameras[CamIV_FrontView];
     cam->mappos.x.val = heartng->mappos.x.val;
     cam->mappos.y.val = heartng->mappos.y.val;
     cam->mappos.z.val = 32;
-    cam->field_13 = 188;
+    cam->horizontal_fov = 94;
     cam->view_mode = PVM_FrontView;
     cam->zoom = settings.frontview_zoom_level;
 }
