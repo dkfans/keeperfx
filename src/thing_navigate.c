@@ -589,6 +589,8 @@ short move_to_position(struct Thing *creatng)
     }
 }
 
+#define BYTE1(x) (*((char*)&(x)))
+
 long get_next_gap_creature_can_fit_in_below_point_new(struct Thing *thing, struct Coord3d *pos)
 {
     MapCoordDelta clipbox_size_xy;
