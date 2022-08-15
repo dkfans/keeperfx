@@ -58,6 +58,7 @@ extern "C" {
 /******************************************************************************/
 DLLIMPORT long _DK_check_out_unreinforced_place(struct Thing *creatng);
 DLLIMPORT long _DK_check_out_unreinforced_area(struct Thing *creatng);
+DLLIMPORT long _DK_imp_will_soon_be_converting_at_excluding(struct Thing* creatng, long slb_x, long slb_y);
 /******************************************************************************/
 long const dig_pos[] = {0, -1, 1};
 
@@ -502,11 +503,16 @@ static long imp_will_soon_be_converting_at_excluding(struct Thing *creatng, MapS
     slab_pos.x.stl.pos = 0;
     slab_pos.y.stl.num = stl_y;
     slab_pos.x.stl.pos = 0;
+    int value = _DK_imp_will_soon_be_converting_at_excluding(creatng, stl_x, stl_y);;
 
     struct Dungeon *dungeon = get_dungeon(creatng->owner);
     thing = thing_get(dungeon->digger_list_start);
     if (thing_is_invalid(thing))
+    {
+        if (value == 1)
+            JUSTMSG("testlog: error, 1");
         return 0;
+    }
     int k = 0;
     while (!thing_is_invalid(thing))
     {
@@ -541,6 +547,8 @@ static long imp_will_soon_be_converting_at_excluding(struct Thing *creatng, MapS
             break;
         }
     }
+    if (value == 0)
+        JUSTMSG("testlog: error, 0");
     return 1;
 }
 
