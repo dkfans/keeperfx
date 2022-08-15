@@ -835,12 +835,12 @@ long get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *cr
                     set_hugging_pos_using_blocked_flags(&navi->pos_next, creatng, block_flags, thing_nav_sizexy(creatng)/2);
                     if (block_flags == 4)
                     {
-                        if ((navi->angle == 0) || (navi->angle == 0x0400))
+                        if ((navi->angle == ANGLE_NORTH) || (navi->angle == ANGLE_SOUTH))
                         {
                             navi->pos_next.y.val = creatng->mappos.y.val;
                             navi->pos_next.z.val = get_thing_height_at(creatng, &creatng->mappos);
                         } else
-                        if ((navi->angle == 0x0200) || (navi->angle == 0x0600)) {
+                        if ((navi->angle == ANGLE_EAST) || (navi->angle == ANGLE_WEST)) {
                             navi->pos_next.x.val = creatng->mappos.x.val;
                             navi->pos_next.z.val = get_thing_height_at(creatng, &creatng->mappos);
                         }
