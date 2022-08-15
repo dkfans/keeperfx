@@ -7457,8 +7457,8 @@ void process_keeper_sprite(short x, short y, unsigned short kspr_base, short ksp
     kspr_idx = keepersprite_index(kspr_base);
     global_scaler = scale;
     creature_sprites = keepersprite_array(kspr_base);
-    scaled_x = ((scale * (long)creature_sprites->field_C) >> 5) + (long)x;
-    scaled_y = ((scale * (long)creature_sprites->field_E) >> 5) + (long)y;
+    scaled_x = ((scale * (long)creature_sprites->offset_x) >> 5) + (long)x;
+    scaled_y = ((scale * (long)creature_sprites->offset_y) >> 5) + (long)y;
     SYNCDBG(17,"Scaled (%d,%d)",(int)scaled_x,(int)scaled_y);
     if (thing_is_invalid(thing_being_displayed))
     {
