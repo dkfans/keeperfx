@@ -162,6 +162,29 @@ DLLIMPORT char _DK_splittypes[64];
 static void do_map_who(short tnglist_idx);
 /******************************************************************************/
 
+long interpolate(long variable_to_interpolate, long previous, long current)
+{
+    if (gameadd.delta_time == 1) {
+        return current;
+    }
+    // future: by using the predicted future position in the interpolation calculation, we can remove input lag (or visual lag).
+    long future = current + (current - previous);
+    // 0.5 is definitely accurate. Tested by rotating the camera while comparing the minimap's rotation with the camera's rotation in a video recording.
+    long desired_value = lerp(current, future, 0.5);
+    return lerp(variable_to_interpolate, desired_value, gameadd.delta_time);
+}
+
+long interpolate_angle(long variable_to_interpolate, long previous, long current)
+{
+    if (gameadd.delta_time == 1) {
+        return current;
+    }
+    long future = current + (current - previous);
+    // If you want to reduce 1st person camera acceleration/deceleration then change it in the logic, not here.
+    long desired_value = lerp_angle(current, future, 0.5);
+    return lerp_angle(variable_to_interpolate, desired_value, gameadd.delta_time);
+}
+
 static void get_floor_pointed_at(long x, long y, long *floor_x, long *floor_y)
 {
     long long ofs_x;

@@ -178,29 +178,6 @@ void set_previous_values() {
     previous_camera_zoom = cam->zoom;
 }
 
-long interpolate(long variable_to_interpolate, long previous, long current)
-{
-    if (gameadd.delta_time == 1) {
-        return current;
-    }
-    // future: by using the predicted future position in the interpolation calculation, we can remove input lag (or visual lag).
-    long future = current + (current - previous);
-    // 0.5 is definitely accurate. Tested by rotating the camera while comparing the minimap's rotation with the camera's rotation in a video recording.
-    long desired_value = lerp(current, future, 0.5);
-    return lerp(variable_to_interpolate, desired_value, gameadd.delta_time);
-}
-
-long interpolate_angle(long variable_to_interpolate, long previous, long current)
-{
-    if (gameadd.delta_time == 1) {
-        return current;
-    }
-    long future = current + (current - previous);
-    // If you want to reduce 1st person camera acceleration/deceleration then change it in the logic, not here.
-    long desired_value = lerp_angle(current, future, 0.5);
-    return lerp_angle(variable_to_interpolate, desired_value, gameadd.delta_time);
-}
-
 void frametime_set_all_measurements_to_be_displayed() {
     // Display the frametime of the previous frame only, not the current frametime. Drawing "frametime_current" is a bad idea because frametimes are displayed on screen half-way through the rest of the measurements.
     for (int i = 0; i < TOTAL_FRAMETIME_KINDS; i++) {
@@ -2816,8 +2793,6 @@ void update(void)
     struct PlayerInfo *player;
     SYNCDBG(4,"Starting for turn %ld",(long)game.play_gameturn);
 
-    if ((game.operation_flags & GOF_Paused) == 0)
-        update_light_render_area();
     process_packets();
     if (quit_game || exit_keeper) {
         return;
@@ -3495,6 +3470,12 @@ void gameplay_loop_draw()
 {
     // Floats are used a lot in the drawing related functions. But keep in mind integers are typically preferred for logic related functions.
     frametime_start_measurement(Frametime_Draw);
+
+    // Update lights
+    if ((game.operation_flags & GOF_Paused) == 0) {
+        update_light_render_area();
+    }
+
     if (quit_game || exit_keeper) {
         do_draw = false;
     }

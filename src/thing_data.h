@@ -300,6 +300,14 @@ struct ThingAdd // Additional thing data
     struct Coord3d interp_mappos;
 };
 
+struct LightAdd // Additional light data
+{
+    TbBool interp_initialize;
+    struct Coord3d previous_mappos;
+    struct Coord3d current_mappos;
+    struct Coord3d interp_mappos;
+};
+
 #pragma pack()
 /******************************************************************************/
 #define allocate_free_thing_structure(a1) allocate_free_thing_structure_f(a1, __func__)

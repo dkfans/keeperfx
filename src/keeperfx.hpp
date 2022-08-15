@@ -272,9 +272,6 @@ void game_loop(void);
 short reset_game(void);
 void update(void);
 
-long interpolate(long variable_to_interpolate, long previous, long current);
-long interpolate_angle(long variable_to_interpolate, long previous, long current);
-
 TbBool can_thing_be_queried(struct Thing *thing, PlayerNumber plyr_idx);
 struct Thing *get_queryable_object_near(MapCoord pos_x, MapCoord pos_y, long plyr_idx);
 long packet_place_door(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, ThingModel dormodel, unsigned char a5);
