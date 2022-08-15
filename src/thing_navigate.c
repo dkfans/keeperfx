@@ -766,7 +766,7 @@ long get_next_gap_creature_can_fit_in_below_point(struct Thing *thing, struct Co
     if (old == new)
         JUSTLOG("OK %d", old);
     else
-        JUSTLOG("NOT_OK %d,%s", old,new);
+        JUSTLOG("NOT_OK %d,%d", old,new);
 
     return new;
 }
