@@ -163,7 +163,7 @@ static struct KeeperSprite* sprite_by_frame(long kspr_frame)
 {
     if (kspr_frame >= KEEPERSPRITE_ADD_OFFSET)
     {
-        return &creature_table_add[kspr_frame];
+        return &creature_table_add[kspr_frame - KEEPERSPRITE_ADD_OFFSET];
     }
     unsigned long i = _DK_creature_list[kspr_frame];
     return &creature_table[i];
