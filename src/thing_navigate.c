@@ -589,7 +589,8 @@ short move_to_position(struct Thing *creatng)
     }
 }
 
-#define BYTE1(x) (*((char*)&(x)))
+#define BYTEn(x, n)   (*((char*)&(x)+n))
+#define BYTE1(x)   BYTEn(x,  1)
 
 long get_next_gap_creature_can_fit_in_below_point_new(struct Thing *thing, struct Coord3d *pos)
 {
@@ -600,19 +601,17 @@ long get_next_gap_creature_can_fit_in_below_point_new(struct Thing *thing, struc
     unsigned int v8;
     int v9;
     struct Map *mapblk;
-    struct Column *v11;
+    struct Column *col1;
     unsigned int v12;
     unsigned int v13;
-    unsigned int v14;
     unsigned int v15;
     unsigned int v16;
-    struct Map *v17;
-    struct Column *v18;
+    struct Map *mapblk2;
+    struct Column *col2;
     unsigned int v19;
     unsigned int v20;
-    unsigned int v21;
     unsigned int v22;
-    struct Column *v23;
+    struct Column *col3;
     unsigned __int8 v24;
     unsigned int v25;
     unsigned int v26;
@@ -660,23 +659,23 @@ long get_next_gap_creature_can_fit_in_below_point_new(struct Thing *thing, struc
                 v33 = v8;
                 v9 = v36 + BYTE1(v8);
                 mapblk = &game.map[v9 + 257];
-                v11 = &game.columns_data[game.map[v9 + 257].data & 0x7FF];
+                col1 = &game.columns_data[game.map[v9 + 257].data & 0x7FF];
                 v12 = (unsigned __int8)game.columns_data[game.map[v9 + 257].data & 0x7FF].bitfields >> 4;
                 if (floor_height < v12)
                     floor_height = v12;
-                if ((v11->bitfields & 0xE) != 0)
+                if ((col1->bitfields & 0xE) != 0)
                 {
-                    v13 = 8 - ((unsigned __int8)(v11->bitfields & 0xE) >> 1);
+                    v13 = 8 - ((unsigned __int8)(col1->bitfields & 0xE) >> 1);
                     if (v13 >= v30)
                         v13 = v30;
                     v30 = v13;
                 }
                 else
                 {
-                    v14 = (mapblk->data & 0xF000000u) >> 24;
-                    if (v14 >= v30)
-                        v14 = v30;
-                    v30 = v14;
+                    unsigned int filled_subtiles = get_mapblk_filled_subtiles(mapblk);
+                    if (filled_subtiles >= v30)
+                        filled_subtiles = v30;
+                    v30 = filled_subtiles;
                 }
                 v8 += 256;
             } while (v8 < stl_x);
@@ -691,24 +690,24 @@ long get_next_gap_creature_can_fit_in_below_point_new(struct Thing *thing, struc
         {
             v31 = v15;
             v16 = v33 + (BYTE1(v15) << 8);
-            v17 = &game.map[v16 + 257];
-            v18 = &game.columns_data[game.map[v16 + 257].data & 0x7FF];
+            mapblk2 = &game.map[v16 + 257];
+            col2 = &game.columns_data[game.map[v16 + 257].data & 0x7FF];
             v19 = (unsigned __int8)game.columns_data[game.map[v16 + 257].data & 0x7FF].bitfields >> 4;
             if (floor_height < v19)
                 floor_height = v19;
-            if ((v18->bitfields & 0xE) != 0)
+            if ((col2->bitfields & 0xE) != 0)
             {
-                v20 = 8 - ((unsigned __int8)(v18->bitfields & 0xE) >> 1);
+                v20 = 8 - ((unsigned __int8)(col2->bitfields & 0xE) >> 1);
                 if (v20 >= v30)
                     v20 = v30;
                 v30 = v20;
             }
             else
             {
-                v21 = (v17->data & 0xF000000u) >> 24;
-                if (v21 >= v30)
-                    v21 = v30;
-                v30 = v21;
+                unsigned int filled_subtiles = get_mapblk_filled_subtiles(mapblk2);
+                if (filled_subtiles >= v30)
+                    filled_subtiles = v30;
+                v30 = filled_subtiles;
             }
             v15 += 256;
         } while (v15 < stl_y);
@@ -721,13 +720,13 @@ long get_next_gap_creature_can_fit_in_below_point_new(struct Thing *thing, struc
         {
             v31 = v4;
             v22 = v33 + BYTE1(v4);
-            v23 = &game.columns_data[game.map[v22 + 257].data & 0x7FF];
+            col3 = &game.columns_data[game.map[v22 + 257].data & 0x7FF];
             v24 = (unsigned __int8)game.columns_data[game.map[v22 + 257].data & 0x7FF].bitfields >> 4;
             if (floor_height < v24)
                 floor_height = v24;
-            if ((v23->bitfields & 0xE) != 0)
+            if ((col3->bitfields & 0xE) != 0)
             {
-                v25 = 8 - ((unsigned __int8)(v23->bitfields & 0xE) >> 1);
+                v25 = 8 - ((unsigned __int8)(col3->bitfields & 0xE) >> 1);
                 if (v25 >= v30)
                     v25 = v30;
                 v30 = v25;
@@ -743,7 +742,10 @@ long get_next_gap_creature_can_fit_in_below_point_new(struct Thing *thing, struc
         } while (v4 < stl_x);
     }
     MapSubtlCoord ceiling_height;
-    update_floor_and_ceiling_heights_at(stl_x, stl_y, (__int32 *)&floor_height,&ceiling_height);
+
+    //JUSTLOG("stl_x %d,stl_y %d", stl_x, stl_y);
+    //these should be stls but are larger then 256
+    update_floor_and_ceiling_heights_at(stl_x, stl_y, &floor_height,&ceiling_height);
     floor_height <<= 8;
     v30 <<= 8;
     result = pos->z.val;
