@@ -528,7 +528,7 @@ static long imp_will_soon_be_converting_at_excluding(struct Thing *creatng, MapS
                 {
                     MapCoordDelta loop_digger_distance  = get_2d_box_distance(&thing->mappos, &slab_pos);
                     MapCoordDelta param_digger_distance = get_2d_box_distance(&creatng->mappos, &slab_pos);
-                    if (loop_digger_distance <= param_digger_distance || loop_digger_distance - param_digger_distance <= 1536)
+                    if (loop_digger_distance <= param_digger_distance || loop_digger_distance - param_digger_distance <= subtile_coord(6,0))
                         break;
                 }
             }
