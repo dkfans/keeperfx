@@ -304,7 +304,6 @@ struct LightAdd // Additional light data
 {
     TbBool interp_initialize;
     struct Coord3d previous_mappos;
-    struct Coord3d current_mappos;
     struct Coord3d interp_mappos;
 };
 
