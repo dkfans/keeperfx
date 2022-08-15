@@ -736,10 +736,6 @@ void fill_in_points_cluedo(long bstl_x, long bstl_y, struct MinMax *mm)
         pfulmask_or = mask_cur | mask_yp;
         pfulmask_and = mask_cur & mask_yp;
     }
-    struct PlayerInfo *myplyr;
-    myplyr = get_my_player();
-    const struct Camera *cam;
-    cam = myplyr->acamera;
     long view_z;
     int zoom;
     long eview_w;
@@ -747,7 +743,7 @@ void fill_in_points_cluedo(long bstl_x, long bstl_y, struct MinMax *mm)
     long eview_z;
     int hview_y;
     int hview_z;
-    zoom = cam->zoom / pixel_size;
+    zoom = camera_zoom / pixel_size;
     view_z = object_origin.z + (cells_away << 8)
         + ((bpos * camera_matrix.r[2].v[2]
          + (apos + camera_matrix.r[2].v[1]) * (camera_matrix.r[2].v[0] - view_alt)
@@ -1133,8 +1129,6 @@ void frame_wibble_generate(void)
     water_wibble_angle = (int)render_water_wibble & LbFPMath_AngleMask;
     int zoom;
     {
-        struct PlayerInfo *player = get_my_player();
-        const struct Camera *cam = player->acamera;
         zoom = camera_zoom / pixel_size;
     }
 
@@ -6365,7 +6359,6 @@ static void draw_view_map_plane(long aposc, long bposc, long xcell, long ycell)
 
 void draw_view(struct Camera *cam, unsigned char a2)
 {
-    struct PlayerInfo* player = get_my_player();
     long zoom_mem;
     long xcell;
     long ycell;
@@ -8401,7 +8394,7 @@ void process_frontview_map_volume_box(struct Camera *cam, unsigned char stl_widt
 }
 static void do_map_who_for_thing(struct Thing *thing)
 {
-    int prev_pos_x, prev_floorpos, prev_pos_y, prev_pos_z, current_pos_x, current_floorpos, current_pos_y, current_pos_z, render_pos_x, render_floorpos, render_pos_y, render_pos_z;
+    int prev_pos_x, prev_floorpos, prev_pos_y, prev_pos_z, current_pos_x, current_floorpos, current_pos_y, current_pos_z, render_pos_x, render_floorpos, render_pos_z; //render_pos_y
     struct ThingAdd* thingadd = get_thingadd(thing->index);
     int bckt_idx;
     struct EngineCoord ecor;
@@ -8416,7 +8409,7 @@ static void do_map_who_for_thing(struct Thing *thing)
         current_pos_z = thing->mappos.y.val;
         current_floorpos = thing->floor_height;
         render_pos_x = current_pos_x;
-        render_pos_y = current_pos_y;
+        //render_pos_y = current_pos_y;
         render_pos_z = current_pos_z;
         render_floorpos = current_floorpos;
         // Set initial interp position when either:
@@ -8437,7 +8430,7 @@ static void do_map_who_for_thing(struct Thing *thing)
             thingadd->interp_mappos.y.val = interpolate(thingadd->interp_mappos.y.val, prev_pos_z, current_pos_z);
             thingadd->interp_floor_height = interpolate(thingadd->interp_floor_height, prev_floorpos, current_floorpos);
             render_pos_x = thingadd->interp_mappos.x.val;
-            render_pos_y = thingadd->interp_mappos.z.val;
+            //render_pos_y = thingadd->interp_mappos.z.val;
             render_pos_z = thingadd->interp_mappos.y.val;
             render_floorpos = thingadd->previous_floor_height;
         }

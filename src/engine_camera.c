@@ -64,6 +64,38 @@ long interpolated_camera_zoom;
 #endif
 /******************************************************************************/
 
+void reset_camera_interpolation() {
+    struct PlayerInfo* player = get_my_player();
+    struct Camera *cam = player->acamera;
+    interpolated_camera_zoom = scale_camera_zoom_to_screen(cam->zoom);
+    previous_camera_zoom = scale_camera_zoom_to_screen(cam->zoom);
+    interpolated_cam_orient_a = cam->orient_a;
+    interpolated_cam_orient_b = cam->orient_b;
+    interpolated_cam_orient_c = cam->orient_c;
+    previous_cam_orient_a = cam->orient_a;
+    previous_cam_orient_b = cam->orient_b;
+    previous_cam_orient_c = cam->orient_c;
+    interpolated_cam_mappos_x = cam->mappos.x.val;
+    interpolated_cam_mappos_y = cam->mappos.y.val;
+    interpolated_cam_mappos_z = cam->mappos.z.val;
+    previous_cam_mappos_x = cam->mappos.x.val;
+    previous_cam_mappos_y = cam->mappos.y.val;
+    previous_cam_mappos_z = cam->mappos.z.val;
+}
+
+void set_previous_camera_values() {
+    // Used for interpolation mainly
+    struct PlayerInfo* player = get_my_player();
+    struct Camera *cam = player->acamera;
+    previous_cam_mappos_x = cam->mappos.x.val;
+    previous_cam_mappos_y = cam->mappos.y.val;
+    previous_cam_mappos_z = cam->mappos.z.val;
+    previous_cam_orient_a = cam->orient_a;
+    previous_cam_orient_b = cam->orient_b;
+    previous_cam_orient_c = cam->orient_c;
+    previous_camera_zoom = cam->zoom;
+}
+
 void calculate_hud_scale(struct Camera *cam) {
     // hud_scale is the current camera zoom converted to a percentage that ranges between base level zoom and fully zoomed out.
     // HUD items: creature status flowers, room flags, popup gold numbers. They scale with the zoom.
