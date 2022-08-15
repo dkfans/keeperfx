@@ -311,11 +311,11 @@ struct BucketKindRoomFlag { // BasicQ type 17,19
 };
 
 struct EngineCoord { // sizeof = 28
-  long view_width;
-  long view_height;
-  unsigned short field_8; // frustum culling?
-  unsigned short field_A; // lightness?
-  long field_C; // distance to camera?
+  long view_width; // X screen position, probably not a width
+  long view_height; // Y screen position, probably not a height
+  unsigned short field_8; // Affects the drawing of offscreen triangles and something to do with Splittypes
+  unsigned short field_A; // Lightness
+  long field_C; // Distance to camera
   long x;
   long y;
   long z;

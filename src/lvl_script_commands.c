@@ -1412,8 +1412,8 @@ static void create_effects_line_check(const struct ScriptLine *scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
 
-    ((long*)(&value->bytes[0]))[0] = scline->np[0]; // AP `from`
-    ((long*)(&value->bytes[4]))[0] = scline->np[1]; // AP `to`
+    value->arg0 = scline->np[0]; // AP `from`
+    value->arg1 = scline->np[1]; // AP `to`
     value->chars[8] = scline->np[2]; // curvature
     value->bytes[9] = scline->np[3]; // spatial stepping
     value->bytes[10] = scline->np[4]; // temporal stepping
@@ -1441,8 +1441,8 @@ static void create_effects_line_process(struct ScriptContext *context)
         ERRORLOG("Too many fx_lines");
         return;
     }
-    find_location_pos(((long *)(&context->value->bytes[0]))[0], context->player_idx, &fx_line->from, __func__);
-    find_location_pos(((long *)(&context->value->bytes[4]))[0], context->player_idx, &fx_line->to, __func__);
+    find_location_pos(context->value->arg0, context->player_idx, &fx_line->from, __func__);
+    find_location_pos(context->value->arg1, context->player_idx, &fx_line->to, __func__);
     fx_line->curvature = context->value->chars[8];
     fx_line->spatial_step = context->value->bytes[9] * 32;
     fx_line->steps_per_turn = context->value->bytes[10];
@@ -1769,6 +1769,9 @@ static void set_object_configuration_process(struct ScriptContext *context)
             break;
         case 18: // MAPICON
             objst->map_icon = context->value->arg2;
+            break;
+        case 19: // AMBIENCESOUND
+            objdat->fp_smpl_idx = context->value->arg2;
             break;
         default:
             WARNMSG("Unsupported Object configuration, variable %d.", context->value->arg1);
@@ -2287,6 +2290,7 @@ static void set_creature_instance_process(struct ScriptContext *context)
     struct CreatureStats *crstat = creature_stats_get(context->value->bytes[0]);
     if (!creature_stats_invalid(crstat))
     {
+        CrInstance old_instance = crstat->learned_instance_id[context->value->bytes[1] - 1];
         crstat->learned_instance_id[context->value->bytes[1] - 1] = context->value->bytes[2];
         crstat->learned_instance_level[context->value->bytes[1] - 1] = context->value->bytes[3];
         for (short i = 0; i < THINGS_COUNT; i++)
@@ -2296,6 +2300,11 @@ static void set_creature_instance_process(struct ScriptContext *context)
             {
                 if (thing->model == context->value->bytes[0])
                 {
+                    if (old_instance != CrInst_NULL)
+                    {
+                        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+                        cctrl->instance_available[old_instance] = false;
+                    }
                     creature_increase_available_instances(thing);
                 }
             }

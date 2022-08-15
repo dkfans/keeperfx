@@ -70,6 +70,10 @@ unsigned short units_per_pixel_width;
 unsigned short units_per_pixel_height;
 unsigned short units_per_pixel_best;
 unsigned short units_per_pixel_ui;
+unsigned long aspect_ratio_factor_HOR_PLUS;
+unsigned long aspect_ratio_factor_HOR_PLUS_AND_VERT_PLUS;
+unsigned long first_person_horizontal_fov;
+unsigned long first_person_vertical_fov;
 long base_mouse_sensitivity = 256;
 
 short force_video_mode_reset = true;
@@ -767,6 +771,9 @@ TbBool update_screen_mode_data(long width, long height)
   units_per_pixel_best = ((is_ar_wider_than_original(width, height)) ? units_per_pixel_height : units_per_pixel_width); // 8 for low res, 16 is "kfx default"
   long ui_scale = UI_NORMAL_SIZE; // UI_NORMAL_SIZE, UI_HALF_SIZE, or UI_DOUBLE_SIZE (not fully implemented yet)
   units_per_pixel_ui = resize_ui(units_per_pixel_best, ui_scale);
+  calculate_aspect_ratio_factor(width, height);
+  first_person_vertical_fov = DEFAULT_FIRST_PERSON_VERTICAL_FOV;
+  first_person_horizontal_fov = FOV_based_on_aspect_ratio();
 
   if (MinimalResolutionSetup)
     LbSpriteSetupAll(setup_sprites_minimal);

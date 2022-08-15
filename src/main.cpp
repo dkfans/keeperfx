@@ -2,6 +2,7 @@
 #include <windows.h>
 
 #include "keeperfx.hpp"
+#include <chrono>
 
 #include "bflib_coroutine.h"
 #include "bflib_math.h"
@@ -113,12 +114,17 @@
 #define strcasecmp _stricmp
 #endif
 
+#define TimePoint std::chrono::high_resolution_clock::time_point
+#define TimeNow std::chrono::high_resolution_clock::now()
+TimePoint initialized_time_point;
+struct FrametimeMeasurements frametime_measurements;
+
 int test_variable;
 
 char cmndline[CMDLN_MAXLEN+1];
 unsigned short bf_argc;
 char *bf_argv[CMDLN_MAXLEN+1];
-
+short do_draw;
 short default_loc_player = 0;
 TbBool force_player_num = false;
 struct StartupParameters start_params;
@@ -153,6 +159,39 @@ struct TimerTime Timer;
 TbBool TimerGame = false;
 TbBool TimerNoReset = false;
 TbBool TimerFreeze = false;
+
+/******************************************************************************/
+
+void frametime_set_all_measurements_to_be_displayed() {
+    // Display the frametime of the previous frame only, not the current frametime. Drawing "frametime_current" is a bad idea because frametimes are displayed on screen half-way through the rest of the measurements.
+    for (int i = 0; i < TOTAL_FRAMETIME_KINDS; i++) {
+        frametime_measurements.frametime_display[i] = frametime_measurements.frametime_current[i];
+        if (game.play_gameturn % game.num_fps == 0) {
+            frametime_measurements.frametime_display_max[i] = frametime_measurements.frametime_get_max[i];
+            frametime_measurements.frametime_get_max[i] = 0;
+        }
+    }
+}
+
+void frametime_start_measurement(int frametime_kind) {
+    long double current_nanoseconds = std::chrono::duration_cast<std::chrono::nanoseconds>(TimeNow - initialized_time_point).count();
+    long double current_milliseconds = current_nanoseconds/1000000.0;
+    frametime_measurements.starting_measurement[frametime_kind] = float(current_milliseconds);
+}
+
+void frametime_end_measurement(int frametime_kind) {
+    long double current_nanoseconds = std::chrono::duration_cast<std::chrono::nanoseconds>(TimeNow - initialized_time_point).count();
+    long double current_milliseconds = current_nanoseconds/1000000.0;
+    float result = float(current_milliseconds) - frametime_measurements.starting_measurement[frametime_kind];
+    frametime_measurements.frametime_current[frametime_kind] = result;
+    // Always set frametime_get_max to highest frametime, then reset it to 0 in frametime_end_all_measurements() once every second.
+    if (frametime_measurements.frametime_current[frametime_kind] > frametime_measurements.frametime_get_max[frametime_kind]) {
+        frametime_measurements.frametime_get_max[frametime_kind] = frametime_measurements.frametime_current[frametime_kind];
+    }
+    if (frametime_kind == Frametime_FullFrame) {
+        frametime_set_all_measurements_to_be_displayed();
+    }
+}
 
 TbPixel get_player_path_colour(unsigned short owner)
 {
@@ -813,16 +852,23 @@ TbBool any_player_close_enough_to_see(const struct Coord3d *pos)
 {
     struct PlayerInfo *player;
     int i;
+    short limit = 24 * COORD_PER_STL;
     for (i=0; i < PLAYERS_COUNT; i++)
     {
-      player = get_player(i);
-      if ( (player_exists(player)) && ((player->allocflags & PlaF_CompCtrl) == 0))
-      {
-        if (player->acamera == NULL)
-          continue;
-        if (get_2d_box_distance(&player->acamera->mappos, pos) <= (24 << 8))
-          return true;
-      }
+        player = get_player(i);
+        if ( (player_exists(player)) && ((player->allocflags & PlaF_CompCtrl) == 0))
+        {
+            if (player->acamera == NULL)
+                continue;
+            if (player->acamera->zoom >= CAMERA_ZOOM_MIN)
+            {
+                limit = SHRT_MAX - (2 * player->acamera->zoom);
+            }
+            if (get_2d_box_distance(&player->acamera->mappos, pos) <= limit)
+            {
+                return true;
+            }
+        }
     }
     return false;
 }
@@ -836,29 +882,29 @@ void update_thing_animation(struct Thing *thing)
     {
       cctrl = creature_control_get_from_thing(thing);
       if (!creature_control_invalid(cctrl))
-        cctrl->field_CE = thing->field_40;
+        cctrl->field_CE = thing->anim_time;
     }
     if ((thing->anim_speed != 0) && (thing->field_49 != 0))
     {
-        thing->field_40 += thing->anim_speed;
+        thing->anim_time += thing->anim_speed;
         i = (thing->field_49 << 8);
         if (i <= 0) i = 256;
-        while (thing->field_40  < 0)
+        while (thing->anim_time  < 0)
         {
-          thing->field_40 += i;
+          thing->anim_time += i;
         }
-        if (thing->field_40 > i-1)
+        if (thing->anim_time > i-1)
         {
           if (thing->field_4F & TF4F_Unknown40)
           {
             thing->anim_speed = 0;
-            thing->field_40 = i-1;
+            thing->anim_time = i-1;
           } else
           {
-            thing->field_40 %= i;
+            thing->anim_time %= i;
           }
         }
-        thing->field_48 = (thing->field_40 >> 8) & 0xFF;
+        thing->field_48 = (thing->anim_time >> 8) & 0xFF;
     }
     if (thing->field_4A != 0)
     {
@@ -2469,7 +2515,7 @@ void update_near_creatures_for_footsteps(long *near_creatures, const struct Coor
                 ndist = get_2d_box_distance(srcpos, &thing->mappos);
                 if (ndist < near_distance[0])
                 {
-                    if (((cctrl->distance_to_destination != 0) && ((int)thing->field_60 >= (int)thing->mappos.z.val))
+                    if (((cctrl->distance_to_destination != 0) && ((int)thing->floor_height >= (int)thing->mappos.z.val))
                       || ((thing->movement_flags & TMvF_Flying) != 0))
                     {
                         // Insert the new item to our list
@@ -2770,7 +2816,7 @@ void update(void)
         if (player->view_mode == PVM_CreatureView)
         {
             struct Thing *thing = thing_get(player->controlled_thing_idx);
-            update_flames_nearest_thing(thing);
+            update_first_person_object_ambience(thing);
         }
         update_footsteps_nearest_camera(player->acamera);
         PaletteFadePlayer(player);
@@ -3207,7 +3253,7 @@ void engine(struct PlayerInfo *player, struct Camera *cam)
     mz = cam->mappos.z.val;
     pointer_x = (GetMouseX() - player->engine_window_x) / pixel_size;
     pointer_y = (GetMouseY() - player->engine_window_y) / pixel_size;
-    lens = (cam->field_13 * ((long)MyScreenWidth))/pixel_size / 320;
+    lens = cam->horizontal_fov * scale_value_by_horizontal_resolution(4) / pixel_size;
     if (lens_mode == 0)
         update_blocks_pointed();
     LbScreenStoreGraphicsWindow(&grwnd);
@@ -3351,94 +3397,99 @@ TbBool keeper_wait_for_screen_focus(void)
     return false;
 }
 
+void gameplay_loop_logic() {
+    frametime_start_measurement(Frametime_Logic);
+    if ((game.flags_font & FFlg_unk10) != 0)
+    {
+        if (game.play_gameturn == 4)
+            LbNetwork_ChangeExchangeTimeout(0);
+    }
+#ifdef AUTOTESTING
+    if ((start_params.autotest_flags & ATF_ExitOnTurn) && (start_params.autotest_exit_turn == game.play_gameturn))
+    {
+        quit_game = true;
+        exit_keeper = true;
+        return;
+    }
+    evm_stat(1, "turn val=%ld,action_seed=%ld,unsync_seed=%ld", game.play_gameturn, game.action_rand_seed, game.unsync_rand_seed);
+    if (start_params.autotest_flags & ATF_FixedSeed)
+    {
+        game.action_rand_seed = game.play_gameturn;
+        game.unsync_rand_seed = game.play_gameturn;
+        srand(game.play_gameturn);
+    }
+#endif
+    do_draw = display_should_be_updated_this_turn() || (!LbIsActive());
+    LbWindowsControl();
+    input_eastegg();
+    input();
+    update();
+    frametime_end_measurement(Frametime_Logic);
+}
+
+void gameplay_loop_draw() {
+    frametime_start_measurement(Frametime_Draw);
+    if (quit_game || exit_keeper) {
+        do_draw = false;
+    }
+    if ( do_draw ) {
+        keeper_screen_redraw();
+    }
+    keeper_wait_for_screen_focus();
+    // Direct information/error messages
+    if (LbScreenLock() == Lb_SUCCESS) {
+        if ( do_draw ) {
+            perform_any_screen_capturing();
+        }
+        draw_onscreen_direct_messages();
+        LbScreenUnlock();
+    }
+    // Move the graphics window to center of screen buffer and swap screen
+    if ( do_draw ) {
+        keeper_screen_swap();
+    }
+    frametime_end_measurement(Frametime_Draw);
+}
+
+void gameplay_loop_sleep() {
+    frametime_start_measurement(Frametime_Sleep);
+    // Make delay if the machine is too fast
+    if ( (!game.packet_load_enable) || (game.turns_fastforward == 0) ) {
+        keeper_wait_for_next_turn();
+    }
+    if (game.turns_packetoff == game.play_gameturn) {
+        exit_keeper = 1;
+    }
+    frametime_end_measurement(Frametime_Sleep);
+}
+
 void keeper_gameplay_loop(void)
 {
-    short do_draw;
     struct PlayerInfo *player;
     SYNCDBG(5,"Starting");
     player = get_my_player();
     PaletteSetPlayerPalette(player, engine_palette);
-    if ((game.operation_flags & GOF_SingleLevel) != 0)
+    if ((game.operation_flags & GOF_SingleLevel) != 0) {
         initialise_eye_lenses();
-
+    }
 #ifdef AUTOTESTING
     if ((start_params.autotest_flags & ATF_AI_Player) != 0)
     {
         toggle_computer_player(player->id_number);
     }
 #endif
-
     SYNCDBG(0,"Entering the gameplay loop for level %d",(int)get_loaded_level_number());
-
     KeeperSpeechClearEvents();
     LbErrorParachuteUpdate(); // For some reasone parachute keeps changing; Remove when won't be needed anymore
-
+    initialized_time_point = TimeNow;
     //the main gameplay loop starts
     while ((!quit_game) && (!exit_keeper))
     {
-        if ((game.flags_font & FFlg_unk10) != 0)
-        {
-          if (game.play_gameturn == 4)
-              LbNetwork_ChangeExchangeTimeout(0);
-        }
-
-#ifdef AUTOTESTING
-        if ((start_params.autotest_flags & ATF_ExitOnTurn) && (start_params.autotest_exit_turn == game.play_gameturn))
-        {
-            quit_game = true;
-            exit_keeper = true;
-            break;
-        }
-        evm_stat(1, "turn val=%ld,action_seed=%ld,unsync_seed=%ld", game.play_gameturn, game.action_rand_seed, game.unsync_rand_seed);
-        if (start_params.autotest_flags & ATF_FixedSeed)
-        {
-            game.action_rand_seed = game.play_gameturn;
-            game.unsync_rand_seed = game.play_gameturn;
-            srand(game.play_gameturn);
-        }
-#endif
-        // Check if we should redraw screen in this turn
-        do_draw = display_should_be_updated_this_turn() || (!LbIsActive());
-
-        LbWindowsControl();
-        input_eastegg();
-        input();
-        update();
-
-        if (quit_game || exit_keeper)
-            do_draw = false;
-
-        if ( do_draw )
-            keeper_screen_redraw();
-        keeper_wait_for_screen_focus();
-        // Direct information/error messages
-        if (LbScreenLock() == Lb_SUCCESS)
-        {
-            if ( do_draw )
-                perform_any_screen_capturing();
-            draw_onscreen_direct_messages();
-            LbScreenUnlock();
-        }
-
-        // Music and sound control
-        if ( !SoundDisabled )
-        {
-            if ( (game.turns_fastforward == 0) && (!game.numfield_149F38) )
-            {
-                MonitorStreamedSoundTrack();
-                process_sound_heap();
-            }
-        }
-
-        // Move the graphics window to center of screen buffer and swap screen
-        if ( do_draw )
-            keeper_screen_swap();
-
-        // Make delay if the machine is too fast
-        if ( (!game.packet_load_enable) || (game.turns_fastforward == 0) )
-            keeper_wait_for_next_turn();
-        if (game.turns_packetoff == game.play_gameturn)
-            exit_keeper = 1;
+        frametime_start_measurement(Frametime_FullFrame);
+        gameplay_loop_logic();
+        gameplay_loop_draw();
+        gameplay_loop_sleep();
+        frametime_end_measurement(Frametime_FullFrame);
     } // end while
     SYNCDBG(0,"Gameplay loop finished after %lu turns",(unsigned long)game.play_gameturn);
 }

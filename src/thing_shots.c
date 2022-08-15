@@ -240,7 +240,7 @@ SubtlCodedCoords process_dig_shot_hit_wall(struct Thing *thing, long blocked_fla
 {
     MapSubtlCoord stl_x;
     MapSubtlCoord stl_y;
-    unsigned long k;
+    unsigned short k;
     struct Thing* diggertng = INVALID_THING;
     if (thing->index != thing->parent_idx)
       diggertng = thing_get(thing->parent_idx);
@@ -249,37 +249,89 @@ SubtlCodedCoords process_dig_shot_hit_wall(struct Thing *thing, long blocked_fla
         ERRORLOG("Digging shot hit wall, but there's no digger creature index %d.",thing->parent_idx);
         return 0;
     }
-    if (blocked_flags & SlbBloF_WalledX)
+    TbBool can_dig;
+    switch ( blocked_flags )
     {
-        k = thing->move_angle_xy & 0xFC00;
-        if (k != 0)
+        case SlbBloF_WalledX:
         {
-          stl_x = thing->mappos.x.stl.num - 1;
-          stl_y = thing->mappos.y.stl.num;
+            k = thing->move_angle_xy & 0xFC00;
+            if (k != 0)
+            {
+              stl_x = thing->mappos.x.stl.num - 1;
+              stl_y = thing->mappos.y.stl.num;
+            }
+            else
+            {
+              stl_x = thing->mappos.x.stl.num + 1;
+              stl_y = thing->mappos.y.stl.num;
+            }
+            can_dig = true;
+            break;
         }
-        else
+        case SlbBloF_WalledY:
         {
-          stl_x = thing->mappos.x.stl.num + 1;
-          stl_y = thing->mappos.y.stl.num;
+            k = thing->move_angle_xy & 0xFE00;
+            if ((k != ANGLE_NORTH) && (k != ANGLE_WEST))
+            {
+              stl_x = thing->mappos.x.stl.num;
+              stl_y = thing->mappos.y.stl.num + 1;
+            }
+            else
+            {
+              stl_x = thing->mappos.x.stl.num;
+              stl_y = thing->mappos.y.stl.num - 1;
+            }
+            can_dig = true;
+            break;
         }
-    } else
-    if (blocked_flags & SlbBloF_WalledY)
-    {
-        k = thing->move_angle_xy & 0xFE00;
-        if ((k != 0) && (k != 0x0600))
+        case SlbBloF_WalledX|SlbBloF_WalledY:
+        case SlbBloF_WalledX|SlbBloF_WalledY|SlbBloF_WalledZ:
         {
-          stl_x = thing->mappos.x.stl.num;
-          stl_y = thing->mappos.y.stl.num + 1;
+            k = (thing->move_angle_xy & 0x700) | 256;
+            switch(k)
+            {
+                case ANGLE_NORTHEAST:
+                {
+                    stl_x = thing->mappos.x.stl.num + 1;
+                    stl_y = thing->mappos.y.stl.num - 1;
+                    break;
+                }
+                case ANGLE_SOUTHEAST:
+                {
+                    stl_x = thing->mappos.x.stl.num + 1;
+                    stl_y = thing->mappos.y.stl.num + 1;
+                    break;
+                }
+                case ANGLE_SOUTHWEST:
+                {
+                    stl_x = thing->mappos.x.stl.num - 1;
+                    stl_y = thing->mappos.y.stl.num + 1;
+                    break;
+                }
+                case ANGLE_NORTHWEST:
+                {
+                    stl_x = thing->mappos.x.stl.num - 1;
+                    stl_y = thing->mappos.y.stl.num - 1;
+                    break;
+                }
+                default:
+                {
+                    ERRORLOG("Tried to dig from subtile (%d, %d) diagonally, but angle was not diagonal: thing move angle was %d, and got a digging angle of %d.", thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing->move_angle_xy, k);
+                    stl_x = thing->mappos.x.stl.num;
+                    stl_y = thing->mappos.y.stl.num;
+                    break;
+                }
+            }
+            can_dig = subtile_is_diggable_at_diagonal_angle(thing, k, stl_x, stl_y);
+            break;
         }
-        else
+        default:
         {
-          stl_x = thing->mappos.x.stl.num;
-          stl_y = thing->mappos.y.stl.num - 1;
+            stl_x = thing->mappos.x.stl.num;
+            stl_y = thing->mappos.y.stl.num;
+            can_dig = true;
+            break;
         }
-    } else
-    {
-        stl_x = thing->mappos.x.stl.num;
-        stl_y = thing->mappos.y.stl.num;
     }
     SubtlCodedCoords result = get_subtile_number(stl_x, stl_y);
     struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
@@ -312,8 +364,7 @@ SubtlCodedCoords process_dig_shot_hit_wall(struct Thing *thing, long blocked_fla
     {
         if (diggertng->creature.gold_carried > 0)
         {
-            struct Thing* gldtng = drop_gold_pile(diggertng->creature.gold_carried, &diggertng->mappos);
-            diggertng->creature.gold_carried = 0;
+            struct Thing* gldtng;
             struct Room* room;
             room = get_room_xy(stl_x, stl_y);
             if (!room_is_invalid(room))
@@ -322,12 +373,15 @@ SubtlCodedCoords process_dig_shot_hit_wall(struct Thing *thing, long blocked_fla
                 {
                     if (room->owner == diggertng->owner)
                     {
+                        gldtng = drop_gold_pile(diggertng->creature.gold_carried, &diggertng->mappos);
+                        diggertng->creature.gold_carried = 0;
                         gold_being_dropped_at_treasury(gldtng, room);
-                        return result;
                     }
                 }
             }
         }
+        // Room pillars cannot be dug
+        return result;
     }
 
     // Doors cannot be dug
@@ -339,30 +393,33 @@ SubtlCodedCoords process_dig_shot_hit_wall(struct Thing *thing, long blocked_fla
     {
         return result;
     }
-    int damage = thing->shot.damage;
-    if ((damage >= slb->health) && !slab_kind_is_indestructible(slb->kind))
+    if (can_dig)
     {
-        if ((mapblk->flags & SlbAtFlg_Valuable) != 0)
-        { // Valuables require counting gold
-            give_gold_to_creature_or_drop_on_map_when_digging(diggertng, stl_x, stl_y, damage);
-            mine_out_block(stl_x, stl_y, diggertng->owner);
-            thing_play_sample(diggertng, 72+UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+        int damage = thing->shot.damage;
+        if ((damage >= slb->health) && !slab_kind_is_indestructible(slb->kind))
+        {
+            if ((mapblk->flags & SlbAtFlg_Valuable) != 0)
+            { // Valuables require counting gold
+                give_gold_to_creature_or_drop_on_map_when_digging(diggertng, stl_x, stl_y, damage);
+                mine_out_block(stl_x, stl_y, diggertng->owner);
+                thing_play_sample(diggertng, 72+UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+            } else
+            if ((mapblk->flags & SlbAtFlg_IsDoor) == 0)
+            { // All non-gold and non-door slabs are just destroyed
+                dig_out_block(stl_x, stl_y, diggertng->owner);
+                thing_play_sample(diggertng, 72+UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+            }
+            check_map_explored(diggertng, stl_x, stl_y);
         } else
-        if ((mapblk->flags & SlbAtFlg_IsDoor) == 0)
-        { // All non-gold and non-door slabs are just destroyed
-            dig_out_block(stl_x, stl_y, diggertng->owner);
-            thing_play_sample(diggertng, 72+UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
-        }
-        check_map_explored(diggertng, stl_x, stl_y);
-    } else
-    {
-        if (!slab_kind_is_indestructible(slb->kind))
         {
-            slb->health -= damage;
-        }
-        if ((mapblk->flags & SlbAtFlg_Valuable) != 0)
-        {
-            give_gold_to_creature_or_drop_on_map_when_digging(diggertng, stl_x, stl_y, damage);
+            if (!slab_kind_is_indestructible(slb->kind))
+            {
+                slb->health -= damage;
+            }
+            if ((mapblk->flags & SlbAtFlg_Valuable) != 0)
+            {
+                give_gold_to_creature_or_drop_on_map_when_digging(diggertng, stl_x, stl_y, damage);
+            }
         }
     }
     return result;
@@ -410,6 +467,10 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
     TbBool digging = (shotst->model_flags & ShMF_Digging);
     SubtlCodedCoords hit_stl_num;
     short old_health;
+    short eff_kind;
+    short smpl_idx;
+    unsigned char range;
+    struct SlabMap* slb;
     if (digging)
     {
         hit_stl_num = process_dig_shot_hit_wall(shotng, blocked_flags, &old_health);
@@ -442,12 +503,25 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
                 destroy_shot = 1;
             }
         } else
-        {
-            efftng = create_shot_hit_effect(&shotng->mappos, shotng->owner, shotst->hit_generic.effect_model, shotst->hit_generic.sndsample_idx, shotst->hit_generic.sndsample_range);
-            if (!shotst->hit_generic.withstand) {
-                destroy_shot = 1;
+            {
+                eff_kind = shotst->hit_generic.effect_model;
+                smpl_idx = shotst->hit_generic.sndsample_idx;
+                range = shotst->hit_generic.sndsample_range;
+                if (digging)
+                {
+                    slb = get_slabmap_for_subtile(stl_num_decode_x(hit_stl_num), stl_num_decode_y(hit_stl_num));
+                    if ((old_health > slb->health) || (slb->kind == SlbT_GEMS))
+                    {
+                        smpl_idx = shotst->dig.sndsample_idx;
+                        range = shotst->dig.sndsample_range;
+                        eff_kind = shotst->dig.effect_model;
+                    }
+                }
+                efftng = create_shot_hit_effect(&shotng->mappos, shotng->owner, eff_kind, smpl_idx, range);
+                if (!shotst->hit_generic.withstand) {
+                    destroy_shot = 1;
+                }
             }
-        }
     }
 
     if ( !destroy_shot )
@@ -476,16 +550,21 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
                 apply_damage_to_thing(doortng, i, shotst->damage_type, -1);
             } else
             {
-                struct SlabMap* slb = get_slabmap_for_subtile(stl_num_decode_x(hit_stl_num), stl_num_decode_y(hit_stl_num));
-                if ( ( (old_health <= slb->health) && (slb->kind != SlbT_GEMS) ) || (!digging) )
+                eff_kind = shotst->hit_generic.effect_model;
+                smpl_idx = shotst->hit_generic.sndsample_idx;
+                range = shotst->hit_generic.sndsample_range;
+                if (digging)
                 {
-                    efftng = create_shot_hit_effect(&shotng->mappos, shotng->owner, shotst->hit_generic.effect_model, shotst->hit_generic.sndsample_idx, shotst->hit_generic.sndsample_range);
+                    slb = get_slabmap_for_subtile(stl_num_decode_x(hit_stl_num), stl_num_decode_y(hit_stl_num));
+                    if ((old_health > slb->health) || (slb->kind == SlbT_GEMS))
+                    {
+                        smpl_idx = shotst->dig.sndsample_idx;
+                        range = shotst->dig.sndsample_range;
+                        eff_kind = shotst->dig.effect_model;
+                    }
                 }
-                else
-                {
-                    struct Thing *diggertng = thing_get(shotng->parent_idx);
-                    efftng = create_shot_hit_effect(&diggertng->mappos, diggertng->owner, shotst->dig.effect_model, shotst->dig.sndsample_idx, shotst->dig.sndsample_range);
-                }
+                efftng = create_shot_hit_effect(&shotng->mappos, shotng->owner, eff_kind, smpl_idx, range);
+
                 if (!shotst->hit_generic.withstand) {
                     destroy_shot = 1;
                 }
@@ -654,11 +733,11 @@ static TbBool shot_hit_object_at(struct Thing *shotng, struct Thing *target, str
     }
     if (thing_is_dungeon_heart(target))
     {
-        if (shotng->model == 21) //TODO CONFIG shot model dependency, make config option instead
+        if (shotng->model == ShM_SwingSword) //TODO CONFIG shot model dependency, make config option instead
         {
-            thing_play_sample(target, 134+UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
+            thing_play_sample(target, 136, NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
         } else
-        if (shotng->model == 22) //TODO CONFIG shot model dependency, make config option instead
+        if (shotng->model == ShM_SwingFist) //TODO CONFIG shot model dependency, make config option instead
         {
             thing_play_sample(target, 144+UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
         }

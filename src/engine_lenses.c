@@ -58,12 +58,12 @@ void perspective_standard(struct XYZ *cor, struct PolyPoint *ppt)
   if (cor->z >= 32)
   {
       long i = (lens << 16) / (cor->z);
-      ppt->field_0 = view_width_over_2 + (i * cor->x >> 16);
-      ppt->field_4 = view_height_over_2 - (i * cor->y >> 16);
+      ppt->X = view_width_over_2 + (i * cor->x >> 16);
+      ppt->Y = view_height_over_2 - (i * cor->y >> 16);
   } else
   {
-    ppt->field_0 = view_width_over_2 + cor->x;
-    ppt->field_4 = view_height_over_2 - cor->y;
+    ppt->X = view_width_over_2 + cor->x;
+    ppt->Y = view_height_over_2 - cor->y;
   }
 }
 
@@ -88,6 +88,17 @@ void pers_set_transform_matrix(struct EngineCoord *epos, const struct M33 *matx)
     pxr1 = px + matx->r[2].v[1];
     pzr2 = pz * matx->r[2].v[2];
     epos->z = object_origin.z + ((pzr2 + pyr0 * pxr1 - matx->r[2].v[3] - pxpy) >> 14);
+}
+
+void flicker_fix(struct EngineCoord *epos) {
+    // Set this value as low as possible without seeing flickers. Higher = more culling, lower = more flickers.
+    int cull_nearby_z = 256;
+    // Set this value as high as possible without seeing flickers. Lower = more culling, higher = more flickers.
+    int cull_must_have_distant_xy = 256*3;
+
+    if (epos->z-cull_nearby_z < 0 && abs(epos->x)+abs(epos->y) >= cull_must_have_distant_xy) {
+        epos->field_8 = 65535;
+    }
 }
 
 void pers_set_view_width(struct EngineCoord *epos, long len)
@@ -176,6 +187,7 @@ void rotpers_standard(struct EngineCoord *epos, const struct M33 *matx)
     pers_set_view_width(epos, view_width_over_2 + (wx >> 16));
     pers_set_view_height(epos, view_height_over_2 - (wy >> 16));
     epos->field_8 |= 0x0400;
+    flicker_fix(epos);
 }
 
 void rotpers_circular(struct EngineCoord *epos, const struct M33 *matx)
@@ -213,6 +225,7 @@ void rotpers_circular(struct EngineCoord *epos, const struct M33 *matx)
     pers_set_view_width(epos, view_width_over_2 + (wx >> 16));
     pers_set_view_height(epos, view_height_over_2 - (wy >> 16));
     epos->field_8 |= 0x0400;
+    flicker_fix(epos);
 }
 
 void rotpers_fisheye(struct EngineCoord *epos, const struct M33 *matx)
@@ -247,5 +260,6 @@ void rotpers_fisheye(struct EngineCoord *epos, const struct M33 *matx)
         }
     }
     epos->field_8 |= 0x0400;
+    flicker_fix(epos);
 }
 /******************************************************************************/

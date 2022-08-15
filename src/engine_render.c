@@ -142,7 +142,7 @@ struct EngineCol ecs1[MINMAX_LENGTH-1];
 struct EngineCol ecs2[MINMAX_LENGTH-1];
 struct EngineCol *front_ec;
 struct EngineCol *back_ec;
-float zoomed_range;
+float hud_scale;
 
 static int water_wibble_angle = 0;
 //static unsigned char temp_cluedo_mode;
@@ -1934,12 +1934,12 @@ static void create_line_element(long a1, long a2, long a3, long a4, long bckt_id
     buckets[bckt_idx] = (struct BasicQ *)poly;
     if (pixel_size > 0)
     {
-        poly->p.field_0 = a1 / pixel_size;
-        poly->p.field_4 = a2 / pixel_size;
-        poly->p.field_8 = a3 / pixel_size;
-        poly->p.field_C = a4 / pixel_size;
+        poly->p.X = a1 / pixel_size;
+        poly->p.Y = a2 / pixel_size;
+        poly->p.U = a3 / pixel_size;
+        poly->p.V = a4 / pixel_size;
     }
-    poly->p.field_10 = color;
+    poly->p.S = color;
 }
 
 static void create_line_segment(struct EngineCoord *start, struct EngineCoord *end, TbPixel color)
@@ -1948,8 +1948,12 @@ static void create_line_segment(struct EngineCoord *start, struct EngineCoord *e
     long bckt_idx;
     if (!is_free_space_in_poly_pool(1))
         return;
-    // Get bucket index
-    bckt_idx = (start->z+end->z)/2 / 16 - 2;
+    
+    // Reducing line_z will make the lines look cleaner, but the "fancy_map_volume_box" vertical lines become more visible.
+    float line_z = 0.994;
+    bckt_idx = (( (start->z*line_z) + (end->z*line_z) ) / 32) - 2;
+    // Original calculation:  bckt_idx = (start->z+end->z)/2 / 16 - 2;
+
     if (bckt_idx >= BUCKETS_COUNT)
         bckt_idx = BUCKETS_COUNT-1;
     else
@@ -1964,12 +1968,12 @@ static void create_line_segment(struct EngineCoord *start, struct EngineCoord *e
     // Fill parameters
     if (pixel_size > 0)
     {
-        poly->p.field_0 = start->view_width;
-        poly->p.field_4 = start->view_height;
-        poly->p.field_8 = end->view_width;
-        poly->p.field_C = end->view_height;
+        poly->p.X = start->view_width;
+        poly->p.Y = start->view_height;
+        poly->p.U = end->view_width;
+        poly->p.V = end->view_height;
     }
-    poly->p.field_10 = color;
+    poly->p.S = color;
 }
 
 /**
@@ -2430,7 +2434,7 @@ static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct 
     short coordinate_1_frustum = engine_coordinate_1->field_8;
     short coordinate_2_frustum = engine_coordinate_2->field_8;
     short coordinate_3_frustum = engine_coordinate_3->field_8;
-    
+
     if (((unsigned short)coordinate_1_frustum & (unsigned short)(coordinate_2_frustum & coordinate_3_frustum) & 0x1F8) == 0 && (engine_coordinate_1->view_height - engine_coordinate_2->view_height) * (engine_coordinate_3->view_width - engine_coordinate_2->view_width) + (engine_coordinate_3->view_height - engine_coordinate_2->view_height) * (engine_coordinate_2->view_width - engine_coordinate_1->view_width) > 0)
     {
         int choose_largest_z = engine_coordinate_1->z;
@@ -2450,17 +2454,17 @@ static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct 
                 triangle_bucket_near_1->b.kind = QK_PolygonNearFP;
                 buckets[divided_z] = &triangle_bucket_near_1->b;
                 triangle_bucket_near_1->block = textr_idx;
-                triangle_bucket_near_1->p1.field_0 = engine_coordinate_1->view_width;
-                triangle_bucket_near_1->p1.field_4 = engine_coordinate_1->view_height;
-                triangle_bucket_near_1->p1.field_8 = 0;
-                triangle_bucket_near_1->p1.field_C = 0;
+                triangle_bucket_near_1->p1.X = engine_coordinate_1->view_width;
+                triangle_bucket_near_1->p1.Y = engine_coordinate_1->view_height;
+                triangle_bucket_near_1->p1.U = 0;
+                triangle_bucket_near_1->p1.V = 0;
 
                 int coordinate_1_lightness = engine_coordinate_1->field_A;
                 int coordinate_1_distance = engine_coordinate_1->field_C;
 
                 if (argument5 >= 0)
                     coordinate_1_lightness = (coordinate_1_lightness * (3 * argument5 + 81920)) >> 17;
-                
+
                 int apply_lighting_to_triangle_nearby_1;
                 if (fade_min >= coordinate_1_distance)
                 {
@@ -2474,13 +2478,13 @@ static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct 
                 {
                     apply_lighting_to_triangle_nearby_1 = 0x8000;
                 }
-                
-                triangle_bucket_near_1->p1.field_10 = apply_lighting_to_triangle_nearby_1;
-                triangle_bucket_near_1->p2.field_0 = engine_coordinate_2->view_width;
-                triangle_bucket_near_1->p2.field_4 = engine_coordinate_2->view_height;
-                triangle_bucket_near_1->p2.field_8 = 0x1FFFFF;
-                triangle_bucket_near_1->p2.field_C = 0;
-                
+
+                triangle_bucket_near_1->p1.S = apply_lighting_to_triangle_nearby_1;
+                triangle_bucket_near_1->p2.X = engine_coordinate_2->view_width;
+                triangle_bucket_near_1->p2.Y = engine_coordinate_2->view_height;
+                triangle_bucket_near_1->p2.U = 0x1FFFFF;
+                triangle_bucket_near_1->p2.V = 0;
+
                 int coordinate_2_lightness = engine_coordinate_2->field_A;
                 int coordinate_2_distance = engine_coordinate_2->field_C;
 
@@ -2501,11 +2505,11 @@ static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct 
                     apply_lighting_to_triangle_nearby_2 = 0x8000;
                 }
 
-                triangle_bucket_near_1->p2.field_10 = apply_lighting_to_triangle_nearby_2;
-                triangle_bucket_near_1->p3.field_0 = engine_coordinate_3->view_width;
-                triangle_bucket_near_1->p3.field_4 = engine_coordinate_3->view_height;
-                triangle_bucket_near_1->p3.field_8 = 0x1FFFFF;
-                triangle_bucket_near_1->p3.field_C = 0x1FFFFF;
+                triangle_bucket_near_1->p2.S = apply_lighting_to_triangle_nearby_2;
+                triangle_bucket_near_1->p3.X = engine_coordinate_3->view_width;
+                triangle_bucket_near_1->p3.Y = engine_coordinate_3->view_height;
+                triangle_bucket_near_1->p3.U = 0x1FFFFF;
+                triangle_bucket_near_1->p3.V = 0x1FFFFF;
 
                 int coordinate_3_lightness = engine_coordinate_3->field_A;
                 int coordinate_3_distance = engine_coordinate_3->field_C;
@@ -2527,8 +2531,8 @@ static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct 
                     apply_lighting_to_triangle_nearby_3 = 0x8000;
                 }
 
-                triangle_bucket_near_1->p3.field_10 = apply_lighting_to_triangle_nearby_3;
-                
+                triangle_bucket_near_1->p3.S = apply_lighting_to_triangle_nearby_3;
+
                 int coordinate_1_z = engine_coordinate_1->z;
                 if (coordinate_1_z >= 32)
                 {
@@ -2567,22 +2571,22 @@ static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct 
                             triangle_bucket_near_1->c2.z = engine_coordinate_2->z;
                             memcpy(&triangle_bucket_near_4->p3, &triangle_bucket_near_1->p3, sizeof(triangle_bucket_near_4->p3));
                             memcpy(&triangle_bucket_near_4->p2, &triangle_bucket_near_1->p2, sizeof(triangle_bucket_near_4->p2));
-                            
+
                             // Don't know what this is.
                             int toast = ((32 - engine_coordinate_3->z) << 8) / (engine_coordinate_1->z - engine_coordinate_3->z);
-                            
+
                             triangle_bucket_near_1->c3.x = engine_coordinate_3->x + ((toast * (engine_coordinate_1->x - engine_coordinate_3->x)) >> 8);
                             triangle_bucket_near_1->c3.y = engine_coordinate_3->y + ((toast * (engine_coordinate_1->y - engine_coordinate_3->y)) >> 8);
                             triangle_bucket_near_1->c3.z = 32;
                             perspective(&triangle_bucket_near_1->c3, &triangle_bucket_near_1->p3);
-                            triangle_bucket_near_1->p3.field_8 += (toast * (triangle_bucket_near_1->p1.field_8 - triangle_bucket_near_1->p3.field_8)) >> 8;
-                            triangle_bucket_near_1->p3.field_C += (toast * (triangle_bucket_near_1->p1.field_C - triangle_bucket_near_1->p3.field_C)) >> 8;
-                            
-                            // ?
-                            int popcorn = triangle_bucket_near_1->p3.field_10;
+                            triangle_bucket_near_1->p3.U += (toast * (triangle_bucket_near_1->p1.U - triangle_bucket_near_1->p3.U)) >> 8;
+                            triangle_bucket_near_1->p3.V += (toast * (triangle_bucket_near_1->p1.V - triangle_bucket_near_1->p3.V)) >> 8;
 
                             // ?
-                            int almond = (toast * (triangle_bucket_near_1->p1.field_10 - popcorn)) >> 8;
+                            int popcorn = triangle_bucket_near_1->p3.S;
+
+                            // ?
+                            int almond = (toast * (triangle_bucket_near_1->p1.S - popcorn)) >> 8;
 
                             polypoint3 = &triangle_bucket_near_1->p3;
                             xyz4 = &triangle_bucket_near_1->c3;
@@ -2594,7 +2598,7 @@ static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct 
                             triangle_bucket_near_4->c2.x = engine_coordinate_2->x;
                             triangle_bucket_near_4->c2.y = engine_coordinate_2->y;
                             triangle_bucket_near_4->c2.z = engine_coordinate_2->z;
-                            
+
                             // ?
                             int lemon = ((32 - engine_coordinate_3->z) << 8) / (engine_coordinate_2->z - engine_coordinate_3->z);
 
@@ -2602,9 +2606,9 @@ static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct 
                             triangle_bucket_near_4->c3.y = engine_coordinate_3->y + ((lemon * (engine_coordinate_2->y - engine_coordinate_3->y)) >> 8);
                             triangle_bucket_near_4->c3.z = 32;
                             perspective(&triangle_bucket_near_4->c3, &triangle_bucket_near_4->p3);
-                            triangle_bucket_near_4->p3.field_8 += (lemon * (triangle_bucket_near_4->p2.field_8 - triangle_bucket_near_4->p3.field_8)) >> 8;
-                            triangle_bucket_near_4->p3.field_C += (lemon * (triangle_bucket_near_4->p2.field_C - triangle_bucket_near_4->p3.field_C)) >> 8;
-                            triangle_bucket_near_4->p3.field_10 += (lemon * (triangle_bucket_near_4->p2.field_10 - triangle_bucket_near_4->p3.field_10)) >> 8;
+                            triangle_bucket_near_4->p3.U += (lemon * (triangle_bucket_near_4->p2.U - triangle_bucket_near_4->p3.U)) >> 8;
+                            triangle_bucket_near_4->p3.V += (lemon * (triangle_bucket_near_4->p2.V - triangle_bucket_near_4->p3.V)) >> 8;
+                            triangle_bucket_near_4->p3.S += (lemon * (triangle_bucket_near_4->p2.S - triangle_bucket_near_4->p3.S)) >> 8;
                         }
                     }
                     else if (coordinate_3_z >= 32)
@@ -2624,22 +2628,22 @@ static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct 
                         triangle_bucket_near_1->c3.z = engine_coordinate_3->z;
                         memcpy(&triangle_bucket_near_3->p2, &triangle_bucket_near_1->p2, sizeof(triangle_bucket_near_3->p2));
                         memcpy(&triangle_bucket_near_3->p3, &triangle_bucket_near_1->p3, sizeof(triangle_bucket_near_3->p3));
-                        
+
                         // ?
                         int lettuce = ((32 - engine_coordinate_2->z) << 8) / (engine_coordinate_1->z - engine_coordinate_2->z);
-                        
+
                         triangle_bucket_near_1->c2.x = engine_coordinate_2->x + ((lettuce * (engine_coordinate_1->x - engine_coordinate_2->x)) >> 8);
                         triangle_bucket_near_1->c2.y = engine_coordinate_2->y + ((lettuce * (engine_coordinate_1->y - engine_coordinate_2->y)) >> 8);
                         triangle_bucket_near_1->c2.z = 32;
                         perspective(&triangle_bucket_near_1->c2, &triangle_bucket_near_1->p2);
-                        triangle_bucket_near_1->p2.field_8 += (lettuce * (triangle_bucket_near_1->p1.field_8 - triangle_bucket_near_1->p2.field_8)) >> 8;
-                        triangle_bucket_near_1->p2.field_C += (lettuce * (triangle_bucket_near_1->p1.field_C - triangle_bucket_near_1->p2.field_C)) >> 8;
-                        
+                        triangle_bucket_near_1->p2.U += (lettuce * (triangle_bucket_near_1->p1.U - triangle_bucket_near_1->p2.U)) >> 8;
+                        triangle_bucket_near_1->p2.V += (lettuce * (triangle_bucket_near_1->p1.V - triangle_bucket_near_1->p2.V)) >> 8;
+
                         // ?
-                        int sandwich = triangle_bucket_near_1->p2.field_10;
+                        int sandwich = triangle_bucket_near_1->p2.S;
                         // ?
-                        int walnut = (lettuce * (triangle_bucket_near_1->p1.field_10 - sandwich)) >> 8;
-                        
+                        int walnut = (lettuce * (triangle_bucket_near_1->p1.S - sandwich)) >> 8;
+
                         polypoint2 = &triangle_bucket_near_1->p2;
                         xyz3 = &triangle_bucket_near_1->c2;
                         xyz3[-3].x = sandwich + walnut;
@@ -2650,46 +2654,46 @@ static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct 
                         triangle_bucket_near_3->c3.x = engine_coordinate_3->x;
                         triangle_bucket_near_3->c3.y = engine_coordinate_3->y;
                         triangle_bucket_near_3->c3.z = engine_coordinate_3->z;
-                        
+
                         // ?
                         int avocado = ((32 - engine_coordinate_2->z) << 8) / (engine_coordinate_3->z - engine_coordinate_2->z);
-                        
+
                         triangle_bucket_near_3->c2.x = engine_coordinate_2->x + ((avocado * (engine_coordinate_3->x - engine_coordinate_2->x)) >> 8);
                         triangle_bucket_near_3->c2.y = engine_coordinate_2->y + ((avocado * (engine_coordinate_3->y - engine_coordinate_2->y)) >> 8);
                         triangle_bucket_near_3->c2.z = 32;
                         perspective(&triangle_bucket_near_3->c2, &triangle_bucket_near_3->p2);
-                        triangle_bucket_near_3->p2.field_8 += (avocado * (triangle_bucket_near_3->p3.field_8 - triangle_bucket_near_3->p2.field_8)) >> 8;
-                        triangle_bucket_near_3->p2.field_C += (avocado * (triangle_bucket_near_3->p3.field_C - triangle_bucket_near_3->p2.field_C)) >> 8;
-                        triangle_bucket_near_3->p2.field_10 += (avocado * (triangle_bucket_near_3->p3.field_10 - triangle_bucket_near_3->p2.field_10)) >> 8;
+                        triangle_bucket_near_3->p2.U += (avocado * (triangle_bucket_near_3->p3.U - triangle_bucket_near_3->p2.U)) >> 8;
+                        triangle_bucket_near_3->p2.V += (avocado * (triangle_bucket_near_3->p3.V - triangle_bucket_near_3->p2.V)) >> 8;
+                        triangle_bucket_near_3->p2.S += (avocado * (triangle_bucket_near_3->p3.S - triangle_bucket_near_3->p2.S)) >> 8;
                     }
                     else
                     {
                         // ?
                         int steak = ((32 - coordinate_2_z) << 8) / (coordinate_1_z - coordinate_2_z);
-                        
+
                         triangle_bucket_near_1->c2.x = engine_coordinate_2->x + ((steak * (engine_coordinate_1->x - engine_coordinate_2->x)) >> 8);
                         triangle_bucket_near_1->c2.y = engine_coordinate_2->y + ((steak * (engine_coordinate_1->y - engine_coordinate_2->y)) >> 8);
                         triangle_bucket_near_1->c2.z = 32;
                         perspective(&triangle_bucket_near_1->c2, &triangle_bucket_near_1->p2);
-                        triangle_bucket_near_1->p2.field_8 += (steak * (triangle_bucket_near_1->p1.field_8 - triangle_bucket_near_1->p2.field_8)) >> 8;
-                        triangle_bucket_near_1->p2.field_C += (steak * (triangle_bucket_near_1->p1.field_C - triangle_bucket_near_1->p2.field_C)) >> 8;
-                        triangle_bucket_near_1->p2.field_10 += (steak * (triangle_bucket_near_1->p1.field_10 - triangle_bucket_near_1->p2.field_10)) >> 8;
-                        
+                        triangle_bucket_near_1->p2.U += (steak * (triangle_bucket_near_1->p1.U - triangle_bucket_near_1->p2.U)) >> 8;
+                        triangle_bucket_near_1->p2.V += (steak * (triangle_bucket_near_1->p1.V - triangle_bucket_near_1->p2.V)) >> 8;
+                        triangle_bucket_near_1->p2.S += (steak * (triangle_bucket_near_1->p1.S - triangle_bucket_near_1->p2.S)) >> 8;
+
                         // ?
                         int tomato = ((32 - engine_coordinate_3->z) << 8) / (engine_coordinate_1->z - engine_coordinate_3->z);
-                        
+
                         triangle_bucket_near_1->c3.x = engine_coordinate_3->x + ((tomato * (engine_coordinate_1->x - engine_coordinate_3->x)) >> 8);
                         triangle_bucket_near_1->c3.y = engine_coordinate_3->y + ((tomato * (engine_coordinate_1->y - engine_coordinate_3->y)) >> 8);
                         triangle_bucket_near_1->c3.z = 32;
                         perspective(&triangle_bucket_near_1->c3, &triangle_bucket_near_1->p3);
-                        triangle_bucket_near_1->p3.field_8 += (tomato * (triangle_bucket_near_1->p1.field_8 - triangle_bucket_near_1->p3.field_8)) >> 8;
-                        triangle_bucket_near_1->p3.field_C += (tomato * (triangle_bucket_near_1->p1.field_C - triangle_bucket_near_1->p3.field_C)) >> 8;
-                        
+                        triangle_bucket_near_1->p3.U += (tomato * (triangle_bucket_near_1->p1.U - triangle_bucket_near_1->p3.U)) >> 8;
+                        triangle_bucket_near_1->p3.V += (tomato * (triangle_bucket_near_1->p1.V - triangle_bucket_near_1->p3.V)) >> 8;
+
                         // ?
-                        int cabbage = triangle_bucket_near_1->p1.field_10;
+                        int cabbage = triangle_bucket_near_1->p1.S;
                         // ?
-                        int coconut = triangle_bucket_near_1->p3.field_10;
-                        
+                        int coconut = triangle_bucket_near_1->p3.S;
+
                         xyz2 = &triangle_bucket_near_1->c1;
                         xyz2[-1].z = coconut + ((tomato * (cabbage - coconut)) >> 8);
                         xyz2->x = engine_coordinate_1->x;
@@ -2716,22 +2720,22 @@ static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct 
                         triangle_bucket_near_1->c3.z = engine_coordinate_3->z;
                         memcpy(&triangle_bucket_near_2->p1, &triangle_bucket_near_1->p1, sizeof(triangle_bucket_near_2->p1));
                         memcpy(&triangle_bucket_near_2->p3, &triangle_bucket_near_1->p3, sizeof(triangle_bucket_near_2->p3));
-                        
+
                         // ?
                         int prawns = ((32 - engine_coordinate_1->z) << 8) / (engine_coordinate_2->z - engine_coordinate_1->z);
-                        
+
                         triangle_bucket_near_1->c1.x = engine_coordinate_1->x + ((prawns * (engine_coordinate_2->x - engine_coordinate_1->x)) >> 8);
                         triangle_bucket_near_1->c1.y = engine_coordinate_1->y + ((prawns * (engine_coordinate_2->y - engine_coordinate_1->y)) >> 8);
                         triangle_bucket_near_1->c1.z = 32;
                         perspective(&triangle_bucket_near_1->c1, &triangle_bucket_near_1->p1);
-                        triangle_bucket_near_1->p1.field_8 += (prawns * (triangle_bucket_near_1->p2.field_8 - triangle_bucket_near_1->p1.field_8)) >> 8;
-                        triangle_bucket_near_1->p1.field_C += (prawns * (triangle_bucket_near_1->p2.field_C - triangle_bucket_near_1->p1.field_C)) >> 8;
-                        
+                        triangle_bucket_near_1->p1.U += (prawns * (triangle_bucket_near_1->p2.U - triangle_bucket_near_1->p1.U)) >> 8;
+                        triangle_bucket_near_1->p1.V += (prawns * (triangle_bucket_near_1->p2.V - triangle_bucket_near_1->p1.V)) >> 8;
+
                         // ?
-                        int cauliflower = triangle_bucket_near_1->p1.field_10;
+                        int cauliflower = triangle_bucket_near_1->p1.S;
                         // ?
-                        int paprika = (prawns * (triangle_bucket_near_1->p2.field_10 - cauliflower)) >> 8;
-                        
+                        int paprika = (prawns * (triangle_bucket_near_1->p2.S - cauliflower)) >> 8;
+
                         polypoint1 = &triangle_bucket_near_1->p1;
                         xyz1 = &triangle_bucket_near_1->c1;
                         xyz1[-4].y = cauliflower + paprika;
@@ -2742,45 +2746,45 @@ static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct 
                         triangle_bucket_near_2->c3.x = engine_coordinate_3->x;
                         triangle_bucket_near_2->c3.y = engine_coordinate_3->y;
                         triangle_bucket_near_2->c3.z = engine_coordinate_3->z;
-                        
+
                         // ?
                         int sausage = ((32 - engine_coordinate_1->z) << 8) / (engine_coordinate_3->z - engine_coordinate_1->z);
-                        
+
                         triangle_bucket_near_2->c1.x = engine_coordinate_1->x + ((sausage * (engine_coordinate_3->x - engine_coordinate_1->x)) >> 8);
                         triangle_bucket_near_2->c1.y = engine_coordinate_1->y + ((sausage * (engine_coordinate_3->y - engine_coordinate_1->y)) >> 8);
                         triangle_bucket_near_2->c1.z = 32;
                         perspective(&triangle_bucket_near_2->c1, &triangle_bucket_near_2->p1);
-                        triangle_bucket_near_2->p1.field_8 += (sausage * (triangle_bucket_near_2->p3.field_8 - triangle_bucket_near_2->p1.field_8)) >> 8;
-                        triangle_bucket_near_2->p1.field_C += (sausage * (triangle_bucket_near_2->p3.field_C - triangle_bucket_near_2->p1.field_C)) >> 8;
-                        triangle_bucket_near_2->p1.field_10 += (sausage * (triangle_bucket_near_2->p3.field_10 - triangle_bucket_near_2->p1.field_10)) >> 8;
+                        triangle_bucket_near_2->p1.U += (sausage * (triangle_bucket_near_2->p3.U - triangle_bucket_near_2->p1.U)) >> 8;
+                        triangle_bucket_near_2->p1.V += (sausage * (triangle_bucket_near_2->p3.V - triangle_bucket_near_2->p1.V)) >> 8;
+                        triangle_bucket_near_2->p1.S += (sausage * (triangle_bucket_near_2->p3.S - triangle_bucket_near_2->p1.S)) >> 8;
                     }
                     else
                     {
                         triangle_bucket_near_1->c2.x = engine_coordinate_2->x;
                         triangle_bucket_near_1->c2.y = engine_coordinate_2->y;
                         triangle_bucket_near_1->c2.z = engine_coordinate_2->z;
-                        
+
                         // ?
                         int cherries = ((32 - engine_coordinate_1->z) << 8) / (engine_coordinate_2->z - engine_coordinate_1->z);
-                        
+
                         triangle_bucket_near_1->c1.x = engine_coordinate_1->x + ((cherries * (engine_coordinate_2->x - engine_coordinate_1->x)) >> 8);
                         triangle_bucket_near_1->c1.y = engine_coordinate_1->y + ((cherries * (engine_coordinate_2->y - engine_coordinate_1->y)) >> 8);
                         triangle_bucket_near_1->c1.z = 32;
                         perspective(&triangle_bucket_near_1->c1, &triangle_bucket_near_1->p1);
-                        triangle_bucket_near_1->p1.field_8 += (cherries * (triangle_bucket_near_1->p2.field_8 - triangle_bucket_near_1->p1.field_8)) >> 8;
-                        triangle_bucket_near_1->p1.field_C += (cherries * (triangle_bucket_near_1->p2.field_C - triangle_bucket_near_1->p1.field_C)) >> 8;
-                        triangle_bucket_near_1->p1.field_10 += (cherries * (triangle_bucket_near_1->p2.field_10 - triangle_bucket_near_1->p1.field_10)) >> 8;
-                        
+                        triangle_bucket_near_1->p1.U += (cherries * (triangle_bucket_near_1->p2.U - triangle_bucket_near_1->p1.U)) >> 8;
+                        triangle_bucket_near_1->p1.V += (cherries * (triangle_bucket_near_1->p2.V - triangle_bucket_near_1->p1.V)) >> 8;
+                        triangle_bucket_near_1->p1.S += (cherries * (triangle_bucket_near_1->p2.S - triangle_bucket_near_1->p1.S)) >> 8;
+
                         // ?
                         int mushroom = ((32 - engine_coordinate_3->z) << 8) / (engine_coordinate_2->z - engine_coordinate_3->z);
-                        
+
                         triangle_bucket_near_1->c3.x = engine_coordinate_3->x + ((mushroom * (engine_coordinate_2->x - engine_coordinate_3->x)) >> 8);
                         triangle_bucket_near_1->c3.y = engine_coordinate_3->y + ((mushroom * (engine_coordinate_2->y - engine_coordinate_3->y)) >> 8);
                         triangle_bucket_near_1->c3.z = 32;
                         perspective(&triangle_bucket_near_1->c3, &triangle_bucket_near_1->p3);
-                        triangle_bucket_near_1->p3.field_8 += (mushroom * (triangle_bucket_near_1->p2.field_8 - triangle_bucket_near_1->p3.field_8)) >> 8;
-                        triangle_bucket_near_1->p3.field_C += (mushroom * (triangle_bucket_near_1->p2.field_C - triangle_bucket_near_1->p3.field_C)) >> 8;
-                        triangle_bucket_near_1->p3.field_10 += (mushroom * (triangle_bucket_near_1->p2.field_10 - triangle_bucket_near_1->p3.field_10)) >> 8;
+                        triangle_bucket_near_1->p3.U += (mushroom * (triangle_bucket_near_1->p2.U - triangle_bucket_near_1->p3.U)) >> 8;
+                        triangle_bucket_near_1->p3.V += (mushroom * (triangle_bucket_near_1->p2.V - triangle_bucket_near_1->p3.V)) >> 8;
+                        triangle_bucket_near_1->p3.S += (mushroom * (triangle_bucket_near_1->p2.S - triangle_bucket_near_1->p3.S)) >> 8;
                     }
                 }
                 else
@@ -2788,28 +2792,28 @@ static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct 
                     triangle_bucket_near_1->c3.x = engine_coordinate_3->x;
                     triangle_bucket_near_1->c3.y = engine_coordinate_3->y;
                     triangle_bucket_near_1->c3.z = engine_coordinate_3->z;
-                    
+
                     // ?
                     int olives = ((32 - engine_coordinate_1->z) << 8) / (engine_coordinate_3->z - engine_coordinate_1->z);
-                    
+
                     triangle_bucket_near_1->c1.x = engine_coordinate_1->x + ((olives * (engine_coordinate_3->x - engine_coordinate_1->x)) >> 8);
                     triangle_bucket_near_1->c1.y = engine_coordinate_1->y + ((olives * (engine_coordinate_3->y - engine_coordinate_1->y)) >> 8);
                     triangle_bucket_near_1->c1.z = 32;
                     perspective(&triangle_bucket_near_1->c1, &triangle_bucket_near_1->p1);
-                    triangle_bucket_near_1->p1.field_8 += (olives * (triangle_bucket_near_1->p3.field_8 - triangle_bucket_near_1->p1.field_8)) >> 8;
-                    triangle_bucket_near_1->p1.field_C += (olives * (triangle_bucket_near_1->p3.field_C - triangle_bucket_near_1->p1.field_C)) >> 8;
-                    triangle_bucket_near_1->p1.field_10 += (olives * (triangle_bucket_near_1->p3.field_10 - triangle_bucket_near_1->p1.field_10)) >> 8;
-                    
+                    triangle_bucket_near_1->p1.U += (olives * (triangle_bucket_near_1->p3.U - triangle_bucket_near_1->p1.U)) >> 8;
+                    triangle_bucket_near_1->p1.V += (olives * (triangle_bucket_near_1->p3.V - triangle_bucket_near_1->p1.V)) >> 8;
+                    triangle_bucket_near_1->p1.S += (olives * (triangle_bucket_near_1->p3.S - triangle_bucket_near_1->p1.S)) >> 8;
+
                     // ?
                     int macaroni = ((32 - engine_coordinate_2->z) << 8) / (engine_coordinate_3->z - engine_coordinate_2->z);
-                    
+
                     triangle_bucket_near_1->c2.x = engine_coordinate_2->x + ((macaroni * (engine_coordinate_3->x - engine_coordinate_2->x)) >> 8);
                     triangle_bucket_near_1->c2.y = engine_coordinate_2->y + ((macaroni * (engine_coordinate_3->y - engine_coordinate_2->y)) >> 8);
                     triangle_bucket_near_1->c2.z = 32;
                     perspective(&triangle_bucket_near_1->c2, &triangle_bucket_near_1->p2);
-                    triangle_bucket_near_1->p2.field_8 += (macaroni * (triangle_bucket_near_1->p3.field_8 - triangle_bucket_near_1->p2.field_8)) >> 8;
-                    triangle_bucket_near_1->p2.field_C += (macaroni * (triangle_bucket_near_1->p3.field_C - triangle_bucket_near_1->p2.field_C)) >> 8;
-                    triangle_bucket_near_1->p2.field_10 += (macaroni * (triangle_bucket_near_1->p3.field_10 - triangle_bucket_near_1->p2.field_10)) >> 8;
+                    triangle_bucket_near_1->p2.U += (macaroni * (triangle_bucket_near_1->p3.U - triangle_bucket_near_1->p2.U)) >> 8;
+                    triangle_bucket_near_1->p2.V += (macaroni * (triangle_bucket_near_1->p3.V - triangle_bucket_near_1->p2.V)) >> 8;
+                    triangle_bucket_near_1->p2.S += (macaroni * (triangle_bucket_near_1->p3.S - triangle_bucket_near_1->p2.S)) >> 8;
                 }
             }
             else
@@ -2821,17 +2825,17 @@ static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct 
                 buckets[divided_z] = &triangle_bucket_far->b;
 
                 triangle_bucket_far->block = textr_idx;
-                triangle_bucket_far->p1.field_0 = engine_coordinate_1->view_width;
-                triangle_bucket_far->p1.field_4 = engine_coordinate_1->view_height;
-                triangle_bucket_far->p1.field_8 = 0;
-                triangle_bucket_far->p1.field_C = 0;
-                
+                triangle_bucket_far->p1.X = engine_coordinate_1->view_width;
+                triangle_bucket_far->p1.Y = engine_coordinate_1->view_height;
+                triangle_bucket_far->p1.U = 0;
+                triangle_bucket_far->p1.V = 0;
+
                 int coordinate_1_lightness = engine_coordinate_1->field_A;
                 int coordinate_1_distance = engine_coordinate_1->field_C;
 
                 if (argument5 >= 0)
                     coordinate_1_lightness = (coordinate_1_lightness * (3 * argument5 + 81920)) >> 17;
-                
+
                 int apply_lighting_to_triangle_far_1;
                 if (coordinate_1_distance <= fade_min)
                 {
@@ -2846,18 +2850,18 @@ static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct 
                     apply_lighting_to_triangle_far_1 = 0x8000;
                 }
 
-                triangle_bucket_far->p1.field_10 = apply_lighting_to_triangle_far_1;
-                triangle_bucket_far->p2.field_0 = engine_coordinate_2->view_width;
-                triangle_bucket_far->p2.field_4 = engine_coordinate_2->view_height;
-                triangle_bucket_far->p2.field_8 = 0x1FFFFF;
-                triangle_bucket_far->p2.field_C = 0;
-                
+                triangle_bucket_far->p1.S = apply_lighting_to_triangle_far_1;
+                triangle_bucket_far->p2.X = engine_coordinate_2->view_width;
+                triangle_bucket_far->p2.Y = engine_coordinate_2->view_height;
+                triangle_bucket_far->p2.U = 0x1FFFFF;
+                triangle_bucket_far->p2.V = 0;
+
                 int coordinate_2_lightness = engine_coordinate_2->field_A;
                 int coordinate_2_distance = engine_coordinate_2->field_C;
 
                 if (argument5 >= 0)
                     coordinate_2_lightness = (coordinate_2_lightness * (3 * argument5 + 81920)) >> 17;
-                
+
                 int apply_lighting_to_triangle_far_2;
                 if (coordinate_2_distance <= fade_min)
                 {
@@ -2872,29 +2876,29 @@ static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct 
                     apply_lighting_to_triangle_far_2 = 0x8000;
                 }
 
-                triangle_bucket_far->p2.field_10 = apply_lighting_to_triangle_far_2;
-                triangle_bucket_far->p3.field_0 = engine_coordinate_3->view_width;
-                triangle_bucket_far->p3.field_4 = engine_coordinate_3->view_height;
-                triangle_bucket_far->p3.field_8 = 0x1FFFFF;
-                triangle_bucket_far->p3.field_C = 0x1FFFFF;
-                
+                triangle_bucket_far->p2.S = apply_lighting_to_triangle_far_2;
+                triangle_bucket_far->p3.X = engine_coordinate_3->view_width;
+                triangle_bucket_far->p3.Y = engine_coordinate_3->view_height;
+                triangle_bucket_far->p3.U = 0x1FFFFF;
+                triangle_bucket_far->p3.V = 0x1FFFFF;
+
                 int coordinate_3_lightness = engine_coordinate_3->field_A;
                 int coordinate_3_distance = engine_coordinate_3->field_C;
 
                 if (argument5 >= 0)
                     coordinate_3_lightness = (coordinate_3_lightness * (3 * argument5 + 81920)) >> 17;
-                
+
                 if (coordinate_3_distance <= fade_min)
                 {
-                    triangle_bucket_far->p3.field_10 = coordinate_3_lightness << 8;
+                    triangle_bucket_far->p3.S = coordinate_3_lightness << 8;
                 }
                 else if (coordinate_3_distance < fade_max)
                 {
-                    triangle_bucket_far->p3.field_10 = coordinate_3_lightness * (fade_scaler - coordinate_3_distance) / fade_range + 0x8000;
+                    triangle_bucket_far->p3.S = coordinate_3_lightness * (fade_scaler - coordinate_3_distance) / fade_range + 0x8000;
                 }
                 else
                 {
-                    triangle_bucket_far->p3.field_10 = 0x8000;
+                    triangle_bucket_far->p3.S = 0x8000;
                 }
             }
         }
@@ -2940,18 +2944,18 @@ static void do_a_trig_gourad_bl(struct EngineCoord *engine_coordinate_1, struct 
                 triangle_bucket_near_1->b.kind = QK_PolygonNearFP;
                 buckets[divided_z] = &triangle_bucket_near_1->b;
                 triangle_bucket_near_1->block = argument4;
-                
-                triangle_bucket_near_1->p1.field_0 = engine_coordinate_1->view_width;
-                triangle_bucket_near_1->p1.field_4 = engine_coordinate_1->view_height;
-                triangle_bucket_near_1->p1.field_8 = 0x1FFFFF;
-                triangle_bucket_near_1->p1.field_C = 0x1FFFFF;
-                
+
+                triangle_bucket_near_1->p1.X = engine_coordinate_1->view_width;
+                triangle_bucket_near_1->p1.Y = engine_coordinate_1->view_height;
+                triangle_bucket_near_1->p1.U = 0x1FFFFF;
+                triangle_bucket_near_1->p1.V = 0x1FFFFF;
+
                 int coordinate_1_lightness = engine_coordinate_1->field_A;
                 int coordinate_1_distance = engine_coordinate_1->field_C;
 
                 if (argument5 >= 0)
                     coordinate_1_lightness = (coordinate_1_lightness * (3 * argument5 + 81920)) >> 17;
-                
+
                 int apply_lighting_to_triangle_nearby_1;
                 if (coordinate_1_distance <= fade_min)
                 {
@@ -2966,18 +2970,18 @@ static void do_a_trig_gourad_bl(struct EngineCoord *engine_coordinate_1, struct 
                     apply_lighting_to_triangle_nearby_1 = 0x8000;
                 }
 
-                triangle_bucket_near_1->p1.field_10 = apply_lighting_to_triangle_nearby_1;
-                triangle_bucket_near_1->p2.field_0 = engine_coordinate_2->view_width;
-                triangle_bucket_near_1->p2.field_4 = engine_coordinate_2->view_height;
-                triangle_bucket_near_1->p2.field_8 = 0;
-                triangle_bucket_near_1->p2.field_C = 0x1FFFFF;
-                
+                triangle_bucket_near_1->p1.S = apply_lighting_to_triangle_nearby_1;
+                triangle_bucket_near_1->p2.X = engine_coordinate_2->view_width;
+                triangle_bucket_near_1->p2.Y = engine_coordinate_2->view_height;
+                triangle_bucket_near_1->p2.U = 0;
+                triangle_bucket_near_1->p2.V = 0x1FFFFF;
+
                 int coordinate_2_lightness = engine_coordinate_2->field_A;
                 int coordinate_2_distance = engine_coordinate_2->field_C;
 
                 if (argument5 >= 0)
                     coordinate_2_lightness = (coordinate_2_lightness * (3 * argument5 + 81920)) >> 17;
-                
+
                 int apply_lighting_to_triangle_nearby_2;
                 if (coordinate_2_distance <= fade_min)
                 {
@@ -2992,18 +2996,18 @@ static void do_a_trig_gourad_bl(struct EngineCoord *engine_coordinate_1, struct 
                     apply_lighting_to_triangle_nearby_2 = 0x8000;
                 }
 
-                triangle_bucket_near_1->p2.field_10 = apply_lighting_to_triangle_nearby_2;
-                triangle_bucket_near_1->p3.field_0 = engine_coordinate_3->view_width;
-                triangle_bucket_near_1->p3.field_4 = engine_coordinate_3->view_height;
-                triangle_bucket_near_1->p3.field_8 = 0;
-                triangle_bucket_near_1->p3.field_C = 0;
-                
+                triangle_bucket_near_1->p2.S = apply_lighting_to_triangle_nearby_2;
+                triangle_bucket_near_1->p3.X = engine_coordinate_3->view_width;
+                triangle_bucket_near_1->p3.Y = engine_coordinate_3->view_height;
+                triangle_bucket_near_1->p3.U = 0;
+                triangle_bucket_near_1->p3.V = 0;
+
                 int coordinate_3_lightness = engine_coordinate_3->field_A;
                 int coordinate_3_distance = engine_coordinate_3->field_C;
 
                 if (argument5 >= 0)
                     coordinate_3_lightness = (coordinate_3_lightness * (3 * argument5 + 81920)) >> 17;
-                
+
                 int apply_lighting_to_triangle_nearby_3;
                 if (coordinate_3_distance <= fade_min)
                 {
@@ -3018,8 +3022,8 @@ static void do_a_trig_gourad_bl(struct EngineCoord *engine_coordinate_1, struct 
                     apply_lighting_to_triangle_nearby_3 = 0x8000;
                 }
 
-                triangle_bucket_near_1->p3.field_10 = apply_lighting_to_triangle_nearby_3;
-                
+                triangle_bucket_near_1->p3.S = apply_lighting_to_triangle_nearby_3;
+
                 int coordinate_1_z = engine_coordinate_1->z;
                 if (coordinate_1_z >= 32)
                 {
@@ -3058,23 +3062,23 @@ static void do_a_trig_gourad_bl(struct EngineCoord *engine_coordinate_1, struct 
                             triangle_bucket_near_1->c2.z = engine_coordinate_2->z;
                             memcpy(&triangle_bucket_near_4->p3, &triangle_bucket_near_1->p3, sizeof(triangle_bucket_near_4->p3));
                             memcpy(&triangle_bucket_near_4->p2, &triangle_bucket_near_1->p2, sizeof(triangle_bucket_near_4->p2));
-                            
+
                             // ?
                             int toast = ((32 - engine_coordinate_3->z) << 8) / (engine_coordinate_1->z - engine_coordinate_3->z);
-                            
+
                             triangle_bucket_near_1->c3.x = engine_coordinate_3->x + ((toast * (engine_coordinate_1->x - engine_coordinate_3->x)) >> 8);
                             triangle_bucket_near_1->c3.y = engine_coordinate_3->y + ((toast * (engine_coordinate_1->y - engine_coordinate_3->y)) >> 8);
                             triangle_bucket_near_1->c3.z = 32;
                             perspective(&triangle_bucket_near_1->c3, &triangle_bucket_near_1->p3);
-                            triangle_bucket_near_1->p3.field_8 += (toast * (triangle_bucket_near_1->p1.field_8 - triangle_bucket_near_1->p3.field_8)) >> 8;
-                            triangle_bucket_near_1->p3.field_C += (toast * (triangle_bucket_near_1->p1.field_C - triangle_bucket_near_1->p3.field_C)) >> 8;
-                            
+                            triangle_bucket_near_1->p3.U += (toast * (triangle_bucket_near_1->p1.U - triangle_bucket_near_1->p3.U)) >> 8;
+                            triangle_bucket_near_1->p3.V += (toast * (triangle_bucket_near_1->p1.V - triangle_bucket_near_1->p3.V)) >> 8;
+
                             // ?
-                            int popcorn = triangle_bucket_near_1->p3.field_10;
-                            
+                            int popcorn = triangle_bucket_near_1->p3.S;
+
                             // ?
-                            int almond = (toast * (triangle_bucket_near_1->p1.field_10 - popcorn)) >> 8;
-                            
+                            int almond = (toast * (triangle_bucket_near_1->p1.S - popcorn)) >> 8;
+
                             polypoint3 = &triangle_bucket_near_1->p3;
                             xyz4 = &triangle_bucket_near_1->c3;
                             xyz4[-3].z = popcorn + almond;
@@ -3085,17 +3089,17 @@ static void do_a_trig_gourad_bl(struct EngineCoord *engine_coordinate_1, struct 
                             triangle_bucket_near_4->c2.x = engine_coordinate_2->x;
                             triangle_bucket_near_4->c2.y = engine_coordinate_2->y;
                             triangle_bucket_near_4->c2.z = engine_coordinate_2->z;
-                            
+
                             // ?
                             int lemon = ((32 - engine_coordinate_3->z) << 8) / (engine_coordinate_2->z - engine_coordinate_3->z);
-                            
+
                             triangle_bucket_near_4->c3.x = engine_coordinate_3->x + ((lemon * (engine_coordinate_2->x - engine_coordinate_3->x)) >> 8);
                             triangle_bucket_near_4->c3.y = engine_coordinate_3->y + ((lemon * (engine_coordinate_2->y - engine_coordinate_3->y)) >> 8);
                             triangle_bucket_near_4->c3.z = 32;
                             perspective(&triangle_bucket_near_4->c3, &triangle_bucket_near_4->p3);
-                            triangle_bucket_near_4->p3.field_8 += (lemon * (triangle_bucket_near_4->p2.field_8 - triangle_bucket_near_4->p3.field_8)) >> 8;
-                            triangle_bucket_near_4->p3.field_C += (lemon * (triangle_bucket_near_4->p2.field_C - triangle_bucket_near_4->p3.field_C)) >> 8;
-                            triangle_bucket_near_4->p3.field_10 += (lemon * (triangle_bucket_near_4->p2.field_10 - triangle_bucket_near_4->p3.field_10)) >> 8;
+                            triangle_bucket_near_4->p3.U += (lemon * (triangle_bucket_near_4->p2.U - triangle_bucket_near_4->p3.U)) >> 8;
+                            triangle_bucket_near_4->p3.V += (lemon * (triangle_bucket_near_4->p2.V - triangle_bucket_near_4->p3.V)) >> 8;
+                            triangle_bucket_near_4->p3.S += (lemon * (triangle_bucket_near_4->p2.S - triangle_bucket_near_4->p3.S)) >> 8;
                         }
                     }
                     else if (coordinate_3_z >= 32)
@@ -3115,22 +3119,22 @@ static void do_a_trig_gourad_bl(struct EngineCoord *engine_coordinate_1, struct 
                         triangle_bucket_near_1->c3.z = engine_coordinate_3->z;
                         memcpy(&triangle_bucket_near_3->p2, &triangle_bucket_near_1->p2, sizeof(triangle_bucket_near_3->p2));
                         memcpy(&triangle_bucket_near_3->p3, &triangle_bucket_near_1->p3, sizeof(triangle_bucket_near_3->p3));
-                        
+
                         // ?
                         int lettuce = ((32 - engine_coordinate_2->z) << 8) / (engine_coordinate_1->z - engine_coordinate_2->z);
-                        
+
                         triangle_bucket_near_1->c2.x = engine_coordinate_2->x + ((lettuce * (engine_coordinate_1->x - engine_coordinate_2->x)) >> 8);
                         triangle_bucket_near_1->c2.y = engine_coordinate_2->y + ((lettuce * (engine_coordinate_1->y - engine_coordinate_2->y)) >> 8);
                         triangle_bucket_near_1->c2.z = 32;
                         perspective(&triangle_bucket_near_1->c2, &triangle_bucket_near_1->p2);
-                        triangle_bucket_near_1->p2.field_8 += (lettuce * (triangle_bucket_near_1->p1.field_8 - triangle_bucket_near_1->p2.field_8)) >> 8;
-                        triangle_bucket_near_1->p2.field_C += (lettuce * (triangle_bucket_near_1->p1.field_C - triangle_bucket_near_1->p2.field_C)) >> 8;
-                        
+                        triangle_bucket_near_1->p2.U += (lettuce * (triangle_bucket_near_1->p1.U - triangle_bucket_near_1->p2.U)) >> 8;
+                        triangle_bucket_near_1->p2.V += (lettuce * (triangle_bucket_near_1->p1.V - triangle_bucket_near_1->p2.V)) >> 8;
+
                         // ?
-                        int sandwich = triangle_bucket_near_1->p2.field_10;
+                        int sandwich = triangle_bucket_near_1->p2.S;
                         // ?
-                        int walnut = (lettuce * (triangle_bucket_near_1->p1.field_10 - sandwich)) >> 8;
-                        
+                        int walnut = (lettuce * (triangle_bucket_near_1->p1.S - sandwich)) >> 8;
+
                         polypoint2 = &triangle_bucket_near_1->p2;
                         xyz3 = &triangle_bucket_near_1->c2;
                         xyz3[-3].x = sandwich + walnut;
@@ -3141,46 +3145,46 @@ static void do_a_trig_gourad_bl(struct EngineCoord *engine_coordinate_1, struct 
                         triangle_bucket_near_3->c3.x = engine_coordinate_3->x;
                         triangle_bucket_near_3->c3.y = engine_coordinate_3->y;
                         triangle_bucket_near_3->c3.z = engine_coordinate_3->z;
-                        
+
                         // ?
                         int avocado = ((32 - engine_coordinate_2->z) << 8) / (engine_coordinate_3->z - engine_coordinate_2->z);
-                        
+
                         triangle_bucket_near_3->c2.x = engine_coordinate_2->x + ((avocado * (engine_coordinate_3->x - engine_coordinate_2->x)) >> 8);
                         triangle_bucket_near_3->c2.y = engine_coordinate_2->y + ((avocado * (engine_coordinate_3->y - engine_coordinate_2->y)) >> 8);
                         triangle_bucket_near_3->c2.z = 32;
                         perspective(&triangle_bucket_near_3->c2, &triangle_bucket_near_3->p2);
-                        triangle_bucket_near_3->p2.field_8 += (avocado * (triangle_bucket_near_3->p3.field_8 - triangle_bucket_near_3->p2.field_8)) >> 8;
-                        triangle_bucket_near_3->p2.field_C += (avocado * (triangle_bucket_near_3->p3.field_C - triangle_bucket_near_3->p2.field_C)) >> 8;
-                        triangle_bucket_near_3->p2.field_10 += (avocado * (triangle_bucket_near_3->p3.field_10 - triangle_bucket_near_3->p2.field_10)) >> 8;
+                        triangle_bucket_near_3->p2.U += (avocado * (triangle_bucket_near_3->p3.U - triangle_bucket_near_3->p2.U)) >> 8;
+                        triangle_bucket_near_3->p2.V += (avocado * (triangle_bucket_near_3->p3.V - triangle_bucket_near_3->p2.V)) >> 8;
+                        triangle_bucket_near_3->p2.S += (avocado * (triangle_bucket_near_3->p3.S - triangle_bucket_near_3->p2.S)) >> 8;
                     }
                     else
                     {
                         // ?
                         int steak = ((32 - coordinate_2_z) << 8) / (coordinate_1_z - coordinate_2_z);
-                        
+
                         triangle_bucket_near_1->c2.x = engine_coordinate_2->x + ((steak * (engine_coordinate_1->x - engine_coordinate_2->x)) >> 8);
                         triangle_bucket_near_1->c2.y = engine_coordinate_2->y + ((steak * (engine_coordinate_1->y - engine_coordinate_2->y)) >> 8);
                         triangle_bucket_near_1->c2.z = 32;
                         perspective(&triangle_bucket_near_1->c2, &triangle_bucket_near_1->p2);
-                        triangle_bucket_near_1->p2.field_8 += (steak * (triangle_bucket_near_1->p1.field_8 - triangle_bucket_near_1->p2.field_8)) >> 8;
-                        triangle_bucket_near_1->p2.field_C += (steak * (triangle_bucket_near_1->p1.field_C - triangle_bucket_near_1->p2.field_C)) >> 8;
-                        triangle_bucket_near_1->p2.field_10 += (steak * (triangle_bucket_near_1->p1.field_10 - triangle_bucket_near_1->p2.field_10)) >> 8;
-                        
+                        triangle_bucket_near_1->p2.U += (steak * (triangle_bucket_near_1->p1.U - triangle_bucket_near_1->p2.U)) >> 8;
+                        triangle_bucket_near_1->p2.V += (steak * (triangle_bucket_near_1->p1.V - triangle_bucket_near_1->p2.V)) >> 8;
+                        triangle_bucket_near_1->p2.S += (steak * (triangle_bucket_near_1->p1.S - triangle_bucket_near_1->p2.S)) >> 8;
+
                         // ?
                         int tomato = ((32 - engine_coordinate_3->z) << 8) / (engine_coordinate_1->z - engine_coordinate_3->z);
-                        
+
                         triangle_bucket_near_1->c3.x = engine_coordinate_3->x + ((tomato * (engine_coordinate_1->x - engine_coordinate_3->x)) >> 8);
                         triangle_bucket_near_1->c3.y = engine_coordinate_3->y + ((tomato * (engine_coordinate_1->y - engine_coordinate_3->y)) >> 8);
                         triangle_bucket_near_1->c3.z = 32;
                         perspective(&triangle_bucket_near_1->c3, &triangle_bucket_near_1->p3);
-                        triangle_bucket_near_1->p3.field_8 += (tomato * (triangle_bucket_near_1->p1.field_8 - triangle_bucket_near_1->p3.field_8)) >> 8;
-                        triangle_bucket_near_1->p3.field_C += (tomato * (triangle_bucket_near_1->p1.field_C - triangle_bucket_near_1->p3.field_C)) >> 8;
-                        
+                        triangle_bucket_near_1->p3.U += (tomato * (triangle_bucket_near_1->p1.U - triangle_bucket_near_1->p3.U)) >> 8;
+                        triangle_bucket_near_1->p3.V += (tomato * (triangle_bucket_near_1->p1.V - triangle_bucket_near_1->p3.V)) >> 8;
+
                         // ?
-                        int cabbage = triangle_bucket_near_1->p1.field_10;
+                        int cabbage = triangle_bucket_near_1->p1.S;
                         // ?
-                        int coconut = triangle_bucket_near_1->p3.field_10;
-                        
+                        int coconut = triangle_bucket_near_1->p3.S;
+
                         xyz2 = &triangle_bucket_near_1->c1;
                         xyz2[-1].z = coconut + ((tomato * (cabbage - coconut)) >> 8);
                         xyz2->x = engine_coordinate_1->x;
@@ -3207,22 +3211,22 @@ static void do_a_trig_gourad_bl(struct EngineCoord *engine_coordinate_1, struct 
                         triangle_bucket_near_1->c3.z = engine_coordinate_3->z;
                         memcpy(&triangle_bucket_near_2->p1, &triangle_bucket_near_1->p1, sizeof(triangle_bucket_near_2->p1));
                         memcpy(&triangle_bucket_near_2->p3, &triangle_bucket_near_1->p3, sizeof(triangle_bucket_near_2->p3));
-                        
+
                         // ?
                         int prawns = ((32 - engine_coordinate_1->z) << 8) / (engine_coordinate_2->z - engine_coordinate_1->z);
-                        
+
                         triangle_bucket_near_1->c1.x = engine_coordinate_1->x + ((prawns * (engine_coordinate_2->x - engine_coordinate_1->x)) >> 8);
                         triangle_bucket_near_1->c1.y = engine_coordinate_1->y + ((prawns * (engine_coordinate_2->y - engine_coordinate_1->y)) >> 8);
                         triangle_bucket_near_1->c1.z = 32;
                         perspective(&triangle_bucket_near_1->c1, &triangle_bucket_near_1->p1);
-                        triangle_bucket_near_1->p1.field_8 += (prawns * (triangle_bucket_near_1->p2.field_8 - triangle_bucket_near_1->p1.field_8)) >> 8;
-                        triangle_bucket_near_1->p1.field_C += (prawns * (triangle_bucket_near_1->p2.field_C - triangle_bucket_near_1->p1.field_C)) >> 8;
-                        
+                        triangle_bucket_near_1->p1.U += (prawns * (triangle_bucket_near_1->p2.U - triangle_bucket_near_1->p1.U)) >> 8;
+                        triangle_bucket_near_1->p1.V += (prawns * (triangle_bucket_near_1->p2.V - triangle_bucket_near_1->p1.V)) >> 8;
+
                         // ?
-                        int cauliflower = triangle_bucket_near_1->p1.field_10;
+                        int cauliflower = triangle_bucket_near_1->p1.S;
                         // ?
-                        int paprika = (prawns * (triangle_bucket_near_1->p2.field_10 - cauliflower)) >> 8;
-                        
+                        int paprika = (prawns * (triangle_bucket_near_1->p2.S - cauliflower)) >> 8;
+
                         polypoint1 = &triangle_bucket_near_1->p1;
                         xyz1 = &triangle_bucket_near_1->c1;
                         xyz1[-4].y = cauliflower + paprika;
@@ -3233,45 +3237,45 @@ static void do_a_trig_gourad_bl(struct EngineCoord *engine_coordinate_1, struct 
                         triangle_bucket_near_2->c3.x = engine_coordinate_3->x;
                         triangle_bucket_near_2->c3.y = engine_coordinate_3->y;
                         triangle_bucket_near_2->c3.z = engine_coordinate_3->z;
-                        
+
                         // ?
                         int sausage = ((32 - engine_coordinate_1->z) << 8) / (engine_coordinate_3->z - engine_coordinate_1->z);
-                        
+
                         triangle_bucket_near_2->c1.x = engine_coordinate_1->x + ((sausage * (engine_coordinate_3->x - engine_coordinate_1->x)) >> 8);
                         triangle_bucket_near_2->c1.y = engine_coordinate_1->y + ((sausage * (engine_coordinate_3->y - engine_coordinate_1->y)) >> 8);
                         triangle_bucket_near_2->c1.z = 32;
                         perspective(&triangle_bucket_near_2->c1, &triangle_bucket_near_2->p1);
-                        triangle_bucket_near_2->p1.field_8 += (sausage * (triangle_bucket_near_2->p3.field_8 - triangle_bucket_near_2->p1.field_8)) >> 8;
-                        triangle_bucket_near_2->p1.field_C += (sausage * (triangle_bucket_near_2->p3.field_C - triangle_bucket_near_2->p1.field_C)) >> 8;
-                        triangle_bucket_near_2->p1.field_10 += (sausage * (triangle_bucket_near_2->p3.field_10 - triangle_bucket_near_2->p1.field_10)) >> 8;
+                        triangle_bucket_near_2->p1.U += (sausage * (triangle_bucket_near_2->p3.U - triangle_bucket_near_2->p1.U)) >> 8;
+                        triangle_bucket_near_2->p1.V += (sausage * (triangle_bucket_near_2->p3.V - triangle_bucket_near_2->p1.V)) >> 8;
+                        triangle_bucket_near_2->p1.S += (sausage * (triangle_bucket_near_2->p3.S - triangle_bucket_near_2->p1.S)) >> 8;
                     }
                     else
                     {
                         triangle_bucket_near_1->c2.x = engine_coordinate_2->x;
                         triangle_bucket_near_1->c2.y = engine_coordinate_2->y;
                         triangle_bucket_near_1->c2.z = engine_coordinate_2->z;
-                        
+
                         // ?
                         int cherries = ((32 - engine_coordinate_1->z) << 8) / (engine_coordinate_2->z - engine_coordinate_1->z);
-                        
+
                         triangle_bucket_near_1->c1.x = engine_coordinate_1->x + ((cherries * (engine_coordinate_2->x - engine_coordinate_1->x)) >> 8);
                         triangle_bucket_near_1->c1.y = engine_coordinate_1->y + ((cherries * (engine_coordinate_2->y - engine_coordinate_1->y)) >> 8);
                         triangle_bucket_near_1->c1.z = 32;
                         perspective(&triangle_bucket_near_1->c1, &triangle_bucket_near_1->p1);
-                        triangle_bucket_near_1->p1.field_8 += (cherries * (triangle_bucket_near_1->p2.field_8 - triangle_bucket_near_1->p1.field_8)) >> 8;
-                        triangle_bucket_near_1->p1.field_C += (cherries * (triangle_bucket_near_1->p2.field_C - triangle_bucket_near_1->p1.field_C)) >> 8;
-                        triangle_bucket_near_1->p1.field_10 += (cherries * (triangle_bucket_near_1->p2.field_10 - triangle_bucket_near_1->p1.field_10)) >> 8;
-                        
+                        triangle_bucket_near_1->p1.U += (cherries * (triangle_bucket_near_1->p2.U - triangle_bucket_near_1->p1.U)) >> 8;
+                        triangle_bucket_near_1->p1.V += (cherries * (triangle_bucket_near_1->p2.V - triangle_bucket_near_1->p1.V)) >> 8;
+                        triangle_bucket_near_1->p1.S += (cherries * (triangle_bucket_near_1->p2.S - triangle_bucket_near_1->p1.S)) >> 8;
+
                         // ?
                         int mushroom = ((32 - engine_coordinate_3->z) << 8) / (engine_coordinate_2->z - engine_coordinate_3->z);
-                        
+
                         triangle_bucket_near_1->c3.x = engine_coordinate_3->x + ((mushroom * (engine_coordinate_2->x - engine_coordinate_3->x)) >> 8);
                         triangle_bucket_near_1->c3.y = engine_coordinate_3->y + ((mushroom * (engine_coordinate_2->y - engine_coordinate_3->y)) >> 8);
                         triangle_bucket_near_1->c3.z = 32;
                         perspective(&triangle_bucket_near_1->c3, &triangle_bucket_near_1->p3);
-                        triangle_bucket_near_1->p3.field_8 += (mushroom * (triangle_bucket_near_1->p2.field_8 - triangle_bucket_near_1->p3.field_8)) >> 8;
-                        triangle_bucket_near_1->p3.field_C += (mushroom * (triangle_bucket_near_1->p2.field_C - triangle_bucket_near_1->p3.field_C)) >> 8;
-                        triangle_bucket_near_1->p3.field_10 += (mushroom * (triangle_bucket_near_1->p2.field_10 - triangle_bucket_near_1->p3.field_10)) >> 8;
+                        triangle_bucket_near_1->p3.U += (mushroom * (triangle_bucket_near_1->p2.U - triangle_bucket_near_1->p3.U)) >> 8;
+                        triangle_bucket_near_1->p3.V += (mushroom * (triangle_bucket_near_1->p2.V - triangle_bucket_near_1->p3.V)) >> 8;
+                        triangle_bucket_near_1->p3.S += (mushroom * (triangle_bucket_near_1->p2.S - triangle_bucket_near_1->p3.S)) >> 8;
                     }
                 }
                 else
@@ -3279,28 +3283,28 @@ static void do_a_trig_gourad_bl(struct EngineCoord *engine_coordinate_1, struct 
                     triangle_bucket_near_1->c3.x = engine_coordinate_3->x;
                     triangle_bucket_near_1->c3.y = engine_coordinate_3->y;
                     triangle_bucket_near_1->c3.z = engine_coordinate_3->z;
-                    
+
                     // ?
                     int olives = ((32 - engine_coordinate_1->z) << 8) / (engine_coordinate_3->z - engine_coordinate_1->z);
-                    
+
                     triangle_bucket_near_1->c1.x = engine_coordinate_1->x + ((olives * (engine_coordinate_3->x - engine_coordinate_1->x)) >> 8);
                     triangle_bucket_near_1->c1.y = engine_coordinate_1->y + ((olives * (engine_coordinate_3->y - engine_coordinate_1->y)) >> 8);
                     triangle_bucket_near_1->c1.z = 32;
                     perspective(&triangle_bucket_near_1->c1, &triangle_bucket_near_1->p1);
-                    triangle_bucket_near_1->p1.field_8 += (olives * (triangle_bucket_near_1->p3.field_8 - triangle_bucket_near_1->p1.field_8)) >> 8;
-                    triangle_bucket_near_1->p1.field_C += (olives * (triangle_bucket_near_1->p3.field_C - triangle_bucket_near_1->p1.field_C)) >> 8;
-                    triangle_bucket_near_1->p1.field_10 += (olives * (triangle_bucket_near_1->p3.field_10 - triangle_bucket_near_1->p1.field_10)) >> 8;
-                    
+                    triangle_bucket_near_1->p1.U += (olives * (triangle_bucket_near_1->p3.U - triangle_bucket_near_1->p1.U)) >> 8;
+                    triangle_bucket_near_1->p1.V += (olives * (triangle_bucket_near_1->p3.V - triangle_bucket_near_1->p1.V)) >> 8;
+                    triangle_bucket_near_1->p1.S += (olives * (triangle_bucket_near_1->p3.S - triangle_bucket_near_1->p1.S)) >> 8;
+
                     // ?
                     int macaroni = ((32 - engine_coordinate_2->z) << 8) / (engine_coordinate_3->z - engine_coordinate_2->z);
-                    
+
                     triangle_bucket_near_1->c2.x = engine_coordinate_2->x + ((macaroni * (engine_coordinate_3->x - engine_coordinate_2->x)) >> 8);
                     triangle_bucket_near_1->c2.y = engine_coordinate_2->y + ((macaroni * (engine_coordinate_3->y - engine_coordinate_2->y)) >> 8);
                     triangle_bucket_near_1->c2.z = 32;
                     perspective(&triangle_bucket_near_1->c2, &triangle_bucket_near_1->p2);
-                    triangle_bucket_near_1->p2.field_8 += (macaroni * (triangle_bucket_near_1->p3.field_8 - triangle_bucket_near_1->p2.field_8)) >> 8;
-                    triangle_bucket_near_1->p2.field_C += (macaroni * (triangle_bucket_near_1->p3.field_C - triangle_bucket_near_1->p2.field_C)) >> 8;
-                    triangle_bucket_near_1->p2.field_10 += (macaroni * (triangle_bucket_near_1->p3.field_10 - triangle_bucket_near_1->p2.field_10)) >> 8;
+                    triangle_bucket_near_1->p2.U += (macaroni * (triangle_bucket_near_1->p3.U - triangle_bucket_near_1->p2.U)) >> 8;
+                    triangle_bucket_near_1->p2.V += (macaroni * (triangle_bucket_near_1->p3.V - triangle_bucket_near_1->p2.V)) >> 8;
+                    triangle_bucket_near_1->p2.S += (macaroni * (triangle_bucket_near_1->p3.S - triangle_bucket_near_1->p2.S)) >> 8;
                 }
             }
             else
@@ -3311,18 +3315,18 @@ static void do_a_trig_gourad_bl(struct EngineCoord *engine_coordinate_1, struct 
                 triangle_bucket_far->b.kind = QK_PolygonStandard;
                 buckets[divided_z] = &triangle_bucket_far->b;
                 triangle_bucket_far->block = argument4;
-                
-                triangle_bucket_far->p1.field_0 = engine_coordinate_1->view_width;
-                triangle_bucket_far->p1.field_4 = engine_coordinate_1->view_height;
-                triangle_bucket_far->p1.field_8 = 0x1FFFFF;
-                triangle_bucket_far->p1.field_C = 0x1FFFFF;
-                
+
+                triangle_bucket_far->p1.X = engine_coordinate_1->view_width;
+                triangle_bucket_far->p1.Y = engine_coordinate_1->view_height;
+                triangle_bucket_far->p1.U = 0x1FFFFF;
+                triangle_bucket_far->p1.V = 0x1FFFFF;
+
                 int coordinate_1_lightness = engine_coordinate_1->field_A;
                 int coordinate_1_distance = engine_coordinate_1->field_C;
 
                 if (argument5 >= 0)
                     coordinate_1_lightness = (coordinate_1_lightness * (3 * argument5 + 81920)) >> 17;
-                
+
                 int apply_lighting_to_triangle_far_1;
                 if (coordinate_1_distance <= fade_min)
                 {
@@ -3336,19 +3340,19 @@ static void do_a_trig_gourad_bl(struct EngineCoord *engine_coordinate_1, struct 
                 {
                     apply_lighting_to_triangle_far_1 = 0x8000;
                 }
-                
-                triangle_bucket_far->p1.field_10 = apply_lighting_to_triangle_far_1;
-                triangle_bucket_far->p2.field_0 = engine_coordinate_2->view_width;
-                triangle_bucket_far->p2.field_4 = engine_coordinate_2->view_height;
-                triangle_bucket_far->p2.field_8 = 0;
-                triangle_bucket_far->p2.field_C = 0x1FFFFF;
-                
+
+                triangle_bucket_far->p1.S = apply_lighting_to_triangle_far_1;
+                triangle_bucket_far->p2.X = engine_coordinate_2->view_width;
+                triangle_bucket_far->p2.Y = engine_coordinate_2->view_height;
+                triangle_bucket_far->p2.U = 0;
+                triangle_bucket_far->p2.V = 0x1FFFFF;
+
                 int coordinate_2_lightness = engine_coordinate_2->field_A;
                 int coordinate_2_distance = engine_coordinate_2->field_C;
 
                 if (argument5 >= 0)
                     coordinate_2_lightness = (coordinate_2_lightness * (3 * argument5 + 81920)) >> 17;
-                
+
                 int apply_lighting_to_triangle_far_2;
                 if (coordinate_2_distance <= fade_min)
                 {
@@ -3362,30 +3366,30 @@ static void do_a_trig_gourad_bl(struct EngineCoord *engine_coordinate_1, struct 
                 {
                     apply_lighting_to_triangle_far_2 = 0x8000;
                 }
-                
-                triangle_bucket_far->p2.field_10 = apply_lighting_to_triangle_far_2;
-                triangle_bucket_far->p3.field_0 = engine_coordinate_3->view_width;
-                triangle_bucket_far->p3.field_4 = engine_coordinate_3->view_height;
-                triangle_bucket_far->p3.field_8 = 0;
-                triangle_bucket_far->p3.field_C = 0;
+
+                triangle_bucket_far->p2.S = apply_lighting_to_triangle_far_2;
+                triangle_bucket_far->p3.X = engine_coordinate_3->view_width;
+                triangle_bucket_far->p3.Y = engine_coordinate_3->view_height;
+                triangle_bucket_far->p3.U = 0;
+                triangle_bucket_far->p3.V = 0;
 
                 int coordinate_3_lightness = engine_coordinate_3->field_A;
                 int coordinate_3_distance = engine_coordinate_3->field_C;
 
                 if (argument5 >= 0)
                     coordinate_3_lightness = (coordinate_3_lightness * (3 * argument5 + 81920)) >> 17;
-                
+
                 if (coordinate_3_distance <= fade_min)
                 {
-                    triangle_bucket_far->p3.field_10 = coordinate_3_lightness << 8;
+                    triangle_bucket_far->p3.S = coordinate_3_lightness << 8;
                 }
                 else if (coordinate_3_distance < fade_max)
                 {
-                    triangle_bucket_far->p3.field_10 = coordinate_3_lightness * (fade_scaler - coordinate_3_distance) / fade_range + 0x8000;
+                    triangle_bucket_far->p3.S = coordinate_3_lightness * (fade_scaler - coordinate_3_distance) / fade_range + 0x8000;
                 }
                 else
                 {
-                    triangle_bucket_far->p3.field_10 = 0x8000;
+                    triangle_bucket_far->p3.S = 0x8000;
                 }
             }
         }
@@ -3548,8 +3552,8 @@ static void create_shadows(struct Thing *thing, struct EngineCoord *ecor, struct
     if (bckt_idx < 0) {
         bckt_idx = 0;
     } else
-    if (bckt_idx > 702) {
-        bckt_idx = 702;
+    if (bckt_idx > BUCKETS_COUNT-2) {
+        bckt_idx = BUCKETS_COUNT-2;
     }
     struct BucketKindCreatureShadow * kspr;
     kspr = (struct BucketKindCreatureShadow *)getpoly;
@@ -3564,74 +3568,75 @@ static void create_shadows(struct Thing *thing, struct EngineCoord *ecor, struct
     int pdim_h;
     pdim_w = 0;
     pdim_h = (dim_oh - 1) << 16;
-    kspr->p1.field_0 = ecor1.view_width;
-    kspr->p1.field_4 = ecor1.view_height;
-    kspr->p1.field_8 = pdim_w;
-    kspr->p1.field_C = pdim_h;
+    kspr->p1.X = ecor1.view_width;
+    kspr->p1.Y = ecor1.view_height;
+    kspr->p1.U = pdim_w;
+    kspr->p1.V = pdim_h;
     if (ecor1.field_C <= fade_min) {
-        kspr->p1.field_10 = ecor1.field_A << 8;
+        kspr->p1.S = ecor1.field_A << 8;
     } else
     if (ecor1.field_C >= fade_max) {
-        kspr->p1.field_10 = 32768;
+        kspr->p1.S = 32768;
     } else {
-        kspr->p1.field_10 = ecor1.field_A * (fade_scaler - ecor1.field_C) / fade_range + 32768;
+        kspr->p1.S = ecor1.field_A * (fade_scaler - ecor1.field_C) / fade_range + 32768;
     }
 
     pdim_w = 0;
     pdim_h = 0;
-    kspr->p2.field_0 = ecor2.view_width;
-    kspr->p2.field_4 = ecor2.view_height;
-    kspr->p2.field_8 = pdim_w;
-    kspr->p2.field_C = pdim_h;
+    kspr->p2.X = ecor2.view_width;
+    kspr->p2.Y = ecor2.view_height;
+    kspr->p2.U = pdim_w;
+    kspr->p2.V = pdim_h;
     if (fade_min >= ecor2.field_C)
     {
-        kspr->p2.field_10 = ecor2.field_A << 8;
+        kspr->p2.S = ecor2.field_A << 8;
     } else
     if (fade_max <= ecor2.field_C)
     {
-        kspr->p2.field_10 = 32768;
+        kspr->p2.S = 32768;
     } else {
-        kspr->p2.field_10 = ecor2.field_A * (fade_scaler - ecor2.field_C) / fade_range + 32768;
+        kspr->p2.S = ecor2.field_A * (fade_scaler - ecor2.field_C) / fade_range + 32768;
     }
 
     pdim_w = (dim_ow - 1)  << 16;
     pdim_h = 0;
-    kspr->p3.field_0 = ecor3.view_width;
-    kspr->p3.field_4 = ecor3.view_height;
-    kspr->p3.field_8 = pdim_w;
-    kspr->p3.field_C = pdim_h;
+    kspr->p3.X = ecor3.view_width;
+    kspr->p3.Y = ecor3.view_height;
+    kspr->p3.U = pdim_w;
+    kspr->p3.V = pdim_h;
     if (ecor3.field_C <= fade_min)
     {
-        kspr->p3.field_10 = ecor3.field_A << 8;
+        kspr->p3.S = ecor3.field_A << 8;
     } else
     if (ecor3.field_C >= fade_max)
     {
-        kspr->p3.field_10 = 32768;
+        kspr->p3.S = 32768;
     } else {
-        kspr->p3.field_10 = ecor3.field_A * (fade_scaler - ecor3.field_C) / fade_range + 32768;
+        kspr->p3.S = ecor3.field_A * (fade_scaler - ecor3.field_C) / fade_range + 32768;
     }
 
     pdim_h = (dim_oh - 1) << 16;
     pdim_w = (dim_ow - 1) << 16;
-    kspr->p4.field_0 = ecor4.view_width;
-    kspr->p4.field_4 = ecor4.view_height;
-    kspr->p4.field_8 = pdim_w;
-    kspr->p4.field_C = pdim_h;
+    kspr->p4.X = ecor4.view_width;
+    kspr->p4.Y = ecor4.view_height;
+    kspr->p4.U = pdim_w;
+    kspr->p4.V = pdim_h;
     if (ecor4.field_C <= fade_min) {
-        kspr->p4.field_10 = ecor4.field_A << 8;
+        kspr->p4.S = ecor4.field_A << 8;
     } else
     if (ecor4.field_C >= fade_max) {
-        kspr->p4.field_10 = 32768;
+        kspr->p4.S = 32768;
     } else {
-        kspr->p4.field_10 = ecor4.field_A * (fade_scaler - ecor4.field_C) / fade_range + 32768;
+        kspr->p4.S = ecor4.field_A * (fade_scaler - ecor4.field_C) / fade_range + 32768;
     }
 
-    kspr->p1.field_10 = dist_sq;
+    kspr->p1.S = dist_sq;
     kspr->field_58 = angle;
     kspr->field_5C = thing->anim_sprite;
     kspr->field_5E = thing->field_48;
 }
 
+// Creature status flower above head in isometric view
 static void add_draw_status_box(struct Thing *thing, struct EngineCoord *ecor)
 {
     //_DK_create_status_box(thing, ecor); return;
@@ -3870,23 +3875,23 @@ static void do_a_gpoly_gourad_tr(struct EngineCoord *ec1, struct EngineCoord *ec
                 ec2_fieldA = (4 * ec2_fieldA * (a5 + 0x4000)) >> 17;
                 ec3_fieldA = (4 * (a5 + 0x4000) * ec3_fieldA) >> 17;
             }
-            polypoint1->field_0 = ec1->view_width;
-            polypoint1->field_4 = ec1->view_height;
-            polypoint1->field_8 = 0;
-            polypoint1->field_C = 0;
-            polypoint1->field_10 = ec1_fieldA << 8;
+            polypoint1->X = ec1->view_width;
+            polypoint1->Y = ec1->view_height;
+            polypoint1->U = 0;
+            polypoint1->V = 0;
+            polypoint1->S = ec1_fieldA << 8;
             polypoint2 = &v8->p2;
-            v8->p2.field_0 = ec2->view_width;
+            v8->p2.X = ec2->view_width;
             polypoint3 = &v8->p3;
-            polypoint2->field_4 = ec2->view_height;
-            polypoint2->field_8 = 0x1FFFFF;
-            polypoint2->field_C = 0;
-            polypoint2->field_10 = ec2_fieldA << 8;
-            polypoint3->field_0 = ec3->view_width;
-            polypoint3->field_4 = ec3->view_height;
-            polypoint3->field_8 = 0x1FFFFF;
-            polypoint3->field_C = 0x1FFFFF;
-            polypoint3->field_10 = ec3_fieldA << 8;
+            polypoint2->Y = ec2->view_height;
+            polypoint2->U = 0x1FFFFF;
+            polypoint2->V = 0;
+            polypoint2->S = ec2_fieldA << 8;
+            polypoint3->X = ec3->view_width;
+            polypoint3->Y = ec3->view_height;
+            polypoint3->U = 0x1FFFFF;
+            polypoint3->V = 0x1FFFFF;
+            polypoint3->S = ec3_fieldA << 8;
         }
     }
 }
@@ -3920,21 +3925,21 @@ static void do_a_gpoly_unlit_tr(struct EngineCoord *ec1, struct EngineCoord *ec2
             v5->b.kind = 0;
             buckets[v6] = &v5->b;
             v5->block = textr_id;
-            v5->p1.field_0 = ec1->view_width;
-            v5->p1.field_4 = ec1->view_height;
-            v5->p1.field_8 = 0;
-            v5->p1.field_C = 0;
-            v5->p1.field_10 = (ec1->field_A + 3072) << 8;
-            v5->p2.field_0 = ec2->view_width;
-            v5->p2.field_4 = ec2->view_height;
-            v5->p2.field_8 = 0x1FFFFF;
-            v5->p2.field_C = 0;
-            v5->p2.field_10 = (ec2->field_A + 3072) << 8;
-            v7->p3.field_0 = ec3->view_width;
-            v7->p3.field_4 = ec3->view_height;
-            v7->p3.field_8 = 0x1FFFFF;
-            v7->p3.field_C = 0x1FFFFF;
-            v7->p3.field_10 = (ec3->field_A + 3072) << 8;
+            v5->p1.X = ec1->view_width;
+            v5->p1.Y = ec1->view_height;
+            v5->p1.U = 0;
+            v5->p1.V = 0;
+            v5->p1.S = (ec1->field_A + 3072) << 8;
+            v5->p2.X = ec2->view_width;
+            v5->p2.Y = ec2->view_height;
+            v5->p2.U = 0x1FFFFF;
+            v5->p2.V = 0;
+            v5->p2.S = (ec2->field_A + 3072) << 8;
+            v7->p3.X = ec3->view_width;
+            v7->p3.Y = ec3->view_height;
+            v7->p3.U = 0x1FFFFF;
+            v7->p3.V = 0x1FFFFF;
+            v7->p3.S = (ec3->field_A + 3072) << 8;
         }
     }
 }
@@ -3966,21 +3971,21 @@ static void do_a_gpoly_unlit_bl(struct EngineCoord *ec1, struct EngineCoord *ec2
         v5->b.kind = 0;
         buckets[v6] = &v5->b;
         v5->block = textr_id;
-        v5->p1.field_0 = ec1->view_width;
-        v5->p1.field_4 = ec1->view_height;
-        v5->p1.field_8 = 0x1FFFFF;
-        v5->p1.field_C = 0x1FFFFF;
-        v5->p1.field_10 = (ec1->field_A + 3072) << 8;
-        v5->p2.field_0 = ec2->view_width;
-        v5->p2.field_4 = ec2->view_height;
-        v5->p2.field_8 = 0;
-        v5->p2.field_C = 0x1FFFFF;
-        v5->p2.field_10 = (ec2->field_A + 3072) << 8;
-        v5->p3.field_0 = ec3->view_width;
-        v5->p3.field_4 = ec3->view_height;
-        v5->p3.field_8 = 0;
-        v5->p3.field_C = 0;
-        v5->p3.field_10 = (ec3->field_A + 3072) << 8;
+        v5->p1.X = ec1->view_width;
+        v5->p1.Y = ec1->view_height;
+        v5->p1.U = 0x1FFFFF;
+        v5->p1.V = 0x1FFFFF;
+        v5->p1.S = (ec1->field_A + 3072) << 8;
+        v5->p2.X = ec2->view_width;
+        v5->p2.Y = ec2->view_height;
+        v5->p2.U = 0;
+        v5->p2.V = 0x1FFFFF;
+        v5->p2.S = (ec2->field_A + 3072) << 8;
+        v5->p3.X = ec3->view_width;
+        v5->p3.Y = ec3->view_height;
+        v5->p3.U = 0;
+        v5->p3.V = 0;
+        v5->p3.S = (ec3->field_A + 3072) << 8;
         }
     }
 }
@@ -4030,23 +4035,23 @@ static void do_a_gpoly_gourad_bl(struct EngineCoord *ec1, struct EngineCoord *ec
                 ec2_fieldA = (4 * (a5 + 0x4000) * ec2_fieldA) >> 17;
                 ec3_fieldA = (4 * (a5 + 0x4000) * ec3_fieldA) >> 17;
             }
-            polypoint1->field_0 = ec1->view_width;
+            polypoint1->X = ec1->view_width;
             polypoint2 = &poly_ptr->p2;
-            polypoint1->field_4 = ec1->view_height;
-            polypoint1->field_8 = 0x1FFFFF;
-            polypoint1->field_C = 0x1FFFFF;
-            polypoint1->field_10 = ec1_fieldA << 8;
-            poly_ptr->p2.field_0 = ec2->view_width;
+            polypoint1->Y = ec1->view_height;
+            polypoint1->U = 0x1FFFFF;
+            polypoint1->V = 0x1FFFFF;
+            polypoint1->S = ec1_fieldA << 8;
+            poly_ptr->p2.X = ec2->view_width;
             polypoint3 = &poly_ptr->p3;
-            polypoint2->field_4 = ec2->view_height;
-            polypoint2->field_8 = 0;
-            polypoint2->field_C = 0x1FFFFF;
-            polypoint2->field_10 = ec2_fieldA << 8;
-            polypoint3->field_0 = ec3->view_width;
-            polypoint3->field_4 = ec3->view_height;
-            polypoint3->field_8 = 0;
-            polypoint3->field_C = 0;
-            polypoint3->field_10 = ec3_fieldA << 8;
+            polypoint2->Y = ec2->view_height;
+            polypoint2->U = 0;
+            polypoint2->V = 0x1FFFFF;
+            polypoint2->S = ec2_fieldA << 8;
+            polypoint3->X = ec3->view_width;
+            polypoint3->Y = ec3->view_height;
+            polypoint3->U = 0;
+            polypoint3->V = 0;
+            polypoint3->S = ec3_fieldA << 8;
         }
     }
 }
@@ -4257,7 +4262,7 @@ void do_a_plane_of_engine_columns_isometric(long stl_x, long stl_y, long plane_s
     if ((stl_y < 1) || (stl_y > 254)) {
         return;
     }
-    
+
     long xaval;
     long xbval;
     TbBool xaclip;
@@ -4652,7 +4657,7 @@ void draw_engine_number(struct BucketKindFloatingGoldText *num)
     long pos_x;
 
     // 1st argument: the scale when fully zoomed out. 2nd argument: the scale at base level zoom
-    float scale_by_zoom = lerp(0.15, 1.00, zoomed_range);
+    float scale_by_zoom = lerp(0.15, 1.00, hud_scale);
 
     flg_mem = lbDisplay.DrawFlags;
     player = get_my_player();
@@ -4697,8 +4702,8 @@ void draw_engine_room_flagpole(struct BucketKindRoomFlag *rflg)
         if (settings.roomflags_on)
         {
             // 1st argument: the scale when fully zoomed out. 2nd argument: the scale at base level zoom
-            float scale_by_zoom = lerp(0.15, 1.00, zoomed_range);
-            
+            float scale_by_zoom = lerp(0.15, 1.00, hud_scale);
+
             int deltay;
             int height;
             int zoom_factor = cam->zoom;
@@ -4760,18 +4765,18 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
         return;
     }
 
-    // 1st argument: the scale when fully zoomed out. 2nd argument: the scale at base level zoom
-    float scale_by_zoom = lerp(0.15, 1.00, zoomed_range);
-    int base_size;
+    float scale_by_zoom;
+    int base_size = 16*256;
     switch (cam->view_mode) {
         case PVM_IsometricView:
-            base_size = 16*256;
+            // 1st argument: the scale when fully zoomed out. 2nd argument: the scale at base level zoom
+            scale_by_zoom = lerp(0.15, 1.00, hud_scale);
             break;
         case PVM_FrontView:
-            base_size = 16*256;
+            scale_by_zoom = lerp(0.15, 1.00, hud_scale);
             break;
         case PVM_ParchmentView:
-            base_size = 16*256;
+            scale_by_zoom = 1;
             break;
         default:
             return; // Do not draw if camera is 1st person
@@ -4804,90 +4809,92 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
 
     CrtrExpLevel exp;
     exp = min(cctrl->explevel,9);
-
-    health_spridx = choose_health_sprite(thing);
-    if (is_my_player_number(thing->owner))
+    if (cam->view_mode != PVM_ParchmentView)
     {
-        lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
-        cctrl = creature_control_get_from_thing(thing);
-        if (cctrl->field_43 - game.play_gameturn != -1)
+        health_spridx = choose_health_sprite(thing);
+        if (is_my_player_number(thing->owner))
         {
-            cctrl->field_47 = 0;
-        }
-        else if (cctrl->field_47 < 40)
-        {
-            cctrl->field_47++;
-        }
-        cctrl->field_43 = game.play_gameturn;
-        if (cctrl->field_47 == 40)
-        {
-            struct StateInfo *stati;
-            stati = get_creature_state_with_task_completion(thing);
-            if (!stati->field_23)
+            lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
+            cctrl = creature_control_get_from_thing(thing);
+            if (cctrl->field_43 - game.play_gameturn != -1)
             {
-                if ((cctrl->spell_flags & CSAfF_MadKilling) != 0)
+                cctrl->field_47 = 0;
+            }
+            else if (cctrl->field_47 < 40)
+            {
+                cctrl->field_47++;
+            }
+            cctrl->field_43 = game.play_gameturn;
+            if (cctrl->field_47 == 40)
+            {
+                struct StateInfo *stati;
+                stati = get_creature_state_with_task_completion(thing);
+                if (!stati->field_23)
                 {
-                    stati = &states[CrSt_MadKillingPsycho];
-                }
-                else if (anger_is_creature_livid(thing))
-                {
-                    stati = &states[CrSt_CreatureLeavingDungeon];
-                }
-                else if (creature_is_called_to_arms(thing))
-                {
-                    stati = &states[CrSt_ArriveAtCallToArms];
-                }
-                else if (creature_is_at_alarm(thing))
-                {
-                    stati = &states[CrSt_ArriveAtAlarm];
-                }
-                else if (anger_is_creature_angry(thing))
-                {
-                    stati = &states[CrSt_PersonSulkAtLair];
-                }
-                else if (hunger_is_creature_hungry(thing))
-                {
-                    stati = &states[CrSt_CreatureArrivedAtGarden];
-                }
-                else if (creature_requires_healing(thing))
-                {
-                    stati = &states[CrSt_CreatureSleep];
-                }
-                else if (cctrl->paydays_owed)
-                {
-                    stati = &states[CrSt_CreatureWantsSalary];
-                }
-                else
-                {
-                    stati = get_creature_state_with_task_completion(thing);
-                }
-                if ((*(short *)&stati->field_26 == 1) || (thing_pointed_at == thing))
-                {
-                    state_spridx = stati->sprite_idx;
-                }
-                switch (anger_get_creature_anger_type(thing))
-                {
-                case AngR_NotPaid:
-                    if ((cctrl->paydays_owed <= 0) && (cctrl->paydays_advanced >= 0))
+                    if ((cctrl->spell_flags & CSAfF_MadKilling) != 0)
                     {
-                        anger_spridx = 55;
+                        stati = &states[CrSt_MadKillingPsycho];
+                    }
+                    else if (anger_is_creature_livid(thing))
+                    {
+                        stati = &states[CrSt_CreatureLeavingDungeon];
+                    }
+                    else if (creature_is_called_to_arms(thing))
+                    {
+                        stati = &states[CrSt_ArriveAtCallToArms];
+                    }
+                    else if (creature_is_at_alarm(thing))
+                    {
+                        stati = &states[CrSt_ArriveAtAlarm];
+                    }
+                    else if (anger_is_creature_angry(thing))
+                    {
+                        stati = &states[CrSt_PersonSulkAtLair];
+                    }
+                    else if (hunger_is_creature_hungry(thing))
+                    {
+                        stati = &states[CrSt_CreatureArrivedAtGarden];
+                    }
+                    else if (creature_requires_healing(thing))
+                    {
+                        stati = &states[CrSt_CreatureSleep];
+                    }
+                    else if (cctrl->paydays_owed)
+                    {
+                        stati = &states[CrSt_CreatureWantsSalary];
                     }
                     else
                     {
-                        anger_spridx = 52;
+                        stati = get_creature_state_with_task_completion(thing);
                     }
-                    break;
-                case AngR_Hungry:
-                    anger_spridx = 59;
-                    break;
-                case AngR_NoLair:
-                    anger_spridx = 54;
-                    break;
-                case AngR_Other:
-                    anger_spridx = 55;
-                    break;
-                default:
-                    break;
+                    if ((*(short *)&stati->field_26 == 1) || (thing_pointed_at == thing))
+                    {
+                        state_spridx = stati->sprite_idx;
+                    }
+                    switch (anger_get_creature_anger_type(thing))
+                    {
+                    case AngR_NotPaid:
+                        if ((cctrl->paydays_owed <= 0) && (cctrl->paydays_advanced >= 0))
+                        {
+                            anger_spridx = 55;
+                        }
+                        else
+                        {
+                            anger_spridx = 52;
+                        }
+                        break;
+                    case AngR_Hungry:
+                        anger_spridx = 59;
+                        break;
+                    case AngR_NoLair:
+                        anger_spridx = 54;
+                        break;
+                    case AngR_Other:
+                        anger_spridx = 55;
+                        break;
+                    default:
+                        break;
+                    }
                 }
             }
         }
@@ -5029,7 +5036,7 @@ static void draw_room_flag_top(long x, long y, int units_per_px, const struct Ro
 static void draw_engine_room_flag_top(struct BucketKindRoomFlag *rflg)
 {
     lbDisplay.DrawFlags &= ~Lb_SPRITE_FLIP_HORIZ;
-    
+
     struct Room *room = room_get(rflg->lvl);
     if (!room_exists(room) || !room_can_have_ensign(room->kind)) {
         return;
@@ -5042,7 +5049,7 @@ static void draw_engine_room_flag_top(struct BucketKindRoomFlag *rflg)
         if (settings.roomflags_on)
         {
             // 1st argument: the scale when fully zoomed out. 2nd argument: the scale at base level zoom
-            float scale_by_zoom = lerp(0.15, 1.00, zoomed_range);
+            float scale_by_zoom = lerp(0.15, 1.00, hud_scale);
 
             int zoom_factor = cam->zoom;
             if (cam->view_mode == PVM_FrontView) {
@@ -5082,7 +5089,7 @@ static void draw_stripey_line(long x1,long y1,long x2,long y2,unsigned char line
         relative_window_a = relative_window_width;
         relative_window_b = relative_window_height;
         if (x1 < x2)
-        {   
+        {
             a1 = x1;
             b1 = y1;
             a2 = x2;
@@ -5143,7 +5150,7 @@ static void draw_stripey_line(long x1,long y1,long x2,long y2,unsigned char line
 
     // Handle going towards 0 in B (i.e. B counts down, not up)
     long b_increment = 1;
-    if (distance_b < 0) 
+    if (distance_b < 0)
     {
         b_increment = -1;
         distance_b = -distance_b;
@@ -5191,7 +5198,7 @@ static void draw_stripey_line(long x1,long y1,long x2,long y2,unsigned char line
             max_a_end--;
         }
         max_a_end = min(max_a_end, relative_window_a);
-        
+
     }
     long a_end = min(a2, max_a_end);
     // Find starting B coord
@@ -5215,7 +5222,7 @@ static void draw_stripey_line(long x1,long y1,long x2,long y2,unsigned char line
     // Draw the line
     for (a = a_start; a <= a_end; a ++)
     {
-        if ((a < 0) || (a > relative_window_a) || (b < 0) || (b > relative_window_b)) 
+        if ((a < 0) || (a > relative_window_a) || (b < 0) || (b > relative_window_b))
         {
             // Temporary Error message, this should never appear in the log, but if it does, then the line must have been clipped incorrectly
             WARNMSG("draw_stripey_line: Pixel rendered outside engine window. X: %d, Y: %d, window_width: %d, window_height %d, A1: %d, A2 %d, B1 %d, B2 %d, a_start: %d, a_end: %d, b_start: %d, rWA: %d", *x_coord, *y_coord, relative_window_width, relative_window_height, a1, a2, b1, b2, a_start, a_end, b_start, relative_window_a);
@@ -5227,7 +5234,7 @@ static void draw_stripey_line(long x1,long y1,long x2,long y2,unsigned char line
         // The remainder is used to know when to round up B to the next increment
         if (remainder >= remainder_limit)
         {
-            
+
             b += b_increment;
             remainder -= distance_a;
         }
@@ -5290,9 +5297,9 @@ static void draw_unkn09(struct BucketKindPolygonNearFP *unk09)
         coord_a.x = (unk09->c2.x + unk09->c1.x) >> 1;
         coord_a.y = (unk09->c2.y + unk09->c1.y) >> 1;
         coord_a.z = (unk09->c1.z + unk09->c2.z) >> 1;
-        point_a.field_8 = (unk09->p1.field_8 + unk09->p2.field_8) >> 1;
-        point_a.field_C = (unk09->p2.field_C + unk09->p1.field_C) >> 1;
-        point_a.field_10 = (unk09->p2.field_10 + unk09->p1.field_10) >> 1;
+        point_a.U = (unk09->p1.U + unk09->p2.U) >> 1;
+        point_a.V = (unk09->p2.V + unk09->p1.V) >> 1;
+        point_a.S = (unk09->p2.S + unk09->p1.S) >> 1;
         perspective(&coord_a, &point_a);
         draw_gpoly(&unk09->p1, &point_a, &unk09->p3);
         draw_gpoly(&point_a, &unk09->p2, &unk09->p3);
@@ -5302,9 +5309,9 @@ static void draw_unkn09(struct BucketKindPolygonNearFP *unk09)
         coord_a.x = (unk09->c2.x + unk09->c3.x) >> 1;
         coord_a.y = (unk09->c2.y + unk09->c3.y) >> 1;
         coord_a.z = (unk09->c3.z + unk09->c2.z) >> 1;
-        point_a.field_8 = (unk09->p3.field_8 + unk09->p2.field_8) >> 1;
-        point_a.field_C = (unk09->p3.field_C + unk09->p2.field_C) >> 1;
-        point_a.field_10 = (unk09->p3.field_10 + unk09->p2.field_10) >> 1;
+        point_a.U = (unk09->p3.U + unk09->p2.U) >> 1;
+        point_a.V = (unk09->p3.V + unk09->p2.V) >> 1;
+        point_a.S = (unk09->p3.S + unk09->p2.S) >> 1;
         perspective(&coord_a, &point_a);
         draw_gpoly(&unk09->p1, &unk09->p2, &point_a);
         draw_gpoly(&unk09->p1, &point_a, &unk09->p3);
@@ -5314,9 +5321,9 @@ static void draw_unkn09(struct BucketKindPolygonNearFP *unk09)
         coord_a.x = (unk09->c1.x + unk09->c3.x) >> 1;
         coord_a.y = (unk09->c3.y + unk09->c1.y) >> 1;
         coord_a.z = (unk09->c3.z + unk09->c1.z) >> 1;
-        point_a.field_8 = (unk09->p1.field_8 + unk09->p3.field_8) >> 1;
-        point_a.field_C = (unk09->p3.field_C + unk09->p1.field_C) >> 1;
-        point_a.field_10 = (unk09->p3.field_10 + unk09->p1.field_10) >> 1;
+        point_a.U = (unk09->p1.U + unk09->p3.U) >> 1;
+        point_a.V = (unk09->p3.V + unk09->p1.V) >> 1;
+        point_a.S = (unk09->p3.S + unk09->p1.S) >> 1;
         perspective(&coord_a, &point_a);
         draw_gpoly(&unk09->p1, &unk09->p2, &point_a);
         draw_gpoly(&point_a, &unk09->p2, &unk09->p3);
@@ -5326,23 +5333,23 @@ static void draw_unkn09(struct BucketKindPolygonNearFP *unk09)
         coord_a.x = (unk09->c2.x + unk09->c1.x) >> 1;
         coord_a.y = (unk09->c2.y + unk09->c1.y) >> 1;
         coord_a.z = (unk09->c1.z + unk09->c2.z) >> 1;
-        point_a.field_8 = (unk09->p1.field_8 + unk09->p2.field_8) >> 1;
-        point_a.field_C = (unk09->p2.field_C + unk09->p1.field_C) >> 1;
-        point_a.field_10 = (unk09->p2.field_10 + unk09->p1.field_10) >> 1;
+        point_a.U = (unk09->p1.U + unk09->p2.U) >> 1;
+        point_a.V = (unk09->p2.V + unk09->p1.V) >> 1;
+        point_a.S = (unk09->p2.S + unk09->p1.S) >> 1;
         perspective(&coord_a, &point_a);
         coord_b.x = (unk09->c2.x + unk09->c3.x) >> 1;
         coord_b.y = (unk09->c2.y + unk09->c3.y) >> 1;
         coord_b.z = (unk09->c3.z + unk09->c2.z) >> 1;
-        point_b.field_8 = (unk09->p3.field_8 + unk09->p2.field_8) >> 1;
-        point_b.field_C = (unk09->p3.field_C + unk09->p2.field_C) >> 1;
-        point_b.field_10 = (unk09->p3.field_10 + unk09->p2.field_10) >> 1;
+        point_b.U = (unk09->p3.U + unk09->p2.U) >> 1;
+        point_b.V = (unk09->p3.V + unk09->p2.V) >> 1;
+        point_b.S = (unk09->p3.S + unk09->p2.S) >> 1;
         perspective(&coord_b, &point_b);
         coord_c.x = (unk09->c1.x + unk09->c3.x) >> 1;
         coord_c.y = (unk09->c3.y + unk09->c1.y) >> 1;
         coord_c.z = (unk09->c3.z + unk09->c1.z) >> 1;
-        point_c.field_8 = (unk09->p1.field_8 + unk09->p3.field_8) >> 1;
-        point_c.field_C = (unk09->p3.field_C + unk09->p1.field_C) >> 1;
-        point_c.field_10 = (unk09->p3.field_10 + unk09->p1.field_10) >> 1;
+        point_c.U = (unk09->p1.U + unk09->p3.U) >> 1;
+        point_c.V = (unk09->p3.V + unk09->p1.V) >> 1;
+        point_c.S = (unk09->p3.S + unk09->p1.S) >> 1;
         perspective(&coord_c, &point_c);
         draw_gpoly(&unk09->p1, &point_a, &point_c);
         draw_gpoly(&point_a, &unk09->p2, &point_b);
@@ -5354,23 +5361,23 @@ static void draw_unkn09(struct BucketKindPolygonNearFP *unk09)
         coord_a.x = (unk09->c2.x + unk09->c1.x) >> 1;
         coord_a.y = (unk09->c2.y + unk09->c1.y) >> 1;
         coord_a.z = (unk09->c1.z + unk09->c2.z) >> 1;
-        point_a.field_8 = (unk09->p1.field_8 + unk09->p2.field_8) >> 1;
-        point_a.field_C = (unk09->p2.field_C + unk09->p1.field_C) >> 1;
-        point_a.field_10 = (unk09->p2.field_10 + unk09->p1.field_10) >> 1;
+        point_a.U = (unk09->p1.U + unk09->p2.U) >> 1;
+        point_a.V = (unk09->p2.V + unk09->p1.V) >> 1;
+        point_a.S = (unk09->p2.S + unk09->p1.S) >> 1;
         perspective(&coord_a, &point_a);
         coord_b.x = (coord_a.x + unk09->c1.x) >> 1;
         coord_b.y = (coord_a.y + unk09->c1.y) >> 1;
         coord_b.z = (coord_a.z + unk09->c1.z) >> 1;
-        point_b.field_8 = (point_a.field_8 + unk09->p1.field_8) >> 1;
-        point_b.field_C = (point_a.field_C + unk09->p1.field_C) >> 1;
-        point_b.field_10 = (point_a.field_10 + unk09->p1.field_10) >> 1;
+        point_b.U = (point_a.U + unk09->p1.U) >> 1;
+        point_b.V = (point_a.V + unk09->p1.V) >> 1;
+        point_b.S = (point_a.S + unk09->p1.S) >> 1;
         perspective(&coord_b, &point_b);
         coord_c.x = (coord_a.x + unk09->c2.x) >> 1;
         coord_c.y = (coord_a.y + unk09->c2.y) >> 1;
         coord_c.z = (coord_a.z + unk09->c2.z) >> 1;
-        point_c.field_8 = (point_a.field_8 + unk09->p2.field_8) >> 1;
-        point_c.field_C = (point_a.field_C + unk09->p2.field_C) >> 1;
-        point_c.field_10 = (point_a.field_10 + unk09->p2.field_10) >> 1;
+        point_c.U = (point_a.U + unk09->p2.U) >> 1;
+        point_c.V = (point_a.V + unk09->p2.V) >> 1;
+        point_c.S = (point_a.S + unk09->p2.S) >> 1;
         perspective(&coord_c, &point_c);
         draw_gpoly(&unk09->p1, &point_b, &unk09->p3);
         draw_gpoly(&point_b, &point_a, &unk09->p3);
@@ -5382,23 +5389,23 @@ static void draw_unkn09(struct BucketKindPolygonNearFP *unk09)
         coord_a.x = (unk09->c2.x + unk09->c3.x) >> 1;
         coord_a.y = (unk09->c2.y + unk09->c3.y) >> 1;
         coord_a.z = (unk09->c3.z + unk09->c2.z) >> 1;
-        point_a.field_8 = (unk09->p3.field_8 + unk09->p2.field_8) >> 1;
-        point_a.field_C = (unk09->p3.field_C + unk09->p2.field_C) >> 1;
-        point_a.field_10 = (unk09->p3.field_10 + unk09->p2.field_10) >> 1;
+        point_a.U = (unk09->p3.U + unk09->p2.U) >> 1;
+        point_a.V = (unk09->p3.V + unk09->p2.V) >> 1;
+        point_a.S = (unk09->p3.S + unk09->p2.S) >> 1;
         perspective(&coord_a, &point_a);
         coord_b.x = (coord_a.x + unk09->c2.x) >> 1;
         coord_b.y = (coord_a.y + unk09->c2.y) >> 1;
         coord_b.z = (coord_a.z + unk09->c2.z) >> 1;
-        point_b.field_8 = (point_a.field_8 + unk09->p2.field_8) >> 1;
-        point_b.field_C = (point_a.field_C + unk09->p2.field_C) >> 1;
-        point_b.field_10 = (point_a.field_10 + unk09->p2.field_10) >> 1;
+        point_b.U = (point_a.U + unk09->p2.U) >> 1;
+        point_b.V = (point_a.V + unk09->p2.V) >> 1;
+        point_b.S = (point_a.S + unk09->p2.S) >> 1;
         perspective(&coord_b, &point_b);
         coord_c.x = (coord_a.x + unk09->c3.x) >> 1;
         coord_c.y = (coord_a.y + unk09->c3.y) >> 1;
         coord_c.z = (coord_a.z + unk09->c3.z) >> 1;
-        point_c.field_8 = (point_a.field_8 + unk09->p3.field_8) >> 1;
-        point_c.field_C = (point_a.field_C + unk09->p3.field_C) >> 1;
-        point_c.field_10 = (point_a.field_10 + unk09->p3.field_10) >> 1;
+        point_c.U = (point_a.U + unk09->p3.U) >> 1;
+        point_c.V = (point_a.V + unk09->p3.V) >> 1;
+        point_c.S = (point_a.S + unk09->p3.S) >> 1;
         perspective(&coord_c, &point_c);
         draw_gpoly(&unk09->p1, &unk09->p2, &point_b);
         draw_gpoly(&unk09->p1, &point_b, &point_a);
@@ -5410,23 +5417,23 @@ static void draw_unkn09(struct BucketKindPolygonNearFP *unk09)
         coord_a.x = (unk09->c1.x + unk09->c3.x) >> 1;
         coord_a.y = (unk09->c3.y + unk09->c1.y) >> 1;
         coord_a.z = (unk09->c3.z + unk09->c1.z) >> 1;
-        point_a.field_8 = (unk09->p1.field_8 + unk09->p3.field_8) >> 1;
-        point_a.field_C = (unk09->p3.field_C + unk09->p1.field_C) >> 1;
-        point_a.field_10 = (unk09->p3.field_10 + unk09->p1.field_10) >> 1;
+        point_a.U = (unk09->p1.U + unk09->p3.U) >> 1;
+        point_a.V = (unk09->p3.V + unk09->p1.V) >> 1;
+        point_a.S = (unk09->p3.S + unk09->p1.S) >> 1;
         perspective(&coord_a, &point_a);
         coord_b.x = (coord_a.x + unk09->c3.x) >> 1;
         coord_b.y = (coord_a.y + unk09->c3.y) >> 1;
         coord_b.z = (coord_a.z + unk09->c3.z) >> 1;
-        point_b.field_8 = (point_a.field_8 + unk09->p3.field_8) >> 1;
-        point_b.field_C = (point_a.field_C + unk09->p3.field_C) >> 1;
-        point_b.field_10 = (point_a.field_10 + unk09->p3.field_10) >> 1;
+        point_b.U = (point_a.U + unk09->p3.U) >> 1;
+        point_b.V = (point_a.V + unk09->p3.V) >> 1;
+        point_b.S = (point_a.S + unk09->p3.S) >> 1;
         perspective(&coord_b, &point_b);
         coord_c.x = (coord_a.x + unk09->c1.x) >> 1;
         coord_c.y = (coord_a.y + unk09->c1.y) >> 1;
         coord_c.z = (coord_a.z + unk09->c1.z) >> 1;
-        point_c.field_8 = (point_a.field_8 + unk09->p1.field_8) >> 1;
-        point_c.field_C = (point_a.field_C + unk09->p1.field_C) >> 1;
-        point_c.field_10 = (point_a.field_10 + unk09->p1.field_10) >> 1;
+        point_c.U = (point_a.U + unk09->p1.U) >> 1;
+        point_c.V = (point_a.V + unk09->p1.V) >> 1;
+        point_c.S = (point_a.S + unk09->p1.S) >> 1;
         perspective(&coord_c, &point_c);
         draw_gpoly(&unk09->p2, &unk09->p3, &point_b);
         draw_gpoly(&unk09->p2, &point_b, &point_a);
@@ -5438,37 +5445,37 @@ static void draw_unkn09(struct BucketKindPolygonNearFP *unk09)
         coord_a.x = (unk09->c2.x + unk09->c1.x) >> 1;
         coord_a.y = (unk09->c2.y + unk09->c1.y) >> 1;
         coord_a.z = (unk09->c1.z + unk09->c2.z) >> 1;
-        point_a.field_8 = (unk09->p1.field_8 + unk09->p2.field_8) >> 1;
-        point_a.field_C = (unk09->p2.field_C + unk09->p1.field_C) >> 1;
-        point_a.field_10 = (unk09->p2.field_10 + unk09->p1.field_10) >> 1;
+        point_a.U = (unk09->p1.U + unk09->p2.U) >> 1;
+        point_a.V = (unk09->p2.V + unk09->p1.V) >> 1;
+        point_a.S = (unk09->p2.S + unk09->p1.S) >> 1;
         perspective(&coord_a, &point_a);
         coord_b.x = (unk09->c2.x + unk09->c3.x) >> 1;
         coord_b.y = (unk09->c2.y + unk09->c3.y) >> 1;
         coord_b.z = (unk09->c3.z + unk09->c2.z) >> 1;
-        point_b.field_8 = (unk09->p3.field_8 + unk09->p2.field_8) >> 1;
-        point_b.field_C = (unk09->p3.field_C + unk09->p2.field_C) >> 1;
-        point_b.field_10 = (unk09->p3.field_10 + unk09->p2.field_10) >> 1;
+        point_b.U = (unk09->p3.U + unk09->p2.U) >> 1;
+        point_b.V = (unk09->p3.V + unk09->p2.V) >> 1;
+        point_b.S = (unk09->p3.S + unk09->p2.S) >> 1;
         perspective(&coord_b, &point_b);
         coord_c.x = (unk09->c1.x + unk09->c3.x) >> 1;
         coord_c.y = (unk09->c3.y + unk09->c1.y) >> 1;
         coord_c.z = (unk09->c3.z + unk09->c1.z) >> 1;
-        point_c.field_8 = (unk09->p1.field_8 + unk09->p3.field_8) >> 1;
-        point_c.field_C = (unk09->p3.field_C + unk09->p1.field_C) >> 1;
-        point_c.field_10 = (unk09->p3.field_10 + unk09->p1.field_10) >> 1;
+        point_c.U = (unk09->p1.U + unk09->p3.U) >> 1;
+        point_c.V = (unk09->p3.V + unk09->p1.V) >> 1;
+        point_c.S = (unk09->p3.S + unk09->p1.S) >> 1;
         perspective(&coord_c, &point_c);
         coord_d.x = (coord_a.x + unk09->c1.x) >> 1;
         coord_d.y = (coord_a.y + unk09->c1.y) >> 1;
         coord_d.z = (coord_a.z + unk09->c1.z) >> 1;
-        point_d.field_8 = (point_a.field_8 + unk09->p1.field_8) >> 1;
-        point_d.field_C = (point_a.field_C + unk09->p1.field_C) >> 1;
-        point_d.field_10 = (point_a.field_10 + unk09->p1.field_10) >> 1;
+        point_d.U = (point_a.U + unk09->p1.U) >> 1;
+        point_d.V = (point_a.V + unk09->p1.V) >> 1;
+        point_d.S = (point_a.S + unk09->p1.S) >> 1;
         perspective(&coord_d, &point_d);
         coord_e.x = (coord_a.x + unk09->c2.x) >> 1;
         coord_e.y = (coord_a.y + unk09->c2.y) >> 1;
         coord_e.z = (coord_a.z + unk09->c2.z) >> 1;
-        point_e.field_8 = (point_a.field_8 + unk09->p2.field_8) >> 1;
-        point_e.field_C = (point_a.field_C + unk09->p2.field_C) >> 1;
-        point_e.field_10 = (point_a.field_10 + unk09->p2.field_10) >> 1;
+        point_e.U = (point_a.U + unk09->p2.U) >> 1;
+        point_e.V = (point_a.V + unk09->p2.V) >> 1;
+        point_e.S = (point_a.S + unk09->p2.S) >> 1;
         perspective(&coord_e, &point_e);
         draw_gpoly(&unk09->p1, &point_d, &point_c);
         draw_gpoly(&point_d, &point_a, &point_c);
@@ -5482,37 +5489,37 @@ static void draw_unkn09(struct BucketKindPolygonNearFP *unk09)
         coord_a.x = (unk09->c2.x + unk09->c1.x) >> 1;
         coord_a.y = (unk09->c2.y + unk09->c1.y) >> 1;
         coord_a.z = (unk09->c1.z + unk09->c2.z) >> 1;
-        point_a.field_8 = (unk09->p1.field_8 + unk09->p2.field_8) >> 1;
-        point_a.field_C = (unk09->p2.field_C + unk09->p1.field_C) >> 1;
-        point_a.field_10 = (unk09->p2.field_10 + unk09->p1.field_10) >> 1;
+        point_a.U = (unk09->p1.U + unk09->p2.U) >> 1;
+        point_a.V = (unk09->p2.V + unk09->p1.V) >> 1;
+        point_a.S = (unk09->p2.S + unk09->p1.S) >> 1;
         perspective(&coord_a, &point_a);
         coord_b.x = (unk09->c2.x + unk09->c3.x) >> 1;
         coord_b.y = (unk09->c2.y + unk09->c3.y) >> 1;
         coord_b.z = (unk09->c3.z + unk09->c2.z) >> 1;
-        point_b.field_8 = (unk09->p3.field_8 + unk09->p2.field_8) >> 1;
-        point_b.field_C = (unk09->p3.field_C + unk09->p2.field_C) >> 1;
-        point_b.field_10 = (unk09->p3.field_10 + unk09->p2.field_10) >> 1;
+        point_b.U = (unk09->p3.U + unk09->p2.U) >> 1;
+        point_b.V = (unk09->p3.V + unk09->p2.V) >> 1;
+        point_b.S = (unk09->p3.S + unk09->p2.S) >> 1;
         perspective(&coord_b, &point_b);
         coord_c.x = (unk09->c1.x + unk09->c3.x) >> 1;
         coord_c.y = (unk09->c3.y + unk09->c1.y) >> 1;
         coord_c.z = (unk09->c3.z + unk09->c1.z) >> 1;
-        point_c.field_8 = (unk09->p1.field_8 + unk09->p3.field_8) >> 1;
-        point_c.field_C = (unk09->p3.field_C + unk09->p1.field_C) >> 1;
-        point_c.field_10 = (unk09->p3.field_10 + unk09->p1.field_10) >> 1;
+        point_c.U = (unk09->p1.U + unk09->p3.U) >> 1;
+        point_c.V = (unk09->p3.V + unk09->p1.V) >> 1;
+        point_c.S = (unk09->p3.S + unk09->p1.S) >> 1;
         perspective(&coord_c, &point_c);
         coord_d.x = (coord_b.x + unk09->c2.x) >> 1;
         coord_d.y = (coord_b.y + unk09->c2.y) >> 1;
         coord_d.z = (coord_b.z + unk09->c2.z) >> 1;
-        point_d.field_8 = (point_b.field_8 + unk09->p2.field_8) >> 1;
-        point_d.field_C = (point_b.field_C + unk09->p2.field_C) >> 1;
-        point_d.field_10 = (point_b.field_10 + unk09->p2.field_10) >> 1;
+        point_d.U = (point_b.U + unk09->p2.U) >> 1;
+        point_d.V = (point_b.V + unk09->p2.V) >> 1;
+        point_d.S = (point_b.S + unk09->p2.S) >> 1;
         perspective(&coord_d, &point_d);
         coord_e.x = (coord_b.x + unk09->c3.x) >> 1;
         coord_e.y = (coord_b.y + unk09->c3.y) >> 1;
         coord_e.z = (coord_b.z + unk09->c3.z) >> 1;
-        point_e.field_8 = (point_b.field_8 + unk09->p3.field_8) >> 1;
-        point_e.field_C = (point_b.field_C + unk09->p3.field_C) >> 1;
-        point_e.field_10 = (point_b.field_10 + unk09->p3.field_10) >> 1;
+        point_e.U = (point_b.U + unk09->p3.U) >> 1;
+        point_e.V = (point_b.V + unk09->p3.V) >> 1;
+        point_e.S = (point_b.S + unk09->p3.S) >> 1;
         perspective(&coord_e, &point_e);
         draw_gpoly(&unk09->p1, &point_a, &point_c);
         draw_gpoly(&point_a, &point_b, &point_c);
@@ -5526,37 +5533,37 @@ static void draw_unkn09(struct BucketKindPolygonNearFP *unk09)
         coord_a.x = (unk09->c2.x + unk09->c1.x) >> 1;
         coord_a.y = (unk09->c2.y + unk09->c1.y) >> 1;
         coord_a.z = (unk09->c1.z + unk09->c2.z) >> 1;
-        point_a.field_8 = (unk09->p1.field_8 + unk09->p2.field_8) >> 1;
-        point_a.field_C = (unk09->p2.field_C + unk09->p1.field_C) >> 1;
-        point_a.field_10 = (unk09->p2.field_10 + unk09->p1.field_10) >> 1;
+        point_a.U = (unk09->p1.U + unk09->p2.U) >> 1;
+        point_a.V = (unk09->p2.V + unk09->p1.V) >> 1;
+        point_a.S = (unk09->p2.S + unk09->p1.S) >> 1;
         perspective(&coord_a, &point_a);
         coord_b.x = (unk09->c2.x + unk09->c3.x) >> 1;
         coord_b.y = (unk09->c2.y + unk09->c3.y) >> 1;
         coord_b.z = (unk09->c3.z + unk09->c2.z) >> 1;
-        point_b.field_8 = (unk09->p3.field_8 + unk09->p2.field_8) >> 1;
-        point_b.field_C = (unk09->p3.field_C + unk09->p2.field_C) >> 1;
-        point_b.field_10 = (unk09->p3.field_10 + unk09->p2.field_10) >> 1;
+        point_b.U = (unk09->p3.U + unk09->p2.U) >> 1;
+        point_b.V = (unk09->p3.V + unk09->p2.V) >> 1;
+        point_b.S = (unk09->p3.S + unk09->p2.S) >> 1;
         perspective(&coord_b, &point_b);
         coord_c.x = (unk09->c1.x + unk09->c3.x) >> 1;
         coord_c.y = (unk09->c3.y + unk09->c1.y) >> 1;
         coord_c.z = (unk09->c3.z + unk09->c1.z) >> 1;
-        point_c.field_8 = (unk09->p1.field_8 + unk09->p3.field_8) >> 1;
-        point_c.field_C = (unk09->p3.field_C + unk09->p1.field_C) >> 1;
-        point_c.field_10 = (unk09->p3.field_10 + unk09->p1.field_10) >> 1;
+        point_c.U = (unk09->p1.U + unk09->p3.U) >> 1;
+        point_c.V = (unk09->p3.V + unk09->p1.V) >> 1;
+        point_c.S = (unk09->p3.S + unk09->p1.S) >> 1;
         perspective(&coord_c, &point_c);
         coord_d.x = (coord_c.x + unk09->c3.x) >> 1;
         coord_d.y = (coord_c.y + unk09->c3.y) >> 1;
         coord_d.z = (coord_c.z + unk09->c3.z) >> 1;
-        point_d.field_8 = (point_c.field_8 + unk09->p3.field_8) >> 1;
-        point_d.field_C = (point_c.field_C + unk09->p3.field_C) >> 1;
-        point_d.field_10 = (point_c.field_10 + unk09->p3.field_10) >> 1;
+        point_d.U = (point_c.U + unk09->p3.U) >> 1;
+        point_d.V = (point_c.V + unk09->p3.V) >> 1;
+        point_d.S = (point_c.S + unk09->p3.S) >> 1;
         perspective(&coord_d, &point_d);
         coord_e.x = (coord_c.x + unk09->c1.x) >> 1;
         coord_e.y = (coord_c.y + unk09->c1.y) >> 1;
         coord_e.z = (coord_c.z + unk09->c1.z) >> 1;
-        point_e.field_8 = (point_c.field_8 + unk09->p1.field_8) >> 1;
-        point_e.field_C = (point_c.field_C + unk09->p1.field_C) >> 1;
-        point_e.field_10 = (point_c.field_10 + unk09->p1.field_10) >> 1;
+        point_e.U = (point_c.U + unk09->p1.U) >> 1;
+        point_e.V = (point_c.V + unk09->p1.V) >> 1;
+        point_e.S = (point_c.S + unk09->p1.S) >> 1;
         perspective(&coord_e, &point_e);
         draw_gpoly(&point_a, &unk09->p2, &point_b);
         draw_gpoly(&point_a, &point_b, &point_c);
@@ -5565,91 +5572,91 @@ static void draw_unkn09(struct BucketKindPolygonNearFP *unk09)
         draw_gpoly(&point_c, &point_b, &point_d);
         draw_gpoly(&point_d, &point_b, &unk09->p3);
         break;
-    case 11:
+    case 11: // Flickers in 1st person (before flicker_fix() was applied)
         vec_mode = VM_Unknown5;
         coord_a.x = (unk09->c2.x + unk09->c1.x) >> 1;
         coord_a.y = (unk09->c2.y + unk09->c1.y) >> 1;
         coord_a.z = (unk09->c1.z + unk09->c2.z) >> 1;
-        point_a.field_8 = (unk09->p1.field_8 + unk09->p2.field_8) >> 1;
-        point_a.field_C = (unk09->p2.field_C + unk09->p1.field_C) >> 1;
-        point_a.field_10 = (unk09->p2.field_10 + unk09->p1.field_10) >> 1;
+        point_a.U = (unk09->p1.U + unk09->p2.U) >> 1;
+        point_a.V = (unk09->p2.V + unk09->p1.V) >> 1;
+        point_a.S = (unk09->p2.S + unk09->p1.S) >> 1;
         perspective(&coord_a, &point_a);
         coord_b.x = (unk09->c2.x + unk09->c3.x) >> 1;
         coord_b.y = (unk09->c2.y + unk09->c3.y) >> 1;
         coord_b.z = (unk09->c3.z + unk09->c2.z) >> 1;
-        point_b.field_8 = (unk09->p3.field_8 + unk09->p2.field_8) >> 1;
-        point_b.field_C = (unk09->p3.field_C + unk09->p2.field_C) >> 1;
-        point_b.field_10 = (unk09->p3.field_10 + unk09->p2.field_10) >> 1;
+        point_b.U = (unk09->p3.U + unk09->p2.U) >> 1;
+        point_b.V = (unk09->p3.V + unk09->p2.V) >> 1;
+        point_b.S = (unk09->p3.S + unk09->p2.S) >> 1;
         perspective(&coord_b, &point_b);
         coord_c.x = (unk09->c1.x + unk09->c3.x) >> 1;
         coord_c.y = (unk09->c3.y + unk09->c1.y) >> 1;
         coord_c.z = (unk09->c3.z + unk09->c1.z) >> 1;
-        point_c.field_8 = (unk09->p1.field_8 + unk09->p3.field_8) >> 1;
-        point_c.field_C = (unk09->p3.field_C + unk09->p1.field_C) >> 1;
-        point_c.field_10 = (unk09->p3.field_10 + unk09->p1.field_10) >> 1;
+        point_c.U = (unk09->p1.U + unk09->p3.U) >> 1;
+        point_c.V = (unk09->p3.V + unk09->p1.V) >> 1;
+        point_c.S = (unk09->p3.S + unk09->p1.S) >> 1;
         perspective(&coord_c, &point_c);
         coord_d.x = (coord_a.x + unk09->c1.x) >> 1;
         coord_d.y = (coord_a.y + unk09->c1.y) >> 1;
         coord_d.z = (coord_a.z + unk09->c1.z) >> 1;
-        point_d.field_8 = (point_a.field_8 + unk09->p1.field_8) >> 1;
-        point_d.field_C = (point_a.field_C + unk09->p1.field_C) >> 1;
-        point_d.field_10 = (point_a.field_10 + unk09->p1.field_10) >> 1;
+        point_d.U = (point_a.U + unk09->p1.U) >> 1;
+        point_d.V = (point_a.V + unk09->p1.V) >> 1;
+        point_d.S = (point_a.S + unk09->p1.S) >> 1;
         perspective(&coord_d, &point_d);
         coord_e.x = (coord_a.x + unk09->c2.x) >> 1;
         coord_e.y = (coord_a.y + unk09->c2.y) >> 1;
         coord_e.z = (coord_a.z + unk09->c2.z) >> 1;
-        point_e.field_8 = (point_a.field_8 + unk09->p2.field_8) >> 1;
-        point_e.field_C = (point_a.field_C + unk09->p2.field_C) >> 1;
-        point_e.field_10 = (point_a.field_10 + unk09->p2.field_10) >> 1;
+        point_e.U = (point_a.U + unk09->p2.U) >> 1;
+        point_e.V = (point_a.V + unk09->p2.V) >> 1;
+        point_e.S = (point_a.S + unk09->p2.S) >> 1;
         perspective(&coord_e, &point_e);
         coord_d.x = (coord_b.x + unk09->c2.x) >> 1;
         coord_d.y = (coord_b.y + unk09->c2.y) >> 1;
         coord_d.z = (coord_b.z + unk09->c2.z) >> 1;
-        point_f.field_8 = (point_b.field_8 + unk09->p2.field_8) >> 1;
-        point_f.field_C = (point_b.field_C + unk09->p2.field_C) >> 1;
-        point_f.field_10 = (point_b.field_10 + unk09->p2.field_10) >> 1;
+        point_f.U = (point_b.U + unk09->p2.U) >> 1;
+        point_f.V = (point_b.V + unk09->p2.V) >> 1;
+        point_f.S = (point_b.S + unk09->p2.S) >> 1;
         perspective(&coord_d, &point_f);
         coord_e.x = (coord_b.x + unk09->c3.x) >> 1;
         coord_e.y = (coord_b.y + unk09->c3.y) >> 1;
         coord_e.z = (coord_b.z + unk09->c3.z) >> 1;
-        point_g.field_8 = (point_b.field_8 + unk09->p3.field_8) >> 1;
-        point_g.field_C = (point_b.field_C + unk09->p3.field_C) >> 1;
-        point_g.field_10 = (point_b.field_10 + unk09->p3.field_10) >> 1;
+        point_g.U = (point_b.U + unk09->p3.U) >> 1;
+        point_g.V = (point_b.V + unk09->p3.V) >> 1;
+        point_g.S = (point_b.S + unk09->p3.S) >> 1;
         perspective(&coord_e, &point_g);
         coord_d.x = (coord_c.x + unk09->c3.x) >> 1;
         coord_d.y = (coord_c.y + unk09->c3.y) >> 1;
         coord_d.z = (coord_c.z + unk09->c3.z) >> 1;
-        point_h.field_8 = (point_c.field_8 + unk09->p3.field_8) >> 1;
-        point_h.field_C = (point_c.field_C + unk09->p3.field_C) >> 1;
-        point_h.field_10 = (point_c.field_10 + unk09->p3.field_10) >> 1;
+        point_h.U = (point_c.U + unk09->p3.U) >> 1;
+        point_h.V = (point_c.V + unk09->p3.V) >> 1;
+        point_h.S = (point_c.S + unk09->p3.S) >> 1;
         perspective(&coord_d, &point_h);
         coord_e.x = (coord_c.x + unk09->c1.x) >> 1;
         coord_e.y = (coord_c.y + unk09->c1.y) >> 1;
         coord_e.z = (coord_c.z + unk09->c1.z) >> 1;
-        point_i.field_8 = (point_c.field_8 + unk09->p1.field_8) >> 1;
-        point_i.field_C = (point_c.field_C + unk09->p1.field_C) >> 1;
-        point_i.field_10 = (point_c.field_10 + unk09->p1.field_10) >> 1;
+        point_i.U = (point_c.U + unk09->p1.U) >> 1;
+        point_i.V = (point_c.V + unk09->p1.V) >> 1;
+        point_i.S = (point_c.S + unk09->p1.S) >> 1;
         perspective(&coord_e, &point_i);
         coord_d.x = (coord_a.x + coord_c.x) >> 1;
         coord_d.y = (coord_a.y + coord_c.y) >> 1;
         coord_d.z = (coord_a.z + coord_c.z) >> 1;
-        point_j.field_8 = (point_a.field_8 + point_c.field_8) >> 1;
-        point_j.field_C = (point_a.field_C + point_c.field_C) >> 1;
-        point_j.field_10 = (point_a.field_10 + point_c.field_10) >> 1;
+        point_j.U = (point_a.U + point_c.U) >> 1;
+        point_j.V = (point_a.V + point_c.V) >> 1;
+        point_j.S = (point_a.S + point_c.S) >> 1;
         perspective(&coord_d, &point_j);
         coord_e.x = (coord_a.x + coord_b.x) >> 1;
         coord_e.y = (coord_a.y + coord_b.y) >> 1;
         coord_e.z = (coord_a.z + coord_b.z) >> 1;
-        point_k.field_8 = (point_a.field_8 + point_b.field_8) >> 1;
-        point_k.field_C = (point_a.field_C + point_b.field_C) >> 1;
-        point_k.field_10 = (point_a.field_10 + point_b.field_10) >> 1;
+        point_k.U = (point_a.U + point_b.U) >> 1;
+        point_k.V = (point_a.V + point_b.V) >> 1;
+        point_k.S = (point_a.S + point_b.S) >> 1;
         perspective(&coord_e, &point_k);
         coord_d.x = (coord_b.x + coord_c.x) >> 1;
         coord_d.y = (coord_b.y + coord_c.y) >> 1;
         coord_d.z = (coord_b.z + coord_c.z) >> 1;
-        point_l.field_8 = (point_b.field_8 + point_c.field_8) >> 1;
-        point_l.field_C = (point_b.field_C + point_c.field_C) >> 1;
-        point_l.field_10 = (point_b.field_10 + point_c.field_10) >> 1;
+        point_l.U = (point_b.U + point_c.U) >> 1;
+        point_l.V = (point_b.V + point_c.V) >> 1;
+        point_l.S = (point_b.S + point_c.S) >> 1;
         perspective(&coord_d, &point_l);
         draw_gpoly(&unk09->p1, &point_d, &point_i);
         draw_gpoly(&point_d, &point_a, &point_j);
@@ -5670,65 +5677,65 @@ static void draw_unkn09(struct BucketKindPolygonNearFP *unk09)
         break;
     case 12:
         vec_mode = VM_Unknown7;
-        vec_colour = (unk09->p3.field_10 + unk09->p2.field_10 + unk09->p1.field_10) / 3 >> 16;
+        vec_colour = (unk09->p3.S + unk09->p2.S + unk09->p1.S) / 3 >> 16;
         trig(&unk09->p1, &unk09->p2, &unk09->p3);
         break;
     case 13:
         vec_mode = VM_Unknown7;
-        vec_colour = (unk09->p3.field_10 + unk09->p2.field_10 + unk09->p1.field_10) / 3 >> 16;
+        vec_colour = (unk09->p3.S + unk09->p2.S + unk09->p1.S) / 3 >> 16;
         coord_a.x = (unk09->c2.x + unk09->c1.x) >> 1;
         coord_a.y = (unk09->c2.y + unk09->c1.y) >> 1;
         coord_a.z = (unk09->c1.z + unk09->c2.z) >> 1;
-        point_a.field_8 = (unk09->p1.field_8 + unk09->p2.field_8) >> 1;
-        point_a.field_C = (unk09->p2.field_C + unk09->p1.field_C) >> 1;
+        point_a.U = (unk09->p1.U + unk09->p2.U) >> 1;
+        point_a.V = (unk09->p2.V + unk09->p1.V) >> 1;
         perspective(&coord_a, &point_a);
         trig(&unk09->p1, &point_a, &unk09->p3);
         trig(&point_a, &unk09->p2, &unk09->p3);
         break;
     case 14:
         vec_mode = VM_Unknown7;
-        vec_colour = (unk09->p3.field_10 + unk09->p2.field_10 + unk09->p1.field_10) / 3 >> 16;
+        vec_colour = (unk09->p3.S + unk09->p2.S + unk09->p1.S) / 3 >> 16;
         coord_a.x = (unk09->c2.x + unk09->c3.x) >> 1;
         coord_a.y = (unk09->c2.y + unk09->c3.y) >> 1;
         coord_a.z = (unk09->c3.z + unk09->c2.z) >> 1;
-        point_a.field_8 = (unk09->p3.field_8 + unk09->p2.field_8) >> 1;
-        point_a.field_C = (unk09->p3.field_C + unk09->p2.field_C) >> 1;
+        point_a.U = (unk09->p3.U + unk09->p2.U) >> 1;
+        point_a.V = (unk09->p3.V + unk09->p2.V) >> 1;
         perspective(&coord_a, &point_a);
         trig(&unk09->p1, &unk09->p2, &point_a);
         trig(&unk09->p1, &point_a, &unk09->p3);
         break;
     case 15:
         vec_mode = VM_Unknown7;
-        vec_colour = (unk09->p3.field_10 + unk09->p2.field_10 + unk09->p1.field_10) / 3 >> 16;
+        vec_colour = (unk09->p3.S + unk09->p2.S + unk09->p1.S) / 3 >> 16;
         coord_a.x = (unk09->c1.x + unk09->c3.x) >> 1;
         coord_a.y = (unk09->c3.y + unk09->c1.y) >> 1;
         coord_a.z = (unk09->c3.z + unk09->c1.z) >> 1;
-        point_a.field_8 = (unk09->p1.field_8 + unk09->p3.field_8) >> 1;
-        point_a.field_C = (unk09->p3.field_C + unk09->p1.field_C) >> 1;
+        point_a.U = (unk09->p1.U + unk09->p3.U) >> 1;
+        point_a.V = (unk09->p3.V + unk09->p1.V) >> 1;
         perspective(&coord_a, &point_a);
         trig(&unk09->p1, &unk09->p2, &point_a);
         trig(&point_a, &unk09->p2, &unk09->p3);
         break;
     case 16:
         vec_mode = VM_Unknown7;
-        vec_colour = (unk09->p3.field_10 + unk09->p2.field_10 + unk09->p1.field_10) / 3 >> 16;
+        vec_colour = (unk09->p3.S + unk09->p2.S + unk09->p1.S) / 3 >> 16;
         coord_a.x = (unk09->c2.x + unk09->c1.x) >> 1;
         coord_a.y = (unk09->c2.y + unk09->c1.y) >> 1;
         coord_a.z = (unk09->c1.z + unk09->c2.z) >> 1;
-        point_a.field_8 = (unk09->p1.field_8 + unk09->p2.field_8) >> 1;
-        point_a.field_C = (unk09->p2.field_C + unk09->p1.field_C) >> 1;
+        point_a.U = (unk09->p1.U + unk09->p2.U) >> 1;
+        point_a.V = (unk09->p2.V + unk09->p1.V) >> 1;
         perspective(&coord_a, &point_a);
         coord_b.x = (unk09->c2.x + unk09->c3.x) >> 1;
         coord_b.y = (unk09->c2.y + unk09->c3.y) >> 1;
         coord_b.z = (unk09->c3.z + unk09->c2.z) >> 1;
-        point_b.field_8 = (unk09->p3.field_8 + unk09->p2.field_8) >> 1;
-        point_b.field_C = (unk09->p3.field_C + unk09->p2.field_C) >> 1;
+        point_b.U = (unk09->p3.U + unk09->p2.U) >> 1;
+        point_b.V = (unk09->p3.V + unk09->p2.V) >> 1;
         perspective(&coord_b, &point_b);
         coord_c.x = (unk09->c1.x + unk09->c3.x) >> 1;
         coord_c.y = (unk09->c3.y + unk09->c1.y) >> 1;
         coord_c.z = (unk09->c3.z + unk09->c1.z) >> 1;
-        point_c.field_8 = (unk09->p1.field_8 + unk09->p3.field_8) >> 1;
-        point_c.field_C = (unk09->p3.field_C + unk09->p1.field_C) >> 1;
+        point_c.U = (unk09->p1.U + unk09->p3.U) >> 1;
+        point_c.V = (unk09->p3.V + unk09->p1.V) >> 1;
         perspective(&coord_c, &point_c);
         trig(&unk09->p1, &point_a, &point_c);
         trig(&point_a, &unk09->p2, &point_b);
@@ -5737,24 +5744,24 @@ static void draw_unkn09(struct BucketKindPolygonNearFP *unk09)
         break;
     case 17:
         vec_mode = VM_Unknown7;
-        vec_colour = (unk09->p3.field_10 + unk09->p2.field_10 + unk09->p1.field_10) / 3 >> 16;
+        vec_colour = (unk09->p3.S + unk09->p2.S + unk09->p1.S) / 3 >> 16;
         coord_a.x = (unk09->c2.x + unk09->c1.x) >> 1;
         coord_a.y = (unk09->c2.y + unk09->c1.y) >> 1;
         coord_a.z = (unk09->c1.z + unk09->c2.z) >> 1;
-        point_a.field_8 = (unk09->p1.field_8 + unk09->p2.field_8) >> 1;
-        point_a.field_C = (unk09->p2.field_C + unk09->p1.field_C) >> 1;
+        point_a.U = (unk09->p1.U + unk09->p2.U) >> 1;
+        point_a.V = (unk09->p2.V + unk09->p1.V) >> 1;
         perspective(&coord_a, &point_a);
         coord_b.x = (coord_a.x + unk09->c1.x) >> 1;
         coord_b.y = (coord_a.y + unk09->c1.y) >> 1;
         coord_b.z = (coord_a.z + unk09->c1.z) >> 1;
-        point_b.field_8 = (point_a.field_8 + unk09->p1.field_8) >> 1;
-        point_b.field_C = (point_a.field_C + unk09->p1.field_C) >> 1;
+        point_b.U = (point_a.U + unk09->p1.U) >> 1;
+        point_b.V = (point_a.V + unk09->p1.V) >> 1;
         perspective(&coord_b, &point_b);
         coord_c.x = (coord_a.x + unk09->c2.x) >> 1;
         coord_c.y = (coord_a.y + unk09->c2.y) >> 1;
         coord_c.z = (coord_a.z + unk09->c2.z) >> 1;
-        point_c.field_8 = (point_a.field_8 + unk09->p2.field_8) >> 1;
-        point_c.field_C = (point_a.field_C + unk09->p2.field_C) >> 1;
+        point_c.U = (point_a.U + unk09->p2.U) >> 1;
+        point_c.V = (point_a.V + unk09->p2.V) >> 1;
         perspective(&coord_c, &point_c);
         trig(&unk09->p1, &point_b, &unk09->p3);
         trig(&point_b, &point_a, &unk09->p3);
@@ -5763,24 +5770,24 @@ static void draw_unkn09(struct BucketKindPolygonNearFP *unk09)
         break;
     case 18:
         vec_mode = VM_Unknown7;
-        vec_colour = (unk09->p3.field_10 + unk09->p2.field_10 + unk09->p1.field_10) / 3 >> 16;
+        vec_colour = (unk09->p3.S + unk09->p2.S + unk09->p1.S) / 3 >> 16;
         coord_a.x = (unk09->c2.x + unk09->c3.x) >> 1;
         coord_a.y = (unk09->c2.y + unk09->c3.y) >> 1;
         coord_a.z = (unk09->c3.z + unk09->c2.z) >> 1;
-        point_a.field_8 = (unk09->p3.field_8 + unk09->p2.field_8) >> 1;
-        point_a.field_C = (unk09->p3.field_C + unk09->p2.field_C) >> 1;
+        point_a.U = (unk09->p3.U + unk09->p2.U) >> 1;
+        point_a.V = (unk09->p3.V + unk09->p2.V) >> 1;
         perspective(&coord_a, &point_a);
         coord_b.x = (coord_a.x + unk09->c2.x) >> 1;
         coord_b.y = (coord_a.y + unk09->c2.y) >> 1;
         coord_b.z = (coord_a.z + unk09->c2.z) >> 1;
-        point_b.field_8 = (point_a.field_8 + unk09->p2.field_8) >> 1;
-        point_b.field_C = (point_a.field_C + unk09->p2.field_C) >> 1;
+        point_b.U = (point_a.U + unk09->p2.U) >> 1;
+        point_b.V = (point_a.V + unk09->p2.V) >> 1;
         perspective(&coord_b, &point_b);
         coord_c.x = (coord_a.x + unk09->c3.x) >> 1;
         coord_c.y = (coord_a.y + unk09->c3.y) >> 1;
         coord_c.z = (coord_a.z + unk09->c3.z) >> 1;
-        point_c.field_8 = (point_a.field_8 + unk09->p3.field_8) >> 1;
-        point_c.field_C = (point_a.field_C + unk09->p3.field_C) >> 1;
+        point_c.U = (point_a.U + unk09->p3.U) >> 1;
+        point_c.V = (point_a.V + unk09->p3.V) >> 1;
         perspective(&coord_c, &point_c);
         trig(&unk09->p1, &unk09->p2, &point_b);
         trig(&unk09->p1, &point_b, &point_a);
@@ -5789,24 +5796,24 @@ static void draw_unkn09(struct BucketKindPolygonNearFP *unk09)
         break;
     case 19:
         vec_mode = VM_Unknown7;
-        vec_colour = (unk09->p3.field_10 + unk09->p2.field_10 + unk09->p1.field_10) / 3 >> 16;
+        vec_colour = (unk09->p3.S + unk09->p2.S + unk09->p1.S) / 3 >> 16;
         coord_a.x = (unk09->c1.x + unk09->c3.x) >> 1;
         coord_a.y = (unk09->c3.y + unk09->c1.y) >> 1;
         coord_a.z = (unk09->c3.z + unk09->c1.z) >> 1;
-        point_a.field_8 = (unk09->p1.field_8 + unk09->p3.field_8) >> 1;
-        point_a.field_C = (unk09->p3.field_C + unk09->p1.field_C) >> 1;
+        point_a.U = (unk09->p1.U + unk09->p3.U) >> 1;
+        point_a.V = (unk09->p3.V + unk09->p1.V) >> 1;
         perspective(&coord_a, &point_a);
         coord_b.x = (coord_a.x + unk09->c3.x) >> 1;
         coord_b.y = (coord_a.y + unk09->c3.y) >> 1;
         coord_b.z = (coord_a.z + unk09->c3.z) >> 1;
-        point_b.field_8 = (point_a.field_8 + unk09->p3.field_8) >> 1;
-        point_b.field_C = (point_a.field_C + unk09->p3.field_C) >> 1;
+        point_b.U = (point_a.U + unk09->p3.U) >> 1;
+        point_b.V = (point_a.V + unk09->p3.V) >> 1;
         perspective(&coord_b, &point_b);
         coord_c.x = (coord_a.x + unk09->c1.x) >> 1;
         coord_c.y = (coord_a.y + unk09->c1.y) >> 1;
         coord_c.z = (coord_a.z + unk09->c1.z) >> 1;
-        point_c.field_8 = (point_a.field_8 + unk09->p1.field_8) >> 1;
-        point_c.field_C = (point_a.field_C + unk09->p1.field_C) >> 1;
+        point_c.U = (point_a.U + unk09->p1.U) >> 1;
+        point_c.V = (point_a.V + unk09->p1.V) >> 1;
         perspective(&coord_c, &point_c);
         trig(&unk09->p2, &unk09->p3, &point_b);
         trig(&unk09->p2, &point_b, &point_a);
@@ -5815,36 +5822,36 @@ static void draw_unkn09(struct BucketKindPolygonNearFP *unk09)
         break;
     case 20:
         vec_mode = VM_Unknown7;
-        vec_colour = (unk09->p3.field_10 + unk09->p2.field_10 + unk09->p1.field_10) / 3 >> 16;
+        vec_colour = (unk09->p3.S + unk09->p2.S + unk09->p1.S) / 3 >> 16;
         coord_a.x = (unk09->c2.x + unk09->c1.x) >> 1;
         coord_a.y = (unk09->c2.y + unk09->c1.y) >> 1;
         coord_a.z = (unk09->c1.z + unk09->c2.z) >> 1;
-        point_a.field_8 = (unk09->p1.field_8 + unk09->p2.field_8) >> 1;
-        point_a.field_C = (unk09->p2.field_C + unk09->p1.field_C) >> 1;
+        point_a.U = (unk09->p1.U + unk09->p2.U) >> 1;
+        point_a.V = (unk09->p2.V + unk09->p1.V) >> 1;
         perspective(&coord_a, &point_a);
         coord_b.x = (unk09->c2.x + unk09->c3.x) >> 1;
         coord_b.y = (unk09->c2.y + unk09->c3.y) >> 1;
         coord_b.z = (unk09->c3.z + unk09->c2.z) >> 1;
-        point_b.field_8 = (unk09->p3.field_8 + unk09->p2.field_8) >> 1;
-        point_b.field_C = (unk09->p3.field_C + unk09->p2.field_C) >> 1;
+        point_b.U = (unk09->p3.U + unk09->p2.U) >> 1;
+        point_b.V = (unk09->p3.V + unk09->p2.V) >> 1;
         perspective(&coord_b, &point_b);
         coord_c.x = (unk09->c1.x + unk09->c3.x) >> 1;
         coord_c.y = (unk09->c3.y + unk09->c1.y) >> 1;
         coord_c.z = (unk09->c3.z + unk09->c1.z) >> 1;
-        point_c.field_8 = (unk09->p1.field_8 + unk09->p3.field_8) >> 1;
-        point_c.field_C = (unk09->p3.field_C + unk09->p1.field_C) >> 1;
+        point_c.U = (unk09->p1.U + unk09->p3.U) >> 1;
+        point_c.V = (unk09->p3.V + unk09->p1.V) >> 1;
         perspective(&coord_c, &point_c);
         coord_d.x = (coord_a.x + unk09->c1.x) >> 1;
         coord_d.y = (coord_a.y + unk09->c1.y) >> 1;
         coord_d.z = (coord_a.z + unk09->c1.z) >> 1;
-        point_d.field_8 = (point_a.field_8 + unk09->p1.field_8) >> 1;
-        point_d.field_C = (point_a.field_C + unk09->p1.field_C) >> 1;
+        point_d.U = (point_a.U + unk09->p1.U) >> 1;
+        point_d.V = (point_a.V + unk09->p1.V) >> 1;
         perspective(&coord_d, &point_d);
         coord_e.x = (coord_a.x + unk09->c2.x) >> 1;
         coord_e.y = (coord_a.y + unk09->c2.y) >> 1;
         coord_e.z = (coord_a.z + unk09->c2.z) >> 1;
-        point_e.field_8 = (point_a.field_8 + unk09->p2.field_8) >> 1;
-        point_e.field_C = (point_a.field_C + unk09->p2.field_C) >> 1;
+        point_e.U = (point_a.U + unk09->p2.U) >> 1;
+        point_e.V = (point_a.V + unk09->p2.V) >> 1;
         perspective(&coord_e, &point_e);
         trig(&unk09->p1, &point_d, &point_c);
         trig(&point_d, &point_a, &point_c);
@@ -5855,36 +5862,36 @@ static void draw_unkn09(struct BucketKindPolygonNearFP *unk09)
         break;
     case 21:
         vec_mode = VM_Unknown7;
-        vec_colour = (unk09->p3.field_10 + unk09->p2.field_10 + unk09->p1.field_10) / 3 >> 16;
+        vec_colour = (unk09->p3.S + unk09->p2.S + unk09->p1.S) / 3 >> 16;
         coord_a.x = (unk09->c2.x + unk09->c1.x) >> 1;
         coord_a.y = (unk09->c2.y + unk09->c1.y) >> 1;
         coord_a.z = (unk09->c1.z + unk09->c2.z) >> 1;
-        point_a.field_8 = (unk09->p1.field_8 + unk09->p2.field_8) >> 1;
-        point_a.field_C = (unk09->p2.field_C + unk09->p1.field_C) >> 1;
+        point_a.U = (unk09->p1.U + unk09->p2.U) >> 1;
+        point_a.V = (unk09->p2.V + unk09->p1.V) >> 1;
         perspective(&coord_a, &point_a);
         coord_b.x = (unk09->c2.x + unk09->c3.x) >> 1;
         coord_b.y = (unk09->c2.y + unk09->c3.y) >> 1;
         coord_b.z = (unk09->c3.z + unk09->c2.z) >> 1;
-        point_b.field_8 = (unk09->p3.field_8 + unk09->p2.field_8) >> 1;
-        point_b.field_C = (unk09->p3.field_C + unk09->p2.field_C) >> 1;
+        point_b.U = (unk09->p3.U + unk09->p2.U) >> 1;
+        point_b.V = (unk09->p3.V + unk09->p2.V) >> 1;
         perspective(&coord_b, &point_b);
         coord_c.x = (unk09->c1.x + unk09->c3.x) >> 1;
         coord_c.y = (unk09->c3.y + unk09->c1.y) >> 1;
         coord_c.z = (unk09->c3.z + unk09->c1.z) >> 1;
-        point_c.field_8 = (unk09->p1.field_8 + unk09->p3.field_8) >> 1;
-        point_c.field_C = (unk09->p3.field_C + unk09->p1.field_C) >> 1;
+        point_c.U = (unk09->p1.U + unk09->p3.U) >> 1;
+        point_c.V = (unk09->p3.V + unk09->p1.V) >> 1;
         perspective(&coord_c, &point_c);
         coord_d.x = (coord_b.x + unk09->c2.x) >> 1;
         coord_d.y = (coord_b.y + unk09->c2.y) >> 1;
         coord_d.z = (coord_b.z + unk09->c2.z) >> 1;
-        point_d.field_8 = (point_b.field_8 + unk09->p2.field_8) >> 1;
-        point_d.field_C = (point_b.field_C + unk09->p2.field_C) >> 1;
+        point_d.U = (point_b.U + unk09->p2.U) >> 1;
+        point_d.V = (point_b.V + unk09->p2.V) >> 1;
         perspective(&coord_d, &point_d);
         coord_e.x = (coord_b.x + unk09->c3.x) >> 1;
         coord_e.y = (coord_b.y + unk09->c3.y) >> 1;
         coord_e.z = (coord_b.z + unk09->c3.z) >> 1;
-        point_e.field_8 = (point_b.field_8 + unk09->p3.field_8) >> 1;
-        point_e.field_C = (point_b.field_C + unk09->p3.field_C) >> 1;
+        point_e.U = (point_b.U + unk09->p3.U) >> 1;
+        point_e.V = (point_b.V + unk09->p3.V) >> 1;
         perspective(&coord_e, &point_e);
         trig(&unk09->p1, &point_a, &point_c);
         trig(&point_a, &point_b, &point_c);
@@ -5895,36 +5902,36 @@ static void draw_unkn09(struct BucketKindPolygonNearFP *unk09)
         break;
     case 22:
         vec_mode = VM_Unknown7;
-        vec_colour = (unk09->p3.field_10 + unk09->p2.field_10 + unk09->p1.field_10) / 3 >> 16;
+        vec_colour = (unk09->p3.S + unk09->p2.S + unk09->p1.S) / 3 >> 16;
         coord_a.x = (unk09->c2.x + unk09->c1.x) >> 1;
         coord_a.y = (unk09->c2.y + unk09->c1.y) >> 1;
         coord_a.z = (unk09->c1.z + unk09->c2.z) >> 1;
-        point_a.field_8 = (unk09->p1.field_8 + unk09->p2.field_8) >> 1;
-        point_a.field_C = (unk09->p2.field_C + unk09->p1.field_C) >> 1;
+        point_a.U = (unk09->p1.U + unk09->p2.U) >> 1;
+        point_a.V = (unk09->p2.V + unk09->p1.V) >> 1;
         perspective(&coord_a, &point_a);
         coord_b.x = (unk09->c2.x + unk09->c3.x) >> 1;
         coord_b.y = (unk09->c2.y + unk09->c3.y) >> 1;
         coord_b.z = (unk09->c3.z + unk09->c2.z) >> 1;
-        point_b.field_8 = (unk09->p3.field_8 + unk09->p2.field_8) >> 1;
-        point_b.field_C = (unk09->p3.field_C + unk09->p2.field_C) >> 1;
+        point_b.U = (unk09->p3.U + unk09->p2.U) >> 1;
+        point_b.V = (unk09->p3.V + unk09->p2.V) >> 1;
         perspective(&coord_b, &point_b);
         coord_c.x = (unk09->c1.x + unk09->c3.x) >> 1;
         coord_c.y = (unk09->c3.y + unk09->c1.y) >> 1;
         coord_c.z = (unk09->c3.z + unk09->c1.z) >> 1;
-        point_c.field_8 = (unk09->p1.field_8 + unk09->p3.field_8) >> 1;
-        point_c.field_C = (unk09->p3.field_C + unk09->p1.field_C) >> 1;
+        point_c.U = (unk09->p1.U + unk09->p3.U) >> 1;
+        point_c.V = (unk09->p3.V + unk09->p1.V) >> 1;
         perspective(&coord_c, &point_c);
         coord_d.x = (coord_c.x + unk09->c3.x) >> 1;
         coord_d.y = (coord_c.y + unk09->c3.y) >> 1;
         coord_d.z = (coord_c.z + unk09->c3.z) >> 1;
-        point_d.field_8 = (point_c.field_8 + unk09->p3.field_8) >> 1;
-        point_d.field_C = (point_c.field_C + unk09->p3.field_C) >> 1;
+        point_d.U = (point_c.U + unk09->p3.U) >> 1;
+        point_d.V = (point_c.V + unk09->p3.V) >> 1;
         perspective(&coord_d, &point_d);
         coord_e.x = (coord_c.x + unk09->c1.x) >> 1;
         coord_e.y = (coord_c.y + unk09->c1.y) >> 1;
         coord_e.z = (coord_c.z + unk09->c1.z) >> 1;
-        point_e.field_8 = (point_c.field_8 + unk09->p1.field_8) >> 1;
-        point_e.field_C = (point_c.field_C + unk09->p1.field_C) >> 1;
+        point_e.U = (point_c.U + unk09->p1.U) >> 1;
+        point_e.V = (point_c.V + unk09->p1.V) >> 1;
         perspective(&coord_e, &point_e);
         trig(&point_a, &unk09->p2, &point_b);
         trig(&point_a, &point_b, &point_c);
@@ -5935,78 +5942,78 @@ static void draw_unkn09(struct BucketKindPolygonNearFP *unk09)
         break;
     case 23:
         vec_mode = VM_Unknown7;
-        vec_colour = (unk09->p3.field_10 + unk09->p2.field_10 + unk09->p1.field_10) / 3 >> 16;
+        vec_colour = (unk09->p3.S + unk09->p2.S + unk09->p1.S) / 3 >> 16;
         coord_a.x = (unk09->c2.x + unk09->c1.x) >> 1;
         coord_a.y = (unk09->c2.y + unk09->c1.y) >> 1;
         coord_a.z = (unk09->c1.z + unk09->c2.z) >> 1;
-        point_a.field_8 = (unk09->p1.field_8 + unk09->p2.field_8) >> 1;
-        point_a.field_C = (unk09->p2.field_C + unk09->p1.field_C) >> 1;
+        point_a.U = (unk09->p1.U + unk09->p2.U) >> 1;
+        point_a.V = (unk09->p2.V + unk09->p1.V) >> 1;
         perspective(&coord_a, &point_a);
         coord_b.x = (unk09->c2.x + unk09->c3.x) >> 1;
         coord_b.y = (unk09->c2.y + unk09->c3.y) >> 1;
         coord_b.z = (unk09->c3.z + unk09->c2.z) >> 1;
-        point_b.field_8 = (unk09->p3.field_8 + unk09->p2.field_8) >> 1;
-        point_b.field_C = (unk09->p3.field_C + unk09->p2.field_C) >> 1;
+        point_b.U = (unk09->p3.U + unk09->p2.U) >> 1;
+        point_b.V = (unk09->p3.V + unk09->p2.V) >> 1;
         perspective(&coord_b, &point_b);
         coord_c.x = (unk09->c1.x + unk09->c3.x) >> 1;
         coord_c.y = (unk09->c3.y + unk09->c1.y) >> 1;
         coord_c.z = (unk09->c3.z + unk09->c1.z) >> 1;
-        point_c.field_8 = (unk09->p1.field_8 + unk09->p3.field_8) >> 1;
-        point_c.field_C = (unk09->p3.field_C + unk09->p1.field_C) >> 1;
+        point_c.U = (unk09->p1.U + unk09->p3.U) >> 1;
+        point_c.V = (unk09->p3.V + unk09->p1.V) >> 1;
         perspective(&coord_c, &point_c);
         coord_d.x = (coord_a.x + unk09->c1.x) >> 1;
         coord_d.y = (coord_a.y + unk09->c1.y) >> 1;
         coord_d.z = (coord_a.z + unk09->c1.z) >> 1;
-        point_d.field_8 = (point_a.field_8 + unk09->p1.field_8) >> 1;
-        point_d.field_C = (point_a.field_C + unk09->p1.field_C) >> 1;
+        point_d.U = (point_a.U + unk09->p1.U) >> 1;
+        point_d.V = (point_a.V + unk09->p1.V) >> 1;
         perspective(&coord_d, &point_d);
         coord_e.x = (coord_a.x + unk09->c2.x) >> 1;
         coord_e.y = (coord_a.y + unk09->c2.y) >> 1;
         coord_e.z = (coord_a.z + unk09->c2.z) >> 1;
-        point_e.field_8 = (point_a.field_8 + unk09->p2.field_8) >> 1;
-        point_e.field_C = (point_a.field_C + unk09->p2.field_C) >> 1;
+        point_e.U = (point_a.U + unk09->p2.U) >> 1;
+        point_e.V = (point_a.V + unk09->p2.V) >> 1;
         perspective(&coord_e, &point_e);
         coord_d.x = (coord_b.x + unk09->c2.x) >> 1;
         coord_d.y = (coord_b.y + unk09->c2.y) >> 1;
         coord_d.z = (coord_b.z + unk09->c2.z) >> 1;
-        point_f.field_8 = (point_b.field_8 + unk09->p2.field_8) >> 1;
-        point_f.field_C = (point_b.field_C + unk09->p2.field_C) >> 1;
+        point_f.U = (point_b.U + unk09->p2.U) >> 1;
+        point_f.V = (point_b.V + unk09->p2.V) >> 1;
         perspective(&coord_d, &point_f);
         coord_e.x = (coord_b.x + unk09->c3.x) >> 1;
         coord_e.y = (coord_b.y + unk09->c3.y) >> 1;
         coord_e.z = (coord_b.z + unk09->c3.z) >> 1;
-        point_g.field_8 = (point_b.field_8 + unk09->p3.field_8) >> 1;
-        point_g.field_C = (point_b.field_C + unk09->p3.field_C) >> 1;
+        point_g.U = (point_b.U + unk09->p3.U) >> 1;
+        point_g.V = (point_b.V + unk09->p3.V) >> 1;
         perspective(&coord_e, &point_g);
         coord_d.x = (coord_c.x + unk09->c3.x) >> 1;
         coord_d.y = (coord_c.y + unk09->c3.y) >> 1;
         coord_d.z = (coord_c.z + unk09->c3.z) >> 1;
-        point_h.field_8 = (point_c.field_8 + unk09->p3.field_8) >> 1;
-        point_h.field_C = (point_c.field_C + unk09->p3.field_C) >> 1;
+        point_h.U = (point_c.U + unk09->p3.U) >> 1;
+        point_h.V = (point_c.V + unk09->p3.V) >> 1;
         perspective(&coord_d, &point_h);
         coord_e.x = (coord_c.x + unk09->c1.x) >> 1;
         coord_e.y = (coord_c.y + unk09->c1.y) >> 1;
         coord_e.z = (coord_c.z + unk09->c1.z) >> 1;
-        point_i.field_8 = (point_c.field_8 + unk09->p1.field_8) >> 1;
-        point_i.field_C = (point_c.field_C + unk09->p1.field_C) >> 1;
+        point_i.U = (point_c.U + unk09->p1.U) >> 1;
+        point_i.V = (point_c.V + unk09->p1.V) >> 1;
         perspective(&coord_e, &point_i);
         coord_d.x = (coord_a.x + coord_c.x) >> 1;
         coord_d.y = (coord_a.y + coord_c.y) >> 1;
         coord_d.z = (coord_a.z + coord_c.z) >> 1;
-        point_j.field_8 = (point_a.field_8 + point_c.field_8) >> 1;
-        point_j.field_C = (point_a.field_C + point_c.field_C) >> 1;
+        point_j.U = (point_a.U + point_c.U) >> 1;
+        point_j.V = (point_a.V + point_c.V) >> 1;
         perspective(&coord_d, &point_j);
         coord_e.x = (coord_a.x + coord_b.x) >> 1;
         coord_e.y = (coord_a.y + coord_b.y) >> 1;
         coord_e.z = (coord_a.z + coord_b.z) >> 1;
-        point_k.field_8 = (point_a.field_8 + point_b.field_8) >> 1;
-        point_k.field_C = (point_a.field_C + point_b.field_C) >> 1;
+        point_k.U = (point_a.U + point_b.U) >> 1;
+        point_k.V = (point_a.V + point_b.V) >> 1;
         perspective(&coord_e, &point_k);
         coord_d.x = (coord_b.x + coord_c.x) >> 1;
         coord_d.y = (coord_b.y + coord_c.y) >> 1;
         coord_d.z = (coord_b.z + coord_c.z) >> 1;
-        point_l.field_8 = (point_b.field_8 + point_c.field_8) >> 1;
-        point_l.field_C = (point_b.field_C + point_c.field_C) >> 1;
+        point_l.U = (point_b.U + point_c.U) >> 1;
+        point_l.V = (point_b.V + point_c.V) >> 1;
         perspective(&coord_d, &point_l);
         trig(&unk09->p1, &point_d, &point_i);
         trig(&point_d, &point_a, &point_j);
@@ -6030,7 +6037,7 @@ static void draw_unkn09(struct BucketKindPolygonNearFP *unk09)
         render_prob_kind = unk09->b.kind;
         break;
     }
-    
+
 }
 void display_drawlist(void) // Draws isometric and 1st person view. Not frontview.
 {
@@ -6068,7 +6075,7 @@ void display_drawlist(void) // Draws isometric and 1st person view. Not frontvie
     render_alpha = (unsigned char *)&alpha_sprite_table;
     render_problems = 0;
     thing_pointed_at = 0;
-    
+
     // The bucket list is the final step in drawing something to the screen. Visuals are added to the bucket list in previous functions.
     for (bucket_num = BUCKETS_COUNT-1; bucket_num > 0; bucket_num--)
     {
@@ -6084,103 +6091,103 @@ void display_drawlist(void) // Draws isometric and 1st person view. Not frontvie
                 break;
             case QK_PolygonSimple: // Possibly unused
                 vec_mode = VM_Unknown7;
-                vec_colour = ((item.polygonSimple->p3.field_10 + item.polygonSimple->p2.field_10 + item.polygonSimple->p1.field_10)/3) >> 16;
+                vec_colour = ((item.polygonSimple->p3.S + item.polygonSimple->p2.S + item.polygonSimple->p1.S)/3) >> 16;
                 vec_map = block_ptrs[item.polygonSimple->block];
                 trig(&item.polygonSimple->p1, &item.polygonSimple->p2, &item.polygonSimple->p3);
                 break;
             case QK_PolyMode0: // Possibly unused
                 vec_mode = VM_Unknown0;
                 vec_colour = item.polyMode0->colour;
-                point_a.field_0 = item.polyMode0->x1;
-                point_a.field_4 = item.polyMode0->y1;
-                point_b.field_0 = item.polyMode0->x2;
-                point_b.field_4 = item.polyMode0->y2;
-                point_c.field_0 = item.polyMode0->x3;
-                point_c.field_4 = item.polyMode0->y3;
+                point_a.X = item.polyMode0->x1;
+                point_a.Y = item.polyMode0->y1;
+                point_b.X = item.polyMode0->x2;
+                point_b.Y = item.polyMode0->y2;
+                point_c.X = item.polyMode0->x3;
+                point_c.Y = item.polyMode0->y3;
                 draw_gpoly(&point_a, &point_b, &point_c);
                 break;
             case QK_PolyMode4: // Possibly unused
                 vec_mode = VM_Unknown4;
                 vec_colour = item.polyMode4->colour;
-                point_a.field_0 = item.polyMode4->x1;
-                point_a.field_4 = item.polyMode4->y1;
-                point_b.field_0 = item.polyMode4->x2;
-                point_b.field_4 = item.polyMode4->y2;
-                point_c.field_0 = item.polyMode4->x3;
-                point_c.field_4 = item.polyMode4->y3;
-                point_a.field_10 = item.polyMode4->vf1 << 16;
-                point_b.field_10 = item.polyMode4->vf2 << 16;
-                point_c.field_10 = item.polyMode4->vf3 << 16;
+                point_a.X = item.polyMode4->x1;
+                point_a.Y = item.polyMode4->y1;
+                point_b.X = item.polyMode4->x2;
+                point_b.Y = item.polyMode4->y2;
+                point_c.X = item.polyMode4->x3;
+                point_c.Y = item.polyMode4->y3;
+                point_a.S = item.polyMode4->vf1 << 16;
+                point_b.S = item.polyMode4->vf2 << 16;
+                point_c.S = item.polyMode4->vf3 << 16;
                 draw_gpoly(&point_a, &point_b, &point_c);
                 break;
             case QK_TrigMode2: // Possibly unused
                 vec_mode = VM_Unknown2;
-                point_a.field_0 = item.trigMode2->x1;
-                point_a.field_4 = item.trigMode2->y1;
-                point_b.field_0 = item.trigMode2->x2;
-                point_b.field_4 = item.trigMode2->y2;
-                point_c.field_0 = item.trigMode2->x3;
-                point_c.field_4 = item.trigMode2->y3;
-                point_a.field_8 = item.trigMode2->uf1 << 16;
-                point_a.field_C = item.trigMode2->vf1 << 16;
-                point_b.field_8 = item.trigMode2->uf2 << 16;
-                point_b.field_C = item.trigMode2->vf2 << 16;
-                point_c.field_8 = item.trigMode2->uf3 << 16;
-                point_c.field_C = item.trigMode2->vf3 << 16;
+                point_a.X = item.trigMode2->x1;
+                point_a.Y = item.trigMode2->y1;
+                point_b.X = item.trigMode2->x2;
+                point_b.Y = item.trigMode2->y2;
+                point_c.X = item.trigMode2->x3;
+                point_c.Y = item.trigMode2->y3;
+                point_a.U = item.trigMode2->uf1 << 16;
+                point_a.V = item.trigMode2->vf1 << 16;
+                point_b.U = item.trigMode2->uf2 << 16;
+                point_b.V = item.trigMode2->vf2 << 16;
+                point_c.U = item.trigMode2->uf3 << 16;
+                point_c.V = item.trigMode2->vf3 << 16;
                 trig(&point_a, &point_b, &point_c);
                 break;
             case QK_PolyMode5: // Possibly unused
                 vec_mode = VM_Unknown5;
-                point_a.field_0 = item.polyMode5->x1;
-                point_a.field_4 = item.polyMode5->y1;
-                point_b.field_0 = item.polyMode5->x2;
-                point_b.field_4 = item.polyMode5->y2;
-                point_c.field_0 = item.polyMode5->x3;
-                point_c.field_4 = item.polyMode5->y3;
-                point_a.field_8 = item.polyMode5->uf1 << 16;
-                point_a.field_C = item.polyMode5->vf1 << 16;
-                point_b.field_8 = item.polyMode5->uf2 << 16;
-                point_b.field_C = item.polyMode5->vf2 << 16;
-                point_c.field_8 = item.polyMode5->uf3 << 16;
-                point_c.field_C = item.polyMode5->vf3 << 16;
-                point_a.field_10 = item.polyMode5->wf1 << 16;
-                point_b.field_10 = item.polyMode5->wf2 << 16;
-                point_c.field_10 = item.polyMode5->wf3 << 16;
+                point_a.X = item.polyMode5->x1;
+                point_a.Y = item.polyMode5->y1;
+                point_b.X = item.polyMode5->x2;
+                point_b.Y = item.polyMode5->y2;
+                point_c.X = item.polyMode5->x3;
+                point_c.Y = item.polyMode5->y3;
+                point_a.U = item.polyMode5->uf1 << 16;
+                point_a.V = item.polyMode5->vf1 << 16;
+                point_b.U = item.polyMode5->uf2 << 16;
+                point_b.V = item.polyMode5->vf2 << 16;
+                point_c.U = item.polyMode5->uf3 << 16;
+                point_c.V = item.polyMode5->vf3 << 16;
+                point_a.S = item.polyMode5->wf1 << 16;
+                point_b.S = item.polyMode5->wf2 << 16;
+                point_c.S = item.polyMode5->wf3 << 16;
                 draw_gpoly(&point_a, &point_b, &point_c);
                 break;
             case QK_TrigMode3: // Possibly unused
                 vec_mode = VM_Unknown3;
-                point_a.field_0 = item.trigMode3->x1;
-                point_a.field_4 = item.trigMode3->y1;
-                point_b.field_0 = item.trigMode3->x2;
-                point_b.field_4 = item.trigMode3->y2;
-                point_c.field_0 = item.trigMode3->x3;
-                point_c.field_4 = item.trigMode3->y3;
-                point_a.field_8 = item.trigMode3->uf1 << 16;
-                point_a.field_C = item.trigMode3->vf1 << 16;
-                point_b.field_8 = item.trigMode3->uf2 << 16;
-                point_b.field_C = item.trigMode3->vf2 << 16;
-                point_c.field_8 = item.trigMode3->uf3 << 16;
-                point_c.field_C = item.trigMode3->vf3 << 16;
+                point_a.X = item.trigMode3->x1;
+                point_a.Y = item.trigMode3->y1;
+                point_b.X = item.trigMode3->x2;
+                point_b.Y = item.trigMode3->y2;
+                point_c.X = item.trigMode3->x3;
+                point_c.Y = item.trigMode3->y3;
+                point_a.U = item.trigMode3->uf1 << 16;
+                point_a.V = item.trigMode3->vf1 << 16;
+                point_b.U = item.trigMode3->uf2 << 16;
+                point_b.V = item.trigMode3->vf2 << 16;
+                point_c.U = item.trigMode3->uf3 << 16;
+                point_c.V = item.trigMode3->vf3 << 16;
                 trig(&point_a, &point_b, &point_c);
                 break;
             case QK_TrigMode6: // Possibly unused
                 vec_mode = VM_Unknown6;
-                point_a.field_0 = item.trigMode6->x1;
-                point_a.field_4 = item.trigMode6->y1;
-                point_b.field_0 = item.trigMode6->x2;
-                point_b.field_4 = item.trigMode6->y2;
-                point_c.field_0 = item.trigMode6->x3;
-                point_c.field_4 = item.trigMode6->y3;
-                point_a.field_8 = item.trigMode6->uf1 << 16;
-                point_a.field_C = item.trigMode6->vf1 << 16;
-                point_b.field_8 = item.trigMode6->uf2 << 16;
-                point_b.field_C = item.trigMode6->vf2 << 16;
-                point_c.field_8 = item.trigMode6->uf3 << 16;
-                point_c.field_C = item.trigMode6->vf3 << 16;
-                point_a.field_10 = item.trigMode6->wf1 << 16;
-                point_b.field_10 = item.trigMode6->wf2 << 16;
-                point_c.field_10 = item.trigMode6->wf3 << 16;
+                point_a.X = item.trigMode6->x1;
+                point_a.Y = item.trigMode6->y1;
+                point_b.X = item.trigMode6->x2;
+                point_b.Y = item.trigMode6->y2;
+                point_c.X = item.trigMode6->x3;
+                point_c.Y = item.trigMode6->y3;
+                point_a.U = item.trigMode6->uf1 << 16;
+                point_a.V = item.trigMode6->vf1 << 16;
+                point_b.U = item.trigMode6->uf2 << 16;
+                point_b.V = item.trigMode6->vf2 << 16;
+                point_c.U = item.trigMode6->uf3 << 16;
+                point_c.V = item.trigMode6->vf3 << 16;
+                point_a.S = item.trigMode6->wf1 << 16;
+                point_b.S = item.trigMode6->wf2 << 16;
+                point_c.S = item.trigMode6->wf3 << 16;
                 trig(&point_a, &point_b, &point_c);
                 break;
             case QK_RotableSprite: // Possibly unused
@@ -6198,20 +6205,20 @@ void display_drawlist(void) // Draws isometric and 1st person view. Not frontvie
                 draw_jonty_mapwho(item.jontySprite);
                 break;
             case QK_CreatureShadow: // Shadows of creatures in isometric and 1st person view
-                draw_keepsprite_unscaled_in_buffer(item.creatureShadow->field_5C, item.creatureShadow->field_58, item.creatureShadow->field_5E, scratch);
-                vec_map = scratch;
+                draw_keepsprite_unscaled_in_buffer(item.creatureShadow->field_5C, item.creatureShadow->field_58, item.creatureShadow->field_5E, big_scratch);
+                vec_map = big_scratch;
                 vec_mode = VM_Unknown10;
-                vec_colour = item.creatureShadow->p1.field_10;
+                vec_colour = item.creatureShadow->p1.S;
                 trig(&item.creatureShadow->p1, &item.creatureShadow->p2, &item.creatureShadow->p3);
                 trig(&item.creatureShadow->p1, &item.creatureShadow->p3, &item.creatureShadow->p4);
                 break;
             case QK_SlabSelector: // Selection outline box for placing/digging slabs
                 draw_clipped_line(
-                    item.slabSelector->p.field_0,
-                    item.slabSelector->p.field_4,
-                    item.slabSelector->p.field_8,
-                    item.slabSelector->p.field_C,
-                    item.slabSelector->p.field_10);
+                    item.slabSelector->p.X,
+                    item.slabSelector->p.Y,
+                    item.slabSelector->p.U,
+                    item.slabSelector->p.V,
+                    item.slabSelector->p.S);
                 break;
             case QK_CreatureStatus: // Status flower above creature heads
                 draw_status_sprites(item.creatureStatus->x, item.creatureStatus->y, item.creatureStatus->thing);
@@ -6327,7 +6334,7 @@ static void draw_view_map_plane(long aposc, long bposc, long xcell, long ycell)
         i = 0;
     mm = &minmaxs[i];
     prepare_draw_plane_of_engine_columns(aposc, bposc, xcell, ycell, mm);
-    
+
     for (i = 2*cells_away-1; i > 0; i--)
     {
         ycell++;
@@ -6349,7 +6356,7 @@ void draw_view(struct Camera *cam, unsigned char a2)
     long aposc;
     long bposc;
     SYNCDBG(9,"Starting");
-    calculate_zoomed_range(cam);
+    calculate_hud_scale(cam);
     camera_zoom = scale_camera_zoom_to_screen(cam->zoom);
     zoom_mem = cam->zoom;//TODO [zoom] remove when all cam->zoom will be changed to camera_zoom
     cam->zoom = camera_zoom;//TODO [zoom] remove when all cam->zoom will be changed to camera_zoom
@@ -6402,7 +6409,7 @@ void draw_view(struct Camera *cam, unsigned char a2)
         do_perspective_rotation(x, y, z);
         cells_away = compute_cells_away();
     }
-
+    
     xcell = (x >> 8);
     aposc = -(x & 0xFF);
     bposc = (cells_away << 8) + (y & 0xFF);
@@ -6451,26 +6458,26 @@ static void draw_texturedquad_block(struct BucketKindTexturedQuad *txquad)
             vec_map = block_ptrs[txquad->field_6];
             break;
         }
-        point_a.field_0 = (txquad->field_A >> 8) / pixel_size;
-        point_a.field_4 = (txquad->field_E >> 8) / pixel_size;
-        point_a.field_8 = orient_to_mapU1[txquad->field_5];
-        point_a.field_C = orient_to_mapV1[txquad->field_5];
-        point_a.field_10 = txquad->field_1A;
-        point_d.field_0 = ((txquad->field_12 + txquad->field_A) >> 8) / pixel_size;
-        point_d.field_4 = (txquad->field_E >> 8) / pixel_size;
-        point_d.field_8 = orient_to_mapU2[txquad->field_5];
-        point_d.field_C = orient_to_mapV2[txquad->field_5];
-        point_d.field_10 = txquad->field_1E;
-        point_b.field_0 = ((txquad->field_12 + txquad->field_A) >> 8) / pixel_size;
-        point_b.field_4 = ((txquad->field_16 + txquad->field_E) >> 8) / pixel_size;
-        point_b.field_8 = orient_to_mapU3[txquad->field_5];
-        point_b.field_C = orient_to_mapV3[txquad->field_5];
-        point_b.field_10 = txquad->field_22;
-        point_c.field_0 = (txquad->field_A >> 8) / pixel_size;
-        point_c.field_4 = ((txquad->field_16 + txquad->field_E) >> 8) / pixel_size;
-        point_c.field_8 = orient_to_mapU4[txquad->field_5];
-        point_c.field_C = orient_to_mapV4[txquad->field_5];
-        point_c.field_10 = txquad->field_26;
+        point_a.X = (txquad->field_A >> 8) / pixel_size;
+        point_a.Y = (txquad->field_E >> 8) / pixel_size;
+        point_a.U = orient_to_mapU1[txquad->field_5];
+        point_a.V = orient_to_mapV1[txquad->field_5];
+        point_a.S = txquad->field_1A;
+        point_d.X = ((txquad->field_12 + txquad->field_A) >> 8) / pixel_size;
+        point_d.Y = (txquad->field_E >> 8) / pixel_size;
+        point_d.U = orient_to_mapU2[txquad->field_5];
+        point_d.V = orient_to_mapV2[txquad->field_5];
+        point_d.S = txquad->field_1E;
+        point_b.X = ((txquad->field_12 + txquad->field_A) >> 8) / pixel_size;
+        point_b.Y = ((txquad->field_16 + txquad->field_E) >> 8) / pixel_size;
+        point_b.U = orient_to_mapU3[txquad->field_5];
+        point_b.V = orient_to_mapV3[txquad->field_5];
+        point_b.S = txquad->field_22;
+        point_c.X = (txquad->field_A >> 8) / pixel_size;
+        point_c.Y = ((txquad->field_16 + txquad->field_E) >> 8) / pixel_size;
+        point_c.U = orient_to_mapU4[txquad->field_5];
+        point_c.V = orient_to_mapV4[txquad->field_5];
+        point_c.S = txquad->field_26;
         draw_gpoly(&point_a, &point_d, &point_b);
         draw_gpoly(&point_a, &point_b, &point_c);
     } else
@@ -6546,7 +6553,7 @@ static void display_fast_drawlist(struct Camera *cam) // Draws frontview only. N
     render_alpha = (unsigned char *)&alpha_sprite_table;
     render_problems = 0;
     thing_pointed_at = 0;
-    
+
     for (bucket_num = BUCKETS_COUNT-1; bucket_num >= 0; bucket_num--)
     {
         for (item.b = buckets[bucket_num]; item.b != NULL; item.b = item.b->next)
@@ -6558,11 +6565,11 @@ static void display_fast_drawlist(struct Camera *cam) // Draws frontview only. N
                 break;
             case QK_SlabSelector: // Selection outline box for placing/digging slabs
                 draw_clipped_line(
-                    item.slabSelector->p.field_0,
-                    item.slabSelector->p.field_4,
-                    item.slabSelector->p.field_8,
-                    item.slabSelector->p.field_C,
-                    item.slabSelector->p.field_10);
+                    item.slabSelector->p.X,
+                    item.slabSelector->p.Y,
+                    item.slabSelector->p.U,
+                    item.slabSelector->p.V,
+                    item.slabSelector->p.S);
                 break;
             case QK_CreatureStatus: // Status flower above creature heads
                 draw_status_sprites(item.creatureStatus->x, item.creatureStatus->y, item.creatureStatus->thing);
@@ -6596,14 +6603,14 @@ static void display_fast_drawlist(struct Camera *cam) // Draws frontview only. N
 
 /**
  * sub of convert_world_coord_to_front_view_screen_coord for a single point
- * 
+ *
  * @param player The player determine the point for
  * @param zoom The zoom level of the camera
  * @param vertical_delta The vertical difference between the camera and the pos
- * @param horizontal_delta The horizontal difference between the camera and the pos 
+ * @param horizontal_delta The horizontal difference between the camera and the pos
  * @return true if projected point is withing player's window, false otherwise
  */
- 
+
 #define UNKNOWN_PPH_MASK 0xFFFE
 static TbBool project_point_helper(struct PlayerInfo *player, int zoom, MapCoordDelta vertical_delta, MapCoordDelta horizontal_delta, MapCoord pos_z, long *x_out, long *y_out, long *z_out)
 {
@@ -6625,7 +6632,7 @@ static TbBool project_point_helper(struct PlayerInfo *player, int zoom, MapCoord
 
 /**
  * determines where on the screen an object should be drawn
- * 
+ *
  * @param player The player determine the point for
  * @param cam The camera to use for the point
  * @param x_out The x position of the object relative to the camera
@@ -6718,7 +6725,8 @@ static void add_unkn18_to_polypool(struct Thing *thing, long scr_x, long scr_y, 
     poly->field_14 = a4;
 }
 
-static void create_status_box_element(struct Thing *thing, long a2, long a3, long a4, long bckt_idx)
+// Creature status flower above head in FrontView
+static void create_status_box_element(struct Thing *thing, long a2, long a3, long a4, long bckt_idx) //
 {
     struct BucketKindCreatureStatus *poly;
     if (bckt_idx >= BUCKETS_COUNT) {
@@ -6967,7 +6975,7 @@ static void draw_element(struct Map *map, long lightness, long stl_x, long stl_y
     }
 
     // Draw the columns cubes
-    
+
     y = a7 + pos_y;
     unkstrcp = NULL;
     for (tc=0; tc < COLUMN_STACK_HEIGHT; tc++)
@@ -7726,7 +7734,7 @@ void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
                   if (thing_is_invalid(dragtng))
                   {
                     lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
-                    lbSpriteReMapPtr = white_pal;  
+                    lbSpriteReMapPtr = white_pal;
                   }
                   else if (thing_is_trap_crate(dragtng))
                   {
@@ -7736,7 +7744,7 @@ void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
                           if (handthing->class_id == TCls_Trap)
                           {
                               lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
-                              lbSpriteReMapPtr = white_pal; 
+                              lbSpriteReMapPtr = white_pal;
                           }
                       }
                   }
@@ -7948,6 +7956,7 @@ void draw_keepsprite_unscaled_in_buffer(unsigned short kspr_n, short angle, unsi
     quarter = abs(4 - (i >> 8)); // i is restricted by "&" so (i>>8) is 0..7
     kspr_idx = keepersprite_index(kspr_n);
     kspr_arr = keepersprite_array(kspr_n);
+
     if (kspr_arr->Rotable == 0)
     {
         if (!heap_manage_keepersprite(kspr_idx))
@@ -7955,6 +7964,9 @@ void draw_keepsprite_unscaled_in_buffer(unsigned short kspr_n, short angle, unsi
             return;
         }
         keepsprite_id = a3 + kspr_idx;
+        if (keepsprite_id >= KEEPSPRITE_LENGTH) {
+            return; // don't try to draw shadows for custom sprites or game will crash
+        }
         kspr = &kspr_arr[a3];
         fill_w = kspr->FrameWidth;
         fill_h = kspr->FrameHeight;
@@ -7969,8 +7981,10 @@ void draw_keepsprite_unscaled_in_buffer(unsigned short kspr_n, short angle, unsi
                 tmpbuf += 256;
             }
             sprite_to_sbuff_xflip(*keepsprite[keepsprite_id], &outbuf[256 * skip_h + skip_w], kspr->SHeight, 256);
-        } else
+        }
+        else
         {
+
             tmpbuf = outbuf;
             skip_w = kspr->FrameOffsW;
             skip_h = kspr->FrameOffsH;
@@ -7981,8 +7995,8 @@ void draw_keepsprite_unscaled_in_buffer(unsigned short kspr_n, short angle, unsi
             }
             sprite_to_sbuff(*keepsprite[keepsprite_id], &outbuf[256 * skip_h + skip_w], kspr->SHeight, 256);
         }
-    } else
-    if (kspr_arr->Rotable == 2)
+    }
+    else if (kspr_arr->Rotable == 2)
     {
         if (!heap_manage_keepersprite(kspr_idx))
         {
@@ -7992,6 +8006,9 @@ void draw_keepsprite_unscaled_in_buffer(unsigned short kspr_n, short angle, unsi
         fill_w = kspr->SWidth;
         fill_h = kspr->SHeight;
         keepsprite_id = a3 + quarter * kspr->FramesCount + kspr_idx;
+        if (keepsprite_id >= KEEPSPRITE_LENGTH) {
+            return; // don't try to draw shadows for custom sprites or game will crash
+        }
         if ( flip_range )
         {
             tmpbuf = outbuf;
@@ -8361,7 +8378,7 @@ static void do_map_who_for_thing(struct Thing *thing)
         ecor.x = ((long)thing->mappos.x.val - map_x_pos);
         ecor.z = (map_y_pos - (long)thing->mappos.y.val);
         ecor.field_8 = 0;
-        ecor.y = ((long)thing->field_60 - map_z_pos);
+        ecor.y = ((long)thing->floor_height - map_z_pos);
         if (thing_is_creature(thing) && ((thing->movement_flags & TMvF_Unknown04) == 0))
         {
             int count;
@@ -8412,7 +8429,7 @@ static void do_map_who_for_thing(struct Thing *thing)
         break;
     case 5:
         // Hide status flags when full zoomed out, for atmospheric overview
-        if (zoomed_range == 0) {
+        if (hud_scale == 0) {
             break;
         }
 
@@ -8518,7 +8535,7 @@ static void draw_frontview_thing_on_element(struct Thing *thing, struct Map *map
         break;
     case 5:
         // Hide status flags when full zoomed out, for atmospheric overview
-        if (zoomed_range == 0) {
+        if (hud_scale == 0) {
             break;
         }
         convert_world_coord_to_front_view_screen_coord(&thing->mappos,cam,&cx,&cy,&cz);
@@ -8611,7 +8628,7 @@ void draw_frontview_engine(struct Camera *cam)
     player = get_my_player();
     if (cam->zoom > FRONTVIEW_CAMERA_ZOOM_MAX)
         cam->zoom = FRONTVIEW_CAMERA_ZOOM_MAX;
-    calculate_zoomed_range(cam);
+    calculate_hud_scale(cam);
     camera_zoom = scale_camera_zoom_to_screen(cam->zoom);
     zoom_mem = cam->zoom;//TODO [zoom] remove when all cam->zoom will be changed to camera_zoom
     cam->zoom = camera_zoom;//TODO [zoom] remove when all cam->zoom will be changed to camera_zoom
