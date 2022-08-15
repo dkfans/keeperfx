@@ -67,7 +67,7 @@ struct Camera {
     int orient_a;
     int orient_b;
     int orient_c;
-    int field_13;
+    int horizontal_fov; // Horizontal Field of View in degrees
     int zoom;
     int inertia_rotation;
     TbBool in_active_movement_rotation;
@@ -76,6 +76,21 @@ struct Camera {
     long inertia_y;
     TbBool in_active_movement_y;
 };
+
+extern long previous_cam_mappos_x;
+extern long previous_cam_mappos_y;
+extern long previous_cam_mappos_z;
+extern long interpolated_cam_mappos_x;
+extern long interpolated_cam_mappos_y;
+extern long interpolated_cam_mappos_z;
+extern long previous_cam_orient_a;
+extern long previous_cam_orient_b;
+extern long previous_cam_orient_c;
+extern long interpolated_cam_orient_a;
+extern long interpolated_cam_orient_b;
+extern long interpolated_cam_orient_c;
+extern long previous_camera_zoom;
+extern long interpolated_camera_zoom;
 
 /******************************************************************************/
 DLLIMPORT extern struct M33 _DK_camera_matrix;
@@ -106,7 +121,7 @@ void view_zoom_camera_in(struct Camera *cam, long limit_max, long limit_min);
 void set_camera_zoom(struct Camera *cam, long val);
 void view_zoom_camera_out(struct Camera *cam, long limit_max, long limit_min);
 long get_camera_zoom(struct Camera *cam);
-unsigned long adjust_min_camera_zoom(struct Camera *cam, int showgui);
+unsigned long adjust_min_camera_zoom(struct Camera *cam, long width, long height, long status_panel_width);
 unsigned long scale_camera_zoom_to_screen(unsigned long zoom_lvl);
 void update_camera_zoom_bounds(struct Camera *cam,unsigned long zoom_max,unsigned long zoom_min);
 
@@ -116,6 +131,9 @@ void view_set_camera_rotation_inertia(struct Camera *cam, long a2, long a3);
 
 void update_all_players_cameras(void);
 void init_player_cameras(struct PlayerInfo *player);
+void set_previous_camera_values();
+void reset_camera_interpolation();
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

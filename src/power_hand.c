@@ -940,6 +940,11 @@ short dump_first_held_thing_on_map(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     struct Thing *droptng;
     droptng = thing_get(dungeon->things_in_hand[0]);
     if (!can_drop_thing_here(stl_x, stl_y, plyr_idx, thing_is_creature_special_digger(droptng))) {
+        // Make a rejection sound
+        if (is_my_player_number(plyr_idx))
+        {
+            play_non_3d_sample(119);
+        }
         return 0;
     }
     // Check if object will fit into that position
