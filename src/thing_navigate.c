@@ -740,7 +740,7 @@ long get_next_gap_creature_can_fit_in_below_point_new(struct Thing *thing, struc
             v4 += 256;
         } while (v4 < stl_x);
     }
-MapSubtlCoord ceiling_height;
+    MapSubtlCoord ceiling_height;
     update_floor_and_ceiling_heights_at(stl_x, stl_y, (__int32 *)&floor_height,&ceiling_height);
     floor_height <<= 8;
     v30 <<= 8;
@@ -762,9 +762,9 @@ long get_next_gap_creature_can_fit_in_below_point(struct Thing *thing, struct Co
     long new = get_next_gap_creature_can_fit_in_below_point_new(thing, pos);
 
     if (old == new)
-        JUSTLOG("get_next_gap_creature_can_fit_in_below_point: old and new are equal %d", old);
+        JUSTLOG("OK %d", old);
     else
-        JUSTLOG("get_next_gap_creature_can_fit_in_below_point: old and new are different %d,%s", old,new);
+        JUSTLOG("NOT_OK %d,%s", old,new);
 
     return new;
 }
