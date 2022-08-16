@@ -636,35 +636,35 @@ void remove_explored_flags_for_power_sight(struct PlayerInfo *player)
     unsigned char backup_flags;
     struct Dungeon *dungeon = get_players_dungeon(player);
 
-    if (dungeon->sight_casted_thing_idx)
+    if (!dungeon->sight_casted_thing_idx)
+        return;
+    struct Thing *sightng = thing_get(dungeon->sight_casted_thing_idx);
+    struct Coord3d *soe_pos = &sightng->mappos;
+
+    MapSubtlCoord stl_y = (long)soe_pos->y.stl.num - MAX_SOE_RADIUS;
+    for (long soe_y = 0; soe_y < 2 * MAX_SOE_RADIUS; soe_y++, stl_y++)
     {
-        struct Thing *sightng = thing_get(dungeon->sight_casted_thing_idx);
-        MapSubtlCoord start_stl_y = sightng->mappos.y.stl.num - MAX_SOE_RADIUS;
-        MapSubtlCoord start_stl_x = sightng->mappos.x.stl.num - MAX_SOE_RADIUS;
-
-        MapSubtlDelta shift_y = 0;
-        do
+        MapSubtlCoord stl_x = (long)soe_pos->x.stl.num - MAX_SOE_RADIUS;
+        for (long soe_x = 0; soe_x < 2 * MAX_SOE_RADIUS; soe_x++, stl_x++)
         {
-            MapSubtlDelta shift_x = 0;
-            do
+            if (dungeon->soe_explored_flags[soe_y][soe_x])
             {
-                if (dungeon->soe_explored_flags[shift_y][shift_x])
+                struct Map* mapblk = get_map_block_at(stl_x, stl_y);
+                if (!map_block_invalid(mapblk))
                 {
-                    struct Map* mapblk = get_map_block_at((start_stl_x + shift_x ),(start_stl_y + shift_y ));
-
-                    data = mapblk->data & (~(1 << player->id_number << 28) | 0xFFFFFFF);
+                    unsigned long plyr_bit = (1 << player->id_number);
+                    data = mapblk->data & (~(plyr_bit << 28) );
+                    backup_flags = backup_explored[soe_y][soe_x];
                     mapblk->data = data;
-                    backup_flags = backup_explored[shift_y][shift_x];
-                    mapblk->data = data | (((1 << player->id_number) & (backup_flags << player->id_number)) << 28);
+                    if ((backup_flags & 1) != 0)
+                        mapblk->data = data | (plyr_bit << 28);
                     if ((backup_flags & 2) != 0)
-                        mapblk->flags |= SlbAtFlg_TaggedValuable;
-                    if ((backup_flags & 4) != 0)
                         mapblk->flags |= SlbAtFlg_Unexplored;
+                    if ((backup_flags & 4) != 0)
+                        mapblk->flags |= SlbAtFlg_TaggedValuable;
                 }
-                ++shift_x;
-            } while (shift_x < (2 * MAX_SOE_RADIUS));
-            ++shift_y;
-        } while (shift_y < (2 * MAX_SOE_RADIUS));
+            }
+        }
     }
 }
 /******************************************************************************/
