@@ -544,20 +544,15 @@ unsigned long delete_unwanted_things_from_liquid_slab(MapSlabCoord slb_x, MapSla
 unsigned long remove_unwanted_things_from_wall_slab(MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
     SubtlCodedCoords stl_num = get_subtile_number_at_slab_center(slb_x, slb_y);
-    struct Thing *thing;
-    struct Map *mapblk;
     unsigned long removed_num = 0;
-    unsigned long k;
-    long i;
-    long n;
-    for (n=0; n < AROUND_MAP_LENGTH; n++)
+    for (long n=0; n < AROUND_MAP_LENGTH; n++)
     {
-        mapblk = get_map_block_at_pos(stl_num+around_map[n]);
-        k = 0;
-        i = get_mapwho_thing_index(mapblk);
+        struct Map *mapblk = get_map_block_at_pos(stl_num+around_map[n]);
+        unsigned long k = 0;
+        long i = get_mapwho_thing_index(mapblk);
         while (i != 0)
         {
-            thing = thing_get(i);
+            struct Thing * thing = thing_get(i);
             if (thing_is_invalid(thing))
             {
                 WARNLOG("Jump out of things array");
@@ -628,20 +623,15 @@ unsigned long remove_unwanted_things_from_wall_slab(MapSlabCoord slb_x, MapSlabC
 unsigned long remove_unwanted_things_from_floor_slab(MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
     SubtlCodedCoords stl_num = get_subtile_number_at_slab_center(slb_x, slb_y);
-    struct Thing *thing;
-    struct Map *mapblk;
     unsigned long removed_num = 0;
-    unsigned long k;
-    long i;
-    long n;
-    for (n=0; n < AROUND_MAP_LENGTH; n++)
+    for (long n=0; n < AROUND_MAP_LENGTH; n++)
     {
-        mapblk = get_map_block_at_pos(stl_num+around_map[n]);
-        k = 0;
-        i = get_mapwho_thing_index(mapblk);
+        struct Map *mapblk = get_map_block_at_pos(stl_num+around_map[n]);
+        unsigned long k = 0;
+        long i = get_mapwho_thing_index(mapblk);
         while (i != 0)
         {
-            thing = thing_get(i);
+            struct Thing *thing = thing_get(i);
             if (thing_is_invalid(thing))
             {
                 WARNLOG("Jump out of things array");
@@ -660,23 +650,6 @@ unsigned long remove_unwanted_things_from_floor_slab(MapSlabCoord slb_x, MapSlab
                     break;
                 }
                 case TCls_Object:
-                {
-                    struct SlabMap *slb = get_slabmap_block(slb_x, slb_y);
-                    if (slab_kind_is_room(slb->kind))
-                    {
-                        SlabCodedCoords slb_num = get_slab_number(slb_x, slb_y);
-                        if (thing->parent_idx != slb_num)
-                        {
-                            struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
-                            if ((objst->model_flags & OMF_DestroyedOnRoomPlace) != 0) 
-                            {
-                                destroy_object(thing);
-                                removed_num++;
-                            }
-                        }
-                    }
-                    // fall through
-                }
                 case TCls_Creature:
                 case TCls_DeadCreature:
                 case TCls_Shot:
@@ -1862,8 +1835,12 @@ void place_slab_type_on_map_f(SlabKind nslab, MapSubtlCoord stl_x, MapSubtlCoord
         case SlbT_WATER:
             delete_unwanted_things_from_liquid_slab(slb_x, slb_y, TngEff_Drip3);
             break;
-        default:
+        case SlbT_PATH:
+        case SlbT_CLAIMED:
+        case SlbT_PURPLE:
             remove_unwanted_things_from_floor_slab(slb_x, slb_y);
+            break;
+        default:
             break;
     }
 }
