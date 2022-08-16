@@ -1840,10 +1840,10 @@ void place_slab_type_on_map_f(SlabKind nslab, MapSubtlCoord stl_x, MapSubtlCoord
             remove_unwanted_things_from_wall_slab(slb_x, slb_y);
             break;
         case SlbT_LAVA:
-            delete_unwanted_things_from_liquid_slab(slb_x, slb_y, 17);
+            delete_unwanted_things_from_liquid_slab(slb_x, slb_y, TngEff_HarmlessGas2);
             break;
         case SlbT_WATER:
-            delete_unwanted_things_from_liquid_slab(slb_x, slb_y, 21);
+            delete_unwanted_things_from_liquid_slab(slb_x, slb_y, TngEff_Drip3);
             break;
         default:
             remove_unwanted_things_from_floor_slab(slb_x, slb_y);
