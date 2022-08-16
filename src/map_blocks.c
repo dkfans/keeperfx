@@ -660,6 +660,19 @@ unsigned long remove_unwanted_things_from_floor_slab(MapSlabCoord slb_x, MapSlab
                     break;
                 }
                 case TCls_Object:
+                {
+                    struct SlabMap *slb = get_slabmap_block(slb_x, slb_y);
+                    if (slab_kind_is_room(slb->kind))
+                    {
+                        struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
+                        if ((objst->model_flags & OMF_DestroyedOnRoomPlace) != 0) 
+                        {
+                            destroy_object(thing);
+                            removed_num++;
+                        }
+                    }
+                    // fall through
+                }
                 case TCls_Creature:
                 case TCls_DeadCreature:
                 case TCls_Shot:
