@@ -585,14 +585,15 @@ unsigned long remove_unwanted_things_from_wall_slab(MapSlabCoord slb_x, MapSlabC
                     }
                     case TCls_Object:
                     {
-                        if ( (object_is_gold(thing)) || (thing_is_spellbook(thing)) || (thing_is_special_box(thing)) || (thing_is_workshop_crate(thing)) )
-                        {
-                            move_creature_to_nearest_valid_position(thing);
-                        }
-                        else
+                        struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
+                        if ((objst->model_flags & OMF_DestroyedOnRoomPlace) != 0)
                         {
                             destroy_object(thing);
                             removed_num++;
+                        }
+                        else
+                        {
+                            move_creature_to_nearest_valid_position(thing);
                         }
                         break;
                     }
