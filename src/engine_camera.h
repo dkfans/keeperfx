@@ -132,7 +132,7 @@ void view_set_camera_rotation_inertia(struct Camera *cam, long a2, long a3);
 void update_all_players_cameras(void);
 void init_player_cameras(struct PlayerInfo *player);
 void set_previous_camera_values();
-void reset_camera_interpolation();
+void reset_interpolation_of_camera();
 
 /******************************************************************************/
 #ifdef __cplusplus

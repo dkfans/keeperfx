@@ -164,7 +164,7 @@ static void do_map_who(short tnglist_idx);
 
 long interpolate(long variable_to_interpolate, long previous, long current)
 {
-    if (gameadd.delta_time == 1) {
+    if (is_feature_on(Ft_DeltaTime) == false) {
         return current;
     }
     // future: by using the predicted future position in the interpolation calculation, we can remove input lag (or visual lag).
@@ -176,7 +176,7 @@ long interpolate(long variable_to_interpolate, long previous, long current)
 
 long interpolate_angle(long variable_to_interpolate, long previous, long current)
 {
-    if (gameadd.delta_time == 1) {
+    if (is_feature_on(Ft_DeltaTime) == false) {
         return current;
     }
     long future = current + (current - previous);

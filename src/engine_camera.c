@@ -64,7 +64,7 @@ long interpolated_camera_zoom;
 #endif
 /******************************************************************************/
 
-void reset_camera_interpolation() {
+void reset_interpolation_of_camera() {
     struct PlayerInfo* player = get_my_player();
     struct Camera *cam = player->acamera;
     interpolated_camera_zoom = scale_camera_zoom_to_screen(cam->zoom);
