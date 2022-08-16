@@ -569,6 +569,12 @@ short get_global_inputs(void)
   {
       if (is_key_pressed(KC_RETURN,KMod_NONE))
       {
+          if (menu_is_active(GMnu_QUIT))
+          {
+              set_players_packet_action(player, PckA_Unknown001, 0, 0, 0, 0);
+              clear_key_pressed(KC_RETURN);
+              return true;
+          }
         set_players_packet_action(player, PckA_PlyrMsgBegin, 0, 0, 0, 0);
         clear_key_pressed(KC_RETURN);
         return true;
@@ -2585,7 +2591,7 @@ short get_gui_inputs(short gameplay_on)
       over_slider_button = -1;
       do_sound_menu_click();
   }
-
+  set_flag_byte(&tool_tip_box.flags,TTip_Visible,false);
   gui_button_tooltip_update(gmbtn_idx);
   if (gui_slider_button_inputs(over_slider_button))
       return true;

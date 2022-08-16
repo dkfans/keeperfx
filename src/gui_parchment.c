@@ -403,6 +403,10 @@ int draw_overhead_creatures(const struct TbRect *map_area, long block_size, Play
             TbPixel col2 = 1;
             if (thing_revealed(thing, plyr_idx))
             {
+                if (thing->owner == game.neutral_player_num)
+                {
+                    col1 = player_room_colours[(game.play_gameturn + 1) & 3];
+                } else
                 if ((game.play_gameturn & 4) == 0)
                 {
                     col2 = player_room_colours[thing->owner];
