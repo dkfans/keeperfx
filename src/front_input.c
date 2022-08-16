@@ -2180,10 +2180,11 @@ if (((MyScreenWidth >> 1) != GetMouseX()) || (GetMouseY() != y))
   {
     LbMouseSetPositionInitial((MyScreenWidth/pixel_size) >> 1, y/pixel_size); // use LbMouseSetPositionInitial because we don't want to keep moving the host cursor
   }
-    if (settings.first_person_move_invert)
-    pckt->pos_y = 255 * ((long)MyScreenHeight - y) / MyScreenHeight;
-    else
-    pckt->pos_y = 255 * y / MyScreenHeight;
+    if (settings.first_person_move_invert) {
+        pckt->pos_y = 255 * y / MyScreenHeight;
+    } else {
+        pckt->pos_y = 255 * ((long)MyScreenHeight - y) / MyScreenHeight;
+    }
     pckt->pos_x = 255 * x / MyScreenWidth;
     // Update the position based on current settings
     long i = settings.first_person_move_sensitivity + 1;
