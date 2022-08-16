@@ -48,8 +48,8 @@ DLLIMPORT long _DK_get_next_gap_creature_can_fit_in_below_point(struct Thing *cr
 #endif
 /******************************************************************************/
 
-// Call this function if you don't want the creature/thing to (visually) fly across the map whenever suddenly moving a very far distance. (teleporting for example)
 void reset_interpolation_of_thing(struct Thing *thing) {
+    // Call this function if you don't want the creature/thing to (visually) fly across the map whenever suddenly moving a very far distance. (teleporting for example)
     struct ThingAdd* thingadd = get_thingadd(thing->index);
     thingadd->previous_mappos = thing->mappos;
     thingadd->previous_floor_height = thing->floor_height;
