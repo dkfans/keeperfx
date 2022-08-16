@@ -664,11 +664,15 @@ unsigned long remove_unwanted_things_from_floor_slab(MapSlabCoord slb_x, MapSlab
                     struct SlabMap *slb = get_slabmap_block(slb_x, slb_y);
                     if (slab_kind_is_room(slb->kind))
                     {
-                        struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
-                        if ((objst->model_flags & OMF_DestroyedOnRoomPlace) != 0) 
+                        SlabCodedCoords slb_num = get_slab_number(slb_x, slb_y);
+                        if (thing->parent_idx != slb_num)
                         {
-                            destroy_object(thing);
-                            removed_num++;
+                            struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
+                            if ((objst->model_flags & OMF_DestroyedOnRoomPlace) != 0) 
+                            {
+                                destroy_object(thing);
+                                removed_num++;
+                            }
                         }
                     }
                     // fall through
