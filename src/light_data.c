@@ -161,7 +161,7 @@ long light_create_light(struct InitLight *ilght)
     lgt->field_12 = ilght->field_12;
 
     struct LightAdd* lightadd = get_lightadd(lgt->index);
-    lightadd->interp_initialize = true;
+    LbMemorySet(lightadd, 0, sizeof(struct LightAdd)); // Clear any previously used LightAdd stuff
 
     return lgt->index;
 }
@@ -1534,8 +1534,8 @@ static char light_render_light(struct Light* lgt)
   struct LightAdd* lightadd = get_lightadd(lgt->index);
   int remember_original_lgt_mappos_x = lgt->mappos.x.val;
   int remember_original_lgt_mappos_y = lgt->mappos.y.val;
-  if (lightadd->interp_initialize == true) {
-    lightadd->interp_initialize = false;
+  if (lightadd->interp_has_been_initialized == false) {
+    lightadd->interp_has_been_initialized = true;
     lightadd->interp_mappos.x.val = lgt->mappos.x.val;
     lightadd->interp_mappos.y.val = lgt->mappos.y.val;
     lightadd->previous_mappos.x.val = lgt->mappos.x.val;
