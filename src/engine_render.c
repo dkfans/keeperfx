@@ -4472,13 +4472,12 @@ static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprit
 {
     unsigned short flg_mem;
     unsigned char alpha_mem;
-    struct PlayerInfo *player;
-    struct Thing *thing;
+    struct PlayerInfo *player = get_my_player();
+    struct Thing *thing = jspr->thing;
+    struct ThingAdd* thingadd = get_thingadd(thing->index);
     short angle;
     flg_mem = lbDisplay.DrawFlags;
     alpha_mem = EngineSpriteDrawUsingAlpha;
-    thing = jspr->thing;
-    player = get_my_player();
     if (keepersprite_rotable(thing->anim_sprite))
     {
         angle = thing->move_angle_xy - cam->orient_a; // orient_a maybe short
@@ -4535,7 +4534,7 @@ static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprit
             EngineSpriteDrawUsingAlpha = 1;
             break;
     }
-//
+    
     if ((thing->class_id == TCls_Creature)
         || (thing->class_id == TCls_Object)
         || (thing->class_id == TCls_DeadCreature)
@@ -4545,12 +4544,18 @@ static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprit
         {
             lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
             lbSpriteReMapPtr = white_pal;
-        }
-        else if ((thing->field_4F & TF4F_Unknown80) != 0)
-        {
-            lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
-            lbSpriteReMapPtr = red_pal;
-            thing->field_4F &= ~TF4F_Unknown80;
+        } else {
+            if ((thing->field_4F & TF4F_BeingHit) != 0)
+            {
+                lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
+                lbSpriteReMapPtr = red_pal;
+                thingadd->time_spent_displaying_hurt_colour += gameadd.delta_time;
+                if (thingadd->time_spent_displaying_hurt_colour >= 1.0)
+                {
+                    thingadd->time_spent_displaying_hurt_colour = 0;
+                    thing->field_4F &= ~TF4F_BeingHit; // Turns off red damage colour tint
+                }
+            }
         }
         thing_being_displayed_is_creature = 1;
         thing_being_displayed = thing;
@@ -7708,18 +7713,17 @@ void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
 {
     unsigned short flg_mem;
     unsigned char alpha_mem;
-    struct PlayerInfo *player;
-    struct Thing *thing;
+    struct PlayerInfo *player = get_my_player();
+    struct Thing *thing = jspr->thing;
+    struct ThingAdd* thingadd = get_thingadd(thing->index);
     long angle;
     long scale;
     flg_mem = lbDisplay.DrawFlags;
     alpha_mem = EngineSpriteDrawUsingAlpha;
-    thing = jspr->thing;
-    player = get_my_player();
     if (keepersprite_rotable(thing->anim_sprite))
     {
       angle = thing->move_angle_xy - spr_map_angle;
-      angle += 256 * (long)((get_thingadd(thing->index)->flags & TAF_ROTATED_MASK) >> TAF_ROTATED_SHIFT);
+      angle += 256 * (long)((thingadd->flags & TAF_ROTATED_MASK) >> TAF_ROTATED_SHIFT);
     }
     else
       angle = thing->move_angle_xy;
@@ -7775,12 +7779,18 @@ void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
                   }
               }
           }
-        } else
-        if ((thing->field_4F & TF4F_Unknown80) != 0)
-        {
-            lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
-            lbSpriteReMapPtr = red_pal;
-            thing->field_4F &= ~TF4F_Unknown80;
+        } else {
+            if ((thing->field_4F & TF4F_BeingHit) != 0)
+            {
+                lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
+                lbSpriteReMapPtr = red_pal;
+                thingadd->time_spent_displaying_hurt_colour += gameadd.delta_time;
+                if (thingadd->time_spent_displaying_hurt_colour >= 1.0)
+                {
+                    thingadd->time_spent_displaying_hurt_colour = 0;
+                    thing->field_4F &= ~TF4F_BeingHit; // Turns off red damage colour tint
+                }
+            }
         }
         thing_being_displayed_is_creature = 1;
         thing_being_displayed = thing;

@@ -70,7 +70,7 @@ enum ThingFlags4F {
     TF4F_Transpar_Flags = 0x30,
 
     TF4F_Unknown40     = 0x40,    // Unconscious
-    TF4F_Unknown80     = 0x80,    // Being hit (draw red sometimes)
+    TF4F_BeingHit      = 0x80,    // Being hit (draw red sometimes)
 };
 
 enum FreeThingAllocFlags {
@@ -292,7 +292,7 @@ struct ThingAdd // Additional thing data
 {
     unsigned long flags; //ThingAddFlags
     long last_turn_drawn;
-
+    float time_spent_displaying_hurt_colour;
     // Used for delta time interpolated render position
     unsigned short previous_floor_height;
     unsigned short interp_floor_height;
@@ -302,7 +302,7 @@ struct ThingAdd // Additional thing data
 
 struct LightAdd // Additional light data
 {
-    TbBool interp_initialize;
+    TbBool interp_has_been_initialized;
     struct Coord3d previous_mappos;
     struct Coord3d interp_mappos;
 };
