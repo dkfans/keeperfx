@@ -28,7 +28,7 @@
 #include "bflib_vidraw.h"
 #include "bflib_sprfnt.h"
 #include "bflib_memory.h"
-#include "bflib_datetm.h"
+#include "bflib_datetm.hpp"
 #include "bflib_fileio.h"
 
 #include "kjm_input.h"

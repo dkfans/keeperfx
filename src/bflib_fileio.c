@@ -33,7 +33,7 @@
 #include <share.h>
 
 #include "bflib_basics.h"
-#include "bflib_datetm.h"
+#include "bflib_datetm.hpp"
 
 #if defined(_WIN32)||defined(DOS)||defined(GO32)
 #include <dos.h>

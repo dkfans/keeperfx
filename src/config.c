@@ -28,7 +28,7 @@
 #include "bflib_dernc.h"
 #include "bflib_video.h"
 #include "bflib_keybrd.h"
-#include "bflib_datetm.h"
+#include "bflib_datetm.hpp"
 #include "bflib_mouse.h"
 #include "bflib_sound.h"
 #include "sounds.h"

@@ -24,7 +24,7 @@
 #include "bflib_math.h"
 #include "bflib_sprfnt.h"
 #include "bflib_vidraw.h"
-#include "bflib_datetm.h"
+#include "bflib_datetm.hpp"
 #include "bflib_sound.h"
 #include "kjm_input.h"
 #include "gui_frontbtns.h"

@@ -20,7 +20,7 @@
 #include "globals.h"
 
 #include "actionpt.h"
-#include "bflib_datetm.h"
+#include "bflib_datetm.hpp"
 #include "bflib_sound.h"
 #include "bflib_sndlib.h"
 #include "config.h"
