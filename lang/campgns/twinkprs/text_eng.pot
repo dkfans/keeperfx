@@ -378,7 +378,7 @@ msgstr ""
 
 #: guitext:206
 msgctxt "Level name"
-msgid "Tub vulnerabilities"
+msgid "Okehazama"
 msgstr ""
 
 #: guitext:207

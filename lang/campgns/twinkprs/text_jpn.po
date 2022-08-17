@@ -1,43 +1,35 @@
 # *****************************************************************************
 #  Free implementation of Bullfrog's Dungeon Keeper strategy game.
 # *****************************************************************************
-#   @file twinkprs/text_pol.po
+#   @file twinkprs/text_jpn.po
 #      KeeperFX Campaign Strings translation file
 #  @par Purpose:
 #      Contains translation of the national strings in the game.
 #  @par Comment:
 #      Use this file to improve the translation for specific language.
 #  @author   KeeperFX Team
-#  @date     25 Aug 2012 - 02 Jun 2014
+#  @date     25 Aug 2012 - 17 Aug 2022
 #  @par  Copying and copyrights:
 #      This program is free software; you can redistribute it and/or modify
 #      it under the terms of the GNU General Public License as published by
 #      the Free Software Foundation; either version 2 of the License, or
 #      (at your option) any later version.
 #
-# *****************************************************************************
+# ***************************************************************************** 
 msgid ""
 msgstr ""
-"Project-Id-Version: Twin Keepers campaign for KeeperFX\n"
-"Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
-"POT-Creation-Date: 2012-09-02 01:12+0200\n"
-"PO-Revision-Date: 2014-11-17 18:02+0100\n"
-"Last-Translator: Tomasz Lis <listom@gmail.com>\n"
-"Language-Team: KeeperFX Team <code.google.com>\n"
-"Language: pl_PL\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Poedit-SourceCharset: utf-8\n"
-"X-Generator: Poedit 1.5.7\n"
+"X-Generator: "
+"Project-Id-Version: KeeperFX Twin Keepers\n"
+"Language: jpn\n"
 
 #. Generic victory message
 #: guitext:0
 msgctxt "In-game message"
 msgid "Success! The land is yours. Press Space to proceed to the next realm."
-msgstr ""
-"Zwycięstwo! Kraina jest twoja. Naciśnij spację, by przejść do następnego "
-"królestwa."
+msgstr "おめでとう！ この土地はお前のものだ。 スペースキーを押し、次なる地へ進め。"
 
 #. Level Swedish Spirit Opening Message
 #: guitext:1
@@ -357,160 +349,136 @@ msgstr ""
 #: guitext:197 guitext:198 guitext:199 guitext:200
 msgctxt "In-game message"
 msgid "Moo"
-msgstr "Muuuu"
+msgstr ""
 
 #: guitext:202
 msgctxt "Level name"
 msgid "Swedish spirit"
-msgstr ""
+msgstr "心技体"
 
 #: guitext:203
 msgctxt "Level name"
 msgid "The Nameless Hero"
-msgstr "Bezimienny Bohater"
+msgstr "The Nameless Hero"
 
 #: guitext:204
 msgctxt "Level name"
 msgid "Invisible"
-msgstr "To Co Niewidoczne"
+msgstr "インビジブル"
 
 #: guitext:205
 msgctxt "Level name"
 msgid "Embattled formation"
-msgstr ""
+msgstr "四面楚歌"
 
 #: guitext:206
 msgctxt "Level name"
 msgid "Okehazama"
-msgstr ""
+msgstr "桶狭間"
 
 #: guitext:207
 msgctxt "Level name"
 msgid "Twin Keepers"
-msgstr ""
+msgstr "Twin Keepers"
 
 #: guitext:208 guitext:209 guitext:210 guitext:211 guitext:212 guitext:213
 #: guitext:214 guitext:215 guitext:216 guitext:217 guitext:218 guitext:219
 #: guitext:220 guitext:221 guitext:222 guitext:223 guitext:224 guitext:225
 msgctxt "Level name"
 msgid "Unused"
-msgstr "Niewykorzystane"
+msgstr ""
 
 #: guitext:226
 msgctxt "Creature spell"
 msgid "Arrow: The basic ranged weapon, effective at long distance."
-msgstr "Strzała: Najprostsza broń dystansowa, efektywna z duzej odległości."
+msgstr "弓矢: 遠距離で威力を発揮する基本的な遠隔の武器。[25.4]"
 
 #: guitext:227
 msgctxt "Creature spell"
 msgid ""
 "Freeze: Changes the target creature to ice. It is then in suspended "
 "animation and can be shattered with a well-aimed blow."
-msgstr ""
-"Zamrażacz: Robi ze stwora bryłę lodu. Cel nie może się poruszać, jest też "
-"narażony na roztrzaskanie przy dobrze wymierzonym uderzeniu."
+msgstr "凍結: 対象のクリーチャーを氷に変える。 其れは中断されたアニメーションに成り、良く狙った一撃で粉砕する事が出来る。[26.8]"
 
 #: guitext:228
 msgctxt "Creature spell"
 msgid ""
 "Armour: This lowers the amount of damage a creature takes each time it is "
 "hit, and provides complete immunity to electric shocks."
-msgstr ""
-"Pancerz: Obniża wartość obrażeń otrzymywanych przez stwora przy tafieniach, "
-"powoduje też całkowitą odporność na ataki elektryczne."
+msgstr "鎧: クリーチャーが攻撃を受ける度に受ける損傷量が減少し、雷撃の飛散損傷に対する完全な耐性が得られ。[26.1]"
 
 #: guitext:229
 msgctxt "Creature spell"
 msgid ""
 "Lightning: A powerful magical weapon with electric attack. Casts a bolt of "
 "lighting from the creature."
-msgstr ""
-"Błyskawica: Potężna broń magiczna z atakiem elektrycznym. Rzuca paczkę "
-"błyskawic w nieszczęsny cel."
+msgstr "雷撃: 電気の攻撃を持つ強力な魔法武器。 落雷をクリーチャーから放つ。[26.13]"
 
 #: guitext:230
 msgctxt "Creature spell"
 msgid "Rebound: Causes any spell fired at you to bounce back at the attacker."
-msgstr ""
-"Odbicie: Powoduje że wystrzelone wrogie zaklęcia odbijają się na atakującego"
+msgstr "反射: 貴方に向けて発射された魔法の武器が攻撃者に跳ね返る。[26.19]"
 
 #: guitext:231
 msgctxt "Creature spell"
 msgid ""
-"Fear: Causes the opponent to be terrified and wanting to skip engageing into "
+"Fear: Causes the opponent to be terrified and wanting to skip engaging into "
 "combat."
-msgstr ""
-"Strach: Sprawia że przeciwnik truchleje i szuka okazji na unikniecie "
-"konfrontacji."
+msgstr "恐怖: 対戦相手を恐怖に陥れ、戦いを避ける事が引き起こす。"
 
 #: guitext:232
 msgctxt "Creature spell"
 msgid ""
-"Sight: Allows the creature to temporarely increase its awareness and notice "
+"Sight: Allows the creature to temporarily increase its awareness and notice "
 "the invisible."
-msgstr ""
-"Jasnowidzenie: Pozwala stworowi czasowo poszerzyć postrzeganie i dostrzec to "
-"co niewidzialne."
+msgstr "照準: 一時的に意識を高め、目に見えないクリーチャーを見る事が可能にする。"
 
 #: guitext:233
 msgctxt "Creature spell"
 msgid ""
 "Missile: A simple spell that sends a screaming magic reptile at the "
 "invaders. Very disconcerting."
-msgstr ""
-"Pocisk: Podstawowe zaklęcie wysyłające wrzeszczącą magiczną gadzinę w stronę "
-"wroga. Bardzo niepokojące."
+msgstr "ミサイル: 侵略者に悲鳴を上げる魔法爬虫類を送る簡単な呪文。 迚も不安だ。[26.15]"
 
 #: guitext:234
 msgctxt "Creature spell"
 msgid ""
 "Grenade: Throws a powerful explosive at the approaching enemy. It can also "
 "bounce off walls and has the traditional delayed fuse."
-msgstr ""
-"Granat: Rzuca silny ładunek wybuchowy  na wroga. Pocisk odbija się od ścian "
-"i ma tradycyjny zapalnik czasowy."
+msgstr "手りゅう弾: 強力な爆発物を迫りくる敵に投げる。 又、壁に跳ね返る事が出来、伝統的な遅延導火線が有る。[26.9]"
 
 #: guitext:235
 msgctxt "Creature spell"
 msgid ""
 "Navigating Missile: This homes in on the nearest hero or enemy creature and "
 "explodes with devastating force."
-msgstr ""
-"Pocisk samonawodzący: Odczuwa nieodpartą potrzebę przytulenia się do "
-"najbliższych wrogów i eksploduje z dewastującym efektem."
+msgstr "誘導ミサイル: 最も近い敵を狙う、壊滅的な力で爆発する。[16.16]"
 
 #: guitext:236
 msgctxt "Creature spell"
 msgid ""
 "Speed: Speeds up the creature so that it can perform fighting and working "
 "tasks really quickly."
-msgstr ""
-"Przyspieszacz: Pozwala zwiększyć metabolizm każdego stwora dwukrotnie, "
-"przyspieszając tak pracę jak i walkę."
+msgstr "加速: クリーチャーの速力を上げて、戦闘と作業の任務を非常に迅速に実行出来る様にする。[26:21]"
 
 #: guitext:237
 msgctxt "Creature spell"
 msgid ""
 "Poison Cloud: Forms a cloud of noxious gas capable of damaging both the "
 "enemy and your own creatures. The gas affects all who breathe it."
-msgstr ""
-"Trujący obłok: Formuje chmurę gazu szkodliwego zarówno wroga i własnych "
-"stworów. Wpływa na wszystkich, wezmą wdech."
+msgstr "毒の雲: 敵と自分のクリーチャーの両方に損傷を加える事が出来る有毒ガスの雲を形成する。 ガスは、其れを吸う全ての人に影響を及ぼす。[26.17]"
 
 #: guitext:238
 msgctxt "Creature spell"
 msgid "Group: Not used"
-msgstr "Grupowanie: nie używane"
+msgstr "グループ化: 未使用だ。"
 
 #: guitext:239
 msgctxt "Creature spell"
 msgid ""
 "Invisibility: Cast on one of your minions, it makes the host creature "
 "invisible to all enemies. Unless they possess a subnatural Sight."
-msgstr ""
-"Niewidzialność: Rzucona na twojego podopiecznego sprawia, że jest "
-"niewidzialny dla wszystkich wrogów. Chyba, że posiadają zaklęcie "
-"jasnowidzenia."
+msgstr "透明化: 敵が超自然的な視力を持っていない限り、クリーチャーが彼らから見えなく成る。[26.12]"
 
 #: guitext:240
 msgctxt "Creature spell"
@@ -518,124 +486,100 @@ msgid ""
 "Teleport: With this spell, a creature can teleport anywhere on the map. If "
 "you are Possessing a creature, then it teleports to its Lair or to the "
 "Dungeon Heart."
-msgstr ""
-"Teleportacja: Pozwala teleportować się w dowolne miejsce na mapie. Opętany "
-"stwór teleportuje się do Legowiska lub Serca Lochu."
+msgstr "テレポート: クリーチャーは色々地点にテレポート出来る。[26.22]"
 
 #: guitext:241
 msgctxt "Creature spell"
 msgid "Flame Breath: The devasting constant stream of searing fire."
-msgstr "Ognisty dech: Ciągły strumień piekącego ognia."
+msgstr "炎の息: 灼熱の火の絶え間なく続く流れ。[26.6]"
 
 #: guitext:242
 msgctxt "Creature spell"
 msgid ""
 "Illumination: Brings light onto darkness, allowing the creature to see but "
 "also be seen by others."
-msgstr ""
-"Oświecenie: Przywołuje światło wrród ciemności, poprawiając widoczność dla "
-"twojego stwora, jak i dla innych."
+msgstr "照明: 暗闇に光を当てる、クリーチャーは見る事が可能にするだけでなく、他にも目に見えるに成る。"
 
 #: guitext:243
 msgctxt "Creature spell"
 msgid ""
 "Flight: Causes the creature to take off from the ground and attack creatures "
 "from the air."
-msgstr ""
-"Lot: Pozwala stworom unosić się nad ziemią, pokonując przeszkody i atakując "
-"z powietrza."
+msgstr "飛行: クリーチャーは地面から離陸させ、空から攻撃する事が可能にする。[26.7]"
 
 #: guitext:244
 msgctxt "Creature spell"
 msgid "Hail Storm: Creates a shower of hailstones wherever the spell lands."
-msgstr "Burza gradowa: Tworzy opad wielkiego gradu w miejscu rzucenia czaru."
+msgstr "ひょう: 雹を作成する。[26.10]"
 
 #: guitext:245
 msgctxt "Creature spell"
 msgid ""
-"Slow: Slows down the target creature, making it attacks and movement delayed."
-msgstr "Spowolnienie: Spowalnia stwora, opóźniając jego ruch i ataki."
+"Slow: Slows down the target creature, making its attacks and movement delayed."
+msgstr "減速: 対象の速力を下げる、其の攻撃と移動を遅らせる。[26.20]"
 
 #: guitext:246
 msgctxt "Creature spell"
 msgid ""
 "Drain: This spell drains the target creature a fair part of its health and "
 "magical abilities."
-msgstr ""
-"Wyssanie: Zaklęcie wykrada nieszczęśnikowi znaczącą część zdrowia i "
-"zdolności magicznych."
+msgstr "消耗: 対象のクリーチャーの体力を吸い取ってしまいる。[26.4]"
 
 #: guitext:247
 msgctxt "Creature spell"
 msgid ""
-"Word of Power: Causes rings of fire to emanate from the creature's body and "
-"inflicts massive damage on the vicinity."
-msgstr ""
-"Mocne słowo: Pierścienie demonicznej energii rozchodzą się od ciała potwora "
-"i wyrządzają ogromne obrażenia w pobliżu. Efektywne przy stłoczonym zawale "
-"wrogów, powoduje też ich odrzucenie."
+"Word of Power: Causes rings of demonic energy to emanate from the creature's "
+"body and inflicts massive damage on the vicinity. Very effective against "
+"crowded hordes of enemies, also pushes them back."
+msgstr "言霊: クリーチャーの体から悪魔のエネルギーの輪を放ち、周囲に大損傷を加える。 敵の群れに対して非常に効果的で有り、其れを押し戻す。[26.24]"
 
 #: guitext:248
 msgctxt "Creature spell"
 msgid ""
 "Heal: When this is cast, the creature is massively healed. Also, any nearby "
 "creatures are healed by a quarter."
-msgstr ""
-"Uzdrowienie: Przywraca dużą cześć zdrowia stwora. Również stwory w pobliżu "
-"są lekko odczuwają takie skutki."
+msgstr "治癒: クリーチャーを大分治す。[26.11]"
 
 #: guitext:249
 msgctxt "Creature spell"
 msgid ""
 "Wind: Creates a force twelve gale in your Dungeon blowing every creature "
 "away from you."
-msgstr ""
-"Huragan: Wiatr o sile 12 w skali Beauforta w korytarzu lochu. Zdmuchuje "
-"wszelkie stwory w pobliżu."
+msgstr "突風: 強風を起こし、有らゆるクリーチャーを吹き飛ばす。[26.23]"
 
 #: guitext:250
 msgctxt "Creature spell"
 msgid ""
 "Meteor: More powerful that the fireball, this spell throws out a solid ball "
 "of fire which does a lot of damage to an enemy."
-msgstr ""
-"Meteor: Mocniejszy niż Piorun, to zaklęcie rzuca solidną kulę ognia, który "
-"robi dużo obrażeń wrogowi."
+msgstr "隕石: 火の玉よりも強力な、大きな損傷を加える固い火の岩を放つ。[26.14]"
 
 #: guitext:251
 msgctxt "Creature spell"
 msgid ""
 "Fireball: Fires a single fireball which homes in on the nearest enemy. Also "
 "inflicts minor damage to a Dungeon's walls and doors."
-msgstr ""
-"Piorun: Wystrzeliwuje kulę ognia, która zmierza za najbliższym "
-"przeciwnikiek. Zadaje drobne uszkodzenia również ścianom lochu i drzwiom."
+msgstr "火の玉: 少量の損傷を加える火の玉を一個放つ。[26.5]"
 
 #: guitext:252
 msgctxt "Creature spell"
 msgid ""
 "Hand to Hand: The basic battle ability that allows to attack the enemy with "
 "either bare hands or a sword."
-msgstr ""
-"Ręka w rękę: Podstawowa umiejętność bitewna, pozwala na atak wroga mieczem "
-"lub gołymi rękami."
+msgstr "肉弾戦: 基本的な戦闘能力。素手でも剣でも敵を攻撃する事が可能にする。[25.3]"
 
 #: guitext:253
 msgctxt "Creature spell"
 msgid ""
 "Fart: A close range gas attack that only damages enemy creatures."
-msgstr ""
-"Pierdnięcie: Uwalnia gazy bliskiego zasięgu, szkodliwe dla wrogich "
-"stworów."
+msgstr "放屁: 敵のクリーチャーにのみ損傷を加える近距離ガス攻撃。[26.17.1]"
 
 #: guitext:254
 msgctxt "Creature spell"
 msgid ""
 "Dig: This is the basic ability of the Imp and allows it to tunnel through "
 "earth."
-msgstr ""
-"Drążenie: Podstawowa umiejętnośc Choclików, pozwala im przekopywać tunele w "
-"ziemi."
+msgstr "掘る: インプの基本的な能力、土を掘る事が可能にする。[25.2]"
 
 #: guitext:255
 msgctxt "Creature spell"
@@ -643,9 +587,7 @@ msgid ""
 "Disease: Fired at a foe, gives them a Disease which is then spread to other "
 "creatures. The infected are slowly dying and can only be healed in the "
 "Temple."
-msgstr ""
-"Choroba: Rzucona na przeciwnika, sprawia że będzie roznosił ją i zarażał "
-"innych. Zainfekowany powoli umiera, może być uzdrowiony w świątyni."
+msgstr "疫病: 敵に伝染病を与え。 感染したクリーチャーはゆっくり死ぬ、神殿でのみ治す事が出来ます。[26.3]"
 
 #: guitext:256
 msgctxt "Creature spell"
@@ -653,162 +595,157 @@ msgid ""
 "Chicken: Turns enemy into chicken for a while. The enemy isn't able to "
 "attack but has the same strength and thus won't be as easy to kill as a "
 "normal chicken."
-msgstr ""
-"Kurczak: Na chwilę pokazuje przeciwnikowi świat z perspektywy kurczaka. Wróg "
-"nie jest w stanie atakować, ale ma niezmienioną siłę, więc nie da się zabić "
-"tak łatwo jak kurczak."
+msgstr "呪い: 敵を一時的にニワトリに変える。 敵は攻撃する事は出来ないが、同じ強さで有る何故なら、通常のニワトリ程簡単に殺す事は出来ない。[26.2]"
 
 #: guitext:257
 msgctxt "Creature spell"
 msgid "Time Bomb: Turns your creature into a suicidal bomber."
-msgstr ""
-"Bomba zegarowa: Uzbraja stwora w ładunek wybuchowy i wysyła do wrogiego "
-"lochu. Stwór rozerwie się na wycieczce, więc już z niej nie wróci."
+msgstr "時限爆弾: クリーチャーに自爆をさせる。"
 
 #: guitext:258
 msgctxt "Creature name"
 msgid "Fairy"
-msgstr "Wróżka"
+msgstr "フェアリー"
 
 #: guitext:259
 msgctxt "Creature name"
 msgid "Imp"
-msgstr "Chochlik"
+msgstr "インプ"
 
 #: guitext:260
 msgctxt "Creature name"
 msgid "Beetle"
-msgstr "Żuk"
+msgstr "ビートル"
 
 #: guitext:261
 msgctxt "Creature name"
 msgid "Troll"
-msgstr "Troll"
+msgstr "トロル"
 
 #: guitext:262
 msgctxt "Creature name"
 msgid "Demon Spawn"
-msgstr "Pączkujący demon"
+msgstr "デーモンスポーン"
 
 #: guitext:263
 msgctxt "Creature name"
 msgid "Warlock"
-msgstr "Czarnoksiężnik "
+msgstr "ウォーロック"
 
 #: guitext:264
 msgctxt "Creature name"
 msgid "Fly"
-msgstr "Mucha"
+msgstr "フライ"
 
 #: guitext:265
 msgctxt "Creature name"
 msgid "Spider"
-msgstr "Pająk"
+msgstr "スパイダー"
 
 #: guitext:266
 msgctxt "Creature name"
 msgid "Skeleton"
-msgstr "Szkieletor"
+msgstr "スケルトン"
 
 #: guitext:267
 msgctxt "Creature name"
 msgid "Horned Reaper"
-msgstr "Rogaty Rozpruwacz"
+msgstr "ホーンドリーパー"
 
 #: guitext:268
 msgctxt "Creature name"
 msgid "Dragon"
-msgstr "Smok"
+msgstr "ドラゴン"
 
 #: guitext:269
 msgctxt "Creature name"
 msgid "Tentacle"
-msgstr "Macka"
+msgstr "テンタクル"
 
 #: guitext:270
 msgctxt "Creature name"
 msgid "Hound"
-msgstr "Ogar"
+msgstr "ヘルハウンド"
 
 #: guitext:271
 msgctxt "Creature name"
 msgid "Ghost"
-msgstr "Duch"
+msgstr "ゴースト"
 
 #: guitext:272
 msgctxt "Creature name"
 msgid "Mistress"
-msgstr "Dama"
+msgstr "ダークミストレス"
 
 #: guitext:273
 msgctxt "Creature name"
 msgid "Bile Demon"
-msgstr "Demon żółciowy"
+msgstr "バイルデーモン"
 
 #: guitext:274
 msgctxt "Creature name"
 msgid "Vampire"
-msgstr "Wampir"
+msgstr "バンパイア"
 
 #: guitext:275
 msgctxt "Creature name"
 msgid "Barbarian"
-msgstr "Barbarzyńca"
+msgstr "バーバリアン"
 
 #: guitext:276
 msgctxt "Creature name"
 msgid "Knight"
-msgstr "Rycerz"
+msgstr "ナイト"
 
 #: guitext:277
 msgctxt "Creature name"
 msgid "Wizard"
-msgstr "Czarodziej"
+msgstr "ウィザード"
 
 #: guitext:278
 msgctxt "Creature name"
 msgid "Orc"
-msgstr "Ork"
+msgstr "オーク"
 
 #: guitext:279
 msgctxt "Creature name"
 msgid "Mountain Dwarf"
-msgstr "Krasnolud górski"
+msgstr "マウンテンドワーフ"
 
 #: guitext:280
 msgctxt "Creature name"
 msgid "Valley Dwarf"
-msgstr "Krasnolud nizinny"
+msgstr "ドワーフ"
 
 #: guitext:281
 msgctxt "Creature name"
 msgid "Thief"
-msgstr "Złodziej"
+msgstr "シーフ"
 
 #: guitext:282
 msgctxt "Creature name"
 msgid "Samurai"
-msgstr "Samuraj"
+msgstr "サムライ"
 
 #: guitext:283
 msgctxt "Creature name"
 msgid "Priestess"
-msgstr "Kapłanka"
+msgstr "ウィッチ"
 
 #: guitext:284
 msgctxt "Creature name"
 msgid "Giant"
-msgstr "Olbrzym"
+msgstr "ジャイアント"
 
 #: guitext:285
 msgctxt "Creature name"
 msgid "Archer"
-msgstr "Łucznik"
+msgstr "アーチャー"
 
 #: guitext:286
 msgctxt "Creature name"
 msgid "Monk"
-msgstr "Mnich"
+msgstr "モンク"
 
 #: guitext:287 guitext:288 guitext:289 guitext:290 guitext:343 guitext:291
 #: guitext:292 guitext:293 guitext:294 guitext:295 guitext:296 guitext:297
@@ -819,75 +756,97 @@ msgstr "Mnich"
 #: guitext:323 guitext:333
 msgctxt "Unused"
 msgid "Moo9"
-msgstr "Muuu9"
+msgstr ""
 
 #: guitext:319
 msgctxt "Slab description"
 msgid "Empty Lair: Would suit itinerant creature."
-msgstr "Puste legowisko: Posłuży wędrownemu stworowi."
+msgstr "空きのねぐら: あちこち移動するクリーチャーに適している。"
 
 #: guitext:324
+#, fuzzy
 msgctxt "Slab description"
-msgid "Impenetrable Rock: Your Imps cannot dig through this. [12.4]"
-msgstr ""
-"Skała nie do przebycia: Twoje chochliki nie mogą się przez nią przebić."
+msgid ""
+"Impenetrable Rock: Your Imps cannot dig through this, the only solution is "
+"to go round. It is visible even if far from your territory."
+msgstr "貫通不可能な岩: 手下インプはこれを掘り進むことができない。 [12.4]"
 
 #: guitext:325
+#, fuzzy
 msgctxt "Slab description"
-msgid "Earth: You can excavate this. [12.1]"
-msgstr "Ziemia: Tu możesz kopać. [12.1]"
+msgid ""
+"Earth: You can excavate this. To dig out some new caverns, choose a location "
+"and tag for digging with LMB. Press LMB again to untag."
+msgstr "土: ここは掘ることができる。 [12.1]"
 
 #: guitext:326
+#, fuzzy
 msgctxt "Slab description"
 msgid ""
 "Gold Seam: Your source of wealth. Dig this out and your Imps will take it to "
-"your Treasure Room. [12.2]"
-msgstr ""
-"Żyła złota: Źródło bogactwa. Wykop złoto, a chochliki zaniosą je do skarbca. "
-"Możesz też podnosić stosiki pozostawione na ziemii."
+"your Treasure Room. You can also pick up the lumps of treasure left on the "
+"ground."
+msgstr "金鉱: 富の源だ。採掘すれば手下インプが宝物庫へと運ぶ。 [12.2]"
 
 #: guitext:327
+#, fuzzy
 msgctxt "Slab description"
-msgid "Lava: Burns any creature that step on it. [14.2]"
-msgstr "Magma: Pali wszystko, co na nią wlezie. [14.2]"
+msgid ""
+"Lava: Burns any creature that step on it. Get over lava by casting Cave-In "
+"or building a Bridge."
+msgstr "溶岩: ここを踏むとクリーチャーは焼けてしまう。 [14.2]"
 
 #: guitext:328
+#, fuzzy
 msgctxt "Slab description"
-msgid "Water: Creatures move more slowly through water. [14.1]"
-msgstr ""
-"Woda: Spowalnia ruch stworów. Aby zapobiec brodzeniu stworów, zbuduj Most."
+msgid ""
+"Water: Creatures move more slowly through water. Build the Bridge to make "
+"new land on the water."
+msgstr "水: 水の中ではクリーチャーの動きは遅くなる。 [14.1]"
 
 #: guitext:329
+#, fuzzy
 msgctxt "Slab description"
-msgid "Wall: A reinforced stone wall that enemies cannot break through. [12.1]"
-msgstr ""
-"Ściana: Przez umocnioną ścianę nie przedostanie się nieprzyjaciel. O ile nie "
-"dysponuje odpowiednim zaklęciem."
+msgid ""
+"Wall: A reinforced stone wall that enemies cannot break through. At least "
+"without the Destroy Walls spell."
+msgstr "壁: 敵にも破れない補強された石の壁。 [12.1]"
 
 #: guitext:330
 msgctxt "Slab description"
 msgid "Damaged Wall: Unless repaired, this wall will eventually collapse."
-msgstr "Uszkodzona ściana: Jeśli jej nie naprawisz, kiedyś się zawali."
+msgstr "ダメージを受けた壁: この壁は修理しない限り、いずれ崩壊する。"
 
 #: guitext:331
+#, fuzzy
 msgctxt "Slab description"
-msgid "Path: Unclaimed earth floor. [12.1]"
-msgstr "Ścieżka: Bezpański kawałek klepiska. [12.1]"
+msgid ""
+"Path: Unclaimed earth floor. You can claim it if it is connected to already "
+"claimed territory."
+msgstr "通路: 誰の所有でもない土の地面。 [12.1]"
 
 #: guitext:332
+#, fuzzy
 msgctxt "Slab description"
-msgid "Claimed area: Your dungeon territory. [12.1]"
-msgstr "Namazany teren: Twoje terytorium lochu. [12.1]"
+msgid ""
+"Claimed area: Your dungeon territory. You can build rooms and drop your "
+"creatures on it."
+msgstr "占有地: ダンジョン領地。 [12.1]"
+
+#: guitext:333
+msgctxt "In-game interface item"
+msgid "More..."
+msgstr "More..."
 
 #: guitext:334
 msgctxt "In-game message"
 msgid "Level completed - press Escape to continue"
-msgstr "Poziom ukończony - naciśnij Escape, aby przejść dalej"
+msgstr "レベル終了－続けるには Escキーを押せ。"
 
 #: guitext:335
 msgctxt "In-game message"
 msgid "You have been defeated. Press Space to restart."
-msgstr "Poziom przegrany - naciśnij Escape, aby zacząć od nowa"
+msgstr "お前は、ぶざまにも敗北した。 再度挑むのなら スペースキーを押せ。"
 
 #: guitext:336 guitext:337 guitext:338 guitext:339 guitext:340 guitext:341
 #: guitext:342 guitext:344 guitext:345 guitext:346 guitext:347 guitext:348
@@ -905,76 +864,72 @@ msgstr "Poziom przegrany - naciśnij Escape, aby zacząć od nowa"
 #: guitext:415 guitext:416 guitext:417 guitext:418
 msgctxt "Unused"
 msgid "Moo5"
-msgstr "Muuu5"
+msgstr ""
 
 #: guitext:419
 msgctxt "Menu interface item"
 msgid "Ok"
-msgstr "OK"
+msgstr "ＯＫ"
 
 #: guitext:420
 msgctxt "Dungeon special decription"
 msgid "Reveal Map: Reveals the entire underground realm to you."
-msgstr "Odsłonięcie mapy: Odkrywa przed Tobą całe podziemne królestwo."
+msgstr "神々の邪眼: 地底王国全体が見える。"
 
 #: guitext:421
 msgctxt "Dungeon special decription"
 msgid ""
 "Resurrect Creature: You may raise one of your fallen minions from the dead."
-msgstr "Wskrzeszenie stwora: Możesz wskrzesić jednego ze swych poległych sług."
+msgstr "復活: 死んだ手下のうち１人を生き返らせられる。"
 
 #: guitext:422
 msgctxt "Dungeon special decription"
 msgid ""
 "Transfer Creature: Pick one of your creatures to accompany you to the next "
 "realm."
-msgstr ""
-"Przeniesienie stwora: Wybierz jednego sługę, który będzie Ci towarzyszył do "
-"następnego królestwa."
+msgstr "転送: 次の王国へ連れて行く手下のクリーチャーを１人選べる。"
 
 #: guitext:423
 msgctxt "Dungeon special decription"
 msgid "Steal Hero: Subvert a hero to your cause."
-msgstr "Kradzież bohatera: Skaptowanie jednego z bohaterów dla swojej sprawy."
+msgstr "勇者獲得: 勇者を堕落させ悪の道へ引き入れる。"
 
 #: guitext:424
 msgctxt "Dungeon special decription"
 msgid "Multiply Creatures: Create a double of each of your creatures."
-msgstr "Pomnożenie stworów: Utworzenie sobowtóra dla każdego stwora."
+msgstr "増殖: 手下クリーチャーそれぞれの生き写しを作る。"
 
 #: guitext:425
 msgctxt "Dungeon special decription"
 msgid "Increase Level: Bestows greater skill on all your creatures."
-msgstr "Podwyższenie poziomu: Zwiększa umiejętności wszystkich Twoich stworów."
+msgstr "レベルアップ: 手下の全クリーチャーの能力を高める。"
 
 #: guitext:426
 msgctxt "Dungeon special decription"
-msgid "Make Safe : Reinforces your entire dungeon."
-msgstr "Zabezpieczenie: Fortyfikuje całe Twoje podziemie."
+msgid "Make Safe: Reinforces your entire dungeon."
+msgstr "安全化: ダンジョンの壁全体を強化する。"
 
 #: guitext:427
 msgctxt "Dungeon special decription"
 msgid ""
 "Locate Hidden World: You will be transported to a secret realm after you "
 "have conquered this one."
-msgstr ""
-"Odkrycie ukrytego świata: Po ukończeniu poziomu zostaniesz przeniesiony do "
-"tajnego poziomu."
+msgstr "隠された王国: この王国を征服後、秘密の王国への道が開かれるであろう。"
 
 #: guitext:428
 msgctxt "Dungeon special name"
 msgid "Resurrect Creature"
-msgstr "Wskrzeszenie stwora"
+msgstr "復活"
 
 #: guitext:429
 msgctxt "Dungeon special name"
 msgid "Transfer Creature"
-msgstr "Przeniesienie stwora"
+msgstr "転送"
 
 #: guitext:430
 msgctxt "Menu interface item"
 msgid "Bonus"
-msgstr "Premiowa kraina"
+msgstr "ボーナス"
 
 #: guitext:431 guitext:432 guitext:433 guitext:434 guitext:435 guitext:436
 #: guitext:437 guitext:438 guitext:439 guitext:440 guitext:441 guitext:442
@@ -997,356 +952,369 @@ msgstr "Premiowa kraina"
 #: guitext:539 guitext:540 guitext:541 guitext:542 guitext:543
 msgctxt "Unused"
 msgid "Moo6"
-msgstr "Muuu6"
+msgstr ""
 
 #: guitext:544
+#, fuzzy
 msgctxt "Slab description"
-msgid "Gems: Infinite wealth for your Imps to extract. [12.3]"
-msgstr ""
-"Klejnoty: Niewyczerpane źródło bogactwa. Nigdy nie zostają całkowicie "
-"wykopane, ale wydobywa się je wolniej niż Złoto."
+msgid ""
+"Gems: Infinite wealth for your Imps to extract. Cannot be destroyed, but "
+"takes longer to mine than Gold."
+msgstr "宝石: 手下インプが採掘する莫大な富。 [12.3]"
 
 #: guitext:545
+#, fuzzy
 msgctxt "Object description"
-msgid "Hero Gate: Heroes use this portal to invade your dungeon. [15.4]"
-msgstr ""
-"Wejście bohaterów: Za pośrednictwem tego przejścia bohaterowie dostają się "
-"do lochu. [15.4]"
+msgid ""
+"Hero Gate: Heroes use this portal to invade your dungeon. It cannot be "
+"closed on your side."
+msgstr "勇者の門: 勇者はこの門を通ってお前のダンジョンに侵入する。 [15.4]"
 
 #: guitext:546
 msgctxt "Creature name"
 msgid "Tunneller"
-msgstr "Kret"
+msgstr "マウンテンドワーフ"
 
 #: guitext:547
 msgctxt "Creature name"
 msgid "Avatar"
-msgstr "Avatar"
+msgstr "アバタール"
 
 #: guitext:548 guitext:549 guitext:550 guitext:551
 msgctxt "Unused"
 msgid "Moo7"
-msgstr "Muuu7"
+msgstr ""
 
 #: guitext:552
 msgctxt "In-game tab with rooms"
 msgid "Treasure Room"
-msgstr "Skarbiec"
+msgstr "宝物庫"
 
 #: guitext:553
 msgctxt "In-game tab with rooms"
 msgid "Library"
-msgstr "Biblioteka"
+msgstr "図書館"
 
 #: guitext:554
 msgctxt "In-game tab with rooms"
 msgid "Lair"
-msgstr "Legowisko"
+msgstr "ねぐら"
 
 #: guitext:555
 msgctxt "In-game tab with rooms"
 msgid "Prison"
-msgstr "Więzienie"
+msgstr "牢獄"
 
 #: guitext:556
 msgctxt "In-game tab with rooms"
 msgid "Torture Room"
-msgstr "Sala Tortur"
+msgstr "拷問室"
 
 #: guitext:557
 msgctxt "In-game tab with rooms"
 msgid "Training Room"
-msgstr "Sala Treningowa"
+msgstr "訓練室"
 
 #: guitext:558
 msgctxt "In-game tab with rooms"
 msgid "Dungeon Heart"
-msgstr "Serce Labiryntu"
+msgstr "ダンジョンハート"
 
 #: guitext:559
 msgctxt "In-game tab with rooms"
 msgid "Workshop"
-msgstr "Warsztat"
+msgstr "工房"
 
 #: guitext:560
 msgctxt "In-game tab with rooms"
 msgid "Scavenger Room"
-msgstr "Oczyszczalnia"
+msgstr "洗脳室"
 
 #: guitext:561
 msgctxt "In-game tab with rooms"
 msgid "Temple"
-msgstr "Świątynia"
+msgstr "神殿"
 
 #: guitext:562
 msgctxt "In-game tab with rooms"
 msgid "Graveyard"
-msgstr "Cmentarzysko"
+msgstr "墓場"
 
 #: guitext:563
 msgctxt "In-game tab with rooms"
 msgid "Barracks"
-msgstr "Koszary"
+msgstr "兵舎"
 
 #: guitext:564
 msgctxt "In-game tab with rooms"
 msgid "Hatchery"
-msgstr "Kurnik"
+msgstr "ニワトリ小屋"
 
 #: guitext:565
 msgctxt "In-game tab with rooms"
 msgid "Guard Post"
-msgstr "Posterunek"
+msgstr "監視所"
 
 #: guitext:566
 msgctxt "In-game tab with rooms"
 msgid "Bridge"
-msgstr "Most"
+msgstr "橋"
 
 #: guitext:567 guitext:568 guitext:569 guitext:570 guitext:571 guitext:572
 #: guitext:573 guitext:574 guitext:575 guitext:576 guitext:577
 msgctxt "Unused"
 msgid "Moo8"
-msgstr "Muuu8"
+msgstr ""
 
 #: guitext:578
 msgctxt "Trap names"
 msgid "Boulder Trap"
-msgstr "Pułapka kamienna"
+msgstr "丸石の罠"
 
 #: guitext:579
 msgctxt "Trap names"
 msgid "Alarm Trap"
-msgstr "Czujnik alarmowy"
+msgstr "警報の罠"
 
 #: guitext:580
 msgctxt "Trap names"
 msgid "Poison Gas Trap"
-msgstr "Pułapka gazowa"
+msgstr "毒ガスの罠"
 
 #: guitext:581
 msgctxt "Trap names"
 msgid "Lightning Trap"
-msgstr "Pułapka elektryczna"
+msgstr "雷撃の罠"
 
 #: guitext:582
 msgctxt "Trap names"
 msgid "Word of Power Trap"
-msgstr "Pułapka mocnego słowa"
+msgstr "言霊の罠"
 
 #: guitext:583
 msgctxt "Trap names"
 msgid "Lava Trap"
-msgstr "Pułapka magmowa"
+msgstr "溶岩の罠"
 
 #: guitext:584
+#, fuzzy
 msgctxt "Trap description"
 msgid ""
-"Boulder Trap: A rolling rock that crushes everything in its path. LMB "
-"select. RMB zoom. [20.1]"
+"Boulder Trap: A rolling rock that crushes everything in its path. Triggered "
+"when enemy creature is close and within line of sight, or when slapped by a "
+"Keeper. LMB select. RMB zoom."
 msgstr ""
-"Pułapka kamienna: Toczący się głaz, który miażdży wszystko na swej drodze. "
-"LPM uaktywnia. PPM przybliża. [20.1]"
+"丸石の罠: 石が転がり、通り道のすべてのものを押しつぶす。左クリックで選択。右"
+"クリックで表示。 [20.1]"
 
 #: guitext:585
+#, fuzzy
 msgctxt "Trap description"
-msgid "Alarm Trap: Triggers a Call To Arms spell. LMB select. RMB zoom. [20.2]"
+msgid ""
+"Alarm Trap: Triggers a Call To Arms spell, so that creatures in the area are "
+"summoned to it. LMB select. RMB zoom."
 msgstr ""
-"Czujnik alarmowy: Uruchamia zaklęcie 'Do broni'. LPM uaktywnia. PPM "
-"przybliża. [20.2]"
+"警報の罠: 作動すると出陣の魔法がかかる。左クリックで選択。右クリックで表示。 "
+"[20.2]"
 
 #: guitext:586
+#, fuzzy
 msgctxt "Trap description"
 msgid ""
-"Poison Gas Trap: A cloud of noxious vapours triggered by your enemies. LMB "
-"select. RMB zoom. [20.3]"
+"Poison Gas Trap: A cloud of noxious vapours triggered by your enemies. Can "
+"hurt owner creatures if they inhale it. LMB select. RMB zoom."
 msgstr ""
-"Pułapka gazowa: Obłok trujących oparów, wyzwalany przez nieostrożnych "
-"intruzów. LPM uaktywnia. PPM przybliża. [20.3]"
+"毒ガスの罠: 敵が罠にかかると、有害なガスの雲を発生させる。左クリックで選択。"
+"右クリックで表示。 [20.3]"
 
 #: guitext:587
+#, fuzzy
 msgctxt "Trap description"
 msgid ""
-"Lightning Trap: Strikes nearby enemy creatures with bolts of lightning. LMB "
-"select. RMB zoom. [20.4]"
+"Lightning Trap: Strikes nearby enemy creatures with bolts of lightning when "
+"tripped. Does no harm to owner creatures. LMB select. RMB zoom."
 msgstr ""
-"Pułapka elektryczna: Ostrzeliwuje błyskawicami pobliskie wrogie stwory. LPM "
-"uaktywnia. PPM przybliża. [20.4]"
+"雷撃の罠: 近くにいる敵クリーチャーを雷撃が襲う。左クリックで選択。右クリック"
+"で表示。 [20.4]"
 
 #: guitext:588
+#, fuzzy
 msgctxt "Trap description"
 msgid ""
-"Word of Power Trap: Radiates devastating rings of demonic energy, damaging "
-"all creatures within range. LMB select. RMB zoom. [20.5]"
+"Word of Power Trap: Radiates devastating rings of demonic energy, pushing "
+"and damaging all enemy creatures within range. LMB select. RMB zoom."
 msgstr ""
-"Pułapka mocnego słowa: Emituje niszczycielskie pierścienie demonicznej "
-"energii, czyniąc szkody wszystkim znajdującym się w pobliżu. LPM uaktywnia. "
-"PPM przybliża."
+"言霊の罠: 悪霊エネルギーの破壊的な輪を放射し、射程内の全クリーチャーにダメー"
+"ジを与える。左クリックで選択。右クリックで表示。 [20.5]"
 
 #: guitext:589
+#, fuzzy
 msgctxt "Trap description"
 msgid ""
-"Lava Trap: The tile disintegrates revealing a pool of molten lava. LMB "
-"select. RMB zoom. [20.6]"
+"Lava Trap: The tile disintegrates revealing a pool of molten lava. Effects "
+"are irreversible, so Bridge is needed to be able to step on affected area "
+"again. LMB select. RMB zoom."
 msgstr ""
-"Pułapka magmowa: Powoduje zniknięcie posadzki, zamiast której pojawi się "
-"wrząca magma. Efekt jest nieodwracalny, więc by stwór mógł znowu postawić "
-"stopę w tym miejscu, niezbedny będzie Most. LPM uaktywnia. PPM przybliża."
+"溶岩の罠: タイルが壊れ、ドロドロの溶岩になる。左クリックで選択。右クリックで"
+"表示。 [20.6]"
 
 #: guitext:590
 msgctxt "Door name"
 msgid "Wooden Door"
-msgstr "Drzwi drewniane"
+msgstr "木のドア"
 
 #: guitext:591
 msgctxt "Door name"
 msgid "Braced Door"
-msgstr "Drzwi okute"
+msgstr "補強されたドア"
 
 #: guitext:592
 msgctxt "Door name"
 msgid "Iron Door"
-msgstr "Drzwi żelazne"
+msgstr "鉄のドア"
 
 #: guitext:593
 msgctxt "Door name"
 msgid "Magic Door"
-msgstr "Drzwi magiczne"
+msgstr "魔法のドア"
 
 #: guitext:594
+#, fuzzy
 msgctxt "Door description"
 msgid ""
-"Wooden Door: The simplest means of restricting access. LMB select. RMB zoom. "
-"[21.1]"
+"Wooden Door: The simplest means of restricting access. Can be broken down "
+"easily. LMB select. RMB zoom."
 msgstr ""
-"Drzwi drewniane: Najprostszy sposób zablokowania przejścia. Kilkanaście "
-"ciosów wroga zwykle wystarcza do ich wyważenia. LPM uaktywnia. PPM przybliża."
+"木のドア: 敵の接近を阻む最も単純な手段。左クリックで選択。右クリックで表示。 "
+"[21.1]"
 
 #: guitext:595
+#, fuzzy
 msgctxt "Door description"
 msgid ""
-"Braced Door: A wooden door reinforced with iron. LMB select. RMB zoom. [21.2]"
+"Braced Door: A wooden door reinforced with iron to last longer. LMB select. "
+"RMB zoom."
 msgstr ""
-"Drzwi okute: Drewniane drzwi wzmocnione żelazem, dzięki czemu potrafią "
-"znieść nieco więcej. LPM uaktywnia. PPM przybliża."
+"補強されたドア: 鉄で補強した木のドア。左クリックで選択。右クリックで表示。 "
+"[21.2]"
 
 #: guitext:596
+#, fuzzy
 msgctxt "Door description"
 msgid ""
 "Iron Door: Strong, heavy door capable of sustaining massive damage. LMB "
-"select. RMB zoom. [21.3]"
+"select. RMB zoom."
 msgstr ""
-"Drzwi żelazne: Ciężkie drzwi, odporne na duże uszkodzenia. LPM uaktywnia. "
-"PPM przybliża."
+"鉄のドア: 大きなダメージにも耐えられる頑丈で重いドア。左クリックで選択。右ク"
+"リックで表示。 [21.3]"
 
 #: guitext:597
+#, fuzzy
 msgctxt "Door description"
 msgid ""
 "Magic Door: A special door, highly resistant to physical damage but "
-"susceptible to magical damage. LMB select. RMB zoom. [21.4]"
+"susceptible to magical damage. LMB select. RMB zoom."
 msgstr ""
-"Drzwi magiczne: Specjalne drzwi, w najwyższym stopniu odporne na wyważenie, "
-"ale wrażliwe na magię. LPM uaktywnia. PPM przybliża."
+"魔法のドア: 特別なドアで物理的攻撃には非常に強いが、魔法の攻撃にはダメージを"
+"受ける。左クリックで選択。右クリックで表示。 [21.4]"
 
 #: guitext:598
 msgctxt "Room name"
 msgid "Portal"
-msgstr "Wejście"
+msgstr "ゲート"
 
 #: guitext:599
 msgctxt "Room name"
 msgid "Treasure Room"
-msgstr "Skarbiec"
+msgstr "宝物庫"
 
 #: guitext:600
 msgctxt "Room name"
 msgid "Library"
-msgstr "Biblioteka"
+msgstr "図書館"
 
 #: guitext:601
 msgctxt "Room name"
 msgid "Prison"
-msgstr "Więzienie"
+msgstr "牢獄"
 
 #: guitext:602
 msgctxt "Room name"
 msgid "Torture Chamber"
-msgstr "Sala tortur"
+msgstr "拷問室"
 
 #: guitext:603
 msgctxt "Room name"
 msgid "Training Room"
-msgstr "Sala treningowa"
+msgstr "訓練室"
 
 #: guitext:604
 msgctxt "Room name"
 msgid "Dungeon Heart"
-msgstr "Serce lochu"
+msgstr "ダンジョンハート"
 
 #: guitext:605
 msgctxt "Room name"
 msgid "Workshop"
-msgstr "Warsztat"
+msgstr "工房"
 
 #: guitext:606
 msgctxt "Room name"
 msgid "Graveyard"
-msgstr "Cmentarzysko"
+msgstr "墓場"
 
 #: guitext:607
 msgctxt "Room name"
 msgid "Barracks"
-msgstr "Koszary"
+msgstr "兵舎"
 
 #: guitext:608
 msgctxt "Room name"
 msgid "Hatchery"
-msgstr "Kurnik"
+msgstr "ニワトリ小屋"
 
 #: guitext:609
 msgctxt "Room name"
 msgid "Lair"
-msgstr "Legowisko"
+msgstr "ねぐら"
 
 #: guitext:610
 msgctxt "Room name"
 msgid "Bridge"
-msgstr "Most"
+msgstr "橋"
 
 #: guitext:611
 msgctxt "Room name"
 msgid "Guard Post"
-msgstr "Posterunek"
+msgstr "監視所"
 
 #: guitext:612
 msgctxt "Room name"
 msgid "Temple"
-msgstr "Świątynia"
+msgstr "神殿"
 
 #: guitext:613
 msgctxt "Room name"
 msgid "Scavenger Room"
-msgstr "Oczyszczalnia"
+msgstr "洗脳室"
 
 #: guitext:614
 msgctxt "Object name"
 msgid "Hero Gate"
-msgstr "Wejście bohaterów"
+msgstr "勇者の門"
 
 #: guitext:615
 msgctxt "Room description"
 msgid "Treasure Room: Your gold is stored here. LMB select. RMB zoom. [17.1]"
 msgstr ""
-"Skarbiec: Tutaj przechowywane jest Twoje złoto. LPM uaktywnia. PPM "
-"przybliża. [17.1]"
+"宝物庫: 財宝はここに蓄える。左クリックで選択。右クリックで表示。 [17.1]"
 
 #: guitext:616
 msgctxt "Room description"
 msgid ""
 "Library: The room where spells are researched. LMB select. RMB zoom. [17.4]"
 msgstr ""
-"Biblioteka: Służy między innymi do opracowywania zaklęć. LPM uaktywnia. PPM "
-"przybliża. [17.4]"
+"図書館: 魔法の研究を行う部屋。左クリックで選択。右クリックで表示。 [17.4]"
 
 #: guitext:617
 msgctxt "Room description"
@@ -1354,8 +1322,8 @@ msgid ""
 "Prison: Place enemy creatures here for safe keeping. LMB select. RMB zoom. "
 "[17.10]"
 msgstr ""
-"Więzienie: Tutaj umieszczaj wrogie stwory. LPM uaktywnia. PPM przybliża. "
-"[17.10]"
+"牢獄: 生け捕りにした敵クリーチャーをここに入れる。左クリックで選択。右クリッ"
+"クで表示。 [17.10]"
 
 #: guitext:618
 msgctxt "Room description"
@@ -1363,8 +1331,8 @@ msgid ""
 "Training Room: Place creatures in here to improve their experience. LMB "
 "select. RMB zoom. [17.5]"
 msgstr ""
-"Sala treningowa: Tutaj umieszczaj swoje stwory, by zdobyły doświadczenie. "
-"LPM uaktywnia. PPM przybliża. [17.5]"
+"訓練室: 経験を高めるためにクリーチャーをここに入れる。左クリックで選択。右ク"
+"リックで表示。 [17.5]"
 
 #: guitext:619
 msgctxt "Room description"
@@ -1372,13 +1340,13 @@ msgid ""
 "Torture Chamber: Torture creatures for your own evil ends. LMB select. RMB "
 "zoom. [17.11]"
 msgstr ""
-"Sala tortur: Torturuj stwory dla własnych mrocznych celów. LPM uaktywnia. "
-"PPM przybliża. [17.11]"
+"拷問室: お前の邪悪な目的のためにクリーチャーを拷問する。左クリックで選択。右"
+"クリックで表示。 [17.11]"
 
 #: guitext:620
 msgctxt "Room description"
 msgid "Dungeon Heart: The life force of your dungeon. [11.2]"
-msgstr "Serce labiryntu: Ośrodek życia Twego podziemia. [11.2]"
+msgstr "ダンジョンハート: お前のダンジョンの生命力。 [11.2]"
 
 #: guitext:621
 msgctxt "Room description"
@@ -1386,8 +1354,8 @@ msgid ""
 "Workshop: Place creatures inside to manufacture Traps and Doors. LMB select. "
 "RMB zoom. [17.8]"
 msgstr ""
-"Warsztat: Umieść tu swoje stwory, aby produkowały drzwi i pułapki. LPM "
-"uaktywnia. PPM przybliża. [17.8]"
+"工房: クリーチャーを中に入れると罠やドアを作る。左クリックで選択。右クリック"
+"で表示。 [17.8]"
 
 #: guitext:622
 msgctxt "Room description"
@@ -1395,8 +1363,8 @@ msgid ""
 "Graveyard: Dead creatures are taken to this room to rot. LMB select. RMB "
 "zoom. [17.13]"
 msgstr ""
-"Cmentarzysko: Tutaj gniją różnorodne zwłoki. LPM uaktywnia. PPM przybliża. "
-"[17.13]"
+"墓場: 死んだクリーチャーはこの部屋へ運ばれ朽ち果てる。左クリックで選択。右ク"
+"リックで表示。 [17.13]"
 
 #: guitext:623
 msgctxt "Room description"
@@ -1404,8 +1372,8 @@ msgid ""
 "Barracks: Group creatures by placing them into the room. LMB select. RMB "
 "zoom. [17.9]"
 msgstr ""
-"Koszary: Formuj oddziały, umieszczając stwory w tym pomieszczeniu. LPM "
-"uaktywnia. PPM przybliża. [17.9]"
+"兵舎: この部屋に入れて複数のクリーチャーをグループ化する。左クリックで選択。"
+"右クリックで表示。 [17.9]"
 
 #: guitext:624
 msgctxt "Room description"
@@ -1413,8 +1381,8 @@ msgid ""
 "Hatchery: Where creatures feast on cute, helpless little chicks. LMB select. "
 "RMB zoom. [17.3]"
 msgstr ""
-"Kurnik: Tutaj stwory posilają się bezbronnymi, pożywnymi kurczakami. LPM "
-"uaktywnia. PPM przybliża. [17.3]"
+"ニワトリ小屋: クリーチャーがいたいけな小さいニワトリを食べる場所。左クリック"
+"で選択。右クリックで表示。 [17.3]"
 
 #: guitext:625
 msgctxt "Room description"
@@ -1422,8 +1390,8 @@ msgid ""
 "Lair: Where your creatures sleep and replenish their energy. LMB select. RMB "
 "zoom. [17.2]"
 msgstr ""
-"Legowisko: Tu stwory śpią i regenerują energię. LPM uaktywnia. PPM "
-"przybliża. [17.2]"
+"ねぐら: 手下クリーチャーが眠って体力回復をする場所。左クリックで選択。右ク"
+"リックで表示。 [17.2]"
 
 #: guitext:626
 msgctxt "Room description"
@@ -1431,8 +1399,8 @@ msgid ""
 "Bridge: Place this on water and lava to allow creatures to cross. LMB "
 "select. RMB zoom. [17.6]"
 msgstr ""
-"Most: Umożliwia stworom przechodzenie nad wodą i lawą. LPM uaktywnia. PPM "
-"przybliża. [17.6]"
+"橋: これを水や溶岩の上に置けばクリーチャーも渡ることができる。左クリックで選"
+"択。右クリックで表示。 [17.6]"
 
 #: guitext:627
 msgctxt "Room description"
@@ -1440,8 +1408,8 @@ msgid ""
 "Guard Post: Your creatures keep watch over your dungeon when placed on this "
 "room. LMB select. RMB zoom. [17.7]"
 msgstr ""
-"Posterunek: Umieszczone na nim stwory strzegą lochu. LPM uaktywnia. PPM "
-"przybliża. [17.8]"
+"監視所: ここに配置された手下クリーチャーが、お前のダンジョンの監視を続ける。"
+"左クリックで選択。右クリックで表示。 [17.7]"
 
 #: guitext:628
 msgctxt "Room description"
@@ -1449,8 +1417,8 @@ msgid ""
 "Temple: Worshipping the dark gods makes creatures happier. Sacrifice "
 "creatures by dropping them into the font. LMB select. RMB zoom. [17.12]"
 msgstr ""
-"Świątynia: Odddawanie czci Ciemnym Bogom uszczęśliwia stwory. Możesz także "
-"składać stwory w ofierze na ołtarzu. LPM uaktywnia. PPM przybliża. [17.12]"
+"神殿: 暗黒の神々を拝むとクリーチャーは幸せになる。生け贄を捧げるには泉にク"
+"リーチャーを落とす。左クリックで選択。右クリックで表示。 [17.12]"
 
 #: guitext:629
 msgctxt "Room description"
@@ -1458,100 +1426,98 @@ msgid ""
 "Scavenger Room: Creatures placed onto the room lure their kin away from "
 "other dungeons or through portals. LMB select. RMB zoom. [17.14]"
 msgstr ""
-"Oczyszczalnia: Umieszczone tutaj stwory wabią swych pobratymców z "
-"pozostałych części podziemia lub przez wejścia. LPM uaktywnia. PPM "
-"przybliża. [17.14]"
+"洗脳室: この部屋に入れられたクリーチャーは、他のダンジョンからゲートを通して"
+"同類を引き寄せる。左クリックで選択。右クリックで表示。 [17.14]"
 
 #: guitext:630
 msgctxt "Keeper spell name"
 msgid "Possess Creature"
-msgstr "Opętanie"
+msgstr "支配"
 
 #: guitext:631
 msgctxt "Keeper spell name"
 msgid "Create Imp"
-msgstr "Tworzenie chochlika"
+msgstr "インプ製造"
 
 #: guitext:632
 msgctxt "Keeper spell name"
 msgid "Sight of Evil"
-msgstr "Oko zła"
+msgstr "邪眼"
 
 #: guitext:633
 msgctxt "Keeper spell name"
 msgid "Call To Arms"
-msgstr "Do broni"
+msgstr "出陣"
 
 #: guitext:634
 msgctxt "Keeper spell name"
 msgid "Hold Audience"
-msgstr "Audiencja"
+msgstr "一斉集結"
 
 #: guitext:635
 msgctxt "Keeper spell name"
 msgid "Cave-In"
-msgstr "Zawalenie"
+msgstr "落盤"
 
 #: guitext:636
 msgctxt "Keeper spell name"
 msgid "Must Obey"
-msgstr "Przymus"
+msgstr "絶対服従"
 
 #: guitext:637
 msgctxt "Keeper spell name"
 msgid "Speed Monster"
-msgstr "Przyspieszacz potwora"
+msgstr "加速"
 
 #: guitext:638
 msgctxt "Keeper spell name"
 msgid "Protect Monster"
-msgstr "Ochrona potwora"
+msgstr "防御"
 
 #: guitext:639
 msgctxt "Keeper spell name"
 msgid "Conceal Monster"
-msgstr "Ukrycie potwora"
+msgstr "透明化"
 
 #: guitext:640
 msgctxt "Keeper spell name"
 msgid "Lightning Strike"
-msgstr "Błyskawica"
+msgstr "雷撃"
 
 #: guitext:641
 msgctxt "Keeper spell name"
 msgid "Chicken"
-msgstr "Kurczak"
+msgstr "呪い"
 
 #: guitext:642
 msgctxt "Keeper spell name"
 msgid "Disease"
-msgstr "Choroba"
+msgstr "疫病"
 
 #: guitext:643
 msgctxt "Keeper spell name"
 msgid "Destroy Walls"
-msgstr "Zniszczenie ścian"
+msgstr "粉砕"
 
 #: guitext:644
 msgctxt "Keeper spell name"
 msgid "Heal"
-msgstr "Uzdrowienie"
+msgstr "治癒"
 
 #: guitext:645
 msgctxt "Keeper spell name"
 msgid "Time Bomb"
-msgstr "Bomba zegarowa"
+msgstr "時限爆弾"
 
 #: guitext:646
 msgctxt "Keeper spell name"
 msgid "Armageddon"
-msgstr "Armageddon"
+msgstr "ハルマゲドン"
 
 #: guitext:647
 msgctxt "Keeper spell description"
 msgid "Possess Creature: Control a creature directly. LMB select. [18.1]"
-msgstr ""
-"Opętanie: Umożliwia bezpośrednie kierowanie stworem. LPM uaktywnia. [18.1]"
+msgstr "支配: クリーチャーを直接操作できる。左クリックで選択。 [18.1]"
 
 #: guitext:648
 msgctxt "Keeper spell description"
@@ -1559,8 +1525,7 @@ msgid ""
 "Create Imp: Create summon a new Imp anywhere in your dungeon. LMB select. "
 "[18.2]"
 msgstr ""
-"Tworzenie chochlika: Przywołuje nowego chochlika w dowolnym punkcie lochu. "
-"LPM uaktywnia. [18.2]"
+"インプ製造: ダンジョン内に新しいインプを作り出す。左クリックで選択。 [18.2]"
 
 #: guitext:649
 msgctxt "Keeper spell description"
@@ -1568,8 +1533,8 @@ msgid ""
 "Sight of Evil: Reveal a hidden area of the map for a limited time. LMB "
 "select. RMB zoom. [18.3]"
 msgstr ""
-"Oko zła: Na pewien czas odsłania ukryty fragment mapy. LPM uaktywnia. PPM "
-"przybliża. [18.3]"
+"邪眼: マップ上の見えない場所が、しばらくの間だけ見える。左クリックで選択。右"
+"クリックで表示。 [18.3]"
 
 #: guitext:650
 msgctxt "Keeper spell description"
@@ -1577,9 +1542,9 @@ msgid ""
 "Call To Arms: Calls all your creatures to an area of your dungeon. LMB "
 "select, LMB again to reselect, LMB a third time to cancel. RMB zoom. [18.6]"
 msgstr ""
-"Do broni: Wzywa wszystkie stwory do określonego punktu lochu. LPM uaktywnia, "
-"kolejne kliknięcie LPM uaktywnia powtórnie, trzecie kliknięcie LPM "
-"dezaktywuje. PPM przybliża. [18.6]"
+"出陣: 手下の全クリーチャーをダンジョン内の魔法をかけた地点に招集させる。左ク"
+"リックで選択。もう一度左クリックすると再選択。魔法アイコンを左ダブルクリック"
+"で取り消し。右クリックで表示。 [18.6]"
 
 #: guitext:651
 msgctxt "Keeper spell description"
@@ -1587,13 +1552,13 @@ msgid ""
 "Hold Audience: Calls all your creatures to the Dungeon Heart. LMB select. "
 "RMB zoom. [18.8]"
 msgstr ""
-"Audiencja: Wzywa wszystkie Twoje stwory do Serca labiryntu. LPM uaktywnia. "
-"PPM przybliża. [18.8]"
+"一斉集結: 手下の全クリーチャーをダンジョンハートに招集する。左クリックで選"
+"択。右クリックで表示。 [18.8]"
 
 #: guitext:652
 msgctxt "Keeper spell description"
 msgid "Cave In: Collapses the roof of the dungeon. LMB select. [18.13]"
-msgstr "Zawalenie: Powoduje zapadnięcie się stropu. LPM uaktywnia. [18.13]"
+msgstr "落盤: ダンジョン内に落盤を起こす。左クリックで選択。 [18.13]"
 
 #: guitext:653
 msgctxt "Keeper spell description"
@@ -1601,22 +1566,19 @@ msgid ""
 "Must Obey: Forces your creatures to obey your every command. LMB select. "
 "[18.5]"
 msgstr ""
-"Przymus: Zmusza wszystkie Twoje stwory do natychmiastowego wykonania Twoich "
-"poleceń. LPM uaktywnia. [18.5]"
+"絶対服従: 手下クリーチャーに、お前の全命令に従わせる。左クリックで選択。 "
+"[18.5]"
 
 #: guitext:654
 msgctxt "Keeper spell description"
 msgid "Speed Monster: Increases the speed of your monsters. LMB select. [18.4]"
-msgstr ""
-"Przyspieszacz potwora: Zwiększa szybkość działania Twoich stworów. LPM "
-"uaktywnia. [18.4]"
+msgstr "加速: 手下クリーチャーのスピードを速める。左クリックで選択。 [18.4]"
 
 #: guitext:655
 msgctxt "Keeper spell description"
 msgid ""
 "Protect Monster: Shields your creatures from attack. LBM select. [18.11]"
-msgstr ""
-"Ochrona potwora: Osłania Twoje stwory przed atakiem. LPM uaktywnia. [18.11]"
+msgstr "防御: 手下クリーチャーを攻撃から守る。左クリックで選択。 [18.11]"
 
 #: guitext:656
 msgctxt "Keeper spell description"
@@ -1624,8 +1586,7 @@ msgid ""
 "Conceal Monster: Makes your creatures invisible to the enemy. LMB select. "
 "[18.7]"
 msgstr ""
-"Ukrycie potwora: Czyni Twoje stwory niewidzialnymi dla wroga. LPM uaktywnia. "
-"[18.7]"
+"透明化: 手下クリーチャーを敵から見えなくする。左クリックで選択。 [18.7]"
 
 #: guitext:657
 msgctxt "Keeper spell description"
@@ -1633,27 +1594,26 @@ msgid ""
 "Lightning Strike: Strikes an area of the dungeon with a devastating bolt of "
 "lightning. LMB select. [18.10]"
 msgstr ""
-"Błyskawica: Uderza w pewien obszar lochu niszczycielską energią. LPM "
-"uaktywnia. [18.10]"
+"雷撃: ダンジョン内の一部を非常に強力な雷撃が襲う。左クリックで選択。 [18.10]"
 
 #: guitext:658
 msgctxt "Keeper spell description"
 msgid "Chicken: Transforms the enemy into a tasty morsel. LMB select. [18.12]"
-msgstr "Kurczak: Przekształca wroga w smaczny kąsek. LPM uaktywnia. [18.12]"
+msgstr "呪い: 敵をニワトリ-変える。左クリック+選択。 [18.12]"
 
 #: guitext:659
 msgctxt "Keeper spell description"
 msgid ""
 "Disease: Inflicts a deadly plague on an enemy creature. LMB select. [18.14]"
-msgstr "Choroba: zaraża wrogiego śmiertelną chorobą. LPM uaktywnia. [18.14]"
+msgstr ""
+"疫病: 敵クリーチャーを死にいたる伝染病に感染させる。左クリックで選択。 "
+"[18.14]"
 
 #: guitext:660
 msgctxt "Keeper spell description"
 msgid ""
 "Destroy Walls: Breaks down reinforcemed enemy's walls. LMB select. [18.16]"
-msgstr ""
-" Zniszczenie ścian: Kruszy umocnione ściany lochu wroga. LPM uaktywnia. "
-"[18.16]"
+msgstr "粉砕: 補強された敵の壁を破壊する。左クリックで選択。 [18.16]"
 
 #: guitext:661
 msgctxt "Keeper spell description"
@@ -1661,15 +1621,14 @@ msgid ""
 "Heal: Cast on an area of the dungeon to improve the health of your "
 "creatures. LMB select. [18.9]"
 msgstr ""
-"Uzdrowienie: Rzucone na określony obszar lochu poprawia stan zdrowia Twoich "
-"stworów. LPM uaktywnia. [18.9]"
+"治癒: ダンジョン内の地面にかけると周囲にいる手下クリーチャーの体力が回復す"
+"る。左クリックで選択。 [18.9]"
 
 #: guitext:662
+#, fuzzy
 msgctxt "Keeper spell description"
 msgid "Time Bomb: Turns your creature into a suicidal bomber."
-msgstr ""
-"Bomba zegarowa: Uzbraja stwora w ładunek wybuchowy i wysyła do wrogiego "
-"lochu. Stwór rozerwie się na wycieczce, więc już z niej nie wróci."
+msgstr "時限爆弾"
 
 #: guitext:663
 msgctxt "Keeper spell description"
@@ -1677,5 +1636,5 @@ msgid ""
 "Armageddon: Transports all the creatures in the land to your Dungeon Heart "
 "for a final, decisive battle. LMB select. [18.15]"
 msgstr ""
-"Armageddon: Przenosi wszystkie stwory obecne w krainie do Serca Twego "
-"labiryntu, by uczestniczyły w ostatecznej bitwie. LPM uaktywnia. [18.15]"
+"ハルマゲドン: 領地内の全クリーチャーを最終決戦のためにお前のダンジョンハート"
+"へ移動させる。左クリックで選択。 [18.15]"

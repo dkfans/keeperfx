@@ -279,8 +279,8 @@ msgstr "四面楚歌"
 
 #: guitext:206
 msgctxt "Level name"
-msgid "Tub vulnerabilities"
-msgstr "破洞之桶"
+msgid "Okehazama"
+msgstr "桶狹間"
 
 #: guitext:207
 msgctxt "Level name"
