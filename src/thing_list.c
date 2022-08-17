@@ -2920,6 +2920,12 @@ void stop_all_things_playing_samples(void)
   }
 }
 
+void set_previous_thing_position(struct Thing *thing) {
+    struct ThingAdd* thingadd = get_thingadd(thing->index);
+    thingadd->previous_mappos = thing->mappos;
+    thingadd->previous_floor_height = thing->floor_height;
+}
+
 TbBool update_thing(struct Thing *thing)
 {
     Thing_Class_Func classfunc;
@@ -2927,6 +2933,9 @@ TbBool update_thing(struct Thing *thing)
     TRACE_THING(thing);
     if (thing_is_invalid(thing))
         return false;
+    
+    set_previous_thing_position(thing);
+
     if ((thing->movement_flags & TMvF_Unknown40) == 0)
     {
         if ((thing->state_flags & TF1_PushAdd) != 0)

@@ -24,6 +24,7 @@
 #include "bflib_math.h"
 #include "bflib_planar.h"
 
+#include "engine_render.h"
 #include "player_data.h"
 #include "map_data.h"
 
@@ -158,6 +159,10 @@ long light_create_light(struct InitLight *ilght)
     lgt->field_1A = ilght->field_8;
     lgt->field_18 = ilght->field_4;
     lgt->field_12 = ilght->field_12;
+
+    struct LightAdd* lightadd = get_lightadd(lgt->index);
+    LbMemorySet(lightadd, 0, sizeof(struct LightAdd)); // Clear any previously used LightAdd stuff
+
     return lgt->index;
 }
 
@@ -352,10 +357,18 @@ long light_is_light_allocated(long lgt_id)
     return true;
 }
 
+void set_previous_light_position(struct Light *light) {
+    struct LightAdd* lightadd = get_lightadd(light->index);
+    lightadd->previous_mappos = light->mappos;
+}
+
 void light_set_light_position(long lgt_id, struct Coord3d *pos)
 {
   // _DK_light_set_light_position(lgt_id, pos);
   struct Light *lgt = &game.lish.lights[lgt_id];
+
+  set_previous_light_position(lgt);
+
   if ( lgt->mappos.x.val != pos->x.val
     || pos->y.val != lgt->mappos.y.val
     || pos->z.val != lgt->mappos.z.val )
@@ -1518,7 +1531,26 @@ static int light_render_light_static(struct Light *lgt, int radius, int a3, unsi
 
 static char light_render_light(struct Light* lgt)
 {
- int intensity;
+  struct LightAdd* lightadd = get_lightadd(lgt->index);
+  int remember_original_lgt_mappos_x = lgt->mappos.x.val;
+  int remember_original_lgt_mappos_y = lgt->mappos.y.val;
+  if (lightadd->interp_has_been_initialized == false) {
+    lightadd->interp_has_been_initialized = true;
+    lightadd->interp_mappos.x.val = lgt->mappos.x.val;
+    lightadd->interp_mappos.y.val = lgt->mappos.y.val;
+    lightadd->previous_mappos.x.val = lgt->mappos.x.val;
+    lightadd->previous_mappos.y.val = lgt->mappos.y.val;
+  } else {
+    lightadd->interp_mappos.x.val = interpolate(lightadd->interp_mappos.x.val, lightadd->previous_mappos.x.val, lgt->mappos.x.val);
+    lightadd->interp_mappos.y.val = interpolate(lightadd->interp_mappos.y.val, lightadd->previous_mappos.y.val, lgt->mappos.y.val);
+    lgt->mappos.x.val = lightadd->interp_mappos.x.val;
+    lgt->mappos.y.val = lightadd->interp_mappos.y.val;
+  }
+  // Stop flicker by rounding off position
+  lgt->mappos.x.val = ((lgt->mappos.x.val >> 8) << 8);
+  lgt->mappos.y.val = ((lgt->mappos.y.val >> 8) << 8);
+
+  int intensity;
   int rand_minimum;
   int v3;
   int v4;
@@ -1665,6 +1697,9 @@ static char light_render_light(struct Light* lgt)
       lighting_tables_idx = light_render_light_static(lgt, radius, v22, lighting_tables_idx);
     }
   }
+
+  lgt->mappos.x.val = remember_original_lgt_mappos_x;
+  lgt->mappos.y.val = remember_original_lgt_mappos_y;
   return lighting_tables_idx;
 }
 

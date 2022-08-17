@@ -82,6 +82,7 @@ enum TbFeature {
     Ft_SkipHeartZoom                = 0x8000,
     Ft_SkipSplashScreens            = 0x10000,
     Ft_DisableCursorCameraPanning   = 0x20000,
+    Ft_DeltaTime                    = 0x40000,
 };
 
 enum TbExtraLevels {

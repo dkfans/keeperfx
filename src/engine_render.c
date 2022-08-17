@@ -145,6 +145,7 @@ struct EngineCol *back_ec;
 float hud_scale;
 
 static int water_wibble_angle = 0;
+static float render_water_wibble = 0; // Rendering float
 //static unsigned char temp_cluedo_mode;
 static unsigned long render_problems;
 static long render_prob_kind;
@@ -160,6 +161,29 @@ DLLIMPORT char _DK_splittypes[64];
 /******************************************************************************/
 static void do_map_who(short tnglist_idx);
 /******************************************************************************/
+
+long interpolate(long variable_to_interpolate, long previous, long current)
+{
+    if (is_feature_on(Ft_DeltaTime) == false) {
+        return current;
+    }
+    // future: by using the predicted future position in the interpolation calculation, we can remove input lag (or visual lag).
+    long future = current + (current - previous);
+    // 0.5 is definitely accurate. Tested by rotating the camera while comparing the minimap's rotation with the camera's rotation in a video recording.
+    long desired_value = lerp(current, future, 0.5);
+    return lerp(variable_to_interpolate, desired_value, gameadd.delta_time);
+}
+
+long interpolate_angle(long variable_to_interpolate, long previous, long current)
+{
+    if (is_feature_on(Ft_DeltaTime) == false) {
+        return current;
+    }
+    long future = current + (current - previous);
+    // If you want to reduce 1st person camera acceleration/deceleration then change it in the logic, not here.
+    long desired_value = lerp_angle(current, future, 0.5);
+    return lerp_angle(variable_to_interpolate, desired_value, gameadd.delta_time);
+}
 
 static void get_floor_pointed_at(long x, long y, long *floor_x, long *floor_y)
 {
@@ -712,10 +736,6 @@ void fill_in_points_cluedo(long bstl_x, long bstl_y, struct MinMax *mm)
         pfulmask_or = mask_cur | mask_yp;
         pfulmask_and = mask_cur & mask_yp;
     }
-    struct PlayerInfo *myplyr;
-    myplyr = get_my_player();
-    const struct Camera *cam;
-    cam = myplyr->acamera;
     long view_z;
     int zoom;
     long eview_w;
@@ -723,7 +743,7 @@ void fill_in_points_cluedo(long bstl_x, long bstl_y, struct MinMax *mm)
     long eview_z;
     int hview_y;
     int hview_z;
-    zoom = cam->zoom / pixel_size;
+    zoom = camera_zoom / pixel_size;
     view_z = object_origin.z + (cells_away << 8)
         + ((bpos * camera_matrix.r[2].v[2]
          + (apos + camera_matrix.r[2].v[1]) * (camera_matrix.r[2].v[0] - view_alt)
@@ -935,17 +955,15 @@ void fill_in_points_isometric(long bstl_x, long bstl_y, struct MinMax *mm)
         pfulmask_or = mask_cur | mask_yp;
         pfulmask_and = mask_cur & mask_yp;
     }
-    struct PlayerInfo *myplyr;
-    myplyr = get_my_player();
-    const struct Camera *cam;
-    cam = myplyr->acamera;
+
     long hpos;
     long view_x;
     long view_y;
     long view_z;
     int zoom;
     int hview_z;
-    zoom = cam->zoom / pixel_size;
+    
+    zoom = camera_zoom / pixel_size;
     hpos = -view_alt * apos;
     view_x = view_width_over_2 + (zoom
          * (object_origin.x
@@ -1107,14 +1125,11 @@ void frame_wibble_generate(void)
         wibl->field_C = osc >> 6;
         wibl++;
     }
-    water_wibble_angle = (water_wibble_angle + LbFPMath_PI/22) & LbFPMath_AngleMask;
+    render_water_wibble += (LbFPMath_PI / 22) * gameadd.delta_time;
+    water_wibble_angle = (int)render_water_wibble & LbFPMath_AngleMask;
     int zoom;
     {
-        struct PlayerInfo *myplyr;
-        myplyr = get_my_player();
-        const struct Camera *cam;
-        cam = myplyr->acamera;
-        zoom = cam->zoom / pixel_size;
+        zoom = camera_zoom / pixel_size;
     }
 
     int zm00;
@@ -1166,12 +1181,11 @@ static void create_box_coords(struct EngineCoord *coord, long x, long z, long y)
 
 static void do_perspective_rotation(long x, long y, long z)
 {
-    struct PlayerInfo *player;
+    struct PlayerInfo *player = get_my_player();
     struct EngineCoord epos;
     long zoom;
     long engine_w;
     long engine_h;
-    player = get_my_player();
     zoom = camera_zoom / pixel_size;
     engine_w = player->engine_window_width/pixel_size;
     engine_h = player->engine_window_height/pixel_size;
@@ -1874,13 +1888,12 @@ static void fiddle_gamut_set_minmaxes(long *floor_x, long *floor_y, long max_til
  */
 void fiddle_gamut(long pos_x, long pos_y)
 {
-    struct PlayerInfo *player;
+    struct PlayerInfo *player = get_my_player();
     long ewwidth;
     long ewheight;
     long ewzoom;
     long floor_x[4];
     long floor_y[4];
-    player = get_my_player();
     switch (player->view_mode)
     {
     case PVM_CreatureView:
@@ -4459,13 +4472,12 @@ static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprit
 {
     unsigned short flg_mem;
     unsigned char alpha_mem;
-    struct PlayerInfo *player;
-    struct Thing *thing;
+    struct PlayerInfo *player = get_my_player();
+    struct Thing *thing = jspr->thing;
+    struct ThingAdd* thingadd = get_thingadd(thing->index);
     short angle;
     flg_mem = lbDisplay.DrawFlags;
     alpha_mem = EngineSpriteDrawUsingAlpha;
-    thing = jspr->thing;
-    player = get_my_player();
     if (keepersprite_rotable(thing->anim_sprite))
     {
         angle = thing->move_angle_xy - cam->orient_a; // orient_a maybe short
@@ -4522,7 +4534,7 @@ static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprit
             EngineSpriteDrawUsingAlpha = 1;
             break;
     }
-//
+    
     if ((thing->class_id == TCls_Creature)
         || (thing->class_id == TCls_Object)
         || (thing->class_id == TCls_DeadCreature)
@@ -4532,12 +4544,18 @@ static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprit
         {
             lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
             lbSpriteReMapPtr = white_pal;
-        }
-        else if ((thing->field_4F & TF4F_Unknown80) != 0)
-        {
-            lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
-            lbSpriteReMapPtr = red_pal;
-            thing->field_4F &= ~TF4F_Unknown80;
+        } else {
+            if ((thing->field_4F & TF4F_BeingHit) != 0)
+            {
+                lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
+                lbSpriteReMapPtr = red_pal;
+                thingadd->time_spent_displaying_hurt_colour += gameadd.delta_time;
+                if (thingadd->time_spent_displaying_hurt_colour >= 1.0)
+                {
+                    thingadd->time_spent_displaying_hurt_colour = 0;
+                    thing->field_4F &= ~TF4F_BeingHit; // Turns off red damage colour tint
+                }
+            }
         }
         thing_being_displayed_is_creature = 1;
         thing_being_displayed = thing;
@@ -6347,9 +6365,6 @@ static void draw_view_map_plane(long aposc, long bposc, long xcell, long ycell)
 void draw_view(struct Camera *cam, unsigned char a2)
 {
     long zoom_mem;
-    long x;
-    long y;
-    long z;
     long xcell;
     long ycell;
     long i;
@@ -6360,6 +6375,10 @@ void draw_view(struct Camera *cam, unsigned char a2)
     camera_zoom = scale_camera_zoom_to_screen(cam->zoom);
     zoom_mem = cam->zoom;//TODO [zoom] remove when all cam->zoom will be changed to camera_zoom
     cam->zoom = camera_zoom;//TODO [zoom] remove when all cam->zoom will be changed to camera_zoom
+    
+    interpolated_camera_zoom = interpolate(interpolated_camera_zoom, previous_camera_zoom, camera_zoom);
+    camera_zoom = interpolated_camera_zoom;
+    
     getpoly = poly_pool;
     LbMemorySet(buckets, 0, sizeof(buckets));
     LbMemorySet(poly_pool, 0, sizeof(poly_pool));
@@ -6376,20 +6395,31 @@ void draw_view(struct Camera *cam, unsigned char a2)
     {
         i = 0;
     }
+
+    interpolated_cam_orient_a = interpolate_angle(interpolated_cam_orient_a, previous_cam_orient_a, cam->orient_a);
+    interpolated_cam_orient_b = interpolate_angle(interpolated_cam_orient_b, previous_cam_orient_b, cam->orient_b);
+    interpolated_cam_orient_c = interpolate_angle(interpolated_cam_orient_c, previous_cam_orient_c, cam->orient_c);
+
     perspective = perspective_routines[i];
     rotpers = rotpers_routines[i];
     update_fade_limits(cells_away);
     init_coords_and_rotation(&object_origin,&camera_matrix);
-    rotate_base_axis(&camera_matrix, cam->orient_a, 2);
+    rotate_base_axis(&camera_matrix, interpolated_cam_orient_a, 2);
     update_normal_shade(&camera_matrix);
-    rotate_base_axis(&camera_matrix, -cam->orient_b, 1);
-    rotate_base_axis(&camera_matrix, -cam->orient_c, 3);
-    cam_map_angle = cam->orient_a;
-    map_roll = cam->orient_c;
-    map_tilt = -cam->orient_b;
-    x = cam->mappos.x.val;
-    y = cam->mappos.y.val;
-    z = cam->mappos.z.val;
+    rotate_base_axis(&camera_matrix, -interpolated_cam_orient_b, 1);
+    rotate_base_axis(&camera_matrix, -interpolated_cam_orient_c, 3);
+    cam_map_angle = interpolated_cam_orient_a;
+    map_roll = interpolated_cam_orient_c;
+    map_tilt = -interpolated_cam_orient_b;
+
+    // Smooth the position of possessed creature and position of isometric camera
+    interpolated_cam_mappos_x = interpolate(interpolated_cam_mappos_x, previous_cam_mappos_x, cam->mappos.x.val);
+    interpolated_cam_mappos_y = interpolate(interpolated_cam_mappos_y, previous_cam_mappos_y, cam->mappos.y.val);
+    interpolated_cam_mappos_z = interpolate(interpolated_cam_mappos_z, previous_cam_mappos_z, cam->mappos.z.val);
+    long x = interpolated_cam_mappos_x;
+    long y = interpolated_cam_mappos_y;
+    long z = interpolated_cam_mappos_z;
+
     if (wibble_enabled() || liquid_wibble_enabled())
     {
         frame_wibble_generate();
@@ -6416,6 +6446,7 @@ void draw_view(struct Camera *cam, unsigned char a2)
     ycell = (y >> 8) - (cells_away+1);
     find_gamut();
     fiddle_gamut(xcell, ycell + (cells_away+1));
+
     draw_view_map_plane(aposc, bposc, xcell, ycell);
 
     if (map_volume_box.visible)
@@ -6426,7 +6457,6 @@ void draw_view(struct Camera *cam, unsigned char a2)
 
     cam->zoom = zoom_mem;//TODO [zoom] remove when all cam->zoom will be changed to camera_zoom
     display_drawlist();
-    map_volume_box.visible = 0;
     SYNCDBG(9,"Finished");
 }
 
@@ -7683,18 +7713,17 @@ void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
 {
     unsigned short flg_mem;
     unsigned char alpha_mem;
-    struct PlayerInfo *player;
-    struct Thing *thing;
+    struct PlayerInfo *player = get_my_player();
+    struct Thing *thing = jspr->thing;
+    struct ThingAdd* thingadd = get_thingadd(thing->index);
     long angle;
     long scale;
     flg_mem = lbDisplay.DrawFlags;
     alpha_mem = EngineSpriteDrawUsingAlpha;
-    thing = jspr->thing;
-    player = get_my_player();
     if (keepersprite_rotable(thing->anim_sprite))
     {
       angle = thing->move_angle_xy - spr_map_angle;
-      angle += 256 * (long)((get_thingadd(thing->index)->flags & TAF_ROTATED_MASK) >> TAF_ROTATED_SHIFT);
+      angle += 256 * (long)((thingadd->flags & TAF_ROTATED_MASK) >> TAF_ROTATED_SHIFT);
     }
     else
       angle = thing->move_angle_xy;
@@ -7750,12 +7779,18 @@ void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
                   }
               }
           }
-        } else
-        if ((thing->field_4F & TF4F_Unknown80) != 0)
-        {
-            lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
-            lbSpriteReMapPtr = red_pal;
-            thing->field_4F &= ~TF4F_Unknown80;
+        } else {
+            if ((thing->field_4F & TF4F_BeingHit) != 0)
+            {
+                lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
+                lbSpriteReMapPtr = red_pal;
+                thingadd->time_spent_displaying_hurt_colour += gameadd.delta_time;
+                if (thingadd->time_spent_displaying_hurt_colour >= 1.0)
+                {
+                    thingadd->time_spent_displaying_hurt_colour = 0;
+                    thing->field_4F &= ~TF4F_BeingHit; // Turns off red damage colour tint
+                }
+            }
         }
         thing_being_displayed_is_creature = 1;
         thing_being_displayed = thing;
@@ -8369,16 +8404,51 @@ void process_frontview_map_volume_box(struct Camera *cam, unsigned char stl_widt
 }
 static void do_map_who_for_thing(struct Thing *thing)
 {
+    int prev_pos_x, prev_floorpos, prev_pos_y, prev_pos_z, current_pos_x, current_floorpos, current_pos_y, current_pos_z, render_pos_x, render_floorpos, render_pos_z; //render_pos_y
+    struct ThingAdd* thingadd = get_thingadd(thing->index);
     int bckt_idx;
     struct EngineCoord ecor;
     struct NearestLights nearlgt;
     switch (thing->field_50 >> 2) // draw_class
     {
     case 2:
-        ecor.x = ((long)thing->mappos.x.val - map_x_pos);
-        ecor.z = (map_y_pos - (long)thing->mappos.y.val);
         ecor.field_8 = 0;
-        ecor.y = ((long)thing->floor_height - map_z_pos);
+
+        current_pos_x = thing->mappos.x.val;
+        current_pos_y = thing->mappos.z.val;
+        current_pos_z = thing->mappos.y.val;
+        current_floorpos = thing->floor_height;
+        render_pos_x = current_pos_x;
+        //render_pos_y = current_pos_y;
+        render_pos_z = current_pos_z;
+        render_floorpos = current_floorpos;
+        // Set initial interp position when either:
+        // 1. Thing has just been created
+        // 2. Thing goes off camera then comes back on camera
+        if (thing->creation_turn == game.play_gameturn-1 || game.play_gameturn - thingadd->last_turn_drawn > 1 ) {
+            thingadd->interp_mappos.x.val = current_pos_x;
+            thingadd->interp_mappos.z.val = current_pos_y;
+            thingadd->interp_mappos.y.val = current_pos_z;
+            thingadd->interp_floor_height = current_floorpos;
+        } else {
+            prev_pos_x = thingadd->previous_mappos.x.val;
+            prev_pos_y = thingadd->previous_mappos.z.val;
+            prev_pos_z = thingadd->previous_mappos.y.val;
+            prev_floorpos = thingadd->previous_floor_height;
+            thingadd->interp_mappos.x.val = interpolate(thingadd->interp_mappos.x.val, prev_pos_x, current_pos_x);
+            thingadd->interp_mappos.z.val = interpolate(thingadd->interp_mappos.z.val, prev_pos_y, current_pos_y);
+            thingadd->interp_mappos.y.val = interpolate(thingadd->interp_mappos.y.val, prev_pos_z, current_pos_z);
+            thingadd->interp_floor_height = interpolate(thingadd->interp_floor_height, prev_floorpos, current_floorpos);
+            render_pos_x = thingadd->interp_mappos.x.val;
+            //render_pos_y = thingadd->interp_mappos.z.val;
+            render_pos_z = thingadd->interp_mappos.y.val;
+            render_floorpos = thingadd->previous_floor_height;
+        }
+        
+        ecor.x = (render_pos_x - map_x_pos);
+        ecor.y = (render_floorpos - map_z_pos); // For shadows
+        ecor.z = (map_y_pos - render_pos_z);
+        // Shadows
         if (thing_is_creature(thing) && ((thing->movement_flags & TMvF_Unknown04) == 0))
         {
             int count;
@@ -8388,7 +8458,11 @@ static void do_map_who_for_thing(struct Thing *thing)
                 create_shadows(thing, &ecor, &nearlgt.coord[i]);
             }
         }
-        ecor.y = thing->mappos.z.val - map_z_pos;
+        // Height movement, falling or going up steps. This is applied after shadows, because shadows are always drawn at the floor height.
+        //ecor.y = (render_pos_y - map_z_pos); // Unfinished
+        ecor.y = (current_pos_y - map_z_pos);
+        
+
         if (thing->class_id == TCls_Creature)
         {
             add_draw_status_box(thing, &ecor);
@@ -8445,7 +8519,9 @@ static void do_map_who_for_thing(struct Thing *thing)
                 thing->roomflag2.byte_19++;
             } else
             {
-                thing->roomflag2.byte_19 = 0;
+                if (game.play_gameturn - thing->roomflag2.turntime > 1) {
+                    thing->roomflag2.byte_19 = 0;
+                }
             }
             thing->roomflag2.turntime = game.play_gameturn;
             if (thing->roomflag2.byte_19 == 40)
@@ -8471,6 +8547,7 @@ static void do_map_who_for_thing(struct Thing *thing)
     default:
         break;
     }
+    thingadd->last_turn_drawn = game.play_gameturn;
 }
 
 static void do_map_who(short tnglist_idx)

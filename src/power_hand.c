@@ -924,6 +924,8 @@ void drop_held_thing_on_ground(struct Dungeon *dungeon, struct Thing *droptng, c
         droptng->continue_state = droptng->active_state;
         droptng->active_state = ObSt_BeingDropped;
     }
+
+    reset_interpolation_of_thing(droptng);
 }
 
 short dump_first_held_thing_on_map(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, TbBool update_hand)
@@ -940,6 +942,11 @@ short dump_first_held_thing_on_map(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     struct Thing *droptng;
     droptng = thing_get(dungeon->things_in_hand[0]);
     if (!can_drop_thing_here(stl_x, stl_y, plyr_idx, thing_is_creature_special_digger(droptng))) {
+        // Make a rejection sound
+        if (is_my_player_number(plyr_idx))
+        {
+            play_non_3d_sample(119);
+        }
         return 0;
     }
     // Check if object will fit into that position
@@ -1057,6 +1064,7 @@ TbBool process_creature_in_dungeon_hand(struct Dungeon *dungeon, struct Thing *t
             {
                 create_effect(&thing->mappos, imp_spangle_effects[thing->owner], thing->owner);
                 move_thing_in_map(thing, &game.armageddon.mappos);
+                reset_interpolation_of_thing(thing);
                 //originally move was to get_player_soul_container(game.armageddon_caster_idx) mappos
                 return false;
             }
