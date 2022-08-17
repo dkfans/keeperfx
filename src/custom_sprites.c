@@ -767,8 +767,6 @@ static int read_png_data(unzFile zip, const char *path, struct SpriteContext *co
     // That is this actually?
     ksprite->SWidth = dst_w;
     ksprite->SHeight = dst_h;
-    ksprite->FrameWidth = dst_w;
-    ksprite->FrameHeight = dst_h;
     ksprite->Rotable = context->rotatable ? 2 : 0;
     ksprite->FramesCount = 1;
 
@@ -788,9 +786,11 @@ static int read_png_data(unzFile zip, const char *path, struct SpriteContext *co
     } \
     else \
     { \
-        ksprite->FrameOffsW = def_val; \
+        ksprite-> dst = def_val; \
     }
 
+    READ_WITH_DEFAULT(FrameWidth, "frame_w", "fp_frame_w", "td_frame_w", dst_w, value_uint32)
+    READ_WITH_DEFAULT(FrameHeight, "frame_h", "fp_frame_h", "td_frame_h", dst_h, value_uint32)
     READ_WITH_DEFAULT(FrameOffsW, "offset_w", "fp_offset_w", "td_offset_w", 0, value_uint32)
     READ_WITH_DEFAULT(FrameOffsH, "offset_h", "fp_offset_h", "td_offset_h", 0, value_uint32)
     READ_WITH_DEFAULT(offset_x, "offset_x", "fp_offset_x", "td_offset_x", -dst_w / 2, -value_int32)
