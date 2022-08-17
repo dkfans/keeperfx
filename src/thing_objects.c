@@ -1517,7 +1517,7 @@ TngUpdateRet object_update_dungeon_heart(struct Thing *heartng)
     process_dungeon_destroy(heartng);
     SYNCDBG(18,"Beat update");
     if ((heartng->alloc_flags & TAlF_Exists) == 0)
-      return 0;
+      return TUFRet_Modified;
     update_dungeon_heart_beat(heartng);
     return TUFRet_Modified;
 }
@@ -1647,6 +1647,7 @@ TngUpdateRet object_update_call_to_arms(struct Thing *thing)
             pos.y.val = subtile_coord_center(dungeon->cta_stl_y);
             pos.z.val = get_thing_height_at(thing, &pos);
             move_thing_in_map(thing, &pos);
+            reset_interpolation_of_thing(thing);
             set_thing_draw(thing, ctagfx->birth_anim_idx, 256, objdat->sprite_size_max, 0, 0, 2);
             thing->call_to_arms_flag.state = CTAOL_Birthing;
             stop_thing_playing_sample(thing, powerst->select_sound_idx);
