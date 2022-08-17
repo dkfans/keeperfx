@@ -42,6 +42,7 @@
 #include "creature_states.h"
 #include "creature_groups.h"
 #include "game_legacy.h"
+#include "engine_lenses.h"
 
 #include "keeperfx.hpp"
 
@@ -112,7 +113,9 @@ TbBool detonate_shot(struct Thing *shotng)
     case ShM_Lightning:
     case ShM_GodLightning:
     case ShM_GodLightBall:
-        PaletteSetPlayerPalette(myplyr, engine_palette);
+        if (lens_mode != 0) {
+            PaletteSetPlayerPalette(myplyr, engine_palette);
+        }
         break;
     case ShM_Grenade:
     case ShM_Lizard:
