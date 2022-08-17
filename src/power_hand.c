@@ -924,6 +924,8 @@ void drop_held_thing_on_ground(struct Dungeon *dungeon, struct Thing *droptng, c
         droptng->continue_state = droptng->active_state;
         droptng->active_state = ObSt_BeingDropped;
     }
+
+    reset_interpolation_of_thing(droptng);
 }
 
 short dump_first_held_thing_on_map(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, TbBool update_hand)
@@ -1062,6 +1064,7 @@ TbBool process_creature_in_dungeon_hand(struct Dungeon *dungeon, struct Thing *t
             {
                 create_effect(&thing->mappos, imp_spangle_effects[thing->owner], thing->owner);
                 move_thing_in_map(thing, &game.armageddon.mappos);
+                reset_interpolation_of_thing(thing);
                 //originally move was to get_player_soul_container(game.armageddon_caster_idx) mappos
                 return false;
             }
