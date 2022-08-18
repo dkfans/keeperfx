@@ -207,7 +207,7 @@ void ProperFadePalette(unsigned char *pal, long fade_steps, enum TbPaletteFadeFl
     } else*/
     if (lbAdvancedFade)
     {
-        TbClockMSec previous_loop_time = LbTimerClock();
+        TbClockMSec latest_loop_time = LbTimerClock();
         while (LbPaletteFade(pal, fade_steps, Lb_PALETTE_FADE_OPEN) < fade_steps)
         {
           if (!is_key_pressed(KC_SPACE,KMod_DONTCARE) &&
@@ -215,8 +215,8 @@ void ProperFadePalette(unsigned char *pal, long fade_steps, enum TbPaletteFadeFl
               !is_key_pressed(KC_RETURN,KMod_DONTCARE) &&
               !is_mouse_pressed_lrbutton())
           {
-            previous_loop_time += lbFadeDelay;
-            LbSleepUntil(previous_loop_time);
+            latest_loop_time += lbFadeDelay;
+            LbSleepUntil(latest_loop_time);
           }
         }
     } else
