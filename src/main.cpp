@@ -4166,7 +4166,7 @@ short process_command_line(unsigned short argc, char *argv[])
             WARNMSG("PacketSave disabled to enable PacketLoad.");
          start_params.packet_load_enable = true;
          start_params.packet_save_enable = false;
-         strncpy(start_params.packet_fname,pr2str,sizeof(start_params.packet_fname)-1);
+         (strncpy(start_params.packet_fname,pr2str,sizeof(start_params.packet_fname)-1));
          narg++;
       } else
       if (strcasecmp(parstr,"packetsave") == 0)
@@ -4175,7 +4175,7 @@ short process_command_line(unsigned short argc, char *argv[])
             WARNMSG("PacketLoad disabled to enable PacketSave.");
          start_params.packet_load_enable = false;
          start_params.packet_save_enable = true;
-         strncpy(start_params.packet_fname,pr2str,sizeof(start_params.packet_fname)-1);
+         (strncpy(start_params.packet_fname,pr2str,sizeof(start_params.packet_fname)-1));
          narg++;
       } else
       if (strcasecmp(parstr,"q") == 0)

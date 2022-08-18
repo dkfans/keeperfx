@@ -131,7 +131,7 @@ static CoroutineLoopState setup_exchange_player_number(CoroutineLoop *context)
             player->view_mode_restore = PVM_FrontView;
           player->is_active = pckt->actn_par1;
           init_player(player, 0);
-          strncpy(player->field_15,net_player[i].name,sizeof(struct TbNetworkPlayerName));
+          (strncpy(player->field_15,net_player[i].name,sizeof(struct TbNetworkPlayerName)));
           k++;
       }
   }
