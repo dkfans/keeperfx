@@ -29,7 +29,7 @@
 #include <wingdi.h>
 #include <winuser.h>
 
-#include "bflib_datetm.hpp"
+#include "bflib_datetm.h"
 #include "bflib_memory.h"
 #include "bflib_fileio.h"
 

@@ -2,7 +2,7 @@
 // Bullfrog Engine Emulation Library - for use to remake classic games like
 // Syndicate Wars, Magic Carpet or Dungeon Keeper.
 /******************************************************************************/
-/** @file bflib_datetm.hpp
+/** @file bflib_datetm.h
  *     Header file for bflib_datetm.cpp.
  * @par Purpose:
  *     Gets system date and time, makes delay, converts date/time formats.

@@ -17,7 +17,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-#include "bflib_datetm.hpp"
+#include "bflib_datetm.h"
 
 #include <string.h>
 #include <stdarg.h>

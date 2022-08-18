@@ -29,7 +29,7 @@
 #include "bflib_video.h"
 #include "bflib_keybrd.h"
 #include "bflib_filelst.h"
-#include "bflib_datetm.hpp"
+#include "bflib_datetm.h"
 
 #include "gui_frontbtns.h"
 #include "front_simple.h"

@@ -21,7 +21,7 @@
 #include "bflib_basics.h"
 
 #include "bflib_keybrd.h"
-#include "bflib_datetm.hpp"
+#include "bflib_datetm.h"
 #include "bflib_sprite.h"
 #include "bflib_guibtns.h"
 #include "bflib_vidraw.h"

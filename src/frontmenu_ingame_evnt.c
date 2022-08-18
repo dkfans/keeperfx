@@ -19,7 +19,7 @@
 #include "frontmenu_ingame_evnt.h"
 #include "globals.h"
 #include "bflib_basics.h"
-#include "bflib_datetm.hpp"
+#include "bflib_datetm.h"
 #include "bflib_guibtns.h"
 #include "bflib_vidraw.h"
 #include "bflib_sprfnt.h"

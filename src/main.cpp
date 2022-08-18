@@ -8,7 +8,7 @@
 #include "bflib_memory.h"
 #include "bflib_keybrd.h"
 #include "bflib_inputctrl.h"
-#include "bflib_datetm.hpp"
+#include "bflib_datetm.h"
 #include "bflib_sprfnt.h"
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"

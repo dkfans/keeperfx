@@ -22,7 +22,7 @@
 #include <time.h>
 
 #include "bflib_pom.hpp"
-#include "bflib_datetm.hpp"
+#include "bflib_datetm.h"
 
 using namespace std;
 
@@ -206,7 +206,7 @@ long PhaseOfMoon::JulToday(double &daypart,long &moon_periods_n)
 
 /**
  * Library exported routine for calculating Phase Of Moon.
- * Defined in Ansi-C header "bflib_datetm.hpp".
+ * Defined in Ansi-C header "bflib_datetm.h".
  */
 double LbMoonPhase(void)
 {

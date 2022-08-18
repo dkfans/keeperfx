@@ -21,7 +21,7 @@
 #include "globals.h"
 #include "bflib_basics.h"
 #include "bflib_memory.h"
-#include "bflib_datetm.hpp"
+#include "bflib_datetm.h"
 #include "bflib_planar.h"
 #include "bflib_video.h"
 #include "bflib_fileio.h"
