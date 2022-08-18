@@ -207,7 +207,7 @@ void ProperFadePalette(unsigned char *pal, long fade_steps, enum TbPaletteFadeFl
     } else*/
     if (lbAdvancedFade)
     {
-        TbClockMSec last_loop_time = LbTimerClock();
+        TbClockMSec previous_loop_time = LbTimerClock();
         while (LbPaletteFade(pal, fade_steps, Lb_PALETTE_FADE_OPEN) < fade_steps)
         {
           if (!is_key_pressed(KC_SPACE,KMod_DONTCARE) &&
@@ -215,8 +215,8 @@ void ProperFadePalette(unsigned char *pal, long fade_steps, enum TbPaletteFadeFl
               !is_key_pressed(KC_RETURN,KMod_DONTCARE) &&
               !is_mouse_pressed_lrbutton())
           {
-            last_loop_time += lbFadeDelay;
-            LbSleepUntil(last_loop_time);
+            previous_loop_time += lbFadeDelay;
+            LbSleepUntil(previous_loop_time);
           }
         }
     } else
@@ -239,13 +239,13 @@ void ProperForcedFadePalette(unsigned char *pal, long fade_steps, enum TbPalette
     }
     if (lbAdvancedFade)
     {
-        TbClockMSec last_loop_time = LbTimerClock();
+        TbClockMSec previous_loop_time = LbTimerClock();
         while (LbPaletteFade(pal, fade_steps, Lb_PALETTE_FADE_OPEN) < fade_steps)
         {
-          last_loop_time += lbFadeDelay;
+          previous_loop_time += lbFadeDelay;
           
           if (is_feature_on(Ft_SkipSplashScreens) == false) {
-              LbSleepUntil(last_loop_time);
+              LbSleepUntil(previous_loop_time);
           }
         }
     } else
