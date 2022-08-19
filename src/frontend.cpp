@@ -3361,7 +3361,7 @@ void set_level_objective(const char *msg_text)
         ERRORLOG("Invalid message pointer");
         return;
     }
-    strncpy(game.evntbox_text_objective, msg_text, MESSAGE_TEXT_LEN);
+    snprintf(game.evntbox_text_objective, MESSAGE_TEXT_LEN, "%s", msg_text);
     new_objective = 1;
 }
 

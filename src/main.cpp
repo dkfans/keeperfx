@@ -4058,7 +4058,7 @@ short reset_game(void)
 short process_command_line(unsigned short argc, char *argv[])
 {
   char fullpath[CMDLN_MAXLEN+1];
-  strncpy(fullpath, argv[0], CMDLN_MAXLEN);
+  snprintf(fullpath, CMDLN_MAXLEN, "%s", argv[0]);
 
   sprintf( keeper_runtime_directory, fullpath);
   char *endpos = strrchr( keeper_runtime_directory, '\\');

@@ -2114,7 +2114,7 @@ static void set_box_tooltip(const struct ScriptLine *scline)
   {
       SCRPTWRNLOG("Box tooltip #%d overwritten by different text", idx);
   }
-  strncpy(gameadd.box_tooltip[idx], scline->tp[1], MESSAGE_TEXT_LEN-1);
+  snprintf(gameadd.box_tooltip[idx], MESSAGE_TEXT_LEN-1, "%s", scline->tp[1]);
   gameadd.box_tooltip[idx][MESSAGE_TEXT_LEN-1] = '\0';
 }
 
@@ -2126,7 +2126,7 @@ static void set_box_tooltip_id(const struct ScriptLine *scline)
     return;
   }
   int idx = scline->np[0];
-  strncpy(gameadd.box_tooltip[idx], get_string(scline->np[1]), MESSAGE_TEXT_LEN-1);
+  snprintf(gameadd.box_tooltip[idx], MESSAGE_TEXT_LEN-1, "%s", get_string(scline->np[1]));
   gameadd.box_tooltip[idx][MESSAGE_TEXT_LEN-1] = '\0';
 }
 

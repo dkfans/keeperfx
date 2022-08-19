@@ -1920,13 +1920,15 @@ short dbc_initialize(const char *fpath)
     char fname[DISKPATH_SIZE];
     if ((fpath != NULL) && (fpath[0] != 0))
     {
-      strncpy(fname, fpath, DISKPATH_SIZE);
-      fname[DISKPATH_SIZE-1] = '\0';
-      if (fname[strlen(fname)-1] != '/')
-        strcat(fname, "/");
+        snprintf(fname, DISKPATH_SIZE, "%s", fpath);
+        fname[DISKPATH_SIZE-1] = '\0';
+        if (fname[strlen(fname) - 1] != '/')
+        {
+            strcat(fname, "/");
+        }
     } else
     {
-      strcpy(fname, lbEmptyString);
+        strcpy(fname, lbEmptyString);
     }
     strcat(fname, active_dbcfont->fname);
     // Load font file
