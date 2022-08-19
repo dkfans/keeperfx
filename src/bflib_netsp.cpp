@@ -264,7 +264,7 @@ TbError ServiceProvider::Send(unsigned long plr_id, void *buf)
       break;
   case NETMSGTYPE_ADD:
       memcpy(&p3, (uchar *)buf+4, sizeof(unsigned long));
-      strncpy(str,(char *)buf+8, 32);
+      snprintf(str,32, "%s", (char*)buf + 8);
       this->AddPlayer(p3, str, 0, 0);
       if (recvCallbacks->addMsg == NULL)
       {

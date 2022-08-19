@@ -209,7 +209,7 @@ int load_game_chunks(TbFileHandle fhandle,struct CatalogueEntry *centry)
                 load_stats_files();
                 check_and_auto_fix_stats();
                 init_creature_scores();
-                strncpy(high_score_entry,centry->player_name,PLAYER_NAME_LENGTH);
+                snprintf(high_score_entry, PLAYER_NAME_LENGTH, "%s", centry->player_name);
             }
             break;
         case SGC_GameAdd:

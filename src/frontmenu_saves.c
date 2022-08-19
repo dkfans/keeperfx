@@ -133,7 +133,7 @@ void update_loadsave_input_strings(struct CatalogueEntry *game_catalg)
             text = centry->textname;
         else
           text = get_string(GUIStr_SlotUnused);
-        strncpy(input_string[slot_num], text, SAVE_TEXTNAME_LEN);
+        snprintf(input_string[slot_num], SAVE_TEXTNAME_LEN, "%s", text);
     }
 }
 

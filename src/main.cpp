@@ -4092,12 +4092,12 @@ short process_command_line(unsigned short argc, char *argv[])
       char parstr[CMDLN_MAXLEN+1];
       char pr2str[CMDLN_MAXLEN+1];
       char pr3str[CMDLN_MAXLEN+1];
-      strncpy(parstr, par+1, CMDLN_MAXLEN);
+      snprintf(parstr, CMDLN_MAXLEN, "%s", par + 1);
       if (narg + 1 < argc)
       {
-          strncpy(pr2str,  argv[narg+1], CMDLN_MAXLEN);
+          snprintf(pr2str, CMDLN_MAXLEN, "%s", argv[narg + 1]);
           if (narg + 2 < argc)
-              strncpy(pr3str,  argv[narg+2], CMDLN_MAXLEN);
+              snprintf(pr3str, CMDLN_MAXLEN, "%s", argv[narg + 2]);
           else
               pr3str[0]='\0';
       }

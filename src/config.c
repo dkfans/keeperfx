@@ -631,7 +631,7 @@ const char *get_language_lwrstr(int lang_id)
       WARNLOG("Bad text code for language index %d",(int)lang_id);
 #endif
   static char lang_str[4];
-  strncpy(lang_str, src, 4);
+  snprintf(lang_str, 4, "%s", src);
   lang_str[3] = '\0';
   strlwr(lang_str);
   return lang_str;
@@ -1676,7 +1676,7 @@ short set_level_info_text_name(LevelNumber lvnum, char *name, unsigned long lvop
     struct LevelInformation* lvinfo = get_or_create_level_info(lvnum, lvoptions);
     if (lvinfo == NULL)
         return false;
-    strncpy(lvinfo->name, name, LINEMSG_SIZE - 1);
+    snprintf(lvinfo->name, LINEMSG_SIZE - 1, "%s", name);
     lvinfo->name[LINEMSG_SIZE - 1] = '\0';
     if ((lvoptions & LvOp_IsFree) != 0)
     {

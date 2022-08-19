@@ -542,7 +542,7 @@ void add_message(long plyr_idx, char *msg)
     }
     nmsg = &net_message[i];
     nmsg->plyr_idx = plyr_idx;
-    strncpy(nmsg->text, msg, NET_MESSAGE_LEN-1);
+    snprintf(nmsg->text, NET_MESSAGE_LEN-1, "%s", msg);
     nmsg->text[NET_MESSAGE_LEN-1] = '\0';
     i++;
     net_number_of_messages = i;
@@ -630,7 +630,7 @@ void create_error_box(TextStringId msg_idx)
     if (!game.packet_load_enable)
     {
         //change the length into  when gui_error_text will not be exported
-        strncpy(gui_error_text, get_string(msg_idx), sizeof(gui_error_text)-1);
+        snprintf(gui_error_text, sizeof(gui_error_text)-1, "%s", get_string(msg_idx));
         turn_on_menu(GMnu_ERROR_BOX);
     }
 }
@@ -702,7 +702,7 @@ TbBool get_button_area_input(struct GuiButton *gbtn, int modifiers)
     } else
     if (key == KC_ESCAPE)
     { // Stop the input, revert the string to what it was before
-        strncpy(str, backup_input_field, gbtn->field_2D);
+        snprintf(str, gbtn->field_2D, "%s", backup_input_field);
         input_button = 0;
         input_field_pos = 0;
     } else
@@ -3730,7 +3730,7 @@ void try_restore_frontend_error_box()
 
 void create_frontend_error_box(long showTime, const char * text)
 {
-    strncpy(gui_message_text, text, TEXT_BUFFER_LENGTH-1);
+    snprintf(gui_message_text, TEXT_BUFFER_LENGTH-1, "%s", text);
     gui_message_text[TEXT_BUFFER_LENGTH-1] = '\0';
     gui_message_timeout = LbTimerClock()+showTime;
     turn_on_menu(GMnu_FEERROR_BOX);

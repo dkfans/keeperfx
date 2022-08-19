@@ -1326,7 +1326,7 @@ static void heart_lost_quick_objective_check(const struct ScriptLine *scline)
     {
         SCRPTWRNLOG("Quick Objective no %d overwritten by different text", scline->np[0]);
     }
-    strncpy(gameadd.quick_messages[scline->np[0]], scline->tp[1], MESSAGE_TEXT_LEN-1);
+    snprintf(gameadd.quick_messages[scline->np[0]], MESSAGE_TEXT_LEN-1, "%s", scline->tp[1]);
     gameadd.quick_messages[scline->np[0]][MESSAGE_TEXT_LEN-1] = '\0';
     
     TbMapLocation location;
