@@ -272,12 +272,12 @@ static void process_fx_line(struct ScriptFxLine *fx_line)
           break;
         }
 
-        int remain_t = fx_line->total_steps - fx_line->step;
+        int64_t remain_t = fx_line->total_steps - fx_line->step;
 
-        int bx = fx_line->from.x.val * remain_t + fx_line->cx * fx_line->step;
-        int by = fx_line->from.y.val * remain_t + fx_line->cy * fx_line->step;
-        int dx = fx_line->cx * remain_t + fx_line->to.x.val * fx_line->step;
-        int dy = fx_line->cy * remain_t + fx_line->to.y.val * fx_line->step;
+        int64_t bx = fx_line->from.x.val * remain_t + fx_line->cx * fx_line->step;
+        int64_t by = fx_line->from.y.val * remain_t + fx_line->cy * fx_line->step;
+        int64_t dx = fx_line->cx * remain_t + fx_line->to.x.val * fx_line->step;
+        int64_t dy = fx_line->cy * remain_t + fx_line->to.y.val * fx_line->step;
 
         fx_line->here.x.val = (bx * remain_t + dx * fx_line->step) / fx_line->total_steps / fx_line->total_steps;
         fx_line->here.y.val = (by * remain_t + dy * fx_line->step) / fx_line->total_steps / fx_line->total_steps;
