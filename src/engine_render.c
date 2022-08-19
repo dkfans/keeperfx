@@ -4727,6 +4727,7 @@ void draw_engine_number(struct BucketKindFloatingGoldText *num)
             {
                 spr = &button_sprite[(val%10) + 71];
                 LbSpriteDrawScaled(pos_x, num->y - h, spr, w, h);
+
                 pos_x -= w;
             }
         }
@@ -8509,10 +8510,10 @@ static void do_map_who_for_thing(struct Thing *thing)
         {
             if (game.play_gameturn - thing->roomflag2.turntime == 1)
             {
-              if (thing->roomflag2.byte_19 < 40)
-                thing->roomflag2.byte_19++;
-            } else
-            {
+                if (thing->roomflag2.byte_19 < 40) {
+                    thing->roomflag2.byte_19++;
+                }
+            } else {
                 if (game.play_gameturn - thing->roomflag2.turntime > 1) {
                     thing->roomflag2.byte_19 = 0;
                 }
@@ -8580,7 +8581,6 @@ static void do_map_who(short tnglist_idx)
 static void draw_frontview_thing_on_element(struct Thing *thing, struct Map *map, struct Camera *cam)
 {
     // The draw_frontview_thing_on_element() function is the FrontView equivalent of do_map_who_for_thing()
-
     struct ThingAdd* thingadd = get_thingadd(thing->index);
     interpolate_thing(thing, thingadd);
 
@@ -8602,7 +8602,7 @@ static void draw_frontview_thing_on_element(struct Thing *thing, struct Map *map
             }
         }
         break;
-    case 4: // Popup gold text when buying and selling
+    case 4: // Floating gold text when buying and selling
         convert_world_coord_to_front_view_screen_coord(&thingadd->interp_mappos,cam,&cx,&cy,&cz);
         if (is_free_space_in_poly_pool(1))
         {
@@ -8617,23 +8617,25 @@ static void draw_frontview_thing_on_element(struct Thing *thing, struct Map *map
         convert_world_coord_to_front_view_screen_coord(&thingadd->interp_mappos,cam,&cx,&cy,&cz);
         if (is_free_space_in_poly_pool(1))
         {
-          if (game.play_gameturn - thing->roomflag2.turntime != 1)
-          {
-              thing->roomflag2.byte_19 = 0;
-          } else
-          if (thing->roomflag2.byte_19 < 40)
-          {
-              thing->roomflag2.byte_19++;
-          }
-          thing->roomflag2.turntime = game.play_gameturn;
-          if (thing->roomflag2.byte_19 == 40)
-          {
-              add_room_flag_pole_to_polypool(cx, cy, thing->roomflag.room_idx, cz-3);
-              if (is_free_space_in_poly_pool(1))
-              {
-                  add_room_flag_top_to_polypool(cx, cy, thing->roomflag.room_idx, 1);
-              }
-          }
+            if (game.play_gameturn - thing->roomflag2.turntime == 1)
+            {
+                if (thing->roomflag2.byte_19 < 40) {
+                    thing->roomflag2.byte_19++;
+                }
+            } else {
+                if (game.play_gameturn - thing->roomflag2.turntime > 1) {
+                    thing->roomflag2.byte_19 = 0;
+                }
+            }
+            thing->roomflag2.turntime = game.play_gameturn;
+            if (thing->roomflag2.byte_19 == 40)
+            {
+                add_room_flag_pole_to_polypool(cx, cy, thing->roomflag.room_idx, cz-3);
+                if (is_free_space_in_poly_pool(1))
+                {
+                    add_room_flag_top_to_polypool(cx, cy, thing->roomflag.room_idx, 1);
+                }
+            }
         }
         break;
     case 6:
@@ -8778,7 +8780,7 @@ void draw_frontview_engine(struct Camera *cam)
     {
         process_frontview_map_volume_box(cam, ((zoom >> 8) & 0xFF), player->id_number);
     }
-    map_volume_box.visible = 0;
+    
 
     h = (8 * (zoom + 32 * ewnd.height) - qy) / zoom;
     w = (8 * (zoom + 32 * ewnd.height) - qy) / zoom;
