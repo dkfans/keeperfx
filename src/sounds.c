@@ -230,14 +230,22 @@ void find_nearest_rooms_for_ambient_sound(void)
     set_room_playing_ambient_sound(NULL, 0);
 }
 
-TbBool update_3d_sound_receiver(struct PlayerInfo *player)
+TbBool update_3d_sound_receiver(struct PlayerInfo* player)
 {
-    SYNCDBG(7,"Starting");
+    SYNCDBG(7, "Starting");
     struct Camera* cam = player->acamera;
     if (cam == NULL)
         return false;
-    S3DSetSoundReceiverPosition(cam->mappos.x.val,cam->mappos.y.val,cam->mappos.z.val);
-    S3DSetSoundReceiverOrientation(cam->orient_a,cam->orient_b,cam->orient_c);
+    struct PlayerInfoAdd* playeradd = get_playeradd(player->id_number);
+    if (cam->view_mode == PVM_IsometricView || cam->view_mode == PVM_FrontView) {
+        long x = lerp(cam->mappos.x.val, subtile_coord(playeradd->cursor_subtile_x, 0), 1.0 - hud_scale);
+        long y = lerp(cam->mappos.y.val, subtile_coord(playeradd->cursor_subtile_y, 0), 1.0 - hud_scale);
+        S3DSetSoundReceiverPosition(x, y, cam->mappos.z.val);
+    }
+    else {
+        S3DSetSoundReceiverPosition(cam->mappos.x.val, cam->mappos.y.val, cam->mappos.z.val);
+    }
+    S3DSetSoundReceiverOrientation(cam->orient_a, cam->orient_b, cam->orient_c);
     return true;
 }
 
