@@ -4750,27 +4750,29 @@ void draw_engine_room_flagpole(struct BucketKindRoomFlag *rflg)
     {
         if (settings.roomflags_on)
         {
+            int deltay, height, zoom_factor;
             // 1st argument: the scale when fully zoomed out. 2nd argument: the scale at base level zoom
             float scale_by_zoom = lerp(0.15, 1.00, hud_scale);
 
-            int deltay;
-            int height;
-            int zoom_factor = camera_zoom;
             if (cam->view_mode == PVM_FrontView) {
                 zoom_factor = 4094*scale_by_zoom;
+                deltay = (zoom_factor << 7 >> 13) * units_per_pixel / 16;
+                height = ((2 * (71 * zoom_factor) >> 13) * units_per_pixel + 8) / 16;
+            } else {
+                zoom_factor = camera_zoom;
+                deltay = (zoom_factor << 7 >> 13);
+                height = (2 * (71 * zoom_factor) >> 13) + 8;
             }
 
-            deltay = (zoom_factor << 7 >> 13);
-            height = (2 * (71 * zoom_factor) >> 13);
             LbDrawBox(rflg->x,
                       rflg->y - deltay,
                       ((4*scale_by_zoom) * units_per_pixel + 8) / 16,
-                      (height + 8),
+                      height,
                       colours[3][1][0]);
             LbDrawBox(rflg->x + (2*scale_by_zoom) * (units_per_pixel) / 16,
                       rflg->y - deltay,
                       ((2*scale_by_zoom) * units_per_pixel + 8) / 16,
-                      (height + 8),
+                      height,
                       colours[1][0][0]);
         }
     }
@@ -5097,15 +5099,17 @@ static void draw_engine_room_flag_top(struct BucketKindRoomFlag *rflg)
     {
         if (settings.roomflags_on)
         {
+            int top_of_pole_offset, zoom_factor;
             // 1st argument: the scale when fully zoomed out. 2nd argument: the scale at base level zoom
             float scale_by_zoom = lerp(0.15, 1.00, hud_scale);
-
-            int zoom_factor = camera_zoom;
+            
             if (cam->view_mode == PVM_FrontView) {
-                zoom_factor = 4094*scale_by_zoom;
+                zoom_factor = (4094*scale_by_zoom);
+                top_of_pole_offset = (zoom_factor << 7 >> 13) * (units_per_pixel)/16;
+            } else {
+                zoom_factor = camera_zoom;
+                top_of_pole_offset = (zoom_factor << 7 >> 13);
             }
-
-            int top_of_pole_offset = (zoom_factor << 7 >> 13);
             draw_room_flag_top(rflg->x, rflg->y - top_of_pole_offset, (units_per_pixel*scale_by_zoom), room);
         }
     }
