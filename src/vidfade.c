@@ -239,13 +239,13 @@ void ProperForcedFadePalette(unsigned char *pal, long fade_steps, enum TbPalette
     }
     if (lbAdvancedFade)
     {
-        TbClockMSec previous_loop_time = LbTimerClock();
+        TbClockMSec latest_loop_time = LbTimerClock();
         while (LbPaletteFade(pal, fade_steps, Lb_PALETTE_FADE_OPEN) < fade_steps)
         {
-          previous_loop_time += lbFadeDelay;
+          latest_loop_time += lbFadeDelay;
           
           if (is_feature_on(Ft_SkipSplashScreens) == false) {
-              LbSleepUntil(previous_loop_time);
+              LbSleepUntil(latest_loop_time);
           }
         }
     } else
