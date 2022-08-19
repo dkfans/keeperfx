@@ -185,6 +185,36 @@ long interpolate_angle(long variable_to_interpolate, long previous, long current
     return lerp_angle(variable_to_interpolate, desired_value, gameadd.delta_time);
 }
 
+void interpolate_thing(struct Thing *thing, struct ThingAdd *thingadd)
+{
+    // Note: if delta_time is off the interpolated position will also reflect that
+
+    if (thing->creation_turn == game.play_gameturn-1 || game.play_gameturn - thingadd->last_turn_drawn > 1 ) {
+        // Set initial interp position when either Thing has just been created or goes off camera then comes back on camera
+        thingadd->interp_mappos = thing->mappos;
+        thingadd->interp_floor_height = thing->floor_height;
+    } else {
+        // Interpolate position every frame
+        thingadd->interp_mappos.x.val = interpolate(thingadd->interp_mappos.x.val, thingadd->previous_mappos.x.val, thing->mappos.x.val);
+        thingadd->interp_mappos.z.val = interpolate(thingadd->interp_mappos.z.val, thingadd->previous_mappos.z.val, thing->mappos.z.val);
+        thingadd->interp_mappos.y.val = interpolate(thingadd->interp_mappos.y.val, thingadd->previous_mappos.y.val, thing->mappos.y.val);
+        thingadd->interp_floor_height = interpolate(thingadd->interp_floor_height, thingadd->previous_floor_height, thing->floor_height);
+    }
+}
+void interpolate_camera(struct Camera *cam)
+{
+    // Smooth zoom
+    interpolated_camera_zoom = interpolate(interpolated_camera_zoom, previous_camera_zoom, camera_zoom);
+    // Smooth rotation, including possessed creature mouselook
+    interpolated_cam_orient_a = interpolate_angle(interpolated_cam_orient_a, previous_cam_orient_a, cam->orient_a);
+    interpolated_cam_orient_b = interpolate_angle(interpolated_cam_orient_b, previous_cam_orient_b, cam->orient_b);
+    interpolated_cam_orient_c = interpolate_angle(interpolated_cam_orient_c, previous_cam_orient_c, cam->orient_c);
+    // Smooth camera position, including possessed creature position
+    interpolated_cam_mappos_x = interpolate(interpolated_cam_mappos_x, previous_cam_mappos_x, cam->mappos.x.val);
+    interpolated_cam_mappos_y = interpolate(interpolated_cam_mappos_y, previous_cam_mappos_y, cam->mappos.y.val);
+    interpolated_cam_mappos_z = interpolate(interpolated_cam_mappos_z, previous_cam_mappos_z, cam->mappos.z.val);
+}
+
 static void get_floor_pointed_at(long x, long y, long *floor_x, long *floor_y)
 {
     long long ofs_x;
@@ -4503,7 +4533,7 @@ static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprit
         v6 = get_thing_shade(thing);
     v6 >>= 8;
 
-    int a6_2 = thing->sprite_size * ((cam->zoom << 13) / 0x10000 / pixel_size) / 0x10000;
+    int a6_2 = thing->sprite_size * ((camera_zoom << 13) / 0x10000 / pixel_size) / 0x10000;
     if ( thing->field_4F & TF4F_Tint_Flags )
     {
         lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
@@ -4724,22 +4754,22 @@ void draw_engine_room_flagpole(struct BucketKindRoomFlag *rflg)
 
             int deltay;
             int height;
-            int zoom_factor = cam->zoom;
+            int zoom_factor = camera_zoom;
             if (cam->view_mode == PVM_FrontView) {
                 zoom_factor = 4094*scale_by_zoom;
             }
 
-            deltay = (zoom_factor << 7 >> 13)*units_per_pixel/16;
+            deltay = (zoom_factor << 7 >> 13);
             height = (2 * (71 * zoom_factor) >> 13);
             LbDrawBox(rflg->x,
                       rflg->y - deltay,
                       ((4*scale_by_zoom) * units_per_pixel + 8) / 16,
-                      (height * units_per_pixel + 8) / 16,
+                      (height + 8),
                       colours[3][1][0]);
             LbDrawBox(rflg->x + (2*scale_by_zoom) * (units_per_pixel) / 16,
                       rflg->y - deltay,
                       ((2*scale_by_zoom) * units_per_pixel + 8) / 16,
-                      (height * units_per_pixel + 8) / 16,
+                      (height + 8),
                       colours[1][0][0]);
         }
     }
@@ -5069,12 +5099,12 @@ static void draw_engine_room_flag_top(struct BucketKindRoomFlag *rflg)
             // 1st argument: the scale when fully zoomed out. 2nd argument: the scale at base level zoom
             float scale_by_zoom = lerp(0.15, 1.00, hud_scale);
 
-            int zoom_factor = cam->zoom;
+            int zoom_factor = camera_zoom;
             if (cam->view_mode == PVM_FrontView) {
                 zoom_factor = 4094*scale_by_zoom;
             }
 
-            int top_of_pole_offset = (zoom_factor << 7 >> 13)*(units_per_pixel)/16;
+            int top_of_pole_offset = (zoom_factor << 7 >> 13);
             draw_room_flag_top(rflg->x, rflg->y - top_of_pole_offset, (units_per_pixel*scale_by_zoom), room);
         }
     }
@@ -6375,10 +6405,12 @@ void draw_view(struct Camera *cam, unsigned char a2)
     camera_zoom = scale_camera_zoom_to_screen(cam->zoom);
     zoom_mem = cam->zoom;//TODO [zoom] remove when all cam->zoom will be changed to camera_zoom
     cam->zoom = camera_zoom;//TODO [zoom] remove when all cam->zoom will be changed to camera_zoom
-    
-    interpolated_camera_zoom = interpolate(interpolated_camera_zoom, previous_camera_zoom, camera_zoom);
+    interpolate_camera(cam);
     camera_zoom = interpolated_camera_zoom;
-    
+    long x = interpolated_cam_mappos_x;
+    long y = interpolated_cam_mappos_y;
+    long z = interpolated_cam_mappos_z;
+
     getpoly = poly_pool;
     LbMemorySet(buckets, 0, sizeof(buckets));
     LbMemorySet(poly_pool, 0, sizeof(poly_pool));
@@ -6396,10 +6428,6 @@ void draw_view(struct Camera *cam, unsigned char a2)
         i = 0;
     }
 
-    interpolated_cam_orient_a = interpolate_angle(interpolated_cam_orient_a, previous_cam_orient_a, cam->orient_a);
-    interpolated_cam_orient_b = interpolate_angle(interpolated_cam_orient_b, previous_cam_orient_b, cam->orient_b);
-    interpolated_cam_orient_c = interpolate_angle(interpolated_cam_orient_c, previous_cam_orient_c, cam->orient_c);
-
     perspective = perspective_routines[i];
     rotpers = rotpers_routines[i];
     update_fade_limits(cells_away);
@@ -6411,14 +6439,6 @@ void draw_view(struct Camera *cam, unsigned char a2)
     cam_map_angle = interpolated_cam_orient_a;
     map_roll = interpolated_cam_orient_c;
     map_tilt = -interpolated_cam_orient_b;
-
-    // Smooth the position of possessed creature and position of isometric camera
-    interpolated_cam_mappos_x = interpolate(interpolated_cam_mappos_x, previous_cam_mappos_x, cam->mappos.x.val);
-    interpolated_cam_mappos_y = interpolate(interpolated_cam_mappos_y, previous_cam_mappos_y, cam->mappos.y.val);
-    interpolated_cam_mappos_z = interpolate(interpolated_cam_mappos_z, previous_cam_mappos_z, cam->mappos.z.val);
-    long x = interpolated_cam_mappos_x;
-    long y = interpolated_cam_mappos_y;
-    long z = interpolated_cam_mappos_z;
 
     if (wibble_enabled() || liquid_wibble_enabled())
     {
@@ -6455,8 +6475,8 @@ void draw_view(struct Camera *cam, unsigned char a2)
         process_isometric_map_volume_box(x, y, z, my_player_number);
     }
 
-    cam->zoom = zoom_mem;//TODO [zoom] remove when all cam->zoom will be changed to camera_zoom
     display_drawlist();
+    cam->zoom = zoom_mem;//TODO [zoom] remove when all cam->zoom will be changed to camera_zoom
     SYNCDBG(9,"Finished");
 }
 
@@ -6678,32 +6698,32 @@ static TbBool convert_world_coord_to_front_view_screen_coord(struct Coord3d* pos
     long result = 0;
     struct PlayerInfo* player = get_my_player();
 
-    zoom = 32 * cam->zoom / 256;
-    orientation = ((unsigned int)(cam->orient_a + (LbFPMath_PI / 4)) >> 9) & 3;
+    zoom = 32 * camera_zoom / 256;
+    orientation = ((unsigned int)(interpolated_cam_orient_a + (LbFPMath_PI / 4)) >> 9) & 3;
 
     switch ( orientation )
     {
         case 0:
-            vertical_delta = pos->y.val - cam->mappos.y.val;
-            horizontal_delta = pos->x.val - cam->mappos.x.val;
+            vertical_delta = pos->y.val - interpolated_cam_mappos_y;
+            horizontal_delta = pos->x.val - interpolated_cam_mappos_x;
             result = project_point_helper(player, zoom, vertical_delta, horizontal_delta, pos->z.val, x_out, y_out, z_out);
             break;
 
         case 1:
-            vertical_delta = cam->mappos.x.val - pos->x.val;
-            horizontal_delta = pos->y.val - cam->mappos.y.val;
+            vertical_delta = interpolated_cam_mappos_x - pos->x.val;
+            horizontal_delta = pos->y.val - interpolated_cam_mappos_y;
             result = project_point_helper(player, zoom, vertical_delta, horizontal_delta, pos->z.val, x_out, y_out, z_out);
             break;
 
         case 2:
-            vertical_delta = cam->mappos.y.val - pos->y.val;
-            horizontal_delta = cam->mappos.x.val - pos->x.val;
+            vertical_delta = interpolated_cam_mappos_y - pos->y.val;
+            horizontal_delta = interpolated_cam_mappos_x - pos->x.val;
             result = project_point_helper(player, zoom, vertical_delta, horizontal_delta, pos->z.val, x_out, y_out, z_out);
             break;
 
         case 3:
-            vertical_delta = pos->x.val - cam->mappos.x.val;
-            horizontal_delta = cam->mappos.y.val - pos->y.val;
+            vertical_delta = pos->x.val - interpolated_cam_mappos_x;
+            horizontal_delta = interpolated_cam_mappos_y - pos->y.val;
             result = project_point_helper(player, zoom, vertical_delta, horizontal_delta, pos->z.val, x_out, y_out, z_out);
             break;
     }
@@ -8404,50 +8424,26 @@ void process_frontview_map_volume_box(struct Camera *cam, unsigned char stl_widt
 }
 static void do_map_who_for_thing(struct Thing *thing)
 {
-    int prev_pos_x, prev_floorpos, prev_pos_y, prev_pos_z, current_pos_x, current_floorpos, current_pos_y, current_pos_z, render_pos_x, render_floorpos, render_pos_z; //render_pos_y
     struct ThingAdd* thingadd = get_thingadd(thing->index);
     int bckt_idx;
     struct EngineCoord ecor;
     struct NearestLights nearlgt;
+    
+    interpolate_thing(thing, thingadd);
+    int render_pos_x, render_floorpos, render_pos_y, render_pos_z;
+    render_pos_x = thingadd->interp_mappos.x.val;
+    render_pos_y = thingadd->interp_mappos.z.val;
+    render_pos_z = thingadd->interp_mappos.y.val;
+    render_floorpos = thingadd->interp_floor_height;
+
     switch (thing->field_50 >> 2) // draw_class
     {
     case 2:
         ecor.field_8 = 0;
-
-        current_pos_x = thing->mappos.x.val;
-        current_pos_y = thing->mappos.z.val;
-        current_pos_z = thing->mappos.y.val;
-        current_floorpos = thing->floor_height;
-        render_pos_x = current_pos_x;
-        //render_pos_y = current_pos_y;
-        render_pos_z = current_pos_z;
-        render_floorpos = current_floorpos;
-        // Set initial interp position when either:
-        // 1. Thing has just been created
-        // 2. Thing goes off camera then comes back on camera
-        if (thing->creation_turn == game.play_gameturn-1 || game.play_gameturn - thingadd->last_turn_drawn > 1 ) {
-            thingadd->interp_mappos.x.val = current_pos_x;
-            thingadd->interp_mappos.z.val = current_pos_y;
-            thingadd->interp_mappos.y.val = current_pos_z;
-            thingadd->interp_floor_height = current_floorpos;
-        } else {
-            prev_pos_x = thingadd->previous_mappos.x.val;
-            prev_pos_y = thingadd->previous_mappos.z.val;
-            prev_pos_z = thingadd->previous_mappos.y.val;
-            prev_floorpos = thingadd->previous_floor_height;
-            thingadd->interp_mappos.x.val = interpolate(thingadd->interp_mappos.x.val, prev_pos_x, current_pos_x);
-            thingadd->interp_mappos.z.val = interpolate(thingadd->interp_mappos.z.val, prev_pos_y, current_pos_y);
-            thingadd->interp_mappos.y.val = interpolate(thingadd->interp_mappos.y.val, prev_pos_z, current_pos_z);
-            thingadd->interp_floor_height = interpolate(thingadd->interp_floor_height, prev_floorpos, current_floorpos);
-            render_pos_x = thingadd->interp_mappos.x.val;
-            //render_pos_y = thingadd->interp_mappos.z.val;
-            render_pos_z = thingadd->interp_mappos.y.val;
-            render_floorpos = thingadd->previous_floor_height;
-        }
-        
         ecor.x = (render_pos_x - map_x_pos);
-        ecor.y = (render_floorpos - map_z_pos); // For shadows
         ecor.z = (map_y_pos - render_pos_z);
+        ecor.y = (render_floorpos - map_z_pos); // For shadows
+        
         // Shadows
         if (thing_is_creature(thing) && ((thing->movement_flags & TMvF_Unknown04) == 0))
         {
@@ -8459,9 +8455,7 @@ static void do_map_who_for_thing(struct Thing *thing)
             }
         }
         // Height movement, falling or going up steps. This is applied after shadows, because shadows are always drawn at the floor height.
-        //ecor.y = (render_pos_y - map_z_pos); // Unfinished
-        ecor.y = (current_pos_y - map_z_pos);
-        
+        ecor.y = (render_pos_y - map_z_pos);
 
         if (thing->class_id == TCls_Creature)
         {
@@ -8482,19 +8476,19 @@ static void do_map_who_for_thing(struct Thing *thing)
         }
         break;
     case 3:
-        ecor.x = ((long)thing->mappos.x.val - map_x_pos);
-        ecor.z = (map_y_pos - (long)thing->mappos.y.val);
         ecor.field_8 = 0;
-        ecor.y = ((long)thing->mappos.z.val - map_z_pos);
+        ecor.x = (render_pos_x - map_x_pos);
+        ecor.z = (map_y_pos - render_pos_z);
+        ecor.y = (render_pos_y - map_z_pos);
         memcpy(&object_origin, &ecor, sizeof(struct EngineCoord));
         object_origin.x = 0;
         object_origin.y = 0;
         object_origin.z = 0;
         break;
     case 4:
-        ecor.x = ((long)thing->mappos.x.val - map_x_pos);
-        ecor.z = (map_y_pos - (long)thing->mappos.y.val);
-        ecor.y = ((long)thing->mappos.z.val - map_z_pos);
+        ecor.x = (render_pos_x - map_x_pos);
+        ecor.z = (map_y_pos - render_pos_z);
+        ecor.y = (render_pos_y - map_z_pos);
         rotpers(&ecor, &camera_matrix);
         if (getpoly < poly_pool_end)
         {
@@ -8507,9 +8501,9 @@ static void do_map_who_for_thing(struct Thing *thing)
             break;
         }
 
-        ecor.x = ((long)thing->mappos.x.val - map_x_pos);
-        ecor.z = (map_y_pos - (long)thing->mappos.y.val);
-        ecor.y = ((long)thing->mappos.z.val - map_z_pos);
+        ecor.x = (render_pos_x - map_x_pos);
+        ecor.z = (map_y_pos - render_pos_z);
+        ecor.y = (render_pos_y - map_z_pos);
         rotpers(&ecor, &camera_matrix);
         if (getpoly < poly_pool_end)
         {
@@ -8536,9 +8530,9 @@ static void do_map_who_for_thing(struct Thing *thing)
         }
         break;
     case 6:
-        ecor.x = (thing->mappos.x.val - map_x_pos);
-        ecor.z = (map_y_pos - thing->mappos.y.val);
-        ecor.y = (thing->mappos.z.val - map_z_pos);
+        ecor.x = (render_pos_x - map_x_pos);
+        ecor.z = (map_y_pos - render_pos_z);
+        ecor.y = (render_pos_y - map_z_pos);
         rotpers(&ecor, &camera_matrix);
         if (getpoly < poly_pool_end) {
             add_unkn18_to_polypool(thing, ecor.view_width, ecor.view_height, ecor.z, 1);
@@ -8585,6 +8579,11 @@ static void do_map_who(short tnglist_idx)
 
 static void draw_frontview_thing_on_element(struct Thing *thing, struct Map *map, struct Camera *cam)
 {
+    // The draw_frontview_thing_on_element() function is the FrontView equivalent of do_map_who_for_thing()
+
+    struct ThingAdd* thingadd = get_thingadd(thing->index);
+    interpolate_thing(thing, thingadd);
+
     long cx;
     long cy;
     long cz;
@@ -8592,8 +8591,8 @@ static void draw_frontview_thing_on_element(struct Thing *thing, struct Map *map
         return;
     switch (thing->field_50 >> 2)
     {
-    case 2:
-        convert_world_coord_to_front_view_screen_coord(&thing->mappos,cam,&cx,&cy,&cz);
+    case 2: // Things
+        convert_world_coord_to_front_view_screen_coord(&thingadd->interp_mappos,cam,&cx,&cy,&cz);
         if (is_free_space_in_poly_pool(1))
         {
             add_thing_sprite_to_polypool(thing, cx, cy, cy, cz-3);
@@ -8603,19 +8602,19 @@ static void draw_frontview_thing_on_element(struct Thing *thing, struct Map *map
             }
         }
         break;
-    case 4:
-        convert_world_coord_to_front_view_screen_coord(&thing->mappos,cam,&cx,&cy,&cz);
+    case 4: // Popup gold text when buying and selling
+        convert_world_coord_to_front_view_screen_coord(&thingadd->interp_mappos,cam,&cx,&cy,&cz);
         if (is_free_space_in_poly_pool(1))
         {
             add_number_to_polypool(cx, cy, thing->creature.gold_carried, 1);
         }
         break;
-    case 5:
+    case 5: // Room Status flags
         // Hide status flags when full zoomed out, for atmospheric overview
         if (hud_scale == 0) {
             break;
         }
-        convert_world_coord_to_front_view_screen_coord(&thing->mappos,cam,&cx,&cy,&cz);
+        convert_world_coord_to_front_view_screen_coord(&thingadd->interp_mappos,cam,&cx,&cy,&cz);
         if (is_free_space_in_poly_pool(1))
         {
           if (game.play_gameturn - thing->roomflag2.turntime != 1)
@@ -8638,7 +8637,7 @@ static void draw_frontview_thing_on_element(struct Thing *thing, struct Map *map
         }
         break;
     case 6:
-        convert_world_coord_to_front_view_screen_coord(&thing->mappos,cam,&cx,&cy,&cz);
+        convert_world_coord_to_front_view_screen_coord(&thingadd->interp_mappos,cam,&cx,&cy,&cz);
         if (is_free_space_in_poly_pool(1))
         {
             add_unkn18_to_polypool(thing, cx, cy, cy, cz-3);
@@ -8647,6 +8646,7 @@ static void draw_frontview_thing_on_element(struct Thing *thing, struct Map *map
     default:
         break;
     }
+    thingadd->last_turn_drawn = game.play_gameturn;
 }
 
 static void draw_frontview_things_on_element(struct Map *mapblk, struct Camera *cam)
@@ -8709,6 +8709,11 @@ void draw_frontview_engine(struct Camera *cam)
     camera_zoom = scale_camera_zoom_to_screen(cam->zoom);
     zoom_mem = cam->zoom;//TODO [zoom] remove when all cam->zoom will be changed to camera_zoom
     cam->zoom = camera_zoom;//TODO [zoom] remove when all cam->zoom will be changed to camera_zoom
+    interpolate_camera(cam);
+    camera_zoom = interpolated_camera_zoom;
+    cam_x = interpolated_cam_mappos_x;
+    cam_y = interpolated_cam_mappos_y;
+
     UseFastBlockDraw = (camera_zoom == FRONTVIEW_CAMERA_ZOOM_MAX);
     LbScreenStoreGraphicsWindow(&grwnd);
     store_engine_window(&ewnd,pixel_size);
@@ -8724,8 +8729,6 @@ void draw_frontview_engine(struct Camera *cam)
     zoom = camera_zoom >> 3;
     w = (ewnd.width << 16) / zoom >> 1;
     h = (ewnd.height << 16) / zoom >> 1;
-    cam_x = cam->mappos.x.val;
-    cam_y = cam->mappos.y.val;
     switch (qdrant)
     {
     case 0:

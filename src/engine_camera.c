@@ -93,7 +93,8 @@ void set_previous_camera_values() {
     previous_cam_orient_a = cam->orient_a;
     previous_cam_orient_b = cam->orient_b;
     previous_cam_orient_c = cam->orient_c;
-    previous_camera_zoom = cam->zoom;
+    previous_camera_zoom = scale_camera_zoom_to_screen(cam->zoom);
+    if (game.frame_skip > 0) {reset_interpolation_of_camera();} // Stop camera from being laggy while frameskipping
 }
 
 void calculate_hud_scale(struct Camera *cam) {
