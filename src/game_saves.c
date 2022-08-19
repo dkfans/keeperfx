@@ -455,10 +455,10 @@ TbBool fill_game_catalogue_entry(struct CatalogueEntry *centry,const char *textn
 {
     centry->version = (VersionMajor << 16) + VersionMinor;
     centry->level_num = get_loaded_level_number();
-    strncpy(centry->textname,textname,SAVE_TEXTNAME_LEN);
-    strncpy(centry->campaign_name,campaign.name,LINEMSG_SIZE);
-    strncpy(centry->campaign_fname,campaign.fname,DISKPATH_SIZE);
-    strncpy(centry->player_name,high_score_entry,PLAYER_NAME_LENGTH);
+    snprintf(centry->textname, SAVE_TEXTNAME_LEN, "%s", textname);
+    snprintf(centry->campaign_name, LINEMSG_SIZE, "%s", campaign.name);
+    snprintf(centry->campaign_fname, DISKPATH_SIZE, "%s", campaign.fname);
+    snprintf(centry->player_name, PLAYER_NAME_LENGTH, "%s", high_score_entry);
     centry->textname[SAVE_TEXTNAME_LEN-1] = '\0';
     centry->campaign_name[LINEMSG_SIZE-1] = '\0';
     centry->campaign_fname[DISKPATH_SIZE-1] = '\0';

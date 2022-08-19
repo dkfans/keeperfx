@@ -1554,7 +1554,7 @@ int add_high_score_entry(unsigned long score, LevelNumber lvnum, const char *nam
         }
     }
     // Preparing the new entry
-    strncpy(campaign.hiscore_table[dest_idx].name, name, HISCORE_NAME_LENGTH);
+    snprintf(campaign.hiscore_table[dest_idx].name, HISCORE_NAME_LENGTH, "%s", name);
     campaign.hiscore_table[dest_idx].score = score;
     campaign.hiscore_table[dest_idx].lvnum = lvnum;
     return dest_idx;
