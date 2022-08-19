@@ -137,7 +137,7 @@ void play_thing_walking(struct Thing *thing)
                 cctrl->field_67 &= ~0x1F;
             }
             crstat = creature_stats_get(thing->model);
-            thing_play_sample(thing, smpl_idx, crstat->footstep_pitch, 0, 3, 3, 1, loudness);
+            thing_play_sample(thing, smpl_idx, crstat->footstep_pitch, 0, 3, 3, 1, FULL_LOUDNESS);
             if ((thing->movement_flags & TMvF_IsOnWater) != 0) {
                 thing_play_sample(thing, 21 + UNSYNC_RANDOM(4), 90 + UNSYNC_RANDOM(20), 0, 3, 3, 1, FULL_LOUDNESS);
             }
