@@ -702,7 +702,7 @@ TbBool get_button_area_input(struct GuiButton *gbtn, int modifiers)
     } else
     if (key == KC_ESCAPE)
     { // Stop the input, revert the string to what it was before
-        strncpy(str, backup_input_field, gbtn->field_2D);
+        strncpy(str, backup_input_field, gbtn->maxval);
         input_button = 0;
         input_field_pos = 0;
     } else
@@ -737,7 +737,7 @@ TbBool get_button_area_input(struct GuiButton *gbtn, int modifiers)
         if (input_field_pos < LbLocTextStringLength(str))
             input_field_pos++;
     } else
-    if (LbLocTextStringSize(str) < abs(gbtn->field_2D))
+    if (LbLocTextStringSize(str) < abs(gbtn->maxval))
     {
         // Check if we have printable character
         if (modifiers == -1)
@@ -753,7 +753,7 @@ TbBool get_button_area_input(struct GuiButton *gbtn, int modifiers)
                 return false;
             }
         }
-        if (LbLocTextStringInsert(str, vischar, input_field_pos, gbtn->field_2D) != NULL) {
+        if (LbLocTextStringInsert(str, vischar, input_field_pos, gbtn->maxval) != NULL) {
             input_field_pos++;
         }
     }
@@ -1918,7 +1918,7 @@ void do_button_release_actions(struct GuiButton *gbtn, unsigned char *s, Gf_Btn_
   case LbBtnT_ToggleBtn:
       i = *(unsigned char *)gbtn->content;
       i++;
-      if (i > gbtn->field_2D)
+      if (i > gbtn->maxval)
           i = 0;
       *(unsigned char *)gbtn->content = i;
       if ((*s != 0) && (callback != NULL))
@@ -2045,7 +2045,7 @@ int create_button(struct GuiMenu *gmnu, struct GuiButtonInit *gbinit, int units_
     gbtn->tooltip_stridx = gbinit->tooltip_stridx;
     gbtn->parent_menu = gbinit->parent_menu;
     gbtn->content = (unsigned long *)gbinit->content.lptr;
-    gbtn->field_2D = gbinit->gbifield_31;
+    gbtn->maxval = gbinit->maxval;
     gbtn->maintain_call = gbinit->maintain_call;
     gbtn->flags |= LbBtnF_Enabled;
     gbtn->flags &= ~LbBtnF_Unknown10;

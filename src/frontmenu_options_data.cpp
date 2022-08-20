@@ -38,7 +38,7 @@ extern "C" {
 #endif
 /******************************************************************************/
 struct GuiButtonInit frontend_define_keys_buttons[] = {
-  // gbtype           id_num       gbifield_3                rclick_event ptover_event       btype_value   pos_x        height                                  sprite_idx        parent_menu  gbifield_31
+  // gbtype           id_num       gbifield_3                rclick_event ptover_event       btype_value   pos_x        height                                  sprite_idx        parent_menu  maxval
   //                                  gbifield_5                                                 scr_pos_x      pos_y        draw_call                             tooltip_stridx   content                   maintain_call
   //                                     click_event                                                  scr_pos_y     width
   {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0, 999,  30, 999,  30,371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty,  0,      {92},            0, NULL },
@@ -61,7 +61,7 @@ struct GuiButtonInit frontend_define_keys_buttons[] = {
 };
 
 struct GuiButtonInit frontend_option_buttons[] = {
-  // gbtype           id_num       gbifield_3                rclick_event ptover_event       btype_value   pos_x        height                                  sprite_idx        parent_menu  gbifield_31
+  // gbtype           id_num       gbifield_3                rclick_event ptover_event       btype_value   pos_x        height                                  sprite_idx        parent_menu  maxval
   //                                  gbifield_5                                                 scr_pos_x      pos_y        draw_call                             tooltip_stridx   content                   maintain_call
   //                                     click_event                                                  scr_pos_y     width
   {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0, 999,  30, 999,  30,371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty,  0,      {96},            0, NULL },
