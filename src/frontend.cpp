@@ -1352,6 +1352,7 @@ void frontend_init_options_menu(struct GuiMenu *gmnu)
     //_DK_frontend_init_options_menu(gmnu);
     music_level = settings.redbook_volume;
     sound_level = settings.sound_volume;
+    mentor_level = settings.mentor_volume;
     fe_mouse_sensitivity = settings.first_person_move_sensitivity;
 }
 

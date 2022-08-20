@@ -105,6 +105,7 @@ void setup_default_settings(void)
      256,                       // minimap_zoom
      8192,                      // isometric_view_zoom_level
      65536,                     // frontview_zoom_level
+     127,                       // mentor_volume
     };
     LbMemoryCopy(&settings, &default_settings, sizeof(struct GameSettings));
     struct CPU_INFO cpu_info;

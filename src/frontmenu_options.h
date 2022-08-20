@@ -49,6 +49,7 @@ DLLIMPORT char _DK_video_shadows;
 DLLIMPORT char _DK_video_textures;
 DLLIMPORT char _DK_video_view_distance_level;
 #define video_view_distance_level _DK_video_view_distance_level
+extern long mentor_level; // This is not the mentor_volume you are looking for. Try GameSettings.
 
 #pragma pack()
 /******************************************************************************/
@@ -78,6 +79,7 @@ void gui_switch_video_mode(struct GuiButton *gbtn);
 void gui_display_current_resolution(struct GuiButton *gbtn);
 void gui_set_sound_volume(struct GuiButton *gbtn);
 void gui_set_music_volume(struct GuiButton *gbtn);
+void gui_set_mentor_volume(struct GuiButton *gbtn);
 void init_video_menu(struct GuiMenu *gmnu);
 void init_audio_menu(struct GuiMenu *gmnu);
 /******************************************************************************/

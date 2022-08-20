@@ -195,7 +195,6 @@ void increment_sample_times(void);
 TbBool process_sound_samples(void);
 
 extern int atmos_sound_volume;
-extern int mentor_sound_volume;
 
 struct SoundEmitter* S3DGetSoundEmitter(SoundEmitterID eidx);
 SoundEmitterID get_emitter_id(struct SoundEmitter *emit);

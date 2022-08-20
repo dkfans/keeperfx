@@ -97,8 +97,10 @@ struct GuiButtonInit sound_menu_buttons[] = {
   {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0, 999,  10, 999,  10,155, 32, gui_area_text,                     1, GUIStr_MnuSoundOptions,  0,       {0},            0, NULL },
   {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,   8,  28,  10,  28, 46, 64, gui_area_no_anim_button,          41, GUIStr_Empty,            0,       {0},            0, NULL },
   {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,   8,  80,  10,  80, 46, 64, gui_area_no_anim_button,          40, GUIStr_Empty,            0,       {0},            0, NULL },
+  {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,   8, 132,  10, 132, 46, 64, gui_area_no_anim_button,          40, GUIStr_Empty,            0,       {0},            0, NULL },
   {LbBtnT_HorizSlider,BID_DEFAULT, 0, 0, gui_set_sound_volume,NULL,       NULL,               0,  66,  58,  66,  58,190, 30, gui_area_slider,                   0, GUIStr_OptionSoundFx,    0,{(long)&sound_level},127, NULL },
   {LbBtnT_HorizSlider,BID_DEFAULT, 0, 0, gui_set_music_volume,NULL,       NULL,               0,  66, 110,  66, 110,190, 30, gui_area_slider,                   0, GUIStr_OptionMusic,      0,{(long)&music_level},127, NULL },
+  {LbBtnT_HorizSlider,BID_DEFAULT, 0, 0, gui_set_mentor_volume,NULL,      NULL,               0,  66, 162,  66, 162,190, 30, gui_area_slider,                   0, GUIStr_OptionSoundFx,    0,{(long)&mentor_level},127, NULL },
   {              -1,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,                     0,       {0},            0, NULL },
 };
 
@@ -127,8 +129,8 @@ struct GuiMenu autopilot_menu =
 struct GuiMenu video_menu =
  { GMnu_VIDEO, 0, 4, video_menu_buttons,         POS_GAMECTR,POS_GAMECTR,200, 180, gui_pretty_background,       0, NULL,    init_video_menu,         0, 1, 0,};
 struct GuiMenu sound_menu =
- { GMnu_SOUND, 0, 4, sound_menu_buttons,         POS_GAMECTR,POS_GAMECTR,280, 170, gui_pretty_background,       0, NULL,    init_audio_menu,         0, 1, 0,};
- 
+ { GMnu_SOUND, 0, 4, sound_menu_buttons,         POS_GAMECTR,POS_GAMECTR,280, 225, gui_pretty_background,       0, NULL,    init_audio_menu,         0, 1, 0,};
+
 struct GuiMenu message_box =
 { GMnu_MSG_BOX,    0, 1, message_box_buttons,          POS_GAMECTR,POS_GAMECTR,280, 180, gui_pretty_background,       0, NULL,    NULL,                    0, 1, 0,};
 /******************************************************************************/
