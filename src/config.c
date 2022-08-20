@@ -1675,7 +1675,7 @@ short set_level_info_text_name(LevelNumber lvnum, char *name, unsigned long lvop
     struct LevelInformation* lvinfo = get_or_create_level_info(lvnum, lvoptions);
     if (lvinfo == NULL)
         return false;
-    snprintf(lvinfo->name, LINEMSG_SIZE - 1, "%s", name);
+    snprintf(lvinfo->name, LINEMSG_SIZE, "%s", name);
     if ((lvoptions & LvOp_IsFree) != 0)
     {
         lvinfo->ensign_x += ((LANDVIEW_MAP_WIDTH >> 4) * (LbSinL(lvnum * LbFPMath_PI / 16) >> 6)) >> 10;
