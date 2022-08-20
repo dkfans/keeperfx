@@ -4871,10 +4871,10 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
     {
       if ( player->thing_under_hand != thing->index )
       {
-        cctrl->field_43 = game.play_gameturn;
+        cctrl->thought_bubble_last_turn_drawn = game.play_gameturn;
         return;
       }
-      cctrl->field_47 = 40;
+      cctrl->thought_bubble_display_timer = 40;
     }
 
     short health_spridx;
@@ -4894,16 +4894,18 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
         {
             lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
             cctrl = creature_control_get_from_thing(thing);
-            if (cctrl->field_43 - game.play_gameturn != -1)
+            if (game.play_gameturn - cctrl->thought_bubble_last_turn_drawn == 1)
             {
-                cctrl->field_47 = 0;
+                if (cctrl->thought_bubble_display_timer < 40) {
+                    cctrl->thought_bubble_display_timer++;
+                }
+            } else {
+                if (game.play_gameturn - cctrl->thought_bubble_last_turn_drawn > 1) {
+                    cctrl->thought_bubble_display_timer = 0;
+                }
             }
-            else if (cctrl->field_47 < 40)
-            {
-                cctrl->field_47++;
-            }
-            cctrl->field_43 = game.play_gameturn;
-            if (cctrl->field_47 == 40)
+            cctrl->thought_bubble_last_turn_drawn = game.play_gameturn;
+            if (cctrl->thought_bubble_display_timer == 40)
             {
                 struct StateInfo *stati;
                 stati = get_creature_state_with_task_completion(thing);
@@ -8539,18 +8541,18 @@ static void do_map_who_for_thing(struct Thing *thing)
         rotpers(&ecor, &camera_matrix);
         if (getpoly < poly_pool_end)
         {
-            if (game.play_gameturn - thing->roomflag2.turntime == 1)
+            if (game.play_gameturn - thing->roomflag2.last_turn_drawn == 1)
             {
-                if (thing->roomflag2.byte_19 < 40) {
-                    thing->roomflag2.byte_19++;
+                if (thing->roomflag2.display_timer < 40) {
+                    thing->roomflag2.display_timer++;
                 }
             } else {
-                if (game.play_gameturn - thing->roomflag2.turntime > 1) {
-                    thing->roomflag2.byte_19 = 0;
+                if (game.play_gameturn - thing->roomflag2.last_turn_drawn > 1) {
+                    thing->roomflag2.display_timer = 0;
                 }
             }
-            thing->roomflag2.turntime = game.play_gameturn;
-            if (thing->roomflag2.byte_19 == 40)
+            thing->roomflag2.last_turn_drawn = game.play_gameturn;
+            if (thing->roomflag2.display_timer == 40)
             {
                 bckt_idx = (ecor.z - 64) / 16 - 6;
                 add_room_flag_pole_to_polypool(ecor.view_width, ecor.view_height, thing->roomflag.room_idx, bckt_idx);
@@ -8648,18 +8650,18 @@ static void draw_frontview_thing_on_element(struct Thing *thing, struct Map *map
         convert_world_coord_to_front_view_screen_coord(&thingadd->interp_mappos,cam,&cx,&cy,&cz);
         if (is_free_space_in_poly_pool(1))
         {
-            if (game.play_gameturn - thing->roomflag2.turntime == 1)
+            if (game.play_gameturn - thing->roomflag2.last_turn_drawn == 1)
             {
-                if (thing->roomflag2.byte_19 < 40) {
-                    thing->roomflag2.byte_19++;
+                if (thing->roomflag2.display_timer < 40) {
+                    thing->roomflag2.display_timer++;
                 }
             } else {
-                if (game.play_gameturn - thing->roomflag2.turntime > 1) {
-                    thing->roomflag2.byte_19 = 0;
+                if (game.play_gameturn - thing->roomflag2.last_turn_drawn > 1) {
+                    thing->roomflag2.display_timer = 0;
                 }
             }
-            thing->roomflag2.turntime = game.play_gameturn;
-            if (thing->roomflag2.byte_19 == 40)
+            thing->roomflag2.last_turn_drawn = game.play_gameturn;
+            if (thing->roomflag2.display_timer == 40)
             {
                 add_room_flag_pole_to_polypool(cx, cy, thing->roomflag.room_idx, cz-3);
                 if (is_free_space_in_poly_pool(1))
