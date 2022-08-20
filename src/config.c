@@ -127,6 +127,7 @@ const struct NamedCommand conf_commands[] = {
   {"SKIP_HEART_ZOOM"               , 23},
   {"CURSOR_EDGE_CAMERA_PANNING"    , 24},
   {"DELTA_TIME"                    , 25},
+  {"MENTOR_VOLUME"                 , 26},
   {NULL,                   0},
   };
 
@@ -1083,6 +1084,17 @@ short load_configuration(void)
               features_enabled |= Ft_DeltaTime;
           else
               features_enabled &= ~Ft_DeltaTime;
+          break;
+      case 26: // Mentor Sound Volume
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            i = atoi(word_buf);
+          }
+          if ((i >= 0) && (i <= 100)) {
+              mentor_sound_volume = i * 2.56; //Rescale from [0-100] to [0-256]
+          } else {
+              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",COMMAND_TEXT(cmd_num),config_textname);
+          }
           break;
       case 0: // comment
           break;
