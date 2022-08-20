@@ -1246,35 +1246,34 @@ void frontend_draw_icon(struct GuiButton *gbtn)
 
 void frontend_draw_slider(struct GuiButton *gbtn)
 {
-    //_DK_frontend_draw_slider(gbtn);
     if ((gbtn->flags & LbBtnF_Enabled) == 0) {
         return;
     }
-    int fs_units_per_px;
-    fs_units_per_px = simple_frontend_sprite_height_units_per_px(gbtn, 93, 100);
-    int scr_x;
-    int scr_y;
-    scr_x = gbtn->scr_pos_x;
-    scr_y = gbtn->scr_pos_y;
-    struct TbSprite *spr;
-    spr = &frontend_sprite[92];
-    LbSpriteDrawResized(scr_x, scr_y, fs_units_per_px, spr);
-    scr_x += spr->SWidth * fs_units_per_px / 16;
-    spr = &frontend_sprite[93];
-    LbSpriteDrawResized(scr_x, scr_y, fs_units_per_px, spr);
-    scr_x += spr->SWidth * fs_units_per_px / 16;
-    LbSpriteDrawResized(scr_x, scr_y, fs_units_per_px, spr);
-    scr_x += spr->SWidth * fs_units_per_px / 16;
-    spr = &frontend_sprite[94];
-    LbSpriteDrawResized(scr_x, scr_y, fs_units_per_px, spr);
-    int shift_x;
-    shift_x = gbtn->slide_val * (gbtn->width - 64*fs_units_per_px/16) >> 8;
-    if (gbtn->gbactn_1 != 0) {
-        spr = &frontend_sprite[91];
-    } else {
-        spr = &frontend_sprite[78];
+    const int fs_units_per_px = simple_frontend_sprite_height_units_per_px(gbtn, 93, 100);
+    const float scale = float(fs_units_per_px) / 16;
+
+    const auto left_sprite = &frontend_sprite[92]; // 40 units wide
+    LbSpriteDrawResized(gbtn->scr_pos_x, gbtn->scr_pos_y, fs_units_per_px, left_sprite);
+
+    // Draw center sprite draw as many times as necessary
+    const auto center_sprite = &frontend_sprite[93]; // 110 units wide
+    const int right_sprite_x = (gbtn->scr_pos_x + gbtn->width) - (40 * scale);
+    for (int x = gbtn->scr_pos_x + (40 * scale); x < right_sprite_x; x += (110 * scale))
+    {
+        LbSpriteDrawResized(x, gbtn->scr_pos_y, fs_units_per_px, center_sprite);
     }
-    LbSpriteDrawResized((gbtn->scr_pos_x + shift_x + 24*fs_units_per_px/16) / pixel_size, (gbtn->scr_pos_y + 3*fs_units_per_px/16) / pixel_size, fs_units_per_px, spr);
+
+    const auto right_sprite = &frontend_sprite[94]; // 40 units wide
+    LbSpriteDrawResized(right_sprite_x, gbtn->scr_pos_y, fs_units_per_px, right_sprite);
+
+    const int knob_position = gbtn->slide_val * (gbtn->width - int(64 * scale)) >> 8;
+    const auto knob_sprite = (gbtn->gbactn_1 != 0) ? &frontend_sprite[91] : &frontend_sprite[78];
+    LbSpriteDrawResized(
+        (gbtn->scr_pos_x + knob_position + (24 * scale)) / pixel_size,
+        (gbtn->scr_pos_y + (3 * scale)) / pixel_size,
+        fs_units_per_px,
+        knob_sprite
+    );
 }
 
 void frontend_draw_small_slider(struct GuiButton *gbtn)
