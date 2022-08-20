@@ -3223,6 +3223,23 @@ void draw_gui(void)
     SYNCDBG(8,"Finished");
 }
 
+void draw_debug_messages() {
+    LbTextSetFont(frontend_font[0]);
+    LbTextSetWindow(0, 0, 640, 200);
+    lbDisplay.DrawFlags = 0;
+    const int x = 8 / pixel_size;
+    int y = 8 / pixel_size;
+    for (auto message = debug_messages_head; message != nullptr; ) {
+        LbTextDraw(x, y, message->text);
+        y += 32 / pixel_size;
+        const auto next = message->next;
+        free(message);
+        message = next;
+    }
+    debug_messages_head = nullptr;
+    debug_messages_tail = &debug_messages_head;
+}
+
 /**
  * Frontend drawing function.
  * @return Gives 0 if a movie has started, 1 if normal draw occured, 2 on error.
@@ -3304,11 +3321,7 @@ short frontend_draw(void)
     default:
         break;
     }
-    // In-Menu information, for debugging messages
-    //char text[255];
-    //sprintf(text, "time %7d, mode %d",LbTimerClock(),frontend_menu_state);
-    //lbDisplay.DrawFlags=0;LbTextSetWindow(0,0,640,200);LbTextSetFont(frontend_font[0]);
-    //LbTextDraw(200/pixel_size, 8/pixel_size, text);text[0]='\0';
+    draw_debug_messages();
     perform_any_screen_capturing();
     LbScreenUnlock();
     return result;
