@@ -537,7 +537,7 @@ void slap_creature(struct PlayerInfo *player, struct Thing *thing)
     }
     cctrl->field_B1 = 6;
     cctrl->field_27F = 18;
-    play_creature_sound(thing, CrSnd_Hurt, 3, 0);
+    play_creature_sound(thing, CrSnd_Slap, 3, 0);
 }
 
 TbBool can_cast_power_at_xy(PlayerNumber plyr_idx, PowerKind pwkind,
