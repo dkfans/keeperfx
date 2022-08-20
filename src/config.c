@@ -632,7 +632,6 @@ const char *get_language_lwrstr(int lang_id)
 #endif
   static char lang_str[4];
   snprintf(lang_str, 4, "%s", src);
-  lang_str[3] = '\0';
   strlwr(lang_str);
   return lang_str;
 }
@@ -1677,7 +1676,6 @@ short set_level_info_text_name(LevelNumber lvnum, char *name, unsigned long lvop
     if (lvinfo == NULL)
         return false;
     snprintf(lvinfo->name, LINEMSG_SIZE - 1, "%s", name);
-    lvinfo->name[LINEMSG_SIZE - 1] = '\0';
     if ((lvoptions & LvOp_IsFree) != 0)
     {
         lvinfo->ensign_x += ((LANDVIEW_MAP_WIDTH >> 4) * (LbSinL(lvnum * LbFPMath_PI / 16) >> 6)) >> 10;

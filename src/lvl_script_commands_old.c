@@ -1050,7 +1050,6 @@ static void command_quick_objective(int idx, const char *msgtext, const char *wh
       SCRPTWRNLOG("Quick Objective no %d overwritten by different text", idx);
   }
   snprintf(gameadd.quick_messages[idx], MESSAGE_TEXT_LEN-1, "%s", msgtext);
-  gameadd.quick_messages[idx][MESSAGE_TEXT_LEN-1] = '\0';
   if (!get_map_location_id(where, &location))
     return;
   command_add_value(Cmd_QUICK_OBJECTIVE, ALL_PLAYERS, idx, location, get_subtile_number(x,y));
@@ -1073,7 +1072,6 @@ static void command_quick_information(int idx, const char *msgtext, const char *
       SCRPTWRNLOG("Quick Message no %d overwritten by different text", idx);
   }
   snprintf(gameadd.quick_messages[idx], MESSAGE_TEXT_LEN-1, "%s", msgtext);
-  gameadd.quick_messages[idx][MESSAGE_TEXT_LEN-1] = '\0';
   if (!get_map_location_id(where, &location))
     return;
   command_add_value(Cmd_QUICK_INFORMATION, ALL_PLAYERS, idx, location, get_subtile_number(x,y));
@@ -1149,7 +1147,6 @@ static void command_quick_message(int idx, const char *msgtext, const char *rang
       SCRPTWRNLOG("Quick Message no %d overwritten by different text", idx);
   }
   snprintf(gameadd.quick_messages[idx], MESSAGE_TEXT_LEN-1, "%s", msgtext);
-  gameadd.quick_messages[idx][MESSAGE_TEXT_LEN-1] = '\0';
   char id = get_player_number_from_value(range_id);
   command_add_value(Cmd_QUICK_MESSAGE, 0, id, idx, 0);
 }

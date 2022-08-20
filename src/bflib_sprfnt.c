@@ -1921,7 +1921,6 @@ short dbc_initialize(const char *fpath)
     if ((fpath != NULL) && (fpath[0] != 0))
     {
         snprintf(fname, DISKPATH_SIZE, "%s", fpath);
-        fname[DISKPATH_SIZE-1] = '\0';
         if (fname[strlen(fname) - 1] != '/')
         {
             strcat(fname, "/");

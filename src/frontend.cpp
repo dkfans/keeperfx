@@ -543,7 +543,6 @@ void add_message(long plyr_idx, char *msg)
     nmsg = &net_message[i];
     nmsg->plyr_idx = plyr_idx;
     snprintf(nmsg->text, NET_MESSAGE_LEN-1, "%s", msg);
-    nmsg->text[NET_MESSAGE_LEN-1] = '\0';
     i++;
     net_number_of_messages = i;
     if (net_message_scroll_offset+4 < i)
@@ -3731,7 +3730,6 @@ void try_restore_frontend_error_box()
 void create_frontend_error_box(long showTime, const char * text)
 {
     snprintf(gui_message_text, TEXT_BUFFER_LENGTH-1, "%s", text);
-    gui_message_text[TEXT_BUFFER_LENGTH-1] = '\0';
     gui_message_timeout = LbTimerClock()+showTime;
     turn_on_menu(GMnu_FEERROR_BOX);
 }

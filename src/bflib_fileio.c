@@ -408,7 +408,6 @@ void convert_find_info(struct TbFileFind *ffind)
 {
   struct _finddata_t *fdata=&(ffind->Reserved);
   snprintf(ffind->Filename,144, "%s", fdata->name);
-  ffind->Filename[143]='\0';
 #if defined(_WIN32)
   GetShortPathName(fdata->name,ffind->AlternateFilename,14);
 #else
