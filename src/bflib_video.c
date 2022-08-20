@@ -632,7 +632,7 @@ TbResult LbPaletteGet(unsigned char *palette)
 
 TbResult LbSetTitle(const char *title)
 {
-    snprintf(lbDrawAreaTitle, sizeof(lbDrawAreaTitle)-1, "%s", title);
+    snprintf(lbDrawAreaTitle, sizeof(lbDrawAreaTitle), "%s", title);
     return Lb_SUCCESS;
 }
 

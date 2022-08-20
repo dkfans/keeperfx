@@ -30,7 +30,7 @@ void net_copy_name_string(char *dst,const char *src,long max_len)
   {
     if (src != NULL)
     {
-        snprintf(dst, max_len-1, "%s", src);
+        snprintf(dst, max_len, "%s", src);
     }
   }
 }
