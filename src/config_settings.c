@@ -147,7 +147,7 @@ TbBool load_settings(void)
     if (len == sizeof(struct GameSettings))
     {
       if (LbFileLoadAt(fname, &settings) == sizeof(struct GameSettings))
-      { 
+      {
           copy_settings_to_dk_settings();
           return true;
       }

@@ -288,7 +288,7 @@ TbBool mute_audio_on_focus_lost(void)
 {
   return ((features_enabled & Ft_MuteAudioOnLoseFocus) != 0);
 }
-  
+
 /**
  * Returns if the liquid wibble effect is on.
  */
@@ -873,7 +873,7 @@ short load_configuration(void)
             CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",COMMAND_TEXT(cmd_num),config_textname);
             break;
           }
-          else 
+          else
           {
             atmos_sound_volume = i;
             break;
