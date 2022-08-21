@@ -4988,10 +4988,11 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
     int bs_units_per_px;
     spr = &button_sprite[70];
     bs_units_per_px = units_per_pixel_ui * 2 * scale_by_zoom;
-
-    if (cam->view_mode == PVM_FrontView) {
-        float flower_distance = 20.00; // Higher number means flower is further away from creature
-        scrpos_y -= (flower_distance/spr->SHeight) * bs_units_per_px;
+    TbBool forced_perspective = (cam->view_mode == PVM_FrontView);
+    long pos_y = scrpos_y;
+    if (forced_perspective) {
+        const int bubble_distance = 20; // Higher number means bubble is further away from creature
+        pos_y -= (bubble_distance/spr->SHeight) * bs_units_per_px;
     }
 
     if ( state_spridx || anger_spridx )
@@ -4999,7 +5000,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
         spr = &button_sprite[70];
         w = (base_size * spr->SWidth * bs_units_per_px/16) >> 13;
         h = (base_size * spr->SHeight * bs_units_per_px/16) >> 13;
-        LbSpriteDrawScaled(scrpos_x - w / 2, scrpos_y - h, spr, w, h);
+        LbSpriteDrawScaled(scrpos_x - w / 2, pos_y - h, spr, w, h);
     }
 
     lbDisplay.DrawFlags &= ~Lb_SPRITE_TRANSPAR8;
@@ -5009,7 +5010,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
         spr = &button_sprite[anger_spridx];
         w = (base_size * spr->SWidth * bs_units_per_px/16) >> 13;
         h = (base_size * spr->SHeight * bs_units_per_px/16) >> 13;
-        LbSpriteDrawScaled(scrpos_x - w / 2, scrpos_y - h, spr, w, h);
+        LbSpriteDrawScaled(scrpos_x - w / 2, pos_y - h, spr, w, h);
         spr = get_button_sprite(state_spridx);
         h_add += spr->SHeight * bs_units_per_px/16;
     } else if ( state_spridx )
@@ -5017,10 +5018,14 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
         spr = get_button_sprite(state_spridx);
         w = (base_size * spr->SWidth * bs_units_per_px/16) >> 13;
         h = (base_size * spr->SHeight * bs_units_per_px/16) >> 13;
-        LbSpriteDrawScaled(scrpos_x - w / 2, scrpos_y - h, spr, w, h);
+        LbSpriteDrawScaled(scrpos_x - w / 2, pos_y - h, spr, w, h);
         h_add += h;
     }
-
+    if (forced_perspective) {
+        const int flower_distance = 40; // Higher number means flower is further away from creature
+        spr = &button_sprite[70];
+        pos_y = scrpos_y - (flower_distance/spr->SHeight) * bs_units_per_px;
+    }
     if ((thing->lair.spr_size > 0) && (health_spridx > 0) && ((game.play_gameturn & 1) != 0))
     {
         int flash_owner;
@@ -5032,7 +5037,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
         spr = get_button_sprite(health_spridx);
         w = (base_size * spr->SWidth * bs_units_per_px/16) >> 13;
         h = (base_size * spr->SHeight * bs_units_per_px/16) >> 13;
-        LbSpriteDrawScaledOneColour(scrpos_x - w / 2, scrpos_y - h - h_add, spr, w, h, player_flash_colours[flash_owner]);
+        LbSpriteDrawScaledOneColour(scrpos_x - w / 2, pos_y - h - h_add, spr, w, h, player_flash_colours[flash_owner]);
     }
     else
     {
@@ -5046,12 +5051,12 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
               spr = get_button_sprite(health_spridx);
               w = (base_size * spr->SWidth * bs_units_per_px/16) >> 13;
               h = (base_size * spr->SHeight * bs_units_per_px/16) >> 13;
-              LbSpriteDrawScaled(scrpos_x - w / 2, scrpos_y - h - h_add, spr, w, h);
+              LbSpriteDrawScaled(scrpos_x - w / 2, pos_y - h - h_add, spr, w, h);
           }
           spr = &button_sprite[184 + exp];
           w = (base_size * spr->SWidth * bs_units_per_px/16) >> 13;
           h = (base_size * spr->SHeight * bs_units_per_px/16) >> 13;
-          LbSpriteDrawScaled(scrpos_x - w / 2, scrpos_y - h - h_add, spr, w, h);
+          LbSpriteDrawScaled(scrpos_x - w / 2, pos_y - h - h_add, spr, w, h);
       }
     }
     lbDisplay.DrawFlags = flg_mem;
