@@ -4991,15 +4991,15 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
     TbBool forced_perspective = (cam->view_mode == PVM_FrontView);
     long pos_y = scrpos_y;
     if (forced_perspective) {
-        const int bubble_distance = 20; // Higher number means bubble is further away from creature
+        const int bubble_distance = 34; // Higher number means bubble is further away from creature
         pos_y -= (bubble_distance/spr->SHeight) * bs_units_per_px;
     }
 
     if ( state_spridx || anger_spridx )
     {
         spr = &button_sprite[70];
-        w = (base_size * spr->SWidth * bs_units_per_px/16) >> 13;
-        h = (base_size * spr->SHeight * bs_units_per_px/16) >> 13;
+        w = (base_size * spr->SWidth * bs_units_per_px/16) >> 12;
+        h = (base_size * spr->SHeight * bs_units_per_px/16) >> 12;
         LbSpriteDrawScaled(scrpos_x - w / 2, pos_y - h, spr, w, h);
     }
 
@@ -5008,16 +5008,16 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
     if (((game.play_gameturn & 4) == 0) && (anger_spridx > 0))
     {
         spr = &button_sprite[anger_spridx];
-        w = (base_size * spr->SWidth * bs_units_per_px/16) >> 13;
-        h = (base_size * spr->SHeight * bs_units_per_px/16) >> 13;
+        w = (base_size * spr->SWidth * bs_units_per_px/16) >> 12;
+        h = (base_size * spr->SHeight * bs_units_per_px/16) >> 12;
         LbSpriteDrawScaled(scrpos_x - w / 2, pos_y - h, spr, w, h);
         spr = get_button_sprite(state_spridx);
         h_add += spr->SHeight * bs_units_per_px/16;
     } else if ( state_spridx )
     {
         spr = get_button_sprite(state_spridx);
-        w = (base_size * spr->SWidth * bs_units_per_px/16) >> 13;
-        h = (base_size * spr->SHeight * bs_units_per_px/16) >> 13;
+        w = (base_size * spr->SWidth * bs_units_per_px/16) >> 12;
+        h = (base_size * spr->SHeight * bs_units_per_px/16) >> 12;
         LbSpriteDrawScaled(scrpos_x - w / 2, pos_y - h, spr, w, h);
         h_add += h;
     }
@@ -5035,8 +5035,8 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
             flash_owner = thing->owner;
         }
         spr = get_button_sprite(health_spridx);
-        w = (base_size * spr->SWidth * bs_units_per_px/16) >> 13;
-        h = (base_size * spr->SHeight * bs_units_per_px/16) >> 13;
+        w = (base_size * spr->SWidth * bs_units_per_px/16) >> 12;
+        h = (base_size * spr->SHeight * bs_units_per_px/16) >> 12;
         LbSpriteDrawScaledOneColour(scrpos_x - w / 2, pos_y - h - h_add, spr, w, h, player_flash_colours[flash_owner]);
     }
     else
@@ -5049,13 +5049,13 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
       {
           if (health_spridx > 0) {
               spr = get_button_sprite(health_spridx);
-              w = (base_size * spr->SWidth * bs_units_per_px/16) >> 13;
-              h = (base_size * spr->SHeight * bs_units_per_px/16) >> 13;
+              w = (base_size * spr->SWidth * bs_units_per_px/16) >> 12;
+              h = (base_size * spr->SHeight * bs_units_per_px/16) >> 12;
               LbSpriteDrawScaled(scrpos_x - w / 2, pos_y - h - h_add, spr, w, h);
           }
           spr = &button_sprite[184 + exp];
-          w = (base_size * spr->SWidth * bs_units_per_px/16) >> 13;
-          h = (base_size * spr->SHeight * bs_units_per_px/16) >> 13;
+          w = (base_size * spr->SWidth * bs_units_per_px/16) >> 12;
+          h = (base_size * spr->SHeight * bs_units_per_px/16) >> 12;
           LbSpriteDrawScaled(scrpos_x - w / 2, pos_y - h - h_add, spr, w, h);
       }
     }
