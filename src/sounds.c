@@ -27,6 +27,7 @@
 #include "bflib_math.h"
 #include "bflib_bufrw.h"
 #include "bflib_heapmgr.h"
+#include "engine_render.h"
 #include "map_utils.h"
 #include "engine_camera.h"
 #include "gui_soundmsgs.h"
