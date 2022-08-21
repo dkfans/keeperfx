@@ -491,6 +491,7 @@ long find_string_width_to_first_character(char *str, char fch)
     len = sizeof(text)-1;
   }
   snprintf(text, len, "%s", str);
+  text[len] = '\0';
   return pixel_size * LbTextStringWidth(text);
 }
 
