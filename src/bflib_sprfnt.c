@@ -1895,7 +1895,7 @@ void dbc_set_language(short ilng)
 }
 
 char * prepare_font_filename(const char * fpath, const char * fname) {
-  if (fpath == NULL || fpath[0] != 0)
+  if (fpath == NULL || fpath[0] == 0)
   {
     // current folder, copy font filename as-is
     const int fname_len = strlen(fname);
