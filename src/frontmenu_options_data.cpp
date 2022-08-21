@@ -60,8 +60,6 @@ struct GuiButtonInit frontend_define_keys_buttons[] = {
   {              -1,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,           0,       {0},            0, NULL },
 };
 
-long mentor_sound_volume;
-
 struct GuiButtonInit frontend_option_buttons[] = {
   // gbtype           id_num       gbifield_3                rclick_event ptover_event       btype_value   pos_x        height                                  sprite_idx        parent_menu  maxval
   //                                  gbifield_5                                                 scr_pos_x      pos_y        draw_call                             tooltip_stridx   content                   maintain_call
