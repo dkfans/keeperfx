@@ -63,7 +63,26 @@ long interpolated_camera_zoom;
 #endif
 /******************************************************************************/
 
-void reset_interpolation_of_camera() {
+
+// Instantly move camera when going from parchment view to main view
+void reset_interpolation_for_parchment_view()
+{
+    struct PlayerInfo* player = get_my_player();
+    struct Camera *cam = player->acamera;
+    interpolated_cam_orient_a = cam->orient_a;
+    interpolated_cam_orient_c = cam->orient_c;
+    previous_cam_orient_a = cam->orient_a;
+    previous_cam_orient_c = cam->orient_c;
+    interpolated_cam_mappos_x = cam->mappos.x.val;
+    interpolated_cam_mappos_y = cam->mappos.y.val;
+    interpolated_cam_mappos_z = cam->mappos.z.val;
+    previous_cam_mappos_x = cam->mappos.x.val;
+    previous_cam_mappos_y = cam->mappos.y.val;
+    previous_cam_mappos_z = cam->mappos.z.val;
+}
+
+void reset_interpolation_of_camera()
+{
     struct PlayerInfo* player = get_my_player();
     struct Camera *cam = player->acamera;
     interpolated_camera_zoom = scale_camera_zoom_to_screen(cam->zoom);

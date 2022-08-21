@@ -1676,6 +1676,7 @@ short get_map_action_inputs(void)
         if (left_button_released) {
             left_button_released = 0;
             set_players_packet_action(player, PckA_ZoomFromMap, stl_x, stl_y, 0, 0);
+            reset_interpolation_for_parchment_view();
             return true;
         }
     }

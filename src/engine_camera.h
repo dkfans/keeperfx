@@ -130,6 +130,7 @@ void update_all_players_cameras(void);
 void init_player_cameras(struct PlayerInfo *player);
 void set_previous_camera_values();
 void reset_interpolation_of_camera();
+void reset_interpolation_for_parchment_view();
 
 /******************************************************************************/
 #ifdef __cplusplus

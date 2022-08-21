@@ -793,7 +793,6 @@ long pinstfe_fade_to_map(struct PlayerInfo *player, long *n)
 
 long pinstfs_fade_from_map(struct PlayerInfo *player, long *n)
 {
-  reset_interpolation_of_camera();
   player->allocflags |= PlaF_MouseInputDisabled;
   if (is_my_player(player))
   {
