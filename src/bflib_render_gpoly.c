@@ -383,46 +383,46 @@ void draw_gpoly(struct PolyPoint *point_a, struct PolyPoint *point_b, struct Pol
     gpoly_mode = gpoly_pro_enable_mode_ofs + vec_mode;
     { // Check for outranged poly size
         // test lengths
-        int len_bc_x = point_b->field_0 - point_c->field_0;
+        int len_bc_x = point_b->X - point_c->X;
         if ((len_bc_x < -16383) || (len_bc_x > 16383))
             return;
-        int len_bc_y = point_b->field_4 - point_c->field_4;
+        int len_bc_y = point_b->Y - point_c->Y;
         if ((len_bc_y < -16383) || (len_bc_y > 16383))
             return;
-        int len_ba_x = point_b->field_0 - point_a->field_0;
+        int len_ba_x = point_b->X - point_a->X;
         if ((len_ba_x < -16383) || (len_ba_x > 16383))
             return;
-        int len_ca_y = point_c->field_4 - point_a->field_4;
+        int len_ca_y = point_c->Y - point_a->Y;
         if ((len_ca_y < -16383) || (len_ca_y > 16383))
             return;
-        int len_ca_x = point_c->field_0 - point_a->field_0;
+        int len_ca_x = point_c->X - point_a->X;
         if ((len_ca_x < -16383) || (len_ca_x > 16383))
             return;
-        int len_ba_y = point_b->field_4 - point_a->field_4;
+        int len_ba_y = point_b->Y - point_a->Y;
         if ((len_ba_y < -16383) || (len_ba_y > 16383))
             return;
         // test area
         if ((len_ca_x * len_ba_y) - (len_ba_x * len_ca_y) >= 0)
             return;
     }
-    long exceeds_window = ((point_a->field_0 | point_b->field_0 | point_c->field_0) < 0) || (point_a->field_0 > vec_window_width) || (point_b->field_0 > vec_window_width) || (point_c->field_0 > vec_window_width);
+    long exceeds_window = ((point_a->X | point_b->X | point_c->X) < 0) || (point_a->X > vec_window_width) || (point_b->X > vec_window_width) || (point_c->X > vec_window_width);
     { // Reorder points
-        int min_y = point_a->field_4;
+        int min_y = point_a->Y;
         struct PolyPoint* point_tmp;
-        if (min_y > point_b->field_4)
+        if (min_y > point_b->Y)
         {
-            min_y = point_b->field_4;
+            min_y = point_b->Y;
             point_tmp = point_a;
             point_a = point_b;
             point_b = point_tmp;
         }
-        if (min_y > point_c->field_4)
+        if (min_y > point_c->Y)
         {
             point_tmp = point_a;
             point_a = point_c;
             point_c = point_tmp;
         }
-        if (point_b->field_4 > point_c->field_4)
+        if (point_b->Y > point_c->Y)
         {
             point_tmp = point_b;
             point_b = point_c;
@@ -430,11 +430,11 @@ void draw_gpoly(struct PolyPoint *point_a, struct PolyPoint *point_b, struct Pol
         }
     }
     // Check if y coord is same for all of them
-    if (point_a->field_4 == point_c->field_4)
+    if (point_a->Y == point_c->Y)
         return;
     {
-        long len_y = point_c->field_4 - point_a->field_4;
-        long len_x = point_c->field_0 - point_a->field_0;
+        long len_y = point_c->Y - point_a->Y;
+        long len_x = point_c->X - point_a->X;
         if (len_y != 0)
         {
             if ((len_y < 0) || (len_y > 31) || (len_x < -32) || (len_x > 31))
@@ -451,8 +451,8 @@ void draw_gpoly(struct PolyPoint *point_a, struct PolyPoint *point_b, struct Pol
             else
                 factor_ca = gpoly_divtable[len_y][len_x+32];
         }
-        len_y = point_b->field_4 - point_a->field_4;
-        len_x = point_b->field_0 - point_a->field_0;
+        len_y = point_b->Y - point_a->Y;
+        len_x = point_b->X - point_a->X;
         if (len_y != 0)
         {
             if ((len_y < 0) || (len_y > 31) || (len_x < -32) || (len_x > 31))
@@ -469,8 +469,8 @@ void draw_gpoly(struct PolyPoint *point_a, struct PolyPoint *point_b, struct Pol
             else
                 factor_ba = gpoly_divtable[len_y][len_x+32];
         }
-        len_y = point_c->field_4 - point_b->field_4;
-        len_x = point_c->field_0 - point_b->field_0;
+        len_y = point_c->Y - point_b->Y;
+        len_x = point_c->X - point_b->X;
         if (len_y != 0)
         {
             if ((len_y < 0) || (len_y > 31) || (len_x < -32) || (len_x > 31))
@@ -487,29 +487,29 @@ void draw_gpoly(struct PolyPoint *point_a, struct PolyPoint *point_b, struct Pol
             else
                 factor_cb = gpoly_divtable[len_y][len_x+32];
         }
-        len_x = (point_a->field_0 << 16) - (point_b->field_0 << 16);
-        len_y = (point_b->field_4 - point_a->field_4);
+        len_x = (point_a->X << 16) - (point_b->X << 16);
+        len_y = (point_b->Y - point_a->Y);
         factor_chk = len_y * factor_ca + len_x;
     }
 
-    gploc_pt_ax = point_a->field_0;
-    gploc_pt_ay = point_a->field_4;
-    gploc_pt_shax = point_a->field_0 << 16;
-    gploc_pt_bx = point_b->field_0;
-    gploc_pt_by = point_b->field_4;
-    gploc_pt_shbx = point_b->field_0 << 16;
-    gploc_pt_cx = point_c->field_0;
-    gploc_pt_cy = point_c->field_4;
-    gploc_pt_shcx = point_c->field_0 << 16;
-    gploc_170 = point_a->field_10 >> 16;
-    gploc_158 = point_b->field_10 >> 16;
-    gploc_140 = point_c->field_10 >> 16;
-    gploc_16C = point_a->field_8 >> 16;
-    gploc_168 = point_a->field_C >> 16;
-    gploc_154 = point_b->field_8 >> 16;
-    gploc_150 = point_b->field_C >> 16;
-    gploc_13C = point_c->field_8 >> 16;
-    gploc_138 = point_c->field_C >> 16;
+    gploc_pt_ax = point_a->X;
+    gploc_pt_ay = point_a->Y;
+    gploc_pt_shax = point_a->X << 16;
+    gploc_pt_bx = point_b->X;
+    gploc_pt_by = point_b->Y;
+    gploc_pt_shbx = point_b->X << 16;
+    gploc_pt_cx = point_c->X;
+    gploc_pt_cy = point_c->Y;
+    gploc_pt_shcx = point_c->X << 16;
+    gploc_170 = point_a->S >> 16;
+    gploc_158 = point_b->S >> 16;
+    gploc_140 = point_c->S >> 16;
+    gploc_16C = point_a->U >> 16;
+    gploc_168 = point_a->V >> 16;
+    gploc_154 = point_b->U >> 16;
+    gploc_150 = point_b->V >> 16;
+    gploc_13C = point_c->U >> 16;
+    gploc_138 = point_c->V >> 16;
 
 
     gploc_point_a = point_a;

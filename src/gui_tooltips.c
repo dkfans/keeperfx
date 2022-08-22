@@ -55,11 +55,13 @@ const char jtytext[] = "Jonty here   : ...I am writing this at 4am on Keepers la
     "and the little one, Crofty, Scooper, Jason Stanton [a cup of coffee], Aaron Senna, Mike Dorell, Ian Howie, Helen Thain, Alex Forest-Hay, Lee Hazelwood, Vicky Arnold, Guy Simmons, Shin, Val Taylor.... If I forgot you I am sorry... but sleep is due to me... and I have a dream to live...";
 
 /******************************************************************************/
+float render_tooltip_scroll_offset; // Rendering float
+float render_tooltip_scroll_timer; // Rendering float
 
 static inline void reset_scrolling_tooltip(void)
 {
-    tooltip_scroll_offset = 0;
-    tooltip_scroll_timer = 25;
+    render_tooltip_scroll_offset = 0;
+    render_tooltip_scroll_timer = 25.0;
     set_flag_byte(&tool_tip_box.flags,TTip_NeedReset,false);
 }
 
@@ -425,17 +427,17 @@ void draw_tooltip_slab64k(char *tttext, long pos_x, long pos_y, long ttwidth, lo
     unsigned int flg_mem = lbDisplay.DrawFlags;
     if (ttwidth > viswidth)
     {
-        if (tooltip_scroll_timer <= 0)
+        if (render_tooltip_scroll_timer <= 0)
         {
-            if (-ttwidth >= tooltip_scroll_offset)
-              tooltip_scroll_offset = viswidth;
+            if (-ttwidth >= render_tooltip_scroll_offset)
+              render_tooltip_scroll_offset = viswidth;
             else
-              tooltip_scroll_offset -= 4;
+              render_tooltip_scroll_offset -= 4.0 * gameadd.delta_time;
         } else
         {
-            tooltip_scroll_timer--;
-            if (tooltip_scroll_timer < 0)
-              tooltip_scroll_offset = 0;
+            render_tooltip_scroll_timer -= 1.0 * gameadd.delta_time;
+            if (render_tooltip_scroll_timer < 0)
+              render_tooltip_scroll_offset = 0;
         }
     }
     if (tttext != NULL)
@@ -461,7 +463,7 @@ void draw_tooltip_slab64k(char *tttext, long pos_x, long pos_y, long ttwidth, lo
             draw_slab64k(x, y, units_per_pixel_ui, scale_ui_value_lofi(viswidth), scale_ui_value_lofi(ttheight));
             lbDisplay.DrawFlags = 0;
             int tx_units_per_px = calculate_relative_upp(22, units_per_pixel_ui, LbTextLineHeight());
-            LbTextDrawResized(scale_ui_value_lofi(tooltip_scroll_offset), -scale_ui_value_lofi(2), tx_units_per_px, tttext);
+            LbTextDrawResized(scale_ui_value_lofi(render_tooltip_scroll_offset), -scale_ui_value_lofi(2), tx_units_per_px, tttext);
         }
     }
     LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenHeight/pixel_size, MyScreenWidth/pixel_size);
@@ -554,7 +556,6 @@ void draw_tooltip(void)
         draw_tooltip_at(tool_tip_box.pos_x,tool_tip_box.pos_y,tool_tip_box.text);
     }
     LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
-    set_flag_byte(&tool_tip_box.flags,TTip_Visible,false);
 }
 
 /******************************************************************************/

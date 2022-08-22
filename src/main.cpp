@@ -119,12 +119,14 @@
 TimePoint initialized_time_point;
 struct FrametimeMeasurements frametime_measurements;
 
+TimePoint delta_time_previous_timepoint;
+
 int test_variable;
 
 char cmndline[CMDLN_MAXLEN+1];
 unsigned short bf_argc;
 char *bf_argv[CMDLN_MAXLEN+1];
-
+short do_draw;
 short default_loc_player = 0;
 TbBool force_player_num = false;
 struct StartupParameters start_params;
@@ -162,6 +164,17 @@ TbBool TimerFreeze = false;
 
 /******************************************************************************/
 
+void frametime_set_all_measurements_to_be_displayed() {
+    // Display the frametime of the previous frame only, not the current frametime. Drawing "frametime_current" is a bad idea because frametimes are displayed on screen half-way through the rest of the measurements.
+    for (int i = 0; i < TOTAL_FRAMETIME_KINDS; i++) {
+        frametime_measurements.frametime_display[i] = frametime_measurements.frametime_current[i];
+        if (game.play_gameturn % game.num_fps == 0) {
+            frametime_measurements.frametime_display_max[i] = frametime_measurements.frametime_get_max[i];
+            frametime_measurements.frametime_get_max[i] = 0;
+        }
+    }
+}
+
 void frametime_start_measurement(int frametime_kind) {
     long double current_nanoseconds = std::chrono::duration_cast<std::chrono::nanoseconds>(TimeNow - initialized_time_point).count();
     long double current_milliseconds = current_nanoseconds/1000000.0;
@@ -177,16 +190,8 @@ void frametime_end_measurement(int frametime_kind) {
     if (frametime_measurements.frametime_current[frametime_kind] > frametime_measurements.frametime_get_max[frametime_kind]) {
         frametime_measurements.frametime_get_max[frametime_kind] = frametime_measurements.frametime_current[frametime_kind];
     }
-}
-
-void frametime_end_all_measurements() {
-    // Display the frametime of the previous frame only, do not display the current frametime. Drawing the "frametime_current" is a bad idea, because frametimes are displayed on screen half-way through the rest of the measurements.
-    for (int i = 0; i < TOTAL_FRAMETIME_KINDS; i++) {
-        frametime_measurements.frametime_display[i] = frametime_measurements.frametime_current[i];
-        if (game.play_gameturn % game.num_fps == 0) {
-            frametime_measurements.frametime_display_max[i] = frametime_measurements.frametime_get_max[i];
-            frametime_measurements.frametime_get_max[i] = 0;
-        }
+    if (frametime_kind == Frametime_FullFrame) {
+        frametime_set_all_measurements_to_be_displayed();
     }
 }
 
@@ -1092,6 +1097,7 @@ short setup_game(void)
   features_enabled &= ~Ft_SkipHeartZoom; // don't skip the dungeon heart zoom in
   features_enabled &= ~Ft_SkipSplashScreens; // don't skip splash screens
   features_enabled &= ~Ft_DisableCursorCameraPanning; // don't disable cursor camera panning
+  features_enabled |= Ft_DeltaTime; // enable delta time
   
   // Configuration file
   if ( !load_configuration() )
@@ -2773,8 +2779,6 @@ void update(void)
     struct PlayerInfo *player;
     SYNCDBG(4,"Starting for turn %ld",(long)game.play_gameturn);
 
-    if ((game.operation_flags & GOF_Paused) == 0)
-        update_light_render_area();
     process_packets();
     if (quit_game || exit_keeper) {
         return;
@@ -2788,6 +2792,7 @@ void update(void)
     if ((game.operation_flags & GOF_Paused) == 0)
     {
         player = get_my_player();
+        set_previous_camera_values();
         if (player->additional_flags & PlaAF_LightningPaletteIsActive)
         {
             PaletteSetPlayerPalette(player, engine_palette);
@@ -3250,7 +3255,7 @@ void engine(struct PlayerInfo *player, struct Camera *cam)
     mz = cam->mappos.z.val;
     pointer_x = (GetMouseX() - player->engine_window_x) / pixel_size;
     pointer_y = (GetMouseY() - player->engine_window_y) / pixel_size;
-    lens = (cam->field_13 * ((long)MyScreenWidth))/pixel_size / 320;
+    lens = cam->horizontal_fov * scale_value_by_horizontal_resolution(4) / pixel_size;
     if (lens_mode == 0)
         update_blocks_pointed();
     LbScreenStoreGraphicsWindow(&grwnd);
@@ -3394,25 +3399,128 @@ TbBool keeper_wait_for_screen_focus(void)
     return false;
 }
 
+float get_delta_time(void)
+{
+    // Allow frame skip to work correctly when delta time is enabled
+    if ( (game.frame_skip != 0) && ((game.play_gameturn % game.frame_skip) != 0)) {
+        return 1.0;
+    }
+    long double frame_time_in_nanoseconds = std::chrono::duration_cast<std::chrono::nanoseconds>(TimeNow - delta_time_previous_timepoint).count();
+    delta_time_previous_timepoint = TimeNow;
+    float calculated_delta_time = (frame_time_in_nanoseconds/1000000000.0) * game.num_fps;
+    if (calculated_delta_time > 1.0) { // Fix for when initially loading the map, frametime takes too long. Possibly other circumstances too.
+        calculated_delta_time = 1.0;
+    }
+    return calculated_delta_time;
+}
+
+void gameplay_loop_logic()
+{
+    if (is_feature_on(Ft_DeltaTime) == true) {
+        if (gameadd.process_turn_time < 1.0) {
+            return;
+        }
+        gameadd.process_turn_time -= 1.0;
+    }
+
+    frametime_start_measurement(Frametime_Logic);
+    if ((game.flags_font & FFlg_unk10) != 0)
+    {
+        if (game.play_gameturn == 4)
+            LbNetwork_ChangeExchangeTimeout(0);
+    }
+#ifdef AUTOTESTING
+    if ((start_params.autotest_flags & ATF_ExitOnTurn) && (start_params.autotest_exit_turn == game.play_gameturn))
+    {
+        quit_game = true;
+        exit_keeper = true;
+        return;
+    }
+    evm_stat(1, "turn val=%ld,action_seed=%ld,unsync_seed=%ld", game.play_gameturn, game.action_rand_seed, game.unsync_rand_seed);
+    if (start_params.autotest_flags & ATF_FixedSeed)
+    {
+        game.action_rand_seed = game.play_gameturn;
+        game.unsync_rand_seed = game.play_gameturn;
+        srand(game.play_gameturn);
+    }
+#endif
+    do_draw = display_should_be_updated_this_turn() || (!LbIsActive());
+    LbWindowsControl();
+    input_eastegg();
+    input();
+    update();
+    frametime_end_measurement(Frametime_Logic);
+}
+
+void gameplay_loop_draw()
+{
+    // Floats are used a lot in the drawing related functions. But keep in mind integers are typically preferred for logic related functions.
+    frametime_start_measurement(Frametime_Draw);
+
+    // Update lights
+    if ((game.operation_flags & GOF_Paused) == 0) {
+        update_light_render_area();
+    }
+
+    if (quit_game || exit_keeper) {
+        do_draw = false;
+    }
+    if ( do_draw ) {
+        keeper_screen_redraw();
+    }
+    keeper_wait_for_screen_focus();
+    // Direct information/error messages
+    if (LbScreenLock() == Lb_SUCCESS) {
+        if ( do_draw ) {
+            perform_any_screen_capturing();
+        }
+        draw_onscreen_direct_messages();
+        LbScreenUnlock();
+    }
+    // Move the graphics window to center of screen buffer and swap screen
+    if ( do_draw ) {
+        keeper_screen_swap();
+    }
+    frametime_end_measurement(Frametime_Draw);
+}
+
+void gameplay_loop_timestep()
+{
+    frametime_start_measurement(Frametime_Sleep);
+    if (is_feature_on(Ft_DeltaTime) == true) {
+        gameadd.delta_time = get_delta_time();
+        gameadd.process_turn_time += gameadd.delta_time;
+    } else {
+        // Set to 1 so that these variables don't affect anything. (if something is multiplied by 1 it doesn't change)
+        gameadd.delta_time = 1;
+        gameadd.process_turn_time = 1;
+        // Make delay if the machine is too fast
+        if ( (!game.packet_load_enable) || (game.turns_fastforward == 0) ) {
+            keeper_wait_for_next_turn();
+        }
+    }
+    if (game.turns_packetoff == game.play_gameturn) {
+        exit_keeper = 1;
+    }
+    frametime_end_measurement(Frametime_Sleep);
+}
+
 void keeper_gameplay_loop(void)
 {
-    short do_draw;
     struct PlayerInfo *player;
     SYNCDBG(5,"Starting");
     player = get_my_player();
     PaletteSetPlayerPalette(player, engine_palette);
-    if ((game.operation_flags & GOF_SingleLevel) != 0)
+    if ((game.operation_flags & GOF_SingleLevel) != 0) {
         initialise_eye_lenses();
-
+    }
 #ifdef AUTOTESTING
     if ((start_params.autotest_flags & ATF_AI_Player) != 0)
     {
         toggle_computer_player(player->id_number);
     }
 #endif
-
     SYNCDBG(0,"Entering the gameplay loop for level %d",(int)get_loaded_level_number());
-
     KeeperSpeechClearEvents();
     LbErrorParachuteUpdate(); // For some reasone parachute keeps changing; Remove when won't be needed anymore
     initialized_time_point = TimeNow;
@@ -3420,82 +3528,10 @@ void keeper_gameplay_loop(void)
     while ((!quit_game) && (!exit_keeper))
     {
         frametime_start_measurement(Frametime_FullFrame);
-        frametime_start_measurement(Frametime_Logic);
-        
-        if ((game.flags_font & FFlg_unk10) != 0)
-        {
-          if (game.play_gameturn == 4)
-              LbNetwork_ChangeExchangeTimeout(0);
-        }
-
-#ifdef AUTOTESTING
-        if ((start_params.autotest_flags & ATF_ExitOnTurn) && (start_params.autotest_exit_turn == game.play_gameturn))
-        {
-            quit_game = true;
-            exit_keeper = true;
-            break;
-        }
-        evm_stat(1, "turn val=%ld,action_seed=%ld,unsync_seed=%ld", game.play_gameturn, game.action_rand_seed, game.unsync_rand_seed);
-        if (start_params.autotest_flags & ATF_FixedSeed)
-        {
-            game.action_rand_seed = game.play_gameturn;
-            game.unsync_rand_seed = game.play_gameturn;
-            srand(game.play_gameturn);
-        }
-#endif
-        // Check if we should redraw screen in this turn
-        do_draw = display_should_be_updated_this_turn() || (!LbIsActive());
-
-        LbWindowsControl();
-        input_eastegg();
-        input();
-        update();
-        
-        frametime_end_measurement(Frametime_Logic);
-        frametime_start_measurement(Frametime_Draw);
-        
-        if (quit_game || exit_keeper)
-            do_draw = false;
-        
-        if ( do_draw )
-            keeper_screen_redraw();
-        keeper_wait_for_screen_focus();
-        // Direct information/error messages
-        if (LbScreenLock() == Lb_SUCCESS)
-        {
-            if ( do_draw )
-                perform_any_screen_capturing();
-            draw_onscreen_direct_messages();
-            LbScreenUnlock();
-        }
-
-        // Music and sound control
-        if ( !SoundDisabled )
-        {
-            if ( (game.turns_fastforward == 0) && (!game.numfield_149F38) )
-            {
-                MonitorStreamedSoundTrack();
-                process_sound_heap();
-            }
-        }
-
-        // Move the graphics window to center of screen buffer and swap screen
-        if ( do_draw )
-            keeper_screen_swap();
-        
-        frametime_end_measurement(Frametime_Draw);
-        frametime_start_measurement(Frametime_Sleep);
-
-        // Make delay if the machine is too fast
-        if ( (!game.packet_load_enable) || (game.turns_fastforward == 0) )
-            keeper_wait_for_next_turn();
-        
-        if (game.turns_packetoff == game.play_gameturn)
-            exit_keeper = 1;
-        
-        frametime_end_measurement(Frametime_Sleep);
+        gameplay_loop_logic();
+        gameplay_loop_draw();
+        gameplay_loop_timestep();
         frametime_end_measurement(Frametime_FullFrame);
-        frametime_end_all_measurements();
     } // end while
     SYNCDBG(0,"Gameplay loop finished after %lu turns",(unsigned long)game.play_gameturn);
 }

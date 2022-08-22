@@ -230,6 +230,7 @@ TbBool steal_hero(struct PlayerInfo *player, struct Coord3d *pos)
     if (!thing_is_invalid(herotng))
     {
         move_thing_in_map(herotng, pos);
+        reset_interpolation_of_thing(herotng);
         change_creature_owner(herotng, player->id_number);
         SYNCDBG(3,"Converted %s to owner %d",thing_model_name(herotng),(int)player->id_number);
     }

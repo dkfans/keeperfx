@@ -231,52 +231,52 @@ msgstr ""
 
 #: guitext:202
 msgctxt "Level name"
-msgid "ice blood"
+msgid "Ice blood"
 msgstr ""
 
 #: guitext:203
 msgctxt "Level name"
-msgid "barbarian land"
+msgid "Barbarian land"
 msgstr ""
 
 #: guitext:204
 msgctxt "Level name"
-msgid "magma land"
+msgid "Magma land"
 msgstr ""
 
 #: guitext:205
 msgctxt "Level name"
-msgid "mortal fight"
+msgid "Mortal fight"
 msgstr ""
 
 #: guitext:206
 msgctxt "Level name"
-msgid "death in ice"
+msgid "Death in ice"
 msgstr ""
 
 #: guitext:207
 msgctxt "Level name"
-msgid "land of blood"
+msgid "Land of blood"
 msgstr ""
 
 #: guitext:208
 msgctxt "Level name"
-msgid "cold reality"
+msgid "Cold reality"
 msgstr ""
 
 #: guitext:209
 msgctxt "Level name"
-msgid "eye of battle"
+msgid "Eye of battle"
 msgstr ""
 
 #: guitext:210
 msgctxt "Level name"
-msgid "battlefield"
+msgid "Battlefield"
 msgstr ""
 
 #: guitext:211
 msgctxt "Level name"
-msgid "united kingdom"
+msgid "United kingdom"
 msgstr ""
 
 #: guitext:212
