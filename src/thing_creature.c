@@ -3098,7 +3098,6 @@ TbBool creature_can_see_thing(struct Thing *creatng, struct Thing *thing)
     return line_of_sight_3d(&creat_pos, &thing_pos) != 0;
 }
 
-DLLIMPORT long _DK_get_human_controlled_creature_target(struct Thing *creatng, long primary_target);
 
 ThingIndex get_human_controlled_creature_target(struct Thing *thing, long primary_target)
 {
@@ -3109,12 +3108,6 @@ ThingIndex get_human_controlled_creature_target(struct Thing *thing, long primar
     int smallest_angle_diff = INT_MAX;
     static const int range = 20;
     static const int max_hit_angle = 39;
-
-
-    struct CreatureStatsOLD* creature_stats_OLD = &game.creature_stats_OLD[thing->model];
-    creature_stats_OLD->eye_height = get_creature_eye_height(thing);
-    long old = _DK_get_human_controlled_creature_target(thing, primary_target);
-
     short stl_x = thing->mappos.x.stl.num;
     short stl_x_lower = stl_x - range;
     short stl_x_upper = stl_x + range;
@@ -3132,8 +3125,6 @@ ThingIndex get_human_controlled_creature_target(struct Thing *thing, long primar
 
     if (stl_y_upper < stl_y_lower)
     {   
-        if (old)
-            JUSTLOG("should be impossible old=%d",(int)old);
         return 0;
     }
     if (stl_y_upper >= stl_y_lower)
@@ -3202,10 +3193,6 @@ ThingIndex get_human_controlled_creature_target(struct Thing *thing, long primar
             stl_y_lower++;
         }
     }
-    if (index == old)
-        JUSTLOG("ok %d",(int)old);
-    else
-        JUSTLOG("not ok old=%d new=%d",(int)old,(int)index);
     return index;
 }
 
