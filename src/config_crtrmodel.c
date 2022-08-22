@@ -166,6 +166,7 @@ const struct NamedCommand creatmodel_appearance_commands[] = {
   {"SHOTORIGIN",           5},
   {"CORPSEVANISHEFFECT",   6},
   {"FOOTSTEPPITCH",        7},
+  {"PICKUPOFFSET",         8},
   {NULL,                   0},
   };
 
@@ -1616,6 +1617,38 @@ TbBool parse_creaturemodel_appearance_blocks(long crtr_model,char *buf,long len,
                 crstat->footstep_pitch = k;
                 n++;
             }
+            break;
+        case 8: // PICKUPOFFSET
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                creature_picked_up_offset[crtr_model].delta_x = k;
+                n++;
+            }
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                creature_picked_up_offset[crtr_model].delta_y = k;
+                n++;
+            }
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                creature_picked_up_offset[crtr_model].field_4 = k;
+                n++;
+            }
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                creature_picked_up_offset[crtr_model].field_6 = k;
+                n++;
+            }
+            if (n < 4)
+            {
+                CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), block_buf, config_textname);
+            }
+            break;
         case 0: // comment
             break;
         case -1: // end of buffer

@@ -588,7 +588,7 @@ TbBool find_pressure_trigger_trap_target_passing_by_subtile(const struct Thing *
     return false;
 }
 
-TbBool update_trap_trigger_pressure(struct Thing *traptng)
+TbBool update_trap_trigger_pressure_slab(struct Thing *traptng)
 {
     MapSlabCoord slb_x = subtile_slab_fast(traptng->mappos.x.stl.num);
     MapSlabCoord slb_y = subtile_slab_fast(traptng->mappos.y.stl.num);
@@ -606,6 +606,17 @@ TbBool update_trap_trigger_pressure(struct Thing *traptng)
             }
 
         }
+    }
+    return false;
+}
+
+TbBool update_trap_trigger_pressure_subtile(struct Thing *traptng)
+{
+    struct Thing* creatng = INVALID_THING;
+    if (find_pressure_trigger_trap_target_passing_by_subtile(traptng, traptng->mappos.x.stl.num, traptng->mappos.y.stl.num, &creatng))
+    {
+        activate_trap(traptng, creatng);
+        return true;
     }
     return false;
 }
@@ -633,8 +644,11 @@ TngUpdateRet update_trap_trigger(struct Thing *traptng)
     case TrpTrg_LineOfSight90:
         do_trig = update_trap_trigger_line_of_sight_90(traptng);
         break;
-    case TrpTrg_Pressure:
-        do_trig = update_trap_trigger_pressure(traptng);
+    case TrpTrg_Pressure_Slab:
+        do_trig = update_trap_trigger_pressure_slab(traptng);
+        break;
+    case TrpTrg_Pressure_Subtile:
+        do_trig = update_trap_trigger_pressure_subtile(traptng);
         break;
     case TrpTrg_LineOfSight:
         do_trig = update_trap_trigger_line_of_sight(traptng);

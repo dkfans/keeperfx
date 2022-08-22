@@ -192,6 +192,7 @@ short creature_scavenged_disappear(struct Thing *thing)
     if (find_random_valid_position_for_thing_in_room(thing, room, &pos))
     {
         move_thing_in_map(thing, &pos);
+        reset_interpolation_of_thing(thing);
         anger_set_creature_anger_all_types(thing, 0);
         if (is_my_player_number(thing->owner))
           output_message(SMsg_MinionScanvenged, 0, true);
