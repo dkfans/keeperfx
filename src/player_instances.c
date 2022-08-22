@@ -404,7 +404,7 @@ long pinstfm_control_creature(struct PlayerInfo *player, long *n)
     }
     if (player->view_mode != PVM_FrontView)
     {
-        view_zoom_camera_in(cam, 30000, 6000);
+        view_zoom_camera_in(cam, 30000, 0);
         long mv_a;
         if (PossessAffectCamera)
         {
