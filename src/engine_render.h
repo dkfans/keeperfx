@@ -380,6 +380,7 @@ extern struct stripey_line colored_stripey_lines[];
 extern unsigned char poly_pool[POLY_POOL_SIZE];
 extern unsigned char *poly_pool_end;
 extern long cells_away;
+extern float hud_scale;
 /******************************************************************************/
 DLLIMPORT Offset _DK_vert_offset[3];
 #define vert_offset _DK_vert_offset
@@ -513,7 +514,11 @@ extern TbSpriteData keepersprite_add[KEEPERSPRITE_ADD_NUM];
 #pragma pack()
 /******************************************************************************/
 //extern unsigned char temp_cluedo_mode;
-/******************************************************************************/
+/*****************************************************************************/
+void calculate_hud_scale(struct Camera *cam);
+long interpolate(long variable_to_interpolate, long previous, long current);
+long interpolate_angle(long variable_to_interpolate, long previous, long current);
+
 void do_a_plane_of_engine_columns_perspective(long a1, long a2, long a3, long a4);
 void do_a_plane_of_engine_columns_cluedo(long a1, long a2, long a3, long a4);
 void do_a_plane_of_engine_columns_isometric(long a1, long a2, long a3, long a4);

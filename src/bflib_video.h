@@ -274,7 +274,10 @@ extern volatile TbBool lbInteruptMouse;
 extern volatile TbDisplayStructEx lbDisplayEx;
 extern unsigned char lbPalette[PALETTE_SIZE];
 
-#define DEFAULT_UI_SCALE                128 // is equivilent to size 1 or 100%
+#define DEFAULT_UI_SCALE                       128 // is equivilent to size 1 or 100%
+#define DEFAULT_ASPECT_RATIO_FACTOR            160 // is equivilent to 16/10 * 100
+#define DEFAULT_FIRST_PERSON_HORIZONTAL_FOV     94 // 94 degrees at 16/10 aspect ratio
+#define DEFAULT_FIRST_PERSON_VERTICAL_FOV       68 // 68 degrees at 16/10 aspect ratio
 
 enum UIScaleSettings {
     UI_NORMAL_SIZE = DEFAULT_UI_SCALE,
@@ -286,6 +289,10 @@ extern unsigned short units_per_pixel_width;
 extern unsigned short units_per_pixel_height;
 extern unsigned short units_per_pixel_best;
 extern unsigned short units_per_pixel_ui;
+extern unsigned long aspect_ratio_factor_HOR_PLUS;
+extern unsigned long aspect_ratio_factor_HOR_PLUS_AND_VERT_PLUS;
+extern unsigned long first_person_horizontal_fov;
+extern unsigned long first_person_vertical_fov;
 /******************************************************************************/
 TbResult LbScreenInitialize(void);
 TbResult LbScreenSetDoubleBuffering(TbBool state);
@@ -343,6 +350,9 @@ long scale_fixed_DK_value(long base_value);
 TbBool is_ar_wider_than_original(long width, long height);
 long calculate_relative_upp(long base_length, long reference_upp, long reference_length);
 long resize_ui(long units_per_px, long ui_scale);
+void calculate_aspect_ratio_factor(long width, long height);
+long scale_fixed_DK_value_by_ar(long base_value, TbBool scale_up, TbBool vert_plus);
+long FOV_based_on_aspect_ratio(void);
 /******************************************************************************/
 #ifdef __cplusplus
 }
