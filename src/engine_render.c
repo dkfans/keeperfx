@@ -4842,19 +4842,21 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
     if (cam == NULL) {
         return;
     }
-
+    TbBool forced_perspective;
     float scale_by_zoom;
     int base_size = 16*256;
     switch (cam->view_mode) {
         case PVM_IsometricView:
             // 1st argument: the scale when fully zoomed out. 2nd argument: the scale at base level zoom
             scale_by_zoom = lerp(0.15, 1.00, hud_scale);
+            forced_perspective = false;
             break;
         case PVM_FrontView:
-            scale_by_zoom = lerp(0.15, 1.00, hud_scale);
+            forced_perspective = true;
             break;
         case PVM_ParchmentView:
             scale_by_zoom = 1;
+            forced_perspective = false;
             break;
         default:
             return; // Do not draw if camera is 1st person
@@ -4885,8 +4887,6 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
     health_spridx = 0;
     state_spridx = 0;
 
-    CrtrExpLevel exp;
-    exp = min(cctrl->explevel,9);
     if (cam->view_mode != PVM_ParchmentView)
     {
         health_spridx = choose_health_sprite(thing);
@@ -4987,14 +4987,16 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
     const struct TbSprite *spr;
     int bs_units_per_px;
     spr = &button_sprite[70];
-    bs_units_per_px = units_per_pixel_ui * 2 * scale_by_zoom;
-    TbBool forced_perspective = (cam->view_mode == PVM_FrontView);
+    bs_units_per_px = units_per_pixel_ui * 2;
     long pos_y = scrpos_y;
     if (forced_perspective) {
         const int bubble_distance = 34; // Higher number means bubble is further away from creature
         pos_y -= (bubble_distance/spr->SHeight) * bs_units_per_px;
     }
-
+    else
+    {
+        bs_units_per_px *= scale_by_zoom;
+    }
     if ( state_spridx || anger_spridx )
     {
         spr = &button_sprite[70];
@@ -5053,6 +5055,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
               h = (base_size * spr->SHeight * bs_units_per_px/16) >> 12;
               LbSpriteDrawScaled(scrpos_x - w / 2, pos_y - h - h_add, spr, w, h);
           }
+          CrtrExpLevel exp = min(cctrl->explevel,9);
           spr = &button_sprite[184 + exp];
           w = (base_size * spr->SWidth * bs_units_per_px/16) >> 12;
           h = (base_size * spr->SHeight * bs_units_per_px/16) >> 12;
