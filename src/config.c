@@ -1155,7 +1155,7 @@ short load_configuration(void)
                 PossessAffectCamera = true;
                 break;
             }
-            if (i > 0)
+            if (i == 1)
                 PossessAffectCamera = true;
             else
                 PossessAffectCamera = false;
