@@ -35,6 +35,7 @@
 #include "map_columns.h"
 #include "map_blocks.h"
 #include "map_utils.h"
+#include "slab_data.h"
 
 #ifdef __cplusplus
 extern "C" {
