@@ -108,7 +108,7 @@ Creature_Instf_Func creature_instances_func_list[] = {
   NULL,
 };
 
-//field_0,time,fp_time,action_time,fp_action_time,long reset_time,fp_reset_time,graphics_idx,flags,force_visibility,field_1D,func_cb,func_params[2];
+//field_0,time,fp_time,action_time,fp_action_time,long reset_time,fp_reset_time,graphics_idx,flags,force_visibility,primary_target,func_cb,func_params[2];
 struct InstanceInfo instance_info[] = {
     {0,  0,  0,  0,  0,   0,   0,  0,  0,  0,  0, NULL,                              {0,0}}, //0
     {0,  8,  4,  4,  2,   8,   4,  3,  0,  1,  3, instf_creature_fire_shot,         {21,0}},
