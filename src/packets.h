@@ -199,6 +199,8 @@ enum TbPacketControl {
         PCtr_RBtnRelease    = 0x2000,
         PCtr_Gui            = 0x4000,
         PCtr_MapCoordsValid = 0x8000,
+        //PCtr_ViewRotateForward = 0x10000,
+        //PCtr_ViewRotateBackward = 0x20000,
 };
 
 /**

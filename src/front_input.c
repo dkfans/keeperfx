@@ -1881,6 +1881,14 @@ void get_isometric_view_nonaction_inputs(void)
             set_packet_control(packet, PCtr_MoveUp);
         if ( is_game_key_pressed(Gkey_MoveDown, NULL, no_mods) || is_key_pressed(KC_DOWN,KMod_DONTCARE) )
             set_packet_control(packet, PCtr_MoveDown);
+        //if ( is_game_key_pressed(Gkey_RotateForward, NULL, false) ) {
+        //    JUSTLOG("forward",0);
+        //    set_packet_control(packet, PCtr_ViewRotateForward);
+        //}
+        //if ( is_game_key_pressed(Gkey_RotateBackward, NULL, false) ){
+        //    JUSTLOG("backward",0);
+        //    set_packet_control(packet, PCtr_ViewRotateBackward);
+        //}
     }
 }
 
@@ -1974,6 +1982,12 @@ void get_front_view_nonaction_inputs(void)
             last_rotate_right_time = LbTimerClock();
           }
         }
+        
+        //if ( is_game_key_pressed(Gkey_RotateForward, NULL, false) )
+        //    set_packet_control(pckt, PCtr_ViewRotateForward);
+        //if ( is_game_key_pressed(Gkey_RotateBackward, NULL, false) )
+        //    set_packet_control(pckt, PCtr_ViewRotateBackward);
+
         if ( is_game_key_pressed(Gkey_MoveLeft, NULL, no_mods) || is_key_pressed(KC_LEFT,KMod_DONTCARE) )
             set_packet_control(pckt, PCtr_MoveLeft);
         if ( is_game_key_pressed(Gkey_MoveRight, NULL, no_mods) || is_key_pressed(KC_RIGHT,KMod_DONTCARE) )

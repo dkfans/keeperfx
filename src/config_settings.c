@@ -98,6 +98,8 @@ void setup_default_settings(void)
           {KC_MOUSEWHEEL_DOWN, KMod_NONE},   // Gkey_RoomSpaceIncSize
           {KC_MOUSEWHEEL_UP, KMod_NONE},     // Gkey_RoomSpaceDecSize
           {KC_LALT, KMod_NONE},              // Gkey_SellTrapOnSubtile
+          {KC_INSERT, KMod_NONE},            // Gkey_RotateForward
+          {KC_PGUP, KMod_NONE},              // Gkey_RotateBackward
      },                         // kbkeys
      1,                         // tooltips_on
      0,                         // first_person_move_invert

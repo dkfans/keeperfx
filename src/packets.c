@@ -316,6 +316,21 @@ void process_pause_packet(long curr_pause, long new_pause)
   }
 }
 
+void tilt_camera(struct Camera *cam, int dir) {
+    float current_degrees = lerp(0.0, 360.0, abs(cam->orient_b) / (float)LbFPMath_AngleMask);
+
+    JUSTLOG("current_degrees = %f", current_degrees);
+
+    if (dir == 1) {
+        current_degrees += 1;
+    } else {
+        current_degrees -= 1;
+    }
+
+    cam->orient_b = -lerp(0, LbFPMath_AngleMask, current_degrees/360.0);
+    show_onscreen_msg(40, "Camera tilted %d degrees", (int)current_degrees);
+}
+
 void process_players_dungeon_control_packet_control(long plyr_idx)
 {
     struct PlayerInfo* player = get_player(plyr_idx);
@@ -367,6 +382,31 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
             break;
         case PVM_FrontView:
             cam->orient_a = (cam->orient_a - LbFPMath_PI/2) & LbFPMath_AngleMask;
+            break;
+        }
+    }
+    
+
+    //if ((pckt->control_flags & PCtr_ViewRotateForward) != 0)
+    if ( is_game_key_pressed(Gkey_RotateForward, NULL, false) )
+    {
+        //JUSTLOG("PACKET SUCCESS FORWARD",0);
+        switch (cam->view_mode)
+        {
+        case PVM_IsometricView:
+            tilt_camera(cam, 1);
+            break;
+        }
+    }
+    
+    //if ((pckt->control_flags & PCtr_ViewRotateBackward) != 0)
+    if ( is_game_key_pressed(Gkey_RotateBackward, NULL, false) )
+    {
+        //JUSTLOG("PACKET SUCCESS BACKWARD",0);
+        switch (cam->view_mode)
+        {
+        case PVM_IsometricView:
+            tilt_camera(cam, -1);
             break;
         }
     }
