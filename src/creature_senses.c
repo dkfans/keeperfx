@@ -812,8 +812,14 @@ TbBool line_of_sight_3d(const struct Coord3d *frpos, const struct Coord3d *topos
     struct Coord3d nextpos;
     nextpos.x.val = prevpos.x.val + increase_x;
     nextpos.y.val = prevpos.y.val + increase_y;
-    nextpos.z.val = prevpos.z.val + increase_z;
-    while (distance > 0) //todo fix gas line of sight
+    if ((increase_z >= 0 && ((nextpos.z.val + increase_z) >= topos->z.val)) ||
+        (increase_z < 0 && ((nextpos.z.val + increase_z) < topos->z.val)))
+    {
+        //do not overshoot z position
+        nextpos.z.val = topos->z.val;
+        increase_z = 0;
+    }
+    while (distance > 0)
     {
         if (point_in_map_is_solid(&nextpos)) {
             SYNCDBG(7, "Player cannot see through (%d,%d) due to linear path solid flags (downcount %d)",
@@ -831,7 +837,13 @@ TbBool line_of_sight_3d(const struct Coord3d *frpos, const struct Coord3d *topos
         prevpos.z.val = nextpos.z.val;
         nextpos.x.val += increase_x;
         nextpos.y.val += increase_y;
-        nextpos.z.val += increase_z;
+        if ((increase_z >= 0 && ((nextpos.z.val + increase_z) >= topos->z.val)) ||
+            (increase_z < 0 && ((nextpos.z.val + increase_z) < topos->z.val)))
+        {
+            //do not overshoot z position
+            nextpos.z.val = topos->z.val;
+            increase_z = 0;
+        }
         distance--;
     }
     return true;
