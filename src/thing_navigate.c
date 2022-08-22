@@ -47,6 +47,16 @@ DLLIMPORT long _DK_get_next_gap_creature_can_fit_in_below_point(struct Thing *cr
 }
 #endif
 /******************************************************************************/
+
+// Call this function if you don't want the creature/thing to (visually) fly across the map whenever suddenly moving a very far distance. (teleporting for example)
+void reset_interpolation_of_thing(struct Thing *thing) {
+    struct ThingAdd* thingadd = get_thingadd(thing->index);
+    thingadd->previous_mappos = thing->mappos;
+    thingadd->previous_floor_height = thing->floor_height;
+    thingadd->interp_mappos = thing->mappos;
+    thingadd->interp_floor_height = thing->floor_height;
+}
+
 TbBool creature_can_navigate_to_with_storage_f(const struct Thing *creatng, const struct Coord3d *pos, NaviRouteFlags flags, const char *func_name)
 {
     NAVIDBG(8,"%s: Route for %s index %d from %3d,%3d to %3d,%3d", func_name, thing_model_name(creatng),(int)creatng->index,
@@ -294,7 +304,7 @@ void move_thing_in_map_f(struct Thing *thing, const struct Coord3d *pos, const c
         thing->mappos.z.val = pos->z.val;
         place_thing_in_mapwho(thing);
     }
-    thing->field_60 = get_thing_height_at(thing, &thing->mappos);
+    thing->floor_height = get_thing_height_at(thing, &thing->mappos);
 }
 
 TbBool move_creature_to_nearest_valid_position(struct Thing *thing)
@@ -367,6 +377,13 @@ TbBool creature_can_get_to_dungeon(struct Thing *creatng, PlayerNumber plyr_idx)
         return false;
     }
     return creature_can_navigate_to(creatng, &heartng->mappos, NavRtF_Default);
+}
+
+TbBool creature_can_head_for_room(struct Thing *thing, struct Room *room, int flags)
+{
+    struct Coord3d pos;
+    return find_first_valid_position_for_thing_anywhere_in_room(thing, room, &pos)
+        && creature_can_navigate_to_with_storage(thing, &pos, flags);
 }
 
 long creature_turn_to_face(struct Thing *thing, const struct Coord3d *pos)
@@ -569,7 +586,7 @@ short move_to_position(struct Thing *creatng)
             SYNCDBG(8,"Couldn't move %s to place required for state %s; reset to state %s",thing_model_name(creatng),creature_state_code_name(cntstat),creatrtng_actstate_name(creatng));
             return CrStRet_ResetOk;
         }
-        // If continuing the job, check for job stress
+        // If continuing the job, check for job stress. Several - but not all - jobs use the move_to_position function.
         process_job_stress_and_going_postal(creatng);
     }
     switch (state_check)

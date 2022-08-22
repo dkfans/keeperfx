@@ -522,7 +522,7 @@ void get_player_gui_clicks(void)
 
   if ( game_is_busy_doing_gui() )
   {
-    set_players_packet_control(player, 0x4000u);
+    set_players_packet_control(player, PCtr_Gui);
   }
 }
 
@@ -652,8 +652,8 @@ short game_is_busy_doing_gui(void)
 {
     struct PlayerInfo *player;
     player = get_my_player();
-    struct DungeonAdd *dungeonadd = get_dungeonadd(player->id_number);
-    if (dungeonadd->one_click_lock_cursor)
+    struct PlayerInfoAdd *playeradd = get_playeradd(player->id_number);
+    if (playeradd->one_click_lock_cursor)
       return false;
     if (!busy_doing_gui)
       return false;
@@ -1526,7 +1526,7 @@ void draw_scrolling_button_string(struct GuiButton *gbtn, const char *text)
   }
   else
   {
-      tx_units_per_px = scale_ui_value((MyScreenWidth >= 640) ? 16 : 32);
+      tx_units_per_px = scale_ui_value_lofi(16);
   }
   if (text_height == 0)
   {
@@ -1697,7 +1697,7 @@ TbBool frontend_start_new_campaign(const char *cmpgn_fname)
         player->flgfield_6 &= ~PlaF6_PlyrHasQuit;
     }
     player = get_my_player();
-    clear_transfered_creature();
+    clear_transfered_creatures();
     calculate_moon_phase(false,false);
     hide_all_bonus_levels(player);
     update_extra_levels_visibility();
@@ -2480,12 +2480,14 @@ void set_gui_visible(TbBool visible)
   {
       setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
   }
-  // Adjust the bounds of zoom of the camera when the side-menu is toggled (in Isometric view) to hide graphical glitches
-  // Without the gui sidebar, the camera cannot be zoomed in as much.
-  // NOTE: This should be reverted if the render array is ever increased (i.e. can see more things on screen)
   if (player->acamera && player->acamera->view_mode == PVM_IsometricView)
   {
-      update_camera_zoom_bounds(player->acamera, CAMERA_ZOOM_MAX, adjust_min_camera_zoom(player->acamera, game.operation_flags & GOF_ShowGui));
+      // Adjust the bounds of zoom of the camera when the side-menu is toggled (in Isometric view) to hide graphical glitches if the screen is too wide or tall
+      // NOTE: This should be removed if the render array is ever increased (i.e. can see more things on screen)
+      int panel_width = (((game.operation_flags & GOF_ShowGui) != 0) ? status_panel_width : 0);
+      int camera_zoom_min = adjust_min_camera_zoom(player->acamera, player->engine_window_width, player->engine_window_height, panel_width);
+      
+      update_camera_zoom_bounds(player->acamera, CAMERA_ZOOM_MAX, camera_zoom_min);
       if (is_my_player(player))
       {
         settings.isometric_view_zoom_level = player->acamera->zoom;

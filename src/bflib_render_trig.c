@@ -125,13 +125,13 @@ int trig_reorder_input_points(struct PolyPoint **opt_a, struct PolyPoint **opt_b
     struct PolyPoint *ordpt_tmp1;
     struct PolyPoint *ordpt_tmp2;
     long start_type = RendStart_NO;
-    if (ordpt_a->field_4 == ordpt_b->field_4)
+    if (ordpt_a->Y == ordpt_b->Y)
     {
-        if (ordpt_a->field_4 == ordpt_c->field_4)
+        if (ordpt_a->Y == ordpt_c->Y)
             return RendStart_NO;
-        if (ordpt_a->field_4 >= ordpt_c->field_4)
+        if (ordpt_a->Y >= ordpt_c->Y)
         {
-            if (ordpt_a->field_0 <= ordpt_b->field_0)
+            if (ordpt_a->X <= ordpt_b->X)
                 return RendStart_NO;
             ordpt_tmp1 = ordpt_a;
             ordpt_a = ordpt_c;
@@ -141,16 +141,16 @@ int trig_reorder_input_points(struct PolyPoint **opt_a, struct PolyPoint **opt_b
             start_type = RendStart_FB;
         } else
         {
-            if (ordpt_b->field_0 <= ordpt_a->field_0)
+            if (ordpt_b->X <= ordpt_a->X)
                 return RendStart_NO;
             start_type = RendStart_FT;
         }
     } else
-    if (ordpt_a->field_4 <= ordpt_b->field_4)
+    if (ordpt_a->Y <= ordpt_b->Y)
     {
-        if (ordpt_a->field_4 == ordpt_c->field_4)
+        if (ordpt_a->Y == ordpt_c->Y)
         {
-            if (ordpt_a->field_0 <= ordpt_c->field_0)
+            if (ordpt_a->X <= ordpt_c->X)
                 return RendStart_NO;
             ordpt_tmp1 = ordpt_a;
             ordpt_a = ordpt_c;
@@ -159,7 +159,7 @@ int trig_reorder_input_points(struct PolyPoint **opt_a, struct PolyPoint **opt_b
             ordpt_c = ordpt_tmp2;
             start_type = RendStart_FT;
         } else
-        if (ordpt_a->field_4 >= ordpt_c->field_4)
+        if (ordpt_a->Y >= ordpt_c->Y)
         {
             ordpt_tmp1 = ordpt_a;
             ordpt_a = ordpt_c;
@@ -169,13 +169,13 @@ int trig_reorder_input_points(struct PolyPoint **opt_a, struct PolyPoint **opt_b
             start_type = RendStart_LL;
         } else
         {
-            if (ordpt_b->field_4 == ordpt_c->field_4)
+            if (ordpt_b->Y == ordpt_c->Y)
             {
-                if (ordpt_b->field_0 <= ordpt_c->field_0)
+                if (ordpt_b->X <= ordpt_c->X)
                     return RendStart_NO;
                 start_type = RendStart_FB;
             } else
-            if (ordpt_b->field_4 <= ordpt_c->field_4)
+            if (ordpt_b->Y <= ordpt_c->Y)
             {
                 start_type = RendStart_LL;
             } else
@@ -185,9 +185,9 @@ int trig_reorder_input_points(struct PolyPoint **opt_a, struct PolyPoint **opt_b
         }
     } else
     {
-        if (ordpt_a->field_4 == ordpt_c->field_4)
+        if (ordpt_a->Y == ordpt_c->Y)
         {
-            if (ordpt_a->field_0 >= ordpt_c->field_0)
+            if (ordpt_a->X >= ordpt_c->X)
                 return RendStart_NO;
             ordpt_tmp1 = ordpt_a;
             ordpt_a = ordpt_b;
@@ -195,7 +195,7 @@ int trig_reorder_input_points(struct PolyPoint **opt_a, struct PolyPoint **opt_b
             ordpt_c = ordpt_tmp1;
               start_type = RendStart_FB;
         } else
-        if (ordpt_a->field_4 < ordpt_c->field_4)
+        if (ordpt_a->Y < ordpt_c->Y)
         {
             ordpt_tmp1 = ordpt_a;
             ordpt_a = ordpt_b;
@@ -204,9 +204,9 @@ int trig_reorder_input_points(struct PolyPoint **opt_a, struct PolyPoint **opt_b
               start_type = RendStart_RL;
         } else
         {
-            if (ordpt_b->field_4 == ordpt_c->field_4)
+            if (ordpt_b->Y == ordpt_c->Y)
             {
-                if (ordpt_b->field_0 >= ordpt_c->field_0)
+                if (ordpt_b->X >= ordpt_c->X)
                     return RendStart_NO;
                 ordpt_tmp1 = ordpt_a;
                 ordpt_a = ordpt_b;
@@ -214,7 +214,7 @@ int trig_reorder_input_points(struct PolyPoint **opt_a, struct PolyPoint **opt_b
                 ordpt_c = ordpt_tmp1;
                 start_type = RendStart_FT;
             } else
-            if (ordpt_b->field_4 < ordpt_c->field_4)
+            if (ordpt_b->Y < ordpt_c->Y)
             {
                 ordpt_tmp1 = ordpt_a;
                 ordpt_a = ordpt_b;
@@ -244,7 +244,7 @@ int trig_ll_start(struct TrigLocals *lv, const struct PolyPoint *opt_a, const st
     long do_render;
     long dummy;
 
-    llv.var_38 = opt_a->field_4;
+    llv.var_38 = opt_a->Y;
     if (llv.var_38 < 0)
     {
         llv.var_8C = LOC_poly_screen;

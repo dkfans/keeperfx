@@ -90,16 +90,21 @@ static void draw_creature_view_icons(struct Thing* creatng)
         ps_units_per_px = (22 * units_per_pixel) / spr->SHeight;
         y = MyScreenHeight - scale_value_by_horizontal_resolution(spr->SHeight * 2);
     }
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     for (int Spell = SplK_Freeze; Spell < SplK_TimeBomb; Spell++)
     {
         if (creature_affected_by_spell(creatng, Spell))
         {
             struct SpellInfo* spinfo = get_magic_info(Spell);
-            draw_gui_panel_sprite_left(x, y, ps_units_per_px, spinfo->medsym_sprite_idx);
+            long spridx = spinfo->medsym_sprite_idx;
+            if ( (Spell == SplK_Invisibility) && (cctrl->force_visible & 2) )
+            {
+                spridx++;
+            }
+            draw_gui_panel_sprite_left(x, y, ps_units_per_px, spridx);
             x += scale_value_by_horizontal_resolution(spr->SWidth);
         }
     }
-    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     if ( (cctrl->dragtng_idx != 0) && ((creatng->alloc_flags & TAlF_IsDragged) == 0) )
     {
         struct Thing* dragtng = thing_get(cctrl->dragtng_idx);
@@ -139,6 +144,14 @@ static void draw_creature_view_icons(struct Thing* creatng)
             }
         }
         draw_gui_panel_sprite_left(x, y, ps_units_per_px, spr_idx);
+    }
+    else
+    {
+        if (!creature_instance_is_available(creatng, cctrl->active_instance_id))
+        {
+            x = MyScreenWidth - (scale_value_by_horizontal_resolution(148) / 4);
+            draw_gui_panel_sprite_left(x, y, ps_units_per_px, instance_button_init[cctrl->active_instance_id].symbol_spridx);
+        }
     }
 }
 
@@ -416,7 +429,7 @@ void set_sprite_view_3d(void)
                             n = thing->field_48;
                         }
                         thing->field_48 = n;
-                        thing->field_40 = n << 8;
+                        thing->anim_time = n << 8;
                     }
                 }
             }
@@ -447,7 +460,7 @@ void set_sprite_view_isometric(void)
                             n = thing->field_48;
                         }
                         thing->field_48 = n;
-                        thing->field_40 = n << 8;
+                        thing->anim_time = n << 8;
                     }
                 }
             }
@@ -586,6 +599,19 @@ void redraw_creature_view(void)
     gui_draw_all_boxes();
     draw_tooltip();
     draw_creature_view_icons(thing);
+    if (!gui_box_is_not_valid(gui_cheat_box_3))
+    {
+        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+        if (!creature_control_invalid(cctrl))
+        {
+            struct GuiBoxOption* guop = gui_cheat_box_3->optn_list;
+            while (guop->label[0] != '!')
+            {
+              guop->active = (cctrl->active_instance_id == guop->cb_param1);
+              guop++;
+            }
+        }
+    }
 }
 
 void smooth_screen_area(unsigned char *scrbuf, long x, long y, long w, long h, long scanln)
@@ -922,7 +948,7 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
     case PSt_CreatrQuery:
     case PSt_CreatrInfo:
     case PSt_CreatrInfoAll:
-    case PSt_CreatrQueryAll:
+    case PSt_QueryAll:
         set_pointer_graphic(MousePG_Query);
         break;
     case PSt_PlaceTrap:
@@ -975,7 +1001,7 @@ void process_pointer_graphic(void)
         break;
     case PVT_CreatureContrl:
     case PVT_CreaturePasngr:
-        if ( ((game.numfield_D & GNFldD_CreaturePasngr) != 0) || (gui_box != NULL) || (gui_cheat_box != NULL) )
+        if ( ((game.numfield_D & GNFldD_CreaturePasngr) != 0) || (cheat_menu_is_active()) )
           set_pointer_graphic(MousePG_Arrow);
         else
           set_pointer_graphic(MousePG_Invisible);
@@ -1086,6 +1112,11 @@ void redraw_display(void)
     {
         draw_timer();
     }
+    if (frametime_enabled())
+    {
+        draw_frametime();
+    }
+
     if (((game.operation_flags & GOF_Paused) != 0) && ((game.operation_flags & GOF_WorldInfluence) == 0))
     {
           LbTextSetFont(winfont);
@@ -1145,7 +1176,11 @@ TbBool keeper_screen_redraw(void)
 {
     SYNCDBG(5,"Starting");
     struct PlayerInfo* player = get_my_player();
-    LbScreenClear(0);
+    if (lens_mode != 0) {
+        LbScreenClear(144); // Very dark green
+    } else {
+        LbScreenClear(0);
+    }
     if (LbScreenLock() == Lb_SUCCESS)
     {
         setup_engine_window(player->engine_window_x, player->engine_window_y,

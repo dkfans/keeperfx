@@ -47,8 +47,9 @@ enum ThingTrapModels {
 enum TrapTriggerTypes {
     TrpTrg_None = 0,
     TrpTrg_LineOfSight90,
-    TrpTrg_Pressure,
+    TrpTrg_Pressure_Slab,
     TrpTrg_LineOfSight,
+    TrpTrg_Pressure_Subtile,
 };
 enum TrapActivationTypes {
     TrpAcT_None = 0,
@@ -113,9 +114,9 @@ TngUpdateRet update_trap(struct Thing *thing);
 void init_traps(void);
 void activate_trap(struct Thing *traptng, struct Thing *creatng);
 
-long remove_trap(struct Thing *traptng, long *sell_value);
-long remove_trap_on_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long *sell_value);
-long remove_traps_around_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long *sell_value);
+unsigned long remove_trap(struct Thing *traptng, long *sell_value);
+unsigned long remove_trap_on_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long *sell_value);
+unsigned long remove_traps_around_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long *sell_value);
 
 void external_activate_trap_shot_at_angle(struct Thing *thing, long a2, struct Thing *hand);
 

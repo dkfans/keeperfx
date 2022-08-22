@@ -127,9 +127,13 @@ const struct NamedCommand conf_commands[] = {
   {"LOCK_CURSOR_IN_POSSESSION"     , 19},
   {"PAUSE_MUSIC_WHEN_GAME_PAUSED"  , 20},
   {"MUTE_AUDIO_ON_FOCUS_LOST"      , 21},
-  {"LEVEL_START_ANGLE",   22},
-  {"POSSESS_AFFECT_CAMERA", 23},
-  {"ISOMETRIC_TILT",       24},
+  {"DISABLE_SPLASH_SCREENS"        , 22},
+  {"SKIP_HEART_ZOOM"               , 23},
+  {"CURSOR_EDGE_CAMERA_PANNING"    , 24},
+  {"DELTA_TIME"                    , 25},
+  {"LEVEL_START_ANGLE"             , 26},
+  {"POSSESS_AFFECT_CAMERA"         , 27},
+  {"ISOMETRIC_TILT"                , 28},
   {NULL,                   0},
   };
 
@@ -1035,7 +1039,59 @@ short load_configuration(void)
           else
               features_enabled &= ~Ft_MuteAudioOnLoseFocus;
           break;
-      case 22: // LEVEL_START_ANGLE
+        case 22: //DISABLE_SPLASH_SCREENS
+          i = recognize_conf_parameter(buf,&pos,len,logicval_type);
+          if (i <= 0)
+          {
+              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
+                COMMAND_TEXT(cmd_num),config_textname);
+            break;
+          }
+          if (i == 1)
+              features_enabled |= Ft_SkipSplashScreens;
+          else
+              features_enabled &= ~Ft_SkipSplashScreens;
+          break;
+        case 23: //SKIP_HEART_ZOOM
+          i = recognize_conf_parameter(buf,&pos,len,logicval_type);
+          if (i <= 0)
+          {
+              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
+                COMMAND_TEXT(cmd_num),config_textname);
+            break;
+          }
+          if (i == 1)
+              features_enabled |= Ft_SkipHeartZoom;
+          else
+              features_enabled &= ~Ft_SkipHeartZoom;
+          break;
+        case 24: //CURSOR_EDGE_CAMERA_PANNING
+          i = recognize_conf_parameter(buf,&pos,len,logicval_type);
+          if (i <= 0)
+          {
+              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
+                COMMAND_TEXT(cmd_num),config_textname);
+            break;
+          }
+          if (i == 1)
+              features_enabled &= ~Ft_DisableCursorCameraPanning;
+          else
+              features_enabled |= Ft_DisableCursorCameraPanning;
+          break;
+        case 25: //DELTA_TIME
+          i = recognize_conf_parameter(buf,&pos,len,logicval_type);
+          if (i <= 0)
+          {
+              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
+                COMMAND_TEXT(cmd_num),config_textname);
+            break;
+          }
+          if (i == 1)
+              features_enabled |= Ft_DeltaTime;
+          else
+              features_enabled &= ~Ft_DeltaTime;
+          break;
+       case 26: // LEVEL_START_ANGLE
          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             i = atoi(word_buf);
@@ -1090,21 +1146,21 @@ short load_configuration(void)
             }            
           }
           break;
-        case 23: // POSSESS_AFFECT_CAMERA
-        i = recognize_conf_parameter(buf,&pos,len,logicval_type);
-        if (i <= 0)
-          {
-              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
+       case 27: // POSSESS_AFFECT_CAMERA
+            i = recognize_conf_parameter(buf,&pos,len,logicval_type);
+            if (i <= 0)
+            {
+                CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
                 COMMAND_TEXT(cmd_num),config_textname);
                 PossessAffectCamera = true;
+                break;
+            }
+            if (i > 0)
+                PossessAffectCamera = true;
+            else
+                PossessAffectCamera = false;
             break;
-          }
-          if (i > 0)
-            PossessAffectCamera = true;
-          else
-              PossessAffectCamera = false;
-          break;
-        case 24: // ISOMETRIC_TILT
+        case 28: // ISOMETRIC_TILT
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             i = atoi(word_buf);

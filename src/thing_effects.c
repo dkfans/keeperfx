@@ -859,7 +859,7 @@ TngUpdateRet update_effect_element(struct Thing *elemtng)
     // Set dynamic properties of the effect
     if (!eestats->field_12)
     {
-        if (elemtng->field_60 >= (int)elemtng->mappos.z.val)
+        if (elemtng->floor_height >= (int)elemtng->mappos.z.val)
           elemtng->anim_speed = 0;
     }
     if (eestats->field_15)
@@ -948,14 +948,14 @@ TngUpdateRet update_effect_element(struct Thing *elemtng)
     elemtng->move_angle_xy = get_angle_xy_to_vec(&elemtng->veloc_base);
     elemtng->field_48 = prop_val;
     elemtng->anim_speed = 0;
-    elemtng->field_40 = (prop_val & 0xff) << 8;
+    elemtng->anim_time = (prop_val & 0xff) << 8;
     SYNCDBG(18,"Finished");
     return TUFRet_Modified;
 }
 
 struct Thing *create_effect_generator(struct Coord3d *pos, unsigned short model, unsigned short range, unsigned short owner, long parent_idx)
 {
-  
+
     if (!i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots))
     {
         ERRORDBG(3,"Cannot create effect generator model %d for player %d. There are too many things allocated.",(int)model,(int)owner);
@@ -986,9 +986,72 @@ struct Thing *create_effect_generator(struct Coord3d *pos, unsigned short model,
 
 }
 
-long move_effect(struct Thing *thing)
+long move_effect(struct Thing *efftng)
 {
-  return _DK_move_effect(thing);
+    int blocked_flags;
+    struct Coord3d pos;
+
+    MapCoordDelta velocity_x = efftng->velocity.x.val;
+    MapCoordDelta velocity_y = efftng->velocity.y.val;
+    MapCoordDelta velocity_z = efftng->velocity.z.val;
+
+    if ( efftng->velocity.x.val
+       || efftng->velocity.y.val
+       || efftng->velocity.z.val )
+    {
+        if ( velocity_x >= -256 )
+        {
+            if ( velocity_x > 256 )
+                velocity_x = 256;
+        }
+        else
+        {
+            velocity_x = -256;
+        }
+        if (velocity_y >= -256 )
+        {
+            if (velocity_y > 256 )
+                velocity_y = 256;
+        }
+        else
+        {
+            velocity_y = -256;
+        }
+        if (velocity_z >= -256 )
+        {
+            if ( velocity_z > 256 )
+                velocity_z = 256;
+        }
+        else
+        {
+            velocity_z = -256;
+        }
+        pos.x.val = velocity_x + efftng->mappos.x.val;
+        pos.y.val = velocity_y + efftng->mappos.y.val;
+        pos.z.val = velocity_z + efftng->mappos.z.val;
+        if ( !positions_equivalent(&efftng->mappos, &pos) && thing_in_wall_at(efftng, &pos) )
+        {
+            blocked_flags = get_creature_blocked_flags_at(efftng, &pos);
+            slide_thing_against_wall_at(efftng, &pos, blocked_flags);
+            remove_relevant_forces_from_thing_after_slide(efftng, &pos, blocked_flags);
+        }
+        if ( efftng->mappos.x.stl.num == pos.x.stl.num && efftng->mappos.y.stl.num == pos.y.stl.num )
+        {
+            efftng->mappos.x.val = pos.x.val;
+            efftng->mappos.y.val = pos.y.val;
+            efftng->mappos.z.val = pos.z.val;
+        }
+        else
+        {
+            remove_thing_from_mapwho(efftng);
+            efftng->mappos.x.val = pos.x.val;
+            efftng->mappos.y.val = pos.y.val;
+            efftng->mappos.z.val = pos.z.val;
+            place_thing_in_mapwho(efftng);
+        }
+        efftng->floor_height = get_thing_height_at(efftng, &efftng->mappos);
+    }
+    return 1;
 }
 
 TbBool effect_can_affect_thing(struct Thing *efftng, struct Thing *thing)
@@ -1160,7 +1223,7 @@ TngUpdateRet process_effect_generator(struct Thing *thing)
         struct Coord3d pos;
         set_coords_to_cylindric_shift(&pos, &thing->mappos, deviation_mag, deviation_angle, 0);
         SYNCDBG(18,"The %s creates effect %d/%d at (%d,%d,%d)",thing_model_name(thing),(int)pos.x.val,(int)pos.y.val,(int)pos.z.val);
-        struct Thing* elemtng = create_effect_element(&pos, egenstat->effect_sound, thing->owner);
+        struct Thing* elemtng = create_effect_element(&pos, egenstat->effect_element_model , thing->owner);
         TRACE_THING(elemtng);
         if (thing_is_invalid(elemtng))
             break;
@@ -1352,7 +1415,7 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
                     tngdst->state_flags |= TF1_PushAdd;
                     affected = true;
                 }
-            } 
+            }
         }
     }
     return affected;

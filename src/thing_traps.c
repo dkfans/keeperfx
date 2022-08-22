@@ -588,7 +588,7 @@ TbBool find_pressure_trigger_trap_target_passing_by_subtile(const struct Thing *
     return false;
 }
 
-TbBool update_trap_trigger_pressure(struct Thing *traptng)
+TbBool update_trap_trigger_pressure_slab(struct Thing *traptng)
 {
     MapSlabCoord slb_x = subtile_slab_fast(traptng->mappos.x.stl.num);
     MapSlabCoord slb_y = subtile_slab_fast(traptng->mappos.y.stl.num);
@@ -606,6 +606,17 @@ TbBool update_trap_trigger_pressure(struct Thing *traptng)
             }
 
         }
+    }
+    return false;
+}
+
+TbBool update_trap_trigger_pressure_subtile(struct Thing *traptng)
+{
+    struct Thing* creatng = INVALID_THING;
+    if (find_pressure_trigger_trap_target_passing_by_subtile(traptng, traptng->mappos.x.stl.num, traptng->mappos.y.stl.num, &creatng))
+    {
+        activate_trap(traptng, creatng);
+        return true;
     }
     return false;
 }
@@ -633,8 +644,11 @@ TngUpdateRet update_trap_trigger(struct Thing *traptng)
     case TrpTrg_LineOfSight90:
         do_trig = update_trap_trigger_line_of_sight_90(traptng);
         break;
-    case TrpTrg_Pressure:
-        do_trig = update_trap_trigger_pressure(traptng);
+    case TrpTrg_Pressure_Slab:
+        do_trig = update_trap_trigger_pressure_slab(traptng);
+        break;
+    case TrpTrg_Pressure_Subtile:
+        do_trig = update_trap_trigger_pressure_subtile(traptng);
         break;
     case TrpTrg_LineOfSight:
         do_trig = update_trap_trigger_line_of_sight(traptng);
@@ -827,9 +841,9 @@ void init_traps(void)
  * @return Amount of traps removed.
  */
 
-long remove_trap(struct Thing *traptng, long *sell_value)
+unsigned long remove_trap(struct Thing *traptng, long *sell_value)
 {
-    long total = 0;
+    unsigned long total = 0;
     if (!thing_is_invalid(traptng))
     {
         if (sell_value != NULL)
@@ -858,19 +872,19 @@ long remove_trap(struct Thing *traptng, long *sell_value)
     return total;        
 }
  
-long remove_trap_on_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long *sell_value)
+unsigned long remove_trap_on_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long *sell_value)
 {
     struct Thing* traptng = get_trap_for_position(stl_x, stl_y);
     return remove_trap(traptng, sell_value);
 }
  
-long remove_traps_around_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long *sell_value)
+unsigned long remove_traps_around_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long *sell_value)
 {
-    long total;
+    unsigned long total = 0;
     for (long k = 0; k < AROUND_TILES_COUNT; k++)
     {
         struct Thing* traptng = get_trap_for_position(stl_x + around[k].delta_x, stl_y + around[k].delta_y);
-        total = remove_trap(traptng, sell_value);
+        total += remove_trap(traptng, sell_value);
     }
     return total;
 }

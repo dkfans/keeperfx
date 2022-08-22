@@ -87,6 +87,10 @@ struct Thing *allocate_free_thing_structure_f(unsigned char allocflags, const ch
     game.free_things[game.free_things_start_index] = 0;
     game.free_things_start_index++;
     TRACE_THING(thing);
+
+    struct ThingAdd* thingadd = get_thingadd(thing->index);
+    LbMemorySet(thingadd, 0, sizeof(struct ThingAdd)); // Clear any previously used ThingAdd stuff
+    
     return thing;
 }
 
@@ -109,7 +113,7 @@ TbBool i_can_allocate_free_thing_structure(unsigned char allocflags)
         ERRORLOG("Cannot allocate thing structure.");
         things_stats_debug_dump();
     }
-    if (game.free_things_start_index > THINGS_COUNT - 2)
+    if ((game.free_things_start_index > THINGS_COUNT - 2) && ((allocflags & FTAF_FreeEffectIfNoSlots) != 0))
     {
         show_onscreen_msg(2 * game.num_fps, "Warning: Cannot create thing, %d/%d thing slots used.", game.free_things_start_index + 1, THINGS_COUNT);
     }
@@ -254,18 +258,18 @@ void set_thing_draw(struct Thing *thing, long anim, long speed, long scale, char
     {
       i = keepersprite_frames(thing->anim_sprite) - 1;
       thing->field_48 = i;
-      thing->field_40 = i << 8;
+      thing->anim_time = i << 8;
     } else
     if (start_frame == -1)
     {
       i = CREATURE_RANDOM(thing, thing->field_49);
       thing->field_48 = i;
-      thing->field_40 = i << 8;
+      thing->anim_time = i << 8;
     } else
     {
       i = start_frame;
       thing->field_48 = i;
-      thing->field_40 = i << 8;
+      thing->anim_time = i << 8;
     }
 }
 
@@ -309,7 +313,7 @@ void query_thing(struct Thing *thing)
             sprintf((char*)health, "Health: %d", querytng->health);
             if (querytng->class_id == TCls_Door)
             {
-                sprintf(output, "%s/%ld", health, door_stats[querytng->model][0].health);
+                sprintf(output, "%s/%ln", health, &gameadd.trapdoor_conf.door_cfgstats[querytng->model].health);
             }
             else if (querytng->class_id == TCls_Object)
             {

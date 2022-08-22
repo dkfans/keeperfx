@@ -167,7 +167,17 @@ enum TbPacketAction {
         PckA_CheatCtrlCrtrSetInstnc,
         PckA_SetFirstPersonDigMode,
         PckA_SwitchTeleportDest,
-        PckA_SelectFPPickup
+        PckA_SelectFPPickup,
+        PckA_CheatAllDoors,
+        PckA_CheatAllTraps,
+        PckA_SetRoomspaceAuto,
+        PckA_SetRoomspaceMan,
+        PckA_SetRoomspaceDrag,
+        PckA_SetRoomspaceDefault,
+        PckA_SetRoomspaceWholeRoom,
+        PckA_SetRoomspaceSubtile,
+        PckA_SetRoomspaceHighlight,
+        PckA_SetNearestTeleport,
 };
 
 /** Packet flags for non-action player operation. */
@@ -187,7 +197,7 @@ enum TbPacketControl {
         PCtr_RBtnHeld       = 0x0800,
         PCtr_LBtnRelease    = 0x1000,
         PCtr_RBtnRelease    = 0x2000,
-        PCtr_Unknown4000    = 0x4000,
+        PCtr_Gui            = 0x4000,
         PCtr_MapCoordsValid = 0x8000,
 };
 

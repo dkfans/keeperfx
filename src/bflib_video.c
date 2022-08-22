@@ -26,6 +26,7 @@
 #include "bflib_inputctrl.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_syswm.h>
+#include <math.h>
 
 #define SCREEN_MODES_COUNT 40
 
@@ -1027,7 +1028,7 @@ long scale_value_by_horizontal_resolution(long base_value)
 {
     // return value is equivalent to: round(base_value * units_per_pixel_width /16)
     long value = ((((units_per_pixel_width * base_value) >> 3) + (((units_per_pixel_width * base_value) >> 3) & 1)) >> 1);
-    return max(1,value);
+    return value;
 }
 
 /**
@@ -1040,7 +1041,7 @@ long scale_value_by_vertical_resolution(long base_value)
 {
     // return value is equivalent to: round(base_value * units_per_pixel_height /16)
     long value = ((((units_per_pixel_height * base_value) >> 3) + (((units_per_pixel_height * base_value) >> 3) & 1)) >> 1);
-    return max(1,value);
+    return value;
 }
 
 /**
@@ -1086,7 +1087,7 @@ long scale_fixed_DK_value(long base_value)
 {
     // return value is equivalent to: round(base_value * units_per_pixel_best /16)
     long value = ((((units_per_pixel_best * base_value) >> 3) + (((units_per_pixel_best * base_value) >> 3) & 1)) >> 1);
-    return max(1,value);
+    return value;
 }
 
 /**
@@ -1126,6 +1127,39 @@ long resize_ui(long units_per_px, long ui_scale)
 {
     long value = (units_per_px * ui_scale / DEFAULT_UI_SCALE);
     return max(1,value);
+}
+
+void calculate_aspect_ratio_factor(long width, long height)
+{
+    aspect_ratio_factor_HOR_PLUS = aspect_ratio_factor_HOR_PLUS_AND_VERT_PLUS = 100 * width / height;
+    if (!is_ar_wider_than_original(width, height))
+    {
+        aspect_ratio_factor_HOR_PLUS = 160;
+        aspect_ratio_factor_HOR_PLUS_AND_VERT_PLUS = 256 * height / width;
+    }
+}
+
+long scale_fixed_DK_value_by_ar(long base_value, TbBool scale_up, TbBool vert_plus)
+{
+    long aspect_ratio_factor = vert_plus ? aspect_ratio_factor_HOR_PLUS_AND_VERT_PLUS : aspect_ratio_factor_HOR_PLUS;
+    long multiplier = scale_up ? aspect_ratio_factor : DEFAULT_ASPECT_RATIO_FACTOR;
+    long divisor = scale_up ? DEFAULT_ASPECT_RATIO_FACTOR : aspect_ratio_factor;
+
+    long value = multiplier * base_value / divisor;
+    return value;
+}
+
+long convert_vertical_FOV_to_horizontal(long vert_fov)
+{
+    double horizontal_fov = (2.0 * atan(tan((vert_fov * M_PI /180.0) / 2.0) * 16.0 / 10.0 )) * 180.0 / M_PI;
+    long value = lround(horizontal_fov);
+    return value;
+}
+
+long FOV_based_on_aspect_ratio(void)
+{
+    long value = scale_fixed_DK_value_by_ar(convert_vertical_FOV_to_horizontal(first_person_vertical_fov), false, false);
+    return value;
 }
 /******************************************************************************/
 #ifdef __cplusplus
