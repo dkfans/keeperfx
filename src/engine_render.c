@@ -5001,7 +5001,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
             }
             else
             {
-                pos_y += (pos_y / (cam->zoom >> 10));
+                pos_y += (pos_y / 2);
                 shift = 13;
             }
             
