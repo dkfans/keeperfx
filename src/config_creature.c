@@ -345,7 +345,6 @@ void check_and_auto_fix_stats(void)
         if ( (crstat->lair_size <= 0) && (crstat->heal_requirement != 0) )
         {
             ERRORLOG("Creature model %d No LairSize But Heal Requirment - Fixing", (int)model);
-            crstat->heal_threshold = 0;
             crstat->heal_requirement = 0;
         }
         if (crstat->heal_requirement > crstat->heal_threshold)
