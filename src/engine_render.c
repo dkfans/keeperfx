@@ -4991,7 +4991,9 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
     long pos_y = scrpos_y;
     if (forced_perspective) {
         const int bubble_distance = 34; // Higher number means bubble is further away from creature
-        pos_y -= (bubble_distance/spr->SHeight) * bs_units_per_px;
+        pos_y -= ((bubble_distance/spr->SHeight) * bs_units_per_px);
+        if (cam->zoom < 65536)
+        pos_y += (pos_y / (cam->zoom >> 12));
     }
     else
     {
@@ -5027,6 +5029,18 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
         const int flower_distance = 40; // Higher number means flower is further away from creature
         spr = &button_sprite[70];
         pos_y = scrpos_y - (flower_distance/spr->SHeight) * bs_units_per_px;
+        if (cam->zoom <= 43436)
+        {
+            pos_y += 16;
+            if (cam->zoom <= 31385)
+            {
+                pos_y += 16;
+                if (cam->zoom <= 24714)
+                {
+                    pos_y += 16; 
+                }
+            }
+        }
     }
     if ((thing->lair.spr_size > 0) && (health_spridx > 0) && ((game.play_gameturn & 1) != 0))
     {
