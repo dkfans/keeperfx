@@ -4989,6 +4989,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
     spr = &button_sprite[70];
     bs_units_per_px = units_per_pixel_ui * 2;
     long pos_y = scrpos_y;
+    unsigned char shift = 12;
     if (forced_perspective) {
         const int bubble_distance = 34; // Higher number means bubble is further away from creature
         pos_y -= ((bubble_distance/spr->SHeight) * bs_units_per_px);
@@ -5001,6 +5002,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
             else
             {
                 pos_y += (pos_y / (cam->zoom >> 10));
+                shift = 13;
             }
             
         }
@@ -5012,8 +5014,8 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
     if ( state_spridx || anger_spridx )
     {
         spr = &button_sprite[70];
-        w = (base_size * spr->SWidth * bs_units_per_px/16) >> 12;
-        h = (base_size * spr->SHeight * bs_units_per_px/16) >> 12;
+        w = (base_size * spr->SWidth * bs_units_per_px/16) >> shift;
+        h = (base_size * spr->SHeight * bs_units_per_px/16) >> shift;
         LbSpriteDrawScaled(scrpos_x - w / 2, pos_y - h, spr, w, h);
     }
 
@@ -5022,16 +5024,16 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
     if (((game.play_gameturn & 4) == 0) && (anger_spridx > 0))
     {
         spr = &button_sprite[anger_spridx];
-        w = (base_size * spr->SWidth * bs_units_per_px/16) >> 12;
-        h = (base_size * spr->SHeight * bs_units_per_px/16) >> 12;
+        w = (base_size * spr->SWidth * bs_units_per_px/16) >> shift;
+        h = (base_size * spr->SHeight * bs_units_per_px/16) >> shift;
         LbSpriteDrawScaled(scrpos_x - w / 2, pos_y - h, spr, w, h);
         spr = get_button_sprite(state_spridx);
         h_add += spr->SHeight * bs_units_per_px/16;
     } else if ( state_spridx )
     {
         spr = get_button_sprite(state_spridx);
-        w = (base_size * spr->SWidth * bs_units_per_px/16) >> 12;
-        h = (base_size * spr->SHeight * bs_units_per_px/16) >> 12;
+        w = (base_size * spr->SWidth * bs_units_per_px/16) >> shift;
+        h = (base_size * spr->SHeight * bs_units_per_px/16) >> shift;
         LbSpriteDrawScaled(scrpos_x - w / 2, pos_y - h, spr, w, h);
         h_add += h;
     }
@@ -5048,6 +5050,11 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
                 if (cam->zoom <= 24714)
                 {
                     pos_y += 16; 
+                    if (cam->zoom < 16384)
+                    {
+                        pos_y += 16;
+                        shift = 13;
+                    }
                 }
             }
         }
@@ -5061,8 +5068,8 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
             flash_owner = thing->owner;
         }
         spr = get_button_sprite(health_spridx);
-        w = (base_size * spr->SWidth * bs_units_per_px/16) >> 12;
-        h = (base_size * spr->SHeight * bs_units_per_px/16) >> 12;
+        w = (base_size * spr->SWidth * bs_units_per_px/16) >> shift;
+        h = (base_size * spr->SHeight * bs_units_per_px/16) >> shift;
         LbSpriteDrawScaledOneColour(scrpos_x - w / 2, pos_y - h - h_add, spr, w, h, player_flash_colours[flash_owner]);
     }
     else
@@ -5075,14 +5082,14 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
       {
           if (health_spridx > 0) {
               spr = get_button_sprite(health_spridx);
-              w = (base_size * spr->SWidth * bs_units_per_px/16) >> 12;
-              h = (base_size * spr->SHeight * bs_units_per_px/16) >> 12;
+              w = (base_size * spr->SWidth * bs_units_per_px/16) >> shift;
+              h = (base_size * spr->SHeight * bs_units_per_px/16) >> shift;
               LbSpriteDrawScaled(scrpos_x - w / 2, pos_y - h - h_add, spr, w, h);
           }
           CrtrExpLevel exp = min(cctrl->explevel,9);
           spr = &button_sprite[184 + exp];
-          w = (base_size * spr->SWidth * bs_units_per_px/16) >> 12;
-          h = (base_size * spr->SHeight * bs_units_per_px/16) >> 12;
+          w = (base_size * spr->SWidth * bs_units_per_px/16) >> shift;
+          h = (base_size * spr->SHeight * bs_units_per_px/16) >> shift;
           LbSpriteDrawScaled(scrpos_x - w / 2, pos_y - h - h_add, spr, w, h);
       }
     }
