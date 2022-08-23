@@ -5004,7 +5004,6 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
                 pos_y += (pos_y / 2);
                 shift = 13;
             }
-            
         }
     }
     else
