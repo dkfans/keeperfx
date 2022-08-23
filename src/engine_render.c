@@ -4993,7 +4993,17 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
         const int bubble_distance = 34; // Higher number means bubble is further away from creature
         pos_y -= ((bubble_distance/spr->SHeight) * bs_units_per_px);
         if (cam->zoom < 65536)
-        pos_y += (pos_y / (cam->zoom >> 12));
+        {
+            if (cam->zoom >= 8000)
+            {
+                pos_y += (pos_y / (cam->zoom >> 12));
+            }
+            else
+            {
+                pos_y += (pos_y / (cam->zoom >> 10));
+            }
+            
+        }
     }
     else
     {
