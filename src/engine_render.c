@@ -144,6 +144,7 @@ struct EngineCol *front_ec;
 struct EngineCol *back_ec;
 float hud_scale;
 
+int creature_status_size = 16; // Default value, overwritten by cfg setting
 static int water_wibble_angle = 0;
 static float render_water_wibble = 0; // Rendering float
 //static unsigned char temp_cluedo_mode;
@@ -4844,7 +4845,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
     }
 
     float scale_by_zoom;
-    int base_size = 16*256;
+    int base_size = creature_status_size*256;
     switch (cam->view_mode) {
         case PVM_IsometricView:
             // 1st argument: the scale when fully zoomed out. 2nd argument: the scale at base level zoom
