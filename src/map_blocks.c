@@ -598,10 +598,14 @@ unsigned long remove_unwanted_things_from_wall_slab(MapSlabCoord slb_x, MapSlabC
                         move_creature_to_nearest_valid_position(thing);
                         break;
                     }
-                    default:
+                    case TCls_EffectElem:
                     {
                         delete_thing_structure(thing, 0);
                         removed_num++;
+                        break;
+                    }
+                    default:
+                    {
                         break;
                     }
                     break;
@@ -649,19 +653,8 @@ unsigned long remove_unwanted_things_from_floor_slab(MapSlabCoord slb_x, MapSlab
                     removed_num++;
                     break;
                 }
-                case TCls_Object:
-                case TCls_Creature:
-                case TCls_DeadCreature:
-                case TCls_Shot:
-                case TCls_Effect:
-                case TCls_EffectElem:
-                {
-                    break;
-                }
                 default:
                 {
-                    delete_thing_structure(thing, 0);
-                    removed_num++;
                     break;
                 }
                 break;
