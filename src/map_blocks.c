@@ -599,6 +599,7 @@ unsigned long remove_unwanted_things_from_wall_slab(MapSlabCoord slb_x, MapSlabC
                         break;
                     }
                     case TCls_EffectElem:
+                    case TCls_Trap:
                     {
                         delete_thing_structure(thing, 0);
                         removed_num++;
