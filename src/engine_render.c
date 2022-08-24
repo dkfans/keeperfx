@@ -4990,8 +4990,8 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
     bs_units_per_px = units_per_pixel_ui * 2 * scale_by_zoom;
 
     if (cam->view_mode == PVM_FrontView) {
-        float flower_distance = 20.00; // Higher number means flower is further away from creature
-        scrpos_y -= (flower_distance/spr->SHeight) * bs_units_per_px;
+        float flower_distance = 1280; // Higher number means flower is further away from creature
+        scrpos_y -= (int)(  (flower_distance / spr->SHeight) * ((float)camera_zoom / FRONTVIEW_CAMERA_ZOOM_MAX)  );
     }
 
     if ( state_spridx || anger_spridx )
