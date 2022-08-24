@@ -628,6 +628,7 @@ unsigned long remove_unwanted_things_from_wall_slab(MapSlabCoord slb_x, MapSlabC
 unsigned long remove_unwanted_things_from_floor_slab(MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
     SubtlCodedCoords stl_num = get_subtile_number_at_slab_center(slb_x, slb_y);
+    struct SlabMap *slb = get_slabmap_direct(stl_num);
     unsigned long removed_num = 0;
     for (long n=0; n < AROUND_MAP_LENGTH; n++)
     {
@@ -652,6 +653,15 @@ unsigned long remove_unwanted_things_from_floor_slab(MapSlabCoord slb_x, MapSlab
                     remove_key_on_door(thing);
                     delete_thing_structure(thing, 0);
                     removed_num++;
+                    break;
+                }
+                case TCls_Trap:
+                {
+                    if (thing->owner != slabmap_owner(slb))
+                    {
+                        delete_thing_structure(thing, 0);
+                        removed_num++;
+                    }
                     break;
                 }
                 default:
