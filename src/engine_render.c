@@ -4838,35 +4838,30 @@ unsigned short choose_health_sprite(struct Thing* thing)
 void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
 {
     struct PlayerInfo *player = get_my_player();
-    const struct Camera *cam = player->acamera;
+    struct Camera *cam = player->acamera;
     if (cam == NULL) {
         return;
     }
-
     float scale_by_zoom;
-    int base_size = 16*256;
     switch (cam->view_mode) {
         case PVM_IsometricView:
             // 1st argument: the scale when fully zoomed out. 2nd argument: the scale at base level zoom
             scale_by_zoom = lerp(0.15, 1.00, hud_scale);
             break;
         case PVM_FrontView:
-            scale_by_zoom = lerp(0.15, 1.00, hud_scale);
-            break;
+            draw_frontview_status_sprites(scrpos_x, scrpos_y, thing);
+            return;
         case PVM_ParchmentView:
             scale_by_zoom = 1;
             break;
         default:
             return; // Do not draw if camera is 1st person
     }
-
-    unsigned short flg_mem;
-
-    flg_mem = lbDisplay.DrawFlags;
+    int base_size = 16*256;
+    unsigned short flg_mem = lbDisplay.DrawFlags;
     lbDisplay.DrawFlags = 0;
 
-    struct CreatureControl *cctrl;
-    cctrl = creature_control_get_from_thing(thing);
+    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
     if ((game.flags_cd & MFlg_NoHeroHealthFlower) != 0)
     {
       if ( player->thing_under_hand != thing->index )
@@ -4877,16 +4872,10 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
       cctrl->thought_bubble_display_timer = 40;
     }
 
-    short health_spridx;
-    short state_spridx;
-    signed short anger_spridx;
+    short health_spridx = 0;
+    short state_spridx = 0;
+    signed short anger_spridx = 0;
 
-    anger_spridx = 0;
-    health_spridx = 0;
-    state_spridx = 0;
-
-    CrtrExpLevel exp;
-    exp = min(cctrl->explevel,9);
     if (cam->view_mode != PVM_ParchmentView)
     {
         health_spridx = choose_health_sprite(thing);
@@ -4980,25 +4969,16 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
         }
     }
 
-    int h_add;
-    h_add = 0;
+    int h_add = 0;
     int w;
     int h;
-    const struct TbSprite *spr;
-    int bs_units_per_px;
-    spr = &button_sprite[70];
-    bs_units_per_px = units_per_pixel_ui * 2 * scale_by_zoom;
-
-    if (cam->view_mode == PVM_FrontView) {
-        float flower_distance = 20.00; // Higher number means flower is further away from creature
-        scrpos_y -= (flower_distance/spr->SHeight) * bs_units_per_px;
-    }
-
+    struct TbSprite *spr = &button_sprite[70];
+    int bs_units_per_px = units_per_pixel_ui * 2 * scale_by_zoom;
     if ( state_spridx || anger_spridx )
     {
         spr = &button_sprite[70];
-        w = (base_size * spr->SWidth * bs_units_per_px/16) >> 13;
-        h = (base_size * spr->SHeight * bs_units_per_px/16) >> 13;
+        w = (base_size * spr->SWidth * bs_units_per_px/16) >> 12;
+        h = (base_size * spr->SHeight * bs_units_per_px/16) >> 12;
         LbSpriteDrawScaled(scrpos_x - w / 2, scrpos_y - h, spr, w, h);
     }
 
@@ -5007,20 +4987,19 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
     if (((game.play_gameturn & 4) == 0) && (anger_spridx > 0))
     {
         spr = &button_sprite[anger_spridx];
-        w = (base_size * spr->SWidth * bs_units_per_px/16) >> 13;
-        h = (base_size * spr->SHeight * bs_units_per_px/16) >> 13;
+        w = (base_size * spr->SWidth * bs_units_per_px/16) >> 12;
+        h = (base_size * spr->SHeight * bs_units_per_px/16) >> 12;
         LbSpriteDrawScaled(scrpos_x - w / 2, scrpos_y - h, spr, w, h);
         spr = get_button_sprite(state_spridx);
         h_add += spr->SHeight * bs_units_per_px/16;
     } else if ( state_spridx )
     {
         spr = get_button_sprite(state_spridx);
-        w = (base_size * spr->SWidth * bs_units_per_px/16) >> 13;
-        h = (base_size * spr->SHeight * bs_units_per_px/16) >> 13;
+        w = (base_size * spr->SWidth * bs_units_per_px/16) >> 12;
+        h = (base_size * spr->SHeight * bs_units_per_px/16) >> 12;
         LbSpriteDrawScaled(scrpos_x - w / 2, scrpos_y - h, spr, w, h);
         h_add += h;
     }
-
     if ((thing->lair.spr_size > 0) && (health_spridx > 0) && ((game.play_gameturn & 1) != 0))
     {
         int flash_owner;
@@ -5030,8 +5009,8 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
             flash_owner = thing->owner;
         }
         spr = get_button_sprite(health_spridx);
-        w = (base_size * spr->SWidth * bs_units_per_px/16) >> 13;
-        h = (base_size * spr->SHeight * bs_units_per_px/16) >> 13;
+        w = (base_size * spr->SWidth * bs_units_per_px/16) >> 12;
+        h = (base_size * spr->SHeight * bs_units_per_px/16) >> 12;
         LbSpriteDrawScaledOneColour(scrpos_x - w / 2, scrpos_y - h - h_add, spr, w, h, player_flash_colours[flash_owner]);
     }
     else
@@ -5044,14 +5023,225 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
       {
           if (health_spridx > 0) {
               spr = get_button_sprite(health_spridx);
-              w = (base_size * spr->SWidth * bs_units_per_px/16) >> 13;
-              h = (base_size * spr->SHeight * bs_units_per_px/16) >> 13;
+              w = (base_size * spr->SWidth * bs_units_per_px/16) >> 12;
+              h = (base_size * spr->SHeight * bs_units_per_px/16) >> 12;
               LbSpriteDrawScaled(scrpos_x - w / 2, scrpos_y - h - h_add, spr, w, h);
           }
+          CrtrExpLevel exp = min(cctrl->explevel,9);
           spr = &button_sprite[184 + exp];
-          w = (base_size * spr->SWidth * bs_units_per_px/16) >> 13;
-          h = (base_size * spr->SHeight * bs_units_per_px/16) >> 13;
+          w = (base_size * spr->SWidth * bs_units_per_px/16) >> 12;
+          h = (base_size * spr->SHeight * bs_units_per_px/16) >> 12;
           LbSpriteDrawScaled(scrpos_x - w / 2, scrpos_y - h - h_add, spr, w, h);
+      }
+    }
+    lbDisplay.DrawFlags = flg_mem;
+}
+
+void draw_frontview_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
+{
+    struct PlayerInfo *player = get_my_player();
+    struct Camera *cam = player->acamera;
+    unsigned short flg_mem = lbDisplay.DrawFlags;
+    lbDisplay.DrawFlags = 0;
+    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+    if ((game.flags_cd & MFlg_NoHeroHealthFlower) != 0)
+    {
+      if ( player->thing_under_hand != thing->index )
+      {
+        cctrl->thought_bubble_last_turn_drawn = game.play_gameturn;
+        return;
+      }
+      cctrl->thought_bubble_display_timer = 40;
+    }
+    int base_size = 16*256;
+    short state_spridx = 0;
+    signed short anger_spridx = 0;
+    short health_spridx = choose_health_sprite(thing);
+    if (is_my_player_number(thing->owner))
+    {
+        lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
+        cctrl = creature_control_get_from_thing(thing);
+        if (game.play_gameturn - cctrl->thought_bubble_last_turn_drawn == 1)
+        {
+            if (cctrl->thought_bubble_display_timer < 40) {
+                cctrl->thought_bubble_display_timer++;
+            }
+        } else {
+            if (game.play_gameturn - cctrl->thought_bubble_last_turn_drawn > 1) {
+                cctrl->thought_bubble_display_timer = 0;
+            }
+        }
+        cctrl->thought_bubble_last_turn_drawn = game.play_gameturn;
+        if (cctrl->thought_bubble_display_timer == 40)
+        {
+            struct StateInfo *stati;
+            stati = get_creature_state_with_task_completion(thing);
+            if (!stati->field_23)
+            {
+                if ((cctrl->spell_flags & CSAfF_MadKilling) != 0)
+                {
+                    stati = &states[CrSt_MadKillingPsycho];
+                }
+                else if (anger_is_creature_livid(thing))
+                {
+                    stati = &states[CrSt_CreatureLeavingDungeon];
+                }
+                else if (creature_is_called_to_arms(thing))
+                {
+                    stati = &states[CrSt_ArriveAtCallToArms];
+                }
+                else if (creature_is_at_alarm(thing))
+                {
+                    stati = &states[CrSt_ArriveAtAlarm];
+                }
+                else if (anger_is_creature_angry(thing))
+                {
+                    stati = &states[CrSt_PersonSulkAtLair];
+                }
+                else if (hunger_is_creature_hungry(thing))
+                {
+                    stati = &states[CrSt_CreatureArrivedAtGarden];
+                }
+                else if (creature_requires_healing(thing))
+                {
+                    stati = &states[CrSt_CreatureSleep];
+                }
+                else if (cctrl->paydays_owed)
+                {
+                    stati = &states[CrSt_CreatureWantsSalary];
+                }
+                else
+                {
+                    stati = get_creature_state_with_task_completion(thing);
+                }
+                if ((*(short *)&stati->field_26 == 1) || (thing_pointed_at == thing))
+                {
+                    state_spridx = stati->sprite_idx;
+                }
+                switch (anger_get_creature_anger_type(thing))
+                {
+                case AngR_NotPaid:
+                    if ((cctrl->paydays_owed <= 0) && (cctrl->paydays_advanced >= 0))
+                    {
+                        anger_spridx = 55;
+                    }
+                    else
+                    {
+                        anger_spridx = 52;
+                    }
+                    break;
+                case AngR_Hungry:
+                    anger_spridx = 59;
+                    break;
+                case AngR_NoLair:
+                    anger_spridx = 54;
+                    break;
+                case AngR_Other:
+                    anger_spridx = 55;
+                    break;
+                default:
+                    break;
+                }
+            }
+        }
+    }
+    int h_add = 0;
+    int w;
+    int h;
+    struct TbSprite *spr = &button_sprite[70];
+    int bs_units_per_px = units_per_pixel_ui * 2;
+    long pos_y = scrpos_y;
+    unsigned char shift = 12;
+    const int bubble_distance = 34; // Higher number means bubble is further away from creature
+    pos_y -= ((bubble_distance/spr->SHeight) * bs_units_per_px);
+    if (cam->zoom < 65536)
+    {
+        if (cam->zoom >= 8000)
+        {
+            pos_y += (pos_y / (cam->zoom >> 12));
+        }
+        else
+        {
+            pos_y += (pos_y / 2);
+            shift = 13;
+        }
+    }
+    if ( state_spridx || anger_spridx )
+    {
+        spr = &button_sprite[70];
+        w = (base_size * spr->SWidth * bs_units_per_px/16) >> shift;
+        h = (base_size * spr->SHeight * bs_units_per_px/16) >> shift;
+        LbSpriteDrawScaled(scrpos_x - w / 2, pos_y - h, spr, w, h);
+    }
+    lbDisplay.DrawFlags &= ~Lb_SPRITE_TRANSPAR8;
+    lbDisplay.DrawFlags &= ~Lb_SPRITE_TRANSPAR4;
+    if (((game.play_gameturn & 4) == 0) && (anger_spridx > 0))
+    {
+        spr = &button_sprite[anger_spridx];
+        w = (base_size * spr->SWidth * bs_units_per_px/16) >> shift;
+        h = (base_size * spr->SHeight * bs_units_per_px/16) >> shift;
+        LbSpriteDrawScaled(scrpos_x - w / 2, pos_y - h, spr, w, h);
+        spr = get_button_sprite(state_spridx);
+        h_add += spr->SHeight * bs_units_per_px/16;
+    } else if ( state_spridx )
+    {
+        spr = get_button_sprite(state_spridx);
+        w = (base_size * spr->SWidth * bs_units_per_px/16) >> shift;
+        h = (base_size * spr->SHeight * bs_units_per_px/16) >> shift;
+        LbSpriteDrawScaled(scrpos_x - w / 2, pos_y - h, spr, w, h);
+        h_add += h;
+    }
+    const int flower_distance = 40; // Higher number means flower is further away from creature
+    spr = &button_sprite[70];
+    pos_y = scrpos_y - (flower_distance/spr->SHeight) * bs_units_per_px;
+    if (cam->zoom <= 43436)
+    {
+        pos_y += 16;
+        if (cam->zoom <= 31385)
+        {
+            pos_y += 16;
+            if (cam->zoom <= 24714)
+            {
+                pos_y += 16; 
+                if (cam->zoom < 16384)
+                {
+                    pos_y += 16;
+                    shift = 13;
+                }
+            }
+        }
+    }
+    if ((thing->lair.spr_size > 0) && (health_spridx > 0) && ((game.play_gameturn & 1) != 0))
+    {
+        int flash_owner;
+        if (is_neutral_thing(thing)) {
+            flash_owner = game.play_gameturn & 3;
+        } else {
+            flash_owner = thing->owner;
+        }
+        spr = get_button_sprite(health_spridx);
+        w = (base_size * spr->SWidth * bs_units_per_px/16) >> shift;
+        h = (base_size * spr->SHeight * bs_units_per_px/16) >> shift;
+        LbSpriteDrawScaledOneColour(scrpos_x - w / 2, pos_y - h - h_add, spr, w, h, player_flash_colours[flash_owner]);
+    }
+    else
+    {
+      if ( (player->thing_under_hand == thing->index)
+        || ((player->id_number != thing->owner) && !creature_is_invisible(thing))
+        || (cctrl->combat_flags != 0)
+        || (thing->lair.spr_size > 0))
+      {
+          if (health_spridx > 0) {
+              spr = get_button_sprite(health_spridx);
+              w = (base_size * spr->SWidth * bs_units_per_px/16) >> shift;
+              h = (base_size * spr->SHeight * bs_units_per_px/16) >> shift;
+              LbSpriteDrawScaled(scrpos_x - w / 2, pos_y - h - h_add, spr, w, h);
+          }
+          CrtrExpLevel exp = min(cctrl->explevel,9);
+          spr = &button_sprite[184 + exp];
+          w = (base_size * spr->SWidth * bs_units_per_px/16) >> shift;
+          h = (base_size * spr->SHeight * bs_units_per_px/16) >> shift;
+          LbSpriteDrawScaled(scrpos_x - w / 2, pos_y - h - h_add, spr, w, h);
       }
     }
     lbDisplay.DrawFlags = flg_mem;

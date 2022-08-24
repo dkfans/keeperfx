@@ -549,6 +549,7 @@ void update_engine_settings(struct PlayerInfo *player);
 void display_drawlist(void);
 void draw_view(struct Camera *cam, unsigned char a2);
 void draw_frontview_engine(struct Camera *cam);
+void draw_frontview_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing);
 /******************************************************************************/
 #ifdef __cplusplus
 }
