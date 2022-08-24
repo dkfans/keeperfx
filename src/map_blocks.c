@@ -659,8 +659,7 @@ unsigned long remove_unwanted_things_from_floor_slab(MapSlabCoord slb_x, MapSlab
                 {
                     if (thing->owner != slabmap_owner(slb))
                     {
-                        remove_trap(thing, NULL);
-                        removed_num++;
+                        removed_num += remove_trap(thing, NULL);
                     }
                     break;
                 }
