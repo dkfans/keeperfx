@@ -654,6 +654,7 @@ unsigned long remove_unwanted_things_from_floor_slab(MapSlabCoord slb_x, MapSlab
                 case TCls_DeadCreature:
                 case TCls_Shot:
                 case TCls_Effect:
+                case TCls_EffectElem:
                 {
                     break;
                 }
