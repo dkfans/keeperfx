@@ -90,6 +90,7 @@ const struct NamedCommand creaturetype_instance_commands[] = {
   {"RANGEMAX",       14},
   {"PROPERTIES",     15},
   {"FPINSTANTCAST",  16},
+  {"PRIMARYTARGET",  17},
   {NULL,              0},
   };
 
@@ -1210,6 +1211,19 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
             {
                 CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
                     COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
+            break;
+        case 17: // PRIMARYTARGET
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                inst_inf->primary_target = k;
+                n++;
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), block_buf, config_textname);
             }
             break;
         case 0: // comment
