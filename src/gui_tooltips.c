@@ -77,7 +77,7 @@ void set_gui_tooltip_box_fmt(int bxtype,const char *format, ...)
       long y_offset = scale_ui_value(86);
       tool_tip_box.pos_y = GetMouseY() + y_offset;
   }
-  tool_tip_box.field_809 = bxtype;
+  tool_tip_box.box_type = bxtype;
 }
 
 static inline TbBool update_gui_tooltip_target(void *target)
@@ -107,7 +107,7 @@ static inline TbBool update_gui_tooltip_button(struct GuiButton *gbtn)
         tool_tip_box.pos_x = GetMouseX();
         long y_offset = scale_ui_value(86);
         tool_tip_box.pos_y = GetMouseY() + y_offset;
-        tool_tip_box.field_809 = 0;
+        tool_tip_box.box_type = 0;
         return true;
     }
     return false;
@@ -553,6 +553,11 @@ void draw_tooltip(void)
     LbTextSetFont(winfont);
     if ((tool_tip_box.flags & TTip_Visible) != 0)
     {
+      if (tool_tip_box.box_type != 0) {
+          tool_tip_box.pos_x = GetMouseX();
+          long y_offset = scale_ui_value(86);
+          tool_tip_box.pos_y = GetMouseY() + y_offset;
+        }
         draw_tooltip_at(tool_tip_box.pos_x,tool_tip_box.pos_y,tool_tip_box.text);
     }
     LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
