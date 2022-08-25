@@ -1547,7 +1547,6 @@ static char light_render_light(struct Light* lgt)
   lgt->mappos.x.val = ((lgt->mappos.x.val >> 8) << 8);
   lgt->mappos.y.val = ((lgt->mappos.y.val >> 8) << 8);
 
-  int rand_minimum;
   int intensity;
   int v4;
   int range;
@@ -1569,7 +1568,7 @@ static char light_render_light(struct Light* lgt)
   radius = lgt->radius;
   if ( (lgt->flags2 & 0xFE) != 0 )
   {
-    rand_minimum = (lgt->intensity - 1) << 8;
+    int rand_minimum = (lgt->intensity - 1) << 8;
     intensity = (lgt->intensity << 8) + 257;
     v22 = rand_minimum + LIGHT_RANDOM(513);
   }
@@ -1676,7 +1675,6 @@ static char light_render_light(struct Light* lgt)
       lighting_tables_idx = light_render_light_static(lgt, radius, v22, lighting_tables_idx);
     }
   }
-
   lgt->mappos.x.val = remember_original_lgt_mappos_x;
   lgt->mappos.y.val = remember_original_lgt_mappos_y;
   return lighting_tables_idx;
