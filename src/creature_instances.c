@@ -906,7 +906,6 @@ long instf_pretty_path(struct Thing *creatng, long *param)
     increase_dungeon_area(creatng->owner, 1);
     dungeon->lvstats.area_claimed++;
     EVM_MAP_EVENT("claimed", creatng->owner, slb_x, slb_y, "");
-    remove_traps_around_subtile(slab_subtile_center(slb_x), slab_subtile_center(slb_y), NULL);
     return 1;
 }
 
