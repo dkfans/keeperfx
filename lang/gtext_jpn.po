@@ -6595,13 +6595,13 @@ msgstr "画面解像度: 次の設定された画面解像度に切り替わる�
 #, fuzzy
 msgctxt "In-game interface item"
 msgid "Voice"
-msgstr ""
+msgstr "声量"
 
 #: guitext:1009
 #, fuzzy
 msgctxt "In-game interface item"
 msgid "Ambience"
-msgstr ""
+msgstr "環境音"
 
 msgstr ""
 #: guitext:1010
