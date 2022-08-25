@@ -528,25 +528,12 @@ static int get_walking_bob_direction(struct Thing *thing)
 }
 
 void update_player_camera_fp(struct Camera *cam, struct Thing *thing)
-{
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
-    struct CreatureStatsOLD* creature_stats_OLD = &game.creature_stats_OLD[thing->model];
-    // adjust eye height based on creature level and chicken state
-    int eye_height;
-    if (creature_affected_by_spell(thing, SplK_Chicken))
-    {
-        static const int chicken_height = 100;
-        eye_height = chicken_height + (chicken_height * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100;
-    }
-    else
-    {
-        eye_height = crstat->eye_height + (crstat->eye_height * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100;
-    }
-    creature_stats_OLD->eye_height = eye_height; //todo Remove when creature_stats_OLD value is no longer used in dll
+{    
+    int eye_height = get_creature_eye_height(thing);
 
     if ( thing_is_creature(thing) )
     {
+        struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
         // apply square wave as head bob motion, could be improved by using sine wave instead
         if ( cctrl->move_speed && thing->floor_height >= thing->mappos.z.val )
             cctrl->head_bob = 16 * get_walking_bob_direction(thing);

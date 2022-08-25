@@ -98,7 +98,7 @@ struct InstanceInfo { // sizeof = 42
     unsigned char graphics_idx;
     unsigned char flags;
     short force_visibility;
-unsigned char field_1D;
+    unsigned char primary_target;
     Creature_Instf_Func func_cb;
     long func_params[2];
 };

@@ -32,6 +32,7 @@
 #include "bflib_mouse.h"
 #include "bflib_sound.h"
 #include "sounds.h"
+#include "engine_render.h"
 
 #include "config_campaigns.h"
 #include "front_simple.h"
@@ -131,9 +132,10 @@ const struct NamedCommand conf_commands[] = {
   {"SKIP_HEART_ZOOM"               , 23},
   {"CURSOR_EDGE_CAMERA_PANNING"    , 24},
   {"DELTA_TIME"                    , 25},
-  {"LEVEL_START_ANGLE"             , 26},
-  {"POSSESS_AFFECT_CAMERA"         , 27},
-  {"ISOMETRIC_TILT"                , 28},
+  {"CREATURE_STATUS_SIZE"          , 26},
+  {"LEVEL_START_ANGLE"             , 27},
+  {"POSSESS_AFFECT_CAMERA"         , 28},
+  {"ISOMETRIC_TILT"                , 29},
   {NULL,                   0},
   };
 
@@ -1091,7 +1093,14 @@ short load_configuration(void)
           else
               features_enabled &= ~Ft_DeltaTime;
           break;
-       case 26: // LEVEL_START_ANGLE
+      case 26: // CREATURE_STATUS_SIZE
+          if ((i >= 0) && (i <= 32768)) {
+              creature_status_size = i;
+          } else {
+              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",COMMAND_TEXT(cmd_num),config_textname);
+          }
+          break;
+      case 27: // LEVEL_START_ANGLE
          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             i = atoi(word_buf);
@@ -1146,7 +1155,7 @@ short load_configuration(void)
             }            
           }
           break;
-       case 27: // POSSESS_AFFECT_CAMERA
+       case 28: // POSSESS_AFFECT_CAMERA
             i = recognize_conf_parameter(buf,&pos,len,logicval_type);
             if (i <= 0)
             {
@@ -1160,8 +1169,8 @@ short load_configuration(void)
             else
                 PossessAffectCamera = false;
             break;
-        case 28: // ISOMETRIC_TILT
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+        case 29: // ISOMETRIC_TILT
+        if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             i = atoi(word_buf);
           }
