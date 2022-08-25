@@ -6337,7 +6337,7 @@ msgstr "语音音量"
 
 #: guitext:1009
 msgctxt "In-game interface item"
-msgid "Ambiance"
+msgid "Ambience"
 msgstr "环境音效"
 
 msgstr ""

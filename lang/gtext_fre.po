@@ -6944,8 +6944,8 @@ msgstr "Voix"
 
 #: guitext:1009
 msgctxt "In-game interface item"
-msgid "Ambiance"
-msgstr "Ambiance"
+msgid "Ambience"
+msgstr "Ambience"
 
 msgstr ""
 #: guitext:1010

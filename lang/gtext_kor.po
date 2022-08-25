@@ -6733,7 +6733,7 @@ msgstr "음성"
 
 #: guitext:1009
 msgctxt "In-game interface item"
-msgid "Ambiance"
+msgid "Ambience"
 msgstr "배경"
 
 msgstr ""
