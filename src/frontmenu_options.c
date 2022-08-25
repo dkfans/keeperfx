@@ -43,6 +43,9 @@
 extern "C" {
 #endif
 /******************************************************************************/
+
+long mentor_level = 127;
+
 const long definable_key_string[] = {
     GUIStr_CtrlUp,
     GUIStr_CtrlDown,
@@ -300,6 +303,12 @@ void gui_set_music_volume(struct GuiButton *gbtn)
     SetMusicPlayerVolume(settings.redbook_volume);
 }
 
+void gui_set_mentor_volume(struct GuiButton *gbtn)
+{
+    settings.mentor_volume = mentor_level;
+    save_settings();
+}
+
 void gui_video_cluedo_maintain(struct GuiButton *gbtn)
 {
     struct PlayerInfo* player = get_my_player();
@@ -374,5 +383,6 @@ void init_audio_menu(struct GuiMenu *gmnu)
 {
     music_level = settings.redbook_volume;
     sound_level = settings.sound_volume;
+    mentor_level = settings.mentor_volume;
 }
 /******************************************************************************/
