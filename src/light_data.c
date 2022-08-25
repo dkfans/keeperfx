@@ -1549,7 +1549,6 @@ static char light_render_light(struct Light* lgt)
 
   int intensity;
   int v4;
-  int range;
   int v7;
   MapCoord y_end;
   unsigned short* lightness;
@@ -1586,20 +1585,20 @@ static char light_render_light(struct Light* lgt)
     if ( intensity < lgt->min_intensity << 8 )
       intensity = lgt->min_intensity << 8;
   }
+  unsigned int lighting_tables_idx;
   if ( intensity >= game.lish.field_46149 << 8 )
   {
-    range = (intensity - (game.lish.field_46149 << 8)) / (intensity / (v4 / 256)) + 1;
-    if ( range > 31 )
-      range = 31;
+    lighting_tables_idx = (intensity - (game.lish.field_46149 << 8)) / (intensity / (v4 / 256)) + 1;
+    if ( lighting_tables_idx > 31 )
+      lighting_tables_idx = 31;
   }
   else
   {
-    range = 0;
+    lighting_tables_idx = 0;
   }
 
-  lgt->range = range;
+  lgt->range = lighting_tables_idx;
 
-  unsigned int lighting_tables_idx = range;
   if ( radius > 0 && v22 > 0 )
   {
     if ( is_dynamic )
@@ -1652,7 +1651,6 @@ static char light_render_light(struct Light* lgt)
                 pos.x.val = x;
                 pos.y.val = y;
                 MapCoordDelta dist = get_2d_distance(&lgt->mappos, &pos);
-
                 v19 = v22 * (radius - dist) / radius;
                 if ( *lightness < v19 )
                   *lightness = v19;
