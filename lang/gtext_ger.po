@@ -6952,10 +6952,9 @@ msgid "Voice"
 msgstr "Stimme"
 
 #: guitext:1009
-#, fuzzy
 msgctxt "In-game interface item"
 msgid "Ambiance"
-msgstr ""
+msgstr "Ambiente"
 
 msgstr ""
 #: guitext:1010
