@@ -380,6 +380,8 @@ extern struct stripey_line colored_stripey_lines[];
 extern unsigned char poly_pool[POLY_POOL_SIZE];
 extern unsigned char *poly_pool_end;
 extern long cells_away;
+extern float hud_scale;
+extern int creature_status_size;
 /******************************************************************************/
 DLLIMPORT Offset _DK_vert_offset[3];
 #define vert_offset _DK_vert_offset
@@ -514,6 +516,7 @@ extern TbSpriteData keepersprite_add[KEEPERSPRITE_ADD_NUM];
 /******************************************************************************/
 //extern unsigned char temp_cluedo_mode;
 /*****************************************************************************/
+void calculate_hud_scale(struct Camera *cam);
 long interpolate(long variable_to_interpolate, long previous, long current);
 long interpolate_angle(long variable_to_interpolate, long previous, long current);
 

@@ -598,10 +598,19 @@ unsigned long remove_unwanted_things_from_wall_slab(MapSlabCoord slb_x, MapSlabC
                         move_creature_to_nearest_valid_position(thing);
                         break;
                     }
-                    default:
+                    case TCls_EffectElem:
                     {
                         delete_thing_structure(thing, 0);
                         removed_num++;
+                        break;
+                    }
+                    case TCls_Trap:
+                    {
+                        removed_num += remove_trap(thing, NULL);
+                        break;
+                    }
+                    default:
+                    {
                         break;
                     }
                     break;
@@ -623,6 +632,7 @@ unsigned long remove_unwanted_things_from_wall_slab(MapSlabCoord slb_x, MapSlabC
 unsigned long remove_unwanted_things_from_floor_slab(MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
     SubtlCodedCoords stl_num = get_subtile_number_at_slab_center(slb_x, slb_y);
+    struct SlabMap *slb = get_slabmap_block(slb_x, slb_y);
     unsigned long removed_num = 0;
     for (long n=0; n < AROUND_MAP_LENGTH; n++)
     {
@@ -649,18 +659,16 @@ unsigned long remove_unwanted_things_from_floor_slab(MapSlabCoord slb_x, MapSlab
                     removed_num++;
                     break;
                 }
-                case TCls_Object:
-                case TCls_Creature:
-                case TCls_DeadCreature:
-                case TCls_Shot:
-                case TCls_Effect:
+                case TCls_Trap:
                 {
+                    if (thing->owner != slabmap_owner(slb))
+                    {
+                        removed_num += remove_trap(thing, NULL);
+                    }
                     break;
                 }
                 default:
                 {
-                    delete_thing_structure(thing, 0);
-                    removed_num++;
                     break;
                 }
                 break;

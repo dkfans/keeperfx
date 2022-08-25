@@ -137,8 +137,6 @@ struct Creatures creatures_NEW[] = {
 extern struct TbLoadFiles swipe_load_file[];
 extern struct TbSetupSprite swipe_setup_sprites[];
 /******************************************************************************/
-DLLIMPORT long _DK_get_human_controlled_creature_target(struct Thing *creatng, long reason);
-/******************************************************************************/
 /**
  * Returns creature health scaled 0..1000.
  * @param thing The creature thing.
@@ -267,7 +265,7 @@ TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *t
         return false;
       cam = player->acamera;
       crstat = creature_stats_get(get_players_special_digger_model(player->id_number));
-      cam->mappos.z.val += (crstat->eye_height + (crstat->eye_height * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100);
+      cam->mappos.z.val += get_creature_eye_height(thing);
       return true;
     }
     TbBool chicken = (creature_affected_by_spell(thing, SplK_Chicken));
@@ -3062,9 +3060,140 @@ long get_creature_speed(const struct Thing *thing)
     return speed;
 }
 
-long get_human_controlled_creature_target(struct Thing *thing, long a2)
+short get_creature_eye_height(const struct Thing *creatng)
 {
-  return _DK_get_human_controlled_creature_target(thing, a2);
+    int base_height;
+    if (creature_affected_by_spell(creatng, SplK_Chicken))
+    {
+        base_height = 100;
+    }
+    else
+    {
+        struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+        base_height = crstat->base_eye_height;
+    }
+
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    return (base_height + (base_height * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100);
+}
+
+TbBool creature_can_see_thing(struct Thing *creatng, struct Thing *thing)
+{
+    struct Coord3d thing_pos;
+    struct Coord3d creat_pos;
+
+    creat_pos.x.val = creatng->mappos.x.val;
+    creat_pos.y.val = creatng->mappos.y.val;
+    creat_pos.z.val = creatng->mappos.z.val;
+
+    thing_pos.x.val = thing->mappos.x.val;
+    thing_pos.y.val = thing->mappos.y.val;
+    thing_pos.z.val = thing->mappos.z.val;
+
+    creat_pos.z.val += get_creature_eye_height(creatng);
+
+    if (line_of_sight_3d(&creat_pos, &thing_pos))
+        return 1;
+    thing_pos.z.val += thing->clipbox_size_yz;
+    return line_of_sight_3d(&creat_pos, &thing_pos) != 0;
+}
+
+
+ThingIndex get_human_controlled_creature_target(struct Thing *thing, long primary_target)
+{
+    ThingIndex index = 0;
+    struct Thing *i;
+    long angle_xy_to;
+    long angle_difference;
+    int smallest_angle_diff = INT_MAX;
+    static const int range = 20;
+    static const int max_hit_angle = 39;
+    short stl_x = thing->mappos.x.stl.num;
+    short stl_x_lower = stl_x - range;
+    short stl_x_upper = stl_x + range;
+    if ((stl_x - range) < 0)
+        stl_x_lower = 0;
+    if (stl_x_upper > map_subtiles_x)
+        stl_x_upper = map_subtiles_x;
+    short stl_y = thing->mappos.y.stl.num;
+    short stl_y_lower = stl_y - range;
+    short stl_y_upper = stl_y + range;
+    if (stl_y + range > map_subtiles_y)
+        stl_y_upper = map_subtiles_y;
+    if (stl_y_lower < 0)
+        stl_y_lower = 0;
+
+    if (stl_y_upper < stl_y_lower)
+    {   
+        return 0;
+    }
+    if (stl_y_upper >= stl_y_lower)
+    {
+        for (MapSubtlDelta y_step = ((stl_y_upper - stl_y_lower) + 1); y_step > 0; y_step--)
+        {
+            MapSubtlCoord x = stl_x_lower;
+            if (x <= stl_x_upper)
+            {
+                for (MapSubtlDelta x_step = ((stl_x_upper - stl_x_lower) + 1); x_step > 0; x_step--)
+                {
+                    struct Map *mapblk = get_map_block_at(x, stl_y_lower);
+                    for (i = thing_get(get_mapwho_thing_index(mapblk));
+                         !thing_is_invalid(i);
+                         i = thing_get(i->next_on_mapblk))
+                    {
+                        if (i != thing)
+                        {
+                            TbBool is_valid_target;
+                            switch (primary_target)
+                            {
+                                case 1:
+                                case 7:
+                                    is_valid_target = (thing_is_creature(i) || thing_is_dungeon_heart(i));
+                                    break;
+                                case 2:
+                                    is_valid_target = (thing_is_creature(i));
+                                    break;
+                                case 3:
+                                    is_valid_target = ((thing_is_creature(i) || thing_is_dungeon_heart(i)) && i->owner != thing->owner);
+                                    break;
+                                case 4:
+                                    is_valid_target = (thing_is_creature(i) && i->owner != thing->owner);
+                                    break;
+                                case 5:
+                                    is_valid_target = ((thing_is_creature(i) || thing_is_dungeon_heart(i)) && i->owner == thing->owner);
+                                    break;
+                                case 6:
+                                    is_valid_target = (thing_is_creature(i) && i->owner == thing->owner);
+                                    break;
+                                case 8:
+                                    is_valid_target = true;
+                                    break;
+                                default:
+                                    ERRORLOG("Illegal primary target type for shot: %d", (int)primary_target);
+                                    is_valid_target = false;
+                                    break;
+                            }
+                            if (is_valid_target)
+                            {
+                                angle_xy_to = get_angle_xy_to(&thing->mappos, &i->mappos);
+                                angle_difference = get_angle_difference(angle_xy_to, thing->move_angle_xy);
+                                if (angle_difference >= max_hit_angle || !creature_can_see_thing(thing, i))
+                                    angle_difference = LONG_MAX;
+                                if (smallest_angle_diff > angle_difference)
+                                {
+                                    smallest_angle_diff = angle_difference;
+                                    index = i->index;
+                                }
+                            }
+                        }
+                    }
+                    x++;
+                }
+            }
+            stl_y_lower++;
+        }
+    }
+    return index;
 }
 
 long creature_instance_has_reset(const struct Thing *thing, long inst_idx)

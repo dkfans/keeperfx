@@ -79,6 +79,7 @@ char LbCompareMultiplications(long mul1a, long mul1b, long mul2a, long mul2b);
 long LbDiagonalLength(long a, long b);
 float lerp(float a, float b, float f);
 long lerp_angle(long from, long to, float weight);
+double fastPow(double a, double b);
 /******************************************************************************/
 #ifdef __cplusplus
 }

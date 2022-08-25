@@ -42,7 +42,6 @@ extern "C" {
 /******************************************************************************/
 /******************************************************************************/
 long camera_zoom;
-float hud_scale;
 
 long previous_cam_mappos_x;
 long previous_cam_mappos_y;
@@ -64,7 +63,26 @@ long interpolated_camera_zoom;
 #endif
 /******************************************************************************/
 
-void reset_interpolation_of_camera() {
+
+// Instantly move camera when going from parchment view to main view
+void reset_interpolation_for_parchment_view()
+{
+    struct PlayerInfo* player = get_my_player();
+    struct Camera *cam = player->acamera;
+    interpolated_cam_orient_a = cam->orient_a;
+    interpolated_cam_orient_c = cam->orient_c;
+    previous_cam_orient_a = cam->orient_a;
+    previous_cam_orient_c = cam->orient_c;
+    interpolated_cam_mappos_x = cam->mappos.x.val;
+    interpolated_cam_mappos_y = cam->mappos.y.val;
+    interpolated_cam_mappos_z = cam->mappos.z.val;
+    previous_cam_mappos_x = cam->mappos.x.val;
+    previous_cam_mappos_y = cam->mappos.y.val;
+    previous_cam_mappos_z = cam->mappos.z.val;
+}
+
+void reset_interpolation_of_camera()
+{
     struct PlayerInfo* player = get_my_player();
     struct Camera *cam = player->acamera;
     interpolated_camera_zoom = scale_camera_zoom_to_screen(cam->zoom);
@@ -93,34 +111,8 @@ void set_previous_camera_values() {
     previous_cam_orient_a = cam->orient_a;
     previous_cam_orient_b = cam->orient_b;
     previous_cam_orient_c = cam->orient_c;
-    previous_camera_zoom = cam->zoom;
-}
-
-void calculate_hud_scale(struct Camera *cam) {
-    // hud_scale is the current camera zoom converted to a percentage that ranges between base level zoom and fully zoomed out.
-    // HUD items: creature status flowers, room flags, popup gold numbers. They scale with the zoom.
-    float range_input = cam->zoom;
-    float range_min;
-    float range_max;
-    switch (cam->view_mode) {
-        case PVM_IsometricView:
-            range_min = CAMERA_ZOOM_MIN; // Fully zoomed out
-            range_max = 4100; // Base zoom level
-            break;
-        case PVM_FrontView:
-            range_min = FRONTVIEW_CAMERA_ZOOM_MIN; // Fully zoomed out
-            range_max = 32768; // Base zoom level
-            break;
-        default:
-            hud_scale = 0;
-            return;
-    }
-    if (range_input < range_min) {
-        range_input = range_min;
-    } else if (range_input > range_max) {
-        range_input = range_max;
-    }
-    hud_scale = ((range_input - range_min)) / (range_max - range_min);
+    previous_camera_zoom = scale_camera_zoom_to_screen(cam->zoom);
+    if (game.frame_skip > 0) {reset_interpolation_of_camera();} // Stop camera from being laggy while frameskipping
 }
 
 MapCoordDelta get_3d_box_distance(const struct Coord3d *pos1, const struct Coord3d *pos2)
@@ -536,25 +528,12 @@ static int get_walking_bob_direction(struct Thing *thing)
 }
 
 void update_player_camera_fp(struct Camera *cam, struct Thing *thing)
-{
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
-    struct CreatureStatsOLD* creature_stats_OLD = &game.creature_stats_OLD[thing->model];
-    // adjust eye height based on creature level and chicken state
-    int eye_height;
-    if (creature_affected_by_spell(thing, SplK_Chicken))
-    {
-        static const int chicken_height = 100;
-        eye_height = chicken_height + (chicken_height * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100;
-    }
-    else
-    {
-        eye_height = crstat->eye_height + (crstat->eye_height * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100;
-    }
-    creature_stats_OLD->eye_height = eye_height; //todo Remove when creature_stats_OLD value is no longer used in dll
+{    
+    int eye_height = get_creature_eye_height(thing);
 
     if ( thing_is_creature(thing) )
     {
+        struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
         // apply square wave as head bob motion, could be improved by using sine wave instead
         if ( cctrl->move_speed && thing->floor_height >= thing->mappos.z.val )
             cctrl->head_bob = 16 * get_walking_bob_direction(thing);

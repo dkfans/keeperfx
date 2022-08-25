@@ -100,9 +100,6 @@ DLLIMPORT extern struct EngineCoord _DK_object_origin;
 
 #pragma pack()
 /******************************************************************************/
-extern float hud_scale;
-void calculate_hud_scale(struct Camera *cam);
-
 extern long camera_zoom;
 /******************************************************************************/
 MapCoordDelta get_3d_box_distance(const struct Coord3d *pos1, const struct Coord3d *pos2);
@@ -133,6 +130,7 @@ void update_all_players_cameras(void);
 void init_player_cameras(struct PlayerInfo *player);
 void set_previous_camera_values();
 void reset_interpolation_of_camera();
+void reset_interpolation_for_parchment_view();
 
 /******************************************************************************/
 #ifdef __cplusplus
