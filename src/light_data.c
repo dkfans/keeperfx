@@ -1636,16 +1636,16 @@ static char light_render_light(struct Light* lgt)
         stl_y = coord_subtile(y_start);
         v33 = stl_x - coord_subtile(x_end) + 255;
         lightness = &game.lish.subtile_lightness[get_subtile_number(stl_x, stl_y)];
-        
-        lighting_tables_idx = *game.lish.shadow_cache[lgt->shadow_index].field_1;
+        struct ShadowCache *shdc = &game.lish.shadow_cache[lgt->shadow_index];
+        lighting_tables_idx = *shdc->field_1;
         if ( y_end >= y_start )
         {
-          shadow_cache_pointer = (unsigned int)game.lish.shadow_cache[lgt->shadow_index].field_1;
+          shadow_cache_pointer = (unsigned int)shdc->field_1;
           MapCoord y = y_start;
           do
           {
             MapCoord x = x_start;
-            for ( size_t i = 0; x <= x_end; ++i )
+            for ( size_t i = 0; x <= x_end; i++ )
             {
               if ( (light_bitmask[i] & lighting_tables_idx) != 0 )
               {
@@ -1659,7 +1659,7 @@ static char light_render_light(struct Light* lgt)
                   *lightness = v19;
               }
               x += COORD_PER_STL;
-              ++lightness;
+              lightness++;
             }
 
             lightness += v33;
