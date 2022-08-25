@@ -1547,45 +1547,36 @@ static char light_render_light(struct Light* lgt)
   lgt->mappos.x.val = ((lgt->mappos.x.val >> 8) << 8);
   lgt->mappos.y.val = ((lgt->mappos.y.val >> 8) << 8);
 
-  int intensity;
   int rand_minimum;
-  int v3;
+  int intensity;
   int v4;
   int range;
-  unsigned short light_x_val;
-  unsigned short light_y_val;
   int v7;
-  int v8_x;
-  int v8_y;
-  int v11;
-  unsigned int v12;
-  unsigned short *v13;
-  int some_x;
-  int some_y;
+  MapCoord y_end;
+  unsigned short* lightness;
+  MapCoord x_start;
+  MapCoord y_start;
   int v19;
   int radius;
   int v22;
   unsigned int shadow_cache_pointer;
-  int v26;
-  int stl_x;
-  int stl_y;
-  int v30;
-  int v31;
-  char is_dynamic;
+  MapCoord x_end;
+  MapSubtlCoord stl_x;
+  MapSubtlCoord stl_y;
+  TbBool is_dynamic;
   int v33;
 
   radius = lgt->radius;
   if ( (lgt->flags2 & 0xFE) != 0 )
   {
-    intensity = lgt->intensity;
-    rand_minimum = (intensity - 1) << 8;
-    v3 = (intensity << 8) + 257;
+    rand_minimum = (lgt->intensity - 1) << 8;
+    intensity = (lgt->intensity << 8) + 257;
     v22 = rand_minimum + LIGHT_RANDOM(513);
   }
   else
   {
-    v3 = lgt->intensity << 8;
-    v22 = v3;
+    intensity = lgt->intensity << 8;
+    v22 = intensity;
   }
   v4 = radius;
   is_dynamic = lgt->flags & LgtF_Dynamic;
@@ -1593,13 +1584,13 @@ static char light_render_light(struct Light* lgt)
   {
     if ( radius < lgt->min_radius << 8 )
       v4 = lgt->min_radius << 8;
-    if ( v3 < lgt->min_intensity << 8 )
-      v3 = lgt->min_intensity << 8;
+    if ( intensity < lgt->min_intensity << 8 )
+      intensity = lgt->min_intensity << 8;
   }
-  if ( v3 >= game.lish.field_46149 << 8 )
+  if ( intensity >= game.lish.field_46149 << 8 )
   {
-    range = (v3 - (game.lish.field_46149 << 8)) / (v3 / (v4 / 256)) + 1;
-    if ( range >= 31 )
+    range = (intensity - (game.lish.field_46149 << 8)) / (intensity / (v4 / 256)) + 1;
+    if ( range > 31 )
       range = 31;
   }
   else
@@ -1609,7 +1600,7 @@ static char light_render_light(struct Light* lgt)
 
   lgt->range = range;
 
-  int lighting_tables_idx = range;
+  unsigned long lighting_tables_idx = range;
   if ( radius > 0 && v22 > 0 )
   {
     if ( is_dynamic )
@@ -1628,64 +1619,55 @@ static char light_render_light(struct Light* lgt)
       {
         v7 = lighting_tables_idx << 8;
 
-        light_x_val = lgt->mappos.x.val;
-        v8_x = light_x_val - v7;
-        if ( v8_x <= 0 )
-          v8_x = 0;
-        stl_x = v8_x;
+        x_start = lgt->mappos.x.val - v7;
+        if ( x_start < 0 )
+          x_start = 0;
+        y_start = lgt->mappos.y.val - v7;
+        if ( y_start < 0 )
+          y_start = 0;
 
-        light_y_val = lgt->mappos.y.val;
-        v8_y = light_y_val - v7;
-        if ( v8_y <= 0 )
-          v8_y = 0;
-        stl_y = v8_y;
-
-        v11 = v7 + light_x_val;
-        if ( v7 + light_x_val >= 0xFFFF )
-          v11 = 0xFFFF;
-        v12 = light_y_val + v7;
-        v26 = v11;
-        if ( v12 >= 0xFFFF )
-          v12 = 0xFFFF;
-        v30 = v12;
-        v33 = stl_x / 256 - v11 / 256 + 255;
-        some_y = stl_y;
-
-        v13 = game.lish.subtile_lightness + 256 * (stl_y / 256) + stl_x / 256;
-
+        x_end = v7 + lgt->mappos.x.val;
+        if ( x_end > USHRT_MAX )
+          x_end = USHRT_MAX;
+        y_end = lgt->mappos.y.val + v7;
+        if ( y_end > USHRT_MAX )
+          y_end = USHRT_MAX;
+        stl_x = coord_subtile(x_start);
+        stl_y = coord_subtile(y_start);
+        v33 = stl_x - coord_subtile(x_end) + 255;
+        lightness = &game.lish.subtile_lightness[get_subtile_number(stl_x, stl_y)];
+        
         lighting_tables_idx = *game.lish.shadow_cache[lgt->shadow_index].field_1;
-        v31 = lighting_tables_idx;
-        if ( v30 >= stl_y )
+        if ( y_end >= y_start )
         {
-          shadow_cache_pointer = (int)game.lish.shadow_cache[lgt->shadow_index].field_1;
+          shadow_cache_pointer = (unsigned int)game.lish.shadow_cache[lgt->shadow_index].field_1;
+          MapCoord y = y_start;
           do
           {
-            some_x = stl_x;
-
-            for ( size_t i = 0; some_x <= v26; ++i )
+            MapCoord x = x_start;
+            for ( size_t i = 0; x <= x_end; ++i )
             {
-              if ( (light_bitmask[i] & v31) != 0 )
+              if ( (light_bitmask[i] & lighting_tables_idx) != 0 )
               {
                 struct Coord3d pos;
-                pos.x.val = some_x;
-                pos.y.val = some_y;
+                pos.x.val = x;
+                pos.y.val = y;
                 MapCoordDelta dist = get_2d_distance(&lgt->mappos, &pos);
 
                 v19 = v22 * (radius - dist) / radius;
-                if ( (unsigned short)*v13 < v19 )
-                  *v13 = v19;
+                if ( *lightness < v19 )
+                  *lightness = v19;
               }
-              some_x += 256;
-              ++v13;
+              x += COORD_PER_STL;
+              ++lightness;
             }
 
-            v13 += v33;
-            some_y += 256;
+            lightness += v33;
+            y += COORD_PER_STL;
             lighting_tables_idx = *((int*)shadow_cache_pointer + 1);
             shadow_cache_pointer += 4;
-            v31 = lighting_tables_idx;
           }
-          while ( v30 >= some_y );
+          while ( y_end >= y );
         }
       }
     }
