@@ -1600,7 +1600,7 @@ static char light_render_light(struct Light* lgt)
 
   lgt->range = range;
 
-  unsigned long lighting_tables_idx = range;
+  unsigned int lighting_tables_idx = range;
   if ( radius > 0 && v22 > 0 )
   {
     if ( is_dynamic )
@@ -1664,7 +1664,7 @@ static char light_render_light(struct Light* lgt)
 
             lightness += v33;
             y += COORD_PER_STL;
-            lighting_tables_idx = *((int*)shadow_cache_pointer + 1);
+            lighting_tables_idx = *((unsigned int*)shadow_cache_pointer + 1);
             shadow_cache_pointer += 4;
           }
           while ( y_end >= y );
