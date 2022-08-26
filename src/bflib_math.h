@@ -35,7 +35,7 @@ extern "C" {
 
 #define CEILING_POS(X) ((X-(int)(X)) > 0 ? (int)(X+1) : (int)(X))
 #define CEILING_NEG(X) ((X-(int)(X)) < 0 ? (int)(X-1) : (int)(X))
-#define ceil(X) ( ((X) > 0) ? CEILING_POS(X) : CEILING_NEG(X) )
+#define CEILING(X) ( ((X) > 0) ? CEILING_POS(X) : CEILING_NEG(X) )
 
 enum MathOperator {
     MOp_UNDEFINED                      =  0,

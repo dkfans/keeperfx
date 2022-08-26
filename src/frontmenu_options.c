@@ -287,13 +287,13 @@ int make_audio_slider_linear(int a)
 {
     float scaled = fastPow(a / 127.0, 0.5);
     float clamped = max(min(scaled, 1.0), 0.0);
-    return ceil(lerp(0, 127, clamped));
+    return CEILING(lerp(0, 127, clamped));
 }
 int make_audio_slider_nonlinear(int a)
 {
     float scaled = fastPow(a / 127.0, 2.00);
     float clamped = max(min(scaled, 1.0), 0.0);
-    return ceil(lerp(0, 127, clamped));
+    return CEILING(lerp(0, 127, clamped));
 }
 
 void gui_set_sound_volume(struct GuiButton *gbtn)
@@ -319,7 +319,6 @@ void gui_set_music_volume(struct GuiButton *gbtn)
 void gui_set_mentor_volume(struct GuiButton *gbtn)
 {
     settings.mentor_volume = make_audio_slider_nonlinear(mentor_level_slider);
-    JUSTLOG("settings.mentor_volume = %d", settings.mentor_volume);
     save_settings();
 }
 
