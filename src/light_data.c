@@ -899,11 +899,11 @@ static int light_render_light_static(struct Light *lgt, int radius, int intensit
                     if ( (v24) || (!too_high) )
                     {
                         result = intensity * (radius - lish->lighting_tables[lighting_table_idx].field_4) / radius;
-                        if (result <= game.lish.field_46149)
+                        if (result <= lish->field_46149)
                             return result;
                         SubtlCodedCoords next_stl = stl_x + coord_y;
-                        if (game.lish.stat_light_map[next_stl] < result)
-                            game.lish.stat_light_map[next_stl] = result;
+                        if (lish->stat_light_map[next_stl] < result)
+                            lish->stat_light_map[next_stl] = result;
                     }
                 }
             }
