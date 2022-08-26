@@ -58,7 +58,7 @@ void cpu_detect(struct CPU_INFO *cpu)
 {
   static char const anonvendor[] = "AnonymousCPU";
   // Fill with defaults
-  strncpy(cpu->vendor,anonvendor,sizeof(cpu->vendor));
+  snprintf(cpu->vendor, sizeof(cpu->vendor), "%s", anonvendor);
   cpu->timeStampCounter = 0;
   cpu->feature_intl = 0;
   cpu->feature_edx = 0;

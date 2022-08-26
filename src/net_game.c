@@ -131,7 +131,7 @@ static CoroutineLoopState setup_exchange_player_number(CoroutineLoop *context)
             player->view_mode_restore = PVM_FrontView;
           player->is_active = pckt->actn_par1;
           init_player(player, 0);
-          strncpy(player->field_15,net_player[i].name,sizeof(struct TbNetworkPlayerName));
+          snprintf(player->field_15, sizeof(struct TbNetworkPlayerName), "%s", net_player[i].name);
           k++;
       }
   }
@@ -216,7 +216,7 @@ void set_network_player_name(int plyr_idx, const char *name)
         ERRORLOG("Outranged network player %d",plyr_idx);
         return;
     }
-    strncpy(net_player[plyr_idx].name, name, sizeof(net_player[0].name));
+    snprintf(net_player[plyr_idx].name, sizeof(net_player[0].name), "%s", name);
 }
 
 long network_session_join(void)

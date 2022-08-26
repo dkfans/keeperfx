@@ -4057,7 +4057,7 @@ short reset_game(void)
 short process_command_line(unsigned short argc, char *argv[])
 {
   char fullpath[CMDLN_MAXLEN+1];
-  strncpy(fullpath, argv[0], CMDLN_MAXLEN);
+  snprintf(fullpath, CMDLN_MAXLEN, "%s", argv[0]);
 
   sprintf( keeper_runtime_directory, fullpath);
   char *endpos = strrchr( keeper_runtime_directory, '\\');
@@ -4091,12 +4091,12 @@ short process_command_line(unsigned short argc, char *argv[])
       char parstr[CMDLN_MAXLEN+1];
       char pr2str[CMDLN_MAXLEN+1];
       char pr3str[CMDLN_MAXLEN+1];
-      strncpy(parstr, par+1, CMDLN_MAXLEN);
+      snprintf(parstr, CMDLN_MAXLEN, "%s", par + 1);
       if (narg + 1 < argc)
       {
-          strncpy(pr2str,  argv[narg+1], CMDLN_MAXLEN);
+          snprintf(pr2str, CMDLN_MAXLEN, "%s", argv[narg + 1]);
           if (narg + 2 < argc)
-              strncpy(pr3str,  argv[narg+2], CMDLN_MAXLEN);
+              snprintf(pr3str, CMDLN_MAXLEN, "%s", argv[narg + 2]);
           else
               pr3str[0]='\0';
       }
@@ -4165,7 +4165,7 @@ short process_command_line(unsigned short argc, char *argv[])
             WARNMSG("PacketSave disabled to enable PacketLoad.");
          start_params.packet_load_enable = true;
          start_params.packet_save_enable = false;
-         strncpy(start_params.packet_fname,pr2str,sizeof(start_params.packet_fname)-1);
+         snprintf(start_params.packet_fname, sizeof(start_params.packet_fname), "%s", pr2str);
          narg++;
       } else
       if (strcasecmp(parstr,"packetsave") == 0)
@@ -4174,7 +4174,7 @@ short process_command_line(unsigned short argc, char *argv[])
             WARNMSG("PacketLoad disabled to enable PacketSave.");
          start_params.packet_load_enable = false;
          start_params.packet_save_enable = true;
-         strncpy(start_params.packet_fname,pr2str,sizeof(start_params.packet_fname)-1);
+         snprintf(start_params.packet_fname, sizeof(start_params.packet_fname), "%s", pr2str);
          narg++;
       } else
       if (strcasecmp(parstr,"q") == 0)
@@ -4402,7 +4402,7 @@ void get_cmdln_args(unsigned short &argc, char *argv[])
     char *ptr;
     const char *cmndln_orig;
     cmndln_orig = GetCommandLineA();
-    strncpy(cmndline, cmndln_orig, CMDLN_MAXLEN);
+    snprintf(cmndline, CMDLN_MAXLEN, "%s", cmndln_orig);
     ptr = cmndline;
     bf_argc = 0;
     while (*ptr != '\0')
