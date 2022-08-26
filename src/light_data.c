@@ -806,157 +806,108 @@ static char light_render_light_dynamic_2(struct Light *lgt, int radius, int a3, 
   return _DK_light_render_light_sub2(lgt, radius, a3, stl_num);
 }
 //sub_407C70
-static int light_render_light_static(struct Light *lgt, int radius, int a3, SubtlCodedCoords stl_num)
+static int light_render_light_static(struct Light *lgt, int radius, int intensity, SubtlCodedCoords stl_num)
 {
-    int result;
-    signed int v5;
-    signed int v6;
-    int v7;
-    int v8;
-    unsigned int v9;
-    unsigned __int16 v10;
-    __int16 *v11;
-    struct LightsShadows *v12;
-    unsigned int v13;
-    unsigned int v14;
-    unsigned int v15;
-    __int32 v16;
-    unsigned __int8 v17;
-    int v18;
-    char v19;
-    char *v20;
-    int v21;
-    char *shadow_limits;
-    unsigned int v23;
-    int v24;
-    unsigned int v25;
-    __int32 v26;
-    unsigned int v27;
-    __int32 v28;
-    unsigned int v29;
-    unsigned int v30;
-    unsigned int val;
-    int v32;
-    unsigned int v33;
-    int v34;
-    TbBool v35;
-    unsigned int v36;
-
-    val = lgt->mappos.x.val;
-    v30 = lgt->mappos.y.val;
-    v33 = val >> 8;
-    v29 = v30 >> 8;
-    v32 = lgt->mappos.z.val / 256;
-    memset(game.lish.shadow_limits, 0, sizeof(game.lish.shadow_limits));
-    result = (unsigned __int8)game.columns_data[game.map[256 * (v30 >> 8) + 257 + (val >> 8)].data & 0x7FF].bitfields >> 4;
-    if (result <= v32)
+    struct LightsShadows *lish = &game.lish;
+    clear_shadow_limits(lish);
+    struct Column *col = get_column_at(lgt->mappos.x.stl.num, lgt->mappos.y.stl.num);
+    int result = col->bitfields >> 4;
+    if (result <= lgt->mappos.z.stl.num)
     {
-        v5 = abs(val - (v33 << 8));
-        v6 = abs(v30 - (v30 >> 8 << 8));
-
-        v7 = LbDiagonalLength(v5,v6);
-
-        v8 = a3 * (radius - v7) / radius;
-        v9 = v33 + (v29 << 8);
-        v10 = game.lish.stat_light_map[v9];
-        v11 = &game.lish.stat_light_map[v9];
-        if (v10 < v8)
-            *v11 = v8;
-        v12 = &game.lish;
-        for (result = game.lish.current_stl_num;
-             &game.lish.lighting_tables[game.lish.current_stl_num] > (struct LightingTable *)v12;
-             result = game.lish.current_stl_num)
+        signed int x = abs(lgt->mappos.x.val - (lgt->mappos.x.stl.num << 8));
+        signed int y = abs(lgt->mappos.y.val - (lgt->mappos.y.stl.num << 8));
+        int diagonal_length = LbDiagonalLength(x, y);
+        unsigned short lightness = intensity * (radius - diagonal_length) / radius;
+        unsigned int light_map_idx = lgt->mappos.x.stl.num + (lgt->mappos.y.val);
+        if (lish->stat_light_map[light_map_idx] < lightness)
         {
-            result = (unsigned __int8)v12->lighting_tables[0].field_1;
+            lish->stat_light_map[light_map_idx] = lightness;
+        }
+        unsigned int lighting_table_idx = 0;
+        for (result = lish->current_stl_num;
+             lish->current_stl_num > lighting_table_idx;
+             result = lish->current_stl_num)
+        {
+            result = lish->lighting_tables[lighting_table_idx].distance;
             if (result > stl_num)
-                break;
-            v13 = v12->lighting_tables[0].delta_x + v33;
-            v14 = v29 + v12->lighting_tables[0].delta_y;
-            v27 = v14;
-            if (v13 < 0x100 && v14 < 0x100)
             {
-                v15 = v14 << 8;
-                v16 = LbArcTanAngle((v13 << 8) - val, (v14 << 8) - v30) & 0x7FF;
-                if ((unsigned __int8)v13 < (unsigned __int8)v33)
-                    v17 = ((unsigned __int8)v27 < (unsigned __int8)v29) + 3;
-                else
-                    v17 = 2 - ((unsigned __int8)v27 < (unsigned __int8)v29);
-                v18 = v17;
-                v19 = game.lish.shadow_limits[v16];
-                v34 = v18;
-                if (v19)
+                break;
+            }
+            MapSubtlCoord stl_x = lish->lighting_tables[lighting_table_idx].delta_x + lgt->mappos.x.stl.num;
+            MapSubtlCoord stl_y = lish->lighting_tables[lighting_table_idx].delta_y + lgt->mappos.y.stl.num;
+            if (!subtile_coords_invalid(stl_x, stl_y))
+            {
+                unsigned char v17;
+                if (stl_x < lgt->mappos.x.stl.num)
                 {
-                    light_render_light_sub1_sub1(val, v30, v34, v13, v27, &v26, &v28);
-                    v20 = &game.lish.shadow_limits[v26];
-                    if ((!game.lish.shadow_limits[v26] || !game.lish.shadow_limits[v28]) && (unsigned __int8)game.columns_data[game.map[256 * v27 + 257 + v13].data & 0x7FF].bitfields >> 4 > v32)
+                    v17 = (stl_y < lgt->mappos.y.stl.num) + 3;
+                }
+                else
+                {
+                    v17 = 2 - (stl_y < lgt->mappos.y.stl.num);
+                }
+                MapCoord coord_x = subtile_coord(stl_x, 0);
+                MapCoord coord_y = subtile_coord(stl_y, 0);
+                long angle = LbArcTanAngle(coord_x - lgt->mappos.x.val, coord_y - lgt->mappos.y.val) & LbFPMath_AngleMask;
+                unsigned char shadow_limit = lish->shadow_limits[angle];
+                long shadow_start, shadow_end;
+                col = get_column_at(stl_x, stl_y);
+                if (shadow_limit)
+                {
+                    light_render_light_sub1_sub1(lgt->mappos.x.val, lgt->mappos.y.val, v17, stl_x, stl_y, &shadow_start, &shadow_end);
+                    if (((!game.lish.shadow_limits[shadow_start]) || (!game.lish.shadow_limits[shadow_end])) && ((col->bitfields >> 4) > lgt->mappos.z.stl.num))
                     {
-                        if (v26 > v28)
-                        {
-                            memset(v20, 1u, 2047 - v26);
-                            memset(game.lish.shadow_limits, 1u, v28);
-                        }
-                        else
-                        {
-                            memset(v20, 1u, v28 - v26);
-                        }
+                        create_shadow_limits(lish, shadow_start, shadow_end);
                     }
                 }
                 else
                 {
-                    v36 = 5 * (v13 + (v27 << 8));
-                    v21 = (unsigned __int8)game.columns_data[game.map[v36 / 5 + 257].data & 0x7FF].bitfields >> 4;
-                    v35 = v21 > v32;
-                    if (v21 > v32)
+                    int height = col->bitfields >> 4;
+                    TbBool too_high = (height > lgt->mappos.z.stl.num);
+                    if (height > lgt->mappos.z.stl.num)
                     {
-                        light_render_light_sub1_sub1(val, v30, v34, v13, v27, &v26, &v28);
-                        if (v26 > v28)
-                        {
-                            memset(&game.lish.shadow_limits[v26], 1u, 2047 - v26);
-                            v23 = v28;
-                            shadow_limits = game.lish.shadow_limits;
-                        }
-                        else
-                        {
-                            shadow_limits = &game.lish.shadow_limits[v26];
-                            v23 = v28 - v26;
-                        }
-                        memset(shadow_limits, 1u, v23);
+                        light_render_light_sub1_sub1(lgt->mappos.x.val, lgt->mappos.y.val, v17, stl_x, stl_y, &shadow_start, &shadow_end);
+                        create_shadow_limits(lish, shadow_start, shadow_end);
                     }
-                    if (!v35)
-                        goto LABEL_37;
-                    switch (v34)
+                    TbBool v24;
+                    if (too_high)
                     {
-                    case 1:
-                        if ((unsigned __int8)game.columns_data[game.map[v36 / 5 + 256].data & 0x7FF].bitfields >> 4 <= v32)
-                            goto LABEL_35;
-                        goto LABEL_34;
-                    case 3:
-                        if (!light_render_light_sub1_sub2(v13, v27 - 1, v32))
-                            goto LABEL_35;
-                        v24 = 0;
-                        break;
-                    case 4:
-                    LABEL_34:
-                        v24 = 0;
-                        break;
-                    default:
-                    LABEL_35:
-                        v24 = 1;
-                        break;
+                        switch (v17)
+                        {
+                            case 1:
+                            {
+                                v24 = (col->bitfields >> 4 <= lgt->mappos.z.stl.num);
+                                break;
+                            }
+                            case 3:
+                            {
+                                v24 = (!light_render_light_sub1_sub2(stl_x, stl_y - 1, lgt->mappos.z.stl.num));
+                                break;
+                            }
+                            case 4:
+                            {
+                                v24 = false;
+                                break;
+                            }
+                            default:
+                            {
+                                v24 = true;
+                                break;
+                            }
+                        }
                     }
-                    if (v24)
+                    if ( (v24) || (!too_high) )
                     {
-                    LABEL_37:
-                        result = a3 * (radius - v12->lighting_tables[0].field_4) / radius;
+                        result = intensity * (radius - lish->lighting_tables[lighting_table_idx].field_4) / radius;
                         if (result <= game.lish.field_46149)
                             return result;
-                        v25 = v13 + v15;
-                        if ((unsigned __int16)game.lish.stat_light_map[v25] < result)
-                            game.lish.stat_light_map[v25] = result;
+                        SubtlCodedCoords next_stl = stl_x + coord_y;
+                        if (game.lish.stat_light_map[next_stl] < result)
+                            game.lish.stat_light_map[next_stl] = result;
                     }
                 }
             }
-            v12 = (struct LightsShadows *)((char *)v12 + 8);
+            lighting_table_idx++;
         }
     }
     return result;
