@@ -33,6 +33,10 @@ extern "C" {
 /** Amount of fractional bits in resulting values of trigonometric operations. */
 #define LbFPMath_TrigmBits 16
 
+#define CEILING_POS(X) ((X-(int)(X)) > 0 ? (int)(X+1) : (int)(X))
+#define CEILING_NEG(X) ((X-(int)(X)) < 0 ? (int)(X-1) : (int)(X))
+#define CEILING(X) ( ((X) > 0) ? CEILING_POS(X) : CEILING_NEG(X) )
+
 enum MathOperator {
     MOp_UNDEFINED                      =  0,
     MOp_EQUAL                          =  1,
@@ -79,6 +83,7 @@ char LbCompareMultiplications(long mul1a, long mul1b, long mul2a, long mul2b);
 long LbDiagonalLength(long a, long b);
 float lerp(float a, float b, float f);
 long lerp_angle(long from, long to, float weight);
+double fastPow(double a, double b);
 /******************************************************************************/
 #ifdef __cplusplus
 }
