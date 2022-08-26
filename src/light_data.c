@@ -855,7 +855,7 @@ static int light_render_light_static(struct Light *lgt, int radius, int intensit
                 if (shadow_limit)
                 {
                     light_render_light_sub1_sub1(lgt->mappos.x.val, lgt->mappos.y.val, v17, stl_x, stl_y, &shadow_start, &shadow_end);
-                    if (((!game.lish.shadow_limits[shadow_start]) || (!game.lish.shadow_limits[shadow_end])) && ((col->bitfields >> 4) > lgt->mappos.z.stl.num))
+                    if (((!lish->shadow_limits[shadow_start]) || (!lish->shadow_limits[shadow_end])) && ((col->bitfields >> 4) > lgt->mappos.z.stl.num))
                     {
                         create_shadow_limits(lish, shadow_start, shadow_end);
                     }
