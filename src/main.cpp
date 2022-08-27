@@ -2,7 +2,6 @@
 #include <windows.h>
 
 #include "keeperfx.hpp"
-#include <chrono>
 
 #include "bflib_coroutine.h"
 #include "bflib_math.h"
@@ -114,13 +113,6 @@
 #define strcasecmp _stricmp
 #endif
 
-#define TimePoint std::chrono::high_resolution_clock::time_point
-#define TimeNow std::chrono::high_resolution_clock::now()
-TimePoint initialized_time_point;
-struct FrametimeMeasurements frametime_measurements;
-
-TimePoint delta_time_previous_timepoint;
-
 int test_variable;
 
 char cmndline[CMDLN_MAXLEN+1];
@@ -161,39 +153,8 @@ struct TimerTime Timer;
 TbBool TimerGame = false;
 TbBool TimerNoReset = false;
 TbBool TimerFreeze = false;
-
 /******************************************************************************/
 
-void frametime_set_all_measurements_to_be_displayed() {
-    // Display the frametime of the previous frame only, not the current frametime. Drawing "frametime_current" is a bad idea because frametimes are displayed on screen half-way through the rest of the measurements.
-    for (int i = 0; i < TOTAL_FRAMETIME_KINDS; i++) {
-        frametime_measurements.frametime_display[i] = frametime_measurements.frametime_current[i];
-        if (game.play_gameturn % game.num_fps == 0) {
-            frametime_measurements.frametime_display_max[i] = frametime_measurements.frametime_get_max[i];
-            frametime_measurements.frametime_get_max[i] = 0;
-        }
-    }
-}
-
-void frametime_start_measurement(int frametime_kind) {
-    long double current_nanoseconds = std::chrono::duration_cast<std::chrono::nanoseconds>(TimeNow - initialized_time_point).count();
-    long double current_milliseconds = current_nanoseconds/1000000.0;
-    frametime_measurements.starting_measurement[frametime_kind] = float(current_milliseconds);
-}
-
-void frametime_end_measurement(int frametime_kind) {
-    long double current_nanoseconds = std::chrono::duration_cast<std::chrono::nanoseconds>(TimeNow - initialized_time_point).count();
-    long double current_milliseconds = current_nanoseconds/1000000.0;
-    float result = float(current_milliseconds) - frametime_measurements.starting_measurement[frametime_kind];
-    frametime_measurements.frametime_current[frametime_kind] = result;
-    // Always set frametime_get_max to highest frametime, then reset it to 0 in frametime_end_all_measurements() once every second.
-    if (frametime_measurements.frametime_current[frametime_kind] > frametime_measurements.frametime_get_max[frametime_kind]) {
-        frametime_measurements.frametime_get_max[frametime_kind] = frametime_measurements.frametime_current[frametime_kind];
-    }
-    if (frametime_kind == Frametime_FullFrame) {
-        frametime_set_all_measurements_to_be_displayed();
-    }
-}
 
 TbPixel get_player_path_colour(unsigned short owner)
 {
@@ -3398,21 +3359,6 @@ TbBool keeper_wait_for_screen_focus(void)
     return false;
 }
 
-float get_delta_time(void)
-{
-    // Allow frame skip to work correctly when delta time is enabled
-    if ( (game.frame_skip != 0) && ((game.play_gameturn % game.frame_skip) != 0)) {
-        return 1.0;
-    }
-    long double frame_time_in_nanoseconds = std::chrono::duration_cast<std::chrono::nanoseconds>(TimeNow - delta_time_previous_timepoint).count();
-    delta_time_previous_timepoint = TimeNow;
-    float calculated_delta_time = (frame_time_in_nanoseconds/1000000000.0) * game.num_fps;
-    if (calculated_delta_time > 1.0) { // Fix for when initially loading the map, frametime takes too long. Possibly other circumstances too.
-        calculated_delta_time = 1.0;
-    }
-    return calculated_delta_time;
-}
-
 void gameplay_loop_logic()
 {
     if (is_feature_on(Ft_DeltaTime) == true) {
@@ -3522,7 +3468,7 @@ void keeper_gameplay_loop(void)
     SYNCDBG(0,"Entering the gameplay loop for level %d",(int)get_loaded_level_number());
     KeeperSpeechClearEvents();
     LbErrorParachuteUpdate(); // For some reasone parachute keeps changing; Remove when won't be needed anymore
-    initialized_time_point = TimeNow;
+    initial_time_point();
     //the main gameplay loop starts
     while ((!quit_game) && (!exit_keeper))
     {
