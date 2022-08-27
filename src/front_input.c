@@ -1532,7 +1532,7 @@ short get_creature_control_action_inputs(void)
             else if (thing_is_invalid(dragtng))
             {
                 struct ShotConfigStats* shotst = get_shot_model_stats(ShM_Dig);
-                TbBool diggable_subtile;
+                TbBool diggable_subtile = false;
                 MapSubtlCoord stl_x = thing->mappos.x.stl.num;
                 MapSubtlCoord stl_y = thing->mappos.y.stl.num;
                 for (unsigned char range = 0; range < shotst->health; range++)

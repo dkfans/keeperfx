@@ -6996,16 +6996,14 @@ msgid "Display Resolution: Switch to the next configured display resolution. LMB
 msgstr "Resolución de pantalla: Cambia a la siguiente resolución de pantalla configurada. BIR cambia resolución. BDR muestra la resolución actual."
 
 #: guitext:1008
-#, fuzzy
 msgctxt "In-game interface item"
 msgid "Voice"
-msgstr ""
+msgstr "Voz"
 
 #: guitext:1009
-#, fuzzy
 msgctxt "In-game interface item"
-msgid "Ambiance"
-msgstr ""
+msgid "Ambience"
+msgstr "Ambiente" 
 
 msgstr ""
 #: guitext:1010

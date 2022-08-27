@@ -405,7 +405,7 @@ void clear_complete_game(void)
     set_flag_byte(&game.system_flags,GSF_AllowOnePlayer,start_params.one_player);
     gameadd.computer_chat_flags = start_params.computer_chat_flags;
     game.operation_flags = start_params.operation_flags;
-    strncpy(game.packet_fname,start_params.packet_fname,150);
+    snprintf(game.packet_fname,150, "%s", start_params.packet_fname);
     game.packet_save_enable = start_params.packet_save_enable;
     game.packet_load_enable = start_params.packet_load_enable;
     my_player_number = default_loc_player;

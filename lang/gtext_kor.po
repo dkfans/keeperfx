@@ -6727,16 +6727,14 @@ msgid "Display Resolution: Switch to the next configured display resolution. LMB
 msgstr ""
 
 #: guitext:1008
-#, fuzzy
 msgctxt "In-game interface item"
 msgid "Voice"
-msgstr ""
+msgstr "음성"
 
 #: guitext:1009
-#, fuzzy
 msgctxt "In-game interface item"
-msgid "Ambiance"
-msgstr ""
+msgid "Ambience"
+msgstr "배경"
 
 msgstr ""
 #: guitext:1010

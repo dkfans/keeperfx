@@ -1771,7 +1771,7 @@ TngUpdateRet object_update_power_sight(struct Thing *objtng)
         && game.play_gameturn - dungeon->sight_casted_gameturn < max_time_active )
     {
         int time_active = game.play_gameturn - dungeon->sight_casted_gameturn;
-        if ( game.play_gameturn - dungeon->sight_casted_gameturn >= 0 )
+        if ( game.play_gameturn >= dungeon->sight_casted_gameturn)
         {
             if ( max_time_active / 16 < time_active )
                 time_active = max_time_active / 16;
