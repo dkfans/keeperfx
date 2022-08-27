@@ -45,6 +45,7 @@
 #include "vidmode.h"
 #include "vidfade.h"
 #include "player_instances.h"
+#include "engine_render.h"
 
 /******************************************************************************/
 /**
@@ -176,17 +177,15 @@ int draw_overlay_call_to_arms(struct PlayerInfo *player, long units_per_px, long
     SYNCDBG(18,"Starting");
     if (player->acamera == NULL)
         return 0;
-    const struct Camera *cam;
-    cam = player->acamera;
+    const struct Camera *cam = player->acamera;
     n = 0;
-    const struct StructureList *slist;
-    slist = get_list_for_thing_class(TCls_Object);
+    const struct StructureList *slist = get_list_for_thing_class(TCls_Object);
     k = 0;
     i = slist->index;
     while (i != 0)
     {
-        struct Thing *thing;
-        thing = thing_get(i);
+        struct Thing *thing = thing_get(i);
+        struct ThingAdd* thingadd = get_thingadd(i);
         if (thing_is_invalid(thing))
         {
             ERRORLOG("Jump to invalid thing detected");
@@ -202,8 +201,20 @@ int draw_overlay_call_to_arms(struct PlayerInfo *player, long units_per_px, long
                 // for camera, coordinates within subtile are skipped; the thing uses full resolution coordinates
                 long zmpos_x;
                 long zmpos_y;
-                zmpos_x = (thing->mappos.x.val - (MapCoordDelta)subtile_coord(cam->mappos.x.stl.num,0)) / zoom;
-                zmpos_y = (thing->mappos.y.val - (MapCoordDelta)subtile_coord(cam->mappos.y.stl.num,0)) / zoom;
+
+                long current_minimap_x = (thing->mappos.x.val - (MapCoordDelta)subtile_coord(cam->mappos.x.stl.num,0));
+                long current_minimap_y = (thing->mappos.y.val - (MapCoordDelta)subtile_coord(cam->mappos.y.stl.num,0));
+                thingadd->interp_minimap_pos_x = interpolate(thingadd->interp_minimap_pos_x, thingadd->previous_minimap_pos_x, current_minimap_x);
+                thingadd->interp_minimap_pos_y = interpolate(thingadd->interp_minimap_pos_y, thingadd->previous_minimap_pos_y, current_minimap_y);
+                if (thingadd->interp_minimap_update_turn != game.play_gameturn) {
+                    thingadd->interp_minimap_update_turn = game.play_gameturn;
+                    thingadd->previous_minimap_pos_x = current_minimap_x;
+                    thingadd->previous_minimap_pos_y = current_minimap_y;
+                }
+
+                zmpos_x = thingadd->interp_minimap_pos_x / zoom;
+                zmpos_y = thingadd->interp_minimap_pos_y / zoom;
+
                 // Now rotate the coordinates to receive minimap points
                 long mapos_x;
                 long mapos_y;
@@ -238,17 +249,15 @@ int draw_overlay_traps(struct PlayerInfo *player, long units_per_px, long scaled
     SYNCDBG(18,"Starting");
     if (player->acamera == NULL)
         return 0;
-    const struct Camera *cam;
-    cam = player->acamera;
+    const struct Camera *cam = player->acamera;
     n = 0;
     k = 0;
-    const struct StructureList *slist;
-    slist = get_list_for_thing_class(TCls_Trap);
+    const struct StructureList *slist = get_list_for_thing_class(TCls_Trap);
     i = slist->index;
     while (i != 0)
     {
-        struct Thing *thing;
-        thing = thing_get(i);
+        struct Thing *thing = thing_get(i);
+        struct ThingAdd* thingadd = get_thingadd(i);
         if (thing_is_invalid(thing))
         {
             ERRORLOG("Jump to invalid thing detected");
@@ -262,8 +271,20 @@ int draw_overlay_traps(struct PlayerInfo *player, long units_per_px, long scaled
             // for camera, coordinates within subtile are skipped; the thing uses full resolution coordinates
             long zmpos_x;
             long zmpos_y;
-            zmpos_x = (thing->mappos.x.val - (MapCoordDelta)subtile_coord(cam->mappos.x.stl.num,0)) / scaled_zoom;
-            zmpos_y = (thing->mappos.y.val - (MapCoordDelta)subtile_coord(cam->mappos.y.stl.num,0)) / scaled_zoom;
+
+            long current_minimap_x = (thing->mappos.x.val - (MapCoordDelta)subtile_coord(cam->mappos.x.stl.num,0));
+            long current_minimap_y = (thing->mappos.y.val - (MapCoordDelta)subtile_coord(cam->mappos.y.stl.num,0));
+            thingadd->interp_minimap_pos_x = interpolate(thingadd->interp_minimap_pos_x, thingadd->previous_minimap_pos_x, current_minimap_x);
+            thingadd->interp_minimap_pos_y = interpolate(thingadd->interp_minimap_pos_y, thingadd->previous_minimap_pos_y, current_minimap_y);
+            if (thingadd->interp_minimap_update_turn != game.play_gameturn) {
+                thingadd->interp_minimap_update_turn = game.play_gameturn;
+                thingadd->previous_minimap_pos_x = current_minimap_x;
+                thingadd->previous_minimap_pos_y = current_minimap_y;
+            }
+
+            zmpos_x = thingadd->interp_minimap_pos_x / scaled_zoom;
+            zmpos_y = thingadd->interp_minimap_pos_y / scaled_zoom;
+            
             // Now rotate the coordinates to receive minimap points
             RealScreenCoord mapos_x;
             RealScreenCoord mapos_y;
@@ -319,17 +340,15 @@ int draw_overlay_spells_and_boxes(struct PlayerInfo *player, long units_per_px, 
     SYNCDBG(18,"Starting");
     if (player->acamera == NULL)
         return 0;
-    const struct Camera *cam;
-    cam = player->acamera;
+    const struct Camera *cam = player->acamera;
     n = 0;
-    const struct StructureList *slist;
-    slist = get_list_for_thing_class(TCls_Object);
+    const struct StructureList *slist = get_list_for_thing_class(TCls_Object);
     k = 0;
     i = slist->index;
     while (i != 0)
     {
-        struct Thing *thing;
-        thing = thing_get(i);
+        struct Thing *thing = thing_get(i);
+        struct ThingAdd* thingadd = get_thingadd(i);
         if (thing_is_invalid(thing))
         {
             ERRORLOG("Jump to invalid thing detected");
@@ -345,8 +364,20 @@ int draw_overlay_spells_and_boxes(struct PlayerInfo *player, long units_per_px, 
                 // for camera, coordinates within subtile are skipped; the thing uses full resolution coordinates
                 long zmpos_x;
                 long zmpos_y;
-                zmpos_x = (thing->mappos.x.val - (MapCoordDelta)subtile_coord(cam->mappos.x.stl.num,0)) / scaled_zoom;
-                zmpos_y = (thing->mappos.y.val - (MapCoordDelta)subtile_coord(cam->mappos.y.stl.num,0)) / scaled_zoom;
+
+                long current_minimap_x = (thing->mappos.x.val - (MapCoordDelta)subtile_coord(cam->mappos.x.stl.num,0));
+                long current_minimap_y = (thing->mappos.y.val - (MapCoordDelta)subtile_coord(cam->mappos.y.stl.num,0));
+                thingadd->interp_minimap_pos_x = interpolate(thingadd->interp_minimap_pos_x, thingadd->previous_minimap_pos_x, current_minimap_x);
+                thingadd->interp_minimap_pos_y = interpolate(thingadd->interp_minimap_pos_y, thingadd->previous_minimap_pos_y, current_minimap_y);
+                if (thingadd->interp_minimap_update_turn != game.play_gameturn) {
+                    thingadd->interp_minimap_update_turn = game.play_gameturn;
+                    thingadd->previous_minimap_pos_x = current_minimap_x;
+                    thingadd->previous_minimap_pos_y = current_minimap_y;
+                }
+
+                zmpos_x = thingadd->interp_minimap_pos_x / scaled_zoom;
+                zmpos_y = thingadd->interp_minimap_pos_y / scaled_zoom;
+                
                 long mapos_x;
                 long mapos_y;
                 // Now rotate the coordinates to receive minimap points
@@ -354,16 +385,19 @@ int draw_overlay_spells_and_boxes(struct PlayerInfo *player, long units_per_px, 
                 mapos_y = (zmpos_y * LbCosL(interpolated_cam_orient_a) - zmpos_x * LbSinL(interpolated_cam_orient_a)) >> 16;
                 RealScreenCoord basepos;
                 basepos = MapDiagonalLength/2;
+                
                 // Do the drawing
-                if (thing_is_special_box(thing) || thing_is_spellbook(thing))
-                {
-                    short pixel_end = get_pixels_scaled_and_zoomed(basic_zoom);
-                    int p;
-                    for (p = 0; p < pixel_end; p++)
+                if ((game.play_gameturn & 3) == 1) {
+                    if (thing_is_special_box(thing) || thing_is_spellbook(thing))
                     {
-                        pannel_map_draw_pixel(mapos_x + basepos + draw_square[p].delta_x, mapos_y + basepos + draw_square[p].delta_y, colours[15][0][15]);
+                        short pixel_end = get_pixels_scaled_and_zoomed(basic_zoom);
+                        int p;
+                        for (p = 0; p < pixel_end; p++)
+                        {
+                            pannel_map_draw_pixel(mapos_x + basepos + draw_square[p].delta_x, mapos_y + basepos + draw_square[p].delta_y, colours[15][0][15]);
+                        }
+                        n++;
                     }
-                    n++;
                 }
             }
         }
@@ -438,17 +472,15 @@ int draw_overlay_creatures(struct PlayerInfo *player, long units_per_px, long zo
     SYNCDBG(18,"Starting");
     if (player->acamera == NULL)
         return 0;
-    const struct Camera *cam;
-    cam = player->acamera;
+    const struct Camera *cam = player->acamera;
     n = 0;
     k = 0;
-    const struct StructureList *slist;
-    slist = get_list_for_thing_class(TCls_Creature);
+    const struct StructureList *slist = get_list_for_thing_class(TCls_Creature);
     i = slist->index;
     while (i != 0)
     {
-        struct Thing *thing;
-        thing = thing_get(i);
+        struct Thing *thing = thing_get(i);
+        struct ThingAdd* thingadd = get_thingadd(i);
         if (thing_is_invalid(thing))
         {
             ERRORLOG("Jump to invalid thing detected");
@@ -474,8 +506,20 @@ int draw_overlay_creatures(struct PlayerInfo *player, long units_per_px, long zo
                 // for camera, coordinates within subtile are skipped; the thing uses full resolution coordinates
                 long zmpos_x;
                 long zmpos_y;
-                zmpos_x = (thing->mappos.x.val - (MapCoordDelta)subtile_coord(cam->mappos.x.stl.num,0)) / zoom;
-                zmpos_y = (thing->mappos.y.val - (MapCoordDelta)subtile_coord(cam->mappos.y.stl.num,0)) / zoom;
+                
+                long current_minimap_x = (thing->mappos.x.val - (MapCoordDelta)subtile_coord(cam->mappos.x.stl.num,0));
+                long current_minimap_y = (thing->mappos.y.val - (MapCoordDelta)subtile_coord(cam->mappos.y.stl.num,0));
+                thingadd->interp_minimap_pos_x = interpolate(thingadd->interp_minimap_pos_x, thingadd->previous_minimap_pos_x, current_minimap_x);
+                thingadd->interp_minimap_pos_y = interpolate(thingadd->interp_minimap_pos_y, thingadd->previous_minimap_pos_y, current_minimap_y);
+                if (thingadd->interp_minimap_update_turn != game.play_gameturn) {
+                    thingadd->interp_minimap_update_turn = game.play_gameturn;
+                    thingadd->previous_minimap_pos_x = current_minimap_x;
+                    thingadd->previous_minimap_pos_y = current_minimap_y;
+                }
+
+                zmpos_x = thingadd->interp_minimap_pos_x / zoom;
+                zmpos_y = thingadd->interp_minimap_pos_y / zoom;
+
                 // Now rotate the coordinates to receive minimap points
                 long mapos_x;
                 long mapos_y;
@@ -573,11 +617,11 @@ int draw_line_to_heart(struct PlayerInfo *player, long units_per_px, long zoom)
 {
     if (player->acamera == NULL)
         return 0;
-    const struct Camera *cam;
-    cam = player->acamera;
-    struct Thing *heartng;
-    heartng = get_player_soul_container(player->id_number);
-    if (thing_is_invalid(heartng)) {
+    const struct Camera *cam = player->acamera;
+    struct Thing *thing = get_player_soul_container(player->id_number);
+    struct ThingAdd* thingadd = get_thingadd(thing->index);
+
+    if (thing_is_invalid(thing)) {
         return 0;
     }
     lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
@@ -585,8 +629,20 @@ int draw_line_to_heart(struct PlayerInfo *player, long units_per_px, long zoom)
     // for camera, coordinates within subtile are skipped; the thing uses full resolution coordinates
     long zmpos_x;
     long zmpos_y;
-    zmpos_x = (heartng->mappos.x.val - (MapCoordDelta)subtile_coord(cam->mappos.x.stl.num,0)) / zoom;
-    zmpos_y = (heartng->mappos.y.val - (MapCoordDelta)subtile_coord(cam->mappos.y.stl.num,0)) / zoom;
+
+    long current_minimap_x = (thing->mappos.x.val - (MapCoordDelta)subtile_coord(cam->mappos.x.stl.num,0));
+    long current_minimap_y = (thing->mappos.y.val - (MapCoordDelta)subtile_coord(cam->mappos.y.stl.num,0));
+    thingadd->interp_minimap_pos_x = interpolate(thingadd->interp_minimap_pos_x, thingadd->previous_minimap_pos_x, current_minimap_x);
+    thingadd->interp_minimap_pos_y = interpolate(thingadd->interp_minimap_pos_y, thingadd->previous_minimap_pos_y, current_minimap_y);
+    if (thingadd->interp_minimap_update_turn != game.play_gameturn) {
+        thingadd->interp_minimap_update_turn = game.play_gameturn;
+        thingadd->previous_minimap_pos_x = current_minimap_x;
+        thingadd->previous_minimap_pos_y = current_minimap_y;
+    }
+
+    zmpos_x = thingadd->interp_minimap_pos_x / zoom;
+    zmpos_y = thingadd->interp_minimap_pos_y / zoom;
+
     // Now rotate the coordinates to receive minimap points
     RealScreenCoord mapos_x;
     RealScreenCoord mapos_y;
@@ -630,14 +686,11 @@ void pannel_map_draw_overlay_things(long units_per_px, long scaled_zoom, long ba
     if (scaled_zoom < 1) {
         return;
     }
-    struct PlayerInfo *player;
-    player = get_my_player();
+    struct PlayerInfo *player = get_my_player();
     draw_overlay_call_to_arms(player, units_per_px, scaled_zoom);
     draw_overlay_traps(player, units_per_px, scaled_zoom,basic_zoom);
     draw_overlay_creatures(player, units_per_px, scaled_zoom, basic_zoom);
-    if ((game.play_gameturn & 3) == 1) {
-        draw_overlay_spells_and_boxes(player, units_per_px, scaled_zoom, basic_zoom);
-    }
+    draw_overlay_spells_and_boxes(player, units_per_px, scaled_zoom, basic_zoom);
     draw_line_to_heart(player, units_per_px, scaled_zoom);
 }
 
@@ -1119,6 +1172,11 @@ void auto_gen_tables(long units_per_px)
     }
 }
 
+long interp_minimap_x;
+long interp_minimap_y;
+long prev_minimap_x;
+long prev_minimap_y;
+long minimap_get_previous;
 void pannel_map_draw_slabs(long x, long y, long units_per_px, long zoom)
 {
     PannelMapX = scale_value_for_resolution_with_upp(x,units_per_px);
@@ -1137,11 +1195,22 @@ void pannel_map_draw_slabs(long x, long y, long units_per_px, long zoom)
     long shift_stl_y;
     {
         int angle;
-        angle = interpolated_cam_orient_a & 0x1FFC;
+        angle = interpolated_cam_orient_a & 0x1FFC; //cam->orient_a
         shift_x = -LbSinL(angle) * zoom / 256;
         shift_y = LbCosL(angle) * zoom / 256;
-        shift_stl_x = (cam->mappos.x.stl.num << 16) - MapDiagonalLength * shift_x / 2 - MapDiagonalLength * shift_y / 2;
-        shift_stl_y = (cam->mappos.y.stl.num << 16) - MapDiagonalLength * shift_y / 2 + MapDiagonalLength * shift_x / 2;
+
+        long current_minimap_x = (cam->mappos.x.stl.num << 16);
+        long current_minimap_y = (cam->mappos.y.stl.num << 16);
+        interp_minimap_x = interpolate(interp_minimap_x, prev_minimap_x, current_minimap_x);
+        interp_minimap_y = interpolate(interp_minimap_y, prev_minimap_y, current_minimap_y);
+        if (minimap_get_previous != game.play_gameturn) {
+            minimap_get_previous = game.play_gameturn;
+            prev_minimap_x = current_minimap_x;
+            prev_minimap_y = current_minimap_y;
+        }
+
+        shift_stl_x = interp_minimap_x - MapDiagonalLength * shift_x / 2 - MapDiagonalLength * shift_y / 2;
+        shift_stl_y = interp_minimap_y - MapDiagonalLength * shift_y / 2 + MapDiagonalLength * shift_x / 2;
     }
 
     TbPixel *bkgnd_line;
