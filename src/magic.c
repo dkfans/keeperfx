@@ -1241,7 +1241,7 @@ TbResult magic_use_power_imp(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubt
     initialise_thing_state(thing, CrSt_ImpBirth);
     powerst = get_power_model_stats(PwrK_MKDIGGER);
     thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
-    play_creature_sound(thing, 3, 2, 0);
+    play_creature_sound(thing, CrSnd_Happy, 2, 0);
     return Lb_SUCCESS;
 }
 

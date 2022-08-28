@@ -3813,7 +3813,7 @@ short person_sulking(struct Thing *creatng)
     if (cctrl->turns_at_job - 200 > 0)
     {
         if ((cctrl->turns_at_job % 32) == 0) {
-            play_creature_sound(creatng, 4, 2, 0);
+            play_creature_sound(creatng, CrSnd_Sad, 2, 0);
         }
         if (cctrl->turns_at_job - 250 >= 0) {
           cctrl->turns_at_job = 0;

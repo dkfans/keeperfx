@@ -907,7 +907,7 @@ void drop_held_thing_on_ground(struct Dungeon *dungeon, struct Thing *droptng, c
         initialise_thing_state(droptng, CrSt_CreatureBeingDropped);
         stop_creature_sound(droptng, 5);
         if (is_my_player_number(dungeon->owner)) {
-            play_creature_sound(droptng, 6, 3, 0);
+            play_creature_sound(droptng, CrSnd_Drop, 3, 0);
         }
         dungeon->last_creature_dropped_gameturn = game.play_gameturn;
         crstat = creature_stats_get(droptng->model);
