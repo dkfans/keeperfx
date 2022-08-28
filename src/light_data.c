@@ -1571,15 +1571,12 @@ static long light_render_light_sub1_sub1(
   return result;
 }
 
-/*
-
 //sub_408530
 static TbBool light_render_light_sub1_sub2(MapSubtlCoord stl_x, MapSubtlCoord stl_y, MapSubtlCoord stl_z)
 {
-  return _DK_light_render_light_sub1_sub2(stl_x, stl_y, stl_z);
-
+    struct Column *col = get_column_at(stl_x, stl_y);
+    return ((col->bitfields >> 4) > stl_z);
 }
-*/
 
 //sub_407770
 static char light_render_light_dynamic_2(struct Light *lgt, int radius, int a3, unsigned int max_1DD41_idx)
