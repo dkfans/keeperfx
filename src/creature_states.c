@@ -92,6 +92,7 @@ short arrive_at_alarm(struct Thing *creatng);
 short arrive_at_call_to_arms(struct Thing *creatng);
 short cleanup_hold_audience(struct Thing *creatng);
 short creature_being_dropped(struct Thing *creatng);
+short process_stun_dropped(struct Thing *creatng);
 short creature_cannot_find_anything_to_do(struct Thing *creatng);
 short creature_change_from_chicken(struct Thing *creatng);
 short creature_change_to_chicken(struct Thing *creatng);
@@ -454,6 +455,8 @@ struct StateInfo states[] = {
     0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, CrStTyp_AngerJob, 0, 0, 0, 0, 55, 1, 0, 1},
   {creature_going_to_safety_for_toking, NULL, NULL, NULL,
     0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,  CrStTyp_Sleep, 0, 0, 1, 0, 54, 1, 0, 1},
+  {process_stun_dropped, state_cleanup_unable_to_fight, NULL, NULL,
+     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Idle, 1, 1, 0, 0,  0, 0, 0, 1},
   // Some redundant NULLs
   {NULL, NULL, NULL, NULL,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Idle, 0, 0, 0, 0,  0, 0, 0, 0},
@@ -610,6 +613,7 @@ TbBool creature_is_dying(const struct Thing *thing)
 {
     return (thing->health < 0);
 }
+
 TbBool creature_is_being_dropped(const struct Thing *thing)
 {
     CrtrStateId i = thing->active_state;
@@ -667,7 +671,7 @@ TbBool creature_is_kept_in_prison(const struct Thing *thing)
 TbBool creature_is_being_summoned(const struct Thing *thing)
 {
     CrtrStateId i = get_creature_state_besides_interruptions(thing);
-    if ((i == CrSt_CreatureBeingSummoned))
+    if (i == CrSt_CreatureBeingSummoned)
         return true;
     return false;
 }
@@ -1378,29 +1382,76 @@ void set_flee_delay(struct Thing* creatng)
     cctrl->wait_to_turn = game.play_gameturn + FIGHT_FEAR_DELAY;
 }
 
+static short creature_is_stunnable_by_drop(struct Thing *creatng)
+{
+    if (gameadd.stun_on_drop == 0)
+    {
+        return 0;
+    }
+    if (creature_affected_by_spell(creatng, SplK_Chicken))
+    {
+        // Chickens dont became stunned
+        return 0;
+    }
+    struct Dungeon *dungeon = get_dungeon(creatng->owner);
+    if (gameadd.stun_on_drop == 1)
+    {
+        if (dungeon_invalid(dungeon) || (dungeon->computer_enabled & 1))
+        {
+            return 0;
+        }
+    }
+    return 1;
+}
+
 short creature_being_dropped(struct Thing *creatng)
 {
     TRACE_THING(creatng);
-    SYNCDBG(17,"Starting for %s index %d",thing_model_name(creatng),(long)creatng->index);
-    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    struct CreatureStats* crstat;
+    SYNCDBG(17, "Starting for %s index %d", thing_model_name(creatng), (long) creatng->index);
+    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
     cctrl->flgfield_1 |= CCFlg_NoCompControl;
     // Cannot teleport for a few turns after being dropped
     delay_teleport(creatng);
     set_flee_delay(creatng);
     MapSubtlCoord stl_x = creatng->mappos.x.stl.num;
     MapSubtlCoord stl_y = creatng->mappos.y.stl.num;
-    struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
     // If dropping still in progress, do nothing
-    if ( !(thing_touching_floor(creatng) || (((creatng->movement_flags & TMvF_Flying) != 0) && thing_touching_flight_altitude(creatng))))
+    if (!(thing_touching_floor(creatng) ||
+          (((creatng->movement_flags & TMvF_Flying) != 0) && thing_touching_flight_altitude(creatng))))
     {
+        cctrl->wait_to_turn = game.play_gameturn + gameadd.stun_on_drop_timer;
         // Note that the creature should have no self control while dropping - after all, it was in hand moments ago
-        SYNCDBG(17,"The %s index %d owner %d dropped at (%d,%d) isn't touching ground yet",thing_model_name(creatng),(int)creatng->index,(int)creatng->owner,(int)stl_x,(int)stl_y);
+        SYNCDBG(17, "The %s index %d owner %d dropped at (%d,%d) isn't touching ground yet", thing_model_name(creatng),
+                (int) creatng->index, (int) creatng->owner, (int) stl_x, (int) stl_y);
         return 1;
     }
     set_creature_assigned_job(creatng, Job_NULL);
     // If the creature has flight ability, return it to flying state
     restore_creature_flight_flag(creatng);
+    set_start_state(creatng);
+    if (!creature_is_stunnable_by_drop(creatng))
+    {
+        cctrl->turns_at_job = gameadd.stun_on_drop_timer;
+    }
+    // Dont want to call cleanup so dont use initialise_thing_state
+    creatng->active_state = CrSt_CreatureStunDropped;
+    return 2;
+}
+
+short process_stun_dropped(struct Thing *creatng)
+{
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    struct CreatureStats *crstat;
+    MapSubtlCoord stl_x = creatng->mappos.x.stl.num;
+    MapSubtlCoord stl_y = creatng->mappos.y.stl.num;
+    struct SlabMap *slb = get_slabmap_for_subtile(stl_x, stl_y);
+
+    cctrl->turns_at_job++;
+    if (cctrl->turns_at_job <= gameadd.stun_on_drop_timer)
+    {
+        return 2;
+    }
+
     // Set creature to default state, in case giving it job will fail
     set_start_state(creatng);
     // Check job which we can do after dropping at these coordinates
@@ -1544,7 +1595,9 @@ short creature_cannot_find_anything_to_do(struct Thing *creatng)
 		return 0;
 	}
 	if (creature_choose_random_destination_on_valid_adjacent_slab(creatng))
-		creatng->continue_state = 123;
+    {
+        creatng->continue_state = CrSt_CreatureCannotFindAnythingToDo;
+    }
 	return 1;
 }
 

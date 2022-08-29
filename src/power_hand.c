@@ -905,6 +905,10 @@ void drop_held_thing_on_ground(struct Dungeon *dungeon, struct Thing *droptng, c
     if (thing_is_creature(droptng))
     {
         initialise_thing_state(droptng, CrSt_CreatureBeingDropped);
+
+        struct CreatureControl *cctrl = creature_control_get_from_thing(droptng);
+        cctrl->turns_at_job = 0;
+
         stop_creature_sound(droptng, 5);
         if (is_my_player_number(dungeon->owner)) {
             play_creature_sound(droptng, CrSnd_Drop, 3, 0);
@@ -915,8 +919,8 @@ void drop_held_thing_on_ground(struct Dungeon *dungeon, struct Thing *droptng, c
         {
             illuminate_creature(droptng);
         }
-    } else
-    if (thing_is_object(droptng))
+    }
+    else if (thing_is_object(droptng))
     {
         if (object_is_mature_food(droptng)) {
             set_thing_draw(droptng, convert_td_iso(819), 256, -1, -1, 0, 2);
