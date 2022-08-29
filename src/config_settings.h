@@ -73,6 +73,7 @@ struct GameSettings { // KFX settings
     unsigned int minimap_zoom;
     unsigned long isometric_view_zoom_level;
     unsigned long frontview_zoom_level;
+    long mentor_volume;
     };
 #pragma pack()
 /******************************************************************************/

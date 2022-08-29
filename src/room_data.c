@@ -4364,7 +4364,7 @@ struct Room *place_room(PlayerNumber owner, RoomKind rkind, MapSubtlCoord stl_x,
     stl_y = stl_slab_starting_subtile(stl_y);
     // Update slab type on map
     struct RoomConfigStats* roomst = get_room_kind_stats(room->kind);
-    long i = get_slab_number(slb_x, slb_y);
+    SlabCodedCoords i = get_slab_number(slb_x, slb_y);
     delete_room_slabbed_objects(i);
     if ((rkind == RoK_GUARDPOST) || (rkind == RoK_BRIDGE))
     {

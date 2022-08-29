@@ -29,6 +29,7 @@
 #include "bflib_sndlib.h"
 #include "bflib_fileio.h"
 #include "bflib_planar.h"
+#include "config_settings.h"
 #include "game_legacy.h"
 #include "globals.h"
 
@@ -1047,14 +1048,16 @@ long play_speech_sample(SoundSmplTblID smptbl_id)
       }
     }
     SpeechEmitter = sp_emiter;
+    long vol = lerp(0, 256, (float)settings.mentor_volume/127.0); // [0-127] rescaled to [0-256]
+    
     if (sp_emiter != 0)
     {
       if (S3DEmitterHasFinishedPlaying(sp_emiter))
-        if (S3DAddSampleToEmitterPri(SpeechEmitter, smptbl_id, 1, 100, 256, 0, 3, 8, 2147483647))
+        if (S3DAddSampleToEmitterPri(SpeechEmitter, smptbl_id, 1, 100, vol, 0, 3, 8, 2147483647))
           return true;
       return false;
     }
-    sp_emiter = S3DCreateSoundEmitterPri(0, 0, 0, smptbl_id, 1, 100, 256, 0, 8, 2147483647);
+    sp_emiter = S3DCreateSoundEmitterPri(0, 0, 0, smptbl_id, 1, 100, vol, 0, 8, 2147483647);
     SpeechEmitter = sp_emiter;
     if (sp_emiter == 0)
     {

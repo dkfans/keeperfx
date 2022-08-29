@@ -159,9 +159,9 @@ struct Thing {
       } roomflag;
       struct {
       short unused3;
-      long turntime;
-      unsigned char byte_19;
-      }roomflag2; // both roomflag and roomflag2 are used in same function on same object but have 2 bytes overlapping between room_idx and turntime 
+      long last_turn_drawn;
+      unsigned char display_timer;
+      }roomflag2; // both roomflag and roomflag2 are used in same function on same object but have 2 bytes overlapping between room_idx and last_turn_drawn 
 //TCls_Shot
       struct {
         unsigned char dexterity;
@@ -298,6 +298,12 @@ struct ThingAdd // Additional thing data
     unsigned short interp_floor_height;
     struct Coord3d previous_mappos;
     struct Coord3d interp_mappos;
+    
+    long interp_minimap_pos_x;
+    long interp_minimap_pos_y;
+    long previous_minimap_pos_x;
+    long previous_minimap_pos_y;
+    long interp_minimap_update_turn;
 };
 
 struct LightAdd // Additional light data

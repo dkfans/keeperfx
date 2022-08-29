@@ -1532,7 +1532,7 @@ short get_creature_control_action_inputs(void)
             else if (thing_is_invalid(dragtng))
             {
                 struct ShotConfigStats* shotst = get_shot_model_stats(ShM_Dig);
-                TbBool diggable_subtile;
+                TbBool diggable_subtile = false;
                 MapSubtlCoord stl_x = thing->mappos.x.stl.num;
                 MapSubtlCoord stl_y = thing->mappos.y.stl.num;
                 for (unsigned char range = 0; range < shotst->health; range++)
@@ -1676,6 +1676,7 @@ short get_map_action_inputs(void)
         if (left_button_released) {
             left_button_released = 0;
             set_players_packet_action(player, PckA_ZoomFromMap, stl_x, stl_y, 0, 0);
+            reset_interpolation_for_parchment_view();
             return true;
         }
     }

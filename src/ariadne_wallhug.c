@@ -649,14 +649,15 @@ static TbBool check_forward_for_prospective_hugs(struct Thing *creatng, struct C
     if ( navi->field_1[0] == 1 )
     {
         quadrant_angle = (((unsigned char)angle_to_quadrant(angle) - 1) & 3) << 9;
-        
+
         next_pos.x.val = move_coord_with_angle_x(creatng->mappos.x.val,speed,quadrant_angle);
         next_pos.y.val = move_coord_with_angle_y(creatng->mappos.y.val,speed,quadrant_angle);
         next_pos.z.val = get_thing_height_at(creatng, &next_pos);
-        if (creature_cannot_move_directly_to_with_collide(creatng, &next_pos, angle, a4) == 4)
+        if (creature_cannot_move_directly_to_with_collide(creatng, &next_pos, a3, a4) == 4)
         {
             stored_creature_pos = creatng->mappos;
             creatng->mappos.x.val = pos.x.val;
+            creatng->mappos.y.val = pos.y.val;
             creatng->mappos.z.val = pos.z.val;
             quadrant_angle = (((unsigned char)angle_to_quadrant(angle) - 1) & 3) << 9;
             next_pos.x.val = move_coord_with_angle_x(creatng->mappos.x.val,speed,quadrant_angle);
@@ -666,9 +667,9 @@ static TbBool check_forward_for_prospective_hugs(struct Thing *creatng, struct C
             {
                 *pos_a = pos;
                 creatng->mappos = stored_creature_pos;
-                 return 1;
+                return true;
             }
-            stored_creature_pos = creatng->mappos;
+            creatng->mappos = stored_creature_pos;
         }
     }
     if ( navi->field_1[0] != 2 )
@@ -677,7 +678,7 @@ static TbBool check_forward_for_prospective_hugs(struct Thing *creatng, struct C
     next_pos.x.val = move_coord_with_angle_x(creatng->mappos.x.val,speed,quadrant_angle);
     next_pos.y.val = move_coord_with_angle_y(creatng->mappos.y.val,speed,quadrant_angle);
     next_pos.z.val = get_thing_height_at(creatng, &next_pos);
-    if (creature_cannot_move_directly_to_with_collide(creatng, &next_pos, angle, a4) != 4)
+    if (creature_cannot_move_directly_to_with_collide(creatng, &next_pos, a3, a4) != 4)
         return false;
     stored_creature_pos = creatng->mappos;
     creatng->mappos = pos;
@@ -687,7 +688,7 @@ static TbBool check_forward_for_prospective_hugs(struct Thing *creatng, struct C
     next_pos.z.val = get_thing_height_at(creatng, &next_pos);
 
 
-    if (creature_cannot_move_directly_to_with_collide(creatng, &next_pos, angle, a4) == 4)
+    if (creature_cannot_move_directly_to_with_collide(creatng, &next_pos, a3, a4) == 4)
     {
         creatng->mappos = stored_creature_pos;
         return false;

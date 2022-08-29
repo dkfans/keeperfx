@@ -42,6 +42,7 @@
 #include "creature_states.h"
 #include "creature_groups.h"
 #include "game_legacy.h"
+#include "engine_lenses.h"
 
 #include "keeperfx.hpp"
 
@@ -112,7 +113,9 @@ TbBool detonate_shot(struct Thing *shotng)
     case ShM_Lightning:
     case ShM_GodLightning:
     case ShM_GodLightBall:
-        PaletteSetPlayerPalette(myplyr, engine_palette);
+        if (lens_mode != 0) {
+            PaletteSetPlayerPalette(myplyr, engine_palette);
+        }
         break;
     case ShM_Grenade:
     case ShM_Lizard:
@@ -1022,11 +1025,10 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
             {
                 shotng->shot.target_idx = 0;
             }
-            struct CreatureStats* crstat = creature_stats_get_from_thing(killertng);
             struct Coord3d pos2;
             pos2.x.val = killertng->mappos.x.val;
             pos2.y.val = killertng->mappos.y.val;
-            pos2.z.val = crstat->eye_height + killertng->mappos.z.val;
+            pos2.z.val = get_creature_eye_height(killertng) + killertng->mappos.z.val;
             clear_thing_acceleration(shotng);
             set_thing_acceleration_angles(shotng, get_angle_xy_to(&shotng->mappos, &pos2), get_angle_yz_to(&shotng->mappos, &pos2));
             shotng->parent_idx = trgtng->parent_idx;
