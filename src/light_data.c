@@ -1664,7 +1664,6 @@ static char light_render_light(struct Light* lgt)
   // lgt->mappos.x.val = remember_original_lgt_mappos_x;
   // lgt->mappos.y.val = remember_original_lgt_mappos_y;
   return lighting_tables_idx;
-  // return _DK_light_render_light(lgt);
 }
 
 static void light_render_area(MapSubtlCoord startx, MapSubtlCoord starty, MapSubtlCoord endx, MapSubtlCoord endy)
