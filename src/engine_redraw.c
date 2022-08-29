@@ -541,8 +541,6 @@ void draw_overlay_compass(long base_x, long base_y)
     int tx_units_per_px = (22 * units_per_px) / LbTextLineHeight();
     int w = (LbSprFontCharWidth(lbFontPtr, '/') * tx_units_per_px / 16) / 2;
     int h = (LbSprFontCharHeight(lbFontPtr, '/') * tx_units_per_px / 16) / 2 + 2 * units_per_px / 16;
-    struct PlayerInfo* player = get_my_player();
-    const struct Camera* cam = player->acamera;
     int center_x = base_x * units_per_px / 16 + MapDiagonalLength / 2;
     int center_y = base_y * units_per_px / 16 + MapDiagonalLength / 2;
     int shift_x = (-(MapDiagonalLength * 7 / 16) * LbSinL(interpolated_cam_orient_a)) >> LbFPMath_TrigmBits;

@@ -1171,24 +1171,34 @@ void auto_gen_tables(long units_per_px)
         setup_pannel_colours();
     }
 }
-
 long interp_minimap_x;
 long interp_minimap_y;
-long prev_minimap_x;
-long prev_minimap_y;
-long minimap_get_previous;
+long interp_minimap_previous_x;
+long interp_minimap_previous_y;
+long interp_minimap_get_previous;
+void reset_interpolation_of_minimap()
+{
+    struct PlayerInfo* player = get_my_player();
+    struct Camera *cam = player->acamera;
+    interp_minimap_x = (cam->mappos.x.stl.num << 16);
+    interp_minimap_y = (cam->mappos.y.stl.num << 16);
+    interp_minimap_previous_x = interp_minimap_x;
+    interp_minimap_previous_y = interp_minimap_y;
+}
+
 void pannel_map_draw_slabs(long x, long y, long units_per_px, long zoom)
 {
     PannelMapX = scale_value_for_resolution_with_upp(x,units_per_px);
     PannelMapY = scale_value_for_resolution_with_upp(y,units_per_px);
     auto_gen_tables(units_per_px);
     update_pannel_colours();
-    struct PlayerInfo *player;
-    player = get_my_player();
-    struct Camera *cam;
-    cam = player->acamera;
+    struct PlayerInfo *player = get_my_player();
+    struct Camera *cam = player->acamera;
+    
     if ((cam == NULL) || (MapDiagonalLength < 1))
         return;
+    if (game.play_gameturn <= 1) {reset_interpolation_of_minimap();} //Fixes initial minimap frame being purple
+    
     long shift_x;
     long shift_y;
     long shift_stl_x;
@@ -1201,14 +1211,13 @@ void pannel_map_draw_slabs(long x, long y, long units_per_px, long zoom)
 
         long current_minimap_x = (cam->mappos.x.stl.num << 16);
         long current_minimap_y = (cam->mappos.y.stl.num << 16);
-        interp_minimap_x = interpolate(interp_minimap_x, prev_minimap_x, current_minimap_x);
-        interp_minimap_y = interpolate(interp_minimap_y, prev_minimap_y, current_minimap_y);
-        if (minimap_get_previous != game.play_gameturn) {
-            minimap_get_previous = game.play_gameturn;
-            prev_minimap_x = current_minimap_x;
-            prev_minimap_y = current_minimap_y;
+        interp_minimap_x = interpolate(interp_minimap_x, interp_minimap_previous_x, current_minimap_x);
+        interp_minimap_y = interpolate(interp_minimap_y, interp_minimap_previous_y, current_minimap_y);
+        if (interp_minimap_get_previous != game.play_gameturn) {
+            interp_minimap_get_previous = game.play_gameturn;
+            interp_minimap_previous_x = current_minimap_x;
+            interp_minimap_previous_y = current_minimap_y;
         }
-
         shift_stl_x = interp_minimap_x - MapDiagonalLength * shift_x / 2 - MapDiagonalLength * shift_y / 2;
         shift_stl_y = interp_minimap_y - MapDiagonalLength * shift_y / 2 + MapDiagonalLength * shift_x / 2;
     }
