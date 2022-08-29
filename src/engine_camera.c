@@ -34,7 +34,7 @@
 #include "dungeon_data.h"
 #include "config_settings.h"
 #include "player_instances.h"
-
+#include "frontmenu_ingame_map.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -99,6 +99,7 @@ void reset_interpolation_of_camera()
     previous_cam_mappos_x = cam->mappos.x.val;
     previous_cam_mappos_y = cam->mappos.y.val;
     previous_cam_mappos_z = cam->mappos.z.val;
+    reset_interpolation_of_minimap();
 }
 
 void set_previous_camera_values() {
@@ -471,7 +472,6 @@ void view_set_camera_rotation_inertia(struct Camera *cam, long delta, long ilimi
 
 void init_player_cameras(struct PlayerInfo *player)
 {
-
     struct Thing* heartng = get_player_soul_container(player->id_number);
     struct Camera* cam = &player->cameras[CamIV_FirstPerson];
     cam->mappos.x.val = 0;
@@ -508,6 +508,8 @@ void init_player_cameras(struct PlayerInfo *player)
     cam->horizontal_fov = 94;
     cam->view_mode = PVM_FrontView;
     cam->zoom = settings.frontview_zoom_level;
+
+    reset_interpolation_of_camera();
 }
 
 static int get_walking_bob_direction(struct Thing *thing)
