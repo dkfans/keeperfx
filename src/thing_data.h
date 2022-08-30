@@ -306,14 +306,6 @@ struct ThingAdd // Additional thing data
     long interp_minimap_update_turn;
 };
 
-struct LightAdd // Additional light data
-{
-    TbBool interp_has_been_initialized;
-    struct Coord3d previous_mappos;
-    struct Coord3d interp_mappos;
-    long last_turn_drawn;
-};
-
 #pragma pack()
 /******************************************************************************/
 #define allocate_free_thing_structure(a1) allocate_free_thing_structure_f(a1, __func__)
