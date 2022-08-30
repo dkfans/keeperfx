@@ -112,7 +112,7 @@ TbBool detonate_shot(struct Thing *shotng)
     {
     case ShM_GodLightning:
     case ShM_GodLightBall:
-        // Note: possibly sometimes breaks Hellhound and Vampire's palette when possessing them. Make it like ShM_Lightning's case to fix.
+        // Note: possibly sometimes breaks Hellhound and Vampire's palette when possessing them. Make it like ShM_Lightning's case to fix (after doing proper testing).
         PaletteSetPlayerPalette(myplyr, engine_palette);
         break;
     case ShM_Lightning:
