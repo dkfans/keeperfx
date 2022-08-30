@@ -110,9 +110,12 @@ TbBool detonate_shot(struct Thing *shotng)
     //TODO CONFIG shot model dependency, make config option instead
     switch (shotng->model)
     {
-    case ShM_Lightning:
     case ShM_GodLightning:
     case ShM_GodLightBall:
+        // Note: possibly sometimes breaks Hellhound and Vampire's palette when possessing them. Make it like ShM_Lightning's case to fix.
+        PaletteSetPlayerPalette(myplyr, engine_palette);
+        break;
+    case ShM_Lightning:
         if (lens_mode != 0) {
             PaletteSetPlayerPalette(myplyr, engine_palette);
         }
