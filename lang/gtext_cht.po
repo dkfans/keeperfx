@@ -6442,7 +6442,7 @@ msgstr ""
 #: guitext:1009
 #, fuzzy
 msgctxt "In-game interface item"
-msgid "Ambiance"
+msgid "Ambience"
 msgstr ""
 
 msgstr ""

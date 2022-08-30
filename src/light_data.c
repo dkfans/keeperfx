@@ -1531,11 +1531,10 @@ static int light_render_light_static(struct Light *lgt, int radius, int a3, unsi
 
 static char light_render_light(struct Light* lgt)
 {
-    /*
   struct LightAdd* lightadd = get_lightadd(lgt->index);
   int remember_original_lgt_mappos_x = lgt->mappos.x.val;
   int remember_original_lgt_mappos_y = lgt->mappos.y.val;
-  if (lightadd->interp_has_been_initialized == false) {
+  if ((lightadd->interp_has_been_initialized == false) || (game.play_gameturn - lightadd->last_turn_drawn > 1)) {
     lightadd->interp_has_been_initialized = true;
     lightadd->previous_mappos = lgt->mappos;
     lightadd->interp_mappos = lgt->mappos;
@@ -1543,17 +1542,20 @@ static char light_render_light(struct Light* lgt)
     lightadd->interp_mappos.x.val = interpolate(lightadd->interp_mappos.x.val, lightadd->previous_mappos.x.val, lgt->mappos.x.val);
     lightadd->interp_mappos.y.val = interpolate(lightadd->interp_mappos.y.val, lightadd->previous_mappos.y.val, lgt->mappos.y.val);
   }
+  lightadd->last_turn_drawn = game.play_gameturn;
   lgt->mappos = lightadd->interp_mappos;
   // Stop flicker by rounding off position
-  lgt->mappos.x.val = ((lgt->mappos.x.val >> 8) << 8);
-  lgt->mappos.y.val = ((lgt->mappos.y.val >> 8) << 8);
-  */
+  TbBool is_dynamic = lgt->flags & LgtF_Dynamic;
+  if (is_dynamic)
+  {
+      lgt->mappos.x.val = ((lgt->mappos.x.val >> 8) << 8);
+      lgt->mappos.y.val = ((lgt->mappos.y.val >> 8) << 8);
+  }
 
   int intensity;
   int radius = lgt->radius;
   int render_radius = radius;
   int render_intensity;
-  TbBool is_dynamic = lgt->flags & LgtF_Dynamic;
 
   if ( (lgt->flags2 & 0xFE) != 0 )
   {
@@ -1661,8 +1663,8 @@ static char light_render_light(struct Light* lgt)
       lighting_tables_idx = light_render_light_static(lgt, radius, render_intensity, lighting_tables_idx);
     }
   }
-  // lgt->mappos.x.val = remember_original_lgt_mappos_x;
-  // lgt->mappos.y.val = remember_original_lgt_mappos_y;
+  lgt->mappos.x.val = remember_original_lgt_mappos_x;
+  lgt->mappos.y.val = remember_original_lgt_mappos_y;
   return lighting_tables_idx;
 }
 

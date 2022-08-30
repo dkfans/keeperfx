@@ -6709,8 +6709,8 @@ msgstr "Stemmen"
 
 #: guitext:1009
 msgctxt "In-game interface item"
-msgid "Ambiance"
-msgstr "Ambiance"
+msgid "Ambience"
+msgstr "Atmosfeer"
 
 msgstr ""
 #: guitext:1010

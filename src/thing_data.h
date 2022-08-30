@@ -298,6 +298,12 @@ struct ThingAdd // Additional thing data
     unsigned short interp_floor_height;
     struct Coord3d previous_mappos;
     struct Coord3d interp_mappos;
+    
+    long interp_minimap_pos_x;
+    long interp_minimap_pos_y;
+    long previous_minimap_pos_x;
+    long previous_minimap_pos_y;
+    long interp_minimap_update_turn;
 };
 
 struct LightAdd // Additional light data
@@ -305,6 +311,7 @@ struct LightAdd // Additional light data
     TbBool interp_has_been_initialized;
     struct Coord3d previous_mappos;
     struct Coord3d interp_mappos;
+    long last_turn_drawn;
 };
 
 #pragma pack()

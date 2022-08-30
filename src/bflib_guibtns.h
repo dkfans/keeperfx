@@ -192,7 +192,7 @@ struct ToolTipBox {
       char text[TOOLTIP_MAX_LEN];
       struct GuiButton *gbutton;
       void *target;
-      unsigned char field_809;
+      unsigned char box_type; // 0 = doesn't move with cursor
       short pos_x;
       short pos_y;
 };
