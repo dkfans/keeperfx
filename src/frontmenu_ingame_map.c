@@ -657,8 +657,8 @@ int draw_line_to_heart(struct PlayerInfo *player, long units_per_px, long zoom)
     angle = -(LbArcTanAngle(mapos_x, mapos_y) & LbFPMath_AngleMask) & 0x1FFC;
     int delta_x;
     int delta_y;
-    delta_x = (-1024*units_per_px/16) * LbSinL(angle) >> 16;
-    delta_y = (-1024*units_per_px/16) * LbCosL(angle) >> 16;
+    delta_x = scale_ui_value(-1536) * LbSinL(angle) >> 16;
+    delta_y = scale_ui_value(-1536) * LbCosL(angle) >> 16;
     long frame;
     frame = (game.play_gameturn & 3) + 1;
     int draw_x;
@@ -674,7 +674,12 @@ int draw_line_to_heart(struct PlayerInfo *player, long units_per_px, long zoom)
             break;
         draw_x += delta_x;
         draw_y += delta_y;
-        pannel_map_draw_pixel(draw_x >> 8, draw_y >> 8, 15);
+        short pixel_end = get_pixels_scaled_and_zoomed(zoom * 2);
+        TbPixel col = 15;
+        for (int p = 0; p < pixel_end; p++)
+        {
+            pannel_map_draw_pixel((draw_x >> 8) + draw_square[p].delta_x, (draw_y >> 8) + draw_square[p].delta_y, col);
+        }
     }
     lbDisplay.DrawFlags &= ~Lb_SPRITE_TRANSPAR4;
     return 1;
@@ -690,8 +695,10 @@ void pannel_map_draw_overlay_things(long units_per_px, long scaled_zoom, long ba
     draw_overlay_call_to_arms(player, units_per_px, scaled_zoom);
     draw_overlay_traps(player, units_per_px, scaled_zoom,basic_zoom);
     draw_overlay_creatures(player, units_per_px, scaled_zoom, basic_zoom);
-    draw_overlay_spells_and_boxes(player, units_per_px, scaled_zoom, basic_zoom);
-    draw_line_to_heart(player, units_per_px, scaled_zoom);
+    if ((game.play_gameturn & 3) == 1) {
+        draw_overlay_spells_and_boxes(player, units_per_px, scaled_zoom, basic_zoom);
+    }
+    draw_line_to_heart(player, units_per_px, basic_zoom);
 }
 
 void pannel_map_update_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
