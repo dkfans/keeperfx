@@ -200,7 +200,7 @@ void message_add(PlayerNumber plyr_idx, const char *text)
     {
         memcpy(&gameadd.messages[i], &gameadd.messages[i-1], sizeof(struct GuiMessage));
     }
-    strncpy(gameadd.messages[0].text, text, sizeof(gameadd.messages[0].text) - 1);
+    snprintf(gameadd.messages[0].text, sizeof(gameadd.messages[0].text), "%s", text);
     gameadd.messages[0].plyr_idx = plyr_idx;
     gameadd.messages[0].creation_turn = game.play_gameturn + GUI_MESSAGES_DELAY;
     gameadd.messages[0].target_idx = -1;
@@ -235,7 +235,7 @@ void targeted_message_add(PlayerNumber plyr_idx, PlayerNumber target_idx, unsign
     {
         memcpy(&gameadd.messages[i], &gameadd.messages[i-1], sizeof(struct GuiMessage));
     }
-    strncpy(gameadd.messages[0].text, full_msg_text, sizeof(gameadd.messages[0].text) - 1);
+    snprintf(gameadd.messages[0].text, sizeof(gameadd.messages[0].text), "%s", full_msg_text);
     gameadd.messages[0].plyr_idx = plyr_idx;
     gameadd.messages[0].creation_turn = game.play_gameturn + timeout;
     gameadd.messages[0].target_idx = target_idx;

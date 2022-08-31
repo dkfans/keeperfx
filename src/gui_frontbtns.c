@@ -149,7 +149,7 @@ TbBool gui_slider_button_inputs(int gbtn_idx)
     {
         gbtn->slide_val = ((mouse_x-gbtn->pos_x) << 8) / (gbtn->width+1);
     }
-    *gbtn->content = (gbtn->slide_val) * (((long)gbtn->field_2D)+1) >> 8;
+    *gbtn->content = (gbtn->slide_val) * (((long)gbtn->maxval)+1) >> 8;
     callback = gbtn->click_event;
     if (callback != NULL)
       callback(gbtn);
@@ -352,9 +352,9 @@ void init_slider_bars(struct GuiMenu *gmnu)
               if (sldpos < 0)
                 sldpos = 0;
               else
-              if (sldpos > gbtn->field_2D)
-                sldpos = gbtn->field_2D;
-              gbtn->slide_val = (sldpos << 8) / (gbtn->field_2D + 1);
+              if (sldpos > gbtn->maxval)
+                sldpos = gbtn->maxval;
+              gbtn->slide_val = (sldpos << 8) / (gbtn->maxval + 1);
           }
         }
     }
@@ -591,7 +591,7 @@ void gui_area_compsetting_button(struct GuiButton *gbtn)
         } else {
             ERRORLOG("Cycle button must have a non-null UBYTE Data pointer!");
         }
-        if (gbtn->field_2D == 0) {
+        if (gbtn->maxval == 0) {
             ERRORLOG("Cycle button must have a non-zero MaxVal!");
         }
     }
@@ -623,7 +623,7 @@ void gui_area_creatrmodel_button(struct GuiButton *gbtn)
         } else {
             ERRORLOG("Cycle button must have a non-null UBYTE Data pointer!");
         }
-        if (gbtn->field_2D == 0) {
+        if (gbtn->maxval == 0) {
             ERRORLOG("Cycle button must have a non-zero MaxVal!");
         }
     }
@@ -655,7 +655,7 @@ void gui_area_new_no_anim_button(struct GuiButton *gbtn)
         } else {
             ERRORLOG("Cycle button must have a non-null UBYTE Data pointer!");
         }
-        if (gbtn->field_2D == 0) {
+        if (gbtn->maxval == 0) {
             ERRORLOG("Cycle button must have a non-zero MaxVal!");
         }
     }
@@ -688,7 +688,7 @@ void gui_area_no_anim_button(struct GuiButton *gbtn)
         } else {
             ERRORLOG("Cycle button must have a non-null UBYTE Data pointer!");
         }
-        if (gbtn->field_2D == 0) {
+        if (gbtn->maxval == 0) {
             ERRORLOG("Cycle button must have a non-zero MaxVal!");
         }
     }

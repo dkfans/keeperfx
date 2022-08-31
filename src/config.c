@@ -32,6 +32,7 @@
 #include "bflib_mouse.h"
 #include "bflib_sound.h"
 #include "sounds.h"
+#include "engine_render.h"
 
 #include "config_campaigns.h"
 #include "front_simple.h"
@@ -127,6 +128,7 @@ const struct NamedCommand conf_commands[] = {
   {"SKIP_HEART_ZOOM"               , 23},
   {"CURSOR_EDGE_CAMERA_PANNING"    , 24},
   {"DELTA_TIME"                    , 25},
+  {"CREATURE_STATUS_SIZE"          , 26},
   {NULL,                   0},
   };
 
@@ -287,7 +289,7 @@ TbBool mute_audio_on_focus_lost(void)
 {
   return ((features_enabled & Ft_MuteAudioOnLoseFocus) != 0);
 }
-  
+
 /**
  * Returns if the liquid wibble effect is on.
  */
@@ -631,8 +633,7 @@ const char *get_language_lwrstr(int lang_id)
       WARNLOG("Bad text code for language index %d",(int)lang_id);
 #endif
   static char lang_str[4];
-  strncpy(lang_str, src, 4);
-  lang_str[3] = '\0';
+  snprintf(lang_str, 4, "%s", src);
   strlwr(lang_str);
   return lang_str;
 }
@@ -872,7 +873,7 @@ short load_configuration(void)
             CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",COMMAND_TEXT(cmd_num),config_textname);
             break;
           }
-          else 
+          else
           {
             atmos_sound_volume = i;
             break;
@@ -1083,6 +1084,17 @@ short load_configuration(void)
               features_enabled |= Ft_DeltaTime;
           else
               features_enabled &= ~Ft_DeltaTime;
+          break;
+      case 26: // CREATURE_STATUS_SIZE
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            i = atoi(word_buf);
+          }
+          if ((i >= 0) && (i <= 32768)) {
+              creature_status_size = i;
+          } else {
+              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",COMMAND_TEXT(cmd_num),config_textname);
+          }
           break;
       case 0: // comment
           break;
@@ -1554,7 +1566,7 @@ int add_high_score_entry(unsigned long score, LevelNumber lvnum, const char *nam
         }
     }
     // Preparing the new entry
-    strncpy(campaign.hiscore_table[dest_idx].name, name, HISCORE_NAME_LENGTH);
+    snprintf(campaign.hiscore_table[dest_idx].name, HISCORE_NAME_LENGTH, "%s", name);
     campaign.hiscore_table[dest_idx].score = score;
     campaign.hiscore_table[dest_idx].lvnum = lvnum;
     return dest_idx;
@@ -1676,8 +1688,7 @@ short set_level_info_text_name(LevelNumber lvnum, char *name, unsigned long lvop
     struct LevelInformation* lvinfo = get_or_create_level_info(lvnum, lvoptions);
     if (lvinfo == NULL)
         return false;
-    strncpy(lvinfo->name, name, LINEMSG_SIZE - 1);
-    lvinfo->name[LINEMSG_SIZE - 1] = '\0';
+    snprintf(lvinfo->name, LINEMSG_SIZE, "%s", name);
     if ((lvoptions & LvOp_IsFree) != 0)
     {
         lvinfo->ensign_x += ((LANDVIEW_MAP_WIDTH >> 4) * (LbSinL(lvnum * LbFPMath_PI / 16) >> 6)) >> 10;

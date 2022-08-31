@@ -144,6 +144,7 @@ struct EngineCol *front_ec;
 struct EngineCol *back_ec;
 float hud_scale;
 
+int creature_status_size = 16; // Default value, overwritten by cfg setting
 static int water_wibble_angle = 0;
 static float render_water_wibble = 0; // Rendering float
 //static unsigned char temp_cluedo_mode;
@@ -4844,7 +4845,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
     }
 
     float scale_by_zoom;
-    int base_size = 16*256;
+    int base_size = creature_status_size*256;
     switch (cam->view_mode) {
         case PVM_IsometricView:
             // 1st argument: the scale when fully zoomed out. 2nd argument: the scale at base level zoom
@@ -4990,8 +4991,8 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
     bs_units_per_px = units_per_pixel_ui * 2 * scale_by_zoom;
 
     if (cam->view_mode == PVM_FrontView) {
-        float flower_distance = 20.00; // Higher number means flower is further away from creature
-        scrpos_y -= (flower_distance/spr->SHeight) * bs_units_per_px;
+        float flower_distance = 1280; // Higher number means flower is further away from creature
+        scrpos_y -= (int)(  (flower_distance / spr->SHeight) * ((float)camera_zoom / FRONTVIEW_CAMERA_ZOOM_MAX)  );
     }
 
     if ( state_spridx || anger_spridx )
