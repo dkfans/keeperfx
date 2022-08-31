@@ -951,8 +951,6 @@ TbBool frontnetmap_load(void)
     net_level_hilighted = SINGLEPLAYER_NOTSTARTED;
     set_pointer_graphic_none();
     LbMouseSetPosition(lbDisplay.PhysicalScreenWidth/2, lbDisplay.PhysicalScreenHeight/2);
-    LbTextSetFont(map_font);
-    LbTextSetWindow(0, 0, lbDisplay.PhysicalScreenWidth, lbDisplay.PhysicalScreenHeight);
     map_sound_fade = 256;
     lbDisplay.DrawFlags = 0;
     SetMusicPlayerVolume(settings.redbook_volume);
@@ -1182,6 +1180,8 @@ TbBool test_hand_slap_collides(PlayerNumber plyr_idx)
 void frontmap_draw(void)
 {
     SYNCDBG(8,"Starting");
+    LbTextSetFont(map_font);
+    LbTextSetWindow(0, 0, lbDisplay.PhysicalScreenWidth, lbDisplay.PhysicalScreenHeight);
     if ((map_info.fadeflags & MLInfoFlg_Zooming) != 0)
     {
         frontzoom_to_point(map_info.hotspot_imgpos_x, map_info.hotspot_imgpos_y, map_info.fade_pos);
@@ -1368,6 +1368,8 @@ void draw_map_level_descriptions(void)
 void frontnetmap_draw(void)
 {
     SYNCDBG(8,"Starting");
+    LbTextSetFont(map_font);
+    LbTextSetWindow(0, 0, lbDisplay.PhysicalScreenWidth, lbDisplay.PhysicalScreenHeight);
     if ((map_info.fadeflags & MLInfoFlg_Zooming) != 0)
     {
         frontzoom_to_point(map_info.hotspot_imgpos_x, map_info.hotspot_imgpos_y, map_info.fade_pos);

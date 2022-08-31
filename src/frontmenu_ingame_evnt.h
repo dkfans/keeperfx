@@ -64,7 +64,6 @@ TbBool display_variable_enabled(void);
 void draw_script_variable(PlayerNumber plyr_idx, unsigned char valtype, unsigned char validx, long target, unsigned char targettype);
 
 extern unsigned long TimerTurns;
-extern int debug_display_frametime;
 /******************************************************************************/
 #ifdef __cplusplus
 }
