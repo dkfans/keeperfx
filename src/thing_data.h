@@ -69,7 +69,7 @@ enum ThingFlags4F {
     TF4F_Transpar_Alpha = 0x30,
     TF4F_Transpar_Flags = 0x30,
 
-    TF4F_Unknown40     = 0x40,    // Unconscious
+    TF4F_Unmoving      = 0x40,
     TF4F_BeingHit      = 0x80,    // Being hit (draw red sometimes)
 };
 
