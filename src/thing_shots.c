@@ -1588,7 +1588,7 @@ struct Thing *create_shot(struct Coord3d *pos, unsigned short model, unsigned sh
     set_thing_draw(thing, shotst->sprite_anim_idx, 256, shotst->sprite_size_max, 0, 0, 2);
     thing->field_4F ^= (thing->field_4F ^ 0x02 * shotst->old->field_6) & TF4F_Unknown02;
     thing->field_4F ^= thing->field_4F ^ ((thing->field_4F ^ TF4F_Transpar_8 * shotst->animation_transparency) & (TF4F_Transpar_Flags));
-    thing->field_4F ^= (thing->field_4F ^ shotst->old->field_7) & TF4F_Unknown01;
+    thing->field_4F ^= (thing->field_4F ^ shotst->hidden_projectile) & TF4F_Unknown01;
     thing->clipbox_size_xy = shotst->size_xy;
     thing->clipbox_size_yz = shotst->size_yz;
     thing->solid_size_xy = shotst->size_xy;
