@@ -3154,7 +3154,7 @@ ThingIndex get_human_controlled_creature_target(struct Thing *thing, long primar
                                     is_valid_target = (thing_is_creature(i) && !creature_is_being_unconscious(i));
                                     break;
                                 case 3:
-                                    is_valid_target = ((thing_is_creature(i) || thing_is_dungeon_heart(i)) && i->owner != thing->owner);
+                                    is_valid_target = (((thing_is_creature(i) && !creature_is_being_unconscious(i)) || thing_is_dungeon_heart(i)) && i->owner != thing->owner);
                                     break;
                                 case 4:
                                     is_valid_target = ((thing_is_creature(i) && !creature_is_being_unconscious(i)) && i->owner != thing->owner);
