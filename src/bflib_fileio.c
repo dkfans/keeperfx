@@ -407,8 +407,7 @@ long LbFileLength(const char *fname)
 void convert_find_info(struct TbFileFind *ffind)
 {
   struct _finddata_t *fdata=&(ffind->Reserved);
-  strncpy(ffind->Filename,fdata->name,144);
-  ffind->Filename[143]='\0';
+  snprintf(ffind->Filename,144, "%s", fdata->name);
 #if defined(_WIN32)
   GetShortPathName(fdata->name,ffind->AlternateFilename,14);
 #else

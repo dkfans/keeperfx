@@ -233,9 +233,9 @@ TbBool frontend_high_score_table_input(void)
     {
         struct HighScore* hscore = &campaign.hiscore_table[high_score_entry_input_active];
         if (lbInkey == KC_ESCAPE) {
-            strncpy(hscore->name, get_string(GUIStr_TeamLeader), HISCORE_NAME_LENGTH);
+            snprintf(hscore->name, HISCORE_NAME_LENGTH, "%s", get_string(GUIStr_TeamLeader));
         } else {
-            strncpy(hscore->name, high_score_entry, HISCORE_NAME_LENGTH);
+            snprintf(hscore->name, HISCORE_NAME_LENGTH, "%s", high_score_entry);
         }
         high_score_entry_input_active = -1;
         save_high_score_table();
