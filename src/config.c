@@ -633,8 +633,7 @@ const char *get_language_lwrstr(int lang_id)
       WARNLOG("Bad text code for language index %d",(int)lang_id);
 #endif
   static char lang_str[4];
-  strncpy(lang_str, src, 4);
-  lang_str[3] = '\0';
+  snprintf(lang_str, 4, "%s", src);
   strlwr(lang_str);
   return lang_str;
 }
@@ -1567,7 +1566,7 @@ int add_high_score_entry(unsigned long score, LevelNumber lvnum, const char *nam
         }
     }
     // Preparing the new entry
-    strncpy(campaign.hiscore_table[dest_idx].name, name, HISCORE_NAME_LENGTH);
+    snprintf(campaign.hiscore_table[dest_idx].name, HISCORE_NAME_LENGTH, "%s", name);
     campaign.hiscore_table[dest_idx].score = score;
     campaign.hiscore_table[dest_idx].lvnum = lvnum;
     return dest_idx;
@@ -1689,8 +1688,7 @@ short set_level_info_text_name(LevelNumber lvnum, char *name, unsigned long lvop
     struct LevelInformation* lvinfo = get_or_create_level_info(lvnum, lvoptions);
     if (lvinfo == NULL)
         return false;
-    strncpy(lvinfo->name, name, LINEMSG_SIZE - 1);
-    lvinfo->name[LINEMSG_SIZE - 1] = '\0';
+    snprintf(lvinfo->name, LINEMSG_SIZE, "%s", name);
     if ((lvoptions & LvOp_IsFree) != 0)
     {
         lvinfo->ensign_x += ((LANDVIEW_MAP_WIDTH >> 4) * (LbSinL(lvnum * LbFPMath_PI / 16) >> 6)) >> 10;

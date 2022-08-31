@@ -65,25 +65,6 @@ extern "C" {
 #define PLAYER_INSTANCES_COUNT 19
 #define ZOOM_KEY_ROOMS_COUNT   15
 
-
-#define TOTAL_FRAMETIME_KINDS 4
-enum FrametimeKinds {
-    Frametime_FullFrame = 0,
-    Frametime_Logic = 1,
-    Frametime_Draw = 2,
-    Frametime_Sleep = 3,
-};
-
-struct FrametimeMeasurements {
-    float starting_measurement[TOTAL_FRAMETIME_KINDS];
-    float frametime_current[TOTAL_FRAMETIME_KINDS];
-    float frametime_get_max[TOTAL_FRAMETIME_KINDS];
-    float frametime_display[TOTAL_FRAMETIME_KINDS];
-    float frametime_display_max[TOTAL_FRAMETIME_KINDS];
-};
-
-extern struct FrametimeMeasurements frametime_measurements;
-
 enum ModeFlags {
     MFlg_IsDemoMode         =  0x01,
     MFlg_EyeLensReady       =  0x02,

@@ -51,6 +51,7 @@
 #include "config_magic.h"
 #include "config_effects.h"
 #include "gui_soundmsgs.h"
+#include "gui_tooltips.h"
 #include "room_jobs.h"
 #include "map_blocks.h"
 #include "map_columns.h"
@@ -537,7 +538,7 @@ void slap_creature(struct PlayerInfo *player, struct Thing *thing)
     }
     cctrl->field_B1 = 6;
     cctrl->field_27F = 18;
-    play_creature_sound(thing, CrSnd_Hurt, 3, 0);
+    play_creature_sound(thing, CrSnd_Slap, 3, 0);
 }
 
 TbBool can_cast_power_at_xy(PlayerNumber plyr_idx, PowerKind pwkind,
@@ -1732,6 +1733,9 @@ TbResult magic_use_power_possess_thing(PlayerNumber plyr_idx, struct Thing *thin
     playeradd->battleid = 1;
     // Note that setting Direct Control player instance requires player->influenced_thing_idx to be set correctly
     set_player_instance(player, PI_DirctCtrl, 0);
+    if (is_my_player(player)) {
+        set_flag_byte(&tool_tip_box.flags,TTip_Visible,false);
+    }
     return Lb_SUCCESS;
 }
 

@@ -98,9 +98,9 @@ struct GuiButtonInit sound_menu_buttons[] = {
   {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,   8,  28,  10,  28, 46, 64, gui_area_no_anim_button,          41, GUIStr_Empty,            0,       {0},            0, NULL },
   {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,   8,  80,  10,  80, 46, 64, gui_area_no_anim_button,          40, GUIStr_Empty,            0,       {0},            0, NULL },
   {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,   8, 132,  10, 132, 46, 64, gui_area_no_anim_button,         123, GUIStr_Empty,            0,       {0},            0, NULL },
-  {LbBtnT_HorizSlider,BID_DEFAULT, 0, 0, gui_set_sound_volume,NULL,       NULL,               0,  66,  58,  66,  58,190, 30, gui_area_slider,                   0, GUIStr_OptionSoundFx,    0,{(long)&sound_level},127, NULL },
-  {LbBtnT_HorizSlider,BID_DEFAULT, 0, 0, gui_set_music_volume,NULL,       NULL,               0,  66, 110,  66, 110,190, 30, gui_area_slider,                   0, GUIStr_OptionMusic,      0,{(long)&music_level},127, NULL },
-  {LbBtnT_HorizSlider,BID_DEFAULT, 0, 0, gui_set_mentor_volume,NULL,      NULL,               0,  66, 162,  66, 162,190, 30, gui_area_slider,                   0, GUIStr_OptionVoice,      0,{(long)&mentor_level},127, NULL },
+  {LbBtnT_HorizSlider,BID_DEFAULT, 0, 0, gui_set_sound_volume,NULL,       NULL,               0,  66,  58,  66,  58,190, 30, gui_area_slider,                   0, GUIStr_OptionSoundFx,    0,{(long)&sound_level_slider},127, NULL },
+  {LbBtnT_HorizSlider,BID_DEFAULT, 0, 0, gui_set_music_volume,NULL,       NULL,               0,  66, 110,  66, 110,190, 30, gui_area_slider,                   0, GUIStr_OptionMusic,      0,{(long)&music_level_slider},127, NULL },
+  {LbBtnT_HorizSlider,BID_DEFAULT, 0, 0, gui_set_mentor_volume,NULL,      NULL,               0,  66, 162,  66, 162,190, 30, gui_area_slider,                   0, GUIStr_OptionVoice,      0,{(long)&mentor_level_slider},127, NULL },
   {              -1,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,                     0,       {0},            0, NULL },
 };
 

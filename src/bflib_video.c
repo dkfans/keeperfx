@@ -632,20 +632,20 @@ TbResult LbPaletteGet(unsigned char *palette)
 
 TbResult LbSetTitle(const char *title)
 {
-  strncpy(lbDrawAreaTitle, title, sizeof(lbDrawAreaTitle)-1);
-  return Lb_SUCCESS;
+    snprintf(lbDrawAreaTitle, sizeof(lbDrawAreaTitle), "%s", title);
+    return Lb_SUCCESS;
 }
 
 TbResult LbSetIcon(unsigned short nicon)
 {
-  lbIconIndex = nicon;
-  return Lb_SUCCESS;
+    lbIconIndex = nicon;
+    return Lb_SUCCESS;
 }
 
 TbScreenModeInfo *LbScreenGetModeInfo(TbScreenMode mode)
 {
     if (mode < lbScreenModeInfoNum)
-      return &lbScreenModeInfo[mode];
+        return &lbScreenModeInfo[mode];
     return &lbScreenModeInfo[0];
 }
 
@@ -842,7 +842,7 @@ TbScreenMode LbRegisterVideoMode(const char *desc, TbScreenCoord width, TbScreen
     mdinfo->BitsPerPixel = bpp;
     mdinfo->Available = false;
     mdinfo->VideoFlags = flags;
-    strncpy(mdinfo->Desc,desc,sizeof(mdinfo->Desc));
+    snprintf(mdinfo->Desc, sizeof(mdinfo->Desc), "%s", desc);
     return mode;
 }
 

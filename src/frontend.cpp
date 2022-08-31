@@ -542,8 +542,7 @@ void add_message(long plyr_idx, char *msg)
     }
     nmsg = &net_message[i];
     nmsg->plyr_idx = plyr_idx;
-    strncpy(nmsg->text, msg, NET_MESSAGE_LEN-1);
-    nmsg->text[NET_MESSAGE_LEN-1] = '\0';
+    snprintf(nmsg->text, NET_MESSAGE_LEN, "%s", msg);
     i++;
     net_number_of_messages = i;
     if (net_message_scroll_offset+4 < i)
@@ -630,7 +629,7 @@ void create_error_box(TextStringId msg_idx)
     if (!game.packet_load_enable)
     {
         //change the length into  when gui_error_text will not be exported
-        strncpy(gui_error_text, get_string(msg_idx), sizeof(gui_error_text)-1);
+        snprintf(gui_error_text, sizeof(gui_error_text), "%s", get_string(msg_idx));
         turn_on_menu(GMnu_ERROR_BOX);
     }
 }
@@ -702,7 +701,7 @@ TbBool get_button_area_input(struct GuiButton *gbtn, int modifiers)
     } else
     if (key == KC_ESCAPE)
     { // Stop the input, revert the string to what it was before
-        strncpy(str, backup_input_field, gbtn->maxval);
+        snprintf(str, gbtn->maxval, "%s", backup_input_field);
         input_button = 0;
         input_field_pos = 0;
     } else
@@ -1350,9 +1349,9 @@ void gui_area_text(struct GuiButton *gbtn)
 void frontend_init_options_menu(struct GuiMenu *gmnu)
 {
     //_DK_frontend_init_options_menu(gmnu);
-    music_level = settings.redbook_volume;
-    sound_level = settings.sound_volume;
-    mentor_level = settings.mentor_volume;
+    music_level_slider = make_audio_slider_linear(settings.redbook_volume);
+    sound_level_slider = make_audio_slider_linear(settings.sound_volume);
+    mentor_level_slider = make_audio_slider_linear(settings.mentor_volume);
     fe_mouse_sensitivity = settings.first_person_move_sensitivity;
 }
 
@@ -3374,7 +3373,7 @@ void set_level_objective(const char *msg_text)
         ERRORLOG("Invalid message pointer");
         return;
     }
-    strncpy(game.evntbox_text_objective, msg_text, MESSAGE_TEXT_LEN);
+    snprintf(game.evntbox_text_objective, MESSAGE_TEXT_LEN, "%s", msg_text);
     new_objective = 1;
 }
 
@@ -3743,8 +3742,7 @@ void try_restore_frontend_error_box()
 
 void create_frontend_error_box(long showTime, const char * text)
 {
-    strncpy(gui_message_text, text, TEXT_BUFFER_LENGTH-1);
-    gui_message_text[TEXT_BUFFER_LENGTH-1] = '\0';
+    snprintf(gui_message_text, TEXT_BUFFER_LENGTH, "%s", text);
     gui_message_timeout = LbTimerClock()+showTime;
     turn_on_menu(GMnu_FEERROR_BOX);
 }
