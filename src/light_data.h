@@ -77,6 +77,14 @@ struct Light { // sizeof = 46
   struct Coord3d mappos;
 };
 
+struct LightAdd // Additional light data
+{
+    TbBool interp_has_been_initialized;
+    struct Coord3d previous_mappos;
+    struct Coord3d interp_mappos;
+    long last_turn_drawn;
+};
+
 struct InitLight { // sizeof=0x14
 short radius;
 unsigned char intensity;

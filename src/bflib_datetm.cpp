@@ -52,6 +52,7 @@ int debug_display_frametime = 0;
 void initial_time_point()
 {
   initialized_time_point = TimeNow;
+  gameadd.process_turn_time = 1.0; // Begin initial turn as soon as possible (like original game)
 }
 
 float get_delta_time()
