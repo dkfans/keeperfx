@@ -2,7 +2,6 @@
 #include <windows.h>
 
 #include "keeperfx.hpp"
-#include <chrono>
 
 #include "bflib_coroutine.h"
 #include "bflib_math.h"
@@ -114,13 +113,6 @@
 #define strcasecmp _stricmp
 #endif
 
-#define TimePoint std::chrono::high_resolution_clock::time_point
-#define TimeNow std::chrono::high_resolution_clock::now()
-TimePoint initialized_time_point;
-struct FrametimeMeasurements frametime_measurements;
-
-TimePoint delta_time_previous_timepoint;
-
 int test_variable;
 
 char cmndline[CMDLN_MAXLEN+1];
@@ -161,39 +153,8 @@ struct TimerTime Timer;
 TbBool TimerGame = false;
 TbBool TimerNoReset = false;
 TbBool TimerFreeze = false;
-
 /******************************************************************************/
 
-void frametime_set_all_measurements_to_be_displayed() {
-    // Display the frametime of the previous frame only, not the current frametime. Drawing "frametime_current" is a bad idea because frametimes are displayed on screen half-way through the rest of the measurements.
-    for (int i = 0; i < TOTAL_FRAMETIME_KINDS; i++) {
-        frametime_measurements.frametime_display[i] = frametime_measurements.frametime_current[i];
-        if (game.play_gameturn % game.num_fps == 0) {
-            frametime_measurements.frametime_display_max[i] = frametime_measurements.frametime_get_max[i];
-            frametime_measurements.frametime_get_max[i] = 0;
-        }
-    }
-}
-
-void frametime_start_measurement(int frametime_kind) {
-    long double current_nanoseconds = std::chrono::duration_cast<std::chrono::nanoseconds>(TimeNow - initialized_time_point).count();
-    long double current_milliseconds = current_nanoseconds/1000000.0;
-    frametime_measurements.starting_measurement[frametime_kind] = float(current_milliseconds);
-}
-
-void frametime_end_measurement(int frametime_kind) {
-    long double current_nanoseconds = std::chrono::duration_cast<std::chrono::nanoseconds>(TimeNow - initialized_time_point).count();
-    long double current_milliseconds = current_nanoseconds/1000000.0;
-    float result = float(current_milliseconds) - frametime_measurements.starting_measurement[frametime_kind];
-    frametime_measurements.frametime_current[frametime_kind] = result;
-    // Always set frametime_get_max to highest frametime, then reset it to 0 in frametime_end_all_measurements() once every second.
-    if (frametime_measurements.frametime_current[frametime_kind] > frametime_measurements.frametime_get_max[frametime_kind]) {
-        frametime_measurements.frametime_get_max[frametime_kind] = frametime_measurements.frametime_current[frametime_kind];
-    }
-    if (frametime_kind == Frametime_FullFrame) {
-        frametime_set_all_measurements_to_be_displayed();
-    }
-}
 
 TbPixel get_player_path_colour(unsigned short owner)
 {
@@ -2300,11 +2261,10 @@ void blast_slab(MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber plyr_idx)
     slbattr = get_slab_attrs(slb);
     if (slbattr->category == SlbAtCtg_FortifiedGround)
     {
-      place_slab_type_on_map(10, slab_subtile_center(slb_x), slab_subtile_center(slb_y), game.neutral_player_num, 1);
+      place_slab_type_on_map(SlbT_PATH, slab_subtile_center(slb_x), slab_subtile_center(slb_y), game.neutral_player_num, 1);
       decrease_dungeon_area(plyr_idx, 1);
       do_unprettying(game.neutral_player_num, slb_x, slb_y);
       do_slab_efficiency_alteration(slb_x, slb_y);
-      remove_traps_around_subtile(slab_subtile_center(slb_x), slab_subtile_center(slb_y), NULL);
       struct Coord3d pos;
       pos.x.val = subtile_coord_center(slab_subtile_center(slb_x));
       pos.y.val = subtile_coord_center(slab_subtile_center(slb_y));
@@ -2788,11 +2748,11 @@ void update(void)
         game.field_14EA4B = 0;
         return;
     }
-
+    set_previous_camera_values();
+    
     if ((game.operation_flags & GOF_Paused) == 0)
     {
         player = get_my_player();
-        set_previous_camera_values();
         if (player->additional_flags & PlaAF_LightningPaletteIsActive)
         {
             PaletteSetPlayerPalette(player, engine_palette);
@@ -3399,21 +3359,6 @@ TbBool keeper_wait_for_screen_focus(void)
     return false;
 }
 
-float get_delta_time(void)
-{
-    // Allow frame skip to work correctly when delta time is enabled
-    if ( (game.frame_skip != 0) && ((game.play_gameturn % game.frame_skip) != 0)) {
-        return 1.0;
-    }
-    long double frame_time_in_nanoseconds = std::chrono::duration_cast<std::chrono::nanoseconds>(TimeNow - delta_time_previous_timepoint).count();
-    delta_time_previous_timepoint = TimeNow;
-    float calculated_delta_time = (frame_time_in_nanoseconds/1000000000.0) * game.num_fps;
-    if (calculated_delta_time > 1.0) { // Fix for when initially loading the map, frametime takes too long. Possibly other circumstances too.
-        calculated_delta_time = 1.0;
-    }
-    return calculated_delta_time;
-}
-
 void gameplay_loop_logic()
 {
     if (is_feature_on(Ft_DeltaTime) == true) {
@@ -3523,7 +3468,7 @@ void keeper_gameplay_loop(void)
     SYNCDBG(0,"Entering the gameplay loop for level %d",(int)get_loaded_level_number());
     KeeperSpeechClearEvents();
     LbErrorParachuteUpdate(); // For some reasone parachute keeps changing; Remove when won't be needed anymore
-    initialized_time_point = TimeNow;
+    initial_time_point();
     //the main gameplay loop starts
     while ((!quit_game) && (!exit_keeper))
     {
@@ -4058,7 +4003,7 @@ short reset_game(void)
 short process_command_line(unsigned short argc, char *argv[])
 {
   char fullpath[CMDLN_MAXLEN+1];
-  strncpy(fullpath, argv[0], CMDLN_MAXLEN);
+  snprintf(fullpath, CMDLN_MAXLEN, "%s", argv[0]);
 
   sprintf( keeper_runtime_directory, fullpath);
   char *endpos = strrchr( keeper_runtime_directory, '\\');
@@ -4092,12 +4037,12 @@ short process_command_line(unsigned short argc, char *argv[])
       char parstr[CMDLN_MAXLEN+1];
       char pr2str[CMDLN_MAXLEN+1];
       char pr3str[CMDLN_MAXLEN+1];
-      strncpy(parstr, par+1, CMDLN_MAXLEN);
+      snprintf(parstr, CMDLN_MAXLEN, "%s", par + 1);
       if (narg + 1 < argc)
       {
-          strncpy(pr2str,  argv[narg+1], CMDLN_MAXLEN);
+          snprintf(pr2str, CMDLN_MAXLEN, "%s", argv[narg + 1]);
           if (narg + 2 < argc)
-              strncpy(pr3str,  argv[narg+2], CMDLN_MAXLEN);
+              snprintf(pr3str, CMDLN_MAXLEN, "%s", argv[narg + 2]);
           else
               pr3str[0]='\0';
       }
@@ -4166,7 +4111,7 @@ short process_command_line(unsigned short argc, char *argv[])
             WARNMSG("PacketSave disabled to enable PacketLoad.");
          start_params.packet_load_enable = true;
          start_params.packet_save_enable = false;
-         strncpy(start_params.packet_fname,pr2str,sizeof(start_params.packet_fname)-1);
+         snprintf(start_params.packet_fname, sizeof(start_params.packet_fname), "%s", pr2str);
          narg++;
       } else
       if (strcasecmp(parstr,"packetsave") == 0)
@@ -4175,7 +4120,7 @@ short process_command_line(unsigned short argc, char *argv[])
             WARNMSG("PacketLoad disabled to enable PacketSave.");
          start_params.packet_load_enable = false;
          start_params.packet_save_enable = true;
-         strncpy(start_params.packet_fname,pr2str,sizeof(start_params.packet_fname)-1);
+         snprintf(start_params.packet_fname, sizeof(start_params.packet_fname), "%s", pr2str);
          narg++;
       } else
       if (strcasecmp(parstr,"q") == 0)
@@ -4403,7 +4348,7 @@ void get_cmdln_args(unsigned short &argc, char *argv[])
     char *ptr;
     const char *cmndln_orig;
     cmndln_orig = GetCommandLineA();
-    strncpy(cmndline, cmndln_orig, CMDLN_MAXLEN);
+    snprintf(cmndline, CMDLN_MAXLEN, "%s", cmndln_orig);
     ptr = cmndline;
     bf_argc = 0;
     while (*ptr != '\0')

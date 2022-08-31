@@ -3,7 +3,7 @@
 // Syndicate Wars, Magic Carpet or Dungeon Keeper.
 /******************************************************************************/
 /** @file bflib_datetm.h
- *     Header file for bflib_datetm.c.
+ *     Header file for bflib_datetm.cpp.
  * @par Purpose:
  *     Gets system date and time, makes delay, converts date/time formats.
  * @par Comment:
@@ -22,6 +22,8 @@
 
 #include <time.h>
 #include "bflib_basics.h"
+#include "keeperfx.hpp"
+#include "game_legacy.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -42,6 +44,30 @@ TbResult LbDateTimeDecode(const time_t *datetime,struct TbDate *curr_date, struc
 TbResult LbTimerInit(void);
 double LbMoonPhase(void);
 TbClockMSec LbTimerClock_1000(void);
+/******************************************************************************/
+
+#define TOTAL_FRAMETIME_KINDS 4
+enum FrametimeKinds {
+    Frametime_FullFrame = 0,
+    Frametime_Logic = 1,
+    Frametime_Draw = 2,
+    Frametime_Sleep = 3,
+};
+struct FrametimeMeasurements {
+    float starting_measurement[TOTAL_FRAMETIME_KINDS];
+    float frametime_current[TOTAL_FRAMETIME_KINDS];
+    float frametime_get_max[TOTAL_FRAMETIME_KINDS];
+    float frametime_display[TOTAL_FRAMETIME_KINDS];
+    float max_timer;
+};
+
+extern int debug_display_frametime;
+extern void initial_time_point();
+extern void frametime_start_measurement(int frametime_kind);
+extern void frametime_end_measurement(int frametime_kind);
+extern float get_delta_time();
+
+extern struct FrametimeMeasurements frametime_measurements;
 /******************************************************************************/
 #ifdef __cplusplus
 }
