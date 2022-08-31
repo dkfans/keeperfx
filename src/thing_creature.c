@@ -4744,7 +4744,7 @@ long player_list_creature_filter_needs_to_be_placed_in_room_for_job(const struct
     if (cctrl->combat_flags)
     {
         // Simplified algorithm when creature is in combat
-        if (health_permil < 1000*crstat->heal_threshold/256)
+        if (creature_requires_healing(thing))
         {
             // If already at lair, then don't do anything
             if (!creature_is_doing_lair_activity(thing))
