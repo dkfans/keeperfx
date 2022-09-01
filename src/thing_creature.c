@@ -3148,22 +3148,22 @@ ThingIndex get_human_controlled_creature_target(struct Thing *thing, long primar
                             {
                                 case 1:
                                 case 7:
-                                    is_valid_target = (thing_is_creature(i) || thing_is_dungeon_heart(i));
+                                    is_valid_target = ((thing_is_creature(i) && !creature_is_being_unconscious(i)) || thing_is_dungeon_heart(i));
                                     break;
                                 case 2:
-                                    is_valid_target = (thing_is_creature(i));
+                                    is_valid_target = (thing_is_creature(i) && !creature_is_being_unconscious(i));
                                     break;
                                 case 3:
-                                    is_valid_target = ((thing_is_creature(i) || thing_is_dungeon_heart(i)) && i->owner != thing->owner);
+                                    is_valid_target = (((thing_is_creature(i) && !creature_is_being_unconscious(i)) || thing_is_dungeon_heart(i)) && i->owner != thing->owner);
                                     break;
                                 case 4:
-                                    is_valid_target = (thing_is_creature(i) && i->owner != thing->owner);
+                                    is_valid_target = ((thing_is_creature(i) && !creature_is_being_unconscious(i)) && i->owner != thing->owner);
                                     break;
                                 case 5:
-                                    is_valid_target = ((thing_is_creature(i) || thing_is_dungeon_heart(i)) && i->owner == thing->owner);
+                                    is_valid_target = (((thing_is_creature(i) && !creature_is_being_unconscious(i)) || thing_is_dungeon_heart(i)) && i->owner == thing->owner);
                                     break;
                                 case 6:
-                                    is_valid_target = (thing_is_creature(i) && i->owner == thing->owner);
+                                    is_valid_target = ((thing_is_creature(i) && !creature_is_being_unconscious(i)) && i->owner == thing->owner);
                                     break;
                                 case 8:
                                     is_valid_target = true;
