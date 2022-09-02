@@ -695,9 +695,7 @@ void pannel_map_draw_overlay_things(long units_per_px, long scaled_zoom, long ba
     draw_overlay_call_to_arms(player, units_per_px, scaled_zoom);
     draw_overlay_traps(player, units_per_px, scaled_zoom,basic_zoom);
     draw_overlay_creatures(player, units_per_px, scaled_zoom, basic_zoom);
-    if ((game.play_gameturn & 3) == 1) {
-        draw_overlay_spells_and_boxes(player, units_per_px, scaled_zoom, basic_zoom);
-    }
+    draw_overlay_spells_and_boxes(player, units_per_px, scaled_zoom, basic_zoom);
     draw_line_to_heart(player, units_per_px, basic_zoom);
 }
 
