@@ -987,6 +987,84 @@ void free_testfont_fonts(void)
 }
 #endif
 
+TbScreenMode get_fullscreen_or_windowed_mode(void)
+{
+    TbScreenModeInfo* curr_mode = LbScreenGetModeInfo(lbDisplay.ScreenMode);
+    TbScreenModeInfo dest_mode = *curr_mode;
+    dest_mode.VideoFlags ^= Lb_VF_WINDOWED;
+    for (TbScreenMode mode = 1; mode < lbScreenModeInfoNum; mode++)
+    {
+        TbScreenModeInfo* check_mode = LbScreenGetModeInfo(mode);
+        if (check_mode->Width == dest_mode.Width)
+        {
+            if (check_mode->Height == dest_mode.Height)
+            {
+                if (check_mode->VideoFlags == dest_mode.VideoFlags)
+                {
+                    if (check_mode->BitsPerPixel == dest_mode.BitsPerPixel)
+                    { 
+                        return mode;
+                    }
+                }
+            }
+        }
+    }
+    int n = 0;
+    int i = 0;
+    while(dest_mode.Desc[n] != '\0')
+    {
+        if (dest_mode.Desc[n] == 'x')
+        {
+            if (i > 0)
+            {
+                dest_mode.Desc[n] = 'w';
+                break;
+            }
+            i++;
+        }
+        else if (dest_mode.Desc[n] == 'w')
+        {
+            dest_mode.Desc[n] = 'x';
+            break;
+        }
+        n++;
+    }
+    return LbRegisterVideoMode(dest_mode.Desc, dest_mode.Width, dest_mode.Height, dest_mode.BitsPerPixel, dest_mode.VideoFlags);
+}
+
+TbScreenMode toggle_fullscreen_mode(void)
+{
+    TbScreenMode scrmode = get_fullscreen_or_windowed_mode();
+    if ( setup_screen_mode(scrmode) )
+    {
+        show_onscreen_msg(game.num_fps * 6, "%s", get_vidmode_name(scrmode));
+        settings.video_scrnmode = scrmode;
+    } else
+    {
+        SYNCLOG("Can't enter %s (mode %d), falling to failsafe mode",
+            get_vidmode_name(scrmode),(int)scrmode);
+        show_onscreen_msg(game.num_fps * 6, "%s", get_string(856));
+        scrmode = get_failsafe_vidmode();
+        if ( !setup_screen_mode(scrmode) )
+        {
+          FatalError = 1;
+          exit_keeper = 1;
+          return Lb_SCREEN_MODE_INVALID;
+        }
+        settings.video_scrnmode = scrmode;
+    }
+    SYNCLOG("Switched video to %s (mode %d)", get_vidmode_name(scrmode),(int)scrmode);
+    save_settings();
+    TbBool reload_video = (menu_is_active(GMnu_VIDEO));
+    reinit_all_menus();
+    init_custom_sprites(SPRITE_LAST_LEVEL);
+    if (reload_video)
+    {
+        turn_on_menu(GMnu_VIDEO);
+    }
+    return scrmode;
+}
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

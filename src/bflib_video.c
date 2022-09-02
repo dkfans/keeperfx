@@ -840,7 +840,7 @@ TbScreenMode LbRegisterVideoMode(const char *desc, TbScreenCoord width, TbScreen
     mdinfo->Width = width;
     mdinfo->Height = height;
     mdinfo->BitsPerPixel = bpp;
-    mdinfo->Available = false;
+    mdinfo->Available = true;
     mdinfo->VideoFlags = flags;
     snprintf(mdinfo->Desc, sizeof(mdinfo->Desc), "%s", desc);
     return mode;

@@ -226,6 +226,8 @@ typedef struct DisplayStructEx TbDisplayStructEx;
 struct SSurface;
 typedef struct SSurface TSurface;
 
+extern long lbScreenModeInfoNum;
+
 /******************************************************************************/
 
 DLLIMPORT extern TbDisplayStruct _DK_lbDisplay;

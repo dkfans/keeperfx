@@ -164,6 +164,8 @@ void set_failsafe_vidmode(unsigned short nmode);
 void set_movies_vidmode(unsigned short nmode);
 void set_frontend_vidmode(unsigned short nmode);
 char *get_vidmode_name(unsigned short mode);
+TbScreenMode get_fullscreen_or_windowed_mode(void);
+TbScreenMode toggle_fullscreen_mode(void);
 
 TbBool setup_screen_mode(unsigned short nmode);
 short setup_screen_mode_minimal(unsigned short nmode);

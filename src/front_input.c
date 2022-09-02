@@ -540,16 +540,19 @@ short get_minimap_control_inputs(void)
 short get_screen_control_inputs(void)
 {
     struct PlayerInfo* player = get_my_player();
-    short packet_made = false;
     if (is_key_pressed(KC_R, KMod_ALT))
     {
         set_players_packet_action(player, PckA_SwitchScrnRes, 0, 0, 0, 0);
-        packet_made = true;
         clear_key_pressed(KC_R);
-        if (packet_made)
-            return true;
-  }
-  return false;
+        return 1;
+    }
+    else if (is_key_pressed(KC_RETURN, KMod_ALT))
+    {
+        set_players_packet_action(player, PckA_ToggleFullscreen, 0, 0, 0, 0);
+        clear_key_pressed(KC_RETURN);
+        return 1;
+    }
+    return 0;
 }
 
 short get_global_inputs(void)

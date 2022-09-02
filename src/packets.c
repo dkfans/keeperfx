@@ -964,6 +964,12 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
         playeradd->roomspace_no_default = true;
         return false;
     }
+    case PckA_ToggleFullscreen:
+      if (is_my_player(player))
+      {
+          toggle_fullscreen_mode();
+      }
+      return 1;
     default:
       return process_players_global_cheats_packet_action(plyr_idx, pckt);
   }
