@@ -835,10 +835,12 @@ void init_players_local_game(void)
     struct PlayerInfo* player = get_my_player();
     player->id_number = my_player_number;
     player->allocflags |= PlaF_Allocated;
-    if (settings.video_rotate_mode < 1)
-      player->view_mode_restore = PVM_IsometricView;
-    else
-      player->view_mode_restore = PVM_FrontView;
+    switch (settings.video_rotate_mode) {
+        case 0: player->view_mode_restore = PVM_IsoWibbleView; break;
+        case 1: player->view_mode_restore = PVM_IsoStraightView; break;
+        case 2: player->view_mode_restore = PVM_FrontView; break;
+        default: player->view_mode_restore = PVM_IsoWibbleView; break;
+    }
     init_player(player, 0);
 }
 

@@ -1819,12 +1819,15 @@ void update_light_render_area(void)
     int starty;
     SYNCDBG(6,"Starting");
     struct PlayerInfo* player = get_my_player();
-    if (player->view_mode >= PVM_CreatureView)
-      if ((player->view_mode <= PVM_IsometricView) || (player->view_mode == PVM_FrontView))
-      {
-          game.field_14BB5D = LIGHT_MAX_RANGE;
-          game.field_14BB59 = LIGHT_MAX_RANGE;
-      }
+    if (
+        player->view_mode == PVM_CreatureView ||
+        player->view_mode == PVM_IsoWibbleView ||
+        player->view_mode == PVM_FrontView ||
+        player->view_mode == PVM_IsoStraightView
+    ) {
+        game.field_14BB5D = LIGHT_MAX_RANGE;
+        game.field_14BB59 = LIGHT_MAX_RANGE;
+    }
     int delta_x = abs(game.field_14BB59);
     int delta_y = abs(game.field_14BB5D);
     // Prepare the area constraints

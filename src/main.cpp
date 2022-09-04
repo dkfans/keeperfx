@@ -1048,8 +1048,6 @@ short setup_game(void)
   update_features(mem_size);
 
   //Default feature settings (in case the options are absent from keeperfx.cfg)
-  features_enabled |= Ft_Wibble; // enable wibble
-  features_enabled |= Ft_LiquidWibble; // enable liquid wibble by default
   features_enabled &= ~Ft_FreezeOnLoseFocus; // don't freeze the game, if the game window loses focus
   features_enabled &= ~Ft_UnlockCursorOnPause; // don't unlock the mouse cursor from the window, if the user pauses the game
   features_enabled |= Ft_LockCursorInPossession; // lock the mouse cursor to the window, when the user enters possession mode (when the cursor is already unlocked)
@@ -1305,8 +1303,9 @@ TbBool screen_to_map(struct Camera *camera, long screen_x, long screen_y, struct
       switch (camera->view_mode)
       {
         case PVM_CreatureView:
-        case PVM_IsometricView:
+        case PVM_IsoWibbleView:
         case PVM_FrontView:
+        case PVM_IsoStraightView:
           // 3D view mode
           result = engine_point_to_map(camera,screen_x,screen_y,&x,&y);
           break;

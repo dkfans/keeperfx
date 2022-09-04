@@ -118,7 +118,6 @@ const struct NamedCommand conf_commands[] = {
   {"ATMOS_SAMPLES",       13},
   {"RESIZE_MOVIES",       14},
   {"MUSIC_TRACKS",        15},
-  {"WIBBLE",              16},
   {"FREEZE_GAME_ON_FOCUS_LOST"     , 17},
   {"UNLOCK_CURSOR_WHEN_GAME_PAUSED", 18},
   {"LOCK_CURSOR_IN_POSSESSION"     , 19},
@@ -144,13 +143,6 @@ const struct NamedCommand logicval_type[] = {
   {"1",        1},
   {"0",        2},
   {NULL,       0},
-  };
-
-  const struct NamedCommand wibble_type[] = {
-  {"ON",             1},
-  {"OFF",            2},
-  {"LIQUIDONLY",     3},
-  {NULL,             0},
   };
 
   const struct NamedCommand vidscale_type[] = {
@@ -237,14 +229,6 @@ TbBool resize_movies_enabled(void)
   return ((features_enabled & Ft_Resizemovies) != 0);
 }
 
-/**
- * Returns if the wibble effect is on.
- */
-TbBool wibble_enabled(void)
-{
-  return ((features_enabled & Ft_Wibble) != 0);
-}
-
 #include "game_legacy.h" // it would be nice to not have to include this
 /**
  * Returns if we should freeze the game, if the game window loses focus.
@@ -288,14 +272,6 @@ TbBool pause_music_when_game_paused(void)
 TbBool mute_audio_on_focus_lost(void)
 {
   return ((features_enabled & Ft_MuteAudioOnLoseFocus) != 0);
-}
-
-/**
- * Returns if the liquid wibble effect is on.
- */
-TbBool liquid_wibble_enabled(void)
-{
-  return ((features_enabled & Ft_LiquidWibble) != 0);
 }
 
 TbBool is_feature_on(unsigned long feature)
@@ -942,30 +918,6 @@ short load_configuration(void)
           } else {
               CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
                 COMMAND_TEXT(cmd_num),config_textname);
-          }
-          break;
-      case 16: // WIBBLE
-          i = recognize_conf_parameter(buf,&pos,len,wibble_type);
-          if (i <= 0)
-          {
-              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
-                COMMAND_TEXT(cmd_num),config_textname);
-            break;
-          }
-          if (i == 1) // WIBBLE ON
-          {
-              features_enabled |= Ft_Wibble;
-              features_enabled |= Ft_LiquidWibble;
-          }
-          else if (i == 3) // LIQUID ONLY
-          {
-              features_enabled &= ~Ft_Wibble;
-              features_enabled |= Ft_LiquidWibble;
-          }
-          else // WIBBLE OFF
-          {
-              features_enabled &= ~Ft_Wibble;
-              features_enabled &= ~Ft_LiquidWibble;
           }
           break;
       case 17: // FREEZE_GAME_ON_FOCUS_LOST

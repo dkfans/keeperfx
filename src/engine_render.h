@@ -530,9 +530,9 @@ void process_isometric_map_volume_box(long x, long y, long z, PlayerNumber plyr_
 void process_frontview_map_volume_box(struct Camera *cam, unsigned char stl_width, PlayerNumber plyr_idx);
 void rotpers_parallel_3(struct EngineCoord *epos, struct M33 *matx, long zoom);
 void rotate_base_axis(struct M33 *matx, short a2, unsigned char a3);
-void fill_in_points_perspective(long a1, long a2, struct MinMax *mm);
-void fill_in_points_cluedo(long a1, long a2, struct MinMax *mm);
-void fill_in_points_isometric(long a1, long a2, struct MinMax *mm);
+void fill_in_points_perspective(struct Camera *cam, long a1, long a2, struct MinMax *mm);
+void fill_in_points_cluedo(struct Camera *cam, long a1, long a2, struct MinMax *mm);
+void fill_in_points_isometric(struct Camera *cam, long a1, long a2, struct MinMax *mm);
 void frame_wibble_generate(void);
 void setup_rotate_stuff(long a1, long a2, long a3, long a4, long a5, long a6, long a7, long a8);
 

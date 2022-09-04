@@ -720,8 +720,11 @@ TbBool get_level_lost_inputs(void)
     {
       if (is_key_pressed(KC_TAB,KMod_DONTCARE))
       {
-          if ((player->view_mode == PVM_IsometricView) || (player->view_mode == PVM_FrontView))
-          {
+          if (
+            player->view_mode == PVM_IsoWibbleView ||
+            player->view_mode == PVM_FrontView ||
+            player->view_mode == PVM_IsoStraightView
+          ) {
             clear_key_pressed(KC_TAB);
             toggle_gui();
           }
@@ -938,7 +941,7 @@ long get_dungeon_control_action_inputs(void)
             clear_key_pressed(KC_F12);
         }
     }
-    if (player->view_mode == PVM_IsometricView)
+    if (player->view_mode == PVM_IsoWibbleView || player->view_mode == PVM_IsoStraightView)
     {
       if (is_key_pressed(KC_TAB, !KMod_CONTROL))
       {
@@ -2092,7 +2095,8 @@ void get_dungeon_control_nonaction_inputs(void)
   }
   switch (player->view_mode)
   {
-  case PVM_IsometricView:
+  case PVM_IsoWibbleView:
+  case PVM_IsoStraightView:
       get_isometric_view_nonaction_inputs();
       break;
   case PVM_ParchmentView:
