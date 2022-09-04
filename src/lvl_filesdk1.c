@@ -155,7 +155,7 @@ long level_lif_entry_parse(char *fname, char *buf)
     return 0;
   // Get level number
   char* cbuf;
-  long lvnum = strtol(&buf[i], &cbuf, 0);
+  long lvnum = strtol(&buf[i], &cbuf, 10);
   // If can't read number, return
   if (cbuf == &buf[i])
   {
