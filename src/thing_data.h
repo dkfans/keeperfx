@@ -70,7 +70,7 @@ enum ThingFlags4F {
     TF4F_Transpar_Flags = 0x30,
 
     TF4F_Unknown40     = 0x40,    // Unconscious
-    TF4F_Unknown80     = 0x80,    // Being hit (draw red sometimes)
+    TF4F_BeingHit      = 0x80,    // Being hit (draw red sometimes)
 };
 
 enum FreeThingAllocFlags {
@@ -159,9 +159,9 @@ struct Thing {
       } roomflag;
       struct {
       short unused3;
-      long turntime;
-      unsigned char byte_19;
-      }roomflag2; // both roomflag and roomflag2 are used in same function on same object but have 2 bytes overlapping between room_idx and turntime 
+      long last_turn_drawn;
+      unsigned char display_timer;
+      }roomflag2; // both roomflag and roomflag2 are used in same function on same object but have 2 bytes overlapping between room_idx and last_turn_drawn 
 //TCls_Shot
       struct {
         unsigned char dexterity;
@@ -247,7 +247,7 @@ unsigned char field_21;
     struct CoordDelta3d velocity;
     // Push when moving; needs to be signed
     short anim_speed;
-    long field_40; // animation time (measured in 1/256 of a frame)
+    long anim_time; // animation time (measured in 1/256 of a frame)
 unsigned short anim_sprite;
     unsigned short sprite_size;
 
@@ -266,7 +266,7 @@ unsigned char field_51;   // Tint color (from colours)
     unsigned short solid_size_xy;
     unsigned short solid_size_yz;
     short health; //signed
-unsigned short field_60;
+unsigned short floor_height;
     unsigned short light_id;
     short ccontrol_idx;
     unsigned char snd_emitter_id;
@@ -291,6 +291,19 @@ enum ThingAddFlags
 struct ThingAdd // Additional thing data
 {
     unsigned long flags; //ThingAddFlags
+    long last_turn_drawn;
+    float time_spent_displaying_hurt_colour;
+    // Used for delta time interpolated render position
+    unsigned short previous_floor_height;
+    unsigned short interp_floor_height;
+    struct Coord3d previous_mappos;
+    struct Coord3d interp_mappos;
+    
+    long interp_minimap_pos_x;
+    long interp_minimap_pos_y;
+    long previous_minimap_pos_x;
+    long previous_minimap_pos_y;
+    long interp_minimap_update_turn;
 };
 
 #pragma pack()

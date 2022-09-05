@@ -273,6 +273,11 @@ TbPixel get_overhead_mapblock_color(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Pl
           {
             pixval = 85;
           } else
+          if (slb->kind == SlbT_PURPLE)
+          {
+              pixval = 255;
+          }
+          else
           if (owner == game.neutral_player_num)
           {
             pixval = 4;
@@ -398,6 +403,10 @@ int draw_overhead_creatures(const struct TbRect *map_area, long block_size, Play
             TbPixel col2 = 1;
             if (thing_revealed(thing, plyr_idx))
             {
+                if (thing->owner == game.neutral_player_num)
+                {
+                    col1 = player_room_colours[(game.play_gameturn + 1) & 3];
+                } else
                 if ((game.play_gameturn & 4) == 0)
                 {
                     col2 = player_room_colours[thing->owner];
@@ -656,7 +665,7 @@ void draw_zoom_box_things_on_mapblk(struct Map *mapblk,unsigned short subtile_si
                 {
                     draw_gui_panel_sprite_centered(scr_x + spos_x, scr_y + spos_y - 13*units_per_pixel/16, ps_units_per_px, spridx);
                 }
-                draw_status_sprites(spos_x + scr_x, scr_y + spos_y - 12*units_per_pixel/16, thing, 32*256);
+                draw_status_sprites(spos_x + scr_x, scr_y + spos_y - 12*units_per_pixel/16, thing);
                 break;
             }
             case TCls_Trap:

@@ -251,6 +251,7 @@ struct ShotConfigStats {
     struct ShotHitConfig hit_water;
     struct ShotHitConfig hit_lava;
     struct ShotHitConfig hit_creature;
+    struct ShotHitConfig dig;
     short firing_sound;
     short shot_sound;
     unsigned char firing_sound_variants;

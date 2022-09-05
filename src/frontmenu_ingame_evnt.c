@@ -19,7 +19,7 @@
 #include "frontmenu_ingame_evnt.h"
 #include "globals.h"
 #include "bflib_basics.h"
-
+#include "bflib_datetm.h"
 #include "bflib_guibtns.h"
 #include "bflib_vidraw.h"
 #include "bflib_sprfnt.h"
@@ -441,6 +441,11 @@ TbBool timer_enabled(void)
   return ((game_flags2 & GF2_Timer) != 0);
 }
 
+TbBool frametime_enabled(void)
+{
+  return (debug_display_frametime != 0);
+}
+
 TbBool script_timer_enabled(void)
 {
   return ((game.flags_gui & GGUI_ScriptTimer) != 0);
@@ -538,5 +543,41 @@ void draw_script_variable(PlayerNumber plyr_idx, unsigned char valtype, unsigned
     int tx_units_per_px = (22 * units_per_pixel) / LbTextLineHeight();
     LbTextDrawResized(0, 0, tx_units_per_px, text);
     LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
+}
+
+void draw_frametime()
+{
+    float display_value;
+    char *text;
+    LbTextSetFont(winfont);
+    lbDisplay.DrawFlags = Lb_TEXT_HALIGN_RIGHT;
+    int tx_units_per_px = (11 * units_per_pixel) / LbTextLineHeight();
+
+    // FPS
+    display_value = 1000 / frametime_measurements.frametime_display[Frametime_FullFrame];
+
+    text = buf_sprintf("FPS: %f", display_value);
+    LbTextDrawResized(0, 27*tx_units_per_px, tx_units_per_px, text);
+
+    // Frametimes
+    for (int i = 0; i < TOTAL_FRAMETIME_KINDS; i++) {
+        display_value = frametime_measurements.frametime_display[i];
+        switch (i) {
+            case Frametime_FullFrame:
+                text = buf_sprintf("Frametime: %f ms", display_value);
+                break;
+            case Frametime_Logic:
+                text = buf_sprintf("Logic: %f ms", display_value);
+                break;
+            case Frametime_Draw:
+                text = buf_sprintf("Draw: %f ms", display_value);
+                break;
+            case Frametime_Sleep:
+                text = buf_sprintf("Sleep: %f ms", display_value);
+                break;
+        }
+        LbTextDrawResized(0, (28+i)*tx_units_per_px, tx_units_per_px, text);
+    }
+    lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
 }
 /******************************************************************************/

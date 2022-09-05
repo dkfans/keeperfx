@@ -370,7 +370,7 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
             break;
         }
     }
-    unsigned long zoom_min = adjust_min_camera_zoom(cam, game.operation_flags & GOF_ShowGui); // = CAMERA_ZOOM_MIN (+300 if gui is hidden in Isometric view)
+    unsigned long zoom_min = adjust_min_camera_zoom(cam, player->engine_window_width, player->engine_window_height, ((game.operation_flags & GOF_ShowGui) != 0) ? status_panel_width : 0);
     unsigned long zoom_max = CAMERA_ZOOM_MAX;
     if (pckt->control_flags & PCtr_ViewZoomIn)
     {
@@ -987,7 +987,7 @@ void process_map_packet_clicks(long plyr_idx)
     SYNCDBG(7,"Starting");
     packet_left_button_double_clicked[plyr_idx] = 0;
     struct Packet* pckt = get_packet(plyr_idx);
-    if ((pckt->control_flags & PCtr_Unknown4000) == 0)
+    if ((pckt->control_flags & PCtr_Gui) == 0)
     {
         update_double_click_detection(plyr_idx);
     }
@@ -1156,7 +1156,7 @@ void process_players_creature_control_packet_control(long idx)
                     if (!creature_affected_by_spell(cctng, SplK_Chicken))
                     {
                         inst_inf = creature_instance_info_get(i);
-                        n = get_human_controlled_creature_target(cctng, inst_inf->field_1D);
+                        n = get_human_controlled_creature_target(cctng, inst_inf->primary_target);
                         set_creature_instance(cctng, i, 1, n, 0);
                     }
                 }
@@ -1164,7 +1164,7 @@ void process_players_creature_control_packet_control(long idx)
             else
             {
                 inst_inf = creature_instance_info_get(i);
-                n = get_human_controlled_creature_target(cctng, inst_inf->field_1D);
+                n = get_human_controlled_creature_target(cctng, inst_inf->primary_target);
                 set_creature_instance(cctng, i, 1, n, 0);
             }
         }
@@ -1182,7 +1182,7 @@ void process_players_creature_control_packet_control(long idx)
                 {
                     if (creature_instance_has_reset(cctng, i))
                     {
-                        n = get_human_controlled_creature_target(cctng, inst_inf->field_1D);
+                        n = get_human_controlled_creature_target(cctng, inst_inf->primary_target);
                         set_creature_instance(cctng, i, 1, n, 0);
                     }
                 }
@@ -1267,7 +1267,7 @@ void process_players_creature_control_packet_action(long plyr_idx)
         {
           i = pckt->actn_par1;
           inst_inf = creature_instance_info_get(i);
-          k = get_human_controlled_creature_target(thing, inst_inf->field_1D);
+          k = get_human_controlled_creature_target(thing, inst_inf->primary_target);
           set_creature_instance(thing, i, 1, k, 0);
           if (plyr_idx == my_player_number) {
               instant_instance_selected(i);
@@ -1292,7 +1292,7 @@ void process_players_creature_control_packet_action(long plyr_idx)
       {
           i = pckt->actn_par1;
           inst_inf = creature_instance_info_get(i);
-          k = get_human_controlled_creature_target(thing, inst_inf->field_1D);
+          k = get_human_controlled_creature_target(thing, inst_inf->primary_target);
           set_creature_instance(thing, i, 1, k, 0);
           if (plyr_idx == my_player_number) {
               instant_instance_selected(i);

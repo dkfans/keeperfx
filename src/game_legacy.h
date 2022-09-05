@@ -135,13 +135,13 @@ char numfield_1A;
     unsigned char numfield_1B;
     struct PlayerInfo players[PLAYERS_COUNT];
     struct Column columns_data[COLUMNS_COUNT];
-    struct CubeAttribs cubes_data[CUBE_ITEMS_MAX];
+    struct CubeAttribs cubes_data_UNUSED[CUBE_ITEMS_MAX_OLD];
     struct ObjectConfig objects_config[OBJECT_TYPES_COUNT_ORIGINAL];
 struct ObjectConfig objects_config_UNUSED[103];
 char field_117DA[14];
     // Traps and doors config; note that eventually we'll want to merge it with trapdoor_conf
-    struct ManfctrConfig traps_config_[TRAP_TYPES_COUNT];
-    struct ManfctrConfig doors_config_[DOOR_TYPES_COUNT_OLD];
+    struct ManfctrConfig traps_config_UNUSED[TRAP_TYPES_COUNT];
+    struct ManfctrConfig doors_config_UNUSED[DOOR_TYPES_COUNT_OLD];
     struct SpellConfig spells_config[30];
     struct Things things;
     struct Persons persons;
@@ -223,7 +223,7 @@ short field_14BB65[592];
     struct CreatureStatsOLD creature_stats_OLD[CREATURE_TYPES_COUNT]; // New stats are in GameAdd
     struct RoomStatsOLD room_stats_OLD[ROOM_TYPES_COUNT_OLD];
     struct MagicStats keeper_power_stats[POWER_TYPES_COUNT];
-    struct ActionPoint action_points[ACTN_POINTS_COUNT];
+    struct ActionPoint action_points_OLD[ACTN_POINTS_COUNT_OLD];
 char active_players_count;
     unsigned char hero_player_num;
     unsigned char neutral_player_num;

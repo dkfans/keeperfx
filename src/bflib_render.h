@@ -64,12 +64,12 @@ enum VecModes {
 };
 
 
-struct PolyPoint { // sizeof = 20
-  long field_0;
-  long field_4;
-  long field_8;
-  long field_C;
-  long field_10;
+struct PolyPoint { // sizeof=20
+    long X; // Horizontal coordinate within screen buffer
+    long Y; // Vertical coordinate within screen buffer
+    long U; // Texture UV mapping, U coordinate
+    long V; // Texture UV mapping, V coordinate
+    long S; // Shininess / brightness of the point
 };
 
 struct GtBlock { // sizeof = 48

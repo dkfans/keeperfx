@@ -35,7 +35,6 @@ struct GameCampaign;
 #define LEVELNUMBER_ERROR            -2
 
 #define MIN_CONFIG_FILE_SIZE          4
-#define MAX_CONFIG_FILE_SIZE      65535
 
 #define LANDVIEW_MAP_WIDTH         1280
 #define LANDVIEW_MAP_HEIGHT         960
@@ -75,11 +74,15 @@ enum TbFeature {
     Ft_Resizemovies =  0x0080,
     Ft_Wibble       =  0x0100,
     Ft_LiquidWibble =  0x0200,
-    Ft_FreezeOnLoseFocus      = 0x0400,
-    Ft_UnlockCursorOnPause    = 0x0800,
-    Ft_LockCursorInPossession = 0x1000,
-    Ft_PauseMusicOnGamePause  = 0x2000,
-    Ft_MuteAudioOnLoseFocus   = 0x4000,
+    Ft_FreezeOnLoseFocus            = 0x0400,
+    Ft_UnlockCursorOnPause          = 0x0800,
+    Ft_LockCursorInPossession       = 0x1000,
+    Ft_PauseMusicOnGamePause        = 0x2000,
+    Ft_MuteAudioOnLoseFocus         = 0x4000,
+    Ft_SkipHeartZoom                = 0x8000,
+    Ft_SkipSplashScreens            = 0x10000,
+    Ft_DisableCursorCameraPanning   = 0x20000,
+    Ft_DeltaTime                    = 0x40000,
 };
 
 enum TbExtraLevels {

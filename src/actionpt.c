@@ -36,7 +36,7 @@ struct ActionPoint *action_point_get_free(void)
 {
     for (long apt_idx = 1; apt_idx < ACTN_POINTS_COUNT; apt_idx++)
     {
-        struct ActionPoint* apt = &game.action_points[apt_idx];
+        struct ActionPoint* apt = &gameadd.action_points[apt_idx];
         if ((apt->flags & AptF_Exists) == 0)
             return apt;
     }
@@ -78,14 +78,14 @@ struct ActionPoint *action_point_get(ActionPointId apt_idx)
 {
     if ((apt_idx < 1) || (apt_idx > ACTN_POINTS_COUNT))
         return INVALID_ACTION_POINT;
-    return &game.action_points[apt_idx];
+    return &gameadd.action_points[apt_idx];
 }
 
 struct ActionPoint *action_point_get_by_number(long apt_num)
 {
     for (ActionPointId apt_idx = 0; apt_idx < ACTN_POINTS_COUNT; apt_idx++)
     {
-        struct ActionPoint* apt = &game.action_points[apt_idx];
+        struct ActionPoint* apt = &gameadd.action_points[apt_idx];
         if (apt->num == apt_num)
             return apt;
     }
@@ -96,7 +96,7 @@ ActionPointId action_point_number_to_index(long apt_num)
 {
     for (ActionPointId apt_idx = 0; apt_idx < ACTN_POINTS_COUNT; apt_idx++)
     {
-        struct ActionPoint* apt = &game.action_points[apt_idx];
+        struct ActionPoint* apt = &gameadd.action_points[apt_idx];
         if (apt->num == apt_num)
             return apt_idx;
     }
@@ -240,7 +240,7 @@ TbBool process_action_points(void)
     SYNCDBG(6,"Starting");
     for (long i = 1; i < ACTN_POINTS_COUNT; i++)
     {
-        struct ActionPoint* apt = &game.action_points[i];
+        struct ActionPoint* apt = &gameadd.action_points[i];
         if ((apt->flags & AptF_Exists) != 0)
         {
             if (((apt->num + game.play_gameturn) & 0x07) == 0)
@@ -257,7 +257,7 @@ void clear_action_points(void)
 {
     for (long i = 0; i < ACTN_POINTS_COUNT; i++)
     {
-        LbMemorySet(&game.action_points[i], 0, sizeof(struct ActionPoint));
+        LbMemorySet(&gameadd.action_points[i], 0, sizeof(struct ActionPoint));
     }
 }
 
@@ -273,7 +273,7 @@ void delete_all_action_point_structures(void)
 {
     for (long i = 1; i < ACTN_POINTS_COUNT; i++)
     {
-        struct ActionPoint* apt = &game.action_points[i];
+        struct ActionPoint* apt = &gameadd.action_points[i];
         if (apt != NULL)
         {
             delete_action_point_structure(apt);

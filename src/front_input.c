@@ -569,6 +569,12 @@ short get_global_inputs(void)
   {
       if (is_key_pressed(KC_RETURN,KMod_NONE))
       {
+          if (menu_is_active(GMnu_QUIT))
+          {
+              set_players_packet_action(player, PckA_Unknown001, 0, 0, 0, 0);
+              clear_key_pressed(KC_RETURN);
+              return true;
+          }
         set_players_packet_action(player, PckA_PlyrMsgBegin, 0, 0, 0, 0);
         clear_key_pressed(KC_RETURN);
         return true;
@@ -1526,7 +1532,7 @@ short get_creature_control_action_inputs(void)
             else if (thing_is_invalid(dragtng))
             {
                 struct ShotConfigStats* shotst = get_shot_model_stats(ShM_Dig);
-                TbBool diggable_subtile;
+                TbBool diggable_subtile = false;
                 MapSubtlCoord stl_x = thing->mappos.x.stl.num;
                 MapSubtlCoord stl_y = thing->mappos.y.stl.num;
                 for (unsigned char range = 0; range < shotst->health; range++)
@@ -1670,6 +1676,7 @@ short get_map_action_inputs(void)
         if (left_button_released) {
             left_button_released = 0;
             set_players_packet_action(player, PckA_ZoomFromMap, stl_x, stl_y, 0, 0);
+            reset_interpolation_for_parchment_view();
             return true;
         }
     }
@@ -1786,44 +1793,47 @@ void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rotate_pre
     {
         return; // don't pan the camera if the mouse has left the window
     }
-    long mx = my_mouse_x;
-    long my = my_mouse_y;
-    long edge_scrolling_border = max(4, scale_fixed_DK_value(4));
-    if (mx <= edge_scrolling_border)
+    if (is_feature_on(Ft_DisableCursorCameraPanning) == false)
     {
-        if ( is_game_key_pressed(Gkey_MoveLeft, NULL, false) || is_key_pressed(KC_LEFT,KMod_DONTCARE) )
+        long mx = my_mouse_x;
+        long my = my_mouse_y;
+        long edge_scrolling_border = max(4, scale_fixed_DK_value(4));
+        if (mx <= edge_scrolling_border)
         {
-          if (!rotate_pressed)
-            pckt->additional_packet_values |= PCAdV_SpeedupPressed;
+            if ( is_game_key_pressed(Gkey_MoveLeft, NULL, false) || is_key_pressed(KC_LEFT,KMod_DONTCARE) )
+            {
+              if (!rotate_pressed)
+                pckt->additional_packet_values |= PCAdV_SpeedupPressed;
+            }
+            set_packet_control(pckt, PCtr_MoveLeft);
         }
-        set_packet_control(pckt, PCtr_MoveLeft);
-    }
-    if (mx >= MyScreenWidth-edge_scrolling_border)
-    {
-        if ( is_game_key_pressed(Gkey_MoveRight, NULL, false) || is_key_pressed(KC_RIGHT,KMod_DONTCARE) )
+        if (mx >= MyScreenWidth-edge_scrolling_border)
         {
-          if (!rotate_pressed)
-            pckt->additional_packet_values |= PCAdV_SpeedupPressed;
+            if ( is_game_key_pressed(Gkey_MoveRight, NULL, false) || is_key_pressed(KC_RIGHT,KMod_DONTCARE) )
+            {
+              if (!rotate_pressed)
+                pckt->additional_packet_values |= PCAdV_SpeedupPressed;
+            }
+            set_packet_control(pckt, PCtr_MoveRight);
         }
-        set_packet_control(pckt, PCtr_MoveRight);
-    }
-    if (my <= edge_scrolling_border)
-    {
-        if ( is_game_key_pressed(Gkey_MoveUp, NULL, false) || is_key_pressed(KC_UP,KMod_DONTCARE) )
+        if (my <= edge_scrolling_border)
         {
-          if (!rotate_pressed)
-            pckt->additional_packet_values |= PCAdV_SpeedupPressed;
+            if ( is_game_key_pressed(Gkey_MoveUp, NULL, false) || is_key_pressed(KC_UP,KMod_DONTCARE) )
+            {
+              if (!rotate_pressed)
+                pckt->additional_packet_values |= PCAdV_SpeedupPressed;
+            }
+            set_packet_control(pckt, PCtr_MoveUp);
         }
-        set_packet_control(pckt, PCtr_MoveUp);
-    }
-    if (my >= MyScreenHeight-edge_scrolling_border)
-    {
-        if ( is_game_key_pressed(Gkey_MoveDown, NULL, false) || is_key_pressed(KC_DOWN,KMod_DONTCARE) )
+        if (my >= MyScreenHeight-edge_scrolling_border)
         {
-          if (!rotate_pressed)
-            pckt->additional_packet_values |= PCAdV_SpeedupPressed;
+            if ( is_game_key_pressed(Gkey_MoveDown, NULL, false) || is_key_pressed(KC_DOWN,KMod_DONTCARE) )
+            {
+              if (!rotate_pressed)
+                pckt->additional_packet_values |= PCAdV_SpeedupPressed;
+            }
+            set_packet_control(pckt, PCtr_MoveDown);
         }
-        set_packet_control(pckt, PCtr_MoveDown);
     }
 }
 
@@ -2171,10 +2181,11 @@ if (((MyScreenWidth >> 1) != GetMouseX()) || (GetMouseY() != y))
   {
     LbMouseSetPositionInitial((MyScreenWidth/pixel_size) >> 1, y/pixel_size); // use LbMouseSetPositionInitial because we don't want to keep moving the host cursor
   }
-    if (settings.first_person_move_invert)
-    pckt->pos_y = 255 * ((long)MyScreenHeight - y) / MyScreenHeight;
-    else
-    pckt->pos_y = 255 * y / MyScreenHeight;
+    if (settings.first_person_move_invert) {
+        pckt->pos_y = 255 * y / MyScreenHeight;
+    } else {
+        pckt->pos_y = 255 * ((long)MyScreenHeight - y) / MyScreenHeight;
+    }
     pckt->pos_x = 255 * x / MyScreenWidth;
     // Update the position based on current settings
     long i = settings.first_person_move_sensitivity + 1;
@@ -2582,7 +2593,7 @@ short get_gui_inputs(short gameplay_on)
       over_slider_button = -1;
       do_sound_menu_click();
   }
-
+  set_flag_byte(&tool_tip_box.flags,TTip_Visible,false);
   gui_button_tooltip_update(gmbtn_idx);
   if (gui_slider_button_inputs(over_slider_button))
       return true;

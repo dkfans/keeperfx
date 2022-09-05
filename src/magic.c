@@ -51,6 +51,7 @@
 #include "config_magic.h"
 #include "config_effects.h"
 #include "gui_soundmsgs.h"
+#include "gui_tooltips.h"
 #include "room_jobs.h"
 #include "map_blocks.h"
 #include "map_columns.h"
@@ -537,7 +538,7 @@ void slap_creature(struct PlayerInfo *player, struct Thing *thing)
     }
     cctrl->field_B1 = 6;
     cctrl->field_27F = 18;
-    play_creature_sound(thing, CrSnd_Hurt, 3, 0);
+    play_creature_sound(thing, CrSnd_Slap, 3, 0);
 }
 
 TbBool can_cast_power_at_xy(PlayerNumber plyr_idx, PowerKind pwkind,
@@ -584,7 +585,8 @@ TbBool can_cast_power_at_xy(PlayerNumber plyr_idx, PowerKind pwkind,
     }
     PlayerNumber slb_owner;
     slb_owner = slabmap_owner(slb);
-    if ((mapblk->flags & SlbAtFlg_Blocking) != 0)
+    TbBool subtile_is_liquid_or_path = ( (subtile_is_liquid(stl_x, stl_y)) || (subtile_is_unclaimed_path(stl_x, stl_y)) );
+    if ( ((mapblk->flags & SlbAtFlg_Blocking) != 0) && (!subtile_is_liquid_or_path) )
     {
         if ((can_cast & PwCast_Claimable) != 0)
         {
@@ -626,7 +628,7 @@ TbBool can_cast_power_at_xy(PlayerNumber plyr_idx, PowerKind pwkind,
     {
         if ((can_cast & PwCast_Claimable) != 0)
         {
-            if (slab_kind_is_liquid(slb->kind))
+            if (subtile_is_liquid(stl_x, stl_y))
             {
                   return false;
             }
@@ -639,6 +641,10 @@ TbBool can_cast_power_at_xy(PlayerNumber plyr_idx, PowerKind pwkind,
         if ((can_cast & PwCast_UnclmdGround) != 0)
         {
             if (slbattr->category == SlbAtCtg_Unclaimed) {
+                return true;
+            }
+            if (subtile_is_liquid_or_path)
+            {
                 return true;
             }
         }
@@ -1013,6 +1019,7 @@ TbResult magic_use_power_hold_audience(PlayerNumber plyr_idx, unsigned long mod_
             const struct Coord3d *pos;
             pos = dungeon_get_essential_pos(thing->owner);
             move_thing_in_map(thing, pos);
+            reset_interpolation_of_thing(thing);
             initialise_thing_state(thing, CrSt_CreatureInHoldAudience);
             cctrl->turns_at_job = -1;
         }
@@ -1134,6 +1141,7 @@ TbResult magic_use_power_destroy_walls(PlayerNumber plyr_idx, MapSubtlCoord stl_
                 if (slbattr->category == SlbAtCtg_FortifiedWall)
                 {
                     place_slab_type_on_map(SlbT_EARTH, slab_subtile_center(slb_x),slab_subtile_center(slb_y), plyr_idx, 0);
+                    create_dirt_rubble_for_dug_slab(slb_x, slb_y);
                     do_slab_efficiency_alteration(slb_x, slb_y);
                 } else
                 if (slab_kind_is_friable_dirt(slb->kind))
@@ -1725,6 +1733,9 @@ TbResult magic_use_power_possess_thing(PlayerNumber plyr_idx, struct Thing *thin
     playeradd->battleid = 1;
     // Note that setting Direct Control player instance requires player->influenced_thing_idx to be set correctly
     set_player_instance(player, PI_DirctCtrl, 0);
+    if (is_my_player(player)) {
+        set_flag_byte(&tool_tip_box.flags,TTip_Visible,false);
+    }
     return Lb_SUCCESS;
 }
 

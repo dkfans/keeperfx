@@ -87,6 +87,10 @@ struct Thing *allocate_free_thing_structure_f(unsigned char allocflags, const ch
     game.free_things[game.free_things_start_index] = 0;
     game.free_things_start_index++;
     TRACE_THING(thing);
+
+    struct ThingAdd* thingadd = get_thingadd(thing->index);
+    LbMemorySet(thingadd, 0, sizeof(struct ThingAdd)); // Clear any previously used ThingAdd stuff
+    
     return thing;
 }
 
@@ -254,18 +258,18 @@ void set_thing_draw(struct Thing *thing, long anim, long speed, long scale, char
     {
       i = keepersprite_frames(thing->anim_sprite) - 1;
       thing->field_48 = i;
-      thing->field_40 = i << 8;
+      thing->anim_time = i << 8;
     } else
     if (start_frame == -1)
     {
       i = CREATURE_RANDOM(thing, thing->field_49);
       thing->field_48 = i;
-      thing->field_40 = i << 8;
+      thing->anim_time = i << 8;
     } else
     {
       i = start_frame;
       thing->field_48 = i;
-      thing->field_40 = i << 8;
+      thing->anim_time = i << 8;
     }
 }
 

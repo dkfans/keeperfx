@@ -579,7 +579,7 @@ TbBool create_party(const char *prtname)
         return false;
     }
     struct Party* party = (&gameadd.script.creature_partys[gameadd.script.creature_partys_num]);
-    strncpy(party->prtname, prtname, sizeof(party->prtname));
+    snprintf(party->prtname, sizeof(party->prtname), "%s", prtname);
     party->members_num = 0;
     gameadd.script.creature_partys_num++;
     return true;

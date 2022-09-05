@@ -150,7 +150,7 @@ static void draw_creature_view_icons(struct Thing* creatng)
         if (!creature_instance_is_available(creatng, cctrl->active_instance_id))
         {
             x = MyScreenWidth - (scale_value_by_horizontal_resolution(148) / 4);
-            draw_gui_panel_sprite_left(x, y, ps_units_per_px, instance_button_init[cctrl->active_instance_id].symbol_spridx);
+            draw_gui_panel_sprite_left(x, y, ps_units_per_px, instance_button_init[cctrl->active_instance_id % CREATURE_INSTANCES_COUNT].symbol_spridx);
         }
     }
 }
@@ -429,7 +429,7 @@ void set_sprite_view_3d(void)
                             n = thing->field_48;
                         }
                         thing->field_48 = n;
-                        thing->field_40 = n << 8;
+                        thing->anim_time = n << 8;
                     }
                 }
             }
@@ -460,7 +460,7 @@ void set_sprite_view_isometric(void)
                             n = thing->field_48;
                         }
                         thing->field_48 = n;
-                        thing->field_40 = n << 8;
+                        thing->anim_time = n << 8;
                     }
                 }
             }
@@ -541,27 +541,25 @@ void draw_overlay_compass(long base_x, long base_y)
     int tx_units_per_px = (22 * units_per_px) / LbTextLineHeight();
     int w = (LbSprFontCharWidth(lbFontPtr, '/') * tx_units_per_px / 16) / 2;
     int h = (LbSprFontCharHeight(lbFontPtr, '/') * tx_units_per_px / 16) / 2 + 2 * units_per_px / 16;
-    struct PlayerInfo* player = get_my_player();
-    const struct Camera* cam = player->acamera;
     int center_x = base_x * units_per_px / 16 + MapDiagonalLength / 2;
     int center_y = base_y * units_per_px / 16 + MapDiagonalLength / 2;
-    int shift_x = (-(MapDiagonalLength * 7 / 16) * LbSinL(cam->orient_a)) >> LbFPMath_TrigmBits;
-    int shift_y = (-(MapDiagonalLength * 7 / 16) * LbCosL(cam->orient_a)) >> LbFPMath_TrigmBits;
+    int shift_x = (-(MapDiagonalLength * 7 / 16) * LbSinL(interpolated_cam_orient_a)) >> LbFPMath_TrigmBits;
+    int shift_y = (-(MapDiagonalLength * 7 / 16) * LbCosL(interpolated_cam_orient_a)) >> LbFPMath_TrigmBits;
     if (LbScreenIsLocked()) {
         LbTextDrawResized(center_x + shift_x - w, center_y + shift_y - h, tx_units_per_px, get_string(GUIStr_MapN));
     }
-    shift_x = ( (MapDiagonalLength*7/16) * LbSinL(cam->orient_a)) >> LbFPMath_TrigmBits;
-    shift_y = ( (MapDiagonalLength*7/16) * LbCosL(cam->orient_a)) >> LbFPMath_TrigmBits;
+    shift_x = ( (MapDiagonalLength*7/16) * LbSinL(interpolated_cam_orient_a)) >> LbFPMath_TrigmBits;
+    shift_y = ( (MapDiagonalLength*7/16) * LbCosL(interpolated_cam_orient_a)) >> LbFPMath_TrigmBits;
     if (LbScreenIsLocked()) {
         LbTextDrawResized(center_x + shift_x - w, center_y + shift_y - h, tx_units_per_px, get_string(GUIStr_MapS));
     }
-    shift_x = ( (MapDiagonalLength*7/16) * LbCosL(cam->orient_a)) >> LbFPMath_TrigmBits;
-    shift_y = (-(MapDiagonalLength*7/16) * LbSinL(cam->orient_a)) >> LbFPMath_TrigmBits;
+    shift_x = ( (MapDiagonalLength*7/16) * LbCosL(interpolated_cam_orient_a)) >> LbFPMath_TrigmBits;
+    shift_y = (-(MapDiagonalLength*7/16) * LbSinL(interpolated_cam_orient_a)) >> LbFPMath_TrigmBits;
     if (LbScreenIsLocked()) {
         LbTextDrawResized(center_x + shift_x - w, center_y + shift_y - h, tx_units_per_px, get_string(GUIStr_MapE));
     }
-    shift_x = (-(MapDiagonalLength*7/16) * LbCosL(cam->orient_a)) >> LbFPMath_TrigmBits;
-    shift_y = ( (MapDiagonalLength*7/16) * LbSinL(cam->orient_a)) >> LbFPMath_TrigmBits;
+    shift_x = (-(MapDiagonalLength*7/16) * LbCosL(interpolated_cam_orient_a)) >> LbFPMath_TrigmBits;
+    shift_y = ( (MapDiagonalLength*7/16) * LbSinL(interpolated_cam_orient_a)) >> LbFPMath_TrigmBits;
     if (LbScreenIsLocked()) {
         LbTextDrawResized(center_x + shift_x - w, center_y + shift_y - h, tx_units_per_px, get_string(GUIStr_MapW));
     }
@@ -948,7 +946,7 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
     case PSt_CreatrQuery:
     case PSt_CreatrInfo:
     case PSt_CreatrInfoAll:
-    case PSt_CreatrQueryAll:
+    case PSt_QueryAll:
         set_pointer_graphic(MousePG_Query);
         break;
     case PSt_PlaceTrap:
@@ -1112,6 +1110,11 @@ void redraw_display(void)
     {
         draw_timer();
     }
+    if (frametime_enabled())
+    {
+        draw_frametime();
+    }
+
     if (((game.operation_flags & GOF_Paused) != 0) && ((game.operation_flags & GOF_WorldInfluence) == 0))
     {
           LbTextSetFont(winfont);
@@ -1171,7 +1174,11 @@ TbBool keeper_screen_redraw(void)
 {
     SYNCDBG(5,"Starting");
     struct PlayerInfo* player = get_my_player();
-    LbScreenClear(0);
+    if (lens_mode != 0) {
+        LbScreenClear(144); // Very dark green
+    } else {
+        LbScreenClear(0);
+    }
     if (LbScreenLock() == Lb_SUCCESS)
     {
         setup_engine_window(player->engine_window_x, player->engine_window_y,

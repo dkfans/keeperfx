@@ -522,7 +522,7 @@ void get_player_gui_clicks(void)
 
   if ( game_is_busy_doing_gui() )
   {
-    set_players_packet_control(player, 0x4000u);
+    set_players_packet_control(player, PCtr_Gui);
   }
 }
 
@@ -542,8 +542,7 @@ void add_message(long plyr_idx, char *msg)
     }
     nmsg = &net_message[i];
     nmsg->plyr_idx = plyr_idx;
-    strncpy(nmsg->text, msg, NET_MESSAGE_LEN-1);
-    nmsg->text[NET_MESSAGE_LEN-1] = '\0';
+    snprintf(nmsg->text, NET_MESSAGE_LEN, "%s", msg);
     i++;
     net_number_of_messages = i;
     if (net_message_scroll_offset+4 < i)
@@ -630,7 +629,7 @@ void create_error_box(TextStringId msg_idx)
     if (!game.packet_load_enable)
     {
         //change the length into  when gui_error_text will not be exported
-        strncpy(gui_error_text, get_string(msg_idx), sizeof(gui_error_text)-1);
+        snprintf(gui_error_text, sizeof(gui_error_text), "%s", get_string(msg_idx));
         turn_on_menu(GMnu_ERROR_BOX);
     }
 }
@@ -702,7 +701,7 @@ TbBool get_button_area_input(struct GuiButton *gbtn, int modifiers)
     } else
     if (key == KC_ESCAPE)
     { // Stop the input, revert the string to what it was before
-        strncpy(str, backup_input_field, gbtn->field_2D);
+        snprintf(str, gbtn->maxval, "%s", backup_input_field);
         input_button = 0;
         input_field_pos = 0;
     } else
@@ -737,7 +736,7 @@ TbBool get_button_area_input(struct GuiButton *gbtn, int modifiers)
         if (input_field_pos < LbLocTextStringLength(str))
             input_field_pos++;
     } else
-    if (LbLocTextStringSize(str) < abs(gbtn->field_2D))
+    if (LbLocTextStringSize(str) < abs(gbtn->maxval))
     {
         // Check if we have printable character
         if (modifiers == -1)
@@ -753,7 +752,7 @@ TbBool get_button_area_input(struct GuiButton *gbtn, int modifiers)
                 return false;
             }
         }
-        if (LbLocTextStringInsert(str, vischar, input_field_pos, gbtn->field_2D) != NULL) {
+        if (LbLocTextStringInsert(str, vischar, input_field_pos, gbtn->maxval) != NULL) {
             input_field_pos++;
         }
     }
@@ -1246,35 +1245,34 @@ void frontend_draw_icon(struct GuiButton *gbtn)
 
 void frontend_draw_slider(struct GuiButton *gbtn)
 {
-    //_DK_frontend_draw_slider(gbtn);
     if ((gbtn->flags & LbBtnF_Enabled) == 0) {
         return;
     }
-    int fs_units_per_px;
-    fs_units_per_px = simple_frontend_sprite_height_units_per_px(gbtn, 93, 100);
-    int scr_x;
-    int scr_y;
-    scr_x = gbtn->scr_pos_x;
-    scr_y = gbtn->scr_pos_y;
-    struct TbSprite *spr;
-    spr = &frontend_sprite[92];
-    LbSpriteDrawResized(scr_x, scr_y, fs_units_per_px, spr);
-    scr_x += spr->SWidth * fs_units_per_px / 16;
-    spr = &frontend_sprite[93];
-    LbSpriteDrawResized(scr_x, scr_y, fs_units_per_px, spr);
-    scr_x += spr->SWidth * fs_units_per_px / 16;
-    LbSpriteDrawResized(scr_x, scr_y, fs_units_per_px, spr);
-    scr_x += spr->SWidth * fs_units_per_px / 16;
-    spr = &frontend_sprite[94];
-    LbSpriteDrawResized(scr_x, scr_y, fs_units_per_px, spr);
-    int shift_x;
-    shift_x = gbtn->slide_val * (gbtn->width - 64*fs_units_per_px/16) >> 8;
-    if (gbtn->gbactn_1 != 0) {
-        spr = &frontend_sprite[91];
-    } else {
-        spr = &frontend_sprite[78];
+    const int fs_units_per_px = simple_frontend_sprite_height_units_per_px(gbtn, 93, 100);
+    const float scale = float(fs_units_per_px) / 16;
+
+    const auto left_sprite = &frontend_sprite[92]; // 40 units wide
+    LbSpriteDrawResized(gbtn->scr_pos_x, gbtn->scr_pos_y, fs_units_per_px, left_sprite);
+
+    // Draw center sprite draw as many times as necessary
+    const auto center_sprite = &frontend_sprite[93]; // 110 units wide
+    const int right_sprite_x = (gbtn->scr_pos_x + gbtn->width) - (40 * scale);
+    for (int x = gbtn->scr_pos_x + (40 * scale); x < right_sprite_x; x += (110 * scale))
+    {
+        LbSpriteDrawResized(x, gbtn->scr_pos_y, fs_units_per_px, center_sprite);
     }
-    LbSpriteDrawResized((gbtn->scr_pos_x + shift_x + 24*fs_units_per_px/16) / pixel_size, (gbtn->scr_pos_y + 3*fs_units_per_px/16) / pixel_size, fs_units_per_px, spr);
+
+    const auto right_sprite = &frontend_sprite[94]; // 40 units wide
+    LbSpriteDrawResized(right_sprite_x, gbtn->scr_pos_y, fs_units_per_px, right_sprite);
+
+    const int knob_position = gbtn->slide_val * (gbtn->width - int(64 * scale)) >> 8;
+    const auto knob_sprite = (gbtn->gbactn_1 != 0) ? &frontend_sprite[91] : &frontend_sprite[78];
+    LbSpriteDrawResized(
+        (gbtn->scr_pos_x + knob_position + (24 * scale)) / pixel_size,
+        (gbtn->scr_pos_y + (3 * scale)) / pixel_size,
+        fs_units_per_px,
+        knob_sprite
+    );
 }
 
 void frontend_draw_small_slider(struct GuiButton *gbtn)
@@ -1351,8 +1349,9 @@ void gui_area_text(struct GuiButton *gbtn)
 void frontend_init_options_menu(struct GuiMenu *gmnu)
 {
     //_DK_frontend_init_options_menu(gmnu);
-    music_level = settings.redbook_volume;
-    sound_level = settings.sound_volume;
+    music_level_slider = make_audio_slider_linear(settings.redbook_volume);
+    sound_level_slider = make_audio_slider_linear(settings.sound_volume);
+    mentor_level_slider = make_audio_slider_linear(settings.mentor_volume);
     fe_mouse_sensitivity = settings.first_person_move_sensitivity;
 }
 
@@ -1919,7 +1918,7 @@ void do_button_release_actions(struct GuiButton *gbtn, unsigned char *s, Gf_Btn_
   case LbBtnT_ToggleBtn:
       i = *(unsigned char *)gbtn->content;
       i++;
-      if (i > gbtn->field_2D)
+      if (i > gbtn->maxval)
           i = 0;
       *(unsigned char *)gbtn->content = i;
       if ((*s != 0) && (callback != NULL))
@@ -2046,7 +2045,7 @@ int create_button(struct GuiMenu *gmnu, struct GuiButtonInit *gbinit, int units_
     gbtn->tooltip_stridx = gbinit->tooltip_stridx;
     gbtn->parent_menu = gbinit->parent_menu;
     gbtn->content = (unsigned long *)gbinit->content.lptr;
-    gbtn->field_2D = gbinit->gbifield_31;
+    gbtn->maxval = gbinit->maxval;
     gbtn->maintain_call = gbinit->maintain_call;
     gbtn->flags |= LbBtnF_Enabled;
     gbtn->flags &= ~LbBtnF_Unknown10;
@@ -2480,12 +2479,14 @@ void set_gui_visible(TbBool visible)
   {
       setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
   }
-  // Adjust the bounds of zoom of the camera when the side-menu is toggled (in Isometric view) to hide graphical glitches
-  // Without the gui sidebar, the camera cannot be zoomed in as much.
-  // NOTE: This should be reverted if the render array is ever increased (i.e. can see more things on screen)
   if (player->acamera && player->acamera->view_mode == PVM_IsometricView)
   {
-      update_camera_zoom_bounds(player->acamera, CAMERA_ZOOM_MAX, adjust_min_camera_zoom(player->acamera, game.operation_flags & GOF_ShowGui));
+      // Adjust the bounds of zoom of the camera when the side-menu is toggled (in Isometric view) to hide graphical glitches if the screen is too wide or tall
+      // NOTE: This should be removed if the render array is ever increased (i.e. can see more things on screen)
+      int panel_width = (((game.operation_flags & GOF_ShowGui) != 0) ? status_panel_width : 0);
+      int camera_zoom_min = adjust_min_camera_zoom(player->acamera, player->engine_window_width, player->engine_window_height, panel_width);
+
+      update_camera_zoom_bounds(player->acamera, CAMERA_ZOOM_MAX, camera_zoom_min);
       if (is_my_player(player))
       {
         settings.isometric_view_zoom_level = player->acamera->zoom;
@@ -3221,6 +3222,23 @@ void draw_gui(void)
     SYNCDBG(8,"Finished");
 }
 
+void draw_debug_messages() {
+    LbTextSetFont(frontend_font[0]);
+    LbTextSetWindow(0, 0, 640, 200);
+    lbDisplay.DrawFlags = 0;
+    const int x = 8 / pixel_size;
+    int y = 8 / pixel_size;
+    for (auto message = debug_messages_head; message != nullptr; ) {
+        LbTextDraw(x, y, message->text);
+        y += 32 / pixel_size;
+        const auto next = message->next;
+        free(message);
+        message = next;
+    }
+    debug_messages_head = nullptr;
+    debug_messages_tail = &debug_messages_head;
+}
+
 /**
  * Frontend drawing function.
  * @return Gives 0 if a movie has started, 1 if normal draw occured, 2 on error.
@@ -3302,11 +3320,7 @@ short frontend_draw(void)
     default:
         break;
     }
-    // In-Menu information, for debugging messages
-    //char text[255];
-    //sprintf(text, "time %7d, mode %d",LbTimerClock(),frontend_menu_state);
-    //lbDisplay.DrawFlags=0;LbTextSetWindow(0,0,640,200);LbTextSetFont(frontend_font[0]);
-    //LbTextDraw(200/pixel_size, 8/pixel_size, text);text[0]='\0';
+    draw_debug_messages();
     perform_any_screen_capturing();
     LbScreenUnlock();
     return result;
@@ -3359,7 +3373,7 @@ void set_level_objective(const char *msg_text)
         ERRORLOG("Invalid message pointer");
         return;
     }
-    strncpy(game.evntbox_text_objective, msg_text, MESSAGE_TEXT_LEN);
+    snprintf(game.evntbox_text_objective, MESSAGE_TEXT_LEN, "%s", msg_text);
     new_objective = 1;
 }
 
@@ -3728,8 +3742,7 @@ void try_restore_frontend_error_box()
 
 void create_frontend_error_box(long showTime, const char * text)
 {
-    strncpy(gui_message_text, text, TEXT_BUFFER_LENGTH-1);
-    gui_message_text[TEXT_BUFFER_LENGTH-1] = '\0';
+    snprintf(gui_message_text, TEXT_BUFFER_LENGTH, "%s", text);
     gui_message_timeout = LbTimerClock()+showTime;
     turn_on_menu(GMnu_FEERROR_BOX);
 }

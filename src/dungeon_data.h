@@ -321,12 +321,13 @@ struct DungeonAdd
     long                  creatures_total_backpay;
     long                  cheaper_diggers;
     struct ComputerInfo   computer_info;
-    long event_last_run_turn[EVENT_KIND_COUNT];
-    long script_flags[SCRIPT_FLAGS_COUNT];
-    unsigned short room_kind[TERRAIN_ITEMS_MAX];
-    unsigned char room_buildable[TERRAIN_ITEMS_MAX];
-    unsigned char room_resrchable[TERRAIN_ITEMS_MAX];
-    unsigned char room_slabs_count[TERRAIN_ITEMS_MAX+1];
+    long                  event_last_run_turn[EVENT_KIND_COUNT];
+    long                  script_flags[SCRIPT_FLAGS_COUNT];
+    unsigned short        room_kind[TERRAIN_ITEMS_MAX];
+    unsigned char         room_buildable[TERRAIN_ITEMS_MAX];
+    unsigned char         room_resrchable[TERRAIN_ITEMS_MAX];
+    unsigned char         room_slabs_count[TERRAIN_ITEMS_MAX+1];
+    unsigned short        backup_heart_idx;
 
 };
 /******************************************************************************/
