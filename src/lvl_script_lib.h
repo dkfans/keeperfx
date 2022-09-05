@@ -160,7 +160,8 @@ enum TbScriptCommands {
     Cmd_HEART_LOST_OBJECTIVE              = 147,
     Cmd_SET_DOOR                          = 148,
     Cmd_SET_CREATURE_INSTANCE             = 149,    
-    Cmd_TRANSFER_CREATURE                 = 150
+    Cmd_TRANSFER_CREATURE                 = 150,
+    Cmd_SET_HAND_RULE                     = 151,
 };
 
 struct ScriptLine {
