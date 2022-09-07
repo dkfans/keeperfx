@@ -538,7 +538,7 @@ void init_player_as_single_keeper(struct PlayerInfo *player)
     ilght.field_3 = 5;
     ilght.is_dynamic = 1;
     unsigned short idx = light_create_light(&ilght);
-    player->field_460 = idx;
+    player->cursor_light_idx = idx;
     if (idx != 0) {
         light_set_light_never_cache(idx);
     } else {
