@@ -57,6 +57,7 @@
 #include "engine_arrays.h"
 #include "sounds.h"
 #include "game_legacy.h"
+#include "sprites.h"
 
 #include "keeperfx.hpp"
 
@@ -1126,13 +1127,13 @@ void draw_mini_things_in_hand(long x, long y)
     int bs_units_per_px;
     {
         struct TbSprite *spr;
-        spr = &button_sprite[184]; // Use creature flower level number as reference
+        spr = &button_sprite[GBS_creature_flower_level_01]; // Use creature flower level number as reference
         bs_units_per_px = calculate_relative_upp(17, units_per_pixel_ui, spr->SHeight);
     }
     unsigned long spr_idx;
     spr_idx = get_creature_model_graphics(get_players_special_digger_model(dungeon->owner), CGI_HandSymbol);
     if ((spr_idx > 0) && (spr_idx < GUI_PANEL_SPRITES_COUNT))
-        i = gui_panel_sprites[spr_idx].SWidth - button_sprite[184].SWidth;
+        i = gui_panel_sprites[spr_idx].SWidth - button_sprite[GBS_creature_flower_level_01].SWidth;
     else
         i = 0;
     long scrbase_x;
@@ -1162,7 +1163,7 @@ void draw_mini_things_in_hand(long x, long y)
                 struct CreatureControl *cctrl;
                 cctrl = creature_control_get_from_thing(thing);
                 int expspr_idx;
-                expspr_idx = 184 + cctrl->explevel;
+                expspr_idx = GBS_creature_flower_level_01 + cctrl->explevel;
                 if (irow > 0)
                     shift_y = 40;
                 else
@@ -1177,7 +1178,7 @@ void draw_mini_things_in_hand(long x, long y)
         } else
         if ((thing->class_id == TCls_Object) && object_is_gold_pile(thing))
         {
-            spr_idx = 57;
+            spr_idx = GPS_room_treasury_std_s;
             if (irow > 0)
                 shift_y = 20;
             else
@@ -1187,7 +1188,7 @@ void draw_mini_things_in_hand(long x, long y)
             draw_gui_panel_sprite_left(scrpos_x - 2, scrpos_y + scale_ui_value(shift_y), ps_units_per_px, spr_idx);
         } else
         {
-            spr_idx = 59;
+            spr_idx = GPS_room_hatchery_std_s;
             if (irow > 0)
                 shift_y = 20;
             else

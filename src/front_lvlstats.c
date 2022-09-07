@@ -41,6 +41,7 @@
 #include "room_list.h"
 #include "game_merge.h"
 #include "game_legacy.h"
+#include "sprites.h"
 
 #include "keeperfx.hpp"
 
@@ -232,7 +233,7 @@ void frontstats_draw_main_stats(struct GuiButton *gbtn)
     {
         int border;
         {
-            struct TbSprite* spr = &frontend_sprite[25];
+            struct TbSprite* spr = &frontend_sprite[GFS_hugearea_thn_cor_tl];
             border = spr->SWidth * fs_units_per_px / 16;
         }
         LbTextSetWindow(pos_x + border, pos_y, gbtn->width - 2 * border, ln_height);
@@ -266,7 +267,7 @@ void frontstats_draw_scrolling_stats(struct GuiButton *gbtn)
     draw_scroll_box(gbtn, fs_units_per_px, 5);
     LbTextSetFont(frontend_font[1]);
     {
-        struct TbSprite* spr = &frontend_sprite[25];
+        struct TbSprite* spr = &frontend_sprite[GFS_hugearea_thn_cor_tl];
         LbTextSetWindow(gbtn->scr_pos_x + spr->SWidth * fs_units_per_px / 16, gbtn->scr_pos_y + (spr->SHeight-7) * fs_units_per_px / 16,
           gbtn->width - 2 * (spr->SWidth * fs_units_per_px / 16), gbtn->height + 2 * (8 - spr->SHeight) * fs_units_per_px / 16);
     }

@@ -34,6 +34,7 @@
 #include "front_input.h"
 #include "game_legacy.h"
 #include "kjm_input.h"
+#include "sprites.h"
 #include "keeperfx.hpp"
 
 /******************************************************************************/
@@ -87,7 +88,7 @@ void gui_load_game(struct GuiButton *gbtn)
 void draw_load_button(struct GuiButton *gbtn)
 {
     if (gbtn == NULL) return;
-    int bs_units_per_px = simple_button_sprite_height_units_per_px(gbtn, 2, 94);
+    int bs_units_per_px = simple_button_sprite_height_units_per_px(gbtn, GBS_frontend_button_std_c, 94);
     if ((gbtn->gbactn_1) || (gbtn->gbactn_2))
     {
         draw_bar64k(gbtn->scr_pos_x, gbtn->scr_pos_y, bs_units_per_px, gbtn->width);

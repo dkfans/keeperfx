@@ -28,9 +28,6 @@
 
 // Sprites
 // Maybe "Count + 1"? there is no sprite#517
-#define GUI_BUTTON_SPRITES_COUNT     215
-#define GUI_PANEL_SPRITES_COUNT      600
-#define GUI_PANEL_SPRITES_NEW        256
 #define GUI_SLAB_DIMENSION 64
 // Positioning constants for menus
 #define POS_AUTO -9999

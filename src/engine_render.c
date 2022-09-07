@@ -54,6 +54,7 @@
 #include "keeperfx.hpp"
 #include "player_states.h"
 #include "custom_sprites.h"
+#include "sprites.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -4736,7 +4737,7 @@ void draw_engine_number(struct BucketKindFloatingGoldText *num)
     flg_mem = lbDisplay.DrawFlags;
     player = get_my_player();
     lbDisplay.DrawFlags &= ~Lb_SPRITE_FLIP_HORIZ;
-    spr = &button_sprite[71];
+    spr = &button_sprite[GBS_fontchars_number_dig0];
     w = scale_ui_value(spr->SWidth) * scale_by_zoom;
     h = scale_ui_value(spr->SHeight) * scale_by_zoom;
     if ((player->acamera->view_mode == PVM_IsometricView) || (player->acamera->view_mode == PVM_FrontView))
@@ -4751,7 +4752,7 @@ void draw_engine_number(struct BucketKindFloatingGoldText *num)
             pos_x = w*(ndigits-1)/2 + num->x;
             for (val = num->lvl; val > 0; val /= 10)
             {
-                spr = &button_sprite[(val%10) + 71];
+                spr = &button_sprite[(val%10) + GBS_fontchars_number_dig0];
                 LbSpriteDrawScaled(pos_x, num->y - h, spr, w, h);
 
                 pos_x -= w;
@@ -4823,14 +4824,14 @@ unsigned short choose_health_sprite(struct Thing* thing)
     }
     if ((maxhealth <= 0) || (health <= 0))
     {
-        return 88 + (8*color_idx);
+        return GBS_creature_flower_health_r1 + (8*color_idx);
     } else
     if (health >= maxhealth)
     {
-        return 88 + (8*color_idx) - 7;
+        return GBS_creature_flower_health_r1 + (8*color_idx) - 7;
     } else
     {
-        return 88 + (8*color_idx) - (8 * health / maxhealth);
+        return GBS_creature_flower_health_r1 + (8*color_idx) - (8 * health / maxhealth);
     }
 }
 
@@ -4955,21 +4956,21 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
                     case AngR_NotPaid:
                         if ((cctrl->paydays_owed <= 0) && (cctrl->paydays_advanced >= 0))
                         {
-                            anger_spridx = 55;
+                            anger_spridx = GBS_creature_states_angry;
                         }
                         else
                         {
-                            anger_spridx = 52;
+                            anger_spridx = GBS_creature_states_getgold;
                         }
                         break;
                     case AngR_Hungry:
-                        anger_spridx = 59;
+                        anger_spridx = GBS_creature_states_hungry;
                         break;
                     case AngR_NoLair:
-                        anger_spridx = 54;
+                        anger_spridx = GBS_creature_states_sleep;
                         break;
                     case AngR_Other:
-                        anger_spridx = 55;
+                        anger_spridx = GBS_creature_states_angry;
                         break;
                     default:
                         break;
@@ -4985,7 +4986,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
     int h;
     const struct TbSprite *spr;
     int bs_units_per_px;
-    spr = &button_sprite[70];
+    spr = &button_sprite[GBS_creature_states_cloud];
     bs_units_per_px = units_per_pixel_ui * 2 * scale_by_zoom;
 
     if (cam->view_mode == PVM_FrontView) {
@@ -4995,7 +4996,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
 
     if ( state_spridx || anger_spridx )
     {
-        spr = &button_sprite[70];
+        spr = &button_sprite[GBS_creature_states_cloud];
         w = (base_size * spr->SWidth * bs_units_per_px/16) >> 13;
         h = (base_size * spr->SHeight * bs_units_per_px/16) >> 13;
         LbSpriteDrawScaled(scrpos_x - w / 2, scrpos_y - h, spr, w, h);
@@ -5047,7 +5048,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
               h = (base_size * spr->SHeight * bs_units_per_px/16) >> 13;
               LbSpriteDrawScaled(scrpos_x - w / 2, scrpos_y - h - h_add, spr, w, h);
           }
-          spr = &button_sprite[184 + exp];
+          spr = &button_sprite[GBS_creature_flower_level_01 + exp];
           w = (base_size * spr->SWidth * bs_units_per_px/16) >> 13;
           h = (base_size * spr->SHeight * bs_units_per_px/16) >> 13;
           LbSpriteDrawScaled(scrpos_x - w / 2, scrpos_y - h - h_add, spr, w, h);

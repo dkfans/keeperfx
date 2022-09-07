@@ -27,6 +27,7 @@
 #include "gui_draw.h"
 #include "frontend.h"
 #include "bflib_dernc.h"
+#include "sprites.h"
 
 #include <spng.h>
 #include <json.h>

@@ -40,6 +40,7 @@
 #include "front_input.h"
 #include "vidfade.h"
 #include "game_legacy.h"
+#include "sprites.h"
 
 #include "keeperfx.hpp"
 
@@ -223,11 +224,11 @@ void draw_battle_head(struct Thing *thing, long scr_x, long scr_y, int units_per
         max_health = 1;
     LbDrawBox(curscr_x + 2*units_per_px/16, curscr_y + 2*units_per_px/16, ((12 * health)/max_health)*units_per_px/16, 2*units_per_px/16, player_room_colours[thing->owner]);
     // Draw experience level
-    spr = &button_sprite[184];
+    spr = &button_sprite[GBS_creature_flower_level_01];
     int bs_units_per_px = (17 * units_per_px + spr->SHeight / 2) / spr->SHeight;
     curscr_y = (scr_y - ((spr->SHeight*bs_units_per_px/16) >> 1));
     curscr_x = (scr_x - ((spr->SWidth*bs_units_per_px/16) >> 1));
-    spr = &button_sprite[184 + cctrl->explevel];
+    spr = &button_sprite[GBS_creature_flower_level_01 + cctrl->explevel];
     LbSpriteDrawResized(curscr_x, curscr_y, bs_units_per_px, spr);
 }
 
