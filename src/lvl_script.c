@@ -862,6 +862,7 @@ short load_script(long lvnum)
     game.flags_cd |= MFlg_DeadBackToPool;
     reset_creature_max_levels();
     reset_script_timers_and_flags();
+    reset_hand_rules();
     if ((game.operation_flags & GOF_ColumnConvert) != 0)
     {
         convert_old_column_file(lvnum);

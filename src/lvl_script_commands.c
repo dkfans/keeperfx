@@ -109,6 +109,40 @@ const struct NamedCommand flag_desc[] = {
   {NULL,     0},
 };
 
+const struct NamedCommand hand_rule_desc[] = {
+  {"ALWAYS",                HandRule_Always},
+  {"AGE_LOWER",             HandRule_AgeLower},
+  {"AGE_HIGHER",            HandRule_AgeHigher},
+  {"LEVEL_LOWER",           HandRule_LvlLower},
+  {"LEVEL_HIGHER",          HandRule_LvlHigher},
+  {"AT_ACTION_POINT",       HandRule_AtActionPoint},
+  {"AFFECTED_BY",           HandRule_AffectedBy},
+  {"WANDERING",             HandRule_Wandering},
+  {"WORKING",               HandRule_Working},
+  {"FIGHTING",              HandRule_Fighting},
+  {NULL,                    0},
+};
+
+const struct NamedCommand rule_slot_desc[] = {
+  {"RULE0",  0},
+  {"RULE1",  1},
+  {"RULE2",  2},
+  {"RULE3",  3},
+  {"RULE4",  4},
+  {"RULE5",  5},
+  {"RULE6",  6},
+  {"RULE7",  7},
+  {NULL,     0},
+};
+
+const struct NamedCommand rule_action_desc[] = {
+  {"DENY",      HandRuleAction_Deny},
+  {"ALLOW",     HandRuleAction_Allow},
+  {"ENABLE",    HandRuleAction_Enable},
+  {"DISABLE",   HandRuleAction_Disable},
+  {NULL,     0},
+};
+
 const struct NamedCommand hero_objective_desc[] = {
   {"STEAL_GOLD",           CHeroTsk_StealGold},
   {"STEAL_SPELLS",         CHeroTsk_StealSpells},
@@ -878,6 +912,65 @@ static void set_trap_configuration_check(const struct ScriptLine* scline)
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
+static void set_hand_rule_check(const struct ScriptLine* scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
+
+    const char *param_name = scline->tp[5];
+    long crtr_id = parse_creature_name(scline->tp[1]);
+    short hr_action, hr_slot, hr_type, param;
+
+    if (crtr_id == CREATURE_NONE)
+    {
+        SCRPTERRLOG("Unknown creature, '%s'", scline->tp[1]);
+        return;
+    }
+    hr_slot = get_id(rule_slot_desc, scline->tp[2]);
+    if (hr_slot == -1) {
+        SCRPTERRLOG("Invalid hand rule slot: '%s'", scline->tp[2]);
+        return;
+    }
+    hr_action = get_id(rule_action_desc, scline->tp[3]);
+    if (hr_action == -1) {
+        SCRPTERRLOG("Invalid hand rule action: '%s'", scline->tp[3]);
+        return;
+    }
+    if (hr_action == HandRuleAction_Allow || hr_action == HandRuleAction_Deny)
+    {
+        hr_type = get_id(hand_rule_desc, scline->tp[4]);
+        if (hr_type == -1) {
+            SCRPTERRLOG("Invalid hand rule: '%s'", scline->tp[4]);
+            return;
+        }
+        param = hr_type == HandRule_AffectedBy ? 0 : atol(param_name);
+        if (hr_type == HandRule_AtActionPoint && action_point_number_to_index(param) == -1)
+        {
+            SCRPTERRLOG("Unknown action point param for hand rule: '%d'", param);
+            return;
+        }
+        if (hr_type == HandRule_AffectedBy)
+        {
+            long mag_id = get_id(spell_desc, param_name);
+            if (mag_id == -1)
+            {
+                SCRPTERRLOG("Unknown magic, '%s'", param_name);
+                return;
+            }
+            param = mag_id;
+        }
+    } else
+    {
+        hr_type = 0;
+        param = 0;
+    }
+
+    value->shorts[0] = crtr_id;
+    value->shorts[1] = hr_action;
+    value->shorts[2] = hr_slot;
+    value->shorts[3] = hr_type;
+    value->shorts[4] = param;
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
 
 void refresh_trap_anim(long trap_id)
 {
@@ -1018,6 +1111,36 @@ static void set_trap_configuration_process(struct ScriptContext *context)
         default:
             WARNMSG("Unsupported Trap configuration, variable %d.", context->value->shorts[1]);
             break;
+    }
+}
+
+static void set_hand_rule_process(struct ScriptContext* context)
+{
+    long crtr_id = context->value->shorts[0];
+    long hand_rule_action = context->value->shorts[1];
+    long hand_rule_slot = context->value->shorts[2];
+    long hand_rule_type = context->value->shorts[3];
+    long param = context->value->shorts[4];
+    long crtr_id_start = crtr_id == CREATURE_ANY ? 0 : crtr_id;
+    long crtr_id_end = crtr_id == CREATURE_ANY ? CREATURE_TYPES_MAX : crtr_id + 1;
+
+    struct DungeonAdd* dungeonadd;
+    for (int i = context->plr_start; i < context->plr_end; i++)
+    {
+        for (int ci = crtr_id_start; ci < crtr_id_end; ci++)
+        {
+            dungeonadd = get_dungeonadd(i);
+            if (hand_rule_action == HandRuleAction_Allow || hand_rule_action == HandRuleAction_Deny)
+            {
+                dungeonadd->hand_rules[ci][hand_rule_slot].enabled = 1;
+                dungeonadd->hand_rules[ci][hand_rule_slot].type = hand_rule_type;
+                dungeonadd->hand_rules[ci][hand_rule_slot].allow = hand_rule_action;
+                dungeonadd->hand_rules[ci][hand_rule_slot].param = param;
+            } else
+            {
+                dungeonadd->hand_rules[ci][hand_rule_slot].enabled = hand_rule_action == HandRuleAction_Enable;
+            }
+        }
     }
 }
 
@@ -2743,6 +2866,7 @@ const struct CommandDesc command_desc[] = {
   {"HEART_LOST_OBJECTIVE",              "Nl      ", Cmd_HEART_LOST_OBJECTIVE, &heart_lost_objective_check, &heart_lost_objective_process},
   {"SET_DOOR",                          "ANN     ", Cmd_SET_DOOR, &set_door_check, &set_door_process},
   {"SET_CREATURE_INSTANCE",             "CNAN    ", Cmd_SET_CREATURE_INSTANCE, &set_creature_instance_check, &set_creature_instance_process},
+  {"SET_HAND_RULE",                     "PC!Aaaa ", Cmd_SET_HAND_RULE, &set_hand_rule_check, &set_hand_rule_process},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 
