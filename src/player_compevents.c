@@ -592,7 +592,7 @@ long computer_event_handle_prisoner(struct Computer2* comp, struct ComputerEvent
 
     if (dungeon_has_room(dungeon, RoK_TORTURE) && (!creature_is_being_tortured(creatng)))//avoid repeated action on same unit)
     {
-        if (!creature_requires_healing(creatng))
+        if (!creature_would_benefit_from_healing(creatng))
         {
             destroom = find_room_of_role_with_spare_capacity(dungeon->owner, RoRoF_Torture, 1);
             if (!room_is_invalid(destroom))

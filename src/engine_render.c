@@ -4545,24 +4545,24 @@ static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprit
         angle = thing->move_angle_xy;
     }
 
-    switch(thing->field_4F & TF4F_Transpar_Alpha)
+    switch(thing->rendering_flags & TRF_Transpar_Alpha)
     {
-        case TF4F_Transpar_8:
+        case TRF_Transpar_8:
             lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR8;
             break;
-        case TF4F_Transpar_4:
+        case TRF_Transpar_4:
             lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
             break;
         default:
             break;
     }
     unsigned short v6 = 0x2000;
-    if ( !(thing->field_4F & TF4F_Unknown02) )
+    if ( !(thing->rendering_flags & TRF_Unknown02) )
         v6 = get_thing_shade(thing);
     v6 >>= 8;
 
     int a6_2 = thing->sprite_size * ((camera_zoom << 13) / 0x10000 / pixel_size) / 0x10000;
-    if ( thing->field_4F & TF4F_Tint_Flags )
+    if ( thing->rendering_flags & TRF_Tint_Flags )
     {
         lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
         lbSpriteReMapPtr = &pixmap.ghost[256 * thing->field_51];
@@ -4578,17 +4578,17 @@ static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprit
     }
 
     EngineSpriteDrawUsingAlpha = 0;
-    switch (thing->field_4F & (TF4F_Transpar_Flags))
+    switch (thing->rendering_flags & (TRF_Transpar_Flags))
     {
-        case TF4F_Transpar_8:
+        case TRF_Transpar_8:
             lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR8;
             lbDisplay.DrawFlags &= ~Lb_TEXT_UNDERLNSHADOW;
             break;
-        case TF4F_Transpar_4:
+        case TRF_Transpar_4:
             lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
             lbDisplay.DrawFlags &= ~Lb_TEXT_UNDERLNSHADOW;
             break;
-        case TF4F_Transpar_Alpha:
+        case TRF_Transpar_Alpha:
             EngineSpriteDrawUsingAlpha = 1;
             break;
     }
@@ -4603,7 +4603,7 @@ static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprit
             lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
             lbSpriteReMapPtr = white_pal;
         } else {
-            if ((thing->field_4F & TF4F_BeingHit) != 0)
+            if ((thing->rendering_flags & TRF_BeingHit) != 0)
             {
                 lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
                 lbSpriteReMapPtr = red_pal;
@@ -4611,7 +4611,7 @@ static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprit
                 if (thingadd->time_spent_displaying_hurt_colour >= 1.0)
                 {
                     thingadd->time_spent_displaying_hurt_colour = 0;
-                    thing->field_4F &= ~TF4F_BeingHit; // Turns off red damage colour tint
+                    thing->rendering_flags &= ~TRF_BeingHit; // Turns off red damage colour tint
                 }
             }
         }
@@ -4710,7 +4710,7 @@ static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprit
         }
         else
         {
-            is_shown = ((thing->field_4F & TF4F_Unknown01) == 0);
+            is_shown = ((thing->rendering_flags & TRF_Unknown01) == 0);
         }
         if ( is_shown ||
                 get_my_player()->id_number == thing->owner ||
@@ -7682,7 +7682,7 @@ static void prepare_jonty_remap_and_scale(long *scale, const struct BucketKindJo
     if (lens_mode == 0)
     {
         fade = 65536;
-        if ((thing->field_4F & TF4F_Unknown02) == 0)
+        if ((thing->rendering_flags & TRF_Unknown02) == 0)
             i = get_thing_shade(thing);
         else
             i = MINIMUM_LIGHTNESS;
@@ -7691,7 +7691,7 @@ static void prepare_jonty_remap_and_scale(long *scale, const struct BucketKindJo
     if (jspr->field_14 <= lfade_min)
     {
         fade = jspr->field_14;
-        if ((thing->field_4F & TF4F_Unknown02) == 0)
+        if ((thing->rendering_flags & TRF_Unknown02) == 0)
             i = get_thing_shade(thing);
         else
             i = MINIMUM_LIGHTNESS;
@@ -7700,7 +7700,7 @@ static void prepare_jonty_remap_and_scale(long *scale, const struct BucketKindJo
     if (jspr->field_14 < lfade_max)
     {
         fade = jspr->field_14;
-        if ((thing->field_4F & TF4F_Unknown02) == 0)
+        if ((thing->rendering_flags & TRF_Unknown02) == 0)
             i = get_thing_shade(thing);
         else
             i = MINIMUM_LIGHTNESS;
@@ -7712,7 +7712,7 @@ static void prepare_jonty_remap_and_scale(long *scale, const struct BucketKindJo
     }
     shade_factor = shade >> 8;
     *scale = (thelens * (long)thing->sprite_size) / fade;
-    if ((thing->field_4F & (TF4F_Unknown04|TF4F_Unknown08)) != 0)
+    if ((thing->rendering_flags & (TRF_Unknown04|TRF_Unknown08)) != 0)
     {
         lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
         shade_factor = thing->field_51;
@@ -7784,17 +7784,17 @@ void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
       angle = thing->move_angle_xy;
     prepare_jonty_remap_and_scale(&scale, jspr);
     EngineSpriteDrawUsingAlpha = 0;
-    switch (thing->field_4F & (TF4F_Transpar_Flags))
+    switch (thing->rendering_flags & (TRF_Transpar_Flags))
     {
-    case TF4F_Transpar_8:
+    case TRF_Transpar_8:
         lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR8;
         lbDisplay.DrawFlags &= ~Lb_TEXT_UNDERLNSHADOW;
         break;
-    case TF4F_Transpar_4:
+    case TRF_Transpar_4:
         lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
         lbDisplay.DrawFlags &= ~Lb_TEXT_UNDERLNSHADOW;
         break;
-    case TF4F_Transpar_Alpha:
+    case TRF_Transpar_Alpha:
         EngineSpriteDrawUsingAlpha = 1;
         break;
     }
@@ -7835,7 +7835,7 @@ void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
               }
           }
         } else {
-            if ((thing->field_4F & TF4F_BeingHit) != 0)
+            if ((thing->rendering_flags & TRF_BeingHit) != 0)
             {
                 lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
                 lbSpriteReMapPtr = red_pal;
@@ -7843,7 +7843,7 @@ void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
                 if (thingadd->time_spent_displaying_hurt_colour >= 1.0)
                 {
                     thingadd->time_spent_displaying_hurt_colour = 0;
-                    thing->field_4F &= ~TF4F_BeingHit; // Turns off red damage colour tint
+                    thing->rendering_flags &= ~TRF_BeingHit; // Turns off red damage colour tint
                 }
             }
         }
@@ -8598,7 +8598,7 @@ static void do_map_who(short tnglist_idx)
         }
         i = thing->next_on_mapblk;
         // Per thing code start
-        if ((thing->field_4F & TF4F_Unknown01) == 0)
+        if ((thing->rendering_flags & TRF_Unknown01) == 0)
         {
             do_map_who_for_thing(thing);
         }
@@ -8621,7 +8621,7 @@ static void draw_frontview_thing_on_element(struct Thing *thing, struct Map *map
     long cx;
     long cy;
     long cz;
-    if ((thing->field_4F & TF4F_Unknown01) != 0)
+    if ((thing->rendering_flags & TRF_Unknown01) != 0)
         return;
     switch (thing->field_50 >> 2)
     {

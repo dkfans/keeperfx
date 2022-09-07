@@ -56,21 +56,21 @@ enum ThingFlags2 {
     TF2_Spectator      = 0x02,
 };
 
-enum ThingFlags4F {
-    TF4F_Unknown01     = 0x01, /** Not Drawn **/
-    TF4F_Unknown02     = 0x02, // Not shaded
+enum ThingRenderingFlags {
+    TRF_Unknown01     = 0x01, /** Not Drawn **/
+    TRF_Unknown02     = 0x02, // Not shaded
 
-    TF4F_Unknown04     = 0x04, // Tint1 (used to draw enemy creatures when they are blinking to owners color)
-    TF4F_Unknown08     = 0x08, // Tint2 (not used?)
-    TF4F_Tint_Flags    = 0x0C, // Tint flags
+    TRF_Unknown04     = 0x04, // Tint1 (used to draw enemy creatures when they are blinking to owners color)
+    TRF_Unknown08     = 0x08, // Tint2 (not used?)
+    TRF_Tint_Flags    = 0x0C, // Tint flags
 
-    TF4F_Transpar_8     = 0x10, // Used on chicken effect when creature is turned to chicken
-    TF4F_Transpar_4     = 0x20, // Used for Invisible creatures and traps -- more transparent
-    TF4F_Transpar_Alpha = 0x30,
-    TF4F_Transpar_Flags = 0x30,
+    TRF_Transpar_8     = 0x10, // Used on chicken effect when creature is turned to chicken
+    TRF_Transpar_4     = 0x20, // Used for Invisible creatures and traps -- more transparent
+    TRF_Transpar_Alpha = 0x30,
+    TRF_Transpar_Flags = 0x30,
 
-    TF4F_Unmoving      = 0x40,
-    TF4F_BeingHit      = 0x80,    // Being hit (draw red sometimes)
+    TRF_Unmoving       = 0x40,
+    TRF_BeingHit       = 0x80,    // Being hit (draw red sometimes)
 };
 
 enum FreeThingAllocFlags {
@@ -256,7 +256,7 @@ unsigned char field_49;     // max frames
     char field_4A;          // thing growth speed (when it is growing/shrinking)
 unsigned short field_4B;    // min_sprite_size
 unsigned short field_4D;    // max_sprite_size
-    unsigned char field_4F;
+    unsigned char rendering_flags;
     unsigned char field_50; // control rendering process (draw_class << 2) + (growth/shrink continiously) + (shrink/grow then stop)
 unsigned char field_51;   // Tint color (from colours)
     short move_angle_xy;

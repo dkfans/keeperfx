@@ -232,18 +232,18 @@ TbBool process_dungeon_power_hand_state(long plyr_idx)
                 objdat = get_objects_data(37);
                 set_power_hand_graphic(plyr_idx, objdat->sprite_anim_idx, objdat->anim_speed);
                 if (!thing_is_invalid(thing))
-                    thing->field_4F |= TF4F_Unknown01;
+                    thing->rendering_flags |= TRF_Unknown01;
             } else
             if ((thing->class_id == TCls_Object) && object_is_gold_pile(thing))
             {
                 objdat = get_objects_data(127);
                 set_power_hand_graphic(plyr_idx, objdat->sprite_anim_idx, objdat->anim_speed);
-                thing->field_4F &= ~TF4F_Unknown01;
+                thing->rendering_flags &= ~TRF_Unknown01;
             } else
             {
                 objdat = get_objects_data(38);
                 set_power_hand_graphic(plyr_idx, objdat->sprite_anim_idx + 1, objdat->anim_speed);
-                thing->field_4F &= ~TF4F_Unknown01;
+                thing->rendering_flags &= ~TRF_Unknown01;
             }
         }
     }

@@ -285,7 +285,7 @@ TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *t
     if (cam != NULL)
       player->view_mode_restore = cam->view_mode;
     thing->alloc_flags |= TAlF_IsControlled;
-    thing->field_4F |= TF4F_Unknown01;
+    thing->rendering_flags |= TRF_Unknown01;
     if (!chicken)
     {
         set_start_state(thing);
@@ -340,7 +340,7 @@ TbBool control_creature_as_passenger(struct PlayerInfo *player, struct Thing *th
     if (cam != NULL)
       player->view_mode_restore = cam->view_mode;
     set_player_mode(player, PVT_CreaturePasngr);
-    thing->field_4F |= TF4F_Unknown01;
+    thing->rendering_flags |= TRF_Unknown01;
     return true;
 }
 
@@ -1256,7 +1256,7 @@ void terminate_thing_spell_effect(struct Thing *thing, SpellKind spkind)
         if (thing->light_id != 0) 
         {
             cctrl->spell_flags &= ~CSAfF_Light;
-            if ((thing->field_4F & TF4F_Unknown01) != 0)
+            if ((thing->rendering_flags & TRF_Unknown01) != 0)
             {
                 light_set_light_intensity(thing->light_id, (light_get_light_intensity(thing->light_id) - 20));
                 struct Light* lgt = &game.lish.lights[thing->light_id];
@@ -2548,7 +2548,7 @@ void prepare_to_controlled_creature_death(struct Thing *thing)
         turn_on_main_panel_menu();
         set_flag_byte(&game.operation_flags, GOF_ShowPanel, (game.operation_flags & GOF_ShowGui) != 0);
   }
-  light_turn_light_on(player->field_460);
+  light_turn_light_on(player->cursor_light_idx);
 }
 
 void delete_effects_attached_to_creature(struct Thing *creatng)
@@ -3148,22 +3148,22 @@ ThingIndex get_human_controlled_creature_target(struct Thing *thing, long primar
                             {
                                 case 1:
                                 case 7:
-                                    is_valid_target = (thing_is_creature(i) || thing_is_dungeon_heart(i));
+                                    is_valid_target = ((thing_is_creature(i) && !creature_is_being_unconscious(i)) || thing_is_dungeon_heart(i));
                                     break;
                                 case 2:
-                                    is_valid_target = (thing_is_creature(i));
+                                    is_valid_target = (thing_is_creature(i) && !creature_is_being_unconscious(i));
                                     break;
                                 case 3:
-                                    is_valid_target = ((thing_is_creature(i) || thing_is_dungeon_heart(i)) && i->owner != thing->owner);
+                                    is_valid_target = (((thing_is_creature(i) && !creature_is_being_unconscious(i)) || thing_is_dungeon_heart(i)) && i->owner != thing->owner);
                                     break;
                                 case 4:
-                                    is_valid_target = (thing_is_creature(i) && i->owner != thing->owner);
+                                    is_valid_target = ((thing_is_creature(i) && !creature_is_being_unconscious(i)) && i->owner != thing->owner);
                                     break;
                                 case 5:
-                                    is_valid_target = ((thing_is_creature(i) || thing_is_dungeon_heart(i)) && i->owner == thing->owner);
+                                    is_valid_target = (((thing_is_creature(i) && !creature_is_being_unconscious(i)) || thing_is_dungeon_heart(i)) && i->owner == thing->owner);
                                     break;
                                 case 6:
-                                    is_valid_target = (thing_is_creature(i) && i->owner == thing->owner);
+                                    is_valid_target = ((thing_is_creature(i) && !creature_is_being_unconscious(i)) && i->owner == thing->owner);
                                     break;
                                 case 8:
                                     is_valid_target = true;
@@ -4744,7 +4744,7 @@ long player_list_creature_filter_needs_to_be_placed_in_room_for_job(const struct
     if (cctrl->combat_flags)
     {
         // Simplified algorithm when creature is in combat
-        if (health_permil < 1000*crstat->heal_threshold/256)
+        if (creature_requires_healing(thing))
         {
             // If already at lair, then don't do anything
             if (!creature_is_doing_lair_activity(thing))
@@ -5741,7 +5741,7 @@ struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, ThingMod
             thing->mappos.z.val = get_ceiling_height(&thing->mappos);
             create_effect(&thing->mappos, TngEff_CeilingBreach, thing->owner);
             initialise_thing_state(thing, CrSt_CreatureHeroEntering);
-            thing->field_4F |= TF4F_Unknown01;
+            thing->rendering_flags |= TRF_Unknown01;
             cctrl->countdown_282 = 24;
         }
     default:
