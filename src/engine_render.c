@@ -1021,7 +1021,7 @@ void fill_in_points_isometric(long bstl_x, long bstl_y, struct MinMax *mm)
     long view_z;
     int zoom;
     int hview_z;
-    
+
     zoom = camera_zoom / pixel_size;
     hpos = -view_alt * apos;
     view_x = view_width_over_2 + (zoom
@@ -2020,7 +2020,7 @@ static void create_line_segment(struct EngineCoord *start, struct EngineCoord *e
     long bckt_idx;
     if (!is_free_space_in_poly_pool(1))
         return;
-    
+
     // Reducing line_z will make the lines look cleaner, but the "fancy_map_volume_box" vertical lines become more visible.
     float line_z = 0.994;
     bckt_idx = (( (start->z*line_z) + (end->z*line_z) ) / 32) - 2;
@@ -4591,7 +4591,7 @@ static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprit
             EngineSpriteDrawUsingAlpha = 1;
             break;
     }
-    
+
     if ((thing->class_id == TCls_Creature)
         || (thing->class_id == TCls_Object)
         || (thing->class_id == TCls_DeadCreature)
@@ -5131,7 +5131,7 @@ static void draw_engine_room_flag_top(struct BucketKindRoomFlag *rflg)
             int top_of_pole_offset, zoom_factor;
             // 1st argument: the scale when fully zoomed out. 2nd argument: the scale at base level zoom
             float scale_by_zoom = lerp(0.15, 1.00, hud_scale);
-            
+
             if (cam->view_mode == PVM_FrontView) {
                 zoom_factor = (4094*scale_by_zoom);
                 top_of_pole_offset = (zoom_factor << 7 >> 13) * (units_per_pixel)/16;
@@ -6493,7 +6493,7 @@ void draw_view(struct Camera *cam, unsigned char a2)
         do_perspective_rotation(x, y, z);
         cells_away = compute_cells_away();
     }
-    
+
     xcell = (x >> 8);
     aposc = -(x & 0xFF);
     bposc = (cells_away << 8) + (y & 0xFF);
@@ -8483,7 +8483,7 @@ static void do_map_who_for_thing(struct Thing *thing)
     int bckt_idx;
     struct EngineCoord ecor;
     struct NearestLights nearlgt;
-    
+
     interpolate_thing(thing, thingadd);
     int render_pos_x, render_floorpos, render_pos_y, render_pos_z;
     render_pos_x = thingadd->interp_mappos.x.val;
@@ -8498,7 +8498,7 @@ static void do_map_who_for_thing(struct Thing *thing)
         ecor.x = (render_pos_x - map_x_pos);
         ecor.z = (map_y_pos - render_pos_z);
         ecor.y = (render_floorpos - map_z_pos); // For shadows
-        
+
         // Shadows
         if (thing_is_creature(thing) && ((thing->movement_flags & TMvF_Unknown04) == 0))
         {
@@ -8834,7 +8834,7 @@ void draw_frontview_engine(struct Camera *cam)
     {
         process_frontview_map_volume_box(cam, ((zoom >> 8) & 0xFF), player->id_number);
     }
-    
+
 
     h = (8 * (zoom + 32 * ewnd.height) - qy) / zoom;
     w = (8 * (zoom + 32 * ewnd.height) - qy) / zoom;

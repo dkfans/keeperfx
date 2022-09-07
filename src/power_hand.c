@@ -219,12 +219,12 @@ TbBool can_thing_be_picked_up2_by_player(const struct Thing *thing, PlayerNumber
     {
         return false;
     }
-    
+
     if (thing->active_state == CrSt_MoveToPosition)
     {
         state = thing->continue_state;
     }
-    else 
+    else
     {
         state = thing->active_state;
     }
@@ -564,7 +564,7 @@ void draw_power_hand(void)
         if ((!room_is_invalid(room)) && (subtile_revealed(stl_x, stl_y, player->id_number)))
         {
             roomst = get_room_kind_stats(room->kind);
-            
+
             draw_gui_panel_sprite_centered(GetMouseX()+scale_ui_value(24), GetMouseY()+scale_ui_value(32), ps_units_per_px, roomst->medsym_sprite_idx);
         }
         if ((!power_hand_is_empty(player)) && (game.small_map_state == 1))
@@ -1322,7 +1322,7 @@ TbBool place_thing_in_power_hand(struct Thing *thing, PlayerNumber plyr_idx)
         if (thing->light_id != 0)
         {
             light_delete_light(thing->light_id);
-            thing->light_id = 0;   
+            thing->light_id = 0;
         }
         set_thing_draw(thing, i, 256, -1, -1, 0, 2);
     } else
@@ -1433,7 +1433,7 @@ void stop_creatures_around_hand(PlayerNumber plyr_idx, MapSubtlCoord stl_x,  Map
                 break_mapwho_infinite_chain(mapblk);
                 break;
             }
-        }        
+        }
     }
 }
 

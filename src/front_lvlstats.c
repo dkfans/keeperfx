@@ -251,10 +251,10 @@ void frontstats_draw_main_stats(struct GuiButton *gbtn)
         }
         if ( (timer_enabled()) && (stat->name_stridx == 1746) && (!TimerGame) )
         {
-            LbTextDrawResizedFmt(0, 0, tx_units_per_px, "%02ld:%02ld:%02ld:%03ld", Timer.Hours, Timer.Minutes, Timer.Seconds, Timer.MSeconds);       
+            LbTextDrawResizedFmt(0, 0, tx_units_per_px, "%02ld:%02ld:%02ld:%03ld", Timer.Hours, Timer.Minutes, Timer.Seconds, Timer.MSeconds);
         }
         else
-        {    
+        {
             LbTextDrawResizedFmt(0, 0, tx_units_per_px, "%d", stat_val);
         }
         pos_y += ln_height + 1 * units_per_pixel / 16;

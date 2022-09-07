@@ -62,8 +62,8 @@ void message_draw(void)
             set_flag_word(&lbDisplay.DrawFlags,Lb_TEXT_ONE_COLOR,false);
             LbTextDrawResized(x+32*units_per_pixel/16, y, tx_units_per_px, gameadd.messages[i].text);
             unsigned long spr_idx = 0;
-            TbBool IsCreature = false; 
-            TbBool IsCreatureSpell = false; 
+            TbBool IsCreature = false;
+            TbBool IsCreatureSpell = false;
             TbBool IsRoom = false;
             TbBool IsKeeperSpell = false;
             TbBool IsQuery = false;
@@ -143,7 +143,7 @@ void message_draw(void)
                     y += (10 * units_per_pixel / 16);
                 }
             }
-        }        
+        }
     }
 }
 
@@ -191,11 +191,11 @@ void delete_message(unsigned char msg_idx)
     {
         for (int i = msg_idx; i < game.active_messages_count; i++)
         {
-            gameadd.messages[i] = gameadd.messages[i+1]; 
+            gameadd.messages[i] = gameadd.messages[i+1];
         }
-        memset(&gameadd.messages[game.active_messages_count - 1], 0, sizeof(struct GuiMessage));        
+        memset(&gameadd.messages[game.active_messages_count - 1], 0, sizeof(struct GuiMessage));
     }
-    game.active_messages_count--;    
+    game.active_messages_count--;
 }
 
 void message_add(PlayerNumber plyr_idx, const char *text)

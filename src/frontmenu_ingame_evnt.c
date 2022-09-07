@@ -368,7 +368,7 @@ void draw_bonus_timer(void)
         if (nturns < 0)
         {
             nturns = 0;
-        } 
+        }
         else if (nturns > 99999)
         {
             nturns = 99999;
@@ -420,7 +420,7 @@ void draw_timer(void)
         }
         text = buf_sprintf("%02d:%02d:%02d", Timer.Hours, Timer.Minutes, Timer.Seconds);
     }
-    LbTextSetFont(winfont); 
+    LbTextSetFont(winfont);
     long width = 10 * (LbTextCharWidth('0') * units_per_pixel >> 4);
     long height = LbTextLineHeight() * units_per_pixel / 16 + (LbTextLineHeight() * units_per_pixel / 16) / 2;
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
@@ -509,7 +509,7 @@ void draw_script_variable(PlayerNumber plyr_idx, unsigned char valtype, unsigned
         }
         else if (targettype == 1)
         {
-            value = ((~target)+1) + value; 
+            value = ((~target)+1) + value;
         }
     }
     if (targettype != 2)

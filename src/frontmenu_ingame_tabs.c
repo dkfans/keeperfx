@@ -1855,8 +1855,8 @@ void maintain_event_button(struct GuiButton *gbtn)
     if (evbtn_idx <= EVENT_BUTTONS_COUNT)
     {
         evidx = dungeon->event_button_index[evbtn_idx];
-    } 
-    else 
+    }
+    else
     {
         evidx = 0;
     }
@@ -1887,7 +1887,7 @@ void maintain_event_button(struct GuiButton *gbtn)
                     {
                         activate_event_box(i);
                         break;
-                        
+
                     }
                 }
                 clear_key_pressed(keycode);
@@ -1917,7 +1917,7 @@ void maintain_event_button(struct GuiButton *gbtn)
         gbtn->sprite_idx += 2;
         if(is_game_key_pressed(Gkey_ZoomToFight, &keycode, true) && lbKeyOn[KC_LSHIFT])
         {
-            if ((evidx == dungeon->visible_event_idx)) 
+            if ((evidx == dungeon->visible_event_idx))
             {
             clear_key_pressed(keycode);
             gui_close_objective(gbtn);
