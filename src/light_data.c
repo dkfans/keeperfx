@@ -1536,14 +1536,17 @@ static char light_render_light(struct Light* lgt)
   int remember_original_lgt_mappos_y = lgt->mappos.y.val;
   if ((lightadd->interp_has_been_initialized == false) || (game.play_gameturn - lightadd->last_turn_drawn > 1)) {
     lightadd->interp_has_been_initialized = true;
-    lightadd->previous_mappos = lgt->mappos;
-    lightadd->interp_mappos = lgt->mappos;
+    lightadd->interp_mappos.x.val = lgt->mappos.x.val;
+    lightadd->interp_mappos.y.val = lgt->mappos.y.val;
+    lightadd->previous_mappos.x.val = lgt->mappos.x.val;
+    lightadd->previous_mappos.y.val = lgt->mappos.y.val;
   } else {
     lightadd->interp_mappos.x.val = interpolate(lightadd->interp_mappos.x.val, lightadd->previous_mappos.x.val, lgt->mappos.x.val);
     lightadd->interp_mappos.y.val = interpolate(lightadd->interp_mappos.y.val, lightadd->previous_mappos.y.val, lgt->mappos.y.val);
   }
   lightadd->last_turn_drawn = game.play_gameturn;
-  lgt->mappos = lightadd->interp_mappos;
+  lgt->mappos.x.val = lightadd->interp_mappos.x.val;
+  lgt->mappos.y.val = lightadd->interp_mappos.y.val;
   // Stop flicker by rounding off position
   TbBool is_dynamic = lgt->flags & LgtF_Dynamic;
   if (is_dynamic)
