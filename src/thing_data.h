@@ -56,7 +56,7 @@ enum ThingFlags2 {
     TF2_Spectator      = 0x02,
 };
 
-enum ThingFlags4F {
+enum ThingRenderingFlags {
     TRF_Unknown01     = 0x01, /** Not Drawn **/
     TRF_Unknown02     = 0x02, // Not shaded
 
