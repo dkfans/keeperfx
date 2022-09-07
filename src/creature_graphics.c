@@ -289,7 +289,7 @@ void update_creature_rendering_flags(struct Thing *thing)
     // Clear related flags
     thing->rendering_flags &= ~TRF_Unknown01;
     thing->rendering_flags &= ~TRF_Transpar_Flags;
-    thing->rendering_flags &= ~TRF_Unknown40;
+    thing->rendering_flags &= ~TRF_Unmoving;
     // Now set only those that should be
     if ( (is_thing_directly_controlled_by_player(thing, my_player_number)) || (is_thing_passenger_controlled_by_player(thing, my_player_number)) )
     {
@@ -372,7 +372,7 @@ void update_creature_graphic_anim(struct Thing *thing)
         if (thing->active_state == CrSt_CreatureUnconscious)
         {
             update_creature_anim(thing, 64, 16);
-            thing->rendering_flags |= TRF_Unknown40;
+            thing->rendering_flags |= TRF_Unmoving;
         } else
         if (thing->active_state == CrSt_CreatureSleep)
         {

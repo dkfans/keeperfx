@@ -768,9 +768,9 @@ struct Thing *create_trap(struct Coord3d *pos, ThingModel trpkind, PlayerNumber 
         thing->rendering_flags &= ~TRF_Unknown02;
     }
     if (trapstat->unanimated) {
-        thing->rendering_flags |= TRF_Unknown40;
+        thing->rendering_flags |= TRF_Unmoving;
     } else {
-        thing->rendering_flags &= ~TRF_Unknown40;
+        thing->rendering_flags &= ~TRF_Unmoving;
     }
     thing->clipbox_size_xy = trapstat->size_xy;
     thing->clipbox_size_yz = trapstat->field_16;
