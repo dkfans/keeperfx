@@ -1569,7 +1569,7 @@ short creature_change_from_chicken(struct Thing *creatng)
         cctrl->countdown_282--;
     if (cctrl->countdown_282 > 0)
     { // Changing under way - gradually modify size of the creature
-        creatng->field_4F |= TF4F_Unknown01;
+        creatng->rendering_flags |= TRF_Unknown01;
         creatng->field_50 |= 0x01;
         struct Thing* efftng = create_effect_element(&creatng->mappos, TngEffElm_Chicken, creatng->owner);
         if (!thing_is_invalid(efftng))
@@ -1577,13 +1577,13 @@ short creature_change_from_chicken(struct Thing *creatng)
             long n = (10 - cctrl->countdown_282) * (gameadd.crtr_conf.sprite_size + (gameadd.crtr_conf.sprite_size * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100) / 10;
             unsigned long k = get_creature_anim(creatng, 0);
             set_thing_draw(efftng, k, 256, n, -1, 0, 2);
-            efftng->field_4F &= ~TF4F_Transpar_Flags;
-            efftng->field_4F |= TF4F_Transpar_8;
+            efftng->rendering_flags &= ~TRF_Transpar_Flags;
+            efftng->rendering_flags |= TRF_Transpar_8;
         }
         return 0;
     } else
     {
-        creatng->field_4F &= ~TF4F_Unknown01;
+        creatng->rendering_flags &= ~TRF_Unknown01;
         cctrl->stateblock_flags &= ~CCSpl_ChickenRel;
         cctrl->spell_flags &= ~CSAfF_Chicken;
         set_creature_size_stuff(creatng);
@@ -1602,19 +1602,19 @@ short creature_change_to_chicken(struct Thing *creatng)
     if (cctrl->countdown_282 > 0)
     {
       creatng->field_50 |= 0x01;
-      creatng->field_4F |= TF4F_Unknown01;
+      creatng->rendering_flags |= TRF_Unknown01;
       struct Thing* efftng = create_effect_element(&creatng->mappos, TngEffElm_Chicken, creatng->owner);
       if (!thing_is_invalid(efftng))
       {
           unsigned long k = convert_td_iso(819);
           set_thing_draw(efftng, k, 0, 1200 * cctrl->countdown_282 / 10 + gameadd.crtr_conf.sprite_size, -1, 0, 2);
-          efftng->field_4F &= ~TF4F_Transpar_Flags;
-          efftng->field_4F |= TF4F_Transpar_8;
+          efftng->rendering_flags &= ~TRF_Transpar_Flags;
+          efftng->rendering_flags |= TRF_Transpar_8;
       }
       return 0;
     }
     cctrl->spell_flags |= CSAfF_Chicken;
-    creatng->field_4F &= ~TF4F_Unknown01;
+    creatng->rendering_flags &= ~TRF_Unknown01;
     set_creature_size_stuff(creatng);
     creatng->state_flags &= ~TF1_Unkn10;
     creatng->active_state = CrSt_CreaturePretendChickenSetupMove;
@@ -3304,14 +3304,14 @@ long setup_head_for_empty_treasure_space(struct Thing *thing, struct Room *room)
 void place_thing_in_creature_controlled_limbo(struct Thing *thing)
 {
     remove_thing_from_mapwho(thing);
-    thing->field_4F |= TF4F_Unknown01;
+    thing->rendering_flags |= TRF_Unknown01;
     thing->state_flags |= TF1_InCtrldLimbo;
 }
 
 void remove_thing_from_creature_controlled_limbo(struct Thing *thing)
 {
     thing->state_flags &= ~TF1_InCtrldLimbo;
-    thing->field_4F &= ~TF4F_Unknown01;
+    thing->rendering_flags &= ~TRF_Unknown01;
     place_thing_in_mapwho(thing);
 }
 

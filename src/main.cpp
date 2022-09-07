@@ -858,7 +858,7 @@ void update_thing_animation(struct Thing *thing)
         }
         if (thing->anim_time > i-1)
         {
-          if (thing->field_4F & TF4F_Unknown40)
+          if (thing->rendering_flags & TRF_Unknown40)
           {
             thing->anim_speed = 0;
             thing->anim_time = i-1;
@@ -2637,7 +2637,7 @@ long update_cave_in(struct Thing *thing)
 {
     //return _DK_update_cave_in(thing);
     thing->health--;
-    thing->field_4F |= TF4F_Unknown01;
+    thing->rendering_flags |= TRF_Unknown01;
     if (thing->health < 1)
     {
         delete_thing_structure(thing, 0);

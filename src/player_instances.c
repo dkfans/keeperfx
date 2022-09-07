@@ -960,7 +960,7 @@ void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing
     clear_selected_thing(player);
     set_player_mode(player, PVT_DungeonTop);
     thing->alloc_flags &= ~TAlF_IsControlled;
-    thing->field_4F &= ~TF4F_Unknown01;
+    thing->rendering_flags &= ~TRF_Unknown01;
     player->allocflags &= ~PlaF_Unknown8;
     set_engine_view(player, player->view_mode_restore);
     long i = player->acamera->orient_a;
@@ -1005,7 +1005,7 @@ void leave_creature_as_passenger(struct PlayerInfo *player, struct Thing *thing)
     return;
   }
   set_player_mode(player, PVT_DungeonTop);
-  thing->field_4F &= ~TF4F_Unknown01;
+  thing->rendering_flags &= ~TRF_Unknown01;
   player->allocflags &= ~PlaF_Unknown8;
   set_engine_view(player, player->view_mode_restore);
   long i = player->acamera->orient_a;
