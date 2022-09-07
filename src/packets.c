@@ -452,7 +452,7 @@ TbBool message_text_key_add(char * message, long maxlen, TbKeyCode key, TbKeyMod
         ((chr >= 'A') && (chr <= 'Z')) ||
         ((chr >= '0') && (chr <= '9')) ||
         (chr == ' ')  || (chr == '!') || (chr == ':') || (chr == ';')
-        || (chr == '(') || (chr == ')') || (chr == '.') || (chr == '_') 
+        || (chr == '(') || (chr == ')') || (chr == '.') || (chr == '_')
         || (chr == '\'') || (chr == '+') || (chr == '=') || (chr == '-')
         || (chr == '"') || (chr == '?') || (chr == '/') || (chr == '#')
         || (chr == '<') || (chr == '>') || (chr == '^'))
@@ -1320,7 +1320,7 @@ void process_players_creature_control_packet_action(long plyr_idx)
     {
         playeradd = get_playeradd(plyr_idx);
         playeradd->teleport_destination = pckt->actn_par1;
-        break; 
+        break;
     }
     case PckA_SelectFPPickup:
     {

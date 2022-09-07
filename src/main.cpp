@@ -508,7 +508,7 @@ long apply_wallhug_force_to_boulder(struct Thing *thing)
       else if ( blocked_flags & SlbBloF_WalledY )
       {
         angle = thing->move_angle_xy;
-        if ( (angle) && (angle <= ANGLE_SOUTH) ) 
+        if ( (angle) && (angle <= ANGLE_SOUTH) )
         {
           pos2.z.val = 0;
           pos2.y.val = thing->mappos.y.val;
@@ -541,7 +541,7 @@ long apply_wallhug_force_to_boulder(struct Thing *thing)
 }
 
 long process_boulder_collision(struct Thing *boulder, struct Coord3d *pos, int direction_x, int direction_y)
-{ 
+{
     unsigned short boulder_radius = (boulder->clipbox_size_xy >> 1);
     MapSubtlCoord pos_x = (pos->x.val + boulder_radius * direction_x) >> 8;
     MapSubtlCoord pos_y = (pos->y.val + boulder_radius * direction_y) >> 8;
@@ -1042,7 +1042,7 @@ short setup_game(void)
   if (GetVersionEx(&v))
   {
       SYNCMSG("Operating System: %s %ld.%ld.%ld", (v.dwPlatformId == VER_PLATFORM_WIN32_NT) ? "Windows NT" : "Windows", v.dwMajorVersion,v.dwMinorVersion,v.dwBuildNumber);
-  }  
+  }
   update_memory_constraits();
   // Enable features that require more resources
   update_features(mem_size);
@@ -1057,7 +1057,7 @@ short setup_game(void)
   features_enabled &= ~Ft_SkipSplashScreens; // don't skip splash screens
   features_enabled &= ~Ft_DisableCursorCameraPanning; // don't disable cursor camera panning
   features_enabled |= Ft_DeltaTime; // enable delta time
-  
+
   // Configuration file
   if ( !load_configuration() )
   {
@@ -1072,7 +1072,7 @@ short setup_game(void)
       ERRORLOG("Error on allocation/loading of legal_load_files.");
       return 0;
   }
-    
+
   // View the legal screen
   if (!setup_screen_mode_zero(get_frontend_vidmode()))
   {
@@ -1250,7 +1250,7 @@ TbBool players_cursor_is_at_top_of_view(struct PlayerInfo *player)
         || (i == PSt_MkGoodCreatr) || (i == PSt_MkBadCreatr) )
         return true;
     if ( (i == PSt_OrderCreatr) && (player->controlled_thing_idx > 0) )
-        return true;  
+        return true;
     if ( (i == PSt_CtrlDungeon) && (player->primary_cursor_state != CSt_DefaultArrow) && (player->thing_under_hand == 0) )
         return true;
     return false;
@@ -2758,7 +2758,7 @@ void update(void)
         return;
     }
     set_previous_camera_values();
-    
+
     if ((game.operation_flags & GOF_Paused) == 0)
     {
         player = get_my_player();
@@ -3938,7 +3938,7 @@ void game_loop(void)
         {
             if (is_feature_on(Ft_SkipHeartZoom) == false) {
                 set_player_instance(player, PI_HeartZoom, 0);
-            } else { 
+            } else {
                 toggle_status_menu(1); // Required when skipping PI_HeartZoom
             }
         } else
@@ -3949,7 +3949,7 @@ void game_loop(void)
       } else {
           toggle_status_menu(1); // Required when skipping PI_HeartZoom
       }
-        
+
       unsigned long starttime;
       unsigned long endtime;
       struct Dungeon *dungeon;

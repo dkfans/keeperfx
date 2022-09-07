@@ -534,7 +534,7 @@ static int get_walking_bob_direction(struct Thing *thing)
 }
 
 void update_player_camera_fp(struct Camera *cam, struct Thing *thing)
-{    
+{
     int eye_height = get_creature_eye_height(thing);
 
     if ( thing_is_creature(thing) )
@@ -872,7 +872,7 @@ void update_player_camera(struct PlayerInfo *player)
 {
     struct Dungeon *dungeon = get_players_dungeon(player);
     struct Camera *cam = player->acamera;
-    
+
     view_process_camera_inertia(cam);
     switch (cam->view_mode)
     {

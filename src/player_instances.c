@@ -190,7 +190,7 @@ long pinstfe_hand_grab(struct PlayerInfo *player, long *n)
     }
     // Update sprites for the creature in hand, and power hand itself
     set_power_hand_offset(player, get_first_thing_in_power_hand(player));
-    if (!thing_is_invalid(grabtng)) 
+    if (!thing_is_invalid(grabtng))
     {
         objdat = get_objects_data(38);
         set_power_hand_graphic(player->id_number, objdat->sprite_anim_idx+1, objdat->anim_speed);
@@ -329,7 +329,7 @@ long pinstfs_hand_whip_end(struct PlayerInfo *player, long *n)
 {
     struct Thing* thing = thing_get(player->hand_thing_idx);
     struct Objects* objdat;
-    if (!thing_is_invalid(thing)) 
+    if (!thing_is_invalid(thing))
     {
         objdat = get_objects_data(39);
         set_power_hand_graphic(player->id_number, objdat->sprite_anim_idx + 2, objdat->anim_speed);

@@ -299,7 +299,7 @@ void update_player_sounds(void)
               } else
               {
                 output_message(SMsg_FunnyMessages+k, 0, true);
-              } 
+              }
             }
         // Atmospheric background sound, replaces AWE soundfont
         } else
@@ -330,7 +330,7 @@ void update_player_sounds(void)
             }
         }
     }
-    
+
     // Music and sound control
     if ( !SoundDisabled ) {
         if ( (game.turns_fastforward == 0) && (!game.numfield_149F38) ) {

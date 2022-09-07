@@ -115,9 +115,9 @@ TbBool check_current_gui_layer(long layer_id)
 {
     // Check the current gui layer against the one passed as a parameter
     // Also checks if the passed layer_id is the parent of the current gui layer
-    
+
     // This is just a basic example, GuiLayer objects should be created with parent properties etc etc
-    
+
     if (gui_layer.current_gui_layer == layer_id)
     {
         return true;
@@ -1112,10 +1112,10 @@ long get_dungeon_control_action_inputs(void)
     }
     else if (player->work_state == PSt_Sell)
     {
-        process_sell_roomspace_inputs(player->id_number); 
+        process_sell_roomspace_inputs(player->id_number);
     }
-    else if ( (player->work_state == PSt_PlaceTerrain) || (player->work_state == PSt_MkDigger) || (player->work_state == PSt_MkBadCreatr) || (player->work_state == PSt_MkGoodCreatr) 
-        || (player->work_state == PSt_KillPlayer) || (player->work_state == PSt_HeartHealth) || (player->work_state == PSt_StealRoom) || 
+    else if ( (player->work_state == PSt_PlaceTerrain) || (player->work_state == PSt_MkDigger) || (player->work_state == PSt_MkBadCreatr) || (player->work_state == PSt_MkGoodCreatr)
+        || (player->work_state == PSt_KillPlayer) || (player->work_state == PSt_HeartHealth) || (player->work_state == PSt_StealRoom) ||
         (player->work_state == PSt_StealSlab) || (player->work_state == PSt_ConvertCreatr) )
     {
         process_cheat_mode_selection_inputs();
@@ -1364,7 +1364,7 @@ short get_creature_control_action_inputs(void)
         update_wheel_scrolled();
       }
     }
- 
+
     if (is_key_pressed(KC_TAB, !KMod_CONTROL))
     {
         clear_key_pressed(KC_TAB);
@@ -1385,52 +1385,52 @@ short get_creature_control_action_inputs(void)
         }
     }
     if (numkey == -1)
-    {   
+    {
         if (is_key_pressed(79,KMod_DONTCARE))
         {
             clear_key_pressed(79);
             numkey = 0;
-        } else 
+        } else
         if (is_key_pressed(80,KMod_DONTCARE))
         {
             clear_key_pressed(80);
             numkey = 1;
-        } else 
+        } else
         if (is_key_pressed(81,KMod_DONTCARE))
         {
             clear_key_pressed(81);
             numkey = 2;
-        } else 
+        } else
         if (is_key_pressed(75,KMod_DONTCARE))
         {
             clear_key_pressed(75);
             numkey = 3;
-        } else 
+        } else
         if (is_key_pressed(76,KMod_DONTCARE))
         {
             clear_key_pressed(76);
             numkey = 4;
-        } else 
+        } else
         if (is_key_pressed(77,KMod_DONTCARE))
         {
             clear_key_pressed(77);
             numkey = 5;
-        } else 
+        } else
         if (is_key_pressed(71,KMod_DONTCARE))
         {
             clear_key_pressed(71);
             numkey = 6;
-        } else 
+        } else
         if (is_key_pressed(72,KMod_DONTCARE))
         {
             clear_key_pressed(72);
             numkey = 7;
-        } else 
+        } else
         if (is_key_pressed(73,KMod_DONTCARE))
         {
             clear_key_pressed(73);
             numkey = 8;
-        } else 
+        } else
         if (is_key_pressed(82,KMod_DONTCARE))
         {
             clear_key_pressed(82);
@@ -1455,7 +1455,7 @@ short get_creature_control_action_inputs(void)
                     StrID = roomst->name_stridx;
                 }
             }
-        
+
         }
         if (is_key_pressed(KC_SEMICOLON,KMod_DONTCARE))
         {
@@ -2621,7 +2621,7 @@ void process_cheat_mode_selection_inputs()
         {
             goto INPUTS;
         }
-    }        
+    }
     if (is_key_pressed(KC_NUMPAD0, KMod_DONTCARE))
     {
         new_value = 0;
@@ -2728,7 +2728,7 @@ void process_cheat_mode_selection_inputs()
             }
             else if (is_key_pressed(KC_EQUALS, KMod_DONTCARE))
             {
-                
+
                 new_value = playeradd->cheatselection.chosen_experience_level;
                 if (new_value < 9)
                 {
@@ -2745,7 +2745,7 @@ void process_cheat_mode_selection_inputs()
                     new_value--;
                     set_players_packet_action(player, PckA_CheatSwitchExperience, new_value, 0, 0, 0);
                 }
-                clear_key_pressed(KC_MINUS); 
+                clear_key_pressed(KC_MINUS);
             }
             else if (is_key_pressed(KC_LSHIFT, KMod_DONTCARE))
             {
