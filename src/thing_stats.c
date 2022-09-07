@@ -710,7 +710,7 @@ static HitPoints apply_damage_to_creature(struct Thing *thing, HitPoints dmg)
       cdamage = 1;
     // Apply damage to the thing
     thing->health -= cdamage;
-    thing->field_4F |= TF4F_BeingHit;
+    thing->rendering_flags |= TRF_BeingHit;
     // Red palette if the possessed creature is hit very strong
     if (is_thing_some_way_controlled(thing))
     {
@@ -734,7 +734,7 @@ static HitPoints apply_damage_to_object(struct Thing *thing, HitPoints dmg)
 {
     HitPoints cdamage = dmg;
     thing->health -= cdamage;
-    thing->field_4F |= TF4F_BeingHit;
+    thing->rendering_flags |= TRF_BeingHit;
     return cdamage;
 }
 

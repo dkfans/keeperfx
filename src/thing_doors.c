@@ -149,7 +149,7 @@ struct Thing *create_door(struct Coord3d *pos, ThingModel tngmodel, unsigned cha
     doortng->next_on_mapblk = 0;
     doortng->parent_idx = doortng->index;
     doortng->owner = plyr_idx;
-    doortng->field_4F |= TF4F_Unknown01;
+    doortng->rendering_flags |= TRF_Unknown01;
     doortng->door.orientation = orient;
     doortng->active_state = DorSt_Closed;
     doortng->creation_turn = game.play_gameturn;

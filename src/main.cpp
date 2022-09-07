@@ -858,7 +858,7 @@ void update_thing_animation(struct Thing *thing)
         }
         if (thing->anim_time > i-1)
         {
-          if (thing->field_4F & TF4F_Unknown40)
+          if (thing->rendering_flags & TRF_Unknown40)
           {
             thing->anim_speed = 0;
             thing->anim_time = i-1;
@@ -2158,7 +2158,7 @@ void set_mouse_light(struct PlayerInfo *player)
     //_DK_set_mouse_light(player);
     struct Packet *pckt;
     pckt = get_packet_direct(player->packet_num);
-    if (player->field_460 != 0)
+    if (player->cursor_light_idx != 0)
     {
         if ((pckt->control_flags & PCtr_MapCoordsValid) != 0)
         {
@@ -2169,12 +2169,12 @@ void set_mouse_light(struct PlayerInfo *player)
             if (is_my_player(player)) {
                 game.pos_14C006 = pos;
             }
-            light_turn_light_on(player->field_460);
-            light_set_light_position(player->field_460, &pos);
+            light_turn_light_on(player->cursor_light_idx);
+            light_set_light_position(player->cursor_light_idx, &pos);
         }
         else
         {
-            light_turn_light_off(player->field_460);
+            light_turn_light_off(player->cursor_light_idx);
         }
     }
 }
@@ -2637,7 +2637,7 @@ long update_cave_in(struct Thing *thing)
 {
     //return _DK_update_cave_in(thing);
     thing->health--;
-    thing->field_4F |= TF4F_Unknown01;
+    thing->rendering_flags |= TRF_Unknown01;
     if (thing->health < 1)
     {
         delete_thing_structure(thing, 0);

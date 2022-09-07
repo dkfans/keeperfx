@@ -526,7 +526,7 @@ long pinstfs_direct_leave_creature(struct PlayerInfo *player, long *n)
   leave_creature_as_controller(player, thing);
   player->allocflags |= PlaF_KeyboardInputDisabled;
   player->influenced_thing_idx = 0;
-  light_turn_light_on(player->field_460);
+  light_turn_light_on(player->cursor_light_idx);
   play_non_3d_sample(177);
   return 0;
 }
@@ -566,7 +566,7 @@ long pinstfs_passenger_leave_creature(struct PlayerInfo *player, long *n)
   leave_creature_as_passenger(player, thing);
   player->allocflags |= PlaF_KeyboardInputDisabled;
   player->influenced_thing_idx = 0;
-  light_turn_light_on(player->field_460);
+  light_turn_light_on(player->cursor_light_idx);
   play_non_3d_sample(177);
   return 0;
 }
@@ -602,7 +602,7 @@ long pinstfs_zoom_to_heart(struct PlayerInfo *player, long *n)
 {
     SYNCDBG(6,"Starting for player %d",(int)player->id_number);
     LbPaletteDataFillWhite(zoom_to_heart_palette);
-    light_turn_light_off(player->field_460);
+    light_turn_light_off(player->cursor_light_idx);
     struct Thing* thing = get_player_soul_container(player->id_number);
     ThingModel spectator_breed = get_players_spectator_model(player->id_number);
     struct Coord3d mappos;
@@ -726,7 +726,7 @@ long pinstfe_zoom_out_of_heart(struct PlayerInfo *player, long *n)
     cam->zoom = settings.isometric_view_zoom_level;
     cam->orient_a = LbFPMath_PI/4;
   }
-  light_turn_light_on(player->field_460);
+  light_turn_light_on(player->cursor_light_idx);
   player->allocflags &= ~PlaF_KeyboardInputDisabled;
   player->allocflags &= ~PlaF_MouseInputDisabled;
   game.numfield_D &= ~GNFldD_CreaturePasngr;
@@ -751,7 +751,7 @@ long pinstfe_control_creature_fade(struct PlayerInfo *player, long *n)
       PaletteSetPlayerPalette(player, engine_palette);
   }
   player->allocflags &= ~PlaF_KeyboardInputDisabled;
-  light_turn_light_off(player->field_460);
+  light_turn_light_off(player->cursor_light_idx);
   player->allocflags &= ~PlaF_MouseInputDisabled;
   return 0;
 }
@@ -960,7 +960,7 @@ void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing
     clear_selected_thing(player);
     set_player_mode(player, PVT_DungeonTop);
     thing->alloc_flags &= ~TAlF_IsControlled;
-    thing->field_4F &= ~TF4F_Unknown01;
+    thing->rendering_flags &= ~TRF_Unknown01;
     player->allocflags &= ~PlaF_Unknown8;
     set_engine_view(player, player->view_mode_restore);
     long i = player->acamera->orient_a;
@@ -1005,7 +1005,7 @@ void leave_creature_as_passenger(struct PlayerInfo *player, struct Thing *thing)
     return;
   }
   set_player_mode(player, PVT_DungeonTop);
-  thing->field_4F &= ~TF4F_Unknown01;
+  thing->rendering_flags &= ~TRF_Unknown01;
   player->allocflags &= ~PlaF_Unknown8;
   set_engine_view(player, player->view_mode_restore);
   long i = player->acamera->orient_a;

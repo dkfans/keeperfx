@@ -464,11 +464,11 @@ struct Thing *create_object(const struct Coord3d *pos, unsigned short model, uns
       k = -1;
     }
     set_thing_draw(thing, i, objdat->anim_speed, objdat->sprite_size_max, 0, k, objdat->draw_class);
-    set_flag_byte(&thing->field_4F, TF4F_Unknown02, objconf->light_unaffected);
-    set_flag_byte(&thing->field_4F, TF4F_Unknown01, objdat->field_3 & 0x01);
+    set_flag_byte(&thing->rendering_flags, TRF_Unknown02, objconf->light_unaffected);
+    set_flag_byte(&thing->rendering_flags, TRF_Unknown01, objdat->field_3 & 0x01);
 
-    set_flag_byte(&thing->field_4F, TF4F_Transpar_4, objdat->field_F & 0x01);
-    set_flag_byte(&thing->field_4F, TF4F_Transpar_8, objdat->field_F & 0x02);
+    set_flag_byte(&thing->rendering_flags, TRF_Transpar_4, objdat->field_F & 0x01);
+    set_flag_byte(&thing->rendering_flags, TRF_Transpar_8, objdat->field_F & 0x02);
 
     thing->active_state = objdat->initial_state;
     if (objconf->ilght.radius != 0)
@@ -494,8 +494,8 @@ struct Thing *create_object(const struct Coord3d *pos, unsigned short model, uns
         light_set_light_minimum_size_to_cache(thing->light_id, 0, 56);
         break;
       case 33: // Why it is hardcoded? And what is TempleS
-        thing->field_4F &= TF4F_Transpar_Flags;
-        thing->field_4F |= TF4F_Transpar_4;
+        thing->rendering_flags &= TRF_Transpar_Flags;
+        thing->rendering_flags |= TRF_Transpar_4;
         break;
       case 3:
       case 6:
@@ -1667,7 +1667,7 @@ TngUpdateRet object_update_armour(struct Thing *objtng)
     struct Thing* thing = thing_get(objtng->armor.belongs_to);
     if (thing_is_picked_up(thing))
     {
-        objtng->field_4F |= TF4F_Unknown01;
+        objtng->rendering_flags |= TRF_Unknown01;
         return 1;
     }
     struct Coord3d pos;
@@ -1709,7 +1709,7 @@ TngUpdateRet object_update_armour(struct Thing *objtng)
     objtng->veloc_push_add.x.val += cvect.x;
     objtng->veloc_push_add.y.val += cvect.y;
     objtng->veloc_push_add.z.val += cvect.z;
-    objtng->field_4F &= ~TF4F_Unknown01;
+    objtng->rendering_flags &= ~TRF_Unknown01;
     return 1;
 }
 
