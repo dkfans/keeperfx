@@ -2158,7 +2158,7 @@ void set_mouse_light(struct PlayerInfo *player)
     //_DK_set_mouse_light(player);
     struct Packet *pckt;
     pckt = get_packet_direct(player->packet_num);
-    if (player->field_460 != 0)
+    if (player->cursor_light_idx != 0)
     {
         if ((pckt->control_flags & PCtr_MapCoordsValid) != 0)
         {
@@ -2169,12 +2169,12 @@ void set_mouse_light(struct PlayerInfo *player)
             if (is_my_player(player)) {
                 game.pos_14C006 = pos;
             }
-            light_turn_light_on(player->field_460);
-            light_set_light_position(player->field_460, &pos);
+            light_turn_light_on(player->cursor_light_idx);
+            light_set_light_position(player->cursor_light_idx, &pos);
         }
         else
         {
-            light_turn_light_off(player->field_460);
+            light_turn_light_off(player->cursor_light_idx);
         }
     }
 }

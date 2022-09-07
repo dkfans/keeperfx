@@ -2548,7 +2548,7 @@ void prepare_to_controlled_creature_death(struct Thing *thing)
         turn_on_main_panel_menu();
         set_flag_byte(&game.operation_flags, GOF_ShowPanel, (game.operation_flags & GOF_ShowGui) != 0);
   }
-  light_turn_light_on(player->field_460);
+  light_turn_light_on(player->cursor_light_idx);
 }
 
 void delete_effects_attached_to_creature(struct Thing *creatng)
