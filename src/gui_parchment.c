@@ -54,6 +54,7 @@
 #include "room_workshop.h"
 #include "frontmenu_ingame_tabs.h"
 #include "vidfade.h"
+#include "sprites.h"
 
 #include "keeperfx.hpp"
 
@@ -181,9 +182,9 @@ TbBool parchment_copy_background_at(const struct TbRect *bkgnd_area, int units_p
     copy_raw8_image_buffer(lbDisplay.WScreen,LbGraphicsScreenWidth(),LbGraphicsScreenHeight(),
         img_width*units_per_px/16,img_height*units_per_px/16,bkgnd_area->left,bkgnd_area->top,srcbuf,img_width,img_height);
     // Burning candle flames
-    const struct TbSprite* spr = &button_sprite[198 + (game.play_gameturn & 3)];
+    const struct TbSprite* spr = &button_sprite[GBS_parchment_map_screen_flame_1 + (game.play_gameturn & 3)];
     LbSpriteDrawScaled(bkgnd_area->left+(36*units_per_px/(16*pixel_size)),(bkgnd_area->top+0*units_per_px/(16*pixel_size)), spr, spr->SWidth*units_per_px/16, spr->SHeight*units_per_px/16);
-    spr = &button_sprite[202+(game.play_gameturn & 3)];
+    spr = &button_sprite[GBS_parchment_map_screen_flame_5+(game.play_gameturn & 3)];
     LbSpriteDrawScaled(bkgnd_area->left+(574*units_per_px/(16*pixel_size)),(bkgnd_area->top+0*units_per_px/(16*pixel_size)), spr, spr->SWidth*units_per_px/16, spr->SHeight*units_per_px/16);
     return true;
 }
@@ -442,8 +443,8 @@ int draw_overhead_creatures(const struct TbRect *map_area, long block_size, Play
                 if (thing->owner == plyr_idx)
                 {
                     col = col2;
-                } 
-                else 
+                }
+                else
                 {
                     col = col1;
                 }
@@ -674,7 +675,7 @@ void draw_zoom_box_things_on_mapblk(struct Map *mapblk,unsigned short subtile_si
                     break;
                 struct ManufactureData* manufctr = get_manufacture_data(get_manufacture_data_index_for_thing(thing->class_id, thing->model));
                 spridx = manufctr->medsym_sprite_idx;
-                //This line and all cases below used to be: draw_gui_panel_sprite_centered(scr_x + spos_x, scr_y + spos_y - 13*units_per_pixel/16, ps_units_per_px, spridx); 
+                //This line and all cases below used to be: draw_gui_panel_sprite_centered(scr_x + spos_x, scr_y + spos_y - 13*units_per_pixel/16, ps_units_per_px, spridx);
                 draw_gui_panel_sprite_centered(scr_x + (spos_x * 3 / 2), scr_y - (spos_y /2), ps_units_per_px, spridx);
                 break;
             }
@@ -837,7 +838,7 @@ void draw_zoom_box(void)
     // Draw sprites surrounding the box
     int bs_units_per_px;
     {
-        struct TbSprite* spr = &button_sprite[194];
+        struct TbSprite* spr = &button_sprite[GBS_parchment_map_frame_deco_b_tl];
         bs_units_per_px = (74 * units_per_pixel) / spr->SWidth;
     }
     LbScreenSetGraphicsWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
@@ -845,10 +846,10 @@ void draw_zoom_box(void)
     int beg_y = scrtop_y - scale_value_for_resolution(24);
     int end_x = scrtop_x - scale_value_for_resolution(46) + draw_tiles_x * subtile_size;
     int end_y = scrtop_y - scale_value_for_resolution(58) + draw_tiles_y * subtile_size;
-    LbSpriteDrawResized(beg_x, beg_y, bs_units_per_px, &button_sprite[194]);
-    LbSpriteDrawResized(end_x, beg_y, bs_units_per_px, &button_sprite[195]);
-    LbSpriteDrawResized(beg_x, end_y, bs_units_per_px, &button_sprite[196]);
-    LbSpriteDrawResized(end_x, end_y, bs_units_per_px, &button_sprite[197]);
+    LbSpriteDrawResized(beg_x, beg_y, bs_units_per_px, &button_sprite[GBS_parchment_map_frame_deco_b_tl]);
+    LbSpriteDrawResized(end_x, beg_y, bs_units_per_px, &button_sprite[GBS_parchment_map_frame_deco_b_tr]);
+    LbSpriteDrawResized(beg_x, end_y, bs_units_per_px, &button_sprite[GBS_parchment_map_frame_deco_b_bl]);
+    LbSpriteDrawResized(end_x, end_y, bs_units_per_px, &button_sprite[GBS_parchment_map_frame_deco_b_br]);
     // Finish
     LbScreenSetGraphicsWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
 }

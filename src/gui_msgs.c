@@ -28,6 +28,7 @@
 #include "frontend.h"
 #include "game_legacy.h"
 #include "frontmenu_ingame_evnt.h"
+#include "sprites.h"
 
 #include "keeperfx.hpp"
 
@@ -61,8 +62,8 @@ void message_draw(void)
             set_flag_word(&lbDisplay.DrawFlags,Lb_TEXT_ONE_COLOR,false);
             LbTextDrawResized(x+32*units_per_pixel/16, y, tx_units_per_px, gameadd.messages[i].text);
             unsigned long spr_idx = 0;
-            TbBool IsCreature = false; 
-            TbBool IsCreatureSpell = false; 
+            TbBool IsCreature = false;
+            TbBool IsCreatureSpell = false;
             TbBool IsRoom = false;
             TbBool IsKeeperSpell = false;
             TbBool IsQuery = false;
@@ -102,7 +103,7 @@ void message_draw(void)
                 }
                 else if (IsQuery)
                 {
-                    spr_idx = (~(char)(((char)gameadd.messages[i].plyr_idx) + 113) + 1) + 330;
+                    spr_idx = (~(char)(((char)gameadd.messages[i].plyr_idx) + 113) + 1) + GPS_plyrsym_symbol_room_yellow_std_a;
                     x -= (10 * units_per_pixel / 16);
                     y -= (10 * units_per_pixel / 16);
                 }
@@ -111,15 +112,19 @@ void message_draw(void)
             {
                 if (gameadd.messages[i].plyr_idx == game.hero_player_num)
                 {
-                    spr_idx = 533;
+                    spr_idx = GPS_plyrsym_symbol_player_white_std;
                 }
                 else if (gameadd.messages[i].plyr_idx == game.neutral_player_num)
                 {
-                    spr_idx = ((game.play_gameturn >> 1) & 3) + 488;
+                    spr_idx = ((game.play_gameturn >> 1) & 3) + GPS_plyrsym_symbol_player_red_std_b;
                 }
                 else
                 {
-                    spr_idx = ((player_has_heart(gameadd.messages[i].plyr_idx)) ? 488 : 535) + gameadd.messages[i].plyr_idx;
+                    if (player_has_heart(gameadd.messages[i].plyr_idx)) {
+                        spr_idx = GPS_plyrsym_symbol_player_red_std_b + gameadd.messages[i].plyr_idx;
+                    } else {
+                        spr_idx = GPS_plyrsym_symbol_player_red_dead + gameadd.messages[i].plyr_idx;
+                    }
                 }
             }
             if (gameadd.messages[i].plyr_idx != 127)
@@ -138,7 +143,7 @@ void message_draw(void)
                     y += (10 * units_per_pixel / 16);
                 }
             }
-        }        
+        }
     }
 }
 
@@ -186,11 +191,11 @@ void delete_message(unsigned char msg_idx)
     {
         for (int i = msg_idx; i < game.active_messages_count; i++)
         {
-            gameadd.messages[i] = gameadd.messages[i+1]; 
+            gameadd.messages[i] = gameadd.messages[i+1];
         }
-        memset(&gameadd.messages[game.active_messages_count - 1], 0, sizeof(struct GuiMessage));        
+        memset(&gameadd.messages[game.active_messages_count - 1], 0, sizeof(struct GuiMessage));
     }
-    game.active_messages_count--;    
+    game.active_messages_count--;
 }
 
 void message_add(PlayerNumber plyr_idx, const char *text)
