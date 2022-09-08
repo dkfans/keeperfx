@@ -163,17 +163,17 @@ static struct KeeperSprite* sprite_by_frame(long kspr_frame)
 {
     if (kspr_frame >= KEEPERSPRITE_ADD_OFFSET)
     {
-        return &creature_table_add[kspr_frame];
+        return &creature_table_add[kspr_frame - KEEPERSPRITE_ADD_OFFSET];
     }
     unsigned long i = _DK_creature_list[kspr_frame];
     return &creature_table[i];
 }
 
-void get_keepsprite_unscaled_dimensions(long kspr_frame, long a2, long a3, short *orig_w, short *orig_h, short *unsc_w, short *unsc_h)
+void get_keepsprite_unscaled_dimensions(long kspr_anim, long angle, long frame, short *orig_w, short *orig_h, short *unsc_w, short *unsc_h)
 {
     TbBool val_in_range;
-    struct KeeperSprite* kspr = sprite_by_frame(kspr_frame);
-    if ( ((a2 & 0x7FF) <= 1151) || ((a2 & 0x7FF) >= 1919) )
+    struct KeeperSprite* kspr = sprite_by_frame(kspr_anim);
+    if (((angle & 0x7FF) <= 1151) || ((angle & 0x7FF) >= 1919) )
         val_in_range = 0;
     else
         val_in_range = 1;
@@ -183,7 +183,7 @@ void get_keepsprite_unscaled_dimensions(long kspr_frame, long a2, long a3, short
       lbDisplay.DrawFlags &= ~Lb_SPRITE_FLIP_HORIZ;
     if (kspr->Rotable == 0)
     {
-        kspr += a3;
+        kspr += frame;
         *orig_w = kspr->FrameWidth;
         *orig_h = kspr->FrameHeight;
         if ( val_in_range )
@@ -199,7 +199,7 @@ void get_keepsprite_unscaled_dimensions(long kspr_frame, long a2, long a3, short
     } else
     if (kspr->Rotable == 2)
     {
-        kspr += a3 + abs(4 - (((a2 + 128) & 0x7FF) >> 8)) * kspr->FramesCount;
+        kspr += frame + abs(4 - (((angle + 128) & 0x7FF) >> 8)) * kspr->FramesCount;
         *orig_w = kspr->SWidth;
         *orig_h = kspr->SHeight;
         if ( val_in_range )
@@ -213,8 +213,8 @@ void get_keepsprite_unscaled_dimensions(long kspr_frame, long a2, long a3, short
           *unsc_h = kspr->FrameOffsH;
         }
     }
-    *unsc_w += kspr->field_C;
-    *unsc_h += kspr->field_E;
+    *unsc_w += kspr->offset_x;
+    *unsc_h += kspr->offset_y;
 
 }
 
