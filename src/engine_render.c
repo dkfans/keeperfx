@@ -8004,7 +8004,8 @@ void draw_keepsprite_unscaled_in_buffer(unsigned short kspr_n, short angle, unsi
         }
         else if (keepsprite_id >= KEEPSPRITE_LENGTH)
         {
-            return; // WTF?!!
+            ERRORLOG("Sprite %d outside of valid range.", keepsprite_id);
+            return;
         }
         else
         {

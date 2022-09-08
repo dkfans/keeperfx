@@ -772,7 +772,7 @@ static int read_png_data(unzFile zip, const char *path, struct SpriteContext *co
 
     VALUE *val;
 
-#define READ_WITH_DEFAULT(dst, field, td_def, fp_def, def_val, fn) \
+#define READ_WITH_DEFAULT(dst, field, fp_def, td_def, def_val, fn) \
     val = value_dict_get(itm, field); \
     if (value_type(val) != VALUE_NULL) \
     { \
