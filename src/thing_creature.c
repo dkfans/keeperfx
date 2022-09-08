@@ -2080,7 +2080,7 @@ long move_creature(struct Thing *thing)
     {
       if (creature_is_ambulating(thing))
         {
-            if (thing->field_48 > 3)
+            if (thing->current_frame > 3)
             {
                 velo_y = 0;
                 velo_x = 0;

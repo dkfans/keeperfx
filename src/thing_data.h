@@ -251,14 +251,14 @@ unsigned char field_21;
 unsigned short anim_sprite;
     unsigned short sprite_size;
 
-unsigned char field_48;     // current frame
-unsigned char field_49;     // max frames
-    char field_4A;          // thing growth speed (when it is growing/shrinking)
-unsigned short field_4B;    // min_sprite_size
-unsigned short field_4D;    // max_sprite_size
+unsigned char current_frame;
+unsigned char max_frames;
+    char transformation_speed;
+unsigned short sprite_size_min;
+unsigned short sprite_size_max;
     unsigned char rendering_flags;
     unsigned char field_50; // control rendering process (draw_class << 2) + (growth/shrink continiously) + (shrink/grow then stop)
-unsigned char field_51;   // Tint color (from colours)
+unsigned char tint_colour;
     short move_angle_xy;
     short move_angle_z;
     unsigned short clipbox_size_xy;

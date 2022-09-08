@@ -1071,7 +1071,7 @@ long food_moves(struct Thing *objtng)
             objtng->food.angle = CREATURE_RANDOM(objtng, 0x7FF);
             objtng->food.byte_16 = 0;
         } else
-        if ((objtng->anim_speed * objtng->field_49 <= objtng->anim_speed + objtng->anim_time) && (objtng->food.byte_16 < 5))
+        if ((objtng->anim_speed * objtng->max_frames <= objtng->anim_speed + objtng->anim_time) && (objtng->food.byte_16 < 5))
         {
             objtng->food.byte_16--;
         }
@@ -1143,7 +1143,7 @@ long food_grows(struct Thing *objtng)
         delete_thing_structure(objtng, 0);
         nobjtng = create_object(&pos, food_grow_objects[0], tngowner, room_idx);
         if (!thing_is_invalid(nobjtng)) {
-            nobjtng->food.life_remaining = (nobjtng->field_49 << 8) / nobjtng->anim_speed - 1;
+            nobjtng->food.life_remaining = (nobjtng->max_frames << 8) / nobjtng->anim_speed - 1;
         }
         ret = -1;
         break;
@@ -1152,7 +1152,7 @@ long food_grows(struct Thing *objtng)
         delete_thing_structure(objtng, 0);
         nobjtng = create_object(&pos, food_grow_objects[1], tngowner, room_idx);
         if (!thing_is_invalid(nobjtng)) {
-            nobjtng->food.life_remaining = 3 * ((nobjtng->field_49 << 8) / nobjtng->anim_speed - 1);
+            nobjtng->food.life_remaining = 3 * ((nobjtng->max_frames << 8) / nobjtng->anim_speed - 1);
         }
         ret = -1;
         break;
@@ -1161,7 +1161,7 @@ long food_grows(struct Thing *objtng)
         delete_thing_structure(objtng, 0);
         nobjtng = create_object(&pos, food_grow_objects[2], tngowner, room_idx);
         if (!thing_is_invalid(nobjtng)) {
-            nobjtng->food.life_remaining = (nobjtng->field_49 << 8) / nobjtng->anim_speed - 1;
+            nobjtng->food.life_remaining = (nobjtng->max_frames << 8) / nobjtng->anim_speed - 1;
         }
         ret = -1;
         break;
@@ -1466,7 +1466,7 @@ void update_dungeon_heart_beat(struct Thing *heartng)
             bounce = !bounce;
         }
         k = (((unsigned long long)heartng->anim_time >> 32) & 0xFF) + heartng->anim_time;
-        heartng->field_48 = (k >> 8) & 0xFF;
+        heartng->current_frame = (k >> 8) & 0xFF;
         if (LbIsFrozenOrPaused())
         {
             stop_thing_playing_sample(heartng, 93);
@@ -1528,14 +1528,14 @@ void set_call_to_arms_as_birthing(struct Thing *objtng)
     switch (objtng->call_to_arms_flag.state)
     {
     case CTAOL_Birthing:
-        frame = objtng->field_48;
+        frame = objtng->current_frame;
         break;
     case CTAOL_Alive:
         frame = 0;
         break;
     case CTAOL_Dying:
     case CTAOL_Rebirthing:
-        frame = objtng->field_49 - (int)objtng->field_48;
+        frame = objtng->max_frames - (int)objtng->current_frame;
         break;
     default:
         ERRORLOG("Invalid CTA object life state %d",(int)objtng->call_to_arms_flag.state);
@@ -1558,14 +1558,14 @@ void set_call_to_arms_as_dying(struct Thing *objtng)
     switch (objtng->call_to_arms_flag.state)
     {
     case CTAOL_Birthing:
-        frame = objtng->field_49 - (int)objtng->field_48;
+        frame = objtng->max_frames - (int)objtng->current_frame;
         break;
     case CTAOL_Alive:
         frame = 0;
         break;
     case CTAOL_Dying:
     case CTAOL_Rebirthing:
-        frame = objtng->field_48;
+        frame = objtng->current_frame;
         break;
     default:
         ERRORLOG("Invalid CTA object life state %d",(int)objtng->call_to_arms_flag.state);
@@ -1585,14 +1585,14 @@ void set_call_to_arms_as_rebirthing(struct Thing *objtng)
     switch (objtng->call_to_arms_flag.state)
     {
     case CTAOL_Birthing:
-        frame = objtng->field_49 - (int)objtng->field_48;
+        frame = objtng->max_frames - (int)objtng->current_frame;
         break;
     case CTAOL_Alive:
         frame = 0;
         break;
     case CTAOL_Dying:
     case CTAOL_Rebirthing:
-        frame = objtng->field_48;
+        frame = objtng->current_frame;
         break;
     default:
         ERRORLOG("Invalid CTA object life state %d",(int)objtng->call_to_arms_flag.state);
@@ -1620,7 +1620,7 @@ TngUpdateRet object_update_call_to_arms(struct Thing *thing)
     switch (thing->call_to_arms_flag.state)
     {
     case CTAOL_Birthing:
-        if (thing->field_49 - 1 <= thing->field_48)
+        if (thing->max_frames - 1 <= thing->current_frame)
         {
             thing->call_to_arms_flag.state = CTAOL_Alive;
             set_thing_draw(thing, ctagfx->alive_anim_idx, 256, objdat->sprite_size_max, 0, 0, 2);
@@ -1630,7 +1630,7 @@ TngUpdateRet object_update_call_to_arms(struct Thing *thing)
     case CTAOL_Alive:
         break;
     case CTAOL_Dying:
-        if (thing->field_49 - 1 == thing->field_48)
+        if (thing->max_frames - 1 == thing->current_frame)
         {
             player->field_43C = 0;
             delete_thing_structure(thing, 0);
@@ -1639,7 +1639,7 @@ TngUpdateRet object_update_call_to_arms(struct Thing *thing)
         break;
     case CTAOL_Rebirthing:
     {
-        if (thing->field_49 - 1 == thing->field_48)
+        if (thing->max_frames - 1 == thing->current_frame)
         {
             struct PowerConfigStats* powerst = get_power_model_stats(PwrK_CALL2ARMS);
             struct Coord3d pos;
@@ -1720,7 +1720,7 @@ TngUpdateRet object_update_object_scale(struct Thing *objtng)
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     struct Objects* objdat = get_objects_data_for_thing(objtng);
     int spr_size;
-    int start_frame = objtng->field_48;
+    int start_frame = objtng->current_frame;
     if (objtng->lair.belongs_to) {
         spr_size = gameadd.crtr_conf.sprite_size + (gameadd.crtr_conf.sprite_size * cctrl->explevel * gameadd.crtr_conf.exp.size_increase_on_exp) / 100;
     } else {
