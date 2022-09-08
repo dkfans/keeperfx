@@ -312,6 +312,8 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
         gameadd.pay_day_speed = 100;
         gameadd.place_traps_on_subtiles = false;
         gameadd.gold_per_hoard = 2000;
+        gameadd.stun_on_drop = 1; // TODO: read from cfg
+        gameadd.stun_on_drop_timer = 100;
     }
     // Find the block
     char block_buf[COMMAND_WORD_LEN];

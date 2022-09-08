@@ -183,6 +183,8 @@ struct GameAdd {
     unsigned long pay_day_speed;
     unsigned short disease_to_temple_pct;
     TbBool place_traps_on_subtiles;
+    int stun_on_drop; // 1 - only humans, 2 - any owners
+    long stun_on_drop_timer;
     unsigned long gold_per_hoard;
     struct CubeAttribs cubes_data[CUBE_ITEMS_MAX];
 
