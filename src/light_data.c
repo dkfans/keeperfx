@@ -1644,7 +1644,7 @@ static char light_render_light(struct Light* lgt)
                 pos.x.val = x;
                 pos.y.val = y;
                 MapCoordDelta dist = get_2d_distance(&lgt->mappos, &pos);
-                unsigned short new_lightness = render_intensity * (radius - dist) / radius;
+                short new_lightness = render_intensity * (radius - dist) / radius;
                 if ( *lightness < new_lightness )
                   *lightness = new_lightness;
               }
