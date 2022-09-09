@@ -495,7 +495,11 @@ void init_player_cameras(struct PlayerInfo *player)
     cam->horizontal_fov = 94;
     cam->orient_b = -266;
     cam->orient_a = LbFPMath_PI/4;
-    cam->view_mode = PVM_IsoWibbleView;
+    if (settings.video_rotate_mode == 1) {
+        cam->view_mode = PVM_IsoStraightView;
+    } else {
+        cam->view_mode = PVM_IsoWibbleView;
+    }
     cam->zoom = settings.isometric_view_zoom_level;
 
     cam = &player->cameras[CamIV_Parchment];
