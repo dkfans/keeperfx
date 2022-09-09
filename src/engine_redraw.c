@@ -1119,18 +1119,15 @@ void redraw_display(void)
     {
           LbTextSetFont(winfont);
           text = get_string(GUIStr_PausedMsg);
-          int i = LbTextCharWidth(' ') * units_per_pixel / 16;
-          long w = (LbTextStringWidth(text) * units_per_pixel / 16 + 2 * i);
-          i = player->view_mode;
+          long w = (LbTextStringWidth(text) * units_per_pixel / 16 + 2 * (LbTextCharWidth(' ') * units_per_pixel / 16));
           long pos_x;
           if ((i == PVM_IsometricView) || (i == PVM_FrontView) || (i == PVM_CreatureView))
               pos_x = player->engine_window_x + (MyScreenWidth - w - player->engine_window_x) / 2;
           else
             pos_x = (MyScreenWidth-w)/2;
           long pos_y = 16 * units_per_pixel / 16;
-          i = LbTextLineHeight()*units_per_pixel/16;
           lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
-          long h = i + i / 2;
+          long h = LbTextLineHeight() * units_per_pixel / 16;
           LbTextSetWindow(pos_x, pos_y, w, h);
           draw_slab64k(pos_x, pos_y, units_per_pixel, w, h);
           LbTextDrawResized(0/pixel_size, 0/pixel_size, units_per_pixel, text);
