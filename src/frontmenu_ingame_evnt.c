@@ -40,6 +40,7 @@
 #include "front_input.h"
 #include "vidfade.h"
 #include "game_legacy.h"
+#include "sprites.h"
 
 #include "keeperfx.hpp"
 
@@ -223,11 +224,11 @@ void draw_battle_head(struct Thing *thing, long scr_x, long scr_y, int units_per
         max_health = 1;
     LbDrawBox(curscr_x + 2*units_per_px/16, curscr_y + 2*units_per_px/16, ((12 * health)/max_health)*units_per_px/16, 2*units_per_px/16, player_room_colours[thing->owner]);
     // Draw experience level
-    spr = &button_sprite[184];
+    spr = &button_sprite[GBS_creature_flower_level_01];
     int bs_units_per_px = (17 * units_per_px + spr->SHeight / 2) / spr->SHeight;
     curscr_y = (scr_y - ((spr->SHeight*bs_units_per_px/16) >> 1));
     curscr_x = (scr_x - ((spr->SWidth*bs_units_per_px/16) >> 1));
-    spr = &button_sprite[184 + cctrl->explevel];
+    spr = &button_sprite[GBS_creature_flower_level_01 + cctrl->explevel];
     LbSpriteDrawResized(curscr_x, curscr_y, bs_units_per_px, spr);
 }
 
@@ -367,7 +368,7 @@ void draw_bonus_timer(void)
         if (nturns < 0)
         {
             nturns = 0;
-        } 
+        }
         else if (nturns > 99999)
         {
             nturns = 99999;
@@ -419,7 +420,7 @@ void draw_timer(void)
         }
         text = buf_sprintf("%02d:%02d:%02d", Timer.Hours, Timer.Minutes, Timer.Seconds);
     }
-    LbTextSetFont(winfont); 
+    LbTextSetFont(winfont);
     long width = 10 * (LbTextCharWidth('0') * units_per_pixel >> 4);
     long height = LbTextLineHeight() * units_per_pixel / 16 + (LbTextLineHeight() * units_per_pixel / 16) / 2;
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
@@ -508,7 +509,7 @@ void draw_script_variable(PlayerNumber plyr_idx, unsigned char valtype, unsigned
         }
         else if (targettype == 1)
         {
-            value = ((~target)+1) + value; 
+            value = ((~target)+1) + value;
         }
     }
     if (targettype != 2)

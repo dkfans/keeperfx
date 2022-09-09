@@ -54,6 +54,7 @@
 #include "keeperfx.hpp"
 #include "player_states.h"
 #include "custom_sprites.h"
+#include "sprites.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -1020,7 +1021,7 @@ void fill_in_points_isometric(long bstl_x, long bstl_y, struct MinMax *mm)
     long view_z;
     int zoom;
     int hview_z;
-    
+
     zoom = camera_zoom / pixel_size;
     hpos = -view_alt * apos;
     view_x = view_width_over_2 + (zoom
@@ -2019,7 +2020,7 @@ static void create_line_segment(struct EngineCoord *start, struct EngineCoord *e
     long bckt_idx;
     if (!is_free_space_in_poly_pool(1))
         return;
-    
+
     // Reducing line_z will make the lines look cleaner, but the "fancy_map_volume_box" vertical lines become more visible.
     float line_z = 0.994;
     bckt_idx = (( (start->z*line_z) + (end->z*line_z) ) / 32) - 2;
@@ -4590,7 +4591,7 @@ static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprit
             EngineSpriteDrawUsingAlpha = 1;
             break;
     }
-    
+
     if ((thing->class_id == TCls_Creature)
         || (thing->class_id == TCls_Object)
         || (thing->class_id == TCls_DeadCreature)
@@ -4736,7 +4737,7 @@ void draw_engine_number(struct BucketKindFloatingGoldText *num)
     flg_mem = lbDisplay.DrawFlags;
     player = get_my_player();
     lbDisplay.DrawFlags &= ~Lb_SPRITE_FLIP_HORIZ;
-    spr = &button_sprite[71];
+    spr = &button_sprite[GBS_fontchars_number_dig0];
     w = scale_ui_value(spr->SWidth) * scale_by_zoom;
     h = scale_ui_value(spr->SHeight) * scale_by_zoom;
     if ((player->acamera->view_mode == PVM_IsometricView) || (player->acamera->view_mode == PVM_FrontView))
@@ -4751,7 +4752,7 @@ void draw_engine_number(struct BucketKindFloatingGoldText *num)
             pos_x = w*(ndigits-1)/2 + num->x;
             for (val = num->lvl; val > 0; val /= 10)
             {
-                spr = &button_sprite[(val%10) + 71];
+                spr = &button_sprite[(val%10) + GBS_fontchars_number_dig0];
                 LbSpriteDrawScaled(pos_x, num->y - h, spr, w, h);
 
                 pos_x -= w;
@@ -4823,14 +4824,14 @@ unsigned short choose_health_sprite(struct Thing* thing)
     }
     if ((maxhealth <= 0) || (health <= 0))
     {
-        return 88 + (8*color_idx);
+        return GBS_creature_flower_health_r1 + (8*color_idx);
     } else
     if (health >= maxhealth)
     {
-        return 88 + (8*color_idx) - 7;
+        return GBS_creature_flower_health_r1 + (8*color_idx) - 7;
     } else
     {
-        return 88 + (8*color_idx) - (8 * health / maxhealth);
+        return GBS_creature_flower_health_r1 + (8*color_idx) - (8 * health / maxhealth);
     }
 }
 
@@ -4955,21 +4956,21 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
                     case AngR_NotPaid:
                         if ((cctrl->paydays_owed <= 0) && (cctrl->paydays_advanced >= 0))
                         {
-                            anger_spridx = 55;
+                            anger_spridx = GBS_creature_states_angry;
                         }
                         else
                         {
-                            anger_spridx = 52;
+                            anger_spridx = GBS_creature_states_getgold;
                         }
                         break;
                     case AngR_Hungry:
-                        anger_spridx = 59;
+                        anger_spridx = GBS_creature_states_hungry;
                         break;
                     case AngR_NoLair:
-                        anger_spridx = 54;
+                        anger_spridx = GBS_creature_states_sleep;
                         break;
                     case AngR_Other:
-                        anger_spridx = 55;
+                        anger_spridx = GBS_creature_states_angry;
                         break;
                     default:
                         break;
@@ -4985,7 +4986,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
     int h;
     const struct TbSprite *spr;
     int bs_units_per_px;
-    spr = &button_sprite[70];
+    spr = &button_sprite[GBS_creature_states_cloud];
     bs_units_per_px = units_per_pixel_ui * 2 * scale_by_zoom;
 
     if (cam->view_mode == PVM_FrontView) {
@@ -4995,7 +4996,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
 
     if ( state_spridx || anger_spridx )
     {
-        spr = &button_sprite[70];
+        spr = &button_sprite[GBS_creature_states_cloud];
         w = (base_size * spr->SWidth * bs_units_per_px/16) >> 13;
         h = (base_size * spr->SHeight * bs_units_per_px/16) >> 13;
         LbSpriteDrawScaled(scrpos_x - w / 2, scrpos_y - h, spr, w, h);
@@ -5047,7 +5048,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
               h = (base_size * spr->SHeight * bs_units_per_px/16) >> 13;
               LbSpriteDrawScaled(scrpos_x - w / 2, scrpos_y - h - h_add, spr, w, h);
           }
-          spr = &button_sprite[184 + exp];
+          spr = &button_sprite[GBS_creature_flower_level_01 + exp];
           w = (base_size * spr->SWidth * bs_units_per_px/16) >> 13;
           h = (base_size * spr->SHeight * bs_units_per_px/16) >> 13;
           LbSpriteDrawScaled(scrpos_x - w / 2, scrpos_y - h - h_add, spr, w, h);
@@ -5130,7 +5131,7 @@ static void draw_engine_room_flag_top(struct BucketKindRoomFlag *rflg)
             int top_of_pole_offset, zoom_factor;
             // 1st argument: the scale when fully zoomed out. 2nd argument: the scale at base level zoom
             float scale_by_zoom = lerp(0.15, 1.00, hud_scale);
-            
+
             if (cam->view_mode == PVM_FrontView) {
                 zoom_factor = (4094*scale_by_zoom);
                 top_of_pole_offset = (zoom_factor << 7 >> 13) * (units_per_pixel)/16;
@@ -6492,7 +6493,7 @@ void draw_view(struct Camera *cam, unsigned char a2)
         do_perspective_rotation(x, y, z);
         cells_away = compute_cells_away();
     }
-    
+
     xcell = (x >> 8);
     aposc = -(x & 0xFF);
     bposc = (cells_away << 8) + (y & 0xFF);
@@ -8482,7 +8483,7 @@ static void do_map_who_for_thing(struct Thing *thing)
     int bckt_idx;
     struct EngineCoord ecor;
     struct NearestLights nearlgt;
-    
+
     interpolate_thing(thing, thingadd);
     int render_pos_x, render_floorpos, render_pos_y, render_pos_z;
     render_pos_x = thingadd->interp_mappos.x.val;
@@ -8497,7 +8498,7 @@ static void do_map_who_for_thing(struct Thing *thing)
         ecor.x = (render_pos_x - map_x_pos);
         ecor.z = (map_y_pos - render_pos_z);
         ecor.y = (render_floorpos - map_z_pos); // For shadows
-        
+
         // Shadows
         if (thing_is_creature(thing) && ((thing->movement_flags & TMvF_Unknown04) == 0))
         {
@@ -8833,7 +8834,7 @@ void draw_frontview_engine(struct Camera *cam)
     {
         process_frontview_map_volume_box(cam, ((zoom >> 8) & 0xFF), player->id_number);
     }
-    
+
 
     h = (8 * (zoom + 32 * ewnd.height) - qy) / zoom;
     w = (8 * (zoom + 32 * ewnd.height) - qy) / zoom;
