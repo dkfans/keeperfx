@@ -34,8 +34,7 @@ enum GUIButtonSprite {
 	GBS_options_button_grph_shadow2 = 29,
 	GBS_options_button_grph_shadow3 = 30,
 	GBS_options_button_grph_shadow4 = 31,
-	GBS_options_button_grph_pers_rot = 32,
-	GBS_options_button_grph_pers_iso = 33,
+
 	GBS_options_button_grph_textr_lq = 34,
 	GBS_options_button_grph_textr_hq = 35,
 	GBS_options_button_grph_range0 = 36,
@@ -126,6 +125,9 @@ enum GUIButtonSprite {
 	GBS_optionsbutton_grph_pers_neat = 121,
 	GBS_optionsbutton_resolution = 122,
 	GBS_optionsbutton_snd_voice = 123,
+	GBS_options_button_grph_pers_iso1 = 124,
+	GBS_options_button_grph_pers_iso2 = 125,
+	GBS_options_button_grph_pers_front = 126,
 
 	GBS_creature_portrait_horny = 145,
 	GBS_creature_portrait_skelt = 146,
