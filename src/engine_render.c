@@ -3703,7 +3703,7 @@ static void create_shadows(struct Thing *thing, struct EngineCoord *ecor, struct
     kspr->p1.S = dist_sq;
     kspr->angle = angle;
     kspr->anim_sprite = thing->anim_sprite;
-    kspr->thing_field48 = thing->field_48;
+    kspr->thing_field48 = thing->current_frame;
 }
 
 // Creature status flower above head in isometric view
