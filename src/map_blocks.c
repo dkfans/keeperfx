@@ -909,10 +909,7 @@ void place_slab_columns(long slbkind, unsigned char stl_x, unsigned char stl_y, 
             if ( v10 < 0 )
               ERRORLOG("BBlocks instead of columns");
             update_map_collide(slbkind, stl_x+dx, stl_y+dy);
-            if (wibble_enabled() || (liquid_wibble_enabled() && slab_kind_is_liquid(slbkind)))
-            {
-                set_alt_bit_based_on_slab(slbkind, stl_x+dx, stl_y+dy);
-            }
+            set_alt_bit_based_on_slab(slbkind, stl_x+dx, stl_y+dy);
             colid++;
         }
     }
@@ -1241,7 +1238,7 @@ void place_single_slab_set_torch_places(SlabKind slbkind, MapSlabCoord slb_x, Ma
     unsigned short torch_flags;
     if (slbkind == SlbT_TORCHDIRT) {
         undecorated_slbkind = SlbT_EARTH;
-    } 
+    }
     else {
         undecorated_slbkind = slbkind + 4;
     }
@@ -1647,10 +1644,7 @@ void place_animating_slab_type_on_map(SlabKind slbkind, char ani_frame, MapSubtl
                 MapSubtlCoord sstl_y;
                 sstl_x = slab_subtile(sslb_x,ssub_x);
                 sstl_y = slab_subtile(sslb_y,ssub_y);
-                if (wibble_enabled())
-                {
-                    set_alt_bit_based_on_slab(slb->kind, sstl_x, sstl_y);
-                }
+                set_alt_bit_based_on_slab(slb->kind, sstl_x, sstl_y);
             }
         }
     }
@@ -2019,7 +2013,7 @@ void create_dirt_rubble_for_dug_slab(MapSlabCoord slb_x, MapSlabCoord slb_y)
         for (x = stl_x; x < stl_x+STL_PER_SLB; x++)
         {
             z = get_floor_filled_subtiles_at(x, y);
-            if (z > 0) 
+            if (z > 0)
             {
                 create_dirt_rubble_for_dug_block(x, y, z, game.neutral_player_num);
             }
@@ -2575,7 +2569,7 @@ void fill_in_reinforced_corners(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSl
     MapSlabCoord y = slb_y + small_around[n].delta_y;
     struct SlabMap *slb2 = get_slabmap_block(x, y);
     struct SlabAttr* slbattr2 = get_slab_attrs(slb2);
-    if ( (((slbattr2->category == SlbAtCtg_FortifiedGround) || (slbattr2->block_flags & SlbAtFlg_IsRoom) || ((slbattr2->block_flags & SlbAtFlg_IsDoor)) )) 
+    if ( (((slbattr2->category == SlbAtCtg_FortifiedGround) || (slbattr2->block_flags & SlbAtFlg_IsRoom) || ((slbattr2->block_flags & SlbAtFlg_IsDoor)) ))
       && (slabmap_owner(slb2) == plyr_idx ) )
     {
       for (int k = -1; k < 2; k+=2)
@@ -2585,7 +2579,7 @@ void fill_in_reinforced_corners(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSl
         MapSlabCoord y2 = y + small_around[j].delta_y;
         struct SlabMap *slb3 = get_slabmap_block(x2, y2);
         struct SlabAttr* slbattr3 = get_slab_attrs(slb3);
-        if ( (slbattr3->category == SlbAtCtg_FortifiedWall) 
+        if ( (slbattr3->category == SlbAtCtg_FortifiedWall)
           && (slabmap_owner(slb3) == plyr_idx ) )
         {
           int m = (k + j) & 3;
@@ -2617,7 +2611,7 @@ SlabKind choose_pretty_type(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCo
     {
         pvslb = get_slabmap_block(slb_x, slb_y - 1);
         nxslb = get_slabmap_block(slb_x, slb_y + 1);
-        if ( (pvslb->kind == SlbT_CLAIMED) || (nxslb->kind == SlbT_CLAIMED) )  
+        if ( (pvslb->kind == SlbT_CLAIMED) || (nxslb->kind == SlbT_CLAIMED) )
         {
             return SlbT_WALLTORCH;
         }

@@ -72,8 +72,6 @@ enum TbFeature {
     Ft_Censorship   =  0x0020,
     Ft_Atmossounds  =  0x0040,
     Ft_Resizemovies =  0x0080,
-    Ft_Wibble       =  0x0100,
-    Ft_LiquidWibble =  0x0200,
     Ft_FreezeOnLoseFocus            = 0x0400,
     Ft_UnlockCursorOnPause          = 0x0800,
     Ft_LockCursorInPossession       = 0x1000,
@@ -215,8 +213,6 @@ TbBool is_feature_on(unsigned long feature);
 TbBool censorship_enabled(void);
 TbBool atmos_sounds_enabled(void);
 TbBool resize_movies_enabled(void);
-TbBool wibble_enabled(void);
-TbBool liquid_wibble_enabled(void);
 TbBool freeze_game_on_focus_lost(void);
 TbBool unlock_cursor_when_game_paused(void);
 TbBool lock_cursor_in_possession(void);

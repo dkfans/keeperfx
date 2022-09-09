@@ -340,7 +340,7 @@ void prepare_map_fade_buffers(unsigned char *fade_src, unsigned char *fade_dest,
 {
     struct PlayerInfo* player = get_my_player();
     // render the 3D screen
-    if (player->view_mode_restore == PVM_IsometricView)
+    if (player->view_mode_restore == PVM_IsoWibbleView || player->view_mode_restore == PVM_IsoStraightView)
       redraw_isometric_view();
     else
       redraw_frontview();
@@ -498,8 +498,10 @@ void set_engine_view(struct PlayerInfo *player, long val)
         S3DSetDeadzoneRadius(0);
         LbMouseSetPosition((MyScreenWidth/pixel_size) >> 1,(MyScreenHeight/pixel_size) >> 1);
         break;
-    case PVM_IsometricView:
+    case PVM_IsoWibbleView:
+    case PVM_IsoStraightView:
         player->acamera = &player->cameras[CamIV_Isometric];
+        player->acamera->view_mode = val;
         if (!is_my_player(player))
             break;
         lens_mode = 0;
@@ -1039,7 +1041,8 @@ void redraw_display(void)
         redraw_creature_view();
         parchment_loaded = 0;
         break;
-    case PVM_IsometricView:
+    case PVM_IsoWibbleView:
+    case PVM_IsoStraightView:
         redraw_isometric_view();
         parchment_loaded = 0;
         break;
@@ -1119,18 +1122,21 @@ void redraw_display(void)
     {
           LbTextSetFont(winfont);
           text = get_string(GUIStr_PausedMsg);
-          int i = LbTextCharWidth(' ') * units_per_pixel / 16;
-          long w = (LbTextStringWidth(text) * units_per_pixel / 16 + 2 * i);
-          i = player->view_mode;
+          long w = (LbTextStringWidth(text) * units_per_pixel / 16 + 2 * (LbTextCharWidth(' ') * units_per_pixel / 16));
           long pos_x;
-          if ((i == PVM_IsometricView) || (i == PVM_FrontView) || (i == PVM_CreatureView))
+          if (
+              player->view_mode == PVM_IsoWibbleView ||
+              player->view_mode == PVM_FrontView ||
+              player->view_mode == PVM_IsoStraightView ||
+              player->view_mode == PVM_CreatureView
+          ) {
               pos_x = player->engine_window_x + (MyScreenWidth - w - player->engine_window_x) / 2;
-          else
-            pos_x = (MyScreenWidth-w)/2;
+          } else {
+              pos_x = (MyScreenWidth-w)/2;
+          }
           long pos_y = 16 * units_per_pixel / 16;
-          i = LbTextLineHeight()*units_per_pixel/16;
           lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
-          long h = i + i / 2;
+          long h = LbTextLineHeight() * units_per_pixel / 16;
           LbTextSetWindow(pos_x, pos_y, w, h);
           draw_slab64k(pos_x, pos_y, units_per_pixel, w, h);
           LbTextDrawResized(0/pixel_size, 0/pixel_size, units_per_pixel, text);

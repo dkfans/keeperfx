@@ -325,7 +325,8 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
     long inter_val;
     switch (cam->view_mode)
     {
-    case PVM_IsometricView:
+    case PVM_IsoWibbleView:
+    case PVM_IsoStraightView:
         inter_val = 2560000 / cam->zoom;
         break;
     case PVM_FrontView:
@@ -350,7 +351,8 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
     {
         switch (cam->view_mode)
         {
-        case PVM_IsometricView:
+        case PVM_IsoWibbleView:
+        case PVM_IsoStraightView:
              view_set_camera_rotation_inertia(cam, 16, 64);
             break;
         case PVM_FrontView:
@@ -362,7 +364,8 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
     {
         switch (cam->view_mode)
         {
-        case PVM_IsometricView:
+        case PVM_IsoWibbleView:
+        case PVM_IsoStraightView:
             view_set_camera_rotation_inertia(cam, -16, -64);
             break;
         case PVM_FrontView:
@@ -376,7 +379,8 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
     {
         switch (cam->view_mode)
         {
-        case PVM_IsometricView:
+        case PVM_IsoWibbleView:
+        case PVM_IsoStraightView:
             view_zoom_camera_in(cam, zoom_max, zoom_min);
             update_camera_zoom_bounds(cam, zoom_max, zoom_min);
             if (is_my_player(player))
@@ -399,7 +403,8 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
     {
         switch (cam->view_mode)
         {
-        case PVM_IsometricView:
+        case PVM_IsoWibbleView:
+        case PVM_IsoStraightView:
             view_zoom_camera_out(cam, zoom_max, zoom_min);
             update_camera_zoom_bounds(cam, zoom_max, zoom_min);
             if (is_my_player(player))
@@ -447,7 +452,7 @@ TbBool message_text_key_add(char * message, long maxlen, TbKeyCode key, TbKeyMod
         ((chr >= 'A') && (chr <= 'Z')) ||
         ((chr >= '0') && (chr <= '9')) ||
         (chr == ' ')  || (chr == '!') || (chr == ':') || (chr == ';')
-        || (chr == '(') || (chr == ')') || (chr == '.') || (chr == '_') 
+        || (chr == '(') || (chr == ')') || (chr == '.') || (chr == '_')
         || (chr == '\'') || (chr == '+') || (chr == '=') || (chr == '-')
         || (chr == '"') || (chr == '?') || (chr == '/') || (chr == '#')
         || (chr == '<') || (chr == '>') || (chr == '^'))
@@ -1315,7 +1320,7 @@ void process_players_creature_control_packet_action(long plyr_idx)
     {
         playeradd = get_playeradd(plyr_idx);
         playeradd->teleport_destination = pckt->actn_par1;
-        break; 
+        break;
     }
     case PckA_SelectFPPickup:
     {

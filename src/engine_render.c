@@ -171,7 +171,8 @@ void calculate_hud_scale(struct Camera *cam) {
     float range_min;
     float range_max;
     switch (cam->view_mode) {
-        case PVM_IsometricView:
+        case PVM_IsoWibbleView:
+        case PVM_IsoStraightView:
             range_min = CAMERA_ZOOM_MIN; // Fully zoomed out
             range_max = 4100; // Base zoom level
             break;
@@ -570,34 +571,28 @@ void rotate_base_axis(struct M33 *matx, short angle, unsigned char axis)
     matx->r[2].v[3] = matx->r[2].v[0] * matx->r[2].v[1];
 }
 
-struct WibbleTable *get_wibble_from_table(long table_index, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+struct WibbleTable *get_wibble_from_table(struct Camera *cam, long table_index, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    struct WibbleTable *wibl;
-    TbBool use_wibble = wibble_enabled();
-    if (liquid_wibble_enabled() && !use_wibble)
+    if (cam->view_mode == PVM_IsoWibbleView)
+    {
+        return &wibble_table[table_index];
+    }
+    else if (cam->view_mode == PVM_IsoStraightView)
     {
         struct SlabMap *slb = get_slabmap_for_subtile(stl_slab_center_subtile(stl_x), stl_slab_center_subtile(stl_y));
-        struct SlabMap *slb2 = get_slabmap_for_subtile(stl_slab_center_subtile(stl_x), stl_slab_center_subtile(stl_y+1)); // additional checks needed to keep straight edges around liquid with liquid wibble mode
+         // additional checks needed to keep straight edges around liquid with liquid wibble mode
+        struct SlabMap *slb2 = get_slabmap_for_subtile(stl_slab_center_subtile(stl_x), stl_slab_center_subtile(stl_y+1));
         struct SlabMap *slb3 = get_slabmap_for_subtile(stl_slab_center_subtile(stl_x-1), stl_slab_center_subtile(stl_y));
         if (slab_kind_is_liquid(slb3->kind) && slab_kind_is_liquid(slb2->kind) && slab_kind_is_liquid(slb->kind))
         {
-            use_wibble = true;
+            return &wibble_table[table_index];
         }
     }
-    if (use_wibble)
-    {
-        wibl = &wibble_table[table_index];
-    }
-    else
-    {
-        wibl = &blank_wibble_table[table_index];
-    }
-    return wibl;
+    return &blank_wibble_table[table_index];
 }
 
-void fill_in_points_perspective(long bstl_x, long bstl_y, struct MinMax *mm)
+void fill_in_points_perspective(struct Camera *cam, long bstl_x, long bstl_y, struct MinMax *mm)
 {
-    //_DK_fill_in_points_perspective(bstl_x, bstl_y, mm); return;
     if ((bstl_y < 0) || (bstl_y > map_subtiles_y-1)) {
         return;
     }
@@ -691,7 +686,7 @@ void fill_in_points_perspective(long bstl_x, long bstl_y, struct MinMax *mm)
         hpos = subtile_coord(hmin,0) - view_alt;
         wib_x = stl_x & 3;
         struct WibbleTable *wibl;
-        wibl = get_wibble_from_table(32 * wib_v + wib_x + (wib_y << 2), stl_x, stl_y);
+        wibl = get_wibble_from_table(cam, 32 * wib_v + wib_x + (wib_y << 2), stl_x, stl_y);
         int idxh;
         for (idxh = hmax-hmin+1; idxh > 0; idxh--)
         {
@@ -717,7 +712,7 @@ void fill_in_points_perspective(long bstl_x, long bstl_y, struct MinMax *mm)
         hpos = subtile_coord(get_mapblk_filled_subtiles(mapblk),0) - view_alt;
         if (wib_v == 2)
         {
-            wibl = get_wibble_from_table(wib_x + 2 * (hmax + 2 * wib_y - hmin) + 32, stl_x, stl_y);
+            wibl = get_wibble_from_table(cam, wib_x + 2 * (hmax + 2 * wib_y - hmin) + 32, stl_x, stl_y);
         }
         ecord = &ecol->cors[8];
         {
@@ -735,9 +730,8 @@ void fill_in_points_perspective(long bstl_x, long bstl_y, struct MinMax *mm)
     }
 }
 
-void fill_in_points_cluedo(long bstl_x, long bstl_y, struct MinMax *mm)
+void fill_in_points_cluedo(struct Camera *cam, long bstl_x, long bstl_y, struct MinMax *mm)
 {
-    //_DK_fill_in_points_cluedo(bstl_x, bstl_y, mm);
     if ((bstl_y < 0) || (bstl_y > map_subtiles_y-1)) {
         return;
     }
@@ -889,7 +883,7 @@ void fill_in_points_cluedo(long bstl_x, long bstl_y, struct MinMax *mm)
         ecord = &ecol->cors[hmin];
         wib_x = stl_x & 3;
         struct WibbleTable *wibl;
-        wibl = get_wibble_from_table(32 * wib_v + wib_x + (wib_y << 2), stl_x, stl_y);
+        wibl = get_wibble_from_table(cam, 32 * wib_v + wib_x + (wib_y << 2), stl_x, stl_y);
         long *randmis;
         randmis = &randomisors[(stl_x + 17 * (stl_y + 1)) & 0xff];
         eview_h = dview_h * hmin + hview_y;
@@ -941,9 +935,8 @@ void fill_in_points_cluedo(long bstl_x, long bstl_y, struct MinMax *mm)
     }
 }
 
-void fill_in_points_isometric(long bstl_x, long bstl_y, struct MinMax *mm)
+void fill_in_points_isometric(struct Camera *cam, long bstl_x, long bstl_y, struct MinMax *mm)
 {
-    //_DK_fill_in_points_isometric(bstl_x, bstl_y, mm);
     if ((bstl_y < 0) || (bstl_y > map_subtiles_y-1)) {
         return;
     }
@@ -1118,7 +1111,7 @@ void fill_in_points_isometric(long bstl_x, long bstl_y, struct MinMax *mm)
         ecord = &ecol->cors[hmin];
         wib_x = stl_x & 3;
         struct WibbleTable *wibl;
-        wibl = get_wibble_from_table(32 * wib_v + wib_x + (wib_y << 2), stl_x, stl_y);
+        wibl = get_wibble_from_table(cam, 32 * wib_v + wib_x + (wib_y << 2), stl_x, stl_y);
         eview_h = dview_h * hmin + hview_y;
         eview_z = dview_z * hmin + hview_z;
         randmis = &randomisors[(stl_x + 17 * (stl_y+1)) & 0xff] + hmin;
@@ -1170,7 +1163,6 @@ void fill_in_points_isometric(long bstl_x, long bstl_y, struct MinMax *mm)
 
 void frame_wibble_generate(void)
 {
-    //_DK_frame_wibble_generate(); return;
     int i;
     struct WibbleTable *wibl;
     wibl = &wibble_table[64];
@@ -1959,7 +1951,8 @@ void fiddle_gamut(long pos_x, long pos_y)
         fiddle_half_gamut(pos_x, pos_y, 1, cells_away);
         fiddle_half_gamut(pos_x, pos_y, -1, cells_away + 2);
         break;
-    case PVM_IsometricView:
+    case PVM_IsoWibbleView:
+    case PVM_IsoStraightView:
         // Retrieve coordinates on limiting map points
         ewwidth = player->engine_window_width / pixel_size;
         ewheight = player->engine_window_height / pixel_size - ((8 * high_offset[1]) >> 8);
@@ -4740,8 +4733,11 @@ void draw_engine_number(struct BucketKindFloatingGoldText *num)
     spr = &button_sprite[GBS_fontchars_number_dig0];
     w = scale_ui_value(spr->SWidth) * scale_by_zoom;
     h = scale_ui_value(spr->SHeight) * scale_by_zoom;
-    if ((player->acamera->view_mode == PVM_IsometricView) || (player->acamera->view_mode == PVM_FrontView))
-    {
+    if (
+        player->acamera->view_mode == PVM_IsoWibbleView ||
+        player->acamera->view_mode == PVM_FrontView ||
+        player->acamera->view_mode == PVM_IsoStraightView
+    ) {
         // Count digits to be displayed
         ndigits=0;
         for (val = num->lvl; val > 0; val /= 10)
@@ -4773,8 +4769,11 @@ void draw_engine_room_flagpole(struct BucketKindRoomFlag *rflg)
     struct PlayerInfo *player = get_my_player();
     const struct Camera *cam = player->acamera;
 
-    if ((cam->view_mode == PVM_IsometricView) || (cam->view_mode == PVM_FrontView))
-    {
+    if (
+        cam->view_mode == PVM_IsoWibbleView ||
+        cam->view_mode == PVM_FrontView ||
+        cam->view_mode == PVM_IsoStraightView
+    ) {
         if (settings.roomflags_on)
         {
             int deltay, height, zoom_factor;
@@ -4846,7 +4845,8 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
     float scale_by_zoom;
     int base_size = creature_status_size*256;
     switch (cam->view_mode) {
-        case PVM_IsometricView:
+        case PVM_IsoWibbleView:
+        case PVM_IsoStraightView:
             // 1st argument: the scale when fully zoomed out. 2nd argument: the scale at base level zoom
             scale_by_zoom = lerp(0.15, 1.00, hud_scale);
             break;
@@ -5124,8 +5124,11 @@ static void draw_engine_room_flag_top(struct BucketKindRoomFlag *rflg)
     struct PlayerInfo *player = get_my_player();
     const struct Camera *cam = player->acamera;
 
-    if ((cam->view_mode == PVM_IsometricView) || (cam->view_mode == PVM_FrontView))
-    {
+    if (
+        cam->view_mode == PVM_IsoWibbleView ||
+        cam->view_mode == PVM_FrontView ||
+        cam->view_mode == PVM_IsoStraightView
+    ) {
         if (settings.roomflags_on)
         {
             int top_of_pole_offset, zoom_factor;
@@ -6316,8 +6319,9 @@ void display_drawlist(void) // Draws isometric and 1st person view. Not frontvie
                 cam = player->acamera;
                 if (cam != NULL)
                 {
-                    if (cam->view_mode == PVM_IsometricView)
-                    draw_jonty_mapwho(item.jontySprite);
+                    if (cam->view_mode == PVM_IsoWibbleView || cam->view_mode == PVM_IsoStraightView) {
+                        draw_jonty_mapwho(item.jontySprite);
+                    }
                 }
                 break;
             case QK_RoomFlagStatusBox: // The status sitting on top of the pole
@@ -6334,7 +6338,7 @@ void display_drawlist(void) // Draws isometric and 1st person view. Not frontvie
       WARNLOG("Incurred %lu rendering problems; last was with poly kind %ld",render_problems,render_prob_kind);
 }
 
-static void prepare_draw_plane_of_engine_columns(long aposc, long bposc, long xcell, long ycell, struct MinMax *mm)
+static void prepare_draw_plane_of_engine_columns(struct Camera *cam, long aposc, long bposc, long xcell, long ycell, struct MinMax *mm)
 {
     apos = aposc;
     bpos = bposc;
@@ -6342,14 +6346,14 @@ static void prepare_draw_plane_of_engine_columns(long aposc, long bposc, long xc
     front_ec = &ecs2[0];
     if (lens_mode != 0)
     {
-        fill_in_points_perspective(xcell, ycell, mm);
+        fill_in_points_perspective(cam, xcell, ycell, mm);
     } else
     if (settings.video_cluedo_mode)
     {
-        fill_in_points_cluedo(xcell, ycell, mm);
+        fill_in_points_cluedo(cam, xcell, ycell, mm);
     } else
     {
-        fill_in_points_isometric(xcell, ycell, mm);
+        fill_in_points_isometric(cam, xcell, ycell, mm);
     }
 }
 
@@ -6361,7 +6365,7 @@ static void prepare_draw_plane_of_engine_columns(long aposc, long bposc, long xc
  * @param xcell
  * @param ycell
  */
-static void draw_plane_of_engine_columns(long aposc, long bposc, long xcell, long ycell, struct MinMax *mm)
+static void draw_plane_of_engine_columns(struct Camera *cam, long aposc, long bposc, long xcell, long ycell, struct MinMax *mm)
 {
     struct EngineCol *ec;
     ec = front_ec;
@@ -6371,7 +6375,7 @@ static void draw_plane_of_engine_columns(long aposc, long bposc, long xcell, lon
     bpos = bposc;
     if (lens_mode != 0)
     {
-        fill_in_points_perspective(xcell, ycell, mm);
+        fill_in_points_perspective(cam, xcell, ycell, mm);
         if (mm->min < mm->max)
         {
           apos = aposc;
@@ -6381,7 +6385,7 @@ static void draw_plane_of_engine_columns(long aposc, long bposc, long xcell, lon
     } else
     if ( settings.video_cluedo_mode )
     {
-        fill_in_points_cluedo(xcell, ycell, mm);
+        fill_in_points_cluedo(cam, xcell, ycell, mm);
         if (mm->min < mm->max)
         {
           apos = aposc;
@@ -6390,7 +6394,7 @@ static void draw_plane_of_engine_columns(long aposc, long bposc, long xcell, lon
         }
     } else
     {
-        fill_in_points_isometric(xcell, ycell, mm);
+        fill_in_points_isometric(cam, xcell, ycell, mm);
         if (mm->min < mm->max)
         {
           apos = aposc;
@@ -6407,7 +6411,7 @@ static void draw_plane_of_engine_columns(long aposc, long bposc, long xcell, lon
  * @param xcell
  * @param ycell
  */
-static void draw_view_map_plane(long aposc, long bposc, long xcell, long ycell)
+static void draw_view_map_plane(struct Camera *cam, long aposc, long bposc, long xcell, long ycell)
 {
     struct MinMax *mm;
     long i;
@@ -6415,14 +6419,14 @@ static void draw_view_map_plane(long aposc, long bposc, long xcell, long ycell)
     if (i < 0)
         i = 0;
     mm = &minmaxs[i];
-    prepare_draw_plane_of_engine_columns(aposc, bposc, xcell, ycell, mm);
+    prepare_draw_plane_of_engine_columns(cam, aposc, bposc, xcell, ycell, mm);
 
     for (i = 2*cells_away-1; i > 0; i--)
     {
         ycell++;
         bposc -= (map_subtiles_y+1);
         mm++;
-        draw_plane_of_engine_columns(aposc, bposc, xcell, ycell, mm);
+        draw_plane_of_engine_columns(cam, aposc, bposc, xcell, ycell, mm);
     }
 }
 
@@ -6474,10 +6478,7 @@ void draw_view(struct Camera *cam, unsigned char a2)
     map_roll = interpolated_cam_orient_c;
     map_tilt = -interpolated_cam_orient_b;
 
-    if (wibble_enabled() || liquid_wibble_enabled())
-    {
-        frame_wibble_generate();
-    }
+    frame_wibble_generate();
     view_alt = z;
     if (lens_mode != 0)
     { // 1st person
@@ -6501,7 +6502,7 @@ void draw_view(struct Camera *cam, unsigned char a2)
     find_gamut();
     fiddle_gamut(xcell, ycell + (cells_away+1));
 
-    draw_view_map_plane(aposc, bposc, xcell, ycell);
+    draw_view_map_plane(cam, aposc, bposc, xcell, ycell);
 
     if (map_volume_box.visible)
     {
@@ -7802,7 +7803,7 @@ void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
     {
         if ((player->thing_under_hand == thing->index) && (game.play_gameturn & 2))
         {
-          if (player->acamera->view_mode == PVM_IsometricView)
+          if (player->acamera->view_mode == PVM_IsoWibbleView || player->acamera->view_mode == PVM_IsoStraightView)
           {
               lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
               lbSpriteReMapPtr = white_pal;

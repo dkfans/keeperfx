@@ -125,10 +125,12 @@ static CoroutineLoopState setup_exchange_player_number(CoroutineLoop *context)
           player = get_player(k);
           player->id_number = k;
           player->allocflags |= PlaF_Allocated;
-          if (pckt->actn_par2 < 1)
-            player->view_mode_restore = PVM_IsometricView;
-          else
-            player->view_mode_restore = PVM_FrontView;
+          switch (pckt->actn_par2) {
+              case 0: player->view_mode_restore = PVM_IsoWibbleView; break;
+              case 1: player->view_mode_restore = PVM_IsoStraightView; break;
+              case 2: player->view_mode_restore = PVM_FrontView; break;
+              default: player->view_mode_restore = PVM_IsoWibbleView; break;
+          }
           player->is_active = pckt->actn_par1;
           init_player(player, 0);
           snprintf(player->field_15, sizeof(struct TbNetworkPlayerName), "%s", net_player[i].name);
