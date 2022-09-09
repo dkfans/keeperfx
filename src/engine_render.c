@@ -193,7 +193,7 @@ void calculate_hud_scale(struct Camera *cam) {
 
 long interpolate(long variable_to_interpolate, long previous, long current)
 {
-    if (is_feature_on(Ft_DeltaTime) == false) {
+    if (is_feature_on(Ft_DeltaTime) == false || game.frame_skip > 0) {
         return current;
     }
     // future: by using the predicted future position in the interpolation calculation, we can remove input lag (or visual lag).
