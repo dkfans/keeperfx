@@ -3563,7 +3563,7 @@ static void create_shadows(struct Thing *thing, struct EngineCoord *ecor, struct
     short dim_oh;
     short dim_th;
     short dim_tw;
-    get_keepsprite_unscaled_dimensions(thing->anim_sprite, angle, thing->field_48, &dim_ow, &dim_oh, &dim_tw, &dim_th);
+    get_keepsprite_unscaled_dimensions(thing->anim_sprite, angle, thing->current_frame, &dim_ow, &dim_oh, &dim_tw, &dim_th);
     {
         int base_x;
         int base_y;
@@ -3703,7 +3703,7 @@ static void create_shadows(struct Thing *thing, struct EngineCoord *ecor, struct
     kspr->p1.S = dist_sq;
     kspr->angle = angle;
     kspr->anim_sprite = thing->anim_sprite;
-    kspr->thing_field48 = thing->field_48;
+    kspr->thing_field48 = thing->current_frame;
 }
 
 // Creature status flower above head in isometric view
@@ -4564,7 +4564,7 @@ static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprit
     if ( thing->rendering_flags & TRF_Tint_Flags )
     {
         lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
-        lbSpriteReMapPtr = &pixmap.ghost[256 * thing->field_51];
+        lbSpriteReMapPtr = &pixmap.ghost[256 * thing->tint_colour];
     }
     else if ( v6 == 0x2000 )
     {
@@ -4695,7 +4695,7 @@ static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprit
         EngineSpriteDrawUsingAlpha = 0;
         unsigned long v21 = (game.play_gameturn + thing->index) % keepersprite_frames(n);
         // drawing torch
-        process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->field_48, a6_2);
+        process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->current_frame, a6_2);
         EngineSpriteDrawUsingAlpha = 1;
         // drawing flame
         process_keeper_sprite(dx + jspr->scr_x, dy + jspr->scr_y, n, angle, v21, v16);
@@ -4714,7 +4714,7 @@ static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprit
         if ( is_shown ||
                 get_my_player()->id_number == thing->owner ||
                 thing->trap.revealed )
-            process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->field_48, a6_2);
+            process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->current_frame, a6_2);
     }
     lbDisplay.DrawFlags = flg_mem;
     EngineSpriteDrawUsingAlpha = alpha_mem;
@@ -7560,7 +7560,7 @@ void process_keeper_sprite(short x, short y, unsigned short kspr_base, short ksp
         cutoff = 6;
         if ( (thing_being_displayed->movement_flags & TMvF_Unknown04) != 0 )
         {
-            get_keepsprite_unscaled_dimensions(thing_being_displayed->anim_sprite, thing_being_displayed->move_angle_xy, thing_being_displayed->field_48, &dim_ow, &dim_oh, &dim_tw, &dim_th);
+            get_keepsprite_unscaled_dimensions(thing_being_displayed->anim_sprite, thing_being_displayed->move_angle_xy, thing_being_displayed->current_frame, &dim_ow, &dim_oh, &dim_tw, &dim_th);
             cctrl = creature_control_get_from_thing(thing_being_displayed);
             lltemp = dim_oh * (48 - (long)cctrl->word_9A);
             cutoff = ((((lltemp >> 24) & 0x1F) + (long)lltemp) >> 5) / 2;
@@ -7665,7 +7665,7 @@ static void process_keeper_speedup_sprite(struct BucketKindJontySprite *jspr, lo
     }
     EngineSpriteDrawUsingAlpha = 0;
     nframe2 = (thing->index + game.play_gameturn) % keepersprite_frames(graph_id2);
-    process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->field_48, scale);
+    process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->current_frame, scale);
     EngineSpriteDrawUsingAlpha = 1;
     process_keeper_sprite(jspr->scr_x+add_x, jspr->scr_y+add_y, graph_id2, angle, nframe2, transp2);
 }
@@ -7714,7 +7714,7 @@ static void prepare_jonty_remap_and_scale(long *scale, const struct BucketKindJo
     if ((thing->rendering_flags & (TRF_Unknown04|TRF_Unknown08)) != 0)
     {
         lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
-        shade_factor = thing->field_51;
+        shade_factor = thing->tint_colour;
         lbSpriteReMapPtr = &pixmap.ghost[256 * shade_factor];
     } else
     if (shade_factor == 32)
@@ -7872,7 +7872,7 @@ void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
                 process_keeper_speedup_sprite(jspr, angle, scale);
                 break;
             }
-            process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->field_48, scale);
+            process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->current_frame, scale);
             break;
         case TCls_Trap:
             trapst = &gameadd.trapdoor_conf.trap_cfgstats[thing->model];
@@ -7880,10 +7880,10 @@ void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
             {
                 break;
             }
-            process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->field_48, scale);
+            process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->current_frame, scale);
             break;
         default:
-            process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->field_48, scale);
+            process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->current_frame, scale);
             break;
         }
     }

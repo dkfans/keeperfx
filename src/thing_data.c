@@ -244,7 +244,7 @@ void set_thing_draw(struct Thing *thing, long anim, long speed, long scale, char
     thing->anim_sprite = convert_td_iso(anim);
     thing->field_50 &= 0x03;
     thing->field_50 |= (draw_class << 2);
-    thing->field_49 = keepersprite_frames(thing->anim_sprite);
+    thing->max_frames = keepersprite_frames(thing->anim_sprite);
     if (speed != -1) {
         thing->anim_speed = speed;
     }
@@ -257,18 +257,18 @@ void set_thing_draw(struct Thing *thing, long anim, long speed, long scale, char
     if (start_frame == -2)
     {
       i = keepersprite_frames(thing->anim_sprite) - 1;
-      thing->field_48 = i;
+      thing->current_frame = i;
       thing->anim_time = i << 8;
     } else
     if (start_frame == -1)
     {
-      i = CREATURE_RANDOM(thing, thing->field_49);
-      thing->field_48 = i;
+      i = CREATURE_RANDOM(thing, thing->max_frames);
+      thing->current_frame = i;
       thing->anim_time = i << 8;
     } else
     {
       i = start_frame;
-      thing->field_48 = i;
+      thing->current_frame = i;
       thing->anim_time = i << 8;
     }
 }

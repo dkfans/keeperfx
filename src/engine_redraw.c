@@ -420,15 +420,15 @@ void set_sprite_view_3d(void)
                 {
                     thing->anim_sprite = n;
                     long nframes = keepersprite_frames(thing->anim_sprite);
-                    if (nframes != thing->field_49)
+                    if (nframes != thing->max_frames)
                     {
-                        ERRORLOG("No frames different between views C%d, M%d, A%d, B%d",thing->class_id,thing->model,thing->field_49,nframes);
-                        thing->field_49 = nframes;
-                        n = thing->field_49 - 1;
-                        if (n > thing->field_48) {
-                            n = thing->field_48;
+                        ERRORLOG("No frames different between views C%d, M%d, A%d, B%d",thing->class_id,thing->model,thing->max_frames,nframes);
+                        thing->max_frames = nframes;
+                        n = thing->max_frames - 1;
+                        if (n > thing->current_frame) {
+                            n = thing->current_frame;
                         }
-                        thing->field_48 = n;
+                        thing->current_frame = n;
                         thing->anim_time = n << 8;
                     }
                 }
@@ -451,15 +451,15 @@ void set_sprite_view_isometric(void)
                 {
                     thing->anim_sprite = n;
                     long nframes = keepersprite_frames(thing->anim_sprite);
-                    if (nframes != thing->field_49)
+                    if (nframes != thing->max_frames)
                     {
-                        ERRORLOG("No frames different between views C%d, M%d, A%d, B%d",thing->class_id,thing->model,thing->field_49,nframes);
-                        thing->field_49 = nframes;
-                        n = thing->field_49 - 1;
-                        if (n > thing->field_48) {
-                            n = thing->field_48;
+                        ERRORLOG("No frames different between views C%d, M%d, A%d, B%d",thing->class_id,thing->model,thing->max_frames,nframes);
+                        thing->max_frames = nframes;
+                        n = thing->max_frames - 1;
+                        if (n > thing->current_frame) {
+                            n = thing->current_frame;
                         }
-                        thing->field_48 = n;
+                        thing->current_frame = n;
                         thing->anim_time = n << 8;
                     }
                 }

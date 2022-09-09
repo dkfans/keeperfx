@@ -215,7 +215,7 @@ long get_foot_creature_has_down(struct Thing *thing)
     int n;
     //return _DK_get_foot_creature_has_down(thing);
     cctrl = creature_control_get_from_thing(thing);
-    val = thing->field_48;
+    val = thing->current_frame;
     if (val == (cctrl->field_CE >> 8))
         return 0;
     unsigned short frame = (creature_is_dragging_something(thing)) ? CGI_Drag : CGI_Ambulate;
@@ -847,10 +847,10 @@ void update_thing_animation(struct Thing *thing)
       if (!creature_control_invalid(cctrl))
         cctrl->field_CE = thing->anim_time;
     }
-    if ((thing->anim_speed != 0) && (thing->field_49 != 0))
+    if ((thing->anim_speed != 0) && (thing->max_frames != 0))
     {
         thing->anim_time += thing->anim_speed;
-        i = (thing->field_49 << 8);
+        i = (thing->max_frames << 8);
         if (i <= 0) i = 256;
         while (thing->anim_time  < 0)
         {
@@ -867,28 +867,28 @@ void update_thing_animation(struct Thing *thing)
             thing->anim_time %= i;
           }
         }
-        thing->field_48 = (thing->anim_time >> 8) & 0xFF;
+        thing->current_frame = (thing->anim_time >> 8) & 0xFF;
     }
-    if (thing->field_4A != 0)
+    if (thing->transformation_speed != 0)
     {
-      thing->sprite_size += thing->field_4A;
-      if (thing->sprite_size > thing->field_4B)
+      thing->sprite_size += thing->transformation_speed;
+      if (thing->sprite_size > thing->sprite_size_min)
       {
-        if (thing->sprite_size >= thing->field_4D)
+        if (thing->sprite_size >= thing->sprite_size_max)
         {
-          thing->sprite_size = thing->field_4D;
+          thing->sprite_size = thing->sprite_size_max;
           if ((thing->field_50 & 0x02) != 0)
-            thing->field_4A = -thing->field_4A;
+            thing->transformation_speed = -thing->transformation_speed;
           else
-            thing->field_4A = 0;
+            thing->transformation_speed = 0;
         }
       } else
       {
-        thing->sprite_size = thing->field_4B;
+        thing->sprite_size = thing->sprite_size_min;
         if ((thing->field_50 & 0x02) != 0)
-          thing->field_4A = -thing->field_4A;
+          thing->transformation_speed = -thing->transformation_speed;
         else
-          thing->field_4A = 0;
+          thing->transformation_speed = 0;
       }
     }
 }

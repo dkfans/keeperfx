@@ -571,22 +571,22 @@ struct Thing *create_effect_element(const struct Coord3d *pos, unsigned short ee
 
     if (eestat->field_17 != 0)
     {
-        thing->field_4B = eestat->sprite_size_min;
-        thing->field_4D = eestat->sprite_size_max;
+        thing->sprite_size_min = eestat->sprite_size_min;
+        thing->sprite_size_max = eestat->sprite_size_max;
         if (eestat->field_17 == 2)
         {
-            thing->field_4A = 2 * (eestat->sprite_size_max - (long)eestat->sprite_size_min) / thing->health;
+            thing->transformation_speed = 2 * (eestat->sprite_size_max - (long)eestat->sprite_size_min) / thing->health;
             thing->field_50 |= 0x02;
         }
         else
         {
-            thing->field_4A = (eestat->sprite_size_max - (long)eestat->sprite_size_min) / thing->health;
+            thing->transformation_speed = (eestat->sprite_size_max - (long)eestat->sprite_size_min) / thing->health;
             thing->field_50 &= ~0x02;
         }
         thing->sprite_size = eestat->sprite_size_min;
     } else
     {
-        thing->field_4A = 0;
+        thing->transformation_speed = 0;
     }
 
     if (eestat->field_3A != 0)
@@ -833,7 +833,7 @@ void change_effect_element_into_another(struct Thing *thing, long nmodel)
     } else {
         thing->health = EFFECT_RANDOM(thing, eestat->numfield_5 - eestat->numfield_3 + 1) + eestat->numfield_3;
     }
-    thing->field_49 = keepersprite_frames(thing->anim_sprite);
+    thing->max_frames = keepersprite_frames(thing->anim_sprite);
 }
 
 TngUpdateRet update_effect_element(struct Thing *elemtng)
@@ -946,7 +946,7 @@ TngUpdateRet update_effect_element(struct Thing *elemtng)
       i -= LbFPMath_PI;
     long prop_val = i / (LbFPMath_PI / 8);
     elemtng->move_angle_xy = get_angle_xy_to_vec(&elemtng->veloc_base);
-    elemtng->field_48 = prop_val;
+    elemtng->current_frame = prop_val;
     elemtng->anim_speed = 0;
     elemtng->anim_time = (prop_val & 0xff) << 8;
     SYNCDBG(18,"Finished");

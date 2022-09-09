@@ -252,14 +252,14 @@ short get_creature_anim(struct Thing *thing, unsigned short seq_idx)
 
 void untint_thing(struct Thing *thing)
 {
-    thing->field_51 = 0;
+    thing->tint_colour = 0;
     thing->rendering_flags &= ~(TRF_Unknown04|TRF_Unknown08);
 }
 
 void tint_thing(struct Thing *thing, TbPixel colour, unsigned char tint)
 {
     thing->rendering_flags ^= (thing->rendering_flags ^ (tint << 2)) & (TRF_Unknown04|TRF_Unknown08);
-    thing->field_51 = colour;
+    thing->tint_colour = colour;
 }
 
 TbBool update_creature_anim(struct Thing *thing, long speed, long seq_idx)
