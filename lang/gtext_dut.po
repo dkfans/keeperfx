@@ -2706,7 +2706,7 @@ msgid ""
 msgstr ""
 "Gezichtsveld: Wisselt tussen gezichtsvelden. Standaard zijn muren vervormd en "
 "is de camera te draaien. Zet de vervorming uit voor rechte lijnen. Bij Ortografisch "
-Perspectief kan alleen 90 graded gedraaid worden en is de kijkhoek anders. LMK: bladeren."
+"Perspectief kan alleen 90 graded gedraaid worden en is de kijkhoek anders. LMK: bladeren."
 
 #: guitext:315
 #, fuzzy
