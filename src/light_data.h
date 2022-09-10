@@ -83,6 +83,7 @@ struct LightAdd // Additional light data
     struct Coord3d previous_mappos;
     struct Coord3d interp_mappos;
     long last_turn_drawn;
+    long disable_interp_for_turns;
 };
 
 struct InitLight { // sizeof=0x14
