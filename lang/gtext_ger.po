@@ -2793,15 +2793,15 @@ msgstr ""
 "werden. Mit der linken Maustaste umschalten. [3.2.2]"
 
 #: guitext:314
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "View Type: Swap between perspective views. Default view has warped walls "
 "and can be rotated. Disable the warp effect for clean lines. Forced perspective "
 "can only be rotated 90 degrees and changes the viewing angle. LMB toggle."
 msgstr ""
-"Perspektive: Zwischen Standard- und Eingeschränkten Ansichten hin- und "
-"herwechseln. Mit der linken Maustaste umschalten. [3.2.2]"
+"Perspektive: Zwischen Ansichten wechseln. Standard kann frei gedreht werden und "
+"hat verzerrte Wände. 2. Modus: gerade Wände. 3. Modus: Orthographische Perspektive "
+"(kann nur um 90 Grad gedreht werden). Mit der linken Maustaste umschalten."
 
 #: guitext:315
 #, fuzzy
