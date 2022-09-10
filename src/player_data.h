@@ -262,7 +262,8 @@ struct PlayerInfoAdd {
     short cursor_subtile_y;
     short previous_cursor_subtile_x;
     short previous_cursor_subtile_y;
-    };
+    TbBool mouse_is_offmap;
+};
 
 /******************************************************************************/
 DLLIMPORT extern unsigned char _DK_my_player_number;

@@ -2161,6 +2161,21 @@ void clear_lookups(void)
     game.columns.end = NULL;
 }
 
+void interp_fix_mouse_light_off_map(struct PlayerInfo *player)
+{
+    // This fixes the interpolation issue of moving the mouse off map in one position then back onto the map far elsewhere.
+    struct PlayerInfoAdd* playeradd = get_playeradd(player->id_number);
+    struct LightAdd* lightadd = get_lightadd(player->cursor_light_idx);
+
+    if (playeradd->mouse_is_offmap == true) {
+        lightadd->disable_interp_for_turns = 2;
+    }
+    if (lightadd->disable_interp_for_turns > 0) {
+        lightadd->disable_interp_for_turns -= 1;
+        lightadd->last_turn_drawn = 0;
+    }
+}
+
 void set_mouse_light(struct PlayerInfo *player)
 {
     SYNCDBG(6,"Starting");
@@ -2185,6 +2200,7 @@ void set_mouse_light(struct PlayerInfo *player)
         {
             light_turn_light_off(player->cursor_light_idx);
         }
+        interp_fix_mouse_light_off_map(player);
     }
 }
 
@@ -3154,6 +3170,7 @@ void update_block_pointed(int i,long x, long x_frac, long y, long y_frac)
 
 void update_blocks_pointed(void)
 {
+    TbBool out_of_bounds = false;
     long x;
     long y;
     long x_frac;
@@ -3200,11 +3217,18 @@ void update_blocks_pointed(void)
           if ((x >= 0) && (x < map_subtiles_x) && (y >= 0) && (y < map_subtiles_y))
           {
               update_block_pointed(i,x,x_frac,y,y_frac);
+          } else {
+                out_of_bounds = true;
           }
           hori_ptr_y -= hori_hdelta_y;
           vert_ptr_y -= vert_hdelta_y;
         }
     }
+
+    struct PlayerInfo *player = get_my_player();
+    struct PlayerInfoAdd* playeradd = get_playeradd(player->id_number);
+    playeradd->mouse_is_offmap = out_of_bounds;
+
     SYNCDBG(19,"Finished");
 }
 
