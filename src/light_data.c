@@ -1608,19 +1608,19 @@ static char light_render_light(struct Light* lgt)
       }
       else
       {
-        int v7 = lighting_tables_idx << 8;
+        int lighting_radius = lighting_tables_idx << 8;
 
-        MapCoord x_start = lgt->mappos.x.val - v7;
+        MapCoord x_start = lgt->mappos.x.val - lighting_radius;
         if ( x_start < 0 )
           x_start = 0;
-        MapCoord y_start = lgt->mappos.y.val - v7;
+        MapCoord y_start = lgt->mappos.y.val - lighting_radius;
         if ( y_start < 0 )
           y_start = 0;
 
-        MapCoord x_end = v7 + lgt->mappos.x.val;
+        MapCoord x_end = lgt->mappos.x.val + lighting_radius;
         if ( x_end > USHRT_MAX )
           x_end = USHRT_MAX;
-        MapCoord y_end = lgt->mappos.y.val + v7;
+        MapCoord y_end = lgt->mappos.y.val + lighting_radius;
         if ( y_end > USHRT_MAX )
           y_end = USHRT_MAX;
         MapSubtlCoord stl_x = coord_subtile(x_start);
