@@ -1638,6 +1638,8 @@ static char light_render_light(struct Light* lgt)
             MapCoord x = x_start;
             for ( size_t i = 0; x <= x_end; i++ )
             {
+              if ( (light_bitmask[i] & lighting_tables_idx) != 0 )
+              {
                 struct Coord3d pos;
                 pos.x.val = x;
                 pos.y.val = y;
@@ -1645,8 +1647,9 @@ static char light_render_light(struct Light* lgt)
                 short new_lightness = render_intensity * (radius - dist) / radius;
                 if ( *lightness < new_lightness )
                   *lightness = new_lightness;
-                x += COORD_PER_STL;
-                lightness++;
+              }
+              x += COORD_PER_STL;
+              lightness++;
             }
 
             lightness += v33;
