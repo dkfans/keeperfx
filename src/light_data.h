@@ -111,7 +111,7 @@ struct LightSystemState {
 };
 
 /******************************************************************************/
-DLLIMPORT long _DK_light_bitmask[32];
+DLLIMPORT unsigned long _DK_light_bitmask[32];
 #define light_bitmask _DK_light_bitmask
 DLLIMPORT long _DK_stat_light_needs_updating;
 #define stat_light_needs_updating _DK_stat_light_needs_updating
