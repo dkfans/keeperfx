@@ -573,7 +573,7 @@ void rotate_base_axis(struct M33 *matx, short angle, unsigned char axis)
 
 struct WibbleTable *get_wibble_from_table(struct Camera *cam, long table_index, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    if (cam->view_mode == PVM_IsoWibbleView)
+    if (cam->view_mode == PVM_IsoWibbleView || cam->view_mode == PVM_CreatureView)
     {
         return &wibble_table[table_index];
     }
