@@ -1776,7 +1776,7 @@ static char light_render_light(struct Light* lgt)
     {
       if ( (lgt->flags & LgtF_Unkn40) != 0 )
       {
-        lighting_tables_idx = light_render_light_dynamic_1(lgt, radius, v22, lighting_tables_idx);
+        lighting_tables_idx = light_render_light_dynamic_1(lgt, radius, render_intensity, lighting_tables_idx);
       }
       else if ( (lgt->flags & LgtF_Unkn08) != 0 )
       {
