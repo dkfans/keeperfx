@@ -726,6 +726,17 @@ void put_down_simpletext_sprites(const char *sbuf, const char *ebuf, long x, lon
   for (c=sbuf; c < ebuf; c++)
   {
     chr = (unsigned char)(*c);
+    if (c[0] == '\xc2' && c + 1 < ebuf && c[1] == '\xa0')
+    {
+        w = len;
+        if ((lbDisplay.DrawFlags & Lb_TEXT_UNDERLINE) != 0)
+        {
+            h = LbTextLineHeight();
+            LbDrawCharUnderline(x,y,w,h,lbDisplay.DrawColour,lbDisplayEx.ShadowColour);
+        }
+        x += w;
+        c++;
+    } else
     if (chr > 32)
     {
       spr = LbFontCharSprite(lbFontPtr,chr);
@@ -817,6 +828,17 @@ void put_down_simpletext_sprites_resized(const char *sbuf, const char *ebuf, lon
   for (c=sbuf; c < ebuf; c++)
   {
     chr = (unsigned char)(*c);
+    if (c[0] == '\xc2' && c + 1 < ebuf && c[1] == '\xa0')
+    {
+        w = space_len;
+        if ((lbDisplay.DrawFlags & Lb_TEXT_UNDERLINE) != 0)
+        {
+            h = LbTextLineHeight() * units_per_px / 16;
+            LbDrawCharUnderline(x,y,w,h,lbDisplay.DrawColour,lbDisplayEx.ShadowColour);
+        }
+        x += w;
+        c++;
+    } else
     if (chr > 32)
     {
       spr = LbFontCharSprite(lbFontPtr,chr);
@@ -1035,6 +1057,9 @@ TbBool LbTextDrawResized(int posx, int posy, int units_per_px, const char *text)
         {
             ebuf++;
             if (*ebuf == '\0') break;
+            chr = (chr<<8) + (unsigned char)*ebuf;
+        } else if (ebuf[0] == '\xc2' && ebuf[1] == '\xa0') {
+            ebuf++;
             chr = (chr<<8) + (unsigned char)*ebuf;
         }
 
