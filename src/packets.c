@@ -692,6 +692,9 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       player->cameras[CamIV_Parchment].orient_a = pckt->actn_par1;
       player->cameras[CamIV_FrontView].orient_a = pckt->actn_par1;
       player->cameras[CamIV_Isometric].orient_a = pckt->actn_par1;
+      if (is_my_player(player)) {
+          reset_interpolation_of_camera();
+      }
       return 0;
   case PckA_SetPlyrState:
       set_player_state(player, pckt->actn_par1, pckt->actn_par2);
