@@ -55,6 +55,7 @@ extern TbBool packets_process_cheats(
 
 extern void update_double_click_detection(long plyr_idx);
 
+short fix_previous_cursor_subtile_when_offmap;
 void remember_cursor_subtile(struct PlayerInfo *player) {
     struct PlayerInfoAdd* playeradd = get_playeradd(player->id_number);
     struct Packet* pckt = get_packet_direct(player->packet_num);
@@ -62,6 +63,16 @@ void remember_cursor_subtile(struct PlayerInfo *player) {
     playeradd->previous_cursor_subtile_y = playeradd->cursor_subtile_y;
     playeradd->cursor_subtile_x = coord_subtile(((unsigned short)pckt->pos_x));
     playeradd->cursor_subtile_y = coord_subtile(((unsigned short)pckt->pos_y));
+
+    // This fixes an issue of moving the mouse off map from one position then back onto the map far elsewhere
+    if (playeradd->mouse_is_offmap == true) {
+        fix_previous_cursor_subtile_when_offmap = 2;
+    }
+    if (fix_previous_cursor_subtile_when_offmap > 0) {
+        fix_previous_cursor_subtile_when_offmap -= 1;
+        playeradd->previous_cursor_subtile_x = playeradd->cursor_subtile_x;
+        playeradd->previous_cursor_subtile_y = playeradd->cursor_subtile_y;
+    }
 }
 
 void set_tag_untag_mode(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)

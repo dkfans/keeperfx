@@ -94,7 +94,12 @@ void draw_call_to_arms_circle(unsigned char owner, long x1, long y1, long x2, lo
     center_x = i + x2;
     center_y = i + y2;
     long long cscale;
-    float circle_time = ((game.play_gameturn + owner) & 7) + gameadd.process_turn_time;
+    float circle_time;
+    if ((game.operation_flags & GOF_Paused) == 0) {
+        circle_time = ((game.play_gameturn + owner) & 7) + gameadd.process_turn_time;
+    } else {
+        circle_time = ((game.play_gameturn + owner) & 7);
+    }
     cscale = circle_time * pwrdynst->strength[dungeon->cta_splevel];
     int dxq1;
     int dyq1;
