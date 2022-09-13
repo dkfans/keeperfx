@@ -170,6 +170,10 @@ void process_armageddon_influencing_creature(struct Thing *creatng)
                 cctrl->armageddon_teleport_turn = 0;
                 create_effect(&creatng->mappos, imp_spangle_effects[creatng->owner], creatng->owner);
                 move_thing_in_map(creatng, &game.armageddon.mappos);
+                if (creature_is_kept_in_custody(creatng))
+                {
+                    set_start_state(creatng);
+                }
                 reset_interpolation_of_thing(creatng);
             }
         }
