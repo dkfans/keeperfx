@@ -2233,7 +2233,7 @@ TbBool room_create_new_food_at(struct Room *room, MapSubtlCoord stl_x, MapSubtlC
     }
     int required_cap = get_required_room_capacity_for_object(RoRoF_FoodStorage, foodtng->model, 0);
     room->used_capacity += required_cap;
-    foodtng->food.life_remaining = (foodtng->field_49 << 8) / foodtng->anim_speed - 1;
+    foodtng->food.life_remaining = (foodtng->max_frames << 8) / foodtng->anim_speed - 1;
     return true;
 }
 
@@ -3241,7 +3241,7 @@ TbBool creature_can_get_to_any_of_players_rooms(struct Thing *thing, PlayerNumbe
 {
     for (RoomKind rkind = 1; rkind < slab_conf.room_types_count; rkind++)
     {
-        struct Room* room = find_nth_room_with_used_capacity_creature_can_navigate_to(thing, owner, rkind, NavRtF_Default, 0);
+        struct Room* room = find_nth_room_with_used_capacity_creature_can_navigate_to(thing, owner, rkind, NavRtF_NoOwner, 0);
         if (!room_is_invalid(room))
             return true;
     }
@@ -3988,7 +3988,7 @@ void kill_room_contents_at_subtile(struct Room *room, PlayerNumber plyr_idx, Map
             {
                 kill_creature(thing, INVALID_THING, -1, CrDed_NoEffects);
             } else
-            if (room->owner == thing->owner)
+            if (creature_is_working_in_room(thing, room))
             {
                 set_start_state(thing);
             }
@@ -4364,7 +4364,7 @@ struct Room *place_room(PlayerNumber owner, RoomKind rkind, MapSubtlCoord stl_x,
     stl_y = stl_slab_starting_subtile(stl_y);
     // Update slab type on map
     struct RoomConfigStats* roomst = get_room_kind_stats(room->kind);
-    long i = get_slab_number(slb_x, slb_y);
+    SlabCodedCoords i = get_slab_number(slb_x, slb_y);
     delete_room_slabbed_objects(i);
     if ((rkind == RoK_GUARDPOST) || (rkind == RoK_BRIDGE))
     {

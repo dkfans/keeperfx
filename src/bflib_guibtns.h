@@ -136,7 +136,7 @@ struct GuiButtonInit {
     short tooltip_stridx;
     struct GuiMenu *parent_menu;
     union GuiVariant content;
-    short gbifield_31;
+    short maxval;
     Gf_Btn_Callback maintain_call;
 };
 
@@ -163,7 +163,7 @@ struct GuiButton {
        /** Tooltip string ID. Positive for GUI string, negative for campaign string. */
        short tooltip_stridx;
        /** Max value. For cycle button - max value before returning to 0; for area input - max string length. */
-       unsigned short field_2D;
+       unsigned short maxval;
        struct GuiMenu *parent_menu;
        unsigned long *content; //TODO FRONTEND change it to GuiVariant
        unsigned short slide_val; // slider value, scaled 0..255
@@ -192,7 +192,7 @@ struct ToolTipBox {
       char text[TOOLTIP_MAX_LEN];
       struct GuiButton *gbutton;
       void *target;
-      unsigned char field_809;
+      unsigned char box_type; // 0 = doesn't move with cursor
       short pos_x;
       short pos_y;
 };

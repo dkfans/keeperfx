@@ -60,7 +60,6 @@ extern "C" {
 #define LEGAL_HEIGHT 480
 
 #define LENSES_COUNT           15
-#define MINMAXS_COUNT          64
 #define SPELL_POINTER_GROUPS   14
 // Amount of instances; it's 17, 18 or 19
 #define PLAYER_INSTANCES_COUNT 19
@@ -276,6 +275,7 @@ void init_keepers_map_exploration(void);
 void clear_creature_pool(void);
 void reset_creature_max_levels(void);
 void reset_script_timers_and_flags(void);
+void reset_hand_rules(void);
 void add_creature_to_pool(long kind, long amount, unsigned long a3);
 void draw_texture(long a1, long a2, long a3, long a4, long a5, long a6, long a7);
 

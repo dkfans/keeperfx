@@ -272,12 +272,12 @@ static void process_fx_line(struct ScriptFxLine *fx_line)
           break;
         }
 
-        int remain_t = fx_line->total_steps - fx_line->step;
+        int64_t remain_t = fx_line->total_steps - fx_line->step;
 
-        int bx = fx_line->from.x.val * remain_t + fx_line->cx * fx_line->step;
-        int by = fx_line->from.y.val * remain_t + fx_line->cy * fx_line->step;
-        int dx = fx_line->cx * remain_t + fx_line->to.x.val * fx_line->step;
-        int dy = fx_line->cy * remain_t + fx_line->to.y.val * fx_line->step;
+        int64_t bx = fx_line->from.x.val * remain_t + fx_line->cx * fx_line->step;
+        int64_t by = fx_line->from.y.val * remain_t + fx_line->cy * fx_line->step;
+        int64_t dx = fx_line->cx * remain_t + fx_line->to.x.val * fx_line->step;
+        int64_t dy = fx_line->cy * remain_t + fx_line->to.y.val * fx_line->step;
 
         fx_line->here.x.val = (bx * remain_t + dx * fx_line->step) / fx_line->total_steps / fx_line->total_steps;
         fx_line->here.y.val = (by * remain_t + dy * fx_line->step) / fx_line->total_steps / fx_line->total_steps;
@@ -327,13 +327,16 @@ static TbBool script_command_param_to_number(char type_chr, struct ScriptLine *s
         }
         break;
     }
-    case 'P':{
+    case 'P': 
+    {
         long plr_range_id;
-        if (!get_player_id(scline->tp[idx], &plr_range_id)) {
+        if (!get_player_id(scline->tp[idx], &plr_range_id))
+        {
             return false;
         }
         scline->np[idx] = plr_range_id;
-        };break;
+        break;
+    }
     case 'C':{
         long crtr_id = get_rid(creature_desc, scline->tp[idx]);
         if (extended)
@@ -859,6 +862,7 @@ short load_script(long lvnum)
     game.flags_cd |= MFlg_DeadBackToPool;
     reset_creature_max_levels();
     reset_script_timers_and_flags();
+    reset_hand_rules();
     if ((game.operation_flags & GOF_ColumnConvert) != 0)
     {
         convert_old_column_file(lvnum);
@@ -960,7 +964,7 @@ static void process_party(struct PartyTrigger* pr_trig)
     case TrgF_CREATE_OBJECT:
         n |= ((pr_trig->crtr_level & 7) << 7);
         SYNCDBG(6, "Adding object %d at location %d", (int)n, (int)pr_trig->location);
-        script_process_new_object(n, pr_trig->location, pr_trig->carried_gold);
+        script_process_new_object(n, pr_trig->location, pr_trig->carried_gold, pr_trig->plyr_idx);
         break;
     case TrgF_CREATE_PARTY:
         SYNCDBG(6, "Adding player %d party %d at location %d", (int)pr_trig->plyr_idx, (int)n, (int)pr_trig->location);

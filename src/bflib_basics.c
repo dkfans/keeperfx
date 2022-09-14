@@ -563,8 +563,32 @@ int LbLogClose(struct TbLog *log)
   return 1;
 }
 
+struct DebugMessage * debug_messages_head = NULL;
+struct DebugMessage ** debug_messages_tail = &debug_messages_head;
+
+void LbPrint(const char * format, ...) {
+  va_list args;
+  va_start(args, format);
+  const int message_length = vsnprintf(NULL, 0, format, args);
+  va_end(args);
+  if (message_length <= 0) {
+    return;
+  }
+  const int message_size = message_length + 1;
+  const int block_size = sizeof(struct DebugMessage) + message_size;
+  struct DebugMessage * message = malloc(block_size);
+  if (message == NULL) {
+    return;
+  }
+  va_start(args, format);
+  vsnprintf(message->text, message_size, format, args);
+  va_end(args);
+  message->next = NULL;
+  *debug_messages_tail = message;
+  debug_messages_tail = &message->next;
+}
+
 /******************************************************************************/
 #ifdef __cplusplus
 }
 #endif
-

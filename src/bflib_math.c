@@ -808,4 +808,25 @@ long LbDiagonalLength(long a, long b)
     return (tmpval >> 13);
 }
 
+float lerp(float a, float b, float f) 
+{
+    return (a * (1.0 - f)) + (b * f);
+}
+
+long lerp_angle(long from, long to, float weight) {
+    long difference = (to - from) % LbFPMath_AngleMask;
+    long distance = ((2 * difference) % LbFPMath_AngleMask) - difference;
+    return from + distance * weight;
+}
+
+double fastPow(double a, double b)
+{
+  union {
+    double d;
+    int x[2];
+  } u = { a };
+  u.x[1] = (int)(b * (u.x[1] - 1072632447) + 1072632447);
+  u.x[0] = 0;
+  return u.d;
+}
 /******************************************************************************/

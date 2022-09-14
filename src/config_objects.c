@@ -22,6 +22,7 @@
 #include "bflib_basics.h"
 #include "bflib_memory.h"
 #include "bflib_dernc.h"
+#include "bflib_sound.h"
 
 #include "config.h"
 #include "config_creature.h"
@@ -60,6 +61,7 @@ const struct NamedCommand objects_object_commands[] = {
   {"LIGHTRADIUS",      16},
   {"LIGHTISDYNAMIC",   17},
   {"MAPICON",          18},
+  {"AMBIENCESOUND",    19},
   {NULL,                0},
   };
 
@@ -531,6 +533,22 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                     CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
                         COMMAND_TEXT(cmd_num), block_buf, config_textname);
                 }
+                break;
+            case 19: // AMBIENCESOUND
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    n = atoi(word_buf);
+                    if ( (!SoundDisabled) && ( (n < 0) || (n > (samples_in_bank - 1)) ) )
+                    {
+                        CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                    }
+                    else
+                    {
+                        objdat->fp_smpl_idx = n;
+                    }
+                }
+                break;
             case 0: // comment
                 break;
             case -1: // end of buffer
@@ -559,12 +577,6 @@ TbBool load_objects_config_file(const char *textname, const char *fname, unsigne
     {
         if ((flags & CnfLd_IgnoreErrors) == 0)
             WARNMSG("The %s file \"%s\" doesn't exist or is too small.",textname,fname);
-        return false;
-    }
-    if (len > MAX_CONFIG_FILE_SIZE)
-    {
-        if ((flags & CnfLd_IgnoreErrors) == 0)
-            WARNMSG("The %s file \"%s\" is too large.",textname,fname);
         return false;
     }
     char* buf = (char*)LbMemoryAlloc(len + 256);

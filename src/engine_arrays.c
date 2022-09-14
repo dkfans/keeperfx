@@ -1084,27 +1084,24 @@ void generate_wibble_table(void)
             empty_wibl++;
         }
     }
-    if (wibble_enabled() || liquid_wibble_enabled())
+    // Set wibble values using special random algorithm
+    seed = 0;
+    for (i=0; i < 32; i++)
     {
-        // Set wibble values using special random algorithm
-        seed = 0;
-        for (i=0; i < 32; i++)
-        {
-            wibl = &wibble_table[i+32];
-            n = wibble_random(65447,&seed);
-            wibl->field_0 = (n % 127) - 63;
-            n = wibble_random(65447,&seed);
-            wibl->field_4 = ((n % 127) - 63) / 3;
-            n = wibble_random(65447,&seed);
-            wibl->field_8 = (n % 127) - 63;
-            qwibl = &wibble_table[i+64];
-            n = wibble_random(65447,&seed);
-            wibl->field_C = (n % 2047) - 1023;
-            n = wibble_random(65447,&seed);
-            qwibl->field_0 = (n % 127) - 63;
-            n = wibble_random(65447,&seed);
-            qwibl->field_8 = (n % 127) - 63;
-        }
+        wibl = &wibble_table[i+32];
+        n = wibble_random(65447,&seed);
+        wibl->field_0 = (n % 127) - 63;
+        n = wibble_random(65447,&seed);
+        wibl->field_4 = ((n % 127) - 63) / 3;
+        n = wibble_random(65447,&seed);
+        wibl->field_8 = (n % 127) - 63;
+        qwibl = &wibble_table[i+64];
+        n = wibble_random(65447,&seed);
+        wibl->field_C = (n % 2047) - 1023;
+        n = wibble_random(65447,&seed);
+        qwibl->field_0 = (n % 127) - 63;
+        n = wibble_random(65447,&seed);
+        qwibl->field_8 = (n % 127) - 63;
     }
 }
 

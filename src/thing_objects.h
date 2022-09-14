@@ -71,7 +71,7 @@ struct Objects {
     short size_yz;
     short sprite_size_max;
     unsigned char field_F;      // Lower 2 bits are transparency flags
-    unsigned char field_10;
+    unsigned short fp_smpl_idx;
     unsigned char draw_class;
     unsigned char destroy_on_lava;
     /** Creature model related to the object, ie for lairs - which creature lair it is. */

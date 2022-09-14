@@ -56,21 +56,21 @@ enum ThingFlags2 {
     TF2_Spectator      = 0x02,
 };
 
-enum ThingFlags4F {
-    TF4F_Unknown01     = 0x01, /** Not Drawn **/
-    TF4F_Unknown02     = 0x02, // Not shaded
+enum ThingRenderingFlags {
+    TRF_Unknown01     = 0x01, /** Not Drawn **/
+    TRF_Unknown02     = 0x02, // Not shaded
 
-    TF4F_Unknown04     = 0x04, // Tint1 (used to draw enemy creatures when they are blinking to owners color)
-    TF4F_Unknown08     = 0x08, // Tint2 (not used?)
-    TF4F_Tint_Flags    = 0x0C, // Tint flags
+    TRF_Unknown04     = 0x04, // Tint1 (used to draw enemy creatures when they are blinking to owners color)
+    TRF_Unknown08     = 0x08, // Tint2 (not used?)
+    TRF_Tint_Flags    = 0x0C, // Tint flags
 
-    TF4F_Transpar_8     = 0x10, // Used on chicken effect when creature is turned to chicken
-    TF4F_Transpar_4     = 0x20, // Used for Invisible creatures and traps -- more transparent
-    TF4F_Transpar_Alpha = 0x30,
-    TF4F_Transpar_Flags = 0x30,
+    TRF_Transpar_8     = 0x10, // Used on chicken effect when creature is turned to chicken
+    TRF_Transpar_4     = 0x20, // Used for Invisible creatures and traps -- more transparent
+    TRF_Transpar_Alpha = 0x30,
+    TRF_Transpar_Flags = 0x30,
 
-    TF4F_Unknown40     = 0x40,    // Unconscious
-    TF4F_Unknown80     = 0x80,    // Being hit (draw red sometimes)
+    TRF_Unmoving       = 0x40,
+    TRF_BeingHit       = 0x80,    // Being hit (draw red sometimes)
 };
 
 enum FreeThingAllocFlags {
@@ -159,9 +159,9 @@ struct Thing {
       } roomflag;
       struct {
       short unused3;
-      long turntime;
-      unsigned char byte_19;
-      }roomflag2; // both roomflag and roomflag2 are used in same function on same object but have 2 bytes overlapping between room_idx and turntime 
+      long last_turn_drawn;
+      unsigned char display_timer;
+      }roomflag2; // both roomflag and roomflag2 are used in same function on same object but have 2 bytes overlapping between room_idx and last_turn_drawn 
 //TCls_Shot
       struct {
         unsigned char dexterity;
@@ -247,18 +247,18 @@ unsigned char field_21;
     struct CoordDelta3d velocity;
     // Push when moving; needs to be signed
     short anim_speed;
-    long field_40; // animation time (measured in 1/256 of a frame)
+    long anim_time; // animation time (measured in 1/256 of a frame)
 unsigned short anim_sprite;
     unsigned short sprite_size;
 
-unsigned char field_48;     // current frame
-unsigned char field_49;     // max frames
-    char field_4A;          // thing growth speed (when it is growing/shrinking)
-unsigned short field_4B;    // min_sprite_size
-unsigned short field_4D;    // max_sprite_size
-    unsigned char field_4F;
+unsigned char current_frame;
+unsigned char max_frames;
+    char transformation_speed;
+unsigned short sprite_size_min;
+unsigned short sprite_size_max;
+    unsigned char rendering_flags;
     unsigned char field_50; // control rendering process (draw_class << 2) + (growth/shrink continiously) + (shrink/grow then stop)
-unsigned char field_51;   // Tint color (from colours)
+unsigned char tint_colour;
     short move_angle_xy;
     short move_angle_z;
     unsigned short clipbox_size_xy;
@@ -266,7 +266,7 @@ unsigned char field_51;   // Tint color (from colours)
     unsigned short solid_size_xy;
     unsigned short solid_size_yz;
     short health; //signed
-unsigned short field_60;
+unsigned short floor_height;
     unsigned short light_id;
     short ccontrol_idx;
     unsigned char snd_emitter_id;
@@ -291,6 +291,19 @@ enum ThingAddFlags
 struct ThingAdd // Additional thing data
 {
     unsigned long flags; //ThingAddFlags
+    long last_turn_drawn;
+    float time_spent_displaying_hurt_colour;
+    // Used for delta time interpolated render position
+    unsigned short previous_floor_height;
+    unsigned short interp_floor_height;
+    struct Coord3d previous_mappos;
+    struct Coord3d interp_mappos;
+    
+    long interp_minimap_pos_x;
+    long interp_minimap_pos_y;
+    long previous_minimap_pos_x;
+    long previous_minimap_pos_y;
+    long interp_minimap_update_turn;
 };
 
 #pragma pack()

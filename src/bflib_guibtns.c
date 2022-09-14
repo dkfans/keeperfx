@@ -79,8 +79,7 @@ void setup_input_field(struct GuiButton *gbtn, const char * empty_text)
         ERRORLOG("Button has invalid content pointer");
         return;
     }
-    strncpy(backup_input_field, content, INPUT_FIELD_LEN-1);
-    backup_input_field[INPUT_FIELD_LEN-1] = '\0';
+    snprintf(backup_input_field, INPUT_FIELD_LEN, "%s", content);
     // Check if the text drawn should be treated as empty; if it is, ignore that string
     if ((empty_text != NULL) && (strncmp(empty_text, backup_input_field, INPUT_FIELD_LEN-1) == 0))
     {

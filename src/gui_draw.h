@@ -28,9 +28,6 @@
 
 // Sprites
 // Maybe "Count + 1"? there is no sprite#517
-#define GUI_BUTTON_SPRITES_COUNT     215
-#define GUI_PANEL_SPRITES_COUNT      600
-#define GUI_PANEL_SPRITES_NEW        256
 #define GUI_SLAB_DIMENSION 64
 // Positioning constants for menus
 #define POS_AUTO -9999
@@ -50,10 +47,7 @@ struct GuiButton;
 /******************************************************************************/
 //DLLIMPORT struct TbSprite *_DK_gui_panel_sprites;
 //#define gui_panel_sprites _DK_gui_panel_sprites
-//DLLIMPORT struct TbSprite *_DK_end_gui_panel_sprites;
-//#define end_gui_panel_sprites _DK_end_gui_panel_sprites
 extern struct TbSprite gui_panel_sprites[];
-extern struct TbSprite *end_gui_panel_sprites;
 extern int num_icons_total;
 
 DLLIMPORT extern unsigned char * _DK_gui_panel_sprite_data;

@@ -346,7 +346,7 @@ short creature_being_summoned(struct Thing *thing)
     }
     if (cctrl->word_9A <= 0)
     {
-        get_keepsprite_unscaled_dimensions(thing->anim_sprite, thing->move_angle_xy, thing->field_48, &orig_w, &orig_h, &unsc_w, &unsc_h);
+        get_keepsprite_unscaled_dimensions(thing->anim_sprite, thing->move_angle_xy, thing->current_frame, &orig_w, &orig_h, &unsc_w, &unsc_h);
         create_effect(&thing->mappos, TngEff_Explosion4, thing->owner);
         thing->movement_flags |= TMvF_Unknown04;
         cctrl->word_9A = 1;

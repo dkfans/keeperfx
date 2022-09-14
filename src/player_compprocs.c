@@ -404,7 +404,7 @@ struct ComputerTask *get_room_build_task_nearest_to(const struct Computer2 *comp
         // Per-task code
         if (((ctask->flags & ComTsk_Unkn0001) != 0) && ((ctask->flags & ComTsk_Unkn0002) != 0))
         {
-            long dist = abs((MapSubtlCoord)ctask->pos_64.x.stl.num - stl_x) + abs((MapSubtlCoord)ctask->pos_64.y.stl.num - stl_y);
+            long dist = abs((MapSubtlCoord)ctask->new_room_pos.x.stl.num - stl_x) + abs((MapSubtlCoord)ctask->new_room_pos.y.stl.num - stl_y);
             if (dist < nearest_dist)
             {
                 nearest_dist = dist;
@@ -685,7 +685,7 @@ long computer_finds_nearest_entrance2(struct Computer2 *comp, struct Coord3d *st
         if (!computer_task_invalid(ctask) && (dist < near_dist)) {
             near_dist = dist;
             near_entroom = entroom;
-            near_startpos = &ctask->pos_64;
+            near_startpos = &ctask->new_room_pos;
         }
         // Per-room code ends
         k++;

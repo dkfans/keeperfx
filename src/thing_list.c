@@ -73,8 +73,14 @@ Thing_Class_Func class_functions[] = {
 };
 
 unsigned long thing_create_errors = 0;
-
 /******************************************************************************/
+
+void set_previous_thing_position(struct Thing *thing) {
+    struct ThingAdd* thingadd = get_thingadd(thing->index);
+    thingadd->previous_mappos = thing->mappos;
+    thingadd->previous_floor_height = thing->floor_height;
+}
+
 /**
  * Adds thing at beginning of a StructureList.
  * @param thing
@@ -908,6 +914,7 @@ TbBigChecksum update_things_in_list(struct StructureList *list)
               update_thing(thing);
           }
       }
+      set_previous_thing_position(thing);
       sum += get_thing_checksum(thing);
       // Per-thing code ends
       k++;
@@ -1011,6 +1018,7 @@ unsigned long update_creatures_not_in_list(void)
         update_thing(thing);
       }
     }
+    set_previous_thing_position(thing);
     // Per-thing code ends
     k++;
     if (k > THINGS_COUNT)
@@ -2927,6 +2935,7 @@ TbBool update_thing(struct Thing *thing)
     TRACE_THING(thing);
     if (thing_is_invalid(thing))
         return false;
+
     if ((thing->movement_flags & TMvF_Unknown40) == 0)
     {
         if ((thing->state_flags & TF1_PushAdd) != 0)
@@ -2965,7 +2974,7 @@ TbBool update_thing(struct Thing *thing)
     SYNCDBG(18,"Class function end ok");
     if ((thing->movement_flags & TMvF_Unknown40) == 0)
     {
-        if (thing->mappos.z.val > thing->field_60)
+        if (thing->mappos.z.val > thing->floor_height)
         {
             if (thing->veloc_base.x.val != 0)
                 thing->veloc_base.x.val = thing->veloc_base.x.val * (256 - (int)thing->field_24) / 256;
@@ -2997,7 +3006,7 @@ TbBool update_thing(struct Thing *thing)
               thing->veloc_base.x.val = thing->veloc_base.x.val * (256 - (int)thing->field_23) / 256;
             if (thing->veloc_base.y.val != 0)
               thing->veloc_base.y.val = thing->veloc_base.y.val * (256 - (int)thing->field_23) / 256;
-            thing->mappos.z.val = thing->field_60;
+            thing->mappos.z.val = thing->floor_height;
             if ((thing->movement_flags & TMvF_Unknown08) != 0)
             {
               thing->veloc_base.z.val = 0;
@@ -3559,6 +3568,25 @@ struct Thing *get_creature_near_and_owned_by(MapCoord pos_x, MapCoord pos_y, Pla
     param.class_id = TCls_Creature;
     param.plyr_idx = plyr_idx;
     param.model_id = crmodel;
+    param.num1 = pos_x;
+    param.num2 = pos_y;
+    return get_thing_near_revealed_map_block_with_filter(pos_x, pos_y, filter, &param);
+}
+
+/** Finds creature on revealed subtiles around given position.
+ *
+ * @param pos_x Position to search around X coord.
+ * @param pos_y Position to search around Y coord.
+ * @return The creature thing pointer, or invalid thing pointer if not found.
+ */
+struct Thing *get_creature_near(MapCoord pos_x, MapCoord pos_y)
+{
+    SYNCDBG(19,"Starting");
+    Thing_Maximizer_Filter filter = near_map_block_thing_filter_is_owned_by;
+    struct CompoundTngFilterParam param;
+    param.class_id = TCls_Creature;
+    param.plyr_idx = -1;
+    param.model_id = CREATURE_ANY;
     param.num1 = pos_x;
     param.num2 = pos_y;
     return get_thing_near_revealed_map_block_with_filter(pos_x, pos_y, filter, &param);
