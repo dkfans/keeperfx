@@ -1850,7 +1850,7 @@ static char light_render_light_dynamic_2(struct Light *lgt, int radius, int rend
     return stl_num_2;
 }
 //sub_407C70
-static int light_render_light_static(struct Light *lgt, int radius, int a3, SubtlCodedCoords max_1DD41_idx)
+static int light_render_light_static(struct Light *lgt, int radius, int a3, unsigned int max_1DD41_idx)
 {
   return _DK_light_render_light_sub3(lgt, radius, a3, max_1DD41_idx);
 }
@@ -1943,7 +1943,6 @@ static char light_render_light(struct Light* lgt)
         if ( y_start < 0 )
           y_start = 0;
 
-
         MapCoord x_end = lgt->mappos.x.val + lighting_radius;
         if ( x_end > USHRT_MAX )
           x_end = USHRT_MAX;
@@ -1979,7 +1978,6 @@ static char light_render_light(struct Light* lgt)
               lightness++;
             }
 
-
             lightness += v33;
             y += COORD_PER_STL;
             lighting_tables_idx = *((unsigned int*)shadow_cache_pointer + 1);
@@ -1991,7 +1989,6 @@ static char light_render_light(struct Light* lgt)
     }
     else
     {
-
       lighting_tables_idx = light_render_light_static(lgt, radius, render_intensity, lighting_tables_idx);
     }
   }
