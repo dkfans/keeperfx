@@ -1580,9 +1580,9 @@ static char light_render_light_dynamic_1(struct Light *lgt, int radius, int inte
                     else
                     {
                         unsigned short *stl_lightness_ptr2 = &game.lish.subtile_lightness[unk_1_y + stl_x];
-                        int v21 = get_floor_filled_subtiles_at(stl_x, stl_y);
-                        TbBool v37 = (v21 > lgt->mappos.z.stl.num);
-                        if ( v21 > lgt->mappos.z.stl.num )
+                        int height = get_floor_filled_subtiles_at(stl_x, stl_y);
+                        TbBool v37 = (height > lgt->mappos.z.stl.num);
+                        if ( height > lgt->mappos.z.stl.num )
                         {
                             light_render_light_sub1_sub1(lgt->mappos.x.val, lgt->mappos.y.val, quadrant, stl_x, stl_y, &shadow_limit_idx2, &shadow_limit_idx3);
                             create_shadow_limits(&game.lish, shadow_limit_idx2, shadow_limit_idx3);
