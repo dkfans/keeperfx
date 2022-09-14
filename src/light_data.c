@@ -1620,7 +1620,7 @@ static char light_render_light_dynamic_1(struct Light *lgt, int radius, int a3, 
                                 if ( *stl_lightness_ptr2 < lighting_tables_idx )
                                     *stl_lightness_ptr2 = lighting_tables_idx;
                             }
-                    }
+                        }
                     }
                 }
                 ++lighting_table_pointer;
