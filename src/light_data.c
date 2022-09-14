@@ -1568,19 +1568,18 @@ static char light_render_light_dynamic_1(struct Light *lgt, int radius, int inte
                         }
                     }
                     long shadow_limit_idx2, shadow_limit_idx3;
+                    unsigned char height = get_floor_filled_subtiles_at(stl_x, stl_y);
                     if ( game.lish.shadow_limits[shadow_limit_idx1] )
                     {
                         light_render_light_sub1_sub1(lgt->mappos.x.val, lgt->mappos.y.val, quadrant, stl_x, stl_y, &shadow_limit_idx2, &shadow_limit_idx3);
                         if ( (!game.lish.shadow_limits[shadow_limit_idx2] || !game.lish.shadow_limits[shadow_limit_idx3])
-                            && get_floor_filled_subtiles_at(stl_x, stl_y) > lgt->mappos.z.stl.num )
+                            && height > lgt->mappos.z.stl.num )
                         {
                             create_shadow_limits(&game.lish, shadow_limit_idx2, shadow_limit_idx3);
                         }
                     }
                     else
                     {
-                        unsigned short *stl_lightness_ptr2 = &game.lish.subtile_lightness[unk_1_y + stl_x];
-                        int height = get_floor_filled_subtiles_at(stl_x, stl_y);
                         TbBool too_high = (height > lgt->mappos.z.stl.num);
                         if ( height > lgt->mappos.z.stl.num )
                         {
@@ -1593,7 +1592,7 @@ static char light_render_light_dynamic_1(struct Light *lgt, int radius, int inte
                         switch ( quadrant )
                         {
                             case 1:
-                            v24 = ( get_floor_filled_subtiles_at(stl_x,stl_y) <= lgt->mappos.z.stl.num );
+                            v24 = ( height <= lgt->mappos.z.stl.num );
                             break;
                             case 3:
                             v24 = ( !light_render_light_sub1_sub2(stl_x, stl_y - 1, lgt->mappos.z.stl.num) );
@@ -1615,13 +1614,14 @@ static char light_render_light_dynamic_1(struct Light *lgt, int radius, int inte
                                 lighting_tables_idx = intensity * (radius - diagonal_length2) / radius;
                                 if ( lighting_tables_idx <= game.lish.field_46149 )
                                     return lighting_tables_idx;
+                                unsigned short *stl_lightness_ptr2 = &game.lish.subtile_lightness[unk_1_y + stl_x];
                                 if ( *stl_lightness_ptr2 < lighting_tables_idx )
                                     *stl_lightness_ptr2 = lighting_tables_idx;
                             }
                         }
                     }
                 }
-                ++lighting_table_pointer;
+                lighting_table_pointer++;
                 lighting_tables_idx = game.lish.lighting_tables_count;
             }
         while ( &game.lish.lighting_tables[game.lish.lighting_tables_count] > lighting_table_pointer );
