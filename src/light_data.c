@@ -37,7 +37,6 @@ extern "C" {
 /******************************************************************************/
 
 DLLIMPORT TbBool _DK_light_render_light_sub1_sub2(int a1, SubtlCodedCoords stl_num, int a3);
-DLLIMPORT char _DK_light_render_light_dynamic_1(struct Light *lgt, int radius, int a3, unsigned int max_1DD41_idx);
 DLLIMPORT char _DK_light_render_light_sub2(struct Light *lgt, int radius, int a3, unsigned int a4);
 DLLIMPORT int _DK_light_render_light_sub3(struct Light *lgt, int radius, int a3, unsigned int a4);
 DLLIMPORT int _DK_light_render_light_sub1_sub1(unsigned int a1,unsigned int a2,int a3,unsigned int a4,unsigned int a5,long *a6,long *a7);
