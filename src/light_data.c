@@ -1494,7 +1494,6 @@ void light_set_lights_on(char state)
     light_signal_stat_light_update_in_area(1, 1, map_subtiles_x, map_subtiles_y);
 }
 
-/*
 //sub_4080B0
 static __int32 light_render_light_sub1_sub1(
         unsigned int a1,
@@ -1514,7 +1513,6 @@ static TbBool light_render_light_sub1_sub2(MapSubtlCoord stl_x, MapSubtlCoord st
   return _DK_light_render_light_sub1_sub2(stl_x, stl_y, stl_z);
 
 }
-*/
 
 static char light_render_light_dynamic_1(struct Light *lgt, int radius, int a3, unsigned int max_1DD41_idx)
 {
