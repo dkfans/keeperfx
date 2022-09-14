@@ -1514,7 +1514,7 @@ static TbBool light_render_light_sub1_sub2(MapSubtlCoord stl_x, MapSubtlCoord st
 
 }
 
-static char light_render_light_dynamic_1(struct Light *lgt, int radius, int a3, unsigned int max_1DD41_idx)
+static char light_render_light_dynamic_1(struct Light *lgt, int radius, int intensity, unsigned int max_1DD41_idx)
 {
     clear_shadow_limits(&game.lish);
     unsigned int lighting_tables_idx = get_floor_filled_subtiles_at(lgt->mappos.x.stl.num, lgt->mappos.y.stl.num);
@@ -1523,7 +1523,7 @@ static char light_render_light_dynamic_1(struct Light *lgt, int radius, int a3, 
         int unk_4_x = abs(lgt->mappos.x.val - (lgt->mappos.x.stl.num << 8));
         int unk_4_y = abs(lgt->mappos.y.val - (lgt->mappos.y.val >> 8 << 8));
         int diagonal_length = LbDiagonalLength(unk_4_x, unk_4_y);
-        short lightness = a3 * (radius - diagonal_length) / radius;
+        short lightness = intensity * (radius - diagonal_length) / radius;
         SubtlCodedCoords light_stl_num = (lgt->mappos.y.val) + (lgt->mappos.x.stl.num);
         unsigned short *stl_lightness_ptr = &game.lish.subtile_lightness[light_stl_num];
         if ( *stl_lightness_ptr < lightness )
@@ -1612,7 +1612,7 @@ static char light_render_light_dynamic_1(struct Light *lgt, int radius, int a3, 
                                 int unk_2_x = abs(lgt->mappos.x.val - unk_1_x);
                                 int unk_2_y = abs(lgt->mappos.y.val - unk_1_y);
                                 int diagonal_length2 = LbDiagonalLength(unk_2_x, unk_2_y);
-                                lighting_tables_idx = a3 * (radius - diagonal_length2) / radius;
+                                lighting_tables_idx = intensity * (radius - diagonal_length2) / radius;
                                 if ( lighting_tables_idx <= game.lish.field_46149 )
                                     return lighting_tables_idx;
                                 if ( *stl_lightness_ptr2 < lighting_tables_idx )
