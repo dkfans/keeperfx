@@ -1699,7 +1699,7 @@ long ranged_combat_move(struct Thing *thing, struct Thing *enmtng, MapCoordDelta
             creature_choose_random_destination_on_valid_adjacent_slab(thing);
             thing->continue_state = nstat;
         }
-        return true;
+        return false;
     }
     if (enmdist < subtile_coord(3,0)) {
         creature_retreat_from_combat(thing, enmtng, nstat, 1);
