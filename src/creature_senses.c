@@ -651,12 +651,12 @@ TbBool jonty_creature_can_see_thing_including_lava_check(const struct Thing *cre
             SYNCDBG(17, "The %s index %d owned by player %d checks with lava %s index %d",
                 thing_model_name(creatng),(int)creatng->index,(int)creatng->owner,thing_model_name(thing),(int)thing->index);
             // Check bottom of the thing
-            if (jonty_line_of_sight_3d_including_lava_check_ignoring_own_door(&eyepos, &tgtpos, creatng->owner))
-                return true;
+            if (!jonty_line_of_sight_3d_including_lava_check_ignoring_own_door(&eyepos, &tgtpos, creatng->owner))
+                return false;
             // Check top of the thing
             tgtpos.z.val += thing->clipbox_size_yz;
-            if (jonty_line_of_sight_3d_including_lava_check_ignoring_own_door(&eyepos, &tgtpos, creatng->owner))
-                return true;
+            if (!jonty_line_of_sight_3d_including_lava_check_ignoring_own_door(&eyepos, &tgtpos, creatng->owner))
+                return false;
             // Check both sides at middle of thing height
             tgtpos.z.val -= thing->clipbox_size_yz / 2;
             long angle = get_angle_xy_to(&tgtpos, &eyepos);
@@ -665,14 +665,14 @@ TbBool jonty_creature_can_see_thing_including_lava_check(const struct Thing *cre
             // Also 60 deg will shorten distance to the check point, which may better describe real visibility
             tgtpos.x.val = thing->mappos.x.val + distance_with_angle_to_coord_x(thing->clipbox_size_xy/2, angle + LbFPMath_PI/3);
             tgtpos.y.val = thing->mappos.y.val + distance_with_angle_to_coord_y(thing->clipbox_size_xy/2, angle + LbFPMath_PI/3);
-            if (jonty_line_of_sight_3d_including_lava_check_ignoring_own_door(&eyepos, &tgtpos, creatng->owner))
-                return true;
+            if (!jonty_line_of_sight_3d_including_lava_check_ignoring_own_door(&eyepos, &tgtpos, creatng->owner))
+                return false;
             // Check right side
             tgtpos.x.val = thing->mappos.x.val + distance_with_angle_to_coord_x(thing->clipbox_size_xy/2, angle - LbFPMath_PI/3);
             tgtpos.y.val = thing->mappos.y.val + distance_with_angle_to_coord_y(thing->clipbox_size_xy/2, angle - LbFPMath_PI/3);
-            if (jonty_line_of_sight_3d_including_lava_check_ignoring_own_door(&eyepos, &tgtpos, creatng->owner))
-                return true;
-            return false;
+            if (!jonty_line_of_sight_3d_including_lava_check_ignoring_own_door(&eyepos, &tgtpos, creatng->owner))
+                return false;
+            return true;
         }
     }
 }

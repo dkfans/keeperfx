@@ -1688,10 +1688,18 @@ long ranged_combat_move(struct Thing *thing, struct Thing *enmtng, MapCoordDelta
     }
     if (!combat_has_line_of_sight(thing, enmtng, enmdist))
     {
-        if (creature_move_to(thing, &enmtng->mappos, cctrl->max_speed, 0, 0) == -1) {
-            set_start_state(thing);
+        if (enmdist > subtile_coord(3, 0))
+        {
+            if (creature_move_to(thing, &enmtng->mappos, cctrl->max_speed, 0, 0) == -1) {
+                set_start_state(thing);
+            }
         }
-        return false;
+        else
+        {
+            creature_choose_random_destination_on_valid_adjacent_slab(thing);
+            thing->continue_state = nstat;
+        }
+        return true;
     }
     if (enmdist < subtile_coord(3,0)) {
         creature_retreat_from_combat(thing, enmtng, nstat, 1);
