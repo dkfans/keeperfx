@@ -1539,7 +1539,7 @@ static char light_render_light_dynamic_1(struct Light *lgt, int radius, int inte
                     break;
                 MapSubtlCoord stl_x = lgt->mappos.x.stl.num + lighting_table_pointer->delta_x;
                 MapSubtlCoord stl_y = lgt->mappos.y.stl.num + lighting_table_pointer->delta_y;
-                if ( stl_x < map_subtiles_x && stl_y < map_subtiles_y )
+                if (!subtile_coords_invalid(stl_x, stl_y))
                 {
                     int quadrant;
                     unsigned int unk_1_y = stl_y << 8;
