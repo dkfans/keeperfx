@@ -1523,12 +1523,12 @@ TbBool roomspace_can_build_room_at_slab(PlayerNumber plyr_idx, RoomKind rkind, M
         }
         else
         {
-            return false;
+            return result;
         }
     }
     else
     {
-        return true;
+        return result;
     }
 }
 /******************************************************************************/
