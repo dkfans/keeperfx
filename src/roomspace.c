@@ -765,14 +765,14 @@ void get_dungeon_build_user_roomspace(struct RoomSpace *roomspace, PlayerNumber 
             drag_start_x = slb_x;
             drag_start_y = slb_y;
         }
-        TbBool can_drag = (rkind == RoK_BRIDGE) ? (can_build_room_at_slab(plyr_idx, rkind, drag_start_x, drag_start_y)) : true;
+        TbBool can_drag = (rkind == RoK_BRIDGE) ? ( (can_build_room_at_slab(plyr_idx, rkind, drag_start_x, drag_start_y)) && ((slab_is_liquid(slb_x, slb_y))) ) : true;
         if (can_drag)
         {
             temp_best_room = create_box_roomspace_from_drag(best_roomspace, drag_start_x, drag_start_y, slb_x, slb_y);
         }
         else
         {
-            temp_best_room = create_box_roomspace(best_roomspace, playeradd->roomspace_width, playeradd->roomspace_height, slb_x, slb_y);
+            temp_best_room = create_box_roomspace(best_roomspace, 1, 1, slb_x, slb_y);
         }
         if (roomspace->drag_start_y > roomspace->drag_end_y)
         {
@@ -1415,7 +1415,7 @@ void update_slab_grid(struct RoomSpace* roomspace, unsigned char mode, TbBool se
                     current_x = roomspace->left + x;
                     if (roomspace->is_roomspace_a_box || roomspace->slab_grid[x][y] == true) // only check slabs in the roomspace
                     {
-                        can = (sell) ? ((subtile_is_sellable_room(roomspace->plyr_idx, slab_subtile(current_x,0), slab_subtile(current_y,0))) || (subtile_is_sellable_door_or_trap(roomspace->plyr_idx, slab_subtile(current_x,0), slab_subtile(current_y,0)))) : (can_build_room_at_slab(roomspace->plyr_idx, roomspace->rkind, current_x, current_y));
+                        can = (sell) ? ((subtile_is_sellable_room(roomspace->plyr_idx, slab_subtile(current_x,0), slab_subtile(current_y,0))) || (subtile_is_sellable_door_or_trap(roomspace->plyr_idx, slab_subtile(current_x,0), slab_subtile(current_y,0)))) : (roomspace_can_build_room_at_slab(roomspace->plyr_idx, roomspace->rkind, current_x, current_y));
                         if (can)
                         {
                             roomspace->slab_grid[x][y] = true;
@@ -1441,7 +1441,7 @@ void update_slab_grid(struct RoomSpace* roomspace, unsigned char mode, TbBool se
                     current_x = roomspace->right - x;
                     if (roomspace->is_roomspace_a_box || roomspace->slab_grid[(roomspace->width - 1) - x][(roomspace->height - 1) - y] == true) // only check slabs in the roomspace
                     {
-                        can = (sell) ? ((subtile_is_sellable_room(roomspace->plyr_idx, slab_subtile(current_x,0), slab_subtile(current_y,0))) || (subtile_is_sellable_door_or_trap(roomspace->plyr_idx, slab_subtile(current_x,0), slab_subtile(current_y,0)))) : (can_build_room_at_slab(roomspace->plyr_idx, roomspace->rkind, current_x, current_y));
+                        can = (sell) ? ((subtile_is_sellable_room(roomspace->plyr_idx, slab_subtile(current_x,0), slab_subtile(current_y,0))) || (subtile_is_sellable_door_or_trap(roomspace->plyr_idx, slab_subtile(current_x,0), slab_subtile(current_y,0)))) : (roomspace_can_build_room_at_slab(roomspace->plyr_idx, roomspace->rkind, current_x, current_y));
                         if (can)
                         {
                             roomspace->slab_grid[(roomspace->width - 1) - x][(roomspace->height - 1) - y] = true;
@@ -1467,7 +1467,7 @@ void update_slab_grid(struct RoomSpace* roomspace, unsigned char mode, TbBool se
                     current_x = roomspace->right - x;
                     if (roomspace->is_roomspace_a_box || roomspace->slab_grid[(roomspace->width - 1) - x][y] == true) // only check slabs in the roomspace
                     {
-                        can = (sell) ? ((subtile_is_sellable_room(roomspace->plyr_idx, slab_subtile(current_x,0), slab_subtile(current_y,0))) || (subtile_is_sellable_door_or_trap(roomspace->plyr_idx, slab_subtile(current_x,0), slab_subtile(current_y,0)))) : (can_build_room_at_slab(roomspace->plyr_idx, roomspace->rkind, current_x, current_y));
+                        can = (sell) ? ((subtile_is_sellable_room(roomspace->plyr_idx, slab_subtile(current_x,0), slab_subtile(current_y,0))) || (subtile_is_sellable_door_or_trap(roomspace->plyr_idx, slab_subtile(current_x,0), slab_subtile(current_y,0)))) : (roomspace_can_build_room_at_slab(roomspace->plyr_idx, roomspace->rkind, current_x, current_y));
                         if (can)
                         {
                             roomspace->slab_grid[(roomspace->width - 1) - x][y] = true;
@@ -1493,7 +1493,7 @@ void update_slab_grid(struct RoomSpace* roomspace, unsigned char mode, TbBool se
                     current_x = roomspace->left + x;
                     if (roomspace->is_roomspace_a_box || roomspace->slab_grid[x][(roomspace->height - 1) - y] == true) // only check slabs in the roomspace
                     {
-                        can = (sell) ? ((subtile_is_sellable_room(roomspace->plyr_idx, slab_subtile(current_x,0), slab_subtile(current_y,0))) || (subtile_is_sellable_door_or_trap(roomspace->plyr_idx, slab_subtile(current_x,0), slab_subtile(current_y,0)))) : (can_build_room_at_slab(roomspace->plyr_idx, roomspace->rkind, current_x, current_y));
+                        can = (sell) ? ((subtile_is_sellable_room(roomspace->plyr_idx, slab_subtile(current_x,0), slab_subtile(current_y,0))) || (subtile_is_sellable_door_or_trap(roomspace->plyr_idx, slab_subtile(current_x,0), slab_subtile(current_y,0)))) : (roomspace_can_build_room_at_slab(roomspace->plyr_idx, roomspace->rkind, current_x, current_y));
                         if (can)
                         {
                             roomspace->slab_grid[x][(roomspace->height - 1) - y] = true;
@@ -1509,6 +1509,26 @@ void update_slab_grid(struct RoomSpace* roomspace, unsigned char mode, TbBool se
             }
             break;
         }
+    }
+}
+
+TbBool roomspace_can_build_room_at_slab(PlayerNumber plyr_idx, RoomKind rkind, MapSlabCoord slb_x, MapSlabCoord slb_y)
+{
+    TbBool result = (can_build_room_at_slab(plyr_idx, rkind, slb_x, slb_y));
+    if (!result)
+    {
+        if (rkind == RoK_BRIDGE)
+        {
+            return (slab_is_liquid(slb_x, slb_y));
+        }
+        else
+        {
+            return false;
+        }
+    }
+    else
+    {
+        return true;
     }
 }
 /******************************************************************************/
