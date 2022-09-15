@@ -1592,7 +1592,7 @@ static char light_render_light_dynamic_1(struct Light *lgt, int radius, int inte
                         switch ( quadrant )
                         {
                             case 1:
-                            v24 = ( height <= lgt->mappos.z.stl.num );
+                            v24 = ( get_floor_filled_subtiles_at(stl_x - 1, stl_y - 1) <= lgt->mappos.z.stl.num );
                             break;
                             case 3:
                             v24 = ( !light_render_light_sub1_sub2(stl_x, stl_y - 1, lgt->mappos.z.stl.num) );
