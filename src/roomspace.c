@@ -1086,7 +1086,7 @@ static void keeper_update_roomspace(struct RoomSpace *roomspace)
                         roomspace->buildx = roomspace->left;
                         roomspace->buildy++;
                     }
-                    if ( (!roomspace->is_roomspace_a_box) && (roomspace->rkind != RoK_BRIDGE) )
+                    if (!roomspace->is_roomspace_a_box)
                     {
                         find_next_point(roomspace, roomspace->drag_direction);
                     }
@@ -1109,7 +1109,7 @@ static void keeper_update_roomspace(struct RoomSpace *roomspace)
                         roomspace->buildx = roomspace->right;
                         roomspace->buildy--;
                     }
-                    if ( (!roomspace->is_roomspace_a_box) && (roomspace->rkind != RoK_BRIDGE) )
+                    if (!roomspace->is_roomspace_a_box)
                     {
                         find_next_point(roomspace, roomspace->drag_direction);
                     }
@@ -1132,7 +1132,7 @@ static void keeper_update_roomspace(struct RoomSpace *roomspace)
                         roomspace->buildx = roomspace->right;
                         roomspace->buildy++;
                     }
-                    if ( (!roomspace->is_roomspace_a_box) && (roomspace->rkind != RoK_BRIDGE) )
+                    if (!roomspace->is_roomspace_a_box)
                     {
                         find_next_point(roomspace, roomspace->drag_direction);
                     }
@@ -1155,7 +1155,7 @@ static void keeper_update_roomspace(struct RoomSpace *roomspace)
                         roomspace->buildx = roomspace->left;
                         roomspace->buildy--;
                     }
-                    if ( (!roomspace->is_roomspace_a_box) && (roomspace->rkind != RoK_BRIDGE) )
+                    if (!roomspace->is_roomspace_a_box)
                     {
                         find_next_point(roomspace, roomspace->drag_direction);
                     }
@@ -1180,7 +1180,7 @@ static void keeper_update_roomspace(struct RoomSpace *roomspace)
                 roomspace->buildx = roomspace->left;
                 roomspace->buildy++;
             }
-            if ( (!roomspace->is_roomspace_a_box) && (roomspace->rkind != RoK_BRIDGE) )
+            if (!roomspace->is_roomspace_a_box)
             {
                 find_next_point(roomspace, top_left_to_bottom_right);
             }
