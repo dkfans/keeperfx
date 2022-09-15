@@ -745,7 +745,7 @@ void get_dungeon_build_user_roomspace(struct RoomSpace *roomspace, PlayerNumber 
         slb_y = best_roomspace.centreY;
         player->boxsize = best_roomspace.slab_count; // correct number of tiles always returned from get_biggest_roomspace
     }
-    else if ( (mode == drag_placement_mode) && (player->chosen_room_kind != RoK_BRIDGE) )
+    else if ( (mode == drag_placement_mode) && (playeradd->roomspace_drag_paint_mode == false) )
     {
         if (((pckt->control_flags & PCtr_HeldAnyButton) != 0) || ((pckt->control_flags & PCtr_LBtnRelease) != 0))
         {
@@ -765,7 +765,15 @@ void get_dungeon_build_user_roomspace(struct RoomSpace *roomspace, PlayerNumber 
             drag_start_x = slb_x;
             drag_start_y = slb_y;
         }
-        temp_best_room = create_box_roomspace_from_drag(best_roomspace, drag_start_x, drag_start_y, slb_x, slb_y);
+        TbBool can_drag = (rkind == RoK_BRIDGE) ? (can_build_room_at_slab(plyr_idx, rkind, drag_start_x, drag_start_y)) : true;
+        if (can_drag)
+        {
+            temp_best_room = create_box_roomspace_from_drag(best_roomspace, drag_start_x, drag_start_y, slb_x, slb_y);
+        }
+        else
+        {
+            temp_best_room = create_box_roomspace(best_roomspace, playeradd->roomspace_width, playeradd->roomspace_height, slb_x, slb_y);
+        }
         if (roomspace->drag_start_y > roomspace->drag_end_y)
         {
             if (roomspace->drag_start_x > roomspace->drag_end_x)
@@ -1078,7 +1086,7 @@ static void keeper_update_roomspace(struct RoomSpace *roomspace)
                         roomspace->buildx = roomspace->left;
                         roomspace->buildy++;
                     }
-                    if (!roomspace->is_roomspace_a_box)
+                    if ( (!roomspace->is_roomspace_a_box) && (roomspace->rkind != RoK_BRIDGE) )
                     {
                         find_next_point(roomspace, roomspace->drag_direction);
                     }
@@ -1101,7 +1109,7 @@ static void keeper_update_roomspace(struct RoomSpace *roomspace)
                         roomspace->buildx = roomspace->right;
                         roomspace->buildy--;
                     }
-                    if (!roomspace->is_roomspace_a_box)
+                    if ( (!roomspace->is_roomspace_a_box) && (roomspace->rkind != RoK_BRIDGE) )
                     {
                         find_next_point(roomspace, roomspace->drag_direction);
                     }
@@ -1124,7 +1132,7 @@ static void keeper_update_roomspace(struct RoomSpace *roomspace)
                         roomspace->buildx = roomspace->right;
                         roomspace->buildy++;
                     }
-                    if (!roomspace->is_roomspace_a_box)
+                    if ( (!roomspace->is_roomspace_a_box) && (roomspace->rkind != RoK_BRIDGE) )
                     {
                         find_next_point(roomspace, roomspace->drag_direction);
                     }
@@ -1147,7 +1155,7 @@ static void keeper_update_roomspace(struct RoomSpace *roomspace)
                         roomspace->buildx = roomspace->left;
                         roomspace->buildy--;
                     }
-                    if (!roomspace->is_roomspace_a_box)
+                    if ( (!roomspace->is_roomspace_a_box) && (roomspace->rkind != RoK_BRIDGE) )
                     {
                         find_next_point(roomspace, roomspace->drag_direction);
                     }
@@ -1172,7 +1180,7 @@ static void keeper_update_roomspace(struct RoomSpace *roomspace)
                 roomspace->buildx = roomspace->left;
                 roomspace->buildy++;
             }
-            if (!roomspace->is_roomspace_a_box)
+            if ( (!roomspace->is_roomspace_a_box) && (roomspace->rkind != RoK_BRIDGE) )
             {
                 find_next_point(roomspace, top_left_to_bottom_right);
             }
@@ -1208,11 +1216,11 @@ void process_build_roomspace_inputs(PlayerNumber plyr_idx)
         TbBool drag_check = ((is_game_key_pressed(Gkey_BestRoomSpace, &keycode, true) || (is_game_key_pressed(Gkey_SquareRoomSpace, &keycode, true))) && (left_button_held));
         if (drag_check) // Enable "paint mode" if Ctrl or Shift are held
         {
-            set_packet_action(pckt, PckA_SetRoomspaceDrag, 0, 0, 0, 0);
+            set_packet_action(pckt, PckA_SetRoomspaceDragPaint, 0, 0, 0, 0);
         }
         else
         {
-            set_packet_action(pckt, PckA_SetRoomspaceDefault, 1, 0, 0, 0);
+            set_packet_action(pckt, PckA_SetRoomspaceDrag, 0, 0, 0, 0);
         }
     }
     else if (is_game_key_pressed(Gkey_BestRoomSpace, &keycode, true)) // Find "best" room

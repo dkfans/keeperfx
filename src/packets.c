@@ -910,6 +910,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
         return false;
     }
     case PckA_SetRoomspaceDrag:
+    case PckA_SetRoomspaceDragPaint:
     {
         playeradd->roomspace_detection_looseness = DEFAULT_USER_ROOMSPACE_DETECTION_LOOSENESS;
         playeradd->user_defined_roomspace_width = DEFAULT_USER_ROOMSPACE_WIDTH;
@@ -917,6 +918,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
         playeradd->one_click_mode_exclusive = true; // Enable GuiLayer_OneClickBridgeBuild layer
         playeradd->render_roomspace.highlight_mode = false;
         playeradd->roomspace_no_default = false;
+        playeradd->roomspace_drag_paint_mode = (pckt->action == PckA_SetRoomspaceDragPaint);
         return false;
     }
     case PckA_SetRoomspaceDefault:
