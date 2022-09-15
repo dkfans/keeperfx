@@ -223,6 +223,10 @@ void interpolate_thing(struct Thing *thing, struct ThingAdd *thingadd)
         // Set initial interp position when either Thing has just been created or goes off camera then comes back on camera
         thingadd->interp_mappos = thing->mappos;
         thingadd->interp_floor_height = thing->floor_height;
+        
+        if (thingadd->interp_mappos.z.val == 65534) { // Fixes an odd bug where thing->mappos.z.val is briefly 65534 (for 1 turn) in certain situations, which can mess up the interpolation and cause things to fall from the sky.
+            thingadd->interp_mappos.z.val = thingadd->interp_floor_height;
+        }
     } else {
         // Interpolate position every frame
         thingadd->interp_mappos.x.val = interpolate(thingadd->interp_mappos.x.val, thingadd->previous_mappos.x.val, thing->mappos.x.val);
