@@ -1521,15 +1521,8 @@ TbBool roomspace_can_build_room_at_slab(PlayerNumber plyr_idx, RoomKind rkind, M
         {
             return (slab_is_liquid(slb_x, slb_y));
         }
-        else
-        {
-            return result;
-        }
     }
-    else
-    {
-        return result;
-    }
+    return result;
 }
 /******************************************************************************/
 #ifdef __cplusplus
