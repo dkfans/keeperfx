@@ -1568,6 +1568,17 @@ TbBool roomspace_can_build_room_at_slab(PlayerNumber plyr_idx, RoomKind rkind, M
                        playeradd->roomspace.drag_direction = bottom_right_to_top_left;
                    }
                }
+               else
+               {
+                   if (playeradd->roomspace.top <= playeradd->roomspace.drag_end_y)
+                   {
+                       playeradd->roomspace.drag_direction = top_left_to_bottom_right;
+                   }
+                   else
+                   {
+                       playeradd->roomspace.drag_direction = bottom_left_to_top_right;
+                   }
+               }
                if (slb_y != playeradd->render_roomspace.drag_end_y)
                {
                    return (slb_x == playeradd->render_roomspace.drag_end_x);
