@@ -34,11 +34,10 @@ struct M33;
 struct EngineCol;
 struct PlayerInfo;
 
-// Camera constants; zoom max is zoomed in (everything large), zoom min is zoomed out (everything small)
-#define CAMERA_ZOOM_MAX 12000
-#define CAMERA_ZOOM_MIN 520 // Originally 4100, adjusted for view distance
-#define FRONTVIEW_CAMERA_ZOOM_MAX 65536
-#define FRONTVIEW_CAMERA_ZOOM_MIN 3000 // Originally 16384, adjusted for view distance
+extern long CAMERA_ZOOM_MAX;
+extern long CAMERA_ZOOM_MIN;
+extern long FRONTVIEW_CAMERA_ZOOM_MAX;
+extern long FRONTVIEW_CAMERA_ZOOM_MIN;
 #define MINMAX_LENGTH 512 // Originally 64, adjusted for view distance
 #define MINMAX_ALMOST_HALF ((MINMAX_LENGTH/2)-1)
 

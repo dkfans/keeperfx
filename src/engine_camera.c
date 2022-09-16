@@ -41,6 +41,11 @@ extern "C" {
 #endif
 /******************************************************************************/
 /******************************************************************************/
+// Camera constants; zoom max is zoomed in (everything large), zoom min is zoomed out (everything small)
+long CAMERA_ZOOM_MAX = 12000;
+long CAMERA_ZOOM_MIN = 520; // Originally 4100, adjusted for view distance
+long FRONTVIEW_CAMERA_ZOOM_MAX = 65536;
+long FRONTVIEW_CAMERA_ZOOM_MIN = 3000; // Originally 16384, adjusted for view distance
 long camera_zoom;
 
 long previous_cam_mappos_x;
