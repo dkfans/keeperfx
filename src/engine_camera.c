@@ -41,11 +41,8 @@ extern "C" {
 #endif
 /******************************************************************************/
 /******************************************************************************/
-// Camera constants; zoom max is zoomed in (everything large), zoom min is zoomed out (everything small)
-long CAMERA_ZOOM_MAX = 12000;
-long CAMERA_ZOOM_MIN = 520; // Originally 4100, adjusted for view distance
-long FRONTVIEW_CAMERA_ZOOM_MAX = 65536;
-long FRONTVIEW_CAMERA_ZOOM_MIN = 3000; // Originally 16384, adjusted for view distance
+long zoom_distance_setting;
+long frontview_zoom_distance_setting;
 long camera_zoom;
 
 long previous_cam_mappos_x;
@@ -323,8 +320,8 @@ void view_zoom_camera_out(struct Camera *cam, long limit_max, long limit_min)
         new_zoom = (85 * old_zoom) / 100;
         if (new_zoom == old_zoom)
             new_zoom--;
-        if (new_zoom < FRONTVIEW_CAMERA_ZOOM_MIN) {
-            new_zoom = FRONTVIEW_CAMERA_ZOOM_MIN;
+        if (new_zoom < max(FRONTVIEW_CAMERA_ZOOM_MIN, frontview_zoom_distance_setting)) {
+            new_zoom = max(FRONTVIEW_CAMERA_ZOOM_MIN, frontview_zoom_distance_setting);
         } else
         if (new_zoom > FRONTVIEW_CAMERA_ZOOM_MAX) {
             new_zoom = FRONTVIEW_CAMERA_ZOOM_MAX;
@@ -381,7 +378,7 @@ long get_camera_zoom(struct Camera *cam)
  */
 unsigned long adjust_min_camera_zoom(struct Camera *cam, long width, long height, long status_panel_width)
 {
-    unsigned long zoom_min = CAMERA_ZOOM_MIN; // a higher value is a nearer zoom
+    unsigned long zoom_min = max(CAMERA_ZOOM_MIN, zoom_distance_setting); // a higher value is a nearer zoom
     if (!(cam->view_mode == PVM_IsoWibbleView || cam->view_mode == PVM_IsoStraightView))
     {
         return zoom_min; // only apply limit to iso mode

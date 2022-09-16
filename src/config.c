@@ -1056,8 +1056,8 @@ short load_configuration(void)
           }
           if ((i >= 0) && (i <= 32768)) {
               if (i > 100) {i = 100;}
-              CAMERA_ZOOM_MIN = lerp(4100, 520, (float)i/100.0);
-              FRONTVIEW_CAMERA_ZOOM_MIN = lerp(16384, 3000, (float)i/100.0);
+              zoom_distance_setting = lerp(4100, CAMERA_ZOOM_MIN, (float)i/100.0);
+              frontview_zoom_distance_setting = lerp(16384, FRONTVIEW_CAMERA_ZOOM_MIN, (float)i/100.0);
           } else {
               CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",COMMAND_TEXT(cmd_num),config_textname);
           }
