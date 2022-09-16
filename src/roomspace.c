@@ -1543,7 +1543,7 @@ TbBool roomspace_can_build_room_at_slab(PlayerNumber plyr_idx, RoomKind rkind, M
                return (slb_x == playeradd->render_roomspace.drag_end_x);
            }
        }
-       return (can_build_room_at_slab(plyr_idx, rkind, slb_x, slb_y));       
+       return true;       
     }
     else
     {
