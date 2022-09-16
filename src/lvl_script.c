@@ -417,7 +417,7 @@ TbBool script_command_param_to_text(char type_chr, struct ScriptLine *scline, in
     switch (toupper(type_chr))
     {
     case 'N':
-        itoa(scline->np[idx], scline->tp[idx], 10);
+        snprintf(scline->tp[idx], MAX_TEXT_LENGTH, "%ld", scline->np[idx]);
         break;
     case 'P':
         strcpy(scline->tp[idx], player_code_name(scline->np[idx]));
