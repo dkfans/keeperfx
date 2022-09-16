@@ -165,10 +165,10 @@ void process_armageddon_influencing_creature(struct Thing *creatng)
         // If Armageddon is on, teleport creature to its position
         if ((cctrl->armageddon_teleport_turn != 0) && (cctrl->armageddon_teleport_turn <= game.play_gameturn))
         {
-            cctrl->instance_id = CrInst_NULL; // Avoid corruption from in progress instances, like claiming floors.
             cctrl->armageddon_teleport_turn = 0;
             create_effect(&creatng->mappos, imp_spangle_effects[creatng->owner], creatng->owner);
             move_thing_in_map(creatng, &game.armageddon.mappos);
+            cleanup_current_thing_state(creatng);
             reset_interpolation_of_thing(creatng);
             initialise_thing_state(creatng, CrSt_ArriveAtAlarm);
             cctrl->alarm_over_turn = game.armageddon.count_down + game.armageddon_cast_turn;
