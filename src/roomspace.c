@@ -775,26 +775,29 @@ void get_dungeon_build_user_roomspace(struct RoomSpace *roomspace, PlayerNumber 
         {
             temp_best_room = create_box_roomspace(best_roomspace, 1, 1, slb_x, slb_y);
         }
-        if (roomspace->drag_start_y > roomspace->drag_end_y)
+        if (!playeradd->roomspace.is_active)
         {
-            if (roomspace->drag_start_x > roomspace->drag_end_x)
+            if (roomspace->drag_start_y > roomspace->drag_end_y)
             {
-                temp_best_room.drag_direction = bottom_right_to_top_left;
+                if (roomspace->drag_start_x > roomspace->drag_end_x)
+                {
+                    temp_best_room.drag_direction = bottom_right_to_top_left;
+                }
+                else
+                {
+                    temp_best_room.drag_direction = bottom_left_to_top_right;
+                }
             }
             else
             {
-                temp_best_room.drag_direction = bottom_left_to_top_right;
-            }
-        }
-        else
-        {
-            if (roomspace->drag_start_x > roomspace->drag_end_x)
-            {
-                temp_best_room.drag_direction = top_right_to_bottom_left;
-            }
-            else
-            {
-                temp_best_room.drag_direction = top_left_to_bottom_right;
+                if (roomspace->drag_start_x > roomspace->drag_end_x)
+                {
+                    temp_best_room.drag_direction = top_right_to_bottom_left;
+                }
+                else
+                {
+                    temp_best_room.drag_direction = top_left_to_bottom_right;
+                }
             }
         }
         temp_best_room = check_slabs_in_roomspace(temp_best_room, roomst->cost);
@@ -1554,6 +1557,17 @@ TbBool roomspace_can_build_room_at_slab(PlayerNumber plyr_idx, RoomKind rkind, M
            }
            case 1:
            {
+               if (playeradd->roomspace.left < playeradd->roomspace.drag_end_x)
+               {
+                   if (playeradd->roomspace.top <= playeradd->roomspace.drag_end_y)
+                   {
+                       playeradd->roomspace.drag_direction = top_right_to_bottom_left;
+                   }
+                   else
+                   {
+                       playeradd->roomspace.drag_direction = bottom_right_to_top_left;
+                   }
+               }
                if (slb_y != playeradd->render_roomspace.drag_end_y)
                {
                    return (slb_x == playeradd->render_roomspace.drag_end_x);
