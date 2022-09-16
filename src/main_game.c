@@ -183,7 +183,7 @@ static void init_level(void)
     ambient_sound_prepare();
     zero_messages();
     game.armageddon_cast_turn = 0;
-    game.armageddon_field_15035A = 0;
+    game.armageddon_over_turn = 0;
     init_messages();
     game.creatures_tend_imprison = 0;
     game.creatures_tend_flee = 0;
