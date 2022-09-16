@@ -777,28 +777,7 @@ void get_dungeon_build_user_roomspace(struct RoomSpace *roomspace, PlayerNumber 
         }
         if (!playeradd->roomspace.is_active)
         {
-            if (roomspace->drag_start_y > roomspace->drag_end_y)
-            {
-                if (roomspace->drag_start_x > roomspace->drag_end_x)
-                {
-                    temp_best_room.drag_direction = bottom_right_to_top_left;
-                }
-                else
-                {
-                    temp_best_room.drag_direction = bottom_left_to_top_right;
-                }
-            }
-            else
-            {
-                if (roomspace->drag_start_x > roomspace->drag_end_x)
-                {
-                    temp_best_room.drag_direction = top_right_to_bottom_left;
-                }
-                else
-                {
-                    temp_best_room.drag_direction = top_left_to_bottom_right;
-                }
-            }
+            detect_roomspace_direction(&temp_best_room);
         }
         temp_best_room = check_slabs_in_roomspace(temp_best_room, roomst->cost);
         best_roomspace = temp_best_room;
@@ -1622,7 +1601,7 @@ void update_bridge_build_direction(PlayerNumber plyr_idx)
         }
         else
         {
-            detect_roomspace_direction(plyr_idx);
+            detect_roomspace_direction(&playeradd->roomspace);
         }
     }
     else
@@ -1643,34 +1622,33 @@ void update_bridge_build_direction(PlayerNumber plyr_idx)
         }
         else
         {
-            detect_roomspace_direction(plyr_idx);
+            detect_roomspace_direction(&playeradd->roomspace);
         }
     }
 }
 
-void detect_roomspace_direction(PlayerNumber plyr_idx)
+void detect_roomspace_direction(struct RoomSpace *roomspace)
 {
-    struct PlayerInfoAdd *playeradd = get_playeradd(plyr_idx);
-    if (playeradd->roomspace.drag_start_y > playeradd->roomspace.drag_end_y)
+    if (roomspace->drag_start_y > roomspace->drag_end_y)
     {
-        if (playeradd->roomspace.drag_start_x > playeradd->roomspace.drag_end_x)
+        if (roomspace->drag_start_x > roomspace->drag_end_x)
         {
-            playeradd->roomspace.drag_direction = bottom_right_to_top_left;
+            roomspace->drag_direction = bottom_right_to_top_left;
         }
         else
         {
-            playeradd->roomspace.drag_direction = bottom_left_to_top_right;
+            roomspace->drag_direction = bottom_left_to_top_right;
         }
     }
     else
     {
-        if (playeradd->roomspace.drag_start_x > playeradd->roomspace.drag_end_x)
+        if (roomspace->drag_start_x > roomspace->drag_end_x)
         {
-            playeradd->roomspace.drag_direction = top_right_to_bottom_left;
+            roomspace->drag_direction = top_right_to_bottom_left;
         }
         else
         {
-            playeradd->roomspace.drag_direction = top_left_to_bottom_right;
+            roomspace->drag_direction = top_left_to_bottom_right;
         }
     }
 }
