@@ -1557,7 +1557,7 @@ TbBool roomspace_can_build_room_at_slab(PlayerNumber plyr_idx, RoomKind rkind, M
            }
            case 1:
            {
-               if (playeradd->roomspace.left < playeradd->roomspace.drag_end_x)
+               if ( (playeradd->roomspace.left < playeradd->roomspace.drag_end_x) && ( (playeradd->roomspace.drag_direction == top_left_to_bottom_right) || (playeradd->roomspace.drag_direction == bottom_left_to_top_right) ) )
                {
                    if (playeradd->roomspace.top <= playeradd->roomspace.drag_end_y)
                    {
@@ -1568,7 +1568,7 @@ TbBool roomspace_can_build_room_at_slab(PlayerNumber plyr_idx, RoomKind rkind, M
                        playeradd->roomspace.drag_direction = bottom_right_to_top_left;
                    }
                }
-               else
+               else if ( (playeradd->roomspace.right > playeradd->roomspace.drag_end_x) && ( (playeradd->roomspace.drag_direction == top_right_to_bottom_left) || (playeradd->roomspace.drag_direction == bottom_right_to_top_left) ) )
                {
                    if (playeradd->roomspace.top <= playeradd->roomspace.drag_end_y)
                    {
