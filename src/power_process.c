@@ -172,7 +172,7 @@ void process_armageddon_influencing_creature(struct Thing *creatng)
                 move_thing_in_map(creatng, &game.armageddon.mappos);
                 reset_interpolation_of_thing(creatng);
                 initialise_thing_state(creatng, CrSt_ArriveAtAlarm);
-                cctrl->alarm_over_turn = game.play_gameturn + 800;
+                cctrl->alarm_over_turn = game.armageddon.count_down + game.armageddon_cast_turn;
                 cctrl->alarm_stl_x = game.armageddon.mappos.x.stl.num;
                 cctrl->alarm_stl_y = game.armageddon.mappos.y.stl.num;
             }

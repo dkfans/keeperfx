@@ -1070,7 +1070,7 @@ TbBool process_creature_in_dungeon_hand(struct Dungeon *dungeon, struct Thing *t
                 move_thing_in_map(thing, &game.armageddon.mappos);
                 reset_interpolation_of_thing(thing);
                 initialise_thing_state(thing, CrSt_ArriveAtAlarm);
-                cctrl->alarm_over_turn = game.play_gameturn + 800;
+                cctrl->alarm_over_turn = game.armageddon.count_down + game.armageddon_cast_turn;
                 cctrl->alarm_stl_x = game.armageddon.mappos.x.stl.num;
                 cctrl->alarm_stl_y = game.armageddon.mappos.y.stl.num;
                 //originally move was to get_player_soul_container(game.armageddon_caster_idx) mappos
