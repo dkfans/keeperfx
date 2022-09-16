@@ -166,6 +166,7 @@ void teleport_armageddon_influenced_creature(struct Thing* creatng)
     cleanup_current_thing_state(creatng);
     reset_interpolation_of_thing(creatng);
     initialise_thing_state(creatng, CrSt_ArriveAtAlarm);
+    creatng->continue_state = CrSt_ArriveAtAlarm;
     cctrl->alarm_over_turn = game.armageddon.duration + game.armageddon_cast_turn;
     cctrl->alarm_stl_x = game.armageddon.mappos.x.stl.num;
     cctrl->alarm_stl_y = game.armageddon.mappos.y.stl.num;
