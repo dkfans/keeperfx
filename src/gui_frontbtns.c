@@ -31,17 +31,6 @@
 #include "frontend.h"
 #include "front_input.h"
 #include "sprites.h"
-
-// needed for timeGetTime() -- should be later removed
-#if defined(_WIN32)
-//instead of #include <windows.h>
-#include <stdarg.h>
-#define NOMINMAX
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#include <mmsystem.h>
-#endif
-
 #include "game_legacy.h"
 
 #ifdef __cplusplus
@@ -738,7 +727,7 @@ void frontend_over_button(struct GuiButton *gbtn)
     else
       i = (long)gbtn->content;
     if (old_mouse_over_button != i)
-      frontend_mouse_over_button_start_time = timeGetTime();
+      frontend_mouse_over_button_start_time = LbTimerClock_1000();
     frontend_mouse_over_button = i;
 }
 
@@ -770,7 +759,7 @@ void frontend_draw_button(struct GuiButton *gbtn, unsigned short btntype, const 
     {
         fntidx = frontend_button_caption_font(gbtn, frontend_mouse_over_button);
         if ((febtn_idx > 0) && (frontend_mouse_over_button == febtn_idx)) {
-            spridx = large_button_sprite_anims[((timeGetTime()-frontend_mouse_over_button_start_time)/100) & 7];
+            spridx = large_button_sprite_anims[((LbTimerClock_1000()-frontend_mouse_over_button_start_time)/100) & 7];
         } else {
             spridx = GFS_hugebutton_a05l;
         }
