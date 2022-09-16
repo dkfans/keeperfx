@@ -23,6 +23,7 @@
 #include <string.h>
 #include <stdarg.h>
 #include <stdio.h>
+#include <ctype.h>
 #define NOMINMAX
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -586,6 +587,12 @@ void LbPrint(const char * format, ...) {
   message->next = NULL;
   *debug_messages_tail = message;
   debug_messages_tail = &message->next;
+}
+
+void make_lowercase(char * string) {
+  for (char * ptr = string; *ptr != 0; ++ptr) {
+    *ptr = tolower(*ptr);
+  }
 }
 
 /******************************************************************************/

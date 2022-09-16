@@ -611,7 +611,7 @@ const char *get_language_lwrstr(int lang_id)
 #endif
   static char lang_str[4];
   snprintf(lang_str, 4, "%s", src);
-  strlwr(lang_str);
+  make_lowercase(lang_str);
   return lang_str;
 }
 
