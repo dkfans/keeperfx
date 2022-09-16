@@ -1213,14 +1213,14 @@ void process_build_roomspace_inputs(PlayerNumber plyr_idx)
     struct Packet* pckt = get_packet(plyr_idx);
     if (player->chosen_room_kind == RoK_BRIDGE)
     {
-        TbBool drag_check = ((is_game_key_pressed(Gkey_BestRoomSpace, &keycode, true) || (is_game_key_pressed(Gkey_SquareRoomSpace, &keycode, true))) && (left_button_held));
+        TbBool drag_check = ( (is_game_key_pressed(Gkey_SquareRoomSpace, &keycode, true)) && (left_button_held));
         if (drag_check) // Enable "paint mode" if Ctrl or Shift are held
         {
             set_packet_action(pckt, PckA_SetRoomspaceDragPaint, 0, 0, 0, 0);
         }
         else
         {
-            set_packet_action(pckt, PckA_SetRoomspaceDrag, 0, 0, 0, 0);
+            set_packet_action(pckt, PckA_SetRoomspaceDrag, (is_game_key_pressed(Gkey_BestRoomSpace, &keycode, true)), 0, 0, 0);
         }
     }
     else if (is_game_key_pressed(Gkey_BestRoomSpace, &keycode, true)) // Find "best" room
@@ -1514,12 +1514,29 @@ void update_slab_grid(struct RoomSpace* roomspace, unsigned char mode, TbBool se
 
 TbBool roomspace_can_build_room_at_slab(PlayerNumber plyr_idx, RoomKind rkind, MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
-    TbBool result = (can_build_room_at_slab(plyr_idx, rkind, slb_x, slb_y));
-    if (!result)
+    TbBool result;
+    struct PlayerInfoAdd* playeradd = get_playeradd(plyr_idx);
+    if (playeradd->roomspace_l_bridge)
     {
-        if (rkind == RoK_BRIDGE)
+       if (!(slab_is_liquid(slb_x, slb_y)))
+       {
+           return false;
+       }
+       if (slb_y != playeradd->render_roomspace.drag_start_y)
+       {
+           return (slb_x == playeradd->render_roomspace.drag_end_x);
+       }
+       return (can_build_room_at_slab(plyr_idx, rkind, slb_x, slb_y));       
+    }
+    else
+    {
+        result = (can_build_room_at_slab(plyr_idx, rkind, slb_x, slb_y));
+        if (!result)
         {
-            return (slab_is_liquid(slb_x, slb_y));
+            if (rkind == RoK_BRIDGE)
+            {
+                return (slab_is_liquid(slb_x, slb_y));
+            }
         }
     }
     return result;
