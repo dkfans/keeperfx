@@ -1221,11 +1221,24 @@ void process_build_roomspace_inputs(PlayerNumber plyr_idx)
         }
         else
         {
-            TbBool l = playeradd->roomspace_l_shape;
-            if ( (is_game_key_pressed(Gkey_RoomSpaceIncSize, &keycode, true)) || (is_game_key_pressed(Gkey_RoomSpaceDecSize, &keycode, true)) )
+            unsigned char l = playeradd->roomspace_l_shape;
+            if (is_game_key_pressed(Gkey_RoomSpaceIncSize, &keycode, true))
             {
                 clear_key_pressed(settings.kbkeys[keycode].code);
-                l ^= 1;
+                l++;
+                if (l > 2)
+                {
+                    l = 0;
+                }
+            }
+            else if (is_game_key_pressed(Gkey_RoomSpaceDecSize, &keycode, true))
+            {
+                clear_key_pressed(settings.kbkeys[keycode].code);
+                l--;
+                if (l > 2)
+                {
+                    l = 2;
+                }
             }
             set_packet_action(pckt, PckA_SetRoomspaceDrag, (is_game_key_pressed(Gkey_BestRoomSpace, &keycode, true)), l, 0, 0);
         }
@@ -1529,21 +1542,34 @@ TbBool roomspace_can_build_room_at_slab(PlayerNumber plyr_idx, RoomKind rkind, M
        {
            return false;
        }
-       if (!playeradd->roomspace_l_shape)
+       switch(playeradd->roomspace_l_shape)
        {
-           if (slb_y != playeradd->render_roomspace.drag_start_y)
+           case 0:
            {
-               return (slb_x == playeradd->render_roomspace.drag_end_x);
+               if (slb_y != playeradd->render_roomspace.drag_start_y)
+               {
+                   return (slb_x == playeradd->render_roomspace.drag_end_x);
+               }
+               break;
+           }
+           case 1:
+           {
+               if (slb_y != playeradd->render_roomspace.drag_end_y)
+               {
+                   return (slb_x == playeradd->render_roomspace.drag_end_x);
+               }
+               break;
+           }
+           case 2:
+           {
+               if (slb_x != playeradd->render_roomspace.drag_start_x)
+               {
+                   return (slb_y == playeradd->render_roomspace.drag_end_y);
+               }
+               break;
            }
        }
-       else
-       {
-           if (slb_y != playeradd->render_roomspace.drag_end_y)
-           {
-               return (slb_x == playeradd->render_roomspace.drag_end_x);
-           }
-       }
-       return true;       
+       return true;
     }
     else
     {

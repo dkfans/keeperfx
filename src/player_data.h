@@ -265,7 +265,7 @@ struct PlayerInfoAdd {
     TbBool mouse_is_offmap;
     TbBool roomspace_drag_paint_mode;
     TbBool roomspace_l_bridge;
-    TbBool roomspace_l_shape;
+    unsigned char roomspace_l_shape;
 };
 
 /******************************************************************************/
