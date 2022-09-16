@@ -1229,7 +1229,7 @@ void process_build_roomspace_inputs(PlayerNumber plyr_idx)
             {
                 clear_key_pressed(settings.kbkeys[keycode].code);
                 l++;
-                if (l > 2)
+                if (l > 3)
                 {
                     l = 0;
                 }
@@ -1238,9 +1238,9 @@ void process_build_roomspace_inputs(PlayerNumber plyr_idx)
             {
                 clear_key_pressed(settings.kbkeys[keycode].code);
                 l--;
-                if (l > 2)
+                if (l > 3)
                 {
-                    l = 2;
+                    l = 3;
                 }
             }
             set_packet_action(pckt, PckA_SetRoomspaceDrag, (is_game_key_pressed(Gkey_BestRoomSpace, &keycode, true)), l, 0, 0);
@@ -1579,6 +1579,14 @@ TbBool roomspace_can_build_room_at_slab(PlayerNumber plyr_idx, RoomKind rkind, M
                if (slb_x != playeradd->render_roomspace.drag_start_x)
                {
                    return (slb_y == playeradd->render_roomspace.drag_end_y);
+               }
+               break;
+           }
+           case 3:
+           {
+               if (slb_y != playeradd->render_roomspace.drag_start_y)
+               {
+                   return (slb_x == playeradd->render_roomspace.drag_start_x);
                }
                break;
            }
