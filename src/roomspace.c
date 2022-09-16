@@ -26,6 +26,7 @@
 #include "player_utils.h"
 #include "map_blocks.h"
 #include "gui_soundmsgs.h"
+#include "config_settings.h"
 
 #include "keeperfx.hpp"
 
@@ -1220,7 +1221,13 @@ void process_build_roomspace_inputs(PlayerNumber plyr_idx)
         }
         else
         {
-            set_packet_action(pckt, PckA_SetRoomspaceDrag, (is_game_key_pressed(Gkey_BestRoomSpace, &keycode, true)), 0, 0, 0);
+            TbBool l = playeradd->roomspace_l_shape;
+            if ( (is_game_key_pressed(Gkey_RoomSpaceIncSize, &keycode, true)) || (is_game_key_pressed(Gkey_RoomSpaceDecSize, &keycode, true)) )
+            {
+                clear_key_pressed(settings.kbkeys[keycode].code);
+                l ^= 1;
+            }
+            set_packet_action(pckt, PckA_SetRoomspaceDrag, (is_game_key_pressed(Gkey_BestRoomSpace, &keycode, true)), l, 0, 0);
         }
     }
     else if (is_game_key_pressed(Gkey_BestRoomSpace, &keycode, true)) // Find "best" room
@@ -1522,9 +1529,19 @@ TbBool roomspace_can_build_room_at_slab(PlayerNumber plyr_idx, RoomKind rkind, M
        {
            return false;
        }
-       if (slb_y != playeradd->render_roomspace.drag_start_y)
+       if (!playeradd->roomspace_l_shape)
        {
-           return (slb_x == playeradd->render_roomspace.drag_end_x);
+           if (slb_y != playeradd->render_roomspace.drag_start_y)
+           {
+               return (slb_x == playeradd->render_roomspace.drag_end_x);
+           }
+       }
+       else
+       {
+           if (slb_y != playeradd->render_roomspace.drag_end_y)
+           {
+               return (slb_x == playeradd->render_roomspace.drag_end_x);
+           }
        }
        return (can_build_room_at_slab(plyr_idx, rkind, slb_x, slb_y));       
     }

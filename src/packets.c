@@ -920,6 +920,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
         playeradd->roomspace_no_default = false;
         playeradd->roomspace_drag_paint_mode = (pckt->action == PckA_SetRoomspaceDragPaint);
         playeradd->roomspace_l_bridge = pckt->actn_par1;
+        playeradd->roomspace_l_shape = pckt->actn_par2;
         return false;
     }
     case PckA_SetRoomspaceDefault:
