@@ -823,9 +823,19 @@ TbBool any_player_close_enough_to_see(const struct Coord3d *pos)
         {
             if (player->acamera == NULL)
                 continue;
-            if (player->acamera->zoom >= CAMERA_ZOOM_MIN)
+            if (player->acamera->view_mode != PVM_FrontView)
             {
-                limit = SHRT_MAX - (2 * player->acamera->zoom);
+                if (player->acamera->zoom >= CAMERA_ZOOM_MIN)
+                {
+                    limit = SHRT_MAX - (2 * player->acamera->zoom);
+                }
+            }
+            else
+            {
+                if (player->acamera->zoom >= FRONTVIEW_CAMERA_ZOOM_MIN)
+                {
+                    limit = SHRT_MAX - (player->acamera->zoom / 3);
+                }
             }
             if (get_2d_box_distance(&player->acamera->mappos, pos) <= limit)
             {
