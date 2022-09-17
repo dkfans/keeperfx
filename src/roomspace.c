@@ -781,7 +781,7 @@ void get_dungeon_build_user_roomspace(struct RoomSpace *roomspace, PlayerNumber 
         }
         if (rkind == RoK_BRIDGE)
         {
-            if (playeradd->roomspace_l_bridge)
+            if (!playeradd->roomspace_square_bridge)
             {
                 detect_bridge_shape(plyr_idx);
             }
@@ -1060,7 +1060,7 @@ static void keeper_update_roomspace(struct RoomSpace *roomspace)
             return;
         }
         struct PlayerInfoAdd *playeradd = get_playeradd(roomspace->plyr_idx);
-        if (playeradd->roomspace_l_bridge)
+        if (!playeradd->roomspace_square_bridge)
         {
             update_bridge_build_direction(roomspace->plyr_idx);
         }
@@ -1215,7 +1215,7 @@ void process_build_roomspace_inputs(PlayerNumber plyr_idx)
         }
         else
         {
-            TbBool l = playeradd->roomspace_l_bridge;
+            TbBool l = playeradd->roomspace_square_bridge;
             if (is_game_key_pressed(Gkey_SellTrapOnSubtile, &keycode, true))
             {
                 clear_key_pressed(lbInkey);
@@ -1517,7 +1517,7 @@ TbBool roomspace_can_build_room_at_slab(PlayerNumber plyr_idx, RoomKind rkind, M
 {
     TbBool result;
     struct PlayerInfoAdd* playeradd = get_playeradd(plyr_idx);
-    if (playeradd->roomspace_l_bridge)
+    if (!playeradd->roomspace_square_bridge)
     {
        if (!(slab_is_liquid(slb_x, slb_y)))
        {
