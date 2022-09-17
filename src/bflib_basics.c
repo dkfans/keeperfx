@@ -589,6 +589,12 @@ void LbPrint(const char * format, ...) {
   debug_messages_tail = &message->next;
 }
 
+void make_lowercase(char * string) {
+  for (char * ptr = string; *ptr != 0; ++ptr) {
+    *ptr = tolower(*ptr);
+  }
+}
+
 void make_uppercase(char * string) {
   for (char * ptr = string; *ptr != 0; ++ptr) {
     *ptr = toupper(*ptr);
