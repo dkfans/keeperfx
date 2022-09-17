@@ -656,7 +656,7 @@ int script_recognize_params(char **line, const struct CommandDesc *cmd_desc, str
                 }
                 SCRPTLOG("Function \"%s\" returned value \"%ld\"", funcmd_desc->textptr,
                     intralvl.campaign_flags[player_id][flag_id]);
-                ltoa(intralvl.campaign_flags[player_id][flag_id], scline->tp[dst], 10);
+                snprintf(scline->tp[dst], MAX_TEXT_LENGTH, "%ld", intralvl.campaign_flags[player_id][flag_id]);
                 break;
             }
             default:
