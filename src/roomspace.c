@@ -1208,33 +1208,20 @@ void process_build_roomspace_inputs(PlayerNumber plyr_idx)
     struct Packet* pckt = get_packet(plyr_idx);
     if (player->chosen_room_kind == RoK_BRIDGE)
     {
-        TbBool drag_check = ( (is_game_key_pressed(Gkey_SquareRoomSpace, &keycode, true)) && (left_button_held));
+        TbBool drag_check = ( ( (is_game_key_pressed(Gkey_BestRoomSpace, &keycode, true)) || (is_game_key_pressed(Gkey_SquareRoomSpace, &keycode, true)) ) && (left_button_held));
         if (drag_check) // Enable "paint mode" if Ctrl or Shift are held
         {
             set_packet_action(pckt, PckA_SetRoomspaceDragPaint, 0, 0, 0, 0);
         }
         else
         {
-            unsigned char l = playeradd->roomspace_l_shape;
-            if (is_game_key_pressed(Gkey_RoomSpaceIncSize, &keycode, true))
+            TbBool l = playeradd->roomspace_l_bridge;
+            if (is_game_key_pressed(Gkey_SellTrapOnSubtile, &keycode, true))
             {
                 clear_key_pressed(settings.kbkeys[keycode].code);
-                l++;
-                if (l > 3)
-                {
-                    l = 0;
-                }
+                l ^= 1;
             }
-            else if (is_game_key_pressed(Gkey_RoomSpaceDecSize, &keycode, true))
-            {
-                clear_key_pressed(settings.kbkeys[keycode].code);
-                l--;
-                if (l > 3)
-                {
-                    l = 3;
-                }
-            }
-            set_packet_action(pckt, PckA_SetRoomspaceDrag, (is_game_key_pressed(Gkey_BestRoomSpace, &keycode, true)), l, 0, 0);
+            set_packet_action(pckt, PckA_SetRoomspaceDrag, l, 0, 0, 0);
         }
     }
     else if (is_game_key_pressed(Gkey_BestRoomSpace, &keycode, true)) // Find "best" room
