@@ -89,7 +89,7 @@ const struct CommandDesc *get_next_word(char **line, char *param, int *para_leve
             if (pos+1 >= MAX_TEXT_LENGTH) break;
         }
         param[pos] = '\0';
-        strupr(param);
+        make_uppercase(param);
         // Check if it's a command
         int i = 0;
         cmnd_desc = NULL;

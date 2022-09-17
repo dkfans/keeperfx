@@ -595,6 +595,12 @@ void make_lowercase(char * string) {
   }
 }
 
+void make_uppercase(char * string) {
+  for (char * ptr = string; *ptr != 0; ++ptr) {
+    *ptr = toupper(*ptr);
+  }
+}
+
 /******************************************************************************/
 #ifdef __cplusplus
 }
