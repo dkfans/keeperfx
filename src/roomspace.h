@@ -149,6 +149,7 @@ void update_slab_grid(struct RoomSpace* roomspace, unsigned char mode, TbBool se
 TbBool roomspace_can_build_room_at_slab(PlayerNumber plyr_idx, RoomKind rkind, MapSlabCoord slb_x, MapSlabCoord slb_y);
 void update_bridge_build_direction(PlayerNumber plyr_idx);
 void detect_roomspace_direction(struct RoomSpace *roomspace);
+void detect_bridge_shape(PlayerNumber plyr_idx);
 
 /******************************************************************************/
 #include "roomspace_detection.h"

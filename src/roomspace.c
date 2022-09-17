@@ -779,6 +779,13 @@ void get_dungeon_build_user_roomspace(struct RoomSpace *roomspace, PlayerNumber 
         {
             detect_roomspace_direction(&temp_best_room);
         }
+        if (rkind == RoK_BRIDGE)
+        {
+            if (playeradd->roomspace_l_bridge)
+            {
+                detect_bridge_shape(plyr_idx);
+            }
+        }
         temp_best_room = check_slabs_in_roomspace(temp_best_room, roomst->cost);
         best_roomspace = temp_best_room;
         player->boxsize = best_roomspace.slab_count;
@@ -1650,6 +1657,33 @@ void detect_roomspace_direction(struct RoomSpace *roomspace)
         {
             roomspace->drag_direction = top_left_to_bottom_right;
         }
+    }
+}
+
+void detect_bridge_shape(PlayerNumber plyr_idx)
+{
+    struct PlayerInfoAdd *playeradd = get_playeradd(plyr_idx);
+    if (playeradd->render_roomspace.drag_end_x != playeradd->render_roomspace.drag_start_x)
+    {
+        if (playeradd->render_roomspace.drag_start_y == playeradd->render_roomspace.drag_end_y)
+        {
+            playeradd->roomspace_horizontal_first = true;
+        } 
+    }
+    else if (playeradd->render_roomspace.drag_end_y != playeradd->render_roomspace.drag_start_y)
+    {
+        playeradd->roomspace_horizontal_first = false;
+    }
+    if (playeradd->roomspace_horizontal_first)
+    {
+        if (playeradd->render_roomspace.drag_end_y != playeradd->render_roomspace.drag_start_y)
+        {
+            playeradd->roomspace_l_shape = 0;
+        }
+    }
+    else
+    {
+        playeradd->roomspace_l_shape = 2;
     }
 }
 /******************************************************************************/
