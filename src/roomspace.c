@@ -1218,7 +1218,7 @@ void process_build_roomspace_inputs(PlayerNumber plyr_idx)
             TbBool l = playeradd->roomspace_l_bridge;
             if (is_game_key_pressed(Gkey_SellTrapOnSubtile, &keycode, true))
             {
-                clear_key_pressed(settings.kbkeys[keycode].code);
+                clear_key_pressed(lbInkey);
                 l ^= 1;
             }
             set_packet_action(pckt, PckA_SetRoomspaceDrag, l, 0, 0, 0);
