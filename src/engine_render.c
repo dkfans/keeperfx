@@ -16,6 +16,8 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include <stddef.h>
+
 #include "engine_render.h"
 
 #include "globals.h"
@@ -2514,7 +2516,7 @@ static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct 
         int divided_z = choose_largest_z / 16;
         if (getpoly < poly_pool_end)
         {
-            if ((((unsigned __int8)coordinate_3_frustum | (unsigned __int8)(coordinate_2_frustum | coordinate_1_frustum)) & 3) != 0)
+            if ((((uint8_t)coordinate_3_frustum | (uint8_t)(coordinate_2_frustum | coordinate_1_frustum)) & 3) != 0)
             {
                 triangle_bucket_near_1 = (struct BucketKindPolygonNearFP *)getpoly;
                 getpoly += sizeof(struct BucketKindPolygonNearFP);
@@ -3004,7 +3006,7 @@ static void do_a_trig_gourad_bl(struct EngineCoord *engine_coordinate_1, struct 
         int divided_z = choose_smallest_z / 16;
         if (getpoly < poly_pool_end)
         {
-            if ((((unsigned __int8)coordinate_1_frustum | (unsigned __int8)(coordinate_3_frustum | coordinate_2_frustum)) & 3) != 0)
+            if ((((uint8_t)coordinate_1_frustum | (uint8_t)(coordinate_3_frustum | coordinate_2_frustum)) & 3) != 0)
             {
                 triangle_bucket_near_1 = (struct BucketKindPolygonNearFP *)getpoly;
                 getpoly += sizeof(struct BucketKindPolygonNearFP);
@@ -3912,7 +3914,7 @@ static void do_a_gpoly_gourad_tr(struct EngineCoord *ec1, struct EngineCoord *ec
     int ec2_fieldA;
     int ec3_fieldA;
 
-    if ( (ec1->field_8 & (unsigned __int16)(ec2->field_8 & ec3->field_8) & 0x1F8) == 0
+    if ( (ec1->field_8 & (uint16_t)(ec2->field_8 & ec3->field_8) & 0x1F8) == 0
         && (ec2->view_width - ec1->view_width) * (ec3->view_height - ec2->view_height)
         + (ec1->view_height - ec2->view_height) * (ec3->view_width - ec2->view_width) > 0 )
     {
@@ -3972,7 +3974,7 @@ static void do_a_gpoly_unlit_tr(struct EngineCoord *ec1, struct EngineCoord *ec2
     struct BucketKindPolygonStandard *v7;
     struct BasicQ *v8;
 
-    if ( (ec1->field_8 & (unsigned __int16)(ec2->field_8 & ec3->field_8) & 0x1F8) == 0
+    if ( (ec1->field_8 & (uint16_t)(ec2->field_8 & ec3->field_8) & 0x1F8) == 0
         && (ec3->view_width - ec2->view_width) * (ec1->view_height - ec2->view_height)
         + (ec3->view_height - ec2->view_height) * (ec2->view_width - ec1->view_width) > 0 )
     {
@@ -4019,7 +4021,7 @@ static void do_a_gpoly_unlit_bl(struct EngineCoord *ec1, struct EngineCoord *ec2
     int v6;
     struct BasicQ *v7;
 
-    if ( (ec1->field_8 & (unsigned __int16)(ec2->field_8 & ec3->field_8) & 0x1F8) == 0
+    if ( (ec1->field_8 & (uint16_t)(ec2->field_8 & ec3->field_8) & 0x1F8) == 0
         && (ec3->view_width - ec2->view_width) * (ec1->view_height - ec2->view_height)
         + (ec3->view_height - ec2->view_height) * (ec2->view_width - ec1->view_width) > 0 )
     {
@@ -4072,7 +4074,7 @@ static void do_a_gpoly_gourad_bl(struct EngineCoord *ec1, struct EngineCoord *ec
     struct PolyPoint *polypoint3;
     struct PolyPoint *polypoint1;
 
-    if ( (ec1->field_8 & (unsigned __int16)(ec2->field_8 & ec3->field_8) & 0x1F8) == 0
+    if ( (ec1->field_8 & (uint16_t)(ec2->field_8 & ec3->field_8) & 0x1F8) == 0
         && (ec3->view_height - ec2->view_height) * (ec2->view_width - ec1->view_width)
         + (ec1->view_height - ec2->view_height) * (ec3->view_width - ec2->view_width) > 0 )
     {
