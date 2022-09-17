@@ -1516,8 +1516,9 @@ void update_slab_grid(struct RoomSpace* roomspace, unsigned char mode, TbBool se
 TbBool roomspace_can_build_room_at_slab(PlayerNumber plyr_idx, RoomKind rkind, MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
     TbBool result;
+    struct PlayerInfo* player = get_player(plyr_idx);
     struct PlayerInfoAdd* playeradd = get_playeradd(plyr_idx);
-    if (!playeradd->roomspace_square_bridge)
+    if ( (!playeradd->roomspace_square_bridge) && (player->chosen_room_kind == RoK_BRIDGE) )
     {
        if (!(slab_is_liquid(slb_x, slb_y)))
        {

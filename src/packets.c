@@ -919,6 +919,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
         playeradd->render_roomspace.highlight_mode = false;
         playeradd->roomspace_no_default = false;
         playeradd->roomspace_drag_paint_mode = (pckt->action == PckA_SetRoomspaceDragPaint);
+        if (player->chosen_room_kind == RoK_BRIDGE)
         playeradd->roomspace_square_bridge = pckt->actn_par1;
         return false;
     }
