@@ -1611,7 +1611,7 @@ static void set_object_configuration_check(const struct ScriptLine *scline)
         return;
     }
 
-    long number_value;
+    long number_value = 0;
     long objectvar = get_id(objects_object_commands, property);
     if (objectvar == -1)
     {
