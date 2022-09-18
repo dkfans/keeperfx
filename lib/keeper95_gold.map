@@ -38,7 +38,7 @@
  0001:00004F70       heapmgr_complete_defrag
  0001:00005380       light_render_area
  0001:00005F80       light_render_light
- 0001:000062E0       light_render_light_sub1
+ 0001:000062E0       light_render_light_dynamic_1
  0001:00006770       light_render_light_sub2
  0001:00006C70       light_render_light_sub3
  0001:000070B0       light_render_light_sub1_sub1

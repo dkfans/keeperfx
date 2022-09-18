@@ -53,8 +53,6 @@ extern "C" {
 DLLIMPORT unsigned char _DK_backup_explored[26][26];
 #define backup_explored _DK_backup_explored
 /******************************************************************************/
-DLLIMPORT void _DK_remove_explored_flags_for_power_sight(struct PlayerInfo *player);
-/******************************************************************************/
 #ifdef __cplusplus
 }
 #endif
@@ -172,6 +170,11 @@ void process_armageddon_influencing_creature(struct Thing *creatng)
                 cctrl->armageddon_teleport_turn = 0;
                 create_effect(&creatng->mappos, imp_spangle_effects[creatng->owner], creatng->owner);
                 move_thing_in_map(creatng, &game.armageddon.mappos);
+                if (creature_is_kept_in_custody(creatng))
+                {
+                    set_start_state(creatng);
+                }
+                reset_interpolation_of_thing(creatng);
             }
         }
     }
@@ -633,7 +636,40 @@ void update_explored_flags_for_power_sight(struct PlayerInfo *player)
 
 void remove_explored_flags_for_power_sight(struct PlayerInfo *player)
 {
-    SYNCDBG(9,"Starting");
-    _DK_remove_explored_flags_for_power_sight(player);
+    SYNCDBG(9, "Starting");
+    int data;
+    unsigned char backup_flags;
+    struct Dungeon *dungeon = get_players_dungeon(player);
+
+    if (!dungeon->sight_casted_thing_idx)
+        return;
+    struct Thing *sightng = thing_get(dungeon->sight_casted_thing_idx);
+    struct Coord3d *soe_pos = &sightng->mappos;
+
+    MapSubtlCoord stl_y = (long)soe_pos->y.stl.num - MAX_SOE_RADIUS;
+    for (long soe_y = 0; soe_y < 2 * MAX_SOE_RADIUS; soe_y++, stl_y++)
+    {
+        MapSubtlCoord stl_x = (long)soe_pos->x.stl.num - MAX_SOE_RADIUS;
+        for (long soe_x = 0; soe_x < 2 * MAX_SOE_RADIUS; soe_x++, stl_x++)
+        {
+            if (dungeon->soe_explored_flags[soe_y][soe_x])
+            {
+                struct Map* mapblk = get_map_block_at(stl_x, stl_y);
+                if (!map_block_invalid(mapblk))
+                {
+                    unsigned long plyr_bit = (1 << player->id_number);
+                    data = mapblk->data & (~(plyr_bit << 28) );
+                    backup_flags = backup_explored[soe_y][soe_x];
+                    mapblk->data = data;
+                    if ((backup_flags & 1) != 0)
+                        mapblk->data = data | (plyr_bit << 28);
+                    if ((backup_flags & 2) != 0)
+                        mapblk->flags |= SlbAtFlg_Unexplored;
+                    if ((backup_flags & 4) != 0)
+                        mapblk->flags |= SlbAtFlg_TaggedValuable;
+                }
+            }
+        }
+    }
 }
 /******************************************************************************/

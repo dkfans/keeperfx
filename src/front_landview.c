@@ -53,6 +53,7 @@
 #include "vidmode.h"
 #include "vidfade.h"
 #include "game_legacy.h"
+#include "front_input.h"
 
 #include "keeperfx.hpp"
 
@@ -950,8 +951,6 @@ TbBool frontnetmap_load(void)
     net_level_hilighted = SINGLEPLAYER_NOTSTARTED;
     set_pointer_graphic_none();
     LbMouseSetPosition(lbDisplay.PhysicalScreenWidth/2, lbDisplay.PhysicalScreenHeight/2);
-    LbTextSetFont(map_font);
-    LbTextSetWindow(0, 0, lbDisplay.PhysicalScreenWidth, lbDisplay.PhysicalScreenHeight);
     map_sound_fade = 256;
     lbDisplay.DrawFlags = 0;
     SetMusicPlayerVolume(settings.redbook_volume);
@@ -1181,6 +1180,8 @@ TbBool test_hand_slap_collides(PlayerNumber plyr_idx)
 void frontmap_draw(void)
 {
     SYNCDBG(8,"Starting");
+    LbTextSetFont(map_font);
+    LbTextSetWindow(0, 0, lbDisplay.PhysicalScreenWidth, lbDisplay.PhysicalScreenHeight);
     if ((map_info.fadeflags & MLInfoFlg_Zooming) != 0)
     {
         frontzoom_to_point(map_info.hotspot_imgpos_x, map_info.hotspot_imgpos_y, map_info.fade_pos);
@@ -1197,7 +1198,7 @@ void frontmap_draw(void)
 void check_mouse_scroll(void)
 {
     long mx = GetMouseX();
-    if (mx < 8)
+    if ( (mx < 8) || ( (is_game_key_pressed(Gkey_MoveLeft, NULL, false)) || (is_key_pressed(KC_LEFT,KMod_DONTCARE)) ) )
     {
         map_info.velocity_x -= 8;
         if (map_info.velocity_x < -48)
@@ -1205,7 +1206,7 @@ void check_mouse_scroll(void)
         if (map_info.velocity_x > 48)
             map_info.velocity_x = 48;
   } else
-  if (mx >= lbDisplay.PhysicalScreenWidth-8)
+  if ( (mx >= lbDisplay.PhysicalScreenWidth-8) || ( (is_game_key_pressed(Gkey_MoveRight, NULL, false)) || (is_key_pressed(KC_RIGHT,KMod_DONTCARE)) ) )
   {
     map_info.velocity_x += 8;
     if (map_info.velocity_x < -48)
@@ -1214,7 +1215,7 @@ void check_mouse_scroll(void)
       map_info.velocity_x = 48;
   }
   long my = GetMouseY();
-  if (my < 8)
+  if ( (my < 8) || ( (is_game_key_pressed(Gkey_MoveUp, NULL, false)) || (is_key_pressed(KC_UP,KMod_DONTCARE)) ) )
   {
     map_info.velocity_y -= 8;
     if (map_info.velocity_y < -48)
@@ -1222,7 +1223,7 @@ void check_mouse_scroll(void)
     if (map_info.velocity_y > 48)
       map_info.velocity_y = 48;
   } else
-  if (my >= lbDisplay.PhysicalScreenHeight-8)
+  if ( (my >= lbDisplay.PhysicalScreenHeight-8) || ( (is_game_key_pressed(Gkey_MoveDown, NULL, false)) || (is_key_pressed(KC_DOWN,KMod_DONTCARE)) ) )
   {
     map_info.velocity_y += 8;
     if (map_info.velocity_y < -48)
@@ -1367,6 +1368,8 @@ void draw_map_level_descriptions(void)
 void frontnetmap_draw(void)
 {
     SYNCDBG(8,"Starting");
+    LbTextSetFont(map_font);
+    LbTextSetWindow(0, 0, lbDisplay.PhysicalScreenWidth, lbDisplay.PhysicalScreenHeight);
     if ((map_info.fadeflags & MLInfoFlg_Zooming) != 0)
     {
         frontzoom_to_point(map_info.hotspot_imgpos_x, map_info.hotspot_imgpos_y, map_info.fade_pos);

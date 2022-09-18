@@ -34,6 +34,8 @@
 #include "tasks_list.h"
 #include "thing_traps.h"
 #include "roomspace.h"
+#include "config_creature.h"
+#include "power_hand.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -328,7 +330,7 @@ struct DungeonAdd
     unsigned char         room_resrchable[TERRAIN_ITEMS_MAX];
     unsigned char         room_slabs_count[TERRAIN_ITEMS_MAX+1];
     unsigned short        backup_heart_idx;
-
+    struct HandRule       hand_rules[CREATURE_TYPES_MAX][HAND_RULE_SLOTS_COUNT];
 };
 /******************************************************************************/
 extern struct Dungeon bad_dungeon;

@@ -162,8 +162,8 @@ unsigned char field_37[2];
     long temple_cure_gameturn;
     unsigned char hunger_amount;
     unsigned char hunger_loss;
-    long field_43;
-    unsigned char field_47;
+    long thought_bubble_last_turn_drawn;
+    unsigned char thought_bubble_display_timer;
     unsigned char paydays_owed;
     char paydays_advanced;
     long annoy_untrained_turn;
@@ -392,7 +392,7 @@ unsigned char field_67;
     struct CastedSpellData casted_spells[CREATURE_MAX_SPELLS_CASTED_AT];
     /** Current active skill instance. */
     char active_instance_id;
-    unsigned char field_1E9;
+    char head_bob;
     struct Navigation navi;
 unsigned char field_211[6];
     /* Creature movement path data. */
@@ -573,7 +573,7 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     unsigned char grow_up_level;
     TbBool entrance_force;
     short max_angle_change;
-    short eye_height;
+    short base_eye_height;
   short field_57[14];
   short field_73;
     unsigned short size_xy;

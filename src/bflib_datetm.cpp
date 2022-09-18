@@ -2,7 +2,7 @@
 // Bullfrog Engine Emulation Library - for use to remake classic games like
 // Syndicate Wars, Magic Carpet or Dungeon Keeper.
 /******************************************************************************/
-/** @file bflib_datetm.c
+/** @file bflib_datetm.cpp
  *     Date and time related routines.
  * @par Purpose:
  *     Gets system date and time, makes delay, converts date/time formats.
@@ -23,12 +23,11 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <time.h>
-
+#include <chrono>
 #include "bflib_basics.h"
 #include "globals.h"
 
 #if defined(_WIN32)
-#define NOMINMAX
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #endif
@@ -43,13 +42,98 @@ struct TbTime global_time;
 struct TbDate global_date;
 TbClockMSec (* LbTimerClock)(void);
 /******************************************************************************/
+#define TimePoint std::chrono::high_resolution_clock::time_point
+#define TimeNow std::chrono::high_resolution_clock::now()
+TimePoint initialized_time_point;
+struct FrametimeMeasurements frametime_measurements;
+TimePoint delta_time_previous_timepoint;
+int debug_display_frametime = 0;
+/******************************************************************************/
+void initial_time_point()
+{
+  initialized_time_point = TimeNow;
+  gameadd.process_turn_time = 1.0; // Begin initial turn as soon as possible (like original game)
+}
+
+float get_delta_time()
+{
+    // Allow frame skip to work correctly when delta time is enabled
+    if ( (game.frame_skip != 0) && ((game.play_gameturn % game.frame_skip) != 0)) {
+        return 1.0;
+    }
+    long double frame_time_in_nanoseconds = std::chrono::duration_cast<std::chrono::nanoseconds>(TimeNow - delta_time_previous_timepoint).count();
+    delta_time_previous_timepoint = TimeNow;
+    float calculated_delta_time = (frame_time_in_nanoseconds/1000000000.0) * game.num_fps;
+    if (calculated_delta_time > 1.0) { // Fix for when initially loading the map, frametime takes too long. Possibly other circumstances too.
+        calculated_delta_time = 1.0;
+    }
+    return calculated_delta_time;
+}
+
+void frametime_set_all_measurements_to_be_displayed()
+{
+    // Display the frametime of the previous frame only, not the current frametime. Drawing "frametime_current" is a bad idea because frametimes are displayed on screen half-way through the rest of the measurements.
+    
+    bool once_per_half_second = false;
+    if (debug_display_frametime == 2)
+    {
+        // Once per half-second set the display text to highest frametime of the past half-second
+        frametime_measurements.max_timer += gameadd.delta_time;
+        if (frametime_measurements.max_timer > (game.num_fps/2)) {
+            frametime_measurements.max_timer = 0;
+            once_per_half_second = true;
+        }
+    }
+
+    for (int i = 0; i < TOTAL_FRAMETIME_KINDS; i++)
+    {
+        switch (debug_display_frametime)
+        {
+            case 1: // Frametime (show constantly)
+                frametime_measurements.frametime_display[i] = frametime_measurements.frametime_current[i];
+                break;
+            case 2: // Frametime max (shown once per half-second)
+                // Always get highest frametime
+                if (frametime_measurements.frametime_current[i] > frametime_measurements.frametime_get_max[i]) {
+                    frametime_measurements.frametime_get_max[i] = frametime_measurements.frametime_current[i];
+                }
+                // Display once per half-second
+                if (once_per_half_second == true)
+                {
+                    frametime_measurements.frametime_display[i] = frametime_measurements.frametime_get_max[i];
+                    frametime_measurements.frametime_get_max[i] = 0;
+                }
+                break;
+        }
+    }
+}
+
+void frametime_start_measurement(int frametime_kind)
+{
+    long double current_nanoseconds = std::chrono::duration_cast<std::chrono::nanoseconds>(TimeNow - initialized_time_point).count();
+    long double current_milliseconds = current_nanoseconds/1000000.0;
+    frametime_measurements.starting_measurement[frametime_kind] = float(current_milliseconds);
+}
+
+void frametime_end_measurement(int frametime_kind)
+{
+    long double current_nanoseconds = std::chrono::duration_cast<std::chrono::nanoseconds>(TimeNow - initialized_time_point).count();
+    long double current_milliseconds = current_nanoseconds/1000000.0;
+    float result = float(current_milliseconds) - frametime_measurements.starting_measurement[frametime_kind];
+    frametime_measurements.frametime_current[frametime_kind] = result;
+    
+    if (frametime_kind == Frametime_FullFrame) {
+        // Done last at end of frame
+        frametime_set_all_measurements_to_be_displayed();
+    }
+}
+/******************************************************************************/
 /**
  * Returns the number of milliseconds elapsed since the program was launched.
  * A version for (CLOCKS_PER_SEC == 1000).
  */
 TbClockMSec LbTimerClock_1000(void)
 {
-  // original DK uses win32 function timeGetTime();
   return clock();
 }
 

@@ -47,6 +47,16 @@ DLLIMPORT long _DK_get_next_gap_creature_can_fit_in_below_point(struct Thing *cr
 }
 #endif
 /******************************************************************************/
+
+// Call this function if you don't want the creature/thing to (visually) fly across the map whenever suddenly moving a very far distance. (teleporting for example)
+void reset_interpolation_of_thing(struct Thing *thing) {
+    struct ThingAdd* thingadd = get_thingadd(thing->index);
+    thingadd->previous_mappos = thing->mappos;
+    thingadd->previous_floor_height = thing->floor_height;
+    thingadd->interp_mappos = thing->mappos;
+    thingadd->interp_floor_height = thing->floor_height;
+}
+
 TbBool creature_can_navigate_to_with_storage_f(const struct Thing *creatng, const struct Coord3d *pos, NaviRouteFlags flags, const char *func_name)
 {
     NAVIDBG(8,"%s: Route for %s index %d from %3d,%3d to %3d,%3d", func_name, thing_model_name(creatng),(int)creatng->index,
@@ -104,7 +114,7 @@ TbBool get_nearest_valid_position_for_creature_at(struct Thing *thing, struct Co
         }
     }
 
-    ERRORLOG("Cannot find valid position to place thing");
+    ERRORLOG("Cannot find valid position near %d, %d to place thing", pos->x.stl.num, pos->y.stl.num);
     return false;
 
 }
@@ -294,7 +304,7 @@ void move_thing_in_map_f(struct Thing *thing, const struct Coord3d *pos, const c
         thing->mappos.z.val = pos->z.val;
         place_thing_in_mapwho(thing);
     }
-    thing->field_60 = get_thing_height_at(thing, &thing->mappos);
+    thing->floor_height = get_thing_height_at(thing, &thing->mappos);
 }
 
 TbBool move_creature_to_nearest_valid_position(struct Thing *thing)

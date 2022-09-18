@@ -325,7 +325,8 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
     long inter_val;
     switch (cam->view_mode)
     {
-    case PVM_IsometricView:
+    case PVM_IsoWibbleView:
+    case PVM_IsoStraightView:
         inter_val = 2560000 / cam->zoom;
         break;
     case PVM_FrontView:
@@ -350,7 +351,8 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
     {
         switch (cam->view_mode)
         {
-        case PVM_IsometricView:
+        case PVM_IsoWibbleView:
+        case PVM_IsoStraightView:
              view_set_camera_rotation_inertia(cam, 16, 64);
             break;
         case PVM_FrontView:
@@ -362,7 +364,8 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
     {
         switch (cam->view_mode)
         {
-        case PVM_IsometricView:
+        case PVM_IsoWibbleView:
+        case PVM_IsoStraightView:
             view_set_camera_rotation_inertia(cam, -16, -64);
             break;
         case PVM_FrontView:
@@ -370,13 +373,14 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
             break;
         }
     }
-    unsigned long zoom_min = adjust_min_camera_zoom(cam, game.operation_flags & GOF_ShowGui); // = CAMERA_ZOOM_MIN (+300 if gui is hidden in Isometric view)
+    unsigned long zoom_min = adjust_min_camera_zoom(cam, player->engine_window_width, player->engine_window_height, ((game.operation_flags & GOF_ShowGui) != 0) ? status_panel_width : 0);
     unsigned long zoom_max = CAMERA_ZOOM_MAX;
     if (pckt->control_flags & PCtr_ViewZoomIn)
     {
         switch (cam->view_mode)
         {
-        case PVM_IsometricView:
+        case PVM_IsoWibbleView:
+        case PVM_IsoStraightView:
             view_zoom_camera_in(cam, zoom_max, zoom_min);
             update_camera_zoom_bounds(cam, zoom_max, zoom_min);
             if (is_my_player(player))
@@ -399,7 +403,8 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
     {
         switch (cam->view_mode)
         {
-        case PVM_IsometricView:
+        case PVM_IsoWibbleView:
+        case PVM_IsoStraightView:
             view_zoom_camera_out(cam, zoom_max, zoom_min);
             update_camera_zoom_bounds(cam, zoom_max, zoom_min);
             if (is_my_player(player))
@@ -447,7 +452,7 @@ TbBool message_text_key_add(char * message, long maxlen, TbKeyCode key, TbKeyMod
         ((chr >= 'A') && (chr <= 'Z')) ||
         ((chr >= '0') && (chr <= '9')) ||
         (chr == ' ')  || (chr == '!') || (chr == ':') || (chr == ';')
-        || (chr == '(') || (chr == ')') || (chr == '.') || (chr == '_') 
+        || (chr == '(') || (chr == ')') || (chr == '.') || (chr == '_')
         || (chr == '\'') || (chr == '+') || (chr == '=') || (chr == '-')
         || (chr == '"') || (chr == '?') || (chr == '/') || (chr == '#')
         || (chr == '<') || (chr == '>') || (chr == '^'))
@@ -687,6 +692,11 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       player->cameras[CamIV_Parchment].orient_a = pckt->actn_par1;
       player->cameras[CamIV_FrontView].orient_a = pckt->actn_par1;
       player->cameras[CamIV_Isometric].orient_a = pckt->actn_par1;
+      
+      if ((is_my_player(player)) && (player->acamera->view_mode == PVM_FrontView)) {
+        // Fixes interpolated Things lagging for 1 turn when pressing middle mouse button to flip the camera in FrontView
+          reset_interpolation_of_camera();
+      }
       return 0;
   case PckA_SetPlyrState:
       set_player_state(player, pckt->actn_par1, pckt->actn_par2);
@@ -1156,7 +1166,7 @@ void process_players_creature_control_packet_control(long idx)
                     if (!creature_affected_by_spell(cctng, SplK_Chicken))
                     {
                         inst_inf = creature_instance_info_get(i);
-                        n = get_human_controlled_creature_target(cctng, inst_inf->field_1D);
+                        n = get_human_controlled_creature_target(cctng, inst_inf->primary_target);
                         set_creature_instance(cctng, i, 1, n, 0);
                     }
                 }
@@ -1164,7 +1174,7 @@ void process_players_creature_control_packet_control(long idx)
             else
             {
                 inst_inf = creature_instance_info_get(i);
-                n = get_human_controlled_creature_target(cctng, inst_inf->field_1D);
+                n = get_human_controlled_creature_target(cctng, inst_inf->primary_target);
                 set_creature_instance(cctng, i, 1, n, 0);
             }
         }
@@ -1182,7 +1192,7 @@ void process_players_creature_control_packet_control(long idx)
                 {
                     if (creature_instance_has_reset(cctng, i))
                     {
-                        n = get_human_controlled_creature_target(cctng, inst_inf->field_1D);
+                        n = get_human_controlled_creature_target(cctng, inst_inf->primary_target);
                         set_creature_instance(cctng, i, 1, n, 0);
                     }
                 }
@@ -1267,7 +1277,7 @@ void process_players_creature_control_packet_action(long plyr_idx)
         {
           i = pckt->actn_par1;
           inst_inf = creature_instance_info_get(i);
-          k = get_human_controlled_creature_target(thing, inst_inf->field_1D);
+          k = get_human_controlled_creature_target(thing, inst_inf->primary_target);
           set_creature_instance(thing, i, 1, k, 0);
           if (plyr_idx == my_player_number) {
               instant_instance_selected(i);
@@ -1292,7 +1302,7 @@ void process_players_creature_control_packet_action(long plyr_idx)
       {
           i = pckt->actn_par1;
           inst_inf = creature_instance_info_get(i);
-          k = get_human_controlled_creature_target(thing, inst_inf->field_1D);
+          k = get_human_controlled_creature_target(thing, inst_inf->primary_target);
           set_creature_instance(thing, i, 1, k, 0);
           if (plyr_idx == my_player_number) {
               instant_instance_selected(i);
@@ -1315,7 +1325,7 @@ void process_players_creature_control_packet_action(long plyr_idx)
     {
         playeradd = get_playeradd(plyr_idx);
         playeradd->teleport_destination = pckt->actn_par1;
-        break; 
+        break;
     }
     case PckA_SelectFPPickup:
     {

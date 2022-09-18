@@ -163,17 +163,17 @@ static struct KeeperSprite* sprite_by_frame(long kspr_frame)
 {
     if (kspr_frame >= KEEPERSPRITE_ADD_OFFSET)
     {
-        return &creature_table_add[kspr_frame];
+        return &creature_table_add[kspr_frame - KEEPERSPRITE_ADD_OFFSET];
     }
     unsigned long i = _DK_creature_list[kspr_frame];
     return &creature_table[i];
 }
 
-void get_keepsprite_unscaled_dimensions(long kspr_frame, long a2, long a3, short *orig_w, short *orig_h, short *unsc_w, short *unsc_h)
+void get_keepsprite_unscaled_dimensions(long kspr_anim, long angle, long frame, short *orig_w, short *orig_h, short *unsc_w, short *unsc_h)
 {
     TbBool val_in_range;
-    struct KeeperSprite* kspr = sprite_by_frame(kspr_frame);
-    if ( ((a2 & 0x7FF) <= 1151) || ((a2 & 0x7FF) >= 1919) )
+    struct KeeperSprite* kspr = sprite_by_frame(kspr_anim);
+    if (((angle & 0x7FF) <= 1151) || ((angle & 0x7FF) >= 1919) )
         val_in_range = 0;
     else
         val_in_range = 1;
@@ -183,7 +183,7 @@ void get_keepsprite_unscaled_dimensions(long kspr_frame, long a2, long a3, short
       lbDisplay.DrawFlags &= ~Lb_SPRITE_FLIP_HORIZ;
     if (kspr->Rotable == 0)
     {
-        kspr += a3;
+        kspr += frame;
         *orig_w = kspr->FrameWidth;
         *orig_h = kspr->FrameHeight;
         if ( val_in_range )
@@ -199,7 +199,7 @@ void get_keepsprite_unscaled_dimensions(long kspr_frame, long a2, long a3, short
     } else
     if (kspr->Rotable == 2)
     {
-        kspr += a3 + abs(4 - (((a2 + 128) & 0x7FF) >> 8)) * kspr->FramesCount;
+        kspr += frame + abs(4 - (((angle + 128) & 0x7FF) >> 8)) * kspr->FramesCount;
         *orig_w = kspr->SWidth;
         *orig_h = kspr->SHeight;
         if ( val_in_range )
@@ -213,8 +213,8 @@ void get_keepsprite_unscaled_dimensions(long kspr_frame, long a2, long a3, short
           *unsc_h = kspr->FrameOffsH;
         }
     }
-    *unsc_w += kspr->field_C;
-    *unsc_h += kspr->field_E;
+    *unsc_w += kspr->offset_x;
+    *unsc_h += kspr->offset_y;
 
 }
 
@@ -252,14 +252,14 @@ short get_creature_anim(struct Thing *thing, unsigned short seq_idx)
 
 void untint_thing(struct Thing *thing)
 {
-    thing->field_51 = 0;
-    thing->field_4F &= ~(TF4F_Unknown04|TF4F_Unknown08);
+    thing->tint_colour = 0;
+    thing->rendering_flags &= ~(TRF_Unknown04|TRF_Unknown08);
 }
 
 void tint_thing(struct Thing *thing, TbPixel colour, unsigned char tint)
 {
-    thing->field_4F ^= (thing->field_4F ^ (tint << 2)) & (TF4F_Unknown04|TF4F_Unknown08);
-    thing->field_51 = colour;
+    thing->rendering_flags ^= (thing->rendering_flags ^ (tint << 2)) & (TRF_Unknown04|TRF_Unknown08);
+    thing->tint_colour = colour;
 }
 
 TbBool update_creature_anim(struct Thing *thing, long speed, long seq_idx)
@@ -284,30 +284,30 @@ TbBool update_creature_anim_td(struct Thing *thing, long speed, long td_idx)
     return false;
 }
 
-void update_creature_graphic_field_4F(struct Thing *thing)
+void update_creature_rendering_flags(struct Thing *thing)
 {
     // Clear related flags
-    thing->field_4F &= ~TF4F_Unknown01;
-    thing->field_4F &= ~TF4F_Transpar_Flags;
-    thing->field_4F &= ~TF4F_Unknown40;
+    thing->rendering_flags &= ~TRF_Unknown01;
+    thing->rendering_flags &= ~TRF_Transpar_Flags;
+    thing->rendering_flags &= ~TRF_Unmoving;
     // Now set only those that should be
     if ( (is_thing_directly_controlled_by_player(thing, my_player_number)) || (is_thing_passenger_controlled_by_player(thing, my_player_number)) )
     {
-        thing->field_4F |= TF4F_Unknown01;
+        thing->rendering_flags |= TRF_Unknown01;
     }
     if (creatures[thing->model].field_7)
     {
-        thing->field_4F |= TF4F_Transpar_Alpha;
+        thing->rendering_flags |= TRF_Transpar_Alpha;
     }
     if (creature_is_invisible(thing))
     {
       if (is_my_player_number(thing->owner))
       {
-          thing->field_4F &= ~TF4F_Transpar_Flags;
-          thing->field_4F |= TF4F_Transpar_4;
+          thing->rendering_flags &= ~TRF_Transpar_Flags;
+          thing->rendering_flags |= TRF_Transpar_4;
       } else
       {
-            thing->field_4F |= TF4F_Unknown01;
+            thing->rendering_flags |= TRF_Unknown01;
             struct PlayerInfo* player = get_my_player();
             struct Thing* creatng = thing_get(player->influenced_thing_idx);
             if (creatng != thing)
@@ -316,9 +316,9 @@ void update_creature_graphic_field_4F(struct Thing *thing)
                 {
                     if (creature_can_see_invisible(creatng))
                     {
-                        thing->field_4F &= ~TF4F_Unknown01;
-                        thing->field_4F &= ~TF4F_Transpar_Flags;
-                        thing->field_4F |= TF4F_Transpar_4;
+                        thing->rendering_flags &= ~TRF_Unknown01;
+                        thing->rendering_flags &= ~TRF_Transpar_Flags;
+                        thing->rendering_flags |= TRF_Transpar_4;
                     }
                 }
             }
@@ -340,7 +340,7 @@ void update_creature_graphic_anim(struct Thing *thing)
     } else
     if ((thing->active_state == CrSt_CreatureHeroEntering) && (cctrl->countdown_282 >= 0))
     {
-      thing->field_4F |= TF4F_Unknown01;
+      thing->rendering_flags |= TRF_Unknown01;
     } else
     if (!creature_affected_by_spell(thing, SplK_Chicken))
     {
@@ -348,7 +348,7 @@ void update_creature_graphic_anim(struct Thing *thing)
         {
           if (cctrl->instance_id == CrInst_TORTURED)
           {
-              thing->field_4F &= ~(TF4F_Transpar_Flags);
+              thing->rendering_flags &= ~(TRF_Transpar_Flags);
           }
           struct InstanceInfo* inst_inf = creature_instance_info_get(cctrl->instance_id);
           update_creature_anim(thing, cctrl->instance_anim_step_turns, inst_inf->graphics_idx);
@@ -372,18 +372,18 @@ void update_creature_graphic_anim(struct Thing *thing)
         if (thing->active_state == CrSt_CreatureUnconscious)
         {
             update_creature_anim(thing, 64, 16);
-            thing->field_4F |= TF4F_Unknown40;
+            thing->rendering_flags |= TRF_Unmoving;
         } else
         if (thing->active_state == CrSt_CreatureSleep)
         {
-            thing->field_4F &= ~(TF4F_Transpar_Flags);
+            thing->rendering_flags &= ~(TRF_Transpar_Flags);
             update_creature_anim(thing, 128, 12);
         } else
         if (cctrl->distance_to_destination == 0)
         {
             update_creature_anim(thing, 256, 0);
         } else
-        if (thing->field_60 < thing->mappos.z.val)
+        if (thing->floor_height < thing->mappos.z.val)
         {
             update_creature_anim(thing, 256, 0);
         } else
@@ -405,12 +405,12 @@ void update_creature_graphic_anim(struct Thing *thing)
         }
     } else
     {
-        thing->field_4F &= ~(TF4F_Transpar_Flags);
+        thing->rendering_flags &= ~(TRF_Transpar_Flags);
         if (cctrl->distance_to_destination == 0)
         {
             update_creature_anim_td(thing, 256, 820);
         } else
-        if (thing->field_60 < thing->mappos.z.val)
+        if (thing->floor_height < thing->mappos.z.val)
         {
             update_creature_anim_td(thing, 256, 820);
         } else
@@ -468,7 +468,7 @@ void update_creature_graphic_tint(struct Thing *thing)
 
 void set_creature_graphic(struct Thing *thing)
 {
-    update_creature_graphic_field_4F(thing);
+    update_creature_rendering_flags(thing);
     update_creature_graphic_anim(thing);
     // Update tint
     update_creature_graphic_tint(thing);

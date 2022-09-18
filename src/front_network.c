@@ -211,7 +211,7 @@ void __stdcall enum_players_callback(struct TbNetworkCallbackData *netcdat, void
         ERRORLOG("Too many players in enumeration");
         return;
     }
-    strncpy(net_player[net_number_of_enum_players].name, netcdat->plyr_name, sizeof(struct TbNetworkPlayerName));
+    snprintf(net_player[net_number_of_enum_players].name, sizeof(struct TbNetworkPlayerName), "%s", netcdat->plyr_name);
     net_number_of_enum_players++;
 }
 
@@ -486,10 +486,10 @@ void net_write_config_file(void)
     TbFileHandle handle = LbFileOpen(fname, Lb_FILE_MODE_NEW);
     if (handle != -1)
     {
-        strupr(net_config_info.str_atz);
-        strupr(net_config_info.str_ath);
-        strupr(net_config_info.str_atdt);
-        strupr(net_config_info.str_ats);
+        make_uppercase(net_config_info.str_atz);
+        make_uppercase(net_config_info.str_ath);
+        make_uppercase(net_config_info.str_atdt);
+        make_uppercase(net_config_info.str_ats);
         LbFileWrite(handle, &net_config_info, sizeof(net_config_info));
         LbFileClose(handle);
     }
@@ -516,8 +516,8 @@ void frontnet_session_setup(void)
 {
     if (net_player_name[0] == '\0')
     {
-      strncpy(net_player_name, net_config_info.str_u2, sizeof(net_player_name));
-      strcpy(tmp_net_player_name, net_config_info.str_u2);
+        snprintf(net_player_name, sizeof(net_player_name), "%s", net_config_info.str_u2);
+        strcpy(tmp_net_player_name, net_config_info.str_u2);
     }
     net_session_index_active = -1;
     fe_computer_players = 2;

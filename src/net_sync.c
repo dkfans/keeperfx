@@ -293,7 +293,7 @@ TbBigChecksum get_thing_checksum(const struct Thing* thing)
     {
         struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
         csum += (ulong)cctrl->inst_turn + (ulong)cctrl->instance_id
-            + (ulong)thing->field_49 + (ulong)thing->field_48;
+            + (ulong)thing->max_frames + (ulong)thing->current_frame;
     }
     else if ((thing->class_id == TCls_EffectElem) || (thing->class_id == TCls_AmbientSnd))
     {

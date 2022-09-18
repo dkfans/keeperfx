@@ -125,13 +125,15 @@ static CoroutineLoopState setup_exchange_player_number(CoroutineLoop *context)
           player = get_player(k);
           player->id_number = k;
           player->allocflags |= PlaF_Allocated;
-          if (pckt->actn_par2 < 1)
-            player->view_mode_restore = PVM_IsometricView;
-          else
-            player->view_mode_restore = PVM_FrontView;
+          switch (pckt->actn_par2) {
+              case 0: player->view_mode_restore = PVM_IsoWibbleView; break;
+              case 1: player->view_mode_restore = PVM_IsoStraightView; break;
+              case 2: player->view_mode_restore = PVM_FrontView; break;
+              default: player->view_mode_restore = PVM_IsoWibbleView; break;
+          }
           player->is_active = pckt->actn_par1;
           init_player(player, 0);
-          strncpy(player->field_15,net_player[i].name,sizeof(struct TbNetworkPlayerName));
+          snprintf(player->field_15, sizeof(struct TbNetworkPlayerName), "%s", net_player[i].name);
           k++;
       }
   }
@@ -216,7 +218,7 @@ void set_network_player_name(int plyr_idx, const char *name)
         ERRORLOG("Outranged network player %d",plyr_idx);
         return;
     }
-    strncpy(net_player[plyr_idx].name, name, sizeof(net_player[0].name));
+    snprintf(net_player[plyr_idx].name, sizeof(net_player[0].name), "%s", name);
 }
 
 long network_session_join(void)

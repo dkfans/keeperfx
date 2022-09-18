@@ -545,12 +545,12 @@ struct Thing *create_effect_element(const struct Coord3d *pos, unsigned short ee
         i = EFFECT_RANDOM(thing, eestat->sprite_size_max  - (int)eestat->sprite_size_min  + 1);
         long n = EFFECT_RANDOM(thing, eestat->sprite_speed_max - (int)eestat->sprite_speed_min + 1);
         set_thing_draw(thing, eestat->sprite_idx, eestat->sprite_speed_min + n, eestat->sprite_size_min + i, 0, 0, eestat->draw_class);
-        set_flag_byte(&thing->field_4F,TF4F_Unknown02,eestat->field_13);
-        thing->field_4F ^= (thing->field_4F ^ (0x10 * eestat->field_14)) & (TF4F_Transpar_Flags);
-        set_flag_byte(&thing->field_4F,TF4F_Unknown40,eestat->field_D);
+        set_flag_byte(&thing->rendering_flags,TRF_Unknown02,eestat->field_13);
+        thing->rendering_flags ^= (thing->rendering_flags ^ (0x10 * eestat->field_14)) & (TRF_Transpar_Flags);
+        set_flag_byte(&thing->rendering_flags,TRF_Unmoving,eestat->field_D);
     } else
     {
-        set_flag_byte(&thing->field_4F,TF4F_Unknown01,true);
+        set_flag_byte(&thing->rendering_flags,TRF_Unknown01,true);
     }
 
     thing->fall_acceleration = eestat->field_18;
@@ -571,22 +571,22 @@ struct Thing *create_effect_element(const struct Coord3d *pos, unsigned short ee
 
     if (eestat->field_17 != 0)
     {
-        thing->field_4B = eestat->sprite_size_min;
-        thing->field_4D = eestat->sprite_size_max;
+        thing->sprite_size_min = eestat->sprite_size_min;
+        thing->sprite_size_max = eestat->sprite_size_max;
         if (eestat->field_17 == 2)
         {
-            thing->field_4A = 2 * (eestat->sprite_size_max - (long)eestat->sprite_size_min) / thing->health;
+            thing->transformation_speed = 2 * (eestat->sprite_size_max - (long)eestat->sprite_size_min) / thing->health;
             thing->field_50 |= 0x02;
         }
         else
         {
-            thing->field_4A = (eestat->sprite_size_max - (long)eestat->sprite_size_min) / thing->health;
+            thing->transformation_speed = (eestat->sprite_size_max - (long)eestat->sprite_size_min) / thing->health;
             thing->field_50 &= ~0x02;
         }
         thing->sprite_size = eestat->sprite_size_min;
     } else
     {
-        thing->field_4A = 0;
+        thing->transformation_speed = 0;
     }
 
     if (eestat->field_3A != 0)
@@ -685,8 +685,8 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
         {
             // TODO: looks like some "struct AnimSpeed"
             memcpy(&effeltng->anim_speed, &thing->anim_speed, 20);
-            effeltng->field_4F &= ~TF4F_Transpar_8;
-            effeltng->field_4F |= TF4F_Transpar_4;
+            effeltng->rendering_flags &= ~TRF_Transpar_8;
+            effeltng->rendering_flags |= TRF_Transpar_4;
             effeltng->anim_speed = 0;
             effeltng->move_angle_xy = thing->move_angle_xy;
         }
@@ -702,8 +702,8 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
             if (!thing_is_invalid(effeltng))
             {
                 memcpy(&effeltng->anim_speed, &thing->anim_speed, 0x14u);
-                effeltng->field_4F &= ~TF4F_Transpar_8;
-                effeltng->field_4F |= TF4F_Transpar_4;
+                effeltng->rendering_flags &= ~TRF_Transpar_8;
+                effeltng->rendering_flags |= TRF_Transpar_4;
                 effeltng->anim_speed = 0;
                 effeltng->move_angle_xy = thing->move_angle_xy;
             }
@@ -823,8 +823,8 @@ void change_effect_element_into_another(struct Thing *thing, long nmodel)
     int scale = eestat->sprite_size_min + EFFECT_RANDOM(thing, eestat->sprite_size_max - eestat->sprite_size_min + 1);
     thing->model = nmodel;
     set_thing_draw(thing, eestat->sprite_idx, speed, scale, eestat->field_D, 0, 2);
-    thing->field_4F ^= (thing->field_4F ^ 0x02 * eestat->field_13) & TF4F_Unknown02;
-    thing->field_4F ^= (thing->field_4F ^ 0x10 * eestat->field_14) & (TF4F_Transpar_Flags);
+    thing->rendering_flags ^= (thing->rendering_flags ^ 0x02 * eestat->field_13) & TRF_Unknown02;
+    thing->rendering_flags ^= (thing->rendering_flags ^ 0x10 * eestat->field_14) & (TRF_Transpar_Flags);
     thing->fall_acceleration = eestat->field_18;
     thing->field_23 = eestat->field_1A;
     thing->field_24 = eestat->field_1C;
@@ -833,7 +833,7 @@ void change_effect_element_into_another(struct Thing *thing, long nmodel)
     } else {
         thing->health = EFFECT_RANDOM(thing, eestat->numfield_5 - eestat->numfield_3 + 1) + eestat->numfield_3;
     }
-    thing->field_49 = keepersprite_frames(thing->anim_sprite);
+    thing->max_frames = keepersprite_frames(thing->anim_sprite);
 }
 
 TngUpdateRet update_effect_element(struct Thing *elemtng)
@@ -859,7 +859,7 @@ TngUpdateRet update_effect_element(struct Thing *elemtng)
     // Set dynamic properties of the effect
     if (!eestats->field_12)
     {
-        if (elemtng->field_60 >= (int)elemtng->mappos.z.val)
+        if (elemtng->floor_height >= (int)elemtng->mappos.z.val)
           elemtng->anim_speed = 0;
     }
     if (eestats->field_15)
@@ -946,16 +946,16 @@ TngUpdateRet update_effect_element(struct Thing *elemtng)
       i -= LbFPMath_PI;
     long prop_val = i / (LbFPMath_PI / 8);
     elemtng->move_angle_xy = get_angle_xy_to_vec(&elemtng->veloc_base);
-    elemtng->field_48 = prop_val;
+    elemtng->current_frame = prop_val;
     elemtng->anim_speed = 0;
-    elemtng->field_40 = (prop_val & 0xff) << 8;
+    elemtng->anim_time = (prop_val & 0xff) << 8;
     SYNCDBG(18,"Finished");
     return TUFRet_Modified;
 }
 
 struct Thing *create_effect_generator(struct Coord3d *pos, unsigned short model, unsigned short range, unsigned short owner, long parent_idx)
 {
-  
+
     if (!i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots))
     {
         ERRORDBG(3,"Cannot create effect generator model %d for player %d. There are too many things allocated.",(int)model,(int)owner);
@@ -979,7 +979,7 @@ struct Thing *create_effect_generator(struct Coord3d *pos, unsigned short model,
     effgentng->mappos = *pos;
     effgentng->creation_turn = game.play_gameturn;
     effgentng->health = -1;
-    effgentng->field_4F |= TF4F_Unknown01;
+    effgentng->rendering_flags |= TRF_Unknown01;
     add_thing_to_its_class_list(effgentng);
     place_thing_in_mapwho(effgentng);
     return effgentng;
@@ -1049,7 +1049,7 @@ long move_effect(struct Thing *efftng)
             efftng->mappos.z.val = pos.z.val;
             place_thing_in_mapwho(efftng);
         }
-        efftng->field_60 = get_thing_height_at(efftng, &efftng->mappos);
+        efftng->floor_height = get_thing_height_at(efftng, &efftng->mappos);
     }
     return 1;
 }
@@ -1297,7 +1297,7 @@ struct Thing *create_effect(const struct Coord3d *pos, ThingModel effmodel, Play
     thing->fall_acceleration = 0;
     thing->field_23 = 0;
     thing->field_24 = 0;
-    thing->field_4F |= TF4F_Unknown01;
+    thing->rendering_flags |= TRF_Unknown01;
     thing->health = ieffect->start_health;
     if (ieffect->ilght.radius != 0)
     {
@@ -1415,7 +1415,7 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
                     tngdst->state_flags |= TF1_PushAdd;
                     affected = true;
                 }
-            } 
+            }
         }
     }
     return affected;

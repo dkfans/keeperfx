@@ -58,6 +58,8 @@ enum ThingAngles {
 struct Thing;
 struct Room;
 
+void reset_interpolation_of_thing(struct Thing *thing);
+
 /******************************************************************************/
 DLLIMPORT long _DK_owner_player_navigating;
 #define owner_player_navigating _DK_owner_player_navigating

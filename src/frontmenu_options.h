@@ -41,14 +41,15 @@ struct GuiButton;
 DLLIMPORT long _DK_fe_mouse_sensitivity;
 #define fe_mouse_sensitivity _DK_fe_mouse_sensitivity
 DLLIMPORT long _DK_sound_level;
-#define sound_level _DK_sound_level
+#define sound_level_slider _DK_sound_level
 DLLIMPORT long _DK_music_level;
-#define music_level _DK_music_level
+#define music_level_slider _DK_music_level
 DLLIMPORT char _DK_video_cluedo_mode;
 DLLIMPORT char _DK_video_shadows;
 DLLIMPORT char _DK_video_textures;
 DLLIMPORT char _DK_video_view_distance_level;
 #define video_view_distance_level _DK_video_view_distance_level
+extern long mentor_level_slider; // This is not the mentor_volume you are looking for. Try GameSettings.
 
 #pragma pack()
 /******************************************************************************/
@@ -78,8 +79,12 @@ void gui_switch_video_mode(struct GuiButton *gbtn);
 void gui_display_current_resolution(struct GuiButton *gbtn);
 void gui_set_sound_volume(struct GuiButton *gbtn);
 void gui_set_music_volume(struct GuiButton *gbtn);
+void gui_set_mentor_volume(struct GuiButton *gbtn);
 void init_video_menu(struct GuiMenu *gmnu);
 void init_audio_menu(struct GuiMenu *gmnu);
+/******************************************************************************/
+int make_audio_slider_linear(int a);
+int make_audio_slider_nonlinear(int a);
 /******************************************************************************/
 #ifdef __cplusplus
 }
