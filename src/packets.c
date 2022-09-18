@@ -909,8 +909,13 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
         playeradd->roomspace_no_default = true;
         return false;
     }
-    case PckA_SetRoomspaceDrag:
     case PckA_SetRoomspaceDragPaint:
+    {
+        playeradd->roomspace_height = 1;
+        playeradd->roomspace_width = 1;
+    }
+    // fall through
+    case PckA_SetRoomspaceDrag:
     {
         playeradd->roomspace_detection_looseness = DEFAULT_USER_ROOMSPACE_DETECTION_LOOSENESS;
         playeradd->user_defined_roomspace_width = DEFAULT_USER_ROOMSPACE_WIDTH;
