@@ -840,10 +840,8 @@ static int check_out_unreinforced_spiral(struct Thing *thing, int a2)
 static long check_out_unreinforced_place(struct Thing *thing)
 {
     unsigned short working_stl;
-    long v2;
-    long v3;
     long result;
-    unsigned short v5;
+    unsigned short working_stl;
     signed int v6;
     unsigned char v7;
     unsigned int v8;
@@ -868,22 +866,22 @@ static long check_out_unreinforced_place(struct Thing *thing)
     working_stl = cctrl->digger.working_stl;
     if (!working_stl)
         return check_out_unreinforced_spiral(thing, 1) != 0;
-    v2 = map_to_slab[(unsigned char)working_stl];
-    v3 = *(unsigned int *)((char *)map_to_slab + ((working_stl >> 6) & 0xFFFC));
-    if ((int)abs(map_to_slab[thing->mappos.x.stl.pos] - v2) >= 3 || (int)abs(map_to_slab[thing->mappos.y.stl.pos] - v3) >= 3)
+    MapSlabCoord slb_x = map_to_slab[(unsigned char)working_stl];
+    MapSlabCoord slb_y = *(unsigned int *)((char *)map_to_slab + ((working_stl >> 6) & 0xFFFC));
+    if ((int)abs(map_to_slab[thing->mappos.x.stl.pos] - slb_x) >= 3 || (int)abs(map_to_slab[thing->mappos.y.stl.pos] - slb_y) >= 3)
     {
         return check_out_unreinforced_spiral(thing, 1) != 0;
     }
-    if (check_place_to_reinforce(thing, v2, v3) > 0 && check_out_uncrowded_reinforce_position(thing, cctrl->digger.working_stl, &stl_x_2, &stl_y_2) && setup_person_move_to_position(thing, stl_x_2, stl_y_2, 0))
+    if (check_place_to_reinforce(thing, slb_x, slb_y) > 0 && check_out_uncrowded_reinforce_position(thing, cctrl->digger.working_stl, &stl_x_2, &stl_y_2) && setup_person_move_to_position(thing, stl_x_2, stl_y_2, 0))
     {
         result = 1;
         thing->continue_state = CrSt_ImpArrivesAtReinforce;
     }
     else
     {
-        v5 = cctrl->digger.working_stl;
+        working_stl = cctrl->digger.working_stl;
         cctrl = creature_control_get_from_thing(thing);
-        v6 = map_to_slab[(unsigned char)abs(v5)] + 85 * map_to_slab[v5 / 256];
+        v6 = map_to_slab[(unsigned char)abs(working_stl)] + 85 * map_to_slab[working_stl / 256];
         stl_y_2 = v6 % 85;
         stl_x_2 = v6 / 85;
         v7 = thing->mappos.x.stl.pos % 3u;
