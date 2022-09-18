@@ -176,7 +176,7 @@ TbBool creature_can_see_combat_path(const struct Thing *creatng, const struct Th
     if (dist > subtile_coord(crstat->visual_range,0)) {
         return false;
     }
-    if (!jonty_creature_can_see_thing_including_lava_check(creatng, enmtng)) {
+    if (!jonty_creature_has_clear_shot_at_thing_including_lava_check(creatng, enmtng)) {
         return false;
     }
     return true;
