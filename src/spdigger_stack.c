@@ -879,8 +879,6 @@ static long check_out_unreinforced_place(struct Thing *thing)
     }
     else
     {
-        working_stl = cctrl->digger.working_stl;
-        cctrl = creature_control_get_from_thing(thing);
         v6 = map_to_slab[(unsigned char)abs(working_stl)] + 85 * map_to_slab[working_stl / 256];
         stl_y_2 = v6 % 85;
         stl_x_2 = v6 / 85;
