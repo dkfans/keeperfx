@@ -1696,7 +1696,8 @@ long ranged_combat_move(struct Thing* thing, struct Thing* enmtng, MapCoordDelta
         }
         else
         if (enmdist < subtile_coord(3, 0)) {
-            creature_retreat_from_combat(thing, enmtng, nstat, 1); //causes back and forth movement, fix by random pos
+            creature_choose_random_destination_on_valid_adjacent_slab(thing);
+            thing->continue_state = nstat;
         }
         else
         if (creature_move_to(thing, &enmtng->mappos, cctrl->max_speed, 0, 0) == -1) //todo: can see top but outside of attack range -> random position?
@@ -1712,7 +1713,6 @@ long ranged_combat_move(struct Thing* thing, struct Thing* enmtng, MapCoordDelta
     {
         creature_move_to(thing, &enmtng->mappos, cctrl->max_speed, 0, 0);
     }
-    JUSTMSG("testlog, end of function, shot if visible.");
     return thing_in_field_of_view(thing, enmtng);
 }
 
