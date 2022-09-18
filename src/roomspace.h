@@ -150,6 +150,7 @@ TbBool roomspace_can_build_room_at_slab(PlayerNumber plyr_idx, RoomKind rkind, M
 void update_bridge_build_direction(PlayerNumber plyr_idx);
 void detect_roomspace_direction(struct RoomSpace *roomspace);
 void detect_bridge_shape(PlayerNumber plyr_idx);
+TbBool roomspace_liquid_path_is_blocked(MapSlabCoord start, MapSlabCoord end, MapSlabCoord other_axis, TbBool vertical);
 
 /******************************************************************************/
 #include "roomspace_detection.h"
