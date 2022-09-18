@@ -611,25 +611,25 @@ TbBool jonty_creature_has_clear_shot_at_thing_including_lava_check(const struct 
             SYNCDBG(17, "The %s index %d owned by player %d checks w/o lava %s index %d",
                 thing_model_name(creatng),(int)creatng->index,(int)creatng->owner,thing_model_name(targettng),(int)targettng->index);
             // Check bottom of the thing
-            if (line_of_sight_3d_ignoring_specific_door(&shotpos, &tgtpos, targettng))
-                return true;
+            if (!line_of_sight_3d_ignoring_specific_door(&shotpos, &tgtpos, targettng))
+                return false;
             // Check top of the thing
             tgtpos.z.val += targettng->clipbox_size_yz;
-            if (line_of_sight_3d_ignoring_specific_door(&shotpos, &tgtpos, targettng))
-                return true;
-            return false;
+            if (!line_of_sight_3d_ignoring_specific_door(&shotpos, &tgtpos, targettng))
+                return false;
+            return true;
         } else
         {
             SYNCDBG(17, "The %s index %d owned by player %d checks with lava %s index %d",
                 thing_model_name(creatng),(int)creatng->index,(int)creatng->owner,thing_model_name(targettng),(int)targettng->index);
             // Check bottom of the thing
-            if (jonty_line_of_sight_3d_including_lava_check_ignoring_specific_door(&shotpos, &tgtpos, targettng))
-                return true;
+            if (!jonty_line_of_sight_3d_including_lava_check_ignoring_specific_door(&shotpos, &tgtpos, targettng))
+                return false;
             // Check top of the thing
             tgtpos.z.val += targettng->clipbox_size_yz;
-            if (jonty_line_of_sight_3d_including_lava_check_ignoring_specific_door(&shotpos, &tgtpos, targettng))
-                return true;
-            return false;
+            if (!jonty_line_of_sight_3d_including_lava_check_ignoring_specific_door(&shotpos, &tgtpos, targettng))
+                return false;
+            return true;
         }
     } else
     {
@@ -639,24 +639,24 @@ TbBool jonty_creature_has_clear_shot_at_thing_including_lava_check(const struct 
             SYNCDBG(17, "The %s index %d owned by player %d checks w/o lava %s index %d",
                 thing_model_name(creatng),(int)creatng->index,(int)creatng->owner,thing_model_name(targettng),(int)targettng->index);
             // Check bottom of the thing
-            if (line_of_sight_3d(&shotpos, &tgtpos))
-                return true;
+            if (!line_of_sight_3d(&shotpos, &tgtpos))
+                return false;
             // Check top of the thing
             tgtpos.z.val += targettng->clipbox_size_yz;
             if (line_of_sight_3d(&shotpos, &tgtpos))
-                return true;
-            return false;
+                return false;
+            return true;
         } else
         {
             SYNCDBG(17, "The %s index %d owned by player %d checks with lava %s index %d",
                 thing_model_name(creatng),(int)creatng->index,(int)creatng->owner,thing_model_name(targettng),(int)targettng->index);
             // Check bottom of the thing
-            if (jonty_line_of_sight_3d_including_lava_check_ignoring_own_door(&shotpos, &tgtpos, creatng->owner))
-                return true;
+            if (!jonty_line_of_sight_3d_including_lava_check_ignoring_own_door(&shotpos, &tgtpos, creatng->owner))
+                return false;
             // Check top of the thing
             tgtpos.z.val += targettng->clipbox_size_yz;
-            if (jonty_line_of_sight_3d_including_lava_check_ignoring_own_door(&shotpos, &tgtpos, creatng->owner))
-                return true;
+            if (!jonty_line_of_sight_3d_including_lava_check_ignoring_own_door(&shotpos, &tgtpos, creatng->owner))
+                return false;
             // Check both sides at middle of thing height
             tgtpos.z.val -= targettng->clipbox_size_yz / 2;
             long angle = get_angle_xy_to(&tgtpos, &shotpos);
@@ -665,14 +665,14 @@ TbBool jonty_creature_has_clear_shot_at_thing_including_lava_check(const struct 
             // Also 60 deg will shorten distance to the check point, which may better describe real visibility
             tgtpos.x.val = targettng->mappos.x.val + distance_with_angle_to_coord_x(targettng->clipbox_size_xy/2, angle + LbFPMath_PI/3);
             tgtpos.y.val = targettng->mappos.y.val + distance_with_angle_to_coord_y(targettng->clipbox_size_xy/2, angle + LbFPMath_PI/3);
-            if (jonty_line_of_sight_3d_including_lava_check_ignoring_own_door(&shotpos, &tgtpos, creatng->owner))
-                return true;
+            if (!jonty_line_of_sight_3d_including_lava_check_ignoring_own_door(&shotpos, &tgtpos, creatng->owner))
+                return false;
             // Check right side
             tgtpos.x.val = targettng->mappos.x.val + distance_with_angle_to_coord_x(targettng->clipbox_size_xy/2, angle - LbFPMath_PI/3);
             tgtpos.y.val = targettng->mappos.y.val + distance_with_angle_to_coord_y(targettng->clipbox_size_xy/2, angle - LbFPMath_PI/3);
-            if (jonty_line_of_sight_3d_including_lava_check_ignoring_own_door(&shotpos, &tgtpos, creatng->owner))
-                return true;
-            return false;
+            if (!jonty_line_of_sight_3d_including_lava_check_ignoring_own_door(&shotpos, &tgtpos, creatng->owner))
+                return false;
+            return true;
         }
     }
 }
