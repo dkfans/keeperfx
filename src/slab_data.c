@@ -735,6 +735,20 @@ TbBool slab_kind_has_no_ownership(SlabKind slbkind)
     return ( (slbkind == SlbT_ROCK) || (slbkind == SlbT_GOLD) || (slbkind == SlbT_GEMS) || (slbkind == SlbT_EARTH) || (slbkind == SlbT_TORCHDIRT)
             || (slbkind == SlbT_PATH) || (slab_kind_is_liquid(slbkind)) );
 }
+
+TbBool slab_by_liquid(MapSlabCoord slb_x, MapSlabCoord slb_y)
+{
+    for (long n = 0; n < AROUND_TILES_COUNT; n++)
+    {
+        MapSlabCoord aslb_x = slb_x + around[n].delta_x;
+        MapSlabCoord aslb_y = slb_y + around[n].delta_y;
+        if (slab_is_liquid(aslb_x, aslb_y))
+        {
+            return true;
+        }
+    }
+    return false;
+}
 /******************************************************************************/
 #ifdef __cplusplus
 }

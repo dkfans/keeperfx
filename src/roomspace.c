@@ -27,6 +27,7 @@
 #include "map_blocks.h"
 #include "gui_soundmsgs.h"
 #include "config_settings.h"
+#include "slab_data.h"
 
 #include "keeperfx.hpp"
 
@@ -766,7 +767,7 @@ void get_dungeon_build_user_roomspace(struct RoomSpace *roomspace, PlayerNumber 
             drag_start_x = slb_x;
             drag_start_y = slb_y;
         }
-        TbBool can_drag = (rkind == RoK_BRIDGE) ? ( (can_build_room_at_slab(plyr_idx, rkind, drag_start_x, drag_start_y)) && ((slab_is_liquid(slb_x, slb_y))) ) : true;
+        TbBool can_drag = (rkind == RoK_BRIDGE) ? ( (can_build_room_at_slab(plyr_idx, rkind, drag_start_x, drag_start_y)) && ( ((slab_is_liquid(slb_x, slb_y))) || (slab_by_liquid(slb_x, slb_y)) ) ) : true;
         if (can_drag)
         {
             temp_best_room = create_box_roomspace_from_drag(best_roomspace, drag_start_x, drag_start_y, slb_x, slb_y);
@@ -1524,6 +1525,20 @@ TbBool roomspace_can_build_room_at_slab(PlayerNumber plyr_idx, RoomKind rkind, M
        {
            return false;
        }
+       if (playeradd->roomspace_horizontal_first)
+       {
+           if ( (roomspace_liquid_path_is_blocked(playeradd->render_roomspace.drag_start_x, slb_x, playeradd->render_roomspace.drag_start_y, 0)) || (roomspace_liquid_path_is_blocked(slb_y, playeradd->render_roomspace.drag_start_y, playeradd->render_roomspace.drag_end_x, 1)) )
+           {
+               return false;
+           }
+       }
+       else
+       {
+           if ( (roomspace_liquid_path_is_blocked(playeradd->render_roomspace.drag_start_y, slb_y, playeradd->render_roomspace.drag_start_x, 1)) || (roomspace_liquid_path_is_blocked(slb_x, playeradd->render_roomspace.drag_start_x, playeradd->render_roomspace.drag_end_y, 0)) )
+           {
+               return false;
+           }
+       }
        switch(playeradd->roomspace_l_shape)
        {
            case 0:
@@ -1673,6 +1688,63 @@ void detect_bridge_shape(PlayerNumber plyr_idx)
     {
         playeradd->roomspace_l_shape = 2;
     }
+}
+
+TbBool roomspace_liquid_path_is_blocked(MapSlabCoord start, MapSlabCoord end, MapSlabCoord other_axis, TbBool vertical)
+{
+    MapSlabCoord begin = start;
+    MapSlabCoord finish = end;
+    if (begin <= finish)
+    {
+        if (vertical)
+        {
+            while (begin < finish)
+            {
+                if (!slab_is_liquid(other_axis, begin))
+                {
+                    return true;
+                }
+                begin++;
+            }
+        }
+        else
+        {
+            while (begin < finish)
+            {
+                if (!slab_is_liquid(begin, other_axis))
+                {
+                    return true;
+                }
+                begin++;
+            }
+        }
+    }
+    else
+    {
+        if (vertical)
+        {
+            while (finish < begin)
+            {
+                if (!slab_is_liquid(other_axis, finish))
+                {
+                    return true;
+                }
+                finish++;
+            }
+        }
+        else
+        {
+            while (finish < begin)
+            {
+                if (!slab_is_liquid(finish, other_axis))
+                {
+                    return true;
+                }
+                finish++;
+            }
+        }
+    }
+    return false;
 }
 /******************************************************************************/
 #ifdef __cplusplus
