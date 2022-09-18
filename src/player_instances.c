@@ -63,13 +63,11 @@ extern "C" {
 #endif
 /******************************************************************************/
 long pinstfs_hand_grab(struct PlayerInfo *player, long *n);
-long pinstfm_hand_grab(struct PlayerInfo *player, long *n);
 long pinstfe_hand_grab(struct PlayerInfo *player, long *n);
 long pinstfs_hand_drop(struct PlayerInfo *player, long *n);
 long pinstfe_hand_drop(struct PlayerInfo *player, long *n);
 long pinstfs_hand_whip(struct PlayerInfo *player, long *n);
 long pinstfe_hand_whip(struct PlayerInfo *player, long *n);
-long pinstfm_hand_drop(struct PlayerInfo *player, long *n);
 long pinstfs_hand_whip_end(struct PlayerInfo *player, long *n);
 long pinstfe_hand_whip_end(struct PlayerInfo *player, long *n);
 long pinstfs_direct_control_creature(struct PlayerInfo *player, long *n);
@@ -103,8 +101,8 @@ long pinstfe_zoom_to_position(struct PlayerInfo *player, long *n);
 
 struct PlayerInstanceInfo player_instance_info[] = {
   { 0, 0, NULL,                        NULL,                        NULL,                                {0}, {0}, 0, 0},
-  { 3, 1, pinstfs_hand_grab,           pinstfm_hand_grab,           pinstfe_hand_grab,                   {0}, {0}, 0, 0},
-  { 3, 1, pinstfs_hand_drop,           pinstfm_hand_drop,           pinstfe_hand_drop,                   {0}, {0}, 0, 0},
+  { 3, 1, pinstfs_hand_grab,           NULL,                        pinstfe_hand_grab,                   {0}, {0}, 0, 0},
+  { 3, 1, pinstfs_hand_drop,           NULL,                        pinstfe_hand_drop,                   {0}, {0}, 0, 0},
   { 4, 0, pinstfs_hand_whip,           NULL,                        pinstfe_hand_whip,                   {0}, {0}, 0, 0},
   { 5, 0, pinstfs_hand_whip_end,       NULL,                        pinstfe_hand_whip_end,               {0}, {0}, 0, 0},
   {12, 1, pinstfs_direct_control_creature,pinstfm_control_creature, pinstfe_direct_control_creature,     {0}, {0}, 0, 0},
@@ -124,50 +122,20 @@ struct PlayerInstanceInfo player_instance_info[] = {
 };
 
 /******************************************************************************/
-
-DLLIMPORT long _DK_pinstfm_hand_grab(struct PlayerInfo *player, long *n);
-/******************************************************************************/
 #ifdef __cplusplus
 }
 #endif
 /******************************************************************************/
 long pinstfs_hand_grab(struct PlayerInfo *player, long *n)
 {
-    struct Dungeon* dungeon = get_players_dungeon(player);
     struct Thing* thing = thing_get(player->hand_thing_idx);
     struct Objects* objdat;
-    if (dungeon->num_things_in_hand > 0)
-    {
-        dungeon->field_43 = 60;
-        dungeon->field_53 = 40;
-    }
     if (!thing_is_invalid(thing))
     {
         objdat = get_objects_data(38);
         set_power_hand_graphic(player->id_number, objdat->sprite_anim_idx, objdat->anim_speed);
     }
     return 0;
-}
-
-long pinstfm_hand_grab(struct PlayerInfo *player, long *n)
-{
-    //TODO INSTANCES check why rewritten code is disabled
-    return _DK_pinstfm_hand_grab(player, n);
-    struct Dungeon* dungeon = get_players_dungeon(player);
-    struct Thing* thing = thing_get(player->influenced_thing_idx);
-    if (thing->class_id == TCls_Creature)
-    {
-        struct CreaturePickedUpOffset* pickoffs = get_creature_picked_up_offset(thing);
-        dungeon->field_43 += (pickoffs->field_4 - 60) / 4;
-        dungeon->field_53 += (pickoffs->field_6 - 40) / 4;
-        return 0;
-    }
-    else
-    {
-        dungeon->field_43 = 60;
-        dungeon->field_53 = 40;
-        return 0;
-    }
 }
 
 long pinstfe_hand_grab(struct PlayerInfo *player, long *n)
@@ -189,7 +157,6 @@ long pinstfe_hand_grab(struct PlayerInfo *player, long *n)
         return 0;
     }
     // Update sprites for the creature in hand, and power hand itself
-    set_power_hand_offset(player, get_first_thing_in_power_hand(player));
     if (!thing_is_invalid(grabtng))
     {
         objdat = get_objects_data(38);
@@ -214,11 +181,8 @@ long pinstfs_hand_drop(struct PlayerInfo *player, long *n)
 
 long pinstfe_hand_drop(struct PlayerInfo *player, long *n)
 {
-    struct Dungeon* dungeon = get_players_dungeon(player);
     struct Thing* thing = thing_get(player->hand_thing_idx);
     struct Objects* objdat;
-    dungeon->field_43 = 60;
-    dungeon->field_53 = 40;
     if (!thing_is_invalid(thing))
     {
         objdat = get_objects_data(37);
@@ -313,16 +277,6 @@ long pinstfe_hand_whip(struct PlayerInfo *player, long *n)
   }
   set_player_instance(player, PI_WhipEnd, false);
   return 0;
-}
-
-long pinstfm_hand_drop(struct PlayerInfo *player, long *n)
-{
-    struct Dungeon* dungeon = get_players_dungeon(player);
-    long i = player->instance_remain_rurns + 1;
-    if (i < 1) i = 1;
-    dungeon->field_43 += (60 - dungeon->field_43) / i;
-    dungeon->field_53 += (40 - dungeon->field_53) / i;
-    return 0;
 }
 
 long pinstfs_hand_whip_end(struct PlayerInfo *player, long *n)
