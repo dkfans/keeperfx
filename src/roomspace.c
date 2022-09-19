@@ -1527,14 +1527,22 @@ TbBool roomspace_can_build_room_at_slab(PlayerNumber plyr_idx, RoomKind rkind, M
        }
        if (playeradd->roomspace_horizontal_first)
        {
-           if ( (roomspace_liquid_path_is_blocked(playeradd->render_roomspace.drag_start_x, slb_x, playeradd->render_roomspace.drag_start_y, 0)) || (roomspace_liquid_path_is_blocked(playeradd->render_roomspace.drag_start_y, slb_y, playeradd->render_roomspace.drag_end_x, 1)) )
+           if (roomspace_liquid_path_is_blocked(playeradd->render_roomspace.drag_start_x, slb_x, playeradd->render_roomspace.drag_start_y, 0))
+           {
+               return false;
+           }
+           if (roomspace_liquid_path_is_blocked(playeradd->render_roomspace.drag_start_y, slb_y, playeradd->render_roomspace.drag_end_x, 1))
            {
                return false;
            }
        }
        else
        {
-           if ( (roomspace_liquid_path_is_blocked(playeradd->render_roomspace.drag_start_y, slb_y, playeradd->render_roomspace.drag_start_x, 1)) || (roomspace_liquid_path_is_blocked(playeradd->render_roomspace.drag_start_x, slb_x, playeradd->render_roomspace.drag_end_y, 0)) )
+           if (roomspace_liquid_path_is_blocked(playeradd->render_roomspace.drag_start_y, slb_y, playeradd->render_roomspace.drag_start_x, 1))
+           {
+               return false;
+           }
+           if (roomspace_liquid_path_is_blocked(playeradd->render_roomspace.drag_start_x, slb_x, playeradd->render_roomspace.drag_end_y, 0))
            {
                return false;
            }
@@ -1725,22 +1733,23 @@ TbBool roomspace_liquid_path_is_blocked(MapSlabCoord start, MapSlabCoord end, Ma
         {
             while (finish < begin)
             {
-                if (!slab_is_liquid(other_axis, finish))
+                if (!slab_is_liquid(other_axis, begin))
                 {
                     return true;
                 }
-                finish++;
+                begin--;
             }
+
         }
         else
         {
             while (finish < begin)
             {
-                if (!slab_is_liquid(finish, other_axis))
+                if (!slab_is_liquid(begin, other_axis))
                 {
                     return true;
                 }
-                finish++;
+                begin--;
             }
         }
     }
