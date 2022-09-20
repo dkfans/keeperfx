@@ -1075,11 +1075,6 @@ static void keeper_update_roomspace(struct RoomSpace *roomspace)
             roomspace->is_active = false;
             return;
         }
-        struct PlayerInfoAdd *playeradd = get_playeradd(roomspace->plyr_idx);
-        if (!playeradd->roomspace_square_bridge)
-        {
-            update_bridge_build_direction(roomspace->plyr_idx);
-        }
         keeper_build_room(slab_subtile(roomspace->buildx, 0), slab_subtile(roomspace->buildy, 0), roomspace->plyr_idx, roomspace->rkind);
     }
     // find next point
@@ -1574,25 +1569,9 @@ TbBool roomspace_can_build_room_at_slab(PlayerNumber plyr_idx, RoomKind rkind, M
            }
            case 1:
            {
-               if (slb_y != playeradd->render_roomspace.drag_end_y)
-               {
-                   return (slb_x == playeradd->render_roomspace.drag_end_x);
-               }
-               break;
-           }
-           case 2:
-           {
                if (slb_x != playeradd->render_roomspace.drag_start_x)
                {
                    return (slb_y == playeradd->render_roomspace.drag_end_y);
-               }
-               break;
-           }
-           case 3:
-           {
-               if (slb_y != playeradd->render_roomspace.drag_start_y)
-               {
-                   return (slb_x == playeradd->render_roomspace.drag_start_x);
                }
                break;
            }
@@ -1611,53 +1590,6 @@ TbBool roomspace_can_build_room_at_slab(PlayerNumber plyr_idx, RoomKind rkind, M
         }
     }
     return result;
-}
-
-void update_bridge_build_direction(PlayerNumber plyr_idx)
-{
-    struct PlayerInfoAdd *playeradd = get_playeradd(plyr_idx);
-    if ( (playeradd->roomspace.drag_direction == top_left_to_bottom_right) || (playeradd->roomspace.drag_direction == bottom_left_to_top_right) )
-    {
-        if (playeradd->roomspace_l_shape == 1)
-        {
-            if (playeradd->roomspace.left < playeradd->roomspace.drag_end_x)
-            {
-                if (playeradd->roomspace.top <= playeradd->roomspace.drag_end_y)
-                {
-                    playeradd->roomspace.drag_direction = top_right_to_bottom_left;
-                }
-                else
-                {
-                    playeradd->roomspace.drag_direction = bottom_right_to_top_left;
-                }
-            }
-        }
-        else
-        {
-            detect_roomspace_direction(&playeradd->roomspace);
-        }
-    }
-    else
-    {
-        if (playeradd->roomspace_l_shape == 1)
-        {
-            if (playeradd->roomspace.right > playeradd->roomspace.drag_end_x)
-            {
-                if (playeradd->roomspace.top <= playeradd->roomspace.drag_end_y)
-                {
-                    playeradd->roomspace.drag_direction = top_left_to_bottom_right;
-                }
-                else
-                {
-                    playeradd->roomspace.drag_direction = bottom_left_to_top_right;
-                }
-            }
-        }
-        else
-        {
-            detect_roomspace_direction(&playeradd->roomspace);
-        }
-    }
 }
 
 void detect_roomspace_direction(struct RoomSpace *roomspace)
@@ -1709,7 +1641,7 @@ void detect_bridge_shape(PlayerNumber plyr_idx)
     }
     else
     {
-        playeradd->roomspace_l_shape = 2;
+        playeradd->roomspace_l_shape = 1;
     }
 }
 
