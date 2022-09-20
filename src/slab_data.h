@@ -176,8 +176,6 @@ void do_unprettying(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_
 
 TbBool slab_kind_has_no_ownership(SlabKind slbkind);
 
-TbBool slab_by_liquid(MapSlabCoord slb_x, MapSlabCoord slb_y);
-
 /******************************************************************************/
 #include "roomspace.h"
 /******************************************************************************/
