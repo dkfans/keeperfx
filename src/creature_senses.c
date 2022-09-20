@@ -607,6 +607,7 @@ unsigned char jonty_creature_has_clear_shot_at_thing_including_lava_check(const 
     tgttoppos.x.val = targettng->mappos.x.val;
     tgttoppos.y.val = targettng->mappos.y.val;
     tgttoppos.z.val = targettng->mappos.z.val + (targettng->solid_size_yz);
+    unsigned char return_val = 0;
     if (targettng->class_id == TCls_Door)
     {
         // If we're immune to lava, or we're already on it - don't care, travel over it
@@ -614,26 +615,42 @@ unsigned char jonty_creature_has_clear_shot_at_thing_including_lava_check(const 
         {
             SYNCDBG(17, "The %s index %d owned by player %d checks w/o lava %s index %d",
                 thing_model_name(creatng),(int)creatng->index,(int)creatng->owner,thing_model_name(targettng),(int)targettng->index);
-            // Check bottom of the thing
             if (!line_of_sight_3d_ignoring_specific_door(&shotpos, &tgtpos, targettng))
-                return false;
-            // Check top of the thing
-            tgtpos.z.val += targettng->solid_size_yz;
-            if (!line_of_sight_3d_ignoring_specific_door(&shotpos, &tgtpos, targettng))
-                return false;
-            return true;
+            {
+                if (!line_of_sight_3d_ignoring_specific_door(&shotpos, &tgttoppos, targettng))
+                {
+                    return 0;
+                }
+                else
+                {
+                    return_val = 2;
+                }
+            }
+            else
+            {
+                return_val = 1;
+            }
+            return return_val;
         } else
         {
             SYNCDBG(17, "The %s index %d owned by player %d checks with lava %s index %d",
                 thing_model_name(creatng),(int)creatng->index,(int)creatng->owner,thing_model_name(targettng),(int)targettng->index);
-            // Check bottom of the thing
             if (!jonty_line_of_sight_3d_including_lava_check_ignoring_specific_door(&shotpos, &tgtpos, targettng))
-                return false;
-            // Check top of the thing
-            tgtpos.z.val += targettng->clipbox_size_yz;
-            if (!jonty_line_of_sight_3d_including_lava_check_ignoring_specific_door(&shotpos, &tgtpos, targettng))
-                return false;
-            return true;
+            {
+                if (!jonty_line_of_sight_3d_including_lava_check_ignoring_specific_door(&shotpos, &tgttoppos, targettng))
+                {
+                    return 0;
+                }
+                else
+                {
+                    return_val = 2;
+                }
+            }
+            else
+            {
+                return_val = 1;
+            }
+            return return_val;
         }
     } else
     {
@@ -642,17 +659,25 @@ unsigned char jonty_creature_has_clear_shot_at_thing_including_lava_check(const 
         {
             SYNCDBG(17, "The %s index %d owned by player %d checks w/o lava %s index %d",
                 thing_model_name(creatng),(int)creatng->index,(int)creatng->owner,thing_model_name(targettng),(int)targettng->index);
-            // Check bottom of the thing
+
             if (!line_of_sight_3d(&shotpos, &tgtpos))
-                return false;
-            // Check top of the thing
-            tgtpos.z.val += targettng->solid_size_yz;
-            if (line_of_sight_3d(&shotpos, &tgtpos))
-                return false;
-            return true;
+            {
+                if (!line_of_sight_3d(&shotpos, &tgttoppos))
+                {
+                    return 0;
+                }
+                else
+                {
+                    return_val = 2;
+                }
+            }
+            else
+            {
+                return_val = 1;
+            }
+            return return_val;
         } else
         {
-            unsigned char return_val = 0;
             SYNCDBG(17, "The %s index %d owned by player %d checks with lava %s index %d",
                 thing_model_name(creatng),(int)creatng->index,(int)creatng->owner,thing_model_name(targettng),(int)targettng->index);
             long angle = get_angle_xy_to(&tgtpos, &shotpos);
