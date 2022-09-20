@@ -770,14 +770,7 @@ void get_dungeon_build_user_roomspace(struct RoomSpace *roomspace, PlayerNumber 
         TbBool can_drag; 
         if (rkind == RoK_BRIDGE)
         {
-            if (playeradd->roomspace_square_bridge)
-            {
-                can_drag = ( (can_build_room_at_slab(plyr_idx, rkind, drag_start_x, drag_start_y)) && (slab_is_liquid(slb_x, slb_y)) );
-            }
-            else
-            {
-                can_drag = (can_build_room_at_slab(plyr_idx, rkind, drag_start_x, drag_start_y));
-            }
+            can_drag = (can_build_room_at_slab(plyr_idx, rkind, drag_start_x, drag_start_y));
         }
         else
         {
@@ -1585,7 +1578,29 @@ TbBool roomspace_can_build_room_at_slab(PlayerNumber plyr_idx, RoomKind rkind, M
         {
             if (rkind == RoK_BRIDGE)
             {
-                return (slab_is_liquid(slb_x, slb_y));
+                if (!slab_is_liquid(slb_x, slb_y))
+                {
+                    return false;
+                }
+                TbBool x_blocked = (roomspace_liquid_path_is_blocked(plyr_idx, playeradd->render_roomspace.drag_start_x, slb_x, slb_y, 0));
+                TbBool y_blocked = (roomspace_liquid_path_is_blocked(plyr_idx, playeradd->render_roomspace.drag_start_y, slb_y, slb_x, 1));
+                if (x_blocked)
+                {
+                    if (!y_blocked)
+                    {
+                        return (!roomspace_liquid_path_is_blocked(plyr_idx, playeradd->render_roomspace.drag_start_x, playeradd->render_roomspace.drag_end_x, playeradd->render_roomspace.drag_start_y, 0));
+                    }
+                    return false;
+                }
+                if (y_blocked)
+                {
+                    if (!x_blocked)
+                    {
+                        return (!roomspace_liquid_path_is_blocked(plyr_idx, playeradd->render_roomspace.drag_start_y, playeradd->render_roomspace.drag_end_y, playeradd->render_roomspace.drag_start_x, 1));
+                    }
+                    return false;
+                }
+                return true;
             }
         }
     }
