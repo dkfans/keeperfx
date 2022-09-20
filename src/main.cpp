@@ -815,7 +815,6 @@ TbBool any_player_close_enough_to_see(const struct Coord3d *pos)
 {
     struct PlayerInfo *player;
     int i;
-    short limit = 24 * COORD_PER_STL;
     for (i=0; i < PLAYERS_COUNT; i++)
     {
         player = get_player(i);
@@ -823,21 +822,9 @@ TbBool any_player_close_enough_to_see(const struct Coord3d *pos)
         {
             if (player->acamera == NULL)
                 continue;
-            if (player->acamera->view_mode != PVM_FrontView)
-            {
-                if (player->acamera->zoom >= CAMERA_ZOOM_MIN)
-                {
-                    limit = SHRT_MAX - (2 * player->acamera->zoom);
-                }
-            }
-            else
-            {
-                if (player->acamera->zoom >= FRONTVIEW_CAMERA_ZOOM_MIN)
-                {
-                    limit = SHRT_MAX - (player->acamera->zoom / 3);
-                }
-            }
-            if (get_2d_box_distance(&player->acamera->mappos, pos) <= limit)
+            
+            float limit = 65 * COORD_PER_STL * ((1.0 - hud_scale)+1);
+            if (get_2d_distance(&player->acamera->mappos, pos) <= limit)
             {
                 return true;
             }
