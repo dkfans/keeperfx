@@ -767,7 +767,22 @@ void get_dungeon_build_user_roomspace(struct RoomSpace *roomspace, PlayerNumber 
             drag_start_x = slb_x;
             drag_start_y = slb_y;
         }
-        TbBool can_drag = (rkind == RoK_BRIDGE) ? (can_build_room_at_slab(plyr_idx, rkind, drag_start_x, drag_start_y)) : true;
+        TbBool can_drag; 
+        if (rkind == RoK_BRIDGE)
+        {
+            if (playeradd->roomspace_square_bridge)
+            {
+                can_drag = ( (can_build_room_at_slab(plyr_idx, rkind, drag_start_x, drag_start_y)) && (slab_is_liquid(slb_x, slb_y)) );
+            }
+            else
+            {
+                can_drag = (can_build_room_at_slab(plyr_idx, rkind, drag_start_x, drag_start_y));
+            }
+        }
+        else
+        {
+            can_drag = true;
+        }
         if (can_drag)
         {
             temp_best_room = create_box_roomspace_from_drag(best_roomspace, drag_start_x, drag_start_y, slb_x, slb_y);
