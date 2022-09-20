@@ -602,11 +602,11 @@ unsigned char jonty_creature_has_clear_shot_at_thing_including_lava_check(const 
     struct Coord3d tgtpos;
     tgtpos.x.val = targettng->mappos.x.val;
     tgtpos.y.val = targettng->mappos.y.val;
-    tgtpos.z.val = targettng->mappos.z.val + (targettng->clipbox_size_yz / 2);
+    tgtpos.z.val = targettng->mappos.z.val + (targettng->solid_size_yz / 2);
     struct Coord3d tgttoppos;
     tgttoppos.x.val = targettng->mappos.x.val;
     tgttoppos.y.val = targettng->mappos.y.val;
-    tgttoppos.z.val = targettng->mappos.z.val + (targettng->clipbox_size_yz);
+    tgttoppos.z.val = targettng->mappos.z.val + (targettng->solid_size_yz);
     if (targettng->class_id == TCls_Door)
     {
         // If we're immune to lava, or we're already on it - don't care, travel over it
@@ -618,7 +618,7 @@ unsigned char jonty_creature_has_clear_shot_at_thing_including_lava_check(const 
             if (!line_of_sight_3d_ignoring_specific_door(&shotpos, &tgtpos, targettng))
                 return false;
             // Check top of the thing
-            tgtpos.z.val += targettng->clipbox_size_yz;
+            tgtpos.z.val += targettng->solid_size_yz;
             if (!line_of_sight_3d_ignoring_specific_door(&shotpos, &tgtpos, targettng))
                 return false;
             return true;
@@ -646,7 +646,7 @@ unsigned char jonty_creature_has_clear_shot_at_thing_including_lava_check(const 
             if (!line_of_sight_3d(&shotpos, &tgtpos))
                 return false;
             // Check top of the thing
-            tgtpos.z.val += targettng->clipbox_size_yz;
+            tgtpos.z.val += targettng->solid_size_yz;
             if (line_of_sight_3d(&shotpos, &tgtpos))
                 return false;
             return true;
@@ -659,8 +659,8 @@ unsigned char jonty_creature_has_clear_shot_at_thing_including_lava_check(const 
             // Check left side
             // We're checking point at 60 degrees left; could use 90 deg, but making even slim edge visible might not be a good idea
             // Also 60 deg will shorten distance to the check point, which may better describe real visibility
-            tgtpos.x.val = targettng->mappos.x.val + distance_with_angle_to_coord_x(targettng->clipbox_size_xy/2, angle + LbFPMath_PI/3);
-            tgtpos.y.val = targettng->mappos.y.val + distance_with_angle_to_coord_y(targettng->clipbox_size_xy/2, angle + LbFPMath_PI/3);
+            tgtpos.x.val = targettng->mappos.x.val + distance_with_angle_to_coord_x(targettng->solid_size_xy /2, angle + LbFPMath_PI/3);
+            tgtpos.y.val = targettng->mappos.y.val + distance_with_angle_to_coord_y(targettng->solid_size_xy /2, angle + LbFPMath_PI/3);
             tgttoppos.x.val = tgtpos.x.val;
             tgttoppos.y.val = tgtpos.y.val;
             if (!jonty_line_of_sight_3d_including_lava_check_ignoring_own_door(&shotpos, &tgtpos, creatng->owner))
@@ -679,8 +679,8 @@ unsigned char jonty_creature_has_clear_shot_at_thing_including_lava_check(const 
                 return_val = 1;
             }
             // Check right side
-            tgtpos.x.val = targettng->mappos.x.val + distance_with_angle_to_coord_x(targettng->clipbox_size_xy/2, angle - LbFPMath_PI/3);
-            tgtpos.y.val = targettng->mappos.y.val + distance_with_angle_to_coord_y(targettng->clipbox_size_xy/2, angle - LbFPMath_PI/3);
+            tgtpos.x.val = targettng->mappos.x.val + distance_with_angle_to_coord_x(targettng->solid_size_xy/2, angle - LbFPMath_PI/3);
+            tgtpos.y.val = targettng->mappos.y.val + distance_with_angle_to_coord_y(targettng->solid_size_xy/2, angle - LbFPMath_PI/3);
             tgttoppos.x.val = tgtpos.x.val;
             tgttoppos.y.val = tgtpos.y.val;
             if (!jonty_line_of_sight_3d_including_lava_check_ignoring_own_door(&shotpos, &tgtpos, creatng->owner))
