@@ -1542,22 +1542,22 @@ TbBool roomspace_can_build_room_at_slab(PlayerNumber plyr_idx, RoomKind rkind, M
        }
        if (playeradd->roomspace_horizontal_first)
        {
-           if (roomspace_liquid_path_is_blocked(playeradd->render_roomspace.drag_start_x, slb_x, playeradd->render_roomspace.drag_start_y, 0))
+           if (roomspace_liquid_path_is_blocked(plyr_idx, playeradd->render_roomspace.drag_start_x, slb_x, playeradd->render_roomspace.drag_start_y, 0))
            {
                return false;
            }
-           if (roomspace_liquid_path_is_blocked(playeradd->render_roomspace.drag_start_y, slb_y, playeradd->render_roomspace.drag_end_x, 1))
+           if (roomspace_liquid_path_is_blocked(plyr_idx, playeradd->render_roomspace.drag_start_y, slb_y, playeradd->render_roomspace.drag_end_x, 1))
            {
                return false;
            }
        }
        else
        {
-           if (roomspace_liquid_path_is_blocked(playeradd->render_roomspace.drag_start_y, slb_y, playeradd->render_roomspace.drag_start_x, 1))
+           if (roomspace_liquid_path_is_blocked(plyr_idx, playeradd->render_roomspace.drag_start_y, slb_y, playeradd->render_roomspace.drag_start_x, 1))
            {
                return false;
            }
-           if (roomspace_liquid_path_is_blocked(playeradd->render_roomspace.drag_start_x, slb_x, playeradd->render_roomspace.drag_end_y, 0))
+           if (roomspace_liquid_path_is_blocked(plyr_idx, playeradd->render_roomspace.drag_start_x, slb_x, playeradd->render_roomspace.drag_end_y, 0))
            {
                return false;
            }
@@ -1713,7 +1713,7 @@ void detect_bridge_shape(PlayerNumber plyr_idx)
     }
 }
 
-TbBool roomspace_liquid_path_is_blocked(MapSlabCoord start, MapSlabCoord end, MapSlabCoord other_axis, TbBool vertical)
+TbBool roomspace_liquid_path_is_blocked(PlayerNumber plyr_idx, MapSlabCoord start, MapSlabCoord end, MapSlabCoord other_axis, TbBool vertical)
 {
     MapSlabCoord begin = start;
     MapSlabCoord finish = end;
@@ -1723,7 +1723,7 @@ TbBool roomspace_liquid_path_is_blocked(MapSlabCoord start, MapSlabCoord end, Ma
         {
             while (begin < finish)
             {
-                if (!slab_is_liquid(other_axis, begin))
+                if (roomspace_slab_blocks_bridge(plyr_idx, other_axis, begin))
                 {
                     return true;
                 }
@@ -1734,7 +1734,7 @@ TbBool roomspace_liquid_path_is_blocked(MapSlabCoord start, MapSlabCoord end, Ma
         {
             while (begin < finish)
             {
-                if (!slab_is_liquid(begin, other_axis))
+                if (roomspace_slab_blocks_bridge(plyr_idx, begin, other_axis))
                 {
                     return true;
                 }
@@ -1748,7 +1748,7 @@ TbBool roomspace_liquid_path_is_blocked(MapSlabCoord start, MapSlabCoord end, Ma
         {
             while (finish < begin)
             {
-                if (!slab_is_liquid(other_axis, begin))
+                if (roomspace_slab_blocks_bridge(plyr_idx, other_axis, begin))
                 {
                     return true;
                 }
@@ -1760,12 +1760,29 @@ TbBool roomspace_liquid_path_is_blocked(MapSlabCoord start, MapSlabCoord end, Ma
         {
             while (finish < begin)
             {
-                if (!slab_is_liquid(begin, other_axis))
+                if (roomspace_slab_blocks_bridge(plyr_idx, begin, other_axis))
                 {
                     return true;
                 }
                 begin--;
             }
+        }
+    }
+    return false;
+}
+
+TbBool roomspace_slab_blocks_bridge(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y)
+{
+    if (slab_is_wall(slb_x, slb_y))
+    {
+        return true;
+    }
+    if (!slab_is_liquid(slb_x, slb_y))
+    {
+        struct SlabMap *slb = get_slabmap_block(slb_x, slb_y);
+        if ((slabmap_owner(slb)) != plyr_idx)
+        {
+            return true;
         }
     }
     return false;
