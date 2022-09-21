@@ -1544,7 +1544,7 @@ TbBool roomspace_can_build_room_at_slab(PlayerNumber plyr_idx, RoomKind rkind, M
                 return false;
             }
         }
-        switch(playeradd->roomspace_l_shape)
+        switch (playeradd->roomspace_l_shape)
         {
             case 0:
             {
