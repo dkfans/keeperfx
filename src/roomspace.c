@@ -1569,7 +1569,6 @@ TbBool roomspace_can_build_room_at_slab(PlayerNumber plyr_idx, RoomKind rkind, M
     {
         return (can_build_room_at_slab(plyr_idx, rkind, slb_x, slb_y));
     }
-    return result;
 }
 
 void detect_roomspace_direction(struct RoomSpace *roomspace)
