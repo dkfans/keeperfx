@@ -1220,7 +1220,7 @@ void process_build_roomspace_inputs(PlayerNumber plyr_idx)
         else
         {
             TbBool l = playeradd->roomspace_square_bridge;
-            if ( (is_game_key_pressed(Gkey_RoomSpaceIncSize, &keycode, true)) || (is_game_key_pressed(Gkey_RoomSpaceDecSize, &keycode, true)) )
+            if (is_game_key_pressed(Gkey_SellTrapOnSubtile, &keycode, true))
             {
                 clear_key_pressed(lbInkey);
                 l ^= 1;

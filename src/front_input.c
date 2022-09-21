@@ -1735,17 +1735,13 @@ void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rotate_pre
         // mouse scroll zoom unaffected by frameskip
         if ((pckt->control_flags & PCtr_MapCoordsValid) != 0)
         {
-            struct PlayerInfo *player = get_my_player();
-            if ( (player->work_state != PSt_BuildRoom) || (player->chosen_room_kind != RoK_BRIDGE) )
+            if (wheel_scrolled_up)
             {
-                if (wheel_scrolled_up)
-                {
-                    set_packet_control(pckt, PCtr_ViewZoomIn);
-                }
-                if (wheel_scrolled_down)
-                {
-                    set_packet_control(pckt, PCtr_ViewZoomOut);
-                }
+                set_packet_control(pckt, PCtr_ViewZoomIn);
+            }
+            if (wheel_scrolled_down)
+            {
+                set_packet_control(pckt, PCtr_ViewZoomOut);
             }
         }
     }
@@ -1876,13 +1872,10 @@ void get_isometric_view_nonaction_inputs(void)
             set_packet_control(packet, PCtr_ViewRotateCW);
         if ( is_game_key_pressed(Gkey_RotateCCW, NULL, false) )
             set_packet_control(packet, PCtr_ViewRotateCCW);
-        if ( (player->work_state != PSt_BuildRoom) || (player->chosen_room_kind != RoK_BRIDGE) )
-        {
-            if ( is_game_key_pressed(Gkey_ZoomIn, NULL, false) )
-                set_packet_control(packet, PCtr_ViewZoomIn);
-            if ( is_game_key_pressed(Gkey_ZoomOut, NULL, false) )
-                set_packet_control(packet, PCtr_ViewZoomOut);
-        }
+        if ( is_game_key_pressed(Gkey_ZoomIn, NULL, false) )
+            set_packet_control(packet, PCtr_ViewZoomIn);
+        if ( is_game_key_pressed(Gkey_ZoomOut, NULL, false) )
+            set_packet_control(packet, PCtr_ViewZoomOut);
         if ( is_game_key_pressed(Gkey_MoveLeft, NULL, no_mods) || is_key_pressed(KC_LEFT,KMod_DONTCARE) )
             set_packet_control(packet, PCtr_MoveLeft);
         if ( is_game_key_pressed(Gkey_MoveRight, NULL, no_mods) || is_key_pressed(KC_RIGHT,KMod_DONTCARE) )
@@ -1993,13 +1986,10 @@ void get_front_view_nonaction_inputs(void)
         if ( is_game_key_pressed(Gkey_MoveDown, NULL, no_mods) || is_key_pressed(KC_DOWN,KMod_DONTCARE) )
             set_packet_control(pckt, PCtr_MoveDown);
     }
-    if ( (player->work_state != PSt_BuildRoom) || (player->chosen_room_kind != RoK_BRIDGE) )
-    {
-        if ( is_game_key_pressed(Gkey_ZoomIn, NULL, false) )
-            set_packet_control(pckt, PCtr_ViewZoomIn);
-        if ( is_game_key_pressed(Gkey_ZoomOut, NULL, false) )
-            set_packet_control(pckt, PCtr_ViewZoomOut);
-    }
+    if ( is_game_key_pressed(Gkey_ZoomIn, NULL, false) )
+        set_packet_control(pckt, PCtr_ViewZoomIn);
+    if ( is_game_key_pressed(Gkey_ZoomOut, NULL, false) )
+        set_packet_control(pckt, PCtr_ViewZoomOut);
 }
 
 /**
