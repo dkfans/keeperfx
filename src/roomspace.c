@@ -770,7 +770,7 @@ void get_dungeon_build_user_roomspace(struct RoomSpace *roomspace, PlayerNumber 
         TbBool can_drag; 
         if (rkind == RoK_BRIDGE)
         {
-            can_drag = (can_build_room_at_slab(plyr_idx, rkind, drag_start_x, drag_start_y));
+            can_drag = ( (can_build_room_at_slab(plyr_idx, rkind, drag_start_x, drag_start_y)) || (players_land_by_liquid(plyr_idx, drag_start_x, drag_start_y)) );
         }
         else
         {
