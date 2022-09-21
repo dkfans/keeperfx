@@ -636,7 +636,7 @@ static TbBool check_forward_for_prospective_hugs(struct Thing *creatng, struct C
             if ((int)((pos_a->x.val - nav_radius) & 0xFFFFFF00) < (int)((creatng->mappos.x.val - nav_radius) & 0xFFFFFF00))
             {
                 pos.y.val = pos_a->y.val;
-                pos.x.stl.pos = (unsigned __int16)(nav_radius + creatng->mappos.x.val - 256) / COORD_PER_STL;
+                pos.x.stl.pos = (uint16_t)(nav_radius + creatng->mappos.x.val - 256) / COORD_PER_STL;
                 pos.x.stl.num = -1;
                 pos.x.val -= nav_radius;
                 pos.z.val = get_thing_height_at(creatng, &pos);

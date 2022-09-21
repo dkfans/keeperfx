@@ -1933,8 +1933,16 @@ TngUpdateRet move_object(struct Thing *thing)
             long blocked_flags = get_thing_blocked_flags_at(thing, &pos);
             if (blocked_flags & SlbBloF_WalledZ)
             {
-                struct Dungeon* dungeon = get_dungeon(thing->owner);
-                if (dungeon->sight_casted_thing_idx != thing->index)
+                TbBool is_sight_of_evil = false;
+                if (thing->owner != PLAYER_NEUTRAL)
+                {
+                    struct Dungeon* dungeon = get_dungeon(thing->owner);
+                    if (dungeon->sight_casted_thing_idx == thing->index)
+                    {
+                        is_sight_of_evil = true;
+                    }
+                }
+                if (!is_sight_of_evil)
                 {
                     if (!find_free_position_on_slab(thing, &pos))
                     {

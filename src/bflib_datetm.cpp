@@ -134,7 +134,6 @@ void frametime_end_measurement(int frametime_kind)
  */
 TbClockMSec LbTimerClock_1000(void)
 {
-  // original DK uses win32 function timeGetTime();
   return clock();
 }
 

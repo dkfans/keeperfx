@@ -926,7 +926,7 @@ short arrive_at_alarm(struct Thing *creatng)
 {
     TRACE_THING(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    if (cctrl->field_2FA < (unsigned long)game.play_gameturn)
+    if (cctrl->alarm_over_turn < (unsigned long)game.play_gameturn)
     {
         set_start_state(creatng);
         return 1;

@@ -1066,10 +1066,7 @@ TbBool process_creature_in_dungeon_hand(struct Dungeon *dungeon, struct Thing *t
             cctrl->armageddon_teleport_turn = 0;
             if (remove_creature_from_power_hand(thing, dungeon->owner))
             {
-                create_effect(&thing->mappos, imp_spangle_effects[thing->owner], thing->owner);
-                move_thing_in_map(thing, &game.armageddon.mappos);
-                reset_interpolation_of_thing(thing);
-                //originally move was to get_player_soul_container(game.armageddon_caster_idx) mappos
+                teleport_armageddon_influenced_creature(thing);
                 return false;
             }
         }
