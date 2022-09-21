@@ -1513,57 +1513,57 @@ TbBool roomspace_can_build_room_at_slab(PlayerNumber plyr_idx, RoomKind rkind, M
     struct PlayerInfo* player = get_player(plyr_idx);
     if (player->chosen_room_kind == RoK_BRIDGE)
     {
-       if (!subtile_revealed(slab_subtile_center(slb_x), slab_subtile_center(slb_y), plyr_idx))
-       {
-           return false;
-       }
-       if (!slab_is_liquid(slb_x, slb_y))
-       {
-           return false;
-       }
-       struct PlayerInfoAdd* playeradd = get_playeradd(plyr_idx);
-       if (playeradd->roomspace_horizontal_first)
-       {
-           if (roomspace_liquid_path_is_blocked(plyr_idx, playeradd->render_roomspace.drag_start_x, slb_x, playeradd->render_roomspace.drag_start_y, 0))
-           {
-               return false;
-           }
-           if (roomspace_liquid_path_is_blocked(plyr_idx, playeradd->render_roomspace.drag_start_y, slb_y, playeradd->render_roomspace.drag_end_x, 1))
-           {
-               return false;
-           }
-       }
-       else
-       {
-           if (roomspace_liquid_path_is_blocked(plyr_idx, playeradd->render_roomspace.drag_start_y, slb_y, playeradd->render_roomspace.drag_start_x, 1))
-           {
-               return false;
-           }
-           if (roomspace_liquid_path_is_blocked(plyr_idx, playeradd->render_roomspace.drag_start_x, slb_x, playeradd->render_roomspace.drag_end_y, 0))
-           {
-               return false;
-           }
-       }
-       switch(playeradd->roomspace_l_shape)
-       {
-           case 0:
-           {
-               if (slb_y != playeradd->render_roomspace.drag_start_y)
-               {
-                   return (slb_x == playeradd->render_roomspace.drag_end_x);
-               }
-               break;
-           }
-           case 1:
-           {
-               if (slb_x != playeradd->render_roomspace.drag_start_x)
-               {
-                   return (slb_y == playeradd->render_roomspace.drag_end_y);
-               }
-               break;
-           }
-       }
-       return true;
+        if (!subtile_revealed(slab_subtile_center(slb_x), slab_subtile_center(slb_y), plyr_idx))
+        {
+            return false;
+        }
+        if (!slab_is_liquid(slb_x, slb_y))
+        {
+            return false;
+        }
+        struct PlayerInfoAdd* playeradd = get_playeradd(plyr_idx);
+        if (playeradd->roomspace_horizontal_first)
+        {
+            if (roomspace_liquid_path_is_blocked(plyr_idx, playeradd->render_roomspace.drag_start_x, slb_x, playeradd->render_roomspace.drag_start_y, 0))
+            {
+                return false;
+            }
+            if (roomspace_liquid_path_is_blocked(plyr_idx, playeradd->render_roomspace.drag_start_y, slb_y, playeradd->render_roomspace.drag_end_x, 1))
+            {
+                return false;
+            }
+        }
+        else
+        {
+            if (roomspace_liquid_path_is_blocked(plyr_idx, playeradd->render_roomspace.drag_start_y, slb_y, playeradd->render_roomspace.drag_start_x, 1))
+            {
+                return false;
+            }
+            if (roomspace_liquid_path_is_blocked(plyr_idx, playeradd->render_roomspace.drag_start_x, slb_x, playeradd->render_roomspace.drag_end_y, 0))
+            {
+                return false;
+            }
+        }
+        switch(playeradd->roomspace_l_shape)
+        {
+            case 0:
+            {
+                if (slb_y != playeradd->render_roomspace.drag_start_y)
+                {
+                    return (slb_x == playeradd->render_roomspace.drag_end_x);
+                }
+                break;
+            }
+            case 1:
+            {
+                if (slb_x != playeradd->render_roomspace.drag_start_x)
+                {
+                    return (slb_y == playeradd->render_roomspace.drag_end_y);
+                }
+                break;
+            }
+        }
+        return true;
     }
     else
     {
