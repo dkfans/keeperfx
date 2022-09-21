@@ -743,8 +743,8 @@ TbBool players_land_by_liquid(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlab
     {
         for (long n = 0; n < SMALL_AROUND_LENGTH; n++)
         {
-            MapSlabCoord aslb_x = slb_x + around[n].delta_x;
-            MapSlabCoord aslb_y = slb_y + around[n].delta_y;
+            MapSlabCoord aslb_x = slb_x + small_around[n].delta_x;
+            MapSlabCoord aslb_y = slb_y + small_around[n].delta_y;
             if (slab_is_liquid(aslb_x, aslb_y)) 
             {
                 return true;
