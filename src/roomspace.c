@@ -1516,7 +1516,7 @@ TbBool roomspace_can_build_room_at_slab(PlayerNumber plyr_idx, RoomKind rkind, M
        if (!subtile_revealed(slab_subtile_center(slb_x), slab_subtile_center(slb_y), plyr_idx))
        {
            return false;
-        
+       }
        if (!(slab_is_liquid(slb_x, slb_y)))
        {
            return false;
