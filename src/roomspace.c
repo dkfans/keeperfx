@@ -1517,7 +1517,7 @@ TbBool roomspace_can_build_room_at_slab(PlayerNumber plyr_idx, RoomKind rkind, M
        {
            return false;
        }
-       if (!(slab_is_liquid(slb_x, slb_y)))
+       if (!slab_is_liquid(slb_x, slb_y))
        {
            return false;
        }
