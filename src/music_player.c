@@ -34,7 +34,7 @@ Mix_Music* tracks[50];
 int current_track;
 /******************************************************************************/
 
-int IsRedbookMusicActive(void)
+TbBool IsRedbookMusicActive(void)
 {
     return (features_enabled & Ft_NoCdMusic) == 0;
 }
