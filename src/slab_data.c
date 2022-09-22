@@ -735,6 +735,24 @@ TbBool slab_kind_has_no_ownership(SlabKind slbkind)
     return ( (slbkind == SlbT_ROCK) || (slbkind == SlbT_GOLD) || (slbkind == SlbT_GEMS) || (slbkind == SlbT_EARTH) || (slbkind == SlbT_TORCHDIRT)
             || (slbkind == SlbT_PATH) || (slab_kind_is_liquid(slbkind)) );
 }
+
+TbBool players_land_by_liquid(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y)
+{
+    struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
+    if (slabmap_owner(slb) == plyr_idx)
+    {
+        for (long n = 0; n < SMALL_AROUND_LENGTH; n++)
+        {
+            MapSlabCoord aslb_x = slb_x + small_around[n].delta_x;
+            MapSlabCoord aslb_y = slb_y + small_around[n].delta_y;
+            if (slab_is_liquid(aslb_x, aslb_y)) 
+            {
+                return true;
+            }
+        }
+    }
+    return false;
+}
 /******************************************************************************/
 #ifdef __cplusplus
 }
