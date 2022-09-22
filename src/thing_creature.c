@@ -2835,6 +2835,7 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
     TbBool flag1 = false;
     // Prepare source position
     struct Coord3d pos1;
+    struct Coord3d pos3;
     pos1.x.val = firing->mappos.x.val;
     pos1.y.val = firing->mappos.y.val;
     pos1.z.val = firing->mappos.z.val;
@@ -2894,6 +2895,13 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
         shotng = create_thing(&pos2, TCls_Shot, shot_model, firing->owner, -1);
         if (thing_is_invalid(shotng))
           return;
+        if (thing_in_wall_at(shotng, &shotng->mappos))
+        {
+            pos3.x.val = firing->mappos.x.val;
+            pos3.y.val = firing->mappos.y.val;
+            pos3.z.val = pos1.z.val;
+            move_thing_in_map(shotng, &pos3);
+        }
         if (shot_model == ShM_Drain)
           draw_lightning(&pos1, &pos2, 96, TngEffElm_RedDot);
         else
@@ -2908,6 +2916,13 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
         shotng = create_thing(&pos2, TCls_Shot, shot_model, firing->owner, -1);
         if (thing_is_invalid(shotng))
           return;
+        if (thing_in_wall_at(shotng, &shotng->mappos))
+        {
+            pos3.x.val = firing->mappos.x.val;
+            pos3.y.val = firing->mappos.y.val;
+            pos3.z.val = pos1.z.val;
+            move_thing_in_map(shotng, &pos3);
+        }
         draw_flame_breath(&pos1, &pos2, 96, 2);
         shotng->health = shotst->health;
         shotng->shot.damage = damage;
@@ -2921,6 +2936,13 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
             tmptng = create_thing(&pos1, TCls_Shot, shot_model, firing->owner, -1);
             if (thing_is_invalid(tmptng))
               break;
+            if (thing_in_wall_at(tmptng, &tmptng->mappos))
+            {
+                pos3.x.val = firing->mappos.x.val;
+                pos3.y.val = firing->mappos.y.val;
+                pos3.z.val = pos1.z.val;
+                move_thing_in_map(tmptng, &pos3);
+            }
             shotng = tmptng;
             shotng->shot.hit_type = hit_type;
             shotng->move_angle_xy = (angle_xy + CREATURE_RANDOM(firing, 101) - 50) & LbFPMath_AngleMask;
@@ -2942,11 +2964,10 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
             return;
         if (thing_in_wall_at(shotng, &shotng->mappos))
         {
-            struct Coord3d newpos;
-            newpos.x.val = firing->mappos.x.val;
-            newpos.y.val = firing->mappos.y.val;
-            newpos.z.val = pos1.z.val;
-            move_thing_in_map(shotng, &newpos);
+            pos3.x.val = firing->mappos.x.val;
+            pos3.y.val = firing->mappos.y.val;
+            pos3.z.val = pos1.z.val;
+            move_thing_in_map(shotng, &pos3);
         }
         shotng->move_angle_xy = angle_xy;
         shotng->move_angle_z = angle_yz;
