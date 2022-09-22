@@ -2891,6 +2891,11 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
         {
             project_point_to_wall_on_angle(&pos1, &pos2, firing->move_angle_xy, firing->move_angle_z, 256, 20);
         }
+        if (map_is_solid_at_height(pos2.x.stl.num, pos2.y.stl.num, pos2.z.val, (pos2.z.val + shotst->size_yz)))
+        {
+            pos2.x.val = firing->mappos.x.val;
+            pos2.y.val = firing->mappos.y.val;
+        }
         shotng = create_thing(&pos2, TCls_Shot, shot_model, firing->owner, -1);
         if (thing_is_invalid(shotng))
           return;
@@ -2905,6 +2910,11 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
     case ShM_FlameBreathe:
         if ((thing_is_invalid(target)) || (get_2d_distance(&firing->mappos, &pos2) > shotst->max_range))
           project_point_to_wall_on_angle(&pos1, &pos2, firing->move_angle_xy, firing->move_angle_z, 256, 4);
+        if (map_is_solid_at_height(pos2.x.stl.num, pos2.y.stl.num, pos2.z.val, (pos2.z.val + shotst->size_yz)))
+        {
+            pos2.x.val = firing->mappos.x.val;
+            pos2.y.val = firing->mappos.y.val;
+        }
         shotng = create_thing(&pos2, TCls_Shot, shot_model, firing->owner, -1);
         if (thing_is_invalid(shotng))
           return;
@@ -2916,6 +2926,11 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
     case ShM_Hail_storm:
     {
         long i;
+        if (map_is_solid_at_height(pos1.x.stl.num, pos1.y.stl.num, pos1.z.val, (pos1.z.val + shotst->size_yz)))
+        {
+            pos1.x.val = firing->mappos.x.val;
+            pos1.y.val = firing->mappos.y.val;
+        }
         for (i = 0; i < 32; i++)
         {
             tmptng = create_thing(&pos1, TCls_Shot, shot_model, firing->owner, -1);
@@ -2937,6 +2952,11 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
         break;
     }
     default:
+        if (map_is_solid_at_height(pos1.x.stl.num, pos1.y.stl.num, pos1.z.val, (pos1.z.val + shotst->size_yz)))
+        {
+            pos1.x.val = firing->mappos.x.val;
+            pos1.y.val = firing->mappos.y.val;
+        }
         shotng = create_thing(&pos1, TCls_Shot, shot_model, firing->owner, -1);
         if (thing_is_invalid(shotng))
             return;
