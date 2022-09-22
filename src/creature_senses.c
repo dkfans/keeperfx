@@ -596,9 +596,10 @@ unsigned char jonty_creature_has_clear_shot_at_thing_including_lava_check(const 
     const struct Coord3d* srcpos = &creatng->mappos;
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     struct Coord3d shotpos;
-    shotpos.x.val = srcpos->x.val + creatures[creatng->model].shot_shift_x + ((creatures[creatng->model].shot_shift_x * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100);
-    shotpos.y.val = srcpos->y.val + creatures[creatng->model].shot_shift_y + ((creatures[creatng->model].shot_shift_y * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100);
-    shotpos.z.val = srcpos->z.val + creatures[creatng->model].shot_shift_z + ((creatures[creatng->model].shot_shift_z * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100);
+    int scale = 100 + gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel;
+    shotpos.x.val = srcpos->x.val + (creatures[creatng->model].shot_shift_x * scale / 100);
+    shotpos.y.val = srcpos->y.val + (creatures[creatng->model].shot_shift_y * scale / 100);
+    shotpos.z.val = srcpos->z.val + (creatures[creatng->model].shot_shift_z * scale / 100);
     struct Coord3d tgtpos;
     tgtpos.x.val = targettng->mappos.x.val;
     tgtpos.y.val = targettng->mappos.y.val;
