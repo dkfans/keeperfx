@@ -2899,7 +2899,7 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
         {
             pos3.x.val = firing->mappos.x.val;
             pos3.y.val = firing->mappos.y.val;
-            pos3.z.val = pos1.z.val;
+            pos3.z.val = pos2.z.val;
             move_thing_in_map(shotng, &pos3);
         }
         if (shot_model == ShM_Drain)
@@ -2920,7 +2920,7 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
         {
             pos3.x.val = firing->mappos.x.val;
             pos3.y.val = firing->mappos.y.val;
-            pos3.z.val = pos1.z.val;
+            pos3.z.val = pos2.z.val;
             move_thing_in_map(shotng, &pos3);
         }
         draw_flame_breath(&pos1, &pos2, 96, 2);
