@@ -2940,6 +2940,14 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
         shotng = create_thing(&pos1, TCls_Shot, shot_model, firing->owner, -1);
         if (thing_is_invalid(shotng))
             return;
+        if (thing_in_wall_at(shotng, &shotng->mappos))
+        {
+            struct Coord3d newpos;
+            newpos.x.val = firing->mappos.x.val;
+            newpos.y.val = firing->mappos.y.val;
+            newpos.z.val = pos1.z.val;
+            move_thing_in_map(shotng, &newpos);
+        }
         shotng->move_angle_xy = angle_xy;
         shotng->move_angle_z = angle_yz;
         angles_to_vector(shotng->move_angle_xy, shotng->move_angle_z, shotst->speed, &cvect);
