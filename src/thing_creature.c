@@ -2926,13 +2926,13 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
     case ShM_Hail_storm:
     {
         long i;
+        if (map_is_solid_at_height(pos1.x.stl.num, pos1.y.stl.num, pos1.z.val, (pos1.z.val + shotst->size_yz)))
+        {
+            pos1.x.val = firing->mappos.x.val;
+            pos1.y.val = firing->mappos.y.val;
+        }
         for (i = 0; i < 32; i++)
         {
-            if (map_is_solid_at_height(pos1.x.stl.num, pos1.y.stl.num, pos1.z.val, (pos1.z.val + shotst->size_yz)))
-            {
-                pos1.x.val = firing->mappos.x.val;
-                pos1.y.val = firing->mappos.y.val;
-            }
             tmptng = create_thing(&pos1, TCls_Shot, shot_model, firing->owner, -1);
             if (thing_is_invalid(tmptng))
               break;
