@@ -1690,9 +1690,32 @@ long ranged_combat_move(struct Thing* thing, struct Thing* enmtng, MapCoordDelta
     unsigned char line_of_sight = combat_has_line_of_sight(thing, enmtng, enmdist);
     if (line_of_sight != 1)
     {
-        if ((line_of_sight == 2) && (enmdist < attack_range)) // can only see top
+        if (line_of_sight == 2) // can only see top
         {
-            creature_retreat_from_combat(thing, enmtng, nstat, 1);
+            if (thing->mappos.z.val <= enmtng->mappos.z.val) //if you can only see the top and you are lower, that means step back to see the center
+            {
+                if (enmdist < attack_range)
+                {
+                    creature_retreat_from_combat(thing, enmtng, nstat, 1);
+                }
+                else
+                {
+                    creature_choose_random_destination_on_valid_adjacent_slab(thing);
+                    thing->continue_state = nstat;
+                }
+            }
+            else // If you can only see the top and are higher, that means step closer to see the center
+            {
+                if (enmdist < subtile_coord(3, 0)) 
+                {
+                    creature_choose_random_destination_on_valid_adjacent_slab(thing);
+                    thing->continue_state = nstat;
+                }
+                else
+                {
+                    creature_move_to(thing, &enmtng->mappos, cctrl->max_speed, 0, 0);
+                }
+            }
         }
         else
         if (enmdist < subtile_coord(3, 0)) {
@@ -1700,7 +1723,7 @@ long ranged_combat_move(struct Thing* thing, struct Thing* enmtng, MapCoordDelta
             thing->continue_state = nstat;
         }
         else
-        if (creature_move_to(thing, &enmtng->mappos, cctrl->max_speed, 0, 0) == -1) //todo: can see top but outside of attack range -> random position?
+        if (creature_move_to(thing, &enmtng->mappos, cctrl->max_speed, 0, 0) == -1)
         {
             set_start_state(thing);
         }
