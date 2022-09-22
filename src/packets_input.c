@@ -67,7 +67,7 @@ void remember_cursor_subtile(struct PlayerInfo *player) {
     }
 
     // This fixes an issue of moving the mouse off map from one position then back onto the map far elsewhere
-    if (playeradd->mouse_is_offmap == true) {
+    if ((playeradd->mouse_is_offmap == true) || (busy_doing_gui == 1)) {
         fix_previous_cursor_subtile_when_offmap = 2;
     }
     if (fix_previous_cursor_subtile_when_offmap > 0) {
