@@ -61,11 +61,13 @@ void remember_cursor_subtile(struct PlayerInfo *player) {
     struct Packet* pckt = get_packet_direct(player->packet_num);
     playeradd->previous_cursor_subtile_x = playeradd->cursor_subtile_x;
     playeradd->previous_cursor_subtile_y = playeradd->cursor_subtile_y;
-    playeradd->cursor_subtile_x = coord_subtile(((unsigned short)pckt->pos_x));
-    playeradd->cursor_subtile_y = coord_subtile(((unsigned short)pckt->pos_y));
+    if (((unsigned short)pckt->pos_x != 0) && ((unsigned short)pckt->pos_y != 0)) {
+        playeradd->cursor_subtile_x = coord_subtile(((unsigned short)pckt->pos_x));
+        playeradd->cursor_subtile_y = coord_subtile(((unsigned short)pckt->pos_y));
+    }
 
     // This fixes an issue of moving the mouse off map from one position then back onto the map far elsewhere
-    if (playeradd->mouse_is_offmap == true || (busy_doing_gui == 1) ) {
+    if (playeradd->mouse_is_offmap == true) {
         fix_previous_cursor_subtile_when_offmap = 2;
     }
     if (fix_previous_cursor_subtile_when_offmap > 0) {
