@@ -128,6 +128,7 @@ const struct NamedCommand conf_commands[] = {
   {"CURSOR_EDGE_CAMERA_PANNING"    , 24},
   {"DELTA_TIME"                    , 25},
   {"CREATURE_STATUS_SIZE"          , 26},
+  {"MAX_ZOOM_DISTANCE"             , 27},
   {NULL,                   0},
   };
 
@@ -610,7 +611,7 @@ const char *get_language_lwrstr(int lang_id)
 #endif
   static char lang_str[4];
   snprintf(lang_str, 4, "%s", src);
-  strlwr(lang_str);
+  make_lowercase(lang_str);
   return lang_str;
 }
 
@@ -1044,6 +1045,19 @@ short load_configuration(void)
           }
           if ((i >= 0) && (i <= 32768)) {
               creature_status_size = i;
+          } else {
+              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",COMMAND_TEXT(cmd_num),config_textname);
+          }
+          break;
+      case 27: // MAX_ZOOM_DISTANCE
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            i = atoi(word_buf);
+          }
+          if ((i >= 0) && (i <= 32768)) {
+              if (i > 100) {i = 100;}
+              zoom_distance_setting = lerp(4100, CAMERA_ZOOM_MIN, (float)i/100.0);
+              frontview_zoom_distance_setting = lerp(16384, FRONTVIEW_CAMERA_ZOOM_MIN, (float)i/100.0);
           } else {
               CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",COMMAND_TEXT(cmd_num),config_textname);
           }

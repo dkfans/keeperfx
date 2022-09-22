@@ -221,7 +221,7 @@ void frontend_draw_define_key(struct GuiButton *gbtn)
         const char* mouse_gui_string = get_string(key_to_string[(long)code]);
         int mouse_button_number = (KC_MOUSE1 + 1 - code);
         char mouse_button_number_string[8];
-        itoa(mouse_button_number, mouse_button_number_string, 10);
+        snprintf(mouse_button_number_string, sizeof(mouse_button_number_string), "%d", mouse_button_number);
         strcat(mouse_button_label, mouse_gui_string);
         strcat(mouse_button_label, " ");
         strcat(mouse_button_label, mouse_button_number_string);

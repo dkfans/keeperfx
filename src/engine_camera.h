@@ -42,6 +42,9 @@ struct PlayerInfo;
 #define MINMAX_LENGTH 512 // Originally 64, adjusted for view distance
 #define MINMAX_ALMOST_HALF ((MINMAX_LENGTH/2)-1)
 
+extern long zoom_distance_setting; // CFG setting
+extern long frontview_zoom_distance_setting; // CFG setting
+
 enum CameraIndexValues {
     CamIV_Isometric = 0,
     CamIV_FirstPerson,

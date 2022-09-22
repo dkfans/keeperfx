@@ -2144,7 +2144,7 @@ void clear_dig_and_set_explored_can_see_x(MapSlabCoord slb_x, MapSlabCoord slb_y
             {
                 if (delta_shift > 0)
                 {
-                    slb = get_slabmap_block(hslb_x, lslb_y-1);
+                    slb = get_slabmap_block(hslb_x-1, lslb_y);
                     slbattr = get_slab_attrs(slb);
                     if ((slbattr->block_flags & (SlbAtFlg_IsDoor|SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0)
                     {
