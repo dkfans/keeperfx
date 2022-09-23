@@ -753,6 +753,30 @@ TbBool players_land_by_liquid(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlab
     }
     return false;
 }
+
+/**
+ * Returns if given slab has an adjacent slab owned by given player.
+ * @param plyr_idx
+ * @param slb_x
+ * @param slb_y
+ * @return
+ */
+TbBool slab_by_players_land(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y)
+{
+    for (long n = 0; n < SMALL_AROUND_LENGTH; n++)
+    {
+        MapSlabCoord aslb_x = slb_x + small_around[n].delta_x;
+        MapSlabCoord aslb_y = slb_y + small_around[n].delta_y;
+        struct SlabMap* slb = get_slabmap_block(aslb_x, aslb_y);
+        if (slabmap_owner(slb) == plyr_idx)
+        {
+            if (slab_is_safe_land(plyr_idx, aslb_x, aslb_y) && !slab_is_liquid(aslb_x, aslb_y)) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
 /******************************************************************************/
 #ifdef __cplusplus
 }

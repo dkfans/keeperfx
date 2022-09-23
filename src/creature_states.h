@@ -342,7 +342,6 @@ long process_work_speed_on_work_value(const struct Thing *thing, long base_val);
 TbBool find_random_valid_position_for_thing_in_room_avoiding_object(struct Thing *thing, const struct Room *room, struct Coord3d *pos);
 SubtlCodedCoords find_position_around_in_room(const struct Coord3d *pos, PlayerNumber owner, RoomKind rkind, struct Thing *thing);
 void remove_health_from_thing_and_display_health(struct Thing *thing, long delta);
-TbBool slab_by_players_land(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y);
 
 TbBool process_creature_hunger(struct Thing *thing);
 void process_person_moods_and_needs(struct Thing *thing);

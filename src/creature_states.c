@@ -3951,30 +3951,6 @@ void remove_health_from_thing_and_display_health(struct Thing *thing, long delta
     }
 }
 
-/**
- * Returns if given slab has an adjacent slab owned by given player.
- * @param plyr_idx
- * @param slb_x
- * @param slb_y
- * @return
- */
-TbBool slab_by_players_land(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y)
-{
-    for (long n = 0; n < SMALL_AROUND_LENGTH; n++)
-    {
-        long aslb_x = slb_x + (long)small_around[n].delta_x;
-        long aslb_y = slb_y + (long)small_around[n].delta_y;
-        struct SlabMap* slb = get_slabmap_block(aslb_x, aslb_y);
-        if (slabmap_owner(slb) == plyr_idx)
-        {
-            if (slab_is_safe_land(plyr_idx, aslb_x, aslb_y) && !slab_is_liquid(aslb_x, aslb_y)) {
-                return true;
-            }
-        }
-    }
-    return false;
-}
-
 TbBool process_creature_hunger(struct Thing *thing)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
