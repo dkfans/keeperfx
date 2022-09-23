@@ -755,7 +755,7 @@ TbBool players_land_by_liquid(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlab
 }
 
 /**
- * Returns if given slab has an adjacent slab owned by given player.
+ * Returns whether given slab has an adjacent slab owned by given player.
  * @param plyr_idx
  * @param slb_x
  * @param slb_y
