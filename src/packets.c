@@ -319,18 +319,34 @@ void process_pause_packet(long curr_pause, long new_pause)
 void process_players_dungeon_control_packet_control(long plyr_idx)
 {
     struct PlayerInfo* player = get_player(plyr_idx);
+    struct PlayerInfoAdd* playeradd = get_playeradd(plyr_idx);
     struct Packet* pckt = get_packet_direct(player->packet_num);
     SYNCDBG(6,"Processing player %d action %d",(int)plyr_idx,(int)pckt->action);
     struct Camera* cam = player->acamera;
     long inter_val;
+    int scroll_speed = cam->zoom;
     switch (cam->view_mode)
     {
     case PVM_IsoWibbleView:
     case PVM_IsoStraightView:
-        inter_val = 2560000 / cam->zoom;
+        if (playeradd->roomspace_drag_paint_mode == 1)
+        {
+            if (scroll_speed < 4100)
+            {
+                scroll_speed = 4100;
+            }
+        }
+        inter_val = 2560000 / scroll_speed;
         break;
     case PVM_FrontView:
-        inter_val = 12800000 / cam->zoom;
+        if (playeradd->roomspace_drag_paint_mode == 1)
+        {
+            if (scroll_speed < 16384)
+            {
+                scroll_speed = 16384;
+            }
+        }
+        inter_val = 12800000 / scroll_speed;
         break;
     default:
         inter_val = 256;
