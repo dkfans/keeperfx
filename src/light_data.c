@@ -1608,8 +1608,8 @@ static char light_render_light_dynamic_1(struct Light *lgt, int radius, int inte
                         {
                             LABEL_37:
                             {
-                                int unk_2_x = abs(lgt->mappos.x.val - unk_1_x);
-                                int unk_2_y = abs(lgt->mappos.y.val - unk_1_y);
+                                int unk_2_x = min((lgt->mappos.x.val - unk_1_x), (unk_1_x - lgt->mappos.x.val));
+                                int unk_2_y = min((lgt->mappos.y.val - unk_1_y), (unk_1_y - lgt->mappos.y.val));
                                 int diagonal_length2 = LbDiagonalLength(unk_2_x, unk_2_y);
                                 lighting_tables_idx = intensity * (radius - diagonal_length2) / radius;
                                 if ( lighting_tables_idx <= game.lish.field_46149 )
