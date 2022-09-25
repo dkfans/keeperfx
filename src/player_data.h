@@ -263,6 +263,9 @@ struct PlayerInfoAdd {
     short previous_cursor_subtile_x;
     short previous_cursor_subtile_y;
     TbBool mouse_is_offmap;
+    TbBool roomspace_drag_paint_mode;
+    unsigned char roomspace_l_shape;
+    TbBool roomspace_horizontal_first;
 };
 
 /******************************************************************************/

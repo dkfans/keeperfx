@@ -101,7 +101,7 @@ long pinstfs_zoom_to_position(struct PlayerInfo *player, long *n);
 long pinstfm_zoom_to_position(struct PlayerInfo *player, long *n);
 long pinstfe_zoom_to_position(struct PlayerInfo *player, long *n);
 
-struct PlayerInstanceInfo player_instance_info[] = {
+struct PlayerInstanceInfo player_instance_info[PLAYER_INSTANCES_COUNT] = {
   { 0, 0, NULL,                        NULL,                        NULL,                                {0}, {0}, 0, 0},
   { 3, 1, pinstfs_hand_grab,           pinstfm_hand_grab,           pinstfe_hand_grab,                   {0}, {0}, 0, 0},
   { 3, 1, pinstfs_hand_drop,           pinstfm_hand_drop,           pinstfe_hand_drop,                   {0}, {0}, 0, 0},

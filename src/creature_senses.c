@@ -864,11 +864,15 @@ TbBool line_of_sight_3d(const struct Coord3d *frpos, const struct Coord3d *topos
     nextpos.y.val = prevpos.y.val + increase_y;
     
     //Z position overshoots, which returns incorrect results. Workaround until a proper fix is made:
-    if ((increase_z >= 0 && ((nextpos.z.val + increase_z) >= topos->z.val)) ||
-        (increase_z < 0 && ((nextpos.z.val + increase_z) < topos->z.val)))
+    if ((increase_z >= 0 && ((prevpos.z.val + increase_z) >= topos->z.val)) ||
+        (increase_z < 0 && ((prevpos.z.val + increase_z) < topos->z.val)))
     {
         nextpos.z.val = topos->z.val;
         increase_z = 0;
+    }
+    else
+    {
+        nextpos.z.val = prevpos.z.val + increase_z;
     }
 
     while (distance > 0)

@@ -55,23 +55,28 @@ extern TbBool packets_process_cheats(
 
 extern void update_double_click_detection(long plyr_idx);
 
-short fix_previous_cursor_subtile_when_offmap;
+TbBool fix_previous_cursor_subtile_when_offmap;
 void remember_cursor_subtile(struct PlayerInfo *player) {
     struct PlayerInfoAdd* playeradd = get_playeradd(player->id_number);
     struct Packet* pckt = get_packet_direct(player->packet_num);
     playeradd->previous_cursor_subtile_x = playeradd->cursor_subtile_x;
     playeradd->previous_cursor_subtile_y = playeradd->cursor_subtile_y;
-    playeradd->cursor_subtile_x = coord_subtile(((unsigned short)pckt->pos_x));
-    playeradd->cursor_subtile_y = coord_subtile(((unsigned short)pckt->pos_y));
+    
+    TbBool badPacket = ((unsigned short)pckt->pos_x == 0) && ((unsigned short)pckt->pos_y == 0);
+    TbBool onGui = ((pckt->control_flags & PCtr_Gui) != 0);
 
-    // This fixes an issue of moving the mouse off map from one position then back onto the map far elsewhere
-    if (playeradd->mouse_is_offmap == true) {
-        fix_previous_cursor_subtile_when_offmap = 2;
-    }
-    if (fix_previous_cursor_subtile_when_offmap > 0) {
-        fix_previous_cursor_subtile_when_offmap -= 1;
-        playeradd->previous_cursor_subtile_x = playeradd->cursor_subtile_x;
-        playeradd->previous_cursor_subtile_y = playeradd->cursor_subtile_y;
+    if (onGui == true || playeradd->mouse_is_offmap == true || badPacket == true) {
+        // Off field
+        fix_previous_cursor_subtile_when_offmap = true;
+    } else {
+        // On field
+        playeradd->cursor_subtile_x = coord_subtile(((unsigned short)pckt->pos_x));
+        playeradd->cursor_subtile_y = coord_subtile(((unsigned short)pckt->pos_y));
+        if (fix_previous_cursor_subtile_when_offmap == true) {
+            fix_previous_cursor_subtile_when_offmap = false;
+            playeradd->previous_cursor_subtile_x = playeradd->cursor_subtile_x;
+            playeradd->previous_cursor_subtile_y = playeradd->cursor_subtile_y;
+        }
     }
 }
 
@@ -119,7 +124,7 @@ TbBool process_dungeon_control_packet_dungeon_build_room(long plyr_idx)
     }
     get_dungeon_build_user_roomspace(&playeradd->render_roomspace, player->id_number, player->chosen_room_kind, stl_x, stl_y, playeradd->roomspace_mode);
     long i = tag_cursor_blocks_place_room(player->id_number, stl_x, stl_y, player->full_slab_cursor);
-    if ( (playeradd->roomspace_mode == drag_placement_mode) && (player->chosen_room_kind != RoK_BRIDGE) )
+    if ( (playeradd->roomspace_mode == drag_placement_mode) && (playeradd->roomspace_drag_paint_mode == false) )
     {
        if ((pckt->control_flags & PCtr_LBtnRelease) != PCtr_LBtnRelease)
        {
@@ -663,11 +668,10 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
     SYNCDBG(6,"Starting for player %d state %s",(int)plyr_idx,player_state_code_name(player->work_state));
     player->full_slab_cursor = 1;
     packet_left_button_double_clicked[plyr_idx] = 0;
+    remember_cursor_subtile(player);
     if ((pckt->control_flags & PCtr_Gui) != 0)
         return false;
     TbBool ret = true;
-
-    remember_cursor_subtile(player);
     process_dungeon_control_packet_spell_overcharge(plyr_idx);
     if ((pckt->control_flags & PCtr_RBtnHeld) != 0)
     {

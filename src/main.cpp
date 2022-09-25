@@ -413,7 +413,7 @@ void affect_nearby_friends_with_alarm(struct Thing *traptng)
                     if (setup_person_move_to_position(thing, traptng->mappos.x.stl.num, traptng->mappos.y.stl.num, 0))
                     {
                         thing->continue_state = CrSt_ArriveAtAlarm;
-                        cctrl->field_2FA = game.play_gameturn + 800;
+                        cctrl->alarm_over_turn = game.play_gameturn + 800;
                         cctrl->alarm_stl_x = traptng->mappos.x.stl.num;
                         cctrl->alarm_stl_y = traptng->mappos.y.stl.num;
                     }
@@ -4451,8 +4451,8 @@ int main(int argc, char *argv[])
 
 //TODO DLL_CLEANUP delete when won't be needed anymore
   memcpy(_DK_menu_list,menu_list,40*sizeof(struct GuiMenu *));
-  memcpy(_DK_player_instance_info,player_instance_info,17*sizeof(struct PlayerInstanceInfo));
-  memcpy(_DK_states,states,145*sizeof(struct StateInfo));
+  memcpy(_DK_player_instance_info, player_instance_info, sizeof(_DK_player_instance_info));
+  memcpy(_DK_states,states,sizeof(_DK_states));
 
 #if (BFDEBUG_LEVEL > 1)
   if (sizeof(struct Game) != SIZEOF_Game)

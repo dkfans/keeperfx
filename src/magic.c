@@ -910,7 +910,7 @@ TbResult magic_use_power_armageddon(PlayerNumber plyr_idx, unsigned long mod_fla
     }
     if (enemy_time_gap <= your_time_gap)
         enemy_time_gap = your_time_gap;
-    game.armageddon_field_15035A = game.armageddon.duration + enemy_time_gap;
+    game.armageddon_over_turn = game.armageddon.duration + enemy_time_gap;
     struct PowerConfigStats *powerst;
     powerst = get_power_model_stats(PwrK_ARMAGEDDON);
     play_non_3d_sample(powerst->select_sound_idx);
@@ -1919,10 +1919,10 @@ void process_dungeon_power_magic(void)
             }
             if (game.armageddon_cast_turn > 0)
             {
-                if (game.play_gameturn > game.armageddon_field_15035A)
+                if (game.play_gameturn > game.armageddon_over_turn)
                 {
                   game.armageddon_cast_turn = 0;
-                  game.armageddon_field_15035A = 0;
+                  game.armageddon_over_turn = 0;
                 }
             }
         }
