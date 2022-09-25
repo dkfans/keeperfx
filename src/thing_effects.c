@@ -651,12 +651,12 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
     if ((cctrl->spell_flags & CSAfF_Slow) != 0)
     {
         int diamtr = 4 * thing->clipbox_size_xy / 2;
-        MapCoord cor_z_max = thing->clipbox_size_yz + (thing->clipbox_size_yz * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 80; //effect is 25% smaller than unit
+        MapCoord cor_z_max = thing->clipbox_size_yz + (thing->clipbox_size_yz * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 80; //effect is 20% smaller than unit
         int i = cor_z_max / 64;
         if (i <= 1)
           i = 1;
         dturn = game.play_gameturn - thing->creation_turn;
-        int vrange = 2 * i / 2;
+        int vrange = i;
         if (dturn % (2 * i) < vrange)
             pos.z.val = thing->mappos.z.val + cor_z_max / vrange * (dturn % vrange);
         else
