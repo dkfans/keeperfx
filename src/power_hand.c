@@ -1552,8 +1552,12 @@ TbBool thing_pickup_is_blocked_by_hand_rule(const struct Thing *thing_to_pick, P
         struct HandRule hand_rule;
         for (int i = HAND_RULE_SLOTS_COUNT - 1; i >= 0; i--) {
             hand_rule = dungeonadd->hand_rules[thing_to_pick->model][i];
-            if (hand_rule.enabled && hand_rule.type != HandRule_Unset)
-                return eval_hand_rule_for_thing(&hand_rule, thing_to_pick);
+            if (
+                hand_rule.enabled
+                && hand_rule.type != HandRule_Unset
+                && eval_hand_rule_for_thing(&hand_rule, thing_to_pick)
+            )
+                return true;
         }
     }
     return false;
