@@ -162,6 +162,7 @@ enum TbScriptCommands {
     Cmd_SET_CREATURE_INSTANCE             = 149,    
     Cmd_TRANSFER_CREATURE                 = 150,
     Cmd_SET_HAND_RULE                     = 151,
+    Cmd_MOVE_CREATURE                     = 152,
 };
 
 struct ScriptLine {

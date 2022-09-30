@@ -38,6 +38,8 @@
 #include "creature_instances.h"
 #include "power_hand.h"
 #include "power_specials.h"
+#include "creature_states.h"
+#include "map_blocks.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -972,6 +974,63 @@ static void set_hand_rule_check(const struct ScriptLine* scline)
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
+static void move_creature_check(const struct ScriptLine* scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
+
+    long crmodel = parse_creature_name(scline->tp[1]);
+    if (crmodel == CREATURE_NONE)
+    {
+        SCRPTERRLOG("Unknown creature, '%s'", scline->tp[1]);
+        return;
+    }
+    long select_id = parse_criteria(scline->tp[2]);
+    if (select_id == -1) {
+        SCRPTERRLOG("Unknown select criteria, '%s'", scline->tp[2]);
+        return;
+    }
+
+    long count = scline->np[3];
+    if (count <= 0)
+    {
+        SCRPTERRLOG("Bad creatures count, %d", count);
+        return;
+    }
+
+    TbMapLocation location;
+    if (!get_map_location_id(scline->tp[4], &location))
+    {
+        SCRPTWRNLOG("Invalid location: %s", scline->tp[4]);
+        return;
+    }
+
+    const char *effect_name = scline->tp[5];
+    long effct_id = 0;
+    if (scline->tp[5][0] != '\0')
+    {
+        effct_id = get_rid(effect_desc, effect_name);
+        if (effct_id == -1)
+        {
+            if (parameter_is_number(effect_name))
+            {
+                effct_id = atoi(effect_name);
+            }
+            else
+            {
+                SCRPTERRLOG("Unrecognised effect: %s", effect_name);
+                return;
+            }
+        }
+    }
+    value->uarg0 = location;
+    value->arg1 = select_id;
+    value->shorts[4] = effct_id;
+    value->bytes[10] = count;
+    value->bytes[11] = crmodel;
+
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
 void refresh_trap_anim(long trap_id)
 {
     int k = 0;
@@ -1140,6 +1199,45 @@ static void set_hand_rule_process(struct ScriptContext* context)
             {
                 dungeonadd->hand_rules[ci][hand_rule_slot].enabled = hand_rule_action == HandRuleAction_Enable;
             }
+        }
+    }
+}
+
+static void move_creature_process(struct ScriptContext* context)
+{
+    TbMapLocation location = context->value->uarg0;
+    long select_id = context->value->arg1;
+    long effect_id = context->value->shorts[4];
+    long count = context->value->bytes[10];
+    long crmodel = context->value->bytes[11];
+
+    for (int i = context->plr_start; i < context->plr_end; i++)
+    {
+        for (int count_i = 0; count_i < count; count_i++)
+        {
+            struct Thing *thing = script_get_creature_by_criteria(i, crmodel, select_id);
+            if (thing_is_invalid(thing) || thing_is_picked_up(thing)) {
+                continue;
+            }
+
+            if (!effect_id) {
+                effect_id = ball_puff_effects[thing->owner];
+            }
+
+            struct Coord3d pos;
+            if(!get_coords_at_location(&pos,location)) {
+                SYNCDBG(5,"No valid coords for location",(int)location);
+                return;
+            }
+            struct CreatureControl *cctrl;
+            cctrl = creature_control_get_from_thing(thing);
+
+            create_effect(&thing->mappos, effect_id, game.neutral_player_num);
+            move_thing_in_map(thing, &pos);
+            reset_interpolation_of_thing(thing);
+            initialise_thing_state(thing, CrSt_CreatureDoingNothing);
+            cctrl->turns_at_job = -1;
+            check_map_explored(thing, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
         }
     }
 }
@@ -2867,6 +2965,7 @@ const struct CommandDesc command_desc[] = {
   {"SET_DOOR",                          "ANN     ", Cmd_SET_DOOR, &set_door_check, &set_door_process},
   {"SET_CREATURE_INSTANCE",             "CNAN    ", Cmd_SET_CREATURE_INSTANCE, &set_creature_instance_check, &set_creature_instance_process},
   {"SET_HAND_RULE",                     "PC!Aaaa ", Cmd_SET_HAND_RULE, &set_hand_rule_check, &set_hand_rule_process},
+  {"MOVE_CREATURE",                     "PC!ANLa ", Cmd_MOVE_CREATURE, &move_creature_check, &move_creature_process},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 
