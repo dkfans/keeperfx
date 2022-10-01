@@ -1031,6 +1031,36 @@ static void move_creature_check(const struct ScriptLine* scline)
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
+static void count_creatures_in_range_check(const struct ScriptLine* scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
+
+    long crmodel = parse_creature_name(scline->tp[1]);
+    if (crmodel == CREATURE_NONE)
+    {
+        SCRPTERRLOG("Unknown creature, '%s'", scline->tp[1]);
+        return;
+    }
+    long ap_num = scline->np[2];
+    long flag_player_id = scline->np[3];
+    const char *flag_name = scline->tp[4];
+
+    long flag_id, flag_type;
+    if (!parse_get_varib(flag_name, &flag_id, &flag_type))
+    {
+        SCRPTERRLOG("Unknown flag, '%s'", flag_name);
+        return;
+    }
+
+    value->shorts[0] = ap_num;
+    value->bytes[2] = crmodel;
+    value->chars[3] = flag_player_id;
+    value->chars[4] = flag_id;
+    value->chars[5] = flag_type;
+
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
 void refresh_trap_anim(long trap_id)
 {
     int k = 0;
@@ -1240,6 +1270,21 @@ static void move_creature_process(struct ScriptContext* context)
             check_map_explored(thing, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
         }
     }
+}
+
+static void count_creatures_in_range_process(struct ScriptContext* context)
+{
+    long ap_num = context->value->shorts[0];
+    long crmodel = context->value->bytes[2];
+    long flag_player_id = context->value->chars[3];
+    long flag_id = context->value->chars[4];
+    long flag_type = context->value->chars[5];
+
+    long sum = 0;
+    for (int i = context->plr_start; i < context->plr_end; i++) {
+        sum += count_player_creatures_of_model_in_action_point(i, crmodel, action_point_number_to_index(ap_num));
+    }
+    set_variable(flag_player_id, flag_type, flag_id, sum);
 }
 
 static void set_door_configuration_check(const struct ScriptLine* scline)
@@ -2966,6 +3011,7 @@ const struct CommandDesc command_desc[] = {
   {"SET_CREATURE_INSTANCE",             "CNAN    ", Cmd_SET_CREATURE_INSTANCE, &set_creature_instance_check, &set_creature_instance_process},
   {"SET_HAND_RULE",                     "PC!Aaaa ", Cmd_SET_HAND_RULE, &set_hand_rule_check, &set_hand_rule_process},
   {"MOVE_CREATURE",                     "PC!ANLa ", Cmd_MOVE_CREATURE, &move_creature_check, &move_creature_process},
+  {"COUNT_CREATURES_IN_RANGE",          "PC!NPA  ", Cmd_COUNT_CREATURES_IN_RANGE, &count_creatures_in_range_check, &count_creatures_in_range_process},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 
