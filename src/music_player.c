@@ -23,6 +23,7 @@
 
 #include "game_legacy.h"
 #include "keeperfx.hpp"
+#include "config.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -33,9 +34,9 @@ Mix_Music* tracks[50];
 int current_track;
 /******************************************************************************/
 
-int IsRedbookMusicActive(void)
+TbBool IsRedbookMusicActive(void)
 {
-    return (game.flags_cd & MFlg_NoCdMusic) == 0;
+    return (features_enabled & Ft_NoCdMusic) == 0;
 }
 
 int InitializeMusicPlayer(void)
