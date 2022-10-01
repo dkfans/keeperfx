@@ -4101,7 +4101,7 @@ short process_command_line(unsigned short argc, char *argv[])
       } else
       if (strcasecmp(parstr, "nocd") == 0)
       {
-          set_flag_byte(&start_params.flags_cd,MFlg_NoCdMusic,true);
+          features_enabled |= Ft_NoCdMusic;
       } else
       if (strcasecmp(parstr, "1player") == 0)
       {
