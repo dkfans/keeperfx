@@ -186,8 +186,6 @@ struct GameAdd {
     unsigned long gold_per_hoard;
     struct CubeAttribs cubes_data[CUBE_ITEMS_MAX];
 
-#define TRAPDOOR_TYPES_MAX 128
-
     struct ManfctrConfig traps_config[TRAPDOOR_TYPES_MAX];
     struct ManfctrConfig doors_config[TRAPDOOR_TYPES_MAX];
     struct TrapStats trap_stats[TRAPDOOR_TYPES_MAX];

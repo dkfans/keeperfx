@@ -240,45 +240,6 @@ TbBool can_thing_be_picked_up2_by_player(const struct Thing *thing, PlayerNumber
     }
 }
 
-void set_power_hand_offset(struct PlayerInfo *player, struct Thing *thing)
-{
-    //_DK_set_power_hand_offset(player, thing);
-    struct Dungeon *dungeon;
-    dungeon = get_players_dungeon(player);
-
-    if (thing->class_id == TCls_Creature)
-    {
-        struct CreatureControl *cctrl;
-        cctrl = creature_control_get_from_thing(thing);
-      if ((cctrl->spell_flags & CSAfF_Chicken) != 0) {
-          dungeon->field_43 = 11;
-          dungeon->field_53 = 56;
-      } else
-      {
-          struct CreaturePickedUpOffset *pickoffs;
-          pickoffs = get_creature_picked_up_offset(thing);
-          dungeon->field_43 = pickoffs->field_4;
-          dungeon->field_53 = pickoffs->field_6;
-      }
-    } else
-    if (thing->class_id == TCls_Object)
-    {
-      if (object_is_mature_food(thing))
-      {
-          dungeon->field_43 = 11;
-          dungeon->field_53 = 56;
-      } else
-      {
-          dungeon->field_43 = 60;
-          dungeon->field_53 = 40;
-      }
-    } else
-    {
-        dungeon->field_43 = 60;
-        dungeon->field_53 = 40;
-    }
-}
-
 struct Thing *process_object_being_picked_up(struct Thing *thing, long plyr_idx)
 {
   struct PlayerInfo *player;
@@ -363,8 +324,6 @@ void set_power_hand_graphic(unsigned char plyr_idx, long AnimationID, long Anima
       {
         set_thing_draw(thing, AnimationID, AnimationSpeed, gameadd.crtr_conf.sprite_size, 1, 0, 2);
       }
-      thing = get_first_thing_in_power_hand(player);
-      set_power_hand_offset(player,thing);
     }
   }
 }
@@ -994,9 +953,6 @@ short dump_first_held_thing_on_map(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
         set_player_instance(player, PI_Drop, 0);
     }
     remove_first_thing_from_power_hand_list(plyr_idx);
-    if ( update_hand ) {
-      set_power_hand_offset(player, get_first_thing_in_power_hand(player));
-    }
     return 1;
 }
 
@@ -1066,10 +1022,7 @@ TbBool process_creature_in_dungeon_hand(struct Dungeon *dungeon, struct Thing *t
             cctrl->armageddon_teleport_turn = 0;
             if (remove_creature_from_power_hand(thing, dungeon->owner))
             {
-                create_effect(&thing->mappos, imp_spangle_effects[thing->owner], thing->owner);
-                move_thing_in_map(thing, &game.armageddon.mappos);
-                reset_interpolation_of_thing(thing);
-                //originally move was to get_player_soul_container(game.armageddon_caster_idx) mappos
+                teleport_armageddon_influenced_creature(thing);
                 return false;
             }
         }
@@ -1340,8 +1293,6 @@ TbBool place_thing_in_power_hand(struct Thing *thing, PlayerNumber plyr_idx)
 
 TbBool remove_creature_from_power_hand(struct Thing *thing, PlayerNumber plyr_idx)
 {
-    struct PlayerInfo *player;
-    player = get_player(plyr_idx);
     if (!thing_is_in_power_hand_list(thing, plyr_idx)) {
         return false;
     }
@@ -1350,7 +1301,6 @@ TbBool remove_creature_from_power_hand(struct Thing *thing, PlayerNumber plyr_id
         remove_thing_from_limbo(thing);
         set_start_state(thing);
         remove_thing_from_power_hand_list(thing, plyr_idx);
-        set_power_hand_offset(player, get_first_thing_in_power_hand(player));
         return true;
     }
     return false;
@@ -1555,8 +1505,12 @@ TbBool thing_pickup_is_blocked_by_hand_rule(const struct Thing *thing_to_pick, P
         struct HandRule hand_rule;
         for (int i = HAND_RULE_SLOTS_COUNT - 1; i >= 0; i--) {
             hand_rule = dungeonadd->hand_rules[thing_to_pick->model][i];
-            if (hand_rule.enabled && hand_rule.type != HandRule_Unset)
-                return eval_hand_rule_for_thing(&hand_rule, thing_to_pick);
+            if (
+                hand_rule.enabled
+                && hand_rule.type != HandRule_Unset
+                && eval_hand_rule_for_thing(&hand_rule, thing_to_pick)
+            )
+                return true;
         }
     }
     return false;

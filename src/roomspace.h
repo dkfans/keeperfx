@@ -146,6 +146,12 @@ void reset_dungeon_build_room_ui_variables(PlayerNumber plyr_idx);
 
 void update_slab_grid(struct RoomSpace* roomspace, unsigned char mode, TbBool sell);
 
+TbBool roomspace_can_build_room_at_slab(PlayerNumber plyr_idx, RoomKind rkind, MapSlabCoord slb_x, MapSlabCoord slb_y);
+void detect_roomspace_direction(struct RoomSpace *roomspace);
+void detect_bridge_shape(PlayerNumber plyr_idx);
+TbBool roomspace_liquid_path_is_blocked(PlayerNumber plyr_idx, MapSlabCoord start, MapSlabCoord end, MapSlabCoord other_axis, TbBool vertical);
+TbBool roomspace_slab_blocks_bridge(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y);
+
 /******************************************************************************/
 #include "roomspace_detection.h"
 /******************************************************************************/

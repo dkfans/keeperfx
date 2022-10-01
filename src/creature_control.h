@@ -437,7 +437,7 @@ unsigned short shot_shift_z;
     unsigned char battle_id;
     unsigned char alarm_stl_x;
     unsigned char alarm_stl_y;
-    unsigned long field_2FA;
+    unsigned long alarm_over_turn;
     unsigned long field_2FE;
     unsigned char stopped_for_hand_turns;
     long following_leader_since;

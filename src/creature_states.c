@@ -155,7 +155,7 @@ short creature_pick_up_spell_to_steal(struct Thing *creatng);
 //process_state, cleanup_state, move_from_slab, move_check,
 //override_feed, override_own_needs, override_sleep, override_fight_crtr, override_gets_salary, override_prev_fld1F, override_prev_fld20, override_escape, override_unconscious, override_anger_job, override_fight_object, override_fight_door, override_call2arms, override_follow,
     //state_type, field_1F, field_20, field_21, field_23, sprite_idx, field_26, field_27, react_to_cta
-struct StateInfo states[] = {
+struct StateInfo states[CREATURE_STATES_COUNT] = {
   {NULL, NULL, NULL, NULL,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Idle, 0, 0, 0, 0,  0, 0, 0, 0},
   {imp_doing_nothing, NULL, NULL, NULL,
@@ -454,9 +454,6 @@ struct StateInfo states[] = {
     0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, CrStTyp_AngerJob, 0, 0, 0, 0, 55, 1, 0, 1},
   {creature_going_to_safety_for_toking, NULL, NULL, NULL,
     0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,  CrStTyp_Sleep, 0, 0, 1, 0, 54, 1, 0, 1},
-  // Some redundant NULLs
-  {NULL, NULL, NULL, NULL,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Idle, 0, 0, 0, 0,  0, 0, 0, 0},
 };
 
 /** GUI States of creatures - from "Creatures" Tab in UI.
@@ -926,7 +923,7 @@ short arrive_at_alarm(struct Thing *creatng)
 {
     TRACE_THING(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    if (cctrl->field_2FA < (unsigned long)game.play_gameturn)
+    if (cctrl->alarm_over_turn < (unsigned long)game.play_gameturn)
     {
         set_start_state(creatng);
         return 1;
@@ -3949,30 +3946,6 @@ void remove_health_from_thing_and_display_health(struct Thing *thing, long delta
         thing->creature.health_bar_turns = 8;
         thing->health -= delta;
     }
-}
-
-/**
- * Returns if given slab has an adjacent slab owned by given player.
- * @param plyr_idx
- * @param slb_x
- * @param slb_y
- * @return
- */
-TbBool slab_by_players_land(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y)
-{
-    for (long n = 0; n < SMALL_AROUND_LENGTH; n++)
-    {
-        long aslb_x = slb_x + (long)small_around[n].delta_x;
-        long aslb_y = slb_y + (long)small_around[n].delta_y;
-        struct SlabMap* slb = get_slabmap_block(aslb_x, aslb_y);
-        if (slabmap_owner(slb) == plyr_idx)
-        {
-            if (slab_is_safe_land(plyr_idx, aslb_x, aslb_y) && !slab_is_liquid(aslb_x, aslb_y)) {
-                return true;
-            }
-        }
-    }
-    return false;
 }
 
 TbBool process_creature_hunger(struct Thing *thing)
