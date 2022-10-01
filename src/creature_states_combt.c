@@ -1234,6 +1234,8 @@ short cleanup_door_combat(struct Thing *thing)
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     cctrl->combat_flags &= ~CmbtF_DoorFight;
     cctrl->combat.battle_enemy_idx = 0;
+    //In case the unit walked into it:
+    cctrl->collided_door_subtile = 0;
     return 1;
 }
 

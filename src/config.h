@@ -81,6 +81,7 @@ enum TbFeature {
     Ft_SkipSplashScreens            = 0x10000,
     Ft_DisableCursorCameraPanning   = 0x20000,
     Ft_DeltaTime                    = 0x40000,
+    Ft_NoCdMusic                    = 0x80000,
 };
 
 enum TbExtraLevels {

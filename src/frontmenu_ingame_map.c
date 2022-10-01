@@ -668,8 +668,8 @@ int draw_line_to_heart(struct PlayerInfo *player, long units_per_px, long zoom)
     frame = (game.play_gameturn & 3) + 1;
     int draw_x;
     int draw_y;
-    draw_x = delta_x / 2 + (frame * delta_x) / 4 + (basepos << 8);
-    draw_y = delta_y / 2 + (frame * delta_y) / 4 + (basepos << 8);
+    draw_x = -delta_x / 2 + (frame * delta_x) / 4 + (basepos << 8);
+    draw_y = -delta_y / 2 + (frame * delta_y) / 4 + (basepos << 8);
     int i;
     for (i = dist - 4; i > 0; i -= 4)
     {

@@ -241,6 +241,27 @@ struct Room * find_next_navigable_room_for_thing_with_capacity_and_closer_than(s
     return INVALID_ROOM;
 }
 
+struct Room* find_nearest_navigable_room_of_kind_for_thing_with_capacity_and_closer_than(struct Thing* thing, PlayerNumber owner, RoomKind rkind, unsigned char nav_flags, long used, long* neardistance)
+{
+    SYNCDBG(18, "Searching for %s navigable by %s index %d", room_code_name(rkind), thing_model_name(thing), (int)thing->index);
+    struct DungeonAdd* dungeonadd = get_dungeonadd(owner);
+    struct Room* nearoom = INVALID_ROOM;
+    long distance = *neardistance;
+    int i = dungeonadd->room_kind[rkind];
+    while (i != 0)
+    {
+        struct Room* room = find_next_navigable_room_for_thing_with_capacity_and_closer_than(thing, i, nav_flags, used, &distance);
+        if (room_is_invalid(room)) {
+            break;
+        }
+        // Found closer room
+        i = room->next_of_owner;
+        nearoom = room;
+    }
+    *neardistance = distance;
+    return nearoom;
+}
+
 struct Room * find_nearest_navigable_room_for_thing_with_capacity_and_closer_than(struct Thing *thing, PlayerNumber owner, RoomRole rrole, unsigned char nav_flags, long used, long *neardistance)
 {
     SYNCDBG(18,"Searching for %s navigable by %s index %d",room_role_code_name(rrole),thing_model_name(thing),(int)thing->index);
@@ -350,7 +371,7 @@ struct Room *find_nearest_room_to_vandalise(struct Thing *thing, PlayerNumber ow
 			continue;
 		}
         long distance = neardistance;
-        struct Room* room = find_nearest_navigable_room_for_thing_with_capacity_and_closer_than(thing, owner, rkind, nav_flags, 0, &distance);
+        struct Room* room = find_nearest_navigable_room_of_kind_for_thing_with_capacity_and_closer_than(thing, owner, rkind, nav_flags, 0, &distance);
         if (neardistance > distance)
 		{
 			neardistance = distance;
