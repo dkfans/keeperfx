@@ -893,17 +893,14 @@ void drop_held_thing_on_ground(struct Dungeon *dungeon, struct Thing *droptng, c
 
 short dump_first_held_thing_on_map(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, TbBool update_hand)
 {
-    struct PlayerInfo *player;
-    player = get_player(plyr_idx);
-    struct Dungeon *dungeon;
-    dungeon = get_players_dungeon(player);
+    struct PlayerInfo *player = get_player(plyr_idx);
+    struct Dungeon *dungeon = get_players_dungeon(player);
     // If nothing in hand - nothing to do
     if (dungeon->num_things_in_hand < 1) {
         return 0;
     }
     // Check if drop position is allowed
-    struct Thing *droptng;
-    droptng = thing_get(dungeon->things_in_hand[0]);
+    struct Thing *droptng = thing_get(dungeon->things_in_hand[0]);
     if (!can_drop_thing_here(stl_x, stl_y, plyr_idx, thing_is_creature_special_digger(droptng))) {
         // Make a rejection sound
         if (is_my_player_number(plyr_idx))
@@ -920,8 +917,7 @@ short dump_first_held_thing_on_map(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     if (thing_in_wall_at(droptng, &pos)) {
         return 0;
     }
-    struct Thing *overtng;
-    overtng = thing_get(player->thing_under_hand);
+    struct Thing *overtng = thing_get(player->thing_under_hand);
     if (thing_is_object(droptng) && object_is_gold_pile(droptng))
     {
         if (thing_is_creature(overtng) && creature_able_to_get_salary(overtng))
