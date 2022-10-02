@@ -314,7 +314,7 @@ TbBool get_player_id_f(const char *plrname, long *plr_range_id, const char *func
 #define PROCESS_SCRIPT_VALUE(cmd) \
     if ((get_script_current_condition() == CONDITION_ALWAYS) && (next_command_reusable == 0)) \
     { \
-        script_process_value(cmd, 0, 0, 0, 0, value); \
+        script_process_value(cmd, value->plyr_range, 0, 0, 0, value); \
     }
 
 
