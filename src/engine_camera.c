@@ -81,6 +81,7 @@ void reset_interpolation_for_parchment_view()
     previous_cam_mappos_x = cam->mappos.x.val;
     previous_cam_mappos_y = cam->mappos.y.val;
     previous_cam_mappos_z = cam->mappos.z.val;
+    reset_minimap_interpolation = true;
 }
 
 void reset_interpolation_of_camera()
@@ -101,7 +102,7 @@ void reset_interpolation_of_camera()
     previous_cam_mappos_x = cam->mappos.x.val;
     previous_cam_mappos_y = cam->mappos.y.val;
     previous_cam_mappos_z = cam->mappos.z.val;
-    reset_interpolation_of_minimap();
+    reset_minimap_interpolation = true;
 }
 
 void set_previous_camera_values() {
