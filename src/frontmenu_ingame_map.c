@@ -55,7 +55,7 @@ unsigned char *MapBackground = NULL;
 long *MapShapeStart = NULL;
 long *MapShapeEnd = NULL;
 long MapDiagonalLength = 0;
-TbBool reset_minimap_interpolation = false;
+TbBool reset_all_minimap_interpolation = false;
 const TbPixel RoomColours[] = {132, 92, 164, 183, 21, 132};
 /******************************************************************************/
 void pannel_map_draw_pixel(RealScreenCoord x, RealScreenCoord y, TbPixel col)
@@ -173,7 +173,7 @@ void interpolate_minimap_thing(struct Thing *thing, struct ThingAdd *thingadd, s
 {
     long current_minimap_x = (thing->mappos.x.val - (MapCoordDelta)subtile_coord(cam->mappos.x.stl.num,0));
     long current_minimap_y = (thing->mappos.y.val - (MapCoordDelta)subtile_coord(cam->mappos.y.stl.num,0));
-    if (reset_minimap_interpolation == true)
+    if ((reset_all_minimap_interpolation == true) || (thingadd->previous_minimap_pos_x == 0 && thingadd->previous_minimap_pos_y == 0))
     {
         thingadd->interp_minimap_pos_x = current_minimap_x;
         thingadd->interp_minimap_pos_y = current_minimap_y;
@@ -1159,7 +1159,7 @@ void pannel_map_draw_slabs(long x, long y, long units_per_px, long zoom)
     
     if ((cam == NULL) || (MapDiagonalLength < 1))
         return;
-    if (game.play_gameturn <= 1) {reset_minimap_interpolation = true;} //Fixes initial minimap frame being purple
+    if (game.play_gameturn <= 1) {reset_all_minimap_interpolation = true;} //Fixes initial minimap frame being purple
     
     long shift_x;
     long shift_y;
@@ -1172,7 +1172,7 @@ void pannel_map_draw_slabs(long x, long y, long units_per_px, long zoom)
         shift_y = LbCosL(angle) * zoom / 256;
         long current_minimap_x = (cam->mappos.x.stl.num << 16);
         long current_minimap_y = (cam->mappos.y.stl.num << 16);
-        if (reset_minimap_interpolation == true)
+        if (reset_all_minimap_interpolation == true)
         {
             interp_minimap_x = current_minimap_x;
             interp_minimap_y = current_minimap_y;

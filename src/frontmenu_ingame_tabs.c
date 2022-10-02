@@ -2228,7 +2228,7 @@ void draw_whole_status_panel(void)
     pannel_map_draw_slabs(player->minimap_pos_x, player->minimap_pos_y, mm_units_per_px, mmzoom);
     long basic_zoom = player->minimap_zoom;
     pannel_map_draw_overlay_things(mm_units_per_px, mmzoom, basic_zoom);
-    reset_minimap_interpolation = false; // Done resetting
+    reset_all_minimap_interpolation = false; // Done resetting
     unsigned char placefill_threshold = (LbScreenHeight() >= 400) ? 80 : 40;
     if (LbScreenHeight() - gmnu->height >= placefill_threshold)
     {
