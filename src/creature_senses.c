@@ -568,13 +568,13 @@ TbBool jonty_line_of_sight_3d_including_lava_check_ignoring_own_door(const struc
     while (distance > 0)
     {
         if (get_point_in_map_solid_flags_ignoring_own_door(&nextpos, plyr_idx) & 0x01) {
-            SYNCDBG(17, "Player %d cannot see through (%d,%d) due to linear path solid flags (downcount %d)",
-                (int)plyr_idx,(int)nextpos.x.stl.num,(int)nextpos.y.stl.num,(int)distance);
+            SYNCDBG(17, "Player %d cannot see through (%d,%d,%d) due to linear path solid flags (downcount %d)",
+                (int)plyr_idx,(int)nextpos.x.stl.num,(int)nextpos.y.stl.num, (int)nextpos.z.stl.num,(int)distance);
             return false;
         }
         if (!sibling_line_of_sight_3d_including_lava_check_ignoring_own_door(&prevpos, &nextpos, plyr_idx)) {
-            SYNCDBG(17, "Player %d cannot see through (%d,%d) due to 3D line of sight (downcount %d)",
-                (int)plyr_idx,(int)nextpos.x.stl.num,(int)nextpos.y.stl.num,(int)distance);
+            SYNCDBG(17, "Player %d cannot see through (%d,%d,%d) due to 3D line of sight (downcount %d)",
+                (int)plyr_idx, (int)nextpos.x.stl.num, (int)nextpos.y.stl.num, (int)nextpos.z.stl.num, (int)distance);
             return false;
         }
         // Go to next sibling subtile
@@ -878,13 +878,13 @@ TbBool line_of_sight_3d(const struct Coord3d *frpos, const struct Coord3d *topos
     while (distance > 0)
     {
         if (point_in_map_is_solid(&nextpos)) {
-            SYNCDBG(7, "Player cannot see through (%d,%d) due to linear path solid flags (downcount %d)",
-                (int)nextpos.x.stl.num,(int)nextpos.y.stl.num,(int)distance);
+            SYNCDBG(7, "Player cannot see through (%d,%d,%d) due to linear path solid flags (downcount %d)",
+                (int)nextpos.x.stl.num,(int)nextpos.y.stl.num, (int)nextpos.z.stl.num, (int)distance);
             return false;
         }
         if (!sibling_line_of_sight(&prevpos, &nextpos)) {
-            SYNCDBG(7, "Player cannot see through (%d,%d) due to 3D line of sight (downcount %d)",
-                (int)nextpos.x.stl.num,(int)nextpos.y.stl.num,(int)distance);
+            SYNCDBG(7, "Player cannot see through (%d,%d,%d) due to 3D line of sight (downcount %d)",
+                (int)nextpos.x.stl.num, (int)nextpos.y.stl.num, (int)nextpos.z.stl.num,(int)distance);
             return false;
         }
         // Go to next sibling subtile
