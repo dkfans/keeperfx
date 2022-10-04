@@ -3854,7 +3854,7 @@ msgstr "勇者の門: 勇者はこの門を通ってお前のダンジョンに�
 #: guitext:546
 msgctxt "Creature name"
 msgid "Tunneller"
-msgstr "マウンテンドワーフ"
+msgstr "トンネラードワーフ"
 
 #: guitext:547
 msgctxt "Creature name"
