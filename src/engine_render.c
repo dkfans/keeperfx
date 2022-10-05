@@ -8811,7 +8811,8 @@ void draw_frontview_engine(struct Camera *cam)
     camera_zoom = interpolated_camera_zoom;
     cam_x = interpolated_cam_mappos_x;
     cam_y = interpolated_cam_mappos_y;
-
+    pointer_x = (GetMouseX() - player->engine_window_x) / pixel_size;
+    pointer_y = (GetMouseY() - player->engine_window_y) / pixel_size;
     UseFastBlockDraw = (camera_zoom == FRONTVIEW_CAMERA_ZOOM_MAX);
     LbScreenStoreGraphicsWindow(&grwnd);
     store_engine_window(&ewnd,pixel_size);
