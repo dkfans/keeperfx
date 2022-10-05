@@ -168,9 +168,18 @@ void draw_resurrect_creature(struct GuiButton *gbtn)
         {
             ratio = 3;
         }
+        int h = 0;
         if ((dbc_initialized) && (dbc_enabled)) 
         {
             adjust = 2;
+            if (dbc_language == 1)
+            {
+                if ( (ratio > 1) && (MyScreenHeight >= 400) )
+                {
+                    tx_units_per_px = ((gbtn->height * 22 / 26) * 14) / LbTextLineHeight();
+                    h = (gbtn->height / 4);
+                }
+            }
             if (ratio > 2)
             {
                 ratio = 2;
@@ -185,9 +194,9 @@ void draw_resurrect_creature(struct GuiButton *gbtn)
             }
         }
         int w = (spr->SWidth - 10) + ((4 * ((MyScreenWidth / 320) - adjust)) * ratio);
-        LbTextDrawResizedFmt(w, 0, tx_units_per_px, "%s", get_string(crdata->namestr_idx));
+        LbTextDrawResizedFmt(w, h, tx_units_per_px, "%s", get_string(crdata->namestr_idx));
         lbDisplay.DrawFlags = Lb_TEXT_HALIGN_RIGHT;
-        LbTextDrawResizedFmt(0, 0, tx_units_per_px, " %s %u", get_string(GUIStr_MnuLevel), (cstore->explevel + 1));
+        LbTextDrawResizedFmt(0, h, tx_units_per_px, " %s %u", get_string(GUIStr_MnuLevel), (cstore->explevel + 1));
     }
     lbDisplay.DrawFlags = flg_mem;
 }
@@ -276,9 +285,18 @@ void draw_transfer_creature(struct GuiButton *gbtn)
         {
             ratio = 3;
         }
+        int h = 0;
         if ((dbc_initialized) && (dbc_enabled)) 
         {
             adjust = 2;
+            if (dbc_language == 1)
+            {
+                if ( (ratio > 1) && (MyScreenHeight >= 400) )
+                {
+                    tx_units_per_px = ((gbtn->height * 22 / 26) * 14) / LbTextLineHeight();
+                    h = (gbtn->height / 4);
+                }
+            }
             if (ratio > 2)
             {
                 ratio = 2;
@@ -293,9 +311,9 @@ void draw_transfer_creature(struct GuiButton *gbtn)
             }
         }
         int w = (spr->SWidth - 10) + ((4 * ((MyScreenWidth / 320) - adjust)) * ratio);
-        LbTextDrawResizedFmt(w, 0, tx_units_per_px, "%s", get_string(crdata->namestr_idx));
+        LbTextDrawResizedFmt(w, h, tx_units_per_px, "%s", get_string(crdata->namestr_idx));
         lbDisplay.DrawFlags = Lb_TEXT_HALIGN_RIGHT;
-        LbTextDrawResizedFmt(0, 0, tx_units_per_px, " %s %u", get_string(GUIStr_MnuLevel), (cctrl->explevel+1));
+        LbTextDrawResizedFmt(0, h, tx_units_per_px, " %s %u", get_string(GUIStr_MnuLevel), (cctrl->explevel+1));
     }
     lbDisplay.DrawFlags = flgmem;
 }
