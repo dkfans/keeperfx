@@ -3216,11 +3216,12 @@ void draw_gui(void)
     if (game.flash_button_index != 0)
     {
         draw_active_menus_highlights();
-        if (game.flash_button_gameturns != -1)
+        if (gameadd.flash_button_time > 0)
         {
-            game.flash_button_gameturns--;
-            if (game.flash_button_gameturns == -1)
-              game.flash_button_index = 0;
+            gameadd.flash_button_time -= gameadd.delta_time;
+            if (gameadd.flash_button_time <= 0) {
+                game.flash_button_index = 0;
+            }
         }
     }
     lbDisplay.DrawFlags = flg_mem;

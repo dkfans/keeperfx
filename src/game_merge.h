@@ -228,6 +228,7 @@ struct GameAdd {
     struct PlayerInfoAdd players[PLAYERS_COUNT];
     float delta_time;
     long double process_turn_time;
+    float flash_button_time;
 };
 
 extern unsigned long game_flags2; // Should be reset to zero on new level

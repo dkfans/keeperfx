@@ -333,7 +333,7 @@ unsigned char field_1506D4;
     struct TextScrollWindow evntbox_scroll_window;
 char field_1512E6[1037];
     long flash_button_index; /**< GUI Button Designation ID of a button which is supposed to flash, as part of tutorial. */
-    long flash_button_gameturns; // signed
+    long flash_button_gameturns_UNUSED; // replaced by flash_button_time in gameadd
 long field_1516FB;
     char loaded_swipe_idx;
     long boulder_reduce_health_wall;
