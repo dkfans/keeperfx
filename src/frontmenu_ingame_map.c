@@ -55,6 +55,7 @@ unsigned char *MapBackground = NULL;
 long *MapShapeStart = NULL;
 long *MapShapeEnd = NULL;
 long MapDiagonalLength = 0;
+TbBool reset_all_minimap_interpolation = false;
 const TbPixel RoomColours[] = {132, 92, 164, 183, 21, 132};
 /******************************************************************************/
 void pannel_map_draw_pixel(RealScreenCoord x, RealScreenCoord y, TbPixel col)
@@ -168,6 +169,27 @@ void draw_call_to_arms_circle(unsigned char owner, long x1, long y1, long x2, lo
     }
 }
 
+void interpolate_minimap_thing(struct Thing *thing, struct ThingAdd *thingadd, struct Camera *cam)
+{
+    long current_minimap_x = (thing->mappos.x.val - (MapCoordDelta)subtile_coord(cam->mappos.x.stl.num,0));
+    long current_minimap_y = (thing->mappos.y.val - (MapCoordDelta)subtile_coord(cam->mappos.y.stl.num,0));
+    if ((reset_all_minimap_interpolation == true) || (thingadd->previous_minimap_pos_x == 0 && thingadd->previous_minimap_pos_y == 0))
+    {
+        thingadd->interp_minimap_pos_x = current_minimap_x;
+        thingadd->interp_minimap_pos_y = current_minimap_y;
+        thingadd->previous_minimap_pos_x = current_minimap_x;
+        thingadd->previous_minimap_pos_y = current_minimap_y;
+    } else {
+        thingadd->interp_minimap_pos_x = interpolate(thingadd->interp_minimap_pos_x, thingadd->previous_minimap_pos_x, current_minimap_x);
+        thingadd->interp_minimap_pos_y = interpolate(thingadd->interp_minimap_pos_y, thingadd->previous_minimap_pos_y, current_minimap_y);
+    }
+    if (thingadd->interp_minimap_update_turn != game.play_gameturn) {
+        thingadd->interp_minimap_update_turn = game.play_gameturn;
+        thingadd->previous_minimap_pos_x = current_minimap_x;
+        thingadd->previous_minimap_pos_y = current_minimap_y;
+    }
+}
+
 /**
  * Draws all call to arms objects on minimap.
  * @param player The player for whom drawing occurs.
@@ -182,7 +204,7 @@ int draw_overlay_call_to_arms(struct PlayerInfo *player, long units_per_px, long
     SYNCDBG(18,"Starting");
     if (player->acamera == NULL)
         return 0;
-    const struct Camera *cam = player->acamera;
+    struct Camera *cam = player->acamera;
     n = 0;
     const struct StructureList *slist = get_list_for_thing_class(TCls_Object);
     k = 0;
@@ -204,21 +226,9 @@ int draw_overlay_call_to_arms(struct PlayerInfo *player, long units_per_px, long
             {
                 // Position of the thing on unrotated map
                 // for camera, coordinates within subtile are skipped; the thing uses full resolution coordinates
-                long zmpos_x;
-                long zmpos_y;
-
-                long current_minimap_x = (thing->mappos.x.val - (MapCoordDelta)subtile_coord(cam->mappos.x.stl.num,0));
-                long current_minimap_y = (thing->mappos.y.val - (MapCoordDelta)subtile_coord(cam->mappos.y.stl.num,0));
-                thingadd->interp_minimap_pos_x = interpolate(thingadd->interp_minimap_pos_x, thingadd->previous_minimap_pos_x, current_minimap_x);
-                thingadd->interp_minimap_pos_y = interpolate(thingadd->interp_minimap_pos_y, thingadd->previous_minimap_pos_y, current_minimap_y);
-                if (thingadd->interp_minimap_update_turn != game.play_gameturn) {
-                    thingadd->interp_minimap_update_turn = game.play_gameturn;
-                    thingadd->previous_minimap_pos_x = current_minimap_x;
-                    thingadd->previous_minimap_pos_y = current_minimap_y;
-                }
-
-                zmpos_x = thingadd->interp_minimap_pos_x / zoom;
-                zmpos_y = thingadd->interp_minimap_pos_y / zoom;
+                interpolate_minimap_thing(thing, thingadd, cam);
+                long zmpos_x = thingadd->interp_minimap_pos_x / zoom;
+                long zmpos_y = thingadd->interp_minimap_pos_y / zoom;
 
                 // Now rotate the coordinates to receive minimap points
                 long mapos_x;
@@ -254,7 +264,7 @@ int draw_overlay_traps(struct PlayerInfo *player, long units_per_px, long scaled
     SYNCDBG(18,"Starting");
     if (player->acamera == NULL)
         return 0;
-    const struct Camera *cam = player->acamera;
+    struct Camera *cam = player->acamera;
     n = 0;
     k = 0;
     const struct StructureList *slist = get_list_for_thing_class(TCls_Trap);
@@ -274,21 +284,9 @@ int draw_overlay_traps(struct PlayerInfo *player, long units_per_px, long scaled
         {
             // Position of the thing on unrotated map
             // for camera, coordinates within subtile are skipped; the thing uses full resolution coordinates
-            long zmpos_x;
-            long zmpos_y;
-
-            long current_minimap_x = (thing->mappos.x.val - (MapCoordDelta)subtile_coord(cam->mappos.x.stl.num,0));
-            long current_minimap_y = (thing->mappos.y.val - (MapCoordDelta)subtile_coord(cam->mappos.y.stl.num,0));
-            thingadd->interp_minimap_pos_x = interpolate(thingadd->interp_minimap_pos_x, thingadd->previous_minimap_pos_x, current_minimap_x);
-            thingadd->interp_minimap_pos_y = interpolate(thingadd->interp_minimap_pos_y, thingadd->previous_minimap_pos_y, current_minimap_y);
-            if (thingadd->interp_minimap_update_turn != game.play_gameturn) {
-                thingadd->interp_minimap_update_turn = game.play_gameturn;
-                thingadd->previous_minimap_pos_x = current_minimap_x;
-                thingadd->previous_minimap_pos_y = current_minimap_y;
-            }
-
-            zmpos_x = thingadd->interp_minimap_pos_x / scaled_zoom;
-            zmpos_y = thingadd->interp_minimap_pos_y / scaled_zoom;
+            interpolate_minimap_thing(thing, thingadd, cam);
+            long zmpos_x = thingadd->interp_minimap_pos_x / scaled_zoom;
+            long zmpos_y = thingadd->interp_minimap_pos_y / scaled_zoom;
             
             // Now rotate the coordinates to receive minimap points
             RealScreenCoord mapos_x;
@@ -345,7 +343,7 @@ int draw_overlay_spells_and_boxes(struct PlayerInfo *player, long units_per_px, 
     SYNCDBG(18,"Starting");
     if (player->acamera == NULL)
         return 0;
-    const struct Camera *cam = player->acamera;
+    struct Camera *cam = player->acamera;
     n = 0;
     const struct StructureList *slist = get_list_for_thing_class(TCls_Object);
     k = 0;
@@ -367,21 +365,9 @@ int draw_overlay_spells_and_boxes(struct PlayerInfo *player, long units_per_px, 
             {
                 // Position of the thing on unrotated map
                 // for camera, coordinates within subtile are skipped; the thing uses full resolution coordinates
-                long zmpos_x;
-                long zmpos_y;
-
-                long current_minimap_x = (thing->mappos.x.val - (MapCoordDelta)subtile_coord(cam->mappos.x.stl.num,0));
-                long current_minimap_y = (thing->mappos.y.val - (MapCoordDelta)subtile_coord(cam->mappos.y.stl.num,0));
-                thingadd->interp_minimap_pos_x = interpolate(thingadd->interp_minimap_pos_x, thingadd->previous_minimap_pos_x, current_minimap_x);
-                thingadd->interp_minimap_pos_y = interpolate(thingadd->interp_minimap_pos_y, thingadd->previous_minimap_pos_y, current_minimap_y);
-                if (thingadd->interp_minimap_update_turn != game.play_gameturn) {
-                    thingadd->interp_minimap_update_turn = game.play_gameturn;
-                    thingadd->previous_minimap_pos_x = current_minimap_x;
-                    thingadd->previous_minimap_pos_y = current_minimap_y;
-                }
-
-                zmpos_x = thingadd->interp_minimap_pos_x / scaled_zoom;
-                zmpos_y = thingadd->interp_minimap_pos_y / scaled_zoom;
+                interpolate_minimap_thing(thing, thingadd, cam);
+                long zmpos_x = thingadd->interp_minimap_pos_x / scaled_zoom;
+                long zmpos_y = thingadd->interp_minimap_pos_y / scaled_zoom;
                 
                 long mapos_x;
                 long mapos_y;
@@ -477,7 +463,7 @@ int draw_overlay_creatures(struct PlayerInfo *player, long units_per_px, long zo
     SYNCDBG(18,"Starting");
     if (player->acamera == NULL)
         return 0;
-    const struct Camera *cam = player->acamera;
+    struct Camera *cam = player->acamera;
     n = 0;
     k = 0;
     const struct StructureList *slist = get_list_for_thing_class(TCls_Creature);
@@ -509,21 +495,9 @@ int draw_overlay_creatures(struct PlayerInfo *player, long units_per_px, long zo
                 }
                 // Position of the thing on unrotated map
                 // for camera, coordinates within subtile are skipped; the thing uses full resolution coordinates
-                long zmpos_x;
-                long zmpos_y;
-                
-                long current_minimap_x = (thing->mappos.x.val - (MapCoordDelta)subtile_coord(cam->mappos.x.stl.num,0));
-                long current_minimap_y = (thing->mappos.y.val - (MapCoordDelta)subtile_coord(cam->mappos.y.stl.num,0));
-                thingadd->interp_minimap_pos_x = interpolate(thingadd->interp_minimap_pos_x, thingadd->previous_minimap_pos_x, current_minimap_x);
-                thingadd->interp_minimap_pos_y = interpolate(thingadd->interp_minimap_pos_y, thingadd->previous_minimap_pos_y, current_minimap_y);
-                if (thingadd->interp_minimap_update_turn != game.play_gameturn) {
-                    thingadd->interp_minimap_update_turn = game.play_gameturn;
-                    thingadd->previous_minimap_pos_x = current_minimap_x;
-                    thingadd->previous_minimap_pos_y = current_minimap_y;
-                }
-
-                zmpos_x = thingadd->interp_minimap_pos_x / zoom;
-                zmpos_y = thingadd->interp_minimap_pos_y / zoom;
+                interpolate_minimap_thing(thing, thingadd, cam);
+                long zmpos_x = thingadd->interp_minimap_pos_x / zoom;
+                long zmpos_y = thingadd->interp_minimap_pos_y / zoom;
 
                 // Now rotate the coordinates to receive minimap points
                 long mapos_x;
@@ -622,7 +596,7 @@ int draw_line_to_heart(struct PlayerInfo *player, long units_per_px, long zoom)
 {
     if (player->acamera == NULL)
         return 0;
-    const struct Camera *cam = player->acamera;
+    struct Camera *cam = player->acamera;
     struct Thing *thing = get_player_soul_container(player->id_number);
     struct ThingAdd* thingadd = get_thingadd(thing->index);
 
@@ -632,21 +606,9 @@ int draw_line_to_heart(struct PlayerInfo *player, long units_per_px, long zoom)
     lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
     // Position of the thing on unrotated map
     // for camera, coordinates within subtile are skipped; the thing uses full resolution coordinates
-    long zmpos_x;
-    long zmpos_y;
-
-    long current_minimap_x = (thing->mappos.x.val - (MapCoordDelta)subtile_coord(cam->mappos.x.stl.num,0));
-    long current_minimap_y = (thing->mappos.y.val - (MapCoordDelta)subtile_coord(cam->mappos.y.stl.num,0));
-    thingadd->interp_minimap_pos_x = interpolate(thingadd->interp_minimap_pos_x, thingadd->previous_minimap_pos_x, current_minimap_x);
-    thingadd->interp_minimap_pos_y = interpolate(thingadd->interp_minimap_pos_y, thingadd->previous_minimap_pos_y, current_minimap_y);
-    if (thingadd->interp_minimap_update_turn != game.play_gameturn) {
-        thingadd->interp_minimap_update_turn = game.play_gameturn;
-        thingadd->previous_minimap_pos_x = current_minimap_x;
-        thingadd->previous_minimap_pos_y = current_minimap_y;
-    }
-
-    zmpos_x = thingadd->interp_minimap_pos_x / zoom;
-    zmpos_y = thingadd->interp_minimap_pos_y / zoom;
+    interpolate_minimap_thing(thing, thingadd, cam);
+    long zmpos_x = thingadd->interp_minimap_pos_x / zoom;
+    long zmpos_y = thingadd->interp_minimap_pos_y / zoom;
 
     // Now rotate the coordinates to receive minimap points
     RealScreenCoord mapos_x;
@@ -1186,16 +1148,6 @@ long interp_minimap_y;
 long interp_minimap_previous_x;
 long interp_minimap_previous_y;
 long interp_minimap_get_previous;
-void reset_interpolation_of_minimap()
-{
-    struct PlayerInfo* player = get_my_player();
-    struct Camera *cam = player->acamera;
-    interp_minimap_x = (cam->mappos.x.stl.num << 16);
-    interp_minimap_y = (cam->mappos.y.stl.num << 16);
-    interp_minimap_previous_x = interp_minimap_x;
-    interp_minimap_previous_y = interp_minimap_y;
-}
-
 void pannel_map_draw_slabs(long x, long y, long units_per_px, long zoom)
 {
     PannelMapX = scale_value_for_resolution_with_upp(x,units_per_px);
@@ -1207,7 +1159,7 @@ void pannel_map_draw_slabs(long x, long y, long units_per_px, long zoom)
     
     if ((cam == NULL) || (MapDiagonalLength < 1))
         return;
-    if (game.play_gameturn <= 1) {reset_interpolation_of_minimap();} //Fixes initial minimap frame being purple
+    if (game.play_gameturn <= 1) {reset_all_minimap_interpolation = true;} //Fixes initial minimap frame being purple
     
     long shift_x;
     long shift_y;
@@ -1218,11 +1170,18 @@ void pannel_map_draw_slabs(long x, long y, long units_per_px, long zoom)
         angle = interpolated_cam_orient_a & 0x1FFC; //cam->orient_a
         shift_x = -LbSinL(angle) * zoom / 256;
         shift_y = LbCosL(angle) * zoom / 256;
-
         long current_minimap_x = (cam->mappos.x.stl.num << 16);
         long current_minimap_y = (cam->mappos.y.stl.num << 16);
-        interp_minimap_x = interpolate(interp_minimap_x, interp_minimap_previous_x, current_minimap_x);
-        interp_minimap_y = interpolate(interp_minimap_y, interp_minimap_previous_y, current_minimap_y);
+        if (reset_all_minimap_interpolation == true)
+        {
+            interp_minimap_x = current_minimap_x;
+            interp_minimap_y = current_minimap_y;
+            interp_minimap_previous_x = current_minimap_x;
+            interp_minimap_previous_y = current_minimap_y;
+        } else {
+            interp_minimap_x = interpolate(interp_minimap_x, interp_minimap_previous_x, current_minimap_x);
+            interp_minimap_y = interpolate(interp_minimap_y, interp_minimap_previous_y, current_minimap_y);
+        }
         if (interp_minimap_get_previous != game.play_gameturn) {
             interp_minimap_get_previous = game.play_gameturn;
             interp_minimap_previous_x = current_minimap_x;
