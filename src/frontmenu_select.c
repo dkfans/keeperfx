@@ -189,8 +189,8 @@ void frontend_level_select_update(void)
 void frontend_draw_level_select_mappack(struct GuiButton *gbtn)
 {
     const char *text;
-    if (campaign.name != NULL)
-        text = campaign.name;
+    if (campaign.display_name != NULL)
+        text = campaign.display_name;
     else
         text = frontend_button_caption_text(gbtn);
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
@@ -274,7 +274,7 @@ void frontend_draw_campaign_select_button(struct GuiButton *gbtn)
     int tx_units_per_px = (gbtn->height * 13 / 11) * 16 / LbTextLineHeight();
     i = LbTextLineHeight() * tx_units_per_px / 16;
     LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, i);
-    LbTextDrawResized(0, 0, tx_units_per_px, campgn->name);
+    LbTextDrawResized(0, 0, tx_units_per_px, campgn->display_name);
 }
 
 void frontend_campaign_select(struct GuiButton *gbtn)
@@ -431,7 +431,7 @@ void frontend_draw_mappack_select_button(struct GuiButton *gbtn)
     tx_units_per_px = (gbtn->height*13/11) * 16 / LbTextLineHeight();
     i = LbTextLineHeight() * tx_units_per_px / 16;
     LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, i);
-    LbTextDrawResized(0, 0, tx_units_per_px, campgn->name);
+    LbTextDrawResized(0, 0, tx_units_per_px, campgn->display_name);
 }
 
 void frontend_mappack_select_update(void)
