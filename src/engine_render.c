@@ -206,6 +206,29 @@ long interpolate(long variable_to_interpolate, long previous, long current)
     return lerp(variable_to_interpolate, desired_value, gameadd.delta_time);
 }
 
+long fix_interpolated_angle_bug(long variable_to_interpolate, long desired_value) {
+    // An ugly fix for a difficult angle interpolation bug. A proper fix would probably need rewriting all angle interpolation.
+    struct PlayerInfo* player = get_my_player();
+    struct Camera* cam = player->acamera;
+    switch (cam->view_mode)
+    {
+        case PVM_IsoWibbleView:
+        case PVM_FrontView:
+        case PVM_IsoStraightView:
+            
+            if (desired_value == 0 || desired_value == 512 || desired_value == 1024 || desired_value == 1536)
+            {
+                long angle_diff = variable_to_interpolate - desired_value;
+                angle_diff = (angle_diff + LbFPMath_PI) % LbFPMath_TAU - LbFPMath_PI;
+                if (abs(angle_diff) < 8) {
+                    variable_to_interpolate = desired_value;
+                }
+            }
+        break;
+    }
+    return variable_to_interpolate;
+}
+
 long interpolate_angle(long variable_to_interpolate, long previous, long current)
 {
     if (is_feature_on(Ft_DeltaTime) == false) {
@@ -214,6 +237,7 @@ long interpolate_angle(long variable_to_interpolate, long previous, long current
     long future = current + (current - previous);
     // If you want to reduce 1st person camera acceleration/deceleration then change it in the logic, not here.
     long desired_value = lerp_angle(current, future, 0.5);
+    variable_to_interpolate = fix_interpolated_angle_bug(variable_to_interpolate, desired_value);
     return lerp_angle(variable_to_interpolate, desired_value, gameadd.delta_time);
 }
 

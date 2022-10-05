@@ -813,10 +813,15 @@ float lerp(float a, float b, float f)
     return (a * (1.0 - f)) + (b * f);
 }
 
-long lerp_angle(long from, long to, float weight) {
-    long difference = (to - from) % LbFPMath_AngleMask;
-    long distance = ((2 * difference) % LbFPMath_AngleMask) - difference;
-    return from + distance * weight;
+long lerp_angle(long from, long to, float weight)
+{
+    long difference = (to - from) % LbFPMath_TAU;
+    long distance = ((2 * difference) % LbFPMath_TAU) - difference;
+    long new = from + (distance * weight);
+    if (new < 0) {
+      new = LbFPMath_TAU + new;
+    }
+    return new % LbFPMath_TAU;
 }
 
 double fastPow(double a, double b)
