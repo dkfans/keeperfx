@@ -171,19 +171,9 @@ void draw_resurrect_creature(struct GuiButton *gbtn)
         if ((dbc_initialized) && (dbc_enabled)) 
         {
             adjust = 2;
-            if (dbc_language == 1)
+            if (ratio > 2)
             {
-                if (ratio > 1)
-                {
-                    ratio = 1;
-                }
-            }
-            else
-            {
-                if (ratio > 2)
-                {
-                    ratio = 2;
-                }
+                ratio = 2;
             }
         }
         else
@@ -289,19 +279,9 @@ void draw_transfer_creature(struct GuiButton *gbtn)
         if ((dbc_initialized) && (dbc_enabled)) 
         {
             adjust = 2;
-            if (dbc_language == 1)
+            if (ratio > 2)
             {
-                if (ratio > 1)
-                {
-                    ratio = 1;
-                }
-            }
-            else
-            {
-                if (ratio > 2)
-                {
-                    ratio = 2;
-                }
+                ratio = 2;
             }
         }
         else
