@@ -307,7 +307,7 @@ static TbBool any_digger_is_digging_indestructible_valuables(struct Dungeon *dun
 }
 
 /**
- * Returns amount of diggable faces of indestructible valuables marked for digging.
+ * Returns number of diggable faces of indestructible valuables marked for digging.
  * In standard configuration, indestructible valuables are simply slabs with gems.
  * @param dungeon
  * @return
@@ -331,7 +331,7 @@ static int count_faces_of_indestructible_valuables_marked_for_dig(struct Dungeon
             const struct SlabAttr* slbattr = get_slab_attrs(slb);
             if (((slbattr->block_flags & SlbAtFlg_Valuable) != 0) && slab_kind_is_indestructible(slb->kind))
             {
-                num_faces += block_count_diggable_sides(dungeon->owner, subtile_slab_fast(stl_x), subtile_slab_fast(stl_y));
+                num_faces += block_count_diggable_sides(subtile_slab_fast(stl_x), subtile_slab_fast(stl_y));
             }
         }
     }
