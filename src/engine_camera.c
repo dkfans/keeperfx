@@ -80,6 +80,7 @@ void reset_interpolation_for_parchment_view(struct PlayerInfo* player)
     previous_cam_mappos_x = cam->mappos.x.val;
     previous_cam_mappos_y = cam->mappos.y.val;
     previous_cam_mappos_z = cam->mappos.z.val;
+    reset_all_minimap_interpolation = true; // Stops minimap from smoothly moving to the new position upon exiting Parchment View
 }
 
 void reset_interpolation_of_camera(struct PlayerInfo* player)
