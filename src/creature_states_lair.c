@@ -41,6 +41,7 @@
 #include "map_utils.h"
 #include "engine_arrays.h"
 #include "game_legacy.h"
+#include "gui_soundmsgs.h"
 
 #include "keeperfx.hpp"
 
@@ -406,6 +407,17 @@ short creature_going_home_to_sleep(struct Thing *thing)
     if (creature_move_to_home_lair(thing))
     {
         thing->continue_state = CrSt_AtLairToSleep;
+        return 1;
+    }
+    struct Room* room = get_creature_lair_room(thing);
+    if (!room_is_invalid(room))
+    {
+        EventIndex evidx = event_create_event_or_update_nearby_existing_event(thing->mappos.x.val, thing->mappos.y.val, EvKind_WorkRoomUnreachable, thing->owner, room->kind);
+        if (evidx > 0) 
+        {
+            output_message_room_related_from_computer_or_player_action(thing->owner, room->kind, OMsg_RoomNoRoute);
+        }
+        set_start_state(thing);
         return 1;
     }
     internal_set_thing_state(thing, CrSt_CreatureWantsAHome);
