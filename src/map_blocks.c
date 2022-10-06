@@ -130,7 +130,9 @@ TbBool block_has_diggable_side(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSla
   long i;
   for (i = 0; i < SMALL_AROUND_SLAB_LENGTH; i++)
   {
-    if (slab_is_safe_land(plyr_idx, slb_x + small_around[i].delta_x, slb_y + small_around[i].delta_y))
+    struct SlabMap* slb = get_slabmap_block(slb_x + small_around[i].delta_x, slb_y + small_around[i].delta_y);
+    struct SlabAttr* slbattr = get_slab_attrs(slb);
+    if (slbattr->is_safe_land)
       return true;
   }
   return false;
