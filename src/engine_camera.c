@@ -112,7 +112,10 @@ void set_previous_camera_values(struct PlayerInfo* player) {
     previous_cam_orient_b = cam->orient_b;
     previous_cam_orient_c = cam->orient_c;
     previous_camera_zoom = scale_camera_zoom_to_screen(cam->zoom);
-    if (game.frame_skip > 0) {reset_interpolation_of_camera(player);} // Stop camera from being laggy while frameskipping
+    if (game.frame_skip > 0)
+    {
+        reset_interpolation_of_camera(player); // Stop camera from being laggy while frameskipping
+    }
 }
 
 MapCoordDelta get_3d_box_distance(const struct Coord3d *pos1, const struct Coord3d *pos2)
