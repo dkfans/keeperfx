@@ -6542,7 +6542,6 @@ void draw_view(struct Camera *cam, unsigned char a2)
 
     display_drawlist();
     cam->zoom = zoom_mem;//TODO [zoom] remove when all cam->zoom will be changed to camera_zoom
-    map_volume_box.visible = 0;
     SYNCDBG(9,"Finished");
 }
 
@@ -8923,7 +8922,6 @@ void draw_frontview_engine(struct Camera *cam)
     display_fast_drawlist(cam);
     LbScreenLoadGraphicsWindow(&grwnd);
     cam->zoom = zoom_mem;//TODO [zoom] remove when all cam->zoom will be changed to camera_zoom
-    map_volume_box.visible = 0;
     SYNCDBG(9,"Finished");
 }
 /******************************************************************************/
