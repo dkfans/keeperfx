@@ -682,7 +682,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         player->boxsize = 1;
         player->field_4D6 = 0;
     }
-    if (is_my_player(player))
+    if (player->id_number == my_player_number)
     {
         map_volume_box.visible = 0;
     }
