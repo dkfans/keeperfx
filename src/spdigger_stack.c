@@ -1066,7 +1066,7 @@ int add_undug_to_imp_stack(struct Dungeon *dungeon, int max_tasks)
         slb = get_slabmap_for_subtile(stl_x, stl_y);
         if (!slab_kind_is_indestructible(slb->kind)) // Add only blocks which can be destroyed by digging
         {
-            if ( block_has_diggable_side(dungeon->owner, subtile_slab_fast(stl_x), subtile_slab_fast(stl_y)) )
+            if ( block_has_diggable_side(subtile_slab_fast(stl_x), subtile_slab_fast(stl_y)) )
             {
                 add_to_imp_stack_using_pos(mtask->coords, DigTsk_DigOrMine, dungeon);
                 remain_num--;
@@ -1100,7 +1100,7 @@ int add_gems_to_imp_stack(struct Dungeon *dungeon, int max_tasks)
             slb = get_slabmap_for_subtile(stl_x, stl_y);
             if (slab_kind_is_indestructible(slb->kind)) // Add only blocks which cannot be destroyed by digging
             {
-                if ( block_has_diggable_side(dungeon->owner, subtile_slab_fast(stl_x), subtile_slab_fast(stl_y)) )
+                if ( block_has_diggable_side(subtile_slab_fast(stl_x), subtile_slab_fast(stl_y)) )
                 {
                     add_to_imp_stack_using_pos(mtask->coords, DigTsk_DigOrMine, dungeon);
                     remain_num--;
@@ -2052,7 +2052,7 @@ long check_place_to_dig_and_get_drop_position(PlayerNumber plyr_idx, SubtlCodedC
     SYNCDBG(18,"Starting");
     place_x = stl_num_decode_x(stl_num);
     place_y = stl_num_decode_y(stl_num);
-    if (!block_has_diggable_side(plyr_idx, subtile_slab_fast(place_x), subtile_slab_fast(place_y)))
+    if (!block_has_diggable_side(subtile_slab_fast(place_x), subtile_slab_fast(place_y)))
         return 0;
     place_slb = get_slabmap_for_subtile(place_x,place_y);
     n = PLAYER_RANDOM(plyr_idx, SMALL_AROUND_SLAB_LENGTH);
@@ -2109,7 +2109,7 @@ long check_place_to_dig_and_get_position(struct Thing *thing, SubtlCodedCoords s
     SYNCDBG(18,"Starting");
     place_x = stl_num_decode_x(stl_num);
     place_y = stl_num_decode_y(stl_num);
-    if (!block_has_diggable_side(thing->owner, subtile_slab_fast(place_x), subtile_slab_fast(place_y)))
+    if (!block_has_diggable_side(subtile_slab_fast(place_x), subtile_slab_fast(place_y)))
         return 0;
     nstart = get_nearest_small_around_side_of_slab(subtile_coord_center(place_x), subtile_coord_center(place_y), thing->mappos.x.val, thing->mappos.y.val);
     place_slb = get_slabmap_for_subtile(place_x,place_y);
