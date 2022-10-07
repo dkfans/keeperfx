@@ -6534,7 +6534,7 @@ void draw_view(struct Camera *cam, unsigned char a2)
 
     draw_view_map_plane(cam, aposc, bposc, xcell, ycell);
 
-    if (map_volume_box.visible)
+    if ( (map_volume_box.visible) && (!game_is_busy_doing_gui()) )
     {
         poly_pool_end_reserve(0);
         process_isometric_map_volume_box(x, y, z, my_player_number);
@@ -8873,7 +8873,7 @@ void draw_frontview_engine(struct Camera *cam)
     }
 
     update_frontview_pointed_block(zoom, qdrant, px, py, qx, qy);
-    if (map_volume_box.visible)
+    if ( (map_volume_box.visible) && (!game_is_busy_doing_gui()) )
     {
         process_frontview_map_volume_box(cam, ((zoom >> 8) & 0xFF), player->id_number);
     }
