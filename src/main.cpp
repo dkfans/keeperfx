@@ -2783,11 +2783,11 @@ void update(void)
         game.field_14EA4B = 0;
         return;
     }
-    set_previous_camera_values();
+    player = get_my_player();
+    set_previous_camera_values(player);
 
     if ((game.operation_flags & GOF_Paused) == 0)
     {
-        player = get_my_player();
         if (player->additional_flags & PlaAF_LightningPaletteIsActive)
         {
             PaletteSetPlayerPalette(player, engine_palette);

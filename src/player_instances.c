@@ -577,7 +577,7 @@ long pinstfs_zoom_to_heart(struct PlayerInfo *player, long *n)
 
 long pinstfm_zoom_to_heart(struct PlayerInfo *player, long *n)
 {
-    reset_interpolation_of_camera();
+    reset_interpolation_of_camera(player);
     struct Thing* thing = thing_get(player->controlled_thing_idx);
     if (!thing_is_invalid(thing))
     {
