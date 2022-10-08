@@ -1064,14 +1064,6 @@ long get_dungeon_control_action_inputs(void)
             {
                 (angle = 1024);
             }
-            else if (angle == 512)
-            {
-                (angle = 1536);
-            }
-            else if (angle == 1536)
-            {
-                (angle = 512);
-            }
             else
             {
                 (angle = 0);
