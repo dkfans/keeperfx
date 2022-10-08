@@ -3673,7 +3673,7 @@ FrontendMenuState get_startup_menu_state(void)
         if ((player->additional_flags & PlaAF_UnlockedLordTorture) != 0)
         { // Player has tortured LOTL - go FeSt_TORTURE before any others
           player->additional_flags &= ~PlaAF_UnlockedLordTorture;
-          return FeSt_DRAG;
+          return FeSt_TORTURE;
         } else
         if ((player->flgfield_6 & PlaF6_PlyrHasQuit) == 0)
         {
