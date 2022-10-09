@@ -60,18 +60,15 @@ extern "C" {
 #define LEGAL_HEIGHT 480
 
 #define LENSES_COUNT           15
-#define MINMAXS_COUNT          64
 #define SPELL_POINTER_GROUPS   14
-// Amount of instances; it's 17, 18 or 19
-#define PLAYER_INSTANCES_COUNT 19
-#define ZOOM_KEY_ROOMS_COUNT   14
+#define ZOOM_KEY_ROOMS_COUNT   15
 
 enum ModeFlags {
     MFlg_IsDemoMode         =  0x01,
     MFlg_EyeLensReady       =  0x02,
     MFlg_unk04              =  0x04,
     MFlg_DeadBackToPool     =  0x08,
-    MFlg_NoCdMusic          =  0x10,
+    MFlg_NoCdMusic          =  0x10, // unused
     MFlg_unk20              =  0x20,
     MFlg_unk40              =  0x40,
     MFlg_NoHeroHealthFlower              =  0x80,
@@ -105,9 +102,6 @@ enum AutotestFlags {
 #pragma pack(1)
 
 struct TbLoadFiles;
-struct RoomFlag;
-struct Number;
-struct JontySpr;
 
 // Windows-standard structure
 /*struct _GUID {
@@ -245,8 +239,9 @@ DLLIMPORT unsigned char *_DK_lightning_palette;
 // Variables inside the main module
 extern TbClockMSec last_loop_time;
 extern short default_loc_player;
-extern struct GuiBox *gui_box;
-extern struct GuiBox *gui_cheat_box;
+extern struct GuiBox *gui_cheat_box_1;
+extern struct GuiBox *gui_cheat_box_2;
+extern struct GuiBox *gui_cheat_box_3;
 extern int test_variable;
 extern struct StartupParameters start_params;
 
@@ -278,6 +273,7 @@ void init_keepers_map_exploration(void);
 void clear_creature_pool(void);
 void reset_creature_max_levels(void);
 void reset_script_timers_and_flags(void);
+void reset_hand_rules(void);
 void add_creature_to_pool(long kind, long amount, unsigned long a3);
 void draw_texture(long a1, long a2, long a3, long a4, long a5, long a6, long a7);
 
@@ -294,7 +290,6 @@ void clear_game_for_save(void);
 void clear_complete_game(void);
 void clear_things_and_persons_data(void);
 void clear_computer(void);
-TbBool swap_creature(long ncrt_id, long crtr_id);
 void engine(struct PlayerInfo *player, struct Camera *cam);
 void draw_gold_total(PlayerNumber plyr_idx, long scr_x, long scr_y, long units_per_px, long long value);
 void draw_mini_things_in_hand(long x, long y);

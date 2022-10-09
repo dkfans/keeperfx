@@ -23,7 +23,7 @@
 #include "bflib_basics.h"
 
 #define DK_GAME_KEYS_COUNT     32
-#define GAME_KEYS_COUNT        39
+#define GAME_KEYS_COUNT        40
 
 #ifdef __cplusplus
 extern "C" {
@@ -73,6 +73,7 @@ struct GameSettings { // KFX settings
     unsigned int minimap_zoom;
     unsigned long isometric_view_zoom_level;
     unsigned long frontview_zoom_level;
+    long mentor_volume;
     };
 #pragma pack()
 /******************************************************************************/
@@ -83,7 +84,7 @@ void copy_settings_to_dk_settings(void);
 TbBool load_settings(void);
 short save_settings(void);
 
-int get_creature_can_see_subtiles(void);
+int get_max_i_can_see_from_settings(void);
 /******************************************************************************/
 #ifdef __cplusplus
 }

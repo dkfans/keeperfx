@@ -168,7 +168,7 @@ long computer_event_battle(struct Computer2 *comp, struct ComputerEvent *cevent,
         SYNCDBG(8,"No creatures to drop for %s",cevent->name);
         return 0;
     }
-    if (!computer_find_non_solid_block(comp, &pos)) {
+    if (!computer_find_safe_non_solid_block(comp, &pos)) {
         SYNCDBG(8,"Drop position is solid for %s",cevent->name);
         return 0;
     }
@@ -309,7 +309,7 @@ long computer_event_battle_test(struct Computer2 *comp, struct ComputerEvent *ce
     if (creatrs_num <= 0) {
         return 4;
     }
-    if (!computer_find_non_solid_block(comp, &pos)) {
+    if (!computer_find_safe_non_solid_block(comp, &pos)) {
         return 4;
     }
     if (computer_able_to_use_power(comp, PwrK_HAND, 1, creatrs_num))
@@ -525,7 +525,7 @@ long computer_event_attack_door(struct Computer2* comp, struct ComputerEvent* ce
         return 0;
     }
 
-    if (!computer_find_non_solid_block(comp, &freepos)) {
+    if (!computer_find_safe_non_solid_block(comp, &freepos)) {
         SYNCDBG(8, "Drop position is solid for %s", cevent->name);
         return 0;
     }
@@ -592,9 +592,9 @@ long computer_event_handle_prisoner(struct Computer2* comp, struct ComputerEvent
 
     if (dungeon_has_room(dungeon, RoK_TORTURE) && (!creature_is_being_tortured(creatng)))//avoid repeated action on same unit)
     {
-        if (!creature_requires_healing(creatng))
+        if (!creature_would_benefit_from_healing(creatng))
         {
-            destroom = find_room_with_spare_capacity(dungeon->owner, RoK_TORTURE, 1);
+            destroom = find_room_of_role_with_spare_capacity(dungeon->owner, RoRoF_Torture, 1);
             if (!room_is_invalid(destroom))
             {
 
@@ -662,7 +662,7 @@ long computer_event_save_tortured(struct Computer2* comp, struct ComputerEvent* 
     TbBool can_return = false;
     if (dungeon_has_room(dungeon, RoK_PRISON))
     {
-        destroom = find_room_with_spare_capacity(dungeon->owner, RoK_PRISON, 1);
+        destroom = find_room_of_role_with_spare_capacity(dungeon->owner, RoRoF_Prison, 1);
         if (!room_is_invalid(destroom))
         {
             can_return = true;
@@ -826,7 +826,7 @@ long computer_event_check_payday(struct Computer2 *comp, struct ComputerEvent *c
         }
     }
     // Move any gold laying around to treasure room
-    if (dungeon_has_room(dungeon, RoK_TREASURE))
+    if (dungeon_has_room_of_role(dungeon, RoRoF_GoldStorage))
     {
         // If there's already task in progress which uses hand, then don't add more
         // content; the hand could be used by wrong task by mistake
@@ -862,7 +862,7 @@ long computer_event_breach(struct Computer2 *comp, struct ComputerEvent *cevent,
     if (i <= 0) {
         return 4;
     }
-    if (!computer_find_non_solid_block(comp, &pos)) {
+    if (!computer_find_safe_non_solid_block(comp, &pos)) {
         return 4;
     }
     if (!create_task_move_creatures_to_defend(comp, &pos, i, cevent->param2)) {

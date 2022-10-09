@@ -66,7 +66,7 @@ short at_research_room(struct Thing *thing)
         return 0;
     }
     struct Room* room = get_room_thing_is_on(thing);
-    if (!room_initially_valid_as_type_for_thing(room, get_room_for_job(Job_RESEARCH), thing))
+    if (!room_initially_valid_as_type_for_thing(room, get_room_role_for_job(Job_RESEARCH), thing))
     {
         WARNLOG("Room %s owned by player %d is invalid for %s index %d",room_code_name(room->kind),(int)room->owner,thing_model_name(thing),(int)thing->index);
         set_start_state(thing);
@@ -86,7 +86,7 @@ short at_research_room(struct Thing *thing)
     }
     thing->continue_state = get_continue_state_for_job(Job_RESEARCH);
     cctrl->turns_at_job = 0;
-    cctrl->byte_9A = 3;
+    cctrl->job_stage = 3;
     return 1;
 }
 
@@ -97,6 +97,7 @@ short at_research_room(struct Thing *thing)
  */
 int get_next_research_item(const struct Dungeon *dungeon)
 {
+    struct DungeonAdd* dungeonadd = get_dungeonadd_by_dungeon(dungeon);
     if (dungeon->research_num == 0)
         return -1;
     for (long resnum = 0; resnum < dungeon->research_num; resnum++)
@@ -111,17 +112,17 @@ int get_next_research_item(const struct Dungeon *dungeon)
             }
             break;
         case RsCat_Room:
-            if ((dungeon->room_buildable[rsrchval->rkind] & 1) == 0)
+            if ((dungeonadd->room_buildable[rsrchval->rkind] & 1) == 0)
             {
                 /// Need research
-                if (dungeon->room_resrchable[rsrchval->rkind] == 1)
+                if (dungeonadd->room_resrchable[rsrchval->rkind] == 1)
                     return resnum;
                 /// Need research but may find room instantly
-                else if (dungeon->room_resrchable[rsrchval->rkind] == 2)
+                else if (dungeonadd->room_resrchable[rsrchval->rkind] == 2)
                     return resnum;
                 /// Need research AND already captured
-                else if ((dungeon->room_resrchable[rsrchval->rkind] == 4) &&
-                    (dungeon->room_buildable[rsrchval->rkind] & 2))
+                else if ((dungeonadd->room_resrchable[rsrchval->rkind] == 4) &&
+                    (dungeonadd->room_buildable[rsrchval->rkind] & 2))
                 {
                     return resnum;
                 }
@@ -142,16 +143,18 @@ int get_next_research_item(const struct Dungeon *dungeon)
 
 TbBool has_new_rooms_to_research(const struct Dungeon *dungeon)
 {
+    struct DungeonAdd* dungeonadd = get_dungeonadd_by_dungeon(dungeon);
+    
     for (long resnum = 0; resnum < dungeon->research_num; resnum++)
     {
         const struct ResearchVal* rsrchval = &dungeon->research[resnum];
         if (rsrchval->rtyp == RsCat_Room)
         {
-            if ((dungeon->room_buildable[rsrchval->rkind] & 1) == 0)
+            if ((dungeonadd->room_buildable[rsrchval->rkind] & 1) == 0)
             {
-                if ((dungeon->room_resrchable[rsrchval->rkind] == 1)
-                    || (dungeon->room_resrchable[rsrchval->rkind] == 2)
-                    || ((dungeon->room_resrchable[rsrchval->rkind] == 4) && (dungeon->room_buildable[rsrchval->rkind] & 2))
+                if ((dungeonadd->room_resrchable[rsrchval->rkind] == 1)
+                    || (dungeonadd->room_resrchable[rsrchval->rkind] == 2)
+                    || ((dungeonadd->room_resrchable[rsrchval->rkind] == 4) && (dungeonadd->room_buildable[rsrchval->rkind] & 2))
                     )
                 {
                     return true;
@@ -210,7 +213,7 @@ CrCheckRet process_research_function(struct Thing *creatng)
         return CrCkRet_Continue;
     }
     struct Room* room = get_room_creature_works_in(creatng);
-    if ( !room_still_valid_as_type_for_thing(room, get_room_for_job(Job_RESEARCH), creatng) ) {
+    if ( !room_still_valid_as_type_for_thing(room, get_room_role_for_job(Job_RESEARCH), creatng) ) {
         WARNLOG("Room %s owned by player %d is bad work place for %s index %d owner %d",
             room_code_name(room->kind), (int)room->owner, thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
         set_start_state(creatng);
@@ -277,21 +280,21 @@ short researching(struct Thing *thing)
     // Shall we do some "Standing and thinking"
     if (cctrl->turns_at_job <= 128)
     {
-      if (cctrl->byte_9A == 3)
+      if (cctrl->job_stage == 3)
       {
           // Do some random thinking
           if ((cctrl->turns_at_job % 16) == 0)
           {
               long i = CREATURE_RANDOM(thing, LbFPMath_PI) - LbFPMath_PI / 2;
               cctrl->long_9B = ((long)thing->move_angle_xy + i) & LbFPMath_AngleMask;
-              cctrl->byte_9A = 4;
+              cctrl->job_stage = 4;
           }
       } else
       {
           // Look at different direction while thinking
           if (creature_turn_to_face_angle(thing, cctrl->long_9B) < LbFPMath_PI/18)
           {
-              cctrl->byte_9A = 3;
+              cctrl->job_stage = 3;
           }
       }
       return 1;
@@ -305,7 +308,7 @@ short researching(struct Thing *thing)
     }
     thing->continue_state = get_continue_state_for_job(Job_RESEARCH);
     cctrl->turns_at_job = 0;
-    cctrl->byte_9A = 3;
+    cctrl->job_stage = 3;
     if (cctrl->explevel < 3)
     {
         create_effect(&thing->mappos, TngEff_RoomSparkeSmall, thing->owner);

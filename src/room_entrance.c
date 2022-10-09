@@ -123,6 +123,8 @@ TbBool generation_available_to_dungeon(const struct Dungeon * dungeon)
     SYNCDBG(9,"Starting");
     if (!dungeon_has_room(dungeon, RoK_ENTRANCE))
         return false;
+    if (game.armageddon.count_down + game.armageddon_cast_turn > game.play_gameturn) //No new creatures during armageddon
+        return false;
     return ((long)dungeon->num_active_creatrs < (long)dungeon->max_creatures_attracted);
 }
 
@@ -300,7 +302,7 @@ TbBool generate_creature_at_random_entrance(struct Dungeon * dungeon, ThingModel
 {
     SYNCDBG(9,"Starting");
 
-    struct Room* room = pick_random_room(dungeon->owner, RoK_ENTRANCE);
+    struct Room* room = pick_random_room_of_role(dungeon->owner, RoRoF_CrPoolSpawn);
     if (room_is_invalid(room))
     {
         ERRORLOG("Could not get a random entrance for player %d",(int)dungeon->owner);

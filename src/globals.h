@@ -259,6 +259,8 @@ typedef long MapSubtlCoord;
 typedef long MapSubtlDelta;
 /** Map slab coordinate. Slab is a cubic part of map with specific content. */
 typedef short MapSlabCoord;
+/** Distance between map coordinates in slabs.  */
+typedef short MapSlabDelta;
 /** Map subtile 2D coordinates, coded into one number. */
 typedef unsigned long SubtlCodedCoords;
 /** Map slab 2D coordinates, coded into one number. */

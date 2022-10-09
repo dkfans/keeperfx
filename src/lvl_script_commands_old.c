@@ -41,11 +41,6 @@ extern "C" {
 /******************************************************************************/
 
 
-const struct NamedCommand newcrtr_desc[] = {
-  {"NEW_CREATURE_A",   1},
-  {"NEW_CREATURE_B",   2},
-  {NULL,               0},
-};
 const struct NamedCommand game_rule_desc[] = {
   {"BodiesForVampire",           1},
   {"PrisonSkeletonChance",       2},
@@ -70,7 +65,12 @@ const struct NamedCommand game_rule_desc[] = {
   {"PlaceTrapsOnSubtiles",      21},
   {"DiseaseHPTemplePercentage", 22},
   {"DungeonHeartHealth",        23},
-  {NULL,                         0},
+  {"HungerHealthLoss",              24},
+  {"GameTurnsPerHungerHealthLoss",  25},
+  {"FoodHealthGain",                26},
+  {"TortureHealthLoss",             27},
+  {"GameTurnsPerTortureHealthLoss", 28},
+  {NULL,                             0},
 };
 
 
@@ -153,7 +153,7 @@ static void command_add_party_to_level(long plr_range_id, const char *prtname, c
     }
 }
 
-static void command_add_object_to_level(const char *obj_name, const char *locname, long arg)
+static void command_add_object_to_level(const char *obj_name, const char *locname, long arg, const char* playername)
 {
     TbMapLocation location;
     long obj_id = get_rid(object_desc, obj_name);
@@ -167,18 +167,25 @@ static void command_add_object_to_level(const char *obj_name, const char *locnam
         SCRPTERRLOG("Too many ADD_CREATURE commands in script");
         return;
     }
+    long plr_id = get_rid(player_desc, playername);
+
+    if ((plr_id == -1) || (plr_id == ALL_PLAYERS))
+    {
+        plr_id = PLAYER_NEUTRAL;
+    }
+
     // Recognize place where party is created
     if (!get_map_location_id(locname, &location))
         return;
     if (get_script_current_condition() == CONDITION_ALWAYS)
     {
-        script_process_new_object(obj_id, location, arg);
+        script_process_new_object(obj_id, location, arg, plr_id);
     } else
     {
         struct PartyTrigger* pr_trig = &gameadd.script.party_triggers[gameadd.script.party_triggers_num % PARTY_TRIGGERS_COUNT];
         pr_trig->flags = TrgF_CREATE_OBJECT;
         pr_trig->flags |= next_command_reusable?TrgF_REUSABLE:0;
-        pr_trig->plyr_idx = 0; //That is because script is inside `struct Game` and it is not possible to enlarge it
+        pr_trig->plyr_idx = plr_id;
         pr_trig->creatr_id = obj_id & 0x7F;
         pr_trig->crtr_level = ((obj_id >> 7) & 7); // No more than 1023 different classes of objects :)
         pr_trig->carried_gold = arg;
@@ -242,43 +249,6 @@ static void command_add_creature_to_level(long plr_range_id, const char *crtr_na
     }
 }
 
-static void command_if(long plr_range_id, const char *varib_name, const char *operatr, long value)
-{
-    long varib_type;
-    long varib_id;
-    if (gameadd.script.conditions_num >= CONDITIONS_COUNT)
-    {
-      SCRPTERRLOG("Too many (over %d) conditions in script", CONDITIONS_COUNT);
-      return;
-    }
-    // Recognize variable
-    if (!parse_get_varib(varib_name, &varib_id, &varib_type))
-    {
-        return;
-    }
-    { // Warn if using the command for a player without Dungeon struct
-        int plr_start;
-        int plr_end;
-        if (get_players_range(plr_range_id, &plr_start, &plr_end) >= 0) {
-            struct Dungeon* dungeon = get_dungeon(plr_start);
-            if ((plr_start+1 == plr_end) && dungeon_invalid(dungeon)) {
-                // Note that this list should be kept updated with the changes in get_condition_value()
-                if ((varib_type != SVar_GAME_TURN) && (varib_type != SVar_ALL_DUNGEONS_DESTROYED)
-                 && (varib_type != SVar_DOOR_NUM) && (varib_type != SVar_TRAP_NUM))
-                    SCRPTWRNLOG("Found player without dungeon used in IF clause in script; this will not work correctly");
-            }
-        }
-    }
-    // Recognize comparison
-    long opertr_id = get_id(comparison_desc, operatr);
-    if (opertr_id == -1)
-    {
-      SCRPTERRLOG("Unknown comparison name, '%s'", operatr);
-      return;
-    }
-    // Add the condition to script structure
-    command_add_condition(plr_range_id, opertr_id, varib_type, varib_id, value);
-}
 
 static void command_display_information(long msg_num, const char *where, long x, long y)
 {
@@ -746,112 +716,6 @@ static void command_set_hate(long trgt_plr_range_id, long enmy_plr_range_id, lon
     command_add_value(Cmd_SET_HATE, trgt_plr_range_id, enmy_plr_id, hate_val, 0);
 }
 
-static void command_if_available(long plr_range_id, const char *varib_name, const char *operatr, long value)
-{
-    long varib_type;
-    if (gameadd.script.conditions_num >= CONDITIONS_COUNT)
-    {
-      SCRPTERRLOG("Too many (over %d) conditions in script", CONDITIONS_COUNT);
-      return;
-    }
-    // Recognize variable
-    long varib_id = -1;
-    if (varib_id == -1)
-    {
-      varib_id = get_id(door_desc, varib_name);
-      varib_type = SVar_AVAILABLE_DOOR;
-    }
-    if (varib_id == -1)
-    {
-      varib_id = get_id(trap_desc, varib_name);
-      varib_type = SVar_AVAILABLE_TRAP;
-    }
-    if (varib_id == -1)
-    {
-      varib_id = get_id(room_desc, varib_name);
-      varib_type = SVar_AVAILABLE_ROOM;
-    }
-    if (varib_id == -1)
-    {
-      varib_id = get_id(power_desc, varib_name);
-      varib_type = SVar_AVAILABLE_MAGIC;
-    }
-    if (varib_id == -1)
-    {
-      varib_id = get_id(creature_desc, varib_name);
-      varib_type = SVar_AVAILABLE_CREATURE;
-    }
-    if (varib_id == -1)
-    {
-      SCRPTERRLOG("Unrecognized VARIABLE, '%s'", varib_name);
-      return;
-    }
-    // Recognize comparison
-    long opertr_id = get_id(comparison_desc, operatr);
-    if (opertr_id == -1)
-    {
-      SCRPTERRLOG("Unknown comparison name, '%s'", operatr);
-      return;
-    }
-    { // Warn if using the command for a player without Dungeon struct
-        int plr_start;
-        int plr_end;
-        if (get_players_range(plr_range_id, &plr_start, &plr_end) >= 0) {
-            struct Dungeon* dungeon = get_dungeon(plr_start);
-            if ((plr_start+1 == plr_end) && dungeon_invalid(dungeon)) {
-                SCRPTWRNLOG("Found player without dungeon used in IF_AVAILABLE clause in script; this will not work correctly");
-            }
-        }
-    }
-    // Add the condition to script structure
-    command_add_condition(plr_range_id, opertr_id, varib_type, varib_id, value);
-}
-
-static void command_if_controls(long plr_range_id, const char *varib_name, const char *operatr, long value)
-{
-    long varib_id;
-    if (gameadd.script.conditions_num >= CONDITIONS_COUNT)
-    {
-      SCRPTERRLOG("Too many (over %d) conditions in script", CONDITIONS_COUNT);
-      return;
-    }
-    // Recognize variable
-    long varib_type = get_id(controls_variable_desc, varib_name);
-    if (varib_type == -1)
-      varib_id = -1;
-    else
-      varib_id = 0;
-    if (varib_id == -1)
-    {
-      varib_id = get_id(creature_desc, varib_name);
-      varib_type = SVar_CONTROLS_CREATURE;
-    }
-    if (varib_id == -1)
-    {
-      SCRPTERRLOG("Unrecognized VARIABLE, '%s'", varib_name);
-      return;
-    }
-    // Recognize comparison
-    long opertr_id = get_id(comparison_desc, operatr);
-    if (opertr_id == -1)
-    {
-      SCRPTERRLOG("Unknown comparison name, '%s'", operatr);
-      return;
-    }
-    { // Warn if using the command for a player without Dungeon struct
-        int plr_start;
-        int plr_end;
-        if (get_players_range(plr_range_id, &plr_start, &plr_end) >= 0) {
-            struct Dungeon* dungeon = get_dungeon(plr_start);
-            if ((plr_start+1 == plr_end) && dungeon_invalid(dungeon)) {
-                SCRPTWRNLOG("Found player without dungeon used in IF_CONTROLS clause in script; this will not work correctly");
-            }
-        }
-    }
-    // Add the condition to script structure
-    command_add_condition(plr_range_id, opertr_id, varib_type, varib_id, value);
-}
-
 static void command_set_computer_globals(long plr_range_id, long val1, long val2, long val3, long val4, long val5, long val6)
 {
   int plr_start;
@@ -871,12 +735,12 @@ static void command_set_computer_globals(long plr_range_id, long val1, long val2
       {
           continue;
     }
-    comp->field_1C = val1;
-    comp->field_14 = val2;
-    comp->field_18 = val3;
+    comp->dig_stack_size       = val1;
+    comp->processes_time       = val2;
+    comp->click_rate           = val3;
     comp->max_room_build_tasks = val4;
-    comp->field_2C = val5;
-    comp->sim_before_dig = val6;
+    comp->turn_begin           = val5;
+    comp->sim_before_dig       = val6;
   }
 }
 
@@ -1134,7 +998,7 @@ static void command_set_creature_fearsome_factor(const char* crtr_name, long val
     command_add_value(Cmd_SET_CREATURE_FEARSOME_FACTOR, ALL_PLAYERS, crtr_id, val, 0);
 }
 
-static void command_set_creature_property(const char* crtr_name, long property, short val)
+static void command_set_creature_property(const char* crtr_name, const char* property, short val)
 {
     long crtr_id = get_rid(creature_desc, crtr_name);
     if (crtr_id == -1)
@@ -1142,7 +1006,13 @@ static void command_set_creature_property(const char* crtr_name, long property, 
         SCRPTERRLOG("Unknown creature, '%s'", crtr_name);
         return;
     }
-    command_add_value(Cmd_SET_CREATURE_PROPERTY, ALL_PLAYERS, crtr_id, property, val);
+    long prop_id = get_rid(creatmodel_properties_commands, property);
+    if (prop_id == -1)
+    {
+        SCRPTERRLOG("Unknown creature property kind, \"%s\"", property);
+        return;
+    }
+    command_add_value(Cmd_SET_CREATURE_PROPERTY, ALL_PLAYERS, crtr_id, prop_id, val);
 }
 
 /**
@@ -1179,8 +1049,7 @@ static void command_quick_objective(int idx, const char *msgtext, const char *wh
   {
       SCRPTWRNLOG("Quick Objective no %d overwritten by different text", idx);
   }
-  strncpy(gameadd.quick_messages[idx], msgtext, MESSAGE_TEXT_LEN-1);
-  gameadd.quick_messages[idx][MESSAGE_TEXT_LEN-1] = '\0';
+  snprintf(gameadd.quick_messages[idx], MESSAGE_TEXT_LEN, "%s", msgtext);
   if (!get_map_location_id(where, &location))
     return;
   command_add_value(Cmd_QUICK_OBJECTIVE, ALL_PLAYERS, idx, location, get_subtile_number(x,y));
@@ -1202,8 +1071,7 @@ static void command_quick_information(int idx, const char *msgtext, const char *
   {
       SCRPTWRNLOG("Quick Message no %d overwritten by different text", idx);
   }
-  strncpy(gameadd.quick_messages[idx], msgtext, MESSAGE_TEXT_LEN-1);
-  gameadd.quick_messages[idx][MESSAGE_TEXT_LEN-1] = '\0';
+  snprintf(gameadd.quick_messages[idx], MESSAGE_TEXT_LEN, "%s", msgtext);
   if (!get_map_location_id(where, &location))
     return;
   command_add_value(Cmd_QUICK_INFORMATION, ALL_PLAYERS, idx, location, get_subtile_number(x,y));
@@ -1278,8 +1146,7 @@ static void command_quick_message(int idx, const char *msgtext, const char *rang
   {
       SCRPTWRNLOG("Quick Message no %d overwritten by different text", idx);
   }
-  strncpy(gameadd.quick_messages[idx], msgtext, MESSAGE_TEXT_LEN-1);
-  gameadd.quick_messages[idx][MESSAGE_TEXT_LEN-1] = '\0';
+  snprintf(gameadd.quick_messages[idx], MESSAGE_TEXT_LEN, "%s", msgtext);
   char id = get_player_number_from_value(range_id);
   command_add_value(Cmd_QUICK_MESSAGE, 0, id, idx, 0);
 }
@@ -1811,10 +1678,7 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         command_add_creature_to_level(scline->np[0], scline->tp[1], scline->tp[2], scline->np[3], scline->np[4], scline->np[5]);
         break;
     case Cmd_ADD_OBJECT_TO_LEVEL:
-        command_add_object_to_level(scline->tp[0], scline->tp[1], scline->np[2]);
-        break;
-    case Cmd_IF:
-        command_if(scline->np[0], scline->tp[1], scline->tp[2], scline->np[3]);
+        command_add_object_to_level(scline->tp[0], scline->tp[1], scline->np[2], scline->tp[3]);
         break;
     case Cmd_ENDIF:
         pop_condition();
@@ -1926,13 +1790,7 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         command_set_creature_fearsome_factor(scline->tp[0], scline->np[1]);
         break;
     case Cmd_SET_CREATURE_PROPERTY:
-        command_set_creature_property(scline->tp[0], scline->np[1], scline->np[2]);
-        break;
-    case Cmd_IF_AVAILABLE:
-        command_if_available(scline->np[0], scline->tp[1], scline->tp[2], scline->np[3]);
-        break;
-    case Cmd_IF_CONTROLS:
-        command_if_controls(scline->np[0], scline->tp[1], scline->tp[2], scline->np[3]);
+        command_set_creature_property(scline->tp[0], scline->tp[1], scline->np[2]);
         break;
     case Cmd_IF_SLAB_OWNER:
         command_if_slab_owner(scline->np[0], scline->np[1], scline->np[2]);

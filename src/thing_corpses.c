@@ -107,15 +107,13 @@ TbBool corpse_ready_for_collection(const struct Thing* thing)
  * @param thing
  * @return
  */
-TbBool dead_creature_is_room_inventory(const struct Thing *thing, RoomKind rkind)
+TbBool dead_creature_is_room_inventory(const struct Thing *thing, RoomRole rrole)
 {
-    switch (rkind)
+    if((rrole & RoRoF_DeadStorage) && corpse_is_rottable(thing))
     {
-    case RoK_GRAVEYARD:
-        return corpse_is_rottable(thing);
-    default:
-        return false;
+        return true;
     }
+    return false;
 }
 
 TbBool create_vampire_in_room(struct Room *room)
@@ -204,7 +202,7 @@ long move_dead_creature(struct Thing *thing)
     } else
     {
         // Even if no velocity, update field_60
-        thing->field_60 = get_thing_height_at(thing, &thing->mappos);
+        thing->floor_height = get_thing_height_at(thing, &thing->mappos);
     }
     return 1;
 }
@@ -213,7 +211,7 @@ TngUpdateRet update_dead_creature(struct Thing *thing)
 {
     SYNCDBG(18,"Starting");
     TRACE_THING(thing);
-    unsigned long corpse_age;
+    long corpse_age;
     if ((thing->alloc_flags & TAlF_IsDragged) == 0)
     {
         if (thing->active_state == DCrSt_DramaticDying)
@@ -447,7 +445,7 @@ struct Thing *create_dead_creature(const struct Coord3d *pos, ThingModel model, 
     thing->movement_flags |= TMvF_Unknown08;
     thing->creation_turn = game.play_gameturn;
     if (creatures[model].field_7) {
-        thing->field_4F |= (TF4F_Transpar_Alpha);
+        thing->rendering_flags |= (TRF_Transpar_Alpha);
     }
     add_thing_to_its_class_list(thing);
     place_thing_in_mapwho(thing);

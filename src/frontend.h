@@ -104,33 +104,6 @@ struct NetMessage { // sizeof = 0x41
 };
 
 /******************************************************************************/
-DLLIMPORT struct GuiButtonInit _DK_event_menu_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_options_menu_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_instance_menu_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_quit_menu_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_load_menu_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_save_menu_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_video_menu_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_sound_menu_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_error_box_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_pause_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_hold_audience_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_armageddon_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_dungeon_special_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_resurrect_creature_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_transfer_creature_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_frontend_main_menu_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_frontend_load_menu_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_frontend_net_service_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_frontend_net_session_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_frontend_net_start_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_frontend_net_modem_buttons[37];
-DLLIMPORT struct GuiButtonInit _DK_frontend_net_serial_buttons[22];
-DLLIMPORT struct GuiButtonInit _DK_frontend_statistics_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_autopilot_menu_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_frontend_define_keys_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_frontend_option_buttons[];
-
 DLLIMPORT char _DK_info_tag;
 #define info_tag _DK_info_tag
 DLLIMPORT char _DK_room_tag;
@@ -185,8 +158,6 @@ DLLIMPORT unsigned char _DK_menu_ids[3];
 #define menu_ids _DK_menu_ids
 DLLIMPORT unsigned char _DK_new_objective;
 #define new_objective _DK_new_objective
-DLLIMPORT char _DK_gui_error_text[256];
-#define gui_error_text _DK_gui_error_text
 DLLIMPORT extern int _DK_frontend_menu_state;
 #define frontend_menu_state _DK_frontend_menu_state
 DLLIMPORT extern int _DK_load_game_scroll_offset;
@@ -408,7 +379,9 @@ void set_level_objective(const char *msg_text);
 void display_objectives(PlayerNumber plyr_idx,long x,long y);
 
 short toggle_main_cheat_menu(void);
+TbBool close_main_cheat_menu(void);
 short toggle_instance_cheat_menu(void);
+TbBool close_instance_cheat_menu(void);
 TbBool open_creature_cheat_menu(void);
 TbBool close_creature_cheat_menu(void);
 TbBool toggle_creature_cheat_menu(void);

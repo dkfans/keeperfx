@@ -710,7 +710,7 @@ static HitPoints apply_damage_to_creature(struct Thing *thing, HitPoints dmg)
       cdamage = 1;
     // Apply damage to the thing
     thing->health -= cdamage;
-    thing->field_4F |= TF4F_Unknown80;
+    thing->rendering_flags |= TRF_BeingHit;
     // Red palette if the possessed creature is hit very strong
     if (is_thing_some_way_controlled(thing))
     {
@@ -734,7 +734,7 @@ static HitPoints apply_damage_to_object(struct Thing *thing, HitPoints dmg)
 {
     HitPoints cdamage = dmg;
     thing->health -= cdamage;
-    thing->field_4F |= TF4F_Unknown80;
+    thing->rendering_flags |= TRF_BeingHit;
     return cdamage;
 }
 
@@ -834,7 +834,7 @@ long compute_creature_weight(const struct Thing* creatng)
 {
     struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    long eye_height = (crstat->eye_height + (crstat->eye_height * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100);
+    long eye_height = get_creature_eye_height(creatng);
     long weight = eye_height >> 2;
     weight += (crstat->hunger_fill + crstat->lair_size + 1) * cctrl->explevel;
 

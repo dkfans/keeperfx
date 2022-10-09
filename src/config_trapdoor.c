@@ -48,7 +48,7 @@ const struct NamedCommand trapdoor_door_commands[] = {
   {"NAME",                  1},
   {"MANUFACTURELEVEL",      2},
   {"MANUFACTUREREQUIRED",   3},
-  {"UNUSEDUNUSED",          4},// replace by any command later; this is just to keep same indexing below
+  {"SLABKIND",              4},
   {"HEALTH",                5},
   {"SELLINGVALUE",          6},
   {"NAMETEXTID",            7},
@@ -57,6 +57,7 @@ const struct NamedCommand trapdoor_door_commands[] = {
   {"SYMBOLSPRITES",        10},
   {"POINTERSPRITES",       11},
   {"PANELTABINDEX",        12},
+  {"OPENSPEED",            13},
   {NULL,                    0},
 };
 
@@ -764,16 +765,45 @@ TbBool parse_trapdoor_door_blocks(char *buf, long len, const char *config_textna
                 COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }
           break;
+      case 4: // SLABKIND
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = get_id(slab_desc, word_buf);
+              doorst->slbkind[1] = k;
+              n++;
+          }
+          else
+          {
+              CONFWRNLOG("Incorrect slab name \"%s\" in [%s] block of %s file.",
+                  word_buf, block_buf, config_textname);
+              break;
+          }
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = get_id(slab_desc, word_buf);
+              doorst->slbkind[0] = k;
+              n++;
+          }
+          else
+          {
+              CONFWRNLOG("Incorrect slab name \"%s\" in [%s] block of %s file.",
+                  word_buf, block_buf, config_textname);
+          }
+          if (n < 2)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              break;
+          }
+          break;
       case 5: // HEALTH
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            if (i < DOOR_TYPES_COUNT)
+            if (i < gameadd.trapdoor_conf.door_types_count)
             {
-              door_stats[i][0].health = k;
-              door_stats[i][1].health = k;
+              doorst->health = k;
             }
-            //TODO: set stats
             n++;
           }
           if (n < 1)
@@ -902,6 +932,22 @@ TbBool parse_trapdoor_door_blocks(char *buf, long len, const char *config_textna
                 COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }
           break;
+          case 13: // OPENSPEED
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            k = atoi(word_buf);
+            if (k >= 0)
+            {
+                doorst->open_speed = k;
+                n++;
+            }
+          }
+          if (n < 1)
+          {
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+          }
+          break;
       case 0: // comment
           break;
       case -1: // end of buffer
@@ -926,12 +972,6 @@ TbBool load_trapdoor_config_file(const char *textname, const char *fname, unsign
     {
         if ((flags & CnfLd_IgnoreErrors) == 0)
             WARNMSG("The %s file \"%s\" doesn't exist or is too small.",textname,fname);
-        return false;
-    }
-    if (len > MAX_CONFIG_FILE_SIZE)
-    {
-        if ((flags & CnfLd_IgnoreErrors) == 0)
-            WARNMSG("The %s file \"%s\" is too large.",textname,fname);
         return false;
     }
     char* buf = (char*)LbMemoryAlloc(len + 256);

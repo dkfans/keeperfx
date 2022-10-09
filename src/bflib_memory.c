@@ -152,8 +152,7 @@ void * LbStringCopy(char *dst, const char *src, const ulong dst_buflen)
 {
   if (dst_buflen < 1)
     return dst;
-  strncpy(dst, src, dst_buflen);
-  dst[dst_buflen-1]='\0';
+  snprintf(dst, dst_buflen, "%s", src);
   return dst;
 }
 

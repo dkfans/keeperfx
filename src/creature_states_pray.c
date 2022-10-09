@@ -89,7 +89,7 @@ short at_temple(struct Thing *thing)
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     cctrl->target_room_id = 0;
     struct Room* room = get_room_thing_is_on(thing);
-    if (!room_initially_valid_as_type_for_thing(room, get_room_for_job(Job_TEMPLE_PRAY), thing))
+    if (!room_initially_valid_as_type_for_thing(room, get_room_role_for_job(Job_TEMPLE_PRAY), thing))
     {
         WARNLOG("Room %s owned by player %d is invalid for %s index %d",room_code_name(room->kind),(int)room->owner,thing_model_name(thing),(int)thing->index);
         set_start_state(thing);
@@ -148,7 +148,7 @@ long process_temple_cure(struct Thing *creatng)
 CrCheckRet process_temple_function(struct Thing *thing)
 {
     struct Room* room = get_room_thing_is_on(thing);
-    if (!room_still_valid_as_type_for_thing(room, get_room_for_job(Job_TEMPLE_PRAY), thing))
+    if (!room_still_valid_as_type_for_thing(room, get_room_role_for_job(Job_TEMPLE_PRAY), thing))
     {
         remove_creature_from_work_room(thing);
         set_start_state(thing);
@@ -346,7 +346,7 @@ short creature_being_summoned(struct Thing *thing)
     }
     if (cctrl->word_9A <= 0)
     {
-        get_keepsprite_unscaled_dimensions(thing->anim_sprite, thing->move_angle_xy, thing->field_48, &orig_w, &orig_h, &unsc_w, &unsc_h);
+        get_keepsprite_unscaled_dimensions(thing->anim_sprite, thing->move_angle_xy, thing->current_frame, &orig_w, &orig_h, &unsc_w, &unsc_h);
         create_effect(&thing->mappos, TngEff_Explosion4, thing->owner);
         thing->movement_flags |= TMvF_Unknown04;
         cctrl->word_9A = 1;
@@ -543,14 +543,14 @@ long process_sacrifice_award(struct Coord3d *pos, long model, PlayerNumber plyr_
         case SacA_CustomReward:
             if (sac->param > 0) // Zero means do nothing
             {
-                dungeon->script_flags[sac->param - 1]++;
+                dungeonadd->script_flags[sac->param - 1]++;
             }
             ret = SacR_Awarded;
             break;
         case SacA_CustomPunish:
             if (sac->param > 0)
             {
-                dungeon->script_flags[sac->param - 1]++;
+                dungeonadd->script_flags[sac->param - 1]++;
             }
             ret = SacR_Punished;
             break;
@@ -713,9 +713,9 @@ TbBool find_temple_pool(int player_idx, struct Coord3d *pos)
 {
     struct Room *best_room = NULL;
     long max_value = 0;
-    struct Dungeon *dungeon = get_dungeon(player_idx);
+    struct DungeonAdd *dungeonadd = get_dungeonadd(player_idx);
 
-    int k = 0, i = dungeon->room_kind[RoK_TEMPLE];
+    int k = 0, i = dungeonadd->room_kind[RoK_TEMPLE];
     while (i != 0)
     {
         struct Room* room = room_get(i);

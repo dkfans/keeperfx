@@ -150,9 +150,53 @@ void draw_resurrect_creature(struct GuiButton *gbtn)
         struct CreatureStorage* cstore = &dungeon->dead_creatures[i];
         struct CreatureData* crdata = creature_data_get(cstore->model);
         lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
-        LbTextDrawResizedFmt(0, 0, tx_units_per_px, " %s", get_string(crdata->namestr_idx));
+        long spr_idx = get_creature_model_graphics(cstore->model, CGI_HandSymbol);
+        struct TbSprite* spr = &gui_panel_sprites[spr_idx];
+        int x;
+        if (MyScreenWidth <= 640)
+        {
+            x = gbtn->scr_pos_x - (spr->SWidth / 8);
+        }
+        else
+        {
+            x = gbtn->scr_pos_x - (spr->SWidth / 4);
+        }
+        LbSpriteDrawResized(x, gbtn->scr_pos_y - (19 * units_per_pixel / 16), tx_units_per_px, spr);
+        int adjust;
+        int ratio = (MyScreenWidth / 640);
+        if (ratio == 0)
+        {
+            ratio = 3;
+        }
+        int h = 0;
+        if ((dbc_initialized) && (dbc_enabled)) 
+        {
+            adjust = 2;
+            if (dbc_language == 1)
+            {
+                if ( (ratio > 1) && (MyScreenHeight >= 400) )
+                {
+                    tx_units_per_px = ((gbtn->height * 22 / 26) * 14) / LbTextLineHeight();
+                    h = (gbtn->height / 4);
+                }
+            }
+            if (ratio > 2)
+            {
+                ratio = 2;
+            }
+        }
+        else
+        {
+            adjust = (ratio >= 3) ? 0 : 1;
+            if (ratio > 2)
+            {
+                ratio = 2;
+            }
+        }
+        int w = ((spr->SWidth -  10) + (4 * ratio)) + ((4 * ((MyScreenWidth / 320) - adjust)) * ratio);
+        LbTextDrawResizedFmt(w, h, tx_units_per_px, "%s", get_string(crdata->namestr_idx));
         lbDisplay.DrawFlags = Lb_TEXT_HALIGN_RIGHT;
-        LbTextDrawResizedFmt(0, 0, tx_units_per_px, "%s %d ", get_string(GUIStr_MnuLevel), (int)(cstore->explevel + 1));
+        LbTextDrawResizedFmt(0, h, tx_units_per_px, " %s %u", get_string(GUIStr_MnuLevel), (cstore->explevel + 1));
     }
     lbDisplay.DrawFlags = flg_mem;
 }
@@ -223,9 +267,53 @@ void draw_transfer_creature(struct GuiButton *gbtn)
         const struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
         const struct CreatureData* crdata = creature_data_get_from_thing(thing);
         lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
-        LbTextDrawResizedFmt(0, 0, tx_units_per_px, " %s", get_string(crdata->namestr_idx));
+        long spr_idx = get_creature_model_graphics(thing->model, CGI_HandSymbol);
+        struct TbSprite* spr = &gui_panel_sprites[spr_idx];
+        int x;
+        if (MyScreenWidth <= 640)
+        {
+            x = gbtn->scr_pos_x - (spr->SWidth / 8);
+        }
+        else
+        {
+            x = gbtn->scr_pos_x - (spr->SWidth / 4);
+        }
+        LbSpriteDrawResized(x, gbtn->scr_pos_y - (19 * units_per_pixel / 16), tx_units_per_px, spr);
+        int adjust;
+        int ratio = (MyScreenWidth / 640);
+        if (ratio == 0)
+        {
+            ratio = 3;
+        }
+        int h = 0;
+        if ((dbc_initialized) && (dbc_enabled)) 
+        {
+            adjust = 2;
+            if (dbc_language == 1)
+            {
+                if ( (ratio > 1) && (MyScreenHeight >= 400) )
+                {
+                    tx_units_per_px = ((gbtn->height * 22 / 26) * 14) / LbTextLineHeight();
+                    h = (gbtn->height / 4);
+                }
+            }
+            if (ratio > 2)
+            {
+                ratio = 2;
+            }
+        }
+        else
+        {
+            adjust = (ratio >= 3) ? 0 : 1;
+            if (ratio > 2)
+            {
+                ratio = 2;
+            }
+        }
+        int w = ((spr->SWidth -  10) + (4 * ratio)) + ((4 * ((MyScreenWidth / 320) - adjust)) * ratio);
+        LbTextDrawResizedFmt(w, h, tx_units_per_px, "%s", get_string(crdata->namestr_idx));
         lbDisplay.DrawFlags = Lb_TEXT_HALIGN_RIGHT;
-        LbTextDrawResizedFmt(0, 0, tx_units_per_px, "%s %d ", get_string(GUIStr_MnuLevel), (int)(cctrl->explevel+1));
+        LbTextDrawResizedFmt(0, h, tx_units_per_px, " %s %u", get_string(GUIStr_MnuLevel), (cctrl->explevel+1));
     }
     lbDisplay.DrawFlags = flgmem;
 }

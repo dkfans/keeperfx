@@ -41,6 +41,7 @@ int get_script_current_condition();
 void set_script_current_condition(int current_condition);
 
 void command_add_condition(long plr_range_id, long opertr_id, long varib_type, long varib_id, long value);
+void command_add_condition_2variables(long plr_range_id, long opertr_id, long varib_type, long varib_id,long plr_range_id_right, long varib_type_right, long varib_id_right);
 
 #ifdef __cplusplus
 }

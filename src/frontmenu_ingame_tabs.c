@@ -61,9 +61,64 @@
 #include "vidfade.h"
 #include "kjm_input.h"
 #include "custom_sprites.h"
+#include "sprites.h"
+
+struct Around const draw_square[] = {
+{ 0, 0},
+{ 1, 0},{ 1, 1},{ 0, 1},{-1, 1},{-1, 0},{-1,-1},{ 0,-1},
+{ 1,-1},{ 2,-1},{ 2, 0},{ 2, 1},{ 2, 2},{ 1, 2},{ 0, 2},
+{-1, 2},{-2, 2},{-2, 1},{-2, 0},{-2,-1},{-2,-2},{-1,-2},
+{ 0,-2},{ 1,-2},{ 2,-2},{ 3,-2},{ 3,-1},{ 3, 0},{ 3, 1},
+{ 3, 2},{ 3, 3},{ 2, 3},{ 1, 3},{ 0, 3},{-1, 3},{-2, 3}
+};
+
+const short pixels_needed[] = {
+    1,
+    1,
+    AROUND_2x2_PIXEL,
+    AROUND_3x3_PIXEL,
+    AROUND_4x4_PIXEL,
+    AROUND_5x5_PIXEL,
+    AROUND_6x6_PIXEL,
+};
 
 /******************************************************************************/
 /******************************************************************************/
+
+short scale_pixel(long basic_zoom)
+{
+    short pixels_per_map_dot = 5;
+    if (basic_zoom >= ONE_PIXEL)
+    {
+        pixels_per_map_dot = 1;
+    }
+    else if (basic_zoom >= TWO_PIXELS)
+    {
+        pixels_per_map_dot = 2;
+    }
+    else if (basic_zoom >= THREE_PIXELS)
+    {
+        pixels_per_map_dot = 3;
+    }
+    else if (basic_zoom >= FOUR_PIXELS)
+    {
+        pixels_per_map_dot = 4;
+    } // 128 = 5
+
+    short draw_pixels = scale_fixed_DK_value(pixels_per_map_dot) * 2 / 5;
+    if (draw_pixels > 6)
+    {
+        draw_pixels = 6; // We just support 6 pixels for now
+    }
+    return draw_pixels;
+}
+
+short get_pixels_scaled_and_zoomed(long basic_zoom)
+{
+    short draw_pixels = scale_pixel(basic_zoom);
+    return pixels_needed[draw_pixels];
+}
+
 void gui_zoom_in(struct GuiButton *gbtn)
 {
     struct PlayerInfo* player = get_my_player();
@@ -250,7 +305,7 @@ void gui_area_event_button(struct GuiButton *gbtn)
 {
     if ((gbtn->flags & LbBtnF_Enabled) != 0)
     {
-        int ps_units_per_px = simple_gui_panel_sprite_height_units_per_px(gbtn, 258, 100);
+        int ps_units_per_px = simple_gui_panel_sprite_height_units_per_px(gbtn, GPS_message_rpanel_msg_questn_act, 100);
         struct Dungeon* dungeon = get_players_num_dungeon(my_player_number);
         unsigned long i = (unsigned long)gbtn->content;
         if ((gbtn->gbactn_1) || (gbtn->gbactn_2))
@@ -392,8 +447,8 @@ long find_room_type_capacity_total_percentage(PlayerNumber plyr_idx, RoomKind rk
 {
     int used_cap = 0;
     int total_cap = 0;
-    struct Dungeon* dungeon = get_dungeon(plyr_idx);
-    long i = dungeon->room_kind[rkind];
+    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
+    long i = dungeonadd->room_kind[rkind];
     unsigned long k = 0;
     while (i != 0)
     {
@@ -429,10 +484,10 @@ void gui_area_big_room_button(struct GuiButton *gbtn)
 
     unsigned short flg_mem = lbDisplay.DrawFlags;
     int units_per_px = (gbtn->width * 16 + 126 / 2) / 126;
-    int ps_units_per_px = simple_gui_panel_sprite_width_units_per_px(gbtn, 26, 100);
+    int ps_units_per_px = simple_gui_panel_sprite_width_units_per_px(gbtn, GPS_rpanel_frame_wide_empty, 100);
 
     if (rkind == 0) {
-        draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, 26);
+        draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, GPS_rpanel_frame_wide_empty);
         lbDisplay.DrawFlags = flg_mem;
         return;
     }
@@ -441,24 +496,24 @@ void gui_area_big_room_button(struct GuiButton *gbtn)
     int i = find_room_type_capacity_total_percentage(player->id_number, rkind);
     if ((rkind == RoK_ENTRANCE) || (rkind == RoK_DUNGHEART) || (i < 0))
     {
-        draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, 26);
+        draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, GPS_rpanel_frame_wide_empty);
     } else
     {
-        draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, 23);
+        draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, GPS_rpanel_frame_wide_wbar);
         gui_area_progress_bar_med1(gbtn, units_per_px, i, 256);
     }
     lbDisplay.DrawFlags &= ~Lb_TEXT_ONE_COLOR;
 
-    struct RoomStats* rstat = room_stats_get_for_kind(rkind);
+    struct RoomConfigStats* roomst = get_room_kind_stats(rkind);
     if ((player->work_state == PSt_BuildRoom) && (player->boxsize > 1))
     {
-        sprintf(gui_textbuf, "%ld", (long)rstat->cost * player->boxsize);
+        sprintf(gui_textbuf, "%ld", (long)roomst->cost * player->boxsize);
     }
     else
     {
-        sprintf(gui_textbuf, "%ld", (long)rstat->cost);
+        sprintf(gui_textbuf, "%ld", (long)roomst->cost);
     }
-    if (rstat->cost * player->boxsize <= dungeon->total_money_owned)
+    if (roomst->cost * player->boxsize <= dungeon->total_money_owned)
     {
         if ((player->work_state == PSt_BuildRoom) && (player->chosen_room_kind == game.chosen_room_kind)
           && ((game.play_gameturn & 1) == 0))
@@ -515,10 +570,10 @@ void gui_area_spell_button(struct GuiButton *gbtn)
 {
     unsigned short flg_mem = lbDisplay.DrawFlags;
 
-    int ps_units_per_px = simple_gui_panel_sprite_height_units_per_px(gbtn, 24, 128);
+    int ps_units_per_px = simple_gui_panel_sprite_height_units_per_px(gbtn, GPS_rpanel_frame_portrt_empty, 128);
 
     PowerKind pwkind = (long)gbtn->content;
-    draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, 24);
+    draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, GPS_rpanel_frame_portrt_empty);
     struct Dungeon* dungeon = get_my_dungeon();
     if ((dungeon->magic_resrchable[pwkind]) || (dungeon->magic_level[pwkind] > 0))
     {
@@ -530,7 +585,7 @@ void gui_area_spell_button(struct GuiButton *gbtn)
             if (((i == PSt_CallToArms) && player_uses_power_call_to_arms(my_player_number))
              || ((i == PSt_SightOfEvil) && player_uses_power_sight(my_player_number))
              || ((pwkind == PwrK_OBEY) && player_uses_power_obey(my_player_number))) {
-                draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, 27);
+                draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, GPS_rpanel_frame_portrt_light);
             }
             GoldAmount price = compute_power_price(dungeon->owner, pwkind, 0);
             spr_idx = gbtn->sprite_idx;
@@ -557,7 +612,7 @@ void gui_area_spell_button(struct GuiButton *gbtn)
                 spr_idx = gbtn->sprite_idx + 1;
             } else {
                 // Draw a question mark over the button, to indicate it can be researched
-                spr_idx = 25;
+                spr_idx = GPS_rpanel_frame_portrt_qmark;
             }
             draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, spr_idx);
         }
@@ -578,12 +633,12 @@ void gui_area_big_spell_button(struct GuiButton *gbtn)
 
     int units_per_px = (gbtn->width * 16 + 126 / 2) / 126;
 
-    int ps_units_per_px = simple_gui_panel_sprite_width_units_per_px(gbtn, 26, 100);
+    int ps_units_per_px = simple_gui_panel_sprite_width_units_per_px(gbtn, GPS_rpanel_frame_wide_empty, 100);
     PowerKind pwkind = (long)gbtn->content;
     struct PowerConfigStats* powerst = get_power_model_stats(pwkind);
     if (power_model_stats_invalid(powerst))
     {
-        draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, 26);
+        draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, GPS_rpanel_frame_wide_empty);
         lbDisplay.DrawFlags = flg_mem;
         return;
     }
@@ -595,7 +650,7 @@ void gui_area_big_spell_button(struct GuiButton *gbtn)
     int pwage = find_spell_age_percentage(player->id_number, pwkind);
     if (((powerst->config_flags & PwCF_HasProgress) != 0) && (pwage >= 0))
     {
-        draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, 23);
+        draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, GPS_rpanel_frame_wide_wbar);
         int fill_bar = 42 - (2 * 21 * pwage / 256);
         LbDrawBox(
             gbtn->scr_pos_x + (114 - fill_bar)*units_per_px/16,
@@ -603,7 +658,7 @@ void gui_area_big_spell_button(struct GuiButton *gbtn)
           fill_bar*units_per_px/16, 6*units_per_px/16, colours[0][0][0]);
     } else
     {
-        draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, 26);
+        draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, GPS_rpanel_frame_wide_empty);
     }
     lbDisplay.DrawFlags &= ~Lb_TEXT_ONE_COLOR;
 
@@ -787,10 +842,10 @@ void gui_area_trap_button(struct GuiButton *gbtn)
 {
     unsigned short flg_mem = lbDisplay.DrawFlags;
 
-    int ps_units_per_px = simple_gui_panel_sprite_height_units_per_px(gbtn, 24, 128);
+    int ps_units_per_px = simple_gui_panel_sprite_height_units_per_px(gbtn, GPS_rpanel_frame_portrt_empty, 128);
 
     int manufctr_idx = (long)gbtn->content;
-    draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, 24);
+    draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, GPS_rpanel_frame_portrt_empty);
     struct ManufactureData* manufctr = get_manufacture_data(manufctr_idx);
     // Check if we should draw anything
     if (manufctr->tngclass == TCls_Trap)
@@ -819,7 +874,7 @@ void gui_area_trap_button(struct GuiButton *gbtn)
     // We should draw; maybe just disabled button
     if ((gbtn->flags & LbBtnF_Enabled) == 0)
     {
-        draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, 25);
+        draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, GPS_rpanel_frame_portrt_qmark);
         lbDisplay.DrawFlags = flg_mem;
         return;
     }
@@ -832,14 +887,14 @@ void gui_area_trap_button(struct GuiButton *gbtn)
     case TCls_Trap:
         // If there are traps of that type placed on map
         if (player_has_deployed_trap_of_model(my_player_number, manufctr->tngmodel)) {
-            draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, 27);
+            draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, GPS_rpanel_frame_portrt_light);
         }
         amount = dungeonadd->mnfct_info.trap_amount_placeable[manufctr->tngmodel];
         break;
     case TCls_Door:
         // If there are doors of that type placed on map
         if (player_has_deployed_door_of_model(my_player_number, manufctr->tngmodel, -1)) {
-            draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, 27);
+            draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, GPS_rpanel_frame_portrt_light);
         }
         amount = dungeonadd->mnfct_info.door_amount_placeable[manufctr->tngmodel];
         break;
@@ -869,6 +924,20 @@ void gui_go_to_next_door(struct GuiButton *gbtn)
     game.manufactr_tooltip = manufctr->tooltip_stridx;
 }
 
+void gui_over_creature_button(struct GuiButton* gbtn)
+{
+    SYNCDBG(8, "Starting");
+    long i = gbtn->btype_value & LbBFeF_IntValueMask;
+    ThingModel crmodel;
+    if (i > 0) {
+        crmodel = breed_activities[(top_of_breed_list + i) % CREATURE_TYPES_COUNT];
+    }
+    else {
+        crmodel = get_players_special_digger_model(my_player_number);
+    }
+    gui_creature_type_highlighted = crmodel;
+}
+
 void gui_over_door_button(struct GuiButton *gbtn)
 {
     int manufctr_idx = (long)gbtn->content;
@@ -895,9 +964,9 @@ void gui_area_big_trap_button(struct GuiButton *gbtn)
     struct ManufactureData* manufctr = get_manufacture_data(manufctr_idx);
     unsigned short flg_mem = lbDisplay.DrawFlags;
     int units_per_px = (gbtn->width * 16 + 126 / 2) / 126;
-    int ps_units_per_px = simple_gui_panel_sprite_width_units_per_px(gbtn, 26, 100);
+    int ps_units_per_px = simple_gui_panel_sprite_width_units_per_px(gbtn, GPS_rpanel_frame_wide_empty, 100);
 
-    draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, 26);
+    draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, GPS_rpanel_frame_wide_empty);
     if (manufctr_idx == 0) {
         lbDisplay.DrawFlags = flg_mem;
         return;
@@ -956,15 +1025,15 @@ void maintain_big_spell(struct GuiButton *gbtn)
 void maintain_room(struct GuiButton *gbtn)
 {
     RoomKind rkind = (long)gbtn->content;
-    struct Dungeon* dungeon = get_players_num_dungeon(my_player_number);
-    if ((rkind < 1) || (rkind >= ROOM_TYPES_COUNT)) {
+    struct DungeonAdd* dungeonadd = get_dungeonadd(my_player_number);
+    if ((rkind < 1) || (rkind >= slab_conf.room_types_count)) {
         return;
     }
-    if (dungeon_invalid(dungeon)) {
+    if (dungeonadd_invalid(dungeonadd)) {
         ERRORDBG(8,"Cannot do; player %d has no dungeon",(int)my_player_number);
         return;
     }
-    if (dungeon->room_buildable[rkind] & 1) {
+    if (dungeonadd->room_buildable[rkind] & 1) {
         gbtn->btype_value &= LbBFeF_IntValueMask;
         gbtn->flags |= LbBtnF_Enabled;
     } else {
@@ -976,18 +1045,18 @@ void maintain_room(struct GuiButton *gbtn)
 void maintain_big_room(struct GuiButton *gbtn)
 {
     long rkind = game.chosen_room_kind;
-    struct Dungeon* dungeon = get_players_num_dungeon(my_player_number);
-    if ((rkind < 1) || (rkind >= ROOM_TYPES_COUNT)) {
+    struct DungeonAdd* dungeonadd = get_dungeonadd(my_player_number);
+    if ((rkind < 1) || (rkind >= slab_conf.room_types_count)) {
         return;
     }
-    if (dungeon_invalid(dungeon)) {
+    if (dungeonadd_invalid(dungeonadd)) {
         ERRORDBG(8,"Cannot do; player %d has no dungeon",(int)my_player_number);
         return;
     }
     gbtn->content = (unsigned long *)rkind;
     gbtn->sprite_idx = game.chosen_room_spridx;
     gbtn->tooltip_stridx = game.chosen_room_tooltip;
-    if (dungeon->room_buildable[rkind] & 1) {
+    if (dungeonadd->room_buildable[rkind] & 1) {
         gbtn->btype_value &= LbBFeF_IntValueMask;
         gbtn->flags |= LbBtnF_Enabled;
     } else {
@@ -1102,10 +1171,10 @@ void draw_name_box(long x, long y, int width, struct Thing *thing)
 {
     int ps_units_per_px;
     {
-        struct TbSprite* spr = &gui_panel_sprites[458];
+        struct TbSprite* spr = &gui_panel_sprites[GPS_rpanel_bar_long_full];
         ps_units_per_px = (width*95/100) * 16 / spr->SWidth;
     }
-    draw_gui_panel_sprite_left(x, y, ps_units_per_px, 458);
+    draw_gui_panel_sprite_left(x, y, ps_units_per_px, GPS_rpanel_bar_long_full);
     if (thing_is_creature(thing) && (thing->ccontrol_idx > 0))
     {
         // Draw health bar
@@ -1155,9 +1224,9 @@ void gui_creature_query_background1(struct GuiMenu *gmnu)
         LbSpriteDrawResized(portrt_x + 12*units_per_px/16, portrt_y + 12*units_per_px/16, bs_units_per_px, get_button_sprite(spr_idx));
     }
     {
-        struct TbSprite* spr = &gui_panel_sprites[464];
+        struct TbSprite* spr = &gui_panel_sprites[GPS_rpanel_frame_double_hex_med];
         int ps_units_per_px = (gmnu->width * 52 / 100) * 16 / spr->SWidth;
-        draw_gui_panel_sprite_left(portrt_x, portrt_y, ps_units_per_px, 464);
+        draw_gui_panel_sprite_left(portrt_x, portrt_y, ps_units_per_px, GPS_rpanel_frame_double_hex_med);
     }
 }
 
@@ -1229,7 +1298,7 @@ RoomIndex find_my_next_room_of_type(RoomKind rkind)
 
 RoomIndex find_next_room_of_type(PlayerNumber plyr_idx, RoomKind rkind)
 {
-    static RoomIndex next_room[ROOM_TYPES_COUNT];
+    static RoomIndex next_room[TERRAIN_ITEMS_MAX];
     if (next_room[rkind] > 0)
     {
         struct Room* room = room_get(next_room[rkind]);
@@ -1240,8 +1309,8 @@ RoomIndex find_next_room_of_type(PlayerNumber plyr_idx, RoomKind rkind)
     }
     if (next_room[rkind] <= 0)
     {
-        struct Dungeon* dungeon = get_dungeon(plyr_idx);
-        next_room[rkind] = dungeon->room_kind[rkind];
+        struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
+        next_room[rkind] = dungeonadd->room_kind[rkind];
     }
     return next_room[rkind];
 }
@@ -1285,22 +1354,23 @@ void gui_area_room_button(struct GuiButton *gbtn)
 {
     unsigned short flg_mem = lbDisplay.DrawFlags;
 
-    int ps_units_per_px = simple_gui_panel_sprite_height_units_per_px(gbtn, 24, 128);
+    int ps_units_per_px = simple_gui_panel_sprite_height_units_per_px(gbtn, GPS_rpanel_frame_portrt_empty, 128);
 
     RoomKind rkind = (long)gbtn->content;
-    draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, 24);
+    draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, GPS_rpanel_frame_portrt_empty);
     struct Dungeon* dungeon = get_my_dungeon();
-    if ((dungeon->room_buildable[rkind] & 1) // One can build it now
-         || (dungeon->room_resrchable[rkind] == 1) // One can research it at any time
-         || (dungeon->room_resrchable[rkind] == 2) // One can research it and get instantly then found
-         || ((dungeon->room_resrchable[rkind] == 4) && (dungeon->room_buildable[rkind] & 2)) // Player able to research
+    struct DungeonAdd* dungeonadd = get_dungeonadd(my_player_number);
+    if ((dungeonadd->room_buildable[rkind] & 1) // One can build it now
+         || (dungeonadd->room_resrchable[rkind] == 1) // One can research it at any time
+         || (dungeonadd->room_resrchable[rkind] == 2) // One can research it and get instantly then found
+         || ((dungeonadd->room_resrchable[rkind] == 4) && (dungeonadd->room_buildable[rkind] & 2)) // Player able to research
          )
     {
         if ((gbtn->flags & LbBtnF_Enabled) != 0)
         {
-            if (dungeon->room_kind[rkind] > 0)
-                draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, 27);
-            int spr_idx = (dungeon->total_money_owned < game.room_stats[rkind].cost) + gbtn->sprite_idx;
+            if (dungeonadd->room_kind[rkind] > 0)
+                draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, GPS_rpanel_frame_portrt_light);
+            int spr_idx = (dungeon->total_money_owned < get_room_kind_stats(rkind)->cost) + gbtn->sprite_idx;
             if ((gbtn->gbactn_1 == 0) && (gbtn->gbactn_2 == 0)) {
                 draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, spr_idx);
             } else {
@@ -1309,7 +1379,7 @@ void gui_area_room_button(struct GuiButton *gbtn)
         } else
         {
             // Draw a question mark over the button, to indicate it can be researched
-            draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, 25);
+            draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, GPS_rpanel_frame_portrt_qmark);
         }
     }
     lbDisplay.DrawFlags = flg_mem;
@@ -1358,7 +1428,7 @@ void gui_area_anger_button(struct GuiButton *gbtn)
         crmodel = get_players_special_digger_model(my_player_number);
     // Get scale factor
     int units_per_px = (gbtn->width * 16 + 32 / 2) / 32;
-    int ps_units_per_px = simple_gui_panel_sprite_width_units_per_px(gbtn, 288, 113);
+    int ps_units_per_px = simple_gui_panel_sprite_width_units_per_px(gbtn, GPS_rpanel_tab_crtr_annoy_lv00, 113);
     // Now draw the button
     long cr_total = 0;
     if ((crmodel > 0) && (crmodel < CREATURE_TYPES_COUNT) && (gbtn->flags & LbBtnF_Enabled))
@@ -1462,7 +1532,7 @@ void gui_area_smiley_anger_button(struct GuiButton *gbtn)
         if (angr_pos > 4) {
             angr_pos = 4;
         }
-        int spr_idx = angr_pos + 468;
+        int spr_idx = angr_pos + GPS_symbols_creatr_mood_vhappy_std;
         int shift_x = (48 * angr_prct - 16) / 256;
         if (shift_x < 0) {
             shift_x = 0;
@@ -1503,12 +1573,12 @@ void gui_area_instance_button(struct GuiButton *gbtn)
 {
     struct PlayerInfo* player = get_my_player();
     int units_per_px = (gbtn->width * 16 + 60 / 2) / 60;
-    int ps_units_per_px = simple_gui_panel_sprite_width_units_per_px(gbtn, 463, 100);
+    int ps_units_per_px = simple_gui_panel_sprite_width_units_per_px(gbtn, GPS_rpanel_bar_with_pic_full_blue_down, 100);
     struct Thing* ctrltng = thing_get(player->controlled_thing_idx);
     TRACE_THING(ctrltng);
     if (!thing_is_creature(ctrltng))
     {
-        draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, 463);
+        draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, GPS_rpanel_bar_with_pic_full_blue_down);
         gui_area_progress_bar_short(gbtn, units_per_px, 0, 32);
         return;
     }
@@ -1516,16 +1586,16 @@ void gui_area_instance_button(struct GuiButton *gbtn)
     int curbtn_inst_id = creature_instance_get_available_id_for_pos(ctrltng, curbtn_avail_pos);
     if (!creature_instance_is_available(ctrltng, curbtn_inst_id))
     {
-        draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, 463);
+        draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, GPS_rpanel_bar_with_pic_full_blue_down);
         gui_area_progress_bar_short(gbtn, units_per_px, 0, 32);
         return;
     }
     struct CreatureControl* cctrl = creature_control_get_from_thing(ctrltng);
     int spr_idx;
     if (cctrl->active_instance_id == curbtn_inst_id) {
-      spr_idx = 462;
+      spr_idx = GPS_rpanel_bar_with_pic_full_blue_up;
     } else {
-      spr_idx = 463;
+      spr_idx = GPS_rpanel_bar_with_pic_full_blue_down;
     }
     draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, spr_idx);
     struct InstanceInfo* inst_inf = creature_instance_info_get(curbtn_inst_id);
@@ -1733,22 +1803,22 @@ void gui_scroll_activity_down(struct GuiButton *gbtn)
 void gui_area_ally(struct GuiButton *gbtn)
 {
     PlayerNumber plyr_idx = (int)gbtn->content;
-    int spr_idx = 498;
+    int spr_idx = GPS_plyrsym_symbol_player_any_dis;
     if ((gbtn->flags & LbBtnF_Enabled) == 0) {
         return;
     }
-    int ps_units_per_px = simple_gui_panel_sprite_height_units_per_px(gbtn, 498, 100);
+    int ps_units_per_px = simple_gui_panel_sprite_height_units_per_px(gbtn, GPS_plyrsym_symbol_player_any_dis, 100);
     if (game.play_gameturn & 1)
     {
         struct PlayerInfo* player = get_my_player();
         if (player_allied_with(player, plyr_idx)) {
-            spr_idx = 488 + (plyr_idx & 0x0f);
+            spr_idx = GPS_plyrsym_symbol_player_red_std_b + (plyr_idx & 0x0f);
         }
     } else
     {
         struct PlayerInfo* player = get_player(plyr_idx);
         if (player_allied_with(player, my_player_number)) {
-            spr_idx = 488 + (plyr_idx & 0x0f);
+            spr_idx = GPS_plyrsym_symbol_player_red_std_b + (plyr_idx & 0x0f);
         }
     }
     if ( gbtn->gbactn_1 || gbtn->gbactn_2 )
@@ -1762,8 +1832,8 @@ void gui_area_ally(struct GuiButton *gbtn)
 
 void gui_area_stat_button(struct GuiButton *gbtn)
 {
-    int ps_units_per_px = simple_gui_panel_sprite_height_units_per_px(gbtn, 459, 100);
-    draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, 459);
+    int ps_units_per_px = simple_gui_panel_sprite_height_units_per_px(gbtn, GPS_rpanel_frame_rect_wide_up, 100);
+    draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, GPS_rpanel_frame_rect_wide_up);
     struct PlayerInfo* player = get_my_player();
     struct Thing* thing = thing_get(player->controlled_thing_idx);
     if (!thing_exists(thing))
@@ -1785,8 +1855,8 @@ void maintain_event_button(struct GuiButton *gbtn)
     if (evbtn_idx <= EVENT_BUTTONS_COUNT)
     {
         evidx = dungeon->event_button_index[evbtn_idx];
-    } 
-    else 
+    }
+    else
     {
         evidx = 0;
     }
@@ -1817,7 +1887,7 @@ void maintain_event_button(struct GuiButton *gbtn)
                     {
                         activate_event_box(i);
                         break;
-                        
+
                     }
                 }
                 clear_key_pressed(keycode);
@@ -1847,7 +1917,7 @@ void maintain_event_button(struct GuiButton *gbtn)
         gbtn->sprite_idx += 2;
         if(is_game_key_pressed(Gkey_ZoomToFight, &keycode, true) && lbKeyOn[KC_LSHIFT])
         {
-            if ((evidx == dungeon->visible_event_idx)) 
+            if ((evidx == dungeon->visible_event_idx))
             {
             clear_key_pressed(keycode);
             gui_close_objective(gbtn);
@@ -2014,8 +2084,8 @@ void gui_area_research_bar(struct GuiButton *gbtn)
         resrch_required = 0;
         resrch_progress = 0;
     }
-    int ps_units_per_px = simple_gui_panel_sprite_height_units_per_px(gbtn, 462, 100);
-    draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, 462);
+    int ps_units_per_px = simple_gui_panel_sprite_height_units_per_px(gbtn, GPS_rpanel_bar_with_pic_full_blue_up, 100);
+    draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, GPS_rpanel_bar_with_pic_full_blue_up);
     draw_gui_panel_sprite_left(gbtn->scr_pos_x - 8*units_per_px/16, gbtn->scr_pos_y - 10*units_per_px/16, ps_units_per_px, gbtn->sprite_idx);
     gui_area_progress_bar_short(gbtn, units_per_px, resrch_progress, resrch_required);
 }
@@ -2035,8 +2105,8 @@ void gui_area_workshop_bar(struct GuiButton *gbtn)
         manufct_required = 0;
         manufct_progress = 0;
     }
-    int ps_units_per_px = simple_gui_panel_sprite_height_units_per_px(gbtn, 462, 100);
-    draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, 462);
+    int ps_units_per_px = simple_gui_panel_sprite_height_units_per_px(gbtn, GPS_rpanel_bar_with_pic_full_blue_up, 100);
+    draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, GPS_rpanel_bar_with_pic_full_blue_up);
     draw_gui_panel_sprite_left(gbtn->scr_pos_x - 8, gbtn->scr_pos_y - 10, ps_units_per_px, gbtn->sprite_idx);
     gui_area_progress_bar_short(gbtn, units_per_px, manufct_progress, manufct_required);
 }
@@ -2044,9 +2114,9 @@ void gui_area_workshop_bar(struct GuiButton *gbtn)
 void gui_area_player_creature_info(struct GuiButton *gbtn)
 {
     PlayerNumber plyr_idx = (int)gbtn->content;
-    int ps_units_per_px = simple_gui_panel_sprite_height_units_per_px(gbtn, 459, 100);
+    int ps_units_per_px = simple_gui_panel_sprite_height_units_per_px(gbtn, GPS_rpanel_frame_rect_wide_up, 100);
     struct PlayerInfo* player = get_player(plyr_idx);
-    draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, 459);
+    draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, GPS_rpanel_frame_rect_wide_up);
     struct Dungeon* dungeon = get_players_dungeon(player);
     if (player_exists(player) && !dungeon_invalid(dungeon))
     {
@@ -2067,9 +2137,9 @@ void gui_area_player_creature_info(struct GuiButton *gbtn)
 void gui_area_player_room_info(struct GuiButton *gbtn)
 {
     PlayerNumber plyr_idx = (int)gbtn->content;
-    int ps_units_per_px = simple_gui_panel_sprite_height_units_per_px(gbtn, 459, 100);
+    int ps_units_per_px = simple_gui_panel_sprite_height_units_per_px(gbtn, GPS_rpanel_frame_rect_wide_up, 100);
     struct PlayerInfo* player = get_player(plyr_idx);
-    draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, 459);
+    draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, GPS_rpanel_frame_rect_wide_up);
     struct Dungeon* dungeon = get_players_dungeon(player);
     if (player_exists(player) && !dungeon_invalid(dungeon))
     {
@@ -2108,7 +2178,7 @@ void draw_gold_total(PlayerNumber plyr_idx, long scr_x, long scr_y, long units_p
     for (i = value; i > 0; i /= 10) {
         ndigits++;
     }
-    struct TbSprite* spr = &button_sprite[71];
+    struct TbSprite* spr = &button_sprite[GBS_fontchars_number_dig0];
     val_width = scale_value_for_resolution_with_upp(spr->SWidth, units_per_px) * ndigits;
     if (ndigits > 0)
     {
@@ -2117,13 +2187,13 @@ void draw_gold_total(PlayerNumber plyr_idx, long scr_x, long scr_y, long units_p
         {
             // Make space for the character first, as we're drawing right char towards left
             pos_x -= scale_value_for_resolution_with_upp(spr->SWidth, units_per_px);
-            spr = &button_sprite[i % 10 + 71];
+            spr = &button_sprite[i % 10 + GBS_fontchars_number_dig0];
             LbSpriteDrawResized(pos_x, scr_y, units_per_px, spr);
         }
     } else
     {
         // Just draw zero
-        spr = &button_sprite[71];
+        spr = &button_sprite[GBS_fontchars_number_dig0];
         LbSpriteDrawResized(scr_x, scr_y, units_per_px, spr);
     }
     lbDisplay.DrawFlags = flg_mem;
@@ -2138,7 +2208,6 @@ void draw_whole_status_panel(void)
     struct GuiMenu *gmnu;
     int fs_units_per_px;
     int mm_units_per_px;
-    int bs_units_per_px;
     {
         int mnu_num = menu_id_to_number(GMnu_MAIN);
         gmnu = get_active_menu(mnu_num);
@@ -2146,7 +2215,6 @@ void draw_whole_status_panel(void)
         if (mm_units_per_px < 1)
             mm_units_per_px = 1;
         fs_units_per_px = (gmnu->height * 16 + 8) / LbTiledSpriteHeight(&status_panel, gui_panel_sprites);
-        bs_units_per_px = gmnu->width * 4 / 35;
     }
     lbDisplay.DrawColour = colours[15][15][15];
     lbDisplay.DrawFlags = 0;
@@ -2160,12 +2228,18 @@ void draw_whole_status_panel(void)
     pannel_map_draw_slabs(player->minimap_pos_x, player->minimap_pos_y, mm_units_per_px, mmzoom);
     long basic_zoom = player->minimap_zoom;
     pannel_map_draw_overlay_things(mm_units_per_px, mmzoom, basic_zoom);
+    reset_all_minimap_interpolation = false; // Done resetting
+    unsigned char placefill_threshold = (LbScreenHeight() >= 400) ? 80 : 40;
+    if (LbScreenHeight() - gmnu->height >= placefill_threshold)
+    {
+        draw_placefiller(0, gmnu->pos_y + gmnu->height, fs_units_per_px);
+    }
 }
 
 void gui_set_button_flashing(long btn_idx, long gameturns)
 {
     game.flash_button_index = btn_idx;
-    game.flash_button_gameturns = gameturns;
+    gameadd.flash_button_time = gameturns;
 }
 
 void update_room_tab_to_config(void)
@@ -2289,5 +2363,11 @@ void update_powers_tab_to_config(void)
         ibtn->draw_call = gui_area_spell_button;
         ibtn->maintain_call = maintain_spell;
     }
+}
+
+void draw_placefiller(long scr_x, long scr_y, long units_per_px)
+{
+    struct TbSprite* spr = &gui_panel_sprites[547];
+    LbSpriteDrawResized(scr_x, scr_y, units_per_px, spr);
 }
 /******************************************************************************/

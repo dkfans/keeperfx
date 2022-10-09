@@ -32,7 +32,7 @@ extern "C" {
 #endif
 /******************************************************************************/
 char onscreen_msg_text[255]="";
-int onscreen_msg_turns = 0;
+float render_onscreen_msg_time;
 
 struct ErrorStatistics erstat[] = {
     {0, 0, "Out of thing slots"},
@@ -68,13 +68,13 @@ TbBool show_onscreen_msg_va(int nturns, const char *fmt_str, va_list arg)
 {
     vsprintf(onscreen_msg_text, fmt_str, arg);
     SYNCMSG("Onscreen message: %s",onscreen_msg_text);
-    onscreen_msg_turns = nturns;
+    render_onscreen_msg_time = (float)nturns;
     return true;
 }
 
 TbBool is_onscreen_msg_visible(void)
 {
-    return (onscreen_msg_turns > 0);
+    return (render_onscreen_msg_time > 0.0);
 }
 
 TbBool show_onscreen_msg(int nturns, const char *fmt_str, ...)
@@ -121,14 +121,14 @@ TbBool draw_onscreen_direct_messages(void)
     }
     else
     {
-        tx_units_per_px = scale_ui_value((MyScreenWidth >= 640) ? 16 : 32);
+        tx_units_per_px = scale_ui_value_lofi(16);
     }
     // Display in-game message for debug purposes
-    if ((onscreen_msg_turns > 0) || erstat_check())
+    if ((render_onscreen_msg_time > 0.0) || erstat_check())
     {
         if ( LbScreenIsLocked() )
       LbTextDrawResized(scale_value_by_horizontal_resolution(160), 0, tx_units_per_px, onscreen_msg_text);
-        onscreen_msg_turns--;
+        render_onscreen_msg_time -= gameadd.delta_time;
     }
     unsigned int msg_pos = scale_value_by_vertical_resolution(200);
     if ((game.system_flags & GSF_NetGameNoSync) != 0)

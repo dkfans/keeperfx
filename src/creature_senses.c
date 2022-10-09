@@ -33,6 +33,10 @@
 #include "map_blocks.h"
 #include "game_legacy.h"
 
+// Use values of 21 and below, otherwise you may need more rays to explore the entire distance
+const int CREATURE_EXPLORE_DISTANCE = 7;
+const int CREATURE_EXPLORE_DISTANCE_POSSESSED = 10;
+
 /******************************************************************************/
 TbBool sibling_line_of_sight_ignoring_door(const struct Coord3d *prevpos,
     const struct Coord3d *nextpos, const struct Thing *doortng)
@@ -589,8 +593,6 @@ TbBool jonty_line_of_sight_3d_including_lava_check_ignoring_own_door(const struc
 
 TbBool jonty_creature_can_see_thing_including_lava_check(const struct Thing *creatng, const struct Thing *thing)
 {
-    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
-    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     const struct Coord3d* srcpos = &creatng->mappos;
     struct Coord3d eyepos;
     eyepos.x.val = srcpos->x.val;
@@ -600,7 +602,7 @@ TbBool jonty_creature_can_see_thing_including_lava_check(const struct Thing *cre
     tgtpos.x.val = thing->mappos.x.val;
     tgtpos.y.val = thing->mappos.y.val;
     tgtpos.z.val = thing->mappos.z.val;
-    eyepos.z.val += (crstat->eye_height + (crstat->eye_height * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100);
+    eyepos.z.val += get_creature_eye_height(creatng);
     if (thing->class_id == TCls_Door)
     {
         // If we're immune to lava, or we're already on it - don't care, travel over it
@@ -808,7 +810,19 @@ TbBool line_of_sight_3d(const struct Coord3d *frpos, const struct Coord3d *topos
     struct Coord3d nextpos;
     nextpos.x.val = prevpos.x.val + increase_x;
     nextpos.y.val = prevpos.y.val + increase_y;
-    nextpos.z.val = prevpos.z.val + increase_z;
+    
+    //Z position overshoots, which returns incorrect results. Workaround until a proper fix is made:
+    if ((increase_z >= 0 && ((prevpos.z.val + increase_z) >= topos->z.val)) ||
+        (increase_z < 0 && ((prevpos.z.val + increase_z) < topos->z.val)))
+    {
+        nextpos.z.val = topos->z.val;
+        increase_z = 0;
+    }
+    else
+    {
+        nextpos.z.val = prevpos.z.val + increase_z;
+    }
+
     while (distance > 0)
     {
         if (point_in_map_is_solid(&nextpos)) {
@@ -827,7 +841,15 @@ TbBool line_of_sight_3d(const struct Coord3d *frpos, const struct Coord3d *topos
         prevpos.z.val = nextpos.z.val;
         nextpos.x.val += increase_x;
         nextpos.y.val += increase_y;
-        nextpos.z.val += increase_z;
+
+        //Z position overshoots, which returns incorrect results. Workaround until a proper fix is made:
+        if ((increase_z >= 0 && ((nextpos.z.val + increase_z) >= topos->z.val)) ||
+            (increase_z < 0 && ((nextpos.z.val + increase_z) < topos->z.val)))
+        {
+            nextpos.z.val = topos->z.val;
+            increase_z = 0;
+        }
+
         distance--;
     }
     return true;
@@ -940,6 +962,65 @@ TbBool nowibble_line_of_sight_3d(const struct Coord3d *frpos, const struct Coord
     return true;
 }
 
+TbBool line_of_room_move_2d(const struct Coord3d *frpos, const struct Coord3d *topos, struct Room *room)
+{
+    MapCoordDelta delta_x;
+    MapCoordDelta delta_y;
+    int distance_per_step_x;
+    int distance_per_step_y;
+    int ray_end_point;
+    int ray_current_point;
+    struct Coord3d ray_point_pos;
+    static const long RAY_RESOLUTION = 80;
+
+    distance_per_step_x = RAY_RESOLUTION;
+    delta_x = topos->x.val - frpos->x.val;
+    delta_y = topos->y.val - frpos->y.val;
+    if ( delta_x < 0 )
+    {
+        delta_x = frpos->x.val - topos->x.val;
+        distance_per_step_x = -RAY_RESOLUTION;
+    }
+    distance_per_step_y = RAY_RESOLUTION;
+    if ( delta_y < 0 )
+    {
+        delta_y = frpos->y.val - topos->y.val;
+        distance_per_step_y = -RAY_RESOLUTION;
+    }
+
+    if ( delta_y == delta_x )
+    {
+        ray_end_point = (delta_x + 1) / RAY_RESOLUTION;
+    }
+    else if ( delta_y >= delta_x )
+    {
+        distance_per_step_x = (delta_x + 1) * distance_per_step_x / (delta_y + 1);
+        ray_end_point = (delta_y + 1) / RAY_RESOLUTION;
+    }
+    else
+    {
+        distance_per_step_y = (delta_y + 1) * distance_per_step_y / (delta_x + 1);
+        ray_end_point = (delta_x + 1) / RAY_RESOLUTION;
+    }
+    ray_current_point = ray_end_point;
+    ray_point_pos.x.val = frpos->x.val;
+    ray_point_pos.y.val = frpos->y.val;
+    ray_point_pos.z.val = frpos->z.val;
+
+
+    if ( !ray_end_point )
+        return true;
+    while ( get_room_at_pos(&ray_point_pos) == room )
+    {
+        ray_point_pos.x.val += distance_per_step_x;
+        ray_point_pos.y.val += distance_per_step_y;
+        ray_current_point--;
+        if ( ray_current_point == 0 )
+            return true;
+    }
+    return false;
+}
+
 long get_explore_sight_distance_in_slabs(const struct Thing *thing)
 {
     if (!thing_exists(thing)) {
@@ -947,11 +1028,9 @@ long get_explore_sight_distance_in_slabs(const struct Thing *thing)
     }
     long dist;
     if (!is_thing_some_way_controlled(thing)) {
-        dist = 7;
+        dist = CREATURE_EXPLORE_DISTANCE;
     } else {
-        dist = get_creature_can_see_subtiles() / STL_PER_SLB;
-        if (dist <= 7)
-            dist = 7;
+        dist = CREATURE_EXPLORE_DISTANCE_POSSESSED;
     }
     return dist;
 }
