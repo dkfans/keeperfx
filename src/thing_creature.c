@@ -2111,11 +2111,18 @@ long move_creature(struct Thing *thing)
         {
             if (thing_in_wall_at(thing, &nxpos) && !creature_can_pass_through_wall_at(thing, &nxpos))
             {
-                long blocked_flags = get_thing_blocked_flags_at(thing, &nxpos);
-                if (cctrl->collided_door_subtile == 0) {
-                    check_for_door_collision_at(thing, &nxpos, blocked_flags);
+                if (creature_cannot_move_directly_to(thing, &nxpos))
+                {
+                    long blocked_flags = get_creature_blocked_flags_at(thing, &nxpos);
+                    if (cctrl->collided_door_subtile == 0) {
+                        check_for_door_collision_at(thing, &nxpos, blocked_flags);
+                    }
+                    slide_thing_against_wall_at(thing, &nxpos, blocked_flags);
                 }
-                slide_thing_against_wall_at(thing, &nxpos, blocked_flags);
+                else
+                {
+                    nxpos.z.val = get_thing_height_at(thing, &nxpos);
+                }
             }
         }
         else
