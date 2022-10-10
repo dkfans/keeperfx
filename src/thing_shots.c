@@ -1367,7 +1367,7 @@ TngUpdateRet move_shot(struct Thing *shotng)
       }
     } else
     {
-      if ((!move_allowed) || thing_in_wall_at(shotng, &pos)) {
+      if (!move_allowed) {
           if (shot_hit_wall_at(shotng, &pos)) {
               return TUFRet_Deleted;
           }

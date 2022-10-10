@@ -35,6 +35,7 @@
 #include "map_columns.h"
 #include "map_blocks.h"
 #include "map_utils.h"
+#include "slab_data.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -530,7 +531,8 @@ TbBool get_thing_next_position(struct Coord3d *pos, const struct Thing *thing)
 {
     // Don't clip the Z coord - clipping would make impossible to hit base ground (ie. water drip over water)
     unsigned short flags = (thing_is_exempt_from_z_axis_clipping(thing)) ? MapCoord_ClipX|MapCoord_ClipY : MapCoord_ClipX|MapCoord_ClipY|MapCoord_ClipZ;
-    return set_coords_add_velocity(pos, &thing->mappos, &thing->velocity, flags);
+    set_coords_add_velocity(pos, &thing->mappos, &thing->velocity, flags);
+    return (!position_is_blocking_for_thing(thing, pos));
 }
 
 long get_thing_height_at(const struct Thing *thing, const struct Coord3d *pos)
@@ -875,6 +877,55 @@ unsigned short get_slide_z_coord(const struct Thing *thing, const struct Coord3d
     return (z_pos & 0xFF00) + 256;
   }
   return ((((z_pos + clipbox_size) & 0xFFFFFF00) - clipbox_size) - 1);
+}
+
+TbBool position_is_blocking_for_thing(const struct Thing *thing, const struct Coord3d *pos)
+{
+    if (thing_in_wall_at(thing, pos))
+    {
+        return true;
+    }
+    MapSubtlCoord stl_x, stl_y;
+    unsigned short angle = (thing->move_angle_xy & 0xFF00) | 256;
+    switch(angle)
+    {
+        case ANGLE_NORTHEAST:
+        {
+            stl_x = pos->x.stl.num - 1;
+            stl_y = pos->y.stl.num + 1;
+            break;
+        }
+        case ANGLE_SOUTHEAST:
+        {
+            stl_x = pos->x.stl.num - 1;
+            stl_y = pos->y.stl.num - 1;
+            break;
+        }
+        case ANGLE_SOUTHWEST:
+        {
+            stl_x = pos->x.stl.num + 1;
+            stl_y = pos->y.stl.num - 1;
+            break;
+        }
+        case ANGLE_NORTHWEST:
+        {
+            stl_x = pos->x.stl.num + 1;
+            stl_y = pos->y.stl.num + 1;
+            break;
+        }
+        default:
+        {
+            stl_x = pos->x.stl.num;
+            stl_y = pos->y.stl.num;
+            break;
+        }
+        break;
+    }
+    if ( (slab_is_wall(subtile_slab_fast(pos->x.stl.num), subtile_slab_fast(stl_y))) && (slab_is_wall(subtile_slab_fast(stl_x), subtile_slab_fast(pos->y.stl.num))) )
+    {
+        return true;
+    }
+    return false;
 }
 /******************************************************************************/
 #ifdef __cplusplus
