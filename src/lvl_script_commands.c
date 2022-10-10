@@ -1031,17 +1031,17 @@ static void move_creature_check(const struct ScriptLine* scline)
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
-static void count_creatures_in_range_check(const struct ScriptLine* scline)
+static void count_creatures_at_action_point_check(const struct ScriptLine* scline)
 {
-    ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
+    ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[1]);
 
-    long crmodel = parse_creature_name(scline->tp[1]);
+    long crmodel = parse_creature_name(scline->tp[2]);
     if (crmodel == CREATURE_NONE)
     {
-        SCRPTERRLOG("Unknown creature, '%s'", scline->tp[1]);
+        SCRPTERRLOG("Unknown creature, '%s'", scline->tp[2]);
         return;
     }
-    long ap_num = scline->np[2];
+    long ap_num = scline->np[0];
     long flag_player_id = scline->np[3];
     const char *flag_name = scline->tp[4];
 
@@ -1272,7 +1272,7 @@ static void move_creature_process(struct ScriptContext* context)
     }
 }
 
-static void count_creatures_in_range_process(struct ScriptContext* context)
+static void count_creatures_at_action_point_process(struct ScriptContext* context)
 {
     long ap_num = context->value->shorts[0];
     long crmodel = context->value->bytes[2];
@@ -3011,7 +3011,7 @@ const struct CommandDesc command_desc[] = {
   {"SET_CREATURE_INSTANCE",             "CNAN    ", Cmd_SET_CREATURE_INSTANCE, &set_creature_instance_check, &set_creature_instance_process},
   {"SET_HAND_RULE",                     "PC!Aaaa ", Cmd_SET_HAND_RULE, &set_hand_rule_check, &set_hand_rule_process},
   {"MOVE_CREATURE",                     "PC!ANLa ", Cmd_MOVE_CREATURE, &move_creature_check, &move_creature_process},
-  {"COUNT_CREATURES_IN_RANGE",          "PC!NPA  ", Cmd_COUNT_CREATURES_IN_RANGE, &count_creatures_in_range_check, &count_creatures_in_range_process},
+  {"COUNT_CREATURES_AT_ACTION_POINT",   "NPC!PA  ", Cmd_COUNT_CREATURES_AT_ACTION_POINT, &count_creatures_at_action_point_check, &count_creatures_at_action_point_process},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 
