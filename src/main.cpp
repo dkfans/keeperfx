@@ -2221,23 +2221,23 @@ void check_players_won(void)
     if (!(game.system_flags & GSF_NetworkActive))
         return;
 
-    unsigned int playerIdx = 0;
-    for (; playerIdx < PLAYERS_COUNT; ++playerIdx)
+    struct PlayerInfo* curPlayer;
+    for (PlayerNumber playerIdx = 0; playerIdx < PLAYERS_COUNT; ++playerIdx)
     {
-        PlayerInfo* curPlayer = get_player(playerIdx);
+        curPlayer = get_player(playerIdx);
         if (!player_exists(curPlayer) || curPlayer->is_active != 1 || curPlayer->victory_state != VicS_Undecided)
             continue;
 
         // check if any other player is still alive
-        for (unsigned int secondPlayerIdx = 0; secondPlayerIdx < PLAYERS_COUNT; ++secondPlayerIdx)
+        for (PlayerNumber secondPlayerIdx = 0; secondPlayerIdx < PLAYERS_COUNT; ++secondPlayerIdx)
         {
             if (secondPlayerIdx == playerIdx)
                 continue;
 
-            PlayerInfo* otherPlayer = get_player(secondPlayerIdx);
-            if (player_exists(otherPlayer) && otherPlayer->is_active == 1)
+            struct PlayerInfo* otherPlayer = get_player(secondPlayerIdx);
+            if (player_exists(otherPlayer) && otherPlayer->victory_state == VicS_Undecided)
             {
-                Thing* heartng = get_player_soul_container(secondPlayerIdx);
+                struct Thing* heartng = get_player_soul_container(secondPlayerIdx);
                 if (heartng->active_state != ObSt_BeingDestroyed)
                     goto continueouterloop;
             }
@@ -2246,7 +2246,7 @@ void check_players_won(void)
     continueouterloop:
         ;
     }
-    set_player_as_won_level(&game.players[playerIdx]);
+    set_player_as_won_level(curPlayer);
 }
 
 void check_players_lost(void)
