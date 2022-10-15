@@ -2905,11 +2905,6 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
     case ShM_FlameBreathe:
         if ((thing_is_invalid(target)) || (get_2d_distance(&firing->mappos, &pos2) > shotst->max_range))
           project_point_to_wall_on_angle(&pos1, &pos2, firing->move_angle_xy, firing->move_angle_z, 256, 4);
-        if (map_is_solid_at_height(pos2.x.stl.num, pos2.y.stl.num, pos2.z.val, (pos2.z.val + shotst->size_yz)))
-        {
-            pos2.x.val = firing->mappos.x.val;
-            pos2.y.val = firing->mappos.y.val;
-        }
         shotng = create_thing(&pos2, TCls_Shot, shot_model, firing->owner, -1);
         if (thing_is_invalid(shotng))
           return;
