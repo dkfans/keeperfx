@@ -57,6 +57,10 @@ long const imp_spangle_effects[] = {
     TngEff_ImpSpangleRed, TngEff_ImpSpangleBlue, TngEff_ImpSpangleGreen, TngEff_ImpSpangleYellow, TngEff_None, TngEff_None,
 };
 
+long const ball_puff_effects[] = {
+    TngEff_BallPuffRed, TngEff_BallPuffBlue, TngEff_BallPuffGreen, TngEff_BallPuffYellow, TngEff_BallPuffWhite, TngEff_BallPuffWhite,
+};
+
 /******************************************************************************/
 struct EffectsConfig effects_conf;
 struct NamedCommand effect_desc[EFFECTS_TYPES_MAX];
