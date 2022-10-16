@@ -1250,7 +1250,8 @@ static void move_creature_process(struct ScriptContext* context)
                 continue;
             }
 
-            if (!effect_id) {
+            if (effect_id < 0)
+            {
                 effect_id = ball_puff_effects[thing->owner];
             }
 
@@ -1262,8 +1263,11 @@ static void move_creature_process(struct ScriptContext* context)
             struct CreatureControl *cctrl;
             cctrl = creature_control_get_from_thing(thing);
 
-            create_effect(&thing->mappos, effect_id, game.neutral_player_num);
-            create_effect(&pos, effect_id, game.neutral_player_num);
+            if (effect_id > 0)
+            {
+                create_effect(&thing->mappos, effect_id, game.neutral_player_num);
+                create_effect(&pos, effect_id, game.neutral_player_num);
+            }
             move_thing_in_map(thing, &pos);
             reset_interpolation_of_thing(thing);
             initialise_thing_state(thing, CrSt_CreatureDoingNothing);
