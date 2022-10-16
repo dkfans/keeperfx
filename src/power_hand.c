@@ -1073,12 +1073,6 @@ void draw_mini_things_in_hand(long x, long y)
         spr = &gui_panel_sprites[164]; // Use dungeon special box as reference
         ps_units_per_px = calculate_relative_upp(46, units_per_pixel_ui, spr->SHeight);
     }
-    int bs_units_per_px;
-    {
-        struct TbSprite *spr;
-        spr = &button_sprite[GBS_creature_flower_level_01]; // Use creature flower level number as reference
-        bs_units_per_px = calculate_relative_upp(17, units_per_pixel_ui, spr->SHeight);
-    }
     unsigned long spr_idx;
     spr_idx = get_creature_model_graphics(get_players_special_digger_model(dungeon->owner), CGI_HandSymbol);
     if ((spr_idx > 0) && (spr_idx < GUI_PANEL_SPRITES_COUNT))
@@ -1111,18 +1105,25 @@ void draw_mini_things_in_hand(long x, long y)
             {
                 struct CreatureControl *cctrl;
                 cctrl = creature_control_get_from_thing(thing);
-                int expspr_idx;
-                expspr_idx = GBS_creature_flower_level_01 + cctrl->explevel;
+                int expspr_idx = GBS_creature_flower_level_01 + cctrl->explevel;
                 if (irow > 0)
                     shift_y = 40;
                 else
                     shift_y = 6;
                 scrpos_x = scrbase_x + scale_ui_value(16) * icol;
                 scrpos_y = scrbase_y + scale_ui_value(18) * irow;
-                // Draw exp level
-                draw_button_sprite_left(scrpos_x + expshift_x, scrpos_y + scale_ui_value(shift_y), bs_units_per_px, expspr_idx);
                 // Draw creature symbol
                 draw_gui_panel_sprite_left(scrpos_x, scrpos_y, ps_units_per_px, spr_idx);
+                if (MyScreenHeight < 400)
+                {
+                    char expshift_y = (irow == 1) ? 32 : -6;                   
+                    draw_button_sprite_left(scrpos_x, scrpos_y + scale_ui_value(expshift_y), ps_units_per_px, expspr_idx);
+                }
+                else
+                {
+                    // Draw exp level
+                    draw_button_sprite_left(scrpos_x + expshift_x, scrpos_y + scale_ui_value(shift_y), ps_units_per_px, expspr_idx);
+                }
             }
         } else
         if ((thing->class_id == TCls_Object) && object_is_gold_pile(thing))

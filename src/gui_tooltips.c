@@ -459,11 +459,24 @@ void draw_tooltip_slab64k(char *tttext, long pos_x, long pos_y, long ttwidth, lo
           y = MyScreenHeight - scale_ui_value(ttheight);
         if (tttext[0] != '\0')
         {
-            LbTextSetWindow(x, y, scale_ui_value_lofi(viswidth), scale_ui_value_lofi(ttheight));
             draw_slab64k(x, y, units_per_pixel_ui, scale_ui_value_lofi(viswidth), scale_ui_value_lofi(ttheight));
             lbDisplay.DrawFlags = 0;
-            int tx_units_per_px = calculate_relative_upp(22, units_per_pixel_ui, LbTextLineHeight());
-            LbTextDrawResized(scale_ui_value_lofi(render_tooltip_scroll_offset), -scale_ui_value_lofi(2), tx_units_per_px, tttext);
+            int tx_units_per_px, tx, ty;
+            if ( (MyScreenHeight < 400) && (dbc_language > 0) )
+            {
+                LbTextSetWindow(x, y, scale_ui_value(viswidth * 2), scale_ui_value(ttheight * 2));
+                tx_units_per_px = scale_value_by_horizontal_resolution(32);
+                tx = scale_ui_value(render_tooltip_scroll_offset * 2);
+                ty = -scale_ui_value(2);
+            }
+            else
+            {
+                LbTextSetWindow(x, y, scale_ui_value_lofi(viswidth), scale_ui_value_lofi(ttheight));
+                tx_units_per_px = calculate_relative_upp(22, units_per_pixel_ui, LbTextLineHeight());
+                tx = scale_ui_value_lofi(render_tooltip_scroll_offset);
+                ty = -scale_ui_value_lofi(2);
+            }
+            LbTextDrawResized(tx, ty, tx_units_per_px, tttext);
         }
     }
     LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenHeight/pixel_size, MyScreenWidth/pixel_size);

@@ -74,7 +74,7 @@ struct Thing *create_creature_at_entrance(struct Room * room, ThingModel crkind)
     if (room->owner != game.neutral_player_num)
     {
         struct Dungeon* dungeon = get_dungeon(room->owner);
-        dungeon->lvstats.field_4++;
+        dungeon->lvstats.creatures_attracted++;
         dungeon->lvstats.field_8++;
         dungeon->lvstats.field_88 = crkind;
     }

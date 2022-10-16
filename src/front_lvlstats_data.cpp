@@ -32,7 +32,7 @@ DLLIMPORT extern struct LevelStats _DK_frontstats_data;
 #define frontstats_data _DK_frontstats_data
 /******************************************************************************/
 struct StatsData main_stats_data[] = {
-    {1749, stat_return_c_slong, &frontstats_data.field_4},
+    {1749, stat_return_c_slong, &frontstats_data.creatures_attracted},
     {1743, stat_return_c_slong, &frontstats_data.average_room_efficiency},
     {1746, stat_return_c_slong, &frontstats_data.gameplay_time},
     {1747, stat_return_c_slong, &frontstats_data.player_style},

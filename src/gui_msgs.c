@@ -38,19 +38,20 @@ void message_draw(void)
 {
     SYNCDBG(7,"Starting");
     LbTextSetFont(winfont);
-    int tx_units_per_px = (22 * units_per_pixel) / LbTextLineHeight();
     int ps_units_per_px;
     {
         struct TbSprite* spr = &gui_panel_sprites[488];
         ps_units_per_px = (22 * units_per_pixel) / spr->SHeight;
     }
+    TbBool low_res = (MyScreenHeight < 400);
+    int tx_units_per_px = ( (low_res) && (dbc_language > 0) ) ? ps_units_per_px : (22 * units_per_pixel) / LbTextLineHeight();
     int h = LbTextLineHeight();
     long y = 28 * units_per_pixel / 16;
     if (game.armageddon_cast_turn != 0)
     {
         if ( (bonus_timer_enabled()) || (script_timer_enabled()) || display_variable_enabled() )
         {
-            y += h*units_per_pixel/16;
+            y += (h*units_per_pixel/16) << (unsigned char)low_res;
         }
     }
     for (int i = 0; i < game.active_messages_count; i++)
@@ -131,16 +132,16 @@ void message_draw(void)
             {
                 draw_gui_panel_sprite_left(x, y, ps_units_per_px, spr_idx);
             }
-            y += h*units_per_pixel/16;
+            y += (h*units_per_pixel/16) << (unsigned char)low_res;
             if (NotPlayer)
             {
                 if (IsCreature)
                 {
-                    y += (20 * units_per_pixel / 16);
+                    y += (20 * units_per_pixel / 16) << (unsigned char)low_res;
                 }
                 else if ( (IsCreatureSpell) || (IsRoom) || (IsKeeperSpell) || (IsQuery) )
                 {
-                    y += (10 * units_per_pixel / 16);
+                    y += (10 * units_per_pixel / 16) << (unsigned char)low_res;
                 }
             }
         }

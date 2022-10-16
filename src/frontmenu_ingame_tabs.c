@@ -1160,7 +1160,19 @@ void draw_centred_string64k(const char *text, short x, short y, short base_w, sh
     LbTextSetJustifyWindow((x - (dst_w / 2)), y, dst_w);
     LbTextSetClipWindow( (x - (dst_w / 2)), y, dst_w, 16*dst_w/base_w);
     lbDisplay.DrawFlags |= Lb_TEXT_HALIGN_CENTER;
-    LbTextDrawResized(0, -6*dst_w/base_w, (22 * units_per_pixel) / LbTextLineHeight(), text);
+    int tx_units_per_px;
+    int text_x;
+    if ( (MyScreenHeight < 400) && (dbc_language > 0) ) 
+    {
+        tx_units_per_px = scale_ui_value(32);
+        text_x = 12;
+    }
+    else
+    {
+        tx_units_per_px = (22 * units_per_pixel) / LbTextLineHeight();
+        text_x = 0;
+    }
+    LbTextDrawResized(text_x, -6*dst_w/base_w, tx_units_per_px, text);
     LbTextSetJustifyWindow(0, 0, LbGraphicsScreenWidth());
     LbTextSetClipWindow(0, 0, LbGraphicsScreenWidth(), LbGraphicsScreenHeight());
     LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
@@ -1620,7 +1632,7 @@ void gui_area_instance_button(struct GuiButton *gbtn)
     }
 
     // Calculating text size.
-    int tx_units_per_px = (gbtn->height * 11 / 12) * 16 / LbTextLineHeight();
+    int tx_units_per_px = ( (MyScreenHeight < 400) && (dbc_language > 0) ) ? scale_ui_value(32) : (gbtn->height * 11 / 12) * 16 / LbTextLineHeight();
     const char* text = buf_sprintf("%d", (curbtn_avail_pos + 1) % 10);
     LbTextDrawResized(gbtn->scr_pos_x + 52*units_per_px/16, gbtn->scr_pos_y + 9*units_per_px/16, tx_units_per_px, text);
     spr_idx = gbtn->sprite_idx;
@@ -1628,6 +1640,11 @@ void gui_area_instance_button(struct GuiButton *gbtn)
     long spkind = inst_inf->func_params[0];
     if (!creature_instance_has_reset(ctrltng, curbtn_inst_id) || ((spkind != 0) && thing_affected_by_spell(ctrltng, spkind)))
       spr_idx++;
+    if (MyScreenHeight < 400)
+    {
+        struct TbSprite* spr = &gui_panel_sprites[488];
+        ps_units_per_px = (22 * units_per_pixel) / spr->SHeight;
+    }
     draw_gui_panel_sprite_left(gbtn->scr_pos_x - 4*units_per_px/16, gbtn->scr_pos_y - 8*units_per_px/16, ps_units_per_px, spr_idx);
 }
 
@@ -1841,7 +1858,13 @@ void gui_area_stat_button(struct GuiButton *gbtn)
     if (thing->class_id == TCls_Creature)
     {
         const char* text = creature_statistic_text(thing, (long)gbtn->content);
-        draw_gui_panel_sprite_left(gbtn->scr_pos_x - 6*ps_units_per_px/16, gbtn->scr_pos_y - 12*ps_units_per_px/16, ps_units_per_px, gbtn->sprite_idx);
+        int x = gbtn->scr_pos_x - 6*ps_units_per_px/16;
+        int y = gbtn->scr_pos_y - 12*ps_units_per_px/16;
+        if (MyScreenHeight < 400)
+        {
+            y += (gbtn->height / 2);
+        }
+        draw_gui_panel_sprite_left(x, y, ps_units_per_px, gbtn->sprite_idx);
         draw_button_string(gbtn, 60, text);
     }
 }

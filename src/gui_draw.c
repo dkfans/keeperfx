@@ -27,6 +27,7 @@
 #include "bflib_vidraw.h"
 #include "bflib_sprfnt.h"
 #include "bflib_guibtns.h"
+#include "config_strings.h"
 
 #include "front_simple.h"
 #include "frontend.h"
@@ -462,8 +463,41 @@ void draw_button_string(struct GuiButton *gbtn, int base_width, const char *text
         lbDisplay.DrawColour = LbTextGetFontFaceColor();
         lbDisplayEx.ShadowColour = LbTextGetFontBackColor();
     }
-    LbTextSetJustifyWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width);
-    LbTextSetClipWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, gbtn->height);
+    TbBool low_res = ( (MyScreenHeight < 400) && (dbc_language > 0) );
+    int width = gbtn->width;
+    int x = gbtn->scr_pos_x;
+    if (low_res)
+    {
+        // TODO: Is there a better way of adjusting for East Asian text? This is ridiculous.
+        width += 32;
+        switch (gbtn->tooltip_stridx)
+        {
+            case GUIStr_PickCreatrIdleDesc:
+            case GUIStr_PickCreatrWorkingDesc:
+            case GUIStr_PickCreatrFightingDesc:
+            {
+                x -= gbtn->width;
+                break;
+            }
+            case GUIStr_MnuCancel:
+            {
+                x -= 12;
+                break;
+            }
+            case GUIStr_ExperienceDesc:
+            {
+                x -= 16;
+                break;
+            }
+            default:
+            {
+                x -= 8;
+                break;
+            }
+        }
+    }
+    LbTextSetJustifyWindow(x, gbtn->scr_pos_y, width);
+    LbTextSetClipWindow(x, gbtn->scr_pos_y, width, gbtn->height);
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;// | Lb_TEXT_UNDERLNSHADOW;
     if (cursor_pos >= 0) {
         // Mind the order, 'cause inserting makes positions shift
@@ -471,8 +505,15 @@ void draw_button_string(struct GuiButton *gbtn, int base_width, const char *text
         LbLocTextStringInsert(dtext, "\x0B", cursor_pos, TEXT_BUFFER_LENGTH);
     }
     int units_per_px = (gbtn->width * 16 + base_width / 2) / base_width;
-    int tx_units_per_px = units_per_px * 22 / LbTextLineHeight();
+    int tx_units_per_px = (units_per_px * 22 / LbTextLineHeight());
     unsigned long w = 4 * units_per_px / 16;
+    if (low_res)
+    {
+        if ( (gbtn->tooltip_stridx != GUIStr_PickCreatrIdleDesc) && (gbtn->tooltip_stridx != GUIStr_PickCreatrWorkingDesc) && (gbtn->tooltip_stridx != GUIStr_PickCreatrFightingDesc) )
+        {
+            tx_units_per_px += (units_per_px / 2);
+        }
+    }
     unsigned long h = (gbtn->height - text_string_height(tx_units_per_px, dtext)) / 2 - 3 * units_per_px / 16;
     LbTextDrawResized(w, h, tx_units_per_px, dtext);
     LbTextSetJustifyWindow(0, 0, LbGraphicsScreenWidth());
