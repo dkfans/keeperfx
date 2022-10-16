@@ -1022,6 +1022,10 @@ static void move_creature_check(const struct ScriptLine* scline)
             }
         }
     }
+    else
+    {
+        effct_id = -1;
+    }
     value->uarg0 = location;
     value->arg1 = select_id;
     value->shorts[4] = effct_id;
