@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "packets.h"
 
 #include "bflib_fileio.h"
@@ -24,7 +25,7 @@
 #include "game_legacy.h"
 #include "game_saves.h"
 #include "gui_topmsg.h"
-
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {

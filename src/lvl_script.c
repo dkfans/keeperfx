@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include <math.h>
 
 #include "lvl_script.h"
@@ -33,6 +34,7 @@
 #include "lvl_script_value.h"
 #include "lvl_script_commands_old.h"
 #include "lvl_script_commands.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {

@@ -17,10 +17,11 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-
+#include "pre_inc.h"
 #include "bflib_client_tcp.hpp"
 
 #include "globals.h"
+#include "post_inc.h"
 
 TCP_NetClient::TCP_NetClient(const char hostname[], ushort port) : TCP_NetBase()
 {

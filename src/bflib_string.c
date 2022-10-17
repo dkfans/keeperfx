@@ -17,12 +17,14 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "bflib_string.h"
 
 #include <string.h>
 #include <stdarg.h>
 #include <stdlib.h>
 #include "globals.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {

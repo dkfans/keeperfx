@@ -18,6 +18,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "bflib_video.h"
 
 #include "bflib_mouse.h"
@@ -27,6 +28,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_syswm.h>
 #include <math.h>
+#include "post_inc.h"
 
 #define SCREEN_MODES_COUNT 40
 

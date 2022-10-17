@@ -13,6 +13,7 @@
  * @author   KeeperFX Team
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "lvl_script_commands_old.h"
 
 #include <strings.h>
@@ -33,6 +34,7 @@
 #include "lvl_script_lib.h"
 #include "lvl_script_conditions.h"
 #include "lvl_script_commands.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {

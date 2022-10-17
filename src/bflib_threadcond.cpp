@@ -17,10 +17,11 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-
+#include "pre_inc.h"
 #include "bflib_threadcond.hpp"
 
 #include <cassert>
+#include "post_inc.h"
 
 ThreadCond::ThreadCond() :
 		mutex(SDL_CreateMutex()),

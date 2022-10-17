@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "vidmode.h"
 
 #include "globals.h"
@@ -47,6 +48,7 @@
 #include "keeperfx.hpp"
 #include "custom_sprites.h"
 #include "sprites.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {

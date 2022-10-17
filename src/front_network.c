@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "front_network.h"
 
 #include "globals.h"
@@ -43,6 +44,7 @@
 #include "config_strings.h"
 #include "game_merge.h"
 #include "game_legacy.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {

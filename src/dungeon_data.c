@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "dungeon_data.h"
 
 #include "globals.h"
@@ -23,6 +24,7 @@
 #include "bflib_memory.h"
 #include "config_terrain.h"
 #include "game_legacy.h"
+#include "post_inc.h"
 
 /******************************************************************************/
 struct Dungeon bad_dungeon;

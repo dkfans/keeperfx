@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "thing_effects.h"
 #include "globals.h"
 
@@ -41,6 +42,7 @@
 #include "engine_redraw.h"
 #include "keeperfx.hpp"
 #include "gui_soundmsgs.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {

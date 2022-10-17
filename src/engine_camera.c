@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "engine_camera.h"
 
 #include "globals.h"
@@ -35,6 +36,7 @@
 #include "config_settings.h"
 #include "player_instances.h"
 #include "frontmenu_ingame_map.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {

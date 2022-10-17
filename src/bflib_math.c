@@ -17,6 +17,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "bflib_math.h"
 
 #include "bflib_basics.h"
@@ -26,6 +27,8 @@
 #include "event_monitoring.h"
 
 #endif
+#include "post_inc.h"
+
 /******************************************************************************/
 unsigned short const lbSqrTable[] = {
    0x0001, 0x0002, 0x0002, 0x0004, 0x0005, 0x0008, 0x000B, 0x0010,

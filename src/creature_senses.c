@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "creature_senses.h"
 #include "globals.h"
 
@@ -32,6 +33,7 @@
 #include "config_settings.h"
 #include "map_blocks.h"
 #include "game_legacy.h"
+#include "post_inc.h"
 
 // Use values of 21 and below, otherwise you may need more rays to explore the entire distance
 const int CREATURE_EXPLORE_DISTANCE = 7;

@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "creature_groups.h"
 
 #include "globals.h"
@@ -32,6 +33,7 @@
 #include "room_jobs.h"
 #include "ariadne_wallhug.h"
 #include "game_legacy.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {

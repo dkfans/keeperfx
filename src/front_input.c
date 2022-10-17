@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "front_input.h"
 
 #include "globals.h"
@@ -71,6 +72,7 @@
 #include "KeeperSpeech.h"
 
 #include <math.h>
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
