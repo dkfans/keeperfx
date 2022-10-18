@@ -715,6 +715,23 @@ long process_obey_leader(struct Thing *thing)
             send_creature_to_room(thing, room, jobpref);
         }
         break;
+    case 3:
+        cctrl = creature_control_get_from_thing(thing);
+        leadctrl = creature_control_get_from_thing(leadtng);
+
+        struct Thing* obthing;
+        if ((leadctrl->combat.battle_enemy_idx > 0) && (cctrl->combat.battle_enemy_idx == 0))
+        {
+            obthing = thing_get(leadctrl->combat.battle_enemy_idx);
+            if (thing_is_deployed_door(obthing))
+            {
+                set_creature_door_combat(thing, obthing);
+            }
+        } else
+        if (thing->active_state != CrSt_CreatureFollowLeader) {
+            external_set_thing_state(thing, CrSt_CreatureFollowLeader);
+        }
+        break;
     default:
         break;
     }
