@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "frontend.h"
 
 #include <string.h>
@@ -89,6 +90,7 @@
 #include "music_player.h"
 #include "custom_sprites.h"
 #include "sprites.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {

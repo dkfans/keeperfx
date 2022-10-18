@@ -17,6 +17,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "bflib_sprfnt.h"
 
 #include <stdarg.h>
@@ -31,6 +32,7 @@
 //TODO: this breaks my convention - non-bflib call from bflib (used for asian fonts)
 #include "frontend.h"
 #include "front_credits.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {

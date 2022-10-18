@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "player_computer.h"
 
 #include <limits.h>
@@ -42,6 +43,7 @@
 #include "gui_soundmsgs.h"
 #include "game_legacy.h"
 #include "cursor_tag.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {

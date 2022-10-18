@@ -11,8 +11,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-
-
+#include "pre_inc.h"
 #include "lvl_script_commands.h"
 
 #include "lvl_script_conditions.h"
@@ -40,6 +39,7 @@
 #include "power_specials.h"
 #include "creature_states.h"
 #include "map_blocks.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {

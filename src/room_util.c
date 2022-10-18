@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "room_util.h"
 
 #include "globals.h"
@@ -40,6 +41,7 @@
 #include "keeperfx.hpp"
 #include "frontend.h"
 #include "math.h"
+#include "post_inc.h"
 
 /******************************************************************************/
 struct Thing *create_room_surrounding_flame(struct Room *room, const struct Coord3d *pos,

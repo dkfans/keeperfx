@@ -16,7 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-
+#include "pre_inc.h"
 #include "thing_data.h"
 #include "thing_list.h"
 #include "map_data.h"
@@ -36,6 +36,7 @@
 #include "room_util.h"
 
 #include "lvl_script_lib.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {

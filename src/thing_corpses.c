@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "thing_corpses.h"
 
 #include "globals.h"
@@ -39,6 +40,7 @@
 #include "gui_soundmsgs.h"
 #include "game_legacy.h"
 #include "keeperfx.hpp"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {

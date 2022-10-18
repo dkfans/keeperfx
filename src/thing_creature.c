@@ -16,7 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-
+#include "pre_inc.h"
 #include <assert.h>
 
 #include "thing_creature.h"
@@ -90,6 +90,7 @@
 #include "spdigger_stack.h"
 
 #include "keeperfx.hpp"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {

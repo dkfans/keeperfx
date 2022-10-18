@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "player_data.h"
 
 #include "globals.h"
@@ -30,6 +31,7 @@
 #include "frontend.h"
 #include "thing_objects.h"
 #include "power_hand.h"
+#include "post_inc.h"
 
 /******************************************************************************/
 /******************************************************************************/

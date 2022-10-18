@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "config_campaigns.h"
 
 #include "globals.h"
@@ -31,6 +32,7 @@
 #include "frontmenu_ingame_tabs.h"
 
 #include "game_merge.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {

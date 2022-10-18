@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "packets.h"
 
 #include "globals.h"
@@ -92,6 +93,7 @@
 #include "keeperfx.hpp"
 
 #include "music_player.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {

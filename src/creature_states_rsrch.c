@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "creature_states_rsrch.h"
 #include "globals.h"
 
@@ -38,6 +39,7 @@
 #include "room_library.h"
 #include "gui_soundmsgs.h"
 #include "game_legacy.h"
+#include "post_inc.h"
 
 /******************************************************************************/
 TbBool creature_can_do_research(const struct Thing *creatng)

@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "player_complookup.h"
 
 #include <limits.h>
@@ -30,6 +31,7 @@
 #include "game_legacy.h"
 #include "front_simple.h"
 #include "config_terrain.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {

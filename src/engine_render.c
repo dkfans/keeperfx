@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include <stddef.h>
 
 #include "engine_render.h"
@@ -57,6 +58,7 @@
 #include "player_states.h"
 #include "custom_sprites.h"
 #include "sprites.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {

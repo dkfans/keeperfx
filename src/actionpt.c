@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "actionpt.h"
 
 #include "globals.h"
@@ -25,6 +26,7 @@
 #include "power_hand.h"
 
 #include "game_legacy.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {

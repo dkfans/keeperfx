@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "slab_data.h"
 #include "globals.h"
 
@@ -30,6 +31,7 @@
 #include "game_legacy.h"
 #include "creature_states.h"
 #include "map_data.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {

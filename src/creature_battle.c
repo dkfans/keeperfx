@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "creature_battle.h"
 #include "globals.h"
 
@@ -33,6 +34,7 @@
 #include "thing_objects.h"
 #include "player_instances.h"
 #include "game_legacy.h"
+#include "post_inc.h"
 
 /******************************************************************************/
 /**

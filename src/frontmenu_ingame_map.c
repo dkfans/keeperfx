@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "frontmenu_ingame_map.h"
 
 #include "globals.h"
@@ -46,6 +47,7 @@
 #include "vidfade.h"
 #include "player_instances.h"
 #include "engine_render.h"
+#include "post_inc.h"
 
 /******************************************************************************/
 /**

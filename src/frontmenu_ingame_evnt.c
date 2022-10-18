@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "frontmenu_ingame_evnt.h"
 #include "globals.h"
 #include "bflib_basics.h"
@@ -43,6 +44,7 @@
 #include "sprites.h"
 
 #include "keeperfx.hpp"
+#include "post_inc.h"
 
 unsigned long TimerTurns = 0;
 
