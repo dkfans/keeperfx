@@ -3688,9 +3688,9 @@ FrontendMenuState get_startup_menu_state(void)
     { // If played real network game, then resulting screen isn't changed based on victory
         SYNCLOG("Network game summary state selected");
         if ((player->additional_flags & PlaAF_UnlockedLordTorture) != 0)
-        { // Player has tortured LOTL - go FeSt_TORTURE before any others
+        { // Player has won - go FeSt_TORTURE before any others
           player->additional_flags &= ~PlaAF_UnlockedLordTorture;
-          return FeSt_DRAG;
+          return FeSt_TORTURE;
         } else
         if ((player->flgfield_6 & PlaF6_PlyrHasQuit) == 0)
         {
