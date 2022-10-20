@@ -261,6 +261,16 @@ void interpolate_thing(struct Thing *thing, struct ThingAdd *thingadd)
         thingadd->interp_mappos.z.val = interpolate(thingadd->interp_mappos.z.val, thingadd->previous_mappos.z.val, thing->mappos.z.val);
         thingadd->interp_mappos.y.val = interpolate(thingadd->interp_mappos.y.val, thingadd->previous_mappos.y.val, thing->mappos.y.val);
         thingadd->interp_floor_height = interpolate(thingadd->interp_floor_height, thingadd->previous_floor_height, thing->floor_height);
+        
+        // Cancel interpolation if distance to interpolate is too far. This is a catch-all to solve any remaining interpolation bugs.
+        if ((abs(thingadd->interp_mappos.x.val-thing->mappos.x.val) >= 10000) ||
+            (abs(thingadd->interp_mappos.y.val-thing->mappos.y.val) >= 10000) ||
+            (abs(thingadd->interp_mappos.z.val-thing->mappos.z.val) >= 10000))
+        {
+            ERRORLOG("The %s index %d owned by player %d has been moved an unrealist distance, refusing interpolation.",thing_model_name(thing), (int)thing->index, (int)thing->owner);
+            thingadd->interp_mappos = thing->mappos;
+            thingadd->interp_floor_height = thing->floor_height;
+        }
     }
 }
 void interpolate_camera(struct Camera *cam)
