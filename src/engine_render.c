@@ -267,6 +267,7 @@ void interpolate_thing(struct Thing *thing, struct ThingAdd *thingadd)
             (abs(thingadd->interp_mappos.y.val-thing->mappos.y.val) >= 10000) ||
             (abs(thingadd->interp_mappos.z.val-thing->mappos.z.val) >= 10000))
         {
+            ERRORLOG("The %s index %d owned by player %d has been moved an unrealist distance, refusing interpolation.",thing_model_name(thing), (int)thing->index, (int)thing->owner);
             thingadd->interp_mappos = thing->mappos;
             thingadd->interp_floor_height = thing->floor_height;
         }
