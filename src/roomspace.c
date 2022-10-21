@@ -813,7 +813,7 @@ void get_dungeon_build_user_roomspace(struct RoomSpace *roomspace, PlayerNumber 
             best_roomspace.height = playeradd->roomspace_height;
             best_roomspace.render_roomspace_as_box = true;
     }
-    if ((playeradd->one_click_lock_cursor) && ((pckt->control_flags & PCtr_LBtnHeld) != 0) && (!best_roomspace.drag_mode))
+    if ((playeradd->one_click_lock_cursor) && ((pckt->control_flags & PCtr_LBtnHeld) != 0) && (!best_roomspace.drag_mode) && (mode != roomspace_detection_mode))
     {
         best_roomspace.is_roomspace_a_box = true;
     }
