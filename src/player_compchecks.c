@@ -507,8 +507,8 @@ long computer_check_no_imps(struct Computer2 *comp, struct ComputerCheck * check
         {
             if ((gameadd.computer_chat_flags & CChat_TasksScarce) != 0) {
                 struct PowerConfigStats* powerst = get_power_model_stats(PwrK_MKDIGGER);
-                struct CreatureData* crdata = creature_data_get(get_players_special_digger_model(dungeon->owner));
-                message_add_fmt(comp->dungeon->owner, "My %s count is only %d, casting %s!",get_string(crdata->namestr_idx),(int)controlled_diggers,get_string(powerst->name_stridx));
+                struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[get_players_special_digger_model(dungeon->owner)];
+                message_add_fmt(comp->dungeon->owner, "My %s count is only %d, casting %s!",get_string(crconf->namestr_idx),(int)controlled_diggers,get_string(powerst->name_stridx));
             }
             if (try_game_action(comp, dungeon->owner, GA_UseMkDigger, 0, stl_x, stl_y, 1, 1) > Lb_OK) {
                 return CTaskRet_Unk1;
