@@ -65,7 +65,7 @@ HVLOGBIN = bin/keeperfx_hvlog$(EXEEXT)
 # Names of intermediate build products
 GENSRC   = obj/ver_defs.h
 RES      = obj/keeperfx_stdres.res
-LIBS     = obj/libkeeperfx.a
+LIBS     = obj/libkeeperfx.a obj/enet.a
 
 DEPS = \
 obj/spng.o \
@@ -96,6 +96,7 @@ obj/bflib_cpu.o \
 obj/bflib_crash.o \
 obj/bflib_datetm.o \
 obj/bflib_dernc.o \
+obj/bflib_enet.o \
 obj/bflib_fileio.o \
 obj/bflib_filelst.o \
 obj/bflib_fmvids.o \
@@ -322,7 +323,9 @@ MAIN_OBJ = obj/main.o
 
 TESTS_OBJ = obj/tests/tst_main.o \
 obj/tests/tst_fixes.o \
-obj/tests/001_test.o
+obj/tests/001_test.o \
+obj/tests/tst_enet_server.o \
+obj/tests/tst_enet_client.o
 
 CU_DIR = deps/CUnit-2.1-3/CUnit
 CU_INC = -I"$(CU_DIR)/Headers"
@@ -334,11 +337,11 @@ CU_OBJS = \
 	obj/cu/Util.o
 
 # include and library directories
-LINKLIB =  -L"sdl/lib" -mwindows obj/libkeeperfx.a \
+LINKLIB =  -L"sdl/lib" -mwindows obj/libkeeperfx.a obj/enet.a \
 	-lwinmm -lmingw32 -limagehlp -lSDL2main -lSDL2 -lSDL2_mixer -lSDL2_net \
-	-L"deps/zlib" -lz
-INCS =  -I"sdl/include" -I"sdl/include/SDL2"
-CXXINCS =  -I"sdl/include" -I"sdl/include/SDL2"
+	-L"deps/zlib" -lz -lws2_32
+INCS =  -I"sdl/include" -I"sdl/include/SDL2" -I"deps/enet/include"
+CXXINCS =  $(INCS)
 
 STDOBJS   = $(subst obj/,obj/std/,$(OBJS))
 HVLOGOBJS = $(subst obj/,obj/hvlog/,$(OBJS))
@@ -451,7 +454,7 @@ heavylog: CFLAGS += $(HVLOGFLAGS)
 heavylog: hvlog-before $(HVLOGBIN) hvlog-after
 
 # not nice but necessary for make -j to work
-$(shell $(MKDIR) bin obj/std obj/hvlog obj/tests obj/cu obj/std/json obj/hvlog/json)
+$(shell $(MKDIR) bin obj/std obj/hvlog obj/tests obj/cu obj/std/json obj/hvlog/json obj/enet)
 std-before:
 hvlog-before:
 
@@ -588,6 +591,7 @@ libexterns: libexterns.mk
 
 clean-libexterns: libexterns.mk
 	-$(MAKE) -f libexterns.mk clean-libexterns
+	-$(MAKE) -f enet.mk clean
 	-cd deps/zlib && $(MAKE) -f win32/Makefile.gcc clean
 	-cd deps/zlib && git checkout Makefile zconf.h
 	-$(RM) libexterns
@@ -602,6 +606,9 @@ deps/zlib/configure.log:
 
 deps/zlib/libz.a: deps/zlib/configure.log
 	cd deps/zlib && $(MAKE) -f win32/Makefile.gcc PREFIX=$(CROSS_COMPILE) libz.a
+
+obj/enet.a:
+	$(MAKE) -f enet.mk PREFIX=$(CROSS_COMPILE) WARNFLAGS=$(WARNFLAGS) obj/enet.a
 
 include tool_peresec.mk
 include tool_png2ico.mk
