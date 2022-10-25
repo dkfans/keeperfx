@@ -17,6 +17,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "bflib_network.h"
 
 #include "bflib_basics.h"
@@ -35,6 +36,7 @@
 #include "net_game.h"
 #include "packets.h"
 #include "front_landview.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {

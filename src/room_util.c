@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "room_util.h"
 
 #include "globals.h"
@@ -40,6 +41,7 @@
 #include "keeperfx.hpp"
 #include "frontend.h"
 #include "math.h"
+#include "post_inc.h"
 
 /******************************************************************************/
 struct Thing *create_room_surrounding_flame(struct Room *room, const struct Coord3d *pos,
@@ -511,6 +513,7 @@ EventIndex update_cannot_find_room_of_role_wth_spare_capacity_event(PlayerNumber
         switch (rrole)
         {
         case RoRoF_LairStorage:
+        case RoRoF_CrHealSleep:
             // Find room with lair capacity
             {
                 struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);

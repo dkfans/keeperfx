@@ -17,9 +17,11 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "bflib_cpu.h"
 
 #include "bflib_basics.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -58,7 +60,7 @@ void cpu_detect(struct CPU_INFO *cpu)
 {
   static char const anonvendor[] = "AnonymousCPU";
   // Fill with defaults
-  strncpy(cpu->vendor,anonvendor,sizeof(cpu->vendor));
+  snprintf(cpu->vendor, sizeof(cpu->vendor), "%s", anonvendor);
   cpu->timeStampCounter = 0;
   cpu->feature_intl = 0;
   cpu->feature_edx = 0;

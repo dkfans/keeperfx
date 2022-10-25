@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "console_cmd.h"
 #include "globals.h"
 
@@ -64,6 +65,8 @@
 #include "thing_navigate.h"
 #include "thing_physics.h"
 #include "version.h"
+#include "frontmenu_ingame_map.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -357,6 +360,24 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
         }
         return true;
     }
+    else if (strcasecmp(parstr, "frametime") == 0 || strcasecmp(parstr, "ft") == 0)
+    {
+        if (debug_display_frametime == 1) { // If already displaying, then turn off
+            debug_display_frametime = 0;
+        } else {
+            debug_display_frametime = 1;
+        }
+        return true;
+    }
+    else if (strcasecmp(parstr, "frametime.max") == 0 || strcasecmp(parstr, "ft.max") == 0)
+    {
+        if (debug_display_frametime == 2) { // If already displaying, then turn off
+            debug_display_frametime = 0;
+        } else {
+            debug_display_frametime = 2;
+        }
+        return true;
+    }
     else if (strcasecmp(parstr, "quit") == 0)
     {
         quit_game = 1;
@@ -549,7 +570,51 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
         } else if (strcasecmp(parstr, "reveal") == 0)
         {
             player = get_player(plyr_idx);
-            reveal_whole_map(player);
+            int r = 0;
+            if (pr2str != NULL)
+            {
+                r = atol(pr2str);
+            }
+            if (r > 0)
+            {
+                int r2 = r / 2;
+                pckt = get_packet_direct(player->packet_num);
+                MapSubtlCoord stl_x = coord_subtile(((unsigned short) pckt->pos_x));
+                MapSubtlCoord stl_y = coord_subtile(((unsigned short) pckt->pos_y));
+                clear_dig_for_map_rect(player->id_number,
+                                       subtile_slab(stl_x - r2),
+                                       subtile_slab(stl_x + r - r2),
+                                       subtile_slab(stl_y - r2),
+                                       subtile_slab(stl_y + r - r2)
+                                       );
+                reveal_map_rect(player->id_number,stl_x - r2, stl_x + r - r2,stl_y - r2,stl_y + r - r2);
+                pannel_map_update(stl_x - r2, stl_x + r - r2,stl_y - r2,stl_y + r - r2);
+            }
+            else
+            {
+                reveal_whole_map(player);
+            }
+            return true;
+        } else if (strcasecmp(parstr, "conceal") == 0)
+        {
+            player = get_player(plyr_idx);
+            int r = 0;
+            if (pr2str != NULL)
+            {
+                r = atol(pr2str);
+            }
+            if (r > 0)
+            {
+                int r2 = r / 2;
+                pckt = get_packet_direct(player->packet_num);
+                MapSubtlCoord stl_x = coord_subtile(((unsigned short) pckt->pos_x));
+                MapSubtlCoord stl_y = coord_subtile(((unsigned short) pckt->pos_y));
+                conceal_map_area(player->id_number, stl_x - r2, stl_x + r - r2,stl_y - r2,stl_y + r - r2, false);
+            }
+            else
+            {
+                conceal_map_area(player->id_number, 0, map_subtiles_x - 1, 0, map_subtiles_y - 1, false);
+            }
             return true;
         } else if (strcasecmp(parstr, "comp.kill") == 0)
         {

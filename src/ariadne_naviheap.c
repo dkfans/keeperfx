@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "ariadne_naviheap.h"
 
 #include "globals.h"
@@ -23,6 +24,7 @@
 #include "ariadne_tringls.h"
 #include "ariadne_navitree.h"
 #include "gui_topmsg.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {

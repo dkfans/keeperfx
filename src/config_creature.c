@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "config_creature.h"
 #include "globals.h"
 
@@ -40,6 +41,7 @@
 #include "engine_arrays.h"
 #include "game_legacy.h"
 #include "custom_sprites.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -90,6 +92,7 @@ const struct NamedCommand creaturetype_instance_commands[] = {
   {"RANGEMAX",       14},
   {"PROPERTIES",     15},
   {"FPINSTANTCAST",  16},
+  {"PRIMARYTARGET",  17},
   {NULL,              0},
   };
 
@@ -342,10 +345,9 @@ void check_and_auto_fix_stats(void)
     for (long model = 0; model < gameadd.crtr_conf.model_count; model++)
     {
         struct CreatureStats* crstat = creature_stats_get(model);
-        if ( (crstat->lair_size <= 0) && (crstat->heal_requirement != 0) )
+        if ( (crstat->lair_size <= 0) && (crstat->toking_recovery <= 0) && (crstat->heal_requirement != 0) )
         {
-            ERRORLOG("Creature model %d No LairSize But Heal Requirment - Fixing", (int)model);
-            crstat->heal_threshold = 0;
+            ERRORLOG("Creature model %d has no LairSize and no TokingRecovery but has HealRequirment - Fixing", (int)model);
             crstat->heal_requirement = 0;
         }
         if (crstat->heal_requirement > crstat->heal_threshold)
@@ -1212,6 +1214,19 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
                     COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
+        case 17: // PRIMARYTARGET
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                inst_inf->primary_target = k;
+                n++;
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), block_buf, config_textname);
+            }
+            break;
         case 0: // comment
             break;
         case -1: // end of buffer
@@ -1658,12 +1673,6 @@ TbBool load_creaturetypes_config_file(const char *textname, const char *fname, u
     {
         if ((flags & CnfLd_IgnoreErrors) == 0)
             WARNMSG("The %s file \"%s\" doesn't exist or is too small.",textname,fname);
-        return false;
-    }
-    if (len > MAX_CONFIG_FILE_SIZE)
-    {
-        if ((flags & CnfLd_IgnoreErrors) == 0)
-            WARNMSG("The %s file \"%s\" is too large.",textname,fname);
         return false;
     }
     char* buf = (char*)LbMemoryAlloc(len + 256);

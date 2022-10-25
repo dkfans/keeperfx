@@ -16,12 +16,14 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "config_objects.h"
 #include "globals.h"
 
 #include "bflib_basics.h"
 #include "bflib_memory.h"
 #include "bflib_dernc.h"
+#include "bflib_sound.h"
 
 #include "config.h"
 #include "config_creature.h"
@@ -29,6 +31,7 @@
 #include "custom_sprites.h"
 #include "thing_objects.h"
 #include "game_legacy.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -60,6 +63,7 @@ const struct NamedCommand objects_object_commands[] = {
   {"LIGHTRADIUS",      16},
   {"LIGHTISDYNAMIC",   17},
   {"MAPICON",          18},
+  {"AMBIENCESOUND",    19},
   {NULL,                0},
   };
 
@@ -245,7 +249,7 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                 if (gameadd.object_conf.object_types_count == OBJECT_TYPES_MAX - 1)
                 {
                     gameadd.object_conf.object_types_count = tmodel;
-                    JUSTMSG("Loaded %d object types", gameadd.object_conf.object_types_count);
+                    JUSTMSG("Loaded %d object types from %s", gameadd.object_conf.object_types_count, config_textname);
                     break;
                 }
                 WARNMSG("Block [%s] not found in %s file.", block_buf, config_textname);
@@ -256,7 +260,7 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                 if (tmodel > gameadd.object_conf.object_types_count)
                 {
                     gameadd.object_conf.object_types_count = tmodel;
-                    JUSTMSG("Extended to %d object types", gameadd.object_conf.object_types_count);
+                    JUSTMSG("Extended to %d object types from %s", gameadd.object_conf.object_types_count, config_textname);
                     break;
                 }
             }
@@ -531,6 +535,22 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                     CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
                         COMMAND_TEXT(cmd_num), block_buf, config_textname);
                 }
+                break;
+            case 19: // AMBIENCESOUND
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    n = atoi(word_buf);
+                    if ( (!SoundDisabled) && ( (n < 0) || (n > (samples_in_bank - 1)) ) )
+                    {
+                        CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                    }
+                    else
+                    {
+                        objdat->fp_smpl_idx = n;
+                    }
+                }
+                break;
             case 0: // comment
                 break;
             case -1: // end of buffer
@@ -559,12 +579,6 @@ TbBool load_objects_config_file(const char *textname, const char *fname, unsigne
     {
         if ((flags & CnfLd_IgnoreErrors) == 0)
             WARNMSG("The %s file \"%s\" doesn't exist or is too small.",textname,fname);
-        return false;
-    }
-    if (len > MAX_CONFIG_FILE_SIZE)
-    {
-        if ((flags & CnfLd_IgnoreErrors) == 0)
-            WARNMSG("The %s file \"%s\" is too large.",textname,fname);
         return false;
     }
     char* buf = (char*)LbMemoryAlloc(len + 256);

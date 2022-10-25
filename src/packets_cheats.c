@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "packets.h"
 #include "player_data.h"
 #include "player_states.h"
@@ -43,6 +44,7 @@
 #include "front_input.h"
 #include "bflib_math.h"
 #include "gui_topmsg.h"
+#include "post_inc.h"
 
 extern void clear_input(struct Packet* packet);
 
@@ -547,7 +549,7 @@ TbBool packets_process_cheats(
             set_packet_action(pckt, PckA_CheatHeartHealth, playeradd->cheatselection.chosen_player, new_health, 0, 0);
         }
         break;
-        case PSt_CreatrQueryAll:
+        case PSt_QueryAll:
         case PSt_CreatrInfoAll:
             *influence_own_creatures = 1;
             thing = get_creature_near(x, y);

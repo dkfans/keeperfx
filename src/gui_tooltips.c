@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "gui_tooltips.h"
 #include "globals.h"
 #include <stdarg.h>
@@ -42,6 +43,7 @@
 #include "config_settings.h"
 #include "game_legacy.h"
 #include "keeperfx.hpp"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -55,11 +57,13 @@ const char jtytext[] = "Jonty here   : ...I am writing this at 4am on Keepers la
     "and the little one, Crofty, Scooper, Jason Stanton [a cup of coffee], Aaron Senna, Mike Dorell, Ian Howie, Helen Thain, Alex Forest-Hay, Lee Hazelwood, Vicky Arnold, Guy Simmons, Shin, Val Taylor.... If I forgot you I am sorry... but sleep is due to me... and I have a dream to live...";
 
 /******************************************************************************/
+float render_tooltip_scroll_offset; // Rendering float
+float render_tooltip_scroll_timer; // Rendering float
 
 static inline void reset_scrolling_tooltip(void)
 {
-    tooltip_scroll_offset = 0;
-    tooltip_scroll_timer = 25;
+    render_tooltip_scroll_offset = 0;
+    render_tooltip_scroll_timer = 25.0;
     set_flag_byte(&tool_tip_box.flags,TTip_NeedReset,false);
 }
 
@@ -75,7 +79,7 @@ void set_gui_tooltip_box_fmt(int bxtype,const char *format, ...)
       long y_offset = scale_ui_value(86);
       tool_tip_box.pos_y = GetMouseY() + y_offset;
   }
-  tool_tip_box.field_809 = bxtype;
+  tool_tip_box.box_type = bxtype;
 }
 
 static inline TbBool update_gui_tooltip_target(void *target)
@@ -105,7 +109,7 @@ static inline TbBool update_gui_tooltip_button(struct GuiButton *gbtn)
         tool_tip_box.pos_x = GetMouseX();
         long y_offset = scale_ui_value(86);
         tool_tip_box.pos_y = GetMouseY() + y_offset;
-        tool_tip_box.field_809 = 0;
+        tool_tip_box.box_type = 0;
         return true;
     }
     return false;
@@ -425,17 +429,17 @@ void draw_tooltip_slab64k(char *tttext, long pos_x, long pos_y, long ttwidth, lo
     unsigned int flg_mem = lbDisplay.DrawFlags;
     if (ttwidth > viswidth)
     {
-        if (tooltip_scroll_timer <= 0)
+        if (render_tooltip_scroll_timer <= 0)
         {
-            if (-ttwidth >= tooltip_scroll_offset)
-              tooltip_scroll_offset = viswidth;
+            if (-ttwidth >= render_tooltip_scroll_offset)
+              render_tooltip_scroll_offset = viswidth;
             else
-              tooltip_scroll_offset -= 4;
+              render_tooltip_scroll_offset -= 4.0 * gameadd.delta_time;
         } else
         {
-            tooltip_scroll_timer--;
-            if (tooltip_scroll_timer < 0)
-              tooltip_scroll_offset = 0;
+            render_tooltip_scroll_timer -= 1.0 * gameadd.delta_time;
+            if (render_tooltip_scroll_timer < 0)
+              render_tooltip_scroll_offset = 0;
         }
     }
     if (tttext != NULL)
@@ -457,11 +461,24 @@ void draw_tooltip_slab64k(char *tttext, long pos_x, long pos_y, long ttwidth, lo
           y = MyScreenHeight - scale_ui_value(ttheight);
         if (tttext[0] != '\0')
         {
-            LbTextSetWindow(x, y, scale_ui_value_lofi(viswidth), scale_ui_value_lofi(ttheight));
             draw_slab64k(x, y, units_per_pixel_ui, scale_ui_value_lofi(viswidth), scale_ui_value_lofi(ttheight));
             lbDisplay.DrawFlags = 0;
-            int tx_units_per_px = calculate_relative_upp(22, units_per_pixel_ui, LbTextLineHeight());
-            LbTextDrawResized(scale_ui_value_lofi(tooltip_scroll_offset), -scale_ui_value_lofi(2), tx_units_per_px, tttext);
+            int tx_units_per_px, tx, ty;
+            if ( (MyScreenHeight < 400) && (dbc_language > 0) )
+            {
+                LbTextSetWindow(x, y, scale_ui_value(viswidth * 2), scale_ui_value(ttheight * 2));
+                tx_units_per_px = scale_value_by_horizontal_resolution(32);
+                tx = scale_ui_value(render_tooltip_scroll_offset * 2);
+                ty = -scale_ui_value(2);
+            }
+            else
+            {
+                LbTextSetWindow(x, y, scale_ui_value_lofi(viswidth), scale_ui_value_lofi(ttheight));
+                tx_units_per_px = calculate_relative_upp(22, units_per_pixel_ui, LbTextLineHeight());
+                tx = scale_ui_value_lofi(render_tooltip_scroll_offset);
+                ty = -scale_ui_value_lofi(2);
+            }
+            LbTextDrawResized(tx, ty, tx_units_per_px, tttext);
         }
     }
     LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenHeight/pixel_size, MyScreenWidth/pixel_size);
@@ -488,7 +505,7 @@ long find_string_width_to_first_character(char *str, char fch)
     WARNLOG("This bloody tooltip is too long");
     len = sizeof(text)-1;
   }
-  strncpy(text, str, len);
+  snprintf(text, len, "%s", str);
   text[len] = '\0';
   return pixel_size * LbTextStringWidth(text);
 }
@@ -551,10 +568,14 @@ void draw_tooltip(void)
     LbTextSetFont(winfont);
     if ((tool_tip_box.flags & TTip_Visible) != 0)
     {
+      if (tool_tip_box.box_type != 0) {
+          tool_tip_box.pos_x = GetMouseX();
+          long y_offset = scale_ui_value(86);
+          tool_tip_box.pos_y = GetMouseY() + y_offset;
+        }
         draw_tooltip_at(tool_tip_box.pos_x,tool_tip_box.pos_y,tool_tip_box.text);
     }
     LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
-    set_flag_byte(&tool_tip_box.flags,TTip_Visible,false);
 }
 
 /******************************************************************************/

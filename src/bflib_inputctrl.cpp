@@ -18,6 +18,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include <map>
 #include "bflib_inputctrl.h"
 #include "bflib_basics.h"
@@ -30,6 +31,7 @@
 #include "sounds.h"
 #include "game_legacy.h" // needed for paused and possession_mode below - maybe there is a neater way than this...
 #include <SDL2/SDL.h>
+#include "post_inc.h"
 
 using namespace std;
 

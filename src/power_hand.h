@@ -33,6 +33,8 @@ struct Thing;
 struct PlayerInfo;
 struct Dungeon;
 
+#define HAND_RULE_SLOTS_COUNT 8
+
 #pragma pack()
 /******************************************************************************/
 void add_creature_to_sacrifice_list(PlayerNumber owner, long model, long explevel);
@@ -40,9 +42,8 @@ void place_thing_in_limbo(struct Thing *thing);
 void remove_thing_from_limbo(struct Thing *thing);
 unsigned long object_is_pickable_by_hand_for_use(const struct Thing *thing, long a2);
 TbBool thing_is_pickable_by_hand(struct PlayerInfo *player, const struct Thing *thing);
-void set_power_hand_offset(struct PlayerInfo *player, struct Thing *thing);
 struct Thing *process_object_being_picked_up(struct Thing *thing, long a2);
-void set_power_hand_graphic(long a1, long a2, long a3);
+void set_power_hand_graphic(unsigned char plyr_idx, long AnimationID, long AnimationSpeed);
 TbBool power_hand_is_empty(const struct PlayerInfo *player);
 TbBool power_hand_is_full(const struct PlayerInfo *player);
 struct Thing *get_first_thing_in_power_hand(struct PlayerInfo *player);
@@ -80,6 +81,41 @@ TbBool is_dangerous_drop_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 short can_place_thing_here(struct Thing *thing, long x, long y, long dngn_idx);
 TbBool can_drop_thing_here(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, unsigned long allow_unclaimed);
 TbBool armageddon_blocks_creature_pickup(const struct Thing *thing, PlayerNumber plyr_idx);
+TbBool thing_pickup_is_blocked_by_hand_rule(const struct Thing *thing_to_pick, PlayerNumber plyr_idx);
+
+enum HandRuleType {
+    // hand_rule_test_fns are indexed by these enum values -> reordering or adding new types affects test_fns
+    HandRule_Unset,
+    HandRule_Always,
+    HandRule_AgeLower,
+    HandRule_AgeHigher,
+    HandRule_LvlLower,
+    HandRule_LvlHigher,
+    HandRule_AtActionPoint,
+    HandRule_AffectedBy,
+    HandRule_Wandering,
+    HandRule_Working,
+    HandRule_Fighting,
+};
+
+enum HandRuleAction {
+    HandRuleAction_Deny,
+    HandRuleAction_Allow,
+    HandRuleAction_Enable,
+    HandRuleAction_Disable,
+};
+
+struct HandRule {
+    char type;
+    char enabled;
+    char allow; // allow: 1, deny: 0
+    long param;
+};
+
+TbBool eval_hand_rule_for_thing(struct HandRule *rule, const struct Thing *thing_to_pick);
+typedef TbBool (*HandTestFn) (struct HandRule *rule, const struct Thing *thing);
+#define HAND_RULE(body) ( {TbBool anon(struct HandRule *hand_rule, const struct Thing *thing) body; &anon; })
+
 /******************************************************************************/
 #ifdef __cplusplus
 }
