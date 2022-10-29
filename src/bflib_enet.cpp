@@ -31,7 +31,11 @@ namespace
     NetDropCallback g_drop_callback = nullptr;
     ENetHost *host = nullptr;
     ENetPeer *client_peer = nullptr;
-    ENetPacket *last_packet = nullptr;
+
+    // List
+    ENetPacket *oldest_packet = nullptr;
+    ENetPacket *newest_packet = nullptr;
+    int incoming_queue_size = 0;
 
     TbError bf_enet_init(NetDropCallback drop_callback)
     {
@@ -43,10 +47,18 @@ namespace
 
     void host_destroy()
     {
-        if (last_packet)
+        if (oldest_packet)
         {
-            enet_packet_destroy(last_packet);
-            last_packet = nullptr;
+            for (ENetPacket *p = oldest_packet; p != nullptr;)
+            {
+                ENetPacket *pp = p;
+                p = static_cast<ENetPacket *>(p->userData);
+                enet_packet_destroy(pp);
+            }
+
+            oldest_packet = nullptr;
+            newest_packet = nullptr;
+            incoming_queue_size = 0;
         }
         if (client_peer)
         {
@@ -181,13 +193,24 @@ namespace
                     g_drop_callback(user_id, NETDROP_ERROR);
                     break;
                 case ENET_EVENT_TYPE_RECEIVE:
-                    if (last_packet != nullptr)
+                    if (oldest_packet == nullptr)
                     {
-                        fprintf(stderr, "Repeated packet\n");
-                        ERRORLOG("Repeated packet");
-                        enet_packet_destroy(last_packet);
+                        newest_packet = ev.packet;
+                        oldest_packet = newest_packet;
+                        incoming_queue_size = 1;
                     }
-                    last_packet = ev.packet;
+                    else
+                    {
+                        newest_packet->userData = ev.packet;
+                        newest_packet = ev.packet;
+                        newest_packet->userData = nullptr;
+                        incoming_queue_size +=1;
+                        if (incoming_queue_size > 50)
+                        {
+                            fprintf(stderr, "Too many packets %d\n", incoming_queue_size);
+                            WARNLOG("Too many packets %d", incoming_queue_size);
+                        }
+                    }
                     return 1;
                 case ENET_EVENT_TYPE_NONE:
                     break;
@@ -266,14 +289,17 @@ namespace
     size_t bf_enet_readmsg(NetUserId source, char *buffer, size_t max_size)
     {
         size_t sz;
-        while (!last_packet)
+        while (!oldest_packet)
         {
             bf_enet_read_event(not_expected_user);
         }
-        sz = min(last_packet->dataLength, max_size);
-        memcpy(buffer, last_packet->data, sz);
-        enet_packet_destroy(last_packet);
-        last_packet = nullptr;
+        ENetPacket *packet = oldest_packet;
+        oldest_packet = static_cast<ENetPacket *>(oldest_packet->userData);
+        incoming_queue_size--;
+
+        sz = min(packet->dataLength, max_size);
+        memcpy(buffer, packet->data, sz);
+        enet_packet_destroy(packet);
         return sz;
     }
 
@@ -290,9 +316,9 @@ namespace
      */
     size_t bf_enet_msgready(NetUserId source, unsigned timeout)
     {
-        if (!last_packet)
+        if ((!oldest_packet) && timeout > 0)
             bf_enet_read_event(not_expected_user);
-        return last_packet? last_packet->dataLength : 0;
+        return oldest_packet? oldest_packet->dataLength : 0;
     }
 
     /**
