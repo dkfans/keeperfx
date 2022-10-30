@@ -4726,6 +4726,7 @@ long process_creature_needs_a_wage(struct Thing *creatng, const struct CreatureS
     if (!can_change_from_state_to(creatng, creatng->active_state, CrSt_CreatureWantsSalary)) {
         return 0;
     }
+    cctrl->collided_door_subtile = 0;
     struct Room* room = find_nearest_room_of_role_for_thing_with_used_capacity(creatng, creatng->owner, RoRoF_GoldStorage, NavRtF_Default, 1);
     if (!room_is_invalid(room))
     {
