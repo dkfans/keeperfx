@@ -1140,7 +1140,7 @@ void reapply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long spe
         break;
     case SplK_Chicken:
         external_set_thing_state(thing, CrSt_CreatureChangeToChicken);
-        cctrl->countdown_282 = 10;
+        cctrl->countdown_282 = 2;
         pwrdynst = get_power_dynamic_stats(PwrK_CHICKEN);
         cspell->duration = pwrdynst->strength[spell_lev];
         break;
