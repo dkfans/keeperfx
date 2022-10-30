@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "player_utils.h"
 
 #include "globals.h"
@@ -52,6 +53,7 @@
 #include "frontmenu_ingame_map.h"
 #include "keeperfx.hpp"
 #include "kjm_input.h"
+#include "post_inc.h"
 
 /******************************************************************************/
 /******************************************************************************/

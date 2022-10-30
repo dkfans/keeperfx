@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "front_highscore.h"
 #include "globals.h"
 #include "bflib_basics.h"
@@ -35,6 +36,7 @@
 #include "dungeon_data.h"
 #include "game_merge.h"
 #include "sprites.h"
+#include "post_inc.h"
 
 /******************************************************************************/
 void draw_high_score_entry(int idx, long pos_x, long pos_y, int col1_width, int col2_width, int col3_width, int col4_width, int units_per_px)

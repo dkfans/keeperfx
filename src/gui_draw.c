@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "gui_draw.h"
 
 #include "globals.h"
@@ -33,6 +34,7 @@
 #include "frontend.h"
 #include "custom_sprites.h"
 #include "sprites.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {

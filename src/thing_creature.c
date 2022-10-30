@@ -16,7 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-
+#include "pre_inc.h"
 #include <assert.h>
 
 #include "thing_creature.h"
@@ -90,6 +90,7 @@
 #include "spdigger_stack.h"
 
 #include "keeperfx.hpp"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -1139,7 +1140,7 @@ void reapply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long spe
         break;
     case SplK_Chicken:
         external_set_thing_state(thing, CrSt_CreatureChangeToChicken);
-        cctrl->countdown_282 = 10;
+        cctrl->countdown_282 = 2;
         pwrdynst = get_power_dynamic_stats(PwrK_CHICKEN);
         cspell->duration = pwrdynst->strength[spell_lev];
         break;
@@ -4362,7 +4363,7 @@ struct Thing *find_players_highest_score_creature_in_fight_not_affected_by_spell
     struct CompoundTngFilterParam param;
     param.plyr_idx = -1;
     param.class_id = 0;
-    param.model_id = 0;
+    param.model_id = CREATURE_ANY;
     param.num1 = pwkind;
     Thing_Maximizer_Filter filter = player_list_creature_filter_in_fight_and_not_affected_by_spell;
     struct Thing* creatng = get_player_list_creature_with_filter(dungeon->creatr_list_start, filter, &param);

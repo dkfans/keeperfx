@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "map_blocks.h"
 
 #include "globals.h"
@@ -40,6 +41,7 @@
 #include "engine_render.h"
 #include "thing_navigate.h"
 #include "thing_physics.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {

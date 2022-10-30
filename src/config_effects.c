@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "config_effects.h"
 #include "globals.h"
 
@@ -28,6 +29,7 @@
 #include "config_strings.h"
 #include "thing_effects.h"
 #include "game_legacy.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {

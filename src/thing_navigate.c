@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "thing_navigate.h"
 #include "globals.h"
 
@@ -36,6 +37,7 @@
 #include "dungeon_data.h"
 #include "ariadne.h"
 #include "game_legacy.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {

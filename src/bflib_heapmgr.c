@@ -17,10 +17,12 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "bflib_heapmgr.h"
 
 #include "bflib_basics.h"
 #include "bflib_memory.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {

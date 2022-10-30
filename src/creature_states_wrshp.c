@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "creature_states_wrshp.h"
 #include "globals.h"
 
@@ -41,6 +42,7 @@
 
 #include "game_legacy.h"
 #include "keeperfx.hpp"
+#include "post_inc.h"
 
 /******************************************************************************/
 TbBool creature_can_do_manufacturing(const struct Thing *creatng)

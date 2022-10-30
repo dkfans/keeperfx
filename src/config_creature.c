@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "config_creature.h"
 #include "globals.h"
 
@@ -40,6 +41,7 @@
 #include "engine_arrays.h"
 #include "game_legacy.h"
 #include "custom_sprites.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -1838,8 +1840,8 @@ const char *creature_own_name(const struct Thing *creatng)
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     char *text;
     if ((get_creature_model_flags(creatng) & CMF_OneOfKind) != 0) {
-        struct CreatureData* crdata = creature_data_get_from_thing(creatng);
-        text = buf_sprintf("%s",get_string(crdata->namestr_idx));
+        struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[creatng->model];
+        text = buf_sprintf("%s",get_string(crconf->namestr_idx));
         return text;
     }
     const char ** starts;

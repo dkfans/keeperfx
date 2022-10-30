@@ -17,6 +17,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "bflib_guibtns.h"
 
 #include <string.h>
@@ -28,6 +29,7 @@
 #include "bflib_string.h"
 #include "bflib_sound.h"
 #include "bflib_keybrd.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {

@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "magic.h"
 
 #include "globals.h"
@@ -58,6 +59,7 @@
 #include "sounds.h"
 #include "game_legacy.h"
 #include "creature_instances.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {

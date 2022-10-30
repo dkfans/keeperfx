@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "thing_list.h"
 
 #include "bflib_basics.h"
@@ -46,6 +47,7 @@
 #include "game_legacy.h"
 #include "keeperfx.hpp"
 #include "bflib_planar.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {

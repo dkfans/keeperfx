@@ -11,7 +11,7 @@
  * @author   KeeperFX Team
  */
 /******************************************************************************/
-
+#include "pre_inc.h"
 #include "lvl_script_lib.h"
 #include "lvl_script_conditions.h"
 #include "lvl_script_commands.h"
@@ -23,6 +23,7 @@
 #include "dungeon_data.h"
 #include "lvl_filesdk1.h"
 #include "creature_states_pray.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {

@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "frontmenu_saves.h"
 #include "globals.h"
 #include "bflib_basics.h"
@@ -36,6 +37,7 @@
 #include "kjm_input.h"
 #include "sprites.h"
 #include "keeperfx.hpp"
+#include "post_inc.h"
 
 /******************************************************************************/
 int frontend_load_game_button_to_index(struct GuiButton *gbtn)

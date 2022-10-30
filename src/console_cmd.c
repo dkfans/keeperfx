@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "console_cmd.h"
 #include "globals.h"
 
@@ -65,6 +66,7 @@
 #include "thing_physics.h"
 #include "version.h"
 #include "frontmenu_ingame_map.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {

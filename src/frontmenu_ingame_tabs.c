@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "frontmenu_ingame_tabs.h"
 #include "globals.h"
 #include "bflib_basics.h"
@@ -62,6 +63,7 @@
 #include "kjm_input.h"
 #include "custom_sprites.h"
 #include "sprites.h"
+#include "post_inc.h"
 
 struct Around const draw_square[] = {
 { 0, 0},
