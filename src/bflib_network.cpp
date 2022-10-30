@@ -1318,7 +1318,7 @@ TbError LbNetwork_EnumerateServices(TbNetworkCallbackFunc callback, void *ptr)
 {
 //  TbBool local_init;
 
-  struct TbNetworkCallbackData netcdat;
+  struct TbNetworkCallbackData netcdat = {};
 
   SYNCDBG(7, "Starting");
 
@@ -1364,7 +1364,7 @@ TbError LbNetwork_EnumerateServices(TbNetworkCallbackFunc callback, void *ptr)
  */
 TbError LbNetwork_EnumeratePlayers(struct TbNetworkSessionNameEntry *sesn, TbNetworkCallbackFunc callback, void *buf)
 {
-    TbNetworkCallbackData data;
+    TbNetworkCallbackData data = {};
     NetUserId id;
 
     SYNCDBG(9, "Starting");
@@ -1635,7 +1635,7 @@ TbError GenericModemInit(void *init_data)
     WARNLOG("Failure on SP construction");
     return Lb_FAIL;
   }
-  if (spPtr->Init(&receiveCallbacks, 0) != Lb_OK)
+  if (spPtr->Init(&receiveCallbacks, nullptr) != Lb_OK)
   {
     WARNLOG("Failure on SP::Init()");
     return Lb_FAIL;
@@ -1657,7 +1657,7 @@ TbError GenericIPXInit(void *init_data)
     WARNLOG("Failure on SP construction");
     return Lb_FAIL;
   }
-  if (spPtr->Init(&receiveCallbacks, 0) != Lb_OK)
+  if (spPtr->Init(&receiveCallbacks, nullptr) != Lb_OK)
   {
     WARNLOG("Failure on SP::Init()");
     return Lb_FAIL;

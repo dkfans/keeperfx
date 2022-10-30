@@ -164,7 +164,10 @@ namespace
         return Lb_OK;
     }
 
-    int bf_enet_read_event(NetNewUserCallback new_user)
+    /*
+     * @returns -1 if error, +1 if there is a packet, 0 if timeoout or no events
+     */
+    int bf_enet_read_event(NetNewUserCallback new_user, uint timeout)
     {
         ENetEvent ev;
         int ret;
@@ -173,7 +176,7 @@ namespace
         {
             return -1;
         }
-        if ((ret = enet_host_service(host, &ev, 0)) != 0)
+        if ((ret = enet_host_service(host, &ev, timeout)) != 0)
         {
             if (ret < 0)
             {
@@ -225,7 +228,7 @@ namespace
      */
     void bf_enet_update(NetNewUserCallback new_user)
     {
-        while (bf_enet_read_event(new_user))
+        while (bf_enet_read_event(new_user, 0))
         {
             // Loop
         }
@@ -291,7 +294,7 @@ namespace
         size_t sz;
         while (!oldest_packet)
         {
-            bf_enet_read_event(not_expected_user);
+            bf_enet_read_event(not_expected_user, 0);
         }
         ENetPacket *packet = oldest_packet;
         oldest_packet = static_cast<ENetPacket *>(oldest_packet->userData);
@@ -317,7 +320,9 @@ namespace
     size_t bf_enet_msgready(NetUserId source, unsigned timeout)
     {
         if ((!oldest_packet) && timeout > 0)
-            bf_enet_read_event(not_expected_user);
+        {
+            bf_enet_read_event(not_expected_user, timeout);
+        }
         return oldest_packet? oldest_packet->dataLength : 0;
     }
 
