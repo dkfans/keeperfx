@@ -547,7 +547,8 @@ int script_recognize_params(char **line, const struct CommandDesc *cmd_desc, str
                         if (funscline->tp[fi][0] == '\0') {
                             break;
                         }
-                        if (toupper(chr) == 'A')
+                        if ((toupper(chr) == 'A') &! //Strings don't have a range, but IF statements have 'Aa' to allow both variable compare and numbers. Numbers are allowed, 'a' is a string for sure.
+                            (((scline->command == Cmd_IF) || (scline->command == Cmd_IF_AVAILABLE) || (scline->command == Cmd_IF_CONTROLS)) && (chr == 'A')))
                         {
                             // Values which do not support range
                             if (strcmp(funscline->tp[fi],"~") == 0) {
