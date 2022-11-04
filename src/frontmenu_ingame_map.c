@@ -187,7 +187,7 @@ void interpolate_minimap_thing(struct Thing *thing, struct ThingAdd *thingadd, s
         thingadd->interp_minimap_pos_x = interpolate(thingadd->interp_minimap_pos_x, thingadd->previous_minimap_pos_x, current_minimap_x);
         thingadd->interp_minimap_pos_y = interpolate(thingadd->interp_minimap_pos_y, thingadd->previous_minimap_pos_y, current_minimap_y);
     }
-    if (thingadd->interp_minimap_update_turn != game.play_gameturn) {
+    if ((thingadd->interp_minimap_update_turn != game.play_gameturn) || (game.operation_flags & GOF_Paused) != 0) {
         thingadd->interp_minimap_update_turn = game.play_gameturn;
         thingadd->previous_minimap_pos_x = current_minimap_x;
         thingadd->previous_minimap_pos_y = current_minimap_y;
@@ -1185,7 +1185,7 @@ void pannel_map_draw_slabs(long x, long y, long units_per_px, long zoom)
             interp_minimap.x = interpolate(interp_minimap.x, interp_minimap.previous_x, current_minimap_x);
             interp_minimap.y = interpolate(interp_minimap.y, interp_minimap.previous_y, current_minimap_y);
         }
-        if (interp_minimap.get_previous != game.play_gameturn) {
+        if ((interp_minimap.get_previous != game.play_gameturn) || (game.operation_flags & GOF_Paused) != 0) {
             interp_minimap.get_previous = game.play_gameturn;
             interp_minimap.previous_x = current_minimap_x;
             interp_minimap.previous_y = current_minimap_y;
