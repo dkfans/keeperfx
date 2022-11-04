@@ -1375,6 +1375,28 @@ void process_players_creature_control_packet_action(long plyr_idx)
   }
 }
 
+static void replace_with_ai(int old_active_players)
+{
+    int k = 0;
+    for (int i = 0; i < NET_PLAYERS_COUNT; i++)
+    {
+        if (network_player_active(i))
+            k++;
+    }
+    if (old_active_players != k)
+    {
+        for (int i = 0; i < NET_PLAYERS_COUNT; i++)
+        {
+            struct PlayerInfo *player = get_player(i);
+            if (!network_player_active(player->packet_num))
+            {
+                player->allocflags |= PlaF_CompCtrl;
+                toggle_computer_player(i);
+            }
+        }
+    }
+}
+
 /**
  * Exchange packets if MP game, then process all packets influencing local game state.
  */
@@ -1389,11 +1411,11 @@ void process_packets(void)
     if (game.game_kind != GKind_LocalGame)
     {
         player = get_my_player();
-        int j = 0;
-        for (i = 0; i < 4; i++)
+        int old_active_players = 0;
+        for (i = 0; i < NET_PLAYERS_COUNT; i++)
         {
             if (network_player_active(i))
-                j++;
+                old_active_players++;
         }
         if (!game.packet_load_enable || game.numfield_149F47)
         {
@@ -1403,25 +1425,8 @@ void process_packets(void)
                 ERRORLOG("LbNetwork_Exchange failed");
             }
         }
-        int k = 0;
-        for (i = 0; i < 4; i++)
-        {
-            if (network_player_active(i))
-                k++;
-        }
-        if (j != k)
-        {
-            for (i = 0; i < 4; i++)
-            {
-                player = get_player(i);
-                if (!network_player_active(player->packet_num))
-                {
-                    player->allocflags |= PlaF_CompCtrl;
-                    toggle_computer_player(i);
-                }
-            }
-        }
-  }
+        replace_with_ai(old_active_players);
+    }
   // Setting checksum problem flags
   switch (checksums_different())
   {
