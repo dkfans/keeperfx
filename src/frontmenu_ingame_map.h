@@ -70,6 +70,16 @@ short do_left_map_drag(long begin_x, long begin_y, long curr_x, long curr_y, lon
 short do_left_map_click(long begin_x, long begin_y, long curr_x, long curr_y, long zoom);
 short do_right_map_click(long start_x, long start_y, long curr_x, long curr_y, long zoom);
 /******************************************************************************/
+struct InterpMinimap
+{
+    long x;
+    long y;
+    long previous_x;
+    long previous_y;
+    long get_previous;
+};
+struct InterpMinimap interp_minimap;
+
 #ifdef __cplusplus
 }
 #endif
