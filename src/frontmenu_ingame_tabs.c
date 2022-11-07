@@ -488,7 +488,7 @@ void gui_area_big_room_button(struct GuiButton *gbtn)
     int units_per_px = (gbtn->width * 16 + 126 / 2) / 126;
     int ps_units_per_px = simple_gui_panel_sprite_width_units_per_px(gbtn, GPS_rpanel_frame_wide_empty, 100);
 
-    if (rkind == 0) {
+    if (rkind == RoK_NONE) {
         draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, GPS_rpanel_frame_wide_empty);
         lbDisplay.DrawFlags = flg_mem;
         return;
@@ -507,15 +507,20 @@ void gui_area_big_room_button(struct GuiButton *gbtn)
     lbDisplay.DrawFlags &= ~Lb_TEXT_ONE_COLOR;
 
     struct RoomConfigStats* roomst = get_room_kind_stats(rkind);
-    if ((player->work_state == PSt_BuildRoom) && (player->boxsize > 1))
+    unsigned char boxsize = player->boxsize;
+    if (boxsize == 0)
     {
-        sprintf(gui_textbuf, "%ld", (long)roomst->cost * player->boxsize);
+        boxsize = 1;
+    }
+    if ((player->work_state == PSt_BuildRoom) && (boxsize > 1))
+    {
+        sprintf(gui_textbuf, "%ld", (long)roomst->cost * boxsize);
     }
     else
     {
         sprintf(gui_textbuf, "%ld", (long)roomst->cost);
     }
-    if (roomst->cost * player->boxsize <= dungeon->total_money_owned)
+    if ((roomst->cost * boxsize) <= dungeon->total_money_owned)
     {
         if ((player->work_state == PSt_BuildRoom) && (player->chosen_room_kind == game.chosen_room_kind)
           && ((game.play_gameturn & 1) == 0))
