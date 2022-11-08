@@ -443,7 +443,7 @@ struct StateInfo states[CREATURE_STATES_COUNT] = {
   {creature_set_work_room_based_on_position, NULL, NULL, NULL,
     1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1,  CrStTyp_Work, 1, 1,  0, 0, 0, 0, 0, 1},
   {creature_being_scavenged, NULL, NULL, NULL,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_OwnNeeds, 0, 0, 0, 0, 69, 1, 0, 0},
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_OwnNeeds, 0, 0, 0, 0, 64, 1, 0, 0},
   {creature_escaping_death, NULL, NULL, NULL,
     1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 0, 1, 1,  CrStTyp_Escape, 1, 0, 0, 0,  0, 1, 0, 0},
   {creature_present_to_dungeon_heart, NULL, NULL, NULL,
