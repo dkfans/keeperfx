@@ -167,12 +167,15 @@ struct NetFrame
     size_t                  size;
 };
 
+/*
+ * This should be squished into TbPacketAction
+ */
 enum NetMessageType
 {
     NETMSG_LOGIN,           //to server: username and pass, from server: assigned id
     NETMSG_USERUPDATE,      //changed player from server
     NETMSG_FRAME,           //to server: ACK of frame + packets, from server: the frame itself
-    NETMSG_LAGWARNING,      //from server: notice that some client is lagging¨
+    // Not used: NETMSG_LAGWARNING,      //from server: notice that some client is lagging
     NETMSG_RESYNC,          //from server: re-synchronization is occurring
 };
 
@@ -1160,7 +1163,7 @@ static void ConsumeServerFrame(void *server_buf, size_t size)
 /*
  * Exchange assuming we are at server side
  */
-TbError LbNetwork_ExchangeServer(void *send_buf, void *server_buf, size_t client_frame_size)
+TbError LbNetwork_ExchangeServer(void *server_buf, size_t client_frame_size)
 {
     //server needs to be careful about how it reads messages
     for (NetUserId id = 0; id < MAX_N_USERS; ++id)
@@ -1247,7 +1250,7 @@ TbError LbNetwork_Exchange(void *send_buf, void *server_buf, size_t client_frame
 
     if (netstate.users[netstate.my_id].progress == USER_SERVER)
     {
-        LbNetwork_ExchangeServer(send_buf, server_buf, client_frame_size);
+        LbNetwork_ExchangeServer(server_buf, client_frame_size);
     }
     else
     { // client
