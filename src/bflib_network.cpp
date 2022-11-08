@@ -1158,86 +1158,101 @@ static void ConsumeServerFrame(void *server_buf, size_t size)
 }
 
 /*
+ * Exchange assuming we are at server side
+ */
+TbError LbNetwork_ExchangeServer(void *send_buf, void *server_buf, size_t client_frame_size)
+{
+    //server needs to be careful about how it reads messages
+    for (NetUserId id = 0; id < MAX_N_USERS; ++id)
+    {
+        if (id == netstate.my_id) {
+            continue;
+        }
+
+        if (netstate.users[id].progress == USER_UNUSED) {
+            continue;
+        }
+
+        if (netstate.users[id].progress == USER_LOGGEDIN)
+        {
+            if (!netstate.enable_lag ||
+                netstate.seq_nbr >= SCHEDULED_LAG_IN_FRAMES) { //scheduled lag in TCP stream
+                //TODO NET take time to detect a lagger which can then be announced
+                ProcessMessagesUntilNextFrame(id, server_buf, client_frame_size, WAIT_FOR_CLIENT_TIMEOUT_IN_MS);
+            }
+
+            netstate.seq_nbr += 1;
+            SendServerFrame(server_buf, client_frame_size, CountLoggedInClients() + 1);
+        }
+        else
+        {
+            ProcessMessagesUntilNextFrame(id, server_buf, client_frame_size, WAIT_FOR_CLIENT_TIMEOUT_IN_MS);
+            netstate.seq_nbr += 1;
+            SendServerFrame(server_buf, client_frame_size, CountLoggedInClients() + 1);
+        }
+    }
+    //TODO NET deal with case where no new frame is available and game should be stalled
+    netstate.sp->update(OnNewUser);
+
+    assert(UserIdentifiersValid());
+}
+
+TbError LbNetwork_ExchangeClient(void *send_buf, void *server_buf, size_t client_frame_size)
+{
+    if (netstate.enable_lag)
+    {
+        ProcessPendingMessages(SERVER_ID, server_buf, client_frame_size);
+
+        if (netstate.exchg_queue == NULL) {
+            //we need at least one frame so block
+            ProcessMessagesUntilNextFrame(SERVER_ID, server_buf, client_frame_size, 0);
+        }
+
+        if (netstate.exchg_queue == NULL) {
+            //connection lost
+            return Lb_FAIL;
+        }
+
+        SendClientFrame((char *) send_buf, client_frame_size, netstate.exchg_queue->seq_nbr);
+    }
+    else
+    {
+        SendClientFrame((char *) send_buf, client_frame_size, netstate.seq_nbr);
+        ProcessMessagesUntilNextFrame(SERVER_ID, server_buf, client_frame_size, 0);
+
+        if (netstate.exchg_queue == NULL) {
+            //connection lost
+            return Lb_FAIL;
+        }
+    }
+
+    // most likely overwrites what is sent in SendClientFrame
+    ConsumeServerFrame(server_buf, 0);
+
+    //TODO NET deal with case where no new frame is available and game should be stalled
+    netstate.sp->update(OnNewUser);
+
+    assert(UserIdentifiersValid());
+}
+
+/*
  * send_buf is a buffer inside shared buffer which sent to a server
  * server_buf is a buffer shared between all clients and server
  */
 TbError LbNetwork_Exchange(void *send_buf, void *server_buf, size_t client_frame_size)
 {
-    NetUserId id;
-
     NETDBG(7, "Starting");
 
     assert(UserIdentifiersValid());
 
     if (netstate.users[netstate.my_id].progress == USER_SERVER)
     {
-        //server needs to be careful about how it reads messages
-        for (id = 0; id < MAX_N_USERS; ++id)
-        {
-            if (id == netstate.my_id) {
-                continue;
-            }
-
-            if (netstate.users[id].progress == USER_UNUSED) {
-                continue;
-            }
-
-            if (netstate.users[id].progress == USER_LOGGEDIN)
-            {
-                if (!netstate.enable_lag ||
-                        netstate.seq_nbr >= SCHEDULED_LAG_IN_FRAMES) { //scheduled lag in TCP stream
-                    //TODO NET take time to detect a lagger which can then be announced
-                    ProcessMessagesUntilNextFrame(id, server_buf, client_frame_size, WAIT_FOR_CLIENT_TIMEOUT_IN_MS);
-                }
-
-                netstate.seq_nbr += 1;
-                SendServerFrame(server_buf, client_frame_size, CountLoggedInClients() + 1);
-            }
-            else
-            {
-                ProcessMessagesUntilNextFrame(id, server_buf, client_frame_size, WAIT_FOR_CLIENT_TIMEOUT_IN_MS);
-                netstate.seq_nbr += 1;
-                SendServerFrame(server_buf, client_frame_size, CountLoggedInClients() + 1);
-            }
-        }
+        LbNetwork_ExchangeServer(send_buf, server_buf, client_frame_size);
     }
-    else { //client
-        if (netstate.enable_lag)
-        {
-            ProcessPendingMessages(SERVER_ID, server_buf, client_frame_size);
-
-            if (netstate.exchg_queue == NULL) {
-                //we need at least one frame so block
-                ProcessMessagesUntilNextFrame(SERVER_ID, server_buf, client_frame_size, 0);
-            }
-
-            if (netstate.exchg_queue == NULL) {
-                //connection lost
-                return Lb_FAIL;
-            }
-
-            SendClientFrame((char *) send_buf, client_frame_size, netstate.exchg_queue->seq_nbr);
-        }
-        else
-        {
-            SendClientFrame((char *) send_buf, client_frame_size, netstate.seq_nbr);
-            ProcessMessagesUntilNextFrame(SERVER_ID, server_buf, client_frame_size, 0);
-
-            if (netstate.exchg_queue == NULL) {
-                //connection lost
-                return Lb_FAIL;
-            }
-        }
-
-        // most likely overwrites what is sent in SendClientFrame
-        ConsumeServerFrame(server_buf, 0);
+    else
+    { // client
+        LbNetwork_ExchangeClient(send_buf, server_buf, client_frame_size);
     }
-
-    //TODO NET deal with case where no new frame is available and game should be stalled
-
-    netstate.sp->update(OnNewUser);
-
-    assert(UserIdentifiersValid());
 
     NETDBG(7, "Ending");
 
