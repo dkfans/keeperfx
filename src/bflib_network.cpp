@@ -532,8 +532,6 @@ static void HandleMessageServer(NetUserId source, void *server_buf, size_t frame
         HandleClientFrame(source,((char*)server_buf) + source * frame_size,
                           buffer_ptr, buffer_end, frame_size);
         break;
-    case NETMSG_LAGWARNING:
-        break;
     default:
         break;
     }
@@ -570,8 +568,6 @@ static void HandleMessageClient(NetUserId source, size_t frame_size)
             break;
         case NETMSG_FRAME:
             HandleServerFrame(buffer_ptr, buffer_end, frame_size);
-            break;
-        case NETMSG_LAGWARNING:
             break;
         default:
             break;
@@ -908,49 +904,6 @@ TbError LbNetwork_Create(char *nsname_str, char *plyr_name, unsigned long *plyr_
     return Lb_OK;
 }
 
-TbError LbNetwork_ChangeExchangeBuffer(void *buf, unsigned long buf_size)
-{
-  /*void *cbuf;
-  long comps_size;
-  exchangeBuffer = buf;
-  exchangeSize = buf_size;
-  comps_size = buf_size * maximumPlayers;
-  if (compositeBuffer == NULL)
-  {
-    cbuf = LbMemoryAlloc(comps_size);
-    if (cbuf == NULL)
-    {
-      WARNLOG("Failure on buffer allocation");
-      compositeBuffer = NULL;
-      return Lb_FAIL;
-    }
-    compositeBuffer = cbuf;
-    compositeBufferSize = comps_size;
-    return Lb_OK;
-  }
-  if (comps_size <= compositeBufferSize)
-    return Lb_OK;
-  cbuf = LbMemoryAlloc(comps_size);
-  if (cbuf == NULL)
-  {
-    WARNLOG("Failure on buffer reallocation");
-    return Lb_FAIL;
-  }
-  LbMemoryCopy(cbuf, compositeBuffer, compositeBufferSize);
-  LbMemoryFree(compositeBuffer);
-  compositeBuffer = cbuf;
-  compositeBufferSize = comps_size;*/
-
-    NETDBG(2, "Setting user frame buffer size to %u", buf_size);
-
-    netstate.user_frame_size = buf_size;
-    netstate.exchg_buffer = (char *) buf;
-
-    VerifyBufferSize();
-
-    return Lb_OK;
-}
-
 void LbNetwork_EnableLag(TbBool lag)
 {
     netstate.enable_lag = lag;
@@ -1198,6 +1151,8 @@ TbError LbNetwork_ExchangeServer(void *server_buf, size_t client_frame_size)
     netstate.sp->update(OnNewUser);
 
     assert(UserIdentifiersValid());
+
+    return Lb_OK;
 }
 
 TbError LbNetwork_ExchangeClient(void *send_buf, void *server_buf, size_t client_frame_size)
@@ -1236,6 +1191,7 @@ TbError LbNetwork_ExchangeClient(void *send_buf, void *server_buf, size_t client
     netstate.sp->update(OnNewUser);
 
     assert(UserIdentifiersValid());
+    return Lb_OK;
 }
 
 /*
@@ -1250,16 +1206,12 @@ TbError LbNetwork_Exchange(void *send_buf, void *server_buf, size_t client_frame
 
     if (netstate.users[netstate.my_id].progress == USER_SERVER)
     {
-        LbNetwork_ExchangeServer(server_buf, client_frame_size);
+        return LbNetwork_ExchangeServer(server_buf, client_frame_size);
     }
     else
     { // client
-        LbNetwork_ExchangeClient(send_buf, server_buf, client_frame_size);
+        return LbNetwork_ExchangeClient(send_buf, server_buf, client_frame_size);
     }
-
-    NETDBG(7, "Ending");
-
-    return Lb_OK;
 }
 
 TbBool LbNetwork_Resync(void * buf, size_t len)
