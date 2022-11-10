@@ -1859,7 +1859,22 @@ void process_magic_power_call_to_arms(PlayerNumber plyr_idx)
 
     struct SlabMap *slb;
     slb = get_slabmap_for_subtile(dungeon->cta_stl_x, dungeon->cta_stl_y);
-    if (((pwrdynst->time < 1) || ((duration % pwrdynst->time) == 0)) && (slabmap_owner(slb) != plyr_idx))
+    TbBool pay_land = (slabmap_owner(slb) != plyr_idx);
+    if (gameadd.allies_share_territory)
+    {
+        for (PlayerNumber i = 0; i < PLAYERS_COUNT; i++)
+        {
+            if (players_are_mutual_allies(plyr_idx, i))
+            {
+                if (slabmap_owner(slb) == i)
+                {
+                    pay_land = false;
+                    break;
+                }
+            }
+        }
+    }
+    if (((pwrdynst->time < 1) || ((duration % pwrdynst->time) == 0)) && pay_land)
     {
         if (!pay_for_spell(plyr_idx, PwrK_CALL2ARMS, dungeon->cta_splevel)) {
             if (is_my_player_number(plyr_idx))
