@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "globals.h"
 #include "bflib_basics.h"
 #include "map_data.h"
@@ -30,6 +31,7 @@
 #include "thing_physics.h"
 #include "thing_navigate.h"
 #include "packets.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {

@@ -357,7 +357,7 @@ struct ComputerTask { // sizeof = 148
     };
     long lastrun_turn;
     long field_60;
-    struct Coord3d pos_64; // new room position?
+    struct Coord3d new_room_pos;
     struct Coord3d pos_6A;
     union {
     struct {
@@ -639,7 +639,6 @@ struct ComputerTask *get_task_in_progress(struct Computer2 *comp, ComputerTaskTy
 struct ComputerTask *get_task_in_progress_in_list(const struct Computer2 *comp, const ComputerTaskType *ttypes);
 TbBool is_task_in_progress(struct Computer2 *comp, ComputerTaskType ttype);
 TbBool is_task_in_progress_using_hand(struct Computer2 *comp);
-struct ComputerTask *get_free_task(struct Computer2 *comp, long a2);
 TbBool computer_task_invalid(const struct ComputerTask *ctask);
 TbBool remove_task(struct Computer2 *comp, struct ComputerTask *ctask);
 void shut_down_task_process(struct Computer2 *comp, struct ComputerTask *ctask);

@@ -251,6 +251,7 @@ struct ShotConfigStats {
     struct ShotHitConfig hit_water;
     struct ShotHitConfig hit_lava;
     struct ShotHitConfig hit_creature;
+    struct ShotHitConfig dig;
     short firing_sound;
     short shot_sound;
     unsigned char firing_sound_variants;
@@ -262,6 +263,7 @@ struct ShotConfigStats {
     unsigned char fall_acceleration;
     unsigned char cast_spell_kind;
     unsigned char push_on_hit;
+    unsigned char hidden_projectile;
     short bounce_angle;
     short wind_immune;
     short no_air_damage;
@@ -326,7 +328,7 @@ struct ShotStats // sizeof = 101
   short sprite_size_max_UNUSED;
   unsigned char field_4[2];
   unsigned char field_6;
-  unsigned char field_7;
+  unsigned char hidden_projectile_UNUSED;
   unsigned char animation_transparency_UNUSED; // transparency mode
   short size_xy_UNUSED;
   short size_yz_UNUSED;

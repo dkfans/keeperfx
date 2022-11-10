@@ -120,6 +120,14 @@ typedef int TbError;
 typedef int TbResult;
 typedef size_t TbSize;
 
+struct DebugMessage {
+  struct DebugMessage * next;
+  char text[0];
+};
+
+extern struct DebugMessage * debug_messages_head;
+extern struct DebugMessage ** debug_messages_tail;
+
 #pragma pack()
 /******************************************************************************/
 extern const char *log_file_name;
@@ -138,6 +146,7 @@ int LbAiLog(const char *format, ...);
 int LbNaviLog(const char *format, ...);
 int LbScriptLog(unsigned long line,const char *format, ...);
 int LbConfigLog(unsigned long line,const char *format, ...);
+void LbPrint(const char *format, ...);
 
 int LbErrorLogSetup(const char *directory, const char *filename, TbBool flag);
 int LbErrorLogClose(void);
@@ -163,6 +172,8 @@ void toggle_flag_word(unsigned short *flags,unsigned short mask);
 void toggle_flag_dword(unsigned long *flags,unsigned long mask);
 long saturate_set_signed(long long val,unsigned short nbits);
 unsigned long saturate_set_unsigned(unsigned long long val,unsigned short nbits);
+void make_lowercase(char *);
+void make_uppercase(char *);
 /******************************************************************************/
 #ifdef __cplusplus
 }

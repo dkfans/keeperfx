@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "room_data.h"
 #include "globals.h"
 
@@ -48,6 +49,7 @@
 #include "game_legacy.h"
 #include "frontmenu_ingame_map.h"
 #include "keeperfx.hpp"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -2233,7 +2235,7 @@ TbBool room_create_new_food_at(struct Room *room, MapSubtlCoord stl_x, MapSubtlC
     }
     int required_cap = get_required_room_capacity_for_object(RoRoF_FoodStorage, foodtng->model, 0);
     room->used_capacity += required_cap;
-    foodtng->food.life_remaining = (foodtng->field_49 << 8) / foodtng->anim_speed - 1;
+    foodtng->food.life_remaining = (foodtng->max_frames << 8) / foodtng->anim_speed - 1;
     return true;
 }
 
@@ -3185,6 +3187,57 @@ static long count_rooms_with_used_capacity_creature_can_navigate_to(struct Thing
  * @param n
  * @return
  */
+struct Room* find_nth_room_of_kind_with_used_capacity_creature_can_navigate_to(struct Thing* thing, PlayerNumber owner, RoomKind rkind, unsigned char nav_flags, long n)
+{
+    struct DungeonAdd* dungeonadd = get_dungeonadd(owner);
+    unsigned long k = 0;
+
+    int i = dungeonadd->room_kind[rkind];
+    while (i != 0)
+    {
+        struct Room* room = room_get(i);
+        if (room_is_invalid(room))
+        {
+            ERRORLOG("Jump to invalid room detected");
+            break;
+        }
+        i = room->next_of_owner;
+        // Per-room code
+        struct Coord3d pos;
+        if (find_first_valid_position_for_thing_anywhere_in_room(thing, room, &pos) && (room->used_capacity > 0))
+        {
+            if (creature_can_navigate_to(thing, &pos, nav_flags))
+            {
+                if (n > 0) {
+                    n--;
+                }
+                else {
+                    return room;
+                }
+            }
+        }
+        // Per-room code ends
+        k++;
+        if (k > ROOMS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping rooms list");
+            break;
+        }
+    }
+
+    return INVALID_ROOM;
+
+}
+
+/**
+ * Gives the n-th room of given kind and owner where the creature can navigate to.
+ * @param thing
+ * @param owner
+ * @param role
+ * @param nav_flags
+ * @param n
+ * @return
+ */
 struct Room *find_nth_room_with_used_capacity_creature_can_navigate_to(struct Thing *thing, PlayerNumber owner, RoomRole rrole, unsigned char nav_flags, long n)
 {
     struct DungeonAdd* dungeonadd = get_dungeonadd(owner);
@@ -3241,7 +3294,7 @@ TbBool creature_can_get_to_any_of_players_rooms(struct Thing *thing, PlayerNumbe
 {
     for (RoomKind rkind = 1; rkind < slab_conf.room_types_count; rkind++)
     {
-        struct Room* room = find_nth_room_with_used_capacity_creature_can_navigate_to(thing, owner, rkind, NavRtF_Default, 0);
+        struct Room* room = find_nth_room_of_kind_with_used_capacity_creature_can_navigate_to(thing, owner, rkind, NavRtF_NoOwner, 0);
         if (!room_is_invalid(room))
             return true;
     }
@@ -3988,7 +4041,7 @@ void kill_room_contents_at_subtile(struct Room *room, PlayerNumber plyr_idx, Map
             {
                 kill_creature(thing, INVALID_THING, -1, CrDed_NoEffects);
             } else
-            if (room->owner == thing->owner)
+            if (creature_is_working_in_room(thing, room))
             {
                 set_start_state(thing);
             }
@@ -4364,7 +4417,7 @@ struct Room *place_room(PlayerNumber owner, RoomKind rkind, MapSubtlCoord stl_x,
     stl_y = stl_slab_starting_subtile(stl_y);
     // Update slab type on map
     struct RoomConfigStats* roomst = get_room_kind_stats(room->kind);
-    long i = get_slab_number(slb_x, slb_y);
+    SlabCodedCoords i = get_slab_number(slb_x, slb_y);
     delete_room_slabbed_objects(i);
     if ((rkind == RoK_GUARDPOST) || (rkind == RoK_BRIDGE))
     {

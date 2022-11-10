@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "lvl_filesdk1.h"
 
 #include "globals.h"
@@ -36,6 +37,7 @@
 #include "engine_textures.h"
 #include "game_legacy.h"
 #include "keeperfx.hpp"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -155,7 +157,7 @@ long level_lif_entry_parse(char *fname, char *buf)
     return 0;
   // Get level number
   char* cbuf;
-  long lvnum = strtol(&buf[i], &cbuf, 0);
+  long lvnum = strtol(&buf[i], &cbuf, 10);
   // If can't read number, return
   if (cbuf == &buf[i])
   {
@@ -1050,7 +1052,7 @@ TbBool initialise_map_wlb_auto(void)
         }
         slbattr = get_slab_kind_attrs(n);
         n = (slbattr->wlb_type << 3);
-        slb->field_5 ^= (slb->field_5 ^ n) & (0x10|0x08);
+        slb->flags ^= (slb->flags ^ n) & (0x10|0x08);
       }
     SYNCMSG("Regenerated WLB flags, unsure for %d bridge blocks.",(int)nbridge);
     return true;
@@ -1078,15 +1080,15 @@ TbBool load_map_wlb_file(unsigned long lv_num)
       {
         slb = get_slabmap_block(x,y);
         n = (buf[i] << 3);
-        n = slb->field_5 ^ ((slb->field_5 ^ n) & 0x18);
-        slb->field_5 = n;
+        n = slb->flags ^ ((slb->flags ^ n) & 0x18);
+        slb->flags = n;
         n &= (0x08|0x10);
         if ((n != 0x10) || (slb->kind != SlbT_WATER))
           if ((n != 0x08) || (slb->kind != SlbT_LAVA))
             if (((n == 0x10) || (n == 0x08)) && (slb->kind != SlbT_BRIDGE))
             {
                 nfixes++;
-                slb->field_5 &= ~(0x08|0x10);
+                slb->flags &= ~(0x08|0x10);
             }
         i++;
       }

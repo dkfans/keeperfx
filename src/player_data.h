@@ -69,12 +69,13 @@ enum PlayerField6Flags {
 enum PlayerViewModes {
     PVM_EmptyView = 0,
     PVM_CreatureView, /**< View from a creature perspective, first person. */
-    PVM_IsometricView, /**< Dungeon overview from isometric front perspective, simplified version - only 4 angles. */
+    PVM_IsoWibbleView, /**< Dungeon overview from isometric front perspective, simplified version - only 4 angles. */
     PVM_ParchmentView, /**< Full screen parchment map view, showing dungeon schematic from top. */
     PVM_Unknown4,
     PVM_FrontView, /**< Dungeon overview from isometric front perspective, advanced version - fluent rotation. */
     PVM_ParchFadeIn, /**< Transitional view when fading from Isometric view to Parchment map. */
     PVM_ParchFadeOut, /**< Transitional view when fading from Parchment map back to Isometric view. */
+    PVM_IsoStraightView, /**< Same as PVM_IsoWibbleView, but without wibble. */
 };
 
 enum PlayerViewType {
@@ -192,7 +193,7 @@ char field_E8[2];
     unsigned char continue_work_state;
 char field_457[8];
 char field_45F;
-short field_460;
+short cursor_light_idx;
 char field_462;
     char mp_message_text[PLAYER_MP_MESSAGE_LEN];
     unsigned char chosen_room_kind;
@@ -200,8 +201,8 @@ char field_462;
     char chosen_trap_kind;
     char chosen_door_kind;
     char field_4A7[4];
-    short cursor_stl_x; // current x coord of subtile under the mouse cursor
-    short cursor_stl_y; // current y coord of subtile under the mouse cursor
+    short cursor_clicked_subtile_x; // x coord of subtile clicked by mouse cursor
+    short cursor_clicked_subtile_y; // y coord of subtile clicked by mouse cursor
     unsigned char cursor_button_down; // left or right button down (whilst using the bounding box cursor)
     /** Player instance, from PlayerInstanceNum enum. */
     unsigned char instance_num;
@@ -226,10 +227,10 @@ char field_462;
     long field_4E7;
     long field_4EB;
     };
-    
+
 struct CheatSelection
 {
-    SlabKind chosen_terrain_kind; 
+    SlabKind chosen_terrain_kind;
     PlayerNumber chosen_player;
     unsigned char chosen_creature_kind;
     unsigned char chosen_hero_kind;
@@ -257,7 +258,15 @@ struct PlayerInfoAdd {
     char swap_to_untag_mode; // 0 = no, 1 = maybe, 2= yes, -1 = disable
     unsigned char roomspace_highlight_mode;
     TbBool roomspace_no_default;
-    };
+    short cursor_subtile_x;
+    short cursor_subtile_y;
+    short previous_cursor_subtile_x;
+    short previous_cursor_subtile_y;
+    TbBool mouse_is_offmap;
+    TbBool roomspace_drag_paint_mode;
+    unsigned char roomspace_l_shape;
+    TbBool roomspace_horizontal_first;
+};
 
 /******************************************************************************/
 DLLIMPORT extern unsigned char _DK_my_player_number;

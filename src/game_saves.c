@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "game_saves.h"
 
 #include "globals.h"
@@ -43,6 +44,7 @@
 #include "frontmenu_ingame_map.h"
 #include "gui_boxmenu.h"
 #include "keeperfx.hpp"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -209,7 +211,7 @@ int load_game_chunks(TbFileHandle fhandle,struct CatalogueEntry *centry)
                 load_stats_files();
                 check_and_auto_fix_stats();
                 init_creature_scores();
-                strncpy(high_score_entry,centry->player_name,PLAYER_NAME_LENGTH);
+                snprintf(high_score_entry, PLAYER_NAME_LENGTH, "%s", centry->player_name);
             }
             break;
         case SGC_GameAdd:
@@ -455,14 +457,10 @@ TbBool fill_game_catalogue_entry(struct CatalogueEntry *centry,const char *textn
 {
     centry->version = (VersionMajor << 16) + VersionMinor;
     centry->level_num = get_loaded_level_number();
-    strncpy(centry->textname,textname,SAVE_TEXTNAME_LEN);
-    strncpy(centry->campaign_name,campaign.name,LINEMSG_SIZE);
-    strncpy(centry->campaign_fname,campaign.fname,DISKPATH_SIZE);
-    strncpy(centry->player_name,high_score_entry,PLAYER_NAME_LENGTH);
-    centry->textname[SAVE_TEXTNAME_LEN-1] = '\0';
-    centry->campaign_name[LINEMSG_SIZE-1] = '\0';
-    centry->campaign_fname[DISKPATH_SIZE-1] = '\0';
-    centry->player_name[PLAYER_NAME_LENGTH-1] = '\0';
+    snprintf(centry->textname, SAVE_TEXTNAME_LEN, "%s", textname);
+    snprintf(centry->campaign_name, LINEMSG_SIZE, "%s", campaign.name);
+    snprintf(centry->campaign_fname, DISKPATH_SIZE, "%s", campaign.fname);
+    snprintf(centry->player_name, PLAYER_NAME_LENGTH, "%s", high_score_entry);
     set_flag_word(&centry->flags, CEF_InUse, true);
     return true;
 }

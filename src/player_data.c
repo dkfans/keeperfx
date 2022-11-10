@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "player_data.h"
 
 #include "globals.h"
@@ -30,6 +31,7 @@
 #include "frontend.h"
 #include "thing_objects.h"
 #include "power_hand.h"
+#include "post_inc.h"
 
 /******************************************************************************/
 /******************************************************************************/
@@ -351,13 +353,13 @@ void set_player_mode(struct PlayerInfo *player, unsigned short nview)
   {
   case PVT_DungeonTop:
   {
-      long i = PVM_IsometricView;
-      if (player->view_mode_restore == PVM_FrontView)
-      {
-        set_engine_view(player, PVM_IsometricView);
-        i = PVM_FrontView;
+      if (player->view_mode_restore == PVM_FrontView) {
+        set_engine_view(player, PVM_FrontView);
+      } else if (player->view_mode_restore == PVM_IsoStraightView) {
+        set_engine_view(player, PVM_IsoStraightView);
+      } else {
+        set_engine_view(player, PVM_IsoWibbleView);
       }
-      set_engine_view(player, i);
       if (is_my_player(player))
         toggle_status_menu((game.operation_flags & GOF_ShowPanel) != 0);
       if ((game.operation_flags & GOF_ShowGui) != 0)
@@ -393,10 +395,13 @@ void reset_player_mode(struct PlayerInfo *player, unsigned short nview)
   {
     case PVT_DungeonTop:
       player->work_state = player->continue_work_state;
-      if (player->view_mode_restore == PVM_FrontView)
+      if (player->view_mode_restore == PVM_FrontView) {
         set_engine_view(player, PVM_FrontView);
-      else
-        set_engine_view(player, PVM_IsometricView);
+      } else if (player->view_mode_restore == PVM_IsoStraightView) {
+        set_engine_view(player, PVM_IsoStraightView);
+      } else {
+        set_engine_view(player, PVM_IsoWibbleView);
+      }
       if (is_my_player(player))
         game.numfield_D &= ~GNFldD_Unkn01;
       break;

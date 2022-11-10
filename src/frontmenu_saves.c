@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "frontmenu_saves.h"
 #include "globals.h"
 #include "bflib_basics.h"
@@ -34,7 +35,9 @@
 #include "front_input.h"
 #include "game_legacy.h"
 #include "kjm_input.h"
+#include "sprites.h"
 #include "keeperfx.hpp"
+#include "post_inc.h"
 
 /******************************************************************************/
 int frontend_load_game_button_to_index(struct GuiButton *gbtn)
@@ -87,19 +90,30 @@ void gui_load_game(struct GuiButton *gbtn)
 void draw_load_button(struct GuiButton *gbtn)
 {
     if (gbtn == NULL) return;
-    int bs_units_per_px = simple_button_sprite_height_units_per_px(gbtn, 2, 94);
+    int bs_units_per_px = simple_button_sprite_height_units_per_px(gbtn, GBS_frontend_button_std_c, 94);
+    int width = gbtn->width;
+    TbBool low_res = (MyScreenHeight < 400);
+    if (low_res)
+    {
+        width += 32;
+    }
     if ((gbtn->gbactn_1) || (gbtn->gbactn_2))
     {
-        draw_bar64k(gbtn->scr_pos_x, gbtn->scr_pos_y, bs_units_per_px, gbtn->width);
-        draw_lit_bar64k(gbtn->scr_pos_x - 6*bs_units_per_px/16, gbtn->scr_pos_y - 6*bs_units_per_px/16, bs_units_per_px, gbtn->width + 6*bs_units_per_px/16);
+        draw_bar64k(gbtn->scr_pos_x, gbtn->scr_pos_y, bs_units_per_px, width);
+        int lit_width = gbtn->width + 6*units_per_pixel/16;
+        if (low_res)
+        {
+            lit_width += 32;
+        }
+        draw_lit_bar64k(gbtn->scr_pos_x - 6*units_per_pixel/16, gbtn->scr_pos_y - 6*units_per_pixel/16, bs_units_per_px, lit_width);
     } else
     {
-        draw_bar64k(gbtn->scr_pos_x, gbtn->scr_pos_y, bs_units_per_px, gbtn->width);
+        draw_bar64k(gbtn->scr_pos_x, gbtn->scr_pos_y, bs_units_per_px, width);
     }
     if (gbtn->content != NULL)
     {
         sprintf(gui_textbuf, "%s", (const char *)gbtn->content);
-        draw_button_string(gbtn, 300, gui_textbuf);
+        draw_button_string(gbtn, (gbtn->width*32 + 16)/gbtn->height, gui_textbuf);
     }
 }
 
@@ -133,7 +147,7 @@ void update_loadsave_input_strings(struct CatalogueEntry *game_catalg)
             text = centry->textname;
         else
           text = get_string(GUIStr_SlotUnused);
-        strncpy(input_string[slot_num], text, SAVE_TEXTNAME_LEN);
+        snprintf(input_string[slot_num], SAVE_TEXTNAME_LEN, "%s", text);
     }
 }
 

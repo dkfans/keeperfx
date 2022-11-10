@@ -11,8 +11,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-
-
+#include "pre_inc.h"
 #include "lvl_script_commands.h"
 
 #include "lvl_script_conditions.h"
@@ -38,6 +37,9 @@
 #include "creature_instances.h"
 #include "power_hand.h"
 #include "power_specials.h"
+#include "creature_states.h"
+#include "map_blocks.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -106,6 +108,40 @@ const struct NamedCommand flag_desc[] = {
   {"FLAG5",  5},
   {"FLAG6",  6},
   {"FLAG7",  7},
+  {NULL,     0},
+};
+
+const struct NamedCommand hand_rule_desc[] = {
+  {"ALWAYS",                HandRule_Always},
+  {"AGE_LOWER",             HandRule_AgeLower},
+  {"AGE_HIGHER",            HandRule_AgeHigher},
+  {"LEVEL_LOWER",           HandRule_LvlLower},
+  {"LEVEL_HIGHER",          HandRule_LvlHigher},
+  {"AT_ACTION_POINT",       HandRule_AtActionPoint},
+  {"AFFECTED_BY",           HandRule_AffectedBy},
+  {"WANDERING",             HandRule_Wandering},
+  {"WORKING",               HandRule_Working},
+  {"FIGHTING",              HandRule_Fighting},
+  {NULL,                    0},
+};
+
+const struct NamedCommand rule_slot_desc[] = {
+  {"RULE0",  0},
+  {"RULE1",  1},
+  {"RULE2",  2},
+  {"RULE3",  3},
+  {"RULE4",  4},
+  {"RULE5",  5},
+  {"RULE6",  6},
+  {"RULE7",  7},
+  {NULL,     0},
+};
+
+const struct NamedCommand rule_action_desc[] = {
+  {"DENY",      HandRuleAction_Deny},
+  {"ALLOW",     HandRuleAction_Allow},
+  {"ENABLE",    HandRuleAction_Enable},
+  {"DISABLE",   HandRuleAction_Disable},
   {NULL,     0},
 };
 
@@ -878,6 +914,156 @@ static void set_trap_configuration_check(const struct ScriptLine* scline)
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
+static void set_hand_rule_check(const struct ScriptLine* scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
+
+    const char *param_name = scline->tp[5];
+    long crtr_id = parse_creature_name(scline->tp[1]);
+    short hr_action, hr_slot, hr_type, param;
+
+    if (crtr_id == CREATURE_NONE)
+    {
+        SCRPTERRLOG("Unknown creature, '%s'", scline->tp[1]);
+        return;
+    }
+    hr_slot = get_id(rule_slot_desc, scline->tp[2]);
+    if (hr_slot == -1) {
+        SCRPTERRLOG("Invalid hand rule slot: '%s'", scline->tp[2]);
+        return;
+    }
+    hr_action = get_id(rule_action_desc, scline->tp[3]);
+    if (hr_action == -1) {
+        SCRPTERRLOG("Invalid hand rule action: '%s'", scline->tp[3]);
+        return;
+    }
+    if (hr_action == HandRuleAction_Allow || hr_action == HandRuleAction_Deny)
+    {
+        hr_type = get_id(hand_rule_desc, scline->tp[4]);
+        if (hr_type == -1) {
+            SCRPTERRLOG("Invalid hand rule: '%s'", scline->tp[4]);
+            return;
+        }
+        param = hr_type == HandRule_AffectedBy ? 0 : atol(param_name);
+        if (hr_type == HandRule_AtActionPoint && action_point_number_to_index(param) == -1)
+        {
+            SCRPTERRLOG("Unknown action point param for hand rule: '%d'", param);
+            return;
+        }
+        if (hr_type == HandRule_AffectedBy)
+        {
+            long mag_id = get_id(spell_desc, param_name);
+            if (mag_id == -1)
+            {
+                SCRPTERRLOG("Unknown magic, '%s'", param_name);
+                return;
+            }
+            param = mag_id;
+        }
+    } else
+    {
+        hr_type = 0;
+        param = 0;
+    }
+
+    value->shorts[0] = crtr_id;
+    value->shorts[1] = hr_action;
+    value->shorts[2] = hr_slot;
+    value->shorts[3] = hr_type;
+    value->shorts[4] = param;
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void move_creature_check(const struct ScriptLine* scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
+
+    long crmodel = parse_creature_name(scline->tp[1]);
+    if (crmodel == CREATURE_NONE)
+    {
+        SCRPTERRLOG("Unknown creature, '%s'", scline->tp[1]);
+        return;
+    }
+    long select_id = parse_criteria(scline->tp[2]);
+    if (select_id == -1) {
+        SCRPTERRLOG("Unknown select criteria, '%s'", scline->tp[2]);
+        return;
+    }
+
+    long count = scline->np[3];
+    if (count <= 0)
+    {
+        SCRPTERRLOG("Bad creatures count, %d", count);
+        return;
+    }
+
+    TbMapLocation location;
+    if (!get_map_location_id(scline->tp[4], &location))
+    {
+        SCRPTWRNLOG("Invalid location: %s", scline->tp[4]);
+        return;
+    }
+
+    const char *effect_name = scline->tp[5];
+    long effct_id = 0;
+    if (scline->tp[5][0] != '\0')
+    {
+        effct_id = get_rid(effect_desc, effect_name);
+        if (effct_id == -1)
+        {
+            if (parameter_is_number(effect_name))
+            {
+                effct_id = atoi(effect_name);
+            }
+            else
+            {
+                SCRPTERRLOG("Unrecognised effect: %s", effect_name);
+                return;
+            }
+        }
+    }
+    else
+    {
+        effct_id = -1;
+    }
+    value->uarg0 = location;
+    value->arg1 = select_id;
+    value->shorts[4] = effct_id;
+    value->bytes[10] = count;
+    value->bytes[11] = crmodel;
+
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void count_creatures_at_action_point_check(const struct ScriptLine* scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[1]);
+
+    long crmodel = parse_creature_name(scline->tp[2]);
+    if (crmodel == CREATURE_NONE)
+    {
+        SCRPTERRLOG("Unknown creature, '%s'", scline->tp[2]);
+        return;
+    }
+    long ap_num = scline->np[0];
+    long flag_player_id = scline->np[3];
+    const char *flag_name = scline->tp[4];
+
+    long flag_id, flag_type;
+    if (!parse_get_varib(flag_name, &flag_id, &flag_type))
+    {
+        SCRPTERRLOG("Unknown flag, '%s'", flag_name);
+        return;
+    }
+
+    value->shorts[0] = ap_num;
+    value->bytes[2] = crmodel;
+    value->chars[3] = flag_player_id;
+    value->chars[4] = flag_id;
+    value->chars[5] = flag_type;
+
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
 
 void refresh_trap_anim(long trap_id)
 {
@@ -1019,6 +1205,95 @@ static void set_trap_configuration_process(struct ScriptContext *context)
             WARNMSG("Unsupported Trap configuration, variable %d.", context->value->shorts[1]);
             break;
     }
+}
+
+static void set_hand_rule_process(struct ScriptContext* context)
+{
+    long crtr_id = context->value->shorts[0];
+    long hand_rule_action = context->value->shorts[1];
+    long hand_rule_slot = context->value->shorts[2];
+    long hand_rule_type = context->value->shorts[3];
+    long param = context->value->shorts[4];
+    long crtr_id_start = crtr_id == CREATURE_ANY ? 0 : crtr_id;
+    long crtr_id_end = crtr_id == CREATURE_ANY ? CREATURE_TYPES_MAX : crtr_id + 1;
+
+    struct DungeonAdd* dungeonadd;
+    for (int i = context->plr_start; i < context->plr_end; i++)
+    {
+        for (int ci = crtr_id_start; ci < crtr_id_end; ci++)
+        {
+            dungeonadd = get_dungeonadd(i);
+            if (hand_rule_action == HandRuleAction_Allow || hand_rule_action == HandRuleAction_Deny)
+            {
+                dungeonadd->hand_rules[ci][hand_rule_slot].enabled = 1;
+                dungeonadd->hand_rules[ci][hand_rule_slot].type = hand_rule_type;
+                dungeonadd->hand_rules[ci][hand_rule_slot].allow = hand_rule_action;
+                dungeonadd->hand_rules[ci][hand_rule_slot].param = param;
+            } else
+            {
+                dungeonadd->hand_rules[ci][hand_rule_slot].enabled = hand_rule_action == HandRuleAction_Enable;
+            }
+        }
+    }
+}
+
+static void move_creature_process(struct ScriptContext* context)
+{
+    TbMapLocation location = context->value->uarg0;
+    long select_id = context->value->arg1;
+    long effect_id = context->value->shorts[4];
+    long count = context->value->bytes[10];
+    long crmodel = context->value->bytes[11];
+
+    for (int i = context->plr_start; i < context->plr_end; i++)
+    {
+        for (int count_i = 0; count_i < count; count_i++)
+        {
+            struct Thing *thing = script_get_creature_by_criteria(i, crmodel, select_id);
+            if (thing_is_invalid(thing) || thing_is_picked_up(thing)) {
+                continue;
+            }
+
+            if (effect_id < 0)
+            {
+                effect_id = ball_puff_effects[thing->owner];
+            }
+
+            struct Coord3d pos;
+            if(!get_coords_at_location(&pos,location)) {
+                SYNCDBG(5,"No valid coords for location",(int)location);
+                return;
+            }
+            struct CreatureControl *cctrl;
+            cctrl = creature_control_get_from_thing(thing);
+
+            if (effect_id > 0)
+            {
+                create_effect(&thing->mappos, effect_id, game.neutral_player_num);
+                create_effect(&pos, effect_id, game.neutral_player_num);
+            }
+            move_thing_in_map(thing, &pos);
+            reset_interpolation_of_thing(thing);
+            initialise_thing_state(thing, CrSt_CreatureDoingNothing);
+            cctrl->turns_at_job = -1;
+            check_map_explored(thing, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
+        }
+    }
+}
+
+static void count_creatures_at_action_point_process(struct ScriptContext* context)
+{
+    long ap_num = context->value->shorts[0];
+    long crmodel = context->value->bytes[2];
+    long flag_player_id = context->value->chars[3];
+    long flag_id = context->value->chars[4];
+    long flag_type = context->value->chars[5];
+
+    long sum = 0;
+    for (int i = context->plr_start; i < context->plr_end; i++) {
+        sum += count_player_creatures_of_model_in_action_point(i, crmodel, action_point_number_to_index(ap_num));
+    }
+    set_variable(flag_player_id, flag_type, flag_id, sum);
 }
 
 static void set_door_configuration_check(const struct ScriptLine* scline)
@@ -1326,8 +1601,7 @@ static void heart_lost_quick_objective_check(const struct ScriptLine *scline)
     {
         SCRPTWRNLOG("Quick Objective no %d overwritten by different text", scline->np[0]);
     }
-    strncpy(gameadd.quick_messages[scline->np[0]], scline->tp[1], MESSAGE_TEXT_LEN-1);
-    gameadd.quick_messages[scline->np[0]][MESSAGE_TEXT_LEN-1] = '\0';
+    snprintf(gameadd.quick_messages[scline->np[0]], MESSAGE_TEXT_LEN, "%s", scline->tp[1]);
     
     TbMapLocation location;
     if (scline->tp[2][0] != '\0')
@@ -1412,8 +1686,8 @@ static void create_effects_line_check(const struct ScriptLine *scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
 
-    ((long*)(&value->bytes[0]))[0] = scline->np[0]; // AP `from`
-    ((long*)(&value->bytes[4]))[0] = scline->np[1]; // AP `to`
+    value->arg0 = scline->np[0]; // AP `from`
+    value->arg1 = scline->np[1]; // AP `to`
     value->chars[8] = scline->np[2]; // curvature
     value->bytes[9] = scline->np[3]; // spatial stepping
     value->bytes[10] = scline->np[4]; // temporal stepping
@@ -1441,8 +1715,8 @@ static void create_effects_line_process(struct ScriptContext *context)
         ERRORLOG("Too many fx_lines");
         return;
     }
-    find_location_pos(((long *)(&context->value->bytes[0]))[0], context->player_idx, &fx_line->from, __func__);
-    find_location_pos(((long *)(&context->value->bytes[4]))[0], context->player_idx, &fx_line->to, __func__);
+    find_location_pos(context->value->arg0, context->player_idx, &fx_line->from, __func__);
+    find_location_pos(context->value->arg1, context->player_idx, &fx_line->to, __func__);
     fx_line->curvature = context->value->chars[8];
     fx_line->spatial_step = context->value->bytes[9] * 32;
     fx_line->steps_per_turn = context->value->bytes[10];
@@ -1489,7 +1763,7 @@ static void set_object_configuration_check(const struct ScriptLine *scline)
         return;
     }
 
-    long number_value;
+    long number_value = 0;
     long objectvar = get_id(objects_object_commands, property);
     if (objectvar == -1)
     {
@@ -1769,6 +2043,9 @@ static void set_object_configuration_process(struct ScriptContext *context)
             break;
         case 18: // MAPICON
             objst->map_icon = context->value->arg2;
+            break;
+        case 19: // AMBIENCESOUND
+            objdat->fp_smpl_idx = context->value->arg2;
             break;
         default:
             WARNMSG("Unsupported Object configuration, variable %d.", context->value->arg1);
@@ -2111,8 +2388,7 @@ static void set_box_tooltip(const struct ScriptLine *scline)
   {
       SCRPTWRNLOG("Box tooltip #%d overwritten by different text", idx);
   }
-  strncpy(gameadd.box_tooltip[idx], scline->tp[1], MESSAGE_TEXT_LEN-1);
-  gameadd.box_tooltip[idx][MESSAGE_TEXT_LEN-1] = '\0';
+  snprintf(gameadd.box_tooltip[idx], MESSAGE_TEXT_LEN, "%s", scline->tp[1]);
 }
 
 static void set_box_tooltip_id(const struct ScriptLine *scline)
@@ -2123,8 +2399,7 @@ static void set_box_tooltip_id(const struct ScriptLine *scline)
     return;
   }
   int idx = scline->np[0];
-  strncpy(gameadd.box_tooltip[idx], get_string(scline->np[1]), MESSAGE_TEXT_LEN-1);
-  gameadd.box_tooltip[idx][MESSAGE_TEXT_LEN-1] = '\0';
+  snprintf(gameadd.box_tooltip[idx], MESSAGE_TEXT_LEN, "%s", get_string(scline->np[1]));
 }
 
 static void change_slab_owner_check(const struct ScriptLine *scline)
@@ -2287,6 +2562,7 @@ static void set_creature_instance_process(struct ScriptContext *context)
     struct CreatureStats *crstat = creature_stats_get(context->value->bytes[0]);
     if (!creature_stats_invalid(crstat))
     {
+        CrInstance old_instance = crstat->learned_instance_id[context->value->bytes[1] - 1];
         crstat->learned_instance_id[context->value->bytes[1] - 1] = context->value->bytes[2];
         crstat->learned_instance_level[context->value->bytes[1] - 1] = context->value->bytes[3];
         for (short i = 0; i < THINGS_COUNT; i++)
@@ -2296,6 +2572,11 @@ static void set_creature_instance_process(struct ScriptContext *context)
             {
                 if (thing->model == context->value->bytes[0])
                 {
+                    if (old_instance != CrInst_NULL)
+                    {
+                        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+                        cctrl->instance_available[old_instance] = false;
+                    }
                     creature_increase_available_instances(thing);
                 }
             }
@@ -2737,6 +3018,9 @@ const struct CommandDesc command_desc[] = {
   {"HEART_LOST_OBJECTIVE",              "Nl      ", Cmd_HEART_LOST_OBJECTIVE, &heart_lost_objective_check, &heart_lost_objective_process},
   {"SET_DOOR",                          "ANN     ", Cmd_SET_DOOR, &set_door_check, &set_door_process},
   {"SET_CREATURE_INSTANCE",             "CNAN    ", Cmd_SET_CREATURE_INSTANCE, &set_creature_instance_check, &set_creature_instance_process},
+  {"SET_HAND_RULE",                     "PC!Aaaa ", Cmd_SET_HAND_RULE, &set_hand_rule_check, &set_hand_rule_process},
+  {"MOVE_CREATURE",                     "PC!ANLa ", Cmd_MOVE_CREATURE, &move_creature_check, &move_creature_process},
+  {"COUNT_CREATURES_AT_ACTION_POINT",   "NPC!PA  ", Cmd_COUNT_CREATURES_AT_ACTION_POINT, &count_creatures_at_action_point_check, &count_creatures_at_action_point_process},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 

@@ -14,11 +14,12 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-
+#include "pre_inc.h"
 #include <assert.h>
 
 #include "bflib_basics.h"
 #include "bflib_coroutine.h"
+#include "post_inc.h"
 
 // add a new coroutine to the list
 void coroutine_add(CoroutineLoop *context, CoroutineFn fn)
