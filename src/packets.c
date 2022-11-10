@@ -89,6 +89,7 @@
 #include "frontmenu_ingame_tabs.h"
 #include "vidfade.h"
 #include "spdigger_stack.h"
+#include "frontmenu_ingame_map.h"
 
 #include "keeperfx.hpp"
 
@@ -899,8 +900,11 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       directly_cast_spell_on_thing(plyr_idx, pckt->actn_par1, pckt->actn_par2, i);
       return 0;
   case PckA_PlyrToggleAlly:
+  {
       toggle_ally_with_player(plyr_idx, pckt->actn_par1);
+      pannel_map_update(0, 0, map_subtiles_x+1, map_subtiles_y+1);
       return 0;
+  }
   case PckA_SaveViewType:
       if (player->acamera != NULL)
         player->view_mode_restore = player->acamera->view_mode;
