@@ -229,6 +229,7 @@ struct GameAdd {
     float delta_time;
     long double process_turn_time;
     float flash_button_time;
+    TbBool allies_share_territory;
 };
 
 extern unsigned long game_flags2; // Should be reset to zero on new level

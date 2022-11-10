@@ -75,6 +75,7 @@ const struct NamedCommand rules_game_commands[] = {
   {"TRAPSELLVALUEPERCENT",       31},
   {"PLACETRAPSONSUBTILES",       32},
   {"BAGGOLDHOLD",                33},
+  {"ALLIESSHARETERRITORY",       34},
   {NULL,                          0},
   };
 
@@ -763,6 +764,19 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
             {
                 k = atoi(word_buf);
                 gameadd.bag_gold_hold = k;
+                n++;
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), block_buf, config_textname);
+            }
+            break;
+        case 34: // ALLIESSHARETERRITORY
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                gameadd.allies_share_territory = (TbBool)k;
                 n++;
             }
             if (n < 1)

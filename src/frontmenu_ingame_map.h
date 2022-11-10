@@ -64,11 +64,14 @@ extern TbBool reset_all_minimap_interpolation;
 void pannel_map_update(long x, long y, long w, long h);
 void pannel_map_draw_slabs(long x, long y, long units_per_px, long zoom);
 void pannel_map_draw_overlay_things(long units_per_px, long zoom, long basic_zoom);
+void pannel_map_update_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 
 void do_map_rotate_stuff(long a1, long a2, long *a3, long *a4, long a5);
 short do_left_map_drag(long begin_x, long begin_y, long curr_x, long curr_y, long zoom);
 short do_left_map_click(long begin_x, long begin_y, long curr_x, long curr_y, long zoom);
 short do_right_map_click(long start_x, long start_y, long curr_x, long curr_y, long zoom);
+
+void update_subtile(struct Map *mapblk, struct SlabMap *slb, int *col, int *owner_col, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 /******************************************************************************/
 struct InterpMinimap
 {
