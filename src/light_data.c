@@ -1398,7 +1398,7 @@ void light_initialise_lighting_tables(void)
   };
 
   memcpy(game.lish.lighting_tables, values, sizeof(values));
-  game.lish.current_stl_num = sizeof(values) / sizeof(*values);
+  game.lish.lighting_tables_count = sizeof(values) / sizeof(*values);
 }
 
 void light_initialise(void)
@@ -1531,8 +1531,8 @@ static char light_render_light_dynamic_1(struct Light *lgt, int radius, int inte
         if ( *stl_lightness_ptr < lightness )
             *stl_lightness_ptr = lightness;
         struct LightingTable *lighting_table_pointer = &game.lish.lighting_tables[0];
-        lighting_tables_idx = game.lish.current_stl_num;
-        if ( &game.lish.lighting_tables[game.lish.current_stl_num] > &game.lish.lighting_tables[0] )
+        lighting_tables_idx = game.lish.lighting_tables_count;
+        if ( &game.lish.lighting_tables[game.lish.lighting_tables_count] > &game.lish.lighting_tables[0] )
         {
             do
             {
@@ -1624,9 +1624,9 @@ static char light_render_light_dynamic_1(struct Light *lgt, int radius, int inte
                     }
                 }
                 lighting_table_pointer++;
-                lighting_tables_idx = game.lish.current_stl_num;
+                lighting_tables_idx = game.lish.lighting_tables_count;
             }
-        while ( &game.lish.lighting_tables[game.lish.current_stl_num] > lighting_table_pointer );
+        while ( &game.lish.lighting_tables[game.lish.lighting_tables_count] > lighting_table_pointer );
         }
     }
     return lighting_tables_idx;
@@ -1656,9 +1656,9 @@ static int light_render_light_static(struct Light *lgt, int radius, int intensit
             lish->stat_light_map[light_map_idx] = lightness;
         }
         unsigned int lighting_table_idx = 0;
-        for (result = lish->current_stl_num;
-             lish->current_stl_num > lighting_table_idx;
-             result = lish->current_stl_num)
+        for (result = lish->lighting_tables_count;
+             lish->lighting_tables_count > lighting_table_idx;
+             result = lish->lighting_tables_count)
         {
             result = lish->lighting_tables[lighting_table_idx].distance;
             if (result > stl_num)
