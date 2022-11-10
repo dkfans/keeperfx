@@ -1640,8 +1640,7 @@ static char light_render_light_dynamic_2(struct Light *lgt, int radius, int rend
     int v10;
     int v11;
     struct LightingTable *lighting_table;
-    int delta_x;
-    unsigned int v14;
+    unsigned int stl_y;
     unsigned int some_y_2;
     int v16;
     unsigned char v17;
@@ -1655,7 +1654,7 @@ static char light_render_light_dynamic_2(struct Light *lgt, int radius, int rend
     int bool_2;
     int v28;
     long shadow_limit_idx;
-    unsigned int v31;
+    unsigned int stl_x;
     long shadow_limit_idx2;
     MapCoord lgt_pos_x;
     MapCoord lgt_pos_y;
@@ -1706,26 +1705,25 @@ static char light_render_light_dynamic_2(struct Light *lgt, int radius, int rend
                 stl_num_2 = (unsigned char)lighting_table->distance;
                 if (stl_num_2 > lighting_tables_idx)
                     break;
-                delta_x = lighting_table->delta_x;
-                v14 = lighting_table->delta_y + lgt_stl_y;
-                v31 = delta_x + lgt_stl_x;
-                if (delta_x + lgt_stl_x < 0x100 && v14 < 0x100)
+                stl_y = lighting_table->delta_y + lgt_stl_y;
+                stl_x = lighting_table->delta_x + lgt_stl_x;
+                if (lighting_table->delta_x + lgt_stl_x < 0x100 && stl_y < 0x100)
                 {
-                    some_y_2 = v14 << 8;
-                    some_x_2 = (delta_x + lgt_stl_x) << 8;
-                    v16 = LbArcTanAngle(some_x_2 - lgt_pos_x, (v14 << 8) - lgt_pos_y) & 0x7FF;
-                    if ((unsigned char)v31 < (unsigned char)lgt_stl_x)
-                        v17 = ((unsigned char)v14 < (unsigned char)lgt_stl_y) + 3;
+                    some_y_2 = stl_y << 8;
+                    some_x_2 = stl_x << 8;
+                    v16 = LbArcTanAngle(some_x_2 - lgt_pos_x, (stl_y << 8) - lgt_pos_y) & 0x7FF;
+                    if ((unsigned char)stl_x < (unsigned char)lgt_stl_x)
+                        v17 = ((unsigned char)stl_y < (unsigned char)lgt_stl_y) + 3;
                     else
-                        v17 = 2 - ((unsigned char)v14 < (unsigned char)lgt_stl_y);
+                        v17 = 2 - ((unsigned char)stl_y < (unsigned char)lgt_stl_y);
                     v18 = v17;
                     v19 = game.lish.shadow_limits[v16];
                     v38 = v18;
                     if (v19)
                     {
-                        light_render_light_sub1_sub1(lgt_pos_x, lgt_pos_y, v38, v31, v14, &shadow_limit_idx, &shadow_limit_idx2);
+                        light_render_light_sub1_sub1(lgt_pos_x, lgt_pos_y, v38, stl_x, stl_y, &shadow_limit_idx, &shadow_limit_idx2);
                         v20 = &game.lish.shadow_limits[shadow_limit_idx];
-                        if ((!game.lish.shadow_limits[shadow_limit_idx] || !game.lish.shadow_limits[shadow_limit_idx2]) && (unsigned char)game.columns_data[game.map[256 * v14 + 257 + v31].data & 0x7FF].bitfields >> 4 > lgt_stl_z)
+                        if ((!game.lish.shadow_limits[shadow_limit_idx] || !game.lish.shadow_limits[shadow_limit_idx2]) && (unsigned char)game.columns_data[game.map[256 * stl_y + 257 + stl_x].data & 0x7FF].bitfields >> 4 > lgt_stl_z)
                         {
                             if (shadow_limit_idx2 < shadow_limit_idx)
                             {
@@ -1740,13 +1738,13 @@ static char light_render_light_dynamic_2(struct Light *lgt, int radius, int rend
                     }
                     else
                     {
-                        v21 = game.map[some_y_2 + 257 + v31].data & 0x7FF;
-                        subtile_lightness = &game.lish.subtile_lightness[some_y_2 + v31];
+                        v21 = game.map[some_y_2 + 257 + stl_x].data & 0x7FF;
+                        subtile_lightness = &game.lish.subtile_lightness[some_y_2 + stl_x];
                         v22 = (unsigned char)game.columns_data[v21].bitfields >> 4;
                         bool_1 = v22 > lgt_stl_z;
                         if (v22 > lgt_stl_z)
                         {
-                            light_render_light_sub1_sub1(lgt_pos_x, lgt_pos_y, v38, v31, v14, &shadow_limit_idx, &shadow_limit_idx2);
+                            light_render_light_sub1_sub1(lgt_pos_x, lgt_pos_y, v38, stl_x, stl_y, &shadow_limit_idx, &shadow_limit_idx2);
                             if (shadow_limit_idx2 < shadow_limit_idx)
                             {
                                 memset(&game.lish.shadow_limits[shadow_limit_idx], 1u, 2047 - shadow_limit_idx);
@@ -1760,15 +1758,16 @@ static char light_render_light_dynamic_2(struct Light *lgt, int radius, int rend
                             }
                             memset(shadow_limits, 1u, v24);
                         }
+                        bool_2 = false;
                         if (bool_1)
                         {
                             switch (v38)
                             {
                             case 1:
-                                bool_2 = ((unsigned char)game.columns_data[game.map[256 * v14 + 256 + v31].data & 0x7FF].bitfields >> 4 <= lgt_stl_z);
+                                bool_2 = ((unsigned char)game.columns_data[game.map[256 * stl_y + 256 + stl_x].data & 0x7FF].bitfields >> 4 <= lgt_stl_z);
                                 break;
                             case 3:
-                                bool_2 = (!light_render_light_sub1_sub2(v31, v14 - 1, lgt_stl_z));
+                                bool_2 = (!light_render_light_sub1_sub2(stl_x, stl_y - 1, lgt_stl_z));
                                 break;
                             case 4:
                                 bool_2 = 0;
@@ -1780,8 +1779,8 @@ static char light_render_light_dynamic_2(struct Light *lgt, int radius, int rend
                         }
                         if (!bool_1 || bool_2)
                         {
-                            MapCoordDelta some_delta_x = abs(lgt_pos_x - some_x_2);
-                            MapCoordDelta some_delta_y = abs(lgt_pos_y - some_y_2);
+                            MapCoordDelta some_delta_x = min((lgt_pos_x - some_x_2),(some_x_2 - lgt_pos_x));
+                            MapCoordDelta some_delta_y = min((lgt_pos_y - some_y_2),(some_y_2 - lgt_pos_y));
 
                             v28 = LbDiagonalLength(some_delta_x, some_delta_y);
 
