@@ -1,0 +1,11 @@
+{
+    "name": "keeperfx",
+    "version-string": "0.5",
+    "dependencies": [
+        "enet",
+        "sdl2",
+        "sdl2-mixer",
+        "sdl2-net",
+        "zlib"
+    ]
+}
