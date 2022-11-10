@@ -15,8 +15,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-
-
+#include "pre_inc.h"
 #include "lvl_script_conditions.h"
 
 #include "globals.h"
@@ -28,6 +27,7 @@
 #include "keeperfx.hpp"
 #include "bflib_math.h"
 #include "lvl_script_lib.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {

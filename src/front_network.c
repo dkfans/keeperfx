@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "front_network.h"
 
 #include "globals.h"
@@ -43,6 +44,7 @@
 #include "config_strings.h"
 #include "game_merge.h"
 #include "game_legacy.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -240,7 +242,8 @@ void __stdcall enum_sessions_callback(struct TbNetworkCallbackData *netcdat, voi
     }
 }
 
-void __stdcall enum_services_callback(struct TbNetworkCallbackData *netcdat, void *a2)
+// TODO: remove all this weird stuff
+static void __stdcall enum_services_callback(struct TbNetworkCallbackData *netcdat, void *a2)
 {
     if (net_number_of_services >= NET_SERVICES_COUNT)
     {
@@ -261,10 +264,15 @@ void __stdcall enum_services_callback(struct TbNetworkCallbackData *netcdat, voi
     {
         LbStringCopy(net_service[net_number_of_services], get_string(GUIStr_NetIpx), NET_MESSAGE_LEN);
         net_number_of_services++;
-    } else
-    if (strcasecmp("TCP", netcdat->svc_name) == 0)
+    }
+    else if (strcasecmp("TCP", netcdat->svc_name) == 0)
     {
         LbStringCopy(net_service[net_number_of_services], "TCP/IP", NET_MESSAGE_LEN);//TODO TRANSLATION put this in GUI strings
+        net_number_of_services++;
+    }
+    else if (strcasecmp("ENET/UDP", netcdat->svc_name) == 0)
+    {
+        LbStringCopy(net_service[net_number_of_services], netcdat->svc_name, NET_MESSAGE_LEN);//TODO TRANSLATION put this in GUI strings
         net_number_of_services++;
     } else
     {

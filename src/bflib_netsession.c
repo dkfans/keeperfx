@@ -17,10 +17,12 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "bflib_netsession.h"
 
 #include "bflib_basics.h"
 #include "bflib_memory.h"
+#include "post_inc.h"
 
 /******************************************************************************/
 void net_copy_name_string(char *dst,const char *src,long max_len)

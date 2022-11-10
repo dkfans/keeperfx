@@ -16,7 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-
+#include "pre_inc.h"
 #include <assert.h>
 
 #include "thing_creature.h"
@@ -90,6 +90,7 @@
 #include "spdigger_stack.h"
 
 #include "keeperfx.hpp"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -1139,7 +1140,7 @@ void reapply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long spe
         break;
     case SplK_Chicken:
         external_set_thing_state(thing, CrSt_CreatureChangeToChicken);
-        cctrl->countdown_282 = 10;
+        cctrl->countdown_282 = 2;
         pwrdynst = get_power_dynamic_stats(PwrK_CHICKEN);
         cspell->duration = pwrdynst->strength[spell_lev];
         break;
@@ -1826,7 +1827,7 @@ TngUpdateRet process_creature_state(struct Thing *thing)
                 long x = stl_num_decode_x(cctrl->collided_door_subtile);
                 long y = stl_num_decode_y(cctrl->collided_door_subtile);
                 struct Thing* doortng = get_door_for_position(x, y);
-                if (!thing_is_invalid(doortng))
+                if ((!thing_is_invalid(doortng)) && (thing->owner != neutral_player_number))
                 {
                     if (thing->owner != doortng->owner)
                     {
@@ -1841,6 +1842,7 @@ TngUpdateRet process_creature_state(struct Thing *thing)
                 {
                     // If the door does not exist, clear this field too.
                     cctrl->collided_door_subtile = 0;
+                    set_start_state(thing);
                 }
             }
         }
@@ -2111,11 +2113,18 @@ long move_creature(struct Thing *thing)
         {
             if (thing_in_wall_at(thing, &nxpos) && !creature_can_pass_through_wall_at(thing, &nxpos))
             {
-                long blocked_flags = get_thing_blocked_flags_at(thing, &nxpos);
-                if (cctrl->collided_door_subtile == 0) {
-                    check_for_door_collision_at(thing, &nxpos, blocked_flags);
+                if (creature_cannot_move_directly_to(thing, &nxpos))
+                {
+                    long blocked_flags = get_creature_blocked_flags_at(thing, &nxpos);
+                    if (cctrl->collided_door_subtile == 0) {
+                        check_for_door_collision_at(thing, &nxpos, blocked_flags);
+                    }
+                    slide_thing_against_wall_at(thing, &nxpos, blocked_flags);
                 }
-                slide_thing_against_wall_at(thing, &nxpos, blocked_flags);
+                else
+                {
+                    nxpos.z.val = get_thing_height_at(thing, &nxpos);
+                }
             }
         }
         else
@@ -2891,11 +2900,6 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
         {
             project_point_to_wall_on_angle(&pos1, &pos2, firing->move_angle_xy, firing->move_angle_z, 256, 20);
         }
-        if (map_is_solid_at_height(pos2.x.stl.num, pos2.y.stl.num, pos2.z.val, (pos2.z.val + shotst->size_yz)))
-        {
-            pos2.x.val = firing->mappos.x.val;
-            pos2.y.val = firing->mappos.y.val;
-        }
         shotng = create_thing(&pos2, TCls_Shot, shot_model, firing->owner, -1);
         if (thing_is_invalid(shotng))
           return;
@@ -2910,11 +2914,6 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
     case ShM_FlameBreathe:
         if ((thing_is_invalid(target)) || (get_2d_distance(&firing->mappos, &pos2) > shotst->max_range))
           project_point_to_wall_on_angle(&pos1, &pos2, firing->move_angle_xy, firing->move_angle_z, 256, 4);
-        if (map_is_solid_at_height(pos2.x.stl.num, pos2.y.stl.num, pos2.z.val, (pos2.z.val + shotst->size_yz)))
-        {
-            pos2.x.val = firing->mappos.x.val;
-            pos2.y.val = firing->mappos.y.val;
-        }
         shotng = create_thing(&pos2, TCls_Shot, shot_model, firing->owner, -1);
         if (thing_is_invalid(shotng))
           return;
@@ -4365,7 +4364,7 @@ struct Thing *find_players_highest_score_creature_in_fight_not_affected_by_spell
     struct CompoundTngFilterParam param;
     param.plyr_idx = -1;
     param.class_id = 0;
-    param.model_id = 0;
+    param.model_id = CREATURE_ANY;
     param.num1 = pwkind;
     Thing_Maximizer_Filter filter = player_list_creature_filter_in_fight_and_not_affected_by_spell;
     struct Thing* creatng = get_player_list_creature_with_filter(dungeon->creatr_list_start, filter, &param);

@@ -17,6 +17,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "ariadne.h"
 
 #include "globals.h"
@@ -39,6 +40,7 @@
 #include "map_columns.h"
 #include "map_utils.h"
 #include "game_legacy.h"
+#include "post_inc.h"
 
 #define EDGEFIT_LEN           64
 #define EDGEOR_COUNT           4

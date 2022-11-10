@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "thing_data.h"
 
 #include "globals.h"
@@ -34,6 +35,7 @@
 #include "engine_arrays.h"
 #include "kjm_input.h"
 #include "gui_topmsg.h" 
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {

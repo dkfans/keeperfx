@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "thing_stats.h"
 
 #include "globals.h"
@@ -38,6 +39,7 @@
 #include "vidfade.h"
 #include "game_legacy.h"
 #include "thing_physics.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {

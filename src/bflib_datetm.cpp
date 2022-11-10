@@ -17,12 +17,9 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "bflib_datetm.h"
 
-#include <string.h>
-#include <stdarg.h>
-#include <stdio.h>
-#include <time.h>
 #include <chrono>
 #include "bflib_basics.h"
 #include "globals.h"
@@ -31,6 +28,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #endif
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {

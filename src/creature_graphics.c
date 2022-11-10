@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "creature_graphics.h"
 
 #include "globals.h"
@@ -33,6 +34,7 @@
 #include "keeperfx.hpp"
 #include "engine_render.h"
 #include "player_instances.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {

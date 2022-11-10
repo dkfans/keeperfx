@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "engine_camera.h"
 
 #include "globals.h"
@@ -35,6 +36,7 @@
 #include "config_settings.h"
 #include "player_instances.h"
 #include "frontmenu_ingame_map.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -67,9 +69,8 @@ long interpolated_camera_zoom;
 
 
 // Instantly move camera when going from parchment view to main view
-void reset_interpolation_for_parchment_view()
+void reset_interpolation_for_parchment_view(struct PlayerInfo* player)
 {
-    struct PlayerInfo* player = get_my_player();
     struct Camera *cam = player->acamera;
     interpolated_cam_orient_a = cam->orient_a;
     interpolated_cam_orient_c = cam->orient_c;
@@ -81,11 +82,11 @@ void reset_interpolation_for_parchment_view()
     previous_cam_mappos_x = cam->mappos.x.val;
     previous_cam_mappos_y = cam->mappos.y.val;
     previous_cam_mappos_z = cam->mappos.z.val;
+    reset_all_minimap_interpolation = true; // Stops minimap from smoothly moving to the new position upon exiting Parchment View
 }
 
-void reset_interpolation_of_camera()
+void reset_interpolation_of_camera(struct PlayerInfo* player)
 {
-    struct PlayerInfo* player = get_my_player();
     struct Camera *cam = player->acamera;
     interpolated_camera_zoom = scale_camera_zoom_to_screen(cam->zoom);
     previous_camera_zoom = scale_camera_zoom_to_screen(cam->zoom);
@@ -101,12 +102,11 @@ void reset_interpolation_of_camera()
     previous_cam_mappos_x = cam->mappos.x.val;
     previous_cam_mappos_y = cam->mappos.y.val;
     previous_cam_mappos_z = cam->mappos.z.val;
-    reset_interpolation_of_minimap();
+    reset_all_minimap_interpolation = true;
 }
 
-void set_previous_camera_values() {
+void set_previous_camera_values(struct PlayerInfo* player) {
     // Used for interpolation mainly
-    struct PlayerInfo* player = get_my_player();
     struct Camera *cam = player->acamera;
     previous_cam_mappos_x = cam->mappos.x.val;
     previous_cam_mappos_y = cam->mappos.y.val;
@@ -115,7 +115,10 @@ void set_previous_camera_values() {
     previous_cam_orient_b = cam->orient_b;
     previous_cam_orient_c = cam->orient_c;
     previous_camera_zoom = scale_camera_zoom_to_screen(cam->zoom);
-    if (game.frame_skip > 0) {reset_interpolation_of_camera();} // Stop camera from being laggy while frameskipping
+    if (game.frame_skip > 0)
+    {
+        reset_interpolation_of_camera(player); // Stop camera from being laggy while frameskipping
+    }
 }
 
 MapCoordDelta get_3d_box_distance(const struct Coord3d *pos1, const struct Coord3d *pos2)
@@ -383,6 +386,8 @@ unsigned long adjust_min_camera_zoom(struct Camera *cam, long width, long height
     {
         return zoom_min; // only apply limit to iso mode
     }
+    if (height < 1)
+        height = 1;
     //return zoom_min; // uncomment this line to quickly disable the zoom limiting.
     long aspect_ratio = 100 * width / height; // (*100 to help with rounding)
     long max_aspect_ratio = 145; // (14.5/10 = 1.45 *100 to help with rounding)
@@ -519,7 +524,7 @@ void init_player_cameras(struct PlayerInfo *player)
     cam->view_mode = PVM_FrontView;
     cam->zoom = settings.frontview_zoom_level;
 
-    reset_interpolation_of_camera();
+    reset_interpolation_of_camera(player);
 }
 
 static int get_walking_bob_direction(struct Thing *thing)

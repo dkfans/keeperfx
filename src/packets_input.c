@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "config_players.h"
 #include "packets.h"
 #include "player_data.h"
@@ -43,6 +44,7 @@
 #include "room_workshop.h"
 #include "cursor_tag.h"
 #include "engine_render.h"
+#include "post_inc.h"
 
 extern TbBool process_dungeon_control_packet_spell_overcharge(long plyr_idx);
 extern TbBool packets_process_cheats(
@@ -682,7 +684,10 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         player->boxsize = 1;
         player->field_4D6 = 0;
     }
-    map_volume_box.visible = 0;
+    if (player->id_number == my_player_number)
+    {
+        map_volume_box.visible = 0;
+    }
 
     update_double_click_detection(plyr_idx);
     player->thing_under_hand = 0;
