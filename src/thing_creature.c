@@ -1140,7 +1140,7 @@ void reapply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long spe
         break;
     case SplK_Chicken:
         external_set_thing_state(thing, CrSt_CreatureChangeToChicken);
-        cctrl->countdown_282 = 10;
+        cctrl->countdown_282 = 2;
         pwrdynst = get_power_dynamic_stats(PwrK_CHICKEN);
         cspell->duration = pwrdynst->strength[spell_lev];
         break;
@@ -1827,7 +1827,7 @@ TngUpdateRet process_creature_state(struct Thing *thing)
                 long x = stl_num_decode_x(cctrl->collided_door_subtile);
                 long y = stl_num_decode_y(cctrl->collided_door_subtile);
                 struct Thing* doortng = get_door_for_position(x, y);
-                if (!thing_is_invalid(doortng))
+                if ((!thing_is_invalid(doortng)) && (thing->owner != neutral_player_number))
                 {
                     if (thing->owner != doortng->owner)
                     {
@@ -1842,6 +1842,7 @@ TngUpdateRet process_creature_state(struct Thing *thing)
                 {
                     // If the door does not exist, clear this field too.
                     cctrl->collided_door_subtile = 0;
+                    set_start_state(thing);
                 }
             }
         }

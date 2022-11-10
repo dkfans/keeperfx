@@ -107,23 +107,9 @@ TbBool toggle_computer_player(PlayerNumber plyr_idx)
 {
 }
 
-void tag_cursor_blocks_dig(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long full_slab)
-{
-}
-
 long ceiling_init(unsigned long a1, unsigned long a2)
 {
     return 0;
-}
-
-TbBool swap_creature(long ncrt_id, long crtr_id)
-{
-    return 1;
-}
-
-TbBool tag_cursor_blocks_place_door(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
-{
-    return 1;
 }
 
 void set_mouse_light(struct PlayerInfo *player)
@@ -177,10 +163,6 @@ void clear_game_for_save(void)
 {
 }
 
-void init_lookups(void)
-{
-}
-
 TbBool set_gamma(char corrlvl, TbBool do_set)
 {
     return 1;
@@ -189,10 +171,6 @@ TbBool set_gamma(char corrlvl, TbBool do_set)
 TbBool all_dungeons_destroyed(const struct PlayerInfo *win_player)
 {
     return 0;
-}
-
-void tag_cursor_blocks_thing_in_hand(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, int is_special_digger, long full_slab)
-{
 }
 
 void reinit_level_after_load(void)
@@ -219,20 +197,6 @@ short winning_player_quitting(struct PlayerInfo *player, long *plyr_count)
 struct Thing *get_queryable_object_near(MapCoord pos_x, MapCoord pos_y, long plyr_idx)
 {
     return NULL;
-}
-
-TbBool tag_cursor_blocks_sell_area(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long full_slab)
-{
-    return 1;
-}
-
-TbBool tag_cursor_blocks_place_room(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long full_slab)
-{
-    return 1;
-}
-
-void reset_script_timers_and_flags(void)
-{
 }
 
 void reset_creature_max_levels(void)
@@ -293,5 +257,20 @@ void initialise_map_health(void)
 void engine(struct PlayerInfo *player, struct Camera *cam)
 {
 }
+
+void reset_hand_rules(void)
+{
+}
+
+void init_keepers_map_exploration(void)
+{
+}
+
+void clear_game(void)
+{
+}
+
+TbBool force_player_num = 0;
+short default_loc_player = 0;
 
 } //extern "C"
