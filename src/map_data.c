@@ -243,13 +243,8 @@ void reveal_map_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber p
 
 TbBool subtile_revealed(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx)
 {
-    unsigned short plyr_bit = (1 << plyr_idx);
     struct Map* mapblk = get_map_block_at(stl_x, stl_y);
-    if (map_block_invalid(mapblk))
-        return false;
-    if ((mapblk->data >> 28) & plyr_bit)
-        return true;
-    return false;
+    return map_block_revealed(mapblk, plyr_idx);
 }
 
 void reveal_map_block(struct Map *mapblk, PlayerNumber plyr_idx)
@@ -350,11 +345,27 @@ TbBool slabs_change_type(MapSlabCoord slb_x, MapSlabCoord slb_y, MaxCoordFilterP
 
 TbBool map_block_revealed(const struct Map *mapblk, PlayerNumber plyr_idx)
 {
-    unsigned short plyr_bit = (1 << plyr_idx);
     if (map_block_invalid(mapblk))
         return false;
-    if ((mapblk->data >> 28) & plyr_bit)
+    unsigned short plyr_bit;
+    if (gameadd.allies_share_territory)
+    {
+        for (PlayerNumber i = 0; i < PLAYERS_COUNT; i++)
+        {
+            if (players_are_mutual_allies(plyr_idx, i))
+            {
+                plyr_bit = (1 << i);
+                if ((mapblk->data >> 28) & plyr_bit)
+                return true;
+            }
+        }
+    }
+    else
+    {
+        plyr_bit = (1 << plyr_idx);
+        if ((mapblk->data >> 28) & plyr_bit)
         return true;
+    }
     return false;
 }
 

@@ -689,80 +689,59 @@ void pannel_map_update_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSu
     {
         col = 3;
     }
-    else 
+    else if (map_block_revealed(mapblk, plyr_idx))
     {
-        if (gameadd.allies_share_territory)
+        if ((mapblk->flags & SlbAtFlg_TaggedValuable) != 0)
         {
-            for (PlayerNumber i = 0; i < PLAYERS_COUNT; i++)
+            col = 4;
+        } else
+        if ((mapblk->flags & SlbAtFlg_Valuable) != 0)
+        {
+            col = 5;
+        } else
+        if ((mapblk->flags & SlbAtFlg_IsRoom) != 0)
+        {
+            struct Room *room;
+            room = room_get(slb->room_index);
+            col = owner_col + 6 * room->kind + 8;
+        } else
+        if (slb->kind == SlbT_ROCK)
+        {
+            col = 2;
+        } else
+        if ((mapblk->flags & SlbAtFlg_Filled) != 0)
+        {
+            col = 1;
+        } else
+        if ((mapblk->flags & SlbAtFlg_IsDoor) != 0)
+        {
+            struct Thing *doortng;
+            doortng = get_door_for_position(stl_x, stl_y);
+            if (!thing_is_invalid(doortng)) {
+                col = owner_col + 6 * ((doortng->door.is_locked == 1) + 2 * doortng->model) + 110;
+            } else {
+                ERRORLOG("No door for flagged position");
+            }
+        } else
+        if ((mapblk->flags & SlbAtFlg_Blocking) == 0)
+        {
+            if (slb->kind == SlbT_LAVA) {
+                col = 6;
+            } else
+            if (slb->kind == SlbT_WATER) {
+                col = 7;
+            }  else
+            if (slb->kind == SlbT_PURPLE)
             {
-                if (players_are_mutual_allies(plyr_idx, i))
-                {
-                    if (map_block_revealed(mapblk, i))
-                    {
-                        update_subtile(mapblk, slb, &col, &owner_col, stl_x, stl_y);
-                    }
-                }
+                col = 176;
+            } else {
+                col = owner_col + 170;
             }
         }
-        else
-        {
-            if (map_block_revealed(mapblk, plyr_idx))
-            {
-                update_subtile(mapblk, slb, &col, &owner_col, stl_x, stl_y);
-            }
-        }
+
     }
     TbPixel *mapptr = &PannelMap[stl_num];
     *mapptr = col;
-}
-
-void update_subtile(struct Map *mapblk, struct SlabMap *slb, int *col, int *owner_col, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
-{
-    if ((mapblk->flags & SlbAtFlg_TaggedValuable) != 0)
-    {
-        *col = 4;
-    } else
-    if ((mapblk->flags & SlbAtFlg_Valuable) != 0)
-    {
-        *col = 5;
-    } else
-    if ((mapblk->flags & SlbAtFlg_IsRoom) != 0)
-    {
-        struct Room *room = room_get(slb->room_index);
-        *col = *owner_col + 6 * room->kind + 8;
-    } else
-    if (slb->kind == SlbT_ROCK)
-    {
-        *col = 2;
-    } else
-    if ((mapblk->flags & SlbAtFlg_Filled) != 0)
-    {
-        *col = 1;
-    } else
-    if ((mapblk->flags & SlbAtFlg_IsDoor) != 0)
-    {
-        struct Thing *doortng = get_door_for_position(stl_x, stl_y);
-        if (!thing_is_invalid(doortng)) {
-            *col = *owner_col + 6 * ((doortng->door.is_locked == 1) + 2 * doortng->model) + 110;
-        } else {
-            ERRORLOG("No door for flagged position");
-        }
-    } else
-    if ((mapblk->flags & SlbAtFlg_Blocking) == 0)
-    {
-        if (slb->kind == SlbT_LAVA) {
-            *col = 6;
-        } else
-        if (slb->kind == SlbT_WATER) {
-            *col = 7;
-        }  else
-        if (slb->kind == SlbT_PURPLE)
-        {
-            *col = 176;
-        } else {
-            *col = *owner_col + 170;
-        }
-    }
 }
 
 void pannel_map_update(long x, long y, long w, long h)
