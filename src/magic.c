@@ -1850,15 +1850,10 @@ int affect_nearby_creatures_by_power_call_to_arms(PlayerNumber plyr_idx, long ra
 
 void process_magic_power_call_to_arms(PlayerNumber plyr_idx)
 {
-    struct Dungeon *dungeon;
-    dungeon = get_players_num_dungeon(plyr_idx);
-    long duration;
-    duration = game.play_gameturn - dungeon->cta_start_turn;
-    const struct MagicStats *pwrdynst;
-    pwrdynst = get_power_dynamic_stats(PwrK_CALL2ARMS);
-
-    struct SlabMap *slb;
-    slb = get_slabmap_for_subtile(dungeon->cta_stl_x, dungeon->cta_stl_y);
+    struct Dungeon *dungeon = get_players_num_dungeon(plyr_idx);
+    long duration = game.play_gameturn - dungeon->cta_start_turn;
+    const struct MagicStats *pwrdynst = get_power_dynamic_stats(PwrK_CALL2ARMS);
+    struct SlabMap *slb = get_slabmap_for_subtile(dungeon->cta_stl_x, dungeon->cta_stl_y);
     TbBool pay_land = (slabmap_owner(slb) != plyr_idx);
     if (gameadd.allies_share_territory)
     {
@@ -1885,8 +1880,7 @@ void process_magic_power_call_to_arms(PlayerNumber plyr_idx)
     }
     if ((duration % 16) == 0)
     {
-        long range;
-        range = subtile_coord(pwrdynst->strength[dungeon->cta_splevel],0);
+        long range = subtile_coord(pwrdynst->strength[dungeon->cta_splevel],0);
         struct Coord3d cta_pos;
         cta_pos.x.val = subtile_coord_center(dungeon->cta_stl_x);
         cta_pos.y.val = subtile_coord_center(dungeon->cta_stl_y);
