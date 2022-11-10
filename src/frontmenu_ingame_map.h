@@ -22,6 +22,8 @@
 
 #include "bflib_basics.h"
 #include "globals.h"
+#include "map_data.h"
+#include "slab_data.h"
 
 #ifdef __cplusplus
 extern "C" {
