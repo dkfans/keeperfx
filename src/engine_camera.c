@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "engine_camera.h"
 
 #include "globals.h"
@@ -34,13 +35,16 @@
 #include "dungeon_data.h"
 #include "config_settings.h"
 #include "player_instances.h"
-
+#include "frontmenu_ingame_map.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
 /******************************************************************************/
+long zoom_distance_setting;
+long frontview_zoom_distance_setting;
 long camera_zoom;
 
 long previous_cam_mappos_x;
@@ -65,9 +69,8 @@ long interpolated_camera_zoom;
 
 
 // Instantly move camera when going from parchment view to main view
-void reset_interpolation_for_parchment_view()
+void reset_interpolation_for_parchment_view(struct PlayerInfo* player)
 {
-    struct PlayerInfo* player = get_my_player();
     struct Camera *cam = player->acamera;
     interpolated_cam_orient_a = cam->orient_a;
     interpolated_cam_orient_c = cam->orient_c;
@@ -79,11 +82,11 @@ void reset_interpolation_for_parchment_view()
     previous_cam_mappos_x = cam->mappos.x.val;
     previous_cam_mappos_y = cam->mappos.y.val;
     previous_cam_mappos_z = cam->mappos.z.val;
+    reset_all_minimap_interpolation = true; // Stops minimap from smoothly moving to the new position upon exiting Parchment View
 }
 
-void reset_interpolation_of_camera()
+void reset_interpolation_of_camera(struct PlayerInfo* player)
 {
-    struct PlayerInfo* player = get_my_player();
     struct Camera *cam = player->acamera;
     interpolated_camera_zoom = scale_camera_zoom_to_screen(cam->zoom);
     previous_camera_zoom = scale_camera_zoom_to_screen(cam->zoom);
@@ -99,11 +102,11 @@ void reset_interpolation_of_camera()
     previous_cam_mappos_x = cam->mappos.x.val;
     previous_cam_mappos_y = cam->mappos.y.val;
     previous_cam_mappos_z = cam->mappos.z.val;
+    reset_all_minimap_interpolation = true;
 }
 
-void set_previous_camera_values() {
+void set_previous_camera_values(struct PlayerInfo* player) {
     // Used for interpolation mainly
-    struct PlayerInfo* player = get_my_player();
     struct Camera *cam = player->acamera;
     previous_cam_mappos_x = cam->mappos.x.val;
     previous_cam_mappos_y = cam->mappos.y.val;
@@ -112,7 +115,10 @@ void set_previous_camera_values() {
     previous_cam_orient_b = cam->orient_b;
     previous_cam_orient_c = cam->orient_c;
     previous_camera_zoom = scale_camera_zoom_to_screen(cam->zoom);
-    if (game.frame_skip > 0) {reset_interpolation_of_camera();} // Stop camera from being laggy while frameskipping
+    if (game.frame_skip > 0)
+    {
+        reset_interpolation_of_camera(player); // Stop camera from being laggy while frameskipping
+    }
 }
 
 MapCoordDelta get_3d_box_distance(const struct Coord3d *pos1, const struct Coord3d *pos2)
@@ -227,7 +233,8 @@ void view_zoom_camera_in(struct Camera *cam, long limit_max, long limit_min)
     long old_zoom = get_camera_zoom(cam);
     switch (cam->view_mode)
     {
-    case PVM_IsometricView:
+    case PVM_IsoWibbleView:
+    case PVM_IsoStraightView:
         new_zoom = (100 * old_zoom) / 85;
         if (new_zoom == old_zoom)
             new_zoom++;
@@ -272,8 +279,9 @@ void set_camera_zoom(struct Camera *cam, long new_zoom)
       return;
     switch (cam->view_mode)
     {
-    case PVM_IsometricView:
+    case PVM_IsoWibbleView:
     case PVM_FrontView:
+    case PVM_IsoStraightView:
         cam->zoom = new_zoom;
         break;
     case PVM_ParchmentView:
@@ -288,7 +296,8 @@ void view_zoom_camera_out(struct Camera *cam, long limit_max, long limit_min)
     long old_zoom = get_camera_zoom(cam);
     switch (cam->view_mode)
     {
-    case PVM_IsometricView:
+    case PVM_IsoWibbleView:
+    case PVM_IsoStraightView:
         new_zoom = (85 * old_zoom) / 100;
         if (new_zoom == old_zoom)
             new_zoom--;
@@ -314,8 +323,8 @@ void view_zoom_camera_out(struct Camera *cam, long limit_max, long limit_min)
         new_zoom = (85 * old_zoom) / 100;
         if (new_zoom == old_zoom)
             new_zoom--;
-        if (new_zoom < FRONTVIEW_CAMERA_ZOOM_MIN) {
-            new_zoom = FRONTVIEW_CAMERA_ZOOM_MIN;
+        if (new_zoom < max(FRONTVIEW_CAMERA_ZOOM_MIN, frontview_zoom_distance_setting)) {
+            new_zoom = max(FRONTVIEW_CAMERA_ZOOM_MIN, frontview_zoom_distance_setting);
         } else
         if (new_zoom > FRONTVIEW_CAMERA_ZOOM_MAX) {
             new_zoom = FRONTVIEW_CAMERA_ZOOM_MAX;
@@ -351,8 +360,9 @@ long get_camera_zoom(struct Camera *cam)
       return 0;
     switch (cam->view_mode)
     {
-    case PVM_IsometricView:
+    case PVM_IsoWibbleView:
     case PVM_FrontView:
+    case PVM_IsoStraightView:
         return cam->zoom;
     case PVM_ParchmentView:
         return cam->mappos.z.val;
@@ -371,11 +381,13 @@ long get_camera_zoom(struct Camera *cam)
  */
 unsigned long adjust_min_camera_zoom(struct Camera *cam, long width, long height, long status_panel_width)
 {
-    unsigned long zoom_min = CAMERA_ZOOM_MIN; // a higher value is a nearer zoom
-    if (cam->view_mode != PVM_IsometricView)
+    unsigned long zoom_min = max(CAMERA_ZOOM_MIN, zoom_distance_setting); // a higher value is a nearer zoom
+    if (!(cam->view_mode == PVM_IsoWibbleView || cam->view_mode == PVM_IsoStraightView))
     {
         return zoom_min; // only apply limit to iso mode
     }
+    if (height < 1)
+        height = 1;
     //return zoom_min; // uncomment this line to quickly disable the zoom limiting.
     long aspect_ratio = 100 * width / height; // (*100 to help with rounding)
     long max_aspect_ratio = 145; // (14.5/10 = 1.45 *100 to help with rounding)
@@ -471,7 +483,6 @@ void view_set_camera_rotation_inertia(struct Camera *cam, long delta, long ilimi
 
 void init_player_cameras(struct PlayerInfo *player)
 {
-
     struct Thing* heartng = get_player_soul_container(player->id_number);
     struct Camera* cam = &player->cameras[CamIV_FirstPerson];
     cam->mappos.x.val = 0;
@@ -491,7 +502,11 @@ void init_player_cameras(struct PlayerInfo *player)
     cam->horizontal_fov = 94;
     cam->orient_b = -266;
     cam->orient_a = LbFPMath_PI/4;
-    cam->view_mode = PVM_IsometricView;
+    if (settings.video_rotate_mode == 1) {
+        cam->view_mode = PVM_IsoStraightView;
+    } else {
+        cam->view_mode = PVM_IsoWibbleView;
+    }
     cam->zoom = settings.isometric_view_zoom_level;
 
     cam = &player->cameras[CamIV_Parchment];
@@ -508,6 +523,8 @@ void init_player_cameras(struct PlayerInfo *player)
     cam->horizontal_fov = 94;
     cam->view_mode = PVM_FrontView;
     cam->zoom = settings.frontview_zoom_level;
+
+    reset_interpolation_of_camera(player);
 }
 
 static int get_walking_bob_direction(struct Thing *thing)
@@ -528,7 +545,7 @@ static int get_walking_bob_direction(struct Thing *thing)
 }
 
 void update_player_camera_fp(struct Camera *cam, struct Thing *thing)
-{    
+{
     int eye_height = get_creature_eye_height(thing);
 
     if ( thing_is_creature(thing) )
@@ -653,8 +670,11 @@ void view_move_camera_left(struct Camera *cam, long distance)
     int pos_y;
     int parchment_pos_x;
 
-    if ( cam->view_mode == PVM_IsometricView || cam->view_mode == PVM_FrontView)
-    {
+    if (
+        cam->view_mode == PVM_IsoWibbleView ||
+        cam->view_mode == PVM_FrontView ||
+        cam->view_mode == PVM_IsoStraightView
+    ) {
 
         pos_x = cam->mappos.x.val - FIXED_POLAR_TO_X(cam->orient_a + 512,distance);
         pos_y = cam->mappos.y.val + FIXED_POLAR_TO_Y(cam->orient_a + 512,distance);
@@ -695,8 +715,11 @@ void view_move_camera_right(struct Camera *cam, long distance)
     int pos_y;
     int parchment_pos_x;
 
-    if ( cam->view_mode == PVM_IsometricView || cam->view_mode == PVM_FrontView)
-    {
+    if (
+        cam->view_mode == PVM_IsoWibbleView ||
+        cam->view_mode == PVM_FrontView ||
+        cam->view_mode == PVM_IsoStraightView
+    ) {
 
         pos_x = cam->mappos.x.val + FIXED_POLAR_TO_X(cam->orient_a + 512,distance);
         pos_y = cam->mappos.y.val - FIXED_POLAR_TO_Y(cam->orient_a + 512,distance);
@@ -737,8 +760,11 @@ void view_move_camera_up(struct Camera *cam, long distance)
     int pos_y;
     int parchment_pos_y;
 
-    if ( cam->view_mode == PVM_IsometricView || cam->view_mode == PVM_FrontView)
-    {
+    if (
+        cam->view_mode == PVM_IsoWibbleView ||
+        cam->view_mode == PVM_FrontView ||
+        cam->view_mode == PVM_IsoStraightView
+    ) {
 
         pos_x = cam->mappos.x.val + FIXED_POLAR_TO_X(cam->orient_a,distance);
         pos_y = cam->mappos.y.val - FIXED_POLAR_TO_Y(cam->orient_a,distance);
@@ -777,8 +803,11 @@ void view_move_camera_down(struct Camera *cam, long distance)
     int pos_y;
     int parchment_pos_y;
 
-    if ( cam->view_mode == PVM_IsometricView || cam->view_mode == PVM_FrontView)
-    {
+    if (
+        cam->view_mode == PVM_IsoWibbleView ||
+        cam->view_mode == PVM_FrontView ||
+        cam->view_mode == PVM_IsoStraightView
+    ) {
 
         pos_x = cam->mappos.x.val - FIXED_POLAR_TO_X(cam->orient_a,distance);
         pos_y = cam->mappos.y.val + FIXED_POLAR_TO_Y(cam->orient_a,distance);
@@ -854,7 +883,7 @@ void update_player_camera(struct PlayerInfo *player)
 {
     struct Dungeon *dungeon = get_players_dungeon(player);
     struct Camera *cam = player->acamera;
-    
+
     view_process_camera_inertia(cam);
     switch (cam->view_mode)
     {
@@ -868,11 +897,14 @@ void update_player_camera(struct PlayerInfo *player)
             ERRORLOG("Cannot go first person without controlling creature");
         }
         break;
-    case PVM_IsometricView:
+    case PVM_IsoWibbleView:
+    case PVM_IsoStraightView:
+        // correct according to dissassembly
         player->cameras[CamIV_FrontView].mappos.x.val = cam->mappos.x.val;
         player->cameras[CamIV_FrontView].mappos.y.val = cam->mappos.y.val;
         break;
     case PVM_FrontView:
+        // correct according to dissassembly
         player->cameras[CamIV_Isometric].mappos.x.val = cam->mappos.x.val;
         player->cameras[CamIV_Isometric].mappos.y.val = cam->mappos.y.val;
         break;

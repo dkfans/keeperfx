@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include <math.h>
 
 #include "lvl_script.h"
@@ -33,6 +34,7 @@
 #include "lvl_script_value.h"
 #include "lvl_script_commands_old.h"
 #include "lvl_script_commands.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -89,7 +91,7 @@ const struct CommandDesc *get_next_word(char **line, char *param, int *para_leve
             if (pos+1 >= MAX_TEXT_LENGTH) break;
         }
         param[pos] = '\0';
-        strupr(param);
+        make_uppercase(param);
         // Check if it's a command
         int i = 0;
         cmnd_desc = NULL;
@@ -417,7 +419,7 @@ TbBool script_command_param_to_text(char type_chr, struct ScriptLine *scline, in
     switch (toupper(type_chr))
     {
     case 'N':
-        itoa(scline->np[idx], scline->tp[idx], 10);
+        snprintf(scline->tp[idx], MAX_TEXT_LENGTH, "%ld", scline->np[idx]);
         break;
     case 'P':
         strcpy(scline->tp[idx], player_code_name(scline->np[idx]));
@@ -545,7 +547,8 @@ int script_recognize_params(char **line, const struct CommandDesc *cmd_desc, str
                         if (funscline->tp[fi][0] == '\0') {
                             break;
                         }
-                        if (toupper(chr) == 'A')
+                        if ((toupper(chr) == 'A') &! //Strings don't have a range, but IF statements have 'Aa' to allow both variable compare and numbers. Numbers are allowed, 'a' is a string for sure.
+                            (((scline->command == Cmd_IF) || (scline->command == Cmd_IF_AVAILABLE) || (scline->command == Cmd_IF_CONTROLS)) && (chr == 'A')))
                         {
                             // Values which do not support range
                             if (strcmp(funscline->tp[fi],"~") == 0) {
@@ -656,7 +659,7 @@ int script_recognize_params(char **line, const struct CommandDesc *cmd_desc, str
                 }
                 SCRPTLOG("Function \"%s\" returned value \"%ld\"", funcmd_desc->textptr,
                     intralvl.campaign_flags[player_id][flag_id]);
-                ltoa(intralvl.campaign_flags[player_id][flag_id], scline->tp[dst], 10);
+                snprintf(scline->tp[dst], MAX_TEXT_LENGTH, "%ld", intralvl.campaign_flags[player_id][flag_id]);
                 break;
             }
             default:
@@ -862,6 +865,7 @@ short load_script(long lvnum)
     game.flags_cd |= MFlg_DeadBackToPool;
     reset_creature_max_levels();
     reset_script_timers_and_flags();
+    reset_hand_rules();
     if ((game.operation_flags & GOF_ColumnConvert) != 0)
     {
         convert_old_column_file(lvnum);

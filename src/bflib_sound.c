@@ -17,6 +17,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "bflib_sound.h"
 
 #include <string.h>
@@ -32,6 +33,7 @@
 #include "config_settings.h"
 #include "game_legacy.h"
 #include "globals.h"
+#include "post_inc.h"
 
 #define INVALID_SOUND_EMITTER (&emitter[0])
 

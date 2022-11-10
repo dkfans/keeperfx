@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "frontend.h"
 
 #include <string.h>
@@ -88,6 +89,8 @@
 
 #include "music_player.h"
 #include "custom_sprites.h"
+#include "sprites.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -1077,8 +1080,8 @@ void frontend_draw_scroll_tab(struct GuiButton *gbtn, long scroll_offset, long f
     long k;
     long n;
     int units_per_px;
-    units_per_px = simple_frontend_sprite_width_units_per_px(gbtn, 78, 100);
-    spr = &frontend_sprite[78];
+    units_per_px = simple_frontend_sprite_width_units_per_px(gbtn, GFS_slider_indicator_std, 100);
+    spr = &frontend_sprite[GFS_slider_indicator_std];
     i = last_elem - first_elem;
     k = gbtn->height - spr->SHeight * units_per_px / 16;
     if (i <= 1)
@@ -1115,27 +1118,29 @@ void draw_slider64k(long scr_x, long scr_y, int units_per_px, long width)
 {
     draw_bar64k(scr_x, scr_y, units_per_px, width);
     // Inner size
-    int base_x;
-    int base_y;
-    int base_w;
-    base_w = width - 64*units_per_px/16;
-    base_x = scr_x + 32*units_per_px/16;
-    base_y = scr_y + 10*units_per_px/16;
-    if (base_w < 72*units_per_px/16) {
-        ERRORLOG("Bar is too small");
-        return;
+    ScreenCoord x = scr_x;
+    ScreenCoord y = scr_y;
+    TbBool low_res = (MyScreenHeight < 400);
+    if (low_res)
+    {
+        x -= 16;
+        y -= 5;
     }
-    int cur_x;
-    int cur_y;
-    cur_x = base_x;
-    cur_y = base_y;
-    int end_x;
-    end_x = base_x + base_w - 64*units_per_px/16;
-    struct TbSprite *spr;
-    spr = &button_sprite[4];
+    int base_x = x + 32*units_per_px/16;
+    int base_y = y + 10*units_per_px/16;
+    int base_w = width - 64*units_per_px/16;
+    int end_x = base_x + base_w - 64*units_per_px/16;
+    if (low_res)
+    {
+        end_x += 32;
+    }
+    int cur_x = base_x;
+    int cur_y = base_y;
+    // int end_x = base_x + base_w - 64*units_per_px/16;
+    struct TbSprite *spr = &button_sprite[GBS_borders_bar_std_l];
     LbSpriteDrawResized(cur_x, cur_y, units_per_px, spr);
     cur_x += spr->SWidth*units_per_px/16;
-    spr = &button_sprite[5];
+    spr = &button_sprite[GBS_borders_bar_std_c];
     while (cur_x < end_x)
     {
         LbSpriteDrawResized(cur_x, cur_y, units_per_px, spr);
@@ -1144,7 +1149,7 @@ void draw_slider64k(long scr_x, long scr_y, int units_per_px, long width)
     cur_x = end_x;
     LbSpriteDrawResized(cur_x/pixel_size, cur_y/pixel_size, units_per_px, spr);
     cur_x += spr->SWidth*units_per_px/16;
-    spr = &button_sprite[6];
+    spr = &button_sprite[GBS_borders_bar_std_r];
     LbSpriteDrawResized(cur_x/pixel_size, cur_y/pixel_size, units_per_px, spr);
 }
 
@@ -1153,18 +1158,20 @@ void gui_area_slider(struct GuiButton *gbtn)
     if ((gbtn->flags & LbBtnF_Enabled) == 0) {
         return;
     }
-    int units_per_px;
-    units_per_px = (gbtn->height*16 + 30/2) / 30;
-    int bs_units_per_px;
-    bs_units_per_px = simple_button_sprite_height_units_per_px(gbtn, 2, 100);
-    draw_slider64k(gbtn->scr_pos_x, gbtn->scr_pos_y, bs_units_per_px, gbtn->width);
-    int shift_x;
-    shift_x = (gbtn->width - 64*units_per_px/16) * gbtn->slide_val >> 8;
+    int units_per_px = (gbtn->height*16 + 30/2) / 30;
+    int bs_units_per_px = simple_button_sprite_height_units_per_px(gbtn, GBS_frontend_button_std_c, 100);
+    int bar_width = gbtn->width;
+    if (MyScreenHeight < 400)
+    {
+        bar_width += 32;
+    }
+    draw_slider64k(gbtn->scr_pos_x, gbtn->scr_pos_y, bs_units_per_px, bar_width);
+    int shift_x = (gbtn->width - 64*units_per_px/16) * gbtn->slide_val >> 8;
     struct TbSprite *spr;
     if (gbtn->flags != 0) {
-        spr = &button_sprite[21];
+        spr = &button_sprite[GBS_guisymbols_jewel_on];
     } else {
-        spr = &button_sprite[20];
+        spr = &button_sprite[GBS_guisymbols_jewel_off];
     }
     LbSpriteDrawResized(gbtn->scr_pos_x + shift_x + 24*units_per_px/16, gbtn->scr_pos_y + 6*units_per_px/16, bs_units_per_px, spr);
 }
@@ -1248,25 +1255,26 @@ void frontend_draw_slider(struct GuiButton *gbtn)
     if ((gbtn->flags & LbBtnF_Enabled) == 0) {
         return;
     }
-    const int fs_units_per_px = simple_frontend_sprite_height_units_per_px(gbtn, 93, 100);
+    const int fs_units_per_px = simple_frontend_sprite_height_units_per_px(gbtn, GFS_slider_horiz_c, 100);
     const float scale = float(fs_units_per_px) / 16;
 
-    const auto left_sprite = &frontend_sprite[92]; // 40 units wide
+    const auto left_sprite = &frontend_sprite[GFS_slider_horiz_l]; // 40 units wide
     LbSpriteDrawResized(gbtn->scr_pos_x, gbtn->scr_pos_y, fs_units_per_px, left_sprite);
 
     // Draw center sprite draw as many times as necessary
-    const auto center_sprite = &frontend_sprite[93]; // 110 units wide
+    const auto center_sprite = &frontend_sprite[GFS_slider_horiz_c]; // 110 units wide
     const int right_sprite_x = (gbtn->scr_pos_x + gbtn->width) - (40 * scale);
     for (int x = gbtn->scr_pos_x + (40 * scale); x < right_sprite_x; x += (110 * scale))
     {
         LbSpriteDrawResized(x, gbtn->scr_pos_y, fs_units_per_px, center_sprite);
     }
 
-    const auto right_sprite = &frontend_sprite[94]; // 40 units wide
+    const auto right_sprite = &frontend_sprite[GFS_slider_horiz_r]; // 40 units wide
     LbSpriteDrawResized(right_sprite_x, gbtn->scr_pos_y, fs_units_per_px, right_sprite);
 
     const int knob_position = gbtn->slide_val * (gbtn->width - int(64 * scale)) >> 8;
-    const auto knob_sprite = (gbtn->gbactn_1 != 0) ? &frontend_sprite[91] : &frontend_sprite[78];
+    const auto knob_sprite = (gbtn->gbactn_1 != 0) ?
+        &frontend_sprite[GFS_slider_indicator_act] : &frontend_sprite[GFS_slider_indicator_std];
     LbSpriteDrawResized(
         (gbtn->scr_pos_x + knob_position + (24 * scale)) / pixel_size,
         (gbtn->scr_pos_y + (3 * scale)) / pixel_size,
@@ -1282,26 +1290,26 @@ void frontend_draw_small_slider(struct GuiButton *gbtn)
         return;
     }
     int fs_units_per_px;
-    fs_units_per_px = simple_frontend_sprite_height_units_per_px(gbtn, 93, 100);
+    fs_units_per_px = simple_frontend_sprite_height_units_per_px(gbtn, GFS_slider_horiz_c, 100);
     int scr_x;
     int scr_y;
     scr_x = gbtn->scr_pos_x;
     scr_y = gbtn->scr_pos_y;
     struct TbSprite *spr;
-    spr = &frontend_sprite[92];
+    spr = &frontend_sprite[GFS_slider_horiz_l];
     LbSpriteDrawResized(scr_x, scr_y, fs_units_per_px, spr);
     scr_x += spr->SWidth * fs_units_per_px / 16;
-    spr = &frontend_sprite[93];
+    spr = &frontend_sprite[GFS_slider_horiz_c];
     LbSpriteDrawResized(scr_x, scr_y, fs_units_per_px, spr);
     scr_x += spr->SWidth * fs_units_per_px / 16;
-    spr = &frontend_sprite[94];
+    spr = &frontend_sprite[GFS_slider_horiz_r];
     LbSpriteDrawResized(scr_x, scr_y, fs_units_per_px, spr);
     int val;
     val = gbtn->slide_val * (gbtn->width - 64*fs_units_per_px/16) >> 8;
     if (gbtn->gbactn_1 != 0) {
-        spr = &frontend_sprite[91];
+        spr = &frontend_sprite[GFS_slider_indicator_act];
     } else {
-        spr = &frontend_sprite[78];
+        spr = &frontend_sprite[GFS_slider_indicator_std];
     }
     LbSpriteDrawResized((gbtn->scr_pos_x + val + 24*fs_units_per_px/16) / pixel_size, (gbtn->scr_pos_y + 3*fs_units_per_px/16) / pixel_size, fs_units_per_px, spr);
 }
@@ -1311,22 +1319,33 @@ void gui_area_text(struct GuiButton *gbtn)
     if ((gbtn->flags & LbBtnF_Enabled) == 0) {
         return;
     }
-    int bs_units_per_px;
-    bs_units_per_px = simple_button_sprite_height_units_per_px(gbtn, 2, 94);
+    int bs_units_per_px = simple_button_sprite_height_units_per_px(gbtn, GBS_frontend_button_std_c, 94);
+    int width = gbtn->width;
+    TbBool low_res = (MyScreenHeight < 400);
+    if (low_res)
+    {
+        width += 32;
+    }
     switch (gbtn->sprite_idx)
     {
     case 1:
         if ( gbtn->gbactn_1 || gbtn->gbactn_2 )
         {
-            draw_bar64k(gbtn->scr_pos_x, gbtn->scr_pos_y, bs_units_per_px, gbtn->width);
-            draw_lit_bar64k(gbtn->scr_pos_x - 6*units_per_pixel/16, gbtn->scr_pos_y - 6*units_per_pixel/16, bs_units_per_px, gbtn->width + 6*units_per_pixel/16);
-        } else
+            draw_bar64k(gbtn->scr_pos_x, gbtn->scr_pos_y, bs_units_per_px, width);
+            int lit_width = gbtn->width + 6*units_per_pixel/16;
+            if (low_res)
+            {
+                lit_width += 32;
+            }
+            draw_lit_bar64k(gbtn->scr_pos_x - 6*units_per_pixel/16, gbtn->scr_pos_y - 6*units_per_pixel/16, bs_units_per_px, lit_width);
+        } 
+        else
         {
-            draw_bar64k(gbtn->scr_pos_x, gbtn->scr_pos_y, bs_units_per_px, gbtn->width);
+            draw_bar64k(gbtn->scr_pos_x, gbtn->scr_pos_y, bs_units_per_px, width);
         }
         break;
     case 2:
-        draw_bar64k(gbtn->scr_pos_x, gbtn->scr_pos_y, bs_units_per_px, gbtn->width);
+        draw_bar64k(gbtn->scr_pos_x, gbtn->scr_pos_y, bs_units_per_px, width);
         break;
     }
     if ((gbtn->tooltip_stridx != GUIStr_Empty) && (gbtn->tooltip_stridx != -GUIStr_Empty))
@@ -2479,18 +2498,21 @@ void set_gui_visible(TbBool visible)
   {
       setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
   }
-  if (player->acamera && player->acamera->view_mode == PVM_IsometricView)
+  if (player->acamera)
   {
-      // Adjust the bounds of zoom of the camera when the side-menu is toggled (in Isometric view) to hide graphical glitches if the screen is too wide or tall
-      // NOTE: This should be removed if the render array is ever increased (i.e. can see more things on screen)
-      int panel_width = (((game.operation_flags & GOF_ShowGui) != 0) ? status_panel_width : 0);
-      int camera_zoom_min = adjust_min_camera_zoom(player->acamera, player->engine_window_width, player->engine_window_height, panel_width);
-
-      update_camera_zoom_bounds(player->acamera, CAMERA_ZOOM_MAX, camera_zoom_min);
-      if (is_my_player(player))
+      if (player->acamera->view_mode == PVM_IsoWibbleView || player->acamera->view_mode == PVM_IsoStraightView)
       {
-        settings.isometric_view_zoom_level = player->acamera->zoom;
-        save_settings();
+          // Adjust the bounds of zoom of the camera when the side-menu is toggled (in Isometric view) to hide graphical glitches if the screen is too wide or tall
+          // NOTE: This should be removed if the render array is ever increased (i.e. can see more things on screen)
+          int panel_width = (((game.operation_flags & GOF_ShowGui) != 0) ? status_panel_width : 0);
+          int camera_zoom_min = adjust_min_camera_zoom(player->acamera, player->engine_window_width, player->engine_window_height, panel_width);
+
+          update_camera_zoom_bounds(player->acamera, CAMERA_ZOOM_MAX, camera_zoom_min);
+          if (is_my_player(player))
+          {
+            settings.isometric_view_zoom_level = player->acamera->zoom;
+            save_settings();
+          }
       }
   }
 }
@@ -3149,7 +3171,7 @@ void draw_active_menus_buttons(void)
 void spangle_button(struct GuiButton *gbtn)
 {
     struct TbSprite *spr;
-    spr = &button_sprite[176];
+    spr = &button_sprite[GBS_guisymbols_new_function_1];
     int bs_units_per_px;
     bs_units_per_px = 50 * units_per_pixel / spr->SHeight;
     long x;
@@ -3157,7 +3179,7 @@ void spangle_button(struct GuiButton *gbtn)
     unsigned long i;
     x = gbtn->pos_x + (gbtn->width >> 1)  - ((spr->SWidth*bs_units_per_px/16) / 2);
     y = gbtn->pos_y + (gbtn->height >> 1) - ((spr->SHeight*bs_units_per_px/16) / 2);
-    i = 176+((game.play_gameturn >> 1) & 7);
+    i = GBS_guisymbols_new_function_1+((game.play_gameturn >> 1) & 7);
     spr = &button_sprite[i];
     LbSpriteDrawResized(x, y, bs_units_per_px, spr);
 }
@@ -3211,11 +3233,12 @@ void draw_gui(void)
     if (game.flash_button_index != 0)
     {
         draw_active_menus_highlights();
-        if (game.flash_button_gameturns != -1)
+        if (gameadd.flash_button_time > 0)
         {
-            game.flash_button_gameturns--;
-            if (game.flash_button_gameturns == -1)
-              game.flash_button_index = 0;
+            gameadd.flash_button_time -= gameadd.delta_time;
+            if (gameadd.flash_button_time <= 0) {
+                game.flash_button_index = 0;
+            }
         }
     }
     lbDisplay.DrawFlags = flg_mem;
@@ -3665,9 +3688,9 @@ FrontendMenuState get_startup_menu_state(void)
     { // If played real network game, then resulting screen isn't changed based on victory
         SYNCLOG("Network game summary state selected");
         if ((player->additional_flags & PlaAF_UnlockedLordTorture) != 0)
-        { // Player has tortured LOTL - go FeSt_TORTURE before any others
+        { // Player has won - go FeSt_TORTURE before any others
           player->additional_flags &= ~PlaAF_UnlockedLordTorture;
-          return FeSt_DRAG;
+          return FeSt_TORTURE;
         } else
         if ((player->flgfield_6 & PlaF6_PlyrHasQuit) == 0)
         {

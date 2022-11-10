@@ -1373,6 +1373,9 @@
     <ClInclude Include="src\event_monitoring.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\sprites.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Makefile" />

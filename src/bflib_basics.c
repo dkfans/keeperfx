@@ -17,12 +17,14 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "bflib_basics.h"
 #include "globals.h"
 
 #include <string.h>
 #include <stdarg.h>
 #include <stdio.h>
+#include <ctype.h>
 #define NOMINMAX
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -32,6 +34,7 @@
 #include "bflib_datetm.h"
 #include "bflib_memory.h"
 #include "bflib_fileio.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -586,6 +589,18 @@ void LbPrint(const char * format, ...) {
   message->next = NULL;
   *debug_messages_tail = message;
   debug_messages_tail = &message->next;
+}
+
+void make_lowercase(char * string) {
+  for (char * ptr = string; *ptr != 0; ++ptr) {
+    *ptr = tolower(*ptr);
+  }
+}
+
+void make_uppercase(char * string) {
+  for (char * ptr = string; *ptr != 0; ++ptr) {
+    *ptr = toupper(*ptr);
+  }
 }
 
 /******************************************************************************/

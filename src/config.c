@@ -17,6 +17,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "config.h"
 
 #include <stdarg.h>
@@ -39,6 +40,7 @@
 #include "scrcapt.h"
 #include "vidmode.h"
 #include "music_player.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -118,7 +120,6 @@ const struct NamedCommand conf_commands[] = {
   {"ATMOS_SAMPLES",       13},
   {"RESIZE_MOVIES",       14},
   {"MUSIC_TRACKS",        15},
-  {"WIBBLE",              16},
   {"FREEZE_GAME_ON_FOCUS_LOST"     , 17},
   {"UNLOCK_CURSOR_WHEN_GAME_PAUSED", 18},
   {"LOCK_CURSOR_IN_POSSESSION"     , 19},
@@ -129,6 +130,7 @@ const struct NamedCommand conf_commands[] = {
   {"CURSOR_EDGE_CAMERA_PANNING"    , 24},
   {"DELTA_TIME"                    , 25},
   {"CREATURE_STATUS_SIZE"          , 26},
+  {"MAX_ZOOM_DISTANCE"             , 27},
   {NULL,                   0},
   };
 
@@ -144,13 +146,6 @@ const struct NamedCommand logicval_type[] = {
   {"1",        1},
   {"0",        2},
   {NULL,       0},
-  };
-
-  const struct NamedCommand wibble_type[] = {
-  {"ON",             1},
-  {"OFF",            2},
-  {"LIQUIDONLY",     3},
-  {NULL,             0},
   };
 
   const struct NamedCommand vidscale_type[] = {
@@ -237,14 +232,6 @@ TbBool resize_movies_enabled(void)
   return ((features_enabled & Ft_Resizemovies) != 0);
 }
 
-/**
- * Returns if the wibble effect is on.
- */
-TbBool wibble_enabled(void)
-{
-  return ((features_enabled & Ft_Wibble) != 0);
-}
-
 #include "game_legacy.h" // it would be nice to not have to include this
 /**
  * Returns if we should freeze the game, if the game window loses focus.
@@ -288,14 +275,6 @@ TbBool pause_music_when_game_paused(void)
 TbBool mute_audio_on_focus_lost(void)
 {
   return ((features_enabled & Ft_MuteAudioOnLoseFocus) != 0);
-}
-
-/**
- * Returns if the liquid wibble effect is on.
- */
-TbBool liquid_wibble_enabled(void)
-{
-  return ((features_enabled & Ft_LiquidWibble) != 0);
 }
 
 TbBool is_feature_on(unsigned long feature)
@@ -634,7 +613,7 @@ const char *get_language_lwrstr(int lang_id)
 #endif
   static char lang_str[4];
   snprintf(lang_str, 4, "%s", src);
-  strlwr(lang_str);
+  make_lowercase(lang_str);
   return lang_str;
 }
 
@@ -944,30 +923,6 @@ short load_configuration(void)
                 COMMAND_TEXT(cmd_num),config_textname);
           }
           break;
-      case 16: // WIBBLE
-          i = recognize_conf_parameter(buf,&pos,len,wibble_type);
-          if (i <= 0)
-          {
-              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
-                COMMAND_TEXT(cmd_num),config_textname);
-            break;
-          }
-          if (i == 1) // WIBBLE ON
-          {
-              features_enabled |= Ft_Wibble;
-              features_enabled |= Ft_LiquidWibble;
-          }
-          else if (i == 3) // LIQUID ONLY
-          {
-              features_enabled &= ~Ft_Wibble;
-              features_enabled |= Ft_LiquidWibble;
-          }
-          else // WIBBLE OFF
-          {
-              features_enabled &= ~Ft_Wibble;
-              features_enabled &= ~Ft_LiquidWibble;
-          }
-          break;
       case 17: // FREEZE_GAME_ON_FOCUS_LOST
           i = recognize_conf_parameter(buf,&pos,len,logicval_type);
           if (i <= 0)
@@ -1092,6 +1047,19 @@ short load_configuration(void)
           }
           if ((i >= 0) && (i <= 32768)) {
               creature_status_size = i;
+          } else {
+              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",COMMAND_TEXT(cmd_num),config_textname);
+          }
+          break;
+      case 27: // MAX_ZOOM_DISTANCE
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            i = atoi(word_buf);
+          }
+          if ((i >= 0) && (i <= 32768)) {
+              if (i > 100) {i = 100;}
+              zoom_distance_setting = lerp(4100, CAMERA_ZOOM_MIN, (float)i/100.0);
+              frontview_zoom_distance_setting = lerp(16384, FRONTVIEW_CAMERA_ZOOM_MIN, (float)i/100.0);
           } else {
               CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",COMMAND_TEXT(cmd_num),config_textname);
           }

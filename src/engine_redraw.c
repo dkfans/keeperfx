@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "engine_redraw.h"
 
 #include "globals.h"
@@ -62,6 +63,7 @@
 #include "packets.h"
 
 #include "keeperfx.hpp"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -88,7 +90,7 @@ static void draw_creature_view_icons(struct Thing* creatng)
     {
         spr = &gui_panel_sprites[488];
         ps_units_per_px = (22 * units_per_pixel) / spr->SHeight;
-        y = MyScreenHeight - scale_value_by_horizontal_resolution(spr->SHeight * 2);
+        y = MyScreenHeight - scale_ui_value_lofi(spr->SHeight * 2);
     }
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     for (int Spell = SplK_Freeze; Spell < SplK_TimeBomb; Spell++)
@@ -102,7 +104,7 @@ static void draw_creature_view_icons(struct Thing* creatng)
                 spridx++;
             }
             draw_gui_panel_sprite_left(x, y, ps_units_per_px, spridx);
-            x += scale_value_by_horizontal_resolution(spr->SWidth);
+            x += scale_ui_value_lofi(spr->SWidth);
         }
     }
     if ( (cctrl->dragtng_idx != 0) && ((creatng->alloc_flags & TAlF_IsDragged) == 0) )
@@ -340,7 +342,7 @@ void prepare_map_fade_buffers(unsigned char *fade_src, unsigned char *fade_dest,
 {
     struct PlayerInfo* player = get_my_player();
     // render the 3D screen
-    if (player->view_mode_restore == PVM_IsometricView)
+    if (player->view_mode_restore == PVM_IsoWibbleView || player->view_mode_restore == PVM_IsoStraightView)
       redraw_isometric_view();
     else
       redraw_frontview();
@@ -413,22 +415,22 @@ void set_sprite_view_3d(void)
         struct Thing* thing = thing_get(i);
         if (thing_exists(thing))
         {
-            if (thing_is_creature(thing) || ((thing->field_4F & TF4F_Unknown01) == 0))
+            if (thing_is_creature(thing) || ((thing->rendering_flags & TRF_Unknown01) == 0))
             {
                 int n = straight_iso_td(thing->anim_sprite);
                 if (n >= 0)
                 {
                     thing->anim_sprite = n;
                     long nframes = keepersprite_frames(thing->anim_sprite);
-                    if (nframes != thing->field_49)
+                    if (nframes != thing->max_frames)
                     {
-                        ERRORLOG("No frames different between views C%d, M%d, A%d, B%d",thing->class_id,thing->model,thing->field_49,nframes);
-                        thing->field_49 = nframes;
-                        n = thing->field_49 - 1;
-                        if (n > thing->field_48) {
-                            n = thing->field_48;
+                        ERRORLOG("No frames different between views C%d, M%d, A%d, B%d",thing->class_id,thing->model,thing->max_frames,nframes);
+                        thing->max_frames = nframes;
+                        n = thing->max_frames - 1;
+                        if (n > thing->current_frame) {
+                            n = thing->current_frame;
                         }
-                        thing->field_48 = n;
+                        thing->current_frame = n;
                         thing->anim_time = n << 8;
                     }
                 }
@@ -444,22 +446,22 @@ void set_sprite_view_isometric(void)
         struct Thing* thing = thing_get(i);
         if (thing_exists(thing))
         {
-            if (thing_is_creature(thing) || ((thing->field_4F & TF4F_Unknown01) == 0))
+            if (thing_is_creature(thing) || ((thing->rendering_flags & TRF_Unknown01) == 0))
             {
                 int n = straight_td_iso(thing->anim_sprite);
                 if (n >= 0)
                 {
                     thing->anim_sprite = n;
                     long nframes = keepersprite_frames(thing->anim_sprite);
-                    if (nframes != thing->field_49)
+                    if (nframes != thing->max_frames)
                     {
-                        ERRORLOG("No frames different between views C%d, M%d, A%d, B%d",thing->class_id,thing->model,thing->field_49,nframes);
-                        thing->field_49 = nframes;
-                        n = thing->field_49 - 1;
-                        if (n > thing->field_48) {
-                            n = thing->field_48;
+                        ERRORLOG("No frames different between views C%d, M%d, A%d, B%d",thing->class_id,thing->model,thing->max_frames,nframes);
+                        thing->max_frames = nframes;
+                        n = thing->max_frames - 1;
+                        if (n > thing->current_frame) {
+                            n = thing->current_frame;
                         }
-                        thing->field_48 = n;
+                        thing->current_frame = n;
                         thing->anim_time = n << 8;
                     }
                 }
@@ -498,8 +500,10 @@ void set_engine_view(struct PlayerInfo *player, long val)
         S3DSetDeadzoneRadius(0);
         LbMouseSetPosition((MyScreenWidth/pixel_size) >> 1,(MyScreenHeight/pixel_size) >> 1);
         break;
-    case PVM_IsometricView:
+    case PVM_IsoWibbleView:
+    case PVM_IsoStraightView:
         player->acamera = &player->cameras[CamIV_Isometric];
+        player->acamera->view_mode = val;
         if (!is_my_player(player))
             break;
         lens_mode = 0;
@@ -541,27 +545,25 @@ void draw_overlay_compass(long base_x, long base_y)
     int tx_units_per_px = (22 * units_per_px) / LbTextLineHeight();
     int w = (LbSprFontCharWidth(lbFontPtr, '/') * tx_units_per_px / 16) / 2;
     int h = (LbSprFontCharHeight(lbFontPtr, '/') * tx_units_per_px / 16) / 2 + 2 * units_per_px / 16;
-    struct PlayerInfo* player = get_my_player();
-    const struct Camera* cam = player->acamera;
     int center_x = base_x * units_per_px / 16 + MapDiagonalLength / 2;
     int center_y = base_y * units_per_px / 16 + MapDiagonalLength / 2;
-    int shift_x = (-(MapDiagonalLength * 7 / 16) * LbSinL(cam->orient_a)) >> LbFPMath_TrigmBits;
-    int shift_y = (-(MapDiagonalLength * 7 / 16) * LbCosL(cam->orient_a)) >> LbFPMath_TrigmBits;
+    int shift_x = (-(MapDiagonalLength * 7 / 16) * LbSinL(interpolated_cam_orient_a)) >> LbFPMath_TrigmBits;
+    int shift_y = (-(MapDiagonalLength * 7 / 16) * LbCosL(interpolated_cam_orient_a)) >> LbFPMath_TrigmBits;
     if (LbScreenIsLocked()) {
         LbTextDrawResized(center_x + shift_x - w, center_y + shift_y - h, tx_units_per_px, get_string(GUIStr_MapN));
     }
-    shift_x = ( (MapDiagonalLength*7/16) * LbSinL(cam->orient_a)) >> LbFPMath_TrigmBits;
-    shift_y = ( (MapDiagonalLength*7/16) * LbCosL(cam->orient_a)) >> LbFPMath_TrigmBits;
+    shift_x = ( (MapDiagonalLength*7/16) * LbSinL(interpolated_cam_orient_a)) >> LbFPMath_TrigmBits;
+    shift_y = ( (MapDiagonalLength*7/16) * LbCosL(interpolated_cam_orient_a)) >> LbFPMath_TrigmBits;
     if (LbScreenIsLocked()) {
         LbTextDrawResized(center_x + shift_x - w, center_y + shift_y - h, tx_units_per_px, get_string(GUIStr_MapS));
     }
-    shift_x = ( (MapDiagonalLength*7/16) * LbCosL(cam->orient_a)) >> LbFPMath_TrigmBits;
-    shift_y = (-(MapDiagonalLength*7/16) * LbSinL(cam->orient_a)) >> LbFPMath_TrigmBits;
+    shift_x = ( (MapDiagonalLength*7/16) * LbCosL(interpolated_cam_orient_a)) >> LbFPMath_TrigmBits;
+    shift_y = (-(MapDiagonalLength*7/16) * LbSinL(interpolated_cam_orient_a)) >> LbFPMath_TrigmBits;
     if (LbScreenIsLocked()) {
         LbTextDrawResized(center_x + shift_x - w, center_y + shift_y - h, tx_units_per_px, get_string(GUIStr_MapE));
     }
-    shift_x = (-(MapDiagonalLength*7/16) * LbCosL(cam->orient_a)) >> LbFPMath_TrigmBits;
-    shift_y = ( (MapDiagonalLength*7/16) * LbSinL(cam->orient_a)) >> LbFPMath_TrigmBits;
+    shift_x = (-(MapDiagonalLength*7/16) * LbCosL(interpolated_cam_orient_a)) >> LbFPMath_TrigmBits;
+    shift_y = ( (MapDiagonalLength*7/16) * LbSinL(interpolated_cam_orient_a)) >> LbFPMath_TrigmBits;
     if (LbScreenIsLocked()) {
         LbTextDrawResized(center_x + shift_x - w, center_y + shift_y - h, tx_units_per_px, get_string(GUIStr_MapW));
     }
@@ -1041,7 +1043,8 @@ void redraw_display(void)
         redraw_creature_view();
         parchment_loaded = 0;
         break;
-    case PVM_IsometricView:
+    case PVM_IsoWibbleView:
+    case PVM_IsoStraightView:
         redraw_isometric_view();
         parchment_loaded = 0;
         break;
@@ -1067,7 +1070,7 @@ void redraw_display(void)
     //LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
     LbTextSetFont(winfont);
     lbDisplay.DrawFlags &= ~Lb_TEXT_ONE_COLOR;
-    int tx_units_per_px = (22 * units_per_pixel) / LbTextLineHeight();
+    int tx_units_per_px = ( (MyScreenHeight < 400) && (dbc_language > 0) ) ? scale_ui_value(32) : (22 * units_per_pixel) / LbTextLineHeight();
     LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
     if ((player->allocflags & PlaF_NewMPMessage) != 0)
     {
@@ -1078,7 +1081,7 @@ void redraw_display(void)
         {
             if ( (bonus_timer_enabled()) || (script_timer_enabled()) || display_variable_enabled() )
             {
-                pos_y = ((pos_y << 3) + ((LbTextLineHeight()*units_per_pixel/16) * game.active_messages_count));
+                pos_y = ((pos_y << 3) + ((LbTextLineHeight()*units_per_pixel/16) * (game.active_messages_count << (MyScreenHeight < 400))));
             }
         }
         LbTextDrawResized(pos_x, pos_y, tx_units_per_px, text);
@@ -1121,21 +1124,37 @@ void redraw_display(void)
     {
           LbTextSetFont(winfont);
           text = get_string(GUIStr_PausedMsg);
-          int i = LbTextCharWidth(' ') * units_per_pixel / 16;
-          long w = (LbTextStringWidth(text) * units_per_pixel / 16 + 2 * i);
-          i = player->view_mode;
+          long w = (LbTextStringWidth(text) * units_per_pixel / 16 + 2 * (LbTextCharWidth(' ') * units_per_pixel / 16));
           long pos_x;
-          if ((i == PVM_IsometricView) || (i == PVM_FrontView) || (i == PVM_CreatureView))
+          if (
+              player->view_mode == PVM_IsoWibbleView ||
+              player->view_mode == PVM_FrontView ||
+              player->view_mode == PVM_IsoStraightView ||
+              player->view_mode == PVM_CreatureView
+          ) {
               pos_x = player->engine_window_x + (MyScreenWidth - w - player->engine_window_x) / 2;
-          else
-            pos_x = (MyScreenWidth-w)/2;
+          } else {
+              pos_x = (MyScreenWidth-w)/2;
+          }
           long pos_y = 16 * units_per_pixel / 16;
-          i = LbTextLineHeight()*units_per_pixel/16;
           lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
-          long h = i + i / 2;
-          LbTextSetWindow(pos_x, pos_y, w, h);
+          long h = LbTextLineHeight() * units_per_pixel / 16;
+          int text_w = w;
+          int text_x = pos_x;
+          if (MyScreenHeight < 400)
+          {
+              w *= 2;
+              h *= 3;
+              text_w = w;
+              if (dbc_language > 0)
+              {
+                  text_w += 32;
+                  text_x -= 12;
+              }
+          }
+          LbTextSetWindow(text_x, pos_y, text_w, h);
           draw_slab64k(pos_x, pos_y, units_per_pixel, w, h);
-          LbTextDrawResized(0/pixel_size, 0/pixel_size, units_per_pixel, text);
+          LbTextDrawResized(0/pixel_size, 0/pixel_size, tx_units_per_px, text);
           LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
     }
     if (game.armageddon_cast_turn != 0)
@@ -1144,8 +1163,8 @@ void redraw_display(void)
         if (game.armageddon.count_down + game.armageddon_cast_turn <= game.play_gameturn)
         {
             i = 0;
-            if (game.armageddon_field_15035A - game.armageddon.duration <= game.play_gameturn)
-                i = game.armageddon_field_15035A - game.play_gameturn;
+            if (game.armageddon_over_turn - game.armageddon.duration <= game.play_gameturn)
+                i = game.armageddon_over_turn - game.play_gameturn;
       } else
       {
         i = game.play_gameturn - game.armageddon_cast_turn - game.armageddon.count_down;
@@ -1154,11 +1173,16 @@ void redraw_display(void)
       text = buf_sprintf(" %s %03d", get_string(get_power_name_strindex(PwrK_ARMAGEDDON)), i/2); // Armageddon message
       i = LbTextCharWidth(' ')*units_per_pixel/16;
       long w = LbTextStringWidth(text) * units_per_pixel / 16 + 6 * i;
-      long pos_x = MyScreenWidth - w - 16 * units_per_pixel / 16;
-      long pos_y = 16 * units_per_pixel / 16;
       i = LbTextLineHeight()*units_per_pixel/16;
       lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
       long h = pixel_size * i + pixel_size * i / 2;
+      if (MyScreenHeight < 400)
+      {
+          w *= 2;
+          h *= 2;
+      }
+      long pos_x = MyScreenWidth - w - 16 * units_per_pixel / 16;
+      long pos_y = 16 * units_per_pixel / 16;
       LbTextSetWindow(pos_x, pos_y, w, h);
       draw_slab64k(pos_x, pos_y, units_per_pixel, w, h);
       LbTextDrawResized(0/pixel_size, 0/pixel_size, tx_units_per_px, text);

@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "vidfade.h"
 
 #include "globals.h"
@@ -32,6 +33,7 @@
 #include "player_data.h"
 #include "player_instances.h"
 #include "keeperfx.hpp"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {

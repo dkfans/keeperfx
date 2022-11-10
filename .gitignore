@@ -11,6 +11,8 @@
 /tools/po2ngdat
 /tools/rnctools
 /tools/sndbanker
+/config/fxdata/*.dat
+/config/fxdata/*.fon
 .vs/
 build*/
 *.cache

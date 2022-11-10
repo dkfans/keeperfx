@@ -16,6 +16,9 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
+#include <stddef.h>
+
 #include "engine_render.h"
 
 #include "globals.h"
@@ -54,6 +57,8 @@
 #include "keeperfx.hpp"
 #include "player_states.h"
 #include "custom_sprites.h"
+#include "sprites.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -161,6 +166,8 @@ DLLIMPORT char _DK_splittypes[64];
 #endif
 /******************************************************************************/
 static void do_map_who(short tnglist_idx);
+static void (*render_sprite_debug_fn) (struct Thing*, long scrpos_x, long scrpos_y) = NULL;
+static int render_sprite_debug_level = 0;
 /******************************************************************************/
 
 void calculate_hud_scale(struct Camera *cam) {
@@ -170,7 +177,8 @@ void calculate_hud_scale(struct Camera *cam) {
     float range_min;
     float range_max;
     switch (cam->view_mode) {
-        case PVM_IsometricView:
+        case PVM_IsoWibbleView:
+        case PVM_IsoStraightView:
             range_min = CAMERA_ZOOM_MIN; // Fully zoomed out
             range_max = 4100; // Base zoom level
             break;
@@ -192,7 +200,7 @@ void calculate_hud_scale(struct Camera *cam) {
 
 long interpolate(long variable_to_interpolate, long previous, long current)
 {
-    if (is_feature_on(Ft_DeltaTime) == false) {
+    if (is_feature_on(Ft_DeltaTime) == false || game.frame_skip > 0) {
         return current;
     }
     // future: by using the predicted future position in the interpolation calculation, we can remove input lag (or visual lag).
@@ -200,6 +208,29 @@ long interpolate(long variable_to_interpolate, long previous, long current)
     // 0.5 is definitely accurate. Tested by rotating the camera while comparing the minimap's rotation with the camera's rotation in a video recording.
     long desired_value = lerp(current, future, 0.5);
     return lerp(variable_to_interpolate, desired_value, gameadd.delta_time);
+}
+
+long fix_interpolated_angle_bug(long variable_to_interpolate, long desired_value) {
+    // An ugly fix for a difficult angle interpolation bug. A proper fix would probably need rewriting all angle interpolation.
+    struct PlayerInfo* player = get_my_player();
+    struct Camera* cam = player->acamera;
+    switch (cam->view_mode)
+    {
+        case PVM_IsoWibbleView:
+        case PVM_FrontView:
+        case PVM_IsoStraightView:
+            
+            if (desired_value == 0 || desired_value == 512 || desired_value == 1024 || desired_value == 1536)
+            {
+                long angle_diff = variable_to_interpolate - desired_value;
+                angle_diff = (angle_diff + LbFPMath_PI) % LbFPMath_TAU - LbFPMath_PI;
+                if (abs(angle_diff) < 8) {
+                    variable_to_interpolate = desired_value;
+                }
+            }
+        break;
+    }
+    return variable_to_interpolate;
 }
 
 long interpolate_angle(long variable_to_interpolate, long previous, long current)
@@ -210,6 +241,7 @@ long interpolate_angle(long variable_to_interpolate, long previous, long current
     long future = current + (current - previous);
     // If you want to reduce 1st person camera acceleration/deceleration then change it in the logic, not here.
     long desired_value = lerp_angle(current, future, 0.5);
+    variable_to_interpolate = fix_interpolated_angle_bug(variable_to_interpolate, desired_value);
     return lerp_angle(variable_to_interpolate, desired_value, gameadd.delta_time);
 }
 
@@ -221,12 +253,27 @@ void interpolate_thing(struct Thing *thing, struct ThingAdd *thingadd)
         // Set initial interp position when either Thing has just been created or goes off camera then comes back on camera
         thingadd->interp_mappos = thing->mappos;
         thingadd->interp_floor_height = thing->floor_height;
+        
+        if (thingadd->interp_mappos.z.val == 65534) { // Fixes an odd bug where thing->mappos.z.val is briefly 65534 (for 1 turn) in certain situations, which can mess up the interpolation and cause things to fall from the sky.
+            thingadd->interp_mappos.z.val = thingadd->interp_floor_height;
+        }
     } else {
         // Interpolate position every frame
         thingadd->interp_mappos.x.val = interpolate(thingadd->interp_mappos.x.val, thingadd->previous_mappos.x.val, thing->mappos.x.val);
         thingadd->interp_mappos.z.val = interpolate(thingadd->interp_mappos.z.val, thingadd->previous_mappos.z.val, thing->mappos.z.val);
         thingadd->interp_mappos.y.val = interpolate(thingadd->interp_mappos.y.val, thingadd->previous_mappos.y.val, thing->mappos.y.val);
         thingadd->interp_floor_height = interpolate(thingadd->interp_floor_height, thingadd->previous_floor_height, thing->floor_height);
+        
+        // Cancel interpolation if distance to interpolate is too far. This is a catch-all to solve any remaining interpolation bugs.
+        if ((abs(thingadd->interp_mappos.x.val-thing->mappos.x.val) >= 10000) ||
+            (abs(thingadd->interp_mappos.y.val-thing->mappos.y.val) >= 10000) ||
+            (abs(thingadd->interp_mappos.z.val-thing->mappos.z.val) >= 10000))
+        {
+            ERRORLOG("The %s index %d owned by player %d moved an unrealistic distance((%d,%d,%d) to (%d,%d,%d)), refusing interpolation."
+                ,thing_model_name(thing), (int)thing->index, (int)thing->owner, thingadd->interp_mappos.x.stl.num, thingadd->interp_mappos.y.stl.num, thingadd->interp_mappos.z.stl.num, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing->mappos.z.stl.num);
+            thingadd->interp_mappos = thing->mappos;
+            thingadd->interp_floor_height = thing->floor_height;
+        }
     }
 }
 void interpolate_camera(struct Camera *cam)
@@ -569,34 +616,28 @@ void rotate_base_axis(struct M33 *matx, short angle, unsigned char axis)
     matx->r[2].v[3] = matx->r[2].v[0] * matx->r[2].v[1];
 }
 
-struct WibbleTable *get_wibble_from_table(long table_index, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+struct WibbleTable *get_wibble_from_table(struct Camera *cam, long table_index, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    struct WibbleTable *wibl;
-    TbBool use_wibble = wibble_enabled();
-    if (liquid_wibble_enabled() && !use_wibble)
+    if (cam->view_mode == PVM_IsoWibbleView || cam->view_mode == PVM_CreatureView)
+    {
+        return &wibble_table[table_index];
+    }
+    else if (cam->view_mode == PVM_IsoStraightView)
     {
         struct SlabMap *slb = get_slabmap_for_subtile(stl_slab_center_subtile(stl_x), stl_slab_center_subtile(stl_y));
-        struct SlabMap *slb2 = get_slabmap_for_subtile(stl_slab_center_subtile(stl_x), stl_slab_center_subtile(stl_y+1)); // additional checks needed to keep straight edges around liquid with liquid wibble mode
+         // additional checks needed to keep straight edges around liquid with liquid wibble mode
+        struct SlabMap *slb2 = get_slabmap_for_subtile(stl_slab_center_subtile(stl_x), stl_slab_center_subtile(stl_y+1));
         struct SlabMap *slb3 = get_slabmap_for_subtile(stl_slab_center_subtile(stl_x-1), stl_slab_center_subtile(stl_y));
         if (slab_kind_is_liquid(slb3->kind) && slab_kind_is_liquid(slb2->kind) && slab_kind_is_liquid(slb->kind))
         {
-            use_wibble = true;
+            return &wibble_table[table_index];
         }
     }
-    if (use_wibble)
-    {
-        wibl = &wibble_table[table_index];
-    }
-    else
-    {
-        wibl = &blank_wibble_table[table_index];
-    }
-    return wibl;
+    return &blank_wibble_table[table_index];
 }
 
-void fill_in_points_perspective(long bstl_x, long bstl_y, struct MinMax *mm)
+void fill_in_points_perspective(struct Camera *cam, long bstl_x, long bstl_y, struct MinMax *mm)
 {
-    //_DK_fill_in_points_perspective(bstl_x, bstl_y, mm); return;
     if ((bstl_y < 0) || (bstl_y > map_subtiles_y-1)) {
         return;
     }
@@ -690,7 +731,7 @@ void fill_in_points_perspective(long bstl_x, long bstl_y, struct MinMax *mm)
         hpos = subtile_coord(hmin,0) - view_alt;
         wib_x = stl_x & 3;
         struct WibbleTable *wibl;
-        wibl = get_wibble_from_table(32 * wib_v + wib_x + (wib_y << 2), stl_x, stl_y);
+        wibl = get_wibble_from_table(cam, 32 * wib_v + wib_x + (wib_y << 2), stl_x, stl_y);
         int idxh;
         for (idxh = hmax-hmin+1; idxh > 0; idxh--)
         {
@@ -716,7 +757,7 @@ void fill_in_points_perspective(long bstl_x, long bstl_y, struct MinMax *mm)
         hpos = subtile_coord(get_mapblk_filled_subtiles(mapblk),0) - view_alt;
         if (wib_v == 2)
         {
-            wibl = get_wibble_from_table(wib_x + 2 * (hmax + 2 * wib_y - hmin) + 32, stl_x, stl_y);
+            wibl = get_wibble_from_table(cam, wib_x + 2 * (hmax + 2 * wib_y - hmin) + 32, stl_x, stl_y);
         }
         ecord = &ecol->cors[8];
         {
@@ -734,9 +775,8 @@ void fill_in_points_perspective(long bstl_x, long bstl_y, struct MinMax *mm)
     }
 }
 
-void fill_in_points_cluedo(long bstl_x, long bstl_y, struct MinMax *mm)
+void fill_in_points_cluedo(struct Camera *cam, long bstl_x, long bstl_y, struct MinMax *mm)
 {
-    //_DK_fill_in_points_cluedo(bstl_x, bstl_y, mm);
     if ((bstl_y < 0) || (bstl_y > map_subtiles_y-1)) {
         return;
     }
@@ -888,7 +928,7 @@ void fill_in_points_cluedo(long bstl_x, long bstl_y, struct MinMax *mm)
         ecord = &ecol->cors[hmin];
         wib_x = stl_x & 3;
         struct WibbleTable *wibl;
-        wibl = get_wibble_from_table(32 * wib_v + wib_x + (wib_y << 2), stl_x, stl_y);
+        wibl = get_wibble_from_table(cam, 32 * wib_v + wib_x + (wib_y << 2), stl_x, stl_y);
         long *randmis;
         randmis = &randomisors[(stl_x + 17 * (stl_y + 1)) & 0xff];
         eview_h = dview_h * hmin + hview_y;
@@ -940,9 +980,8 @@ void fill_in_points_cluedo(long bstl_x, long bstl_y, struct MinMax *mm)
     }
 }
 
-void fill_in_points_isometric(long bstl_x, long bstl_y, struct MinMax *mm)
+void fill_in_points_isometric(struct Camera *cam, long bstl_x, long bstl_y, struct MinMax *mm)
 {
-    //_DK_fill_in_points_isometric(bstl_x, bstl_y, mm);
     if ((bstl_y < 0) || (bstl_y > map_subtiles_y-1)) {
         return;
     }
@@ -1020,7 +1059,7 @@ void fill_in_points_isometric(long bstl_x, long bstl_y, struct MinMax *mm)
     long view_z;
     int zoom;
     int hview_z;
-    
+
     zoom = camera_zoom / pixel_size;
     hpos = -view_alt * apos;
     view_x = view_width_over_2 + (zoom
@@ -1117,7 +1156,7 @@ void fill_in_points_isometric(long bstl_x, long bstl_y, struct MinMax *mm)
         ecord = &ecol->cors[hmin];
         wib_x = stl_x & 3;
         struct WibbleTable *wibl;
-        wibl = get_wibble_from_table(32 * wib_v + wib_x + (wib_y << 2), stl_x, stl_y);
+        wibl = get_wibble_from_table(cam, 32 * wib_v + wib_x + (wib_y << 2), stl_x, stl_y);
         eview_h = dview_h * hmin + hview_y;
         eview_z = dview_z * hmin + hview_z;
         randmis = &randomisors[(stl_x + 17 * (stl_y+1)) & 0xff] + hmin;
@@ -1169,7 +1208,6 @@ void fill_in_points_isometric(long bstl_x, long bstl_y, struct MinMax *mm)
 
 void frame_wibble_generate(void)
 {
-    //_DK_frame_wibble_generate(); return;
     int i;
     struct WibbleTable *wibl;
     wibl = &wibble_table[64];
@@ -1958,7 +1996,8 @@ void fiddle_gamut(long pos_x, long pos_y)
         fiddle_half_gamut(pos_x, pos_y, 1, cells_away);
         fiddle_half_gamut(pos_x, pos_y, -1, cells_away + 2);
         break;
-    case PVM_IsometricView:
+    case PVM_IsoWibbleView:
+    case PVM_IsoStraightView:
         // Retrieve coordinates on limiting map points
         ewwidth = player->engine_window_width / pixel_size;
         ewheight = player->engine_window_height / pixel_size - ((8 * high_offset[1]) >> 8);
@@ -2019,7 +2058,7 @@ static void create_line_segment(struct EngineCoord *start, struct EngineCoord *e
     long bckt_idx;
     if (!is_free_space_in_poly_pool(1))
         return;
-    
+
     // Reducing line_z will make the lines look cleaner, but the "fancy_map_volume_box" vertical lines become more visible.
     float line_z = 0.994;
     bckt_idx = (( (start->z*line_z) + (end->z*line_z) ) / 32) - 2;
@@ -2516,7 +2555,7 @@ static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct 
         int divided_z = choose_largest_z / 16;
         if (getpoly < poly_pool_end)
         {
-            if ((((unsigned __int8)coordinate_3_frustum | (unsigned __int8)(coordinate_2_frustum | coordinate_1_frustum)) & 3) != 0)
+            if ((((uint8_t)coordinate_3_frustum | (uint8_t)(coordinate_2_frustum | coordinate_1_frustum)) & 3) != 0)
             {
                 triangle_bucket_near_1 = (struct BucketKindPolygonNearFP *)getpoly;
                 getpoly += sizeof(struct BucketKindPolygonNearFP);
@@ -3006,7 +3045,7 @@ static void do_a_trig_gourad_bl(struct EngineCoord *engine_coordinate_1, struct 
         int divided_z = choose_smallest_z / 16;
         if (getpoly < poly_pool_end)
         {
-            if ((((unsigned __int8)coordinate_1_frustum | (unsigned __int8)(coordinate_3_frustum | coordinate_2_frustum)) & 3) != 0)
+            if ((((uint8_t)coordinate_1_frustum | (uint8_t)(coordinate_3_frustum | coordinate_2_frustum)) & 3) != 0)
             {
                 triangle_bucket_near_1 = (struct BucketKindPolygonNearFP *)getpoly;
                 getpoly += sizeof(struct BucketKindPolygonNearFP);
@@ -3562,7 +3601,7 @@ static void create_shadows(struct Thing *thing, struct EngineCoord *ecor, struct
     short dim_oh;
     short dim_th;
     short dim_tw;
-    get_keepsprite_unscaled_dimensions(thing->anim_sprite, angle, thing->field_48, &dim_ow, &dim_oh, &dim_tw, &dim_th);
+    get_keepsprite_unscaled_dimensions(thing->anim_sprite, angle, thing->current_frame, &dim_ow, &dim_oh, &dim_tw, &dim_th);
     {
         int base_x;
         int base_y;
@@ -3628,11 +3667,9 @@ static void create_shadows(struct Thing *thing, struct EngineCoord *ecor, struct
     }
     struct BucketKindCreatureShadow * kspr;
     kspr = (struct BucketKindCreatureShadow *)getpoly;
-    struct BasicQ *prev_bckt;
-    prev_bckt = buckets[bckt_idx];
     getpoly += sizeof(struct BucketKindCreatureShadow);
-    kspr->b.next = prev_bckt;
-    kspr->b.kind = 12;
+    kspr->b.next = buckets[bckt_idx];
+    kspr->b.kind = QK_CreatureShadow;
     buckets[bckt_idx] = (struct BasicQ *)kspr;
 
     int pdim_w;
@@ -3702,9 +3739,9 @@ static void create_shadows(struct Thing *thing, struct EngineCoord *ecor, struct
     }
 
     kspr->p1.S = dist_sq;
-    kspr->field_58 = angle;
-    kspr->field_5C = thing->anim_sprite;
-    kspr->field_5E = thing->field_48;
+    kspr->angle = angle;
+    kspr->anim_sprite = thing->anim_sprite;
+    kspr->thing_field48 = thing->current_frame;
 }
 
 // Creature status flower above head in isometric view
@@ -3916,7 +3953,7 @@ static void do_a_gpoly_gourad_tr(struct EngineCoord *ec1, struct EngineCoord *ec
     int ec2_fieldA;
     int ec3_fieldA;
 
-    if ( (ec1->field_8 & (unsigned __int16)(ec2->field_8 & ec3->field_8) & 0x1F8) == 0
+    if ( (ec1->field_8 & (uint16_t)(ec2->field_8 & ec3->field_8) & 0x1F8) == 0
         && (ec2->view_width - ec1->view_width) * (ec3->view_height - ec2->view_height)
         + (ec1->view_height - ec2->view_height) * (ec3->view_width - ec2->view_width) > 0 )
     {
@@ -3976,7 +4013,7 @@ static void do_a_gpoly_unlit_tr(struct EngineCoord *ec1, struct EngineCoord *ec2
     struct BucketKindPolygonStandard *v7;
     struct BasicQ *v8;
 
-    if ( (ec1->field_8 & (unsigned __int16)(ec2->field_8 & ec3->field_8) & 0x1F8) == 0
+    if ( (ec1->field_8 & (uint16_t)(ec2->field_8 & ec3->field_8) & 0x1F8) == 0
         && (ec3->view_width - ec2->view_width) * (ec1->view_height - ec2->view_height)
         + (ec3->view_height - ec2->view_height) * (ec2->view_width - ec1->view_width) > 0 )
     {
@@ -4023,7 +4060,7 @@ static void do_a_gpoly_unlit_bl(struct EngineCoord *ec1, struct EngineCoord *ec2
     int v6;
     struct BasicQ *v7;
 
-    if ( (ec1->field_8 & (unsigned __int16)(ec2->field_8 & ec3->field_8) & 0x1F8) == 0
+    if ( (ec1->field_8 & (uint16_t)(ec2->field_8 & ec3->field_8) & 0x1F8) == 0
         && (ec3->view_width - ec2->view_width) * (ec1->view_height - ec2->view_height)
         + (ec3->view_height - ec2->view_height) * (ec2->view_width - ec1->view_width) > 0 )
     {
@@ -4076,7 +4113,7 @@ static void do_a_gpoly_gourad_bl(struct EngineCoord *ec1, struct EngineCoord *ec
     struct PolyPoint *polypoint3;
     struct PolyPoint *polypoint1;
 
-    if ( (ec1->field_8 & (unsigned __int16)(ec2->field_8 & ec3->field_8) & 0x1F8) == 0
+    if ( (ec1->field_8 & (uint16_t)(ec2->field_8 & ec3->field_8) & 0x1F8) == 0
         && (ec3->view_height - ec2->view_height) * (ec2->view_width - ec1->view_width)
         + (ec1->view_height - ec2->view_height) * (ec3->view_width - ec2->view_width) > 0 )
     {
@@ -4545,27 +4582,27 @@ static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprit
         angle = thing->move_angle_xy;
     }
 
-    switch(thing->field_4F & TF4F_Transpar_Alpha)
+    switch(thing->rendering_flags & TRF_Transpar_Alpha)
     {
-        case TF4F_Transpar_8:
+        case TRF_Transpar_8:
             lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR8;
             break;
-        case TF4F_Transpar_4:
+        case TRF_Transpar_4:
             lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
             break;
         default:
             break;
     }
     unsigned short v6 = 0x2000;
-    if ( !(thing->field_4F & TF4F_Unknown02) )
+    if ( !(thing->rendering_flags & TRF_Unknown02) )
         v6 = get_thing_shade(thing);
     v6 >>= 8;
 
     int a6_2 = thing->sprite_size * ((camera_zoom << 13) / 0x10000 / pixel_size) / 0x10000;
-    if ( thing->field_4F & TF4F_Tint_Flags )
+    if ( thing->rendering_flags & TRF_Tint_Flags )
     {
         lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
-        lbSpriteReMapPtr = &pixmap.ghost[256 * thing->field_51];
+        lbSpriteReMapPtr = &pixmap.ghost[256 * thing->tint_colour];
     }
     else if ( v6 == 0x2000 )
     {
@@ -4578,21 +4615,21 @@ static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprit
     }
 
     EngineSpriteDrawUsingAlpha = 0;
-    switch (thing->field_4F & (TF4F_Transpar_Flags))
+    switch (thing->rendering_flags & (TRF_Transpar_Flags))
     {
-        case TF4F_Transpar_8:
+        case TRF_Transpar_8:
             lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR8;
             lbDisplay.DrawFlags &= ~Lb_TEXT_UNDERLNSHADOW;
             break;
-        case TF4F_Transpar_4:
+        case TRF_Transpar_4:
             lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
             lbDisplay.DrawFlags &= ~Lb_TEXT_UNDERLNSHADOW;
             break;
-        case TF4F_Transpar_Alpha:
+        case TRF_Transpar_Alpha:
             EngineSpriteDrawUsingAlpha = 1;
             break;
     }
-    
+
     if ((thing->class_id == TCls_Creature)
         || (thing->class_id == TCls_Object)
         || (thing->class_id == TCls_DeadCreature)
@@ -4603,7 +4640,7 @@ static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprit
             lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
             lbSpriteReMapPtr = white_pal;
         } else {
-            if ((thing->field_4F & TF4F_BeingHit) != 0)
+            if ((thing->rendering_flags & TRF_BeingHit) != 0)
             {
                 lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
                 lbSpriteReMapPtr = red_pal;
@@ -4611,7 +4648,7 @@ static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprit
                 if (thingadd->time_spent_displaying_hurt_colour >= 1.0)
                 {
                     thingadd->time_spent_displaying_hurt_colour = 0;
-                    thing->field_4F &= ~TF4F_BeingHit; // Turns off red damage colour tint
+                    thing->rendering_flags &= ~TRF_BeingHit; // Turns off red damage colour tint
                 }
             }
         }
@@ -4696,7 +4733,7 @@ static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprit
         EngineSpriteDrawUsingAlpha = 0;
         unsigned long v21 = (game.play_gameturn + thing->index) % keepersprite_frames(n);
         // drawing torch
-        process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->field_48, a6_2);
+        process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->current_frame, a6_2);
         EngineSpriteDrawUsingAlpha = 1;
         // drawing flame
         process_keeper_sprite(dx + jspr->scr_x, dy + jspr->scr_y, n, angle, v21, v16);
@@ -4710,12 +4747,12 @@ static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprit
         }
         else
         {
-            is_shown = ((thing->field_4F & TF4F_Unknown01) == 0);
+            is_shown = ((thing->rendering_flags & TRF_Unknown01) == 0);
         }
         if ( is_shown ||
                 get_my_player()->id_number == thing->owner ||
                 thing->trap.revealed )
-            process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->field_48, a6_2);
+            process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->current_frame, a6_2);
     }
     lbDisplay.DrawFlags = flg_mem;
     EngineSpriteDrawUsingAlpha = alpha_mem;
@@ -4738,11 +4775,14 @@ void draw_engine_number(struct BucketKindFloatingGoldText *num)
     flg_mem = lbDisplay.DrawFlags;
     player = get_my_player();
     lbDisplay.DrawFlags &= ~Lb_SPRITE_FLIP_HORIZ;
-    spr = &button_sprite[71];
+    spr = &button_sprite[GBS_fontchars_number_dig0];
     w = scale_ui_value(spr->SWidth) * scale_by_zoom;
     h = scale_ui_value(spr->SHeight) * scale_by_zoom;
-    if ((player->acamera->view_mode == PVM_IsometricView) || (player->acamera->view_mode == PVM_FrontView))
-    {
+    if (
+        player->acamera->view_mode == PVM_IsoWibbleView ||
+        player->acamera->view_mode == PVM_FrontView ||
+        player->acamera->view_mode == PVM_IsoStraightView
+    ) {
         // Count digits to be displayed
         ndigits=0;
         for (val = num->lvl; val > 0; val /= 10)
@@ -4753,7 +4793,7 @@ void draw_engine_number(struct BucketKindFloatingGoldText *num)
             pos_x = w*(ndigits-1)/2 + num->x;
             for (val = num->lvl; val > 0; val /= 10)
             {
-                spr = &button_sprite[(val%10) + 71];
+                spr = &button_sprite[(val%10) + GBS_fontchars_number_dig0];
                 LbSpriteDrawScaled(pos_x, num->y - h, spr, w, h);
 
                 pos_x -= w;
@@ -4774,8 +4814,11 @@ void draw_engine_room_flagpole(struct BucketKindRoomFlag *rflg)
     struct PlayerInfo *player = get_my_player();
     const struct Camera *cam = player->acamera;
 
-    if ((cam->view_mode == PVM_IsometricView) || (cam->view_mode == PVM_FrontView))
-    {
+    if (
+        cam->view_mode == PVM_IsoWibbleView ||
+        cam->view_mode == PVM_FrontView ||
+        cam->view_mode == PVM_IsoStraightView
+    ) {
         if (settings.roomflags_on)
         {
             int deltay, height, zoom_factor;
@@ -4825,14 +4868,107 @@ unsigned short choose_health_sprite(struct Thing* thing)
     }
     if ((maxhealth <= 0) || (health <= 0))
     {
-        return 88 + (8*color_idx);
+        return GBS_creature_flower_health_r1 + (8*color_idx);
     } else
     if (health >= maxhealth)
     {
-        return 88 + (8*color_idx) - 7;
+        return GBS_creature_flower_health_r1 + (8*color_idx) - 7;
     } else
     {
-        return 88 + (8*color_idx) - (8 * health / maxhealth);
+        return GBS_creature_flower_health_r1 + (8*color_idx) - (8 * health / maxhealth);
+    }
+}
+
+void fill_status_sprite_indexes(struct Thing *thing, struct CreatureControl *cctrl, short *health_spridx,
+                                short *state_spridx, short *anger_spridx)
+{
+    (*health_spridx) = choose_health_sprite(thing);
+    if (is_my_player_number(thing->owner))
+    {
+        lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
+        if (game.play_gameturn - cctrl->thought_bubble_last_turn_drawn == 1)
+        {
+            if (cctrl->thought_bubble_display_timer < 40) {
+                cctrl->thought_bubble_display_timer++;
+            }
+        } else {
+            if (game.play_gameturn - cctrl->thought_bubble_last_turn_drawn > 1) {
+                cctrl->thought_bubble_display_timer = 0;
+            }
+        }
+        cctrl->thought_bubble_last_turn_drawn = game.play_gameturn;
+        if (cctrl->thought_bubble_display_timer == 40)
+        {
+            struct StateInfo *stati;
+            stati = get_creature_state_with_task_completion(thing);
+            if (!stati->field_23)
+            {
+                if ((cctrl->spell_flags & CSAfF_MadKilling) != 0)
+                {
+                    stati = &states[CrSt_MadKillingPsycho];
+                }
+                else if (anger_is_creature_livid(thing))
+                {
+                    stati = &states[CrSt_CreatureLeavingDungeon];
+                }
+                else if (creature_is_called_to_arms(thing))
+                {
+                    stati = &states[CrSt_ArriveAtCallToArms];
+                }
+                else if (creature_is_at_alarm(thing))
+                {
+                    stati = &states[CrSt_ArriveAtAlarm];
+                }
+                else if (anger_is_creature_angry(thing))
+                {
+                    stati = &states[CrSt_PersonSulkAtLair];
+                }
+                else if (hunger_is_creature_hungry(thing))
+                {
+                    stati = &states[CrSt_CreatureArrivedAtGarden];
+                }
+                else if (creature_requires_healing(thing))
+                {
+                    stati = &states[CrSt_CreatureSleep];
+                }
+                else if (cctrl->paydays_owed)
+                {
+                    stati = &states[CrSt_CreatureWantsSalary];
+                }
+                else
+                {
+                    stati = get_creature_state_with_task_completion(thing);
+                }
+                if ((*(short *)&stati->field_26 == 1) || (thing_pointed_at == thing))
+                {
+                    (*state_spridx) = stati->sprite_idx;
+                }
+                switch (anger_get_creature_anger_type(thing))
+                {
+                case AngR_NotPaid:
+                    if ((cctrl->paydays_owed <= 0) && (cctrl->paydays_advanced >= 0))
+                    {
+                        (*anger_spridx) = GBS_creature_states_angry;
+                    }
+                    else
+                    {
+                        (*anger_spridx) = GBS_creature_states_getgold;
+                    }
+                    break;
+                case AngR_Hungry:
+                    (*anger_spridx) = GBS_creature_states_hungry;
+                    break;
+                case AngR_NoLair:
+                    (*anger_spridx) = GBS_creature_states_sleep;
+                    break;
+                case AngR_Other:
+                    (*anger_spridx) = GBS_creature_states_angry;
+                    break;
+                default:
+                    break;
+                }
+            }
+        }
     }
 }
 
@@ -4847,7 +4983,8 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
     float scale_by_zoom;
     int base_size = creature_status_size*256;
     switch (cam->view_mode) {
-        case PVM_IsometricView:
+        case PVM_IsoWibbleView:
+        case PVM_IsoStraightView:
             // 1st argument: the scale when fully zoomed out. 2nd argument: the scale at base level zoom
             scale_by_zoom = lerp(0.15, 1.00, hud_scale);
             break;
@@ -4890,95 +5027,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
     exp = min(cctrl->explevel,9);
     if (cam->view_mode != PVM_ParchmentView)
     {
-        health_spridx = choose_health_sprite(thing);
-        if (is_my_player_number(thing->owner))
-        {
-            lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
-            cctrl = creature_control_get_from_thing(thing);
-            if (game.play_gameturn - cctrl->thought_bubble_last_turn_drawn == 1)
-            {
-                if (cctrl->thought_bubble_display_timer < 40) {
-                    cctrl->thought_bubble_display_timer++;
-                }
-            } else {
-                if (game.play_gameturn - cctrl->thought_bubble_last_turn_drawn > 1) {
-                    cctrl->thought_bubble_display_timer = 0;
-                }
-            }
-            cctrl->thought_bubble_last_turn_drawn = game.play_gameturn;
-            if (cctrl->thought_bubble_display_timer == 40)
-            {
-                struct StateInfo *stati;
-                stati = get_creature_state_with_task_completion(thing);
-                if (!stati->field_23)
-                {
-                    if ((cctrl->spell_flags & CSAfF_MadKilling) != 0)
-                    {
-                        stati = &states[CrSt_MadKillingPsycho];
-                    }
-                    else if (anger_is_creature_livid(thing))
-                    {
-                        stati = &states[CrSt_CreatureLeavingDungeon];
-                    }
-                    else if (creature_is_called_to_arms(thing))
-                    {
-                        stati = &states[CrSt_ArriveAtCallToArms];
-                    }
-                    else if (creature_is_at_alarm(thing))
-                    {
-                        stati = &states[CrSt_ArriveAtAlarm];
-                    }
-                    else if (anger_is_creature_angry(thing))
-                    {
-                        stati = &states[CrSt_PersonSulkAtLair];
-                    }
-                    else if (hunger_is_creature_hungry(thing))
-                    {
-                        stati = &states[CrSt_CreatureArrivedAtGarden];
-                    }
-                    else if (creature_requires_healing(thing))
-                    {
-                        stati = &states[CrSt_CreatureSleep];
-                    }
-                    else if (cctrl->paydays_owed)
-                    {
-                        stati = &states[CrSt_CreatureWantsSalary];
-                    }
-                    else
-                    {
-                        stati = get_creature_state_with_task_completion(thing);
-                    }
-                    if ((*(short *)&stati->field_26 == 1) || (thing_pointed_at == thing))
-                    {
-                        state_spridx = stati->sprite_idx;
-                    }
-                    switch (anger_get_creature_anger_type(thing))
-                    {
-                    case AngR_NotPaid:
-                        if ((cctrl->paydays_owed <= 0) && (cctrl->paydays_advanced >= 0))
-                        {
-                            anger_spridx = 55;
-                        }
-                        else
-                        {
-                            anger_spridx = 52;
-                        }
-                        break;
-                    case AngR_Hungry:
-                        anger_spridx = 59;
-                        break;
-                    case AngR_NoLair:
-                        anger_spridx = 54;
-                        break;
-                    case AngR_Other:
-                        anger_spridx = 55;
-                        break;
-                    default:
-                        break;
-                    }
-                }
-            }
-        }
+        fill_status_sprite_indexes(thing, cctrl, &health_spridx, &state_spridx, &anger_spridx);
     }
 
     int h_add;
@@ -4987,7 +5036,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
     int h;
     const struct TbSprite *spr;
     int bs_units_per_px;
-    spr = &button_sprite[70];
+    spr = &button_sprite[GBS_creature_states_cloud];
     bs_units_per_px = units_per_pixel_ui * 2 * scale_by_zoom;
 
     if (cam->view_mode == PVM_FrontView) {
@@ -4997,7 +5046,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
 
     if ( state_spridx || anger_spridx )
     {
-        spr = &button_sprite[70];
+        spr = &button_sprite[GBS_creature_states_cloud];
         w = (base_size * spr->SWidth * bs_units_per_px/16) >> 13;
         h = (base_size * spr->SHeight * bs_units_per_px/16) >> 13;
         LbSpriteDrawScaled(scrpos_x - w / 2, scrpos_y - h, spr, w, h);
@@ -5049,7 +5098,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
               h = (base_size * spr->SHeight * bs_units_per_px/16) >> 13;
               LbSpriteDrawScaled(scrpos_x - w / 2, scrpos_y - h - h_add, spr, w, h);
           }
-          spr = &button_sprite[184 + exp];
+          spr = &button_sprite[GBS_creature_flower_level_01 + exp];
           w = (base_size * spr->SWidth * bs_units_per_px/16) >> 13;
           h = (base_size * spr->SHeight * bs_units_per_px/16) >> 13;
           LbSpriteDrawScaled(scrpos_x - w / 2, scrpos_y - h - h_add, spr, w, h);
@@ -5125,14 +5174,17 @@ static void draw_engine_room_flag_top(struct BucketKindRoomFlag *rflg)
     struct PlayerInfo *player = get_my_player();
     const struct Camera *cam = player->acamera;
 
-    if ((cam->view_mode == PVM_IsometricView) || (cam->view_mode == PVM_FrontView))
-    {
+    if (
+        cam->view_mode == PVM_IsoWibbleView ||
+        cam->view_mode == PVM_FrontView ||
+        cam->view_mode == PVM_IsoStraightView
+    ) {
         if (settings.roomflags_on)
         {
             int top_of_pole_offset, zoom_factor;
             // 1st argument: the scale when fully zoomed out. 2nd argument: the scale at base level zoom
             float scale_by_zoom = lerp(0.15, 1.00, hud_scale);
-            
+
             if (cam->view_mode == PVM_FrontView) {
                 zoom_factor = (4094*scale_by_zoom);
                 top_of_pole_offset = (zoom_factor << 7 >> 13) * (units_per_pixel)/16;
@@ -6288,7 +6340,7 @@ void display_drawlist(void) // Draws isometric and 1st person view. Not frontvie
                 draw_jonty_mapwho(item.jontySprite);
                 break;
             case QK_CreatureShadow: // Shadows of creatures in isometric and 1st person view
-                draw_keepsprite_unscaled_in_buffer(item.creatureShadow->field_5C, item.creatureShadow->field_58, item.creatureShadow->field_5E, big_scratch);
+                draw_keepsprite_unscaled_in_buffer(item.creatureShadow->anim_sprite, item.creatureShadow->angle, item.creatureShadow->thing_field48, big_scratch);
                 vec_map = big_scratch;
                 vec_mode = VM_Unknown10;
                 vec_colour = item.creatureShadow->p1.S;
@@ -6317,8 +6369,9 @@ void display_drawlist(void) // Draws isometric and 1st person view. Not frontvie
                 cam = player->acamera;
                 if (cam != NULL)
                 {
-                    if (cam->view_mode == PVM_IsometricView)
-                    draw_jonty_mapwho(item.jontySprite);
+                    if (cam->view_mode == PVM_IsoWibbleView || cam->view_mode == PVM_IsoStraightView) {
+                        draw_jonty_mapwho(item.jontySprite);
+                    }
                 }
                 break;
             case QK_RoomFlagStatusBox: // The status sitting on top of the pole
@@ -6335,7 +6388,7 @@ void display_drawlist(void) // Draws isometric and 1st person view. Not frontvie
       WARNLOG("Incurred %lu rendering problems; last was with poly kind %ld",render_problems,render_prob_kind);
 }
 
-static void prepare_draw_plane_of_engine_columns(long aposc, long bposc, long xcell, long ycell, struct MinMax *mm)
+static void prepare_draw_plane_of_engine_columns(struct Camera *cam, long aposc, long bposc, long xcell, long ycell, struct MinMax *mm)
 {
     apos = aposc;
     bpos = bposc;
@@ -6343,14 +6396,14 @@ static void prepare_draw_plane_of_engine_columns(long aposc, long bposc, long xc
     front_ec = &ecs2[0];
     if (lens_mode != 0)
     {
-        fill_in_points_perspective(xcell, ycell, mm);
+        fill_in_points_perspective(cam, xcell, ycell, mm);
     } else
     if (settings.video_cluedo_mode)
     {
-        fill_in_points_cluedo(xcell, ycell, mm);
+        fill_in_points_cluedo(cam, xcell, ycell, mm);
     } else
     {
-        fill_in_points_isometric(xcell, ycell, mm);
+        fill_in_points_isometric(cam, xcell, ycell, mm);
     }
 }
 
@@ -6362,7 +6415,7 @@ static void prepare_draw_plane_of_engine_columns(long aposc, long bposc, long xc
  * @param xcell
  * @param ycell
  */
-static void draw_plane_of_engine_columns(long aposc, long bposc, long xcell, long ycell, struct MinMax *mm)
+static void draw_plane_of_engine_columns(struct Camera *cam, long aposc, long bposc, long xcell, long ycell, struct MinMax *mm)
 {
     struct EngineCol *ec;
     ec = front_ec;
@@ -6372,7 +6425,7 @@ static void draw_plane_of_engine_columns(long aposc, long bposc, long xcell, lon
     bpos = bposc;
     if (lens_mode != 0)
     {
-        fill_in_points_perspective(xcell, ycell, mm);
+        fill_in_points_perspective(cam, xcell, ycell, mm);
         if (mm->min < mm->max)
         {
           apos = aposc;
@@ -6382,7 +6435,7 @@ static void draw_plane_of_engine_columns(long aposc, long bposc, long xcell, lon
     } else
     if ( settings.video_cluedo_mode )
     {
-        fill_in_points_cluedo(xcell, ycell, mm);
+        fill_in_points_cluedo(cam, xcell, ycell, mm);
         if (mm->min < mm->max)
         {
           apos = aposc;
@@ -6391,7 +6444,7 @@ static void draw_plane_of_engine_columns(long aposc, long bposc, long xcell, lon
         }
     } else
     {
-        fill_in_points_isometric(xcell, ycell, mm);
+        fill_in_points_isometric(cam, xcell, ycell, mm);
         if (mm->min < mm->max)
         {
           apos = aposc;
@@ -6408,7 +6461,7 @@ static void draw_plane_of_engine_columns(long aposc, long bposc, long xcell, lon
  * @param xcell
  * @param ycell
  */
-static void draw_view_map_plane(long aposc, long bposc, long xcell, long ycell)
+static void draw_view_map_plane(struct Camera *cam, long aposc, long bposc, long xcell, long ycell)
 {
     struct MinMax *mm;
     long i;
@@ -6416,14 +6469,14 @@ static void draw_view_map_plane(long aposc, long bposc, long xcell, long ycell)
     if (i < 0)
         i = 0;
     mm = &minmaxs[i];
-    prepare_draw_plane_of_engine_columns(aposc, bposc, xcell, ycell, mm);
+    prepare_draw_plane_of_engine_columns(cam, aposc, bposc, xcell, ycell, mm);
 
     for (i = 2*cells_away-1; i > 0; i--)
     {
         ycell++;
         bposc -= (map_subtiles_y+1);
         mm++;
-        draw_plane_of_engine_columns(aposc, bposc, xcell, ycell, mm);
+        draw_plane_of_engine_columns(cam, aposc, bposc, xcell, ycell, mm);
     }
 }
 
@@ -6475,10 +6528,7 @@ void draw_view(struct Camera *cam, unsigned char a2)
     map_roll = interpolated_cam_orient_c;
     map_tilt = -interpolated_cam_orient_b;
 
-    if (wibble_enabled() || liquid_wibble_enabled())
-    {
-        frame_wibble_generate();
-    }
+    frame_wibble_generate();
     view_alt = z;
     if (lens_mode != 0)
     { // 1st person
@@ -6494,7 +6544,7 @@ void draw_view(struct Camera *cam, unsigned char a2)
         do_perspective_rotation(x, y, z);
         cells_away = compute_cells_away();
     }
-    
+
     xcell = (x >> 8);
     aposc = -(x & 0xFF);
     bposc = (cells_away << 8) + (y & 0xFF);
@@ -6502,9 +6552,9 @@ void draw_view(struct Camera *cam, unsigned char a2)
     find_gamut();
     fiddle_gamut(xcell, ycell + (cells_away+1));
 
-    draw_view_map_plane(aposc, bposc, xcell, ycell);
+    draw_view_map_plane(cam, aposc, bposc, xcell, ycell);
 
-    if (map_volume_box.visible)
+    if ( (map_volume_box.visible) && (!game_is_busy_doing_gui()) )
     {
         poly_pool_end_reserve(0);
         process_isometric_map_volume_box(x, y, z, my_player_number);
@@ -7544,8 +7594,8 @@ void process_keeper_sprite(short x, short y, unsigned short kspr_base, short ksp
     kspr_idx = keepersprite_index(kspr_base);
     global_scaler = scale;
     creature_sprites = keepersprite_array(kspr_base);
-    scaled_x = ((scale * (long)creature_sprites->field_C) >> 5) + (long)x;
-    scaled_y = ((scale * (long)creature_sprites->field_E) >> 5) + (long)y;
+    scaled_x = ((scale * (long)creature_sprites->offset_x) >> 5) + (long)x;
+    scaled_y = ((scale * (long)creature_sprites->offset_y) >> 5) + (long)y;
     SYNCDBG(17,"Scaled (%d,%d)",(int)scaled_x,(int)scaled_y);
     if (thing_is_invalid(thing_being_displayed))
     {
@@ -7561,7 +7611,7 @@ void process_keeper_sprite(short x, short y, unsigned short kspr_base, short ksp
         cutoff = 6;
         if ( (thing_being_displayed->movement_flags & TMvF_Unknown04) != 0 )
         {
-            get_keepsprite_unscaled_dimensions(thing_being_displayed->anim_sprite, thing_being_displayed->move_angle_xy, thing_being_displayed->field_48, &dim_ow, &dim_oh, &dim_tw, &dim_th);
+            get_keepsprite_unscaled_dimensions(thing_being_displayed->anim_sprite, thing_being_displayed->move_angle_xy, thing_being_displayed->current_frame, &dim_ow, &dim_oh, &dim_tw, &dim_th);
             cctrl = creature_control_get_from_thing(thing_being_displayed);
             lltemp = dim_oh * (48 - (long)cctrl->word_9A);
             cutoff = ((((lltemp >> 24) & 0x1F) + (long)lltemp) >> 5) / 2;
@@ -7666,7 +7716,7 @@ static void process_keeper_speedup_sprite(struct BucketKindJontySprite *jspr, lo
     }
     EngineSpriteDrawUsingAlpha = 0;
     nframe2 = (thing->index + game.play_gameturn) % keepersprite_frames(graph_id2);
-    process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->field_48, scale);
+    process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->current_frame, scale);
     EngineSpriteDrawUsingAlpha = 1;
     process_keeper_sprite(jspr->scr_x+add_x, jspr->scr_y+add_y, graph_id2, angle, nframe2, transp2);
 }
@@ -7682,7 +7732,7 @@ static void prepare_jonty_remap_and_scale(long *scale, const struct BucketKindJo
     if (lens_mode == 0)
     {
         fade = 65536;
-        if ((thing->field_4F & TF4F_Unknown02) == 0)
+        if ((thing->rendering_flags & TRF_Unknown02) == 0)
             i = get_thing_shade(thing);
         else
             i = MINIMUM_LIGHTNESS;
@@ -7691,7 +7741,7 @@ static void prepare_jonty_remap_and_scale(long *scale, const struct BucketKindJo
     if (jspr->field_14 <= lfade_min)
     {
         fade = jspr->field_14;
-        if ((thing->field_4F & TF4F_Unknown02) == 0)
+        if ((thing->rendering_flags & TRF_Unknown02) == 0)
             i = get_thing_shade(thing);
         else
             i = MINIMUM_LIGHTNESS;
@@ -7700,7 +7750,7 @@ static void prepare_jonty_remap_and_scale(long *scale, const struct BucketKindJo
     if (jspr->field_14 < lfade_max)
     {
         fade = jspr->field_14;
-        if ((thing->field_4F & TF4F_Unknown02) == 0)
+        if ((thing->rendering_flags & TRF_Unknown02) == 0)
             i = get_thing_shade(thing);
         else
             i = MINIMUM_LIGHTNESS;
@@ -7712,10 +7762,10 @@ static void prepare_jonty_remap_and_scale(long *scale, const struct BucketKindJo
     }
     shade_factor = shade >> 8;
     *scale = (thelens * (long)thing->sprite_size) / fade;
-    if ((thing->field_4F & (TF4F_Unknown04|TF4F_Unknown08)) != 0)
+    if ((thing->rendering_flags & (TRF_Unknown04|TRF_Unknown08)) != 0)
     {
         lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
-        shade_factor = thing->field_51;
+        shade_factor = thing->tint_colour;
         lbSpriteReMapPtr = &pixmap.ghost[256 * shade_factor];
     } else
     if (shade_factor == 32)
@@ -7784,17 +7834,17 @@ void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
       angle = thing->move_angle_xy;
     prepare_jonty_remap_and_scale(&scale, jspr);
     EngineSpriteDrawUsingAlpha = 0;
-    switch (thing->field_4F & (TF4F_Transpar_Flags))
+    switch (thing->rendering_flags & (TRF_Transpar_Flags))
     {
-    case TF4F_Transpar_8:
+    case TRF_Transpar_8:
         lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR8;
         lbDisplay.DrawFlags &= ~Lb_TEXT_UNDERLNSHADOW;
         break;
-    case TF4F_Transpar_4:
+    case TRF_Transpar_4:
         lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
         lbDisplay.DrawFlags &= ~Lb_TEXT_UNDERLNSHADOW;
         break;
-    case TF4F_Transpar_Alpha:
+    case TRF_Transpar_Alpha:
         EngineSpriteDrawUsingAlpha = 1;
         break;
     }
@@ -7803,7 +7853,7 @@ void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
     {
         if ((player->thing_under_hand == thing->index) && (game.play_gameturn & 2))
         {
-          if (player->acamera->view_mode == PVM_IsometricView)
+          if (player->acamera->view_mode == PVM_IsoWibbleView || player->acamera->view_mode == PVM_IsoStraightView)
           {
               lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
               lbSpriteReMapPtr = white_pal;
@@ -7835,7 +7885,7 @@ void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
               }
           }
         } else {
-            if ((thing->field_4F & TF4F_BeingHit) != 0)
+            if ((thing->rendering_flags & TRF_BeingHit) != 0)
             {
                 lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
                 lbSpriteReMapPtr = red_pal;
@@ -7843,7 +7893,7 @@ void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
                 if (thingadd->time_spent_displaying_hurt_colour >= 1.0)
                 {
                     thingadd->time_spent_displaying_hurt_colour = 0;
-                    thing->field_4F &= ~TF4F_BeingHit; // Turns off red damage colour tint
+                    thing->rendering_flags &= ~TRF_BeingHit; // Turns off red damage colour tint
                 }
             }
         }
@@ -7853,6 +7903,10 @@ void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
     {
         thing_being_displayed_is_creature = 0;
         thing_being_displayed = NULL;
+    }
+    if (render_sprite_debug_fn)
+    {
+        render_sprite_debug_fn(thing, jspr->scr_x, jspr->scr_y);
     }
 
     if (
@@ -7873,7 +7927,7 @@ void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
                 process_keeper_speedup_sprite(jspr, angle, scale);
                 break;
             }
-            process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->field_48, scale);
+            process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->current_frame, scale);
             break;
         case TCls_Trap:
             trapst = &gameadd.trapdoor_conf.trap_cfgstats[thing->model];
@@ -7881,10 +7935,10 @@ void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
             {
                 break;
             }
-            process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->field_48, scale);
+            process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->current_frame, scale);
             break;
         default:
-            process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->field_48, scale);
+            process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->current_frame, scale);
             break;
         }
     }
@@ -8024,11 +8078,12 @@ static void sprite_to_sbuff_xflip(const TbSpriteData sprdata, unsigned char *out
     }
 }
 
-void draw_keepsprite_unscaled_in_buffer(unsigned short kspr_n, short angle, unsigned char a3, unsigned char *outbuf)
+void draw_keepsprite_unscaled_in_buffer(unsigned short kspr_n, short angle, unsigned char field48, unsigned char *outbuf)
 {
     struct KeeperSprite *kspr_arr;
     unsigned long kspr_idx;
     struct KeeperSprite *kspr;
+    TbSpriteData sprite_data;
     unsigned int keepsprite_id;
     unsigned char *tmpbuf;
     int skip_w;
@@ -8053,11 +8108,21 @@ void draw_keepsprite_unscaled_in_buffer(unsigned short kspr_n, short angle, unsi
         {
             return;
         }
-        keepsprite_id = a3 + kspr_idx;
-        if (keepsprite_id >= KEEPSPRITE_LENGTH) {
-            return; // don't try to draw shadows for custom sprites or game will crash
+        keepsprite_id = field48 + kspr_idx;
+        if (keepsprite_id >= KEEPERSPRITE_ADD_OFFSET)
+        {
+            sprite_data = keepersprite_add[keepsprite_id - KEEPERSPRITE_ADD_OFFSET];
         }
-        kspr = &kspr_arr[a3];
+        else if (keepsprite_id >= KEEPSPRITE_LENGTH)
+        {
+            ERRORLOG("Sprite %d outside of valid range.", keepsprite_id);
+            return;
+        }
+        else
+        {
+            sprite_data = *keepsprite[keepsprite_id];
+        }
+        kspr = &kspr_arr[field48];
         fill_w = kspr->FrameWidth;
         fill_h = kspr->FrameHeight;
         if ( flip_range )
@@ -8070,7 +8135,7 @@ void draw_keepsprite_unscaled_in_buffer(unsigned short kspr_n, short angle, unsi
                 LbMemorySet(tmpbuf, 0, fill_w);
                 tmpbuf += 256;
             }
-            sprite_to_sbuff_xflip(*keepsprite[keepsprite_id], &outbuf[256 * skip_h + skip_w], kspr->SHeight, 256);
+            sprite_to_sbuff_xflip(sprite_data, &outbuf[256 * skip_h + skip_w], kspr->SHeight, 256);
         }
         else
         {
@@ -8083,7 +8148,7 @@ void draw_keepsprite_unscaled_in_buffer(unsigned short kspr_n, short angle, unsi
                 LbMemorySet(tmpbuf, 0, fill_w);
                 tmpbuf += 256;
             }
-            sprite_to_sbuff(*keepsprite[keepsprite_id], &outbuf[256 * skip_h + skip_w], kspr->SHeight, 256);
+            sprite_to_sbuff(sprite_data, &outbuf[256 * skip_h + skip_w], kspr->SHeight, 256);
         }
     }
     else if (kspr_arr->Rotable == 2)
@@ -8092,12 +8157,21 @@ void draw_keepsprite_unscaled_in_buffer(unsigned short kspr_n, short angle, unsi
         {
             return;
         }
-        kspr = &kspr_arr[a3 + quarter * kspr_arr->FramesCount];
+        kspr = &kspr_arr[field48 + quarter * kspr_arr->FramesCount];
         fill_w = kspr->SWidth;
         fill_h = kspr->SHeight;
-        keepsprite_id = a3 + quarter * kspr->FramesCount + kspr_idx;
-        if (keepsprite_id >= KEEPSPRITE_LENGTH) {
-            return; // don't try to draw shadows for custom sprites or game will crash
+        keepsprite_id = field48 + quarter * kspr->FramesCount + kspr_idx;
+        if (keepsprite_id >= KEEPERSPRITE_ADD_OFFSET)
+        {
+            sprite_data = keepersprite_add[keepsprite_id - KEEPERSPRITE_ADD_OFFSET];
+        }
+        else if (keepsprite_id >= KEEPSPRITE_LENGTH)
+        {
+            return; // WTF?!!
+        }
+        else
+        {
+            sprite_data = *keepsprite[keepsprite_id];
         }
         if ( flip_range )
         {
@@ -8107,8 +8181,9 @@ void draw_keepsprite_unscaled_in_buffer(unsigned short kspr_n, short angle, unsi
                 LbMemorySet(tmpbuf, 0, fill_w);
                 tmpbuf += 256;
             }
-            sprite_to_sbuff_xflip(*keepsprite[keepsprite_id], &outbuf[kspr->SWidth], kspr->SHeight, 256);
-        } else
+            sprite_to_sbuff_xflip(sprite_data, &outbuf[kspr->SWidth], kspr->SHeight, 256);
+        }
+        else
         {
             tmpbuf = outbuf;
             for (i = fill_h; i > 0; i--)
@@ -8116,13 +8191,15 @@ void draw_keepsprite_unscaled_in_buffer(unsigned short kspr_n, short angle, unsi
                 LbMemorySet(tmpbuf, 0, fill_w);
                 tmpbuf += 256;
             }
-            sprite_to_sbuff(*keepsprite[keepsprite_id], &outbuf[0], kspr->SHeight, 256);
+            sprite_to_sbuff(sprite_data, &outbuf[0], kspr->SHeight, 256);
         }
     }
 }
 
 static void update_frontview_pointed_block(unsigned long laaa, unsigned char qdrant, long w, long h, long qx, long qy)
 {
+    TbBool out_of_bounds = false;
+
     TbGraphicsWindow ewnd;
     struct Column *colmn;
     unsigned long mask;
@@ -8146,6 +8223,11 @@ static void update_frontview_pointed_block(unsigned long laaa, unsigned char qdr
         pos_y = (point_a / laaa) * y_step2[qdrant] + (point_b / laaa) * y_step1[qdrant] + (h << 8);
         slb_x = (pos_x >> 8) + x_offs[qdrant];
         slb_y = (pos_y >> 8) + y_offs[qdrant];
+        
+        if (slb_x < 0 || slb_x > 254 || slb_y < -2 || slb_y > 255) {
+            out_of_bounds = true;
+        }
+
         mapblk = get_map_block_at(slb_x, slb_y);
         if (!map_block_invalid(mapblk))
         {
@@ -8182,6 +8264,10 @@ static void update_frontview_pointed_block(unsigned long laaa, unsigned char qdr
         }
         point_b += delta;
     }
+    
+    struct PlayerInfo *player = get_my_player();
+    struct PlayerInfoAdd* playeradd = get_playeradd(player->id_number);
+    playeradd->mouse_is_offmap = out_of_bounds;
 }
 
 void create_frontview_map_volume_box(struct Camera *cam, unsigned char stl_width, TbBool single_subtile, long line_color)
@@ -8463,7 +8549,7 @@ static void do_map_who_for_thing(struct Thing *thing)
     int bckt_idx;
     struct EngineCoord ecor;
     struct NearestLights nearlgt;
-    
+
     interpolate_thing(thing, thingadd);
     int render_pos_x, render_floorpos, render_pos_y, render_pos_z;
     render_pos_x = thingadd->interp_mappos.x.val;
@@ -8478,7 +8564,7 @@ static void do_map_who_for_thing(struct Thing *thing)
         ecor.x = (render_pos_x - map_x_pos);
         ecor.z = (map_y_pos - render_pos_z);
         ecor.y = (render_floorpos - map_z_pos); // For shadows
-        
+
         // Shadows
         if (thing_is_creature(thing) && ((thing->movement_flags & TMvF_Unknown04) == 0))
         {
@@ -8598,7 +8684,7 @@ static void do_map_who(short tnglist_idx)
         }
         i = thing->next_on_mapblk;
         // Per thing code start
-        if ((thing->field_4F & TF4F_Unknown01) == 0)
+        if ((thing->rendering_flags & TRF_Unknown01) == 0)
         {
             do_map_who_for_thing(thing);
         }
@@ -8621,7 +8707,7 @@ static void draw_frontview_thing_on_element(struct Thing *thing, struct Map *map
     long cx;
     long cy;
     long cz;
-    if ((thing->field_4F & TF4F_Unknown01) != 0)
+    if ((thing->rendering_flags & TRF_Unknown01) != 0)
         return;
     switch (thing->field_50 >> 2)
     {
@@ -8749,7 +8835,8 @@ void draw_frontview_engine(struct Camera *cam)
     camera_zoom = interpolated_camera_zoom;
     cam_x = interpolated_cam_mappos_x;
     cam_y = interpolated_cam_mappos_y;
-
+    pointer_x = (GetMouseX() - player->engine_window_x) / pixel_size;
+    pointer_y = (GetMouseY() - player->engine_window_y) / pixel_size;
     UseFastBlockDraw = (camera_zoom == FRONTVIEW_CAMERA_ZOOM_MAX);
     LbScreenStoreGraphicsWindow(&grwnd);
     store_engine_window(&ewnd,pixel_size);
@@ -8810,11 +8897,11 @@ void draw_frontview_engine(struct Camera *cam)
     }
 
     update_frontview_pointed_block(zoom, qdrant, px, py, qx, qy);
-    if (map_volume_box.visible)
+    if ( (map_volume_box.visible) && (!game_is_busy_doing_gui()) )
     {
         process_frontview_map_volume_box(cam, ((zoom >> 8) & 0xFF), player->id_number);
     }
-    
+
 
     h = (8 * (zoom + 32 * ewnd.height) - qy) / zoom;
     w = (8 * (zoom + 32 * ewnd.height) - qy) / zoom;
@@ -8860,5 +8947,50 @@ void draw_frontview_engine(struct Camera *cam)
     LbScreenLoadGraphicsWindow(&grwnd);
     cam->zoom = zoom_mem;//TODO [zoom] remove when all cam->zoom will be changed to camera_zoom
     SYNCDBG(9,"Finished");
+}
+
+static void render_sprite_debug_id(struct Thing* thing, long scr_x, long scr_y)
+{
+    if (render_sprite_debug_level < 2)
+    {
+        if (thing->class_id != TCls_Creature)
+            return;
+    }
+    ushort flg_mem = lbDisplay.DrawFlags;
+    lbDisplay.DrawFlags = Lb_TEXT_ONE_COLOR;
+    struct TbSprite *spr = &button_sprite[GBS_fontchars_number_dig0];
+    long w = scale_ui_value(spr->SWidth);
+    long h = scale_ui_value(spr->SHeight);
+
+    long val, value = thing->index;
+
+    // Count digits to be displayed
+    int ndigits=0;
+    for (val = value; val > 0; val /= 10)
+        ndigits++;
+    // Show the digits
+    scr_y -= h;
+    long pos_x = w * (ndigits - 1) / 2 + scr_x;
+    for (val = value; val > 0; val /= 10)
+    {
+        spr = &button_sprite[(val%10) + GBS_fontchars_number_dig0];
+        LbSpriteDrawScaled(pos_x, scr_y - h, spr, w, h);
+
+        pos_x -= w;
+    }
+    lbDisplay.DrawFlags = flg_mem;
+}
+
+void render_set_sprite_debug(int level)
+{
+    render_sprite_debug_level = level;
+    switch (level)
+    {
+        case 0:
+            render_sprite_debug_fn = NULL;
+            break;
+        default:
+            render_sprite_debug_fn = &render_sprite_debug_id;
+    }
 }
 /******************************************************************************/

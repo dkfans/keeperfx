@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "ariadne_tringls.h"
 
 #include "globals.h"
@@ -25,6 +26,7 @@
 #include "ariadne_edge.h"
 #include "ariadne.h"
 #include "gui_topmsg.h"
+#include "post_inc.h"
 
 #define EDGELEN_BITS 6
 

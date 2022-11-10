@@ -17,12 +17,9 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "bflib_datetm.h"
 
-#include <string.h>
-#include <stdarg.h>
-#include <stdio.h>
-#include <time.h>
 #include <chrono>
 #include "bflib_basics.h"
 #include "globals.h"
@@ -31,6 +28,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #endif
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -52,6 +50,7 @@ int debug_display_frametime = 0;
 void initial_time_point()
 {
   initialized_time_point = TimeNow;
+  gameadd.process_turn_time = 1.0; // Begin initial turn as soon as possible (like original game)
 }
 
 float get_delta_time()
@@ -133,7 +132,6 @@ void frametime_end_measurement(int frametime_kind)
  */
 TbClockMSec LbTimerClock_1000(void)
 {
-  // original DK uses win32 function timeGetTime();
   return clock();
 }
 

@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "packets.h"
 
 #include "globals.h"
@@ -92,6 +93,7 @@
 #include "keeperfx.hpp"
 
 #include "music_player.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -319,17 +321,34 @@ void process_pause_packet(long curr_pause, long new_pause)
 void process_players_dungeon_control_packet_control(long plyr_idx)
 {
     struct PlayerInfo* player = get_player(plyr_idx);
+    struct PlayerInfoAdd* playeradd = get_playeradd(plyr_idx);
     struct Packet* pckt = get_packet_direct(player->packet_num);
     SYNCDBG(6,"Processing player %d action %d",(int)plyr_idx,(int)pckt->action);
     struct Camera* cam = player->acamera;
     long inter_val;
+    int scroll_speed = cam->zoom;
     switch (cam->view_mode)
     {
-    case PVM_IsometricView:
-        inter_val = 2560000 / cam->zoom;
+    case PVM_IsoWibbleView:
+    case PVM_IsoStraightView:
+        if (playeradd->roomspace_drag_paint_mode == 1)
+        {
+            if (scroll_speed < 4100)
+            {
+                scroll_speed = 4100;
+            }
+        }
+        inter_val = 2560000 / scroll_speed;
         break;
     case PVM_FrontView:
-        inter_val = 12800000 / cam->zoom;
+        if (playeradd->roomspace_drag_paint_mode == 1)
+        {
+            if (scroll_speed < 16384)
+            {
+                scroll_speed = 16384;
+            }
+        }
+        inter_val = 12800000 / scroll_speed;
         break;
     default:
         inter_val = 256;
@@ -350,7 +369,8 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
     {
         switch (cam->view_mode)
         {
-        case PVM_IsometricView:
+        case PVM_IsoWibbleView:
+        case PVM_IsoStraightView:
              view_set_camera_rotation_inertia(cam, 16, 64);
             break;
         case PVM_FrontView:
@@ -362,7 +382,8 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
     {
         switch (cam->view_mode)
         {
-        case PVM_IsometricView:
+        case PVM_IsoWibbleView:
+        case PVM_IsoStraightView:
             view_set_camera_rotation_inertia(cam, -16, -64);
             break;
         case PVM_FrontView:
@@ -376,7 +397,8 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
     {
         switch (cam->view_mode)
         {
-        case PVM_IsometricView:
+        case PVM_IsoWibbleView:
+        case PVM_IsoStraightView:
             view_zoom_camera_in(cam, zoom_max, zoom_min);
             update_camera_zoom_bounds(cam, zoom_max, zoom_min);
             if (is_my_player(player))
@@ -399,7 +421,8 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
     {
         switch (cam->view_mode)
         {
-        case PVM_IsometricView:
+        case PVM_IsoWibbleView:
+        case PVM_IsoStraightView:
             view_zoom_camera_out(cam, zoom_max, zoom_min);
             update_camera_zoom_bounds(cam, zoom_max, zoom_min);
             if (is_my_player(player))
@@ -447,7 +470,7 @@ TbBool message_text_key_add(char * message, long maxlen, TbKeyCode key, TbKeyMod
         ((chr >= 'A') && (chr <= 'Z')) ||
         ((chr >= '0') && (chr <= '9')) ||
         (chr == ' ')  || (chr == '!') || (chr == ':') || (chr == ';')
-        || (chr == '(') || (chr == ')') || (chr == '.') || (chr == '_') 
+        || (chr == '(') || (chr == ')') || (chr == '.') || (chr == '_')
         || (chr == '\'') || (chr == '+') || (chr == '=') || (chr == '-')
         || (chr == '"') || (chr == '?') || (chr == '/') || (chr == '#')
         || (chr == '<') || (chr == '>') || (chr == '^'))
@@ -687,6 +710,11 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       player->cameras[CamIV_Parchment].orient_a = pckt->actn_par1;
       player->cameras[CamIV_FrontView].orient_a = pckt->actn_par1;
       player->cameras[CamIV_Isometric].orient_a = pckt->actn_par1;
+      
+      if ((is_my_player(player)) && (player->acamera->view_mode == PVM_FrontView)) {
+        // Fixes interpolated Things lagging for 1 turn when pressing middle mouse button to flip the camera in FrontView
+          reset_interpolation_of_camera(player);
+      }
       return 0;
   case PckA_SetPlyrState:
       set_player_state(player, pckt->actn_par1, pckt->actn_par2);
@@ -901,6 +929,12 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
         playeradd->roomspace_no_default = true;
         return false;
     }
+    case PckA_SetRoomspaceDragPaint:
+    {
+        playeradd->roomspace_height = 1;
+        playeradd->roomspace_width = 1;
+    }
+    // fall through
     case PckA_SetRoomspaceDrag:
     {
         playeradd->roomspace_detection_looseness = DEFAULT_USER_ROOMSPACE_DETECTION_LOOSENESS;
@@ -909,6 +943,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
         playeradd->one_click_mode_exclusive = true; // Enable GuiLayer_OneClickBridgeBuild layer
         playeradd->render_roomspace.highlight_mode = false;
         playeradd->roomspace_no_default = false;
+        playeradd->roomspace_drag_paint_mode = (pckt->action == PckA_SetRoomspaceDragPaint);
         return false;
     }
     case PckA_SetRoomspaceDefault:
@@ -1315,7 +1350,7 @@ void process_players_creature_control_packet_action(long plyr_idx)
     {
         playeradd = get_playeradd(plyr_idx);
         playeradd->teleport_destination = pckt->actn_par1;
-        break; 
+        break;
     }
     case PckA_SelectFPPickup:
     {

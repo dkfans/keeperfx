@@ -17,6 +17,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "bflib_render.h"
 
 #include "globals.h"
@@ -25,6 +26,7 @@
 #include "bflib_video.h"
 #include "bflib_sprite.h"
 #include "bflib_vidraw.h"
+#include "post_inc.h"
 
 /******************************************************************************/
 /******************************************************************************/

@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "frontmenu_options.h"
 #include "globals.h"
 #include "bflib_basics.h"
@@ -38,6 +39,7 @@
 #include "config_settings.h"
 #include "keeperfx.hpp"
 #include "gui_topmsg.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -221,7 +223,7 @@ void frontend_draw_define_key(struct GuiButton *gbtn)
         const char* mouse_gui_string = get_string(key_to_string[(long)code]);
         int mouse_button_number = (KC_MOUSE1 + 1 - code);
         char mouse_button_number_string[8];
-        itoa(mouse_button_number, mouse_button_number_string, 10);
+        snprintf(mouse_button_number_string, sizeof(mouse_button_number_string), "%d", mouse_button_number);
         strcat(mouse_button_label, mouse_gui_string);
         strcat(mouse_button_label, " ");
         strcat(mouse_button_label, mouse_button_number_string);
@@ -262,10 +264,10 @@ void gui_video_view_distance_level(struct GuiButton *gbtn)
 void gui_video_rotate_mode(struct GuiButton *gbtn)
 {
     struct Packet* pckt = get_packet(my_player_number);
-    if (settings.video_rotate_mode) {
-        set_packet_action(pckt, PckA_SwitchView, 5, 0, 0, 0);
-    } else {
-        set_packet_action(pckt, PckA_SwitchView, 2, 0, 0, 0);
+    switch (settings.video_rotate_mode) {
+        case 0: set_packet_action(pckt, PckA_SwitchView, PVM_IsoWibbleView, 0, 0, 0); break;
+        case 1: set_packet_action(pckt, PckA_SwitchView, PVM_IsoStraightView, 0, 0, 0); break;
+        case 2: set_packet_action(pckt, PckA_SwitchView, PVM_FrontView, 0, 0, 0); break;
     }
     save_settings();
 }

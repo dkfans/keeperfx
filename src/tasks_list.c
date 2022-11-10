@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "tasks_list.h"
 
 #include "globals.h"
@@ -24,6 +25,7 @@
 #include "spdigger_stack.h"
 #include "map_data.h"
 #include "dungeon_data.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {

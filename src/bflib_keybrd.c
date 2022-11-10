@@ -17,6 +17,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "bflib_keybrd.h"
 
 #include <string.h>
@@ -25,6 +26,7 @@
 #include <SDL2/SDL.h>
 #include "globals.h"
 #include "bflib_mouse.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {

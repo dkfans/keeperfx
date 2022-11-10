@@ -19,6 +19,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "bflib_fileio.h"
 
 #include <errno.h>
@@ -39,6 +40,7 @@
 #include <dos.h>
 #include <direct.h>
 #endif
+#include "post_inc.h"
 
 #if defined(_WIN32)
 #ifdef __cplusplus

@@ -42,6 +42,9 @@ struct PlayerInfo;
 #define MINMAX_LENGTH 512 // Originally 64, adjusted for view distance
 #define MINMAX_ALMOST_HALF ((MINMAX_LENGTH/2)-1)
 
+extern long zoom_distance_setting; // CFG setting
+extern long frontview_zoom_distance_setting; // CFG setting
+
 enum CameraIndexValues {
     CamIV_Isometric = 0,
     CamIV_FirstPerson,
@@ -128,9 +131,9 @@ void view_set_camera_rotation_inertia(struct Camera *cam, long a2, long a3);
 
 void update_all_players_cameras(void);
 void init_player_cameras(struct PlayerInfo *player);
-void set_previous_camera_values();
-void reset_interpolation_of_camera();
-void reset_interpolation_for_parchment_view();
+void set_previous_camera_values(struct PlayerInfo* player);
+void reset_interpolation_of_camera(struct PlayerInfo* player);
+void reset_interpolation_for_parchment_view(struct PlayerInfo* player);
 
 /******************************************************************************/
 #ifdef __cplusplus

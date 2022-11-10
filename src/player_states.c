@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "player_states.h"
 
 #include "globals.h"
@@ -26,6 +27,7 @@
 #include "dungeon_data.h"
 #include "power_hand.h"
 #include "thing_objects.h"
+#include "post_inc.h"
 
 /******************************************************************************/
 /******************************************************************************/
