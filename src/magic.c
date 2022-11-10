@@ -1855,7 +1855,7 @@ void process_magic_power_call_to_arms(PlayerNumber plyr_idx)
     const struct MagicStats *pwrdynst = get_power_dynamic_stats(PwrK_CALL2ARMS);
     struct SlabMap *slb = get_slabmap_for_subtile(dungeon->cta_stl_x, dungeon->cta_stl_y);
     TbBool pay_land = (slabmap_owner(slb) != plyr_idx);
-    if (gameadd.allies_share_territory)
+    if (gameadd.allies_share_cta)
     {
         for (PlayerNumber i = 0; i < PLAYERS_COUNT; i++)
         {

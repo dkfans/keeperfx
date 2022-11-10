@@ -1260,9 +1260,17 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.turns_per_torture_health_loss, val3);
           game.turns_per_torture_health_loss = val3;
           break;
-      case 29: //AlliesShareTerritory
-          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.allies_share_territory, val3);
-          gameadd.allies_share_territory = (TbBool)val3;
+      case 29: //AlliesShareVision
+          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.allies_share_vision, val3);
+          gameadd.allies_share_vision = (TbBool)val3;
+          break;
+      case 30: //AlliesShareDrop
+          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.allies_share_drop, val3);
+          gameadd.allies_share_drop = (TbBool)val3;
+          break;
+      case 31: //AlliesShareCta
+          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.allies_share_cta, val3);
+          gameadd.allies_share_cta = (TbBool)val3;
           break;
       default:
           WARNMSG("Unsupported Game RULE, command %d.", val2);

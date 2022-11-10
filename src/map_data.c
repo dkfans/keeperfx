@@ -348,7 +348,7 @@ TbBool map_block_revealed(const struct Map *mapblk, PlayerNumber plyr_idx)
     if (map_block_invalid(mapblk))
         return false;
     unsigned short plyr_bit;
-    if (gameadd.allies_share_territory)
+    if (gameadd.allies_share_vision)
     {
         for (PlayerNumber i = 0; i < PLAYERS_COUNT; i++)
         {
@@ -375,7 +375,7 @@ TbBool map_block_revealed_bit(const struct Map *mapblk, long plyr_bit)
     {
         return false;
     }
-    if (gameadd.allies_share_territory)
+    if (gameadd.allies_share_vision)
     {
         for (PlayerNumber i = 0; i < PLAYERS_COUNT; i++)
         {

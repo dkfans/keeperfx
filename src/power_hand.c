@@ -1418,7 +1418,7 @@ TbBool can_drop_thing_here(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumbe
         return false;
     struct SlabMap *slb;
     slb = get_slabmap_for_subtile(stl_x, stl_y);
-    if (gameadd.allies_share_territory)
+    if (gameadd.allies_share_drop)
     {
         for (PlayerNumber i = 0; i < PLAYERS_COUNT; i++)
         {
