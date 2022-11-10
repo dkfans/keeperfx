@@ -1575,7 +1575,7 @@ static long light_render_light_sub1_sub1(
 static TbBool light_render_light_sub1_sub2(MapSubtlCoord stl_x, MapSubtlCoord stl_y, MapSubtlCoord stl_z)
 {
     struct Column *col = get_column_at(stl_x, stl_y);
-    return ((col->bitfields >> 4) > stl_z);
+    return (get_column_floor_filled_subtiles(col) > stl_z);
 }
 
 static char light_render_light_dynamic_1(struct Light *lgt, int radius, int intensity, unsigned int max_1DD41_idx)
