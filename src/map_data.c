@@ -371,11 +371,29 @@ TbBool map_block_revealed(const struct Map *mapblk, PlayerNumber plyr_idx)
 
 TbBool map_block_revealed_bit(const struct Map *mapblk, long plyr_bit)
 {
-  if (map_block_invalid(mapblk))
+    if (map_block_invalid(mapblk))
+    {
+        return false;
+    }
+    if (gameadd.allies_share_territory)
+    {
+        for (PlayerNumber i = 0; i < PLAYERS_COUNT; i++)
+        {
+            if (players_are_mutual_allies((1 >> plyr_bit), i))
+            {
+                if ((mapblk->data >> 28) & (1 << i))
+                return true;
+            }
+        }
+    }
+    else
+    {
+        if ((mapblk->data >> 28) & plyr_bit)
+        {
+            return true;
+        }
+    }
     return false;
-  if ((mapblk->data >> 28) & plyr_bit)
-    return true;
-  return false;
 }
 
 TbBool valid_dig_position(PlayerNumber plyr_idx, long stl_x, long stl_y)
