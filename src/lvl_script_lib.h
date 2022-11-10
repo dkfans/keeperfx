@@ -164,6 +164,7 @@ enum TbScriptCommands {
     Cmd_SET_HAND_RULE                     = 151,
     Cmd_MOVE_CREATURE                     = 152,
     Cmd_COUNT_CREATURES_AT_ACTION_POINT   = 153,
+    Cmd_IF_ALLIED                         = 154,
 };
 
 struct ScriptLine {
@@ -255,6 +256,7 @@ enum ScriptVariables {
   SVar_TOTAL_SCORE                     = 75,
   SVar_BONUS_TIME                      = 76,
   SVar_CREATURES_TRANSFERRED           = 77,
+  SVar_ALLIED_PLAYER                   = 78,
  };
 
 

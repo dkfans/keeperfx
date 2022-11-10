@@ -246,6 +246,34 @@ TbBool set_ally_with_player(PlayerNumber plyridx, PlayerNumber ally_idx, TbBool 
     return true;
 }
 
+TbBool is_player_ally_locked(PlayerNumber plyridx, PlayerNumber ally_idx)
+{
+    struct PlayerInfo* player = get_player(plyridx);
+    if (player_invalid(player))
+        return false;
+
+    if (ally_idx < PLAYER1 || ally_idx > PLAYER3)
+        return false;
+
+    return player->allied_players & (0x20 << (ally_idx - PLAYER1));
+}
+
+void set_player_ally_locked(PlayerNumber plyridx, PlayerNumber ally_idx, TbBool value)
+{
+    struct PlayerInfo* player = get_player(plyridx);
+    if (player_invalid(player))
+        return;
+
+    if (ally_idx < PLAYER1 || ally_idx > PLAYER3)
+        return;
+
+    unsigned char mask = 0x20 << (ally_idx - PLAYER1);
+    if (value)
+        player->allied_players |= mask;
+    else
+        player->allied_players &= ~mask;
+}
+
 void set_player_state(struct PlayerInfo *player, short nwrk_state, long chosen_kind)
 {
   struct PlayerInfoAdd* playeradd;
