@@ -1912,7 +1912,16 @@ void place_slab_type_on_map_f(SlabKind nslab, MapSubtlCoord stl_x, MapSubtlCoord
       update_blocks_around_slab(slb_x,slb_y);
     switch (nslab)
     {
-        case SlbT_ROCK ... SlbT_DAMAGEDWALL:
+        case SlbT_ROCK:
+        case SlbT_GOLD:
+        case SlbT_EARTH:
+        case SlbT_TORCHDIRT:
+        case SlbT_WALLDRAPE:
+        case SlbT_WALLTORCH:
+        case SlbT_WALLWTWINS:
+        case SlbT_WALLWWOMAN:
+        case SlbT_WALLPAIRSHR:
+        case SlbT_DAMAGEDWALL:
         case SlbT_GEMS:
         case SlbT_ENTRANCE_WALL:
         case SlbT_TREASURE_WALL:
