@@ -899,8 +899,9 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       directly_cast_spell_on_thing(plyr_idx, pckt->actn_par1, pckt->actn_par2, i);
       return 0;
   case PckA_PlyrToggleAlly:
-      toggle_ally_with_player(plyr_idx, pckt->actn_par1);
-      return 0;
+      if (!is_player_ally_locked(plyr_idx, pckt->actn_par1))
+          toggle_ally_with_player(plyr_idx, pckt->actn_par1);
+      return false;
   case PckA_SaveViewType:
       if (player->acamera != NULL)
         player->view_mode_restore = player->acamera->view_mode;
