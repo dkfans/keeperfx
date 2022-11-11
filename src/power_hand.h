@@ -113,8 +113,6 @@ struct HandRule {
 };
 
 TbBool eval_hand_rule_for_thing(struct HandRule *rule, const struct Thing *thing_to_pick);
-typedef TbBool (*HandTestFn) (struct HandRule *rule, const struct Thing *thing);
-#define HAND_RULE(body) ( {TbBool anon(struct HandRule *hand_rule, const struct Thing *thing) body; &anon; })
 
 /******************************************************************************/
 #ifdef __cplusplus
