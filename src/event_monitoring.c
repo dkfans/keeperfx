@@ -21,7 +21,7 @@
 #include <SDL2/SDL_net.h>
 #include "post_inc.h"
 
-static const int MAX_PACKET_SIZE = 1024;
+#define MAX_PACKET_SIZE 1024
 #define SUFFIX_SIZE 4
 
 static char evm_suffix[SUFFIX_SIZE+1] = {0};
