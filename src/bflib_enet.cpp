@@ -87,8 +87,7 @@ namespace
      */
     TbError bf_enet_host(const char *session, void *options)
     {
-        ENetAddress addr = {.host = 0,
-                            .port = DEFAULT_PORT };
+        ENetAddress addr = { 0, DEFAULT_PORT };
         if (!*session)
             return Lb_FAIL;
         host = enet_host_create(&addr, 4, NUM_CHANNELS, 0, 0);
@@ -123,17 +122,17 @@ namespace
     TbError bf_enet_join(const char *session, void *options)
     {
         char buf[64] = {0};
-        char *P, *E;
         ENetAddress address = {ENET_HOST_ANY, ENET_PORT_ANY};
         host = enet_host_create(&address, 4, NUM_CHANNELS, 0, 0);
         if (!host)
         {
             return Lb_FAIL;
         }
-        P = strchr(session,':');
+        const char *P = strchr(session,':');
         if (P)
         {
             strncpy(buf, session, P-session);
+            char *E;
             address.port = strtoul(P+1, &E, 10);
             if (address.port == 0)
             {
@@ -341,16 +340,16 @@ struct NetSP *InitEnetSP()
 {
     static struct NetSP ret =
     {
-            .init = &bf_enet_init,
-            .exit = &bf_enet_exit,
-            .host = &bf_enet_host,
-            .join = &bf_enet_join,
-            .update = &bf_enet_update,
-            .sendmsg_single = &bf_enet_sendmsg_single,
-            .sendmsg_all = &bf_enet_sendmsg_all,
-            .msgready = &bf_enet_msgready,
-            .readmsg = &bf_enet_readmsg,
-            .drop_user = &bf_enet_drop_user,
+        &bf_enet_init,
+        &bf_enet_exit,
+        &bf_enet_host,
+        &bf_enet_join,
+        &bf_enet_update,
+        &bf_enet_sendmsg_single,
+        &bf_enet_sendmsg_all,
+        &bf_enet_msgready,
+        &bf_enet_readmsg,
+        &bf_enet_drop_user,
     };
     return &ret;
 }
