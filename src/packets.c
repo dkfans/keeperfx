@@ -907,8 +907,8 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
          {
             pannel_map_update(0, 0, map_subtiles_x+1, map_subtiles_y+1);
          }
-         return false;
       }
+      return false;
   case PckA_SaveViewType:
       if (player->acamera != NULL)
         player->view_mode_restore = player->acamera->view_mode;
