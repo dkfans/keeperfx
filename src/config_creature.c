@@ -1987,7 +1987,8 @@ CreatureJob get_job_for_subtile(const struct Thing *creatng, MapSubtlCoord stl_x
     struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
     RoomKind rkind;
     struct Room* room = get_room_thing_is_on(creatng);
-    if (!room_is_invalid(room)) {
+    struct ThingAdd* creatngadd = get_thingadd(creatng->index);
+    if ( (!room_is_invalid(room)) && (creatngadd->holding_player == room->owner) ) {
         required_kind_flags |= JoKF_AssignAreaWithinRoom;
         rkind = room->kind;
     } else {
