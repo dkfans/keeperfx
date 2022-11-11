@@ -377,9 +377,10 @@ TbBool map_block_revealed_bit(const struct Map *mapblk, long plyr_bit)
     }
     if (gameadd.allies_share_vision)
     {
+        PlayerNumber plyr_idx = player_bit_to_player_number(plyr_bit);
         for (PlayerNumber i = 0; i < PLAYERS_COUNT; i++)
         {
-            if (players_are_mutual_allies((plyr_bit >> 1), i))
+            if (players_are_mutual_allies(plyr_idx, i))
             {
                 if ((mapblk->data >> 28) & (1 << i))
                 return true;
