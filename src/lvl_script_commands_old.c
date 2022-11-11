@@ -16,8 +16,6 @@
 #include "pre_inc.h"
 #include "lvl_script_commands_old.h"
 
-#include <strings.h>
-
 #include "bflib_math.h"
 #include "config_strings.h"
 #include "config_magic.h"
