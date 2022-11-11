@@ -362,7 +362,7 @@ struct GameTime {
     unsigned char Hours;
 };
 
-__attribute__((regparm(3))) struct GameTime get_game_time(unsigned long turns, unsigned long fps);
+struct GameTime get_game_time(unsigned long turns, unsigned long fps);
 
 #ifdef __cplusplus
 }
