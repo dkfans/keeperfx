@@ -16,12 +16,14 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "config_objects.h"
 #include "globals.h"
 
 #include "bflib_basics.h"
 #include "bflib_memory.h"
 #include "bflib_dernc.h"
+#include "bflib_sound.h"
 
 #include "config.h"
 #include "config_creature.h"
@@ -29,6 +31,7 @@
 #include "custom_sprites.h"
 #include "thing_objects.h"
 #include "game_legacy.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -60,6 +63,7 @@ const struct NamedCommand objects_object_commands[] = {
   {"LIGHTRADIUS",      16},
   {"LIGHTISDYNAMIC",   17},
   {"MAPICON",          18},
+  {"AMBIENCESOUND",    19},
   {NULL,                0},
   };
 
@@ -531,6 +535,22 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                     CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
                         COMMAND_TEXT(cmd_num), block_buf, config_textname);
                 }
+                break;
+            case 19: // AMBIENCESOUND
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    n = atoi(word_buf);
+                    if ( (!SoundDisabled) && ( (n < 0) || (n > (samples_in_bank - 1)) ) )
+                    {
+                        CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                    }
+                    else
+                    {
+                        objdat->fp_smpl_idx = n;
+                    }
+                }
+                break;
             case 0: // comment
                 break;
             case -1: // end of buffer

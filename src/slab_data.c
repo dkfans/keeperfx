@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "slab_data.h"
 #include "globals.h"
 
@@ -30,12 +31,14 @@
 #include "game_legacy.h"
 #include "creature_states.h"
 #include "map_data.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
 const short around_slab[] = {-86, -85, -84,  -1,   0,   1,  84,  85,  86};
+const short around_slab_eight[] = {-86, -85, -84,  -1,   1,  84,  85,  86};
 const short small_around_slab[] = {-85,   1,  85,  -1};
 struct SlabMap bad_slabmap_block;
 /******************************************************************************/
@@ -154,7 +157,7 @@ long slabmap_owner(const struct SlabMap *slb)
 {
     if (slabmap_block_invalid(slb))
         return 5;
-    return slb->field_5 & 0x07;
+    return slb->flags & 0x07;
 }
 
 /**
@@ -164,7 +167,7 @@ void slabmap_set_owner(struct SlabMap *slb, PlayerNumber owner)
 {
     if (slabmap_block_invalid(slb))
         return;
-    slb->field_5 ^= (slb->field_5 ^ owner) & 0x07;
+    slb->flags ^= (slb->flags ^ owner) & 0x07;
 }
 
 /**
@@ -191,7 +194,7 @@ unsigned long slabmap_wlb(struct SlabMap *slb)
 {
     if (slabmap_block_invalid(slb))
         return 0;
-    return (slb->field_5 >> 3) & 0x03;
+    return (slb->flags >> 3) & 0x03;
 }
 
 /**
@@ -201,7 +204,7 @@ void slabmap_set_wlb(struct SlabMap *slb, unsigned long wlbflag)
 {
     if (slabmap_block_invalid(slb))
         return;
-    slb->field_5 ^= (slb->field_5 ^ (wlbflag << 3)) & 0x18;
+    slb->flags ^= (slb->flags ^ (wlbflag << 3)) & 0x18;
 }
 
 /**
@@ -249,6 +252,12 @@ TbBool slab_is_wall(MapSlabCoord slb_x, MapSlabCoord slb_y)
     {
         return false;
     }
+}
+
+TbBool is_slab_type_walkable(SlabKind slbkind)
+{
+    struct SlabAttr *slbattr = get_slab_kind_attrs(slbkind);
+    return (slbattr->block_flags & (SlbAtFlg_Blocking | SlbAtFlg_Digable | SlbAtFlg_Valuable)) == 0;
 }
 
 TbBool slab_kind_is_animated(SlabKind slbkind)
@@ -727,6 +736,48 @@ TbBool slab_kind_has_no_ownership(SlabKind slbkind)
 {
     return ( (slbkind == SlbT_ROCK) || (slbkind == SlbT_GOLD) || (slbkind == SlbT_GEMS) || (slbkind == SlbT_EARTH) || (slbkind == SlbT_TORCHDIRT)
             || (slbkind == SlbT_PATH) || (slab_kind_is_liquid(slbkind)) );
+}
+
+TbBool players_land_by_liquid(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y)
+{
+    struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
+    if (slabmap_owner(slb) == plyr_idx)
+    {
+        for (long n = 0; n < SMALL_AROUND_LENGTH; n++)
+        {
+            MapSlabCoord aslb_x = slb_x + small_around[n].delta_x;
+            MapSlabCoord aslb_y = slb_y + small_around[n].delta_y;
+            if (slab_is_liquid(aslb_x, aslb_y)) 
+            {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+/**
+ * Returns whether the given slab has an adjacent slab owned by given player.
+ * @param plyr_idx
+ * @param slb_x
+ * @param slb_y
+ * @return
+ */
+TbBool slab_by_players_land(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y)
+{
+    for (long n = 0; n < SMALL_AROUND_LENGTH; n++)
+    {
+        MapSlabCoord aslb_x = slb_x + small_around[n].delta_x;
+        MapSlabCoord aslb_y = slb_y + small_around[n].delta_y;
+        struct SlabMap* slb = get_slabmap_block(aslb_x, aslb_y);
+        if (slabmap_owner(slb) == plyr_idx)
+        {
+            if (slab_is_safe_land(plyr_idx, aslb_x, aslb_y) && !slab_is_liquid(aslb_x, aslb_y)) {
+                return true;
+            }
+        }
+    }
+    return false;
 }
 /******************************************************************************/
 #ifdef __cplusplus

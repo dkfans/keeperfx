@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "player_utils.h"
 
 #include "globals.h"
@@ -52,6 +53,7 @@
 #include "frontmenu_ingame_map.h"
 #include "keeperfx.hpp"
 #include "kjm_input.h"
+#include "post_inc.h"
 
 /******************************************************************************/
 /******************************************************************************/
@@ -538,7 +540,7 @@ void init_player_as_single_keeper(struct PlayerInfo *player)
     ilght.field_3 = 5;
     ilght.is_dynamic = 1;
     unsigned short idx = light_create_light(&ilght);
-    player->field_460 = idx;
+    player->cursor_light_idx = idx;
     if (idx != 0) {
         light_set_light_never_cache(idx);
     } else {
@@ -835,10 +837,12 @@ void init_players_local_game(void)
     struct PlayerInfo* player = get_my_player();
     player->id_number = my_player_number;
     player->allocflags |= PlaF_Allocated;
-    if (settings.video_rotate_mode < 1)
-      player->view_mode_restore = PVM_IsometricView;
-    else
-      player->view_mode_restore = PVM_FrontView;
+    switch (settings.video_rotate_mode) {
+        case 0: player->view_mode_restore = PVM_IsoWibbleView; break;
+        case 1: player->view_mode_restore = PVM_IsoStraightView; break;
+        case 2: player->view_mode_restore = PVM_FrontView; break;
+        default: player->view_mode_restore = PVM_IsoWibbleView; break;
+    }
     init_player(player, 0);
 }
 

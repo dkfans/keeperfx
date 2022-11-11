@@ -26,7 +26,8 @@
 extern "C" {
 #endif
 
-#define ACTN_POINTS_COUNT     32
+#define ACTN_POINTS_COUNT     256
+#define ACTN_POINTS_COUNT_OLD 32
 
 /******************************************************************************/
 #pragma pack(1)
@@ -51,7 +52,7 @@ struct ActionPoint { // sizeof = 0xA
 
 #pragma pack()
 
-#define INVALID_ACTION_POINT (&game.action_points[0])
+#define INVALID_ACTION_POINT (&gameadd.action_points[0])
 /******************************************************************************/
 struct ActionPoint *allocate_free_action_point_structure_with_number(long apt_num);
 struct ActionPoint *actnpoint_create_actnpoint(struct InitActionPoint *iapt);
