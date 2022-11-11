@@ -5867,25 +5867,20 @@ void controlled_creature_drop_thing(struct Thing *creatng, struct Thing *droptng
             }
             case TCls_Creature:
             {
-                switch (compute_creature_weight(droptng))
+                long weight = compute_creature_weight(droptng);
+                if (weight >= 0 && weight <= 99)
                 {
-                    case 0 ... 99:
-                    {
-                        pitch = 240;
-                        volume = FULL_LOUDNESS / 2;
-                        break;
-                    }
-                    case 100 ... 199:
-                    {
-                        pitch = 120;
-                        volume = FULL_LOUDNESS * 3 / 4;
-                        break;
-                    }
-                    default:
-                    {
-                        pitch = 75;
-                        break;
-                    }
+                    pitch = 240;
+                    volume = FULL_LOUDNESS / 2;
+                }
+                else if (weight >= 100 && weight <= 199)
+                {
+                    pitch = 120;
+                    volume = FULL_LOUDNESS * 3 / 4;
+                }
+                else
+                {
+                    pitch = 75;
                 }
                 smpl_idx = 17 + UNSYNC_RANDOM(4);
                 break;
