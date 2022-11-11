@@ -802,8 +802,10 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
   case Cmd_ALLY_PLAYERS:
       for (i=plr_start; i < plr_end; i++)
       {
-          set_ally_with_player(i, val2, val3);
-          set_ally_with_player(val2, i, val3);
+          set_ally_with_player(i, val2, (val3 & 1) ? true : false);
+          set_ally_with_player(val2, i, (val3 & 1) ? true : false);
+          set_player_ally_locked(i, val2, (val3 & 2) ? true : false);
+          set_player_ally_locked(val2, i, (val3 & 2) ? true : false);
       }
       break;
       break;

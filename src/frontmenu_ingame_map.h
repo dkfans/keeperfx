@@ -81,7 +81,7 @@ struct InterpMinimap
     long previous_y;
     long get_previous;
 };
-struct InterpMinimap interp_minimap;
+extern struct InterpMinimap interp_minimap;
 
 #ifdef __cplusplus
 }
