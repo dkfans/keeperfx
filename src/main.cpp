@@ -4377,7 +4377,7 @@ void update_time(void)
     Timer.Hours = time / 60;
 }
 
-__attribute__((regparm(3))) struct GameTime get_game_time(unsigned long turns, unsigned long fps)
+struct GameTime get_game_time(unsigned long turns, unsigned long fps)
 {
     struct GameTime GameT;
     unsigned long time = turns / fps;
