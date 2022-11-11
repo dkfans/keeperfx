@@ -379,7 +379,7 @@ TbBool map_block_revealed_bit(const struct Map *mapblk, long plyr_bit)
     {
         for (PlayerNumber i = 0; i < PLAYERS_COUNT; i++)
         {
-            if (players_are_mutual_allies((1 >> plyr_bit), i))
+            if (players_are_mutual_allies((plyr_bit >> 1), i))
             {
                 if ((mapblk->data >> 28) & (1 << i))
                 return true;
