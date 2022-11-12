@@ -48,7 +48,6 @@ extern "C" {
 #endif
 /******************************************************************************/
 DLLIMPORT void _DK_set_slab_explored_flags(unsigned char flag, long tgslb_x, long tgslb_y);
-DLLIMPORT long _DK_ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey);
 DLLIMPORT void _DK_shuffle_unattached_things_on_slab(long a1, long stl_x);
 
 const signed short slab_element_around_eight[] = {
@@ -2459,11 +2458,6 @@ void check_map_explored(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoor
     clear_dig_and_set_explored_can_see_y(slb_x, slb_y, creatng->owner, can_see_slabs);
 }
 
-long ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey)
-{
-    return _DK_ceiling_partially_recompute_heights(sx, sy, ex, ey);
-}
-
 long element_top_face_texture(struct Map *mapblk)
 {
     struct Column *col;
@@ -2593,7 +2587,7 @@ void fill_in_reinforced_corners(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSl
           MapSlabCoord y3 = y2 + small_around[m].delta_y;
           struct SlabMap *slb4 = get_slabmap_block(x3, y3);
           struct SlabAttr* slbattr4 = get_slab_attrs(slb4);
-          if ( (slbattr4->category == SlbAtCtg_FriableDirt) )
+          if (slbattr4->category == SlbAtCtg_FriableDirt)
           {
             unsigned char pretty_type = choose_pretty_type(plyr_idx, x3, y3);
             place_slab_type_on_map(pretty_type, slab_subtile(x3, 0), slab_subtile(y3, 0), plyr_idx, 1);
