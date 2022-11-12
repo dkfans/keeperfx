@@ -297,8 +297,8 @@ TbBool get_position_next_to_map_block_with_filter(struct Coord3d* retpos, MapCoo
     long maximizer = 0;
     for (int around_val = 0; around_val < SMALL_AROUND_LENGTH; around_val++)
     {
-        MapSubtlCoord sx = coord_subtile(x) + (small_around[around_val].delta_x * 2);
-        MapSubtlCoord sy = coord_subtile(y) + (small_around[around_val].delta_y * 2);
+        MapSubtlCoord sx = coord_subtile(x) + (small_around[around_val].delta_x * STL_PER_SLB);
+        MapSubtlCoord sy = coord_subtile(y) + (small_around[around_val].delta_y * STL_PER_SLB);
         struct Map* mapblk = get_map_block_at(sx, sy);
         if (!map_block_invalid(mapblk))
         {
