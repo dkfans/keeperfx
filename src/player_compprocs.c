@@ -1208,6 +1208,7 @@ static long computer_look_for_opponent(struct Computer2 *comp, MapSubtlCoord stl
             if (stl_y_end <= stl_y_current)
                 goto LABEL_24;
         }
+        
         while (1)
         {
             struct SlabMap *slb = get_slabmap_for_subtile(stl_x_current, stl_y_current);
@@ -1216,7 +1217,7 @@ static long computer_look_for_opponent(struct Computer2 *comp, MapSubtlCoord stl
             if (dungeon->owner != slab_owner)
             {
                 struct SlabAttr *slbattr = get_slab_kind_attrs(slb->kind);
-                if (slab_owner != game.neutral_player_num || (( (slbattr->block_flags & 0x29) == 0) && slb->kind != SlbT_LAVA))
+                if (slab_owner != game.neutral_player_num || (( (slbattr->block_flags & (SlbAtFlg_Valuable|SlbAtFlg_Digable|SlbAtFlg_Filled)) == 0) && slb->kind != SlbT_LAVA))
                 {
                     slab_owner_bit = 1 << slab_owner;
                     if ((computer_player_bit & (1 << slab_owner)) == 0 && (game.slabmap[85 * map_to_slab[stl_y_current] + map_to_slab[stl_x_current]].flags & 7) == slab_owner)
