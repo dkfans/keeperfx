@@ -208,7 +208,7 @@ long ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey)
         v11 = 256;
     v39 = v11;
     v12 = v11;
-    ceiling_cache = scratch;
+    ceiling_cache = (signed char*)scratch;
     v13 = v45 - game.ceiling_dist;
     if (v45 - game.ceiling_dist <= 0)
         v13 = 0;
