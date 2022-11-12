@@ -2458,13 +2458,13 @@ void check_map_explored(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoor
     clear_dig_and_set_explored_can_see_y(slb_x, slb_y, creatng->owner, can_see_slabs);
 }
 
-int sub_45E0E0(int a1)
+int find_column_height_including_lintels(struct Column *col)
 {
   unsigned __int8 i; // dl
 
-  if ( !*(short *)(a1 + 3) )
+  if ( !col->solidmask )
     return 0;
-  for ( i = 7; !*(short *)(a1 + 2 * i + 8); --i )
+  for ( i = 7; !col->cubes[i]; --i )
     ;
   return i + 1;
 }
@@ -2481,7 +2481,7 @@ int __cdecl sub_448D70(int a1)
 
   bitfields = game.columns_data[game.map[a1 + 257].data & 0x7FF].bitfields;
   if ( (bitfields & 0xE) != 0 )
-    return sub_45E0E0((int)&game.columns_data[game.map[a1 + 257].data & 0x7FF]);
+    return find_column_height_including_lintels(&game.columns_data[game.map[a1 + 257].data & 0x7FF]);
   else
     return bitfields >> 4;
 }
@@ -2532,8 +2532,8 @@ long ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey)
   int wa; // [esp+34h] [ebp+Ch]
   int ha; // [esp+38h] [ebp+10h]
 
-  v4 = game.field_14A80C;
-  if ( game.field_14A80C >= 4 )
+  v4 = game.ceiling_dist;
+  if ( game.ceiling_dist >= 4 )
     v4 = 4;
   xa = (sx - v4) & ((sx - v4 <= 0) - 1);
   v5 = v4 + ex;
@@ -2546,16 +2546,16 @@ long ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey)
     v6 = 256;
   ha = v6;
   dword_555DA8 = (int)scratch;
-  v32 = (xa - game.field_14A80C) & ((xa - game.field_14A80C <= 0) - 1);
-  v7 = (ya - game.field_14A80C) & ((ya - game.field_14A80C <= 0) - 1);
-  v8 = game.field_14A80C + wa;
-  if ( game.field_14A80C + wa >= 256 )
+  v32 = (xa - game.ceiling_dist) & ((xa - game.ceiling_dist <= 0) - 1);
+  v7 = (ya - game.ceiling_dist) & ((ya - game.ceiling_dist <= 0) - 1);
+  v8 = game.ceiling_dist + wa;
+  if ( game.ceiling_dist + wa >= 256 )
     v8 = 256;
   v35 = v8;
-  v9 = game.field_14A80C + ha;
-  if ( game.field_14A80C + ha >= 256 )
+  v9 = game.ceiling_dist + ha;
+  if ( game.ceiling_dist + ha >= 256 )
     v9 = 256;
-  v10 = (ya - game.field_14A80C) & ((ya - game.field_14A80C <= 0) - 1);
+  v10 = (ya - game.ceiling_dist) & ((ya - game.ceiling_dist <= 0) - 1);
   v36 = v9;
   if ( v9 > v7 )
   {
@@ -2579,7 +2579,7 @@ LABEL_33:
       {
         bitfields = game.columns_data[*p_data & 0x7FF].bitfields;
         if ( (bitfields & 0xE) != 0 )
-          v15 = sub_45E0E0((int)&game.columns_data[*p_data & 0x7FF]);
+          v15 = find_column_height_including_lintels(&game.columns_data[*p_data & 0x7FF]);
         else
           v15 = bitfields >> 4;
         goto LABEL_32;
@@ -2590,7 +2590,7 @@ LABEL_33:
       {
         v16 = game.columns_data[*(int *)((char *)p_data - 5) & 0x7FF].bitfields;
         if ( (v16 & 0xE) != 0 )
-          v15 = sub_45E0E0((int)&game.columns_data[*(int *)((char *)p_data - 5) & 0x7FF]);
+          v15 = find_column_height_including_lintels(&game.columns_data[*(int *)((char *)p_data - 5) & 0x7FF]);
         else
           v15 = v16 >> 4;
         goto LABEL_32;
@@ -2640,10 +2640,10 @@ LABEL_34:
             v18 = ((v34 >> 31) ^ (unsigned __int8)abs(v34)) - (v34 >> 31);
             v19 = 0;
             v20 = spiral_step;
-            if ( game.field_14A810 <= 0 )
+            if ( game.ceiling_search_dist <= 0 )
             {
 LABEL_46:
-              v17 = game.field_14A804;
+              v17 = game.ceiling_height_max;
             }
             else
             {
@@ -2659,32 +2659,32 @@ LABEL_46:
                 }
                 ++v19;
                 ++v20;
-                if ( v19 >= game.field_14A810 )
+                if ( v19 >= game.ceiling_search_dist )
                   goto LABEL_46;
               }
               v27 = abs(-v20->h);
               v28 = abs(-v20->v);
               if ( v27 <= v28 )
                 v27 = v28;
-              if ( v23 >= game.field_14A804 )
+              if ( v23 >= game.ceiling_height_max )
               {
-                if ( v23 <= game.field_14A804 )
+                if ( v23 <= game.ceiling_height_max )
                 {
                   v17 = *(char *)(dword_555DA8 + v34 + v20->both);
                 }
                 else
                 {
-                  v29 = v23 - game.field_14A814 * v27;
-                  if ( v29 <= game.field_14A808 )
-                    v29 = game.field_14A808;
+                  v29 = v23 - game.ceiling_step * v27;
+                  if ( v29 <= game.ceiling_height_min )
+                    v29 = game.ceiling_height_min;
                   v17 = v29;
                 }
               }
               else
               {
-                v17 = v23 + game.field_14A814 * v27;
-                if ( v17 >= game.field_14A804 )
-                  v17 = game.field_14A804;
+                v17 = v23 + game.ceiling_step * v27;
+                if ( v17 >= game.ceiling_height_max )
+                  v17 = game.ceiling_height_max;
               }
             }
           }

@@ -1000,16 +1000,16 @@ short ceiling_set_info(long height_max, long height_min, long step)
     dist = (height_max - height_min) / step;
     if ( dist >= 2500 )
       dist = 2500;
-    game.field_14A80C = dist;
+    game.ceiling_dist = dist;
     if (dist > 20)
     {
       ERRORLOG("Ceiling search distance too big");
       return 0;
     }
-    game.field_14A804 = height_max;
-    game.field_14A808 = height_min;
-    game.field_14A814 = step;
-    game.field_14A810 = (2*game.field_14A80C+1) * (2*game.field_14A80C+1);
+    game.ceiling_height_max = height_max;
+    game.ceiling_height_min = height_min;
+    game.ceiling_step = step;
+    game.ceiling_search_dist = (2*game.ceiling_dist+1) * (2*game.ceiling_dist+1);
     return 1;
 }
 
@@ -3685,9 +3685,9 @@ long ceiling_init(unsigned long a1, unsigned long a2)
 
             if (filled_h <= -1)
             {
-              if (game.field_14A810 <= 0)
+              if (game.ceiling_search_dist <= 0)
               {
-                  filled_h = game.field_14A804;
+                  filled_h = game.ceiling_height_max;
               }
               else
               {
@@ -3714,25 +3714,25 @@ long ceiling_init(unsigned long a1, unsigned long a2)
                                 delta_max = abs(stl_y - cstl_y);
                                 if (delta_max <= delta_tmp)
                                     delta_max = delta_tmp;
-                                if (filled_h < game.field_14A804)
+                                if (filled_h < game.ceiling_height_max)
                                 {
-                                    filled_h += game.field_14A814 * delta_max;
-                                    if (filled_h >= game.field_14A804)
-                                        filled_h = game.field_14A804;
+                                    filled_h += game.ceiling_step * delta_max;
+                                    if (filled_h >= game.ceiling_height_max)
+                                        filled_h = game.ceiling_height_max;
                                 } else
-                                if ( filled_h > game.field_14A804 )
+                                if ( filled_h > game.ceiling_height_max )
                                 {
-                                    filled_h -= game.field_14A814 * delta_max;
-                                    if (filled_h <= game.field_14A808)
-                                        filled_h = game.field_14A808;
+                                    filled_h -= game.ceiling_step * delta_max;
+                                    if (filled_h <= game.ceiling_height_min)
+                                        filled_h = game.ceiling_height_min;
                                 }
                                 break;
                             }
                         }
                     }
                     ++i;
-                    if (i >= game.field_14A810) {
-                        filled_h = game.field_14A804;
+                    if (i >= game.ceiling_search_dist) {
+                        filled_h = game.ceiling_height_max;
                         break;
                     }
                 }
