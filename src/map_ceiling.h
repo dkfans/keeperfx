@@ -28,6 +28,7 @@ extern "C" {
 
 long ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey);
 long ceiling_init(unsigned long a1, unsigned long a2);
+short ceiling_set_info(long height_max, long height_min, long step);
 
 /******************************************************************************/
 #ifdef __cplusplus

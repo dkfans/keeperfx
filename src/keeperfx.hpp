@@ -281,7 +281,6 @@ short zoom_to_next_annoyed_creature(void);
 
 TbBool LbIsFrozenOrPaused(void); // from bflib_inputctrl.cpp
 
-short ceiling_set_info(long height_max, long height_min, long step);
 void set_mouse_light(struct PlayerInfo *player);
 void delete_all_structures(void);
 void clear_map(void);

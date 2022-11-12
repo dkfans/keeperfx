@@ -436,6 +436,41 @@ long ceiling_init(unsigned long a1, unsigned long a2)
     return 1;
 }
 
+short ceiling_set_info(long height_max, long height_min, long step)
+{
+    SYNCDBG(6,"Starting");
+    long dist;
+    if (step <= 0)
+    {
+      ERRORLOG("Illegal ceiling step value");
+      return 0;
+    }
+    if (height_max > 15)
+    {
+      ERRORLOG("Max height is too high");
+      return 0;
+    }
+    if (height_min > height_max)
+    {
+      ERRORLOG("Ceiling max height is smaller than min height");
+      return 0;
+    }
+    dist = (height_max - height_min) / step;
+    if ( dist >= 2500 )
+      dist = 2500;
+    game.ceiling_dist = dist;
+    if (dist > 20)
+    {
+      ERRORLOG("Ceiling search distance too big");
+      return 0;
+    }
+    game.ceiling_height_max = height_max;
+    game.ceiling_height_min = height_min;
+    game.ceiling_step = step;
+    game.ceiling_search_dist = (2*game.ceiling_dist+1) * (2*game.ceiling_dist+1);
+    return 1;
+}
+
 /******************************************************************************/
 #ifdef __cplusplus
 }
