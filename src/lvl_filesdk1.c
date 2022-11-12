@@ -32,6 +32,7 @@
 #include "config_campaigns.h"
 #include "config_terrain.h"
 #include "light_data.h"
+#include "map_ceiling.h"
 #include "map_utils.h"
 #include "thing_factory.h"
 #include "engine_textures.h"

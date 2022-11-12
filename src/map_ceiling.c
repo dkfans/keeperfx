@@ -31,7 +31,7 @@ extern "C"
 #endif
 
 DLLIMPORT long _DK_ceiling_init(unsigned long a1, unsigned long a2);
-signed char *ceiling_cache;
+static signed char *ceiling_cache;
 
 static int find_column_height_including_lintels(struct Column *col)
 {
@@ -42,6 +42,7 @@ static int find_column_height_including_lintels(struct Column *col)
         ;
     return i + 1;
 }
+
 static int ceiling_block_is_solid_including_corners_return_height(int a1, int a2, int a3)
 {
     struct Column *col;
@@ -316,7 +317,7 @@ long ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey)
     return 1;
 }
 
-long get_ceiling_filled_subtiles_from_cubes(const struct Column *col)
+static long get_ceiling_filled_subtiles_from_cubes(const struct Column *col)
 {
     if (col->solidmask == 0) {
         return 0;
@@ -330,7 +331,7 @@ long get_ceiling_filled_subtiles_from_cubes(const struct Column *col)
     return i + 1;
 }
 
-int get_ceiling_or_floor_filled_subtiles(int stl_num)
+static int get_ceiling_or_floor_filled_subtiles(int stl_num)
 {
     const struct Map *mapblk;
     mapblk = get_map_block_at_pos(stl_num);
@@ -342,6 +343,7 @@ int get_ceiling_or_floor_filled_subtiles(int stl_num)
         return get_map_floor_filled_subtiles(mapblk);
     }
 }
+
 long ceiling_init(unsigned long a1, unsigned long a2)
 {
     return _DK_ceiling_init(a1, a2);
