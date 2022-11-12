@@ -17,12 +17,14 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "bflib_basics.h"
 #include "globals.h"
 
 #include <string.h>
 #include <stdarg.h>
 #include <stdio.h>
+#include <ctype.h>
 #define NOMINMAX
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -32,6 +34,7 @@
 #include "bflib_datetm.h"
 #include "bflib_memory.h"
 #include "bflib_fileio.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -563,8 +566,44 @@ int LbLogClose(struct TbLog *log)
   return 1;
 }
 
+struct DebugMessage * debug_messages_head = NULL;
+struct DebugMessage ** debug_messages_tail = &debug_messages_head;
+
+void LbPrint(const char * format, ...) {
+  va_list args;
+  va_start(args, format);
+  const int message_length = vsnprintf(NULL, 0, format, args);
+  va_end(args);
+  if (message_length <= 0) {
+    return;
+  }
+  const int message_size = message_length + 1;
+  const int block_size = sizeof(struct DebugMessage) + message_size;
+  struct DebugMessage * message = malloc(block_size);
+  if (message == NULL) {
+    return;
+  }
+  va_start(args, format);
+  vsnprintf(message->text, message_size, format, args);
+  va_end(args);
+  message->next = NULL;
+  *debug_messages_tail = message;
+  debug_messages_tail = &message->next;
+}
+
+void make_lowercase(char * string) {
+  for (char * ptr = string; *ptr != 0; ++ptr) {
+    *ptr = tolower(*ptr);
+  }
+}
+
+void make_uppercase(char * string) {
+  for (char * ptr = string; *ptr != 0; ++ptr) {
+    *ptr = toupper(*ptr);
+  }
+}
+
 /******************************************************************************/
 #ifdef __cplusplus
 }
 #endif
-

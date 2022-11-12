@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "creature_instances.h"
 
 #include "globals.h"
@@ -48,6 +49,7 @@
 #include "player_instances.h"
 
 #include "keeperfx.hpp"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -108,7 +110,7 @@ Creature_Instf_Func creature_instances_func_list[] = {
   NULL,
 };
 
-//field_0,time,fp_time,action_time,fp_action_time,long reset_time,fp_reset_time,graphics_idx,flags,force_visibility,field_1D,func_cb,func_params[2];
+//field_0,time,fp_time,action_time,fp_action_time,long reset_time,fp_reset_time,graphics_idx,flags,force_visibility,primary_target,func_cb,func_params[2];
 struct InstanceInfo instance_info[] = {
     {0,  0,  0,  0,  0,   0,   0,  0,  0,  0,  0, NULL,                              {0,0}}, //0
     {0,  8,  4,  4,  2,   8,   4,  3,  0,  1,  3, instf_creature_fire_shot,         {21,0}},
@@ -440,7 +442,7 @@ long instf_creature_fire_shot(struct Thing *creatng, long *param)
     int hittype;
     TRACE_THING(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    if (cctrl->targtng_idx <= 0)
+    if (cctrl->targtng_idx == 0)
     {
         if ((creatng->alloc_flags & TAlF_IsControlled) == 0)
             hittype = THit_CrtrsOnlyNotOwn;
@@ -906,7 +908,6 @@ long instf_pretty_path(struct Thing *creatng, long *param)
     increase_dungeon_area(creatng->owner, 1);
     dungeon->lvstats.area_claimed++;
     EVM_MAP_EVENT("claimed", creatng->owner, slb_x, slb_y, "");
-    remove_traps_around_subtile(slab_subtile_center(slb_x), slab_subtile_center(slb_y), NULL);
     return 1;
 }
 

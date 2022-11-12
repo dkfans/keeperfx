@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "thing_traps.h"
 
 #include "globals.h"
@@ -42,6 +43,7 @@
 #include "keeperfx.hpp"
 #include "creature_senses.h"
 #include "cursor_tag.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -588,7 +590,7 @@ TbBool find_pressure_trigger_trap_target_passing_by_subtile(const struct Thing *
     return false;
 }
 
-TbBool update_trap_trigger_pressure(struct Thing *traptng)
+TbBool update_trap_trigger_pressure_slab(struct Thing *traptng)
 {
     MapSlabCoord slb_x = subtile_slab_fast(traptng->mappos.x.stl.num);
     MapSlabCoord slb_y = subtile_slab_fast(traptng->mappos.y.stl.num);
@@ -606,6 +608,17 @@ TbBool update_trap_trigger_pressure(struct Thing *traptng)
             }
 
         }
+    }
+    return false;
+}
+
+TbBool update_trap_trigger_pressure_subtile(struct Thing *traptng)
+{
+    struct Thing* creatng = INVALID_THING;
+    if (find_pressure_trigger_trap_target_passing_by_subtile(traptng, traptng->mappos.x.stl.num, traptng->mappos.y.stl.num, &creatng))
+    {
+        activate_trap(traptng, creatng);
+        return true;
     }
     return false;
 }
@@ -633,8 +646,11 @@ TngUpdateRet update_trap_trigger(struct Thing *traptng)
     case TrpTrg_LineOfSight90:
         do_trig = update_trap_trigger_line_of_sight_90(traptng);
         break;
-    case TrpTrg_Pressure:
-        do_trig = update_trap_trigger_pressure(traptng);
+    case TrpTrg_Pressure_Slab:
+        do_trig = update_trap_trigger_pressure_slab(traptng);
+        break;
+    case TrpTrg_Pressure_Subtile:
+        do_trig = update_trap_trigger_pressure_subtile(traptng);
         break;
     case TrpTrg_LineOfSight:
         do_trig = update_trap_trigger_line_of_sight(traptng);
@@ -662,8 +678,8 @@ TngUpdateRet update_trap_trigger(struct Thing *traptng)
                 if ((slb->kind != SlbT_CLAIMED) && (slb->kind != SlbT_PATH)) {
                     traptng->health = -1;
                 }
-                traptng->field_4F &= TF4F_Transpar_Flags;
-                traptng->field_4F |= TF4F_Transpar_4;
+                traptng->rendering_flags &= TRF_Transpar_Flags;
+                traptng->rendering_flags |= TRF_Transpar_4;
                 if (!is_neutral_thing(traptng) && !is_hero_thing(traptng)) 
                 {
                     if (placing_offmap_workshop_item(traptng->owner, TCls_Trap, traptng->model))
@@ -689,7 +705,7 @@ TbBool rearm_trap(struct Thing *traptng)
     struct ManfctrConfig* mconf = &gameadd.traps_config[traptng->model];
     struct TrapStats* trapstat = &gameadd.trap_stats[traptng->model];
     traptng->trap.num_shots = mconf->shots;
-    traptng->field_4F ^= (traptng->field_4F ^ (trapstat->field_12 << 4)) & (TF4F_Transpar_Flags);
+    traptng->rendering_flags ^= (traptng->rendering_flags ^ (trapstat->field_12 << 4)) & (TRF_Transpar_Flags);
     return true;
 }
 
@@ -749,14 +765,14 @@ struct Thing *create_trap(struct Coord3d *pos, ThingModel trpkind, PlayerNumber 
     }
     set_thing_draw(thing, trapstat->sprite_anim_idx, trapstat->anim_speed, trapstat->sprite_size_max, trapstat->unanimated, start_frame, 2);
     if (trapstat->field_11) {
-        thing->field_4F |= TF4F_Unknown02;
+        thing->rendering_flags |= TRF_Unknown02;
     } else {
-        thing->field_4F &= ~TF4F_Unknown02;
+        thing->rendering_flags &= ~TRF_Unknown02;
     }
     if (trapstat->unanimated) {
-        thing->field_4F |= TF4F_Unknown40;
+        thing->rendering_flags |= TRF_Unmoving;
     } else {
-        thing->field_4F &= ~TF4F_Unknown40;
+        thing->rendering_flags &= ~TRF_Unmoving;
     }
     thing->clipbox_size_xy = trapstat->size_xy;
     thing->clipbox_size_yz = trapstat->field_16;
@@ -764,8 +780,8 @@ struct Thing *create_trap(struct Coord3d *pos, ThingModel trpkind, PlayerNumber 
     thing->solid_size_yz = trapstat->field_16;
     thing->creation_turn = game.play_gameturn;
     thing->health = trapstat->field_0;
-    thing->field_4F &= ~TF4F_Transpar_Flags;
-    thing->field_4F |= TF4F_Transpar_4;
+    thing->rendering_flags &= ~TRF_Transpar_Flags;
+    thing->rendering_flags |= TRF_Transpar_4;
     thing->trap.num_shots = 0;
     thing->trap.rearm_turn = game.play_gameturn;
     if (trapstat->light_1C != 0)

@@ -12,7 +12,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-
+#include "pre_inc.h"
 #include "keeperfx.hpp"
 
 #include "bflib_math.h"
@@ -31,6 +31,7 @@
 #include "sounds.h"
 #include "game_legacy.h"
 #include "game_loop.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {

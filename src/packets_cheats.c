@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "packets.h"
 #include "player_data.h"
 #include "player_states.h"
@@ -43,6 +44,7 @@
 #include "front_input.h"
 #include "bflib_math.h"
 #include "gui_topmsg.h"
+#include "post_inc.h"
 
 extern void clear_input(struct Packet* packet);
 

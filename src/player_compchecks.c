@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "player_computer.h"
 
 #include <limits.h>
@@ -42,6 +43,7 @@
 #include "gui_soundmsgs.h"
 #include "game_legacy.h"
 #include "cursor_tag.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -307,7 +309,7 @@ static TbBool any_digger_is_digging_indestructible_valuables(struct Dungeon *dun
 }
 
 /**
- * Returns amount of diggable faces of indestructible valuables marked for digging.
+ * Returns number of diggable faces of indestructible valuables marked for digging.
  * In standard configuration, indestructible valuables are simply slabs with gems.
  * @param dungeon
  * @return
@@ -331,7 +333,7 @@ static int count_faces_of_indestructible_valuables_marked_for_dig(struct Dungeon
             const struct SlabAttr* slbattr = get_slab_attrs(slb);
             if (((slbattr->block_flags & SlbAtFlg_Valuable) != 0) && slab_kind_is_indestructible(slb->kind))
             {
-                num_faces += block_count_diggable_sides(dungeon->owner, subtile_slab_fast(stl_x), subtile_slab_fast(stl_y));
+                num_faces += block_count_diggable_sides(subtile_slab_fast(stl_x), subtile_slab_fast(stl_y));
             }
         }
     }
@@ -505,8 +507,8 @@ long computer_check_no_imps(struct Computer2 *comp, struct ComputerCheck * check
         {
             if ((gameadd.computer_chat_flags & CChat_TasksScarce) != 0) {
                 struct PowerConfigStats* powerst = get_power_model_stats(PwrK_MKDIGGER);
-                struct CreatureData* crdata = creature_data_get(get_players_special_digger_model(dungeon->owner));
-                message_add_fmt(comp->dungeon->owner, "My %s count is only %d, casting %s!",get_string(crdata->namestr_idx),(int)controlled_diggers,get_string(powerst->name_stridx));
+                struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[get_players_special_digger_model(dungeon->owner)];
+                message_add_fmt(comp->dungeon->owner, "My %s count is only %d, casting %s!",get_string(crconf->namestr_idx),(int)controlled_diggers,get_string(powerst->name_stridx));
             }
             if (try_game_action(comp, dungeon->owner, GA_UseMkDigger, 0, stl_x, stl_y, 1, 1) > Lb_OK) {
                 return CTaskRet_Unk1;
