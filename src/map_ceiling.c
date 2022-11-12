@@ -35,7 +35,7 @@ static signed char *ceiling_cache;
 
 static int find_column_height_including_lintels(struct Column *col)
 {
-    unsigned char i; // dl
+    unsigned char i;
     if (!col->solidmask)
         return 0;
     for (i = 7; !col->cubes[i]; --i)
@@ -43,7 +43,7 @@ static int find_column_height_including_lintels(struct Column *col)
     return i + 1;
 }
 
-static int ceiling_block_is_solid_including_corners_return_height(int a1, int a2, int a3)
+static int ceiling_block_is_solid_including_corners_return_height(SubtlCodedCoords stl_num, int a2, int a3)
 {
     struct Column *col;
     unsigned char v6;
@@ -55,18 +55,18 @@ static int ceiling_block_is_solid_including_corners_return_height(int a1, int a2
     unsigned char v16;
     int v17;
     unsigned char bitfields;
-    if ((game.map[a1].flags & 0x10) == 0 && (game.columns.lookup[game.map[a1].data & 0x7FF]->bitfields & 0xE) == 0)
+    if ((game.map[stl_num].flags & SlbAtFlg_Blocking) == 0 && (game.columns.lookup[game.map[stl_num].data & 0x7FF]->bitfields & CLF_CEILING_MASK) == 0)
     {
         if (a2 <= 0)
         {
             if (a3 > 0)
             {
-                v17 = a1 - 256;
-                if ((game.map[v17].flags & 0x10) != 0 || (game.columns.lookup[game.map[v17].data & 0x7FF]->bitfields & 0xE) != 0)
+                v17 = stl_num - 256;
+                if ((game.map[v17].flags & SlbAtFlg_Blocking) != 0 || (game.columns.lookup[game.map[v17].data & 0x7FF]->bitfields & CLF_CEILING_MASK) != 0)
                 {
-                    col = game.columns.lookup[game.map[a1 - 256].data & 0x7FF];
+                    col = game.columns.lookup[game.map[stl_num - 256].data & 0x7FF];
                     bitfields = col->bitfields;
-                    if ((bitfields & 0xE) != 0)
+                    if ((bitfields & CLF_CEILING_MASK) != 0)
                         return find_column_height_including_lintels(col);
                     return bitfields >> 4;
                 }
@@ -74,32 +74,32 @@ static int ceiling_block_is_solid_including_corners_return_height(int a1, int a2
         }
         else
         {
-            v8 = a1 - 1;
-            if ((game.map[v8].flags & 0x10) != 0 || (game.columns.lookup[game.map[v8].data & 0x7FF]->bitfields & 0xE) != 0)
+            v8 = stl_num - 1;
+            if ((game.map[v8].flags & SlbAtFlg_Blocking) != 0 || (game.columns.lookup[game.map[v8].data & 0x7FF]->bitfields & CLF_CEILING_MASK) != 0)
             {
-                col = game.columns.lookup[game.map[a1 - 1].data & 0x7FF];
+                col = game.columns.lookup[game.map[stl_num - 1].data & 0x7FF];
                 v10 = col->bitfields;
-                if ((v10 & 0xE) != 0)
+                if ((v10 & CLF_CEILING_MASK) != 0)
                     return find_column_height_including_lintels(col);
                 return v10 >> 4;
             }
             if (a3 > 0)
             {
-                v11 = a1 - 256;
-                if ((game.map[v11].flags & 0x10) != 0 || (game.columns.lookup[game.map[v11].data & 0x7FF]->bitfields & 0xE) != 0)
+                v11 = stl_num - 256;
+                if ((game.map[v11].flags & SlbAtFlg_Blocking) != 0 || (game.columns.lookup[game.map[v11].data & 0x7FF]->bitfields & CLF_CEILING_MASK) != 0)
                 {
-                    col = game.columns.lookup[game.map[a1 - 256].data & 0x7FF];
+                    col = game.columns.lookup[game.map[stl_num - 256].data & 0x7FF];
                     v13 = col->bitfields;
-                    if ((v13 & 0xE) != 0)
+                    if ((v13 & CLF_CEILING_MASK) != 0)
                         return find_column_height_including_lintels(col);
                     return v13 >> 4;
                 }
-                v14 = a1 - 257;
-                if ((game.map[v14].flags & 0x10) != 0 || (game.columns.lookup[game.map[v14].data & 0x7FF]->bitfields & 0xE) != 0)
+                v14 = stl_num - 257;
+                if ((game.map[v14].flags & SlbAtFlg_Blocking) != 0 || (game.columns.lookup[game.map[v14].data & 0x7FF]->bitfields & CLF_CEILING_MASK) != 0)
                 {
-                    col = game.columns.lookup[game.map[a1 - 257].data & 0x7FF];
+                    col = game.columns.lookup[game.map[stl_num - 257].data & 0x7FF];
                     v16 = col->bitfields;
-                    if ((v16 & 0xE) != 0)
+                    if ((v16 & CLF_CEILING_MASK) != 0)
                         return find_column_height_including_lintels(col);
                     return v16 >> 4;
                 }
@@ -107,17 +107,17 @@ static int ceiling_block_is_solid_including_corners_return_height(int a1, int a2
         }
         return -1;
     }
-    col = game.columns.lookup[game.map[a1].data & 0x7FF];
+    col = game.columns.lookup[game.map[stl_num].data & 0x7FF];
     v6 = col->bitfields;
-    if ((v6 & 0xE) != 0)
+    if ((v6 & CLF_CEILING_MASK) != 0)
         return find_column_height_including_lintels(col);
     return v6 >> 4;
 }
 
-static int ceiling_calculate_height_from_nearest_walls(int result, int a2)
+static int ceiling_calculate_height_from_nearest_walls(int result, int number_of_steps)
 {
-    int v2; // edx
-    v2 = game.ceiling_step * a2;
+    int v2;
+    v2 = game.ceiling_step * number_of_steps;
     if (result >= game.ceiling_height_max)
     {
         if (result > game.ceiling_height_max)
@@ -169,7 +169,7 @@ long ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey)
     char v33;
     int v34;
     int v35;
-    unsigned int v37;
+    unsigned int number_of_steps;
     int v38;
     int v39;
     int v40;
@@ -288,7 +288,7 @@ long ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey)
                                 v30 = v29;
                             else
                                 v30 = v28;
-                            v37 = abs(v30);
+                            number_of_steps = abs(v30);
                             v31 = 1;
                         }
                         else
@@ -297,7 +297,7 @@ long ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey)
                             v31 = 0;
                         }
                         if (v31)
-                            v22 = ceiling_calculate_height_from_nearest_walls(v38, v37);
+                            v22 = ceiling_calculate_height_from_nearest_walls(v38, number_of_steps);
                         else
                             v22 = game.ceiling_height_max;
                     }
