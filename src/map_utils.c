@@ -291,6 +291,39 @@ TbBool get_position_spiral_near_map_block_with_filter(struct Coord3d *retpos, Ma
     return (maximizer > 0);
 }
 
+TbBool get_position_next_to_map_block_with_filter(struct Coord3d* retpos, MapCoord x, MapCoord y, Coord_Maximizer_Filter filter, MaxCoordFilterParam param)
+{
+    SYNCDBG(19, "Starting");
+    long maximizer = 0;
+    for (int around_val = 0; around_val < SMALL_AROUND_LENGTH; around_val++)
+    {
+        MapSubtlCoord sx = coord_subtile(x) + (small_around[around_val].delta_x * 2);
+        MapSubtlCoord sy = coord_subtile(y) + (small_around[around_val].delta_y * 2);
+        struct Map* mapblk = get_map_block_at(sx, sy);
+        if (!map_block_invalid(mapblk))
+        {
+            long n = maximizer;
+            struct Coord3d newpos;
+            newpos.x.val = subtile_coord_center(sx);
+            newpos.y.val = subtile_coord_center(sy);
+            newpos.z.val = 0;
+            n = filter(&newpos, param, n);
+            if (n >= maximizer)
+            {
+                retpos->x.val = newpos.x.val;
+                retpos->y.val = newpos.y.val;
+                retpos->z.val = newpos.z.val;
+                maximizer = n;
+                if (maximizer == LONG_MAX)
+                {
+                    break;
+                }
+            }
+        }
+    }
+    return (maximizer > 0);
+}
+
 long slabs_count_near(MapSlabCoord tx, MapSlabCoord ty, long rad, SlabKind slbkind)
 {
     long count = 0;
