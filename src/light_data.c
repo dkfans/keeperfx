@@ -1571,8 +1571,7 @@ static long light_render_light_sub1_sub1(
   return result;
 }
 
-//sub_408530
-static TbBool light_render_light_sub1_sub2(MapSubtlCoord stl_x, MapSubtlCoord stl_y, MapSubtlCoord stl_z)
+static TbBool point_is_above_floor(MapSubtlCoord stl_x, MapSubtlCoord stl_y, MapSubtlCoord stl_z)
 {
     struct Column *col = get_column_at(stl_x, stl_y);
     return (get_column_floor_filled_subtiles(col) > stl_z);
@@ -1659,7 +1658,7 @@ static char light_render_light_dynamic_1(struct Light *lgt, int radius, int inte
                             v24 = ( get_floor_filled_subtiles_at(stl_x - 1, stl_y - 1) <= lgt->mappos.z.stl.num );
                             break;
                             case 3:
-                            v24 = ( !light_render_light_sub1_sub2(stl_x, stl_y - 1, lgt->mappos.z.stl.num) );
+                            v24 = ( !point_is_above_floor(stl_x, stl_y - 1, lgt->mappos.z.stl.num) );
                             break;
                             case 4:
                             v24 = false;
@@ -1829,7 +1828,7 @@ static char light_render_light_dynamic_2(struct Light *lgt, int radius, int rend
                                 bool_2 = ((unsigned char)game.columns_data[game.map[256 * stl_y + 256 + stl_x].data & 0x7FF].bitfields >> 4 <= lgt_stl_z);
                                 break;
                             case 3:
-                                bool_2 = (!light_render_light_sub1_sub2(stl_x, stl_y - 1, lgt_stl_z));
+                                bool_2 = (!point_is_above_floor(stl_x, stl_y - 1, lgt_stl_z));
                                 break;
                             case 4:
                                 bool_2 = 0;
