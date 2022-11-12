@@ -2471,7 +2471,7 @@ int find_column_height_including_lintels(struct Column *col)
 
 TbBool sub_448DB0(int a1)
 {
-  return (game.map[a1 + 257].flags & 0x10) != 0
+  return (game.map[a1 + 257].flags & SlbAtFlg_Blocking) != 0
       || (game.columns_data[game.map[a1 + 257].data & 0x7FF].bitfields & 0xE) != 0;
 }
 
