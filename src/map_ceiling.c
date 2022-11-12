@@ -20,6 +20,7 @@
 #include "pre_inc.h"
 #include "globals.h"
 #include "map_columns.h"
+#include "front_simple.h"
 #include "globals.h"
 #include "game_legacy.h"
 #include "post_inc.h"
@@ -29,6 +30,9 @@ extern "C" {
 #endif
 
 DLLIMPORT long _DK_ceiling_init(unsigned long a1, unsigned long a2);
+
+
+signed char *ceiling_cache;
 
 int find_column_height_including_lintels(struct Column *col)
 {
@@ -40,11 +44,6 @@ int find_column_height_including_lintels(struct Column *col)
     ;
   return i + 1;
 }
-
-DLLIMPORT extern unsigned char *_DK_scratch;
-#define scratch _DK_scratch
-
-signed char *ceiling_cache; // weak
 
 int __fastcall ceiling_block_is_solid_including_corners_return_height(int a1, int a2, int a3)
 {
