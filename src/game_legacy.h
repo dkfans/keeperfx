@@ -223,7 +223,7 @@ short field_14BB65[592];
     struct CreatureStatsOLD creature_stats_OLD[CREATURE_TYPES_COUNT]; // New stats are in GameAdd
     struct RoomStatsOLD room_stats_OLD[ROOM_TYPES_COUNT_OLD];
     struct MagicStats keeper_power_stats[POWER_TYPES_COUNT];
-    struct ActionPoint action_points[ACTN_POINTS_COUNT];
+    struct ActionPoint action_points_OLD[ACTN_POINTS_COUNT_OLD];
 char active_players_count;
     unsigned char hero_player_num;
     unsigned char neutral_player_num;
@@ -309,7 +309,7 @@ unsigned long pay_day_progress;
     unsigned char disease_lose_percentage_health;
     unsigned char disease_lose_health_time;
     unsigned long armageddon_cast_turn;
-unsigned long armageddon_field_15035A;
+    unsigned long armageddon_over_turn;
     unsigned char armageddon_caster_idx;
     unsigned long hold_audience_time;
     unsigned long armagedon_teleport_your_time_gap;
@@ -333,7 +333,7 @@ unsigned char field_1506D4;
     struct TextScrollWindow evntbox_scroll_window;
 char field_1512E6[1037];
     long flash_button_index; /**< GUI Button Designation ID of a button which is supposed to flash, as part of tutorial. */
-    long flash_button_gameturns; // signed
+    long flash_button_gameturns_UNUSED; // replaced by flash_button_time in gameadd
 long field_1516FB;
     char loaded_swipe_idx;
     long boulder_reduce_health_wall;

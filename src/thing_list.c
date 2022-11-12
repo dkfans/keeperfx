@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "thing_list.h"
 
 #include "bflib_basics.h"
@@ -46,6 +47,7 @@
 #include "game_legacy.h"
 #include "keeperfx.hpp"
 #include "bflib_planar.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -73,8 +75,14 @@ Thing_Class_Func class_functions[] = {
 };
 
 unsigned long thing_create_errors = 0;
-
 /******************************************************************************/
+
+void set_previous_thing_position(struct Thing *thing) {
+    struct ThingAdd* thingadd = get_thingadd(thing->index);
+    thingadd->previous_mappos = thing->mappos;
+    thingadd->previous_floor_height = thing->floor_height;
+}
+
 /**
  * Adds thing at beginning of a StructureList.
  * @param thing
@@ -620,6 +628,36 @@ long anywhere_thing_filter_is_of_class_and_model_and_owned_by(const struct Thing
  * @param param Parameters exchanged between filter calls.
  * @param maximizer Previous value which made a thing pass the filter.
  */
+long in_action_point_thing_filter_is_of_class_and_model_and_owned_by(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
+{
+    if (thing->class_id == param->class_id)
+    {
+        if (thing_matches_model(thing, param->model_id))
+        {
+            if ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
+            {
+                struct Coord3d refpos;
+                refpos.x.val = param->num1;
+                refpos.y.val = param->num2;
+                refpos.z.val = 0;
+                MapCoordDelta dist = get_2d_distance(&thing->mappos, &refpos);
+                if (dist <= param->num3) {
+                    // Return the largest value to stop sweeping
+                    return LONG_MAX;
+                }
+            }
+        }
+    }
+    // If conditions are not met, return -1 to be sure thing will not be returned.
+    return -1;
+}
+
+/**
+ * Filter function.
+ * @param thing The thing being checked.
+ * @param param Parameters exchanged between filter calls.
+ * @param maximizer Previous value which made a thing pass the filter.
+ */
 long anywhere_thing_filter_is_food_available_to_eat_and_owned_by(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
 {
     if (thing->class_id == TCls_Object)
@@ -908,6 +946,7 @@ TbBigChecksum update_things_in_list(struct StructureList *list)
               update_thing(thing);
           }
       }
+      set_previous_thing_position(thing);
       sum += get_thing_checksum(thing);
       // Per-thing code ends
       k++;
@@ -1011,6 +1050,7 @@ unsigned long update_creatures_not_in_list(void)
         update_thing(thing);
       }
     }
+    set_previous_thing_position(thing);
     // Per-thing code ends
     k++;
     if (k > THINGS_COUNT)
@@ -2100,6 +2140,49 @@ long count_player_creatures_of_model(PlayerNumber plyr_idx, int crmodel)
     return count;
 }
 
+long count_player_creatures_of_model_in_action_point(PlayerNumber plyr_idx, int crmodel, long apt_index)
+{
+    struct ActionPoint* apt = action_point_get(apt_index);
+    if (!action_point_exists(apt))
+    {
+        WARNLOG("Action point is invalid:%d", apt->num);
+        return 0;
+    }
+    if (apt->range == 0)
+    {
+        WARNLOG("Action point with zero range:%d", apt->num);
+        return 0;
+    }
+
+    SYNCDBG(19,"Starting");
+    struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
+    Thing_Maximizer_Filter filter = in_action_point_thing_filter_is_of_class_and_model_and_owned_by;
+    struct CompoundTngFilterParam param;
+    param.class_id = TCls_Creature;
+    param.model_id = (is_creature_model_wildcard(crmodel)) ? CREATURE_ANY : crmodel;
+    param.plyr_idx = plyr_idx;
+    param.num1 = apt->mappos.x.val;
+    param.num2 = apt->mappos.y.val;
+    param.num3 = apt->range;
+    if (dungeon_invalid(dungeon)) {
+        // Invalid dungeon - use list of creatures not associated to any dungeon
+        return count_player_list_creatures_with_filter(game.nodungeon_creatr_list_start, filter, &param);
+    }
+    TbBool is_spec_digger = (crmodel > 0) && creature_kind_is_for_dungeon_diggers_list(plyr_idx, crmodel);
+    long count = 0;
+    if (((crmodel > 0) && (!is_creature_model_wildcard(crmodel)) && !is_spec_digger) ||
+        (crmodel == CREATURE_ANY) || (crmodel == CREATURE_NOT_A_DIGGER))
+    {
+        count += count_player_list_creatures_with_filter(dungeon->creatr_list_start, filter, &param);
+    }
+    if (((crmodel > 0) && (!is_creature_model_wildcard(crmodel)) && is_spec_digger) ||
+        (crmodel == CREATURE_ANY) || (crmodel == CREATURE_DIGGER))
+    {
+        count += count_player_list_creatures_with_filter(dungeon->digger_list_start, filter, &param);
+    }
+    return count;
+}
+
 long count_player_list_creatures_of_model(long thing_idx, ThingModel crmodel)
 {
     int count = 0;
@@ -2927,6 +3010,7 @@ TbBool update_thing(struct Thing *thing)
     TRACE_THING(thing);
     if (thing_is_invalid(thing))
         return false;
+
     if ((thing->movement_flags & TMvF_Unknown40) == 0)
     {
         if ((thing->state_flags & TF1_PushAdd) != 0)

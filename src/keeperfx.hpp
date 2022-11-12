@@ -61,35 +61,14 @@ extern "C" {
 
 #define LENSES_COUNT           15
 #define SPELL_POINTER_GROUPS   14
-// Amount of instances; it's 17, 18 or 19
-#define PLAYER_INSTANCES_COUNT 19
 #define ZOOM_KEY_ROOMS_COUNT   15
-
-
-#define TOTAL_FRAMETIME_KINDS 4
-enum FrametimeKinds {
-    Frametime_FullFrame = 0,
-    Frametime_Logic = 1,
-    Frametime_Draw = 2,
-    Frametime_Sleep = 3,
-};
-
-struct FrametimeMeasurements {
-    float starting_measurement[TOTAL_FRAMETIME_KINDS];
-    float frametime_current[TOTAL_FRAMETIME_KINDS];
-    float frametime_get_max[TOTAL_FRAMETIME_KINDS];
-    float frametime_display[TOTAL_FRAMETIME_KINDS];
-    float frametime_display_max[TOTAL_FRAMETIME_KINDS];
-};
-
-extern struct FrametimeMeasurements frametime_measurements;
 
 enum ModeFlags {
     MFlg_IsDemoMode         =  0x01,
     MFlg_EyeLensReady       =  0x02,
     MFlg_unk04              =  0x04,
     MFlg_DeadBackToPool     =  0x08,
-    MFlg_NoCdMusic          =  0x10,
+    MFlg_NoCdMusic          =  0x10, // unused
     MFlg_unk20              =  0x20,
     MFlg_unk40              =  0x40,
     MFlg_NoHeroHealthFlower              =  0x80,
@@ -294,6 +273,7 @@ void init_keepers_map_exploration(void);
 void clear_creature_pool(void);
 void reset_creature_max_levels(void);
 void reset_script_timers_and_flags(void);
+void reset_hand_rules(void);
 void add_creature_to_pool(long kind, long amount, unsigned long a3);
 void draw_texture(long a1, long a2, long a3, long a4, long a5, long a6, long a7);
 

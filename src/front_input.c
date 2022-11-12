@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "front_input.h"
 
 #include "globals.h"
@@ -71,6 +72,7 @@
 #include "KeeperSpeech.h"
 
 #include <math.h>
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -115,9 +117,9 @@ TbBool check_current_gui_layer(long layer_id)
 {
     // Check the current gui layer against the one passed as a parameter
     // Also checks if the passed layer_id is the parent of the current gui layer
-    
+
     // This is just a basic example, GuiLayer objects should be created with parent properties etc etc
-    
+
     if (gui_layer.current_gui_layer == layer_id)
     {
         return true;
@@ -720,8 +722,11 @@ TbBool get_level_lost_inputs(void)
     {
       if (is_key_pressed(KC_TAB,KMod_DONTCARE))
       {
-          if ((player->view_mode == PVM_IsometricView) || (player->view_mode == PVM_FrontView))
-          {
+          if (
+            player->view_mode == PVM_IsoWibbleView ||
+            player->view_mode == PVM_FrontView ||
+            player->view_mode == PVM_IsoStraightView
+          ) {
             clear_key_pressed(KC_TAB);
             toggle_gui();
           }
@@ -938,7 +943,7 @@ long get_dungeon_control_action_inputs(void)
             clear_key_pressed(KC_F12);
         }
     }
-    if (player->view_mode == PVM_IsometricView)
+    if (player->view_mode == PVM_IsoWibbleView || player->view_mode == PVM_IsoStraightView)
     {
       if (is_key_pressed(KC_TAB, !KMod_CONTROL))
       {
@@ -1061,14 +1066,6 @@ long get_dungeon_control_action_inputs(void)
             {
                 (angle = 1024);
             }
-            else if (angle == 512)
-            {
-                (angle = 1536);
-            }
-            else if (angle == 1536)
-            {
-                (angle = 512);
-            }
             else
             {
                 (angle = 0);
@@ -1109,10 +1106,10 @@ long get_dungeon_control_action_inputs(void)
     }
     else if (player->work_state == PSt_Sell)
     {
-        process_sell_roomspace_inputs(player->id_number); 
+        process_sell_roomspace_inputs(player->id_number);
     }
-    else if ( (player->work_state == PSt_PlaceTerrain) || (player->work_state == PSt_MkDigger) || (player->work_state == PSt_MkBadCreatr) || (player->work_state == PSt_MkGoodCreatr) 
-        || (player->work_state == PSt_KillPlayer) || (player->work_state == PSt_HeartHealth) || (player->work_state == PSt_StealRoom) || 
+    else if ( (player->work_state == PSt_PlaceTerrain) || (player->work_state == PSt_MkDigger) || (player->work_state == PSt_MkBadCreatr) || (player->work_state == PSt_MkGoodCreatr)
+        || (player->work_state == PSt_KillPlayer) || (player->work_state == PSt_HeartHealth) || (player->work_state == PSt_StealRoom) ||
         (player->work_state == PSt_StealSlab) || (player->work_state == PSt_ConvertCreatr) )
     {
         process_cheat_mode_selection_inputs();
@@ -1361,7 +1358,7 @@ short get_creature_control_action_inputs(void)
         update_wheel_scrolled();
       }
     }
- 
+
     if (is_key_pressed(KC_TAB, !KMod_CONTROL))
     {
         clear_key_pressed(KC_TAB);
@@ -1382,52 +1379,52 @@ short get_creature_control_action_inputs(void)
         }
     }
     if (numkey == -1)
-    {   
+    {
         if (is_key_pressed(79,KMod_DONTCARE))
         {
             clear_key_pressed(79);
             numkey = 0;
-        } else 
+        } else
         if (is_key_pressed(80,KMod_DONTCARE))
         {
             clear_key_pressed(80);
             numkey = 1;
-        } else 
+        } else
         if (is_key_pressed(81,KMod_DONTCARE))
         {
             clear_key_pressed(81);
             numkey = 2;
-        } else 
+        } else
         if (is_key_pressed(75,KMod_DONTCARE))
         {
             clear_key_pressed(75);
             numkey = 3;
-        } else 
+        } else
         if (is_key_pressed(76,KMod_DONTCARE))
         {
             clear_key_pressed(76);
             numkey = 4;
-        } else 
+        } else
         if (is_key_pressed(77,KMod_DONTCARE))
         {
             clear_key_pressed(77);
             numkey = 5;
-        } else 
+        } else
         if (is_key_pressed(71,KMod_DONTCARE))
         {
             clear_key_pressed(71);
             numkey = 6;
-        } else 
+        } else
         if (is_key_pressed(72,KMod_DONTCARE))
         {
             clear_key_pressed(72);
             numkey = 7;
-        } else 
+        } else
         if (is_key_pressed(73,KMod_DONTCARE))
         {
             clear_key_pressed(73);
             numkey = 8;
-        } else 
+        } else
         if (is_key_pressed(82,KMod_DONTCARE))
         {
             clear_key_pressed(82);
@@ -1452,7 +1449,7 @@ short get_creature_control_action_inputs(void)
                     StrID = roomst->name_stridx;
                 }
             }
-        
+
         }
         if (is_key_pressed(KC_SEMICOLON,KMod_DONTCARE))
         {
@@ -1532,7 +1529,7 @@ short get_creature_control_action_inputs(void)
             else if (thing_is_invalid(dragtng))
             {
                 struct ShotConfigStats* shotst = get_shot_model_stats(ShM_Dig);
-                TbBool diggable_subtile;
+                TbBool diggable_subtile = false;
                 MapSubtlCoord stl_x = thing->mappos.x.stl.num;
                 MapSubtlCoord stl_y = thing->mappos.y.stl.num;
                 for (unsigned char range = 0; range < shotst->health; range++)
@@ -1676,6 +1673,7 @@ short get_map_action_inputs(void)
         if (left_button_released) {
             left_button_released = 0;
             set_players_packet_action(player, PckA_ZoomFromMap, stl_x, stl_y, 0, 0);
+            reset_interpolation_for_parchment_view(player);
             return true;
         }
     }
@@ -2091,7 +2089,8 @@ void get_dungeon_control_nonaction_inputs(void)
   }
   switch (player->view_mode)
   {
-  case PVM_IsometricView:
+  case PVM_IsoWibbleView:
+  case PVM_IsoStraightView:
       get_isometric_view_nonaction_inputs();
       break;
   case PVM_ParchmentView:
@@ -2180,10 +2179,11 @@ if (((MyScreenWidth >> 1) != GetMouseX()) || (GetMouseY() != y))
   {
     LbMouseSetPositionInitial((MyScreenWidth/pixel_size) >> 1, y/pixel_size); // use LbMouseSetPositionInitial because we don't want to keep moving the host cursor
   }
-    if (settings.first_person_move_invert)
-    pckt->pos_y = 255 * ((long)MyScreenHeight - y) / MyScreenHeight;
-    else
-    pckt->pos_y = 255 * y / MyScreenHeight;
+    if (settings.first_person_move_invert) {
+        pckt->pos_y = 255 * y / MyScreenHeight;
+    } else {
+        pckt->pos_y = 255 * ((long)MyScreenHeight - y) / MyScreenHeight;
+    }
     pckt->pos_x = 255 * x / MyScreenWidth;
     // Update the position based on current settings
     long i = settings.first_person_move_sensitivity + 1;
@@ -2591,7 +2591,7 @@ short get_gui_inputs(short gameplay_on)
       over_slider_button = -1;
       do_sound_menu_click();
   }
-
+  set_flag_byte(&tool_tip_box.flags,TTip_Visible,false);
   gui_button_tooltip_update(gmbtn_idx);
   if (gui_slider_button_inputs(over_slider_button))
       return true;
@@ -2615,7 +2615,7 @@ void process_cheat_mode_selection_inputs()
         {
             goto INPUTS;
         }
-    }        
+    }
     if (is_key_pressed(KC_NUMPAD0, KMod_DONTCARE))
     {
         new_value = 0;
@@ -2722,7 +2722,7 @@ void process_cheat_mode_selection_inputs()
             }
             else if (is_key_pressed(KC_EQUALS, KMod_DONTCARE))
             {
-                
+
                 new_value = playeradd->cheatselection.chosen_experience_level;
                 if (new_value < 9)
                 {
@@ -2739,7 +2739,7 @@ void process_cheat_mode_selection_inputs()
                     new_value--;
                     set_players_packet_action(player, PckA_CheatSwitchExperience, new_value, 0, 0, 0);
                 }
-                clear_key_pressed(KC_MINUS); 
+                clear_key_pressed(KC_MINUS);
             }
             else if (is_key_pressed(KC_LSHIFT, KMod_DONTCARE))
             {

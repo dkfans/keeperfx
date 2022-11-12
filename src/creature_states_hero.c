@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "creature_states_hero.h"
 #include "globals.h"
 
@@ -47,6 +48,7 @@
 #include "gui_topmsg.h"
 #include "game_legacy.h"
 #include "map_locations.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -1352,7 +1354,7 @@ long creature_tunnel_to(struct Thing *creatng, struct Coord3d *pos, short speed)
     MapCoordDelta dist = get_2d_distance(&creatng->mappos, &cctrl->navi.pos_next);
     if (dist <= 16)
     {
-        creature_turn_to_face_angle(creatng, cctrl->navi.field_D);
+        creature_turn_to_face_angle(creatng, cctrl->navi.angle);
         creature_set_speed(creatng, 0);
         return 0;
     }

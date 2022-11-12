@@ -42,6 +42,9 @@ struct PlayerInfo;
 #define MINMAX_LENGTH 512 // Originally 64, adjusted for view distance
 #define MINMAX_ALMOST_HALF ((MINMAX_LENGTH/2)-1)
 
+extern long zoom_distance_setting; // CFG setting
+extern long frontview_zoom_distance_setting; // CFG setting
+
 enum CameraIndexValues {
     CamIV_Isometric = 0,
     CamIV_FirstPerson,
@@ -77,6 +80,21 @@ struct Camera {
     TbBool in_active_movement_y;
 };
 
+extern long previous_cam_mappos_x;
+extern long previous_cam_mappos_y;
+extern long previous_cam_mappos_z;
+extern long interpolated_cam_mappos_x;
+extern long interpolated_cam_mappos_y;
+extern long interpolated_cam_mappos_z;
+extern long previous_cam_orient_a;
+extern long previous_cam_orient_b;
+extern long previous_cam_orient_c;
+extern long interpolated_cam_orient_a;
+extern long interpolated_cam_orient_b;
+extern long interpolated_cam_orient_c;
+extern long previous_camera_zoom;
+extern long interpolated_camera_zoom;
+
 /******************************************************************************/
 DLLIMPORT extern struct M33 _DK_camera_matrix;
 #define camera_matrix _DK_camera_matrix
@@ -85,9 +103,6 @@ DLLIMPORT extern struct EngineCoord _DK_object_origin;
 
 #pragma pack()
 /******************************************************************************/
-extern float hud_scale;
-void calculate_hud_scale(struct Camera *cam);
-
 extern long camera_zoom;
 /******************************************************************************/
 MapCoordDelta get_3d_box_distance(const struct Coord3d *pos1, const struct Coord3d *pos2);
@@ -116,6 +131,10 @@ void view_set_camera_rotation_inertia(struct Camera *cam, long a2, long a3);
 
 void update_all_players_cameras(void);
 void init_player_cameras(struct PlayerInfo *player);
+void set_previous_camera_values(struct PlayerInfo* player);
+void reset_interpolation_of_camera(struct PlayerInfo* player);
+void reset_interpolation_for_parchment_view(struct PlayerInfo* player);
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

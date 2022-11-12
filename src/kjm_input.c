@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "kjm_input.h"
 
 #include "globals.h"
@@ -32,6 +33,7 @@
 #include "frontend.h"
 #include "front_input.h"
 #include "frontmenu_ingame_map.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {

@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "config_crtrmodel.h"
 #include "globals.h"
 #include "game_merge.h"
@@ -39,6 +40,7 @@
 #include "creature_states.h"
 #include "player_data.h"
 #include "custom_sprites.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -1367,7 +1369,7 @@ TbBool parse_creaturemodel_senses_blocks(long crtr_model,char *buf,long len,cons
     if ((flags & CnfLd_AcceptPartial) == 0)
     {
         crstat->hearing = 0;
-        crstat->eye_height = 0;
+        crstat->base_eye_height = 0;
         crstat->field_of_view = 0;
         crstat->eye_effect = 0;
         crstat->max_angle_change = 1;
@@ -1411,7 +1413,7 @@ TbBool parse_creaturemodel_senses_blocks(long crtr_model,char *buf,long len,cons
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              crstat->eye_height = k;
+              crstat->base_eye_height = k;
               n++;
             }
             if (n < 1)

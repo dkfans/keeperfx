@@ -38,7 +38,7 @@
  0001:00004F70       heapmgr_complete_defrag
  0001:00005380       light_render_area
  0001:00005F80       light_render_light
- 0001:000062E0       light_render_light_sub1
+ 0001:000062E0       light_render_light_dynamic_1
  0001:00006770       light_render_light_sub2
  0001:00006C70       light_render_light_sub3
  0001:000070B0       light_render_light_sub1_sub1
@@ -479,6 +479,7 @@
  0001:0004FEA0       get_thing_blocked_flags_at
  0001:00050060       slide_thing_against_wall_at
  0001:00050430       bounce_thing_off_wall_at
+ 0001:00050700       get_slide_z_coord
  0001:00050870       S3DInit
  0001:00050910       S3DSetMaximumSoundDistance
  0001:00050970       S3DCreateSoundEmitterPri

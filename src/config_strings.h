@@ -422,6 +422,7 @@ enum GUIStrings {
     GUIStr_MysteryBox = STRINGS_MAX + 1005,
     GUIStr_NetUnsyncedMap = STRINGS_MAX + 1006,
     GUIStr_DisplayResolution = STRINGS_MAX + 1007,
+    GUIStr_OptionVoice = STRINGS_MAX + 1008,
 };
 
 enum CampaignStrings {

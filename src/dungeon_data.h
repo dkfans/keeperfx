@@ -34,6 +34,8 @@
 #include "tasks_list.h"
 #include "thing_traps.h"
 #include "roomspace.h"
+#include "config_creature.h"
+#include "power_hand.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -104,23 +106,23 @@ struct Dungeon {
     unsigned short dnheart_idx;
     struct Coord3d mappos;
     unsigned char creature_tendencies;
-    unsigned char field_9;
+    unsigned char field_9_unused;
     unsigned char computer_enabled;
     unsigned short room_kind_old[ROOM_TYPES_COUNT_OLD];
     short creatr_list_start;
     short digger_list_start;
-    short field_31;
+    short field_31_unused;
     short things_in_hand[MAX_THINGS_IN_HAND];
-    short field_43;
-    int field_45;
-    int field_49;
-    int field_4D;
-    short field_51;
-    short field_53;
-    int field_55;
-    int field_59;
-    int field_5D;
-    short field_61;
+    short field_43_unused;
+    int field_45_unused;
+    int field_49_unused;
+    int field_4D_unused;
+    short field_51_unused;
+    short field_53_unused;
+    int field_55_unused;
+    int field_59_unused;
+    int field_5D_unused;
+    short field_61_unused;
     unsigned char num_things_in_hand;
     unsigned short field_64[CREATURE_TYPES_COUNT][15];
     unsigned short guijob_all_creatrs_count[CREATURE_TYPES_COUNT][3];
@@ -328,7 +330,7 @@ struct DungeonAdd
     unsigned char         room_resrchable[TERRAIN_ITEMS_MAX];
     unsigned char         room_slabs_count[TERRAIN_ITEMS_MAX+1];
     unsigned short        backup_heart_idx;
-
+    struct HandRule       hand_rules[CREATURE_TYPES_MAX][HAND_RULE_SLOTS_COUNT];
 };
 /******************************************************************************/
 extern struct Dungeon bad_dungeon;

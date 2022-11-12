@@ -19,6 +19,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "bflib_fileio.h"
 
 #include <errno.h>
@@ -39,6 +40,7 @@
 #include <dos.h>
 #include <direct.h>
 #endif
+#include "post_inc.h"
 
 #if defined(_WIN32)
 #ifdef __cplusplus
@@ -407,8 +409,7 @@ long LbFileLength(const char *fname)
 void convert_find_info(struct TbFileFind *ffind)
 {
   struct _finddata_t *fdata=&(ffind->Reserved);
-  strncpy(ffind->Filename,fdata->name,144);
-  ffind->Filename[143]='\0';
+  snprintf(ffind->Filename,144, "%s", fdata->name);
 #if defined(_WIN32)
   GetShortPathName(fdata->name,ffind->AlternateFilename,14);
 #else
