@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "config_settings.h"
 #include "globals.h"
 
@@ -30,6 +31,7 @@
 #include "config.h"
 #include "game_merge.h"
 #include "vidmode.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -105,6 +107,7 @@ void setup_default_settings(void)
      256,                       // minimap_zoom
      8192,                      // isometric_view_zoom_level
      65536,                     // frontview_zoom_level
+     127,                       // mentor_volume
     };
     LbMemoryCopy(&settings, &default_settings, sizeof(struct GameSettings));
     struct CPU_INFO cpu_info;
@@ -147,7 +150,7 @@ TbBool load_settings(void)
     if (len == sizeof(struct GameSettings))
     {
       if (LbFileLoadAt(fname, &settings) == sizeof(struct GameSettings))
-      { 
+      {
           copy_settings_to_dk_settings();
           return true;
       }

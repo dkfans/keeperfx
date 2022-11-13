@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "vidmode.h"
 
 #include "globals.h"
@@ -46,6 +47,8 @@
 #include "creature_graphics.h"
 #include "keeperfx.hpp"
 #include "custom_sprites.h"
+#include "sprites.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -332,7 +335,7 @@ TbBool set_pointer_graphic_menu(void)
     LbMouseChangeSpriteAndHotspot(NULL, 0, 0);
     return false;
   }
-  LbMouseChangeSpriteAndHotspot(&frontend_sprite[1], 0, 0);
+  LbMouseChangeSpriteAndHotspot(&frontend_sprite[GFS_cursor_horny], 0, 0);
   return true;
 }
 

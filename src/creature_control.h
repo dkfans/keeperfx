@@ -437,7 +437,7 @@ unsigned short shot_shift_z;
     unsigned char battle_id;
     unsigned char alarm_stl_x;
     unsigned char alarm_stl_y;
-    unsigned long field_2FA;
+    unsigned long alarm_over_turn;
     unsigned long field_2FE;
     unsigned char stopped_for_hand_turns;
     long following_leader_since;
@@ -573,7 +573,7 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     unsigned char grow_up_level;
     TbBool entrance_force;
     short max_angle_change;
-    short eye_height;
+    short base_eye_height;
   short field_57[14];
   short field_73;
     unsigned short size_xy;

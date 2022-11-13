@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "sounds.h"
 
 #include "globals.h"
@@ -44,8 +45,10 @@
 #include "map_data.h"
 #include "creature_states.h"
 #include "thing_objects.h"
+#include "config.h"
 
 #include "keeperfx.hpp"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -239,7 +242,11 @@ TbBool update_3d_sound_receiver(struct PlayerInfo* player)
         return false;
     S3DSetSoundReceiverPosition(cam->mappos.x.val, cam->mappos.y.val, cam->mappos.z.val);
     S3DSetSoundReceiverOrientation(cam->orient_a, cam->orient_b, cam->orient_c);
-    if (cam->view_mode == PVM_IsometricView || cam->view_mode == PVM_FrontView) {
+    if (
+        cam->view_mode == PVM_IsoWibbleView ||
+        cam->view_mode == PVM_FrontView ||
+        cam->view_mode == PVM_IsoStraightView
+    ) {
         // Distance from center of camera that you can hear a sound
         S3DSetMaximumSoundDistance(lerp(5120, 27648, 1.0-hud_scale));
         // Quieten sounds when zoomed out
@@ -295,7 +302,7 @@ void update_player_sounds(void)
               } else
               {
                 output_message(SMsg_FunnyMessages+k, 0, true);
-              } 
+              }
             }
         // Atmospheric background sound, replaces AWE soundfont
         } else
@@ -326,7 +333,7 @@ void update_player_sounds(void)
             }
         }
     }
-    
+
     // Music and sound control
     if ( !SoundDisabled ) {
         if ( (game.turns_fastforward == 0) && (!game.numfield_149F38) ) {
@@ -506,7 +513,7 @@ TbBool init_sound(void)
     snd_settng->no_load_sounds = 1;
     snd_settng->field_16 = 0;
     snd_settng->field_18 = 1;
-    snd_settng->redbook_enable = ((game.flags_cd & MFlg_NoCdMusic) == 0);
+    snd_settng->redbook_enable = IsRedbookMusicActive();
     snd_settng->sound_system = 0;
     InitAudio(snd_settng);
     InitializeMusicPlayer();
@@ -611,7 +618,7 @@ struct Thing *create_ambient_sound(const struct Coord3d *pos, ThingModel model, 
     thing->parent_idx = thing->index;
     memcpy(&thing->mappos,pos,sizeof(struct Coord3d));
     thing->owner = owner;
-    thing->field_4F |= TF4F_Unknown01;
+    thing->rendering_flags |= TRF_Unknown01;
     add_thing_to_its_class_list(thing);
     return thing;
 }

@@ -186,8 +186,6 @@ struct GameAdd {
     unsigned long gold_per_hoard;
     struct CubeAttribs cubes_data[CUBE_ITEMS_MAX];
 
-#define TRAPDOOR_TYPES_MAX 128
-
     struct ManfctrConfig traps_config[TRAPDOOR_TYPES_MAX];
     struct ManfctrConfig doors_config[TRAPDOOR_TYPES_MAX];
     struct TrapStats trap_stats[TRAPDOOR_TYPES_MAX];
@@ -230,6 +228,7 @@ struct GameAdd {
     struct PlayerInfoAdd players[PLAYERS_COUNT];
     float delta_time;
     long double process_turn_time;
+    float flash_button_time;
 };
 
 extern unsigned long game_flags2; // Should be reset to zero on new level

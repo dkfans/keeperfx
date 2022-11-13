@@ -49,7 +49,7 @@ enum QKinds {
     QK_PolyMode5,
     QK_TrigMode3,
     QK_TrigMode6,
-    QK_RotableSprite,
+    QK_RotableSprite, // 8
     QK_PolygonNearFP,
     QK_Unknown10,
     QK_JontySprite,
@@ -57,7 +57,7 @@ enum QKinds {
     QK_SlabSelector,
     QK_CreatureStatus,
     QK_TextureQuad,
-    QK_FloatingGoldText,
+    QK_FloatingGoldText, // 16
     QK_RoomFlagBottomPole,
     QK_JontyISOSprite,
     QK_RoomFlagStatusBox,
@@ -251,9 +251,9 @@ struct BucketKindCreatureShadow {
     struct PolyPoint p2;
     struct PolyPoint p3;
     struct PolyPoint p4;
-    long field_58;
-    unsigned short field_5C;
-    unsigned char field_5E;
+    long angle;
+    unsigned short anim_sprite;
+    unsigned char thing_field48;
 };
 
 struct BucketKindSlabSelector {
@@ -381,6 +381,7 @@ extern unsigned char poly_pool[POLY_POOL_SIZE];
 extern unsigned char *poly_pool_end;
 extern long cells_away;
 extern float hud_scale;
+extern int creature_status_size;
 /******************************************************************************/
 DLLIMPORT Offset _DK_vert_offset[3];
 #define vert_offset _DK_vert_offset
@@ -529,9 +530,9 @@ void process_isometric_map_volume_box(long x, long y, long z, PlayerNumber plyr_
 void process_frontview_map_volume_box(struct Camera *cam, unsigned char stl_width, PlayerNumber plyr_idx);
 void rotpers_parallel_3(struct EngineCoord *epos, struct M33 *matx, long zoom);
 void rotate_base_axis(struct M33 *matx, short a2, unsigned char a3);
-void fill_in_points_perspective(long a1, long a2, struct MinMax *mm);
-void fill_in_points_cluedo(long a1, long a2, struct MinMax *mm);
-void fill_in_points_isometric(long a1, long a2, struct MinMax *mm);
+void fill_in_points_perspective(struct Camera *cam, long a1, long a2, struct MinMax *mm);
+void fill_in_points_cluedo(struct Camera *cam, long a1, long a2, struct MinMax *mm);
+void fill_in_points_isometric(struct Camera *cam, long a1, long a2, struct MinMax *mm);
 void frame_wibble_generate(void);
 void setup_rotate_stuff(long a1, long a2, long a3, long a4, long a5, long a6, long a7, long a8);
 
@@ -539,7 +540,7 @@ void process_keeper_sprite(short x, short y, unsigned short a3, short kspr_angle
 void draw_engine_number(struct BucketKindFloatingGoldText *num);
 void draw_engine_room_flagpole(struct BucketKindRoomFlag *rflg);
 void draw_status_sprites(long a1, long a2, struct Thing *thing);
-void draw_keepsprite_unscaled_in_buffer(unsigned short kspr_n, short a2, unsigned char a3, unsigned char *a4);
+void draw_keepsprite_unscaled_in_buffer(unsigned short kspr_n, short a2, unsigned char field48, unsigned char *a4);
 void draw_mapwho_ariadne_path(struct Thing *thing);
 void draw_jonty_mapwho(struct BucketKindJontySprite *jspr);
 void draw_map_volume_box(long cor1_x, long cor1_y, long cor2_x, long cor2_y, long floor_height_z, unsigned char color);

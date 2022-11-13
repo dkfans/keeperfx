@@ -18,6 +18,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "bflib_video.h"
 
 #include "bflib_mouse.h"
@@ -27,6 +28,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_syswm.h>
 #include <math.h>
+#include "post_inc.h"
 
 #define SCREEN_MODES_COUNT 40
 
@@ -450,6 +452,12 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
         TbBool stillInWindowedMode = ((sdlFlags & 1) == 0) && ((cflags & 1) == 0); // it is hard to detect if windowed mode (flag = 0) is still the same (i.e. no change of mode, still in windowed mode)
         if (stillInWindowedMode) {
             sameWindowMode = (sameWindowMode || stillInWindowedMode);
+            if (!sameResolution)
+            {
+                // reset window
+                SDL_DestroyWindow(lbWindow);
+                lbWindow = SDL_CreateWindow(lbDrawAreaTitle, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, mdinfo->Width, mdinfo->Height, sdlFlags);
+            }
         }
         int fullscreenMode = (((sdlFlags & SDL_WINDOW_FULLSCREEN) != 0) ? SDL_WINDOW_FULLSCREEN : 0);
         if (!sameWindowMode && (fullscreenMode == 0))
@@ -477,7 +485,7 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
         }
     }
     if (lbWindow == NULL) { // Only create a new window if we don't have a valid one already
-        lbWindow = SDL_CreateWindow(lbDrawAreaTitle, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, mdinfo->Width, mdinfo->Height, sdlFlags);
+        lbWindow = SDL_CreateWindow(lbDrawAreaTitle, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, mdinfo->Width, mdinfo->Height, sdlFlags);
     }
     if (lbWindow == NULL) {
         ERRORLOG("SDL_CreateWindow: %s", SDL_GetError());
@@ -632,20 +640,20 @@ TbResult LbPaletteGet(unsigned char *palette)
 
 TbResult LbSetTitle(const char *title)
 {
-  strncpy(lbDrawAreaTitle, title, sizeof(lbDrawAreaTitle)-1);
-  return Lb_SUCCESS;
+    snprintf(lbDrawAreaTitle, sizeof(lbDrawAreaTitle), "%s", title);
+    return Lb_SUCCESS;
 }
 
 TbResult LbSetIcon(unsigned short nicon)
 {
-  lbIconIndex = nicon;
-  return Lb_SUCCESS;
+    lbIconIndex = nicon;
+    return Lb_SUCCESS;
 }
 
 TbScreenModeInfo *LbScreenGetModeInfo(TbScreenMode mode)
 {
     if (mode < lbScreenModeInfoNum)
-      return &lbScreenModeInfo[mode];
+        return &lbScreenModeInfo[mode];
     return &lbScreenModeInfo[0];
 }
 
@@ -842,7 +850,7 @@ TbScreenMode LbRegisterVideoMode(const char *desc, TbScreenCoord width, TbScreen
     mdinfo->BitsPerPixel = bpp;
     mdinfo->Available = false;
     mdinfo->VideoFlags = flags;
-    strncpy(mdinfo->Desc,desc,sizeof(mdinfo->Desc));
+    snprintf(mdinfo->Desc, sizeof(mdinfo->Desc), "%s", desc);
     return mode;
 }
 

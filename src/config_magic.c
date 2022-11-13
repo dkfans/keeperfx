@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "config_magic.h"
 #include "globals.h"
 
@@ -34,6 +35,7 @@
 #include "game_legacy.h"
 
 #include "keeperfx.hpp"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -149,6 +151,7 @@ const struct NamedCommand shotmodel_properties_commands[] = {
   {"NO_AIR_DAMAGE",       17},
   {"WIND_IMMUNE",         18},
   {"FIXED_DAMAGE",        19},
+  {"HIDDEN_PROJECTILE",   20},
   {NULL,                   0},
   };
 
@@ -715,6 +718,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           shotst->bounce_angle = 0;
           shotst->damage = 0;
           shotst->fall_acceleration = 0;
+          shotst->hidden_projectile = 0;
           shotst->hit_door.withstand = 0;
           shotst->hit_generic.withstand = 0;
           shotst->hit_lava.withstand = 0;
@@ -875,6 +879,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           shotst->hit_water.withstand = 0;
           shotst->no_air_damage = 0;
           shotst->wind_immune = 0;
+          shotst->hidden_projectile = 0;
           while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = get_id(shotmodel_properties_commands, word_buf);
@@ -954,6 +959,10 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                 break;
             case 19: // FIXED_DAMAGE
                 shotst->fixed_damage = 1;
+                n++;
+                break;
+            case 20: // HIDDEN_PROJECTILE
+                shotst->hidden_projectile = 1;
                 n++;
                 break;
             default:

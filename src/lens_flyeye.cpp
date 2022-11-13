@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "lens_flyeye.h"
 
 #include "globals.h"
@@ -24,6 +25,7 @@
 #include "engine_render.h"
 #include "lens_api.h"
 #include "bflib_vidraw.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {

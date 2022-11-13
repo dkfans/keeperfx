@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "map_blocks.h"
 
 #include "globals.h"
@@ -40,12 +41,12 @@
 #include "engine_render.h"
 #include "thing_navigate.h"
 #include "thing_physics.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT long _DK_ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey);
 DLLIMPORT void _DK_shuffle_unattached_things_on_slab(long a1, long stl_x);
 
 const signed short slab_element_around_eight[] = {
@@ -124,25 +125,29 @@ const unsigned char  *against_to_case[] = {
 };
 
 /******************************************************************************/
-TbBool block_has_diggable_side(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y)
+TbBool block_has_diggable_side(MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
   long i;
   for (i = 0; i < SMALL_AROUND_SLAB_LENGTH; i++)
   {
-    if (slab_is_safe_land(plyr_idx, slb_x + small_around[i].delta_x, slb_y + small_around[i].delta_y))
+    // slab_is_safe_land looks at the slab owner. We don't want that here.
+    struct SlabMap* slb = get_slabmap_block(slb_x + small_around[i].delta_x, slb_y + small_around[i].delta_y);
+    struct SlabAttr* slbattr = get_slab_attrs(slb);
+    if (slbattr->is_safe_land)
       return true;
   }
   return false;
 }
 
-int block_count_diggable_sides(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y)
+int block_count_diggable_sides(MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
-    int num_sides;
-    num_sides = 0;
-    long i;
-    for (i = 0; i < SMALL_AROUND_SLAB_LENGTH; i++)
+    int num_sides = 0;
+    for (long i = 0; i < SMALL_AROUND_SLAB_LENGTH; i++)
     {
-        if (slab_is_safe_land(plyr_idx, slb_x + small_around[i].delta_x, slb_y + small_around[i].delta_y)) {
+        // slab_is_safe_land looks at the slab owner. We don't want that here.
+        struct SlabMap* slb = get_slabmap_block(slb_x + small_around[i].delta_x, slb_y + small_around[i].delta_y);
+        struct SlabAttr* slbattr = get_slab_attrs(slb);
+        if (slbattr->is_safe_land) {
             num_sides++;
         }
     }
@@ -609,10 +614,19 @@ unsigned long remove_unwanted_things_from_wall_slab(MapSlabCoord slb_x, MapSlabC
                         move_creature_to_nearest_valid_position(thing);
                         break;
                     }
-                    default:
+                    case TCls_EffectElem:
                     {
                         delete_thing_structure(thing, 0);
                         removed_num++;
+                        break;
+                    }
+                    case TCls_Trap:
+                    {
+                        removed_num += remove_trap(thing, NULL);
+                        break;
+                    }
+                    default:
+                    {
                         break;
                     }
                     break;
@@ -634,6 +648,7 @@ unsigned long remove_unwanted_things_from_wall_slab(MapSlabCoord slb_x, MapSlabC
 unsigned long remove_unwanted_things_from_floor_slab(MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
     SubtlCodedCoords stl_num = get_subtile_number_at_slab_center(slb_x, slb_y);
+    struct SlabMap *slb = get_slabmap_block(slb_x, slb_y);
     unsigned long removed_num = 0;
     for (long n=0; n < AROUND_MAP_LENGTH; n++)
     {
@@ -660,18 +675,16 @@ unsigned long remove_unwanted_things_from_floor_slab(MapSlabCoord slb_x, MapSlab
                     removed_num++;
                     break;
                 }
-                case TCls_Object:
-                case TCls_Creature:
-                case TCls_DeadCreature:
-                case TCls_Shot:
-                case TCls_Effect:
+                case TCls_Trap:
                 {
+                    if (thing->owner != slabmap_owner(slb))
+                    {
+                        removed_num += remove_trap(thing, NULL);
+                    }
                     break;
                 }
                 default:
                 {
-                    delete_thing_structure(thing, 0);
-                    removed_num++;
                     break;
                 }
                 break;
@@ -912,10 +925,7 @@ void place_slab_columns(long slbkind, unsigned char stl_x, unsigned char stl_y, 
             if ( v10 < 0 )
               ERRORLOG("BBlocks instead of columns");
             update_map_collide(slbkind, stl_x+dx, stl_y+dy);
-            if (wibble_enabled() || (liquid_wibble_enabled() && slab_kind_is_liquid(slbkind)))
-            {
-                set_alt_bit_based_on_slab(slbkind, stl_x+dx, stl_y+dy);
-            }
+            set_alt_bit_based_on_slab(slbkind, stl_x+dx, stl_y+dy);
             colid++;
         }
     }
@@ -1650,10 +1660,7 @@ void place_animating_slab_type_on_map(SlabKind slbkind, char ani_frame, MapSubtl
                 MapSubtlCoord sstl_y;
                 sstl_x = slab_subtile(sslb_x,ssub_x);
                 sstl_y = slab_subtile(sslb_y,ssub_y);
-                if (wibble_enabled())
-                {
-                    set_alt_bit_based_on_slab(slb->kind, sstl_x, sstl_y);
-                }
+                set_alt_bit_based_on_slab(slb->kind, sstl_x, sstl_y);
             }
         }
     }
@@ -2153,7 +2160,7 @@ void clear_dig_and_set_explored_can_see_x(MapSlabCoord slb_x, MapSlabCoord slb_y
             {
                 if (delta_shift > 0)
                 {
-                    slb = get_slabmap_block(hslb_x, lslb_y-1);
+                    slb = get_slabmap_block(hslb_x-1, lslb_y);
                     slbattr = get_slab_attrs(slb);
                     if ((slbattr->block_flags & (SlbAtFlg_IsDoor|SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0)
                     {
@@ -2462,11 +2469,6 @@ void check_map_explored(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoor
     clear_dig_and_set_explored_can_see_y(slb_x, slb_y, creatng->owner, can_see_slabs);
 }
 
-long ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey)
-{
-    return _DK_ceiling_partially_recompute_heights(sx, sy, ex, ey);
-}
-
 long element_top_face_texture(struct Map *mapblk)
 {
     struct Column *col;
@@ -2596,7 +2598,7 @@ void fill_in_reinforced_corners(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSl
           MapSlabCoord y3 = y2 + small_around[m].delta_y;
           struct SlabMap *slb4 = get_slabmap_block(x3, y3);
           struct SlabAttr* slbattr4 = get_slab_attrs(slb4);
-          if ( (slbattr4->category == SlbAtCtg_FriableDirt) )
+          if (slbattr4->category == SlbAtCtg_FriableDirt)
           {
             unsigned char pretty_type = choose_pretty_type(plyr_idx, x3, y3);
             place_slab_type_on_map(pretty_type, slab_subtile(x3, 0), slab_subtile(y3, 0), plyr_idx, 1);

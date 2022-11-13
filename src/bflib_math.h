@@ -29,9 +29,14 @@ extern "C" {
 #endif
 /******************************************************************************/
 #define LbFPMath_PI 1024
+#define LbFPMath_TAU 2048
 #define LbFPMath_AngleMask 0x7FF
 /** Amount of fractional bits in resulting values of trigonometric operations. */
 #define LbFPMath_TrigmBits 16
+
+#define CEILING_POS(X) ((X-(int)(X)) > 0 ? (int)(X+1) : (int)(X))
+#define CEILING_NEG(X) ((X-(int)(X)) < 0 ? (int)(X-1) : (int)(X))
+#define CEILING(X) ( ((X) > 0) ? CEILING_POS(X) : CEILING_NEG(X) )
 
 enum MathOperator {
     MOp_UNDEFINED                      =  0,

@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "frontmenu_select.h"
 #include "globals.h"
 #include "bflib_basics.h"
@@ -32,6 +33,7 @@
 #include "config_settings.h"
 #include "config_strings.h"
 #include "game_legacy.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
