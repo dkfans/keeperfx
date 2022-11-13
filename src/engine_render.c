@@ -8078,7 +8078,7 @@ static void sprite_to_sbuff_xflip(const TbSpriteData sprdata, unsigned char *out
     }
 }
 
-void draw_keepsprite_unscaled_in_buffer(unsigned short kspr_n, short angle, unsigned char field48, unsigned char *outbuf)
+void draw_keepsprite_unscaled_in_buffer(unsigned short kspr_n, short angle, unsigned char current_frame, unsigned char *outbuf)
 {
     struct KeeperSprite *kspr_arr;
     unsigned long kspr_idx;
@@ -8108,7 +8108,7 @@ void draw_keepsprite_unscaled_in_buffer(unsigned short kspr_n, short angle, unsi
         {
             return;
         }
-        keepsprite_id = field48 + kspr_idx;
+        keepsprite_id = current_frame + kspr_idx;
         if (keepsprite_id >= KEEPERSPRITE_ADD_OFFSET)
         {
             sprite_data = keepersprite_add[keepsprite_id - KEEPERSPRITE_ADD_OFFSET];
@@ -8122,7 +8122,7 @@ void draw_keepsprite_unscaled_in_buffer(unsigned short kspr_n, short angle, unsi
         {
             sprite_data = *keepsprite[keepsprite_id];
         }
-        kspr = &kspr_arr[field48];
+        kspr = &kspr_arr[current_frame];
         fill_w = kspr->FrameWidth;
         fill_h = kspr->FrameHeight;
         if ( flip_range )
@@ -8157,10 +8157,10 @@ void draw_keepsprite_unscaled_in_buffer(unsigned short kspr_n, short angle, unsi
         {
             return;
         }
-        kspr = &kspr_arr[field48 + quarter * kspr_arr->FramesCount];
+        kspr = &kspr_arr[current_frame + quarter * kspr_arr->FramesCount];
         fill_w = kspr->SWidth;
         fill_h = kspr->SHeight;
-        keepsprite_id = field48 + quarter * kspr->FramesCount + kspr_idx;
+        keepsprite_id = current_frame + quarter * kspr->FramesCount + kspr_idx;
         if (keepsprite_id >= KEEPERSPRITE_ADD_OFFSET)
         {
             sprite_data = keepersprite_add[keepsprite_id - KEEPERSPRITE_ADD_OFFSET];
