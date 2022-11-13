@@ -242,13 +242,6 @@ void reveal_map_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber p
     mapblk->data |= (i & 0x0F) << 28;
 }
 
-// Reveal subtile for given player, concealing for other players
-void reveal_map_subtile_excl(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx)
-{
-    struct Map* mapblk = get_map_block_at(stl_x, stl_y);
-    mapblk->data &= 0x0FFFFFFF + (plyr_idx << 28);
-}
-
 TbBool subtile_revealed(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx)
 {
     unsigned short plyr_bit = (1 << plyr_idx);
@@ -856,7 +849,7 @@ TbBool subtile_is_diggable_for_player(PlayerNumber plyr_idx, MapSubtlCoord stl_x
         {
             return true;
         }
-        if (!(((slbattr->is_diggable) == 0) ||
+        if (!(((slbattr->is_diggable) == 0) || 
         ((slabmap_owner(slb) != plyr_idx) && ((slbattr->block_flags & SlbAtFlg_Filled) != 0))))
         {
             return true;

@@ -375,19 +375,46 @@ TbBool set_slab_explored(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord
 }
 
 // only used by mine_out_block
-void set_slab_explored_flags(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y)
+void set_slab_explored_flags(unsigned char flag, long slb_x, long slb_y)
 {
-    if (subtile_revealed(slab_subtile_center(slb_x), slab_subtile_center(slb_y), plyr_idx)) {
-        reveal_map_subtile_excl(slab_subtile(slb_x,0), slab_subtile(slb_y,0), plyr_idx);
-        reveal_map_subtile_excl(slab_subtile(slb_x,1), slab_subtile(slb_y,0), plyr_idx);
-        reveal_map_subtile_excl(slab_subtile(slb_x,2), slab_subtile(slb_y,0), plyr_idx);
-        reveal_map_subtile_excl(slab_subtile(slb_x,0), slab_subtile(slb_y,1), plyr_idx);
-        reveal_map_subtile_excl(slab_subtile(slb_x,1), slab_subtile(slb_y,1), plyr_idx);
-        reveal_map_subtile_excl(slab_subtile(slb_x,2), slab_subtile(slb_y,1), plyr_idx);
-        reveal_map_subtile_excl(slab_subtile(slb_x,0), slab_subtile(slb_y,2), plyr_idx);
-        reveal_map_subtile_excl(slab_subtile(slb_x,1), slab_subtile(slb_y,2), plyr_idx);
-        reveal_map_subtile_excl(slab_subtile(slb_x,2), slab_subtile(slb_y,2), plyr_idx);
-        pannel_map_update(slab_subtile(slb_x,0), slab_subtile(slb_y,0), STL_PER_SLB, STL_PER_SLB);
+
+    MapSubtlCoord stl_y = STL_PER_SLB * slb_y;
+    MapSubtlCoord stl_x = STL_PER_SLB * slb_x;
+
+    struct Map *mapblk = get_map_block_at(stl_x, stl_y);
+
+
+    if (mapblk->data >> 28 != flag)
+    {
+        int shifted_flag = flag << 28;
+        get_map_block_at(stl_x,     stl_y    )->data &= 0xFFFFFFFu;
+        get_map_block_at(stl_x,     stl_y    )->data |= shifted_flag;
+            
+        get_map_block_at(stl_x + 1, stl_y    )->data &= 0xFFFFFFFu;
+        get_map_block_at(stl_x + 1, stl_y    )->data |= shifted_flag;
+            
+        get_map_block_at(stl_x + 2, stl_y    )->data &= 0xFFFFFFFu;
+        get_map_block_at(stl_x + 2, stl_y    )->data |= shifted_flag;
+        
+        get_map_block_at(stl_x,     stl_y + 1)->data &= 0xFFFFFFFu;
+        get_map_block_at(stl_x,     stl_y + 1)->data |= shifted_flag;
+        
+        get_map_block_at(stl_x + 1, stl_y + 1)->data &= 0xFFFFFFFu;
+        get_map_block_at(stl_x + 1, stl_y + 1)->data |= shifted_flag;
+        
+        get_map_block_at(stl_x + 2, stl_y + 1)->data &= 0xFFFFFFFu;
+        get_map_block_at(stl_x + 2, stl_y + 1)->data |= shifted_flag;
+        
+        get_map_block_at(stl_x,     stl_y + 2)->data &= 0xFFFFFFFu;
+        get_map_block_at(stl_x,     stl_y + 2)->data |= shifted_flag;
+        
+        get_map_block_at(stl_x + 1, stl_y + 2)->data &= 0xFFFFFFFu;
+        get_map_block_at(stl_x + 1, stl_y + 2)->data |= shifted_flag;
+        
+        get_map_block_at(stl_x + 2, stl_y + 2)->data &= 0xFFFFFFFu;
+        get_map_block_at(stl_x + 2, stl_y + 2)->data |= shifted_flag;
+
+        pannel_map_update(stl_x, stl_y, STL_PER_SLB, STL_PER_SLB);
     }
 }
 

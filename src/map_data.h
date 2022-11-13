@@ -82,7 +82,6 @@ struct Map *get_map_block_at_pos(long stl_num);
 TbBool map_block_invalid(const struct Map *mapblk);
 
 void reveal_map_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx);
-void reveal_map_subtile_excl(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx);
 TbBool subtile_revealed(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx);
 #define thing_revealed(thing, plyr_idx) subtile_revealed(thing->mappos.x.stl.num, thing->mappos.y.stl.num, plyr_idx)
 void reveal_map_block(struct Map *mapblk, PlayerNumber plyr_idx);
