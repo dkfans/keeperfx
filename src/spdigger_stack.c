@@ -58,7 +58,6 @@ extern "C" {
 /******************************************************************************/
 DLLIMPORT long _DK_check_out_unreinforced_place(struct Thing *creatng);
 DLLIMPORT long _DK_check_out_unreinforced_area(struct Thing *creatng);
-DLLIMPORT long _DK_imp_will_soon_be_converting_at_excluding(struct Thing* creatng, long slb_x, long slb_y);
 /******************************************************************************/
 long const dig_pos[] = {0, -1, 1};
 
@@ -495,7 +494,7 @@ long check_out_unprettied_or_unconverted_area(struct Thing *thing)
     return 0;
 }
 
-static long imp_will_soon_be_converting_at_excluding_new(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+static long imp_will_soon_be_converting_at_excluding(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     int owner;
     int continue_state;
@@ -547,17 +546,6 @@ static long imp_will_soon_be_converting_at_excluding_new(struct Thing *creatng, 
         
     }
     return 1;
-}
-
-static long imp_will_soon_be_converting_at_excluding(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
-{  
-    int old = _DK_imp_will_soon_be_converting_at_excluding(creatng, stl_x, stl_y);
-    int new = imp_will_soon_be_converting_at_excluding_new(creatng, stl_x, stl_y);
-    if(new != old)
-        JUSTMSG("testlog: %d,%d",old , new);
-
-    return new;
-
 }
 
 TbBool check_out_unconverted_spot(struct Thing *creatng, MapSlabCoord slb_x, MapSlabCoord slb_y)
