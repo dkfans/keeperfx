@@ -253,7 +253,7 @@ struct BucketKindCreatureShadow {
     struct PolyPoint p4;
     long angle;
     unsigned short anim_sprite;
-    unsigned char thing_field48;
+    unsigned char current_frame;
 };
 
 struct BucketKindSlabSelector {

@@ -3741,7 +3741,7 @@ static void create_shadows(struct Thing *thing, struct EngineCoord *ecor, struct
     kspr->p1.S = dist_sq;
     kspr->angle = angle;
     kspr->anim_sprite = thing->anim_sprite;
-    kspr->thing_field48 = thing->current_frame;
+    kspr->current_frame = thing->current_frame;
 }
 
 // Creature status flower above head in isometric view
@@ -6340,7 +6340,7 @@ void display_drawlist(void) // Draws isometric and 1st person view. Not frontvie
                 draw_jonty_mapwho(item.jontySprite);
                 break;
             case QK_CreatureShadow: // Shadows of creatures in isometric and 1st person view
-                draw_keepsprite_unscaled_in_buffer(item.creatureShadow->anim_sprite, item.creatureShadow->angle, item.creatureShadow->thing_field48, big_scratch);
+                draw_keepsprite_unscaled_in_buffer(item.creatureShadow->anim_sprite, item.creatureShadow->angle, item.creatureShadow->current_frame, big_scratch);
                 vec_map = big_scratch;
                 vec_mode = VM_Unknown10;
                 vec_colour = item.creatureShadow->p1.S;
