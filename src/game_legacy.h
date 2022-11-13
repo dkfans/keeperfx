@@ -189,11 +189,11 @@ unsigned char numfield_149F47;
     char campaign_fname[CAMPAIGN_FNAME_LEN];
     char save_catalogue_UNUSED[72];
     struct Event event[EVENTS_COUNT];
-unsigned long field_14A804;
-unsigned long field_14A808;
-unsigned long field_14A80C;
-unsigned long field_14A810;
-unsigned long field_14A814;
+unsigned long ceiling_height_max;
+unsigned long ceiling_height_min;
+unsigned long ceiling_dist;
+unsigned long ceiling_search_dist;
+unsigned long ceiling_step;
 short field_14A818[18];
 char field_14A83C;
     //unsigned char level_file_number; // merged with level_number to get maps > 255
