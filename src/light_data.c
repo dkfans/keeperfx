@@ -38,7 +38,6 @@ extern "C" {
 #endif
 /******************************************************************************/
 
-DLLIMPORT char _DK_light_render_light_sub2(struct Light *lgt, int radius, int a3, unsigned int a4);
 DLLIMPORT int _DK_light_render_light_sub3(struct Light *lgt, int radius, int a3, unsigned int a4);
 
 /******************************************************************************/
@@ -1508,7 +1507,7 @@ static long light_render_light_sub1_sub1(
     MapSubtlCoord y = coord_subtile(pos_y);
     long shadow_end;
     long result;
-    long shadow_start;
+    long shadow_start = 0;
 
   if ( x == stl_x )
   {
