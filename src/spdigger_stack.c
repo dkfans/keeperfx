@@ -777,23 +777,18 @@ long check_out_unreinforced_place(struct Thing *thing)
     return _DK_check_out_unreinforced_place(thing);
 }
 
-long check_out_unreinforced_area(struct Thing *thing)
+static TbBool check_out_unreinforced_area(struct Thing *thing)
 {
     short distance = 0;
-    long reinforce_pos_x;
-    long reinforce_pos_y;
     struct Coord3d reinforce_pos;
     SubtlCodedCoords stl_num = 0;
-    struct Dungeon *dungeon;
     struct DiggerStack *dstack;
 
     struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
     long min_distance = 28;
     
-    dungeon = get_dungeon(thing->owner);
+    struct Dungeon *dungeon = get_dungeon(thing->owner);
     
-
-
     for ( int i = 0; dungeon->digger_stack_length > i; ++i )
     {
         dstack = &dungeon->digger_stack[i];
@@ -811,25 +806,27 @@ long check_out_unreinforced_area(struct Thing *thing)
             distance = get_2d_box_distance_xy(thing->mappos.x.stl.num, thing->mappos.y.stl.num, wall_stl_x, wall_stl_y);
             if ( min_distance > distance )
             {
+                MapSubtlCoord reinforce_stl_x;
+                MapSubtlCoord reinforce_stl_y;
                 if ( check_place_to_reinforce(thing, wall_slb_x, wall_slb_y) <= 0 )
                 {
                     dstack->task_type = CrSt_Unused;
                 }
-                else if ( check_out_uncrowded_reinforce_position(thing, stl_num, &reinforce_pos_x, &reinforce_pos_y) )
+                else if ( check_out_uncrowded_reinforce_position(thing, stl_num, &reinforce_stl_x, &reinforce_stl_y) )
                 {
-                    reinforce_pos.x.stl.num = reinforce_pos_x;
-                    reinforce_pos.y.stl.num = reinforce_pos_y;          
+                    reinforce_pos.x.stl.num = reinforce_stl_x;
+                    reinforce_pos.y.stl.num = reinforce_stl_y;          
                     min_distance = distance;
                 }
             }
         }
     }
     if ( distance == 28 || !setup_person_move_to_coord(thing, &reinforce_pos, 0) )
-        return 0;
+        return false;
     thing->continue_state = CrSt_ImpArrivesAtReinforce;
     cctrl->digger.working_stl = stl_num;
     cctrl->digger.consecutive_reinforcements = 0;
-    return 1;
+    return true;
 }
 
 TbBool check_out_unconverted_place(struct Thing *thing)
