@@ -513,7 +513,7 @@ static TbBool imp_will_soon_be_converting_at_excluding(struct Thing *creatng, Ma
 
     while (!thing_is_invalid(thing))
     {   
-        if ((thing->alloc_flags & TAlF_IsInLimbo) == 0 && (thing->state_flags & 2) == 0)
+        if ((thing->alloc_flags & TAlF_IsInLimbo) == 0 && (thing->state_flags & TF1_InCtrldLimbo) == 0)
         {
           if (thing->active_state == CrSt_MoveToPosition)
               continue_state = thing->continue_state;
