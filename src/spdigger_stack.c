@@ -511,12 +511,8 @@ static TbBool imp_will_soon_be_converting_at_excluding(struct Thing *creatng, Ma
     int k = 0;
 
 
-    while (1)
+    while (!thing_is_invalid(thing))
     {   
-        if (thing_is_invalid(thing))
-        {
-            return false;
-        }
         if ((thing->alloc_flags & TAlF_IsInLimbo) == 0 && (thing->state_flags & 2) == 0)
         {
           if (thing->active_state == CrSt_MoveToPosition)
@@ -531,7 +527,7 @@ static TbBool imp_will_soon_be_converting_at_excluding(struct Thing *creatng, Ma
                   MapCoordDelta loop_distance = get_2d_box_distance(&thing->mappos, &pos2);
                   MapCoordDelta imp_distance = get_2d_box_distance(&creatng->mappos, &pos2);
                   if (loop_distance <= imp_distance || loop_distance - imp_distance <= 6 * COORD_PER_STL)
-                      return 1;
+                      return true;
               }
           }
         }
@@ -543,9 +539,8 @@ static TbBool imp_will_soon_be_converting_at_excluding(struct Thing *creatng, Ma
             ERRORLOG("Infinite loop detected when sweeping things list");
             return false;
         }
-        
     }
-    return true;
+    return false;
 }
 
 TbBool check_out_unconverted_spot(struct Thing *creatng, MapSlabCoord slb_x, MapSlabCoord slb_y)
