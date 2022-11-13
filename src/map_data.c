@@ -233,7 +233,6 @@ void set_mapblk_filled_subtiles(struct Map *mapblk, long height)
     mapblk->data |= (height << 24) & 0xF000000;
 }
 
-// Reveal subtile for given player
 void reveal_map_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx)
 {
     unsigned short nflag = (1 << plyr_idx);
