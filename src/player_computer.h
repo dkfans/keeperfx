@@ -507,7 +507,7 @@ struct ComputerTask { // sizeof = 148
 
 struct OpponentRelation { // sizeof = 394
     unsigned long field_0;
-    short field_4;
+    short next_idx;
     long hate_amount;
     struct Coord3d pos_A[COMPUTER_SPARK_POSITIONS_COUNT];
 };
