@@ -2176,14 +2176,13 @@ void trig_render_md00(struct TrigLocalRend *tlr)
 void trig_render_md01(struct TrigLocalRend *tlr)
 {
     struct PolyPoint *pp;
-
+    TbBool pS_carry;
     pp = polyscans;
 
     for (; tlr->var_44; tlr->var_44--, pp++)
     {
         short pX, pY;
         short pS;
-        TbBool pS_carry;
         ushort colS;
         unsigned char *o;
 
@@ -2230,8 +2229,6 @@ void trig_render_md01(struct TrigLocalRend *tlr)
         for (;pY > 0; pY--, o++)
         {
             short colH, colL;
-            TbBool pS_carry;
-
             *o = colS >> 8;
 
             colL = colS;
