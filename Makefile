@@ -255,6 +255,7 @@ obj/magic.o \
 obj/main_game.o \
 obj/map_blocks.o \
 obj/map_columns.o \
+obj/map_ceiling.o \
 obj/map_data.o \
 obj/map_events.o \
 obj/map_locations.o \

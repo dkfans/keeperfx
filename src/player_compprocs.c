@@ -43,8 +43,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT long _DK_computer_look_for_opponent(struct Computer2 *comp, long stl_x, long stl_y, long a4);
-/******************************************************************************/
 long computer_setup_any_room(struct Computer2 *comp, struct ComputerProcess *cproc);
 long computer_setup_dig_to_entrance(struct Computer2 *comp, struct ComputerProcess *cproc);
 long computer_setup_dig_to_gold(struct Computer2 *comp, struct ComputerProcess *cproc);
@@ -1160,9 +1158,84 @@ long computer_check_safe_attack(struct Computer2 *comp, struct ComputerProcess *
     return computer_check_attack_with_filter(comp, cproc, hate_filter_enemy_with_not_many_creatures);
 }
 
-long computer_look_for_opponent(struct Computer2 *comp, long stl_x, long stl_y, long a4)
+static long computer_look_for_opponent(struct Computer2 *comp, MapSubtlCoord stl_x, MapSubtlCoord stl_y, MapSubtlDelta range)
 {
-   return _DK_computer_look_for_opponent(comp, stl_x, stl_y, a4);
+    int slab_owner_bit;
+    int block_flags;
+    int current_idx;
+    struct Coord3d *pos;
+
+    struct Dungeon *dungeon = comp->dungeon;
+    long computer_player_bit = 1 << dungeon->owner;
+    MapSubtlDelta radius = range / 2;
+
+    MapSubtlCoord stl_x_start = STL_PER_SLB * ((stl_x - radius) / STL_PER_SLB);
+    if (stl_x_start <= 0)
+        stl_x_start = 0;
+
+    MapSubtlCoord stl_y_start = STL_PER_SLB * ((stl_y - radius) / STL_PER_SLB);
+    if (stl_y_start <= 0)
+        stl_y_start = 0;
+
+    MapSubtlCoord stl_x_end = STL_PER_SLB * ((stl_x + radius) / STL_PER_SLB);
+    if (stl_x_end >= map_subtiles_x)
+        stl_x_end = map_subtiles_x;
+
+    MapSubtlCoord stl_y_end = STL_PER_SLB * ((stl_y + radius) / STL_PER_SLB);
+    if (stl_y_end >= map_subtiles_y)
+        stl_y_end = map_subtiles_y;
+
+    
+    MapSubtlCoord stl_y_current = stl_y_start;
+
+    while (stl_y_current < stl_y_end)
+    {
+        MapSubtlCoord stl_x_current = stl_x_start;
+        while (stl_x_current < stl_x_end)
+        {
+            struct SlabMap *slb = get_slabmap_for_subtile(stl_x_current, stl_y_current);
+
+            PlayerNumber slab_owner = slabmap_owner(slb);
+            if (dungeon->owner != slab_owner)
+            {
+                struct SlabAttr *slbattr = get_slab_kind_attrs(slb->kind);
+                if (slab_owner != game.neutral_player_num || (((slbattr->block_flags & (SlbAtFlg_Valuable | SlbAtFlg_Digable | SlbAtFlg_Filled)) == 0) && slb->kind != SlbT_LAVA))
+                {
+                    slab_owner_bit = 1 << slab_owner;
+
+                    
+                    if ((computer_player_bit & (1 << slab_owner)) == 0 && (get_slabmap_for_subtile(stl_x_current,stl_y_current)->flags & 7) == slab_owner)
+                    {
+                        if ((block_flags = slbattr->block_flags,
+                             ((block_flags & SlbAtFlg_Blocking) == 0) &&
+                                 slb->kind != SlbT_LAVA) ||
+                            (block_flags & 2) != 0)
+                        {
+                            computer_player_bit |= slab_owner_bit;
+                            current_idx = comp->opponent_relations[slab_owner].next_idx;
+                            slab_owner = slab_owner;
+                            pos = &comp->opponent_relations[slab_owner].pos_A[current_idx];
+                            comp->opponent_relations[slab_owner].next_idx = (current_idx + 1) % COMPUTER_SPARK_POSITIONS_COUNT;
+                            comp->opponent_relations[slab_owner].field_0 = game.play_gameturn;
+                            pos->x.stl.pos = stl_x_current;
+                            pos->x.stl.num = 0;
+                            pos->y.stl.pos = stl_y_current;
+                            pos->y.stl.num = 0;
+                            if ((1 << (game.neutral_player_num + 1)) - computer_player_bit == 1)
+                                return computer_player_bit;
+                        }
+                    }
+                }
+            }
+            stl_x_current += STL_PER_SLB;
+        }
+        stl_y_current += STL_PER_SLB;
+    }
+
+    if (1 << dungeon->owner == computer_player_bit)
+        return -1;
+    else
+        return computer_player_bit;
 }
 
 long computer_process_sight_of_evil(struct Computer2 *comp, struct ComputerProcess *cproc)

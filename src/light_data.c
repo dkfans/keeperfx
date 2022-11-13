@@ -38,10 +38,7 @@ extern "C" {
 #endif
 /******************************************************************************/
 
-DLLIMPORT TbBool _DK_light_render_light_sub1_sub2(int a1, SubtlCodedCoords stl_num, int a3);
-DLLIMPORT char _DK_light_render_light_sub2(struct Light *lgt, int radius, int a3, unsigned int a4);
 DLLIMPORT int _DK_light_render_light_sub3(struct Light *lgt, int radius, int a3, unsigned int a4);
-DLLIMPORT int _DK_light_render_light_sub1_sub1(unsigned int a1,unsigned int a2,int a3,unsigned int a4,unsigned int a5,long *a6,long *a7);
 
 /******************************************************************************/
 struct Light *light_allocate_light(void)
@@ -1497,23 +1494,86 @@ void light_set_lights_on(char state)
 }
 
 //sub_4080B0
-static int light_render_light_sub1_sub1(
-        unsigned int a1,
-        unsigned int a2,
+static long light_render_light_sub1_sub1(
+        unsigned int pos_x,
+        unsigned int pos_y,
         int a3,
-        unsigned int a4,
-        unsigned int a5,
-        long *a6,
-        long *a7)
+        MapSubtlCoord stl_x,
+        MapSubtlCoord stl_y,
+        long *shadow_limit_idx_start,
+        long *shadow_limit_idx_end)
 {
-  return _DK_light_render_light_sub1_sub1(a1,a2,a3,a4,a5,a6,a7);
+    MapSubtlCoord x = coord_subtile(pos_x);
+    MapSubtlCoord y = coord_subtile(pos_y);
+    long shadow_end;
+    long result;
+    long shadow_start = 0;
+
+  if ( x == stl_x )
+  {
+    if ( y <= stl_y )
+    {
+      shadow_start = LbArcTanAngle(subtile_coord(stl_x + 1, 0) - pos_x, subtile_coord(stl_y, 0) - pos_y) & LbFPMath_AngleMask;
+      shadow_end = LbArcTanAngle(subtile_coord(stl_x, 0) - pos_x, subtile_coord(stl_y, 0) - pos_y) & LbFPMath_AngleMask;
+    }
+    else
+    {
+      shadow_start = LbArcTanAngle(subtile_coord(stl_x, 0) - pos_x - 1, subtile_coord(stl_y + 1, 0) - pos_y) & LbFPMath_AngleMask;
+      shadow_end = LbArcTanAngle(subtile_coord(stl_x + 1, 0) - pos_x, subtile_coord(stl_y + 1, 0) - pos_y) & LbFPMath_AngleMask;
+    }
+  }
+  else if ( y == stl_y )
+  {
+    if ( x <= stl_x )
+    {
+      shadow_start = LbArcTanAngle(subtile_coord(stl_x, 0) - pos_x, subtile_coord(stl_y, 0) - pos_y) & LbFPMath_AngleMask;
+      shadow_end = LbArcTanAngle(subtile_coord(stl_x, 0) - pos_x, subtile_coord(stl_y + 1, 0) - pos_y) & LbFPMath_AngleMask;
+    }
+    else
+    {
+      shadow_start = LbArcTanAngle(subtile_coord(stl_x + 1, 0) - pos_x, subtile_coord(stl_y + 1, 0) - pos_y) & LbFPMath_AngleMask;
+      shadow_end = LbArcTanAngle(subtile_coord(stl_x + 1, 0) - pos_x, subtile_coord(stl_y, 0) - pos_y) & LbFPMath_AngleMask;
+    }
+  }
+  else
+  {
+    switch ( a3 )
+    {
+      case 1:
+        shadow_start = LbArcTanAngle(subtile_coord(stl_x, 0) - pos_x, subtile_coord(stl_y, 0) - pos_y) & LbFPMath_AngleMask;
+        shadow_end = LbArcTanAngle(subtile_coord(stl_x + 1, 0) - pos_x, subtile_coord(stl_y + 1, 0) - pos_y) & LbFPMath_AngleMask;
+        break;
+      case 2:
+        shadow_start = LbArcTanAngle(subtile_coord(stl_x + 1, 0) - pos_x, subtile_coord(stl_y, 0) - pos_y) & LbFPMath_AngleMask;
+        shadow_end = LbArcTanAngle(subtile_coord(stl_x, 0) - pos_x, subtile_coord(stl_y + 1, 0) - pos_y) & LbFPMath_AngleMask;
+        break;
+      case 3:
+        shadow_start = LbArcTanAngle(subtile_coord(stl_x + 1, 0) - pos_x, subtile_coord(stl_y + 1, 0) - pos_y) & LbFPMath_AngleMask;
+        shadow_end = LbArcTanAngle(subtile_coord(stl_x, 0) - pos_x, subtile_coord(stl_y, 0) - pos_y) & LbFPMath_AngleMask;
+        break;
+      case 4:
+        shadow_start = LbArcTanAngle(subtile_coord(stl_x, 0) - pos_x, subtile_coord(stl_y + 1, 0) - pos_y) & LbFPMath_AngleMask;
+        shadow_end = LbArcTanAngle(subtile_coord(stl_x + 1, 0) - pos_x, subtile_coord(stl_y, 0) - pos_y) & LbFPMath_AngleMask;
+        break;
+      default:
+        shadow_end = shadow_start;
+        break;
+    }
+  }
+  if ( (shadow_start / 512) << 9 != shadow_start )
+    shadow_start = (shadow_start + 1) & 0x7FF;
+  if ( (shadow_end / 512) << 9 != shadow_end )
+    shadow_end = (shadow_end - 1) & 0x7FF;
+  result = shadow_start;
+  *shadow_limit_idx_start = shadow_start;
+  *shadow_limit_idx_end = shadow_end;
+  return result;
 }
 
-//sub_408530
-static TbBool light_render_light_sub1_sub2(MapSubtlCoord stl_x, MapSubtlCoord stl_y, MapSubtlCoord stl_z)
+static TbBool point_is_above_floor(MapSubtlCoord stl_x, MapSubtlCoord stl_y, MapSubtlCoord stl_z)
 {
-  return _DK_light_render_light_sub1_sub2(stl_x, stl_y, stl_z);
-
+    struct Column *col = get_column_at(stl_x, stl_y);
+    return (get_column_floor_filled_subtiles(col) > stl_z);
 }
 
 static char light_render_light_dynamic_1(struct Light *lgt, int radius, int intensity, unsigned int max_1DD41_idx)
@@ -1597,7 +1657,7 @@ static char light_render_light_dynamic_1(struct Light *lgt, int radius, int inte
                             v24 = ( get_floor_filled_subtiles_at(stl_x - 1, stl_y - 1) <= lgt->mappos.z.stl.num );
                             break;
                             case 3:
-                            v24 = ( !light_render_light_sub1_sub2(stl_x, stl_y - 1, lgt->mappos.z.stl.num) );
+                            v24 = ( !point_is_above_floor(stl_x, stl_y - 1, lgt->mappos.z.stl.num) );
                             break;
                             case 4:
                             v24 = false;
@@ -1767,7 +1827,7 @@ static char light_render_light_dynamic_2(struct Light *lgt, int radius, int rend
                                 bool_2 = ((unsigned char)game.columns_data[game.map[256 * stl_y + 256 + stl_x].data & 0x7FF].bitfields >> 4 <= lgt_stl_z);
                                 break;
                             case 3:
-                                bool_2 = (!light_render_light_sub1_sub2(stl_x, stl_y - 1, lgt_stl_z));
+                                bool_2 = (!point_is_above_floor(stl_x, stl_y - 1, lgt_stl_z));
                                 break;
                             case 4:
                                 bool_2 = 0;
