@@ -495,61 +495,69 @@ long check_out_unprettied_or_unconverted_area(struct Thing *thing)
     return 0;
 }
 
-static long imp_will_soon_be_converting_at_excluding(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
-{           
-    struct Thing *thing;
-    struct Coord3d slab_pos;
-    slab_pos.x.stl.num = stl_x;
-    slab_pos.x.stl.pos = 0;
-    slab_pos.y.stl.num = stl_y;
-    slab_pos.x.stl.pos = 0;
-    int value = _DK_imp_will_soon_be_converting_at_excluding(creatng, stl_x, stl_y);;
+static long imp_will_soon_be_converting_at_excluding_new(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+    int owner;
+    int continue_state;
+    struct CreatureControl *cctrl;
+    struct Coord3d pos2;
 
-    struct Dungeon *dungeon = get_dungeon(creatng->owner);
-    thing = thing_get(dungeon->digger_list_start);
-    if (thing_is_invalid(thing))
-    {
-        if (value == 1)
-            JUSTMSG("testlog: error, 1");
-        return 0;
-    }
+    pos2.x.stl.num = stl_x;
+    pos2.x.stl.pos = 0;
+    pos2.y.stl.num = stl_y;
+    pos2.y.stl.pos = 0;
+    owner = creatng->owner;
+    struct Dungeon *dungeon = get_dungeon(owner);
+    struct Thing *thing = thing_get(dungeon->digger_list_start);
     int k = 0;
-    while (!thing_is_invalid(thing))
-    {
 
-        
-        struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
-        if (creature_control_invalid(cctrl))
+
+    while (1)
+    {   
+        if (thing_is_invalid(thing))
         {
-            ERRORLOG("Jump to invalid creature detected");
-            break;
+            return 0;
         }
+        if ((thing->alloc_flags & TAlF_IsInLimbo) == 0 && (thing->state_flags & 2) == 0)
+        {
+          if (thing->active_state == CrSt_MoveToPosition)
+              continue_state = thing->continue_state;
+          else
+              continue_state = thing->active_state;
+          if (continue_state == CrSt_ImpArrivesAtConvertDungeon)
+          {
+              cctrl = creature_control_get_from_thing(thing);
+              if (cctrl->moveto_pos.x.stl.num == stl_x && cctrl->moveto_pos.y.stl.num == stl_y)
+              {
+                  MapCoordDelta loop_distance = get_2d_box_distance(&thing->mappos, &pos2);
+                  MapCoordDelta imp_distance = get_2d_box_distance(&creatng->mappos, &pos2);
+                  if (loop_distance <= imp_distance || loop_distance - imp_distance <= 1536)
+                      return 1;
+              }
+          }
+        }
+        thing = thing_get(creature_control_get_from_thing(thing)->players_next_creature_idx);
 
-        if ((thing->alloc_flags & TAlF_IsInLimbo) == 0 && (thing->state_flags & TF1_InCtrldLimbo) == 0)
-        {                
-            if (get_creature_state_besides_interruptions(thing) == CrSt_ImpArrivesAtConvertDungeon)
-            {
-                
-                if (cctrl->moveto_pos.x.stl.pos == stl_x && cctrl->moveto_pos.y.stl.pos == stl_y)
-                {
-                    MapCoordDelta loop_digger_distance  = get_2d_box_distance(&thing->mappos, &slab_pos);
-                    MapCoordDelta param_digger_distance = get_2d_box_distance(&creatng->mappos, &slab_pos);
-                    if (loop_digger_distance <= param_digger_distance || loop_digger_distance - param_digger_distance <= subtile_coord(6,0))
-                        break;
-                }
-            }
-        }
-        thing = thing_get(cctrl->players_next_creature_idx);
         k++;
-        if (k > CREATURES_COUNT)
+        if (k > THINGS_COUNT)
         {
-            ERRORLOG("Infinite loop detected when sweeping creatures list");
-            break;
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            return 0;
         }
+        
     }
-    if (value == 0)
-        JUSTMSG("testlog: error, 0");
     return 1;
+}
+
+static long imp_will_soon_be_converting_at_excluding(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{  
+    int old = _DK_imp_will_soon_be_converting_at_excluding(creatng, stl_x, stl_y);
+    int new = imp_will_soon_be_converting_at_excluding_new(creatng, stl_x, stl_y);
+    if(new != old)
+        JUSTMSG("testlog: %d,%d",old , new);
+
+    return new;
+
 }
 
 TbBool check_out_unconverted_spot(struct Thing *creatng, MapSlabCoord slb_x, MapSlabCoord slb_y)
