@@ -3609,7 +3609,7 @@ static void create_shadows(struct Thing *thing, struct EngineCoord *ecor, struct
         int angle_sin;
         int angle_cos;
         base_z = 8 * dim_tw;
-        base_y = 8 * (6 - dim_oh - dim_th);
+        base_y = 8 * (6 + dim_oh + dim_th);
         angle_cos = LbCosL(sh_angle);
         angle_sin = LbSinL(sh_angle);
         int base_th;
