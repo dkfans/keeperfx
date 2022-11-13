@@ -530,7 +530,7 @@ static TbBool imp_will_soon_be_converting_at_excluding(struct Thing *creatng, Ma
               {
                   MapCoordDelta loop_distance = get_2d_box_distance(&thing->mappos, &pos2);
                   MapCoordDelta imp_distance = get_2d_box_distance(&creatng->mappos, &pos2);
-                  if (loop_distance <= imp_distance || loop_distance - imp_distance <= 1536)
+                  if (loop_distance <= imp_distance || loop_distance - imp_distance <= 6 * COORD_PER_STL)
                       return 1;
               }
           }
