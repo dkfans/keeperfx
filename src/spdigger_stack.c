@@ -494,7 +494,7 @@ long check_out_unprettied_or_unconverted_area(struct Thing *thing)
     return 0;
 }
 
-static long imp_will_soon_be_converting_at_excluding(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+static TbBool imp_will_soon_be_converting_at_excluding(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     int owner;
     int continue_state;
@@ -515,7 +515,7 @@ static long imp_will_soon_be_converting_at_excluding(struct Thing *creatng, MapS
     {   
         if (thing_is_invalid(thing))
         {
-            return 0;
+            return false;
         }
         if ((thing->alloc_flags & TAlF_IsInLimbo) == 0 && (thing->state_flags & 2) == 0)
         {
@@ -541,11 +541,11 @@ static long imp_will_soon_be_converting_at_excluding(struct Thing *creatng, MapS
         if (k > THINGS_COUNT)
         {
             ERRORLOG("Infinite loop detected when sweeping things list");
-            return 0;
+            return false;
         }
         
     }
-    return 1;
+    return true;
 }
 
 TbBool check_out_unconverted_spot(struct Thing *creatng, MapSlabCoord slb_x, MapSlabCoord slb_y)
