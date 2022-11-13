@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "vidmode.h"
 
 #include "globals.h"
@@ -43,6 +44,8 @@
 #include "game_legacy.h"
 #include "creature_graphics.h"
 #include "keeperfx.hpp"
+#include "sprites.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -60,7 +63,8 @@ struct TbSetupSprite setup_sprites_minimal[] = {
   {NULL,                  NULL,                   NULL},
 };
 
-static TbSprite *gui_panel_sprites_ptr = &gui_panel_sprites[0];
+auto gui_panel_sprites_ptr = &gui_panel_sprites[0];
+auto end_gui_panel_sprites = &gui_panel_sprites[GUI_PANEL_SPRITES_COUNT];
 
 struct TbSetupSprite setup_sprites[] = {
   {&pointer_sprites,      &end_pointer_sprites,   &pointer_data}, // 144 Sprites
@@ -69,7 +73,7 @@ struct TbSetupSprite setup_sprites[] = {
   {&winfont,              &end_winfonts,          &winfont_data},
   {&button_sprite,        &end_button_sprites,    &button_sprite_data}, // 215 Sprites
   {&port_sprite,          &end_port_sprites,      &port_sprite_data}, // 0 Sprites
-  {&gui_panel_sprites_ptr,    &end_gui_panel_sprites, &gui_panel_sprite_data}, // 517 Sprites
+  {&gui_panel_sprites_ptr,    &end_gui_panel_sprites, &gui_panel_sprite_data}, // 600 Sprites
   {NULL,                  NULL,                   NULL},
 };
 
@@ -236,7 +240,7 @@ struct TbLoadFiles legal_load_files[] = {
 
 struct TbLoadFiles game_load_files[] = {
     {"*SCRATCH",         &scratch,                               NULL,                                    0x10000, 0, 0},
-    {"*TEXTURE_PAGE",    (unsigned char **)&block_mem,                             NULL,                     max(sizeof(block_mem),960*720u), 0, 0},// Store whole texture image or land view image
+    {"*TEXTURE_PAGE",    (unsigned char **)&block_mem, NULL, max(sizeof(block_mem), size_t(960*720)), 0, 0},// Store whole texture image or land view image
 #ifdef SPRITE_FORMAT_V2
     {"data/thingspr-32.tab",(unsigned char**)&creature_table,    NULL,                                          0, 0, 0},
 #else

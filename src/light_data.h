@@ -22,7 +22,7 @@
 #include "globals.h"
 #include "bflib_basics.h"
 
-#define LIGHT_MAX_RANGE        30
+#define LIGHT_MAX_RANGE       256 // Large enough to cover the whole map
 #define LIGHTS_COUNT          400
 #define MINIMUM_LIGHTNESS    8192
 
@@ -44,6 +44,10 @@ enum LightFlags {
     LgtF_Unkn02       = 0x02,
     LgtF_Dynamic      = 0x04,
     LgtF_Unkn08       = 0x08,
+    LgtF_Unkn10       = 0x10,
+    LgtF_Unkn20       = 0x20,
+    LgtF_Unkn40       = 0x40,
+    LgtF_Unkn80       = 0x80,
 };
 
 struct Light { // sizeof = 46
@@ -56,7 +60,7 @@ struct Light { // sizeof = 46
   unsigned char field_6;
   unsigned char field_7;
   unsigned char field_8;
-  unsigned char field_9;
+  unsigned char min_radius;
   unsigned char field_A[4];
   unsigned short index;
   unsigned short shadow_index;
@@ -68,9 +72,18 @@ struct Light { // sizeof = 46
   unsigned short field_1E;
   unsigned short field_20;
   unsigned short field_22;
-  unsigned short field_24;
+  unsigned short min_intensity;
   unsigned short next_in_list;
   struct Coord3d mappos;
+};
+
+struct LightAdd // Additional light data
+{
+    TbBool interp_has_been_initialized;
+    struct Coord3d previous_mappos;
+    struct Coord3d interp_mappos;
+    long last_turn_drawn;
+    long disable_interp_for_turns;
 };
 
 struct InitLight { // sizeof=0x14
@@ -98,7 +111,7 @@ struct LightSystemState {
 };
 
 /******************************************************************************/
-DLLIMPORT long _DK_light_bitmask[32];
+DLLIMPORT unsigned long _DK_light_bitmask[32];
 #define light_bitmask _DK_light_bitmask
 DLLIMPORT long _DK_stat_light_needs_updating;
 #define stat_light_needs_updating _DK_stat_light_needs_updating
@@ -120,7 +133,6 @@ DLLIMPORT long _DK_light_out_of_date_stat_lights;
 void clear_stat_light_map(void);
 void update_light_render_area(void);
 void light_delete_light(long idx);
-void light_initialise_lighting_tables(void);
 void light_initialise(void);
 void light_turn_light_off(long num);
 void light_turn_light_on(long num);

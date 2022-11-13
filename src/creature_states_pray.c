@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "creature_states_pray.h"
 #include "globals.h"
 
@@ -41,6 +42,7 @@
 #include "power_hand.h"
 #include "gui_soundmsgs.h"
 #include "game_legacy.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -89,7 +91,7 @@ short at_temple(struct Thing *thing)
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     cctrl->target_room_id = 0;
     struct Room* room = get_room_thing_is_on(thing);
-    if (!room_initially_valid_as_type_for_thing(room, get_room_for_job(Job_TEMPLE_PRAY), thing))
+    if (!room_initially_valid_as_type_for_thing(room, get_room_role_for_job(Job_TEMPLE_PRAY), thing))
     {
         WARNLOG("Room %s owned by player %d is invalid for %s index %d",room_code_name(room->kind),(int)room->owner,thing_model_name(thing),(int)thing->index);
         set_start_state(thing);
@@ -148,7 +150,7 @@ long process_temple_cure(struct Thing *creatng)
 CrCheckRet process_temple_function(struct Thing *thing)
 {
     struct Room* room = get_room_thing_is_on(thing);
-    if (!room_still_valid_as_type_for_thing(room, get_room_for_job(Job_TEMPLE_PRAY), thing))
+    if (!room_still_valid_as_type_for_thing(room, get_room_role_for_job(Job_TEMPLE_PRAY), thing))
     {
         remove_creature_from_work_room(thing);
         set_start_state(thing);
@@ -346,7 +348,7 @@ short creature_being_summoned(struct Thing *thing)
     }
     if (cctrl->word_9A <= 0)
     {
-        get_keepsprite_unscaled_dimensions(thing->anim_sprite, thing->move_angle_xy, thing->field_48, &orig_w, &orig_h, &unsc_w, &unsc_h);
+        get_keepsprite_unscaled_dimensions(thing->anim_sprite, thing->move_angle_xy, thing->current_frame, &orig_w, &orig_h, &unsc_w, &unsc_h);
         create_effect(&thing->mappos, TngEff_Explosion4, thing->owner);
         thing->movement_flags |= TMvF_Unknown04;
         cctrl->word_9A = 1;

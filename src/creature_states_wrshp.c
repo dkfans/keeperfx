@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "creature_states_wrshp.h"
 #include "globals.h"
 
@@ -41,6 +42,7 @@
 
 #include "game_legacy.h"
 #include "keeperfx.hpp"
+#include "post_inc.h"
 
 /******************************************************************************/
 TbBool creature_can_do_manufacturing(const struct Thing *creatng)
@@ -203,7 +205,7 @@ short at_workshop_room(struct Thing *creatng)
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     cctrl->target_room_id = 0;
     struct Room* room = get_room_thing_is_on(creatng);
-    if (!room_initially_valid_as_type_for_thing(room, get_room_for_job(Job_MANUFACTURE), creatng))
+    if (!room_initially_valid_as_type_for_thing(room, get_room_role_for_job(Job_MANUFACTURE), creatng))
     {
         WARNLOG("Room %s owned by player %d is invalid for %s",room_code_name(room->kind),(int)room->owner,thing_model_name(creatng));
         set_start_state(creatng);

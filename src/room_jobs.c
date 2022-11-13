@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "room_jobs.h"
 
 #include "globals.h"
@@ -44,6 +45,7 @@
 #include "creature_states_scavn.h"
 #include "creature_states_lair.h"
 #include "creature_states_pray.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -384,7 +386,7 @@ TbBool creature_setup_random_move_for_job_in_room_f(struct Thing *creatng, struc
 
 TbBool room_is_correct_to_perform_job(const struct Thing *creatng, const struct Room *room, CreatureJob jobpref)
 {
-    if ((get_room_for_job(jobpref) != RoK_NONE) && (room->kind != get_room_for_job(jobpref))) {
+    if ((get_room_role_for_job(jobpref) != RoRoF_None) && (!room_role_matches(room->kind,get_room_role_for_job(jobpref)))) {
         return false;
     }
     if (creatng->owner == room->owner)

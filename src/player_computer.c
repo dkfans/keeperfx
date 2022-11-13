@@ -17,6 +17,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "player_computer.h"
 
 #include <limits.h>
@@ -45,6 +46,7 @@
 #include "game_legacy.h"
 #include "game_merge.h"
 #include "keeperfx.hpp"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -80,9 +82,6 @@ char const check_enough_imps_text[] = "CHECK FOR ENOUGH IMPS";
 char const move_creature_to_train_text[] = "MOVE CREATURE TO TRAINING";
 char const move_creature_to_best_text[] = "MOVE CREATURE TO BEST ROOM";
 char const computer_check_hates_text[] = "COMPUTER CHECK HATES";
-
-/******************************************************************************/
-DLLIMPORT long _DK_count_creatures_for_defend_pickup(struct Computer2 *comp);
 
 /******************************************************************************/
 // Function definition needed to compare pointers - remove pending
@@ -157,7 +156,7 @@ struct ComputerTask * able_to_build_room_at_task(struct Computer2 *comp, RoomKin
             unsigned short max_radius = ctask->create_room.width / 2;
             if (max_radius <= ctask->create_room.height / 2)
               max_radius = ctask->create_room.height / 2;
-            struct ComputerTask* roomtask = able_to_build_room(comp, &ctask->pos_64, rkind, width_slabs, height_slabs, area + max_radius + 1, a6);
+            struct ComputerTask* roomtask = able_to_build_room(comp, &ctask->new_room_pos, rkind, width_slabs, height_slabs, area + max_radius + 1, a6);
             if (!computer_task_invalid(roomtask)) {
                 return roomtask;
             }
@@ -334,8 +333,8 @@ long computer_finds_nearest_task_to_gold(const struct Computer2 *comp, const str
         // Per-task code
         if ( ((ctask->flags & ComTsk_Unkn0001) != 0) && ((ctask->flags & ComTsk_Unkn0002) != 0) )
         {
-            MapCoordDelta delta_x = ctask->pos_64.x.val - (MapCoordDelta)task_pos.x.val;
-            MapCoordDelta delta_y = ctask->pos_64.y.val - (MapCoordDelta)task_pos.y.val;
+            MapCoordDelta delta_x = ctask->new_room_pos.x.val - (MapCoordDelta)task_pos.x.val;
+            MapCoordDelta delta_y = ctask->new_room_pos.y.val - (MapCoordDelta)task_pos.y.val;
             long distance = LbDiagonalLength(abs(delta_x), abs(delta_y));
             // Convert to subtiles
             distance = coord_subtile(distance);
@@ -406,7 +405,7 @@ long computer_finds_nearest_room_to_gold(struct Computer2 *comp, struct Coord3d 
         new_dist = computer_finds_nearest_task_to_gold(comp, gldlook, &ctask);
         if (dig_distance > new_dist)
         {
-            spos = &ctask->pos_64;
+            spos = &ctask->new_room_pos;
             dig_distance = new_dist;
             gldlooksel = gldlook;
             SYNCDBG(8,"Distance from task at (%d,%d) is %d",(int)spos->x.stl.num,(int)spos->y.stl.num,(int)dig_distance);
@@ -536,7 +535,7 @@ void get_opponent(struct Computer2 *comp, struct THate hates[])
     {
         struct THate* hate = &hates[i];
         struct OpponentRelation* oprel = &comp->opponent_relations[hate->plyr_idx];
-        int ptidx = oprel->field_4;
+        int ptidx = oprel->next_idx;
         if (ptidx > 0)
           ptidx--;
         for (long n = 0; n < COMPUTER_SPARK_POSITIONS_COUNT; n++)
@@ -1069,7 +1068,51 @@ long computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * che
 
 long count_creatures_for_defend_pickup(struct Computer2 *comp)
 {
-    return _DK_count_creatures_for_defend_pickup(comp);
+  struct Thing *i;
+  struct Dungeon *dungeon = comp->dungeon;
+  int count = 0;
+  int k = 0;
+
+  for ( i = thing_get(dungeon->creatr_list_start);
+        !thing_is_invalid(i);
+        i = thing_get(creature_control_get_from_thing(i)->players_next_creature_idx) )
+    {
+        if ( can_thing_be_picked_up_by_player(i, dungeon->owner) )
+        {   
+            struct CreatureControl* cctrl = creature_control_get_from_thing(i);
+            if ( !cctrl->combat_flags )
+            {
+                int crtr_state = get_creature_state_besides_move(i);
+                if (( crtr_state != CrSt_CreatureCombatFlee ) &&
+                    ( crtr_state != CrSt_ArriveAtAlarm ) &&
+                    ((cctrl->spell_flags & CSAfF_CalledToArms) == 0 ) &&
+                    ( crtr_state != CrSt_CreatureGoingHomeToSleep ) &&
+                    ( crtr_state != CrSt_CreatureSleep ) &&
+                    ( crtr_state != CrSt_AtLairToSleep ) &&
+                    ( crtr_state != CrSt_CreatureChooseRoomForLairSite ) &&
+                    ( crtr_state != CrSt_CreatureAtNewLair ) &&
+                    ( crtr_state != CrSt_CreatureWantsAHome ) &&
+                    ( crtr_state != CrSt_CreatureChangeLair ) &&
+                    ( crtr_state != CrSt_CreatureAtChangedLair ) &&
+                    ( crtr_state != CrSt_CreatureBeingDropped ))
+                {
+                    struct CreatureStats* crstat = creature_stats_get_from_thing(i);
+                    if (100 * i->health / (gameadd.crtr_conf.exp.health_increase_on_exp * crstat->health * cctrl->explevel / 100 + crstat->health) > 20 )
+                    {
+                        ++count;
+                    }
+                }
+            }
+        }
+
+        k++;
+        if (k > CREATURES_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping creatures list");
+            break;
+        }
+    }
+    return count;
 }
 
 /**
@@ -1239,7 +1282,7 @@ TbBool setup_a_computer_player(PlayerNumber plyr_idx, long comp_model)
     {
         struct OpponentRelation* oprel = &comp->opponent_relations[i];
         oprel->field_0 = 0;
-        oprel->field_4 = 0;
+        oprel->next_idx = 0;
         if (i == plyr_idx) {
             oprel->hate_amount = LONG_MIN;
         } else {

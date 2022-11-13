@@ -17,6 +17,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "bflib_fmvids.h"
 
 #include <math.h>
@@ -34,6 +35,7 @@
 #include "bflib_keybrd.h"
 #include "bflib_inputctrl.h"
 #include "bflib_fileio.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {

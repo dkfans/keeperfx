@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "thing_corpses.h"
 
 #include "globals.h"
@@ -39,6 +40,7 @@
 #include "gui_soundmsgs.h"
 #include "game_legacy.h"
 #include "keeperfx.hpp"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -202,7 +204,7 @@ long move_dead_creature(struct Thing *thing)
     } else
     {
         // Even if no velocity, update field_60
-        thing->field_60 = get_thing_height_at(thing, &thing->mappos);
+        thing->floor_height = get_thing_height_at(thing, &thing->mappos);
     }
     return 1;
 }
@@ -445,7 +447,7 @@ struct Thing *create_dead_creature(const struct Coord3d *pos, ThingModel model, 
     thing->movement_flags |= TMvF_Unknown08;
     thing->creation_turn = game.play_gameturn;
     if (creatures[model].field_7) {
-        thing->field_4F |= (TF4F_Transpar_Alpha);
+        thing->rendering_flags |= (TRF_Transpar_Alpha);
     }
     add_thing_to_its_class_list(thing);
     place_thing_in_mapwho(thing);

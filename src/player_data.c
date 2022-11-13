@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "player_data.h"
 
 #include "globals.h"
@@ -30,6 +31,7 @@
 #include "frontend.h"
 #include "thing_objects.h"
 #include "power_hand.h"
+#include "post_inc.h"
 
 /******************************************************************************/
 /******************************************************************************/
@@ -244,6 +246,34 @@ TbBool set_ally_with_player(PlayerNumber plyridx, PlayerNumber ally_idx, TbBool 
     return true;
 }
 
+TbBool is_player_ally_locked(PlayerNumber plyridx, PlayerNumber ally_idx)
+{
+    struct PlayerInfo* player = get_player(plyridx);
+    if (player_invalid(player))
+        return false;
+
+    if (ally_idx < PLAYER1 || ally_idx > PLAYER3)
+        return false;
+
+    return player->allied_players & (0x20 << (ally_idx - PLAYER1));
+}
+
+void set_player_ally_locked(PlayerNumber plyridx, PlayerNumber ally_idx, TbBool value)
+{
+    struct PlayerInfo* player = get_player(plyridx);
+    if (player_invalid(player))
+        return;
+
+    if (ally_idx < PLAYER1 || ally_idx > PLAYER3)
+        return;
+
+    unsigned char mask = 0x20 << (ally_idx - PLAYER1);
+    if (value)
+        player->allied_players |= mask;
+    else
+        player->allied_players &= ~mask;
+}
+
 void set_player_state(struct PlayerInfo *player, short nwrk_state, long chosen_kind)
 {
   struct PlayerInfoAdd* playeradd;
@@ -270,7 +300,7 @@ void set_player_state(struct PlayerInfo *player, short nwrk_state, long chosen_k
   if (is_my_player(player))
     game.field_14E92E = 0;
   if ((player->work_state != PSt_CreatrQuery) && (player->work_state != PSt_CreatrInfo)
-     && (player->work_state != PSt_CreatrQueryAll) && (player->work_state != PSt_CreatrInfoAll)
+     && (player->work_state != PSt_QueryAll) && (player->work_state != PSt_CreatrInfoAll)
      && (player->work_state != PSt_CtrlDirect) && (player->work_state != PSt_CtrlPassngr)
      && (player->work_state != PSt_FreeCtrlDirect) && (player->work_state != PSt_FreeCtrlPassngr))
   {
@@ -301,7 +331,7 @@ void set_player_state(struct PlayerInfo *player, short nwrk_state, long chosen_k
               break;
           }
           player->hand_thing_idx = thing->index;
-          set_power_hand_graphic(player->id_number, 785, 256);
+          set_power_hand_graphic(player->id_number, thing->anim_sprite, thing->anim_speed);
           place_thing_in_limbo(thing);
           break;
       }
@@ -351,13 +381,13 @@ void set_player_mode(struct PlayerInfo *player, unsigned short nview)
   {
   case PVT_DungeonTop:
   {
-      long i = PVM_IsometricView;
-      if (player->view_mode_restore == PVM_FrontView)
-      {
-        set_engine_view(player, PVM_IsometricView);
-        i = PVM_FrontView;
+      if (player->view_mode_restore == PVM_FrontView) {
+        set_engine_view(player, PVM_FrontView);
+      } else if (player->view_mode_restore == PVM_IsoStraightView) {
+        set_engine_view(player, PVM_IsoStraightView);
+      } else {
+        set_engine_view(player, PVM_IsoWibbleView);
       }
-      set_engine_view(player, i);
       if (is_my_player(player))
         toggle_status_menu((game.operation_flags & GOF_ShowPanel) != 0);
       if ((game.operation_flags & GOF_ShowGui) != 0)
@@ -393,10 +423,13 @@ void reset_player_mode(struct PlayerInfo *player, unsigned short nview)
   {
     case PVT_DungeonTop:
       player->work_state = player->continue_work_state;
-      if (player->view_mode_restore == PVM_FrontView)
+      if (player->view_mode_restore == PVM_FrontView) {
         set_engine_view(player, PVM_FrontView);
-      else
-        set_engine_view(player, PVM_IsometricView);
+      } else if (player->view_mode_restore == PVM_IsoStraightView) {
+        set_engine_view(player, PVM_IsoStraightView);
+      } else {
+        set_engine_view(player, PVM_IsoWibbleView);
+      }
       if (is_my_player(player))
         game.numfield_D &= ~GNFldD_Unkn01;
       break;

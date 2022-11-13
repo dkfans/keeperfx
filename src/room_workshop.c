@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "room_workshop.h"
 
 #include "globals.h"
@@ -36,6 +37,7 @@
 #include "player_instances.h"
 #include "creature_states.h"
 #include "keeperfx.hpp"
+#include "post_inc.h"
 
 /******************************************************************************/
 TbBool add_workshop_object_to_workshop(struct Room *room,struct Thing *cratetng)
@@ -517,8 +519,8 @@ long get_doable_manufacture_with_minimal_amount_available(const struct Dungeon *
     long amount;
     int chosen_class = TCls_Empty;
     int chosen_kind = 0;
-    int chosen_amount = LONG_MAX;
-    int chosen_level = LONG_MAX;
+    int chosen_amount = INT_MAX;
+    int chosen_level = INT_MAX;
     struct DungeonAdd* dungeonadd = get_dungeonadd(dungeon->owner);
 
     // Try getting door kind for manufacture
