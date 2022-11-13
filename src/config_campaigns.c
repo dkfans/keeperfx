@@ -412,8 +412,14 @@ short parse_campaign_common_blocks(struct GameCampaign *campgn,char *buf,long le
       case 1: // NAME
           i = get_conf_parameter_whole(buf,&pos,len,campgn->name,LINEMSG_SIZE);
           if (i <= 0)
+          {
               CONFWRNLOG("Couldn't read \"%s\" command parameter in %s %s file.",
                 COMMAND_TEXT(cmd_num), campgn->name, config_textname);
+          }
+          else
+          {
+              LbStringCopy(campgn->display_name,campgn->name,LINEMSG_SIZE);
+          }
           break;
       case 2: // SINGLE_LEVELS
           while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
@@ -646,7 +652,7 @@ short parse_campaign_common_blocks(struct GameCampaign *campgn,char *buf,long le
                 if (k > 0) {
                     const char* newname = get_string(STRINGS_MAX+k);
                     if (strcasecmp(newname,"") != 0) {
-                        LbStringCopy(campgn->name,newname,LINEMSG_SIZE); // use the index provided in the config file to get a specific UI string
+                        LbStringCopy(campgn->display_name,newname,LINEMSG_SIZE); // use the index provided in the config file to get a specific UI string
                     }
                     else {
                     CONFWRNLOG("Couldn't read \"%s\" command parameter in %s %s file. NAME_TEXT_ID is too high, NAME used instead.",

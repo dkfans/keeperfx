@@ -282,6 +282,11 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned 
     case SVar_CREATURES_TRANSFERRED:
         dungeonadd = get_dungeonadd(plyr_idx);
         return dungeonadd->creatures_transferred;
+    case SVar_ALLIED_PLAYER:
+    {
+        struct PlayerInfo* player = get_player(plyr_idx);
+        return player_allied_with(player, validx);
+    }
     default:
         break;
     };

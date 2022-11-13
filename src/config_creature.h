@@ -173,7 +173,7 @@ struct Thing;
 struct CreatureData {
       unsigned char flags;
       short lair_tngmodel;
-      short namestr_idx;
+      short namestr_idx_UNUSED;
 };
 
 struct Creatures { // sizeof = 16

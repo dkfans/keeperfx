@@ -60,6 +60,8 @@ long MapDiagonalLength = 0;
 TbBool reset_all_minimap_interpolation = false;
 const TbPixel RoomColours[] = {132, 92, 164, 183, 21, 132};
 /******************************************************************************/
+struct InterpMinimap interp_minimap;
+
 void pannel_map_draw_pixel(RealScreenCoord x, RealScreenCoord y, TbPixel col)
 {
     if ((y >= 0) && (y < MapDiagonalLength))
@@ -185,7 +187,7 @@ void interpolate_minimap_thing(struct Thing *thing, struct ThingAdd *thingadd, s
         thingadd->interp_minimap_pos_x = interpolate(thingadd->interp_minimap_pos_x, thingadd->previous_minimap_pos_x, current_minimap_x);
         thingadd->interp_minimap_pos_y = interpolate(thingadd->interp_minimap_pos_y, thingadd->previous_minimap_pos_y, current_minimap_y);
     }
-    if (thingadd->interp_minimap_update_turn != game.play_gameturn) {
+    if ((thingadd->interp_minimap_update_turn != game.play_gameturn) || (game.operation_flags & GOF_Paused) != 0) {
         thingadd->interp_minimap_update_turn = game.play_gameturn;
         thingadd->previous_minimap_pos_x = current_minimap_x;
         thingadd->previous_minimap_pos_y = current_minimap_y;
@@ -557,10 +559,13 @@ int draw_overlay_creatures(struct PlayerInfo *player, long units_per_px, long zo
                         col1 = player_room_colours[(uchar)cctrl->party.target_plyr_idx];
                         col2 = player_room_colours[thing->owner];
                     }
-                    long zmpos_x;
-                    long zmpos_y;
-                    zmpos_x = ((stl_num_decode_x(memberpos) - (MapSubtlDelta)cam->mappos.x.stl.num) << 8) / zoom;
-                    zmpos_y = ((stl_num_decode_y(memberpos) - (MapSubtlDelta)cam->mappos.y.stl.num) << 8) / zoom;
+                    long zmpos_x = ((stl_num_decode_x(memberpos) - (MapSubtlDelta)cam->mappos.x.stl.num) << 8);
+                    long zmpos_y = ((stl_num_decode_y(memberpos) - (MapSubtlDelta)cam->mappos.y.stl.num) << 8);
+                    zmpos_x += (interp_minimap.previous_x-interp_minimap.x) >> 8;
+                    zmpos_y += (interp_minimap.previous_y-interp_minimap.y) >> 8;
+                    zmpos_x /= zoom;
+                    zmpos_y /= zoom;
+
                     long mapos_x;
                     long mapos_y;
                     mapos_x = (zmpos_x * LbCosL(interpolated_cam_orient_a) + zmpos_y * LbSinL(interpolated_cam_orient_a)) >> 16;
@@ -1145,11 +1150,7 @@ void auto_gen_tables(long units_per_px)
         setup_pannel_colours();
     }
 }
-long interp_minimap_x;
-long interp_minimap_y;
-long interp_minimap_previous_x;
-long interp_minimap_previous_y;
-long interp_minimap_get_previous;
+
 void pannel_map_draw_slabs(long x, long y, long units_per_px, long zoom)
 {
     PannelMapX = scale_value_for_resolution_with_upp(x,units_per_px);
@@ -1176,21 +1177,21 @@ void pannel_map_draw_slabs(long x, long y, long units_per_px, long zoom)
         long current_minimap_y = (cam->mappos.y.stl.num << 16);
         if (reset_all_minimap_interpolation == true)
         {
-            interp_minimap_x = current_minimap_x;
-            interp_minimap_y = current_minimap_y;
-            interp_minimap_previous_x = current_minimap_x;
-            interp_minimap_previous_y = current_minimap_y;
+            interp_minimap.x = current_minimap_x;
+            interp_minimap.y = current_minimap_y;
+            interp_minimap.previous_x = current_minimap_x;
+            interp_minimap.previous_y = current_minimap_y;
         } else {
-            interp_minimap_x = interpolate(interp_minimap_x, interp_minimap_previous_x, current_minimap_x);
-            interp_minimap_y = interpolate(interp_minimap_y, interp_minimap_previous_y, current_minimap_y);
+            interp_minimap.x = interpolate(interp_minimap.x, interp_minimap.previous_x, current_minimap_x);
+            interp_minimap.y = interpolate(interp_minimap.y, interp_minimap.previous_y, current_minimap_y);
         }
-        if (interp_minimap_get_previous != game.play_gameturn) {
-            interp_minimap_get_previous = game.play_gameturn;
-            interp_minimap_previous_x = current_minimap_x;
-            interp_minimap_previous_y = current_minimap_y;
+        if ((interp_minimap.get_previous != game.play_gameturn) || (game.operation_flags & GOF_Paused) != 0) {
+            interp_minimap.get_previous = game.play_gameturn;
+            interp_minimap.previous_x = current_minimap_x;
+            interp_minimap.previous_y = current_minimap_y;
         }
-        shift_stl_x = interp_minimap_x - MapDiagonalLength * shift_x / 2 - MapDiagonalLength * shift_y / 2;
-        shift_stl_y = interp_minimap_y - MapDiagonalLength * shift_y / 2 + MapDiagonalLength * shift_x / 2;
+        shift_stl_x = interp_minimap.x - MapDiagonalLength * shift_x / 2 - MapDiagonalLength * shift_y / 2;
+        shift_stl_y = interp_minimap.y - MapDiagonalLength * shift_y / 2 + MapDiagonalLength * shift_x / 2;
     }
 
     TbPixel *bkgnd_line;

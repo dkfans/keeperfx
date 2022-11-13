@@ -190,6 +190,7 @@
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\main_game.c" />
     <ClCompile Include="src\map_blocks.c" />
+    <ClCompile Include="src\map_ceiling.c" />
     <ClCompile Include="src\map_columns.c" />
     <ClCompile Include="src\map_data.c" />
     <ClCompile Include="src\map_events.c" />
@@ -413,6 +414,7 @@
     <ClInclude Include="src\lvl_script_value.h" />
     <ClInclude Include="src\magic.h" />
     <ClInclude Include="src\map_blocks.h" />
+    <ClInclude Include="src\map_ceiling.h" />
     <ClInclude Include="src\map_columns.h" />
     <ClInclude Include="src\map_data.h" />
     <ClInclude Include="src\map_events.h" />
