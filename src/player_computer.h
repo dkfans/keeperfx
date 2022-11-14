@@ -357,7 +357,7 @@ struct ComputerTask { // sizeof = 148
     };
     long lastrun_turn;
     long field_60;
-    struct Coord3d pos_64; // new room position?
+    struct Coord3d new_room_pos;
     struct Coord3d pos_6A;
     union {
     struct {
@@ -507,7 +507,7 @@ struct ComputerTask { // sizeof = 148
 
 struct OpponentRelation { // sizeof = 394
     unsigned long field_0;
-    short field_4;
+    short next_idx;
     long hate_amount;
     struct Coord3d pos_A[COMPUTER_SPARK_POSITIONS_COUNT];
 };

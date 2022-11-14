@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "dungeon_stats.h"
 #include "globals.h"
 #include "bflib_basics.h"
@@ -30,6 +31,7 @@
 #include "config_terrain.h"
 #include "room_library.h"
 #include "game_legacy.h"
+#include "post_inc.h"
 
 /******************************************************************************/
 TbBool load_stats_files(void)

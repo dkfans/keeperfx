@@ -23,6 +23,7 @@
 #include "bflib_basics.h"
 #include "globals.h"
 
+#include "actionpt.h"
 #include "config_cubes.h"
 #include "config_creature.h"
 #include "config_crtrmodel.h"
@@ -185,8 +186,6 @@ struct GameAdd {
     unsigned long gold_per_hoard;
     struct CubeAttribs cubes_data[CUBE_ITEMS_MAX];
 
-#define TRAPDOOR_TYPES_MAX 128
-
     struct ManfctrConfig traps_config[TRAPDOOR_TYPES_MAX];
     struct ManfctrConfig doors_config[TRAPDOOR_TYPES_MAX];
     struct TrapStats trap_stats[TRAPDOOR_TYPES_MAX];
@@ -201,9 +200,11 @@ struct GameAdd {
     struct ScriptFxLine   fx_lines[FX_LINES_COUNT];
     int                   active_fx_lines;
 
+    struct ActionPoint action_points[ACTN_POINTS_COUNT];
     struct DungeonAdd dungeon[DUNGEONS_COUNT];
 
     struct ThingAdd things[THINGS_COUNT];
+    struct LightAdd lights[LIGHTS_COUNT];
 
     struct Objects thing_objects_data[OBJECT_TYPES_COUNT];
     struct ObjectsConfig object_conf;
@@ -225,6 +226,9 @@ struct GameAdd {
     long heart_lost_message_target;
     unsigned char slab_ext_data[85 * 85];
     struct PlayerInfoAdd players[PLAYERS_COUNT];
+    float delta_time;
+    long double process_turn_time;
+    float flash_button_time;
 };
 
 extern unsigned long game_flags2; // Should be reset to zero on new level
@@ -251,6 +255,7 @@ TbBool set_bonus_level_visibility_for_singleplayer_level(struct PlayerInfo *play
 /******************************************************************************/
 
 struct ThingAdd *get_thingadd(Thingid thing_idx);
+struct LightAdd *get_lightadd(unsigned short light_idx);
 
 #ifdef __cplusplus
 }

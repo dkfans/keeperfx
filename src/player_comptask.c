@@ -17,6 +17,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "player_computer.h"
 
 #include <limits.h>
@@ -59,6 +60,7 @@
 #include "cursor_tag.h"
 
 #include "keeperfx.hpp"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -170,8 +172,6 @@ const struct MyLookup lookup[] = {
     {-3,  0}
 };
 
-/******************************************************************************/
-DLLIMPORT long _DK_other_build_here(struct Computer2 *comp, long a2, long round_directn, long plyr_idx, long slabs_dist);
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -907,13 +907,13 @@ long task_dig_room_passage(struct Computer2 *comp, struct ComputerTask *ctask)
         {
             long round_directn;
             round_directn = small_around_index_towards_destination(ctask->pos_6A.x.stl.num,ctask->pos_6A.y.stl.num,
-                ctask->pos_64.x.stl.num,ctask->pos_64.y.stl.num);
+                ctask->new_room_pos.x.stl.num,ctask->new_room_pos.y.stl.num);
             pos_move_in_direction_to_last_allowing_drop(&pos, round_directn, comp->dungeon->owner, ctask->create_room.width+ctask->create_room.height);
         }
         move_imp_to_dig_here(comp, &pos, 1);
-        pos.x.val = ctask->pos_64.x.val;
-        pos.y.val = ctask->pos_64.y.val;
-        pos.z.val = ctask->pos_64.z.val;
+        pos.x.val = ctask->new_room_pos.x.val;
+        pos.y.val = ctask->new_room_pos.y.val;
+        pos.z.val = ctask->new_room_pos.z.val;
         setup_computer_dig_room(&ctask->dig, &pos, ctask->create_room.area);
         ctask->ttype = CTT_DigRoom;
         return 1;
@@ -1069,7 +1069,7 @@ long task_check_room_dug(struct Computer2 *comp, struct ComputerTask *ctask)
     long waiting_slabs;
     long wrong_slabs;
     waiting_slabs = 0; wrong_slabs = 0;
-    count_slabs_where_room_cannot_be_built(comp->dungeon->owner, ctask->pos_64.x.stl.num, ctask->pos_64.y.stl.num,
+    count_slabs_where_room_cannot_be_built(comp->dungeon->owner, ctask->new_room_pos.x.stl.num, ctask->new_room_pos.y.stl.num,
         ctask->create_room.long_80, ctask->create_room.area, &waiting_slabs, &wrong_slabs);
     if (wrong_slabs > 0) {
         WARNLOG("Task %s couldn't be completed as %d wrong slabs are in destination area, reset",computer_task_code_name(ctask->ttype),(int)wrong_slabs);
@@ -1078,7 +1078,7 @@ long task_check_room_dug(struct Computer2 *comp, struct ComputerTask *ctask)
     }
     if (waiting_slabs > 0) {
         SYNCDBG(9,"The %d/%d tiles around %d,%d are not ready to place room",(int)wrong_slabs,
-            (int)ctask->create_room.area, (int)ctask->pos_64.x.stl.num, (int)ctask->pos_64.y.stl.num);
+            (int)ctask->create_room.area, (int)ctask->new_room_pos.x.stl.num, (int)ctask->new_room_pos.y.stl.num);
         return 4;
     }
     // The room digging task is complete - change it to room placing task
@@ -1088,7 +1088,7 @@ long task_check_room_dug(struct Computer2 *comp, struct ComputerTask *ctask)
         message_add_fmt(comp->dungeon->owner, "Now I can place the %s.",get_string(roomst->name_stridx));
     }
     ctask->ttype = CTT_PlaceRoom;
-    setup_computer_dig_room(&ctask->dig, &ctask->pos_64, ctask->create_room.area);
+    setup_computer_dig_room(&ctask->dig, &ctask->new_room_pos, ctask->create_room.area);
     return 1;
 }
 
@@ -1390,9 +1390,48 @@ long get_corridor(struct Coord3d *pos1, struct Coord3d * pos2, unsigned char rou
     return 0;
 }
 
-long other_build_here(struct Computer2 *comp, long a2, long a3, long a4, long a5)
+static TbBool other_build_here(struct Computer2 *comp, MapSubtlCoord stl_x, MapSubtlCoord stl_y, MapSlabDelta width_slabs, MapSlabDelta height_slabs)
 {
-    return _DK_other_build_here(comp, a2, a3, a4, a5);
+    MapSlabDelta long_edge_length = height_slabs;
+    if ( height_slabs <= width_slabs )
+        long_edge_length = width_slabs;
+    MapSubtlDelta long_edge_length_subtl = STL_PER_SLB * long_edge_length;
+    MapSubtlCoord stl_2_x = (stl_x - long_edge_length_subtl) & ((stl_x - long_edge_length_subtl <= 0) - 1);
+    MapSubtlCoord stl_2_y = (stl_y - long_edge_length_subtl) & ((stl_y - long_edge_length_subtl <= 0) - 1);
+    struct ComputerTask *task = get_computer_task(comp->task_idx);
+
+    if ( task <= &game.computer_task[0] )
+        return true;
+    while ( 1 )
+    {
+        char ttype = task->ttype;
+        if ( ttype == CTT_DigRoomPassage || ttype == CTT_DigRoom || ttype == CTT_CheckRoomDug || ttype == CTT_PlaceRoom )
+        {
+        MapSlabDelta current_long_edge_length = task->create_room.width;
+        if ( current_long_edge_length <= task->create_room.height )
+            current_long_edge_length = task->create_room.height;
+        MapSubtlDelta current_long_edge_length_subtl = STL_PER_SLB * current_long_edge_length;
+
+        MapSubtlCoord room_end_pos_y = task->new_room_pos.y.stl.num - current_long_edge_length_subtl / 2;
+        if ( room_end_pos_y <= 0 )
+            room_end_pos_y = 0;
+        MapSubtlDelta longest_long_edge_length_subtl = long_edge_length_subtl;
+        
+        if ( long_edge_length_subtl <= current_long_edge_length_subtl )
+            longest_long_edge_length_subtl = current_long_edge_length_subtl;
+        MapSubtlCoord room_end_pos_x = task->new_room_pos.x.stl.num - current_long_edge_length_subtl / 2;
+
+        if ( room_end_pos_x <= 0 )
+            room_end_pos_x = 0;
+        if ( (int)abs(room_end_pos_x - stl_2_x) <= longest_long_edge_length_subtl + STL_PER_SLB && 
+             (int)abs(room_end_pos_y - stl_2_y) <= longest_long_edge_length_subtl + STL_PER_SLB )
+            break;
+        }
+        task = get_computer_task(task->next_task);
+        if ( task <= &game.computer_task[0] )
+            return true;
+    }
+    return false;
 }
 
 struct ComputerTask * able_to_build_room(struct Computer2 *comp, struct Coord3d *pos, RoomKind rkind, long width_slabs, long height_slabs, long max_slabs_dist, long perfect)
@@ -1464,9 +1503,9 @@ struct ComputerTask * able_to_build_room(struct Computer2 *comp, struct Coord3d 
         }
         ctask->ttype = CTT_DigRoomPassage;
         ctask->rkind = rkind;
-        ctask->pos_64.x.val = subtile_coord_center(stl_slab_center_subtile(stl_x));
-        ctask->pos_64.y.val = subtile_coord_center(stl_slab_center_subtile(stl_y));
-        ctask->pos_64.z.val = subtile_coord(1,0);
+        ctask->new_room_pos.x.val = subtile_coord_center(stl_slab_center_subtile(stl_x));
+        ctask->new_room_pos.y.val = subtile_coord_center(stl_slab_center_subtile(stl_y));
+        ctask->new_room_pos.z.val = subtile_coord(1,0);
         ctask->pos_6A.x.val = pos->x.val;
         ctask->pos_6A.y.val = pos->y.val;
         ctask->pos_6A.z.val = pos->z.val;
@@ -1480,7 +1519,7 @@ struct ComputerTask * able_to_build_room(struct Computer2 *comp, struct Coord3d 
         ctask->flags |= ComTsk_Unkn0002;
         ctask->flags |= ComTsk_AddTrapLocation;
         ctask->flags |= ComTsk_Urgent;
-        setup_dig_to(&ctask->dig, ctask->create_room.startpos, ctask->pos_64);
+        setup_dig_to(&ctask->dig, ctask->create_room.startpos, ctask->new_room_pos);
     }
     return ctask;
 }
@@ -3348,40 +3387,40 @@ TbBool create_task_move_creature_to_pos(struct Computer2 *comp, const struct Thi
         return false;
     }
     if ((gameadd.computer_chat_flags & CChat_TasksFrequent) != 0) {
-        struct CreatureData *crdata;
-        crdata = creature_data_get(thing->model);
+        struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[thing->model];
+
         switch (dst_state)
         {
         case CrSt_ImpImprovesDungeon:
-            message_add_fmt(comp->dungeon->owner, "This %s should go claiming.",get_string(crdata->namestr_idx));
+            message_add_fmt(comp->dungeon->owner, "This %s should go claiming.",get_string(crconf->namestr_idx));
             break;
         case CrSt_ImpDigsDirt:
-            message_add_fmt(comp->dungeon->owner, "This %s should go digging.",get_string(crdata->namestr_idx));
+            message_add_fmt(comp->dungeon->owner, "This %s should go digging.",get_string(crconf->namestr_idx));
             break;
         case CrSt_ImpMinesGold:
-            message_add_fmt(comp->dungeon->owner, "This %s should go mining.",get_string(crdata->namestr_idx));
+            message_add_fmt(comp->dungeon->owner, "This %s should go mining.",get_string(crconf->namestr_idx));
             break;
         case CrSt_CreatureDoingNothing:
         case CrSt_ImpDoingNothing:
-            message_add_fmt(comp->dungeon->owner, "This %s should stop doing that.",get_string(crdata->namestr_idx));
+            message_add_fmt(comp->dungeon->owner, "This %s should stop doing that.",get_string(crconf->namestr_idx));
             break;
         case CrSt_CreatureSacrifice:
             if (thing->model == gameadd.cheaper_diggers_sacrifice_model) {
                 struct PowerConfigStats *powerst;
                 powerst = get_power_model_stats(PwrK_MKDIGGER);
-                message_add_fmt(comp->dungeon->owner, "Sacrificing %s to reduce %s price.",get_string(crdata->namestr_idx),get_string(powerst->name_stridx));
+                message_add_fmt(comp->dungeon->owner, "Sacrificing %s to reduce %s price.",get_string(crconf->namestr_idx),get_string(powerst->name_stridx));
                 break;
             }
-            message_add_fmt(comp->dungeon->owner, "This %s will be sacrificed.",get_string(crdata->namestr_idx));
+            message_add_fmt(comp->dungeon->owner, "This %s will be sacrificed.",get_string(crconf->namestr_idx));
             break;
         case CrSt_Torturing:
-            message_add_fmt(comp->dungeon->owner, "This %s should be tortured.", get_string(crdata->namestr_idx));
+            message_add_fmt(comp->dungeon->owner, "This %s should be tortured.", get_string(crconf->namestr_idx));
             break;
         case CrSt_CreatureDoorCombat:
-            message_add_fmt(comp->dungeon->owner, "This %s should attack a door.", get_string(crdata->namestr_idx));
+            message_add_fmt(comp->dungeon->owner, "This %s should attack a door.", get_string(crconf->namestr_idx));
             break;
         default:
-            message_add_fmt(comp->dungeon->owner, "This %s should go there.",get_string(crdata->namestr_idx));
+            message_add_fmt(comp->dungeon->owner, "This %s should go there.",get_string(crconf->namestr_idx));
             break;
         }
     }
@@ -3736,9 +3775,8 @@ TbBool create_task_attack_magic(struct Computer2 *comp, const struct Thing *crea
     if ((gameadd.computer_chat_flags & CChat_TasksScarce) != 0) {
         struct PowerConfigStats *powerst;
         powerst = get_power_model_stats(pwkind);
-        struct CreatureData *crdata;
-        crdata = creature_data_get(creatng->model);
-        message_add_fmt(comp->dungeon->owner, "Casting %s on %s!",get_string(powerst->name_stridx),get_string(crdata->namestr_idx));
+        struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[creatng->model];
+        message_add_fmt(comp->dungeon->owner, "Casting %s on %s!",get_string(powerst->name_stridx),get_string(crconf->namestr_idx));
     }
     ctask->ttype = CTT_AttackMagic;
     ctask->attack_magic.target_thing_idx = creatng->index;

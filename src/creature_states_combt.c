@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "creature_states_combt.h"
 #include "globals.h"
 
@@ -47,6 +48,7 @@
 #include "gui_soundmsgs.h"
 #include "game_legacy.h"
 #include "engine_redraw.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -1234,6 +1236,8 @@ short cleanup_door_combat(struct Thing *thing)
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     cctrl->combat_flags &= ~CmbtF_DoorFight;
     cctrl->combat.battle_enemy_idx = 0;
+    //In case the unit walked into it:
+    cctrl->collided_door_subtile = 0;
     return 1;
 }
 
@@ -1712,6 +1716,16 @@ long ranged_combat_move(struct Thing *thing, struct Thing *enmtng, MapCoordDelta
         return -inst_id; \
     }
 
+TbBool creature_would_benefit_from_healing(const struct Thing* thing)
+{
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    HitPoints goodhealth = crstat->heal_threshold * cctrl->max_health / 256;
+    if ((long)thing->health <= goodhealth)
+        return true;
+    return false;
+}
+
 /**
  * Gives attack type optimized for self preservation.
  * @param thing The creature for which the instance is selected.
@@ -1747,6 +1761,10 @@ CrInstance get_best_self_preservation_instance_to_use(const struct Thing *thing)
     {
         INSTANCE_RET_IF_AVAIL(thing, CrInst_FLY);
     }
+    if (creature_would_benefit_from_healing(thing))
+    {
+        INSTANCE_RET_IF_AVAIL(thing, CrInst_HEAL);
+    }
     return CrInst_NULL;
 }
 
@@ -1757,7 +1775,7 @@ CrInstance get_self_spell_casting(const struct Thing *thing)
     {
         INSTANCE_RET_IF_AVAIL(thing, CrInst_SIGHT);
     }
-    if (creature_requires_healing(thing))
+    if (creature_would_benefit_from_healing(thing))
     {
         INSTANCE_RET_IF_AVAIL(thing, CrInst_HEAL);
     }

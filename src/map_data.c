@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "map_data.h"
 #include "globals.h"
 #include "map_columns.h"
@@ -28,6 +29,7 @@
 #include "map_blocks.h"
 #include "map_utils.h"
 #include "room_util.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {

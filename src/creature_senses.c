@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "creature_senses.h"
 #include "globals.h"
 
@@ -32,6 +33,11 @@
 #include "config_settings.h"
 #include "map_blocks.h"
 #include "game_legacy.h"
+#include "post_inc.h"
+
+// Use values of 21 and below, otherwise you may need more rays to explore the entire distance
+const int CREATURE_EXPLORE_DISTANCE = 7;
+const int CREATURE_EXPLORE_DISTANCE_POSSESSED = 10;
 
 /******************************************************************************/
 TbBool sibling_line_of_sight_ignoring_door(const struct Coord3d *prevpos,
@@ -202,7 +208,7 @@ TbBool line_of_sight_3d_ignoring_specific_door(const struct Coord3d *frpos,
     nextpos.x.val = prevpos.x.val + increase_x;
     nextpos.y.val = prevpos.y.val + increase_y;
     nextpos.z.val = prevpos.z.val + increase_z;
-    while (distance > 1)
+    while (distance > 0)
     {
         if (point_in_map_is_solid_ignoring_door(&nextpos, doortng)) {
             return false;
@@ -381,7 +387,7 @@ TbBool jonty_line_of_sight_3d_including_lava_check_ignoring_specific_door(const 
     nextpos.x.val = prevpos.x.val + increase_x;
     nextpos.y.val = prevpos.y.val + increase_y;
     nextpos.z.val = prevpos.z.val + increase_z;
-    while (distance > 1)
+    while (distance > 0)
     {
         if (get_point_in_map_solid_flags_ignoring_door(&nextpos, doortng) & 0x01) {
             return false;
@@ -561,7 +567,7 @@ TbBool jonty_line_of_sight_3d_including_lava_check_ignoring_own_door(const struc
     nextpos.y.val = prevpos.y.val + increase_y;
     nextpos.z.val = prevpos.z.val + increase_z;
 
-    while (distance > 1)
+    while (distance > 0)
     {
         if (get_point_in_map_solid_flags_ignoring_own_door(&nextpos, plyr_idx) & 0x01) {
             SYNCDBG(17, "Player %d cannot see through (%d,%d) due to linear path solid flags (downcount %d)",
@@ -589,8 +595,6 @@ TbBool jonty_line_of_sight_3d_including_lava_check_ignoring_own_door(const struc
 
 TbBool jonty_creature_can_see_thing_including_lava_check(const struct Thing *creatng, const struct Thing *thing)
 {
-    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
-    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     const struct Coord3d* srcpos = &creatng->mappos;
     struct Coord3d eyepos;
     eyepos.x.val = srcpos->x.val;
@@ -600,7 +604,7 @@ TbBool jonty_creature_can_see_thing_including_lava_check(const struct Thing *cre
     tgtpos.x.val = thing->mappos.x.val;
     tgtpos.y.val = thing->mappos.y.val;
     tgtpos.z.val = thing->mappos.z.val;
-    eyepos.z.val += (crstat->eye_height + (crstat->eye_height * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100);
+    eyepos.z.val += get_creature_eye_height(creatng);
     if (thing->class_id == TCls_Door)
     {
         // If we're immune to lava, or we're already on it - don't care, travel over it
@@ -808,8 +812,20 @@ TbBool line_of_sight_3d(const struct Coord3d *frpos, const struct Coord3d *topos
     struct Coord3d nextpos;
     nextpos.x.val = prevpos.x.val + increase_x;
     nextpos.y.val = prevpos.y.val + increase_y;
-    nextpos.z.val = prevpos.z.val + increase_z;
-    while (distance > 1)
+    
+    //Z position overshoots, which returns incorrect results. Workaround until a proper fix is made:
+    if ((increase_z >= 0 && ((prevpos.z.val + increase_z) >= topos->z.val)) ||
+        (increase_z < 0 && ((prevpos.z.val + increase_z) < topos->z.val)))
+    {
+        nextpos.z.val = topos->z.val;
+        increase_z = 0;
+    }
+    else
+    {
+        nextpos.z.val = prevpos.z.val + increase_z;
+    }
+
+    while (distance > 0)
     {
         if (point_in_map_is_solid(&nextpos)) {
             SYNCDBG(7, "Player cannot see through (%d,%d) due to linear path solid flags (downcount %d)",
@@ -827,7 +843,15 @@ TbBool line_of_sight_3d(const struct Coord3d *frpos, const struct Coord3d *topos
         prevpos.z.val = nextpos.z.val;
         nextpos.x.val += increase_x;
         nextpos.y.val += increase_y;
-        nextpos.z.val += increase_z;
+
+        //Z position overshoots, which returns incorrect results. Workaround until a proper fix is made:
+        if ((increase_z >= 0 && ((nextpos.z.val + increase_z) >= topos->z.val)) ||
+            (increase_z < 0 && ((nextpos.z.val + increase_z) < topos->z.val)))
+        {
+            nextpos.z.val = topos->z.val;
+            increase_z = 0;
+        }
+
         distance--;
     }
     return true;
@@ -916,7 +940,7 @@ TbBool nowibble_line_of_sight_3d(const struct Coord3d *frpos, const struct Coord
     nextpos.x.val = prevpos.x.val + increase_x;
     nextpos.y.val = prevpos.y.val + increase_y;
     nextpos.z.val = prevpos.z.val + increase_z;
-    while (distance > 1)
+    while (distance > 0)
     {
         if (point_in_map_is_solid(&nextpos)) {
             SYNCDBG(7, "Player cannot see through (%d,%d) due to linear path solid flags (downcount %d)",
@@ -1006,11 +1030,9 @@ long get_explore_sight_distance_in_slabs(const struct Thing *thing)
     }
     long dist;
     if (!is_thing_some_way_controlled(thing)) {
-        dist = 7;
+        dist = CREATURE_EXPLORE_DISTANCE;
     } else {
-        dist = get_creature_can_see_subtiles() / STL_PER_SLB;
-        if (dist <= 7)
-            dist = 7;
+        dist = CREATURE_EXPLORE_DISTANCE_POSSESSED;
     }
     return dist;
 }

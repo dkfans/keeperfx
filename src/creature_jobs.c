@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "creature_jobs.h"
 #include "globals.h"
 
@@ -49,6 +50,7 @@
 #include "creature_states_wrshp.h"
 #include "creature_states_lair.h"
 #include "creature_states_pray.h"
+#include "post_inc.h"
 
 /******************************************************************************/
 TbBool creature_can_do_job_always_for_player(const struct Thing *creatng, PlayerNumber plyr_idx, CreatureJob new_job);

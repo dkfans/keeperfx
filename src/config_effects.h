@@ -47,6 +47,7 @@ DLLIMPORT long _DK_imp_spangle_effects[];
 extern const char keeper_effects_file[];
 extern struct NamedCommand effect_desc[EFFECTS_TYPES_MAX];
 extern long const imp_spangle_effects[];
+extern long const ball_puff_effects[];
 extern struct EffectsConfig effects_conf;
 /******************************************************************************/
 TbBool load_effects_config(const char *conf_fname,unsigned short flags);

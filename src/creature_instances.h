@@ -98,7 +98,7 @@ struct InstanceInfo { // sizeof = 42
     unsigned char graphics_idx;
     unsigned char flags;
     short force_visibility;
-unsigned char field_1D;
+    unsigned char primary_target;
     Creature_Instf_Func func_cb;
     long func_params[2];
 };
@@ -135,6 +135,7 @@ int creature_instance_get_available_number_for_pos(struct Thing *thing, int req_
 CrInstance creature_instance_get_available_id_for_pos(struct Thing *thing, int req_avail_pos);
 
 void delay_teleport(struct Thing *creatng);
+void delay_heal_sleep(struct Thing *creatng);
 /******************************************************************************/
 #ifdef __cplusplus
 }

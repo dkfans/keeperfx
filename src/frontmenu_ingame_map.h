@@ -59,6 +59,7 @@ DLLIMPORT unsigned char _DK_PannelMap[256*256];//map subtiles x*y
 #define PannelMap _DK_PannelMap
 /******************************************************************************/
 extern long MapDiagonalLength;
+extern TbBool reset_all_minimap_interpolation;
 /******************************************************************************/
 void pannel_map_update(long x, long y, long w, long h);
 void pannel_map_draw_slabs(long x, long y, long units_per_px, long zoom);
@@ -69,6 +70,16 @@ short do_left_map_drag(long begin_x, long begin_y, long curr_x, long curr_y, lon
 short do_left_map_click(long begin_x, long begin_y, long curr_x, long curr_y, long zoom);
 short do_right_map_click(long start_x, long start_y, long curr_x, long curr_y, long zoom);
 /******************************************************************************/
+struct InterpMinimap
+{
+    long x;
+    long y;
+    long previous_x;
+    long previous_y;
+    long get_previous;
+};
+extern struct InterpMinimap interp_minimap;
+
 #ifdef __cplusplus
 }
 #endif

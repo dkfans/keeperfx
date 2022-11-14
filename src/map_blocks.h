@@ -34,13 +34,14 @@ struct Map;
 
 #pragma pack()
 /******************************************************************************/
-TbBool block_has_diggable_side(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y);
-int block_count_diggable_sides(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y);
+TbBool block_has_diggable_side(MapSlabCoord slb_x, MapSlabCoord slb_y);
+int block_count_diggable_sides(MapSlabCoord slb_x, MapSlabCoord slb_y);
 long tag_blocks_for_digging_in_rectangle_around(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx);
 void untag_blocks_for_digging_in_rectangle_around(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx);
 TbBool tag_blocks_for_digging_in_area(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx);
 long untag_blocks_for_digging_in_area(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx);
 void all_players_untag_blocks_for_digging_in_area(MapSlabCoord slb_x, MapSlabCoord slb_y);
+TbBool subtile_is_diggable_at_diagonal_angle(struct Thing *thing, unsigned short angle, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 
 #define place_slab_type_on_map(nslab, stl_x, stl_y, owner, a5) place_slab_type_on_map_f(nslab, stl_x, stl_y, owner, a5, __func__)
 void place_slab_type_on_map_f(SlabKind nslab, MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber owner, unsigned char a5,const char *func_name);
@@ -49,7 +50,6 @@ TbBool dig_has_revealed_area(MapSubtlCoord rev_stl_x, MapSubtlCoord rev_stl_y, P
 void dig_out_block(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx);
 void neutralise_enemy_block(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber domn_plyr_idx);
 void check_map_explored(struct Thing* creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
-long ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey);
 TbBool set_slab_explored(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y);
 void update_floor_and_ceiling_heights_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y,
     MapSubtlCoord *floor_height, MapSubtlCoord *ceiling_height);

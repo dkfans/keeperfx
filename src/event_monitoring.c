@@ -1,9 +1,25 @@
+/******************************************************************************/
+// Free implementation of Bullfrog's Dungeon Keeper strategy game.
+/******************************************************************************/
+/** @file event_monitoring.c
+ *     Texture blocks support.
+ * @author   KeeperFx Team
+ * @date     17 Aug 2020
+ * @par  Copying and copyrights:
+ *     This program is free software; you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation; either version 2 of the License, or
+ *     (at your option) any later version.
+ */
+/******************************************************************************/
+#include "pre_inc.h"
 #include "globals.h"
 
 #include "bflib_basics.h"
 #include "event_monitoring.h"
 
 #include <SDL2/SDL_net.h>
+#include "post_inc.h"
 
 static const int MAX_PACKET_SIZE = 1024;
 #define SUFFIX_SIZE 4

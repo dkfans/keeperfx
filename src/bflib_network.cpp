@@ -17,9 +17,11 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "bflib_network.h"
 
 #include "bflib_basics.h"
+#include "bflib_enet.h"
 #include "bflib_datetm.h"
 #include "bflib_memory.h"
 #include "bflib_netsession.h"
@@ -35,23 +37,11 @@
 #include "net_game.h"
 #include "packets.h"
 #include "front_landview.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-/******************************************************************************/
-DLLIMPORT TbError _DK_LbNetwork_Exchange(void *buf);
-DLLIMPORT TbError _DK_LbNetwork_Startup(void);
-DLLIMPORT TbError _DK_LbNetwork_Shutdown(void);
-DLLIMPORT TbError _DK_LbNetwork_Stop(void);
-DLLIMPORT TbError _DK_LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *plyr_name, unsigned long *plyr_num);
-DLLIMPORT TbError _DK_LbNetwork_Create(char *nsname_str, char *plyr_name, unsigned long *plyr_num);
-DLLIMPORT TbError _DK_LbNetwork_ChangeExchangeBuffer(void *, unsigned long);
-DLLIMPORT TbError _DK_LbNetwork_Init(unsigned long,struct _GUID guid, unsigned long, void *, unsigned long, struct TbNetworkPlayerInfo *netplayr, void *);
-DLLIMPORT TbError _DK_LbNetwork_EnableNewPlayers(unsigned long allow);
-DLLIMPORT TbError _DK_LbNetwork_EnumerateServices(TbNetworkCallbackFunc callback, void *a2);
-DLLIMPORT TbError _DK_LbNetwork_EnumeratePlayers(struct TbNetworkSessionNameEntry *sesn, TbNetworkCallbackFunc callback, void *a2);
-DLLIMPORT TbError _DK_LbNetwork_EnumerateSessions(TbNetworkCallbackFunc callback, void *ptr);
 /******************************************************************************/
 // Local functions definition
 TbError ClearClientData(void);
@@ -341,7 +331,7 @@ static unsigned CountLoggedInClients(void)
     return count;
 }
 
-static void SendServerFrame(void)
+static void SendServerFrame()
 {
     char * ptr;
     size_t size;
@@ -745,6 +735,10 @@ TbError LbNetwork_Init(unsigned long srvcindex, unsigned long maxplayrs, void *e
       netstate.sp = &tcpSP;
 
       break;
+  case NS_ENET_UDP:
+      netstate.sp = InitEnetSP();
+      NETMSG("Selecting UDP");
+      break;
   default:
       WARNLOG("The serviceIndex value of %d is out of range", srvcindex);
       res = Lb_FAIL;
@@ -834,13 +828,13 @@ TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *plyr_name
     SendLoginRequest(plyr_name, netstate.password);
     ProcessMessagesUntilNextLoginReply(WAIT_FOR_SERVER_TIMEOUT_IN_MS);
     if (netstate.msg_buffer[0] != NETMSG_LOGIN) {
-        NETMSG("Network login rejected");
+        fprintf(stderr, "Network login rejected");
         return Lb_FAIL;
     }
     ProcessMessage(SERVER_ID);
 
     if (netstate.my_id == 23456) {
-        NETMSG("Network login unsuccessful");
+        fprintf(stderr, "Network login unsuccessful");
         return Lb_FAIL;
     }
 
@@ -1139,7 +1133,7 @@ static void ProcessPendingMessages(NetUserId id)
     }
 }
 
-static void ConsumeServerFrame(void)
+static void ConsumeServerFrame()
 {
     NetFrame * frame;
 
@@ -1216,8 +1210,8 @@ TbError LbNetwork_Exchange(void *buf)
 
             SendClientFrame((char *) buf, netstate.exchg_queue->seq_nbr);
         }
-
-        if (!netstate.enable_lag) {
+        else
+        {
             SendClientFrame((char *) buf, netstate.seq_nbr);
             ProcessMessagesUntilNextFrame(SERVER_ID, 0);
 
@@ -1324,7 +1318,7 @@ TbError LbNetwork_EnumerateServices(TbNetworkCallbackFunc callback, void *ptr)
 {
 //  TbBool local_init;
 
-  struct TbNetworkCallbackData netcdat;
+  struct TbNetworkCallbackData netcdat = {};
 
   SYNCDBG(7, "Starting");
 
@@ -1358,6 +1352,8 @@ TbError LbNetwork_EnumerateServices(TbNetworkCallbackFunc callback, void *ptr)
   callback(&netcdat, ptr);
   strcpy(netcdat.svc_name, "TCP");
   callback(&netcdat, ptr);
+  strcpy(netcdat.svc_name, "ENET/UDP");
+  callback(&netcdat, ptr);
   NETMSG("Enumerate Services called");
   return Lb_OK;
 }
@@ -1368,7 +1364,7 @@ TbError LbNetwork_EnumerateServices(TbNetworkCallbackFunc callback, void *ptr)
  */
 TbError LbNetwork_EnumeratePlayers(struct TbNetworkSessionNameEntry *sesn, TbNetworkCallbackFunc callback, void *buf)
 {
-    TbNetworkCallbackData data;
+    TbNetworkCallbackData data = {};
     NetUserId id;
 
     SYNCDBG(9, "Starting");
@@ -1639,7 +1635,7 @@ TbError GenericModemInit(void *init_data)
     WARNLOG("Failure on SP construction");
     return Lb_FAIL;
   }
-  if (spPtr->Init(&receiveCallbacks, 0) != Lb_OK)
+  if (spPtr->Init(&receiveCallbacks, nullptr) != Lb_OK)
   {
     WARNLOG("Failure on SP::Init()");
     return Lb_FAIL;
@@ -1661,7 +1657,7 @@ TbError GenericIPXInit(void *init_data)
     WARNLOG("Failure on SP construction");
     return Lb_FAIL;
   }
-  if (spPtr->Init(&receiveCallbacks, 0) != Lb_OK)
+  if (spPtr->Init(&receiveCallbacks, nullptr) != Lb_OK)
   {
     WARNLOG("Failure on SP::Init()");
     return Lb_FAIL;
