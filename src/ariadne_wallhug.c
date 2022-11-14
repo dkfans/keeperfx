@@ -196,7 +196,7 @@ long get_angle_of_wall_hug(struct Thing *creatng, long a2, long a3, unsigned cha
     return -1;
 }
 
-static short hug_round(struct Thing *creatng, struct Coord3d *pos1, struct Coord3d *pos2, unsigned short round_idx, long *hug_val)
+static short hug_round_new(struct Thing *creatng, struct Coord3d *pos1, struct Coord3d *pos2, unsigned short round_idx, long *hug_val)
 {
 
     signed int delta_x_1;
@@ -220,7 +220,7 @@ static short hug_round(struct Thing *creatng, struct Coord3d *pos1, struct Coord
     MapSubtlCoord stl_y_4;
     MapSubtlCoord stl_x_4;
     struct Thing *doortng4;
-    int v32;
+    int slb_kind;
     int v33;
     signed int v34;
     signed int v35;                    
@@ -426,7 +426,7 @@ static short hug_round(struct Thing *creatng, struct Coord3d *pos1, struct Coord
         doortng4 = get_door_for_position(stl_x_4, stl_y_4);
 
         struct SlabMap *slb_4 = get_slabmap_for_subtile(stl_y_4, stl_x_4);
-        v32 = slb_4->kind;
+        slb_kind = slb_4->kind;
         struct SlabAttr *slbattr_4 = get_slab_attrs(slb_4);
 
         if ((slbattr_4->block_flags & SlbAtFlg_IsDoor) != 0)
@@ -437,7 +437,7 @@ static short hug_round(struct Thing *creatng, struct Coord3d *pos1, struct Coord
                 goto LABEL_52;
             }
         }
-        else if (!slbattr_4->is_safe_land && (v32 != SlbT_LAVA || creature_stats_get_from_thing(creatng)->hurt_by_lava))
+        else if (!slbattr_4->is_safe_land && (slb_kind != SlbT_LAVA || creature_stats_get_from_thing(creatng)->hurt_by_lava))
         {
             v33 = 0;
             goto LABEL_52;
@@ -478,6 +478,36 @@ static short hug_round(struct Thing *creatng, struct Coord3d *pos1, struct Coord
     result = 0;
     *hug_val -= i;
     return result;
+}
+
+DLLIMPORT short _DK_hug_round(struct Thing *creatng, struct Coord3d *pos1, struct Coord3d *pos2, unsigned short a4, long *a5);
+
+static short hug_round(struct Thing *creatng, struct Coord3d *pos1, struct Coord3d *pos2, unsigned short round_idx, long *hug_val)
+{
+
+    struct Coord3d old_pos1;
+    struct Coord3d old_pos2;
+    long old_hug_val = *hug_val;
+
+    old_pos1.x = pos1->x;
+    old_pos1.y = pos1->y;
+    old_pos1.z = pos1->z;
+    old_pos2.x = pos2->x;
+    old_pos2.y = pos2->y;
+    old_pos2.z = pos2->z;
+
+    short old_return = _DK_hug_round(creatng, &old_pos1, &old_pos2, round_idx, &old_hug_val);
+
+    short return_val = hug_round_new(creatng, pos1, pos2, round_idx, hug_val);
+
+
+    if (old_return != return_val) JUSTLOG("return not same return %d,%d",old_return,return_val);
+    if (old_return == return_val) JUSTLOG("ok %d,%d",old_return,return_val);
+    if (old_pos1.x.val != pos1->x.val) JUSTLOG("pos1  %d,%d  %d,%d",old_pos1.x.val,old_pos1.y.val, pos1->x.val,pos1->y.val);
+    if (old_pos2.x.val != pos2->x.val) JUSTLOG("pos1  %d,%d  %d,%d",old_pos2.x.val,old_pos2.y.val, pos2->x.val,pos2->y.val);
+    if (old_hug_val == *hug_val) JUSTLOG("hug_val  %d,%d",old_hug_val,*hug_val);
+
+    return return_val;
 }
 
 long slab_wall_hug_route(struct Thing *thing, struct Coord3d *pos, long max_val)
