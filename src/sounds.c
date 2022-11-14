@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "sounds.h"
 
 #include "globals.h"
@@ -27,6 +28,7 @@
 #include "bflib_math.h"
 #include "bflib_bufrw.h"
 #include "bflib_heapmgr.h"
+#include "engine_render.h"
 #include "map_utils.h"
 #include "engine_camera.h"
 #include "gui_soundmsgs.h"
@@ -43,8 +45,10 @@
 #include "map_data.h"
 #include "creature_states.h"
 #include "thing_objects.h"
+#include "config.h"
 
 #include "keeperfx.hpp"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -230,14 +234,29 @@ void find_nearest_rooms_for_ambient_sound(void)
     set_room_playing_ambient_sound(NULL, 0);
 }
 
-TbBool update_3d_sound_receiver(struct PlayerInfo *player)
+TbBool update_3d_sound_receiver(struct PlayerInfo* player)
 {
-    SYNCDBG(7,"Starting");
+    SYNCDBG(7, "Starting");
     struct Camera* cam = player->acamera;
     if (cam == NULL)
         return false;
-    S3DSetSoundReceiverPosition(cam->mappos.x.val,cam->mappos.y.val,cam->mappos.z.val);
-    S3DSetSoundReceiverOrientation(cam->orient_a,cam->orient_b,cam->orient_c);
+    S3DSetSoundReceiverPosition(cam->mappos.x.val, cam->mappos.y.val, cam->mappos.z.val);
+    S3DSetSoundReceiverOrientation(cam->orient_a, cam->orient_b, cam->orient_c);
+    if (
+        cam->view_mode == PVM_IsoWibbleView ||
+        cam->view_mode == PVM_FrontView ||
+        cam->view_mode == PVM_IsoStraightView
+    ) {
+        // Distance from center of camera that you can hear a sound
+        S3DSetMaximumSoundDistance(lerp(5120, 27648, 1.0-hud_scale));
+        // Quieten sounds when zoomed out
+        float upper_range_only = min(hud_scale*2.0, 1.0);
+        float rescale_audio = max(min(fastPow(upper_range_only, 1.25), 1.0), 0.0);
+        S3DSetSoundReceiverSensitivity(lerp(2, 64, rescale_audio));
+    } else {
+        S3DSetMaximumSoundDistance(5120);
+        S3DSetSoundReceiverSensitivity(64);
+    }
     return true;
 }
 
@@ -283,7 +302,7 @@ void update_player_sounds(void)
               } else
               {
                 output_message(SMsg_FunnyMessages+k, 0, true);
-              } 
+              }
             }
         // Atmospheric background sound, replaces AWE soundfont
         } else
@@ -314,7 +333,7 @@ void update_player_sounds(void)
             }
         }
     }
-    
+
     // Music and sound control
     if ( !SoundDisabled ) {
         if ( (game.turns_fastforward == 0) && (!game.numfield_149F38) ) {
@@ -494,7 +513,7 @@ TbBool init_sound(void)
     snd_settng->no_load_sounds = 1;
     snd_settng->field_16 = 0;
     snd_settng->field_18 = 1;
-    snd_settng->redbook_enable = ((game.flags_cd & MFlg_NoCdMusic) == 0);
+    snd_settng->redbook_enable = IsRedbookMusicActive();
     snd_settng->sound_system = 0;
     InitAudio(snd_settng);
     InitializeMusicPlayer();
@@ -599,7 +618,7 @@ struct Thing *create_ambient_sound(const struct Coord3d *pos, ThingModel model, 
     thing->parent_idx = thing->index;
     memcpy(&thing->mappos,pos,sizeof(struct Coord3d));
     thing->owner = owner;
-    thing->field_4F |= TF4F_Unknown01;
+    thing->rendering_flags |= TRF_Unknown01;
     add_thing_to_its_class_list(thing);
     return thing;
 }

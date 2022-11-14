@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "creature_states_prisn.h"
 #include "globals.h"
 
@@ -40,6 +41,7 @@
 #include "game_legacy.h"
 #include "player_instances.h"
 #include "creature_senses.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {

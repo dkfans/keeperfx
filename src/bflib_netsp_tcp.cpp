@@ -17,7 +17,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-
+#include "pre_inc.h"
 #include "bflib_netsp_tcp.hpp"
 
 #include <cassert>
@@ -29,6 +29,7 @@
 #include "bflib_netlisten_udp.hpp"
 #include "bflib_client_tcp.hpp"
 #include "bflib_server_tcp.hpp"
+#include "post_inc.h"
 
 TCPServiceProvider::TCPServiceProvider() :
         maxPlayers(1),

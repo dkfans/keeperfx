@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "engine_lenses.h"
 
 #include "globals.h"
@@ -27,6 +28,7 @@
 
 #include "engine_render.h"
 #include "engine_camera.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -58,12 +60,12 @@ void perspective_standard(struct XYZ *cor, struct PolyPoint *ppt)
   if (cor->z >= 32)
   {
       long i = (lens << 16) / (cor->z);
-      ppt->field_0 = view_width_over_2 + (i * cor->x >> 16);
-      ppt->field_4 = view_height_over_2 - (i * cor->y >> 16);
+      ppt->X = view_width_over_2 + (i * cor->x >> 16);
+      ppt->Y = view_height_over_2 - (i * cor->y >> 16);
   } else
   {
-    ppt->field_0 = view_width_over_2 + cor->x;
-    ppt->field_4 = view_height_over_2 - cor->y;
+    ppt->X = view_width_over_2 + cor->x;
+    ppt->Y = view_height_over_2 - cor->y;
   }
 }
 

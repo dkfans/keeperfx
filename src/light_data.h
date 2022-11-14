@@ -22,7 +22,7 @@
 #include "globals.h"
 #include "bflib_basics.h"
 
-#define LIGHT_MAX_RANGE      3000 //512 might be enough to cover the whole map? How does this value affect performance?
+#define LIGHT_MAX_RANGE       256 // Large enough to cover the whole map
 #define LIGHTS_COUNT          400
 #define MINIMUM_LIGHTNESS    8192
 
@@ -77,6 +77,15 @@ struct Light { // sizeof = 46
   struct Coord3d mappos;
 };
 
+struct LightAdd // Additional light data
+{
+    TbBool interp_has_been_initialized;
+    struct Coord3d previous_mappos;
+    struct Coord3d interp_mappos;
+    long last_turn_drawn;
+    long disable_interp_for_turns;
+};
+
 struct InitLight { // sizeof=0x14
 short radius;
 unsigned char intensity;
@@ -102,7 +111,7 @@ struct LightSystemState {
 };
 
 /******************************************************************************/
-DLLIMPORT long _DK_light_bitmask[32];
+DLLIMPORT unsigned long _DK_light_bitmask[32];
 #define light_bitmask _DK_light_bitmask
 DLLIMPORT long _DK_stat_light_needs_updating;
 #define stat_light_needs_updating _DK_stat_light_needs_updating
