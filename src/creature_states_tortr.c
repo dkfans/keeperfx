@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "creature_states_tortr.h"
 #include "globals.h"
 
@@ -40,6 +41,7 @@
 #include "map_blocks.h"
 #include "gui_soundmsgs.h"
 #include "game_legacy.h"
+#include "post_inc.h"
 
 /******************************************************************************/
 /** State triggered when creature reached torture chamber and is ready to start kinky torture action.
@@ -116,7 +118,7 @@ short cleanup_torturing(struct Thing *creatng)
         struct Thing* thing = thing_get(cctrl->assigned_torturer);
         if (thing_exists(thing)) {
             thing->torturer.belongs_to = 0;
-            thing->field_4F &= ~TF4F_Unknown01;
+            thing->rendering_flags &= ~TRF_Unknown01;
         }
         cctrl->assigned_torturer = 0;
     }
@@ -213,7 +215,7 @@ long process_torture_visuals(struct Thing *creatng, struct Room *room, CreatureJ
             set_creature_instance(creatng, CrInst_TORTURED, 1, 0, 0);
         }
         if (thing_exists(sectng)) {
-            sectng->field_4F |= TF4F_Unknown01;
+            sectng->rendering_flags |= TRF_Unknown01;
         } else {
             ERRORLOG("No device for torture");
         }

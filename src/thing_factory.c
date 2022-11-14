@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "thing_factory.h"
 
 #include "globals.h"
@@ -43,6 +44,7 @@
 #include "game_legacy.h"
 
 #include "keeperfx.hpp"
+#include "post_inc.h"
 
 /******************************************************************************/
 struct Thing *create_cave_in(struct Coord3d *pos, unsigned short cimodel, unsigned short owner)

@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "creature_states_barck.h"
 #include "globals.h"
 
@@ -35,6 +36,7 @@
 #include "gui_soundmsgs.h"
 
 #include "keeperfx.hpp"
+#include "post_inc.h"
 
 /******************************************************************************/
 short at_barrack_room(struct Thing *creatng)

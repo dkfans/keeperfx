@@ -18,6 +18,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "bflib_vidraw.h"
 
 #include <string.h>
@@ -33,6 +34,7 @@
 #include "bflib_sprite.h"
 #include "bflib_mouse.h"
 #include "bflib_render.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -2021,7 +2023,6 @@ void LbSpriteSetScalingData(long x, long y, long swidth, long sheight, long dwid
         scale_up = false;
     // Checking whether to select simple scaling creation, or more comprehensive one - with clipping
     if ((swidth <= 0) || (dwidth <= 0)) {
-        WARNLOG("Tried scaling width %ld -> %ld", swidth, dwidth);
         LbSpriteClearScalingWidth();
     } else
     // Normally it would be enough to check if ((dwidth+y) >= gwidth), but due to rounding we need to add swidth
@@ -2032,7 +2033,6 @@ void LbSpriteSetScalingData(long x, long y, long swidth, long sheight, long dwid
         LbSpriteSetScalingWidthSimple(x, swidth, dwidth);
     }
     if ((sheight <= 0) || (dheight <= 0)) {
-        WARNLOG("Tried scaling height %ld -> %ld", sheight, dheight);
         LbSpriteClearScalingHeight();
     } else
     // Normally it would be enough to check if ((dheight+y) >= gheight), but our simple rounding may enlarge the image
@@ -2052,7 +2052,6 @@ void SetAlphaScalingData(long x, long y, long swidth, long sheight, long dwidth,
     if ((dwidth <= swidth) && (dheight <= sheight))
         alpha_scale_up = false;
     if ((swidth <= 0) || (dwidth <= 0)) {
-        WARNLOG("Tried scaling width %ld -> %ld", swidth, dwidth);
         LbSpriteClearAlphaScalingWidth();
     } else
     if ((x < 0) || ((dwidth+x) >= gwidth))
@@ -2062,7 +2061,6 @@ void SetAlphaScalingData(long x, long y, long swidth, long sheight, long dwidth,
         LbSpriteSetAlphaScalingWidthSimple(x, swidth, dwidth);
     }
     if ((sheight <= 0) || (dheight <= 0)) {
-        WARNLOG("Tried scaling height %ld -> %ld", sheight, dheight);
         LbSpriteClearAlphaScalingHeight();
     } else
     if ((y < 0) || ((dheight+y) >= gheight))

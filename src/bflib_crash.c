@@ -17,6 +17,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "bflib_crash.h"
 #include <signal.h>
 #include <stdarg.h>
@@ -36,6 +37,8 @@
 #include "bflib_basics.h"
 #include "bflib_memory.h"
 #include "bflib_video.h"
+#include "post_inc.h"
+
 /******************************************************************************/
 static const char* sigstr(int s)
 {

@@ -17,6 +17,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "thing_physics.h"
 
 #include "globals.h"
@@ -35,6 +36,7 @@
 #include "map_columns.h"
 #include "map_blocks.h"
 #include "map_utils.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -45,7 +47,7 @@ extern "C" {
 /******************************************************************************/
 TbBool thing_touching_floor(const struct Thing *thing)
 {
-    return (thing->field_60 == thing->mappos.z.val);
+    return (thing->floor_height == thing->mappos.z.val);
 }
 
 TbBool thing_touching_flight_altitude(const struct Thing *thing)
@@ -874,7 +876,7 @@ unsigned short get_slide_z_coord(const struct Thing *thing, const struct Coord3d
   {
     return (z_pos & 0xFF00) + 256;
   }
-  return ((((z_pos + clipbox_size) & 0xFFFFFF00) - clipbox_size) - 1);
+  return ((((z_pos + clipbox_size) & 0xFFFFFF00) - clipbox_size) + 255);
 }
 
 TbBool move_object_to_nearest_free_position(struct Thing *thing)

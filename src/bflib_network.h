@@ -43,14 +43,14 @@ typedef int NetUserId;
 
 enum NetDropReason
 {
-    NETDROP_MANUAL, //via drop_user()
-    NETDROP_ERROR //connection error
+    NETDROP_MANUAL, // via drop_user()
+    NETDROP_ERROR // connection error
 };
 
 typedef TbBool  (*NetNewUserCallback)(NetUserId * assigned_id);
 typedef void    (*NetDropCallback)(NetUserId id, enum NetDropReason reason);
 
-struct NetSP //new version
+struct NetSP // new version
 {
     /**
      * Inits this service provider.
@@ -61,7 +61,7 @@ struct NetSP //new version
     /**
      * Closes down all activities and cleans up this service provider.
      */
-    void    (*exit)(void);
+    void    (*exit)();
 
     /**
      * Sets this service provider up as a host for a new network game.
@@ -146,6 +146,7 @@ enum TbNetworkService {
     NS_Modem,
     NS_IPX,
     NS_TCP_IP,
+    NS_ENET_UDP,
 };
 
 struct ClientDataEntry {

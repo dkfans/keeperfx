@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "config_effects.h"
 #include "globals.h"
 
@@ -28,6 +29,7 @@
 #include "config_strings.h"
 #include "thing_effects.h"
 #include "game_legacy.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -55,6 +57,10 @@ const struct NamedCommand effects_effect_commands[] = {
 
 long const imp_spangle_effects[] = {
     TngEff_ImpSpangleRed, TngEff_ImpSpangleBlue, TngEff_ImpSpangleGreen, TngEff_ImpSpangleYellow, TngEff_None, TngEff_None,
+};
+
+long const ball_puff_effects[] = {
+    TngEff_BallPuffRed, TngEff_BallPuffBlue, TngEff_BallPuffGreen, TngEff_BallPuffYellow, TngEff_BallPuffWhite, TngEff_BallPuffWhite,
 };
 
 /******************************************************************************/

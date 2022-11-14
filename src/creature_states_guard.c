@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "creature_states_guard.h"
 #include "globals.h"
 
@@ -36,6 +37,7 @@
 
 #include "game_legacy.h"
 #include "keeperfx.hpp"
+#include "post_inc.h"
 
 /******************************************************************************/
 short at_guard_post_room(struct Thing *thing)

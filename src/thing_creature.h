@@ -101,7 +101,7 @@ long get_creature_speed(const struct Thing *thing);
 TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *thing);
 TbBool control_creature_as_passenger(struct PlayerInfo *player, struct Thing *thing);
 void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing);
-long get_human_controlled_creature_target(struct Thing *thing, long a2);
+ThingIndex get_human_controlled_creature_target(struct Thing *thing, long primary_target);
 struct Thing *get_creature_near_for_controlling(PlayerNumber plyr_idx, MapCoord x, MapCoord y);
 
 TbBool load_swipe_graphic_for_creature(const struct Thing *thing);
@@ -187,6 +187,8 @@ struct Thing *controlled_get_thing_to_pick_up(struct Thing *creatng);
 TbBool thing_is_pickable_by_digger(struct Thing *picktng, struct Thing *creatng);
 struct Thing *controlled_get_trap_to_rearm(struct Thing *creatng);
 void controlled_continue_looking_excluding_diagonal(struct Thing *creatng, MapSubtlCoord *stl_x, MapSubtlCoord *stl_y);
+
+short get_creature_eye_height(const struct Thing *creatng);
 /******************************************************************************/
 TbBool thing_is_creature(const struct Thing *thing);
 TbBool thing_is_dead_creature(const struct Thing *thing);

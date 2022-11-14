@@ -47,8 +47,9 @@ enum ThingTrapModels {
 enum TrapTriggerTypes {
     TrpTrg_None = 0,
     TrpTrg_LineOfSight90,
-    TrpTrg_Pressure,
+    TrpTrg_Pressure_Slab,
     TrpTrg_LineOfSight,
+    TrpTrg_Pressure_Subtile,
 };
 enum TrapActivationTypes {
     TrpAcT_None = 0,
