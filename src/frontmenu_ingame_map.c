@@ -675,24 +675,16 @@ void pannel_map_draw_overlay_things(long units_per_px, long scaled_zoom, long ba
 
 void pannel_map_update_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    MapSlabCoord slb_x;
-    MapSlabCoord slb_y;
-    slb_y = subtile_slab_fast(stl_y);
-    slb_x = subtile_slab_fast(stl_x);
-    SubtlCodedCoords stl_num;
-    stl_num = get_subtile_number(stl_x, stl_y);
-    struct Map *mapblk;
-    mapblk = get_map_block_at_pos(stl_num);
-    struct SlabMap *slb;
-    slb = get_slabmap_block(slb_x, slb_y);
-    int col;
-    col = 0;
-    int owner_col;
-    owner_col = slabmap_owner(slb);
+    MapSlabCoord slb_x = subtile_slab_fast(stl_x);
+    MapSlabCoord slb_y = subtile_slab_fast(stl_y);
+    SubtlCodedCoords stl_num = get_subtile_number(stl_x, stl_y);
+    struct Map *mapblk = get_map_block_at_pos(stl_num);
+    struct SlabMap *slb = get_slabmap_block(slb_x, slb_y);
+    int col = 0;
+    int owner_col = slabmap_owner(slb);
     if (owner_col > 6) {
         owner_col -= 3;
     }
-
     if ((mapblk->flags & SlbAtFlg_Unexplored) != 0)
     {
         col = 3;
@@ -746,9 +738,9 @@ void pannel_map_update_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSu
                 col = owner_col + 170;
             }
         }
+
     }
-    TbPixel *mapptr;
-    mapptr = &PannelMap[stl_num];
+    TbPixel *mapptr = &PannelMap[stl_num];
     *mapptr = col;
 }
 

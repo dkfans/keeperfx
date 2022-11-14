@@ -446,6 +446,8 @@ TbBool insert_thing_into_power_hand_list(struct Thing *thing, PlayerNumber plyr_
             play_creature_sound(thing, CrSnd_Hang, 3, 1);
         }
     }
+    struct ThingAdd* thingadd = get_thingadd(thing->index);
+    thingadd->holding_player = plyr_idx;
     return true;
 }
 
@@ -1418,8 +1420,24 @@ TbBool can_drop_thing_here(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumbe
         return false;
     struct SlabMap *slb;
     slb = get_slabmap_for_subtile(stl_x, stl_y);
-    if (slabmap_owner(slb) == plyr_idx)
-        return true;
+    if (gameadd.allies_share_drop)
+    {
+        for (PlayerNumber i = 0; i < PLAYERS_COUNT; i++)
+        {
+            if (players_are_mutual_allies(plyr_idx, i))
+            {
+                if (slabmap_owner(slb) == i)
+                {
+                    return true;
+                }
+            }
+        } 
+    }
+    else
+    {
+        if (slabmap_owner(slb) == plyr_idx)
+            return true;
+    }
     if (allow_unclaimed && slabmap_owner(slb) == game.neutral_player_num && slb->kind == SlbT_PATH)
         return true;
     return false;

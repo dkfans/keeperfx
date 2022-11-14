@@ -72,6 +72,9 @@ const struct NamedCommand game_rule_desc[] = {
   {"FoodHealthGain",                26},
   {"TortureHealthLoss",             27},
   {"GameTurnsPerTortureHealthLoss", 28},
+  {"AlliesShareVision",             29},
+  {"AlliesShareDrop",               30},
+  {"AlliesShareCta",                31},
   {NULL,                             0},
 };
 

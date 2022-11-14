@@ -58,7 +58,6 @@ extern "C" {
 /******************************************************************************/
 DLLIMPORT long _DK_check_out_unreinforced_place(struct Thing *creatng);
 DLLIMPORT long _DK_check_out_unreinforced_area(struct Thing *creatng);
-DLLIMPORT long _DK_imp_will_soon_be_converting_at_excluding(struct Thing *creatng, long slb_x, long slb_y);
 /******************************************************************************/
 long const dig_pos[] = {0, -1, 1};
 
@@ -495,9 +494,53 @@ long check_out_unprettied_or_unconverted_area(struct Thing *thing)
     return 0;
 }
 
-long imp_will_soon_be_converting_at_excluding(struct Thing *creatng, MapSlabCoord slb_x, MapSlabCoord slb_y)
+static TbBool imp_will_soon_be_converting_at_excluding(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    return _DK_imp_will_soon_be_converting_at_excluding(creatng, slb_x, slb_y);
+    int owner;
+    int continue_state;
+    struct CreatureControl *cctrl;
+    struct Coord3d pos2;
+
+    pos2.x.stl.num = stl_x;
+    pos2.x.stl.pos = 0;
+    pos2.y.stl.num = stl_y;
+    pos2.y.stl.pos = 0;
+    owner = creatng->owner;
+    struct Dungeon *dungeon = get_dungeon(owner);
+    struct Thing *thing = thing_get(dungeon->digger_list_start);
+    int k = 0;
+
+
+    while (!thing_is_invalid(thing))
+    {   
+        if ((thing->alloc_flags & TAlF_IsInLimbo) == 0 && (thing->state_flags & TF1_InCtrldLimbo) == 0)
+        {
+          if (thing->active_state == CrSt_MoveToPosition)
+              continue_state = thing->continue_state;
+          else
+              continue_state = thing->active_state;
+          if (continue_state == CrSt_ImpArrivesAtConvertDungeon)
+          {
+              cctrl = creature_control_get_from_thing(thing);
+              if (cctrl->moveto_pos.x.stl.num == stl_x && cctrl->moveto_pos.y.stl.num == stl_y)
+              {
+                  MapCoordDelta loop_distance = get_2d_box_distance(&thing->mappos, &pos2);
+                  MapCoordDelta imp_distance = get_2d_box_distance(&creatng->mappos, &pos2);
+                  if (loop_distance <= imp_distance || loop_distance - imp_distance <= 6 * COORD_PER_STL)
+                      return true;
+              }
+          }
+        }
+        thing = thing_get(creature_control_get_from_thing(thing)->players_next_creature_idx);
+
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            return false;
+        }
+    }
+    return false;
 }
 
 TbBool check_out_unconverted_spot(struct Thing *creatng, MapSlabCoord slb_x, MapSlabCoord slb_y)
