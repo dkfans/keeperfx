@@ -535,7 +535,6 @@ long computer_event_attack_door(struct Computer2* comp, struct ComputerEvent* ce
         return 0;
     }
 
-    struct Coord3d doorpos = thing->mappos;
     struct Coord3d freepos;
     if (!get_computer_drop_position_next_to_subtile(&freepos, comp->dungeon, coord_subtile(event->mappos_x), coord_subtile(event->mappos_y))) {
         SYNCDBG(18, "No drop position near (%d,%d) for %s", (int)coord_subtile(event->mappos_x), (int)coord_subtile(event->mappos_y), cevent->name);
