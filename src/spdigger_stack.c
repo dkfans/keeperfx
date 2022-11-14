@@ -836,7 +836,7 @@ static TbBool check_out_unreinforced_area_new(struct Thing *spdigtng)
     
     struct Dungeon *dungeon = get_dungeon(spdigtng->owner);
     
-    for ( int i = 0; dungeon->digger_stack_length > i; ++i )
+    for ( int i = 0; dungeon->digger_stack_length > i; i++ )
     {
         dstack = &dungeon->digger_stack[i];
         if (dstack->task_type == DigTsk_ReinforceWall )
@@ -881,6 +881,16 @@ DLLIMPORT long _DK_check_out_unreinforced_area(struct Thing *creatng);
 static TbBool check_out_unreinforced_area(struct Thing *spdigtng)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(spdigtng);
+    struct Dungeon *dungeon = get_dungeon(spdigtng->owner);
+
+    struct DiggerStack temp_digger_stack[DIGGER_TASK_MAX_COUNT];
+
+    for ( int i = 0; dungeon->digger_stack_length > i; i++ )
+    {
+        temp_digger_stack[i] = dungeon->digger_stack[i];
+    }
+
+
 
     unsigned char thing_continue               = spdigtng->continue_state                ;
     unsigned char thing_active                 = spdigtng->active_state                  ;
@@ -892,11 +902,16 @@ static TbBool check_out_unreinforced_area(struct Thing *spdigtng)
     ushort        cctrl_moveto_pos_x           = cctrl->moveto_pos.x.val                 ;
     ushort        cctrl_moveto_pos_y           = cctrl->moveto_pos.y.val                 ;
     ushort        cctrl_moveto_pos_z           = cctrl->moveto_pos.z.val                 ;    
-    short         cctrl_digger_working_stl     = cctrl->digger.working_stl               ;
+    ushort        cctrl_digger_working_stl     = cctrl->digger.working_stl               ;
     unsigned char cctrl_digger_con_reinfor     = cctrl->digger.consecutive_reinforcements;
     unsigned char cctrl_move_flags             = cctrl->move_flags                       ;
 
     TbBool old = _DK_check_out_unreinforced_area(spdigtng);
+
+    for ( int i = 0; dungeon->digger_stack_length > i; i++ )
+    {
+        dungeon->digger_stack[i] = temp_digger_stack[i];
+    }
 
     unsigned char _thing_continue               = spdigtng->continue_state                ;
     unsigned char _thing_active                 = spdigtng->active_state                  ;
@@ -908,7 +923,7 @@ static TbBool check_out_unreinforced_area(struct Thing *spdigtng)
     ushort        _cctrl_moveto_pos_x           = cctrl->moveto_pos.x.val                 ;
     ushort        _cctrl_moveto_pos_y           = cctrl->moveto_pos.y.val                 ;
     ushort        _cctrl_moveto_pos_z           = cctrl->moveto_pos.z.val                 ;    
-    short         _cctrl_digger_working_stl     = cctrl->digger.working_stl               ;
+    ushort        _cctrl_digger_working_stl     = cctrl->digger.working_stl               ;
     unsigned char _cctrl_digger_con_reinfor     = cctrl->digger.consecutive_reinforcements;
     unsigned char _cctrl_move_flags             = cctrl->move_flags                       ;
 
