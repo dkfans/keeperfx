@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "creature_states.h"
 #include "globals.h"
 
@@ -78,6 +79,7 @@
 #include "creature_states_barck.h"
 
 #include "keeperfx.hpp"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -155,7 +157,7 @@ short creature_pick_up_spell_to_steal(struct Thing *creatng);
 //process_state, cleanup_state, move_from_slab, move_check,
 //override_feed, override_own_needs, override_sleep, override_fight_crtr, override_gets_salary, override_prev_fld1F, override_prev_fld20, override_escape, override_unconscious, override_anger_job, override_fight_object, override_fight_door, override_call2arms, override_follow,
     //state_type, field_1F, field_20, field_21, field_23, sprite_idx, field_26, field_27, react_to_cta
-struct StateInfo states[] = {
+struct StateInfo states[CREATURE_STATES_COUNT] = {
   {NULL, NULL, NULL, NULL,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Idle, 0, 0, 0, 0,  0, 0, 0, 0},
   {imp_doing_nothing, NULL, NULL, NULL,
@@ -329,7 +331,7 @@ struct StateInfo states[] = {
   {creature_follow_leader, NULL, NULL, NULL,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, CrStTyp_Follow, 0, 0, 0, 0,  0, 0, 0, 0},
   {creature_door_combat, cleanup_door_combat, NULL, NULL,
-    1, 1, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0, 1, 1, CrStTyp_FightDoor, 0, 0, 1, 0, 51, 1, 0, 0},
+    1, 1, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0, 1, 1, CrStTyp_FightDoor, 0, 0, 3, 0, 51, 1, 0, 0},
   {creature_combat_flee, NULL, NULL, NULL,
     1, 1, 1, 1, 1, 0, 0, 1, 0, 1, 1, 0, 1, 1,  CrStTyp_Idle, 0, 0, 0, 0, 53, 1, 0, 0},
   {creature_sacrifice, NULL, NULL, NULL,
@@ -441,7 +443,7 @@ struct StateInfo states[] = {
   {creature_set_work_room_based_on_position, NULL, NULL, NULL,
     1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1,  CrStTyp_Work, 1, 1,  0, 0, 0, 0, 0, 1},
   {creature_being_scavenged, NULL, NULL, NULL,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_OwnNeeds, 0, 0, 0, 0, 69, 1, 0, 0},
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_OwnNeeds, 0, 0, 0, 0, 64, 1, 0, 0},
   {creature_escaping_death, NULL, NULL, NULL,
     1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 0, 1, 1,  CrStTyp_Escape, 1, 0, 0, 0,  0, 1, 0, 0},
   {creature_present_to_dungeon_heart, NULL, NULL, NULL,
@@ -454,9 +456,6 @@ struct StateInfo states[] = {
     0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, CrStTyp_AngerJob, 0, 0, 0, 0, 55, 1, 0, 1},
   {creature_going_to_safety_for_toking, NULL, NULL, NULL,
     0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,  CrStTyp_Sleep, 0, 0, 1, 0, 54, 1, 0, 1},
-  // Some redundant NULLs
-  {NULL, NULL, NULL, NULL,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Idle, 0, 0, 0, 0,  0, 0, 0, 0},
 };
 
 /** GUI States of creatures - from "Creatures" Tab in UI.
@@ -926,7 +925,7 @@ short arrive_at_alarm(struct Thing *creatng)
 {
     TRACE_THING(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    if (cctrl->field_2FA < (unsigned long)game.play_gameturn)
+    if (cctrl->alarm_over_turn < (unsigned long)game.play_gameturn)
     {
         set_start_state(creatng);
         return 1;
@@ -1404,7 +1403,17 @@ short creature_being_dropped(struct Thing *creatng)
     // Set creature to default state, in case giving it job will fail
     set_start_state(creatng);
     // Check job which we can do after dropping at these coordinates
-    CreatureJob new_job = get_job_for_subtile(creatng, stl_x, stl_y, JoKF_AssignHumanDrop);
+    CreatureJob new_job;
+    struct ThingAdd* creatngadd = get_thingadd(creatng->index);
+    struct Room* room = room_get(slb->room_index);
+    if ((!room_is_invalid(room)) && (room->owner != creatngadd->holding_player))
+    {
+        new_job = Job_NULL;
+    }
+    else
+    {
+        new_job = get_job_for_subtile(creatng, stl_x, stl_y, JoKF_AssignHumanDrop);
+    }
     // Most tasks are disabled while creature is a chicken
     if (!creature_affected_by_spell(creatng, SplK_Chicken))
     {
@@ -3951,30 +3960,6 @@ void remove_health_from_thing_and_display_health(struct Thing *thing, long delta
     }
 }
 
-/**
- * Returns if given slab has an adjacent slab owned by given player.
- * @param plyr_idx
- * @param slb_x
- * @param slb_y
- * @return
- */
-TbBool slab_by_players_land(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y)
-{
-    for (long n = 0; n < SMALL_AROUND_LENGTH; n++)
-    {
-        long aslb_x = slb_x + (long)small_around[n].delta_x;
-        long aslb_y = slb_y + (long)small_around[n].delta_y;
-        struct SlabMap* slb = get_slabmap_block(aslb_x, aslb_y);
-        if (slabmap_owner(slb) == plyr_idx)
-        {
-            if (slab_is_safe_land(plyr_idx, aslb_x, aslb_y) && !slab_is_liquid(aslb_x, aslb_y)) {
-                return true;
-            }
-        }
-    }
-    return false;
-}
-
 TbBool process_creature_hunger(struct Thing *thing)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
@@ -4751,6 +4736,7 @@ long process_creature_needs_a_wage(struct Thing *creatng, const struct CreatureS
     if (!can_change_from_state_to(creatng, creatng->active_state, CrSt_CreatureWantsSalary)) {
         return 0;
     }
+    cctrl->collided_door_subtile = 0;
     struct Room* room = find_nearest_room_of_role_for_thing_with_used_capacity(creatng, creatng->owner, RoRoF_GoldStorage, NavRtF_Default, 1);
     if (!room_is_invalid(room))
     {

@@ -479,6 +479,7 @@
  0001:0004FEA0       get_thing_blocked_flags_at
  0001:00050060       slide_thing_against_wall_at
  0001:00050430       bounce_thing_off_wall_at
+ 0001:00050700       get_slide_z_coord
  0001:00050870       S3DInit
  0001:00050910       S3DSetMaximumSoundDistance
  0001:00050970       S3DCreateSoundEmitterPri

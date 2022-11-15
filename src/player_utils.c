@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "player_utils.h"
 
 #include "globals.h"
@@ -52,6 +53,7 @@
 #include "frontmenu_ingame_map.h"
 #include "keeperfx.hpp"
 #include "kjm_input.h"
+#include "post_inc.h"
 
 /******************************************************************************/
 /******************************************************************************/
@@ -594,7 +596,6 @@ void init_player(struct PlayerInfo *player, short no_explore)
         break;
     }
     init_player_cameras(player);
-    pannel_map_update(0, 0, map_subtiles_x+1, map_subtiles_y+1);
     player->mp_message_text[0] = '\0';
     if (is_my_player(player))
     {
@@ -816,6 +817,7 @@ void post_init_player(struct PlayerInfo *player)
         }
         break;
     }
+    pannel_map_update(0, 0, map_subtiles_x+1, map_subtiles_y+1);
 }
 
 void post_init_players(void)

@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "sounds.h"
 
 #include "globals.h"
@@ -44,8 +45,10 @@
 #include "map_data.h"
 #include "creature_states.h"
 #include "thing_objects.h"
+#include "config.h"
 
 #include "keeperfx.hpp"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -510,7 +513,7 @@ TbBool init_sound(void)
     snd_settng->no_load_sounds = 1;
     snd_settng->field_16 = 0;
     snd_settng->field_18 = 1;
-    snd_settng->redbook_enable = ((game.flags_cd & MFlg_NoCdMusic) == 0);
+    snd_settng->redbook_enable = IsRedbookMusicActive();
     snd_settng->sound_system = 0;
     InitAudio(snd_settng);
     InitializeMusicPlayer();

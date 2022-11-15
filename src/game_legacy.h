@@ -189,11 +189,11 @@ unsigned char numfield_149F47;
     char campaign_fname[CAMPAIGN_FNAME_LEN];
     char save_catalogue_UNUSED[72];
     struct Event event[EVENTS_COUNT];
-unsigned long field_14A804;
-unsigned long field_14A808;
-unsigned long field_14A80C;
-unsigned long field_14A810;
-unsigned long field_14A814;
+unsigned long ceiling_height_max;
+unsigned long ceiling_height_min;
+unsigned long ceiling_dist;
+unsigned long ceiling_search_dist;
+unsigned long ceiling_step;
 short field_14A818[18];
 char field_14A83C;
     //unsigned char level_file_number; // merged with level_number to get maps > 255
@@ -309,7 +309,7 @@ unsigned long pay_day_progress;
     unsigned char disease_lose_percentage_health;
     unsigned char disease_lose_health_time;
     unsigned long armageddon_cast_turn;
-unsigned long armageddon_field_15035A;
+    unsigned long armageddon_over_turn;
     unsigned char armageddon_caster_idx;
     unsigned long hold_audience_time;
     unsigned long armagedon_teleport_your_time_gap;
@@ -333,7 +333,7 @@ unsigned char field_1506D4;
     struct TextScrollWindow evntbox_scroll_window;
 char field_1512E6[1037];
     long flash_button_index; /**< GUI Button Designation ID of a button which is supposed to flash, as part of tutorial. */
-    long flash_button_gameturns; // signed
+    long flash_button_gameturns_UNUSED; // replaced by flash_button_time in gameadd
 long field_1516FB;
     char loaded_swipe_idx;
     long boulder_reduce_health_wall;

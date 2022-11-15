@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "scrcapt.h"
 #include "bflib_basics.h"
 #include "bflib_fileio.h"
@@ -33,6 +34,7 @@
 #include "frontend.h"
 
 #include <string.h>
+#include "post_inc.h"
 /******************************************************************************/
 
 short screenshot_format=1;

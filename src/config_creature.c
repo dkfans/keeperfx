@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "config_creature.h"
 #include "globals.h"
 
@@ -40,6 +41,7 @@
 #include "engine_arrays.h"
 #include "game_legacy.h"
 #include "custom_sprites.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -343,9 +345,9 @@ void check_and_auto_fix_stats(void)
     for (long model = 0; model < gameadd.crtr_conf.model_count; model++)
     {
         struct CreatureStats* crstat = creature_stats_get(model);
-        if ( (crstat->lair_size <= 0) && (crstat->heal_requirement != 0) )
+        if ( (crstat->lair_size <= 0) && (crstat->toking_recovery <= 0) && (crstat->heal_requirement != 0) )
         {
-            ERRORLOG("Creature model %d No LairSize But Heal Requirment - Fixing", (int)model);
+            ERRORLOG("Creature model %d has no LairSize and no TokingRecovery but has HealRequirment - Fixing", (int)model);
             crstat->heal_requirement = 0;
         }
         if (crstat->heal_requirement > crstat->heal_threshold)
@@ -1838,8 +1840,8 @@ const char *creature_own_name(const struct Thing *creatng)
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     char *text;
     if ((get_creature_model_flags(creatng) & CMF_OneOfKind) != 0) {
-        struct CreatureData* crdata = creature_data_get_from_thing(creatng);
-        text = buf_sprintf("%s",get_string(crdata->namestr_idx));
+        struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[creatng->model];
+        text = buf_sprintf("%s",get_string(crconf->namestr_idx));
         return text;
     }
     const char ** starts;

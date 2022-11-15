@@ -16,11 +16,13 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "ariadne_regions.h"
 
 #include "globals.h"
 #include "bflib_basics.h"
 #include "ariadne_tringls.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {

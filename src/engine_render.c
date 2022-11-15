@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include <stddef.h>
 
 #include "engine_render.h"
@@ -57,6 +58,7 @@
 #include "player_states.h"
 #include "custom_sprites.h"
 #include "sprites.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -164,6 +166,8 @@ DLLIMPORT char _DK_splittypes[64];
 #endif
 /******************************************************************************/
 static void do_map_who(short tnglist_idx);
+static void (*render_sprite_debug_fn) (struct Thing*, long scrpos_x, long scrpos_y) = NULL;
+static int render_sprite_debug_level = 0;
 /******************************************************************************/
 
 void calculate_hud_scale(struct Camera *cam) {
@@ -206,6 +210,29 @@ long interpolate(long variable_to_interpolate, long previous, long current)
     return lerp(variable_to_interpolate, desired_value, gameadd.delta_time);
 }
 
+long fix_interpolated_angle_bug(long variable_to_interpolate, long desired_value) {
+    // An ugly fix for a difficult angle interpolation bug. A proper fix would probably need rewriting all angle interpolation.
+    struct PlayerInfo* player = get_my_player();
+    struct Camera* cam = player->acamera;
+    switch (cam->view_mode)
+    {
+        case PVM_IsoWibbleView:
+        case PVM_FrontView:
+        case PVM_IsoStraightView:
+            
+            if (desired_value == 0 || desired_value == 512 || desired_value == 1024 || desired_value == 1536)
+            {
+                long angle_diff = variable_to_interpolate - desired_value;
+                angle_diff = (angle_diff + LbFPMath_PI) % LbFPMath_TAU - LbFPMath_PI;
+                if (abs(angle_diff) < 8) {
+                    variable_to_interpolate = desired_value;
+                }
+            }
+        break;
+    }
+    return variable_to_interpolate;
+}
+
 long interpolate_angle(long variable_to_interpolate, long previous, long current)
 {
     if (is_feature_on(Ft_DeltaTime) == false) {
@@ -214,6 +241,7 @@ long interpolate_angle(long variable_to_interpolate, long previous, long current
     long future = current + (current - previous);
     // If you want to reduce 1st person camera acceleration/deceleration then change it in the logic, not here.
     long desired_value = lerp_angle(current, future, 0.5);
+    variable_to_interpolate = fix_interpolated_angle_bug(variable_to_interpolate, desired_value);
     return lerp_angle(variable_to_interpolate, desired_value, gameadd.delta_time);
 }
 
@@ -235,6 +263,17 @@ void interpolate_thing(struct Thing *thing, struct ThingAdd *thingadd)
         thingadd->interp_mappos.z.val = interpolate(thingadd->interp_mappos.z.val, thingadd->previous_mappos.z.val, thing->mappos.z.val);
         thingadd->interp_mappos.y.val = interpolate(thingadd->interp_mappos.y.val, thingadd->previous_mappos.y.val, thing->mappos.y.val);
         thingadd->interp_floor_height = interpolate(thingadd->interp_floor_height, thingadd->previous_floor_height, thing->floor_height);
+        
+        // Cancel interpolation if distance to interpolate is too far. This is a catch-all to solve any remaining interpolation bugs.
+        if ((abs(thingadd->interp_mappos.x.val-thing->mappos.x.val) >= 10000) ||
+            (abs(thingadd->interp_mappos.y.val-thing->mappos.y.val) >= 10000) ||
+            (abs(thingadd->interp_mappos.z.val-thing->mappos.z.val) >= 10000))
+        {
+            ERRORLOG("The %s index %d owned by player %d moved an unrealistic distance((%d,%d,%d) to (%d,%d,%d)), refusing interpolation."
+                ,thing_model_name(thing), (int)thing->index, (int)thing->owner, thingadd->interp_mappos.x.stl.num, thingadd->interp_mappos.y.stl.num, thingadd->interp_mappos.z.stl.num, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing->mappos.z.stl.num);
+            thingadd->interp_mappos = thing->mappos;
+            thingadd->interp_floor_height = thing->floor_height;
+        }
     }
 }
 void interpolate_camera(struct Camera *cam)
@@ -4840,6 +4879,99 @@ unsigned short choose_health_sprite(struct Thing* thing)
     }
 }
 
+void fill_status_sprite_indexes(struct Thing *thing, struct CreatureControl *cctrl, short *health_spridx,
+                                short *state_spridx, short *anger_spridx)
+{
+    (*health_spridx) = choose_health_sprite(thing);
+    if (is_my_player_number(thing->owner))
+    {
+        lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
+        if (game.play_gameturn - cctrl->thought_bubble_last_turn_drawn == 1)
+        {
+            if (cctrl->thought_bubble_display_timer < 40) {
+                cctrl->thought_bubble_display_timer++;
+            }
+        } else {
+            if (game.play_gameturn - cctrl->thought_bubble_last_turn_drawn > 1) {
+                cctrl->thought_bubble_display_timer = 0;
+            }
+        }
+        cctrl->thought_bubble_last_turn_drawn = game.play_gameturn;
+        if (cctrl->thought_bubble_display_timer == 40)
+        {
+            struct StateInfo *stati;
+            stati = get_creature_state_with_task_completion(thing);
+            if (!stati->field_23)
+            {
+                if ((cctrl->spell_flags & CSAfF_MadKilling) != 0)
+                {
+                    stati = &states[CrSt_MadKillingPsycho];
+                }
+                else if (anger_is_creature_livid(thing))
+                {
+                    stati = &states[CrSt_CreatureLeavingDungeon];
+                }
+                else if (creature_is_called_to_arms(thing))
+                {
+                    stati = &states[CrSt_ArriveAtCallToArms];
+                }
+                else if (creature_is_at_alarm(thing))
+                {
+                    stati = &states[CrSt_ArriveAtAlarm];
+                }
+                else if (anger_is_creature_angry(thing))
+                {
+                    stati = &states[CrSt_PersonSulkAtLair];
+                }
+                else if (hunger_is_creature_hungry(thing))
+                {
+                    stati = &states[CrSt_CreatureArrivedAtGarden];
+                }
+                else if (creature_requires_healing(thing))
+                {
+                    stati = &states[CrSt_CreatureSleep];
+                }
+                else if (cctrl->paydays_owed)
+                {
+                    stati = &states[CrSt_CreatureWantsSalary];
+                }
+                else
+                {
+                    stati = get_creature_state_with_task_completion(thing);
+                }
+                if ((*(short *)&stati->field_26 == 1) || (thing_pointed_at == thing))
+                {
+                    (*state_spridx) = stati->sprite_idx;
+                }
+                switch (anger_get_creature_anger_type(thing))
+                {
+                case AngR_NotPaid:
+                    if ((cctrl->paydays_owed <= 0) && (cctrl->paydays_advanced >= 0))
+                    {
+                        (*anger_spridx) = GBS_creature_states_angry;
+                    }
+                    else
+                    {
+                        (*anger_spridx) = GBS_creature_states_getgold;
+                    }
+                    break;
+                case AngR_Hungry:
+                    (*anger_spridx) = GBS_creature_states_hungry;
+                    break;
+                case AngR_NoLair:
+                    (*anger_spridx) = GBS_creature_states_sleep;
+                    break;
+                case AngR_Other:
+                    (*anger_spridx) = GBS_creature_states_angry;
+                    break;
+                default:
+                    break;
+                }
+            }
+        }
+    }
+}
+
 void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
 {
     struct PlayerInfo *player = get_my_player();
@@ -4895,95 +5027,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
     exp = min(cctrl->explevel,9);
     if (cam->view_mode != PVM_ParchmentView)
     {
-        health_spridx = choose_health_sprite(thing);
-        if (is_my_player_number(thing->owner))
-        {
-            lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
-            cctrl = creature_control_get_from_thing(thing);
-            if (game.play_gameturn - cctrl->thought_bubble_last_turn_drawn == 1)
-            {
-                if (cctrl->thought_bubble_display_timer < 40) {
-                    cctrl->thought_bubble_display_timer++;
-                }
-            } else {
-                if (game.play_gameturn - cctrl->thought_bubble_last_turn_drawn > 1) {
-                    cctrl->thought_bubble_display_timer = 0;
-                }
-            }
-            cctrl->thought_bubble_last_turn_drawn = game.play_gameturn;
-            if (cctrl->thought_bubble_display_timer == 40)
-            {
-                struct StateInfo *stati;
-                stati = get_creature_state_with_task_completion(thing);
-                if (!stati->field_23)
-                {
-                    if ((cctrl->spell_flags & CSAfF_MadKilling) != 0)
-                    {
-                        stati = &states[CrSt_MadKillingPsycho];
-                    }
-                    else if (anger_is_creature_livid(thing))
-                    {
-                        stati = &states[CrSt_CreatureLeavingDungeon];
-                    }
-                    else if (creature_is_called_to_arms(thing))
-                    {
-                        stati = &states[CrSt_ArriveAtCallToArms];
-                    }
-                    else if (creature_is_at_alarm(thing))
-                    {
-                        stati = &states[CrSt_ArriveAtAlarm];
-                    }
-                    else if (anger_is_creature_angry(thing))
-                    {
-                        stati = &states[CrSt_PersonSulkAtLair];
-                    }
-                    else if (hunger_is_creature_hungry(thing))
-                    {
-                        stati = &states[CrSt_CreatureArrivedAtGarden];
-                    }
-                    else if (creature_requires_healing(thing))
-                    {
-                        stati = &states[CrSt_CreatureSleep];
-                    }
-                    else if (cctrl->paydays_owed)
-                    {
-                        stati = &states[CrSt_CreatureWantsSalary];
-                    }
-                    else
-                    {
-                        stati = get_creature_state_with_task_completion(thing);
-                    }
-                    if ((*(short *)&stati->field_26 == 1) || (thing_pointed_at == thing))
-                    {
-                        state_spridx = stati->sprite_idx;
-                    }
-                    switch (anger_get_creature_anger_type(thing))
-                    {
-                    case AngR_NotPaid:
-                        if ((cctrl->paydays_owed <= 0) && (cctrl->paydays_advanced >= 0))
-                        {
-                            anger_spridx = GBS_creature_states_angry;
-                        }
-                        else
-                        {
-                            anger_spridx = GBS_creature_states_getgold;
-                        }
-                        break;
-                    case AngR_Hungry:
-                        anger_spridx = GBS_creature_states_hungry;
-                        break;
-                    case AngR_NoLair:
-                        anger_spridx = GBS_creature_states_sleep;
-                        break;
-                    case AngR_Other:
-                        anger_spridx = GBS_creature_states_angry;
-                        break;
-                    default:
-                        break;
-                    }
-                }
-            }
-        }
+        fill_status_sprite_indexes(thing, cctrl, &health_spridx, &state_spridx, &anger_spridx);
     }
 
     int h_add;
@@ -6510,7 +6554,7 @@ void draw_view(struct Camera *cam, unsigned char a2)
 
     draw_view_map_plane(cam, aposc, bposc, xcell, ycell);
 
-    if (map_volume_box.visible)
+    if ( (map_volume_box.visible) && (!game_is_busy_doing_gui()) )
     {
         poly_pool_end_reserve(0);
         process_isometric_map_volume_box(x, y, z, my_player_number);
@@ -7860,6 +7904,10 @@ void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
         thing_being_displayed_is_creature = 0;
         thing_being_displayed = NULL;
     }
+    if (render_sprite_debug_fn)
+    {
+        render_sprite_debug_fn(thing, jspr->scr_x, jspr->scr_y);
+    }
 
     if (
         ((thing->anim_sprite >= CREATURE_FRAMELIST_LENGTH) && (thing->anim_sprite < KEEPERSPRITE_ADD_OFFSET))
@@ -8787,7 +8835,8 @@ void draw_frontview_engine(struct Camera *cam)
     camera_zoom = interpolated_camera_zoom;
     cam_x = interpolated_cam_mappos_x;
     cam_y = interpolated_cam_mappos_y;
-
+    pointer_x = (GetMouseX() - player->engine_window_x) / pixel_size;
+    pointer_y = (GetMouseY() - player->engine_window_y) / pixel_size;
     UseFastBlockDraw = (camera_zoom == FRONTVIEW_CAMERA_ZOOM_MAX);
     LbScreenStoreGraphicsWindow(&grwnd);
     store_engine_window(&ewnd,pixel_size);
@@ -8848,7 +8897,7 @@ void draw_frontview_engine(struct Camera *cam)
     }
 
     update_frontview_pointed_block(zoom, qdrant, px, py, qx, qy);
-    if (map_volume_box.visible)
+    if ( (map_volume_box.visible) && (!game_is_busy_doing_gui()) )
     {
         process_frontview_map_volume_box(cam, ((zoom >> 8) & 0xFF), player->id_number);
     }
@@ -8898,5 +8947,50 @@ void draw_frontview_engine(struct Camera *cam)
     LbScreenLoadGraphicsWindow(&grwnd);
     cam->zoom = zoom_mem;//TODO [zoom] remove when all cam->zoom will be changed to camera_zoom
     SYNCDBG(9,"Finished");
+}
+
+static void render_sprite_debug_id(struct Thing* thing, long scr_x, long scr_y)
+{
+    if (render_sprite_debug_level < 2)
+    {
+        if (thing->class_id != TCls_Creature)
+            return;
+    }
+    ushort flg_mem = lbDisplay.DrawFlags;
+    lbDisplay.DrawFlags = Lb_TEXT_ONE_COLOR;
+    struct TbSprite *spr = &button_sprite[GBS_fontchars_number_dig0];
+    long w = scale_ui_value(spr->SWidth);
+    long h = scale_ui_value(spr->SHeight);
+
+    long val, value = thing->index;
+
+    // Count digits to be displayed
+    int ndigits=0;
+    for (val = value; val > 0; val /= 10)
+        ndigits++;
+    // Show the digits
+    scr_y -= h;
+    long pos_x = w * (ndigits - 1) / 2 + scr_x;
+    for (val = value; val > 0; val /= 10)
+    {
+        spr = &button_sprite[(val%10) + GBS_fontchars_number_dig0];
+        LbSpriteDrawScaled(pos_x, scr_y - h, spr, w, h);
+
+        pos_x -= w;
+    }
+    lbDisplay.DrawFlags = flg_mem;
+}
+
+void render_set_sprite_debug(int level)
+{
+    render_sprite_debug_level = level;
+    switch (level)
+    {
+        case 0:
+            render_sprite_debug_fn = NULL;
+            break;
+        default:
+            render_sprite_debug_fn = &render_sprite_debug_id;
+    }
 }
 /******************************************************************************/

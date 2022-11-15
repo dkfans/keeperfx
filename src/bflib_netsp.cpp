@@ -17,11 +17,13 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "bflib_netsp.hpp"
 
 #include "bflib_basics.h"
 #include "bflib_memory.h"
 #include "bflib_netsession.h"
+#include "post_inc.h"
 
 /******************************************************************************/
 // Nil callbacks declaration

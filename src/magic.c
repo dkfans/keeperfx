@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "magic.h"
 
 #include "globals.h"
@@ -58,6 +59,7 @@
 #include "sounds.h"
 #include "game_legacy.h"
 #include "creature_instances.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -910,7 +912,7 @@ TbResult magic_use_power_armageddon(PlayerNumber plyr_idx, unsigned long mod_fla
     }
     if (enemy_time_gap <= your_time_gap)
         enemy_time_gap = your_time_gap;
-    game.armageddon_field_15035A = game.armageddon.duration + enemy_time_gap;
+    game.armageddon_over_turn = game.armageddon.duration + enemy_time_gap;
     struct PowerConfigStats *powerst;
     powerst = get_power_model_stats(PwrK_ARMAGEDDON);
     play_non_3d_sample(powerst->select_sound_idx);
@@ -1848,16 +1850,26 @@ int affect_nearby_creatures_by_power_call_to_arms(PlayerNumber plyr_idx, long ra
 
 void process_magic_power_call_to_arms(PlayerNumber plyr_idx)
 {
-    struct Dungeon *dungeon;
-    dungeon = get_players_num_dungeon(plyr_idx);
-    long duration;
-    duration = game.play_gameturn - dungeon->cta_start_turn;
-    const struct MagicStats *pwrdynst;
-    pwrdynst = get_power_dynamic_stats(PwrK_CALL2ARMS);
-
-    struct SlabMap *slb;
-    slb = get_slabmap_for_subtile(dungeon->cta_stl_x, dungeon->cta_stl_y);
-    if (((pwrdynst->time < 1) || ((duration % pwrdynst->time) == 0)) && (slabmap_owner(slb) != plyr_idx))
+    struct Dungeon *dungeon = get_players_num_dungeon(plyr_idx);
+    long duration = game.play_gameturn - dungeon->cta_start_turn;
+    const struct MagicStats *pwrdynst = get_power_dynamic_stats(PwrK_CALL2ARMS);
+    struct SlabMap *slb = get_slabmap_for_subtile(dungeon->cta_stl_x, dungeon->cta_stl_y);
+    TbBool pay_land = (slabmap_owner(slb) != plyr_idx);
+    if (gameadd.allies_share_cta)
+    {
+        for (PlayerNumber i = 0; i < PLAYERS_COUNT; i++)
+        {
+            if (players_are_mutual_allies(plyr_idx, i))
+            {
+                if (slabmap_owner(slb) == i)
+                {
+                    pay_land = false;
+                    break;
+                }
+            }
+        }
+    }
+    if (((pwrdynst->time < 1) || ((duration % pwrdynst->time) == 0)) && pay_land)
     {
         if (!pay_for_spell(plyr_idx, PwrK_CALL2ARMS, dungeon->cta_splevel)) {
             if (is_my_player_number(plyr_idx))
@@ -1868,8 +1880,7 @@ void process_magic_power_call_to_arms(PlayerNumber plyr_idx)
     }
     if ((duration % 16) == 0)
     {
-        long range;
-        range = subtile_coord(pwrdynst->strength[dungeon->cta_splevel],0);
+        long range = subtile_coord(pwrdynst->strength[dungeon->cta_splevel],0);
         struct Coord3d cta_pos;
         cta_pos.x.val = subtile_coord_center(dungeon->cta_stl_x);
         cta_pos.y.val = subtile_coord_center(dungeon->cta_stl_y);
@@ -1919,10 +1930,10 @@ void process_dungeon_power_magic(void)
             }
             if (game.armageddon_cast_turn > 0)
             {
-                if (game.play_gameturn > game.armageddon_field_15035A)
+                if (game.play_gameturn > game.armageddon_over_turn)
                 {
                   game.armageddon_cast_turn = 0;
-                  game.armageddon_field_15035A = 0;
+                  game.armageddon_over_turn = 0;
                 }
             }
         }

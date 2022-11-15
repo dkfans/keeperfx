@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "room_scavenge.h"
 
 #include "globals.h"
@@ -25,6 +26,7 @@
 #include "dungeon_data.h"
 #include "thing_data.h"
 #include "thing_effects.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {

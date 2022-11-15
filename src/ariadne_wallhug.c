@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "ariadne_wallhug.h"
 
 #include "globals.h"
@@ -35,6 +36,7 @@
 #include "creature_control.h"
 #include "creature_states.h"
 #include "config_creature.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {

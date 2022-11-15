@@ -18,11 +18,13 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "bflib_memory.h"
 
 #include <string.h>
 #include <stdarg.h>
 #include <stdlib.h>
+#include "post_inc.h"
 
 /******************************************************************************/
 #ifdef __cplusplus

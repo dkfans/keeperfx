@@ -16,7 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-
+#include "pre_inc.h"
 #include "thing_data.h"
 #include "thing_list.h"
 #include "map_data.h"
@@ -36,6 +36,7 @@
 #include "room_util.h"
 
 #include "lvl_script_lib.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -390,37 +391,6 @@ TbBool script_use_special_locate_hidden_world()
     return activate_bonus_level(get_player(my_player_number));
 }
 
-static void set_variable(int player_idx, long var_type, long var_idx, long new_val)
-{
-    struct Dungeon *dungeon = get_dungeon(player_idx);
-    struct DungeonAdd *dungeonadd = get_dungeonadd(player_idx);
-    struct Coord3d pos = {0};
-
-    switch (var_type)
-    {
-    case SVar_FLAG:
-        set_script_flag(player_idx, var_idx, new_val);
-        break;
-    case SVar_CAMPAIGN_FLAG:
-        intralvl.campaign_flags[player_idx][var_idx] = new_val;
-        break;
-    case SVar_BOX_ACTIVATED:
-        dungeonadd->box_info.activated[var_idx] = saturate_set_unsigned(new_val, 8);
-        break;
-    case SVar_SACRIFICED:
-        dungeon->creature_sacrifice[var_idx] = saturate_set_unsigned(new_val, 8);
-        if (find_temple_pool(player_idx, &pos))
-        {
-            process_sacrifice_creature(&pos, var_idx, player_idx, false);
-        }
-        break;
-    case SVar_REWARDED:
-        dungeonadd->creature_awarded[var_idx] = new_val;
-        break;
-    default:
-        WARNLOG("Unexpected type:%d",(int)var_type);
-    }
-}
 /**
  * Processes given VALUE immediately.
  * This processes given script command. It is used to process VALUEs at start when they have
@@ -832,8 +802,10 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
   case Cmd_ALLY_PLAYERS:
       for (i=plr_start; i < plr_end; i++)
       {
-          set_ally_with_player(i, val2, val3);
-          set_ally_with_player(val2, i, val3);
+          set_ally_with_player(i, val2, (val3 & 1) ? true : false);
+          set_ally_with_player(val2, i, (val3 & 1) ? true : false);
+          set_player_ally_locked(i, val2, (val3 & 2) ? true : false);
+          set_player_ally_locked(val2, i, (val3 & 2) ? true : false);
       }
       break;
       break;
@@ -1289,6 +1261,18 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       case 28: //GameTurnsPerTortureHealthLoss
           SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.turns_per_torture_health_loss, val3);
           game.turns_per_torture_health_loss = val3;
+          break;
+      case 29: //AlliesShareVision
+          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.allies_share_vision, val3);
+          gameadd.allies_share_vision = (TbBool)val3;
+          break;
+      case 30: //AlliesShareDrop
+          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.allies_share_drop, val3);
+          gameadd.allies_share_drop = (TbBool)val3;
+          break;
+      case 31: //AlliesShareCta
+          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.allies_share_cta, val3);
+          gameadd.allies_share_cta = (TbBool)val3;
           break;
       default:
           WARNMSG("Unsupported Game RULE, command %d.", val2);

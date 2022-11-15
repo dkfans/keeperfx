@@ -1,3 +1,17 @@
+/******************************************************************************/
+// Free implementation of Bullfrog's Dungeon Keeper strategy game.
+/******************************************************************************/
+/** @file main_game.c
+ * @author KeeperFX Team
+ * @date 24 Sep 2021
+ * @par  Copying and copyrights:
+ *     This program is free software; you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation; either version 2 of the License, or
+ *     (at your option) any later version.
+ */
+/******************************************************************************/
+#include "pre_inc.h"
 #include "keeperfx.hpp"
 
 #include "bflib_coroutine.h"
@@ -29,6 +43,7 @@
 #include "vidmode.h"
 #include "custom_sprites.h"
 #include "gui_boxmenu.h"
+#include "post_inc.h"
 
 extern TbBool force_player_num;
 
@@ -183,7 +198,7 @@ static void init_level(void)
     ambient_sound_prepare();
     zero_messages();
     game.armageddon_cast_turn = 0;
-    game.armageddon_field_15035A = 0;
+    game.armageddon_over_turn = 0;
     init_messages();
     game.creatures_tend_imprison = 0;
     game.creatures_tend_flee = 0;

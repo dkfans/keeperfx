@@ -17,6 +17,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "config.h"
 
 #include <stdarg.h>
@@ -39,6 +40,7 @@
 #include "scrcapt.h"
 #include "vidmode.h"
 #include "music_player.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {

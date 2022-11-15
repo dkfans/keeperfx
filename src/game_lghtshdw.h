@@ -38,8 +38,8 @@ extern "C" {
 struct LightingTable { // sizeof = 8
   unsigned char is_populated;
   unsigned char distance; // 2 - 15
-  unsigned char delta_x;
-  unsigned char delta_y;
+  char delta_x; // signed
+  char delta_y; // signed
   unsigned long field_4; // strength? decay?
 };
 

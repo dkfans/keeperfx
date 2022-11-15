@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "creature_instances.h"
 
 #include "globals.h"
@@ -48,6 +49,7 @@
 #include "player_instances.h"
 
 #include "keeperfx.hpp"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -440,7 +442,7 @@ long instf_creature_fire_shot(struct Thing *creatng, long *param)
     int hittype;
     TRACE_THING(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    if (cctrl->targtng_idx <= 0)
+    if (cctrl->targtng_idx == 0)
     {
         if ((creatng->alloc_flags & TAlF_IsControlled) == 0)
             hittype = THit_CrtrsOnlyNotOwn;

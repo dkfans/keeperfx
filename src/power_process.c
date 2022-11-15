@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "power_process.h"
 
 #include "globals.h"
@@ -45,6 +46,7 @@
 #include "power_hand.h"
 
 #include "keeperfx.hpp"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -157,6 +159,16 @@ void process_armageddon(void)
     }
 }
 
+void teleport_armageddon_influenced_creature(struct Thing* creatng)
+{
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    cctrl->armageddon_teleport_turn = 0;
+    create_effect(&creatng->mappos, imp_spangle_effects[creatng->owner], creatng->owner);
+    move_thing_in_map(creatng, &game.armageddon.mappos);
+    cleanup_current_thing_state(creatng);
+    reset_interpolation_of_thing(creatng);
+}
+
 void process_armageddon_influencing_creature(struct Thing *creatng)
 {
     if (game.armageddon_cast_turn != 0)
@@ -165,17 +177,7 @@ void process_armageddon_influencing_creature(struct Thing *creatng)
         // If Armageddon is on, teleport creature to its position
         if ((cctrl->armageddon_teleport_turn != 0) && (cctrl->armageddon_teleport_turn <= game.play_gameturn))
         {
-            if (cctrl->instance_id == CrInst_NULL) // Avoid corruption from in progress instances, like claiming floors.
-            {
-                cctrl->armageddon_teleport_turn = 0;
-                create_effect(&creatng->mappos, imp_spangle_effects[creatng->owner], creatng->owner);
-                move_thing_in_map(creatng, &game.armageddon.mappos);
-                if (creature_is_kept_in_custody(creatng))
-                {
-                    set_start_state(creatng);
-                }
-                reset_interpolation_of_thing(creatng);
-            }
+            teleport_armageddon_influenced_creature(creatng);
         }
     }
 }

@@ -61,8 +61,6 @@ extern "C" {
 
 #define LENSES_COUNT           15
 #define SPELL_POINTER_GROUPS   14
-// Amount of instances; it's 17, 18 or 19
-#define PLAYER_INSTANCES_COUNT 19
 #define ZOOM_KEY_ROOMS_COUNT   15
 
 enum ModeFlags {
@@ -70,7 +68,7 @@ enum ModeFlags {
     MFlg_EyeLensReady       =  0x02,
     MFlg_unk04              =  0x04,
     MFlg_DeadBackToPool     =  0x08,
-    MFlg_NoCdMusic          =  0x10,
+    MFlg_NoCdMusic          =  0x10, // unused
     MFlg_unk20              =  0x20,
     MFlg_unk40              =  0x40,
     MFlg_NoHeroHealthFlower              =  0x80,
@@ -283,7 +281,6 @@ short zoom_to_next_annoyed_creature(void);
 
 TbBool LbIsFrozenOrPaused(void); // from bflib_inputctrl.cpp
 
-short ceiling_set_info(long height_max, long height_min, long step);
 void set_mouse_light(struct PlayerInfo *player);
 void delete_all_structures(void);
 void clear_map(void);
@@ -339,7 +336,6 @@ void initialise_map_collides(void);
 void initialise_map_health(void);
 void setup_3d(void);
 void setup_stuff(void);
-long ceiling_init(unsigned long a1, unsigned long a2);
 void give_shooter_drained_health(struct Thing *shooter, long health_delta);
 long get_foot_creature_has_down(struct Thing *thing);
 void process_keeper_spell_effect(struct Thing *thing);

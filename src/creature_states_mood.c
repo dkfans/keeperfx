@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "creature_states_mood.h"
 #include "globals.h"
 
@@ -39,6 +40,7 @@
 #include "room_jobs.h"
 #include "player_utils.h"
 #include "game_legacy.h"
+#include "post_inc.h"
 
 /******************************************************************************/
 TbBool creature_can_get_angry(const struct Thing *creatng)

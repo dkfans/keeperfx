@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "lvl_filesdk1.h"
 
 #include "globals.h"
@@ -31,11 +32,13 @@
 #include "config_campaigns.h"
 #include "config_terrain.h"
 #include "light_data.h"
+#include "map_ceiling.h"
 #include "map_utils.h"
 #include "thing_factory.h"
 #include "engine_textures.h"
 #include "game_legacy.h"
 #include "keeperfx.hpp"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {

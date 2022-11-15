@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "frontmenu_ingame_tabs.h"
 #include "globals.h"
 #include "bflib_basics.h"
@@ -62,6 +63,7 @@
 #include "kjm_input.h"
 #include "custom_sprites.h"
 #include "sprites.h"
+#include "post_inc.h"
 
 struct Around const draw_square[] = {
 { 0, 0},
@@ -486,7 +488,7 @@ void gui_area_big_room_button(struct GuiButton *gbtn)
     int units_per_px = (gbtn->width * 16 + 126 / 2) / 126;
     int ps_units_per_px = simple_gui_panel_sprite_width_units_per_px(gbtn, GPS_rpanel_frame_wide_empty, 100);
 
-    if (rkind == 0) {
+    if (rkind == RoK_NONE) {
         draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, GPS_rpanel_frame_wide_empty);
         lbDisplay.DrawFlags = flg_mem;
         return;
@@ -505,15 +507,20 @@ void gui_area_big_room_button(struct GuiButton *gbtn)
     lbDisplay.DrawFlags &= ~Lb_TEXT_ONE_COLOR;
 
     struct RoomConfigStats* roomst = get_room_kind_stats(rkind);
-    if ((player->work_state == PSt_BuildRoom) && (player->boxsize > 1))
+    unsigned char boxsize = player->boxsize;
+    if (boxsize == 0)
     {
-        sprintf(gui_textbuf, "%ld", (long)roomst->cost * player->boxsize);
+        boxsize = 1;
+    }
+    if ((player->work_state == PSt_BuildRoom) && (boxsize > 1))
+    {
+        sprintf(gui_textbuf, "%ld", (long)roomst->cost * boxsize);
     }
     else
     {
         sprintf(gui_textbuf, "%ld", (long)roomst->cost);
     }
-    if (roomst->cost * player->boxsize <= dungeon->total_money_owned)
+    if ((roomst->cost * boxsize) <= dungeon->total_money_owned)
     {
         if ((player->work_state == PSt_BuildRoom) && (player->chosen_room_kind == game.chosen_room_kind)
           && ((game.play_gameturn & 1) == 0))
@@ -1160,7 +1167,19 @@ void draw_centred_string64k(const char *text, short x, short y, short base_w, sh
     LbTextSetJustifyWindow((x - (dst_w / 2)), y, dst_w);
     LbTextSetClipWindow( (x - (dst_w / 2)), y, dst_w, 16*dst_w/base_w);
     lbDisplay.DrawFlags |= Lb_TEXT_HALIGN_CENTER;
-    LbTextDrawResized(0, -6*dst_w/base_w, (22 * units_per_pixel) / LbTextLineHeight(), text);
+    int tx_units_per_px;
+    int text_x;
+    if ( (MyScreenHeight < 400) && (dbc_language > 0) ) 
+    {
+        tx_units_per_px = scale_ui_value(32);
+        text_x = 12;
+    }
+    else
+    {
+        tx_units_per_px = (22 * units_per_pixel) / LbTextLineHeight();
+        text_x = 0;
+    }
+    LbTextDrawResized(text_x, -6*dst_w/base_w, tx_units_per_px, text);
     LbTextSetJustifyWindow(0, 0, LbGraphicsScreenWidth());
     LbTextSetClipWindow(0, 0, LbGraphicsScreenWidth(), LbGraphicsScreenHeight());
     LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
@@ -1620,7 +1639,7 @@ void gui_area_instance_button(struct GuiButton *gbtn)
     }
 
     // Calculating text size.
-    int tx_units_per_px = (gbtn->height * 11 / 12) * 16 / LbTextLineHeight();
+    int tx_units_per_px = ( (MyScreenHeight < 400) && (dbc_language > 0) ) ? scale_ui_value(32) : (gbtn->height * 11 / 12) * 16 / LbTextLineHeight();
     const char* text = buf_sprintf("%d", (curbtn_avail_pos + 1) % 10);
     LbTextDrawResized(gbtn->scr_pos_x + 52*units_per_px/16, gbtn->scr_pos_y + 9*units_per_px/16, tx_units_per_px, text);
     spr_idx = gbtn->sprite_idx;
@@ -1628,6 +1647,11 @@ void gui_area_instance_button(struct GuiButton *gbtn)
     long spkind = inst_inf->func_params[0];
     if (!creature_instance_has_reset(ctrltng, curbtn_inst_id) || ((spkind != 0) && thing_affected_by_spell(ctrltng, spkind)))
       spr_idx++;
+    if (MyScreenHeight < 400)
+    {
+        struct TbSprite* spr = &gui_panel_sprites[488];
+        ps_units_per_px = (22 * units_per_pixel) / spr->SHeight;
+    }
     draw_gui_panel_sprite_left(gbtn->scr_pos_x - 4*units_per_px/16, gbtn->scr_pos_y - 8*units_per_px/16, ps_units_per_px, spr_idx);
 }
 
@@ -1841,7 +1865,13 @@ void gui_area_stat_button(struct GuiButton *gbtn)
     if (thing->class_id == TCls_Creature)
     {
         const char* text = creature_statistic_text(thing, (long)gbtn->content);
-        draw_gui_panel_sprite_left(gbtn->scr_pos_x - 6*ps_units_per_px/16, gbtn->scr_pos_y - 12*ps_units_per_px/16, ps_units_per_px, gbtn->sprite_idx);
+        int x = gbtn->scr_pos_x - 6*ps_units_per_px/16;
+        int y = gbtn->scr_pos_y - 12*ps_units_per_px/16;
+        if (MyScreenHeight < 400)
+        {
+            y += (gbtn->height / 2);
+        }
+        draw_gui_panel_sprite_left(x, y, ps_units_per_px, gbtn->sprite_idx);
         draw_button_string(gbtn, 60, text);
     }
 }
@@ -2228,6 +2258,7 @@ void draw_whole_status_panel(void)
     pannel_map_draw_slabs(player->minimap_pos_x, player->minimap_pos_y, mm_units_per_px, mmzoom);
     long basic_zoom = player->minimap_zoom;
     pannel_map_draw_overlay_things(mm_units_per_px, mmzoom, basic_zoom);
+    reset_all_minimap_interpolation = false; // Done resetting
     unsigned char placefill_threshold = (LbScreenHeight() >= 400) ? 80 : 40;
     if (LbScreenHeight() - gmnu->height >= placefill_threshold)
     {
@@ -2238,7 +2269,7 @@ void draw_whole_status_panel(void)
 void gui_set_button_flashing(long btn_idx, long gameturns)
 {
     game.flash_button_index = btn_idx;
-    game.flash_button_gameturns = gameturns;
+    gameadd.flash_button_time = gameturns;
 }
 
 void update_room_tab_to_config(void)

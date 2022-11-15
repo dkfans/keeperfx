@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "thing_shots.h"
 
 #include "globals.h"
@@ -45,6 +46,7 @@
 #include "engine_lenses.h"
 
 #include "keeperfx.hpp"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -1028,7 +1030,9 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
             struct Coord3d pos2;
             pos2.x.val = killertng->mappos.x.val;
             pos2.y.val = killertng->mappos.y.val;
-            pos2.z.val = get_creature_eye_height(killertng) + killertng->mappos.z.val;
+            struct CreatureControl* cctrl = creature_control_get_from_thing(killertng);
+            short target_center = (killertng->solid_size_yz + ((killertng->solid_size_yz * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100)) / 2;
+            pos2.z.val = target_center + killertng->mappos.z.val;
             clear_thing_acceleration(shotng);
             set_thing_acceleration_angles(shotng, get_angle_xy_to(&shotng->mappos, &pos2), get_angle_yz_to(&shotng->mappos, &pos2));
             shotng->parent_idx = trgtng->parent_idx;

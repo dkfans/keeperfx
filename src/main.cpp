@@ -1,3 +1,17 @@
+/******************************************************************************/
+// Free implementation of Bullfrog's Dungeon Keeper strategy game.
+/******************************************************************************/
+/** @file main.cpp
+ * @author KeeperFX Team
+ * @date 01 Aug 2008
+ * @par  Copying and copyrights:
+ *     This program is free software; you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation; either version 2 of the License, or
+ *     (at your option) any later version.
+ */
+/******************************************************************************/
+#include "pre_inc.h"
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
@@ -76,6 +90,7 @@
 #include "room_entrance.h"
 #include "room_util.h"
 #include "map_columns.h"
+#include "map_ceiling.h"
 #include "map_events.h"
 #include "map_utils.h"
 #include "map_blocks.h"
@@ -108,6 +123,7 @@
 #ifdef AUTOTESTING
 #include "event_monitoring.h"
 #endif
+#include "post_inc.h"
 
 #ifdef _MSC_VER
 #define strcasecmp _stricmp
@@ -132,9 +148,6 @@ TbClockMSec last_loop_time=0;
 extern "C" {
 #endif
 
-// DLLIMPORT int _DK_can_thing_be_queried(struct Thing *thing, long a2);
-DLLIMPORT long _DK_ceiling_init(unsigned long a1, unsigned long a2);
-DLLIMPORT long _DK_ceiling_block_is_solid_including_corners_return_height(long a1, long a2, long a3);
 // Now variables
 DLLIMPORT extern HINSTANCE _DK_hInstance;
 
@@ -413,7 +426,7 @@ void affect_nearby_friends_with_alarm(struct Thing *traptng)
                     if (setup_person_move_to_position(thing, traptng->mappos.x.stl.num, traptng->mappos.y.stl.num, 0))
                     {
                         thing->continue_state = CrSt_ArriveAtAlarm;
-                        cctrl->field_2FA = game.play_gameturn + 800;
+                        cctrl->alarm_over_turn = game.play_gameturn + 800;
                         cctrl->alarm_stl_x = traptng->mappos.x.stl.num;
                         cctrl->alarm_stl_y = traptng->mappos.y.stl.num;
                     }
@@ -961,41 +974,6 @@ void init_keeper(void)
     game.numfield_D |= (GNFldD_Unkn20 | GNFldD_Unkn40);
     init_censorship();
     SYNCDBG(9,"Finished");
-}
-
-short ceiling_set_info(long height_max, long height_min, long step)
-{
-    SYNCDBG(6,"Starting");
-    long dist;
-    if (step <= 0)
-    {
-      ERRORLOG("Illegal ceiling step value");
-      return 0;
-    }
-    if (height_max > 15)
-    {
-      ERRORLOG("Max height is too high");
-      return 0;
-    }
-    if (height_min > height_max)
-    {
-      ERRORLOG("Ceiling max height is smaller than min height");
-      return 0;
-    }
-    dist = (height_max - height_min) / step;
-    if ( dist >= 2500 )
-      dist = 2500;
-    game.field_14A80C = dist;
-    if (dist > 20)
-    {
-      ERRORLOG("Ceiling search distance too big");
-      return 0;
-    }
-    game.field_14A804 = height_max;
-    game.field_14A808 = height_min;
-    game.field_14A814 = step;
-    game.field_14A810 = (2*game.field_14A80C+1) * (2*game.field_14A80C+1);
-    return 1;
 }
 
 /**
@@ -2221,23 +2199,23 @@ void check_players_won(void)
     if (!(game.system_flags & GSF_NetworkActive))
         return;
 
-    unsigned int playerIdx = 0;
-    for (; playerIdx < PLAYERS_COUNT; ++playerIdx)
+    struct PlayerInfo* curPlayer;
+    for (PlayerNumber playerIdx = 0; playerIdx < PLAYERS_COUNT; ++playerIdx)
     {
-        PlayerInfo* curPlayer = get_player(playerIdx);
+        curPlayer = get_player(playerIdx);
         if (!player_exists(curPlayer) || curPlayer->is_active != 1 || curPlayer->victory_state != VicS_Undecided)
             continue;
 
         // check if any other player is still alive
-        for (unsigned int secondPlayerIdx = 0; secondPlayerIdx < PLAYERS_COUNT; ++secondPlayerIdx)
+        for (PlayerNumber secondPlayerIdx = 0; secondPlayerIdx < PLAYERS_COUNT; ++secondPlayerIdx)
         {
             if (secondPlayerIdx == playerIdx)
                 continue;
 
-            PlayerInfo* otherPlayer = get_player(secondPlayerIdx);
-            if (player_exists(otherPlayer) && otherPlayer->is_active == 1)
+            struct PlayerInfo* otherPlayer = get_player(secondPlayerIdx);
+            if (player_exists(otherPlayer) && otherPlayer->victory_state == VicS_Undecided)
             {
-                Thing* heartng = get_player_soul_container(secondPlayerIdx);
+                struct Thing* heartng = get_player_soul_container(secondPlayerIdx);
                 if (heartng->active_state != ObSt_BeingDestroyed)
                     goto continueouterloop;
             }
@@ -2246,7 +2224,7 @@ void check_players_won(void)
     continueouterloop:
         ;
     }
-    set_player_as_won_level(&game.players[playerIdx]);
+    set_player_as_won_level(curPlayer);
 }
 
 void check_players_lost(void)
@@ -2783,11 +2761,11 @@ void update(void)
         game.field_14EA4B = 0;
         return;
     }
-    set_previous_camera_values();
+    player = get_my_player();
+    set_previous_camera_values(player);
 
     if ((game.operation_flags & GOF_Paused) == 0)
     {
-        player = get_my_player();
         if (player->additional_flags & PlaAF_LightningPaletteIsActive)
         {
             PaletteSetPlayerPalette(player, engine_palette);
@@ -3608,129 +3586,6 @@ void initialise_map_health(void)
     }
 }
 
-long ceiling_block_is_solid_including_corners_return_height(long a1, long a2, long a3)
-{
-    return _DK_ceiling_block_is_solid_including_corners_return_height(a1, a2, a3);
-}
-
-long get_ceiling_filled_subtiles_from_cubes(const struct Column *col)
-{
-    if (col->solidmask == 0) {
-        return 0;
-    }
-    int i;
-    for (i = COLUMN_STACK_HEIGHT-1; i >= 0; i--)
-    {
-        if (col->cubes[i] != 0)
-            break;
-    }
-    return i + 1;
-}
-
-int get_ceiling_or_floor_filled_subtiles(int stl_num)
-{
-    const struct Map *mapblk;
-    mapblk = get_map_block_at_pos(stl_num);
-    const struct Column *col;
-    col = get_map_column(mapblk);
-    if (get_map_ceiling_filled_subtiles(mapblk) > 0) {
-        return get_ceiling_filled_subtiles_from_cubes(col);
-    } else {
-        return get_map_floor_filled_subtiles(mapblk);
-    }
-}
-long ceiling_init(unsigned long a1, unsigned long a2)
-{
-    return _DK_ceiling_init(a1, a2);
-    //TODO Fix, then enable rewritten version
-    MapSubtlCoord stl_x;
-    MapSubtlCoord stl_y;
-    for (stl_y=0; stl_y < map_subtiles_y; stl_y++)
-    {
-        for (stl_x=0; stl_x < map_subtiles_x; stl_x++)
-        {
-            int filled_h;
-            if (map_pos_solid_at_ceiling(stl_x, stl_y))
-            {
-                filled_h = get_ceiling_or_floor_filled_subtiles(get_subtile_number(stl_x,stl_y));
-            } else
-            if (stl_x > 0 && map_pos_solid_at_ceiling(stl_x-1, stl_y))
-            {
-                filled_h = get_ceiling_or_floor_filled_subtiles(get_subtile_number(stl_x-1,stl_y));
-            } else
-            if (stl_y > 0 && map_pos_solid_at_ceiling(stl_x, stl_y-1))
-            {
-                filled_h = get_ceiling_or_floor_filled_subtiles(get_subtile_number(stl_x,stl_y-1));
-            } else
-            if (stl_x > 0 && stl_y > 0 && map_pos_solid_at_ceiling(stl_x-1, stl_y-1)) {
-                filled_h = get_ceiling_or_floor_filled_subtiles(get_subtile_number(stl_x-1,stl_y-1));
-            } else {
-                filled_h = -1;
-            }
-
-            if (filled_h <= -1)
-            {
-              if (game.field_14A810 <= 0)
-              {
-                  filled_h = game.field_14A804;
-              }
-              else
-              {
-                int i;
-                i = 0;
-                while ( 1 )
-                {
-                    struct MapOffset *sstep;
-                    sstep = &spiral_step[i];
-                    MapSubtlCoord cstl_x;
-                    MapSubtlCoord cstl_y;
-                    cstl_x = stl_x + sstep->h;
-                    cstl_y = stl_y + sstep->v;
-                    if ((cstl_x >= 0) && (cstl_x <= map_subtiles_x))
-                    {
-                        if ((cstl_y >= 0) && (cstl_y <= map_subtiles_y))
-                        {
-                            filled_h = ceiling_block_is_solid_including_corners_return_height(sstep->both + get_subtile_number(stl_x,stl_y), cstl_x, cstl_y);
-                            if (filled_h > -1)
-                            {
-                                int delta_tmp;
-                                int delta_max;
-                                delta_tmp = abs(stl_x - cstl_x);
-                                delta_max = abs(stl_y - cstl_y);
-                                if (delta_max <= delta_tmp)
-                                    delta_max = delta_tmp;
-                                if (filled_h < game.field_14A804)
-                                {
-                                    filled_h += game.field_14A814 * delta_max;
-                                    if (filled_h >= game.field_14A804)
-                                        filled_h = game.field_14A804;
-                                } else
-                                if ( filled_h > game.field_14A804 )
-                                {
-                                    filled_h -= game.field_14A814 * delta_max;
-                                    if (filled_h <= game.field_14A808)
-                                        filled_h = game.field_14A808;
-                                }
-                                break;
-                            }
-                        }
-                    }
-                    ++i;
-                    if (i >= game.field_14A810) {
-                        filled_h = game.field_14A804;
-                        break;
-                    }
-                }
-              }
-            }
-            struct Map *mapblk;
-            mapblk = get_map_block_at(stl_x,stl_y);
-            set_mapblk_filled_subtiles(mapblk, filled_h);
-        }
-    }
-    return 1;
-}
-
 static TbBool wait_at_frontend(void)
 {
     struct PlayerInfo *player;
@@ -4101,7 +3956,7 @@ short process_command_line(unsigned short argc, char *argv[])
       } else
       if (strcasecmp(parstr, "nocd") == 0)
       {
-          set_flag_byte(&start_params.flags_cd,MFlg_NoCdMusic,true);
+          features_enabled |= Ft_NoCdMusic;
       } else
       if (strcasecmp(parstr, "1player") == 0)
       {
@@ -4451,8 +4306,8 @@ int main(int argc, char *argv[])
 
 //TODO DLL_CLEANUP delete when won't be needed anymore
   memcpy(_DK_menu_list,menu_list,40*sizeof(struct GuiMenu *));
-  memcpy(_DK_player_instance_info,player_instance_info,17*sizeof(struct PlayerInstanceInfo));
-  memcpy(_DK_states,states,145*sizeof(struct StateInfo));
+  memcpy(_DK_player_instance_info, player_instance_info, sizeof(_DK_player_instance_info));
+  memcpy(_DK_states,states,sizeof(_DK_states));
 
 #if (BFDEBUG_LEVEL > 1)
   if (sizeof(struct Game) != SIZEOF_Game)

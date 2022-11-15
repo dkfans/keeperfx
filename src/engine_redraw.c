@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "engine_redraw.h"
 
 #include "globals.h"
@@ -62,6 +63,7 @@
 #include "packets.h"
 
 #include "keeperfx.hpp"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -88,7 +90,7 @@ static void draw_creature_view_icons(struct Thing* creatng)
     {
         spr = &gui_panel_sprites[488];
         ps_units_per_px = (22 * units_per_pixel) / spr->SHeight;
-        y = MyScreenHeight - scale_value_by_horizontal_resolution(spr->SHeight * 2);
+        y = MyScreenHeight - scale_ui_value_lofi(spr->SHeight * 2);
     }
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     for (int Spell = SplK_Freeze; Spell < SplK_TimeBomb; Spell++)
@@ -102,7 +104,7 @@ static void draw_creature_view_icons(struct Thing* creatng)
                 spridx++;
             }
             draw_gui_panel_sprite_left(x, y, ps_units_per_px, spridx);
-            x += scale_value_by_horizontal_resolution(spr->SWidth);
+            x += scale_ui_value_lofi(spr->SWidth);
         }
     }
     if ( (cctrl->dragtng_idx != 0) && ((creatng->alloc_flags & TAlF_IsDragged) == 0) )
@@ -1068,7 +1070,7 @@ void redraw_display(void)
     //LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
     LbTextSetFont(winfont);
     lbDisplay.DrawFlags &= ~Lb_TEXT_ONE_COLOR;
-    int tx_units_per_px = (22 * units_per_pixel) / LbTextLineHeight();
+    int tx_units_per_px = ( (MyScreenHeight < 400) && (dbc_language > 0) ) ? scale_ui_value(32) : (22 * units_per_pixel) / LbTextLineHeight();
     LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
     if ((player->allocflags & PlaF_NewMPMessage) != 0)
     {
@@ -1079,7 +1081,7 @@ void redraw_display(void)
         {
             if ( (bonus_timer_enabled()) || (script_timer_enabled()) || display_variable_enabled() )
             {
-                pos_y = ((pos_y << 3) + ((LbTextLineHeight()*units_per_pixel/16) * game.active_messages_count));
+                pos_y = ((pos_y << 3) + ((LbTextLineHeight()*units_per_pixel/16) * (game.active_messages_count << (MyScreenHeight < 400))));
             }
         }
         LbTextDrawResized(pos_x, pos_y, tx_units_per_px, text);
@@ -1137,9 +1139,22 @@ void redraw_display(void)
           long pos_y = 16 * units_per_pixel / 16;
           lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
           long h = LbTextLineHeight() * units_per_pixel / 16;
-          LbTextSetWindow(pos_x, pos_y, w, h);
+          int text_w = w;
+          int text_x = pos_x;
+          if (MyScreenHeight < 400)
+          {
+              w *= 2;
+              h *= 3;
+              text_w = w;
+              if (dbc_language > 0)
+              {
+                  text_w += 32;
+                  text_x -= 12;
+              }
+          }
+          LbTextSetWindow(text_x, pos_y, text_w, h);
           draw_slab64k(pos_x, pos_y, units_per_pixel, w, h);
-          LbTextDrawResized(0/pixel_size, 0/pixel_size, units_per_pixel, text);
+          LbTextDrawResized(0/pixel_size, 0/pixel_size, tx_units_per_px, text);
           LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
     }
     if (game.armageddon_cast_turn != 0)
@@ -1148,8 +1163,8 @@ void redraw_display(void)
         if (game.armageddon.count_down + game.armageddon_cast_turn <= game.play_gameturn)
         {
             i = 0;
-            if (game.armageddon_field_15035A - game.armageddon.duration <= game.play_gameturn)
-                i = game.armageddon_field_15035A - game.play_gameturn;
+            if (game.armageddon_over_turn - game.armageddon.duration <= game.play_gameturn)
+                i = game.armageddon_over_turn - game.play_gameturn;
       } else
       {
         i = game.play_gameturn - game.armageddon_cast_turn - game.armageddon.count_down;
@@ -1158,11 +1173,16 @@ void redraw_display(void)
       text = buf_sprintf(" %s %03d", get_string(get_power_name_strindex(PwrK_ARMAGEDDON)), i/2); // Armageddon message
       i = LbTextCharWidth(' ')*units_per_pixel/16;
       long w = LbTextStringWidth(text) * units_per_pixel / 16 + 6 * i;
-      long pos_x = MyScreenWidth - w - 16 * units_per_pixel / 16;
-      long pos_y = 16 * units_per_pixel / 16;
       i = LbTextLineHeight()*units_per_pixel/16;
       lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
       long h = pixel_size * i + pixel_size * i / 2;
+      if (MyScreenHeight < 400)
+      {
+          w *= 2;
+          h *= 2;
+      }
+      long pos_x = MyScreenWidth - w - 16 * units_per_pixel / 16;
+      long pos_y = 16 * units_per_pixel / 16;
       LbTextSetWindow(pos_x, pos_y, w, h);
       draw_slab64k(pos_x, pos_y, units_per_pixel, w, h);
       LbTextDrawResized(0/pixel_size, 0/pixel_size, tx_units_per_px, text);

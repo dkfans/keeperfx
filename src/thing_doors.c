@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "thing_doors.h"
 
 #include "globals.h"
@@ -31,12 +32,13 @@
 #include "ariadne.h"
 #include "ariadne_wallhug.h"
 #include "map_blocks.h"
+#include "map_ceiling.h"
 #include "map_utils.h"
 #include "sounds.h"
 #include "gui_topmsg.h"
 #include "game_legacy.h"
 #include "frontmenu_ingame_map.h"
-#include "keeperfx.hpp"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -602,7 +604,7 @@ void update_all_door_stats()
         struct Thing* thing = thing_get(i);
         i = thing->next_of_class
         TRACE_THING(thing);
-        struct DoorConfigStats* doorst = get_door_model_stats(thing->model) + thing->door.orientation;
+        struct DoorConfigStats* doorst = get_door_model_stats(thing->model);
         thing->health = doorst->health;
     }
 }

@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "front_input.h"
 
 #include "globals.h"
@@ -71,6 +72,7 @@
 #include "KeeperSpeech.h"
 
 #include <math.h>
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -1064,14 +1066,6 @@ long get_dungeon_control_action_inputs(void)
             {
                 (angle = 1024);
             }
-            else if (angle == 512)
-            {
-                (angle = 1536);
-            }
-            else if (angle == 1536)
-            {
-                (angle = 512);
-            }
             else
             {
                 (angle = 0);
@@ -1679,7 +1673,7 @@ short get_map_action_inputs(void)
         if (left_button_released) {
             left_button_released = 0;
             set_players_packet_action(player, PckA_ZoomFromMap, stl_x, stl_y, 0, 0);
-            reset_interpolation_for_parchment_view();
+            reset_interpolation_for_parchment_view(player);
             return true;
         }
     }
