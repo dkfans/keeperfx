@@ -817,15 +817,19 @@ long check_place_to_pretty_excluding(struct Thing *creatng, MapSlabCoord slb_x, 
     return 1;
 }
 
+DLLIMPORT long _DK_check_out_unreinforced_spiral(struct Thing *thing, int a2);
+
 static int check_out_unreinforced_spiral(struct Thing *thing, int a2)
 {
+
+    return _DK_check_out_unreinforced_spiral(thing,a2);
     int v4;
     SubtlCodedCoords stl_num;
     int v7;
     int v8;
     int v9;
     int v10;
-    struct Around *around;
+    struct Around *ar;
     long stl_y;
     long stl_x;
 
@@ -845,13 +849,13 @@ static int check_out_unreinforced_spiral(struct Thing *thing, int a2)
             {
                 v8 = 0;
                 v9 = v4 + 1;
-                around = &small_around[(v4 + 1) & 3];
+                ar = &small_around[(v4 + 1) & 3];
                 if (v7 > 0)
                 {
                     while (1)
                     {
-                        slb_x += around->delta_x;
-                        slb_y += around->delta_y;
+                        slb_x += ar->delta_x;
+                        slb_y += ar->delta_y;
                         if (slb_x >= 0 && slb_x < 85 && slb_y >= 0 && slb_y < 85 && check_place_to_reinforce(thing, slb_x, slb_y) > 0)
                         {
                             stl_num = 3 * slb_x + 1 + ((3 * (short)slb_y + 1) << 8);
@@ -866,7 +870,7 @@ static int check_out_unreinforced_spiral(struct Thing *thing, int a2)
                     }
                     thing->continue_state = CrSt_ImpArrivesAtReinforce;
                     cctrl->digger.working_stl = stl_num;
-                    cctrl->digger.byte_93 = 0;
+                    cctrl->digger.consecutive_reinforcements = 0;
                     return 1;
                 }
             LABEL_12:
@@ -882,11 +886,10 @@ static int check_out_unreinforced_spiral(struct Thing *thing, int a2)
     return 0;
 }
 
-static long check_out_unreinforced_place(struct Thing *thing)
+static long check_out_unreinforced_place_new(struct Thing *thing)
 {
     unsigned short working_stl;
     long result;
-    unsigned short working_stl;
     signed int v6;
     unsigned char v7;
     unsigned int v8;
@@ -954,11 +957,101 @@ static long check_out_unreinforced_place(struct Thing *thing)
         }
         thing->continue_state = CrSt_ImpArrivesAtReinforce;
         cctrl->digger.working_stl = stl_num;
-        cctrl->digger.byte_93 = 0;
+        cctrl->digger.consecutive_reinforcements = 0;
         return 1;
     }
     return result;
 }
+
+DLLIMPORT long _DK_check_out_unreinforced_place(struct Thing *creatng);
+
+static long check_out_unreinforced_place(struct Thing *spdigtng)
+{
+    struct CreatureControl* cctrl = creature_control_get_from_thing(spdigtng);
+    struct Dungeon *dungeon = get_dungeon(spdigtng->owner);
+
+    struct DiggerStack temp_digger_stack[DIGGER_TASK_MAX_COUNT];
+
+    for ( int i = 0; dungeon->digger_stack_length > i; i++ )
+    {
+        temp_digger_stack[i] = dungeon->digger_stack[i];
+    }
+
+
+
+    unsigned char thing_continue               = spdigtng->continue_state                ;
+    unsigned char thing_active                 = spdigtng->active_state                  ;
+    unsigned char thing_state_flags            = spdigtng->state_flags                   ;
+    unsigned char thing_continue_state         = spdigtng->continue_state                ;
+    unsigned char cctrl_stopped_for_hand_turns = cctrl->stopped_for_hand_turns           ;
+    unsigned char cctrl_instance_id            = cctrl->instance_id                      ;
+    ushort        cctrl_inst_turn              = cctrl->inst_turn                        ;
+    ushort        cctrl_moveto_pos_x           = cctrl->moveto_pos.x.val                 ;
+    ushort        cctrl_moveto_pos_y           = cctrl->moveto_pos.y.val                 ;
+    ushort        cctrl_moveto_pos_z           = cctrl->moveto_pos.z.val                 ;    
+    ushort        cctrl_digger_working_stl     = cctrl->digger.working_stl               ;
+    unsigned char cctrl_digger_con_reinfor     = cctrl->digger.consecutive_reinforcements;
+    unsigned char cctrl_move_flags             = cctrl->move_flags                       ;
+
+    TbBool old = _DK_check_out_unreinforced_place(spdigtng);
+
+    for ( int i = 0; dungeon->digger_stack_length > i; i++ )
+    {
+        dungeon->digger_stack[i] = temp_digger_stack[i];
+    }
+
+    unsigned char _thing_continue               = spdigtng->continue_state                ;
+    unsigned char _thing_active                 = spdigtng->active_state                  ;
+    unsigned char _thing_state_flags            = spdigtng->state_flags                   ;
+    unsigned char _thing_continue_state         = spdigtng->continue_state                ;
+    unsigned char _cctrl_stopped_for_hand_turns = cctrl->stopped_for_hand_turns           ;
+    unsigned char _cctrl_instance_id            = cctrl->instance_id                      ;
+    ushort        _cctrl_inst_turn              = cctrl->inst_turn                        ;
+    ushort        _cctrl_moveto_pos_x           = cctrl->moveto_pos.x.val                 ;
+    ushort        _cctrl_moveto_pos_y           = cctrl->moveto_pos.y.val                 ;
+    ushort        _cctrl_moveto_pos_z           = cctrl->moveto_pos.z.val                 ;    
+    ushort        _cctrl_digger_working_stl     = cctrl->digger.working_stl               ;
+    unsigned char _cctrl_digger_con_reinfor     = cctrl->digger.consecutive_reinforcements;
+    unsigned char _cctrl_move_flags             = cctrl->move_flags                       ;
+
+    spdigtng->continue_state                 = thing_continue               ;
+    spdigtng->active_state                   = thing_active                 ;
+    spdigtng->state_flags                    = thing_state_flags            ;
+    spdigtng->continue_state                 = thing_continue_state         ;
+    cctrl->stopped_for_hand_turns            = cctrl_stopped_for_hand_turns ;
+    cctrl->instance_id                       = cctrl_instance_id            ;
+    cctrl->inst_turn                         = cctrl_inst_turn              ;
+    cctrl->moveto_pos.x.val                  = cctrl_moveto_pos_x           ;
+    cctrl->moveto_pos.y.val                  = cctrl_moveto_pos_y           ;
+    cctrl->moveto_pos.z.val                  = cctrl_moveto_pos_z           ;
+    cctrl->digger.working_stl                = cctrl_digger_working_stl     ;
+    cctrl->digger.consecutive_reinforcements = cctrl_digger_con_reinfor     ;
+    cctrl->move_flags                        = cctrl_move_flags             ;
+
+
+
+    TbBool new = check_out_unreinforced_place_new(spdigtng);
+
+    if(spdigtng->continue_state                 != _thing_continue              ) JUSTLOG("thing_continue               %d %d",_thing_continue              ,spdigtng->continue_state                );
+    if(spdigtng->active_state                   != _thing_active                ) JUSTLOG("thing_active                 %d %d",_thing_active                ,spdigtng->active_state                  );
+    if(spdigtng->state_flags                    != _thing_state_flags           ) JUSTLOG("thing_state_flags            %d %d",_thing_state_flags           ,spdigtng->state_flags                   );
+    if(spdigtng->continue_state                 != _thing_continue_state        ) JUSTLOG("thing_continue_state         %d %d",_thing_continue_state        ,spdigtng->continue_state                );
+    if(cctrl->stopped_for_hand_turns            != _cctrl_stopped_for_hand_turns) JUSTLOG("cctrl_stopped_for_hand_turns %d %d",_cctrl_stopped_for_hand_turns,cctrl->stopped_for_hand_turns           );
+    if(cctrl->instance_id                       != _cctrl_instance_id           ) JUSTLOG("cctrl_instance_id            %d %d",_cctrl_instance_id           ,cctrl->instance_id                      );
+    if(cctrl->inst_turn                         != _cctrl_inst_turn             ) JUSTLOG("cctrl_inst_turn              %d %d",_cctrl_inst_turn             ,cctrl->inst_turn                        );
+    if(cctrl->moveto_pos.x.val                  != _cctrl_moveto_pos_x          ) JUSTLOG("cctrl_moveto_pos_x           %d %d",_cctrl_moveto_pos_x          ,cctrl->moveto_pos.x.val                 );
+    if(cctrl->moveto_pos.y.val                  != _cctrl_moveto_pos_y          ) JUSTLOG("cctrl_moveto_pos_y           %d %d",_cctrl_moveto_pos_y          ,cctrl->moveto_pos.y.val                 );
+    if(cctrl->moveto_pos.z.val                  != _cctrl_moveto_pos_z          ) JUSTLOG("cctrl_moveto_pos_z           %d %d",_cctrl_moveto_pos_z          ,cctrl->moveto_pos.z.val                 );
+    if(cctrl->digger.working_stl                != _cctrl_digger_working_stl    ) JUSTLOG("cctrl_digger_working_stl     %d %d",_cctrl_digger_working_stl    ,cctrl->digger.working_stl               );
+    if(cctrl->digger.consecutive_reinforcements != _cctrl_digger_con_reinfor    ) JUSTLOG("cctrl_digger_con_reinfor     %d %d",_cctrl_digger_con_reinfor    ,cctrl->digger.consecutive_reinforcements);
+    if(cctrl->move_flags                        != _cctrl_move_flags            ) JUSTLOG("cctrl_move_flags             %d %d",_cctrl_move_flags            ,cctrl->move_flags                       );
+
+    JUSTLOG("check %d %d",old,new);
+
+    return new;
+
+}
+
 
 long check_out_unreinforced_area(struct Thing *thing)
 {
@@ -2850,7 +2943,7 @@ long check_out_worker_reinforce_wall(struct Thing *thing, struct DiggerStack *ds
         return 0;
     }
     thing->continue_state = CrSt_ImpArrivesAtReinforce;
-    cctrl->digger.byte_93 = 0;
+    cctrl->digger.consecutive_reinforcements = 0;
     cctrl->word_8D = dstack->stl_num;
     cctrl->digger.last_did_job = SDLstJob_ReinforceWall3;
     return 1;
