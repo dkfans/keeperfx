@@ -880,12 +880,12 @@ unsigned short get_slide_z_coord(const struct Thing *thing, const struct Coord3d
 }
 
 TbBool move_object_to_nearest_free_position(struct Thing *thing)
-{            
+{
     struct Coord3d pos;
     MapCoordDelta nav_radius = thing_nav_sizexy(thing) / 2;
 
-    MapSubtlCoord start_stl_x = thing->mappos.x.stl.pos;
-    MapSubtlCoord start_stl_y = thing->mappos.y.stl.pos;
+    MapSubtlCoord start_stl_x = thing->mappos.x.stl.num;
+    MapSubtlCoord start_stl_y = thing->mappos.y.stl.num;
 
     for (int k = 0; k < 120; k++)
     {
@@ -895,7 +895,7 @@ TbBool move_object_to_nearest_free_position(struct Thing *thing)
         struct Map *mapblk = get_map_block_at(stl_x, stl_y);
 
 
-        if (!map_block_invalid(mapblk) && (mapblk->flags & SlbAtFlg_Blocking) == 0 && !find_base_thing_on_mapwho(TCls_Object, 0, stl_x, stl_y))
+        if (!map_block_invalid(mapblk) && (mapblk->flags & SlbAtFlg_Blocking) == 0 && thing_is_invalid(find_base_thing_on_mapwho(TCls_Object, 0, stl_x, stl_y)))
         {
             pos.x.val = subtile_coord_center(stl_x);
             pos.y.val = subtile_coord_center(stl_y);
