@@ -32,7 +32,7 @@ extern "C"
 
 DLLIMPORT long _DK_ceiling_init(unsigned long a1, unsigned long a2);
 DLLIMPORT long _DK_ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey);
-static signed char *ceiling_cache;
+static char ceiling_cache[256*256];
 
 static int find_column_height_including_lintels(struct Column *col)
 {
@@ -155,7 +155,7 @@ long ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey)
     int cstl_y;
     int cstl_x;
     int stl_num;
-    signed char is_solid_including_corners_return_height;
+    signed char is_solid;
     unsigned long *p_data;
     int v22;
     int v23;
@@ -211,7 +211,7 @@ long ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey)
         v11 = 256;
     v39 = v11;
     v12 = v11;
-    ceiling_cache = (signed char*)scratch;
+    //ceiling_cache = (signed char*)scratch;
     v13 = v45 - game.ceiling_dist;
     if (v45 - game.ceiling_dist <= 0)
         v13 = 0;
@@ -227,7 +227,6 @@ long ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey)
         v16 = 256;
     v41 = v16;
     cstl_y = v14;
-
     
     if (v14 < v16)
     {
@@ -236,18 +235,19 @@ long ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey)
         {
             cstl_x = v44;
 
-            for (stl_num = v44 + v43; cstl_x < v15; ceiling_cache[stl_num - 1] = is_solid_including_corners_return_height)
-                is_solid_including_corners_return_height = ceiling_block_is_solid_including_corners_return_height(
-                    stl_num++,
-                    cstl_x++,
-                    cstl_y);
+            stl_num = v44 + v43;
+            while (cstl_x < v15)
+            {
+                is_solid = ceiling_block_is_solid_including_corners_return_height(stl_num,cstl_x,cstl_y);
+                stl_num++;
+                cstl_x++;
+                ceiling_cache[stl_num - 1] = is_solid;
+
+            }
             ++cstl_y;
             v43 += 256;
         } while (cstl_y < v41);
     }
-
-
-    
 
     if (v40 < v39)
     {
