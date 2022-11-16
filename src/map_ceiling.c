@@ -136,6 +136,9 @@ static int ceiling_calculate_height_from_nearest_walls(int result, int number_of
     return result;
 }
 
+
+//todo cleanup this function
+//also ceiling_cache used to use scratch but that caused a crash somehow so now it just wastes 65kb for no reason
 long ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey)
 {
     int v5;
