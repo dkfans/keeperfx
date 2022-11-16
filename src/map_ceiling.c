@@ -44,7 +44,7 @@ static int find_column_height_including_lintels(struct Column *col)
     return i + 1;
 }
 
-static int ceiling_block_is_solid_including_corners_return_height(SubtlCodedCoords stl_num, int a2, int a3)
+static int ceiling_block_is_solid_including_corners_return_height(SubtlCodedCoords stl_num, int cstl_x, int cstl_y)
 {
     struct Column *col;
     unsigned char v6;
@@ -58,9 +58,9 @@ static int ceiling_block_is_solid_including_corners_return_height(SubtlCodedCoor
     unsigned char bitfields;
     if ((game.map[stl_num].flags & SlbAtFlg_Blocking) == 0 && (game.columns.lookup[game.map[stl_num].data & 0x7FF]->bitfields & CLF_CEILING_MASK) == 0)
     {
-        if (a2 <= 0)
+        if (cstl_x <= 0)
         {
-            if (a3 > 0)
+            if (cstl_y > 0)
             {
                 v17 = stl_num - 256;
                 if ((game.map[v17].flags & SlbAtFlg_Blocking) != 0 || (game.columns.lookup[game.map[v17].data & 0x7FF]->bitfields & CLF_CEILING_MASK) != 0)
@@ -84,7 +84,7 @@ static int ceiling_block_is_solid_including_corners_return_height(SubtlCodedCoor
                     return find_column_height_including_lintels(col);
                 return v10 >> 4;
             }
-            if (a3 > 0)
+            if (cstl_y > 0)
             {
                 v11 = stl_num - 256;
                 if ((game.map[v11].flags & SlbAtFlg_Blocking) != 0 || (game.columns.lookup[game.map[v11].data & 0x7FF]->bitfields & CLF_CEILING_MASK) != 0)
@@ -139,7 +139,7 @@ static int ceiling_calculate_height_from_nearest_walls(int result, int number_of
 
 long ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey)
 {
-    return _DK_ceiling_partially_recompute_heights(sx, sy, ex, ey); 
+    //return _DK_ceiling_partially_recompute_heights(sx, sy, ex, ey); 
     int v5;
     int v6;
     int v7;
@@ -152,9 +152,9 @@ long ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey)
     int v14;
     int v15;
     int v16;
-    int v17;
-    int v18;
-    int i;
+    int cstl_y;
+    int cstl_x;
+    int stl_num;
     signed char is_solid_including_corners_return_height;
     unsigned long *p_data;
     int v22;
@@ -226,22 +226,29 @@ long ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey)
     if (v12 + game.ceiling_dist >= 256)
         v16 = 256;
     v41 = v16;
-    v17 = v14;
+    cstl_y = v14;
+
+    
     if (v14 < v16)
     {
         v43 = v14 << 8;
         do
         {
-            v18 = v44;
-            for (i = v44 + v43; v18 < v15; ceiling_cache[i - 1] = is_solid_including_corners_return_height)
+            cstl_x = v44;
+
+            for (stl_num = v44 + v43; cstl_x < v15; ceiling_cache[stl_num - 1] = is_solid_including_corners_return_height)
                 is_solid_including_corners_return_height = ceiling_block_is_solid_including_corners_return_height(
-                    i++,
-                    v18++,
-                    v17);
-            ++v17;
+                    stl_num++,
+                    cstl_x++,
+                    cstl_y);
+            ++cstl_y;
             v43 += 256;
-        } while (v17 < v41);
+        } while (cstl_y < v41);
     }
+
+
+    
+
     if (v40 < v39)
     {
         v46 = v40 << 8;
