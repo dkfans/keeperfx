@@ -31,7 +31,6 @@ extern "C"
 #endif
 
 DLLIMPORT long _DK_ceiling_init(unsigned long a1, unsigned long a2);
-DLLIMPORT long _DK_ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey);
 static char ceiling_cache[256*256];
 
 static int find_column_height_including_lintels(struct Column *col)
