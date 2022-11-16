@@ -16,12 +16,14 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "map_locations.h"
 #include "globals.h"
 #include "game_merge.h"
 #include "game_legacy.h"
 #include "bflib_math.h"
 #include "player_instances.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -206,14 +208,14 @@ TbBool get_map_location_code_name(TbMapLocation location, char *name)
         if (apt->num <= 0) {
             break;
         }
-        itoa(apt->num, name, 10);
+        snprintf(name, MAX_TEXT_LENGTH, "%d", apt->num);
         };return true;
     case MLoc_HEROGATE:{
         i = get_map_location_longval(location);
         if (i <= 0) {
             break;
         }
-        itoa(-i, name, 10);
+        snprintf(name, MAX_TEXT_LENGTH, "%ld", -i);
         };return true;
     case MLoc_PLAYERSHEART:{
         i = get_map_location_longval(location);

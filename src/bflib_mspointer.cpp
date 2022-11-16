@@ -17,6 +17,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "bflib_mspointer.hpp"
 
 #include <string.h>
@@ -31,6 +32,7 @@
 #include "bflib_vidraw.h"
 
 #include "keeperfx.hpp"
+#include "post_inc.h"
 /******************************************************************************/
 struct SSurface;
 /******************************************************************************/

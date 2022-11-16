@@ -75,6 +75,7 @@ TbBool creature_is_being_attacked_by_enemy_creature_not_digger(struct Thing *fig
 TbBool creature_has_creature_in_combat(const struct Thing *thing, const struct Thing *enmtng);
 TbBool set_creature_combat_state(struct Thing *fighter, struct Thing *enemy, CrAttackType attack_type);
 TbBool battle_with_creature_of_player(PlayerNumber plyr_idx, BattleIndex battle_id);
+TbBool creature_would_benefit_from_healing(const struct Thing* thing);
 
 long project_creature_attack_target_damage(const struct Thing *firing, const struct Thing *target);
 

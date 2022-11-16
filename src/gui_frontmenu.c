@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "gui_frontmenu.h"
 
 #include "globals.h"
@@ -30,6 +31,7 @@
 #include "gui_boxmenu.h"
 
 #include "keeperfx.hpp"
+#include "post_inc.h"
 
 /******************************************************************************/
 struct GuiMenu *get_active_menu(MenuNumber num)

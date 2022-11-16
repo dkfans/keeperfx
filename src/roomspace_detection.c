@@ -19,7 +19,9 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "slab_data.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {

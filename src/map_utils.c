@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "map_utils.h"
 
 #include "globals.h"
@@ -30,6 +31,7 @@
 #include "config_terrain.h"
 #include "game_merge.h"
 #include "game_legacy.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -285,6 +287,39 @@ TbBool get_position_spiral_near_map_block_with_filter(struct Coord3d *retpos, Ma
                     break;
             }
       }
+    }
+    return (maximizer > 0);
+}
+
+TbBool get_position_next_to_map_block_with_filter(struct Coord3d* retpos, MapCoord x, MapCoord y, Coord_Maximizer_Filter filter, MaxCoordFilterParam param)
+{
+    SYNCDBG(19, "Starting");
+    long maximizer = 0;
+    for (int around_val = 0; around_val < SMALL_AROUND_LENGTH; around_val++)
+    {
+        MapSubtlCoord sx = coord_subtile(x) + (small_around[around_val].delta_x * STL_PER_SLB);
+        MapSubtlCoord sy = coord_subtile(y) + (small_around[around_val].delta_y * STL_PER_SLB);
+        struct Map* mapblk = get_map_block_at(sx, sy);
+        if (!map_block_invalid(mapblk))
+        {
+            long n = maximizer;
+            struct Coord3d newpos;
+            newpos.x.val = subtile_coord_center(sx);
+            newpos.y.val = subtile_coord_center(sy);
+            newpos.z.val = 0;
+            n = filter(&newpos, param, n);
+            if (n >= maximizer)
+            {
+                retpos->x.val = newpos.x.val;
+                retpos->y.val = newpos.y.val;
+                retpos->z.val = newpos.z.val;
+                maximizer = n;
+                if (maximizer == LONG_MAX)
+                {
+                    break;
+                }
+            }
+        }
     }
     return (maximizer > 0);
 }

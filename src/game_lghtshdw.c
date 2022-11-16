@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "game_lghtshdw.h"
 
 #include "globals.h"
@@ -23,6 +24,7 @@
 #include "bflib_memory.h"
 
 #include "map_data.h"
+#include "post_inc.h"
 
 /******************************************************************************/
 long get_subtile_lightness(const struct LightsShadows * lish, MapSubtlCoord stl_x, MapSubtlCoord stl_y)

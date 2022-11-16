@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "creature_control.h"
 #include "globals.h"
 
@@ -33,6 +34,7 @@
 #include "light_data.h"
 #include "sounds.h"
 #include "game_legacy.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -153,7 +155,7 @@ struct Thing *create_and_control_creature_as_controller(struct PlayerInfo *playe
     set_selected_creature(player, thing);
     player->view_mode_restore = cam->view_mode;
     thing->alloc_flags |= TAlF_IsControlled;
-    thing->field_4F |= TF4F_Unknown01;
+    thing->rendering_flags |= TRF_Unknown01;
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     cctrl->flgfield_2 |= TF2_Spectator;
     cctrl->max_speed = calculate_correct_creature_maxspeed(thing);

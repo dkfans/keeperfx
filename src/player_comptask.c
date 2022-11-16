@@ -17,6 +17,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "player_computer.h"
 
 #include <limits.h>
@@ -59,6 +60,7 @@
 #include "cursor_tag.h"
 
 #include "keeperfx.hpp"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -581,6 +583,8 @@ void computer_pick_thing_by_hand(struct Computer2 *comp, struct Thing *thing)
         external_set_thing_state(thing, CrSt_InPowerHand);
         remove_all_traces_of_combat(thing);
     }
+    struct ThingAdd* thingadd = get_thingadd(thing->index);
+    thingadd->holding_player = comp->dungeon->owner;
     place_thing_in_limbo(thing);
 }
 
@@ -3385,40 +3389,40 @@ TbBool create_task_move_creature_to_pos(struct Computer2 *comp, const struct Thi
         return false;
     }
     if ((gameadd.computer_chat_flags & CChat_TasksFrequent) != 0) {
-        struct CreatureData *crdata;
-        crdata = creature_data_get(thing->model);
+        struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[thing->model];
+
         switch (dst_state)
         {
         case CrSt_ImpImprovesDungeon:
-            message_add_fmt(comp->dungeon->owner, "This %s should go claiming.",get_string(crdata->namestr_idx));
+            message_add_fmt(comp->dungeon->owner, "This %s should go claiming.",get_string(crconf->namestr_idx));
             break;
         case CrSt_ImpDigsDirt:
-            message_add_fmt(comp->dungeon->owner, "This %s should go digging.",get_string(crdata->namestr_idx));
+            message_add_fmt(comp->dungeon->owner, "This %s should go digging.",get_string(crconf->namestr_idx));
             break;
         case CrSt_ImpMinesGold:
-            message_add_fmt(comp->dungeon->owner, "This %s should go mining.",get_string(crdata->namestr_idx));
+            message_add_fmt(comp->dungeon->owner, "This %s should go mining.",get_string(crconf->namestr_idx));
             break;
         case CrSt_CreatureDoingNothing:
         case CrSt_ImpDoingNothing:
-            message_add_fmt(comp->dungeon->owner, "This %s should stop doing that.",get_string(crdata->namestr_idx));
+            message_add_fmt(comp->dungeon->owner, "This %s should stop doing that.",get_string(crconf->namestr_idx));
             break;
         case CrSt_CreatureSacrifice:
             if (thing->model == gameadd.cheaper_diggers_sacrifice_model) {
                 struct PowerConfigStats *powerst;
                 powerst = get_power_model_stats(PwrK_MKDIGGER);
-                message_add_fmt(comp->dungeon->owner, "Sacrificing %s to reduce %s price.",get_string(crdata->namestr_idx),get_string(powerst->name_stridx));
+                message_add_fmt(comp->dungeon->owner, "Sacrificing %s to reduce %s price.",get_string(crconf->namestr_idx),get_string(powerst->name_stridx));
                 break;
             }
-            message_add_fmt(comp->dungeon->owner, "This %s will be sacrificed.",get_string(crdata->namestr_idx));
+            message_add_fmt(comp->dungeon->owner, "This %s will be sacrificed.",get_string(crconf->namestr_idx));
             break;
         case CrSt_Torturing:
-            message_add_fmt(comp->dungeon->owner, "This %s should be tortured.", get_string(crdata->namestr_idx));
+            message_add_fmt(comp->dungeon->owner, "This %s should be tortured.", get_string(crconf->namestr_idx));
             break;
         case CrSt_CreatureDoorCombat:
-            message_add_fmt(comp->dungeon->owner, "This %s should attack a door.", get_string(crdata->namestr_idx));
+            message_add_fmt(comp->dungeon->owner, "This %s should attack a door.", get_string(crconf->namestr_idx));
             break;
         default:
-            message_add_fmt(comp->dungeon->owner, "This %s should go there.",get_string(crdata->namestr_idx));
+            message_add_fmt(comp->dungeon->owner, "This %s should go there.",get_string(crconf->namestr_idx));
             break;
         }
     }
@@ -3773,9 +3777,8 @@ TbBool create_task_attack_magic(struct Computer2 *comp, const struct Thing *crea
     if ((gameadd.computer_chat_flags & CChat_TasksScarce) != 0) {
         struct PowerConfigStats *powerst;
         powerst = get_power_model_stats(pwkind);
-        struct CreatureData *crdata;
-        crdata = creature_data_get(creatng->model);
-        message_add_fmt(comp->dungeon->owner, "Casting %s on %s!",get_string(powerst->name_stridx),get_string(crdata->namestr_idx));
+        struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[creatng->model];
+        message_add_fmt(comp->dungeon->owner, "Casting %s on %s!",get_string(powerst->name_stridx),get_string(crconf->namestr_idx));
     }
     ctask->ttype = CTT_AttackMagic;
     ctask->attack_magic.target_thing_idx = creatng->index;
