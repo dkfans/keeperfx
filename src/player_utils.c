@@ -499,11 +499,11 @@ void fill_in_explored_area(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlC
     char *v3;
     unsigned char *v4;
     int v5;
-    struct SlabMap *v6;
+    struct SlabMap *slb;
     int v7;
     unsigned int *v8;
     int block_flags;
-    struct Map *v10;
+    struct Map *mapblk;
     int v11;
     int data;
     int v13;
@@ -521,7 +521,7 @@ void fill_in_explored_area(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlC
     int v25;
     char *v26;
     int v27;
-    unsigned int *v28;
+    long *v28;
     char *v29;
     unsigned int v30;
 
@@ -542,13 +542,13 @@ char byte_522199[11] =
   0,  0
 };
 
-    v3 = scratch;
+    v3 = (char*) scratch;
     v4 = scratch;
     v26 = (char *)scratch + 7225;
     memset((void *)scratch, 0, 0x1C38u);
     v4[7224] = 0;
     v5 = 0;
-    v6 = game.slabmap;
+    slb = game.slabmap;
     v28 = &map_to_slab[1];
     do
     {
@@ -556,28 +556,31 @@ char byte_522199[11] =
         v8 = &map_to_slab[1];
         do
         {
-            struct SlabAttr *slbattr = get_slab_attrs(v6);
+            struct SlabAttr *slbattr = get_slab_attrs(slb);
             block_flags = slbattr->block_flags;
-            if ((block_flags & 0x29) != 0 || (block_flags & 0x40) != 0 && (game.slabmap[85 * *v28 + *v8].flags & 7) != plyr_idx)
+
+            
+
+            if ((block_flags & 0x29) != 0 || ((block_flags & 0x40) != 0 && slabmap_owner(slb) != plyr_idx))
             {
                 v3[v7 + v5] = 1;
             }
             v8 += STL_PER_SLB;
-            ++v6;
+            ++slb;
             ++v7;
         } while (v8 < &map_to_slab[270]);
 
         v5 += 85;
         v28 += 3;
     } while (v5 < 7225);
-    v10 = &game.map[257];
+    mapblk = &game.map[257];
     v11 = 0x10000;
     do
     {
-        data = v10->data;
-        ++v10;
+        data = mapblk->data;
+        ++mapblk;
         --v11;
-        v10[-1].data = ((~(1 << plyr_idx) << 28) | 0xFFFFFFF) & data;
+        mapblk[-1].data = ((~(1 << plyr_idx) << 28) | 0xFFFFFFF) & data;
     } while (v11);
     v30 = 0;
     v24 = 0;
