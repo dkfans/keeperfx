@@ -30,10 +30,10 @@ ifneq (,$(wildcard tools/sndbanker/src/sndbanker.cpp))
 
 # If we have source code of this tool, compile it
 $(WAVTODAT): tools/sndbanker/src/sndbanker.cpp
-	make -C tools/sndbanker
+	$(MAKE) -C tools/sndbanker
 
 clean-sndbanker:
-	make -C tools/sndbanker clean
+	$(MAKE) -C tools/sndbanker clean
 
 else ifneq (,$(findstring .tar.gz,$(SNDBANKER_PACKAGE)))
 
