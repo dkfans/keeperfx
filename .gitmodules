@@ -3,7 +3,7 @@
 	url = https://github.com/dkfans/peresec.git
 [submodule "deps/libspng"]
 	path = deps/libspng
-	url = https://github.com/randy408/libspng.git
+	url = https://github.com/xtremeqg/libspng.git
 [submodule "deps/zlib"]
 	path = deps/zlib
 	url = https://github.com/madler/zlib.git
