@@ -6,8 +6,7 @@
 	url = https://github.com/randy408/libspng.git
 [submodule "deps/zlib"]
 	path = deps/zlib
-	url = https://github.com/madler/zlib.git
-        branch = master
+	url = https://github.com/xtremeqg/zlib.git
 [submodule "deps/centijson"]
 	path = deps/centijson
 	url = https://github.com/mity/centijson.git
