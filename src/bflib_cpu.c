@@ -23,6 +23,10 @@
 #include "bflib_basics.h"
 #include "post_inc.h"
 
+#ifndef _WIN32
+#include <cpuid.h>
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -33,7 +37,11 @@ extern "C" {
  *  are of interest, other registers will be modified by the operation,
  *  so we need to tell the compiler about it.
  */
-static inline void cpuid(int code, unsigned long *a, unsigned long *d) {
+static inline void cpuid(int code, unsigned int *a, unsigned int *d) {
+#ifdef _64_BIT_
+    unsigned int b, c;
+    __get_cpuid(code, a, &b, &c, d);
+#else
 #if __GNUC__
   asm volatile("cpuid":"=a"(*a),"=d"(*d):"0"(code):"ecx","ebx");
 #else
@@ -42,16 +50,21 @@ static inline void cpuid(int code, unsigned long *a, unsigned long *d) {
   *a = regs[0]; // EAX
   *d = regs[3]; // EDX
 #endif
+#endif
 }
 
 /** Issue a complete request, storing general registers output in an array.
  */
-static inline void cpuid_string(int code, unsigned long where[4]) {
+static inline void cpuid_string(int code, unsigned int where[4]) {
+#ifdef _64_BIT_
+    __get_cpuid(code, &where[0], &where[1], &where[2], &where[3]);
+#else
 #if __GNUC__
   asm volatile("cpuid":"=a"(*where),"=b"(*(where+1)),
                "=c"(*(where+2)),"=d"(*(where+3)):"0"(code));
 #else
   __cpuid(where, code);
+#endif
 #endif
 }
 /******************************************************************************/
@@ -65,7 +78,7 @@ void cpu_detect(struct CPU_INFO *cpu)
   cpu->feature_intl = 0;
   cpu->feature_edx = 0;
   {
-    unsigned long where[4];
+    unsigned int where[4];
     cpuid_string(CPUID_GETVENDORSTRING, where);
     memcpy(&cpu->vendor[0],&where[1],4);
     memcpy(&cpu->vendor[4],&where[3],4);
@@ -83,9 +96,9 @@ void cpu_detect(struct CPU_INFO *cpu)
     cpu->BrandString = (where[0] >= CPUID_INTELBRANDSTRING);
     if (cpu->BrandString)
     {
-        cpuid_string(CPUID_INTELBRANDSTRING, (unsigned long*)&cpu->brand[0]);
-        cpuid_string(CPUID_INTELBRANDSTRINGMORE, (unsigned long*)&cpu->brand[16]);
-        cpuid_string(CPUID_INTELBRANDSTRINGEND, (unsigned long*)&cpu->brand[32]);       
+        cpuid_string(CPUID_INTELBRANDSTRING, (unsigned int*)&cpu->brand[0]);
+        cpuid_string(CPUID_INTELBRANDSTRINGMORE, (unsigned int*)&cpu->brand[16]);
+        cpuid_string(CPUID_INTELBRANDSTRINGEND, (unsigned int*)&cpu->brand[32]);
     }
   }
 }

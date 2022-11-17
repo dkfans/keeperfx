@@ -16,6 +16,7 @@
 /******************************************************************************/
 #include "globals.h"
 #include "bflib_basics.h"
+#include "bflib_filelst.h"
 
 TbBool _DK_light_render_light_sub1_sub2(int a1, SubtlCodedCoords stl_num, int a3) { return 0; }
 char _DK_light_render_light_sub2(struct Light *lgt, int radius, int a3, unsigned int a4) { return 0; }
@@ -29,8 +30,8 @@ long _DK_imp_will_soon_be_converting_at_excluding(struct Thing *creatng, long sl
 void _DK_set_slab_explored_flags(unsigned char flag, long tgslb_x, long tgslb_y) { }
 long _DK_ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey) { return 0; }
 void _DK_shuffle_unattached_things_on_slab(long a1, long stl_x) { }
-char *_DK_mdlf_for_cd(struct TbLoadFiles *) { return NULL; }
-char *_DK_mdlf_default(struct TbLoadFiles *) { return NULL; }
+char *_DK_mdlf_for_cd(struct TbLoadFiles *ldfiles) { return ldfiles->FName; }
+char *_DK_mdlf_default(struct TbLoadFiles *ldfiles) { return ldfiles->FName; }
 short _DK_hug_round(struct Thing *creatng, struct Coord3d *pos1, struct Coord3d *pos2, unsigned short a4, long *a5) { return 0; }
 signed char _DK_get_starting_angle_and_side_of_hug(struct Thing *creatng, struct Coord3d *pos, long *a3, unsigned char *a4, long a5, unsigned char direction) { return 0; }
 long _DK_get_map_index_of_first_block_thing_colliding_with_travelling_to(struct Thing *creatng, struct Coord3d *startpos, struct Coord3d *endpos, long a4, unsigned char a5) { return 0; }

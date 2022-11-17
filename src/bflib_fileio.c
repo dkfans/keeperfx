@@ -31,6 +31,8 @@
 #include <io.h>
 #include <share.h>
 #else
+#include <dirent.h>
+
 #define FLUSHRW   0x03
 #define __SID     ('S' << 8)
 #define I_FLUSH   (__SID | 5)
@@ -211,6 +213,8 @@ int LbFilePosition(TbFileHandle handle)
 #ifdef _WIN32
   int result = tell(handle);
   return result;
+#else
+  return ftell(handle);
 #endif
 }
 
@@ -234,12 +238,13 @@ int create_directory_for_file(const char * fname)
   }
   free(tmp);
   return 1;
+#else
+  mkdir(fname, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 #endif
 }
 
 TbFileHandle LbFileOpen(const char *fname, const unsigned char accmode)
 {
-#ifdef _WIN32
   unsigned char mode = accmode;
 
   if ( !LbFileExists(fname) )
@@ -263,7 +268,7 @@ TbFileHandle LbFileOpen(const char *fname, const unsigned char accmode)
     close(rc);
   }
 */
-  TbFileHandle rc = -1;
+  TbFileHandle rc = (TbFileHandle)-1;
   switch (mode)
   {
   case Lb_FILE_MODE_NEW:
@@ -272,7 +277,11 @@ TbFileHandle LbFileOpen(const char *fname, const unsigned char accmode)
       LbSyncLog("LbFileOpen: LBO_CREAT mode\n");
 #endif
         if (create_directory_for_file(fname)) {
+#ifdef _WIN32
           rc = _sopen(fname, O_RDWR|O_CREAT|O_BINARY, SH_DENYNO, S_IREAD|S_IWRITE);
+#else
+          rc = fopen(fname, "wb");
+#endif
         }
     };break;
   case Lb_FILE_MODE_OLD:
@@ -280,21 +289,28 @@ TbFileHandle LbFileOpen(const char *fname, const unsigned char accmode)
 #ifdef __DEBUG
         LbSyncLog("LbFileOpen: LBO_RDWR mode\n");
 #endif
+#ifdef _WIN32
         rc = _sopen(fname, O_RDWR|O_BINARY, SH_DENYNO);
+#else
+        rc = fopen(fname, "rb");
+#endif
     };break;
   case Lb_FILE_MODE_READ_ONLY:
     {
 #ifdef __DEBUG
         LbSyncLog("LbFileOpen: LBO_RDONLY mode\n");
 #endif
+#ifdef _WIN32
         rc = _sopen(fname, O_RDONLY|O_BINARY, SH_DENYNO);
+#else
+        rc = fopen(fname, "rb");
+#endif
     };break;
   }
 #ifdef __DEBUG
   LbSyncLog("LbFileOpen: out handle = %ld, errno = %d\n",rc,errno);
 #endif
   return rc;
-#endif
 }
 
 //Closes a file
@@ -305,6 +321,8 @@ int LbFileClose(TbFileHandle handle)
     return -1;
   else
     return 1;
+#else
+  return fclose(handle) == 0 ? 1 : -1;
 #endif
 }
 
@@ -356,9 +374,14 @@ int LbFileSeek(TbFileHandle handle, long offset, unsigned char origin)
  */
 int LbFileRead(TbFileHandle handle, void *buffer, unsigned long len)
 {
+#ifdef _WIN32
   //'read' returns (-1) on error
   int result = read(handle, buffer, len);
   return result;
+#else
+  size_t result = fread(buffer, 1, len, handle);
+  return result == 0 ? -1 : (int)result;
+#endif
 }
 
 /**
@@ -370,8 +393,13 @@ int LbFileRead(TbFileHandle handle, void *buffer, unsigned long len)
 */
 long LbFileWrite(TbFileHandle handle, const void *buffer, const unsigned long len)
 {
+#ifdef _WIN32
     long result = write(handle, buffer, len);
     return result;
+#else
+    size_t result = fwrite(buffer, 1, len, handle);
+    return result;
+#endif
 }
 
 /**
@@ -406,6 +434,12 @@ long LbFileLengthHandle(TbFileHandle handle)
 #ifdef _WIN32
     long result = filelength(handle);
     return result;
+#else
+    long backup = ftell(handle);
+    fseek(handle, 0, SEEK_END);
+    long length = ftell(handle);
+    fseek(handle, backup, SEEK_SET);
+    return length;
 #endif
 }
 
@@ -419,8 +453,13 @@ long LbFileLength(const char *fname)
     {
         result = filelength(handle);
         LbFileClose(handle);
-  }
-  return result;
+    }
+    return result;
+#else
+    struct stat st;
+    if (stat(fname, &st))
+        return -1;
+    return (long)st.st_size;
 #endif
 }
 
@@ -444,7 +483,103 @@ void convert_find_info(struct TbFileFind *ffind)
   ffind->Attributes = fdata->attrib;
   LbDateTimeDecode(&fdata->time_create,&ffind->CreationDate,&ffind->CreationTime);
   LbDateTimeDecode(&fdata->time_write,&ffind->LastWriteDate,&ffind->LastWriteTime);
+#else
+    // Zero data for this entry
+    memset(ffind->Filename, 0, sizeof(ffind->Filename));
+    memset(ffind->AlternateFilename, 0, sizeof(ffind->AlternateFilename));
+    ffind->Attributes = 0;
+    ffind->Length = 0;
+    memset(&ffind->CreationDate, 0, sizeof(ffind->CreationDate));
+    memset(&ffind->CreationTime, 0, sizeof(ffind->CreationTime));
+    memset(&ffind->LastWriteDate, 0, sizeof(ffind->LastWriteDate));
+    memset(&ffind->LastWriteTime, 0, sizeof(ffind->LastWriteTime));
+
+    // Populate the entry
+    struct dirent **namelist = (struct dirent **)ffind->ReservedHandle;
+    struct dirent *item = namelist[ffind->ReservedIndex];
+    snprintf(ffind->Filename, sizeof(ffind->Filename), "%s", item->d_name);
+    strncpy(ffind->AlternateFilename, item->d_name, sizeof(ffind->AlternateFilename));
+    ffind->AlternateFilename[sizeof(ffind->AlternateFilename) - 1] = '\0';
+
+    char path[PATH_MAX];
+    snprintf(path, sizeof(path), "%s/%s", ffind->ReservedDirname, item->d_name);
+    struct stat si;
+    if (stat(path, &si) != -1)
+    {
+        ffind->Length = si.st_size;
+    }
 #endif
+}
+
+/**
+ * Due to FindFirstFile / FindNextFile searching for DOS names as well, *.doc also matches *.docx which isn't what the pattern
+ * specified. This will verify if a filename does indeed match the pattern we asked for.
+ * @remarks Based on algorithm (http://xoomer.virgilio.it/acantato/dev/wildcard/wildmatch.html)
+ */
+static TbBool MatchWildcard(const char* fileName, const char* pattern)
+{
+    while (*fileName != '\0')
+    {
+        switch (*pattern)
+        {
+            case '?':
+                if (*fileName == '.')
+                {
+                    return false;
+                }
+                break;
+            case '*':
+                do
+                {
+                    pattern++;
+                } while (*pattern == '*');
+                if (*pattern == '\0')
+                {
+                    return false;
+                }
+                while (*fileName != '\0')
+                {
+                    if (MatchWildcard(fileName++, pattern))
+                    {
+                        return true;
+                    }
+                }
+                return false;
+            default:
+                if (toupper(*fileName) != toupper(*pattern))
+                {
+                    return false;
+                }
+                break;
+        }
+        pattern++;
+        fileName++;
+    }
+    while (*pattern == '*')
+    {
+        ++fileName;
+    }
+    return *pattern == '\0';
+}
+
+static TbBool find_info_next_match(struct TbFileFind *ffind)
+{
+    while (true)
+    {
+        ffind->ReservedIndex++;
+        if (ffind->ReservedIndex >= ffind->ReservedCount)
+            return false;
+
+        struct dirent **namelist = (struct dirent **)ffind->ReservedHandle;
+        struct dirent *item = namelist[ffind->ReservedIndex];
+        if (item->d_type == DT_DIR)
+            continue;
+
+        if (!MatchWildcard(item->d_name, ffind->ReservedPattern))
+            continue;
+
+        return true;
+    }
 }
 
 // returns -1 if no match is found. Otherwise returns 1 and stores a handle
@@ -466,6 +601,46 @@ int LbFileFindFirst(const char *filespec, struct TbFileFind *ffind,unsigned int 
       result = 1;
     }
     return result;
+#else
+    char dir[PATH_MAX] = { '.', '\0' };
+    char pattern[FILENAME_MAX] = { '\0' };
+    const char* lastSep = strrchr(filespec, '/');
+    if (lastSep != NULL)
+    {
+        size_t len = lastSep - filespec;
+        if (len >= sizeof(dir) - 1)
+            return -1;
+
+        memcpy(dir, filespec, len);
+        dir[len] = '\0';
+        strncpy(pattern, lastSep + 1, sizeof(pattern));
+    }
+    else
+    {
+        strncpy(pattern, filespec, sizeof(pattern));
+    }
+
+    struct dirent **namelist = NULL;
+    int count = scandir(dir, &namelist, NULL, alphasort);
+    if (count == -1)
+        return -1;
+
+    ffind->ReservedHandle = (void*)namelist;
+    ffind->ReservedIndex = -1;
+    ffind->ReservedCount = count;
+    ffind->ReservedDirname = strdup(dir);
+    ffind->ReservedPattern = strdup(pattern);
+
+    if (find_info_next_match(ffind))
+    {
+        convert_find_info(ffind);
+        return 1;
+    }
+    else
+    {
+        LbFileFindEnd(ffind);
+        return -1;
+    }
 #endif
 }
 
@@ -485,6 +660,16 @@ int LbFileFindNext(struct TbFileFind *ffind)
         result = 1;
     }
     return result;
+#else
+    if (find_info_next_match(ffind))
+    {
+        convert_find_info(ffind);
+        return 1;
+    }
+    else
+    {
+        return -1;
+    }
 #endif
 }
 
@@ -496,6 +681,15 @@ int LbFileFindEnd(struct TbFileFind *ffind)
     {
         _findclose(ffind->ReservedHandle);
     }
+    return 1;
+#else
+    struct dirent **namelist = (struct dirent **)ffind->ReservedHandle;
+    for (unsigned long i = 0; i < ffind->ReservedCount; i++)
+        free(namelist[i]);
+    free(namelist);
+    free(ffind->ReservedDirname);
+    free(ffind->ReservedPattern);
+    memset(ffind, 0, sizeof(*ffind));
     return 1;
 #endif
 }

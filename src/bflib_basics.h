@@ -23,6 +23,7 @@
 #ifdef _WIN32
 #include <io.h>
 #else
+#include <stdio.h>
 #include <stdlib.h>
 #endif
 
@@ -88,7 +89,11 @@ typedef time_t TbTimeSec;
 typedef unsigned char TbChecksum;
 typedef unsigned long TbBigChecksum;
 typedef long Offset;
+#ifdef _WIN32
 typedef int TbFileHandle;
+#else
+typedef FILE* TbFileHandle;
+#endif
 typedef unsigned char TbBool;
 typedef short TbScreenPos;
 
@@ -101,9 +106,15 @@ struct TbFileFind {
           struct TbTime CreationTime;
           struct TbDate LastWriteDate;
           struct TbTime LastWriteTime;
-          unsigned long ReservedHandle;
 #ifdef _WIN32
+          unsigned long ReservedHandle;
           struct _finddata_t Reserved;
+#else
+          void* ReservedHandle;
+          long ReservedIndex;
+          long ReservedCount;
+          char* ReservedDirname;
+          char* ReservedPattern;
 #endif
 };
 
