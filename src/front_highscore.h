@@ -28,13 +28,13 @@ extern "C" {
 #endif
 
 /******************************************************************************/
-DLLIMPORT extern long _DK_high_score_entry_input_active;
+DKEXTERN long _DK_high_score_entry_input_active;
 #define high_score_entry_input_active _DK_high_score_entry_input_active
-DLLIMPORT extern long _DK_high_score_entry_index;
+DKEXTERN long _DK_high_score_entry_index;
 #define high_score_entry_index _DK_high_score_entry_index
-DLLIMPORT extern char _DK_high_score_entry[64];
+DKEXTERN char _DK_high_score_entry[64];
 #define high_score_entry _DK_high_score_entry
-DLLIMPORT extern int _DK_fe_high_score_table_from_main_menu;
+DKEXTERN int _DK_fe_high_score_table_from_main_menu;
 #define fe_high_score_table_from_main_menu _DK_fe_high_score_table_from_main_menu
 /******************************************************************************/
 void frontend_draw_high_score_table(struct GuiButton *gbtn);

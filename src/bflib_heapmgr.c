@@ -28,7 +28,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT long _DK_heapmgr_free_handle(struct HeapMgrHeader *hmhead, struct HeapMgrHandle *hmhandle);
+DKIMPORT long _DK_heapmgr_free_handle(struct HeapMgrHeader *hmhead, struct HeapMgrHandle *hmhandle);
 /******************************************************************************/
 struct HeapMgrHandle *find_free_handle(struct HeapMgrHeader *hmhead)
 {

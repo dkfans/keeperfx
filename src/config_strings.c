@@ -35,8 +35,8 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT extern char *_DK_strings_data;
-DLLIMPORT extern char *_DK_strings[DK_STRINGS_MAX+1];
+DKIMPORT char *_DK_strings_data;
+DKIMPORT char *_DK_strings[DK_STRINGS_MAX+1];
 /******************************************************************************/
 char *gui_strings_data;
 char *gui_strings[GUI_STRINGS_COUNT];

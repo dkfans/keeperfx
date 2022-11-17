@@ -37,9 +37,9 @@ extern "C" {
 static int script_current_condition = 0;
 
 
-DLLIMPORT unsigned short _DK_condition_stack_pos;
+DKIMPORT unsigned short _DK_condition_stack_pos;
 #define condition_stack_pos _DK_condition_stack_pos
-DLLIMPORT unsigned short _DK_condition_stack[48];
+DKIMPORT unsigned short _DK_condition_stack[48];
 #define condition_stack _DK_condition_stack
 
 

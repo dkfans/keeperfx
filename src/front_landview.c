@@ -65,6 +65,33 @@
 extern "C" {
 #endif
 /******************************************************************************/
+DKINTERN TbClockMSec _DK_play_desc_speech_time;
+DKINTERN unsigned long _DK_played_bad_descriptive_speech;
+DKINTERN unsigned long _DK_played_good_descriptive_speech;
+DKINTERN TbSpriteData _DK_map_flag_data;
+DKINTERN unsigned long _DK_end_map_flag_data;
+DKINTERN TbSpriteData _DK_map_font_data;
+DKINTERN unsigned long _DK_end_map_font_data;
+DKINTERN TbSpriteData _DK_map_hand_data;
+DKINTERN unsigned long _DK_end_map_hand_data;
+DKINTERN struct TbSprite *_DK_map_flag;
+DKINTERN struct TbSprite *_DK_end_map_flag;
+DKINTERN struct TbSprite *_DK_map_font;
+DKINTERN struct TbSprite *_DK_end_map_font;
+DKINTERN struct TbSprite *_DK_map_hand;
+DKINTERN struct TbSprite *_DK_end_map_hand;
+DKINTERN struct MapLevelInfo _DK_map_info;
+DKINTERN long _DK_map_sound_fade;
+DKINTERN unsigned char *_DK_map_screen;
+DKINTERN long *_DK_window_y_offset;
+DKINTERN unsigned char *_DK_map_window;
+DKINTERN struct TbSetupSprite _DK_map_flag_setup_sprites[];
+DKINTERN struct TbSetupSprite _DK_netmap_flag_setup_sprites[];
+DKINTERN long _DK_fe_net_level_selected;
+DKINTERN long _DK_net_map_limp_time;
+DKINTERN struct ScreenPacket _DK_net_screen_packet[4];
+DKINTERN long _DK_players_currently_in_session;
+/******************************************************************************/
 struct NetMapPlayersState {
     long tmp1;
     LevelNumber lvnum;

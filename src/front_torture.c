@@ -54,23 +54,29 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT extern long _DK_torture_left_button;
+DKINTERN struct DoorDesc _DK_doors[TORTURE_DOORS_COUNT];
+DKINTERN struct TbSprite *_DK_fronttor_sprites;
+DKINTERN struct TbSprite *_DK_fronttor_end_sprites;
+DKINTERN unsigned char *_DK_fronttor_data;
+DKINTERN unsigned char * _DK_fronttor_end_data;
+/******************************************************************************/
+DKIMPORT long _DK_torture_left_button;
 #define torture_left_button _DK_torture_left_button
-DLLIMPORT extern long _DK_torture_sprite_direction;
+DKIMPORT long _DK_torture_sprite_direction;
 #define torture_sprite_direction _DK_torture_sprite_direction
-DLLIMPORT extern long _DK_torture_end_sprite;
+DKIMPORT long _DK_torture_end_sprite;
 #define torture_end_sprite _DK_torture_end_sprite
-DLLIMPORT extern long _DK_torture_sprite_frame;
+DKIMPORT long _DK_torture_sprite_frame;
 #define torture_sprite_frame _DK_torture_sprite_frame
-DLLIMPORT extern long _DK_torture_door_selected;
+DKIMPORT long _DK_torture_door_selected;
 #define torture_door_selected _DK_torture_door_selected
-DLLIMPORT extern struct DoorSoundState _DK_door_sound_state[TORTURE_DOORS_COUNT];
+DKIMPORT struct DoorSoundState _DK_door_sound_state[TORTURE_DOORS_COUNT];
 #define door_sound_state _DK_door_sound_state
-DLLIMPORT extern struct TortureState _DK_torture_state;
+DKIMPORT struct TortureState _DK_torture_state;
 #define torture_state _DK_torture_state
-DLLIMPORT extern unsigned char *_DK_torture_background;
+DKIMPORT unsigned char *_DK_torture_background;
 #define torture_background _DK_torture_background
-DLLIMPORT extern unsigned char *_DK_torture_palette;
+DKIMPORT unsigned char *_DK_torture_palette;
 #define torture_palette _DK_torture_palette
 /******************************************************************************/
 extern struct TbLoadFiles torture_load_files[];

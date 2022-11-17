@@ -67,8 +67,13 @@
 #else // Not defined BUILD_DLL
 # define DLLIMPORT __declspec (dllimport)
 #endif
+# define DKEXTERN DLLIMPORT
+# define DKINTERN DLLIMPORT
+# define DKIMPORT DLLIMPORT
 #else
-# define DLLIMPORT
+# define DKEXTERN extern
+# define DKINTERN
+# define DKIMPORT
 #endif
 
 #ifdef __cplusplus

@@ -329,7 +329,7 @@ long gpoly_divtable[][64] = {
        50737,   52851,   54965,   57079,   59193,   61307,   63421,   65536,},
 };
 
-DLLIMPORT long _DK_gpoly_pro_enable_mode_ofs;
+DKIMPORT long _DK_gpoly_pro_enable_mode_ofs;
 #define gpoly_pro_enable_mode_ofs _DK_gpoly_pro_enable_mode_ofs
 // Static variables used only inside draw_gpoly().
 // These don't really have to be global; but this helps

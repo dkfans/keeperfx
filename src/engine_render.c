@@ -157,7 +157,7 @@ static unsigned long render_problems;
 static long render_prob_kind;
 static long sp_x, sp_y, sp_dx, sp_dy;
 
-DLLIMPORT char _DK_splittypes[64];
+DKIMPORT char _DK_splittypes[64];
 #define splittypes _DK_splittypes
 
 /******************************************************************************/

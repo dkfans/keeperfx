@@ -34,9 +34,16 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT short _DK_td_iso[TD_ISO_POINTS];
+DKINTERN long _DK_randomisors[512];
+DKINTERN struct WibbleTable _DK_wibble_table[128];
+DKINTERN unsigned short _DK_floor_to_ceiling_map[592];
+DKINTERN long _DK_floor_height[256];
+DKINTERN long _DK_lintel_top_height[256];
+DKINTERN long _DK_lintel_bottom_height[256];
+/******************************************************************************/
+DKIMPORT short _DK_td_iso[TD_ISO_POINTS];
 #define td_iso _DK_td_iso
-DLLIMPORT short _DK_iso_td[TD_ISO_POINTS];
+DKIMPORT short _DK_iso_td[TD_ISO_POINTS];
 #define iso_td _DK_iso_td
 unsigned short floor_to_ceiling_map[FLOOR_TO_CEILING_MAP_LEN];
 struct WibbleTable blank_wibble_table[128];

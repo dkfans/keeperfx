@@ -98,6 +98,81 @@ extern "C" {
 
 extern void enum_sessions_callback(struct TbNetworkCallbackData *netcdat, void *ptr);
 /******************************************************************************/
+DKINTERN char _DK_info_tag;
+DKINTERN char _DK_room_tag;
+DKINTERN char _DK_spell_tag;
+DKINTERN char _DK_trap_tag;
+DKINTERN char _DK_creature_tag;
+DKINTERN char _DK_input_string[8][16];
+DKINTERN char _DK_gui_error_text[256];
+DKINTERN long _DK_net_service_scroll_offset;
+DKINTERN long _DK_net_number_of_services;
+DKINTERN long _DK_net_comport_index_active;
+DKINTERN long _DK_net_speed_index_active;
+DKINTERN long _DK_net_number_of_players;
+DKINTERN long _DK_net_number_of_enum_players;
+DKINTERN long _DK_net_map_slap_frame;
+DKINTERN long _DK_net_level_hilighted;
+DKINTERN struct NetMessage _DK_net_message[NET_MESSAGES_COUNT];
+DKINTERN long _DK_net_number_of_messages;
+DKINTERN long _DK_net_message_scroll_offset;
+DKINTERN long _DK_net_session_index_active_id;
+DKINTERN long _DK_net_session_scroll_offset;
+DKINTERN long _DK_net_player_scroll_offset;
+DKINTERN extern struct GuiButton _DK_active_buttons[ACTIVE_BUTTONS_COUNT];
+DKINTERN long _DK_frontend_mouse_over_button_start_time;
+DKINTERN short _DK_old_menu_mouse_x;
+DKINTERN short _DK_old_menu_mouse_y;
+DKINTERN unsigned char _DK_menu_ids[3];
+DKINTERN unsigned char _DK_new_objective;
+DKINTERN extern int _DK_frontend_menu_state;
+DKINTERN extern int _DK_load_game_scroll_offset;
+DKINTERN unsigned char _DK_video_gamma_correction;
+
+// *** SPRITES ***
+DKINTERN struct TbSprite *_DK_font_sprites;
+DKINTERN struct TbSprite *_DK_end_font_sprites;
+DKINTERN unsigned char * _DK_font_data;
+
+DKINTERN extern struct TbSprite *_DK_frontend_font[FRONTEND_FONTS_COUNT];
+DKINTERN extern struct TbSprite *_DK_frontend_end_font[FRONTEND_FONTS_COUNT];
+DKINTERN extern unsigned char * _DK_frontend_font_data[FRONTEND_FONTS_COUNT];
+DKINTERN extern unsigned char * _DK_frontend_end_font_data[FRONTEND_FONTS_COUNT];
+
+DKINTERN extern struct TbSprite *_DK_button_sprite;
+DKINTERN extern struct TbSprite *_DK_end_button_sprites;
+DKINTERN extern unsigned char * _DK_button_sprite_data;
+DKINTERN extern unsigned long _DK_end_button_sprite_data;
+
+DKINTERN extern struct TbSprite *_DK_winfont;
+DKINTERN extern struct TbSprite *_DK_end_winfonts;
+DKINTERN unsigned char * _DK_winfont_data;
+DKINTERN unsigned char * _DK_end_winfont_data;
+
+DKINTERN struct TbSprite *_DK_edit_icon_sprites;
+DKINTERN struct TbSprite *_DK_end_edit_icon_sprites;
+DKINTERN unsigned char * _DK_edit_icon_data;
+
+DKINTERN extern struct TbSprite *_DK_port_sprite;
+DKINTERN extern struct TbSprite *_DK_end_port_sprites;
+DKINTERN extern unsigned char * _DK_port_sprite_data;
+
+DKINTERN extern unsigned long _DK_playing_bad_descriptive_speech;
+DKINTERN extern unsigned long _DK_playing_good_descriptive_speech;
+DKINTERN extern long _DK_scrolling_index;
+DKINTERN extern long _DK_scrolling_offset;
+DKINTERN extern long _DK_packet_left_button_double_clicked[6];
+DKINTERN extern long _DK_packet_left_button_click_space_count[6];
+
+DKINTERN extern char _DK_frontend_alliances;
+
+DKINTERN extern char _DK_busy_doing_gui;
+DKINTERN extern long _DK_gui_last_left_button_pressed_id;
+DKINTERN extern long _DK_gui_last_right_button_pressed_id;
+DKINTERN int _DK_fe_computer_players;
+DKINTERN extern long _DK_old_mouse_over_button;
+DKINTERN extern long _DK_frontend_mouse_over_button;
+/******************************************************************************/
 TbClockMSec gui_message_timeout = 0;
 char gui_message_text[TEXT_BUFFER_LENGTH];
 

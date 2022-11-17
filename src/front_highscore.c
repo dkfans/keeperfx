@@ -39,6 +39,11 @@
 #include "post_inc.h"
 
 /******************************************************************************/
+DKINTERN long _DK_high_score_entry_input_active;
+DKINTERN long _DK_high_score_entry_index;
+DKINTERN char _DK_high_score_entry[64];
+DKINTERN int _DK_fe_high_score_table_from_main_menu;
+/******************************************************************************/
 void draw_high_score_entry(int idx, long pos_x, long pos_y, int col1_width, int col2_width, int col3_width, int col4_width, int units_per_px)
 {
     if ((idx >= campaign.hiscore_count) || (campaign.hiscore_table == NULL))

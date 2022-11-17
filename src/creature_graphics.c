@@ -77,7 +77,7 @@ struct CreaturePickedUpOffset creature_picked_up_offset[] = {
 };
 
 /******************************************************************************/
-DLLIMPORT unsigned short _DK_creature_list[CREATURE_FRAMELIST_LENGTH];
+DKIMPORT unsigned short _DK_creature_list[CREATURE_FRAMELIST_LENGTH];
 /******************************************************************************/
 extern struct CreaturePickedUpOffset creature_picked_up_offset[];
 /******************************************************************************/

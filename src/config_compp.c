@@ -87,7 +87,7 @@ const struct NamedCommand compp_computer_commands[] = {
 const char keeper_compplayer_file[]="keepcompp.cfg";
 
 /******************************************************************************/
-DLLIMPORT struct ComputerProcessTypes _DK_ComputerProcessLists[1];
+DKIMPORT struct ComputerProcessTypes _DK_ComputerProcessLists[1];
 /******************************************************************************/
 ComputerName computer_check_names[COMPUTER_CHECKS_TYPES_COUNT];
 struct ComputerCheck computer_checks[COMPUTER_CHECKS_TYPES_COUNT];

@@ -49,6 +49,8 @@
 unsigned long TimerTurns = 0;
 
 /******************************************************************************/
+DKINTERN unsigned short _DK_battle_creature_over;
+/******************************************************************************/
 void gui_open_event(struct GuiButton *gbtn)
 {
     struct Dungeon* dungeon = get_my_dungeon();

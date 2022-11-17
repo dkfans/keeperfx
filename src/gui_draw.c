@@ -44,7 +44,14 @@ char gui_textbuf[TEXT_BUFFER_LENGTH];
 
 /******************************************************************************/
 /******************************************************************************/
-
+DKINTERN unsigned char * _DK_gui_panel_sprite_data;
+DKINTERN unsigned char * _DK_end_gui_panel_sprite_data;
+DKINTERN unsigned char *_DK_gui_slab;
+DKINTERN unsigned char *_DK_frontend_background;
+DKINTERN struct TbSprite *_DK_frontend_sprite;
+DKINTERN struct TbSprite *_DK_frontend_end_sprite;
+DKINTERN unsigned char * _DK_frontend_sprite_data;
+DKINTERN unsigned char * _DK_frontend_end_sprite_data;
 /******************************************************************************/
 
 int get_bitmap_max_scale(int img_w,int img_h,int rect_w,int rect_h)

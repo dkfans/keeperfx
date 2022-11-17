@@ -30,9 +30,9 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT long _DK_heap_end;
+DKIMPORT long _DK_heap_end;
 #define heap_end _DK_heap_end
-DLLIMPORT long _DK_Heap[PATH_HEAP_LEN];
+DKIMPORT long _DK_Heap[PATH_HEAP_LEN];
 #define Heap _DK_Heap
 /******************************************************************************/
 /** Initializes navigation heap for new use.

@@ -43,7 +43,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT long _DK_get_next_gap_creature_can_fit_in_below_point(struct Thing *creatng, struct Coord3d *pos);
+DKIMPORT long _DK_get_next_gap_creature_can_fit_in_below_point(struct Thing *creatng, struct Coord3d *pos);
 /******************************************************************************/
 #ifdef __cplusplus
 }
