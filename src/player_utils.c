@@ -501,7 +501,7 @@ void fill_in_explored_area(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlC
     int v5;
     struct SlabMap *slb;
     int v7;
-    unsigned int *v8;
+    const long *v8;
     int block_flags;
     struct Map *mapblk;
     int v11;
