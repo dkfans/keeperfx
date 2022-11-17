@@ -514,24 +514,35 @@ void fill_in_explored_area(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlC
     char v18;
     char *i;
     char *v20;
-    int v21;
-    int slb_y;
-    int slb_x;
+    MapSlabCoord slb_y;
+    MapSlabCoord slb_x;
     unsigned int v24;
-    int slb_y;
     char *second_scratch;
-    int slb_x;
     char *v29;
     unsigned int v30;
 
-
-int dword_522148[20] =
+char byte_522148[80] =
 {
-  0, 0,    0,      16777216,  -67108864,
-  0, 0,    131072, 33095680,  -33554432,
-  0, 1024, 62976,  16777216,  -50331648,
-  3, 1011, 195328, 33357824,  0
-}; // weak
+  0,0,0,0,0,
+  0,0,0,0,0,
+  0,0,0,0,0,
+  1,0,0,0,-4,
+  0,0,0,0,0,
+  0,0,0,0,0,
+  2,0,0,0,-7,
+  1,0,0,0,-2,
+  0,0,0,0,0,
+  4,0,0,0,-10,
+  0,0,0,0,0,
+  1,0,0,0,-3,
+  3,0,0,0,-13,
+  3,0,0,0,-5,
+  2,0,0,0,-3,
+  1,0,0,0,0
+};
+
+
+
 char byte_522198[1] = { 0 };
 char byte_522199[11] =
 {
@@ -641,7 +652,7 @@ char byte_522199[11] =
             second_scratch[2 * v24 - 2] = slb_x;
             second_scratch[2 * v24 - 1] = slb_y + 1;
         }
-        for (i = (char *)dword_522148 + 5 * v13; *(int *)i; i = (char *)dword_522148 + 5 * v13)
+        for (i = &byte_522148[5 * v13]; *i; i = &byte_522148[5 * v13])
         {
             if (v13 == 15)
             {
@@ -663,8 +674,9 @@ char byte_522199[11] =
         slb_x = *(v29 - 2);
         slb_y = *(v29 - 1);
     } while (v24 >= v30);
-    slb_y = 0;
-    do
+
+
+    for (slb_y = 0; slb_y < map_tiles_y; ++slb_y)
     {
         for (slb_x = 0; slb_x < map_tiles_x; ++slb_x)
         {
@@ -674,8 +686,7 @@ char byte_522199[11] =
                 set_slab_explored(plyr_idx, slb_x, slb_y);
             }
         }
-        ++slb_y;
-    } while (v21 < 7225);
+    }
     pannel_map_update(0, 0, 256, 256);
     
 }
