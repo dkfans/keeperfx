@@ -23,7 +23,11 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+
+#if _WIN32
 #include <io.h>
+#endif
+
 #include <fcntl.h>
 #include <sys/stat.h>
 

@@ -181,7 +181,7 @@ void keyboardControl(unsigned int action, TbKeyCode code, TbKeyMods modifiers, i
     }
 }
 
-long __stdcall KeyboardProc(int a1, unsigned int a2, long code)
+long KeyboardProc(int a1, unsigned int a2, long code)
 {
     unsigned char lbcode;
     //return _DK_KeyboardProc(a1, a2, code);

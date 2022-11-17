@@ -1,0 +1,7 @@
+#define VER_MAJOR       $(VER_MAJOR)
+#define VER_MINOR       $(VER_MINOR)
+#define VER_RELEASE     $(VER_RELEASE)
+#define VER_BUILD       $(VER_BUILD)
+#define VER_STRING      "$(VER_STRING)"
+#define PACKAGE_SUFFIX  "$(PACKAGE_SUFFIX)"
+#define GIT_REVISION    "$(GIT_REVISION)"

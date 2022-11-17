@@ -154,7 +154,9 @@ struct ScriptValue { // sizeof = 16
   };
 };
 
+#ifndef _64_BIT_
 static_assert(sizeof(struct ScriptValue) == 16, "");
+#endif
 
 struct ConditionOld { // sizeof = 12
   short condit_idx;

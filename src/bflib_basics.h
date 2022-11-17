@@ -20,7 +20,11 @@
 #ifndef BFLIB_BASICS_H
 #define BFLIB_BASICS_H
 
+#ifdef _WIN32
 #include <io.h>
+#else
+#include <stdlib.h>
+#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -98,7 +102,9 @@ struct TbFileFind {
           struct TbDate LastWriteDate;
           struct TbTime LastWriteTime;
           unsigned long ReservedHandle;
+#ifdef _WIN32
           struct _finddata_t Reserved;
+#endif
 };
 
 #define LOG_PREFIX_LEN 32
@@ -158,7 +164,7 @@ int LbLogSetPrefixFmt(struct TbLog *log, const char *format, ...);
 
 void LbCloseLog();
 /******************************************************************************/
-typedef void (__stdcall *TbNetworkCallbackFunc)(struct TbNetworkCallbackData *, void *);
+typedef void (*TbNetworkCallbackFunc)(struct TbNetworkCallbackData *, void *);
 /******************************************************************************/
 unsigned long blong (unsigned char *p);
 unsigned long llong (unsigned char *p);

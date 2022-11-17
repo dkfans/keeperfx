@@ -20,7 +20,10 @@
 #ifndef BFLIB_NETWRK_H
 #define BFLIB_NETWRK_H
 
+#if _WIN32
 #include <basetyps.h>
+#endif
+
 #include "bflib_basics.h"
 #include "globals.h"
 

@@ -24,9 +24,12 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdarg.h>
+
+#ifdef _WIN32
 #define NOMINMAX
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+#endif
 
 #include "bflib_basics.h"
 #include "bflib_memory.h"
