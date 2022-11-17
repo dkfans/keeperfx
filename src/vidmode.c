@@ -324,6 +324,11 @@ void load_pointer_file(short hi_res)
   }
   if ( LbDataLoadAll(ldfiles) )
     ERRORLOG("Unable to load pointer files");
+
+#ifdef _64_BIT_
+  size_t numSprites = ((size_t)end_pointer_sprites - (size_t)pointer_sprites) / sizeof(struct TbSprite32);
+  LbMemoryGrow(pointer_sprites, numSprites * sizeof(struct TbSprite));
+#endif
   LbSpriteSetup(pointer_sprites, end_pointer_sprites, pointer_data);
 }
 

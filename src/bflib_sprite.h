@@ -33,6 +33,17 @@ extern "C" {
  */
 typedef unsigned char * TbSpriteData;
 
+struct TbSprite32 {
+    uint32_t Data;
+#ifdef SPRITE_FORMAT_V2
+    unsigned short SWidth;
+    unsigned short SHeight;
+#else
+    unsigned char SWidth;
+    unsigned char SHeight;
+#endif
+};
+
 struct TbSprite {
     TbSpriteData Data;
 #ifdef SPRITE_FORMAT_V2

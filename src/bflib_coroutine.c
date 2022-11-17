@@ -16,6 +16,7 @@
 /******************************************************************************/
 #include "pre_inc.h"
 #include <assert.h>
+#include <string.h>
 
 #include "bflib_basics.h"
 #include "bflib_coroutine.h"

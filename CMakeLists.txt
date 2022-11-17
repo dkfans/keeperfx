@@ -79,8 +79,8 @@ else ()
     find_package(SDL2_net CONFIG REQUIRED)
     find_package(ZLIB REQUIRED)
 
-    set(OUR_C_FLAGS "-w")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OUR_C_FLAGS}")
+    set(OUR_C_FLAGS "")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OUR_C_FLAGS} -Werror=implicit-function-declaration")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OUR_C_FLAGS}")
 
     file(GLOB_RECURSE KEEPERFX_SOURCES_C "src/*.c")

@@ -21,6 +21,7 @@
 #include "bflib_sprite.h"
 
 #include "bflib_basics.h"
+#include "bflib_memory.h"
 #include "globals.h"
 #include "post_inc.h"
 
@@ -29,8 +30,37 @@ extern "C" {
 #endif
 
 /******************************************************************************/
+static void convert_sprites(struct TbSprite* dst, const struct TbSprite32* src, size_t count)
+{
+    for (size_t i = 0; i < count; i++)
+    {
+        const struct TbSprite32* srcI = &src[i];
+        struct TbSprite* dstI = &dst[i];
+        dstI->Data = (TbSpriteData)(uintptr_t)srcI->Data;
+        dstI->SWidth = srcI->SWidth;
+        dstI->SHeight = srcI->SHeight;
+    }
+}
+
+static TbResult convert_sprite_buffer(void* buffer, size_t len)
+{
+#ifdef _64_BIT_
+    size_t numSprites = len / sizeof(struct TbSprite32);
+    struct TbSprite* memSprites = (struct TbSprite*)LbMemoryAlloc(numSprites * sizeof(struct TbSprite));
+    if (memSprites == NULL)
+        return Lb_FAIL;
+
+    convert_sprites(memSprites, (const struct TbSprite32*)buffer, numSprites);
+    memcpy(buffer, memSprites, numSprites * sizeof(struct TbSprite));
+    LbMemoryFree(memSprites);
+#endif
+    return Lb_SUCCESS;
+}
+
 short LbSpriteSetup(struct TbSprite *start, const struct TbSprite *end, const unsigned char * data)
 {
+    convert_sprite_buffer(start, (size_t)end - (size_t)start);
+
     int n = 0;
     struct TbSprite* sprt = start;
     while (sprt < end)
