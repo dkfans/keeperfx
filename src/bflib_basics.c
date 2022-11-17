@@ -25,11 +25,14 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <ctype.h>
+
+#ifdef _WIN32
 #define NOMINMAX
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <wingdi.h>
 #include <winuser.h>
+#endif
 
 #include "bflib_datetm.h"
 #include "bflib_memory.h"
@@ -222,18 +225,22 @@ void error(const char *codefile,const int ecode,const char *message)
 short error_dialog(const char *codefile,const int ecode,const char *message)
 {
   LbErrorLog("In source %s:\n %5d - %s\n",codefile,ecode,message);
+#ifdef _WIN32
   MessageBox(NULL, message, PROGRAM_FULL_NAME, MB_OK | MB_ICONERROR);
+#endif
   return 0;
 }
 
 short error_dialog_fatal(const char *codefile,const int ecode,const char *message)
 {
   LbErrorLog("In source %s:\n %5d - %s\n",codefile,ecode,message);
+#ifdef _WIN32
   static char msg_text[2048];
   sprintf(msg_text, "%s This error in '%s' makes the program unable to continue. See '%s' for details.", message, codefile, log_file_name);
   HWND whandle = GetDesktopWindow();
   MessageBox(whandle, msg_text, PROGRAM_FULL_NAME, MB_OK | MB_ICONERROR);
   return 0;
+#endif
 }
 
 /******************************************************************************/

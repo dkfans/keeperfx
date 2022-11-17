@@ -28,6 +28,8 @@
 #include "bflib_vidraw.h"
 #include "post_inc.h"
 
+#ifndef _64_BIT_
+
 /******************************************************************************/
 DLLIMPORT unsigned char *_DK_gtblock_screen_addr;
 #define gtblock_screen_addr _DK_gtblock_screen_addr
@@ -2224,3 +2226,5 @@ locret1:         #A1\n \
 #endif
 }
 /******************************************************************************/
+
+#endif

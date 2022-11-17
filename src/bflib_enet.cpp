@@ -16,8 +16,11 @@
 #include "bflib_enet.h"
 #include "bflib_network.h"
 
+#ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+#endif
+
 #include <enet/enet.h>
 
 #include "post_inc.h"
@@ -191,7 +194,7 @@ namespace
                     }
                     break;
                 case ENET_EVENT_TYPE_DISCONNECT:
-                    user_id = reinterpret_cast<NetUserId>(ev.peer->data);
+                    user_id = static_cast<NetUserId>(reinterpret_cast<uintptr_t>(ev.peer->data));
                     g_drop_callback(user_id, NETDROP_ERROR);
                     break;
                 case ENET_EVENT_TYPE_RECEIVE:
@@ -253,7 +256,7 @@ namespace
             {
                 if (currentPeer->state != ENET_PEER_STATE_CONNECTED)
                     continue;
-                if (reinterpret_cast<NetUserId>(currentPeer->data) == destination)
+                if (static_cast<NetUserId>(reinterpret_cast<uintptr_t>(currentPeer->data)) == destination)
                 {
                     enet_peer_send(currentPeer, 0, packet);
                 }

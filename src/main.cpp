@@ -12,8 +12,11 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+
+#ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+#endif
 
 #include "keeperfx.hpp"
 
@@ -150,7 +153,9 @@ extern "C" {
 TbBool force_player_num = false;
 
 // Now variables
+#ifdef _WIN32
 DLLIMPORT extern HINSTANCE _DK_hInstance;
+#endif
 
 /******************************************************************************/
 
@@ -1017,7 +1022,6 @@ short setup_game(void)
 {
   struct CPU_INFO cpu_info; // CPU status variable
   short result;
-  OSVERSIONINFO v;
   // Do only a very basic setup
   cpu_detect(&cpu_info);
   SYNCMSG("CPU %s type %d family %d model %d stepping %d features %08x",cpu_info.vendor,
@@ -1027,11 +1031,14 @@ short setup_game(void)
   {
       SYNCMSG("%s", &cpu_info.brand[0]);
   }
+#ifdef _WIN32
+  OSVERSIONINFO v;
   v.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
   if (GetVersionEx(&v))
   {
       SYNCMSG("Operating System: %s %ld.%ld.%ld", (v.dwPlatformId == VER_PLATFORM_WIN32_NT) ? "Windows NT" : "Windows", v.dwMajorVersion,v.dwMinorVersion,v.dwBuildNumber);
   }
+#endif
   update_memory_constraits();
   // Enable features that require more resources
   update_features(mem_size);
@@ -4245,9 +4252,11 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
 void get_cmdln_args(unsigned short &argc, char *argv[])
 {
     char *ptr;
+#ifdef _WIN32
     const char *cmndln_orig;
     cmndln_orig = GetCommandLineA();
     snprintf(cmndline, CMDLN_MAXLEN, "%s", cmndln_orig);
+#endif
     ptr = cmndline;
     bf_argc = 0;
     while (*ptr != '\0')
@@ -4288,6 +4297,7 @@ void get_cmdln_args(unsigned short &argc, char *argv[])
     }
 }
 
+#ifdef _WIN32
 LONG __stdcall Vex_handler(
     _EXCEPTION_POINTERS *ExceptionInfo
 )
@@ -4296,13 +4306,16 @@ LONG __stdcall Vex_handler(
     LbCloseLog();
     return 0;
 }
+#endif
 
 int main(int argc, char *argv[])
 {
   char *text;
+#ifdef _WIN32
   _DK_hInstance = GetModuleHandle(NULL);
 
   AddVectoredExceptionHandler(0, &Vex_handler);
+#endif
   get_cmdln_args(bf_argc, bf_argv);
 
 //TODO DLL_CLEANUP delete when won't be needed anymore

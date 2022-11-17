@@ -389,19 +389,6 @@ TbResult LbScreenInitialize(void)
     return Lb_SUCCESS;
 }
 
-// this function is unused
-LPCTSTR MsResourceMapping(int index)
-{
-  switch (index)
-  {
-  case 1:
-      return "A";
-      //return MAKEINTRESOURCE(110); -- may work for other resource compilers
-  default:
-      return NULL;
-  }
-}
-
 TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord height,
     unsigned char *palette, short buffers_count, TbBool wscreen_vid)
 {

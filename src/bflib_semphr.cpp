@@ -70,12 +70,16 @@ WINBASEAPI BOOL WINAPI CloseHandle(HANDLE);
 
 LbSemaphore::LbSemaphore(void)
 {
+#ifdef _WIN32
   this->sHandle = CreateSemaphoreA(NULL, 1, 1, NULL);
+#endif
 }
 
 LbSemaphore::~LbSemaphore(void)
 {
+#ifdef _WIN32
   CloseHandle(this->sHandle);
+#endif
 }
 
 /******************************************************************************/
@@ -98,7 +102,9 @@ void LbSemaLock::Release(void)
   {
     if ( !this->field_8 )
     {
+#ifdef _WIN32
       ReleaseSemaphore(this->sHandle, 1, 0);
+#endif
       this->field_4 = 0;
     }
   }
@@ -108,11 +114,15 @@ int LbSemaLock::Lock(TbBool wait_forever)
 {
   if (wait_forever)
   {
+#ifdef _WIN32
     this->field_4 = WaitForSingleObject(this->sHandle, INFINITE) < 1;
+#endif
     return this->field_4;
   } else
   {
+#ifdef _WIN32
     this->field_4 = WaitForSingleObject(this->sHandle, 5) < 1;
+#endif
     return this->field_4;
   }
 }

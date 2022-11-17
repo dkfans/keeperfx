@@ -38,7 +38,11 @@ class LbSemaphore {
 public:
     LbSemaphore(void);
     virtual ~LbSemaphore(void);
+#ifdef _WIN32
     HANDLE sHandle;
+#else
+    void* sHandle;
+#endif
 };
 
 /******************************************************************************/
@@ -49,7 +53,11 @@ public:
     virtual ~LbSemaLock(void);
     int Lock(TbBool wait_forever);
     void Release(void);
+#ifdef _WIN32
     HANDLE sHandle;
+#else
+    void* sHandle;
+#endif
     int field_4;
     int field_8;
 };

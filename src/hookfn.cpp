@@ -11,6 +11,9 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+
+#ifdef _WIN32
+
 #define NOMINMAX
 #define WIN32_LEAN_AND_MEAN
 #include "pre_inc.h"
@@ -32,3 +35,5 @@ extern "C" void replaceFn(void* oldFn, void* newFn)
 	assert(res);
 	assert(bytesWritten == sizeof(codeBytes));
 }
+
+#endif

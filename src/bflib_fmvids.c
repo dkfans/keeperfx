@@ -17,6 +17,9 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+
+#ifdef _WIN32
+
 #include "pre_inc.h"
 #include "bflib_fmvids.h"
 
@@ -25,11 +28,9 @@
 #include <stdio.h>
 #include <stdarg.h>
 
-#ifdef _WIN32
 #define NOMINMAX
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
-#endif
 
 #include "bflib_basics.h"
 #include "bflib_memory.h"
@@ -1510,4 +1511,6 @@ short anim_record(void)
 /******************************************************************************/
 #ifdef __cplusplus
 }
+#endif
+
 #endif

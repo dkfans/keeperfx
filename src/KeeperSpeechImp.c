@@ -21,6 +21,8 @@
 #include "pre_inc.h"
 #include "KeeperSpeech.h"
 
+#include <string.h>
+
 #ifdef _WIN32
 #include <stdarg.h>
 #define NOMINMAX

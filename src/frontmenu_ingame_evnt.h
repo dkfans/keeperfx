@@ -33,8 +33,6 @@ struct GuiMenu;
 struct GuiButton;
 
 /******************************************************************************/
-DLLIMPORT struct GuiButtonInit _DK_text_info_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_battle_buttons[];
 DLLIMPORT extern unsigned short _DK_battle_creature_over;
 #define battle_creature_over _DK_battle_creature_over
 

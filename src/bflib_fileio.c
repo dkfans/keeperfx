@@ -26,12 +26,20 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+
+#ifdef _WIN32
 #include <io.h>
+#include <share.h>
+#else
+#define FLUSHRW   0x03
+#define __SID     ('S' << 8)
+#define I_FLUSH   (__SID | 5)
+#endif
+
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <limits.h>
 #include <time.h>
-#include <share.h>
 
 #include "bflib_basics.h"
 #include "bflib_datetm.h"
@@ -227,6 +235,7 @@ int create_directory_for_file(const char * fname)
 
 TbFileHandle LbFileOpen(const char *fname, const unsigned char accmode)
 {
+#ifdef _WIN32
   unsigned char mode = accmode;
 
   if ( !LbFileExists(fname) )
@@ -281,15 +290,18 @@ TbFileHandle LbFileOpen(const char *fname, const unsigned char accmode)
   LbSyncLog("LbFileOpen: out handle = %ld, errno = %d\n",rc,errno);
 #endif
   return rc;
+#endif
 }
 
 //Closes a file
 int LbFileClose(TbFileHandle handle)
 {
+#ifdef _WIN32
   if ( close(handle) )
     return -1;
   else
     return 1;
+#endif
 }
 
 /*
@@ -408,6 +420,7 @@ long LbFileLength(const char *fname)
 //Yeah, right...
 void convert_find_info(struct TbFileFind *ffind)
 {
+#ifdef _WIN32
   struct _finddata_t *fdata=&(ffind->Reserved);
   snprintf(ffind->Filename,144, "%s", fdata->name);
 #if defined(_WIN32)
@@ -423,12 +436,14 @@ void convert_find_info(struct TbFileFind *ffind)
   ffind->Attributes = fdata->attrib;
   LbDateTimeDecode(&fdata->time_create,&ffind->CreationDate,&ffind->CreationTime);
   LbDateTimeDecode(&fdata->time_write,&ffind->LastWriteDate,&ffind->LastWriteTime);
+#endif
 }
 
 // returns -1 if no match is found. Otherwise returns 1 and stores a handle
 // to be used in _findnext and _findclose calls inside TbFileFind struct.
 int LbFileFindFirst(const char *filespec, struct TbFileFind *ffind,unsigned int attributes)
 {
+#ifdef _WIN32
     // original Watcom code was
     //dos_findfirst_(path, attributes,&(ffind->Reserved))
     //The new code skips 'attributes' as Win32 prototypes seem not to use them
@@ -443,11 +458,13 @@ int LbFileFindFirst(const char *filespec, struct TbFileFind *ffind,unsigned int 
       result = 1;
     }
     return result;
+#endif
 }
 
 // returns -1 if no match is found, otherwise returns 1
 int LbFileFindNext(struct TbFileFind *ffind)
 {
+#ifdef _WIN32
     int result;
     if ( _findnext(ffind->ReservedHandle,&(ffind->Reserved)) < 0 )
     {
@@ -460,6 +477,7 @@ int LbFileFindNext(struct TbFileFind *ffind)
         result = 1;
     }
     return result;
+#endif
 }
 
 //Ends file searching sequence

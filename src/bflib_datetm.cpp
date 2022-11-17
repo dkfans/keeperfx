@@ -221,7 +221,7 @@ inline void LbDoMultitasking(void)
 #endif
 }
 
-TbBool __fastcall LbSleepFor(TbClockMSec delay)
+TbBool LbSleepFor(TbClockMSec delay)
 {
     TbClockMSec currclk = LbTimerClock();
     TbClockMSec endclk = currclk + delay;
@@ -235,7 +235,7 @@ TbBool __fastcall LbSleepFor(TbClockMSec delay)
   return true;
 }
 
-TbBool __fastcall LbSleepUntil(TbClockMSec endtime)
+TbBool LbSleepUntil(TbClockMSec endtime)
 {
     TbClockMSec currclk = LbTimerClock();
     while ((currclk + LARGE_DELAY_TIME) < endtime)

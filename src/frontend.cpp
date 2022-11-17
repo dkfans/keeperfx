@@ -96,7 +96,7 @@
 extern "C" {
 #endif
 
-extern void __stdcall enum_sessions_callback(struct TbNetworkCallbackData *netcdat, void *ptr);
+extern void enum_sessions_callback(struct TbNetworkCallbackData *netcdat, void *ptr);
 /******************************************************************************/
 TbClockMSec gui_message_timeout = 0;
 char gui_message_text[TEXT_BUFFER_LENGTH];
