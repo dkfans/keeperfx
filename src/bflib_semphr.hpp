@@ -20,9 +20,10 @@
 #ifndef BFLIB_SEMPHR_H
 #define BFLIB_SEMPHR_H
 
+#include "globals.h"
 #include "bflib_basics.h"
 
-#include "globals.h"
+#include <mutex>
 
 /******************************************************************************/
 #if defined(_WIN32)
@@ -41,7 +42,7 @@ public:
 #ifdef _WIN32
     HANDLE sHandle;
 #else
-    void* sHandle;
+    std::timed_mutex sHandle;
 #endif
 };
 
@@ -56,7 +57,8 @@ public:
 #ifdef _WIN32
     HANDLE sHandle;
 #else
-    void* sHandle;
+    LbSemaphore *semaphore;
+    std::unique_lock<std::timed_mutex> sHandle;
 #endif
     int field_4;
     int field_8;
