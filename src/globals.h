@@ -205,6 +205,9 @@ void replaceFn(void* oldFn, void* newFn);
 #define CONCAT_(x, y) x##y
 #define CONCAT(x, y) CONCAT_(x, y)
 
+#ifdef _64_BIT_
+#define HOOK_DK_FUNC(name)
+#else
 #ifdef _MSC_VER
 #define HOOK_DK_FUNC(name) \
 	DLLIMPORT void _DK_##name();
@@ -212,6 +215,7 @@ void replaceFn(void* oldFn, void* newFn);
 #define HOOK_DK_FUNC(name) \
 	DLLIMPORT void _DK_##name(); \
 	__attribute__((constructor)) static void CONCAT(hookFn, __COUNTER__)(void) { replaceFn(&_DK_##name, &name); }
+#endif
 #endif
 
 #pragma pack(1)

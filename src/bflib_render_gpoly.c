@@ -29,7 +29,17 @@
 #include "bflib_vidraw.h"
 #include "post_inc.h"
 
-#ifndef _64_BIT_
+#ifdef _64_BIT_
+
+void gpoly_enable_pentium_pro(TbBool state)
+{
+}
+
+void draw_gpoly(struct PolyPoint *point_a, struct PolyPoint *point_b, struct PolyPoint *point_c)
+{
+}
+
+#else
 
 /******************************************************************************/
 /******************************************************************************/

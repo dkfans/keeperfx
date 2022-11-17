@@ -74,17 +74,40 @@ if (MSVC)
     target_link_libraries(keeperfx PRIVATE ZLIB::ZLIB)
 
 else ()
+    find_package(SDL2 REQUIRED CONFIG)
+    find_package(SDL2_mixer CONFIG REQUIRED)
+    find_package(SDL2_net CONFIG REQUIRED)
+    find_package(ZLIB REQUIRED)
+
     set(OUR_C_FLAGS "-w")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OUR_C_FLAGS}")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OUR_C_FLAGS}")
 
     file(GLOB_RECURSE KEEPERFX_SOURCES_C "src/*.c")
     file(GLOB_RECURSE KEEPERFX_SOURCES_CXX "src/*.cpp")
+    file(GLOB_RECURSE LIBSPNG_SOURCES "deps/libspng/spng/*.c")
+    file(GLOB_RECURSE CENTIJSON_SOURCES "deps/centijson/src/*.c")
+    file(GLOB_RECURSE MINIZIP_SOURCES "deps/zlib/contrib/minizip/ioapi.c"
+                                      "deps/zlib/contrib/minizip/unzip.c")
 
-    add_compile_definitions(KEEPERSPEECH_STATIC)
+    add_compile_definitions(KEEPERSPEECH_STATIC
+                            SPNG_STATIC)
 
-    add_executable(keeperfx ${KEEPERFX_SOURCES_C} ${KEEPERFX_SOURCES_CXX})
+    add_executable(keeperfx ${KEEPERFX_SOURCES_C} ${KEEPERFX_SOURCES_CXX}
+                            ${LIBSPNG_SOURCES}
+                            ${CENTIJSON_SOURCES}
+                            ${MINIZIP_SOURCES})
 
     target_include_directories(keeperfx PRIVATE "${CMAKE_SOURCE_DIR}/deps/centijson/src")
     target_include_directories(keeperfx PRIVATE "${CMAKE_SOURCE_DIR}/deps/libspng/spng")
+
+    target_link_libraries(keeperfx PRIVATE enet)
+    target_link_libraries(keeperfx
+        PRIVATE
+        $<IF:$<TARGET_EXISTS:SDL2::SDL2>,SDL2::SDL2,SDL2::SDL2-static>)
+    target_link_libraries(keeperfx
+        PRIVATE $<IF:$<TARGET_EXISTS:SDL2_mixer::SDL2_mixer>,SDL2_mixer::SDL2_mixer,SDL2_mixer::SDL2_mixer-static>)
+    target_link_libraries(keeperfx
+        PRIVATE $<IF:$<TARGET_EXISTS:SDL2_net::SDL2_net>,SDL2_net::SDL2_net,SDL2_net::SDL2_net-static>)
+    target_link_libraries(keeperfx PRIVATE ZLIB::ZLIB)
 endif ()

@@ -306,4 +306,34 @@ struct SampleInfo * PlaySampleFromAddress(int a1, int smpl_idx, int a3, int a4, 
 }
 #endif
 
+#else
+
+int FreeAudio() { return 0; }
+int SetRedbookVolume(int volume) { return 0; }
+int SetSoundMasterVolume(int volume) { return 0; }
+int SetMusicMasterVolume(int volume) { return 0; }
+int GetSoundInstalled() { return 0; }
+int PlayRedbookTrack(int v) { return 0; }
+int PauseRedbookTrack() { return 0; }
+int ResumeRedbookTrack() { return 0; }
+int MonitorStreamedSoundTrack() { return 0; }
+int StopRedbookTrack() { return 0; }
+void * GetSoundDriver() { return 0; }
+int StopAllSamples() { return 0; }
+struct SampleInfo * GetFirstSampleInfoStructure() { return 0; }
+int InitAudio(void *p) { return 0; }
+int SetupAudioOptionDefaults(void *p) { return 0; }
+int PlayStreamedSample(char *fname, int a2, int a3, int a4) { return 0; }
+int IsSamplePlaying(int a1, int a2, int a3) { return 0; }
+int StopStreamedSample() { return 0; }
+int StreamedSampleFinished() { return 0; }
+int SetStreamedSampleVolume(int v) { return 0; }
+struct SampleInfo * GetLastSampleInfoStructure() { return 0; }
+int GetCurrentSoundMasterVolume() { return 0; }
+int StopSample(int a,int b) { return 0; }
+int SetSampleVolume(int a,int b,int c,int d) { return 0; }
+int SetSamplePan(int a,int b,int c,int d) { return 0; }
+int SetSamplePitch(int a,int b,int c,int d) { return 0; }
+struct SampleInfo * PlaySampleFromAddress(int a1, int smpl_idx, int a3, int a4, int a5, unsigned char a6, unsigned char a7, void * buf, int a9) { return 0; }
+
 #endif

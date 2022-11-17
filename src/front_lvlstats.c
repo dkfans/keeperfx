@@ -53,8 +53,7 @@ extern "C" {
 /******************************************************************************/
 //DKIMPORT struct StatsData _DK_scrolling_stats_data[];
 //#define scrolling_stats_data _DK_scrolling_stats_data
-DKIMPORT struct LevelStats _DK_frontstats_data;
-#define frontstats_data _DK_frontstats_data
+DKINTERN struct LevelStats _DK_frontstats_data;
 DKIMPORT TbClockMSec _DK_frontstats_timer;
 #define frontstats_timer _DK_frontstats_timer
 /******************************************************************************/

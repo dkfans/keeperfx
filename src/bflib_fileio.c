@@ -208,12 +208,15 @@ short LbFileExists(const char *fname)
 
 int LbFilePosition(TbFileHandle handle)
 {
+#ifdef _WIN32
   int result = tell(handle);
   return result;
+#endif
 }
 
 int create_directory_for_file(const char * fname)
 {
+#ifdef _WIN32
   const int size = strlen(fname) + 1;
   char * tmp = (char *) malloc(size);
   char * separator = strchr(fname, '/');
@@ -231,6 +234,7 @@ int create_directory_for_file(const char * fname)
   }
   free(tmp);
   return 1;
+#endif
 }
 
 TbFileHandle LbFileOpen(const char *fname, const unsigned char accmode)
@@ -399,13 +403,16 @@ short LbFileFlush(TbFileHandle handle)
 
 long LbFileLengthHandle(TbFileHandle handle)
 {
+#ifdef _WIN32
     long result = filelength(handle);
     return result;
+#endif
 }
 
 //Returns disk size of file
 long LbFileLength(const char *fname)
 {
+#ifdef _WIN32
     TbFileHandle handle = LbFileOpen(fname, Lb_FILE_MODE_READ_ONLY);
     long result = handle;
     if (handle != -1)
@@ -414,6 +421,7 @@ long LbFileLength(const char *fname)
         LbFileClose(handle);
   }
   return result;
+#endif
 }
 
 //Converts file search information from platform-specific into independent form
@@ -483,11 +491,13 @@ int LbFileFindNext(struct TbFileFind *ffind)
 //Ends file searching sequence
 int LbFileFindEnd(struct TbFileFind *ffind)
 {
+#ifdef _WIN32
     if (ffind->ReservedHandle != -1)
     {
         _findclose(ffind->ReservedHandle);
     }
     return 1;
+#endif
 }
 
 //Renames a disk file

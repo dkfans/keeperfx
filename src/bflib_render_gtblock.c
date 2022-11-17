@@ -28,7 +28,12 @@
 #include "bflib_vidraw.h"
 #include "post_inc.h"
 
-#ifndef _64_BIT_
+#ifdef _64_BIT_
+
+void gtblock_draw(struct GtBlock *gtb) { }
+void gtblock_set_clipping_window(unsigned char *screen_addr, long clip_width, long clip_height, long screen_width) { }
+
+#else
 
 /******************************************************************************/
 DKIMPORT unsigned char *_DK_gtblock_screen_addr;

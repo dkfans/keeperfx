@@ -4376,7 +4376,7 @@ int main(int argc, char *argv[])
   memcpy(_DK_player_instance_info, player_instance_info, sizeof(_DK_player_instance_info));
   memcpy(_DK_states,states,sizeof(_DK_states));
 
-#if (BFDEBUG_LEVEL > 1)
+#if (BFDEBUG_LEVEL > 1) && !defined(_64_BIT_)
   if (sizeof(struct Game) != SIZEOF_Game)
   {
       long delta1;

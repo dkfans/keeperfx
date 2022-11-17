@@ -30,8 +30,6 @@ extern "C" {
 /******************************************************************************/
 long stat_return_c_slong(void *ptr);
 
-DKIMPORT struct LevelStats _DK_frontstats_data;
-#define frontstats_data _DK_frontstats_data
 /******************************************************************************/
 struct StatsData main_stats_data[] = {
     {1749, stat_return_c_slong, &frontstats_data.creatures_attracted},
