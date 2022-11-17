@@ -43,6 +43,8 @@
 extern "C" {
 #endif
 /******************************************************************************/
+DKINTERN int _DK_network_initialized;
+/******************************************************************************/
 // Local functions definition
 TbError ClearClientData(void);
 TbError GetPlayerInfo(void);

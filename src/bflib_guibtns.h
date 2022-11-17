@@ -215,9 +215,9 @@ struct EventTypeInfo {
 
 /******************************************************************************/
 // Exported variables
-DLLIMPORT extern struct GuiButton *_DK_input_button;
+DKEXTERN struct GuiButton *_DK_input_button;
 #define input_button _DK_input_button
-DLLIMPORT char _DK_backup_input_field[INPUT_FIELD_LEN];
+DKEXTERN char _DK_backup_input_field[INPUT_FIELD_LEN];
 #define backup_input_field _DK_backup_input_field
 
 #pragma pack()

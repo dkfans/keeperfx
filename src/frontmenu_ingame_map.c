@@ -50,6 +50,23 @@
 #include "post_inc.h"
 
 /******************************************************************************/
+DKINTERN long _DK_clicked_on_small_map;
+DKINTERN unsigned char _DK_grabbed_small_map;
+DKINTERN long _DK_PannelMapY;
+DKINTERN long _DK_PannelMapX;
+DKINTERN long _DK_MapShapeStart[116];
+DKINTERN long _DK_MapShapeEnd[116];
+DKINTERN long _DK_NoBackColours;
+DKINTERN long _DK_PrevPixelSize;
+DKINTERN unsigned char _DK_MapBackColours[256];
+DKINTERN unsigned char _DK_MapBackground[116*116];//pannel map size in pixels
+DKINTERN unsigned char _DK_PannelColours[4096];
+DKINTERN long _DK_PrevRoomHighlight;
+DKINTERN long _DK_PrevDoorHighlight;
+DKINTERN unsigned char _DK_PannelMap[256*256];//map subtiles x*y
+/******************************************************************************/
+
+/******************************************************************************/
 /**
  * Background behind the map area.
  */

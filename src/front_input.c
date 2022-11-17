@@ -78,6 +78,9 @@
 extern "C" {
 #endif
 /******************************************************************************/
+DKINTERN long _DK_old_mx;
+DKINTERN long _DK_old_my;
+/******************************************************************************/
 
 unsigned short const zoom_key_room_order[] =
     {RoK_TREASURE, RoK_LIBRARY, RoK_LAIR, RoK_PRISON,

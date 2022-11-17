@@ -31,7 +31,7 @@ typedef unsigned char * MemAllocFunc(ulong);
 /******************************************************************************/
 extern char lbEmptyString[];
 /******************************************************************************/
-DLLIMPORT extern unsigned long _DK_mem_size;
+DKEXTERN unsigned long _DK_mem_size;
 #define mem_size _DK_mem_size
 /******************************************************************************/
 short update_memory_constraits(void);

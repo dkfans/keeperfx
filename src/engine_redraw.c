@@ -69,6 +69,10 @@
 extern "C" {
 #endif
 /******************************************************************************/
+DKINTERN unsigned char _DK_smooth_on;
+DKINTERN unsigned char * _DK_map_fade_ghost_table;
+DKINTERN unsigned char * _DK_map_fade_dest;
+DKINTERN unsigned char * _DK_map_fade_src;
 /******************************************************************************/
 #ifdef __cplusplus
 }

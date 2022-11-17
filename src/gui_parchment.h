@@ -33,9 +33,9 @@ struct TbRect;
 struct Camera;
 
 /******************************************************************************/
-DLLIMPORT int _DK_parchment_loaded;
+DKEXTERN int _DK_parchment_loaded;
 #define parchment_loaded _DK_parchment_loaded
-DLLIMPORT unsigned char *_DK_hires_parchment;
+DKEXTERN unsigned char *_DK_hires_parchment;
 #define hires_parchment _DK_hires_parchment
 
 #pragma pack()

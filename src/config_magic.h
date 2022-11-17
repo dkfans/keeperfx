@@ -431,7 +431,7 @@ struct SpellData {
 
 #pragma pack()
 /******************************************************************************/
-DLLIMPORT struct ShotStats _DK_shot_stats[30];
+DKEXTERN struct ShotStats _DK_shot_stats[30];
 #define shot_stats _DK_shot_stats
 /******************************************************************************/
 extern struct MagicConfig magic_conf;

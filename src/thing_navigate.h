@@ -61,9 +61,9 @@ struct Room;
 void reset_interpolation_of_thing(struct Thing *thing);
 
 /******************************************************************************/
-DLLIMPORT long _DK_owner_player_navigating;
+DKEXTERN long _DK_owner_player_navigating;
 #define owner_player_navigating _DK_owner_player_navigating
-DLLIMPORT long _DK_nav_thing_can_travel_over_lava;
+DKEXTERN long _DK_nav_thing_can_travel_over_lava;
 #define nav_thing_can_travel_over_lava _DK_nav_thing_can_travel_over_lava
 
 #pragma pack()

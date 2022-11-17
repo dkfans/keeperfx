@@ -36,6 +36,21 @@
 extern "C" {
 #endif
 /******************************************************************************/
+DKINTERN TbDisplayStruct _DK_lbDisplay;
+DKINTERN unsigned short _DK_MyScreenWidth;
+DKINTERN unsigned short _DK_MyScreenHeight;
+DKINTERN unsigned short _DK_pixel_size;
+DKINTERN unsigned short _DK_pixels_per_block;
+DKINTERN unsigned short _DK_units_per_pixel;
+DKINTERN int _DK_lbUseSdk;
+
+DKINTERN unsigned char _DK_fade_started;
+DKINTERN unsigned char _DK_from_pal[PALETTE_SIZE];
+DKINTERN unsigned char _DK_to_pal[PALETTE_SIZE];
+DKINTERN long _DK_fade_count;
+DKINTERN TbGraphicsWindow _DK_lbTextJustifyWindow;
+DKINTERN TbGraphicsWindow _DK_lbTextClipWindow;
+/******************************************************************************/
 // Global variables
 /** List of registered video modes. */
 TbScreenModeInfo lbScreenModeInfo[SCREEN_MODES_COUNT];

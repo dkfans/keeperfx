@@ -34,6 +34,9 @@
 extern "C" {
 #endif
 /******************************************************************************/
+DKINTERN unsigned char *_DK_block_mem;
+DKINTERN unsigned char *_DK_block_ptrs[TEXTURE_BLOCKS_COUNT];
+DKINTERN long _DK_anim_counter;
 /******************************************************************************/
 unsigned char block_mem[TEXTURE_FILES_COUNT * TEXTURE_BLOCKS_STAT_COUNT * 32 * 32];
 unsigned char *block_ptrs[TEXTURE_FILES_COUNT * TEXTURE_BLOCKS_COUNT];

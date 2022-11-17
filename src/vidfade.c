@@ -39,6 +39,10 @@
 extern "C" {
 #endif
 /******************************************************************************/
+DKINTERN unsigned char _DK_fade_palette_in;
+DKINTERN unsigned char _DK_frontend_palette[768];
+DKINTERN TbRGBColorTable _DK_colours;
+/******************************************************************************/
 TbBool lbAdvancedFade = true;
 int lbFadeDelay = 25;
 /******************************************************************************/

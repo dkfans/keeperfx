@@ -31,33 +31,33 @@ extern "C" {
 /******************************************************************************/
 #define PANNEL_MAP_RADIUS       58
 /******************************************************************************/
-DLLIMPORT long _DK_clicked_on_small_map;
+DKEXTERN long _DK_clicked_on_small_map;
 #define clicked_on_small_map _DK_clicked_on_small_map
-DLLIMPORT unsigned char _DK_grabbed_small_map;
+DKEXTERN unsigned char _DK_grabbed_small_map;
 #define grabbed_small_map _DK_grabbed_small_map
-DLLIMPORT long _DK_PannelMapY;
+DKEXTERN long _DK_PannelMapY;
 #define PannelMapY _DK_PannelMapY
-DLLIMPORT long _DK_PannelMapX;
+DKEXTERN long _DK_PannelMapX;
 #define PannelMapX _DK_PannelMapX
-DLLIMPORT long _DK_MapShapeStart[116];
+DKEXTERN long _DK_MapShapeStart[116];
 //#define MapShapeStart _DK_MapShapeStart
-DLLIMPORT long _DK_MapShapeEnd[116];
+DKEXTERN long _DK_MapShapeEnd[116];
 //#define MapShapeEnd _DK_MapShapeEnd
-DLLIMPORT long _DK_NoBackColours;
+DKEXTERN long _DK_NoBackColours;
 #define NoBackColours _DK_NoBackColours
-DLLIMPORT long _DK_PrevPixelSize;
+DKEXTERN long _DK_PrevPixelSize;
 #define PrevPixelSize _DK_PrevPixelSize
-DLLIMPORT unsigned char _DK_MapBackColours[256];
+DKEXTERN unsigned char _DK_MapBackColours[256];
 #define MapBackColours _DK_MapBackColours
-DLLIMPORT unsigned char _DK_MapBackground[116*116];//pannel map size in pixels
+DKEXTERN unsigned char _DK_MapBackground[116*116];//pannel map size in pixels
 //#define MapBackground _DK_MapBackground
-DLLIMPORT unsigned char _DK_PannelColours[4096];
+DKEXTERN unsigned char _DK_PannelColours[4096];
 #define PannelColours _DK_PannelColours
-DLLIMPORT long _DK_PrevRoomHighlight;
+DKEXTERN long _DK_PrevRoomHighlight;
 #define PrevRoomHighlight _DK_PrevRoomHighlight
-DLLIMPORT long _DK_PrevDoorHighlight;
+DKEXTERN long _DK_PrevDoorHighlight;
 #define PrevDoorHighlight _DK_PrevDoorHighlight
-DLLIMPORT unsigned char _DK_PannelMap[256*256];//map subtiles x*y
+DKEXTERN unsigned char _DK_PannelMap[256*256];//map subtiles x*y
 #define PannelMap _DK_PannelMap
 /******************************************************************************/
 extern long MapDiagonalLength;

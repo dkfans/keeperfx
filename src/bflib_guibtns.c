@@ -36,6 +36,9 @@ extern "C" {
 #endif
 
 /******************************************************************************/
+DKINTERN struct GuiButton *_DK_input_button;
+DKINTERN char _DK_backup_input_field[INPUT_FIELD_LEN];
+/******************************************************************************/
 // Global variables
 TbCharCount input_field_pos;
 /******************************************************************************/

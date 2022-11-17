@@ -43,6 +43,9 @@
 extern "C" {
 #endif
 /******************************************************************************/
+DKINTERN long _DK_owner_player_navigating;
+DKINTERN long _DK_nav_thing_can_travel_over_lava;
+/******************************************************************************/
 DKIMPORT long _DK_get_next_gap_creature_can_fit_in_below_point(struct Thing *creatng, struct Coord3d *pos);
 /******************************************************************************/
 #ifdef __cplusplus

@@ -116,41 +116,41 @@ typedef long SoundPitch;
 
 /******************************************************************************/
 // Exported variables
-DLLIMPORT extern int _DK_SoundDisabled;
+DKEXTERN int _DK_SoundDisabled;
 #define SoundDisabled _DK_SoundDisabled
-DLLIMPORT extern struct SoundEmitter _DK_emitter[128];
+DKEXTERN struct SoundEmitter _DK_emitter[128];
 #define emitter _DK_emitter
-DLLIMPORT extern long _DK_Non3DEmitter;
+DKEXTERN long _DK_Non3DEmitter;
 #define Non3DEmitter _DK_Non3DEmitter
-DLLIMPORT extern long _DK_SpeechEmitter;
+DKEXTERN long _DK_SpeechEmitter;
 #define SpeechEmitter _DK_SpeechEmitter
-DLLIMPORT extern struct SoundReceiver _DK_Receiver;
+DKEXTERN struct SoundReceiver _DK_Receiver;
 #define Receiver _DK_Receiver
-DLLIMPORT extern long _DK_MaxSoundDistance;
+DKEXTERN long _DK_MaxSoundDistance;
 #define MaxSoundDistance _DK_MaxSoundDistance
-DLLIMPORT extern long _DK_MaxNoSounds;
+DKEXTERN long _DK_MaxNoSounds;
 #define MaxNoSounds _DK_MaxNoSounds
-DLLIMPORT extern struct S3DSample _DK_SampleList[SOUNDS_MAX_COUNT];
+DKEXTERN struct S3DSample _DK_SampleList[SOUNDS_MAX_COUNT];
 #define SampleList _DK_SampleList
-DLLIMPORT TbFileHandle _DK_sound_file;
+DKEXTERN TbFileHandle _DK_sound_file;
 #define sound_file _DK_sound_file
-DLLIMPORT TbFileHandle _DK_sound_file2;
+DKEXTERN TbFileHandle _DK_sound_file2;
 #define sound_file2 _DK_sound_file2
-DLLIMPORT unsigned char _DK_using_two_banks;
+DKEXTERN unsigned char _DK_using_two_banks;
 #define using_two_banks _DK_using_two_banks
-DLLIMPORT long _DK_samples_in_bank;
+DKEXTERN long _DK_samples_in_bank;
 #define samples_in_bank _DK_samples_in_bank
-DLLIMPORT struct SampleTable *_DK_sample_table;
+DKEXTERN struct SampleTable *_DK_sample_table;
 #define sample_table _DK_sample_table
-DLLIMPORT long _DK_samples_in_bank2;
+DKEXTERN long _DK_samples_in_bank2;
 #define samples_in_bank2 _DK_samples_in_bank2
-DLLIMPORT struct SampleTable *_DK_sample_table2;
+DKEXTERN struct SampleTable *_DK_sample_table2;
 #define sample_table2 _DK_sample_table2
-DLLIMPORT struct HeapMgrHeader *_DK_sndheap;
+DKEXTERN struct HeapMgrHeader *_DK_sndheap;
 #define sndheap _DK_sndheap
-DLLIMPORT S3D_LineOfSight_Func _DK_LineOfSightFunction;
+DKEXTERN S3D_LineOfSight_Func _DK_LineOfSightFunction;
 #define LineOfSightFunction _DK_LineOfSightFunction
-DLLIMPORT long _DK_deadzone_radius;
+DKEXTERN long _DK_deadzone_radius;
 #define deadzone_radius _DK_deadzone_radius
 
 #pragma pack()

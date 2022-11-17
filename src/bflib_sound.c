@@ -41,6 +41,25 @@
 extern "C" {
 #endif
 /******************************************************************************/
+DKINTERN int _DK_SoundDisabled;
+DKINTERN struct SoundEmitter _DK_emitter[128];
+DKINTERN long _DK_Non3DEmitter;
+DKINTERN long _DK_SpeechEmitter;
+DKINTERN struct SoundReceiver _DK_Receiver;
+DKINTERN long _DK_MaxSoundDistance;
+DKINTERN long _DK_MaxNoSounds;
+DKINTERN struct S3DSample _DK_SampleList[SOUNDS_MAX_COUNT];
+DKINTERN TbFileHandle _DK_sound_file;
+DKINTERN TbFileHandle _DK_sound_file2;
+DKINTERN unsigned char _DK_using_two_banks;
+DKINTERN long _DK_samples_in_bank;
+DKINTERN struct SampleTable *_DK_sample_table;
+DKINTERN long _DK_samples_in_bank2;
+DKINTERN struct SampleTable *_DK_sample_table2;
+DKINTERN struct HeapMgrHeader *_DK_sndheap;
+DKINTERN S3D_LineOfSight_Func _DK_LineOfSightFunction;
+DKINTERN long _DK_deadzone_radius;
+/******************************************************************************/
 // Global variables
 long NoSoundEmitters = SOUND_EMITTERS_MAX;
 int atmos_sound_volume = 128;

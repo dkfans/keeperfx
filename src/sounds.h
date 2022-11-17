@@ -86,7 +86,7 @@ extern int atmos_sound_frequency;
 
 #pragma pack()
 /******************************************************************************/
-DLLIMPORT unsigned long _DK_sound_seed;
+DKEXTERN unsigned long _DK_sound_seed;
 #define sound_seed _DK_sound_seed
 /******************************************************************************/
 TbBool init_sound_heap_two_banks(unsigned char *heap_mem, long heap_size, char *snd_fname, char *spc_fname, long a5);

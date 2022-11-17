@@ -50,6 +50,15 @@
 extern "C" {
 #endif
 /******************************************************************************/
+DKINTERN int _DK_fe_network_active;
+DKINTERN int _DK_net_service_index_selected;
+DKINTERN char _DK_tmp_net_player_name[24];
+DKINTERN char _DK_tmp_net_phone_number[24];
+DKINTERN char _DK_tmp_net_modem_init[20];
+DKINTERN char _DK_tmp_net_modem_dial[20];
+DKINTERN char _DK_tmp_net_modem_hangup[20];
+DKINTERN char _DK_tmp_net_modem_answer[20];
+/******************************************************************************/
 const char *keeper_netconf_file = "fxconfig.net";
 
 const struct ConfigInfo default_net_config_info = {

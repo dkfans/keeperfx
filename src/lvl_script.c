@@ -41,6 +41,8 @@ extern "C" {
 #endif
 
 /******************************************************************************/
+DKINTERN unsigned char _DK_next_command_reusable;
+/******************************************************************************/
 
 
 const struct CommandDesc *get_next_word(char **line, char *param, int *para_level, const struct CommandDesc *cmdlist_desc)

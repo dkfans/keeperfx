@@ -37,7 +37,7 @@ enum TooltipFlags {
 };
 
 /******************************************************************************/
-DLLIMPORT extern struct ToolTipBox _DK_tool_tip_box;
+DKEXTERN struct ToolTipBox _DK_tool_tip_box;
 #define tool_tip_box _DK_tool_tip_box
 
 #pragma pack()

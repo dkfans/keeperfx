@@ -30,7 +30,7 @@ extern "C" {
 /******************************************************************************/
 long stat_return_c_slong(void *ptr);
 
-DLLIMPORT extern struct LevelStats _DK_frontstats_data;
+DKIMPORT struct LevelStats _DK_frontstats_data;
 #define frontstats_data _DK_frontstats_data
 /******************************************************************************/
 struct StatsData main_stats_data[] = {

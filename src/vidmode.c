@@ -54,6 +54,12 @@
 extern "C" {
 #endif
 /******************************************************************************/
+DKINTERN int _DK_MinimalResolutionSetup;
+DKINTERN struct TbColorTables _DK_pixmap;
+DKINTERN struct TbAlphaTables _DK_alpha_sprite_table;
+DKINTERN unsigned char _DK_white_pal[256];
+DKINTERN unsigned char _DK_red_pal[256];
+/******************************************************************************/
 TbScreenMode switching_vidmodes[] = {
   Lb_SCREEN_MODE_320_200_8,
   Lb_SCREEN_MODE_640_480_8,

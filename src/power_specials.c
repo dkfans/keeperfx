@@ -54,6 +54,10 @@
 extern "C" {
 #endif
 /******************************************************************************/
+DKINTERN long _DK_transfer_creature_scroll_offset;
+DKINTERN long _DK_resurrect_creature_scroll_offset;
+DKINTERN unsigned short _DK_dungeon_special_selected;
+DKINTERN struct SpecialDesc _DK_special_desc[8];
 /******************************************************************************/
 #ifdef __cplusplus
 }

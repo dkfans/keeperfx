@@ -47,6 +47,9 @@
 extern "C" {
 #endif
 /******************************************************************************/
+DKINTERN struct Creatures _DK_creatures[CREATURE_TYPES_COUNT];
+DKINTERN unsigned short _DK_breed_activities[CREATURE_TYPES_COUNT];
+/******************************************************************************/
 const char keeper_creaturetp_file[]="creature.cfg";
 
 const struct NamedCommand creaturetype_common_commands[] = {

@@ -36,6 +36,11 @@
 extern "C" {
 #endif
 /******************************************************************************/
+DKINTERN long _DK_sound_heap_size;
+DKINTERN unsigned char *_DK_sound_heap_memory;
+DKINTERN long _DK_heap_size;
+DKINTERN unsigned char *_DK_heap;
+/******************************************************************************/
 #ifdef __cplusplus
 }
 #endif

@@ -191,9 +191,9 @@ struct Creatures { // sizeof = 16
 };
 
 /******************************************************************************/
-DLLIMPORT struct Creatures _DK_creatures[CREATURE_TYPES_COUNT];
+DKEXTERN struct Creatures _DK_creatures[CREATURE_TYPES_COUNT];
 #define creatures _DK_creatures
-DLLIMPORT unsigned short _DK_breed_activities[CREATURE_TYPES_COUNT];
+DKEXTERN unsigned short _DK_breed_activities[CREATURE_TYPES_COUNT];
 #define breed_activities _DK_breed_activities
 
 #pragma pack()

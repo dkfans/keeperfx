@@ -124,17 +124,17 @@ enum IngameButtonGroupIDs {
 };
 
 /******************************************************************************/
-DLLIMPORT long _DK_activity_list[24];
+DKEXTERN long _DK_activity_list[24];
 #define activity_list _DK_activity_list
-DLLIMPORT char _DK_gui_room_type_highlighted;
+DKEXTERN char _DK_gui_room_type_highlighted;
 #define gui_room_type_highlighted _DK_gui_room_type_highlighted
-DLLIMPORT char _DK_gui_door_type_highlighted;
+DKEXTERN char _DK_gui_door_type_highlighted;
 #define gui_door_type_highlighted _DK_gui_door_type_highlighted
-DLLIMPORT char _DK_gui_trap_type_highlighted;
+DKEXTERN char _DK_gui_trap_type_highlighted;
 #define gui_trap_type_highlighted _DK_gui_trap_type_highlighted
-DLLIMPORT char _DK_gui_creature_type_highlighted;
+DKEXTERN char _DK_gui_creature_type_highlighted;
 #define gui_creature_type_highlighted _DK_gui_creature_type_highlighted
-DLLIMPORT unsigned long _DK_first_person_instance_top_half_selected;
+DKEXTERN unsigned long _DK_first_person_instance_top_half_selected;
 #define first_person_instance_top_half_selected _DK_first_person_instance_top_half_selected
 
 #pragma pack()

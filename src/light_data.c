@@ -37,6 +37,15 @@
 extern "C" {
 #endif
 /******************************************************************************/
+DKINTERN unsigned long _DK_light_bitmask[32];
+DKINTERN long _DK_stat_light_needs_updating;
+DKINTERN long _DK_light_total_dynamic_lights;
+DKINTERN long _DK_light_total_stat_lights;
+DKINTERN long _DK_light_rendered_dynamic_lights;
+DKINTERN long _DK_light_rendered_optimised_dynamic_lights;
+DKINTERN long _DK_light_updated_stat_lights;
+DKINTERN long _DK_light_out_of_date_stat_lights;
+/******************************************************************************/
 DKIMPORT int _DK_light_render_light_sub3(struct Light *lgt, int radius, int a3, unsigned int a4);
 /******************************************************************************/
 struct Light *light_allocate_light(void)

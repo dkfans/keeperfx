@@ -88,9 +88,9 @@ struct GtBlock { // sizeof = 48
 };
 
 /******************************************************************************/
-DLLIMPORT unsigned char _DK_vec_mode;
+DKEXTERN unsigned char _DK_vec_mode;
 //#define vec_mode _DK_vec_mode
-DLLIMPORT unsigned char _DK_vec_colour;
+DKEXTERN unsigned char _DK_vec_colour;
 //#define vec_colour _DK_vec_colour
 
 #pragma pack()

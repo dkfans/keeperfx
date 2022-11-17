@@ -37,6 +37,9 @@
 #include "post_inc.h"
 
 /******************************************************************************/
+DKINTERN unsigned short _DK_friendly_battler_list[3*MESSAGE_BATTLERS_COUNT];
+DKINTERN unsigned short _DK_enemy_battler_list[3*MESSAGE_BATTLERS_COUNT];
+/******************************************************************************/
 /**
  * Returns CreatureBattle of given index.
  */

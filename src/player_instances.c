@@ -64,6 +64,8 @@
 extern "C" {
 #endif
 /******************************************************************************/
+DKINTERN struct PlayerInstanceInfo _DK_player_instance_info[PLAYER_INSTANCES_COUNT_OLD];
+/******************************************************************************/
 long pinstfs_hand_grab(struct PlayerInfo *player, long *n);
 long pinstfe_hand_grab(struct PlayerInfo *player, long *n);
 long pinstfs_hand_drop(struct PlayerInfo *player, long *n);

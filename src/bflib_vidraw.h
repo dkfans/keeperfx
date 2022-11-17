@@ -151,33 +151,33 @@ struct PurpleDrawItem {
 };
 
 /******************************************************************************/
-DLLIMPORT unsigned char *_DK_poly_screen;
+DKEXTERN unsigned char *_DK_poly_screen;
 #define poly_screen _DK_poly_screen
-DLLIMPORT unsigned char *_DK_vec_screen;
+DKEXTERN unsigned char *_DK_vec_screen;
 #define vec_screen _DK_vec_screen
-DLLIMPORT unsigned char *_DK_vec_map;
+DKEXTERN unsigned char *_DK_vec_map;
 #define vec_map _DK_vec_map
-DLLIMPORT unsigned long _DK_vec_screen_width;
+DKEXTERN unsigned long _DK_vec_screen_width;
 #define vec_screen_width _DK_vec_screen_width
-DLLIMPORT unsigned long _DK_vec_window_width;
+DKEXTERN unsigned long _DK_vec_window_width;
 #define vec_window_width _DK_vec_window_width
-DLLIMPORT unsigned long _DK_vec_window_height;
+DKEXTERN unsigned long _DK_vec_window_height;
 #define vec_window_height _DK_vec_window_height
-DLLIMPORT unsigned char *_DK_dither_map;
+DKEXTERN unsigned char *_DK_dither_map;
 #define dither_map _DK_dither_map
-DLLIMPORT unsigned char *_DK_dither_end;
+DKEXTERN unsigned char *_DK_dither_end;
 #define dither_end _DK_dither_end
-DLLIMPORT unsigned char *_DK_lbSpriteReMapPtr;
+DKEXTERN unsigned char *_DK_lbSpriteReMapPtr;
 #define lbSpriteReMapPtr _DK_lbSpriteReMapPtr
-DLLIMPORT long _DK_scale_up;
+DKEXTERN long _DK_scale_up;
 #define scale_up _DK_scale_up
-DLLIMPORT long _DK_xsteps_array[2*256];
-DLLIMPORT long _DK_ysteps_array[2*320];
+DKEXTERN long _DK_xsteps_array[2*256];
+DKEXTERN long _DK_ysteps_array[2*320];
 
-DLLIMPORT long _DK_alpha_scale_up;
+DKEXTERN long _DK_alpha_scale_up;
 #define alpha_scale_up _DK_alpha_scale_up
-DLLIMPORT long _DK_alpha_xsteps_array[2*256];
-DLLIMPORT long _DK_alpha_ysteps_array[2*320];
+DKEXTERN long _DK_alpha_xsteps_array[2*256];
+DKEXTERN long _DK_alpha_ysteps_array[2*320];
 
 #pragma pack()
 /******************************************************************************/

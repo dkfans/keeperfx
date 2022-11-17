@@ -91,9 +91,9 @@ extern TbBool dbc_enabled;
 extern TbBool dbc_initialized;
 
 /******************************************************************************/
-DLLIMPORT extern const struct TbSprite *_DK_lbFontPtr;
+DKEXTERN const struct TbSprite *_DK_lbFontPtr;
 #define lbFontPtr _DK_lbFontPtr
-DLLIMPORT extern unsigned char _DK_lbSpacesPerTab;
+DKEXTERN unsigned char _DK_lbSpacesPerTab;
 #define lbSpacesPerTab _DK_lbSpacesPerTab
 
 #pragma pack()
