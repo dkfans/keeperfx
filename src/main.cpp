@@ -4302,14 +4302,13 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
     return 0;
 }
 
+#ifdef _WIN32
 void get_cmdln_args(unsigned short &argc, char *argv[])
 {
     char *ptr;
-#ifdef _WIN32
     const char *cmndln_orig;
     cmndln_orig = GetCommandLineA();
     snprintf(cmndline, CMDLN_MAXLEN, "%s", cmndln_orig);
-#endif
     ptr = cmndline;
     bf_argc = 0;
     while (*ptr != '\0')
@@ -4350,7 +4349,6 @@ void get_cmdln_args(unsigned short &argc, char *argv[])
     }
 }
 
-#ifdef _WIN32
 LONG __stdcall Vex_handler(
     _EXCEPTION_POINTERS *ExceptionInfo
 )
@@ -4368,8 +4366,12 @@ int main(int argc, char *argv[])
   _DK_hInstance = GetModuleHandle(NULL);
 
   AddVectoredExceptionHandler(0, &Vex_handler);
-#endif
   get_cmdln_args(bf_argc, bf_argv);
+#else
+  bf_argc = min(CMDLN_MAXLEN, argc);
+  for (int i = 0; i < bf_argc; i++)
+    bf_argv[i] = argv[i];
+#endif
 
 //TODO DLL_CLEANUP delete when won't be needed anymore
   memcpy(_DK_menu_list,menu_list,40*sizeof(struct GuiMenu *));
