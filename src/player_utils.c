@@ -496,7 +496,7 @@ TbBool map_position_initially_explored_for_player(PlayerNumber plyr_idx, MapSlab
 void fill_in_explored_area(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
 
-    char *v3;
+    char *first_scratch;
     unsigned char *v4;
     int v5;
     struct SlabMap *slb;
@@ -518,10 +518,9 @@ void fill_in_explored_area(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlC
     int slb_y;
     int slb_x;
     unsigned int v24;
-    int v25;
-    char *v26;
-    int v27;
-    long *v28;
+    int slb_y;
+    char *second_scratch;
+    int slb_x;
     char *v29;
     unsigned int v30;
 
@@ -542,14 +541,13 @@ char byte_522199[11] =
   0,  0
 };
 
-    v3 = (char*) scratch;
+    first_scratch = (char*) scratch;
     v4 = scratch;
-    v26 = (char *)scratch + 7225;
+    second_scratch = (char *)scratch + 7225;
     memset((void *)scratch, 0, 0x1C38u);
     v4[7224] = 0;
     v5 = 0;
     slb = game.slabmap;
-    v28 = &map_to_slab[1];
     do
     {
         v7 = 0;
@@ -561,9 +559,9 @@ char byte_522199[11] =
 
             
 
-            if ((block_flags & 0x29) != 0 || ((block_flags & 0x40) != 0 && slabmap_owner(slb) != plyr_idx))
+            if ((block_flags & 0x29) != 0 || ((block_flags & SlbAtFlg_IsDoor) != 0 && slabmap_owner(slb) != plyr_idx))
             {
-                v3[v7 + v5] = 1;
+                first_scratch[v7 + v5] = 1;
             }
             v8 += STL_PER_SLB;
             ++slb;
@@ -571,7 +569,6 @@ char byte_522199[11] =
         } while (v8 < &map_to_slab[270]);
 
         v5 += 85;
-        v28 += 3;
     } while (v5 < 7225);
     mapblk = &game.map[257];
     v11 = 0x10000;
@@ -584,14 +581,14 @@ char byte_522199[11] =
     } while (v11);
     v30 = 0;
     v24 = 0;
-    v27 = stl_x / 3;
-    v25 = stl_y / 3;
-    v3[85 * v25 + v27] |= 2u;
-    v29 = v26;
+    slb_x = stl_x / 3;
+    slb_y = stl_y / 3;
+    first_scratch[85 * slb_y + slb_x] |= 2u;
+    v29 = second_scratch;
     do
     {
         v13 = 0;
-        v14 = &v3[85 * v25 + v27];
+        v14 = &first_scratch[85 * slb_y + slb_x];
         v15 = *(v14 - 1);
         if ((v15 & 1) != 0)
         {
@@ -602,8 +599,8 @@ char byte_522199[11] =
         {
             *(v14 - 1) = v15 | 2;
             ++v24;
-            v26[2 * v24 - 2] = v27 - 1;
-            v26[2 * v24 - 1] = v25;
+            second_scratch[2 * v24 - 2] = slb_x - 1;
+            second_scratch[2 * v24 - 1] = slb_y;
         }
         v16 = v14[1];
         if ((v16 & 1) != 0)
@@ -615,8 +612,8 @@ char byte_522199[11] =
         {
             v14[1] = v16 | 2;
             ++v24;
-            v26[2 * v24 - 2] = v27 + 1;
-            v26[2 * v24 - 1] = v25;
+            second_scratch[2 * v24 - 2] = slb_x + 1;
+            second_scratch[2 * v24 - 1] = slb_y;
         }
         v17 = *(v14 - 85);
         if ((v17 & 1) != 0)
@@ -628,8 +625,8 @@ char byte_522199[11] =
         {
             *(v14 - 85) = v17 | 2;
             ++v24;
-            v26[2 * v24 - 2] = v27;
-            v26[2 * v24 - 1] = v25 - 1;
+            second_scratch[2 * v24 - 2] = slb_x;
+            second_scratch[2 * v24 - 1] = slb_y - 1;
         }
         v18 = v14[85];
         if ((v18 & 1) != 0)
@@ -641,8 +638,8 @@ char byte_522199[11] =
         {
             v14[85] = v18 | 2;
             ++v24;
-            v26[2 * v24 - 2] = v27;
-            v26[2 * v24 - 1] = v25 + 1;
+            second_scratch[2 * v24 - 2] = slb_x;
+            second_scratch[2 * v24 - 1] = slb_y + 1;
         }
         for (i = (char *)dword_522148 + 5 * v13; *(int *)i; i = (char *)dword_522148 + 5 * v13)
         {
@@ -656,29 +653,27 @@ char byte_522199[11] =
             }
             else
             {
-                v20 = &v3[85 * v25 + 85 * byte_522199[2 * *(int *)i] + byte_522198[2 * *(int *)i]];
-                v20[v27] |= 2u;
+                v20 = &first_scratch[85 * slb_y + 85 * byte_522199[2 * *(int *)i] + byte_522198[2 * *(int *)i]];
+                v20[slb_x] |= 2u;
                 v13 &= i[4];
             }
         }
         v29 += 2;
         ++v30;
-        v27 = *(v29 - 2);
-        v25 = *(v29 - 1);
+        slb_x = *(v29 - 2);
+        slb_y = *(v29 - 1);
     } while (v24 >= v30);
-    v21 = 0;
     slb_y = 0;
     do
     {
         for (slb_x = 0; slb_x < map_tiles_x; ++slb_x)
         {
-            if ((v3[slb_x + v21] & 2) != 0)
+            if ((first_scratch[get_slab_number(slb_x,slb_y) ] & 2) != 0)
             {
                 clear_slab_dig(slb_x, slb_y, plyr_idx);
                 set_slab_explored(plyr_idx, slb_x, slb_y);
             }
         }
-        v21 += 85;
         ++slb_y;
     } while (v21 < 7225);
     pannel_map_update(0, 0, 256, 256);
