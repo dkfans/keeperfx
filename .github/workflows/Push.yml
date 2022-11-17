@@ -31,7 +31,7 @@ jobs:
         make BUILD_NUMBER=$BUILD_NUMBER PACKAGE_SUFFIX=$PACKAGE_SUFFIX package
         echo "ZIP_NAME=$(basename -s .7z pkg/keeperfx*.7z)" >> $GITHUB_ENV
         rm pkg/keeperfx*.7z
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v3
       with:
         name: ${{ env.ZIP_NAME }}
         path: pkg/**
