@@ -30,8 +30,6 @@ extern "C" {
 /******************************************************************************/
 #pragma pack(1)
 
-#define POLY_SCANS_COUNT 576
-
 enum VecModes {
     VM_Unknown0 = 0,
     VM_Unknown1,
@@ -100,7 +98,6 @@ extern unsigned char vec_mode;
 extern unsigned char *render_fade_tables;
 extern unsigned char *render_ghost;
 extern unsigned char *render_alpha;
-extern struct PolyPoint polyscans[2*POLY_SCANS_COUNT];
 // Rename pending for these entries
 extern unsigned char *LOC_poly_screen;
 extern unsigned char *LOC_vec_map;

@@ -148,6 +148,8 @@ struct TrigLocalRend {
 
 #pragma pack()
 /******************************************************************************/
+#define POLY_SCANS_COUNT 576
+struct PolyPoint polyscans[8 * POLY_SCANS_COUNT]; // Allocate twice the size - this array is often exceeded, and rendering routines aren't safe
 
 /**
  * whether the subtraction (x-y) of two long ints would overflow

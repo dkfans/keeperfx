@@ -43,7 +43,6 @@ unsigned char *LOC_vec_screen;
 unsigned long LOC_vec_screen_width;
 unsigned long LOC_vec_window_width;
 unsigned long LOC_vec_window_height;
-struct PolyPoint polyscans[2*POLY_SCANS_COUNT]; // Allocate twice the size - this array is often exceeded, and rendering routines aren't safe
 /******************************************************************************/
 void draw_triangle(struct PolyPoint *point_a, struct PolyPoint *point_b, struct PolyPoint *point_c)
 {
