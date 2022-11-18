@@ -21,7 +21,6 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
-#include <SDL2/SDL_mixer.h>
 
 #ifdef __cplusplus
 extern "C" {

@@ -18,6 +18,9 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+
+#ifndef KEEPERFX_DISABLE_MULTIPLAYER
+
 #include "pre_inc.h"
 #include "bflib_base_tcp.hpp"
 
@@ -168,3 +171,5 @@ void TCP_NetBase::clearIntMessages()
 
 	SDL_UnlockMutex(msgMutex);
 }
+
+#endif

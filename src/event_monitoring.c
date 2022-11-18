@@ -18,7 +18,9 @@
 #include "bflib_basics.h"
 #include "event_monitoring.h"
 
+#ifndef KEEPERFX_DISABLE_MULTIPLAYER
 #include <SDL2/SDL_net.h>
+
 #include "post_inc.h"
 
 #define MAX_PACKET_SIZE 1024
@@ -145,3 +147,5 @@ void evm_stat(int force_new, const char *event_fmt, ...)
         evm_packet->len = 0;
     }
 }
+
+#endif

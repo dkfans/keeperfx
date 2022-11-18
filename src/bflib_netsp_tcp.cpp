@@ -17,6 +17,9 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+
+#ifndef KEEPERFX_DISABLE_MULTIPLAYER
+
 #include "pre_inc.h"
 #include "bflib_netsp_tcp.hpp"
 
@@ -259,3 +262,5 @@ void TCPServiceProvider::update()
 		base->update();
 	}
 }
+
+#endif

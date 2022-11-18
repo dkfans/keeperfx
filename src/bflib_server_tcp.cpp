@@ -17,6 +17,9 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+
+#ifndef KEEPERFX_DISABLE_MULTIPLAYER
+
 #include "pre_inc.h"
 #include "bflib_server_tcp.hpp"
 #include "post_inc.h"
@@ -224,3 +227,4 @@ void TCP_NetServer::removeRemoteSocket(TCPsocket sock)
 	}
 }
 
+#endif

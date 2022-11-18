@@ -12,6 +12,8 @@
  */
 /******************************************************************************/
 
+#ifndef KEEPERFX_DISABLE_MULTIPLAYER
+
 #include "pre_inc.h"
 #include "bflib_enet.h"
 #include "bflib_network.h"
@@ -356,3 +358,5 @@ struct NetSP *InitEnetSP()
     };
     return &ret;
 }
+
+#endif

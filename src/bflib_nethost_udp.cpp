@@ -18,6 +18,9 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+
+#ifndef KEEPERFX_DISABLE_MULTIPLAYER
+
 #include "pre_inc.h"
 #include "bflib_nethost_udp.hpp"
 #include "bflib_netconfig.hpp"
@@ -112,3 +115,5 @@ int UDP_NetHost::threadFunc(void * ptr)
 	SDLNet_UDP_Close(socket);
 	return 0;
 }
+
+#endif

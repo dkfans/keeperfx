@@ -6,6 +6,12 @@ if (CMAKE_BINARY_DIR STREQUAL CMAKE_SOURCE_DIR)
 endif ()
 
 project(keeperfx C CXX)
+
+# Options
+option(KEEPERFX_DISABLE_AUDIO       "Disable audio" YES)
+option(KEEPERFX_DISABLE_MULTIPLAYER "Disable multiplayer" YES)
+option(KEEPERFX_32_BIT              "Force 32-bit" NO)
+
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 14)
 
@@ -75,11 +81,12 @@ if (MSVC)
 
 else ()
     find_package(SDL2 REQUIRED CONFIG)
-    find_package(SDL2_mixer CONFIG REQUIRED)
-    find_package(SDL2_net CONFIG REQUIRED)
     find_package(ZLIB REQUIRED)
 
     set(OUR_C_FLAGS "")
+    if (${KEEPERFX_32_BIT})
+        set(OUR_C_FLAGS "${OUR_C_FLAGS} -m32")
+    endif ()
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OUR_C_FLAGS} -Werror=implicit-function-declaration")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OUR_C_FLAGS}")
 
@@ -101,13 +108,23 @@ else ()
     target_include_directories(keeperfx PRIVATE "${CMAKE_SOURCE_DIR}/deps/centijson/src")
     target_include_directories(keeperfx PRIVATE "${CMAKE_SOURCE_DIR}/deps/libspng/spng")
 
-    target_link_libraries(keeperfx PRIVATE enet)
-    target_link_libraries(keeperfx
-        PRIVATE
-        $<IF:$<TARGET_EXISTS:SDL2::SDL2>,SDL2::SDL2,SDL2::SDL2-static>)
-    target_link_libraries(keeperfx
-        PRIVATE $<IF:$<TARGET_EXISTS:SDL2_mixer::SDL2_mixer>,SDL2_mixer::SDL2_mixer,SDL2_mixer::SDL2_mixer-static>)
-    target_link_libraries(keeperfx
-        PRIVATE $<IF:$<TARGET_EXISTS:SDL2_net::SDL2_net>,SDL2_net::SDL2_net,SDL2_net::SDL2_net-static>)
-    target_link_libraries(keeperfx PRIVATE ZLIB::ZLIB)
+    target_link_libraries(keeperfx PRIVATE SDL2)
+    target_link_libraries(keeperfx PRIVATE z)
+        
+    if (${KEEPERFX_DISABLE_AUDIO})
+        add_compile_definitions(KEEPERFX_DISABLE_AUDIO)
+    else ()
+        find_package(SDL2_mixer CONFIG REQUIRED)
+        target_link_libraries(keeperfx
+            PRIVATE $<IF:$<TARGET_EXISTS:SDL2_mixer::SDL2_mixer>,SDL2_mixer::SDL2_mixer,SDL2_mixer::SDL2_mixer-static>)
+    endif ()
+
+    if (${KEEPERFX_DISABLE_MULTIPLAYER})
+        add_compile_definitions(KEEPERFX_DISABLE_MULTIPLAYER)
+    else ()
+        find_package(SDL2_net CONFIG REQUIRED)
+        target_link_libraries(keeperfx PRIVATE enet)
+        target_link_libraries(keeperfx
+            PRIVATE $<IF:$<TARGET_EXISTS:SDL2_net::SDL2_net>,SDL2_net::SDL2_net,SDL2_net::SDL2_net-static>)
+    endif ()
 endif ()

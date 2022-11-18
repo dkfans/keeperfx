@@ -19,6 +19,9 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+
+#ifndef KEEPERFX_DISABLE_MULTIPLAYER
+
 #include "pre_inc.h"
 #include "bflib_netlisten_udp.hpp"
 #include "bflib_netconfig.hpp"
@@ -221,3 +224,5 @@ IPaddress UDP_NetListener::getSessionAddress(int sessionId)
 	SDLNet_ResolveHost(&addr, "localhost", HOST_PORT_NUMBER); //for now return localhost until class is finshed
 	return addr;
 }
+
+#endif

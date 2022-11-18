@@ -17,6 +17,9 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+
+#ifndef KEEPERFX_DISABLE_MULTIPLAYER
+
 #include "pre_inc.h"
 #include "bflib_network.h"
 
@@ -556,3 +559,5 @@ static void tcpSP_drop_user(NetUserId id)
         spstate.drop_callback(id, NETDROP_MANUAL);
     }
 }
+
+#endif

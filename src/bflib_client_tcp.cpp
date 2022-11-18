@@ -17,6 +17,9 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+
+#ifndef KEEPERFX_DISABLE_MULTIPLAYER
+
 #include "pre_inc.h"
 #include "bflib_client_tcp.hpp"
 
@@ -112,3 +115,5 @@ bool TCP_NetClient::sendDKMessage(unsigned long playerId, const char buffer[], s
 
 	return retval;
 }
+
+#endif

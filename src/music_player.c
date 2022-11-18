@@ -25,11 +25,16 @@
 #include "game_legacy.h"
 #include "keeperfx.hpp"
 #include "config.h"
+
+#include <SDL2/SDL_mixer.h>
+
 #include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#ifndef KEEPERFX_DISABLE_AUDIO
 /******************************************************************************/
 // the 50 is a static value, idealy would be equal to max_track. May not be smaller.
 Mix_Music* tracks[50];
@@ -183,6 +188,19 @@ void SetMusicPlayerVolume(int volume)
         SYNCLOG("Music volume set: %d", normalized_volume);
     }
 }
+
+#else
+
+TbBool IsRedbookMusicActive() { return false; }
+int InitializeMusicPlayer() { return 0; }
+void ShutdownMusicPlayer() { }
+void PlayMusicPlayer(int track) { }
+void PauseMusicPlayer() { }
+void ResumeMusicPlayer() { }
+void StopMusicPlayer() { }
+void SetMusicPlayerVolume(int volume) { }
+
+#endif
 
 /******************************************************************************/
 #ifdef __cplusplus
