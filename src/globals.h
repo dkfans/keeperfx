@@ -204,7 +204,7 @@ void replaceFn(void* oldFn, void* newFn);
 #define CONCAT_(x, y) x##y
 #define CONCAT(x, y) CONCAT_(x, y)
 
-#ifdef _64_BIT_
+#ifndef _WIN32
 #define HOOK_DK_FUNC(name)
 #else
 #ifdef _MSC_VER
