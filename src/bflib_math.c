@@ -695,7 +695,7 @@ static long bitScanReverse(long s)
     uint8_t success = _BitScanReverse(&i, source);
     return success != 0 ? i : -1;
 #elif defined(__GNUC__)
-    auto result = source == 0 ? -1 : __builtin_clz(source) ^ 31;
+    int result = source == 0 ? -1 : __builtin_clz(source) ^ 31;
     return result;
 #else
 #pragma message "Falling back to iterative bitscan reverse, consider using intrinsics"
