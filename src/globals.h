@@ -74,7 +74,6 @@
 # define DKEXTERN extern
 # define DKINTERN
 # define DKIMPORT
-# define DLLIMPORT extern
 #endif
 
 #ifdef __cplusplus

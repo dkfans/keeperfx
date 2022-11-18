@@ -30,7 +30,7 @@ extern "C"
 {
 #endif
 
-DLLIMPORT long _DK_ceiling_init(unsigned long a1, unsigned long a2);
+DKIMPORT long _DK_ceiling_init(unsigned long a1, unsigned long a2);
 static char ceiling_cache[256*256];
 
 static int find_column_height_including_lintels(struct Column *col)

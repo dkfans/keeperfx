@@ -157,12 +157,6 @@ char field_3C4[12];
 
 typedef void (*SmackDrawCallback)(unsigned char *frame_data, long width, long height);
 
-/******************************************************************************/
-// Exported variables
-
-DLLIMPORT struct Animation _DK_animation;
-#define animation _DK_animation
-
 #pragma pack()
 /******************************************************************************/
 // Exported functions - SMK related
