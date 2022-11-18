@@ -22,6 +22,10 @@
 
 #include "bflib_basics.h"
 
+#ifdef _MSC_VER
+#include <intrin.h>
+#endif // _MSC_VER
+
 #ifdef AUTOTESTING
 
 #include "event_monitoring.h"
@@ -685,18 +689,38 @@ long LbArcTanAngle(long x,long y)
     }
 }
 
+static long bitScanReverse(long s)
+{
+  unsigned long source = (unsigned long)s;
+#if defined(_MSC_VER)
+    DWORD i;
+    uint8_t success = _BitScanReverse(&i, source);
+    return success != 0 ? i : -1;
+#elif defined(__GNUC__)
+    int result = source == 0 ? -1 : __builtin_clz(source) ^ 31;
+    return result;
+#else
+#pragma message "Falling back to iterative bitscan reverse, consider using intrinsics"
+    if (source != 0)
+    {
+        for (int32_t i = 31; i > -1; i--)
+        {
+            if (source & (1u << i))
+            {
+                return i;
+            }
+        }
+    }
+    return -1;
+#endif
+}
+
 long LbSqrL(long x)
 {
   if (x <= 0)
     return 0;
   //
-  long y;
-  asm("bsrl     %1, %%eax;\n"
-      "movl %%eax, %0;\n"
-      : "=r"(y) // output
-      : "r"(x)  // input
-      : "%eax"  // clobbered register
-  );
+  long y = bitScanReverse(x);
   y = lbSqrTable[y];
   while ((x/y) < y)
     y = ((x/y) + y) >> 1;
