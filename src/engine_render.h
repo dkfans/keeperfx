@@ -471,14 +471,6 @@ DKEXTERN unsigned char _DK_player_bit;
 #define player_bit _DK_player_bit
 DKEXTERN long _DK_UseFastBlockDraw;
 #define UseFastBlockDraw _DK_UseFastBlockDraw
-DKEXTERN unsigned char *_DK_gtblock_screen_addr;
-#define gtblock_screen_addr _DK_gtblock_screen_addr
-DKEXTERN long _DK_gtblock_clip_width;
-#define gtblock_clip_width _DK_gtblock_clip_width
-DKEXTERN long _DK_gtblock_clip_height;
-#define gtblock_clip_height _DK_gtblock_clip_height
-DKEXTERN long _DK_gtblock_screen_width;
-#define gtblock_screen_width _DK_gtblock_screen_width
 DKEXTERN long _DK_thelens;
 #define thelens _DK_thelens
 DKEXTERN long _DK_fade_mmm;

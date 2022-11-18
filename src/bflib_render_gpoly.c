@@ -29,7 +29,7 @@
 #include "bflib_vidraw.h"
 #include "post_inc.h"
 
-#ifdef _64_BIT_
+#if defined(_64_BIT_) || !defined(_WIN32)
 
 void gpoly_enable_pentium_pro(TbBool state)
 {

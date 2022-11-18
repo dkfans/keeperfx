@@ -209,10 +209,6 @@ DKINTERN short _DK_mz;
 DKINTERN unsigned char _DK_engine_player_number;
 DKINTERN unsigned char _DK_player_bit;
 DKINTERN long _DK_UseFastBlockDraw;
-DKINTERN unsigned char *_DK_gtblock_screen_addr;
-DKINTERN long _DK_gtblock_clip_width;
-DKINTERN long _DK_gtblock_clip_height;
-DKINTERN long _DK_gtblock_screen_width;
 DKINTERN long _DK_thelens;
 DKINTERN long _DK_fade_mmm;
 DKINTERN long _DK_spr_map_angle;
@@ -564,9 +560,18 @@ static void base_vec_normalisation(struct M33 *matx, unsigned char a2)
     rv1 = vec->v[1];
     rv2 = vec->v[2];
     rvlen = LbSqrL(rv0 * rv0 + rv1 * rv1 + rv2 * rv2);
-    vec->v[0] = (rv0 << 14) / rvlen;
-    vec->v[1] = (rv1 << 14) / rvlen;
-    vec->v[2] = (rv2 << 14) / rvlen;
+    if (rvlen != 0)
+    {
+        vec->v[0] = (rv0 << 14) / rvlen;
+        vec->v[1] = (rv1 << 14) / rvlen;
+        vec->v[2] = (rv2 << 14) / rvlen;
+    }
+    else
+    {
+        vec->v[0] = 0;
+        vec->v[1] = 0;
+        vec->v[2] = 0;
+    }
 }
 
 static void vec_cross_prod(struct M31 *outvec, const struct M31 *vec2, const struct M31 *vec3)

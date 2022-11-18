@@ -28,7 +28,7 @@
 #include "bflib_vidraw.h"
 #include "post_inc.h"
 
-#ifdef _64_BIT_
+#if defined(_64_BIT_) || !defined(_WIN32)
 
 void gtblock_draw(struct GtBlock *gtb) { }
 void gtblock_set_clipping_window(unsigned char *screen_addr, long clip_width, long clip_height, long screen_width) { }
