@@ -133,9 +133,9 @@ struct CPU_INFO {
   long feature_intl;
   long feature_edx;
   TbBool timeStampCounter;
-  char vendor[17];
+  char vendor[(3 * 4) + 1]; // 3 32-bit registers + null terminator
   TbBool BrandString;
-  char brand[47];
+  char brand[(3 * 4 * 4) + 1]; // 3 sets of 4 32-bit registers + null terminator
 };
 
 /******************************************************************************/
