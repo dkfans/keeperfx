@@ -8,6 +8,9 @@
 #ifndef KEEPERSPEECH_H
 #define KEEPERSPEECH_H
 
+#ifdef KEEPERSPEECH_STATIC
+#define KEEPERSPEECH_API
+#else
 #ifdef KEEPERSPEECH_EXPORTS
 #define KEEPERSPEECH_API __declspec(dllexport)
 #else
@@ -15,6 +18,7 @@
 #define KEEPERSPEECH_API __cdecl
 #else
 #define KEEPERSPEECH_API __declspec(dllimport)
+#endif
 #endif
 #endif
 

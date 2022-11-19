@@ -136,7 +136,6 @@ unsigned short bf_argc;
 char *bf_argv[CMDLN_MAXLEN+1];
 short do_draw;
 short default_loc_player = 0;
-TbBool force_player_num = false;
 struct StartupParameters start_params;
 
 struct Room *droom = &_DK_game.rooms[25];
@@ -147,6 +146,8 @@ TbClockMSec last_loop_time=0;
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+TbBool force_player_num = false;
 
 // Now variables
 DLLIMPORT extern HINSTANCE _DK_hInstance;
@@ -4376,7 +4377,7 @@ void update_time(void)
     Timer.Hours = time / 60;
 }
 
-__attribute__((regparm(3))) struct GameTime get_game_time(unsigned long turns, unsigned long fps)
+struct GameTime get_game_time(unsigned long turns, unsigned long fps)
 {
     struct GameTime GameT;
     unsigned long time = turns / fps;
