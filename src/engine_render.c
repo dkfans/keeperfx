@@ -157,8 +157,12 @@ static unsigned long render_problems;
 static long render_prob_kind;
 static long sp_x, sp_y, sp_dx, sp_dy;
 
-DKIMPORT char _DK_splittypes[64];
-#define splittypes _DK_splittypes
+static const char splittypes[64] = {
+    0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 5, 5, 0, 1, 5, 5,
+    0, 2, 2, 2, 3, 4, 4, 4, 3, 4, 8, 8, 3, 4, 8, 8,
+    0, 2, 6, 6, 3, 4, 9, 9, 7, 10, 11, 11, 7, 10, 11, 11,
+    0, 2, 6, 6, 3, 4, 9, 9, 7, 10, 11, 11, 7, 10, 11, 11
+};
 
 /******************************************************************************/
 #ifdef __cplusplus
