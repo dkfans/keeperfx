@@ -456,7 +456,7 @@ static long get_map_index_of_first_block_thing_colliding_with_at(struct Thing *c
     mapblk = i;
     while (1)
     {
-        if (((unsigned __int8)a3 & mapblk->flags) == 0 && game.slabmap[85 * *v11 + *v13].kind || ((unsigned __int8)a3 & mapblk->flags & 0x20) != 0 && ((1 << (game.slabmap[85 * *v11 + *v13].field_5 & 7)) & a4) != 0)
+        if (((unsigned __int8)a3 & mapblk->flags) == 0 && game.slabmap[85 * *v11 + *v13].kind || ((unsigned __int8)a3 & mapblk->flags & 0x20) != 0 && ((1 << (game.slabmap[85 * *v11 + *v13].flags & 7)) & a4) != 0)
         {
             goto LABEL_20;
         }
