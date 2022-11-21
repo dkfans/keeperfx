@@ -610,7 +610,7 @@ const uint8_t byte_51121A[22] = { 2,0,0,1,0,2,1,0,0,2,0,6,1,0,4,2,0,2,2,0,4,1 };
 static int get_starting_angle_and_side_of_hug_sub2(
     struct Thing *creatng,
     struct Navigation *navi,
-    struct Coord3d *arg8,
+    struct Coord3d *arg_pos,
     int a2,
     int arg_move_angle_xy,
     char arg14,
@@ -653,13 +653,13 @@ static int get_starting_angle_and_side_of_hug_sub2(
     navi->field_1[0] = arg14;
     navi->dist_to_final_pos = get_2d_distance_squared(&creatng->mappos, &navi->pos_final);
     v49 = 0;
-    hugging_blocked_flags = get_hugging_blocked_flags(creatng, arg8, a2, a6);
+    hugging_blocked_flags = get_hugging_blocked_flags(creatng, arg_pos, a2, a6);
     nav_radius = thing_nav_sizexy(creatng) / 2;
     pos.x.val = creatng->mappos.x.val;
     pos.y.val = creatng->mappos.y.val;
     if ((hugging_blocked_flags & 1) != 0)
     {
-        if (arg8->x.val >= creatng->mappos.x.val)
+        if (arg_pos->x.val >= creatng->mappos.x.val)
         {
             pos.x.stl.pos = creatng->mappos.x.stl.pos;
             pos.x.stl.num = -1;
@@ -675,7 +675,7 @@ static int get_starting_angle_and_side_of_hug_sub2(
     }
     if ((hugging_blocked_flags & 2) != 0)
     {
-        if (arg8->y.val >= creatng->mappos.y.val)
+        if (arg_pos->y.val >= creatng->mappos.y.val)
         {
             pos.y.stl.pos = (unsigned __int16)(nav_radius + creatng->mappos.y.val) >> 8;
             pos.y.stl.num = -1;
@@ -691,7 +691,7 @@ static int get_starting_angle_and_side_of_hug_sub2(
     }
     if ((hugging_blocked_flags & 4) != 0)
     {
-        if (arg8->x.val >= creatng->mappos.x.val)
+        if (arg_pos->x.val >= creatng->mappos.x.val)
         {
             pos.x.stl.pos = creatng->mappos.x.stl.pos;
             pos.x.stl.num = -1;
@@ -703,7 +703,7 @@ static int get_starting_angle_and_side_of_hug_sub2(
             pos.x.stl.num = 1;
             pos.x.val += nav_radius;
         }
-        if (arg8->y.val >= creatng->mappos.y.val)
+        if (arg_pos->y.val >= creatng->mappos.y.val)
         {
             pos.y.stl.pos = (nav_radius + creatng->mappos.y.val) >> 8;
             pos.y.stl.num = -1;
@@ -718,17 +718,17 @@ static int get_starting_angle_and_side_of_hug_sub2(
         pos.z.val = get_thing_height_at(creatng, &pos);
     }
     v16 = hugging_blocked_flags;
-    *arg8 = pos;
+    *arg_pos = pos;
     if (v16 == 4)
     {
         if (!arg_move_angle_xy || arg_move_angle_xy == 1024)
         {
-            creatng->mappos.x.val = arg8->x.val;
+            creatng->mappos.x.val = arg_pos->x.val;
             creatng->mappos.z.val = get_thing_height_at(creatng, &creatng->mappos);
         }
         else if (arg_move_angle_xy == 512 || arg_move_angle_xy == 1536)
         {
-            creatng->mappos.y.val = arg8->y.val;
+            creatng->mappos.y.val = arg_pos->y.val;
             creatng->mappos.z.val = get_thing_height_at(creatng, &creatng->mappos);
         }
     }
