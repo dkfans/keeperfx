@@ -152,8 +152,8 @@ struct Navigation { // sizeof = 0x27
   unsigned char navstate;
   unsigned char field_1[3];
   unsigned char field_4;
-  long field_5;
-  long field_9;
+  long dist_to_final_pos;
+  long distance_to_next_pos;
   long angle;
   unsigned char field_11[4];
   unsigned short field_15;

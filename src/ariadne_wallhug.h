@@ -55,7 +55,6 @@ extern short const around_map[];
 int small_around_index_in_direction(long srcpos_x, long srcpos_y, long dstpos_x, long dstpos_y);
 
 long slab_wall_hug_route(struct Thing *thing, struct Coord3d *pos, long a3);
-signed char get_starting_angle_and_side_of_hug(struct Thing *creatng, struct Coord3d *pos, long *a3, unsigned char *a4, long a5, unsigned char a6);
 long get_angle_of_wall_hug(struct Thing *creatng, long a2, long a3, unsigned char a4);
 void set_hugging_pos_using_blocked_flags(struct Coord3d *dstpos, struct Thing *creatng, unsigned short block_flags, int nav_radius);
 TbBool navigation_push_towards_target(struct Navigation *navi, struct Thing *creatng, const struct Coord3d *pos, MoveSpeed speed, MoveSpeed nav_radius, unsigned char a3);
