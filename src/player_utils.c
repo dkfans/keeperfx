@@ -512,7 +512,7 @@ void fill_in_explored_area(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlC
     char v16;
     char v17;
     char v18;
-    char *i;
+    const char *i;
     char *v20;
     MapSlabCoord slb_y;
     MapSlabCoord slb_x;
@@ -521,7 +521,7 @@ void fill_in_explored_area(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlC
     char *v29;
     unsigned int v30;
 
-char byte_522148[80] =
+static const char byte_522148[80] =
 {
   0,0,0,0,0,
   0,0,0,0,0,
@@ -543,8 +543,8 @@ char byte_522148[80] =
 
 
 
-char byte_522198[1] = { 0 };
-char byte_522199[11] =
+static const char byte_522198[1] = { 0 };
+static const char byte_522199[11] =
 {
   0,1,-1,1,
   1,  -1,  1,
@@ -570,7 +570,7 @@ char byte_522199[11] =
 
             
 
-            if ((block_flags & 0x29) != 0 || ((block_flags & SlbAtFlg_IsDoor) != 0 && slabmap_owner(slb) != plyr_idx))
+            if ((block_flags & (SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0 || ((block_flags & SlbAtFlg_IsDoor) != 0 && slabmap_owner(slb) != plyr_idx))
             {
                 first_scratch[v7 + v5] = 1;
             }
