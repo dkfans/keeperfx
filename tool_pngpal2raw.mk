@@ -30,10 +30,10 @@ ifneq (,$(wildcard tools/pngpal2raw/src/pngpal2raw.cpp))
 
 # If we have source code of this tool, compile it
 $(PNGTORAW): tools/pngpal2raw/src/pngpal2raw.cpp
-	make -C tools/pngpal2raw
+	$(MAKE) -C tools/pngpal2raw
 
 clean-pngpal2raw:
-	make -C tools/pngpal2raw clean
+	$(MAKE) -C tools/pngpal2raw clean
 
 else ifneq (,$(findstring .tar.gz,$(PNGTORAW_PACKAGE)))
 

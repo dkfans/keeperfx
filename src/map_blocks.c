@@ -29,6 +29,7 @@
 #include "map_utils.h"
 #include "thing_effects.h"
 #include "thing_objects.h"
+#include "thing_physics.h"
 #include "config_terrain.h"
 #include "config_settings.h"
 #include "config_creature.h"
@@ -47,7 +48,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT void _DK_shuffle_unattached_things_on_slab(long a1, long stl_x);
 
 const signed short slab_element_around_eight[] = {
     -3, -2, 1, 4, 3, 2, -1, -4
@@ -1539,9 +1539,65 @@ void place_single_slab_type_on_map(SlabKind slbkind, MapSlabCoord slb_x, MapSlab
     place_slab_objects(slb_x, slb_y, slab_number_list, plyr_idx);
 }
 
-void shuffle_unattached_things_on_slab(long stl_x, long stl_y)
+
+static void shuffle_unattached_things_on_slab(MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
-    _DK_shuffle_unattached_things_on_slab(stl_x, stl_y);
+    struct Thing *next_thing;
+    int own_category;
+    unsigned long k = 0;
+
+    MapSubtlCoord start_stl_x = slab_subtile(slb_x, 0);
+    MapSubtlCoord start_stl_y = slab_subtile(slb_y, 0);
+
+    for (MapSubtlCoord stl_x = start_stl_x; stl_x < start_stl_x + STL_PER_SLB; stl_x++)
+    {
+        for (MapSubtlDelta stl_y = start_stl_y; stl_y < start_stl_y + STL_PER_SLB; stl_y++)
+        {
+            struct Map *mapblk = get_map_block_at(stl_x, stl_y);
+            struct Thing *thing = thing_get(get_mapwho_thing_index(mapblk));
+            while (!thing_is_invalid(thing))
+            {
+                next_thing = thing_get(thing->next_on_mapblk);
+                if (thing->parent_idx != get_slab_number(slb_x,slb_y))
+                {
+                    TbBool delete_thing = true;
+                    if (thing_is_object(thing))
+                    {
+                        struct Objects *objdat = get_objects_data_for_thing(thing);
+
+                        own_category = objdat->own_category;
+                        if (own_category == ObOC_Unknown1)
+                        {
+                            if ((get_map_floor_filled_subtiles(mapblk) <= 4) || move_object_to_nearest_free_position(thing))
+                            {
+                                delete_thing = false;
+                            }
+                        }
+                        else if (own_category != ObOC_Unknown2)
+                        {
+                            delete_thing = false;
+                        }
+                    }
+                    else if (thing->class_id != TCls_EffectGen)
+                    {
+                        delete_thing = false;
+                    }
+                    if (delete_thing)
+                    {
+                        delete_thing_structure(thing, 0);
+                    }
+                }
+                thing = next_thing;
+                k++;
+                if (k > THINGS_COUNT)
+                {
+                    ERRORLOG("Infinite loop detected when sweeping things list");
+                    break_mapwho_infinite_chain(mapblk);
+                    break;
+                }
+            }
+        }
+    }
 }
 
 void dump_slab_on_map(SlabKind slbkind, long slabct_num, MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber owner)
@@ -1856,7 +1912,16 @@ void place_slab_type_on_map_f(SlabKind nslab, MapSubtlCoord stl_x, MapSubtlCoord
       update_blocks_around_slab(slb_x,slb_y);
     switch (nslab)
     {
-        case SlbT_ROCK ... SlbT_DAMAGEDWALL:
+        case SlbT_ROCK:
+        case SlbT_GOLD:
+        case SlbT_EARTH:
+        case SlbT_TORCHDIRT:
+        case SlbT_WALLDRAPE:
+        case SlbT_WALLTORCH:
+        case SlbT_WALLWTWINS:
+        case SlbT_WALLWWOMAN:
+        case SlbT_WALLPAIRSHR:
+        case SlbT_DAMAGEDWALL:
         case SlbT_GEMS:
         case SlbT_ENTRANCE_WALL:
         case SlbT_TREASURE_WALL:

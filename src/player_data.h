@@ -310,6 +310,8 @@ void set_player_mode(struct PlayerInfo *player, unsigned short nview);
 void reset_player_mode(struct PlayerInfo *player, unsigned short nview);
 
 void clear_players(void);
+
+PlayerNumber player_bit_to_player_number(unsigned char plyr_bit);
 /******************************************************************************/
 #ifdef __cplusplus
 }
