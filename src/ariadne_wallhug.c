@@ -363,34 +363,25 @@ void set_hugging_pos_using_blocked_flags(struct Coord3d *dstpos, struct Thing *c
 
 int door_will_open_for_thing(struct Thing *doortng, struct Thing *creatng)
 {
-  char owner; // dl
-  char v3; // cl
-  __int32 result; // eax
-
-  result = 0;
-  if ( !doortng->door.is_locked && creatng->class_id == TCls_Creature )
+  if ( !doortng->door.is_locked && thing_is_creature(creatng) )
   {
-    owner = doortng->owner;
-    v3 = creatng->owner;
-    if ( owner == v3
-      || owner != (unsigned __int8)game.neutral_player_num
-      && v3 != (unsigned __int8)game.neutral_player_num
-      && ((unsigned __int8)game.players[owner].allied_players & (1 << v3)) != 0
-      && v3 != (unsigned __int8)game.neutral_player_num
-      && owner != (unsigned __int8)game.neutral_player_num
-      && ((unsigned __int8)game.players[v3].allied_players & (1 << owner)) != 0 )
+    struct PlayerInfo* door_owner = get_player(doortng->owner);
+    struct PlayerInfo* creature_owner = get_player(creatng->owner);
+    if ( (doortng->owner == creatng->owner || doortng->owner != game.neutral_player_num)
+          && creatng->owner != game.neutral_player_num
+          && (door_owner->allied_players & (1 << creatng->owner)) != 0
+          && creatng->owner != game.neutral_player_num
+          && doortng->owner != game.neutral_player_num
+          && (creature_owner->allied_players & (1 << doortng->owner)) != 0 )
     {
       return 1;
     }
   }
-  return result;
+  return 0;
 }
 
-static long get_map_index_of_first_block_thing_colliding_with_at(struct Thing *creatng, struct Coord3d *pos, long a3, unsigned char a4)
+static long get_map_index_of_first_block_thing_colliding_with_at_new(struct Thing *creatng, struct Coord3d *pos, long a3, unsigned char a4)
 {
-    long old = _DK_get_map_index_of_first_block_thing_colliding_with_at(creatng, pos, a3, a4);
-    long new = 54321;
-
     int val_x;
     int nav_radius;
     int start_stl_x;
@@ -398,16 +389,15 @@ static long get_map_index_of_first_block_thing_colliding_with_at(struct Thing *c
     int y_val;
     int end_stl_y;
     int start_stl_y;
-    unsigned int *v11;
+    unsigned int *slb_y;
     __int32 v12;
-    unsigned int *v13;
+    unsigned int *slb_x;
     struct Map *mapblk;
     struct Thing *door_for_position;
-    __int32 pos_y;
+    __int32 current_stl_y;
     __int32 pos_x;
     struct Map *i;
-    int v20;
-    __int32 v21;
+    int current_stl_x;
 
     nav_radius = thing_nav_sizexy(creatng) / 2;
     start_stl_x = ((unsigned __int16)pos->x.val - nav_radius) / 256;
@@ -416,80 +406,77 @@ static long get_map_index_of_first_block_thing_colliding_with_at(struct Thing *c
     pos_x = start_stl_x;
     val_x = pos->x.val;
     end_stl_x = (val_x + nav_radius) / 256 + 1;
-    if (end_stl_x >= 255)
-        end_stl_x = 255;
-    v20 = end_stl_x;
+    if (end_stl_x >= map_subtiles_x)
+        end_stl_x = map_subtiles_x;
+    current_stl_x = end_stl_x;
 
     y_val = (unsigned __int16)pos->y.val;
     end_stl_y = ((unsigned __int16)y_val + nav_radius) / 256 + 1;
-    if (end_stl_y >= 255)
-        end_stl_y = 255;
-    v21 = end_stl_y;
+    if (end_stl_y >= map_subtiles_y)
+        end_stl_y = map_subtiles_y;
     start_stl_y = (y_val - nav_radius) / 256;
     if (start_stl_y <= 0)
         start_stl_y = 0;
-    pos_y = start_stl_y;
+    current_stl_y = start_stl_y;
 
 
-    if (start_stl_y >= v21)
+    if (start_stl_y >= end_stl_y)
     {
-        new = -1;
-        goto LABEL_TEST_RETURN;
         return -1;
     }
-    v11 = &map_to_slab[start_stl_y];
+    slb_y = &map_to_slab[start_stl_y];
     for (i = &game.map[256 * start_stl_y + 257 + pos_x];; i += 256)
     {
         v12 = pos_x;
-        if (pos_x < v20)
+        if (pos_x < current_stl_x)
             break;
     LABEL_21:
-        ++v11;
-        if (++pos_y >= v21)
+        ++slb_y;
+        if (++current_stl_y >= end_stl_y)
         {
-            new = -1;
-            goto LABEL_TEST_RETURN;
             return -1;
         }
     }
-    v13 = &map_to_slab[pos_x];
+    slb_x = &map_to_slab[pos_x];
     mapblk = i;
     while (1)
     {
-        if (((unsigned __int8)a3 & mapblk->flags) == 0 && game.slabmap[85 * *v11 + *v13].kind || ((unsigned __int8)a3 & mapblk->flags & 0x20) != 0 && ((1 << (game.slabmap[85 * *v11 + *v13].flags & 7)) & a4) != 0)
+
+
+        if (((unsigned __int8)a3 & mapblk->flags) == 0
+           && game.slabmap[85 * *slb_y + *slb_x].kind 
+           || ((unsigned __int8)a3 & mapblk->flags & SlbAtFlg_Filled) != 0 
+           && ((1 << (game.slabmap[85 * *slb_y + *slb_x].flags & 7)) & a4) != 0)
         {
             goto LABEL_20;
         }
-        if ((mapblk->flags & 0x40) == 0)
+        if ((mapblk->flags & SlbAtFlg_IsDoor) == 0)
         {
-            new = v12 + (pos_y << 8);
-            goto LABEL_TEST_RETURN;
-            return v12 + (pos_y << 8);
+            return v12 + (current_stl_y << 8);
         }
-        door_for_position = get_door_for_position(v12, pos_y);
+        door_for_position = get_door_for_position(v12, current_stl_y);
         if (!door_for_position || !door_will_open_for_thing(door_for_position, creatng))
         {
-            new = v12 + (pos_y << 8);
-            goto LABEL_TEST_RETURN;
-            return v12 + (pos_y << 8);
+            return v12 + (current_stl_y << 8);
         }
     LABEL_20:
-        ++v13;
+        ++slb_x;
         ++mapblk;
-        if (++v12 >= v20)
+        if (++v12 >= current_stl_x)
             goto LABEL_21;
     }
+}
 
+static long get_map_index_of_first_block_thing_colliding_with_at(struct Thing *creatng, struct Coord3d *pos, long a3, unsigned char a4)
+{
+    long old = _DK_get_map_index_of_first_block_thing_colliding_with_at(creatng, pos, a3, a4);
+    long new = get_map_index_of_first_block_thing_colliding_with_at_new(creatng, pos, a3, a4);
 
-    LABEL_TEST_RETURN:
     if (new == old)
         ERRORLOG("same value as old %d",old);
     else
         ERRORLOG("different value than old %d/%d",old,new);
     return new;
-
-
-
 }
 
 long creature_cannot_move_directly_to_with_collide_sub(struct Thing *creatng, struct Coord3d pos, long a3, unsigned char a4)
