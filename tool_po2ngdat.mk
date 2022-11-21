@@ -30,10 +30,10 @@ ifneq (,$(wildcard tools/po2ngdat/src/po2ngdat.cpp))
 
 # If we have source code of this tool, compile it
 $(POTONGDAT): tools/po2ngdat/src/po2ngdat.cpp
-	make -C tools/po2ngdat
+	$(MAKE) -C tools/po2ngdat
 
 clean-po2ngdat:
-	make -C tools/po2ngdat clean
+	$(MAKE) -C tools/po2ngdat clean
 
 else ifneq (,$(findstring .tar.gz,$(POTONGDAT_PACKAGE)))
 
