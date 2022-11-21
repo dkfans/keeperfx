@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "front_credits.h"
 #include "globals.h"
 #include "bflib_basics.h"
@@ -37,6 +38,7 @@
 #include "vidfade.h"
 #include "config_strings.h"
 #include "config_campaigns.h"
+#include "post_inc.h"
 
 /******************************************************************************/
 extern struct TbLoadFiles frontstory_load_files_640[];

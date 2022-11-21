@@ -18,6 +18,7 @@
  */
 /******************************************************************************/
 #define INTERNAL
+#include "pre_inc.h"
 #include "bflib_dernc.h"
 
 #include <stdio.h>
@@ -30,6 +31,7 @@
 #include "bflib_fileio.h"
 #include "bflib_memory.h"
 #include "globals.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {

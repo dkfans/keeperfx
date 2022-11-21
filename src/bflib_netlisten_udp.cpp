@@ -19,9 +19,10 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-
+#include "pre_inc.h"
 #include "bflib_netlisten_udp.hpp"
 #include "bflib_netconfig.hpp"
+#include "post_inc.h"
 
 const int MAX_PACKET_SIZE = 400;
 
@@ -32,7 +33,7 @@ UDP_NetListener::UDP_NetListener() :
 	sessionsMutex(SDL_CreateMutex()),
 	criticalError(false)
 {
-	thread = SDL_CreateThread(reinterpret_cast<int (*)(void *)>(threadFunc), "UDP_NetListener", this);
+	thread = SDL_CreateThread(threadFunc, "UDP_NetListener", this);
 	if (thread == NULL) {
 		ERRORLOG("Failure to create session listener thread");
 		criticalError = true; //would be better with exception handling but...
@@ -46,13 +47,14 @@ UDP_NetListener::~UDP_NetListener()
 	SDL_DestroyMutex(sessionsMutex);
 }
 
-void UDP_NetListener::threadFunc(UDP_NetListener * sh)
+int UDP_NetListener::threadFunc(void * ptr)
 {
+	auto sh = static_cast<UDP_NetListener *>(ptr);
 	// Create UDP socket.
 	UDPsocket socket = SDLNet_UDP_Open(LISTENER_PORT_NUMBER);
 	if (socket == NULL) {
 		NETMSG("Failed to open UDP socket: %s", SDLNet_GetError());
-		return;
+		return 0;
 	}
 
 	// Create packet.
@@ -61,7 +63,7 @@ void UDP_NetListener::threadFunc(UDP_NetListener * sh)
 	if (packet == NULL) {
 		NETMSG("Failed to create UDP packet: %s", SDLNet_GetError());
 		SDLNet_UDP_Close(socket);
-		return;
+		return 0;
 	}
 
 	sh->cond.lock();
@@ -102,6 +104,7 @@ void UDP_NetListener::threadFunc(UDP_NetListener * sh)
 
 	SDLNet_FreePacket(packet);
 	SDLNet_UDP_Close(socket);
+	return 0;
 }
 
 TbNetworkSessionNameEntry * UDP_NetListener::reportSession(const IPaddress & addr, const char * namestr)

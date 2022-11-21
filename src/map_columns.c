@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "map_columns.h"
 #include "globals.h"
 
@@ -23,6 +24,7 @@
 #include "config_terrain.h"
 #include "slab_data.h"
 #include "game_legacy.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -545,6 +547,11 @@ TbBool cube_is_lava(long cube_id)
     return (cube_id == 40) || (cube_id == 41);
 }
 
+TbBool cube_is_unclaimed_path(long cube_id)
+{
+    return ( (cube_id == 0) || ( (cube_id >= 25) && (cube_id <= 29) ) );
+}
+
 /**
  * Returns if given cube is a sacrificial ground or magic door surface.
  * @param cube_id
@@ -594,6 +601,23 @@ TbBool subtile_has_sacrificial_on_top(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
     i = get_top_cube_at(stl_x, stl_y, &cube_pos);
     // Only low ground cubes are really sacrificial - high ground is most likely magic door
     return cube_pos<4 && cube_is_sacrificial(i);
+}
+
+TbBool subtile_is_liquid(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+    return ( (subtile_has_water_on_top(stl_x, stl_y)) || (subtile_has_lava_on_top(stl_x, stl_y)) );
+}
+
+TbBool subtile_is_unclaimed_path(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+    struct Room *room = subtile_room_get(stl_x, stl_y);
+    if (!room_is_invalid(room))
+    {
+        return false;
+    }
+    long i;
+    i = get_top_cube_at(stl_x, stl_y, NULL);
+    return cube_is_unclaimed_path(i);
 }
 
 /******************************************************************************/

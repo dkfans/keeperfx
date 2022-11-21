@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "creature_groups.h"
 
 #include "globals.h"
@@ -32,6 +33,7 @@
 #include "room_jobs.h"
 #include "ariadne_wallhug.h"
 #include "game_legacy.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -579,7 +581,7 @@ TbBool create_party(const char *prtname)
         return false;
     }
     struct Party* party = (&gameadd.script.creature_partys[gameadd.script.creature_partys_num]);
-    strncpy(party->prtname, prtname, sizeof(party->prtname));
+    snprintf(party->prtname, sizeof(party->prtname), "%s", prtname);
     party->members_num = 0;
     gameadd.script.creature_partys_num++;
     return true;
@@ -711,6 +713,23 @@ long process_obey_leader(struct Thing *thing)
             jobpref = get_job_for_room(room->kind, JoKF_None, crstat->job_primary|crstat->job_secondary);
             cleanup_current_thing_state(thing);
             send_creature_to_room(thing, room, jobpref);
+        }
+        break;
+    case 3:
+        cctrl = creature_control_get_from_thing(thing);
+        leadctrl = creature_control_get_from_thing(leadtng);
+
+        struct Thing* obthing;
+        if ((leadctrl->combat.battle_enemy_idx > 0) && (cctrl->combat.battle_enemy_idx == 0))
+        {
+            obthing = thing_get(leadctrl->combat.battle_enemy_idx);
+            if (thing_is_deployed_door(obthing))
+            {
+                set_creature_door_combat(thing, obthing);
+            }
+        } else
+        if (thing->active_state != CrSt_CreatureFollowLeader) {
+            external_set_thing_state(thing, CrSt_CreatureFollowLeader);
         }
         break;
     default:

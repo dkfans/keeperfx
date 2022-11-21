@@ -17,6 +17,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "thing_physics.h"
 
 #include "globals.h"
@@ -35,6 +36,7 @@
 #include "map_columns.h"
 #include "map_blocks.h"
 #include "map_utils.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -45,7 +47,7 @@ extern "C" {
 /******************************************************************************/
 TbBool thing_touching_floor(const struct Thing *thing)
 {
-    return (thing->field_60 == thing->mappos.z.val);
+    return (thing->floor_height == thing->mappos.z.val);
 }
 
 TbBool thing_touching_flight_altitude(const struct Thing *thing)
@@ -874,7 +876,41 @@ unsigned short get_slide_z_coord(const struct Thing *thing, const struct Coord3d
   {
     return (z_pos & 0xFF00) + 256;
   }
-  return ((((z_pos + clipbox_size) & 0xFFFFFF00) - clipbox_size) - 1);
+  return ((((z_pos + clipbox_size) & 0xFFFFFF00) - clipbox_size) + 255);
+}
+
+TbBool move_object_to_nearest_free_position(struct Thing *thing)
+{
+    struct Coord3d pos;
+    MapCoordDelta nav_radius = thing_nav_sizexy(thing) / 2;
+
+    MapSubtlCoord start_stl_x = thing->mappos.x.stl.num;
+    MapSubtlCoord start_stl_y = thing->mappos.y.stl.num;
+
+    for (int k = 0; k < 120; k++)
+    {
+        MapSubtlCoord stl_x = spiral_step[k].h + start_stl_x;
+        MapSubtlCoord stl_y = spiral_step[k].v + start_stl_y;
+
+        struct Map *mapblk = get_map_block_at(stl_x, stl_y);
+
+
+        if (!map_block_invalid(mapblk) && (mapblk->flags & SlbAtFlg_Blocking) == 0 && thing_is_invalid(find_base_thing_on_mapwho(TCls_Object, 0, stl_x, stl_y)))
+        {
+            pos.x.val = subtile_coord_center(stl_x);
+            pos.y.val = subtile_coord_center(stl_y);
+            pos.z.val = get_thing_height_at_with_radius(thing, &pos, nav_radius);
+            if (!thing_in_wall_at_with_radius(thing, &pos, nav_radius))
+            {
+                pos.z.val = get_thing_height_at(thing, &pos);
+                move_thing_in_map(thing, &pos);
+                return true;
+            }
+        }
+    }
+    ERRORLOG("Could not find a nearby space for thing Class:%d Model:%d",thing->class_id,thing->model);
+    return false;
+
 }
 /******************************************************************************/
 #ifdef __cplusplus
