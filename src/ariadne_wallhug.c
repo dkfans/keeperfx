@@ -47,6 +47,13 @@ DLLIMPORT long _DK_get_map_index_of_first_block_thing_colliding_with_travelling_
 DLLIMPORT long _DK_get_map_index_of_first_block_thing_colliding_with_at(struct Thing *creatng, struct Coord3d *pos, long a3, unsigned char a4);
 /******************************************************************************/
 static TbBool check_forward_for_prospective_hugs(struct Thing *creatng, struct Coord3d *pos_a, long angle, long navi_field_1, long a3, long speed, unsigned char a4);
+static int small_around_index_in_direction(long srcpos_x, long srcpos_y, long dstpos_x, long dstpos_y);
+static long get_angle_of_wall_hug(struct Thing *creatng, long a2, long a3, unsigned char a4);
+static void set_hugging_pos_using_blocked_flags(struct Coord3d *dstpos, struct Thing *creatng, unsigned short block_flags, int nav_radius);
+static TbBool navigation_push_towards_target(struct Navigation *navi, struct Thing *creatng, const struct Coord3d *pos, MoveSpeed speed, MoveSpeed nav_radius, unsigned char a3);
+static TbBool find_approach_position_to_subtile(const struct Coord3d *srcpos, MapSubtlCoord stl_x, MapSubtlCoord stl_y, MoveSpeed spacing, struct Coord3d *aproachpos);
+static long creature_cannot_move_directly_to_with_collide(struct Thing *creatng, struct Coord3d *pos, long a3, unsigned char a4);
+static unsigned short get_hugging_blocked_flags(struct Thing *creatng, struct Coord3d *pos, long a3, unsigned char a4);
 
 struct Around const my_around_eight[] = {
   { 0,-1}, { 1,-1},
@@ -85,13 +92,13 @@ struct Around const start_at_around[] = {
  * @param dstpos_y Destination position Y; either map coordinates or subtiles, but have to match type of other coords.
  * @return Index for small_around[] array.
  */
-int small_around_index_in_direction(long srcpos_x, long srcpos_y, long dstpos_x, long dstpos_y)
+static int small_around_index_in_direction(long srcpos_x, long srcpos_y, long dstpos_x, long dstpos_y)
 {
     long i = ((LbArcTanAngle(dstpos_x - srcpos_x, dstpos_y - srcpos_y) & LbFPMath_AngleMask) + LbFPMath_PI / 4);
     return (i >> 9) & 3;
 }
 
-TbBool can_step_on_unsafe_terrain_at_position(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+static TbBool can_step_on_unsafe_terrain_at_position(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
     struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
@@ -114,7 +121,7 @@ TbBool terrain_toxic_for_creature_at_position(const struct Thing *creatng, MapSu
     return false;
 }
 
-TbBool hug_can_move_on(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+static TbBool hug_can_move_on(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
     if (slabmap_block_invalid(slb))
@@ -147,7 +154,7 @@ TbBool wallhug_angle_with_collide_valid(struct Thing *thing, long a2, long move_
     return (creature_cannot_move_directly_to_with_collide(thing, &pos, a2, a4) != 4);
 }
 
-long get_angle_of_wall_hug(struct Thing *creatng, long a2, long move_delta, unsigned char a4)
+static long get_angle_of_wall_hug(struct Thing *creatng, long a2, long move_delta, unsigned char a4)
 {
     struct Navigation *navi;
     {
@@ -198,7 +205,7 @@ long get_angle_of_wall_hug(struct Thing *creatng, long a2, long move_delta, unsi
     return -1;
 }
 
-short hug_round(struct Thing *creatng, struct Coord3d *pos1, struct Coord3d *pos2, unsigned short a4, long *a5)
+static short hug_round(struct Thing *creatng, struct Coord3d *pos1, struct Coord3d *pos2, unsigned short a4, long *a5)
 {
     return _DK_hug_round(creatng, pos1, pos2, a4, a5);
 }
@@ -549,7 +556,7 @@ long creature_cannot_move_directly_to_with_collide(struct Thing *creatng, struct
     return cannot_mv;
 }
 
-TbBool thing_can_continue_direct_line_to(struct Thing *creatng, struct Coord3d *pos1, struct Coord3d *pos2, long a4, long a5, unsigned char a6)
+static TbBool thing_can_continue_direct_line_to(struct Thing *creatng, struct Coord3d *pos1, struct Coord3d *pos2, long a4, long a5, unsigned char a6)
 {
     long angle = get_angle_xy_to(pos1, pos2);
     struct Coord3d posa;
@@ -605,7 +612,7 @@ const uint8_t byte_5111FA[] = { 1,0,4,2,0,0,2,0,4,1,0,0,0,0 };
 const uint8_t byte_51120A[] = { 2,0,2,1,0,6,1,0,2,2,0,0,0,0 };
 const uint8_t byte_51121A[22] = { 2,0,0,1,0,2,1,0,0,2,0,6,1,0,4,2,0,2,2,0,4,1 };
 
-int get_starting_angle_and_side_of_hug_sub2(
+static int get_starting_angle_and_side_of_hug_sub2(
     struct Thing *creatng,
     struct Navigation *navi,
     struct Coord3d *arg8,
@@ -894,7 +901,7 @@ LABEL_70:
     return v46;
 }
 
-int get_starting_angle_and_side_of_hug_sub1(
+static int get_starting_angle_and_side_of_hug_sub1(
     struct Thing *creatng,
     struct Coord3d *pos,
     __int32 a3,
@@ -973,7 +980,7 @@ int get_starting_angle_and_side_of_hug_sub1(
 }
 
 //----- (0047CEF0) --------------------------------------------------------
-signed char get_starting_angle_and_side_of_hug(
+static signed char get_starting_angle_and_side_of_hug(
     struct Thing *creatng,
     struct Coord3d *pos,
     long *angle,
@@ -1344,7 +1351,7 @@ static TbBool check_forward_for_prospective_hugs(struct Thing *creatng, struct C
     return true;
 }
 
-TbBool find_approach_position_to_subtile(const struct Coord3d *srcpos, MapSubtlCoord stl_x, MapSubtlCoord stl_y, MoveSpeed spacing, struct Coord3d *aproachpos)
+static TbBool find_approach_position_to_subtile(const struct Coord3d *srcpos, MapSubtlCoord stl_x, MapSubtlCoord stl_y, MoveSpeed spacing, struct Coord3d *aproachpos)
 {
     struct Coord3d targetpos;
     targetpos.x.val = subtile_coord_center(stl_x);
@@ -1375,12 +1382,12 @@ TbBool find_approach_position_to_subtile(const struct Coord3d *srcpos, MapSubtlC
     return (min_dist < LONG_MAX);
 }
 
-long get_map_index_of_first_block_thing_colliding_with_travelling_to(struct Thing *creatng, struct Coord3d *startpos, struct Coord3d *endpos, long a4, unsigned char a5)
+static long get_map_index_of_first_block_thing_colliding_with_travelling_to(struct Thing *creatng, struct Coord3d *startpos, struct Coord3d *endpos, long a4, unsigned char a5)
 {
     return _DK_get_map_index_of_first_block_thing_colliding_with_travelling_to(creatng, startpos, endpos, a4, a5);
 }
 
-TbBool navigation_push_towards_target(struct Navigation *navi, struct Thing *creatng, const struct Coord3d *pos, MoveSpeed speed, MoveSpeed nav_radius, unsigned char a3)
+static TbBool navigation_push_towards_target(struct Navigation *navi, struct Thing *creatng, const struct Coord3d *pos, MoveSpeed speed, MoveSpeed nav_radius, unsigned char a3)
 {
     navi->navstate = 2;
     navi->pos_next.x.val = creatng->mappos.x.val + distance_with_angle_to_coord_x(speed, navi->angle);
@@ -1798,7 +1805,7 @@ TbBool slab_good_for_computer_dig_path(const struct SlabMap *slb)
     return false;
 }
 
-TbBool is_valid_hug_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx)
+static TbBool is_valid_hug_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx)
 {
     struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
     const struct SlabAttr* slbattr = get_slab_attrs(slb);
