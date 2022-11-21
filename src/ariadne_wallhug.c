@@ -46,6 +46,8 @@ DLLIMPORT short _DK_hug_round(struct Thing *creatng, struct Coord3d *pos1, struc
 DLLIMPORT long _DK_get_map_index_of_first_block_thing_colliding_with_travelling_to(struct Thing *creatng, struct Coord3d *startpos, struct Coord3d *endpos, long a4, unsigned char a5);
 DLLIMPORT long _DK_get_map_index_of_first_block_thing_colliding_with_at(struct Thing *creatng, struct Coord3d *pos, long a3, unsigned char a4);
 /******************************************************************************/
+static TbBool check_forward_for_prospective_hugs(struct Thing *creatng, struct Coord3d *pos_a, long angle, long navi_field_1, long a3, long speed, unsigned char a4);
+
 struct Around const my_around_eight[] = {
   { 0,-1}, { 1,-1},
   { 1, 0}, { 1, 1},
@@ -585,13 +587,10 @@ TbBool thing_can_continue_direct_line_to(struct Thing *creatng, struct Coord3d *
 }
 
 // IDA definitions for various things
-#define _DWORD uint32_t
 #define LOBYTE(x) (*((char*)&(x))) // low byte
 #define LOWORD(x) (*((short*)&(x))) // low word
-#define LODWORD(x) (*((_DWORD*)&(x))) // low dword
 #define HIBYTE(x) (*((char*)&(x)+1))
 #define HIWORD(x) (*((short*)&(x)+1))
-#define HIDWORD(x) (*((_DWORD*)&(x)+1))
 
 struct HugStart {
 	short field_0;
@@ -611,7 +610,7 @@ int get_starting_angle_and_side_of_hug_sub2(
     struct Navigation *navi,
     struct Coord3d *arg8,
     int a2,
-    int arg10,
+    int arg_move_angle_xy,
     char arg14,
     int a5,
     int move_delta,
@@ -648,7 +647,7 @@ int get_starting_angle_and_side_of_hug_sub2(
 
     move_angle_xy = creatng->move_angle_xy;
     memcpy(v54, navi, 0x2Du); // actually copying Navigation + field_211
-    creatng->move_angle_xy = arg10;
+    creatng->move_angle_xy = arg_move_angle_xy;
     navi->field_1[0] = arg14;
     navi->dist_to_final_pos = get_2d_distance_squared(&creatng->mappos, &navi->pos_final);
     v49 = 0;
@@ -720,12 +719,12 @@ int get_starting_angle_and_side_of_hug_sub2(
     *arg8 = pos;
     if (v16 == 4)
     {
-        if (!arg10 || arg10 == 1024)
+        if (!arg_move_angle_xy || arg_move_angle_xy == 1024)
         {
             creatng->mappos.x.val = arg8->x.val;
             creatng->mappos.z.val = get_thing_height_at(creatng, &creatng->mappos);
         }
-        else if (arg10 == 512 || arg10 == 1536)
+        else if (arg_move_angle_xy == 512 || arg_move_angle_xy == 1536)
         {
             creatng->mappos.y.val = arg8->y.val;
             creatng->mappos.z.val = get_thing_height_at(creatng, &creatng->mappos);
@@ -736,7 +735,7 @@ int get_starting_angle_and_side_of_hug_sub2(
         creatng->mappos = pos;
     }
     v51 = 0;
-    navi->angle = arg10;
+    navi->angle = arg_move_angle_xy;
     while (1)
     {
         v43 = 0;
@@ -842,7 +841,7 @@ int get_starting_angle_and_side_of_hug_sub2(
                     pos.z.val = get_thing_height_at(creatng, &pos);
                 }
                 v47 = pos;
-                if (*(_DWORD *)&creatng->mappos.x.val != *(_DWORD *)&pos.x.val)
+                if (creatng->mappos.x.val != pos.x.val && creatng->mappos.y.val != pos.y.val)
                 {
                     creatng->mappos = pos;
                     v43 = 1;
@@ -1017,8 +1016,7 @@ signed char get_starting_angle_and_side_of_hug(
     struct Coord3d v43;
     int v44;
     int v45;
-    int v46;
-    short v47;
+    struct Coord3d pos_46;
     char v49[48];
 
 
@@ -1031,7 +1029,7 @@ signed char get_starting_angle_and_side_of_hug(
     v9 = creatng->mappos.y.val - navi->pos_final.y.val;
     v49[0] = v9 <= 0;
     v10 = (uint16_t)creatng->mappos.x.val - navi->pos_final.x.val;
-    LOBYTE(v46) = v10 <= 0;
+    pos_46.x.stl.num = v10 <= 0;
     LOBYTE(v44) = (int)abs(v10) < (int)abs(v9);
     hugging_blocked_flags = get_hugging_blocked_flags(creatng, pos, a5, a6);
     if ((hugging_blocked_flags & 1) != 0)
@@ -1047,10 +1045,10 @@ signed char get_starting_angle_and_side_of_hug(
     else if ((hugging_blocked_flags & 2) != 0)
     {
         v16 = 2 * (uint8_t)v43.x.stl.num;
-        v17 = v16 + (uint8_t)v46;
+        v17 = v16 + (unsigned __int8)pos_46.x.stl.num;
         v39 = blocked_y_hug_start[0][v17].field_0;
         v34 = byte_51120A[3 * v17];
-        v18 = v16 + ((char)v46 == 0);
+        v18 = v16 + (pos_46.x.stl.num == 0);
         v37 = blocked_y_hug_start[0][v18].field_0;
         v15 = byte_51120A[3 * v18];
     }
@@ -1071,8 +1069,9 @@ signed char get_starting_angle_and_side_of_hug(
     }
     v41 = 0x7FFFFFFF;
     v35 = v15;
-    v46 = *(_DWORD *)&creatng->mappos.x.val;
-    v47 = creatng->mappos.z.val;
+    pos_46.x.val = creatng->mappos.x.val;
+    pos_46.y.val = creatng->mappos.y.val;
+    pos_46.z.val = creatng->mappos.z.val;
     move_angle_xy = creatng->move_angle_xy;
     memcpy(v49, navi, 0x2Du); // copy navi + field_211
     creatng->move_angle_xy = v39;
@@ -1183,8 +1182,9 @@ LABEL_40:
     else
         v29 = v41 - v45 * v45;
     v42 = v29;
-    *(_DWORD *)&creatng->mappos.x.val = v46;
-    creatng->mappos.z.val = v47;
+    creatng->mappos.x.val = pos_46.x.val;
+    creatng->mappos.y.val = pos_46.y.val;
+    creatng->mappos.z.val = pos_46.z.val;
     creatng->move_angle_xy = move_angle_xy;
     memcpy(navi, v49, 0x2Du); // copy navi and field_211
     v31 = get_starting_angle_and_side_of_hug_sub2(creatng, navi, pos, a5, v37, v35, max_speed, 255, a6);
@@ -1233,7 +1233,7 @@ LABEL_40:
     return result;
 }
 
-long check_forward_for_prospective_hugs(struct Thing *creatng, struct Coord3d *pos, long a3, long a4, long a5, long a6, unsigned char a7)
+static TbBool check_forward_for_prospective_hugs(struct Thing *creatng, struct Coord3d *pos_a, long angle, long navi_field_1, long a3, long speed, unsigned char a4)
 {
     int quadrant_angle;
     struct Coord3d pos;
