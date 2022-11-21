@@ -593,11 +593,6 @@ static TbBool thing_can_continue_direct_line_to(struct Thing *creatng, struct Co
         && creature_cannot_move_directly_to_with_collide(creatng, &posa, a4, a6) != 4;
 }
 
-// IDA definitions for various things
-#define LOBYTE(x) (*((char*)&(x))) // low byte
-#define LOWORD(x) (*((short*)&(x))) // low word
-#define HIBYTE(x) (*((char*)&(x)+1))
-#define HIWORD(x) (*((short*)&(x)+1))
 
 struct HugStart {
 	short field_0;
@@ -979,7 +974,6 @@ static int get_starting_angle_and_side_of_hug_sub1(
     return hugging_blocked_flags;
 }
 
-//----- (0047CEF0) --------------------------------------------------------
 static signed char get_starting_angle_and_side_of_hug(
     struct Thing *creatng,
     struct Coord3d *pos,
@@ -1022,6 +1016,7 @@ static signed char get_starting_angle_and_side_of_hug(
     int v42;
     struct Coord3d v43;
     int v44;
+    char v44_2;
     int v45;
     struct Coord3d pos_46;
     char v49[48];
@@ -1037,7 +1032,7 @@ static signed char get_starting_angle_and_side_of_hug(
     v49[0] = v9 <= 0;
     v10 = (uint16_t)creatng->mappos.x.val - navi->pos_final.x.val;
     pos_46.x.stl.num = v10 <= 0;
-    LOBYTE(v44) = (int)abs(v10) < (int)abs(v9);
+    v44_2 = (int)abs(v10) < (int)abs(v9);
     hugging_blocked_flags = get_hugging_blocked_flags(creatng, pos, a5, a6);
     if ((hugging_blocked_flags & 1) != 0)
     {
@@ -1067,10 +1062,10 @@ static signed char get_starting_angle_and_side_of_hug(
             return 0;
         }
         v19 = 2 * (v38 + 2 * (uint8_t)v43.x.stl.num);
-        v20 = v19 + (uint8_t)v44;
+        v20 = v19 + v44_2;
         v39 = blocked_xy_hug_start[0][0][v20].field_0;
         v34 = byte_51121A[3 * v20];
-        v21 = v19 + ((char)v44 == 0);
+        v21 = v19 + (v44_2 == 0);
         v37 = blocked_xy_hug_start[0][0][v21].field_0;
         v15 = byte_51121A[3 * v21];
     }
