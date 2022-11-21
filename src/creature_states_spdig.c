@@ -1883,6 +1883,10 @@ short creature_arms_trap(struct Thing *thing)
         return 0;
     }
     rearm_trap(traptng);
+    if (imp_will_soon_be_arming_trap(traptng)) //Another crate is still earmarked for this trap, refund it.
+    {
+        readd_workshop_item_to_amount_placeable(traptng->owner, traptng->class_id, traptng->model);
+    }
     dungeon = get_dungeon(thing->owner);
     dungeon->lvstats.traps_armed++;
     creature_drop_dragged_object(thing, cratetng);
