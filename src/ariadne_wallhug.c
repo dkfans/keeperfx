@@ -387,18 +387,18 @@ static long get_map_index_of_first_block_thing_colliding_with_at_new(struct Thin
 
     MapCoordDelta nav_radius = thing_nav_sizexy(creatng) / 2;
 
-    MapSubtlCoord start_stl_x = (pos->x.val - nav_radius) / 256;
+    MapSubtlCoord start_stl_x = (pos->x.val - nav_radius) / COORD_PER_STL;
     if (start_stl_x <= 0)
         start_stl_x = 0;
-    MapSubtlCoord end_stl_x = (pos->x.val + nav_radius) / 256 + 1;
+    MapSubtlCoord end_stl_x = (pos->x.val + nav_radius) / COORD_PER_STL + 1;
     if (end_stl_x >= map_subtiles_x)
         end_stl_x = map_subtiles_x;
         
 
-    MapSubtlCoord start_stl_y = (pos->y.val - nav_radius) / 256;
+    MapSubtlCoord start_stl_y = (pos->y.val - nav_radius) / COORD_PER_STL;
     if (start_stl_y <= 0)
         start_stl_y = 0;
-    MapSubtlCoord end_stl_y = (pos->y.val + nav_radius) / 256 + 1;
+    MapSubtlCoord end_stl_y = (pos->y.val + nav_radius) / COORD_PER_STL + 1;
     if (end_stl_y >= map_subtiles_y)
         end_stl_y = map_subtiles_y;
 
