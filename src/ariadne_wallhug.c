@@ -46,7 +46,6 @@ extern "C" {
 DLLIMPORT short _DK_hug_round(struct Thing *creatng, struct Coord3d *pos1, struct Coord3d *pos2, unsigned short a4, long *a5);
 DLLIMPORT signed char _DK_get_starting_angle_and_side_of_hug(struct Thing *creatng, struct Coord3d *pos, long *a3, unsigned char *a4, long a5, unsigned char direction);
 DLLIMPORT long _DK_get_map_index_of_first_block_thing_colliding_with_travelling_to(struct Thing *creatng, struct Coord3d *startpos, struct Coord3d *endpos, long a4, unsigned char a5);
-DLLIMPORT long _DK_get_map_index_of_first_block_thing_colliding_with_at(struct Thing *creatng, struct Coord3d *pos, long a3, unsigned char a4);
 /******************************************************************************/
 struct Around const my_around_eight[] = {
   { 0,-1}, { 1,-1},
@@ -380,7 +379,7 @@ int door_will_open_for_thing(struct Thing *doortng, struct Thing *creatng)
   return 0;
 }
 
-static long get_map_index_of_first_block_thing_colliding_with_at_new(struct Thing *creatng, struct Coord3d *pos, long a3, unsigned char crt_owner_bit)
+static long get_map_index_of_first_block_thing_colliding_with_at(struct Thing *creatng, struct Coord3d *pos, long a3, unsigned char crt_owner_bit)
 {
 
     MapCoordDelta nav_radius = thing_nav_sizexy(creatng) / 2;
@@ -430,18 +429,6 @@ static long get_map_index_of_first_block_thing_colliding_with_at_new(struct Thin
         }
     }
     return -1;        
-}
-
-static long get_map_index_of_first_block_thing_colliding_with_at(struct Thing *creatng, struct Coord3d *pos, long a3, unsigned char crt_owner_bit)
-{
-    long old = _DK_get_map_index_of_first_block_thing_colliding_with_at(creatng, pos, a3, crt_owner_bit);
-    long new = get_map_index_of_first_block_thing_colliding_with_at_new(creatng, pos, a3, crt_owner_bit);
-
-    if (new == old)
-        ERRORLOG("same value as old %d",old);
-    else
-        ERRORLOG("different value than old %d/%d",old,new);
-    return new;
 }
 
 long creature_cannot_move_directly_to_with_collide_sub(struct Thing *creatng, struct Coord3d pos, long a3, unsigned char crt_owner_bit)
