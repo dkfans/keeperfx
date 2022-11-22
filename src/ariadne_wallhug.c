@@ -593,16 +593,6 @@ static TbBool thing_can_continue_direct_line_to(struct Thing *creatng, struct Co
         && creature_cannot_move_directly_to_with_collide(creatng, &posa, a4, a6) != 4;
 }
 
-
-struct HugStart {
-	short field_0;
-	unsigned char field_2;
-};
-
-extern const struct HugStart blocked_x_hug_start[][2];
-extern const struct HugStart blocked_y_hug_start[][2];
-extern const struct HugStart blocked_xy_hug_start[][2][2];
-
 const uint8_t byte_5111FA[] = { 1,0,4,2,0,0,2,0,4,1,0,0,0,0 };
 const uint8_t byte_51120A[] = { 2,0,2,1,0,6,1,0,2,2,0,0,0,0 };
 const uint8_t byte_51121A[22] = { 2,0,0,1,0,2,1,0,0,2,0,6,1,0,4,2,0,2,2,0,4,1 };
@@ -1008,14 +998,14 @@ static signed char get_starting_angle_and_side_of_hug(
     uint8_t v34;
     char v35;
     int16_t move_angle_xy;
-    uint16_t v37;
+    uint16_t angle_37;
     int v38;
-    uint16_t v39;
+    uint16_t angle_39;
     int16_t v40;
     int v41;
     int v42;
-    struct Coord3d v43;
-    int v44;
+    struct Coord3d pos_43;
+    int angle_44;
     char v44_2;
     int v45;
     struct Coord3d pos_46;
@@ -1026,7 +1016,7 @@ static signed char get_starting_angle_and_side_of_hug(
     struct Navigation *navi = &cctrl->navi;
     const short max_speed = cctrl->max_speed;
 
-    v43.x.stl.num = creatng->mappos.y.val - (uint16_t)pos->y.val <= 0;
+    pos_43.x.stl.num = creatng->mappos.y.val - (uint16_t)pos->y.val <= 0;
     v38 = (uint16_t)creatng->mappos.x.val - (uint16_t)pos->x.val <= 0;
     v9 = creatng->mappos.y.val - navi->pos_final.y.val;
     v49[0] = v9 <= 0;
@@ -1038,20 +1028,20 @@ static signed char get_starting_angle_and_side_of_hug(
     {
         v12 = 2 * v38;
         v13 = v12 + (uint8_t)v49[0];
-        v39 = blocked_x_hug_start[0][v13].field_0;
+        angle_39 = blocked_x_hug_start[0][v13].angle;
         v34 = byte_5111FA[3 * v13];
         v14 = v12 + (v49[0] == 0);
-        v37 = blocked_x_hug_start[0][v14].field_0;
+        angle_37 = blocked_x_hug_start[0][v14].angle;
         v15 = byte_5111FA[3 * v14];
     }
     else if ((hugging_blocked_flags & 2) != 0)
     {
-        v16 = 2 * (uint8_t)v43.x.stl.num;
+        v16 = 2 * (uint8_t)pos_43.x.stl.num;
         v17 = v16 + (unsigned __int8)pos_46.x.stl.num;
-        v39 = blocked_y_hug_start[0][v17].field_0;
+        angle_39 = blocked_y_hug_start[0][v17].angle;
         v34 = byte_51120A[3 * v17];
         v18 = v16 + (pos_46.x.stl.num == 0);
-        v37 = blocked_y_hug_start[0][v18].field_0;
+        angle_37 = blocked_y_hug_start[0][v18].angle;
         v15 = byte_51120A[3 * v18];
     }
     else
@@ -1061,12 +1051,12 @@ static signed char get_starting_angle_and_side_of_hug(
             ERRORLOG("Illegal block direction for lookahead");
             return 0;
         }
-        v19 = 2 * (v38 + 2 * (uint8_t)v43.x.stl.num);
+        v19 = 2 * (v38 + 2 * (uint8_t)pos_43.x.stl.num);
         v20 = v19 + v44_2;
-        v39 = blocked_xy_hug_start[0][0][v20].field_0;
+        angle_39 = blocked_xy_hug_start[0][0][v20].angle;
         v34 = byte_51121A[3 * v20];
         v21 = v19 + (v44_2 == 0);
-        v37 = blocked_xy_hug_start[0][0][v21].field_0;
+        angle_37 = blocked_xy_hug_start[0][0][v21].angle;
         v15 = byte_51121A[3 * v21];
     }
     v41 = 0x7FFFFFFF;
@@ -1076,18 +1066,18 @@ static signed char get_starting_angle_and_side_of_hug(
     pos_46.z.val = creatng->mappos.z.val;
     move_angle_xy = creatng->move_angle_xy;
     memcpy(v49, navi, 0x2Du); // copy navi + field_211
-    creatng->move_angle_xy = v39;
+    creatng->move_angle_xy = angle_39;
     navi->field_1[0] = v34;
     navi->dist_to_final_pos = get_2d_distance_squared(&creatng->mappos, &navi->pos_final);
     v45 = 0;
     if (get_starting_angle_and_side_of_hug_sub1(creatng, pos, a5, a6) == 4)
     {
-        if (!v39 || v39 == 1024)
+        if (angle_39 == ANGLE_NORTH || angle_39 == ANGLE_SOUTH)
         {
             creatng->mappos.x.val = pos->x.val;
             creatng->mappos.z.val = get_thing_height_at(creatng, &creatng->mappos);
         }
-        else if (v39 == 512 || v39 == 1536)
+        else if (angle_39 == ANGLE_WEST || angle_39 == ANGLE_EAST)
         {
             creatng->mappos.y.val = pos->y.val;
             creatng->mappos.z.val = get_thing_height_at(creatng, &creatng->mappos);
@@ -1098,8 +1088,8 @@ static signed char get_starting_angle_and_side_of_hug(
         creatng->mappos = *pos;
     }
     v23 = 0;
-    v44 = v39;
-    navi->angle = v39;
+    angle_44 = angle_39;
+    navi->angle = angle_39;
     while (1)
     {
         v33 = 0;
@@ -1133,15 +1123,15 @@ static signed char get_starting_angle_and_side_of_hug(
     LABEL_26:
         if (!v23 || navi->angle != angle_of_wall_hug)
         {
-            v43.x.val = move_coord_with_angle_x(creatng->mappos.x.val, COORD_PER_STL, navi->angle);
-            v43.y.val = move_coord_with_angle_y(creatng->mappos.y.val, COORD_PER_STL, navi->angle);
-            v43.z.val = get_thing_height_at(creatng, &v43);
-            if (creature_cannot_move_directly_to_with_collide(creatng, &v43, a5, a6) == 4)
+            pos_43.x.val = move_coord_with_angle_x(creatng->mappos.x.val, COORD_PER_STL, navi->angle);
+            pos_43.y.val = move_coord_with_angle_y(creatng->mappos.y.val, COORD_PER_STL, navi->angle);
+            pos_43.z.val = get_thing_height_at(creatng, &pos_43);
+            if (creature_cannot_move_directly_to_with_collide(creatng, &pos_43, a5, a6) == 4)
             {
-                get_starting_angle_and_side_of_hug_sub1(creatng, &v43, a5, 0);
-                if (creatng->mappos.x.val != v43.x.val || creatng->mappos.y.val != v43.y.val)
+                get_starting_angle_and_side_of_hug_sub1(creatng, &pos_43, a5, 0);
+                if (creatng->mappos.x.val != pos_43.x.val || creatng->mappos.y.val != pos_43.y.val)
                 {
-                    creatng->mappos = v43;
+                    creatng->mappos = pos_43;
                     v33 = 1;
                     navi->distance_to_next_pos = get_2d_box_distance(&creatng->mappos, &navi->pos_next);
                 }
@@ -1151,18 +1141,18 @@ static signed char get_starting_angle_and_side_of_hug(
         {
             navi->angle = angle_of_wall_hug;
             creatng->move_angle_xy = angle_of_wall_hug;
-            v43.x.val = move_coord_with_angle_x(creatng->mappos.x.val, COORD_PER_STL, navi->angle);
-            v43.y.val = move_coord_with_angle_y(creatng->mappos.y.val, COORD_PER_STL, navi->angle);
-            v43.z.val = get_thing_height_at(creatng, &v43);
+            pos_43.x.val = move_coord_with_angle_x(creatng->mappos.x.val, COORD_PER_STL, navi->angle);
+            pos_43.y.val = move_coord_with_angle_y(creatng->mappos.y.val, COORD_PER_STL, navi->angle);
+            pos_43.z.val = get_thing_height_at(creatng, &pos_43);
             check_forward_for_prospective_hugs(
                 creatng,
-                &v43,
+                &pos_43,
                 (unsigned __int16)creatng->move_angle_xy,
                 navi->field_1[0],
                 a5,
                 255,
                 a6);
-            creatng->mappos = v43;
+            creatng->mappos = pos_43;
         }
         v45 += 255;
         _2d_distance_squared = get_2d_distance_squared(&creatng->mappos, &navi->pos_final);
@@ -1189,46 +1179,46 @@ LABEL_40:
     creatng->mappos.z.val = pos_46.z.val;
     creatng->move_angle_xy = move_angle_xy;
     memcpy(navi, v49, 0x2Du); // copy navi and field_211
-    v31 = get_starting_angle_and_side_of_hug_sub2(creatng, navi, pos, a5, v37, v35, max_speed, 255, a6);
+    v31 = get_starting_angle_and_side_of_hug_sub2(creatng, navi, pos, a5, angle_37, v35, max_speed, 255, a6);
     if (v42 >= 0)
     {
         if (v31 >= 0)
         {
             if (v31 <= v42)
             {
-                *angle = v37;
+                *angle = angle_37;
                 result = 1;
                 *navi_field_1 = v35;
             }
             else
             {
-                *angle = v44;
+                *angle = angle_44;
                 *navi_field_1 = v34;
                 return 1;
             }
         }
         else
         {
-            *angle = v37;
+            *angle = angle_37;
             result = 1;
             *navi_field_1 = v35;
         }
     }
     else if (v31 >= 0)
     {
-        *angle = v44;
+        *angle = angle_44;
         *navi_field_1 = v34;
         return 1;
     }
     else if (v31 <= v42)
     {
-        *angle = v44;
+        *angle = angle_44;
         *navi_field_1 = v34;
         return 1;
     }
     else
     {
-        *angle = v37;
+        *angle = angle_37;
         result = 1;
         *navi_field_1 = v35;
     }

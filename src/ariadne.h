@@ -169,6 +169,17 @@ struct FOV { // sizeof=0x18
     struct PathWayPoint tipC;
 };
 
+struct HugStart {
+    short angle;
+    unsigned char flag;
+};
+
+/******************************************************************************/
+
+extern const struct HugStart blocked_x_hug_start[][2];
+extern const struct HugStart blocked_y_hug_start[][2];
+extern const struct HugStart blocked_xy_hug_start[][2][2];
+
 /******************************************************************************/
 DLLIMPORT unsigned long *_DK_EdgeFit;
 #define EdgeFit _DK_EdgeFit
