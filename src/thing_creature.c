@@ -1309,7 +1309,6 @@ void process_thing_spell_teleport_effects(struct Thing *thing, struct CastedSpel
                 else
                 {
                     creature_drop_dragged_object(thing, droptng);
-                    droptng->owner = game.neutral_player_num;
                 }
             }
             const struct Coord3d* newpos = NULL;
@@ -5828,7 +5827,6 @@ void controlled_creature_drop_thing(struct Thing *creatng, struct Thing *droptng
     else
     {
         creature_drop_dragged_object(creatng, droptng);
-        droptng->owner = game.neutral_player_num;
     }
     clear_messages_from_player(-81);
     clear_messages_from_player(-86);
