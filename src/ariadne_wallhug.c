@@ -412,10 +412,8 @@ static long get_map_index_of_first_block_thing_colliding_with_at_new(struct Thin
             struct Map* mapblk = get_map_block_at(current_stl_x,current_stl_y);
             struct SlabMap* slb = get_slabmap_block(subtile_slab(current_stl_x), subtile_slab(current_stl_y));
 
-            if (((mapblk->flags & a3) == 0
-            && slb->kind )
-            || ((a3 & mapblk->flags & SlbAtFlg_Filled) != 0 
-            && ((1 << slabmap_owner(slb)) & crt_owner_bit) != 0))
+            if (((mapblk->flags & a3) == 0 && slb->kind != SlbT_ROCK)
+             || ((a3 & mapblk->flags & SlbAtFlg_Filled) != 0 && ((1 << slabmap_owner(slb)) & crt_owner_bit) != 0))
             {
                 continue;
             }
