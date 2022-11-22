@@ -410,13 +410,12 @@ static long get_map_index_of_first_block_thing_colliding_with_at_new(struct Thin
         {
 
             struct Map* mapblk = get_map_block_at(current_stl_x,current_stl_y);
-            MapSlabCoord slb_x = subtile_slab(current_stl_x);
-            MapSlabCoord slb_y = subtile_slab(current_stl_y);
+            struct SlabMap* slb = get_slabmap_block(subtile_slab(current_stl_x), subtile_slab(current_stl_y));
 
-            if (((unsigned __int8)a3 & mapblk->flags) == 0
-            && game.slabmap[85 * slb_y + slb_x].kind 
-            || ((unsigned __int8)a3 & mapblk->flags & SlbAtFlg_Filled) != 0 
-            && ((1 << (game.slabmap[85 * slb_y + slb_x].flags & 7)) & a4) != 0)
+            if (((mapblk->flags & a3) == 0
+            && slb->kind )
+            || (((unsigned __int8)a3 & mapblk->flags & SlbAtFlg_Filled) != 0 
+            && ((1 << slabmap_owner(slb)) & a4) != 0))
             {
                 continue;
             }
