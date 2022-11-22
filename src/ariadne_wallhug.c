@@ -382,53 +382,38 @@ int door_will_open_for_thing(struct Thing *doortng, struct Thing *creatng)
 
 static long get_map_index_of_first_block_thing_colliding_with_at_new(struct Thing *creatng, struct Coord3d *pos, long a3, unsigned char a4)
 {
-    int val_x;
-    int nav_radius;
-    int start_stl_x;
-    int end_stl_x;
-    int y_val;
-    int end_stl_y;
-    int start_stl_y;
-    MapSlabCoord slb_y;
-    __int32 v12;
-    MapSlabCoord slb_x;
     struct Map *mapblk;
-    struct Thing *door_for_position;
-    __int32 current_stl_y;
-    __int32 pos_x;
     struct Map *i;
-    int current_stl_x;
 
-    nav_radius = thing_nav_sizexy(creatng) / 2;
-    start_stl_x = ((unsigned __int16)pos->x.val - nav_radius) / 256;
+    MapCoordDelta nav_radius = thing_nav_sizexy(creatng) / 2;
+
+    MapSubtlCoord start_stl_x = (pos->x.val - nav_radius) / 256;
     if (start_stl_x <= 0)
         start_stl_x = 0;
-    pos_x = start_stl_x;
-    val_x = pos->x.val;
-    end_stl_x = (val_x + nav_radius) / 256 + 1;
+    MapSubtlCoord end_stl_x = (pos->x.val + nav_radius) / 256 + 1;
     if (end_stl_x >= map_subtiles_x)
         end_stl_x = map_subtiles_x;
-    current_stl_x = end_stl_x;
+        
 
-    y_val = (unsigned __int16)pos->y.val;
-    end_stl_y = ((unsigned __int16)y_val + nav_radius) / 256 + 1;
-    if (end_stl_y >= map_subtiles_y)
-        end_stl_y = map_subtiles_y;
-    start_stl_y = (y_val - nav_radius) / 256;
+    MapSubtlCoord start_stl_y = (pos->y.val - nav_radius) / 256;
     if (start_stl_y <= 0)
         start_stl_y = 0;
-    current_stl_y = start_stl_y;
+    MapSubtlCoord end_stl_y = (pos->y.val + nav_radius) / 256 + 1;
+    if (end_stl_y >= map_subtiles_y)
+        end_stl_y = map_subtiles_y;
 
+    MapSubtlCoord current_stl_y = start_stl_y;
+    MapSubtlCoord current_stl_x = start_stl_x;
 
     if (start_stl_y >= end_stl_y)
     {
         return -1;
     }
-    slb_y = subtile_slab(start_stl_y);
-    for (i = &game.map[256 * start_stl_y + 257 + pos_x];; i += 256)
+    MapSlabCoord slb_y = subtile_slab(start_stl_y);
+    for (i = &game.map[256 * start_stl_y + 257 + start_stl_x];; i += 256)
     {
-        v12 = pos_x;
-        if (pos_x < current_stl_x)
+        current_stl_x = start_stl_x;
+        if (start_stl_x < end_stl_x)
             break;
     LABEL_21:
         ++slb_y;
@@ -437,7 +422,7 @@ static long get_map_index_of_first_block_thing_colliding_with_at_new(struct Thin
             return -1;
         }
     }
-    slb_x = subtile_slab(pos_x);
+    MapSlabCoord slb_x = subtile_slab(start_stl_x);
     mapblk = i;
     while (1)
     {
@@ -452,17 +437,17 @@ static long get_map_index_of_first_block_thing_colliding_with_at_new(struct Thin
         }
         if ((mapblk->flags & SlbAtFlg_IsDoor) == 0)
         {
-            return v12 + (current_stl_y << 8);
+            return current_stl_x + (current_stl_y << 8);
         }
-        door_for_position = get_door_for_position(v12, current_stl_y);
-        if (!door_for_position || !door_will_open_for_thing(door_for_position, creatng))
+        struct Thing *doortng = get_door_for_position(current_stl_x, current_stl_y);
+        if (!doortng || !door_will_open_for_thing(doortng, creatng))
         {
-            return v12 + (current_stl_y << 8);
+            return current_stl_x + (current_stl_y << 8);
         }
     LABEL_20:
         ++slb_x;
         ++mapblk;
-        if (++v12 >= current_stl_x)
+        if (++current_stl_x >= end_stl_x)
             goto LABEL_21;
     }
 }
