@@ -382,8 +382,6 @@ int door_will_open_for_thing(struct Thing *doortng, struct Thing *creatng)
 
 static long get_map_index_of_first_block_thing_colliding_with_at_new(struct Thing *creatng, struct Coord3d *pos, long a3, unsigned char a4)
 {
-    struct Map *mapblk;
-    struct Map *i;
 
     MapCoordDelta nav_radius = thing_nav_sizexy(creatng) / 2;
 
@@ -402,54 +400,39 @@ static long get_map_index_of_first_block_thing_colliding_with_at_new(struct Thin
     if (end_stl_y >= map_subtiles_y)
         end_stl_y = map_subtiles_y;
 
-    MapSubtlCoord current_stl_y = start_stl_y;
-    MapSubtlCoord current_stl_x = start_stl_x;
-
     if (start_stl_y >= end_stl_y)
     {
         return -1;
     }
-    MapSlabCoord slb_y = subtile_slab(start_stl_y);
-    for (i = &game.map[256 * start_stl_y + 257 + start_stl_x];; i += 256)
+    for(MapSubtlCoord current_stl_y = start_stl_y; current_stl_y < end_stl_y; current_stl_y++)
     {
-        current_stl_x = start_stl_x;
-        if (start_stl_x < end_stl_x)
-            break;
-    LABEL_21:
-        ++slb_y;
-        if (++current_stl_y >= end_stl_y)
+        for(MapSubtlCoord current_stl_x = start_stl_x; current_stl_x < end_stl_x; current_stl_x++)
         {
-            return -1;
+
+            struct Map* mapblk = get_map_block_at(current_stl_x,current_stl_y);
+            MapSlabCoord slb_x = subtile_slab(current_stl_x);
+            MapSlabCoord slb_y = subtile_slab(current_stl_y);
+
+            if (((unsigned __int8)a3 & mapblk->flags) == 0
+            && game.slabmap[85 * slb_y + slb_x].kind 
+            || ((unsigned __int8)a3 & mapblk->flags & SlbAtFlg_Filled) != 0 
+            && ((1 << (game.slabmap[85 * slb_y + slb_x].flags & 7)) & a4) != 0)
+            {
+                continue;
+            }
+            if ((mapblk->flags & SlbAtFlg_IsDoor) == 0)
+            {
+                return get_subtile_number(current_stl_x,current_stl_y);
+            }
+            struct Thing *doortng = get_door_for_position(current_stl_x, current_stl_y);
+            if (!doortng || !door_will_open_for_thing(doortng, creatng))
+            {
+                return get_subtile_number(current_stl_x,current_stl_y);
+            }
+
         }
     }
-    MapSlabCoord slb_x = subtile_slab(start_stl_x);
-    mapblk = i;
-    while (1)
-    {
-
-
-        if (((unsigned __int8)a3 & mapblk->flags) == 0
-           && game.slabmap[85 * slb_y + slb_x].kind 
-           || ((unsigned __int8)a3 & mapblk->flags & SlbAtFlg_Filled) != 0 
-           && ((1 << (game.slabmap[85 * slb_y + slb_x].flags & 7)) & a4) != 0)
-        {
-            goto LABEL_20;
-        }
-        if ((mapblk->flags & SlbAtFlg_IsDoor) == 0)
-        {
-            return current_stl_x + (current_stl_y << 8);
-        }
-        struct Thing *doortng = get_door_for_position(current_stl_x, current_stl_y);
-        if (!doortng || !door_will_open_for_thing(doortng, creatng))
-        {
-            return current_stl_x + (current_stl_y << 8);
-        }
-    LABEL_20:
-        ++slb_x;
-        ++mapblk;
-        if (++current_stl_x >= end_stl_x)
-            goto LABEL_21;
-    }
+    return -1;        
 }
 
 static long get_map_index_of_first_block_thing_colliding_with_at(struct Thing *creatng, struct Coord3d *pos, long a3, unsigned char a4)
