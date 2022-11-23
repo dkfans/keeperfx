@@ -46,7 +46,7 @@ DLLIMPORT short _DK_hug_round(struct Thing *creatng, struct Coord3d *pos1, struc
 DLLIMPORT long _DK_get_map_index_of_first_block_thing_colliding_with_travelling_to(struct Thing *creatng, struct Coord3d *startpos, struct Coord3d *endpos, long a4, unsigned char a5);
 DLLIMPORT long _DK_get_map_index_of_first_block_thing_colliding_with_at(struct Thing *creatng, struct Coord3d *pos, long a3, unsigned char a4);
 /******************************************************************************/
-static TbBool check_forward_for_prospective_hugs(struct Thing *creatng, struct Coord3d *pos_a, long angle, long navi_field_1, long a3, long speed, unsigned char a4);
+static TbBool check_forward_for_prospective_hugs(struct Thing *creatng, struct Coord3d *pos_a, long angle, long side, long a3, long speed, unsigned char a4);
 static int small_around_index_in_direction(long srcpos_x, long srcpos_y, long dstpos_x, long dstpos_y);
 static long get_angle_of_wall_hug(struct Thing *creatng, long a2, long a3, unsigned char a4);
 static void set_hugging_pos_using_blocked_flags(struct Coord3d *dstpos, struct Thing *creatng, unsigned short block_flags, int nav_radius);
@@ -163,7 +163,7 @@ static long get_angle_of_wall_hug(struct Thing *creatng, long a2, long move_delt
     }
     long quadr;
     long whangle;
-    switch (navi->field_1[0])
+    switch (navi->side)
     {
     case 1:
         quadr = angle_to_quadrant(creatng->move_angle_xy);
@@ -640,7 +640,7 @@ static int get_starting_angle_and_side_of_hug_sub2(
     move_angle_xy = creatng->move_angle_xy;
     memcpy(v54, navi, 0x2Du); // actually copying Navigation + field_211
     creatng->move_angle_xy = arg_move_angle_xy;
-    navi->field_1[0] = arg14;
+    navi->side = arg14;
     navi->dist_to_final_pos = get_2d_distance_squared(&creatng->mappos, &navi->pos_final);
     v49 = 0;
     hugging_blocked_flags = get_hugging_blocked_flags(creatng, arg_pos, a2, a6);
@@ -743,7 +743,7 @@ static int get_starting_angle_and_side_of_hug_sub2(
         }
         v17 = creatng->move_angle_xy;
         v18 = v17;
-        if (navi->field_1[0] != 1)
+        if (navi->side != 1)
         {
             v20 = v17 - 512;
             goto LABEL_36;
@@ -854,7 +854,7 @@ static int get_starting_angle_and_side_of_hug_sub2(
                 creatng,
                 &v47,
                 (unsigned __int16)creatng->move_angle_xy,
-                navi->field_1[0],
+                navi->side,
                 a2,
                 move_delta,
                 a6);
@@ -968,7 +968,7 @@ static signed char get_starting_angle_and_side_of_hug(
     struct Thing *creatng,
     struct Coord3d *pos,
     long *angle,
-    unsigned char *navi_field_1,
+    unsigned char *side,
     long a5,
     unsigned char a6)
 {
@@ -1067,7 +1067,7 @@ static signed char get_starting_angle_and_side_of_hug(
     move_angle_xy = creatng->move_angle_xy;
     memcpy(v49, navi, 0x2Du); // copy navi + field_211
     creatng->move_angle_xy = angle_39;
-    navi->field_1[0] = v34;
+    navi->side = v34;
     navi->dist_to_final_pos = get_2d_distance_squared(&creatng->mappos, &navi->pos_final);
     v45 = 0;
     if (get_starting_angle_and_side_of_hug_sub1(creatng, pos, a5, a6) == 4)
@@ -1105,7 +1105,7 @@ static signed char get_starting_angle_and_side_of_hug(
         }
         v25 = creatng->move_angle_xy;
         v40 = v25;
-        if (navi->field_1[0] != 1)
+        if (navi->side != 1)
         {
             v27 = v25 - 512;
             goto LABEL_24;
@@ -1148,7 +1148,7 @@ static signed char get_starting_angle_and_side_of_hug(
                 creatng,
                 &pos_43,
                 (unsigned __int16)creatng->move_angle_xy,
-                navi->field_1[0],
+                navi->side,
                 a5,
                 255,
                 a6);
@@ -1188,12 +1188,12 @@ LABEL_40:
             {
                 *angle = angle_37;
                 result = 1;
-                *navi_field_1 = v35;
+                *side = v35;
             }
             else
             {
                 *angle = angle_44;
-                *navi_field_1 = v34;
+                *side = v34;
                 return 1;
             }
         }
@@ -1201,31 +1201,31 @@ LABEL_40:
         {
             *angle = angle_37;
             result = 1;
-            *navi_field_1 = v35;
+            *side = v35;
         }
     }
     else if (v31 >= 0)
     {
         *angle = angle_44;
-        *navi_field_1 = v34;
+        *side = v34;
         return 1;
     }
     else if (v31 <= v42)
     {
         *angle = angle_44;
-        *navi_field_1 = v34;
+        *side = v34;
         return 1;
     }
     else
     {
         *angle = angle_37;
         result = 1;
-        *navi_field_1 = v35;
+        *side = v35;
     }
     return result;
 }
 
-static TbBool check_forward_for_prospective_hugs(struct Thing *creatng, struct Coord3d *pos_a, long angle, long navi_field_1, long a3, long speed, unsigned char a4)
+static TbBool check_forward_for_prospective_hugs(struct Thing *creatng, struct Coord3d *pos_a, long angle, long side, long a3, long speed, unsigned char a4)
 {
     int quadrant_angle;
     struct Coord3d pos;
@@ -1284,7 +1284,7 @@ static TbBool check_forward_for_prospective_hugs(struct Thing *creatng, struct C
         default:
             return false;
     }
-    if ( navi->field_1[0] == 1 )
+    if ( navi->side == 1 )
     {
         quadrant_angle = (((unsigned char)angle_to_quadrant(angle) - 1) & 3) << 9;
 
@@ -1310,7 +1310,7 @@ static TbBool check_forward_for_prospective_hugs(struct Thing *creatng, struct C
             creatng->mappos = stored_creature_pos;
         }
     }
-    if ( navi->field_1[0] != 2 )
+    if ( navi->side != 2 )
         return false;
     quadrant_angle = (((unsigned char)angle_to_quadrant(angle) + 1) & 3) << 9;
     next_pos.x.val = move_coord_with_angle_x(creatng->mappos.x.val,speed,quadrant_angle);
@@ -1382,7 +1382,7 @@ static TbBool navigation_push_towards_target(struct Navigation *navi, struct Thi
     pos1.x.val = navi->pos_next.x.val;
     pos1.y.val = navi->pos_next.y.val;
     pos1.z.val = navi->pos_next.z.val;
-    check_forward_for_prospective_hugs(creatng, &pos1, navi->angle, navi->field_1[0], 33, speed, a3);
+    check_forward_for_prospective_hugs(creatng, &pos1, navi->angle, navi->side, 33, speed, a3);
     if (get_2d_box_distance(&pos1, &creatng->mappos) > 16)
     {
         navi->pos_next.x.val = pos1.x.val;
@@ -1468,7 +1468,7 @@ long get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *cr
                 }
                 navi->field_19[0] = ownflag;
 
-                if (get_starting_angle_and_side_of_hug(creatng, &navi->pos_next, &navi->angle, navi->field_1, 33, a3))
+                if (get_starting_angle_and_side_of_hug(creatng, &navi->pos_next, &navi->angle, &navi->side, 33, a3))
                 {
                     block_flags = get_hugging_blocked_flags(creatng, &navi->pos_next, 33, a3);
                     set_hugging_pos_using_blocked_flags(&navi->pos_next, creatng, block_flags, thing_nav_sizexy(creatng)/2);
@@ -1491,8 +1491,8 @@ long get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *cr
                     navi->pos_final.x.val = pos->x.val;
                     navi->pos_final.y.val = pos->y.val;
                     navi->pos_final.z.val = pos->z.val;
-                    navi->field_1[2] = 0;
-                    navi->field_1[1] = 0;
+                    navi->field_3 = 0;
+                    navi->field_2 = 0;
                     navi->field_4 = 0;
                 }
             }
@@ -1532,8 +1532,8 @@ long get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *cr
                 navi->pos_final.x.val = pos->x.val;
                 navi->pos_final.y.val = pos->y.val;
                 navi->pos_final.z.val = pos->z.val;
-                navi->field_1[2] = 0;
-                navi->field_1[1] = 0;
+                navi->field_3 = 0;
+                navi->field_2 = 0;
                 navi->field_4 = 0;
                 return 1;
             }
@@ -1546,8 +1546,8 @@ long get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *cr
             navi->pos_final.x.val = pos->x.val;
             navi->pos_final.y.val = pos->y.val;
             navi->pos_final.z.val = pos->z.val;
-            navi->field_1[2] = 0;
-            navi->field_1[1] = 0;
+            navi->field_3 = 0;
+            navi->field_2 = 0;
             navi->field_4 = 0;
             return 1;
         }
@@ -1576,38 +1576,38 @@ long get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *cr
         }
         if (((angle + LbFPMath_PI/2) & LbFPMath_AngleMask) == navi->angle)
         {
-            if (navi->field_1[2] == 1)
+            if (navi->field_3 == 1)
             {
-                navi->field_1[1]++;
+                navi->field_2++;
             } else
             {
-                navi->field_1[2] = 1;
-                navi->field_1[1] = 1;
+                navi->field_3 = 1;
+                navi->field_2 = 1;
             }
         } else
         if (((angle - LbFPMath_PI/2) & LbFPMath_AngleMask) == navi->angle)
         {
-          if (navi->field_1[2] == 2)
+          if (navi->field_3 == 2)
           {
-              navi->field_1[1]++;
+              navi->field_2++;
           } else
           {
-              navi->field_1[2] = 2;
-              navi->field_1[1] = 1;
+              navi->field_3 = 2;
+              navi->field_2 = 1;
           }
         } else
         {
-          navi->field_1[1] = 0;
-          navi->field_1[2] = 0;
+          navi->field_2 = 0;
+          navi->field_3 = 0;
         }
-        if (navi->field_1[1] >= 4)
+        if (navi->field_2 >= 4)
         {
             navi->navstate = 1;
             navi->pos_final.x.val = pos->x.val;
             navi->pos_final.y.val = pos->y.val;
             navi->pos_final.z.val = pos->z.val;
-            navi->field_1[2] = 0;
-            navi->field_1[1] = 0;
+            navi->field_3 = 0;
+            navi->field_2 = 0;
             navi->field_4 = 0;
             return 1;
         }
@@ -1618,7 +1618,7 @@ long get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *cr
         tmpos.x.val = navi->pos_next.x.val;
         tmpos.y.val = navi->pos_next.y.val;
         tmpos.z.val = navi->pos_next.z.val;
-        check_forward_for_prospective_hugs(creatng, &tmpos, navi->angle, navi->field_1[0], 33, speed, a3);
+        check_forward_for_prospective_hugs(creatng, &tmpos, navi->angle, navi->side, 33, speed, a3);
         if (get_2d_box_distance(&tmpos, &creatng->mappos) > 16)
         {
             navi->pos_next.x.val = tmpos.x.val;
@@ -1640,8 +1640,8 @@ long get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *cr
           navi->pos_final.x.val = pos->x.val;
           navi->pos_final.y.val = pos->y.val;
           navi->pos_final.z.val = pos->z.val;
-          navi->field_1[2] = 0;
-          navi->field_1[1] = 0;
+          navi->field_3 = 0;
+          navi->field_2 = 0;
           navi->field_4 = 0;
           navi->pos_next.x.val = creatng->mappos.x.val;
           navi->pos_next.y.val = creatng->mappos.y.val;
@@ -1660,8 +1660,8 @@ long get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *cr
         stl_y = slab_subtile_center(subtile_slab_fast(stl_num_decode_y(stl_num)));
         find_approach_position_to_subtile(&creatng->mappos, stl_x, stl_y, nav_radius + 385, &navi->pos_next);
         navi->angle = get_angle_xy_to(&creatng->mappos, &navi->pos_next);
-        navi->field_1[1] = 0;
-        navi->field_1[2] = 0;
+        navi->field_2 = 0;
+        navi->field_3 = 0;
         navi->distance_to_next_pos = get_2d_box_distance(&creatng->mappos, &navi->pos_next);
         navi->navstate = 4;
         return 1;
@@ -1676,8 +1676,8 @@ long get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *cr
                 navi->pos_final.x.val = pos->x.val;
                 navi->pos_final.y.val = pos->y.val;
                 navi->pos_final.z.val = pos->z.val;
-                navi->field_1[2] = 0;
-                navi->field_1[1] = 0;
+                navi->field_3 = 0;
+                navi->field_2 = 0;
                 navi->field_4 = 0;
             }
             navi->navstate = 4;
@@ -1688,8 +1688,8 @@ long get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *cr
         tmpos.x.val = subtile_coord_center(stl_x);
         tmpos.y.val = subtile_coord_center(stl_y);
         navi->angle = get_angle_xy_to(&creatng->mappos, &tmpos);
-        navi->field_1[1] = 0;
-        navi->field_1[2] = 0;
+        navi->field_2 = 0;
+        navi->field_3 = 0;
         navi->distance_to_next_pos = 0;
         if (get_angle_difference(creatng->move_angle_xy, navi->angle) != 0) {
             navi->navstate = 4;
@@ -1735,7 +1735,7 @@ long get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *cr
         }
         nav_radius = thing_nav_sizexy(creatng) / 2;
         long i;
-        if (navi->field_1[0] == 1)
+        if (navi->side == 1)
         {
             i = (creatng->move_angle_xy + LbFPMath_PI/4) / (LbFPMath_PI/2) - 1;
         }
@@ -1769,7 +1769,7 @@ long get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *cr
         {
             return 1;
         }
-        if (navi->field_1[0] == 1)
+        if (navi->side == 1)
             angle = creatng->move_angle_xy + LbFPMath_PI/2;
         else
             angle = creatng->move_angle_xy - LbFPMath_PI/2;
