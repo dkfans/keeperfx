@@ -45,6 +45,25 @@ extern "C" {
 DLLIMPORT short _DK_hug_round(struct Thing *creatng, struct Coord3d *pos1, struct Coord3d *pos2, unsigned short a4, long *a5);
 DLLIMPORT long _DK_get_map_index_of_first_block_thing_colliding_with_travelling_to(struct Thing *creatng, struct Coord3d *startpos, struct Coord3d *endpos, long a4, unsigned char a5);
 DLLIMPORT long _DK_get_map_index_of_first_block_thing_colliding_with_at(struct Thing *creatng, struct Coord3d *pos, long a3, unsigned char a4);
+
+DLLIMPORT int _DK_get_starting_angle_and_side_of_hug_sub2(
+    struct Thing *creatng,
+    struct Navigation *navi,
+    struct Coord3d *arg_pos,
+    int a2,
+    int arg_move_angle_xy,
+    char arg14,
+    int a5,
+    int speed,
+    int a6);
+
+DLLIMPORT int _DK_get_starting_angle_and_side_of_hug_sub1(
+    struct Thing *creatng,
+    struct Coord3d *pos,
+    __int32 a3,
+    unsigned __int8 a4);
+
+
 /******************************************************************************/
 static TbBool check_forward_for_prospective_hugs(struct Thing *creatng, struct Coord3d *pos_a, long angle, long side, long a3, long speed, unsigned char a4);
 static int small_around_index_in_direction(long srcpos_x, long srcpos_y, long dstpos_x, long dstpos_y);
@@ -145,16 +164,16 @@ static TbBool hug_can_move_on(struct Thing *creatng, MapSubtlCoord stl_x, MapSub
     return false;
 }
 
-TbBool wallhug_angle_with_collide_valid(struct Thing *thing, long a2, long move_delta, long angle, unsigned char a4)
+TbBool wallhug_angle_with_collide_valid(struct Thing *thing, long a2, long speed, long angle, unsigned char a4)
 {
     struct Coord3d pos;
-    pos.x.val = thing->mappos.x.val + distance_with_angle_to_coord_x(move_delta, angle);
-    pos.y.val = thing->mappos.y.val + distance_with_angle_to_coord_y(move_delta, angle);
+    pos.x.val = thing->mappos.x.val + distance_with_angle_to_coord_x(speed, angle);
+    pos.y.val = thing->mappos.y.val + distance_with_angle_to_coord_y(speed, angle);
     pos.z.val = get_thing_height_at(thing, &pos);
     return (creature_cannot_move_directly_to_with_collide(thing, &pos, a2, a4) != 4);
 }
 
-static long get_angle_of_wall_hug(struct Thing *creatng, long a2, long move_delta, unsigned char a4)
+static long get_angle_of_wall_hug(struct Thing *creatng, long a2, long speed, unsigned char a4)
 {
     struct Navigation *navi;
     {
@@ -168,37 +187,37 @@ static long get_angle_of_wall_hug(struct Thing *creatng, long a2, long move_delt
     case 1:
         quadr = angle_to_quadrant(creatng->move_angle_xy);
         whangle = (LbFPMath_PI/2) * ((quadr - 1) & 3);
-        if (wallhug_angle_with_collide_valid(creatng, a2, move_delta, whangle, a4))
+        if (wallhug_angle_with_collide_valid(creatng, a2, speed, whangle, a4))
           return whangle;
         quadr = angle_to_quadrant(creatng->move_angle_xy);
         whangle = (LbFPMath_PI/2) * (quadr & 3);
-        if (wallhug_angle_with_collide_valid(creatng, a2, move_delta, whangle, a4))
+        if (wallhug_angle_with_collide_valid(creatng, a2, speed, whangle, a4))
           return whangle;
         quadr = angle_to_quadrant(creatng->move_angle_xy);
         whangle = (LbFPMath_PI/2) * ((quadr + 1) & 3);
-        if (wallhug_angle_with_collide_valid(creatng, a2, move_delta, whangle, a4))
+        if (wallhug_angle_with_collide_valid(creatng, a2, speed, whangle, a4))
           return whangle;
         quadr = angle_to_quadrant(creatng->move_angle_xy);
         whangle = (LbFPMath_PI/2) * ((quadr + 2) & 3);
-        if (wallhug_angle_with_collide_valid(creatng, a2, move_delta, whangle, a4))
+        if (wallhug_angle_with_collide_valid(creatng, a2, speed, whangle, a4))
           return whangle;
         break;
     case 2:
         quadr = angle_to_quadrant(creatng->move_angle_xy);
         whangle = (LbFPMath_PI/2) * ((quadr + 1) & 3);
-        if (wallhug_angle_with_collide_valid(creatng, a2, move_delta, whangle, a4))
+        if (wallhug_angle_with_collide_valid(creatng, a2, speed, whangle, a4))
           return whangle;
         quadr = angle_to_quadrant(creatng->move_angle_xy);
         whangle = (LbFPMath_PI/2) * (quadr & 3);
-        if (wallhug_angle_with_collide_valid(creatng, a2, move_delta, whangle, a4))
+        if (wallhug_angle_with_collide_valid(creatng, a2, speed, whangle, a4))
           return whangle;
         quadr = angle_to_quadrant(creatng->move_angle_xy);
         whangle = (LbFPMath_PI/2) * ((quadr - 1) & 3);
-        if (wallhug_angle_with_collide_valid(creatng, a2, move_delta, whangle, a4))
+        if (wallhug_angle_with_collide_valid(creatng, a2, speed, whangle, a4))
           return whangle;
         quadr = angle_to_quadrant(creatng->move_angle_xy);
         whangle = (LbFPMath_PI/2) * ((quadr + 2) & 3);
-        if (wallhug_angle_with_collide_valid(creatng, a2, move_delta, whangle, a4))
+        if (wallhug_angle_with_collide_valid(creatng, a2, speed, whangle, a4))
           return whangle;
         break;
     }
@@ -605,9 +624,13 @@ static int get_starting_angle_and_side_of_hug_sub2(
     int arg_move_angle_xy,
     char arg14,
     int a5,
-    int move_delta,
+    int speed,
     int a6)
 {
+
+
+    //return _DK_get_starting_angle_and_side_of_hug_sub2(creatng,navi,arg_pos,a2,arg_move_angle_xy,arg14,a5,speed,a6);
+
     __int16 nav_radius;
     int v16;
     __int16 v17;
@@ -738,7 +761,7 @@ static int get_starting_angle_and_side_of_hug_sub2(
         }
         if (v51)
         {
-            angle_of_wall_hug = get_angle_of_wall_hug(creatng, a2, move_delta, a6);
+            angle_of_wall_hug = get_angle_of_wall_hug(creatng, a2, speed, a6);
             goto LABEL_38;
         }
         v17 = creatng->move_angle_xy;
@@ -756,14 +779,14 @@ static int get_starting_angle_and_side_of_hug_sub2(
         LABEL_36:
             creatng->move_angle_xy = v20;
         }
-        v21 = get_angle_of_wall_hug(creatng, a2, move_delta, a6);
+        v21 = get_angle_of_wall_hug(creatng, a2, speed, a6);
         creatng->move_angle_xy = v18;
         angle_of_wall_hug = v21;
     LABEL_38:
         if (!v51 || navi->angle != angle_of_wall_hug)
         {
-            v47.x.val = move_coord_with_angle_x(creatng->mappos.x.val, move_delta, navi->angle);
-            v47.y.val = move_coord_with_angle_y(creatng->mappos.x.val, move_delta, navi->angle);
+            v47.x.val = move_coord_with_angle_x(creatng->mappos.x.val, speed, navi->angle);
+            v47.y.val = move_coord_with_angle_y(creatng->mappos.x.val, speed, navi->angle);
             v47.z.val = get_thing_height_at(creatng, &v47);
             if (creature_cannot_move_directly_to_with_collide(creatng, &v47, a2, a6) == 4)
             {
@@ -847,8 +870,8 @@ static int get_starting_angle_and_side_of_hug_sub2(
             navi->angle = angle_of_wall_hug;
             creatng->move_angle_xy = v33;
 
-            v47.x.val = move_coord_with_angle_x(creatng->mappos.x.val, move_delta, navi->angle);
-            v47.y.val = move_coord_with_angle_y(creatng->mappos.y.val, move_delta, navi->angle);
+            v47.x.val = move_coord_with_angle_x(creatng->mappos.x.val, speed, navi->angle);
+            v47.y.val = move_coord_with_angle_y(creatng->mappos.y.val, speed, navi->angle);
             v47.z.val = get_thing_height_at(creatng, &v47);
             check_forward_for_prospective_hugs(
                 creatng,
@@ -856,11 +879,11 @@ static int get_starting_angle_and_side_of_hug_sub2(
                 (unsigned __int16)creatng->move_angle_xy,
                 navi->side,
                 a2,
-                move_delta,
+                speed,
                 a6);
             creatng->mappos = v47;
         }
-        v49 += move_delta;
+        v49 += speed;
         v38 = get_2d_distance_squared(&creatng->mappos, &navi->pos_final);
         if (v38 < v46)
         {
@@ -892,6 +915,10 @@ static int get_starting_angle_and_side_of_hug_sub1(
     __int32 a3,
     unsigned __int8 a4)
 {
+    return _DK_get_starting_angle_and_side_of_hug_sub1(creatng,pos,a3,a4);
+
+
+    
     __int32 hugging_blocked_flags; // edi
     __int16 nav_radius;            // bp
     struct Coord3d v13;            // [esp+10h] [ebp-8h] BYREF
