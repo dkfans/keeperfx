@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "creature_states_lair.h"
 #include "globals.h"
 
@@ -43,6 +44,7 @@
 #include "game_legacy.h"
 
 #include "keeperfx.hpp"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -224,7 +226,7 @@ CrStateRet creature_at_changed_lair(struct Thing *creatng)
         return CrStRet_ResetFail;
     }
     struct Room* room = get_room_thing_is_on(creatng);
-    if (!room_initially_valid_as_type_for_thing(room, get_room_for_job(Job_TAKE_SLEEP), creatng))
+    if (!room_initially_valid_as_type_for_thing(room, get_room_role_for_job(Job_TAKE_SLEEP), creatng))
     {
         WARNLOG("Room %s owned by player %d is invalid for %s index %d",room_code_name(room->kind),(int)room->owner,thing_model_name(creatng),(int)creatng->index);
         set_start_state(creatng);
@@ -243,7 +245,7 @@ CrStateRet creature_at_new_lair(struct Thing *creatng)
 {
     TRACE_THING(creatng);
     struct Room* room = get_room_thing_is_on(creatng);
-    if ( !room_still_valid_as_type_for_thing(room, get_room_for_job(Job_TAKE_SLEEP), creatng) )
+    if ( !room_still_valid_as_type_for_thing(room, get_room_role_for_job(Job_TAKE_SLEEP), creatng) )
     {
         WARNLOG("Room %s owned by player %d is bad work place for %s index %d owner %d",room_code_name(room->kind),(int)room->owner,thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
         set_start_state(creatng);
@@ -312,7 +314,7 @@ short creature_change_lair(struct Thing *thing)
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     cctrl->target_room_id = 0;
     struct Room* room = get_room_thing_is_on(thing);
-    if (!room_initially_valid_as_type_for_thing(room, get_room_for_job(Job_TAKE_SLEEP), thing))
+    if (!room_initially_valid_as_type_for_thing(room, get_room_role_for_job(Job_TAKE_SLEEP), thing))
     {
         set_start_state(thing);
         return 0;
@@ -341,7 +343,7 @@ short creature_choose_room_for_lair_site(struct Thing *thing)
     struct Room* room = get_best_new_lair_for_creature(thing);
     if (room_is_invalid(room))
     {
-        update_cannot_find_room_wth_spare_capacity_event(thing->owner, thing, get_room_for_job(Job_TAKE_SLEEP));
+        update_cannot_find_room_of_role_wth_spare_capacity_event(thing->owner, thing, get_room_role_for_job(Job_TAKE_SLEEP));
         set_start_state(thing);
         return 0;
     }
@@ -373,7 +375,7 @@ short at_lair_to_sleep(struct Thing *thing)
         return 0;
     }
     struct Room* room = get_room_thing_is_on(thing);
-    if (!room_initially_valid_as_type_for_thing(room, get_room_for_job(Job_TAKE_SLEEP), thing))
+    if (!room_initially_valid_as_type_for_thing(room, get_room_role_for_job(Job_TAKE_SLEEP), thing))
     {
         WARNLOG("Room %s owned by player %d is invalid for %s index %d owner %d",room_code_name(room->kind),(int)room->owner,thing_model_name(thing),(int)thing->index,(int)thing->owner);
         set_start_state(thing);
@@ -450,7 +452,7 @@ short creature_sleep(struct Thing *thing)
         return 0;
     }
     struct Room* room = get_room_thing_is_on(thing);
-    if (room_is_invalid(room) || (room->kind != get_room_for_job(Job_TAKE_SLEEP))
+    if (room_is_invalid(room) || (!room_role_matches(room->kind,get_room_role_for_job(Job_TAKE_SLEEP)))
         || (cctrl->lair_room_id != room->index) || (room->owner != thing->owner)) {
         set_start_state(thing);
         return 0;

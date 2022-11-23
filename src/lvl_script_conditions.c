@@ -15,8 +15,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-
-
+#include "pre_inc.h"
 #include "lvl_script_conditions.h"
 
 #include "globals.h"
@@ -28,6 +27,7 @@
 #include "keeperfx.hpp"
 #include "bflib_math.h"
 #include "lvl_script_lib.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -194,8 +194,8 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned 
         return dungeonadd->mnfct_info.door_amount_stored[validx%gameadd.trapdoor_conf.door_types_count]
               + dungeonadd->mnfct_info.door_amount_offmap[validx%gameadd.trapdoor_conf.door_types_count];
     case SVar_AVAILABLE_ROOM: // IF_AVAILABLE(ROOM)
-        dungeon = get_dungeon(plyr_idx);
-        return (dungeon->room_buildable[validx%ROOM_TYPES_COUNT] & 1);
+        dungeonadd = get_dungeonadd(plyr_idx);
+        return (dungeonadd->room_buildable[validx%slab_conf.room_types_count] & 1);
     case SVar_AVAILABLE_CREATURE: // IF_AVAILABLE(CREATURE)
         dungeon = get_dungeon(plyr_idx);
         if (creature_will_generate_for_dungeon(dungeon, validx)) {
@@ -282,6 +282,11 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned 
     case SVar_CREATURES_TRANSFERRED:
         dungeonadd = get_dungeonadd(plyr_idx);
         return dungeonadd->creatures_transferred;
+    case SVar_ALLIED_PLAYER:
+    {
+        struct PlayerInfo* player = get_player(plyr_idx);
+        return player_allied_with(player, validx);
+    }
     default:
         break;
     };

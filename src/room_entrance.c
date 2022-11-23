@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "room_entrance.h"
 
 #include "globals.h"
@@ -33,6 +34,7 @@
 #include "config_terrain.h"
 #include "gui_soundmsgs.h"
 #include "game_legacy.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -74,7 +76,7 @@ struct Thing *create_creature_at_entrance(struct Room * room, ThingModel crkind)
     if (room->owner != game.neutral_player_num)
     {
         struct Dungeon* dungeon = get_dungeon(room->owner);
-        dungeon->lvstats.field_4++;
+        dungeon->lvstats.creatures_attracted++;
         dungeon->lvstats.field_8++;
         dungeon->lvstats.field_88 = crkind;
     }
@@ -122,6 +124,8 @@ TbBool generation_available_to_dungeon(const struct Dungeon * dungeon)
 {
     SYNCDBG(9,"Starting");
     if (!dungeon_has_room(dungeon, RoK_ENTRANCE))
+        return false;
+    if (game.armageddon.count_down + game.armageddon_cast_turn > game.play_gameturn) //No new creatures during armageddon
         return false;
     return ((long)dungeon->num_active_creatrs < (long)dungeon->max_creatures_attracted);
 }
@@ -300,7 +304,7 @@ TbBool generate_creature_at_random_entrance(struct Dungeon * dungeon, ThingModel
 {
     SYNCDBG(9,"Starting");
 
-    struct Room* room = pick_random_room(dungeon->owner, RoK_ENTRANCE);
+    struct Room* room = pick_random_room_of_role(dungeon->owner, RoRoF_CrPoolSpawn);
     if (room_is_invalid(room))
     {
         ERRORLOG("Could not get a random entrance for player %d",(int)dungeon->owner);

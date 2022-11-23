@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "player_utils.h"
 
 #include "globals.h"
@@ -52,6 +53,7 @@
 #include "frontmenu_ingame_map.h"
 #include "keeperfx.hpp"
 #include "kjm_input.h"
+#include "post_inc.h"
 
 /******************************************************************************/
 /******************************************************************************/
@@ -281,6 +283,7 @@ GoldAmount take_money_from_room(struct Room *room, GoldAmount amount_take)
 long take_money_from_dungeon_f(PlayerNumber plyr_idx, GoldAmount amount_take, TbBool only_whole_sum, const char *func_name)
 {
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
+    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
     if (dungeon_invalid(dungeon)) {
         WARNLOG("%s: Cannot take gold from player %d with no dungeon",func_name,(int)plyr_idx);
         return -1;
@@ -313,40 +316,50 @@ long take_money_from_dungeon_f(PlayerNumber plyr_idx, GoldAmount amount_take, Tb
         dungeon->total_money_owned -= offmap_money;
         dungeon->offmap_money_owned = 0;
     }
-    long i = dungeon->room_kind[RoK_TREASURE];
-    unsigned long k = 0;
-    while (i != 0)
+
+    for (RoomKind rkind = 0; rkind < slab_conf.room_types_count; rkind++)
     {
-        struct Room* room = room_get(i);
-        if (room_is_invalid(room))
+        if(room_role_matches(rkind,RoRoF_GoldStorage))
         {
-          ERRORLOG("Jump to invalid room detected");
-          break;
-        }
-        i = room->next_of_owner;
-        // Per-room code
-        if (room->capacity_used_for_storage > 0)
-        {
-            take_remain -= take_money_from_room(room, take_remain);
-            if (take_remain <= 0)
+            long i = dungeonadd->room_kind[rkind];
+            unsigned long k = 0;
+            while (i != 0)
             {
-                if (is_my_player_number(plyr_idx))
+                struct Room* room = room_get(i);
+                if (room_is_invalid(room))
                 {
-                  if ((total_money >= 1000) && (total_money - amount_take < 1000)) {
-                      output_message(SMsg_GoldLow, MESSAGE_DELAY_TREASURY, true);
-                  }
+                ERRORLOG("Jump to invalid room detected");
+                break;
                 }
-                return amount_take;
+                i = room->next_of_owner;
+                // Per-room code
+                if (room->capacity_used_for_storage > 0)
+                {
+                    take_remain -= take_money_from_room(room, take_remain);
+                    if (take_remain <= 0)
+                    {
+                        if (is_my_player_number(plyr_idx))
+                        {
+                        if ((total_money >= 1000) && (total_money - amount_take < 1000)) {
+                            output_message(SMsg_GoldLow, MESSAGE_DELAY_TREASURY, true);
+                        }
+                        }
+                        return amount_take;
+                    }
+                }
+                // Per-room code ends
+                k++;
+                if (k > ROOMS_COUNT)
+                {
+                ERRORLOG("Infinite loop detected when sweeping rooms list");
+                break;
+                }
             }
         }
-        // Per-room code ends
-        k++;
-        if (k > ROOMS_COUNT)
-        {
-          ERRORLOG("Infinite loop detected when sweeping rooms list");
-          break;
-        }
     }
+
+
+
     WARNLOG("%s: Player %d could not give %d gold, %d was missing; his total gold was %d",func_name,(int)plyr_idx,(int)amount_take,(int)take_remain,(int)total_money);
     return -1;
 }
@@ -527,7 +540,7 @@ void init_player_as_single_keeper(struct PlayerInfo *player)
     ilght.field_3 = 5;
     ilght.is_dynamic = 1;
     unsigned short idx = light_create_light(&ilght);
-    player->field_460 = idx;
+    player->cursor_light_idx = idx;
     if (idx != 0) {
         light_set_light_never_cache(idx);
     } else {
@@ -583,7 +596,6 @@ void init_player(struct PlayerInfo *player, short no_explore)
         break;
     }
     init_player_cameras(player);
-    pannel_map_update(0, 0, map_subtiles_x+1, map_subtiles_y+1);
     player->mp_message_text[0] = '\0';
     if (is_my_player(player))
     {
@@ -805,6 +817,7 @@ void post_init_player(struct PlayerInfo *player)
         }
         break;
     }
+    pannel_map_update(0, 0, map_subtiles_x+1, map_subtiles_y+1);
 }
 
 void post_init_players(void)
@@ -824,10 +837,12 @@ void init_players_local_game(void)
     struct PlayerInfo* player = get_my_player();
     player->id_number = my_player_number;
     player->allocflags |= PlaF_Allocated;
-    if (settings.video_rotate_mode < 1)
-      player->view_mode_restore = PVM_IsometricView;
-    else
-      player->view_mode_restore = PVM_FrontView;
+    switch (settings.video_rotate_mode) {
+        case 0: player->view_mode_restore = PVM_IsoWibbleView; break;
+        case 1: player->view_mode_restore = PVM_IsoStraightView; break;
+        case 2: player->view_mode_restore = PVM_FrontView; break;
+        default: player->view_mode_restore = PVM_IsoWibbleView; break;
+    }
     init_player(player, 0);
 }
 

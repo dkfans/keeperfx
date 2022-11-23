@@ -103,6 +103,7 @@ long near_coord_filter_battle_drop_point(const struct Coord3d *pos, MaxCoordFilt
 
 TbBool get_position_spiral_near_map_block_with_filter(struct Coord3d *retpos, MapCoord x, MapCoord y,
     long spiral_len, Coord_Maximizer_Filter filter, MaxCoordFilterParam param);
+TbBool get_position_next_to_map_block_with_filter(struct Coord3d* retpos, MapCoord x, MapCoord y, Coord_Maximizer_Filter filter, MaxCoordFilterParam param);
 
 long slabs_count_near(MapSlabCoord tx, MapSlabCoord ty, long rad, SlabKind slbkind);
 

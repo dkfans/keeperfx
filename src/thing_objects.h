@@ -71,7 +71,7 @@ struct Objects {
     short size_yz;
     short sprite_size_max;
     unsigned char field_F;      // Lower 2 bits are transparency flags
-    unsigned char field_10;
+    unsigned short fp_smpl_idx;
     unsigned char draw_class;
     unsigned char destroy_on_lava;
     /** Creature model related to the object, ie for lairs - which creature lair it is. */
@@ -140,7 +140,7 @@ TbBool thing_is_gold_hoard(const struct Thing *thing);
 TbBool thing_is_spellbook(const struct Thing *thing);
 TbBool thing_is_lair_totem(const struct Thing *thing);
 TbBool object_is_room_equipment(const struct Thing *thing, RoomKind rkind);
-TbBool object_is_room_inventory(const struct Thing *thing, RoomKind rkind);
+TbBool object_is_room_inventory(const struct Thing *thing, RoomRole rrole);
 TbBool object_is_unaffected_by_terrain_changes(const struct Thing *thing);
 TbBool object_can_be_damaged(const struct Thing* thing);
 

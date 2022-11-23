@@ -18,11 +18,13 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "bflib_memory.h"
 
 #include <string.h>
 #include <stdarg.h>
 #include <stdlib.h>
+#include "post_inc.h"
 
 /******************************************************************************/
 #ifdef __cplusplus
@@ -152,8 +154,7 @@ void * LbStringCopy(char *dst, const char *src, const ulong dst_buflen)
 {
   if (dst_buflen < 1)
     return dst;
-  strncpy(dst, src, dst_buflen);
-  dst[dst_buflen-1]='\0';
+  snprintf(dst, dst_buflen, "%s", src);
   return dst;
 }
 

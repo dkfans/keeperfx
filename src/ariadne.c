@@ -17,6 +17,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "ariadne.h"
 
 #include "globals.h"
@@ -39,6 +40,7 @@
 #include "map_columns.h"
 #include "map_utils.h"
 #include "game_legacy.h"
+#include "post_inc.h"
 
 #define EDGEFIT_LEN           64
 #define EDGEOR_COUNT           4
@@ -1939,7 +1941,7 @@ long ma_triangle_route(long ttriA, long ttriB, long *routecost)
     NAVIDBG(19,"Selecting route");
     if (par_fwd < par_bak)
     {
-        for (i=0; i <= sizeof(tree_route)/sizeof(tree_route[0]); i++)
+        for (i=0; i < sizeof(tree_route)/sizeof(tree_route[0]); i++)
         {
              tree_route[i] = route_fwd[i];
         }

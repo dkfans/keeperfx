@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "creature_states_tortr.h"
 #include "globals.h"
 
@@ -40,6 +41,7 @@
 #include "map_blocks.h"
 #include "gui_soundmsgs.h"
 #include "game_legacy.h"
+#include "post_inc.h"
 
 /******************************************************************************/
 /** State triggered when creature reached torture chamber and is ready to start kinky torture action.
@@ -52,7 +54,7 @@ short at_kinky_torture_room(struct Thing *thing)
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     cctrl->target_room_id = 0;
     struct Room* room = get_room_thing_is_on(thing);
-    if (!room_initially_valid_as_type_for_thing(room, get_room_for_job(Job_KINKY_TORTURE), thing))
+    if (!room_initially_valid_as_type_for_thing(room, get_room_role_for_job(Job_KINKY_TORTURE), thing))
     {
         WARNLOG("Room %s owned by player %d is invalid for %s",room_code_name(room->kind),(int)room->owner,thing_model_name(thing));
         set_start_state(thing);
@@ -84,7 +86,7 @@ short at_torture_room(struct Thing *thing)
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     cctrl->target_room_id = 0;
     struct Room* room = get_room_thing_is_on(thing);
-    if (!room_initially_valid_as_type_for_thing(room, get_room_for_job(Job_PAINFUL_TORTURE), thing))
+    if (!room_initially_valid_as_type_for_thing(room, get_room_role_for_job(Job_PAINFUL_TORTURE), thing))
     {
         WARNLOG("Room %s owned by player %d is invalid for %s",room_code_name(room->kind),(int)room->owner,thing_model_name(thing));
         set_start_state(thing);
@@ -116,7 +118,7 @@ short cleanup_torturing(struct Thing *creatng)
         struct Thing* thing = thing_get(cctrl->assigned_torturer);
         if (thing_exists(thing)) {
             thing->torturer.belongs_to = 0;
-            thing->field_4F &= ~TF4F_Unknown01;
+            thing->rendering_flags &= ~TRF_Unknown01;
         }
         cctrl->assigned_torturer = 0;
     }
@@ -213,7 +215,7 @@ long process_torture_visuals(struct Thing *creatng, struct Room *room, CreatureJ
             set_creature_instance(creatng, CrInst_TORTURED, 1, 0, 0);
         }
         if (thing_exists(sectng)) {
-            sectng->field_4F |= TF4F_Unknown01;
+            sectng->rendering_flags |= TRF_Unknown01;
         } else {
             ERRORLOG("No device for torture");
         }
@@ -482,7 +484,7 @@ CrCheckRet process_torture_function(struct Thing *creatng)
 {
     long i;
     struct Room* room = get_room_creature_works_in(creatng);
-    if ( !room_still_valid_as_type_for_thing(room,RoK_TORTURE,creatng) )
+    if ( !room_still_valid_as_type_for_thing(room,RoRoF_Torture,creatng) )
     {
         WARNLOG("Room %s owned by player %d is bad work place for %s owned by played %d",room_code_name(room->kind),(int)room->owner,thing_model_name(creatng),(int)creatng->owner);
         set_start_state(creatng);

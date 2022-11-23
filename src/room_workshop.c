@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "room_workshop.h"
 
 #include "globals.h"
@@ -36,6 +37,7 @@
 #include "player_instances.h"
 #include "creature_states.h"
 #include "keeperfx.hpp"
+#include "post_inc.h"
 
 /******************************************************************************/
 TbBool add_workshop_object_to_workshop(struct Room *room,struct Thing *cratetng)
@@ -105,7 +107,7 @@ TbBool create_workshop_object_in_workshop_room(PlayerNumber plyr_idx, ThingClass
         ERRORLOG("Could not create workshop crate thing for %s",thing_class_code_name(tngclass));
         return false;
     }
-    struct Room* room = find_random_room_for_thing_with_spare_room_item_capacity(cratetng, plyr_idx, RoK_WORKSHOP, 0);
+    struct Room* room = find_random_room_of_role_for_thing_with_spare_room_item_capacity(cratetng, plyr_idx, RoRoF_CratesStorage, 0);
     if (room_is_invalid(room))
     {
         ERRORLOG("No %s room found which would accept %s crate",room_code_name(RoK_WORKSHOP),thing_class_code_name(tngclass));
@@ -517,8 +519,8 @@ long get_doable_manufacture_with_minimal_amount_available(const struct Dungeon *
     long amount;
     int chosen_class = TCls_Empty;
     int chosen_kind = 0;
-    int chosen_amount = LONG_MAX;
-    int chosen_level = LONG_MAX;
+    int chosen_amount = INT_MAX;
+    int chosen_level = INT_MAX;
     struct DungeonAdd* dungeonadd = get_dungeonadd(dungeon->owner);
 
     // Try getting door kind for manufacture
@@ -630,7 +632,7 @@ short process_player_manufacturing(PlayerNumber plyr_idx)
     if (dungeon->manufacture_progress < (k << 8))
         return true;
     // Try to do the manufacturing
-    struct Room* room = find_room_with_spare_room_item_capacity(plyr_idx, RoK_WORKSHOP);
+    struct Room* room = find_room_of_role_with_spare_room_item_capacity(plyr_idx, RoRoF_CratesStorage);
     if (room_is_invalid(room))
     {
         dungeon->manufacture_class = TCls_Empty;

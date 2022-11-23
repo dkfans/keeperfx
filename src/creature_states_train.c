@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "creature_states_train.h"
 #include "globals.h"
 
@@ -23,6 +24,7 @@
 
 #include "creature_states.h"
 #include "creature_states_combt.h"
+#include "creature_states_mood.h"
 #include "creature_instances.h"
 #include "thing_list.h"
 #include "creature_control.h"
@@ -41,6 +43,7 @@
 #include "ariadne_wallhug.h"
 #include "gui_soundmsgs.h"
 #include "game_legacy.h"
+#include "post_inc.h"
 
 /******************************************************************************/
 /** Returns if the creature meets conditions to be trained.
@@ -497,6 +500,7 @@ void process_creature_in_training_room(struct Thing *thing, struct Room *room)
         cctrl->training.search_timeout = 0;
         break;
     }
+    process_job_stress_and_going_postal(thing);
     SYNCDBG(18,"End");
 }
 
@@ -518,7 +522,7 @@ short at_training_room(struct Thing *thing)
         return 0;
     }
     struct Room* room = get_room_thing_is_on(thing);
-    if (!room_initially_valid_as_type_for_thing(room, get_room_for_job(Job_TRAIN), thing))
+    if (!room_initially_valid_as_type_for_thing(room, get_room_role_for_job(Job_TRAIN), thing))
     {
         WARNLOG("Room %s owned by player %d is invalid for %s",room_code_name(room->kind),(int)room->owner,thing_model_name(thing));
         set_start_state(thing);

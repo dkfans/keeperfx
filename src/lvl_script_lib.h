@@ -190,7 +190,11 @@ enum TbScriptCommands {
     Cmd_SET_DOOR                          = 148,
     Cmd_SET_CREATURE_INSTANCE             = 149,    
     Cmd_TRANSFER_CREATURE                 = 150,
-    Cmd_MOVE_PLAYER_CAMERA_TO             = 151
+    Cmd_SET_HAND_RULE                     = 151,
+    Cmd_MOVE_CREATURE                     = 152,
+    Cmd_COUNT_CREATURES_AT_ACTION_POINT   = 153,
+    Cmd_IF_ALLIED                         = 154,
+    Cmd_MOVE_PLAYER_CAMERA_TO             = 155,
 };
 
 struct ScriptLine {
@@ -282,6 +286,7 @@ enum ScriptVariables {
   SVar_TOTAL_SCORE                     = 75,
   SVar_BONUS_TIME                      = 76,
   SVar_CREATURES_TRANSFERRED           = 77,
+  SVar_ALLIED_PLAYER                   = 78,
  };
 
 
@@ -295,9 +300,10 @@ enum ScriptVariables {
 struct Thing* script_get_creature_by_criteria(PlayerNumber plyr_idx, long crmodel, long criteria);
 long parse_creature_name(const char *creature_name);
 struct ScriptValue *allocate_script_value(void);
-struct Thing *script_process_new_object(long crmodel, TbMapLocation location, long arg);
+struct Thing *script_process_new_object(long crmodel, TbMapLocation location, long arg, unsigned long plr_range_id);
 void command_init_value(struct ScriptValue* value, unsigned long var_index, unsigned long plr_range_id);
 void command_add_value(unsigned long var_index, unsigned long plr_range_id, long val2, long val3, long val4);
+void set_variable(int player_idx, long var_type, long var_idx, long new_val);
 #define get_players_range(plr_range_id, plr_start, plr_end) get_players_range_f(plr_range_id, plr_start, plr_end, __func__, text_line_number)
 long get_players_range_f(long plr_range_id, int *plr_start, int *plr_end, const char *func_name, long ln_num);
 TbBool parse_set_varib(const char *varib_name, long *varib_id, long *varib_type);
@@ -340,7 +346,7 @@ TbBool get_player_id_f(const char *plrname, long *plr_range_id, const char *func
 #define PROCESS_SCRIPT_VALUE(cmd) \
     if ((get_script_current_condition() == CONDITION_ALWAYS) && (next_command_reusable == 0)) \
     { \
-        script_process_value(cmd, 0, 0, 0, 0, value); \
+        script_process_value(cmd, value->plyr_range, 0, 0, 0, value); \
     }
 
 

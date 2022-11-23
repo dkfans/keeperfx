@@ -30,10 +30,10 @@ ifneq (,$(wildcard tools/peresec/src/peresec.c))
 
 # If we have source code of this tool, compile it
 $(EXETODLL): tools/peresec/src/peresec.c
-	make -C tools/peresec
+	$(MAKE) -C tools/peresec
 
 clean-peresec:
-	make -C tools/peresec clean
+	$(MAKE) -C tools/peresec clean
 
 else ifneq (,$(findstring .tar.gz,$(PERESEC_PACKAGE)))
 

@@ -37,6 +37,12 @@
  0001:00004EA0       heapmgr_free_handle
  0001:00004F70       heapmgr_complete_defrag
  0001:00005380       light_render_area
+ 0001:00005F80       light_render_light
+ 0001:000062E0       light_render_light_dynamic_1
+ 0001:00006770       light_render_light_sub2
+ 0001:00006C70       light_render_light_sub3
+ 0001:000070B0       light_render_light_sub1_sub1
+ 0001:00007530       light_render_light_sub1_sub2
  0001:00005730       light_signal_update_in_area
  0001:000057B0       light_create_light
  0001:00005970       light_delete_light
@@ -473,6 +479,7 @@
  0001:0004FEA0       get_thing_blocked_flags_at
  0001:00050060       slide_thing_against_wall_at
  0001:00050430       bounce_thing_off_wall_at
+ 0001:00050700       get_slide_z_coord
  0001:00050870       S3DInit
  0001:00050910       S3DSetMaximumSoundDistance
  0001:00050970       S3DCreateSoundEmitterPri
@@ -2123,3 +2130,5 @@
  0006:00001030       scale_up
  0006:00001034       xsteps_array
  0006:00001834       ysteps_array
+ 0001:00079DD0       line_of_room_move_2d
+ 0003:00011540       splittypes

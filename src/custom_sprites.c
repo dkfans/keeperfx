@@ -16,8 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-
-
+#include "pre_inc.h"
 #include "custom_sprites.h"
 #include "creature_graphics.h"
 #include "front_simple.h"
@@ -27,10 +26,12 @@
 #include "gui_draw.h"
 #include "frontend.h"
 #include "bflib_dernc.h"
+#include "sprites.h"
 
 #include <spng.h>
 #include <json.h>
 #include <json-dom.h>
+#include "post_inc.h"
 
 // Each part of RGB tuple of palette file is 1-63 actually
 #define MAX_COLOR_VALUE 64
@@ -38,10 +39,7 @@
 static short next_free_sprite = 0;
 static short next_free_icon = 0;
 
-struct TbSprite gui_panel_sprites[GUI_PANEL_SPRITES_COUNT + GUI_PANEL_SPRITES_NEW];
-struct TbSprite *end_gui_panel_sprites = &gui_panel_sprites[GUI_PANEL_SPRITES_COUNT];
-
-
+struct TbSprite gui_panel_sprites[NEW_GUI_PANEL_SPRITES_COUNT];
 struct NamedCommand *anim_names = NULL;
 
 short iso_td_add[KEEPERSPRITE_ADD_NUM];
@@ -93,6 +91,9 @@ static int num_added_sprite = 0;
 static int num_added_icons = 0;
 int num_icons_total = GUI_PANEL_SPRITES_COUNT;
 unsigned char base_pal[PALETTE_SIZE];
+
+static unsigned char big_scratch_data[1024*1024*16] = {0};
+unsigned char *big_scratch = big_scratch_data;
 
 static void init_pal_conversion();
 
@@ -184,9 +185,13 @@ void init_custom_sprites(LevelNumber lvnum)
     {
         lvnum = gameadd.last_level;
     }
-    else
+    else if (lvnum > 0)
     {
         gameadd.last_level = lvnum;
+    }
+    else
+    {
+        ERRORLOG("Invalid level number %d for loading custom sprites", lvnum);
     }
     // Clear sprite data
     for (int i = 0; i < KEEPERSPRITE_ADD_NUM; i++)
@@ -630,7 +635,7 @@ static int read_png_icon(unzFile zip, const char *path, const char *subpath, int
         return 0;
     }
 
-    unsigned char *dst_buf = scratch;
+    unsigned char *dst_buf = big_scratch;
     spng_decode_image(ctx, dst_buf, out_size, fmt, SPNG_DECODE_TRNS);
 
     if (sprite.SWidth >= 255 || sprite.SHeight >= 255)
@@ -661,6 +666,8 @@ static int read_png_icon(unzFile zip, const char *path, const char *subpath, int
     return 1;
 }
 
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "bugprone-branch-clone"
 static int read_png_data(unzFile zip, const char *path, struct SpriteContext *context, const char *subpath,
                          int fp, VALUE *def, VALUE *itm)
 {
@@ -710,8 +717,13 @@ static int read_png_data(unzFile zip, const char *path, struct SpriteContext *co
         return 0;
     }
 
-    unsigned char *dst_buf = scratch;
-    spng_decode_image(ctx, dst_buf, out_size, fmt, SPNG_DECODE_TRNS);
+    unsigned char *dst_buf = big_scratch;
+    if (spng_decode_image(ctx, dst_buf, out_size, fmt, SPNG_DECODE_TRNS))
+    {
+        ERRORLOG("Unable to decode %s/%s", path, subpath);
+        spng_ctx_free(ctx);
+        return 0;
+    }
 
     // This should be enough except rare cases like transparent checkerboard
     int dst_w = (int) context->sprite.SWidth;
@@ -753,79 +765,41 @@ static int read_png_data(unzFile zip, const char *path, struct SpriteContext *co
     // That is this actually?
     ksprite->SWidth = dst_w;
     ksprite->SHeight = dst_h;
-    ksprite->FrameWidth = dst_w;
-    ksprite->FrameHeight = dst_h;
     ksprite->Rotable = context->rotatable ? 2 : 0;
     ksprite->FramesCount = 1;
 
     VALUE *val;
-    val = value_dict_get(itm, "offset_w");
-    if (value_type(val) != VALUE_NULL)
-    {
-        ksprite->FrameOffsW = value_uint32(val);
-    }
-    else if (val = value_dict_get(def, fp ? "fp_offset_w" : "td_offset_w"),
-            value_type(val) != VALUE_NULL
-            )
-    {
-        ksprite->FrameOffsW = value_uint32(val);
-    }
-    else
-    {
-        ksprite->FrameOffsW = 0;
+
+#define READ_WITH_DEFAULT(dst, field, fp_def, td_def, def_val, fn) \
+    val = value_dict_get(itm, field); \
+    if (value_type(val) != VALUE_NULL) \
+    { \
+        ksprite-> dst = fn(val); \
+    } \
+    else if (val = value_dict_get(def, fp ? fp_def : td_def), \
+            value_type(val) != VALUE_NULL \
+            ) \
+    {                                                              \
+        ksprite-> dst = fn(val); \
+    } \
+    else \
+    { \
+        ksprite-> dst = def_val; \
     }
 
-    val = value_dict_get(itm, "offset_h");
-    if (value_type(val) != VALUE_NULL)
-    {
-        ksprite->FrameOffsH = value_uint32(val);
-    }
-    else if (val = value_dict_get(def, fp ? "fp_offset_h" : "td_offset_h"),
-            value_type(val) != VALUE_NULL
-            )
-    {
-        ksprite->FrameOffsH = value_uint32(val);
-    }
-    else
-    {
-        ksprite->FrameOffsH = 0;
-    }
+    READ_WITH_DEFAULT(FrameWidth, "frame_w", "fp_frame_w", "td_frame_w", dst_w, value_uint32)
+    READ_WITH_DEFAULT(FrameHeight, "frame_h", "fp_frame_h", "td_frame_h", dst_h, value_uint32)
+    READ_WITH_DEFAULT(FrameOffsW, "offset_w", "fp_offset_w", "td_offset_w", 0, value_uint32)
+    READ_WITH_DEFAULT(FrameOffsH, "offset_h", "fp_offset_h", "td_offset_h", 0, value_uint32)
+    READ_WITH_DEFAULT(offset_x, "offset_x", "fp_offset_x", "td_offset_x", -dst_w / 2, -value_int32)
+    READ_WITH_DEFAULT(offset_y, "offset_y", "fp_offset_y", "td_offset_y", 1 - dst_h, -value_int32)
 
-    val = value_dict_get(itm, "offset_x");
-    if (value_type(val) != VALUE_NULL)
-    {
-        ksprite->field_C = -value_int32(val);
-    }
-    else if (val = value_dict_get(def, fp ? "fp_offset_x" : "td_offset_x"),
-            value_type(val) != VALUE_NULL
-            )
-    {
-        ksprite->field_C = -value_int32(val);
-    }
-    else
-    {
-        ksprite->field_C = -dst_w / 2;
-    }
-
-    val = value_dict_get(itm, "offset_y");
-    if (value_type(val) != VALUE_NULL)
-    {
-        ksprite->field_E = -value_int32(val);
-    }
-    else if (val = value_dict_get(def, fp ? "fp_offset_y" : "td_offset_y"),
-            value_type(val) != VALUE_NULL
-            )
-    {
-        ksprite->field_E = -value_int32(val);
-    }
-    else
-    {
-        ksprite->field_E = 1 - dst_h;
-    }
+#undef READ_WITH_DEFAULT
 
     spng_ctx_free(ctx);
     return 1;
 }
+#pragma clang diagnostic pop
 
 static void convert_row(unsigned char *dst_buf, uint32_t *src_buf, int len)
 {
@@ -997,13 +971,14 @@ collect_sprites(const char *path, unzFile zip, const char *blender_scene, struct
         {
             ud_lst = value_dict_get(node, "td");
             prev_sz = value_array_size(value_array_get(ud_lst, 0));
+            // first good loaded sprite will be loaded at this pointers (topdown in this case)
             context->id_ptr = &context->td_id;
             context->id_sz_ptr = &context->td_sz;
         }
         else
         {
             ud_lst = value_dict_get(node, "fp");
-            context->id_ptr = &context->fp_id;
+            context->id_ptr = &context->fp_id; // First person case
             context->id_sz_ptr = &context->fp_sz;
         }
         for (int lr = 0; lr < (context->rotatable ? 5 : 1); lr++) // If sprite is rotatable
@@ -1023,7 +998,11 @@ collect_sprites(const char *path, unzFile zip, const char *blender_scene, struct
             {
                 VALUE *itm = value_array_get(lr_list, frame);
                 const char *name = value_string(value_dict_get(itm, "file"));
-
+                if (name == NULL)
+                {
+                    WARNLOG("Invalid sprite file record in '%s/sprites.json'", path);
+                    return 1;
+                }
                 if (unzLocateFile(zip, name, 0))
                 {
                     WARNLOG("Png '%s' not found in '%s'", name, path);
@@ -1031,9 +1010,29 @@ collect_sprites(const char *path, unzFile zip, const char *blender_scene, struct
                 }
                 if (UNZ_OK != unzOpenCurrentFile(zip))
                 {
+                    WARNLOG("Unable to open '%s/%s'", path, name);
                     return 1;
                 }
-                read_png_data(zip, path, context, name, fp, node, itm);
+                short store_p = *context->id_ptr;
+                short store_sz = *context->id_sz_ptr;
+                struct KeeperSprite *store_ksp = context->ksp_first;
+                unsigned char store_ksp_fc = 0;
+                if (store_ksp)
+                    store_ksp_fc = context->ksp_first->FramesCount;
+
+                if (!read_png_data(zip, path, context, name, fp, node, itm))
+                {
+                    // Reverting possible changes
+                    *context->id_ptr = store_p;
+                    *context->id_sz_ptr = store_sz;
+                    context->ksp_first = store_ksp;
+                    if (store_ksp)
+                        context->ksp_first->FramesCount = store_ksp_fc;
+
+                    unzCloseCurrentFile(zip);
+                    WARNLOG("Unable to read '%s/%s'", path, name);
+                    return 1;
+                }
                 if (UNZ_OK != unzCloseCurrentFile(zip))
                 {
                     return 1;
@@ -1052,8 +1051,15 @@ collect_sprites(const char *path, unzFile zip, const char *blender_scene, struct
 
     if (prev_sz != value_array_size(value_array_get(ud_lst, 0)))
     {
-        ERRORLOG("Should have same amount of TD and FP frames");
+        ERRORLOG("%s/sprite.json should have same amount of TD and FP frames", path);
+        return 1;
     }
+    if (context->fp_sz != context->td_sz)
+    {
+        ERRORLOG("%s/sprite.json should have same amount of TD and FP frames (2)", path);
+        return 1;
+    }
+    // Installing frames into arrays ()
     for (int i = context->td_sz - 1; i >= 0; i--)
     {
         short fp_id = context->fp_id + i;
@@ -1153,13 +1159,13 @@ add_custom_json(const char *path, const char *name, TbBool (*process)(const char
         return 0;
     }
 
-    if (unzReadCurrentFile(zip, scratch, zip_info.uncompressed_size) != zip_info.uncompressed_size)
+    if (unzReadCurrentFile(zip, big_scratch, zip_info.uncompressed_size) != zip_info.uncompressed_size)
     {
         WARNLOG("Unable to read %s/%s", path, name);
         unzClose(zip);
         return 0;
     }
-    scratch[zip_info.uncompressed_size] = 0;
+    big_scratch[zip_info.uncompressed_size] = 0;
 
     if (UNZ_OK != unzCloseCurrentFile(zip))
     {
@@ -1167,7 +1173,7 @@ add_custom_json(const char *path, const char *name, TbBool (*process)(const char
         return 0;
     }
 
-    int ret = json_dom_parse((char *) scratch, zip_info.uncompressed_size, NULL, 0, &root, &json_input_pos);
+    int ret = json_dom_parse((char *) big_scratch, zip_info.uncompressed_size, NULL, 0, &root, &json_input_pos);
     if (ret)
     {
 

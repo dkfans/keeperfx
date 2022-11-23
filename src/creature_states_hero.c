@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "creature_states_hero.h"
 #include "globals.h"
 
@@ -47,6 +48,7 @@
 #include "gui_topmsg.h"
 #include "game_legacy.h"
 #include "map_locations.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -113,33 +115,39 @@ long good_find_best_enemy_dungeon(struct Thing* creatng)
         {
             if (creature_can_get_to_dungeon(creatng, plyr_idx))
             {
+                if (player_is_friendly_or_defeated(plyr_idx, creatng->owner)) {
+                    continue;
+                }
                 return plyr_idx;
             }
         }
- 
-        dungeon = get_players_dungeon(player);
-        long score;
-        if (player_exists(player) && !dungeon_invalid(dungeon) && (creatng->owner != plyr_idx))
+        else
         {
-            score = dungeon->total_score;
-            if (score <= 0)
+
+            dungeon = get_players_dungeon(player);
+            long score;
+            if (player_exists(player) && !dungeon_invalid(dungeon) && (creatng->owner != plyr_idx))
             {
-                score = 0;
-            }
-            if (has_available_enemy_dungeon_heart(creatng, plyr_idx))
-            {
-                if (best_score < score)
+                score = dungeon->total_score;
+                if (score <= 0)
                 {
-                    best_score = score;
-                    best_plyr_idx = plyr_idx;
+                    score = 0;
                 }
-            }
-            else if ((has_available_rooms_to_attack(creatng, plyr_idx)) && best_plyr_idx == -1)
-            {
-                if (best_backup_score < score)
+                if (has_available_enemy_dungeon_heart(creatng, plyr_idx))
                 {
-                    best_backup_score = score;
-                    backup_plyr_idx = plyr_idx;
+                    if (best_score < score)
+                    {
+                        best_score = score;
+                        best_plyr_idx = plyr_idx;
+                    }
+                }
+                else if ((has_available_rooms_to_attack(creatng, plyr_idx)) && best_plyr_idx == -1)
+                {
+                    if (best_backup_score < score)
+                    {
+                        best_backup_score = score;
+                        backup_plyr_idx = plyr_idx;
+                    }
                 }
             }
         }
@@ -167,7 +175,7 @@ long check_out_hero_has_money_for_treasure_room(struct Thing* thing)
         return 0;
     }
     // Find a treasure room to drop the money
-    room = find_nearest_room_for_thing_with_spare_capacity(thing, thing->owner, RoK_TREASURE, NavRtF_Default, 1);
+    room = find_nearest_room_of_role_for_thing_with_spare_capacity(thing, thing->owner, RoRoF_GoldStorage, NavRtF_Default, 1);
     if (room_is_invalid(room))
     {
         return 0;
@@ -186,7 +194,7 @@ TbBool good_setup_wander_to_exit(struct Thing *creatng)
     if (creature_is_dragging_spellbook(creatng))
     {
         struct Coord3d pos;
-        struct Room* dstroom = find_nearest_room_for_thing_with_spare_capacity(creatng, creatng->owner, RoK_LIBRARY, NavRtF_Default, 1);
+        struct Room* dstroom = find_nearest_room_of_role_for_thing_with_spare_capacity(creatng, creatng->owner, RoRoF_PowersStorage, NavRtF_Default, 1);
         if (!(room_is_invalid(dstroom)) && find_random_valid_position_for_thing_in_room_avoiding_object(creatng, dstroom, &pos))
         {
             SYNCLOG("Can't find a library for hero %s index %d to place stolen spellbook", thing_model_name(creatng), (int)creatng->index);
@@ -199,7 +207,7 @@ TbBool good_setup_wander_to_exit(struct Thing *creatng)
                 }
                 else 
                 {
-                    if (creature_drop_thing_to_another_room(creatng, dstroom, RoK_LIBRARY))
+                    if (creature_drop_thing_to_another_room(creatng, dstroom, RoRoF_PowersStorage))
                     {
                         return true;
                     }
@@ -215,7 +223,7 @@ TbBool good_setup_wander_to_exit(struct Thing *creatng)
         }
         else
         {
-            if (creature_drop_thing_to_another_room(creatng, dstroom, RoK_LIBRARY))
+            if (creature_drop_thing_to_another_room(creatng, dstroom, RoRoF_PowersStorage))
             {
                 return true;
             }
@@ -297,7 +305,7 @@ TbBool good_setup_defend_rooms(struct Thing* creatng)
 
 TbBool good_setup_loot_treasure_room(struct Thing *thing, long dngn_id)
 {
-    struct Room* room = find_random_room_with_used_capacity_creature_can_navigate_to(thing, dngn_id, RoK_TREASURE, NavRtF_Default);
+    struct Room* room = find_random_room_of_role_with_used_capacity_creature_can_navigate_to(thing, dngn_id, RoRoF_GoldStorage, NavRtF_Default);
     if (room_is_invalid(room))
     {
         SYNCDBG(6,"No accessible player %d treasure room found",(int)dngn_id);
@@ -323,7 +331,7 @@ TbBool good_setup_loot_treasure_room(struct Thing *thing, long dngn_id)
 
 TbBool good_setup_loot_research_room(struct Thing *thing, long dngn_id)
 {
-    struct Room* room = find_random_room_with_used_capacity_creature_can_navigate_to(thing, dngn_id, RoK_LIBRARY, NavRtF_Default);
+    struct Room* room = find_random_room_of_role_with_used_capacity_creature_can_navigate_to(thing, dngn_id, RoRoF_PowersStorage, NavRtF_Default);
     if (room_is_invalid(room))
     {
         SYNCDBG(6,"No accessible player %d library found",(int)dngn_id);
@@ -1346,7 +1354,7 @@ long creature_tunnel_to(struct Thing *creatng, struct Coord3d *pos, short speed)
     MapCoordDelta dist = get_2d_distance(&creatng->mappos, &cctrl->navi.pos_next);
     if (dist <= 16)
     {
-        creature_turn_to_face_angle(creatng, cctrl->navi.field_D);
+        creature_turn_to_face_angle(creatng, cctrl->navi.angle);
         creature_set_speed(creatng, 0);
         return 0;
     }
