@@ -30,7 +30,6 @@
 #include "thing_traps.h"
 #include "thing_stats.h"
 #include "thing_shots.h"
-#include "thing_navigate.h"
 #include "creature_control.h"
 #include "creature_states.h"
 #include "config_creature.h"
@@ -771,22 +770,22 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
     }
     MapSlabCoord ahead_slb_x = slb_x;
     MapSlabCoord ahead_slb_y = slb_y;
-    if ( (creatng->move_angle_xy >= ANGLE_NORTHWEST) || (creatng->move_angle_xy < ANGLE_NORTHEAST) )
+    if ( (creatng->move_angle_xy >= 1792) || (creatng->move_angle_xy <= 255) )
     {
         ahead_stl_y--;
         ahead_slb_y--;
     }
-    else if ( (creatng->move_angle_xy >= ANGLE_SOUTHEAST) && (creatng->move_angle_xy <= ANGLE_SOUTHWEST) )
+    else if ( (creatng->move_angle_xy >= 768) && (creatng->move_angle_xy <= 1280) )
     {
         ahead_stl_y++;
         ahead_slb_y++;
     }
-    else if ( (creatng->move_angle_xy >= ANGLE_SOUTHWEST) && (creatng->move_angle_xy <= ANGLE_NORTHWEST) )
+    else if ( (creatng->move_angle_xy >= 1280) && (creatng->move_angle_xy <= 1792) )
     {
         ahead_stl_x--;
         ahead_slb_x--;
     }
-    else if ( (creatng->move_angle_xy >= ANGLE_NORTHEAST) && (creatng->move_angle_xy <= ANGLE_SOUTHEAST) )
+    else if ( (creatng->move_angle_xy >= 256) && (creatng->move_angle_xy <= 768) )
     {
         ahead_stl_x++;
         ahead_slb_x++;
@@ -867,47 +866,20 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
     {
         if (slabmap_owner(slb) == creatng->owner)
         {
-            TbBool reinforce = true;
             MapSlabCoord ahead_sslb_x = subtile_slab_fast(ahead_stl_x);
             MapSlabCoord ahead_sslb_y = subtile_slab_fast(ahead_stl_y);
-            if (!check_place_to_reinforce(creatng, ahead_sslb_x, ahead_sslb_y))
+            if ( check_place_to_reinforce(creatng, ahead_sslb_x, ahead_sslb_y) )
             {
-                struct ShotConfigStats* shotst = get_shot_model_stats(ShM_Dig);
-                unsigned char subtiles = 0;
-                do
+                struct SlabMap* ahead_sslb = get_slabmap_block(ahead_sslb_x, ahead_sslb_y);
+                if ((ahead_sslb->kind >= SlbT_EARTH) && (ahead_sslb->kind <= SlbT_TORCHDIRT))
                 {
-                    subtiles++;
-                    if (subtiles > (shotst->health - 1))
+                    if (slab_by_players_land(creatng->owner, ahead_sslb_x, ahead_sslb_y))
                     {
-                        reinforce = false;
-                        break;
-                    }
-                    if ( (creatng->move_angle_xy >= ANGLE_NORTHWEST) || (creatng->move_angle_xy < ANGLE_NORTHEAST) )
-                    {
-                        ahead_stl_y--;
-                    }
-                    else if ( (creatng->move_angle_xy >= ANGLE_SOUTHEAST) && (creatng->move_angle_xy <= ANGLE_SOUTHWEST) )
-                    {
-                        ahead_stl_y++;
-                    }
-                    else if ( (creatng->move_angle_xy >= ANGLE_SOUTHWEST) && (creatng->move_angle_xy <= ANGLE_NORTHWEST) )
-                    {
-                        ahead_stl_x--;
-                    }
-                    else if ( (creatng->move_angle_xy >= ANGLE_NORTHEAST) && (creatng->move_angle_xy <= ANGLE_SOUTHEAST) )
-                    {
-                        ahead_stl_x++;
-                    }
-                    ahead_sslb_x = subtile_slab_fast(ahead_stl_x);
-                    ahead_sslb_y = subtile_slab_fast(ahead_stl_y);
+                        cctrl->digger.working_stl = get_subtile_number(ahead_stl_x, ahead_stl_y);
+                        instf_reinforce(creatng, NULL);
+                        return 1;
+                    } 
                 }
-                while (!check_place_to_reinforce(creatng, ahead_sslb_x, ahead_sslb_y));
-            }
-            if (reinforce)
-            {
-                cctrl->digger.working_stl = get_subtile_number(ahead_stl_x, ahead_stl_y);
-                instf_reinforce(creatng, NULL);
-                return 1;
             }
         }
         dig = false;
