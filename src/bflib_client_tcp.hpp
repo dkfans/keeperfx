@@ -29,7 +29,7 @@ class TCP_NetClient : public TCP_NetBase
 
 	SDL_Thread * recvThread;
 
-	static void recvThreadFunc(TCP_NetClient * cli);
+	static int recvThreadFunc(void *);
 	void haltRecvThread();
 public:
 	TCP_NetClient(const char hostname[], ushort port);
