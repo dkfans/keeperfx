@@ -29,6 +29,7 @@
 #include "map_data.h"
 #include "map_utils.h"
 #include "thing_data.h"
+#include "thing_doors.h"
 #include "thing_physics.h"
 #include "thing_navigate.h"
 #include "engine_camera.h"
@@ -358,25 +359,6 @@ void set_hugging_pos_using_blocked_flags(struct Coord3d *dstpos, struct Thing *c
     dstpos->x.val = tmpos.x.val;
     dstpos->y.val = tmpos.y.val;
     dstpos->z.val = tmpos.z.val;
-}
-
-int door_will_open_for_thing(struct Thing *doortng, struct Thing *creatng)
-{
-  if ( !doortng->door.is_locked && thing_is_creature(creatng) )
-  {
-    struct PlayerInfo* door_owner = get_player(doortng->owner);
-    struct PlayerInfo* creature_owner = get_player(creatng->owner);
-    if ( (doortng->owner == creatng->owner || doortng->owner != game.neutral_player_num)
-          && creatng->owner != game.neutral_player_num
-          && (door_owner->allied_players & (1 << creatng->owner)) != 0
-          && creatng->owner != game.neutral_player_num
-          && doortng->owner != game.neutral_player_num
-          && (creature_owner->allied_players & (1 << doortng->owner)) != 0 )
-    {
-      return 1;
-    }
-  }
-  return 0;
 }
 
 static long get_map_index_of_first_block_thing_colliding_with_at(struct Thing *creatng, struct Coord3d *pos, long a3, unsigned char crt_owner_bit)
