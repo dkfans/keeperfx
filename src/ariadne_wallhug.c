@@ -784,7 +784,7 @@ static SubtlCodedCoords get_map_index_of_first_block_thing_colliding_with_travel
 {
     __int32 stl_num;
     struct Coord3d pos;
-    int stl_num_2 = 0;
+    int return_stl_num = 0;
 
     struct Coord3d creature_pos = *startpos;
 
@@ -795,7 +795,7 @@ static SubtlCodedCoords get_map_index_of_first_block_thing_colliding_with_travel
     MapCoord v27_y = creatng->mappos.y.val;
     struct Coord3d orig_creat_pos = creatng->mappos;
 
-    if (endpos->x.stl.pos == creature_pos.x.stl.pos || endpos->y.stl.pos == creature_pos.y.stl.pos)
+    if (endpos->x.stl.num == creature_pos.x.stl.num || endpos->y.stl.num == creature_pos.y.stl.num)
     {
         stl_num = get_map_index_of_first_block_thing_colliding_with_at(creatng, endpos, mapblk_flags, slabmap_flags);
         if (stl_num < 0)
@@ -838,8 +838,10 @@ static SubtlCodedCoords get_map_index_of_first_block_thing_colliding_with_travel
         stl_num = get_map_index_of_first_block_thing_colliding_with_at(creatng, endpos, mapblk_flags, slabmap_flags);
         if (stl_num < 0)
             goto LABEL_29;
+
+
     LABEL_28:
-        stl_num_2 = stl_num;
+        return_stl_num = stl_num;
         goto LABEL_29;
     }
     if (endpos->x.val <= (unsigned int)creature_pos.x.val)
@@ -872,14 +874,14 @@ LABEL_29:
 
     SubtlCodedCoords old = _DK_get_map_index_of_first_block_thing_colliding_with_travelling_to(creatng, startpos, endpos, mapblk_flags, slabmap_flags);
 
-    if (old == stl_num_2)
+    if (old == return_stl_num)
         ERRORLOG("same result %d", old);
     else
     {
-        ERRORLOG("different result %d / %d", old, stl_num_2);
+        ERRORLOG("different result %d / %d", old, return_stl_num);
     }
 
-    return stl_num_2;
+    return return_stl_num;
 }
 
 TbBool navigation_push_towards_target(struct Navigation *navi, struct Thing *creatng, const struct Coord3d *pos, MoveSpeed speed, MoveSpeed nav_radius, unsigned char crt_owner_bit)
