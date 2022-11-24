@@ -58,11 +58,6 @@ DLLIMPORT int _DK_get_starting_angle_and_side_of_hug_sub2(
     int speed,
     int a6);
 
-DLLIMPORT int _DK_get_starting_angle_and_side_of_hug_sub1(
-    struct Thing *creatng,
-    struct Coord3d *pos,
-    __int32 a3,
-    unsigned __int8 a4);
 
 DLLIMPORT signed char _DK_get_starting_angle_and_side_of_hug(
                         struct Thing *creatng,
@@ -71,23 +66,6 @@ DLLIMPORT signed char _DK_get_starting_angle_and_side_of_hug(
                         unsigned char *side,
                         long a5,
                         unsigned char a6);
-
-static int get_starting_angle_and_side_of_hug_sub2(
-    struct Thing *creatng,
-    struct Navigation *navi,
-    struct Coord3d *arg_pos,
-    int a2,
-    int arg_move_angle_xy,
-    char arg14,
-    int a5,
-    int speed,
-    int a6);
-
-static int get_starting_angle_and_side_of_hug_sub1(
-    struct Thing *creatng,
-    struct Coord3d *pos,
-    __int32 a3,
-    unsigned __int8 a4);
 
 /******************************************************************************/
 static TbBool check_forward_for_prospective_hugs(struct Thing *creatng, struct Coord3d *pos_a, long angle, long side, long a3, long speed, unsigned char a4);
@@ -699,8 +677,6 @@ static int get_starting_angle_and_side_of_hug_sub2(
     int speed,
     int a6)
 {
-    //return _DK_get_starting_angle_and_side_of_hug_sub2(creatng,navi,arg_pos,a2,arg_move_angle_xy,arg14,a5,speed,a6);
-
     __int16 nav_radius;
     int v16;
     __int16 v17;
