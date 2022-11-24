@@ -1011,7 +1011,7 @@ static int get_starting_angle_and_side_of_hug_sub1(
     return hugging_blocked_flags;
 }
 
-static signed char new_get_starting_angle_and_side_of_hug(
+static signed char get_starting_angle_and_side_of_hug(
     struct Thing *creatng,
     struct Coord3d *pos,
     long *angle,
@@ -1270,36 +1270,6 @@ LABEL_40:
         *side = v35;
     }
     return result;
-}
-
-
-
-
-static signed char get_starting_angle_and_side_of_hug(
-    struct Thing *creatng,
-    struct Coord3d *pos,
-    long *angle,
-    unsigned char *side,
-    long a5,
-    unsigned char crt_owner_bit)
-{
-    unsigned char Old_side = *side;
-    long Old_angle = *angle;
-
-
-    signed char ret_new = new_get_starting_angle_and_side_of_hug(creatng,pos,angle,side,a5,crt_owner_bit);
-    signed char ret_old = _DK_get_starting_angle_and_side_of_hug(creatng,pos,&Old_angle,&Old_side,a5,crt_owner_bit);
-
-    JUSTLOG("get_starting_angle_and_side_of_hug");
-    if (*side != Old_side)
-        JUSTLOG("side not same: %d %d ",side,angle);
-    if (*angle != Old_angle)
-        JUSTLOG("angle not same: %d %d ",Old_angle,angle);
-    if (ret_new != ret_old)
-        JUSTLOG("return not same: %d %d ",ret_old,ret_new);
-
-    return ret_new;
-
 }
 
 static TbBool check_forward_for_prospective_hugs(struct Thing *creatng, struct Coord3d *pos_a, long angle, long side, long a3, long speed, unsigned char crt_owner_bit)
