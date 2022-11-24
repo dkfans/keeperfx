@@ -47,14 +47,6 @@ extern "C" {
 DLLIMPORT short _DK_hug_round(struct Thing *creatng, struct Coord3d *pos1, struct Coord3d *pos2, unsigned short a4, long *a5);
 DLLIMPORT long _DK_get_map_index_of_first_block_thing_colliding_with_travelling_to(struct Thing *creatng, struct Coord3d *startpos, struct Coord3d *endpos, long a4, unsigned char a5);
 
-DLLIMPORT signed char _DK_get_starting_angle_and_side_of_hug(
-                        struct Thing *creatng,
-                        struct Coord3d *pos,
-                        long *angle,
-                        unsigned char *side,
-                        long a5,
-                        unsigned char crt_owner_bit);
-
 /******************************************************************************/
 static TbBool check_forward_for_prospective_hugs(struct Thing *creatng, struct Coord3d *pos_a, long angle, long side, long a3, long speed, unsigned char crt_owner_bit);
 static int small_around_index_in_direction(long srcpos_x, long srcpos_y, long dstpos_x, long dstpos_y);
@@ -92,6 +84,10 @@ struct Around const start_at_around[] = {
     {-1,  1}, { 0, -1}, { 0,  1},
     { 1, -1}, { 1,  0}, { 1,  1},
 };
+
+const uint8_t byte_5111FA[] = { 1,0,4,2,0,0,2,0,4,1,0,0,0,0 };
+const uint8_t byte_51120A[] = { 2,0,2,1,0,6,1,0,2,2,0,0,0,0 };
+const uint8_t byte_51121A[22] = { 2,0,0,1,0,2,1,0,0,2,0,6,1,0,4,2,0,2,2,0,4,1 };
 
 /******************************************************************************/
 /**
@@ -650,9 +646,7 @@ static TbBool thing_can_continue_direct_line_to(struct Thing *creatng, struct Co
         && creature_cannot_move_directly_to_with_collide(creatng, &posa, a4, crt_owner_bit) != 4;
 }
 
-const uint8_t byte_5111FA[] = { 1,0,4,2,0,0,2,0,4,1,0,0,0,0 };
-const uint8_t byte_51120A[] = { 2,0,2,1,0,6,1,0,2,2,0,0,0,0 };
-const uint8_t byte_51121A[22] = { 2,0,0,1,0,2,1,0,0,2,0,6,1,0,4,2,0,2,2,0,4,1 };
+
 
 static int get_starting_angle_and_side_of_hug_sub2(
     struct Thing *creatng,
