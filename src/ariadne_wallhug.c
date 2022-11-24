@@ -64,6 +64,30 @@ DLLIMPORT int _DK_get_starting_angle_and_side_of_hug_sub1(
     __int32 a3,
     unsigned __int8 a4);
 
+DLLIMPORT signed char _DK_get_starting_angle_and_side_of_hug(
+                        struct Thing *creatng,
+                        struct Coord3d *pos,
+                        long *angle,
+                        unsigned char *side,
+                        long a5,
+                        unsigned char a6);
+
+static int get_starting_angle_and_side_of_hug_sub2(
+    struct Thing *creatng,
+    struct Navigation *navi,
+    struct Coord3d *arg_pos,
+    int a2,
+    int arg_move_angle_xy,
+    char arg14,
+    int a5,
+    int speed,
+    int a6);
+
+static int get_starting_angle_and_side_of_hug_sub1(
+    struct Thing *creatng,
+    struct Coord3d *pos,
+    __int32 a3,
+    unsigned __int8 a4);
 
 /******************************************************************************/
 static TbBool check_forward_for_prospective_hugs(struct Thing *creatng, struct Coord3d *pos_a, long angle, long side, long a3, long speed, unsigned char a4);
@@ -675,8 +699,6 @@ static int get_starting_angle_and_side_of_hug_sub2(
     int speed,
     int a6)
 {
-
-
     //return _DK_get_starting_angle_and_side_of_hug_sub2(creatng,navi,arg_pos,a2,arg_move_angle_xy,arg14,a5,speed,a6);
 
     __int16 nav_radius;
@@ -722,14 +744,14 @@ static int get_starting_angle_and_side_of_hug_sub2(
     {
         if (arg_pos->x.val >= creatng->mappos.x.val)
         {
-            pos.x.stl.pos = creatng->mappos.x.stl.pos;
-            pos.x.stl.num = -1;
+            pos.x.stl.num = creatng->mappos.x.stl.num;
+            pos.x.stl.pos = -1;
             pos.x.val -= nav_radius;
         }
         else
         {
-            pos.x.stl.pos = (unsigned __int16)(creatng->mappos.x.val - nav_radius) >> 8;
-            pos.x.stl.num = 1;
+            pos.x.stl.num = (unsigned __int16)(creatng->mappos.x.val - nav_radius) >> 8;
+            pos.x.stl.pos = 1;
             pos.x.val += nav_radius;
         }
         pos.z.val = get_thing_height_at(creatng, &pos);
@@ -738,14 +760,14 @@ static int get_starting_angle_and_side_of_hug_sub2(
     {
         if (arg_pos->y.val >= creatng->mappos.y.val)
         {
-            pos.y.stl.pos = (unsigned __int16)(nav_radius + creatng->mappos.y.val) >> 8;
-            pos.y.stl.num = -1;
+            pos.y.stl.num = (unsigned __int16)(nav_radius + creatng->mappos.y.val) >> 8;
+            pos.y.stl.pos = -1;
             pos.y.val -= nav_radius;
         }
         else
         {
-            pos.y.stl.pos = (unsigned __int16)(creatng->mappos.y.val - nav_radius) >> 8;
-            pos.y.stl.num = 1;
+            pos.y.stl.num = (unsigned __int16)(creatng->mappos.y.val - nav_radius) >> 8;
+            pos.y.stl.pos = 1;
             pos.y.val += nav_radius;
         }
         pos.z.val = get_thing_height_at(creatng, &pos);
@@ -754,26 +776,26 @@ static int get_starting_angle_and_side_of_hug_sub2(
     {
         if (arg_pos->x.val >= creatng->mappos.x.val)
         {
-            pos.x.stl.pos = creatng->mappos.x.stl.pos;
-            pos.x.stl.num = -1;
+            pos.x.stl.num = creatng->mappos.x.stl.num;
+            pos.x.stl.pos = -1;
             pos.x.val -= nav_radius;
         }
         else
         {
-            pos.x.stl.pos = creatng->mappos.x.stl.pos;
-            pos.x.stl.num = 1;
+            pos.x.stl.num = creatng->mappos.x.stl.num;
+            pos.x.stl.pos = 1;
             pos.x.val += nav_radius;
         }
         if (arg_pos->y.val >= creatng->mappos.y.val)
         {
-            pos.y.stl.pos = (nav_radius + creatng->mappos.y.val) >> 8;
-            pos.y.stl.num = -1;
+            pos.y.stl.num = (nav_radius + creatng->mappos.y.val) >> 8;
+            pos.y.stl.pos = -1;
             pos.y.val -= nav_radius;
         }
         else
         {
-            pos.y.stl.pos = (creatng->mappos.y.val - nav_radius) >> 8;
-            pos.y.stl.num = 1;
+            pos.y.stl.num = (creatng->mappos.y.val - nav_radius) >> 8;
+            pos.y.stl.pos = 1;
             pos.y.val += nav_radius;
         }
         pos.z.val = get_thing_height_at(creatng, &pos);
@@ -847,14 +869,14 @@ static int get_starting_angle_and_side_of_hug_sub2(
                 {
                     if (v47.x.val >= creatng->mappos.x.val)
                     {
-                        pos.x.stl.pos = (unsigned __int16)(nav_radius + creatng->mappos.x.val) >> 8;
-                        pos.x.stl.num = -1;
+                        pos.x.stl.num = (unsigned __int16)(nav_radius + creatng->mappos.x.val) >> 8;
+                        pos.x.stl.pos = -1;
                         pos.x.val -= nav_radius;
                     }
                     else
                     {
-                        pos.x.stl.pos = (unsigned __int16)(creatng->mappos.x.val - nav_radius) >> 8;
-                        pos.x.stl.num = 1;
+                        pos.x.stl.num = (unsigned __int16)(creatng->mappos.x.val - nav_radius) >> 8;
+                        pos.x.stl.pos = 1;
                         pos.x.val += nav_radius;
                     }
                     pos.z.val = get_thing_height_at(creatng, &pos);
@@ -863,14 +885,14 @@ static int get_starting_angle_and_side_of_hug_sub2(
                 {
                     if (v47.y.val >= creatng->mappos.y.val)
                     {
-                        pos.y.stl.pos = (unsigned __int16)(nav_radius + creatng->mappos.y.val) >> 8;
-                        pos.y.stl.num = -1;
+                        pos.y.stl.num = (unsigned __int16)(nav_radius + creatng->mappos.y.val) >> 8;
+                        pos.y.stl.pos = -1;
                         pos.y.val -= nav_radius;
                     }
                     else
                     {
-                        pos.y.stl.pos = (unsigned __int16)(creatng->mappos.y.val - nav_radius) >> 8;
-                        pos.y.stl.num = 1;
+                        pos.y.stl.num = (unsigned __int16)(creatng->mappos.y.val - nav_radius) >> 8;
+                        pos.y.stl.pos = 1;
                         pos.y.val += nav_radius;
                     }
                     pos.z.val = get_thing_height_at(creatng, &pos);
@@ -879,26 +901,26 @@ static int get_starting_angle_and_side_of_hug_sub2(
                 {
                     if (v47.x.val >= creatng->mappos.x.val)
                     {
-                        pos.x.stl.pos = (unsigned __int16)(nav_radius + creatng->mappos.x.val) >> 8;
-                        pos.x.stl.num = -1;
+                        pos.x.stl.num = (unsigned __int16)(nav_radius + creatng->mappos.x.val) >> 8;
+                        pos.x.stl.pos = -1;
                         pos.x.val -= nav_radius;
                     }
                     else
                     {
-                        pos.x.stl.pos = (unsigned __int16)(creatng->mappos.x.val - nav_radius) >> 8;
-                        pos.x.stl.num = 1;
+                        pos.x.stl.num = (unsigned __int16)(creatng->mappos.x.val - nav_radius) >> 8;
+                        pos.x.stl.pos = 1;
                         pos.x.val += nav_radius;
                     }
                     if (v47.y.val >= (unsigned int)creatng->mappos.y.val)
                     {
-                        pos.y.stl.pos = (unsigned __int16)(nav_radius + creatng->mappos.y.val) >> 8;
-                        pos.y.stl.num = -1;
+                        pos.y.stl.num = (unsigned __int16)(nav_radius + creatng->mappos.y.val) >> 8;
+                        pos.y.stl.pos = -1;
                         pos.y.val -= nav_radius;
                     }
                     else
                     {
-                        pos.y.stl.pos = (unsigned __int16)(creatng->mappos.y.val - nav_radius) >> 8;
-                        pos.y.stl.num = 1;
+                        pos.y.stl.num = (unsigned __int16)(creatng->mappos.y.val - nav_radius) >> 8;
+                        pos.y.stl.pos = 1;
                         pos.y.val += nav_radius;
                     }
                     pos.z.val = get_thing_height_at(creatng, &pos);
@@ -963,7 +985,7 @@ static int get_starting_angle_and_side_of_hug_sub1(
     __int32 a3,
     unsigned __int8 a4)
 {
-    return _DK_get_starting_angle_and_side_of_hug_sub1(creatng,pos,a3,a4);
+    //return _DK_get_starting_angle_and_side_of_hug_sub1(creatng,pos,a3,a4);
 
 
     
@@ -979,14 +1001,14 @@ static int get_starting_angle_and_side_of_hug_sub1(
     {
         if (pos->x.val >= creatng->mappos.x.val)
         {
-            v13.x.stl.pos = (unsigned __int16)(nav_radius + creatng->mappos.x.val) >> 8;
-            v13.x.stl.num = -1;
+            v13.x.stl.num = (unsigned __int16)(nav_radius + creatng->mappos.x.val) >> 8;
+            v13.x.stl.pos = -1;
             v13.x.val -= nav_radius;
         }
         else
         {
-            v13.x.stl.pos = (unsigned __int16)(creatng->mappos.x.val - nav_radius) >> 8;
-            v13.x.stl.num = 1;
+            v13.x.stl.num = (unsigned __int16)(creatng->mappos.x.val - nav_radius) >> 8;
+            v13.x.stl.pos = 1;
             v13.x.val += nav_radius;
         }
         v13.z.val = get_thing_height_at(creatng, &v13);
@@ -995,14 +1017,14 @@ static int get_starting_angle_and_side_of_hug_sub1(
     {
         if (pos->y.val >= creatng->mappos.y.val)
         {
-            v13.y.stl.pos = (unsigned __int16)(nav_radius + creatng->mappos.y.val) >> 8;
-            v13.y.stl.num = -1;
+            v13.y.stl.num = (unsigned __int16)(nav_radius + creatng->mappos.y.val) >> 8;
+            v13.y.stl.pos = -1;
             v13.y.val -= nav_radius;
         }
         else
         {
-            v13.y.stl.pos = (unsigned __int16)(creatng->mappos.y.val - nav_radius) >> 8;
-            v13.y.stl.num = 1;
+            v13.y.stl.num = (unsigned __int16)(creatng->mappos.y.val - nav_radius) >> 8;
+            v13.y.stl.pos = 1;
             v13.y.val += nav_radius;
         }
         v13.z.val = get_thing_height_at(creatng, &v13);
@@ -1011,26 +1033,26 @@ static int get_starting_angle_and_side_of_hug_sub1(
     {
         if (pos->x.val >= creatng->mappos.x.val)
         {
-            v13.x.stl.pos = (unsigned __int16)(nav_radius + creatng->mappos.x.val) >> 8;
-            v13.x.stl.num = -1;
+            v13.x.stl.num = (unsigned __int16)(nav_radius + creatng->mappos.x.val) >> 8;
+            v13.x.stl.pos = -1;
             v13.x.val -= nav_radius;
         }
         else
         {
-            v13.x.stl.pos = (unsigned __int16)(creatng->mappos.x.val - nav_radius) >> 8;
-            v13.x.stl.num = 1;
+            v13.x.stl.num = (unsigned __int16)(creatng->mappos.x.val - nav_radius) >> 8;
+            v13.x.stl.pos = 1;
             v13.x.val += nav_radius;
         }
         if (pos->y.val >= creatng->mappos.y.val)
         {
-            v13.y.stl.pos = (unsigned __int16)(nav_radius + creatng->mappos.y.val) >> 8;
-            v13.y.stl.num = -1;
+            v13.y.stl.num = (unsigned __int16)(nav_radius + creatng->mappos.y.val) >> 8;
+            v13.y.stl.pos = -1;
             v13.y.val -= nav_radius;
         }
         else
         {
-            v13.y.stl.pos = (unsigned __int16)(creatng->mappos.y.val - nav_radius) >> 8;
-            v13.y.stl.num = 1;
+            v13.y.stl.num = (unsigned __int16)(creatng->mappos.y.val - nav_radius) >> 8;
+            v13.y.stl.pos = 1;
             v13.y.val += nav_radius;
         }
         v13.z.val = get_thing_height_at(creatng, &v13);
@@ -1091,12 +1113,12 @@ static signed char new_get_starting_angle_and_side_of_hug(
     struct Navigation *navi = &cctrl->navi;
     const short max_speed = cctrl->max_speed;
 
-    pos_43.x.stl.num = creatng->mappos.y.val - (uint16_t)pos->y.val <= 0;
+    pos_43.x.stl.pos = creatng->mappos.y.val - (uint16_t)pos->y.val <= 0;
     v38 = (uint16_t)creatng->mappos.x.val - (uint16_t)pos->x.val <= 0;
     v9 = creatng->mappos.y.val - navi->pos_final.y.val;
     v49[0] = v9 <= 0;
     v10 = (uint16_t)creatng->mappos.x.val - navi->pos_final.x.val;
-    pos_46.x.stl.num = v10 <= 0;
+    pos_46.x.stl.pos = v10 <= 0;
     v44_2 = (int)abs(v10) < (int)abs(v9);
     hugging_blocked_flags = get_hugging_blocked_flags(creatng, pos, a5, a6);
     if ((hugging_blocked_flags & 1) != 0)
@@ -1111,11 +1133,11 @@ static signed char new_get_starting_angle_and_side_of_hug(
     }
     else if ((hugging_blocked_flags & 2) != 0)
     {
-        v16 = 2 * (uint8_t)pos_43.x.stl.num;
-        v17 = v16 + (unsigned __int8)pos_46.x.stl.num;
+        v16 = 2 * (uint8_t)pos_43.x.stl.pos;
+        v17 = v16 + (unsigned __int8)pos_46.x.stl.pos;
         angle_39 = blocked_y_hug_start[0][v17].angle;
         v34 = byte_51120A[3 * v17];
-        v18 = v16 + (pos_46.x.stl.num == 0);
+        v18 = v16 + (pos_46.x.stl.pos == 0);
         angle_37 = blocked_y_hug_start[0][v18].angle;
         v15 = byte_51120A[3 * v18];
     }
@@ -1126,7 +1148,7 @@ static signed char new_get_starting_angle_and_side_of_hug(
             ERRORLOG("Illegal block direction for lookahead");
             return 0;
         }
-        v19 = 2 * (v38 + 2 * (uint8_t)pos_43.x.stl.num);
+        v19 = 2 * (v38 + 2 * (uint8_t)pos_43.x.stl.pos);
         v20 = v19 + v44_2;
         angle_39 = blocked_xy_hug_start[0][0][v20].angle;
         v34 = byte_51121A[3 * v20];
@@ -1301,13 +1323,7 @@ LABEL_40:
 }
 
 
-DLLIMPORT signed char _DK_get_starting_angle_and_side_of_hug(
-                        struct Thing *creatng,
-                        struct Coord3d *pos,
-                        long *angle,
-                        unsigned char *side,
-                        long a5,
-                        unsigned char a6);
+
 
 static signed char get_starting_angle_and_side_of_hug(
     struct Thing *creatng,
@@ -1352,8 +1368,8 @@ static TbBool check_forward_for_prospective_hugs(struct Thing *creatng, struct C
             if ((int)((pos_a->y.val - nav_radius) & 0xFFFFFF00) < (int)((creatng->mappos.y.val - nav_radius) & 0xFFFFFF00))
             {
                 pos.x.val = pos_a->x.val;
-                pos.y.stl.pos = (nav_radius + creatng->mappos.y.val - 256) / COORD_PER_STL;
-                pos.y.stl.num = -1;
+                pos.y.stl.num = (nav_radius + creatng->mappos.y.val - 256) / COORD_PER_STL;
+                pos.y.stl.pos = -1;
                 pos.y.val -= nav_radius;
                 pos.z.val = get_thing_height_at(creatng, &pos);
                 break;
@@ -1363,8 +1379,8 @@ static TbBool check_forward_for_prospective_hugs(struct Thing *creatng, struct C
             if ((int)((nav_radius + pos_a->x.val) & 0xFFFFFF00) > (int)((nav_radius + creatng->mappos.x.val) & 0xFFFFFF00))
             {
                 pos.y.val = pos_a->y.val;
-                pos.x.stl.pos = (creatng->mappos.x.val - nav_radius + 256) / COORD_PER_STL;
-                pos.x.stl.num = 0;
+                pos.x.stl.num = (creatng->mappos.x.val - nav_radius + 256) / COORD_PER_STL;
+                pos.x.stl.pos = 0;
                 pos.x.val += nav_radius;
                 pos.z.val = get_thing_height_at(creatng, &pos);
                 break;
@@ -1374,8 +1390,8 @@ static TbBool check_forward_for_prospective_hugs(struct Thing *creatng, struct C
             if ((int)((nav_radius + pos_a->y.val) & 0xFFFFFF00) > (int)((nav_radius + creatng->mappos.y.val) & 0xFFFFFF00))
             {
                 pos.x.val = pos_a->x.val;
-                pos.y.stl.pos = (creatng->mappos.y.val - nav_radius + 256) / COORD_PER_STL;
-                pos.y.stl.num = 0;
+                pos.y.stl.num = (creatng->mappos.y.val - nav_radius + 256) / COORD_PER_STL;
+                pos.y.stl.pos = 0;
                 pos.y.val += nav_radius;
                 pos.z.val = get_thing_height_at(creatng, &pos);
                 break;
@@ -1385,8 +1401,8 @@ static TbBool check_forward_for_prospective_hugs(struct Thing *creatng, struct C
             if ((int)((pos_a->x.val - nav_radius) & 0xFFFFFF00) < (int)((creatng->mappos.x.val - nav_radius) & 0xFFFFFF00))
             {
                 pos.y.val = pos_a->y.val;
-                pos.x.stl.pos = (uint16_t)(nav_radius + creatng->mappos.x.val - 256) / COORD_PER_STL;
-                pos.x.stl.num = -1;
+                pos.x.stl.num = (uint16_t)(nav_radius + creatng->mappos.x.val - 256) / COORD_PER_STL;
+                pos.x.stl.pos = -1;
                 pos.x.val -= nav_radius;
                 pos.z.val = get_thing_height_at(creatng, &pos);
                 break;
