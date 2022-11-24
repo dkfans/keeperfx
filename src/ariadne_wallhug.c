@@ -665,24 +665,9 @@ static int get_starting_angle_and_side_of_hug_sub2(
     int speed,
     int crt_owner_bit)
 {
-    int v16;
-    short v17;
-    short v18;
-    short v19;
-    short v20;
-    __int32 v21;
-    __int32 v25;
-    char v27;
-    short v33;
-    __int32 v38;
-    __int32 _2d_distance_squared;
-    int v40;
-    char v43;
+
     struct Coord3d pos;
     struct Coord3d v47;
-    int hugging_blocked_flags;
-    int angle_of_wall_hug;
-    int v51;
     struct Coord3d pos_52;
     struct Navigation temp_navi;
 
@@ -696,7 +681,7 @@ static int get_starting_angle_and_side_of_hug_sub2(
     navi->side = side;
     navi->dist_to_final_pos = get_2d_distance_squared(&creatng->mappos, &navi->pos_final);
     int v49 = 0;
-    hugging_blocked_flags = get_hugging_blocked_flags(creatng, arg_pos, a2, crt_owner_bit);
+    int hugging_blocked_flags = get_hugging_blocked_flags(creatng, arg_pos, a2, crt_owner_bit);
     MapCoordDelta nav_radius = thing_nav_sizexy(creatng) / 2;
     pos.x.val = creatng->mappos.x.val;
     pos.y.val = creatng->mappos.y.val;
@@ -760,7 +745,7 @@ static int get_starting_angle_and_side_of_hug_sub2(
         }
         pos.z.val = get_thing_height_at(creatng, &pos);
     }
-    v16 = hugging_blocked_flags;
+    int v16 = hugging_blocked_flags;
     *arg_pos = pos;
     if (v16 == 4)
     {
@@ -779,7 +764,22 @@ static int get_starting_angle_and_side_of_hug_sub2(
     {
         creatng->mappos = pos;
     }
-    v51 = 0;
+    int v51 = 0;
+
+    short v17;
+    short v18;
+    short v19;
+    short v20;
+    long v21;
+    long v25;
+    char v27;
+    short v33;
+    long v38;
+    long _2d_distance_squared;
+    int v40;
+    char v43;
+    int angle_of_wall_hug;
+
     navi->angle = arg_move_angle_xy;
     while (1)
     {
@@ -943,77 +943,77 @@ LABEL_70:
 static int get_starting_angle_and_side_of_hug_sub1(
     struct Thing *creatng,
     struct Coord3d *pos,
-    __int32 a3,
+    long a3,
     unsigned __int8 crt_owner_bit)
 {
     
-    struct Coord3d v13;            // [esp+10h] [ebp-8h] BYREF
+    struct Coord3d pos_2;
 
     int hugging_blocked_flags = get_hugging_blocked_flags(creatng, pos, a3, crt_owner_bit);
     MapCoordDelta nav_radius = thing_nav_sizexy(creatng) / 2;
-    v13.x.val = creatng->mappos.x.val;
-    v13.y.val = creatng->mappos.y.val;
+    pos_2.x.val = creatng->mappos.x.val;
+    pos_2.y.val = creatng->mappos.y.val;
     if ((hugging_blocked_flags & 1) != 0)
     {
         if (pos->x.val >= creatng->mappos.x.val)
         {
-            v13.x.stl.num = (unsigned short)(nav_radius + creatng->mappos.x.val) >> 8;
-            v13.x.stl.pos = -1;
-            v13.x.val -= nav_radius;
+            pos_2.x.stl.num = (unsigned short)(nav_radius + creatng->mappos.x.val) >> 8;
+            pos_2.x.stl.pos = -1;
+            pos_2.x.val -= nav_radius;
         }
         else
         {
-            v13.x.stl.num = (unsigned short)(creatng->mappos.x.val - nav_radius) >> 8;
-            v13.x.stl.pos = 1;
-            v13.x.val += nav_radius;
+            pos_2.x.stl.num = (unsigned short)(creatng->mappos.x.val - nav_radius) >> 8;
+            pos_2.x.stl.pos = 1;
+            pos_2.x.val += nav_radius;
         }
-        v13.z.val = get_thing_height_at(creatng, &v13);
+        pos_2.z.val = get_thing_height_at(creatng, &pos_2);
     }
     if ((hugging_blocked_flags & 2) != 0)
     {
         if (pos->y.val >= creatng->mappos.y.val)
         {
-            v13.y.stl.num = (unsigned short)(nav_radius + creatng->mappos.y.val) >> 8;
-            v13.y.stl.pos = -1;
-            v13.y.val -= nav_radius;
+            pos_2.y.stl.num = (unsigned short)(nav_radius + creatng->mappos.y.val) >> 8;
+            pos_2.y.stl.pos = -1;
+            pos_2.y.val -= nav_radius;
         }
         else
         {
-            v13.y.stl.num = (unsigned short)(creatng->mappos.y.val - nav_radius) >> 8;
-            v13.y.stl.pos = 1;
-            v13.y.val += nav_radius;
+            pos_2.y.stl.num = (unsigned short)(creatng->mappos.y.val - nav_radius) >> 8;
+            pos_2.y.stl.pos = 1;
+            pos_2.y.val += nav_radius;
         }
-        v13.z.val = get_thing_height_at(creatng, &v13);
+        pos_2.z.val = get_thing_height_at(creatng, &pos_2);
     }
     if ((hugging_blocked_flags & 4) != 0)
     {
         if (pos->x.val >= creatng->mappos.x.val)
         {
-            v13.x.stl.num = (unsigned short)(nav_radius + creatng->mappos.x.val) >> 8;
-            v13.x.stl.pos = -1;
-            v13.x.val -= nav_radius;
+            pos_2.x.stl.num = (unsigned short)(nav_radius + creatng->mappos.x.val) >> 8;
+            pos_2.x.stl.pos = -1;
+            pos_2.x.val -= nav_radius;
         }
         else
         {
-            v13.x.stl.num = (unsigned short)(creatng->mappos.x.val - nav_radius) >> 8;
-            v13.x.stl.pos = 1;
-            v13.x.val += nav_radius;
+            pos_2.x.stl.num = (unsigned short)(creatng->mappos.x.val - nav_radius) >> 8;
+            pos_2.x.stl.pos = 1;
+            pos_2.x.val += nav_radius;
         }
         if (pos->y.val >= creatng->mappos.y.val)
         {
-            v13.y.stl.num = (unsigned short)(nav_radius + creatng->mappos.y.val) >> 8;
-            v13.y.stl.pos = -1;
-            v13.y.val -= nav_radius;
+            pos_2.y.stl.num = (unsigned short)(nav_radius + creatng->mappos.y.val) >> 8;
+            pos_2.y.stl.pos = -1;
+            pos_2.y.val -= nav_radius;
         }
         else
         {
-            v13.y.stl.num = (unsigned short)(creatng->mappos.y.val - nav_radius) >> 8;
-            v13.y.stl.pos = 1;
-            v13.y.val += nav_radius;
+            pos_2.y.stl.num = (unsigned short)(creatng->mappos.y.val - nav_radius) >> 8;
+            pos_2.y.stl.pos = 1;
+            pos_2.y.val += nav_radius;
         }
-        v13.z.val = get_thing_height_at(creatng, &v13);
+        pos_2.z.val = get_thing_height_at(creatng, &pos_2);
     }
-    *pos = v13;
+    *pos = pos_2;
     return hugging_blocked_flags;
 }
 
