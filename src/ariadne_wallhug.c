@@ -50,7 +50,7 @@ DLLIMPORT long _DK_get_map_index_of_first_block_thing_colliding_with_travelling_
 /******************************************************************************/
 static TbBool check_forward_for_prospective_hugs(struct Thing *creatng, struct Coord3d *pos_a, long angle, long side, long a3, long speed, unsigned char crt_owner_bit);
 static int small_around_index_in_direction(long srcpos_x, long srcpos_y, long dstpos_x, long dstpos_y);
-static long get_angle_of_wall_hug(struct Thing *creatng, long a2, long a3, unsigned char crt_owner_bit);
+static long get_angle_of_wall_hug(struct Thing *creatng, long slab_flag, long a3, unsigned char crt_owner_bit);
 static void set_hugging_pos_using_blocked_flags(struct Coord3d *dstpos, struct Thing *creatng, unsigned short block_flags, int nav_radius);
 static TbBool navigation_push_towards_target(struct Navigation *navi, struct Thing *creatng, const struct Coord3d *pos, MoveSpeed speed, MoveSpeed nav_radius, unsigned char crt_owner_bit);
 static TbBool find_approach_position_to_subtile(const struct Coord3d *srcpos, MapSubtlCoord stl_x, MapSubtlCoord stl_y, MoveSpeed spacing, struct Coord3d *aproachpos);
@@ -151,7 +151,7 @@ static TbBool hug_can_move_on(struct Thing *creatng, MapSubtlCoord stl_x, MapSub
     return false;
 }
 
-static TbBool wallhug_angle_with_collide_valid(struct Thing *thing, long a2, long speed, long angle, unsigned char crt_owner_bit)
+static TbBool wallhug_angle_with_collide_valid(struct Thing *thing, long slab_flag, long speed, long angle, unsigned char crt_owner_bit)
 {
     struct Coord3d pos;
     pos.x.val = thing->mappos.x.val + distance_with_angle_to_coord_x(speed, angle);
@@ -160,7 +160,7 @@ static TbBool wallhug_angle_with_collide_valid(struct Thing *thing, long a2, lon
     return (creature_cannot_move_directly_to_with_collide(thing, &pos, a2, crt_owner_bit) != 4);
 }
 
-static long get_angle_of_wall_hug(struct Thing *creatng, long a2, long speed, unsigned char crt_owner_bit)
+static long get_angle_of_wall_hug(struct Thing *creatng, long slab_flag, long speed, unsigned char crt_owner_bit)
 {
     struct Navigation *navi;
     {
@@ -174,37 +174,37 @@ static long get_angle_of_wall_hug(struct Thing *creatng, long a2, long speed, un
     case 1:
         quadr = angle_to_quadrant(creatng->move_angle_xy);
         whangle = (LbFPMath_PI/2) * ((quadr - 1) & 3);
-        if (wallhug_angle_with_collide_valid(creatng, a2, speed, whangle, crt_owner_bit))
+        if (wallhug_angle_with_collide_valid(creatng, slab_flag, speed, whangle, crt_owner_bit))
           return whangle;
         quadr = angle_to_quadrant(creatng->move_angle_xy);
         whangle = (LbFPMath_PI/2) * (quadr & 3);
-        if (wallhug_angle_with_collide_valid(creatng, a2, speed, whangle, crt_owner_bit))
+        if (wallhug_angle_with_collide_valid(creatng, slab_flag, speed, whangle, crt_owner_bit))
           return whangle;
         quadr = angle_to_quadrant(creatng->move_angle_xy);
         whangle = (LbFPMath_PI/2) * ((quadr + 1) & 3);
-        if (wallhug_angle_with_collide_valid(creatng, a2, speed, whangle, crt_owner_bit))
+        if (wallhug_angle_with_collide_valid(creatng, slab_flag, speed, whangle, crt_owner_bit))
           return whangle;
         quadr = angle_to_quadrant(creatng->move_angle_xy);
         whangle = (LbFPMath_PI/2) * ((quadr + 2) & 3);
-        if (wallhug_angle_with_collide_valid(creatng, a2, speed, whangle, crt_owner_bit))
+        if (wallhug_angle_with_collide_valid(creatng, slab_flag, speed, whangle, crt_owner_bit))
           return whangle;
         break;
     case 2:
         quadr = angle_to_quadrant(creatng->move_angle_xy);
         whangle = (LbFPMath_PI/2) * ((quadr + 1) & 3);
-        if (wallhug_angle_with_collide_valid(creatng, a2, speed, whangle, crt_owner_bit))
+        if (wallhug_angle_with_collide_valid(creatng, slab_flag, speed, whangle, crt_owner_bit))
           return whangle;
         quadr = angle_to_quadrant(creatng->move_angle_xy);
         whangle = (LbFPMath_PI/2) * (quadr & 3);
-        if (wallhug_angle_with_collide_valid(creatng, a2, speed, whangle, crt_owner_bit))
+        if (wallhug_angle_with_collide_valid(creatng, slab_flag, speed, whangle, crt_owner_bit))
           return whangle;
         quadr = angle_to_quadrant(creatng->move_angle_xy);
         whangle = (LbFPMath_PI/2) * ((quadr - 1) & 3);
-        if (wallhug_angle_with_collide_valid(creatng, a2, speed, whangle, crt_owner_bit))
+        if (wallhug_angle_with_collide_valid(creatng, slab_flag, speed, whangle, crt_owner_bit))
           return whangle;
         quadr = angle_to_quadrant(creatng->move_angle_xy);
         whangle = (LbFPMath_PI/2) * ((quadr + 2) & 3);
-        if (wallhug_angle_with_collide_valid(creatng, a2, speed, whangle, crt_owner_bit))
+        if (wallhug_angle_with_collide_valid(creatng, slab_flag, speed, whangle, crt_owner_bit))
           return whangle;
         break;
     }
