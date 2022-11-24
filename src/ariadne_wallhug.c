@@ -54,7 +54,7 @@ static long get_angle_of_wall_hug(struct Thing *creatng, long slab_flag, long a3
 static void set_hugging_pos_using_blocked_flags(struct Coord3d *dstpos, struct Thing *creatng, unsigned short block_flags, int nav_radius);
 static TbBool navigation_push_towards_target(struct Navigation *navi, struct Thing *creatng, const struct Coord3d *pos, MoveSpeed speed, MoveSpeed nav_radius, unsigned char crt_owner_bit);
 static TbBool find_approach_position_to_subtile(const struct Coord3d *srcpos, MapSubtlCoord stl_x, MapSubtlCoord stl_y, MoveSpeed spacing, struct Coord3d *aproachpos);
-static long creature_cannot_move_directly_to_with_collide(struct Thing *creatng, struct Coord3d *pos, long a3, unsigned char crt_owner_bit);
+static long creature_cannot_move_directly_to_with_collide(struct Thing *creatng, struct Coord3d *pos, long slab_flag, unsigned char crt_owner_bit);
 static unsigned short get_hugging_blocked_flags(struct Thing *creatng, struct Coord3d *pos, long slab_flag, unsigned char crt_owner_bit);
 
 struct Around const my_around_eight[] = {
@@ -157,7 +157,7 @@ static TbBool wallhug_angle_with_collide_valid(struct Thing *thing, long slab_fl
     pos.x.val = thing->mappos.x.val + distance_with_angle_to_coord_x(speed, angle);
     pos.y.val = thing->mappos.y.val + distance_with_angle_to_coord_y(speed, angle);
     pos.z.val = get_thing_height_at(thing, &pos);
-    return (creature_cannot_move_directly_to_with_collide(thing, &pos, a2, crt_owner_bit) != 4);
+    return (creature_cannot_move_directly_to_with_collide(thing, &pos, slab_flag, crt_owner_bit) != 4);
 }
 
 static long get_angle_of_wall_hug(struct Thing *creatng, long slab_flag, long speed, unsigned char crt_owner_bit)
