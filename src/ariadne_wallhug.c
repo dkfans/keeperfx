@@ -784,22 +784,16 @@ static SubtlCodedCoords get_map_index_of_first_block_thing_colliding_with_travel
 {
     __int32 stl_num;
     struct Coord3d pos;
-    struct Coord3d creature_pos;
     int stl_num_2 = 0;
-    short v27_x;
-    short v27_y;
-    int intv29;
-    int intv30;
-    struct Coord3d orig_creat_pos;
 
-    creature_pos = *startpos;
+    struct Coord3d creature_pos = *startpos;
 
-    intv30 = creature_pos.x.val - endpos->x.val;
-    intv29 = creature_pos.y.val - endpos->y.val;
+    MapCoordDelta delta_x = creature_pos.x.val - endpos->x.val;
+    MapCoordDelta delta_y = creature_pos.y.val - endpos->y.val;
 
-    v27_x = creatng->mappos.x.val;
-    v27_y = creatng->mappos.y.val;
-    orig_creat_pos = creatng->mappos;
+    MapCoord v27_x = creatng->mappos.x.val;
+    MapCoord v27_y = creatng->mappos.y.val;
+    struct Coord3d orig_creat_pos = creatng->mappos;
 
     if (endpos->x.stl.pos == creature_pos.x.stl.pos || endpos->y.stl.pos == creature_pos.y.stl.pos)
     {
@@ -817,7 +811,7 @@ static SubtlCodedCoords get_map_index_of_first_block_thing_colliding_with_travel
                 pos.y.val = (creature_pos.y.val & 0xFF00) - 1;
             else
                 pos.y.val = (creature_pos.y.val + 256) & 0xFF00;
-            pos.x.val = (int)(intv30 * abs((unsigned __int16)pos.y.val - v27_x)) / intv29 + v27_y;
+            pos.x.val = (int)(delta_x * abs((unsigned __int16)pos.y.val - v27_x)) / delta_y + v27_y;
             pos.z.val = creature_pos.z.val;
             stl_num = get_map_index_of_first_block_thing_colliding_with_at(creatng, &pos, mapblk_flags, slabmap_flags);
             if (stl_num >= 0)
@@ -825,7 +819,7 @@ static SubtlCodedCoords get_map_index_of_first_block_thing_colliding_with_travel
 
             creature_pos = creatng->mappos;
             pos.x.val = endpos->x.val <= (unsigned int)creature_pos.x.val ? (creature_pos.x.val & 0xFF00) - 1 : (creature_pos.x.val + 256) & 0xFF00;
-            pos.y.val = (int)(intv29 * abs((unsigned __int16)pos.x.val - v27_x) / intv30 + v27_y);
+            pos.y.val = (int)(delta_y * abs((unsigned __int16)pos.x.val - v27_x) / delta_x + v27_y);
             pos.z.val = creature_pos.z.val;
             stl_num = get_map_index_of_first_block_thing_colliding_with_at(creatng, &pos, mapblk_flags, slabmap_flags);
             if (stl_num >= 0)
@@ -852,14 +846,14 @@ static SubtlCodedCoords get_map_index_of_first_block_thing_colliding_with_travel
         pos.x.val = (creature_pos.x.val & 0xFF00) - 1;
     else
         pos.x.val = (creature_pos.x.val + 256) & 0xFF00;
-    pos.y.val = (int)(intv29 * abs((unsigned __int16)pos.x.val - v27_y)) / intv30 + v27_x;
+    pos.y.val = (int)(delta_y * abs((unsigned __int16)pos.x.val - v27_y)) / delta_x + v27_x;
     pos.z.val = creature_pos.z.val;
     stl_num = get_map_index_of_first_block_thing_colliding_with_at(creatng, &pos, mapblk_flags, slabmap_flags);
     if (stl_num >= 0)
         goto LABEL_28;
     creature_pos = creatng->mappos;
     pos.y.val = endpos->y.val <= (unsigned int)creature_pos.y.val ? (creature_pos.y.val & 0xFF00) - 1 : (creature_pos.y.val + 256) & 0xFF00;
-    pos.x.val = (int)(intv30 * abs((unsigned __int16)pos.y.val - v27_x) / intv29 + v27_y);
+    pos.x.val = (int)(delta_x * abs((unsigned __int16)pos.y.val - v27_x) / delta_y + v27_y);
     pos.z.val = creature_pos.z.val;
     stl_num = get_map_index_of_first_block_thing_colliding_with_at(creatng, &pos, mapblk_flags, slabmap_flags);
     if (stl_num >= 0)
