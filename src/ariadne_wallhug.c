@@ -165,7 +165,6 @@ static TbBool hug_can_move_on(struct Thing *creatng, MapSubtlCoord stl_x, MapSub
     return false;
 }
 
-
 TbBool wallhug_angle_with_collide_valid(struct Thing *thing, long a2, long speed, long angle, unsigned char crt_owner_bit)
 {
     struct Coord3d pos;
@@ -176,7 +175,6 @@ TbBool wallhug_angle_with_collide_valid(struct Thing *thing, long a2, long speed
 }
 
 static long get_angle_of_wall_hug(struct Thing *creatng, long a2, long speed, unsigned char crt_owner_bit)
-
 {
     struct Navigation *navi;
     {
@@ -190,7 +188,6 @@ static long get_angle_of_wall_hug(struct Thing *creatng, long a2, long speed, un
     case 1:
         quadr = angle_to_quadrant(creatng->move_angle_xy);
         whangle = (LbFPMath_PI/2) * ((quadr - 1) & 3);
-
         if (wallhug_angle_with_collide_valid(creatng, a2, speed, whangle, crt_owner_bit))
           return whangle;
         quadr = angle_to_quadrant(creatng->move_angle_xy);
@@ -204,7 +201,6 @@ static long get_angle_of_wall_hug(struct Thing *creatng, long a2, long speed, un
         quadr = angle_to_quadrant(creatng->move_angle_xy);
         whangle = (LbFPMath_PI/2) * ((quadr + 2) & 3);
         if (wallhug_angle_with_collide_valid(creatng, a2, speed, whangle, crt_owner_bit))
-
           return whangle;
         break;
     case 2:
@@ -223,7 +219,6 @@ static long get_angle_of_wall_hug(struct Thing *creatng, long a2, long speed, un
         quadr = angle_to_quadrant(creatng->move_angle_xy);
         whangle = (LbFPMath_PI/2) * ((quadr + 2) & 3);
         if (wallhug_angle_with_collide_valid(creatng, a2, speed, whangle, crt_owner_bit))
-
           return whangle;
         break;
     }
@@ -1341,8 +1336,6 @@ static signed char get_starting_angle_and_side_of_hug(
 
 }
 
-
-
 static TbBool check_forward_for_prospective_hugs(struct Thing *creatng, struct Coord3d *pos_a, long angle, long side, long a3, long speed, unsigned char crt_owner_bit)
 {
     int quadrant_angle;
@@ -1491,7 +1484,6 @@ static long get_map_index_of_first_block_thing_colliding_with_travelling_to(stru
 }
 
 static TbBool navigation_push_towards_target(struct Navigation *navi, struct Thing *creatng, const struct Coord3d *pos, MoveSpeed speed, MoveSpeed nav_radius, unsigned char crt_owner_bit)
-
 {
     navi->navstate = 2;
     navi->pos_next.x.val = creatng->mappos.x.val + distance_with_angle_to_coord_x(speed, navi->angle);
@@ -1501,9 +1493,7 @@ static TbBool navigation_push_towards_target(struct Navigation *navi, struct Thi
     pos1.x.val = navi->pos_next.x.val;
     pos1.y.val = navi->pos_next.y.val;
     pos1.z.val = navi->pos_next.z.val;
-
     check_forward_for_prospective_hugs(creatng, &pos1, navi->angle, navi->side, 33, speed, crt_owner_bit);
-
     if (get_2d_box_distance(&pos1, &creatng->mappos) > 16)
     {
         navi->pos_next.x.val = pos1.x.val;
@@ -1591,7 +1581,6 @@ long get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *cr
                 navi->field_19[0] = ownflag;
 
                 if (get_starting_angle_and_side_of_hug(creatng, &navi->pos_next, &navi->angle, &navi->side, 33, crt_owner_bit))
-
                 {
                     block_flags = get_hugging_blocked_flags(creatng, &navi->pos_next, 33, crt_owner_bit);
                     set_hugging_pos_using_blocked_flags(&navi->pos_next, creatng, block_flags, thing_nav_sizexy(creatng)/2);
@@ -1650,7 +1639,6 @@ long get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *cr
         if (dist_to_next > 16)
         {
             if ((dist_to_next > navi->distance_to_next_pos) || creature_cannot_move_directly_to_with_collide(creatng, &navi->pos_next, 33, crt_owner_bit))
-
             {
                 navi->navstate = 1;
                 navi->pos_final.x.val = pos->x.val;
@@ -1753,7 +1741,6 @@ long get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *cr
         }
         navi->distance_to_next_pos = get_2d_box_distance(&creatng->mappos, &navi->pos_next);
         cannot_move = creature_cannot_move_directly_to_with_collide(creatng, &navi->pos_next, 33, crt_owner_bit);
-
         if (cannot_move == 4)
         {
           ERRORLOG("I've been given a shite position");
