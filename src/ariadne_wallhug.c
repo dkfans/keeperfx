@@ -240,22 +240,22 @@ static short hug_round_new(struct Thing *creatng, struct Coord3d *pos1, struct C
     unsigned __int16 v54;
     unsigned __int16 i;
 
-    MapSubtlCoord pos2_stl_x = pos2->x.stl.pos;
-    MapSubtlCoord pos2_stl_y = pos2->y.stl.pos;
-    MapSubtlCoord pos1_stl_x = pos1->x.stl.pos;
-    MapSubtlCoord pos1_stl_y = pos1->y.stl.pos;
+    MapSubtlCoord pos2_stl_x = pos2->x.stl.num;
+    MapSubtlCoord pos2_stl_y = pos2->y.stl.num;
+    MapSubtlCoord pos1_stl_x = pos1->x.stl.num;
+    MapSubtlCoord pos1_stl_y = pos1->y.stl.num;
     round_idx_plus1_2 = (round_idx + 1) & 3;
-    MapSubtlCoord pos2_stl_y_2 = pos2->y.stl.pos;
-    MapSubtlCoord pos2_stl_x_2 = pos2->x.stl.pos;
-    signed int biggest_delta = abs(pos1->y.stl.pos - pos2_stl_y_2);
-    delta_x_1 = abs(pos1->x.stl.pos - pos2_stl_x_2);
+    MapSubtlCoord pos2_stl_y_2 = pos2->y.stl.num;
+    MapSubtlCoord pos2_stl_x_2 = pos2->x.stl.num;
+    signed int biggest_delta = abs(pos1->y.stl.num - pos2_stl_y_2);
+    delta_x_1 = abs(pos1->x.stl.num - pos2_stl_x_2);
     if (biggest_delta <= delta_x_1)
         biggest_delta = delta_x_1;
     TbBool bool1 = 0;
     biggest_delta_minus1 = biggest_delta - 1;
     bool2 = 0;
-    MapSubtlCoord pos1_stl_x_2 = pos1->x.stl.pos;
-    MapSubtlCoord pos1_stl_y_2 = pos1->y.stl.pos;
+    MapSubtlCoord pos1_stl_x_2 = pos1->x.stl.num;
+    MapSubtlCoord pos1_stl_y_2 = pos1->y.stl.num;
     round_idx_minus1_2 = (round_idx - 1) & 3;
 
     for (i = *hug_val; i; --i)
@@ -270,8 +270,8 @@ static short hug_round_new(struct Thing *creatng, struct Coord3d *pos1, struct C
         LABEL_21:
             if (bool1 == 1)
             {
-                pos1->y.stl.pos = pos1_stl_y;
-                pos1->x.stl.pos = pos1_stl_x;
+                pos1->y.stl.num = pos1_stl_y;
+                pos1->x.stl.num = pos1_stl_x;
                 result = 0;
                 *hug_val -= i;
                 return result;
@@ -372,8 +372,8 @@ static short hug_round_new(struct Thing *creatng, struct Coord3d *pos1, struct C
         LABEL_56:
             if (bool2 == 1)
             {
-                pos1->y.stl.pos = pos1_stl_y_2;
-                pos1->x.stl.pos = pos1_stl_x_2;
+                pos1->y.stl.num = pos1_stl_y_2;
+                pos1->x.stl.num = pos1_stl_x_2;
                 result = 0;
                 *hug_val -= i;
                 return result;
@@ -467,14 +467,14 @@ static short hug_round_new(struct Thing *creatng, struct Coord3d *pos1, struct C
     if ((unsigned __int16)(abs(pos1_stl_x_2 - pos2_stl_x_2) + abs(pos1_stl_y_2 - pos2_stl_y_2)) >= (unsigned __int16)(abs(pos1_stl_x - pos2_stl_x_2) + abs(pos1_stl_y - pos2_stl_y_2)))
     {
         v44 = pos1_stl_y;
-        pos1->x.stl.pos = pos1_stl_x;
+        pos1->x.stl.num = pos1_stl_x;
     }
     else
     {
         v44 = pos1_stl_y_2;
-        pos1->x.stl.pos = pos1_stl_x_2;
+        pos1->x.stl.num = pos1_stl_x_2;
     }
-    pos1->y.stl.pos = v44;
+    pos1->y.stl.num = v44;
     result = 0;
     *hug_val -= i;
     return result;
