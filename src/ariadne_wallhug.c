@@ -241,15 +241,14 @@ static short hug_round_new(struct Thing *creatng, struct Coord3d *pos1, struct C
     unsigned __int16 v36;              
     int around_idx4;
     struct Thing *doortng3;
-    int v41;
+    int slb_3_kind;
     int v42;                           
     __int16 result;                    
     unsigned __int8 v44;                
     char bool2;                        
     unsigned __int16 biggest_delta_minus1;  
     char round_idx_plus1_2;            
-    unsigned __int16 round_idx_minus1 =0; 
-    char round_idx_minus1_2;
+    unsigned __int16 round_idx_minus1 =0;
     unsigned __int16 v53;
     unsigned __int16 v54;
     unsigned __int16 i;
@@ -270,7 +269,7 @@ static short hug_round_new(struct Thing *creatng, struct Coord3d *pos1, struct C
     bool2 = 0;
     MapSubtlCoord pos1_stl_x_2 = pos1->x.stl.num;
     MapSubtlCoord pos1_stl_y_2 = pos1->y.stl.num;
-    round_idx_minus1_2 = (round_idx - 1) & 3;
+    char round_idx_minus1_2 = (round_idx - 1) & 3;
 
     for (i = *hug_val; i; --i)
     {
@@ -402,7 +401,7 @@ static short hug_round_new(struct Thing *creatng, struct Coord3d *pos1, struct C
                 doortng3 = get_door_for_position(stl_x_3, stl_y_3);
 
                 struct SlabMap *slb_3 = get_slabmap_for_subtile(stl_x_3, stl_y_3);
-                v41 = slb_3->kind;
+                slb_3_kind = slb_3->kind;
                 struct SlabAttr *slbattr_3 = get_slab_attrs(slb_3);
                 
                 if ((slbattr_3->block_flags & SlbAtFlg_IsDoor) != 0)
@@ -424,7 +423,7 @@ static short hug_round_new(struct Thing *creatng, struct Coord3d *pos1, struct C
                         continue;
                     }
                 }
-                else if (!slbattr_3->is_safe_land && (v41 != SlbT_LAVA || creature_stats_get_from_thing(creatng)->hurt_by_lava))
+                else if (!slbattr_3->is_safe_land && (slb_3_kind != SlbT_LAVA || creature_stats_get_from_thing(creatng)->hurt_by_lava))
                 {
                     v42 = 0;
                     goto LABEL_68;
@@ -510,7 +509,7 @@ static short hug_round(struct Thing *creatng, struct Coord3d *pos1, struct Coord
     old_pos2.y = pos2->y;
     old_pos2.z = pos2->z;
 
-    short old_return = hug_round_new(creatng, &old_pos1, &old_pos2, round_idx, &old_hug_val);
+    short old_return = _DK_hug_round(creatng, &old_pos1, &old_pos2, round_idx, &old_hug_val);
 
     short return_val = hug_round_new(creatng, pos1, pos2, round_idx, hug_val);
 
