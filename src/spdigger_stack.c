@@ -972,12 +972,14 @@ static long check_out_unreinforced_place(struct Thing *spdigtng)
 
     struct DiggerStack temp_digger_stack[DIGGER_TASK_MAX_COUNT];
 
+
     for ( int i = 0; dungeon->digger_stack_length > i; i++ )
     {
-        temp_digger_stack[i] = dungeon->digger_stack[i];
+        temp_digger_stack[i].stl_num = dungeon->digger_stack[i].stl_num;
+        temp_digger_stack[i].task_type = dungeon->digger_stack[i].task_type;
     }
 
-
+    unsigned long digstacklen = dungeon->digger_stack_length;
 
     unsigned char thing_continue               = spdigtng->continue_state                ;
     unsigned char thing_active                 = spdigtng->active_state                  ;
@@ -995,9 +997,12 @@ static long check_out_unreinforced_place(struct Thing *spdigtng)
 
     TbBool old = _DK_check_out_unreinforced_place(spdigtng);
 
+    dungeon->digger_stack_length = digstacklen;
+
     for ( int i = 0; dungeon->digger_stack_length > i; i++ )
     {
-        dungeon->digger_stack[i] = temp_digger_stack[i];
+        dungeon->digger_stack[i].stl_num = temp_digger_stack[i].stl_num;
+        dungeon->digger_stack[i].task_type = temp_digger_stack[i].task_type;
     }
 
     unsigned char _thing_continue               = spdigtng->continue_state                ;
@@ -1030,7 +1035,8 @@ static long check_out_unreinforced_place(struct Thing *spdigtng)
 
 
 
-    TbBool new = check_out_unreinforced_place_new(spdigtng);
+    //TbBool new = check_out_unreinforced_place_new(spdigtng);
+    TbBool new = _DK_check_out_unreinforced_place(spdigtng);
 
     if(spdigtng->continue_state                 != _thing_continue              ) JUSTLOG("thing_continue               %d %d",_thing_continue              ,spdigtng->continue_state                );
     if(spdigtng->active_state                   != _thing_active                ) JUSTLOG("thing_active                 %d %d",_thing_active                ,spdigtng->active_state                  );
