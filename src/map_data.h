@@ -40,6 +40,7 @@ enum MapCoordClipFlags {
 struct Map {
       unsigned char flags;
       unsigned long data;
+      unsigned long mapwho;
 };
 
 #define INVALID_MAP_BLOCK (&bad_map_block)

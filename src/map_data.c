@@ -157,20 +157,14 @@ long get_ceiling_height(const struct Coord3d *pos)
 
 long get_mapwho_thing_index(const struct Map *mapblk)
 {
-  return ((mapblk->data >> 11) & 0x7FF);
+  return mapblk->mapwho;
   //could also be ((mapblk->data & 0x3FF800) >> 11);
 }
 
 void set_mapwho_thing_index(struct Map *mapblk, long thing_idx)
 {
-  // Check if new value is correct
-  if ((unsigned long)thing_idx > 0x7FF)
-  {
-      ERRORLOG("Tried to set invalid thing %ld",thing_idx);
-      return;
-  }
-  // Clear previous and set new
-  mapblk->data ^= (mapblk->data ^ ((unsigned long)thing_idx << 11)) & 0x3FF800;
+
+  mapblk->mapwho = thing_idx;
 }
 
 long get_mapblk_column_index(const struct Map *mapblk)
