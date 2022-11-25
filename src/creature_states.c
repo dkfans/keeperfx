@@ -1403,7 +1403,17 @@ short creature_being_dropped(struct Thing *creatng)
     // Set creature to default state, in case giving it job will fail
     set_start_state(creatng);
     // Check job which we can do after dropping at these coordinates
-    CreatureJob new_job = get_job_for_subtile(creatng, stl_x, stl_y, JoKF_AssignHumanDrop);
+    CreatureJob new_job;
+    struct ThingAdd* creatngadd = get_thingadd(creatng->index);
+    struct Room* room = room_get(slb->room_index);
+    if ((!room_is_invalid(room)) && (room->owner != creatngadd->holding_player))
+    {
+        new_job = Job_NULL;
+    }
+    else
+    {
+        new_job = get_job_for_subtile(creatng, stl_x, stl_y, JoKF_AssignHumanDrop);
+    }
     // Most tasks are disabled while creature is a chicken
     if (!creature_affected_by_spell(creatng, SplK_Chicken))
     {
