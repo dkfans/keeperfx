@@ -30,10 +30,10 @@ ifneq (,$(wildcard tools/dkillconv/src/dkillconv.cpp))
 
 # If we have source code of this tool, compile it
 $(DKILLTOLVL): tools/dkillconv/src/dkillconv.cpp
-	make -C tools/dkillconv
+	$(MAKE) -C tools/dkillconv
 
 clean-dkillconv:
-	make -C tools/dkillconv clean
+	$(MAKE) -C tools/dkillconv clean
 
 else ifneq (,$(findstring .tar.gz,$(DKILLCONV_PACKAGE)))
 

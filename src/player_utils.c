@@ -596,7 +596,6 @@ void init_player(struct PlayerInfo *player, short no_explore)
         break;
     }
     init_player_cameras(player);
-    pannel_map_update(0, 0, map_subtiles_x+1, map_subtiles_y+1);
     player->mp_message_text[0] = '\0';
     if (is_my_player(player))
     {
@@ -818,6 +817,7 @@ void post_init_player(struct PlayerInfo *player)
         }
         break;
     }
+    pannel_map_update(0, 0, map_subtiles_x+1, map_subtiles_y+1);
 }
 
 void post_init_players(void)

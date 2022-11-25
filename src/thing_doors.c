@@ -32,12 +32,12 @@
 #include "ariadne.h"
 #include "ariadne_wallhug.h"
 #include "map_blocks.h"
+#include "map_ceiling.h"
 #include "map_utils.h"
 #include "sounds.h"
 #include "gui_topmsg.h"
 #include "game_legacy.h"
 #include "frontmenu_ingame_map.h"
-#include "keeperfx.hpp"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -366,6 +366,18 @@ TbBool check_door_should_open(struct Thing *thing)
         return false;
     }
     return true;
+}
+
+TbBool door_will_open_for_thing(struct Thing *doortng, struct Thing *creatng)
+{
+  if ( !doortng->door.is_locked && thing_is_creature(creatng) )
+  {
+    if ( players_are_mutual_allies(doortng->owner,creatng->owner) )
+    {
+      return true;
+    }
+  }
+  return false;
 }
 
 long process_door_open(struct Thing *thing)

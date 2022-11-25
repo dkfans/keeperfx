@@ -159,7 +159,7 @@ struct PlayerInfo {
 unsigned char field_14;
     char field_15[20]; //size may be shorter
     unsigned char victory_state;
-    unsigned char allied_players;
+    unsigned char allied_players; // bit 0-4 (allies), bit 5-7 (locked allies)
     unsigned char id_number;
     unsigned char is_active;
     unsigned char field_2D[2];
@@ -302,12 +302,16 @@ TbBool players_creatures_tolerate_each_other(PlayerNumber plyr1_idx, PlayerNumbe
 TbBool player_is_friendly_or_defeated(PlayerNumber check_plyr_idx, PlayerNumber origin_plyr_idx);
 TbBool set_ally_with_player(PlayerNumber plyridx, PlayerNumber ally_idx, TbBool state);
 void toggle_ally_with_player(long plyridx, unsigned int allyidx);
+TbBool is_player_ally_locked(PlayerNumber plyridx, PlayerNumber ally_idx);
+void set_player_ally_locked(PlayerNumber plyridx, PlayerNumber ally_idx, TbBool value);
 
 void set_player_state(struct PlayerInfo *player, short a1, long a2);
 void set_player_mode(struct PlayerInfo *player, unsigned short nview);
 void reset_player_mode(struct PlayerInfo *player, unsigned short nview);
 
 void clear_players(void);
+
+PlayerNumber player_bit_to_player_number(unsigned char plyr_bit);
 /******************************************************************************/
 #ifdef __cplusplus
 }
