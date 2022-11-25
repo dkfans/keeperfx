@@ -817,72 +817,70 @@ long check_place_to_pretty_excluding(struct Thing *creatng, MapSlabCoord slb_x, 
     return 1;
 }
 
-DLLIMPORT long _DK_check_out_unreinforced_spiral(struct Thing *thing, int a2);
+DLLIMPORT long _DK_check_out_unreinforced_spiral(struct Thing *thing, int number_of_iterations);
 
-static int check_out_unreinforced_spiral(struct Thing *thing, int a2)
+static int check_out_unreinforced_spiral(struct Thing *thing, int number_of_iterations)
 {
 
-    return _DK_check_out_unreinforced_spiral(thing,a2);
+    //return _DK_check_out_unreinforced_spiral(thing,number_of_iterations);
     int v4;
     SubtlCodedCoords stl_num;
     int v7;
     int v8;
     int v9;
-    int v10;
-    struct Around *ar;
+    int current_iteration;
+    const struct Around *ar;
     long stl_y;
     long stl_x;
 
     struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
-    v10 = 0;
+    current_iteration = 0;
     MapSlabCoord slb_x = map_to_slab[thing->mappos.x.stl.pos];
     v7 = 2;
     MapSlabCoord slb_y = map_to_slab[thing->mappos.y.stl.pos];
-    if (a2 > 0)
+
+    while (number_of_iterations > current_iteration)
     {
-        while (2)
+        --slb_x;
+        --slb_y;
+        v4 = 0;
+        do
         {
-            --slb_x;
-            --slb_y;
-            v4 = 0;
-            do
+            v8 = 0;
+            v9 = v4 + 1;
+            ar = &small_around[(v4 + 1) & 3];
+            if (v7 > 0)
             {
-                v8 = 0;
-                v9 = v4 + 1;
-                ar = &small_around[(v4 + 1) & 3];
-                if (v7 > 0)
+                while (1)
                 {
-                    while (1)
+                    slb_x += ar->delta_x;
+                    slb_y += ar->delta_y;
+                    if (slb_x >= 0 && slb_x < map_tiles_x && slb_y >= 0 && slb_y < map_tiles_y && check_place_to_reinforce(thing, slb_x, slb_y) > 0)
                     {
-                        slb_x += ar->delta_x;
-                        slb_y += ar->delta_y;
-                        if (slb_x >= 0 && slb_x < 85 && slb_y >= 0 && slb_y < 85 && check_place_to_reinforce(thing, slb_x, slb_y) > 0)
+                        stl_num = 3 * slb_x + 1 + ((3 * (short)slb_y + 1) << 8);
+                        if (check_out_uncrowded_reinforce_position(thing, stl_num, &stl_x, &stl_y))
                         {
-                            stl_num = 3 * slb_x + 1 + ((3 * (short)slb_y + 1) << 8);
-                            if (check_out_uncrowded_reinforce_position(thing, stl_num, &stl_x, &stl_y))
+                            if (setup_person_move_to_position(thing, stl_x, stl_y, 0))
                             {
-                                if (setup_person_move_to_position(thing, stl_x, stl_y, 0))
-                                    break;
+                                thing->continue_state = CrSt_ImpArrivesAtReinforce;
+                                cctrl->digger.working_stl = stl_num;
+                                cctrl->digger.consecutive_reinforcements = 0;
+                                return 1;
                             }
                         }
-                        if (v7 <= ++v8)
-                            goto LABEL_12;
                     }
-                    thing->continue_state = CrSt_ImpArrivesAtReinforce;
-                    cctrl->digger.working_stl = stl_num;
-                    cctrl->digger.consecutive_reinforcements = 0;
-                    return 1;
+                    if (v7 <= ++v8)
+                        goto LABEL_12;
                 }
-            LABEL_12:
-                v4 = v9;
-            } while (v9 < 4);
-            ++v10;
-            v7 += 2;
-            if (a2 > v10)
-                continue;
-            break;
-        }
+
+            }
+        LABEL_12:
+            v4 = v9;
+        } while (v9 < 4);
+        ++current_iteration;
+        v7 += 2;
     }
+    
     return 0;
 }
 
@@ -973,7 +971,7 @@ static long check_out_unreinforced_place(struct Thing *spdigtng)
     struct DiggerStack temp_digger_stack[DIGGER_TASK_MAX_COUNT];
 
 
-    for ( int i = 0; dungeon->digger_stack_length > i; i++ )
+    for ( int i = 0; DIGGER_TASK_MAX_COUNT > i; i++ )
     {
         temp_digger_stack[i].stl_num = dungeon->digger_stack[i].stl_num;
         temp_digger_stack[i].task_type = dungeon->digger_stack[i].task_type;
@@ -999,7 +997,7 @@ static long check_out_unreinforced_place(struct Thing *spdigtng)
 
     dungeon->digger_stack_length = digstacklen;
 
-    for ( int i = 0; dungeon->digger_stack_length > i; i++ )
+    for ( int i = 0; DIGGER_TASK_MAX_COUNT > i; i++ )
     {
         dungeon->digger_stack[i].stl_num = temp_digger_stack[i].stl_num;
         dungeon->digger_stack[i].task_type = temp_digger_stack[i].task_type;
@@ -1035,8 +1033,7 @@ static long check_out_unreinforced_place(struct Thing *spdigtng)
 
 
 
-    //TbBool new = check_out_unreinforced_place_new(spdigtng);
-    TbBool new = _DK_check_out_unreinforced_place(spdigtng);
+    TbBool new = check_out_unreinforced_place_new(spdigtng);
 
     if(spdigtng->continue_state                 != _thing_continue              ) JUSTLOG("thing_continue               %d %d",_thing_continue              ,spdigtng->continue_state                );
     if(spdigtng->active_state                   != _thing_active                ) JUSTLOG("thing_active                 %d %d",_thing_active                ,spdigtng->active_state                  );
