@@ -1431,9 +1431,12 @@ static long new_get_map_index_of_first_block_thing_colliding_with_travelling_to(
     if (endpos->x.stl.num == creature_pos.x.stl.num || endpos->y.stl.num == creature_pos.y.stl.num)
     {
         stl_num = get_map_index_of_first_block_thing_colliding_with_at(creatng, endpos, mapblk_flags, slabmap_flags);
-        if (stl_num < 0)
-            goto LABEL_29;
-        goto LABEL_28;
+        if (stl_num >= 0)
+        {
+            return_stl_num = stl_num;
+        }
+        creatng->mappos = orig_creat_pos;
+        return return_stl_num;
     }
     if (!cross_x_boundary_first(&creature_pos, endpos))
     {
@@ -1448,7 +1451,10 @@ static long new_get_map_index_of_first_block_thing_colliding_with_travelling_to(
             pos.z.val = creature_pos.z.val;
             stl_num = get_map_index_of_first_block_thing_colliding_with_at(creatng, &pos, mapblk_flags, slabmap_flags);
             if (stl_num >= 0)
-                goto LABEL_28;
+            {
+                creatng->mappos = orig_creat_pos;
+                return stl_num;
+            }
 
             creature_pos = creatng->mappos;
             pos.x.val = endpos->x.val <= (unsigned int)creature_pos.x.val ? (creature_pos.x.val & 0xFF00) - 1 : (creature_pos.x.val + 256) & 0xFF00;
@@ -1456,26 +1462,29 @@ static long new_get_map_index_of_first_block_thing_colliding_with_travelling_to(
             pos.z.val = creature_pos.z.val;
             stl_num = get_map_index_of_first_block_thing_colliding_with_at(creatng, &pos, mapblk_flags, slabmap_flags);
             if (stl_num >= 0)
-                goto LABEL_28;
-
+            {
+                creatng->mappos = orig_creat_pos;
+                return stl_num;
+            }
             creature_pos = creatng->mappos;
             pos.x.val = endpos->x.val;
             pos.y = endpos->y;
             pos.z = creatng->mappos.z;
             stl_num = get_map_index_of_first_block_thing_colliding_with_at(creatng, &pos, mapblk_flags, slabmap_flags);
             if (stl_num >= 0)
-                goto LABEL_28;
-
-            goto LABEL_29;
+            {
+                return_stl_num = stl_num;
+            }
+            creatng->mappos = orig_creat_pos;
+            return return_stl_num;
         }
         stl_num = get_map_index_of_first_block_thing_colliding_with_at(creatng, endpos, mapblk_flags, slabmap_flags);
-        if (stl_num < 0)
-            goto LABEL_29;
-
-
-    LABEL_28:
-        return_stl_num = stl_num;
-        goto LABEL_29;
+        if (stl_num >= 0)
+        {
+            return_stl_num = stl_num;
+        }
+        creatng->mappos = orig_creat_pos;
+        return stl_num;
     }
     if (endpos->x.val <= (unsigned int)creature_pos.x.val)
         pos.x.val = (creature_pos.x.val & 0xFF00) - 1;
@@ -1485,14 +1494,20 @@ static long new_get_map_index_of_first_block_thing_colliding_with_travelling_to(
     pos.z.val = creature_pos.z.val;
     stl_num = get_map_index_of_first_block_thing_colliding_with_at(creatng, &pos, mapblk_flags, slabmap_flags);
     if (stl_num >= 0)
-        goto LABEL_28;
+    {
+        creatng->mappos = orig_creat_pos;
+        return stl_num;
+    }
     creature_pos = creatng->mappos;
     pos.y.val = endpos->y.val <= (unsigned int)creature_pos.y.val ? (creature_pos.y.val & 0xFF00) - 1 : (creature_pos.y.val + 256) & 0xFF00;
     pos.x.val = (int)(delta_x * abs((unsigned __int16)pos.y.val - v27_x) / delta_y + v27_y);
     pos.z.val = creature_pos.z.val;
     stl_num = get_map_index_of_first_block_thing_colliding_with_at(creatng, &pos, mapblk_flags, slabmap_flags);
     if (stl_num >= 0)
-        goto LABEL_28;
+    {
+        creatng->mappos = orig_creat_pos;
+        return stl_num;
+    }
 
     creature_pos = creatng->mappos;
     pos = *endpos;
@@ -1500,9 +1515,9 @@ static long new_get_map_index_of_first_block_thing_colliding_with_travelling_to(
 
     stl_num = get_map_index_of_first_block_thing_colliding_with_at(creatng, &pos, mapblk_flags, slabmap_flags);
     if (stl_num >= 0)
-        goto LABEL_28;
-LABEL_29:
-
+    {
+        return_stl_num = stl_num;
+    }
     creatng->mappos = orig_creat_pos;
     return return_stl_num;
 }
@@ -1522,6 +1537,7 @@ static long get_map_index_of_first_block_thing_colliding_with_travelling_to(stru
     {
         ERRORLOG("different result %d / %d", old, new);
     }
+    return new;
 
 }
 
