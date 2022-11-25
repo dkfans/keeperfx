@@ -248,7 +248,7 @@ static short hug_round_new(struct Thing *creatng, struct Coord3d *pos1, struct C
     char bool2;                        
     unsigned __int16 biggest_delta_minus1;  
     char round_idx_plus1_2;            
-    unsigned __int16 round_idx_minus1; 
+    unsigned __int16 round_idx_minus1 =0; 
     char round_idx_minus1_2;
     unsigned __int16 v53;
     unsigned __int16 v54;
@@ -510,7 +510,7 @@ static short hug_round(struct Thing *creatng, struct Coord3d *pos1, struct Coord
     old_pos2.y = pos2->y;
     old_pos2.z = pos2->z;
 
-    short old_return = _DK_hug_round(creatng, &old_pos1, &old_pos2, round_idx, &old_hug_val);
+    short old_return = hug_round_new(creatng, &old_pos1, &old_pos2, round_idx, &old_hug_val);
 
     short return_val = hug_round_new(creatng, pos1, pos2, round_idx, hug_val);
 
@@ -519,7 +519,7 @@ static short hug_round(struct Thing *creatng, struct Coord3d *pos1, struct Coord
     if (old_return == return_val) JUSTLOG("ok %d,%d",old_return,return_val);
     if (old_pos1.x.val != pos1->x.val) JUSTLOG("pos1  %d,%d  %d,%d",old_pos1.x.val,old_pos1.y.val, pos1->x.val,pos1->y.val);
     if (old_pos2.x.val != pos2->x.val) JUSTLOG("pos1  %d,%d  %d,%d",old_pos2.x.val,old_pos2.y.val, pos2->x.val,pos2->y.val);
-    if (old_hug_val == *hug_val) JUSTLOG("hug_val  %d,%d",old_hug_val,*hug_val);
+    if (old_hug_val != *hug_val) JUSTLOG("hug_val  %d,%d",old_hug_val,*hug_val);
 
     return return_val;
 }
