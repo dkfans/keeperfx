@@ -835,9 +835,9 @@ static int check_out_unreinforced_spiral(struct Thing *thing, int number_of_iter
 
     struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
     current_iteration = 0;
-    MapSlabCoord slb_x = map_to_slab[thing->mappos.x.stl.pos];
+    MapSlabCoord slb_x = map_to_slab[thing->mappos.x.stl.num];
     v7 = 2;
-    MapSlabCoord slb_y = map_to_slab[thing->mappos.y.stl.pos];
+    MapSlabCoord slb_y = map_to_slab[thing->mappos.y.stl.num];
 
     while (number_of_iterations > current_iteration)
     {
@@ -914,7 +914,7 @@ static long check_out_unreinforced_place_new(struct Thing *thing)
         return check_out_unreinforced_spiral(thing, 1) != 0;
     MapSlabCoord slb_x = map_to_slab[(unsigned char)working_stl];
     MapSlabCoord slb_y = *(unsigned int *)((char *)map_to_slab + ((working_stl >> 6) & 0xFFFC));
-    if ((int)abs(map_to_slab[thing->mappos.x.stl.pos] - slb_x) >= 3 || (int)abs(map_to_slab[thing->mappos.y.stl.pos] - slb_y) >= 3)
+    if ((int)abs(map_to_slab[thing->mappos.x.stl.num] - slb_x) >= 3 || (int)abs(map_to_slab[thing->mappos.y.stl.num] - slb_y) >= 3)
     {
         return check_out_unreinforced_spiral(thing, 1) != 0;
     }
@@ -928,8 +928,8 @@ static long check_out_unreinforced_place_new(struct Thing *thing)
         v6 = map_to_slab[(unsigned char)abs(working_stl)] + 85 * map_to_slab[working_stl / 256];
         stl_y_2 = v6 % 85;
         stl_x_2 = v6 / 85;
-        v7 = thing->mappos.x.stl.pos % 3u;
-        v8 = 3 * (thing->mappos.y.stl.pos % 3u);
+        v7 = thing->mappos.x.stl.num % 3u;
+        v8 = 3 * (thing->mappos.y.stl.num % 3u);
         v17 = 0;
         v9 = (unsigned char)byte_524F70[v8 + v7];
         while (1)
