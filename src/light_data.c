@@ -1863,7 +1863,7 @@ static char light_render_light_dynamic_2(struct Light *lgt, int radius, int rend
 //sub_407C70
 static int light_render_light_static(struct Light *lgt, int radius, int a3, unsigned int max_1DD41_idx)
 {
-  return _DK_light_render_light_sub3(lgt, radius, a3, max_1DD41_idx);
+  //return _DK_light_render_light_sub3(lgt, radius, a3, max_1DD41_idx);
 }
 
 
