@@ -213,7 +213,7 @@ static long get_angle_of_wall_hug(struct Thing *creatng, long slab_flag, long sp
 
 static short hug_round(struct Thing *creatng, struct Coord3d *pos1, struct Coord3d *pos2, unsigned short a4, long *a5)
 {
-    return _DK_hug_round(creatng, pos1, pos2, a4, a5);
+    //return _DK_hug_round(creatng, pos1, pos2, a4, a5);
 }
 
 long slab_wall_hug_route(struct Thing *thing, struct Coord3d *pos, long max_val)
@@ -1416,7 +1416,7 @@ static TbBool find_approach_position_to_subtile(const struct Coord3d *srcpos, Ma
 
 static long get_map_index_of_first_block_thing_colliding_with_travelling_to(struct Thing *creatng, struct Coord3d *startpos, struct Coord3d *endpos, long a4, unsigned char a5)
 {
-    return _DK_get_map_index_of_first_block_thing_colliding_with_travelling_to(creatng, startpos, endpos, a4, a5);
+    //return _DK_get_map_index_of_first_block_thing_colliding_with_travelling_to(creatng, startpos, endpos, a4, a5);
 }
 
 static TbBool navigation_push_towards_target(struct Navigation *navi, struct Thing *creatng, const struct Coord3d *pos, MoveSpeed speed, MoveSpeed nav_radius, unsigned char crt_owner_bit)

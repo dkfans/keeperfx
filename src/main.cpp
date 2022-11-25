@@ -138,7 +138,7 @@ short do_draw;
 short default_loc_player = 0;
 struct StartupParameters start_params;
 
-struct Room *droom = &_DK_game.rooms[25];
+struct Room *droom = &game.rooms[25];
 
 //static
 TbClockMSec last_loop_time=0;
