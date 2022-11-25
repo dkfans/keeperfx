@@ -1413,9 +1413,9 @@ static TbBool find_approach_position_to_subtile(const struct Coord3d *srcpos, Ma
     return (min_dist < LONG_MAX);
 }
 
-static long new_get_map_index_of_first_block_thing_colliding_with_travelling_to(struct Thing *creatng, struct Coord3d *startpos, struct Coord3d *endpos, long mapblk_flags, unsigned char slabmap_flags)
+static long get_map_index_of_first_block_thing_colliding_with_travelling_to(struct Thing *creatng, struct Coord3d *startpos, struct Coord3d *endpos, long mapblk_flags, unsigned char slabmap_flags)
 {
-    __int32 stl_num;
+    long stl_num;
     struct Coord3d pos;
     int return_stl_num = 0;
 
@@ -1521,33 +1521,6 @@ static long new_get_map_index_of_first_block_thing_colliding_with_travelling_to(
     creatng->mappos = orig_creat_pos;
     return return_stl_num;
 }
-
-
-
-
-DLLIMPORT long _DK_get_map_index_of_first_block_thing_colliding_with_travelling_to(struct Thing *creatng, struct Coord3d *startpos, struct Coord3d *endpos, long mapblk_flags, unsigned char slabmap_flags);
-static long get_map_index_of_first_block_thing_colliding_with_travelling_to(struct Thing *creatng, struct Coord3d *startpos, struct Coord3d *endpos, long mapblk_flags, unsigned char slabmap_flags)
-{
-    SubtlCodedCoords old = _DK_get_map_index_of_first_block_thing_colliding_with_travelling_to(creatng, startpos, endpos, mapblk_flags, slabmap_flags);
-    SubtlCodedCoords new = new_get_map_index_of_first_block_thing_colliding_with_travelling_to(creatng, startpos, endpos, mapblk_flags, slabmap_flags);
-
-    if (old == new)
-        ERRORLOG("same result %d", old);
-    else
-    {
-        ERRORLOG("different result %d / %d", old, new);
-    }
-    return new;
-
-}
-
-
-
-
-
-
-
-
 
 static TbBool navigation_push_towards_target(struct Navigation *navi, struct Thing *creatng, const struct Coord3d *pos, MoveSpeed speed, MoveSpeed nav_radius, unsigned char crt_owner_bit)
 {
