@@ -490,6 +490,7 @@ int draw_overlay_creatures(struct PlayerInfo *player, long units_per_px, long zo
         col2 = 1;
         if (!thing_is_picked_up(thing))
         {
+            interpolate_minimap_thing(thing, thingadd, cam);
             if (thing_revealed(thing, player->id_number))
             {
                 if ((game.play_gameturn & 4) == 0)
@@ -499,7 +500,6 @@ int draw_overlay_creatures(struct PlayerInfo *player, long units_per_px, long zo
                 }
                 // Position of the thing on unrotated map
                 // for camera, coordinates within subtile are skipped; the thing uses full resolution coordinates
-                interpolate_minimap_thing(thing, thingadd, cam);
                 long zmpos_x = thingadd->interp_minimap_pos_x / zoom;
                 long zmpos_y = thingadd->interp_minimap_pos_y / zoom;
 

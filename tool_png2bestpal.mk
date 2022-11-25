@@ -30,10 +30,10 @@ ifneq (,$(wildcard tools/png2bestpal/src/png2bestpal.cpp))
 
 # If we have source code of this tool, compile it
 $(PNGTOBSPAL): tools/png2bestpal/src/png2bestpal.cpp
-	make -C tools/png2bestpal
+	$(MAKE) -C tools/png2bestpal
 
 clean-png2bestpal:
-	make -C tools/png2bestpal clean
+	$(MAKE) -C tools/png2bestpal clean
 
 else ifneq (,$(findstring .tar.gz,$(PNGTOBSPAL_PACKAGE)))
 

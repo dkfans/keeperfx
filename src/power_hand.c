@@ -1456,62 +1456,86 @@ short can_place_thing_here(struct Thing *thing, long stl_x, long stl_y, long dng
     return !thing_in_wall_at(thing, &pos);
 }
 
+static TbBool hand_rule_unset(struct HandRule *hand_rule, const struct Thing *thing)
+{
+    return false;
+}
+
+static TbBool hand_rule_always(struct HandRule *hand_rule, const struct Thing *thing)
+{
+    return !hand_rule->allow;
+}
+
+static TbBool hand_rule_age_lower(struct HandRule *hand_rule, const struct Thing *thing)
+{
+    return (game.play_gameturn - thing->creation_turn < hand_rule->param) ? !hand_rule->allow : !!hand_rule->allow;
+}
+
+static TbBool hand_rule_age_higher(struct HandRule *hand_rule, const struct Thing *thing)
+{
+    return (game.play_gameturn - thing->creation_turn < hand_rule->param) ? !hand_rule->allow : !!hand_rule->allow;
+}
+
+static TbBool hand_rule_lvl_lower(struct HandRule *hand_rule, const struct Thing *thing)
+{
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    return (cctrl->explevel + 1 < hand_rule->param) ? !hand_rule->allow : !!hand_rule->allow;
+}
+
+static TbBool hand_rule_lvl_higher(struct HandRule *hand_rule, const struct Thing *thing)
+{
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    return (cctrl->explevel + 1 > hand_rule->param) ? !hand_rule->allow : !!hand_rule->allow;
+}
+
+static TbBool hand_rule_at_action_point(struct HandRule *hand_rule, const struct Thing *thing)
+{
+    struct ActionPoint* apt = action_point_get(action_point_number_to_index(hand_rule->param));
+    struct Coord3d refpos;
+    refpos.x.val = apt->mappos.x.val;
+    refpos.y.val = apt->mappos.y.val;
+    refpos.z.val = 0;
+    MapCoordDelta dist = get_2d_distance(&thing->mappos, &refpos);
+    return (dist <= apt->range) ? !hand_rule->allow : !!hand_rule->allow;
+}
+
+static TbBool hand_rule_affected_by(struct HandRule *hand_rule, const struct Thing *thing)
+{
+    return (creature_affected_by_spell(thing, hand_rule->param)) ? !hand_rule->allow : !!hand_rule->allow;
+}
+
+static TbBool hand_rule_wandering(struct HandRule *hand_rule, const struct Thing *thing)
+{
+    return (get_creature_gui_job(thing) == CrGUIJob_Wandering) ? !hand_rule->allow : !!hand_rule->allow;
+}
+
+static TbBool hand_rule_working(struct HandRule *hand_rule, const struct Thing *thing)
+{
+    return (get_creature_gui_job(thing) == CrGUIJob_Working) ? !hand_rule->allow : !!hand_rule->allow;
+}
+
+static TbBool hand_rule_fighting(struct HandRule *hand_rule, const struct Thing *thing)
+{
+    return (get_creature_gui_job(thing) == CrGUIJob_Fighting) ? !hand_rule->allow : !!hand_rule->allow;
+}
+
+typedef TbBool (*HandTestFn) (struct HandRule *rule, const struct Thing *thing);
+static HandTestFn hand_rule_test_fns[] = {
+    hand_rule_unset,
+    hand_rule_always,
+    hand_rule_age_lower,
+    hand_rule_age_higher,
+    hand_rule_lvl_lower,
+    hand_rule_lvl_higher,
+    hand_rule_at_action_point,
+    hand_rule_affected_by,
+    hand_rule_wandering,
+    hand_rule_working,
+    hand_rule_fighting,
+};
+
 TbBool eval_hand_rule_for_thing(struct HandRule *rule, const struct Thing *thing_to_pick)
 {
-    HandTestFn hand_rule_test_fns[] = {
-        HAND_RULE({
-            // unset
-            return false;
-        }),
-        HAND_RULE({
-            // always
-            return !hand_rule->allow;
-        }),
-        HAND_RULE({
-            // age lower
-            return (game.play_gameturn - thing->creation_turn < hand_rule->param) ? !hand_rule->allow : !!hand_rule->allow;
-        }),
-        HAND_RULE({
-            // age higher
-            return (game.play_gameturn - thing->creation_turn < hand_rule->param) ? !hand_rule->allow : !!hand_rule->allow;
-        }),
-        HAND_RULE({
-            // lvl lower
-            struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-            return (cctrl->explevel + 1 < hand_rule->param) ? !hand_rule->allow : !!hand_rule->allow;
-        }),
-        HAND_RULE({
-            // lvl higher
-            struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-            return (cctrl->explevel + 1 > hand_rule->param) ? !hand_rule->allow : !!hand_rule->allow;
-        }),
-        HAND_RULE({
-            // at action point
-            struct ActionPoint* apt = action_point_get(action_point_number_to_index(hand_rule->param));
-            struct Coord3d refpos;
-            refpos.x.val = apt->mappos.x.val;
-            refpos.y.val = apt->mappos.y.val;
-            refpos.z.val = 0;
-            MapCoordDelta dist = get_2d_distance(&thing->mappos, &refpos);
-            return (dist <= apt->range) ? !hand_rule->allow : !!hand_rule->allow;
-        }),
-        HAND_RULE({
-            // affected by
-            return (creature_affected_by_spell(thing, hand_rule->param)) ? !hand_rule->allow : !!hand_rule->allow;
-        }),
-        HAND_RULE({
-            // wandering
-            return (get_creature_gui_job(thing) == CrGUIJob_Wandering) ? !hand_rule->allow : !!hand_rule->allow;
-        }),
-        HAND_RULE({
-            // working
-            return (get_creature_gui_job(thing) == CrGUIJob_Working) ? !hand_rule->allow : !!hand_rule->allow;
-        }),
-        HAND_RULE({
-            // fighting
-            return (get_creature_gui_job(thing) == CrGUIJob_Fighting) ? !hand_rule->allow : !!hand_rule->allow;
-        }),
-    };
     return hand_rule_test_fns[(int)rule->type](rule, thing_to_pick);
 }
 
