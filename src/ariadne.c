@@ -17,6 +17,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "ariadne.h"
 
 #include "globals.h"
@@ -39,6 +40,7 @@
 #include "map_columns.h"
 #include "map_utils.h"
 #include "game_legacy.h"
+#include "post_inc.h"
 
 #define EDGEFIT_LEN           64
 #define EDGEOR_COUNT           4
@@ -48,11 +50,6 @@ typedef long (*NavRules)(long, long);
 struct QuadrantOffset {
     long x;
     long y;
-};
-
-struct HugStart {
-    short field_0;
-    unsigned char field_2;
 };
 
 #ifdef __cplusplus
@@ -2283,8 +2280,8 @@ long ariadne_get_starting_angle_and_side_of_wallhug(struct Thing *thing, struct 
                 ariadne_get_starting_angle_and_side_of_wallhug_for_desireable_move(thing, arid, 3*LbFPMath_PI/2, rangle, rflag);
         } else
         {
-            *rangle = blocked_x_hug_start[crdelta_x_neg][nxdelta_y_neg].field_0;
-            *rflag = blocked_x_hug_start[crdelta_x_neg][nxdelta_y_neg].field_2;
+            *rangle = blocked_x_hug_start[crdelta_x_neg][nxdelta_y_neg].angle;
+            *rflag = blocked_x_hug_start[crdelta_x_neg][nxdelta_y_neg].flag;
         }
         return 1;
     }
@@ -2298,15 +2295,15 @@ long ariadne_get_starting_angle_and_side_of_wallhug(struct Thing *thing, struct 
                 ariadne_get_starting_angle_and_side_of_wallhug_for_desireable_move(thing, arid, 0, rangle, rflag);
         } else
         {
-            *rangle = blocked_y_hug_start[crdelta_y_neg][nxdelta_x_neg].field_0;
-            *rflag = blocked_y_hug_start[crdelta_y_neg][nxdelta_x_neg].field_2;
+            *rangle = blocked_y_hug_start[crdelta_y_neg][nxdelta_x_neg].angle;
+            *rflag = blocked_y_hug_start[crdelta_y_neg][nxdelta_x_neg].flag;
         }
         return 1;
     }
     if ((blk_flags & 0x04) != 0)
     {
-        *rangle = blocked_xy_hug_start[crdelta_y_neg][crdelta_x_neg][axis_closer].field_0;
-        *rflag = blocked_xy_hug_start[crdelta_y_neg][crdelta_x_neg][axis_closer].field_2;
+        *rangle = blocked_xy_hug_start[crdelta_y_neg][crdelta_x_neg][axis_closer].angle;
+        *rflag = blocked_xy_hug_start[crdelta_y_neg][crdelta_x_neg][axis_closer].flag;
         return 1;
     }
     return 0;
@@ -2375,8 +2372,8 @@ void clear_wallhugging_path(struct Navigation *navi)
     navi->pos_final.x.val = subtile_coord_center(map_subtiles_x/2);
     navi->pos_final.y.val = subtile_coord_center(map_subtiles_y/2);
     navi->pos_final.z.val = subtile_coord(1,0);
-    navi->field_1[2] = 0;
-    navi->field_1[1] = 0;
+    navi->field_3 = 0;
+    navi->field_2 = 0;
     navi->field_4 = 0;
 }
 
@@ -2386,8 +2383,8 @@ void initialise_wallhugging_path_from_to(struct Navigation *navi, struct Coord3d
     navi->pos_final.x.val = mvend->x.val;
     navi->pos_final.y.val = mvend->y.val;
     navi->pos_final.z.val = mvend->z.val;
-    navi->field_1[2] = 0;
-    navi->field_1[1] = 0;
+    navi->field_3 = 0;
+    navi->field_2 = 0;
     navi->field_4 = 0;
 }
 

@@ -16,8 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-
-
+#include "pre_inc.h"
 #include "custom_sprites.h"
 #include "creature_graphics.h"
 #include "front_simple.h"
@@ -27,10 +26,12 @@
 #include "gui_draw.h"
 #include "frontend.h"
 #include "bflib_dernc.h"
+#include "sprites.h"
 
 #include <spng.h>
 #include <json.h>
 #include <json-dom.h>
+#include "post_inc.h"
 
 // Each part of RGB tuple of palette file is 1-63 actually
 #define MAX_COLOR_VALUE 64
@@ -38,10 +39,7 @@
 static short next_free_sprite = 0;
 static short next_free_icon = 0;
 
-struct TbSprite gui_panel_sprites[GUI_PANEL_SPRITES_COUNT + GUI_PANEL_SPRITES_NEW];
-struct TbSprite *end_gui_panel_sprites = &gui_panel_sprites[GUI_PANEL_SPRITES_COUNT];
-
-
+struct TbSprite gui_panel_sprites[NEW_GUI_PANEL_SPRITES_COUNT];
 struct NamedCommand *anim_names = NULL;
 
 short iso_td_add[KEEPERSPRITE_ADD_NUM];
@@ -668,6 +666,8 @@ static int read_png_icon(unzFile zip, const char *path, const char *subpath, int
     return 1;
 }
 
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "bugprone-branch-clone"
 static int read_png_data(unzFile zip, const char *path, struct SpriteContext *context, const char *subpath,
                          int fp, VALUE *def, VALUE *itm)
 {
@@ -765,79 +765,41 @@ static int read_png_data(unzFile zip, const char *path, struct SpriteContext *co
     // That is this actually?
     ksprite->SWidth = dst_w;
     ksprite->SHeight = dst_h;
-    ksprite->FrameWidth = dst_w;
-    ksprite->FrameHeight = dst_h;
     ksprite->Rotable = context->rotatable ? 2 : 0;
     ksprite->FramesCount = 1;
 
     VALUE *val;
-    val = value_dict_get(itm, "offset_w");
-    if (value_type(val) != VALUE_NULL)
-    {
-        ksprite->FrameOffsW = value_uint32(val);
-    }
-    else if (val = value_dict_get(def, fp ? "fp_offset_w" : "td_offset_w"),
-            value_type(val) != VALUE_NULL
-            )
-    {
-        ksprite->FrameOffsW = value_uint32(val);
-    }
-    else
-    {
-        ksprite->FrameOffsW = 0;
+
+#define READ_WITH_DEFAULT(dst, field, fp_def, td_def, def_val, fn) \
+    val = value_dict_get(itm, field); \
+    if (value_type(val) != VALUE_NULL) \
+    { \
+        ksprite-> dst = fn(val); \
+    } \
+    else if (val = value_dict_get(def, fp ? fp_def : td_def), \
+            value_type(val) != VALUE_NULL \
+            ) \
+    {                                                              \
+        ksprite-> dst = fn(val); \
+    } \
+    else \
+    { \
+        ksprite-> dst = def_val; \
     }
 
-    val = value_dict_get(itm, "offset_h");
-    if (value_type(val) != VALUE_NULL)
-    {
-        ksprite->FrameOffsH = value_uint32(val);
-    }
-    else if (val = value_dict_get(def, fp ? "fp_offset_h" : "td_offset_h"),
-            value_type(val) != VALUE_NULL
-            )
-    {
-        ksprite->FrameOffsH = value_uint32(val);
-    }
-    else
-    {
-        ksprite->FrameOffsH = 0;
-    }
+    READ_WITH_DEFAULT(FrameWidth, "frame_w", "fp_frame_w", "td_frame_w", dst_w, value_uint32)
+    READ_WITH_DEFAULT(FrameHeight, "frame_h", "fp_frame_h", "td_frame_h", dst_h, value_uint32)
+    READ_WITH_DEFAULT(FrameOffsW, "offset_w", "fp_offset_w", "td_offset_w", 0, value_uint32)
+    READ_WITH_DEFAULT(FrameOffsH, "offset_h", "fp_offset_h", "td_offset_h", 0, value_uint32)
+    READ_WITH_DEFAULT(offset_x, "offset_x", "fp_offset_x", "td_offset_x", -dst_w / 2, -value_int32)
+    READ_WITH_DEFAULT(offset_y, "offset_y", "fp_offset_y", "td_offset_y", 1 - dst_h, -value_int32)
 
-    val = value_dict_get(itm, "offset_x");
-    if (value_type(val) != VALUE_NULL)
-    {
-        ksprite->field_C = -value_int32(val);
-    }
-    else if (val = value_dict_get(def, fp ? "fp_offset_x" : "td_offset_x"),
-            value_type(val) != VALUE_NULL
-            )
-    {
-        ksprite->field_C = -value_int32(val);
-    }
-    else
-    {
-        ksprite->field_C = -dst_w / 2;
-    }
-
-    val = value_dict_get(itm, "offset_y");
-    if (value_type(val) != VALUE_NULL)
-    {
-        ksprite->field_E = -value_int32(val);
-    }
-    else if (val = value_dict_get(def, fp ? "fp_offset_y" : "td_offset_y"),
-            value_type(val) != VALUE_NULL
-            )
-    {
-        ksprite->field_E = -value_int32(val);
-    }
-    else
-    {
-        ksprite->field_E = 1 - dst_h;
-    }
+#undef READ_WITH_DEFAULT
 
     spng_ctx_free(ctx);
     return 1;
 }
+#pragma clang diagnostic pop
 
 static void convert_row(unsigned char *dst_buf, uint32_t *src_buf, int len)
 {

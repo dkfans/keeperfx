@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "magic.h"
 
 #include "globals.h"
@@ -51,12 +52,14 @@
 #include "config_magic.h"
 #include "config_effects.h"
 #include "gui_soundmsgs.h"
+#include "gui_tooltips.h"
 #include "room_jobs.h"
 #include "map_blocks.h"
 #include "map_columns.h"
 #include "sounds.h"
 #include "game_legacy.h"
 #include "creature_instances.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -537,7 +540,7 @@ void slap_creature(struct PlayerInfo *player, struct Thing *thing)
     }
     cctrl->field_B1 = 6;
     cctrl->field_27F = 18;
-    play_creature_sound(thing, CrSnd_Hurt, 3, 0);
+    play_creature_sound(thing, CrSnd_Slap, 3, 0);
 }
 
 TbBool can_cast_power_at_xy(PlayerNumber plyr_idx, PowerKind pwkind,
@@ -909,7 +912,7 @@ TbResult magic_use_power_armageddon(PlayerNumber plyr_idx, unsigned long mod_fla
     }
     if (enemy_time_gap <= your_time_gap)
         enemy_time_gap = your_time_gap;
-    game.armageddon_field_15035A = game.armageddon.duration + enemy_time_gap;
+    game.armageddon_over_turn = game.armageddon.duration + enemy_time_gap;
     struct PowerConfigStats *powerst;
     powerst = get_power_model_stats(PwrK_ARMAGEDDON);
     play_non_3d_sample(powerst->select_sound_idx);
@@ -1018,6 +1021,7 @@ TbResult magic_use_power_hold_audience(PlayerNumber plyr_idx, unsigned long mod_
             const struct Coord3d *pos;
             pos = dungeon_get_essential_pos(thing->owner);
             move_thing_in_map(thing, pos);
+            reset_interpolation_of_thing(thing);
             initialise_thing_state(thing, CrSt_CreatureInHoldAudience);
             cctrl->turns_at_job = -1;
         }
@@ -1392,7 +1396,7 @@ TbResult magic_use_power_lightning(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     if (!thing_is_invalid(obtng))
     {
         obtng->lightning.spell_level = splevel;
-        obtng->field_4F |= TF4F_Unknown01;
+        obtng->rendering_flags |= TRF_Unknown01;
     }
     i = electricity_affecting_area(&pos, plyr_idx, range, max_damage);
     SYNCDBG(9,"Affected %ld targets within range %ld, damage %ld",i,range,max_damage);
@@ -1472,7 +1476,7 @@ TbResult magic_use_power_sight(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSu
         dungeon->sight_casted_splevel = splevel;
         dungeon->sight_casted_thing_idx = thing->index;
         LbMemorySet(dungeon->soe_explored_flags, 0, sizeof(dungeon->soe_explored_flags));
-        thing->field_4F |= TF4F_Unknown01;
+        thing->rendering_flags |= TRF_Unknown01;
         thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, -1, 3, 0, 3, FULL_LOUDNESS);
     }
     return Lb_SUCCESS;
@@ -1731,6 +1735,9 @@ TbResult magic_use_power_possess_thing(PlayerNumber plyr_idx, struct Thing *thin
     playeradd->battleid = 1;
     // Note that setting Direct Control player instance requires player->influenced_thing_idx to be set correctly
     set_player_instance(player, PI_DirctCtrl, 0);
+    if (is_my_player(player)) {
+        set_flag_byte(&tool_tip_box.flags,TTip_Visible,false);
+    }
     return Lb_SUCCESS;
 }
 
@@ -1843,16 +1850,26 @@ int affect_nearby_creatures_by_power_call_to_arms(PlayerNumber plyr_idx, long ra
 
 void process_magic_power_call_to_arms(PlayerNumber plyr_idx)
 {
-    struct Dungeon *dungeon;
-    dungeon = get_players_num_dungeon(plyr_idx);
-    long duration;
-    duration = game.play_gameturn - dungeon->cta_start_turn;
-    const struct MagicStats *pwrdynst;
-    pwrdynst = get_power_dynamic_stats(PwrK_CALL2ARMS);
-
-    struct SlabMap *slb;
-    slb = get_slabmap_for_subtile(dungeon->cta_stl_x, dungeon->cta_stl_y);
-    if (((pwrdynst->time < 1) || ((duration % pwrdynst->time) == 0)) && (slabmap_owner(slb) != plyr_idx))
+    struct Dungeon *dungeon = get_players_num_dungeon(plyr_idx);
+    long duration = game.play_gameturn - dungeon->cta_start_turn;
+    const struct MagicStats *pwrdynst = get_power_dynamic_stats(PwrK_CALL2ARMS);
+    struct SlabMap *slb = get_slabmap_for_subtile(dungeon->cta_stl_x, dungeon->cta_stl_y);
+    TbBool pay_land = (slabmap_owner(slb) != plyr_idx);
+    if (gameadd.allies_share_cta)
+    {
+        for (PlayerNumber i = 0; i < PLAYERS_COUNT; i++)
+        {
+            if (players_are_mutual_allies(plyr_idx, i))
+            {
+                if (slabmap_owner(slb) == i)
+                {
+                    pay_land = false;
+                    break;
+                }
+            }
+        }
+    }
+    if (((pwrdynst->time < 1) || ((duration % pwrdynst->time) == 0)) && pay_land)
     {
         if (!pay_for_spell(plyr_idx, PwrK_CALL2ARMS, dungeon->cta_splevel)) {
             if (is_my_player_number(plyr_idx))
@@ -1863,8 +1880,7 @@ void process_magic_power_call_to_arms(PlayerNumber plyr_idx)
     }
     if ((duration % 16) == 0)
     {
-        long range;
-        range = subtile_coord(pwrdynst->strength[dungeon->cta_splevel],0);
+        long range = subtile_coord(pwrdynst->strength[dungeon->cta_splevel],0);
         struct Coord3d cta_pos;
         cta_pos.x.val = subtile_coord_center(dungeon->cta_stl_x);
         cta_pos.y.val = subtile_coord_center(dungeon->cta_stl_y);
@@ -1914,10 +1930,10 @@ void process_dungeon_power_magic(void)
             }
             if (game.armageddon_cast_turn > 0)
             {
-                if (game.play_gameturn > game.armageddon_field_15035A)
+                if (game.play_gameturn > game.armageddon_over_turn)
                 {
                   game.armageddon_cast_turn = 0;
-                  game.armageddon_field_15035A = 0;
+                  game.armageddon_over_turn = 0;
                 }
             }
         }

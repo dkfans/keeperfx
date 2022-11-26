@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "player_computer.h"
 
 #include <limits.h>
@@ -40,6 +41,7 @@
 #include "game_legacy.h"
 #include "map_utils.h"
 #include "map_data.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -142,6 +144,22 @@ TbBool get_computer_drop_position_near_subtile(struct Coord3d *pos, struct Dunge
     return get_position_spiral_near_map_block_with_filter(pos,
         subtile_coord_center(stl_x), subtile_coord_center(stl_y),
         81, near_coord_filter_battle_drop_point, &param);
+}
+
+TbBool get_computer_drop_position_next_to_subtile(struct Coord3d* pos, struct Dungeon* dungeon, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+    if ((stl_x <= 0) || (stl_y <= 0)) {
+        return false;
+    }
+    struct CompoundCoordFilterParam param;
+    param.plyr_idx = dungeon->owner;
+    param.slab_kind = -1;
+    param.num1 = 0;
+    param.num2 = 0;
+    param.num3 = 0;
+    return get_position_next_to_map_block_with_filter(pos,
+        subtile_coord_center(stl_x), subtile_coord_center(stl_y),
+        near_coord_filter_battle_drop_point, &param);
 }
 
 long computer_event_battle(struct Computer2 *comp, struct ComputerEvent *cevent, struct Event *event)
@@ -517,16 +535,9 @@ long computer_event_attack_door(struct Computer2* comp, struct ComputerEvent* ce
         return 0;
     }
 
-    struct Coord3d doorpos = thing->mappos;
-
     struct Coord3d freepos;
-    if (!get_computer_drop_position_near_subtile(&freepos, comp->dungeon, coord_subtile(event->mappos_x), coord_subtile(event->mappos_y))) {
-        SYNCDBG(8, "No drop position near (%d,%d) for %s", (int)coord_subtile(event->mappos_x), (int)coord_subtile(event->mappos_y), cevent->name);
-        return 0;
-    }
-
-    if (!computer_find_safe_non_solid_block(comp, &freepos)) {
-        SYNCDBG(8, "Drop position is solid for %s", cevent->name);
+    if (!get_computer_drop_position_next_to_subtile(&freepos, comp->dungeon, coord_subtile(event->mappos_x), coord_subtile(event->mappos_y))) {
+        SYNCDBG(18, "No drop position near (%d,%d) for %s", (int)coord_subtile(event->mappos_x), (int)coord_subtile(event->mappos_y), cevent->name);
         return 0;
     }
 
@@ -544,7 +555,7 @@ long computer_event_attack_door(struct Computer2* comp, struct ComputerEvent* ce
             SYNCDBG(18, "Invalid creature selected", cevent->name);
             return 4;
         }
-        if(!create_task_move_creature_to_pos(comp, creatng, doorpos, CrSt_CreatureDoorCombat))
+        if(!create_task_move_creature_to_pos(comp, creatng, freepos, CrSt_CreatureDoorCombat))
         {
             SYNCDBG(18, "Cannot move to position for event %s", cevent->name);
             return 0;
@@ -560,8 +571,21 @@ long computer_event_attack_door(struct Computer2* comp, struct ComputerEvent* ce
             {
                 if (!create_task_magic_battle_call_to_arms(comp, &freepos, cevent->param2, cevent->param3))
                 {
-                    SYNCDBG(18, "Cannot call to arms for %s", cevent->name);
-                    return 0;
+                    if (computer_find_safe_non_solid_block(comp, &freepos))
+                    {
+                        if (!create_task_magic_battle_call_to_arms(comp, &freepos, cevent->param2, cevent->param3))
+                        {
+                            SYNCDBG(18, "Cannot call to arms for %s", cevent->name);
+                            return 0;
+                        }
+                        return 1;
+                    }
+                    else
+                    {
+                        SYNCDBG(8, "Drop position is solid for %s", cevent->name);
+                        return 0;
+                    }
+
                 }
                 return 1;
             }
@@ -592,7 +616,7 @@ long computer_event_handle_prisoner(struct Computer2* comp, struct ComputerEvent
 
     if (dungeon_has_room(dungeon, RoK_TORTURE) && (!creature_is_being_tortured(creatng)))//avoid repeated action on same unit)
     {
-        if (!creature_requires_healing(creatng))
+        if (!creature_would_benefit_from_healing(creatng))
         {
             destroom = find_room_of_role_with_spare_capacity(dungeon->owner, RoRoF_Torture, 1);
             if (!room_is_invalid(destroom))

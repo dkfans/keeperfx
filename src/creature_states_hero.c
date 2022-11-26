@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "creature_states_hero.h"
 #include "globals.h"
 
@@ -47,6 +48,7 @@
 #include "gui_topmsg.h"
 #include "game_legacy.h"
 #include "map_locations.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -113,33 +115,39 @@ long good_find_best_enemy_dungeon(struct Thing* creatng)
         {
             if (creature_can_get_to_dungeon(creatng, plyr_idx))
             {
+                if (player_is_friendly_or_defeated(plyr_idx, creatng->owner)) {
+                    continue;
+                }
                 return plyr_idx;
             }
         }
- 
-        dungeon = get_players_dungeon(player);
-        long score;
-        if (player_exists(player) && !dungeon_invalid(dungeon) && (creatng->owner != plyr_idx))
+        else
         {
-            score = dungeon->total_score;
-            if (score <= 0)
+
+            dungeon = get_players_dungeon(player);
+            long score;
+            if (player_exists(player) && !dungeon_invalid(dungeon) && (creatng->owner != plyr_idx))
             {
-                score = 0;
-            }
-            if (has_available_enemy_dungeon_heart(creatng, plyr_idx))
-            {
-                if (best_score < score)
+                score = dungeon->total_score;
+                if (score <= 0)
                 {
-                    best_score = score;
-                    best_plyr_idx = plyr_idx;
+                    score = 0;
                 }
-            }
-            else if ((has_available_rooms_to_attack(creatng, plyr_idx)) && best_plyr_idx == -1)
-            {
-                if (best_backup_score < score)
+                if (has_available_enemy_dungeon_heart(creatng, plyr_idx))
                 {
-                    best_backup_score = score;
-                    backup_plyr_idx = plyr_idx;
+                    if (best_score < score)
+                    {
+                        best_score = score;
+                        best_plyr_idx = plyr_idx;
+                    }
+                }
+                else if ((has_available_rooms_to_attack(creatng, plyr_idx)) && best_plyr_idx == -1)
+                {
+                    if (best_backup_score < score)
+                    {
+                        best_backup_score = score;
+                        backup_plyr_idx = plyr_idx;
+                    }
                 }
             }
         }
@@ -1325,15 +1333,15 @@ long creature_tunnel_to(struct Thing *creatng, struct Coord3d *pos, short speed)
     long tnlret = get_next_position_and_angle_required_to_tunnel_creature_to(creatng, pos, cctrl->party.byte_8F);
     if (tnlret == 2)
     {
-        i = cctrl->navi.field_15;
+        i = cctrl->navi.first_colliding_block;
         if (cctrl->navi.field_17 != i)
         {
             cctrl->navi.field_17 = i;
         } else
         if (cctrl->instance_id == CrInst_NULL)
         {
-            MapSubtlCoord stl_x = stl_num_decode_x(cctrl->navi.field_15);
-            MapSubtlCoord stl_y = stl_num_decode_y(cctrl->navi.field_15);
+            MapSubtlCoord stl_x = stl_num_decode_x(cctrl->navi.first_colliding_block);
+            MapSubtlCoord stl_y = stl_num_decode_y(cctrl->navi.first_colliding_block);
             struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
             if ( (slabmap_owner(slb) == creatng->owner) || (slb->kind == SlbT_EARTH || (slb->kind == SlbT_TORCHDIRT)) ) { // if this is false, that means the current tile must have changed to an undiggable wall
                 set_creature_instance(creatng, CrInst_TUNNEL, 0, 0, 0);
@@ -1346,7 +1354,7 @@ long creature_tunnel_to(struct Thing *creatng, struct Coord3d *pos, short speed)
     MapCoordDelta dist = get_2d_distance(&creatng->mappos, &cctrl->navi.pos_next);
     if (dist <= 16)
     {
-        creature_turn_to_face_angle(creatng, cctrl->navi.field_D);
+        creature_turn_to_face_angle(creatng, cctrl->navi.angle);
         creature_set_speed(creatng, 0);
         return 0;
     }

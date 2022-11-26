@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "config_players.h"
 #include "packets.h"
 #include "player_data.h"
@@ -42,6 +43,8 @@
 #include "map_utils.h"
 #include "room_workshop.h"
 #include "cursor_tag.h"
+#include "engine_render.h"
+#include "post_inc.h"
 
 extern TbBool process_dungeon_control_packet_spell_overcharge(long plyr_idx);
 extern TbBool packets_process_cheats(
@@ -54,13 +57,29 @@ extern TbBool packets_process_cheats(
 
 extern void update_double_click_detection(long plyr_idx);
 
+TbBool fix_previous_cursor_subtile_when_offmap;
 void remember_cursor_subtile(struct PlayerInfo *player) {
     struct PlayerInfoAdd* playeradd = get_playeradd(player->id_number);
     struct Packet* pckt = get_packet_direct(player->packet_num);
     playeradd->previous_cursor_subtile_x = playeradd->cursor_subtile_x;
     playeradd->previous_cursor_subtile_y = playeradd->cursor_subtile_y;
-    playeradd->cursor_subtile_x = coord_subtile(((unsigned short)pckt->pos_x));
-    playeradd->cursor_subtile_y = coord_subtile(((unsigned short)pckt->pos_y));
+    
+    TbBool badPacket = ((unsigned short)pckt->pos_x == 0) && ((unsigned short)pckt->pos_y == 0);
+    TbBool onGui = ((pckt->control_flags & PCtr_Gui) != 0);
+
+    if (onGui == true || playeradd->mouse_is_offmap == true || badPacket == true) {
+        // Off field
+        fix_previous_cursor_subtile_when_offmap = true;
+    } else {
+        // On field
+        playeradd->cursor_subtile_x = coord_subtile(((unsigned short)pckt->pos_x));
+        playeradd->cursor_subtile_y = coord_subtile(((unsigned short)pckt->pos_y));
+        if (fix_previous_cursor_subtile_when_offmap == true) {
+            fix_previous_cursor_subtile_when_offmap = false;
+            playeradd->previous_cursor_subtile_x = playeradd->cursor_subtile_x;
+            playeradd->previous_cursor_subtile_y = playeradd->cursor_subtile_y;
+        }
+    }
 }
 
 void set_tag_untag_mode(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
@@ -107,7 +126,7 @@ TbBool process_dungeon_control_packet_dungeon_build_room(long plyr_idx)
     }
     get_dungeon_build_user_roomspace(&playeradd->render_roomspace, player->id_number, player->chosen_room_kind, stl_x, stl_y, playeradd->roomspace_mode);
     long i = tag_cursor_blocks_place_room(player->id_number, stl_x, stl_y, player->full_slab_cursor);
-    if ( (playeradd->roomspace_mode == drag_placement_mode) && (player->chosen_room_kind != RoK_BRIDGE) )
+    if ( (playeradd->roomspace_mode == drag_placement_mode) && (playeradd->roomspace_drag_paint_mode == false) )
     {
        if ((pckt->control_flags & PCtr_LBtnRelease) != PCtr_LBtnRelease)
        {
@@ -231,18 +250,18 @@ TbBool process_dungeon_power_hand_state(long plyr_idx)
                 objdat = get_objects_data(37);
                 set_power_hand_graphic(plyr_idx, objdat->sprite_anim_idx, objdat->anim_speed);
                 if (!thing_is_invalid(thing))
-                    thing->field_4F |= TF4F_Unknown01;
+                    thing->rendering_flags |= TRF_Unknown01;
             } else
             if ((thing->class_id == TCls_Object) && object_is_gold_pile(thing))
             {
                 objdat = get_objects_data(127);
                 set_power_hand_graphic(plyr_idx, objdat->sprite_anim_idx, objdat->anim_speed);
-                thing->field_4F &= ~TF4F_Unknown01;
+                thing->rendering_flags &= ~TRF_Unknown01;
             } else
             {
                 objdat = get_objects_data(38);
                 set_power_hand_graphic(plyr_idx, objdat->sprite_anim_idx + 1, objdat->anim_speed);
-                thing->field_4F &= ~TF4F_Unknown01;
+                thing->rendering_flags &= ~TRF_Unknown01;
             }
         }
     }
@@ -651,11 +670,10 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
     SYNCDBG(6,"Starting for player %d state %s",(int)plyr_idx,player_state_code_name(player->work_state));
     player->full_slab_cursor = 1;
     packet_left_button_double_clicked[plyr_idx] = 0;
+    remember_cursor_subtile(player);
     if ((pckt->control_flags & PCtr_Gui) != 0)
         return false;
     TbBool ret = true;
-
-    remember_cursor_subtile(player);
     process_dungeon_control_packet_spell_overcharge(plyr_idx);
     if ((pckt->control_flags & PCtr_RBtnHeld) != 0)
     {
@@ -666,6 +684,11 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         player->boxsize = 1;
         player->field_4D6 = 0;
     }
+    if (player->id_number == my_player_number)
+    {
+        map_volume_box.visible = 0;
+    }
+
     update_double_click_detection(plyr_idx);
     player->thing_under_hand = 0;
     MapCoord x = ((unsigned short)pckt->pos_x);

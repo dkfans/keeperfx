@@ -17,6 +17,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "player_computer.h"
 
 #include <limits.h>
@@ -45,6 +46,7 @@
 #include "game_legacy.h"
 #include "game_merge.h"
 #include "keeperfx.hpp"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -533,7 +535,7 @@ void get_opponent(struct Computer2 *comp, struct THate hates[])
     {
         struct THate* hate = &hates[i];
         struct OpponentRelation* oprel = &comp->opponent_relations[hate->plyr_idx];
-        int ptidx = oprel->field_4;
+        int ptidx = oprel->next_idx;
         if (ptidx > 0)
           ptidx--;
         for (long n = 0; n < COMPUTER_SPARK_POSITIONS_COUNT; n++)
@@ -1280,7 +1282,7 @@ TbBool setup_a_computer_player(PlayerNumber plyr_idx, long comp_model)
     {
         struct OpponentRelation* oprel = &comp->opponent_relations[i];
         oprel->field_0 = 0;
-        oprel->field_4 = 0;
+        oprel->next_idx = 0;
         if (i == plyr_idx) {
             oprel->hate_amount = LONG_MIN;
         } else {

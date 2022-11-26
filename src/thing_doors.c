@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "thing_doors.h"
 
 #include "globals.h"
@@ -31,12 +32,13 @@
 #include "ariadne.h"
 #include "ariadne_wallhug.h"
 #include "map_blocks.h"
+#include "map_ceiling.h"
 #include "map_utils.h"
 #include "sounds.h"
 #include "gui_topmsg.h"
 #include "game_legacy.h"
 #include "frontmenu_ingame_map.h"
-#include "keeperfx.hpp"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -149,7 +151,7 @@ struct Thing *create_door(struct Coord3d *pos, ThingModel tngmodel, unsigned cha
     doortng->next_on_mapblk = 0;
     doortng->parent_idx = doortng->index;
     doortng->owner = plyr_idx;
-    doortng->field_4F |= TF4F_Unknown01;
+    doortng->rendering_flags |= TRF_Unknown01;
     doortng->door.orientation = orient;
     doortng->active_state = DorSt_Closed;
     doortng->creation_turn = game.play_gameturn;
@@ -159,6 +161,7 @@ struct Thing *create_door(struct Coord3d *pos, ThingModel tngmodel, unsigned cha
     add_thing_to_its_class_list(doortng);
     place_thing_in_mapwho(doortng);
     place_animating_slab_type_on_map(doorst->slbkind[orient], 0,  doortng->mappos.x.stl.num, doortng->mappos.y.stl.num, plyr_idx);
+    ceiling_partially_recompute_heights(pos->x.stl.num - 1, pos->y.stl.num - 1, pos->x.stl.num + 2, pos->y.stl.num + 2);
     //update_navigation_triangulation(stl_x-1,  stl_y-1, stl_x+2,stl_y+2);
     if ( game.neutral_player_num != plyr_idx )
         ++game.dungeon[plyr_idx].total_doors;
@@ -363,6 +366,18 @@ TbBool check_door_should_open(struct Thing *thing)
         return false;
     }
     return true;
+}
+
+TbBool door_will_open_for_thing(struct Thing *doortng, struct Thing *creatng)
+{
+  if ( !doortng->door.is_locked && thing_is_creature(creatng) )
+  {
+    if ( players_are_mutual_allies(doortng->owner,creatng->owner) )
+    {
+      return true;
+    }
+  }
+  return false;
 }
 
 long process_door_open(struct Thing *thing)
@@ -601,7 +616,7 @@ void update_all_door_stats()
         struct Thing* thing = thing_get(i);
         i = thing->next_of_class
         TRACE_THING(thing);
-        struct DoorConfigStats* doorst = get_door_model_stats(thing->model) + thing->door.orientation;
+        struct DoorConfigStats* doorst = get_door_model_stats(thing->model);
         thing->health = doorst->health;
     }
 }

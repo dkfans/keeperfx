@@ -18,10 +18,11 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-
+#include "pre_inc.h"
 #include "bflib_base_tcp.hpp"
 
 #include "bflib_netsp.hpp"
+#include "post_inc.h"
 
 TCP_NetBase::TCP_NetBase() :
 		msgHead(NULL),

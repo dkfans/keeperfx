@@ -48,6 +48,7 @@ void process_disease(struct Thing *thing);
 TbBool player_uses_power_armageddon(PlayerNumber plyr_idx);
 void process_armageddon(void);
 void process_armageddon_influencing_creature(struct Thing *creatng);
+void teleport_armageddon_influenced_creature(struct Thing *creatng);
 
 void update_god_lightning_ball(struct Thing *thing);
 void god_lightning_choose_next_creature(struct Thing *thing);

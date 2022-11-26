@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "config_crtrstates.h"
 #include "globals.h"
 #include "game_merge.h"
@@ -29,6 +30,7 @@
 #include "thing_data.h"
 #include "config_creature.h"
 #include "creature_states.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
