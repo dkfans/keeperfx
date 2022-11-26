@@ -3082,7 +3082,11 @@ static TbBool ariadne_check_forward_for_wallhug_gap_new(struct Thing *thing, str
 DLLIMPORT TbBool _DK_ariadne_check_forward_for_wallhug_gap(struct Thing *thing, struct Ariadne *arid, struct Coord3d *pos, long hug_angle);
 static TbBool ariadne_check_forward_for_wallhug_gap(struct Thing *thing, struct Ariadne *arid, struct Coord3d *pos, long hug_angle)
 {
+    struct Coord3d startpos = thing->mappos;
+
  TbBool old = _DK_ariadne_check_forward_for_wallhug_gap(thing, arid, pos, hug_angle);
+thing->mappos = startpos;
+
  TbBool new = ariadne_check_forward_for_wallhug_gap_new(thing, arid, pos, hug_angle);
 
     if (old != new)
@@ -3091,7 +3095,7 @@ static TbBool ariadne_check_forward_for_wallhug_gap(struct Thing *thing, struct 
     }
     else
     {
-       ERRORLOG("Old and new functions return the same result %d",(int)old);
+       ERRORLOG("Ok %d",(int)old);
     }
     return new;
 }
