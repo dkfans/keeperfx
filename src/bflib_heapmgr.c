@@ -42,7 +42,57 @@ struct HeapMgrHandle *find_free_handle(struct HeapMgrHeader *hmhead)
 
 long heapmgr_free_handle(struct HeapMgrHeader *hmhead, struct HeapMgrHandle *hmhandle)
 {
-    return _DK_heapmgr_free_handle(hmhead, hmhandle);
+    struct HeapMgrHandle *hmhandle_2;
+    struct HeapMgrHandle **hmhandle_next_alloc;
+    const struct HeapMgrHandle **hmhandle_3;
+    struct HeapMgrHandle *v5;
+    struct HeapMgrHandle *prev_hndl;
+    void **p_next_hndl;
+    int v8;
+    const struct HeapMgrHandle *v10;
+
+    hmhandle_2 = hmhandle->field_C;
+    hmhandle_next_alloc = (struct HeapMgrHandle **)&hmhandle->next_alloc;
+    if (hmhandle_2)
+        hmhandle_2->next_alloc = *hmhandle_next_alloc;
+    else
+        hmhead->first_alloc = *hmhandle_next_alloc;
+    if (*hmhandle_next_alloc)
+    {
+        (*hmhandle_next_alloc)->field_C = hmhandle->field_C;
+        hmhandle_3 = (const struct HeapMgrHandle **)*hmhandle_next_alloc;
+        if (((*hmhandle_next_alloc)->flags & 4) == 0)
+        {
+            v5 = hmhandle->field_C;
+            v10 = hmhandle_3[1];
+            if (v5)
+            {
+                memcpy((char *)v5->buf + v5->len, *hmhandle_3, (size_t)v10);
+                (*hmhandle_next_alloc)->buf = (char *)hmhandle->field_C->buf + hmhandle->field_C->len;
+            }
+            else
+            {
+                memcpy(hmhead->databuf_start, *hmhandle_3, (size_t)v10);
+                (*hmhandle_next_alloc)->buf = hmhead->databuf_start;
+            }
+        }
+    }
+    prev_hndl = (struct HeapMgrHandle *)hmhandle->prev_hndl;
+    p_next_hndl = &hmhandle->next_hndl;
+    if (prev_hndl)
+        prev_hndl->next_hndl = *p_next_hndl;
+    else
+        hmhead->last_hndl = *p_next_hndl;
+    if (*p_next_hndl)
+        *((_DWORD *)*p_next_hndl + 5) = hmhandle->prev_hndl;
+    else
+        hmhead->first_hndl = hmhandle->prev_hndl;
+    v8 = hmhead->field_14;
+    --hmhead->field_10;
+    hmhead->field_14 = v8 - hmhandle->len;
+    LOWORD(v8) = hmhandle->idx;
+    memset(hmhandle, 0, sizeof(struct HeapMgrHandle));
+    return (unsigned __int16)v8;
 }
 
 long heapmgr_free_oldest(struct HeapMgrHeader *hmhead)
