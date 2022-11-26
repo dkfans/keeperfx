@@ -390,13 +390,7 @@ CFLAGS += -DUSE_PRE_FILE=1
 endif
 
 CAMPAIGNS = $(patsubst campgns/%.cfg,%,$(wildcard campgns/*.cfg))
-MAPPACKS  = \
-classic \
-deepdngn \
-legacy \
-lostlvls \
-standard
-
+MAPPACKS = $(patsubst levels/%.cfg,%,$(filter-out %/personal.cfg,$(wildcard levels/*.cfg)))
 LANGS = eng chi cht cze dut fre ger ita jpn kor lat pol rus spa swe
 
 # load program version
