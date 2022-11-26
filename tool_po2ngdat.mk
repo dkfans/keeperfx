@@ -26,7 +26,7 @@ clean-tools: clean-po2ngdat
 
 deep-clean-tools: deep-clean-po2ngdat
 
-ifneq (,$(wildcard tools/po2ngdat/src/po2ngdat.cpp)) 
+ifneq (,$(wildcard tools/po2ngdat/src/po2ngdat.cpp))
 
 # If we have source code of this tool, compile it
 $(POTONGDAT): tools/po2ngdat/src/po2ngdat.cpp
