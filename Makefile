@@ -593,10 +593,10 @@ include tool_sndbanker.mk
 include tool_rnctools.mk
 #include tool_dkillconv.mk
 
-include package.mk
 include pkg_lang.mk
 include pkg_gfx.mk
 include pkg_sfx.mk
+include package.mk
 
 export RM CP MKDIR MV ECHO
 #******************************************************************************
