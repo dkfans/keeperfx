@@ -389,31 +389,7 @@ CXXFLAGS += -DUSE_PRE_FILE=1
 CFLAGS += -DUSE_PRE_FILE=1
 endif
 
-CAMPAIGNS  = \
-ami2019 \
-ancntkpr \
-burdnimp \
-cqarctic \
-dstninja \
-dzjr06lv \
-dzjr10lv \
-dzjr25lv \
-evilkeep \
-grkreign \
-jdkmaps8 \
-kdklvpck \
-keeporig \
-lqizgood \
-lrdvexer \
-ncastles \
-origplus \
-postanck \
-pstunded \
-questfth \
-revlord \
-twinkprs \
-undedkpr
-
+CAMPAIGNS = $(patsubst campgns/%.cfg,%,$(wildcard campgns/*.cfg))
 MAPPACKS  = \
 classic \
 deepdngn \
