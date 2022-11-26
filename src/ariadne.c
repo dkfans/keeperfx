@@ -2981,7 +2981,6 @@ AriadneReturn ariadne_update_state_on_line(struct Thing *thing, struct Ariadne *
 
 static TbBool ariadne_check_forward_for_wallhug_gap_new(struct Thing *thing, struct Ariadne *arid, struct Coord3d *pos, long hug_angle)
 {
-    TbBool cant_move_to_pos_directly;
     struct Coord3d nav_boundry_pos;
     struct Coord3d potentional_next_pos_3d;
     struct Coord3d potentional_next_pos_2d;
@@ -3031,16 +3030,16 @@ static TbBool ariadne_check_forward_for_wallhug_gap_new(struct Thing *thing, str
             return false;
     }
 
-    char num;
+    char angle_offset;
 
     if ( arid->field_20 == 1 )
-        num = -1;
+        angle_offset = -1;
     else if ( arid->field_20 == 2 )
-        num = 1;
+        angle_offset = 1;
     else 
         return 0;
 
-    long quadrant = (((unsigned __int8)angle_to_quadrant(hug_angle) + num) & 3) << 9;
+    long quadrant = (LbFPMath_PI/2) * ((angle_to_quadrant(hug_angle) + angle_offset) & 3);
 
     potentional_next_pos_2d.x.val = move_coord_with_angle_x(thing->mappos.x.val,arid->move_speed,quadrant);
     potentional_next_pos_2d.y.val = move_coord_with_angle_y(thing->mappos.y.val,arid->move_speed,quadrant);
@@ -3051,7 +3050,7 @@ static TbBool ariadne_check_forward_for_wallhug_gap_new(struct Thing *thing, str
     potentional_next_pos_3d.z.val = get_floor_height_under_thing_at(thing, &thing->mappos);
     
     thing->mappos.z.val = potentional_next_pos_3d.z.val;
-    cant_move_to_pos_directly = creature_cannot_move_directly_to(thing, &potentional_next_pos_3d);
+    TbBool cant_move_to_pos_directly = creature_cannot_move_directly_to(thing, &potentional_next_pos_3d);
     thing->mappos.z.val = arid->move_speed;
 
     if ( cant_move_to_pos_directly )
