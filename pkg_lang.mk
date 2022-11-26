@@ -29,110 +29,76 @@ MPTEXTDATS = \
 	$(patsubst lang/%.po,pkg/%.dat,$(foreach mappack,$(MAPPACKS),$(wildcard lang/levels/$(mappack)/*.po))) \
 	$(patsubst lang/%.pot,pkg/%.dat,$(foreach mappack,$(MAPPACKS),$(wildcard lang/levels/$(mappack)/*.pot)))
 
-pkg-languages: lang-before $(NGTEXTDATS) $(NCTEXTDATS) $(MPTEXTDATS) pkg-before
+EU_CHAR_ENCODING = tools/po2ngdat/res/char_encoding_tbl_eu.txt
+JP_CHAR_ENCODING = tools/po2ngdat/res/char_encoding_tbl_jp.txt
+RU_CHAR_ENCODING = tools/po2ngdat/res/char_encoding_tbl_ru.txt
+CH_CHAR_ENCODING = tools/po2ngdat/res/char_encoding_tbl_ch.txt
+KR_CHAR_ENCODING = tools/po2ngdat/res/char_encoding_tbl_kr.txt
 
-lang-before:
-	$(MKDIR) pkg/fxdata
+.PRECIOUS: $(EU_CHAR_ENCODING) $(JP_CHAR_ENCODING) $(RU_CHAR_ENCODING) $(CH_CHAR_ENCODING) $(KR_CHAR_ENCODING)
+
+pkg-languages: $(NGTEXTDATS) $(NCTEXTDATS) $(MPTEXTDATS)
 
 # Creation of Only single language engine language files from PO/POT files (for development)
-pkg-lang-single: lang-before pkg/fxdata/gtext_$(LANGUAGE).dat
+pkg-lang-single: pkg/fxdata/gtext_$(LANGUAGE).dat
+
+$(patsubst %/,%,$(sort $(dir $(NCTEXTDATS)))):
+	$(MKDIR) $@
+
+$(patsubst %/,%,$(sort $(dir $(MPTEXTDATS)))):
+	$(MKDIR) $@
 
 # Creation of engine language files from PO/POT files
-pkg/fxdata/gtext_jpn.dat: lang/gtext_jpn.po tools/po2ngdat/res/char_encoding_tbl_jp.txt $(POTONGDAT)
-	-$(ECHO) 'Building language file: $@'
-	$(POTONGDAT) -o "$@" -e "$(word 2,$^)" "$<"
-	-$(ECHO) 'Finished building: $@'
-	-$(ECHO) ' '
+pkg/fxdata/gtext_jpn.dat: lang/gtext_jpn.po $(POTONGDAT) $(JP_CHAR_ENCODING) | pkg/fxdata
+	$(POTONGDAT) -o $@ -e $(JP_CHAR_ENCODING) $< >/dev/null
 
-pkg/fxdata/gtext_rus.dat: lang/gtext_rus.po tools/po2ngdat/res/char_encoding_tbl_ru.txt $(POTONGDAT)
-	-$(ECHO) 'Building language file: $@'
-	$(POTONGDAT) -o "$@" -e "$(word 2,$^)" "$<"
-	-$(ECHO) 'Finished building: $@'
-	-$(ECHO) ' '
+pkg/fxdata/gtext_rus.dat: lang/gtext_rus.po $(POTONGDAT) $(RU_CHAR_ENCODING) | pkg/fxdata
+	$(POTONGDAT) -o $@ -e $(RU_CHAR_ENCODING) $< >/dev/null
 
-pkg/fxdata/gtext_chi.dat: lang/gtext_chi.po tools/po2ngdat/res/char_encoding_tbl_ch.txt $(POTONGDAT)
-	-$(ECHO) 'Building language file: $@'
-	$(POTONGDAT) -o "$@" -e "$(word 2,$^)" "$<"
-	-$(ECHO) 'Finished building: $@'
-	-$(ECHO) ' '
+pkg/fxdata/gtext_chi.dat: lang/gtext_chi.po $(POTONGDAT) $(CH_CHAR_ENCODING) | pkg/fxdata
+	$(POTONGDAT) -o $@ -e $(CH_CHAR_ENCODING) $< >/dev/null
 
-pkg/fxdata/gtext_cht.dat: lang/gtext_cht.po tools/po2ngdat/res/char_encoding_tbl_ch.txt $(POTONGDAT)
-	-$(ECHO) 'Building language file: $@'
-	$(POTONGDAT) -o "$@" -e "$(word 2,$^)" "$<"
-	-$(ECHO) 'Finished building: $@'
-	-$(ECHO) ' '
+pkg/fxdata/gtext_cht.dat: lang/gtext_cht.po $(POTONGDAT) $(CH_CHAR_ENCODING) | pkg/fxdata
+	$(POTONGDAT) -o $@ -e $(CH_CHAR_ENCODING) $< >/dev/null
 
-pkg/fxdata/gtext_kor.dat: lang/gtext_kor.po tools/po2ngdat/res/char_encoding_tbl_kr.txt $(POTONGDAT)
-	-$(ECHO) 'Building language file: $@'
-	$(POTONGDAT) -o "$@" -e "$(word 2,$^)" "$<"
-	-$(ECHO) 'Finished building: $@'
-	-$(ECHO) ' '
+pkg/fxdata/gtext_kor.dat: lang/gtext_kor.po $(POTONGDAT) $(KR_CHAR_ENCODING) | pkg/fxdata
+	$(POTONGDAT) -o $@ -e $(KR_CHAR_ENCODING) $< >/dev/null
 
-pkg/fxdata/gtext_%.dat: lang/gtext_%.po tools/po2ngdat/res/char_encoding_tbl_eu.txt $(POTONGDAT)
-	-$(ECHO) 'Building language file: $@'
-	$(POTONGDAT) -o "$@" -e "$(word 2,$^)" "$<"
-	-$(ECHO) 'Finished building: $@'
-	-$(ECHO) ' '
+pkg/fxdata/gtext_%.dat: lang/gtext_%.po $(POTONGDAT) $(EU_CHAR_ENCODING) | pkg/fxdata
+	$(POTONGDAT) -o $@ -e $(EU_CHAR_ENCODING) $< >/dev/null
 
-pkg/fxdata/gtext_%.dat: lang/gtext_%.pot tools/po2ngdat/res/char_encoding_tbl_eu.txt $(POTONGDAT)
-	-$(ECHO) 'Building language file: $@'
-	$(POTONGDAT) -o "$@" -e "$(word 2,$^)" "$<"
-	-$(ECHO) 'Finished building: $@'
-	-$(ECHO) ' '
+pkg/fxdata/gtext_%.dat: lang/gtext_%.pot $(POTONGDAT) $(EU_CHAR_ENCODING) | pkg/fxdata
+	$(POTONGDAT) -o $@ -e $(EU_CHAR_ENCODING) $< >/dev/null
 
-# Creation of engine language files for campaigns
-define define_campaign_language_rule
+pkg/%/text_chi.dat : lang/%/text_chi.po $(POTONGDAT) $(CH_CHAR_ENCODING) | pkg/%
+	$(POTONGDAT) -o $@ -e $(CH_CHAR_ENCODING) $< >/dev/null
 
-pkg/campgns/$(1)/text_ch%.dat: lang/campgns/$(1)/text_ch%.po tools/po2ngdat/res/char_encoding_tbl_ch.txt $$(POTONGDAT)
-	-$$(ECHO) 'Building language file: $$@'
-	@$$(MKDIR) $$(@D)
-	$$(POTONGDAT) -o "$$@" -e "$$(word 2,$$^)" "$$<"
-	-$$(ECHO) 'Finished building: $$@'
-	-$$(ECHO) ' '
+pkg/%/text_fre.dat: lang/%/text_fre.po $(POTONGDAT) $(EU_CHAR_ENCODING) | pkg/%
+	$(POTONGDAT) -o $@ -e $(EU_CHAR_ENCODING) $< >/dev/null
 
-pkg/campgns/$(1)/%.dat: lang/campgns/$(1)/%.po tools/po2ngdat/res/char_encoding_tbl_eu.txt $$(POTONGDAT)
-	-$$(ECHO) 'Building language file: $$@'
-	@$$(MKDIR) $$(@D)
-	$$(POTONGDAT) -o "$$@" -e "$$(word 2,$$^)" "$$<"
-	-$$(ECHO) 'Finished building: $$@'
-	-$$(ECHO) ' '
+pkg/%/text_ger.dat: lang/%/text_ger.po $(POTONGDAT) $(EU_CHAR_ENCODING) | pkg/%
+	$(POTONGDAT) -o $@ -e $(EU_CHAR_ENCODING) $< >/dev/null
 
-pkg/campgns/$(1)/%.dat: lang/campgns/$(1)/%.pot tools/po2ngdat/res/char_encoding_tbl_eu.txt $$(POTONGDAT)
-	-$$(ECHO) 'Building language file: $$@'
-	@$$(MKDIR) $$(@D)
-	$$(POTONGDAT) -o "$$@" -e "$$(word 2,$$^)" "$$<"
-	-$$(ECHO) 'Finished building: $$@'
-	-$$(ECHO) ' '
+pkg/%/text_pol.dat: lang/%/text_pol.po $(POTONGDAT) $(EU_CHAR_ENCODING) | pkg/%
+	$(POTONGDAT) -o $@ -e $(EU_CHAR_ENCODING) $< >/dev/null
 
-endef
+pkg/%/landview_pol.dat: lang/%/landview_pol.po $(POTONGDAT) $(EU_CHAR_ENCODING) | pkg/%
+	$(POTONGDAT) -o $@ -e $(EU_CHAR_ENCODING) $< >/dev/null
 
-# Creation of engine language files for map packs
-define define_mappack_language_rule
+pkg/%/landview_dut.dat: lang/%/landview_dut.po $(POTONGDAT) $(EU_CHAR_ENCODING) | pkg/%
+	$(POTONGDAT) -o $@ -e $(EU_CHAR_ENCODING) $< >/dev/null
 
-pkg/levels/$(1)/text_ch%.dat: lang/levels/$(1)/text_ch%.po tools/po2ngdat/res/char_encoding_tbl_ch.txt $$(POTONGDAT)
-	-$$(ECHO) 'Building language file: $$@'
-	@$$(MKDIR) $$(@D)
-	$$(POTONGDAT) -o "$$@" -e "$$(word 2,$$^)" "$$<"
-	-$$(ECHO) 'Finished building: $$@'
-	-$$(ECHO) ' '
+pkg/%/landview_fre.dat: lang/%/landview_fre.po $(POTONGDAT) $(EU_CHAR_ENCODING) | pkg/%
+	$(POTONGDAT) -o $@ -e $(EU_CHAR_ENCODING) $< >/dev/null
 
-pkg/levels/$(1)/%.dat: lang/levels/$(1)/%.po tools/po2ngdat/res/char_encoding_tbl_eu.txt $$(POTONGDAT)
-	-$$(ECHO) 'Building language file: $$@'
-	@$$(MKDIR) $$(@D)
-	$$(POTONGDAT) -o "$$@" -e "$$(word 2,$$^)" "$$<"
-	-$$(ECHO) 'Finished building: $$@'
-	-$$(ECHO) ' '
+pkg/%/landview_kor.dat: lang/%/landview_kor.po $(POTONGDAT) $(KR_CHAR_ENCODING) | pkg/%
+	$(POTONGDAT) -o $@ -e $(KR_CHAR_ENCODING) $< >/dev/null
 
-pkg/levels/$(1)/%.dat: lang/levels/$(1)/%.pot tools/po2ngdat/res/char_encoding_tbl_eu.txt $$(POTONGDAT)
-	-$$(ECHO) 'Building language file: $$@'
-	@$$(MKDIR) $$(@D)
-	$$(POTONGDAT) -o "$$@" -e "$$(word 2,$$^)" "$$<"
-	-$$(ECHO) 'Finished building: $$@'
-	-$$(ECHO) ' '
+pkg/%/landview_rus.dat: lang/%/landview_rus.po $(POTONGDAT) $(RU_CHAR_ENCODING) | pkg/%
+	$(POTONGDAT) -o $@ -e $(RU_CHAR_ENCODING) $< >/dev/null
 
-endef
+pkg/%/text_eng.dat: lang/%/text_eng.pot $(POTONGDAT) $(EU_CHAR_ENCODING) | pkg/%
+	$(POTONGDAT) -o $@ -e $(EU_CHAR_ENCODING) $< >/dev/null
 
-$(foreach campaign,$(sort $(CAMPAIGNS)),$(eval $(call define_campaign_language_rule,$(campaign))))
-$(foreach mappack,$(sort $(MAPPACKS)),$(eval $(call define_mappack_language_rule,$(mappack))))
-
-#******************************************************************************
+pkg/%/landview_eng.dat: lang/%/landview_eng.pot $(POTONGDAT) $(EU_CHAR_ENCODING) | pkg/%
+	$(POTONGDAT) -o $@ -e $(EU_CHAR_ENCODING) $< >/dev/null
