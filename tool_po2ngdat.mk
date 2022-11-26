@@ -46,13 +46,11 @@ $(POTONGDAT): tools/po2ngdat/pkg/$(POTONGDAT_PACKAGE)
 	-$(ECHO) 'Finished extracting: $<'
 	-$(ECHO) ' '
 
-tools/po2ngdat/res/%.txt: tools/po2ngdat/pkg/$(POTONGDAT_PACKAGE)
-	-$(ECHO) 'Extracting encoding table: $@'
-	$(MKDIR) "$(@D)"
-	cd "$(@D)"; \
-	tar -zxmUf "../../../$<" --wildcards "*char_encoding_*.txt"
-	-$(ECHO) 'Finished extracting: $@'
-	-$(ECHO) ' '
+tools/po2ngdat/res:
+	$(MKDIR) $@
+
+tools/po2ngdat/res/char_encoding_tbl_%.txt: tools/po2ngdat/pkg/$(POTONGDAT_PACKAGE) | tools/po2ngdat/res
+	tar xzmf $< -C $(@D) ./$(@F)
 
 tools/po2ngdat/pkg/$(POTONGDAT_PACKAGE):
 	-$(ECHO) 'Downloading package: $@'
