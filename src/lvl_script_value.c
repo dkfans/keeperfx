@@ -802,8 +802,10 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
   case Cmd_ALLY_PLAYERS:
       for (i=plr_start; i < plr_end; i++)
       {
-          set_ally_with_player(i, val2, val3);
-          set_ally_with_player(val2, i, val3);
+          set_ally_with_player(i, val2, (val3 & 1) ? true : false);
+          set_ally_with_player(val2, i, (val3 & 1) ? true : false);
+          set_player_ally_locked(i, val2, (val3 & 2) ? true : false);
+          set_player_ally_locked(val2, i, (val3 & 2) ? true : false);
       }
       break;
       break;
@@ -1259,6 +1261,18 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       case 28: //GameTurnsPerTortureHealthLoss
           SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.turns_per_torture_health_loss, val3);
           game.turns_per_torture_health_loss = val3;
+          break;
+      case 29: //AlliesShareVision
+          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.allies_share_vision, val3);
+          gameadd.allies_share_vision = (TbBool)val3;
+          break;
+      case 30: //AlliesShareDrop
+          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.allies_share_drop, val3);
+          gameadd.allies_share_drop = (TbBool)val3;
+          break;
+      case 31: //AlliesShareCta
+          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.allies_share_cta, val3);
+          gameadd.allies_share_cta = (TbBool)val3;
           break;
       default:
           WARNMSG("Unsupported Game RULE, command %d.", val2);

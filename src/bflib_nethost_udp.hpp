@@ -36,7 +36,7 @@ private:
 	SDL_Thread * thread;
 	ThreadCond cond;
 
-	static void threadFunc(UDP_NetHost * sh);
+	static int threadFunc(void *);
 
 	StringVector broadcastAddr;
 

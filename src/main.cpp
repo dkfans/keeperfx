@@ -90,6 +90,7 @@
 #include "room_entrance.h"
 #include "room_util.h"
 #include "map_columns.h"
+#include "map_ceiling.h"
 #include "map_events.h"
 #include "map_utils.h"
 #include "map_blocks.h"
@@ -135,7 +136,6 @@ unsigned short bf_argc;
 char *bf_argv[CMDLN_MAXLEN+1];
 short do_draw;
 short default_loc_player = 0;
-TbBool force_player_num = false;
 struct StartupParameters start_params;
 
 struct Room *droom = &_DK_game.rooms[25];
@@ -147,9 +147,8 @@ TbClockMSec last_loop_time=0;
 extern "C" {
 #endif
 
-// DLLIMPORT int _DK_can_thing_be_queried(struct Thing *thing, long a2);
-DLLIMPORT long _DK_ceiling_init(unsigned long a1, unsigned long a2);
-DLLIMPORT long _DK_ceiling_block_is_solid_including_corners_return_height(long a1, long a2, long a3);
+TbBool force_player_num = false;
+
 // Now variables
 DLLIMPORT extern HINSTANCE _DK_hInstance;
 
@@ -976,41 +975,6 @@ void init_keeper(void)
     game.numfield_D |= (GNFldD_Unkn20 | GNFldD_Unkn40);
     init_censorship();
     SYNCDBG(9,"Finished");
-}
-
-short ceiling_set_info(long height_max, long height_min, long step)
-{
-    SYNCDBG(6,"Starting");
-    long dist;
-    if (step <= 0)
-    {
-      ERRORLOG("Illegal ceiling step value");
-      return 0;
-    }
-    if (height_max > 15)
-    {
-      ERRORLOG("Max height is too high");
-      return 0;
-    }
-    if (height_min > height_max)
-    {
-      ERRORLOG("Ceiling max height is smaller than min height");
-      return 0;
-    }
-    dist = (height_max - height_min) / step;
-    if ( dist >= 2500 )
-      dist = 2500;
-    game.field_14A80C = dist;
-    if (dist > 20)
-    {
-      ERRORLOG("Ceiling search distance too big");
-      return 0;
-    }
-    game.field_14A804 = height_max;
-    game.field_14A808 = height_min;
-    game.field_14A814 = step;
-    game.field_14A810 = (2*game.field_14A80C+1) * (2*game.field_14A80C+1);
-    return 1;
 }
 
 /**
@@ -3623,129 +3587,6 @@ void initialise_map_health(void)
     }
 }
 
-long ceiling_block_is_solid_including_corners_return_height(long a1, long a2, long a3)
-{
-    return _DK_ceiling_block_is_solid_including_corners_return_height(a1, a2, a3);
-}
-
-long get_ceiling_filled_subtiles_from_cubes(const struct Column *col)
-{
-    if (col->solidmask == 0) {
-        return 0;
-    }
-    int i;
-    for (i = COLUMN_STACK_HEIGHT-1; i >= 0; i--)
-    {
-        if (col->cubes[i] != 0)
-            break;
-    }
-    return i + 1;
-}
-
-int get_ceiling_or_floor_filled_subtiles(int stl_num)
-{
-    const struct Map *mapblk;
-    mapblk = get_map_block_at_pos(stl_num);
-    const struct Column *col;
-    col = get_map_column(mapblk);
-    if (get_map_ceiling_filled_subtiles(mapblk) > 0) {
-        return get_ceiling_filled_subtiles_from_cubes(col);
-    } else {
-        return get_map_floor_filled_subtiles(mapblk);
-    }
-}
-long ceiling_init(unsigned long a1, unsigned long a2)
-{
-    return _DK_ceiling_init(a1, a2);
-    //TODO Fix, then enable rewritten version
-    MapSubtlCoord stl_x;
-    MapSubtlCoord stl_y;
-    for (stl_y=0; stl_y < map_subtiles_y; stl_y++)
-    {
-        for (stl_x=0; stl_x < map_subtiles_x; stl_x++)
-        {
-            int filled_h;
-            if (map_pos_solid_at_ceiling(stl_x, stl_y))
-            {
-                filled_h = get_ceiling_or_floor_filled_subtiles(get_subtile_number(stl_x,stl_y));
-            } else
-            if (stl_x > 0 && map_pos_solid_at_ceiling(stl_x-1, stl_y))
-            {
-                filled_h = get_ceiling_or_floor_filled_subtiles(get_subtile_number(stl_x-1,stl_y));
-            } else
-            if (stl_y > 0 && map_pos_solid_at_ceiling(stl_x, stl_y-1))
-            {
-                filled_h = get_ceiling_or_floor_filled_subtiles(get_subtile_number(stl_x,stl_y-1));
-            } else
-            if (stl_x > 0 && stl_y > 0 && map_pos_solid_at_ceiling(stl_x-1, stl_y-1)) {
-                filled_h = get_ceiling_or_floor_filled_subtiles(get_subtile_number(stl_x-1,stl_y-1));
-            } else {
-                filled_h = -1;
-            }
-
-            if (filled_h <= -1)
-            {
-              if (game.field_14A810 <= 0)
-              {
-                  filled_h = game.field_14A804;
-              }
-              else
-              {
-                int i;
-                i = 0;
-                while ( 1 )
-                {
-                    struct MapOffset *sstep;
-                    sstep = &spiral_step[i];
-                    MapSubtlCoord cstl_x;
-                    MapSubtlCoord cstl_y;
-                    cstl_x = stl_x + sstep->h;
-                    cstl_y = stl_y + sstep->v;
-                    if ((cstl_x >= 0) && (cstl_x <= map_subtiles_x))
-                    {
-                        if ((cstl_y >= 0) && (cstl_y <= map_subtiles_y))
-                        {
-                            filled_h = ceiling_block_is_solid_including_corners_return_height(sstep->both + get_subtile_number(stl_x,stl_y), cstl_x, cstl_y);
-                            if (filled_h > -1)
-                            {
-                                int delta_tmp;
-                                int delta_max;
-                                delta_tmp = abs(stl_x - cstl_x);
-                                delta_max = abs(stl_y - cstl_y);
-                                if (delta_max <= delta_tmp)
-                                    delta_max = delta_tmp;
-                                if (filled_h < game.field_14A804)
-                                {
-                                    filled_h += game.field_14A814 * delta_max;
-                                    if (filled_h >= game.field_14A804)
-                                        filled_h = game.field_14A804;
-                                } else
-                                if ( filled_h > game.field_14A804 )
-                                {
-                                    filled_h -= game.field_14A814 * delta_max;
-                                    if (filled_h <= game.field_14A808)
-                                        filled_h = game.field_14A808;
-                                }
-                                break;
-                            }
-                        }
-                    }
-                    ++i;
-                    if (i >= game.field_14A810) {
-                        filled_h = game.field_14A804;
-                        break;
-                    }
-                }
-              }
-            }
-            struct Map *mapblk;
-            mapblk = get_map_block_at(stl_x,stl_y);
-            set_mapblk_filled_subtiles(mapblk, filled_h);
-        }
-    }
-    return 1;
-}
-
 static TbBool wait_at_frontend(void)
 {
     struct PlayerInfo *player;
@@ -4536,7 +4377,7 @@ void update_time(void)
     Timer.Hours = time / 60;
 }
 
-__attribute__((regparm(3))) struct GameTime get_game_time(unsigned long turns, unsigned long fps)
+struct GameTime get_game_time(unsigned long turns, unsigned long fps)
 {
     struct GameTime GameT;
     unsigned long time = turns / fps;

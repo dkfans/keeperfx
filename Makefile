@@ -255,6 +255,7 @@ obj/magic.o \
 obj/main_game.o \
 obj/map_blocks.o \
 obj/map_columns.o \
+obj/map_ceiling.o \
 obj/map_data.o \
 obj/map_events.o \
 obj/map_locations.o \
@@ -443,7 +444,7 @@ include prebuilds.mk
 -include $(filter %.d,$(STDOBJS:%.o=%.d))
 -include $(filter %.d,$(HVLOGOBJS:%.o=%.d))
 
-all: standard
+all: clean standard
 
 standard: CXXFLAGS += $(STLOGFLAGS)
 standard: CFLAGS += $(STLOGFLAGS)
@@ -465,7 +466,10 @@ docsdox: docs/doxygen.conf
 
 deep-clean: deep-clean-tools deep-clean-libexterns deep-clean-package
 
-clean: clean-build clean-tools clean-libexterns clean-package
+clean: submodule clean-build clean-tools clean-libexterns clean-package
+
+submodule:
+	-git submodule init && git submodule update
 
 clean-build:
 	-$(RM) $(STDOBJS) $(STD_MAIN_OBJ) $(filter %.d,$(STDOBJS:%.o=%.d)) $(filter %.d,$(STD_MAIN_OBJ:%.o=%.d))

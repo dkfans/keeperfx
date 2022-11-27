@@ -30,10 +30,10 @@ ifneq (,$(wildcard tools/rnctools/src/dernc.c))
 
 # If we have source code of this tool, compile it
 $(RNC) $(DERNC): tools/rnctools/src/rnc.c tools/rnctools/src/dernc.c
-	make -C tools/rnctools
+	$(MAKE) -C tools/rnctools
 
 clean-rnctools:
-	make -C tools/rnctools clean
+	$(MAKE) -C tools/rnctools clean
 
 else ifneq (,$(findstring .tar.gz,$(RNCTOOLS_PACKAGE)))
 

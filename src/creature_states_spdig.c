@@ -376,7 +376,7 @@ long check_out_unconverted_drop_place(struct Thing *thing)
 {
     //return _DK_check_out_unconverted_drop_place(thing);
     MapSlabCoord slb_x = subtile_slab_fast(thing->mappos.x.stl.num);
-    MapSlabCoord slb_y = subtile_slab_fast(thing->mappos.x.stl.num);
+    MapSlabCoord slb_y = subtile_slab_fast(thing->mappos.y.stl.num);
     if (check_place_to_convert_excluding(thing, slb_x, slb_y))
     {
         if (imp_will_soon_be_working_at_excluding(thing, slab_subtile_center(slb_x), slab_subtile_center(slb_y)))
@@ -1657,12 +1657,14 @@ short creature_picks_up_trap_object(struct Thing *thing)
     SYNCDBG(18,"Moving %s index %d",thing_model_name(thing),(int)thing->index);
     if (room_exists(room))
     {
-        remove_workshop_object_from_workshop(room,cratetng);
-        if (!is_hero_thing(cratetng) && !is_neutral_thing(cratetng))
+        if (remove_workshop_object_from_workshop(room, cratetng))
         {
-            remove_workshop_item_from_amount_stored(cratetng->owner,
-                crate_thing_to_workshop_item_class(cratetng),
-                crate_thing_to_workshop_item_model(cratetng), WrkCrtF_NoOffmap);
+            if (!is_hero_thing(cratetng) && !is_neutral_thing(cratetng))
+            {
+                remove_workshop_item_from_amount_stored(cratetng->owner,
+                    crate_thing_to_workshop_item_class(cratetng),
+                    crate_thing_to_workshop_item_model(cratetng), WrkCrtF_NoOffmap);
+            }
         }
     }
     creature_drag_object(thing, cratetng);
@@ -1881,6 +1883,10 @@ short creature_arms_trap(struct Thing *thing)
         return 0;
     }
     rearm_trap(traptng);
+    if (imp_will_soon_be_arming_trap(traptng)) //Another crate is still earmarked for this trap, refund it.
+    {
+        readd_workshop_item_to_amount_placeable(traptng->owner, traptng->class_id, traptng->model);
+    }
     dungeon = get_dungeon(thing->owner);
     dungeon->lvstats.traps_armed++;
     creature_drop_dragged_object(thing, cratetng);

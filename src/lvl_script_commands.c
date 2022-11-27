@@ -2405,14 +2405,14 @@ static void set_box_tooltip_id(const struct ScriptLine *scline)
 static void change_slab_owner_check(const struct ScriptLine *scline)
 {
 
-    if (scline->np[0] < 0 || scline->np[0] > 85) //x coord
+    if (scline->np[0] < 0 || scline->np[0] > map_tiles_x) //x coord
     {
-        SCRPTERRLOG("Value '%d' out of range. Range 0-85 allowed.", scline->np[0]);
+        SCRPTERRLOG("Value '%d' out of range. Range 0-%d allowed.", scline->np[0],map_tiles_x);
         return;
     }
-    if (scline->np[1] < 0 || scline->np[1] > 85) //y coord
+    if (scline->np[1] < 0 || scline->np[1] > map_tiles_y) //y coord
     {
-        SCRPTERRLOG("Value '%d' out of range. Range 0-85 allowed.", scline->np[1]);
+        SCRPTERRLOG("Value '%d' out of range. Range 0-%d allowed.", scline->np[1],map_tiles_y);
         return;
     }
     long filltype = get_id(fill_desc, scline->tp[3]);
@@ -2445,9 +2445,9 @@ static void change_slab_type_check(const struct ScriptLine *scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
 
-    if (scline->np[0] < 0 || scline->np[0] > 85) //x coord
+    if (scline->np[0] < 0 || scline->np[0] > map_tiles_x) //x coord
     {
-        SCRPTERRLOG("Value '%d' out of range. Range 0-85 allowed.", scline->np[0]);
+        SCRPTERRLOG("Value '%d' out of range. Range 0-%d allowed.", scline->np[0],map_tiles_x);
         return;
     }
     else
@@ -2455,9 +2455,9 @@ static void change_slab_type_check(const struct ScriptLine *scline)
         value->shorts[0] = scline->np[0];
     }
 
-    if (scline->np[1] < 0 || scline->np[1] > 85) //y coord
+    if (scline->np[1] < 0 || scline->np[1] > map_tiles_y) //y coord
     {
-        SCRPTERRLOG("Value '%d' out of range. Range 0-85 allowed.", scline->np[0]);
+        SCRPTERRLOG("Value '%d' out of range. Range 0-%d allowed.", scline->np[0],map_tiles_y);
         return;
     }
     else
@@ -2888,6 +2888,22 @@ static void if_controls_check(const struct ScriptLine *scline)
     }
 }
 
+static void if_allied_check(const struct ScriptLine *scline)
+{
+    long pA = scline->np[0];
+    long pB = scline->np[1];
+    long op = scline->np[2];
+    long val = scline->np[3];
+
+    if (gameadd.script.conditions_num >= CONDITIONS_COUNT)
+    {
+        SCRPTERRLOG("Too many (over %d) conditions in script", CONDITIONS_COUNT);
+        return;
+    }
+
+    command_add_condition(pA, op, SVar_ALLIED_PLAYER, pB, val);
+}
+
 /**
  * Descriptions of script commands for parser.
  * Arguments are: A-string, N-integer, C-creature model, P- player, R- room kind, L- location, O- operator, S- slab kind
@@ -3021,6 +3037,7 @@ const struct CommandDesc command_desc[] = {
   {"SET_HAND_RULE",                     "PC!Aaaa ", Cmd_SET_HAND_RULE, &set_hand_rule_check, &set_hand_rule_process},
   {"MOVE_CREATURE",                     "PC!ANLa ", Cmd_MOVE_CREATURE, &move_creature_check, &move_creature_process},
   {"COUNT_CREATURES_AT_ACTION_POINT",   "NPC!PA  ", Cmd_COUNT_CREATURES_AT_ACTION_POINT, &count_creatures_at_action_point_check, &count_creatures_at_action_point_process},
+  {"IF_ALLIED",                         "PPON    ", Cmd_IF_ALLIED, &if_allied_check, NULL},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 

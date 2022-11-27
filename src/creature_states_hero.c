@@ -1333,15 +1333,15 @@ long creature_tunnel_to(struct Thing *creatng, struct Coord3d *pos, short speed)
     long tnlret = get_next_position_and_angle_required_to_tunnel_creature_to(creatng, pos, cctrl->party.byte_8F);
     if (tnlret == 2)
     {
-        i = cctrl->navi.field_15;
+        i = cctrl->navi.first_colliding_block;
         if (cctrl->navi.field_17 != i)
         {
             cctrl->navi.field_17 = i;
         } else
         if (cctrl->instance_id == CrInst_NULL)
         {
-            MapSubtlCoord stl_x = stl_num_decode_x(cctrl->navi.field_15);
-            MapSubtlCoord stl_y = stl_num_decode_y(cctrl->navi.field_15);
+            MapSubtlCoord stl_x = stl_num_decode_x(cctrl->navi.first_colliding_block);
+            MapSubtlCoord stl_y = stl_num_decode_y(cctrl->navi.first_colliding_block);
             struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
             if ( (slabmap_owner(slb) == creatng->owner) || (slb->kind == SlbT_EARTH || (slb->kind == SlbT_TORCHDIRT)) ) { // if this is false, that means the current tile must have changed to an undiggable wall
                 set_creature_instance(creatng, CrInst_TUNNEL, 0, 0, 0);
