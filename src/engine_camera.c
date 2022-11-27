@@ -562,8 +562,8 @@ void update_player_camera_fp(struct Camera *cam, struct Thing *thing)
 
         if ( pos_x >= 0 )
         {
-            if ( pos_x > 0xFFFF )
-                pos_x = -1 * abs(pos_x);
+            if ( pos_x > map_subtiles_x * COORD_PER_STL )
+                pos_x = map_subtiles_x * COORD_PER_STL - 1;
         }
         else
         {
@@ -571,8 +571,8 @@ void update_player_camera_fp(struct Camera *cam, struct Thing *thing)
         }
         if ( pos_y >= 0 )
         {
-            if ( pos_y > 0xFFFF )
-                pos_y = -1 * abs(pos_y);
+            if ( pos_y > map_subtiles_y * COORD_PER_STL )
+                pos_y = map_subtiles_y * COORD_PER_STL - 1;
         }
         else
         {
