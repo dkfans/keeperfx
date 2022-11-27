@@ -622,6 +622,7 @@ void get_dungeon_sell_user_roomspace(struct RoomSpace *roomspace, PlayerNumber p
         current_roomspace = check_roomspace_for_diggable_slabs(current_roomspace, plyr_idx);
         player->boxsize = current_roomspace.slab_count;
         *roomspace = current_roomspace;
+        playeradd->ignore_next_PCtr_LBtnRelease = false;
         return;
     }
     if (!playeradd->render_roomspace.drag_mode) // reset drag start slab
@@ -731,6 +732,7 @@ void get_dungeon_build_user_roomspace(struct RoomSpace *roomspace, PlayerNumber 
         best_roomspace = check_roomspace_for_diggable_slabs(best_roomspace, plyr_idx);
         player->boxsize = best_roomspace.slab_count;
         *roomspace = best_roomspace;
+        playeradd->ignore_next_PCtr_LBtnRelease = false;
         return;
     }
     if (!playeradd->render_roomspace.drag_mode) // reset drag start slab
