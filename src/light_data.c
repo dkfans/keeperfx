@@ -1861,9 +1861,111 @@ static char light_render_light_dynamic_2(struct Light *lgt, int radius, int rend
     return stl_num_2;
 }
 //sub_407C70
-static int light_render_light_static(struct Light *lgt, int radius, int a3, unsigned int max_1DD41_idx)
+static int light_render_light_static(struct Light *lgt, int radius, int intensity, SubtlCodedCoords stl_num)
 {
-  return _DK_light_render_light_sub3(lgt, radius, a3, max_1DD41_idx);
+    struct LightsShadows *lish = &game.lish;
+    clear_shadow_limits(lish);
+    struct Column *col = get_column_at(lgt->mappos.x.stl.num, lgt->mappos.y.stl.num);
+    int result = col->bitfields >> 4;
+    if (result <= lgt->mappos.z.stl.num)
+    {
+        signed int x = abs(lgt->mappos.x.val - (lgt->mappos.x.stl.num << 8));
+        signed int y = abs(lgt->mappos.y.val - (lgt->mappos.y.stl.num << 8));
+        int diagonal_length = LbDiagonalLength(x, y);
+        unsigned short lightness = intensity * (radius - diagonal_length) / radius;
+        unsigned int light_map_idx = lgt->mappos.x.stl.num + (lgt->mappos.y.val);
+        if (lish->stat_light_map[light_map_idx] < lightness)
+        {
+            lish->stat_light_map[light_map_idx] = lightness;
+        }
+        unsigned int lighting_table_idx = 0;
+        for (result = lish->lighting_tables_count;
+             lish->lighting_tables_count > lighting_table_idx;
+             result = lish->lighting_tables_count)
+        {
+            result = lish->lighting_tables[lighting_table_idx].distance;
+            if (result > stl_num)
+            {
+                break;
+            }
+            MapSubtlCoord stl_x = lish->lighting_tables[lighting_table_idx].delta_x + lgt->mappos.x.stl.num;
+            MapSubtlCoord stl_y = lish->lighting_tables[lighting_table_idx].delta_y + lgt->mappos.y.stl.num;
+            if (!subtile_coords_invalid(stl_x, stl_y))
+            {
+                unsigned char v17;
+                if (stl_x < lgt->mappos.x.stl.num)
+                {
+                    v17 = (stl_y < lgt->mappos.y.stl.num) + 3;
+                }
+                else
+                {
+                    v17 = 2 - (stl_y < lgt->mappos.y.stl.num);
+                }
+                MapCoord coord_x = subtile_coord(stl_x, 0);
+                MapCoord coord_y = subtile_coord(stl_y, 0);
+                long angle = LbArcTanAngle(coord_x - lgt->mappos.x.val, coord_y - lgt->mappos.y.val) & LbFPMath_AngleMask;
+                unsigned char shadow_limit = lish->shadow_limits[angle];
+                long shadow_start, shadow_end;
+                col = get_column_at(stl_x, stl_y);
+                if (shadow_limit)
+                {
+                    calculate_shadow_angle(lgt->mappos.x.val, lgt->mappos.y.val, v17, stl_x, stl_y, &shadow_start, &shadow_end);
+                    if (((!lish->shadow_limits[shadow_start]) || (!lish->shadow_limits[shadow_end])) && ((col->bitfields >> 4) > lgt->mappos.z.stl.num))
+                    {
+                        create_shadow_limits(lish, shadow_start, shadow_end);
+                    }
+                }
+                else
+                {
+                    int height = col->bitfields >> 4;
+                    TbBool too_high = (height > lgt->mappos.z.stl.num);
+                    if (height > lgt->mappos.z.stl.num)
+                    {
+                        calculate_shadow_angle(lgt->mappos.x.val, lgt->mappos.y.val, v17, stl_x, stl_y, &shadow_start, &shadow_end);
+                        create_shadow_limits(lish, shadow_start, shadow_end);
+                    }
+                    TbBool v24;
+                    if (too_high)
+                    {
+                        switch (v17)
+                        {
+                            case 1:
+                            {
+                                v24 = (col->bitfields >> 4 <= lgt->mappos.z.stl.num);
+                                break;
+                            }
+                            case 3:
+                            {
+                                v24 = (!point_is_above_floor(stl_x, stl_y - 1, lgt->mappos.z.stl.num));
+                                break;
+                            }
+                            case 4:
+                            {
+                                v24 = false;
+                                break;
+                            }
+                            default:
+                            {
+                                v24 = true;
+                                break;
+                            }
+                        }
+                    }
+                    if ( (v24) || (!too_high) )
+                    {
+                        result = intensity * (radius - lish->lighting_tables[lighting_table_idx].field_4) / radius;
+                        if (result <= lish->field_46149)
+                            return result;
+                        SubtlCodedCoords next_stl = get_subtile_number(stl_x,stl_y);
+                        if (lish->stat_light_map[next_stl] < result)
+                            lish->stat_light_map[next_stl] = result;
+                    }
+                }
+            }
+            lighting_table_idx++;
+        }
+    }
+    return result;
 }
 
 
