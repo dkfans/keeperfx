@@ -2405,14 +2405,14 @@ static void set_box_tooltip_id(const struct ScriptLine *scline)
 static void change_slab_owner_check(const struct ScriptLine *scline)
 {
 
-    if (scline->np[0] < 0 || scline->np[0] > 85) //x coord
+    if (scline->np[0] < 0 || scline->np[0] > map_tiles_x) //x coord
     {
-        SCRPTERRLOG("Value '%d' out of range. Range 0-85 allowed.", scline->np[0]);
+        SCRPTERRLOG("Value '%d' out of range. Range 0-%d allowed.", scline->np[0],map_tiles_x);
         return;
     }
-    if (scline->np[1] < 0 || scline->np[1] > 85) //y coord
+    if (scline->np[1] < 0 || scline->np[1] > map_tiles_y) //y coord
     {
-        SCRPTERRLOG("Value '%d' out of range. Range 0-85 allowed.", scline->np[1]);
+        SCRPTERRLOG("Value '%d' out of range. Range 0-%d allowed.", scline->np[1],map_tiles_y);
         return;
     }
     long filltype = get_id(fill_desc, scline->tp[3]);
@@ -2445,9 +2445,9 @@ static void change_slab_type_check(const struct ScriptLine *scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
 
-    if (scline->np[0] < 0 || scline->np[0] > 85) //x coord
+    if (scline->np[0] < 0 || scline->np[0] > map_tiles_x) //x coord
     {
-        SCRPTERRLOG("Value '%d' out of range. Range 0-85 allowed.", scline->np[0]);
+        SCRPTERRLOG("Value '%d' out of range. Range 0-%d allowed.", scline->np[0],map_tiles_x);
         return;
     }
     else
@@ -2455,9 +2455,9 @@ static void change_slab_type_check(const struct ScriptLine *scline)
         value->shorts[0] = scline->np[0];
     }
 
-    if (scline->np[1] < 0 || scline->np[1] > 85) //y coord
+    if (scline->np[1] < 0 || scline->np[1] > map_tiles_y) //y coord
     {
-        SCRPTERRLOG("Value '%d' out of range. Range 0-85 allowed.", scline->np[0]);
+        SCRPTERRLOG("Value '%d' out of range. Range 0-%d allowed.", scline->np[0],map_tiles_y);
         return;
     }
     else
