@@ -1493,8 +1493,7 @@ void light_set_lights_on(char state)
     light_signal_stat_light_update_in_area(1, 1, map_subtiles_x, map_subtiles_y);
 }
 
-//sub_4080B0
-static long light_render_light_sub1_sub1(
+static long calculate_shadow_angle(
         unsigned int pos_x,
         unsigned int pos_y,
         int a3,
@@ -1561,9 +1560,9 @@ static long light_render_light_sub1_sub1(
     }
   }
   if ( (shadow_start / 512) << 9 != shadow_start )
-    shadow_start = (shadow_start + 1) & 0x7FF;
+    shadow_start = (shadow_start + 1) & LbFPMath_AngleMask;
   if ( (shadow_end / 512) << 9 != shadow_end )
-    shadow_end = (shadow_end - 1) & 0x7FF;
+    shadow_end = (shadow_end - 1) & LbFPMath_AngleMask;
   result = shadow_start;
   *shadow_limit_idx_start = shadow_start;
   *shadow_limit_idx_end = shadow_end;
@@ -1582,11 +1581,11 @@ static char light_render_light_dynamic_1(struct Light *lgt, int radius, int inte
     unsigned int lighting_tables_idx = get_floor_filled_subtiles_at(lgt->mappos.x.stl.num, lgt->mappos.y.stl.num);
     if ( lighting_tables_idx <= lgt->mappos.z.stl.num )
     {
-        int unk_4_x = abs(lgt->mappos.x.val - (lgt->mappos.x.stl.num << 8));
-        int unk_4_y = abs(lgt->mappos.y.val - (lgt->mappos.y.val >> 8 << 8));
+        int unk_4_x = lgt->mappos.x.stl.pos;
+        int unk_4_y = lgt->mappos.y.stl.pos;
         int diagonal_length = LbDiagonalLength(unk_4_x, unk_4_y);
         short lightness = intensity * (radius - diagonal_length) / radius;
-        SubtlCodedCoords light_stl_num = (lgt->mappos.y.val) + (lgt->mappos.x.stl.num);
+        SubtlCodedCoords light_stl_num = get_subtile_number(lgt->mappos.x.stl.num,lgt->mappos.y.stl.num);
         unsigned short *stl_lightness_ptr = &game.lish.subtile_lightness[light_stl_num];
         if ( *stl_lightness_ptr < lightness )
             *stl_lightness_ptr = lightness;
@@ -1604,8 +1603,6 @@ static char light_render_light_dynamic_1(struct Light *lgt, int radius, int inte
                 if (!subtile_coords_invalid(stl_x, stl_y))
                 {
                     int quadrant;
-                    unsigned int unk_1_y = stl_y << 8;
-                    unsigned int unk_1_x = stl_x << 8;
                     long shadow_limit_idx1 = LbArcTanAngle((stl_x << 8) - lgt->mappos.x.val, (stl_y << 8) - lgt->mappos.y.val) & LbFPMath_AngleMask;
                     if ( stl_x < lgt->mappos.x.stl.num )
                     {
@@ -1633,7 +1630,7 @@ static char light_render_light_dynamic_1(struct Light *lgt, int radius, int inte
                     unsigned char height = get_floor_filled_subtiles_at(stl_x, stl_y);
                     if ( game.lish.shadow_limits[shadow_limit_idx1] )
                     {
-                        light_render_light_sub1_sub1(lgt->mappos.x.val, lgt->mappos.y.val, quadrant, stl_x, stl_y, &shadow_limit_idx2, &shadow_limit_idx3);
+                        calculate_shadow_angle(lgt->mappos.x.val, lgt->mappos.y.val, quadrant, stl_x, stl_y, &shadow_limit_idx2, &shadow_limit_idx3);
                         if ( (!game.lish.shadow_limits[shadow_limit_idx2] || !game.lish.shadow_limits[shadow_limit_idx3])
                             && height > lgt->mappos.z.stl.num )
                         {
@@ -1645,7 +1642,7 @@ static char light_render_light_dynamic_1(struct Light *lgt, int radius, int inte
                         TbBool too_high = (height > lgt->mappos.z.stl.num);
                         if ( height > lgt->mappos.z.stl.num )
                         {
-                            light_render_light_sub1_sub1(lgt->mappos.x.val, lgt->mappos.y.val, quadrant, stl_x, stl_y, &shadow_limit_idx2, &shadow_limit_idx3);
+                            calculate_shadow_angle(lgt->mappos.x.val, lgt->mappos.y.val, quadrant, stl_x, stl_y, &shadow_limit_idx2, &shadow_limit_idx3);
                             create_shadow_limits(&game.lish, shadow_limit_idx2, shadow_limit_idx3);
                         }
                         TbBool v24;
@@ -1670,13 +1667,15 @@ static char light_render_light_dynamic_1(struct Light *lgt, int radius, int inte
                         {
                             LABEL_37:
                             {
+                                unsigned int unk_1_y = stl_y << 8;
+                                unsigned int unk_1_x = stl_x << 8;
                                 int unk_2_x = min((lgt->mappos.x.val - unk_1_x), (unk_1_x - lgt->mappos.x.val));
                                 int unk_2_y = min((lgt->mappos.y.val - unk_1_y), (unk_1_y - lgt->mappos.y.val));
                                 int diagonal_length2 = LbDiagonalLength(unk_2_x, unk_2_y);
                                 lighting_tables_idx = intensity * (radius - diagonal_length2) / radius;
                                 if ( lighting_tables_idx <= game.lish.field_46149 )
                                     return lighting_tables_idx;
-                                unsigned short *stl_lightness_ptr2 = &game.lish.subtile_lightness[unk_1_y + stl_x];
+                                unsigned short *stl_lightness_ptr2 = &game.lish.subtile_lightness[get_subtile_number(stl_x,stl_y)];
                                 if ( *stl_lightness_ptr2 < lighting_tables_idx )
                                     *stl_lightness_ptr2 = lighting_tables_idx;
                             }
@@ -1737,10 +1736,10 @@ static char light_render_light_dynamic_2(struct Light *lgt, int radius, int rend
     memset(game.lish.shadow_limits, 0, sizeof(game.lish.shadow_limits));
     memset(shadow_cache->field_1, 0, 0x80u);
 
-    stl_num_2 = (lgt_pos_y >> 8 << 8) + (lgt_pos_x >> 8);
+    stl_num_2 = get_subtile_number(lgt->mappos.x.stl.num,lgt->mappos.y.stl.num);
     stl_lightness = &game.lish.subtile_lightness[stl_num_2];
 
-    stl_num_2 = get_subtile_number((unsigned char)game.columns_data[game.map[stl_num_2 + 257].data & 0x7FF].bitfields >> 4, stl_num_decode_y(stl_num_2));
+    stl_num_2 = get_subtile_number((unsigned char)game.columns_data[game.map[get_subtile_number(lgt_pos_x + 1,lgt_pos_y + 1)].data & 0x7FF].bitfields >> 4, stl_num_decode_y(stl_num_2));
 
     if ((unsigned char)stl_num_2 <= lgt_stl_z)
     {
@@ -1781,9 +1780,9 @@ static char light_render_light_dynamic_2(struct Light *lgt, int radius, int rend
                     v38 = v18;
                     if (v19)
                     {
-                        light_render_light_sub1_sub1(lgt_pos_x, lgt_pos_y, v38, stl_x, stl_y, &shadow_limit_idx, &shadow_limit_idx2);
+                        calculate_shadow_angle(lgt_pos_x, lgt_pos_y, v38, stl_x, stl_y, &shadow_limit_idx, &shadow_limit_idx2);
                         v20 = &game.lish.shadow_limits[shadow_limit_idx];
-                        if ((!game.lish.shadow_limits[shadow_limit_idx] || !game.lish.shadow_limits[shadow_limit_idx2]) && (unsigned char)game.columns_data[game.map[256 * stl_y + 257 + stl_x].data & 0x7FF].bitfields >> 4 > lgt_stl_z)
+                        if ((!game.lish.shadow_limits[shadow_limit_idx] || !game.lish.shadow_limits[shadow_limit_idx2]) && (unsigned char)game.columns_data[game.map[get_subtile_number(stl_x + 1,stl_y + 1)].data & 0x7FF].bitfields >> 4 > lgt_stl_z)
                         {
                             if (shadow_limit_idx2 < shadow_limit_idx)
                             {
@@ -1798,13 +1797,14 @@ static char light_render_light_dynamic_2(struct Light *lgt, int radius, int rend
                     }
                     else
                     {
-                        v21 = game.map[some_y_2 + 257 + stl_x].data & 0x7FF;
-                        subtile_lightness = &game.lish.subtile_lightness[some_y_2 + stl_x];
+                        struct Map* mapblk = get_map_block_at(stl_x,stl_y);
+                        v21 = mapblk->data & 0x7FF;
+                        subtile_lightness = &game.lish.subtile_lightness[get_subtile_number(stl_x,stl_y)];
                         v22 = (unsigned char)game.columns_data[v21].bitfields >> 4;
                         bool_1 = v22 > lgt_stl_z;
                         if (v22 > lgt_stl_z)
                         {
-                            light_render_light_sub1_sub1(lgt_pos_x, lgt_pos_y, v38, stl_x, stl_y, &shadow_limit_idx, &shadow_limit_idx2);
+                            calculate_shadow_angle(lgt_pos_x, lgt_pos_y, v38, stl_x, stl_y, &shadow_limit_idx, &shadow_limit_idx2);
                             if (shadow_limit_idx2 < shadow_limit_idx)
                             {
                                 memset(&game.lish.shadow_limits[shadow_limit_idx], 1u, 2047 - shadow_limit_idx);
@@ -2058,6 +2058,8 @@ static void light_render_area(MapSubtlCoord startx, MapSubtlCoord starty, MapSub
   SubtlCodedCoords start_num = get_subtile_number(startx, starty);
   v9 = (char *)&game.lish.subtile_lightness + start_num * 2;
   v10 = &game.lish.stat_light_map[start_num];
+
+  
   if ( starty <= (unsigned int)endy )
   {
     v11 = endy - starty + 1;
@@ -2065,13 +2067,14 @@ static void light_render_area(MapSubtlCoord startx, MapSubtlCoord starty, MapSub
     {
       v12 = (short *)v9;
       v13 = v10;
-      v9 += 512;
+      v9 += (map_subtiles_x + 1) * 2;
       v10 += 256;
       memcpy(v12, v13, 2 * (endx - startx));
       --v11;
     }
     while ( v11 );
   }
+
   if ( game.lish.light_enabled )
   {
     for ( lgt = &game.lish.lights[game.thing_lists[TngList_DynamLights].index]; lgt > game.lish.lights; lgt = &game.lish.lights[lgt->next_in_list] )
