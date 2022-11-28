@@ -144,6 +144,7 @@ void clear_mapwho(void);
 void clear_mapmap(void);
 
 void set_map_size(MapSlabCoord x,MapSlabCoord y);
+void init_map_size(LevelNumber lvnum);
 /******************************************************************************/
 #ifdef __cplusplus
 }

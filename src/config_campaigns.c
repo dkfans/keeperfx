@@ -30,7 +30,6 @@
 #include "config_strings.h"
 #include "lvl_filesdk1.h"
 #include "frontmenu_ingame_tabs.h"
-#include "map_data.h"
 
 #include "game_merge.h"
 #include "post_inc.h"
@@ -1375,13 +1374,6 @@ TbBool is_map_pack(void)
     if (campaign.fname[0]=='\0')
         return false;
     return (campaign.single_levels_count == 0) && (campaign.multi_levels_count == 0) && (campaign.freeplay_levels_count > 0);
-}
-
-void init_map_size(LevelNumber lvnum)
-{
-    struct LevelInformation* lvinfo = get_campaign_level_info(&campaign, lvnum);
-    set_map_size(lvinfo->mapsize_x,lvinfo->mapsize_y);
-
 }
 
 /******************************************************************************/
