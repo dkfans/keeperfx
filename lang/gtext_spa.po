@@ -6628,13 +6628,11 @@ msgid "Moo2"
 msgstr "Moo2"
 
 #: guitext:941
-#, fuzzy
 msgctxt "Menu interface, Main Menu item"
 msgid "Free Play levels"
-msgstr ""
+msgstr "Niveles Libres"
 
 #: guitext:942
-#, fuzzy
 msgctxt "Menu interface item"
 msgid "Land selection"
 msgstr "Selección de tierra"
