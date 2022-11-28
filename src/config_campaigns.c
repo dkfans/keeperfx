@@ -30,6 +30,7 @@
 #include "config_strings.h"
 #include "lvl_filesdk1.h"
 #include "frontmenu_ingame_tabs.h"
+#include "map_data.h"
 
 #include "game_merge.h"
 #include "post_inc.h"
@@ -79,6 +80,7 @@ const struct NamedCommand cmpgn_map_commands[] = {
   {"AUTHOR",         10},
   {"DESCRIPTION",    11},
   {"DATE",           12},
+  {"MAPSIZE",        13}, // for LOF files only
   {NULL,              0},
   };
 
@@ -148,6 +150,8 @@ void clear_level_info(struct LevelInformation *lvinfo)
   lvinfo->options = LvOp_None;
   lvinfo->state = LvSt_Hidden;
   lvinfo->location = LvLc_VarLevels;
+  lvinfo->mapsize_x = 85;
+  lvinfo->mapsize_y = 85;
 }
 
 /**
@@ -298,7 +302,9 @@ struct LevelInformation *get_campaign_level_info(struct GameCampaign *campgn, Le
   if (lvnum <= 0)
       return NULL;
   if (campgn->lvinfos == NULL)
-      return NULL;
+  {
+    init_level_info_entries(campgn,0);
+  }
   for (long i = 0; i < campgn->lvinfos_count; i++)
   {
       if (campgn->lvinfos[i].lvnum == lvnum)
@@ -1112,6 +1118,7 @@ TbBool change_campaign(const char *cmpgn_fname)
     }
     if (fgroup == FGrp_VarLevels)
     {
+        find_and_load_lof_files();
         find_and_load_lif_files();
     }
     load_or_create_high_score_table();
@@ -1369,6 +1376,14 @@ TbBool is_map_pack(void)
         return false;
     return (campaign.single_levels_count == 0) && (campaign.multi_levels_count == 0) && (campaign.freeplay_levels_count > 0);
 }
+
+void init_map_size(LevelNumber lvnum)
+{
+    struct LevelInformation* lvinfo = get_campaign_level_info(&campaign, lvnum);
+    set_map_size(lvinfo->mapsize_x,lvinfo->mapsize_y);
+
+}
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

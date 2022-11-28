@@ -140,6 +140,8 @@ struct LevelInformation {
   unsigned long options;
   unsigned short state;
   unsigned short location;
+  int mapsize_x;
+  int mapsize_y;
 };
 
 struct CampaignsList {
@@ -181,6 +183,7 @@ TbBool is_campaign_loaded(void);
 TbBool is_campaign_in_list(const char *cmpgn_fname, struct CampaignsList *clist);
 TbBool check_lif_files_in_mappack(struct GameCampaign *campgn);
 TbBool is_map_pack(void);
+void init_map_size(LevelNumber lvnum);
 /******************************************************************************/
 #ifdef __cplusplus
 }

@@ -886,6 +886,16 @@ TbBool subtile_is_diggable_for_player(PlayerNumber plyr_idx, MapSubtlCoord stl_x
     }
     return false;
 }
+
+void set_map_size(MapSlabCoord x,MapSlabCoord y)
+{
+    map_subtiles_x = x * STL_PER_SLB;
+    map_subtiles_y = y * STL_PER_SLB;
+    map_tiles_x = x;
+    map_tiles_y = y;
+}
+
+
 /******************************************************************************/
 #ifdef __cplusplus
 }
