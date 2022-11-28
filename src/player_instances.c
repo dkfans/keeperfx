@@ -1010,10 +1010,6 @@ TbBool is_thing_directly_controlled(const struct Thing *thing)
     struct PlayerInfo* player = get_player(thing->owner);
     if ((player->work_state != PSt_CtrlDirect) && (player->work_state != PSt_FreeCtrlDirect))
     {
-        if (thing->index == player->controlled_thing_idx)
-        {
-            return (player->view_type == PVT_CreatureContrl);
-        }
         return false;
     }
     switch (player->instance_num)
