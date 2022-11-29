@@ -79,7 +79,7 @@ const struct NamedCommand cmpgn_map_commands[] = {
   {"AUTHOR",         10},
   {"DESCRIPTION",    11},
   {"DATE",           12},
-  {"MAPSIZE",        13}, // for LOF files only
+  {"MAPSIZE",        13},
   {NULL,              0},
   };
 
@@ -962,6 +962,31 @@ short parse_campaign_map_block(long lvnum, unsigned long lvoptions, char *buf, l
         case 11: // DESCRIPTION
         case 12: // DATE
             // As for now, ignore these
+            break;
+        case 13: // MAPSIZE
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                if (k > 0)
+                {
+                  lvinfo->mapsize_x = k;
+                  n++;
+                }
+            }
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                if (k > 0)
+                {
+                  lvinfo->mapsize_y = k;
+                  n++;
+                }
+            }
+            if (n < 2)
+            {
+              CONFWRNLOG("Couldn't recognize \"%s\" mapsize in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
             break;
         case 0: // comment
             break;
