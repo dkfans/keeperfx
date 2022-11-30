@@ -3800,14 +3800,14 @@ void do_a_plane_of_engine_columns_perspective(long stl_x, long stl_y, long plane
     unsigned short *cubenum_ptr;
     long i;
     long n;
-    if ((stl_y <= 0) || (stl_y >= 255))
+    if ((stl_y <= 0) || (stl_y >= map_subtiles_y))
         return;
     clip_start = plane_start;
     if (stl_x + plane_start < 1)
         clip_start = 1 - stl_x;
     clip_end = plane_end;
-    if (stl_x + plane_end > 255)
-        clip_end = 255 - stl_x;
+    if (stl_x + plane_end > map_subtiles_x)
+        clip_end = map_subtiles_x - stl_x;
     struct EngineCol *bec;
     struct EngineCol *fec;
     bec = &back_ec[clip_start + MINMAX_ALMOST_HALF];
@@ -4367,7 +4367,7 @@ void do_a_plane_of_engine_columns_cluedo(long stl_x, long stl_y, long plane_star
 
 void do_a_plane_of_engine_columns_isometric(long stl_x, long stl_y, long plane_start, long plane_end)
 {
-    if ((stl_y < 1) || (stl_y > 254)) {
+    if ((stl_y < 1) || (stl_y > map_subtiles_y - 1)) {
         return;
     }
 
