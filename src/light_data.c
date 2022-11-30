@@ -37,10 +37,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-
-DLLIMPORT int _DK_light_render_light_sub3(struct Light *lgt, int radius, int a3, unsigned int a4);
-
-/******************************************************************************/
 struct Light *light_allocate_light(void)
 {
     for (long i = 1; i < LIGHTS_COUNT; i++)

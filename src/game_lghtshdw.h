@@ -61,7 +61,7 @@ struct LightsShadows { // sizeof = 164886
     char light_enabled;
     char lighting_tables_initialised;
     unsigned long light_rand_seed;
-    SubtlCodedCoords lighting_tables_count;
+    int lighting_tables_count; // number of entries in lighting_tables
     unsigned short subtile_lightness[256*256];
 };
 
