@@ -720,7 +720,7 @@ void fill_in_points_perspective(struct Camera *cam, long bstl_x, long bstl_y, st
         int lightness;
         lightness = 0;
         if ((fulmask_or & 0x10000) == 0)
-            lightness = game.lish.subtile_lightness[get_subtile_number(stl_x, stl_y+1)];
+            lightness = get_subtile_lightness(&game.lish,stl_x,stl_y+1);
         long hmin;
         long hmax;
         hmax = height_masks[fulmask_or & 0xff];
@@ -918,7 +918,7 @@ void fill_in_points_cluedo(struct Camera *cam, long bstl_x, long bstl_y, struct 
         int lightness;
         lightness = 0;
         if ((fulmask_or & 0x10000) == 0)
-            lightness = game.lish.subtile_lightness[get_subtile_number(stl_x, stl_y+1)];
+            lightness = get_subtile_lightness(&game.lish,stl_x,stl_y+1);
 
         long hmin;
         long hmax;
@@ -1147,7 +1147,7 @@ void fill_in_points_isometric(struct Camera *cam, long bstl_x, long bstl_y, stru
         int lightness;
         lightness = 0;
         if ((fulmask_or & 0x10000) == 0)
-            lightness = game.lish.subtile_lightness[get_subtile_number(stl_x, stl_y+1)];
+            lightness = get_subtile_lightness(&game.lish,stl_x,stl_y+1);
         long hmin;
         long hmax;
         hmax = height_masks[fulmask_or & 0xff];
@@ -8929,7 +8929,7 @@ void draw_frontview_engine(struct Camera *cam)
             {
                 if (get_mapblk_column_index(mapblk) > 0)
                 {
-                    draw_element(mapblk, game.lish.subtile_lightness[get_subtile_number(stl_x,stl_y)], stl_x, stl_y, pos_x, pos_y, zoom, qdrant, &i);
+                    draw_element(mapblk, get_subtile_lightness(&game.lish,stl_x,stl_y), stl_x, stl_y, pos_x, pos_y, zoom, qdrant, &i);
                 }
                 if ( subtile_revealed(stl_x, stl_y, player->id_number) )
                 {

@@ -37,6 +37,9 @@
 extern "C" {
 #endif
 /******************************************************************************/
+static void light_stat_light_map_clear_area(MapSubtlCoord x1, MapSubtlCoord y1, MapSubtlCoord x2, MapSubtlCoord y2);
+/******************************************************************************/
+
 struct Light *light_allocate_light(void)
 {
     for (long i = 1; i < LIGHTS_COUNT; i++)
@@ -373,13 +376,13 @@ void light_set_light_position(long lgt_id, struct Coord3d *pos)
       unsigned char range = lgt->range;
       long end_y = lgt->mappos.y.stl.num + range;
       long end_x = lgt->mappos.x.stl.num + range;
-      if ( end_y > 255 )
+      if ( end_y > map_subtiles_y )
       {
-        end_y = 255;
+        end_y = map_subtiles_y;
       }
-      if ( end_x > 255 )
+      if ( end_x > map_subtiles_x )
       {
-        end_x = 255;
+        end_x = map_subtiles_x;
       }
       long beg_y = lgt->mappos.y.stl.num - range;
       if ( beg_y < 0 )
@@ -508,11 +511,11 @@ void light_signal_stat_light_update_in_own_radius(struct Light *lgt)
 {
     long radius = lgt->range;
     long end_y = (long)lgt->mappos.y.stl.num + radius;
-    if (end_y >= 255)
-        end_y = 255;
+    if (end_y >= map_subtiles_y)
+        end_y = map_subtiles_y;
     long end_x = (long)lgt->mappos.x.stl.num + radius;
-    if (end_x >= 255)
-        end_x = 255;
+    if (end_x >= map_subtiles_x)
+        end_x = map_subtiles_x;
     long start_y = (long)lgt->mappos.y.stl.num - radius;
     if (start_y <= 0)
         start_y = 0;
@@ -611,11 +614,11 @@ void light_set_light_intensity(long idx, unsigned char intensity)
         if ((lgt->flags & LgtF_Dynamic) == 0)
         {
           y2 = lgt->mappos.y.stl.num + lgt->range;
-          if ( y2 > 255 )
-            y2 = 255;
+          if ( y2 > map_subtiles_y )
+            y2 = map_subtiles_y;
           x2 = lgt->mappos.x.stl.num + lgt->range;
-          if ( x2 > 255 )
-            x2 = 255;
+          if ( x2 > map_subtiles_x )
+            x2 = map_subtiles_x;
           y1 = lgt->mappos.y.stl.num - lgt->range;
           if ( y1 < 0 )
             y1 = 0;
@@ -1420,40 +1423,37 @@ void light_initialise(void)
     light_out_of_date_stat_lights = 0;
 }
 
-void light_stat_light_map_clear_area(long x1, long y1, long x2, long y2)
+static void light_stat_light_map_clear_area(MapSubtlCoord start_stl_x, MapSubtlCoord start_stl_y, MapSubtlCoord end_stl_x, MapSubtlCoord end_stl_y)
 {
-  // _DK_light_stat_light_map_clear_area(x1, y1, x2, y2);
-  long j,n,x,k,y;
+  MapSubtlCoord stl_x,stl_y_min_1,stl_x_min_1,stl_y;
   unsigned short *p;
   unsigned short *light_map;
-  if ( y2 >= y1 )
+  if ( end_stl_y >= start_stl_y )
   {
-    y = y1 << 8;
-    unsigned long i = x1 + (y1 << 8);
-    struct Map *Mapblk1 = get_map_block_at_pos(i);
-    light_map = &game.lish.stat_light_map[i];
-    for (k = y1; k <= y2; k++)
+    struct Map *Mapblk1 = get_map_block_at(start_stl_x,start_stl_y);
+    light_map = &game.lish.stat_light_map[get_subtile_number(start_stl_x,start_stl_y)];
+    for (stl_y = start_stl_y; stl_y <= end_stl_y; stl_y++)
     {
-      if ( x2 >= x1 )
+      if ( end_stl_x >= start_stl_x )
       {
         p = light_map;
-        n = k - 1;
-        if ( k - 1 <= 0 )
+        stl_y_min_1 = stl_y - 1;
+        if ( stl_y - 1 <= 0 )
         {
-          n = 0;
+          stl_y_min_1 = 0;
         }
-        struct Map *Mapblk2 = get_map_block_at_pos((n << 8) + x1);
-        for (j = x1; j <= x2; j++)
+        struct Map *Mapblk2 = get_map_block_at(start_stl_x,stl_y_min_1);
+        for (stl_x = start_stl_x; stl_x <= end_stl_x; stl_x++)
         {
-          x = j - 1;
-          if ( x < 0 )
+          stl_x_min_1 = stl_x - 1;
+          if ( stl_x_min_1 < 0 )
           {
-            x = 0;
+            stl_x_min_1 = 0;
           }
           struct Column *Col1 = get_map_column(Mapblk1);
           struct Column *Col2 = get_map_column(Mapblk2);
-          struct Column *Col3 = get_map_column(get_map_block_at_pos(x + y));
-          struct Column *Col4 = get_map_column(get_map_block_at_pos((n << 8) + x));
+          struct Column *Col3 = get_map_column(get_map_block_at(stl_x_min_1,stl_y));
+          struct Column *Col4 = get_map_column(get_map_block_at(stl_x_min_1,stl_y_min_1));
           if ( (!column_invalid(Col1)) && (!column_invalid(Col2)) && (!column_invalid(Col3)) && (!column_invalid(Col4)) )
           {
             *p = game.lish.field_46149 << 8;
@@ -1467,8 +1467,7 @@ void light_stat_light_map_clear_area(long x1, long y1, long x2, long y2)
           Mapblk2++;
         }
       }
-      y += 256;
-      light_map += 256;
+      light_map += (map_subtiles_x + 1);
     }
   }
 }
@@ -1726,7 +1725,7 @@ static char light_render_light_dynamic_2(struct Light *lgt, int radius, int rend
     lgt_pos_y = (unsigned short)lgt->mappos.y.val;
     lgt_stl_x = lgt_pos_x >> 8;
     lgt_stl_y = lgt_pos_y >> 8;
-    lgt_stl_z = lgt->mappos.z.val / 256;
+    lgt_stl_z = lgt->mappos.z.val / COORD_PER_STL;
     shadow_cache = &game.lish.shadow_cache[(unsigned short)lgt->shadow_index];
     memset(game.lish.shadow_limits, 0, sizeof(game.lish.shadow_limits));
     memset(shadow_cache->field_1, 0, 0x80u);
