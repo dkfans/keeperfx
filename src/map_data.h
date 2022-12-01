@@ -143,6 +143,9 @@ void reveal_map_area(PlayerNumber plyr_idx,MapSubtlCoord start_x,MapSubtlCoord e
 void conceal_map_area(PlayerNumber plyr_idx,MapSubtlCoord start_x,MapSubtlCoord end_x,MapSubtlCoord start_y,MapSubtlCoord end_y, TbBool all);
 void clear_mapwho(void);
 void clear_mapmap(void);
+
+void set_map_size(MapSlabCoord x,MapSlabCoord y);
+void init_map_size(LevelNumber lvnum);
 /******************************************************************************/
 #ifdef __cplusplus
 }

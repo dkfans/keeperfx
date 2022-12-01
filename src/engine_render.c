@@ -720,7 +720,7 @@ void fill_in_points_perspective(struct Camera *cam, long bstl_x, long bstl_y, st
         int lightness;
         lightness = 0;
         if ((fulmask_or & 0x10000) == 0)
-            lightness = game.lish.subtile_lightness[get_subtile_number(stl_x, stl_y+1)];
+            lightness = get_subtile_lightness(&game.lish,stl_x,stl_y+1);
         long hmin;
         long hmax;
         hmax = height_masks[fulmask_or & 0xff];
@@ -918,7 +918,7 @@ void fill_in_points_cluedo(struct Camera *cam, long bstl_x, long bstl_y, struct 
         int lightness;
         lightness = 0;
         if ((fulmask_or & 0x10000) == 0)
-            lightness = game.lish.subtile_lightness[get_subtile_number(stl_x, stl_y+1)];
+            lightness = get_subtile_lightness(&game.lish,stl_x,stl_y+1);
 
         long hmin;
         long hmax;
@@ -1147,7 +1147,7 @@ void fill_in_points_isometric(struct Camera *cam, long bstl_x, long bstl_y, stru
         int lightness;
         lightness = 0;
         if ((fulmask_or & 0x10000) == 0)
-            lightness = game.lish.subtile_lightness[get_subtile_number(stl_x, stl_y+1)];
+            lightness = get_subtile_lightness(&game.lish,stl_x,stl_y+1);
         long hmin;
         long hmax;
         hmax = height_masks[fulmask_or & 0xff];
@@ -3800,14 +3800,14 @@ void do_a_plane_of_engine_columns_perspective(long stl_x, long stl_y, long plane
     unsigned short *cubenum_ptr;
     long i;
     long n;
-    if ((stl_y <= 0) || (stl_y >= 255))
+    if ((stl_y <= 0) || (stl_y >= map_subtiles_y))
         return;
     clip_start = plane_start;
     if (stl_x + plane_start < 1)
         clip_start = 1 - stl_x;
     clip_end = plane_end;
-    if (stl_x + plane_end > 255)
-        clip_end = 255 - stl_x;
+    if (stl_x + plane_end > map_subtiles_x)
+        clip_end = map_subtiles_x - stl_x;
     struct EngineCol *bec;
     struct EngineCol *fec;
     bec = &back_ec[clip_start + MINMAX_ALMOST_HALF];
@@ -4367,7 +4367,7 @@ void do_a_plane_of_engine_columns_cluedo(long stl_x, long stl_y, long plane_star
 
 void do_a_plane_of_engine_columns_isometric(long stl_x, long stl_y, long plane_start, long plane_end)
 {
-    if ((stl_y < 1) || (stl_y > 254)) {
+    if ((stl_y < 1) || (stl_y > map_subtiles_y - 1)) {
         return;
     }
 
@@ -8929,7 +8929,7 @@ void draw_frontview_engine(struct Camera *cam)
             {
                 if (get_mapblk_column_index(mapblk) > 0)
                 {
-                    draw_element(mapblk, game.lish.subtile_lightness[get_subtile_number(stl_x,stl_y)], stl_x, stl_y, pos_x, pos_y, zoom, qdrant, &i);
+                    draw_element(mapblk, get_subtile_lightness(&game.lish,stl_x,stl_y), stl_x, stl_y, pos_x, pos_y, zoom, qdrant, &i);
                 }
                 if ( subtile_revealed(stl_x, stl_y, player->id_number) )
                 {
