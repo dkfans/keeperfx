@@ -488,7 +488,7 @@ obj/std/json/%.o obj/hvlog/json/%.o: deps/centijson/src/%.c
 
 obj/std/unzip.o obj/hvlog/unzip.o: deps/zlib/contrib/minizip/unzip.c
 	-$(ECHO) 'Building file: $<'
-	$(CC) $(CFLAGS) -I"deps/zlib" -o"$@" "$<"
+	$(CC) $(CFLAGS) -Wno-shadow -I"deps/zlib" -o"$@" "$<"
 	-$(ECHO) ' '
 
 obj/std/ioapi.o obj/hvlog/ioapi.o: deps/zlib/contrib/minizip/ioapi.c
