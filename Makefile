@@ -389,38 +389,8 @@ CXXFLAGS += -DUSE_PRE_FILE=1
 CFLAGS += -DUSE_PRE_FILE=1
 endif
 
-CAMPAIGNS  = \
-ami2019 \
-ancntkpr \
-burdnimp \
-cqarctic \
-dstninja \
-dzjr06lv \
-dzjr10lv \
-dzjr25lv \
-evilkeep \
-grkreign \
-jdkmaps8 \
-kdklvpck \
-keeporig \
-lqizgood \
-lrdvexer \
-ncastles \
-origplus \
-postanck \
-pstunded \
-questfth \
-revlord \
-twinkprs \
-undedkpr
-
-MAPPACKS  = \
-classic \
-deepdngn \
-legacy \
-lostlvls \
-standard
-
+CAMPAIGNS = $(patsubst campgns/%.cfg,%,$(wildcard campgns/*.cfg))
+MAPPACKS = $(patsubst levels/%.cfg,%,$(filter-out %/personal.cfg,$(wildcard levels/*.cfg)))
 LANGS = eng chi cht cze dut fre ger ita jpn kor lat pol rus spa swe
 
 # load program version
@@ -623,10 +593,10 @@ include tool_sndbanker.mk
 include tool_rnctools.mk
 #include tool_dkillconv.mk
 
-include package.mk
 include pkg_lang.mk
 include pkg_gfx.mk
 include pkg_sfx.mk
+include package.mk
 
 export RM CP MKDIR MV ECHO
 #******************************************************************************
