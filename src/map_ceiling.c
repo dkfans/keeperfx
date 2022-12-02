@@ -130,9 +130,6 @@ static int ceiling_calculate_height_from_nearest_walls(int result, int number_of
 
 long ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey)
 {
-    int ceil_dist;
-    int v7;
-    int v9;
     int v11;
     int v15;
     int v16;
@@ -155,39 +152,34 @@ long ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey)
     int v35;
     unsigned int number_of_steps;
     int v38;
-    int v40;
     int v42;
     int v44;
-    int v45;
-    int v46;
     int v47;
     int *v48;
     int v49;
     MapSubtlCoord unk_stl_y;
     MapSubtlCoord unk_stl_x;
-    ceil_dist = game.ceiling_dist;
+    int ceil_dist = game.ceiling_dist;
     if (game.ceiling_dist > 4)
         ceil_dist = 4;
-    v45 = sx - ceil_dist;
-    v7 = ceil_dist;
-    if (v45 <= 0)
-        v45 = 0;
-    v9 = sy - v7;
-    if (sy - v7 <= 0)
-        v9 = 0;
-    v40 = v9;
-    v47 = ex + v7;
-    if (ex + v7 >= (map_subtiles_x + 1))
+    MapSubtlCoord unk3stl_x = sx - ceil_dist;
+    if (unk3stl_x <= 0)
+        unk3stl_x = 0;
+    MapSubtlCoord unk3stl_y = sy - ceil_dist;
+    if (sy - ceil_dist <= 0)
+        unk3stl_y = 0;
+    v47 = ex + ceil_dist;
+    if (ex + ceil_dist >= (map_subtiles_x + 1))
         v47 = (map_subtiles_x + 1);
-    v11 = ey + v7;
+    v11 = ey + ceil_dist;
     if (v11 >= (map_subtiles_y + 1))
         v11 = (map_subtiles_y + 1);
     //ceiling_cache = (signed char*)scratch;
-    v44 = v45 - game.ceiling_dist;
-    if (v45 - game.ceiling_dist <= 0)
+    v44 = unk3stl_x - game.ceiling_dist;
+    if (unk3stl_x - game.ceiling_dist <= 0)
         v44 = 0;
-    cstl_y = v40 - game.ceiling_dist;
-    if (v40 - game.ceiling_dist <= 0)
+    cstl_y = unk3stl_y - game.ceiling_dist;
+    if (unk3stl_y - game.ceiling_dist <= 0)
         cstl_y = 0;
     v15 = game.ceiling_dist + v47;
     if (game.ceiling_dist + v47 >= (map_subtiles_x + 1))
@@ -211,15 +203,14 @@ long ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey)
         } while (cstl_y < v16);
     }
 
-    if (v40 < v11)
+    if (unk3stl_y < v11)
     {
-        v46 = v40;
         v42 = v11;
         do
         {
-            v49 = v45;
-            SubtlCodedCoords stl_num2 = get_subtile_number(v45,v46);
-            if (v47 > v45)
+            v49 = unk3stl_x;
+            SubtlCodedCoords stl_num2 = get_subtile_number(unk3stl_x,unk3stl_y);
+            if (v47 > unk3stl_x)
             {
                 do
                 {
@@ -279,8 +270,8 @@ long ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey)
                     *p_data = v35;
                 } while (v34 < v32);
             }
-            v46 ++;
-        } while (v46 < v42);
+            unk3stl_y ++;
+        } while (unk3stl_y < v42);
     }
     return 1;
 }
@@ -314,7 +305,7 @@ static int get_ceiling_or_floor_filled_subtiles(int stl_num)
 
 long ceiling_init(unsigned long a1, unsigned long a2)
 {
-    return _DK_ceiling_init(a1, a2);
+    //return _DK_ceiling_init(a1, a2);
     //TODO Fix, then enable rewritten version
     MapSubtlCoord stl_x;
     MapSubtlCoord stl_y;
@@ -363,7 +354,7 @@ long ceiling_init(unsigned long a1, unsigned long a2)
                     {
                         if ((cstl_y >= 0) && (cstl_y <= map_subtiles_y))
                         {
-                            filled_h = ceiling_block_is_solid_including_corners_return_height(sstep->both + get_subtile_number(stl_x,stl_y), cstl_x, cstl_y);
+                            filled_h = ceiling_block_is_solid_including_corners_return_height(get_subtile_number(stl_x + sstep->v ,stl_y + sstep->h), cstl_x, cstl_y);
                             if (filled_h > -1)
                             {
                                 int delta_tmp;
