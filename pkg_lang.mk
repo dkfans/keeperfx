@@ -20,8 +20,22 @@
 LANGUAGE ?= eng
 
 NGTEXTDATS = \
-	$(patsubst lang/%.po,pkg/fxdata/%.dat,$(wildcard lang/gtext_*.po)) \
-	$(patsubst lang/%.pot,pkg/fxdata/%.dat,$(wildcard lang/gtext_*.pot))
+pkg/fxdata/gtext_chi.dat \
+pkg/fxdata/gtext_cht.dat \
+pkg/fxdata/gtext_cze.dat \
+pkg/fxdata/gtext_dut.dat \
+pkg/fxdata/gtext_fre.dat \
+pkg/fxdata/gtext_ger.dat \
+pkg/fxdata/gtext_ita.dat \
+pkg/fxdata/gtext_jpn.dat \
+pkg/fxdata/gtext_kor.dat \
+pkg/fxdata/gtext_lat.dat \
+pkg/fxdata/gtext_pol.dat \
+pkg/fxdata/gtext_rus.dat \
+pkg/fxdata/gtext_spa.dat \
+pkg/fxdata/gtext_swe.dat \
+pkg/fxdata/gtext_eng.dat
+
 NCTEXTDATS = \
 pkg/campgns/ami2019/text_eng.dat \
 pkg/campgns/ami2019/text_chi.dat \
