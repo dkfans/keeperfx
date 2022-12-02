@@ -128,19 +128,12 @@ static int ceiling_calculate_height_from_nearest_walls(int result, int number_of
     return result;
 }
 
-
-//todo cleanup this function
-//also ceiling_cache used to use scratch but that caused a crash somehow so now it just wastes 65kb for no reason
 long ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey)
 {
-    int v5;
-    int v6;
+    int ceil_dist;
     int v7;
-    int v8;
     int v9;
-    int v10;
     int v11;
-    int v12;
     int v13;
     int v15;
     int v16;
@@ -163,9 +156,7 @@ long ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey)
     int v35;
     unsigned int number_of_steps;
     int v38;
-    int v39;
     int v40;
-    int v41;
     int v42;
     int v44;
     int v45;
@@ -173,32 +164,27 @@ long ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey)
     int v47;
     int *v48;
     int v49;
-    int v51;
-    int v52;
+    int stl_num2;
+    int stl_num3;
     MapSubtlCoord unk_stl_y;
     MapSubtlCoord unk_stl_x;
-    v5 = game.ceiling_dist;
+    ceil_dist = game.ceiling_dist;
     if (game.ceiling_dist > 4)
-        v5 = 4;
-    v6 = sx - v5;
-    v7 = v5;
-    v8 = v6;
-    if (v6 <= 0)
-        v8 = 0;
-    v45 = v8;
+        ceil_dist = 4;
+    v45 = sx - ceil_dist;
+    v7 = ceil_dist;
+    if (v45 <= 0)
+        v45 = 0;
     v9 = sy - v7;
     if (sy - v7 <= 0)
         v9 = 0;
     v40 = v9;
-    v10 = ex + v7;
+    v47 = ex + v7;
     if (ex + v7 >= (map_subtiles_x + 1))
-        v10 = (map_subtiles_x + 1);
+        v47 = (map_subtiles_x + 1);
     v11 = ey + v7;
-    v47 = v10;
     if (v11 >= (map_subtiles_y + 1))
         v11 = (map_subtiles_y + 1);
-    v39 = v11;
-    v12 = v11;
     //ceiling_cache = (signed char*)scratch;
     v13 = v45 - game.ceiling_dist;
     if (v45 - game.ceiling_dist <= 0)
@@ -208,12 +194,11 @@ long ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey)
     if (v40 - game.ceiling_dist <= 0)
         cstl_y = 0;
     v15 = game.ceiling_dist + v47;
-    if (game.ceiling_dist + v47 >= 256)
-        v15 = 256;
-    v16 = v12 + game.ceiling_dist;
-    if (v12 + game.ceiling_dist >= 256)
-        v16 = 256;
-    v41 = v16;
+    if (game.ceiling_dist + v47 >= (map_subtiles_x + 1))
+        v15 = (map_subtiles_x + 1);
+    v16 = v11 + game.ceiling_dist;
+    if (v11 + game.ceiling_dist >= (map_subtiles_y + 1))
+        v16 = (map_subtiles_y + 1);
     
     if (cstl_y < v16)
     {
@@ -227,30 +212,30 @@ long ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey)
                 cstl_x++;
             }
             cstl_y++;
-        } while (cstl_y < v41);
+        } while (cstl_y < v16);
     }
 
-    if (v40 < v39)
+    if (v40 < v11)
     {
         v46 = v40 << 8;
-        v42 = v39 << 8;
+        v42 = v11 << 8;
         do
         {
             v49 = v45;
-            v51 = v46 + v45;
+            stl_num2 = v46 + v45;
             if (v47 > v45)
             {
                 do
                 {
-                    p_data = &game.map[v51].data;
-                    v22 = ceiling_cache[v51];
+                    p_data = &game.map[stl_num2].data;
+                    v22 = ceiling_cache[stl_num2];
                     v38 = v22;
                     if (v22 <= -1)
                     {
-                        v52 = v51;
+                        stl_num3 = stl_num2;
                         v48 = &v38;
-                        unk_stl_x = stl_num_decode_x(v51);
-                        unk_stl_y = stl_num_decode_y(v51);
+                        unk_stl_x = stl_num_decode_x(stl_num2);
+                        unk_stl_y = stl_num_decode_y(stl_num2);
                         v23 = 0;
                         spir = spiral_step;
                         if (game.ceiling_search_dist > 0)
@@ -261,7 +246,7 @@ long ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey)
                                 unk2_stl_y = unk_stl_y + spir->v;
                                 if (unk2_stl_x >= 0 && unk2_stl_x < map_subtiles_x && unk2_stl_y >= 0 && unk2_stl_y < map_subtiles_y)
                                 {
-                                    v27 = ceiling_cache[v52 + (*(long *)spir >> 16)];
+                                    v27 = ceiling_cache[stl_num3 + (*(long *)spir >> 16)];
                                     if (v27 > -1)
                                         break;
                                 }
@@ -292,7 +277,7 @@ long ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey)
                     }
                     v32 = v47;
                     v33 = *((char *)p_data + 3) & CLF_FLOOR_MASK;
-                    ++v51;
+                    ++stl_num2;
                     *((char *)p_data + 3) = v33;
                     v35 = ((v22 & 0xF) << 24) | *p_data;
                     v34 = ++v49;
