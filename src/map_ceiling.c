@@ -146,8 +146,6 @@ long ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey)
     int v16;
     int cstl_y;
     int cstl_x;
-    int stl_num;
-    signed char is_solid;
     unsigned long *p_data;
     int v22;
     int v23;
@@ -175,7 +173,6 @@ long ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey)
     int v47;
     int *v48;
     int v49;
-    unsigned int v50;
     int v51;
     int v52;
     MapSubtlCoord unk_stl_y;
@@ -194,12 +191,12 @@ long ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey)
         v9 = 0;
     v40 = v9;
     v10 = ex + v7;
-    if (ex + v7 >= 256)
-        v10 = 256;
+    if (ex + v7 >= (map_subtiles_x + 1))
+        v10 = (map_subtiles_x + 1);
     v11 = ey + v7;
     v47 = v10;
-    if (v11 >= 256)
-        v11 = 256;
+    if (v11 >= (map_subtiles_y + 1))
+        v11 = (map_subtiles_y + 1);
     v39 = v11;
     v12 = v11;
     //ceiling_cache = (signed char*)scratch;
@@ -223,17 +220,13 @@ long ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey)
         do
         {
             cstl_x = v44;
-
-            stl_num = get_subtile_number(cstl_x,cstl_y);
             while (cstl_x < v15)
             {
-                is_solid = ceiling_block_is_solid_including_corners_return_height(stl_num,cstl_x,cstl_y);
-                stl_num++;
+                SubtlCodedCoords stl_num = get_subtile_number(cstl_x,cstl_y);
+                ceiling_cache[stl_num] = ceiling_block_is_solid_including_corners_return_height(stl_num,cstl_x,cstl_y);
                 cstl_x++;
-                ceiling_cache[stl_num - 1] = is_solid;
-
             }
-            cstl_y ++;
+            cstl_y++;
         } while (cstl_y < v41);
     }
 
@@ -247,18 +240,17 @@ long ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey)
             v51 = v46 + v45;
             if (v47 > v45)
             {
-                v50 = 5 * v51;
                 do
                 {
-                    p_data = &game.map[v50 / 5].data;
+                    p_data = &game.map[v51].data;
                     v22 = ceiling_cache[v51];
                     v38 = v22;
                     if (v22 <= -1)
                     {
                         v52 = v51;
                         v48 = &v38;
-                        unk_stl_x = v51 % 256;
-                        unk_stl_y = v51 / 256;
+                        unk_stl_x = stl_num_decode_x(v51);
+                        unk_stl_y = stl_num_decode_y(v51);
                         v23 = 0;
                         spir = spiral_step;
                         if (game.ceiling_search_dist > 0)
@@ -300,7 +292,6 @@ long ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey)
                     }
                     v32 = v47;
                     v33 = *((char *)p_data + 3) & CLF_FLOOR_MASK;
-                    v50 += 5;
                     ++v51;
                     *((char *)p_data + 3) = v33;
                     v35 = ((v22 & 0xF) << 24) | *p_data;
