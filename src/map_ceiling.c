@@ -305,7 +305,7 @@ static int get_ceiling_or_floor_filled_subtiles(int stl_num)
 
 long ceiling_init(unsigned long a1, unsigned long a2)
 {
-    //return _DK_ceiling_init(a1, a2);
+    return _DK_ceiling_init(a1, a2);
     //TODO Fix, then enable rewritten version
     MapSubtlCoord stl_x;
     MapSubtlCoord stl_y;
