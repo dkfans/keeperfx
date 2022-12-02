@@ -1421,10 +1421,8 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
                 }
                 if (move_dist != 0)
                 {
-                    long xtest = distance_with_angle_to_coord_x(move_dist, move_angle);
-                    long ytest = distance_with_angle_to_coord_y(move_dist, move_angle);
-                    tngdst->veloc_push_add.x.val += xtest;
-                    tngdst->veloc_push_add.y.val += ytest;
+                    tngdst->veloc_push_add.x.val += distance_with_angle_to_coord_x(move_dist, move_angle);
+                    tngdst->veloc_push_add.y.val += distance_with_angle_to_coord_y(move_dist, move_angle);
                     tngdst->state_flags |= TF1_PushAdd;
                     affected = true;
                 }

@@ -254,7 +254,7 @@ long get_radially_growing_value(long magnitude, long decay_start, long decay_len
     long total_distance = (acceleration * distance + distance) / 2;
     if (distance >= decay_start + decay_length)
         return 0; //Outside the max range, nothing is pulled inwards
-    if ((abs(magnitude) * 5) > total_distance)
+    if ((abs(magnitude) * 5) > total_distance) //todo replace this and other 5s with computation
     {
         if (total_distance < decay_start)
         {
