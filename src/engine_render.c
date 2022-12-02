@@ -4445,7 +4445,7 @@ void do_a_plane_of_engine_columns_isometric(long stl_x, long stl_y, long plane_s
             colmn = get_map_column(sib_mapblk);
             solidmsk_right = colmn->solidmask;
         }
-        if ( xaclip || xbclip || (stl_y <= 1) || (stl_y >= 254))
+        if ( xaclip || xbclip || (stl_y <= 1) || (stl_y >= map_subtiles_y - 1))
         {
             if (xaclip && (xidx == 0)) {
                 solidmsk_left = 0;
@@ -4456,7 +4456,7 @@ void do_a_plane_of_engine_columns_isometric(long stl_x, long stl_y, long plane_s
             if (stl_y <= 1) {
                 solidmsk_back = 0;
             }
-            if (stl_y >= 254) {
+            if (stl_y >= map_subtiles_y - 1) {
                 solidmsk_front = 0;
             }
         }
@@ -8225,7 +8225,7 @@ static void update_frontview_pointed_block(unsigned long laaa, unsigned char qdr
         stl_x = (pos_x >> 8) + x_offs[qdrant];
         stl_y = (pos_y >> 8) + y_offs[qdrant];
         
-        if (stl_x < 0 || stl_x > 254 || stl_y < -2 || stl_y > 255) {
+        if (stl_x < 0 || stl_x > map_subtiles_y - 1 || stl_y < -2 || stl_y > map_subtiles_y) {
             out_of_bounds = true;
         }
 

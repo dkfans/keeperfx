@@ -1815,10 +1815,12 @@ static char light_render_light_dynamic_2(struct Light *lgt, int radius, int rend
                         bool_2 = false;
                         if (bool_1)
                         {
+                            const struct Column *col;
                             switch (v38)
                             {
                             case 1:
-                                bool_2 = ((unsigned char)game.columns_data[game.map[256 * stl_y + 256 + stl_x].data & 0x7FF].bitfields >> 4 <= lgt_stl_z);
+                                col = get_column_at(stl_x,stl_y + 1);
+                                bool_2 = (col->bitfields >> 4 <= lgt_stl_z);
                                 break;
                             case 3:
                                 bool_2 = (!point_is_above_floor(stl_x, stl_y - 1, lgt_stl_z));
