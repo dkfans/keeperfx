@@ -368,6 +368,18 @@ TbBool check_door_should_open(struct Thing *thing)
     return true;
 }
 
+TbBool door_will_open_for_thing(struct Thing *doortng, struct Thing *creatng)
+{
+  if ( !doortng->door.is_locked && thing_is_creature(creatng) )
+  {
+    if ( players_are_mutual_allies(doortng->owner,creatng->owner) )
+    {
+      return true;
+    }
+  }
+  return false;
+}
+
 long process_door_open(struct Thing *thing)
 {
     // If doors are locked, delay to closing = 0

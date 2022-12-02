@@ -490,6 +490,7 @@ int draw_overlay_creatures(struct PlayerInfo *player, long units_per_px, long zo
         col2 = 1;
         if (!thing_is_picked_up(thing))
         {
+            interpolate_minimap_thing(thing, thingadd, cam);
             if (thing_revealed(thing, player->id_number))
             {
                 if ((game.play_gameturn & 4) == 0)
@@ -499,7 +500,6 @@ int draw_overlay_creatures(struct PlayerInfo *player, long units_per_px, long zo
                 }
                 // Position of the thing on unrotated map
                 // for camera, coordinates within subtile are skipped; the thing uses full resolution coordinates
-                interpolate_minimap_thing(thing, thingadd, cam);
                 long zmpos_x = thingadd->interp_minimap_pos_x / zoom;
                 long zmpos_y = thingadd->interp_minimap_pos_y / zoom;
 
@@ -1231,7 +1231,11 @@ void pannel_map_draw_slabs(long x, long y, long units_per_px, long zoom)
         for (w = end_w-start_w; w > 0; w--)
         {
             int pnmap_idx;
-            pnmap_idx = ((precor_x>>16) & 0xff) | (((precor_y>>16) & 0xff) << 8);
+            //seemed to be drawing stuff next to the map, so just skip stuff outside of it
+            if (precor_x>>16 > map_subtiles_x || precor_y>>16 > map_subtiles_y)
+                continue;
+            //formula will have to be redone if maps bigger then 256, but works for smaller
+            pnmap_idx = ((precor_x>>16) & 0xff) + (((precor_y>>16) & 0xff) * (map_subtiles_x + 1) );
             int pncol_idx;
             pncol_idx = PannelMap[pnmap_idx] | (*bkgnd << 8);
             *out = PannelColours[pncol_idx];
