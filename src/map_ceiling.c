@@ -232,7 +232,7 @@ long ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey)
                                 unk2_stl_y = unk_stl_y + spir->v;
                                 if (unk2_stl_x >= 0 && unk2_stl_x < map_subtiles_x && unk2_stl_y >= 0 && unk2_stl_y < map_subtiles_y)
                                 {
-                                    v27 = ceiling_cache[stl_num2 + (*(long *)spir >> 16)];
+                                    v27 = ceiling_cache[get_subtile_number(unk2_stl_x ,unk2_stl_y)];
                                     if (v27 > -1)
                                         break;
                                 }
