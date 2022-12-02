@@ -644,7 +644,7 @@ void clear_mapmap(void)
  */
 void clear_slab_dig(long slb_x, long slb_y, char plyr_idx)
 {
-    const struct SlabMap *slb = &game.slabmap[slb_x + 85 * slb_y];
+    const struct SlabMap *slb = get_slabmap_block(slb_x,slb_y);
     if ( get_slab_attrs(slb)->block_flags & (SlbAtFlg_Filled | SlbAtFlg_Digable | SlbAtFlg_Valuable) )
     {
         if (slb->kind == SlbT_ROCK) // fix #1128
