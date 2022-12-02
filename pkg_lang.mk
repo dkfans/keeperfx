@@ -26,8 +26,10 @@ NCTEXTDATS = \
 	$(patsubst lang/%.po,pkg/%.dat,$(foreach campaign,$(CAMPAIGNS),$(wildcard lang/campgns/$(campaign)/*.po))) \
 	$(patsubst lang/%.pot,pkg/%.dat,$(foreach campaign,$(CAMPAIGNS),$(wildcard lang/campgns/$(campaign)/*.pot)))
 MPTEXTDATS = \
-	$(patsubst lang/%.po,pkg/%.dat,$(foreach mappack,$(MAPPACKS),$(wildcard lang/levels/$(mappack)/*.po))) \
-	$(patsubst lang/%.pot,pkg/%.dat,$(foreach mappack,$(MAPPACKS),$(wildcard lang/levels/$(mappack)/*.pot)))
+pkg/levels/classic/text_eng.dat \
+pkg/levels/classic/text_chi.dat \
+pkg/levels/standard/text_eng.dat \
+pkg/levels/standard/text_chi.dat
 
 EU_CHAR_ENCODING = tools/po2ngdat/res/char_encoding_tbl_eu.txt
 JP_CHAR_ENCODING = tools/po2ngdat/res/char_encoding_tbl_jp.txt
