@@ -43,75 +43,67 @@ static int find_column_height_including_lintels(struct Column *col)
     return i + 1;
 }
 
-static int ceiling_block_is_solid_including_corners_return_height(SubtlCodedCoords stl_num, int cstl_x, int cstl_y)
+static int ceiling_block_is_solid_including_corners_return_height(SubtlCodedCoords stl_num, MapSubtlCoord cstl_x, MapSubtlCoord cstl_y)
 {
-    struct Column *col;
-    unsigned char v6;
-    int v8;
-    unsigned char v10;
-    int v11;
-    unsigned char v13;
-    int v14;
-    unsigned char v16;
-    int v17;
-    unsigned char bitfields;
-    if ((game.map[stl_num].flags & SlbAtFlg_Blocking) == 0 && (game.columns.lookup[game.map[stl_num].data & 0x7FF]->bitfields & CLF_CEILING_MASK) == 0)
+    MapSubtlCoord stl_x = stl_num_decode_x(stl_num);
+    MapSubtlCoord stl_y = stl_num_decode_y(stl_num);
+    struct Map *mapblk = get_map_block_at(stl_x,stl_y);
+    struct Column *col = get_map_column(mapblk);
+
+    if ((mapblk->flags & SlbAtFlg_Blocking) == 0 && (col->bitfields & CLF_CEILING_MASK) == 0)
     {
         if (cstl_x <= 0)
         {
             if (cstl_y > 0)
             {
-                v17 = stl_num - 256;
-                if ((game.map[v17].flags & SlbAtFlg_Blocking) != 0 || (game.columns.lookup[game.map[v17].data & 0x7FF]->bitfields & CLF_CEILING_MASK) != 0)
+                mapblk = get_map_block_at(stl_x,stl_y - 1);
+                col = get_map_column(mapblk);
+                if ((mapblk->flags & SlbAtFlg_Blocking) != 0 || (col->bitfields & CLF_CEILING_MASK) != 0)
                 {
-                    col = game.columns.lookup[game.map[stl_num - 256].data & 0x7FF];
-                    bitfields = col->bitfields;
-                    if ((bitfields & CLF_CEILING_MASK) != 0)
+                    if ((col->bitfields & CLF_CEILING_MASK) != 0)
                         return find_column_height_including_lintels(col);
-                    return bitfields >> 4;
+                    return col->bitfields >> 4;
                 }
             }
         }
         else
         {
-            v8 = stl_num - 1;
-            if ((game.map[v8].flags & SlbAtFlg_Blocking) != 0 || (game.columns.lookup[game.map[v8].data & 0x7FF]->bitfields & CLF_CEILING_MASK) != 0)
+            mapblk = get_map_block_at(stl_x - 1,stl_y);
+            col = get_map_column(mapblk);
+            if ((mapblk->flags & SlbAtFlg_Blocking) != 0 || (col->bitfields & CLF_CEILING_MASK) != 0)
             {
-                col = game.columns.lookup[game.map[stl_num - 1].data & 0x7FF];
-                v10 = col->bitfields;
-                if ((v10 & CLF_CEILING_MASK) != 0)
+                if ((col->bitfields & CLF_CEILING_MASK) != 0)
                     return find_column_height_including_lintels(col);
-                return v10 >> 4;
+                return col->bitfields >> 4;
             }
             if (cstl_y > 0)
             {
-                v11 = stl_num - 256;
-                if ((game.map[v11].flags & SlbAtFlg_Blocking) != 0 || (game.columns.lookup[game.map[v11].data & 0x7FF]->bitfields & CLF_CEILING_MASK) != 0)
+                mapblk = get_map_block_at(stl_x,stl_y - 1);
+                col = get_map_column(mapblk);
+                if ((mapblk->flags & SlbAtFlg_Blocking) != 0 || (col->bitfields & CLF_CEILING_MASK) != 0)
                 {
-                    col = game.columns.lookup[game.map[stl_num - 256].data & 0x7FF];
-                    v13 = col->bitfields;
-                    if ((v13 & CLF_CEILING_MASK) != 0)
+                    if ((col->bitfields & CLF_CEILING_MASK) != 0)
                         return find_column_height_including_lintels(col);
-                    return v13 >> 4;
+                    return col->bitfields >> 4;
                 }
-                v14 = stl_num - 257;
-                if ((game.map[v14].flags & SlbAtFlg_Blocking) != 0 || (game.columns.lookup[game.map[v14].data & 0x7FF]->bitfields & CLF_CEILING_MASK) != 0)
+                mapblk = get_map_block_at(stl_x - 1,stl_y - 1);
+                col = get_map_column(mapblk);
+                if ((mapblk->flags & SlbAtFlg_Blocking) != 0 || (col->bitfields & CLF_CEILING_MASK) != 0)
                 {
-                    col = game.columns.lookup[game.map[stl_num - 257].data & 0x7FF];
-                    v16 = col->bitfields;
-                    if ((v16 & CLF_CEILING_MASK) != 0)
+                    if ((col->bitfields & CLF_CEILING_MASK) != 0)
                         return find_column_height_including_lintels(col);
-                    return v16 >> 4;
+                    return col->bitfields >> 4;
                 }
             }
         }
         return -1;
     }
-    col = game.columns.lookup[game.map[stl_num].data & 0x7FF];
-    v6 = col->bitfields;
-    if ((v6 & CLF_CEILING_MASK) != 0)
+
+    mapblk = get_map_block_at(stl_x,stl_y);
+    col = get_map_column(mapblk);
+    if ((col->bitfields & CLF_CEILING_MASK) != 0)
         return find_column_height_including_lintels(col);
-    return v6 >> 4;
+    return col->bitfields >> 4;
 }
 
 static int ceiling_calculate_height_from_nearest_walls(int result, int number_of_steps)
@@ -150,7 +142,6 @@ long ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey)
     int v11;
     int v12;
     int v13;
-    int v14;
     int v15;
     int v16;
     int cstl_y;
@@ -178,7 +169,6 @@ long ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey)
     int v40;
     int v41;
     int v42;
-    int v43;
     int v44;
     int v45;
     int v46;
@@ -217,9 +207,9 @@ long ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey)
     if (v45 - game.ceiling_dist <= 0)
         v13 = 0;
     v44 = v13;
-    v14 = v40 - game.ceiling_dist;
+    cstl_y = v40 - game.ceiling_dist;
     if (v40 - game.ceiling_dist <= 0)
-        v14 = 0;
+        cstl_y = 0;
     v15 = game.ceiling_dist + v47;
     if (game.ceiling_dist + v47 >= 256)
         v15 = 256;
@@ -227,16 +217,14 @@ long ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey)
     if (v12 + game.ceiling_dist >= 256)
         v16 = 256;
     v41 = v16;
-    cstl_y = v14;
     
-    if (v14 < v16)
+    if (cstl_y < v16)
     {
-        v43 = v14 << 8;
         do
         {
             cstl_x = v44;
 
-            stl_num = v44 + v43;
+            stl_num = get_subtile_number(cstl_x,cstl_y);
             while (cstl_x < v15)
             {
                 is_solid = ceiling_block_is_solid_including_corners_return_height(stl_num,cstl_x,cstl_y);
@@ -245,8 +233,7 @@ long ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey)
                 ceiling_cache[stl_num - 1] = is_solid;
 
             }
-            ++cstl_y;
-            v43 += 256;
+            cstl_y ++;
         } while (cstl_y < v41);
     }
 
