@@ -134,7 +134,6 @@ long ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey)
     int v7;
     int v9;
     int v11;
-    int v13;
     int v15;
     int v16;
     int cstl_y;
@@ -164,8 +163,6 @@ long ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey)
     int v47;
     int *v48;
     int v49;
-    int stl_num2;
-    int stl_num3;
     MapSubtlCoord unk_stl_y;
     MapSubtlCoord unk_stl_x;
     ceil_dist = game.ceiling_dist;
@@ -186,10 +183,9 @@ long ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey)
     if (v11 >= (map_subtiles_y + 1))
         v11 = (map_subtiles_y + 1);
     //ceiling_cache = (signed char*)scratch;
-    v13 = v45 - game.ceiling_dist;
+    v44 = v45 - game.ceiling_dist;
     if (v45 - game.ceiling_dist <= 0)
-        v13 = 0;
-    v44 = v13;
+        v44 = 0;
     cstl_y = v40 - game.ceiling_dist;
     if (v40 - game.ceiling_dist <= 0)
         cstl_y = 0;
@@ -217,12 +213,12 @@ long ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey)
 
     if (v40 < v11)
     {
-        v46 = v40 << 8;
-        v42 = v11 << 8;
+        v46 = v40;
+        v42 = v11;
         do
         {
             v49 = v45;
-            stl_num2 = v46 + v45;
+            SubtlCodedCoords stl_num2 = get_subtile_number(v45,v46);
             if (v47 > v45)
             {
                 do
@@ -232,7 +228,6 @@ long ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey)
                     v38 = v22;
                     if (v22 <= -1)
                     {
-                        stl_num3 = stl_num2;
                         v48 = &v38;
                         unk_stl_x = stl_num_decode_x(stl_num2);
                         unk_stl_y = stl_num_decode_y(stl_num2);
@@ -246,7 +241,7 @@ long ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey)
                                 unk2_stl_y = unk_stl_y + spir->v;
                                 if (unk2_stl_x >= 0 && unk2_stl_x < map_subtiles_x && unk2_stl_y >= 0 && unk2_stl_y < map_subtiles_y)
                                 {
-                                    v27 = ceiling_cache[stl_num3 + (*(long *)spir >> 16)];
+                                    v27 = ceiling_cache[stl_num2 + (*(long *)spir >> 16)];
                                     if (v27 > -1)
                                         break;
                                 }
@@ -284,7 +279,7 @@ long ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey)
                     *p_data = v35;
                 } while (v34 < v32);
             }
-            v46 += 256;
+            v46 ++;
         } while (v46 < v42);
     }
     return 1;
