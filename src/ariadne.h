@@ -150,13 +150,15 @@ struct WayPoints { // sizeof = 1040
 
 struct Navigation { // sizeof = 0x27
   unsigned char navstate;
-  unsigned char field_1[3];
+  unsigned char side;
+  unsigned char field_2;
+  unsigned char field_3;
   unsigned char field_4;
-  long field_5;
-  long field_9;
+  long dist_to_final_pos;
+  long distance_to_next_pos;
   long angle;
   unsigned char field_11[4];
-  unsigned short field_15;
+  unsigned short first_colliding_block;
   unsigned short field_17;
   unsigned char field_19[2];
   struct Coord3d pos_next;
@@ -168,6 +170,17 @@ struct FOV { // sizeof=0x18
     struct PathWayPoint tipB;
     struct PathWayPoint tipC;
 };
+
+struct HugStart {
+    short angle;
+    unsigned char flag;
+};
+
+/******************************************************************************/
+
+extern const struct HugStart blocked_x_hug_start[][2];
+extern const struct HugStart blocked_y_hug_start[][2];
+extern const struct HugStart blocked_xy_hug_start[][2][2];
 
 /******************************************************************************/
 DLLIMPORT unsigned long *_DK_EdgeFit;

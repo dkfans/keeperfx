@@ -105,7 +105,6 @@ unsigned char const slabs_to_centre_peices[] = {
 };
 
 unsigned short const room_effect_elements[] = { TngEffElm_RedFlame, TngEffElm_BlueFlame, TngEffElm_GreenFlame, TngEffElm_YellowFlame, TngEffElm_None, TngEffElm_None };
-const short slab_around[] = { -85, 1, 85, -1 };
 /******************************************************************************/
 #ifdef __cplusplus
 }
