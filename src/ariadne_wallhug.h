@@ -43,7 +43,6 @@ enum WallHugSideState {
 
 #pragma pack()
 /******************************************************************************/
-extern const short slab_around[];
 extern const unsigned short small_around_pos[4];
 #define AROUND_EIGHT_LENGTH 8
 extern struct Around const my_around_eight[];
