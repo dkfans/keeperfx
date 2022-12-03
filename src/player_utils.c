@@ -498,10 +498,6 @@ void fill_in_explored_area(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlC
 
     char *first_scratch;
     unsigned char *v4;
-    int v5;
-    struct SlabMap *slb;
-    int v7;
-    const long *v8;
     int block_flags;
     struct Map *mapblk;
     int v11;
@@ -541,8 +537,6 @@ static const char byte_522148[80] =
   1,0,0,0,0
 };
 
-
-
 static const char byte_522198[1] = { 0 };
 static const char byte_522199[11] =
 {
@@ -554,35 +548,28 @@ static const char byte_522199[11] =
 
     first_scratch = (char*) scratch;
     v4 = scratch;
-    second_scratch = (char *)scratch + 7225;
+    second_scratch = (char *)scratch + map_tiles_x * map_tiles_y;
     memset((void *)scratch, 0, 0x1C38u);
-    v4[7224] = 0;
-    v5 = 0;
-    slb = game.slabmap;
-    do
+    v4[map_tiles_x * map_tiles_y - 1] = 0;
+
+    for(MapSlabCoord slb_y_2 = 0;slb_y_2 < map_tiles_y;slb_y_2++)
     {
-        v7 = 0;
-        v8 = &map_to_slab[1];
-        do
+        for(MapSlabCoord slb_x_2 = 0;slb_x_2 < map_tiles_x;slb_x_2++)
         {
+            struct SlabMap *slb = get_slabmap_block(slb_x_2,slb_y_2);
             struct SlabAttr *slbattr = get_slab_attrs(slb);
             block_flags = slbattr->block_flags;
 
-            
-
             if ((block_flags & (SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0 || ((block_flags & SlbAtFlg_IsDoor) != 0 && slabmap_owner(slb) != plyr_idx))
             {
-                first_scratch[v7 + v5] = 1;
+                first_scratch[get_slab_number(slb_x_2,slb_y_2)] = 1;
             }
-            v8 += STL_PER_SLB;
-            ++slb;
-            ++v7;
-        } while (v8 < &map_to_slab[270]);
+        }
+    }
 
-        v5 += 85;
-    } while (v5 < 7225);
+
     mapblk = &game.map[257];
-    v11 = 0x10000;
+    v11 = map_subtiles_x * map_subtiles_y;
     do
     {
         data = mapblk->data;
@@ -594,12 +581,12 @@ static const char byte_522199[11] =
     v24 = 0;
     slb_x = stl_x / 3;
     slb_y = stl_y / 3;
-    first_scratch[85 * slb_y + slb_x] |= 2u;
+    first_scratch[get_slab_number(slb_x,slb_y)] |= 2u;
     v29 = second_scratch;
     do
     {
         v13 = 0;
-        v14 = &first_scratch[85 * slb_y + slb_x];
+        v14 = &first_scratch[get_slab_number(slb_x,slb_y)];
         v15 = *(v14 - 1);
         if ((v15 & 1) != 0)
         {
