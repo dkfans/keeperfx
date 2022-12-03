@@ -893,6 +893,23 @@ void set_map_size(MapSlabCoord x,MapSlabCoord y)
     map_subtiles_y = y * STL_PER_SLB;
     map_tiles_x = x;
     map_tiles_y = y;
+
+    small_around_slab[0] = -map_tiles_x;
+    small_around_slab[2] = map_tiles_x;
+
+    around_slab[0] = -map_tiles_x - 1;
+    around_slab[1] = -map_tiles_x;
+    around_slab[2] = -map_tiles_x  + 1;
+    around_slab[6] = map_tiles_x - 1;
+    around_slab[7] = map_tiles_x;
+    around_slab[8] = map_tiles_x + 1;
+
+    around_slab_eight[0] = -map_tiles_x - 1;
+    around_slab_eight[1] = -map_tiles_x;
+    around_slab_eight[2] = -map_tiles_x  + 1;
+    around_slab_eight[5] = map_tiles_x - 1;
+    around_slab_eight[6] = map_tiles_x;
+    around_slab_eight[7] = map_tiles_x + 1;
 }
 
 void init_map_size(LevelNumber lvnum)
