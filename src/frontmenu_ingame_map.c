@@ -50,17 +50,38 @@
 #include "post_inc.h"
 
 /******************************************************************************/
+struct InterpMinimap
+{
+    long x;
+    long y;
+    long previous_x;
+    long previous_y;
+    long get_previous;
+};
+/******************************************************************************/
 /**
  * Background behind the map area.
  */
-unsigned char *MapBackground = NULL;
-long *MapShapeStart = NULL;
-long *MapShapeEnd = NULL;
+static unsigned char *MapBackground = NULL;
+static long *MapShapeStart = NULL;
+static long *MapShapeEnd = NULL;
+static const TbPixel RoomColours[] = {132, 92, 164, 183, 21, 132};
+static long PannelMapY;
+static long PannelMapX;
+static long NoBackColours;
+static long PrevPixelSize;
+static unsigned char MapBackColours[256];
+static unsigned char PannelColours[4096];
+static long PrevRoomHighlight;
+static long PrevDoorHighlight;
+static unsigned char PannelMap[256*256];//map subtiles x*y
+static struct InterpMinimap interp_minimap;
+
+long clicked_on_small_map;
+unsigned char grabbed_small_map;
 long MapDiagonalLength = 0;
 TbBool reset_all_minimap_interpolation = false;
-const TbPixel RoomColours[] = {132, 92, 164, 183, 21, 132};
 /******************************************************************************/
-struct InterpMinimap interp_minimap;
 
 void pannel_map_draw_pixel(RealScreenCoord x, RealScreenCoord y, TbPixel col)
 {
@@ -767,7 +788,7 @@ void pannel_map_update(long x, long y, long w, long h)
     }
 }
 
-void do_map_rotate_stuff(long relpos_x, long relpos_y, long *stl_x, long *stl_y, long zoom)
+static void do_map_rotate_stuff(long relpos_x, long relpos_y, long *stl_x, long *stl_y, long zoom)
 {
     const struct PlayerInfo *player;
     player = get_my_player();
@@ -1203,7 +1224,7 @@ void pannel_map_draw_slabs(long x, long y, long units_per_px, long zoom)
         subpos_x = shift_stl_y - shift_x * (end_w - 1);
         for (; end_w > start_w; end_w--)
         {
-            if ((subpos_y >= 0) && (subpos_x >= 0) && (subpos_y < (1<<24)) && (subpos_x < (1<<24))) {
+            if ((subpos_y >= 0) && (subpos_x >= 0) && (subpos_y < (1<<16)*map_subtiles_y) && (subpos_x < (1<<16)*map_subtiles_x)) {
                 break;
             }
             subpos_y -= shift_y;
@@ -1213,7 +1234,7 @@ void pannel_map_draw_slabs(long x, long y, long units_per_px, long zoom)
         subpos_x = shift_stl_y - shift_x * start_w;
         for (; start_w < end_w; start_w++)
         {
-            if ((subpos_y >= 0) && (subpos_x >= 0) && (subpos_y < (1<<24)) && (subpos_x < (1<<24))) {
+            if ((subpos_y >= 0) && (subpos_x >= 0) && (subpos_y < (1<<16)*map_subtiles_y) && (subpos_x < (1<<16)*map_subtiles_x)) {
                 break;
             }
             subpos_y += shift_y;
@@ -1231,9 +1252,6 @@ void pannel_map_draw_slabs(long x, long y, long units_per_px, long zoom)
         for (w = end_w-start_w; w > 0; w--)
         {
             int pnmap_idx;
-            //seemed to be drawing stuff next to the map, so just skip stuff outside of it
-            if (precor_x>>16 > map_subtiles_x || precor_y>>16 > map_subtiles_y)
-                continue;
             //formula will have to be redone if maps bigger then 256, but works for smaller
             pnmap_idx = ((precor_x>>16) & 0xff) + (((precor_y>>16) & 0xff) * (map_subtiles_x + 1) );
             int pncol_idx;
