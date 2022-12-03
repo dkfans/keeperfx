@@ -3813,7 +3813,7 @@ void do_a_plane_of_engine_columns_perspective(long stl_x, long stl_y, long plane
     bec = &back_ec[clip_start + MINMAX_ALMOST_HALF];
     fec = &front_ec[clip_start + MINMAX_ALMOST_HALF];
     blank_colmn = get_column(game.unrevealed_column_idx);
-    center_block_idx = clip_start + stl_x + (stl_y << 8);
+    center_block_idx = clip_start + stl_x + (stl_y * (map_subtiles_x+1));
     for (i = clip_end-clip_start; i > 0; i--)
     {
         mapblk = get_map_block_at_pos(center_block_idx);
