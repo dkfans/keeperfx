@@ -562,8 +562,8 @@ void update_player_camera_fp(struct Camera *cam, struct Thing *thing)
 
         if ( pos_x >= 0 )
         {
-            if ( pos_x > 0xFFFF )
-                pos_x = -1 * abs(pos_x);
+            if ( pos_x > map_subtiles_x * COORD_PER_STL )
+                pos_x = map_subtiles_x * COORD_PER_STL - 1;
         }
         else
         {
@@ -571,8 +571,8 @@ void update_player_camera_fp(struct Camera *cam, struct Thing *thing)
         }
         if ( pos_y >= 0 )
         {
-            if ( pos_y > 0xFFFF )
-                pos_y = -1 * abs(pos_y);
+            if ( pos_y > map_subtiles_y * COORD_PER_STL )
+                pos_y = map_subtiles_y * COORD_PER_STL - 1;
         }
         else
         {
@@ -676,18 +676,18 @@ void view_move_camera_left(struct Camera *cam, long distance)
         cam->view_mode == PVM_IsoStraightView
     ) {
 
-        pos_x = cam->mappos.x.val - FIXED_POLAR_TO_X(cam->orient_a + 512,distance);
-        pos_y = cam->mappos.y.val + FIXED_POLAR_TO_Y(cam->orient_a + 512,distance);
+        pos_x = move_coord_with_angle_x(cam->mappos.x.val,distance,cam->orient_a - LbFPMath_PI/2);
+        pos_y = move_coord_with_angle_y(cam->mappos.y.val,distance,cam->orient_a - LbFPMath_PI/2);
 
         if ( pos_x < 0 )
             pos_x = 0;
-        if ( pos_x > 0xFFFF )
-            pos_x = -1;
+        if ( pos_x > map_subtiles_x * COORD_PER_STL )
+            pos_x = map_subtiles_x * COORD_PER_STL - 1;
 
         if ( pos_y < 0 )
             pos_y = 0;
-        if ( pos_y > 0xFFFF )
-            pos_y = -1;
+        if ( pos_y > map_subtiles_y * COORD_PER_STL )
+            pos_y = map_subtiles_y * COORD_PER_STL - 1;
 
         cam->mappos.x.val = pos_x;
         cam->mappos.y.val = pos_y;
@@ -700,8 +700,8 @@ void view_move_camera_left(struct Camera *cam, long distance)
 
         if ( parchment_pos_x < 0 )
             parchment_pos_x = 0;
-        if ( parchment_pos_x > 0xFFFF )
-            parchment_pos_x = -1;
+        if ( parchment_pos_x > map_subtiles_x * COORD_PER_STL )
+            parchment_pos_x = map_subtiles_x * COORD_PER_STL - 1;
 
         cam->mappos.x.stl.pos = parchment_pos_x;
 
@@ -721,18 +721,18 @@ void view_move_camera_right(struct Camera *cam, long distance)
         cam->view_mode == PVM_IsoStraightView
     ) {
 
-        pos_x = cam->mappos.x.val + FIXED_POLAR_TO_X(cam->orient_a + 512,distance);
-        pos_y = cam->mappos.y.val - FIXED_POLAR_TO_Y(cam->orient_a + 512,distance);
+        pos_x = move_coord_with_angle_x(cam->mappos.x.val,distance,cam->orient_a + LbFPMath_PI/2);
+        pos_y = move_coord_with_angle_y(cam->mappos.y.val,distance,cam->orient_a + LbFPMath_PI/2);
 
         if ( pos_x < 0 )
             pos_x = 0;
-        if ( pos_x > 0xFFFF )
-            pos_x = -1;
+        if ( pos_x > map_subtiles_x * COORD_PER_STL )
+            pos_x = map_subtiles_x * COORD_PER_STL - 1;
 
         if ( pos_y < 0 )
             pos_y = 0;
-        if ( pos_y > 0xFFFF )
-            pos_y = -1;
+        if ( pos_y > map_subtiles_y * COORD_PER_STL )
+            pos_y = map_subtiles_y * COORD_PER_STL - 1;
 
         cam->mappos.x.val = pos_x;
         cam->mappos.y.val = pos_y;
@@ -745,8 +745,8 @@ void view_move_camera_right(struct Camera *cam, long distance)
 
         if ( parchment_pos_x < 0 )
             parchment_pos_x = 0;
-        if ( parchment_pos_x > 0xFFFF )
-            parchment_pos_x = -1;
+        if ( parchment_pos_x > map_subtiles_x * COORD_PER_STL )
+            parchment_pos_x = map_subtiles_x * COORD_PER_STL - 1;
 
         cam->mappos.x.stl.pos = parchment_pos_x;
 
@@ -766,18 +766,18 @@ void view_move_camera_up(struct Camera *cam, long distance)
         cam->view_mode == PVM_IsoStraightView
     ) {
 
-        pos_x = cam->mappos.x.val + FIXED_POLAR_TO_X(cam->orient_a,distance);
-        pos_y = cam->mappos.y.val - FIXED_POLAR_TO_Y(cam->orient_a,distance);
+        pos_x = move_coord_with_angle_x(cam->mappos.x.val,distance,cam->orient_a);
+        pos_y = move_coord_with_angle_y(cam->mappos.y.val,distance,cam->orient_a);
 
         if ( pos_x < 0 )
             pos_x = 0;
-        if ( pos_x > 0xFFFF )
-            pos_x = -1;
+        if ( pos_x > map_subtiles_x * COORD_PER_STL )
+            pos_x = map_subtiles_x * COORD_PER_STL - 1;
 
         if ( pos_y < 0 )
             pos_y = 0;
-        if ( pos_y > 0xFFFF )
-            pos_y = -1;
+        if ( pos_y > map_subtiles_y * COORD_PER_STL )
+            pos_y = map_subtiles_y * COORD_PER_STL - 1;
 
         cam->mappos.x.val = pos_x;
         cam->mappos.y.val = pos_y;
@@ -789,8 +789,8 @@ void view_move_camera_up(struct Camera *cam, long distance)
 
         if ( parchment_pos_y < 0 )
             parchment_pos_y = 0;
-        if ( parchment_pos_y > 0xFFFF )
-            parchment_pos_y = -1;
+        if ( parchment_pos_y > map_subtiles_y * COORD_PER_STL )
+            parchment_pos_y = map_subtiles_y * COORD_PER_STL - 1;
 
         cam->mappos.y.stl.pos = parchment_pos_y;
 
@@ -809,18 +809,18 @@ void view_move_camera_down(struct Camera *cam, long distance)
         cam->view_mode == PVM_IsoStraightView
     ) {
 
-        pos_x = cam->mappos.x.val - FIXED_POLAR_TO_X(cam->orient_a,distance);
-        pos_y = cam->mappos.y.val + FIXED_POLAR_TO_Y(cam->orient_a,distance);
+        pos_x = move_coord_with_angle_x(cam->mappos.x.val,distance,cam->orient_a + LbFPMath_PI);
+        pos_y = move_coord_with_angle_y(cam->mappos.y.val,distance,cam->orient_a + LbFPMath_PI);
 
         if ( pos_x < 0 )
             pos_x = 0;
-        if ( pos_x > 0xFFFF )
-            pos_x = -1;
+        if ( pos_x > map_subtiles_x * COORD_PER_STL )
+            pos_x = map_subtiles_x * COORD_PER_STL - 1;
 
         if ( pos_y < 0 )
             pos_y = 0;
-        if ( pos_y > 0xFFFF )
-            pos_y = -1;
+        if ( pos_y > map_subtiles_y * COORD_PER_STL )
+            pos_y = map_subtiles_y * COORD_PER_STL - 1;
 
         cam->mappos.x.val = pos_x;
         cam->mappos.y.val = pos_y;
@@ -833,8 +833,8 @@ void view_move_camera_down(struct Camera *cam, long distance)
 
         if ( parchment_pos_y < 0 )
             parchment_pos_y = 0;
-        if ( parchment_pos_y > 0xFFFF )
-            parchment_pos_y = -1;
+        if ( parchment_pos_y > map_subtiles_y * COORD_PER_STL )
+            parchment_pos_y = map_subtiles_y * COORD_PER_STL - 1;
 
         cam->mappos.y.stl.pos = parchment_pos_y;
 

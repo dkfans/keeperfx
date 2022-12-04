@@ -2202,10 +2202,10 @@ if (((MyScreenWidth >> 1) != GetMouseX()) || (GetMouseY() != y))
         pckt->pos_y = k*y + 127;
     }
     // Bound posx and pos_y
-    if (pckt->pos_x > map_subtiles_x)
-    pckt->pos_x = map_subtiles_x;
-    if (pckt->pos_y > map_subtiles_y)
-    pckt->pos_y = map_subtiles_y;
+    if (pckt->pos_x > 255)
+    pckt->pos_x = 255;
+    if (pckt->pos_y > 255)
+    pckt->pos_y = 255;
 
     // Now do user actions
     if (thing_is_invalid(thing))

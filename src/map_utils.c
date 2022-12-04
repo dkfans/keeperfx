@@ -88,7 +88,7 @@ void init_spiral_steps(void)
     struct MapOffset* sstep = &spiral_step[0];
     sstep->h = y;
     sstep->v = x;
-    sstep->both = (short)y + ((short)x << 8);
+    sstep->both = (short)y + ((short)x * map_subtiles_y);
     y = -1;
     x = -1;
     for (long i = 1; i < SPIRAL_STEPS_COUNT; i++)
@@ -96,7 +96,7 @@ void init_spiral_steps(void)
       sstep = &spiral_step[i];
       sstep->h = y;
       sstep->v = x;
-      sstep->both = (short)y + ((short)x << 8);
+      sstep->both = (short)y + ((short)x * map_subtiles_y);
       if ((y < 0) && (x-y == 1))
       {
           y--;
