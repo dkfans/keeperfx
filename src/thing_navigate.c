@@ -610,8 +610,6 @@ short move_to_position(struct Thing *creatng)
 long get_next_gap_creature_can_fit_in_below_point_new(struct Thing *thing, struct Coord3d *pos)
 {
     MapCoordDelta clipbox_size_xy;
-    unsigned int v12;
-    unsigned int v13;
     unsigned int v19;
     unsigned int v20;
     unsigned __int8 v24;
@@ -622,7 +620,7 @@ long get_next_gap_creature_can_fit_in_below_point_new(struct Thing *thing, struc
     MapSubtlCoord floor_height;
     unsigned int v30;
 
-    if (thing->class_id == TCls_Creature)
+    if (thing_is_creature(thing))
         clipbox_size_xy = thing_nav_sizexy(thing);
     else
         clipbox_size_xy = thing->clipbox_size_xy;
@@ -650,12 +648,12 @@ long get_next_gap_creature_can_fit_in_below_point_new(struct Thing *thing, struc
         {
             struct Map *mapblk = get_map_block_at(x / COORD_PER_STL + 1, y / COORD_PER_STL + 1);
             struct Column *col = get_map_column(mapblk);
-            v12 = col->bitfields >> 4;
+            unsigned int v12 = col->bitfields >> 4;
             if (floor_height < v12)
                  floor_height = v12;
             if ((col->bitfields & CLF_CEILING_MASK) != 0)
             {
-                 v13 = COLUMN_STACK_HEIGHT - ((col->bitfields & CLF_CEILING_MASK) >> 1);
+                 unsigned int v13 = COLUMN_STACK_HEIGHT - ((col->bitfields & CLF_CEILING_MASK) >> 1);
                  if (v13 >= v30)
                      v13 = v30;
                  v30 = v13;
@@ -682,7 +680,7 @@ long get_next_gap_creature_can_fit_in_below_point_new(struct Thing *thing, struc
             floor_height = v19;
         if ((col->bitfields & CLF_CEILING_MASK) != 0)
         {
-            v20 = COLUMN_STACK_HEIGHT - ((unsigned __int8)(col->bitfields & CLF_CEILING_MASK) >> 1);
+            v20 = COLUMN_STACK_HEIGHT - ((col->bitfields & CLF_CEILING_MASK) >> 1);
             if (v20 >= v30)
                  v20 = v30;
             v30 = v20;
