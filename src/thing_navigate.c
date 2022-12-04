@@ -604,19 +604,9 @@ short move_to_position(struct Thing *creatng)
     }
 }
 
-#define BYTEn(x, n)   (*((char*)&(x)+n))
-#define BYTE1(x)   BYTEn(x,  1)
-
 long get_next_gap_creature_can_fit_in_below_point_new(struct Thing *thing, struct Coord3d *pos)
 {
     MapCoordDelta clipbox_size_xy;
-    unsigned int v19;
-    unsigned int v20;
-    unsigned __int8 v24;
-    unsigned int v25;
-    unsigned int v26;
-    __int32 result;
-    unsigned int v28;
     MapSubtlCoord floor_height;
     unsigned int v30;
 
@@ -675,12 +665,12 @@ long get_next_gap_creature_can_fit_in_below_point_new(struct Thing *thing, struc
         struct Map *mapblk = get_map_block_at(end_x / COORD_PER_STL + 1, y / COORD_PER_STL + 1);
         struct Column *col = get_map_column(mapblk);
 
-        v19 = col->bitfields >> 4;
+        unsigned int v19 = col->bitfields >> 4;
         if (floor_height < v19)
             floor_height = v19;
         if ((col->bitfields & CLF_CEILING_MASK) != 0)
         {
-            v20 = COLUMN_STACK_HEIGHT - ((col->bitfields & CLF_CEILING_MASK) >> 1);
+            unsigned int v20 = COLUMN_STACK_HEIGHT - ((col->bitfields & CLF_CEILING_MASK) >> 1);
             if (v20 >= v30)
                  v20 = v30;
             v30 = v20;
@@ -701,36 +691,36 @@ long get_next_gap_creature_can_fit_in_below_point_new(struct Thing *thing, struc
         struct Map *mapblk = get_map_block_at(x / COORD_PER_STL + 1, end_y / COORD_PER_STL + 1);
         struct Column *col = get_map_column(mapblk);
 
-        v24 = col->bitfields >> 4;
+        unsigned __int8 v24 = col->bitfields >> 4;
         if (floor_height < v24)
             floor_height = v24;
         if ((col->bitfields & CLF_CEILING_MASK) != 0)
         {
-            v25 = COLUMN_STACK_HEIGHT - ((col->bitfields & CLF_CEILING_MASK) >> 1);
+            unsigned int v25 = COLUMN_STACK_HEIGHT - ((col->bitfields & CLF_CEILING_MASK) >> 1);
             if (v25 >= v30)
                  v25 = v30;
             v30 = v25;
         }
         else
         {
-            v26 = (mapblk->data & 0xF000000u) >> 24;
-            if (v26 >= v30)
-                 v26 = v30;
-            v30 = v26;
+            unsigned int filled_subtiles = get_mapblk_filled_subtiles(mapblk);
+            if (filled_subtiles >= v30)
+                 filled_subtiles = v30;
+            v30 = filled_subtiles;
         }
         x += 256;
     }
+
+    
     MapSubtlCoord ceiling_height;
 
-    // JUSTLOG("stl_x %d,stl_y %d", stl_x, stl_y);
-    // these should be stls but are larger then 256
     update_floor_and_ceiling_heights_at(end_x / COORD_PER_STL, end_y / COORD_PER_STL, &floor_height, &ceiling_height);
     floor_height <<= 8;
     v30 <<= 8;
-    result = pos->z.val;
+    long result = pos->z.val;
     if (floor_height <= result)
     {
-        v28 = v30 - thing->clipbox_size_yz;
+        unsigned int v28 = v30 - thing->clipbox_size_yz;
         if (floor_height < v28)
             return v28 - 1;
     }
