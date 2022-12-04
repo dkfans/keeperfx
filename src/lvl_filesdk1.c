@@ -32,6 +32,7 @@
 #include "config_campaigns.h"
 #include "config_terrain.h"
 #include "light_data.h"
+#include "map_ceiling.h"
 #include "map_utils.h"
 #include "thing_factory.h"
 #include "engine_textures.h"
@@ -518,6 +519,31 @@ TbBool level_lof_file_parse(char *fname, char *buf, long len)
         case 11: // DESCRIPTION
         case 12: // DATE
             // As for now, ignore these
+            break;
+        case 13: // MAPSIZE
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                if (k > 0)
+                {
+                  lvinfo->mapsize_x = k;
+                  n++;
+                }
+            }
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                if (k > 0)
+                {
+                  lvinfo->mapsize_y = k;
+                  n++;
+                }
+            }
+            if (n < 2)
+            {
+              WARNMSG("Couldn't recognize \"%s\" mapsize in LOF file '%s'.",
+                  COMMAND_TEXT(cmd_num),fname);
+            }
             break;
         case 0: // comment
             break;
@@ -1225,7 +1251,7 @@ static void load_ext_slabs(LevelNumber lvnum)
     char* fname = prepare_file_fmtpath(fgroup, "map%05lu.slx", (unsigned long)lvnum);
     if (LbFileExists(fname))
     {
-        if (sizeof(gameadd.slab_ext_data) != LbFileLoadAt(fname, gameadd.slab_ext_data))
+        if (map_tiles_x * map_tiles_y != LbFileLoadAt(fname, gameadd.slab_ext_data))
         {
             JUSTLOG("Invalid ExtSlab data from %s", fname);
             memset(gameadd.slab_ext_data, 0, sizeof(gameadd.slab_ext_data));

@@ -1,14 +1,14 @@
 /******************************************************************************/
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
-/** @file lvl_filesdk1.h
- *     Header file for lvl_filesdk1.c.
+/** @file map_ceiling.h
+ *     Header file for map_ceiling.c.
  * @par Purpose:
- *     Level files reading routines fore standard DK1 levels.
+ *     Map ceiling support functions.
  * @par Comment:
  *     Just a header file - #defines, typedefs, function prototypes etc.
- * @author   Tomasz Lis
- * @date     10 Mar 2009 - 20 Mar 2009
+ * @author   keeperFx Team
+ * @date     12 Nov 2022
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -16,34 +16,20 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#ifndef DK_MAP_CEILING_H
+#define DK_MAP_CEILING_H
 
-#ifndef DK_LVL_FILESDK1_H
-#define DK_LVL_FILESDK1_H
-
-#include "bflib_basics.h"
-#include "globals.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-/******************************************************************************/
-#define MAX_LIF_SIZE 65535
-#define ANY_MAP_FILE_MAX_SIZE 1048576
-#define DEFAULT_LEVEL_VERSION 0
 
-enum LoadMapFileFlags {
-    LMFF_None     = 0x00,
-    LMFF_Optional = 0x01,
-};
 /******************************************************************************/
-extern long level_file_version;
-/******************************************************************************/
-unsigned char *load_single_map_file_to_buffer(LevelNumber lvnum,const char *fext,long *ldsize,unsigned short flags);
-TbBool find_and_load_lif_files(void);
-TbBool find_and_load_lof_files(void);
-long convert_old_column_file(LevelNumber lv_num);
 
-TbBool load_map_file(LevelNumber lvnum);
+long ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey);
+long ceiling_init(unsigned long a1, unsigned long a2);
+short ceiling_set_info(long height_max, long height_min, long step);
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

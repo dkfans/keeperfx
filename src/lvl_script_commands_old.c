@@ -16,8 +16,6 @@
 #include "pre_inc.h"
 #include "lvl_script_commands_old.h"
 
-#include <strings.h>
-
 #include "bflib_math.h"
 #include "config_strings.h"
 #include "config_magic.h"
@@ -72,6 +70,9 @@ const struct NamedCommand game_rule_desc[] = {
   {"FoodHealthGain",                26},
   {"TortureHealthLoss",             27},
   {"GameTurnsPerTortureHealthLoss", 28},
+  {"AlliesShareVision",             29},
+  {"AlliesShareDrop",               30},
+  {"AlliesShareCta",                31},
   {NULL,                             0},
 };
 

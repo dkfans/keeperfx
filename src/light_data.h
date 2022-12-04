@@ -46,7 +46,7 @@ enum LightFlags {
     LgtF_Unkn08       = 0x08,
     LgtF_Unkn10       = 0x10,
     LgtF_Unkn20       = 0x20,
-    LgtF_Unkn40       = 0x40,
+    LgtF_NeverCached  = 0x40,
     LgtF_Unkn80       = 0x80,
 };
 
@@ -151,7 +151,6 @@ void light_export_system_state(struct LightSystemState *lightst);
 void light_import_system_state(const struct LightSystemState *lightst);
 TbBool lights_stats_debug_dump(void);
 void light_signal_stat_light_update_in_area(long x1, long y1, long x2, long y2);
-void light_stat_light_map_clear_area(long x1, long y1, long x2, long y2);
 
 /******************************************************************************/
 #ifdef __cplusplus

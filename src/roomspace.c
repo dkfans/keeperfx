@@ -622,6 +622,7 @@ void get_dungeon_sell_user_roomspace(struct RoomSpace *roomspace, PlayerNumber p
         current_roomspace = check_roomspace_for_diggable_slabs(current_roomspace, plyr_idx);
         player->boxsize = current_roomspace.slab_count;
         *roomspace = current_roomspace;
+        playeradd->ignore_next_PCtr_LBtnRelease = false;
         return;
     }
     if (!playeradd->render_roomspace.drag_mode) // reset drag start slab
@@ -731,6 +732,7 @@ void get_dungeon_build_user_roomspace(struct RoomSpace *roomspace, PlayerNumber 
         best_roomspace = check_roomspace_for_diggable_slabs(best_roomspace, plyr_idx);
         player->boxsize = best_roomspace.slab_count;
         *roomspace = best_roomspace;
+        playeradd->ignore_next_PCtr_LBtnRelease = false;
         return;
     }
     if (!playeradd->render_roomspace.drag_mode) // reset drag start slab
@@ -1410,18 +1412,19 @@ void update_slab_grid(struct RoomSpace* roomspace, unsigned char mode, TbBool se
                 current_y = roomspace->top + y;
                 for (x = 0; x < roomspace->width; x++)
                 {
+                    TbBool * row = roomspace->slab_grid[x];
                     current_x = roomspace->left + x;
                     if (roomspace->is_roomspace_a_box || roomspace->slab_grid[x][y] == true) // only check slabs in the roomspace
                     {
                         can = (sell) ? ((subtile_is_sellable_room(roomspace->plyr_idx, slab_subtile(current_x,0), slab_subtile(current_y,0))) || (subtile_is_sellable_door_or_trap(roomspace->plyr_idx, slab_subtile(current_x,0), slab_subtile(current_y,0)))) : (roomspace_can_build_room_at_slab(roomspace->plyr_idx, roomspace->rkind, current_x, current_y));
                         if (can)
                         {
-                            roomspace->slab_grid[x][y] = true;
+                            row[y] = true;
                             roomspace->slab_count++;
                         }
                         else
                         {
-                            roomspace->slab_grid[x][y] = false;
+                            row[y] = false;
                             roomspace->invalid_slabs_count++;
                         }
                     }
@@ -1436,18 +1439,19 @@ void update_slab_grid(struct RoomSpace* roomspace, unsigned char mode, TbBool se
                 current_y = roomspace->bottom - y;
                 for (x = 0; x < roomspace->width; x++)
                 {
+                    TbBool * row = roomspace->slab_grid[(roomspace->width - 1) - x];
                     current_x = roomspace->right - x;
                     if (roomspace->is_roomspace_a_box || roomspace->slab_grid[(roomspace->width - 1) - x][(roomspace->height - 1) - y] == true) // only check slabs in the roomspace
                     {
                         can = (sell) ? ((subtile_is_sellable_room(roomspace->plyr_idx, slab_subtile(current_x,0), slab_subtile(current_y,0))) || (subtile_is_sellable_door_or_trap(roomspace->plyr_idx, slab_subtile(current_x,0), slab_subtile(current_y,0)))) : (roomspace_can_build_room_at_slab(roomspace->plyr_idx, roomspace->rkind, current_x, current_y));
                         if (can)
                         {
-                            roomspace->slab_grid[(roomspace->width - 1) - x][(roomspace->height - 1) - y] = true;
+                            row[(roomspace->height - 1) - y] = true;
                             roomspace->slab_count++;
                         }
                         else
                         {
-                            roomspace->slab_grid[(roomspace->width - 1) - x][(roomspace->height - 1) - y] = false;
+                            row[(roomspace->height - 1) - y] = false;
                             roomspace->invalid_slabs_count++;
                         }
                     }
@@ -1462,18 +1466,19 @@ void update_slab_grid(struct RoomSpace* roomspace, unsigned char mode, TbBool se
                 current_y = roomspace->top + y;
                 for (x = 0; x < roomspace->width; x++)
                 {
+                    TbBool * row = roomspace->slab_grid[(roomspace->width - 1) - x];
                     current_x = roomspace->right - x;
                     if (roomspace->is_roomspace_a_box || roomspace->slab_grid[(roomspace->width - 1) - x][y] == true) // only check slabs in the roomspace
                     {
                         can = (sell) ? ((subtile_is_sellable_room(roomspace->plyr_idx, slab_subtile(current_x,0), slab_subtile(current_y,0))) || (subtile_is_sellable_door_or_trap(roomspace->plyr_idx, slab_subtile(current_x,0), slab_subtile(current_y,0)))) : (roomspace_can_build_room_at_slab(roomspace->plyr_idx, roomspace->rkind, current_x, current_y));
                         if (can)
                         {
-                            roomspace->slab_grid[(roomspace->width - 1) - x][y] = true;
+                            row[y] = true;
                             roomspace->slab_count++;
                         }
                         else
                         {
-                            roomspace->slab_grid[(roomspace->width - 1) - x][y] = false;
+                            row[y] = false;
                             roomspace->invalid_slabs_count++;
                         }
                     }
@@ -1488,18 +1493,19 @@ void update_slab_grid(struct RoomSpace* roomspace, unsigned char mode, TbBool se
                 current_y = roomspace->bottom - y;
                 for (x = 0; x < roomspace->width; x++)
                 {
+                    TbBool * row = roomspace->slab_grid[x];
                     current_x = roomspace->left + x;
                     if (roomspace->is_roomspace_a_box || roomspace->slab_grid[x][(roomspace->height - 1) - y] == true) // only check slabs in the roomspace
                     {
                         can = (sell) ? ((subtile_is_sellable_room(roomspace->plyr_idx, slab_subtile(current_x,0), slab_subtile(current_y,0))) || (subtile_is_sellable_door_or_trap(roomspace->plyr_idx, slab_subtile(current_x,0), slab_subtile(current_y,0)))) : (roomspace_can_build_room_at_slab(roomspace->plyr_idx, roomspace->rkind, current_x, current_y));
                         if (can)
                         {
-                            roomspace->slab_grid[x][(roomspace->height - 1) - y] = true;
+                            row[(roomspace->height - 1) - y] = true;
                             roomspace->slab_count++;
                         }
                         else
                         {
-                            roomspace->slab_grid[x][(roomspace->height - 1) - y] = false;
+                            row[(roomspace->height - 1) - y] = false;
                             roomspace->invalid_slabs_count++;
                         }
                     }

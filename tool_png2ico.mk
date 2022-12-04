@@ -30,10 +30,10 @@ ifneq (,$(wildcard tools/png2ico/png2ico.cpp))
 
 # If we have source code of this tool, compile it
 $(PNGTOICO): tools/png2ico/png2ico.cpp
-	make -C tools/png2ico
+	$(MAKE) -C tools/png2ico
 
 clean-png2ico:
-	make -C tools/png2ico clean
+	$(MAKE) -C tools/png2ico clean
 
 else ifneq (,$(findstring .tar.gz,$(PNGTOICO_PACKAGE)))
 

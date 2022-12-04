@@ -88,7 +88,7 @@ void init_spiral_steps(void)
     struct MapOffset* sstep = &spiral_step[0];
     sstep->h = y;
     sstep->v = x;
-    sstep->both = (short)y + ((short)x << 8);
+    sstep->both = (short)y + ((short)x * map_subtiles_y);
     y = -1;
     x = -1;
     for (long i = 1; i < SPIRAL_STEPS_COUNT; i++)
@@ -96,7 +96,7 @@ void init_spiral_steps(void)
       sstep = &spiral_step[i];
       sstep->h = y;
       sstep->v = x;
-      sstep->both = (short)y + ((short)x << 8);
+      sstep->both = (short)y + ((short)x * map_subtiles_y);
       if ((y < 0) && (x-y == 1))
       {
           y--;
@@ -176,48 +176,54 @@ void slabs_fill_iterate_from_slab(MapSlabCoord src_slab_x, MapSlabCoord src_slab
 {
     long max_slb_dim_x = (map_subtiles_x / STL_PER_SLB);
     long max_slb_dim_y = (map_subtiles_y / STL_PER_SLB);
-    MapSlabCoord stack_x[max_slb_dim_x * max_slb_dim_y];
-    MapSlabCoord stack_y[max_slb_dim_x * max_slb_dim_y];
-    char visited[max_slb_dim_x][max_slb_dim_y];
-    memset(visited, 0, max_slb_dim_x * max_slb_dim_y);
-    long stack_head = 0;
-    stack_x[0] = src_slab_x;
-    stack_y[0] = src_slab_y;
-    MapSlabCoord cx, cy;
-    while (stack_head != -1)
+    MapSlabCoord* stack_x = malloc(max_slb_dim_x * max_slb_dim_y);
+    MapSlabCoord* stack_y = malloc(max_slb_dim_x * max_slb_dim_y);
+    char* visited = malloc(max_slb_dim_x * max_slb_dim_y);
+    if (stack_x != NULL && stack_y != NULL && visited != NULL)
     {
-        cx = stack_x[stack_head];
-        cy = stack_y[stack_head];
-        stack_head--;
-        visited[cx][cy] = 1;
+        memset(visited, 0, max_slb_dim_x * max_slb_dim_y);
+        long stack_head = 0;
+        stack_x[0] = src_slab_x;
+        stack_y[0] = src_slab_y;
+        MapSlabCoord cx, cy;
+        while (stack_head != -1)
+        {
+            cx = stack_x[stack_head];
+            cy = stack_y[stack_head];
+            stack_head--;
+            visited[cx + (cy * max_slb_dim_x)] = 1;
 
-        if (!f_action(cx, cy, param)) continue;
+            if (!f_action(cx, cy, param)) continue;
 
-        if (cx + 1 < max_slb_dim_x && !visited[cx+1][cy])
-        {
-            stack_head++;
-            stack_x[stack_head] = cx + 1;
-            stack_y[stack_head] = cy;
-        }
-        if (cx - 1 >= 0 && !visited[cx-1][cy])
-        {
-            stack_head++;
-            stack_x[stack_head] = cx - 1;
-            stack_y[stack_head] = cy;
-        }
-        if (cy + 1 < max_slb_dim_y && !visited[cx][cy+1])
-        {
-            stack_head++;
-            stack_x[stack_head] = cx;
-            stack_y[stack_head] = cy + 1;
-        }
-        if (cy - 1 >= 0 && !visited[cx][cy-1])
-        {
-            stack_head++;
-            stack_x[stack_head] = cx;
-            stack_y[stack_head] = cy - 1;
+            if (cx + 1 < max_slb_dim_x && !visited[cx+1 + (cy * max_slb_dim_x)])
+            {
+                stack_head++;
+                stack_x[stack_head] = cx + 1;
+                stack_y[stack_head] = cy;
+            }
+            if (cx - 1 >= 0 && !visited[cx-1 + (cy * max_slb_dim_x)])
+            {
+                stack_head++;
+                stack_x[stack_head] = cx - 1;
+                stack_y[stack_head] = cy;
+            }
+            if (cy + 1 < max_slb_dim_y && !visited[cx + ((cy+1) * max_slb_dim_x)])
+            {
+                stack_head++;
+                stack_x[stack_head] = cx;
+                stack_y[stack_head] = cy + 1;
+            }
+            if (cy - 1 >= 0 && !visited[cx + ((cy-1) * max_slb_dim_x)])
+            {
+                stack_head++;
+                stack_x[stack_head] = cx;
+                stack_y[stack_head] = cy - 1;
+            }
         }
     }
+    free(stack_x);
+    free(stack_y);
+    free(visited);
 }
 
 /** Retrieves index for small_around[] array which leads to the area closer to given destination.
@@ -287,6 +293,39 @@ TbBool get_position_spiral_near_map_block_with_filter(struct Coord3d *retpos, Ma
                     break;
             }
       }
+    }
+    return (maximizer > 0);
+}
+
+TbBool get_position_next_to_map_block_with_filter(struct Coord3d* retpos, MapCoord x, MapCoord y, Coord_Maximizer_Filter filter, MaxCoordFilterParam param)
+{
+    SYNCDBG(19, "Starting");
+    long maximizer = 0;
+    for (int around_val = 0; around_val < SMALL_AROUND_LENGTH; around_val++)
+    {
+        MapSubtlCoord sx = coord_subtile(x) + (small_around[around_val].delta_x * STL_PER_SLB);
+        MapSubtlCoord sy = coord_subtile(y) + (small_around[around_val].delta_y * STL_PER_SLB);
+        struct Map* mapblk = get_map_block_at(sx, sy);
+        if (!map_block_invalid(mapblk))
+        {
+            long n = maximizer;
+            struct Coord3d newpos;
+            newpos.x.val = subtile_coord_center(sx);
+            newpos.y.val = subtile_coord_center(sy);
+            newpos.z.val = 0;
+            n = filter(&newpos, param, n);
+            if (n >= maximizer)
+            {
+                retpos->x.val = newpos.x.val;
+                retpos->y.val = newpos.y.val;
+                retpos->z.val = newpos.z.val;
+                maximizer = n;
+                if (maximizer == LONG_MAX)
+                {
+                    break;
+                }
+            }
+        }
     }
     return (maximizer > 0);
 }

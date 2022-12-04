@@ -24,6 +24,7 @@
 #include "player_instances.h"
 #include "config_terrain.h"
 #include "map_blocks.h"
+#include "map_ceiling.h"
 #include "ariadne.h"
 #include "ariadne_wallhug.h"
 #include "map_utils.h"
@@ -37,9 +38,9 @@
 extern "C" {
 #endif
 /******************************************************************************/
-const short around_slab[] = {-86, -85, -84,  -1,   0,   1,  84,  85,  86};
-const short around_slab_eight[] = {-86, -85, -84,  -1,   1,  84,  85,  86};
-const short small_around_slab[] = {-85,   1,  85,  -1};
+short around_slab[] = {-86, -85, -84,  -1,   0,   1,  84,  85,  86};
+short around_slab_eight[] = {-86, -85, -84,  -1,   1,  84,  85,  86};
+short small_around_slab[] = {-85,   1,  85,  -1};
 struct SlabMap bad_slabmap_block;
 /******************************************************************************/
 /******************************************************************************/
