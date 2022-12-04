@@ -497,10 +497,9 @@ void fill_in_explored_area(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlC
 {
 
     char *first_scratch;
-    unsigned char *v4;
     int block_flags;
     int v13;
-    char *v14;
+    char *fs_par_slab;
     char v15;
     char v16;
     char v17;
@@ -510,45 +509,48 @@ void fill_in_explored_area(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlC
     MapSlabCoord slb_y;
     MapSlabCoord slb_x;
     unsigned int v24;
-    char *second_scratch;
-    char *v29;
     unsigned int v30;
 
-static const char byte_522148[80] =
-{
-  0,0,0,0,0,
-  0,0,0,0,0,
-  0,0,0,0,0,
-  1,0,0,0,-4,
-  0,0,0,0,0,
-  0,0,0,0,0,
-  2,0,0,0,-7,
-  1,0,0,0,-2,
-  0,0,0,0,0,
-  4,0,0,0,-10,
-  0,0,0,0,0,
-  1,0,0,0,-3,
-  3,0,0,0,-13,
-  3,0,0,0,-5,
-  2,0,0,0,-3,
-  1,0,0,0,0
-};
+    static const char byte_522148[80] =
+    {
+    0,0,0,0,0,
+    0,0,0,0,0,
+    0,0,0,0,0,
+    1,0,0,0,-4,
+    0,0,0,0,0,
+    0,0,0,0,0,
+    2,0,0,0,-7,
+    1,0,0,0,-2,
+    0,0,0,0,0,
+    4,0,0,0,-10,
+    0,0,0,0,0,
+    1,0,0,0,-3,
+    3,0,0,0,-13,
+    3,0,0,0,-5,
+    2,0,0,0,-3,
+    1,0,0,0,0
+    };
 
-static const char byte_522199[12] =
-{
-   0, 0,
-   1,-1,
-   1, 1,
-  -1, 1,
-  -1,-1,
-   0, 0
-};
+    struct XY {
+        char x;
+        char y;
+    };
+
+    static const struct XY byte_522199[6] =
+    {
+        { 0, 0},
+        { 1,-1},
+        { 1, 1},
+        {-1, 1},
+        {-1,-1},
+        { 0, 0}
+    };
 
     first_scratch = (char*) scratch;
-    v4 = scratch;
+    
+    struct XY *second_scratch;
     second_scratch = (char *)scratch + map_tiles_x * map_tiles_y;
-    memset((void *)scratch, 0, 0x1C38u);
-    v4[map_tiles_x * map_tiles_y - 1] = 0;
+    memset((void *)scratch, 0, map_tiles_x * map_tiles_y);
 
     for(MapSlabCoord slb_y_2 = 0;slb_y_2 < map_tiles_y;slb_y_2++)
     {
@@ -579,84 +581,83 @@ static const char byte_522199[12] =
     slb_x = stl_x / 3;
     slb_y = stl_y / 3;
     first_scratch[get_slab_number(slb_x,slb_y)] |= 2u;
-    v29 = second_scratch;
     do
     {
         v13 = 0;
-        v14 = &first_scratch[get_slab_number(slb_x,slb_y)];
-        v15 = *(v14 - 1);
+        fs_par_slab = &first_scratch[get_slab_number(slb_x,slb_y)];
+        v15 = *(fs_par_slab - 1);
         if ((v15 & 1) != 0)
         {
             v13 = 8;
-            *(v14 - 1) = v15 | 2;
+            *(fs_par_slab - 1) = v15 | 2;
         }
         else if ((v15 & 2) == 0)
         {
-            *(v14 - 1) = v15 | 2;
-            ++v24;
-            second_scratch[2 * v24 - 2] = slb_x - 1;
-            second_scratch[2 * v24 - 1] = slb_y;
+            *(fs_par_slab - 1) = v15 | 2;
+           
+            second_scratch[v24].x = slb_x - 1;
+            second_scratch[v24].y = slb_y;
+            v24++;
         }
-        v16 = v14[1];
+        v16 = fs_par_slab[1];
         if ((v16 & 1) != 0)
         {
             v13 |= 2u;
-            v14[1] = v16 | 2;
+            fs_par_slab[1] = v16 | 2;
         }
         else if ((v16 & 2) == 0)
         {
-            v14[1] = v16 | 2;
-            ++v24;
-            second_scratch[2 * v24 - 2] = slb_x + 1;
-            second_scratch[2 * v24 - 1] = slb_y;
+            fs_par_slab[1] = v16 | 2;
+            second_scratch[v24].x = slb_x + 1;
+            second_scratch[v24].y = slb_y;
+            v24++;
         }
-        v17 = *(v14 - 85);
+        v17 = *(fs_par_slab - 85);
         if ((v17 & 1) != 0)
         {
             v13 |= 1u;
-            *(v14 - 85) = v17 | 2;
+            *(fs_par_slab - 85) = v17 | 2;
         }
         else if ((v17 & 2) == 0)
         {
-            *(v14 - 85) = v17 | 2;
-            ++v24;
-            second_scratch[2 * v24 - 2] = slb_x;
-            second_scratch[2 * v24 - 1] = slb_y - 1;
+            *(fs_par_slab - 85) = v17 | 2;
+            second_scratch[v24].x = slb_x;
+            second_scratch[v24].y = slb_y - 1;
+            v24++;
         }
-        v18 = v14[85];
+        v18 = fs_par_slab[85];
         if ((v18 & 1) != 0)
         {
             v13 |= 4u;
-            v14[85] = v18 | 2;
+            fs_par_slab[85] = v18 | 2;
         }
         else if ((v18 & 2) == 0)
         {
-            v14[85] = v18 | 2;
-            ++v24;
-            second_scratch[2 * v24 - 2] = slb_x;
-            second_scratch[2 * v24 - 1] = slb_y + 1;
+            fs_par_slab[85] = v18 | 2;
+            second_scratch[v24].x = slb_x;
+            second_scratch[v24].y = slb_y + 1;
+            v24++;
         }
         for (i = &byte_522148[5 * v13]; *i; i = &byte_522148[5 * v13])
         {
             if (v13 == 15)
             {
                 v13 = 0;
-                *(v14 - 84) |= 2u;
-                v14[86] |= 2u;
-                v14[84] |= 2u;
-                *(v14 - 86) |= 2u;
+                *(fs_par_slab - 84) |= 2u;
+                fs_par_slab[86] |= 2u;
+                fs_par_slab[84] |= 2u;
+                *(fs_par_slab - 86) |= 2u;
             }
             else
             {
-                v20 = &first_scratch[85 * slb_y + 85 * byte_522199[2 * *(int *)i] + byte_522199[2 * *(int *)i - 1]];
+                v20 = &first_scratch[85 * slb_y + 85 * byte_522199[*(int *)i].y + byte_522199[*(int *)i].x];
                 v20[slb_x] |= 2u;
                 v13 &= i[4];
             }
         }
-        v29 += 2;
-        ++v30;
-        slb_x = *(v29 - 2);
-        slb_y = *(v29 - 1);
+        slb_x = second_scratch[v30].x;
+        slb_y = second_scratch[v30].y;
+        v30++;
     } while (v24 >= v30);
 
 
