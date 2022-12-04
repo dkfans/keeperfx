@@ -496,7 +496,7 @@ TbBool map_position_initially_explored_for_player(PlayerNumber plyr_idx, MapSlab
 void fill_in_explored_area(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
 
-    char *first_scratch;
+    
     int block_flags;
     int v13;
     char *fs_par_slab;
@@ -546,10 +546,9 @@ void fill_in_explored_area(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlC
         { 0, 0}
     };
 
-    first_scratch = (char*) scratch;
+    char *first_scratch = (char*) scratch;
     
-    struct XY *second_scratch;
-    second_scratch = (char *)scratch + map_tiles_x * map_tiles_y;
+    struct XY *second_scratch = (struct XY *)scratch + map_tiles_x * map_tiles_y;
     memset((void *)scratch, 0, map_tiles_x * map_tiles_y);
 
     for(MapSlabCoord slb_y_2 = 0;slb_y_2 < map_tiles_y;slb_y_2++)
@@ -612,28 +611,28 @@ void fill_in_explored_area(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlC
             second_scratch[v24].y = slb_y;
             v24++;
         }
-        v17 = *(fs_par_slab - 85);
+        v17 = *(fs_par_slab - map_tiles_x);
         if ((v17 & 1) != 0)
         {
             v13 |= 1u;
-            *(fs_par_slab - 85) = v17 | 2;
+            *(fs_par_slab - map_tiles_x) = v17 | 2;
         }
         else if ((v17 & 2) == 0)
         {
-            *(fs_par_slab - 85) = v17 | 2;
+            *(fs_par_slab - map_tiles_x) = v17 | 2;
             second_scratch[v24].x = slb_x;
             second_scratch[v24].y = slb_y - 1;
             v24++;
         }
-        v18 = fs_par_slab[85];
+        v18 = fs_par_slab[map_tiles_x];
         if ((v18 & 1) != 0)
         {
             v13 |= 4u;
-            fs_par_slab[85] = v18 | 2;
+            fs_par_slab[map_tiles_x] = v18 | 2;
         }
         else if ((v18 & 2) == 0)
         {
-            fs_par_slab[85] = v18 | 2;
+            fs_par_slab[map_tiles_x] = v18 | 2;
             second_scratch[v24].x = slb_x;
             second_scratch[v24].y = slb_y + 1;
             v24++;
@@ -643,14 +642,14 @@ void fill_in_explored_area(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlC
             if (v13 == 15)
             {
                 v13 = 0;
-                *(fs_par_slab - 84) |= 2u;
-                fs_par_slab[86] |= 2u;
-                fs_par_slab[84] |= 2u;
-                *(fs_par_slab - 86) |= 2u;
+                *(fs_par_slab - map_tiles_x - 1) |= 2u;
+                fs_par_slab[map_tiles_x + 1] |= 2u;
+                fs_par_slab[map_tiles_x -1] |= 2u;
+                *(fs_par_slab - map_tiles_x + 1) |= 2u;
             }
             else
             {
-                v20 = &first_scratch[85 * slb_y + 85 * byte_522199[*(int *)i].y + byte_522199[*(int *)i].x];
+                v20 = &first_scratch[get_slab_number(byte_522199[*(int *)i].x,byte_522199[*(int *)i].y) + map_tiles_x * slb_y];
                 v20[slb_x] |= 2u;
                 v13 &= i[4];
             }
