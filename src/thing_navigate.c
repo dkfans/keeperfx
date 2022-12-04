@@ -610,163 +610,129 @@ short move_to_position(struct Thing *creatng)
 long get_next_gap_creature_can_fit_in_below_point_new(struct Thing *thing, struct Coord3d *pos)
 {
     MapCoordDelta clipbox_size_xy;
-    unsigned int v4;
-    int y_val;
-    unsigned int stl_x;
-    unsigned int v8;
-    int v9;
-    struct Map *mapblk;
-    struct Column *col1;
     unsigned int v12;
     unsigned int v13;
-    unsigned int v15;
-    unsigned int v16;
-    struct Map *mapblk2;
-    struct Column *col2;
     unsigned int v19;
     unsigned int v20;
-    unsigned int v22;
-    struct Column *col3;
     unsigned __int8 v24;
     unsigned int v25;
     unsigned int v26;
     __int32 result;
     unsigned int v28;
-    unsigned int floor_height;
+    MapSubtlCoord floor_height;
     unsigned int v30;
-    unsigned int v31;
-    unsigned int stl_y;
-    unsigned int v33;
-    unsigned int i;
-    unsigned int v35;
-    int v36;
 
     if (thing->class_id == TCls_Creature)
         clipbox_size_xy = thing_nav_sizexy(thing);
     else
         clipbox_size_xy = thing->clipbox_size_xy;
-    MapCoordDelta nav_radius = clipbox_size_xy >> 1;
-    v4 = (pos->x.val - nav_radius) & ((pos->x.val - nav_radius < 0) - 1);
-    y_val = pos->y.val;
-    stl_x = nav_radius + pos->x.val;
-    v35 = (y_val - nav_radius) & ((y_val - nav_radius < 0) - 1);
 
+    MapCoordDelta nav_radius = clipbox_size_xy / 2;
 
-    if ((int)stl_x >= 0xFFFF)
-        stl_x = 0xFFFF;
-    stl_y = y_val + nav_radius;
-    if (y_val + nav_radius >= 0xFFFF)
-        stl_y = 0xFFFF;
+    MapCoord start_x = (pos->x.val - nav_radius) & ((pos->x.val - nav_radius < 0) - 1);
+    MapCoord start_y = (pos->y.val - nav_radius) & ((pos->y.val - nav_radius < 0) - 1);
 
+    MapCoord end_x = nav_radius + pos->x.val;
+    if (end_x >= map_subtiles_x * COORD_PER_STL)
+        end_x = map_subtiles_x * COORD_PER_STL;
+    MapCoord end_y = pos->y.val + nav_radius;
+    if (pos->y.val + nav_radius >= map_subtiles_y * COORD_PER_STL)
+        end_y = map_subtiles_y * COORD_PER_STL;
 
     floor_height = 0;
     v30 = 15;
 
-    for (i = v35; i < stl_y; i += 256)
+
+    for (MapCoord y = start_y; y < end_y; y += 256)
     {
-        v8 = v4;
-        if (v4 < stl_x)
+        MapCoord x = start_x;
+        while (x < end_x)
         {
-            v31 = i;
-            v36 = BYTE1(i) << 8;
-            do
+            struct Map *mapblk = get_map_block_at(x / COORD_PER_STL + 1, y / COORD_PER_STL + 1);
+            struct Column *col = get_map_column(mapblk);
+            v12 = col->bitfields >> 4;
+            if (floor_height < v12)
+                 floor_height = v12;
+            if ((col->bitfields & CLF_CEILING_MASK) != 0)
             {
-                v33 = v8;
-                v9 = v36 + BYTE1(v8);
-                mapblk = &game.map[v9 + 257];
-                col1 = &game.columns_data[game.map[v9 + 257].data & 0x7FF];
-                v12 = (unsigned __int8)game.columns_data[game.map[v9 + 257].data & 0x7FF].bitfields >> 4;
-                if (floor_height < v12)
-                    floor_height = v12;
-                if ((col1->bitfields & 0xE) != 0)
-                {
-                    v13 = 8 - ((unsigned __int8)(col1->bitfields & 0xE) >> 1);
-                    if (v13 >= v30)
-                        v13 = v30;
-                    v30 = v13;
-                }
-                else
-                {
-                    unsigned int filled_subtiles = get_mapblk_filled_subtiles(mapblk);
-                    if (filled_subtiles >= v30)
-                        filled_subtiles = v30;
-                    v30 = filled_subtiles;
-                }
-                v8 += 256;
-            } while (v8 < stl_x);
+                 v13 = COLUMN_STACK_HEIGHT - ((col->bitfields & CLF_CEILING_MASK) >> 1);
+                 if (v13 >= v30)
+                     v13 = v30;
+                 v30 = v13;
+            }
+            else
+            {
+                 unsigned int filled_subtiles = get_mapblk_filled_subtiles(mapblk);
+                 if (filled_subtiles >= v30)
+                     filled_subtiles = v30;
+                 v30 = filled_subtiles;
+            }
+            x += 256;
         }
     }
-    v15 = v35;
-    if (v35 < stl_y)
+
+    MapCoord y = start_y;
+    while (y < end_y)
     {
-        v31 = stl_x;
-        v33 = BYTE1(stl_x);
-        do
+        struct Map *mapblk = get_map_block_at(end_x / COORD_PER_STL + 1, y / COORD_PER_STL + 1);
+        struct Column *col = get_map_column(mapblk);
+
+        v19 = col->bitfields >> 4;
+        if (floor_height < v19)
+            floor_height = v19;
+        if ((col->bitfields & CLF_CEILING_MASK) != 0)
         {
-            v31 = v15;
-            v16 = v33 + (BYTE1(v15) << 8);
-            mapblk2 = &game.map[v16 + 257];
-            col2 = &game.columns_data[game.map[v16 + 257].data & 0x7FF];
-            v19 = (unsigned __int8)game.columns_data[game.map[v16 + 257].data & 0x7FF].bitfields >> 4;
-            if (floor_height < v19)
-                floor_height = v19;
-            if ((col2->bitfields & 0xE) != 0)
-            {
-                v20 = 8 - ((unsigned __int8)(col2->bitfields & 0xE) >> 1);
-                if (v20 >= v30)
-                    v20 = v30;
-                v30 = v20;
-            }
-            else
-            {
-                unsigned int filled_subtiles = get_mapblk_filled_subtiles(mapblk2);
-                if (filled_subtiles >= v30)
-                    filled_subtiles = v30;
-                v30 = filled_subtiles;
-            }
-            v15 += 256;
-        } while (v15 < stl_y);
+            v20 = COLUMN_STACK_HEIGHT - ((unsigned __int8)(col->bitfields & CLF_CEILING_MASK) >> 1);
+            if (v20 >= v30)
+                 v20 = v30;
+            v30 = v20;
+        }
+        else
+        {
+            unsigned int filled_subtiles = get_mapblk_filled_subtiles(mapblk);
+            if (filled_subtiles >= v30)
+                 filled_subtiles = v30;
+            v30 = filled_subtiles;
+        }
+        y += 256;
     }
-    if (v4 < stl_x)
+
+    MapCoord x = start_x;
+    while (x < end_x)
     {
-        v31 = stl_y;
-        v33 = BYTE1(stl_y) << 8;
-        do
+        struct Map *mapblk = get_map_block_at(x / COORD_PER_STL + 1, end_y / COORD_PER_STL + 1);
+        struct Column *col = get_map_column(mapblk);
+
+        v24 = col->bitfields >> 4;
+        if (floor_height < v24)
+            floor_height = v24;
+        if ((col->bitfields & CLF_CEILING_MASK) != 0)
         {
-            v31 = v4;
-            v22 = v33 + BYTE1(v4);
-            col3 = &game.columns_data[game.map[v22 + 257].data & 0x7FF];
-            v24 = (unsigned __int8)game.columns_data[game.map[v22 + 257].data & 0x7FF].bitfields >> 4;
-            if (floor_height < v24)
-                floor_height = v24;
-            if ((col3->bitfields & 0xE) != 0)
-            {
-                v25 = 8 - ((unsigned __int8)(col3->bitfields & 0xE) >> 1);
-                if (v25 >= v30)
-                    v25 = v30;
-                v30 = v25;
-            }
-            else
-            {
-                v26 = (game.map[v22 + 257].data & 0xF000000u) >> 24;
-                if (v26 >= v30)
-                    v26 = v30;
-                v30 = v26;
-            }
-            v4 += 256;
-        } while (v4 < stl_x);
+            v25 = COLUMN_STACK_HEIGHT - ((col->bitfields & CLF_CEILING_MASK) >> 1);
+            if (v25 >= v30)
+                 v25 = v30;
+            v30 = v25;
+        }
+        else
+        {
+            v26 = (mapblk->data & 0xF000000u) >> 24;
+            if (v26 >= v30)
+                 v26 = v30;
+            v30 = v26;
+        }
+        x += 256;
     }
     MapSubtlCoord ceiling_height;
 
-    //JUSTLOG("stl_x %d,stl_y %d", stl_x, stl_y);
-    //these should be stls but are larger then 256
-    update_floor_and_ceiling_heights_at(stl_x, stl_y, &floor_height,&ceiling_height);
+    // JUSTLOG("stl_x %d,stl_y %d", stl_x, stl_y);
+    // these should be stls but are larger then 256
+    update_floor_and_ceiling_heights_at(end_x / COORD_PER_STL, end_y / COORD_PER_STL, &floor_height, &ceiling_height);
     floor_height <<= 8;
     v30 <<= 8;
     result = pos->z.val;
     if (floor_height <= result)
     {
-        v28 = v30 - (unsigned __int16)thing->clipbox_size_yz;
+        v28 = v30 - thing->clipbox_size_yz;
         if (floor_height < v28)
             return v28 - 1;
     }
