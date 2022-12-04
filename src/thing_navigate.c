@@ -631,7 +631,7 @@ long get_next_gap_creature_can_fit_in_below_point_new(struct Thing *thing, struc
     v30 = 15;
 
 
-    for (MapCoord y = start_y; y < end_y; y += 256)
+    for (MapCoord y = start_y; y < end_y; y += COORD_PER_STL)
     {
         MapCoord x = start_x;
         while (x < end_x)
@@ -655,7 +655,7 @@ long get_next_gap_creature_can_fit_in_below_point_new(struct Thing *thing, struc
                      filled_subtiles = v30;
                  v30 = filled_subtiles;
             }
-            x += 256;
+            x += COORD_PER_STL;
         }
     }
 
@@ -682,7 +682,7 @@ long get_next_gap_creature_can_fit_in_below_point_new(struct Thing *thing, struc
                  filled_subtiles = v30;
             v30 = filled_subtiles;
         }
-        y += 256;
+        y += COORD_PER_STL;
     }
 
     MapCoord x = start_x;
@@ -708,12 +708,11 @@ long get_next_gap_creature_can_fit_in_below_point_new(struct Thing *thing, struc
                  filled_subtiles = v30;
             v30 = filled_subtiles;
         }
-        x += 256;
+        x += COORD_PER_STL;
     }
 
     
     MapSubtlCoord ceiling_height;
-
     update_floor_and_ceiling_heights_at(end_x / COORD_PER_STL, end_y / COORD_PER_STL, &floor_height, &ceiling_height);
     floor_height <<= 8;
     v30 <<= 8;
