@@ -499,9 +499,6 @@ void fill_in_explored_area(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlC
     char *first_scratch;
     unsigned char *v4;
     int block_flags;
-    struct Map *mapblk;
-    int v11;
-    int data;
     int v13;
     char *v14;
     char v15;
@@ -537,13 +534,14 @@ static const char byte_522148[80] =
   1,0,0,0,0
 };
 
-static const char byte_522198[1] = { 0 };
-static const char byte_522199[11] =
+static const char byte_522199[12] =
 {
-  0,1,-1,1,
-  1,  -1,  1,
-  -1,  -1,
-  0,  0
+   0, 0,
+   1,-1,
+   1, 1,
+  -1, 1,
+  -1,-1,
+   0, 0
 };
 
     first_scratch = (char*) scratch;
@@ -567,16 +565,15 @@ static const char byte_522199[11] =
         }
     }
 
-
-    mapblk = &game.map[257];
-    v11 = map_subtiles_x * map_subtiles_y;
-    do
+    for(MapSubtlCoord lpstl_y = 0;lpstl_y < map_subtiles_y;lpstl_y++)
     {
-        data = mapblk->data;
-        ++mapblk;
-        --v11;
-        mapblk[-1].data = ((~(1 << plyr_idx) << 28) | 0xFFFFFFF) & data;
-    } while (v11);
+        for(MapSubtlCoord lpstl_x = 0;lpstl_x < map_subtiles_x;lpstl_x++)
+        {
+            struct Map *mapblk = get_map_block_at(lpstl_x,lpstl_y);
+            mapblk->data = ((~(1 << plyr_idx) << 28) | 0xFFFFFFF) & mapblk->data;
+        }
+    }
+
     v30 = 0;
     v24 = 0;
     slb_x = stl_x / 3;
@@ -651,7 +648,7 @@ static const char byte_522199[11] =
             }
             else
             {
-                v20 = &first_scratch[85 * slb_y + 85 * byte_522199[2 * *(int *)i] + byte_522198[2 * *(int *)i]];
+                v20 = &first_scratch[85 * slb_y + 85 * byte_522199[2 * *(int *)i] + byte_522199[2 * *(int *)i - 1]];
                 v20[slb_x] |= 2u;
                 v13 &= i[4];
             }
