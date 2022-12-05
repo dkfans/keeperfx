@@ -124,10 +124,10 @@ struct SlabObj { // sizeof = 13
 #define INVALID_SLABMAP_BLOCK (&bad_slabmap_block)
 #define AROUND_SLAB_LENGTH 9
 #define AROUND_SLAB_EIGHT_LENGTH 8
-extern const short around_slab[];
-extern const short around_slab_eight[];
+extern short around_slab[];
+extern short around_slab_eight[];
 #define SMALL_AROUND_SLAB_LENGTH 4
-extern const short small_around_slab[];
+extern short small_around_slab[];
 /******************************************************************************/
 SlabCodedCoords get_slab_number(MapSlabCoord slb_x, MapSlabCoord slb_y);
 MapSlabCoord slb_num_decode_x(SlabCodedCoords slb_num);
