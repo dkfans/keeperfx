@@ -1429,7 +1429,6 @@ static void light_stat_light_map_clear_area(MapSubtlCoord start_stl_x, MapSubtlC
   unsigned short *light_map;
   if ( end_stl_y >= start_stl_y )
   {
-    struct Map *Mapblk1 = get_map_block_at(start_stl_x,start_stl_y);
     for (stl_y = start_stl_y; stl_y <= end_stl_y; stl_y++)
     {
       if ( end_stl_x >= start_stl_x )
@@ -1439,7 +1438,6 @@ static void light_stat_light_map_clear_area(MapSubtlCoord start_stl_x, MapSubtlC
         {
           stl_y_min_1 = 0;
         }
-        struct Map *Mapblk2 = get_map_block_at(start_stl_x,stl_y_min_1);
         for (stl_x = start_stl_x; stl_x <= end_stl_x; stl_x++)
         {
           light_map = &game.lish.stat_light_map[get_subtile_number(stl_x,stl_y)];
@@ -1448,8 +1446,8 @@ static void light_stat_light_map_clear_area(MapSubtlCoord start_stl_x, MapSubtlC
           {
             stl_x_min_1 = 0;
           }
-          struct Column *Col1 = get_map_column(Mapblk1);
-          struct Column *Col2 = get_map_column(Mapblk2);
+          struct Column *Col1 = get_map_column(get_map_block_at(stl_x,      stl_y));
+          struct Column *Col2 = get_map_column(get_map_block_at(stl_x,      stl_y_min_1));
           struct Column *Col3 = get_map_column(get_map_block_at(stl_x_min_1,stl_y));
           struct Column *Col4 = get_map_column(get_map_block_at(stl_x_min_1,stl_y_min_1));
           if ( (!column_invalid(Col1)) && (!column_invalid(Col2)) && (!column_invalid(Col3)) && (!column_invalid(Col4)) )
@@ -1460,8 +1458,6 @@ static void light_stat_light_map_clear_area(MapSubtlCoord start_stl_x, MapSubtlC
           {
             *light_map = 0;
           }
-          Mapblk1++;
-          Mapblk2++;
         }
       }
     }
