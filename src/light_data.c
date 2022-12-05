@@ -2052,11 +2052,11 @@ static char light_render_light(struct Light* lgt)
           y_start = 0;
 
         MapCoord x_end = lgt->mappos.x.val + lighting_radius;
-        if ( x_end > USHRT_MAX )
-          x_end = USHRT_MAX;
+        if ( x_end > ((map_subtiles_x + 1) * COORD_PER_STL) - 1)
+          x_end = ((map_subtiles_x + 1) * COORD_PER_STL - 1);
         MapCoord y_end = lgt->mappos.y.val + lighting_radius;
-        if ( y_end > USHRT_MAX )
-          y_end = USHRT_MAX;
+        if ( y_end > ((map_subtiles_y + 1) * COORD_PER_STL - 1) )
+          y_end = ((map_subtiles_y + 1) * COORD_PER_STL - 1);
         MapSubtlCoord stl_x = coord_subtile(x_start);
         MapSubtlCoord stl_y = coord_subtile(y_start);
         int v33 = stl_x - coord_subtile(x_end) + map_subtiles_x;
