@@ -2991,37 +2991,37 @@ static TbBool ariadne_check_forward_for_wallhug_gap_new(struct Thing *thing, str
     switch (hug_angle)
     {
     case ANGLE_NORTH:
-        if ((int)(((unsigned short)pos->y.val - nav_radius) & 0xFFFFFF00) < (int)(((unsigned short)thing->mappos.y.val - nav_radius) & 0xFFFFFF00))
+        if ((int)((pos->y.val - nav_radius) & 0xFFFFFF00) < (int)((thing->mappos.y.val - nav_radius) & 0xFFFFFF00))
         {
             nav_boundry_pos.x.val = pos->x.val;
-            nav_boundry_pos.y.stl.num = (unsigned short)(thing->mappos.y.val - nav_radius) >> 8;
+            nav_boundry_pos.y.stl.num = (thing->mappos.y.val - nav_radius) >> 8;
             nav_boundry_pos.y.stl.pos = 0;
             nav_boundry_pos.y.val += nav_radius;
         }
         break;
-    case 1024:
-        if ((int)((nav_radius + (unsigned short)pos->y.val) & 0xFFFFFF00) > (int)((nav_radius + (unsigned short)thing->mappos.y.val) & 0xFFFFFF00))
+    case ANGLE_SOUTH:
+        if ((int)((nav_radius + pos->y.val) & 0xFFFFFF00) > (int)((nav_radius + thing->mappos.y.val) & 0xFFFFFF00))
         {
             nav_boundry_pos.x.val = pos->x.val;
-            nav_boundry_pos.y.stl.num = (unsigned short)(nav_radius + thing->mappos.y.val) >> 8;
+            nav_boundry_pos.y.stl.num = (nav_radius + thing->mappos.y.val) >> 8;
             nav_boundry_pos.y.stl.pos = -1;
             nav_boundry_pos.y.val -= nav_radius;
         }
         break;
-    case 1536:
-        if ((int)(((unsigned short)pos->x.val - nav_radius) & 0xFFFFFF00) < (int)(((unsigned short)thing->mappos.x.val - nav_radius) & 0xFFFFFF00))
+    case ANGLE_WEST:
+        if ((int)((pos->x.val - nav_radius) & 0xFFFFFF00) < (int)((thing->mappos.x.val - nav_radius) & 0xFFFFFF00))
         {
             nav_boundry_pos.y.val = pos->y.val;
-            nav_boundry_pos.x.stl.num = (unsigned short)(thing->mappos.x.val - nav_radius) >> 8;
+            nav_boundry_pos.x.stl.num = (thing->mappos.x.val - nav_radius) >> 8;
             nav_boundry_pos.x.stl.pos = 0;
             nav_boundry_pos.x.val += nav_radius;
         }
         break;
-    case 512:
-        if ((int)((nav_radius + (unsigned short)pos->x.val) & 0xFFFFFF00) > (int)((nav_radius + (unsigned short)thing->mappos.x.val) & 0xFFFFFF00))
+    case ANGLE_EAST:
+        if ((int)((nav_radius + pos->x.val) & 0xFFFFFF00) > (int)((nav_radius + thing->mappos.x.val) & 0xFFFFFF00))
         {
             nav_boundry_pos.y.val = pos->y.val;
-            nav_boundry_pos.x.stl.num = (unsigned short)(nav_radius + thing->mappos.x.val) >> 8;
+            nav_boundry_pos.x.stl.num = (nav_radius + thing->mappos.x.val) >> 8;
             nav_boundry_pos.x.stl.pos = -1;
             nav_boundry_pos.x.val -= nav_radius;
         }
