@@ -1426,17 +1426,14 @@ void light_initialise(void)
 static void light_stat_light_map_clear_area(MapSubtlCoord start_stl_x, MapSubtlCoord start_stl_y, MapSubtlCoord end_stl_x, MapSubtlCoord end_stl_y)
 {
   MapSubtlCoord stl_x,stl_y_min_1,stl_x_min_1,stl_y;
-  unsigned short *p;
   unsigned short *light_map;
   if ( end_stl_y >= start_stl_y )
   {
     struct Map *Mapblk1 = get_map_block_at(start_stl_x,start_stl_y);
-    light_map = &game.lish.stat_light_map[get_subtile_number(start_stl_x,start_stl_y)];
     for (stl_y = start_stl_y; stl_y <= end_stl_y; stl_y++)
     {
       if ( end_stl_x >= start_stl_x )
       {
-        p = light_map;
         stl_y_min_1 = stl_y - 1;
         if ( stl_y - 1 <= 0 )
         {
@@ -1445,6 +1442,7 @@ static void light_stat_light_map_clear_area(MapSubtlCoord start_stl_x, MapSubtlC
         struct Map *Mapblk2 = get_map_block_at(start_stl_x,stl_y_min_1);
         for (stl_x = start_stl_x; stl_x <= end_stl_x; stl_x++)
         {
+          light_map = &game.lish.stat_light_map[get_subtile_number(stl_x,stl_y)];
           stl_x_min_1 = stl_x - 1;
           if ( stl_x_min_1 < 0 )
           {
@@ -1456,18 +1454,16 @@ static void light_stat_light_map_clear_area(MapSubtlCoord start_stl_x, MapSubtlC
           struct Column *Col4 = get_map_column(get_map_block_at(stl_x_min_1,stl_y_min_1));
           if ( (!column_invalid(Col1)) && (!column_invalid(Col2)) && (!column_invalid(Col3)) && (!column_invalid(Col4)) )
           {
-            *p = game.lish.field_46149 << 8;
+            *light_map = game.lish.field_46149 << 8;
           }
           else
           {
-            *p = 0;
+            *light_map = 0;
           }
-          p++;
           Mapblk1++;
           Mapblk2++;
         }
       }
-      light_map += (map_subtiles_x + 1);
     }
   }
 }
