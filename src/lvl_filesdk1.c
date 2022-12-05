@@ -1251,7 +1251,7 @@ static void load_ext_slabs(LevelNumber lvnum)
     char* fname = prepare_file_fmtpath(fgroup, "map%05lu.slx", (unsigned long)lvnum);
     if (LbFileExists(fname))
     {
-        if (sizeof(gameadd.slab_ext_data) != LbFileLoadAt(fname, gameadd.slab_ext_data))
+        if (map_tiles_x * map_tiles_y != LbFileLoadAt(fname, gameadd.slab_ext_data))
         {
             JUSTLOG("Invalid ExtSlab data from %s", fname);
             memset(gameadd.slab_ext_data, 0, sizeof(gameadd.slab_ext_data));

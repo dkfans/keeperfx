@@ -341,7 +341,7 @@ void light_set_light_never_cache(long lgt_id)
         ERRORLOG("Attempt to set size of unallocated light structure %d",(int)lgt_id);
         return;
     }
-    lgt->flags |= LgtF_Unkn40;
+    lgt->flags |= LgtF_NeverCached;
 }
 
 long light_is_light_allocated(long lgt_id)
@@ -1570,7 +1570,8 @@ static TbBool point_is_above_floor(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Map
     return (get_column_floor_filled_subtiles(col) > stl_z);
 }
 
-static char light_render_light_dynamic_1(struct Light *lgt, int radius, int intensity, unsigned int max_1DD41_idx)
+//used for the hand and the illuminated property of creatures
+static char light_render_light_dynamic_uncached(struct Light *lgt, int radius, int intensity, unsigned int max_1DD41_idx)
 {
     clear_shadow_limits(&game.lish);
     unsigned int lighting_tables_idx = get_floor_filled_subtiles_at(lgt->mappos.x.stl.num, lgt->mappos.y.stl.num);
@@ -1686,7 +1687,7 @@ static char light_render_light_dynamic_1(struct Light *lgt, int radius, int inte
     return lighting_tables_idx;
 }
 
-static char light_render_light_dynamic_2(struct Light *lgt, int radius, int render_intensity, unsigned int lighting_tables_idx)
+static char light_render_light_dynamic(struct Light *lgt, int radius, int render_intensity, unsigned int lighting_tables_idx)
 {
     unsigned short *stl_lightness;
     int stl_num_2;
@@ -1695,12 +1696,10 @@ static char light_render_light_dynamic_2(struct Light *lgt, int radius, int rend
     struct LightingTable *lighting_table;
     unsigned int stl_y;
     unsigned int some_y_2;
-    int v16;
+    int angle;
     unsigned char v17;
-    int v18;
     char v19;
     unsigned char *v20;
-    int v21;
     int v22;
     unsigned char *shadow_limits;
     unsigned int v24;
@@ -1721,21 +1720,20 @@ static char light_render_light_dynamic_2(struct Light *lgt, int radius, int rend
     char v42;
     unsigned short *subtile_lightness;
 
-    lgt_pos_x = (unsigned short)lgt->mappos.x.val;
-    lgt_pos_y = (unsigned short)lgt->mappos.y.val;
+    lgt_pos_x = lgt->mappos.x.val;
+    lgt_pos_y = lgt->mappos.y.val;
     lgt_stl_x = lgt_pos_x >> 8;
     lgt_stl_y = lgt_pos_y >> 8;
     lgt_stl_z = lgt->mappos.z.val / COORD_PER_STL;
-    shadow_cache = &game.lish.shadow_cache[(unsigned short)lgt->shadow_index];
+    shadow_cache = &game.lish.shadow_cache[lgt->shadow_index];
     memset(game.lish.shadow_limits, 0, sizeof(game.lish.shadow_limits));
     memset(shadow_cache->field_1, 0, 0x80u);
 
     stl_num_2 = get_subtile_number(lgt->mappos.x.stl.num,lgt->mappos.y.stl.num);
     stl_lightness = &game.lish.subtile_lightness[stl_num_2];
+    const struct Column *col = get_column_at(lgt_pos_x + 1,lgt_pos_y + 1);
 
-    stl_num_2 = get_subtile_number((unsigned char)game.columns_data[game.map[get_subtile_number(lgt_pos_x + 1,lgt_pos_y + 1)].data & 0x7FF].bitfields >> 4, stl_num_decode_y(stl_num_2));
-
-    if ((unsigned char)stl_num_2 <= lgt_stl_z)
+    if (col->bitfields >> 4 <= lgt_stl_z)
     {
         v42 = lighting_tables_idx;
         shadow_cache->field_1[lighting_tables_idx] |= 1 << (31 - lighting_tables_idx);
@@ -1760,23 +1758,23 @@ static char light_render_light_dynamic_2(struct Light *lgt, int radius, int rend
                     break;
                 stl_y = lighting_table->delta_y + lgt_stl_y;
                 stl_x = lighting_table->delta_x + lgt_stl_x;
-                if (lighting_table->delta_x + lgt_stl_x < 0x100 && stl_y < 0x100)
+                if (lighting_table->delta_x + lgt_stl_x < map_subtiles_x && stl_y < map_subtiles_y)
                 {
                     some_y_2 = stl_y << 8;
                     some_x_2 = stl_x << 8;
-                    v16 = LbArcTanAngle(some_x_2 - lgt_pos_x, (stl_y << 8) - lgt_pos_y) & 0x7FF;
+                    angle = LbArcTanAngle(some_x_2 - lgt_pos_x, some_y_2 - lgt_pos_y) & LbFPMath_AngleMask;
                     if ((unsigned char)stl_x < (unsigned char)lgt_stl_x)
                         v17 = ((unsigned char)stl_y < (unsigned char)lgt_stl_y) + 3;
                     else
                         v17 = 2 - ((unsigned char)stl_y < (unsigned char)lgt_stl_y);
-                    v18 = v17;
-                    v19 = game.lish.shadow_limits[v16];
-                    v38 = v18;
+                    v19 = game.lish.shadow_limits[angle];
+                    v38 = v17;
                     if (v19)
                     {
                         calculate_shadow_angle(lgt_pos_x, lgt_pos_y, v38, stl_x, stl_y, &shadow_limit_idx, &shadow_limit_idx2);
                         v20 = &game.lish.shadow_limits[shadow_limit_idx];
-                        if ((!game.lish.shadow_limits[shadow_limit_idx] || !game.lish.shadow_limits[shadow_limit_idx2]) && (unsigned char)game.columns_data[game.map[get_subtile_number(stl_x + 1,stl_y + 1)].data & 0x7FF].bitfields >> 4 > lgt_stl_z)
+                        const struct Column *col2 = get_column_at(stl_x + 1,stl_y + 1);
+                        if ((!game.lish.shadow_limits[shadow_limit_idx] || !game.lish.shadow_limits[shadow_limit_idx2]) && col2->bitfields >> 4 > lgt_stl_z)
                         {
                             if (shadow_limit_idx2 < shadow_limit_idx)
                             {
@@ -1791,10 +1789,9 @@ static char light_render_light_dynamic_2(struct Light *lgt, int radius, int rend
                     }
                     else
                     {
-                        struct Map* mapblk = get_map_block_at(stl_x,stl_y);
-                        v21 = mapblk->data & 0x7FF;
+                        const struct Column *col3 = get_column_at(stl_x,stl_y);
                         subtile_lightness = &game.lish.subtile_lightness[get_subtile_number(stl_x,stl_y)];
-                        v22 = (unsigned char)game.columns_data[v21].bitfields >> 4;
+                        v22 = col3->bitfields >> 4;
                         bool_1 = v22 > lgt_stl_z;
                         if (v22 > lgt_stl_z)
                         {
@@ -1815,10 +1812,12 @@ static char light_render_light_dynamic_2(struct Light *lgt, int radius, int rend
                         bool_2 = false;
                         if (bool_1)
                         {
+                            const struct Column *col4;
                             switch (v38)
                             {
                             case 1:
-                                bool_2 = ((unsigned char)game.columns_data[game.map[256 * stl_y + 256 + stl_x].data & 0x7FF].bitfields >> 4 <= lgt_stl_z);
+                                col4 = get_column_at(stl_x,stl_y + 1);
+                                bool_2 = (col4->bitfields >> 4 <= lgt_stl_z);
                                 break;
                             case 3:
                                 bool_2 = (!point_is_above_floor(stl_x, stl_y - 1, lgt_stl_z));
@@ -2032,13 +2031,13 @@ static char light_render_light(struct Light* lgt)
   {
     if ( is_dynamic )
     {
-      if ( (lgt->flags & LgtF_Unkn40) != 0 )
+      if ( (lgt->flags & LgtF_NeverCached) != 0 )
       {
-        lighting_tables_idx = light_render_light_dynamic_1(lgt, radius, render_intensity, lighting_tables_idx);
+        lighting_tables_idx = light_render_light_dynamic_uncached(lgt, radius, render_intensity, lighting_tables_idx);
       }
       else if ( (lgt->flags & LgtF_Unkn08) != 0 )
       {
-        lighting_tables_idx = light_render_light_dynamic_2(lgt, radius, render_intensity, lighting_tables_idx);
+        lighting_tables_idx = light_render_light_dynamic(lgt, radius, render_intensity, lighting_tables_idx);
         lgt->flags &= ~LgtF_Unkn08;
       }
       else
@@ -2060,7 +2059,7 @@ static char light_render_light(struct Light* lgt)
           y_end = USHRT_MAX;
         MapSubtlCoord stl_x = coord_subtile(x_start);
         MapSubtlCoord stl_y = coord_subtile(y_start);
-        int v33 = stl_x - coord_subtile(x_end) + 255;
+        int v33 = stl_x - coord_subtile(x_end) + map_subtiles_x;
         unsigned short* lightness = &game.lish.subtile_lightness[get_subtile_number(stl_x, stl_y)];
         struct ShadowCache *shdc = &game.lish.shadow_cache[lgt->shadow_index];
         lighting_tables_idx = *shdc->field_1;
@@ -2112,7 +2111,6 @@ static void light_render_area(MapSubtlCoord startx, MapSubtlCoord starty, MapSub
   int range;
   char *v9;
   unsigned short *v10;
-  int v11;
   short *v12;
   unsigned short *v13;
   short v21;
@@ -2158,19 +2156,19 @@ static void light_render_area(MapSubtlCoord startx, MapSubtlCoord starty, MapSub
   v10 = &game.lish.stat_light_map[start_num];
 
   
-  if ( starty <= (unsigned int)endy )
+  if ( starty <= endy )
   {
-    v11 = endy - starty + 1;
+    MapSubtlCoord y = endy - starty + 1;
     do
     {
       v12 = (short *)v9;
       v13 = v10;
       v9 += (map_subtiles_x + 1) * 2;
-      v10 += 256;
+      v10 += (map_subtiles_x + 1);
       memcpy(v12, v13, 2 * (endx - startx));
-      --v11;
+      --y;
     }
-    while ( v11 );
+    while ( y );
   }
 
   if ( game.lish.light_enabled )
