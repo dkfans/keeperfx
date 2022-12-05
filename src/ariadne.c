@@ -2979,7 +2979,7 @@ AriadneReturn ariadne_update_state_on_line(struct Thing *thing, struct Ariadne *
     return AridRet_OK;
 }
 
-static TbBool ariadne_check_forward_for_wallhug_gap_new(struct Thing *thing, struct Ariadne *arid, struct Coord3d *pos, long hug_angle)
+static TbBool ariadne_check_forward_for_wallhug_gap(struct Thing *thing, struct Ariadne *arid, struct Coord3d *pos, long hug_angle)
 {
     struct Coord3d nav_boundry_pos;
     struct Coord3d potentional_next_pos_3d;
@@ -3078,43 +3078,6 @@ static TbBool ariadne_check_forward_for_wallhug_gap_new(struct Thing *thing, str
         return true;
     }
     return false;
-}
-
-DLLIMPORT TbBool _DK_ariadne_check_forward_for_wallhug_gap(struct Thing *thing, struct Ariadne *arid, struct Coord3d *pos, long hug_angle);
-static TbBool ariadne_check_forward_for_wallhug_gap(struct Thing *thing, struct Ariadne *arid, struct Coord3d *pos, long hug_angle)
-{
-    struct Coord3d thingstartpos;
-    struct Coord3d oldpos;
-    
-
-    memcpy(&thingstartpos,&thing->mappos,sizeof(struct Coord3d));
-    memcpy(&oldpos,pos,sizeof(struct Coord3d));
-
-
-    //JUSTLOG("pos1 %d.%d %d.%d %d.%d",pos->x.stl.num,pos->x.stl.pos,pos->y.stl.num,pos->y.stl.pos,pos->z.stl.num,pos->z.stl.pos);
-    //JUSTLOG("pos1 %d.%d %d.%d %d.%d",thing->mappos.x.stl.num,thing->mappos.x.stl.pos,thing->mappos.y.stl.num,thing->mappos.y.stl.pos,thing->mappos.z.stl.num,thing->mappos.z.stl.pos);
-    TbBool old = _DK_ariadne_check_forward_for_wallhug_gap(thing, arid, &oldpos, hug_angle);
-    //JUSTLOG("pos2 %d.%d %d.%d %d.%d",thing->mappos.x.stl.num,thing->mappos.x.stl.pos,thing->mappos.y.stl.num,thing->mappos.y.stl.pos,thing->mappos.z.stl.num,thing->mappos.z.stl.pos);
-    //JUSTLOG("pos2 %d.%d %d.%d %d.%d",pos->x.stl.num,pos->x.stl.pos,pos->y.stl.num,pos->y.stl.pos,pos->z.stl.num,pos->z.stl.pos);
-
-    memcpy(&thing->mappos,&thingstartpos,sizeof(struct Coord3d));
-
-    //JUSTLOG("pos3 %d.%d %d.%d %d.%d",thing->mappos.x.stl.num,thing->mappos.x.stl.pos,thing->mappos.y.stl.num,thing->mappos.y.stl.pos,thing->mappos.z.stl.num,thing->mappos.z.stl.pos);
-    TbBool new = ariadne_check_forward_for_wallhug_gap_new(thing, arid, pos, hug_angle);
-    //JUSTLOG("pos4 %d.%d %d.%d %d.%d",thing->mappos.x.stl.num,thing->mappos.x.stl.pos,thing->mappos.y.stl.num,thing->mappos.y.stl.pos,thing->mappos.z.stl.num,thing->mappos.z.stl.pos);
-    
-
-    if (old == new && memcmp(&oldpos,pos,sizeof(struct Coord3d)) == 0)
-    {
-        ERRORLOG("Ok %d",(int)old);
-    }
-    else
-    {    
-        JUSTLOG("pos4 %d.%d %d.%d %d.%d",oldpos.x.stl.num,oldpos.x.stl.pos,oldpos.y.stl.num,oldpos.y.stl.pos,oldpos.z.stl.num,oldpos.z.stl.pos);
-        JUSTLOG("pos4 %d.%d %d.%d %d.%d",pos->x.stl.num,pos->x.stl.pos,pos->y.stl.num,pos->y.stl.pos,pos->z.stl.num,pos->z.stl.pos);
-        ERRORLOG("Nope %d, %d",(int)old,(int)new);
-    }
-    return new;
 }
 
 TbBool ariadne_creature_on_circular_hug(const struct Thing *thing, const struct Ariadne *arid)
