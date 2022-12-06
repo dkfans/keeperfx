@@ -883,8 +883,6 @@ static int check_out_unreinforced_spiral(struct Thing *thing, int number_of_iter
 static long check_out_unreinforced_place_new(struct Thing *thing)
 {
     unsigned short working_stl;
-    unsigned char v7;
-    unsigned int v8;
     SubtlCodedCoords stl_num;
     struct CreatureControl *cctrl;
     int v17;
@@ -918,19 +916,19 @@ static long check_out_unreinforced_place_new(struct Thing *thing)
     }
     else
     {
-        v7 = thing->mappos.x.stl.num % 3u;
-        v8 = 3 * (thing->mappos.y.stl.num % 3u);
+        unsigned int ar_idx_x = thing->mappos.x.stl.num % 3u;
+        unsigned int ar_idx_y = 3 * (thing->mappos.y.stl.num % 3u);
 
         v17 = 0;
-        int around_idx = (unsigned char)around_indexes[v8 + v7];
+        int around_idx = around_indexes[ar_idx_y + ar_idx_x];
         while (1)
         {
             MapSlabCoord x = working_slb_x + small_around[around_idx].delta_x;
             MapSlabCoord y = working_slb_y + small_around[around_idx].delta_y;
             if (check_place_to_reinforce(thing, x, y) > 0)
             {
-                
-                stl_num = 3 * (get_slab_number(x,y) % 85 + ((get_slab_number(x,y) / 85) << 8)) + 257;
+                stl_num = get_subtile_number_at_slab_center(x,y);
+
                 if (check_out_uncrowded_reinforce_position(thing, stl_num, &stl_x, &stl_y))
                 {
                     if (setup_person_move_to_position(thing, stl_x, stl_y, 0))
@@ -938,7 +936,7 @@ static long check_out_unreinforced_place_new(struct Thing *thing)
                 }
             }
             v17 += 2;
-            around_idx = (around_idx + 2) % 4;
+            around_idx = (around_idx + 2) % SMALL_AROUND_LENGTH;
             if (v17 >= 4)
             {
                 cctrl->digger.working_stl = 0;
