@@ -2928,15 +2928,15 @@ TbResult creature_retreat_from_combat(struct Thing *figtng, struct Thing *enmtng
     if (abs(dist_y) >= abs(dist_x))
     {
       if (dist_y <= 0)
-        pos.y.val += 256;
+        pos.y.val += COORD_PER_STL;
       else
-        pos.y.val -= 256;
+        pos.y.val -= COORD_PER_STL;
     } else
     {
       if (dist_x <= 0)
-        pos.x.val += 256;
+        pos.x.val += COORD_PER_STL;
       else
-        pos.x.val -= 256;
+        pos.x.val -= COORD_PER_STL;
     }
     pos.z.val = get_thing_height_at(figtng, &pos);
 

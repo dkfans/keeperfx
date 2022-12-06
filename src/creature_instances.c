@@ -999,8 +999,8 @@ long instf_tunnel(struct Thing *creatng, long *param)
     SYNCDBG(16,"Starting");
     TRACE_THING(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    MapSubtlCoord stl_x = stl_num_decode_x(cctrl->navi.field_15);
-    MapSubtlCoord stl_y = stl_num_decode_y(cctrl->navi.field_15);
+    MapSubtlCoord stl_x = stl_num_decode_x(cctrl->navi.first_colliding_block);
+    MapSubtlCoord stl_y = stl_num_decode_y(cctrl->navi.first_colliding_block);
     struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
     if (slabmap_block_invalid(slb)) {
         return 0;
