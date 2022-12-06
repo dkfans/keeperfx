@@ -45,9 +45,8 @@ const char keeper_magic_file[]="magic.cfg";
 
 const struct NamedCommand magic_common_commands[] = {
   {"SPELLSCOUNT",     1},
-  {"SHOTSCOUNT",      2},
-  {"POWERCOUNT",      3},
-  {"SPECIALSCOUNT",   4},
+  {"POWERCOUNT",      2},
+  {"SPECIALSCOUNT",   3},
   {NULL,              0},
   };
 
@@ -364,7 +363,7 @@ TbBool parse_magic_common_blocks(char *buf, long len, const char *config_textnam
     if ((flags & CnfLd_AcceptPartial) == 0)
     {
         magic_conf.spell_types_count = 1;
-        magic_conf.shot_types_count = 1;
+        magic_conf.shot_types_count = MAGIC_ITEMS_MAX;
         magic_conf.power_types_count = 1;
         magic_conf.special_types_count = 1;
     }
@@ -406,23 +405,7 @@ TbBool parse_magic_common_blocks(char *buf, long len, const char *config_textnam
                   COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
-        case 2: // SHOTSCOUNT
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              if ((k > 0) && (k <= MAGIC_ITEMS_MAX))
-              {
-                magic_conf.shot_types_count = k;
-                n++;
-              }
-            }
-            if (n < 1)
-            {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            }
-            break;
-        case 3: // POWERCOUNT
+        case 2: // POWERCOUNT
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
@@ -438,7 +421,7 @@ TbBool parse_magic_common_blocks(char *buf, long len, const char *config_textnam
                   COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
-        case 4: // SPECIALSCOUNT
+        case 3: // SPECIALSCOUNT
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
