@@ -140,6 +140,8 @@ struct LevelInformation {
   unsigned long options;
   unsigned short state;
   unsigned short location;
+  int mapsize_x;
+  int mapsize_y;
 };
 
 struct CampaignsList {

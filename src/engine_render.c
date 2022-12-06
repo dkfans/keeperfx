@@ -720,7 +720,7 @@ void fill_in_points_perspective(struct Camera *cam, long bstl_x, long bstl_y, st
         int lightness;
         lightness = 0;
         if ((fulmask_or & 0x10000) == 0)
-            lightness = game.lish.subtile_lightness[get_subtile_number(stl_x, stl_y+1)];
+            lightness = get_subtile_lightness(&game.lish,stl_x,stl_y+1);
         long hmin;
         long hmax;
         hmax = height_masks[fulmask_or & 0xff];
@@ -918,7 +918,7 @@ void fill_in_points_cluedo(struct Camera *cam, long bstl_x, long bstl_y, struct 
         int lightness;
         lightness = 0;
         if ((fulmask_or & 0x10000) == 0)
-            lightness = game.lish.subtile_lightness[get_subtile_number(stl_x, stl_y+1)];
+            lightness = get_subtile_lightness(&game.lish,stl_x,stl_y+1);
 
         long hmin;
         long hmax;
@@ -1147,7 +1147,7 @@ void fill_in_points_isometric(struct Camera *cam, long bstl_x, long bstl_y, stru
         int lightness;
         lightness = 0;
         if ((fulmask_or & 0x10000) == 0)
-            lightness = game.lish.subtile_lightness[get_subtile_number(stl_x, stl_y+1)];
+            lightness = get_subtile_lightness(&game.lish,stl_x,stl_y+1);
         long hmin;
         long hmax;
         hmax = height_masks[fulmask_or & 0xff];
@@ -3778,7 +3778,7 @@ unsigned short engine_remap_texture_blocks(long stl_x, long stl_y, unsigned shor
 {
     long slb_x = subtile_slab(stl_x);
     long slb_y = subtile_slab(stl_y);
-    return tex_id + (gameadd.slab_ext_data[85 * slb_y + slb_x] & 0xF) * TEXTURE_BLOCKS_COUNT;
+    return tex_id + (gameadd.slab_ext_data[get_slab_number(slb_x,slb_y)] & 0xF) * TEXTURE_BLOCKS_COUNT;
 }
 
 void do_a_plane_of_engine_columns_perspective(long stl_x, long stl_y, long plane_start, long plane_end)
@@ -3800,20 +3800,20 @@ void do_a_plane_of_engine_columns_perspective(long stl_x, long stl_y, long plane
     unsigned short *cubenum_ptr;
     long i;
     long n;
-    if ((stl_y <= 0) || (stl_y >= 255))
+    if ((stl_y <= 0) || (stl_y >= map_subtiles_y))
         return;
     clip_start = plane_start;
     if (stl_x + plane_start < 1)
         clip_start = 1 - stl_x;
     clip_end = plane_end;
-    if (stl_x + plane_end > 255)
-        clip_end = 255 - stl_x;
+    if (stl_x + plane_end > map_subtiles_x)
+        clip_end = map_subtiles_x - stl_x;
     struct EngineCol *bec;
     struct EngineCol *fec;
     bec = &back_ec[clip_start + MINMAX_ALMOST_HALF];
     fec = &front_ec[clip_start + MINMAX_ALMOST_HALF];
     blank_colmn = get_column(game.unrevealed_column_idx);
-    center_block_idx = clip_start + stl_x + (stl_y << 8);
+    center_block_idx = clip_start + stl_x + (stl_y * (map_subtiles_x+1));
     for (i = clip_end-clip_start; i > 0; i--)
     {
         mapblk = get_map_block_at_pos(center_block_idx);
@@ -3836,12 +3836,12 @@ void do_a_plane_of_engine_columns_perspective(long stl_x, long stl_y, long plane
         solidmsk_right = blank_colmn->solidmask;
         solidmsk_bottom = blank_colmn->solidmask;
         solidmsk_left = blank_colmn->solidmask;
-        sib_mapblk = get_map_block_at_pos(center_block_idx-256);
+        sib_mapblk = get_map_block_at_pos(center_block_idx-map_subtiles_x-1);
         if (map_block_revealed_bit(sib_mapblk, player_bit) ) {
             sib_colmn = get_map_column(sib_mapblk);
             solidmsk_top = sib_colmn->solidmask;
         }
-        sib_mapblk = get_map_block_at_pos(center_block_idx+256);
+        sib_mapblk = get_map_block_at_pos(center_block_idx+map_subtiles_x+1);
         if (map_block_revealed_bit(sib_mapblk, player_bit) ) {
             sib_colmn = get_map_column(sib_mapblk);
             solidmsk_bottom = sib_colmn->solidmask;
@@ -3867,25 +3867,26 @@ void do_a_plane_of_engine_columns_perspective(long stl_x, long stl_y, long plane
             {
               if ((solidmsk_top & height_bit) == 0)
               {
-                  textr_idx = engine_remap_texture_blocks((center_block_idx%(map_subtiles_x+1)), (center_block_idx/(map_subtiles_x+1)), texturing->texture_id[sideoris[0].field_0]);
+                  
+                  textr_idx = engine_remap_texture_blocks(stl_num_decode_x(center_block_idx), stl_num_decode_y(center_block_idx), texturing->texture_id[sideoris[0].field_0]);
                   do_a_trig_gourad_tr(&bec[1].cors[bepos+1], &bec[0].cors[bepos+1], &bec[0].cors[bepos],   textr_idx, normal_shade_back);
                   do_a_trig_gourad_bl(&bec[0].cors[bepos],   &bec[1].cors[bepos],   &bec[1].cors[bepos+1], textr_idx, normal_shade_back);
               }
               if ((solidmsk_bottom & height_bit) == 0)
               {
-                  textr_idx = engine_remap_texture_blocks((center_block_idx%(map_subtiles_x+1)), (center_block_idx/(map_subtiles_x+1)), texturing->texture_id[sideoris[0].field_2]);
+                  textr_idx = engine_remap_texture_blocks(stl_num_decode_x(center_block_idx), stl_num_decode_y(center_block_idx), texturing->texture_id[sideoris[0].field_2]);
                   do_a_trig_gourad_tr(&fec[0].cors[fepos+1], &fec[1].cors[fepos+1], &fec[1].cors[fepos],   textr_idx, normal_shade_front);
                   do_a_trig_gourad_bl(&fec[1].cors[fepos],   &fec[0].cors[fepos],   &fec[0].cors[fepos+1], textr_idx, normal_shade_front);
               }
               if ((solidmsk_left & height_bit) == 0)
               {
-                  textr_idx = engine_remap_texture_blocks((center_block_idx%(map_subtiles_x+1)), (center_block_idx/(map_subtiles_x+1)), texturing->texture_id[sideoris[0].field_3]);
+                  textr_idx = engine_remap_texture_blocks(stl_num_decode_x(center_block_idx), stl_num_decode_y(center_block_idx), texturing->texture_id[sideoris[0].field_3]);
                   do_a_trig_gourad_tr(&bec[0].cors[bepos+1], &fec[0].cors[fepos+1], &fec[0].cors[fepos],   textr_idx, normal_shade_left);
                   do_a_trig_gourad_bl(&fec[0].cors[fepos],   &bec[0].cors[bepos],   &bec[0].cors[bepos+1], textr_idx, normal_shade_left);
               }
               if ((solidmsk_right & height_bit) == 0)
               {
-                  textr_idx = engine_remap_texture_blocks((center_block_idx%(map_subtiles_x+1)), (center_block_idx/(map_subtiles_x+1)), texturing->texture_id[sideoris[0].field_1]);
+                  textr_idx = engine_remap_texture_blocks(stl_num_decode_x(center_block_idx), stl_num_decode_y(center_block_idx), texturing->texture_id[sideoris[0].field_1]);
                   do_a_trig_gourad_tr(&fec[1].cors[fepos+1], &bec[1].cors[bepos+1], &bec[1].cors[bepos],   textr_idx, normal_shade_right);
                   do_a_trig_gourad_bl(&bec[1].cors[bepos],   &fec[1].cors[fepos],   &fec[1].cors[fepos+1], textr_idx, normal_shade_right);
               }
@@ -3900,13 +3901,13 @@ void do_a_plane_of_engine_columns_perspective(long stl_x, long stl_y, long plane
         {
             cubenum_ptr = &colmn->cubes[ecpos-1];
             texturing = &gameadd.cubes_data[*cubenum_ptr];
-            textr_idx = engine_remap_texture_blocks((center_block_idx%(map_subtiles_x+1)), (center_block_idx/(map_subtiles_x+1)), texturing->texture_id[4]);
+            textr_idx = engine_remap_texture_blocks(stl_num_decode_x(center_block_idx), stl_num_decode_y(center_block_idx), texturing->texture_id[4]);
             do_a_trig_gourad_tr(&bec[0].cors[ecpos], &bec[1].cors[ecpos], &fec[1].cors[ecpos], textr_idx, -1);
             do_a_trig_gourad_bl(&fec[1].cors[ecpos], &fec[0].cors[ecpos], &bec[0].cors[ecpos], textr_idx, -1);
         } else
         {
             ecpos = 0;
-            textr_idx = engine_remap_texture_blocks((center_block_idx%(map_subtiles_x+1)), (center_block_idx/(map_subtiles_x+1)), colmn->baseblock);
+            textr_idx = engine_remap_texture_blocks(stl_num_decode_x(center_block_idx), stl_num_decode_y(center_block_idx), colmn->baseblock);
             do_a_trig_gourad_tr(&bec[0].cors[ecpos], &bec[1].cors[ecpos], &fec[1].cors[ecpos], textr_idx, -1);
             do_a_trig_gourad_bl(&fec[1].cors[ecpos], &fec[0].cors[ecpos], &bec[0].cors[ecpos], textr_idx, -1);
         }
@@ -3916,19 +3917,19 @@ void do_a_plane_of_engine_columns_perspective(long stl_x, long stl_y, long plane
         {
             cubenum_ptr = &colmn->cubes[ecpos-1];
             texturing = &gameadd.cubes_data[*cubenum_ptr];
-            textr_idx = engine_remap_texture_blocks((center_block_idx%(map_subtiles_x+1)), (center_block_idx/(map_subtiles_x+1)), texturing->texture_id[4]);
+            textr_idx = engine_remap_texture_blocks(stl_num_decode_x(center_block_idx), stl_num_decode_y(center_block_idx), texturing->texture_id[4]);
             do_a_trig_gourad_tr(&bec[0].cors[ecpos], &bec[1].cors[ecpos], &fec[1].cors[ecpos], textr_idx, -1);
             do_a_trig_gourad_bl(&fec[1].cors[ecpos], &fec[0].cors[ecpos], &bec[0].cors[ecpos], textr_idx, -1);
 
             ecpos =  lintel_bottom_height[solidmsk_center];
-            textr_idx = engine_remap_texture_blocks((center_block_idx%(map_subtiles_x+1)), (center_block_idx/(map_subtiles_x+1)), texturing->texture_id[5]);
+            textr_idx = engine_remap_texture_blocks(stl_num_decode_x(center_block_idx), stl_num_decode_y(center_block_idx), texturing->texture_id[5]);
             do_a_trig_gourad_tr(&fec[0].cors[ecpos], &fec[1].cors[ecpos], &bec[1].cors[ecpos], textr_idx, -1);
             do_a_trig_gourad_bl(&bec[1].cors[ecpos], &bec[0].cors[ecpos], &fec[0].cors[ecpos], textr_idx, -1);
         }
         // Draw the universal ceiling on top of the columns
         ecpos = 8;
         {
-            textr_idx = engine_remap_texture_blocks((center_block_idx%(map_subtiles_x+1)), (center_block_idx/(map_subtiles_x+1)), floor_to_ceiling_map[colmn->baseblock]);
+            textr_idx = engine_remap_texture_blocks(stl_num_decode_x(center_block_idx), stl_num_decode_y(center_block_idx), floor_to_ceiling_map[colmn->baseblock]);
             do_a_trig_gourad_tr(&fec[0].cors[ecpos], &fec[1].cors[ecpos], &bec[1].cors[ecpos], textr_idx, -1);
             do_a_trig_gourad_bl(&bec[1].cors[ecpos], &bec[0].cors[ecpos], &fec[0].cors[ecpos], textr_idx, -1);
         }
@@ -4166,7 +4167,7 @@ static void do_a_gpoly_gourad_bl(struct EngineCoord *ec1, struct EngineCoord *ec
 
 void do_a_plane_of_engine_columns_cluedo(long stl_x, long stl_y, long plane_start, long plane_end)
 {
-    if ((stl_y < 1) || (stl_y > 254)) {
+    if ((stl_y < 1) || (stl_y > (map_subtiles_y - 1))) {
         return;
     }
     long xaval;
@@ -4176,8 +4177,8 @@ void do_a_plane_of_engine_columns_cluedo(long stl_x, long stl_y, long plane_star
         xaval = 1 - stl_x;
     }
     xbval = plane_end;
-    if (stl_x + plane_end > 255) {
-        xbval = 255 - stl_x;
+    if (stl_x + plane_end > map_subtiles_x) {
+        xbval = map_subtiles_x - stl_x;
     }
     int xidx;
     int xdelta;
@@ -4367,7 +4368,7 @@ void do_a_plane_of_engine_columns_cluedo(long stl_x, long stl_y, long plane_star
 
 void do_a_plane_of_engine_columns_isometric(long stl_x, long stl_y, long plane_start, long plane_end)
 {
-    if ((stl_y < 1) || (stl_y > 254)) {
+    if ((stl_y < 1) || (stl_y > map_subtiles_y - 1)) {
         return;
     }
 
@@ -4444,7 +4445,7 @@ void do_a_plane_of_engine_columns_isometric(long stl_x, long stl_y, long plane_s
             colmn = get_map_column(sib_mapblk);
             solidmsk_right = colmn->solidmask;
         }
-        if ( xaclip || xbclip || (stl_y <= 1) || (stl_y >= 254))
+        if ( xaclip || xbclip || (stl_y <= 1) || (stl_y >= map_subtiles_y - 1))
         {
             if (xaclip && (xidx == 0)) {
                 solidmsk_left = 0;
@@ -4455,7 +4456,7 @@ void do_a_plane_of_engine_columns_isometric(long stl_x, long stl_y, long plane_s
             if (stl_y <= 1) {
                 solidmsk_back = 0;
             }
-            if (stl_y >= 254) {
+            if (stl_y >= map_subtiles_y - 1) {
                 solidmsk_front = 0;
             }
         }
@@ -6474,7 +6475,7 @@ static void draw_view_map_plane(struct Camera *cam, long aposc, long bposc, long
     for (i = 2*cells_away-1; i > 0; i--)
     {
         ycell++;
-        bposc -= (map_subtiles_y+1);
+        bposc -= 256;
         mm++;
         draw_plane_of_engine_columns(cam, aposc, bposc, xcell, ycell, mm);
     }
@@ -8206,8 +8207,8 @@ static void update_frontview_pointed_block(unsigned long laaa, unsigned char qdr
     struct Map *mapblk;
     long pos_x;
     long pos_y;
-    long slb_x;
-    long slb_y;
+    long stl_x;
+    long stl_y;
     long point_a;
     long point_b;
     long delta;
@@ -8221,22 +8222,22 @@ static void update_frontview_pointed_block(unsigned long laaa, unsigned char qdr
     {
         pos_x = (point_a / laaa) * x_step2[qdrant] + (point_b / laaa) * x_step1[qdrant] + (w << 8);
         pos_y = (point_a / laaa) * y_step2[qdrant] + (point_b / laaa) * y_step1[qdrant] + (h << 8);
-        slb_x = (pos_x >> 8) + x_offs[qdrant];
-        slb_y = (pos_y >> 8) + y_offs[qdrant];
+        stl_x = (pos_x >> 8) + x_offs[qdrant];
+        stl_y = (pos_y >> 8) + y_offs[qdrant];
         
-        if (slb_x < 0 || slb_x > 254 || slb_y < -2 || slb_y > 255) {
+        if (stl_x < 0 || stl_x > map_subtiles_y - 1 || stl_y < -2 || stl_y > map_subtiles_y) {
             out_of_bounds = true;
         }
 
-        mapblk = get_map_block_at(slb_x, slb_y);
+        mapblk = get_map_block_at(stl_x, stl_y);
         if (!map_block_invalid(mapblk))
         {
           if (i == 0)
           {
-            floor_pointed_at_x = slb_x;
-            floor_pointed_at_y = slb_y;
-            block_pointed_at_x = slb_x;
-            block_pointed_at_y = slb_y;
+            floor_pointed_at_x = stl_x;
+            floor_pointed_at_y = stl_y;
+            block_pointed_at_x = stl_x;
+            block_pointed_at_y = stl_y;
             pointed_at_frac_x = pos_x & 0xFF;
             pointed_at_frac_y = pos_y & 0xFF;
             me_pointed_at = mapblk;
@@ -8248,8 +8249,8 @@ static void update_frontview_pointed_block(unsigned long laaa, unsigned char qdr
             {
               pointed_at_frac_x = pos_x & 0xFF;
               pointed_at_frac_y = pos_y & 0xFF;
-              block_pointed_at_x = slb_x;
-              block_pointed_at_y = slb_y;
+              block_pointed_at_x = stl_x;
+              block_pointed_at_y = stl_y;
               me_pointed_at = mapblk;
             }
             if (((temp_cluedo_mode)  && (i == 2))
@@ -8257,8 +8258,8 @@ static void update_frontview_pointed_block(unsigned long laaa, unsigned char qdr
             {
               top_pointed_at_frac_x = pos_x & 0xFF;
               top_pointed_at_frac_y = pos_y & 0xFF;
-              top_pointed_at_x = slb_x;
-              top_pointed_at_y = slb_y;
+              top_pointed_at_x = stl_x;
+              top_pointed_at_y = stl_y;
             }
           }
         }
@@ -8929,7 +8930,7 @@ void draw_frontview_engine(struct Camera *cam)
             {
                 if (get_mapblk_column_index(mapblk) > 0)
                 {
-                    draw_element(mapblk, game.lish.subtile_lightness[get_subtile_number(stl_x,stl_y)], stl_x, stl_y, pos_x, pos_y, zoom, qdrant, &i);
+                    draw_element(mapblk, get_subtile_lightness(&game.lish,stl_x,stl_y), stl_x, stl_y, pos_x, pos_y, zoom, qdrant, &i);
                 }
                 if ( subtile_revealed(stl_x, stl_y, player->id_number) )
                 {
