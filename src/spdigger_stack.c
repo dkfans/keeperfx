@@ -821,11 +821,9 @@ DLLIMPORT long _DK_check_out_unreinforced_spiral(struct Thing *thing, int number
 
 static int check_out_unreinforced_spiral(struct Thing *thing, int number_of_iterations)
 {
-
+    
     //return _DK_check_out_unreinforced_spiral(thing,number_of_iterations);
     int v4;
-    SubtlCodedCoords stl_num;
-    int v7;
     int v8;
     int v9;
     int current_iteration;
@@ -835,9 +833,9 @@ static int check_out_unreinforced_spiral(struct Thing *thing, int number_of_iter
 
     struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
     current_iteration = 0;
-    MapSlabCoord slb_x = map_to_slab[thing->mappos.x.stl.num];
-    v7 = 2;
-    MapSlabCoord slb_y = map_to_slab[thing->mappos.y.stl.num];
+    MapSlabCoord slb_x = subtile_slab_fast(thing->mappos.x.stl.num);
+    MapSlabCoord slb_y = subtile_slab_fast(thing->mappos.y.stl.num);
+    int v7 = 2;
 
     while (number_of_iterations > current_iteration)
     {
@@ -857,7 +855,7 @@ static int check_out_unreinforced_spiral(struct Thing *thing, int number_of_iter
                     slb_y += ar->delta_y;
                     if (slb_x >= 0 && slb_x < map_tiles_x && slb_y >= 0 && slb_y < map_tiles_y && check_place_to_reinforce(thing, slb_x, slb_y) > 0)
                     {
-                        stl_num = 3 * slb_x + 1 + ((3 * (short)slb_y + 1) << 8);
+                        SubtlCodedCoords stl_num = get_subtile_number_at_slab_center(slb_x,slb_y);
                         if (check_out_uncrowded_reinforce_position(thing, stl_num, &stl_x, &stl_y))
                         {
                             if (setup_person_move_to_position(thing, stl_x, stl_y, 0))
@@ -870,11 +868,9 @@ static int check_out_unreinforced_spiral(struct Thing *thing, int number_of_iter
                         }
                     }
                     if (v7 <= ++v8)
-                        goto LABEL_12;
+                        break;
                 }
-
             }
-        LABEL_12:
             v4 = v9;
         } while (v9 < 4);
         ++current_iteration;
@@ -984,7 +980,7 @@ static long check_out_unreinforced_place(struct Thing *spdigtng)
     ushort        cctrl_moveto_pos_x           = cctrl->moveto_pos.x.val                 ;
     ushort        cctrl_moveto_pos_y           = cctrl->moveto_pos.y.val                 ;
     ushort        cctrl_moveto_pos_z           = cctrl->moveto_pos.z.val                 ;    
-    ushort        cctrl_digger_working_stl     = cctrl->digger.working_stl               ;
+    short        cctrl_digger_working_stl     = cctrl->digger.working_stl               ;
     unsigned char cctrl_digger_con_reinfor     = cctrl->digger.consecutive_reinforcements;
     unsigned char cctrl_move_flags             = cctrl->move_flags                       ;
 
@@ -1008,7 +1004,7 @@ static long check_out_unreinforced_place(struct Thing *spdigtng)
     ushort        _cctrl_moveto_pos_x           = cctrl->moveto_pos.x.val                 ;
     ushort        _cctrl_moveto_pos_y           = cctrl->moveto_pos.y.val                 ;
     ushort        _cctrl_moveto_pos_z           = cctrl->moveto_pos.z.val                 ;    
-    ushort        _cctrl_digger_working_stl     = cctrl->digger.working_stl               ;
+    short        _cctrl_digger_working_stl     = cctrl->digger.working_stl               ;
     unsigned char _cctrl_digger_con_reinfor     = cctrl->digger.consecutive_reinforcements;
     unsigned char _cctrl_move_flags             = cctrl->move_flags                       ;
 
