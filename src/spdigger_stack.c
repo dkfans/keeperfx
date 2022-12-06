@@ -887,16 +887,10 @@ static int check_out_unreinforced_spiral(struct Thing *thing, int number_of_iter
 static long check_out_unreinforced_place_new(struct Thing *thing)
 {
     unsigned short working_stl;
-    long result;
-    signed int v6;
     unsigned char v7;
     unsigned int v8;
-    long x;
-    long y;
     SubtlCodedCoords stl_num;
     struct CreatureControl *cctrl;
-    long slb_x_2;
-    long slb_y_2;
     int v17;
     long stl_y;
     long stl_x;
@@ -935,11 +929,12 @@ static long check_out_unreinforced_place_new(struct Thing *thing)
         int around_idx = (unsigned char)around_indexes[v8 + v7];
         while (1)
         {
-            x = small_around[around_idx].delta_x + working_slb_x;
-            y = small_around[around_idx].delta_y + working_slb_y;
+            MapSlabCoord x = working_slb_x + small_around[around_idx].delta_x;
+            MapSlabCoord y = working_slb_y + small_around[around_idx].delta_y;
             if (check_place_to_reinforce(thing, x, y) > 0)
             {
-                stl_num = 3 * ((85 * y + x) % 85 + (((85 * y + x) / 85) << 8)) + 257;
+                
+                stl_num = 3 * (get_slab_number(x,y) % 85 + ((get_slab_number(x,y) / 85) << 8)) + 257;
                 if (check_out_uncrowded_reinforce_position(thing, stl_num, &stl_x, &stl_y))
                 {
                     if (setup_person_move_to_position(thing, stl_x, stl_y, 0))
@@ -959,7 +954,6 @@ static long check_out_unreinforced_place_new(struct Thing *thing)
         cctrl->digger.consecutive_reinforcements = 0;
         return 1;
     }
-    return result;
 }
 
 DLLIMPORT long _DK_check_out_unreinforced_place(struct Thing *creatng);
