@@ -70,6 +70,8 @@ enum GameKeys {
     Gkey_RoomSpaceIncSize,
     Gkey_RoomSpaceDecSize,
     Gkey_SellTrapOnSubtile,
+    Gkey_RotateForward,
+    Gkey_RotateBackward,
 };
 
 enum TbButtonFrontendFlags {
