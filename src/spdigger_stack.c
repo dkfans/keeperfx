@@ -817,12 +817,8 @@ long check_place_to_pretty_excluding(struct Thing *creatng, MapSlabCoord slb_x, 
     return 1;
 }
 
-DLLIMPORT long _DK_check_out_unreinforced_spiral(struct Thing *thing, int number_of_iterations);
-
 static int check_out_unreinforced_spiral(struct Thing *thing, int number_of_iterations)
 {
-    
-    //return _DK_check_out_unreinforced_spiral(thing,number_of_iterations);
     int v4;
     int v8;
     int v9;
