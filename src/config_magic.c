@@ -363,7 +363,7 @@ TbBool parse_magic_common_blocks(char *buf, long len, const char *config_textnam
     if ((flags & CnfLd_AcceptPartial) == 0)
     {
         magic_conf.spell_types_count = 1;
-        magic_conf.shot_types_count = MAGIC_ITEMS_MAX;
+        magic_conf.shot_types_count = 1;
         magic_conf.power_types_count = 1;
         magic_conf.special_types_count = 1;
     }
@@ -718,7 +718,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
       }
   }
   // Load the file
-  arr_size = magic_conf.shot_types_count;
+  arr_size = MAGIC_ITEMS_MAX;
   for (i=0; i < arr_size; i++)
   {
       char block_buf[COMMAND_WORD_LEN];
@@ -755,9 +755,13 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
       case 1: // NAME
           if (get_conf_parameter_single(buf,&pos,len,shotst->code_name,COMMAND_WORD_LEN) <= 0)
           {
-            CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            break;
+              SYNCDBG(9,"Couldn't read \"%s\" parameter in [%s] block of %s file, shot count set to %d", COMMAND_TEXT(cmd_num),block_buf,config_textname, magic_conf.shot_types_count);
+              i = arr_size;// End process
+              break;
+          }
+          if (i > magic_conf.shot_types_count)
+          {
+              magic_conf.shot_types_count = i;
           }
           n++;
           break;
