@@ -4646,7 +4646,7 @@ static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprit
                 lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
                 lbSpriteReMapPtr = red_pal;
                 thingadd->time_spent_displaying_hurt_colour += gameadd.delta_time;
-                if (thingadd->time_spent_displaying_hurt_colour >= 1.0)
+                if (thingadd->time_spent_displaying_hurt_colour >= 1.0 || game.frame_skip > 0)
                 {
                     thingadd->time_spent_displaying_hurt_colour = 0;
                     thing->rendering_flags &= ~TRF_BeingHit; // Turns off red damage colour tint
@@ -7891,7 +7891,7 @@ void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
                 lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
                 lbSpriteReMapPtr = red_pal;
                 thingadd->time_spent_displaying_hurt_colour += gameadd.delta_time;
-                if (thingadd->time_spent_displaying_hurt_colour >= 1.0)
+                if (thingadd->time_spent_displaying_hurt_colour >= 1.0 || game.frame_skip > 0)
                 {
                     thingadd->time_spent_displaying_hurt_colour = 0;
                     thing->rendering_flags &= ~TRF_BeingHit; // Turns off red damage colour tint
