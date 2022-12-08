@@ -616,9 +616,6 @@ long get_next_gap_creature_can_fit_in_below_point_new(struct Thing *thing, struc
     unsigned int v26;
     unsigned int v28;
     unsigned int v31;
-    char v32;
-    int v34;
-    unsigned int floor_height;
     unsigned int v38;
     unsigned int v39;
     unsigned int v40;
@@ -644,7 +641,7 @@ long get_next_gap_creature_can_fit_in_below_point_new(struct Thing *thing, struc
     MapCoord end_y = pos->y.val + nav_radius;
     if (end_y > map_subtiles_y * COORD_PER_STL - 1)
         end_y = map_subtiles_y * COORD_PER_STL - 1;
-    floor_height = 0;
+    MapCoord floor_height = 0;
     v40 = 15;
 
     for (MapCoord y = start_y; y < end_y; y += COORD_PER_STL)
@@ -725,8 +722,7 @@ long get_next_gap_creature_can_fit_in_below_point_new(struct Thing *thing, struc
     if (v31 <= floor_height)
         v31 = floor_height;
     v38 = v31;
-    v32 = col4->bitfields;
-    if ((v32 & 0xE) != 0)
+    if ((col4->bitfields & 0xE) != 0)
     {
         filled_subtiles = 8 - get_column_ceiling_filled_subtiles(col4);
         if (filled_subtiles > v40)
@@ -738,15 +734,14 @@ long get_next_gap_creature_can_fit_in_below_point_new(struct Thing *thing, struc
         if (filled_subtiles >= v40)
             filled_subtiles = v40;
     }
-    v39 = v38 << 8;
-    v41 = filled_subtiles << 8;
-    if (*(int *)&pos->y.val >> 16 < v39)
-        return *(int *)&pos->y.val >> 16;
-    v34 = *(unsigned __int16 *)&thing->clipbox_size_yz;
-    if (v41 - (unsigned __int16)v34 <= v39)
-        return *(int *)&pos->y.val >> 16;
+    v39 = v38 * COORD_PER_STL;
+    v41 = filled_subtiles * COORD_PER_STL;
+    if (pos->z.val < v39)
+        return pos->z.val;
+    if (v41 - thing->clipbox_size_yz <= v39)
+        return pos->z.val;
     else
-        return v41 - 1 - v34;
+        return v41 - 1 - thing->clipbox_size_yz;
 
 
 
