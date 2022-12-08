@@ -43,13 +43,7 @@ enum WallHugSideState {
 
 #pragma pack()
 /******************************************************************************/
-extern const unsigned short small_around_pos[4];
-#define AROUND_EIGHT_LENGTH 8
-extern struct Around const my_around_eight[];
-#define AROUND_NINE_LENGTH 9
-extern struct Around const my_around_nine[];
-extern short const around_map[];
-#define AROUND_MAP_LENGTH 9
+
 /******************************************************************************/
 long slab_wall_hug_route(struct Thing *thing, struct Coord3d *pos, long a3);
 long get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *creatng, struct Coord3d *pos, unsigned char a3);
