@@ -646,42 +646,31 @@ long get_next_gap_creature_can_fit_in_below_point_new(struct Thing *thing, struc
         end_y = map_subtiles_y * COORD_PER_STL - 1;
     floor_height = 0;
     v40 = 15;
-    MapCoord y = start_y;
-    if (end_y > start_y)
+
+    for (MapCoord y = start_y; y < end_y; y += COORD_PER_STL)
     {
-        MapCoord x = start_x;
-        if (end_x > start_x)
-            goto LABEL_18;
-        while (1)
+        for (MapCoord x = start_x; x < end_x; x += COORD_PER_STL)
         {
-            y += 256;
-            if (y >= end_y)
-                 break;
-            for (x = start_x; x < end_x; x += 256)
-            {
-            LABEL_18:
-                 1 + 1;
-                 struct Map *mapblk = get_map_block_at(x / COORD_PER_STL, y / COORD_PER_STL);
-                 struct Column *col = get_map_column(mapblk);
-                 v11 = get_column_floor_filled_subtiles(col);
-                 if (v11 <= floor_height)
-                     v11 = floor_height;
-                 floor_height = v11;
-                 if ((col->bitfields & 0xE) != 0)
-                 {
-                     v13 = COLUMN_STACK_HEIGHT - get_column_ceiling_filled_subtiles(col);
-                     if (v13 > v40)
-                         v13 = v40;
-                     v40 = v13;
-                 }
-                 else
-                 {
-                     filled_subtiles = get_mapblk_filled_subtiles(mapblk);
-                     if (filled_subtiles >= v40)
-                         filled_subtiles = v40;
-                     v40 = filled_subtiles;
-                 }
-            }
+             struct Map *mapblk = get_map_block_at(x / COORD_PER_STL, y / COORD_PER_STL);
+             struct Column *col = get_map_column(mapblk);
+             v11 = get_column_floor_filled_subtiles(col);
+             if (v11 <= floor_height)
+                 v11 = floor_height;
+             floor_height = v11;
+             if ((col->bitfields & 0xE) != 0)
+             {
+                 v13 = COLUMN_STACK_HEIGHT - get_column_ceiling_filled_subtiles(col);
+                 if (v13 > v40)
+                     v13 = v40;
+                 v40 = v13;
+             }
+             else
+             {
+                 filled_subtiles = get_mapblk_filled_subtiles(mapblk);
+                 if (filled_subtiles >= v40)
+                     filled_subtiles = v40;
+                 v40 = filled_subtiles;
+             }
         }
     }
     for (MapCoord y_2 = start_y; y_2 < end_y; y_2 += COORD_PER_STL)
