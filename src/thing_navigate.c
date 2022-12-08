@@ -607,13 +607,10 @@ short move_to_position(struct Thing *creatng)
 long get_next_gap_creature_can_fit_in_below_point_new(struct Thing *thing, struct Coord3d *pos)
 {
 
-    unsigned int v11;
     unsigned int v13;
     unsigned int filled_subtiles;
-    unsigned int v18;
     unsigned int v20;
     unsigned int k;
-    unsigned int v26;
     unsigned int v28;
     unsigned int v31;
     unsigned int v38;
@@ -641,7 +638,7 @@ long get_next_gap_creature_can_fit_in_below_point_new(struct Thing *thing, struc
     MapCoord end_y = pos->y.val + nav_radius;
     if (end_y > map_subtiles_y * COORD_PER_STL - 1)
         end_y = map_subtiles_y * COORD_PER_STL - 1;
-    MapCoord floor_height = 0;
+    MapCoord lowest_floor_height = 0;
     v40 = 15;
 
     for (MapCoord y = start_y; y < end_y; y += COORD_PER_STL)
@@ -650,10 +647,10 @@ long get_next_gap_creature_can_fit_in_below_point_new(struct Thing *thing, struc
         {
              struct Map *mapblk = get_map_block_at(x / COORD_PER_STL, y / COORD_PER_STL);
              struct Column *col = get_map_column(mapblk);
-             v11 = get_column_floor_filled_subtiles(col);
-             if (v11 <= floor_height)
-                 v11 = floor_height;
-             floor_height = v11;
+             MapCoord floor_height = get_column_floor_filled_subtiles(col);
+             if (floor_height <= lowest_floor_height)
+                 lowest_floor_height = floor_height;
+             
              if ((col->bitfields & 0xE) != 0)
              {
                  v13 = COLUMN_STACK_HEIGHT - get_column_ceiling_filled_subtiles(col);
@@ -672,65 +669,65 @@ long get_next_gap_creature_can_fit_in_below_point_new(struct Thing *thing, struc
     }
     for (MapCoord y_2 = start_y; y_2 < end_y; y_2 += COORD_PER_STL)
     {
-        struct Map *mapblk2 = get_map_block_at(end_x / COORD_PER_STL, y_2 / COORD_PER_STL);
-        struct Column *col2 = get_map_column(mapblk2);
-        v18 = get_column_floor_filled_subtiles(col2);
-        if (v18 <= floor_height)
-            v18 = floor_height;
-        floor_height = v18;
-        if ((col2->bitfields & 0xE) != 0)
+        struct Map *mapblk = get_map_block_at(end_x / COORD_PER_STL, y_2 / COORD_PER_STL);
+        struct Column *col = get_map_column(mapblk);
+        MapCoord floor_height = get_column_floor_filled_subtiles(col);
+        if (floor_height <= lowest_floor_height)
+            lowest_floor_height = floor_height;
+        
+        if ((col->bitfields & 0xE) != 0)
         {
-            v20 = COLUMN_STACK_HEIGHT - get_column_ceiling_filled_subtiles(col2);
+            v20 = COLUMN_STACK_HEIGHT - get_column_ceiling_filled_subtiles(col);
             if (v20 > v40)
                  v20 = v40;
             v40 = v20;
         }
         else
         {
-            filled_subtiles = get_mapblk_filled_subtiles(mapblk2);
+            filled_subtiles = get_mapblk_filled_subtiles(mapblk);
             if (filled_subtiles >= v40)
                  filled_subtiles = v40;
             v40 = filled_subtiles;
         }
     }
-    for (k = start_x; k < end_x; k += 256)
+    for (k = start_x; k < end_x; k += COORD_PER_STL)
     {
-        struct Map *mapblk3 = get_map_block_at(k / COORD_PER_STL, end_y / COORD_PER_STL);
-        struct Column *col3 = get_map_column(mapblk3);
-        v26 = (unsigned __int8)col3->bitfields >> 4;
-        if (v26 <= floor_height)
-            v26 = floor_height;
-        floor_height = v26;
-        if ((col3->bitfields & 0xE) != 0)
+        struct Map *mapblk = get_map_block_at(k / COORD_PER_STL, end_y / COORD_PER_STL);
+        struct Column *col = get_map_column(mapblk);
+        MapCoord floor_height = get_column_floor_filled_subtiles(col);
+        if (floor_height <= lowest_floor_height)
+            lowest_floor_height = floor_height;
+        
+        if ((col->bitfields & 0xE) != 0)
         {
-            v28 = COLUMN_STACK_HEIGHT - get_column_ceiling_filled_subtiles(col3);
+            v28 = COLUMN_STACK_HEIGHT - get_column_ceiling_filled_subtiles(col);
             if (v28 > v40)
                  v28 = v40;
             v40 = v28;
         }
         else
         {
-            filled_subtiles = get_mapblk_filled_subtiles(mapblk3);
+            filled_subtiles = get_mapblk_filled_subtiles(mapblk);
             if (filled_subtiles >= v40)
                  filled_subtiles = v40;
             v40 = filled_subtiles;
         }
     }
-    struct Map *mapblk4 = get_map_block_at(end_x / COORD_PER_STL, end_y / COORD_PER_STL);
-    struct Column *col4 = get_map_column(mapblk4);
-    v31 = get_column_floor_filled_subtiles(col4);
-    if (v31 <= floor_height)
-        v31 = floor_height;
+    struct Map *mapblk = get_map_block_at(end_x / COORD_PER_STL, end_y / COORD_PER_STL);
+    struct Column *col = get_map_column(mapblk);
+    v31 = get_column_floor_filled_subtiles(col);
+    if (v31 <= lowest_floor_height)
+        v31 = lowest_floor_height;
     v38 = v31;
-    if ((col4->bitfields & 0xE) != 0)
+    if ((col->bitfields & 0xE) != 0)
     {
-        filled_subtiles = 8 - get_column_ceiling_filled_subtiles(col4);
+        filled_subtiles = 8 - get_column_ceiling_filled_subtiles(col);
         if (filled_subtiles > v40)
             filled_subtiles = v40;
     }
     else
     {
-        filled_subtiles = get_mapblk_filled_subtiles(mapblk4);
+        filled_subtiles = get_mapblk_filled_subtiles(mapblk);
         if (filled_subtiles >= v40)
             filled_subtiles = v40;
     }
