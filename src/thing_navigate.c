@@ -615,7 +615,6 @@ long get_next_gap_creature_can_fit_in_below_point_new(struct Thing *thing, struc
     unsigned int v31;
     unsigned int v38;
     unsigned int v39;
-    unsigned int v40;
     unsigned int v41;
 
     MapCoordDelta clipbox_size_xy;
@@ -639,7 +638,7 @@ long get_next_gap_creature_can_fit_in_below_point_new(struct Thing *thing, struc
     if (end_y > map_subtiles_y * COORD_PER_STL - 1)
         end_y = map_subtiles_y * COORD_PER_STL - 1;
     MapCoord lowest_floor_height = 0;
-    v40 = 15;
+    MapCoord highest_ceiling = 15;
 
     for (MapCoord y = start_y; y < end_y; y += COORD_PER_STL)
     {
@@ -654,16 +653,16 @@ long get_next_gap_creature_can_fit_in_below_point_new(struct Thing *thing, struc
              if ((col->bitfields & 0xE) != 0)
              {
                  v13 = COLUMN_STACK_HEIGHT - get_column_ceiling_filled_subtiles(col);
-                 if (v13 > v40)
-                     v13 = v40;
-                 v40 = v13;
+                 if (v13 > highest_ceiling)
+                     v13 = highest_ceiling;
+                 highest_ceiling = v13;
              }
              else
              {
                  filled_subtiles = get_mapblk_filled_subtiles(mapblk);
-                 if (filled_subtiles >= v40)
-                     filled_subtiles = v40;
-                 v40 = filled_subtiles;
+                 if (filled_subtiles >= highest_ceiling)
+                     filled_subtiles = highest_ceiling;
+                 highest_ceiling = filled_subtiles;
              }
         }
     }
@@ -678,16 +677,16 @@ long get_next_gap_creature_can_fit_in_below_point_new(struct Thing *thing, struc
         if ((col->bitfields & 0xE) != 0)
         {
             v20 = COLUMN_STACK_HEIGHT - get_column_ceiling_filled_subtiles(col);
-            if (v20 > v40)
-                 v20 = v40;
-            v40 = v20;
+            if (v20 > highest_ceiling)
+                 v20 = highest_ceiling;
+            highest_ceiling = v20;
         }
         else
         {
             filled_subtiles = get_mapblk_filled_subtiles(mapblk);
-            if (filled_subtiles >= v40)
-                 filled_subtiles = v40;
-            v40 = filled_subtiles;
+            if (filled_subtiles >= highest_ceiling)
+                 filled_subtiles = highest_ceiling;
+            highest_ceiling = filled_subtiles;
         }
     }
     for (k = start_x; k < end_x; k += COORD_PER_STL)
@@ -701,16 +700,16 @@ long get_next_gap_creature_can_fit_in_below_point_new(struct Thing *thing, struc
         if ((col->bitfields & 0xE) != 0)
         {
             v28 = COLUMN_STACK_HEIGHT - get_column_ceiling_filled_subtiles(col);
-            if (v28 > v40)
-                 v28 = v40;
-            v40 = v28;
+            if (v28 > highest_ceiling)
+                 v28 = highest_ceiling;
+            highest_ceiling = v28;
         }
         else
         {
             filled_subtiles = get_mapblk_filled_subtiles(mapblk);
-            if (filled_subtiles >= v40)
-                 filled_subtiles = v40;
-            v40 = filled_subtiles;
+            if (filled_subtiles >= highest_ceiling)
+                 filled_subtiles = highest_ceiling;
+            highest_ceiling = filled_subtiles;
         }
     }
     struct Map *mapblk = get_map_block_at(end_x / COORD_PER_STL, end_y / COORD_PER_STL);
@@ -722,14 +721,14 @@ long get_next_gap_creature_can_fit_in_below_point_new(struct Thing *thing, struc
     if ((col->bitfields & 0xE) != 0)
     {
         filled_subtiles = 8 - get_column_ceiling_filled_subtiles(col);
-        if (filled_subtiles > v40)
-            filled_subtiles = v40;
+        if (filled_subtiles > highest_ceiling)
+            filled_subtiles = highest_ceiling;
     }
     else
     {
         filled_subtiles = get_mapblk_filled_subtiles(mapblk);
-        if (filled_subtiles >= v40)
-            filled_subtiles = v40;
+        if (filled_subtiles >= highest_ceiling)
+            filled_subtiles = highest_ceiling;
     }
     v39 = v38 * COORD_PER_STL;
     v41 = filled_subtiles * COORD_PER_STL;
