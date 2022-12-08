@@ -56,34 +56,6 @@ static TbBool find_approach_position_to_subtile(const struct Coord3d *srcpos, Ma
 static long creature_cannot_move_directly_to_with_collide(struct Thing *creatng, struct Coord3d *pos, long slab_flag, unsigned char crt_owner_bit);
 static unsigned short get_hugging_blocked_flags(struct Thing *creatng, struct Coord3d *pos, long slab_flag, unsigned char crt_owner_bit);
 
-struct Around const my_around_eight[] = {
-  { 0,-1}, { 1,-1},
-  { 1, 0}, { 1, 1},
-  { 0, 1}, {-1, 1},
-  {-1, 0}, {-1,-1},
-};
-
-struct Around const my_around_nine[] = {
-  {-1,-1}, { 0,-1}, { 1,-1},
-  {-1, 0}, { 0, 0}, { 1, 0},
-  {-1, 1}, { 0, 1}, { 1, 1},
-};
-
-short const around_map[] = {-257, -256, -255, -1, 0, 1, 255, 256, 257};
-
-/**
- * Should contain values encoded with get_subtile_number(). */
-const unsigned short small_around_pos[] = {
-  0xFF00, 0x0001, 0x0100, 0xFFFF,
-};
-
-
-struct Around const start_at_around[] = {
-    { 0,  0}, {-1, -1}, {-1,  0},
-    {-1,  1}, { 0, -1}, { 0,  1},
-    { 1, -1}, { 1,  0}, { 1,  1},
-};
-
 const uint8_t byte_5111FA[] = { 1,0,4,2,0,0,2,0,4,1,0,0,0,0 };
 const uint8_t byte_51120A[] = { 2,0,2,1,0,6,1,0,2,2,0,0,0,0 };
 const uint8_t byte_51121A[22] = { 2,0,0,1,0,2,1,0,0,2,0,6,1,0,4,2,0,2,2,0,4,1 };
