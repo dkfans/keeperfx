@@ -607,8 +607,6 @@ short move_to_position(struct Thing *creatng)
 long get_next_gap_creature_can_fit_in_below_point_new(struct Thing *thing, struct Coord3d *pos)
 {
 
-  int v4; // edx
-  int v5; // edx
   unsigned int end_x; // ebp
   unsigned int end_y; // eax
   unsigned int x; // edx
@@ -616,7 +614,6 @@ long get_next_gap_creature_can_fit_in_below_point_new(struct Thing *thing, struc
   char bitfields; // ch
   unsigned int v13; // ebx
   unsigned int v14; // ebx
-  unsigned int j; // edx
   unsigned int v18; // ecx
   char v19; // cl
   unsigned int v20; // ebx
@@ -630,14 +627,13 @@ long get_next_gap_creature_can_fit_in_below_point_new(struct Thing *thing, struc
   char v32; // bl
   unsigned int v33; // eax
   int v34; // ebx
-  unsigned int v37; // [esp+0h] [ebp-5Ch]
+  unsigned int floor_height; // [esp+0h] [ebp-5Ch]
   unsigned int v38; // [esp+0h] [ebp-5Ch]
   unsigned int v39; // [esp+0h] [ebp-5Ch]
   unsigned int v40; // [esp+4h] [ebp-58h]
   unsigned int v41; // [esp+4h] [ebp-58h]
   unsigned int y; // [esp+1Ch] [ebp-40h]
   int v43; // [esp+2Ch] [ebp-30h]
-  unsigned int v46; // [esp+3Ch] [ebp-20h]
 
 
 MapCoordDelta clipbox_size_xy;
@@ -652,43 +648,42 @@ MapCoordDelta clipbox_size_xy;
 
 
 
-  v4 = pos->x.val - nav_radius;
-  if ( v4 < 0 )
-    v4 = 0;
-  v46 = v4;
-  v5 = pos->y.val - nav_radius;
-  if ( v5 < 0 )
-    v5 = 0;
+  MapCoord start_x = pos->x.val - nav_radius;
+  if ( start_x < 0 )
+    start_x = 0;
+  MapCoord start_y = pos->y.val - nav_radius;
+  if ( start_y < 0 )
+    start_y = 0;
   end_x = nav_radius + pos->x.val;
-  v43 = v5;
+  v43 = start_y;
   if ( (int)end_x > map_subtiles_x * COORD_PER_STL - 1 )
     end_x = map_subtiles_x * COORD_PER_STL - 1;
   end_y = pos->y.val + nav_radius;
   if ( (int)end_y > map_subtiles_y * COORD_PER_STL - 1 )
     end_y = map_subtiles_y * COORD_PER_STL - 1;
-  v37 = 0;
+  floor_height = 0;
   v40 = 15;
-  y = v5;
-  if ( end_y > v5 )
+  y = start_y;
+  if ( end_y > start_y )
   {
-    x = v46;
-    if ( end_x > v46 )
+    x = start_x;
+    if ( end_x > start_x )
       goto LABEL_18;
     while ( 1 )
     {
       y += 256;
       if ( y >= end_y )
         break;
-      for ( x = v46; x < end_x; x += 256 )
+      for ( x = start_x; x < end_x; x += 256 )
       {
 LABEL_18:
         1 + 1;
         struct Map *mapblk = get_map_block_at(x / COORD_PER_STL, y / COORD_PER_STL);
         struct Column *col = get_map_column(mapblk);
         v11 = (unsigned __int8)col->bitfields >> 4;
-        if ( v11 <= v37 )
-          v11 = v37;
-        v37 = v11;
+        if ( v11 <= floor_height )
+          v11 = floor_height;
+        floor_height = v11;
         bitfields = col->bitfields;
         if ( (bitfields & 0xE) != 0 )
         {
@@ -707,14 +702,14 @@ LABEL_18:
       }
     }
   }
-  for ( j = v43; j < end_y; j += 256 )
+  for ( MapCoord j = v43; j < end_y; j += COORD_PER_STL )
   {
     struct Map *mapblk2 = get_map_block_at(end_x / COORD_PER_STL, j / COORD_PER_STL);
     struct Column *col2 = get_map_column(mapblk2);
     v18 = (unsigned __int8)col2->bitfields >> 4;
-    if ( v18 <= v37 )
-      v18 = v37;
-    v37 = v18;
+    if ( v18 <= floor_height )
+      v18 = floor_height;
+    floor_height = v18;
     v19 = col2->bitfields;
     if ( (v19 & 0xE) != 0 )
     {
@@ -731,14 +726,14 @@ LABEL_18:
       v40 = v21;
     }
   }
-  for ( k = v46; k < end_x; k += 256 )
+  for ( k = start_x; k < end_x; k += 256 )
   {
     struct Map *mapblk3 = get_map_block_at(k / COORD_PER_STL, end_y / COORD_PER_STL);
     struct Column *col3 = get_map_column(mapblk3);
     v26 = (unsigned __int8)col3->bitfields >> 4;
-    if ( v26 <= v37 )
-      v26 = v37;
-    v37 = v26;
+    if ( v26 <= floor_height )
+      v26 = floor_height;
+    floor_height = v26;
     v27 = col3->bitfields;
     if ( (v27 & 0xE) != 0 )
     {
@@ -758,8 +753,8 @@ LABEL_18:
   struct Map *mapblk4 = get_map_block_at(end_x / COORD_PER_STL, end_y / COORD_PER_STL);
   struct Column *col4 = get_map_column(mapblk4);
   v31 = (unsigned __int8)col4->bitfields >> 4;
-  if ( v31 <= v37 )
-    v31 = v37;
+  if ( v31 <= floor_height )
+    v31 = floor_height;
   v38 = v31;
   v32 = col4->bitfields;
   if ( (v32 & 0xE) != 0 )
