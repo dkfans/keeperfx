@@ -610,8 +610,6 @@ long get_next_gap_creature_can_fit_in_below_point_new(struct Thing *thing, struc
     unsigned int filled_subtiles;
     unsigned int v31;
     unsigned int v38;
-    unsigned int v39;
-    unsigned int v41;
 
     MapCoordDelta clipbox_size_xy;
     if (thing_is_creature(thing))
@@ -711,23 +709,23 @@ long get_next_gap_creature_can_fit_in_below_point_new(struct Thing *thing, struc
     if ((col->bitfields & CLF_CEILING_MASK) != 0)
     {
         filled_subtiles = 8 - get_column_ceiling_filled_subtiles(col);
-        if (filled_subtiles > lowest_ceiling_stl)
-            filled_subtiles = lowest_ceiling_stl;
+        if (filled_subtiles < lowest_ceiling_stl)
+            lowest_ceiling_stl = filled_subtiles;
     }
     else
     {
         filled_subtiles = get_mapblk_filled_subtiles(mapblk);
-        if (filled_subtiles >= lowest_ceiling_stl)
-            filled_subtiles = lowest_ceiling_stl;
+        if (filled_subtiles < lowest_ceiling_stl)
+            lowest_ceiling_stl = filled_subtiles;
     }
-    v39 = v38 * COORD_PER_STL;
-    v41 = filled_subtiles * COORD_PER_STL;
-    if (pos->z.val < v39)
+    MapCoord highest_floor = v38 * COORD_PER_STL;
+    MapCoord lowest_ceiling = lowest_ceiling_stl * COORD_PER_STL;
+    if (pos->z.val < highest_floor)
         return pos->z.val;
-    if (v41 - thing->clipbox_size_yz <= v39)
+    if (lowest_ceiling - thing->clipbox_size_yz <= highest_floor)
         return pos->z.val;
     else
-        return v41 - 1 - thing->clipbox_size_yz;
+        return lowest_ceiling - 1 - thing->clipbox_size_yz;
 
 
 
