@@ -83,6 +83,20 @@ extern struct Around const start_at_around[MID_AROUND_LENGTH];
 extern struct Around const small_around[];
 #define SMALL_AROUND_MID_LENGTH 5
 extern struct Around const small_around_mid[];
+
+#define AROUND_EIGHT_LENGTH 8
+extern struct Around const my_around_eight[];
+#define AROUND_NINE_LENGTH 9
+extern struct Around const my_around_nine[];
+extern short around_map[];
+#define AROUND_MAP_LENGTH 9
+
+#define AROUND_SLAB_LENGTH 9
+#define AROUND_SLAB_EIGHT_LENGTH 8
+extern short around_slab[];
+extern short around_slab_eight[];
+#define SMALL_AROUND_SLAB_LENGTH 4
+extern short small_around_slab[];
 /******************************************************************************/
 void init_spiral_steps(void);
 
