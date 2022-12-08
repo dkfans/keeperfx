@@ -712,8 +712,12 @@ long get_next_gap_creature_can_fit_in_below_point_new(struct Thing *thing, struc
         if (filled_subtiles < lowest_ceiling_stl)
             lowest_ceiling_stl = filled_subtiles;
     }
+    
+    update_floor_and_ceiling_heights_at(end_x / COORD_PER_STL, end_y / COORD_PER_STL, &highest_floor_stl, &lowest_ceiling_stl);
+
     MapCoord highest_floor = highest_floor_stl * COORD_PER_STL;
     MapCoord lowest_ceiling = lowest_ceiling_stl * COORD_PER_STL;
+
     if (pos->z.val < highest_floor)
         return pos->z.val;
     if (lowest_ceiling - thing->clipbox_size_yz <= highest_floor)
