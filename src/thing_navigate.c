@@ -608,12 +608,10 @@ long get_next_gap_creature_can_fit_in_below_point_new(struct Thing *thing, struc
 {
 
     unsigned int v11;
-    char bitfields;
     unsigned int v13;
-    unsigned int v14;
+    unsigned int filled_subtiles;
     unsigned int v18;
     unsigned int v20;
-    unsigned int filled_subtiles;
     unsigned int k;
     unsigned int v26;
     unsigned int v28;
@@ -665,24 +663,23 @@ long get_next_gap_creature_can_fit_in_below_point_new(struct Thing *thing, struc
                  1 + 1;
                  struct Map *mapblk = get_map_block_at(x / COORD_PER_STL, y / COORD_PER_STL);
                  struct Column *col = get_map_column(mapblk);
-                 v11 = (unsigned __int8)col->bitfields >> 4;
+                 v11 = get_column_floor_filled_subtiles(col);
                  if (v11 <= floor_height)
                      v11 = floor_height;
                  floor_height = v11;
-                 bitfields = col->bitfields;
-                 if ((bitfields & 0xE) != 0)
+                 if ((col->bitfields & 0xE) != 0)
                  {
-                     v13 = 8 - ((unsigned __int8)(16 * bitfields) >> 5);
+                     v13 = COLUMN_STACK_HEIGHT - get_column_ceiling_filled_subtiles(col);
                      if (v13 > v40)
                          v13 = v40;
                      v40 = v13;
                  }
                  else
                  {
-                     v14 = (unsigned int)(16 * mapblk->data) >> 28;
-                     if (v14 >= v40)
-                         v14 = v40;
-                     v40 = v14;
+                     filled_subtiles = get_mapblk_filled_subtiles(mapblk);
+                     if (filled_subtiles >= v40)
+                         filled_subtiles = v40;
+                     v40 = filled_subtiles;
                  }
             }
         }
@@ -691,13 +688,13 @@ long get_next_gap_creature_can_fit_in_below_point_new(struct Thing *thing, struc
     {
         struct Map *mapblk2 = get_map_block_at(end_x / COORD_PER_STL, y_2 / COORD_PER_STL);
         struct Column *col2 = get_map_column(mapblk2);
-        v18 = (unsigned __int8)col2->bitfields >> 4;
+        v18 = get_column_floor_filled_subtiles(col2);
         if (v18 <= floor_height)
             v18 = floor_height;
         floor_height = v18;
         if ((col2->bitfields & 0xE) != 0)
         {
-            v20 = 8 - ((unsigned __int8)(16 * col2->bitfields) >> 5);
+            v20 = COLUMN_STACK_HEIGHT - get_column_ceiling_filled_subtiles(col2);
             if (v20 > v40)
                  v20 = v40;
             v40 = v20;
@@ -720,7 +717,7 @@ long get_next_gap_creature_can_fit_in_below_point_new(struct Thing *thing, struc
         floor_height = v26;
         if ((col3->bitfields & 0xE) != 0)
         {
-            v28 = 8 - ((unsigned __int8)(16 * col3->bitfields) >> 5);
+            v28 = COLUMN_STACK_HEIGHT - get_column_ceiling_filled_subtiles(col3);
             if (v28 > v40)
                  v28 = v40;
             v40 = v28;
@@ -735,14 +732,14 @@ long get_next_gap_creature_can_fit_in_below_point_new(struct Thing *thing, struc
     }
     struct Map *mapblk4 = get_map_block_at(end_x / COORD_PER_STL, end_y / COORD_PER_STL);
     struct Column *col4 = get_map_column(mapblk4);
-    v31 = (unsigned __int8)col4->bitfields >> 4;
+    v31 = get_column_floor_filled_subtiles(col4);
     if (v31 <= floor_height)
         v31 = floor_height;
     v38 = v31;
     v32 = col4->bitfields;
     if ((v32 & 0xE) != 0)
     {
-        filled_subtiles = 8 - ((unsigned __int8)(16 * v32) >> 5);
+        filled_subtiles = 8 - get_column_ceiling_filled_subtiles(col4);
         if (filled_subtiles > v40)
             filled_subtiles = v40;
     }
