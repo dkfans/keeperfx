@@ -45,8 +45,9 @@ const char keeper_magic_file[]="magic.cfg";
 
 const struct NamedCommand magic_common_commands[] = {
   {"SPELLSCOUNT",     1},
-  {"POWERCOUNT",      2},
-  {"SPECIALSCOUNT",   3},
+  {"SHOTSCOUNT",      2},
+  {"POWERCOUNT",      3},
+  {"SPECIALSCOUNT",   4},
   {NULL,              0},
   };
 
@@ -405,7 +406,23 @@ TbBool parse_magic_common_blocks(char *buf, long len, const char *config_textnam
                   COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
-        case 2: // POWERCOUNT
+        case 2: // SHOTSCOUNT
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+              k = atoi(word_buf);
+              if ((k > 0) && (k <= MAGIC_ITEMS_MAX))
+              {
+                magic_conf.shot_types_count = k;
+                n++;
+              }
+            }
+            if (n < 1)
+            {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
+            break;
+        case 3: // POWERCOUNT
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
@@ -421,7 +438,7 @@ TbBool parse_magic_common_blocks(char *buf, long len, const char *config_textnam
                   COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
-        case 3: // SPECIALSCOUNT
+        case 4: // SPECIALSCOUNT
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
@@ -723,7 +740,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
       }
   }
   // Load the file
-  arr_size = MAGIC_ITEMS_MAX;
+  arr_size = magic_conf.shot_types_count;
   for (i=0; i < arr_size; i++)
   {
       char block_buf[COMMAND_WORD_LEN];
@@ -760,13 +777,9 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
       case 1: // NAME
           if (get_conf_parameter_single(buf,&pos,len,shotst->code_name,COMMAND_WORD_LEN) <= 0)
           {
-              SYNCDBG(9,"Couldn't read \"%s\" parameter in [%s] block of %s file, shot count set to %d", COMMAND_TEXT(cmd_num),block_buf,config_textname, magic_conf.shot_types_count);
-              i = arr_size;// End process
-              break;
-          }
-          if (i > magic_conf.shot_types_count)
-          {
-              magic_conf.shot_types_count = i;
+            CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            break;
           }
           n++;
           break;
