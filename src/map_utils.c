@@ -75,6 +75,32 @@ struct Around const large_around[] = {
 { 3, 3},{ 2, 3},{ 1, 3},{ 0, 3},{-1, 3},{-2, 3},
 };
 
+struct Around const my_around_eight[] = {
+  { 0,-1}, { 1,-1},
+  { 1, 0}, { 1, 1},
+  { 0, 1}, {-1, 1},
+  {-1, 0}, {-1,-1},
+};
+
+struct Around const my_around_nine[] = {
+  {-1,-1}, { 0,-1}, { 1,-1},
+  {-1, 0}, { 0, 0}, { 1, 0},
+  {-1, 1}, { 0, 1}, { 1, 1},
+};
+
+struct Around const start_at_around[] = {
+    { 0,  0}, {-1, -1}, {-1,  0},
+    {-1,  1}, { 0, -1}, { 0,  1},
+    { 1, -1}, { 1,  0}, { 1,  1},
+};
+
+
+//these are the default values for them, actual value gets filled in set_map_size in map_data.c
+short around_map[] = {-257, -256, -255, -1, 0, 1, 255, 256, 257};
+short around_slab[] = {-86, -85, -84,  -1,   0,   1,  84,  85,  86};
+short around_slab_eight[] = {-86, -85, -84,  -1,   1,  84,  85,  86};
+short small_around_slab[] = {-85,   1,  85,  -1};
+
 /******************************************************************************/
 /******************************************************************************/
 #ifdef __cplusplus
@@ -88,7 +114,7 @@ void init_spiral_steps(void)
     struct MapOffset* sstep = &spiral_step[0];
     sstep->h = y;
     sstep->v = x;
-    sstep->both = (short)y + ((short)x << 8);
+    sstep->both = (short)y + ((short)x * map_subtiles_y);
     y = -1;
     x = -1;
     for (long i = 1; i < SPIRAL_STEPS_COUNT; i++)
@@ -96,7 +122,7 @@ void init_spiral_steps(void)
       sstep = &spiral_step[i];
       sstep->h = y;
       sstep->v = x;
-      sstep->both = (short)y + ((short)x << 8);
+      sstep->both = (short)y + ((short)x * map_subtiles_y);
       if ((y < 0) && (x-y == 1))
       {
           y--;

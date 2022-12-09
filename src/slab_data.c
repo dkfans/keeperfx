@@ -38,11 +38,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-const short around_slab[] = {-86, -85, -84,  -1,   0,   1,  84,  85,  86};
-const short around_slab_eight[] = {-86, -85, -84,  -1,   1,  84,  85,  86};
-const short small_around_slab[] = {-85,   1,  85,  -1};
 struct SlabMap bad_slabmap_block;
-/******************************************************************************/
 /******************************************************************************/
 /**
  * Returns slab number, which stores both X and Y coords in one number.

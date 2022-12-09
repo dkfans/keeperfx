@@ -644,7 +644,7 @@ void clear_mapmap(void)
  */
 void clear_slab_dig(long slb_x, long slb_y, char plyr_idx)
 {
-    const struct SlabMap *slb = &game.slabmap[slb_x + 85 * slb_y];
+    const struct SlabMap *slb = get_slabmap_block(slb_x,slb_y);
     if ( get_slab_attrs(slb)->block_flags & (SlbAtFlg_Filled | SlbAtFlg_Digable | SlbAtFlg_Valuable) )
     {
         if (slb->kind == SlbT_ROCK) // fix #1128
@@ -886,6 +886,46 @@ TbBool subtile_is_diggable_for_player(PlayerNumber plyr_idx, MapSubtlCoord stl_x
     }
     return false;
 }
+
+void set_map_size(MapSlabCoord x,MapSlabCoord y)
+{
+    map_subtiles_x = x * STL_PER_SLB;
+    map_subtiles_y = y * STL_PER_SLB;
+    map_tiles_x = x;
+    map_tiles_y = y;
+
+    small_around_slab[0] = -map_tiles_x;
+    small_around_slab[2] = map_tiles_x;
+
+    around_slab[0] = -map_tiles_x - 1;
+    around_slab[1] = -map_tiles_x;
+    around_slab[2] = -map_tiles_x  + 1;
+    around_slab[6] = map_tiles_x - 1;
+    around_slab[7] = map_tiles_x;
+    around_slab[8] = map_tiles_x + 1;
+
+    around_slab_eight[0] = -map_tiles_x - 1;
+    around_slab_eight[1] = -map_tiles_x;
+    around_slab_eight[2] = -map_tiles_x  + 1;
+    around_slab_eight[5] = map_tiles_x - 1;
+    around_slab_eight[6] = map_tiles_x;
+    around_slab_eight[7] = map_tiles_x + 1;
+
+    around_map[0] = -map_subtiles_x - 2;
+    around_map[1] = -map_subtiles_x - 1;
+    around_map[2] = -map_subtiles_x;
+    around_map[6] = map_subtiles_x;
+    around_map[7] = map_subtiles_x + 1;
+    around_map[8] = map_subtiles_x + 2;
+
+}
+
+void init_map_size(LevelNumber lvnum)
+{
+    struct LevelInformation* lvinfo = get_level_info(lvnum);
+    set_map_size(lvinfo->mapsize_x,lvinfo->mapsize_y);
+}
+
 /******************************************************************************/
 #ifdef __cplusplus
 }
