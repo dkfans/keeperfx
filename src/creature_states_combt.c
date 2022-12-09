@@ -3102,6 +3102,10 @@ long process_creature_self_spell_casting(struct Thing *creatng)
     if (cctrl->instance_id != CrInst_NULL) {
         return 0;
     }
+    if (creatng->active_state == CrSt_CreatureInCombat) {
+        return 0;
+    }
+
     long inst_idx = get_self_spell_casting(creatng);
     if (inst_idx <= 0) {
         return 0;
