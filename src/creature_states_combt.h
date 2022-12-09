@@ -79,7 +79,6 @@ TbBool creature_would_benefit_from_healing(const struct Thing* thing);
 
 long project_creature_attack_target_damage(const struct Thing *firing, const struct Thing *target);
 
-long process_creature_self_spell_casting(struct Thing *thing);
 CrInstance get_best_quick_range_instance_to_use(const struct Thing *thing);
 
 TbBool creature_will_do_combat(const struct Thing *thing);

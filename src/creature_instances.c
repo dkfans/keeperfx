@@ -510,6 +510,31 @@ long instf_creature_cast_spell(struct Thing *creatng, long *param)
     return 0;
 }
 
+
+long process_creature_self_spell_casting(struct Thing* creatng)
+{
+    TRACE_THING(creatng);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    if (((creatng->alloc_flags & TAlF_IsControlled) != 0)
+        || (cctrl->conscious_back_turns != 0)
+        || ((cctrl->stateblock_flags & CCSpl_Freeze) != 0)) {
+        return 0;
+    }
+    if (cctrl->instance_id != CrInst_NULL) {
+        return 0;
+    }
+    if (creatng->active_state == CrSt_CreatureInCombat) {
+        return 0;
+    }
+
+    long inst_idx = get_self_spell_casting(creatng);
+    if (inst_idx <= 0) {
+        return 0;
+    }
+    set_creature_instance(creatng, inst_idx, 1, creatng->index, 0);
+    return 1;
+}
+
 long instf_dig(struct Thing *creatng, long *param)
 {
     long stl_x;
