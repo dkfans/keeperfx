@@ -3806,8 +3806,8 @@ void do_a_plane_of_engine_columns_perspective(long stl_x, long stl_y, long plane
     if (stl_x + plane_start < 1)
         clip_start = 1 - stl_x;
     clip_end = plane_end;
-    if (stl_x + plane_end > map_subtiles_x)
-        clip_end = map_subtiles_x - stl_x;
+    if (stl_x + plane_end > 255)
+        clip_end = 255 - stl_x;
     struct EngineCol *bec;
     struct EngineCol *fec;
     bec = &back_ec[clip_start + MINMAX_ALMOST_HALF];
@@ -4177,8 +4177,8 @@ void do_a_plane_of_engine_columns_cluedo(long stl_x, long stl_y, long plane_star
         xaval = 1 - stl_x;
     }
     xbval = plane_end;
-    if (stl_x + plane_end > map_subtiles_x) {
-        xbval = map_subtiles_x - stl_x;
+    if (stl_x + plane_end > 255) {
+        xbval = 255 - stl_x;
     }
     int xidx;
     int xdelta;
@@ -4384,9 +4384,9 @@ void do_a_plane_of_engine_columns_isometric(long stl_x, long stl_y, long plane_s
         xaval = 1 - stl_x;
     }
     xbval = plane_end;
-    if (stl_x + plane_end > map_subtiles_x) {
+    if (stl_x + plane_end > 255) {
         xbclip = 1;
-        xbval = map_subtiles_x - stl_x;
+        xbval = 255 - stl_x;
     }
     int xidx;
     int xdelta;
@@ -4646,7 +4646,7 @@ static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprit
                 lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
                 lbSpriteReMapPtr = red_pal;
                 thingadd->time_spent_displaying_hurt_colour += gameadd.delta_time;
-                if (thingadd->time_spent_displaying_hurt_colour >= 1.0)
+                if (thingadd->time_spent_displaying_hurt_colour >= 1.0 || game.frame_skip > 0)
                 {
                     thingadd->time_spent_displaying_hurt_colour = 0;
                     thing->rendering_flags &= ~TRF_BeingHit; // Turns off red damage colour tint
@@ -7891,7 +7891,7 @@ void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
                 lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
                 lbSpriteReMapPtr = red_pal;
                 thingadd->time_spent_displaying_hurt_colour += gameadd.delta_time;
-                if (thingadd->time_spent_displaying_hurt_colour >= 1.0)
+                if (thingadd->time_spent_displaying_hurt_colour >= 1.0 || game.frame_skip > 0)
                 {
                     thingadd->time_spent_displaying_hurt_colour = 0;
                     thing->rendering_flags &= ~TRF_BeingHit; // Turns off red damage colour tint
