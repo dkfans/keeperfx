@@ -155,11 +155,11 @@ char field_117DA[14];
     struct LightsShadows lish;
     struct CreatureControl cctrl_data[CREATURES_COUNT];
     struct Thing things_data[THINGS_COUNT];
-    unsigned char navigation_map[256*300];
-    struct Map map[256*300]; // field offset 0xDC157
+    unsigned char navigation_map[MAX_SUBTILES_X*MAX_SUBTILES_Y];
+    struct Map map[MAX_SUBTILES_X*MAX_SUBTILES_Y]; // field offset 0xDC157
     struct ComputerTask computer_task[COMPUTER_TASKS_COUNT];
     struct Computer2 computer[PLAYERS_COUNT];
-    struct SlabMap slabmap[85*100];
+    struct SlabMap slabmap[MAX_TILES_X*MAX_TILES_Y];
     struct Room rooms[ROOMS_COUNT];
     struct Dungeon dungeon[DUNGEONS_COUNT];
 char field_149E05;

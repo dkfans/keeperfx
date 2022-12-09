@@ -224,7 +224,7 @@ struct GameAdd {
     TbBool heart_lost_quick_message;
     unsigned long heart_lost_message_id;
     long heart_lost_message_target;
-    unsigned char slab_ext_data[85 * 85];
+    unsigned char slab_ext_data[MAX_TILES_X*MAX_TILES_Y];
     struct PlayerInfoAdd players[PLAYERS_COUNT];
     float delta_time;
     long double process_turn_time;

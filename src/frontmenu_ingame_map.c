@@ -74,7 +74,7 @@ static unsigned char MapBackColours[256];
 static unsigned char PannelColours[4096];
 static long PrevRoomHighlight;
 static long PrevDoorHighlight;
-static unsigned char PannelMap[256*300];//map subtiles x*y
+static unsigned char PannelMap[MAX_SUBTILES_X*MAX_SUBTILES_Y];//map subtiles x*y
 static struct InterpMinimap interp_minimap;
 
 long clicked_on_small_map;

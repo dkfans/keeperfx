@@ -30,7 +30,7 @@ extern "C"
 {
 #endif
 
-static char ceiling_cache[256*300];
+static char ceiling_cache[MAX_SUBTILES_X*MAX_SUBTILES_Y];
 
 static int find_column_height_including_lintels(struct Column *col)
 {

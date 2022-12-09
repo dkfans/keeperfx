@@ -198,6 +198,11 @@ void replaceFn(void* oldFn, void* newFn);
 	__attribute__((constructor)) static void CONCAT(hookFn, __COUNTER__)(void) { replaceFn(&_DK_##name, &name); }
 #endif
 
+#define MAX_TILES_X 200
+#define MAX_TILES_Y 200
+#define MAX_SUBTILES_X 601
+#define MAX_SUBTILES_Y 601
+
 #pragma pack(1)
 
 /** Screen coordinate in scale of the game (resolution independent). */
