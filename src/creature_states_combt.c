@@ -1761,10 +1761,6 @@ CrInstance get_best_self_preservation_instance_to_use(const struct Thing *thing)
     {
         INSTANCE_RET_IF_AVAIL(thing, CrInst_FLY);
     }
-    if (creature_would_benefit_from_healing(thing))
-    {
-        INSTANCE_RET_IF_AVAIL(thing, CrInst_HEAL);
-    }
     return CrInst_NULL;
 }
 
