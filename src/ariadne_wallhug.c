@@ -184,7 +184,7 @@ static long get_angle_of_wall_hug(struct Thing *creatng, long slab_flag, long sp
 
 static short hug_round(struct Thing *creatng, struct Coord3d *pos1, struct Coord3d *pos2, unsigned short a4, long *a5)
 {
-    return _DK_hug_round(creatng, pos1, pos2, a4, a5);
+    //return _DK_hug_round(creatng, pos1, pos2, a4, a5);
 }
 
 long slab_wall_hug_route(struct Thing *thing, struct Coord3d *pos, long max_val)

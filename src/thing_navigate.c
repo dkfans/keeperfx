@@ -607,7 +607,7 @@ short move_to_position(struct Thing *creatng)
 
 long get_next_gap_creature_can_fit_in_below_point(struct Thing *thing, struct Coord3d *pos)
 {
-    return _DK_get_next_gap_creature_can_fit_in_below_point(thing, pos);
+    //return _DK_get_next_gap_creature_can_fit_in_below_point(thing, pos);
 }
 
 TbBool thing_covers_same_blocks_in_two_positions(struct Thing *thing, struct Coord3d *pos1, struct Coord3d *pos2)

@@ -948,7 +948,7 @@ static long check_out_unreinforced_place(struct Thing *thing)
 
 long check_out_unreinforced_area(struct Thing *thing)
 {
-    return _DK_check_out_unreinforced_area(thing);
+    //return _DK_check_out_unreinforced_area(thing);
 }
 
 TbBool check_out_unconverted_place(struct Thing *thing)

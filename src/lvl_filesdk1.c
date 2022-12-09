@@ -55,6 +55,34 @@ const char slabdat_fname[] = "slabs.dat";
   */
 long level_file_version = 0;
 /******************************************************************************/
+#pragma pack(1)
+struct LegacyCoord3d {
+    union {
+      unsigned short val;
+    } x;
+    union {
+      unsigned short val;
+    } y;
+    union {
+      unsigned short val;
+    } z;
+};
+
+// InitThing to stay compatible with tng files
+struct LegacyInitThing { // sizeof=0x15
+    struct LegacyCoord3d mappos;
+    unsigned char oclass;
+    unsigned char model;
+    unsigned char owner;
+    unsigned short range;
+    unsigned short index;
+    unsigned char params[8];
+};
+#pragma pack()
+
+
+/******************************************************************************/
+
 
 /**
  * Loads map file with given level number and file extension.
@@ -703,9 +731,9 @@ TbBool load_thing_file(LevelNumber lv_num)
     long total = lword(&buf[i]);
     i += 2;
     // Validate total amount of things
-    if ((total < 0) || (total > (fsize-2)/sizeof(struct InitThing)))
+    if ((total < 0) || (total > (fsize-2)/sizeof(struct LegacyInitThing)))
     {
-        total = (fsize-2)/sizeof(struct InitThing);
+        total = (fsize-2)/sizeof(struct LegacyInitThing);
         WARNMSG("Bad amount of things in TNG file; corrected to %d.",(int)total);
     }
     if (total > THINGS_COUNT-2)
@@ -716,10 +744,21 @@ TbBool load_thing_file(LevelNumber lv_num)
     // Create things
     for (long k = 0; k < total; k++)
     {
+        struct LegacyInitThing litng;
         struct InitThing itng;
-        LbMemoryCopy(&itng, &buf[i], sizeof(struct InitThing));
+        LbMemoryCopy(&litng, &buf[i], sizeof(struct LegacyInitThing));
+        itng.mappos.x.val = litng.mappos.x.val;
+        itng.mappos.y.val = litng.mappos.y.val;
+        itng.mappos.z.val = litng.mappos.z.val;
+        itng.oclass = litng.oclass;
+        itng.model  = litng.model;
+        itng.owner  = litng.owner;
+        itng.range  = litng.range;
+        itng.index  = litng.index;
+        LbMemoryCopy(&itng.params, &litng.params, 8);
+
         thing_create_thing(&itng);
-        i += sizeof(struct InitThing);
+        i += sizeof(struct LegacyInitThing);
     }
     LbMemoryFree(buf);
     return true;

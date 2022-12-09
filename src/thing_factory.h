@@ -28,7 +28,7 @@ extern "C" {
 /******************************************************************************/
 #pragma pack(1)
 
-struct InitThing { // sizeof=0x15
+struct InitThing {
     struct Coord3d mappos;
     unsigned char oclass;
     unsigned char model;

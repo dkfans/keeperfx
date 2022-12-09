@@ -56,13 +56,13 @@ struct LightsShadows { // sizeof = 164886
     unsigned char shadow_limits[SHADOW_LIMITS_COUNT];
     struct Light lights[LIGHTS_COUNT];
     struct ShadowCache shadow_cache[SHADOW_CACHE_COUNT];
-    unsigned short stat_light_map[256*256];
+    unsigned short stat_light_map[256*300];
     long field_46149;
     char light_enabled;
     char lighting_tables_initialised;
     unsigned long light_rand_seed;
     int lighting_tables_count; // number of entries in lighting_tables
-    unsigned short subtile_lightness[256*256];
+    unsigned short subtile_lightness[256*300];
 };
 
 #pragma pack()

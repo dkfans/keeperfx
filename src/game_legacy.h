@@ -155,11 +155,11 @@ char field_117DA[14];
     struct LightsShadows lish;
     struct CreatureControl cctrl_data[CREATURES_COUNT];
     struct Thing things_data[THINGS_COUNT];
-    unsigned char navigation_map[256*256];
-    struct Map map[256*256]; // field offset 0xDC157
+    unsigned char navigation_map[256*300];
+    struct Map map[256*300]; // field offset 0xDC157
     struct ComputerTask computer_task[COMPUTER_TASKS_COUNT];
     struct Computer2 computer[PLAYERS_COUNT];
-    struct SlabMap slabmap[85*85];
+    struct SlabMap slabmap[85*100];
     struct Room rooms[ROOMS_COUNT];
     struct Dungeon dungeon[DUNGEONS_COUNT];
 char field_149E05;
@@ -371,8 +371,7 @@ long field_1516FB;
 
 #pragma pack()
 /******************************************************************************/
-DLLIMPORT extern struct Game _DK_game;
-#define game _DK_game
+extern struct Game game;
 /******************************************************************************/
 /******************************************************************************/
 #ifdef __cplusplus
