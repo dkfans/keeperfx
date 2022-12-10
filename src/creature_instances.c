@@ -33,6 +33,7 @@
 #include "thing_navigate.h"
 #include "creature_control.h"
 #include "creature_states.h"
+#include "creature_states_combt.h"
 #include "config_creature.h"
 #include "config_effects.h"
 #include "power_specials.h"
