@@ -73,6 +73,7 @@ long instf_pretty_path(struct Thing *creatng, long *param);
 long instf_reinforce(struct Thing *creatng, long *param);
 long instf_tortured(struct Thing *creatng, long *param);
 long instf_tunnel(struct Thing *creatng, long *param);
+long instf_creature_cast_area_spell(struct Thing* creatng, long* param);
 
 const struct NamedCommand creature_instances_func_type[] = {
   {"attack_room_slab",         1},
@@ -88,7 +89,8 @@ const struct NamedCommand creature_instances_func_type[] = {
   {"creature_reinforce",       11},
   {"creature_tortured",        12},
   {"creature_tunnel",          13},
-  {"none",                     14},
+  {"creature_cast_area_spell", 14},
+  {"none",                     15},
   {NULL,                       0},
 };
 
@@ -107,7 +109,7 @@ Creature_Instf_Func creature_instances_func_list[] = {
   instf_reinforce,
   instf_tortured,
   instf_tunnel,
-  NULL,
+  instf_creature_cast_area_spell,
   NULL,
 };
 
@@ -437,6 +439,69 @@ void process_creature_instance(struct Thing *thing)
     }
 }
 
+void affect_nearby_friends_with_spell_effect(struct Thing* creatng, long spl_idx, unsigned char xplevel)
+{
+    SYNCDBG(8, "Starting");
+    if (is_neutral_thing(creatng)) {
+        return;
+    }
+    struct Dungeon* dungeon;
+    unsigned long k;
+    int i;
+    dungeon = get_players_num_dungeon(creatng->owner);
+    k = 0;
+    i = dungeon->creatr_list_start;
+    while (i != 0)
+    {
+        struct CreatureControl* cctrl;
+        struct Thing* thing;
+        thing = thing_get(i);
+        TRACE_THING(thing);
+        cctrl = creature_control_get_from_thing(thing);
+        if (creature_control_invalid(cctrl))
+        {
+            ERRORLOG("Jump to invalid creature detected");
+            break;
+        }
+        i = cctrl->players_next_creature_idx;
+        if (get_2d_box_distance(&creatng->mappos, &thing->mappos) >= 4096) //todo take range from config
+        {
+            break;
+        }
+        // Thing list loop body
+        if (!thing_is_picked_up(thing) && !creature_is_being_unconscious(thing) && !creature_is_kept_in_custody(thing) &&
+            !creature_is_dying(thing))
+        {
+            const struct SpellInfo* spinfo = get_magic_info(spl_idx);
+            // Check if the spell can be self-casted
+            //if (spinfo->caster_affected)
+            //{
+                short j = (long)spinfo->caster_affect_sound;
+                if (j > 0)
+                    thing_play_sample(thing, i, NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
+                apply_spell_effect_to_thing(thing, spl_idx, xplevel);
+           // }
+            // Check if the spell has an effect associated
+            if (spinfo->cast_effect_model != 0)
+            {
+                struct Thing* efthing = create_effect(&thing->mappos, spinfo->cast_effect_model, creatng->owner);
+                if (!thing_is_invalid(efthing))
+                {
+                    if (spinfo->cast_effect_model == 14)
+                        efthing->shot_effect.hit_type = THit_CrtrsNObjctsNotOwn;
+                }
+            }
+        }
+        // Thing list loop body ends
+        k++;
+        if (k > CREATURES_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping creatures list");
+            break;
+        }
+    }
+}
+
 long instf_creature_fire_shot(struct Thing *creatng, long *param)
 {
     struct Thing *target;
@@ -505,6 +570,18 @@ long instf_creature_cast_spell(struct Thing *creatng, long *param)
         }
     }
     creature_cast_spell(creatng, spl_idx, cctrl->explevel, cctrl->targtstl_x, cctrl->targtstl_y);
+    // Start cooldown after spell effect activates
+    cctrl->instance_use_turn[cctrl->instance_id] = game.play_gameturn;
+    return 0;
+}
+
+long instf_creature_cast_area_spell(struct Thing* creatng, long* param)
+{
+    TRACE_THING(creatng);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    long spl_idx = *param;
+    SYNCDBG(8, "The %s index %d casts area spell %s", thing_model_name(creatng), (int)creatng->index, spell_code_name(spl_idx));
+    affect_nearby_friends_with_spell_effect(creatng, spl_idx, cctrl->explevel);
     // Start cooldown after spell effect activates
     cctrl->instance_use_turn[cctrl->instance_id] = game.play_gameturn;
     return 0;

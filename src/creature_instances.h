@@ -134,6 +134,7 @@ int creature_instance_get_available_pos_for_id(struct Thing *thing, CrInstance r
 int creature_instance_get_available_number_for_pos(struct Thing *thing, int req_avail_pos);
 CrInstance creature_instance_get_available_id_for_pos(struct Thing *thing, int req_avail_pos);
 
+void affect_nearby_friends_with_spell_effect(struct Thing* creatng, long spl_idx, unsigned char xplevel);
 void delay_teleport(struct Thing *creatng);
 void delay_heal_sleep(struct Thing *creatng);
 /******************************************************************************/

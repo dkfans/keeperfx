@@ -1096,6 +1096,7 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
             // Second parameter may be a different thing based on first parameter
             switch (k)
             {
+            case 14:
             case 2: // Special code for casting spell instances
                 k = recognize_conf_parameter(buf,&pos,len,spell_desc);
                 if (k > 0)
