@@ -244,6 +244,8 @@ obj/config_effects.o \
 obj/lens_flyeye.o \
 obj/lens_mist.o \
 obj/light_data.o \
+obj/lua_api.o \
+obj/lua_base.o \
 obj/lvl_filesdk1.o \
 obj/lvl_script.o \
 obj/lvl_script_commands.o \
@@ -338,7 +340,7 @@ CU_OBJS = \
 	obj/cu/Util.o
 
 # include and library directories
-LINKLIB =  -L"sdl/lib" -mwindows obj/libkeeperfx.a obj/enet.a \
+LINKLIB =  -L"sdl/lib" -mwindows obj/libkeeperfx.a obj/enet.a lib/lua/liblua54.a \
 	-lwinmm -lmingw32 -limagehlp -lSDL2main -lSDL2 -lSDL2_mixer -lSDL2_net \
 	-L"deps/zlib" -lz -lws2_32
 INCS =  -I"sdl/include" -I"sdl/include/SDL2" -I"deps/enet/include"

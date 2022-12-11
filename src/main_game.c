@@ -34,6 +34,7 @@
 #include "gui_soundmsgs.h"
 #include "kjm_input.h"
 #include "lvl_filesdk1.h"
+#include "lua_base.h"
 #include "net_sync.h"
 #include "room_library.h"
 #include "room_list.h"
@@ -162,6 +163,7 @@ static void init_level(void)
     init_map_size(get_selected_level_number());
     // Load the actual level files
     preload_script(get_selected_level_number());
+    open_lua_script(get_selected_level_number());
     load_map_file(get_selected_level_number());
 
     init_navigation();
@@ -225,6 +227,7 @@ static void post_init_level(void)
     clear_creature_pool();
     setup_computer_players2();
     load_script(get_loaded_level_number());
+    lua_game_start();
     init_dungeons_research();
     init_dungeons_essential_position();
     if (!is_map_pack())
