@@ -524,7 +524,7 @@ long process_creature_self_spell_casting(struct Thing* creatng)
     if (cctrl->instance_id != CrInst_NULL) {
         return 0;
     }
-    if (creatng->active_state == CrSt_CreatureInCombat) {
+    if (cctrl->combat_flags != 0) {
         return 0;
     }
 
