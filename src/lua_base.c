@@ -76,11 +76,9 @@ void lua_game_start()
 
 void lua_game_loop()
 {
-    /*
     lua_getglobal(Lvl_script, "GameLoop");
 	if (lua_isfunction(Lvl_script, -1))
 	{
 		CheckLua(Lvl_script, lua_pcall(Lvl_script, 0, 0, 0));
 	}
-    */
 }

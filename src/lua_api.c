@@ -65,9 +65,26 @@ static int move_thing_to(lua_State *L)
 static int lua_kill_creature(lua_State *L)
 {
 	int tng_idx = lua_tointeger(L, 1);
-
     struct Thing* thing = thing_get(tng_idx);
     kill_creature(thing, INVALID_THING, -1, CrDed_NoUnconscious);
+
+	return 0;
+}
+
+static int lua_set_player_as_won_level(lua_State *L)
+{
+	int plr_idx = lua_tointeger(L, 1);
+    struct PlayerInfo* player = get_player(plyr_idx);
+    set_player_as_won_level(player);
+
+	return 0;
+}
+
+static int lua_set_player_as_lost_level(lua_State *L)
+{
+	int plr_idx = lua_tointeger(L, 1);
+    struct PlayerInfo* player = get_player(plyr_idx);
+    set_player_as_lost_level(player);
 
 	return 0;
 }
@@ -81,6 +98,8 @@ void reg_host_functions(lua_State *L)
     lua_register(L, "SendChatMessage", send_chat_message);
     lua_register(L, "MoveThingTo", move_thing_to);
     lua_register(L, "KillCreature", lua_kill_creature);
+    lua_register(L, "PlayerWin", lua_set_player_as_won_level);
+    lua_register(L, "PlayerLose", lua_set_player_as_lost_level);
 }
 
 
