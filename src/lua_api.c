@@ -11,6 +11,7 @@
 #include "gui_msgs.h"
 #include "thing_navigate.h"
 #include "map_data.h"
+#include "game_legacy.h"
 
 #include "post_inc.h"
 
@@ -32,9 +33,8 @@ static int make_thing_zombie(lua_State *L)
 {
 	int tng_idx = lua_tointeger(L, 1);
 
-    struct Thing* tng = thing_get(tng_idx);
-    tng->alloc_flags |= TAlF_IsControlled;
-
+    struct Thing* thing = thing_get(tng_idx);
+    thing->alloc_flags |= TAlF_IsControlled;
 
 	return 0;
 }
@@ -62,7 +62,15 @@ static int move_thing_to(lua_State *L)
 	return 0;
 }
 
+static int lua_kill_creature(lua_State *L)
+{
+	int tng_idx = lua_tointeger(L, 1);
 
+    struct Thing* thing = thing_get(tng_idx);
+    kill_creature(thing, INVALID_THING, -1, CrDed_NoUnconscious);
+
+	return 0;
+}
 
 
 
@@ -72,6 +80,7 @@ void reg_host_functions(lua_State *L)
     lua_register(L, "MakeThingZombie", make_thing_zombie);
     lua_register(L, "SendChatMessage", send_chat_message);
     lua_register(L, "MoveThingTo", move_thing_to);
+    lua_register(L, "KillCreature", lua_kill_creature);
 }
 
 
