@@ -9,18 +9,23 @@
 #include "thing_data.h"
 #include "creature_states.h"
 #include "gui_msgs.h"
+#include "thing_navigate.h"
+#include "map_data.h"
 
 #include "post_inc.h"
 
 
-
-static int lua_HostFunction(lua_State *L)
+static int lua_get_creature_near(lua_State *L)
 {
-	const char* a = lua_tostring(L, 1);
+    //the arguments lua passes to the C code
+	int stl_x = lua_tointeger(L, 1); // the last number is the position of the argument, just increment these
+	int stl_y = lua_tointeger(L, 2);
 
-    JUSTLOG("[CPP S4] HostFunction(%s) called from Lua",a);
+    struct Thing* thing = get_creature_near(stl_x * COORD_PER_STL,stl_y * COORD_PER_STL);
 
-	return 0;
+    //arguments you push back to lua
+    lua_pushinteger(L, thing->index);
+	return 1; // return value is the amount of args you push back
 }
 
 static int make_thing_zombie(lua_State *L)
@@ -40,24 +45,30 @@ static int send_chat_message(lua_State *L)
     const char* msg = lua_tostring(L, 2);
     message_add(plyr_idx, msg);
 
-	return 2;
+	return 0;
 }
 
 static int move_thing_to(lua_State *L)
 {
 	int tng_idx = lua_tointeger(L, 1);
+	int stl_x = lua_tointeger(L, 2);
+	int stl_y = lua_tointeger(L, 3);
 
-    struct Thing* tng = thing_get(tng_idx);
-    tng->alloc_flags |= TAlF_IsControlled;
-
+    struct Thing* thing = thing_get(tng_idx);
+    if (!setup_person_move_to_position(thing, stl_x, stl_y, NavRtF_Default))
+        WARNLOG("Move %s order failed",thing_model_name(thing));
+    thing->continue_state = CrSt_ManualControl;
 
 	return 0;
 }
 
 
+
+
+
 void reg_host_functions(lua_State *L)
 {
-    lua_register(L, "HostFunction", lua_HostFunction);
+    lua_register(L, "GetCreatureNear", lua_get_creature_near);
     lua_register(L, "MakeThingZombie", make_thing_zombie);
     lua_register(L, "SendChatMessage", send_chat_message);
     lua_register(L, "MoveThingTo", move_thing_to);
