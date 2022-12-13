@@ -949,20 +949,21 @@ static long check_out_unreinforced_place(struct Thing *thing)
 
 static TbBool check_out_unreinforced_area_new(struct Thing *spdigtng)
 {
-    short distance = 0;
+
+    long distance;
     struct Coord3d reinforce_pos;
-    SubtlCodedCoords stl_num = 0;
-    struct DiggerStack *dstack;
+    SubtlCodedCoords stl_num;
 
     struct CreatureControl *cctrl = creature_control_get_from_thing(spdigtng);
     long min_distance = 28;
-    
+
     struct Dungeon *dungeon = get_dungeon(spdigtng->owner);
-    
-    for ( int i = 0; dungeon->digger_stack_length > i; i++ )
+    MapSubtlCoord spdig_stl_x = spdigtng->mappos.x.stl.num;
+    MapSubtlCoord spdig_stl_y = spdigtng->mappos.y.stl.num;
+    for (int i = 0; dungeon->digger_stack_length > i; i++)
     {
-        dstack = &dungeon->digger_stack[i];
-        if (dstack->task_type == DigTsk_ReinforceWall )
+        struct DiggerStack *dstack = &dungeon->digger_stack[i];
+        if (dstack->task_type == DigTsk_ReinforceWall)
         {
             stl_num = dstack->stl_num;
 
@@ -972,8 +973,7 @@ static TbBool check_out_unreinforced_area_new(struct Thing *spdigtng)
             MapSlabCoord wall_slb_x = subtile_slab_fast(wall_stl_x);
             MapSlabCoord wall_slb_y = subtile_slab_fast(wall_stl_y);
 
-        
-            distance = get_2d_box_distance_xy(spdigtng->mappos.x.stl.num, spdigtng->mappos.y.stl.num, wall_stl_x, wall_stl_y);
+            distance = get_2d_box_distance_xy(spdig_stl_x, spdig_stl_y, wall_stl_x,wall_stl_y);
             if ( min_distance > distance )
             {
                 MapSubtlCoord reinforce_stl_x;
@@ -985,13 +985,13 @@ static TbBool check_out_unreinforced_area_new(struct Thing *spdigtng)
                 else if ( check_out_uncrowded_reinforce_position(spdigtng, stl_num, &reinforce_stl_x, &reinforce_stl_y) )
                 {
                     reinforce_pos.x.stl.num = reinforce_stl_x;
-                    reinforce_pos.y.stl.num = reinforce_stl_y;          
+                    reinforce_pos.y.stl.num = reinforce_stl_y;
                     min_distance = distance;
                 }
             }
         }
     }
-    if ( distance == 28 || !setup_person_move_to_coord(spdigtng, &reinforce_pos, 0) )
+    if ( min_distance == 28 || !setup_person_move_to_coord(spdigtng, &reinforce_pos, 0) )
         return false;
     spdigtng->continue_state = CrSt_ImpArrivesAtReinforce;
     cctrl->digger.working_stl = stl_num;
@@ -1025,7 +1025,7 @@ static TbBool check_out_unreinforced_area(struct Thing *spdigtng)
     ushort        cctrl_moveto_pos_x           = cctrl->moveto_pos.x.val                 ;
     ushort        cctrl_moveto_pos_y           = cctrl->moveto_pos.y.val                 ;
     ushort        cctrl_moveto_pos_z           = cctrl->moveto_pos.z.val                 ;    
-    short         cctrl_digger_working_stl     = cctrl->digger.working_stl               ;
+    ushort        cctrl_digger_working_stl     = cctrl->digger.working_stl               ;
     unsigned char cctrl_digger_con_reinfor     = cctrl->digger.consecutive_reinforcements;
     unsigned char cctrl_move_flags             = cctrl->move_flags                       ;
 
@@ -1046,7 +1046,7 @@ static TbBool check_out_unreinforced_area(struct Thing *spdigtng)
     ushort        _cctrl_moveto_pos_x           = cctrl->moveto_pos.x.val                 ;
     ushort        _cctrl_moveto_pos_y           = cctrl->moveto_pos.y.val                 ;
     ushort        _cctrl_moveto_pos_z           = cctrl->moveto_pos.z.val                 ;    
-    short         _cctrl_digger_working_stl     = cctrl->digger.working_stl               ;
+    ushort        _cctrl_digger_working_stl     = cctrl->digger.working_stl               ;
     unsigned char _cctrl_digger_con_reinfor     = cctrl->digger.consecutive_reinforcements;
     unsigned char _cctrl_move_flags             = cctrl->move_flags                       ;
 
@@ -1082,7 +1082,8 @@ static TbBool check_out_unreinforced_area(struct Thing *spdigtng)
     if(cctrl->digger.consecutive_reinforcements != _cctrl_digger_con_reinfor    ) JUSTLOG("cctrl_digger_con_reinfor     %d %d",_cctrl_digger_con_reinfor    ,cctrl->digger.consecutive_reinforcements);
     if(cctrl->move_flags                        != _cctrl_move_flags            ) JUSTLOG("cctrl_move_flags             %d %d",_cctrl_move_flags            ,cctrl->move_flags                       );
 
-    JUSTLOG("check %d %d",old,new);
+    if (old != 0 || new != 0)
+        JUSTLOG("check %d %d",old,new);
 
     return new;
 
