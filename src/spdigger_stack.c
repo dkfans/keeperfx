@@ -1025,7 +1025,7 @@ static TbBool check_out_unreinforced_area(struct Thing *spdigtng)
     ushort        cctrl_moveto_pos_x           = cctrl->moveto_pos.x.val                 ;
     ushort        cctrl_moveto_pos_y           = cctrl->moveto_pos.y.val                 ;
     ushort        cctrl_moveto_pos_z           = cctrl->moveto_pos.z.val                 ;    
-    ushort        cctrl_digger_working_stl     = cctrl->digger.working_stl               ;
+    short         cctrl_digger_working_stl     = cctrl->digger.working_stl               ;
     unsigned char cctrl_digger_con_reinfor     = cctrl->digger.consecutive_reinforcements;
     unsigned char cctrl_move_flags             = cctrl->move_flags                       ;
 
@@ -1046,7 +1046,7 @@ static TbBool check_out_unreinforced_area(struct Thing *spdigtng)
     ushort        _cctrl_moveto_pos_x           = cctrl->moveto_pos.x.val                 ;
     ushort        _cctrl_moveto_pos_y           = cctrl->moveto_pos.y.val                 ;
     ushort        _cctrl_moveto_pos_z           = cctrl->moveto_pos.z.val                 ;    
-    ushort        _cctrl_digger_working_stl     = cctrl->digger.working_stl               ;
+    short         _cctrl_digger_working_stl     = cctrl->digger.working_stl               ;
     unsigned char _cctrl_digger_con_reinfor     = cctrl->digger.consecutive_reinforcements;
     unsigned char _cctrl_move_flags             = cctrl->move_flags                       ;
 
