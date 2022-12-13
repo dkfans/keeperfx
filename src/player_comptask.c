@@ -2142,8 +2142,8 @@ long task_dig_to_gold(struct Computer2 *comp, struct ComputerTask *ctask)
 
     struct GoldLookup* gold_lookup = get_gold_lookup(ctask->dig_to_gold.target_lookup_idx);
 
-    unsigned short gldstl_x = gold_lookup->x_stl_num;
-    unsigned short gldstl_y = gold_lookup->y_stl_num;
+    unsigned short gldstl_x = gold_lookup->stl_x;
+    unsigned short gldstl_y = gold_lookup->stl_y;
 
     unsigned short ctgstl_x = ctask->dig.pos_begin.x.stl.num;
     unsigned short ctgstl_y = ctask->dig.pos_begin.y.stl.num;

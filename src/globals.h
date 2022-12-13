@@ -278,7 +278,7 @@ typedef short MapSlabCoord;
 /** Distance between map coordinates in slabs.  */
 typedef short MapSlabDelta;
 /** Map subtile 2D coordinates, coded into one number. */
-typedef unsigned long SubtlCodedCoords;
+typedef long SubtlCodedCoords;
 /** Map slab 2D coordinates, coded into one number. */
 typedef unsigned long SlabCodedCoords;
 /** Index in the columns array. */

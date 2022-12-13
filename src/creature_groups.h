@@ -54,8 +54,8 @@ enum MemberPosFlags
 
 /** Used for storing group members positions around leader.
  */
-struct MemberPos { // sizeof=3
-    unsigned short stl_num;
+struct MemberPos {
+    SubtlCodedCoords stl_num;
     unsigned char flags;
 };
 

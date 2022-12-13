@@ -208,7 +208,7 @@ unsigned char field_67;
   } party;
   struct {
     long stack_update_turn;
-    short working_stl;
+    SubtlCodedCoords working_stl;
     unsigned short task_stl;
     unsigned short task_idx;
     unsigned char consecutive_reinforcements;
@@ -386,7 +386,7 @@ unsigned char field_67;
     unsigned long instance_use_turn[CREATURE_INSTANCES_COUNT];
     char instance_available[CREATURE_INSTANCES_COUNT];
     unsigned short instance_anim_step_turns;
-    unsigned short collided_door_subtile;
+    SubtlCodedCoords collided_door_subtile;
     char fighting_player_idx;
     unsigned char shot_model;
     struct CastedSpellData casted_spells[CREATURE_MAX_SPELLS_CASTED_AT];

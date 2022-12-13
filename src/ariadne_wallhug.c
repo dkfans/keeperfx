@@ -1385,9 +1385,9 @@ static TbBool find_approach_position_to_subtile(const struct Coord3d *srcpos, Ma
     return (min_dist < LONG_MAX);
 }
 
-static long get_map_index_of_first_block_thing_colliding_with_travelling_to(struct Thing *creatng, struct Coord3d *startpos, struct Coord3d *endpos, long mapblk_flags, unsigned char slabmap_flags)
+static SubtlCodedCoords get_map_index_of_first_block_thing_colliding_with_travelling_to(struct Thing *creatng, struct Coord3d *startpos, struct Coord3d *endpos, long mapblk_flags, unsigned char slabmap_flags)
 {
-    long stl_num;
+    SubtlCodedCoords stl_num;
     struct Coord3d pos;
     int return_stl_num = 0;
 

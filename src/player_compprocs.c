@@ -1001,8 +1001,8 @@ long computer_setup_dig_to_gold(struct Computer2 *comp, struct ComputerProcess *
         return CProcRet_Wait;
     }
     struct Coord3d endpos;
-    endpos.x.val = subtile_coord_center(stl_slab_center_subtile(gldlook->x_stl_num));
-    endpos.y.val = subtile_coord_center(stl_slab_center_subtile(gldlook->y_stl_num));
+    endpos.x.val = subtile_coord_center(stl_slab_center_subtile(gldlook->stl_x));
+    endpos.y.val = subtile_coord_center(stl_slab_center_subtile(gldlook->stl_y));
     endpos.z.val = subtile_coord(1,0);
     startpos.x.val = subtile_coord_center(stl_slab_center_subtile(startpos.x.stl.num));
     startpos.y.val = subtile_coord_center(stl_slab_center_subtile(startpos.y.stl.num));

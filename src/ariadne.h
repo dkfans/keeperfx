@@ -158,8 +158,8 @@ struct Navigation { // sizeof = 0x27
   long distance_to_next_pos;
   long angle;
   unsigned char field_11[4];
-  unsigned short first_colliding_block;
-  unsigned short field_17;
+  SubtlCodedCoords first_colliding_block;
+  SubtlCodedCoords field_17;
   unsigned char field_19[2];
   struct Coord3d pos_next;
   struct Coord3d pos_final;

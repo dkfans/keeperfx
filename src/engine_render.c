@@ -3790,7 +3790,7 @@ void do_a_plane_of_engine_columns_perspective(long stl_x, long stl_y, long plane
     struct Column *sib_colmn;
     unsigned short textr_idx;
     unsigned short height_bit;
-    unsigned long center_block_idx;
+    SubtlCodedCoords center_block_idx;
     long fepos;
     long bepos;
     long ecpos;

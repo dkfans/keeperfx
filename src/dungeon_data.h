@@ -85,8 +85,8 @@ enum DungeonManufactureBuildFlags {
 /******************************************************************************/
 #pragma pack(1)
 
-struct DiggerStack { // sizeof = 4
-      unsigned short stl_num;
+struct DiggerStack {
+      SubtlCodedCoords stl_num;
       SpDiggerTaskType task_type;
 };
 
