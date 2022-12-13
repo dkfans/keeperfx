@@ -784,13 +784,13 @@ struct Thing *create_trap(struct Coord3d *pos, ThingModel trpkind, PlayerNumber 
     thing->rendering_flags |= TRF_Transpar_4;
     thing->trap.num_shots = 0;
     thing->trap.rearm_turn = game.play_gameturn;
-    if (trapstat->light_1C != 0)
+    if (trapstat->light_radius != 0)
     {
         ilght.mappos.x.val = thing->mappos.x.val;
         ilght.mappos.y.val = thing->mappos.y.val;
         ilght.mappos.z.val = thing->mappos.z.val;
-        ilght.radius = trapstat->light_1C;
-        ilght.intensity = trapstat->light_1E;
+        ilght.radius = trapstat->light_radius;
+        ilght.intensity = trapstat->light_intensity;
         ilght.is_dynamic = 1;
         ilght.field_3 = trapstat->light_1F;
         thing->light_id = light_create_light(&ilght);
