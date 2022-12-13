@@ -54,7 +54,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-TbBool combat_has_line_of_sight(const struct Thing *creatng, const struct Thing *enmtng, MapCoordDelta enmdist);
+unsigned char combat_has_line_of_sight(const struct Thing *creatng, const struct Thing *enmtng, MapCoordDelta enmdist);
 /******************************************************************************/
 const CombatState combat_state[] = {
     NULL,
@@ -172,13 +172,13 @@ TbBool creature_is_being_attacked_by_enemy_creature_not_digger(struct Thing *fig
     return false;
 }
 
-TbBool creature_can_see_combat_path(const struct Thing *creatng, const struct Thing *enmtng, MapCoordDelta dist)
+unsigned char creature_can_see_combat_path(const struct Thing *creatng, const struct Thing *enmtng, MapCoordDelta dist)
 {
     struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
     if (dist > subtile_coord(crstat->visual_range,0)) {
         return false;
     }
-    if (!jonty_creature_can_see_thing_including_lava_check(creatng, enmtng)) {
+    if (!jonty_creature_has_clear_shot_at_thing_including_lava_check(creatng, enmtng)) {
         return false;
     }
     return true;
@@ -1596,9 +1596,9 @@ long creature_is_most_suitable_for_combat(struct Thing *thing, struct Thing *enm
     return (enmtng->index == other_enmtng->index) || (other_score <= curr_score + 258);
 }
 
-CrAttackType check_for_valid_combat(struct Thing *fightng, struct Thing *enmtng)
+CrAttackType check_for_valid_combat(struct Thing* fightng, struct Thing* enmtng)
 {
-    SYNCDBG(19,"Starting for %s index %d vs %s index %d",thing_model_name(fightng),(int)fightng->index,thing_model_name(enmtng),(int)enmtng->index);
+    SYNCDBG(19, "Starting for %s index %d vs %s index %d", thing_model_name(fightng), (int)fightng->index, thing_model_name(enmtng), (int)enmtng->index);
     struct CreatureControl* cctrl = creature_control_get_from_thing(fightng);
     CrAttackType attack_type = cctrl->combat.attack_type;
     if (!creature_will_attack_creature_incl_til_death(fightng, enmtng)) {
@@ -1611,9 +1611,9 @@ CrAttackType check_for_valid_combat(struct Thing *fightng, struct Thing *enmtng)
     return attack_type;
 }
 
-TbBool combat_type_is_choice_of_creature(const struct Thing *thing, CrAttackType attack_type)
+TbBool combat_type_is_choice_of_creature(const struct Thing* thing, CrAttackType attack_type)
 {
-    SYNCDBG(19,"Starting for %s index %d",thing_model_name(thing),(int)thing->index);
+    SYNCDBG(19, "Starting for %s index %d", thing_model_name(thing), (int)thing->index);
     //return _DK_combat_type_is_choice_of_creature(thing, attack_type);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     if (attack_type <= AttckT_Unset) {
@@ -1635,17 +1635,17 @@ TbBool combat_type_is_choice_of_creature(const struct Thing *thing, CrAttackType
     return creature_has_ranged_weapon(thing);
 }
 
-long guard_post_combat_move(struct Thing *thing, long cntn_crstate)
+long guard_post_combat_move(struct Thing* thing, long cntn_crstate)
 {
     //return _DK_guard_post_combat_move(thing, a2);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct Room* room = get_room_thing_is_on(thing);
-    if (!room_is_invalid(room) && (room_role_matches(room->kind,get_room_role_for_job(Job_GUARD))) && (cctrl->last_work_room_id == room->index)) {
+    if (!room_is_invalid(room) && (room_role_matches(room->kind, get_room_role_for_job(Job_GUARD))) && (cctrl->last_work_room_id == room->index)) {
         return 0;
     }
     if (cctrl->last_work_room_id <= 0)
     {
-        ERRORLOG("Cannot get to %s",room_role_code_name(get_room_role_for_job(Job_GUARD)));
+        ERRORLOG("Cannot get to %s", room_role_code_name(get_room_role_for_job(Job_GUARD)));
         cctrl->job_assigned = 0;
         return 0;
     }
@@ -1655,7 +1655,7 @@ long guard_post_combat_move(struct Thing *thing, long cntn_crstate)
         cctrl->job_assigned = 0;
         return 0;
     }
-    if (get_distance_to_room(&thing->mappos, room) <= subtile_coord(27,0))
+    if (get_distance_to_room(&thing->mappos, room) <= subtile_coord(27, 0))
     {
         return 0;
     }
@@ -1668,7 +1668,7 @@ long guard_post_combat_move(struct Thing *thing, long cntn_crstate)
     return 1;
 }
 
-TbBool thing_in_field_of_view(struct Thing *thing, struct Thing *checktng)
+TbBool thing_in_field_of_view(struct Thing* thing, struct Thing* checktng)
 {
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     long angle = get_angle_xy_to(&thing->mappos, &checktng->mappos);
@@ -1676,7 +1676,7 @@ TbBool thing_in_field_of_view(struct Thing *thing, struct Thing *checktng)
     return (angdiff < crstat->field_of_view);
 }
 
-long ranged_combat_move(struct Thing *thing, struct Thing *enmtng, MapCoordDelta enmdist, CrtrStateId nstat)
+long ranged_combat_move(struct Thing* thing, struct Thing* enmtng, MapCoordDelta enmdist, CrtrStateId nstat)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     if (cctrl->instance_id != CrInst_NULL)
@@ -1690,9 +1690,45 @@ long ranged_combat_move(struct Thing *thing, struct Thing *enmtng, MapCoordDelta
             return false;
         }
     }
-    if (!combat_has_line_of_sight(thing, enmtng, enmdist))
+    long attack_range = compute_creature_attack_range(subtile_coord(8, 0), 0, cctrl->explevel);
+    unsigned char line_of_sight = combat_has_line_of_sight(thing, enmtng, enmdist);
+    if (line_of_sight != 1)
     {
-        if (creature_move_to(thing, &enmtng->mappos, cctrl->max_speed, 0, 0) == -1) {
+        if (line_of_sight == 2) // can only see top
+        {
+            if (thing->mappos.z.val <= enmtng->mappos.z.val) //if you can only see the top and you are lower, that means step back to see the center
+            {
+                if (enmdist < attack_range)
+                {
+                    creature_retreat_from_combat(thing, enmtng, nstat, 1);
+                }
+                else
+                {
+                    creature_choose_random_destination_on_valid_adjacent_slab(thing);
+                    thing->continue_state = nstat;
+                }
+            }
+            else // If you can only see the top and are higher, that means step closer to see the center
+            {
+                if (enmdist < subtile_coord(3, 0)) 
+                {
+                    creature_choose_random_destination_on_valid_adjacent_slab(thing);
+                    thing->continue_state = nstat;
+                }
+                else
+                {
+                    creature_move_to(thing, &enmtng->mappos, cctrl->max_speed, 0, 0);
+                }
+            }
+        }
+        else
+        if (enmdist < subtile_coord(3, 0)) {
+            creature_choose_random_destination_on_valid_adjacent_slab(thing);
+            thing->continue_state = nstat;
+        }
+        else
+        if (creature_move_to(thing, &enmtng->mappos, cctrl->max_speed, 0, 0) == -1)
+        {
             set_start_state(thing);
         }
         return false;
@@ -1700,7 +1736,8 @@ long ranged_combat_move(struct Thing *thing, struct Thing *enmtng, MapCoordDelta
     if (enmdist < subtile_coord(3,0)) {
         creature_retreat_from_combat(thing, enmtng, nstat, 1);
     } else
-    if (enmdist > compute_creature_attack_range(subtile_coord(8,0), 0, cctrl->explevel)) {
+    if (enmdist > attack_range)
+    {
         creature_move_to(thing, &enmtng->mappos, cctrl->max_speed, 0, 0);
     }
     return thing_in_field_of_view(thing, enmtng);
@@ -1901,7 +1938,7 @@ long get_best_ranged_object_offensive_weapon(const struct Thing *thing, long dis
     return inst_id;
 }
 
-TbBool combat_has_line_of_sight(const struct Thing *creatng, const struct Thing *enmtng, MapCoordDelta enmdist)
+unsigned char combat_has_line_of_sight(const struct Thing *creatng, const struct Thing *enmtng, MapCoordDelta enmdist)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     if ((cctrl->combat.seen_enemy_turn != game.play_gameturn) || (cctrl->combat.seen_enemy_idx != enmtng->index))

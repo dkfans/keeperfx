@@ -570,13 +570,13 @@ TbBool jonty_line_of_sight_3d_including_lava_check_ignoring_own_door(const struc
     while (distance > 0)
     {
         if (get_point_in_map_solid_flags_ignoring_own_door(&nextpos, plyr_idx) & 0x01) {
-            SYNCDBG(17, "Player %d cannot see through (%d,%d) due to linear path solid flags (downcount %d)",
-                (int)plyr_idx,(int)nextpos.x.stl.num,(int)nextpos.y.stl.num,(int)distance);
+            SYNCDBG(17, "Player %d cannot see through (%d,%d,%d) due to linear path solid flags (downcount %d)",
+                (int)plyr_idx,(int)nextpos.x.stl.num,(int)nextpos.y.stl.num, (int)nextpos.z.stl.num,(int)distance);
             return false;
         }
         if (!sibling_line_of_sight_3d_including_lava_check_ignoring_own_door(&prevpos, &nextpos, plyr_idx)) {
-            SYNCDBG(17, "Player %d cannot see through (%d,%d) due to 3D line of sight (downcount %d)",
-                (int)plyr_idx,(int)nextpos.x.stl.num,(int)nextpos.y.stl.num,(int)distance);
+            SYNCDBG(17, "Player %d cannot see through (%d,%d,%d) due to 3D line of sight (downcount %d)",
+                (int)plyr_idx, (int)nextpos.x.stl.num, (int)nextpos.y.stl.num, (int)nextpos.z.stl.num, (int)distance);
             return false;
         }
         // Go to next sibling subtile
@@ -593,45 +593,67 @@ TbBool jonty_line_of_sight_3d_including_lava_check_ignoring_own_door(const struc
     return true;
 }
 
-TbBool jonty_creature_can_see_thing_including_lava_check(const struct Thing *creatng, const struct Thing *thing)
+unsigned char jonty_creature_has_clear_shot_at_thing_including_lava_check(const struct Thing *creatng, const struct Thing *targettng)
 {
     const struct Coord3d* srcpos = &creatng->mappos;
-    struct Coord3d eyepos;
-    eyepos.x.val = srcpos->x.val;
-    eyepos.y.val = srcpos->y.val;
-    eyepos.z.val = srcpos->z.val;
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    struct Coord3d shotpos;
+    int scale = 100 + gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel;
+    shotpos.x.val = srcpos->x.val + (creatures[creatng->model].shot_shift_x * scale / 100);
+    shotpos.y.val = srcpos->y.val + (creatures[creatng->model].shot_shift_y * scale / 100);
+    shotpos.z.val = srcpos->z.val + (creatures[creatng->model].shot_shift_z * scale / 100);
     struct Coord3d tgtpos;
-    tgtpos.x.val = thing->mappos.x.val;
-    tgtpos.y.val = thing->mappos.y.val;
-    tgtpos.z.val = thing->mappos.z.val;
-    eyepos.z.val += get_creature_eye_height(creatng);
-    if (thing->class_id == TCls_Door)
+    tgtpos.x.val = targettng->mappos.x.val;
+    tgtpos.y.val = targettng->mappos.y.val;
+    tgtpos.z.val = targettng->mappos.z.val + (targettng->solid_size_yz / 2);
+    struct Coord3d tgttoppos;
+    tgttoppos.x.val = targettng->mappos.x.val;
+    tgttoppos.y.val = targettng->mappos.y.val;
+    tgttoppos.z.val = targettng->mappos.z.val + (targettng->solid_size_yz);
+    unsigned char return_val = 0;
+    if (targettng->class_id == TCls_Door)
     {
         // If we're immune to lava, or we're already on it - don't care, travel over it
         if (lava_at_position(srcpos) || creature_can_travel_over_lava(creatng))
         {
             SYNCDBG(17, "The %s index %d owned by player %d checks w/o lava %s index %d",
-                thing_model_name(creatng),(int)creatng->index,(int)creatng->owner,thing_model_name(thing),(int)thing->index);
-            // Check bottom of the thing
-            if (line_of_sight_3d_ignoring_specific_door(&eyepos, &tgtpos, thing))
-                return true;
-            // Check top of the thing
-            tgtpos.z.val += thing->clipbox_size_yz;
-            if (line_of_sight_3d_ignoring_specific_door(&eyepos, &tgtpos, thing))
-                return true;
-            return false;
+                thing_model_name(creatng),(int)creatng->index,(int)creatng->owner,thing_model_name(targettng),(int)targettng->index);
+            if (!line_of_sight_3d_ignoring_specific_door(&shotpos, &tgtpos, targettng))
+            {
+                if (!line_of_sight_3d_ignoring_specific_door(&shotpos, &tgttoppos, targettng))
+                {
+                    return 0;
+                }
+                else
+                {
+                    return_val = 2;
+                }
+            }
+            else
+            {
+                return_val = 1;
+            }
+            return return_val;
         } else
         {
             SYNCDBG(17, "The %s index %d owned by player %d checks with lava %s index %d",
-                thing_model_name(creatng),(int)creatng->index,(int)creatng->owner,thing_model_name(thing),(int)thing->index);
-            // Check bottom of the thing
-            if (jonty_line_of_sight_3d_including_lava_check_ignoring_specific_door(&eyepos, &tgtpos, thing))
-                return true;
-            // Check top of the thing
-            tgtpos.z.val += thing->clipbox_size_yz;
-            if (jonty_line_of_sight_3d_including_lava_check_ignoring_specific_door(&eyepos, &tgtpos, thing))
-                return true;
-            return false;
+                thing_model_name(creatng),(int)creatng->index,(int)creatng->owner,thing_model_name(targettng),(int)targettng->index);
+            if (!jonty_line_of_sight_3d_including_lava_check_ignoring_specific_door(&shotpos, &tgtpos, targettng))
+            {
+                if (!jonty_line_of_sight_3d_including_lava_check_ignoring_specific_door(&shotpos, &tgttoppos, targettng))
+                {
+                    return 0;
+                }
+                else
+                {
+                    return_val = 2;
+                }
+            }
+            else
+            {
+                return_val = 1;
+            }
+            return return_val;
         }
     } else
     {
@@ -639,42 +661,72 @@ TbBool jonty_creature_can_see_thing_including_lava_check(const struct Thing *cre
         if (lava_at_position(srcpos) || creature_can_travel_over_lava(creatng))
         {
             SYNCDBG(17, "The %s index %d owned by player %d checks w/o lava %s index %d",
-                thing_model_name(creatng),(int)creatng->index,(int)creatng->owner,thing_model_name(thing),(int)thing->index);
-            // Check bottom of the thing
-            if (line_of_sight_3d(&eyepos, &tgtpos))
-                return true;
-            // Check top of the thing
-            tgtpos.z.val += thing->clipbox_size_yz;
-            if (line_of_sight_3d(&eyepos, &tgtpos))
-                return true;
-            return false;
+                thing_model_name(creatng),(int)creatng->index,(int)creatng->owner,thing_model_name(targettng),(int)targettng->index);
+
+            if (!line_of_sight_3d(&shotpos, &tgtpos))
+            {
+                if (!line_of_sight_3d(&shotpos, &tgttoppos))
+                {
+                    return 0;
+                }
+                else
+                {
+                    return_val = 2;
+                }
+            }
+            else
+            {
+                return_val = 1;
+            }
+            return return_val;
         } else
         {
             SYNCDBG(17, "The %s index %d owned by player %d checks with lava %s index %d",
-                thing_model_name(creatng),(int)creatng->index,(int)creatng->owner,thing_model_name(thing),(int)thing->index);
-            // Check bottom of the thing
-            if (jonty_line_of_sight_3d_including_lava_check_ignoring_own_door(&eyepos, &tgtpos, creatng->owner))
-                return true;
-            // Check top of the thing
-            tgtpos.z.val += thing->clipbox_size_yz;
-            if (jonty_line_of_sight_3d_including_lava_check_ignoring_own_door(&eyepos, &tgtpos, creatng->owner))
-                return true;
-            // Check both sides at middle of thing height
-            tgtpos.z.val -= thing->clipbox_size_yz / 2;
-            long angle = get_angle_xy_to(&tgtpos, &eyepos);
+                thing_model_name(creatng),(int)creatng->index,(int)creatng->owner,thing_model_name(targettng),(int)targettng->index);
+            long angle = get_angle_xy_to(&tgtpos, &shotpos);
             // Check left side
             // We're checking point at 60 degrees left; could use 90 deg, but making even slim edge visible might not be a good idea
             // Also 60 deg will shorten distance to the check point, which may better describe real visibility
-            tgtpos.x.val = thing->mappos.x.val + distance_with_angle_to_coord_x(thing->clipbox_size_xy/2, angle + LbFPMath_PI/3);
-            tgtpos.y.val = thing->mappos.y.val + distance_with_angle_to_coord_y(thing->clipbox_size_xy/2, angle + LbFPMath_PI/3);
-            if (jonty_line_of_sight_3d_including_lava_check_ignoring_own_door(&eyepos, &tgtpos, creatng->owner))
-                return true;
+            tgtpos.x.val = targettng->mappos.x.val + distance_with_angle_to_coord_x(targettng->solid_size_xy /2, angle + LbFPMath_PI/3);
+            tgtpos.y.val = targettng->mappos.y.val + distance_with_angle_to_coord_y(targettng->solid_size_xy /2, angle + LbFPMath_PI/3);
+            tgttoppos.x.val = tgtpos.x.val;
+            tgttoppos.y.val = tgtpos.y.val;
+            if (!jonty_line_of_sight_3d_including_lava_check_ignoring_own_door(&shotpos, &tgtpos, creatng->owner))
+            {
+                if (!jonty_line_of_sight_3d_including_lava_check_ignoring_own_door(&shotpos, &tgttoppos, creatng->owner))
+                {
+                    return 0;
+                }
+                else
+                {
+                    return_val = 2;
+                }
+            }
+            else
+            {
+                return_val = 1;
+            }
             // Check right side
-            tgtpos.x.val = thing->mappos.x.val + distance_with_angle_to_coord_x(thing->clipbox_size_xy/2, angle - LbFPMath_PI/3);
-            tgtpos.y.val = thing->mappos.y.val + distance_with_angle_to_coord_y(thing->clipbox_size_xy/2, angle - LbFPMath_PI/3);
-            if (jonty_line_of_sight_3d_including_lava_check_ignoring_own_door(&eyepos, &tgtpos, creatng->owner))
-                return true;
-            return false;
+            tgtpos.x.val = targettng->mappos.x.val + distance_with_angle_to_coord_x(targettng->solid_size_xy/2, angle - LbFPMath_PI/3);
+            tgtpos.y.val = targettng->mappos.y.val + distance_with_angle_to_coord_y(targettng->solid_size_xy/2, angle - LbFPMath_PI/3);
+            tgttoppos.x.val = tgtpos.x.val;
+            tgttoppos.y.val = tgtpos.y.val;
+            if (!jonty_line_of_sight_3d_including_lava_check_ignoring_own_door(&shotpos, &tgtpos, creatng->owner))
+            {
+                if (!jonty_line_of_sight_3d_including_lava_check_ignoring_own_door(&shotpos, &tgttoppos, creatng->owner))
+                {
+                    return 0;
+                }
+                else
+                {
+                    return_val = 2;
+                }
+            }
+            else
+            {
+                return_val = 1;
+            }
+            return return_val;
         }
     }
 }
@@ -828,13 +880,13 @@ TbBool line_of_sight_3d(const struct Coord3d *frpos, const struct Coord3d *topos
     while (distance > 0)
     {
         if (point_in_map_is_solid(&nextpos)) {
-            SYNCDBG(7, "Player cannot see through (%d,%d) due to linear path solid flags (downcount %d)",
-                (int)nextpos.x.stl.num,(int)nextpos.y.stl.num,(int)distance);
+            SYNCDBG(7, "Player cannot see through (%d,%d,%d) due to linear path solid flags (downcount %d)",
+                (int)nextpos.x.stl.num,(int)nextpos.y.stl.num, (int)nextpos.z.stl.num, (int)distance);
             return false;
         }
         if (!sibling_line_of_sight(&prevpos, &nextpos)) {
-            SYNCDBG(7, "Player cannot see through (%d,%d) due to 3D line of sight (downcount %d)",
-                (int)nextpos.x.stl.num,(int)nextpos.y.stl.num,(int)distance);
+            SYNCDBG(7, "Player cannot see through (%d,%d,%d) due to 3D line of sight (downcount %d)",
+                (int)nextpos.x.stl.num, (int)nextpos.y.stl.num, (int)nextpos.z.stl.num,(int)distance);
             return false;
         }
         // Go to next sibling subtile

@@ -2050,7 +2050,8 @@ TbBool point_in_map_is_solid(const struct Coord3d *pos)
         floor_height = get_map_floor_filled_subtiles(mapblk);
         ceiling_height = get_mapblk_filled_subtiles(mapblk);
     }
-    if ((ceiling_height <= check_h) || (floor_height > check_h)) {
+    if ((ceiling_height <= check_h) || (floor_height > check_h)) //todo: needs to be '>=', but that causes line of sight issues
+    {
         SYNCDBG(17, "Solid at (%d,%d,%d)",(int)pos->x.stl.num,(int)pos->y.stl.num,(int)pos->z.stl.num);
         return true;
     }

@@ -34,9 +34,8 @@ struct Thing;
 
 #pragma pack()
 /******************************************************************************/
-TbBool jonty_creature_can_see_thing_including_lava_check(const struct Thing *creatng, const struct Thing *thing);
-TbBool sibling_line_of_sight_ignoring_door(const struct Coord3d *prevpos,
-    const struct Coord3d *nextpos, const struct Thing *doortng);
+unsigned char jonty_creature_has_clear_shot_at_thing_including_lava_check(const struct Thing *creatng, const struct Thing *thing);
+TbBool sibling_line_of_sight_ignoring_door(const struct Coord3d *prevpos, const struct Coord3d *nextpos, const struct Thing *doortng);
 #define sibling_line_of_sight(prevpos, nextpos) sibling_line_of_sight_ignoring_door(prevpos, nextpos, INVALID_THING)
 
 TbBool line_of_sight_3d(const struct Coord3d *frpos, const struct Coord3d *topos);
