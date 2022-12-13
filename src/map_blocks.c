@@ -985,7 +985,7 @@ unsigned short get_slabset_index_f(SlabKind slbkind, unsigned char style, unsign
     return 28 * slbkind + 9 * style + pick;
 }
 
-void place_slab_object(unsigned short a1, long a2, long a3, unsigned short slabct_num, unsigned short slbelem, unsigned char a6)
+void place_slab_object(unsigned short slb_num, long a2, long a3, unsigned short slabct_num, unsigned short slbelem, unsigned char a6)
 {
     //_DK_place_slab_object(a1, a2, a3, a4, a5, a6); return;
     if (slabct_num >= SLABSET_COUNT) {
@@ -1031,7 +1031,7 @@ void place_slab_object(unsigned short a1, long a2, long a3, unsigned short slabc
                 if (lgt_id != 0) {
                     struct Light *lgt;
                     lgt = &game.lish.lights[lgt_id];
-                    lgt->field_12 = a1;
+                    lgt->attached_slb = slb_num;
                 } else {
                     WARNLOG("Cannot allocate light");
                     continue;
@@ -1097,7 +1097,7 @@ void place_slab_object(unsigned short a1, long a2, long a3, unsigned short slabc
                             continue;
                       }
                       struct Thing *objtng;
-                      objtng = create_object(&pos, tngmodel, a6, a1);
+                      objtng = create_object(&pos, tngmodel, a6, slb_num);
                       if (thing_is_invalid(objtng)) {
                           ERRORLOG("Cannot create object type %d", tngmodel);
                           continue;
@@ -1106,7 +1106,7 @@ void place_slab_object(unsigned short a1, long a2, long a3, unsigned short slabc
                 if (sobj->field_A == TCls_EffectGen)
                 {
                     struct Thing *effgentng;
-                    effgentng = create_effect_generator(&pos, sobj->sofield_B, sobj->sofield_C << 8, a6, a1);
+                    effgentng = create_effect_generator(&pos, sobj->sofield_B, sobj->sofield_C << 8, a6, slb_num);
                     if (thing_is_invalid(effgentng)) {
                         ERRORLOG("Cannot create effect generator, type %d", sobj->sofield_B);
                         continue;
@@ -1225,7 +1225,7 @@ void delete_attached_lights_on_slab(MapSlabCoord slb_x, MapSlabCoord slb_y)
             int lgtstl_y;
             lgtstl_x = lgt->mappos.x.stl.num;
             lgtstl_y = lgt->mappos.y.stl.num;
-            if (lgt->field_12 == place_slbnum)
+            if (lgt->attached_slb == place_slbnum)
             {
                 if ((lgtstl_x >= start_stl_x) && (lgtstl_x <= end_stl_x) && (lgtstl_y >= start_stl_y) && (lgtstl_y <= end_stl_y))
                 {

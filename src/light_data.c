@@ -153,9 +153,7 @@ long light_create_light(struct InitLight *ilght)
     unsigned long k = 2 * ilght->field_3;
     lgt->flags2 = k ^ ((k ^ lgt->flags2) & 0x01);
     set_flag_byte(&lgt->flags,LgtF_Dynamic,ilght->is_dynamic);
-    lgt->field_1A = ilght->field_8;
-    lgt->field_18 = ilght->field_4;
-    lgt->field_12 = ilght->field_12;
+    lgt->attached_slb = ilght->attached_slb;
 
     struct LightAdd* lightadd = get_lightadd(lgt->index);
     LbMemorySet(lightadd, 0, sizeof(struct LightAdd)); // Clear any previously used LightAdd stuff
@@ -1745,7 +1743,7 @@ static char light_render_light_dynamic(struct Light *lgt, int radius, int render
         {
             do
             {
-                stl_num_2 = (unsigned char)lighting_table->distance;
+                stl_num_2 = lighting_table->distance;
                 if (stl_num_2 > lighting_tables_idx)
                     break;
                 stl_y = lighting_table->delta_y + lgt_stl_y;
@@ -1755,10 +1753,10 @@ static char light_render_light_dynamic(struct Light *lgt, int radius, int render
                     some_y_2 = stl_y << 8;
                     some_x_2 = stl_x << 8;
                     angle = LbArcTanAngle(some_x_2 - lgt_pos_x, some_y_2 - lgt_pos_y) & LbFPMath_AngleMask;
-                    if ((unsigned char)stl_x < (unsigned char)lgt_stl_x)
-                        v17 = ((unsigned char)stl_y < (unsigned char)lgt_stl_y) + 3;
+                    if (stl_x < lgt_stl_x)
+                        v17 = (stl_y < lgt_stl_y) + 3;
                     else
-                        v17 = 2 - ((unsigned char)stl_y < (unsigned char)lgt_stl_y);
+                        v17 = 2 - (stl_y < lgt_stl_y);
                     v19 = game.lish.shadow_limits[angle];
                     v38 = v17;
                     if (v19)
@@ -2101,11 +2099,6 @@ static void light_render_area(MapSubtlCoord startx, MapSubtlCoord starty, MapSub
 {
   struct Light *lgt;
   int range;
-  char *v9;
-  unsigned short *v10;
-  short *v12;
-  unsigned short *v13;
-  short v21;
   MapSubtlDelta half_width_y;
   MapSubtlDelta half_width_x;
 
@@ -2144,20 +2137,19 @@ static void light_render_area(MapSubtlCoord startx, MapSubtlCoord starty, MapSub
 
 
   SubtlCodedCoords start_num = get_subtile_number(startx, starty);
-  v9 = (char *)&game.lish.subtile_lightness + start_num * 2;
-  v10 = &game.lish.stat_light_map[start_num];
 
   
   if ( starty <= endy )
   {
-    MapSubtlCoord y = endy - starty + 1;
+    unsigned short *stl_lightness = &game.lish.subtile_lightness[start_num];
+    unsigned short *stat_light_map = &game.lish.stat_light_map[start_num];
+
+    MapSubtlDelta y = endy - starty + 1;
     do
     {
-      v12 = (short *)v9;
-      v13 = v10;
-      v9 += (map_subtiles_x + 1) * 2;
-      v10 += (map_subtiles_x + 1);
-      memcpy(v12, v13, 2 * (endx - startx));
+      memcpy(stl_lightness, stat_light_map, 2 * (endx - startx));
+      stl_lightness  += (map_subtiles_x + 1);
+      stat_light_map += (map_subtiles_x + 1);
       --y;
     }
     while ( y );
@@ -2227,10 +2219,8 @@ static void light_render_area(MapSubtlCoord startx, MapSubtlCoord starty, MapSub
           }
           lgt->flags |= LgtF_Unkn08;
         }
-        v21 = lgt->field_1C;
-        if ( v21 )
+        if ( lgt->field_1C )
         {
-          lgt->field_18 += v21;
           lgt->flags |= LgtF_Unkn08;
         }
         light_render_light(lgt);
@@ -2291,7 +2281,7 @@ void update_light_render_area(void)
     light_render_area(startx, starty, endx, endy);
 }
 
-void light_set_light_minimum_size_to_cache(long lgt_id, long a2, long a3)
+void light_set_light_minimum_size_to_cache(long lgt_id, long min_radius, long min_intensity)
 {
   struct Light *lgt;
   if ( lgt_id )
@@ -2304,8 +2294,8 @@ void light_set_light_minimum_size_to_cache(long lgt_id, long a2, long a3)
         lgt->flags &= ~LgtF_Unkn02;
         if ( lgt->flags & LgtF_Dynamic )
         {
-          lgt->min_radius = a2;
-          lgt->min_intensity = a3;
+          lgt->min_radius = min_radius;
+          lgt->min_intensity = min_intensity;
         }
         else
         {
