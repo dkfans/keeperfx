@@ -1389,7 +1389,7 @@ static SubtlCodedCoords get_map_index_of_first_block_thing_colliding_with_travel
 {
     SubtlCodedCoords stl_num;
     struct Coord3d pos;
-    int return_stl_num = 0;
+    SubtlCodedCoords return_stl_num = 0;
 
     struct Coord3d creature_pos = *startpos;
 

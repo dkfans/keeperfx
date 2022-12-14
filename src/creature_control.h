@@ -204,12 +204,12 @@ unsigned char field_67;
     unsigned char byte_8Ax;
     long long_8B;
     unsigned char byte_8F;
-    unsigned short member_pos_stl[5];
+    SubtlCodedCoords member_pos_stl[5];
   } party;
   struct {
     long stack_update_turn;
     SubtlCodedCoords working_stl;
-    unsigned short task_stl;
+    SubtlCodedCoords task_stl;
     unsigned short task_idx;
     unsigned char consecutive_reinforcements;
     unsigned char last_did_job;
