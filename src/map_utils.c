@@ -22,6 +22,7 @@
 #include "globals.h"
 #include "bflib_basics.h"
 #include "bflib_math.h"
+#include "creature_senses.h"
 
 #include "map_blocks.h"
 #include "map_data.h"
@@ -190,8 +191,16 @@ long near_coord_filter_battle_drop_point(const struct Coord3d *pos, MaxCoordFilt
     {
         if (!is_dangerous_drop_subtile(pos->x.stl.num, pos->y.stl.num))
         {
-            // This function should return max value when the place is good for dropping.
-            return LONG_MAX;
+            JUSTMSG("testlog at old code yes");
+            struct Coord3d topos;
+            topos.x.stl.num = param->num1;
+            topos.y.stl.num = param->num2;
+            topos.z.stl.num = 0;
+            if (line_of_sight_3d(pos, &topos)) // not good enough, needs to be a navigation distance
+            {
+                // This function should return max value when the place is good for dropping.
+                return LONG_MAX;
+            }
         }
     }
     // If conditions are not met, return -1 to be sure the position will not be returned.

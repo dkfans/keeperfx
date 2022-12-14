@@ -138,8 +138,8 @@ TbBool get_computer_drop_position_near_subtile(struct Coord3d *pos, struct Dunge
     struct CompoundCoordFilterParam param;
     param.plyr_idx = dungeon->owner;
     param.slab_kind = -1;
-    param.num1 = 0;
-    param.num2 = 0;
+    param.num1 = stl_x;
+    param.num2 = stl_y;
     param.num3 = 0;
     return get_position_spiral_near_map_block_with_filter(pos,
         subtile_coord_center(stl_x), subtile_coord_center(stl_y),
@@ -327,7 +327,8 @@ long computer_event_battle_test(struct Computer2 *comp, struct ComputerEvent *ce
     if (creatrs_num <= 0) {
         return 4;
     }
-    if (!computer_find_safe_non_solid_block(comp, &pos)) {
+    if (!get_computer_drop_position_near_subtile(&pos, comp->dungeon, cevent->param1, cevent->param2))
+    {
         return 4;
     }
     if (computer_able_to_use_power(comp, PwrK_HAND, 1, creatrs_num))
