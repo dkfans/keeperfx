@@ -2498,20 +2498,6 @@ void set_gui_visible(TbBool visible)
   {
       setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
   }
-  if (player->acamera)
-  {
-      if (player->acamera->view_mode == PVM_IsoWibbleView || player->acamera->view_mode == PVM_IsoStraightView)
-      {
-          int camera_zoom_min = CAMERA_ZOOM_MIN;
-
-          update_camera_zoom_bounds(player->acamera, CAMERA_ZOOM_MAX, camera_zoom_min);
-          if (is_my_player(player))
-          {
-            settings.isometric_view_zoom_level = player->acamera->zoom;
-            save_settings();
-          }
-      }
-  }
 }
 
 void toggle_gui(void)
