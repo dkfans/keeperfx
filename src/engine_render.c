@@ -63,6 +63,288 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+enum QKinds {
+    QK_PolygonStandard = 0,
+    QK_PolygonSimple,
+    QK_PolyMode0,
+    QK_PolyMode4,
+    QK_TrigMode2,
+    QK_PolyMode5,
+    QK_TrigMode3,
+    QK_TrigMode6,
+    QK_RotableSprite, // 8
+    QK_PolygonNearFP,
+    QK_Unknown10,
+    QK_JontySprite,
+    QK_CreatureShadow,
+    QK_SlabSelector,
+    QK_CreatureStatus,
+    QK_TextureQuad,
+    QK_FloatingGoldText, // 16
+    QK_RoomFlagBottomPole,
+    QK_JontyISOSprite,
+    QK_RoomFlagStatusBox,
+    QK_Unknown20,
+};
+
+struct MinMax;
+struct Camera;
+struct PlayerInfo;
+
+typedef unsigned char QKind;
+
+struct BasicQ { // sizeof = 5
+  struct BasicQ *next;
+  QKind kind;
+};
+
+struct BucketKindPolygonStandard {
+    struct BasicQ b;
+    unsigned char field_5;
+    unsigned short block;
+    struct PolyPoint p1;
+    struct PolyPoint p2;
+    struct PolyPoint p3;
+};
+
+struct BucketKindPolygonSimple {
+    struct BasicQ b;
+    unsigned char field_5;
+    unsigned short block;
+    struct PolyPoint p1;
+    struct PolyPoint p2;
+    struct PolyPoint p3;
+};
+
+struct BucketKindPolyMode0 {
+    struct BasicQ b;
+    unsigned char colour;
+    unsigned short x1;
+    unsigned short y1;
+    unsigned short x2;
+    unsigned short y2;
+    unsigned short x3;
+    unsigned short y3;
+};
+
+struct BucketKindPolyMode4 {
+    struct BasicQ b;
+    unsigned char colour;
+    unsigned short x1;
+    unsigned short y1;
+    unsigned short x2;
+    unsigned short y2;
+    unsigned short x3;
+    unsigned short y3;
+    unsigned char vf1;
+    unsigned char vf2;
+    unsigned char vf3;
+    unsigned char field_15[3];
+    unsigned char field_18;
+    unsigned char field_19[3];
+};
+
+struct BucketKindTrigMode2 {
+    struct BasicQ b;
+    unsigned char field_5;
+    unsigned short x1;
+    unsigned short y1;
+    unsigned short x2;
+    unsigned short y2;
+    unsigned short x3;
+    unsigned short y3;
+    unsigned short field_12;
+    unsigned char uf1;
+    unsigned char vf1;
+    unsigned char uf2;
+    unsigned char vf2;
+    unsigned char uf3;
+    unsigned char vf3;
+};
+
+struct BucketKindPolyMode5 {
+    struct BasicQ b;
+    unsigned char field_5;
+    unsigned short x1;
+    unsigned short y1;
+    unsigned short x2;
+    unsigned short y2;
+    unsigned short x3;
+    unsigned short y3;
+    unsigned short field_12;
+    unsigned char uf1;
+    unsigned char vf1;
+    unsigned char uf2;
+    unsigned char vf2;
+    unsigned char uf3;
+    unsigned char vf3;
+    unsigned char wf1;
+    unsigned char wf2;
+    unsigned char wf3;
+};
+
+struct BucketKindTrigMode3 {
+    struct BasicQ b;
+    unsigned char field_5;
+    unsigned short x1;
+    unsigned short y1;
+    unsigned short x2;
+    unsigned short y2;
+    unsigned short x3;
+    unsigned short y3;
+    unsigned short field_12;
+    unsigned char uf1;
+    unsigned char vf1;
+    unsigned char uf2;
+    unsigned char vf2;
+    unsigned char uf3;
+    unsigned char vf3;
+};
+
+struct BucketKindTrigMode6 {
+    struct BasicQ b;
+    unsigned char field_5;
+    unsigned short x1;
+    unsigned short y1;
+    unsigned short x2;
+    unsigned short y2;
+    unsigned short x3;
+    unsigned short y3;
+    unsigned short field_12;
+    unsigned char uf1;
+    unsigned char vf1;
+    unsigned char uf2;
+    unsigned char vf2;
+    unsigned char uf3;
+    unsigned char vf3;
+    unsigned char wf1;
+    unsigned char wf2;
+    unsigned char wf3;
+};
+
+struct BucketKindRotableSprite {
+    struct BasicQ b;
+    unsigned char field_5[3];
+    long field_8;
+    long field_C;
+    long field_10;
+    long field_14;
+    char field_18;
+    unsigned char field_19[3];
+};
+
+struct BucketKindPolygonNearFP {
+    struct BasicQ b;
+    unsigned char subtype;
+    unsigned short block;
+    struct PolyPoint p1;
+    struct PolyPoint p2;
+    struct PolyPoint p3;
+    struct XYZ c1;
+    struct XYZ c2;
+    struct XYZ c3;
+};
+
+struct BucketKindBasicUnk10 {
+    struct BasicQ b;
+    unsigned char field_5;
+    unsigned char field_6;
+    unsigned char field_7;
+    struct PolyPoint p1;
+    struct PolyPoint p2;
+    struct PolyPoint p3;
+};
+
+struct BucketKindJontySprite {  // BasicQ type 11,18
+    struct BasicQ b;
+    unsigned char field_5[3];
+    struct Thing *thing;
+    long scr_x;
+    long scr_y;
+    long field_14;
+    unsigned char field_18;
+    unsigned char field_19[3];
+};
+
+struct BucketKindCreatureShadow {
+    struct BasicQ b;
+    unsigned char field_5;
+    unsigned short field_6;
+    struct PolyPoint p1;
+    struct PolyPoint p2;
+    struct PolyPoint p3;
+    struct PolyPoint p4;
+    long angle;
+    unsigned short anim_sprite;
+    unsigned char thing_field48;
+};
+
+struct BucketKindSlabSelector {
+    struct BasicQ b;
+    unsigned char field_5;
+    unsigned short field_6;
+    struct PolyPoint p;
+    unsigned char field_19[3];
+};
+
+struct BucketKindCreatureStatus { // sizeof = 24
+    struct BasicQ b;
+    unsigned char padding[3];
+    struct Thing *thing;
+    long x;
+    long y;
+    long z;
+};
+
+#define SHADOW_SOURCES_MAX_COUNT 4
+struct NearestLights {
+    struct Coord3d coord[SHADOW_SOURCES_MAX_COUNT];
+};
+struct BucketKindTexturedQuad { // sizeof = 46
+    struct BasicQ b;
+    unsigned char field_5;
+    long field_6;
+    long field_A;
+    long field_E;
+    long field_12;
+    long field_16;
+    long field_1A;
+    long field_1E;
+    long field_22;
+    long field_26;
+    long field_2A;
+};
+
+struct BucketKindFloatingGoldText { // BasicQ type 16
+    struct BasicQ b;
+    unsigned char field_5[3];
+    long x;
+    long y;
+    long lvl;
+};
+
+struct BucketKindRoomFlag { // BasicQ type 17,19
+    struct BasicQ b;
+    unsigned char field_5;
+    unsigned short lvl;
+    long x;
+    long y;
+};
+
+
+
+struct EngineCol {
+    struct EngineCoord cors[16];
+};
+
+struct SideOri {
+    unsigned char field_0;
+    unsigned char field_1;
+    unsigned char field_2;
+    unsigned char field_3;
+};
+
 /******************************************************************************/
 static const unsigned short shield_offset[] = {
  0x0,  0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x118, 0x80,
