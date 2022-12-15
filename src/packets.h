@@ -250,8 +250,8 @@ struct Packet { // sizeof = 0x11 (17)
     unsigned char action; //! Action kind performed by the player which owns this packet
     unsigned short actn_par1; //! Players action parameter #1
     unsigned short actn_par2; //! Players action parameter #2
-    short pos_x; //! Mouse Cursor Position X
-    short pos_y; //! Mouse Cursor Position Y
+    long pos_x; //! Mouse Cursor Position X
+    long pos_y; //! Mouse Cursor Position Y
     unsigned short control_flags;
     unsigned char additional_packet_values; // uses the flags and values from TbPacketAddValues
 };
