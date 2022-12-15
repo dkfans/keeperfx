@@ -1972,13 +1972,7 @@ static char light_render_light(struct Light* lgt)
   lightadd->last_turn_drawn = game.play_gameturn;
   lgt->mappos.x.val = lightadd->interp_mappos.x.val;
   lgt->mappos.y.val = lightadd->interp_mappos.y.val;
-  // Stop flicker by rounding off position
   TbBool is_dynamic = lgt->flags & LgtF_Dynamic;
-  if (is_dynamic)
-  {
-      lgt->mappos.x.val = ((lgt->mappos.x.val >> 8) << 8);
-      lgt->mappos.y.val = ((lgt->mappos.y.val >> 8) << 8);
-  }
 
   int intensity;
   int radius = lgt->radius;
@@ -2045,6 +2039,16 @@ static char light_render_light(struct Light* lgt)
         if ( x_end > ((map_subtiles_x + 1) * COORD_PER_STL) - 1)
           x_end = ((map_subtiles_x + 1) * COORD_PER_STL - 1);
         MapCoord y_end = lgt->mappos.y.val + lighting_radius;
+
+        // Stop flickering of dynamic lights while delta time is enabled. Most noticeable with lava effect.
+        if (is_dynamic)
+        {
+          x_start = ((x_start >> 8) << 8);
+          y_start = ((y_start >> 8) << 8);
+          x_end = ((x_end >> 8) << 8);
+          y_end = ((y_end >> 8) << 8);
+        }
+
         if ( y_end > ((map_subtiles_y + 1) * COORD_PER_STL - 1) )
           y_end = ((map_subtiles_y + 1) * COORD_PER_STL - 1);
         MapSubtlCoord stl_x = coord_subtile(x_start);
