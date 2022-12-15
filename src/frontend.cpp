@@ -2502,10 +2502,7 @@ void set_gui_visible(TbBool visible)
   {
       if (player->acamera->view_mode == PVM_IsoWibbleView || player->acamera->view_mode == PVM_IsoStraightView)
       {
-          // Adjust the bounds of zoom of the camera when the side-menu is toggled (in Isometric view) to hide graphical glitches if the screen is too wide or tall
-          // NOTE: This should be removed if the render array is ever increased (i.e. can see more things on screen)
-          int panel_width = (((game.operation_flags & GOF_ShowGui) != 0) ? status_panel_width : 0);
-          int camera_zoom_min = adjust_min_camera_zoom(player->acamera, player->engine_window_width, player->engine_window_height, panel_width);
+          int camera_zoom_min = CAMERA_ZOOM_MIN;
 
           update_camera_zoom_bounds(player->acamera, CAMERA_ZOOM_MAX, camera_zoom_min);
           if (is_my_player(player))
