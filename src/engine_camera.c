@@ -592,7 +592,7 @@ void update_player_camera_fp(struct Camera *cam, struct Thing *thing)
         }
         else
         {
-            cam->mappos.z.val = cam->mappos.z.val + (thing->mappos.z.val + cctrl->head_bob - cam->mappos.z.val + eye_height) / 2;
+            cam->mappos.z.val = cam->mappos.z.val + ((int64_t)thing->mappos.z.val + cctrl->head_bob - cam->mappos.z.val + eye_height) / 2;
             cam->orient_a = thing->move_angle_xy;
             cam->orient_b = thing->move_angle_z;
             cam->orient_c = 0;
