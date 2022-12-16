@@ -30,6 +30,7 @@ extern "C"
 {
 #endif
 
+DLLIMPORT long _DK_ceiling_init(unsigned long a1, unsigned long a2);
 static char ceiling_cache[256*256];
 
 static int find_column_height_including_lintels(struct Column *col)
@@ -355,6 +356,8 @@ static int get_ceiling_or_floor_filled_subtiles(int stl_num)
 
 long ceiling_init(unsigned long a1, unsigned long a2)
 {
+    return _DK_ceiling_init(a1, a2);
+    //TODO Fix, then enable rewritten version
     MapSubtlCoord stl_x;
     MapSubtlCoord stl_y;
     for (stl_y=0; stl_y < map_subtiles_y; stl_y++)
