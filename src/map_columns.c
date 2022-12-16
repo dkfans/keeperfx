@@ -130,7 +130,7 @@ void set_map_floor_filled_subtiles(struct Map *mapblk, MapSubtlCoord n)
  */
 long get_column_ceiling_filled_subtiles(const struct Column *col)
 {
-    return (col->bitfields & CLF_CEILING_MASK) >> 1;
+    return (col->bitfields & 0x0E) >> 1;
 }
 
 /**
@@ -143,7 +143,7 @@ long get_map_ceiling_filled_subtiles(const struct Map *mapblk)
     col = get_map_column(mapblk);
     if (column_invalid(col))
         return 0;
-    return (col->bitfields & CLF_CEILING_MASK) >> 1;
+    return (col->bitfields & 0x0E) >> 1;
 }
 
 /**
@@ -157,7 +157,7 @@ long get_ceiling_filled_subtiles_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
     colmn = get_column_at(stl_x, stl_y);
     if (column_invalid(colmn))
         return 0;
-    return (colmn->bitfields & CLF_CEILING_MASK) >> 1;
+    return (colmn->bitfields & 0x0E) >> 1;
 }
 
 /**
@@ -167,8 +167,8 @@ long get_ceiling_filled_subtiles_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
  */
 void set_column_ceiling_filled_subtiles(struct Column *col, MapSubtlCoord n)
 {
-    col->bitfields &= ~CLF_CEILING_MASK;
-    col->bitfields |= (n<<1) & CLF_CEILING_MASK;
+    col->bitfields &= ~0x0E;
+    col->bitfields |= (n<<1) & 0x0E;
 }
 
 /**
@@ -182,8 +182,8 @@ void set_map_ceiling_filled_subtiles(struct Map *mapblk, MapSubtlCoord n)
     col = get_map_column(mapblk);
     if (column_invalid(col))
         return;
-    col->bitfields &= ~CLF_CEILING_MASK;
-    col->bitfields |= (n<<1) & CLF_CEILING_MASK;
+    col->bitfields &= ~0x0E;
+    col->bitfields |= (n<<1) & 0x0E;
 }
 
 TbBool map_pos_solid_at_ceiling(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
