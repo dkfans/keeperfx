@@ -295,8 +295,8 @@ TbResult game_action(PlayerNumber plyr_idx, unsigned short gaction, unsigned sho
     struct Room *room;
     SYNCDBG(9,"Starting action %d",(int)gaction);
     if (subtile_has_slab(stl_x, stl_y)) {
-        slb_x = subtile_slab_fast(stl_x);
-        slb_y = subtile_slab_fast(stl_y);
+        slb_x = subtile_slab(stl_x);
+        slb_y = subtile_slab(stl_y);
     } else {
         slb_x = -1;
         slb_y = -1;

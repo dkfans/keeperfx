@@ -51,7 +51,6 @@ struct Map {
 #pragma pack()
 /******************************************************************************/
 extern struct Map bad_map_block;
-extern const long map_to_slab[];
 extern MapSubtlCoord map_subtiles_x;
 extern MapSubtlCoord map_subtiles_y;
 extern MapSubtlCoord map_subtiles_z;
@@ -64,8 +63,6 @@ extern long nav_map_initialised;
 /******************************************************************************/
 /** Convert subtile to slab. */
 #define subtile_slab(stl) ((stl)/STL_PER_SLB)
-/** Convert subtile to slab, assuming the subtile is in correct range. */
-#define subtile_slab_fast(stl) ((int)map_to_slab[stl])
 /** Converts slab to a subtile. Second parameter selects a specific subtile. */
 #define slab_subtile(slb,subnum) ((MapSubtlCoord)(slb)*STL_PER_SLB+(MapSubtlCoord)(subnum))
 /** Converts slab to its central subtile. */

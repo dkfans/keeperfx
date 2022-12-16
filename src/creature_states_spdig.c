@@ -375,8 +375,8 @@ long check_out_place_for_convert_behind_door(struct Thing *thing, MapSlabCoord s
 long check_out_unconverted_drop_place(struct Thing *thing)
 {
     //return _DK_check_out_unconverted_drop_place(thing);
-    MapSlabCoord slb_x = subtile_slab_fast(thing->mappos.x.stl.num);
-    MapSlabCoord slb_y = subtile_slab_fast(thing->mappos.y.stl.num);
+    MapSlabCoord slb_x = subtile_slab(thing->mappos.x.stl.num);
+    MapSlabCoord slb_y = subtile_slab(thing->mappos.y.stl.num);
     if (check_place_to_convert_excluding(thing, slb_x, slb_y))
     {
         if (imp_will_soon_be_working_at_excluding(thing, slab_subtile_center(slb_x), slab_subtile_center(slb_y)))
@@ -402,8 +402,8 @@ static TbBool check_out_undug_drop_place(struct Thing *spdigtng)
 
     struct CreatureControl* cctrl = creature_control_get_from_thing(spdigtng);
 
-    MapCoord slb_x = subtile_slab_fast(spdigtng->mappos.x.stl.num);
-    MapCoord slb_y = subtile_slab_fast(spdigtng->mappos.y.stl.num);
+    MapCoord slb_x = subtile_slab(spdigtng->mappos.x.stl.num);
+    MapCoord slb_y = subtile_slab(spdigtng->mappos.y.stl.num);
     MapSubtlCoord stl_x = slab_subtile_center(slb_x);
     MapSubtlCoord stl_y = slab_subtile_center(slb_y);
     MapSubtlCoord dig_place_stl_x = 0;
@@ -515,8 +515,8 @@ static TbBool check_out_place_for_pretty_behind_door(struct Thing *spdigting, Ma
 
 TbBool check_out_unprettied_drop_place(struct Thing *thing)
 {
-    MapCoord slb_x = subtile_slab_fast(thing->mappos.x.stl.num);
-    MapCoord slb_y = subtile_slab_fast(thing->mappos.y.stl.num);
+    MapCoord slb_x = subtile_slab(thing->mappos.x.stl.num);
+    MapCoord slb_y = subtile_slab(thing->mappos.y.stl.num);
     MapSubtlCoord stl_x = slab_subtile_center(slb_x);
     MapSubtlCoord stl_y = slab_subtile_center(slb_y);
 
@@ -638,8 +638,8 @@ long check_out_unreinforced_drop_place(struct Thing *thing)
     n = reinforce_edges[STL_PER_SLB * (stl_y % STL_PER_SLB) + (stl_x % STL_PER_SLB)];
     for (i=0; i < SMALL_AROUND_LENGTH; i++)
     {
-        slb_x = subtile_slab_fast(stl_x) + (long)small_around[n].delta_x;
-        slb_y = subtile_slab_fast(stl_y) + (long)small_around[n].delta_y;
+        slb_x = subtile_slab(stl_x) + (long)small_around[n].delta_x;
+        slb_y = subtile_slab(stl_y) + (long)small_around[n].delta_y;
         if ( check_place_to_reinforce(thing, slb_x, slb_y) > 0 )
         {
             stl_num = get_subtile_number_at_slab_center(slb_x, slb_y);
@@ -796,8 +796,8 @@ short imp_arrives_at_convert_dungeon(struct Thing *thing)
 {
     TRACE_THING(thing);
     if (check_place_to_convert_excluding(thing,
-        subtile_slab_fast(thing->mappos.x.stl.num),
-        subtile_slab_fast(thing->mappos.y.stl.num)) )
+        subtile_slab(thing->mappos.x.stl.num),
+        subtile_slab(thing->mappos.y.stl.num)) )
     {
       internal_set_thing_state(thing, CrSt_ImpConvertsDungeon);
     } else
@@ -847,8 +847,8 @@ short imp_arrives_at_improve_dungeon(struct Thing *spdigtng)
 {
     TRACE_THING(spdigtng);
     if ( check_place_to_pretty_excluding(spdigtng,
-        subtile_slab_fast(spdigtng->mappos.x.stl.num),
-        subtile_slab_fast(spdigtng->mappos.y.stl.num)) )
+        subtile_slab(spdigtng->mappos.x.stl.num),
+        subtile_slab(spdigtng->mappos.y.stl.num)) )
     {
         internal_set_thing_state(spdigtng, CrSt_ImpImprovesDungeon);
     } else
@@ -915,8 +915,8 @@ short imp_converts_dungeon(struct Thing *spdigtng)
     MapSubtlCoord stl_x = spdigtng->mappos.x.stl.num;
     MapSubtlCoord stl_y = spdigtng->mappos.y.stl.num;
     struct CreatureControl* cctrl = creature_control_get_from_thing(spdigtng);
-    MapSlabCoord slb_x = subtile_slab_fast(stl_x);
-    MapSlabCoord slb_y = subtile_slab_fast(stl_y);
+    MapSlabCoord slb_x = subtile_slab(stl_x);
+    MapSlabCoord slb_y = subtile_slab(stl_y);
     if ( (stl_x - (MapSubtlDelta)cctrl->moveto_pos.x.stl.num >= 1) || (stl_y - (MapSubtlDelta)cctrl->moveto_pos.y.stl.num >= 1) )
     {
         clear_creature_instance(spdigtng);
@@ -1095,8 +1095,8 @@ short imp_drops_gold(struct Thing *spdigtng)
         internal_set_thing_state(spdigtng, CrSt_ImpLastDidJob);
         return 1;
     }
-    MapSubtlCoord center_stl_x = slab_subtile_center(subtile_slab_fast(spdigtng->mappos.x.stl.num));
-    MapSubtlCoord center_stl_y = slab_subtile_center(subtile_slab_fast(spdigtng->mappos.y.stl.num));
+    MapSubtlCoord center_stl_x = slab_subtile_center(subtile_slab(spdigtng->mappos.x.stl.num));
+    MapSubtlCoord center_stl_y = slab_subtile_center(subtile_slab(spdigtng->mappos.y.stl.num));
     struct Room* curoom = subtile_room_get(spdigtng->mappos.x.stl.num, spdigtng->mappos.y.stl.num);
     if (!room_exists(curoom) || (curoom->index != room->index))
     {
@@ -1176,8 +1176,8 @@ short imp_improves_dungeon(struct Thing *spdigtng)
         internal_set_thing_state(spdigtng, CrSt_ImpLastDidJob);
         return 0;
     }
-    long slb_x = subtile_slab_fast(spdigtng->mappos.x.stl.num);
-    long slb_y = subtile_slab_fast(spdigtng->mappos.y.stl.num);
+    long slb_x = subtile_slab(spdigtng->mappos.x.stl.num);
+    long slb_y = subtile_slab(spdigtng->mappos.y.stl.num);
     if (!check_place_to_pretty_excluding(spdigtng, slb_x, slb_y))
     {
         clear_creature_instance(spdigtng);

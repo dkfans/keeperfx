@@ -126,7 +126,7 @@ TbBool setup_trap_tooltips(struct Coord3d *pos)
     SYNCDBG(18,"Starting");
     // Traps searching is restricted to one subtile - otherwise we could lose tooltips for other objects.
     struct Thing* thing = get_trap_at_subtile_of_model_and_owned_by(pos->x.stl.num, pos->y.stl.num, -1, -1);
-    //thing = get_trap_for_slab_position(subtile_slab_fast(pos->x.stl.num),subtile_slab_fast(pos->y.stl.num));
+    //thing = get_trap_for_slab_position(subtile_slab(pos->x.stl.num),subtile_slab(pos->y.stl.num));
     if (thing_is_invalid(thing)) return false;
     struct PlayerInfo* player = get_my_player();
     if ((thing->trap.revealed == 0) && (player->id_number != thing->owner))

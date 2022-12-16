@@ -1070,8 +1070,8 @@ TbBool player_sell_trap_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
 {
     struct Thing *thing;
     struct Coord3d pos;
-    MapSlabCoord slb_x = subtile_slab_fast(stl_x);
-    MapSlabCoord slb_y = subtile_slab_fast(stl_y);
+    MapSlabCoord slb_x = subtile_slab(stl_x);
+    MapSlabCoord slb_y = subtile_slab(stl_y);
     long sell_value = 0;
     unsigned long traps_sold;
     struct PlayerInfo* player = get_player(plyr_idx);
@@ -1087,7 +1087,7 @@ TbBool player_sell_trap_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     }
     else
     {
-        thing = get_trap_for_slab_position(subtile_slab_fast(stl_x), subtile_slab_fast(stl_y));
+        thing = get_trap_for_slab_position(subtile_slab(stl_x), subtile_slab(stl_y));
         if (thing_is_invalid(thing))
         {
             return false;
@@ -1145,7 +1145,7 @@ TbBool player_sell_door_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     if (is_my_player_number(plyr_idx))
         play_non_3d_sample(115);
     struct Coord3d pos;
-    set_coords_to_slab_center(&pos,subtile_slab_fast(stl_x),subtile_slab_fast(stl_y));
+    set_coords_to_slab_center(&pos,subtile_slab(stl_x),subtile_slab(stl_y));
     if (sell_value != 0)
     {
         create_price_effect(&pos, plyr_idx, sell_value);

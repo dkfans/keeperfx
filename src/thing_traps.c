@@ -450,13 +450,13 @@ void activate_trap_slab_change(struct Thing *traptng, struct Thing *creatng)
     MapSubtlCoord stl_x = traptng->mappos.x.stl.num;
     MapSubtlCoord stl_y = traptng->mappos.y.stl.num;
     if (subtile_is_room(stl_x, stl_y)) {
-        delete_room_slab(subtile_slab_fast(stl_x), subtile_slab_fast(stl_y), true);
+        delete_room_slab(subtile_slab(stl_x), subtile_slab(stl_y), true);
     }
     place_slab_type_on_map(gameadd.trap_stats[traptng->model].created_itm_model, stl_x, stl_y, game.neutral_player_num, 0);
     // TODO
     //remove_traps_around_subtile(slab_subtile_center(slb_x), slab_subtile_center(slb_y), NULL);
     //update_navigation_triangulation(stl_x-1,  stl_y-1, stl_x+1,stl_y+1);
-    do_slab_efficiency_alteration(subtile_slab_fast(stl_x), subtile_slab_fast(stl_y));
+    do_slab_efficiency_alteration(subtile_slab(stl_x), subtile_slab(stl_y));
 }
 
 void activate_trap_spawn_creature(struct Thing *traptng, const struct TrapStats *trapstat)
@@ -592,8 +592,8 @@ TbBool find_pressure_trigger_trap_target_passing_by_subtile(const struct Thing *
 
 TbBool update_trap_trigger_pressure_slab(struct Thing *traptng)
 {
-    MapSlabCoord slb_x = subtile_slab_fast(traptng->mappos.x.stl.num);
-    MapSlabCoord slb_y = subtile_slab_fast(traptng->mappos.y.stl.num);
+    MapSlabCoord slb_x = subtile_slab(traptng->mappos.x.stl.num);
+    MapSlabCoord slb_y = subtile_slab(traptng->mappos.y.stl.num);
     MapSubtlCoord end_stl_x = slab_subtile(slb_x, 2);
     MapSubtlCoord end_stl_y = slab_subtile(slb_y, 2);
     for (MapSubtlCoord stl_y = slab_subtile(slb_y, 0); stl_y <= end_stl_y; stl_y++)
@@ -942,8 +942,8 @@ void external_activate_trap_shot_at_angle(struct Thing *thing, long a2, struct T
 
 TbBool can_place_trap_on(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    MapSlabCoord slb_x = subtile_slab_fast(stl_x);
-    MapSlabCoord slb_y = subtile_slab_fast(stl_y);
+    MapSlabCoord slb_x = subtile_slab(stl_x);
+    MapSlabCoord slb_y = subtile_slab(stl_y);
     struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
     struct SlabAttr* slbattr = get_slab_attrs(slb);
     struct PlayerInfo* player = get_player(plyr_idx);

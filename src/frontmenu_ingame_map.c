@@ -696,8 +696,8 @@ void pannel_map_draw_overlay_things(long units_per_px, long scaled_zoom, long ba
 
 void pannel_map_update_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    MapSlabCoord slb_x = subtile_slab_fast(stl_x);
-    MapSlabCoord slb_y = subtile_slab_fast(stl_y);
+    MapSlabCoord slb_x = subtile_slab(stl_x);
+    MapSlabCoord slb_y = subtile_slab(stl_y);
     SubtlCodedCoords stl_num = get_subtile_number(stl_x, stl_y);
     struct Map *mapblk = get_map_block_at_pos(stl_num);
     struct SlabMap *slb = get_slabmap_block(slb_x, slb_y);

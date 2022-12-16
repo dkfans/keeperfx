@@ -424,8 +424,8 @@ void neutralise_enemy_block(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumb
     MapSlabCoord slb_x;
     MapSlabCoord slb_y;
     SYNCDBG(16,"Starting");
-    slb_x = subtile_slab_fast(stl_x);
-    slb_y = subtile_slab_fast(stl_y);
+    slb_x = subtile_slab(stl_x);
+    slb_y = subtile_slab(stl_y);
     slb = get_slabmap_block(slb_x, slb_y);
     switch (slabmap_wlb(slb))
     {
@@ -1605,8 +1605,8 @@ void dump_slab_on_map(SlabKind slbkind, long slabct_num, MapSubtlCoord stl_x, Ma
     //_DK_dump_slab_on_map(slbkind, a2, stl_x, stl_y, owner); return;
     MapSlabCoord slb_x;
     MapSlabCoord slb_y;
-    slb_x = subtile_slab_fast(stl_x);
-    slb_y = subtile_slab_fast(stl_y);
+    slb_x = subtile_slab(stl_x);
+    slb_y = subtile_slab(stl_y);
     MapSubtlCoord stl_xa;
     MapSubtlCoord stl_ya;
     stl_xa = STL_PER_SLB * slb_x;
@@ -1705,8 +1705,8 @@ void place_animating_slab_type_on_map(SlabKind slbkind, char ani_frame, MapSubtl
     //_DK_place_animating_slab_type_on_map(slbkind,a2,a3,a4,owner);
     MapSlabCoord slb_x;
     MapSlabCoord slb_y;
-    slb_x = subtile_slab_fast(stl_x);
-    slb_y = subtile_slab_fast(stl_y);
+    slb_x = subtile_slab(stl_x);
+    slb_y = subtile_slab(stl_y);
     if (!slab_kind_is_animated(slbkind))
     {
         ERRORLOG("Attempt to dump an invalid animating slab: %d", (int)slbkind);
@@ -1808,8 +1808,8 @@ void place_slab_type_on_map_f(SlabKind nslab, MapSubtlCoord stl_x, MapSubtlCoord
     SYNCDBG(7,"%s: Starting for (%d,%d)",func_name,(int)stl_x,(int)stl_y);
     if (subtile_coords_invalid(stl_x, stl_y))
         return;
-    slb_x = subtile_slab_fast(stl_x);
-    slb_y = subtile_slab_fast(stl_y);
+    slb_x = subtile_slab(stl_x);
+    slb_y = subtile_slab(stl_y);
     if (slab_kind_is_animated(nslab))
     {
         ERRORLOG("%s: Placing animating slab %d as standard slab",func_name,(int)nslab);
@@ -2072,8 +2072,8 @@ void mine_out_block(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_
         ERRORLOG("Attempt to mine on invalid coordinates.");
         return;
     }
-    slb_x = subtile_slab_fast(stl_x);
-    slb_y = subtile_slab_fast(stl_y);
+    slb_x = subtile_slab(stl_x);
+    slb_y = subtile_slab(stl_y);
     create_gold_rubble_for_dug_slab(slb_x, slb_y);
     all_players_untag_blocks_for_digging_in_area(slb_x, slb_y);
     replace_map_slab_when_destroyed(slb_x, slb_y);
@@ -2144,8 +2144,8 @@ void dig_out_block(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_i
         ERRORLOG("Attempt to dig on invalid coordinates.");
         return;
     }
-    slb_x = subtile_slab_fast(stl_x);
-    slb_y = subtile_slab_fast(stl_y);
+    slb_x = subtile_slab(stl_x);
+    slb_y = subtile_slab(stl_y);
     create_dirt_rubble_for_dug_slab(slb_x, slb_y);
     all_players_untag_blocks_for_digging_in_area(slb_x, slb_y);
     replace_map_slab_when_destroyed(slb_x, slb_y);
@@ -2535,8 +2535,8 @@ void check_map_explored(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoor
     pos.z.val = get_floor_height_at(&pos);
     MapSlabCoord slb_x;
     MapSlabCoord slb_y;
-    slb_x = map_to_slab[stl_x];
-    slb_y = map_to_slab[stl_y];
+    slb_x = subtile_slab(stl_x);
+    slb_y = subtile_slab(stl_y);
     struct SlabMap *slb;
     struct SlabAttr *slbattr;
     slb = get_slabmap_block(slb_x, slb_y);
@@ -2818,7 +2818,7 @@ char point_in_map_is_solid_including_lava_check_ignoring_door(struct Coord3d *po
 
 TbBool subtile_is_diggable_at_diagonal_angle(struct Thing *thing, unsigned short angle, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    if ( (subtile_slab_fast(stl_x) == subtile_slab_fast(thing->mappos.x.stl.num)) && (subtile_slab_fast(stl_y) == subtile_slab_fast(thing->mappos.y.stl.num)) )
+    if ( (subtile_slab(stl_x) == subtile_slab(thing->mappos.x.stl.num)) && (subtile_slab(stl_y) == subtile_slab(thing->mappos.y.stl.num)) )
     {
         return true;
     }
@@ -2857,7 +2857,7 @@ TbBool subtile_is_diggable_at_diagonal_angle(struct Thing *thing, unsigned short
         }
         break;
     }
-    if ( (!slab_is_wall(subtile_slab_fast(stl_x), subtile_slab_fast(check_stl_y))) || (!slab_is_wall(subtile_slab_fast(check_stl_x), subtile_slab_fast(stl_y))) )
+    if ( (!slab_is_wall(subtile_slab(stl_x), subtile_slab(check_stl_y))) || (!slab_is_wall(subtile_slab(check_stl_x), subtile_slab(stl_y))) )
     {
         return true;
     }

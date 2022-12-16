@@ -869,8 +869,8 @@ TbBool process_players_dungeon_control_cheats_packet_action(PlayerNumber plyr_id
             y = (pckt->pos_y);
             stl_x = coord_subtile(x);
             stl_y = coord_subtile(y);
-            slb_x = subtile_slab_fast(stl_x);
-            slb_y = subtile_slab_fast(stl_y);
+            slb_x = subtile_slab(stl_x);
+            slb_y = subtile_slab(stl_y);
             if (slab_kind_is_animated(pckt->actn_par1))
             {
                 place_animating_slab_type_on_map(pckt->actn_par1, 0, stl_x, stl_y, pckt->actn_par2);
@@ -914,8 +914,8 @@ TbBool process_players_dungeon_control_cheats_packet_action(PlayerNumber plyr_id
             y = (pckt->pos_y);
             stl_x = coord_subtile(x);
             stl_y = coord_subtile(y);
-            slb_x = subtile_slab_fast(stl_x);
-            slb_y = subtile_slab_fast(stl_y);
+            slb_x = subtile_slab(stl_x);
+            slb_y = subtile_slab(stl_y);
             PlayerNumber id = pckt->actn_par2;
             TbBool effect = pckt->actn_par2 >> 8;
             if (effect)

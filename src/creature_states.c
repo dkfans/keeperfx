@@ -1114,7 +1114,7 @@ struct Room *get_room_xy(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
  */
 TbBool fill_moveable_small_around_slabs_array_in_room(TbBool *avail, const struct Thing *thing, const struct Room *room)
 {
-    long slab_base = get_slab_number(subtile_slab_fast(thing->mappos.x.stl.num), subtile_slab_fast(thing->mappos.y.stl.num));
+    long slab_base = get_slab_number(subtile_slab(thing->mappos.x.stl.num), subtile_slab(thing->mappos.y.stl.num));
     // Fill the avail[] array
     for (long n = 0; n < SMALL_AROUND_SLAB_LENGTH; n++)
     {
@@ -1163,8 +1163,8 @@ TbBool set_position_at_slab_for_thing(struct Coord3d *pos, const struct Thing *t
 TbBool person_get_somewhere_adjacent_in_room_f(struct Thing *thing, const struct Room *room, struct Coord3d *pos, const char *func_name)
 {
     SYNCDBG(17,"%s: Starting for %s index %d",func_name,thing_model_name(thing),(int)thing->index);
-    MapSlabCoord slb_x = subtile_slab_fast(thing->mappos.x.stl.num);
-    MapSlabCoord slb_y = subtile_slab_fast(thing->mappos.y.stl.num);
+    MapSlabCoord slb_x = subtile_slab(thing->mappos.x.stl.num);
+    MapSlabCoord slb_y = subtile_slab(thing->mappos.y.stl.num);
     long slab_base = get_slab_number(slb_x, slb_y);
 
     int start_stl = CREATURE_RANDOM(thing, AROUND_MAP_LENGTH);
@@ -1191,8 +1191,8 @@ TbBool person_get_somewhere_adjacent_in_room_f(struct Thing *thing, const struct
     }
     // Cannot find a good position - but at least move within the same slab we're on
     {
-        slb_x = subtile_slab_fast(thing->mappos.x.stl.num);
-        slb_y = subtile_slab_fast(thing->mappos.y.stl.num);
+        slb_x = subtile_slab(thing->mappos.x.stl.num);
+        slb_y = subtile_slab(thing->mappos.y.stl.num);
         {
             if (set_position_at_slab_for_thing(pos, thing, slb_x, slb_y, start_stl))
             {
@@ -1225,7 +1225,7 @@ TbBool person_get_somewhere_adjacent_in_room_around_borders_f(struct Thing *thin
         pos->z.val = subtile_coord(1,0);
         return false;
     }
-    long slab_base = get_slab_number(subtile_slab_fast(thing->mappos.x.stl.num), subtile_slab_fast(thing->mappos.y.stl.num));
+    long slab_base = get_slab_number(subtile_slab(thing->mappos.x.stl.num), subtile_slab(thing->mappos.y.stl.num));
     long start_stl = CREATURE_RANDOM(thing, STL_PER_SLB * STL_PER_SLB);
     // If the room is too small - don't try selecting adjacent slab
     if (room->slabs_count > 1)
@@ -1813,8 +1813,8 @@ TbBool slab_is_valid_for_creature_choose_move(const struct Thing *thing, MapSlab
 TbBool creature_choose_random_destination_on_valid_adjacent_slab(struct Thing *thing)
 {
     SYNCDBG(17,"Starting for %s index %d",thing_model_name(thing),(long)thing->index);
-    MapSlabCoord slb_x = subtile_slab_fast(thing->mappos.x.stl.num);
-    MapSlabCoord slb_y = subtile_slab_fast(thing->mappos.y.stl.num);
+    MapSlabCoord slb_x = subtile_slab(thing->mappos.x.stl.num);
+    MapSlabCoord slb_y = subtile_slab(thing->mappos.y.stl.num);
     long slab_base = get_slab_number(slb_x, slb_y);
 
     MapSubtlCoord start_stl = CREATURE_RANDOM(thing, 9);
@@ -1842,8 +1842,8 @@ TbBool creature_choose_random_destination_on_valid_adjacent_slab(struct Thing *t
     }
     // Cannot find a good position - but at least move within the same slab we're on
     {
-        slb_x = subtile_slab_fast(thing->mappos.x.stl.num);
-        slb_y = subtile_slab_fast(thing->mappos.y.stl.num);
+        slb_x = subtile_slab(thing->mappos.x.stl.num);
+        slb_y = subtile_slab(thing->mappos.y.stl.num);
         struct Coord3d locpos;
         if (creature_find_any_position_to_move_within_slab(&locpos, thing, slb_x, slb_y, start_stl))
         {

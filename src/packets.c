@@ -136,8 +136,8 @@ struct Room *keeper_build_room(long stl_x,long stl_y,long plyr_idx,long rkind)
     struct Dungeon* dungeon = get_players_dungeon(player);
     struct RoomConfigStats* roomst = get_room_kind_stats(rkind);
     // Take top left subtile on single subtile boundbox, take center subtile on full slab boundbox
-    MapCoord x = ((player->full_slab_cursor == 0) ? slab_subtile(subtile_slab_fast(stl_x), 0) : slab_subtile_center(subtile_slab_fast(stl_x)));
-    MapCoord y = ((player->full_slab_cursor == 0) ? slab_subtile(subtile_slab_fast(stl_y), 0) : slab_subtile_center(subtile_slab_fast(stl_y)));
+    MapCoord x = ((player->full_slab_cursor == 0) ? slab_subtile(subtile_slab(stl_x), 0) : slab_subtile_center(subtile_slab(stl_x)));
+    MapCoord y = ((player->full_slab_cursor == 0) ? slab_subtile(subtile_slab(stl_y), 0) : slab_subtile_center(subtile_slab(stl_y)));
     struct Room* room = player_build_room_at(x, y, plyr_idx, rkind);
     if (!room_is_invalid(room))
     {
@@ -150,7 +150,7 @@ struct Room *keeper_build_room(long stl_x,long stl_y,long plyr_idx,long rkind)
             dungeon->camera_deviate_jump = 192;
         }
         struct Coord3d pos;
-        set_coords_to_slab_center(&pos, subtile_slab_fast(stl_x), subtile_slab_fast(stl_y));
+        set_coords_to_slab_center(&pos, subtile_slab(stl_x), subtile_slab(stl_y));
         create_price_effect(&pos, plyr_idx, roomst->cost);
     }
     return room;
@@ -223,13 +223,13 @@ TbBool player_sell_room_at_subtile(long plyr_idx, long stl_x, long stl_y)
         dungeon->rooms_destroyed++;
         dungeon->camera_deviate_jump = 192;
     }
-    delete_room_slab(subtile_slab_fast(stl_x), subtile_slab_fast(stl_y), 0);
+    delete_room_slab(subtile_slab(stl_x), subtile_slab(stl_y), 0);
     if (is_my_player_number(plyr_idx))
         play_non_3d_sample(115);
     if (revenue != 0)
     {
         struct Coord3d pos;
-        set_coords_to_slab_center(&pos, subtile_slab_fast(stl_x), subtile_slab_fast(stl_y));
+        set_coords_to_slab_center(&pos, subtile_slab(stl_x), subtile_slab(stl_y));
         create_price_effect(&pos, plyr_idx, revenue);
         player_add_offmap_gold(plyr_idx, revenue);
     }

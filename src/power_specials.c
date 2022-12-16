@@ -269,8 +269,8 @@ void make_safe(struct PlayerInfo *player)
     }
     {
         const struct Coord3d* center_pos = dungeon_get_essential_pos(player->id_number);
-        slb_x = subtile_slab_fast(center_pos->x.stl.num);
-        slb_y = subtile_slab_fast(center_pos->y.stl.num);
+        slb_x = subtile_slab(center_pos->x.stl.num);
+        slb_y = subtile_slab(center_pos->y.stl.num);
         SlabCodedCoords slb_num = get_slab_number(slb_x, slb_y);
         areamap[slb_num] |= 0x02;
     }

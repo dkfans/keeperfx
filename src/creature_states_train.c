@@ -337,8 +337,8 @@ void process_creature_in_training_room(struct Thing *thing, struct Room *room)
             long stl_x;
             long stl_y;
             struct SlabMap *slb;
-            slb_x = subtile_slab_fast(thing->mappos.x.stl.num) + (long)small_around[i].delta_x;
-            slb_y = subtile_slab_fast(thing->mappos.y.stl.num) + (long)small_around[i].delta_y;
+            slb_x = subtile_slab(thing->mappos.x.stl.num) + (long)small_around[i].delta_x;
+            slb_y = subtile_slab(thing->mappos.y.stl.num) + (long)small_around[i].delta_y;
             slb = get_slabmap_block(slb_x,slb_y);
             if ((slb->kind != SlbT_TRAINING) || (slabmap_owner(slb) != thing->owner))
                 continue;
@@ -353,8 +353,8 @@ void process_creature_in_training_room(struct Thing *thing, struct Room *room)
             }
             if (!thing_is_invalid(traintng))
             {
-                cctrl->training.pole_stl_x = slab_subtile_center(subtile_slab_fast(thing->mappos.x.stl.num));
-                cctrl->training.pole_stl_y = slab_subtile_center(subtile_slab_fast(thing->mappos.y.stl.num));
+                cctrl->training.pole_stl_x = slab_subtile_center(subtile_slab(thing->mappos.x.stl.num));
+                cctrl->training.pole_stl_y = slab_subtile_center(subtile_slab(thing->mappos.y.stl.num));
                 cctrl->moveto_pos.x.stl.num = stl_x;
                 cctrl->moveto_pos.y.stl.num = stl_y;
                 cctrl->moveto_pos.x.stl.pos = 128;

@@ -593,8 +593,8 @@ long instf_dig(struct Thing *creatng, long *param)
 long instf_destroy(struct Thing *creatng, long *param)
 {
     TRACE_THING(creatng);
-    MapSlabCoord slb_x = subtile_slab_fast(creatng->mappos.x.stl.num);
-    MapSlabCoord slb_y = subtile_slab_fast(creatng->mappos.y.stl.num);
+    MapSlabCoord slb_x = subtile_slab(creatng->mappos.x.stl.num);
+    MapSlabCoord slb_y = subtile_slab(creatng->mappos.y.stl.num);
     struct Dungeon* dungeon = get_dungeon(creatng->owner);
     struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
     struct Room* room = room_get(slb->room_index);
@@ -714,8 +714,8 @@ long instf_damage_wall(struct Thing *creatng, long *param)
         slb->health -= 2;
     } else
     {
-        MapSlabCoord slb_x = subtile_slab_fast(stl_x);
-        MapSlabCoord slb_y = subtile_slab_fast(stl_y);
+        MapSlabCoord slb_x = subtile_slab(stl_x);
+        MapSlabCoord slb_y = subtile_slab(stl_y);
         place_slab_type_on_map(SlbT_EARTH, stl_x, stl_y, creatng->owner, 0);
         do_slab_efficiency_alteration(slb_x, slb_y);
         create_dirt_rubble_for_dug_slab(slb_x, slb_y);
@@ -759,8 +759,8 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
     struct SlabMap* slb;
     MapSubtlCoord ahead_stl_x = creatng->mappos.x.stl.num;
     MapSubtlCoord ahead_stl_y = creatng->mappos.y.stl.num;
-    MapSlabCoord slb_x = subtile_slab_fast(creatng->mappos.x.stl.num);
-    MapSlabCoord slb_y = subtile_slab_fast(creatng->mappos.y.stl.num);
+    MapSlabCoord slb_x = subtile_slab(creatng->mappos.x.stl.num);
+    MapSlabCoord slb_y = subtile_slab(creatng->mappos.y.stl.num);
     if (check_place_to_pretty_excluding(creatng, slb_x, slb_y))
     {
         if (cctrl->dragtng_idx == 0)
@@ -868,8 +868,8 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
         if (slabmap_owner(slb) == creatng->owner)
         {
             TbBool reinforce = true;
-            MapSlabCoord ahead_sslb_x = subtile_slab_fast(ahead_stl_x);
-            MapSlabCoord ahead_sslb_y = subtile_slab_fast(ahead_stl_y);
+            MapSlabCoord ahead_sslb_x = subtile_slab(ahead_stl_x);
+            MapSlabCoord ahead_sslb_y = subtile_slab(ahead_stl_y);
             if (!check_place_to_reinforce(creatng, ahead_sslb_x, ahead_sslb_y))
             {
                 struct ShotConfigStats* shotst = get_shot_model_stats(ShM_Dig);
@@ -898,8 +898,8 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
                     {
                         ahead_stl_x++;
                     }
-                    ahead_sslb_x = subtile_slab_fast(ahead_stl_x);
-                    ahead_sslb_y = subtile_slab_fast(ahead_stl_y);
+                    ahead_sslb_x = subtile_slab(ahead_stl_x);
+                    ahead_sslb_y = subtile_slab(ahead_stl_y);
                 }
                 while (!check_place_to_reinforce(creatng, ahead_sslb_x, ahead_sslb_y));
             }
@@ -926,8 +926,8 @@ long instf_pretty_path(struct Thing *creatng, long *param)
     TRACE_THING(creatng);
     SYNCDBG(16,"Starting");
     struct Dungeon* dungeon = get_dungeon(creatng->owner);
-    MapSlabCoord slb_x = subtile_slab_fast(creatng->mappos.x.stl.num);
-    MapSlabCoord slb_y = subtile_slab_fast(creatng->mappos.y.stl.num);
+    MapSlabCoord slb_x = subtile_slab(creatng->mappos.x.stl.num);
+    MapSlabCoord slb_y = subtile_slab(creatng->mappos.y.stl.num);
     create_effect(&creatng->mappos, imp_spangle_effects[creatng->owner], creatng->owner);
     thing_play_sample(creatng, 76, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     place_slab_type_on_map(SlbT_CLAIMED, slab_subtile_center(slb_x), slab_subtile_center(slb_y), creatng->owner, 1);
@@ -946,8 +946,8 @@ long instf_reinforce(struct Thing *creatng, long *param)
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     MapSubtlCoord stl_x = stl_num_decode_x(cctrl->digger.working_stl);
     MapSubtlCoord stl_y = stl_num_decode_y(cctrl->digger.working_stl);
-    MapSlabCoord slb_x = subtile_slab_fast(stl_x);
-    MapSlabCoord slb_y = subtile_slab_fast(stl_y);
+    MapSlabCoord slb_x = subtile_slab(stl_x);
+    MapSlabCoord slb_y = subtile_slab(stl_y);
     if (check_place_to_reinforce(creatng, slb_x, slb_y) <= 0) {
         return 0;
     }
