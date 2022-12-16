@@ -4625,7 +4625,7 @@ long fringe_get_rectangle(long *outfri_x1, long *outfri_y1, long *outfri_x2, lon
         return 0;
     }
     unsigned char *fri_map;
-    fri_map = &fringe_map[256 * fri_y + fri_x];
+    fri_map = &fringe_map[get_subtile_number(fri_x,fri_y)];
     // Find dx and dy
     long dx;
     long dy;
@@ -4638,7 +4638,7 @@ long fringe_get_rectangle(long *outfri_x1, long *outfri_y1, long *outfri_x2, lon
     for (dy = 1; dy < len_y; dy++)
     {
         // Our data is 0-terminated, so we can use string functions to compare
-        if (memcmp(&fri_map[256*dy], &fri_map[0], dx) != 0) {
+        if (memcmp(&fri_map[(map_subtiles_x + 1) * dy], &fri_map[0], dx) != 0) {
             break;
         }
     }
@@ -4924,16 +4924,16 @@ TbBool triangulate_area(unsigned char *imap, long start_x, long start_y, long en
     }
     // Prepare some basic logic information
     one_tile = (((end_x - start_x) == 1) && ((end_y - start_y) == 1));
-    not_whole_map = (start_x != 0) || (start_y != 0) || (end_x != 256) || (end_y != 256);
+    not_whole_map = (start_x != 0) || (start_y != 0) || (end_x != map_subtiles_x + 1) || (end_y != map_subtiles_y + 1);
     // If coordinates are out of range, update the whole map area
-    if ((start_x < 1) || (start_y < 1) || (end_x >= 255) || (end_y >= 255))
+    if ((start_x < 1) || (start_y < 1) || (end_x >= map_subtiles_x) || (end_y >= map_subtiles_y))
     {
         one_tile = 0;
         not_whole_map = 0;
         start_x = 0;
-        end_x = 256;
+        end_x = map_subtiles_x + 1;
         start_y = 0;
-        end_y = 256;
+        end_y = map_subtiles_y + 1;
     }
     triangulation_init();
     if ( not_whole_map )
@@ -4948,7 +4948,7 @@ TbBool triangulate_area(unsigned char *imap, long start_x, long start_y, long en
         }
     } else
     {
-        triangulation_initxy(-256, -256, 512, 512);
+        triangulation_initxy(-(map_subtiles_x + 1), -(map_subtiles_y + 1), (map_subtiles_x + 1) * 2, (map_subtiles_y + 1) * 2);
         tri_set_rectangle(start_x, start_y, end_x, end_y, 0);
     }
     colour = -1;

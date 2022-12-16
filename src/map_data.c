@@ -894,6 +894,10 @@ void set_map_size(MapSlabCoord x,MapSlabCoord y)
     map_tiles_x = x;
     map_tiles_y = y;
 
+    navigation_map_size_x = map_subtiles_x + 1;
+    navigation_map_size_y = map_subtiles_y + 1;
+
+
     small_around_slab[0] = -map_tiles_x;
     small_around_slab[2] = map_tiles_x;
 
