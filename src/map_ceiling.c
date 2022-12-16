@@ -127,13 +127,26 @@ static int ceiling_calculate_height_from_nearest_walls(int result, int number_of
     return result;
 }
 
+
+//version that doesn't take mapsize into account but might not crash?
 long ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey)
 {
+    int v5;
+    int v6;
+    int v7;
+    int v8;
+    int v9;
+    int v10;
     int v11;
+    int v12;
+    int v13;
+    int v14;
     int v15;
     int v16;
     int cstl_y;
     int cstl_x;
+    int stl_num;
+    signed char is_solid;
     unsigned long *p_data;
     int v22;
     int v23;
@@ -151,76 +164,104 @@ long ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey)
     int v35;
     unsigned int number_of_steps;
     int v38;
+    int v39;
+    int v40;
+    int v41;
     int v42;
+    int v43;
     int v44;
+    int v45;
+    int v46;
     int v47;
     int *v48;
     int v49;
+    unsigned int v50;
+    int v51;
+    int v52;
     MapSubtlCoord unk_stl_y;
     MapSubtlCoord unk_stl_x;
-    int ceil_dist = game.ceiling_dist;
+    v5 = game.ceiling_dist;
     if (game.ceiling_dist > 4)
-        ceil_dist = 4;
-    MapSubtlCoord unk3stl_x = sx - ceil_dist;
-    if (unk3stl_x <= 0)
-        unk3stl_x = 0;
-    MapSubtlCoord unk3stl_y = sy - ceil_dist;
-    if (sy - ceil_dist <= 0)
-        unk3stl_y = 0;
-    v47 = ex + ceil_dist;
-    if (ex + ceil_dist >= (map_subtiles_x + 1))
-        v47 = (map_subtiles_x + 1);
-    v11 = ey + ceil_dist;
-    if (v11 >= (map_subtiles_y + 1))
-        v11 = (map_subtiles_y + 1);
+        v5 = 4;
+    v6 = sx - v5;
+    v7 = v5;
+    v8 = v6;
+    if (v6 <= 0)
+        v8 = 0;
+    v45 = v8;
+    v9 = sy - v7;
+    if (sy - v7 <= 0)
+        v9 = 0;
+    v40 = v9;
+    v10 = ex + v7;
+    if (ex + v7 >= 256)
+        v10 = 256;
+    v11 = ey + v7;
+    v47 = v10;
+    if (v11 >= 256)
+        v11 = 256;
+    v39 = v11;
+    v12 = v11;
     //ceiling_cache = (signed char*)scratch;
-    v44 = unk3stl_x - game.ceiling_dist;
-    if (unk3stl_x - game.ceiling_dist <= 0)
-        v44 = 0;
-    cstl_y = unk3stl_y - game.ceiling_dist;
-    if (unk3stl_y - game.ceiling_dist <= 0)
-        cstl_y = 0;
+    v13 = v45 - game.ceiling_dist;
+    if (v45 - game.ceiling_dist <= 0)
+        v13 = 0;
+    v44 = v13;
+    v14 = v40 - game.ceiling_dist;
+    if (v40 - game.ceiling_dist <= 0)
+        v14 = 0;
     v15 = game.ceiling_dist + v47;
-    if (game.ceiling_dist + v47 >= (map_subtiles_x + 1))
-        v15 = (map_subtiles_x + 1);
-    v16 = v11 + game.ceiling_dist;
-    if (v11 + game.ceiling_dist >= (map_subtiles_y + 1))
-        v16 = (map_subtiles_y + 1);
+    if (game.ceiling_dist + v47 >= 256)
+        v15 = 256;
+    v16 = v12 + game.ceiling_dist;
+    if (v12 + game.ceiling_dist >= 256)
+        v16 = 256;
+    v41 = v16;
+    cstl_y = v14;
     
-    if (cstl_y < v16)
+    if (v14 < v16)
     {
+        v43 = v14 << 8;
         do
         {
             cstl_x = v44;
+
+            stl_num = v44 + v43;
             while (cstl_x < v15)
             {
-                SubtlCodedCoords stl_num = get_subtile_number(cstl_x,cstl_y);
-                ceiling_cache[stl_num] = ceiling_block_is_solid_including_corners_return_height(stl_num,cstl_x,cstl_y);
+                is_solid = ceiling_block_is_solid_including_corners_return_height(stl_num,cstl_x,cstl_y);
+                stl_num++;
                 cstl_x++;
+                ceiling_cache[stl_num - 1] = is_solid;
+
             }
-            cstl_y++;
-        } while (cstl_y < v16);
+            ++cstl_y;
+            v43 += 256;
+        } while (cstl_y < v41);
     }
 
-    if (unk3stl_y < v11)
+    if (v40 < v39)
     {
-        v42 = v11;
+        v46 = v40 << 8;
+        v42 = v39 << 8;
         do
         {
-            v49 = unk3stl_x;
-            SubtlCodedCoords stl_num2 = get_subtile_number(unk3stl_x,unk3stl_y);
-            if (v47 > unk3stl_x)
+            v49 = v45;
+            v51 = v46 + v45;
+            if (v47 > v45)
             {
+                v50 = 5 * v51;
                 do
                 {
-                    p_data = &game.map[stl_num2].data;
-                    v22 = ceiling_cache[stl_num2];
+                    p_data = &game.map[v50 / 5].data;
+                    v22 = ceiling_cache[v51];
                     v38 = v22;
                     if (v22 <= -1)
                     {
+                        v52 = v51;
                         v48 = &v38;
-                        unk_stl_x = stl_num_decode_x(stl_num2);
-                        unk_stl_y = stl_num_decode_y(stl_num2);
+                        unk_stl_x = v51 % 256;
+                        unk_stl_y = v51 / 256;
                         v23 = 0;
                         spir = spiral_step;
                         if (game.ceiling_search_dist > 0)
@@ -231,7 +272,7 @@ long ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey)
                                 unk2_stl_y = unk_stl_y + spir->v;
                                 if (unk2_stl_x >= 0 && unk2_stl_x < map_subtiles_x && unk2_stl_y >= 0 && unk2_stl_y < map_subtiles_y)
                                 {
-                                    v27 = ceiling_cache[get_subtile_number(unk2_stl_x ,unk2_stl_y)];
+                                    v27 = ceiling_cache[v52 + (*(long *)spir >> 16)];
                                     if (v27 > -1)
                                         break;
                                 }
@@ -262,15 +303,16 @@ long ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey)
                     }
                     v32 = v47;
                     v33 = *((char *)p_data + 3) & CLF_FLOOR_MASK;
-                    ++stl_num2;
+                    v50 += 5;
+                    ++v51;
                     *((char *)p_data + 3) = v33;
                     v35 = ((v22 & 0xF) << 24) | *p_data;
                     v34 = ++v49;
                     *p_data = v35;
                 } while (v34 < v32);
             }
-            unk3stl_y ++;
-        } while (unk3stl_y < v42);
+            v46 += 256;
+        } while (v46 < v42);
     }
     return 1;
 }
