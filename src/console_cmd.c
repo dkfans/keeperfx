@@ -1340,8 +1340,8 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
         {
             player = get_player(plyr_idx);
             pckt = get_packet_direct(player->packet_num);
-            MapSubtlCoord stl_x = coord_subtile(((unsigned short)pckt->pos_x));
-            MapSubtlCoord stl_y = coord_subtile(((unsigned short)pckt->pos_y));
+            MapSubtlCoord stl_x = coord_subtile((pckt->pos_x));
+            MapSubtlCoord stl_y = coord_subtile((pckt->pos_y));
             room = (pr2str != NULL) ? room_get(atoi(pr2str)) : subtile_room_get(stl_x, stl_y);
             if (room_exists(room))
             {
@@ -1372,8 +1372,8 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
         {
             player = get_player(plyr_idx);
             pckt = get_packet_direct(player->packet_num);
-            MapSubtlCoord stl_x = coord_subtile(((unsigned short)pckt->pos_x));
-            MapSubtlCoord stl_y = coord_subtile(((unsigned short)pckt->pos_y));
+            MapSubtlCoord stl_x = coord_subtile((pckt->pos_x));
+            MapSubtlCoord stl_y = coord_subtile((pckt->pos_y));
             slb = get_slabmap_for_subtile(stl_x, stl_y);
             if (!slabmap_block_invalid(slb))
             {

@@ -865,8 +865,8 @@ TbBool process_players_dungeon_control_cheats_packet_action(PlayerNumber plyr_id
     {
         case PckA_CheatPlaceTerrain:
         {
-            x = ((unsigned short)pckt->pos_x);
-            y = ((unsigned short)pckt->pos_y);
+            x = (pckt->pos_x);
+            y = (pckt->pos_y);
             stl_x = coord_subtile(x);
             stl_y = coord_subtile(y);
             slb_x = subtile_slab_fast(stl_x);
@@ -884,8 +884,8 @@ TbBool process_players_dungeon_control_cheats_packet_action(PlayerNumber plyr_id
         }
         case PckA_CheatMakeCreature:
         {
-            x = ((unsigned short)pckt->pos_x);
-            y = ((unsigned short)pckt->pos_y);
+            x = (pckt->pos_x);
+            y = (pckt->pos_y);
             pos.x.val = x;
             pos.y.val = y;
             PlayerNumber id = pckt->actn_par2;
@@ -899,8 +899,8 @@ TbBool process_players_dungeon_control_cheats_packet_action(PlayerNumber plyr_id
         }
         case PckA_CheatMakeDigger:
         {
-            x = ((unsigned short)pckt->pos_x);
-            y = ((unsigned short)pckt->pos_y);
+            x = (pckt->pos_x);
+            y = (pckt->pos_y);
             thing = create_owned_special_digger(x, y, pckt->actn_par1);
             if (!thing_is_invalid(thing))
             {
@@ -910,8 +910,8 @@ TbBool process_players_dungeon_control_cheats_packet_action(PlayerNumber plyr_id
         }
         case PckA_CheatStealSlab:
         {
-            x = ((unsigned short)pckt->pos_x);
-            y = ((unsigned short)pckt->pos_y);
+            x = (pckt->pos_x);
+            y = (pckt->pos_y);
             stl_x = coord_subtile(x);
             stl_y = coord_subtile(y);
             slb_x = subtile_slab_fast(stl_x);
@@ -967,8 +967,8 @@ TbBool process_players_dungeon_control_cheats_packet_action(PlayerNumber plyr_id
         }
         case PckA_CheatStealRoom:
         {
-            x = ((unsigned short)pckt->pos_x);
-            y = ((unsigned short)pckt->pos_y);
+            x = (pckt->pos_x);
+            y = (pckt->pos_y);
             stl_x = coord_subtile(x);
             stl_y = coord_subtile(y);
             struct Room* room = subtile_room_get(stl_x, stl_y);
