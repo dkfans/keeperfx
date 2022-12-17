@@ -134,12 +134,12 @@ long get_parchment_map_area_rect(struct TbRect *map_area)
     get_parchment_background_area_rect(&bkgnd_area);
     long bkgnd_width = bkgnd_area.right - bkgnd_area.left;
     long bkgnd_height = bkgnd_area.bottom - bkgnd_area.top;
-    long block_size = min((bkgnd_width - bkgnd_width / 3) / map_tiles_x, (bkgnd_height - bkgnd_height / 8) / map_tiles_y);
+    long block_size = min((bkgnd_width - bkgnd_width / 3) / gameadd.map_tiles_x, (bkgnd_height - bkgnd_height / 8) / gameadd.map_tiles_y);
     if (block_size < 1) block_size = 1;
-    map_area->left = bkgnd_area.left + (bkgnd_width - block_size*map_tiles_x) / 2;
-    map_area->top = bkgnd_area.top + 3 * (bkgnd_height - block_size*map_tiles_y) / 4;
-    map_area->right = map_area->left + block_size*map_tiles_x;
-    map_area->bottom = map_area->top + block_size*map_tiles_y;
+    map_area->left = bkgnd_area.left + (bkgnd_width - block_size*gameadd.map_tiles_x) / 2;
+    map_area->top = bkgnd_area.top + 3 * (bkgnd_height - block_size*gameadd.map_tiles_y) / 4;
+    map_area->right = map_area->left + block_size*gameadd.map_tiles_x;
+    map_area->bottom = map_area->top + block_size*gameadd.map_tiles_y;
     return block_size;
 }
 
@@ -156,7 +156,7 @@ TbBool point_to_overhead_map(const struct Camera *camera, const long screen_x, c
     {
         *map_x = COORD_PER_STL * STL_PER_SLB * (screen_x-map_area.left) / block_size + COORD_PER_STL/2;
         *map_y = COORD_PER_STL * STL_PER_SLB * (screen_y-map_area.top)  / block_size + COORD_PER_STL/2;
-        return ((*map_x >= 0) && (*map_x < (map_subtiles_x+1)<<8) && (*map_y >= 0) && (*map_y < (map_subtiles_y+1)<<8));
+        return ((*map_x >= 0) && (*map_x < (gameadd.map_subtiles_x+1)<<8) && (*map_y >= 0) && (*map_y < (gameadd.map_subtiles_y+1)<<8));
     }
     return false;
 }
@@ -301,7 +301,7 @@ void draw_overhead_map(const struct TbRect *map_area, long block_size, PlayerNum
     long line = 0;
     long stl_y = 1;
     unsigned char* dstline = &lbDisplay.WScreen[map_area->left + lbDisplay.GraphicsScreenWidth * map_area->top];
-    for (long cntr_h = map_tiles_y * block_size; cntr_h > 0; cntr_h--)
+    for (long cntr_h = gameadd.map_tiles_y * block_size; cntr_h > 0; cntr_h--)
     {
         if ((line > 0) && ((line % block_size) == 0))
         {
@@ -309,7 +309,7 @@ void draw_overhead_map(const struct TbRect *map_area, long block_size, PlayerNum
         }
         unsigned char* dstbuf = dstline;
         long stl_x = 1;
-        for (long cntr_w = map_tiles_x; cntr_w > 0; cntr_w--)
+        for (long cntr_w = gameadd.map_tiles_x; cntr_w > 0; cntr_w--)
         {
             for (long k = block_size; k > 0; k--)
             {
@@ -830,8 +830,8 @@ void draw_zoom_box(void)
     int stl_x = STL_PER_SLB * (mouse_x / pixel_size - map_area.left) / block_size - draw_tiles_x / 2;
     int stl_y = STL_PER_SLB * (mouse_y / pixel_size - map_area.top) / block_size - draw_tiles_y / 2;
     // Draw only on map area (do not allow zoom box to be empty)
-    if ((stl_x < -draw_tiles_x/2) || (stl_x >= map_subtiles_x+1-draw_tiles_x/2)
-     || (stl_y < -draw_tiles_y/2) || (stl_y >= map_subtiles_y+1-draw_tiles_y/2))
+    if ((stl_x < -draw_tiles_x/2) || (stl_x >= gameadd.map_subtiles_x+1-draw_tiles_x/2)
+     || (stl_y < -draw_tiles_y/2) || (stl_y >= gameadd.map_subtiles_y+1-draw_tiles_y/2))
       return;
 
     draw_zoom_box_terrain(scrtop_x, scrtop_y, stl_x, stl_y, player->id_number, draw_tiles_x, draw_tiles_y, subtile_size);
