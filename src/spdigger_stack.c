@@ -945,9 +945,7 @@ static long check_out_unreinforced_place(struct Thing *thing)
     }
 }
 
-
-
-static TbBool check_out_unreinforced_area_new(struct Thing *spdigtng)
+static TbBool check_out_unreinforced_area(struct Thing *spdigtng)
 {
 
     long distance;
@@ -998,94 +996,6 @@ static TbBool check_out_unreinforced_area_new(struct Thing *spdigtng)
     cctrl->digger.working_stl = final_working_stl;
     cctrl->digger.consecutive_reinforcements = 0;
     return true;
-}
-
-DLLIMPORT long _DK_check_out_unreinforced_area(struct Thing *creatng);
-
-static TbBool check_out_unreinforced_area(struct Thing *spdigtng)
-{
-    struct CreatureControl* cctrl = creature_control_get_from_thing(spdigtng);
-    struct Dungeon *dungeon = get_dungeon(spdigtng->owner);
-
-    struct DiggerStack temp_digger_stack[DIGGER_TASK_MAX_COUNT];
-    for ( int i = 0; dungeon->digger_stack_length > i; i++ )
-    {
-        temp_digger_stack[i] = dungeon->digger_stack[i];
-    }
-
-
-
-    unsigned char thing_continue               = spdigtng->continue_state                ;
-    unsigned char thing_active                 = spdigtng->active_state                  ;
-    unsigned char thing_state_flags            = spdigtng->state_flags                   ;
-    unsigned char thing_continue_state         = spdigtng->continue_state                ;
-    unsigned char cctrl_stopped_for_hand_turns = cctrl->stopped_for_hand_turns           ;
-    unsigned char cctrl_instance_id            = cctrl->instance_id                      ;
-    ushort        cctrl_inst_turn              = cctrl->inst_turn                        ;
-    ushort        cctrl_moveto_pos_x           = cctrl->moveto_pos.x.val                 ;
-    ushort        cctrl_moveto_pos_y           = cctrl->moveto_pos.y.val                 ;
-    ushort        cctrl_moveto_pos_z           = cctrl->moveto_pos.z.val                 ;    
-    ushort        cctrl_digger_working_stl     = cctrl->digger.working_stl               ;
-    unsigned char cctrl_digger_con_reinfor     = cctrl->digger.consecutive_reinforcements;
-    unsigned char cctrl_move_flags             = cctrl->move_flags                       ;
-
-    TbBool old = _DK_check_out_unreinforced_area(spdigtng);
-
-    for ( int i = 0; dungeon->digger_stack_length > i; i++ )
-    {
-        dungeon->digger_stack[i] = temp_digger_stack[i];
-    }
-
-    unsigned char _thing_continue               = spdigtng->continue_state                ;
-    unsigned char _thing_active                 = spdigtng->active_state                  ;
-    unsigned char _thing_state_flags            = spdigtng->state_flags                   ;
-    unsigned char _thing_continue_state         = spdigtng->continue_state                ;
-    unsigned char _cctrl_stopped_for_hand_turns = cctrl->stopped_for_hand_turns           ;
-    unsigned char _cctrl_instance_id            = cctrl->instance_id                      ;
-    ushort        _cctrl_inst_turn              = cctrl->inst_turn                        ;
-    ushort        _cctrl_moveto_pos_x           = cctrl->moveto_pos.x.val                 ;
-    ushort        _cctrl_moveto_pos_y           = cctrl->moveto_pos.y.val                 ;
-    ushort        _cctrl_moveto_pos_z           = cctrl->moveto_pos.z.val                 ;    
-    ushort        _cctrl_digger_working_stl     = cctrl->digger.working_stl               ;
-    unsigned char _cctrl_digger_con_reinfor     = cctrl->digger.consecutive_reinforcements;
-    unsigned char _cctrl_move_flags             = cctrl->move_flags                       ;
-
-    spdigtng->continue_state                 = thing_continue               ;
-    spdigtng->active_state                   = thing_active                 ;
-    spdigtng->state_flags                    = thing_state_flags            ;
-    spdigtng->continue_state                 = thing_continue_state         ;
-    cctrl->stopped_for_hand_turns            = cctrl_stopped_for_hand_turns ;
-    cctrl->instance_id                       = cctrl_instance_id            ;
-    cctrl->inst_turn                         = cctrl_inst_turn              ;
-    cctrl->moveto_pos.x.val                  = cctrl_moveto_pos_x           ;
-    cctrl->moveto_pos.y.val                  = cctrl_moveto_pos_y           ;
-    cctrl->moveto_pos.z.val                  = cctrl_moveto_pos_z           ;
-    cctrl->digger.working_stl                = cctrl_digger_working_stl     ;
-    cctrl->digger.consecutive_reinforcements = cctrl_digger_con_reinfor     ;
-    cctrl->move_flags                        = cctrl_move_flags             ;
-
-
-
-    TbBool new = check_out_unreinforced_area_new(spdigtng);
-
-    if(spdigtng->continue_state                 != _thing_continue              ) JUSTLOG("thing_continue               %d %d",_thing_continue              ,spdigtng->continue_state                );
-    if(spdigtng->active_state                   != _thing_active                ) JUSTLOG("thing_active                 %d %d",_thing_active                ,spdigtng->active_state                  );
-    if(spdigtng->state_flags                    != _thing_state_flags           ) JUSTLOG("thing_state_flags            %d %d",_thing_state_flags           ,spdigtng->state_flags                   );
-    if(spdigtng->continue_state                 != _thing_continue_state        ) JUSTLOG("thing_continue_state         %d %d",_thing_continue_state        ,spdigtng->continue_state                );
-    if(cctrl->stopped_for_hand_turns            != _cctrl_stopped_for_hand_turns) JUSTLOG("cctrl_stopped_for_hand_turns %d %d",_cctrl_stopped_for_hand_turns,cctrl->stopped_for_hand_turns           );
-    if(cctrl->instance_id                       != _cctrl_instance_id           ) JUSTLOG("cctrl_instance_id            %d %d",_cctrl_instance_id           ,cctrl->instance_id                      );
-    if(cctrl->inst_turn                         != _cctrl_inst_turn             ) JUSTLOG("cctrl_inst_turn              %d %d",_cctrl_inst_turn             ,cctrl->inst_turn                        );
-    if(cctrl->moveto_pos.x.val                  != _cctrl_moveto_pos_x          ) JUSTLOG("cctrl_moveto_pos_x           %d %d",_cctrl_moveto_pos_x          ,cctrl->moveto_pos.x.val                 );
-    if(cctrl->moveto_pos.y.val                  != _cctrl_moveto_pos_y          ) JUSTLOG("cctrl_moveto_pos_y           %d %d",_cctrl_moveto_pos_y          ,cctrl->moveto_pos.y.val                 );
-    if(cctrl->moveto_pos.z.val                  != _cctrl_moveto_pos_z          ) JUSTLOG("cctrl_moveto_pos_z           %d %d",_cctrl_moveto_pos_z          ,cctrl->moveto_pos.z.val                 );
-    if(cctrl->digger.working_stl                != _cctrl_digger_working_stl    ) JUSTLOG("cctrl_digger_working_stl     %d %d",_cctrl_digger_working_stl    ,cctrl->digger.working_stl               );
-    if(cctrl->digger.consecutive_reinforcements != _cctrl_digger_con_reinfor    ) JUSTLOG("cctrl_digger_con_reinfor     %d %d",_cctrl_digger_con_reinfor    ,cctrl->digger.consecutive_reinforcements);
-    if(cctrl->move_flags                        != _cctrl_move_flags            ) JUSTLOG("cctrl_move_flags             %d %d",_cctrl_move_flags            ,cctrl->move_flags                       );
-
-    JUSTLOG("check %d %d",old,new);
-
-    return new;
-
 }
 
 TbBool check_out_unconverted_place(struct Thing *thing)
