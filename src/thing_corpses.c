@@ -180,12 +180,12 @@ long move_dead_creature(struct Thing *thing)
     if ( (thing->velocity.x.val != 0) || (thing->velocity.y.val != 0) || (thing->velocity.z.val != 0) )
     {
         long i = (long)thing->mappos.x.val + (long)thing->velocity.x.val;
-        if (i >= subtile_coord(map_subtiles_x,0)) i = subtile_coord(map_subtiles_x,0)-1;
+        if (i >= subtile_coord(gameadd.map_subtiles_x,0)) i = subtile_coord(gameadd.map_subtiles_x,0)-1;
         if (i < 0) i = 0;
         struct Coord3d pos;
         pos.x.val = i;
         i = (long)thing->mappos.y.val + (long)thing->velocity.y.val;
-        if (i >= subtile_coord(map_subtiles_y,0)) i = subtile_coord(map_subtiles_y,0)-1;
+        if (i >= subtile_coord(gameadd.map_subtiles_y,0)) i = subtile_coord(gameadd.map_subtiles_y,0)-1;
         if (i < 0) i = 0;
         pos.y.val = i;
         i = (long)thing->mappos.z.val + (long)thing->velocity.z.val;

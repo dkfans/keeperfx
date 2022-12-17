@@ -690,7 +690,7 @@ void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long delta_st
                 tngpos.x.val = curpos.x.val + deviat - UNSYNC_RANDOM(devrange); // I hope it is only visual
                 tngpos.y.val = curpos.y.val + deviat - UNSYNC_RANDOM(devrange);
                 tngpos.z.val = curpos.z.val + deviat - UNSYNC_RANDOM(devrange);
-                if ((tngpos.x.val < subtile_coord(map_subtiles_x,0)) && (tngpos.y.val < subtile_coord(map_subtiles_y,0)))
+                if ((tngpos.x.val < subtile_coord(gameadd.map_subtiles_x,0)) && (tngpos.y.val < subtile_coord(gameadd.map_subtiles_y,0)))
                 {
                     struct Thing *eelemtng;
                     eelemtng = create_thing(&tngpos, TCls_EffectElem, TngEffElm_BallOfLight, game.neutral_player_num, -1);
@@ -775,7 +775,7 @@ void draw_lightning(const struct Coord3d *pos1, const struct Coord3d *pos2, long
             tngpos.x.val = curpos.x.val + deviat_x;
             tngpos.y.val = curpos.y.val + deviat_y;
             tngpos.z.val = curpos.z.val + deviat_z;
-            if ((tngpos.x.val < subtile_coord(map_subtiles_x,0)) && (tngpos.y.val < subtile_coord(map_subtiles_y,0)))
+            if ((tngpos.x.val < subtile_coord(gameadd.map_subtiles_x,0)) && (tngpos.y.val < subtile_coord(gameadd.map_subtiles_y,0)))
             {
                 create_thing(&tngpos, TCls_EffectElem, eemodel, game.neutral_player_num, -1);
             }
@@ -1269,13 +1269,13 @@ TbBool engine_point_to_map(struct Camera *camera, long screen_x, long screen_y, 
         if (*map_y < 0)
           *map_y = 0;
         else
-        if (*map_y > subtile_coord(map_subtiles_y,-1))
-          *map_y = subtile_coord(map_subtiles_y,-1);
+        if (*map_y > subtile_coord(gameadd.map_subtiles_y,-1))
+          *map_y = subtile_coord(gameadd.map_subtiles_y,-1);
         if (*map_x < 0)
           *map_x = 0;
         else
-        if (*map_x > subtile_coord(map_subtiles_x,-1))
-          *map_x = subtile_coord(map_subtiles_x,-1);
+        if (*map_x > subtile_coord(gameadd.map_subtiles_x,-1))
+          *map_x = subtile_coord(gameadd.map_subtiles_x,-1);
         return true;
     }
     return false;
@@ -1312,10 +1312,10 @@ TbBool screen_to_map(struct Camera *camera, long screen_x, long screen_y, struct
       mappos->x.val = x;
       mappos->y.val = y;
     }
-    if ( mappos->x.val > ((map_subtiles_x<<8)-1) )
-      mappos->x.val = ((map_subtiles_x<<8)-1);
-    if ( mappos->y.val > ((map_subtiles_y<<8)-1) )
-      mappos->y.val = ((map_subtiles_y<<8)-1);
+    if ( mappos->x.val > ((gameadd.map_subtiles_x<<8)-1) )
+      mappos->x.val = ((gameadd.map_subtiles_x<<8)-1);
+    if ( mappos->y.val > ((gameadd.map_subtiles_y<<8)-1) )
+      mappos->y.val = ((gameadd.map_subtiles_y<<8)-1);
     SYNCDBG(19,"Finished");
     return result;
 }
@@ -1423,9 +1423,9 @@ void reinit_tagged_blocks_for_player(PlayerNumber plyr_idx)
     // Clear tagged blocks
     MapSubtlCoord stl_x;
     MapSubtlCoord stl_y;
-    for (stl_y=0; stl_y < map_subtiles_y; stl_y++)
+    for (stl_y=0; stl_y < gameadd.map_subtiles_y; stl_y++)
     {
-        for (stl_x=0; stl_x < map_subtiles_x; stl_x++)
+        for (stl_x=0; stl_x < gameadd.map_subtiles_x; stl_x++)
         {
             struct Map *mapblk;
             mapblk = get_map_block_at(stl_x, stl_y);
@@ -1635,8 +1635,8 @@ void clear_things_and_persons_data(void)
         thing = &game.things_data[i];
         memset(thing, 0, sizeof(struct Thing));
         thing->owner = PLAYERS_COUNT;
-        thing->mappos.x.val = subtile_coord_center(map_subtiles_x/2);
-        thing->mappos.y.val = subtile_coord_center(map_subtiles_y/2);
+        thing->mappos.x.val = subtile_coord_center(gameadd.map_subtiles_x/2);
+        thing->mappos.y.val = subtile_coord_center(gameadd.map_subtiles_y/2);
     }
     for (i=0; i < CREATURES_COUNT; i++)
     {
@@ -2302,7 +2302,7 @@ static void process_dungeon_devastation_effects(void)
         if ((game.play_gameturn & 1) != 0)
             continue;
         dungeon->devastation_turn++;
-        if (dungeon->devastation_turn >= max(map_tiles_x,map_tiles_y))
+        if (dungeon->devastation_turn >= max(gameadd.map_tiles_x,gameadd.map_tiles_y))
             continue;
         MapSlabCoord slb_x;
         MapSlabCoord slb_y;
@@ -3205,7 +3205,7 @@ void update_blocks_pointed(void)
           k = (hori_ptr_x - (hori_ptr_y >> 1)) / hvdiv_y;
           y_frac = (k & 3) << 6;
           y = k >> 2;
-          if ((x >= 0) && (x < map_subtiles_x) && (y >= 0) && (y < map_subtiles_y))
+          if ((x >= 0) && (x < gameadd.map_subtiles_x) && (y >= 0) && (y < gameadd.map_subtiles_y))
           {
               update_block_pointed(i,x,x_frac,y,y_frac);
           } else {
@@ -3544,9 +3544,9 @@ void initialise_map_collides(void)
     //_DK_initialise_map_collides(); return;
     MapSlabCoord slb_x;
     MapSlabCoord slb_y;
-    for (slb_y=0; slb_y < map_tiles_y; slb_y++)
+    for (slb_y=0; slb_y < gameadd.map_tiles_y; slb_y++)
     {
-        for (slb_x=0; slb_x < map_tiles_x; slb_x++)
+        for (slb_x=0; slb_x < gameadd.map_tiles_x; slb_x++)
         {
             struct SlabMap *slb;
             slb = get_slabmap_block(slb_x, slb_y);
@@ -3576,9 +3576,9 @@ void initialise_map_health(void)
     //_DK_initialise_map_health();
     MapSlabCoord slb_x;
     MapSlabCoord slb_y;
-    for (slb_y=0; slb_y < map_tiles_y; slb_y++)
+    for (slb_y=0; slb_y < gameadd.map_tiles_y; slb_y++)
     {
-        for (slb_x=0; slb_x < map_tiles_x; slb_x++)
+        for (slb_x=0; slb_x < gameadd.map_tiles_x; slb_x++)
         {
             struct SlabMap *slb;
             slb = get_slabmap_block(slb_x, slb_y);

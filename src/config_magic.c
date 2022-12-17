@@ -781,6 +781,11 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                 COMMAND_TEXT(cmd_num),block_buf,config_textname);
             break;
           }
+          if (shot_desc[i].name == NULL) 
+          {
+              shot_desc[i].name = shotst->code_name;
+              shot_desc[i].num = i;
+          }
           n++;
           break;
       case 2: // HEALTH
