@@ -183,7 +183,6 @@ long ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey)
         while (cstl_x < solid_check_end_stl_x)
         {
             SubtlCodedCoords stl_num = get_subtile_number(cstl_x,cstl_y);
-            JUSTLOG("spot1 %d %d",cstl_x,cstl_y);
             ceiling_cache[stl_num] = ceiling_block_is_solid_including_corners_return_height(stl_num,cstl_x,cstl_y);
             cstl_x++;
         }
@@ -197,7 +196,6 @@ long ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey)
         while (unk_end_stl_x > unk_stl_x)
         {
             SubtlCodedCoords stl_num2 = get_subtile_number(unk_stl_x,unk_stl_y);
-            JUSTLOG("spot2 %d %d",unk_stl_x,unk_stl_y);
             v22 = ceiling_cache[stl_num2];
             v38 = v22;
             if (v22 <= -1)
@@ -213,7 +211,6 @@ long ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey)
                         unk2_stl_y = unk_stl_y + spir->v;
                         if (unk2_stl_x >= 0 && unk2_stl_x < map_subtiles_x && unk2_stl_y >= 0 && unk2_stl_y < map_subtiles_y)
                         {
-                            JUSTLOG("spot3 %d %d",unk2_stl_x,unk2_stl_y);
                             v27 = ceiling_cache[get_subtile_number(unk2_stl_x ,unk2_stl_y)];
                             if (v27 > -1)
                                 break;
