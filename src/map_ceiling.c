@@ -170,10 +170,10 @@ long ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey)
         solid_check_start_stl_y = 0;
 
     MapSubtlCoord solid_check_end_stl_x = unk_end_stl_x + game.ceiling_dist;
-    if (game.ceiling_dist + unk_end_stl_x >= (map_subtiles_x + 1))
+    if (solid_check_end_stl_y >= (map_subtiles_x + 1))
         solid_check_end_stl_x = (map_subtiles_x + 1);
     MapSubtlCoord solid_check_end_stl_y = unk_end_stl_y + game.ceiling_dist;
-    if (unk_end_stl_y + game.ceiling_dist >= (map_subtiles_y + 1))
+    if (solid_check_end_stl_y >= (map_subtiles_y + 1))
         solid_check_end_stl_y = (map_subtiles_y + 1);
 
     MapSubtlCoord cstl_y = solid_check_start_stl_y;   
