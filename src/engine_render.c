@@ -492,11 +492,6 @@ TbFileHandle file_handle;
 
 unsigned char player_bit;
 
-long ScrWidth;
-long ScrHeight;
-long ScrCenterX;
-long ScrCenterY;
-
 struct MapVolumeBox map_volume_box;
 long fade_max;
 long split_1;
