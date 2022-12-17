@@ -952,7 +952,7 @@ static TbBool check_out_unreinforced_area_new(struct Thing *spdigtng)
 
     long distance;
     struct Coord3d reinforce_pos;
-    SubtlCodedCoords stl_num;
+    SubtlCodedCoords final_working_stl;
 
     struct CreatureControl *cctrl = creature_control_get_from_thing(spdigtng);
     long min_distance = 28;
@@ -965,7 +965,7 @@ static TbBool check_out_unreinforced_area_new(struct Thing *spdigtng)
         struct DiggerStack *dstack = &dungeon->digger_stack[i];
         if (dstack->task_type == DigTsk_ReinforceWall)
         {
-            stl_num = dstack->stl_num;
+            SubtlCodedCoords stl_num = dstack->stl_num;
 
             MapSubtlCoord wall_stl_x = stl_num_decode_x(dstack->stl_num);
             MapSubtlCoord wall_stl_y = stl_num_decode_y(dstack->stl_num);
@@ -987,7 +987,7 @@ static TbBool check_out_unreinforced_area_new(struct Thing *spdigtng)
                     reinforce_pos.x.stl.num = reinforce_stl_x;
                     reinforce_pos.y.stl.num = reinforce_stl_y;
                     min_distance = distance;
-                    break;
+                    final_working_stl = stl_num;
                 }
             }
         }
@@ -995,7 +995,7 @@ static TbBool check_out_unreinforced_area_new(struct Thing *spdigtng)
     if ( min_distance == 28 || !setup_person_move_to_coord(spdigtng, &reinforce_pos, 0) )
         return false;
     spdigtng->continue_state = CrSt_ImpArrivesAtReinforce;
-    cctrl->digger.working_stl = stl_num;
+    cctrl->digger.working_stl = final_working_stl;
     cctrl->digger.consecutive_reinforcements = 0;
     return true;
 }
