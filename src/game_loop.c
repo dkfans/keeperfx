@@ -69,8 +69,8 @@ void initialise_devastate_dungeon_from_heart(PlayerNumber plyr_idx)
         }
         else {
             dungeon->devastation_turn = 1;
-            dungeon->devastation_centr_x = map_subtiles_x / 2;
-            dungeon->devastation_centr_y = map_subtiles_y / 2;
+            dungeon->devastation_centr_x = gameadd.map_subtiles_x / 2;
+            dungeon->devastation_centr_y = gameadd.map_subtiles_y / 2;
         }
     }
 }

@@ -996,7 +996,7 @@ struct WibbleTable *get_wibble_from_table(struct Camera *cam, long table_index, 
 
 static void fill_in_points_perspective(struct Camera *cam, long bstl_x, long bstl_y, struct MinMax *mm)
 {
-    if ((bstl_y < 0) || (bstl_y > map_subtiles_y-1)) {
+    if ((bstl_y < 0) || (bstl_y > gameadd.map_subtiles_y-1)) {
         return;
     }
     long mmin;
@@ -1005,8 +1005,8 @@ static void fill_in_points_perspective(struct Camera *cam, long bstl_x, long bst
     mmax = max(mm[0].max,mm[1].max);
     if (mmin + bstl_x < 1)
       mmin = 1 - bstl_x;
-    if (mmax + bstl_x > map_subtiles_y)
-      mmax = map_subtiles_y - bstl_x;
+    if (mmax + bstl_x > gameadd.map_subtiles_y)
+      mmax = gameadd.map_subtiles_y - bstl_x;
     MapSubtlCoord stl_x;
     MapSubtlCoord stl_y;
     stl_y = bstl_y;
@@ -1135,7 +1135,7 @@ static void fill_in_points_perspective(struct Camera *cam, long bstl_x, long bst
 
 static void fill_in_points_cluedo(struct Camera *cam, long bstl_x, long bstl_y, struct MinMax *mm)
 {
-    if ((bstl_y < 0) || (bstl_y > map_subtiles_y-1)) {
+    if ((bstl_y < 0) || (bstl_y > gameadd.map_subtiles_y-1)) {
         return;
     }
     long mmin;
@@ -1145,8 +1145,8 @@ static void fill_in_points_cluedo(struct Camera *cam, long bstl_x, long bstl_y, 
     if (mmin + bstl_x < 1) {
         mmin = 1 - bstl_x;
     }
-    if (mmax + bstl_x > map_subtiles_y) {
-        mmax = map_subtiles_y - bstl_x;
+    if (mmax + bstl_x > gameadd.map_subtiles_y) {
+        mmax = gameadd.map_subtiles_y - bstl_x;
     }
     if (mmax < mmin) {
         return;
@@ -1340,7 +1340,7 @@ static void fill_in_points_cluedo(struct Camera *cam, long bstl_x, long bstl_y, 
 
 static void fill_in_points_isometric(struct Camera *cam, long bstl_x, long bstl_y, struct MinMax *mm)
 {
-    if ((bstl_y < 0) || (bstl_y > map_subtiles_y-1)) {
+    if ((bstl_y < 0) || (bstl_y > gameadd.map_subtiles_y-1)) {
         return;
     }
     long mmin;
@@ -1355,9 +1355,9 @@ static void fill_in_points_isometric(struct Camera *cam, long bstl_x, long bstl_
         clip_min = true;
         mmin = 1 - bstl_x;
     }
-    if (mmax + bstl_x > map_subtiles_y) {
+    if (mmax + bstl_x > gameadd.map_subtiles_y) {
         clip_max = true;
-        mmax = map_subtiles_y - bstl_x;
+        mmax = gameadd.map_subtiles_y - bstl_x;
     }
     if (mmax < mmin) {
         return;
@@ -1369,7 +1369,7 @@ static void fill_in_points_isometric(struct Camera *cam, long bstl_x, long bstl_
     TbBool lim_min;
     TbBool lim_max;
     lim_min = (stl_y <= 0);
-    lim_max = (stl_y >= map_subtiles_y-1);
+    lim_max = (stl_y >= gameadd.map_subtiles_y-1);
     TbBool clip;
     clip = clip_min | clip_max | lim_max | lim_min;
     apos += (mmin << 8);
@@ -4152,20 +4152,20 @@ static void do_a_plane_of_engine_columns_perspective(long stl_x, long stl_y, lon
     unsigned short *cubenum_ptr;
     long i;
     long n;
-    if ((stl_y <= 0) || (stl_y >= map_subtiles_y))
+    if ((stl_y <= 0) || (stl_y >= gameadd.map_subtiles_y))
         return;
     clip_start = plane_start;
     if (stl_x + plane_start < 1)
         clip_start = 1 - stl_x;
     clip_end = plane_end;
-    if (stl_x + plane_end > map_subtiles_y)
-        clip_end = map_subtiles_y - stl_x;
+    if (stl_x + plane_end > gameadd.map_subtiles_y)
+        clip_end = gameadd.map_subtiles_y - stl_x;
     struct EngineCol *bec;
     struct EngineCol *fec;
     bec = &back_ec[clip_start + MINMAX_ALMOST_HALF];
     fec = &front_ec[clip_start + MINMAX_ALMOST_HALF];
     blank_colmn = get_column(game.unrevealed_column_idx);
-    center_block_idx = clip_start + stl_x + (stl_y * (map_subtiles_x+1));
+    center_block_idx = clip_start + stl_x + (stl_y * (gameadd.map_subtiles_x+1));
     for (i = clip_end-clip_start; i > 0; i--)
     {
         mapblk = get_map_block_at_pos(center_block_idx);
@@ -4188,12 +4188,12 @@ static void do_a_plane_of_engine_columns_perspective(long stl_x, long stl_y, lon
         solidmsk_right = blank_colmn->solidmask;
         solidmsk_bottom = blank_colmn->solidmask;
         solidmsk_left = blank_colmn->solidmask;
-        sib_mapblk = get_map_block_at_pos(center_block_idx-map_subtiles_x-1);
+        sib_mapblk = get_map_block_at_pos(center_block_idx-gameadd.map_subtiles_x-1);
         if (map_block_revealed_bit(sib_mapblk, player_bit) ) {
             sib_colmn = get_map_column(sib_mapblk);
             solidmsk_top = sib_colmn->solidmask;
         }
-        sib_mapblk = get_map_block_at_pos(center_block_idx+map_subtiles_x+1);
+        sib_mapblk = get_map_block_at_pos(center_block_idx+gameadd.map_subtiles_x+1);
         if (map_block_revealed_bit(sib_mapblk, player_bit) ) {
             sib_colmn = get_map_column(sib_mapblk);
             solidmsk_bottom = sib_colmn->solidmask;
@@ -4519,7 +4519,7 @@ static void do_a_gpoly_gourad_bl(struct EngineCoord *ec1, struct EngineCoord *ec
 
 static void do_a_plane_of_engine_columns_cluedo(long stl_x, long stl_y, long plane_start, long plane_end)
 {
-    if ((stl_y < 1) || (stl_y > (map_subtiles_y - 1))) {
+    if ((stl_y < 1) || (stl_y > (gameadd.map_subtiles_y - 1))) {
         return;
     }
     long xaval;
@@ -4529,8 +4529,8 @@ static void do_a_plane_of_engine_columns_cluedo(long stl_x, long stl_y, long pla
         xaval = 1 - stl_x;
     }
     xbval = plane_end;
-    if (stl_x + plane_end > map_subtiles_y) {
-        xbval = map_subtiles_y - stl_x;
+    if (stl_x + plane_end > gameadd.map_subtiles_y) {
+        xbval = gameadd.map_subtiles_y - stl_x;
     }
     int xidx;
     int xdelta;
@@ -4720,7 +4720,7 @@ static void do_a_plane_of_engine_columns_cluedo(long stl_x, long stl_y, long pla
 
 static void do_a_plane_of_engine_columns_isometric(long stl_x, long stl_y, long plane_start, long plane_end)
 {
-    if ((stl_y < 1) || (stl_y > map_subtiles_y - 1)) {
+    if ((stl_y < 1) || (stl_y > gameadd.map_subtiles_y - 1)) {
         return;
     }
 
@@ -4736,9 +4736,9 @@ static void do_a_plane_of_engine_columns_isometric(long stl_x, long stl_y, long 
         xaval = 1 - stl_x;
     }
     xbval = plane_end;
-    if (stl_x + plane_end > map_subtiles_y) {
+    if (stl_x + plane_end > gameadd.map_subtiles_y) {
         xbclip = 1;
-        xbval = map_subtiles_y - stl_x;
+        xbval = gameadd.map_subtiles_y - stl_x;
     }
     int xidx;
     int xdelta;
@@ -4797,7 +4797,7 @@ static void do_a_plane_of_engine_columns_isometric(long stl_x, long stl_y, long 
             colmn = get_map_column(sib_mapblk);
             solidmsk_right = colmn->solidmask;
         }
-        if ( xaclip || xbclip || (stl_y <= 1) || (stl_y >= map_subtiles_y - 1))
+        if ( xaclip || xbclip || (stl_y <= 1) || (stl_y >= gameadd.map_subtiles_y - 1))
         {
             if (xaclip && (xidx == 0)) {
                 solidmsk_left = 0;
@@ -4808,7 +4808,7 @@ static void do_a_plane_of_engine_columns_isometric(long stl_x, long stl_y, long 
             if (stl_y <= 1) {
                 solidmsk_back = 0;
             }
-            if (stl_y >= map_subtiles_y - 1) {
+            if (stl_y >= gameadd.map_subtiles_y - 1) {
                 solidmsk_front = 0;
             }
         }
@@ -8575,7 +8575,7 @@ static void update_frontview_pointed_block(unsigned long laaa, unsigned char qdr
         stl_x = (pos_x >> 8) + x_offs[qdrant];
         stl_y = (pos_y >> 8) + y_offs[qdrant];
         
-        if (stl_x < 0 || stl_x > map_subtiles_y - 1 || stl_y < -2 || stl_y > map_subtiles_y) {
+        if (stl_x < 0 || stl_x > gameadd.map_subtiles_y - 1 || stl_y < -2 || stl_y > gameadd.map_subtiles_y) {
             out_of_bounds = true;
         }
 
