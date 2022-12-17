@@ -340,9 +340,8 @@ static short hug_round_new(struct Thing *creatng, struct Coord3d *pos1, struct C
     LABEL_37:
         if (pos2_stl_x == pos1_stl_x && pos1_stl_y == pos2_stl_y)
         {
-            result = 1;
             *hug_val -= i;
-            return result;
+            return 1;
         }
         v25 = (((LbArcTanAngle(pos2_stl_x_2 - pos1_stl_x_2, pos2_stl_y_2 - pos1_stl_y_2) & 0x7FFu) + 256) >> 9) & 3;
         v26 = abs(pos1_stl_y_2 - pos2_stl_y_2);
@@ -356,9 +355,8 @@ static short hug_round_new(struct Thing *creatng, struct Coord3d *pos1, struct C
             {
                 pos1->y.stl.num = pos1_stl_y_2;
                 pos1->x.stl.num = pos1_stl_x_2;
-                result = 0;
                 *hug_val -= i;
-                return result;
+                return 0;
             }
             v54 = 0;
             v36 = (round_idx_minus1_2 + 1) & 3; 
@@ -439,9 +437,8 @@ static short hug_round_new(struct Thing *creatng, struct Coord3d *pos1, struct C
     LABEL_72:
         if (pos2_stl_x == pos1_stl_x_2 && pos1_stl_y_2 == pos2_stl_y)
         {
-            result = 1;
             *hug_val -= i;
-            return result;
+            return 1;
         }
     }
     if (!i)
@@ -457,9 +454,8 @@ static short hug_round_new(struct Thing *creatng, struct Coord3d *pos1, struct C
         pos1->x.stl.num = pos1_stl_x_2;
     }
     pos1->y.stl.num = v44;
-    result = 0;
     *hug_val -= i;
-    return result;
+    return 0;
 }
 
 DLLIMPORT short _DK_hug_round(struct Thing *creatng, struct Coord3d *pos1, struct Coord3d *pos2, unsigned short a4, long *a5);
@@ -484,9 +480,9 @@ static short hug_round(struct Thing *creatng, struct Coord3d *pos1, struct Coord
 
 
     if (old_return != return_val) JUSTLOG("return not same return %d,%d",old_return,return_val);
-    if (old_return == return_val) JUSTLOG("ok %d,%d",old_return,return_val);
+    if ((old_return == return_val) && old_return != -1) JUSTLOG("ok %d,%d",old_return,return_val);
     if (old_pos1.x.val != pos1->x.val) JUSTLOG("pos1  %d,%d  %d,%d",old_pos1.x.val,old_pos1.y.val, pos1->x.val,pos1->y.val);
-    if (old_pos2.x.val != pos2->x.val) JUSTLOG("pos1  %d,%d  %d,%d",old_pos2.x.val,old_pos2.y.val, pos2->x.val,pos2->y.val);
+    if (old_pos2.x.val != pos2->x.val) JUSTLOG("pos2  %d,%d  %d,%d",old_pos2.x.val,old_pos2.y.val, pos2->x.val,pos2->y.val);
     if (old_hug_val != *hug_val) JUSTLOG("hug_val  %d,%d",old_hug_val,*hug_val);
 
     return return_val;
