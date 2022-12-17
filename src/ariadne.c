@@ -481,7 +481,6 @@ static void edge_points8(long ntri_src, long ntri_dst, long *tipA_x, long *tipA_
         ERRORLOG("edge not found %d->%d", ntri_src, ntri_dst);
     }
 }
-HOOK_DK_FUNC(edge_points8)
 
 long fov_region(long a1, long a2, const struct FOV *fov)
 {
@@ -1294,7 +1293,6 @@ void route_through_gates(const struct Pathway *pway, struct Path *path, long sub
     path->waypoints[i].y = pway->field_C;
 }
 
-HOOK_DK_FUNC(triangle_findSE8)
 static long triangle_findSE8(long ptfind_x, long ptfind_y)
 {
     long ntri;
@@ -1455,7 +1453,6 @@ static void set_nearpoint(long tri_id, long cor_id, long dstx, long dsty, long *
     *px = (pt1->x << 8) + qdrnt_offs[tngflags].x;
     *py = (pt1->y << 8) + qdrnt_offs[tngflags].y;
 }
-HOOK_DK_FUNC(set_nearpoint)
 
 void nearest_search_f(long sizexy, long srcx, long srcy, long dstx, long dsty, long *px, long *py, const char *func_name)
 {
@@ -1587,7 +1584,6 @@ long cost_to_start(long tri_idx)
  * @param retpos_x
  * @param retpos_y
  */
-HOOK_DK_FUNC(pointed_at8)
 long pointed_at8(long pos_x, long pos_y, long *ret_tri, long *ret_pt)
 {
     //TODO PATHFINDING triangulate_area sub-sub-sub-function, verify
@@ -3278,7 +3274,6 @@ static void path_init8_wide(struct Path* path, long start_x, long start_y, long 
 {
     path_init8_wide_f(path, start_x, start_y, end_x, end_y, subroute, nav_size, "path_init8_wide called from keeperfx.dll");
 }
-HOOK_DK_FUNC(path_init8_wide)
 
 void path_init8_wide_f(struct Path *path, long start_x, long start_y, long end_x, long end_y,
     long subroute, unsigned char nav_size, const char *func_name)
@@ -3522,7 +3517,6 @@ static long delete_4point(long tri1_id, long cor1_id)
     point_dispose(del_pt_id);
     return 1;
 }
-HOOK_DK_FUNC(delete_4point)
 
 static long delete_3point(long tri1_id, long cor1_id)
 {
@@ -3586,7 +3580,6 @@ static long delete_3point(long tri1_id, long cor1_id)
     point_dispose(del_pt_id);
     return true;
 }
-HOOK_DK_FUNC(delete_3point)
 
 TbBool delete_point(long pt_tri, long pt_cor)
 {
@@ -3841,7 +3834,6 @@ static TbBool insert_point(long pt_x, long pt_y)
     }
     return tri_split3(ntri, pt_x, pt_y) >= 0;
 }
-HOOK_DK_FUNC(insert_point)
 
 long fill_concave(long tri_beg_id, long tag_id, long tri_end_id)
 {
@@ -4024,7 +4016,6 @@ static TbBool make_edge(long start_x, long start_y, long end_x, long end_y)
     }
     return true;
 }
-HOOK_DK_FUNC(make_edge)
 
 TbBool border_clip_horizontal(const unsigned char *imap, long start_x, long end_x, long start_y, long end_y)
 {
@@ -4214,7 +4205,6 @@ static long edge_find(long stlstart_x, long stlstart_y, long stlend_x, long stle
     while (tri_idx != dst_tri_idx);
     return 0;
 }
-HOOK_DK_FUNC(edge_find)
 
 TbBool edge_lock_f(long ptend_x, long ptend_y, long ptstart_x, long ptstart_y, const char *func_name)
 {
@@ -4317,7 +4307,6 @@ TbBool border_lock(long start_x, long start_y, long end_x, long end_y)
     return r;
 }
 
-HOOK_DK_FUNC(border_internal_points_delete)
 void border_internal_points_delete(long start_x, long start_y, long end_x, long end_y)
 {
     long edge_tri;
@@ -4464,7 +4453,6 @@ static void brute_fill_rectangle(long start_x, long start_y, long end_x, long en
         }
     }
 }
-HOOK_DK_FUNC(brute_fill_rectangle)
 
 #define fill_rectangle(start_x, start_y, end_x, end_y, a5) fill_rectangle_f(start_x, start_y, end_x, end_y, a5, __func__)
 void fill_rectangle_f(long start_x, long start_y, long end_x, long end_y, unsigned char nav_colour, const char *func_name)
@@ -4533,7 +4521,6 @@ void fill_rectangle_f(long start_x, long start_y, long end_x, long end_y, unsign
     brute_fill_rectangle(start_x, start_y, end_x, end_y, nav_colour);
 }
 
-HOOK_DK_FUNC(tri_set_rectangle)
 TbBool tri_set_rectangle(long start_x, long start_y, long end_x, long end_y, unsigned char nav_colour)
 {
     long sx;
@@ -4654,7 +4641,6 @@ long fringe_get_rectangle(long *outfri_x1, long *outfri_y1, long *outfri_x2, lon
     return 1;
 }
 
-HOOK_DK_FUNC(border_unlock)
 void border_unlock(long a1, long a2, long a3, long a4)
 {
     struct EdgePoint *ept;
@@ -4858,7 +4844,6 @@ void triangulation_border_init(void)
     NAVIDBG(19,"Finished");
 }
 
-HOOK_DK_FUNC(triangulation_initxy)
 void triangulation_initxy(long startx, long starty, long endx, long endy)
 {
     long i;
@@ -4887,7 +4872,6 @@ void triangulation_init(void)
     }
 }
 
-HOOK_DK_FUNC(triangulate_area)
 TbBool triangulate_area(unsigned char *imap, long start_x, long start_y, long end_x, long end_y)
 {
     TbBool one_tile;

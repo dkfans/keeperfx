@@ -2480,7 +2480,6 @@ long check_place_to_reinforce(struct Thing *creatng, MapSlabCoord slb_x, MapSlab
     }
     return 1;
 }
-HOOK_DK_FUNC(check_place_to_reinforce)
 
 struct Thing *check_place_to_pickup_crate(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned short flags, long n)
 {

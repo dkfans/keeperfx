@@ -172,7 +172,6 @@
     <ClCompile Include="src\gui_soundmsgs.c" />
     <ClCompile Include="src\gui_tooltips.c" />
     <ClCompile Include="src\gui_topmsg.c" />
-    <ClCompile Include="src\hookfn.cpp" />
     <ClCompile Include="src\KeeperSpeechImp.c" />
     <ClCompile Include="src\kjm_input.c" />
     <ClCompile Include="src\lens_api.c" />

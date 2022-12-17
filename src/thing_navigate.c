@@ -144,7 +144,6 @@ static void get_nearest_navigable_point_for_thing(struct Thing *thing, struct Co
         get_nearest_valid_position_for_creature_at(thing, pos2);
     nav_thing_can_travel_over_lava = 0;
 }
-HOOK_DK_FUNC(get_nearest_navigable_point_for_thing)
 
 TbBool setup_person_move_to_position_f(struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, NaviRouteFlags flags, const char *func_name)
 {

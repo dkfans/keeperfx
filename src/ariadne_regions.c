@@ -197,7 +197,6 @@ static void region_connect(unsigned long tree_reg)
         }
     }
 }
-HOOK_DK_FUNC(region_connect)
 
 void triangulation_init_regions(void)
 {
