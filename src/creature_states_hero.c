@@ -865,8 +865,11 @@ short good_doing_nothing(struct Thing *creatng)
                 // Go to the previously chosen dungeon
                 if (!creature_can_get_to_dungeon_heart(creatng,target_plyr_idx))
                 {
-                    // Cannot get to the originally selected dungeon - reset it
-                    cctrl->party.target_plyr_idx = -1;
+                    if (!creature_can_get_to_any_of_players_rooms(creatng, target_plyr_idx) || (cctrl->party_objective != CHeroTsk_AttackRooms))
+                    {
+                        // Cannot get to the originally selected dungeon - reset it
+                        cctrl->party.target_plyr_idx = -1;
+                    }
                 }
             } else
             if (nturns >= 0)
