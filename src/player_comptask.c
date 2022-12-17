@@ -950,7 +950,7 @@ long task_dig_room(struct Computer2 *comp, struct ComputerTask *ctask)
     {
         if (ctask->dig.subfield_38 > 0)
         {
-            if ((stl_x < map_subtiles_x) && (stl_y < map_subtiles_y))
+            if ((stl_x < gameadd.map_subtiles_x) && (stl_y < gameadd.map_subtiles_y))
             {
                 struct SlabMap *slb;
                 slb = get_slabmap_for_subtile(stl_x, stl_y);
@@ -1605,7 +1605,7 @@ short tool_dig_to_pos2_skip_slabs_which_dont_need_digging_f(const struct Compute
         around_index = small_around_index_towards_destination(*nextstl_x,*nextstl_y,cdig->pos_dest.x.stl.num,cdig->pos_dest.y.stl.num);
         (*nextstl_x) += STL_PER_SLB * small_around[around_index].delta_x;
         (*nextstl_y) += STL_PER_SLB * small_around[around_index].delta_y;
-        if (i > map_tiles_x+map_tiles_y)
+        if (i > gameadd.map_tiles_x+gameadd.map_tiles_y)
         {
             ERRORLOG("%s: Infinite loop while finding path to dig gold",func_name);
             return -2;
@@ -1677,7 +1677,7 @@ short tool_dig_to_pos2_do_action_on_slab_which_needs_it_f(struct Computer2 * com
         around_index = small_around_index_towards_destination(*nextstl_x,*nextstl_y,cdig->pos_dest.x.stl.num,cdig->pos_dest.y.stl.num);
         (*nextstl_x) += STL_PER_SLB * small_around[around_index].delta_x;
         (*nextstl_y) += STL_PER_SLB * small_around[around_index].delta_y;
-        if (i > map_tiles_x*map_tiles_y)
+        if (i > gameadd.map_tiles_x*gameadd.map_tiles_y)
         {
             ERRORLOG("%s: Infinite loop while finding path to dig gold",func_name);
             return -2;
@@ -1981,7 +1981,7 @@ int search_spiral_f(struct Coord3d *pos, PlayerNumber owner, int area_total, lon
         {
             do
             {
-                if ( stl_x < map_subtiles_x && stl_y < map_subtiles_y )
+                if ( stl_x < gameadd.map_subtiles_x && stl_y < gameadd.map_subtiles_y )
                 {
                     int check_fn_result = cb(stl_x, stl_y, owner);
                     if ( check_fn_result )

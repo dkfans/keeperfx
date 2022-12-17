@@ -621,7 +621,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
             }
             else
             {
-                conceal_map_area(player->id_number, 0, map_subtiles_x - 1, 0, map_subtiles_y - 1, false);
+                conceal_map_area(player->id_number, 0, gameadd.map_subtiles_x - 1, 0, gameadd.map_subtiles_y - 1, false);
             }
             return true;
         }
@@ -1167,8 +1167,8 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                 pos.x.stl.num = atoi(pr2str);
                 pos.y.stl.num = atoi(pr3str);
             }
-            if ((pos.x.stl.num >= map_subtiles_x) ||
-                (pos.y.stl.num >= map_subtiles_y))
+            if ((pos.x.stl.num >= gameadd.map_subtiles_x) ||
+                (pos.y.stl.num >= gameadd.map_subtiles_y))
             {
                 targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "invalid location");
                 return true;
@@ -1296,8 +1296,8 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                 {
                     pos.x.stl.num = atoi(pr2str);
                     pos.y.stl.num = atoi(pr3str);
-                    if ((pos.x.stl.num >= map_subtiles_x) ||
-                            (pos.y.stl.num >= map_subtiles_y))
+                    if ((pos.x.stl.num >= gameadd.map_subtiles_x) ||
+                            (pos.y.stl.num >= gameadd.map_subtiles_y))
                     {
                         targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "invalid location");
                         return true;
