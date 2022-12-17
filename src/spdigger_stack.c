@@ -545,10 +545,10 @@ TbBool check_out_unconverted_spot(struct Thing *creatng, MapSlabCoord slb_x, Map
 {
     MapSubtlCoord stl_x;
     MapSubtlCoord stl_y;
-    if ((slb_x < 0) || (slb_x >= map_tiles_x)) {
+    if ((slb_x < 0) || (slb_x >= gameadd.map_tiles_x)) {
         return false;
     }
-    if ((slb_y < 0) || (slb_y >= map_tiles_y)) {
+    if ((slb_y < 0) || (slb_y >= gameadd.map_tiles_y)) {
         return false;
     }
     if (!check_place_to_convert_excluding(creatng, slb_x, slb_y))
@@ -621,10 +621,10 @@ TbBool check_out_unprettied_spot(struct Thing *creatng, long slb_x, long slb_y)
 {
     MapSubtlCoord stl_x;
     MapSubtlCoord stl_y;
-    if ((slb_x < 0) || (slb_x >= map_tiles_x)) {
+    if ((slb_x < 0) || (slb_x >= gameadd.map_tiles_x)) {
         return false;
     }
-    if ((slb_y < 0) || (slb_y >= map_tiles_y)) {
+    if ((slb_y < 0) || (slb_y >= gameadd.map_tiles_y)) {
         return false;
     }
     if (!check_place_to_pretty_excluding(creatng, slb_x, slb_y)) {
@@ -848,7 +848,7 @@ static int check_out_unreinforced_spiral(struct Thing *thing, int number_of_iter
                 {
                     slb_x += ar->delta_x;
                     slb_y += ar->delta_y;
-                    if (slb_x >= 0 && slb_x < map_tiles_x && slb_y >= 0 && slb_y < map_tiles_y && check_place_to_reinforce(thing, slb_x, slb_y) > 0)
+                    if (slb_x >= 0 && slb_x < gameadd.map_tiles_x && slb_y >= 0 && slb_y < gameadd.map_tiles_y && check_place_to_reinforce(thing, slb_x, slb_y) > 0)
                     {
                         SubtlCodedCoords stl_num = get_subtile_number_at_slab_center(slb_x,slb_y);
                         if (check_out_uncrowded_reinforce_position(thing, stl_num, &stl_x, &stl_y))
@@ -1538,9 +1538,9 @@ void add_pretty_and_convert_to_imp_stack_prepare(struct Dungeon *dungeon, unsign
     MapSlabCoord slb_x;
     MapSlabCoord slb_y;
     // Clear our slab options array and mark tall slabs with SlbCAOpt_Border
-    for (slb_y=0; slb_y < map_tiles_y; slb_y++)
+    for (slb_y=0; slb_y < gameadd.map_tiles_y; slb_y++)
     {
-        for (slb_x=0; slb_x < map_tiles_x; slb_x++)
+        for (slb_x=0; slb_x < gameadd.map_tiles_x; slb_x++)
         {
             SlabCodedCoords slb_num;
             struct SlabMap *slb;
@@ -1696,7 +1696,7 @@ int add_pretty_and_convert_to_imp_stack(struct Dungeon *dungeon, int max_tasks)
     unsigned char *slbopt;
     struct SlabCoord *slblist;
     slbopt = scratch;
-    slblist = (struct SlabCoord *)(scratch + map_tiles_x*map_tiles_y);
+    slblist = (struct SlabCoord *)(scratch + gameadd.map_tiles_x*gameadd.map_tiles_y);
     add_pretty_and_convert_to_imp_stack_prepare(dungeon, slbopt);
     add_pretty_and_convert_to_imp_stack_starting_from_pos(dungeon, slbopt, slblist, &heartng->mappos, &remain_num);
     SYNCDBG(8,"Done, added %d tasks",(int)(max_tasks-remain_num));
@@ -1814,7 +1814,7 @@ struct Thing *get_next_unclaimed_gold_thing_pickable_by_digger(PlayerNumber owne
                       slb_owner = get_slab_owner_thing_is_on(thing);
                       if ((slb_owner == owner) || (slb_owner == game.neutral_player_num)) {
                           struct Room *room;
-                          room = find_any_navigable_room_for_thing_closer_than(thing, owner, RoRoF_GoldStorage, NavRtF_Default, map_subtiles_x/2 + map_subtiles_y/2);
+                          room = find_any_navigable_room_for_thing_closer_than(thing, owner, RoRoF_GoldStorage, NavRtF_Default, gameadd.map_subtiles_x/2 + gameadd.map_subtiles_y/2);
                           if (!room_is_invalid(room)) {
                               return thing;
                           }

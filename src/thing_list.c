@@ -1177,8 +1177,8 @@ void init_player_start(struct PlayerInfo *player, TbBool keep_prev)
         // the heart position - it's needed for Floating Spirit
         if (!keep_prev)
         {
-            dungeon->mappos.x.val = subtile_coord_center(map_subtiles_x/2);
-            dungeon->mappos.y.val = subtile_coord_center(map_subtiles_y/2);
+            dungeon->mappos.x.val = subtile_coord_center(gameadd.map_subtiles_x/2);
+            dungeon->mappos.y.val = subtile_coord_center(gameadd.map_subtiles_y/2);
             dungeon->mappos.z.val = subtile_coord_center(map_subtiles_z/2);
         }
     }
