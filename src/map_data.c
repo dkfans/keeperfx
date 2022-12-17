@@ -41,10 +41,6 @@ struct Map bad_map_block;
  */
 MapSubtlCoord map_subtiles_z = 8;
 
-
-long navigation_map_size_x = 256;
-long navigation_map_size_y = 256;
-
 unsigned char *IanMap = NULL;
 long nav_map_initialised = 0;
 /******************************************************************************/
@@ -864,8 +860,8 @@ void set_map_size(MapSlabCoord x,MapSlabCoord y)
     gameadd.map_tiles_x = x;
     gameadd.map_tiles_y = y;
 
-    navigation_map_size_x = gameadd.map_subtiles_x + 1;
-    navigation_map_size_y = gameadd.map_subtiles_y + 1;
+    gameadd.navigation_map_size_x = gameadd.map_subtiles_x + 1;
+    gameadd.navigation_map_size_y = gameadd.map_subtiles_y + 1;
 
     small_around_slab[0] = -gameadd.map_tiles_x;
     small_around_slab[2] = gameadd.map_tiles_x;

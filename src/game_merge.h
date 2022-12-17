@@ -236,6 +236,8 @@ struct GameAdd {
     MapSubtlCoord map_subtiles_y;
     MapSlabCoord map_tiles_x;
     MapSlabCoord map_tiles_y;
+    long navigation_map_size_x;
+    long navigation_map_size_y;
 };
 
 extern unsigned long game_flags2; // Should be reset to zero on new level

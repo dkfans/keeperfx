@@ -52,8 +52,6 @@ struct Map {
 /******************************************************************************/
 extern struct Map bad_map_block;
 extern MapSubtlCoord map_subtiles_z;
-extern long navigation_map_size_x;
-extern long navigation_map_size_y;
 extern unsigned char *IanMap;
 extern long nav_map_initialised;
 /******************************************************************************/
@@ -68,7 +66,7 @@ extern long nav_map_initialised;
 #define coord_slab(coord) ((coord)/(COORD_PER_STL*STL_PER_SLB))
 #define subtile_coord(stl,spos) ((stl)*COORD_PER_STL+(spos))
 #define subtile_coord_center(stl) ((stl)*COORD_PER_STL+COORD_PER_STL/2)
-#define navmap_tile_number(stl_x,stl_y) ((stl_y)*navigation_map_size_x+(stl_x))
+#define navmap_tile_number(stl_x,stl_y) ((stl_y)*gameadd.navigation_map_size_x+(stl_x))
 /******************************************************************************/
 struct Map *get_map_block_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 struct Map *get_map_block_at_pos(long stl_num);
