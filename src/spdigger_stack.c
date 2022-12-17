@@ -987,6 +987,7 @@ static TbBool check_out_unreinforced_area_new(struct Thing *spdigtng)
                     reinforce_pos.x.stl.num = reinforce_stl_x;
                     reinforce_pos.y.stl.num = reinforce_stl_y;
                     min_distance = distance;
+                    break;
                 }
             }
         }
@@ -1007,7 +1008,6 @@ static TbBool check_out_unreinforced_area(struct Thing *spdigtng)
     struct Dungeon *dungeon = get_dungeon(spdigtng->owner);
 
     struct DiggerStack temp_digger_stack[DIGGER_TASK_MAX_COUNT];
-
     for ( int i = 0; dungeon->digger_stack_length > i; i++ )
     {
         temp_digger_stack[i] = dungeon->digger_stack[i];
@@ -1082,8 +1082,7 @@ static TbBool check_out_unreinforced_area(struct Thing *spdigtng)
     if(cctrl->digger.consecutive_reinforcements != _cctrl_digger_con_reinfor    ) JUSTLOG("cctrl_digger_con_reinfor     %d %d",_cctrl_digger_con_reinfor    ,cctrl->digger.consecutive_reinforcements);
     if(cctrl->move_flags                        != _cctrl_move_flags            ) JUSTLOG("cctrl_move_flags             %d %d",_cctrl_move_flags            ,cctrl->move_flags                       );
 
-    if (old != 0 || new != 0)
-        JUSTLOG("check %d %d",old,new);
+    JUSTLOG("check %d %d",old,new);
 
     return new;
 
