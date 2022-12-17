@@ -272,7 +272,7 @@ static short hug_round_new(struct Thing *creatng, struct Coord3d *pos1, struct C
                 kind = slb_1->kind;
                 struct SlabAttr *slbattr_1 = get_slab_attrs(slb_1);
 
-                if ( (slbattr_1->block_flags & 0x40) != 0 )
+                if ( (slbattr_1->block_flags & SlbAtFlg_IsDoor) != 0 )
                 {
                     if (!doortng1 || doortng1->owner != creatng->owner || doortng1->door.is_locked)
                     {
@@ -481,8 +481,8 @@ static short hug_round(struct Thing *creatng, struct Coord3d *pos1, struct Coord
 
     if (old_return != return_val) JUSTLOG("return not same return %d,%d",old_return,return_val);
     if ((old_return == return_val) && old_return != -1) JUSTLOG("ok %d,%d",old_return,return_val);
-    if (old_pos1.x.val != pos1->x.val) JUSTLOG("pos1  %d,%d  %d,%d",old_pos1.x.val,old_pos1.y.val, pos1->x.val,pos1->y.val);
-    if (old_pos2.x.val != pos2->x.val) JUSTLOG("pos2  %d,%d  %d,%d",old_pos2.x.val,old_pos2.y.val, pos2->x.val,pos2->y.val);
+    if (old_pos1.x.val != pos1->x.val || old_pos1.y.val != pos1->y.val) JUSTLOG("pos1  %d,%d  %d,%d",old_pos1.x.val,old_pos1.y.val, pos1->x.val,pos1->y.val);
+    if (old_pos2.x.val != pos2->x.val || old_pos2.y.val != pos2->y.val) JUSTLOG("pos2  %d,%d  %d,%d",old_pos2.x.val,old_pos2.y.val, pos2->x.val,pos2->y.val);
     if (old_hug_val != *hug_val) JUSTLOG("hug_val  %d,%d",old_hug_val,*hug_val);
 
     return return_val;
