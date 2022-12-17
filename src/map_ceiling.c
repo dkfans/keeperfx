@@ -30,7 +30,7 @@ extern "C"
 {
 #endif
 
-static char ceiling_cache[256*256*2];
+static char ceiling_cache[256*256];
 
 static int find_column_height_including_lintels(struct Column *col)
 {
@@ -129,11 +129,6 @@ static int ceiling_calculate_height_from_nearest_walls(int result, int number_of
 
 long ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey)
 {
-    int v11;
-    int v15;
-    int v16;
-    int cstl_y;
-    int cstl_x;
     unsigned long *p_data;
     int v22;
     int v23;
@@ -141,137 +136,121 @@ long ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey)
     MapSubtlCoord unk2_stl_x;
     MapSubtlCoord unk2_stl_y;
     int v27;
-    int v28;
-    int v29;
-    int v30;
     int v31;
-    int v32;
     char v33;
-    int v34;
     int v35;
     unsigned int number_of_steps;
     int v38;
-    int v42;
-    int v44;
-    int v47;
     int *v48;
-    int v49;
-    MapSubtlCoord unk_stl_y;
-    MapSubtlCoord unk_stl_x;
     int ceil_dist = game.ceiling_dist;
     if (game.ceiling_dist > 4)
         ceil_dist = 4;
-    MapSubtlCoord unk3stl_x = sx - ceil_dist;
-    if (unk3stl_x <= 0)
-        unk3stl_x = 0;
-    MapSubtlCoord unk3stl_y = sy - ceil_dist;
+    MapSubtlCoord unk_start_stl_x = sx - ceil_dist;
+    if (unk_start_stl_x <= 0)
+        unk_start_stl_x = 0;
+    MapSubtlCoord unk_start_stl_y = sy - ceil_dist;
     if (sy - ceil_dist <= 0)
-        unk3stl_y = 0;
-    v47 = ex + ceil_dist;
+        unk_start_stl_y = 0;
+
+    MapSubtlCoord unk_end_stl_x = ex + ceil_dist;
     if (ex + ceil_dist >= (map_subtiles_x + 1))
-        v47 = (map_subtiles_x + 1);
-    v11 = ey + ceil_dist;
-    if (v11 >= (map_subtiles_y + 1))
-        v11 = (map_subtiles_y + 1);
+        unk_end_stl_x = (map_subtiles_x + 1);
+    MapSubtlCoord unk_end_stl_y = ey + ceil_dist;
+    if (unk_end_stl_y >= (map_subtiles_y + 1))
+        unk_end_stl_y = (map_subtiles_y + 1);
+
     //ceiling_cache = (signed char*)scratch;
-    v44 = unk3stl_x - game.ceiling_dist;
-    if (unk3stl_x - game.ceiling_dist <= 0)
-        v44 = 0;
-    cstl_y = unk3stl_y - game.ceiling_dist;
-    if (unk3stl_y - game.ceiling_dist <= 0)
-        cstl_y = 0;
-    v15 = game.ceiling_dist + v47;
-    if (game.ceiling_dist + v47 >= (map_subtiles_x + 1))
-        v15 = (map_subtiles_x + 1);
-    v16 = v11 + game.ceiling_dist;
-    if (v11 + game.ceiling_dist >= (map_subtiles_y + 1))
-        v16 = (map_subtiles_y + 1);
-    
-    if (cstl_y < v16)
+
+    MapSubtlCoord solid_check_start_stl_x = unk_start_stl_x - game.ceiling_dist;
+    if (solid_check_start_stl_x <= 0)
+        solid_check_start_stl_x = 0;
+
+    MapSubtlCoord solid_check_start_stl_y = unk_start_stl_y - game.ceiling_dist;
+    if (solid_check_start_stl_y <= 0)
+        solid_check_start_stl_y = 0;
+
+    MapSubtlCoord solid_check_end_stl_x = unk_end_stl_x + game.ceiling_dist;
+    if (game.ceiling_dist + unk_end_stl_x >= (map_subtiles_x + 1))
+        solid_check_end_stl_x = (map_subtiles_x + 1);
+    MapSubtlCoord solid_check_end_stl_y = unk_end_stl_y + game.ceiling_dist;
+    if (unk_end_stl_y + game.ceiling_dist >= (map_subtiles_y + 1))
+        solid_check_end_stl_y = (map_subtiles_y + 1);
+
+    MapSubtlCoord cstl_y = solid_check_start_stl_y;   
+    while (cstl_y < solid_check_end_stl_y)
     {
-        do
+        MapSubtlCoord cstl_x = solid_check_start_stl_x;
+        while (cstl_x < solid_check_end_stl_x)
         {
-            cstl_x = v44;
-            while (cstl_x < v15)
-            {
-                SubtlCodedCoords stl_num = get_subtile_number(cstl_x,cstl_y);
-                ceiling_cache[stl_num] = ceiling_block_is_solid_including_corners_return_height(stl_num,cstl_x,cstl_y);
-                cstl_x++;
-            }
-            cstl_y++;
-        } while (cstl_y < v16);
+            SubtlCodedCoords stl_num = get_subtile_number(cstl_x,cstl_y);
+            JUSTLOG("spot1 %d %d",cstl_x,cstl_y);
+            ceiling_cache[stl_num] = ceiling_block_is_solid_including_corners_return_height(stl_num,cstl_x,cstl_y);
+            cstl_x++;
+        }
+        cstl_y++;
     }
 
-    if (unk3stl_y < v11)
+    MapSubtlCoord unk_stl_y = unk_start_stl_y;
+    while (unk_stl_y < unk_end_stl_y)
     {
-        v42 = v11;
-        do
+        MapSubtlCoord unk_stl_x = unk_start_stl_x;
+        while (unk_end_stl_x > unk_stl_x)
         {
-            v49 = unk3stl_x;
-            SubtlCodedCoords stl_num2 = get_subtile_number(unk3stl_x,unk3stl_y);
-            if (v47 > unk3stl_x)
+            SubtlCodedCoords stl_num2 = get_subtile_number(unk_stl_x,unk_stl_y);
+            JUSTLOG("spot2 %d %d",unk_stl_x,unk_stl_y);
+            v22 = ceiling_cache[stl_num2];
+            v38 = v22;
+            if (v22 <= -1)
             {
-                do
+                v48 = &v38;
+                v23 = 0;
+                spir = spiral_step;
+                if (game.ceiling_search_dist > 0)
                 {
-                    p_data = &game.map[stl_num2].data;
-                    v22 = ceiling_cache[stl_num2];
-                    v38 = v22;
-                    if (v22 <= -1)
+                    while (1)
                     {
-                        v48 = &v38;
-                        unk_stl_x = stl_num_decode_x(stl_num2);
-                        unk_stl_y = stl_num_decode_y(stl_num2);
-                        v23 = 0;
-                        spir = spiral_step;
-                        if (game.ceiling_search_dist > 0)
+                        unk2_stl_x = unk_stl_x + spir->h;
+                        unk2_stl_y = unk_stl_y + spir->v;
+                        if (unk2_stl_x >= 0 && unk2_stl_x < map_subtiles_x && unk2_stl_y >= 0 && unk2_stl_y < map_subtiles_y)
                         {
-                            while (1)
-                            {
-                                unk2_stl_x = unk_stl_x + spir->h;
-                                unk2_stl_y = unk_stl_y + spir->v;
-                                if (unk2_stl_x >= 0 && unk2_stl_x < map_subtiles_x && unk2_stl_y >= 0 && unk2_stl_y < map_subtiles_y)
-                                {
-                                    v27 = ceiling_cache[get_subtile_number(unk2_stl_x ,unk2_stl_y)];
-                                    if (v27 > -1)
-                                        break;
-                                }
-                                ++v23;
-                                ++spir;
-                                if (v23 >= game.ceiling_search_dist)
-                                    goto LABEL_43;
-                            }
-                            *v48 = v27;
-                            v28 = unk_stl_x - unk2_stl_x;
-                            v29 = unk_stl_y - unk2_stl_y;
-                            if ((int)abs(v28) <= (int)abs(v29))
-                                v30 = v29;
-                            else
-                                v30 = v28;
-                            number_of_steps = abs(v30);
-                            v31 = 1;
+                            JUSTLOG("spot3 %d %d",unk2_stl_x,unk2_stl_y);
+                            v27 = ceiling_cache[get_subtile_number(unk2_stl_x ,unk2_stl_y)];
+                            if (v27 > -1)
+                                break;
                         }
-                        else
-                        {
-                        LABEL_43:
-                            v31 = 0;
-                        }
-                        if (v31)
-                            v22 = ceiling_calculate_height_from_nearest_walls(v38, number_of_steps);
-                        else
-                            v22 = game.ceiling_height_max;
+                        ++v23;
+                        ++spir;
+                        if (v23 >= game.ceiling_search_dist)
+                            goto LABEL_43;
                     }
-                    v32 = v47;
-                    v33 = *((char *)p_data + 3) & CLF_FLOOR_MASK;
-                    ++stl_num2;
-                    *((char *)p_data + 3) = v33;
-                    v35 = ((v22 & 0xF) << 24) | *p_data;
-                    v34 = ++v49;
-                    *p_data = v35;
-                } while (v34 < v32);
+                    *v48 = v27;
+                    MapSubtlDelta delta_x = unk_stl_x - unk2_stl_x;
+                    MapSubtlDelta delta_y = unk_stl_y - unk2_stl_y;
+                    number_of_steps = max(abs(delta_x),abs(delta_y));
+                    v31 = 1;
+                }
+                else
+                {
+                LABEL_43:
+                    v31 = 0;
+                }
+                if (v31)
+                    v22 = ceiling_calculate_height_from_nearest_walls(v38, number_of_steps);
+                else
+                    v22 = game.ceiling_height_max;
             }
-            unk3stl_y ++;
-        } while (unk3stl_y < v42);
+
+            p_data = &game.map[stl_num2].data;
+            v33 = *((char *)p_data + 3) & CLF_FLOOR_MASK;
+            
+            *((char *)p_data + 3) = v33;
+            v35 = ((v22 & 0xF) << 24) | *p_data;
+            *p_data = v35;
+            unk_stl_x++;
+        }
+        unk_stl_y ++;
     }
+    
     return 1;
 }
 
