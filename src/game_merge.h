@@ -232,6 +232,10 @@ struct GameAdd {
     TbBool allies_share_vision;
     TbBool allies_share_drop;
     TbBool allies_share_cta;
+    MapSubtlCoord map_subtiles_x;
+    MapSubtlCoord map_subtiles_y;
+    MapSlabCoord map_tiles_x;
+    MapSlabCoord map_tiles_y;
 };
 
 extern unsigned long game_flags2; // Should be reset to zero on new level

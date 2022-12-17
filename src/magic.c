@@ -381,7 +381,7 @@ void update_power_sight_explored(struct PlayerInfo *player)
     for (shift_y=0; shift_y < 2*MAX_SOE_RADIUS; shift_y++)
     {
         stl_y = thing->mappos.y.stl.num - MAX_SOE_RADIUS + shift_y;
-        if ((stl_y < 0) || (stl_y > map_subtiles_y)) {
+        if ((stl_y < 0) || (stl_y > gameadd.map_subtiles_y)) {
             continue;
         }
 
@@ -407,14 +407,14 @@ void update_power_sight_explored(struct PlayerInfo *player)
             if (stl_x_beg < 0) {
                 stl_x_beg = 0;
             } else
-            if (stl_x_beg > map_subtiles_x-1) {
-                stl_x_beg = map_subtiles_x-1;
+            if (stl_x_beg > gameadd.map_subtiles_x-1) {
+                stl_x_beg = gameadd.map_subtiles_x-1;
             }
             if (stl_x_end < 0) {
                 stl_x_end = 0;
             } else
-            if (stl_x_end > map_subtiles_x-1) {
-                stl_x_end = map_subtiles_x-1;
+            if (stl_x_end > gameadd.map_subtiles_x-1) {
+                stl_x_end = gameadd.map_subtiles_x-1;
             }
             if (stl_x_end >= stl_x_beg)
             {
@@ -436,7 +436,7 @@ void update_power_sight_explored(struct PlayerInfo *player)
     for (shift_x = 0; shift_x < 2*MAX_SOE_RADIUS; shift_x++)
     {
       stl_x = thing->mappos.x.stl.num - MAX_SOE_RADIUS + shift_x;
-      if ((stl_x < 0) || (stl_x > map_subtiles_x)) {
+      if ((stl_x < 0) || (stl_x > gameadd.map_subtiles_x)) {
           continue;
       }
       stl_y = thing->mappos.y.stl.num - MAX_SOE_RADIUS;
@@ -461,14 +461,14 @@ void update_power_sight_explored(struct PlayerInfo *player)
             if (stl_y_end < 0) {
                 stl_y_end = 0;
             } else
-            if (stl_y_end > map_subtiles_y-1) {
-                stl_y_end = map_subtiles_y-1;
+            if (stl_y_end > gameadd.map_subtiles_y-1) {
+                stl_y_end = gameadd.map_subtiles_y-1;
             }
             if (stl_y_beg < 0) {
                 stl_y_beg = 0;
             } else
-            if (stl_y_beg > map_subtiles_y-1) {
-                stl_y_beg = map_subtiles_y-1;
+            if (stl_y_beg > gameadd.map_subtiles_y-1) {
+                stl_y_beg = gameadd.map_subtiles_y-1;
             }
             if (stl_y_beg <= stl_y_end)
             {

@@ -1220,8 +1220,8 @@ TbBool person_get_somewhere_adjacent_in_room_around_borders_f(struct Thing *thin
     if (!room_exists(room))
     {
         ERRORLOG("Tried to find position in non-existing room");
-        pos->x.val = subtile_coord_center(map_subtiles_x/2);
-        pos->y.val = subtile_coord_center(map_subtiles_y/2);
+        pos->x.val = subtile_coord_center(gameadd.map_subtiles_x/2);
+        pos->y.val = subtile_coord_center(gameadd.map_subtiles_y/2);
         pos->z.val = subtile_coord(1,0);
         return false;
     }
@@ -1969,8 +1969,8 @@ short creature_explore_dungeon(struct Thing *creatng)
     TbBool ret;
     TRACE_THING(creatng);
     struct Coord3d pos;
-    pos.x.val = subtile_coord_center(map_subtiles_x / 2);
-    pos.y.val = subtile_coord_center(map_subtiles_y/2);
+    pos.x.val = subtile_coord_center(gameadd.map_subtiles_x / 2);
+    pos.y.val = subtile_coord_center(gameadd.map_subtiles_y/2);
     pos.z.val = subtile_coord(1,0);
     {
         ret = get_random_position_in_dungeon_for_creature(creatng->owner, CrWaS_OutsideDungeon, creatng, &pos);
@@ -3918,14 +3918,14 @@ void create_effect_around_thing(struct Thing *thing, long eff_kind)
     if (coord_x_beg < 0)
         coord_x_beg = 0;
     MapCoord coord_x_end = (MapCoord)thing->mappos.x.val + tng_radius;
-    if (coord_x_end >= subtile_coord(map_subtiles_x+1, 0) - 1)
-        coord_x_end = subtile_coord(map_subtiles_x+1, 0) - 1;
+    if (coord_x_end >= subtile_coord(gameadd.map_subtiles_x+1, 0) - 1)
+        coord_x_end = subtile_coord(gameadd.map_subtiles_x+1, 0) - 1;
     MapCoord coord_y_beg = (MapCoord)thing->mappos.y.val - tng_radius;
     if (coord_y_beg < 0)
         coord_y_beg = 0;
     MapCoord coord_y_end = (MapCoord)thing->mappos.y.val + tng_radius;
-    if (coord_y_end >= subtile_coord(map_subtiles_y+1, 0) - 1)
-        coord_y_end = subtile_coord(map_subtiles_y+1, 0) - 1;
+    if (coord_y_end >= subtile_coord(gameadd.map_subtiles_y+1, 0) - 1)
+        coord_y_end = subtile_coord(gameadd.map_subtiles_y+1, 0) - 1;
     MapCoord coord_z_beg = (MapCoord)thing->mappos.z.val;
     if (coord_z_beg < 0)
         coord_z_beg = 0;
@@ -4747,7 +4747,7 @@ long process_creature_needs_a_wage(struct Thing *creatng, const struct CreatureS
         }
         return 0;
     }
-    room = find_any_navigable_room_for_thing_closer_than(creatng, creatng->owner, RoRoF_GoldStorage, NavRtF_Default, map_subtiles_x / 2 + map_subtiles_y / 2);
+    room = find_any_navigable_room_for_thing_closer_than(creatng, creatng->owner, RoRoF_GoldStorage, NavRtF_Default, gameadd.map_subtiles_x / 2 + gameadd.map_subtiles_y / 2);
     if (room_is_invalid(room))
     {
         //if we can't find an unlocked room, try a locked room, to wait in front of the door

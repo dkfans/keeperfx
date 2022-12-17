@@ -428,11 +428,11 @@ long update_navigation_triangulation(long start_x, long start_y, long end_x, lon
     if (sy <= 2)
       sy = 2;
     ex = end_x + 1;
-    if (ex >= map_subtiles_x-2)
-      ex = map_subtiles_x-2;
+    if (ex >= gameadd.map_subtiles_x-2)
+      ex = gameadd.map_subtiles_x-2;
     ey = end_y + 1;
-    if (ey >= map_subtiles_y-2)
-      ey = map_subtiles_y-2;
+    if (ey >= gameadd.map_subtiles_y-2)
+      ey = gameadd.map_subtiles_y-2;
     // Fill a rectangle with nav colors (based on columns and blocks)
     for (y = sy; y <= ey; y++)
     {
@@ -2371,8 +2371,8 @@ AriadneReturn ariadne_init_wallhug(struct Thing *thing, struct Ariadne *arid, st
 void clear_wallhugging_path(struct Navigation *navi)
 {
     navi->navstate = 1;
-    navi->pos_final.x.val = subtile_coord_center(map_subtiles_x/2);
-    navi->pos_final.y.val = subtile_coord_center(map_subtiles_y/2);
+    navi->pos_final.x.val = subtile_coord_center(gameadd.map_subtiles_x/2);
+    navi->pos_final.y.val = subtile_coord_center(gameadd.map_subtiles_y/2);
     navi->pos_final.z.val = subtile_coord(1,0);
     navi->field_3 = 0;
     navi->field_2 = 0;

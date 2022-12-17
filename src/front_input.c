@@ -2000,16 +2000,17 @@ TbBool get_player_coords_and_context(struct Coord3d *pos, unsigned char *context
    || (pointer_x >= player->engine_window_width/pixel_size)
    || (pointer_y >= player->engine_window_height/pixel_size))
       return false;
-  if (top_pointed_at_x <= map_subtiles_x)
+  if (top_pointed_at_x <= gameadd.map_subtiles_x)
     x = top_pointed_at_x;
   else
-    x = map_subtiles_x;
-  if (top_pointed_at_y <= map_subtiles_y)
+    x = gameadd.map_subtiles_x;
+  if (top_pointed_at_y <= gameadd.map_subtiles_y)
     y = top_pointed_at_y;
   else
-    y = map_subtiles_y;
+    y = gameadd.map_subtiles_y;
   unsigned int slb_x = subtile_slab(x);
   unsigned int slb_y = subtile_slab(y);
+
   struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
   struct SlabAttr* slbattr = get_slab_attrs(slb);
   if (slab_kind_is_door(slb->kind) && (slabmap_owner(slb) == player->id_number) && (!playeradd->one_click_lock_cursor))
@@ -2030,7 +2031,7 @@ TbBool get_player_coords_and_context(struct Coord3d *pos, unsigned char *context
     pos->x.val = (x<<8) + top_pointed_at_frac_x;
     pos->y.val = (y<<8) + top_pointed_at_frac_y;
   } else
-  if (((slb_x >= map_tiles_x) || (slb_y >= map_tiles_y)) && (!playeradd->one_click_lock_cursor))
+  if (((slb_x >= gameadd.map_tiles_x) || (slb_y >= gameadd.map_tiles_y)) && (!playeradd->one_click_lock_cursor))
   {
     *context = CSt_DefaultArrow;
     pos->x.val = (block_pointed_at_x<<8) + pointed_at_frac_x;
@@ -2051,10 +2052,10 @@ TbBool get_player_coords_and_context(struct Coord3d *pos, unsigned char *context
     else
       *context = CSt_DefaultArrow;
   }
-  if (pos->x.val >= (map_subtiles_x << 8))
-    pos->x.val = (map_subtiles_x << 8)-1;
-  if (pos->y.val >= (map_subtiles_y << 8))
-    pos->y.val = (map_subtiles_y << 8)-1;
+  if (pos->x.val >= (gameadd.map_subtiles_x << 8))
+    pos->x.val = (gameadd.map_subtiles_x << 8)-1;
+  if (pos->y.val >= (gameadd.map_subtiles_y << 8))
+    pos->y.val = (gameadd.map_subtiles_y << 8)-1;
   return true;
 }
 

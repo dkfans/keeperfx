@@ -1178,12 +1178,12 @@ static long computer_look_for_opponent(struct Computer2 *comp, MapSubtlCoord stl
         stl_y_start = 0;
 
     MapSubtlCoord stl_x_end = STL_PER_SLB * ((stl_x + radius) / STL_PER_SLB);
-    if (stl_x_end >= map_subtiles_x)
-        stl_x_end = map_subtiles_x;
+    if (stl_x_end >= gameadd.map_subtiles_x)
+        stl_x_end = gameadd.map_subtiles_x;
 
     MapSubtlCoord stl_y_end = STL_PER_SLB * ((stl_y + radius) / STL_PER_SLB);
-    if (stl_y_end >= map_subtiles_y)
-        stl_y_end = map_subtiles_y;
+    if (stl_y_end >= gameadd.map_subtiles_y)
+        stl_y_end = gameadd.map_subtiles_y;
 
     
     MapSubtlCoord stl_y_current = stl_y_start;
@@ -1251,8 +1251,8 @@ long computer_process_sight_of_evil(struct Computer2 *comp, struct ComputerProce
     MapSubtlCoord stl_y;
     {
 #define GRID COMPUTER_SOE_GRID_SIZE
-        MapSlabCoord slb_x = map_tiles_x / 2;
-        MapSlabCoord slb_y = map_tiles_y / 2;
+        MapSlabCoord slb_x = gameadd.map_tiles_x / 2;
+        MapSlabCoord slb_y = gameadd.map_tiles_y / 2;
         int n = PLAYER_RANDOM(dungeon->owner, GRID * GRID);
         int i;
         for (i=0; i < GRID*GRID; i++)
@@ -1261,8 +1261,8 @@ long computer_process_sight_of_evil(struct Computer2 *comp, struct ComputerProce
             unsigned int grid_y = n / GRID;
             if ((comp->soe_targets[grid_y] & (1 << grid_x)) == 0)
             {
-                slb_x = (unsigned long)map_tiles_x * grid_x / GRID + map_tiles_x/(2*GRID);
-                slb_y = (unsigned long)map_tiles_y * grid_y / GRID + map_tiles_y/(2*GRID);
+                slb_x = (unsigned long)gameadd.map_tiles_x * grid_x / GRID + gameadd.map_tiles_x/(2*GRID);
+                slb_y = (unsigned long)gameadd.map_tiles_y * grid_y / GRID + gameadd.map_tiles_y/(2*GRID);
                 comp->soe_targets[grid_y] |= (1 << grid_x);
                 struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
                 if ((slabmap_owner(slb) != dungeon->owner) && (slb->kind != SlbT_ROCK)) {

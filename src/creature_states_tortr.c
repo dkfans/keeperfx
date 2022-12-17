@@ -349,11 +349,11 @@ long reveal_players_map_to_player(struct Thing *thing, PlayerNumber benefit_plyr
     }
     TbBool reveal_success = 0;
 
-    unsigned char* ownership_map = (unsigned char*)malloc(map_tiles_y * map_tiles_x);
-    LbMemorySet(ownership_map,0,map_tiles_y*map_tiles_x);
-    for (slb_y=0; slb_y < map_tiles_y; slb_y++)
+    unsigned char* ownership_map = (unsigned char*)malloc(gameadd.map_tiles_y * gameadd.map_tiles_x);
+    LbMemorySet(ownership_map,0,gameadd.map_tiles_y*gameadd.map_tiles_x);
+    for (slb_y=0; slb_y < gameadd.map_tiles_y; slb_y++)
     {
-        for (slb_x=0; slb_x < map_tiles_x; slb_x++)
+        for (slb_x=0; slb_x < gameadd.map_tiles_x; slb_x++)
         {
             slb_num = get_slab_number(slb_x, slb_y);
             slb = get_slabmap_direct(slb_num);
@@ -361,7 +361,7 @@ long reveal_players_map_to_player(struct Thing *thing, PlayerNumber benefit_plyr
                 ownership_map[slb_num] |= 0x01;
         }
     }
-    struct USPOINT_2D* revealed_pts = (struct USPOINT_2D*)malloc((map_tiles_y * map_tiles_x) * sizeof(struct USPOINT_2D));
+    struct USPOINT_2D* revealed_pts = (struct USPOINT_2D*)malloc((gameadd.map_tiles_y * gameadd.map_tiles_x) * sizeof(struct USPOINT_2D));
     unsigned int pts_to_reveal = 32;
     unsigned int pts_count = 0;
     unsigned int pt_idx = 0;

@@ -1961,11 +1961,11 @@ struct Thing *get_thing_collided_with_at_satisfying_filter_in_square_of(struct T
     if (stl_x_beg <= 0)
         stl_x_beg = 0;
     MapSubtlCoord stl_x_end = coord_subtile(pos->x.val + square_size / 2);
-    if (stl_x_end >= map_subtiles_x)
-        stl_x_end = map_subtiles_x;
+    if (stl_x_end >= gameadd.map_subtiles_x)
+        stl_x_end = gameadd.map_subtiles_x;
     MapSubtlCoord stl_y_end = coord_subtile(pos->y.val + square_size / 2);
-    if (stl_y_end >= map_subtiles_y)
-        stl_y_end = map_subtiles_y;
+    if (stl_y_end >= gameadd.map_subtiles_y)
+        stl_y_end = gameadd.map_subtiles_y;
     MapSubtlCoord stl_y_beg = coord_subtile(pos->y.val - square_size / 2);
     if (stl_y_beg <= 0)
         stl_y_beg = 0;

@@ -1137,8 +1137,8 @@ TbBool script_support_send_tunneller_to_action_point(struct Thing *thing, long a
         pos.y.val = apt->mappos.y.val;
     } else {
         ERRORLOG("Attempt to send to non-existing action point %d",(int)apt_idx);
-        pos.x.val = subtile_coord_center(map_subtiles_x/2);
-        pos.y.val = subtile_coord_center(map_subtiles_y/2);
+        pos.x.val = subtile_coord_center(gameadd.map_subtiles_x/2);
+        pos.y.val = subtile_coord_center(gameadd.map_subtiles_y/2);
     }
     pos.z.val = subtile_coord(1,0);
     send_tunneller_to_point(thing, &pos);
