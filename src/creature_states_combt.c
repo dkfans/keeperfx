@@ -1761,10 +1761,6 @@ CrInstance get_best_self_preservation_instance_to_use(const struct Thing *thing)
     {
         INSTANCE_RET_IF_AVAIL(thing, CrInst_FLY);
     }
-    if (creature_would_benefit_from_healing(thing))
-    {
-        INSTANCE_RET_IF_AVAIL(thing, CrInst_HEAL);
-    }
     return CrInst_NULL;
 }
 
@@ -1965,11 +1961,11 @@ struct Thing *get_thing_collided_with_at_satisfying_filter_in_square_of(struct T
     if (stl_x_beg <= 0)
         stl_x_beg = 0;
     MapSubtlCoord stl_x_end = coord_subtile(pos->x.val + square_size / 2);
-    if (stl_x_end >= map_subtiles_x)
-        stl_x_end = map_subtiles_x;
+    if (stl_x_end >= gameadd.map_subtiles_x)
+        stl_x_end = gameadd.map_subtiles_x;
     MapSubtlCoord stl_y_end = coord_subtile(pos->y.val + square_size / 2);
-    if (stl_y_end >= map_subtiles_y)
-        stl_y_end = map_subtiles_y;
+    if (stl_y_end >= gameadd.map_subtiles_y)
+        stl_y_end = gameadd.map_subtiles_y;
     MapSubtlCoord stl_y_beg = coord_subtile(pos->y.val - square_size / 2);
     if (stl_y_beg <= 0)
         stl_y_beg = 0;
@@ -3094,23 +3090,4 @@ long project_creature_attack_target_damage(const struct Thing *firing, const str
     return damage;
 }
 
-long process_creature_self_spell_casting(struct Thing *creatng)
-{
-    TRACE_THING(creatng);
-    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    if (((creatng->alloc_flags & TAlF_IsControlled) != 0)
-      || (cctrl->conscious_back_turns != 0)
-      || ((cctrl->stateblock_flags & CCSpl_Freeze) != 0)) {
-        return 0;
-    }
-    if (cctrl->instance_id != CrInst_NULL) {
-        return 0;
-    }
-    long inst_idx = get_self_spell_casting(creatng);
-    if (inst_idx <= 0) {
-        return 0;
-    }
-    set_creature_instance(creatng, inst_idx, 1, creatng->index, 0);
-    return 1;
-}
 /******************************************************************************/

@@ -313,8 +313,8 @@ long battle_move_player_towards_battle(struct PlayerInfo *player, BattleIndex ba
     if (!thing_exists(thing))
     {
         ERRORLOG("Jump to invalid thing detected");
-        player->zoom_to_pos_x = subtile_coord_center(map_subtiles_x/2);
-        player->zoom_to_pos_y = subtile_coord_center(map_subtiles_y/2);
+        player->zoom_to_pos_x = subtile_coord_center(gameadd.map_subtiles_x/2);
+        player->zoom_to_pos_y = subtile_coord_center(gameadd.map_subtiles_y/2);
         return 0;
     }
     player->zoom_to_pos_x = thing->mappos.x.val;

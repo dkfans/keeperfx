@@ -207,7 +207,7 @@ TbBool tag_blocks_for_digging_in_area(MapSubtlCoord stl_x, MapSubtlCoord stl_y, 
     MapSubtlCoord y;
     x = STL_PER_SLB * (stl_x/STL_PER_SLB);
     y = STL_PER_SLB * (stl_y/STL_PER_SLB);
-    if ( (x < 0) || (x >= map_subtiles_x) || (y < 0) || (y >= map_subtiles_y) ) {
+    if ( (x < 0) || (x >= gameadd.map_subtiles_x) || (y < 0) || (y >= gameadd.map_subtiles_y) ) {
         ERRORLOG("Attempt to tag area outside of map");
         return 0;
     }
@@ -284,7 +284,7 @@ long untag_blocks_for_digging_in_area(MapSubtlCoord stl_x, MapSubtlCoord stl_y, 
     long i;
     x = STL_PER_SLB * (stl_x/STL_PER_SLB);
     y = STL_PER_SLB * (stl_y/STL_PER_SLB);
-    if ( (x < 0) || (x >= map_subtiles_x) || (y < 0) || (y >= map_subtiles_y) ) {
+    if ( (x < 0) || (x >= gameadd.map_subtiles_x) || (y < 0) || (y >= gameadd.map_subtiles_y) ) {
         ERRORLOG("Attempt to tag area outside of map");
         return 0;
     }
@@ -985,7 +985,7 @@ unsigned short get_slabset_index_f(SlabKind slbkind, unsigned char style, unsign
     return 28 * slbkind + 9 * style + pick;
 }
 
-void place_slab_object(unsigned short a1, long a2, long a3, unsigned short slabct_num, unsigned short slbelem, unsigned char a6)
+void place_slab_object(unsigned short slb_num, long a2, long a3, unsigned short slabct_num, unsigned short slbelem, unsigned char a6)
 {
     //_DK_place_slab_object(a1, a2, a3, a4, a5, a6); return;
     if (slabct_num >= SLABSET_COUNT) {
@@ -1031,7 +1031,7 @@ void place_slab_object(unsigned short a1, long a2, long a3, unsigned short slabc
                 if (lgt_id != 0) {
                     struct Light *lgt;
                     lgt = &game.lish.lights[lgt_id];
-                    lgt->field_12 = a1;
+                    lgt->attached_slb = slb_num;
                 } else {
                     WARNLOG("Cannot allocate light");
                     continue;
@@ -1097,7 +1097,7 @@ void place_slab_object(unsigned short a1, long a2, long a3, unsigned short slabc
                             continue;
                       }
                       struct Thing *objtng;
-                      objtng = create_object(&pos, tngmodel, a6, a1);
+                      objtng = create_object(&pos, tngmodel, a6, slb_num);
                       if (thing_is_invalid(objtng)) {
                           ERRORLOG("Cannot create object type %d", tngmodel);
                           continue;
@@ -1106,7 +1106,7 @@ void place_slab_object(unsigned short a1, long a2, long a3, unsigned short slabc
                 if (sobj->field_A == TCls_EffectGen)
                 {
                     struct Thing *effgentng;
-                    effgentng = create_effect_generator(&pos, sobj->sofield_B, sobj->sofield_C << 8, a6, a1);
+                    effgentng = create_effect_generator(&pos, sobj->sofield_B, sobj->sofield_C << 8, a6, slb_num);
                     if (thing_is_invalid(effgentng)) {
                         ERRORLOG("Cannot create effect generator, type %d", sobj->sofield_B);
                         continue;
@@ -1205,11 +1205,11 @@ void delete_attached_lights_on_slab(MapSlabCoord slb_x, MapSlabCoord slb_y)
     if (start_stl_y <= 0)
       start_stl_y = 0;
     end_stl_x = 3 * slb_x + 4;
-    if (end_stl_x >= map_subtiles_x)
-      end_stl_x = map_subtiles_x;
+    if (end_stl_x >= gameadd.map_subtiles_x)
+      end_stl_x = gameadd.map_subtiles_x;
     end_stl_y = 3 * slb_y + 4;
-    if (end_stl_y >= map_subtiles_y)
-      end_stl_y = map_subtiles_y;
+    if (end_stl_y >= gameadd.map_subtiles_y)
+      end_stl_y = gameadd.map_subtiles_y;
     {
         long i;
         unsigned long k;
@@ -1225,7 +1225,7 @@ void delete_attached_lights_on_slab(MapSlabCoord slb_x, MapSlabCoord slb_y)
             int lgtstl_y;
             lgtstl_x = lgt->mappos.x.stl.num;
             lgtstl_y = lgt->mappos.y.stl.num;
-            if (lgt->field_12 == place_slbnum)
+            if (lgt->attached_slb == place_slbnum)
             {
                 if ((lgtstl_x >= start_stl_x) && (lgtstl_x <= end_stl_x) && (lgtstl_y >= start_stl_y) && (lgtstl_y <= end_stl_y))
                 {
@@ -1690,11 +1690,11 @@ void dump_slab_on_map(SlabKind slbkind, long slabct_num, MapSubtlCoord stl_x, Ma
         MapSubtlCoord stl_xb;
         MapSubtlCoord stl_yb;
         stl_yb = stl_ya + STL_PER_SLB - 1;
-        if (stl_yb > map_subtiles_y)
-            stl_yb = map_subtiles_y;
+        if (stl_yb > gameadd.map_subtiles_y)
+            stl_yb = gameadd.map_subtiles_y;
         stl_xb = stl_xa + STL_PER_SLB - 1;
-        if (stl_xb > map_subtiles_x)
-            stl_xb = map_subtiles_x;
+        if (stl_xb > gameadd.map_subtiles_x)
+            stl_xb = gameadd.map_subtiles_x;
         update_blocks_in_area(stl_xa, stl_ya, stl_xb, stl_yb);
     }
 }
@@ -2213,7 +2213,7 @@ void clear_dig_and_set_explored_can_see_x(MapSlabCoord slb_x, MapSlabCoord slb_y
     int delta_see;
     for (delta_see = -can_see_slabs; delta_see <= can_see_slabs; delta_see++)
     {
-        if ((delta_see + slb_x < 0) || (delta_see + slb_x >= map_tiles_x)) {
+        if ((delta_see + slb_x < 0) || (delta_see + slb_x >= gameadd.map_tiles_x)) {
             continue;
         }
         TbBool go_dir1;
@@ -2246,7 +2246,7 @@ void clear_dig_and_set_explored_can_see_x(MapSlabCoord slb_x, MapSlabCoord slb_y
             hslb_x = slb_x + (rad_x >> 8);
             lslb_y = slb_y - (rad_y >> 8);
             hslb_y = slb_y + (rad_y >> 8);
-            if ((lslb_y < 0) || (hslb_y >= map_tiles_y))
+            if ((lslb_y < 0) || (hslb_y >= gameadd.map_tiles_y))
                 continue;
             if ( go_dir1 )
             {
@@ -2375,7 +2375,7 @@ void clear_dig_and_set_explored_can_see_y(MapSlabCoord slb_x, MapSlabCoord slb_y
     int delta_see;
     for (delta_see = -can_see_slabs; delta_see <= can_see_slabs; delta_see++)
     {
-        if ((delta_see + slb_y < 0) || (delta_see + slb_y >= map_tiles_y)) {
+        if ((delta_see + slb_y < 0) || (delta_see + slb_y >= gameadd.map_tiles_y)) {
             continue;
         }
         TbBool go_dir1;
@@ -2408,7 +2408,7 @@ void clear_dig_and_set_explored_can_see_y(MapSlabCoord slb_x, MapSlabCoord slb_y
             lslb_x = slb_x - (rad_x >> 8);
             hslb_x = slb_x + (rad_x >> 8);
             hslb_y = slb_y + (rad_y >> 8);
-            if ((lslb_x < 0) || (hslb_x >= map_tiles_x))
+            if ((lslb_x < 0) || (hslb_x >= gameadd.map_tiles_x))
                 continue;
             if ( go_dir1 )
             {

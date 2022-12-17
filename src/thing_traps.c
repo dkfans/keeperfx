@@ -226,15 +226,15 @@ TbBool update_trap_trigger_line_of_sight_90(struct Thing *traptng)
         if (stl_x_beg <= 0)
             stl_x_beg = 0;
         stl_x_end = coord_subtile(coord_x + trap_radius);
-        if (stl_x_end >= map_subtiles_x)
-            stl_x_end = map_subtiles_x;
+        if (stl_x_end >= gameadd.map_subtiles_x)
+            stl_x_end = gameadd.map_subtiles_x;
         MapCoord coord_y = traptng->mappos.y.val;
         stl_y_beg = coord_subtile(coord_y - trap_radius);
         if (stl_y_beg <= 0)
             stl_y_beg = 0;
         stl_y_end = coord_subtile(coord_y + trap_radius);
-        if (stl_y_end >= map_subtiles_y)
-            stl_y_end = map_subtiles_y;
+        if (stl_y_end >= gameadd.map_subtiles_y)
+            stl_y_end = gameadd.map_subtiles_y;
     }
     MapSubtlCoord stl_x_pre;
     MapSubtlCoord stl_x_aft;
@@ -245,14 +245,14 @@ TbBool update_trap_trigger_line_of_sight_90(struct Thing *traptng)
         if (stl_y_pre <= 0)
             stl_y_pre = 0;
         stl_y_aft = stl_y_end + line_of_sight_90_range;
-        if (stl_y_aft >= map_subtiles_y+1)
-            stl_y_aft = map_subtiles_y+1;
+        if (stl_y_aft >= gameadd.map_subtiles_y+1)
+            stl_y_aft = gameadd.map_subtiles_y+1;
         stl_x_pre = stl_x_beg - line_of_sight_90_range;
         if (stl_x_pre <= 0)
             stl_x_pre = 0;
         stl_x_aft = stl_x_end + line_of_sight_90_range;
-        if (stl_x_aft >= map_subtiles_x+1)
-            stl_x_aft = map_subtiles_x+1;
+        if (stl_x_aft >= gameadd.map_subtiles_x+1)
+            stl_x_aft = gameadd.map_subtiles_x+1;
     }
     MapSubtlCoord stl_x;
     MapSubtlCoord stl_y;
@@ -784,13 +784,13 @@ struct Thing *create_trap(struct Coord3d *pos, ThingModel trpkind, PlayerNumber 
     thing->rendering_flags |= TRF_Transpar_4;
     thing->trap.num_shots = 0;
     thing->trap.rearm_turn = game.play_gameturn;
-    if (trapstat->light_1C != 0)
+    if (trapstat->light_radius != 0)
     {
         ilght.mappos.x.val = thing->mappos.x.val;
         ilght.mappos.y.val = thing->mappos.y.val;
         ilght.mappos.z.val = thing->mappos.z.val;
-        ilght.radius = trapstat->light_1C;
-        ilght.intensity = trapstat->light_1E;
+        ilght.radius = trapstat->light_radius;
+        ilght.intensity = trapstat->light_intensity;
         ilght.is_dynamic = 1;
         ilght.field_3 = trapstat->light_1F;
         thing->light_id = light_create_light(&ilght);
