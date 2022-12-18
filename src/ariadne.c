@@ -3003,7 +3003,7 @@ static TbBool ariadne_check_forward_for_wallhug_gap_new(struct Thing *thing, str
         {
             nav_boundry_pos.x.val = pos->x.val;
             nav_boundry_pos.y.stl.num = (nav_radius + thing->mappos.y.val) >> 8;
-            nav_boundry_pos.y.stl.pos = -1;
+            nav_boundry_pos.y.stl.pos = 255;
             nav_boundry_pos.y.val -= nav_radius;
         }
         break;
@@ -3021,7 +3021,7 @@ static TbBool ariadne_check_forward_for_wallhug_gap_new(struct Thing *thing, str
         {
             nav_boundry_pos.y.val = pos->y.val;
             nav_boundry_pos.x.stl.num = (nav_radius + thing->mappos.x.val) >> 8;
-            nav_boundry_pos.x.stl.pos = -1;
+            nav_boundry_pos.x.stl.pos = 255;
             nav_boundry_pos.x.val -= nav_radius;
         }
         break;
