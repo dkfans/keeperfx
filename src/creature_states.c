@@ -1106,7 +1106,7 @@ struct Room *get_room_xy(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 }
 
 /**
- * Fills given array with information about small_around_slab[] elements which are accessible to move to.
+ * Fills given array with information about gameadd.small_around_slab[] elements which are accessible to move to.
  * @param avail The array of size SMALL_AROUND_SLAB_LENGTH
  * @param thing The thing which is to be moved to adjacent tile
  * @param room The room inside which we want to move
@@ -1118,7 +1118,7 @@ TbBool fill_moveable_small_around_slabs_array_in_room(TbBool *avail, const struc
     // Fill the avail[] array
     for (long n = 0; n < SMALL_AROUND_SLAB_LENGTH; n++)
     {
-        long slab_num = slab_base + small_around_slab[n];
+        long slab_num = slab_base + gameadd.small_around_slab[n];
         MapSlabCoord slb_x = slb_num_decode_x(slab_num);
         MapSlabCoord slb_y = slb_num_decode_y(slab_num);
         MapSubtlCoord stl_x = slab_subtile_center(slb_x);
@@ -1171,7 +1171,7 @@ TbBool person_get_somewhere_adjacent_in_room_f(struct Thing *thing, const struct
     long m = CREATURE_RANDOM(thing, SMALL_AROUND_SLAB_LENGTH);
     for (long n = 0; n < SMALL_AROUND_SLAB_LENGTH; n++)
     {
-        long slab_num = slab_base + small_around_slab[m];
+        long slab_num = slab_base + gameadd.small_around_slab[m];
         slb_x = slb_num_decode_x(slab_num);
         slb_y = slb_num_decode_y(slab_num);
         struct Room* aroom = get_room_xy(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
@@ -1260,7 +1260,7 @@ TbBool person_get_somewhere_adjacent_in_room_around_borders_f(struct Thing *thin
         {
             if (avail[arnd])
             {
-                long slab_num = slab_base + small_around_slab[arnd];
+                long slab_num = slab_base + gameadd.small_around_slab[arnd];
                 MapSlabCoord slb_x = slb_num_decode_x(slab_num);
                 MapSlabCoord slb_y = slb_num_decode_y(slab_num);
                 if (set_position_at_slab_for_thing(pos, thing, slb_x, slb_y, start_stl))
@@ -1310,7 +1310,7 @@ SubtlCodedCoords find_position_around_in_room(const struct Coord3d *pos, PlayerN
         SubtlCodedCoords accepted_stl_num = 0;
         stl_num = get_subtile_number(pos->x.stl.num,pos->y.stl.num);
         // Skip the position equal to current position
-        if (around_map[m] == 0)
+        if (gameadd.around_map[m] == 0)
         {
             m = (m + 1) % AROUND_MAP_LENGTH;
             continue;
@@ -1319,7 +1319,7 @@ SubtlCodedCoords find_position_around_in_room(const struct Coord3d *pos, PlayerN
         // of incorrect kind or owner is encoured
         for (long dist = 0; dist < 8; dist++)
         {
-            stl_num += around_map[m];
+            stl_num += gameadd.around_map[m];
             struct Map* mapblk = get_map_block_at_pos(stl_num);
             if ( ((mapblk->flags & SlbAtFlg_IsRoom) != 0) && ((mapblk->flags & SlbAtFlg_Blocking) != 0) )
                 break;
@@ -1821,7 +1821,7 @@ TbBool creature_choose_random_destination_on_valid_adjacent_slab(struct Thing *t
     long m = CREATURE_RANDOM(thing, SMALL_AROUND_SLAB_LENGTH);
     for (long n = 0; n < SMALL_AROUND_SLAB_LENGTH; n++)
     {
-        long slab_num = slab_base + small_around_slab[m];
+        long slab_num = slab_base + gameadd.small_around_slab[m];
         slb_x = slb_num_decode_x(slab_num);
         slb_y = slb_num_decode_y(slab_num);
         if (slab_is_valid_for_creature_choose_move(thing, slb_x, slb_y))
@@ -1897,7 +1897,7 @@ static long get_best_position_outside_room(struct Thing *creatng, struct Coord3d
     {
         for (int i = 0; i < AROUND_SLAB_EIGHT_LENGTH; i++)
         {
-            const SlabCodedCoords ar_slb_no = around_slab_eight[i] + room_slab;
+            const SlabCodedCoords ar_slb_no = gameadd.around_slab_eight[i] + room_slab;
             const struct SlabMap * const around_slb = get_slabmap_direct(ar_slb_no);
             const PlayerNumber ar_slb_owner = slabmap_owner(around_slb);
             if (is_slab_type_walkable(around_slb->kind) && (around_slb->kind != current_slb_kind || current_owner != ar_slb_owner))

@@ -77,10 +77,10 @@ void room_update_surrounding_flames(struct Room *room, const struct Coord3d *pos
     curoom = subtile_room_get(x,y);
     if (curoom->index != room->index)
     {
-        room->field_41 += small_around_slab[i];
+        room->field_41 += gameadd.small_around_slab[i];
         return;
     }
-    room->field_41 += small_around_slab[i] + small_around_slab[k];
+    room->field_41 += gameadd.small_around_slab[i] + gameadd.small_around_slab[k];
     room->field_43 = k;
 }
 
