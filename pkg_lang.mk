@@ -46,6 +46,7 @@ pkg/campgns/ancntkpr/text_pol.dat \
 pkg/campgns/ancntkpr/text_chi.dat \
 pkg/campgns/burdnimp/text_eng.dat \
 pkg/campgns/burdnimp/text_pol.dat \
+pkg/campgns/burdnimp/text_chi.dat \
 pkg/campgns/cqarctic/text_eng.dat \
 pkg/campgns/cqarctic/text_chi.dat \
 pkg/campgns/cqarctic/text_pol.dat \
