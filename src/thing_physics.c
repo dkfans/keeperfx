@@ -385,10 +385,6 @@ TbBool position_over_floor_level(const struct Thing *thing, const struct Coord3d
 
 TbBool creature_cannot_move_directly_to(struct Thing *thing, struct Coord3d *pos)
 {
-
-
-
-
     struct Coord3d realpos;
     realpos.x.val = thing->mappos.x.val;
     realpos.y.val = thing->mappos.y.val;
