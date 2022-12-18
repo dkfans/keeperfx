@@ -423,7 +423,7 @@ long room_has_slab_adjacent(const struct Room *room, long slbkind)
         // Per room tile code
         for (long n = 0; n < AROUND_SLAB_LENGTH; n++)
         {
-            long slab_num = i + around_slab[n];
+            long slab_num = i + gameadd.around_slab[n];
             struct SlabMap* slb = get_slabmap_direct(slab_num);
             if (!slabmap_block_invalid(slb))
             {

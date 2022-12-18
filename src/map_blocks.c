@@ -486,7 +486,7 @@ long delete_all_object_things_from_slab(MapSlabCoord slb_x, MapSlabCoord slb_y, 
         struct Coord3d pos;
         unsigned long k;
         long i;
-        mapblk = get_map_block_at_pos(stl_num+around_map[n]);
+        mapblk = get_map_block_at_pos(stl_num+gameadd.around_map[n]);
         k = 0;
         i = get_mapwho_thing_index(mapblk);
         while (i != 0)
@@ -538,7 +538,7 @@ unsigned long delete_unwanted_things_from_liquid_slab(MapSlabCoord slb_x, MapSla
     removed_num = 0;
     for (n=0; n < AROUND_MAP_LENGTH; n++)
     {
-        mapblk = get_map_block_at_pos(stl_num+around_map[n]);
+        mapblk = get_map_block_at_pos(stl_num+gameadd.around_map[n]);
         k = 0;
         i = get_mapwho_thing_index(mapblk);
         while (i != 0)
@@ -590,7 +590,7 @@ unsigned long remove_unwanted_things_from_wall_slab(MapSlabCoord slb_x, MapSlabC
     unsigned long removed_num = 0;
     for (long n=0; n < AROUND_MAP_LENGTH; n++)
     {
-        struct Map *mapblk = get_map_block_at_pos(stl_num+around_map[n]);
+        struct Map *mapblk = get_map_block_at_pos(stl_num+gameadd.around_map[n]);
         unsigned long k = 0;
         long i = get_mapwho_thing_index(mapblk);
         while (i != 0)
@@ -679,7 +679,7 @@ unsigned long remove_unwanted_things_from_floor_slab(MapSlabCoord slb_x, MapSlab
     unsigned long removed_num = 0;
     for (long n=0; n < AROUND_MAP_LENGTH; n++)
     {
-        struct Map *mapblk = get_map_block_at_pos(stl_num+around_map[n]);
+        struct Map *mapblk = get_map_block_at_pos(stl_num+gameadd.around_map[n]);
         unsigned long k = 0;
         long i = get_mapwho_thing_index(mapblk);
         while (i != 0)

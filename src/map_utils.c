@@ -94,14 +94,6 @@ struct Around const start_at_around[] = {
     { 1, -1}, { 1,  0}, { 1,  1},
 };
 
-
-//these are the default values for them, actual value gets filled in set_map_size in map_data.c
-short around_map[] = {-257, -256, -255, -1, 0, 1, 255, 256, 257};
-short around_slab[] = {-86, -85, -84,  -1,   0,   1,  84,  85,  86};
-short around_slab_eight[] = {-86, -85, -84,  -1,   1,  84,  85,  86};
-short small_around_slab[] = {-85,   1,  85,  -1};
-
-/******************************************************************************/
 /******************************************************************************/
 #ifdef __cplusplus
 }
