@@ -3073,6 +3073,9 @@ static TbBool ariadne_check_forward_for_wallhug_gap_new(struct Thing *thing, str
     return false;
 }
 
+
+extern TbBool creature_cannot_move_directly_to_logging;
+
 DLLIMPORT TbBool _DK_ariadne_check_forward_for_wallhug_gap(struct Thing *thing, struct Ariadne *arid, struct Coord3d *pos, long hug_angle);
 static TbBool ariadne_check_forward_for_wallhug_gap(struct Thing *thing, struct Ariadne *arid, struct Coord3d *pos, long hug_angle)
 {
@@ -3083,30 +3086,27 @@ static TbBool ariadne_check_forward_for_wallhug_gap(struct Thing *thing, struct 
     memcpy(&thingstartpos,&thing->mappos,sizeof(struct Coord3d));
     memcpy(&oldpos,pos,sizeof(struct Coord3d));
 
-
-    //JUSTLOG("pos1 %d.%d %d.%d %d.%d",pos->x.stl.num,pos->x.stl.pos,pos->y.stl.num,pos->y.stl.pos,pos->z.stl.num,pos->z.stl.pos);
-    //JUSTLOG("pos1 %d.%d %d.%d %d.%d",thing->mappos.x.stl.num,thing->mappos.x.stl.pos,thing->mappos.y.stl.num,thing->mappos.y.stl.pos,thing->mappos.z.stl.num,thing->mappos.z.stl.pos);
+creature_cannot_move_directly_to_logging = true;
+JUSTLOG("----old");
     TbBool old = _DK_ariadne_check_forward_for_wallhug_gap(thing, arid, &oldpos, hug_angle);
-    //JUSTLOG("pos2 %d.%d %d.%d %d.%d",thing->mappos.x.stl.num,thing->mappos.x.stl.pos,thing->mappos.y.stl.num,thing->mappos.y.stl.pos,thing->mappos.z.stl.num,thing->mappos.z.stl.pos);
-    //JUSTLOG("pos2 %d.%d %d.%d %d.%d",pos->x.stl.num,pos->x.stl.pos,pos->y.stl.num,pos->y.stl.pos,pos->z.stl.num,pos->z.stl.pos);
+
 
     memcpy(&thing->mappos,&thingstartpos,sizeof(struct Coord3d));
+    JUSTLOG("----new");
 
-    //JUSTLOG("pos3 %d.%d %d.%d %d.%d",thing->mappos.x.stl.num,thing->mappos.x.stl.pos,thing->mappos.y.stl.num,thing->mappos.y.stl.pos,thing->mappos.z.stl.num,thing->mappos.z.stl.pos);
     TbBool new = ariadne_check_forward_for_wallhug_gap_new(thing, arid, pos, hug_angle);
-    //JUSTLOG("pos4 %d.%d %d.%d %d.%d",thing->mappos.x.stl.num,thing->mappos.x.stl.pos,thing->mappos.y.stl.num,thing->mappos.y.stl.pos,thing->mappos.z.stl.num,thing->mappos.z.stl.pos);
 
-
+creature_cannot_move_directly_to_logging = false;
     if (old == new && memcmp(&oldpos,pos,4/*sizeof(struct Coord3d)*/) == 0)
     {
         if(old != 0)
-            ERRORLOG("Ok %d",(int)old);
+            ERRORLOG("----Ok %d",(int)old);
     }
     else
     {    
-        JUSTLOG("oldpos %d.%d %d.%d %d.%d",oldpos.x.stl.num,oldpos.x.stl.pos,oldpos.y.stl.num,oldpos.y.stl.pos,oldpos.z.stl.num,oldpos.z.stl.pos);
-        JUSTLOG("newpos %d.%d %d.%d %d.%d",pos->x.stl.num,pos->x.stl.pos,pos->y.stl.num,pos->y.stl.pos,pos->z.stl.num,pos->z.stl.pos);
-        ERRORLOG("Nope %d, %d",(int)old,(int)new);
+        JUSTLOG("----oldpos %d.%d %d.%d %d.%d",oldpos.x.stl.num,oldpos.x.stl.pos,oldpos.y.stl.num,oldpos.y.stl.pos,oldpos.z.stl.num,oldpos.z.stl.pos);
+        JUSTLOG("----newpos %d.%d %d.%d %d.%d",pos->x.stl.num,pos->x.stl.pos,pos->y.stl.num,pos->y.stl.pos,pos->z.stl.num,pos->z.stl.pos);
+        ERRORLOG("----Nope %d, %d",(int)old,(int)new);
     }
     return new;
 }

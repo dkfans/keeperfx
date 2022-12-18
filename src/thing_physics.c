@@ -383,8 +383,14 @@ TbBool position_over_floor_level(const struct Thing *thing, const struct Coord3d
     return false;
 }
 
-TbBool creature_cannot_move_directly_to(struct Thing *thing, struct Coord3d *pos)
+TbBool creature_cannot_move_directly_to_logging = false;
+
+TbBool creature_cannot_move_directly_to_(struct Thing *thing, struct Coord3d *pos)
 {
+
+
+
+
     struct Coord3d realpos;
     realpos.x.val = thing->mappos.x.val;
     realpos.y.val = thing->mappos.y.val;
@@ -521,6 +527,22 @@ TbBool creature_cannot_move_directly_to(struct Thing *thing, struct Coord3d *pos
     }
     return 0;
 }
+
+
+TbBool creature_cannot_move_directly_to(struct Thing *thing, struct Coord3d *pos)
+{
+    if (creature_cannot_move_directly_to_logging)
+    {
+        JUSTLOG("----poTn %d.%d %d.%d %d.%d",thing->mappos.x.stl.num,thing->mappos.x.stl.pos,thing->mappos.y.stl.num,thing->mappos.y.stl.pos,thing->mappos.z.stl.num,thing->mappos.z.stl.pos);
+        JUSTLOG("----pos1 %d.%d %d.%d %d.%d",pos->x.stl.num,pos->x.stl.pos,pos->y.stl.num,pos->y.stl.pos,pos->z.stl.num,pos->z.stl.pos);
+    }
+    TbBool result = creature_cannot_move_directly_to_(thing, pos);
+    if (creature_cannot_move_directly_to_logging)
+        JUSTLOG("----result %d",result);
+    return result;
+}
+
+HOOK_DK_FUNC(creature_cannot_move_directly_to)
 
 /** Retrieves planned next position for given thing, without collision detection.
  *  Just adds thing velocity to current position and does some clipping. Nothing fancy.
