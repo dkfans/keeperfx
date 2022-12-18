@@ -107,11 +107,6 @@ extern long split_1;
 extern long split_2;
 extern long fade_max;
 
-extern long ScrWidth;
-extern long ScrHeight;
-extern long ScrCenterX;
-extern long ScrCenterY;
-
 extern short mx;
 extern short my;
 extern short mz;

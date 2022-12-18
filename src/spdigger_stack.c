@@ -56,8 +56,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT long _DK_check_out_unreinforced_area(struct Thing *creatng);
-/******************************************************************************/
+
 long const dig_pos[] = {0, -1, 1};
 
 /******************************************************************************/
@@ -946,9 +945,56 @@ static long check_out_unreinforced_place(struct Thing *thing)
     }
 }
 
-long check_out_unreinforced_area(struct Thing *thing)
+static TbBool check_out_unreinforced_area(struct Thing *spdigtng)
 {
-    //return _DK_check_out_unreinforced_area(thing);
+    long distance;
+    struct Coord3d reinforce_pos;
+    SubtlCodedCoords final_working_stl;
+
+    struct CreatureControl *cctrl = creature_control_get_from_thing(spdigtng);
+    long min_distance = 28;
+
+    struct Dungeon *dungeon = get_dungeon(spdigtng->owner);
+    MapSubtlCoord spdig_stl_x = spdigtng->mappos.x.stl.num;
+    MapSubtlCoord spdig_stl_y = spdigtng->mappos.y.stl.num;
+    for (int i = 0; dungeon->digger_stack_length > i; i++)
+    {
+        struct DiggerStack *dstack = &dungeon->digger_stack[i];
+        if (dstack->task_type == DigTsk_ReinforceWall)
+        {
+            SubtlCodedCoords stl_num = dstack->stl_num;
+
+            MapSubtlCoord wall_stl_x = stl_num_decode_x(dstack->stl_num);
+            MapSubtlCoord wall_stl_y = stl_num_decode_y(dstack->stl_num);
+
+            MapSlabCoord wall_slb_x = subtile_slab_fast(wall_stl_x);
+            MapSlabCoord wall_slb_y = subtile_slab_fast(wall_stl_y);
+
+            distance = get_2d_box_distance_xy(spdig_stl_x, spdig_stl_y, wall_stl_x,wall_stl_y);
+            if ( min_distance > distance )
+            {
+                MapSubtlCoord reinforce_stl_x;
+                MapSubtlCoord reinforce_stl_y;
+                if ( check_place_to_reinforce(spdigtng, wall_slb_x, wall_slb_y) <= 0 )
+                {
+                    dstack->task_type = CrSt_Unused;
+                }
+                else if ( check_out_uncrowded_reinforce_position(spdigtng, stl_num, &reinforce_stl_x, &reinforce_stl_y) )
+                {
+                    reinforce_pos.x.stl.num = reinforce_stl_x;
+                    reinforce_pos.y.stl.num = reinforce_stl_y;
+                    min_distance = distance;
+                    final_working_stl = stl_num;
+                }
+            }
+        }
+    }
+    if ( min_distance == 28 || !setup_person_move_to_coord(spdigtng, &reinforce_pos, 0) )
+        return false;
+    spdigtng->continue_state = CrSt_ImpArrivesAtReinforce;
+    cctrl->digger.working_stl = final_working_stl;
+    cctrl->digger.consecutive_reinforcements = 0;
+    return true;
 }
 
 TbBool check_out_unconverted_place(struct Thing *thing)
