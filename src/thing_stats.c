@@ -249,20 +249,25 @@ long get_radially_decaying_value(long magnitude,long decay_start,long decay_leng
     return magnitude;
 }
 
-long get_radially_growing_value(long magnitude, long decay_start, long decay_length, long distance, long acceleration)
+// magnitude = blow_strength 
+// decay_length is 'shot range' * 256 * 3/4
+// decay_start is 'shot range' * 256 * 1/4
+// distance = distance between shot and creature
+long get_radially_growing_value(long magnitude, long decay_start, long decay_length, long distance, long acceleration) //todo calculate acceleration inside this functionfor clarity
 {
+    short factor = acceleration * 3 / 4;
     long total_distance = (acceleration * distance + distance) / 2;
     if (distance >= decay_start + decay_length)
         return 0; //Outside the max range, nothing is pulled inwards
-    if ((abs(magnitude) * 5) > total_distance) //todo replace this and other 5s with computation
+    if ((abs(magnitude) * factor) > total_distance)
     {
         if (total_distance < decay_start)
         {
             return total_distance; // near the center of the implosion, reach the center and nothing more
         }
-        return -(decay_start / 5);
+        return -(decay_start / factor);
     }
-    return -(distance / 10);
+    return magnitude;// -(distance / 10);
 }
 
 long compute_creature_kind_score(ThingModel crkind,unsigned short crlevel)
