@@ -3053,7 +3053,6 @@ static TbBool ariadne_check_forward_for_wallhug_gap_new(struct Thing *thing, str
 
     thing->mappos.z.val = potentional_next_pos_3d.z.val;
     TbBool cant_move_to_pos_directly = creature_cannot_move_directly_to(thing, &potentional_next_pos_3d);
-    thing->mappos.z.val = arid->move_speed;
 
     if (cant_move_to_pos_directly)
     {
@@ -3110,7 +3109,7 @@ JUSTLOG("----old");
 creature_cannot_move_directly_to_logging = false;
 
 
-    if (memcmp(&thing->mappos,&thingstartpos,sizeof(struct Coord3d)) != 0)
+    if (memcmp(&thing->mappos,&oldtng,sizeof(struct Coord3d)) != 0)
     {
         JUSTLOG("----oltng %d.%d %d.%d %d.%d",oldtng.x.stl.num,oldtng.x.stl.pos,oldtng.y.stl.num,oldtng.y.stl.pos,oldtng.z.stl.num,oldtng.z.stl.pos);
         JUSTLOG("----Thing %d.%d %d.%d %d.%d",thing->mappos.x.stl.num,thing->mappos.x.stl.pos,thing->mappos.y.stl.num,thing->mappos.y.stl.pos,thing->mappos.z.stl.num,thing->mappos.z.stl.pos);
