@@ -63,9 +63,9 @@ TbScreenMode switching_vidmodes[] = {
   Lb_SCREEN_MODE_INVALID,
   };
 
-TbScreenMode failsafe_vidmode = Lb_SCREEN_MODE_320_200_8;
-TbScreenMode movies_vidmode   = Lb_SCREEN_MODE_640_480_8;
-TbScreenMode frontend_vidmode = Lb_SCREEN_MODE_640_480_8;
+static TbScreenMode failsafe_vidmode = Lb_SCREEN_MODE_320_200_8;
+static TbScreenMode movies_vidmode   = Lb_SCREEN_MODE_640_480_8;
+static TbScreenMode frontend_vidmode = Lb_SCREEN_MODE_640_480_8;
 
 //struct IPOINT_2D units_per_pixel;
 unsigned short units_per_pixel_min;
@@ -79,7 +79,7 @@ unsigned long first_person_horizontal_fov;
 unsigned long first_person_vertical_fov;
 long base_mouse_sensitivity = 256;
 
-short force_video_mode_reset = true;
+static short force_video_mode_reset = true;
 
 struct TbSprite *pointer_sprites;
 struct TbSprite *end_pointer_sprites;
@@ -92,6 +92,13 @@ TbSpriteData end_map_font_data;
 TbSpriteData map_hand_data;
 TbSpriteData end_map_hand_data;
 struct MapLevelInfo map_info;
+
+int MinimalResolutionSetup;
+
+struct TbColorTables pixmap;
+struct TbAlphaTables alpha_sprite_table;
+unsigned char white_pal[256];
+unsigned char red_pal[256];
 /******************************************************************************/
 
 extern struct TbSetupSprite setup_sprites_minimal[];

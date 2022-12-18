@@ -153,9 +153,7 @@ long light_create_light(struct InitLight *ilght)
     unsigned long k = 2 * ilght->field_3;
     lgt->flags2 = k ^ ((k ^ lgt->flags2) & 0x01);
     set_flag_byte(&lgt->flags,LgtF_Dynamic,ilght->is_dynamic);
-    lgt->field_1A = ilght->field_8;
-    lgt->field_18 = ilght->field_4;
-    lgt->field_12 = ilght->field_12;
+    lgt->attached_slb = ilght->attached_slb;
 
     struct LightAdd* lightadd = get_lightadd(lgt->index);
     LbMemorySet(lightadd, 0, sizeof(struct LightAdd)); // Clear any previously used LightAdd stuff
@@ -376,13 +374,13 @@ void light_set_light_position(long lgt_id, struct Coord3d *pos)
       unsigned char range = lgt->range;
       long end_y = lgt->mappos.y.stl.num + range;
       long end_x = lgt->mappos.x.stl.num + range;
-      if ( end_y > map_subtiles_y )
+      if ( end_y > gameadd.map_subtiles_y )
       {
-        end_y = map_subtiles_y;
+        end_y = gameadd.map_subtiles_y;
       }
-      if ( end_x > map_subtiles_x )
+      if ( end_x > gameadd.map_subtiles_x )
       {
-        end_x = map_subtiles_x;
+        end_x = gameadd.map_subtiles_x;
       }
       long beg_y = lgt->mappos.y.stl.num - range;
       if ( beg_y < 0 )
@@ -511,11 +509,11 @@ void light_signal_stat_light_update_in_own_radius(struct Light *lgt)
 {
     long radius = lgt->range;
     long end_y = (long)lgt->mappos.y.stl.num + radius;
-    if (end_y >= map_subtiles_y)
-        end_y = map_subtiles_y;
+    if (end_y >= gameadd.map_subtiles_y)
+        end_y = gameadd.map_subtiles_y;
     long end_x = (long)lgt->mappos.x.stl.num + radius;
-    if (end_x >= map_subtiles_x)
-        end_x = map_subtiles_x;
+    if (end_x >= gameadd.map_subtiles_x)
+        end_x = gameadd.map_subtiles_x;
     long start_y = (long)lgt->mappos.y.stl.num - radius;
     if (start_y <= 0)
         start_y = 0;
@@ -614,11 +612,11 @@ void light_set_light_intensity(long idx, unsigned char intensity)
         if ((lgt->flags & LgtF_Dynamic) == 0)
         {
           y2 = lgt->mappos.y.stl.num + lgt->range;
-          if ( y2 > map_subtiles_y )
-            y2 = map_subtiles_y;
+          if ( y2 > gameadd.map_subtiles_y )
+            y2 = gameadd.map_subtiles_y;
           x2 = lgt->mappos.x.stl.num + lgt->range;
-          if ( x2 > map_subtiles_x )
-            x2 = map_subtiles_x;
+          if ( x2 > gameadd.map_subtiles_x )
+            x2 = gameadd.map_subtiles_x;
           y1 = lgt->mappos.y.stl.num - lgt->range;
           if ( y1 < 0 )
             y1 = 0;
@@ -649,9 +647,9 @@ void clear_stat_light_map(void)
     game.lish.field_46149 = 32;
     game.lish.light_enabled = 0;
     game.lish.light_rand_seed = 0;
-    for (unsigned long y = 0; y < (map_subtiles_y + 1); y++)
+    for (unsigned long y = 0; y < (gameadd.map_subtiles_y + 1); y++)
     {
-        for (unsigned long x = 0; x < (map_subtiles_x + 1); x++)
+        for (unsigned long x = 0; x < (gameadd.map_subtiles_x + 1); x++)
         {
             unsigned long i = get_subtile_number(x, y);
             game.lish.stat_light_map[i] = 0;
@@ -1476,8 +1474,8 @@ void light_set_lights_on(char state)
         game.lish.light_enabled = 0;
     }
     // Enable lights on all but bounding subtiles
-    light_stat_light_map_clear_area(0, 0, map_subtiles_x, map_subtiles_y);
-    light_signal_stat_light_update_in_area(1, 1, map_subtiles_x, map_subtiles_y);
+    light_stat_light_map_clear_area(0, 0, gameadd.map_subtiles_x, gameadd.map_subtiles_y);
+    light_signal_stat_light_update_in_area(1, 1, gameadd.map_subtiles_x, gameadd.map_subtiles_y);
 }
 
 static long calculate_shadow_angle(
@@ -1745,20 +1743,20 @@ static char light_render_light_dynamic(struct Light *lgt, int radius, int render
         {
             do
             {
-                stl_num_2 = (unsigned char)lighting_table->distance;
+                stl_num_2 = lighting_table->distance;
                 if (stl_num_2 > lighting_tables_idx)
                     break;
                 stl_y = lighting_table->delta_y + lgt_stl_y;
                 stl_x = lighting_table->delta_x + lgt_stl_x;
-                if (lighting_table->delta_x + lgt_stl_x < map_subtiles_x && stl_y < map_subtiles_y)
+                if (lighting_table->delta_x + lgt_stl_x < gameadd.map_subtiles_x && stl_y < gameadd.map_subtiles_y)
                 {
                     some_y_2 = stl_y << 8;
                     some_x_2 = stl_x << 8;
                     angle = LbArcTanAngle(some_x_2 - lgt_pos_x, some_y_2 - lgt_pos_y) & LbFPMath_AngleMask;
-                    if ((unsigned char)stl_x < (unsigned char)lgt_stl_x)
-                        v17 = ((unsigned char)stl_y < (unsigned char)lgt_stl_y) + 3;
+                    if (stl_x < lgt_stl_x)
+                        v17 = (stl_y < lgt_stl_y) + 3;
                     else
-                        v17 = 2 - ((unsigned char)stl_y < (unsigned char)lgt_stl_y);
+                        v17 = 2 - (stl_y < lgt_stl_y);
                     v19 = game.lish.shadow_limits[angle];
                     v38 = v17;
                     if (v19)
@@ -1974,13 +1972,7 @@ static char light_render_light(struct Light* lgt)
   lightadd->last_turn_drawn = game.play_gameturn;
   lgt->mappos.x.val = lightadd->interp_mappos.x.val;
   lgt->mappos.y.val = lightadd->interp_mappos.y.val;
-  // Stop flicker by rounding off position
   TbBool is_dynamic = lgt->flags & LgtF_Dynamic;
-  if (is_dynamic)
-  {
-      lgt->mappos.x.val = ((lgt->mappos.x.val >> 8) << 8);
-      lgt->mappos.y.val = ((lgt->mappos.y.val >> 8) << 8);
-  }
 
   int intensity;
   int radius = lgt->radius;
@@ -2044,14 +2036,24 @@ static char light_render_light(struct Light* lgt)
           y_start = 0;
 
         MapCoord x_end = lgt->mappos.x.val + lighting_radius;
-        if ( x_end > ((map_subtiles_x + 1) * COORD_PER_STL) - 1)
-          x_end = ((map_subtiles_x + 1) * COORD_PER_STL - 1);
+        if ( x_end > ((gameadd.map_subtiles_x + 1) * COORD_PER_STL) - 1)
+          x_end = ((gameadd.map_subtiles_x + 1) * COORD_PER_STL - 1);
         MapCoord y_end = lgt->mappos.y.val + lighting_radius;
-        if ( y_end > ((map_subtiles_y + 1) * COORD_PER_STL - 1) )
-          y_end = ((map_subtiles_y + 1) * COORD_PER_STL - 1);
+
+        // Stop flickering of dynamic lights while delta time is enabled. Most noticeable with lava effect.
+        if (is_dynamic)
+        {
+          x_start = ((x_start >> 8) << 8);
+          y_start = ((y_start >> 8) << 8);
+          x_end = ((x_end >> 8) << 8);
+          y_end = ((y_end >> 8) << 8);
+        }
+
+        if ( y_end > ((gameadd.map_subtiles_y + 1) * COORD_PER_STL - 1) )
+          y_end = ((gameadd.map_subtiles_y + 1) * COORD_PER_STL - 1);
         MapSubtlCoord stl_x = coord_subtile(x_start);
         MapSubtlCoord stl_y = coord_subtile(y_start);
-        int v33 = stl_x - coord_subtile(x_end) + map_subtiles_x;
+        int v33 = stl_x - coord_subtile(x_end) + gameadd.map_subtiles_x;
         unsigned short* lightness = &game.lish.subtile_lightness[get_subtile_number(stl_x, stl_y)];
         struct ShadowCache *shdc = &game.lish.shadow_cache[lgt->shadow_index];
         lighting_tables_idx = *shdc->field_1;
@@ -2101,11 +2103,6 @@ static void light_render_area(MapSubtlCoord startx, MapSubtlCoord starty, MapSub
 {
   struct Light *lgt;
   int range;
-  char *v9;
-  unsigned short *v10;
-  short *v12;
-  unsigned short *v13;
-  short v21;
   MapSubtlDelta half_width_y;
   MapSubtlDelta half_width_x;
 
@@ -2144,20 +2141,19 @@ static void light_render_area(MapSubtlCoord startx, MapSubtlCoord starty, MapSub
 
 
   SubtlCodedCoords start_num = get_subtile_number(startx, starty);
-  v9 = (char *)&game.lish.subtile_lightness + start_num * 2;
-  v10 = &game.lish.stat_light_map[start_num];
 
   
   if ( starty <= endy )
   {
-    MapSubtlCoord y = endy - starty + 1;
+    unsigned short *stl_lightness = &game.lish.subtile_lightness[start_num];
+    unsigned short *stat_light_map = &game.lish.stat_light_map[start_num];
+
+    MapSubtlDelta y = endy - starty + 1;
     do
     {
-      v12 = (short *)v9;
-      v13 = v10;
-      v9 += (map_subtiles_x + 1) * 2;
-      v10 += (map_subtiles_x + 1);
-      memcpy(v12, v13, 2 * (endx - startx));
+      memcpy(stl_lightness, stat_light_map, 2 * (endx - startx));
+      stl_lightness  += (gameadd.map_subtiles_x + 1);
+      stat_light_map += (gameadd.map_subtiles_x + 1);
       --y;
     }
     while ( y );
@@ -2227,10 +2223,8 @@ static void light_render_area(MapSubtlCoord startx, MapSubtlCoord starty, MapSub
           }
           lgt->flags |= LgtF_Unkn08;
         }
-        v21 = lgt->field_1C;
-        if ( v21 )
+        if ( lgt->field_1C )
         {
-          lgt->field_18 += v21;
           lgt->flags |= LgtF_Unkn08;
         }
         light_render_light(lgt);
@@ -2272,26 +2266,26 @@ void update_light_render_area(void)
     if (subtile_y > delta_y)
     {
       starty = subtile_y - delta_y;
-      if (starty > map_subtiles_y) starty = map_subtiles_y;
+      if (starty > gameadd.map_subtiles_y) starty = gameadd.map_subtiles_y;
     } else
       starty = 0;
     if (subtile_x > delta_x)
     {
       startx = subtile_x - delta_x;
-      if (startx > map_subtiles_x) startx = map_subtiles_x;
+      if (startx > gameadd.map_subtiles_x) startx = gameadd.map_subtiles_x;
     } else
       startx = 0;
     int endy = subtile_y + delta_y;
     if (endy < starty) endy = starty;
-    if (endy > map_subtiles_y) endy = map_subtiles_y;
+    if (endy > gameadd.map_subtiles_y) endy = gameadd.map_subtiles_y;
     int endx = subtile_x + delta_x;
     if (endx < startx) endx = startx;
-    if (endx > map_subtiles_x) endx = map_subtiles_x;
+    if (endx > gameadd.map_subtiles_x) endx = gameadd.map_subtiles_x;
     // Set the area
     light_render_area(startx, starty, endx, endy);
 }
 
-void light_set_light_minimum_size_to_cache(long lgt_id, long a2, long a3)
+void light_set_light_minimum_size_to_cache(long lgt_id, long min_radius, long min_intensity)
 {
   struct Light *lgt;
   if ( lgt_id )
@@ -2304,8 +2298,8 @@ void light_set_light_minimum_size_to_cache(long lgt_id, long a2, long a3)
         lgt->flags &= ~LgtF_Unkn02;
         if ( lgt->flags & LgtF_Dynamic )
         {
-          lgt->min_radius = a2;
-          lgt->min_intensity = a3;
+          lgt->min_radius = min_radius;
+          lgt->min_intensity = min_intensity;
         }
         else
         {
