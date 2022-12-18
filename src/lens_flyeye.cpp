@@ -44,12 +44,26 @@ class CHex {
     long source_strip_w;
     long source_strip_h;
 };
+
+#define CSCAN_STRIPS 26
+
+struct CScan {
+  long strips_num;
+  unsigned short strip_len[CSCAN_STRIPS];
+  short strip_w[CSCAN_STRIPS];
+  short strip_h[CSCAN_STRIPS];
+};
 /******************************************************************************/
 static unsigned char *lens_Source;
 static long lens_SourcePitch;
 static unsigned char *lens_Screen;
 static long lens_ScreenPitch;
-struct CScan *ScanBuffer;
+static struct CScan *ScanBuffer;
+static long ScrWidth;
+static long ScrHeight;
+static long ScrCenterX;
+static long ScrCenterY;
+
 /******************************************************************************/
 CHex::CHex(long width, long height)
 {

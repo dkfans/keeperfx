@@ -56,8 +56,6 @@ struct QuadrantOffset {
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT long _DK_ariadne_check_forward_for_wallhug_gap(struct Thing *thing, struct Ariadne *arid, struct Coord3d *pos, long outfri_y2);
-/******************************************************************************/
 DLLIMPORT long _DK_tri_initialised;
 #define tri_initialised _DK_tri_initialised
 DLLIMPORT unsigned long _DK_edgelen_initialised;
@@ -215,7 +213,7 @@ void path_out_a_bit(struct Path *path, const long *route);
 void gate_navigator_init8(struct Pathway *pway, long trAx, long trAy, long trBx, long trBy, long wp_lim, unsigned char a7);
 void route_through_gates(const struct Pathway *pway, struct Path *path, long subroute);
 long ariadne_push_position_against_wall(struct Thing *thing, const struct Coord3d *pos1, struct Coord3d *pos_out);
-long ariadne_check_forward_for_wallhug_gap(struct Thing *thing, struct Ariadne *arid, struct Coord3d *pos, long a4);
+static TbBool ariadne_check_forward_for_wallhug_gap(struct Thing *thing, struct Ariadne *arid, struct Coord3d *pos, long hug_angle);
 long ariadne_get_blocked_flags(struct Thing *thing, const struct Coord3d *pos);
 static long triangle_findSE8(long ptfind_x, long ptfind_y);
 long ma_triangle_route(long ptfind_x, long ptfind_y, long *ptstart_x);
@@ -428,11 +426,11 @@ long update_navigation_triangulation(long start_x, long start_y, long end_x, lon
     if (sy <= 2)
       sy = 2;
     ex = end_x + 1;
-    if (ex >= map_subtiles_x-2)
-      ex = map_subtiles_x-2;
+    if (ex >= gameadd.map_subtiles_x-2)
+      ex = gameadd.map_subtiles_x-2;
     ey = end_y + 1;
-    if (ey >= map_subtiles_y-2)
-      ey = map_subtiles_y-2;
+    if (ey >= gameadd.map_subtiles_y-2)
+      ey = gameadd.map_subtiles_y-2;
     // Fill a rectangle with nav colors (based on columns and blocks)
     for (y = sy; y <= ey; y++)
     {
@@ -2371,8 +2369,8 @@ AriadneReturn ariadne_init_wallhug(struct Thing *thing, struct Ariadne *arid, st
 void clear_wallhugging_path(struct Navigation *navi)
 {
     navi->navstate = 1;
-    navi->pos_final.x.val = subtile_coord_center(map_subtiles_x/2);
-    navi->pos_final.y.val = subtile_coord_center(map_subtiles_y/2);
+    navi->pos_final.x.val = subtile_coord_center(gameadd.map_subtiles_x/2);
+    navi->pos_final.y.val = subtile_coord_center(gameadd.map_subtiles_y/2);
     navi->pos_final.z.val = subtile_coord(1,0);
     navi->field_3 = 0;
     navi->field_2 = 0;
@@ -2981,9 +2979,104 @@ AriadneReturn ariadne_update_state_on_line(struct Thing *thing, struct Ariadne *
     return AridRet_OK;
 }
 
-long ariadne_check_forward_for_wallhug_gap(struct Thing *thing, struct Ariadne *arid, struct Coord3d *pos, long a4)
+static TbBool ariadne_check_forward_for_wallhug_gap(struct Thing *thing, struct Ariadne *arid, struct Coord3d *pos, long hug_angle)
 {
-    return _DK_ariadne_check_forward_for_wallhug_gap(thing, arid, pos, a4);
+    struct Coord3d nav_boundry_pos;
+    struct Coord3d potentional_next_pos_3d;
+    struct Coord3d original_mappos;
+
+    long nav_radius = thing_nav_sizexy(thing) / 2;
+
+    TbBool isOk = false;
+    switch (hug_angle)
+    {
+    case ANGLE_NORTH:
+        if ((int)((pos->y.val - nav_radius) & 0xFFFFFF00) < (int)((thing->mappos.y.val - nav_radius) & 0xFFFFFF00))
+        {
+            nav_boundry_pos.x.val = pos->x.val;
+            nav_boundry_pos.y.stl.num = (thing->mappos.y.val - nav_radius) >> 8;
+            nav_boundry_pos.y.stl.pos = 0;
+            nav_boundry_pos.y.val += nav_radius;
+            isOk = true;
+        }
+        break;
+    case ANGLE_SOUTH:
+        if ((int)((nav_radius + pos->y.val) & 0xFFFFFF00) > (int)((nav_radius + thing->mappos.y.val) & 0xFFFFFF00))
+        {
+            nav_boundry_pos.x.val = pos->x.val;
+            nav_boundry_pos.y.stl.num = (nav_radius + thing->mappos.y.val) >> 8;
+            nav_boundry_pos.y.stl.pos = COORD_PER_STL - 1;
+            nav_boundry_pos.y.val -= nav_radius;
+            isOk = true;
+        }
+        break;
+    case ANGLE_WEST:
+        if ((int)((pos->x.val - nav_radius) & 0xFFFFFF00) < (int)((thing->mappos.x.val - nav_radius) & 0xFFFFFF00))
+        {
+            nav_boundry_pos.y.val = pos->y.val;
+            nav_boundry_pos.x.stl.num = (thing->mappos.x.val - nav_radius) >> 8;
+            nav_boundry_pos.x.stl.pos = 0;
+            nav_boundry_pos.x.val += nav_radius;
+            isOk = true;
+        }
+        break;
+    case ANGLE_EAST:
+        if ((int)((nav_radius + pos->x.val) & 0xFFFFFF00) > (int)((nav_radius + thing->mappos.x.val) & 0xFFFFFF00))
+        {
+            nav_boundry_pos.y.val = pos->y.val;
+            nav_boundry_pos.x.stl.num = (nav_radius + thing->mappos.x.val) >> 8;
+            nav_boundry_pos.x.stl.pos = COORD_PER_STL - 1;
+            nav_boundry_pos.x.val -= nav_radius;
+            isOk = true;
+        }
+        break;
+    default:
+        return 0;
+    }
+    if (!isOk)
+        return 0;
+
+    char angle_offset;
+
+    if (arid->field_20 == 1)
+        angle_offset = -1;
+    else if (arid->field_20 == 2)
+        angle_offset = 1;
+    else
+        return 0;
+
+    long quadrant = (LbFPMath_PI / 2) * ((angle_to_quadrant(hug_angle) + angle_offset) & 3);
+
+    potentional_next_pos_3d.x.val = move_coord_with_angle_x(thing->mappos.x.val, arid->move_speed, quadrant);
+    potentional_next_pos_3d.y.val = move_coord_with_angle_y(thing->mappos.y.val, arid->move_speed, quadrant);
+    potentional_next_pos_3d.z.val = get_floor_height_under_thing_at(thing, &thing->mappos);
+
+    thing->mappos.z.val = potentional_next_pos_3d.z.val;
+    TbBool cant_move_to_pos_directly = creature_cannot_move_directly_to(thing, &potentional_next_pos_3d);
+
+    if (cant_move_to_pos_directly)
+    {
+        original_mappos = thing->mappos;
+        thing->mappos = nav_boundry_pos;
+
+        thing->mappos.z.val = get_thing_height_at(thing, &thing->mappos);
+
+        potentional_next_pos_3d.x.val = move_coord_with_angle_x(thing->mappos.x.val, arid->move_speed, quadrant);
+        potentional_next_pos_3d.y.val = move_coord_with_angle_y(thing->mappos.y.val, arid->move_speed, quadrant);
+        potentional_next_pos_3d.z.val = get_floor_height_under_thing_at(thing, &thing->mappos);
+        thing->mappos.z.val = potentional_next_pos_3d.z.val;
+        cant_move_to_pos_directly = creature_cannot_move_directly_to(thing, &potentional_next_pos_3d);
+
+        thing->mappos = original_mappos;
+
+        if (cant_move_to_pos_directly)
+        {
+            return false;
+        }
+        *pos = nav_boundry_pos;
+        return true;
+    }
+    return false;
 }
 
 TbBool ariadne_creature_on_circular_hug(const struct Thing *thing, const struct Ariadne *arid)

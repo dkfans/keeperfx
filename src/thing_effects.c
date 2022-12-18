@@ -1557,26 +1557,26 @@ void word_of_power_affecting_area(struct Thing *efftng, struct Thing *owntng, st
     if (stl_xmin < 0) {
         stl_xmin = 0;
     } else
-    if (stl_xmin > map_subtiles_x) {
-        stl_xmin = map_subtiles_x;
+    if (stl_xmin > gameadd.map_subtiles_x) {
+        stl_xmin = gameadd.map_subtiles_x;
     }
     if (stl_ymin < 0) {
       stl_ymin = 0;
     } else
-    if (stl_ymin > map_subtiles_y) {
-      stl_ymin = map_subtiles_y;
+    if (stl_ymin > gameadd.map_subtiles_y) {
+      stl_ymin = gameadd.map_subtiles_y;
     }
     if (stl_xmax < 0) {
       stl_xmax = 0;
     } else
-    if (stl_xmax > map_subtiles_x) {
-      stl_xmax = map_subtiles_x;
+    if (stl_xmax > gameadd.map_subtiles_x) {
+      stl_xmax = gameadd.map_subtiles_x;
     }
     if (stl_ymax < 0) {
       stl_ymax = 0;
     } else
-    if (stl_ymax > map_subtiles_y) {
-      stl_ymax = map_subtiles_y;
+    if (stl_ymax > gameadd.map_subtiles_y) {
+      stl_ymax = gameadd.map_subtiles_y;
     }
     for (long stl_y = stl_ymin; stl_y <= stl_ymax; stl_y++)
     {
@@ -1692,11 +1692,11 @@ long explosion_affecting_area(struct Thing *tngsrc, const struct Coord3d *pos, M
     else
       start_y = 0;
     MapSubtlCoord end_x = range_stl + pos->x.stl.num;
-    if (end_x >= map_subtiles_x)
-      end_x = map_subtiles_x;
+    if (end_x >= gameadd.map_subtiles_x)
+      end_x = gameadd.map_subtiles_x;
     MapSubtlCoord end_y = range_stl + pos->y.stl.num;
-    if (end_y > map_subtiles_y)
-      end_y = map_subtiles_y;
+    if (end_y > gameadd.map_subtiles_y)
+      end_y = gameadd.map_subtiles_y;
 #if (BFDEBUG_LEVEL > 0)
     if ((start_params.debug_flags & DFlg_ShotsDamage) != 0)
         create_price_effect(pos, my_player_number, max_damage);
@@ -1837,26 +1837,26 @@ long poison_cloud_affecting_area(struct Thing *tngsrc, struct Coord3d *pos, long
     if (start_x < 0) {
         start_x = 0;
     } else
-    if (start_x > map_subtiles_x) {
-        start_x = map_subtiles_x;
+    if (start_x > gameadd.map_subtiles_x) {
+        start_x = gameadd.map_subtiles_x;
     }
     if (start_y < 0) {
         start_y = 0;
     } else
-    if (start_y > map_subtiles_y) {
-        start_y = map_subtiles_y;
+    if (start_y > gameadd.map_subtiles_y) {
+        start_y = gameadd.map_subtiles_y;
     }
     if (end_x < 0) {
         end_x = 0;
     } else
-    if (end_x > map_subtiles_x) {
-        end_x = map_subtiles_x;
+    if (end_x > gameadd.map_subtiles_x) {
+        end_x = gameadd.map_subtiles_x;
     }
     if (end_y < 0) {
         end_y = 0;
     } else
-    if (end_y > map_subtiles_y) {
-        end_y = map_subtiles_y;
+    if (end_y > gameadd.map_subtiles_y) {
+        end_y = gameadd.map_subtiles_y;
     }
     long num_affected = 0;
     for (MapSubtlCoord stl_y = start_y; stl_y <= end_y; stl_y++)

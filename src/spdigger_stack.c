@@ -56,9 +56,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT long _DK_check_out_unreinforced_place(struct Thing *creatng);
-DLLIMPORT long _DK_check_out_unreinforced_area(struct Thing *creatng);
-/******************************************************************************/
+
 long const dig_pos[] = {0, -1, 1};
 
 /******************************************************************************/
@@ -547,10 +545,10 @@ TbBool check_out_unconverted_spot(struct Thing *creatng, MapSlabCoord slb_x, Map
 {
     MapSubtlCoord stl_x;
     MapSubtlCoord stl_y;
-    if ((slb_x < 0) || (slb_x >= map_tiles_x)) {
+    if ((slb_x < 0) || (slb_x >= gameadd.map_tiles_x)) {
         return false;
     }
-    if ((slb_y < 0) || (slb_y >= map_tiles_y)) {
+    if ((slb_y < 0) || (slb_y >= gameadd.map_tiles_y)) {
         return false;
     }
     if (!check_place_to_convert_excluding(creatng, slb_x, slb_y))
@@ -623,10 +621,10 @@ TbBool check_out_unprettied_spot(struct Thing *creatng, long slb_x, long slb_y)
 {
     MapSubtlCoord stl_x;
     MapSubtlCoord stl_y;
-    if ((slb_x < 0) || (slb_x >= map_tiles_x)) {
+    if ((slb_x < 0) || (slb_x >= gameadd.map_tiles_x)) {
         return false;
     }
-    if ((slb_y < 0) || (slb_y >= map_tiles_y)) {
+    if ((slb_y < 0) || (slb_y >= gameadd.map_tiles_y)) {
         return false;
     }
     if (!check_place_to_pretty_excluding(creatng, slb_x, slb_y)) {
@@ -818,14 +816,186 @@ long check_place_to_pretty_excluding(struct Thing *creatng, MapSlabCoord slb_x, 
     return 1;
 }
 
-long check_out_unreinforced_place(struct Thing *thing)
+static int check_out_unreinforced_spiral(struct Thing *thing, int number_of_iterations)
 {
-    return _DK_check_out_unreinforced_place(thing);
+    int v4;
+    int v8;
+    int v9;
+    int current_iteration;
+    const struct Around *ar;
+    long stl_y;
+    long stl_x;
+
+    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+    current_iteration = 0;
+    MapSlabCoord slb_x = subtile_slab_fast(thing->mappos.x.stl.num);
+    MapSlabCoord slb_y = subtile_slab_fast(thing->mappos.y.stl.num);
+    int v7 = 2;
+
+    while (number_of_iterations > current_iteration)
+    {
+        --slb_x;
+        --slb_y;
+        v4 = 0;
+        do
+        {
+            v8 = 0;
+            v9 = v4 + 1;
+            ar = &small_around[(v4 + 1) & 3];
+            if (v7 > 0)
+            {
+                while (1)
+                {
+                    slb_x += ar->delta_x;
+                    slb_y += ar->delta_y;
+                    if (slb_x >= 0 && slb_x < gameadd.map_tiles_x && slb_y >= 0 && slb_y < gameadd.map_tiles_y && check_place_to_reinforce(thing, slb_x, slb_y) > 0)
+                    {
+                        SubtlCodedCoords stl_num = get_subtile_number_at_slab_center(slb_x,slb_y);
+                        if (check_out_uncrowded_reinforce_position(thing, stl_num, &stl_x, &stl_y))
+                        {
+                            if (setup_person_move_to_position(thing, stl_x, stl_y, 0))
+                            {
+                                thing->continue_state = CrSt_ImpArrivesAtReinforce;
+                                cctrl->digger.working_stl = stl_num;
+                                cctrl->digger.consecutive_reinforcements = 0;
+                                return 1;
+                            }
+                        }
+                    }
+                    if (v7 <= ++v8)
+                        break;
+                }
+            }
+            v4 = v9;
+        } while (v9 < 4);
+        ++current_iteration;
+        v7 += 2;
+    }
+    
+    return 0;
 }
 
-long check_out_unreinforced_area(struct Thing *thing)
+static long check_out_unreinforced_place(struct Thing *thing)
 {
-    return _DK_check_out_unreinforced_area(thing);
+    unsigned short working_stl;
+    SubtlCodedCoords stl_num;
+    struct CreatureControl *cctrl;
+    int v17;
+    long stl_y;
+    long stl_x;
+
+    const char around_indexes[16] =
+        {0, 1, 1, 0,
+         1, 2, 3, 3,
+         2, 0, 0, 0,
+         0, 0, 0, 0};
+
+    cctrl = creature_control_get_from_thing(thing);
+    working_stl = cctrl->digger.working_stl;
+    if (working_stl == 0)
+        return check_out_unreinforced_spiral(thing, 1) != 0;
+    const MapSlabCoord working_slb_x = subtile_slab_fast(stl_num_decode_x(working_stl));
+    const MapSlabCoord working_slb_y = subtile_slab_fast(stl_num_decode_y(working_stl));
+    if ((int)abs(map_to_slab[thing->mappos.x.stl.num] - working_slb_x) >= 3 || (int)abs(map_to_slab[thing->mappos.y.stl.num] - working_slb_y) >= 3)
+    {
+        return check_out_unreinforced_spiral(thing, 1) != 0;
+    }
+
+    MapSubtlCoord uncrowded_stl_x,uncrowded_stl_y;
+    if (check_place_to_reinforce(thing, working_slb_x, working_slb_y) > 0 && 
+        check_out_uncrowded_reinforce_position(thing, cctrl->digger.working_stl, &uncrowded_stl_x, &uncrowded_stl_y) && 
+        setup_person_move_to_position(thing, uncrowded_stl_x, uncrowded_stl_y, 0))
+    {
+        thing->continue_state = CrSt_ImpArrivesAtReinforce;
+        return true;
+    }
+    else
+    {
+        unsigned int ar_idx_x = thing->mappos.x.stl.num % 3u;
+        unsigned int ar_idx_y = 3 * (thing->mappos.y.stl.num % 3u);
+
+        v17 = 0;
+        int around_idx = around_indexes[ar_idx_y + ar_idx_x];
+        while (1)
+        {
+            MapSlabCoord x = working_slb_x + small_around[around_idx].delta_x;
+            MapSlabCoord y = working_slb_y + small_around[around_idx].delta_y;
+            if (check_place_to_reinforce(thing, x, y) > 0)
+            {
+                stl_num = get_subtile_number_at_slab_center(x,y);
+
+                if (check_out_uncrowded_reinforce_position(thing, stl_num, &stl_x, &stl_y))
+                {
+                    if (setup_person_move_to_position(thing, stl_x, stl_y, 0))
+                        break;
+                }
+            }
+            v17 += 2;
+            around_idx = (around_idx + 2) % SMALL_AROUND_LENGTH;
+            if (v17 >= 4)
+            {
+                cctrl->digger.working_stl = 0;
+                return check_out_unreinforced_spiral(thing, 1) != 0;
+            }
+        }
+        thing->continue_state = CrSt_ImpArrivesAtReinforce;
+        cctrl->digger.working_stl = stl_num;
+        cctrl->digger.consecutive_reinforcements = 0;
+        return 1;
+    }
+}
+
+static TbBool check_out_unreinforced_area(struct Thing *spdigtng)
+{
+
+    long distance;
+    struct Coord3d reinforce_pos;
+    SubtlCodedCoords final_working_stl;
+
+    struct CreatureControl *cctrl = creature_control_get_from_thing(spdigtng);
+    long min_distance = 28;
+
+    struct Dungeon *dungeon = get_dungeon(spdigtng->owner);
+    MapSubtlCoord spdig_stl_x = spdigtng->mappos.x.stl.num;
+    MapSubtlCoord spdig_stl_y = spdigtng->mappos.y.stl.num;
+    for (int i = 0; dungeon->digger_stack_length > i; i++)
+    {
+        struct DiggerStack *dstack = &dungeon->digger_stack[i];
+        if (dstack->task_type == DigTsk_ReinforceWall)
+        {
+            SubtlCodedCoords stl_num = dstack->stl_num;
+
+            MapSubtlCoord wall_stl_x = stl_num_decode_x(dstack->stl_num);
+            MapSubtlCoord wall_stl_y = stl_num_decode_y(dstack->stl_num);
+
+            MapSlabCoord wall_slb_x = subtile_slab_fast(wall_stl_x);
+            MapSlabCoord wall_slb_y = subtile_slab_fast(wall_stl_y);
+
+            distance = get_2d_box_distance_xy(spdig_stl_x, spdig_stl_y, wall_stl_x,wall_stl_y);
+            if ( min_distance > distance )
+            {
+                MapSubtlCoord reinforce_stl_x;
+                MapSubtlCoord reinforce_stl_y;
+                if ( check_place_to_reinforce(spdigtng, wall_slb_x, wall_slb_y) <= 0 )
+                {
+                    dstack->task_type = CrSt_Unused;
+                }
+                else if ( check_out_uncrowded_reinforce_position(spdigtng, stl_num, &reinforce_stl_x, &reinforce_stl_y) )
+                {
+                    reinforce_pos.x.stl.num = reinforce_stl_x;
+                    reinforce_pos.y.stl.num = reinforce_stl_y;
+                    min_distance = distance;
+                    final_working_stl = stl_num;
+                }
+            }
+        }
+    }
+    if ( min_distance == 28 || !setup_person_move_to_coord(spdigtng, &reinforce_pos, 0) )
+        return false;
+    spdigtng->continue_state = CrSt_ImpArrivesAtReinforce;
+    cctrl->digger.working_stl = final_working_stl;
+    cctrl->digger.consecutive_reinforcements = 0;
+    return true;
 }
 
 TbBool check_out_unconverted_place(struct Thing *thing)
@@ -1277,9 +1447,9 @@ void add_pretty_and_convert_to_imp_stack_prepare(struct Dungeon *dungeon, unsign
     MapSlabCoord slb_x;
     MapSlabCoord slb_y;
     // Clear our slab options array and mark tall slabs with SlbCAOpt_Border
-    for (slb_y=0; slb_y < map_tiles_y; slb_y++)
+    for (slb_y=0; slb_y < gameadd.map_tiles_y; slb_y++)
     {
-        for (slb_x=0; slb_x < map_tiles_x; slb_x++)
+        for (slb_x=0; slb_x < gameadd.map_tiles_x; slb_x++)
         {
             SlabCodedCoords slb_num;
             struct SlabMap *slb;
@@ -1435,7 +1605,7 @@ int add_pretty_and_convert_to_imp_stack(struct Dungeon *dungeon, int max_tasks)
     unsigned char *slbopt;
     struct SlabCoord *slblist;
     slbopt = scratch;
-    slblist = (struct SlabCoord *)(scratch + map_tiles_x*map_tiles_y);
+    slblist = (struct SlabCoord *)(scratch + gameadd.map_tiles_x*gameadd.map_tiles_y);
     add_pretty_and_convert_to_imp_stack_prepare(dungeon, slbopt);
     add_pretty_and_convert_to_imp_stack_starting_from_pos(dungeon, slbopt, slblist, &heartng->mappos, &remain_num);
     SYNCDBG(8,"Done, added %d tasks",(int)(max_tasks-remain_num));
@@ -1553,7 +1723,7 @@ struct Thing *get_next_unclaimed_gold_thing_pickable_by_digger(PlayerNumber owne
                       slb_owner = get_slab_owner_thing_is_on(thing);
                       if ((slb_owner == owner) || (slb_owner == game.neutral_player_num)) {
                           struct Room *room;
-                          room = find_any_navigable_room_for_thing_closer_than(thing, owner, RoRoF_GoldStorage, NavRtF_Default, map_subtiles_x/2 + map_subtiles_y/2);
+                          room = find_any_navigable_room_for_thing_closer_than(thing, owner, RoRoF_GoldStorage, NavRtF_Default, gameadd.map_subtiles_x/2 + gameadd.map_subtiles_y/2);
                           if (!room_is_invalid(room)) {
                               return thing;
                           }
@@ -2357,6 +2527,7 @@ long check_place_to_reinforce(struct Thing *creatng, MapSlabCoord slb_x, MapSlab
     }
     return 1;
 }
+HOOK_DK_FUNC(check_place_to_reinforce)
 
 struct Thing *check_place_to_pickup_crate(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned short flags, long n)
 {
@@ -2713,7 +2884,7 @@ long check_out_worker_reinforce_wall(struct Thing *thing, struct DiggerStack *ds
         return 0;
     }
     thing->continue_state = CrSt_ImpArrivesAtReinforce;
-    cctrl->digger.byte_93 = 0;
+    cctrl->digger.consecutive_reinforcements = 0;
     cctrl->word_8D = dstack->stl_num;
     cctrl->digger.last_did_job = SDLstJob_ReinforceWall3;
     return 1;

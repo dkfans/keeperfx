@@ -105,7 +105,6 @@ unsigned char const slabs_to_centre_peices[] = {
 };
 
 unsigned short const room_effect_elements[] = { TngEffElm_RedFlame, TngEffElm_BlueFlame, TngEffElm_GreenFlame, TngEffElm_YellowFlame, TngEffElm_None, TngEffElm_None };
-const short slab_around[] = { -85, 1, 85, -1 };
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -488,7 +487,7 @@ void count_gold_hoardes_in_room(struct Room *room)
 
         i = get_next_slab_number_in_room(i);
         k++;
-        if (k > map_tiles_x * map_tiles_y)
+        if (k > gameadd.map_tiles_x * gameadd.map_tiles_y)
         {
             ERRORLOG("Infinite loop detected when sweeping room slabs");
             break;
@@ -1598,7 +1597,7 @@ void count_lair_occupants(struct Room *room)
         count_lair_occupants_on_slab(room, slb_x, slb_y);
         // Per slab code ends
         k++;
-        if (k > map_tiles_x * map_tiles_y)
+        if (k > gameadd.map_tiles_x * gameadd.map_tiles_y)
         {
             ERRORLOG("Infinite loop detected when sweeping room slabs");
             break;
@@ -1757,7 +1756,7 @@ void recount_and_reassociate_room_slabs(struct Room *room)
         slb->room_index = room->index;
         // Per room tile code ends
         k++;
-        if (k >= map_tiles_x*map_tiles_y)
+        if (k >= gameadd.map_tiles_x*gameadd.map_tiles_y)
         {
             ERRORLOG("Room slabs list length exceeded when sweeping");
             break;
@@ -1810,8 +1809,8 @@ void get_room_mass_centre_coords(long *mass_x, long *mass_y, const struct Room *
         *mass_y = tot_y;
     } else {
         ERRORLOG("Room %s index %d has no slabs.",room_code_name(room->kind),(int)room->index);
-        *mass_x = map_tiles_x / 2;
-        *mass_y = map_tiles_y / 2;
+        *mass_x = gameadd.map_tiles_x / 2;
+        *mass_y = gameadd.map_tiles_y / 2;
     }
 }
 
@@ -2197,9 +2196,9 @@ void reinitialise_map_rooms(void)
 TbBool initialise_map_rooms(void)
 {
     SYNCDBG(7,"Starting");
-    for (unsigned long slb_y = 0; slb_y < map_tiles_y; slb_y++)
+    for (unsigned long slb_y = 0; slb_y < gameadd.map_tiles_y; slb_y++)
     {
-        for (unsigned long slb_x = 0; slb_x < map_tiles_x; slb_x++)
+        for (unsigned long slb_x = 0; slb_x < gameadd.map_tiles_x; slb_x++)
         {
             struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
             RoomKind rkind = slab_corresponding_room(slb->kind);
@@ -3023,8 +3022,8 @@ TbBool find_first_valid_position_for_thing_anywhere_in_room(const struct Thing *
     if (!room_exists(room))
     {
         ERRORLOG("Tried to find position in non-existing room");
-        pos->x.val = subtile_coord_center(map_subtiles_x/2);
-        pos->y.val = subtile_coord_center(map_subtiles_y/2);
+        pos->x.val = subtile_coord_center(gameadd.map_subtiles_x/2);
+        pos->y.val = subtile_coord_center(gameadd.map_subtiles_y/2);
         pos->z.val = subtile_coord(1,0);
         return false;
     }
@@ -3069,8 +3068,8 @@ TbBool find_first_valid_position_for_thing_anywhere_in_room(const struct Thing *
         }
     }
     ERRORLOG("Could not find valid FIRST point in %s for %s",room_code_name(room->kind),thing_model_name(thing));
-    pos->x.val = subtile_coord_center(map_subtiles_x/2);
-    pos->y.val = subtile_coord_center(map_subtiles_y/2);
+    pos->x.val = subtile_coord_center(gameadd.map_subtiles_x/2);
+    pos->y.val = subtile_coord_center(gameadd.map_subtiles_y/2);
     pos->z.val = subtile_coord(1,0);
     return false;
 }
@@ -4862,7 +4861,7 @@ void redraw_room_map_elements(struct Room *room)
         redraw_slab_map_elements(slb_x, slb_y);
         // Per-slab code end
         k++;
-        if (k > map_tiles_x*map_tiles_y)
+        if (k > gameadd.map_tiles_x*gameadd.map_tiles_y)
         {
             ERRORLOG("Infinite loop detected when sweeping room slabs");
             break;
@@ -4883,7 +4882,7 @@ void do_room_unprettying(struct Room *room, PlayerNumber plyr_idx)
         do_unprettying(plyr_idx, slb_x, slb_y);
         // Per-slab code end
         k++;
-        if (k > map_tiles_x*map_tiles_y)
+        if (k > gameadd.map_tiles_x*gameadd.map_tiles_y)
         {
             ERRORLOG("Infinite loop detected when sweeping room slabs");
             break;
@@ -5063,7 +5062,7 @@ void destroy_room_leaving_unclaimed_ground(struct Room *room)
         create_dirt_rubble_for_dug_slab(slb_x, slb_y);
         // Per room tile code ends
         k++;
-        if (k > map_tiles_x*map_tiles_y) // we can't use room->slabs_count as room may be deleted
+        if (k > gameadd.map_tiles_x*gameadd.map_tiles_y) // we can't use room->slabs_count as room may be deleted
         {
             ERRORLOG("Room slabs list length exceeded when sweeping");
             break;

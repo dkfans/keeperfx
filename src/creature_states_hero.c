@@ -591,12 +591,12 @@ short good_back_at_start(struct Thing *thing)
     long m = CREATURE_RANDOM(thing, AROUND_MAP_LENGTH);
     for (long n = 0; n < AROUND_MAP_LENGTH; n++)
     {
-        struct Map* mapblk = get_map_block_at_pos(stl_num + around_map[m]);
+        struct Map* mapblk = get_map_block_at_pos(stl_num + gameadd.around_map[m]);
         // Per-block code
         if ((mapblk->flags & SlbAtFlg_Blocking) == 0)
         {
-            MapSubtlCoord stl_x = stl_num_decode_x(stl_num + around_map[m]);
-            MapSubtlCoord stl_y = stl_num_decode_y(stl_num + around_map[m]);
+            MapSubtlCoord stl_x = stl_num_decode_x(stl_num + gameadd.around_map[m]);
+            MapSubtlCoord stl_y = stl_num_decode_y(stl_num + gameadd.around_map[m]);
             if (setup_person_move_to_position(thing, stl_x, stl_y, NavRtF_Default)) {
                 thing->continue_state = CrSt_GoodDropsGold;
                 return 1;
@@ -1137,8 +1137,8 @@ TbBool script_support_send_tunneller_to_action_point(struct Thing *thing, long a
         pos.y.val = apt->mappos.y.val;
     } else {
         ERRORLOG("Attempt to send to non-existing action point %d",(int)apt_idx);
-        pos.x.val = subtile_coord_center(map_subtiles_x/2);
-        pos.y.val = subtile_coord_center(map_subtiles_y/2);
+        pos.x.val = subtile_coord_center(gameadd.map_subtiles_x/2);
+        pos.y.val = subtile_coord_center(gameadd.map_subtiles_y/2);
     }
     pos.z.val = subtile_coord(1,0);
     send_tunneller_to_point(thing, &pos);

@@ -802,9 +802,9 @@ void leader_find_positions_for_followers(struct Thing *leadtng)
         {
             int mcor_x = leadtng->mappos.x.val + shift_xh + shift_xv;
             int mcor_y = leadtng->mappos.y.val + shift_yv + shift_yh;
-            if ((coord_slab(mcor_x) > 0) && (coord_slab(mcor_x) < map_tiles_x))
+            if ((coord_slab(mcor_x) > 0) && (coord_slab(mcor_x) < gameadd.map_tiles_x))
             {
-                if ((coord_slab(mcor_y) > 0) && (coord_slab(mcor_y) < map_tiles_y))
+                if ((coord_slab(mcor_y) > 0) && (coord_slab(mcor_y) < gameadd.map_tiles_y))
                 {
                     struct Coord3d pos;
                     pos.x.val = mcor_x;
@@ -845,9 +845,9 @@ void leader_find_positions_for_followers(struct Thing *leadtng)
         {
             int mcor_x = leadtng->mappos.x.val + shift_xh + shift_xv;
             int mcor_y = leadtng->mappos.y.val + shift_yv + shift_yh;
-            if ((coord_slab(mcor_x) > 0) && (coord_slab(mcor_x) < map_tiles_x))
+            if ((coord_slab(mcor_x) > 0) && (coord_slab(mcor_x) < gameadd.map_tiles_x))
             {
-                if ((coord_slab(mcor_y) > 0) && (coord_slab(mcor_y) < map_tiles_y))
+                if ((coord_slab(mcor_y) > 0) && (coord_slab(mcor_y) < gameadd.map_tiles_y))
                 {
                     struct Coord3d pos;
                     pos.x.val = mcor_x;

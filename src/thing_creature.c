@@ -3133,13 +3133,13 @@ ThingIndex get_human_controlled_creature_target(struct Thing *thing, long primar
     short stl_x_upper = stl_x + range;
     if ((stl_x - range) < 0)
         stl_x_lower = 0;
-    if (stl_x_upper > map_subtiles_x)
-        stl_x_upper = map_subtiles_x;
+    if (stl_x_upper > gameadd.map_subtiles_x)
+        stl_x_upper = gameadd.map_subtiles_x;
     short stl_y = thing->mappos.y.stl.num;
     short stl_y_lower = stl_y - range;
     short stl_y_upper = stl_y + range;
-    if (stl_y + range > map_subtiles_y)
-        stl_y_upper = map_subtiles_y;
+    if (stl_y + range > gameadd.map_subtiles_y)
+        stl_y_upper = gameadd.map_subtiles_y;
     if (stl_y_lower < 0)
         stl_y_lower = 0;
 

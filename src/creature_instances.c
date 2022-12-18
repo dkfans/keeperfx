@@ -33,6 +33,7 @@
 #include "thing_navigate.h"
 #include "creature_control.h"
 #include "creature_states.h"
+#include "creature_states_combt.h"
 #include "config_creature.h"
 #include "config_effects.h"
 #include "power_specials.h"
@@ -510,6 +511,31 @@ long instf_creature_cast_spell(struct Thing *creatng, long *param)
     return 0;
 }
 
+
+long process_creature_self_spell_casting(struct Thing* creatng)
+{
+    TRACE_THING(creatng);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    if (((creatng->alloc_flags & TAlF_IsControlled) != 0)
+        || (cctrl->conscious_back_turns != 0)
+        || ((cctrl->stateblock_flags & CCSpl_Freeze) != 0)) {
+        return 0;
+    }
+    if (cctrl->instance_id != CrInst_NULL) {
+        return 0;
+    }
+    if (cctrl->combat_flags != 0) {
+        return 0;
+    }
+
+    long inst_idx = get_self_spell_casting(creatng);
+    if (inst_idx <= 0) {
+        return 0;
+    }
+    set_creature_instance(creatng, inst_idx, 1, creatng->index, 0);
+    return 1;
+}
+
 long instf_dig(struct Thing *creatng, long *param)
 {
     long stl_x;
@@ -951,9 +977,9 @@ long instf_reinforce(struct Thing *creatng, long *param)
     if (check_place_to_reinforce(creatng, slb_x, slb_y) <= 0) {
         return 0;
     }
-    if (cctrl->digger.byte_93 <= 25)
+    if (cctrl->digger.consecutive_reinforcements <= 25)
     {
-        cctrl->digger.byte_93++;
+        cctrl->digger.consecutive_reinforcements++;
         if (!S3DEmitterIsPlayingSample(creatng->snd_emitter_id, 63, 0))
         {
             struct PlayerInfo* player;
@@ -967,7 +993,7 @@ long instf_reinforce(struct Thing *creatng, long *param)
         }
         return 0;
     }
-    cctrl->digger.byte_93 = 0;
+    cctrl->digger.consecutive_reinforcements = 0;
     place_and_process_pretty_wall_slab(creatng, slb_x, slb_y);
     struct Coord3d pos;
     pos.x.stl.pos = 128;
