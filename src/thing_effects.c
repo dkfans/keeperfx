@@ -1412,12 +1412,12 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
                 long move_dist = 0;
                 if (blow_strength > 0)
                 {
-                    move_dist = get_radially_decaying_value(blow_strength, max_dist / 4, 3 * max_dist / 4, distance);
+                    move_dist = get_radially_decaying_value(blow_strength, max_dist / 4, max_dist * 3 / 4, distance);
                 }
                 else
                 {
                     long acceleration = 256 / tngdst->field_23;
-                    move_dist = get_radially_growing_value(blow_strength, max_dist / 4, 3 * max_dist / 4, distance, acceleration);
+                    move_dist = get_radially_growing_value(blow_strength, max_dist / 4, max_dist * 3 / 4, distance, acceleration);
                 }
                 if (move_dist != 0)
                 {
