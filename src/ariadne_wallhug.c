@@ -847,9 +847,9 @@ huground_logging = false;
     if (old_pos2.x.val != pos2->x.val || old_pos2.y.val != pos2->y.val) JUSTLOG("...pos2  %d,%d  %d,%d",old_pos2.x.val,old_pos2.y.val, pos2->x.val,pos2->y.val);
 
 
-    if (old_hug_val != *hug_val && rc_hug_val != *old_hug_val) JUSTLOG("...hug_val_both %d,%d",old_hug_val,*hug_val);
-    if (old_hug_val == *hug_val && rc_hug_val != *old_hug_val) JUSTLOG("...hug_val_rc   %d,%d",rc_hug_val,*hug_val);
-    if (old_hug_val != *hug_val && rc_hug_val == *old_hug_val) JUSTLOG("...hug_val_old  %d,%d",old_hug_val,*hug_val);
+    if (old_hug_val != *hug_val && rc_hug_val != old_hug_val) JUSTLOG("...hug_val_both %d,%d",old_hug_val,*hug_val);
+    if (old_hug_val == *hug_val && rc_hug_val != old_hug_val) JUSTLOG("...hug_val_rc   %d,%d",rc_hug_val,*hug_val);
+    if (old_hug_val != *hug_val && rc_hug_val == old_hug_val) JUSTLOG("...hug_val_old  %d,%d",old_hug_val,*hug_val);
 
     if (old_return != return_val && return_rc != old_return) JUSTLOG("...return both %d,%d,%d",old_return,return_val,return_rc);
     if (old_return == return_val && return_rc != old_return) JUSTLOG("...return rc   %d,%d",   old_return,return_rc);
