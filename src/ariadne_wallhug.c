@@ -183,7 +183,6 @@ static char hug_round_sub(struct Thing *creatng, MapSubtlCoord *pos1_stl_x, MapS
                        MapSubtlCoord *pos2_stl_y, MapSubtlCoord *biggest_delta_minus1, signed char around_offset, struct Coord3d *pos1, 
                        long *hug_val, unsigned short *i, signed char *round_idx_ofsett, TbBool *bool)
 {
-    JUSTLOG("2");
     unsigned short quadrant = (((LbArcTanAngle(*pos2_stl_x - *pos1_stl_x, *pos2_stl_y - *pos1_stl_y) & LbFPMath_AngleMask) + 256) >> 9) & 3;
     MapSubtlDelta delta_y_4 = abs(*pos1_stl_y - *pos2_stl_y);
     MapSubtlDelta delta_x_4 = abs(*pos1_stl_x - *pos2_stl_x);
@@ -205,7 +204,7 @@ static char hug_round_sub(struct Thing *creatng, MapSubtlCoord *pos1_stl_x, MapS
           unsigned short around_idx4 = around_idx6;
           MapSubtlCoord stl_x_3 = 3 * small_around[around_idx4].delta_x + *pos1_stl_x;
           MapSubtlCoord stl_y_3 = 3 * small_around[around_idx4].delta_y + *pos1_stl_y;
-          JUSTLOG("d3");
+          JUSTLOG("d1");
           struct Thing *doortng3 = get_door_for_position(stl_x_3, stl_y_3);
 
           struct SlabMap *slb_3 = get_slabmap_for_subtile(stl_x_3, stl_y_3);
@@ -237,7 +236,7 @@ static char hug_round_sub(struct Thing *creatng, MapSubtlCoord *pos1_stl_x, MapS
     int around_idx5 = quadrant;
     MapSubtlCoord stl_y_4 = 3 * small_around[around_idx5].delta_y + *pos1_stl_y;
     MapSubtlCoord stl_x_4 = 3 * small_around[around_idx5].delta_x + *pos1_stl_x;
-    JUSTLOG("d4");
+    JUSTLOG("d2");
     struct Thing *doortng4 = get_door_for_position(stl_x_4, stl_y_4);
 
     struct SlabMap *slb_4 = get_slabmap_for_subtile(stl_y_4, stl_x_4);
@@ -301,9 +300,11 @@ static short hug_round_new(struct Thing *creatng, struct Coord3d *pos1, struct C
     for (i = *hug_val; i; --i)
     {
         char return_val;
+        JUSTLOG("1");
         return_val = hug_round_sub(creatng,&pos1_stl_x,  &pos1_stl_y  ,&pos2_stl_x,  &pos2_stl_y  ,&biggest_delta_minus1  , -1 ,pos1,hug_val,&i,&round_idx_plus1_2,&bool1);
         if (return_val != -1)
             return return_val;
+        JUSTLOG("2");
         return_val = hug_round_sub(creatng,&pos1_stl_x_2,&pos1_stl_y_2,&pos2_stl_x_2,&pos2_stl_y_2,&biggest_delta_minus1_2,  1 ,pos1,hug_val,&i,&round_idx_minus1_2,&bool2);
         if (return_val != -1)
             return return_val;
