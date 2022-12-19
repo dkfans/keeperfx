@@ -8,7 +8,7 @@
 #  @par Comment:
 #      Use this file to improve the translation for specific language.
 #  @author   KeeperFX Team
-#  @date     25 Aug 2012 - 02 Oct 2022
+#  @date     25 Aug 2012 - 19 Dec 2022
 #  @par  Copying and copyrights:
 #      This program is free software; you can redistribute it and/or modify
 #      it under the terms of the GNU General Public License as published by
