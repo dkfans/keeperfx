@@ -182,22 +182,19 @@ static long get_angle_of_wall_hug(struct Thing *creatng, long slab_flag, long sp
 static short hug_round_new(struct Thing *creatng, struct Coord3d *pos1, struct Coord3d *pos2, unsigned short round_idx, long *hug_val)
 {
 
-    unsigned short v7;
+    unsigned short quadrant;
     int delta_y;
     signed int delta_x;
     int v15;
-    signed int v16;
-    signed int v17;
+    signed int delta_y_3;
+    signed int delta_x_3;
     struct Thing *doortng1;
     struct Thing *doortng2;
     struct Thing *doortng3;
     struct Thing *doortng4;
     int kind;
     int v24;
-    unsigned short v25;
-    int delta_y_4;
-    signed int delta_x_4;
-    int around_idx5;
+    unsigned short quadrant2;
     MapSubtlCoord stl_y_4;
     MapSubtlCoord stl_x_4;
     int slb_kind;
@@ -206,8 +203,6 @@ static short hug_round_new(struct Thing *creatng, struct Coord3d *pos1, struct C
     signed int v35;
     int slb_3_kind;
     int v42;
-    short result;
-    unsigned char v44;
     char bool2;
     unsigned short v53;
     unsigned short v54;
@@ -217,10 +212,12 @@ static short hug_round_new(struct Thing *creatng, struct Coord3d *pos1, struct C
     unsigned short around_idx2;
     int around_idx3;
     int around_idx4;
+    int around_idx5;
     unsigned short around_idx6;
-    unsigned short biggest_delta_minus1_2 =0;
     char round_idx_plus1_2; 
+
     unsigned short biggest_delta_minus1; 
+    unsigned short biggest_delta_minus1_2;
 
     MapSubtlCoord pos2_stl_x = pos2->x.stl.num;
     MapSubtlCoord pos2_stl_y = pos2->y.stl.num;
@@ -230,12 +227,9 @@ static short hug_round_new(struct Thing *creatng, struct Coord3d *pos1, struct C
     MapSubtlCoord pos2_stl_y_2 = pos2->y.stl.num;
     MapSubtlCoord pos2_stl_x_2 = pos2->x.stl.num;
 
-    
     MapSubtlDelta delta_y_1 = abs(pos1->y.stl.num - pos2_stl_y_2);
     MapSubtlDelta delta_x_1 = abs(pos1->x.stl.num - pos2_stl_x_2);
     MapSubtlDelta biggest_delta = max(delta_x_1,delta_y_1);
-
-
 
     TbBool bool1 = 0;
     biggest_delta_minus1 = biggest_delta - 1;
@@ -247,7 +241,7 @@ static short hug_round_new(struct Thing *creatng, struct Coord3d *pos1, struct C
     for (i = *hug_val; i; --i)
     {
         JUSTLOG("1");
-        v7 = (((LbArcTanAngle(pos2_stl_x_2 - pos1_stl_x, pos2_stl_y_2 - pos1_stl_y) & LbFPMath_AngleMask) + 256) >> 9) & 3;
+        quadrant = (((LbArcTanAngle(pos2_stl_x_2 - pos1_stl_x, pos2_stl_y_2 - pos1_stl_y) & LbFPMath_AngleMask) + 256) >> 9) & 3;
         delta_y = abs(pos1_stl_y - pos2_stl_y_2);
         delta_x = abs(pos1_stl_x - pos2_stl_x_2);
         if (delta_y <= delta_x)
@@ -259,9 +253,8 @@ static short hug_round_new(struct Thing *creatng, struct Coord3d *pos1, struct C
             {
                 pos1->y.stl.num = pos1_stl_y;
                 pos1->x.stl.num = pos1_stl_x;
-                result = 0;
                 *hug_val -= i;
-                return result;
+                return 0;
             }
             v53 = 0;
             around_idx2 = (round_idx_plus1_2 - 1) & 3;
@@ -307,7 +300,7 @@ static short hug_round_new(struct Thing *creatng, struct Coord3d *pos1, struct C
             v24 = 1;
             goto LABEL_33;
         }
-        around_idx3 = v7;
+        around_idx3 = quadrant;
         MapSubtlCoord stl_y_2 = 3 * small_around[around_idx3].delta_y + pos1_stl_y;
         MapSubtlCoord stl_x_2 = 3 * small_around[around_idx3].delta_x + pos1_stl_x;
         JUSTLOG("d2");
@@ -338,12 +331,12 @@ static short hug_round_new(struct Thing *creatng, struct Coord3d *pos1, struct C
             goto LABEL_21;
         pos1_stl_x += 3 * small_around[around_idx3].delta_x;
         pos1_stl_y += 3 * small_around[around_idx3].delta_y;
-        v16 = abs(pos1_stl_y - pos2_stl_y_2);
-        v17 = abs(pos1_stl_x - pos2_stl_x_2);
-        if (v16 <= v17)
-            v16 = v17;
+        delta_y_3 = abs(pos1_stl_y - pos2_stl_y_2);
+        delta_x_3 = abs(pos1_stl_x - pos2_stl_x_2);
+        if (delta_y_3 <= delta_x_3)
+            delta_y_3 = delta_x_3;
         bool1 = 1;
-        biggest_delta_minus1 = v16;
+        biggest_delta_minus1 = delta_y_3;
     LABEL_37:
         if (pos2_stl_x == pos1_stl_x && pos1_stl_y == pos2_stl_y)
         {
@@ -351,12 +344,10 @@ static short hug_round_new(struct Thing *creatng, struct Coord3d *pos1, struct C
             return 1;
         }
         JUSTLOG("2");
-        v25 = (((LbArcTanAngle(pos2_stl_x_2 - pos1_stl_x_2, pos2_stl_y_2 - pos1_stl_y_2) & 0x7FFu) + 256) >> 9) & 3;
-        delta_y_4 = abs(pos1_stl_y_2 - pos2_stl_y_2);
-        delta_x_4 = abs(pos1_stl_x_2 - pos2_stl_x_2);
-        if (delta_y_4 <= delta_x_4)
-            delta_y_4 = delta_x_4;
-        if (delta_y_4 > biggest_delta_minus1_2)
+        quadrant2 = (((LbArcTanAngle(pos2_stl_x_2 - pos1_stl_x_2, pos2_stl_y_2 - pos1_stl_y_2) & 0x7FFu) + 256) >> 9) & 3;
+        MapSubtlDelta delta_y_4 = abs(pos1_stl_y_2 - pos2_stl_y_2);
+        MapSubtlDelta delta_x_4 = abs(pos1_stl_x_2 - pos2_stl_x_2);
+        if (max(delta_x_4,delta_y_4) > biggest_delta_minus1_2)
         {
         LABEL_56:
             if (bool2 == 1)
@@ -409,7 +400,7 @@ static short hug_round_new(struct Thing *creatng, struct Coord3d *pos1, struct C
             v42 = 1;
             goto LABEL_68;
         }
-        around_idx5 = v25;
+        around_idx5 = quadrant2;
         stl_y_4 = 3 * small_around[around_idx5].delta_y + pos1_stl_y_2;
         stl_x_4 = 3 * small_around[around_idx5].delta_x + pos1_stl_x_2;
         JUSTLOG("d4");
@@ -455,15 +446,14 @@ static short hug_round_new(struct Thing *creatng, struct Coord3d *pos1, struct C
         return -1;
     if ((unsigned short)(abs(pos1_stl_x_2 - pos2_stl_x_2) + abs(pos1_stl_y_2 - pos2_stl_y_2)) >= (unsigned short)(abs(pos1_stl_x - pos2_stl_x_2) + abs(pos1_stl_y - pos2_stl_y_2)))
     {
-        v44 = pos1_stl_y;
         pos1->x.stl.num = pos1_stl_x;
+        pos1->y.stl.num = pos1_stl_y;
     }
     else
     {
-        v44 = pos1_stl_y_2;
         pos1->x.stl.num = pos1_stl_x_2;
+        pos1->y.stl.num = pos1_stl_y_2;
     }
-    pos1->y.stl.num = v44;
     *hug_val -= i;
     return 0;
 }
