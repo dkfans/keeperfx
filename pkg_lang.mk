@@ -59,6 +59,7 @@ pkg/campgns/evilkeep/text_ger.dat \
 pkg/campgns/evilkeep/text_pol.dat \
 pkg/campgns/grkreign/text_eng.dat \
 pkg/campgns/grkreign/text_pol.dat \
+pkg/campgns/grkreign/text_chi.dat \
 pkg/campgns/lqizgood/text_eng.dat \
 pkg/campgns/lqizgood/text_chi.dat \
 pkg/campgns/lqizgood/text_fre.dat \
