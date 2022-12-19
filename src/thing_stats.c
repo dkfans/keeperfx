@@ -260,12 +260,8 @@ long get_radially_decaying_value(long magnitude,long decay_start,long decay_leng
  * @param friction is used to calculate the deacceleration and therefore the expected distance travelled.
  * @return Value at how fast it's pulled to epicenter.
  */
-// magnitude = blow_strength 
-// decay_length is 'shot range' * 256 * 3/4
-// decay_start is 'shot range' * 256 * 1/4
-// distance = distance between shot and creature
-// friction = used to calculate the deacceleration and therefore the expected distance travelled.
-long get_radially_growing_value(long magnitude, long decay_start, long decay_length, long distance, long friction) //todo calculate acceleration inside this functionfor clarity
+
+long get_radially_growing_value(long magnitude, long decay_start, long decay_length, long distance, long friction)
 {
     if (distance >= decay_start + decay_length)
         return 0; //Outside the max range, nothing is pulled inwards
@@ -280,7 +276,6 @@ long get_radially_growing_value(long magnitude, long decay_start, long decay_len
         short factor = COORD_PER_STL / friction * 3 / 4; // Creatures slide so move further then expected
         return -(distance / factor);
     }
-
     return magnitude ;
 }
 

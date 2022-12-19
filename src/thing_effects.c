@@ -1419,25 +1419,10 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
                 {
                     move_dist = get_radially_growing_value(blow_strength, max_dist / 4, max_dist * 3 / 4, distance, tngdst->field_23);
                 }
-                JUSTMSG("Try blow %d thing distance %d of %d", blow_strength, move_dist, distance);
-                if ((blow_strength < 0) && (-move_dist > distance))
-                {
-                    JUSTMSG("move distance was %d of total %d", move_dist, distance);
-                    //move_dist = distance + move_dist;
-                    JUSTMSG("move distance now %d of total %d", move_dist, distance);
-                }
                 if (move_dist != 0)
                 {
-                    //tngdst->veloc_push_add.x.val += distance_with_angle_to_coord_x(move_dist, move_angle);
-                    //tngdst->veloc_push_add.y.val += distance_with_angle_to_coord_y(move_dist, move_angle);
-
-                    long xtest = distance_with_angle_to_coord_x(move_dist, move_angle);
-                    long ytest = distance_with_angle_to_coord_y(move_dist, move_angle);
-                    JUSTMSG("blow %d pushes thing distance %d of %d", blow_strength, move_dist, distance);
-                    tngdst->veloc_push_add.x.val += xtest;
-                    tngdst->veloc_push_add.y.val += ytest;
-                    JUSTMSG("testlog push x %d and y %d", tngdst->veloc_push_add.x.val, tngdst->veloc_push_add.y.val);
-
+                    tngdst->veloc_push_add.x.val += distance_with_angle_to_coord_x(move_dist, move_angle);
+                    tngdst->veloc_push_add.y.val += distance_with_angle_to_coord_y(move_dist, move_angle);
                     tngdst->state_flags |= TF1_PushAdd;
                     affected = true;
                 }
