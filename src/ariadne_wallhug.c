@@ -819,19 +819,43 @@ static short hug_round(struct Thing *creatng, struct Coord3d *pos1, struct Coord
     old_pos2.x = pos2->x;
     old_pos2.y = pos2->y;
     old_pos2.z = pos2->z;
+
+    struct Coord3d rc_pos1;
+    struct Coord3d rc_pos2;
+    long rc_hug_val = *hug_val;
+
+    rc_pos1.x = pos1->x;
+    rc_pos1.y = pos1->y;
+    rc_pos1.z = pos1->z;
+    rc_pos2.x = pos2->x;
+    rc_pos2.y = pos2->y;
+    rc_pos2.z = pos2->z;
+
+
+
 huground_logging = true;
     JUSTLOG("...old");
     short old_return = _DK_hug_round(creatng, &old_pos1, &old_pos2, round_idx, &old_hug_val);
+    JUSTLOG("...rc");
+    short return_val = hug_round_RC(creatng, &rc_pos1, &rc_pos2, round_idx, &rc_hug_val);
     JUSTLOG("...new");
-    short return_val = hug_round_RC(creatng, pos1, pos2, round_idx, hug_val);
+    short return_rc  = hug_round_new(creatng, pos1, pos2, round_idx, hug_val);
 huground_logging = false;
 
 
     if (old_pos1.x.val != pos1->x.val || old_pos1.y.val != pos1->y.val) JUSTLOG("...pos1  %d,%d  %d,%d",old_pos1.x.val,old_pos1.y.val, pos1->x.val,pos1->y.val);
     if (old_pos2.x.val != pos2->x.val || old_pos2.y.val != pos2->y.val) JUSTLOG("...pos2  %d,%d  %d,%d",old_pos2.x.val,old_pos2.y.val, pos2->x.val,pos2->y.val);
-    if (old_hug_val != *hug_val) JUSTLOG("...hug_val  %d,%d",old_hug_val,*hug_val);
-    if (old_return != return_val) JUSTLOG("...return not same return %d,%d",old_return,return_val);
-    if (old_return == return_val) JUSTLOG("...ok %d",old_return,return_val);
+
+
+    if (old_hug_val != *hug_val && rc_hug_val != *old_hug_val) JUSTLOG("...hug_val_both %d,%d",old_hug_val,*hug_val);
+    if (old_hug_val == *hug_val && rc_hug_val != *old_hug_val) JUSTLOG("...hug_val_rc   %d,%d",rc_hug_val,*hug_val);
+    if (old_hug_val != *hug_val && rc_hug_val == *old_hug_val) JUSTLOG("...hug_val_old  %d,%d",old_hug_val,*hug_val);
+
+    if (old_return != return_val && return_rc != old_return) JUSTLOG("...return both %d,%d,%d",old_return,return_val,return_rc);
+    if (old_return == return_val && return_rc != old_return) JUSTLOG("...return rc   %d,%d",   old_return,return_rc);
+    if (old_return != return_val && return_rc == old_return) JUSTLOG("...return old  %d,%d",   old_return,return_val);
+
+    if (old_return == return_val && return_rc == old_return) JUSTLOG("...ok %d",old_return);
 
     return return_val;
 }
