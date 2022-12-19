@@ -179,48 +179,116 @@ static long get_angle_of_wall_hug(struct Thing *creatng, long slab_flag, long sp
     return -1;
 }
 
+static char hug_round_sub(struct Thing *creatng, MapSubtlCoord *pos1_stl_x, MapSubtlCoord *pos1_stl_y, MapSubtlCoord *pos2_stl_x, 
+                       MapSubtlCoord *pos2_stl_y, MapSubtlCoord *biggest_delta_minus1, signed char around_offset, struct Coord3d *pos1, 
+                       long *hug_val, unsigned short *i, signed char *round_idx_ofsett, TbBool *bool)
+{
+    JUSTLOG("2");
+    unsigned short quadrant = (((LbArcTanAngle(*pos2_stl_x - *pos1_stl_x, *pos2_stl_y - *pos1_stl_y) & LbFPMath_AngleMask) + 256) >> 9) & 3;
+    MapSubtlDelta delta_y_4 = abs(*pos1_stl_y - *pos2_stl_y);
+    MapSubtlDelta delta_x_4 = abs(*pos1_stl_x - *pos2_stl_x);
 
+    if (max(delta_x_4, delta_y_4) > *biggest_delta_minus1)
+    {
+    LABEL_Boolcheck2:
+        if (*bool == 1)
+        {
+          pos1->y.stl.num = *pos1_stl_y;
+          pos1->x.stl.num = *pos1_stl_x;
+          *hug_val -= *i;
+          return 0;
+        }
+        unsigned short v54 = 0;
+        unsigned short around_idx6 = (*round_idx_ofsett + around_offset) & 3;
+        while (2)
+        {
+          unsigned short around_idx4 = around_idx6;
+          MapSubtlCoord stl_x_3 = 3 * small_around[around_idx4].delta_x + *pos1_stl_x;
+          MapSubtlCoord stl_y_3 = 3 * small_around[around_idx4].delta_y + *pos1_stl_y;
+          JUSTLOG("d3");
+          struct Thing *doortng3 = get_door_for_position(stl_x_3, stl_y_3);
 
+          struct SlabMap *slb_3 = get_slabmap_for_subtile(stl_x_3, stl_y_3);
+          SlabKind slb_3_kind = slb_3->kind;
+          struct SlabAttr *slbattr_3 = get_slab_attrs(slb_3);
+
+          if ((slbattr_3->block_flags & SlbAtFlg_IsDoor) != 0)
+          {
+              if (thing_is_invalid(doortng3) || doortng3->owner != creatng->owner || doortng3->door.is_locked)
+              {
+              LABEL_68:
+                  around_idx6 = (around_idx6 - 1) & 3;
+                  if (++v54 >= 4u)
+                      goto LABEL_CHECKSAME2;
+                  continue;
+              }
+          }
+          else if (!slbattr_3->is_safe_land && (slb_3_kind != SlbT_LAVA || creature_stats_get_from_thing(creatng)->hurt_by_lava))
+          {
+              goto LABEL_68;
+          }
+          break;
+        }
+        *round_idx_ofsett = around_idx6;
+        *pos1_stl_x += 3 * small_around[around_idx6].delta_x;
+        *pos1_stl_y += 3 * small_around[around_idx6].delta_y;
+        goto LABEL_CHECKSAME2;
+    }
+    int around_idx5 = quadrant;
+    MapSubtlCoord stl_y_4 = 3 * small_around[around_idx5].delta_y + *pos1_stl_y;
+    MapSubtlCoord stl_x_4 = 3 * small_around[around_idx5].delta_x + *pos1_stl_x;
+    JUSTLOG("d4");
+    struct Thing *doortng4 = get_door_for_position(stl_x_4, stl_y_4);
+
+    struct SlabMap *slb_4 = get_slabmap_for_subtile(stl_y_4, stl_x_4);
+    SlabKind slb_kind = slb_4->kind;
+    struct SlabAttr *slbattr_4 = get_slab_attrs(slb_4);
+
+    if ((slbattr_4->block_flags & SlbAtFlg_IsDoor) != 0)
+    {
+        if (thing_is_invalid(doortng4) || creatng->owner != doortng4->owner || doortng4->door.is_locked)
+        {
+          goto LABEL_Boolcheck2;
+        }
+    }
+    else if (!slbattr_4->is_safe_land && (slb_kind != SlbT_LAVA || creature_stats_get_from_thing(creatng)->hurt_by_lava))
+    {
+        goto LABEL_Boolcheck2;
+    }
+    *pos1_stl_x += 3 * small_around[around_idx5].delta_x;
+    *pos1_stl_y += 3 * small_around[around_idx5].delta_y;
+    MapSubtlDelta delta_y = abs(*pos1_stl_y - *pos2_stl_y);
+    MapSubtlDelta delta_x = abs(*pos1_stl_x - *pos2_stl_x);
+    *bool = 1;
+    *biggest_delta_minus1 = max(delta_x, delta_y);
+LABEL_CHECKSAME2:
+    if (*pos2_stl_x == *pos1_stl_x && *pos1_stl_y == *pos2_stl_y)
+    {
+        *hug_val -= *i;
+        return 1;
+    }
+
+    return -1;
+}
 
 static short hug_round_new(struct Thing *creatng, struct Coord3d *pos1, struct Coord3d *pos2, unsigned short round_idx, long *hug_val)
 {
-
-    unsigned short quadrant;
-    int delta_y;
-    signed int delta_x;
-    signed int delta_y_3;
-    signed int delta_x_3;
-    int kind;
-    unsigned short quadrant2;
-    MapSubtlCoord stl_y_4;
-    MapSubtlCoord stl_x_4;
-    int slb_kind;
-    signed int v34;
-    signed int v35;
-    int slb_3_kind;
-    char bool2;
-    unsigned short v53;
-    unsigned short v54;
     unsigned short i;
 
-    int around_idx1;
-    unsigned short around_idx2;
-    int around_idx3;
-    int around_idx4;
-    int around_idx5;
-    unsigned short around_idx6;
-    char round_idx_plus1_2  = (round_idx + 1) & 3;
-    char round_idx_minus1_2 = (round_idx - 1) & 3;
+    signed char round_idx_plus1_2  = (round_idx + 1) & 3;
+    signed char round_idx_minus1_2 = (round_idx - 1) & 3;
 
-    unsigned short biggest_delta_minus1; 
-    unsigned short biggest_delta_minus1_2;
+    MapSubtlDelta biggest_delta_minus1; 
+    MapSubtlDelta biggest_delta_minus1_2;
 
-    MapSubtlCoord pos2_stl_x = pos2->x.stl.num;
-    MapSubtlCoord pos2_stl_y = pos2->y.stl.num;
     MapSubtlCoord pos1_stl_x = pos1->x.stl.num;
     MapSubtlCoord pos1_stl_y = pos1->y.stl.num;
-    MapSubtlCoord pos2_stl_y_2 = pos2->y.stl.num;
+    MapSubtlCoord pos2_stl_x = pos2->x.stl.num;
+    MapSubtlCoord pos2_stl_y = pos2->y.stl.num;
+    MapSubtlCoord pos1_stl_x_2 = pos1->x.stl.num;
+    MapSubtlCoord pos1_stl_y_2 = pos1->y.stl.num;
     MapSubtlCoord pos2_stl_x_2 = pos2->x.stl.num;
+    MapSubtlCoord pos2_stl_y_2 = pos2->y.stl.num;
 
     MapSubtlDelta delta_y_1 = abs(pos1->y.stl.num - pos2_stl_y_2);
     MapSubtlDelta delta_x_1 = abs(pos1->x.stl.num - pos2_stl_x_2);
@@ -228,198 +296,18 @@ static short hug_round_new(struct Thing *creatng, struct Coord3d *pos1, struct C
 
     TbBool bool1 = 0;
     biggest_delta_minus1 = biggest_delta - 1;
-    bool2 = 0;
-    MapSubtlCoord pos1_stl_x_2 = pos1->x.stl.num;
-    MapSubtlCoord pos1_stl_y_2 = pos1->y.stl.num;
+    TbBool bool2 = 0;
     biggest_delta_minus1_2 = biggest_delta_minus1;
     for (i = *hug_val; i; --i)
     {
-
-
-
-        JUSTLOG("1");
-        quadrant = (((LbArcTanAngle(pos2_stl_x_2 - pos1_stl_x, pos2_stl_y_2 - pos1_stl_y) & LbFPMath_AngleMask) + 256) >> 9) & 3;
-        delta_y = abs(pos1_stl_y - pos2_stl_y_2);
-        delta_x = abs(pos1_stl_x - pos2_stl_x_2);
-        if (delta_y <= delta_x)
-            delta_y = delta_x;
-        if (delta_y > biggest_delta_minus1)
-        {
-        LABEL_Boolcheck1:
-            if (bool1 == 1)
-            {
-                pos1->y.stl.num = pos1_stl_y;
-                pos1->x.stl.num = pos1_stl_x;
-                *hug_val -= i;
-                return 0;
-            }
-            v53 = 0;
-            around_idx2 = (round_idx_plus1_2 - 1) & 3;
-            while (2)
-            {
-                around_idx1 = around_idx2;
-                MapSubtlCoord stl_y_1 = 3 * small_around[around_idx1].delta_y + pos1_stl_y;
-                MapSubtlCoord stl_x_1 = 3 * small_around[around_idx1].delta_x + pos1_stl_x;
-                JUSTLOG("d1");
-                struct Thing *doortng1 = get_door_for_position(stl_x_1, stl_y_1);
-
-                struct SlabMap *slb_1 = get_slabmap_for_subtile(stl_x_1, stl_y_1);
-
-                kind = slb_1->kind;
-                struct SlabAttr *slbattr_1 = get_slab_attrs(slb_1);
-
-                if ( (slbattr_1->block_flags & SlbAtFlg_IsDoor) != 0 )
-                {
-                    if (thing_is_invalid(doortng1) || doortng1->owner != creatng->owner || doortng1->door.is_locked)
-                    {
-                    LABEL_33:
-                        around_idx2 = (around_idx2 + 1) & 3;
-                        if (++v53 >= 4u)
-                            goto LABEL_CHECKSAME1;
-                        continue;
-                    }
-                }
-                else if (!slbattr_1->is_safe_land && (kind != SlbT_LAVA || creature_stats_get_from_thing(creatng)->hurt_by_lava))
-                {
-                    goto LABEL_33;
-                }
-                break;
-            }
-            round_idx_plus1_2 = around_idx2;
-            pos1_stl_x += 3 * small_around[around_idx2].delta_x;
-            pos1_stl_y += 3 * small_around[around_idx2].delta_y;
-            goto LABEL_CHECKSAME1;
-        }
-        around_idx3 = quadrant;
-        MapSubtlCoord stl_y_2 = 3 * small_around[around_idx3].delta_y + pos1_stl_y;
-        MapSubtlCoord stl_x_2 = 3 * small_around[around_idx3].delta_x + pos1_stl_x;
-        JUSTLOG("d2");
-        struct Thing *doortng2 = get_door_for_position(stl_x_2, stl_y_2);
-
-        struct SlabMap *slb_2 = get_slabmap_for_subtile(stl_y_2, stl_x_2);
-        kind = slb_2->kind;
-        struct SlabAttr *slbattr_2 = get_slab_attrs(slb_2);
-
-        if ((slbattr_2->block_flags & SlbAtFlg_IsDoor) != 0)
-        {
-            if (thing_is_invalid(doortng2) || doortng2->owner != creatng->owner || doortng2->door.is_locked)
-            {
-                goto LABEL_Boolcheck1;
-            }
-        }
-        else if (!slbattr_2->is_safe_land && (kind != SlbT_LAVA || creature_stats_get_from_thing(creatng)->hurt_by_lava))
-        {
-            goto LABEL_Boolcheck1;
-        }                    
-        pos1_stl_x += 3 * small_around[around_idx3].delta_x;
-        pos1_stl_y += 3 * small_around[around_idx3].delta_y;
-        delta_y_3 = abs(pos1_stl_y - pos2_stl_y_2);
-        delta_x_3 = abs(pos1_stl_x - pos2_stl_x_2);
-        if (delta_y_3 <= delta_x_3)
-            delta_y_3 = delta_x_3;
-        bool1 = 1;
-        biggest_delta_minus1 = delta_y_3;
-    LABEL_CHECKSAME1:
-        if (pos2_stl_x == pos1_stl_x && pos1_stl_y == pos2_stl_y)
-        {
-            *hug_val -= i;
-            return 1;
-        }
-
-
-
-
-        JUSTLOG("2");
-        quadrant2 = (((LbArcTanAngle(pos2_stl_x_2 - pos1_stl_x_2, pos2_stl_y_2 - pos1_stl_y_2) & LbFPMath_AngleMask) + 256) >> 9) & 3;
-        MapSubtlDelta delta_y_4 = abs(pos1_stl_y_2 - pos2_stl_y_2);
-        MapSubtlDelta delta_x_4 = abs(pos1_stl_x_2 - pos2_stl_x_2);
-        if (max(delta_x_4,delta_y_4) > biggest_delta_minus1_2)
-        {
-        LABEL_Boolcheck2:
-            if (bool2 == 1)
-            {
-                pos1->y.stl.num = pos1_stl_y_2;
-                pos1->x.stl.num = pos1_stl_x_2;
-                *hug_val -= i;
-                return 0;
-            }
-            v54 = 0;
-            around_idx6 = (round_idx_minus1_2 + 1) & 3; 
-            while (2)
-            {
-                around_idx4 = around_idx6;
-                MapSubtlCoord stl_x_3 = 3 * small_around[around_idx4].delta_x + pos1_stl_x_2;
-                MapSubtlCoord stl_y_3 = 3 * small_around[around_idx4].delta_y + pos1_stl_y_2;
-                JUSTLOG("d3");
-                struct Thing *doortng3 = get_door_for_position(stl_x_3, stl_y_3);
-
-                struct SlabMap *slb_3 = get_slabmap_for_subtile(stl_x_3, stl_y_3);
-                slb_3_kind = slb_3->kind;
-                struct SlabAttr *slbattr_3 = get_slab_attrs(slb_3);
-                
-                if ((slbattr_3->block_flags & SlbAtFlg_IsDoor) != 0)
-                {
-                    if (thing_is_invalid(doortng3) || doortng3->owner != creatng->owner || doortng3->door.is_locked)
-                    {
-                    LABEL_68:
-                        around_idx6 = (around_idx6 - 1) & 3;
-                        if (++v54 >= 4u)
-                            goto LABEL_CHECKSAME2;
-                        continue;
-                    }
-                }
-                else if (!slbattr_3->is_safe_land && (slb_3_kind != SlbT_LAVA || creature_stats_get_from_thing(creatng)->hurt_by_lava))
-                {
-                    goto LABEL_68;
-                }
-                break;
-            }
-            round_idx_minus1_2 = around_idx6;
-            pos1_stl_x_2 += 3 * small_around[around_idx6].delta_x;
-            pos1_stl_y_2 += 3 * small_around[around_idx6].delta_y;
-            goto LABEL_CHECKSAME2;
-        }
-        around_idx5 = quadrant2;
-        stl_y_4 = 3 * small_around[around_idx5].delta_y + pos1_stl_y_2;
-        stl_x_4 = 3 * small_around[around_idx5].delta_x + pos1_stl_x_2;
-        JUSTLOG("d4");
-        struct Thing *doortng4 = get_door_for_position(stl_x_4, stl_y_4);
-
-        struct SlabMap *slb_4 = get_slabmap_for_subtile(stl_y_4, stl_x_4);
-        slb_kind = slb_4->kind;
-        struct SlabAttr *slbattr_4 = get_slab_attrs(slb_4);
-
-        if ((slbattr_4->block_flags & SlbAtFlg_IsDoor) != 0)
-        {
-            if (thing_is_invalid(doortng4) || creatng->owner != doortng4->owner || doortng4->door.is_locked)
-            {
-                goto LABEL_Boolcheck2;
-            }
-        }
-        else if (!slbattr_4->is_safe_land && (slb_kind != SlbT_LAVA || creature_stats_get_from_thing(creatng)->hurt_by_lava))
-        {
-            goto LABEL_Boolcheck2;
-        }            
-        pos1_stl_x_2 += 3 * small_around[around_idx5].delta_x;
-        pos1_stl_y_2 += 3 * small_around[around_idx5].delta_y;
-        v34 = abs(pos1_stl_y_2 - pos2_stl_y_2);
-        v35 = abs(pos1_stl_x_2 - pos2_stl_x_2);
-        if (v34 <= v35)
-            v34 = v35;
-        bool2 = 1;
-        biggest_delta_minus1_2 = v34;
-    LABEL_CHECKSAME2:
-        if (pos2_stl_x == pos1_stl_x_2 && pos1_stl_y_2 == pos2_stl_y)
-        {
-            *hug_val -= i;
-            return 1;
-        }
+        char return_val;
+        return_val = hug_round_sub(creatng,&pos1_stl_x,  &pos1_stl_y  ,&pos2_stl_x,  &pos2_stl_y  ,&biggest_delta_minus1  , -1 ,pos1,hug_val,&i,&round_idx_plus1_2,&bool1);
+        if (return_val != -1)
+            return return_val;
+        return_val = hug_round_sub(creatng,&pos1_stl_x_2,&pos1_stl_y_2,&pos2_stl_x_2,&pos2_stl_y_2,&biggest_delta_minus1_2,  1 ,pos1,hug_val,&i,&round_idx_minus1_2,&bool2);
+        if (return_val != -1)
+            return return_val;
     }
-
-
-
-
-
     if (!i)
         return -1;
     if ((unsigned short)(abs(pos1_stl_x_2 - pos2_stl_x_2) + abs(pos1_stl_y_2 - pos2_stl_y_2)) >= (unsigned short)(abs(pos1_stl_x - pos2_stl_x_2) + abs(pos1_stl_y - pos2_stl_y_2)))
