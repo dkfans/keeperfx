@@ -185,7 +185,6 @@ static short hug_round_new(struct Thing *creatng, struct Coord3d *pos1, struct C
     unsigned short quadrant;
     int delta_y;
     signed int delta_x;
-    int v15;
     signed int delta_y_3;
     signed int delta_x_3;
     struct Thing *doortng1;
@@ -273,7 +272,7 @@ static short hug_round_new(struct Thing *creatng, struct Coord3d *pos1, struct C
 
                 if ( (slbattr_1->block_flags & SlbAtFlg_IsDoor) != 0 )
                 {
-                    if (!doortng1 || doortng1->owner != creatng->owner || doortng1->door.is_locked)
+                    if (thing_is_invalid(doortng1) || doortng1->owner != creatng->owner || doortng1->door.is_locked)
                     {
                         v24 = 0;
                     LABEL_33:
@@ -306,29 +305,21 @@ static short hug_round_new(struct Thing *creatng, struct Coord3d *pos1, struct C
         JUSTLOG("d2");
         doortng2 = get_door_for_position(stl_x_2, stl_y_2);
 
-
-
         struct SlabMap *slb_2 = get_slabmap_for_subtile(stl_y_2, stl_x_2);
         kind = slb_2->kind;
         struct SlabAttr *slbattr_2 = get_slab_attrs(slb_2);
 
         if ((slbattr_2->block_flags & SlbAtFlg_IsDoor) != 0)
         {
-            if (!doortng2 || doortng2->owner != creatng->owner || doortng2->door.is_locked)
+            if (thing_is_invalid(doortng2) || doortng2->owner != creatng->owner || doortng2->door.is_locked)
             {
-                v15 = 0;
-                goto LABEL_17;
+                goto LABEL_21;
             }
         }
         else if (!slbattr_2->is_safe_land && (kind != SlbT_LAVA || creature_stats_get_from_thing(creatng)->hurt_by_lava))
         {
-            v15 = 0;
-            goto LABEL_17;
-        }
-        v15 = 1;
-    LABEL_17:
-        if (!v15)
             goto LABEL_21;
+        }                    
         pos1_stl_x += 3 * small_around[around_idx3].delta_x;
         pos1_stl_y += 3 * small_around[around_idx3].delta_y;
         delta_y_3 = abs(pos1_stl_y - pos2_stl_y_2);
@@ -373,7 +364,7 @@ static short hug_round_new(struct Thing *creatng, struct Coord3d *pos1, struct C
                 
                 if ((slbattr_3->block_flags & SlbAtFlg_IsDoor) != 0)
                 {
-                    if (!doortng3 || doortng3->owner != creatng->owner || doortng3->door.is_locked)
+                    if (thing_is_invalid(doortng3) || doortng3->owner != creatng->owner || doortng3->door.is_locked)
                     {
                         v42 = 0;
                     LABEL_68:
@@ -412,7 +403,7 @@ static short hug_round_new(struct Thing *creatng, struct Coord3d *pos1, struct C
 
         if ((slbattr_4->block_flags & SlbAtFlg_IsDoor) != 0)
         {
-            if (!doortng4 || creatng->owner != doortng4->owner || doortng4->door.is_locked)
+            if (thing_is_invalid(doortng4) || creatng->owner != doortng4->owner || doortng4->door.is_locked)
             {
                 v33 = 0;
                 goto LABEL_52;
@@ -688,7 +679,7 @@ static long get_map_index_of_first_block_thing_colliding_with_at(struct Thing *c
                 return get_subtile_number(current_stl_x,current_stl_y);
             }
             struct Thing *doortng = get_door_for_position(current_stl_x, current_stl_y);
-            if (!doortng || !door_will_open_for_thing(doortng, creatng))
+            if (thing_is_invalid(doortng) || !door_will_open_for_thing(doortng, creatng))
             {
                 return get_subtile_number(current_stl_x,current_stl_y);
             }
