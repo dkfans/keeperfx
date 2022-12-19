@@ -236,7 +236,7 @@ TbBool is_hero_thing(const struct Thing *thing)
  * @param decay_start Distance after which the magnitude starts decaying.
  * @param decay_length Length of the decaying region.
  * @param distance Distance at which we want to compute the value.
- * @return Value at specified distane from epicenter.
+ * @return Value at specified distance from epicenter.
  */
 long get_radially_decaying_value(long magnitude,long decay_start,long decay_length,long distance)
 {
@@ -249,25 +249,39 @@ long get_radially_decaying_value(long magnitude,long decay_start,long decay_leng
     return magnitude;
 }
 
+
+/**
+ * Returns a value which is stronger around some epicenter but can't go beyond, like implosion damage.
+ *
+ * @param magnitude Magnitude in nearest whereabouts of the epicenter.
+ * @param decay_start Distance after which the magnitude starts decaying.
+ * @param decay_length Length of the decaying region.
+ * @param distance Distance at which we want to compute the value.
+ * @param friction is used to calculate the deacceleration and therefore the expected distance travelled.
+ * @return Value at how fast it's pulled to epicenter.
+ */
 // magnitude = blow_strength 
 // decay_length is 'shot range' * 256 * 3/4
 // decay_start is 'shot range' * 256 * 1/4
 // distance = distance between shot and creature
-long get_radially_growing_value(long magnitude, long decay_start, long decay_length, long distance, long acceleration) //todo calculate acceleration inside this functionfor clarity
+// friction = used to calculate the deacceleration and therefore the expected distance travelled.
+long get_radially_growing_value(long magnitude, long decay_start, long decay_length, long distance, long friction) //todo calculate acceleration inside this functionfor clarity
 {
-    short factor = acceleration * 3 / 4;
-    long total_distance = (acceleration * distance + distance) / 2;
     if (distance >= decay_start + decay_length)
         return 0; //Outside the max range, nothing is pulled inwards
-    if ((abs(magnitude) * factor) > total_distance)
+
+    if (distance >= decay_start) //too far away to pull with full power
+        magnitude = magnitude * (decay_length - (distance - decay_start)) / decay_length;
+        
+    long total_distance = abs((COORD_PER_STL / friction * magnitude + magnitude) / 2); // The distance to push the creature
+
+    if (total_distance > distance) // If we intend to push the creature further then the distance to target,... don't.
     {
-        if (total_distance < decay_start)
-        {
-            return total_distance; // near the center of the implosion, reach the center and nothing more
-        }
-        return -(decay_start / factor);
+        short factor = COORD_PER_STL / friction * 3 / 4; // Creatures slide so move further then expected
+        return -(distance / factor);
     }
-    return magnitude;// -(distance / 10);
+
+    return magnitude ;
 }
 
 long compute_creature_kind_score(ThingModel crkind,unsigned short crlevel)
