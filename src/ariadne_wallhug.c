@@ -578,142 +578,129 @@ void __noreturn __break(uint16 code, uint16 subcode);
 
 int  hug_round_RC(struct Thing *creatng, struct Coord3d *pos1, struct Coord3d *pos2, unsigned short round_idx, long *hug_val)
 {
- unsigned __int8 v9; // eax
-  int v10; // ebx
-  int v11; // edi
-  int v12; // ebx
+  int round_idx_plus1; // ebx
+  int delta_x; // edi
+  int delta_y; // ebx
   __int64 v13; // rax
   unsigned __int16 v14; // bx
   int v15; // ebx
   __int64 v16; // rax
   int v17; // eax
   __int64 v18; // rax
-  __int64 v19; // rax
   int v20; // eax
-  __int64 v21; // rax
   int v22; // eax
-  char v23; // al
+  unsigned __int8 v23; // al
   int v24; // eax
   int v25; // edi
   __int64 v27; // rax
-  __int64 v28; // rax
   int v29; // eax
-  __int64 v30; // rax
-  int v31; // eax
   int v32; // eax
   int v33; // edi
   int v34; // ebx
   __int64 v35; // rax
   int v36; // ebx
-  char *v37; // eax
+  unsigned __int8 *v37; // eax
   int v39; // [esp+18h] [ebp-50h]
   int v40; // [esp+1Ch] [ebp-4Ch]
   int v41; // [esp+20h] [ebp-48h]
   unsigned __int16 i; // [esp+24h] [ebp-44h]
-  unsigned __int16 v43; // [esp+28h] [ebp-40h]
+  unsigned __int16 pos1_stl_x; // [esp+28h] [ebp-40h]
   unsigned __int16 stl_y; // [esp+2Ch] [ebp-3Ch]
   unsigned __int16 j; // [esp+30h] [ebp-38h]
   int v46; // [esp+34h] [ebp-34h]
-  unsigned __int16 v47; // [esp+38h] [ebp-30h]
   unsigned __int16 stl_x; // [esp+3Ch] [ebp-2Ch]
-  unsigned __int16 v49; // [esp+40h] [ebp-28h]
-  unsigned __int16 x_stl_num_high; // [esp+44h] [ebp-24h]
-  unsigned __int16 y_stl_num_high; // [esp+48h] [ebp-20h]
+  unsigned __int16 pos1_stl_y; // [esp+40h] [ebp-28h]
+  unsigned __int16 pos2_stl_x; // [esp+44h] [ebp-24h]
+  unsigned __int16 pos2_stl_y; // [esp+48h] [ebp-20h]
   int v52; // [esp+4Ch] [ebp-1Ch]
   int v53; // [esp+50h] [ebp-18h]
-  int pos; // [esp+54h] [ebp-14h]
+  int round_idx_plus1_1; // [esp+54h] [ebp-14h]
   unsigned __int16 k; // [esp+58h] [ebp-10h]
   unsigned __int16 v56; // [esp+5Ch] [ebp-Ch]
   char v57; // [esp+60h] [ebp-8h]
   char v58; // [esp+64h] [ebp-4h]
 
-  v9 = pos2->x.stl.num;
-  x_stl_num_high = pos2->x.stl.num;
-  y_stl_num_high = pos2->y.stl.num;
-  v43 = pos1->x.stl.num;
-  v49 = pos1->y.stl.num;
-  v10 = round_idx + 1;
-  v11 = abs(HIBYTE(pos1->x.stl.num) - (unsigned int)v9);
-  LOWORD(v10) = ((_BYTE)round_idx + 1) & 3;
-  pos = v10;
-  v12 = v49 - y_stl_num_high;
-  if ( v11 > (int)abs(v12) )
-    v12 = v43 - x_stl_num_high;
-  v13 = abs(v12);
+  pos2_stl_x = pos2->x.stl.num;
+  pos2_stl_y = pos2->y.stl.num;
+  pos1_stl_x = pos1->x.stl.num;
+  pos1_stl_y = pos1->y.stl.num;
+  round_idx_plus1 = round_idx + 1;
+  delta_x = abs(pos1->x.stl.num - pos2_stl_x);
+  LOWORD(round_idx_plus1) = ((_BYTE)round_idx + 1) & 3;
+  round_idx_plus1_1 = round_idx_plus1;
+  delta_y = pos1_stl_y - pos2_stl_y;
+  if ( delta_x > (int)abs(delta_y) )
+    delta_y = pos1_stl_x - pos2_stl_x;
+
+  v13 = abs(delta_y);
   HIDWORD(v13) += 3;
-  v47 = v13 - 1;
+  v22 = v13 - 1;
   WORD2(v13) = BYTE4(v13) & 3;
   v39 = HIDWORD(v13);
-  stl_x = HIBYTE(pos1->x.stl.num);
-  v14 = HIBYTE(pos1->y.stl.num);
-  abs(HIBYTE(pos1->x.stl.num) - x_stl_num_high);
+  stl_x = pos1->x.stl.num;
+  v14 = pos1->y.stl.num;
   stl_y = v14;
-  v15 = v14 - y_stl_num_high;
+  v15 = v14 - pos2_stl_y;
   v58 = 0;
   v16 = abs(v15);
   if ( SHIDWORD(v16) <= (int)v16 )
     v17 = v15;
   else
-    v17 = stl_x - x_stl_num_high;
+    v17 = stl_x - pos2_stl_x;
   v56 = abs(v17) - 1;
   v57 = 0;
   for ( i = *(_WORD *)hug_val; i && (v58 != 2 || v57 != 2); --i )
   {
     if ( v58 != 2 )
     {
-      v18 = ((unsigned __int16)LbArcTanAngle(x_stl_num_high - v43, y_stl_num_high - v49) % 2048 + 256) & 0x7FF;
+      v18 = ((unsigned __int16)LbArcTanAngle(pos2_stl_x - pos1_stl_x, pos2_stl_y - pos1_stl_y) % 2048 + 256) & 0x7FF;
       v53 = (int)(v18 - ((HIDWORD(v18)<< 9) + (HIDWORD(v18) << 9))) >> 9;
-      abs(v43 - x_stl_num_high);
-      v19 = abs(v49 - (unsigned int)y_stl_num_high);
-      if ( SHIDWORD(v19) <= (int)v19 )
-        v20 = v49 - y_stl_num_high;
-      else
-        v20 = v43 - x_stl_num_high;
-      if ( (int)abs(v20) <= v47
+      v20 = max(abs((int)pos1_stl_x - pos2_stl_x),abs((int)pos1_stl_y - pos2_stl_y));
+      if ( (int)abs(v20) <= v22
         && hug_can_move_on(
              creatng,
-             3 * small_around[(unsigned __int16)v53].delta_x + v43,
-             3 * small_around[(unsigned __int16)v53].delta_y + v49) )
+             3 * small_around[(unsigned __int16)v53].delta_x + pos1_stl_x,
+             3 * small_around[(unsigned __int16)v53].delta_y + pos1_stl_y) )
       {
-        v43 += 3 * small_around[(unsigned __int16)v53].delta_x;
-        v49 += 3 * small_around[(unsigned __int16)v53].delta_y;
-        abs(v43 - x_stl_num_high);
-        v21 = abs(v49 - (unsigned int)y_stl_num_high);
-        if ( SHIDWORD(v21) <= (int)v21 )
-          v22 = v49 - y_stl_num_high;
-        else
-          v22 = v43 - x_stl_num_high;
+        pos1_stl_x += 3 * small_around[(unsigned __int16)v53].delta_x;
+        pos1_stl_y += 3 * small_around[(unsigned __int16)v53].delta_y;
+
+
+        v22 = max(abs((int)pos1_stl_x - (int)pos2_stl_x),abs((int)pos1_stl_y - (int)pos2_stl_y));
+
         v58 = 1;
-        v47 = abs(v22);
       }
       else
       {
         if ( v58 == 1 )
         {
-          HIBYTE(pos1->x.stl.num) = v43;
-          v23 = v49;
+          pos1->x.stl.num = pos1_stl_x;
+          v23 = pos1_stl_y;
           goto LABEL_56;
         }
-        v24 = pos + 3;
-        LOWORD(v24) = ((_BYTE)pos + 3) & 3;
+        v24 = round_idx_plus1_1 + 3;
+        LOWORD(v24) = ((_BYTE)round_idx_plus1_1 + 3) & 3;
         for ( j = 0; ; ++j )
         {
           v41 = v24;
           if ( j >= 4u )
             break;
           v25 = (unsigned __int16)v24;
-          if ( hug_can_move_on(creatng, 3 * small_around[v25].delta_x + v43, v49 + 3 * small_around[v25].delta_y) )
+          if ( hug_can_move_on(
+                 creatng,
+                 3 * small_around[v25].delta_x + pos1_stl_x,
+                 pos1_stl_y + 3 * small_around[v25].delta_y) )
           {
-            pos = v41;
-            v43 += 3 * small_around[v25].delta_x;
-            v49 += 3 * small_around[v25].delta_y;
+            round_idx_plus1_1 = v41;
+            pos1_stl_x += 3 * small_around[v25].delta_x;
+            pos1_stl_y += 3 * small_around[v25].delta_y;
             break;
           }
           v24 = v41 + 1;
           LOWORD(v24) = ((_BYTE)v41 + 1) & 3;
         }
       }
-      if ( v43 == x_stl_num_high && v49 == y_stl_num_high )
+      if ( pos1_stl_x == pos2_stl_x && pos1_stl_y == pos2_stl_y )
       {
 LABEL_30:
         *hug_val -= i;
@@ -722,14 +709,9 @@ LABEL_30:
     }
     if ( v57 != 2 )
     {
-      v27 = ((unsigned __int16)LbArcTanAngle(x_stl_num_high - stl_x, y_stl_num_high - stl_y) % 2048 + 256) & 0x7FF;
-      v52 = (int)(v27 - ((HIDWORD(v27)<< 9) + (HIDWORD(v27) << 9))) >> 9;
-      abs(stl_x - x_stl_num_high);
-      v28 = abs(stl_y - (unsigned int)y_stl_num_high);
-      if ( SHIDWORD(v28) <= (int)v28 )
-        v29 = stl_y - y_stl_num_high;
-      else
-        v29 = stl_x - x_stl_num_high;
+      v27 = ((unsigned __int16)LbArcTanAngle(pos2_stl_x - stl_x, pos2_stl_y - stl_y) % 2048 + 256) & 0x7FF;
+      v52 = (int)(v27 - ((HIDWORD(v27) << 9) + (HIDWORD(v27) << 9))) >> 9;
+      v29 = max(abs(stl_x - pos2_stl_x),abs(stl_y - pos2_stl_y));
       if ( (int)abs(v29) <= v56
         && hug_can_move_on(
              creatng,
@@ -738,20 +720,14 @@ LABEL_30:
       {
         stl_x += 3 * small_around[(unsigned __int16)v52].delta_x;
         stl_y += 3 * small_around[(unsigned __int16)v52].delta_y;
-        abs(stl_x - x_stl_num_high);
-        v30 = abs(stl_y - (unsigned int)y_stl_num_high);
-        if ( SHIDWORD(v30) <= (int)v30 )
-          v31 = stl_y - y_stl_num_high;
-        else
-          v31 = stl_x - x_stl_num_high;
+        v56 = max(abs((int)stl_x - (int)pos2_stl_x),abs((int)stl_y - (int)pos2_stl_y));
         v57 = 1;
-        v56 = abs(v31);
       }
       else
       {
         if ( v57 == 1 )
         {
-          HIBYTE(pos1->x.stl.num) = stl_x;
+          pos1->x.stl.num = stl_x;
           v23 = stl_y;
           goto LABEL_56;
         }
@@ -774,21 +750,21 @@ LABEL_30:
           LOWORD(v32) = ((_BYTE)v40 + 3) & 3;
         }
       }
-      if ( stl_x == x_stl_num_high && stl_y == y_stl_num_high )
+      if ( stl_x == pos2_stl_x && stl_y == pos2_stl_y )
         goto LABEL_30;
     }
   }
   if ( !i )
     return -1;
-  v34 = abs(v43 - (unsigned int)x_stl_num_high);
-  v46 = abs(v49 - (unsigned int)y_stl_num_high) + v34;
-  v35 = abs(stl_x - (unsigned int)x_stl_num_high);
-  v36 = abs((unsigned int)stl_y - HIDWORD(v35)) + v35;
-  v37 = (char *)&pos1->x.stl.num + 1;
+  v34 = abs((int)pos1_stl_x - pos2_stl_x);
+  v46 = abs((int)pos1_stl_y - pos2_stl_y) + v34;
+  v35 = abs((int)stl_x      - pos2_stl_x);
+  v36 = abs((int)stl_y      - pos2_stl_y) + v35;
+  v37 = &pos1->x.stl.num;
   if ( (unsigned __int16)v36 >= (unsigned __int16)v46 )
   {
-    *v37 = v43;
-    v23 = v49;
+    *v37 = pos1_stl_x;
+    v23 = pos1_stl_y;
   }
   else
   {
@@ -796,7 +772,7 @@ LABEL_30:
     v23 = stl_y;
   }
 LABEL_56:
-  HIBYTE(pos1->y.stl.num) = v23;
+  pos1->y.stl.num = v23;
   *hug_val -= i;
   return 0;
 }
@@ -834,12 +810,12 @@ static short hug_round(struct Thing *creatng, struct Coord3d *pos1, struct Coord
 
 
 huground_logging = true;
-    JUSTLOG("...old");
-    short old_return = _DK_hug_round(creatng, &old_pos1, &old_pos2, round_idx, &old_hug_val);
-    JUSTLOG("...rc");
-    short return_val = hug_round_RC(creatng, &rc_pos1, &rc_pos2, round_idx, &rc_hug_val);
-    JUSTLOG("...new");
-    short return_rc  = hug_round_new(creatng, pos1, pos2, round_idx, hug_val);
+    JUSTLOG("old");
+    short return_old = _DK_hug_round(creatng, &old_pos1, &old_pos2, round_idx, &old_hug_val);
+    JUSTLOG("rc");
+    short return_rc = hug_round_RC(creatng, &rc_pos1, &rc_pos2, round_idx, &rc_hug_val);
+    JUSTLOG("new");
+    short  return_new = hug_round_new(creatng, pos1, pos2, round_idx, hug_val);
 huground_logging = false;
 
 
@@ -847,17 +823,17 @@ huground_logging = false;
     if (old_pos2.x.val != pos2->x.val || old_pos2.y.val != pos2->y.val) JUSTLOG("...pos2  %d,%d  %d,%d",old_pos2.x.val,old_pos2.y.val, pos2->x.val,pos2->y.val);
 
 
-    if (old_hug_val != *hug_val && rc_hug_val != old_hug_val) JUSTLOG("...hug_val_both %d,%d",old_hug_val,*hug_val);
-    if (old_hug_val == *hug_val && rc_hug_val != old_hug_val) JUSTLOG("...hug_val_rc   %d,%d",rc_hug_val,*hug_val);
-    if (old_hug_val != *hug_val && rc_hug_val == old_hug_val) JUSTLOG("...hug_val_old  %d,%d",old_hug_val,*hug_val);
+    if (old_hug_val != *hug_val && rc_hug_val != old_hug_val) JUSTLOG("...hug_val_both %d,%d,%d",old_hug_val,*hug_val,rc_hug_val);
+    if (old_hug_val == *hug_val && rc_hug_val != old_hug_val) JUSTLOG("...hug_val_rc   %d,%d"   ,rc_hug_val,*hug_val);
+    if (old_hug_val != *hug_val && rc_hug_val == old_hug_val) JUSTLOG("...hug_val_new  %d,%d"   ,old_hug_val,*hug_val);
 
-    if (old_return != return_val && return_rc != old_return) JUSTLOG("...return both %d,%d,%d",old_return,return_val,return_rc);
-    if (old_return == return_val && return_rc != old_return) JUSTLOG("...return rc   %d,%d",   old_return,return_rc);
-    if (old_return != return_val && return_rc == old_return) JUSTLOG("...return old  %d,%d",   old_return,return_val);
+    if (return_old != return_new && return_rc != return_old) JUSTLOG("...return both %d,%d,%d",return_old,return_new,return_rc);
+    if (return_old == return_new && return_rc != return_old) JUSTLOG("...return rc   %d,%d",   return_old,return_rc);
+    if (return_old != return_new && return_rc == return_old) JUSTLOG("...return new  %d,%d",   return_old,return_new);
 
-    if (old_return == return_val && return_rc == old_return) JUSTLOG("...ok %d",old_return);
+    if (return_old == return_new && return_rc == return_old) JUSTLOG("...ok %d",return_old);
 
-    return return_val;
+    return return_new;
 }
 
 long slab_wall_hug_route(struct Thing *thing, struct Coord3d *pos, long max_val)
