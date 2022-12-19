@@ -1375,7 +1375,6 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
             max_damage = max_damage * gameadd.friendly_fight_area_damage_permil / 1000;
         }
         MapCoordDelta distance = get_2d_distance(pos, &tngdst->mappos);
-        JUSTMSG("testlog: distance = %d from %d,%d to %d,%d", distance, pos->x.stl.num, pos->y.stl.num, tngdst->mappos.x.stl.num, tngdst->mappos.y.stl.num);
         if (distance < max_dist)
         {
             if (tngdst->class_id == TCls_Creature)

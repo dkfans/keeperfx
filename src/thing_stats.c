@@ -260,7 +260,6 @@ long get_radially_decaying_value(long magnitude,long decay_start,long decay_leng
  * @param friction is used to calculate the deacceleration and therefore the expected distance travelled.
  * @return Value at how fast it's pulled to epicenter.
  */
-
 long get_radially_growing_value(long magnitude, long decay_start, long decay_length, long distance, long friction)
 {
     if (distance >= decay_start + decay_length)
@@ -269,9 +268,9 @@ long get_radially_growing_value(long magnitude, long decay_start, long decay_len
     if (distance >= decay_start) //too far away to pull with full power
         magnitude = magnitude * (decay_length - (distance - decay_start)) / decay_length;
         
-    long total_distance = abs((COORD_PER_STL / friction * magnitude + magnitude) / 2); // The distance to push the creature
+    long total_distance = abs((COORD_PER_STL / friction * magnitude + magnitude) / 2); // The intended distance to push the thing
 
-    if (total_distance > distance) // If we intend to push the creature further then the distance to target,... don't.
+    if (total_distance > distance) // Never return a value that would go past the epicentre
     {
         short factor = COORD_PER_STL / friction * 3 / 4; // Creatures slide so move further then expected
         return -(distance / factor);
