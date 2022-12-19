@@ -624,8 +624,12 @@ long LbArcTanL(long arg)
  * @param y
  * @return
  */
+
+extern TbBool huground_logging;
 long LbArcTanAngle(long x,long y)
 {
+    if (huground_logging)
+        JUSTLOG("...x,y; %d %d",x,y);
     long ux;
     long uy;
     unsigned long index;
@@ -686,6 +690,7 @@ long LbArcTanAngle(long x,long y)
         }
     }
 }
+HOOK_DK_FUNC(LbArcTanAngle)
 
 static long bitScanReverse(long s)
 {

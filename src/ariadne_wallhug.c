@@ -183,7 +183,7 @@ static short hug_round_new(struct Thing *creatng, struct Coord3d *pos1, struct C
 {
 
     signed int delta_x_1;
-    unsigned __int16 v7;
+    unsigned short v7;
     int delta_y;
     signed int delta_x;
     int around_idx3;
@@ -191,12 +191,12 @@ static short hug_round_new(struct Thing *creatng, struct Coord3d *pos1, struct C
     int v15;
     signed int v16;
     signed int v17;
-    unsigned __int16 around_idx2;
+    unsigned short around_idx2;
     int around_idx1;
     struct Thing *doortng1;
     int kind;
     int v24;
-    unsigned __int16 v25;
+    unsigned short v25;
     int v26;
     signed int v27;
     int around_idx5;
@@ -207,20 +207,20 @@ static short hug_round_new(struct Thing *creatng, struct Coord3d *pos1, struct C
     int v33;
     signed int v34;
     signed int v35;                    
-    unsigned __int16 v36;              
+    unsigned short v36;              
     int around_idx4;
     struct Thing *doortng3;
     int slb_3_kind;
     int v42;                           
-    __int16 result;                    
-    unsigned __int8 v44;                
+    short result;                    
+    unsigned char v44;                
     char bool2;                        
-    unsigned __int16 biggest_delta_minus1;  
+    unsigned short biggest_delta_minus1;  
     char round_idx_plus1_2;            
-    unsigned __int16 round_idx_minus1 =0;
-    unsigned __int16 v53;
-    unsigned __int16 v54;
-    unsigned __int16 i;
+    unsigned short round_idx_minus1 =0;
+    unsigned short v53;
+    unsigned short v54;
+    unsigned short i;
 
     MapSubtlCoord pos2_stl_x = pos2->x.stl.num;
     MapSubtlCoord pos2_stl_y = pos2->y.stl.num;
@@ -242,6 +242,7 @@ static short hug_round_new(struct Thing *creatng, struct Coord3d *pos1, struct C
 
     for (i = *hug_val; i; --i)
     {
+        JUSTLOG("1");
         v7 = (((LbArcTanAngle(pos2_stl_x_2 - pos1_stl_x, pos2_stl_y_2 - pos1_stl_y) & LbFPMath_AngleMask) + 256) >> 9) & 3;
         delta_y = abs(pos1_stl_y - pos2_stl_y_2);
         delta_x = abs(pos1_stl_x - pos2_stl_x_2);
@@ -265,6 +266,7 @@ static short hug_round_new(struct Thing *creatng, struct Coord3d *pos1, struct C
                 around_idx1 = around_idx2;
                 MapSubtlCoord stl_y_1 = 3 * small_around[around_idx1].delta_y + pos1_stl_y;
                 MapSubtlCoord stl_x_1 = 3 * small_around[around_idx1].delta_x + pos1_stl_x;
+                JUSTLOG("d1");
                 doortng1 = get_door_for_position(stl_x_1, stl_y_1);
 
                 struct SlabMap *slb_1 = get_slabmap_for_subtile(stl_x_1, stl_y_1);
@@ -304,6 +306,7 @@ static short hug_round_new(struct Thing *creatng, struct Coord3d *pos1, struct C
         around_idx3 = v7;
         MapSubtlCoord stl_y_2 = 3 * small_around[around_idx3].delta_y + pos1_stl_y;
         MapSubtlCoord stl_x_2 = 3 * small_around[around_idx3].delta_x + pos1_stl_x;
+        JUSTLOG("d2");
         doortng2 = get_door_for_position(stl_x_2, stl_y_2);
 
 
@@ -343,6 +346,7 @@ static short hug_round_new(struct Thing *creatng, struct Coord3d *pos1, struct C
             *hug_val -= i;
             return 1;
         }
+        JUSTLOG("2");
         v25 = (((LbArcTanAngle(pos2_stl_x_2 - pos1_stl_x_2, pos2_stl_y_2 - pos1_stl_y_2) & 0x7FFu) + 256) >> 9) & 3;
         v26 = abs(pos1_stl_y_2 - pos2_stl_y_2);
         v27 = abs(pos1_stl_x_2 - pos2_stl_x_2);
@@ -365,6 +369,7 @@ static short hug_round_new(struct Thing *creatng, struct Coord3d *pos1, struct C
                 around_idx4 = v36;
                 MapSubtlCoord stl_x_3 = 3 * small_around[around_idx4].delta_x + pos1_stl_x_2;
                 MapSubtlCoord stl_y_3 = 3 * small_around[around_idx4].delta_y + pos1_stl_y_2;
+                JUSTLOG("d3");
                 doortng3 = get_door_for_position(stl_x_3, stl_y_3);
 
                 struct SlabMap *slb_3 = get_slabmap_for_subtile(stl_x_3, stl_y_3);
@@ -403,6 +408,7 @@ static short hug_round_new(struct Thing *creatng, struct Coord3d *pos1, struct C
         around_idx5 = v25;
         stl_y_4 = 3 * small_around[around_idx5].delta_y + pos1_stl_y_2;
         stl_x_4 = 3 * small_around[around_idx5].delta_x + pos1_stl_x_2;
+        JUSTLOG("d4");
         doortng4 = get_door_for_position(stl_x_4, stl_y_4);
 
         struct SlabMap *slb_4 = get_slabmap_for_subtile(stl_y_4, stl_x_4);
@@ -443,7 +449,7 @@ static short hug_round_new(struct Thing *creatng, struct Coord3d *pos1, struct C
     }
     if (!i)
         return -1;
-    if ((unsigned __int16)(abs(pos1_stl_x_2 - pos2_stl_x_2) + abs(pos1_stl_y_2 - pos2_stl_y_2)) >= (unsigned __int16)(abs(pos1_stl_x - pos2_stl_x_2) + abs(pos1_stl_y - pos2_stl_y_2)))
+    if ((unsigned short)(abs(pos1_stl_x_2 - pos2_stl_x_2) + abs(pos1_stl_y_2 - pos2_stl_y_2)) >= (unsigned short)(abs(pos1_stl_x - pos2_stl_x_2) + abs(pos1_stl_y - pos2_stl_y_2)))
     {
         v44 = pos1_stl_y;
         pos1->x.stl.num = pos1_stl_x;
@@ -460,6 +466,8 @@ static short hug_round_new(struct Thing *creatng, struct Coord3d *pos1, struct C
 
 DLLIMPORT short _DK_hug_round(struct Thing *creatng, struct Coord3d *pos1, struct Coord3d *pos2, unsigned short a4, long *a5);
 
+
+TbBool huground_logging = false;
 static short hug_round(struct Thing *creatng, struct Coord3d *pos1, struct Coord3d *pos2, unsigned short round_idx, long *hug_val)
 {
 
@@ -473,17 +481,19 @@ static short hug_round(struct Thing *creatng, struct Coord3d *pos1, struct Coord
     old_pos2.x = pos2->x;
     old_pos2.y = pos2->y;
     old_pos2.z = pos2->z;
-
+huground_logging = true;
+    JUSTLOG("...old");
     short old_return = _DK_hug_round(creatng, &old_pos1, &old_pos2, round_idx, &old_hug_val);
-
+    JUSTLOG("...new");
     short return_val = hug_round_new(creatng, pos1, pos2, round_idx, hug_val);
+huground_logging = false;
 
 
-    if (old_return != return_val) JUSTLOG("return not same return %d,%d",old_return,return_val);
-    if ((old_return == return_val) && old_return != -1) JUSTLOG("ok %d,%d",old_return,return_val);
-    if (old_pos1.x.val != pos1->x.val || old_pos1.y.val != pos1->y.val) JUSTLOG("pos1  %d,%d  %d,%d",old_pos1.x.val,old_pos1.y.val, pos1->x.val,pos1->y.val);
-    if (old_pos2.x.val != pos2->x.val || old_pos2.y.val != pos2->y.val) JUSTLOG("pos2  %d,%d  %d,%d",old_pos2.x.val,old_pos2.y.val, pos2->x.val,pos2->y.val);
-    if (old_hug_val != *hug_val) JUSTLOG("hug_val  %d,%d",old_hug_val,*hug_val);
+    if (old_pos1.x.val != pos1->x.val || old_pos1.y.val != pos1->y.val) JUSTLOG("...pos1  %d,%d  %d,%d",old_pos1.x.val,old_pos1.y.val, pos1->x.val,pos1->y.val);
+    if (old_pos2.x.val != pos2->x.val || old_pos2.y.val != pos2->y.val) JUSTLOG("...pos2  %d,%d  %d,%d",old_pos2.x.val,old_pos2.y.val, pos2->x.val,pos2->y.val);
+    if (old_hug_val != *hug_val) JUSTLOG("...hug_val  %d,%d",old_hug_val,*hug_val);
+    if (old_return != return_val) JUSTLOG("...return not same return %d,%d",old_return,return_val);
+    if ((old_return == return_val)) JUSTLOG("...ok %d",old_return,return_val);
 
     return return_val;
 }
@@ -1720,7 +1730,7 @@ static long get_map_index_of_first_block_thing_colliding_with_travelling_to(stru
                 pos.y.val = (creature_pos.y.val & 0xFF00) - 1;
             else
                 pos.y.val = (creature_pos.y.val + 256) & 0xFF00;
-            pos.x.val = (int)(delta_x * abs((unsigned __int16)pos.y.val - v27_x)) / delta_y + v27_y;
+            pos.x.val = (int)(delta_x * abs((unsigned short)pos.y.val - v27_x)) / delta_y + v27_y;
             pos.z.val = creature_pos.z.val;
             stl_num = get_map_index_of_first_block_thing_colliding_with_at(creatng, &pos, mapblk_flags, slabmap_flags);
             if (stl_num >= 0)
@@ -1731,7 +1741,7 @@ static long get_map_index_of_first_block_thing_colliding_with_travelling_to(stru
 
             creature_pos = creatng->mappos;
             pos.x.val = endpos->x.val <= (unsigned int)creature_pos.x.val ? (creature_pos.x.val & 0xFF00) - 1 : (creature_pos.x.val + 256) & 0xFF00;
-            pos.y.val = (int)(delta_y * abs((unsigned __int16)pos.x.val - v27_x) / delta_x + v27_y);
+            pos.y.val = (int)(delta_y * abs((unsigned short)pos.x.val - v27_x) / delta_x + v27_y);
             pos.z.val = creature_pos.z.val;
             stl_num = get_map_index_of_first_block_thing_colliding_with_at(creatng, &pos, mapblk_flags, slabmap_flags);
             if (stl_num >= 0)
@@ -1763,7 +1773,7 @@ static long get_map_index_of_first_block_thing_colliding_with_travelling_to(stru
         pos.x.val = (creature_pos.x.val & 0xFF00) - 1;
     else
         pos.x.val = (creature_pos.x.val + 256) & 0xFF00;
-    pos.y.val = (int)(delta_y * abs((unsigned __int16)pos.x.val - v27_y)) / delta_x + v27_x;
+    pos.y.val = (int)(delta_y * abs((unsigned short)pos.x.val - v27_y)) / delta_x + v27_x;
     pos.z.val = creature_pos.z.val;
     stl_num = get_map_index_of_first_block_thing_colliding_with_at(creatng, &pos, mapblk_flags, slabmap_flags);
     if (stl_num >= 0)
@@ -1773,7 +1783,7 @@ static long get_map_index_of_first_block_thing_colliding_with_travelling_to(stru
     }
     creature_pos = creatng->mappos;
     pos.y.val = endpos->y.val <= (unsigned int)creature_pos.y.val ? (creature_pos.y.val & 0xFF00) - 1 : (creature_pos.y.val + 256) & 0xFF00;
-    pos.x.val = (int)(delta_x * abs((unsigned __int16)pos.y.val - v27_x) / delta_y + v27_y);
+    pos.x.val = (int)(delta_x * abs((unsigned short)pos.y.val - v27_x) / delta_y + v27_y);
     pos.z.val = creature_pos.z.val;
     stl_num = get_map_index_of_first_block_thing_colliding_with_at(creatng, &pos, mapblk_flags, slabmap_flags);
     if (stl_num >= 0)

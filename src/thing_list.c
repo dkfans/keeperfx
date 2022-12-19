@@ -3802,8 +3802,11 @@ struct Thing *get_trap_around_of_model_and_owned_by(MapCoord pos_x, MapCoord pos
     return get_thing_spiral_near_map_block_with_filter(pos_x, pos_y, 9, filter, &param);
 }
 
+extern TbBool huground_logging;
 struct Thing *get_door_for_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
+    if (huground_logging)
+        JUSTLOG("...door %d %d",stl_x,stl_y);
     SYNCDBG(19,"Starting");
     Thing_Maximizer_Filter filter = anywhere_thing_filter_is_of_class_and_model_and_owned_by;
     struct CompoundTngFilterParam param;
@@ -3822,6 +3825,8 @@ struct Thing *get_door_for_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
     long n = 0;
     return get_thing_on_map_block_with_filter(i, filter, &param, &n);
 }
+HOOK_DK_FUNC(get_door_for_position)
+
 
 struct Thing *get_door_for_position_for_trap_placement(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
