@@ -325,6 +325,483 @@ static short hug_round_new(struct Thing *creatng, struct Coord3d *pos1, struct C
     return 0;
 }
 
+/*
+
+   This file contains definitions used in the Hex-Rays decompiler output.
+   It has type definitions and convenience macros to make the
+   output more readable.
+
+   Copyright (c) 2007-2021 Hex-Rays
+
+*/
+
+#ifndef HEXRAYS_DEFS_H
+#define HEXRAYS_DEFS_H
+
+#if defined(__GNUC__)
+  typedef          long long ll;
+  typedef unsigned long long ull;
+  #define __int64 long long
+  #define __int32 int
+  #define __int16 short
+  #define __int8  char
+  #define MAKELL(num) num ## LL
+  #define FMT_64 "ll"
+#elif defined(_MSC_VER)
+  typedef          __int64 ll;
+  typedef unsigned __int64 ull;
+  #define MAKELL(num) num ## i64
+  #define FMT_64 "I64"
+#elif defined (__BORLANDC__)
+  typedef          __int64 ll;
+  typedef unsigned __int64 ull;
+  #define MAKELL(num) num ## i64
+  #define FMT_64 "L"
+#else
+  #error "unknown compiler"
+#endif
+typedef unsigned int uint;
+typedef unsigned char uchar;
+typedef unsigned short ushort;
+typedef unsigned long ulong;
+
+typedef          char   int8;
+typedef   signed char   sint8;
+typedef unsigned char   uint8;
+typedef          short  int16;
+typedef   signed short  sint16;
+typedef unsigned short  uint16;
+typedef          int    int32;
+typedef   signed int    sint32;
+typedef unsigned int    uint32;
+typedef ll              int64;
+typedef ll              sint64;
+typedef ull             uint64;
+
+// Partially defined types. They are used when the decompiler does not know
+// anything about the type except its size.
+#define _BYTE  uint8
+#define _WORD  uint16
+#define _DWORD uint32
+#define _QWORD uint64
+#if !defined(_MSC_VER)
+#define _LONGLONG __int128
+#endif
+
+// Non-standard boolean types. They are used when the decompiler cannot use
+// the standard "bool" type because of the size mistmatch but the possible
+// values are only 0 and 1. See also 'BOOL' type below.
+typedef int8 _BOOL1;
+typedef int16 _BOOL2;
+typedef int32 _BOOL4;
+typedef int64 _BOOL8;
+
+#ifndef _WINDOWS_
+typedef int8 BYTE;
+typedef int16 WORD;
+typedef int32 DWORD;
+typedef int32 LONG;
+typedef int BOOL;       // uppercase BOOL is usually 4 bytes
+#endif
+typedef int64 QWORD;
+#ifndef __cplusplus
+typedef int bool;       // we want to use bool in our C programs
+#endif
+
+#define __pure  // pure function:
+                // when given the same arguments, always returns the same value
+                // has no side effects
+
+// Non-returning function
+#if defined(__GNUC__)
+#define __noreturn  __attribute__((noreturn))
+#else
+#define __noreturn  __declspec(noreturn)
+#endif
+
+
+#ifndef NULL
+#define NULL 0
+#endif
+
+// Some convenience macros to make partial accesses nicer
+#define LAST_IND(x,part_type)    (sizeof(x)/sizeof(part_type) - 1)
+#if defined(__BYTE_ORDER) && __BYTE_ORDER == __BIG_ENDIAN
+#  define LOW_IND(x,part_type)   LAST_IND(x,part_type)
+#  define HIGH_IND(x,part_type)  0
+#else
+#  define HIGH_IND(x,part_type)  LAST_IND(x,part_type)
+#  define LOW_IND(x,part_type)   0
+#endif
+// first unsigned macros:
+#define BYTEn(x, n)   (*((_BYTE*)&(x)+n))
+#define WORDn(x, n)   (*((_WORD*)&(x)+n))
+#define DWORDn(x, n)  (*((_DWORD*)&(x)+n))
+
+#define LOBYTE(x)  BYTEn(x,LOW_IND(x,_BYTE))
+#define LOWORD(x)  WORDn(x,LOW_IND(x,_WORD))
+#define LODWORD(x) DWORDn(x,LOW_IND(x,_DWORD))
+#define HIBYTE(x)  BYTEn(x,HIGH_IND(x,_BYTE))
+#define HIWORD(x)  WORDn(x,HIGH_IND(x,_WORD))
+#define HIDWORD(x) DWORDn(x,HIGH_IND(x,_DWORD))
+#define BYTE1(x)   BYTEn(x,  1)         // byte 1 (counting from 0)
+#define BYTE2(x)   BYTEn(x,  2)
+#define BYTE3(x)   BYTEn(x,  3)
+#define BYTE4(x)   BYTEn(x,  4)
+#define BYTE5(x)   BYTEn(x,  5)
+#define BYTE6(x)   BYTEn(x,  6)
+#define BYTE7(x)   BYTEn(x,  7)
+#define BYTE8(x)   BYTEn(x,  8)
+#define BYTE9(x)   BYTEn(x,  9)
+#define BYTE10(x)  BYTEn(x, 10)
+#define BYTE11(x)  BYTEn(x, 11)
+#define BYTE12(x)  BYTEn(x, 12)
+#define BYTE13(x)  BYTEn(x, 13)
+#define BYTE14(x)  BYTEn(x, 14)
+#define BYTE15(x)  BYTEn(x, 15)
+#define WORD1(x)   WORDn(x,  1)
+#define WORD2(x)   WORDn(x,  2)         // third word of the object, unsigned
+#define WORD3(x)   WORDn(x,  3)
+#define WORD4(x)   WORDn(x,  4)
+#define WORD5(x)   WORDn(x,  5)
+#define WORD6(x)   WORDn(x,  6)
+#define WORD7(x)   WORDn(x,  7)
+
+// now signed macros (the same but with sign extension)
+#define SBYTEn(x, n)   (*((int8*)&(x)+n))
+#define SWORDn(x, n)   (*((int16*)&(x)+n))
+#define SDWORDn(x, n)  (*((int32*)&(x)+n))
+
+#define SLOBYTE(x)  SBYTEn(x,LOW_IND(x,int8))
+#define SLOWORD(x)  SWORDn(x,LOW_IND(x,int16))
+#define SLODWORD(x) SDWORDn(x,LOW_IND(x,int32))
+#define SHIBYTE(x)  SBYTEn(x,HIGH_IND(x,int8))
+#define SHIWORD(x)  SWORDn(x,HIGH_IND(x,int16))
+#define SHIDWORD(x) SDWORDn(x,HIGH_IND(x,int32))
+#define SBYTE1(x)   SBYTEn(x,  1)
+#define SBYTE2(x)   SBYTEn(x,  2)
+#define SBYTE3(x)   SBYTEn(x,  3)
+#define SBYTE4(x)   SBYTEn(x,  4)
+#define SBYTE5(x)   SBYTEn(x,  5)
+#define SBYTE6(x)   SBYTEn(x,  6)
+#define SBYTE7(x)   SBYTEn(x,  7)
+#define SBYTE8(x)   SBYTEn(x,  8)
+#define SBYTE9(x)   SBYTEn(x,  9)
+#define SBYTE10(x)  SBYTEn(x, 10)
+#define SBYTE11(x)  SBYTEn(x, 11)
+#define SBYTE12(x)  SBYTEn(x, 12)
+#define SBYTE13(x)  SBYTEn(x, 13)
+#define SBYTE14(x)  SBYTEn(x, 14)
+#define SBYTE15(x)  SBYTEn(x, 15)
+#define SWORD1(x)   SWORDn(x,  1)
+#define SWORD2(x)   SWORDn(x,  2)
+#define SWORD3(x)   SWORDn(x,  3)
+#define SWORD4(x)   SWORDn(x,  4)
+#define SWORD5(x)   SWORDn(x,  5)
+#define SWORD6(x)   SWORDn(x,  6)
+#define SWORD7(x)   SWORDn(x,  7)
+
+// Generate a pair of operands. S stands for 'signed'
+#define __SPAIR16__(high, low)  (((int16)  (high) <<  8) | (uint8) (low))
+#define __SPAIR32__(high, low)  (((int32)  (high) << 16) | (uint16)(low))
+#define __SPAIR64__(high, low)  (((int64)  (high) << 32) | (uint32)(low))
+#define __SPAIR128__(high, low) (((int128) (high) << 64) | (uint64)(low))
+#define __PAIR16__(high, low)   (((uint16) (high) <<  8) | (uint8) (low))
+#define __PAIR32__(high, low)   (((uint32) (high) << 16) | (uint16)(low))
+#define __PAIR64__(high, low)   (((uint64) (high) << 32) | (uint32)(low))
+#define __PAIR128__(high, low)  (((uint128)(high) << 64) | (uint64)(low))
+
+// Helper functions to represent some assembly instructions.
+
+
+// For C, we just provide macros, they are not quite correct.
+#define __ROL__(x, y) __rotl__(x, y)      // Rotate left
+#define __ROR__(x, y) __rotr__(x, y)      // Rotate right
+#define __CFSHL__(x, y) invalid_operation // Generate carry flag for (x<<y)
+#define __CFSHR__(x, y) invalid_operation // Generate carry flag for (x>>y)
+#define __CFADD__(x, y) invalid_operation // Generate carry flag for (x+y)
+#define __CFSUB__(x, y) invalid_operation // Generate carry flag for (x-y)
+#define __OFADD__(x, y) invalid_operation // Generate overflow flag for (x+y)
+#define __OFSUB__(x, y) invalid_operation // Generate overflow flag for (x-y)
+
+#define abs8(x)   (int8)  ((int8)  (x) >= 0 ? (x) : -(x))
+#define abs16(x)  (int16) ((int16) (x) >= 0 ? (x) : -(x))
+#define abs32(x)  (int32) ((int32) (x) >= 0 ? (x) : -(x))
+#define abs64(x)  (int64) ((int64) (x) >= 0 ? (x) : -(x))
+#define abs128(x) (int128)((int128)(x) >= 0 ? (x) : -(x))
+
+
+#if defined(__MIPS__)
+// traps for MIPS arithmetic operation
+void __noreturn __integer_oveflow(void); // SIGFPE/FPE_INTOVF
+void __noreturn __divide_by_zero(void);  // SIGFPE/FPE_INTDIV
+void __noreturn __trap(uint16 trapcode); // SIGTRAP
+void __noreturn __break(uint16 code, uint16 subcode);
+#endif
+
+// No definition for rcl/rcr because the carry flag is unknown
+#define __RCL__(x, y)    invalid_operation // Rotate left thru carry
+#define __RCR__(x, y)    invalid_operation // Rotate right thru carry
+#define __MKCRCL__(x, y) invalid_operation // Generate carry flag for a RCL
+#define __MKCRCR__(x, y) invalid_operation // Generate carry flag for a RCR
+#define __SETP__(x, y)   invalid_operation // Generate parity flag for (x-y)
+
+// In the decompilation listing there are some objects declared as _UNKNOWN
+// because we could not determine their types. Since the C compiler does not
+// accept void item declarations, we replace them by anything of our choice,
+// for example a char:
+
+#define _UNKNOWN char
+
+#ifdef _MSC_VER
+#define snprintf _snprintf
+#define vsnprintf _vsnprintf
+#endif
+
+// The ADJ() macro is used for shifted pointers.
+// While compilers do not understand it, it makes the code more readable.
+// A shifted pointer is declared like this, for example:
+//      char *__shifted(mystruct,8) p;
+// It means: while 'p' points to 'char', it also points to the middle of 'mystruct'.
+// More precisely, it is at the offset of 8 bytes from the beginning of 'mystruct'.
+//
+// The ADJ() macro performs the necessary adjustment.
+// The __parentof() and __deltaof() functions are made up, they do not exist.
+// __parentof() returns the parent structure type.
+// __deltaof() returns the shift amount.
+
+#define ADJ(p) (__parentof(p) *)(p-__deltaof(p))
+
+#endif // HEXRAYS_DEFS_H
+
+
+
+int  hug_round_RC(struct Thing *creatng, struct Coord3d *pos1, struct Coord3d *pos2, unsigned short round_idx, long *hug_val)
+{
+ unsigned __int8 v9; // eax
+  int v10; // ebx
+  int v11; // edi
+  int v12; // ebx
+  __int64 v13; // rax
+  unsigned __int16 v14; // bx
+  int v15; // ebx
+  __int64 v16; // rax
+  int v17; // eax
+  __int64 v18; // rax
+  __int64 v19; // rax
+  int v20; // eax
+  __int64 v21; // rax
+  int v22; // eax
+  char v23; // al
+  int v24; // eax
+  int v25; // edi
+  __int64 v27; // rax
+  __int64 v28; // rax
+  int v29; // eax
+  __int64 v30; // rax
+  int v31; // eax
+  int v32; // eax
+  int v33; // edi
+  int v34; // ebx
+  __int64 v35; // rax
+  int v36; // ebx
+  char *v37; // eax
+  int v39; // [esp+18h] [ebp-50h]
+  int v40; // [esp+1Ch] [ebp-4Ch]
+  int v41; // [esp+20h] [ebp-48h]
+  unsigned __int16 i; // [esp+24h] [ebp-44h]
+  unsigned __int16 v43; // [esp+28h] [ebp-40h]
+  unsigned __int16 stl_y; // [esp+2Ch] [ebp-3Ch]
+  unsigned __int16 j; // [esp+30h] [ebp-38h]
+  int v46; // [esp+34h] [ebp-34h]
+  unsigned __int16 v47; // [esp+38h] [ebp-30h]
+  unsigned __int16 stl_x; // [esp+3Ch] [ebp-2Ch]
+  unsigned __int16 v49; // [esp+40h] [ebp-28h]
+  unsigned __int16 x_stl_num_high; // [esp+44h] [ebp-24h]
+  unsigned __int16 y_stl_num_high; // [esp+48h] [ebp-20h]
+  int v52; // [esp+4Ch] [ebp-1Ch]
+  int v53; // [esp+50h] [ebp-18h]
+  int pos; // [esp+54h] [ebp-14h]
+  unsigned __int16 k; // [esp+58h] [ebp-10h]
+  unsigned __int16 v56; // [esp+5Ch] [ebp-Ch]
+  char v57; // [esp+60h] [ebp-8h]
+  char v58; // [esp+64h] [ebp-4h]
+
+  v9 = pos2->x.stl.num;
+  x_stl_num_high = pos2->x.stl.num;
+  y_stl_num_high = pos2->y.stl.num;
+  v43 = pos1->x.stl.num;
+  v49 = pos1->y.stl.num;
+  v10 = round_idx + 1;
+  v11 = abs(HIBYTE(pos1->x.stl.num) - (unsigned int)v9);
+  LOWORD(v10) = ((_BYTE)round_idx + 1) & 3;
+  pos = v10;
+  v12 = v49 - y_stl_num_high;
+  if ( v11 > (int)abs(v12) )
+    v12 = v43 - x_stl_num_high;
+  v13 = abs(v12);
+  HIDWORD(v13) += 3;
+  v47 = v13 - 1;
+  WORD2(v13) = BYTE4(v13) & 3;
+  v39 = HIDWORD(v13);
+  stl_x = HIBYTE(pos1->x.stl.num);
+  v14 = HIBYTE(pos1->y.stl.num);
+  abs(HIBYTE(pos1->x.stl.num) - x_stl_num_high);
+  stl_y = v14;
+  v15 = v14 - y_stl_num_high;
+  v58 = 0;
+  v16 = abs(v15);
+  if ( SHIDWORD(v16) <= (int)v16 )
+    v17 = v15;
+  else
+    v17 = stl_x - x_stl_num_high;
+  v56 = abs(v17) - 1;
+  v57 = 0;
+  for ( i = *(_WORD *)hug_val; i && (v58 != 2 || v57 != 2); --i )
+  {
+    if ( v58 != 2 )
+    {
+      v18 = ((unsigned __int16)LbArcTanAngle(x_stl_num_high - v43, y_stl_num_high - v49) % 2048 + 256) & 0x7FF;
+      v53 = (int)(v18 - ((HIDWORD(v18)<< 9) + (HIDWORD(v18) << 9))) >> 9;
+      abs(v43 - x_stl_num_high);
+      v19 = abs(v49 - (unsigned int)y_stl_num_high);
+      if ( SHIDWORD(v19) <= (int)v19 )
+        v20 = v49 - y_stl_num_high;
+      else
+        v20 = v43 - x_stl_num_high;
+      if ( (int)abs(v20) <= v47
+        && hug_can_move_on(
+             creatng,
+             3 * small_around[(unsigned __int16)v53].delta_x + v43,
+             3 * small_around[(unsigned __int16)v53].delta_y + v49) )
+      {
+        v43 += 3 * small_around[(unsigned __int16)v53].delta_x;
+        v49 += 3 * small_around[(unsigned __int16)v53].delta_y;
+        abs(v43 - x_stl_num_high);
+        v21 = abs(v49 - (unsigned int)y_stl_num_high);
+        if ( SHIDWORD(v21) <= (int)v21 )
+          v22 = v49 - y_stl_num_high;
+        else
+          v22 = v43 - x_stl_num_high;
+        v58 = 1;
+        v47 = abs(v22);
+      }
+      else
+      {
+        if ( v58 == 1 )
+        {
+          HIBYTE(pos1->x.stl.num) = v43;
+          v23 = v49;
+          goto LABEL_56;
+        }
+        v24 = pos + 3;
+        LOWORD(v24) = ((_BYTE)pos + 3) & 3;
+        for ( j = 0; ; ++j )
+        {
+          v41 = v24;
+          if ( j >= 4u )
+            break;
+          v25 = (unsigned __int16)v24;
+          if ( hug_can_move_on(creatng, 3 * small_around[v25].delta_x + v43, v49 + 3 * small_around[v25].delta_y) )
+          {
+            pos = v41;
+            v43 += 3 * small_around[v25].delta_x;
+            v49 += 3 * small_around[v25].delta_y;
+            break;
+          }
+          v24 = v41 + 1;
+          LOWORD(v24) = ((_BYTE)v41 + 1) & 3;
+        }
+      }
+      if ( v43 == x_stl_num_high && v49 == y_stl_num_high )
+      {
+LABEL_30:
+        *hug_val -= i;
+        return 1;
+      }
+    }
+    if ( v57 != 2 )
+    {
+      v27 = ((unsigned __int16)LbArcTanAngle(x_stl_num_high - stl_x, y_stl_num_high - stl_y) % 2048 + 256) & 0x7FF;
+      v52 = (int)(v27 - ((HIDWORD(v27)<< 9) + (HIDWORD(v27) << 9))) >> 9;
+      abs(stl_x - x_stl_num_high);
+      v28 = abs(stl_y - (unsigned int)y_stl_num_high);
+      if ( SHIDWORD(v28) <= (int)v28 )
+        v29 = stl_y - y_stl_num_high;
+      else
+        v29 = stl_x - x_stl_num_high;
+      if ( (int)abs(v29) <= v56
+        && hug_can_move_on(
+             creatng,
+             stl_x + 3 * small_around[(unsigned __int16)v52].delta_x,
+             3 * small_around[(unsigned __int16)v52].delta_y + stl_y) )
+      {
+        stl_x += 3 * small_around[(unsigned __int16)v52].delta_x;
+        stl_y += 3 * small_around[(unsigned __int16)v52].delta_y;
+        abs(stl_x - x_stl_num_high);
+        v30 = abs(stl_y - (unsigned int)y_stl_num_high);
+        if ( SHIDWORD(v30) <= (int)v30 )
+          v31 = stl_y - y_stl_num_high;
+        else
+          v31 = stl_x - x_stl_num_high;
+        v57 = 1;
+        v56 = abs(v31);
+      }
+      else
+      {
+        if ( v57 == 1 )
+        {
+          HIBYTE(pos1->x.stl.num) = stl_x;
+          v23 = stl_y;
+          goto LABEL_56;
+        }
+        v32 = v39 + 1;
+        LOWORD(v32) = ((_BYTE)v39 + 1) & 3;
+        for ( k = 0; ; ++k )
+        {
+          v40 = v32;
+          if ( k >= 4u )
+            break;
+          v33 = (unsigned __int16)v32;
+          if ( hug_can_move_on(creatng, 3 * small_around[v33].delta_x + stl_x, 3 * small_around[v33].delta_y + stl_y) )
+          {
+            v39 = v40;
+            stl_x += 3 * small_around[v33].delta_x;
+            stl_y += 3 * small_around[v33].delta_y;
+            break;
+          }
+          v32 = v40 + 3;
+          LOWORD(v32) = ((_BYTE)v40 + 3) & 3;
+        }
+      }
+      if ( stl_x == x_stl_num_high && stl_y == y_stl_num_high )
+        goto LABEL_30;
+    }
+  }
+  if ( !i )
+    return -1;
+  v34 = abs(v43 - (unsigned int)x_stl_num_high);
+  v46 = abs(v49 - (unsigned int)y_stl_num_high) + v34;
+  v35 = abs(stl_x - (unsigned int)x_stl_num_high);
+  v36 = abs((unsigned int)stl_y - HIDWORD(v35)) + v35;
+  v37 = (char *)&pos1->x.stl.num + 1;
+  if ( (unsigned __int16)v36 >= (unsigned __int16)v46 )
+  {
+    *v37 = v43;
+    v23 = v49;
+  }
+  else
+  {
+    *v37 = stl_x;
+    v23 = stl_y;
+  }
+LABEL_56:
+  HIBYTE(pos1->y.stl.num) = v23;
+  *hug_val -= i;
+  return 0;
+}
+
+
 DLLIMPORT short _DK_hug_round(struct Thing *creatng, struct Coord3d *pos1, struct Coord3d *pos2, unsigned short a4, long *a5);
 
 
@@ -346,7 +823,7 @@ huground_logging = true;
     JUSTLOG("...old");
     short old_return = _DK_hug_round(creatng, &old_pos1, &old_pos2, round_idx, &old_hug_val);
     JUSTLOG("...new");
-    short return_val = hug_round_new(creatng, pos1, pos2, round_idx, hug_val);
+    short return_val = hug_round_RC(creatng, pos1, pos2, round_idx, hug_val);
 huground_logging = false;
 
 
