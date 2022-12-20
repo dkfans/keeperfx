@@ -216,7 +216,7 @@ static char hug_round_sub(struct Thing *creatng, MapSubtlCoord *pos1_stl_x, MapS
               if (thing_is_invalid(doortng3) || doortng3->owner != creatng->owner || doortng3->door.is_locked)
               {
               LABEL_68:
-                  around_idx6 = (around_idx6 - 1) & 3;
+                  around_idx6 = (around_idx6 - around_offset) & 3;
                   if (++v54 >= 4u)
                       goto LABEL_CHECKSAME2;
                   continue;
@@ -350,9 +350,6 @@ typedef unsigned int    uint32;
 #define _DWORD uint32
 #define _QWORD uint64
 
-
-
-
 // Some convenience macros to make partial accesses nicer
 #define LAST_IND(x,part_type)    (sizeof(x)/sizeof(part_type) - 1)
 
@@ -375,7 +372,7 @@ typedef unsigned int    uint32;
 
 #define SHIDWORD(x) SDWORDn(x,HIGH_IND(x,int32))
 
-static int hug_round_sub(struct Thing *creatng, MapSubtlCoord *pos1_stl_x, MapSubtlCoord *pos1_stl_y,
+static int hug_round_sub_RC(struct Thing *creatng, MapSubtlCoord *pos1_stl_x, MapSubtlCoord *pos1_stl_y,
                              const MapSubtlCoord pos2_stl_x, const MapSubtlCoord pos2_stl_y, char *v58,
                              int *v22, struct Coord3d *pos1, long *hug_val, unsigned short *i,
                              int *round_idx_plus1_1,const int arr_offset_1,const int arr_offset_2)
@@ -438,7 +435,7 @@ static int hug_round_sub(struct Thing *creatng, MapSubtlCoord *pos1_stl_x, MapSu
     return -1;
 }
 
-int  hug_round_RC(struct Thing *creatng, struct Coord3d *pos1, struct Coord3d *pos2, unsigned short round_idx, long *hug_val)
+static int  hug_round_RC(struct Thing *creatng, struct Coord3d *pos1, struct Coord3d *pos2, unsigned short round_idx, long *hug_val)
 {
  int round_idx_plus1;
   int delta_x;
@@ -451,7 +448,6 @@ int  hug_round_RC(struct Thing *creatng, struct Coord3d *pos1, struct Coord3d *p
   int v34;
   __int64 v35;
   int v36;
-  int v39;
   unsigned short i;
   int v46;
   int round_idx_plus1_1;
@@ -468,6 +464,7 @@ int  hug_round_RC(struct Thing *creatng, struct Coord3d *pos1, struct Coord3d *p
   MapSubtlCoord pos1_stl_y_2 = pos1->y.stl.num;
 
   round_idx_plus1 = round_idx + 1;
+  int round_idx_minus1 = (round_idx - 1) & 3;
   delta_x = abs(pos1->x.stl.num - pos2_stl_x);
   LOWORD(round_idx_plus1) = ((_BYTE)round_idx + 1) & 3;
   round_idx_plus1_1 = round_idx_plus1;
@@ -479,7 +476,6 @@ int  hug_round_RC(struct Thing *creatng, struct Coord3d *pos1, struct Coord3d *p
   HIDWORD(v13) += 3;
   v22 = v13 - 1;
   WORD2(v13) = BYTE4(v13) & 3;
-  v39 = HIDWORD(v13);
 
 
   v15 = pos1_stl_y_2 - pos2_stl_y;
@@ -495,11 +491,11 @@ int  hug_round_RC(struct Thing *creatng, struct Coord3d *pos1, struct Coord3d *p
   {
          char return_val;
         JUSTLOG("1"); 
-        return_val = hug_round_sub_RC2(creatng,&pos1_stl_x,  &pos1_stl_y  ,pos2_stl_x,pos2_stl_y,&v58,&v22,pos1,hug_val,&i,&round_idx_plus1_1,3,1);
+        return_val = hug_round_sub_RC(creatng,&pos1_stl_x,  &pos1_stl_y  ,pos2_stl_x,pos2_stl_y,&v58,&v22,pos1,hug_val,&i,&round_idx_plus1_1,3,1);
         if (return_val != -1)
             return return_val;
         JUSTLOG("2");
-        return_val = hug_round_sub_RC2(creatng,&pos1_stl_x_2,&pos1_stl_y_2,pos2_stl_x,pos2_stl_y,&v57,&v56,pos1,hug_val,&i,&v39              ,1,3);
+        return_val = hug_round_sub_RC(creatng,&pos1_stl_x_2,&pos1_stl_y_2,pos2_stl_x,pos2_stl_y,&v57,&v56,pos1,hug_val,&i,&round_idx_minus1,1,3);
         if (return_val != -1)
             return return_val;
    
@@ -588,9 +584,8 @@ static int hug_round_sub_RC2(struct Thing *creatng, MapSubtlCoord *pos1_stl_x, M
     return -1;
 }
 
-int  hug_round_RC2(struct Thing *creatng, struct Coord3d *pos1, struct Coord3d *pos2, unsigned short round_idx, long *hug_val)
+static int  hug_round_RC2(struct Thing *creatng, struct Coord3d *pos1, struct Coord3d *pos2, unsigned short round_idx, long *hug_val)
 {
-  int round_idx_plus1;
   int delta_x;
   int delta_y;
   __int64 v13;
@@ -601,10 +596,8 @@ int  hug_round_RC2(struct Thing *creatng, struct Coord3d *pos1, struct Coord3d *
   int v34;
   __int64 v35;
   int v36;
-  int v39;
   unsigned short i;
   int v46;
-  int round_idx_plus1_1;
   int v56;
   char v57;
   char v58;
@@ -617,10 +610,10 @@ int  hug_round_RC2(struct Thing *creatng, struct Coord3d *pos1, struct Coord3d *
   MapSubtlCoord pos1_stl_x_2 = pos1->x.stl.num;
   MapSubtlCoord pos1_stl_y_2 = pos1->y.stl.num;
 
-  round_idx_plus1 = round_idx + 1;
   delta_x = abs(pos1->x.stl.num - pos2_stl_x);
-  LOWORD(round_idx_plus1) = ((_BYTE)round_idx + 1) & 3;
-  round_idx_plus1_1 = round_idx_plus1;
+  int round_idx_plus1 = (round_idx + 1) & 3;
+  int round_idx_minus1 = (round_idx - 1) & 3;
+  
   delta_y = pos1_stl_y - pos2_stl_y;
   if (delta_x > (int)abs(delta_y))
     delta_y = pos1_stl_x - pos2_stl_x;
@@ -629,7 +622,6 @@ int  hug_round_RC2(struct Thing *creatng, struct Coord3d *pos1, struct Coord3d *
   HIDWORD(v13) += 3;
   v22 = v13 - 1;
   WORD2(v13) = BYTE4(v13) & 3;
-  v39 = HIDWORD(v13);
 
 
   v15 = pos1_stl_y_2 - pos2_stl_y;
@@ -645,11 +637,11 @@ int  hug_round_RC2(struct Thing *creatng, struct Coord3d *pos1, struct Coord3d *
   {
          char return_val;
         JUSTLOG("1"); 
-        return_val = hug_round_sub_RC2(creatng,&pos1_stl_x,  &pos1_stl_y  ,pos2_stl_x,pos2_stl_y,&v58,&v22,pos1,hug_val,&i,&round_idx_plus1_1,3,1);
+        return_val = hug_round_sub_RC2(creatng,&pos1_stl_x,  &pos1_stl_y  ,pos2_stl_x,pos2_stl_y,&v58,&v22,pos1,hug_val,&i,&round_idx_plus1,3,1);
         if (return_val != -1)
             return return_val;
         JUSTLOG("2");
-        return_val = hug_round_sub_RC2(creatng,&pos1_stl_x_2,&pos1_stl_y_2,pos2_stl_x,pos2_stl_y,&v57,&v56,pos1,hug_val,&i,&v39              ,1,3);
+        return_val = hug_round_sub_RC2(creatng,&pos1_stl_x_2,&pos1_stl_y_2,pos2_stl_x,pos2_stl_y,&v57,&v56,pos1,hug_val,&i,&round_idx_minus1,1,3);
         if (return_val != -1)
             return return_val;
    
@@ -708,7 +700,7 @@ huground_logging = true;
     JUSTLOG("old");
     short return_old = _DK_hug_round(creatng, &old_pos1, &old_pos2, round_idx, &old_hug_val);
     JUSTLOG("rc");
-    short return_rc = hug_round_RC(creatng, &rc_pos1, &rc_pos2, round_idx, &rc_hug_val);
+    short return_rc = hug_round_new(creatng, &rc_pos1, &rc_pos2, round_idx, &rc_hug_val);
     JUSTLOG("new");
     short  return_new = hug_round_RC2(creatng, pos1, pos2, round_idx, hug_val);
 huground_logging = false;
@@ -782,7 +774,6 @@ long slab_wall_hug_route(struct Thing *thing, struct Coord3d *pos, long max_val)
     }
     return 0;
 }
-
 
 unsigned short get_hugging_blocked_flags(struct Thing *creatng, struct Coord3d *pos, long slab_flag, unsigned char crt_owner_bit)
 {
