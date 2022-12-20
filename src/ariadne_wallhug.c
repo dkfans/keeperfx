@@ -437,7 +437,6 @@ static int hug_round_sub_RC(struct Thing *creatng, MapSubtlCoord *pos1_stl_x, Ma
 
 static int  hug_round_RC(struct Thing *creatng, struct Coord3d *pos1, struct Coord3d *pos2, unsigned short round_idx, long *hug_val)
 {
- int round_idx_plus1;
   int delta_x;
   int delta_y;
   __int64 v13;
@@ -450,7 +449,6 @@ static int  hug_round_RC(struct Thing *creatng, struct Coord3d *pos1, struct Coo
   int v36;
   unsigned short i;
   int v46;
-  int round_idx_plus1_1;
   int v56;
   char v57;
   char v58;
@@ -463,11 +461,10 @@ static int  hug_round_RC(struct Thing *creatng, struct Coord3d *pos1, struct Coo
   MapSubtlCoord pos1_stl_x_2 = pos1->x.stl.num;
   MapSubtlCoord pos1_stl_y_2 = pos1->y.stl.num;
 
-  round_idx_plus1 = round_idx + 1;
-  int round_idx_minus1 = (round_idx - 1) & 3;
   delta_x = abs(pos1->x.stl.num - pos2_stl_x);
-  LOWORD(round_idx_plus1) = ((_BYTE)round_idx + 1) & 3;
-  round_idx_plus1_1 = round_idx_plus1;
+  int round_idx_plus1 = (round_idx + 1) & 3;
+  int round_idx_minus1 = (round_idx - 1) & 3;
+  
   delta_y = pos1_stl_y - pos2_stl_y;
   if (delta_x > (int)abs(delta_y))
     delta_y = pos1_stl_x - pos2_stl_x;
@@ -491,7 +488,7 @@ static int  hug_round_RC(struct Thing *creatng, struct Coord3d *pos1, struct Coo
   {
          char return_val;
         JUSTLOG("1"); 
-        return_val = hug_round_sub_RC(creatng,&pos1_stl_x,  &pos1_stl_y  ,pos2_stl_x,pos2_stl_y,&v58,&v22,pos1,hug_val,&i,&round_idx_plus1_1,3,1);
+        return_val = hug_round_sub_RC(creatng,&pos1_stl_x,  &pos1_stl_y  ,pos2_stl_x,pos2_stl_y,&v58,&v22,pos1,hug_val,&i,&round_idx_plus1,3,1);
         if (return_val != -1)
             return return_val;
         JUSTLOG("2");
@@ -519,7 +516,6 @@ static int  hug_round_RC(struct Thing *creatng, struct Coord3d *pos1, struct Coo
   *hug_val -= i;
   return 0;
 }
-
 
 static int hug_round_sub_RC2(struct Thing *creatng, MapSubtlCoord *pos1_stl_x, MapSubtlCoord *pos1_stl_y,
                              const MapSubtlCoord pos2_stl_x, const MapSubtlCoord pos2_stl_y, char *v58,
