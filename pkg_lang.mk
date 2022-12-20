@@ -66,11 +66,12 @@ pkg/campgns/lqizgood/text_fre.dat \
 pkg/campgns/lqizgood/text_pol.dat \
 pkg/campgns/ncastles/text_eng.dat \
 pkg/campgns/ncastles/text_pol.dat \
+pkg/campgns/ncastles/text_chi.dat \
 pkg/campgns/questfth/text_eng.dat \
 pkg/campgns/questfth/text_fre.dat \
+pkg/campgns/questfth/text_pol.dat \
 pkg/campgns/revlord/text_eng.dat \
 pkg/campgns/revlord/text_chi.dat \
-pkg/campgns/questfth/text_pol.dat \
 pkg/campgns/twinkprs/text_eng.dat \
 pkg/campgns/twinkprs/text_pol.dat \
 pkg/campgns/twinkprs/text_chi.dat \
