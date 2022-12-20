@@ -377,16 +377,17 @@ static int hug_round_sub_RC(struct Thing *creatng, MapSubtlCoord *pos1_stl_x, Ma
     {
         return -1;
     }
-    __int64 v18 = (LbArcTanAngle(pos2_stl_x - *pos1_stl_x, pos2_stl_y - *pos1_stl_y) % 2048 + 256) & 0x7FF;
-    int v53 = (int)(v18 - ((HIDWORD(v18) << 9) + (HIDWORD(v18) << 9))) >> 9;
+
+    unsigned short quadrant = (((LbArcTanAngle(pos2_stl_x - *pos1_stl_x, pos2_stl_y - *pos1_stl_y) & LbFPMath_AngleMask) + 256) >> 9) & 3;
+
     int v20 = max(abs(*pos1_stl_x - pos2_stl_x), abs(*pos1_stl_y - pos2_stl_y));
     if ((int)abs(v20) <= *v22 && hug_can_move_on(
                                      creatng,
-                                     3 * small_around[(unsigned short)v53].delta_x + *pos1_stl_x,
-                                     3 * small_around[(unsigned short)v53].delta_y + *pos1_stl_y))
+                                     3 * small_around[(unsigned short)quadrant].delta_x + *pos1_stl_x,
+                                     3 * small_around[(unsigned short)quadrant].delta_y + *pos1_stl_y))
     {
-      *pos1_stl_x += 3 * small_around[(unsigned short)v53].delta_x;
-      *pos1_stl_y += 3 * small_around[(unsigned short)v53].delta_y;
+      *pos1_stl_x += 3 * small_around[(unsigned short)quadrant].delta_x;
+      *pos1_stl_y += 3 * small_around[(unsigned short)quadrant].delta_y;
   
       *v22 = max(abs(*pos1_stl_x - pos2_stl_x), abs(*pos1_stl_y - pos2_stl_y));
   
@@ -434,12 +435,9 @@ static int hug_round_sub_RC(struct Thing *creatng, MapSubtlCoord *pos1_stl_x, Ma
 static int  hug_round_RC(struct Thing *creatng, struct Coord3d *pos1, struct Coord3d *pos2, unsigned short round_idx, long *hug_val)
 {
   __int64 v13;
-  int v15;
-  __int64 v16;
-  int v17;
-  int v22;
+  int max_delta_1;
   unsigned short i;
-  int v56;
+  int max_delta_2;
   char v57;
   char v58;
 
@@ -456,27 +454,22 @@ static int  hug_round_RC(struct Thing *creatng, struct Coord3d *pos1, struct Coo
   
   v13 = max(abs(pos1_stl_y - pos2_stl_y),abs(pos1_stl_x - pos2_stl_x));
   HIDWORD(v13) += 3;
-  v22 = v13 - 1;
+  max_delta_1 = v13 - 1;
 
 
-  v15 = pos1_stl_y_2 - pos2_stl_y;
+  max_delta_2 = max(abs(pos1_stl_x_2 - pos2_stl_x),abs(pos1_stl_y_2 - pos2_stl_y)) - 1;
+
   v58 = 0;
-  v16 = abs(v15);
-  if (SHIDWORD(v16) <= (int)v16)
-    v17 = v15;
-  else
-    v17 = pos1_stl_x_2 - pos2_stl_x;
-  v56 = abs(v17) - 1;
   v57 = 0;
   for (i = *hug_val; i && (v58 != 2 || v57 != 2); --i)
   {
          char return_val;
         JUSTLOG("1"); 
-        return_val = hug_round_sub_RC(creatng,&pos1_stl_x,  &pos1_stl_y  ,pos2_stl_x,pos2_stl_y,&v58,&v22,pos1,hug_val,&i,&round_idx_plus1,3,1);
+        return_val = hug_round_sub_RC(creatng,&pos1_stl_x,  &pos1_stl_y  ,pos2_stl_x,pos2_stl_y,&v58,&max_delta_1,pos1,hug_val,&i,&round_idx_plus1,3,1);
         if (return_val != -1)
             return return_val;
         JUSTLOG("2");
-        return_val = hug_round_sub_RC(creatng,&pos1_stl_x_2,&pos1_stl_y_2,pos2_stl_x,pos2_stl_y,&v57,&v56,pos1,hug_val,&i,&round_idx_minus1,1,3);
+        return_val = hug_round_sub_RC(creatng,&pos1_stl_x_2,&pos1_stl_y_2,pos2_stl_x,pos2_stl_y,&v57,&max_delta_2,pos1,hug_val,&i,&round_idx_minus1,1,3);
         if (return_val != -1)
             return return_val;
    
