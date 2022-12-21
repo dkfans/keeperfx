@@ -33,18 +33,12 @@ extern "C" {
  * Note that region[0] is used for storing unused triangles and shouldn't be
  * used for actual calculations.
  */
-DLLIMPORT struct RegionT _DK_Regions[REGIONS_COUNT];
-#define Regions _DK_Regions
-DLLIMPORT long _DK_max_RegionStore;
-#define max_RegionStore _DK_max_RegionStore
-DLLIMPORT long _DK_ix_RegionQput;
-#define ix_RegionQput _DK_ix_RegionQput
-DLLIMPORT long _DK_ix_RegionQget;
-#define ix_RegionQget _DK_ix_RegionQget
-DLLIMPORT long _DK_count_RegionQ;
-#define count_RegionQ _DK_count_RegionQ
-DLLIMPORT long _DK_RegionQueue[REGION_QUEUE_LEN];
-#define RegionQueue _DK_RegionQueue
+static struct RegionT Regions[REGIONS_COUNT];
+static long max_RegionStore;
+static long ix_RegionQput;
+static long ix_RegionQget;
+static long count_RegionQ;
+static long RegionQueue[REGION_QUEUE_LEN];
 /******************************************************************************/
 struct RegionT bad_region;
 /******************************************************************************/
