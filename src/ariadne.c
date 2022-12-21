@@ -56,20 +56,38 @@ struct QuadrantOffset {
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT long _DK_tri_initialised;
-#define tri_initialised _DK_tri_initialised
-DLLIMPORT unsigned long _DK_edgelen_initialised;
-#define edgelen_initialised _DK_edgelen_initialised
-DLLIMPORT unsigned long *_DK_EdgeFit;
-#define EdgeFit _DK_EdgeFit
-DLLIMPORT unsigned long _DK_RadiusEdgeFit[EDGEOR_COUNT][EDGEFIT_LEN];
-#define RadiusEdgeFit _DK_RadiusEdgeFit
-DLLIMPORT NavRules _DK_nav_rulesA2B;
-#define nav_rulesA2B _DK_nav_rulesA2B
-DLLIMPORT struct WayPoints _DK_wayPoints;
-#define wayPoints _DK_wayPoints
+static long tri_initialised;
+static unsigned long edgelen_initialised;
+static unsigned long RadiusEdgeFit[EDGEOR_COUNT][EDGEFIT_LEN];
+static NavRules nav_rulesA2B;
+static struct WayPoints wayPoints;
+static unsigned long *EdgeFit;
+static struct Pathway ap_GPathway;
+static long tree_routelen;
+static long tree_route[TREE_ROUTE_LEN];
+static long tree_routecost;
+static long tree_triA;
+static long tree_triB;
+static long tree_altA;
+static long tree_altB;
+static long tree_Ax8;
+static long tree_Ay8;
+static long tree_Bx8;
+static long tree_By8;
+static unsigned char *LastTriangulatedMap;
+static unsigned char *fringe_map;
+static long fringe_y1;
+static long fringe_y2;
+static long fringe_x1;
+static long fringe_x2;
+static long fringe_y[256];
+static long ix_Border;
+static long Border[BORDER_LENGTH];
+static long route_fwd[ROUTE_LENGTH];
+static long route_bak[ROUTE_LENGTH];
+
 /******************************************************************************/
-unsigned char const actual_sizexy_to_nav_block_sizexy_table[] = {
+static unsigned char const actual_sizexy_to_nav_block_sizexy_table[] = {
     1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
     1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
     1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
@@ -97,7 +115,7 @@ unsigned char const actual_sizexy_to_nav_block_sizexy_table[] = {
     4,
 };
 
-const unsigned long actual_sizexy_to_nav_sizexy_table[] = {
+static const unsigned long actual_sizexy_to_nav_sizexy_table[] = {
     206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206,
     206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206,
     206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206, 206,
@@ -166,9 +184,9 @@ const struct HugStart blocked_xy_hug_start[][2][2] = {
     {{  LbFPMath_PI/2, 2}, {LbFPMath_PI, 1}}},
 };
 
-struct Path fwd_path;
-struct Path bak_path;
-struct Path best_path;
+static struct Path fwd_path;
+static struct Path bak_path;
+static struct Path best_path;
 /******************************************************************************/
 long thing_nav_block_sizexy(const struct Thing *thing)
 {
