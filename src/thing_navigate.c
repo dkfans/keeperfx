@@ -359,7 +359,7 @@ TbBool creature_can_navigate_to_f(const struct Thing *thing, struct Coord3d *dst
  * @return
  * @see creature_can_get_to_any_of_players_rooms() is a function used in similar manner.
  */
-TbBool creature_can_get_to_dungeon(struct Thing *creatng, PlayerNumber plyr_idx)
+TbBool creature_can_get_to_dungeon_heart(struct Thing *creatng, PlayerNumber plyr_idx)
 {
     SYNCDBG(18,"Starting");
     struct PlayerInfo* player = get_player(plyr_idx);
