@@ -3363,16 +3363,10 @@ AriadneReturn creature_follow_route_to_using_gates(struct Thing *thing, struct C
  * @param subroute Random factor for determining position within route, or negative special value.
  * @param nav_size
  */
-static void path_init8_wide(struct Path* path, long start_x, long start_y, long end_x, long end_y, long subroute, unsigned char nav_size)
-{
-    path_init8_wide_f(path, start_x, start_y, end_x, end_y, subroute, nav_size, "path_init8_wide called from keeperfx.dll");
-}
-
 void path_init8_wide_f(struct Path *path, long start_x, long start_y, long end_x, long end_y,
     long subroute, unsigned char nav_size, const char *func_name)
 {
     long route_dist;
-    //_DK_path_init8_wide(path, start_x, start_y, end_x, end_y, a6, nav_size); return;
     NAVIDBG(9,"%s: Path from %5ld,%5ld to %5ld,%5ld on turn %lu", func_name, start_x, start_y, end_x, end_y, game.play_gameturn);
     if (subroute == -1)
       WARNLOG("%s: implement random externally", func_name);
