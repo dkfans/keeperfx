@@ -195,7 +195,7 @@ void process_disease(struct Thing *creatng)
         SubtlCodedCoords stl_num = get_subtile_number(creatng->mappos.x.stl.num, creatng->mappos.y.stl.num);
         for (long n = 0; n < AROUND_MAP_LENGTH; n++)
         {
-            struct Map* mapblk = get_map_block_at_pos(stl_num + around_map[n]);
+            struct Map* mapblk = get_map_block_at_pos(stl_num + gameadd.around_map[n]);
             unsigned long k = 0;
             long i = get_mapwho_thing_index(mapblk);
             while (i != 0)
