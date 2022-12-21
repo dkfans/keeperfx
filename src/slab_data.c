@@ -444,7 +444,7 @@ long calculate_effeciency_score_for_room_slab(SlabCodedCoords slab_num, PlayerNu
     long n;
     for (n=1; n < AROUND_SLAB_LENGTH; n+=2)
     {
-        long round_slab_num = slab_num + around_slab[n];
+        long round_slab_num = slab_num + gameadd.around_slab[n];
         struct SlabMap* round_slb = get_slabmap_direct(round_slab_num);
         if (!slabmap_block_invalid(round_slb))
         {
@@ -487,7 +487,7 @@ long calculate_effeciency_score_for_room_slab(SlabCodedCoords slab_num, PlayerNu
     // Make sure this is room inside by checking corners
     for (n=0; n < AROUND_SLAB_LENGTH; n+=2)
     {
-        long round_slab_num = slab_num + around_slab[n];
+        long round_slab_num = slab_num + gameadd.around_slab[n];
         struct SlabMap* round_slb = get_slabmap_direct(round_slab_num);
         if (!slabmap_block_invalid(round_slb))
         {

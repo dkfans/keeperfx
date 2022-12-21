@@ -48,6 +48,11 @@ extern "C" {
 #define CAMPAIGN_FLAGS_PER_PLAYER     8
 #define TRANSFER_CREATURE_STORAGE_COUNT     255
 
+#define AROUND_MAP_LENGTH 9
+#define AROUND_SLAB_LENGTH 9
+#define AROUND_SLAB_EIGHT_LENGTH 8
+#define SMALL_AROUND_SLAB_LENGTH 4
+
 // UNSYNC_RANDOM is not synced at all. For synced choices the more specific random is better.
 // So priority is  CREATURE_RANDOM >> PLAYER_RANDOM >> GAME_RANDOM
 
@@ -236,6 +241,10 @@ struct GameAdd {
     MapSubtlCoord map_subtiles_y;
     MapSlabCoord map_tiles_x;
     MapSlabCoord map_tiles_y;
+    short around_map[AROUND_MAP_LENGTH];
+    short around_slab[AROUND_SLAB_LENGTH];
+    short around_slab_eight[AROUND_SLAB_EIGHT_LENGTH];
+    short small_around_slab[SMALL_AROUND_SLAB_LENGTH];
 };
 
 extern unsigned long game_flags2; // Should be reset to zero on new level
