@@ -264,11 +264,9 @@ static int hug_round(struct Thing *creatng, struct Coord3d *pos1, struct Coord3d
     for (i = *hug_val; i && (v58 != 2 || v57 != 2); --i)
     {
       char return_val;
-      JUSTLOG("1");
       return_val = hug_round_sub(creatng, &pos1_stl_x, &pos1_stl_y, pos2_stl_x, pos2_stl_y, &v58, &max_delta_1, pos1, hug_val, &i, &round_idx_plus1, 3, 1);
       if (return_val != -1)
         return return_val;
-      JUSTLOG("2");
       return_val = hug_round_sub(creatng, &pos1_stl_x_2, &pos1_stl_y_2, pos2_stl_x, pos2_stl_y, &v57, &max_delta_2, pos1, hug_val, &i, &round_idx_minus1, 1, 3);
       if (return_val != -1)
         return return_val;
