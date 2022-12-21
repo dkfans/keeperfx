@@ -152,64 +152,19 @@ struct PurpleDrawItem {
 
 /******************************************************************************/
 DLLIMPORT unsigned char *_DK_poly_screen;
-#define poly_screen _DK_poly_screen
 DLLIMPORT unsigned char *_DK_vec_screen;
-#define vec_screen _DK_vec_screen
 DLLIMPORT unsigned char *_DK_vec_map;
-#define vec_map _DK_vec_map
 DLLIMPORT unsigned long _DK_vec_screen_width;
-#define vec_screen_width _DK_vec_screen_width
 DLLIMPORT unsigned long _DK_vec_window_width;
-#define vec_window_width _DK_vec_window_width
 DLLIMPORT unsigned long _DK_vec_window_height;
-#define vec_window_height _DK_vec_window_height
 DLLIMPORT unsigned char *_DK_dither_map;
-#define dither_map _DK_dither_map
 DLLIMPORT unsigned char *_DK_dither_end;
-#define dither_end _DK_dither_end
 DLLIMPORT unsigned char *_DK_lbSpriteReMapPtr;
-#define lbSpriteReMapPtr _DK_lbSpriteReMapPtr
 DLLIMPORT long _DK_scale_up;
-#define scale_up _DK_scale_up
-DLLIMPORT long _DK_xsteps_array[2*256];
-DLLIMPORT long _DK_ysteps_array[2*320];
-
 DLLIMPORT long _DK_alpha_scale_up;
-#define alpha_scale_up _DK_alpha_scale_up
-DLLIMPORT long _DK_alpha_xsteps_array[2*256];
-DLLIMPORT long _DK_alpha_ysteps_array[2*320];
 
 #pragma pack()
-/******************************************************************************/
-/*
-extern struct PurpleDrawItem *purple_draw_list;
-extern unsigned short purple_draw_index;
-extern TbSprite *lbFontPtr;
-extern TbPixel vec_colour;
-extern unsigned char vec_tmap[];
-extern StartScreenPoint proj_origin;
-extern unsigned short text_window_x1, text_window_y1;
-extern unsigned short text_window_x2, text_window_y2;
-extern char my_line_spacing;
-*/
-/******************************************************************************/
-//Routines to be moved into bflib_vipurp
-/*
-void __fastcall draw_box_purple_list(const long x, const long y, const unsigned long width, const unsigned long height, const TbPixel colour);
-void __fastcall copy_box_purple_list(const long x, const long y, const unsigned long width, const unsigned long height);
-void __fastcall my_set_text_window(const unsigned short x1, const unsigned short y1,
-        const unsigned short width, const unsigned short height);
-void __fastcall draw_text_purple_list(const long x, const long y, const char *text, const int line);
-void __fastcall draw_sprite_purple_list(long x, long y, struct TbSprite *sprite);
-void __fastcall draw_trig_purple_list(long x2, long y2, long x3, long y3);
-void __fastcall  draw_triangle_purple_list(long x1, long y1, long x2, long y2,
-        long x3, long y3, TbPixel colour);
-void __fastcall draw_line_purple_list(long x1, long y1, long x2, long y2, TbPixel colour);
-void __fastcall draw_flic_purple_list(FlicFunc *fn);
-void __fastcall draw_hotspot_purple_list(long x, long y);
-unsigned short __fastcall my_draw_text(long x, long y, const char *text, const long startline);
-void __fastcall draw_purple_screen(void);
-*/
+
 /******************************************************************************/
 TbResult LbDrawBox(long x, long y, unsigned long width, unsigned long height, TbPixel colour);
 void LbDrawHVLine(long xpos1, long ypos1, long xpos2, long ypos2, TbPixel colour);
@@ -246,10 +201,7 @@ TbResult LbHugeSpriteDraw(const struct TbHugeSprite * spr, long sp_len,
     unsigned char *r, int r_row_delta, int r_height, short xshift, short yshift, int units_per_px);
 void LbTiledSpriteDraw(long x, long y, long units_per_px, struct TiledSprite *bigspr, struct TbSprite *sprite);
 int LbTiledSpriteHeight(struct TiledSprite *bigspr, struct TbSprite *sprite);
-/*
-int __fastcall LbDrawBoxCoords(long xpos1, long ypos1, long xpos2, long ypos2, TbPixel colour);
-void __fastcall LbDrawTriangle(long x1, long y1, long x2, long y2, long x3, long y3, TbPixel colour);
-*/
+
 /******************************************************************************/
 #ifdef __cplusplus
 }
