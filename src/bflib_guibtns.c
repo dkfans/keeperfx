@@ -38,6 +38,9 @@ extern "C" {
 /******************************************************************************/
 // Global variables
 TbCharCount input_field_pos;
+
+char backup_input_field[INPUT_FIELD_LEN];
+
 /******************************************************************************/
 // Functions
 
