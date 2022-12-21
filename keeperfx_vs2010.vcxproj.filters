@@ -675,9 +675,6 @@
     <ClCompile Include="src\vidmode_data.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\hookfn.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\roomspace.c">
       <Filter>Source Files</Filter>
     </ClCompile>

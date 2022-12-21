@@ -210,7 +210,6 @@ long point_loop(long pt_tri, long pt_cor)
     return k;
 }
 
-HOOK_DK_FUNC(edgelen_set)
 void edgelen_set(long tri_id)
 {
     NAVIDBG(19,"Starting");
@@ -249,7 +248,6 @@ void edgelen_set(long tri_id)
     set_triangle_edgelen(tri_id, edge_len);
 }
 
-HOOK_DK_FUNC(edge_rotateAC)
 long edge_rotateAC(long tri1_id, long cor1_id)
 {
     long tri2_id = Triangles[tri1_id].tags[cor1_id];
