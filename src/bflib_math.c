@@ -624,10 +624,8 @@ long LbArcTanL(long arg)
  * @param y
  * @return
  */
-
 long LbArcTanAngle(long x,long y)
 {
-    
     long ux;
     long uy;
     unsigned long index;
