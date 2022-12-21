@@ -690,7 +690,6 @@ long LbArcTanAngle(long x,long y)
         }
     }
 }
-HOOK_DK_FUNC(LbArcTanAngle)
 
 static long bitScanReverse(long s)
 {

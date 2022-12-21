@@ -325,11 +325,10 @@ static short hug_round_new(struct Thing *creatng, struct Coord3d *pos1, struct C
     return 0;
 }
 
-
 static int hug_round_sub_RC(struct Thing *creatng, MapSubtlCoord *pos1_stl_x, MapSubtlCoord *pos1_stl_y,
-                             const MapSubtlCoord pos2_stl_x, const MapSubtlCoord pos2_stl_y, char *v58,
-                             MapSubtlDelta *delta, struct Coord3d *pos1, long *hug_val, unsigned short *i,
-                             int *round_idx_plus1_1,const int arr_offset_1,const int arr_offset_2)
+                            const MapSubtlCoord pos2_stl_x, const MapSubtlCoord pos2_stl_y, char *v58,
+                            MapSubtlDelta *delta, struct Coord3d *pos1, long *hug_val, unsigned short *i,
+                            int *round_idx_plus1_1, const int arr_offset_1, const int arr_offset_2)
 {
     if (*v58 == 2)
     {
@@ -340,107 +339,104 @@ static int hug_round_sub_RC(struct Thing *creatng, MapSubtlCoord *pos1_stl_x, Ma
 
     int v20 = max(abs(*pos1_stl_x - pos2_stl_x), abs(*pos1_stl_y - pos2_stl_y));
     if ((int)abs(v20) <= *delta && hug_can_move_on(
-                                     creatng,
-                                     3 * small_around[(unsigned short)quadrant].delta_x + *pos1_stl_x,
-                                     3 * small_around[(unsigned short)quadrant].delta_y + *pos1_stl_y))
+                                       creatng,
+                                       3 * small_around[(unsigned short)quadrant].delta_x + *pos1_stl_x,
+                                       3 * small_around[(unsigned short)quadrant].delta_y + *pos1_stl_y))
     {
-      *pos1_stl_x += 3 * small_around[(unsigned short)quadrant].delta_x;
-      *pos1_stl_y += 3 * small_around[(unsigned short)quadrant].delta_y;
-  
-      *delta = max(abs(*pos1_stl_x - pos2_stl_x), abs(*pos1_stl_y - pos2_stl_y));
-  
-      *v58 = 1;
+        *pos1_stl_x += 3 * small_around[(unsigned short)quadrant].delta_x;
+        *pos1_stl_y += 3 * small_around[(unsigned short)quadrant].delta_y;
+
+        *delta = max(abs(*pos1_stl_x - pos2_stl_x), abs(*pos1_stl_y - pos2_stl_y));
+
+        *v58 = 1;
     }
     else
     {
-      if (*v58 == 1)
-      {
-        pos1->x.stl.num = *pos1_stl_x;
-        pos1->y.stl.num = *pos1_stl_y;
-        *hug_val -= *i;
-        return 0;
-      }
-      int v24 = (*round_idx_plus1_1 + arr_offset_1) & 3;
-      for (unsigned short j = 0;; ++j)
-      {
-        int v41 = v24;
-        if (j >= 4u)
-          break;
-        int v25 = (unsigned short)v24;
-        if (hug_can_move_on(
-                creatng,
-                3 * small_around[v25].delta_x + *pos1_stl_x,
-                *pos1_stl_y + 3 * small_around[v25].delta_y))
+        if (*v58 == 1)
         {
-          *round_idx_plus1_1 = v41;
-          *pos1_stl_x += 3 * small_around[v25].delta_x;
-          *pos1_stl_y += 3 * small_around[v25].delta_y;
-          break;
+            pos1->x.stl.num = *pos1_stl_x;
+            pos1->y.stl.num = *pos1_stl_y;
+            *hug_val -= *i;
+            return 0;
         }
-        v24 = v41 + arr_offset_2;
-        v24 = (v41 + arr_offset_2) & 3;
-      }
+        int v24 = (*round_idx_plus1_1 + arr_offset_1) & 3;
+        for (unsigned short j = 0;; ++j)
+        {
+            int v41 = v24;
+            if (j >= 4u)
+              break;
+            int v25 = (unsigned short)v24;
+            if (hug_can_move_on(
+                    creatng,
+                    3 * small_around[v25].delta_x + *pos1_stl_x,
+                    *pos1_stl_y + 3 * small_around[v25].delta_y))
+            {
+              *round_idx_plus1_1 = v41;
+              *pos1_stl_x += 3 * small_around[v25].delta_x;
+              *pos1_stl_y += 3 * small_around[v25].delta_y;
+              break;
+            }
+            v24 = v41 + arr_offset_2;
+            v24 = (v41 + arr_offset_2) & 3;
+        }
     }
     if (*pos1_stl_x == pos2_stl_x && *pos1_stl_y == pos2_stl_y)
     {
-      *hug_val -= *i;
-      return 1;
+        *hug_val -= *i;
+        return 1;
     }
     return -1;
 }
 
-static int  hug_round_RC(struct Thing *creatng, struct Coord3d *pos1, struct Coord3d *pos2, unsigned short round_idx, long *hug_val)
+static int hug_round_RC(struct Thing *creatng, struct Coord3d *pos1, struct Coord3d *pos2, unsigned short round_idx, long *hug_val)
 {
-  MapSubtlCoord pos2_stl_x = pos2->x.stl.num;
-  MapSubtlCoord pos2_stl_y = pos2->y.stl.num;
-  MapSubtlCoord pos1_stl_x = pos1->x.stl.num;
-  MapSubtlCoord pos1_stl_y = pos1->y.stl.num;
+    MapSubtlCoord pos2_stl_x = pos2->x.stl.num;
+    MapSubtlCoord pos2_stl_y = pos2->y.stl.num;
+    MapSubtlCoord pos1_stl_x = pos1->x.stl.num;
+    MapSubtlCoord pos1_stl_y = pos1->y.stl.num;
 
-  MapSubtlCoord pos1_stl_x_2 = pos1->x.stl.num;
-  MapSubtlCoord pos1_stl_y_2 = pos1->y.stl.num;
+    MapSubtlCoord pos1_stl_x_2 = pos1->x.stl.num;
+    MapSubtlCoord pos1_stl_y_2 = pos1->y.stl.num;
 
-  int round_idx_plus1 = (round_idx + 1) & 3;
-  int round_idx_minus1 = (round_idx - 1) & 3;
-  
-  MapSubtlDelta max_delta_1 = max(abs(pos1_stl_x   - pos2_stl_x),abs(pos1_stl_y -   pos2_stl_y)) - 1;
-  MapSubtlDelta max_delta_2 = max(abs(pos1_stl_x_2 - pos2_stl_x),abs(pos1_stl_y_2 - pos2_stl_y)) - 1;
+    int round_idx_plus1 = (round_idx + 1) & 3;
+    int round_idx_minus1 = (round_idx - 1) & 3;
 
-  char v58 = 0;
-  char v57 = 0;
-  unsigned short i;
-  for (i = *hug_val; i && (v58 != 2 || v57 != 2); --i)
-  {
-         char return_val;
-        JUSTLOG("1"); 
-        return_val = hug_round_sub_RC(creatng,&pos1_stl_x,  &pos1_stl_y  ,pos2_stl_x,pos2_stl_y,&v58,&max_delta_1,pos1,hug_val,&i,&round_idx_plus1,3,1);
-        if (return_val != -1)
-            return return_val;
-        JUSTLOG("2");
-        return_val = hug_round_sub_RC(creatng,&pos1_stl_x_2,&pos1_stl_y_2,pos2_stl_x,pos2_stl_y,&v57,&max_delta_2,pos1,hug_val,&i,&round_idx_minus1,1,3);
-        if (return_val != -1)
-            return return_val;
-   
-  }
-  if (!i)
-    return -1;
+    MapSubtlDelta max_delta_1 = max(abs(pos1_stl_x - pos2_stl_x), abs(pos1_stl_y - pos2_stl_y)) - 1;
+    MapSubtlDelta max_delta_2 = max(abs(pos1_stl_x_2 - pos2_stl_x), abs(pos1_stl_y_2 - pos2_stl_y)) - 1;
 
-  MapSubtlDelta dist_1 = abs(pos1_stl_y   - pos2_stl_y) + abs(pos1_stl_x   - pos2_stl_x);
-  MapSubtlDelta dist_2 = abs(pos1_stl_y_2 - pos2_stl_y) + abs(pos1_stl_x_2 - pos2_stl_x);
-  if (dist_2 >= dist_1)
-  {
-    pos1->x.stl.num = pos1_stl_x;
-    pos1->y.stl.num = pos1_stl_y;
-  }
-  else
-  {
-    pos1->x.stl.num = pos1_stl_x_2;
-    pos1->y.stl.num = pos1_stl_y_2;
-  }
-  *hug_val -= i;
-  return 0;
+    char v58 = 0;
+    char v57 = 0;
+    unsigned short i;
+    for (i = *hug_val; i && (v58 != 2 || v57 != 2); --i)
+    {
+      char return_val;
+      JUSTLOG("1");
+      return_val = hug_round_sub_RC(creatng, &pos1_stl_x, &pos1_stl_y, pos2_stl_x, pos2_stl_y, &v58, &max_delta_1, pos1, hug_val, &i, &round_idx_plus1, 3, 1);
+      if (return_val != -1)
+        return return_val;
+      JUSTLOG("2");
+      return_val = hug_round_sub_RC(creatng, &pos1_stl_x_2, &pos1_stl_y_2, pos2_stl_x, pos2_stl_y, &v57, &max_delta_2, pos1, hug_val, &i, &round_idx_minus1, 1, 3);
+      if (return_val != -1)
+        return return_val;
+    }
+    if (!i)
+      return -1;
+
+    MapSubtlDelta dist_1 = abs(pos1_stl_y - pos2_stl_y) + abs(pos1_stl_x - pos2_stl_x);
+    MapSubtlDelta dist_2 = abs(pos1_stl_y_2 - pos2_stl_y) + abs(pos1_stl_x_2 - pos2_stl_x);
+    if (dist_2 >= dist_1)
+    {
+      pos1->x.stl.num = pos1_stl_x;
+      pos1->y.stl.num = pos1_stl_y;
+    }
+    else
+    {
+      pos1->x.stl.num = pos1_stl_x_2;
+      pos1->y.stl.num = pos1_stl_y_2;
+    }
+    *hug_val -= i;
+    return 0;
 }
-
-
 
 DLLIMPORT short _DK_hug_round(struct Thing *creatng, struct Coord3d *pos1, struct Coord3d *pos2, unsigned short a4, long *a5);
 TbBool huground_logging = false;
