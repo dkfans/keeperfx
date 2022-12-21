@@ -947,7 +947,6 @@ static long check_out_unreinforced_place(struct Thing *thing)
 
 static TbBool check_out_unreinforced_area(struct Thing *spdigtng)
 {
-
     long distance;
     struct Coord3d reinforce_pos;
     SubtlCodedCoords final_working_stl;
