@@ -101,7 +101,7 @@ enum GameNumfieldDFlags {
 #pragma pack(1)
 
 struct CreaturePool { // sizeof = 129
-  long crtr_kind[CREATURE_TYPES_COUNT];
+  long crtr_kind[CREATURE_TYPES_MAX];
   unsigned char is_empty;
 };
 
@@ -281,7 +281,7 @@ unsigned short field_14EA44;
     unsigned short food_generation_speed;
     char game_kind; /**< Kind of the game being played, from GameKinds enumeration. Originally was GameMode. */
 char field_14EA4B;
-    struct PerExpLevelValues creature_scores[CREATURE_TYPES_COUNT];
+    struct PerExpLevelValues creature_scores[CREATURE_TYPES_MAX];
     unsigned long default_max_crtrs_gen_entrance;
     unsigned long default_imp_dig_damage;
     unsigned long default_imp_dig_own_damage;

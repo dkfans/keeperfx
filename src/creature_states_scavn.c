@@ -228,7 +228,7 @@ TbBool player_can_afford_to_scavenge_creature(const struct Thing *creatng)
 
 TbBool reset_scavenge_counts(struct Dungeon *dungeon)
 {
-    memset(dungeon->creatures_scavenging, 0, CREATURE_TYPES_COUNT);
+    memset(dungeon->creatures_scavenging, 0, gameadd.crtr_conf.model_count);
     dungeon->scavenge_counters_turn = game.play_gameturn;
     return true;
 }

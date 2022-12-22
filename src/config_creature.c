@@ -412,7 +412,7 @@ void check_and_auto_fix_stats(void)
  */
 struct CreatureData *creature_data_get(ThingModel crstat_idx)
 {
-  if ((crstat_idx < 1) || (crstat_idx >= CREATURE_TYPES_COUNT))
+  if ((crstat_idx < 1) || (crstat_idx >= CREATURE_TYPES_COUNT)) // todo put this data someplace else
     return &creature_data[0];
   return &creature_data[crstat_idx];
 }
@@ -423,7 +423,7 @@ struct CreatureData *creature_data_get(ThingModel crstat_idx)
  */
 struct CreatureData *creature_data_get_from_thing(const struct Thing *thing)
 {
-  if ((thing->model < 1) || (thing->model >= CREATURE_TYPES_COUNT))
+  if ((thing->model < 1) || (thing->model >= CREATURE_TYPES_COUNT)) // todo put this data someplace else
     return &creature_data[0];
   return &creature_data[thing->model];
 }
@@ -533,11 +533,6 @@ TbBool parse_creaturetypes_common_blocks(char *buf, long len, const char *config
                     COMMAND_TEXT(cmd_num),block_buf,config_textname);
                 break;
               }
-            }
-            if (n+1 > CREATURE_TYPES_COUNT)
-            {
-              CONFWRNLOG("Hard-coded limit exceeded by amount of species defined with \"%s\" in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             gameadd.crtr_conf.model_count = n+1;
             while (n < CREATURE_TYPES_MAX)
@@ -1780,7 +1775,7 @@ TbBool set_creature_available(PlayerNumber plyr_idx, ThingModel crtr_model, long
         ERRORDBG(11,"Cannot set %s availability; player %d has no dungeon.",thing_class_and_model_name(TCls_Creature, crtr_model),(int)plyr_idx);
         return false;
     }
-    if ((crtr_model < 1) || (crtr_model >= CREATURE_TYPES_COUNT)) {
+    if ((crtr_model < 1) || (crtr_model >= gameadd.crtr_conf.model_count)) {
         ERRORDBG(4,"Cannot set creature availability; invalid model %d.",(int)plyr_idx,(int)crtr_model);
         return false;
     }

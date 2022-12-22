@@ -84,7 +84,7 @@ extern struct CreaturePickedUpOffset creature_picked_up_offset[];
 struct CreaturePickedUpOffset *get_creature_picked_up_offset(struct Thing *thing)
 {
     int crmodel = thing->model;
-    if ((crmodel < 1) || (crmodel >= CREATURE_TYPES_COUNT))
+    if ((crmodel < 1) || (crmodel >= gameadd.crtr_conf.model_count))
         crmodel = 0;
     return &creature_picked_up_offset[crmodel];
 }
@@ -226,7 +226,7 @@ short get_creature_model_graphics(long crmodel, unsigned short seq_idx)
       ERRORLOG("Invalid model %d graphics sequence %d",crmodel,seq_idx);
       seq_idx = 0;
   }
-  if ((crmodel < 0) || (crmodel >= CREATURE_TYPES_COUNT)) {
+  if ((crmodel < 0) || (crmodel >= gameadd.crtr_conf.model_count)) {
       ERRORLOG("Invalid model %d graphics sequence %d",crmodel,seq_idx);
       crmodel = 0;
   }
@@ -239,7 +239,7 @@ void set_creature_model_graphics(long crmodel, unsigned short seq_idx, unsigned 
         ERRORLOG("Invalid model %d graphics sequence %d",crmodel,seq_idx);
         return;
     }
-    if ((crmodel < 0) || (crmodel >= CREATURE_TYPES_COUNT)) {
+    if ((crmodel < 0) || (crmodel >= gameadd.crtr_conf.model_count)) {
         ERRORLOG("Invalid model %d graphics sequence %d",crmodel,seq_idx);
         return;
     }

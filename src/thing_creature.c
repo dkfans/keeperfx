@@ -361,7 +361,7 @@ TbBool load_swipe_graphic_for_creature(const struct Thing *thing)
     SYNCDBG(6,"Starting for %s",thing_model_name(thing));
     //_DK_load_swipe_graphic_for_creature(thing);
 
-    int i = creatures[thing->model % CREATURE_TYPES_COUNT].swipe_idx;
+    int i = creatures[thing->model % gameadd.crtr_conf.model_count].swipe_idx;
     if ((i == 0) || (game.loaded_swipe_idx == i))
         return true;
     free_swipe_graphic();
@@ -2426,7 +2426,7 @@ void thing_death_ice_explosion(struct Thing *thing)
 
 void creature_death_as_nature_intended(struct Thing *thing)
 {
-    long i = creatures[thing->model % CREATURE_TYPES_COUNT].natural_death_kind;
+    long i = creatures[thing->model % gameadd.crtr_conf.model_count].natural_death_kind;
     switch (i)
     {
     case Death_Normal:
@@ -4645,7 +4645,7 @@ struct Thing *pick_up_creature_of_model_and_gui_job(long crmodel, long job_idx, 
         return INVALID_THING;
     }
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
-    if (crmodel < CREATURE_TYPES_COUNT)
+    if (crmodel < gameadd.crtr_conf.model_count)
     {
         if ((job_idx == -1) || (dungeon->guijob_all_creatrs_count[crmodel][job_idx & 0x03]))
         {
@@ -4903,7 +4903,7 @@ void place_bloody_footprint(struct Thing *thing)
     }
     short nfoot = get_foot_creature_has_down(thing);
     struct Thing* footng;
-    switch (creatures[thing->model % CREATURE_TYPES_COUNT].field_6)
+    switch (creatures[thing->model % gameadd.crtr_conf.model_count].field_6)
     {
     case 3:
     case 4:
@@ -5233,10 +5233,10 @@ void init_creature_scores(void)
     long score;
     // compute maximum score
     long max_score = 0;
-    for (i=0; i < CREATURE_TYPES_COUNT; i++)
+    for (i=0; i < gameadd.crtr_conf.model_count; i++)
     {
         score = compute_creature_kind_score(i,CREATURE_MAX_LEVEL-1);
-        if ((score <= 0) && (i != 0) && (i != CREATURE_TYPES_COUNT-1))
+        if ((score <= 0) && (i != 0) && (i != gameadd.crtr_conf.model_count -1))
         {
           ERRORLOG("Couldn't get creature %d score value", (int)i);
           continue;
@@ -5252,7 +5252,7 @@ void init_creature_scores(void)
         return;
     }
     // now compute scores for experience levels
-    for (i=0; i < CREATURE_TYPES_COUNT; i++)
+    for (i=0; i < gameadd.crtr_conf.model_count; i++)
     {
         for (long k = 0; k < CREATURE_MAX_LEVEL; k++)
         {
@@ -5272,7 +5272,7 @@ long get_creature_thing_score(const struct Thing *thing)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     long crmodel = thing->model;
-    if (crmodel >= CREATURE_TYPES_COUNT)
+    if (crmodel >= gameadd.crtr_conf.model_count)
         crmodel = 0;
     if (crmodel < 0)
         crmodel = 0;

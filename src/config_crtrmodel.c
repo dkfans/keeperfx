@@ -20,6 +20,7 @@
 #include "config_crtrmodel.h"
 #include "globals.h"
 #include "game_merge.h"
+#include "game_legacy.h"
 
 #include "bflib_basics.h"
 #include "bflib_memory.h"
@@ -2551,7 +2552,7 @@ void do_creature_swap(long ncrt_id, long crtr_id)
 
 TbBool swap_creature(long ncrt_id, long crtr_id)
 {
-    if ((crtr_id < 0) || (crtr_id >= CREATURE_TYPES_COUNT))
+    if ((crtr_id < 0) || (crtr_id >= gameadd.crtr_conf.model_count))
     {
         ERRORLOG("Creature index %d is invalid", crtr_id);
         return false;
