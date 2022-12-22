@@ -671,7 +671,7 @@ short process_player_manufacturing(PlayerNumber plyr_idx)
     }
 
     dungeon->manufacture_progress -= (k << 8);
-    dungeon->field_118B = game.play_gameturn;
+    dungeon->turn_last_manufacture = game.play_gameturn;
     dungeon->lvstats.manufactured_items++;
     if (get_next_manufacture(dungeon))
     {

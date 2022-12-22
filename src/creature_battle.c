@@ -182,7 +182,7 @@ long get_flee_position(struct Thing *creatng, struct Coord3d *pos)
         pos->z.val = lairtng->mappos.z.val;
     }
     else
-    if (creature_can_get_to_dungeon(creatng, creatng->owner))
+    if (creature_can_get_to_dungeon_heart(creatng, creatng->owner))
     {
         struct Thing* heartng = get_player_soul_container(creatng->owner);
         TRACE_THING(heartng);

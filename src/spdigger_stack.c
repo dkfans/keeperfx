@@ -947,7 +947,6 @@ static long check_out_unreinforced_place(struct Thing *thing)
 
 static TbBool check_out_unreinforced_area(struct Thing *spdigtng)
 {
-
     long distance;
     struct Coord3d reinforce_pos;
     SubtlCodedCoords final_working_stl;
@@ -2527,7 +2526,6 @@ long check_place_to_reinforce(struct Thing *creatng, MapSlabCoord slb_x, MapSlab
     }
     return 1;
 }
-HOOK_DK_FUNC(check_place_to_reinforce)
 
 struct Thing *check_place_to_pickup_crate(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned short flags, long n)
 {
