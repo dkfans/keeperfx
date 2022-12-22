@@ -1000,8 +1000,8 @@ static void fill_in_points_perspective(struct Camera *cam, long bstl_x, long bst
     mmax = max(mm[0].max,mm[1].max);
     if (mmin + bstl_x < 1)
       mmin = 1 - bstl_x;
-    if (mmax + bstl_x > gameadd.map_subtiles_y)
-      mmax = gameadd.map_subtiles_y - bstl_x;
+    if (mmax + bstl_x > gameadd.map_subtiles_x)
+      mmax = gameadd.map_subtiles_x - bstl_x;
     MapSubtlCoord stl_x;
     MapSubtlCoord stl_y;
     stl_y = bstl_y;
@@ -1140,8 +1140,8 @@ static void fill_in_points_cluedo(struct Camera *cam, long bstl_x, long bstl_y, 
     if (mmin + bstl_x < 1) {
         mmin = 1 - bstl_x;
     }
-    if (mmax + bstl_x > gameadd.map_subtiles_y) {
-        mmax = gameadd.map_subtiles_y - bstl_x;
+    if (mmax + bstl_x > gameadd.map_subtiles_x) {
+        mmax = gameadd.map_subtiles_x - bstl_x;
     }
     if (mmax < mmin) {
         return;
@@ -1350,9 +1350,9 @@ static void fill_in_points_isometric(struct Camera *cam, long bstl_x, long bstl_
         clip_min = true;
         mmin = 1 - bstl_x;
     }
-    if (mmax + bstl_x > gameadd.map_subtiles_y) {
+    if (mmax + bstl_x > gameadd.map_subtiles_x) {
         clip_max = true;
-        mmax = gameadd.map_subtiles_y - bstl_x;
+        mmax = gameadd.map_subtiles_x - bstl_x;
     }
     if (mmax < mmin) {
         return;
@@ -4153,8 +4153,8 @@ static void do_a_plane_of_engine_columns_perspective(long stl_x, long stl_y, lon
     if (stl_x + plane_start < 1)
         clip_start = 1 - stl_x;
     clip_end = plane_end;
-    if (stl_x + plane_end > gameadd.map_subtiles_y)
-        clip_end = gameadd.map_subtiles_y - stl_x;
+    if (stl_x + plane_end > gameadd.map_subtiles_x)
+        clip_end = gameadd.map_subtiles_x - stl_x;
     struct EngineCol *bec;
     struct EngineCol *fec;
     bec = &back_ec[clip_start + MINMAX_ALMOST_HALF];
@@ -4524,8 +4524,8 @@ static void do_a_plane_of_engine_columns_cluedo(long stl_x, long stl_y, long pla
         xaval = 1 - stl_x;
     }
     xbval = plane_end;
-    if (stl_x + plane_end > gameadd.map_subtiles_y) {
-        xbval = gameadd.map_subtiles_y - stl_x;
+    if (stl_x + plane_end > gameadd.map_subtiles_x) {
+        xbval = gameadd.map_subtiles_x - stl_x;
     }
     int xidx;
     int xdelta;
@@ -4731,9 +4731,9 @@ static void do_a_plane_of_engine_columns_isometric(long stl_x, long stl_y, long 
         xaval = 1 - stl_x;
     }
     xbval = plane_end;
-    if (stl_x + plane_end > gameadd.map_subtiles_y) {
+    if (stl_x + plane_end > gameadd.map_subtiles_x) {
         xbclip = 1;
-        xbval = gameadd.map_subtiles_y - stl_x;
+        xbval = gameadd.map_subtiles_x - stl_x;
     }
     int xidx;
     int xdelta;
@@ -8570,7 +8570,7 @@ static void update_frontview_pointed_block(unsigned long laaa, unsigned char qdr
         stl_x = (pos_x >> 8) + x_offs[qdrant];
         stl_y = (pos_y >> 8) + y_offs[qdrant];
         
-        if (stl_x < 0 || stl_x > gameadd.map_subtiles_y - 1 || stl_y < -2 || stl_y > gameadd.map_subtiles_y) {
+        if (stl_x < 0 || stl_x > gameadd.map_subtiles_x - 1 || stl_y < -2 || stl_y > gameadd.map_subtiles_y) {
             out_of_bounds = true;
         }
 
