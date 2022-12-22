@@ -252,8 +252,6 @@ long field_C;
 };
 
 /******************************************************************************/
-DLLIMPORT extern int _DK_network_initialized;
-#define network_initialized _DK_network_initialized
 
 #pragma pack()
 /******************************************************************************/

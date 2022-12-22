@@ -151,17 +151,17 @@ struct PurpleDrawItem {
 };
 
 /******************************************************************************/
-DLLIMPORT unsigned char *_DK_poly_screen;
-DLLIMPORT unsigned char *_DK_vec_screen;
-DLLIMPORT unsigned char *_DK_vec_map;
-DLLIMPORT unsigned long _DK_vec_screen_width;
-DLLIMPORT unsigned long _DK_vec_window_width;
-DLLIMPORT unsigned long _DK_vec_window_height;
-DLLIMPORT unsigned char *_DK_dither_map;
-DLLIMPORT unsigned char *_DK_dither_end;
-DLLIMPORT unsigned char *_DK_lbSpriteReMapPtr;
-DLLIMPORT long _DK_scale_up;
-DLLIMPORT long _DK_alpha_scale_up;
+extern unsigned char *poly_screen;
+extern unsigned char *vec_screen;
+extern unsigned char *vec_map;
+extern unsigned long vec_screen_width;
+extern unsigned long vec_window_width;
+extern unsigned long vec_window_height;
+extern unsigned char *dither_map;
+extern unsigned char *dither_end;
+extern unsigned char *lbSpriteReMapPtr;
+extern long scale_up;
+extern long alpha_scale_up;
 
 #pragma pack()
 

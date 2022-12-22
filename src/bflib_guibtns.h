@@ -216,7 +216,7 @@ struct EventTypeInfo {
 /******************************************************************************/
 // Exported variables
 extern char backup_input_field[INPUT_FIELD_LEN];
-
+extern struct GuiButton *input_button;
 #pragma pack()
 /******************************************************************************/
 extern TbCharCount input_field_pos;

@@ -38,7 +38,7 @@ extern "C" {
 /******************************************************************************/
 // Global variables
 TbCharCount input_field_pos;
-
+struct GuiButton *input_button;
 char backup_input_field[INPUT_FIELD_LEN];
 
 /******************************************************************************/
