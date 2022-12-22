@@ -1316,34 +1316,10 @@ TbError LbNetwork_EnableNewPlayers(TbBool allow)
 
 TbError LbNetwork_EnumerateServices(TbNetworkCallbackFunc callback, void *ptr)
 {
-//  TbBool local_init;
-
   struct TbNetworkCallbackData netcdat = {};
 
   SYNCDBG(7, "Starting");
 
-  //return _DK_LbNetwork_EnumerateServices(callback, ptr);
-/*
-  local_init = false;
-  if (!network_initialized)
-  {
-    if (LbNetwork_Startup() != Lb_OK)
-      local_init = true;
-  }
-  if (network_initialized)
-  {
-    strcpy(netcdat.svc_name, "SERIAL");
-    callback(&netcdat, ptr);
-    strcpy(netcdat.svc_name, "MODEM");
-    callback(&netcdat, ptr);
-    strcpy(netcdat.svc_name, "IPX");
-    callback(&netcdat, ptr);
-    NETMSG("Enumerate Services called");
-  }
-  if (local_init)
-    LbNetwork_Shutdown();
-  return Lb_OK;
-*/
   strcpy(netcdat.svc_name, "Serial");
   callback(&netcdat, ptr);
   strcpy(netcdat.svc_name, "Modem");

@@ -42,8 +42,27 @@ extern "C" {
 #endif
 /******************************************************************************/
 // Global variables
-long NoSoundEmitters = SOUND_EMITTERS_MAX;
+static long NoSoundEmitters = SOUND_EMITTERS_MAX;
+struct SoundEmitter emitter[128];
+static long MaxNoSounds;
+static struct S3DSample SampleList[SOUNDS_MAX_COUNT];
+static S3D_LineOfSight_Func LineOfSightFunction;
+static long deadzone_radius;
+
+TbBool SoundDisabled;
 int atmos_sound_volume = 128;
+long samples_in_bank;
+long samples_in_bank2;
+long MaxSoundDistance;
+struct SoundReceiver Receiver;
+long Non3DEmitter;
+struct SampleTable *sample_table;
+struct SampleTable *sample_table2;
+TbFileHandle sound_file;
+TbFileHandle sound_file2;
+unsigned char using_two_banks;
+long SpeechEmitter;
+struct HeapMgrHeader *sndheap;
 /******************************************************************************/
 // Internal routines
 SoundEmitterID allocate_free_sound_emitter(void);

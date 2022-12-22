@@ -70,6 +70,11 @@ long dbc_colour1 = 0;
 short dbc_language = 0;
 TbBool dbc_initialized = false;
 TbBool dbc_enabled = true;
+const struct TbSprite *lbFontPtr;
+
+static TbGraphicsWindow lbTextJustifyWindow;
+static TbGraphicsWindow lbTextClipWindow;
+static unsigned char lbSpacesPerTab;
 /******************************************************************************/
 
 /** Returns if the given char starts a wide charcode.
