@@ -614,8 +614,8 @@ long pinstfs_zoom_out_of_heart(struct PlayerInfo *player, long *n)
     thing = get_player_soul_container(player->id_number);
     if (thing_is_invalid(thing))
     {
-        cam->mappos.x.val = subtile_coord_center(map_subtiles_x / 2);
-        cam->mappos.y.val = subtile_coord_center(map_subtiles_y / 2);
+        cam->mappos.x.val = subtile_coord_center(gameadd.map_subtiles_x / 2);
+        cam->mappos.y.val = subtile_coord_center(gameadd.map_subtiles_y / 2);
         cam->zoom = 24000;
         cam->orient_a = 0;
         return 0;
@@ -906,10 +906,10 @@ void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing
         set_player_mode(player, PVT_DungeonTop);
         player->allocflags &= ~PlaF_Unknown8;
         set_engine_view(player, player->view_mode_restore);
-        player->cameras[CamIV_Isometric].mappos.x.val = subtile_coord_center(map_subtiles_x/2);
-        player->cameras[CamIV_Isometric].mappos.y.val = subtile_coord_center(map_subtiles_y/2);
-        player->cameras[CamIV_FrontView].mappos.x.val = subtile_coord_center(map_subtiles_x/2);
-        player->cameras[CamIV_FrontView].mappos.y.val = subtile_coord_center(map_subtiles_y/2);
+        player->cameras[CamIV_Isometric].mappos.x.val = subtile_coord_center(gameadd.map_subtiles_x/2);
+        player->cameras[CamIV_Isometric].mappos.y.val = subtile_coord_center(gameadd.map_subtiles_y/2);
+        player->cameras[CamIV_FrontView].mappos.x.val = subtile_coord_center(gameadd.map_subtiles_x/2);
+        player->cameras[CamIV_FrontView].mappos.y.val = subtile_coord_center(gameadd.map_subtiles_y/2);
         clear_selected_thing(player);
         return;
     }
@@ -953,10 +953,10 @@ void leave_creature_as_passenger(struct PlayerInfo *player, struct Thing *thing)
     set_player_mode(player, PVT_DungeonTop);
     player->allocflags &= ~PlaF_Unknown8;
     set_engine_view(player, player->view_mode_restore);
-    player->cameras[CamIV_Isometric].mappos.x.val = subtile_coord_center(map_subtiles_x/2);
-    player->cameras[CamIV_Isometric].mappos.y.val = subtile_coord_center(map_subtiles_y/2);
-    player->cameras[CamIV_FrontView].mappos.x.val = subtile_coord_center(map_subtiles_x/2);
-    player->cameras[CamIV_FrontView].mappos.y.val = subtile_coord_center(map_subtiles_y/2);
+    player->cameras[CamIV_Isometric].mappos.x.val = subtile_coord_center(gameadd.map_subtiles_x/2);
+    player->cameras[CamIV_Isometric].mappos.y.val = subtile_coord_center(gameadd.map_subtiles_y/2);
+    player->cameras[CamIV_FrontView].mappos.x.val = subtile_coord_center(gameadd.map_subtiles_x/2);
+    player->cameras[CamIV_FrontView].mappos.y.val = subtile_coord_center(gameadd.map_subtiles_y/2);
     clear_selected_thing(player);
     return;
   }

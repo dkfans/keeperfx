@@ -208,10 +208,10 @@ unsigned char field_67;
   } party;
   struct {
     long stack_update_turn;
-    short working_stl;
+    unsigned short working_stl;
     unsigned short task_stl;
     unsigned short task_idx;
-    unsigned char byte_93;
+    unsigned char consecutive_reinforcements;
     unsigned char last_did_job;
     unsigned char task_stack_pos;
     unsigned short task_repeats;

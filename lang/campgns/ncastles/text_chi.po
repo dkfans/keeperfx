@@ -1,14 +1,14 @@
 # *****************************************************************************
 #  Free implementation of Bullfrog's Dungeon Keeper strategy game.
 # *****************************************************************************
-#   @file ncastles/text_pol.po
+#   @file ncastles/text_chi.pot
 #      KeeperFX Campaign Strings translation file
 #  @par Purpose:
 #      Contains translation of the national strings in the game.
 #  @par Comment:
 #      Use this file to improve the translation for specific language.
 #  @author   KeeperFX Team
-#  @date     25 Aug 2012 - 02 Jun 2014
+#  @date     25 Aug 2012 - 21 Dec 2022
 #  @par  Copying and copyrights:
 #      This program is free software; you can redistribute it and/or modify
 #      it under the terms of the GNU General Public License as published by
@@ -18,23 +18,17 @@
 # *****************************************************************************
 
 "Project-Id-Version: Nikolais' Castles campaign for KeeperFX\n"
-"POT-Creation-Date: 2012-09-02 01:12+0200\n"
-"PO-Revision-Date: 2014-07-02 22:49+0100\n"
-"Last-Translator: Tomasz Lis <listom@gmail.com>\n"
-"Language: pl_PL\n"
+"Language-Team: KeeperFX Team \n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Poedit-SourceCharset: utf-8\n"
 "X-Generator: Poedit 1.5.7\n"
 
 #. Generic victory message
 #: guitext:0
 msgctxt "In-game message"
 msgid "Success! The castle is yours. Press Space to proceed to the next realm."
-msgstr ""
-"Zwycięstwo! Zamczysko jest twoje. Naciśnij spację, by przejść do następnego "
-"królestwa."
+msgstr "成功了！你拥有了这座城堡。按空格键进入下一个王国。"
 
 #: guitext:1
 msgctxt "In-game message"
@@ -42,14 +36,15 @@ msgid ""
 "This relentlessly desolate terrain permits few of the usual rooms. On top of "
 "that, no-one lives here except a lot of beetles and spiders, so you'll have "
 "to make do."
-msgstr ""
+msgstr "这片无比荒凉的土地上能建造的房间种类很少。更糟糕的是，这里除了一群蜘蛛和"
+"甲虫以外，几乎没有其他生物居住，所以你只能凑合一下。"
 
 #: guitext:2
 msgctxt "In-game message"
 msgid ""
 "Rumour has it that there are some very nasty things living in the keep at "
 "the centre, so be careful."
-msgstr ""
+msgstr "据说这片土地中间的围墙里住着非常恐怖的怪物，请小心谨慎。"
 
 #: guitext:3
 msgctxt "In-game message"
@@ -58,58 +53,61 @@ msgid ""
 "hats. This must be the place. Perhaps you should have a word with them about "
 "their fashion sense. It would probably be a good idea to raise a small army, "
 "first."
-msgstr ""
+msgstr "传说故事中，在这座城堡里，充满戴着滑稽帽子的疯狂骑士，却没有一名守护者。"
+"就是这里。你应该跟这些毫无时尚品味的家伙好好谈一谈。先开始建立一支军队或许是个"
+"不错的注意。"
 
 #: guitext:4
 msgctxt "In-game message"
 msgid ""
 "Incidentally, that legend also said something about watching out for the "
 "fairies..."
-msgstr ""
+msgstr "顺便一提，传说故事还提到了如果遇见这里的仙女，要多加小心…"
 
 #: guitext:5
 msgctxt "In-game message"
 msgid "Oh, and the legend mentioned Nine Fanatical Samurai, as I recall."
-msgstr ""
+msgstr "哦对了，传说故事里还写了九名狂热的忍者，如果我没记错的话。"
 
 #: guitext:6
 msgctxt "In-game message"
 msgid ""
 "I suppose you'd rather not hear the bit in the legend about the hungry "
 "Ghosts, then."
-msgstr ""
+msgstr "我希望你没有听过传说故事中对这些饿鬼的描写。"
 
 #: guitext:7
 msgctxt "In-game message"
 msgid "Having fun?"
-msgstr ""
+msgstr "你觉得有意思吗？"
 
 #: guitext:8
 msgctxt "In-game message"
 msgid "Do you hear something stirring, Keeper? Tin cans?"
-msgstr ""
+msgstr "你听见什么东西的声音了吗，守护者？像是铁罐子？"
 
 #: guitext:9
 msgctxt "In-game message"
 msgid "I detect the stench of heroes, Keeper. Beware."
-msgstr ""
+msgstr "我已经嗅到英雄的气味了，小心，守护者。"
 
 #: guitext:10
 msgctxt "In-game message"
 msgid "Keeper! Your Imps are too loud. They've been heard!"
-msgstr ""
+msgstr "守护者！你的小鬼太吵闹了。他们的动静被敌人听见了！"
 
 #: guitext:11
 msgctxt "In-game message"
 msgid "Oh, Keeper. They're on to us."
-msgstr ""
+msgstr "哦，他们冲着我们来了，守护者。"
 
 #: guitext:12
 msgctxt "In-game message"
 msgid ""
 "You certainly taught those jumped-up parish priests in tin cans a lesson, "
 "Keeper. Feel justly proud and smug."
-msgstr ""
+msgstr "你一定给那些在铁罐子里慌乱躲藏的祭司们上了一课，守护者。你可以理所"
+"应当地感到骄傲。"
 
 #: guitext:13
 msgctxt "In-game message"
@@ -117,7 +115,9 @@ msgid ""
 "This town was named for the sad attempts at digging a moat to keep horrible "
 "Keepers like us out. It didn't work, but the moat is still there, so be "
 "careful. You know what kind of awful things people like to put in moats."
-msgstr ""
+msgstr "这座城镇的人们可悲地尝试着挖出了一条护城河，希望这样就能阻挡像我们一样的"
+"可怕守护者，这座城镇的名字也来源于此。这种伎俩是没有用的，但是护城河毕竟就在那里，"
+"最好小心行动。你猜他们往护城河里扔了什么恶心的东西。"
 
 #: guitext:14
 msgctxt "In-game message"
@@ -125,14 +125,16 @@ msgid ""
 "Dear me, another castle! Haven't these sad people learned that "
 "fortifications went out of fashion in the middle ages? Show them the error "
 "of their ways, Keeper."
-msgstr ""
+msgstr "天哪，这里又是一座城堡！这些可悲的人类还不知道这种中世纪的防御工事在现代"
+"已经过时了吗？纠正一下他们的错误吧，守护者。"
 
 #: guitext:15
 msgctxt "In-game message"
 msgid ""
 "Another castle. This one is rumoured to be very well defended; whoever "
 "brings it down will be the obvious choice for Keeper of the Year."
-msgstr ""
+msgstr "又是一座城堡。传说它有着坚不可摧的防御系统；能攻破它的人将毫无疑问当选"
+"今年的年度守护者。"
 
 #: guitext:16
 msgctxt "In-game message"
@@ -140,7 +142,8 @@ msgid ""
 "Another castle. I'm sure you will deal with these sad fools in the "
 "traditional manner. Keep in mind: another Keeper to the south has similar "
 "intentions, and is rumoured to be rather better equipped than we."
-msgstr ""
+msgstr "另一座城堡。我相信你还是会以老规矩来处理这些可悲的蠢货的。但要留意："
+"南边有另一个守护者也和你有着相同的想法，而且据说他的家底比我们更加殷实。"
 
 #: guitext:17
 msgctxt "In-game message"
@@ -148,14 +151,16 @@ msgid ""
 "Our target is the opposing Dungeon to the south. Unfortunately, the castle "
 "of the mad Knight Tagren lies between us. Deal with the knight, then drop in "
 "and say hello to the other Keeper."
-msgstr ""
+msgstr "这次我们的目标是在我们对称位置的南边的地下城。不幸的是，骑士塔仁，这个"
+"疯子的城堡挡住了我们的去路。先把他干掉，然后去另一个守护者家串个门，打个招呼。"
 
 #: guitext:18
 msgctxt "In-game message"
 msgid ""
 "This castle has stood for thousands of years, repelling all assaults. It's "
 "about time someone changed that, don't you agree?"
-msgstr ""
+msgstr "这座城堡已经巍然矗立了上千年之久，没有什么能撼动它。是时候改变这一切了，"
+"你不这么认为吗？"
 
 #: guitext:19
 msgctxt "In-game message"
@@ -163,21 +168,24 @@ msgid ""
 "I think you could have handled that with a little more finesse. Perhaps "
 "Quake is more your style. You know, the ham-fisted kind of URRRRGH KILL KILL "
 "KILL."
-msgstr ""
+msgstr "我以为你会更加深思熟虑地行动。不过看来硬碰硬才是你的风格。你明白的，举起"
+"榔头一般大的拳头，大吼着干就完事了。"
 
 #: guitext:20
 msgctxt "In-game message"
 msgid ""
 "You're enjoying this, arent you? You sadistic thug! People like you should "
 "be kept in bamboo cages and poked with sharpened sticks!"
-msgstr ""
+msgstr "你对这项工作乐此不疲，不是吗？你真是个无可救药的虐待狂！像你这样的人"
+"估计该被关进竹笼里遭受尖刺酷刑！"
 
 #: guitext:21
 msgctxt "In-game message"
 msgid ""
 "Are you entirely sure you know what you're doing? Perhaps some kind of "
 "strategy or plan... you do have a plan, don't you, Keeper?"
-msgstr ""
+msgstr "你真的清楚你在做什么吗？你看起来好像在下一盘大棋…我希望你的行动是有"
+"计划的，对吧，守护者？"
 
 #: guitext:22
 msgctxt "In-game message"
@@ -185,14 +193,15 @@ msgid ""
 "This all looks rather daunting, doesn't it? There's no shame in running away "
 "with your tail between your legs and cowering under the bed like a level one "
 "Imp, you know."
-msgstr ""
+msgstr "这些敌人看起来都不是吃素的，对吧？如果你害怕了，你现在就可以夹着尾巴逃跑了，"
+"你知道的，就像一只1级小鬼一样，不丢人。"
 
 #: guitext:23
 msgctxt "In-game message"
 msgid ""
 "Er, Keeper? There's some Monks here to see you about last year's Tax Return. "
 "I think they want money."
-msgstr ""
+msgstr "嘿，守护者？这里有几个僧侣来向你讨要去年的税款。这些家伙就是馋你的钱。"
 
 #: guitext:24
 msgctxt "In-game message"
@@ -200,7 +209,8 @@ msgid ""
 "My, you're a very model of stubborn persistence, aren't you? Never mind; I'm "
 "sure a huge swaft of heroes will be along at any moment to kick your nasty "
 "behind all the way to Seattle. Wherever that is."
-msgstr ""
+msgstr "哦，你真是顽强坚持精神的榜样，不是吗？开个玩笑；我确信一大波英雄随时会"
+"前来把你这肮脏的家伙一路打回到西雅图，或者随便什么地方。"
 
 #: guitext:25
 msgctxt "In-game message"
@@ -208,76 +218,78 @@ msgid ""
 "This castle was once a car-park for a suburban shopping mall, and is almost "
 "entirely without magic. Some of the rooms still have disgruntled shoppers "
 "trapped inside."
-msgstr ""
+msgstr "这座城堡曾经由一家郊区超市的地下停车场改造而成，而且这里的魔法能量几乎"
+"已经耗尽。有些房间里还关着一些愤怒的顾客。"
 
 #: guitext:26
 msgctxt "In-game message"
 msgid "Attention, K-Mart shoppers! Boulder Traps are half-price until Friday!"
-msgstr ""
+msgstr "“凯玛特超市的顾客请注意！圆石陷阱在本周五之前半价出售！”"
 
 #: guitext:27
 msgctxt "In-game message"
 msgid ""
 "We have a lost Demon Spawn named Gerald at the manager's office. Could his "
 "parents please pick him up?"
-msgstr ""
+msgstr "“走丢的恶鬼小朋友杰拉尔德现在在我们的经理办公室里。它的父母能过来接一下它吗？”"
 
 #: guitext:28
 msgctxt "In-game message"
 msgid ""
 "This shopping centre will be open until midnight on Friday 13th for your "
 "convenience."
-msgstr ""
+msgstr "“为了您的便利，购物中心会在13号星期五之前一直开放。”"
 
 #: guitext:29
 msgctxt "In-game message"
 msgid ""
 "Owner of car LUH-339; your headlights are on. And your Hellhound has eaten "
 "your rear-view mirror."
-msgstr ""
+msgstr "“LUH-339的车主您好，您的车头灯没有关，而且您的地狱犬已经吃掉了车的后视镜。”"
 
 #: guitext:30
 msgctxt "In-game message"
 msgid ""
 "Could Gerald's parents please come to the manager's office? He's about to "
 "turn into a level five Dragon."
-msgstr ""
+msgstr "“能麻烦杰拉尔德的父母赶快来经理办公室一趟吗？再不来，您的孩子就要变成一条5级的龙了。”"
 
 #: guitext:31
 msgctxt "In-game message"
 msgid "Attention, K-Mart shoppers! Discounts on Warlock's robes all this week!"
-msgstr ""
+msgstr "“凯玛特超市的顾客请注意！本周魔术师的长袍打折出售！”"
 
 #: guitext:32
 msgctxt "In-game message"
 msgid ""
 "Attention, shoppers: please beware of the mad, rampaging vampires in section "
 "Seven Blue."
-msgstr ""
+msgstr "“顾客请注意：小心七区正在疯狂暴走的吸血鬼。”"
 
 #: guitext:33
 msgctxt "In-game message"
 msgid ""
 "Could Gerald's parents please come to the manager's office before he eats "
 "another secretary?"
-msgstr ""
+msgstr "“能麻烦杰拉尔德的父母在您的孩子吃掉第二个工作人员之前来经理办公室一趟吗？”"
 
 #: guitext:34
 msgctxt "In-game message"
 msgid ""
 "This castle is very well-defended: a group of heroes is sent forth every pay-"
 "day, to beat up Keepers. Do be careful now, won't you?"
-msgstr ""
+msgstr "这座城堡固若金汤，而且英雄们每一个发薪日都会派遣一波部队来进攻守护者。"
+"一定要万分小心，不是吗，守护者？"
 
 #: guitext:35
 msgctxt "In-game message"
 msgid "Keeper? The heroes are on their way."
-msgstr ""
+msgstr "守护者？英雄们已经上路了。"
 
 #: guitext:36
 msgctxt "In-game message"
 msgid "We have come.. to bless the house."
-msgstr ""
+msgstr "让我们…赐予他们祝福吧。"
 
 #: guitext:37 guitext:38 guitext:39 guitext:40 guitext:41 guitext:42
 #: guitext:43 guitext:44 guitext:45 guitext:46 guitext:47 guitext:48
@@ -309,120 +321,109 @@ msgstr ""
 #: guitext:199 guitext:200
 msgctxt "In-game message"
 msgid "Moo"
-msgstr "Muuuu"
+msgstr ""
 
 #: guitext:202
 msgctxt "Level name"
 msgid "Pennegan"
-msgstr ""
+msgstr "佩尼根"
 
 #: guitext:203
 msgctxt "Level name"
 msgid "Castle Kandro"
-msgstr ""
+msgstr "坎德罗城堡"
 
 #: guitext:204
 msgctxt "Level name"
 msgid "Dun Ringill"
-msgstr ""
+msgstr "昏暗的林格尔"
 
 #: guitext:205
 msgctxt "Level name"
 msgid "Castle Rendri"
-msgstr ""
+msgstr "伦德里城堡"
 
 #: guitext:206
 msgctxt "Level name"
 msgid "Castle Khay"
-msgstr ""
+msgstr "凯伊城堡"
 
 #: guitext:207
 msgctxt "Level name"
 msgid "Castle Shadris"
-msgstr ""
+msgstr "沙德瑞斯城堡"
 
 #: guitext:208
 msgctxt "Level name"
 msgid "Castle Tagren"
-msgstr ""
+msgstr "塔仁城堡"
 
 #: guitext:209
 msgctxt "Level name"
 msgid "Castle Trinshi"
-msgstr ""
+msgstr "特林西城堡"
 
 #: guitext:210
 msgctxt "Level name"
 msgid "Eastland"
-msgstr ""
+msgstr "东部地区"
 
 #: guitext:211
 msgctxt "Level name"
 msgid "Northland"
-msgstr ""
+msgstr "北部地区"
 
 #: guitext:212 guitext:213 guitext:214 guitext:215 guitext:216 guitext:217
 #: guitext:218 guitext:219 guitext:220 guitext:221 guitext:222 guitext:223
 #: guitext:224 guitext:225
 msgctxt "Level name"
 msgid "Unused"
-msgstr "Niewykorzystane"
+msgstr ""
 
 #: guitext:226
 msgctxt "Creature spell"
 msgid "Arrow: The basic ranged weapon, effective at long distance."
-msgstr "Strzała: Najprostsza broń dystansowa, efektywna z duzej odległości."
+msgstr "箭: 基本的远程武器，在远距离使用时效果很好。"
 
 #: guitext:227
 msgctxt "Creature spell"
 msgid ""
 "Freeze: Changes the target creature to ice. It is then in suspended "
 "animation and can be shattered with a well-aimed blow."
-msgstr ""
-"Zamrażacz: Robi ze stwora bryłę lodu. Cel nie może się poruszać, jest też "
-"narażony na roztrzaskanie przy dobrze wymierzonym uderzeniu."
+msgstr "冰冻术: 把一只怪物冻成冰，并暂停它的行动，还可以使它能被猛力地一击打碎。"
 
 #: guitext:228
 msgctxt "Creature spell"
 msgid ""
 "Armour: This lowers the amount of damage a creature takes each time it is "
 "hit, and provides complete immunity to electric shocks."
-msgstr ""
-"Pancerz: Obniża wartość obrażeń otrzymywanych przez stwora przy tafieniach, "
-"powoduje też całkowitą odporność na ataki elektryczne."
+msgstr "护甲术: 可以降低怪物每次受到的伤害，并且使其完全免疫守护者的闪电术。"
 
 #: guitext:229
 msgctxt "Creature spell"
 msgid ""
 "Lightning: A powerful magical weapon with electric attack. Casts a bolt of "
 "lighting from the creature."
-msgstr ""
-"Błyskawica: Potężna broń magiczna z atakiem elektrycznym. Rzuca paczkę "
-"błyskawic w nieszczęsny cel."
+msgstr "闪电术: 有着强大威力的魔法武器。可以使怪物释放出一道闪电。"
 
 #: guitext:230
 msgctxt "Creature spell"
 msgid "Rebound: Causes any spell fired at you to bounce back at the attacker."
-msgstr ""
-"Odbicie: Powoduje że wystrzelone wrogie zaklęcia odbijają się na atakującego"
+msgstr "反弹术: 使目标所受的任何法术都反弹给攻击者。"
 
 #: guitext:231
 msgctxt "Creature spell"
 msgid ""
-"Fear: Causes the opponent to be terrified and wanting to skip engageing into "
+"Fear: Causes the opponent to be terrified and wanting to skip engaging into "
 "combat."
-msgstr ""
-"Strach: Sprawia że przeciwnik truchleje i szuka okazji na unikniecie "
-"konfrontacji."
+msgstr "恐惧术: 使对手颤栗，迫不及待地想要逃离战斗。"
 
 #: guitext:232
 msgctxt "Creature spell"
 msgid ""
-"Sight: Allows the creature to temporarely increase its awareness and notice "
+"Sight: Allows the creature to temporarily increase its awareness and notice "
 "the invisible."
-msgstr ""
-"Jasnowidzenie: Pozwala stworowi czasowo poszerzyć postrzeganie i dostrzec to "
-"co niewidzialne."
+msgstr "邪眼术: 允许生物暂时增加其感知力，可以发现隐形者。"
 
 #: guitext:233
 msgctxt "Creature spell"
@@ -430,8 +431,8 @@ msgid ""
 "Missile: A simple spell that sends a screaming magic reptile at the "
 "invaders. Very disconcerting."
 msgstr ""
-"Pocisk: Podstawowe zaklęcie wysyłające wrzeszczącą magiczną gadzinę w stronę "
-"wroga. Bardzo niepokojące."
+"导弹: 一个简单的魔法，可以向入侵者发射一枚发出尖叫声的魔法蜥蜴导弹。"
+"令人感到十分不安。"
 
 #: guitext:234
 msgctxt "Creature spell"
@@ -439,40 +440,38 @@ msgid ""
 "Grenade: Throws a powerful explosive at the approaching enemy. It can also "
 "bounce off walls and has the traditional delayed fuse."
 msgstr ""
-"Granat: Rzuca silny ładunek wybuchowy  na wroga. Pocisk odbija się od ścian "
-"i ma tradycyjny zapalnik czasowy."
+"手榴弹: 向靠近的敌人投掷一枚强力的爆弹。它可以被墙壁反弹，"
+"并且由传统的延时引线引爆。"
 
 #: guitext:235
 msgctxt "Creature spell"
 msgid ""
-"Navigating Missile: This homes in on the nearest hero or enemy creature and "
-"explodes with devastating force."
+"Navigating Missile: A spell that sends a screaming magic reptile homing "
+"in on the nearest hero or enemy creature for double damage. Nice."
 msgstr ""
-"Pocisk samonawodzący: Odczuwa nieodpartą potrzebę przytulenia się do "
-"najbliższych wrogów i eksploduje z dewastującym efektem."
+"巡航导弹: 这个魔法会发射一枚发出尖叫声的魔法蜥蜴导弹，"
+"它会自动追踪最近的英雄或敌方怪物，并造成双倍伤害。真不错。"
 
 #: guitext:236
 msgctxt "Creature spell"
 msgid ""
 "Speed: Speeds up the creature so that it can perform fighting and working "
 "tasks really quickly."
-msgstr ""
-"Przyspieszacz: Pozwala zwiększyć metabolizm każdego stwora dwukrotnie, "
-"przyspieszając tak pracę jak i walkę."
+msgstr "速度术: 加速生物，使其能更快地工作和战斗。"
 
-#: guitext:237
+#: guitext:237 guitext:253
 msgctxt "Creature spell"
 msgid ""
 "Poison Cloud: Forms a cloud of noxious gas capable of damaging both the "
 "enemy and your own creatures. The gas affects all who breathe it."
 msgstr ""
-"Trujący obłok: Formuje chmurę gazu szkodliwego zarówno wroga i własnych "
-"stworów. Wpływa na wszystkich, wezmą wdech."
+"毒云术: 生成一片毒云，会同时对敌军和友军造成伤害。"
+"所有呼吸到毒气的怪物都会受到它的影响。"
 
 #: guitext:238
 msgctxt "Creature spell"
 msgid "Group: Not used"
-msgstr "Grupowanie: nie używane"
+msgstr "集结术: 未使用"
 
 #: guitext:239
 msgctxt "Creature spell"
@@ -480,9 +479,8 @@ msgid ""
 "Invisibility: Cast on one of your minions, it makes the host creature "
 "invisible to all enemies. Unless they possess a subnatural Sight."
 msgstr ""
-"Niewidzialność: Rzucona na twojego podopiecznego sprawia, że jest "
-"niewidzialny dla wszystkich wrogów. Chyba, że posiadają zaklęcie "
-"jasnowidzenia."
+"隐身术: 对你的一个怪物使用，使其对敌人隐身。"
+"除非拥有超常视力的敌人才能看破隐身。"
 
 #: guitext:240
 msgctxt "Creature spell"
@@ -491,61 +489,57 @@ msgid ""
 "you are Possessing a creature, then it teleports to its Lair or to the "
 "Dungeon Heart."
 msgstr ""
-"Teleportacja: Pozwala teleportować się w dowolne miejsce na mapie. Opętany "
-"stwór teleportuje się do Legowiska lub Serca Lochu."
+"传送术: 一个拥有这项技能的怪物可以传送到地图的任何区域。如果你正在附身这个怪物，"
+"它会传送到它的巢穴处或地下城心脏处。"
 
 #: guitext:241
 msgctxt "Creature spell"
-msgid "Flame Breath: The devasting constant stream of searing fire."
-msgstr "Ognisty dech: Ciągły strumień piekącego ognia."
+msgid "Flame Breath: The devastating constant stream of searing fire."
+msgstr "火焰术: 持续喷射具有毁灭性威力的灼热火焰。"
 
 #: guitext:242
 msgctxt "Creature spell"
 msgid ""
 "Illumination: Brings light onto darkness, allowing the creature to see but "
 "also be seen by others."
-msgstr ""
-"Oświecenie: Przywołuje światło wrród ciemności, poprawiając widoczność dla "
-"twojego stwora, jak i dla innych."
+msgstr "照明术: 照亮黑暗，使怪物能看清别人，但同时也会被别人看到。"
 
 #: guitext:243
 msgctxt "Creature spell"
 msgid ""
 "Flight: Causes the creature to take off from the ground and attack creatures "
-"from the air."
+"from the air or cross lava unharmed."
 msgstr ""
-"Lot: Pozwala stworom unosić się nad ziemią, pokonując przeszkody i atakując "
-"z powietrza."
+"飞行术: 使怪物可以离开地面，从而在空中向其他怪物发起攻击，"
+"并能飞越岩浆而不受伤害。"
 
 #: guitext:244
 msgctxt "Creature spell"
-msgid "Hail Storm: Creates a shower of hailstones wherever the spell lands."
-msgstr "Burza gradowa: Tworzy opad wielkiego gradu w miejscu rzucenia czaru."
+msgid "Hail Storm: Creates a fury of hailstones."
+msgstr "冰雹术: 发射密集的冰雹块。"
 
 #: guitext:245
 msgctxt "Creature spell"
 msgid ""
 "Slow: Slows down the target creature, making it attacks and movement delayed."
-msgstr "Spowolnienie: Spowalnia stwora, opóźniając jego ruch i ataki."
+msgstr "缓慢术: 降低目标怪物的速度，使它的行动和攻击变得迟缓。"
 
 #: guitext:246
 msgctxt "Creature spell"
 msgid ""
-"Drain: This spell drains the target creature a fair part of its health and "
-"magical abilities."
-msgstr ""
-"Wyssanie: Zaklęcie wykrada nieszczęśnikowi znaczącą część zdrowia i "
-"zdolności magicznych."
+"Drain: This spell drains the target creature a part of its health and gives it "
+"to the caster."
+msgstr "吸精术: 这项魔法可以吸取目标的一部分生命值为自己所用。"
 
 #: guitext:247
 msgctxt "Creature spell"
 msgid ""
-"Word of Power: Causes rings of fire to emanate from the creature's body and "
-"inflicts massive damage on the vicinity."
+"Word of Power: Causes rings of demonic energy to emanate from the creature's "
+"body and inflicts massive damage on the vicinity. Very effective against "
+"crowded hordes of enemies, also pushes them back."
 msgstr ""
-"Mocne słowo: Pierścienie demonicznej energii rozchodzą się od ciała potwora "
-"i wyrządzają ogromne obrażenia w pobliżu. Efektywne przy stłoczonym zawale "
-"wrogów, powoduje też ich odrzucenie."
+"强力咒语: 从怪物的身体中释放出恶魔般的能量，并对周围造成巨大伤害。"
+"对成群的敌人非常有效，同时也能将他们击退。"
 
 #: guitext:248
 msgctxt "Creature spell"
@@ -553,61 +547,54 @@ msgid ""
 "Heal: When this is cast, the creature is massively healed. Also, any nearby "
 "creatures are healed by a quarter."
 msgstr ""
-"Uzdrowienie: Przywraca dużą cześć zdrowia stwora. Również stwory w pobliżu "
-"są lekko odczuwają takie skutki."
+"治疗术: 施放时，使目标怪物回复大量生命值。"
+"周围的怪物也会获得四分之一的治疗量。"
 
 #: guitext:249
 msgctxt "Creature spell"
 msgid ""
-"Wind: Creates a force twelve gale in your Dungeon blowing every creature "
-"away from you."
+"Wind: Creates a force twelve gale in your dungeon blowing every creature "
+"away from you. And nasty smells of course."
 msgstr ""
-"Huragan: Wiatr o sile 12 w skali Beauforta w korytarzu lochu. Zdmuchuje "
-"wszelkie stwory w pobliżu."
+"风暴术: 在地下城中制造12股风暴力量，把所有怪物都向外吹走。"
+"肯定还夹杂着一股臭气。"
 
 #: guitext:250
 msgctxt "Creature spell"
 msgid ""
-"Meteor: More powerful that the fireball, this spell throws out a solid ball "
+"Meteor: More powerful than the fireball, this spell throws out a solid ball "
 "of fire which does a lot of damage to an enemy."
 msgstr ""
-"Meteor: Mocniejszy niż Piorun, to zaklęcie rzuca solidną kulę ognia, który "
-"robi dużo obrażeń wrogowi."
+"流星术: 比火球术更强大，这个魔法能发射一颗固体的火球，"
+"并对敌人造成大量伤害。"
 
 #: guitext:251
 msgctxt "Creature spell"
 msgid ""
 "Fireball: Fires a single fireball which homes in on the nearest enemy. Also "
 "inflicts minor damage to a Dungeon's walls and doors."
-msgstr ""
-"Piorun: Wystrzeliwuje kulę ognia, która zmierza za najbliższym "
-"przeciwnikiek. Zadaje drobne uszkodzenia również ścianom lochu i drzwiom."
+msgstr "火球术: 对最近的敌人施放一个火球。对地下城的墙壁和门也会造成轻微伤害。"
 
 #: guitext:252
 msgctxt "Creature spell"
 msgid ""
 "Hand to Hand: The basic battle ability that allows to attack the enemy with "
 "either bare hands or a sword."
-msgstr ""
-"Ręka w rękę: Podstawowa umiejętność bitewna, pozwala na atak wroga mieczem "
-"lub gołymi rękami."
+msgstr "近战攻击: 允许徒手或用剑攻击敌人的基本战斗技能。"
 
 #: guitext:253
 msgctxt "Creature spell"
 msgid ""
 "Fart: A close range gas attack that only damages enemy creatures."
 msgstr ""
-"Pierdnięcie: Uwalnia gazy bliskiego zasięgu, szkodliwe dla wrogich "
-"stworów."
+"放屁术: 近距离的毒气攻击，只会对敌军造成伤害。"
 
 #: guitext:254
 msgctxt "Creature spell"
 msgid ""
 "Dig: This is the basic ability of the Imp and allows it to tunnel through "
 "earth."
-msgstr ""
-"Drążenie: Podstawowa umiejętnośc Choclików, pozwala im przekopywać tunele w "
-"ziemi."
+msgstr "挖掘: 小鬼的基本能力，使其可以在地底挖掘隧道。"
 
 #: guitext:255
 msgctxt "Creature spell"
@@ -616,8 +603,8 @@ msgid ""
 "creatures. The infected are slowly dying and can only be healed in the "
 "Temple."
 msgstr ""
-"Choroba: Rzucona na przeciwnika, sprawia że będzie roznosił ją i zarażał "
-"innych. Zainfekowany powoli umiera, może być uzdrowiony w świątyni."
+"疾病术: 对敌人使用，会让它们染上疾病，并可以传染给其他怪物。"
+"被感染的怪物将会慢慢死去，只能在寺庙里获得治愈。"
 
 #: guitext:256
 msgctxt "Creature spell"
@@ -626,161 +613,158 @@ msgid ""
 "attack but has the same strength and thus won't be as easy to kill as a "
 "normal chicken."
 msgstr ""
-"Kurczak: Na chwilę pokazuje przeciwnikowi świat z perspektywy kurczaka. Wróg "
-"nie jest w stanie atakować, ale ma niezmienioną siłę, więc nie da się zabić "
-"tak łatwo jak kurczak."
+"变为小鸡: 暂时把敌人变成一只小鸡。虽然不能攻击，但拥有同样的力量，"
+"因此不会像一只普通的小鸡那么容易被杀死。"
 
 #: guitext:257
 msgctxt "Creature spell"
 msgid "Time Bomb: Turns your creature into a suicidal bomber."
-msgstr ""
-"Bomba zegarowa: Uzbraja stwora w ładunek wybuchowy i wysyła do wrogiego "
-"lochu. Stwór rozerwie się na wycieczce, więc już z niej nie wróci."
+msgstr "定时炸弹: 将你的生物变成一个自杀炸弹。"
 
 #: guitext:258
 msgctxt "Creature name"
 msgid "Fairy"
-msgstr "Wróżka"
+msgstr "仙女"
 
 #: guitext:259
 msgctxt "Creature name"
 msgid "Imp"
-msgstr "Chochlik"
+msgstr "小鬼"
 
 #: guitext:260
 msgctxt "Creature name"
 msgid "Beetle"
-msgstr "Żuk"
+msgstr "甲虫"
 
 #: guitext:261
 msgctxt "Creature name"
 msgid "Troll"
-msgstr "Troll"
+msgstr "精灵"
 
 #: guitext:262
 msgctxt "Creature name"
 msgid "Demon Spawn"
-msgstr "Pączkujący demon"
+msgstr "恶鬼"
 
 #: guitext:263
 msgctxt "Creature name"
 msgid "Warlock"
-msgstr "Czarnoksiężnik "
+msgstr "魔术师"
 
 #: guitext:264
 msgctxt "Creature name"
 msgid "Fly"
-msgstr "Mucha"
+msgstr "苍蝇"
 
 #: guitext:265
 msgctxt "Creature name"
 msgid "Spider"
-msgstr "Pająk"
+msgstr "蜘蛛"
 
 #: guitext:266
 msgctxt "Creature name"
 msgid "Skeleton"
-msgstr "Szkieletor"
+msgstr "骷髅"
 
 #: guitext:267
 msgctxt "Creature name"
 msgid "Horned Reaper"
-msgstr "Rogaty Rozpruwacz"
+msgstr "冥界使者"
 
 #: guitext:268
 msgctxt "Creature name"
 msgid "Dragon"
-msgstr "Smok"
+msgstr "龙"
 
 #: guitext:269
 msgctxt "Creature name"
 msgid "Tentacle"
-msgstr "Macka"
+msgstr "水怪"
 
 #: guitext:270
 msgctxt "Creature name"
 msgid "Hound"
-msgstr "Ogar"
+msgstr "地狱之犬"
 
 #: guitext:271
 msgctxt "Creature name"
 msgid "Ghost"
-msgstr "Duch"
+msgstr "鬼"
 
 #: guitext:272
 msgctxt "Creature name"
 msgid "Mistress"
-msgstr "Dama"
+msgstr "黑暗女王"
 
 #: guitext:273
 msgctxt "Creature name"
 msgid "Bile Demon"
-msgstr "Demon żółciowy"
+msgstr "巨魔"
 
 #: guitext:274
 msgctxt "Creature name"
 msgid "Vampire"
-msgstr "Wampir"
+msgstr "吸血鬼"
 
 #: guitext:275
 msgctxt "Creature name"
 msgid "Barbarian"
-msgstr "Barbarzyńca"
+msgstr "野蛮人"
 
 #: guitext:276
 msgctxt "Creature name"
 msgid "Knight"
-msgstr "Rycerz"
+msgstr "骑士"
 
 #: guitext:277
 msgctxt "Creature name"
 msgid "Wizard"
-msgstr "Czarodziej"
+msgstr "巫师"
 
 #: guitext:278
 msgctxt "Creature name"
 msgid "Orc"
-msgstr "Ork"
+msgstr "兽人"
 
 #: guitext:279
 msgctxt "Creature name"
 msgid "Mountain Dwarf"
-msgstr "Krasnolud górski"
+msgstr "山脉矮人"
 
 #: guitext:280
 msgctxt "Creature name"
 msgid "Valley Dwarf"
-msgstr "Krasnolud nizinny"
+msgstr "山谷矮人"
 
 #: guitext:281
 msgctxt "Creature name"
 msgid "Thief"
-msgstr "Złodziej"
+msgstr "小偷"
 
 #: guitext:282
 msgctxt "Creature name"
 msgid "Samurai"
-msgstr "Samuraj"
+msgstr "忍者"
 
 #: guitext:283
 msgctxt "Creature name"
 msgid "Priestess"
-msgstr "Kapłanka"
+msgstr "女祭司"
 
 #: guitext:284
 msgctxt "Creature name"
 msgid "Giant"
-msgstr "Olbrzym"
+msgstr "巨人"
 
 #: guitext:285
 msgctxt "Creature name"
 msgid "Archer"
-msgstr "Łucznik"
+msgstr "弓箭手"
 
 #: guitext:286
 msgctxt "Creature name"
 msgid "Monk"
-msgstr "Mnich"
+msgstr "僧侣"
 
 #: guitext:287 guitext:288 guitext:289 guitext:290 guitext:343 guitext:291
 #: guitext:292 guitext:293 guitext:294 guitext:295 guitext:296 guitext:297
@@ -791,75 +775,119 @@ msgstr "Mnich"
 #: guitext:323 guitext:333
 msgctxt "Unused"
 msgid "Moo9"
-msgstr "Muuu9"
+msgstr ""
 
 #: guitext:319
 msgctxt "Slab description"
 msgid "Empty Lair: Would suit itinerant creature."
-msgstr "Puste legowisko: Posłuży wędrownemu stworowi."
+msgstr "空的巢穴: 满足来投奔的怪物。"
+
+#: guitext:320
+msgctxt "Menu interface item"
+msgid "Paused"
+msgstr "暂停"
+
+#: guitext:321
+msgctxt "In-game interface description"
+msgid ""
+"Zoom In: Zoom in the Dynamic Map. This increases the scale of the map. LMB "
+"select."
+"放大: 放大动态地图。这会扩大你所看到的地图尺寸。左键选择。"
+
+#: guitext:322
+msgctxt "In-game interface description"
+msgid ""
+"Zoom Out: Zoom out the Dynamic Map. This decreases the scale of the map. LMB "
+"select."
+msgstr "缩小: 缩小动态地图。这会缩小你所看到的地图尺寸。左键选择。"
+
+#: guitext:323
+msgctxt "In-game interface description"
+msgid ""
+"Full Screen Map: Takes you to the Map Screen which displays your entire "
+"Dungeon and the surrounding area. LMB select."
+msgstr "全屏地图: 进入全屏地图画面，显示你的整个地下城和周围的区域。左键选择。"
 
 #: guitext:324
 msgctxt "Slab description"
-msgid "Impenetrable Rock: Your Imps cannot dig through this. [12.4]"
+msgid ""
+"Impenetrable Rock: Your Imps cannot dig through this, the only solution is "
+"to go round. It is visible even if far from your territory."
 msgstr ""
-"Skała nie do przebycia: Twoje chochliki nie mogą się przez nią przebić."
+"无法挖掘的岩石: 你的小鬼无法挖穿这样的岩石，唯一的办法就是绕过它。这类岩石永"
+"远可见。"
 
 #: guitext:325
 msgctxt "Slab description"
-msgid "Earth: You can excavate this. [12.1]"
-msgstr "Ziemia: Tu możesz kopać. [12.1]"
+msgid ""
+"Earth: You can excavate this. To dig out some new caverns, choose a location "
+"and tag for digging with LMB. Press LMB again to untag."
+msgstr ""
+"土块: 你可以将其凿开。想要挖开一些洞穴，用鼠标左键标记一个区域。再次按下鼠标"
+"左键可解除标记。"
 
 #: guitext:326
 msgctxt "Slab description"
 msgid ""
 "Gold Seam: Your source of wealth. Dig this out and your Imps will take it to "
-"your Treasure Room. [12.2]"
+"your Treasure Room. You can also pick up the lumps of treasure left on the "
+"ground."
 msgstr ""
-"Żyła złota: Źródło bogactwa. Wykop złoto, a chochliki zaniosą je do skarbca. "
-"Możesz też podnosić stosiki pozostawione na ziemii."
+"金矿: 你的财富的源泉。挖掘它，你的小鬼将把它带入你的储金室。"
+"你也可以自己抓起留在地上的金子。"
 
 #: guitext:327
 msgctxt "Slab description"
-msgid "Lava: Burns any creature that step on it. [14.2]"
-msgstr "Magma: Pali wszystko, co na nią wlezie. [14.2]"
+msgid "Lava: Burns any creature that step on it. Get over lava by building a Bridge."
+msgstr "岩浆: 灼烧任何触碰到它的生物。施放一个塌方术或者建造一座桥来越过它。"
 
 #: guitext:328
 msgctxt "Slab description"
-msgid "Water: Creatures move more slowly through water. [14.1]"
-msgstr ""
-"Woda: Spowalnia ruch stworów. Aby zapobiec brodzeniu stworów, zbuduj Most."
+msgid ""
+"Water: Creatures move more slowly through water. Build the Bridge to make "
+"new land on the water."
+msgstr "水: 怪物在水中移动更慢。在水上建造桥梁使其就像新的陆地。"
 
 #: guitext:329
 msgctxt "Slab description"
-msgid "Wall: A reinforced stone wall that enemies cannot break through. [12.1]"
-msgstr ""
-"Ściana: Przez umocnioną ścianę nie przedostanie się nieprzyjaciel. O ile nie "
-"dysponuje odpowiednim zaklęciem."
+msgid ""
+"Wall: A reinforced stone wall that enemies cannot break through. At least "
+"without the Destroy Walls spell."
+msgstr "墙: 敌人无法穿越加固过的墙--至少在他们还没有破坏墙壁魔法的时候。"
 
 #: guitext:330
 msgctxt "Slab description"
 msgid "Damaged Wall: Unless repaired, this wall will eventually collapse."
-msgstr "Uszkodzona ściana: Jeśli jej nie naprawisz, kiedyś się zawali."
+msgstr "损坏的墙: 除非被修复，否则最终将倒塌。"
 
 #: guitext:331
 msgctxt "Slab description"
-msgid "Path: Unclaimed earth floor. [12.1]"
-msgstr "Ścieżka: Bezpański kawałek klepiska. [12.1]"
+msgid ""
+"Path: Unclaimed earth floor. You can claim it if it is connected to already "
+"claimed territory."
+msgstr "泥地: 未占领的地面。如果这里与你的领地相邻，你就可以占有此地。"
 
 #: guitext:332
 msgctxt "Slab description"
-msgid "Claimed area: Your dungeon territory. [12.1]"
-msgstr "Namazany teren: Twoje terytorium lochu. [12.1]"
+msgid ""
+"Claimed area: Your dungeon territory. You can build rooms and drop your "
+"creatures on it."
+msgstr "已占领的地面: 你的地下城领地。你可以在此建造房间或是放置你的怪物。"
+
+#: guitext:333
+msgctxt "In-game interface item"
+msgid "More..."
+msgstr "更多..."
 
 #: guitext:334
 msgctxt "In-game message"
 msgid "Level completed - press Escape to continue"
-msgstr "Poziom ukończony - naciśnij Escape, aby przejść dalej"
+msgstr "任务完成 - 按Esc键继续"
 
 #: guitext:335
 msgctxt "In-game message"
 msgid "You have been defeated. Press Space to restart."
-msgstr "Poziom przegrany - naciśnij Escape, aby zacząć od nowa"
+msgstr "任务失败 - 按空格键重新开始"
 
 #: guitext:336 guitext:337 guitext:338 guitext:339 guitext:340 guitext:341
 #: guitext:342 guitext:344 guitext:345 guitext:346 guitext:347 guitext:348
@@ -877,76 +905,72 @@ msgstr "Poziom przegrany - naciśnij Escape, aby zacząć od nowa"
 #: guitext:415 guitext:416 guitext:417 guitext:418
 msgctxt "Unused"
 msgid "Moo5"
-msgstr "Muuu5"
+msgstr ""
 
 #: guitext:419
 msgctxt "Menu interface item"
 msgid "Ok"
-msgstr "OK"
+msgstr "确定"
 
 #: guitext:420
 msgctxt "Dungeon special decription"
 msgid "Reveal Map: Reveals the entire underground realm to you."
-msgstr "Odsłonięcie mapy: Odkrywa przed Tobą całe podziemne królestwo."
+msgstr "显示地图: 为你揭示整个地下城的地图。"
 
 #: guitext:421
 msgctxt "Dungeon special decription"
 msgid ""
 "Resurrect Creature: You may raise one of your fallen minions from the dead."
-msgstr "Wskrzeszenie stwora: Możesz wskrzesić jednego ze swych poległych sług."
+msgstr "复活怪物: 你可以将一个已经死亡的你的怪物复活。"
 
 #: guitext:422
 msgctxt "Dungeon special decription"
 msgid ""
 "Transfer Creature: Pick one of your creatures to accompany you to the next "
 "realm."
-msgstr ""
-"Przeniesienie stwora: Wybierz jednego sługę, który będzie Ci towarzyszył do "
-"następnego królestwa."
+msgstr "传送怪物: 选择一个你的怪物带入下一个王国。"
 
 #: guitext:423
 msgctxt "Dungeon special decription"
 msgid "Steal Hero: Subvert a hero to your cause."
-msgstr "Kradzież bohatera: Skaptowanie jednego z bohaterów dla swojej sprawy."
+msgstr "偷英雄: 使一个英雄倒戈到你的阵营。"
 
 #: guitext:424
 msgctxt "Dungeon special decription"
 msgid "Multiply Creatures: Create a double of each of your creatures."
-msgstr "Pomnożenie stworów: Utworzenie sobowtóra dla każdego stwora."
+msgstr "繁殖怪物: 加倍你的每一个怪物。"
 
 #: guitext:425
 msgctxt "Dungeon special decription"
 msgid "Increase Level: Bestows greater skill on all your creatures."
-msgstr "Podwyższenie poziomu: Zwiększa umiejętności wszystkich Twoich stworów."
+msgstr "提高等级: 提高你所有怪物的等级。"
 
 #: guitext:426
 msgctxt "Dungeon special decription"
-msgid "Make Safe : Reinforces your entire dungeon."
-msgstr "Zabezpieczenie: Fortyfikuje całe Twoje podziemie."
+msgid "Make Safe: Reinforces your entire dungeon."
+msgstr "安全强化: 强化你的整个地下城。"
 
 #: guitext:427
 msgctxt "Dungeon special decription"
 msgid ""
-"Locate Hidden World: You will be transported to a secret realm after you "
+"Locate Hidden World: You will get access to a secret realm after you "
 "have conquered this one."
-msgstr ""
-"Odkrycie ukrytego świata: Po ukończeniu poziomu zostaniesz przeniesiony do "
-"tajnego poziomu."
+msgstr "隐藏的世界: 在你征服这里后将可以通往一个秘密王国。"
 
 #: guitext:428
 msgctxt "Dungeon special name"
 msgid "Resurrect Creature"
-msgstr "Wskrzeszenie stwora"
+msgstr "复活怪物"
 
 #: guitext:429
 msgctxt "Dungeon special name"
 msgid "Transfer Creature"
-msgstr "Przeniesienie stwora"
+msgstr "传送怪物"
 
 #: guitext:430
 msgctxt "Menu interface item"
 msgid "Bonus"
-msgstr "Premiowa kraina"
+msgstr "奖励关卡"
 
 #: guitext:431 guitext:432 guitext:433 guitext:434 guitext:435 guitext:436
 #: guitext:437 guitext:438 guitext:439 guitext:440 guitext:441 guitext:442
@@ -969,442 +993,477 @@ msgstr "Premiowa kraina"
 #: guitext:539 guitext:540 guitext:541 guitext:542 guitext:543
 msgctxt "Unused"
 msgid "Moo6"
-msgstr "Muuu6"
+msgstr ""
 
 #: guitext:544
 msgctxt "Slab description"
-msgid "Gems: Infinite wealth for your Imps to extract. [12.3]"
-msgstr ""
-"Klejnoty: Niewyczerpane źródło bogactwa. Nigdy nie zostają całkowicie "
-"wykopane, ale wydobywa się je wolniej niż Złoto."
+msgid ""
+"Gems: Infinite wealth for your Imps to extract. Cannot be destroyed, but "
+"takes longer to mine than Gold."
+msgstr "宝石: 供小鬼开采的无限的财富。宝石矿不会被摧毁，但从中挖金子花费的时间比金矿更长。"
 
 #: guitext:545
 msgctxt "Object description"
-msgid "Hero Gate: Heroes use this portal to invade your dungeon. [15.4]"
-msgstr ""
-"Wejście bohaterów: Za pośrednictwem tego przejścia bohaterowie dostają się "
-"do lochu. [15.4]"
+msgid ""
+"Hero Gate: Heroes use this portal to invade your dungeon. It cannot be "
+"closed on your side."
+msgstr "英雄门: 英雄们使用这个入口入侵你的地下城。你无法关闭它。"
 
 #: guitext:546
 msgctxt "Creature name"
 msgid "Tunneller"
-msgstr "Kret"
+msgstr "挖掘者"
 
 #: guitext:547
 msgctxt "Creature name"
 msgid "Avatar"
-msgstr "Avatar"
+msgstr "圣者"
 
-#: guitext:548 guitext:549 guitext:550 guitext:551
-msgctxt "Unused"
-msgid "Moo7"
-msgstr "Muuu7"
+#: guitext:548
+msgctxt "In-game interface description"
+msgid "Toggle Computer Assistant: Currently - Aggressive. LMB toggle."
+msgstr "切换计算机助手: 目前 - 进攻性。左键切换。"
+
+#: guitext:549
+msgctxt "In-game interface description"
+msgid "Toggle Computer Assistant: Currently - Defensive. LMB toggle."
+msgstr "切换计算机助手: 目前 - 防御性。左键切换。"
+
+#: guitext:550
+msgctxt "In-game interface description"
+msgid "Toggle Computer Assistant: Currently - Construction Only. LMB toggle."
+msgstr "切换计算机助手: 目前 - 仅进行建设。左键切换。"
+
+#: guitext:551
+msgctxt "In-game interface description"
+msgid "Toggle Computer Assistant: Currently - Move Only. LMB toggle."
+msgstr "切换计算机助手: 目前 - 仅进行移动。左键切换。"
 
 #: guitext:552
 msgctxt "In-game tab with rooms"
 msgid "Treasure Room"
-msgstr "Skarbiec"
+msgstr "储金室"
 
 #: guitext:553
 msgctxt "In-game tab with rooms"
 msgid "Library"
-msgstr "Biblioteka"
+msgstr "图书馆"
 
 #: guitext:554
 msgctxt "In-game tab with rooms"
 msgid "Lair"
-msgstr "Legowisko"
+msgstr "巢穴"
 
 #: guitext:555
 msgctxt "In-game tab with rooms"
 msgid "Prison"
-msgstr "Więzienie"
+msgstr "监狱"
 
 #: guitext:556
 msgctxt "In-game tab with rooms"
 msgid "Torture Room"
-msgstr "Sala Tortur"
+msgstr "审讯室"
 
 #: guitext:557
 msgctxt "In-game tab with rooms"
 msgid "Training Room"
-msgstr "Sala Treningowa"
+msgstr "训练室"
 
 #: guitext:558
 msgctxt "In-game tab with rooms"
 msgid "Dungeon Heart"
-msgstr "Serce Labiryntu"
+msgstr "地下城心脏"
 
 #: guitext:559
 msgctxt "In-game tab with rooms"
 msgid "Workshop"
-msgstr "Warsztat"
+msgstr "工厂"
 
 #: guitext:560
 msgctxt "In-game tab with rooms"
 msgid "Scavenger Room"
-msgstr "Oczyszczalnia"
+msgstr "招募中心"
 
 #: guitext:561
 msgctxt "In-game tab with rooms"
 msgid "Temple"
-msgstr "Świątynia"
+msgstr "寺庙"
 
 #: guitext:562
 msgctxt "In-game tab with rooms"
 msgid "Graveyard"
-msgstr "Cmentarzysko"
+msgstr "陵墓"
 
 #: guitext:563
 msgctxt "In-game tab with rooms"
 msgid "Barracks"
-msgstr "Koszary"
+msgstr "兵营"
 
 #: guitext:564
 msgctxt "In-game tab with rooms"
 msgid "Hatchery"
-msgstr "Kurnik"
+msgstr "孵化室"
 
 #: guitext:565
 msgctxt "In-game tab with rooms"
 msgid "Guard Post"
-msgstr "Posterunek"
+msgstr "警戒哨所"
 
 #: guitext:566
 msgctxt "In-game tab with rooms"
 msgid "Bridge"
-msgstr "Most"
+msgstr "桥"
 
-#: guitext:567 guitext:568 guitext:569 guitext:570 guitext:571 guitext:572
-#: guitext:573 guitext:574 guitext:575 guitext:576 guitext:577
-msgctxt "Unused"
-msgid "Moo8"
-msgstr "Muuu8"
+#: guitext:567
+msgid "Fight"
+msgstr "战斗"
+
+#: guitext:568
+msgid "Annoyed"
+msgstr "愤怒"
+
+#: guitext:569
+msgctxt "Keyboard"
+msgid "Shift"
+msgstr "Shift"
+
+#: guitext:570
+msgctxt "Keyboard"
+msgid "Control"
+msgstr "Ctrl"
+
+#: guitext:571
+msgctxt "Keyboard"
+msgid "Alt"
+msgstr "Alt"
+
+#: guitext:572
+msgctxt "Credits"
+msgid "Additional Artwork"
+msgstr "辅助美工"
+
+#: guitext:573
+msgctxt "Credits"
+msgid "Additional Programming"
+msgstr "辅助程序"
+
+#: guitext:574
+msgctxt "Credits"
+msgid "Manual And Documentation"
+msgstr "手册与文档"
+
+#: guitext:575
+msgctxt "Credits"
+msgid "Installer"
+msgstr "安装程序"
+
+#: guitext:576
+msgctxt "Credits"
+msgid "Additional Level Design"
+msgstr "辅助任务设计"
+
+#: guitext:577 guitext:863
+msgctxt "Credits"
+msgid "Additional Thanks"
+msgstr "致谢"
 
 #: guitext:578
 msgctxt "Trap names"
 msgid "Boulder Trap"
-msgstr "Pułapka kamienna"
+msgstr "圆石陷阱"
 
 #: guitext:579
 msgctxt "Trap names"
 msgid "Alarm Trap"
-msgstr "Czujnik alarmowy"
+msgstr "警戒陷阱"
 
 #: guitext:580
 msgctxt "Trap names"
 msgid "Poison Gas Trap"
-msgstr "Pułapka gazowa"
+msgstr "毒气陷阱"
 
 #: guitext:581
 msgctxt "Trap names"
 msgid "Lightning Trap"
-msgstr "Pułapka elektryczna"
+msgstr "闪电陷阱"
 
 #: guitext:582
 msgctxt "Trap names"
 msgid "Word of Power Trap"
-msgstr "Pułapka mocnego słowa"
+msgstr "强力咒语陷阱"
 
 #: guitext:583
 msgctxt "Trap names"
 msgid "Lava Trap"
-msgstr "Pułapka magmowa"
+msgstr "岩浆陷阱"
 
 #: guitext:584
 msgctxt "Trap description"
 msgid ""
-"Boulder Trap: A rolling rock that crushes everything in its path. LMB "
-"select. RMB zoom. [20.1]"
+"Boulder Trap: A rolling rock that crushes everything in its path. Triggered "
+"when enemy creature is close and within line of sight, or when slapped by a "
+"Keeper. LMB select. RMB zoom."
 msgstr ""
-"Pułapka kamienna: Toczący się głaz, który miażdży wszystko na swej drodze. "
-"LPM uaktywnia. PPM przybliża. [20.1]"
+"圆石陷井: 一个滚动的巨石将碾碎一切阻挡它的东西。当敌方怪物进入它的视野时"
+"或被守护者打耳光时，圆石陷井将会被触发。左键选择。右键缩放。"
 
 #: guitext:585
 msgctxt "Trap description"
-msgid "Alarm Trap: Triggers a Call To Arms spell. LMB select. RMB zoom. [20.2]"
-msgstr ""
-"Czujnik alarmowy: Uruchamia zaklęcie 'Do broni'. LPM uaktywnia. PPM "
-"przybliża. [20.2]"
+msgid ""
+"Alarm Trap: Triggers a Call To Arms spell, so that creatures in the area are "
+"summoned to it. LMB select. RMB zoom."
+msgstr "警戒陷井: 被触发后施展召唤军队魔法，召唤本区域的怪物集合。左键选择。右键缩放。"
 
 #: guitext:586
 msgctxt "Trap description"
 msgid ""
-"Poison Gas Trap: A cloud of noxious vapours triggered by your enemies. LMB "
-"select. RMB zoom. [20.3]"
+"Poison Gas Trap: A cloud of noxious vapours triggered by your enemies. Can "
+"hurt owner creatures if they inhale it. LMB select. RMB zoom."
 msgstr ""
-"Pułapka gazowa: Obłok trujących oparów, wyzwalany przez nieostrożnych "
-"intruzów. LPM uaktywnia. PPM przybliża. [20.3]"
+"毒气陷井: 被你的敌人触发后放出有毒的烟雾。如果自己的怪物吸入毒气，"
+"同样会受到伤害。左键选择。右键缩放。"
 
 #: guitext:587
 msgctxt "Trap description"
 msgid ""
-"Lightning Trap: Strikes nearby enemy creatures with bolts of lightning. LMB "
-"select. RMB zoom. [20.4]"
+"Lightning Trap: Strikes nearby enemy creatures with bolts of lightning when "
+"tripped. Does no harm to owner creatures. LMB select. RMB zoom."
 msgstr ""
-"Pułapka elektryczna: Ostrzeliwuje błyskawicami pobliskie wrogie stwory. LPM "
-"uaktywnia. PPM przybliża. [20.4]"
+"闪电陷井: 用闪电攻击附近的敌人的怪物。不会伤害到自己的怪物。"
+"左键选择。右键缩放。"
 
 #: guitext:588
 msgctxt "Trap description"
 msgid ""
-"Word of Power Trap: Radiates devastating rings of demonic energy, damaging "
-"all creatures within range. LMB select. RMB zoom. [20.5]"
+"Word of Power Trap: Radiates devastating rings of demonic energy, pushing "
+"and damaging all enemy creatures within range. LMB select. RMB zoom."
 msgstr ""
-"Pułapka mocnego słowa: Emituje niszczycielskie pierścienie demonicznej "
-"energii, czyniąc szkody wszystkim znajdującym się w pobliżu. LPM uaktywnia. "
-"PPM przybliża."
+"强力咒语陷井: 释放出魔鬼般的环形能量，毁灭一切在它的作用范围内的怪物。左键选"
+"择。右键缩放。"
 
 #: guitext:589
 msgctxt "Trap description"
 msgid ""
-"Lava Trap: The tile disintegrates revealing a pool of molten lava. LMB "
-"select. RMB zoom. [20.6]"
+"Lava Trap: The tile disintegrates revealing a pool of molten lava. Effects "
+"are irreversible, so Bridge is needed to be able to step on affected area "
+"again. LMB select. RMB zoom."
 msgstr ""
-"Pułapka magmowa: Powoduje zniknięcie posadzki, zamiast której pojawi się "
-"wrząca magma. Efekt jest nieodwracalny, więc by stwór mógł znowu postawić "
-"stopę w tym miejscu, niezbedny będzie Most. LPM uaktywnia. PPM przybliża."
+"岩浆陷井: 使一格地板熔化成为炙热的岩浆。此效果不可逆转，"
+"所以必须造桥才能再次通过这个区域。左键选择。右键缩放。"
 
 #: guitext:590
 msgctxt "Door name"
 msgid "Wooden Door"
-msgstr "Drzwi drewniane"
+msgstr "木门"
 
 #: guitext:591
 msgctxt "Door name"
 msgid "Braced Door"
-msgstr "Drzwi okute"
+msgstr "铁皮门"
 
 #: guitext:592
 msgctxt "Door name"
 msgid "Iron Door"
-msgstr "Drzwi żelazne"
+msgstr "铁门"
 
 #: guitext:593
 msgctxt "Door name"
 msgid "Magic Door"
-msgstr "Drzwi magiczne"
+msgstr "魔法门"
 
 #: guitext:594
 msgctxt "Door description"
 msgid ""
-"Wooden Door: The simplest means of restricting access. LMB select. RMB zoom. "
-"[21.1]"
-msgstr ""
-"Drzwi drewniane: Najprostszy sposób zablokowania przejścia. Kilkanaście "
-"ciosów wroga zwykle wystarcza do ich wyważenia. LPM uaktywnia. PPM przybliża."
+"Wooden Door: The simplest means of restricting access. Can be broken down "
+"easily. LMB select. RMB zoom."
+msgstr "木门: 最简单的限制通行的工具。可以轻易地摧毁。左键选择。右键缩放。"
 
 #: guitext:595
 msgctxt "Door description"
 msgid ""
-"Braced Door: A wooden door reinforced with iron. LMB select. RMB zoom. [21.2]"
-msgstr ""
-"Drzwi okute: Drewniane drzwi wzmocnione żelazem, dzięki czemu potrafią "
-"znieść nieco więcej. LPM uaktywnia. PPM przybliża."
+"Braced Door: A wooden door reinforced with iron to last longer. LMB select. "
+"RMB zoom."
+msgstr "铁皮门: 包有铁皮的更加耐用的木门。左键选择。右键缩放。"
 
 #: guitext:596
 msgctxt "Door description"
 msgid ""
 "Iron Door: Strong, heavy door capable of sustaining massive damage. LMB "
-"select. RMB zoom. [21.3]"
-msgstr ""
-"Drzwi żelazne: Ciężkie drzwi, odporne na duże uszkodzenia. LPM uaktywnia. "
-"PPM przybliża."
+"select. RMB zoom."
+msgstr "铁门: 重而坚固的门，可以承受巨大的伤害。左键选择。右键缩放。"
 
 #: guitext:597
 msgctxt "Door description"
 msgid ""
 "Magic Door: A special door, highly resistant to physical damage but "
-"susceptible to magical damage. LMB select. RMB zoom. [21.4]"
+"susceptible to magical damage. LMB select. RMB zoom."
 msgstr ""
-"Drzwi magiczne: Specjalne drzwi, w najwyższym stopniu odporne na wyważenie, "
-"ale wrażliwe na magię. LPM uaktywnia. PPM przybliża."
+"魔法门: 一种特殊的门，可以极大地抵抗物理攻击，但易受魔法攻击。左键选择。右键"
+"缩放。 "
 
 #: guitext:598
 msgctxt "Room name"
 msgid "Portal"
-msgstr "Wejście"
+msgstr "入口"
 
 #: guitext:599
 msgctxt "Room name"
 msgid "Treasure Room"
-msgstr "Skarbiec"
+msgstr "储金室"
 
 #: guitext:600
 msgctxt "Room name"
 msgid "Library"
-msgstr "Biblioteka"
+msgstr "图书馆"
 
 #: guitext:601
 msgctxt "Room name"
 msgid "Prison"
-msgstr "Więzienie"
+msgstr "监狱"
 
 #: guitext:602
 msgctxt "Room name"
 msgid "Torture Chamber"
-msgstr "Sala tortur"
+msgstr "审讯室"
 
 #: guitext:603
 msgctxt "Room name"
 msgid "Training Room"
-msgstr "Sala treningowa"
+msgstr "训练室"
 
 #: guitext:604
 msgctxt "Room name"
 msgid "Dungeon Heart"
-msgstr "Serce lochu"
+msgstr "地下城心脏"
 
 #: guitext:605
 msgctxt "Room name"
 msgid "Workshop"
-msgstr "Warsztat"
+msgstr "工厂"
 
 #: guitext:606
 msgctxt "Room name"
 msgid "Graveyard"
-msgstr "Cmentarzysko"
+msgstr "陵墓"
 
 #: guitext:607
 msgctxt "Room name"
 msgid "Barracks"
-msgstr "Koszary"
+msgstr "兵营"
 
 #: guitext:608
 msgctxt "Room name"
 msgid "Hatchery"
-msgstr "Kurnik"
+msgstr "孵化室"
 
 #: guitext:609
 msgctxt "Room name"
 msgid "Lair"
-msgstr "Legowisko"
+msgstr "巢穴"
 
 #: guitext:610
 msgctxt "Room name"
 msgid "Bridge"
-msgstr "Most"
+msgstr "桥"
 
 #: guitext:611
 msgctxt "Room name"
 msgid "Guard Post"
-msgstr "Posterunek"
+msgstr "警戒哨所"
 
 #: guitext:612
 msgctxt "Room name"
 msgid "Temple"
-msgstr "Świątynia"
+msgstr "寺庙"
 
 #: guitext:613
 msgctxt "Room name"
 msgid "Scavenger Room"
-msgstr "Oczyszczalnia"
+msgstr "招募中心"
 
 #: guitext:614
 msgctxt "Object name"
 msgid "Hero Gate"
-msgstr "Wejście bohaterów"
+msgstr "英雄门"
 
 #: guitext:615
 msgctxt "Room description"
 msgid "Treasure Room: Your gold is stored here. LMB select. RMB zoom. [17.1]"
-msgstr ""
-"Skarbiec: Tutaj przechowywane jest Twoje złoto. LPM uaktywnia. PPM "
-"przybliża. [17.1]"
+msgstr "储金室: 你的金子储藏在这里。左键选择。右键缩放。[17.1]"
 
 #: guitext:616
 msgctxt "Room description"
 msgid ""
 "Library: The room where spells are researched. LMB select. RMB zoom. [17.4]"
-msgstr ""
-"Biblioteka: Służy między innymi do opracowywania zaklęć. LPM uaktywnia. PPM "
-"przybliża. [17.4]"
+msgstr "图书馆: 研究魔法的房间。左键选择。右键缩放。[17.4]"
 
 #: guitext:617
 msgctxt "Room description"
 msgid ""
 "Prison: Place enemy creatures here for safe keeping. LMB select. RMB zoom. "
 "[17.10]"
-msgstr ""
-"Więzienie: Tutaj umieszczaj wrogie stwory. LPM uaktywnia. PPM przybliża. "
-"[17.10]"
+msgstr "监狱: 安全关押敌人的怪物的地方。左键选择。右键缩放。[17.10]"
 
 #: guitext:618
 msgctxt "Room description"
 msgid ""
 "Training Room: Place creatures in here to improve their experience. LMB "
 "select. RMB zoom. [17.5]"
-msgstr ""
-"Sala treningowa: Tutaj umieszczaj swoje stwory, by zdobyły doświadczenie. "
-"LPM uaktywnia. PPM przybliża. [17.5]"
+msgstr "训练室: 将怪物放到这里可以提高他们的经验。左键选择。右键缩放。[17.5]"
 
 #: guitext:619
 msgctxt "Room description"
 msgid ""
 "Torture Chamber: Torture creatures for your own evil ends. LMB select. RMB "
 "zoom. [17.11]"
-msgstr ""
-"Sala tortur: Torturuj stwory dla własnych mrocznych celów. LPM uaktywnia. "
-"PPM przybliża. [17.11]"
+msgstr "审讯室: 拷问怪物的地方。左键选择。右键缩放。[17.11]"
 
 #: guitext:620
 msgctxt "Room description"
 msgid "Dungeon Heart: The life force of your dungeon. [11.2]"
-msgstr "Serce labiryntu: Ośrodek życia Twego podziemia. [11.2]"
+msgstr "地下城心脏: 地下城的生命的源泉。[11.2]"
 
 #: guitext:621
 msgctxt "Room description"
 msgid ""
 "Workshop: Place creatures inside to manufacture Traps and Doors. LMB select. "
 "RMB zoom. [17.8]"
-msgstr ""
-"Warsztat: Umieść tu swoje stwory, aby produkowały drzwi i pułapki. LPM "
-"uaktywnia. PPM przybliża. [17.8]"
+msgstr "工厂: 将怪物放到这里可以制造陷井和门。左键选择。右键缩放。[17.8]"
 
 #: guitext:622
 msgctxt "Room description"
 msgid ""
 "Graveyard: Dead creatures are taken to this room to rot. LMB select. RMB "
 "zoom. [17.13]"
-msgstr ""
-"Cmentarzysko: Tutaj gniją różnorodne zwłoki. LPM uaktywnia. PPM przybliża. "
-"[17.13]"
+msgstr "陵墓: 死亡的怪物将被放置到这里直至腐烂。左键选择。右键缩放。[17.13]"
 
 #: guitext:623
 msgctxt "Room description"
 msgid ""
 "Barracks: Group creatures by placing them into the room. LMB select. RMB "
 "zoom. [17.9]"
-msgstr ""
-"Koszary: Formuj oddziały, umieszczając stwory w tym pomieszczeniu. LPM "
-"uaktywnia. PPM przybliża. [17.9]"
+msgstr "兵营: 将怪物放到这里编组。左键选择。右键缩放。[17.9]"
 
 #: guitext:624
 msgctxt "Room description"
 msgid ""
 "Hatchery: Where creatures feast on cute, helpless little chicks. LMB select. "
 "RMB zoom. [17.3]"
-msgstr ""
-"Kurnik: Tutaj stwory posilają się bezbronnymi, pożywnymi kurczakami. LPM "
-"uaktywnia. PPM przybliża. [17.3]"
+msgstr "孵化室: 怪物在这里可以吃到可爱而无助的小鸡。左键选择。右键缩放。[17.3]"
 
 #: guitext:625
 msgctxt "Room description"
 msgid ""
-"Lair: Where your creatures sleep and replenish their energy. LMB select. RMB "
+"Lair: Where your creatures sleep and replenish their health. LMB select. RMB "
 "zoom. [17.2]"
-msgstr ""
-"Legowisko: Tu stwory śpią i regenerują energię. LPM uaktywnia. PPM "
-"przybliża. [17.2]"
+msgstr "巢穴: 怪物睡觉和补充体力的地方。左键选择。右键缩放。[17.2]"
 
 #: guitext:626
 msgctxt "Room description"
 msgid ""
 "Bridge: Place this on water and lava to allow creatures to cross. LMB "
 "select. RMB zoom. [17.6]"
-msgstr ""
-"Most: Umożliwia stworom przechodzenie nad wodą i lawą. LPM uaktywnia. PPM "
-"przybliża. [17.6]"
+msgstr "桥: 放置在水上和岩浆上使怪物可以通过。左键选择。右键缩放。[17.6]"
 
 #: guitext:627
 msgctxt "Room description"
@@ -1412,17 +1471,16 @@ msgid ""
 "Guard Post: Your creatures keep watch over your dungeon when placed on this "
 "room. LMB select. RMB zoom. [17.7]"
 msgstr ""
-"Posterunek: Umieszczone na nim stwory strzegą lochu. LPM uaktywnia. PPM "
-"przybliża. [17.8]"
+"警戒哨所: 怪物被放置到上面后会看守你的地下城。左键选择。右键缩放。[17.7]"
 
 #: guitext:628
 msgctxt "Room description"
 msgid ""
 "Temple: Worshipping the dark gods makes creatures happier. Sacrifice "
-"creatures by dropping them into the font. LMB select. RMB zoom. [17.12]"
+"creatures by dropping them into the fountain. LMB select. RMB zoom. [17.12]"
 msgstr ""
-"Świątynia: Odddawanie czci Ciemnym Bogom uszczęśliwia stwory. Możesz także "
-"składać stwory w ofierze na ołtarzu. LPM uaktywnia. PPM przybliża. [17.12]"
+"寺庙: 崇拜黑暗之神可以使怪物更快乐。将怪物放到祭坛上作祭品。左键选择。右键缩"
+"放。[17.12]"
 
 #: guitext:629
 msgctxt "Room description"
@@ -1430,109 +1488,105 @@ msgid ""
 "Scavenger Room: Creatures placed onto the room lure their kin away from "
 "other dungeons or through portals. LMB select. RMB zoom. [17.14]"
 msgstr ""
-"Oczyszczalnia: Umieszczone tutaj stwory wabią swych pobratymców z "
-"pozostałych części podziemia lub przez wejścia. LPM uaktywnia. PPM "
-"przybliża. [17.14]"
+"招募中心: 在这里的怪物会引诱在其他地下城中或入口外的同类怪物。左键选择。右键"
+"缩放。[17.14]"
 
 #: guitext:630
 msgctxt "Keeper spell name"
 msgid "Possess Creature"
-msgstr "Opętanie"
+msgstr "控制怪物"
 
 #: guitext:631
 msgctxt "Keeper spell name"
 msgid "Create Imp"
-msgstr "Tworzenie chochlika"
+msgstr "制造小鬼"
 
 #: guitext:632
 msgctxt "Keeper spell name"
 msgid "Sight of Evil"
-msgstr "Oko zła"
+msgstr "邪恶之眼"
 
 #: guitext:633
 msgctxt "Keeper spell name"
 msgid "Call To Arms"
-msgstr "Do broni"
+msgstr "召唤军队"
 
 #: guitext:634
 msgctxt "Keeper spell name"
 msgid "Hold Audience"
-msgstr "Audiencja"
+msgstr "召唤术"
 
 #: guitext:635
 msgctxt "Keeper spell name"
 msgid "Cave-In"
-msgstr "Zawalenie"
+msgstr "塌方术"
 
 #: guitext:636
 msgctxt "Keeper spell name"
 msgid "Must Obey"
-msgstr "Przymus"
+msgstr "无上权威"
 
 #: guitext:637
 msgctxt "Keeper spell name"
 msgid "Speed Monster"
-msgstr "Przyspieszacz potwora"
+msgstr "速度术"
 
 #: guitext:638
 msgctxt "Keeper spell name"
 msgid "Protect Monster"
-msgstr "Ochrona potwora"
+msgstr "保护术"
 
 #: guitext:639
 msgctxt "Keeper spell name"
 msgid "Conceal Monster"
-msgstr "Ukrycie potwora"
+msgstr "隐身术"
 
 #: guitext:640
 msgctxt "Keeper spell name"
 msgid "Lightning Strike"
-msgstr "Błyskawica"
+msgstr "闪电术"
 
 #: guitext:641
 msgctxt "Keeper spell name"
 msgid "Chicken"
-msgstr "Kurczak"
+msgstr "变为小鸡"
 
 #: guitext:642
 msgctxt "Keeper spell name"
 msgid "Disease"
-msgstr "Choroba"
+msgstr "疾病术"
 
 #: guitext:643
 msgctxt "Keeper spell name"
 msgid "Destroy Walls"
-msgstr "Zniszczenie ścian"
+msgstr "破坏墙壁"
 
 #: guitext:644
 msgctxt "Keeper spell name"
 msgid "Heal"
-msgstr "Uzdrowienie"
+msgstr "治疗术"
 
 #: guitext:645
 msgctxt "Keeper spell name"
 msgid "Time Bomb"
-msgstr "Bomba zegarowa"
+msgstr "定时炸弹"
 
 #: guitext:646
 msgctxt "Keeper spell name"
 msgid "Armageddon"
-msgstr "Armageddon"
+msgstr "末日审判"
 
 #: guitext:647
 msgctxt "Keeper spell description"
 msgid "Possess Creature: Control a creature directly. LMB select. [18.1]"
-msgstr ""
-"Opętanie: Umożliwia bezpośrednie kierowanie stworem. LPM uaktywnia. [18.1]"
+msgstr "控制怪物: 直接控制一个怪物。左键选择。[18.1]"
 
 #: guitext:648
 msgctxt "Keeper spell description"
 msgid ""
 "Create Imp: Create summon a new Imp anywhere in your dungeon. LMB select. "
 "[18.2]"
-msgstr ""
-"Tworzenie chochlika: Przywołuje nowego chochlika w dowolnym punkcie lochu. "
-"LPM uaktywnia. [18.2]"
+msgstr "制造小鬼: 召唤一个新的小鬼进入你的地下城。左键选择。[18.2]"
 
 #: guitext:649
 msgctxt "Keeper spell description"
@@ -1540,108 +1594,89 @@ msgid ""
 "Sight of Evil: Reveal a hidden area of the map for a limited time. LMB "
 "select. RMB zoom. [18.3]"
 msgstr ""
-"Oko zła: Na pewien czas odsłania ukryty fragment mapy. LPM uaktywnia. PPM "
-"przybliża. [18.3]"
+"邪恶之眼: 在有限时间内揭示地图上的一个隐藏区域。左键选择。右键缩放。[18.3]"
 
 #: guitext:650
 msgctxt "Keeper spell description"
 msgid ""
-"Call To Arms: Calls all your creatures to an area of your dungeon. LMB "
-"select, LMB again to reselect, LMB a third time to cancel. RMB zoom. [18.6]"
+"Call To Arms: Calls creatures in range to any destination. LMB Select. "
+"Cast in range of creatures to gather, cast again for destination. "
+"RMB zoom. LMB Cancel. [18.6]"
 msgstr ""
-"Do broni: Wzywa wszystkie stwory do określonego punktu lochu. LPM uaktywnia, "
-"kolejne kliknięcie LPM uaktywnia powtórnie, trzecie kliknięcie LPM "
-"dezaktywuje. PPM przybliża. [18.6]"
+"召唤军队: 召唤在地下城的这个区域的全部怪物。左键选择，再按左键重新选择，第三"
+"次按左键取消。右键缩放。[18.6]"
 
 #: guitext:651
 msgctxt "Keeper spell description"
 msgid ""
 "Hold Audience: Calls all your creatures to the Dungeon Heart. LMB select. "
 "RMB zoom. [18.8]"
-msgstr ""
-"Audiencja: Wzywa wszystkie Twoje stwory do Serca labiryntu. LPM uaktywnia. "
-"PPM przybliża. [18.8]"
+msgstr "召唤术: 召唤你的全部怪物到地下城的心脏。右键缩放。[18.8]"
 
 #: guitext:652
 msgctxt "Keeper spell description"
 msgid "Cave In: Collapses the roof of the dungeon. LMB select. [18.13]"
-msgstr "Zawalenie: Powoduje zapadnięcie się stropu. LPM uaktywnia. [18.13]"
+msgstr "塌方术: 使地下城的顶部倒塌。左键选择。[18.13]"
 
 #: guitext:653
 msgctxt "Keeper spell description"
 msgid ""
 "Must Obey: Forces your creatures to obey your every command. LMB select. "
 "[18.5]"
-msgstr ""
-"Przymus: Zmusza wszystkie Twoje stwory do natychmiastowego wykonania Twoich "
-"poleceń. LPM uaktywnia. [18.5]"
+msgstr "无上权威: 强迫你的怪物服从你的每一个命令。左键选择。[18.5]"
 
 #: guitext:654
 msgctxt "Keeper spell description"
 msgid "Speed Monster: Increases the speed of your monsters. LMB select. [18.4]"
-msgstr ""
-"Przyspieszacz potwora: Zwiększa szybkość działania Twoich stworów. LPM "
-"uaktywnia. [18.4]"
+msgstr "速度术: 提高你的怪物的速度。左键选择。[18.4]"
 
 #: guitext:655
 msgctxt "Keeper spell description"
 msgid ""
 "Protect Monster: Shields your creatures from attack. LBM select. [18.11]"
-msgstr ""
-"Ochrona potwora: Osłania Twoje stwory przed atakiem. LPM uaktywnia. [18.11]"
+msgstr "保护术: 保护怪物免受攻击。左键选择。[18.11]"
 
 #: guitext:656
 msgctxt "Keeper spell description"
 msgid ""
 "Conceal Monster: Makes your creatures invisible to the enemy. LMB select. "
 "[18.7]"
-msgstr ""
-"Ukrycie potwora: Czyni Twoje stwory niewidzialnymi dla wroga. LPM uaktywnia. "
-"[18.7]"
+msgstr "隐身术: 使敌人看不见你的怪物。左键选择。[18.7]"
 
 #: guitext:657
 msgctxt "Keeper spell description"
 msgid ""
 "Lightning Strike: Strikes an area of the dungeon with a devastating bolt of "
 "lightning. LMB select. [18.10]"
-msgstr ""
-"Błyskawica: Uderza w pewien obszar lochu niszczycielską energią. LPM "
-"uaktywnia. [18.10]"
+msgstr "闪电术: 释放一道毁灭性的闪电电击地下城中的一片区域。左键选择。[18.10]"
 
 #: guitext:658
 msgctxt "Keeper spell description"
 msgid "Chicken: Transforms the enemy into a tasty morsel. LMB select. [18.12]"
-msgstr "Kurczak: Przekształca wroga w smaczny kąsek. LPM uaktywnia. [18.12]"
+msgstr "变为小鸡: 将敌人变为美味佳肴。左键选择。[18.12]"
 
 #: guitext:659
 msgctxt "Keeper spell description"
 msgid ""
 "Disease: Inflicts a deadly plague on an enemy creature. LMB select. [18.14]"
-msgstr "Choroba: zaraża wrogiego śmiertelną chorobą. LPM uaktywnia. [18.14]"
+msgstr "疾病术: 使一个敌人的怪物染上致命的瘟疫。左键选择。[18.14]"
 
 #: guitext:660
 msgctxt "Keeper spell description"
 msgid ""
-"Destroy Walls: Breaks down reinforcemed enemy's walls. LMB select. [18.16]"
-msgstr ""
-" Zniszczenie ścian: Kruszy umocnione ściany lochu wroga. LPM uaktywnia. "
-"[18.16]"
+"Destroy Walls: Breaks down reinforced enemy's walls. LMB select. [18.16]"
+msgstr "破坏墙壁: 击毁加固过的敌人的墙壁。左键选择。[18.16]"
 
 #: guitext:661
 msgctxt "Keeper spell description"
 msgid ""
-"Heal: Cast on an area of the dungeon to improve the health of your "
-"creatures. LMB select. [18.9]"
-msgstr ""
-"Uzdrowienie: Rzucone na określony obszar lochu poprawia stan zdrowia Twoich "
-"stworów. LPM uaktywnia. [18.9]"
+"Heal: Cast on a creature to improve its health. LMB select. [18.9]"
+msgstr "治疗术: 可以使一个区域内的你的怪物的生命值恢复。左键选择。[18.9]"
 
 #: guitext:662
 msgctxt "Keeper spell description"
 msgid "Time Bomb: Turns your creature into a suicidal bomber."
-msgstr ""
-"Bomba zegarowa: Uzbraja stwora w ładunek wybuchowy i wysyła do wrogiego "
-"lochu. Stwór rozerwie się na wycieczce, więc już z niej nie wróci."
+msgstr "定时炸弹"
 
 #: guitext:663
 msgctxt "Keeper spell description"
@@ -1649,5 +1684,4 @@ msgid ""
 "Armageddon: Transports all the creatures in the land to your Dungeon Heart "
 "for a final, decisive battle. LMB select. [18.15]"
 msgstr ""
-"Armageddon: Przenosi wszystkie stwory obecne w krainie do Serca Twego "
-"labiryntu, by uczestniczyły w ostatecznej bitwie. LPM uaktywnia. [18.15]"
+"末日审判: 将地下所有的怪物传送至地下城的心脏，进行大决战。左键选择。[18.15]"

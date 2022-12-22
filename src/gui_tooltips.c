@@ -499,14 +499,13 @@ long find_string_length_to_first_character(char *str, char fch)
 long find_string_width_to_first_character(char *str, char fch)
 {
   char text[TOOLTIP_MAX_LEN];
-  long len = find_string_length_to_first_character(str, fch);
+  long len = find_string_length_to_first_character(str, fch) + 1;
   if (len >= sizeof(text))
   {
     WARNLOG("This bloody tooltip is too long");
     len = sizeof(text)-1;
   }
   snprintf(text, len, "%s", str);
-  text[len] = '\0';
   return pixel_size * LbTextStringWidth(text);
 }
 

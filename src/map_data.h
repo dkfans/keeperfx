@@ -40,6 +40,7 @@ enum MapCoordClipFlags {
 struct Map {
       unsigned char flags;
       unsigned long data;
+      unsigned long mapwho;
 };
 
 #define INVALID_MAP_BLOCK (&bad_map_block)
@@ -52,11 +53,7 @@ struct Map {
 /******************************************************************************/
 extern struct Map bad_map_block;
 extern const long map_to_slab[];
-extern MapSubtlCoord map_subtiles_x;
-extern MapSubtlCoord map_subtiles_y;
 extern MapSubtlCoord map_subtiles_z;
-extern MapSlabCoord map_tiles_x;
-extern MapSlabCoord map_tiles_y;
 extern long navigation_map_size_x;
 extern long navigation_map_size_y;
 extern unsigned char *IanMap;
@@ -142,6 +139,9 @@ void reveal_map_area(PlayerNumber plyr_idx,MapSubtlCoord start_x,MapSubtlCoord e
 void conceal_map_area(PlayerNumber plyr_idx,MapSubtlCoord start_x,MapSubtlCoord end_x,MapSubtlCoord start_y,MapSubtlCoord end_y, TbBool all);
 void clear_mapwho(void);
 void clear_mapmap(void);
+
+void set_map_size(MapSlabCoord x,MapSlabCoord y);
+void init_map_size(LevelNumber lvnum);
 /******************************************************************************/
 #ifdef __cplusplus
 }

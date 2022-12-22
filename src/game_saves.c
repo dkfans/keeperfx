@@ -415,7 +415,7 @@ TbBool load_game(long slot_num)
     LbStringCopy(game.campaign_fname,campaign.fname,sizeof(game.campaign_fname));
     reinit_level_after_load();
     output_message(SMsg_GameLoaded, 0, true);
-    pannel_map_update(0, 0, map_subtiles_x+1, map_subtiles_y+1);
+    pannel_map_update(0, 0, gameadd.map_subtiles_x+1, gameadd.map_subtiles_y+1);
     calculate_moon_phase(false,false);
     update_extra_levels_visibility();
     struct PlayerInfo* player = get_my_player();

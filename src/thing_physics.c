@@ -36,6 +36,7 @@
 #include "map_columns.h"
 #include "map_blocks.h"
 #include "map_utils.h"
+#include "game_merge.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -554,8 +555,8 @@ long get_thing_height_at_with_radius(const struct Thing *thing, const struct Coo
 {
     MapCoord pos_x_beg = max((MapCoord)pos->x.val - radius, 0);
     MapCoord pos_y_beg = max((MapCoord)pos->y.val - radius, 0);
-    MapCoord pos_x_end = min((MapCoord)pos->x.val + radius, subtile_coord(map_subtiles_x, COORD_PER_STL - 1));
-    MapCoord pos_y_end = min((MapCoord)pos->y.val + radius, subtile_coord(map_subtiles_y, COORD_PER_STL - 1));
+    MapCoord pos_x_end = min((MapCoord)pos->x.val + radius, subtile_coord(gameadd.map_subtiles_x, COORD_PER_STL - 1));
+    MapCoord pos_y_end = min((MapCoord)pos->y.val + radius, subtile_coord(gameadd.map_subtiles_y, COORD_PER_STL - 1));
     MapSubtlCoord floor_height;
     MapSubtlCoord ceiling_height;
     get_min_floor_and_ceiling_heights_for_rect(coord_subtile(pos_x_beg), coord_subtile(pos_y_beg),
@@ -700,11 +701,11 @@ long get_floor_height_under_thing_at(const struct Thing *thing, const struct Coo
     MapCoord pos_y_beg = (pos->y.val - radius);
     if (pos_y_beg < 0)
         pos_y_beg = 0;
-    if (pos_x_end >= subtile_coord(map_subtiles_x,COORD_PER_STL-1))
-        pos_x_end = subtile_coord(map_subtiles_x,COORD_PER_STL-1);
+    if (pos_x_end >= subtile_coord(gameadd.map_subtiles_x,COORD_PER_STL-1))
+        pos_x_end = subtile_coord(gameadd.map_subtiles_x,COORD_PER_STL-1);
     MapCoord pos_y_end = pos->y.val + radius;
-    if (pos_y_end >= subtile_coord(map_subtiles_y,COORD_PER_STL-1))
-        pos_y_end = subtile_coord(map_subtiles_y,COORD_PER_STL-1);
+    if (pos_y_end >= subtile_coord(gameadd.map_subtiles_y,COORD_PER_STL-1))
+        pos_y_end = subtile_coord(gameadd.map_subtiles_y,COORD_PER_STL-1);
     // Find correct floor and ceiling plane for the area
     MapSubtlCoord floor_height;
     MapSubtlCoord ceiling_height;
@@ -729,11 +730,11 @@ long get_ceiling_height_above_thing_at(const struct Thing *thing, const struct C
     if (pos_y_beg < 0)
         pos_y_beg = 0;
     int pos_x_end = (int)pos->x.val + radius;
-    if (pos_x_end >= subtile_coord(map_subtiles_x,COORD_PER_STL-1))
-        pos_x_end = subtile_coord(map_subtiles_x,COORD_PER_STL-1);
+    if (pos_x_end >= subtile_coord(gameadd.map_subtiles_x,COORD_PER_STL-1))
+        pos_x_end = subtile_coord(gameadd.map_subtiles_x,COORD_PER_STL-1);
     int pos_y_end = (int)pos->y.val + radius;
-    if (pos_y_end >= subtile_coord(map_subtiles_y,COORD_PER_STL-1))
-        pos_y_end = subtile_coord(map_subtiles_y,COORD_PER_STL-1);
+    if (pos_y_end >= subtile_coord(gameadd.map_subtiles_y,COORD_PER_STL-1))
+        pos_y_end = subtile_coord(gameadd.map_subtiles_y,COORD_PER_STL-1);
     // Set initial values for computing floor and ceiling heights
     MapSubtlCoord floor_height;
     MapSubtlCoord ceiling_height;
@@ -763,11 +764,11 @@ void get_floor_and_ceiling_height_under_thing_at(const struct Thing *thing,
     MapCoord pos_y_beg = (pos->y.val - radius);
     if (pos_y_beg < 0)
         pos_y_beg = 0;
-    if (pos_x_end >= subtile_coord(map_subtiles_x,COORD_PER_STL-1))
-        pos_x_end = subtile_coord(map_subtiles_x,COORD_PER_STL-1);
+    if (pos_x_end >= subtile_coord(gameadd.map_subtiles_x,COORD_PER_STL-1))
+        pos_x_end = subtile_coord(gameadd.map_subtiles_x,COORD_PER_STL-1);
     MapCoord pos_y_end = pos->y.val + radius;
-    if (pos_y_end >= subtile_coord(map_subtiles_y,COORD_PER_STL-1))
-        pos_y_end = subtile_coord(map_subtiles_y,COORD_PER_STL-1);
+    if (pos_y_end >= subtile_coord(gameadd.map_subtiles_y,COORD_PER_STL-1))
+        pos_y_end = subtile_coord(gameadd.map_subtiles_y,COORD_PER_STL-1);
     // Find correct floor and ceiling plane for the area
     MapSubtlCoord floor_height;
     MapSubtlCoord ceiling_height;
