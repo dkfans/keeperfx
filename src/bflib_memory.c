@@ -94,9 +94,11 @@ WINBASEAPI VOID WINAPI GlobalMemoryStatus(LPMEMORYSTATUS);
 }
 #endif
 /******************************************************************************/
-unsigned long lbMemoryAvailable=0;
-short lbMemorySetup=0;
+static unsigned long lbMemoryAvailable=0;
+static short lbMemorySetup=0;
+
 char lbEmptyString[] = "";
+unsigned long mem_size;
 /******************************************************************************/
 /**
  * Updates memory status variables.
