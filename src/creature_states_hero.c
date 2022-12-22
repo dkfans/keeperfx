@@ -76,7 +76,7 @@ TbBool has_available_enemy_dungeon_heart(struct Thing *thing, PlayerNumber plyr_
         cctrl->byte_8B = 0;
     }
     // Try accessing dungeon heart of undefeated enemy players
-    if (!player_is_friendly_or_defeated(plyr_idx, thing->owner) && (creature_can_get_to_dungeon(thing, plyr_idx)))
+    if (!player_is_friendly_or_defeated(plyr_idx, thing->owner) && (creature_can_get_to_dungeon_heart(thing, plyr_idx)))
     {
         return true;
     }
@@ -113,7 +113,7 @@ long good_find_best_enemy_dungeon(struct Thing* creatng)
         player = get_player(plyr_idx);
         if (gameadd.classic_bugs_flags & ClscBug_AlwaysTunnelToRed)
         {
-            if (creature_can_get_to_dungeon(creatng, plyr_idx))
+            if (creature_can_get_to_dungeon_heart(creatng, plyr_idx))
             {
                 if (player_is_friendly_or_defeated(plyr_idx, creatng->owner)) {
                     continue;
@@ -863,10 +863,13 @@ short good_doing_nothing(struct Thing *creatng)
             if (nturns > 400)
             {
                 // Go to the previously chosen dungeon
-                if (!creature_can_get_to_dungeon(creatng,target_plyr_idx))
+                if (!creature_can_get_to_dungeon_heart(creatng,target_plyr_idx))
                 {
-                    // Cannot get to the originally selected dungeon - reset it
-                    cctrl->party.target_plyr_idx = -1;
+                    if (!creature_can_get_to_any_of_players_rooms(creatng, target_plyr_idx) || (cctrl->party_objective != CHeroTsk_AttackRooms))
+                    {
+                        // Cannot get to the originally selected dungeon - reset it
+                        cctrl->party.target_plyr_idx = -1;
+                    }
                 }
             } else
             if (nturns >= 0)

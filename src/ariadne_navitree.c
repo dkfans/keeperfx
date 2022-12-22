@@ -273,7 +273,6 @@ static void delaunay_stack_point(long pt_x, long pt_y)
     }
     NAVIDBG(19,"Done");
 }
-HOOK_DK_FUNC(delaunay_stack_point)
 
 long optimise_heuristic(long tri_id1, long tri_id2)
 {
@@ -350,7 +349,6 @@ long delaunay_seeded(long start_x, long start_y, long end_x, long end_y)
     }
     return count;
 }
-HOOK_DK_FUNC(delaunay_seeded)
 
 /******************************************************************************/
 #ifdef __cplusplus
