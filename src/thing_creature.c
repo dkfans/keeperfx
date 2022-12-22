@@ -98,6 +98,8 @@ extern "C" {
 
 /******************************************************************************/
 int creature_swap_idx[CREATURE_TYPES_COUNT];
+struct Creatures creatures[CREATURE_TYPES_MAX];
+unsigned short breed_activities[CREATURE_TYPES_MAX];
 
 struct Creatures creatures_NEW[] = {
   { 0,  0, 0, 0, 0, 0, 0, 0, 0, 0x0000, 1},
