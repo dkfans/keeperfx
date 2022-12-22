@@ -90,9 +90,6 @@ short field_34;
 };
 
 /******************************************************************************/
-//DLLIMPORT extern unsigned char _DK_trap_to_object[8];
-//DLLIMPORT struct TrapStats _DK_trap_stats[7];
-//#define trap_stats _DK_trap_stats
 
 #pragma pack()
 /******************************************************************************/
