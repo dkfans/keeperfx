@@ -28,8 +28,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT long _DK_heapmgr_free_handle(struct HeapMgrHeader *hmhead, struct HeapMgrHandle *hmhandle);
-/******************************************************************************/
 struct HeapMgrHandle *find_free_handle(struct HeapMgrHeader *hmhead)
 {
     if (hmhead->field_10 >= hmhead->handles_count)
@@ -89,7 +87,6 @@ long heapmgr_free_handle(struct HeapMgrHeader *hmhead, struct HeapMgrHandle *hmh
 
 long heapmgr_free_oldest(struct HeapMgrHeader *hmhead)
 {
-    //return _DK_heapmgr_free_oldest(hmhead);
     struct HeapMgrHandle* hlast = hmhead->last_hndl;
     if (hlast == NULL) {
         return -1;
@@ -111,7 +108,6 @@ long heapmgr_free_oldest(struct HeapMgrHeader *hmhead)
  */
 void heapmgr_make_newest(struct HeapMgrHeader *hmhead, struct HeapMgrHandle *hmhandle)
 {
-    //_DK_heapmgr_make_newest(hmhead, hmhandle);
     struct HeapMgrHandle* hnext = hmhandle->next_hndl;
     if (hnext != NULL)
     {
@@ -210,7 +206,6 @@ struct HeapMgrHandle *heapmgr_add_item(struct HeapMgrHeader *hmhdr, long idx)
 
 struct HeapMgrHeader *heapmgr_init(unsigned char *buf_end, long buf_remain, long nheaders)
 {
-    //return _DK_heapmgr_init(buf_end, buf_remain, nsamples);
     long headers_len = sizeof(struct HeapMgrHeader) + sizeof(struct HeapMgrHandle) * nheaders;
     if (buf_remain <= headers_len)
         return NULL;
@@ -229,7 +224,6 @@ struct HeapMgrHeader *heapmgr_init(unsigned char *buf_end, long buf_remain, long
 
 void heapmgr_complete_defrag(struct HeapMgrHeader *hmhead)
 {
-    //_DK_heapmgr_complete_defrag(hmhead); return;
     for (struct HeapMgrHandle* hmhandle = hmhead->first_alloc; hmhandle->next_alloc != NULL; hmhandle = hmhandle->next_alloc)
     {
         void *bufend = (char*)hmhandle->buf + hmhandle->len;
