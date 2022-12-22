@@ -42,57 +42,49 @@ struct HeapMgrHandle *find_free_handle(struct HeapMgrHeader *hmhead)
 
 long heapmgr_free_handle(struct HeapMgrHeader *hmhead, struct HeapMgrHandle *hmhandle)
 {
-    struct HeapMgrHandle *hmhandle_2;
-    struct HeapMgrHandle **hmhandle_next_alloc;
-    const struct HeapMgrHandle **hmhandle_3;
-    struct HeapMgrHandle *v5;
-    struct HeapMgrHandle *prev_hndl;
-    void **p_next_hndl;
-    int v8;
-    const struct HeapMgrHandle *v10;
+    struct HeapMgrHandle *prev_alloc;
+    struct HeapMgrHandle *next_alloc;
+    void* databuf_start;
+    int idx;
 
-    hmhandle_2 = hmhandle->field_C;
-    hmhandle_next_alloc = (struct HeapMgrHandle **)&hmhandle->next_alloc;
-    if (hmhandle_2)
-        hmhandle_2->next_alloc = *hmhandle_next_alloc;
+    if (hmhandle->prev_alloc)
+        hmhandle->prev_alloc->next_alloc = hmhandle->next_alloc;
     else
-        hmhead->first_alloc = *hmhandle_next_alloc;
-    if (*hmhandle_next_alloc)
+        hmhead->first_alloc = hmhandle->next_alloc;
+    if (hmhandle->next_alloc)
     {
-        (*hmhandle_next_alloc)->field_C = hmhandle->field_C;
-        hmhandle_3 = (const struct HeapMgrHandle **)*hmhandle_next_alloc;
-        if (((*hmhandle_next_alloc)->flags & 4) == 0)
+        prev_alloc = hmhandle->prev_alloc;
+        hmhandle->next_alloc->prev_alloc = prev_alloc;
+        next_alloc = hmhandle->next_alloc;
+        if ((next_alloc->flags & 4) == 0)
         {
-            v5 = hmhandle->field_C;
-            v10 = hmhandle_3[1];
-            if (v5)
+            if (prev_alloc)
             {
-                memcpy((char *)v5->buf + v5->len, *hmhandle_3, (size_t)v10);
-                (*hmhandle_next_alloc)->buf = (char *)hmhandle->field_C->buf + hmhandle->field_C->len;
+                memmove(hmhandle->prev_alloc->len + hmhandle->prev_alloc->buf, next_alloc->buf, next_alloc->len);
+                databuf_start = hmhandle->prev_alloc->len + hmhandle->prev_alloc->buf;
+                next_alloc = hmhandle->next_alloc;
             }
             else
             {
-                memcpy(hmhead->databuf_start, *hmhandle_3, (size_t)v10);
-                (*hmhandle_next_alloc)->buf = hmhead->databuf_start;
+                memmove(hmhead->databuf_start, next_alloc->buf, next_alloc->len);
+                next_alloc = hmhandle->next_alloc;
+                databuf_start = hmhead->databuf_start;
             }
+            next_alloc->buf = databuf_start;
         }
     }
-    prev_hndl = (struct HeapMgrHandle *)hmhandle->prev_hndl;
-    p_next_hndl = &hmhandle->next_hndl;
-    if (prev_hndl)
-        prev_hndl->next_hndl = *p_next_hndl;
+    if (hmhandle->prev_hndl)
+        hmhandle->prev_hndl->next_hndl = hmhandle->next_hndl;
     else
-        hmhead->last_hndl = *p_next_hndl;
-    if (*p_next_hndl)
-        *((_DWORD *)*p_next_hndl + 5) = hmhandle->prev_hndl;
+        hmhead->last_hndl = hmhandle->next_hndl;
+    if (hmhandle->next_hndl)
+        hmhandle->next_hndl->prev_hndl = hmhandle->prev_hndl;
     else
         hmhead->first_hndl = hmhandle->prev_hndl;
-    v8 = hmhead->field_14;
     --hmhead->field_10;
-    hmhead->field_14 = v8 - hmhandle->len;
-    LOWORD(v8) = hmhandle->idx;
+    hmhead->field_14 -= hmhandle->len;
     memset(hmhandle, 0, sizeof(struct HeapMgrHandle));
-    return (unsigned __int16)v8;
+    return hmhandle->idx;
 }
 
 long heapmgr_free_oldest(struct HeapMgrHeader *hmhead)
@@ -179,10 +171,10 @@ struct HeapMgrHandle *heapmgr_add_item(struct HeapMgrHeader *hmhdr, long idx)
                 alloc_iter = alloc_iter->next_alloc;
             }
             res->buf = (char*)alloc_iter->buf + alloc_iter->len;
-            res->field_C = alloc_iter;
+            res->prev_alloc = alloc_iter;
             res->next_alloc = alloc_iter->next_alloc;
             if (alloc_iter->next_alloc)
-                alloc_iter->next_alloc->field_C = res;
+                alloc_iter->next_alloc->prev_alloc = res;
             alloc_iter->next_alloc = res;
         }
         else
@@ -190,7 +182,7 @@ struct HeapMgrHandle *heapmgr_add_item(struct HeapMgrHeader *hmhdr, long idx)
             res->buf = hmhdr->databuf_start;
             res->next_alloc = alloc_iter;
             hmhdr->first_alloc = res;
-            alloc_iter->field_C = res;
+            alloc_iter->prev_alloc = res;
         }
     }
     else
