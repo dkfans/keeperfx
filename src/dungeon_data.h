@@ -106,31 +106,14 @@ struct Dungeon {
     unsigned short dnheart_idx;
     struct Coord3d mappos;
     unsigned char creature_tendencies;
-    unsigned char field_9_unused;
     unsigned char computer_enabled;
-    unsigned short room_kind_old[ROOM_TYPES_COUNT_OLD];
     short creatr_list_start;
     short digger_list_start;
-    short field_31_unused;
     short things_in_hand[MAX_THINGS_IN_HAND];
-    short field_43_unused;
-    int field_45_unused;
-    int field_49_unused;
-    int field_4D_unused;
-    short field_51_unused;
-    short field_53_unused;
-    int field_55_unused;
-    int field_59_unused;
-    int field_5D_unused;
-    short field_61_unused;
     unsigned char num_things_in_hand;
     unsigned short field_64[CREATURE_TYPES_COUNT][15];
     unsigned short guijob_all_creatrs_count[CREATURE_TYPES_COUNT][3];
     unsigned short guijob_angry_creatrs_count[CREATURE_TYPES_COUNT][3];
-    short field_5A4[9];//originally was [15], but seem unused
-    unsigned char trap_amount_offmap_[TRAP_TYPES_COUNT];
-    unsigned char door_amount_offmap_[DOOR_TYPES_COUNT_OLD];
-    unsigned char room_slabs_count_OLD[ROOM_TYPES_COUNT_OLD+1];
     int sight_casted_gameturn;
     short sight_casted_thing_idx;
     unsigned char sight_casted_splevel;
@@ -152,7 +135,6 @@ struct Dungeon {
     unsigned char gold_piles_sacrificed;
     unsigned char creature_sacrifice[CREATURE_TYPES_COUNT];
     unsigned char creature_sacrifice_exp[CREATURE_TYPES_COUNT];
-    unsigned char field_916[2];
     unsigned char num_active_diggers;
     unsigned char num_active_creatrs;
     unsigned char owned_creatures_of_model[CREATURE_TYPES_COUNT];
@@ -161,7 +143,6 @@ struct Dungeon {
     unsigned short total_doors;
     unsigned short total_area;
     unsigned short total_creatures_left;
-    int field_941;
     int doors_destroyed;
     short room_manage_area;
     short creatures_scavenged[CREATURE_TYPES_COUNT];
@@ -191,7 +172,6 @@ struct Dungeon {
     short hates_player[DUNGEONS_COUNT];
     struct MapTask task_list[MAPTASKS_COUNT];
     int task_count;
-    int field_E93[3];
     unsigned char owner;
     int camera_deviate_quake;
     int camera_deviate_jump;
@@ -199,9 +179,6 @@ struct Dungeon {
     struct ResearchVal research[DUNGEON_RESEARCH_COUNT];
     int current_research_idx;
     unsigned char research_num;
-    unsigned char field_F7D_UNUSED;
-    unsigned char room_buildable_OLD[ROOM_TYPES_COUNT_OLD];
-    unsigned char room_resrchable_OLD[ROOM_TYPES_COUNT_OLD];
     /** How many creatures are force-enabled for each kind.
      * Force-enabled creature can come from portal without additional conditions,
      * but only until dungeon has up to given amount of their kind. */
@@ -212,20 +189,7 @@ struct Dungeon {
     unsigned char creature_allowed[CREATURE_TYPES_COUNT];
     unsigned char magic_level[KEEPER_POWERS_COUNT];
     unsigned char magic_resrchable[KEEPER_POWERS_COUNT];
-    /** Amount of traps of every kind which are stored in workshops. Only on-map trap crates which exist in workshop are mentioned here.*/
-    unsigned char trap_amount_stored_[TRAP_TYPES_COUNT];
-    /** Stores flag information about players manufacture of traps of specific kind. */
-    unsigned char trap_build_flags_[TRAP_TYPES_COUNT];
-    /** Amount of traps of every kind for which we can place blueprints. This include both off-map traps and on-map trap boxes.*/
-    unsigned char trap_amount_placeable_[TRAP_TYPES_COUNT];
-    /** Amount of doors of every kind which are stored in workshops. Only on-map door crates which exist in workshop are mentioned here.*/
-    unsigned char door_amount_stored_[DOOR_TYPES_COUNT_OLD];
-    /** Stored flag information about players manufacture of doors of specific kind. */
-    unsigned char door_build_flags_[DOOR_TYPES_COUNT_OLD];
-    /** Stored information whether player can place blueprints of doors of specific kind (actually, doors are placed instantly). */
-    unsigned char door_amount_placeable_[DOOR_TYPES_COUNT_OLD];
     struct TurnTimer turn_timers[TURN_TIMERS_COUNT];
-    unsigned char script_flags_OLD[SCRIPT_FLAGS_COUNT];
     long max_creatures_attracted;
     unsigned char heart_destroy_state;
     long heart_destroy_turn;
@@ -243,8 +207,8 @@ struct Dungeon {
     long manufacture_progress;
     unsigned char manufacture_class;
     unsigned char manufacture_kind;
-long field_118B;
-long manufacture_level;
+    long turn_last_manufacture;
+    long manufacture_level;
     long research_progress;
     struct LevelStats lvstats;
     struct CreatureStorage dead_creatures[DEAD_CREATURES_MAX_COUNT];
@@ -252,10 +216,8 @@ long manufacture_level;
     long dead_creature_idx;
     /** Contains map event index or each even button visible on screen. */
     unsigned char event_button_index[EVENT_BUTTONS_COUNT+1];
-    long event_last_run_turn_UNUSED[27];
     unsigned short tortured_creatures[CREATURE_TYPES_COUNT];
     unsigned char bodies_rotten_for_vampire;
-unsigned char field_1461[36];
     long portal_scavenge_boost;
     /** Stores how many creatures of each kind of has joined the dungeon during the level.
      * Values are saturated at 255. */
