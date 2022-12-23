@@ -49,6 +49,9 @@ extern "C" {
 /******************************************************************************/
 const char keeper_creaturetp_file[]="creature.cfg";
 
+struct Creatures creatures[CREATURE_TYPES_MAX];
+unsigned short breed_activities[CREATURE_TYPES_MAX];
+
 const struct NamedCommand creaturetype_common_commands[] = {
   {"CREATURES",              1},
   {"INSTANCESCOUNT",         2},
