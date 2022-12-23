@@ -328,7 +328,7 @@ struct ShotStats
   unsigned char thing_field_21;
   unsigned char inertia_floor;
   unsigned char inertia_air;
-  unsigned char field_13;
+  unsigned char field_13; // something with movement flags
   unsigned char destroy_on_first_hit;
   short field_20;//sound related
   unsigned char target_frozen_on_hit;
