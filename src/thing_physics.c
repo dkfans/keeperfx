@@ -36,6 +36,7 @@
 #include "map_columns.h"
 #include "map_blocks.h"
 #include "map_utils.h"
+#include "game_merge.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -68,11 +69,11 @@ TbBool thing_above_flight_altitude(const struct Thing* thing)
 
 void slide_thing_against_wall_at(struct Thing *thing, struct Coord3d *pos, long blocked_flags)
 {
-  unsigned short x_thing;
-  unsigned short sizexy;
-  unsigned short x_pos;
-  unsigned short y_thing;
-  unsigned short y_pos;
+  MapCoord x_thing;
+  MapCoord sizexy;
+  MapCoord x_pos;
+  MapCoord y_thing;
+  MapCoord y_pos;
   switch ( blocked_flags )
   {
     case SlbBloF_WalledX:
@@ -83,10 +84,10 @@ void slide_thing_against_wall_at(struct Thing *thing, struct Coord3d *pos, long 
       {
         if ( x_pos > x_thing )
         {
-          pos->x.val = ((x_pos + sizexy) & 0xFF00) - sizexy - 1;
+          pos->x.val = ((x_pos + sizexy) & 0xFFFF00) - sizexy - 1;
           return;
         }
-        x_thing = (((x_pos - sizexy) & 0xFF00) + sizexy + 256);
+        x_thing = (((x_pos - sizexy) & 0xFFFF00) + sizexy + 256);
       }
       pos->x.val = x_thing;
       break;
@@ -98,10 +99,10 @@ void slide_thing_against_wall_at(struct Thing *thing, struct Coord3d *pos, long 
       {
         if ( y_thing < y_pos )
         {
-          pos->y.val = ((y_pos + sizexy) & 0xFF00) - sizexy - 1;
+          pos->y.val = ((y_pos + sizexy) & 0xFFFF00) - sizexy - 1;
           return;
         }
-        y_thing = (((y_pos - sizexy) & 0xFF00) + sizexy + 256);
+        y_thing = (((y_pos - sizexy) & 0xFFFF00) + sizexy + 256);
       }
       pos->y.val = y_thing;
       break;
@@ -112,18 +113,18 @@ void slide_thing_against_wall_at(struct Thing *thing, struct Coord3d *pos, long 
       if ( x_pos != x_thing )
       {
         if ( x_pos <= x_thing )
-          x_thing = (((x_pos - sizexy) & 0xFF00) + sizexy + 256);
+          x_thing = (((x_pos - sizexy) & 0xFFFF00) + sizexy + 256);
         else
-          x_thing = (((sizexy + x_pos) & 0xFF00) - sizexy - 1);
+          x_thing = (((sizexy + x_pos) & 0xFFFF00) - sizexy - 1);
       }
       y_thing = thing->mappos.y.val;
       y_pos = pos->y.val;
       if ( y_pos != y_thing )
       {
         if ( y_pos <= y_thing )
-          y_thing = (((y_pos - sizexy) & 0xFF00) + sizexy + 256);
+          y_thing = (((y_pos - sizexy) & 0xFFFF00) + sizexy + 256);
         else
-          y_thing = (((sizexy + y_pos) & 0xFF00) - sizexy - 1);
+          y_thing = (((sizexy + y_pos) & 0xFFFF00) - sizexy - 1);
       }
       pos->x.val = x_thing;
       pos->y.val = y_thing;
@@ -138,9 +139,9 @@ void slide_thing_against_wall_at(struct Thing *thing, struct Coord3d *pos, long 
       if ( x_pos != x_thing )
       {
         if ( x_pos <= x_thing )
-          x_thing = (((x_pos - sizexy) & 0xFF00) + sizexy + 256);
+          x_thing = (((x_pos - sizexy) & 0xFFFF00) + sizexy + 256);
         else
-          x_thing = (((sizexy + x_pos) & 0xFF00) - sizexy - 1);
+          x_thing = (((sizexy + x_pos) & 0xFFFF00) - sizexy - 1);
       }
       pos->x.val = x_thing;
       pos->z.val = get_slide_z_coord(thing, pos);
@@ -152,9 +153,9 @@ void slide_thing_against_wall_at(struct Thing *thing, struct Coord3d *pos, long 
       if ( y_thing != y_pos )
       {
         if ( y_thing >= y_pos )
-          y_thing = (((y_pos - sizexy) & 0xFF00) + sizexy + 256);
+          y_thing = (((y_pos - sizexy) & 0xFFFF00) + sizexy + 256);
         else
-          y_thing = (((y_pos + sizexy) & 0xFF00) - sizexy - 1);
+          y_thing = (((y_pos + sizexy) & 0xFFFF00) - sizexy - 1);
       }
       pos->y.val = y_thing;
       pos->z.val = get_slide_z_coord(thing, pos);
@@ -166,18 +167,18 @@ void slide_thing_against_wall_at(struct Thing *thing, struct Coord3d *pos, long 
       if ( x_pos != x_thing )
       {
         if ( x_pos <= x_thing )
-          x_thing = (((x_pos - sizexy) & 0xFF00) + sizexy + 256);
+          x_thing = (((x_pos - sizexy) & 0xFFFF00) + sizexy + 256);
         else
-          x_thing = (((sizexy + x_pos) & 0xFF00) - sizexy - 1);
+          x_thing = (((sizexy + x_pos) & 0xFFFF00) - sizexy - 1);
       }
       y_pos = pos->y.val;
       y_thing = thing->mappos.y.val;
       if ( y_pos != y_thing )
       {
         if ( y_pos <= y_thing )
-          y_thing = (((y_pos - sizexy) & 0xFF00) + sizexy + 256);
+          y_thing = (((y_pos - sizexy) & 0xFFFF00) + sizexy + 256);
         else
-          y_thing = (((sizexy + y_pos) & 0xFF00) - sizexy - 1);
+          y_thing = (((sizexy + y_pos) & 0xFFFF00) - sizexy - 1);
       }
       pos->x.val = x_thing;
       pos->y.val = y_thing;
@@ -402,9 +403,9 @@ TbBool creature_cannot_move_directly_to(struct Thing *thing, struct Coord3d *pos
             int i;
 
             if (pos->x.val <= realpos.x.val)
-              i = (realpos.x.val & 0xFF00) - 1;
+              i = (realpos.x.val & 0xFFFF00) - 1;
             else
-              i = (realpos.x.val + 256) & 0xFF00;
+              i = (realpos.x.val + 256) & 0xFFFF00;
             modpos.x.val = i;
             modpos.y.val = delta_y * (i - origpos.x.val) / delta_x + origpos.y.val;
             modpos.z.val = realpos.z.val;
@@ -422,9 +423,9 @@ TbBool creature_cannot_move_directly_to(struct Thing *thing, struct Coord3d *pos
             realpos.z.val = thing->mappos.z.val;
 
             if (pos->y.val <= realpos.y.val)
-              i = (realpos.y.val & 0xFF00) - 1;
+              i = (realpos.y.val & 0xFFFF00) - 1;
             else
-              i = (realpos.y.val + 256) & 0xFF00;
+              i = (realpos.y.val + 256) & 0xFFFF00;
             modpos.y.val = i;
             modpos.x.val = delta_x * (i - origpos.y.val) / delta_y + origpos.x.val;
             modpos.z.val = realpos.z.val;
@@ -457,9 +458,9 @@ TbBool creature_cannot_move_directly_to(struct Thing *thing, struct Coord3d *pos
             int i;
 
             if (pos->y.val <= realpos.y.val)
-              i = (realpos.y.val & 0xFF00) - 1;
+              i = (realpos.y.val & 0xFFFF00) - 1;
             else
-              i = (realpos.y.val + 256) & 0xFF00;
+              i = (realpos.y.val + 256) & 0xFFFF00;
             modpos.y.val = i;
             modpos.x.val = delta_x * (i - origpos.y.val) / delta_y + origpos.x.val;
             modpos.z.val = realpos.z.val;
@@ -477,7 +478,7 @@ TbBool creature_cannot_move_directly_to(struct Thing *thing, struct Coord3d *pos
             realpos.z.val = thing->mappos.z.val;
 
             if (pos->x.val <= realpos.x.val)
-              i = (realpos.x.val & 0xFF00) - 1;
+              i = (realpos.x.val & 0xFFFF00) - 1;
             else
               i = (realpos.x.val + 256) & 0xFF00;
             modpos.x.val = i;
@@ -554,8 +555,8 @@ long get_thing_height_at_with_radius(const struct Thing *thing, const struct Coo
 {
     MapCoord pos_x_beg = max((MapCoord)pos->x.val - radius, 0);
     MapCoord pos_y_beg = max((MapCoord)pos->y.val - radius, 0);
-    MapCoord pos_x_end = min((MapCoord)pos->x.val + radius, subtile_coord(map_subtiles_x, COORD_PER_STL - 1));
-    MapCoord pos_y_end = min((MapCoord)pos->y.val + radius, subtile_coord(map_subtiles_y, COORD_PER_STL - 1));
+    MapCoord pos_x_end = min((MapCoord)pos->x.val + radius, subtile_coord(gameadd.map_subtiles_x, COORD_PER_STL - 1));
+    MapCoord pos_y_end = min((MapCoord)pos->y.val + radius, subtile_coord(gameadd.map_subtiles_y, COORD_PER_STL - 1));
     MapSubtlCoord floor_height;
     MapSubtlCoord ceiling_height;
     get_min_floor_and_ceiling_heights_for_rect(coord_subtile(pos_x_beg), coord_subtile(pos_y_beg),
@@ -700,11 +701,11 @@ long get_floor_height_under_thing_at(const struct Thing *thing, const struct Coo
     MapCoord pos_y_beg = (pos->y.val - radius);
     if (pos_y_beg < 0)
         pos_y_beg = 0;
-    if (pos_x_end >= subtile_coord(map_subtiles_x,COORD_PER_STL-1))
-        pos_x_end = subtile_coord(map_subtiles_x,COORD_PER_STL-1);
+    if (pos_x_end >= subtile_coord(gameadd.map_subtiles_x,COORD_PER_STL-1))
+        pos_x_end = subtile_coord(gameadd.map_subtiles_x,COORD_PER_STL-1);
     MapCoord pos_y_end = pos->y.val + radius;
-    if (pos_y_end >= subtile_coord(map_subtiles_y,COORD_PER_STL-1))
-        pos_y_end = subtile_coord(map_subtiles_y,COORD_PER_STL-1);
+    if (pos_y_end >= subtile_coord(gameadd.map_subtiles_y,COORD_PER_STL-1))
+        pos_y_end = subtile_coord(gameadd.map_subtiles_y,COORD_PER_STL-1);
     // Find correct floor and ceiling plane for the area
     MapSubtlCoord floor_height;
     MapSubtlCoord ceiling_height;
@@ -729,11 +730,11 @@ long get_ceiling_height_above_thing_at(const struct Thing *thing, const struct C
     if (pos_y_beg < 0)
         pos_y_beg = 0;
     int pos_x_end = (int)pos->x.val + radius;
-    if (pos_x_end >= subtile_coord(map_subtiles_x,COORD_PER_STL-1))
-        pos_x_end = subtile_coord(map_subtiles_x,COORD_PER_STL-1);
+    if (pos_x_end >= subtile_coord(gameadd.map_subtiles_x,COORD_PER_STL-1))
+        pos_x_end = subtile_coord(gameadd.map_subtiles_x,COORD_PER_STL-1);
     int pos_y_end = (int)pos->y.val + radius;
-    if (pos_y_end >= subtile_coord(map_subtiles_y,COORD_PER_STL-1))
-        pos_y_end = subtile_coord(map_subtiles_y,COORD_PER_STL-1);
+    if (pos_y_end >= subtile_coord(gameadd.map_subtiles_y,COORD_PER_STL-1))
+        pos_y_end = subtile_coord(gameadd.map_subtiles_y,COORD_PER_STL-1);
     // Set initial values for computing floor and ceiling heights
     MapSubtlCoord floor_height;
     MapSubtlCoord ceiling_height;
@@ -763,11 +764,11 @@ void get_floor_and_ceiling_height_under_thing_at(const struct Thing *thing,
     MapCoord pos_y_beg = (pos->y.val - radius);
     if (pos_y_beg < 0)
         pos_y_beg = 0;
-    if (pos_x_end >= subtile_coord(map_subtiles_x,COORD_PER_STL-1))
-        pos_x_end = subtile_coord(map_subtiles_x,COORD_PER_STL-1);
+    if (pos_x_end >= subtile_coord(gameadd.map_subtiles_x,COORD_PER_STL-1))
+        pos_x_end = subtile_coord(gameadd.map_subtiles_x,COORD_PER_STL-1);
     MapCoord pos_y_end = pos->y.val + radius;
-    if (pos_y_end >= subtile_coord(map_subtiles_y,COORD_PER_STL-1))
-        pos_y_end = subtile_coord(map_subtiles_y,COORD_PER_STL-1);
+    if (pos_y_end >= subtile_coord(gameadd.map_subtiles_y,COORD_PER_STL-1))
+        pos_y_end = subtile_coord(gameadd.map_subtiles_y,COORD_PER_STL-1);
     // Find correct floor and ceiling plane for the area
     MapSubtlCoord floor_height;
     MapSubtlCoord ceiling_height;
