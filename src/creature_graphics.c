@@ -355,7 +355,7 @@ void update_creature_graphic_anim(struct Thing *thing)
           struct InstanceInfo* inst_inf = creature_instance_info_get(cctrl->instance_id);
           update_creature_anim(thing, cctrl->instance_anim_step_turns, inst_inf->graphics_idx);
         } else
-        if ((cctrl->field_B1 != 0) || creature_is_dying(thing) || creature_affected_by_spell(thing, SplK_Freeze))
+        if ((cctrl->target_frozen_on_hit != 0) || creature_is_dying(thing) || creature_affected_by_spell(thing, SplK_Freeze))
         {
             update_creature_anim(thing, 256, 8);
         } else

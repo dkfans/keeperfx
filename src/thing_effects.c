@@ -555,9 +555,9 @@ struct Thing *create_effect_element(const struct Coord3d *pos, unsigned short ee
         set_flag_byte(&thing->rendering_flags,TRF_Unknown01,true);
     }
 
-    thing->fall_acceleration = eestat->field_18;
-    thing->field_23 = eestat->field_1A;
-    thing->field_24 = eestat->field_1C;
+    thing->fall_acceleration = eestat->fall_acceleration;
+    thing->inertia_floor = eestat->inertia_floor;
+    thing->inertia_air = eestat->inertia_air;
     thing->movement_flags |= TMvF_Unknown08;
     set_flag_byte(&thing->movement_flags,TMvF_Unknown10,eestat->field_16);
     thing->creation_turn = game.play_gameturn;
@@ -827,9 +827,9 @@ void change_effect_element_into_another(struct Thing *thing, long nmodel)
     set_thing_draw(thing, eestat->sprite_idx, speed, scale, eestat->field_D, 0, 2);
     thing->rendering_flags ^= (thing->rendering_flags ^ 0x02 * eestat->field_13) & TRF_Unknown02;
     thing->rendering_flags ^= (thing->rendering_flags ^ 0x10 * eestat->field_14) & (TRF_Transpar_Flags);
-    thing->fall_acceleration = eestat->field_18;
-    thing->field_23 = eestat->field_1A;
-    thing->field_24 = eestat->field_1C;
+    thing->fall_acceleration = eestat->fall_acceleration;
+    thing->inertia_floor = eestat->inertia_floor;
+    thing->inertia_air = eestat->inertia_air;
     if (eestat->numfield_3 <= 0) {
         thing->health = get_lifespan_of_animation(thing->anim_sprite, thing->anim_speed);
     } else {
@@ -1297,8 +1297,8 @@ struct Thing *create_effect(const struct Coord3d *pos, ThingModel effmodel, Play
     thing->owner = owner;
     thing->parent_idx = thing->index;
     thing->fall_acceleration = 0;
-    thing->field_23 = 0;
-    thing->field_24 = 0;
+    thing->inertia_floor = 0;
+    thing->inertia_air = 0;
     thing->rendering_flags |= TRF_Unknown01;
     thing->health = ieffect->start_health;
     if (ieffect->ilght.radius != 0)

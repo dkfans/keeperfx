@@ -941,8 +941,8 @@ long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, stru
       } else {
           apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, shotst->damage_type, -1);
       }
-      if (shotst->old->cctrl_field_B1 != 0) {
-          tgcctrl->field_B1 = shotst->old->cctrl_field_B1;
+      if (shotst->old->target_frozen_on_hit != 0) {
+          tgcctrl->frozen_on_hit = shotst->old->target_frozen_on_hit;
       }
       if ( shotst->push_on_hit || creature_is_being_unconscious(trgtng))
       {
@@ -1081,10 +1081,10 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
         }
     }
     struct CreatureControl* cctrl = creature_control_get_from_thing(trgtng);
-    if (shotst->old->cctrl_field_B1 != 0)
+    if (shotst->old->target_frozen_on_hit != 0)
     {
-        if (cctrl->field_B1 == 0) {
-            cctrl->field_B1 = shotst->old->cctrl_field_B1;
+        if (cctrl->frozen_on_hit == 0) {
+            cctrl->frozen_on_hit = shotst->old->target_frozen_on_hit;
         }
     }
     if (shotst->cast_spell_kind != 0)
@@ -1586,8 +1586,8 @@ struct Thing *create_shot(struct Coord3d *pos, unsigned short model, unsigned sh
     thing->bounce_angle = shotst->bounce_angle;
     thing->fall_acceleration = shotst->fall_acceleration;
     thing->field_21 = shotst->old->thing_field_21;
-    thing->field_23 = shotst->old->thing_field_23;
-    thing->field_24 = shotst->old->thing_field_24;
+    thing->inertia_floor = shotst->old->inertia_floor;
+    thing->inertia_air = shotst->old->inertia_air;
     thing->movement_flags ^= (thing->movement_flags ^ TMvF_Unknown08 * shotst->old->field_13) & TMvF_Unknown08;
     set_thing_draw(thing, shotst->sprite_anim_idx, 256, shotst->sprite_size_max, 0, 0, 2);
     thing->rendering_flags ^= (thing->rendering_flags ^ 0x02 * shotst->old->field_6) & TRF_Unknown02;

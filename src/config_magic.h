@@ -326,12 +326,12 @@ struct ShotStats
 {
   unsigned char field_6; //something with rendering flags
   unsigned char thing_field_21;
-  unsigned char thing_field_23;
-  unsigned char thing_field_24;
+  unsigned char inertia_floor;
+  unsigned char inertia_air;
   unsigned char field_13;
   unsigned char destroy_on_first_hit;
   short field_20;//sound related
-  unsigned char cctrl_field_B1;
+  unsigned char target_frozen_on_hit;
   short experience_given_to_shooter;
   short light_radius;
   unsigned char light_intensity;

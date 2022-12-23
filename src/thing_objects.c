@@ -447,8 +447,8 @@ struct Thing *create_object(const struct Coord3d *pos, unsigned short model, uns
     thing->anim_sprite = objdat->sprite_anim_idx;
     thing->health = saturate_set_signed(objconf->health,16);
     thing->fall_acceleration = objconf->fall_acceleration;
-    thing->field_23 = 204;
-    thing->field_24 = 51;
+    thing->inertia_floor = 204;
+    thing->inertia_air = 51;
     thing->bounce_angle = 0;
     thing->movement_flags |= TMvF_Unknown08;
 
