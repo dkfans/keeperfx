@@ -87,7 +87,7 @@ void slide_thing_against_wall_at(struct Thing *thing, struct Coord3d *pos, long 
           pos->x.val = ((x_pos + sizexy) & 0xFFFF00) - sizexy - 1;
           return;
         }
-        x_thing = (((x_pos - sizexy) & 0xFFFF00) + sizexy + 256);
+        x_thing = (((x_pos - sizexy) & 0xFFFF00) + sizexy + COORD_PER_STL);
       }
       pos->x.val = x_thing;
       break;
@@ -102,7 +102,7 @@ void slide_thing_against_wall_at(struct Thing *thing, struct Coord3d *pos, long 
           pos->y.val = ((y_pos + sizexy) & 0xFFFF00) - sizexy - 1;
           return;
         }
-        y_thing = (((y_pos - sizexy) & 0xFFFF00) + sizexy + 256);
+        y_thing = (((y_pos - sizexy) & 0xFFFF00) + sizexy + COORD_PER_STL);
       }
       pos->y.val = y_thing;
       break;
@@ -113,7 +113,7 @@ void slide_thing_against_wall_at(struct Thing *thing, struct Coord3d *pos, long 
       if ( x_pos != x_thing )
       {
         if ( x_pos <= x_thing )
-          x_thing = (((x_pos - sizexy) & 0xFFFF00) + sizexy + 256);
+          x_thing = (((x_pos - sizexy) & 0xFFFF00) + sizexy + COORD_PER_STL);
         else
           x_thing = (((sizexy + x_pos) & 0xFFFF00) - sizexy - 1);
       }
@@ -122,7 +122,7 @@ void slide_thing_against_wall_at(struct Thing *thing, struct Coord3d *pos, long 
       if ( y_pos != y_thing )
       {
         if ( y_pos <= y_thing )
-          y_thing = (((y_pos - sizexy) & 0xFFFF00) + sizexy + 256);
+          y_thing = (((y_pos - sizexy) & 0xFFFF00) + sizexy + COORD_PER_STL);
         else
           y_thing = (((sizexy + y_pos) & 0xFFFF00) - sizexy - 1);
       }
@@ -139,7 +139,7 @@ void slide_thing_against_wall_at(struct Thing *thing, struct Coord3d *pos, long 
       if ( x_pos != x_thing )
       {
         if ( x_pos <= x_thing )
-          x_thing = (((x_pos - sizexy) & 0xFFFF00) + sizexy + 256);
+          x_thing = (((x_pos - sizexy) & 0xFFFF00) + sizexy + COORD_PER_STL);
         else
           x_thing = (((sizexy + x_pos) & 0xFFFF00) - sizexy - 1);
       }
@@ -153,7 +153,7 @@ void slide_thing_against_wall_at(struct Thing *thing, struct Coord3d *pos, long 
       if ( y_thing != y_pos )
       {
         if ( y_thing >= y_pos )
-          y_thing = (((y_pos - sizexy) & 0xFFFF00) + sizexy + 256);
+          y_thing = (((y_pos - sizexy) & 0xFFFF00) + sizexy + COORD_PER_STL);
         else
           y_thing = (((y_pos + sizexy) & 0xFFFF00) - sizexy - 1);
       }
@@ -167,7 +167,7 @@ void slide_thing_against_wall_at(struct Thing *thing, struct Coord3d *pos, long 
       if ( x_pos != x_thing )
       {
         if ( x_pos <= x_thing )
-          x_thing = (((x_pos - sizexy) & 0xFFFF00) + sizexy + 256);
+          x_thing = (((x_pos - sizexy) & 0xFFFF00) + sizexy + COORD_PER_STL);
         else
           x_thing = (((sizexy + x_pos) & 0xFFFF00) - sizexy - 1);
       }
@@ -176,7 +176,7 @@ void slide_thing_against_wall_at(struct Thing *thing, struct Coord3d *pos, long 
       if ( y_pos != y_thing )
       {
         if ( y_pos <= y_thing )
-          y_thing = (((y_pos - sizexy) & 0xFFFF00) + sizexy + 256);
+          y_thing = (((y_pos - sizexy) & 0xFFFF00) + sizexy + COORD_PER_STL);
         else
           y_thing = (((sizexy + y_pos) & 0xFFFF00) - sizexy - 1);
       }
@@ -191,57 +191,56 @@ void slide_thing_against_wall_at(struct Thing *thing, struct Coord3d *pos, long 
 
 void bounce_thing_off_wall_at(struct Thing *thing, struct Coord3d *pos, long blocked_flags)
 {
-   // _DK_bounce_thing_off_wall_at(thing, pos, a3); return;
-  short x = (short)thing->veloc_base.x.val;
-  short y = (short)thing->veloc_base.y.val;
-  short z = (short)thing->veloc_base.z.val;
+  MapCoordDelta x = thing->veloc_base.x.val;
+  MapCoordDelta y = thing->veloc_base.y.val;
+  MapCoordDelta z = thing->veloc_base.z.val;
   int i;
   switch ( blocked_flags )
   {
     case SlbBloF_WalledX:
       pos->x.val = thing->mappos.x.val;
-      thing->veloc_base.x.val = -(short)(x * thing->bounce_angle / 128);
+      thing->veloc_base.x.val = -(x * thing->bounce_angle / 128);
       i = 256 - thing->field_23;
-      thing->veloc_base.y.val = i * (short)thing->veloc_base.y.val / 256;
-      thing->veloc_base.z.val = i * (short)thing->veloc_base.z.val / 256;
+      thing->veloc_base.y.val = i * thing->veloc_base.y.val / COORD_PER_STL;
+      thing->veloc_base.z.val = i * thing->veloc_base.z.val / COORD_PER_STL;
       break;
     case SlbBloF_WalledY:
       pos->y.val = thing->mappos.y.val;
-      thing->veloc_base.y.val = -(short)(y * thing->bounce_angle / 128);
+      thing->veloc_base.y.val = -(y * thing->bounce_angle / 128);
       i = 256 - thing->field_23;
-      thing->veloc_base.x.val = i * (short)thing->veloc_base.x.val / 256;
-      thing->veloc_base.z.val = i * (short)thing->veloc_base.z.val / 256;
+      thing->veloc_base.x.val = i * thing->veloc_base.x.val / COORD_PER_STL;
+      thing->veloc_base.z.val = i * thing->veloc_base.z.val / COORD_PER_STL;
       break;
     case SlbBloF_WalledX|SlbBloF_WalledY:
       pos->x.val = thing->mappos.x.val;
       pos->y.val = thing->mappos.y.val;
       i = thing->bounce_angle;
-      thing->veloc_base.x.val = -(short)(i * x / 128);
-      thing->veloc_base.y.val = -(short)(i * y / 128);
+      thing->veloc_base.x.val = -(i * x / 128);
+      thing->veloc_base.y.val = -(i * y / 128);
       break;
     case SlbBloF_WalledZ:
       pos->z.val = thing->mappos.z.val;
-      thing->veloc_base.z.val = -(short)(z * thing->bounce_angle / 128);
+      thing->veloc_base.z.val = -(z * thing->bounce_angle / 128);
       i = 256 - thing->field_23;
-      thing->veloc_base.x.val = i * (short)thing->veloc_base.x.val / 256;
-      thing->veloc_base.y.val = i * (short)thing->veloc_base.y.val / 256;
+      thing->veloc_base.x.val = i * thing->veloc_base.x.val / COORD_PER_STL;
+      thing->veloc_base.y.val = i * thing->veloc_base.y.val / COORD_PER_STL;
       break;
     case SlbBloF_WalledZ|SlbBloF_WalledX:
       pos->z.val = thing->mappos.z.val;
       pos->x.val = thing->mappos.x.val;
       i = thing->bounce_angle;
-      thing->veloc_base.x.val = -(short)(i * x / 128);
-      thing->veloc_base.z.val = -(short)(i * z / 128);
+      thing->veloc_base.x.val = -(i * x / 128);
+      thing->veloc_base.z.val = -(i * z / 128);
       break;
     case SlbBloF_WalledZ|SlbBloF_WalledY:
       pos->y.val = thing->mappos.y.val;
       pos->z.val = thing->mappos.z.val;
       i = thing->bounce_angle;
-      thing->veloc_base.y.val = -(short)(i * y / 128);
+      thing->veloc_base.y.val = -(i * y / 128);
       int n = i * y;
       int j = thing->field_23;
-      int k = (short)thing->veloc_base.x.val;
-      thing->veloc_base.z.val = -(short)(n / 128);
+      int k = thing->veloc_base.x.val;
+      thing->veloc_base.z.val = -(n / 128);
       thing->veloc_base.x.val = k * (256 - j) / 256;
       break;
     case SlbBloF_WalledX|SlbBloF_WalledY|SlbBloF_WalledZ:
@@ -249,9 +248,9 @@ void bounce_thing_off_wall_at(struct Thing *thing, struct Coord3d *pos, long blo
       pos->y.val = thing->mappos.y.val;
       pos->z.val = thing->mappos.z.val;
       i = thing->bounce_angle;
-      thing->veloc_base.x.val = -(short)(i * x / 128);
-      thing->veloc_base.y.val = -(short)(i * y / 128);
-      thing->veloc_base.z.val = -(short)(i * z / 128);
+      thing->veloc_base.x.val = -(i * x / 128);
+      thing->veloc_base.y.val = -(i * y / 128);
+      thing->veloc_base.z.val = -(i * z / 128);
       break;
     default:
       return;
@@ -405,7 +404,7 @@ TbBool creature_cannot_move_directly_to(struct Thing *thing, struct Coord3d *pos
             if (pos->x.val <= realpos.x.val)
               i = (realpos.x.val & 0xFFFF00) - 1;
             else
-              i = (realpos.x.val + 256) & 0xFFFF00;
+              i = (realpos.x.val + COORD_PER_STL) & 0xFFFF00;
             modpos.x.val = i;
             modpos.y.val = delta_y * (i - origpos.x.val) / delta_x + origpos.y.val;
             modpos.z.val = realpos.z.val;
@@ -425,7 +424,7 @@ TbBool creature_cannot_move_directly_to(struct Thing *thing, struct Coord3d *pos
             if (pos->y.val <= realpos.y.val)
               i = (realpos.y.val & 0xFFFF00) - 1;
             else
-              i = (realpos.y.val + 256) & 0xFFFF00;
+              i = (realpos.y.val + COORD_PER_STL) & 0xFFFF00;
             modpos.y.val = i;
             modpos.x.val = delta_x * (i - origpos.y.val) / delta_y + origpos.x.val;
             modpos.z.val = realpos.z.val;
@@ -460,7 +459,7 @@ TbBool creature_cannot_move_directly_to(struct Thing *thing, struct Coord3d *pos
             if (pos->y.val <= realpos.y.val)
               i = (realpos.y.val & 0xFFFF00) - 1;
             else
-              i = (realpos.y.val + 256) & 0xFFFF00;
+              i = (realpos.y.val + COORD_PER_STL) & 0xFFFF00;
             modpos.y.val = i;
             modpos.x.val = delta_x * (i - origpos.y.val) / delta_y + origpos.x.val;
             modpos.z.val = realpos.z.val;
@@ -480,7 +479,7 @@ TbBool creature_cannot_move_directly_to(struct Thing *thing, struct Coord3d *pos
             if (pos->x.val <= realpos.x.val)
               i = (realpos.x.val & 0xFFFF00) - 1;
             else
-              i = (realpos.x.val + 256) & 0xFFFF00;
+              i = (realpos.x.val + COORD_PER_STL) & 0xFFFF00;
             modpos.x.val = i;
             modpos.y.val = delta_y * (modpos.x.val - origpos.x.val) / delta_x + origpos.y.val;
             modpos.z.val = realpos.z.val;
@@ -875,7 +874,7 @@ unsigned short get_slide_z_coord(const struct Thing *thing, const struct Coord3d
   }
   if ( z_pos < z_thing )
   {
-    return (z_pos & 0xFF00) + 256;
+    return (z_pos & 0xFF00) + COORD_PER_STL;
   }
   return ((((z_pos + clipbox_size) & 0xFFFFFF00) - clipbox_size) + 255);
 }
