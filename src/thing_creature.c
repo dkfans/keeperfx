@@ -99,7 +99,7 @@ extern "C" {
 /******************************************************************************/
 int creature_swap_idx[CREATURE_TYPES_COUNT];
 
-struct Creatures creatures_NEW[] = {
+struct Creatures creatures[] = {
   { 0,  0, 0, 0, 0, 0, 0, 0, 0, 0x0000, 1},
   {17, 34, 1, 0, 1, 0, 1, 0, 0, 0x0180, 1},
   {17, 34, 1, 0, 1, 0, 2, 0, 0, 0x0180, 1},

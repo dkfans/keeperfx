@@ -229,8 +229,7 @@ struct NamedCommand creaturejob_desc[INSTANCE_TYPES_MAX];
 struct NamedCommand angerjob_desc[INSTANCE_TYPES_MAX];
 struct NamedCommand attackpref_desc[INSTANCE_TYPES_MAX];
 
-extern struct Creatures creatures[CREATURE_TYPES_COUNT];
-extern unsigned short breed_activities[CREATURE_TYPES_COUNT];
+unsigned short breed_activities[CREATURE_TYPES_COUNT];
 /******************************************************************************/
 extern const struct NamedCommand creature_job_player_assign_func_type[];
 extern Creature_Job_Player_Check_Func creature_job_player_check_func_list[];
