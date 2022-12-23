@@ -1385,11 +1385,11 @@ static TbBool find_approach_position_to_subtile(const struct Coord3d *srcpos, Ma
     return (min_dist < LONG_MAX);
 }
 
-static long get_map_index_of_first_block_thing_colliding_with_travelling_to(struct Thing *creatng, struct Coord3d *startpos, struct Coord3d *endpos, long mapblk_flags, unsigned char slabmap_flags)
+static SubtlCodedCoords get_map_index_of_first_block_thing_colliding_with_travelling_to(struct Thing *creatng, struct Coord3d *startpos, struct Coord3d *endpos, long mapblk_flags, unsigned char slabmap_flags)
 {
-    long stl_num;
+    SubtlCodedCoords stl_num;
     struct Coord3d pos;
-    int return_stl_num = 0;
+    SubtlCodedCoords return_stl_num = 0;
 
     struct Coord3d creature_pos = *startpos;
 
@@ -1415,11 +1415,17 @@ static long get_map_index_of_first_block_thing_colliding_with_travelling_to(stru
         if (cross_y_boundary_first(&creature_pos, endpos))
         {
             pos = creature_pos;
-            if (endpos->y.val <= (unsigned int)creature_pos.y.val)
-                pos.y.val = (creature_pos.y.val & 0xFF00) - 1;
+            if (endpos->y.val <= creature_pos.y.val)
+            {
+                pos.y.stl.num = creature_pos.y.num - 1;
+                pos.y.stl.pos = COORD_PER_STL - 1;
+            }
             else
-                pos.y.val = (creature_pos.y.val + 256) & 0xFF00;
-            pos.x.val = (int)(delta_x * abs((unsigned __int16)pos.y.val - v27_x)) / delta_y + v27_y;
+            {
+                pos.y.stl.num = creature_pos.y.num + 1;
+                pos.y.stl.pos = 0;
+            }
+            pos.x.val = (int)(delta_x * abs(pos.y.val - v27_x)) / delta_y + v27_y;
             pos.z.val = creature_pos.z.val;
             stl_num = get_map_index_of_first_block_thing_colliding_with_at(creatng, &pos, mapblk_flags, slabmap_flags);
             if (stl_num >= 0)
@@ -1427,10 +1433,19 @@ static long get_map_index_of_first_block_thing_colliding_with_travelling_to(stru
                 creatng->mappos = orig_creat_pos;
                 return stl_num;
             }
-
             creature_pos = creatng->mappos;
-            pos.x.val = endpos->x.val <= (unsigned int)creature_pos.x.val ? (creature_pos.x.val & 0xFF00) - 1 : (creature_pos.x.val + 256) & 0xFF00;
-            pos.y.val = (int)(delta_y * abs((unsigned __int16)pos.x.val - v27_x) / delta_x + v27_y);
+            if (endpos->x.val <= creature_pos.x.val)
+            {
+                pos.x.stl.num = creature_pos.x.num - 1;
+                pos.x.stl.pos = COORD_PER_STL - 1;
+            }
+            else
+            {
+                pos.x.stl.num = creature_pos.x.num + 1;
+                pos.x.stl.pos = 0;
+            }
+            
+            pos.y.val = (int)(delta_y * abs(pos.x.val - v27_x) / delta_x + v27_y);
             pos.z.val = creature_pos.z.val;
             stl_num = get_map_index_of_first_block_thing_colliding_with_at(creatng, &pos, mapblk_flags, slabmap_flags);
             if (stl_num >= 0)
@@ -1458,11 +1473,17 @@ static long get_map_index_of_first_block_thing_colliding_with_travelling_to(stru
         creatng->mappos = orig_creat_pos;
         return stl_num;
     }
-    if (endpos->x.val <= (unsigned int)creature_pos.x.val)
-        pos.x.val = (creature_pos.x.val & 0xFF00) - 1;
+    if (endpos->x.val <= creature_pos.x.val)
+    {
+        pos.x.stl.num = creature_pos.x.num - 1;
+        pos.x.stl.pos = COORD_PER_STL - 1;
+    }
     else
-        pos.x.val = (creature_pos.x.val + 256) & 0xFF00;
-    pos.y.val = (int)(delta_y * abs((unsigned __int16)pos.x.val - v27_y)) / delta_x + v27_x;
+    {
+        pos.x.stl.num = creature_pos.x.num + 1;
+        pos.x.stl.pos = 0;
+    }
+    pos.y.val = (int)(delta_y * abs(pos.x.val - v27_y)) / delta_x + v27_x;
     pos.z.val = creature_pos.z.val;
     stl_num = get_map_index_of_first_block_thing_colliding_with_at(creatng, &pos, mapblk_flags, slabmap_flags);
     if (stl_num >= 0)
@@ -1471,8 +1492,17 @@ static long get_map_index_of_first_block_thing_colliding_with_travelling_to(stru
         return stl_num;
     }
     creature_pos = creatng->mappos;
-    pos.y.val = endpos->y.val <= (unsigned int)creature_pos.y.val ? (creature_pos.y.val & 0xFF00) - 1 : (creature_pos.y.val + 256) & 0xFF00;
-    pos.x.val = (int)(delta_x * abs((unsigned __int16)pos.y.val - v27_x) / delta_y + v27_y);
+    if (endpos->y.val <= creature_pos.y.val)
+    {
+        pos.y.stl.num = creature_pos.y.num - 1;
+        pos.y.stl.pos = COORD_PER_STL - 1;
+    }
+    else
+    {
+        pos.y.stl.num = creature_pos.y.num + 1;
+        pos.y.stl.pos = 0;
+    }
+    pos.x.val = (int)(delta_x * abs(pos.y.val - v27_x) / delta_y + v27_y);
     pos.z.val = creature_pos.z.val;
     stl_num = get_map_index_of_first_block_thing_colliding_with_at(creatng, &pos, mapblk_flags, slabmap_flags);
     if (stl_num >= 0)
@@ -1493,7 +1523,6 @@ static long get_map_index_of_first_block_thing_colliding_with_travelling_to(stru
     creatng->mappos = orig_creat_pos;
     return return_stl_num;
 }
-
 static TbBool navigation_push_towards_target(struct Navigation *navi, struct Thing *creatng, const struct Coord3d *pos, MoveSpeed speed, MoveSpeed nav_radius, unsigned char crt_owner_bit)
 {
     navi->navstate = 2;
