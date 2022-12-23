@@ -232,7 +232,7 @@ const Expand_Check_Func powermodel_expand_check_func_list[] = {
   NULL,
 };
 
-static const struct ShotStats shot_stats[30]=
+static struct ShotStats shot_stats[30]=
 {   
     { 0,0, 0,0,0,0,0,0,  0,   0, 0,0},//stuff bigger then 30 gets remaped to 0  //SHOT_WORD_OF_POWER  //SHOT_TRAP_WORD_OF_POWER  
 	{ 1,4, 0,0,0,1,1,6,256,1792,52,1},//SHOT_FIREBALL
