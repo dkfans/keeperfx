@@ -100,20 +100,17 @@ enum GameNumfieldDFlags {
 /******************************************************************************/
 #pragma pack(1)
 
-struct CreaturePool { // sizeof = 129
+struct CreaturePool {
   long crtr_kind[CREATURE_TYPES_COUNT];
   unsigned char is_empty;
 };
 
-struct PerExpLevelValues { // sizeof = 10
+struct PerExpLevelValues {
   unsigned char value[10];
 };
 
-#define SIZEOF_Game 1382437
 
-// only one such struct exists at .data:005F0310
-// it ends at 00741B35
-struct Game { // sizeof=0x151825
+struct Game {
     // This was a level and version before, but now saved games have another versioning system.
     unsigned short unused_version[3];
     LevelNumber continue_level_number;
