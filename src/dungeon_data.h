@@ -85,23 +85,22 @@ enum DungeonManufactureBuildFlags {
 /******************************************************************************/
 #pragma pack(1)
 
-struct DiggerStack { // sizeof = 4
+struct DiggerStack {
       unsigned short stl_num;
       SpDiggerTaskType task_type;
 };
 
-struct ResearchVal { // sizeof = 6
+struct ResearchVal {
   unsigned char rtyp;
   unsigned char rkind;
   long req_amount;
 };
 
-struct TurnTimer { // sizeof = 5
+struct TurnTimer {
   unsigned long count;
   unsigned char state;
 };
 
-#define SIZEOF_Dungeon 0x1508
 struct Dungeon {
     unsigned short dnheart_idx;
     struct Coord3d mappos;
