@@ -187,40 +187,6 @@ const struct NamedCommand creature_graphics_desc[] = {
   {NULL,                 0},
   };
 
-struct CreatureData creature_data[] = {
-  {0x00,  0, GUIStr_Empty},
-  {0x05, 57, 277},
-  {0x01, 58, 275},
-  {0x01, 59, 285},
-  {0x01, 60, 286},
-  {0x01, 61, 279},
-  {0x01, 62, 276},
-  {0x01, 63, 547},
-  {0x01, 64, 546},
-  {0x05, 65, 283},
-  {0x01, 66, 284},
-  {0x01, 67, 258},
-  {0x01, 68, 281},
-  {0x01, 69, 282},
-  {0x01, 70, 267},
-  {0x01, 71, 266},
-  {0x01, 72, 261},
-  {0x15, 73, 268},
-  {0x02, 74, 262},
-  {0x02, 75, 264},
-  {0x02, 76, 272},
-  {0x02, 77, 263},
-  {0x02, 78, 273},
-  {0x02, 79, 259},
-  {0x02, 80, 260},
-  {0x02, 81, 274},
-  {0x02, 82, 265},
-  {0x02, 83, 270},
-  {0x02, 84, 271},
-  {0x02, 85, 269},
-  {0x01,126, 278},
-  {0x00,  0, GUIStr_Empty},
-  };
 /******************************************************************************/
 struct NamedCommand creature_desc[CREATURE_TYPES_MAX];
 struct NamedCommand newcrtr_desc[SWAP_CREATURE_TYPES_MAX];
@@ -405,27 +371,6 @@ void check_and_auto_fix_stats(void)
         creature_stats_updated(model);
     }
     SYNCDBG(9,"Finished");
-}
-
-/**
- * Returns CreatureData of given creature model.
- */
-struct CreatureData *creature_data_get(ThingModel crstat_idx)
-{
-  if ((crstat_idx < 1) || (crstat_idx >= CREATURE_TYPES_COUNT)) // todo put this data someplace else
-    return &creature_data[0];
-  return &creature_data[crstat_idx];
-}
-
-/**
- * Returns CreatureData assigned to given thing.
- * Thing must be a creature.
- */
-struct CreatureData *creature_data_get_from_thing(const struct Thing *thing)
-{
-  if ((thing->model < 1) || (thing->model >= CREATURE_TYPES_COUNT)) // todo put this data someplace else
-    return &creature_data[0];
-  return &creature_data[thing->model];
 }
 
 TbBool is_creature_model_wildcard(ThingModel crmodel)

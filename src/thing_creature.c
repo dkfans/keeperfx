@@ -3853,8 +3853,7 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
       set_first_creature(crtng);
     set_start_state(crtng);
     add_creature_score_to_owner(crtng);
-    struct CreatureData* crdata = creature_data_get(crtng->model);
-    cctrl->active_instance_id = crdata->flags;
+    cctrl->active_instance_id = creature_choose_first_available_instance(crtng);
     if (crstat->illuminated) {
         illuminate_creature(crtng);
     }

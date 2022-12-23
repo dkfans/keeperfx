@@ -170,12 +170,6 @@ enum CreatureAttackType {
 
 struct Thing;
 
-struct CreatureData {
-      unsigned char flags;
-      short lair_tngmodel;
-      short namestr_idx_UNUSED;
-};
-
 struct Creatures { // sizeof = 16
   unsigned short evil_start_state;
   unsigned short good_start_state;
@@ -285,13 +279,10 @@ extern const struct NamedCommand creatmodel_attributes_commands[];
 
 extern const struct NamedCommand creature_graphics_desc[];
 /******************************************************************************/
-extern struct CreatureData creature_data[];
 //extern struct Creatures creatures[];
 /******************************************************************************/
 struct CreatureStats *creature_stats_get(ThingModel crstat_idx);
 struct CreatureStats *creature_stats_get_from_thing(const struct Thing *thing);
-struct CreatureData *creature_data_get(ThingModel crstat_idx);
-struct CreatureData *creature_data_get_from_thing(const struct Thing *thing);
 TbBool creature_stats_invalid(const struct CreatureStats *crstat);
 void creature_stats_updated(ThingModel crstat_idx);
 void check_and_auto_fix_stats(void);
