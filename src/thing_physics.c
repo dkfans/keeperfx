@@ -84,10 +84,10 @@ void slide_thing_against_wall_at(struct Thing *thing, struct Coord3d *pos, long 
       {
         if ( x_pos > x_thing )
         {
-          pos->x.val = ((x_pos + sizexy) & 0xFFFF00) - sizexy - 1;
+          pos->x.val = ((x_pos + sizexy) & 0xFFFFFF00) - sizexy - 1;
           return;
         }
-        x_thing = (((x_pos - sizexy) & 0xFFFF00) + sizexy + COORD_PER_STL);
+        x_thing = (((x_pos - sizexy) & 0xFFFFFF00) + sizexy + COORD_PER_STL);
       }
       pos->x.val = x_thing;
       break;
@@ -99,10 +99,10 @@ void slide_thing_against_wall_at(struct Thing *thing, struct Coord3d *pos, long 
       {
         if ( y_thing < y_pos )
         {
-          pos->y.val = ((y_pos + sizexy) & 0xFFFF00) - sizexy - 1;
+          pos->y.val = ((y_pos + sizexy) & 0xFFFFFF00) - sizexy - 1;
           return;
         }
-        y_thing = (((y_pos - sizexy) & 0xFFFF00) + sizexy + COORD_PER_STL);
+        y_thing = (((y_pos - sizexy) & 0xFFFFFF00) + sizexy + COORD_PER_STL);
       }
       pos->y.val = y_thing;
       break;
@@ -113,18 +113,18 @@ void slide_thing_against_wall_at(struct Thing *thing, struct Coord3d *pos, long 
       if ( x_pos != x_thing )
       {
         if ( x_pos <= x_thing )
-          x_thing = (((x_pos - sizexy) & 0xFFFF00) + sizexy + COORD_PER_STL);
+          x_thing = (((x_pos - sizexy) & 0xFFFFFF00) + sizexy + COORD_PER_STL);
         else
-          x_thing = (((sizexy + x_pos) & 0xFFFF00) - sizexy - 1);
+          x_thing = (((sizexy + x_pos) & 0xFFFFFF00) - sizexy - 1);
       }
       y_thing = thing->mappos.y.val;
       y_pos = pos->y.val;
       if ( y_pos != y_thing )
       {
         if ( y_pos <= y_thing )
-          y_thing = (((y_pos - sizexy) & 0xFFFF00) + sizexy + COORD_PER_STL);
+          y_thing = (((y_pos - sizexy) & 0xFFFFFF00) + sizexy + COORD_PER_STL);
         else
-          y_thing = (((sizexy + y_pos) & 0xFFFF00) - sizexy - 1);
+          y_thing = (((sizexy + y_pos) & 0xFFFFFF00) - sizexy - 1);
       }
       pos->x.val = x_thing;
       pos->y.val = y_thing;
@@ -139,9 +139,9 @@ void slide_thing_against_wall_at(struct Thing *thing, struct Coord3d *pos, long 
       if ( x_pos != x_thing )
       {
         if ( x_pos <= x_thing )
-          x_thing = (((x_pos - sizexy) & 0xFFFF00) + sizexy + COORD_PER_STL);
+          x_thing = (((x_pos - sizexy) & 0xFFFFFF00) + sizexy + COORD_PER_STL);
         else
-          x_thing = (((sizexy + x_pos) & 0xFFFF00) - sizexy - 1);
+          x_thing = (((sizexy + x_pos) & 0xFFFFFF00) - sizexy - 1);
       }
       pos->x.val = x_thing;
       pos->z.val = get_slide_z_coord(thing, pos);
@@ -153,9 +153,9 @@ void slide_thing_against_wall_at(struct Thing *thing, struct Coord3d *pos, long 
       if ( y_thing != y_pos )
       {
         if ( y_thing >= y_pos )
-          y_thing = (((y_pos - sizexy) & 0xFFFF00) + sizexy + COORD_PER_STL);
+          y_thing = (((y_pos - sizexy) & 0xFFFFFF00) + sizexy + COORD_PER_STL);
         else
-          y_thing = (((y_pos + sizexy) & 0xFFFF00) - sizexy - 1);
+          y_thing = (((y_pos + sizexy) & 0xFFFFFF00) - sizexy - 1);
       }
       pos->y.val = y_thing;
       pos->z.val = get_slide_z_coord(thing, pos);
@@ -167,18 +167,18 @@ void slide_thing_against_wall_at(struct Thing *thing, struct Coord3d *pos, long 
       if ( x_pos != x_thing )
       {
         if ( x_pos <= x_thing )
-          x_thing = (((x_pos - sizexy) & 0xFFFF00) + sizexy + COORD_PER_STL);
+          x_thing = (((x_pos - sizexy) & 0xFFFFFF00) + sizexy + COORD_PER_STL);
         else
-          x_thing = (((sizexy + x_pos) & 0xFFFF00) - sizexy - 1);
+          x_thing = (((sizexy + x_pos) & 0xFFFFFF00) - sizexy - 1);
       }
       y_pos = pos->y.val;
       y_thing = thing->mappos.y.val;
       if ( y_pos != y_thing )
       {
         if ( y_pos <= y_thing )
-          y_thing = (((y_pos - sizexy) & 0xFFFF00) + sizexy + COORD_PER_STL);
+          y_thing = (((y_pos - sizexy) & 0xFFFFFF00) + sizexy + COORD_PER_STL);
         else
-          y_thing = (((sizexy + y_pos) & 0xFFFF00) - sizexy - 1);
+          y_thing = (((sizexy + y_pos) & 0xFFFFFF00) - sizexy - 1);
       }
       pos->x.val = x_thing;
       pos->y.val = y_thing;
@@ -402,9 +402,9 @@ TbBool creature_cannot_move_directly_to(struct Thing *thing, struct Coord3d *pos
             int i;
 
             if (pos->x.val <= realpos.x.val)
-              i = (realpos.x.val & 0xFFFF00) - 1;
+              i = (realpos.x.val & 0xFFFFFF00) - 1;
             else
-              i = (realpos.x.val + COORD_PER_STL) & 0xFFFF00;
+              i = (realpos.x.val + COORD_PER_STL) & 0xFFFFFF00;
             modpos.x.val = i;
             modpos.y.val = delta_y * (i - origpos.x.val) / delta_x + origpos.y.val;
             modpos.z.val = realpos.z.val;
@@ -422,9 +422,9 @@ TbBool creature_cannot_move_directly_to(struct Thing *thing, struct Coord3d *pos
             realpos.z.val = thing->mappos.z.val;
 
             if (pos->y.val <= realpos.y.val)
-              i = (realpos.y.val & 0xFFFF00) - 1;
+              i = (realpos.y.val & 0xFFFFFF00) - 1;
             else
-              i = (realpos.y.val + COORD_PER_STL) & 0xFFFF00;
+              i = (realpos.y.val + COORD_PER_STL) & 0xFFFFFF00;
             modpos.y.val = i;
             modpos.x.val = delta_x * (i - origpos.y.val) / delta_y + origpos.x.val;
             modpos.z.val = realpos.z.val;
@@ -457,9 +457,9 @@ TbBool creature_cannot_move_directly_to(struct Thing *thing, struct Coord3d *pos
             int i;
 
             if (pos->y.val <= realpos.y.val)
-              i = (realpos.y.val & 0xFFFF00) - 1;
+              i = (realpos.y.val & 0xFFFFFF00) - 1;
             else
-              i = (realpos.y.val + COORD_PER_STL) & 0xFFFF00;
+              i = (realpos.y.val + COORD_PER_STL) & 0xFFFFFF00;
             modpos.y.val = i;
             modpos.x.val = delta_x * (i - origpos.y.val) / delta_y + origpos.x.val;
             modpos.z.val = realpos.z.val;
@@ -477,9 +477,9 @@ TbBool creature_cannot_move_directly_to(struct Thing *thing, struct Coord3d *pos
             realpos.z.val = thing->mappos.z.val;
 
             if (pos->x.val <= realpos.x.val)
-              i = (realpos.x.val & 0xFFFF00) - 1;
+              i = (realpos.x.val & 0xFFFFFF00) - 1;
             else
-              i = (realpos.x.val + COORD_PER_STL) & 0xFFFF00;
+              i = (realpos.x.val + COORD_PER_STL) & 0xFFFFFF00;
             modpos.x.val = i;
             modpos.y.val = delta_y * (modpos.x.val - origpos.x.val) / delta_x + origpos.y.val;
             modpos.z.val = realpos.z.val;

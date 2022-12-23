@@ -533,9 +533,9 @@ long creature_cannot_move_directly_to_with_collide(struct Thing *creatng, struct
     if (cross_x_boundary_first(&prev_pos, pos))
     {
         if (pos->x.val <= prev_pos.x.val)
-            clpcor = (prev_pos.x.val & 0xFFFF00) - 1;
+            clpcor = (prev_pos.x.val & 0xFFFFFF00) - 1;
         else
-            clpcor = (prev_pos.x.val + COORD_PER_STL) & 0xFFFF00;
+            clpcor = (prev_pos.x.val + COORD_PER_STL) & 0xFFFFFF00;
         next_pos.x.val = clpcor;
         next_pos.y.val = dt_y * abs(clpcor - orig_pos.x.val) / dt_x + orig_pos.y.val;
         next_pos.z.val = prev_pos.z.val;
@@ -556,9 +556,9 @@ long creature_cannot_move_directly_to_with_collide(struct Thing *creatng, struct
 
         prev_pos = creatng->mappos;
         if (pos->y.val <= prev_pos.y.val)
-            clpcor = (prev_pos.y.val & 0xFFFF00) - 1;
+            clpcor = (prev_pos.y.val & 0xFFFFFF00) - 1;
         else
-            clpcor = (prev_pos.y.val + COORD_PER_STL) & 0xFFFF00;
+            clpcor = (prev_pos.y.val + COORD_PER_STL) & 0xFFFFFF00;
         next_pos.y.val = clpcor;
         next_pos.x.val = dt_x * abs(clpcor - orig_pos.y.val) / dt_y + orig_pos.x.val;
         next_pos.z.val = prev_pos.z.val;
@@ -601,9 +601,9 @@ long creature_cannot_move_directly_to_with_collide(struct Thing *creatng, struct
     if (cross_y_boundary_first(&prev_pos, pos))
     {
         if (pos->y.val <= prev_pos.y.val)
-            clpcor = (prev_pos.y.val & 0xFFFF00) - 1;
+            clpcor = (prev_pos.y.val & 0xFFFFFF00) - 1;
         else
-            clpcor = (prev_pos.y.val + COORD_PER_STL) & 0xFFFF00;
+            clpcor = (prev_pos.y.val + COORD_PER_STL) & 0xFFFFFF00;
         next_pos.y.val = clpcor;
         next_pos.x.val = dt_x * abs(clpcor - orig_pos.y.val) / dt_y + orig_pos.x.val;
         next_pos.z.val = prev_pos.z.val;
@@ -624,9 +624,9 @@ long creature_cannot_move_directly_to_with_collide(struct Thing *creatng, struct
         }
         prev_pos = creatng->mappos;
         if (pos->x.val <= prev_pos.x.val)
-            clpcor = (prev_pos.x.val & 0xFFFF00) - 1;
+            clpcor = (prev_pos.x.val & 0xFFFFFF00) - 1;
         else
-            clpcor = (prev_pos.x.val + COORD_PER_STL) & 0xFFFF00;
+            clpcor = (prev_pos.x.val + COORD_PER_STL) & 0xFFFFFF00;
         next_pos.x.val = clpcor;
         next_pos.y.val = dt_y * abs(clpcor - orig_pos.x.val) / dt_x + orig_pos.y.val;
         next_pos.z.val = prev_pos.z.val;
