@@ -226,7 +226,7 @@ TbBool disband_creatures_group(struct Thing *thing)
 struct CreatureSound *get_creature_sound(struct Thing *thing, long snd_idx)
 {
     unsigned int cmodel = thing->model;
-    if ((cmodel < 1) || (cmodel >= CREATURE_TYPES_COUNT))
+    if ((cmodel < 1) || (cmodel >= gameadd.crtr_conf.model_count))
     {
         ERRORLOG("Trying to get sound for undefined creature type %d",(int)cmodel);
         // Return dummy element

@@ -333,7 +333,7 @@ void setup_gui_tooltip(struct GuiButton *gbtn)
   if (i == GUIStr_PickCreatrMostExpDesc)
   {
       k = gbtn->btype_value & LbBFeF_IntValueMask;
-      if ((k > 0) && (top_of_breed_list+k < CREATURE_TYPES_COUNT))
+      if ((k > 0) && (top_of_breed_list+k < gameadd.crtr_conf.model_count))
           k = breed_activities[top_of_breed_list+k];
       else
           k = get_players_special_digger_model(my_player_number);

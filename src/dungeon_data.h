@@ -85,23 +85,22 @@ enum DungeonManufactureBuildFlags {
 /******************************************************************************/
 #pragma pack(1)
 
-struct DiggerStack { // sizeof = 4
+struct DiggerStack {
       unsigned short stl_num;
       SpDiggerTaskType task_type;
 };
 
-struct ResearchVal { // sizeof = 6
+struct ResearchVal {
   unsigned char rtyp;
   unsigned char rkind;
   long req_amount;
 };
 
-struct TurnTimer { // sizeof = 5
+struct TurnTimer {
   unsigned long count;
   unsigned char state;
 };
 
-#define SIZEOF_Dungeon 0x1508
 struct Dungeon {
     unsigned short dnheart_idx;
     struct Coord3d mappos;
@@ -111,9 +110,9 @@ struct Dungeon {
     short digger_list_start;
     short things_in_hand[MAX_THINGS_IN_HAND];
     unsigned char num_things_in_hand;
-    unsigned short field_64[CREATURE_TYPES_COUNT][15];
-    unsigned short guijob_all_creatrs_count[CREATURE_TYPES_COUNT][3];
-    unsigned short guijob_angry_creatrs_count[CREATURE_TYPES_COUNT][3];
+    unsigned short field_64[CREATURE_TYPES_MAX][15];
+    unsigned short guijob_all_creatrs_count[CREATURE_TYPES_MAX][3];
+    unsigned short guijob_angry_creatrs_count[CREATURE_TYPES_MAX][3];
     int sight_casted_gameturn;
     short sight_casted_thing_idx;
     unsigned char sight_casted_splevel;
@@ -128,16 +127,16 @@ struct Dungeon {
     int hold_audience_cast_turn;
     int scavenge_counters_turn;
     /** Counter of creatures scavenging of each kind, zeroized and recomputed each game turn. */
-    unsigned char creatures_scavenging[CREATURE_TYPES_COUNT];
+    unsigned char creatures_scavenging[CREATURE_TYPES_MAX];
     /** Counter of creatures praying. */
-    unsigned char creatures_praying[CREATURE_TYPES_COUNT];
+    unsigned char creatures_praying[CREATURE_TYPES_MAX];
     unsigned char chickens_sacrificed;
     unsigned char gold_piles_sacrificed;
-    unsigned char creature_sacrifice[CREATURE_TYPES_COUNT];
-    unsigned char creature_sacrifice_exp[CREATURE_TYPES_COUNT];
+    unsigned char creature_sacrifice[CREATURE_TYPES_MAX];
+    unsigned char creature_sacrifice_exp[CREATURE_TYPES_MAX];
     unsigned char num_active_diggers;
     unsigned char num_active_creatrs;
-    unsigned char owned_creatures_of_model[CREATURE_TYPES_COUNT];
+    unsigned char owned_creatures_of_model[CREATURE_TYPES_MAX];
     /** Total amount of rooms in possession of a player. Rooms which can never be built are not counted. */
     unsigned char total_rooms;
     unsigned short total_doors;
@@ -145,12 +144,12 @@ struct Dungeon {
     unsigned short total_creatures_left;
     int doors_destroyed;
     short room_manage_area;
-    short creatures_scavenged[CREATURE_TYPES_COUNT];
+    short creatures_scavenged[CREATURE_TYPES_MAX];
     short creatures_scavenge_gain;
     short creatures_scavenge_lost;
-    long scavenge_turn_points[CREATURE_TYPES_COUNT];
-    short scavenge_targets[CREATURE_TYPES_COUNT];
-    int creature_max_level[CREATURE_TYPES_COUNT];
+    long scavenge_turn_points[CREATURE_TYPES_MAX];
+    short scavenge_targets[CREATURE_TYPES_MAX];
+    int creature_max_level[CREATURE_TYPES_MAX];
     unsigned short creatures_annoyed;
     unsigned short battles_lost;
     unsigned short battles_won;
@@ -182,11 +181,11 @@ struct Dungeon {
     /** How many creatures are force-enabled for each kind.
      * Force-enabled creature can come from portal without additional conditions,
      * but only until dungeon has up to given amount of their kind. */
-    unsigned char creature_force_enabled[CREATURE_TYPES_COUNT];
+    unsigned char creature_force_enabled[CREATURE_TYPES_MAX];
     /** Defines whether a creature of each kind is allowed to come from portal.
      * Allowed creatures can join a dungeon if whether attraction condition is met
      * or force-enabled amount isn't reached. */
-    unsigned char creature_allowed[CREATURE_TYPES_COUNT];
+    unsigned char creature_allowed[CREATURE_TYPES_MAX];
     unsigned char magic_level[KEEPER_POWERS_COUNT];
     unsigned char magic_resrchable[KEEPER_POWERS_COUNT];
     struct TurnTimer turn_timers[TURN_TIMERS_COUNT];
@@ -216,12 +215,12 @@ struct Dungeon {
     long dead_creature_idx;
     /** Contains map event index or each even button visible on screen. */
     unsigned char event_button_index[EVENT_BUTTONS_COUNT+1];
-    unsigned short tortured_creatures[CREATURE_TYPES_COUNT];
+    unsigned short tortured_creatures[CREATURE_TYPES_MAX];
     unsigned char bodies_rotten_for_vampire;
     long portal_scavenge_boost;
     /** Stores how many creatures of each kind of has joined the dungeon during the level.
      * Values are saturated at 255. */
-    unsigned char creature_models_joined[CREATURE_TYPES_COUNT];
+    unsigned char creature_models_joined[CREATURE_TYPES_MAX];
     unsigned long fights_num;
     unsigned char research_override; // could be easily changed into flags..
     int last_creature_dropped_gameturn;
@@ -232,7 +231,7 @@ struct Dungeon {
 unsigned short field_14BC;
 unsigned long field_14BE;
     /** Index of last creature picked up of given model. */
-    unsigned short selected_creatures_of_model[CREATURE_TYPES_COUNT];
+    unsigned short selected_creatures_of_model[CREATURE_TYPES_MAX];
     /** Index of last creature picked up of given GUI Job. */
     unsigned short selected_creatures_of_gui_job[CREATURE_GUI_JOBS_COUNT];
     };
@@ -274,7 +273,7 @@ struct DungeonAdd
     struct TrapInfo       mnfct_info;
     struct BoxInfo        box_info;
     struct Coord3d        last_combat_location;
-    int                   creature_awarded[CREATURE_TYPES_COUNT];
+    int                   creature_awarded[CREATURE_TYPES_MAX];
     unsigned char         creature_entrance_level;
     unsigned long         evil_creatures_converted;
     unsigned long         good_creatures_converted;

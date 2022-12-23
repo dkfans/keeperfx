@@ -937,7 +937,7 @@ void gui_over_creature_button(struct GuiButton* gbtn)
     long i = gbtn->btype_value & LbBFeF_IntValueMask;
     ThingModel crmodel;
     if (i > 0) {
-        crmodel = breed_activities[(top_of_breed_list + i) % CREATURE_TYPES_COUNT];
+        crmodel = breed_activities[(top_of_breed_list + i) % gameadd.crtr_conf.model_count];
     }
     else {
         crmodel = get_players_special_digger_model(my_player_number);
@@ -1289,7 +1289,7 @@ void pick_up_creature_doing_activity(struct GuiButton *gbtn)
     long i = gbtn->btype_value & LbBFeF_IntValueMask;
     ThingModel crmodel;
     if (i > 0)
-        crmodel = breed_activities[(top_of_breed_list+i)%CREATURE_TYPES_COUNT];
+        crmodel = breed_activities[(top_of_breed_list+i)%gameadd.crtr_conf.model_count];
     else
         crmodel = get_players_special_digger_model(my_player_number);
     // Get index from pointer
@@ -1303,7 +1303,7 @@ void gui_go_to_next_creature_activity(struct GuiButton *gbtn)
     ThingModel crmodel;
     int i = gbtn->btype_value & LbBFeF_IntValueMask;
     if (i > 0) {
-        crmodel = breed_activities[(top_of_breed_list+i)%CREATURE_TYPES_COUNT];
+        crmodel = breed_activities[(top_of_breed_list+i)%gameadd.crtr_conf.model_count];
     } else {
         crmodel = get_players_special_digger_model(my_player_number);
     }
@@ -1413,7 +1413,7 @@ void pick_up_next_creature(struct GuiButton *gbtn)
 
     int i = gbtn->btype_value & LbBFeF_IntValueMask;
     if (i > 0) {
-        kind = breed_activities[(i + top_of_breed_list) % CREATURE_TYPES_COUNT];
+        kind = breed_activities[(i + top_of_breed_list) % gameadd.crtr_conf.model_count];
     }
     else {
         kind = get_players_special_digger_model(my_player_number);
@@ -1429,7 +1429,7 @@ void gui_go_to_next_creature(struct GuiButton *gbtn)
     long i = gbtn->btype_value & LbBFeF_IntValueMask;
     ThingModel crmodel;
     if (i > 0) {
-        crmodel = breed_activities[(top_of_breed_list+i)%CREATURE_TYPES_COUNT];
+        crmodel = breed_activities[(top_of_breed_list+i)%gameadd.crtr_conf.model_count];
     } else {
         crmodel = get_players_special_digger_model(my_player_number);
     }
@@ -1444,7 +1444,7 @@ void gui_area_anger_button(struct GuiButton *gbtn)
     long i = gbtn->btype_value & LbBFeF_IntValueMask;
     // Get index from pointer
     long job_idx = ((long*)gbtn->content - &activity_list[0]);
-    if ( (i > 0) && (top_of_breed_list+i < CREATURE_TYPES_COUNT) )
+    if ( (i > 0) && (top_of_breed_list+i < gameadd.crtr_conf.model_count) )
         crmodel = breed_activities[top_of_breed_list+i];
     else
         crmodel = get_players_special_digger_model(my_player_number);
@@ -1453,7 +1453,7 @@ void gui_area_anger_button(struct GuiButton *gbtn)
     int ps_units_per_px = simple_gui_panel_sprite_width_units_per_px(gbtn, GPS_rpanel_tab_crtr_annoy_lv00, 113);
     // Now draw the button
     long cr_total = 0;
-    if ((crmodel > 0) && (crmodel < CREATURE_TYPES_COUNT) && (gbtn->flags & LbBtnF_Enabled))
+    if ((crmodel > 0) && (crmodel < gameadd.crtr_conf.model_count) && (gbtn->flags & LbBtnF_Enabled))
     {
         struct Dungeon* dungeon = get_players_num_dungeon(my_player_number);
         int spridx = gbtn->sprite_idx;
@@ -1703,7 +1703,7 @@ void gui_activity_background(struct GuiMenu *gmnu)
     for (int i = 0; i < visible_count; i++)
     {
         ThingModel crmodel;
-        if ( (i > 0) && (top_of_breed_list+i < CREATURE_TYPES_COUNT) )
+        if ( (i > 0) && (top_of_breed_list+i < gameadd.crtr_conf.model_count) )
             crmodel = breed_activities[top_of_breed_list+i];
         else
             crmodel = get_players_special_digger_model(my_player_number);
@@ -1783,7 +1783,7 @@ void maintain_activity_pic(struct GuiButton *gbtn)
     ThingModel crmodel;
     int i = gbtn->btype_value & LbBFeF_IntValueMask;
     if (i > 0) {
-        crmodel = breed_activities[(top_of_breed_list+i)%CREATURE_TYPES_COUNT];
+        crmodel = breed_activities[(top_of_breed_list+i)%gameadd.crtr_conf.model_count];
     } else {
         crmodel = get_players_special_digger_model(my_player_number);
     }
@@ -1802,7 +1802,7 @@ void maintain_activity_row(struct GuiButton *gbtn)
     ThingModel crmodel;
     int i = gbtn->btype_value & LbBFeF_IntValueMask;
     if (i > 0) {
-        crmodel = breed_activities[(top_of_breed_list+i)%CREATURE_TYPES_COUNT];
+        crmodel = breed_activities[(top_of_breed_list+i)%gameadd.crtr_conf.model_count];
     } else {
         crmodel = get_players_special_digger_model(my_player_number);
     }
