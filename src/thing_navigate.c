@@ -87,18 +87,18 @@ TbBool get_nearest_valid_position_for_creature_at(struct Thing *thing, struct Co
         {
             stl_x = 0; 
         }
-        else if ( stl_x > map_subtiles_x )
+        else if ( stl_x > gameadd.map_subtiles_x )
         {
-            stl_x = map_subtiles_x;
+            stl_x = gameadd.map_subtiles_x;
         }
 
         if ( stl_y < 0 )
         {
             stl_y = 0; 
         }
-        else if ( stl_y > map_subtiles_y )
+        else if ( stl_y > gameadd.map_subtiles_y )
         {
-            stl_y = map_subtiles_y;
+            stl_y = gameadd.map_subtiles_y;
         }
 
         mapblk = get_map_block_at(stl_x, stl_y);
@@ -144,7 +144,6 @@ static void get_nearest_navigable_point_for_thing(struct Thing *thing, struct Co
         get_nearest_valid_position_for_creature_at(thing, pos2);
     nav_thing_can_travel_over_lava = 0;
 }
-HOOK_DK_FUNC(get_nearest_navigable_point_for_thing)
 
 TbBool setup_person_move_to_position_f(struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, NaviRouteFlags flags, const char *func_name)
 {
@@ -360,7 +359,7 @@ TbBool creature_can_navigate_to_f(const struct Thing *thing, struct Coord3d *dst
  * @return
  * @see creature_can_get_to_any_of_players_rooms() is a function used in similar manner.
  */
-TbBool creature_can_get_to_dungeon(struct Thing *creatng, PlayerNumber plyr_idx)
+TbBool creature_can_get_to_dungeon_heart(struct Thing *creatng, PlayerNumber plyr_idx)
 {
     SYNCDBG(18,"Starting");
     struct PlayerInfo* player = get_player(plyr_idx);
@@ -621,11 +620,11 @@ long get_next_gap_creature_can_fit_in_below_point(struct Thing *thing, struct Co
     if (start_y < 0)
         start_y = 0;
     MapCoord end_x = nav_radius + pos->x.val;
-    if (end_x > map_subtiles_x * COORD_PER_STL - 1)
-        end_x = map_subtiles_x * COORD_PER_STL - 1;
+    if (end_x > gameadd.map_subtiles_x * COORD_PER_STL - 1)
+        end_x = gameadd.map_subtiles_x * COORD_PER_STL - 1;
     MapCoord end_y = pos->y.val + nav_radius;
-    if (end_y > map_subtiles_y * COORD_PER_STL - 1)
-        end_y = map_subtiles_y * COORD_PER_STL - 1;
+    if (end_y > gameadd.map_subtiles_y * COORD_PER_STL - 1)
+        end_y = gameadd.map_subtiles_y * COORD_PER_STL - 1;
     MapSubtlCoord highest_floor_stl = 0;
     MapSubtlCoord lowest_ceiling_stl = 15;
 

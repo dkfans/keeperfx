@@ -30,10 +30,9 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT extern ModifyDataLoadFnameFunc *_DK_modify_data_load_filename_function;
 /******************************************************************************/
 
-ModifyDataLoadFnameFunc *modify_data_load_filename_function=&defaultModifyDataLoadFilename;
+static ModifyDataLoadFnameFunc *modify_data_load_filename_function=&defaultModifyDataLoadFilename;
 
 /******************************************************************************/
 
@@ -161,7 +160,6 @@ short LbDataLoadAll(struct TbLoadFiles load_files[])
 ModifyDataLoadFnameFunc *LbDataLoadSetModifyFilenameFunction(ModifyDataLoadFnameFunc *newfunc)
 {
   modify_data_load_filename_function = newfunc;
-  _DK_modify_data_load_filename_function = newfunc;
   return newfunc;
 }
 

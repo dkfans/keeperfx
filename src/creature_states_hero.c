@@ -76,7 +76,7 @@ TbBool has_available_enemy_dungeon_heart(struct Thing *thing, PlayerNumber plyr_
         cctrl->byte_8B = 0;
     }
     // Try accessing dungeon heart of undefeated enemy players
-    if (!player_is_friendly_or_defeated(plyr_idx, thing->owner) && (creature_can_get_to_dungeon(thing, plyr_idx)))
+    if (!player_is_friendly_or_defeated(plyr_idx, thing->owner) && (creature_can_get_to_dungeon_heart(thing, plyr_idx)))
     {
         return true;
     }
@@ -113,7 +113,7 @@ long good_find_best_enemy_dungeon(struct Thing* creatng)
         player = get_player(plyr_idx);
         if (gameadd.classic_bugs_flags & ClscBug_AlwaysTunnelToRed)
         {
-            if (creature_can_get_to_dungeon(creatng, plyr_idx))
+            if (creature_can_get_to_dungeon_heart(creatng, plyr_idx))
             {
                 if (player_is_friendly_or_defeated(plyr_idx, creatng->owner)) {
                     continue;
@@ -591,12 +591,12 @@ short good_back_at_start(struct Thing *thing)
     long m = CREATURE_RANDOM(thing, AROUND_MAP_LENGTH);
     for (long n = 0; n < AROUND_MAP_LENGTH; n++)
     {
-        struct Map* mapblk = get_map_block_at_pos(stl_num + around_map[m]);
+        struct Map* mapblk = get_map_block_at_pos(stl_num + gameadd.around_map[m]);
         // Per-block code
         if ((mapblk->flags & SlbAtFlg_Blocking) == 0)
         {
-            MapSubtlCoord stl_x = stl_num_decode_x(stl_num + around_map[m]);
-            MapSubtlCoord stl_y = stl_num_decode_y(stl_num + around_map[m]);
+            MapSubtlCoord stl_x = stl_num_decode_x(stl_num + gameadd.around_map[m]);
+            MapSubtlCoord stl_y = stl_num_decode_y(stl_num + gameadd.around_map[m]);
             if (setup_person_move_to_position(thing, stl_x, stl_y, NavRtF_Default)) {
                 thing->continue_state = CrSt_GoodDropsGold;
                 return 1;
@@ -863,10 +863,13 @@ short good_doing_nothing(struct Thing *creatng)
             if (nturns > 400)
             {
                 // Go to the previously chosen dungeon
-                if (!creature_can_get_to_dungeon(creatng,target_plyr_idx))
+                if (!creature_can_get_to_dungeon_heart(creatng,target_plyr_idx))
                 {
-                    // Cannot get to the originally selected dungeon - reset it
-                    cctrl->party.target_plyr_idx = -1;
+                    if (!creature_can_get_to_any_of_players_rooms(creatng, target_plyr_idx) || (cctrl->party_objective != CHeroTsk_AttackRooms))
+                    {
+                        // Cannot get to the originally selected dungeon - reset it
+                        cctrl->party.target_plyr_idx = -1;
+                    }
                 }
             } else
             if (nturns >= 0)
@@ -1137,8 +1140,8 @@ TbBool script_support_send_tunneller_to_action_point(struct Thing *thing, long a
         pos.y.val = apt->mappos.y.val;
     } else {
         ERRORLOG("Attempt to send to non-existing action point %d",(int)apt_idx);
-        pos.x.val = subtile_coord_center(map_subtiles_x/2);
-        pos.y.val = subtile_coord_center(map_subtiles_y/2);
+        pos.x.val = subtile_coord_center(gameadd.map_subtiles_x/2);
+        pos.y.val = subtile_coord_center(gameadd.map_subtiles_y/2);
     }
     pos.z.val = subtile_coord(1,0);
     send_tunneller_to_point(thing, &pos);

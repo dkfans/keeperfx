@@ -54,8 +54,10 @@ extern "C" {
 
 /******************************************************************************/
 // Global variables
-SmackDrawCallback smack_draw_callback = NULL;
-unsigned char smk_palette[768];
+static SmackDrawCallback smack_draw_callback = NULL;
+static unsigned char smk_palette[768];
+static struct Animation animation;
+
 /******************************************************************************/
 void copy_to_screen(unsigned char *srcbuf, unsigned long width, unsigned long height, unsigned int flags);
 /******************************************************************************/

@@ -195,7 +195,7 @@ void process_disease(struct Thing *creatng)
         SubtlCodedCoords stl_num = get_subtile_number(creatng->mappos.x.stl.num, creatng->mappos.y.stl.num);
         for (long n = 0; n < AROUND_MAP_LENGTH; n++)
         {
-            struct Map* mapblk = get_map_block_at_pos(stl_num + around_map[n]);
+            struct Map* mapblk = get_map_block_at_pos(stl_num + gameadd.around_map[n]);
             unsigned long k = 0;
             long i = get_mapwho_thing_index(mapblk);
             while (i != 0)
@@ -466,7 +466,7 @@ void update_vertical_explored_flags_for_power_sight(struct PlayerInfo *player, s
     MapSubtlCoord stl_y = (long)soe_pos->y.stl.num - MAX_SOE_RADIUS;
     for (long soe_y = 0; soe_y < 2 * MAX_SOE_RADIUS; soe_y++, stl_y++)
     {
-        if ( (stl_y >= 0) && (stl_y <= map_subtiles_y) )
+        if ( (stl_y >= 0) && (stl_y <= gameadd.map_subtiles_y) )
         {
             MapSubtlCoord stl_x = (long)soe_pos->x.stl.num - MAX_SOE_RADIUS;
             for (long soe_x = 0; soe_x <= MAX_SOE_RADIUS; soe_x++, stl_x++)
@@ -487,17 +487,17 @@ void update_vertical_explored_flags_for_power_sight(struct PlayerInfo *player, s
                     {
                         stl_x = 0;
                     } else
-                    if (stl_x > map_subtiles_x-1)
+                    if (stl_x > gameadd.map_subtiles_x-1)
                     {
-                        stl_x = map_subtiles_x-1;
+                        stl_x = gameadd.map_subtiles_x-1;
                     }
                     if (boundstl_x < 0)
                     {
                         boundstl_x = 0;
                     } else
-                    if (boundstl_x > map_subtiles_x-1)
+                    if (boundstl_x > gameadd.map_subtiles_x-1)
                     {
-                        boundstl_x = map_subtiles_x-1;
+                        boundstl_x = gameadd.map_subtiles_x-1;
                     }
                     if (boundstl_x >= stl_x)
                     {
@@ -579,17 +579,17 @@ void update_horizonal_explored_flags_for_power_sight(struct PlayerInfo *player, 
                     {
                         boundstl_y = 0;
                     } else
-                    if (boundstl_y > map_subtiles_y-1)
+                    if (boundstl_y > gameadd.map_subtiles_y-1)
                     {
-                        boundstl_y = map_subtiles_y-1;
+                        boundstl_y = gameadd.map_subtiles_y-1;
                     }
                     if (stl_y < 0)
                     {
                         stl_y = 0;
                     } else
-                    if (stl_y > map_subtiles_y-1)
+                    if (stl_y > gameadd.map_subtiles_y-1)
                     {
-                        stl_y = map_subtiles_y-1;
+                        stl_y = gameadd.map_subtiles_y-1;
                     }
                     if (stl_y <= boundstl_y)
                     {
