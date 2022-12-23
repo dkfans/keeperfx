@@ -49,9 +49,6 @@ extern "C" {
 /******************************************************************************/
 const char keeper_creaturetp_file[]="creature.cfg";
 
-struct Creatures creatures[CREATURE_TYPES_MAX];
-unsigned short breed_activities[CREATURE_TYPES_MAX];
-
 const struct NamedCommand creaturetype_common_commands[] = {
   {"CREATURES",              1},
   {"INSTANCESCOUNT",         2},
@@ -198,7 +195,7 @@ struct NamedCommand creaturejob_desc[INSTANCE_TYPES_MAX];
 struct NamedCommand angerjob_desc[INSTANCE_TYPES_MAX];
 struct NamedCommand attackpref_desc[INSTANCE_TYPES_MAX];
 
-unsigned short breed_activities[CREATURE_TYPES_COUNT];
+unsigned short breed_activities[CREATURE_TYPES_MAX];
 /******************************************************************************/
 extern const struct NamedCommand creature_job_player_assign_func_type[];
 extern Creature_Job_Player_Check_Func creature_job_player_check_func_list[];
