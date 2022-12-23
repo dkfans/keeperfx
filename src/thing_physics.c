@@ -480,7 +480,7 @@ TbBool creature_cannot_move_directly_to(struct Thing *thing, struct Coord3d *pos
             if (pos->x.val <= realpos.x.val)
               i = (realpos.x.val & 0xFFFF00) - 1;
             else
-              i = (realpos.x.val + 256) & 0xFF00;
+              i = (realpos.x.val + 256) & 0xFFFF00;
             modpos.x.val = i;
             modpos.y.val = delta_y * (modpos.x.val - origpos.x.val) / delta_x + origpos.y.val;
             modpos.z.val = realpos.z.val;
