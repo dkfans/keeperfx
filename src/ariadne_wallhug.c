@@ -350,16 +350,16 @@ static long get_map_index_of_first_block_thing_colliding_with_at(struct Thing *c
     if (start_stl_x <= 0)
         start_stl_x = 0;
     MapSubtlCoord end_stl_x = (pos->x.val + nav_radius) / COORD_PER_STL + 1;
-    if (end_stl_x >= map_subtiles_x)
-        end_stl_x = map_subtiles_x;
+    if (end_stl_x >= gameadd.map_subtiles_x)
+        end_stl_x = gameadd.map_subtiles_x;
         
 
     MapSubtlCoord start_stl_y = (pos->y.val - nav_radius) / COORD_PER_STL;
     if (start_stl_y <= 0)
         start_stl_y = 0;
     MapSubtlCoord end_stl_y = (pos->y.val + nav_radius) / COORD_PER_STL + 1;
-    if (end_stl_y >= map_subtiles_y)
-        end_stl_y = map_subtiles_y;
+    if (end_stl_y >= gameadd.map_subtiles_y)
+        end_stl_y = gameadd.map_subtiles_y;
 
     if (start_stl_y >= end_stl_y)
     {
@@ -431,9 +431,9 @@ long creature_cannot_move_directly_to_with_collide(struct Thing *creatng, struct
     if (cross_x_boundary_first(&prev_pos, pos))
     {
         if (pos->x.val <= prev_pos.x.val)
-            clpcor = (prev_pos.x.val & 0xFF00) - 1;
+            clpcor = (prev_pos.x.val & 0xFFFF00) - 1;
         else
-            clpcor = (prev_pos.x.val + COORD_PER_STL) & 0xFF00;
+            clpcor = (prev_pos.x.val + COORD_PER_STL) & 0xFFFF00;
         next_pos.x.val = clpcor;
         next_pos.y.val = dt_y * abs(clpcor - orig_pos.x.val) / dt_x + orig_pos.y.val;
         next_pos.z.val = prev_pos.z.val;
@@ -454,9 +454,9 @@ long creature_cannot_move_directly_to_with_collide(struct Thing *creatng, struct
 
         prev_pos = creatng->mappos;
         if (pos->y.val <= prev_pos.y.val)
-            clpcor = (prev_pos.y.val & 0xFF00) - 1;
+            clpcor = (prev_pos.y.val & 0xFFFF00) - 1;
         else
-            clpcor = (prev_pos.y.val + COORD_PER_STL) & 0xFF00;
+            clpcor = (prev_pos.y.val + COORD_PER_STL) & 0xFFFF00;
         next_pos.y.val = clpcor;
         next_pos.x.val = dt_x * abs(clpcor - orig_pos.y.val) / dt_y + orig_pos.x.val;
         next_pos.z.val = prev_pos.z.val;
@@ -499,9 +499,9 @@ long creature_cannot_move_directly_to_with_collide(struct Thing *creatng, struct
     if (cross_y_boundary_first(&prev_pos, pos))
     {
         if (pos->y.val <= prev_pos.y.val)
-            clpcor = (prev_pos.y.val & 0xFF00) - 1;
+            clpcor = (prev_pos.y.val & 0xFFFF00) - 1;
         else
-            clpcor = (prev_pos.y.val + COORD_PER_STL) & 0xFF00;
+            clpcor = (prev_pos.y.val + COORD_PER_STL) & 0xFFFF00;
         next_pos.y.val = clpcor;
         next_pos.x.val = dt_x * abs(clpcor - orig_pos.y.val) / dt_y + orig_pos.x.val;
         next_pos.z.val = prev_pos.z.val;
@@ -522,9 +522,9 @@ long creature_cannot_move_directly_to_with_collide(struct Thing *creatng, struct
         }
         prev_pos = creatng->mappos;
         if (pos->x.val <= prev_pos.x.val)
-            clpcor = (prev_pos.x.val & 0xFF00) - 1;
+            clpcor = (prev_pos.x.val & 0xFFFF00) - 1;
         else
-            clpcor = (prev_pos.x.val + COORD_PER_STL) & 0xFF00;
+            clpcor = (prev_pos.x.val + COORD_PER_STL) & 0xFFFF00;
         next_pos.x.val = clpcor;
         next_pos.y.val = dt_y * abs(clpcor - orig_pos.x.val) / dt_x + orig_pos.y.val;
         next_pos.z.val = prev_pos.z.val;
@@ -1523,6 +1523,7 @@ static SubtlCodedCoords get_map_index_of_first_block_thing_colliding_with_travel
     creatng->mappos = orig_creat_pos;
     return return_stl_num;
 }
+
 static TbBool navigation_push_towards_target(struct Navigation *navi, struct Thing *creatng, const struct Coord3d *pos, MoveSpeed speed, MoveSpeed nav_radius, unsigned char crt_owner_bit)
 {
     navi->navstate = 2;
