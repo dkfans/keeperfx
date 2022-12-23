@@ -4303,53 +4303,6 @@ int main(int argc, char *argv[])
   AddVectoredExceptionHandler(0, &Vex_handler);
   get_cmdln_args(bf_argc, bf_argv);
 
-//TODO DLL_CLEANUP delete when won't be needed anymore
-  memcpy(_DK_menu_list,menu_list,40*sizeof(struct GuiMenu *));
-  memcpy(_DK_player_instance_info, player_instance_info, sizeof(_DK_player_instance_info));
-  memcpy(_DK_states,states,sizeof(_DK_states));
-
-#if (BFDEBUG_LEVEL > 1)
-  if (sizeof(struct Game) != SIZEOF_Game)
-  {
-      long delta1;
-      long delta2;
-      long delta3;
-      if (sizeof(struct PlayerInfo) != SIZEOF_PlayerInfo)
-      {
-          text = buf_sprintf("Bad compilation - struct PlayerInfo has wrong size!\nThe difference is %d bytes.\n",sizeof(struct PlayerInfo)-SIZEOF_PlayerInfo);
-          error_dialog(__func__, 1, text);
-          return 1;
-      }
-      if (sizeof(struct Dungeon) != SIZEOF_Dungeon)
-      {
-          text = buf_sprintf("Bad compilation - struct Dungeon has wrong size!\nThe difference is %d bytes.\n",sizeof(struct Dungeon)-SIZEOF_Dungeon);
-          error_dialog(__func__, 1, text);
-          return 1;
-      }
-      if (sizeof(struct CreatureControl) != SIZEOF_CreatureControl)
-      {
-          //delta1 =((char *)&game.cctrl_data[0].moveto_pos) - ((char *)&game.cctrl_data);
-          text = buf_sprintf("Bad compilation - struct CreatureControl has wrong size!\nThe difference is %d bytes.\n",sizeof(struct CreatureControl)-SIZEOF_CreatureControl);
-          error_dialog(__func__, 1, text);
-          return 1;
-      }
-      delta1 =((char *)&game.land_map_start) - ((char *)&game) - 0x1DD40;
-      delta2 =((char *)&game.cctrl_data) - ((char *)&game) - 0x66157;
-      delta3 =((char *)&game.creature_scores) - ((char *)&game) - 0x14EA4C;
-      text = buf_sprintf("Bad compilation - struct Game has wrong size!\nThe difference is %d bytes.\n"
-          "Field \"land_map_start\" is moved by %ld bytes.\nField \"cctrl_data\" is moved by %ld bytes.\n"
-          "Field \"creature_scores\" is moved by %ld bytes.\n",sizeof(struct Game)-SIZEOF_Game,delta1,delta2,delta3);
-      error_dialog(__func__, 1, text);
-      return 1;
-  }
-  if (sizeof(struct S3DSample) != 37)
-  {
-      text = buf_sprintf("Bad compilation - struct S3DSample has wrong size!\nThe difference is %d bytes.\n",sizeof(struct S3DSample)-37);
-      error_dialog(__func__, 1, text);
-      return 1;
-  }
-#endif
-
   try {
   LbBullfrogMain(bf_argc, bf_argv);
   } catch (...)
