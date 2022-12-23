@@ -1487,11 +1487,11 @@ static TbBool find_approach_position_to_subtile(const struct Coord3d *srcpos, Ma
     return (min_dist < LONG_MAX);
 }
 
-static SubtlCodedCoords get_map_index_of_first_block_thing_colliding_with_travelling_to(struct Thing *creatng, struct Coord3d *startpos, struct Coord3d *endpos, long mapblk_flags, unsigned char slabmap_flags)
+static long get_map_index_of_first_block_thing_colliding_with_travelling_to(struct Thing *creatng, struct Coord3d *startpos, struct Coord3d *endpos, long mapblk_flags, unsigned char slabmap_flags)
 {
-    SubtlCodedCoords stl_num;
+    long stl_num;
     struct Coord3d pos;
-    SubtlCodedCoords return_stl_num = 0;
+    int return_stl_num = 0;
 
     struct Coord3d creature_pos = *startpos;
 
@@ -1519,12 +1519,12 @@ static SubtlCodedCoords get_map_index_of_first_block_thing_colliding_with_travel
             pos = creature_pos;
             if (endpos->y.val <= creature_pos.y.val)
             {
-                pos.y.stl.num = creature_pos.y.num - 1;
+                pos.y.stl.num = creature_pos.y.stl.num - 1;
                 pos.y.stl.pos = COORD_PER_STL - 1;
             }
             else
             {
-                pos.y.stl.num = creature_pos.y.num + 1;
+                pos.y.stl.num = creature_pos.y.stl.num + 1;
                 pos.y.stl.pos = 0;
             }
             pos.x.val = (int)(delta_x * abs(pos.y.val - v27_x)) / delta_y + v27_y;
@@ -1539,12 +1539,12 @@ static SubtlCodedCoords get_map_index_of_first_block_thing_colliding_with_travel
             creature_pos = creatng->mappos;
             if (endpos->x.val <= creature_pos.x.val)
             {
-                pos.x.stl.num = creature_pos.x.num - 1;
+                pos.x.stl.num = creature_pos.x.stl.num - 1;
                 pos.x.stl.pos = COORD_PER_STL - 1;
             }
             else
             {
-                pos.x.stl.num = creature_pos.x.num + 1;
+                pos.x.stl.num = creature_pos.x.stl.num + 1;
                 pos.x.stl.pos = 0;
             }
             
@@ -1578,12 +1578,12 @@ static SubtlCodedCoords get_map_index_of_first_block_thing_colliding_with_travel
     }
     if (endpos->x.val <= creature_pos.x.val)
     {
-        pos.x.stl.num = creature_pos.x.num - 1;
+        pos.x.stl.num = creature_pos.x.stl.num - 1;
         pos.x.stl.pos = COORD_PER_STL - 1;
     }
     else
     {
-        pos.x.stl.num = creature_pos.x.num + 1;
+        pos.x.stl.num = creature_pos.x.stl.num + 1;
         pos.x.stl.pos = 0;
     }
     pos.y.val = (int)(delta_y * abs(pos.x.val - v27_y)) / delta_x + v27_x;
@@ -1597,12 +1597,12 @@ static SubtlCodedCoords get_map_index_of_first_block_thing_colliding_with_travel
     creature_pos = creatng->mappos;
     if (endpos->y.val <= creature_pos.y.val)
     {
-        pos.y.stl.num = creature_pos.y.num - 1;
+        pos.y.stl.num = creature_pos.y.stl.num - 1;
         pos.y.stl.pos = COORD_PER_STL - 1;
     }
     else
     {
-        pos.y.stl.num = creature_pos.y.num + 1;
+        pos.y.stl.num = creature_pos.y.stl.num + 1;
         pos.y.stl.pos = 0;
     }
     pos.x.val = (int)(delta_x * abs(pos.y.val - v27_x) / delta_y + v27_y);
