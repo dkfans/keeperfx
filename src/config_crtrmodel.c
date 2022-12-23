@@ -82,6 +82,7 @@ const struct NamedCommand creatmodel_attributes_commands[] = {
   {"TOKINGRECOVERY",     31},
   {"CORPSEVANISHEFFECT", 32},
   {"FOOTSTEPPITCH",      33},
+  {"LAIROBJECT",         34},
   {NULL,                  0},
   };
 
@@ -796,6 +797,22 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
           {
             CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
                 COMMAND_TEXT(cmd_num),block_buf,config_textname);
+          }
+          break;
+      case 34: // LAIROBJECT
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = get_id(object_desc, word_buf);
+              if (k > 0)
+              {
+                  crstat->lair_object = k;
+                  n++;
+              }
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
           break;
       case 0: // comment

@@ -1974,6 +1974,8 @@ static void set_creature_configuration_process(struct ScriptContext* context)
         break;
     case 33: // FOOTSTEPPITCH
         crstat->footstep_pitch = value;
+    case 34: // LAIROBJECT
+        crstat->lair_object = value;
     case 0: // comment
         break;
     case -1: // end of buffer
