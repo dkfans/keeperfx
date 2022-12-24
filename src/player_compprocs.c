@@ -63,7 +63,6 @@ long computer_completed_task(struct Computer2 *comp, struct ComputerProcess *cpr
 long computer_completed_attack1(struct Computer2 *comp, struct ComputerProcess *cproc);
 long computer_completed_build_a_room(struct Computer2 *comp, struct ComputerProcess *cproc);
 /******************************************************************************/
-/*TODO DLL_CLEANUP enable ComputerProcess structs when there are no references to those in DLL
 struct ComputerProcess BuildAllRooms3x3 = {
   "BUILD ALL ROOM 3x3", 0, 3, 3, 0, -1, computer_check_build_all_rooms,
   computer_setup_any_room_continue, computer_process_task,
@@ -213,7 +212,7 @@ struct ComputerProcess ComputerSafeAttack = {
   computer_setup_attack1, computer_process_task,
   computer_completed_attack1, computer_paused_task,
   0, 0, 0, 0, 0, 0, 0};
-*/
+
 /******************************************************************************/
 const struct NamedCommand computer_process_func_type[] = {
   {"check_build_all_rooms",   1,},

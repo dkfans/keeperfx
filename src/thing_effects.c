@@ -48,14 +48,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT long _DK_move_effect(struct Thing *efftng);
-
-/******************************************************************************/
 extern struct EffectElementStats _DK_effect_element_stats[95];
-//DLLIMPORT struct InitEffect _DK_effect_info[];
-//#define effect_info _DK_effect_info
-//extern struct EffectGeneratorStats _DK_effect_generator_stats[6];
-//#define effect_element_stats _DK_effect_element_stats
 /******************************************************************************/
 struct EffectGeneratorStats effect_generator_stats[] = {
     { 0,  0,  0,  0, 0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 0},
@@ -1416,7 +1409,7 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
                 }
                 else
                 {
-                    move_dist = get_radially_growing_value(blow_strength, max_dist / 4, max_dist * 3 / 4, distance, tngdst->field_23);
+                    move_dist = get_radially_growing_value(blow_strength, max_dist / 4, max_dist * 3 / 4, distance, tngdst->inertia_floor);
                 }
                 if (move_dist != 0)
                 {
