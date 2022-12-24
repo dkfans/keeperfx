@@ -194,11 +194,11 @@ static int hug_round_sub(struct Thing *creatng, MapSubtlCoord *pos1_stl_x, MapSu
     int v20 = max(abs(*pos1_stl_x - pos2_stl_x), abs(*pos1_stl_y - pos2_stl_y));
     if ((int)abs(v20) <= *delta && hug_can_move_on(
                                        creatng,
-                                       3 * small_around[(unsigned short)quadrant].delta_x + *pos1_stl_x,
-                                       3 * small_around[(unsigned short)quadrant].delta_y + *pos1_stl_y))
+                                       3 * small_around[quadrant].delta_x + *pos1_stl_x,
+                                       3 * small_around[quadrant].delta_y + *pos1_stl_y))
     {
-        *pos1_stl_x += 3 * small_around[(unsigned short)quadrant].delta_x;
-        *pos1_stl_y += 3 * small_around[(unsigned short)quadrant].delta_y;
+        *pos1_stl_x += 3 * small_around[quadrant].delta_x;
+        *pos1_stl_y += 3 * small_around[quadrant].delta_y;
 
         *delta = max(abs(*pos1_stl_x - pos2_stl_x), abs(*pos1_stl_y - pos2_stl_y));
 
@@ -219,7 +219,7 @@ static int hug_round_sub(struct Thing *creatng, MapSubtlCoord *pos1_stl_x, MapSu
             int v41 = v24;
             if (j >= 4u)
               break;
-            int v25 = (unsigned short)v24;
+            int v25 = v24;
             if (hug_can_move_on(
                     creatng,
                     3 * small_around[v25].delta_x + *pos1_stl_x,
@@ -762,7 +762,7 @@ static int get_starting_angle_and_side_of_hug_sub2(
         }
         else
         {
-            pos.x.stl.num = (unsigned short)(creatng->mappos.x.val - nav_radius) >> 8;
+            pos.x.stl.num = (creatng->mappos.x.val - nav_radius) >> 8;
             pos.x.stl.pos = 1;
             pos.x.val += nav_radius;
         }
@@ -772,13 +772,13 @@ static int get_starting_angle_and_side_of_hug_sub2(
     {
         if (arg_pos->y.val >= creatng->mappos.y.val)
         {
-            pos.y.stl.num = (unsigned short)(nav_radius + creatng->mappos.y.val) >> 8;
+            pos.y.stl.num = (nav_radius + creatng->mappos.y.val) >> 8;
             pos.y.stl.pos = -1;
             pos.y.val -= nav_radius;
         }
         else
         {
-            pos.y.stl.num = (unsigned short)(creatng->mappos.y.val - nav_radius) >> 8;
+            pos.y.stl.num = (creatng->mappos.y.val - nav_radius) >> 8;
             pos.y.stl.pos = 1;
             pos.y.val += nav_radius;
         }
@@ -896,13 +896,13 @@ static int get_starting_angle_and_side_of_hug_sub2(
                 {
                     if (v47.x.val >= creatng->mappos.x.val)
                     {
-                        pos.x.stl.num = (unsigned short)(nav_radius + creatng->mappos.x.val) >> 8;
+                        pos.x.stl.num = (nav_radius + creatng->mappos.x.val) >> 8;
                         pos.x.stl.pos = -1;
                         pos.x.val -= nav_radius;
                     }
                     else
                     {
-                        pos.x.stl.num = (unsigned short)(creatng->mappos.x.val - nav_radius) >> 8;
+                        pos.x.stl.num = (creatng->mappos.x.val - nav_radius) >> 8;
                         pos.x.stl.pos = 1;
                         pos.x.val += nav_radius;
                     }
@@ -912,13 +912,13 @@ static int get_starting_angle_and_side_of_hug_sub2(
                 {
                     if (v47.y.val >= creatng->mappos.y.val)
                     {
-                        pos.y.stl.num = (unsigned short)(nav_radius + creatng->mappos.y.val) >> 8;
+                        pos.y.stl.num = (nav_radius + creatng->mappos.y.val) >> 8;
                         pos.y.stl.pos = -1;
                         pos.y.val -= nav_radius;
                     }
                     else
                     {
-                        pos.y.stl.num = (unsigned short)(creatng->mappos.y.val - nav_radius) >> 8;
+                        pos.y.stl.num = (creatng->mappos.y.val - nav_radius) >> 8;
                         pos.y.stl.pos = 1;
                         pos.y.val += nav_radius;
                     }
@@ -928,25 +928,25 @@ static int get_starting_angle_and_side_of_hug_sub2(
                 {
                     if (v47.x.val >= creatng->mappos.x.val)
                     {
-                        pos.x.stl.num = (unsigned short)(nav_radius + creatng->mappos.x.val) >> 8;
+                        pos.x.stl.num = (nav_radius + creatng->mappos.x.val) >> 8;
                         pos.x.stl.pos = -1;
                         pos.x.val -= nav_radius;
                     }
                     else
                     {
-                        pos.x.stl.num = (unsigned short)(creatng->mappos.x.val - nav_radius) >> 8;
+                        pos.x.stl.num = (creatng->mappos.x.val - nav_radius) >> 8;
                         pos.x.stl.pos = 1;
                         pos.x.val += nav_radius;
                     }
                     if (v47.y.val >= (unsigned int)creatng->mappos.y.val)
                     {
-                        pos.y.stl.num = (unsigned short)(nav_radius + creatng->mappos.y.val) >> 8;
+                        pos.y.stl.num = (nav_radius + creatng->mappos.y.val) >> 8;
                         pos.y.stl.pos = -1;
                         pos.y.val -= nav_radius;
                     }
                     else
                     {
-                        pos.y.stl.num = (unsigned short)(creatng->mappos.y.val - nav_radius) >> 8;
+                        pos.y.stl.num = (creatng->mappos.y.val - nav_radius) >> 8;
                         pos.y.stl.pos = 1;
                         pos.y.val += nav_radius;
                     }
@@ -1024,13 +1024,13 @@ static int get_starting_angle_and_side_of_hug_sub1(
     {
         if (pos->x.val >= creatng->mappos.x.val)
         {
-            pos_2.x.stl.num = (unsigned short)(nav_radius + creatng->mappos.x.val) >> 8;
+            pos_2.x.stl.num = (nav_radius + creatng->mappos.x.val) >> 8;
             pos_2.x.stl.pos = -1;
             pos_2.x.val -= nav_radius;
         }
         else
         {
-            pos_2.x.stl.num = (unsigned short)(creatng->mappos.x.val - nav_radius) >> 8;
+            pos_2.x.stl.num = (creatng->mappos.x.val - nav_radius) >> 8;
             pos_2.x.stl.pos = 1;
             pos_2.x.val += nav_radius;
         }
@@ -1040,13 +1040,13 @@ static int get_starting_angle_and_side_of_hug_sub1(
     {
         if (pos->y.val >= creatng->mappos.y.val)
         {
-            pos_2.y.stl.num = (unsigned short)(nav_radius + creatng->mappos.y.val) >> 8;
+            pos_2.y.stl.num = (nav_radius + creatng->mappos.y.val) >> 8;
             pos_2.y.stl.pos = -1;
             pos_2.y.val -= nav_radius;
         }
         else
         {
-            pos_2.y.stl.num = (unsigned short)(creatng->mappos.y.val - nav_radius) >> 8;
+            pos_2.y.stl.num = (creatng->mappos.y.val - nav_radius) >> 8;
             pos_2.y.stl.pos = 1;
             pos_2.y.val += nav_radius;
         }
@@ -1056,25 +1056,25 @@ static int get_starting_angle_and_side_of_hug_sub1(
     {
         if (pos->x.val >= creatng->mappos.x.val)
         {
-            pos_2.x.stl.num = (unsigned short)(nav_radius + creatng->mappos.x.val) >> 8;
+            pos_2.x.stl.num = (nav_radius + creatng->mappos.x.val) >> 8;
             pos_2.x.stl.pos = -1;
             pos_2.x.val -= nav_radius;
         }
         else
         {
-            pos_2.x.stl.num = (unsigned short)(creatng->mappos.x.val - nav_radius) >> 8;
+            pos_2.x.stl.num = (creatng->mappos.x.val - nav_radius) >> 8;
             pos_2.x.stl.pos = 1;
             pos_2.x.val += nav_radius;
         }
         if (pos->y.val >= creatng->mappos.y.val)
         {
-            pos_2.y.stl.num = (unsigned short)(nav_radius + creatng->mappos.y.val) >> 8;
+            pos_2.y.stl.num = (nav_radius + creatng->mappos.y.val) >> 8;
             pos_2.y.stl.pos = -1;
             pos_2.y.val -= nav_radius;
         }
         else
         {
-            pos_2.y.stl.num = (unsigned short)(creatng->mappos.y.val - nav_radius) >> 8;
+            pos_2.y.stl.num = (creatng->mappos.y.val - nav_radius) >> 8;
             pos_2.y.stl.pos = 1;
             pos_2.y.val += nav_radius;
         }
