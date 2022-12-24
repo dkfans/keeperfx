@@ -234,36 +234,36 @@ const Expand_Check_Func powermodel_expand_check_func_list[] = {
 
 static struct ShotStats shot_stats[30]=
 {   
-    { 0,0, 0,0,0,0,0,0,  0,   0, 0,0},//stuff bigger then 30 gets remaped to 0  //SHOT_WORD_OF_POWER  //SHOT_TRAP_WORD_OF_POWER  
-	{ 1,4, 0,0,0,1,1,6,256,1792,52,1},//SHOT_FIREBALL
-	{ 1,8, 0,0,0,1,1,6,256,2560,52,1},//SHOT_FIREBOMB
-	{ 1,2, 0,0,0,1,1,6,256,   0, 0,0},//SHOT_FREEZE
-	{ 0,0, 0,0,0,0,1,6,256,2560,52,0},//SHOT_LIGHTNING
-	{ 1,2, 0,0,0,1,1,6,256,   0, 0,0},//SHOT_POISON_CLOUD
-	{ 1,4, 0,0,0,1,1,6,256,   0, 0,0},//SHOT_NAVI_MISSILE
-	{ 0,4, 0,0,0,0,1,6, 32,1792,52,0},//SHOT_FLAME_BREATH
-	{ 0,0, 0,0,1,0,1,6,256,   0, 0,0},//SHOT_WIND
-	{ 1,2, 0,0,0,1,1,6,256,   0, 0,0},//SHOT_MISSILE
-	{ 1,2, 0,0,0,1,1,6,256,   0, 0,0},//SHOT_SLOW
-	{ 0,0,32,0,1,0,1,0,256,   0, 0,0},//SHOT_GRENADE  //SHOT_LIZARD
-	{ 0,0, 0,0,0,0,1,0,256,   0, 0,0},//SHOT_DRAIN
-	{ 0,1, 0,0,0,1,1,6,256,   0, 0,0},//SHOT_HAILSTORM
-	{ 1,8, 0,0,0,1,1,6,256,   0, 0,0},//SHOT_ARROW
-	{ 0,8, 0,0,1,0,1,0,256,   0, 0,0},//SHOT_BOULDER
-	{ 0,0, 0,0,0,0,1,0,256,   0, 0,0},//SHOT_GOD_LIGHTNING
-	{ 0,0, 0,0,0,1,1,0,256,   0, 0,0},//SHOT_SPIKE
-	{ 0,0, 0,0,1,0,1,6,256,   0, 0,0},//hardcoded remap from 18 to 11
-	{ 0,0, 0,0,0,0,4,0,256,   0, 0,0},//SHOT_ALARM
-	{ 0,8, 0,0,1,0,1,0,256,   0, 0,0},//SHOT_SOLID_BOULDER
-	{ 1,4, 0,0,0,1,1,6,256,   0, 0,0},//SHOT_SWING_SWORD
-	{ 1,4, 0,0,0,1,1,6,256,   0, 0,0},//SHOT_SWING_FIST
-	{ 1,0, 0,0,1,0,1,0,256,   0, 0,0},//SHOT_DIG
-	{ 0,0, 0,0,0,0,1,0,256,   0, 0,0},//SHOT_LIGHTNING_BALL
-	{ 0,0, 0,0,0,1,1,0,256,   0, 0,0},//SHOT_GROUP
-	{ 0,0, 0,0,0,1,1,6,256,   0, 0,0},//SHOT_DISEASE
-	{ 0,0, 0,0,0,1,1,6,256,   0, 0,0},//SHOT_CHICKEN
-	{ 0,0, 0,0,0,1,1,6,256,   0, 0,0},//SHOT_TIME_BOMB
-	{ 0,0, 0,0,0,0,3,6,256,2560,52,0} //SHOT_TRAP_LIGHTNING
+    { 0, 0,0,0,0,0,0,  0,   0, 0,0},//stuff bigger then 30 gets remaped to 0  //SHOT_WORD_OF_POWER  //SHOT_TRAP_WORD_OF_POWER  
+	{ 1, 0,0,0,1,1,6,256,1792,52,1},//SHOT_FIREBALL
+	{ 1, 0,0,0,1,1,6,256,2560,52,1},//SHOT_FIREBOMB
+	{ 1, 0,0,0,1,1,6,256,   0, 0,0},//SHOT_FREEZE
+	{ 0, 0,0,0,0,1,6,256,2560,52,0},//SHOT_LIGHTNING
+	{ 1, 0,0,0,1,1,6,256,   0, 0,0},//SHOT_POISON_CLOUD
+	{ 1, 0,0,0,1,1,6,256,   0, 0,0},//SHOT_NAVI_MISSILE
+	{ 0, 0,0,0,0,1,6, 32,1792,52,0},//SHOT_FLAME_BREATH
+	{ 0, 0,0,1,0,1,6,256,   0, 0,0},//SHOT_WIND
+	{ 1, 0,0,0,1,1,6,256,   0, 0,0},//SHOT_MISSILE
+	{ 1, 0,0,0,1,1,6,256,   0, 0,0},//SHOT_SLOW
+	{ 0,32,0,1,0,1,0,256,   0, 0,0},//SHOT_GRENADE  //SHOT_LIZARD
+	{ 0, 0,0,0,0,1,0,256,   0, 0,0},//SHOT_DRAIN
+	{ 0, 0,0,0,1,1,6,256,   0, 0,0},//SHOT_HAILSTORM
+	{ 1, 0,0,0,1,1,6,256,   0, 0,0},//SHOT_ARROW
+	{ 0, 0,0,1,0,1,0,256,   0, 0,0},//SHOT_BOULDER
+	{ 0, 0,0,0,0,1,0,256,   0, 0,0},//SHOT_GOD_LIGHTNING
+	{ 0, 0,0,0,1,1,0,256,   0, 0,0},//SHOT_SPIKE
+	{ 0, 0,0,1,0,1,6,256,   0, 0,0},//hardcoded remap from 18 to 11
+	{ 0, 0,0,0,0,4,0,256,   0, 0,0},//SHOT_ALARM
+	{ 0, 0,0,1,0,1,0,256,   0, 0,0},//SHOT_SOLID_BOULDER
+	{ 1, 0,0,0,1,1,6,256,   0, 0,0},//SHOT_SWING_SWORD
+	{ 1, 0,0,0,1,1,6,256,   0, 0,0},//SHOT_SWING_FIST
+	{ 1, 0,0,1,0,1,0,256,   0, 0,0},//SHOT_DIG
+	{ 0, 0,0,0,0,1,0,256,   0, 0,0},//SHOT_LIGHTNING_BALL
+	{ 0, 0,0,0,1,1,0,256,   0, 0,0},//SHOT_GROUP
+	{ 0, 0,0,0,1,1,6,256,   0, 0,0},//SHOT_DISEASE
+	{ 0, 0,0,0,1,1,6,256,   0, 0,0},//SHOT_CHICKEN
+	{ 0, 0,0,0,1,1,6,256,   0, 0,0},//SHOT_TIME_BOMB
+	{ 0, 0,0,0,0,3,6,256,2560,52,0} //SHOT_TRAP_LIGHTNING
 };
 
 /******************************************************************************/

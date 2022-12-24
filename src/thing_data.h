@@ -236,7 +236,6 @@ struct Thing {
     short parent_idx;
     unsigned char class_id;
     unsigned char fall_acceleration;
-unsigned char field_21;
     unsigned char bounce_angle;
     unsigned char inertia_floor;
     unsigned char inertia_air;

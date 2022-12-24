@@ -1585,7 +1585,6 @@ struct Thing *create_shot(struct Coord3d *pos, unsigned short model, unsigned sh
     thing->owner = owner;
     thing->bounce_angle = shotst->bounce_angle;
     thing->fall_acceleration = shotst->fall_acceleration;
-    thing->field_21 = shotst->old->thing_field_21;
     thing->inertia_floor = shotst->old->inertia_floor;
     thing->inertia_air = shotst->old->inertia_air;
     thing->movement_flags ^= (thing->movement_flags ^ TMvF_Unknown08 * shotst->old->field_13) & TMvF_Unknown08;

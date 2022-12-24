@@ -325,7 +325,6 @@ struct SpellConfig { // sizeof=4
 struct ShotStats
 {
   unsigned char field_6; //something with rendering flags
-  unsigned char thing_field_21;
   unsigned char inertia_floor;
   unsigned char inertia_air;
   unsigned char field_13; // something with movement flags
