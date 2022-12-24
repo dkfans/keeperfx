@@ -292,7 +292,7 @@ void query_thing(struct Thing *thing)
         const char* name = thing_model_name(querytng);
         const char owner[24]; 
         const char health[24];
-        const char position[24];
+        const char position[29];
         const char amount[24] = "\0";
         char output[36];
         sprintf((char*)title, "Thing ID: %d", querytng->index);
