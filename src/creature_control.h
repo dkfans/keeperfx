@@ -188,7 +188,7 @@ unsigned char field_67;
     unsigned short pickup_creature_id;
     unsigned short next_in_group;
     unsigned short prev_in_group;
-    unsigned short group_info;// offset 7A
+    unsigned long group_info;// offset 7A
     short last_work_room_id;
     /** Work room index, used when creature is working in a room. */
     short work_room_id;
