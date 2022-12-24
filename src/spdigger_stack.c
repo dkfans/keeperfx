@@ -967,8 +967,8 @@ static TbBool check_out_unreinforced_area(struct Thing *spdigtng)
             MapSubtlCoord wall_stl_x = stl_num_decode_x(dstack->stl_num);
             MapSubtlCoord wall_stl_y = stl_num_decode_y(dstack->stl_num);
 
-            MapSlabCoord wall_slb_x = subtile_slab_fast(wall_stl_x);
-            MapSlabCoord wall_slb_y = subtile_slab_fast(wall_stl_y);
+            MapSlabCoord wall_slb_x = subtile_slab(wall_stl_x);
+            MapSlabCoord wall_slb_y = subtile_slab(wall_stl_y);
 
             distance = get_2d_box_distance_xy(spdig_stl_x, spdig_stl_y, wall_stl_x,wall_stl_y);
             if ( min_distance > distance )
