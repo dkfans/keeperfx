@@ -100,20 +100,17 @@ enum GameNumfieldDFlags {
 /******************************************************************************/
 #pragma pack(1)
 
-struct CreaturePool { // sizeof = 129
-  long crtr_kind[CREATURE_TYPES_COUNT];
+struct CreaturePool {
+  long crtr_kind[CREATURE_TYPES_MAX];
   unsigned char is_empty;
 };
 
-struct PerExpLevelValues { // sizeof = 10
+struct PerExpLevelValues {
   unsigned char value[10];
 };
 
-#define SIZEOF_Game 1382437
 
-// only one such struct exists at .data:005F0310
-// it ends at 00741B35
-struct Game { // sizeof=0x151825
+struct Game {
     // This was a level and version before, but now saved games have another versioning system.
     unsigned short unused_version[3];
     LevelNumber continue_level_number;
@@ -281,7 +278,7 @@ unsigned short field_14EA44;
     unsigned short food_generation_speed;
     char game_kind; /**< Kind of the game being played, from GameKinds enumeration. Originally was GameMode. */
 char field_14EA4B;
-    struct PerExpLevelValues creature_scores[CREATURE_TYPES_COUNT];
+    struct PerExpLevelValues creature_scores[CREATURE_TYPES_MAX];
     unsigned long default_max_crtrs_gen_entrance;
     unsigned long default_imp_dig_damage;
     unsigned long default_imp_dig_own_damage;

@@ -1857,6 +1857,15 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
         value->shorts[2] = atoi(scline->tp[2]);
     }
 
+    if (creatvar == 34) // LAIROBJECT
+    {
+        value->shorts[2] = get_id(object_desc, scline->tp[2]);
+    }
+    else
+    {
+        value->shorts[2] = atoi(scline->tp[2]);
+    }
+
     SCRIPTDBG(7, "Setting creature %s attribute %d to %d (%d)", creature_code_name(scline->np[0]), scline->np[1], scline->np[2], scline->np[3]);
     value->shorts[0] = scline->np[0];
     value->shorts[1] = creatvar;
@@ -1974,6 +1983,10 @@ static void set_creature_configuration_process(struct ScriptContext* context)
         break;
     case 33: // FOOTSTEPPITCH
         crstat->footstep_pitch = value;
+        break;
+    case 34: // LAIROBJECT
+        crstat->lair_object = value;
+        break;
     case 0: // comment
         break;
     case -1: // end of buffer

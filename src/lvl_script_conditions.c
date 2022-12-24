@@ -199,7 +199,7 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned 
     case SVar_AVAILABLE_CREATURE: // IF_AVAILABLE(CREATURE)
         dungeon = get_dungeon(plyr_idx);
         if (creature_will_generate_for_dungeon(dungeon, validx)) {
-            return min(game.pool.crtr_kind[validx%CREATURE_TYPES_COUNT],dungeon->max_creatures_attracted - (long)dungeon->num_active_creatrs);
+            return min(game.pool.crtr_kind[validx%gameadd.crtr_conf.model_count],dungeon->max_creatures_attracted - (long)dungeon->num_active_creatrs);
         }
         return 0;
     case SVar_SLAB_OWNER: //IF_SLAB_OWNER
@@ -216,7 +216,7 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned 
     }
     case SVar_CONTROLS_CREATURE: // IF_CONTROLS(CREATURE)
         dungeon = get_dungeon(plyr_idx);
-        return dungeon->owned_creatures_of_model[validx%CREATURE_TYPES_COUNT]
+        return dungeon->owned_creatures_of_model[validx%gameadd.crtr_conf.model_count]
           - count_player_list_creatures_of_model_matching_bool_filter(plyr_idx, validx, creature_is_kept_in_custody_by_enemy_or_dying);
     case SVar_CONTROLS_TOTAL_CREATURES:// IF_CONTROLS(TOTAL_CREATURES)
         dungeon = get_dungeon(plyr_idx);

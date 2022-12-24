@@ -533,9 +533,9 @@ long creature_cannot_move_directly_to_with_collide(struct Thing *creatng, struct
     if (cross_x_boundary_first(&prev_pos, pos))
     {
         if (pos->x.val <= prev_pos.x.val)
-            clpcor = (prev_pos.x.val & 0xFF00) - 1;
+            clpcor = (prev_pos.x.val & 0xFFFFFF00) - 1;
         else
-            clpcor = (prev_pos.x.val + COORD_PER_STL) & 0xFF00;
+            clpcor = (prev_pos.x.val + COORD_PER_STL) & 0xFFFFFF00;
         next_pos.x.val = clpcor;
         next_pos.y.val = dt_y * abs(clpcor - orig_pos.x.val) / dt_x + orig_pos.y.val;
         next_pos.z.val = prev_pos.z.val;
@@ -556,9 +556,9 @@ long creature_cannot_move_directly_to_with_collide(struct Thing *creatng, struct
 
         prev_pos = creatng->mappos;
         if (pos->y.val <= prev_pos.y.val)
-            clpcor = (prev_pos.y.val & 0xFF00) - 1;
+            clpcor = (prev_pos.y.val & 0xFFFFFF00) - 1;
         else
-            clpcor = (prev_pos.y.val + COORD_PER_STL) & 0xFF00;
+            clpcor = (prev_pos.y.val + COORD_PER_STL) & 0xFFFFFF00;
         next_pos.y.val = clpcor;
         next_pos.x.val = dt_x * abs(clpcor - orig_pos.y.val) / dt_y + orig_pos.x.val;
         next_pos.z.val = prev_pos.z.val;
@@ -601,9 +601,9 @@ long creature_cannot_move_directly_to_with_collide(struct Thing *creatng, struct
     if (cross_y_boundary_first(&prev_pos, pos))
     {
         if (pos->y.val <= prev_pos.y.val)
-            clpcor = (prev_pos.y.val & 0xFF00) - 1;
+            clpcor = (prev_pos.y.val & 0xFFFFFF00) - 1;
         else
-            clpcor = (prev_pos.y.val + COORD_PER_STL) & 0xFF00;
+            clpcor = (prev_pos.y.val + COORD_PER_STL) & 0xFFFFFF00;
         next_pos.y.val = clpcor;
         next_pos.x.val = dt_x * abs(clpcor - orig_pos.y.val) / dt_y + orig_pos.x.val;
         next_pos.z.val = prev_pos.z.val;
@@ -624,9 +624,9 @@ long creature_cannot_move_directly_to_with_collide(struct Thing *creatng, struct
         }
         prev_pos = creatng->mappos;
         if (pos->x.val <= prev_pos.x.val)
-            clpcor = (prev_pos.x.val & 0xFF00) - 1;
+            clpcor = (prev_pos.x.val & 0xFFFFFF00) - 1;
         else
-            clpcor = (prev_pos.x.val + COORD_PER_STL) & 0xFF00;
+            clpcor = (prev_pos.x.val + COORD_PER_STL) & 0xFFFFFF00;
         next_pos.x.val = clpcor;
         next_pos.y.val = dt_y * abs(clpcor - orig_pos.x.val) / dt_x + orig_pos.y.val;
         next_pos.z.val = prev_pos.z.val;
@@ -1361,7 +1361,7 @@ static TbBool check_forward_for_prospective_hugs(struct Thing *creatng, struct C
             if ((int)((pos_a->y.val - nav_radius) & 0xFFFFFF00) < (int)((creatng->mappos.y.val - nav_radius) & 0xFFFFFF00))
             {
                 pos.x.val = pos_a->x.val;
-                pos.y.stl.num = (nav_radius + creatng->mappos.y.val - 256) / COORD_PER_STL;
+                pos.y.stl.num = (nav_radius + creatng->mappos.y.val - COORD_PER_STL ) / COORD_PER_STL;
                 pos.y.stl.pos = -1;
                 pos.y.val -= nav_radius;
                 pos.z.val = get_thing_height_at(creatng, &pos);
@@ -1372,7 +1372,7 @@ static TbBool check_forward_for_prospective_hugs(struct Thing *creatng, struct C
             if ((int)((nav_radius + pos_a->x.val) & 0xFFFFFF00) > (int)((nav_radius + creatng->mappos.x.val) & 0xFFFFFF00))
             {
                 pos.y.val = pos_a->y.val;
-                pos.x.stl.num = (creatng->mappos.x.val - nav_radius + 256) / COORD_PER_STL;
+                pos.x.stl.num = (creatng->mappos.x.val - nav_radius + COORD_PER_STL ) / COORD_PER_STL;
                 pos.x.stl.pos = 0;
                 pos.x.val += nav_radius;
                 pos.z.val = get_thing_height_at(creatng, &pos);
@@ -1383,7 +1383,7 @@ static TbBool check_forward_for_prospective_hugs(struct Thing *creatng, struct C
             if ((int)((nav_radius + pos_a->y.val) & 0xFFFFFF00) > (int)((nav_radius + creatng->mappos.y.val) & 0xFFFFFF00))
             {
                 pos.x.val = pos_a->x.val;
-                pos.y.stl.num = (creatng->mappos.y.val - nav_radius + 256) / COORD_PER_STL;
+                pos.y.stl.num = (creatng->mappos.y.val - nav_radius + COORD_PER_STL ) / COORD_PER_STL;
                 pos.y.stl.pos = 0;
                 pos.y.val += nav_radius;
                 pos.z.val = get_thing_height_at(creatng, &pos);
@@ -1394,7 +1394,7 @@ static TbBool check_forward_for_prospective_hugs(struct Thing *creatng, struct C
             if ((int)((pos_a->x.val - nav_radius) & 0xFFFFFF00) < (int)((creatng->mappos.x.val - nav_radius) & 0xFFFFFF00))
             {
                 pos.y.val = pos_a->y.val;
-                pos.x.stl.num = (uint16_t)(nav_radius + creatng->mappos.x.val - 256) / COORD_PER_STL;
+                pos.x.stl.num = (uint16_t)(nav_radius + creatng->mappos.x.val - COORD_PER_STL ) / COORD_PER_STL;
                 pos.x.stl.pos = -1;
                 pos.x.val -= nav_radius;
                 pos.z.val = get_thing_height_at(creatng, &pos);
@@ -1517,11 +1517,18 @@ static SubtlCodedCoords get_map_index_of_first_block_thing_colliding_with_travel
         if (cross_y_boundary_first(&creature_pos, endpos))
         {
             pos = creature_pos;
-            if (endpos->y.val <= (unsigned int)creature_pos.y.val)
-                pos.y.val = (creature_pos.y.val & 0xFF00) - 1;
+            if (endpos->y.val <= creature_pos.y.val)
+            {
+                pos.y.stl.num = creature_pos.y.stl.num - 1;
+                pos.y.stl.pos = COORD_PER_STL - 1;
+            }
             else
-                pos.y.val = (creature_pos.y.val + 256) & 0xFF00;
-            pos.x.val = (int)(delta_x * abs((unsigned short)pos.y.val - v27_x)) / delta_y + v27_y;
+            {
+                pos.y.stl.num = creature_pos.y.stl.num + 1;
+                pos.y.stl.pos = 0;
+            }
+            pos.x.val = (int)(delta_x * abs(pos.y.val - v27_x)) / delta_y + v27_y;
+
             pos.z.val = creature_pos.z.val;
             stl_num = get_map_index_of_first_block_thing_colliding_with_at(creatng, &pos, mapblk_flags, slabmap_flags);
             if (stl_num >= 0)
@@ -1529,10 +1536,19 @@ static SubtlCodedCoords get_map_index_of_first_block_thing_colliding_with_travel
                 creatng->mappos = orig_creat_pos;
                 return stl_num;
             }
-
             creature_pos = creatng->mappos;
-            pos.x.val = endpos->x.val <= (unsigned int)creature_pos.x.val ? (creature_pos.x.val & 0xFF00) - 1 : (creature_pos.x.val + 256) & 0xFF00;
-            pos.y.val = (int)(delta_y * abs((unsigned short)pos.x.val - v27_x) / delta_x + v27_y);
+            if (endpos->x.val <= creature_pos.x.val)
+            {
+                pos.x.stl.num = creature_pos.x.stl.num - 1;
+                pos.x.stl.pos = COORD_PER_STL - 1;
+            }
+            else
+            {
+                pos.x.stl.num = creature_pos.x.stl.num + 1;
+                pos.x.stl.pos = 0;
+            }
+            
+            pos.y.val = (int)(delta_y * abs(pos.x.val - v27_x) / delta_x + v27_y);
             pos.z.val = creature_pos.z.val;
             stl_num = get_map_index_of_first_block_thing_colliding_with_at(creatng, &pos, mapblk_flags, slabmap_flags);
             if (stl_num >= 0)
@@ -1560,11 +1576,17 @@ static SubtlCodedCoords get_map_index_of_first_block_thing_colliding_with_travel
         creatng->mappos = orig_creat_pos;
         return stl_num;
     }
-    if (endpos->x.val <= (unsigned int)creature_pos.x.val)
-        pos.x.val = (creature_pos.x.val & 0xFF00) - 1;
+    if (endpos->x.val <= creature_pos.x.val)
+    {
+        pos.x.stl.num = creature_pos.x.stl.num - 1;
+        pos.x.stl.pos = COORD_PER_STL - 1;
+    }
     else
-        pos.x.val = (creature_pos.x.val + 256) & 0xFF00;
-    pos.y.val = (int)(delta_y * abs((unsigned short)pos.x.val - v27_y)) / delta_x + v27_x;
+    {
+        pos.x.stl.num = creature_pos.x.stl.num + 1;
+        pos.x.stl.pos = 0;
+    }
+    pos.y.val = (int)(delta_y * abs(pos.x.val - v27_y)) / delta_x + v27_x;
     pos.z.val = creature_pos.z.val;
     stl_num = get_map_index_of_first_block_thing_colliding_with_at(creatng, &pos, mapblk_flags, slabmap_flags);
     if (stl_num >= 0)
@@ -1573,8 +1595,17 @@ static SubtlCodedCoords get_map_index_of_first_block_thing_colliding_with_travel
         return stl_num;
     }
     creature_pos = creatng->mappos;
-    pos.y.val = endpos->y.val <= (unsigned int)creature_pos.y.val ? (creature_pos.y.val & 0xFF00) - 1 : (creature_pos.y.val + 256) & 0xFF00;
-    pos.x.val = (int)(delta_x * abs((unsigned short)pos.y.val - v27_x) / delta_y + v27_y);
+    if (endpos->y.val <= creature_pos.y.val)
+    {
+        pos.y.stl.num = creature_pos.y.stl.num - 1;
+        pos.y.stl.pos = COORD_PER_STL - 1;
+    }
+    else
+    {
+        pos.y.stl.num = creature_pos.y.stl.num + 1;
+        pos.y.stl.pos = 0;
+    }
+    pos.x.val = (int)(delta_x * abs(pos.y.val - v27_x) / delta_y + v27_y);
     pos.z.val = creature_pos.z.val;
     stl_num = get_map_index_of_first_block_thing_colliding_with_at(creatng, &pos, mapblk_flags, slabmap_flags);
     if (stl_num >= 0)
