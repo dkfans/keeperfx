@@ -168,7 +168,7 @@ void process_dungeon_destroy(struct Thing* heartng)
         {
             if (gameadd.heart_lost_display_message)
             {
-                if (is_my_player_number(heartng->owner))
+                if (is_my_player_number(dungeon->owner))
                 {
                     const char* objective = (gameadd.heart_lost_quick_message) ? gameadd.quick_messages[gameadd.heart_lost_message_id] : get_string(gameadd.heart_lost_message_id);
                     process_objective(objective, gameadd.heart_lost_message_target, 0, 0);
