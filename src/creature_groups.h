@@ -27,7 +27,7 @@
 extern "C" {
 #endif
 
-#define GROUP_MEMBERS_COUNT 8
+#define GROUP_MEMBERS_COUNT 30
 
 enum TriggerFlags {
     TrgF_CREATE_PARTY                  =  0x00,
