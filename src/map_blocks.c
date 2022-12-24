@@ -835,7 +835,6 @@ void place_column_on_map_element(struct Column *ncol, MapSubtlCoord stl_x, MapSu
 
 void copy_block_with_cube_groups(short itm_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    //_DK_copy_block_with_cube_groups(a1, a2, a3);
     if (itm_idx >= 0) {
       ERRORLOG("We should only be dealing with columns now");
       return;
@@ -926,9 +925,8 @@ void set_alt_bit_based_on_slab(SlabKind slbkind, unsigned char stl_x, unsigned c
     set_mapblk_wibble_value(mapblk, wibble);
 }
 
-void place_slab_columns(long slbkind, unsigned char stl_x, unsigned char stl_y, const ColumnIndex *col_idx)
+void place_slab_columns(SlabKind slbkind, MapSubtlCoord stl_x, MapSubtlCoord stl_y, const ColumnIndex *col_idx)
 {
-    //_DK_place_slab_columns(slbkind, a2, a3, a4); return;
     struct SlabAttr *slbattr;
     slbattr = get_slab_kind_attrs(slbkind);
     if (slbattr->wlb_type != 3)
