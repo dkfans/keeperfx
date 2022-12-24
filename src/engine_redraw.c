@@ -655,17 +655,17 @@ void make_camera_deviations(struct PlayerInfo *player,struct Dungeon *dungeon)
       {
         x = 0;
       } else
-      if (x > 65535)
+      if (x > (gameadd.map_subtiles_x + 1) * COORD_PER_STL -1)
       {
-        x = 65535;
+        x = (gameadd.map_subtiles_x + 1) * COORD_PER_STL -1;
       }
       if (y < 0)
       {
         y = 0;
       } else
-      if (y > 65535)
+      if (y > (gameadd.map_subtiles_y + 1) * COORD_PER_STL -1)
       {
-        y = 65535;
+        y = (gameadd.map_subtiles_y + 1) * COORD_PER_STL -1;
       }
       // setting deviated position
       player->acamera->mappos.x.val = x;
