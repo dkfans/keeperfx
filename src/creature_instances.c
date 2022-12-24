@@ -56,10 +56,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-/******************************************************************************/
 
-// DLLIMPORT struct InstanceInfo _DK_instance_info[48];
-// #define instance_info _DK_instance_info
 /******************************************************************************/
 long instf_attack_room_slab(struct Thing *creatng, long *param);
 long instf_creature_cast_spell(struct Thing *creatng, long *param);

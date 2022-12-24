@@ -35,12 +35,8 @@ extern "C" {
 
 
 static int script_current_condition = 0;
-
-
-DLLIMPORT unsigned short _DK_condition_stack_pos;
-#define condition_stack_pos _DK_condition_stack_pos
-DLLIMPORT unsigned short _DK_condition_stack[48];
-#define condition_stack _DK_condition_stack
+static unsigned short condition_stack_pos;
+static unsigned short condition_stack[48];
 
 
 long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned char validx)
