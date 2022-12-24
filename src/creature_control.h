@@ -360,7 +360,7 @@ unsigned char field_67;
     unsigned short spell_flags; // Sometimes treated as two bytes, but it's a short (AC + AD)
     unsigned char field_AE;
     short force_visible;
-    unsigned char field_B1;
+    unsigned char frozen_on_hit;
     long field_B2;
     unsigned char disease_caster_plyridx;
     unsigned char teleport_x;

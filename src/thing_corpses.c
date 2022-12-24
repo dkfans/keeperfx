@@ -441,8 +441,8 @@ struct Thing *create_dead_creature(const struct Coord3d *pos, ThingModel model, 
     thing->solid_size_xy = 0;
     thing->solid_size_yz = 0;
     thing->fall_acceleration = 16;
-    thing->field_23 = 204;
-    thing->field_24 = 51;
+    thing->inertia_floor = 204;
+    thing->inertia_air = 51;
     thing->bounce_angle = 0;
     thing->movement_flags |= TMvF_Unknown08;
     thing->creation_turn = game.play_gameturn;
