@@ -80,7 +80,7 @@ static long fringe_y1;
 static long fringe_y2;
 static long fringe_x1;
 static long fringe_x2;
-static long fringe_y[256];
+static long fringe_y[MAX_SUBTILES_Y];
 static long ix_Border;
 static long Border[BORDER_LENGTH];
 static long route_fwd[ROUTE_LENGTH];
