@@ -162,13 +162,13 @@ void remove_task_from_all_other_players_digger_stacks(PlayerNumber skip_plyr_idx
         if (plyr_idx == skip_plyr_idx) {
             continue;
         }
-        long task_id;
-        task_id = find_from_task_list(plyr_idx, get_subtile_number(stl_x, stl_y));
+        long stl_num = get_subtile_number(stl_x, stl_y);
+        long task_id = find_from_task_list(plyr_idx, stl_num);
         if (task_id >= 0)
         {
             remove_from_task_list(plyr_idx, task_id);
             if (is_my_player_number(plyr_idx)) {
-                struct Map *mapblk = get_map_block_at(stl_x, stl_y);
+                struct Map *mapblk = get_map_block_at_pos(stl_num);
                 if (map_block_revealed(mapblk, plyr_idx))
                 {
                     pretty_map_remove_flags_and_update(subtile_slab_fast(stl_x), subtile_slab_fast(stl_y));
