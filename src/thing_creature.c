@@ -241,7 +241,7 @@ long check_for_first_person_barrack_party(struct Thing *grthing)
                 add_creature_to_group(thing, grthing);
             }
             n++;
-            if (n >= game.barrack_max_party_size)
+            if (n >= game.barrack_max_party_size || n >= GROUP_MEMBERS_COUNT)
             {
                 break;
             }
