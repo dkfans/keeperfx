@@ -364,6 +364,7 @@ long field_1516FB;
     int manufactr_element;
     int manufactr_spridx;
     int manufactr_tooltip;
+    short barrack_max_party_size;
 };
 
 #pragma pack()

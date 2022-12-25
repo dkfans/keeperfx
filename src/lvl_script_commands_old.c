@@ -73,6 +73,7 @@ const struct NamedCommand game_rule_desc[] = {
   {"AlliesShareVision",             29},
   {"AlliesShareDrop",               30},
   {"AlliesShareCta",                31},
+  {"BarrackMaxPartySize",           32},
   {NULL,                             0},
 };
 
