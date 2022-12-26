@@ -46,6 +46,11 @@
 extern "C" {
 #endif
 /******************************************************************************/
+
+static float phase_of_moon;
+static long net_number_of_levels;
+static struct NetLevelDesc net_level_desc[100];
+
 const char keeper_config_file[]="keeperfx.cfg";
 int max_track = 7;
 unsigned short AtmosRepeat = 1013;
