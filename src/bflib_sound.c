@@ -935,6 +935,7 @@ struct SampleInfo *play_sample_using_heap(unsigned long a1, SoundSmplTblID smptb
         SYNCLOG("Can't start playing sample %d",smptbl_id);
         return NULL;
     }
+    SYNCLOG("Got sample id %d", smpinfo->smptbl_id);
     smpinfo->flags_17 |= 0x01;
     if (bank_id != 0) {
         smpinfo->flags_17 |= 0x04;
