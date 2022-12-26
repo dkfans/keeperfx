@@ -1847,6 +1847,7 @@ TbBool set_gamma(char corrlvl, TbBool do_set)
     if (corrlvl > 4)
       corrlvl = 4;
     settings.gamma_correction = corrlvl;
+    copy_settings_to_dk_settings();
     fname=prepare_file_fmtpath(FGrp_StdData,"pal%05d.dat",settings.gamma_correction);
     if (!LbFileExists(fname))
     {

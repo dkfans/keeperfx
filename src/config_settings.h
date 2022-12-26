@@ -77,8 +77,10 @@ struct GameSettings { // KFX settings
     };
 #pragma pack()
 /******************************************************************************/
+DLLIMPORT extern struct _DK_GameSettings _DK_settings; // DK settings
 extern struct GameSettings settings; // KFX settings
 /******************************************************************************/
+void copy_settings_to_dk_settings(void);
 TbBool load_settings(void);
 short save_settings(void);
 

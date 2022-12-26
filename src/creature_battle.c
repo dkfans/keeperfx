@@ -37,11 +37,6 @@
 #include "post_inc.h"
 
 /******************************************************************************/
-
-unsigned short friendly_battler_list[3*MESSAGE_BATTLERS_COUNT];
-unsigned short enemy_battler_list[3*MESSAGE_BATTLERS_COUNT];
-
-/******************************************************************************/
 /**
  * Returns CreatureBattle of given index.
  */
