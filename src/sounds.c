@@ -388,7 +388,7 @@ void process_sound_heap(void)
           {
             if ( (using_two_banks) && ((smpinfo->flags_17 & 0x04) != 0) )
             {
-                satab = &sample_table2[smpinfo->field_12];
+                satab = &sample_table2[smpinfo->smptbl_id];
                 hmhndl = satab->hmhandle;
                 if (hmhndl != NULL) {
                     hmhndl->flags |= 0x0004;
@@ -396,7 +396,7 @@ void process_sound_heap(void)
                 }
             } else
             {
-                satab = &sample_table[smpinfo->field_12];
+                satab = &sample_table[smpinfo->smptbl_id];
                 hmhndl = satab->hmhandle;
                 if (hmhndl != NULL) {
                     hmhndl->flags |= 0x0004;

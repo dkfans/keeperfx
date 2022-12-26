@@ -21,6 +21,7 @@
 #define BFLIB_SNDLIB_H
 
 #include "bflib_basics.h"
+#include "bflib_sound.h"
 
 #include "globals.h"
 
@@ -41,7 +42,7 @@ struct SampleInfo { // sizeof = 29
   unsigned char field_4[4];
   unsigned char field_8;
   unsigned char field_9[9];
-    unsigned short field_12;
+  SoundSmplTblID smptbl_id;
   unsigned char field_14[3];
   unsigned char flags_17;
   unsigned long field_18;
