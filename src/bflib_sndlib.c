@@ -295,7 +295,10 @@ struct SampleInfo * __stdcall PlaySampleFromAddress(int a1, int smpl_idx, int a3
     { ERRORLOG("Can't get address of PlaySampleFromAddress function; skipped."); return 0; }
     struct SampleInfo* smpinfo = ((FARPROC_PLAY1)(void *)proc)(a1, smpl_idx, a3, a4, a5, a6, a7, buf, sfxid);
     // return ((FARPROC_PLAY1)(void *)proc)(a1, smpl_idx, a3, a4, a5, a6, a7, buf, sfxid);
-    SYNCLOG("Got sample id %d", smpinfo->smptbl_id);
+    if (smpinfo != NULL)
+    {
+        SYNCLOG("Got sample id %d", smpinfo->smptbl_id);
+    }
     return smpinfo;
 }
 
