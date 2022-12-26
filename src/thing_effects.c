@@ -605,7 +605,6 @@ struct Thing *create_effect_element(const struct Coord3d *pos, unsigned short ee
 
 void process_spells_affected_by_effect_elements(struct Thing *thing)
 {
-    //_DK_process_spells_affected_by_effect_elements(thing);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     GameTurnDelta dturn;
     long angle;
@@ -812,7 +811,6 @@ TngUpdateRet move_effect_element(struct Thing *thing)
 void change_effect_element_into_another(struct Thing *thing, long nmodel)
 {
     SYNCDBG(18,"Starting");
-    //return _DK_change_effect_element_into_another(thing,nmodel);
     struct EffectElementStats* eestat = get_effect_element_model_stats(nmodel);
     int speed = eestat->sprite_speed_min + EFFECT_RANDOM(thing, eestat->sprite_speed_max - eestat->sprite_speed_min + 1);
     int scale = eestat->sprite_size_min + EFFECT_RANDOM(thing, eestat->sprite_size_max - eestat->sprite_size_min + 1);

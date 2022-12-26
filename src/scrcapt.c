@@ -197,7 +197,6 @@ long prepare_bmp_screenshot(unsigned char *buf,unsigned char *palette)
 
 TbBool cumulative_screen_shot(void)
 {
-  //_DK_cumulative_screen_shot();return;
   static long frame_number=0;
   char fname[255];
   const char *fext;

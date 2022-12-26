@@ -959,7 +959,6 @@ TbBool delete_lair_totem(struct Thing *lairtng)
 
 long food_moves(struct Thing *objtng)
 {
-    //return _DK_food_moves(objtng);
     struct Coord3d pos;
     pos.x.val = objtng->mappos.x.val;
     pos.y.val = objtng->mappos.y.val;
@@ -1123,7 +1122,6 @@ long food_moves(struct Thing *objtng)
 
 long food_grows(struct Thing *objtng)
 {
-    //return _DK_food_grows(objtng);
     if (objtng->food.life_remaining > 0)
     {
         objtng->food.life_remaining--;
@@ -1303,7 +1301,6 @@ long process_temple_special(struct Thing *thing, long sacowner)
 
 void process_object_sacrifice(struct Thing *thing, long sacowner)
 {
-    //_DK_process_object_sacrifice(thing, sacowner); return;
     PlayerNumber slbowner;
     {
         struct SlabMap* slb = get_slabmap_thing_is_on(thing);
@@ -1555,7 +1552,6 @@ void set_call_to_arms_as_birthing(struct Thing *objtng)
 
 void set_call_to_arms_as_dying(struct Thing *objtng)
 {
-    //_DK_set_call_to_arms_as_dying(objtng); return;
     int frame;
     switch (objtng->call_to_arms_flag.state)
     {
@@ -1582,7 +1578,6 @@ void set_call_to_arms_as_dying(struct Thing *objtng)
 
 void set_call_to_arms_as_rebirthing(struct Thing *objtng)
 {
-    //_DK_set_call_to_arms_as_rebirthing(objtng); return;
     int frame;
     switch (objtng->call_to_arms_flag.state)
     {
@@ -1665,7 +1660,6 @@ TngUpdateRet object_update_call_to_arms(struct Thing *thing)
 
 TngUpdateRet object_update_armour(struct Thing *objtng)
 {
-    //return _DK_object_update_armour(objtng);
     struct Thing* thing = thing_get(objtng->armor.belongs_to);
     if (thing_is_picked_up(thing))
     {
@@ -1717,7 +1711,6 @@ TngUpdateRet object_update_armour(struct Thing *objtng)
 
 TngUpdateRet object_update_object_scale(struct Thing *objtng)
 {
-    //return _DK_object_update_object_scale(objtng);
     struct Thing* creatng = thing_get(objtng->lair.belongs_to);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     struct Objects* objdat = get_objects_data_for_thing(objtng);
@@ -2165,7 +2158,6 @@ struct Thing *create_gold_hoarde(struct Room *room, const struct Coord3d *pos, G
  */
 long add_gold_to_hoarde(struct Thing *gldtng, struct Room *room, GoldAmount amount)
 {
-    //return _DK_add_gold_to_hoarde(gldtng, room, amount);
     GoldAmount wealth_size_holds = gameadd.gold_per_hoard / get_wealth_size_types_count();
     GoldAmount max_hoard_size_in_room = wealth_size_holds * room->total_capacity / room->slabs_count;
     // Fix amount
@@ -2218,7 +2210,6 @@ long add_gold_to_hoarde(struct Thing *gldtng, struct Room *room, GoldAmount amou
  */
 long remove_gold_from_hoarde(struct Thing *gldtng, struct Room *room, GoldAmount amount)
 {
-    //return _DK_remove_gold_from_hoarde(gldtng, room, amount);
     if (amount <= 0) {
         return 0;
     }

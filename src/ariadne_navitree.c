@@ -228,7 +228,6 @@ static void delaunay_stack_point(long pt_x, long pt_y)
     long dst_cor_idx;
     long tri_id2;
     NAVIDBG(19,"Starting");
-    //_DK_delaunay_stack_point(pt_x, pt_y); return;
 
     long tri_idx = triangle_find8(pt_x << 8, pt_y << 8);
     if (tri_idx == -1) {
