@@ -99,7 +99,7 @@ extern "C" {
 /******************************************************************************/
 int creature_swap_idx[CREATURE_TYPES_COUNT];
 
-struct Creatures creatures_NEW[] = {
+struct Creatures creatures[] = {
   { 0,  0, 0, 0, 0, 0, 0, 0, 0, 0x0000, 1},
   {17, 34, 1, 0, 1, 0, 1, 0, 0, 0x0180, 1},
   {17, 34, 1, 0, 1, 0, 2, 0, 0, 0x0180, 1},
@@ -3808,8 +3808,8 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
     crtng->solid_size_yz = crstat->thing_size_yz;
     crtng->fall_acceleration = 32;
     crtng->bounce_angle = 0;
-    crtng->field_23 = 32;
-    crtng->field_24 = 8;
+    crtng->inertia_floor = 32;
+    crtng->inertia_air = 8;
     crtng->movement_flags |= TMvF_Unknown08;
     crtng->owner = owner;
     crtng->move_angle_xy = 0;
@@ -5360,8 +5360,8 @@ TngUpdateRet update_creature(struct Thing *thing)
     }
     process_armageddon_influencing_creature(thing);
 
-    if (cctrl->field_B1 > 0)
-        cctrl->field_B1--;
+    if (cctrl->frozen_on_hit > 0)
+        cctrl->frozen_on_hit--;
     if (cctrl->force_visible > 0)
         cctrl->force_visible--;
     if (cctrl->byte_8B == 0)
