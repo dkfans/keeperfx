@@ -115,15 +115,14 @@ short update_memory_constraits(void)
   if ( lbMemoryAvailable <= (24*1024*1024) )
       mem_size = 24;
   else
-//  if ( lbMemoryAvailable <= (32*1024*1024) )
+  if ( lbMemoryAvailable <= (32*1024*1024) )
       mem_size = 32;
-/*
   else
   if ( lbMemoryAvailable <= (48*1024*1024) )
       mem_size = 48;
   else
       mem_size = 64;
-*/
+
   LbSyncLog("PhysicalMemory %d\n", mem_size);
   return true;
 }
