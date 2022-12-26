@@ -57,9 +57,8 @@ unsigned short AtmosRepeat = 1013;
 unsigned short AtmosStart = 1014;
 unsigned short AtmosEnd = 1034;
 TbBool AssignCpuKeepers = 0;
-char keeper_runtime_directory[152];
-
 struct InstallInfo install_info;
+char keeper_runtime_directory[152];
 
 /**
  * Language 3-char abbreviations.
