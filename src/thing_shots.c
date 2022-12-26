@@ -184,7 +184,6 @@ struct Thing *get_shot_collided_with_same_type_on_subtile(struct Thing *shotng, 
 
 struct Thing *get_shot_collided_with_same_type(struct Thing *shotng, struct Coord3d *nxpos)
 {
-    //return _DK_get_shot_collided_with_same_type(thing, nxpos);
     MapSubtlCoord stl_x_beg = coord_subtile(nxpos->x.val - 384);
     if (stl_x_beg < 0)
         stl_x_beg = 0;

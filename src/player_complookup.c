@@ -182,7 +182,6 @@ void check_map_for_gold(void)
     MapSlabCoord slb_y;
     SlabCodedCoords slb_num;
     SYNCDBG(8,"Starting");
-    //_DK_check_map_for_gold();
     for (long i = 0; i < GOLD_LOOKUP_COUNT; i++)
     {
         LbMemorySet(&game.gold_lookup[i], 0, sizeof(struct GoldLookup));

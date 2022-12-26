@@ -101,7 +101,6 @@ TbBool has_available_rooms_to_attack(struct Thing* thing, PlayerNumber plyr_idx)
 
 long good_find_best_enemy_dungeon(struct Thing* creatng)
 {
-    //return _DK_get_best_dungeon_to_tunnel_to(creatng);
     PlayerNumber best_plyr_idx = -1;
     PlayerNumber backup_plyr_idx = -1;
     struct PlayerInfo* player;
@@ -1085,7 +1084,6 @@ short creature_hero_entering(struct Thing *thing)
 
 long get_best_dungeon_to_tunnel_to(struct Thing *creatng)
 {
-    //return _DK_get_best_dungeon_to_tunnel_to(creatng);
     PlayerNumber best_plyr_idx = -1;
     long best_score = LONG_MIN;
     for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
@@ -1191,7 +1189,6 @@ TbBool script_support_send_tunneller_to_dungeon_heart(struct Thing *creatng, Pla
 TbBool script_support_send_tunneller_to_appropriate_dungeon(struct Thing *creatng)
 {
     SYNCDBG(7,"Starting");
-    //return _DK_script_support_send_tunneller_to_appropriate_dungeon(thing);
     PlayerNumber plyr_idx;
     struct Coord3d pos;
     plyr_idx = get_best_dungeon_to_tunnel_to(creatng);

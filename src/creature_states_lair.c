@@ -310,7 +310,6 @@ TbBool setup_head_for_random_unused_lair_subtile(struct Thing *creatng, struct R
 short creature_change_lair(struct Thing *thing)
 {
     TRACE_THING(thing);
-    //return _DK_creature_change_lair(thing);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     cctrl->target_room_id = 0;
     struct Room* room = get_room_thing_is_on(thing);
@@ -404,7 +403,6 @@ short cleanup_sleep(struct Thing *creatng)
 
 short creature_going_home_to_sleep(struct Thing *thing)
 {
-    //return _DK_creature_going_home_to_sleep(thing);
     if (creature_move_to_home_lair(thing))
     {
         thing->continue_state = CrSt_AtLairToSleep;

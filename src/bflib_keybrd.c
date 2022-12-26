@@ -183,7 +183,6 @@ void keyboardControl(unsigned int action, TbKeyCode code, TbKeyMods modifiers, i
 long __stdcall KeyboardProc(int a1, unsigned int a2, long code)
 {
     unsigned char lbcode;
-    //return _DK_KeyboardProc(a1, a2, code);
     unsigned char klcode = (code >> 16);
     lbExtendedKeyPress = ((code & 0x1000000) != 0);
     if (lbExtendedKeyPress)

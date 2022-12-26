@@ -437,7 +437,6 @@ SlabKind find_core_slab_type(MapSlabCoord slb_x, MapSlabCoord slb_y)
 
 long calculate_effeciency_score_for_room_slab(SlabCodedCoords slab_num, PlayerNumber plyr_idx)
 {
-    //return _DK_calculate_effeciency_score_for_room_slab(slab_num, plyr_idx);
     TbBool is_room_inside = true;
     long eff_score = 0;
     struct SlabMap* slb = get_slabmap_direct(slab_num);
@@ -663,7 +662,6 @@ int count_owned_ground_around(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlab
 
 void unfill_reinforced_corners(PlayerNumber keep_plyr_idx, MapSlabCoord base_slb_x, MapSlabCoord base_slb_y)
 {
-    //_DK_unfill_reinforced_corners(plyr_idx, base_slb_x, base_slb_y); return;
     for (long n = 0; n < SMALL_AROUND_LENGTH; n++)
     {
         MapSlabCoord x = base_slb_x + small_around[n].delta_x;

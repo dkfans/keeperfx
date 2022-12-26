@@ -373,8 +373,6 @@ void draw_gpoly_sub14();
 
 void draw_gpoly(struct PolyPoint *point_a, struct PolyPoint *point_b, struct PolyPoint *point_c)
 {
-    //_DK_vec_mode = vec_mode; _DK_vec_colour = vec_colour;
-    //_DK_draw_gpoly(point_a, point_b, point_c); return;
     LOC_poly_screen = poly_screen;
     LOC_vec_map = vec_map;
     LOC_vec_screen = vec_screen;

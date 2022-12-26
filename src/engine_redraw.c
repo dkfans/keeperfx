@@ -222,7 +222,6 @@ void load_engine_window(TbGraphicsWindow *ewnd)
 
 void map_fade(unsigned char *outbuf, unsigned char *srcbuf1, unsigned char *srcbuf2, unsigned char *fade_tbl, unsigned char *ghost_tbl, long a6, long const xmax, long const ymax, long a9)
 {
-    //_DK_map_fade(outbuf, srcbuf1, srcbuf2, fade_tbl, ghost_tbl, a6, xmax, ymax, a9); return;
     long ix;
     long iy;
     long x1base = 4 * a6;

@@ -222,7 +222,6 @@ short creature_eat(struct Thing *thing)
 
 short creature_eating_at_garden(struct Thing *creatng)
 {
-    //return _DK_creature_eating_at_garden(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     struct Thing* foodtng = thing_get(cctrl->long_9A);
     if (!thing_exists(foodtng)) {

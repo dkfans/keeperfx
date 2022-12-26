@@ -271,8 +271,6 @@ struct StateInfo { // sizeof = 41
 };
 
 /******************************************************************************/
-DLLIMPORT struct StateInfo _DK_states[145];
-//#define states _DK_states
 extern struct StateInfo states[CREATURE_STATES_COUNT];
 DLLIMPORT long _DK_r_stackpos;
 #define r_stackpos _DK_r_stackpos

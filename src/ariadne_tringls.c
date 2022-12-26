@@ -213,7 +213,6 @@ long point_loop(long pt_tri, long pt_cor)
 void edgelen_set(long tri_id)
 {
     NAVIDBG(19,"Starting");
-    //_DK_edgelen_set(tri_id); return;
     static const unsigned long EdgeLenBits[][4] = {
         {1, 1, 2, 3},
         {1, 1, 2, 3},
