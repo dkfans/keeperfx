@@ -59,6 +59,8 @@ unsigned short AtmosEnd = 1034;
 TbBool AssignCpuKeepers = 0;
 char keeper_runtime_directory[152];
 
+struct InstallInfo install_info;
+
 /**
  * Language 3-char abbreviations.
  * These are selected from ISO 639-2/B naming standard.

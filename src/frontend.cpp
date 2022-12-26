@@ -100,6 +100,7 @@ extern void __stdcall enum_sessions_callback(struct TbNetworkCallbackData *netcd
 /******************************************************************************/
 TbClockMSec gui_message_timeout = 0;
 char gui_message_text[TEXT_BUFFER_LENGTH];
+static char path_string[178];
 
 struct GuiButtonInit frontend_main_menu_buttons[] = {
   { 0,  0, 0, 0, NULL,               NULL,        NULL,                 0, 999,  26, 999,  26, 371, 46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,       {1},            0, NULL },
@@ -2514,14 +2515,31 @@ void reinit_all_menus(void)
     set_gui_visible(visible);
 }
 
+char *mdlf_for_cd(struct TbLoadFiles * tb_load_files)
+{
+    TbLoadFiles *result; // eax
+    result = tb_load_files;
+    if ( tb_load_files->FName[0] != 42 )
+    {
+        sprintf(path_string, "%s\\%s", install_info.inst_path, tb_load_files->FName);
+        return path_string;
+    }
+    return result->FName;
+}
+
+char *mdlf_default(struct TbLoadFiles * tb_load_files)
+{
+    return tb_load_files->FName;
+}
+
 void frontend_load_data_from_cd(void)
 {
-    LbDataLoadSetModifyFilenameFunction(_DK_mdlf_for_cd);
+    LbDataLoadSetModifyFilenameFunction(mdlf_for_cd);
 }
 
 void frontend_load_data_reset(void)
 {
-  LbDataLoadSetModifyFilenameFunction(_DK_mdlf_default);
+  LbDataLoadSetModifyFilenameFunction(mdlf_default);
 }
 
 void initialise_tab_tags(MenuID menu_id)

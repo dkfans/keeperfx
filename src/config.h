@@ -182,8 +182,7 @@ extern TbBool AssignCpuKeepers;
 
 extern unsigned int vid_scale_flags;
 /******************************************************************************/
-DLLIMPORT extern struct InstallInfo _DK_install_info;
-#define install_info _DK_install_info
+extern struct InstallInfo install_info;
 extern char keeper_runtime_directory[152];
 
 #pragma pack()
