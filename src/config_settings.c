@@ -120,7 +120,6 @@ void setup_default_settings(void)
     }
 }
 
-
 TbBool load_settings(void)
 {
     SYNCDBG(6,"Starting");
