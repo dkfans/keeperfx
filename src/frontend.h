@@ -265,8 +265,7 @@ extern unsigned char * testfont_data[TESTFONTS_COUNT];
 extern unsigned char *testfont_palette[3];
 #endif
 /******************************************************************************/
-DLLIMPORT char *_DK_mdlf_for_cd(struct TbLoadFiles *);
-DLLIMPORT char *_DK_mdlf_default(struct TbLoadFiles *);
+extern char *mdlf_default(struct TbLoadFiles *);
 /******************************************************************************/
 int frontend_font_char_width(int fnt_idx,char c);
 int frontend_font_string_width(int fnt_idx, const char *str);
