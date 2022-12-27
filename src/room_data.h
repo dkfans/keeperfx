@@ -254,6 +254,8 @@ struct Room *find_nearest_room_of_role_for_thing_with_spare_item_capacity(struct
 struct Room *find_random_room_for_thing(struct Thing *thing, PlayerNumber owner, RoomKind rkind, unsigned char nav_flags);
 struct Room * find_random_room_of_role_for_thing_with_spare_room_item_capacity(struct Thing *thing, PlayerNumber owner, RoomRole rrole, unsigned char nav_flags);
 struct Room * pick_random_room_of_role(PlayerNumber plyr_idx, RoomRole rrole);
+
+void create_guard_post_flags(struct Room *room);
 /******************************************************************************/
 #ifdef __cplusplus
 }

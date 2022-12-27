@@ -4987,6 +4987,13 @@ long claim_room(struct Room *room, struct Thing *claimtng)
     do_room_integration(room);
     thing_play_sample(claimtng, 116, NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
     output_room_takeover_message(room, oldowner, claimtng->owner);
+    if (room_role_matches(room->kind, RoRoF_CrGuard))
+    {
+        if (oldowner == game.hero_player_num)
+        {
+            create_guard_post_flags(room);
+        }
+    }
     return 1;
 }
 
@@ -5017,6 +5024,13 @@ long claim_enemy_room(struct Room *room, struct Thing *claimtng)
         EvKind_RoomTakenOver, claimtng->owner, room->kind);
     do_room_integration(room);
     output_room_takeover_message(room, oldowner, claimtng->owner);
+    if (room_role_matches(room->kind, RoRoF_CrGuard))
+    {
+        if (oldowner == game.hero_player_num)
+        {
+            create_guard_post_flags(room);
+        }
+    }
     return 1;
 }
 
@@ -5059,6 +5073,13 @@ long take_over_room(struct Room* room, PlayerNumber newowner)
         MapCoord ccor_x = subtile_coord_center(room->central_stl_x);
         MapCoord ccor_y = subtile_coord_center(room->central_stl_y);
         event_create_event_or_update_nearby_existing_event(ccor_x, ccor_y, EvKind_RoomLost, oldowner, room->kind);
+        if (room_role_matches(room->kind, RoRoF_CrGuard))
+        {
+            if (oldowner == game.hero_player_num)
+            {
+                create_guard_post_flags(room);
+            }
+        }
         return 1;
     }
     else
@@ -5116,5 +5137,44 @@ void destroy_dungeon_heart_room(PlayerNumber plyr_idx, const struct Thing *heart
     }
     remove_room_from_players_list(room, plyr_idx);
     destroy_room_leaving_unclaimed_ground(room);
+}
+
+void create_guard_post_flags(struct Room *room)
+{
+    SlabCodedCoords slb_num = room->slabs_list;
+    while (slb_num > 0)
+    {
+        MapSlabCoord slb_x = slb_num_decode_x(slb_num);
+        MapSlabCoord slb_y = slb_num_decode_y(slb_num);
+        MapSubtlCoord stl_x = slab_subtile_center(slb_x);
+        MapSubtlCoord stl_y = slab_subtile_center(slb_y);
+        struct Map* mapblk = get_map_block_at_pos(slb_num);
+        ThingIndex tng_id = get_mapwho_thing_index(mapblk);
+        TbBool found_flag = false;
+        struct Thing* thing;
+        while (tng_id != 0)
+        {
+            thing = thing_get(tng_id);
+            if ( (thing_is_object(thing)) && (object_is_guard_flag(thing)) )
+            {
+                found_flag = true;
+                break;
+            }
+            tng_id = thing->next_on_mapblk;
+        }
+        if (!found_flag)
+        {
+            struct Coord3d pos;
+            pos.x.val = subtile_coord(stl_x, 128);
+            pos.y.val = subtile_coord(stl_y, 128);
+            pos.z.val = get_floor_height(stl_x, stl_y);
+            thing = create_guard_flag_object(&pos, room->owner, slb_num);
+            if (thing_is_invalid(thing))
+            {
+                ERRORLOG("Cannot create Guard Post flag at co-ordinates %d %d (%d %d)", pos.x.val, pos.y.val, coord_subtile(pos.x.val), coord_subtile(pos.y.val));
+            }
+        }
+        slb_num = get_next_slab_number_in_room(slb_num);
+    }
 }
 /******************************************************************************/
