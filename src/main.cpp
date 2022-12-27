@@ -192,9 +192,6 @@ extern "C" {
 
 TbBool force_player_num = false;
 
-// Now variables
-DLLIMPORT extern HINSTANCE _DK_hInstance;
-
 /******************************************************************************/
 
 extern void faststartup_network_game(CoroutineLoop *context);
@@ -4315,7 +4312,6 @@ LONG __stdcall Vex_handler(
 int main(int argc, char *argv[])
 {
   char *text;
-  _DK_hInstance = GetModuleHandle(NULL);
 
   AddVectoredExceptionHandler(0, &Vex_handler);
   get_cmdln_args(bf_argc, bf_argv);
