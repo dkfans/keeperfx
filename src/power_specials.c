@@ -249,7 +249,6 @@ TbBool steal_hero(struct PlayerInfo *player, struct Coord3d *pos)
 
 void make_safe(struct PlayerInfo *player)
 {
-    //_DK_make_safe(player);
     unsigned char* areamap = (unsigned char*)scratch;
     MapSlabCoord slb_x;
     MapSlabCoord slb_y;

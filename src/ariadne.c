@@ -463,7 +463,6 @@ long update_navigation_triangulation(long start_x, long start_y, long end_x, lon
 
 static void edge_points8(long ntri_src, long ntri_dst, long *tipA_x, long *tipA_y, long *tipB_x, long *tipB_y)
 {
-    //_DK_edge_points8(a1, a2, a3, a4, a5, a6);
     struct Point *pt;
     if (Triangles[ntri_src].tags[0] == ntri_dst)
     {
@@ -643,7 +642,6 @@ long route_to_path(long ptfind_x, long ptfind_y, long ptstart_x, long ptstart_y,
 
 void waypoint_normal(long tri1_id, long cor1_id, long *norm_x, long *norm_y)
 {
-    //_DK_waypoint_normal(a1, a2, norm_x, norm_y);
     int tri2_id;
     int tri3_id;
     int cor2_id;
@@ -747,7 +745,6 @@ void path_out_a_bit(struct Path *path, const long *route)
     long link_fwd;
     long link_bak;
     long i;
-    //_DK_path_out_a_bit(path, route); return;
     wpoint = &wayPoints.wpfield_10[0];
     ppoint = &path->waypoints[0];
     for (i=0; i < path->waypoints_num-1; i++)
@@ -779,7 +776,6 @@ void path_out_a_bit(struct Path *path, const long *route)
 
 void cull_gate_to_point(struct Gate *gt, long a2)
 {
-    //_DK_cull_gate_to_point(gt, a2);
     int diff_a;
     int diff_b;
     diff_a = abs(gt->field_0 - gt->field_8);
@@ -898,7 +894,6 @@ long calc_intersection(struct Gate *gt, long a2, long a3, long a4, long a5)
 
 void cull_gate_to_best_point(struct Gate *gt, long a2)
 {
-    //_DK_cull_gate_to_best_point(gt, a2);
     int diff_min1;
     int diff_min2;
     {
@@ -1250,7 +1245,6 @@ long gate_route_to_coords(long trAx, long trAy, long trBx, long trBy, long *a5, 
 
 void gate_navigator_init8(struct Pathway *pway, long trAx, long trAy, long trBx, long trBy, long wp_lim, unsigned char a7)
 {
-    //_DK_gate_navigator_init8(pway, trAx, trAy, trBx, trBy, a6, a7);
     pway->field_0 = trAx;
     pway->field_4 = trAy;
     pway->field_8 = trBx;
@@ -1279,7 +1273,6 @@ void route_through_gates(const struct Pathway *pway, struct Path *path, long sub
     const struct Gate *ppoint;
     struct PathWayPoint *wpoint;
     long i;
-    //_DK_route_through_gates(pway, path, mag); return;
     if (subroute > 16383)
         subroute = 16383;
     if (subroute < 0)
@@ -1432,7 +1425,6 @@ static void set_nearpoint(long tri_id, long cor_id, long dstx, long dsty, long *
        {   0,-128},{ 128,-128},{-128,-128},{   0,   0},
     };
 
-    //_DK_set_nearpoint(tri_id, cor_id, dstx, dsty, px, py);
     struct Point *pt1;
     pt1 = get_triangle_point(tri_id,cor_id);
     unsigned int tngflags;
@@ -1472,7 +1464,6 @@ static void set_nearpoint(long tri_id, long cor_id, long dstx, long dsty, long *
 
 void nearest_search_f(long sizexy, long srcx, long srcy, long dstx, long dsty, long *px, long *py, const char *func_name)
 {
-    //_DK_nearest_search(sizexy, srcx, srcy, dstx, dsty, px, py); return;
     creature_radius_set(sizexy+1);
     tags_init();
     long tri1_id;
@@ -1967,7 +1958,6 @@ long ma_triangle_route(long ttriA, long ttriB, long *routecost)
 
 void edgelen_init(void)
 {
-    //_DK_edgelen_init();
     if (edgelen_initialised)
         return;
     edgelen_initialised = true;
@@ -2026,7 +2016,6 @@ void ariadne_pull_out_waypoint(const struct Thing *thing, const struct Ariadne *
 {
     const struct Coord2d *wp;
     long size_radius;
-    //_DK_ariadne_pull_out_waypoint(thing, arid, wpoint_id, pos); return;
     if ((wpoint_id < 0) || (wpoint_id >= ARID_WAYPOINTS_COUNT))
     {
         pos->x.val = 0;
@@ -2130,7 +2119,6 @@ long ariadne_get_wallhug_angle(struct Thing *thing, struct Ariadne *arid)
 
 void ariadne_get_starting_angle_and_side_of_wallhug_for_desireable_move(struct Thing *thing, struct Ariadne *arid, long inangle, short *rangle, unsigned char *rflag)
 {
-    //_DK_ariadne_get_starting_angle_and_side_of_wallhug_for_desireable_move(thing, arid, inangle, rangle, rflag); return;
     struct Coord3d bkp_mappos;
     bkp_mappos = thing->mappos;
     int inangle_oneaxis;
@@ -3274,7 +3262,6 @@ AriadneReturn ariadne_get_next_position_for_route(struct Thing *thing, struct Co
         (int)thing->mappos.x.stl.num, (int)thing->mappos.y.stl.num, (int)finalpos->x.stl.num, (int)finalpos->y.stl.num);
     cctrl = creature_control_get_from_thing(thing);
     arid = &cctrl->arid;
-    //result = _DK_ariadne_get_next_position_for_route(thing, finalpos, speed, nextpos, a5); return result;
     arid->field_22 = 0;
     if ((finalpos->x.val != arid->endpos.x.val)
      || (finalpos->y.val != arid->endpos.y.val)
@@ -3720,7 +3707,6 @@ TbBool delete_point(long pt_tri, long pt_cor)
 long tri_split3(long btri_id, long pt_x, long pt_y)
 {
     NAVIDBG(19,"Starting");
-    //_DK_tri_split3(a1, a2, a3);
     struct Triangle *btri;
     struct Triangle *tri1;
     struct Triangle *tri2;
@@ -3803,7 +3789,6 @@ long tri_split3(long btri_id, long pt_x, long pt_y)
 long tri_split2(long tri_id1, long cor_id1, long pt_x, long pt_y, long pt_id1)
 {
     long tri_id2;
-    //tri_id2 = _DK_tri_split2(tri_id1, cor_id1, pt_x, pt_y, pt_id1); return tri_id2;
     tri_id2 = tri_new();
     if (tri_id2 < 0) {
         return -1;
@@ -3910,8 +3895,6 @@ static TbBool insert_point(long pt_x, long pt_y)
 {
     long ntri;
     NAVIDBG(19,"Starting for (%d,%d)", (int)pt_x, (int)pt_y);
-    //TODO PATHFINDING triangulate_area sub-sub-function, verify
-    //_DK_insert_point(pt_x, pt_y); return true;
     ntri = triangle_find8(pt_x << 8, pt_y << 8);
     if ((ntri < 0) || (ntri >= TRIANLGLES_COUNT))
     {
@@ -4062,8 +4045,6 @@ static TbBool make_edge(long start_x, long start_y, long end_x, long end_y)
     long pt_cor;
     unsigned long k;
     NAVIDBG(19,"Starting");
-    //TODO PATHFINDING triangulate_area sub-sub-function, verify
-    //_DK_make_edge(start_x, start_y, end_x, end_y); return;
     k = 0;
     sx = start_x;
     sy = start_y;
@@ -4132,9 +4113,6 @@ TbBool border_clip_horizontal(const unsigned char *imap, long start_x, long end_
     long i;
     r = true;
     NAVIDBG(19,"Starting from (%ld,%ld) to (%ld,%ld)",start_x, start_y, end_x, end_y);
-    //TODO PATHFINDING triangulate_area sub-function, verify
-    //_DK_border_clip_horizontal(imap, start_x, end_x, start_y, end_y); return true;
-
     i = start_x;
     {
         mapp_center = &imap[navmap_tile_number(i,start_y)];
@@ -4179,8 +4157,6 @@ TbBool border_clip_vertical(const unsigned char *imap, long start_x, long end_x,
     long i;
     r = true;
     NAVIDBG(19,"Starting from (%ld,%ld) to (%ld,%ld)",start_x, start_y, end_x, end_y);
-    //TODO PATHFINDING triangulate_area sub-function, verify
-    //_DK_border_clip_vertical(imap, start_x, end_x, start_y, end_y); return true;
     i = start_y;
     {
         mapp_center = &imap[navmap_tile_number(start_x,i)];
@@ -4316,7 +4292,6 @@ TbBool edge_lock_f(long ptend_x, long ptend_y, long ptstart_x, long ptstart_y, c
     long pt_x;
     long pt_y;
     unsigned long k;
-    //_DK_edge_lock(ptend_x, ptend_y, ptstart_x, ptstart_y); return true;
     pt_x = ptstart_x;
     pt_y = ptstart_y;
     k = 0;
@@ -4423,9 +4398,6 @@ void border_internal_points_delete(long start_x, long start_y, long end_x, long 
     long i;
     long n;
     NAVIDBG(19,"Starting");
-    //TODO PATHFINDING triangulate_area sub-function, verify
-    //_DK_border_internal_points_delete(start_x, start_y, end_x, end_y); return;
-
     if (!edge_find(start_x, start_y, end_x, start_y, &edge_tri, &edge_cor))
     {
         ERRORLOG("Top not found");
@@ -4507,7 +4479,6 @@ long triangle_area1(long tri_idx)
 
 static void brute_fill_rectangle(long start_x, long start_y, long end_x, long end_y, unsigned char ntree_alt)
 {
-    //_DK_brute_fill_rectangle(start_x, start_y, end_x, end_y, a5);
     // Replace start and end if they are switched
     if (end_x < start_x)
     {
@@ -4559,10 +4530,9 @@ static void brute_fill_rectangle(long start_x, long start_y, long end_x, long en
     }
 }
 
-#define fill_rectangle(start_x, start_y, end_x, end_y, a5) fill_rectangle_f(start_x, start_y, end_x, end_y, a5, __func__)
+#define fill_rectangle(start_x, start_y, end_x, end_y, nav_colour) fill_rectangle_f(start_x, start_y, end_x, end_y, nav_colour, __func__)
 void fill_rectangle_f(long start_x, long start_y, long end_x, long end_y, unsigned char nav_colour, const char *func_name)
 {
-    //_DK_fill_rectangle(start_x, start_y, end_x, end_y, a5); return;
     long tri_n0;
     long tri_k0;
     long tri_n1;
@@ -4633,7 +4603,6 @@ TbBool tri_set_rectangle(long start_x, long start_y, long end_x, long end_y, uns
     long ex;
     long ey;
     NAVIDBG(19,"Starting");
-    //_DK_tri_set_rectangle(start_x, start_y, end_x, end_y, a5); return true;
     sx = start_x;
     ex = end_x;
     if (sx > ex) {
@@ -4753,8 +4722,6 @@ void border_unlock(long a1, long a2, long a3, long a4)
     long tri_idx;
     long cor_idx;
     long nerr;
-    //TODO PATHFINDING triangulate_area sub-function, verify
-    //_DK_border_unlock(a1, a2, a3, a4); return;
     edge_points_clean();
     edge_unlock_record_and_regions(a1, a2, a1, a4);
     edge_unlock_record_and_regions(a1, a4, a3, a4);
@@ -4789,7 +4756,6 @@ TbBool triangulation_border_start(long *border_a, long *border_b)
     long brd_idx;
     long i;
     long k;
-    //_DK_triangulation_border_start(border_a, border_b);
     // First try - border
     for (brd_idx=0; brd_idx < ix_Border; brd_idx++)
     {
@@ -4952,7 +4918,6 @@ void triangulation_border_init(void)
 void triangulation_initxy(long startx, long starty, long endx, long endy)
 {
     long i;
-    //_DK_triangulation_initxy(startx, starty, endx, endy);return;
     for (i=0; i < TRIANLGLES_COUNT; i++)
     {
         struct Triangle *tri;
@@ -4992,7 +4957,6 @@ TbBool triangulate_area(unsigned char *imap, long start_x, long start_y, long en
     r = true;
     LastTriangulatedMap = imap;
     NAVIDBG(9,"Area from (%03ld,%03ld) to (%03ld,%03ld) with %04ld triangles",start_x,start_y,end_x,end_y,count_Triangles);
-    //_DK_triangulate_area(imap, start_x, start_y, end_x, end_y); return true;
     // Switch coords to make end_x larger than start_x
     if (end_x < start_x)
     {

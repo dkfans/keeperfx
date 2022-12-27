@@ -64,7 +64,7 @@ msgid ""
 "Use the cursor keys to see other areas of the underworld. Rotate and zoom "
 "the view with the right ctrl key and cursor keys."
 msgstr ""
-"用方向键看地下世界的其他区域。按住右边的CRTL键，再按方向键可以旋转和缩放视"
+"用方向键看地下世界的其他区域。按住右边的CTRL键，再按方向键可以旋转和缩放视"
 "角。"
 
 #. Level Eversmile objective when built Treasure Room
@@ -741,7 +741,7 @@ msgid ""
 "particularly well to a good slapping."
 msgstr ""
 "你终于拥有了一个可以吸引黑暗女王加入的地下城。你必须经常惩罚这些邪恶的女仆。"
-"他们对于被打耳光的反应异常的好。"
+"她们对于被打耳光的反应异常的好。"
 
 #. Level Snuggledell information
 #: guitext:68
@@ -1501,7 +1501,7 @@ msgctxt "In-game message"
 msgid ""
 "You must have lightning reflexes to complete the task ahead of you. Kill "
 "these Imps as quickly as you can."
-msgstr "你必须有闪电术才能完成你面前的任务。尽可能迅速地杀掉这些小鬼。"
+msgstr "你必须有闪电般的反应力才能完成你面前的任务。尽可能迅速地杀掉这些小鬼。"
 
 #. Level Bonus 3 information
 #: guitext:145
@@ -1524,7 +1524,7 @@ msgid ""
 "you a vicious creature to help you conquer the next realm."
 msgstr ""
 "完成了。无数尸体在这个小鬼曾经站立的地方被炙烤。你把握住了时间的脉搏。黑暗之"
-"神将给你一个巨人，帮助你征服下一个王国。"
+"神赐给你一只凶猛的怪物来帮助你征服下一个王国。"
 
 #. Level Bonus 3 objective
 #: guitext:148
@@ -1566,8 +1566,8 @@ msgid ""
 "the dark gods will repay you, by allowing you to use the warrior you found "
 "when you reach the next realm."
 msgstr ""
-"干得漂亮。你已经精通了大石球的使用方法，黑暗之神为此要奖励你。在你到达下一个"
-"王国时，你将获得三个出色的小鬼。"
+"干得漂亮。你已经精通了大石球的使用方法，黑暗之神为此要奖励你。你可以将你找到的"
+"这名战士带到下一个王国。"
 
 #. Level Bonus 4 objective
 #: guitext:153
@@ -1578,8 +1578,8 @@ msgid ""
 "where a legendary warrior is imprisoned. That warrior will serve you well in "
 "the future."
 msgstr ""
-"这个区域考验你横穿洞穴网的能力。时间是你真正的敌人。打败它，你将发现被囚禁的"
-"野蛮人、传说中的战士 - 乌格。乌格将在以后为你服务。"
+"这个区域考验你横穿洞穴网的能力。时间是你真正的敌人。打败它，你将发现一名被囚禁的"
+"传说中的战士。这名战士将在以后为你服务。"
 
 #. Level Mistle objective
 #: guitext:154
@@ -1710,7 +1710,7 @@ msgctxt "In-game message"
 msgid ""
 "The Avatar and his allies are defeated, yet his power over this land "
 "lingers. Prepare thyself..."
-msgstr "圣者和他的同盟被打败了，在这土地上的他的魔力正在消失。你自己准备好吧。"
+msgstr "圣者和他的同盟被打败了，在这土地上的他的魔力正在消失。你自己准备好吧…"
 
 #. Level Skybird Trill objective
 #: guitext:169
@@ -1732,7 +1732,7 @@ msgstr "成功属于你。你已经赢得了你的称号，地下城守护者。
 #: guitext:171
 msgctxt "In-game message"
 msgid "What is this? The Avatar lives!"
-msgstr "这是什么？圣者还活着。"
+msgstr "这是什么？圣者还活着！"
 
 #. Level Skybird Trill win objective, also used in DD Level Belial
 #: guitext:172

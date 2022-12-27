@@ -184,7 +184,6 @@ void process_armageddon_influencing_creature(struct Thing *creatng)
 void process_disease(struct Thing *creatng)
 {
     SYNCDBG(18,"Starting");
-    //_DK_process_disease(thing);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     if (!creature_affected_by_spell(creatng, SplK_Disease)) {
         return;
@@ -313,7 +312,6 @@ void update_god_lightning_ball(struct Thing *thing)
 void god_lightning_choose_next_creature(struct Thing *shotng)
 {
     SYNCDBG(16,"Starting for %s index %d owner %d",thing_model_name(shotng),(int)shotng->index,(int)shotng->owner);
-    //_DK_god_lightning_choose_next_creature(shotng); return;
 
     long best_dist = LONG_MAX;
     struct Thing* best_thing = INVALID_THING;
@@ -370,7 +368,6 @@ void god_lightning_choose_next_creature(struct Thing *shotng)
 
 void draw_god_lightning(struct Thing *shotng)
 {
-    //_DK_draw_god_lightning(shotng); return;
     struct PlayerInfo* player = get_player(shotng->owner);
     const struct Camera* cam = player->acamera;
     if (cam == NULL) {
@@ -419,7 +416,6 @@ TbBool reset_creature_if_affected_by_cta(struct Thing *thing)
 
 void turn_off_power_call_to_arms(PlayerNumber plyr_idx)
 {
-    //_DK_turn_off_call_to_arms(plyr_idx);
     if (!player_uses_power_call_to_arms(plyr_idx)) {
         return;
     }

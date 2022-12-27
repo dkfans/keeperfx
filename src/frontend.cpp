@@ -100,6 +100,7 @@ extern void __stdcall enum_sessions_callback(struct TbNetworkCallbackData *netcd
 /******************************************************************************/
 TbClockMSec gui_message_timeout = 0;
 char gui_message_text[TEXT_BUFFER_LENGTH];
+static char path_string[178];
 
 struct GuiButtonInit frontend_main_menu_buttons[] = {
   { 0,  0, 0, 0, NULL,               NULL,        NULL,                 0, 999,  26, 999,  26, 371, 46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,       {1},            0, NULL },
@@ -680,7 +681,6 @@ TbBool get_button_area_input(struct GuiButton *gbtn, int modifiers)
     TbKeyCode key;
     unsigned short outchar;
     TbLocChar vischar[4];
-    //return _DK_get_button_area_input(gbtn, a2);
     strcpy(vischar," ");
     str = (char *)gbtn->content;
     key = lbInkey;
@@ -791,7 +791,6 @@ void maintain_zoom_to_event(struct GuiButton *gbtn)
 void maintain_scroll_up(struct GuiButton *gbtn)
 {
     struct TextScrollWindow * scrollwnd;
-    //_DK_maintain_scroll_up(gbtn);
     scrollwnd = (struct TextScrollWindow *)gbtn->content;
     gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * (scrollwnd->start_y < 0)) & LbBtnF_Enabled;
     if (!check_current_gui_layer(GuiLayer_OneClick))
@@ -806,7 +805,6 @@ void maintain_scroll_up(struct GuiButton *gbtn)
 void maintain_scroll_down(struct GuiButton *gbtn)
 {
     struct TextScrollWindow * scrollwnd;
-    //_DK_maintain_scroll_down(gbtn);
     scrollwnd = (struct TextScrollWindow *)gbtn->content;
     gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled
         * (scrollwnd->window_height - scrollwnd->text_height + 2 < scrollwnd->start_y)) & LbBtnF_Enabled;
@@ -882,7 +880,6 @@ TbResult frontend_load_data(void)
     char *fname;
     TbResult ret;
     long len;
-    //return _DK_frontend_load_data();
     ret = Lb_SUCCESS;
     wait_for_cd_to_be_available();
     frontend_background = (unsigned char *)game.map;
@@ -1285,7 +1282,6 @@ void frontend_draw_slider(struct GuiButton *gbtn)
 
 void frontend_draw_small_slider(struct GuiButton *gbtn)
 {
-    //_DK_frontend_draw_small_slider(gbtn);
     if ((gbtn->flags & LbBtnF_Enabled) == 0) {
         return;
     }
@@ -1367,7 +1363,6 @@ void gui_area_text(struct GuiButton *gbtn)
 
 void frontend_init_options_menu(struct GuiMenu *gmnu)
 {
-    //_DK_frontend_init_options_menu(gmnu);
     music_level_slider = make_audio_slider_linear(settings.redbook_volume);
     sound_level_slider = make_audio_slider_linear(settings.sound_volume);
     mentor_level_slider = make_audio_slider_linear(settings.mentor_volume);
@@ -1431,7 +1426,6 @@ void frontend_change_state(struct GuiButton *gbtn)
 
 void frontend_draw_enter_text(struct GuiButton *gbtn)
 {
-    //_DK_frontend_draw_enter_text(gbtn); return;
     int font_idx;
     font_idx = 1;
     if (gbtn == input_button) {
@@ -1466,7 +1460,6 @@ void frontend_draw_enter_text(struct GuiButton *gbtn)
 
 void frontend_draw_small_menu_button(struct GuiButton *gbtn)
 {
-    //_DK_frontend_draw_small_menu_button(gbtn);
     const char *text;
     text = frontend_button_caption_text(gbtn);
     frontend_draw_button(gbtn, 0, text, Lb_TEXT_HALIGN_CENTER);
@@ -1474,7 +1467,6 @@ void frontend_draw_small_menu_button(struct GuiButton *gbtn)
 
 void frontend_toggle_computer_players(struct GuiButton *gbtn)
 {
-    //_DK_frontend_toggle_computer_players(gbtn);
     struct ScreenPacket *nspck;
     nspck = &net_screen_packet[my_player_number];
     if ((nspck->field_4 & 0xF8) == 0)
@@ -1486,7 +1478,6 @@ void frontend_toggle_computer_players(struct GuiButton *gbtn)
 
 void frontend_draw_computer_players(struct GuiButton *gbtn)
 {
-    //_DK_frontend_draw_computer_players(gbtn);
     int font_idx;
     font_idx = frontend_button_caption_font(gbtn,frontend_mouse_over_button);
     LbTextSetFont(frontend_font[font_idx]);
@@ -1510,7 +1501,6 @@ void frontend_draw_computer_players(struct GuiButton *gbtn)
 
 void set_packet_start(struct GuiButton *gbtn)
 {
-    //_DK_set_packet_start(gbtn);
     struct ScreenPacket *nspck;
     nspck = &net_screen_packet[my_player_number];
     if ((nspck->field_4 & 0xF8) == 0)
@@ -1608,7 +1598,6 @@ void gui_area_scroll_window(struct GuiButton *gbtn)
 {
     struct TextScrollWindow *scrollwnd;
     char *text;
-    //_DK_gui_area_scroll_window(gbtn); return;
     if ((gbtn->flags & LbBtnF_Enabled) == 0) {
         return;
     }
@@ -1623,7 +1612,6 @@ void gui_area_scroll_window(struct GuiButton *gbtn)
 
 void gui_go_to_event(struct GuiButton *gbtn)
 {
-    //_DK_gui_go_to_event(gbtn);
     struct PlayerInfo *player;
     struct Dungeon *dungeon;
     player = get_my_player();
@@ -1635,7 +1623,6 @@ void gui_go_to_event(struct GuiButton *gbtn)
 
 void gui_close_objective(struct GuiButton *gbtn)
 {
-    //_DK_gui_close_objective(gbtn); return;
     struct PlayerInfo *player;
     player = get_my_player();
     set_players_packet_action(player, PckA_EventBoxClose, 0, 0, 0, 0);
@@ -1647,7 +1634,6 @@ void gui_close_objective(struct GuiButton *gbtn)
 
 void gui_scroll_text_up(struct GuiButton *gbtn)
 {
-    //_DK_gui_scroll_text_up(gbtn);
     struct TextScrollWindow *scroll_window;
     scroll_window = (struct TextScrollWindow *)gbtn->content;
     scroll_window->action = 1;
@@ -1655,7 +1641,6 @@ void gui_scroll_text_up(struct GuiButton *gbtn)
 
 void gui_scroll_text_down(struct GuiButton *gbtn)
 {
-    //_DK_gui_scroll_text_down(gbtn);
     struct TextScrollWindow *scroll_window;
     scroll_window = (struct TextScrollWindow *)gbtn->content;
     scroll_window->action = 2;
@@ -1846,7 +1831,6 @@ void frontend_load_game_maintain(struct GuiButton *gbtn)
 void do_button_click_actions(struct GuiButton *gbtn, unsigned char *s, Gf_Btn_Callback callback)
 {
     SYNCDBG(9,"Starting for button type %d",(int)gbtn->gbtype);
-    //_DK_do_button_click_actions(gbtn, s, callback);
     if (gbtn->gbtype == LbBtnT_RadioBtn)
     {
         //TODO: pointers comparison should be avoided
@@ -2039,7 +2023,6 @@ int create_button(struct GuiMenu *gmnu, struct GuiButtonInit *gbinit, int units_
     struct GuiButton *gbtn;
     int gidx;
     long i;
-    //gidx = _DK_create_button(gmnu, gbinit);
     gidx = guibutton_get_unused_slot();
     if (gidx == -1) {
         // No free buttons
@@ -2514,14 +2497,31 @@ void reinit_all_menus(void)
     set_gui_visible(visible);
 }
 
+char *mdlf_for_cd(struct TbLoadFiles * tb_load_files)
+{
+    TbLoadFiles *result; // eax
+    result = tb_load_files;
+    if ( tb_load_files->FName[0] != 42 )
+    {
+        sprintf(path_string, "%s\\%s", install_info.inst_path, tb_load_files->FName);
+        return path_string;
+    }
+    return result->FName;
+}
+
+char *mdlf_default(struct TbLoadFiles * tb_load_files)
+{
+    return tb_load_files->FName;
+}
+
 void frontend_load_data_from_cd(void)
 {
-    LbDataLoadSetModifyFilenameFunction(_DK_mdlf_for_cd);
+    LbDataLoadSetModifyFilenameFunction(mdlf_for_cd);
 }
 
 void frontend_load_data_reset(void)
 {
-  LbDataLoadSetModifyFilenameFunction(_DK_mdlf_default);
+  LbDataLoadSetModifyFilenameFunction(mdlf_default);
 }
 
 void initialise_tab_tags(MenuID menu_id)
@@ -3028,7 +3028,6 @@ void draw_defining_a_key_box(void)
 
 char update_menu_fade_level(struct GuiMenu *gmnu)
 {
-    //return _DK_update_menu_fade_level(gmnu);
     int i;
     switch (gmnu->visual_state)
     {
@@ -3413,7 +3412,6 @@ void update_player_objectives(PlayerNumber plyr_idx)
 
 void display_objectives(PlayerNumber plyr_idx, long x, long y)
 {
-    //_DK_display_objectives(plyr_idx,x,y);
     long cor_x;
     long cor_y;
     cor_y = 0;

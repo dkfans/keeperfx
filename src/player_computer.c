@@ -436,7 +436,6 @@ long computer_finds_nearest_room_to_gold(struct Computer2 *comp, struct Coord3d 
 
 long count_creatures_availiable_for_fight(struct Computer2 *comp, struct Coord3d *pos)
 {
-    //return _DK_count_creatures_availiable_for_fight(comp, pos);
     SYNCDBG(8,"Starting");
     struct Dungeon* dungeon = comp->dungeon;
     unsigned long count = 0;
@@ -1122,7 +1121,6 @@ long count_creatures_for_defend_pickup(struct Computer2 *comp)
  */
 TbBool computer_find_non_solid_block(const struct Computer2 *comp, struct Coord3d *pos)
 {
-    //return _DK_computer_find_non_solid_block(comp, pos);
     for (unsigned long n = 0; n < MID_AROUND_LENGTH; n++)
     {
         MapSubtlCoord arstl_x = pos->x.stl.num + STL_PER_SLB * start_at_around[n].delta_x;
@@ -1150,7 +1148,6 @@ TbBool computer_find_non_solid_block(const struct Computer2 *comp, struct Coord3
  */
 TbBool computer_find_safe_non_solid_block(const struct Computer2* comp, struct Coord3d* pos)
 {
-    //return _DK_computer_find_non_solid_block(comp, pos);
     for (unsigned long n = 0; n < LARGE_AROUND_LIMITED; n++)
     {
         MapSubtlCoord arstl_x = pos->x.stl.num + STL_PER_SLB * large_around[n].delta_x;

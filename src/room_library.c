@@ -285,7 +285,6 @@ TbBool update_or_add_players_research_amount(PlayerNumber plyr_idx, long rtyp, l
 
 void process_player_research(PlayerNumber plyr_idx)
 {
-    //_DK_process_player_research(plyr_idx); return;
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
     struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
     if (!player_has_room_of_role(plyr_idx, RoRoF_Research)) {

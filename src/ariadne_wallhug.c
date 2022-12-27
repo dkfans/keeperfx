@@ -1680,7 +1680,6 @@ long get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *cr
         cctrl->combat_flags = 0;
     }
     crt_owner_bit |= (1 << creatng->owner);
-    //return _DK_get_next_position_and_angle_required_to_tunnel_creature_to(creatng, pos, a3);
     MapSubtlCoord stl_x;
     MapSubtlCoord stl_y;
     SubtlCodedCoords stl_num;

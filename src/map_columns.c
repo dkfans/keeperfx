@@ -434,7 +434,6 @@ void clear_columns(void)
 
 void init_columns(void)
 {
-    //_DK_init_columns();
     int i;
     for (i=1; i < COLUMNS_COUNT; i++)
     {
@@ -519,7 +518,6 @@ void init_whole_blocks(void)
 
 void init_top_texture_to_cube_table(void)
 {
-    //_DK_init_top_texture_to_cube_table();
     LbMemorySet(game.field_14BB65, 0, sizeof(game.field_14BB65));
     int n;
     for (n=1; n < 592; n++)

@@ -52,7 +52,7 @@ void frontstory_load(void)
         ERRORLOG("Unable to Load FRONT STORY FILES");
     } else
     {
-        LbDataLoadSetModifyFilenameFunction(_DK_mdlf_default);
+        LbDataLoadSetModifyFilenameFunction(mdlf_default);
         LbSpriteSetupAll(frontstory_setup_sprites);
         LbPaletteSet(frontend_palette);
 #if AUTOTESTING

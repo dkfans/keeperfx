@@ -48,7 +48,6 @@ extern "C" {
 /******************************************************************************/
 struct Thing *create_creature_at_entrance(struct Room * room, ThingModel crkind)
 {
-    //return _DK_create_creature_at_entrance(room, crtr_kind);
     struct Coord3d pos;
     pos.x.val = room->central_stl_x;
     pos.y.val = room->central_stl_y;
@@ -367,7 +366,6 @@ void generate_creature_for_dungeon(struct Dungeon * dungeon)
 void process_entrance_generation(void)
 {
     SYNCDBG(8,"Starting");
-    //_DK_process_entrance_generation();
 
     if (generation_due_in_game())
     {

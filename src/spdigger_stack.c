@@ -182,7 +182,6 @@ TbBool imp_will_soon_be_working_at_excluding(const struct Thing *creatng, MapSub
 {
     SYNCDBG(19,"Starting");
     TRACE_THING(thing);
-    //return _DK_imp_will_soon_be_working_at_excluding(creatng, stl_x, stl_y);
     struct Coord3d pos2;
     pos2.x.val = subtile_coord_center(stl_x);
     pos2.y.val = subtile_coord_center(stl_y);
@@ -1365,7 +1364,6 @@ long add_to_reinforce_stack_if_need_to(long slb_x, long slb_y, struct Dungeon *d
 
 long add_to_pretty_to_imp_stack_if_need_to(long slb_x, long slb_y, struct Dungeon *dungeon, int *remain_num)
 {
-    //return _DK_add_to_pretty_to_imp_stack_if_need_to(slb_x, slb_y, dungeon);
     MapSubtlCoord stl_x;
     MapSubtlCoord stl_y;
     stl_x = slab_subtile_center(slb_x);
@@ -1747,7 +1745,6 @@ struct Thing *get_next_unclaimed_gold_thing_pickable_by_digger(PlayerNumber owne
 
 int add_unclaimed_gold_to_imp_stack(struct Dungeon *dungeon, int max_tasks)
 {
-    //return _DK_add_unclaimed_gold_to_imp_stack(dungeon);
     struct Room *room;
     room = find_room_of_role_with_spare_capacity(dungeon->owner, RoRoF_GoldStorage, 1);
     if (room_is_invalid(room)) {

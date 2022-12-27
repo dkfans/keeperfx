@@ -73,7 +73,6 @@ void setup_texture_block_mem(void)
 short init_animating_texture_maps(void)
 {
     SYNCDBG(8,"Starting");
-    //_DK_init_animating_texture_maps(); return;
     anim_counter = TEXTURE_BLOCKS_ANIM_FRAMES-1;
     return update_animating_texture_maps();
 }
@@ -107,7 +106,6 @@ short update_animating_texture_maps(void)
 long load_texture_anim_file(void)
 {
     SYNCDBG(8,"Starting");
-    //return _DK_load_anim_file();
     char* fname = prepare_file_path(FGrp_StdData, "tmapanim.dat");
     SYNCDBG(0,"Reading animated tmap file \"%s\".",fname);
     if (LbFileLoadAt(fname, game.texture_animation) != sizeof(game.texture_animation))

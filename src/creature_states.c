@@ -2736,7 +2736,6 @@ short creature_search_for_spell_to_steal_in_room(struct Thing *creatng)
 
 short creature_set_work_room_based_on_position(struct Thing *creatng)
 {
-    //return _DK_creature_set_work_room_based_on_position(thing);
     return 1;
 }
 
@@ -3077,7 +3076,6 @@ TbBool is_creature_other_than_given_waiting_at_closed_door_on_subtile(MapSubtlCo
 
 short creature_wait_at_treasure_room_door(struct Thing *creatng)
 {
-    //return _DK_creature_wait_at_treasure_room_door(creatng);
     MapSubtlCoord base_stl_x = creatng->mappos.x.stl.num;
     MapSubtlCoord base_stl_y = creatng->mappos.y.stl.num;
     struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
@@ -3598,7 +3596,6 @@ CrCheckRet move_check_persuade(struct Thing *creatng)
 
 CrCheckRet move_check_wait_at_door_for_wage(struct Thing *creatng)
 {
-  // return _DK_move_check_wait_at_door_for_wage(creatng);
   struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
   struct Thing *doortng;
   struct Room *room;
@@ -3688,7 +3685,6 @@ TbBool go_to_random_area_near_xy(struct Thing *creatng, MapSubtlCoord bstl_x, Ma
 
 short patrol_here(struct Thing *creatng)
 {
-    //return _DK_patrol_here(creatng);
     MapSubtlCoord bstl_y = creatng->mappos.y.stl.num;
     MapSubtlCoord bstl_x = creatng->mappos.x.stl.num;
     if (!go_to_random_area_near_xy(creatng, bstl_x, bstl_y))
@@ -3912,7 +3908,6 @@ TbBool creature_job_in_room_no_longer_possible_f(const struct Room *room, Creatu
 
 void create_effect_around_thing(struct Thing *thing, long eff_kind)
 {
-    //_DK_create_effect_around_thing(thing, eff_kind);
     int tng_radius = (thing->clipbox_size_xy >> 1);
     MapCoord coord_x_beg = (MapCoord)thing->mappos.x.val - tng_radius;
     if (coord_x_beg < 0)
@@ -5100,7 +5095,6 @@ void process_person_moods_and_needs(struct Thing *thing)
 
 TbBool setup_move_off_lava(struct Thing* thing)
 {
-    //return _DK_setup_move_off_lava(thing);
     MapSlabCoord slb_x;
     MapSlabCoord slb_y;
     slb_x = subtile_slab(thing->mappos.x.stl.num);
@@ -5152,7 +5146,6 @@ TbBool setup_move_off_lava(struct Thing* thing)
 #define CAVE_IN_NEAR_FLEE_POSITION 200
 TbBool setup_move_out_of_cave_in(struct Thing* thing)
 {
-    // return _DK_setup_move_out_of_cave_in(thing);
     MapSlabCoord bx = 0;
     MapSlabCoord by = 0;
     MapSubtlCoord cx = 0;
