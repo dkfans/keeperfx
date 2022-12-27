@@ -4987,13 +4987,6 @@ long claim_room(struct Room *room, struct Thing *claimtng)
     do_room_integration(room);
     thing_play_sample(claimtng, 116, NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
     output_room_takeover_message(room, oldowner, claimtng->owner);
-    if (room_role_matches(room->kind, RoRoF_CrGuard))
-    {
-        if (oldowner == game.hero_player_num)
-        {
-            create_guard_post_flags(room);
-        }
-    }
     return 1;
 }
 
