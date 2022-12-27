@@ -92,6 +92,9 @@ struct GuiLayer gui_layer = {GuiLayer_Default};
 
 TbBool first_person_see_item_desc = false;
 
+long old_mx;
+long old_my;
+
 /******************************************************************************/
 void get_dungeon_control_nonaction_inputs(void);
 void get_creature_control_nonaction_inputs(void);

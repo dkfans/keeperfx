@@ -73,47 +73,21 @@ struct ScreenPacket { // sizeof = 12
 };
 
 /******************************************************************************/
-DLLIMPORT extern TbClockMSec _DK_play_desc_speech_time;
-#define play_desc_speech_time _DK_play_desc_speech_time
-DLLIMPORT extern unsigned long _DK_played_bad_descriptive_speech;
-#define played_bad_descriptive_speech _DK_played_bad_descriptive_speech
-DLLIMPORT extern unsigned long _DK_played_good_descriptive_speech;
-#define played_good_descriptive_speech _DK_played_good_descriptive_speech
-DLLIMPORT extern TbSpriteData _DK_map_flag_data;
-#define map_flag_data _DK_map_flag_data
-DLLIMPORT extern unsigned long _DK_end_map_flag_data;
-#define end_map_flag_data _DK_end_map_flag_data
-DLLIMPORT extern TbSpriteData _DK_map_font_data;
-DLLIMPORT extern unsigned long _DK_end_map_font_data;
-DLLIMPORT extern TbSpriteData _DK_map_hand_data;
-DLLIMPORT extern unsigned long _DK_end_map_hand_data;
-DLLIMPORT extern struct TbSprite *_DK_map_flag;
-#define map_flag _DK_map_flag
-DLLIMPORT extern struct TbSprite *_DK_end_map_flag;
-#define end_map_flag _DK_end_map_flag
-DLLIMPORT extern struct TbSprite *_DK_map_font;
-#define map_font _DK_map_font
-DLLIMPORT extern struct TbSprite *_DK_end_map_font;
-DLLIMPORT extern struct TbSprite *_DK_map_hand;
-#define map_hand _DK_map_hand
-DLLIMPORT extern struct TbSprite *_DK_end_map_hand;
-DLLIMPORT extern struct MapLevelInfo _DK_map_info;
-DLLIMPORT extern long _DK_map_sound_fade;
-#define map_sound_fade _DK_map_sound_fade
-DLLIMPORT extern unsigned char *_DK_map_screen;
-#define map_screen _DK_map_screen
-DLLIMPORT extern long *_DK_window_y_offset;
-DLLIMPORT extern unsigned char *_DK_map_window;
-DLLIMPORT extern struct TbSetupSprite _DK_map_flag_setup_sprites[];
-DLLIMPORT extern struct TbSetupSprite _DK_netmap_flag_setup_sprites[];
-DLLIMPORT extern long _DK_fe_net_level_selected;
-#define fe_net_level_selected _DK_fe_net_level_selected
-DLLIMPORT extern long _DK_net_map_limp_time;
-#define net_map_limp_time _DK_net_map_limp_time
-DLLIMPORT extern struct ScreenPacket _DK_net_screen_packet[4];
-#define net_screen_packet _DK_net_screen_packet
-DLLIMPORT extern long _DK_players_currently_in_session;
-#define players_currently_in_session _DK_players_currently_in_session
+extern TbClockMSec play_desc_speech_time;
+extern unsigned long played_bad_descriptive_speech;
+extern unsigned long played_good_descriptive_speech;
+extern TbSpriteData map_flag_data;
+extern unsigned long end_map_flag_data;
+extern struct TbSprite *map_flag;
+extern struct TbSprite *end_map_flag;
+extern struct TbSprite *map_font;
+extern struct TbSprite *map_hand;
+extern long map_sound_fade;
+extern unsigned char *map_screen;
+extern long fe_net_level_selected;
+extern long net_map_limp_time;
+extern struct ScreenPacket net_screen_packet[4];
+extern long players_currently_in_session;
 
 #pragma pack()
 /******************************************************************************/
