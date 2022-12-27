@@ -5155,10 +5155,13 @@ void create_guard_post_flags(struct Room *room)
         while (tng_id != 0)
         {
             thing = thing_get(tng_id);
-            if ( (thing_is_object(thing)) && (object_is_guard_flag(thing)) )
+            if (thing_is_object(thing))
             {
-                found_flag = true;
-                break;
+                if (object_is_guard_flag(thing))
+                {
+                    found_flag = true;
+                    break;
+                }
             }
             tng_id = thing->next_on_mapblk;
         }
