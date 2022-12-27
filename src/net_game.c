@@ -46,8 +46,6 @@ DLLIMPORT struct _GUID _DK_net_guid;
 #define net_guid _DK_net_guid
 DLLIMPORT int _DK_noOfEnumeratedDPlayServices;
 #define noOfEnumeratedDPlayServices _DK_noOfEnumeratedDPlayServices
-DLLIMPORT struct _GUID _DK_clientGuidTable[];
-#define clientGuidTable _DK_clientGuidTable
 /******************************************************************************/
 long number_of_comports;
 long number_of_speeds;

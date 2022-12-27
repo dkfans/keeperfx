@@ -57,7 +57,9 @@ extern "C" {
 #endif
 /******************************************************************************/
 
-long const dig_pos[] = {0, -1, 1};
+static long const dig_pos[] = {0, -1, 1};
+static long r_stackpos;
+static struct DiggerStack reinforce_stack[DIGGER_TASK_MAX_COUNT];
 
 /******************************************************************************/
 /**
