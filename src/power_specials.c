@@ -59,6 +59,12 @@ extern "C" {
 }
 #endif
 /******************************************************************************/
+long transfer_creature_scroll_offset;
+long resurrect_creature_scroll_offset;
+unsigned short dungeon_special_selected;
+struct SpecialDesc special_desc[8];
+/******************************************************************************/
+
 /**
  * Makes a bonus level for current SP level visible on the land map screen.
  */
