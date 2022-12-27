@@ -239,8 +239,7 @@ struct LevelScript {
 };
 
 /******************************************************************************/
-DLLIMPORT unsigned char _DK_next_command_reusable;
-#define next_command_reusable _DK_next_command_reusable
+extern unsigned char next_command_reusable;
 
 
 #pragma pack()
