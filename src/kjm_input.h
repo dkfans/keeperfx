@@ -67,6 +67,7 @@ extern long right_button_clicked_y;
 extern long right_button_clicked_x;
 extern char left_button_held;
 
+//doesn't actually need to still be in dll, just need 1 remaining DLLIMPORT so DLL is still loaded
 //extern long key_to_string[256];
 DLLIMPORT long _DK_key_to_string[256];
 #define key_to_string _DK_key_to_string

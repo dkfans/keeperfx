@@ -73,6 +73,7 @@ long right_button_clicked_y;
 long right_button_clicked_x;
 char left_button_held;
 
+//reactivate when a way around the dll load problem is found
 //long key_to_string[256];
 
 /** Initialization array, used to create array which stores index of text name of keyboard keys. */
