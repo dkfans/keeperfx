@@ -54,24 +54,21 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT extern long _DK_torture_left_button;
-#define torture_left_button _DK_torture_left_button
-DLLIMPORT extern long _DK_torture_sprite_direction;
-#define torture_sprite_direction _DK_torture_sprite_direction
-DLLIMPORT extern long _DK_torture_end_sprite;
-#define torture_end_sprite _DK_torture_end_sprite
-DLLIMPORT extern long _DK_torture_sprite_frame;
-#define torture_sprite_frame _DK_torture_sprite_frame
-DLLIMPORT extern long _DK_torture_door_selected;
-#define torture_door_selected _DK_torture_door_selected
-DLLIMPORT extern struct DoorSoundState _DK_door_sound_state[TORTURE_DOORS_COUNT];
-#define door_sound_state _DK_door_sound_state
-DLLIMPORT extern struct TortureState _DK_torture_state;
-#define torture_state _DK_torture_state
-DLLIMPORT extern unsigned char *_DK_torture_background;
-#define torture_background _DK_torture_background
-DLLIMPORT extern unsigned char *_DK_torture_palette;
-#define torture_palette _DK_torture_palette
+static long torture_left_button;
+static long torture_sprite_direction;
+static long torture_end_sprite;
+static long torture_sprite_frame;
+static long torture_door_selected;
+static struct DoorSoundState door_sound_state[TORTURE_DOORS_COUNT];
+static struct TortureState torture_state;
+static unsigned char *torture_background;
+static unsigned char *torture_palette;
+
+extern struct DoorDesc doors[TORTURE_DOORS_COUNT];
+extern struct TbSprite *fronttor_sprites;
+extern struct TbSprite *fronttor_end_sprites;
+extern unsigned char *fronttor_data;
+extern unsigned char * fronttor_end_data;
 /******************************************************************************/
 extern struct TbLoadFiles torture_load_files[];
 extern struct TbSetupSprite setup_torture_sprites[];

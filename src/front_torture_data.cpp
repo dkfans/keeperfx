@@ -29,6 +29,24 @@
 extern "C" {
 #endif
 /******************************************************************************/
+
+struct DoorDesc doors[TORTURE_DOORS_COUNT] = {
+  {102,  13, 102,  20,  97, 155, 0, 0, 0, 0, 200},
+  {253,   0, 257,   0, 103, 118, 0, 0, 0, 0, 201},
+  {399,   0, 413,   0, 114, 144, 0, 0, 0, 0, 202},
+  {511,  65, 546,  85,  94, 160, 0, 0, 0, 0, 203},
+  {149, 211, 153, 232,  55,  84, 0, 0, 0, 0, 204},
+  {258, 176, 262, 178,  60,  84, 0, 0, 0, 0, 205},
+  {364, 183, 375, 191,  70,  95, 0, 0, 0, 0, 206},
+  {466, 257, 473, 261,  67,  94, 0, 0, 0, 0, 207},
+  {254, 368, 260, 391, 128,  80, 0, 0, 0, 0, 208},
+};
+struct TbSprite *fronttor_sprites;
+struct TbSprite *fronttor_end_sprites;
+unsigned char *fronttor_data;
+unsigned char * fronttor_end_data;
+
+/******************************************************************************/
 struct TbLoadFiles torture_load_files[] = {
   {"ldata/fronttor.tab", (unsigned char **)&fronttor_sprites, (unsigned char **)&fronttor_end_sprites, 0, 0, 0},
   {"ldata/fronttor.dat", (unsigned char **)&fronttor_data,    (unsigned char **)&fronttor_end_data,    0, 0, 0},

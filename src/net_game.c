@@ -41,12 +41,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-/******************************************************************************/
-DLLIMPORT struct _GUID _DK_net_guid;
-#define net_guid _DK_net_guid
-DLLIMPORT int _DK_noOfEnumeratedDPlayServices;
-#define noOfEnumeratedDPlayServices _DK_noOfEnumeratedDPlayServices
-/******************************************************************************/
 long number_of_comports;
 long number_of_speeds;
 long net_comport_scroll_offset;

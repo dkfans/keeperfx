@@ -84,6 +84,7 @@ unsigned char smooth_on;
 static unsigned char * map_fade_ghost_table;
 static unsigned char * map_fade_dest;
 static unsigned char * map_fade_src;
+static long draw_spell_cost;
 /******************************************************************************/
 static void draw_creature_view_icons(struct Thing* creatng)
 {
