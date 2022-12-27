@@ -5170,7 +5170,7 @@ void create_guard_post_flags(struct Room *room)
             struct Coord3d pos;
             pos.x.val = subtile_coord(stl_x, 128);
             pos.y.val = subtile_coord(stl_y, 128);
-            pos.z.val = get_floor_height_at(&pos);
+            pos.z.val = get_floor_height(stl_x, stl_y);
             thing = create_guard_flag_object(&pos, room->owner, slb_num);
             if (thing_is_invalid(thing))
             {
