@@ -22,9 +22,10 @@
 #include "bflib_video.h"
 
 #include "bflib_mouse.h"
-#include "bflib_vidsurface.h"
+#include "bflib_render.h"
 #include "bflib_sprfnt.h"
-#include "bflib_inputctrl.h"
+#include "bflib_vidsurface.h"
+
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_syswm.h>
 #include <math.h>
@@ -552,6 +553,8 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
         if (msspr != NULL)
           LbMouseChangeSpriteAndHotspot(msspr, hot_x, hot_y);
     }
+
+    setup_bflib_render(lbDisplay.GraphicsScreenWidth, lbDisplay.GraphicsScreenHeight);
     SYNCDBG(8,"Finished");
     return Lb_SUCCESS;
 }
@@ -686,6 +689,7 @@ TbResult LbScreenReset(void)
         SDL_FreeSurface(lbDrawSurface);
     }
     //do not free screen surface, it is freed automatically on SDL_Quit or next call to set video mode
+    finish_bflib_render();
     lbHasSecondSurface = false;
     lbDrawSurface = NULL;
     lbScreenSurface = NULL;
@@ -737,7 +741,7 @@ TbResult LbScreenSetGraphicsWindow(long x, long y, long width, long height)
     long i;
     long x2 = x + width;
     long y2 = y + height;
-    if (x2 < x)
+    if (x2 < x)  //Alarm! Voodoo magic detected!
     {
         i = (x ^ x2);
         x = x ^ i;
