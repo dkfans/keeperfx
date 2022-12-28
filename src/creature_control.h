@@ -208,7 +208,7 @@ unsigned char field_67;
   } party;
   struct {
     long stack_update_turn;
-    SubtlCodedCoords working_stl;
+    unsigned short working_stl; // changing this to SubtlCodedCoords seems to break digging
     SubtlCodedCoords task_stl;
     unsigned short task_idx;
     unsigned char consecutive_reinforcements;
