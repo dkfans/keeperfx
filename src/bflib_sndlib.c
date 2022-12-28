@@ -187,13 +187,22 @@ int __stdcall SetupAudioOptionDefaults(void *i)
     return ((FARPROCP)proc)(i);
 }
 
-int __stdcall PlayStreamedSample(char *fname, int a2, int a3, int a4)
+int __stdcall PlayStreamedSample(char *fname, int sample_type, int a3, int a4)
 {
+    /*
+    Possible sample types:
+    811 - no playback
+    822 - no playback
+    844 - no playback
+    1611 - slow playback
+    1622 - normal speed
+    1644 - fast playback
+    */
     HMODULE hModule=LoadLibrary("WSND7R");
     FARPROC proc = GetProcAddress(hModule, "_PlayStreamedSample@16");
     if (proc==NULL)
     { ERRORLOG("Can't get address of PlayStreamedSample function; skipped."); return 0; }
-    return ((FARPROCSIII)proc)(fname, a2, a3, a4);
+    return ((FARPROCSIII)proc)(fname, sample_type, a3, a4);
 }
 
 int __stdcall IsSamplePlaying(int a1, int a2, int a3)

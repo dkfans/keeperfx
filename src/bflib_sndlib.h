@@ -71,7 +71,7 @@ int __stdcall StopAllSamples(void);
 struct SampleInfo * __stdcall GetFirstSampleInfoStructure(void);
 int __stdcall InitAudio(void *);
 int __stdcall SetupAudioOptionDefaults(void *);
-int __stdcall PlayStreamedSample(char *fname, int a2, int a3, int a4);
+int __stdcall PlayStreamedSample(char *fname, int sample_type, int a3, int a4);
 int __stdcall IsSamplePlaying(int a1, int a2, int a3);
 int __stdcall StopStreamedSample(void);
 int __stdcall StreamedSampleFinished(void);
