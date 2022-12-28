@@ -204,7 +204,7 @@ unsigned char sound_flag;
   } party;
   struct {
     long stack_update_turn;
-    unsigned short working_stl; // changing this to SubtlCodedCoords seems to break digging
+    SubtlCodedCoords working_stl;
     SubtlCodedCoords task_stl;
     unsigned short task_idx;
     unsigned char consecutive_reinforcements;
