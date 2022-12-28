@@ -70,10 +70,10 @@ TbBool has_available_enemy_dungeon_heart(struct Thing *thing, PlayerNumber plyr_
 {
     SYNCDBG(18,"Starting");
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    if ((cctrl->byte_8C != 0) || (cctrl->byte_8B != 0))
+    if ((cctrl->hero.byte_8C != 0) || (cctrl->hero.byte_8B != 0))
     {
-        cctrl->byte_8C = 0;
-        cctrl->byte_8B = 0;
+        cctrl->hero.byte_8C = 0;
+        cctrl->hero.byte_8B = 0;
     }
     // Try accessing dungeon heart of undefeated enemy players
     if (!player_is_friendly_or_defeated(plyr_idx, thing->owner) && (creature_can_get_to_dungeon_heart(thing, plyr_idx)))
@@ -87,10 +87,10 @@ TbBool has_available_rooms_to_attack(struct Thing* thing, PlayerNumber plyr_idx)
 {
     SYNCDBG(18, "Starting");
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    if ((cctrl->byte_8C != 0) || (cctrl->byte_8B != 0))
+    if ((cctrl->hero.byte_8C != 0) || (cctrl->hero.byte_8B != 0))
     {
-        cctrl->byte_8C = 0;
-        cctrl->byte_8B = 0;
+        cctrl->hero.byte_8C = 0;
+        cctrl->hero.byte_8B = 0;
     }
     if (players_are_enemies(thing->owner, plyr_idx) && creature_can_get_to_any_of_players_rooms(thing, plyr_idx))
     {
@@ -858,7 +858,7 @@ short good_doing_nothing(struct Thing *creatng)
         }
         if ((player->victory_state != VicS_LostLevel) && players_are_enemies(creatng->owner, target_plyr_idx))
         {
-            nturns = game.play_gameturn - cctrl->long_91;
+            nturns = game.play_gameturn - cctrl->hero.long_91;
             if (nturns > 400)
             {
                 // Go to the previously chosen dungeon
@@ -882,8 +882,8 @@ short good_doing_nothing(struct Thing *creatng)
             } else
             {
                 // Value lower than 0 would mean it is invalid
-                WARNLOG("Invalid wait time detected for %s index %d, value %ld",thing_model_name(creatng),(int)creatng->index,(long)cctrl->long_91);
-                cctrl->long_91 = 0;
+                WARNLOG("Invalid wait time detected for %s index %d, value %ld",thing_model_name(creatng),(int)creatng->index,(long)cctrl->hero.long_91);
+                cctrl->hero.long_91 = 0;
             }
         } else
         {
@@ -903,16 +903,16 @@ short good_doing_nothing(struct Thing *creatng)
     }
     if (target_plyr_idx == -1)
     {
-        nturns = game.play_gameturn - cctrl->long_91;
+        nturns = game.play_gameturn - cctrl->hero.long_91;
         if (nturns > 400)
         {
-            cctrl->long_91 = game.play_gameturn;
-            cctrl->byte_8C = 1;
+            cctrl->hero.long_91 = game.play_gameturn;
+            cctrl->hero.byte_8C = 1;
         }
-        nturns = game.play_gameturn - cctrl->long_8D;
+        nturns = game.play_gameturn - cctrl->hero.long_8D;
         if (nturns > 64)
         {
-            cctrl->long_8D = game.play_gameturn;
+            cctrl->hero.long_8D = game.play_gameturn;
             cctrl->party.target_plyr_idx = good_find_best_enemy_dungeon(creatng);
         }
         target_plyr_idx = cctrl->party.target_plyr_idx;
@@ -972,7 +972,7 @@ short good_leave_through_exit_door(struct Thing *thing)
         erstat_inc(ESE_BadCreatrState);
         return false;
     }
-    struct Thing* tmptng = find_base_thing_on_mapwho(TCls_Object, 49, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
+    struct Thing* tmptng = find_base_thing_on_mapwho(TCls_Object, 49, thing->mappos.x.stl.num, thing->mappos.y.stl.num); //49 = hero gate
     if (thing_is_invalid(tmptng))
     {
         return 0;
@@ -980,7 +980,7 @@ short good_leave_through_exit_door(struct Thing *thing)
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     thing->creature.gold_carried = 0;
     cctrl->countdown_282 = game.hero_door_wait_time;
-    cctrl->byte_8A = tmptng->creation_turn;
+    cctrl->hero.hero_gate_creation_turn = tmptng->creation_turn;
     struct Thing* dragtng = thing_get(cctrl->dragtng_idx);
     if (cctrl->dragtng_idx != 0)
     {
@@ -1034,7 +1034,7 @@ short good_wait_in_exit_door(struct Thing *thing)
         struct Thing* tmptng = find_base_thing_on_mapwho(TCls_Object, 49, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
         if (!thing_is_invalid(tmptng))
         {
-            if (cctrl->byte_8A == tmptng->creation_turn)
+            if (cctrl->hero.hero_gate_creation_turn == tmptng->creation_turn)
             {
                 remove_thing_from_creature_controlled_limbo(thing);
                 set_start_state(thing);

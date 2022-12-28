@@ -1996,7 +1996,6 @@ static void set_creature_configuration_process(struct ScriptContext* context)
         break;
     }
     check_and_auto_fix_stats();
-    creature_stats_updated(creatid);
 }
 
 static void set_object_configuration_process(struct ScriptContext *context)

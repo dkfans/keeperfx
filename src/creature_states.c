@@ -2820,7 +2820,6 @@ short creature_slap_cowers(struct Thing *creatng)
         return 0;
     }
     restore_backup_state(creatng, cctrl->active_state_bkp, cctrl->continue_state_bkp);
-    cctrl->field_35 = 0;
     return 1;
 }
 
@@ -3644,7 +3643,7 @@ char new_slab_tunneller_check_for_breaches(struct Thing *creatng)
             continue;
 
         // Player dungeon already broken into
-        if (cctrl->byte_8A & (1 << i))
+        if (cctrl->party.player_broken_into_flags & (1 << i))
             continue;
 
         if (!subtile_revealed(creatng->mappos.x.stl.num, creatng->mappos.y.stl.num, i))
@@ -3659,7 +3658,7 @@ char new_slab_tunneller_check_for_breaches(struct Thing *creatng)
         if (!creature_can_navigate_to(creatng, &game.things.lookup[dgn->dnheart_idx]->mappos, NavRtF_Default))
             continue;
 
-        cctrl->byte_8A |= 1 << i;
+        cctrl->party.player_broken_into_flags |= 1 << i;
         ++dgn->times_broken_into;
         event_create_event_or_update_nearby_existing_event(creatng->mappos.x.val, creatng->mappos.y.val, EvKind_Breach, i, 0);
         if (is_my_player_number(i))
@@ -3693,9 +3692,9 @@ short patrol_here(struct Thing *creatng)
         return 0;
     }
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    cctrl->patrol.word_89 = 10;
-    cctrl->patrol.word_8B = cctrl->moveto_pos.x.stl.num;
-    cctrl->patrol.word_8D = cctrl->moveto_pos.y.stl.num;
+    cctrl->patrol.countdown = 10;
+    cctrl->patrol.stl_x = cctrl->moveto_pos.x.stl.num;
+    cctrl->patrol.stl_y = cctrl->moveto_pos.y.stl.num;
     creatng->continue_state = CrSt_Patrolling;
     return 1;
 }
@@ -3704,14 +3703,14 @@ short patrolling(struct Thing *creatng)
 {
     TRACE_THING(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    if (cctrl->patrol.word_89 <= 0) {
+    if (cctrl->patrol.countdown <= 0) {
         set_start_state(creatng);
         return 0;
     }
-    cctrl->patrol.word_89--;
+    cctrl->patrol.countdown--;
     // Try random positions near the patrolling point
-    MapSubtlCoord stl_x = cctrl->patrol.word_8B;
-    MapSubtlCoord stl_y = cctrl->patrol.word_8D;
+    MapSubtlCoord stl_x = cctrl->patrol.stl_x;
+    MapSubtlCoord stl_y = cctrl->patrol.stl_y;
     if (go_to_random_area_near_xy(creatng, stl_x, stl_y))
     {
         creatng->continue_state = CrSt_Patrolling;
