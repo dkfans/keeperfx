@@ -912,7 +912,6 @@ struct HeapMgrHandle *find_handle_for_new_sample(long smpl_len, long smpl_idx, l
 
 struct SampleInfo *play_sample_using_heap(unsigned long a1, SoundSmplTblID smptbl_id, unsigned long a3, unsigned long a4, unsigned long a5, char a6, unsigned char a7, SoundBankID bank_id)
 {
-    SYNCLOG("Attempting to play sample id %d from bank id %d", smptbl_id, bank_id);
     if ((!using_two_banks) && (bank_id > 0))
     {
         ERRORLOG("Trying to use two sound banks when only one has been set up");
@@ -930,7 +929,6 @@ struct SampleInfo *play_sample_using_heap(unsigned long a1, SoundSmplTblID smptb
         ERRORLOG("Can't find handle to play sample %d",smptbl_id);
         return NULL;
     }
-    SYNCLOG("Sfx id: %d", smp_table->sfxid);
     heapmgr_make_newest(sndheap, smp_table->hmhandle);
     // Start the play
     struct SampleInfo* smpinfo = PlaySampleFromAddress(a1, smptbl_id, a3, a4, a5, a6, a7, smp_table->hmhandle->buf, smp_table->sfxid);
@@ -938,7 +936,6 @@ struct SampleInfo *play_sample_using_heap(unsigned long a1, SoundSmplTblID smptb
         SYNCLOG("Can't start playing sample %d",smptbl_id);
         return NULL;
     }
-    SYNCLOG("Got sample id %d", smpinfo->smptbl_id);
     smpinfo->flags_17 |= 0x01;
     if (bank_id != 0) {
         smpinfo->flags_17 |= 0x04;
