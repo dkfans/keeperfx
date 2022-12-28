@@ -250,49 +250,49 @@ int __stdcall GetCurrentSoundMasterVolume(void)
     return proc();
 }
 
-int __stdcall StopSample(int a,int b)
+int __stdcall StopSample(SoundEmitterID emit_id, long smptbl_id)
 {
     HMODULE hModule=LoadLibrary("WSND7R");
     FARPROC proc = GetProcAddress(hModule, "_StopSample@8");
     if (proc==NULL)
     { ERRORLOG("Can't get address of StopSample function; skipped."); return 0; }
-    return ((FARPROCII)proc)(a,b);
+    return ((FARPROCII)proc)(emit_id,smptbl_id);
 }
 
-int __stdcall SetSampleVolume(int a,int b,int c,int d)
+int __stdcall SetSampleVolume(SoundEmitterID emit_id, long smptbl_id,long volume,long d)
 {
     HMODULE hModule=LoadLibrary("WSND7R");
     FARPROC proc = GetProcAddress(hModule, "_SetSampleVolume@16");
     if (proc==NULL)
     { ERRORLOG("Can't get address of SetSampleVolume function; skipped."); return 0; }
-    return ((FARPROCIIII)proc)(a,b,c,d);
+    return ((FARPROCIIII)proc)(emit_id,smptbl_id,volume,d);
 }
 
-int __stdcall SetSamplePan(int a,int b,int c,int d)
+int __stdcall SetSamplePan(SoundEmitterID emit_id, long smptbl_id,long pan,int d)
 {
     HMODULE hModule=LoadLibrary("WSND7R");
     FARPROC proc = GetProcAddress(hModule, "_SetSamplePan@16");
     if (proc==NULL)
     { ERRORLOG("Can't get address of SetSamplePan function; skipped."); return 0; }
-    return ((FARPROCIIII)proc)(a,b,c,d);
+    return ((FARPROCIIII)proc)(emit_id,smptbl_id,pan,d);
 }
 
-int __stdcall SetSamplePitch(int a,int b,int c,int d)
+int __stdcall SetSamplePitch(SoundEmitterID emit_id, long smptbl_id,long pitch,int d)
 {
     HMODULE hModule=LoadLibrary("WSND7R");
     FARPROC proc = GetProcAddress(hModule, "_SetSamplePitch@16");
     if (proc==NULL)
     { ERRORLOG("Can't get address of SetSamplePitch function; skipped."); return 0; }
-    return ((FARPROCIIII)proc)(a,b,c,d);
+    return ((FARPROCIIII)proc)(emit_id,smptbl_id,pitch,d);
 }
 
-struct SampleInfo * __stdcall PlaySampleFromAddress(int a1, int smpl_idx, int a3, int a4, int a5, unsigned char a6, unsigned char a7, void * buf, int sfxid)
+struct SampleInfo * __stdcall PlaySampleFromAddress(SoundEmitterID emit_id, int smpl_idx, int a3, int a4, int a5, unsigned char a6, unsigned char a7, void * buf, int sfxid)
 {
     HMODULE hModule=LoadLibrary("WSND7R");
     FARPROC proc = GetProcAddress(hModule, "_PlaySampleFromAddress@36");
     if (proc==NULL)
     { ERRORLOG("Can't get address of PlaySampleFromAddress function; skipped."); return 0; }
-    return ((FARPROC_PLAY1)(void *)proc)(a1, smpl_idx, a3, a4, a5, a6, a7, buf, sfxid);
+    return ((FARPROC_PLAY1)(void *)proc)(emit_id, smpl_idx, a3, a4, a5, a6, a7, buf, sfxid);
 }
 
 /******************************************************************************/

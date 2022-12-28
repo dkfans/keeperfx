@@ -78,11 +78,11 @@ int __stdcall StreamedSampleFinished(void);
 int __stdcall SetStreamedSampleVolume(int);
 struct SampleInfo * __stdcall GetLastSampleInfoStructure(void);
 int __stdcall GetCurrentSoundMasterVolume(void);
-int __stdcall StopSample(int a,int b);
-int __stdcall SetSampleVolume(int a,int b,int c,int d);
-int __stdcall SetSamplePan(int a,int b,int c,int d);
-int __stdcall SetSamplePitch(int a,int b,int c,int d);
-struct SampleInfo * __stdcall PlaySampleFromAddress(int a1, int smpl_idx, int a3, int a4, int a5, unsigned char a6, unsigned char a7, void * buf, int a9);
+int __stdcall StopSample(SoundEmitterID emit_id, long smptbl_id);
+int __stdcall SetSampleVolume(SoundEmitterID emit_id, long smptbl_id,long volume,long d);
+int __stdcall SetSamplePan(SoundEmitterID emit_id, long smptbl_id,long pan,int d);
+int __stdcall SetSamplePitch(SoundEmitterID emit_id, long smptbl_id,long pitch,int d);
+struct SampleInfo * __stdcall PlaySampleFromAddress(SoundEmitterID emit_id, int smpl_idx, int a3, int a4, int a5, unsigned char a6, unsigned char a7, void * buf, int sfxid);
 /******************************************************************************/
 #ifdef __cplusplus
 }
