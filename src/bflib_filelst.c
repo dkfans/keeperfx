@@ -30,7 +30,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DKIMPORT ModifyDataLoadFnameFunc *_DK_modify_data_load_filename_function;
+DLLIMPORT extern ModifyDataLoadFnameFunc *_DK_modify_data_load_filename_function;
 /******************************************************************************/
 
 ModifyDataLoadFnameFunc *modify_data_load_filename_function=&defaultModifyDataLoadFilename;

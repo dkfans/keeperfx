@@ -104,143 +104,143 @@ struct NetMessage { // sizeof = 0x41
 };
 
 /******************************************************************************/
-DKEXTERN char _DK_info_tag;
+DLLIMPORT char _DK_info_tag;
 #define info_tag _DK_info_tag
-DKEXTERN char _DK_room_tag;
+DLLIMPORT char _DK_room_tag;
 #define room_tag _DK_room_tag
-DKEXTERN char _DK_spell_tag;
+DLLIMPORT char _DK_spell_tag;
 #define spell_tag _DK_spell_tag
-DKEXTERN char _DK_trap_tag;
+DLLIMPORT char _DK_trap_tag;
 #define trap_tag _DK_trap_tag
-DKEXTERN char _DK_creature_tag;
+DLLIMPORT char _DK_creature_tag;
 #define creature_tag _DK_creature_tag
-DKEXTERN char _DK_input_string[8][16];
+DLLIMPORT char _DK_input_string[8][16];
 #define input_string _DK_input_string
-DKEXTERN char _DK_gui_error_text[256];
+DLLIMPORT char _DK_gui_error_text[256];
 #define gui_error_text _DK_gui_error_text
-DKEXTERN long _DK_net_service_scroll_offset;
+DLLIMPORT long _DK_net_service_scroll_offset;
 #define net_service_scroll_offset _DK_net_service_scroll_offset
-DKEXTERN long _DK_net_number_of_services;
+DLLIMPORT long _DK_net_number_of_services;
 #define net_number_of_services _DK_net_number_of_services
-DKEXTERN long _DK_net_comport_index_active;
+DLLIMPORT long _DK_net_comport_index_active;
 #define net_comport_index_active _DK_net_comport_index_active
-DKEXTERN long _DK_net_speed_index_active;
+DLLIMPORT long _DK_net_speed_index_active;
 #define net_speed_index_active _DK_net_speed_index_active
-DKEXTERN long _DK_net_number_of_players;
+DLLIMPORT long _DK_net_number_of_players;
 #define net_number_of_players _DK_net_number_of_players
-DKEXTERN long _DK_net_number_of_enum_players;
+DLLIMPORT long _DK_net_number_of_enum_players;
 #define net_number_of_enum_players _DK_net_number_of_enum_players
-DKEXTERN long _DK_net_map_slap_frame;
+DLLIMPORT long _DK_net_map_slap_frame;
 #define net_map_slap_frame _DK_net_map_slap_frame
-DKEXTERN long _DK_net_level_hilighted;
+DLLIMPORT long _DK_net_level_hilighted;
 #define net_level_hilighted _DK_net_level_hilighted
-DKEXTERN struct NetMessage _DK_net_message[NET_MESSAGES_COUNT];
+DLLIMPORT struct NetMessage _DK_net_message[NET_MESSAGES_COUNT];
 #define net_message _DK_net_message
-DKEXTERN long _DK_net_number_of_messages;
+DLLIMPORT long _DK_net_number_of_messages;
 #define net_number_of_messages _DK_net_number_of_messages
-DKEXTERN long _DK_net_message_scroll_offset;
+DLLIMPORT long _DK_net_message_scroll_offset;
 #define net_message_scroll_offset _DK_net_message_scroll_offset
-DKEXTERN long _DK_net_session_index_active_id;
+DLLIMPORT long _DK_net_session_index_active_id;
 #define net_session_index_active_id _DK_net_session_index_active_id
-DKEXTERN long _DK_net_session_scroll_offset;
+DLLIMPORT long _DK_net_session_scroll_offset;
 #define net_session_scroll_offset _DK_net_session_scroll_offset
-DKEXTERN long _DK_net_player_scroll_offset;
+DLLIMPORT long _DK_net_player_scroll_offset;
 #define net_player_scroll_offset _DK_net_player_scroll_offset
-DKEXTERN struct GuiButton _DK_active_buttons[ACTIVE_BUTTONS_COUNT];
+DLLIMPORT extern struct GuiButton _DK_active_buttons[ACTIVE_BUTTONS_COUNT];
 #define active_buttons _DK_active_buttons
-DKEXTERN long _DK_frontend_mouse_over_button_start_time;
+DLLIMPORT long _DK_frontend_mouse_over_button_start_time;
 #define frontend_mouse_over_button_start_time _DK_frontend_mouse_over_button_start_time
-DKEXTERN short _DK_old_menu_mouse_x;
+DLLIMPORT short _DK_old_menu_mouse_x;
 #define old_menu_mouse_x _DK_old_menu_mouse_x
-DKEXTERN short _DK_old_menu_mouse_y;
+DLLIMPORT short _DK_old_menu_mouse_y;
 #define old_menu_mouse_y _DK_old_menu_mouse_y
-DKEXTERN unsigned char _DK_menu_ids[3];
+DLLIMPORT unsigned char _DK_menu_ids[3];
 #define menu_ids _DK_menu_ids
-DKEXTERN unsigned char _DK_new_objective;
+DLLIMPORT unsigned char _DK_new_objective;
 #define new_objective _DK_new_objective
-DKEXTERN int _DK_frontend_menu_state;
+DLLIMPORT extern int _DK_frontend_menu_state;
 #define frontend_menu_state _DK_frontend_menu_state
-DKEXTERN int _DK_load_game_scroll_offset;
+DLLIMPORT extern int _DK_load_game_scroll_offset;
 #define load_game_scroll_offset _DK_load_game_scroll_offset
-DKEXTERN unsigned char _DK_video_gamma_correction;
+DLLIMPORT unsigned char _DK_video_gamma_correction;
 #define video_gamma_correction _DK_video_gamma_correction
 
 // *** SPRITES ***
-DKEXTERN struct TbSprite *_DK_font_sprites;
+DLLIMPORT struct TbSprite *_DK_font_sprites;
 #define font_sprites _DK_font_sprites
-DKEXTERN struct TbSprite *_DK_end_font_sprites;
+DLLIMPORT struct TbSprite *_DK_end_font_sprites;
 #define end_font_sprites _DK_end_font_sprites
-DKEXTERN unsigned char * _DK_font_data;
+DLLIMPORT unsigned char * _DK_font_data;
 #define font_data _DK_font_data
 
-DKEXTERN struct TbSprite *_DK_frontend_font[FRONTEND_FONTS_COUNT];
+DLLIMPORT extern struct TbSprite *_DK_frontend_font[FRONTEND_FONTS_COUNT];
 #define frontend_font _DK_frontend_font
-DKEXTERN struct TbSprite *_DK_frontend_end_font[FRONTEND_FONTS_COUNT];
+DLLIMPORT extern struct TbSprite *_DK_frontend_end_font[FRONTEND_FONTS_COUNT];
 #define frontend_end_font _DK_frontend_end_font
-DKEXTERN unsigned char * _DK_frontend_font_data[FRONTEND_FONTS_COUNT];
+DLLIMPORT extern unsigned char * _DK_frontend_font_data[FRONTEND_FONTS_COUNT];
 #define frontend_font_data _DK_frontend_font_data
-DKEXTERN unsigned char * _DK_frontend_end_font_data[FRONTEND_FONTS_COUNT];
+DLLIMPORT extern unsigned char * _DK_frontend_end_font_data[FRONTEND_FONTS_COUNT];
 #define frontend_end_font_data _DK_frontend_end_font_data
 
-DKEXTERN struct TbSprite *_DK_button_sprite;
+DLLIMPORT extern struct TbSprite *_DK_button_sprite;
 #define button_sprite _DK_button_sprite
-DKEXTERN struct TbSprite *_DK_end_button_sprites;
+DLLIMPORT extern struct TbSprite *_DK_end_button_sprites;
 #define end_button_sprites _DK_end_button_sprites
-DKEXTERN unsigned char * _DK_button_sprite_data;
+DLLIMPORT extern unsigned char * _DK_button_sprite_data;
 #define button_sprite_data _DK_button_sprite_data
-DKEXTERN unsigned long _DK_end_button_sprite_data;
+DLLIMPORT extern unsigned long _DK_end_button_sprite_data;
 #define end_button_sprite_data _DK_end_button_sprite_data
 
-DKEXTERN struct TbSprite *_DK_winfont;
+DLLIMPORT extern struct TbSprite *_DK_winfont;
 #define winfont _DK_winfont
-DKEXTERN struct TbSprite *_DK_end_winfonts;
+DLLIMPORT extern struct TbSprite *_DK_end_winfonts;
 #define end_winfonts _DK_end_winfonts
-DKEXTERN unsigned char * _DK_winfont_data;
+DLLIMPORT unsigned char * _DK_winfont_data;
 #define winfont_data _DK_winfont_data
-DKEXTERN unsigned char * _DK_end_winfont_data;
+DLLIMPORT unsigned char * _DK_end_winfont_data;
 #define end_winfont_data _DK_end_winfont_data
 
-DKEXTERN struct TbSprite *_DK_edit_icon_sprites;
+DLLIMPORT struct TbSprite *_DK_edit_icon_sprites;
 #define edit_icon_sprites _DK_edit_icon_sprites
-DKEXTERN struct TbSprite *_DK_end_edit_icon_sprites;
+DLLIMPORT struct TbSprite *_DK_end_edit_icon_sprites;
 #define end_edit_icon_sprites _DK_end_edit_icon_sprites
-DKEXTERN unsigned char * _DK_edit_icon_data;
+DLLIMPORT unsigned char * _DK_edit_icon_data;
 #define edit_icon_data _DK_edit_icon_data
 
-DKEXTERN struct TbSprite *_DK_port_sprite;
+DLLIMPORT extern struct TbSprite *_DK_port_sprite;
 #define port_sprite _DK_port_sprite
-DKEXTERN struct TbSprite *_DK_end_port_sprites;
+DLLIMPORT extern struct TbSprite *_DK_end_port_sprites;
 #define end_port_sprites _DK_end_port_sprites
-DKEXTERN unsigned char * _DK_port_sprite_data;
+DLLIMPORT extern unsigned char * _DK_port_sprite_data;
 #define port_sprite_data _DK_port_sprite_data
 
-DKEXTERN unsigned long _DK_playing_bad_descriptive_speech;
+DLLIMPORT extern unsigned long _DK_playing_bad_descriptive_speech;
 #define playing_bad_descriptive_speech _DK_playing_bad_descriptive_speech
-DKEXTERN unsigned long _DK_playing_good_descriptive_speech;
+DLLIMPORT extern unsigned long _DK_playing_good_descriptive_speech;
 #define playing_good_descriptive_speech _DK_playing_good_descriptive_speech
-DKEXTERN long _DK_scrolling_index;
+DLLIMPORT extern long _DK_scrolling_index;
 #define scrolling_index _DK_scrolling_index
-DKEXTERN long _DK_scrolling_offset;
+DLLIMPORT extern long _DK_scrolling_offset;
 #define scrolling_offset _DK_scrolling_offset
-DKEXTERN long _DK_packet_left_button_double_clicked[6];
+DLLIMPORT extern long _DK_packet_left_button_double_clicked[6];
 #define packet_left_button_double_clicked _DK_packet_left_button_double_clicked
-DKEXTERN long _DK_packet_left_button_click_space_count[6];
+DLLIMPORT extern long _DK_packet_left_button_click_space_count[6];
 #define packet_left_button_click_space_count _DK_packet_left_button_click_space_count
 
-DKEXTERN char _DK_frontend_alliances;
+DLLIMPORT extern char _DK_frontend_alliances;
 #define frontend_alliances _DK_frontend_alliances
 
-DKEXTERN char _DK_busy_doing_gui;
+DLLIMPORT extern char _DK_busy_doing_gui;
 #define busy_doing_gui _DK_busy_doing_gui
-DKEXTERN long _DK_gui_last_left_button_pressed_id;
+DLLIMPORT extern long _DK_gui_last_left_button_pressed_id;
 #define gui_last_left_button_pressed_id _DK_gui_last_left_button_pressed_id
-DKEXTERN long _DK_gui_last_right_button_pressed_id;
+DLLIMPORT extern long _DK_gui_last_right_button_pressed_id;
 #define gui_last_right_button_pressed_id _DK_gui_last_right_button_pressed_id
-DKEXTERN int _DK_fe_computer_players;
+DLLIMPORT int _DK_fe_computer_players;
 #define fe_computer_players _DK_fe_computer_players
-DKEXTERN long _DK_old_mouse_over_button;
+DLLIMPORT extern long _DK_old_mouse_over_button;
 #define old_mouse_over_button _DK_old_mouse_over_button
-DKEXTERN long _DK_frontend_mouse_over_button;
+DLLIMPORT extern long _DK_frontend_mouse_over_button;
 #define frontend_mouse_over_button _DK_frontend_mouse_over_button
 
 #pragma pack()
@@ -265,8 +265,8 @@ extern unsigned char * testfont_data[TESTFONTS_COUNT];
 extern unsigned char *testfont_palette[3];
 #endif
 /******************************************************************************/
-DKEXTERN char *_DK_mdlf_for_cd(struct TbLoadFiles *);
-DKEXTERN char *_DK_mdlf_default(struct TbLoadFiles *);
+DLLIMPORT char *_DK_mdlf_for_cd(struct TbLoadFiles *);
+DLLIMPORT char *_DK_mdlf_default(struct TbLoadFiles *);
 /******************************************************************************/
 int frontend_font_char_width(int fnt_idx,char c);
 int frontend_font_string_width(int fnt_idx, const char *str);

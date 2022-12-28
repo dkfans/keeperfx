@@ -27,9 +27,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DKINTERN long _DK_ix_EdgePoints;
-/******************************************************************************/
-DKIMPORT struct EdgePoint _DK_EdgePoints[EDGE_POINTS_COUNT];
+DLLIMPORT struct EdgePoint _DK_EdgePoints[EDGE_POINTS_COUNT];
 #define EdgePoints _DK_EdgePoints
 
 /******************************************************************************/

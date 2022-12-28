@@ -578,6 +578,11 @@ const struct Proportion proportions[] = {
     {256, 11585},
 };
 /******************************************************************************/
+DLLIMPORT int _DK_lbCosTable[2048];
+#define lbCosTable _DK_lbCosTable
+DLLIMPORT int _DK_lbSinTable[2048];
+#define lbSinTable _DK_lbSinTable
+/******************************************************************************/
 /**
  * Gives sinus of given angle.
  * @param x Angle as integer with reference to LbFPMath_PI.

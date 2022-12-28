@@ -73,46 +73,46 @@ struct ScreenPacket { // sizeof = 12
 };
 
 /******************************************************************************/
-DKEXTERN TbClockMSec _DK_play_desc_speech_time;
+DLLIMPORT extern TbClockMSec _DK_play_desc_speech_time;
 #define play_desc_speech_time _DK_play_desc_speech_time
-DKEXTERN unsigned long _DK_played_bad_descriptive_speech;
+DLLIMPORT extern unsigned long _DK_played_bad_descriptive_speech;
 #define played_bad_descriptive_speech _DK_played_bad_descriptive_speech
-DKEXTERN unsigned long _DK_played_good_descriptive_speech;
+DLLIMPORT extern unsigned long _DK_played_good_descriptive_speech;
 #define played_good_descriptive_speech _DK_played_good_descriptive_speech
-DKEXTERN TbSpriteData _DK_map_flag_data;
+DLLIMPORT extern TbSpriteData _DK_map_flag_data;
 #define map_flag_data _DK_map_flag_data
-DKEXTERN unsigned long _DK_end_map_flag_data;
+DLLIMPORT extern unsigned long _DK_end_map_flag_data;
 #define end_map_flag_data _DK_end_map_flag_data
-DKEXTERN TbSpriteData _DK_map_font_data;
-DKEXTERN unsigned long _DK_end_map_font_data;
-DKEXTERN TbSpriteData _DK_map_hand_data;
-DKEXTERN unsigned long _DK_end_map_hand_data;
-DKEXTERN struct TbSprite *_DK_map_flag;
+DLLIMPORT extern TbSpriteData _DK_map_font_data;
+DLLIMPORT extern unsigned long _DK_end_map_font_data;
+DLLIMPORT extern TbSpriteData _DK_map_hand_data;
+DLLIMPORT extern unsigned long _DK_end_map_hand_data;
+DLLIMPORT extern struct TbSprite *_DK_map_flag;
 #define map_flag _DK_map_flag
-DKEXTERN struct TbSprite *_DK_end_map_flag;
+DLLIMPORT extern struct TbSprite *_DK_end_map_flag;
 #define end_map_flag _DK_end_map_flag
-DKEXTERN struct TbSprite *_DK_map_font;
+DLLIMPORT extern struct TbSprite *_DK_map_font;
 #define map_font _DK_map_font
-DKEXTERN struct TbSprite *_DK_end_map_font;
-DKEXTERN struct TbSprite *_DK_map_hand;
+DLLIMPORT extern struct TbSprite *_DK_end_map_font;
+DLLIMPORT extern struct TbSprite *_DK_map_hand;
 #define map_hand _DK_map_hand
-DKEXTERN struct TbSprite *_DK_end_map_hand;
-DKEXTERN struct MapLevelInfo _DK_map_info;
-DKEXTERN long _DK_map_sound_fade;
+DLLIMPORT extern struct TbSprite *_DK_end_map_hand;
+DLLIMPORT extern struct MapLevelInfo _DK_map_info;
+DLLIMPORT extern long _DK_map_sound_fade;
 #define map_sound_fade _DK_map_sound_fade
-DKEXTERN unsigned char *_DK_map_screen;
+DLLIMPORT extern unsigned char *_DK_map_screen;
 #define map_screen _DK_map_screen
-DKEXTERN long *_DK_window_y_offset;
-DKEXTERN unsigned char *_DK_map_window;
-DKEXTERN struct TbSetupSprite _DK_map_flag_setup_sprites[];
-DKEXTERN struct TbSetupSprite _DK_netmap_flag_setup_sprites[];
-DKEXTERN long _DK_fe_net_level_selected;
+DLLIMPORT extern long *_DK_window_y_offset;
+DLLIMPORT extern unsigned char *_DK_map_window;
+DLLIMPORT extern struct TbSetupSprite _DK_map_flag_setup_sprites[];
+DLLIMPORT extern struct TbSetupSprite _DK_netmap_flag_setup_sprites[];
+DLLIMPORT extern long _DK_fe_net_level_selected;
 #define fe_net_level_selected _DK_fe_net_level_selected
-DKEXTERN long _DK_net_map_limp_time;
+DLLIMPORT extern long _DK_net_map_limp_time;
 #define net_map_limp_time _DK_net_map_limp_time
-DKEXTERN struct ScreenPacket _DK_net_screen_packet[4];
+DLLIMPORT extern struct ScreenPacket _DK_net_screen_packet[4];
 #define net_screen_packet _DK_net_screen_packet
-DKEXTERN long _DK_players_currently_in_session;
+DLLIMPORT extern long _DK_players_currently_in_session;
 #define players_currently_in_session _DK_players_currently_in_session
 
 #pragma pack()

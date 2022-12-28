@@ -57,7 +57,7 @@
 
 /******************************************************************************/
 /******************************************************************************/
-DKIMPORT void _DK_fill_in_explored_area(unsigned char plyr_idx, short stl_x, short stl_y);
+DLLIMPORT void _DK_fill_in_explored_area(unsigned char plyr_idx, short stl_x, short stl_y);
 /******************************************************************************/
 TbBool player_has_won(PlayerNumber plyr_idx)
 {

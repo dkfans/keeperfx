@@ -36,7 +36,7 @@ struct EdgePoint { //sizeof = 8
 };
 
 /******************************************************************************/
-DKEXTERN long _DK_ix_EdgePoints;
+DLLIMPORT long _DK_ix_EdgePoints;
 #define ix_EdgePoints _DK_ix_EdgePoints
 
 #pragma pack()

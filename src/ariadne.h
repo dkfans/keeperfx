@@ -170,57 +170,57 @@ struct FOV { // sizeof=0x18
 };
 
 /******************************************************************************/
-DKEXTERN unsigned long *_DK_EdgeFit;
+DLLIMPORT unsigned long *_DK_EdgeFit;
 #define EdgeFit _DK_EdgeFit
-DKEXTERN struct Pathway _DK_ap_GPathway;
+DLLIMPORT struct Pathway _DK_ap_GPathway;
 #define ap_GPathway _DK_ap_GPathway
-DKEXTERN long _DK_tree_routelen;
+DLLIMPORT long _DK_tree_routelen;
 #define tree_routelen _DK_tree_routelen
-DKEXTERN long _DK_tree_route[TREE_ROUTE_LEN];
+DLLIMPORT long _DK_tree_route[TREE_ROUTE_LEN];
 #define tree_route _DK_tree_route
-DKEXTERN long _DK_tree_routecost;
+DLLIMPORT long _DK_tree_routecost;
 #define tree_routecost _DK_tree_routecost
-DKEXTERN long _DK_tree_triA;
+DLLIMPORT long _DK_tree_triA;
 #define tree_triA _DK_tree_triA
-DKEXTERN long _DK_tree_triB;
+DLLIMPORT long _DK_tree_triB;
 #define tree_triB _DK_tree_triB
-DKEXTERN long _DK_tree_altA;
+DLLIMPORT long _DK_tree_altA;
 #define tree_altA _DK_tree_altA
-DKEXTERN long _DK_tree_altB;
+DLLIMPORT long _DK_tree_altB;
 #define tree_altB _DK_tree_altB
-DKEXTERN long _DK_tree_Ax8;
+DLLIMPORT long _DK_tree_Ax8;
 #define tree_Ax8 _DK_tree_Ax8
-DKEXTERN long _DK_tree_Ay8;
+DLLIMPORT long _DK_tree_Ay8;
 #define tree_Ay8 _DK_tree_Ay8
-DKEXTERN long _DK_tree_Bx8;
+DLLIMPORT long _DK_tree_Bx8;
 #define tree_Bx8 _DK_tree_Bx8
-DKEXTERN long _DK_tree_By8;
+DLLIMPORT long _DK_tree_By8;
 #define tree_By8 _DK_tree_By8
-DKEXTERN unsigned char *_DK_LastTriangulatedMap;
+DLLIMPORT unsigned char *_DK_LastTriangulatedMap;
 #define LastTriangulatedMap _DK_LastTriangulatedMap
-DKEXTERN unsigned char *_DK_fringe_map;
+DLLIMPORT unsigned char *_DK_fringe_map;
 #define fringe_map _DK_fringe_map
-DKEXTERN long _DK_fringe_y1;
+DLLIMPORT long _DK_fringe_y1;
 #define fringe_y1 _DK_fringe_y1
-DKEXTERN long _DK_fringe_y2;
+DLLIMPORT long _DK_fringe_y2;
 #define fringe_y2 _DK_fringe_y2
-DKEXTERN long _DK_fringe_x1;
+DLLIMPORT long _DK_fringe_x1;
 #define fringe_x1 _DK_fringe_x1
-DKEXTERN long _DK_fringe_x2;
+DLLIMPORT long _DK_fringe_x2;
 #define fringe_x2 _DK_fringe_x2
-DKEXTERN long _DK_fringe_y[256];
+DLLIMPORT long _DK_fringe_y[256];
 #define fringe_y _DK_fringe_y
-DKEXTERN long _DK_ix_Border;
+DLLIMPORT long _DK_ix_Border;
 #define ix_Border _DK_ix_Border
-DKEXTERN long _DK_Border[BORDER_LENGTH];
+DLLIMPORT long _DK_Border[BORDER_LENGTH];
 #define Border _DK_Border
-DKEXTERN long _DK_route_fwd[ROUTE_LENGTH];
+DLLIMPORT long _DK_route_fwd[ROUTE_LENGTH];
 #define route_fwd _DK_route_fwd
-DKEXTERN long _DK_route_bak[ROUTE_LENGTH];
+DLLIMPORT long _DK_route_bak[ROUTE_LENGTH];
 #define route_bak _DK_route_bak
-DKEXTERN struct Path _DK_fwd_path;
+DLLIMPORT struct Path _DK_fwd_path;
 //#define fwd_path _DK_fwd_path
-DKEXTERN struct Path _DK_bak_path;
+DLLIMPORT struct Path _DK_bak_path;
 //#define bak_path _DK_bak_path
 
 #pragma pack()

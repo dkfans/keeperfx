@@ -87,6 +87,16 @@ struct CallToArmsGraphics {
     int leave_anim_idx;
 };
 
+/******************************************************************************/
+/*
+TODO: Test and remove these
+DLLIMPORT unsigned char _DK_object_to_special[OBJECT_TYPES_COUNT];
+DLLIMPORT unsigned char _DK_object_to_magic[OBJECT_TYPES_COUNT];
+DLLIMPORT unsigned char _DK_workshop_object_class[OBJECT_TYPES_COUNT];
+DLLIMPORT unsigned char _DK_object_to_door_or_trap[OBJECT_TYPES_COUNT];
+DLLIMPORT extern unsigned char _DK_magic_to_object[24];
+*/
+
 #pragma pack()
 /******************************************************************************/
 extern Thing_State_Func object_state_functions[];

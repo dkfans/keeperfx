@@ -34,50 +34,6 @@
 #include "post_inc.h"
 
 /******************************************************************************/
-DKINTERN struct GuiMenu _DK_main_menu;
-DKINTERN struct GuiMenu _DK_room_menu;
-DKINTERN struct GuiMenu _DK_spell_menu;
-DKINTERN struct GuiMenu _DK_spell_lost_menu;
-DKINTERN struct GuiMenu _DK_trap_menu;
-DKINTERN struct GuiMenu _DK_creature_menu;
-DKINTERN struct GuiMenu _DK_event_menu;
-DKINTERN struct GuiMenu _DK_options_menu;
-DKINTERN struct GuiMenu _DK_instance_menu;
-DKINTERN struct GuiMenu _DK_query_menu;
-DKINTERN struct GuiMenu _DK_quit_menu;
-DKINTERN struct GuiMenu _DK_load_menu;
-DKINTERN struct GuiMenu _DK_save_menu;
-DKINTERN struct GuiMenu _DK_video_menu;
-DKINTERN struct GuiMenu _DK_sound_menu;
-DKINTERN struct GuiMenu _DK_error_box;
-DKINTERN struct GuiMenu _DK_text_info_menu;
-DKINTERN struct GuiMenu _DK_hold_audience_menu;
-DKINTERN struct GuiMenu _DK_dungeon_special_menu;
-DKINTERN struct GuiMenu _DK_resurrect_creature_menu;
-DKINTERN struct GuiMenu _DK_transfer_creature_menu;
-DKINTERN struct GuiMenu _DK_armageddon_menu;
-DKINTERN struct GuiMenu _DK_frontend_main_menu;
-DKINTERN struct GuiMenu _DK_frontend_load_menu;
-DKINTERN struct GuiMenu _DK_frontend_net_service_menu;
-DKINTERN struct GuiMenu _DK_frontend_net_session_menu;
-DKINTERN struct GuiMenu _DK_frontend_net_start_menu;
-DKINTERN struct GuiMenu _DK_frontend_net_modem_menu;
-DKINTERN struct GuiMenu _DK_frontend_net_serial_menu;
-DKINTERN struct GuiMenu _DK_frontend_statistics_menu;
-DKINTERN struct GuiMenu _DK_frontend_high_score_table_menu;
-DKINTERN struct GuiMenu _DK_creature_query_menu1;
-DKINTERN struct GuiMenu _DK_creature_query_menu2;
-DKINTERN struct GuiMenu _DK_creature_query_menu3;
-DKINTERN struct GuiMenu _DK_battle_menu;
-DKINTERN struct GuiMenu _DK_frontend_define_keys_menu;
-DKINTERN struct GuiMenu _DK_autopilot_menu;
-DKINTERN struct GuiMenu _DK_frontend_option_menu;
-DKINTERN struct GuiMenu *_DK_menu_list[40];
-
-DKINTERN char _DK_no_of_active_menus;
-DKINTERN unsigned char _DK_menu_stack[ACTIVE_MENUS_COUNT];
-DKINTERN struct GuiMenu _DK_active_menus[ACTIVE_MENUS_COUNT];
-/******************************************************************************/
 struct GuiMenu *get_active_menu(MenuNumber num)
 {
     if (num < 0)

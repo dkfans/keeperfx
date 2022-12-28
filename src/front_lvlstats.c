@@ -51,10 +51,11 @@
 extern "C" {
 #endif
 /******************************************************************************/
-//DKIMPORT struct StatsData _DK_scrolling_stats_data[];
+//DLLIMPORT extern struct StatsData _DK_scrolling_stats_data[];
 //#define scrolling_stats_data _DK_scrolling_stats_data
-DKINTERN struct LevelStats _DK_frontstats_data;
-DKIMPORT TbClockMSec _DK_frontstats_timer;
+DLLIMPORT extern struct LevelStats _DK_frontstats_data;
+#define frontstats_data _DK_frontstats_data
+DLLIMPORT extern TbClockMSec _DK_frontstats_timer;
 #define frontstats_timer _DK_frontstats_timer
 /******************************************************************************/
 extern struct StatsData main_stats_data[];

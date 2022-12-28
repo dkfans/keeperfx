@@ -51,11 +51,11 @@ extern "C" {
 #endif
 /******************************************************************************/
 /******************************************************************************/
-DKIMPORT struct _GUID _DK_net_guid;
+DLLIMPORT struct _GUID _DK_net_guid;
 #define net_guid _DK_net_guid
-DKIMPORT int _DK_noOfEnumeratedDPlayServices;
+DLLIMPORT int _DK_noOfEnumeratedDPlayServices;
 #define noOfEnumeratedDPlayServices _DK_noOfEnumeratedDPlayServices
-DKIMPORT struct _GUID _DK_clientGuidTable[];
+DLLIMPORT struct _GUID _DK_clientGuidTable[];
 #define clientGuidTable _DK_clientGuidTable
 /******************************************************************************/
 long number_of_comports;

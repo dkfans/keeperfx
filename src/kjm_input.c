@@ -39,37 +39,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DKINTERN unsigned long _DK_key_modifiers;
-DKINTERN int _DK_defining_a_key;
-DKINTERN long _DK_defining_a_key_id;
-DKINTERN long _DK_left_button_held_x;
-DKINTERN long _DK_left_button_held_y;
-DKINTERN long _DK_left_button_double_clicked_y;
-DKINTERN long _DK_left_button_double_clicked_x;
-DKINTERN long _DK_right_button_double_clicked_y;
-DKINTERN long _DK_right_button_double_clicked_x;
-DKINTERN char _DK_right_button_clicked;
-DKINTERN char _DK_left_button_clicked;
-DKINTERN long _DK_right_button_released_x;
-DKINTERN long _DK_right_button_released_y;
-DKINTERN char _DK_right_button_double_clicked;
-DKINTERN long _DK_left_button_released_y;
-DKINTERN long _DK_left_button_released_x;
-DKINTERN char _DK_left_button_double_clicked;
-DKINTERN char _DK_right_button_released;
-DKINTERN char _DK_right_button_held;
-DKINTERN long _DK_right_button_click_space_count;
-DKINTERN long _DK_right_button_held_y;
-DKINTERN long _DK_left_button_clicked_y;
-DKINTERN long _DK_left_button_clicked_x;
-DKINTERN long _DK_left_button_click_space_count;
-DKINTERN long _DK_right_button_held_x;
-DKINTERN char _DK_left_button_released;
-DKINTERN long _DK_right_button_clicked_y;
-DKINTERN long _DK_right_button_clicked_x;
-DKINTERN char _DK_left_button_held;
-DKINTERN long _DK_key_to_string[256];
-/******************************************************************************/
 TbBool wheel_scrolled_up;
 TbBool wheel_scrolled_down;
 

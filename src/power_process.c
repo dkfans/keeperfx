@@ -52,7 +52,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DKIMPORT unsigned char _DK_backup_explored[26][26];
+DLLIMPORT unsigned char _DK_backup_explored[26][26];
 #define backup_explored _DK_backup_explored
 /******************************************************************************/
 #ifdef __cplusplus

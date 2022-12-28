@@ -50,7 +50,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DKINTERN int _DK_number_of_saved_games;
 /******************************************************************************/
 TbBool load_catalogue_entry(TbFileHandle fh,struct FileChunkHeader *hdr,struct CatalogueEntry *centry);
 /******************************************************************************/

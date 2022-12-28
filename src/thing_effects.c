@@ -48,11 +48,11 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DKIMPORT long _DK_move_effect(struct Thing *efftng);
+DLLIMPORT long _DK_move_effect(struct Thing *efftng);
 
 /******************************************************************************/
 extern struct EffectElementStats _DK_effect_element_stats[95];
-//DKIMPORT struct InitEffect _DK_effect_info[];
+//DLLIMPORT struct InitEffect _DK_effect_info[];
 //#define effect_info _DK_effect_info
 //extern struct EffectGeneratorStats _DK_effect_generator_stats[6];
 //#define effect_element_stats _DK_effect_element_stats

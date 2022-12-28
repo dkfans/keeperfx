@@ -56,7 +56,7 @@ extern "C" {
 #endif
 /******************************************************************************/
 
-// DKIMPORT struct InstanceInfo _DK_instance_info[48];
+// DLLIMPORT struct InstanceInfo _DK_instance_info[48];
 // #define instance_info _DK_instance_info
 /******************************************************************************/
 long instf_attack_room_slab(struct Thing *creatng, long *param);

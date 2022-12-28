@@ -41,18 +41,6 @@
 #include "post_inc.h"
 
 /******************************************************************************/
-DKINTERN unsigned char * _DK_frontstory_background;
-DKINTERN struct TbSprite *_DK_frontstory_font;
-DKINTERN struct TbSprite *_DK_frontstory_end_font;
-DKINTERN unsigned char * _DK_frontstory_font_data;
-DKINTERN unsigned char * _DK_frontstory_end_font_data;
-DKINTERN long _DK_frontstory_text_no;
-DKINTERN struct TbSetupSprite _DK_frontstory_setup_sprites[2];
-
-DKINTERN long _DK_credits_scroll_speed;
-DKINTERN long _DK_credits_offset;
-DKINTERN int _DK_credits_end;
-/******************************************************************************/
 extern struct TbLoadFiles frontstory_load_files_640[];
 /******************************************************************************/
 void frontstory_load(void)

@@ -69,7 +69,7 @@ struct KeycodeString eastegg_skeksis_codes = {
     {KC_S,KC_K,KC_E,KC_K,KC_S,KC_I,KC_S,KC_UNASSIGNED}, 7,
 };
 /******************************************************************************/
-DKIMPORT unsigned char _DK_eastegg_skeksis_cntr;
+DLLIMPORT extern unsigned char _DK_eastegg_skeksis_cntr;
 #define eastegg_skeksis_cntr _DK_eastegg_skeksis_cntr
 /******************************************************************************/
 #ifdef __cplusplus

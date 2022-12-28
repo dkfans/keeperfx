@@ -56,8 +56,8 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DKIMPORT long _DK_check_out_unreinforced_place(struct Thing *creatng);
-DKIMPORT long _DK_check_out_unreinforced_area(struct Thing *creatng);
+DLLIMPORT long _DK_check_out_unreinforced_place(struct Thing *creatng);
+DLLIMPORT long _DK_check_out_unreinforced_area(struct Thing *creatng);
 /******************************************************************************/
 long const dig_pos[] = {0, -1, 1};
 

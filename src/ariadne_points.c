@@ -29,11 +29,11 @@ extern "C" {
 #endif
 /******************************************************************************/
 /******************************************************************************/
-DKIMPORT long _DK_count_Points;
+DLLIMPORT long _DK_count_Points;
 #define count_Points _DK_count_Points
-DKIMPORT long _DK_ix_Points;
+DLLIMPORT long _DK_ix_Points;
 #define ix_Points _DK_ix_Points
-DKIMPORT long _DK_free_Points;
+DLLIMPORT long _DK_free_Points;
 #define free_Points _DK_free_Points
 
 struct Point ari_Points[POINTS_COUNT];

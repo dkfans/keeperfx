@@ -35,11 +35,11 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DKIMPORT struct MessageQueueEntry _DK_message_queue[MESSAGE_QUEUE_COUNT];
+DLLIMPORT struct MessageQueueEntry _DK_message_queue[MESSAGE_QUEUE_COUNT];
 #define message_queue _DK_message_queue
-DKIMPORT unsigned long _DK_message_playing;
+DLLIMPORT unsigned long _DK_message_playing;
 #define message_playing _DK_message_playing
-DKIMPORT struct SMessage _DK_messages[126];
+DLLIMPORT struct SMessage _DK_messages[126];
 /******************************************************************************/
 enum SpeechPhraseIndex {
     SpchIdx_Invalid = 0,

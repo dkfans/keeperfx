@@ -61,46 +61,19 @@ struct HugStart {
 extern "C" {
 #endif
 /******************************************************************************/
-DKIMPORT long _DK_ariadne_check_forward_for_wallhug_gap(struct Thing *thing, struct Ariadne *arid, struct Coord3d *pos, long outfri_y2);
+DLLIMPORT long _DK_ariadne_check_forward_for_wallhug_gap(struct Thing *thing, struct Ariadne *arid, struct Coord3d *pos, long outfri_y2);
 /******************************************************************************/
-DKINTERN unsigned long *_DK_EdgeFit;
-DKINTERN struct Pathway _DK_ap_GPathway;
-DKINTERN long _DK_tree_routelen;
-DKINTERN long _DK_tree_route[TREE_ROUTE_LEN];
-DKINTERN long _DK_tree_routecost;
-DKINTERN long _DK_tree_triA;
-DKINTERN long _DK_tree_triB;
-DKINTERN long _DK_tree_altA;
-DKINTERN long _DK_tree_altB;
-DKINTERN long _DK_tree_Ax8;
-DKINTERN long _DK_tree_Ay8;
-DKINTERN long _DK_tree_Bx8;
-DKINTERN long _DK_tree_By8;
-DKINTERN unsigned char *_DK_LastTriangulatedMap;
-DKINTERN unsigned char *_DK_fringe_map;
-DKINTERN long _DK_fringe_y1;
-DKINTERN long _DK_fringe_y2;
-DKINTERN long _DK_fringe_x1;
-DKINTERN long _DK_fringe_x2;
-DKINTERN long _DK_fringe_y[256];
-DKINTERN long _DK_ix_Border;
-DKINTERN long _DK_Border[BORDER_LENGTH];
-DKINTERN long _DK_route_fwd[ROUTE_LENGTH];
-DKINTERN long _DK_route_bak[ROUTE_LENGTH];
-DKINTERN struct Path _DK_fwd_path;
-DKINTERN struct Path _DK_bak_path;
-/******************************************************************************/
-DKIMPORT long _DK_tri_initialised;
+DLLIMPORT long _DK_tri_initialised;
 #define tri_initialised _DK_tri_initialised
-DKIMPORT unsigned long _DK_edgelen_initialised;
+DLLIMPORT unsigned long _DK_edgelen_initialised;
 #define edgelen_initialised _DK_edgelen_initialised
-DKIMPORT unsigned long *_DK_EdgeFit;
+DLLIMPORT unsigned long *_DK_EdgeFit;
 #define EdgeFit _DK_EdgeFit
-DKIMPORT unsigned long _DK_RadiusEdgeFit[EDGEOR_COUNT][EDGEFIT_LEN];
+DLLIMPORT unsigned long _DK_RadiusEdgeFit[EDGEOR_COUNT][EDGEFIT_LEN];
 #define RadiusEdgeFit _DK_RadiusEdgeFit
-DKIMPORT NavRules _DK_nav_rulesA2B;
+DLLIMPORT NavRules _DK_nav_rulesA2B;
 #define nav_rulesA2B _DK_nav_rulesA2B
-DKIMPORT struct WayPoints _DK_wayPoints;
+DLLIMPORT struct WayPoints _DK_wayPoints;
 #define wayPoints _DK_wayPoints
 /******************************************************************************/
 unsigned char const actual_sizexy_to_nav_block_sizexy_table[] = {

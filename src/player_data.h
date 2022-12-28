@@ -269,7 +269,7 @@ struct PlayerInfoAdd {
 };
 
 /******************************************************************************/
-DKEXTERN unsigned char _DK_my_player_number;
+DLLIMPORT extern unsigned char _DK_my_player_number;
 #define my_player_number _DK_my_player_number
 
 #pragma pack()
