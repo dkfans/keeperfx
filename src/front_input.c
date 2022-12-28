@@ -92,6 +92,9 @@ struct GuiLayer gui_layer = {GuiLayer_Default};
 
 TbBool first_person_see_item_desc = false;
 
+long old_mx;
+long old_my;
+
 /******************************************************************************/
 void get_dungeon_control_nonaction_inputs(void);
 void get_creature_control_nonaction_inputs(void);
@@ -422,9 +425,6 @@ long get_small_map_inputs(long x, long y, long zoom)
   short result = 0;
   long curr_mx = GetMouseX();
   long curr_my = GetMouseY();
-  dummy_x = curr_mx;
-  dummy_y = curr_my;
-  dummy = 1;
   if (!grabbed_small_map)
     game.small_map_state = 0;
   if (((game.operation_flags & GOF_ShowGui) != 0) && (mouse_is_over_pannel_map(x,y) || grabbed_small_map))

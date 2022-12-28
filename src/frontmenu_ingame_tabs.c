@@ -84,6 +84,12 @@ const short pixels_needed[] = {
     AROUND_6x6_PIXEL,
 };
 
+long activity_list[24];
+char gui_room_type_highlighted;
+char gui_door_type_highlighted;
+char gui_trap_type_highlighted;
+char gui_creature_type_highlighted;
+unsigned long first_person_instance_top_half_selected;
 /******************************************************************************/
 /******************************************************************************/
 

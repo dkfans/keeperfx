@@ -28,15 +28,9 @@ extern "C" {
 #endif
 
 /******************************************************************************/
-DLLIMPORT struct GuiButtonInit _DK_frontend_high_score_score_buttons[];
-DLLIMPORT extern long _DK_high_score_entry_input_active;
-#define high_score_entry_input_active _DK_high_score_entry_input_active
-DLLIMPORT extern long _DK_high_score_entry_index;
-#define high_score_entry_index _DK_high_score_entry_index
-DLLIMPORT extern char _DK_high_score_entry[64];
-#define high_score_entry _DK_high_score_entry
-DLLIMPORT extern int _DK_fe_high_score_table_from_main_menu;
-#define fe_high_score_table_from_main_menu _DK_fe_high_score_table_from_main_menu
+extern long high_score_entry_input_active;
+extern char high_score_entry[64];
+extern int fe_high_score_table_from_main_menu;
 /******************************************************************************/
 void frontend_draw_high_score_table(struct GuiButton *gbtn);
 void frontend_quit_high_score_table(struct GuiButton *gbtn);

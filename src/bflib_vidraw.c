@@ -59,8 +59,8 @@ unsigned char *poly_screen;
 unsigned char *vec_screen;
 unsigned char *vec_map;
 unsigned long vec_screen_width;
-unsigned long vec_window_width;
-unsigned long vec_window_height;
+long vec_window_width;
+long vec_window_height;
 unsigned char *dither_map;
 unsigned char *dither_end;
 unsigned char *lbSpriteReMapPtr;
@@ -2107,9 +2107,9 @@ void setup_vecs(unsigned char *screenbuf, unsigned char *nvec_map,
     dither_end = nvec_map + 16;
   }
   if (height > 0)
-    vec_window_height = height;
+    vec_window_height = (long)height;
   if (width > 0)
-    vec_window_width = width;
+    vec_window_width = (long)width;
 }
 
 /**

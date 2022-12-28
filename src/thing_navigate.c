@@ -49,6 +49,11 @@ extern "C" {
 #endif
 /******************************************************************************/
 
+long owner_player_navigating;
+long nav_thing_can_travel_over_lava;
+
+/******************************************************************************/
+
 // Call this function if you don't want the creature/thing to (visually) fly across the map whenever suddenly moving a very far distance. (teleporting for example)
 void reset_interpolation_of_thing(struct Thing *thing)
 {

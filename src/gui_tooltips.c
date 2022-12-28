@@ -57,9 +57,12 @@ const char jtytext[] = "Jonty here   : ...I am writing this at 4am on Keepers la
     "and the little one, Crofty, Scooper, Jason Stanton [a cup of coffee], Aaron Senna, Mike Dorell, Ian Howie, Helen Thain, Alex Forest-Hay, Lee Hazelwood, Vicky Arnold, Guy Simmons, Shin, Val Taylor.... If I forgot you I am sorry... but sleep is due to me... and I have a dream to live...";
 
 /******************************************************************************/
+
 float render_tooltip_scroll_offset; // Rendering float
 float render_tooltip_scroll_timer; // Rendering float
+struct ToolTipBox tool_tip_box;
 
+/******************************************************************************/
 static inline void reset_scrolling_tooltip(void)
 {
     render_tooltip_scroll_offset = 0;

@@ -41,6 +41,8 @@ unsigned char slab_ext_data[MAX_TILES_X*MAX_TILES_Y];
 
 long block_dimension = 32;
 long block_count_per_row = 8;
+
+static long anim_counter;
 /******************************************************************************/
 #ifdef __cplusplus
 }

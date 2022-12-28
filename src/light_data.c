@@ -38,6 +38,17 @@ extern "C" {
 #endif
 /******************************************************************************/
 static void light_stat_light_map_clear_area(MapSubtlCoord x1, MapSubtlCoord y1, MapSubtlCoord x2, MapSubtlCoord y2);
+
+/******************************************************************************/
+
+static unsigned long light_bitmask[32];
+static long stat_light_needs_updating;
+static long light_total_dynamic_lights;
+static long light_total_stat_lights;
+static long light_rendered_dynamic_lights;
+static long light_rendered_optimised_dynamic_lights;
+static long light_updated_stat_lights;
+static long light_out_of_date_stat_lights;
 /******************************************************************************/
 
 struct Light *light_allocate_light(void)

@@ -47,6 +47,7 @@
 #include "post_inc.h"
 
 unsigned long TimerTurns = 0;
+unsigned short battle_creature_over;
 
 /******************************************************************************/
 void gui_open_event(struct GuiButton *gbtn)

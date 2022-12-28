@@ -479,6 +479,9 @@ static long water_source_cutoff;
 static long water_y_offset;
 static long cam_map_angle;
 
+static struct M33 camera_matrix;
+struct EngineCoord object_origin;
+
 short mx;
 short my;
 short mz;

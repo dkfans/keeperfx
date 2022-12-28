@@ -42,6 +42,9 @@ extern "C" {
 }
 #endif
 /******************************************************************************/
+struct Room *start_rooms;
+struct Room *end_rooms;
+/******************************************************************************/
 long calculate_free_lair_space(struct Dungeon * dungeon)
 {
     SYNCDBG(9,"Starting");

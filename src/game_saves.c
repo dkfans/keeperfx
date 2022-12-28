@@ -61,6 +61,8 @@ const char *saved_game_filename="fx1g%04d.sav";
 const char *packet_filename="fx1rp%04d.pck";
 
 struct CatalogueEntry save_game_catalogue[TOTAL_SAVE_SLOTS_COUNT];
+
+int number_of_saved_games;
 /******************************************************************************/
 TbBool is_primitive_save_version(long filesize)
 {
