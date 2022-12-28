@@ -47,7 +47,6 @@ PKG_FILES = \
 	$(NCTEXTDATS) \
 	$(MPTEXTDATS) \
 	pkg/keeperfx.cfg \
-	pkg/keeperfx.dll \
 	$(PKG_BIN) \
 	$(PKG_BIN_MAP) \
 	$(PKG_HVLOGBIN) \
@@ -60,9 +59,6 @@ pkg pkg/creatrs pkg/fxdata pkg/campgns $(PKG_MAPPACK_DIRS) $(PKG_CAMPAIGN_DIRS):
 	$(MKDIR) $@
 
 pkg/keeperfx.cfg: config/keeperfx.cfg | pkg
-	$(CP) $^ $@
-
-pkg/keeperfx.dll: bin/keeperfx.dll | pkg
 	$(CP) $^ $@
 
 $(PKG_BIN): $(BIN) | pkg
