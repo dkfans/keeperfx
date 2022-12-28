@@ -3031,34 +3031,22 @@ char update_menu_fade_level(struct GuiMenu *gmnu)
     int i;
     switch (gmnu->visual_state)
     {
-    case 1:
-        if (gmnu->fade_time == 0) {
-            gmnu->fade_time = 1;
+    case 1: // Fade in
+        if (gmnu->fade_time-1.0 <= 0.0)
+        {
+            gmnu->fade_time = gmnu->menu_init->fade_time;
+            gmnu->visual_state = 2;
             return 0;
         }
-        gmnu->fade_time--;
-        if (gmnu->fade_time != 0) {
-            return 0;
-        }
-        i = gmnu->menu_init->fade_time;
-        if (i)
+        gmnu->fade_time -= gameadd.delta_time;
+        return 0;
+    case 3: // Fade out
+        if (gmnu->fade_time-1.0 <= 0.0)
         {
-            gmnu->visual_state = 2;
-            gmnu->fade_time = i;
-        } else
-        {
-            gmnu->visual_state = 2;
-            gmnu->fade_time = 1;
+            gmnu->fade_time = 0.0;
+            return -1; // Kill menu
         }
-        return 1;
-    case 3:
-        if (gmnu->fade_time == 0) {
-            return -1;
-        }
-        gmnu->fade_time--;
-        if (gmnu->fade_time <= 0) {
-            return -1;
-        }
+        gmnu->fade_time -= gameadd.delta_time;
         return 0;
     default:
         break;
@@ -3133,7 +3121,7 @@ void draw_active_menus_buttons(void)
         //SYNCMSG("DRAW menu %d, fields %d, %d",menu_num,gmnu->visual_state,gmnu->is_turned_on);
         if ((gmnu->visual_state != 0) && (gmnu->is_turned_on))
         {
-            if ((gmnu->visual_state != 2) && (gmnu->fade_time))
+            if ((gmnu->visual_state != 2) && (gmnu->fade_time > 0))
             {
               if (gmnu->menu_init != NULL)
                 if (gmnu->menu_init->fade_time)
