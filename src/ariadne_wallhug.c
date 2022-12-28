@@ -1129,7 +1129,7 @@ static signed char get_starting_angle_and_side_of_hug(
     char v44_2;
     int v45;
     struct Coord3d pos_46;
-    char v49[48];
+    struct Navigation v49;
 
 
     struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
@@ -1139,7 +1139,7 @@ static signed char get_starting_angle_and_side_of_hug(
     pos_43.x.stl.pos = creatng->mappos.y.val - (uint16_t)pos->y.val <= 0;
     v38 = (uint16_t)creatng->mappos.x.val - (uint16_t)pos->x.val <= 0;
     v9 = creatng->mappos.y.val - navi->pos_final.y.val;
-    v49[0] = v9 <= 0;
+    v49.navstate = v9 <= 0;
     v10 = (uint16_t)creatng->mappos.x.val - navi->pos_final.x.val;
     pos_46.x.stl.pos = v10 <= 0;
     v44_2 = (int)abs(v10) < (int)abs(v9);
@@ -1147,10 +1147,10 @@ static signed char get_starting_angle_and_side_of_hug(
     if ((hugging_blocked_flags & 1) != 0)
     {
         v12 = 2 * v38;
-        v13 = v12 + (uint8_t)v49[0];
+        v13 = v12 + (uint8_t)v49.navstate;
         angle_39 = blocked_x_hug_start[0][v13].angle;
         v34 = byte_5111FA[3 * v13];
-        v14 = v12 + (v49[0] == 0);
+        v14 = v12 + (v49.navstate == 0);
         angle_37 = blocked_x_hug_start[0][v14].angle;
         v15 = byte_5111FA[3 * v14];
     }
@@ -1185,7 +1185,7 @@ static signed char get_starting_angle_and_side_of_hug(
     pos_46.y.val = creatng->mappos.y.val;
     pos_46.z.val = creatng->mappos.z.val;
     move_angle_xy = creatng->move_angle_xy;
-    memcpy(v49, navi, sizeof(struct Navigation));
+    memcpy(&v49, navi, sizeof(struct Navigation));
     creatng->move_angle_xy = angle_39;
     navi->side = v34;
     navi->dist_to_final_pos = get_2d_distance_squared(&creatng->mappos, &navi->pos_final);
@@ -1298,7 +1298,7 @@ LABEL_40:
     creatng->mappos.y.val = pos_46.y.val;
     creatng->mappos.z.val = pos_46.z.val;
     creatng->move_angle_xy = move_angle_xy;
-    memcpy(navi, v49, sizeof(struct Navigation));
+    memcpy(navi, &v49, sizeof(struct Navigation));
     v31 = get_starting_angle_and_side_of_hug_sub2(creatng, navi, pos, slab_flag, angle_37, v35, max_speed, 255, crt_owner_bit);
     if (v42 >= 0)
     {
