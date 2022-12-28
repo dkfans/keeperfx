@@ -40,22 +40,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DKINTERN unsigned char *_DK_poly_screen;
-DKINTERN unsigned char *_DK_vec_screen;
-DKINTERN unsigned char *_DK_vec_map;
-DKINTERN unsigned long _DK_vec_screen_width;
-DKINTERN unsigned long _DK_vec_window_width;
-DKINTERN unsigned long _DK_vec_window_height;
-DKINTERN unsigned char *_DK_dither_map;
-DKINTERN unsigned char *_DK_dither_end;
-DKINTERN unsigned char *_DK_lbSpriteReMapPtr;
-DKINTERN long _DK_scale_up;
-DKINTERN long _DK_xsteps_array[2*256];
-DKINTERN long _DK_ysteps_array[2*320];
-DKINTERN long _DK_alpha_scale_up;
-DKINTERN long _DK_alpha_xsteps_array[2*256];
-DKINTERN long _DK_alpha_ysteps_array[2*320];
-/******************************************************************************/
 struct TbSpriteDrawData {
     char *sp;
     short Wd;

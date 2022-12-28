@@ -38,9 +38,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DKINTERN const struct TbSprite *_DK_lbFontPtr;
-DKINTERN unsigned char _DK_lbSpacesPerTab;
-/******************************************************************************/
 #define DOUBLE_UNDERLINE_BOUND 16
 
 struct AsianFont dbcJapFonts[] = {

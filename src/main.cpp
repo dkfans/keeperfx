@@ -152,62 +152,9 @@ extern "C" {
 
 TbBool force_player_num = false;
 
-/******************************************************************************/
-DKINTERN unsigned char *_DK_blue_palette;
-DKINTERN unsigned char *_DK_red_palette;
-DKINTERN unsigned char *_DK_dog_palette;
-DKINTERN unsigned char *_DK_vampire_palette;
-DKINTERN unsigned char _DK_exit_keeper;
-DKINTERN unsigned char _DK_quit_game;
-DKINTERN int _DK_continue_game_option_available;
-DKINTERN long _DK_last_mouse_x;
-DKINTERN long _DK_last_mouse_y;
-DKINTERN int _DK_FatalError;
-DKINTERN long _DK_define_key_scroll_offset;
-DKINTERN unsigned long _DK_time_last_played_demo;
-DKINTERN short _DK_drag_menu_x;
-DKINTERN short _DK_drag_menu_y;
-DKINTERN unsigned short _DK_tool_tip_time;
-DKINTERN unsigned short _DK_help_tip_time;
-DKINTERN long _DK_pointer_x;
-DKINTERN long _DK_pointer_y;
-DKINTERN long _DK_block_pointed_at_x;
-DKINTERN long _DK_block_pointed_at_y;
-DKINTERN long _DK_pointed_at_frac_x;
-DKINTERN long _DK_pointed_at_frac_y;
-DKINTERN long _DK_top_pointed_at_x;
-DKINTERN long _DK_top_pointed_at_y;
-DKINTERN long _DK_top_pointed_at_frac_x;
-DKINTERN long _DK_top_pointed_at_frac_y;
-DKINTERN long _DK_frame_number;
-DKINTERN long _DK_draw_spell_cost;
-DKINTERN char _DK_level_name[88];
-DKINTERN char _DK_top_of_breed_list;
-
-/** Amount of different creature kinds the local player has. Used for creatures tab in panel menu. */
-DKINTERN char _DK_no_of_breeds_owned;
-DKINTERN long _DK_optimised_lights;
-DKINTERN long _DK_total_lights;
-DKINTERN unsigned char _DK_do_lights;
-DKINTERN struct Thing *_DK_thing_pointed_at;
-DKINTERN struct Map *_DK_me_pointed_at;
-DKINTERN long _DK_my_mouse_x;
-DKINTERN long _DK_my_mouse_y;
-DKINTERN char *_DK_level_names_data;
-DKINTERN char *_DK_end_level_names_data;
-DKINTERN unsigned char *_DK_frontend_backup_palette;
-DKINTERN long _DK_dummy_x;
-DKINTERN long _DK_dummy_y;
-DKINTERN long _DK_dummy;
-DKINTERN unsigned char _DK_zoom_to_heart_palette[768];
-DKINTERN unsigned char _DK_EngineSpriteDrawUsingAlpha;
-DKINTERN unsigned char _DK_temp_pal[768];
-DKINTERN unsigned char *_DK_lightning_palette;
-/******************************************************************************/
-
 // Now variables
 #ifdef _WIN32
-DKIMPORT HINSTANCE _DK_hInstance;
+DLLIMPORT extern HINSTANCE _DK_hInstance;
 #endif
 
 /******************************************************************************/

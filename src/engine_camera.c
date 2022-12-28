@@ -42,8 +42,8 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DKINTERN struct M33 _DK_camera_matrix;
-DKINTERN struct EngineCoord _DK_object_origin;
+DKEXTERN struct M33 _DK_camera_matrix;
+DKEXTERN struct EngineCoord _DK_object_origin;
 /******************************************************************************/
 long zoom_distance_setting;
 long frontview_zoom_distance_setting;

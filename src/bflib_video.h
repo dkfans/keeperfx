@@ -228,32 +228,32 @@ typedef struct SSurface TSurface;
 
 /******************************************************************************/
 
-DKEXTERN TbDisplayStruct _DK_lbDisplay;
+DLLIMPORT extern TbDisplayStruct _DK_lbDisplay;
 #define lbDisplay _DK_lbDisplay
-DKEXTERN unsigned short _DK_MyScreenWidth;
+DLLIMPORT extern unsigned short _DK_MyScreenWidth;
 #define MyScreenWidth _DK_MyScreenWidth
-DKEXTERN unsigned short _DK_MyScreenHeight;
+DLLIMPORT extern unsigned short _DK_MyScreenHeight;
 #define MyScreenHeight _DK_MyScreenHeight
-DKEXTERN unsigned short _DK_pixel_size;
+DLLIMPORT extern unsigned short _DK_pixel_size;
 #define pixel_size _DK_pixel_size
-DKEXTERN unsigned short _DK_pixels_per_block;
+DLLIMPORT unsigned short _DK_pixels_per_block;
 #define pixels_per_block _DK_pixels_per_block
-DKEXTERN unsigned short _DK_units_per_pixel;
+DLLIMPORT unsigned short _DK_units_per_pixel;
 #define units_per_pixel _DK_units_per_pixel
-DKEXTERN int _DK_lbUseSdk;
+DLLIMPORT extern int _DK_lbUseSdk;
 //#define lbUseSdk _DK_lbUseSdk
 
-DKEXTERN unsigned char _DK_fade_started;
+DLLIMPORT unsigned char _DK_fade_started;
 #define fade_started _DK_fade_started
-DKEXTERN unsigned char _DK_from_pal[PALETTE_SIZE];
+DLLIMPORT unsigned char _DK_from_pal[PALETTE_SIZE];
 #define from_pal _DK_from_pal
-DKEXTERN unsigned char _DK_to_pal[PALETTE_SIZE];
+DLLIMPORT unsigned char _DK_to_pal[PALETTE_SIZE];
 #define to_pal _DK_to_pal
-DKEXTERN long _DK_fade_count;
+DLLIMPORT long _DK_fade_count;
 #define fade_count _DK_fade_count
-DKEXTERN TbGraphicsWindow _DK_lbTextJustifyWindow;
+DLLIMPORT TbGraphicsWindow _DK_lbTextJustifyWindow;
 #define lbTextJustifyWindow _DK_lbTextJustifyWindow
-DKEXTERN TbGraphicsWindow _DK_lbTextClipWindow;
+DLLIMPORT TbGraphicsWindow _DK_lbTextClipWindow;
 #define lbTextClipWindow _DK_lbTextClipWindow
 
 #pragma pack()

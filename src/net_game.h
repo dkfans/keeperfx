@@ -39,27 +39,27 @@ extern "C" {
 struct TbNetworkSessionNameEntry;
 
 /******************************************************************************/
-DKEXTERN struct TbNetworkPlayerInfo _DK_net_player_info[NET_PLAYERS_COUNT];
+DLLIMPORT struct TbNetworkPlayerInfo _DK_net_player_info[NET_PLAYERS_COUNT];
 #define net_player_info _DK_net_player_info
-DKEXTERN struct TbNetworkSessionNameEntry *_DK_net_session[32];
+DLLIMPORT struct TbNetworkSessionNameEntry *_DK_net_session[32];
 #define net_session _DK_net_session
-DKEXTERN long _DK_net_number_of_sessions;
+DLLIMPORT long _DK_net_number_of_sessions;
 #define net_number_of_sessions _DK_net_number_of_sessions
-DKEXTERN long _DK_net_session_index_active;
+DLLIMPORT long _DK_net_session_index_active;
 #define net_session_index_active _DK_net_session_index_active
-DKEXTERN struct TbNetworkPlayerName _DK_net_player[NET_PLAYERS_COUNT];
+DLLIMPORT struct TbNetworkPlayerName _DK_net_player[NET_PLAYERS_COUNT];
 #define net_player _DK_net_player
-DKEXTERN struct ConfigInfo _DK_net_config_info;
+DLLIMPORT struct ConfigInfo _DK_net_config_info;
 #define net_config_info _DK_net_config_info
-DKEXTERN char _DK_net_service[16][NET_SERVICE_LEN];
+DLLIMPORT char _DK_net_service[16][NET_SERVICE_LEN];
 #define net_service _DK_net_service
-DKEXTERN char _DK_net_player_name[20];
+DLLIMPORT char _DK_net_player_name[20];
 #define net_player_name _DK_net_player_name
-DKEXTERN struct ServiceInitData _DK_net_serial_data;
+DLLIMPORT struct ServiceInitData _DK_net_serial_data;
 #define net_serial_data _DK_net_serial_data
-DKEXTERN struct ServiceInitData _DK_net_modem_data;
+DLLIMPORT struct ServiceInitData _DK_net_modem_data;
 #define net_modem_data _DK_net_modem_data
-DKEXTERN struct TbModemDev _DK_modem_dev;
+DLLIMPORT struct TbModemDev _DK_modem_dev;
 #define modem_dev _DK_modem_dev
 
 #pragma pack()

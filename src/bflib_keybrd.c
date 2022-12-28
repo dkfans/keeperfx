@@ -32,14 +32,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DKINTERN unsigned char _DK_lbKeyOn[256];
-DKINTERN unsigned char _DK_lbInkey;
-DKINTERN unsigned char _DK_lbInkeyFlags;
-DKINTERN unsigned char _DK_lbIInkey;
-DKINTERN unsigned char _DK_lbIInkeyFlags;
-DKINTERN int _DK_lbKeyboardLang;
-DKINTERN unsigned char _DK_lbExtendedKeyPress;
-/******************************************************************************/
 /*
 unsigned char lbKeyOn[256];
 unsigned char lbShift;

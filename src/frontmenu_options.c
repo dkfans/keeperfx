@@ -45,14 +45,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DKINTERN long _DK_fe_mouse_sensitivity;
-DKINTERN long _DK_sound_level;
-DKINTERN long _DK_music_level;
-DKINTERN char _DK_video_cluedo_mode;
-DKINTERN char _DK_video_shadows;
-DKINTERN char _DK_video_textures;
-DKINTERN char _DK_video_view_distance_level;
-/******************************************************************************/
 
 long mentor_level_slider;
 

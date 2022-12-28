@@ -68,7 +68,7 @@ struct CompoundCoordFilterParam {
 };
 
 /******************************************************************************/
-DKEXTERN struct MapOffset _DK_spiral_step[SPIRAL_STEPS_COUNT];
+DLLIMPORT struct MapOffset _DK_spiral_step[SPIRAL_STEPS_COUNT];
 #define spiral_step _DK_spiral_step
 /******************************************************************************/
 #define AROUND_TILES_COUNT      9

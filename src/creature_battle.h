@@ -46,9 +46,9 @@ struct CreatureBattle { // sizeof = 17
 /******************************************************************************/
 #define INVALID_CRTR_BATTLE (&game.battles[0])
 /******************************************************************************/
-DKEXTERN unsigned short _DK_friendly_battler_list[3*MESSAGE_BATTLERS_COUNT];
+DLLIMPORT extern unsigned short _DK_friendly_battler_list[3*MESSAGE_BATTLERS_COUNT];
 #define friendly_battler_list _DK_friendly_battler_list
-DKEXTERN unsigned short _DK_enemy_battler_list[3*MESSAGE_BATTLERS_COUNT];
+DLLIMPORT extern unsigned short _DK_enemy_battler_list[3*MESSAGE_BATTLERS_COUNT];
 #define enemy_battler_list _DK_enemy_battler_list
 /******************************************************************************/
 

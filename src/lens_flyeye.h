@@ -36,7 +36,7 @@ struct CScan {
   short strip_h[CSCAN_STRIPS];
 };
 
-DKEXTERN struct CScan *_DK_ScanBuffer;
+DLLIMPORT struct CScan *_DK_ScanBuffer;
 //#define ScanBuffer _DK_ScanBuffer
 extern struct CScan *ScanBuffer;
 

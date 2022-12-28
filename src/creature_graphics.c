@@ -40,8 +40,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DKINTERN struct KeeperSprite *_DK_creature_table;
-/******************************************************************************/
 
 struct CreaturePickedUpOffset creature_picked_up_offset[] = {
   {  0,   0,  0,  0},

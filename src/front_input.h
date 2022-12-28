@@ -97,9 +97,9 @@ struct GuiButton;
 
 #pragma pack()
 /******************************************************************************/
-DKEXTERN long _DK_old_mx;
+DLLIMPORT long _DK_old_mx;
 #define old_mx _DK_old_mx
-DKEXTERN long _DK_old_my;
+DLLIMPORT long _DK_old_my;
 #define old_my _DK_old_my
 /******************************************************************************/
 void input(void);

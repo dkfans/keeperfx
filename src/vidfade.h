@@ -40,11 +40,11 @@ struct PlayerInfo;
 typedef unsigned char TbRGBColorTable[COLOUR_TABLE_DIMENSION][COLOUR_TABLE_DIMENSION][COLOUR_TABLE_DIMENSION];
 
 /******************************************************************************/
-DKEXTERN unsigned char _DK_fade_palette_in;
+DLLIMPORT extern unsigned char _DK_fade_palette_in;
 #define fade_palette_in _DK_fade_palette_in
-DKEXTERN unsigned char _DK_frontend_palette[768];
+DLLIMPORT extern unsigned char _DK_frontend_palette[768];
 #define frontend_palette _DK_frontend_palette
-DKEXTERN TbRGBColorTable _DK_colours;
+DLLIMPORT TbRGBColorTable _DK_colours;
 #define colours _DK_colours
 
 #pragma pack()

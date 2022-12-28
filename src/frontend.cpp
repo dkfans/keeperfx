@@ -119,14 +119,14 @@ DKINTERN long _DK_net_message_scroll_offset;
 DKINTERN long _DK_net_session_index_active_id;
 DKINTERN long _DK_net_session_scroll_offset;
 DKINTERN long _DK_net_player_scroll_offset;
-DKINTERN struct GuiButton _DK_active_buttons[ACTIVE_BUTTONS_COUNT];
+DKINTERN extern struct GuiButton _DK_active_buttons[ACTIVE_BUTTONS_COUNT];
 DKINTERN long _DK_frontend_mouse_over_button_start_time;
 DKINTERN short _DK_old_menu_mouse_x;
 DKINTERN short _DK_old_menu_mouse_y;
 DKINTERN unsigned char _DK_menu_ids[3];
 DKINTERN unsigned char _DK_new_objective;
-DKINTERN int _DK_frontend_menu_state;
-DKINTERN int _DK_load_game_scroll_offset;
+DKINTERN extern int _DK_frontend_menu_state;
+DKINTERN extern int _DK_load_game_scroll_offset;
 DKINTERN unsigned char _DK_video_gamma_correction;
 
 // *** SPRITES ***
@@ -134,18 +134,18 @@ DKINTERN struct TbSprite *_DK_font_sprites;
 DKINTERN struct TbSprite *_DK_end_font_sprites;
 DKINTERN unsigned char * _DK_font_data;
 
-DKINTERN struct TbSprite *_DK_frontend_font[FRONTEND_FONTS_COUNT];
-DKINTERN struct TbSprite *_DK_frontend_end_font[FRONTEND_FONTS_COUNT];
-DKINTERN unsigned char * _DK_frontend_font_data[FRONTEND_FONTS_COUNT];
-DKINTERN unsigned char * _DK_frontend_end_font_data[FRONTEND_FONTS_COUNT];
+DKINTERN extern struct TbSprite *_DK_frontend_font[FRONTEND_FONTS_COUNT];
+DKINTERN extern struct TbSprite *_DK_frontend_end_font[FRONTEND_FONTS_COUNT];
+DKINTERN extern unsigned char * _DK_frontend_font_data[FRONTEND_FONTS_COUNT];
+DKINTERN extern unsigned char * _DK_frontend_end_font_data[FRONTEND_FONTS_COUNT];
 
-DKINTERN struct TbSprite *_DK_button_sprite;
-DKINTERN struct TbSprite *_DK_end_button_sprites;
-DKINTERN unsigned char * _DK_button_sprite_data;
-DKINTERN unsigned long _DK_end_button_sprite_data;
+DKINTERN extern struct TbSprite *_DK_button_sprite;
+DKINTERN extern struct TbSprite *_DK_end_button_sprites;
+DKINTERN extern unsigned char * _DK_button_sprite_data;
+DKINTERN extern unsigned long _DK_end_button_sprite_data;
 
-DKINTERN struct TbSprite *_DK_winfont;
-DKINTERN struct TbSprite *_DK_end_winfonts;
+DKINTERN extern struct TbSprite *_DK_winfont;
+DKINTERN extern struct TbSprite *_DK_end_winfonts;
 DKINTERN unsigned char * _DK_winfont_data;
 DKINTERN unsigned char * _DK_end_winfont_data;
 
@@ -153,25 +153,25 @@ DKINTERN struct TbSprite *_DK_edit_icon_sprites;
 DKINTERN struct TbSprite *_DK_end_edit_icon_sprites;
 DKINTERN unsigned char * _DK_edit_icon_data;
 
-DKINTERN struct TbSprite *_DK_port_sprite;
-DKINTERN struct TbSprite *_DK_end_port_sprites;
-DKINTERN unsigned char * _DK_port_sprite_data;
+DKINTERN extern struct TbSprite *_DK_port_sprite;
+DKINTERN extern struct TbSprite *_DK_end_port_sprites;
+DKINTERN extern unsigned char * _DK_port_sprite_data;
 
-DKINTERN unsigned long _DK_playing_bad_descriptive_speech;
-DKINTERN unsigned long _DK_playing_good_descriptive_speech;
-DKINTERN long _DK_scrolling_index;
-DKINTERN long _DK_scrolling_offset;
-DKINTERN long _DK_packet_left_button_double_clicked[6];
-DKINTERN long _DK_packet_left_button_click_space_count[6];
+DKINTERN extern unsigned long _DK_playing_bad_descriptive_speech;
+DKINTERN extern unsigned long _DK_playing_good_descriptive_speech;
+DKINTERN extern long _DK_scrolling_index;
+DKINTERN extern long _DK_scrolling_offset;
+DKINTERN extern long _DK_packet_left_button_double_clicked[6];
+DKINTERN extern long _DK_packet_left_button_click_space_count[6];
 
-DKINTERN char _DK_frontend_alliances;
+DKINTERN extern char _DK_frontend_alliances;
 
-DKINTERN char _DK_busy_doing_gui;
-DKINTERN long _DK_gui_last_left_button_pressed_id;
-DKINTERN long _DK_gui_last_right_button_pressed_id;
+DKINTERN extern char _DK_busy_doing_gui;
+DKINTERN extern long _DK_gui_last_left_button_pressed_id;
+DKINTERN extern long _DK_gui_last_right_button_pressed_id;
 DKINTERN int _DK_fe_computer_players;
-DKINTERN long _DK_old_mouse_over_button;
-DKINTERN long _DK_frontend_mouse_over_button;
+DKINTERN extern long _DK_old_mouse_over_button;
+DKINTERN extern long _DK_frontend_mouse_over_button;
 /******************************************************************************/
 TbClockMSec gui_message_timeout = 0;
 char gui_message_text[TEXT_BUFFER_LENGTH];

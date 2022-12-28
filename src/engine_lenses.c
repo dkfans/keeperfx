@@ -34,11 +34,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DKINTERN unsigned char _DK_lens_mode;
-DKINTERN long _DK_lens;
-DKINTERN Perspect_Func _DK_perspective;
-DKINTERN RotPers_Func _DK_rotpers;
-/******************************************************************************/
 Perspect_Func perspective_routines[] = {
   perspective_standard,
   perspective_standard,

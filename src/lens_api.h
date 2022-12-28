@@ -29,9 +29,9 @@ extern "C" {
 #pragma pack(1)
 
 /******************************************************************************/
-DKEXTERN unsigned long *_DK_eye_lens_memory;
+DLLIMPORT unsigned long *_DK_eye_lens_memory;
 #define eye_lens_memory _DK_eye_lens_memory
-DKEXTERN TbPixel *_DK_eye_lens_spare_screen_memory;
+DLLIMPORT TbPixel *_DK_eye_lens_spare_screen_memory;
 #define eye_lens_spare_screen_memory _DK_eye_lens_spare_screen_memory
 
 #pragma pack()

@@ -46,12 +46,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DKINTERN float _DK_phase_of_moon;
-DKINTERN long _DK_net_number_of_levels;
-DKINTERN struct NetLevelDesc _DK_net_level_desc[100];
-DKINTERN struct InstallInfo _DK_install_info;
-DKINTERN char _DK_keeper_runtime_directory[152];
-/******************************************************************************/
 const char keeper_config_file[]="keeperfx.cfg";
 int max_track = 7;
 unsigned short AtmosRepeat = 1013;

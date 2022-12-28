@@ -49,8 +49,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DKINTERN struct ToolTipBox _DK_tool_tip_box;
-/******************************************************************************/
 const char jtytext[] = "Jonty here   : ...I am writing this at 4am on Keepers last day. I look around the office and all I see are the tired pale faces of the Keeper team. This project has destroyed the health and social lives of each member, so I hope you like the game. "
     "Amazingly after sixteen hours a day, 7 days a week, for nearly 5 months we still do. This game has been written with a passion I am proud to be part of.... I do not just hope you like it, I also hope you are aware of the huge amount of work we have all done. "
     "Enough waffle and on to the reason for this text... The endless greetings... Greetings go out to in random order... Rab C, Jacoon, Buck, Si, Barrie, Kik, Chris, Proc, Russ, Rik, Alex Needs, Larry Moor, Emma Teuton - An ale due to each one of you - the list goes on.... "

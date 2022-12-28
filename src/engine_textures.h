@@ -34,9 +34,9 @@ extern "C" {
 #define  TEXTURE_LAND_MARKED_LAND     578
 #define  TEXTURE_LAND_MARKED_GOLD     579
 /******************************************************************************/
-DKEXTERN unsigned char *_DK_block_mem;
-DKEXTERN unsigned char *_DK_block_ptrs[TEXTURE_BLOCKS_COUNT];
-DKEXTERN long _DK_anim_counter;
+DLLIMPORT unsigned char *_DK_block_mem;
+DLLIMPORT unsigned char *_DK_block_ptrs[TEXTURE_BLOCKS_COUNT];
+DLLIMPORT long _DK_anim_counter;
 #define anim_counter _DK_anim_counter
 /******************************************************************************/
 

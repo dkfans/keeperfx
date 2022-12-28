@@ -39,9 +39,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DKINTERN unsigned long *_DK_eye_lens_memory;
-DKINTERN TbPixel *_DK_eye_lens_spare_screen_memory;
-/******************************************************************************/
 void init_lens(unsigned long *lens_mem, int width, int height, int pitch, int nlens, int mag, int period);
 void draw_displacement_lens(unsigned char *dstbuf, unsigned char *srcbuf, unsigned long *lens_mem, int width, int height, int scanln);
 /******************************************************************************/

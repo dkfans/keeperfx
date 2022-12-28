@@ -29,9 +29,6 @@
 #include "post_inc.h"
 
 /******************************************************************************/
-DKINTERN unsigned char _DK_vec_mode;
-DKINTERN unsigned char _DK_vec_colour;
-/******************************************************************************/
 TbPixel vec_colour = 112;
 unsigned char vec_mode;
 unsigned char *LOC_poly_screen;

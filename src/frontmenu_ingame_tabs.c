@@ -65,15 +65,6 @@
 #include "sprites.h"
 #include "post_inc.h"
 
-/******************************************************************************/
-DKINTERN long _DK_activity_list[24];
-DKINTERN char _DK_gui_room_type_highlighted;
-DKINTERN char _DK_gui_door_type_highlighted;
-DKINTERN char _DK_gui_trap_type_highlighted;
-DKINTERN char _DK_gui_creature_type_highlighted;
-DKINTERN unsigned long _DK_first_person_instance_top_half_selected;
-/******************************************************************************/
-
 struct Around const draw_square[] = {
 { 0, 0},
 { 1, 0},{ 1, 1},{ 0, 1},{-1, 1},{-1, 0},{-1,-1},{ 0,-1},

@@ -30,13 +30,13 @@ extern "C" {
 /******************************************************************************/
 #pragma pack(1)
 
-DKEXTERN long _DK_sound_heap_size;
+DLLIMPORT long _DK_sound_heap_size;
 #define sound_heap_size _DK_sound_heap_size
-DKEXTERN unsigned char *_DK_sound_heap_memory;
+DLLIMPORT unsigned char *_DK_sound_heap_memory;
 #define sound_heap_memory _DK_sound_heap_memory
-DKEXTERN long _DK_heap_size;
+DLLIMPORT long _DK_heap_size;
 #define heap_size _DK_heap_size
-DKEXTERN unsigned char *_DK_heap;
+DLLIMPORT unsigned char *_DK_heap;
 #define heap _DK_heap
 
 #pragma pack()

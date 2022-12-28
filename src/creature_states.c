@@ -85,10 +85,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DKINTERN struct StateInfo _DK_states[145];
-DKINTERN long _DK_r_stackpos;
-DKINTERN struct DiggerStack _DK_reinforce_stack[DIGGER_TASK_MAX_COUNT];
-/******************************************************************************/
 #define CREATURE_GUI_STATES_COUNT 3
 /* Please note that functions returning 'short' are not ment to return true/false only! */
 /******************************************************************************/

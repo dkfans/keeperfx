@@ -182,15 +182,15 @@ extern TbBool AssignCpuKeepers;
 
 extern unsigned int vid_scale_flags;
 /******************************************************************************/
-DKEXTERN float _DK_phase_of_moon;
+DLLIMPORT extern float _DK_phase_of_moon;
 #define phase_of_moon _DK_phase_of_moon
-DKEXTERN long _DK_net_number_of_levels;
+DLLIMPORT extern long _DK_net_number_of_levels;
 #define net_number_of_levels _DK_net_number_of_levels
-DKEXTERN struct NetLevelDesc _DK_net_level_desc[100];
+DLLIMPORT extern struct NetLevelDesc _DK_net_level_desc[100];
 #define net_level_desc _DK_net_level_desc
-DKEXTERN struct InstallInfo _DK_install_info;
+DLLIMPORT extern struct InstallInfo _DK_install_info;
 #define install_info _DK_install_info
-DKEXTERN char _DK_keeper_runtime_directory[152];
+DLLIMPORT extern char _DK_keeper_runtime_directory[152];
 #define keeper_runtime_directory _DK_keeper_runtime_directory
 
 #pragma pack()

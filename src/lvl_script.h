@@ -241,7 +241,7 @@ struct LevelScript {
 };
 
 /******************************************************************************/
-DKEXTERN unsigned char _DK_next_command_reusable;
+DLLIMPORT unsigned char _DK_next_command_reusable;
 #define next_command_reusable _DK_next_command_reusable
 
 

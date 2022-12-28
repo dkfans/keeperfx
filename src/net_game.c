@@ -50,17 +50,6 @@ typedef struct _GUID {
 extern "C" {
 #endif
 /******************************************************************************/
-DKINTERN struct TbNetworkPlayerInfo _DK_net_player_info[NET_PLAYERS_COUNT];
-DKINTERN struct TbNetworkSessionNameEntry *_DK_net_session[32];
-DKINTERN long _DK_net_number_of_sessions;
-DKINTERN long _DK_net_session_index_active;
-DKINTERN struct TbNetworkPlayerName _DK_net_player[NET_PLAYERS_COUNT];
-DKINTERN struct ConfigInfo _DK_net_config_info;
-DKINTERN char _DK_net_service[16][NET_SERVICE_LEN];
-DKINTERN char _DK_net_player_name[20];
-DKINTERN struct ServiceInitData _DK_net_serial_data;
-DKINTERN struct ServiceInitData _DK_net_modem_data;
-DKINTERN struct TbModemDev _DK_modem_dev;
 /******************************************************************************/
 DKIMPORT struct _GUID _DK_net_guid;
 #define net_guid _DK_net_guid

@@ -55,8 +55,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DKINTERN struct InstanceButtonInit _DK_instance_button_init[48];
-/******************************************************************************/
 
 // DKIMPORT struct InstanceInfo _DK_instance_info[48];
 // #define instance_info _DK_instance_info

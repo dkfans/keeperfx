@@ -383,124 +383,132 @@ extern long cells_away;
 extern float hud_scale;
 extern int creature_status_size;
 /******************************************************************************/
-DKEXTERN Offset _DK_vert_offset[3];
+DLLIMPORT Offset _DK_vert_offset[3];
 #define vert_offset _DK_vert_offset
-DKEXTERN Offset _DK_hori_offset[3];
+DLLIMPORT Offset _DK_hori_offset[3];
 #define hori_offset _DK_hori_offset
-DKEXTERN Offset _DK_high_offset[3];
+DLLIMPORT Offset _DK_high_offset[3];
 #define high_offset _DK_high_offset
-DKEXTERN long _DK_x_init_off;
+DLLIMPORT long _DK_x_init_off;
 #define x_init_off _DK_x_init_off
-DKEXTERN long _DK_y_init_off;
+DLLIMPORT long _DK_y_init_off;
 #define y_init_off _DK_y_init_off
-DKEXTERN long _DK_floor_pointed_at_x;
+DLLIMPORT long _DK_floor_pointed_at_x;
 #define floor_pointed_at_x _DK_floor_pointed_at_x
-DKEXTERN long _DK_floor_pointed_at_y;
+DLLIMPORT long _DK_floor_pointed_at_y;
 #define floor_pointed_at_y _DK_floor_pointed_at_y
-DKEXTERN long _DK_fade_max;
+DLLIMPORT long _DK_fade_max;
 #define fade_max _DK_fade_max
-DKEXTERN long _DK_fade_scaler;
+DLLIMPORT long _DK_fade_scaler;
 #define fade_scaler _DK_fade_scaler
-DKEXTERN long _DK_fade_way_out;
+DLLIMPORT long _DK_fade_way_out;
 #define fade_way_out _DK_fade_way_out
-DKEXTERN struct MapVolumeBox _DK_map_volume_box;
+DLLIMPORT struct MapVolumeBox _DK_map_volume_box;
 #define map_volume_box _DK_map_volume_box
-DKEXTERN long _DK_map_roll;
+DLLIMPORT long _DK_map_roll;
 #define map_roll _DK_map_roll
-DKEXTERN long _DK_map_tilt;
+DLLIMPORT long _DK_map_tilt;
 #define map_tilt _DK_map_tilt
-DKEXTERN long _DK_view_alt;
+DLLIMPORT long _DK_view_alt;
 #define view_alt _DK_view_alt
-DKEXTERN long _DK_fade_min;
+DLLIMPORT long _DK_fade_min;
 #define fade_min _DK_fade_min
-DKEXTERN long _DK_split_1;
+DLLIMPORT long _DK_split_1;
 #define split_1 _DK_split_1
-DKEXTERN long _DK_split_2;
+DLLIMPORT long _DK_split_2;
 #define split_2 _DK_split_2
-DKEXTERN long _DK_fade_range;
+DLLIMPORT long _DK_fade_range;
 #define fade_range _DK_fade_range
-DKEXTERN long _DK_depth_init_off;
+DLLIMPORT long _DK_depth_init_off;
 #define depth_init_off _DK_depth_init_off
-DKEXTERN int _DK_normal_shade_left;
+DLLIMPORT int _DK_normal_shade_left;
 #define normal_shade_left _DK_normal_shade_left
-DKEXTERN int _DK_normal_shade_right;
+DLLIMPORT int _DK_normal_shade_right;
 #define normal_shade_right _DK_normal_shade_right
-DKEXTERN long _DK_apos;
+DLLIMPORT long _DK_apos;
 #define apos _DK_apos
-DKEXTERN long _DK_bpos;
+DLLIMPORT long _DK_bpos;
 #define bpos _DK_bpos
-DKEXTERN long _DK_ScrCenterX;
+DLLIMPORT long _DK_ScrCenterX;
 #define ScrCenterX _DK_ScrCenterX
-DKEXTERN long _DK_ScrWidth;
+DLLIMPORT long _DK_ScrWidth;
 #define ScrWidth _DK_ScrWidth
-DKEXTERN long _DK_ScrHeight;
+DLLIMPORT long _DK_ScrHeight;
 #define ScrHeight _DK_ScrHeight
-DKEXTERN long _DK_ScrCenterY;
+DLLIMPORT long _DK_ScrCenterY;
 #define ScrCenterY _DK_ScrCenterY
-DKEXTERN long _DK_split1at;
+DLLIMPORT long _DK_split1at;
 #define split1at _DK_split1at
-DKEXTERN long _DK_split2at;
+DLLIMPORT long _DK_split2at;
 #define split2at _DK_split2at
-DKEXTERN long _DK_view_height_over_2;
+DLLIMPORT long _DK_view_height_over_2;
 #define view_height_over_2 _DK_view_height_over_2
-DKEXTERN long _DK_view_width_over_2;
+DLLIMPORT long _DK_view_width_over_2;
 #define view_width_over_2 _DK_view_width_over_2
-DKEXTERN long _DK_map_x_pos;
+DLLIMPORT long _DK_map_x_pos;
 #define map_x_pos _DK_map_x_pos
-DKEXTERN long _DK_map_y_pos;
+DLLIMPORT long _DK_map_y_pos;
 #define map_y_pos _DK_map_y_pos
-DKEXTERN long _DK_map_z_pos;
+DLLIMPORT long _DK_map_z_pos;
 #define map_z_pos _DK_map_z_pos
-DKEXTERN int _DK_normal_shade_front;
+DLLIMPORT int _DK_normal_shade_front;
 #define normal_shade_front _DK_normal_shade_front
-DKEXTERN int _DK_normal_shade_back;
+DLLIMPORT int _DK_normal_shade_back;
 #define normal_shade_back _DK_normal_shade_back
-DKEXTERN unsigned char _DK_temp_cluedo_mode; // This is true(1) if the "short wall" have been enabled in the graphics options
+DLLIMPORT unsigned char _DK_temp_cluedo_mode; // This is true(1) if the "short wall" have been enabled in the graphics options
 #define temp_cluedo_mode _DK_temp_cluedo_mode
-DKEXTERN long _DK_me_distance;
+DLLIMPORT long _DK_me_distance;
 #define me_distance _DK_me_distance
-DKEXTERN short _DK_mx;
+DLLIMPORT short _DK_mx;
 #define mx _DK_mx
-DKEXTERN short _DK_my;
+DLLIMPORT short _DK_my;
 #define my _DK_my
-DKEXTERN short _DK_mz;
+DLLIMPORT short _DK_mz;
 #define mz _DK_mz
-DKEXTERN unsigned char _DK_engine_player_number;
+DLLIMPORT unsigned char _DK_engine_player_number;
 #define engine_player_number _DK_engine_player_number
-DKEXTERN unsigned char _DK_player_bit;
+DLLIMPORT unsigned char _DK_player_bit;
 #define player_bit _DK_player_bit
-DKEXTERN long _DK_UseFastBlockDraw;
+DLLIMPORT long _DK_UseFastBlockDraw;
 #define UseFastBlockDraw _DK_UseFastBlockDraw
-DKEXTERN long _DK_thelens;
+DLLIMPORT unsigned char *_DK_gtblock_screen_addr;
+#define gtblock_screen_addr _DK_gtblock_screen_addr
+DLLIMPORT long _DK_gtblock_clip_width;
+#define gtblock_clip_width _DK_gtblock_clip_width
+DLLIMPORT long _DK_gtblock_clip_height;
+#define gtblock_clip_height _DK_gtblock_clip_height
+DLLIMPORT long _DK_gtblock_screen_width;
+#define gtblock_screen_width _DK_gtblock_screen_width
+DLLIMPORT long _DK_thelens;
 #define thelens _DK_thelens
-DKEXTERN long _DK_fade_mmm;
+DLLIMPORT long _DK_fade_mmm;
 #define fade_mmm _DK_fade_mmm
-DKEXTERN long _DK_spr_map_angle;
+DLLIMPORT long _DK_spr_map_angle;
 #define spr_map_angle _DK_spr_map_angle
-DKEXTERN long _DK_lfade_max;
+DLLIMPORT long _DK_lfade_max;
 #define lfade_max _DK_lfade_max
-DKEXTERN long _DK_lfade_min;
+DLLIMPORT long _DK_lfade_min;
 #define lfade_min _DK_lfade_min
-DKEXTERN struct Thing *_DK_thing_being_displayed;
+DLLIMPORT struct Thing *_DK_thing_being_displayed;
 #define thing_being_displayed _DK_thing_being_displayed
-DKEXTERN unsigned char _DK_thing_being_displayed_is_creature;
+DLLIMPORT unsigned char _DK_thing_being_displayed_is_creature;
 #define thing_being_displayed_is_creature _DK_thing_being_displayed_is_creature
-DKEXTERN long _DK_global_scaler;
+DLLIMPORT long _DK_global_scaler;
 #define global_scaler _DK_global_scaler
-DKEXTERN long _DK_water_source_cutoff;
+DLLIMPORT long _DK_water_source_cutoff;
 #define water_source_cutoff _DK_water_source_cutoff
-DKEXTERN long _DK_water_y_offset;
+DLLIMPORT long _DK_water_y_offset;
 #define water_y_offset _DK_water_y_offset
 
-DKEXTERN TbSpriteData *_DK_keepsprite[KEEPSPRITE_LENGTH];
+DLLIMPORT TbSpriteData *_DK_keepsprite[KEEPSPRITE_LENGTH];
 #define keepsprite _DK_keepsprite
-DKEXTERN struct HeapMgrHandle * _DK_heap_handle[KEEPSPRITE_LENGTH];
+DLLIMPORT struct HeapMgrHandle * _DK_heap_handle[KEEPSPRITE_LENGTH];
 #define heap_handle _DK_heap_handle
-DKEXTERN struct HeapMgrHeader *_DK_graphics_heap;
+DLLIMPORT struct HeapMgrHeader *_DK_graphics_heap;
 #define graphics_heap _DK_graphics_heap
-DKEXTERN TbFileHandle _DK_file_handle;
+DLLIMPORT TbFileHandle _DK_file_handle;
 #define file_handle _DK_file_handle
-DKEXTERN long _DK_cam_map_angle;
+DLLIMPORT long _DK_cam_map_angle;
 #define cam_map_angle _DK_cam_map_angle
 
 extern TbSpriteData keepersprite_add[KEEPERSPRITE_ADD_NUM];

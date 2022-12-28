@@ -31,21 +31,21 @@ extern "C" {
 #pragma pack(1)
 
 /******************************************************************************/
-DKEXTERN int _DK_fe_network_active;
+DLLIMPORT int _DK_fe_network_active;
 #define fe_network_active _DK_fe_network_active
-DKEXTERN int _DK_net_service_index_selected;
+DLLIMPORT extern int _DK_net_service_index_selected;
 #define net_service_index_selected _DK_net_service_index_selected
-DKEXTERN char _DK_tmp_net_player_name[24];
+DLLIMPORT char _DK_tmp_net_player_name[24];
 #define tmp_net_player_name _DK_tmp_net_player_name
-DKEXTERN char _DK_tmp_net_phone_number[24];
+DLLIMPORT char _DK_tmp_net_phone_number[24];
 #define tmp_net_phone_number _DK_tmp_net_phone_number
-DKEXTERN char _DK_tmp_net_modem_init[20];
+DLLIMPORT char _DK_tmp_net_modem_init[20];
 #define tmp_net_modem_init _DK_tmp_net_modem_init
-DKEXTERN char _DK_tmp_net_modem_dial[20];
+DLLIMPORT char _DK_tmp_net_modem_dial[20];
 #define tmp_net_modem_dial _DK_tmp_net_modem_dial
-DKEXTERN char _DK_tmp_net_modem_hangup[20];
+DLLIMPORT char _DK_tmp_net_modem_hangup[20];
 #define tmp_net_modem_hangup _DK_tmp_net_modem_hangup
-DKEXTERN char _DK_tmp_net_modem_answer[20];
+DLLIMPORT char _DK_tmp_net_modem_answer[20];
 #define tmp_net_modem_answer _DK_tmp_net_modem_answer
 
 #pragma pack()

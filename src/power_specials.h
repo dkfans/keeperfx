@@ -53,13 +53,13 @@ long field_4;
 };
 
 /******************************************************************************/
-DKEXTERN long _DK_transfer_creature_scroll_offset;
+DLLIMPORT long _DK_transfer_creature_scroll_offset;
 #define transfer_creature_scroll_offset _DK_transfer_creature_scroll_offset
-DKEXTERN long _DK_resurrect_creature_scroll_offset;
+DLLIMPORT long _DK_resurrect_creature_scroll_offset;
 #define resurrect_creature_scroll_offset _DK_resurrect_creature_scroll_offset
-DKEXTERN unsigned short _DK_dungeon_special_selected;
+DLLIMPORT unsigned short _DK_dungeon_special_selected;
 #define dungeon_special_selected _DK_dungeon_special_selected
-DKEXTERN struct SpecialDesc _DK_special_desc[8];
+DLLIMPORT struct SpecialDesc _DK_special_desc[8];
 #define special_desc _DK_special_desc
 
 #pragma pack()

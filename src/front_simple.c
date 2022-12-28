@@ -43,9 +43,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DKINTERN unsigned char *_DK_palette;
-DKINTERN unsigned char *_DK_scratch;
-/******************************************************************************/
 #ifdef SPRITE_FORMAT_V2
 struct RawBitmap bitmaps_1280[] = {
   {"Empty Image",    1280, 960, 8, FGrp_Main,     NULL,               NULL},

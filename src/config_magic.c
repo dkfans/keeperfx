@@ -41,8 +41,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DKINTERN struct ShotStats _DK_shot_stats[30];
-/******************************************************************************/
 const char keeper_magic_file[]="magic.cfg";
 
 const struct NamedCommand magic_common_commands[] = {

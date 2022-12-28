@@ -128,16 +128,16 @@ struct TbAlphaTables {
     //unsigned char unused[215*256];
 };
 /******************************************************************************/
-DKEXTERN int _DK_MinimalResolutionSetup;
+DLLIMPORT int _DK_MinimalResolutionSetup;
 #define MinimalResolutionSetup _DK_MinimalResolutionSetup
 
-DKEXTERN struct TbColorTables _DK_pixmap;
+DLLIMPORT struct TbColorTables _DK_pixmap;
 #define pixmap _DK_pixmap
-DKEXTERN struct TbAlphaTables _DK_alpha_sprite_table;
+DLLIMPORT struct TbAlphaTables _DK_alpha_sprite_table;
 #define alpha_sprite_table _DK_alpha_sprite_table
-DKEXTERN unsigned char _DK_white_pal[256];
+DLLIMPORT unsigned char _DK_white_pal[256];
 #define white_pal _DK_white_pal
-DKEXTERN unsigned char _DK_red_pal[256];
+DLLIMPORT unsigned char _DK_red_pal[256];
 #define red_pal _DK_red_pal
 
 #pragma pack()

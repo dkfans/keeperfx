@@ -61,11 +61,6 @@
 #include "post_inc.h"
 
 /******************************************************************************/
-DKINTERN int _DK_parchment_loaded;
-DKINTERN unsigned char *_DK_hires_parchment;
-/******************************************************************************/
-
-/******************************************************************************/
 unsigned short engine_remap_texture_blocks(long stl_x, long stl_y, unsigned short tex_id);
 /******************************************************************************/
 void load_parchment_file(void)
