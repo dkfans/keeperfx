@@ -41,6 +41,8 @@ extern "C" {
 #endif
 /******************************************************************************/
 
+struct KeeperSprite *creature_table;
+
 struct CreaturePickedUpOffset creature_picked_up_offset[] = {
   {  0,   0,  0,  0},
   {  6, 122,  0,  0},

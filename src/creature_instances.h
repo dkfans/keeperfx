@@ -109,8 +109,7 @@ struct InstanceButtonInit {  // sizeof=0x6
 };
 /******************************************************************************/
 
-DLLIMPORT struct InstanceButtonInit _DK_instance_button_init[48];
-#define instance_button_init _DK_instance_button_init
+extern struct InstanceButtonInit instance_button_init[48];
 
 #pragma pack()
 /******************************************************************************/

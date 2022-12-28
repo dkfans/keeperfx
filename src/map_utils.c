@@ -94,6 +94,8 @@ struct Around const start_at_around[] = {
     { 1, -1}, { 1,  0}, { 1,  1},
 };
 
+struct MapOffset spiral_step[SPIRAL_STEPS_COUNT];
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

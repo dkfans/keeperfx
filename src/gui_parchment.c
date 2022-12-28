@@ -63,6 +63,9 @@
 /******************************************************************************/
 unsigned short engine_remap_texture_blocks(long stl_x, long stl_y, unsigned short tex_id);
 /******************************************************************************/
+int parchment_loaded;
+unsigned char *hires_parchment;
+/******************************************************************************/
 void load_parchment_file(void)
 {
     if ( !parchment_loaded )

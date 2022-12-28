@@ -42,6 +42,14 @@
 
 /******************************************************************************/
 extern struct TbLoadFiles frontstory_load_files_640[];
+
+static long frontstory_text_no;
+static struct TbSetupSprite frontstory_setup_sprites[2];
+static long credits_scroll_speed;
+
+struct TbSprite *frontstory_font;
+long credits_offset;
+int credits_end;
 /******************************************************************************/
 void frontstory_load(void)
 {

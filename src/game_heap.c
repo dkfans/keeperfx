@@ -40,8 +40,12 @@ extern "C" {
 }
 #endif
 /******************************************************************************/
-const char *sound_fname = "sound.dat";
-const char *speech_fname = "speech.dat";
+static const char *sound_fname = "sound.dat";
+static const char *speech_fname = "speech.dat";
+static unsigned char *sound_heap_memory;
+static unsigned char *heap;
+static long heap_size;
+static long sound_heap_size;
 /******************************************************************************/
 long get_smaller_memory_amount(long amount)
 {

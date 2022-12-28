@@ -72,6 +72,8 @@ long instf_reinforce(struct Thing *creatng, long *param);
 long instf_tortured(struct Thing *creatng, long *param);
 long instf_tunnel(struct Thing *creatng, long *param);
 
+struct InstanceButtonInit instance_button_init[48];
+
 const struct NamedCommand creature_instances_func_type[] = {
   {"attack_room_slab",         1},
   {"creature_cast_spell",      2},

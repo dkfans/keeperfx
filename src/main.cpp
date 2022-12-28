@@ -138,6 +138,51 @@ short do_draw;
 short default_loc_player = 0;
 struct StartupParameters start_params;
 
+unsigned char *blue_palette;
+unsigned char *red_palette;
+unsigned char *dog_palette;
+unsigned char *vampire_palette;
+unsigned char exit_keeper;
+unsigned char quit_game;
+int continue_game_option_available;
+long last_mouse_x;
+long last_mouse_y;
+int FatalError;
+long define_key_scroll_offset;
+unsigned long time_last_played_demo;
+short drag_menu_x;
+short drag_menu_y;
+unsigned short tool_tip_time;
+unsigned short help_tip_time;
+long pointer_x;
+long pointer_y;
+long block_pointed_at_x;
+long block_pointed_at_y;
+long pointed_at_frac_x;
+long pointed_at_frac_y;
+long top_pointed_at_x;
+long top_pointed_at_y;
+long top_pointed_at_frac_x;
+long top_pointed_at_frac_y;
+char level_name[88];
+char top_of_breed_list;
+/** Amount of different creature kinds the local player has. Used for creatures tab in panel menu. */
+char no_of_breeds_owned;
+long optimised_lights;
+long total_lights;
+unsigned char do_lights;
+struct Thing *thing_pointed_at;
+struct Map *me_pointed_at;
+long my_mouse_x;
+long my_mouse_y;
+char *level_names_data;
+char *end_level_names_data;
+unsigned char *frontend_backup_palette;
+unsigned char zoom_to_heart_palette[768];
+unsigned char EngineSpriteDrawUsingAlpha;
+unsigned char temp_pal[768];
+unsigned char *lightning_palette;
+
 //static
 TbClockMSec last_loop_time=0;
 
@@ -146,9 +191,6 @@ extern "C" {
 #endif
 
 TbBool force_player_num = false;
-
-// Now variables
-DLLIMPORT extern HINSTANCE _DK_hInstance;
 
 /******************************************************************************/
 
@@ -4270,7 +4312,6 @@ LONG __stdcall Vex_handler(
 int main(int argc, char *argv[])
 {
   char *text;
-  _DK_hInstance = GetModuleHandle(NULL);
 
   AddVectoredExceptionHandler(0, &Vex_handler);
   get_cmdln_args(bf_argc, bf_argv);
