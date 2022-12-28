@@ -47,15 +47,10 @@ struct XYZ { // sizeof = 12
 };
 
 /******************************************************************************/
-DLLIMPORT unsigned char _DK_lens_mode;
-#define lens_mode _DK_lens_mode
-DLLIMPORT long _DK_lens;
-#define lens _DK_lens
-DLLIMPORT Perspect_Func _DK_perspective;
-#define perspective _DK_perspective
-DLLIMPORT RotPers_Func _DK_rotpers;
-#define rotpers _DK_rotpers
-
+extern unsigned char lens_mode;
+extern long lens;
+extern Perspect_Func perspective;
+extern RotPers_Func rotpers;
 #pragma pack()
 /******************************************************************************/
 extern Perspect_Func perspective_routines[];

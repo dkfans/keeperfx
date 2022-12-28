@@ -60,10 +60,8 @@ struct ActiveBitmap {
 /******************************************************************************/
 extern unsigned char palette_buf[PALETTE_SIZE];
 /******************************************************************************/
-DLLIMPORT extern unsigned char *_DK_palette;
-#define engine_palette _DK_palette
-DLLIMPORT extern unsigned char *_DK_scratch;
-#define scratch _DK_scratch
+extern unsigned char *engine_palette;
+extern unsigned char *scratch;
 
 extern unsigned char *big_scratch; // 16 Mb
 /******************************************************************************/

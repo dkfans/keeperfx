@@ -96,10 +96,8 @@ extern long previous_camera_zoom;
 extern long interpolated_camera_zoom;
 
 /******************************************************************************/
-DLLIMPORT extern struct M33 _DK_camera_matrix;
-#define camera_matrix _DK_camera_matrix
-DLLIMPORT extern struct EngineCoord _DK_object_origin;
-#define object_origin _DK_object_origin
+
+extern struct EngineCoord object_origin;
 
 #pragma pack()
 /******************************************************************************/

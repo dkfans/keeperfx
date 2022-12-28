@@ -354,20 +354,6 @@ struct EventTypeInfo event_button_info[] = {
   {  0, GUIStr_Empty,                       GUIStr_Empty,                   1200,  50, EvKind_Nothing}, // EvKind_EnemyDoor
 };
 
-/*
-struct DoorDesc doors[] = {
-  {102,  13, 102,  20,  97, 155, 0, 0, 0, 0, 200},
-  {253,   0, 257,   0, 103, 118, 0, 0, 0, 0, 201},
-  {399,   0, 413,   0, 114, 144, 0, 0, 0, 0, 202},
-  {511,  65, 546,  85,  94, 160, 0, 0, 0, 0, 203},
-  {149, 211, 153, 232,  55,  84, 0, 0, 0, 0, 204},
-  {258, 176, 262, 178,  60,  84, 0, 0, 0, 0, 205},
-  {364, 183, 375, 191,  70,  95, 0, 0, 0, 0, 206},
-  {466, 257, 473, 261,  67,  94, 0, 0, 0, 0, 207},
-  {254, 368, 260, 391, 128,  80, 0, 0, 0, 0, 208},
-};
-*/
-
 const unsigned long alliance_grid[4][4] = {
   {0x00, 0x01, 0x02, 0x04,},
   {0x01, 0x00, 0x08, 0x10,},
@@ -386,6 +372,73 @@ long num_chars_in_font = 128;
 
 int status_panel_width = 140;
 // struct MsgBoxInfo MsgBox;
+
+char info_tag;
+char room_tag;
+char spell_tag;
+char trap_tag;
+char creature_tag;
+char input_string[8][16];
+char gui_error_text[256];
+long net_service_scroll_offset;
+long net_number_of_services;
+long net_comport_index_active;
+long net_speed_index_active;
+long net_number_of_players;
+long net_number_of_enum_players;
+long net_map_slap_frame;
+long net_level_hilighted;
+struct NetMessage net_message[NET_MESSAGES_COUNT];
+long net_number_of_messages;
+long net_message_scroll_offset;
+long net_session_index_active_id;
+long net_session_scroll_offset;
+long net_player_scroll_offset;
+struct GuiButton active_buttons[ACTIVE_BUTTONS_COUNT];
+long frontend_mouse_over_button_start_time;
+short old_menu_mouse_x;
+short old_menu_mouse_y;
+unsigned char menu_ids[3];
+unsigned char new_objective;
+int frontend_menu_state;
+int load_game_scroll_offset;
+unsigned char video_gamma_correction;
+
+// *** SPRITES ***
+struct TbSprite *font_sprites;
+struct TbSprite *end_font_sprites;
+unsigned char * font_data;
+struct TbSprite *frontend_font[FRONTEND_FONTS_COUNT];
+struct TbSprite *frontend_end_font[FRONTEND_FONTS_COUNT];
+unsigned char * frontend_font_data[FRONTEND_FONTS_COUNT];
+unsigned char * frontend_end_font_data[FRONTEND_FONTS_COUNT];
+struct TbSprite *button_sprite;
+struct TbSprite *end_button_sprites;
+unsigned char * button_sprite_data;
+unsigned long end_button_sprite_data;
+struct TbSprite *winfont;
+struct TbSprite *end_winfonts;
+unsigned char * winfont_data;
+unsigned char * end_winfont_data;
+struct TbSprite *edit_icon_sprites;
+struct TbSprite *end_edit_icon_sprites;
+unsigned char * edit_icon_data;
+struct TbSprite *port_sprite;
+struct TbSprite *end_port_sprites;
+unsigned char * port_sprite_data;
+unsigned long playing_bad_descriptive_speech;
+unsigned long playing_good_descriptive_speech;
+long scrolling_index;
+long scrolling_offset;
+long packet_left_button_double_clicked[6];
+long packet_left_button_click_space_count[6];
+char frontend_alliances;
+char busy_doing_gui;
+long gui_last_left_button_pressed_id;
+long gui_last_right_button_pressed_id;
+int fe_computer_players;
+long old_mouse_over_button;
+long frontend_mouse_over_button;
 
 /******************************************************************************/
 short menu_is_active(short idx)

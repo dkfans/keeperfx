@@ -136,103 +136,50 @@ struct StartupParameters {
 
 // Global variables migration between DLL and the program
 
-DLLIMPORT extern unsigned char *_DK_blue_palette;
-#define blue_palette _DK_blue_palette
-DLLIMPORT extern unsigned char *_DK_red_palette;
-#define red_palette _DK_red_palette
-DLLIMPORT extern unsigned char *_DK_dog_palette;
-#define dog_palette _DK_dog_palette
-DLLIMPORT extern unsigned char *_DK_vampire_palette;
-#define vampire_palette _DK_vampire_palette
-DLLIMPORT extern unsigned char _DK_exit_keeper;
-#define exit_keeper _DK_exit_keeper
-DLLIMPORT extern unsigned char _DK_quit_game;
-#define quit_game _DK_quit_game
-DLLIMPORT extern int _DK_continue_game_option_available;
-#define continue_game_option_available _DK_continue_game_option_available
-DLLIMPORT extern long _DK_last_mouse_x;
-#define last_mouse_x _DK_last_mouse_x
-DLLIMPORT extern long _DK_last_mouse_y;
-#define last_mouse_y _DK_last_mouse_y
-DLLIMPORT extern int _DK_FatalError;
-#define FatalError _DK_FatalError
-DLLIMPORT extern long _DK_define_key_scroll_offset;
-#define define_key_scroll_offset _DK_define_key_scroll_offset
-DLLIMPORT extern unsigned long _DK_time_last_played_demo;
-#define time_last_played_demo _DK_time_last_played_demo
-DLLIMPORT extern short _DK_drag_menu_x;
-#define drag_menu_x _DK_drag_menu_x
-DLLIMPORT extern short _DK_drag_menu_y;
-#define drag_menu_y _DK_drag_menu_y
-DLLIMPORT extern unsigned short _DK_tool_tip_time;
-#define tool_tip_time _DK_tool_tip_time
-DLLIMPORT extern unsigned short _DK_help_tip_time;
-#define help_tip_time _DK_help_tip_time
-DLLIMPORT extern long _DK_pointer_x;
-#define pointer_x _DK_pointer_x
-DLLIMPORT extern long _DK_pointer_y;
-#define pointer_y _DK_pointer_y
-DLLIMPORT extern long _DK_block_pointed_at_x;
-#define block_pointed_at_x _DK_block_pointed_at_x
-DLLIMPORT extern long _DK_block_pointed_at_y;
-#define block_pointed_at_y _DK_block_pointed_at_y
-DLLIMPORT extern long _DK_pointed_at_frac_x;
-#define pointed_at_frac_x _DK_pointed_at_frac_x
-DLLIMPORT extern long _DK_pointed_at_frac_y;
-#define pointed_at_frac_y _DK_pointed_at_frac_y
-DLLIMPORT extern long _DK_top_pointed_at_x;
-#define top_pointed_at_x _DK_top_pointed_at_x
-DLLIMPORT extern long _DK_top_pointed_at_y;
-#define top_pointed_at_y _DK_top_pointed_at_y
-DLLIMPORT extern long _DK_top_pointed_at_frac_x;
-#define top_pointed_at_frac_x _DK_top_pointed_at_frac_x
-DLLIMPORT extern long _DK_top_pointed_at_frac_y;
-#define top_pointed_at_frac_y _DK_top_pointed_at_frac_y
-DLLIMPORT long _DK_frame_number;
-#define frame_number _DK_frame_number
-DLLIMPORT long _DK_draw_spell_cost;
-#define draw_spell_cost _DK_draw_spell_cost
-DLLIMPORT char _DK_level_name[88];
-#define level_name _DK_level_name
-DLLIMPORT char _DK_top_of_breed_list;
-#define top_of_breed_list _DK_top_of_breed_list
+extern unsigned char *blue_palette;
+extern unsigned char *red_palette;
+extern unsigned char *dog_palette;
+extern unsigned char *vampire_palette;
+extern unsigned char exit_keeper;
+extern unsigned char quit_game;
+extern int continue_game_option_available;
+extern long last_mouse_x;
+extern long last_mouse_y;
+extern int FatalError;
+extern long define_key_scroll_offset;
+extern unsigned long time_last_played_demo;
+extern short drag_menu_x;
+extern short drag_menu_y;
+extern unsigned short tool_tip_time;
+extern unsigned short help_tip_time;
+extern long pointer_x;
+extern long pointer_y;
+extern long block_pointed_at_x;
+extern long block_pointed_at_y;
+extern long pointed_at_frac_x;
+extern long pointed_at_frac_y;
+extern long top_pointed_at_x;
+extern long top_pointed_at_y;
+extern long top_pointed_at_frac_x;
+extern long top_pointed_at_frac_y;
+extern char level_name[88];
+extern char top_of_breed_list;
 /** Amount of different creature kinds the local player has. Used for creatures tab in panel menu. */
-DLLIMPORT char _DK_no_of_breeds_owned;
-#define no_of_breeds_owned _DK_no_of_breeds_owned
-DLLIMPORT long _DK_optimised_lights;
-#define optimised_lights _DK_optimised_lights
-DLLIMPORT long _DK_total_lights;
-#define total_lights _DK_total_lights
-DLLIMPORT unsigned char _DK_do_lights;
-#define do_lights _DK_do_lights
-DLLIMPORT struct Thing *_DK_thing_pointed_at;
-#define thing_pointed_at _DK_thing_pointed_at
-DLLIMPORT struct Map *_DK_me_pointed_at;
-#define me_pointed_at _DK_me_pointed_at
-DLLIMPORT long _DK_my_mouse_x;
-#define my_mouse_x _DK_my_mouse_x
-DLLIMPORT long _DK_my_mouse_y;
-#define my_mouse_y _DK_my_mouse_y
-DLLIMPORT char *_DK_level_names_data;
-#define level_names_data _DK_level_names_data
-DLLIMPORT char *_DK_end_level_names_data;
-#define end_level_names_data _DK_end_level_names_data
-DLLIMPORT unsigned char *_DK_frontend_backup_palette;
-#define frontend_backup_palette _DK_frontend_backup_palette
-DLLIMPORT long _DK_dummy_x;
-#define dummy_x _DK_dummy_x
-DLLIMPORT long _DK_dummy_y;
-#define dummy_y _DK_dummy_y
-DLLIMPORT long _DK_dummy;
-#define dummy _DK_dummy
-DLLIMPORT unsigned char _DK_zoom_to_heart_palette[768];
-#define zoom_to_heart_palette _DK_zoom_to_heart_palette
-DLLIMPORT unsigned char _DK_EngineSpriteDrawUsingAlpha;
-#define EngineSpriteDrawUsingAlpha _DK_EngineSpriteDrawUsingAlpha
-DLLIMPORT unsigned char _DK_temp_pal[768];
-#define temp_pal _DK_temp_pal
-DLLIMPORT unsigned char *_DK_lightning_palette;
-#define lightning_palette _DK_lightning_palette
+extern char no_of_breeds_owned;
+extern long optimised_lights;
+extern long total_lights;
+extern unsigned char do_lights;
+extern struct Thing *thing_pointed_at;
+extern struct Map *me_pointed_at;
+extern long my_mouse_x;
+extern long my_mouse_y;
+extern char *level_names_data;
+extern char *end_level_names_data;
+extern unsigned char *frontend_backup_palette;
+extern unsigned char zoom_to_heart_palette[768];
+extern unsigned char EngineSpriteDrawUsingAlpha;
+extern unsigned char temp_pal[768];
+extern unsigned char *lightning_palette;
 
 #pragma pack()
 /******************************************************************************/
