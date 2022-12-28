@@ -46,8 +46,6 @@ enum SpecialKinds {
 };
 
 struct SpecialDesc {
-long field_0;
-long field_4;
     /** Speech message index, from TbSpeechMessages enum */
     long speech_msg;
 };
@@ -56,7 +54,6 @@ long field_4;
 extern long transfer_creature_scroll_offset;
 extern long resurrect_creature_scroll_offset;
 extern unsigned short dungeon_special_selected;
-extern struct SpecialDesc special_desc[8];
 
 #pragma pack()
 /******************************************************************************/
