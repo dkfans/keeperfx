@@ -301,9 +301,6 @@ TbBool creature_stats_invalid(const struct CreatureStats *crstat)
 void creature_stats_updated(ThingModel crstat_idx)
 {
     struct CreatureStats* crstat = creature_stats_get(crstat_idx);
-    // Update old stats by copying part of the new stats memory
-    // Note that CreatureStats may only change at end for this hack to work!
-    memcpy(&game.creature_stats_OLD[crstat_idx],crstat,sizeof(struct CreatureStatsOLD));
 }
 
 void check_and_auto_fix_stats(void)
