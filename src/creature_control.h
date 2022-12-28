@@ -208,10 +208,10 @@ unsigned char field_67;
   } party;
   struct {
     long stack_update_turn;
-    short working_stl;
+    unsigned short working_stl;
     unsigned short task_stl;
     unsigned short task_idx;
-    unsigned char byte_93;
+    unsigned char consecutive_reinforcements;
     unsigned char last_did_job;
     unsigned char task_stack_pos;
     unsigned short task_repeats;
@@ -360,7 +360,7 @@ unsigned char field_67;
     unsigned short spell_flags; // Sometimes treated as two bytes, but it's a short (AC + AD)
     unsigned char field_AE;
     short force_visible;
-    unsigned char field_B1;
+    unsigned char frozen_on_hit;
     long field_B2;
     unsigned char disease_caster_plyridx;
     unsigned char teleport_x;
@@ -648,6 +648,7 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     TbBool illuminated;
     char corpse_vanish_effect;
     short footstep_pitch;
+    short lair_object;
 };
 
 struct Persons {

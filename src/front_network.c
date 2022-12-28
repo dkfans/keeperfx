@@ -61,6 +61,15 @@ const struct ConfigInfo default_net_config_info = {
     "",
     "",
 };
+
+int fe_network_active;
+int net_service_index_selected;
+char tmp_net_player_name[24];
+char tmp_net_phone_number[24];
+char tmp_net_modem_init[20];
+char tmp_net_modem_dial[20];
+char tmp_net_modem_hangup[20];
+char tmp_net_modem_answer[20];
 /******************************************************************************/
 #ifdef __cplusplus
 }

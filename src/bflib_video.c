@@ -64,6 +64,21 @@ char lbDrawAreaTitle[128] = "Bullfrog Shell";
 volatile TbBool lbInteruptMouse;
 volatile unsigned long lbIconIndex = 0;
 SDL_Window *lbWindow = NULL;
+
+TbDisplayStruct lbDisplay;
+
+
+unsigned short MyScreenWidth;
+unsigned short MyScreenHeight;
+unsigned short pixel_size;
+unsigned short pixels_per_block;
+unsigned short units_per_pixel;
+
+static unsigned char fade_started;
+static unsigned char from_pal[PALETTE_SIZE];
+static unsigned char to_pal[PALETTE_SIZE];
+static long fade_count;
+
 /******************************************************************************/
 void *LbExeReferenceNumber(void)
 {

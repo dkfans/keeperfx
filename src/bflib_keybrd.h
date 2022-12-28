@@ -201,34 +201,14 @@ enum KeyModifiers {
 typedef unsigned char TbKeyCode;
 typedef short TbKeyMods;
 
-DLLIMPORT extern unsigned char _DK_lbKeyOn[256];
-#define lbKeyOn _DK_lbKeyOn
-DLLIMPORT extern unsigned char _DK_lbInkey;
-#define lbInkey _DK_lbInkey
-DLLIMPORT unsigned char _DK_lbInkeyFlags;
-#define lbInkeyFlags _DK_lbInkeyFlags
-DLLIMPORT extern unsigned char _DK_lbIInkey;
-#define lbIInkey _DK_lbIInkey
-DLLIMPORT unsigned char _DK_lbIInkeyFlags;
-#define lbIInkeyFlags _DK_lbIInkeyFlags
-DLLIMPORT int _DK_lbKeyboardLang;
-#define lbKeyboardLang _DK_lbKeyboardLang
-DLLIMPORT unsigned char _DK_lbExtendedKeyPress;
-#define lbExtendedKeyPress _DK_lbExtendedKeyPress
-
 #pragma pack()
 /******************************************************************************/
 
-/*
-extern unsigned long text_buf_pos;
-extern unsigned char lbKeyOn[];
-extern unsigned char lbShift;
-
-extern unsigned short flow_control_flags;
-*/
 extern const char AsciiToInkey[];
 extern char lbInkeyToAscii[];
 extern char lbInkeyToAsciiShift[];
+extern unsigned char lbKeyOn[256];
+extern unsigned char lbInkey;
 
 /******************************************************************************/
 short LbIKeyboardOpen(void);

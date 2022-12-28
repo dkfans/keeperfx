@@ -39,8 +39,12 @@
 extern "C" {
 #endif
 /******************************************************************************/
-TbBool lbAdvancedFade = true;
-int lbFadeDelay = 25;
+static TbBool lbAdvancedFade = true;
+static int lbFadeDelay = 25;
+
+unsigned char fade_palette_in;
+unsigned char frontend_palette[768];
+TbRGBColorTable colours;
 /******************************************************************************/
 void fade_in(void)
 {

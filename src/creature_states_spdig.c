@@ -374,7 +374,6 @@ long check_out_place_for_convert_behind_door(struct Thing *thing, MapSlabCoord s
 
 long check_out_unconverted_drop_place(struct Thing *thing)
 {
-    //return _DK_check_out_unconverted_drop_place(thing);
     MapSlabCoord slb_x = subtile_slab_fast(thing->mappos.x.stl.num);
     MapSlabCoord slb_y = subtile_slab_fast(thing->mappos.y.stl.num);
     if (check_place_to_convert_excluding(thing, slb_x, slb_y))
@@ -650,7 +649,7 @@ long check_out_unreinforced_drop_place(struct Thing *thing)
 
                     thing->continue_state = CrSt_ImpArrivesAtReinforce;
                     cctrl->digger.working_stl = stl_num;
-                    cctrl->digger.byte_93 = 0;
+                    cctrl->digger.consecutive_reinforcements = 0;
                     SYNCDBG(8,"Assigned reinforce at (%d,%d) to %s index %d",(int)pos_x,(int)pos_y,thing_model_name(thing),(int)thing->index);
                     return 1;
                 }
@@ -1279,7 +1278,6 @@ short imp_picks_up_gold_pile(struct Thing *spdigtng)
 short imp_reinforces(struct Thing *thing)
 {
     TRACE_THING(thing);
-    //return _DK_imp_reinforces(thing);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     MapSubtlCoord stl_x = stl_num_decode_x(cctrl->digger.working_stl);
     MapSubtlCoord stl_y = stl_num_decode_y(cctrl->digger.working_stl);
@@ -1657,12 +1655,14 @@ short creature_picks_up_trap_object(struct Thing *thing)
     SYNCDBG(18,"Moving %s index %d",thing_model_name(thing),(int)thing->index);
     if (room_exists(room))
     {
-        remove_workshop_object_from_workshop(room,cratetng);
-        if (!is_hero_thing(cratetng) && !is_neutral_thing(cratetng))
+        if (remove_workshop_object_from_workshop(room, cratetng))
         {
-            remove_workshop_item_from_amount_stored(cratetng->owner,
-                crate_thing_to_workshop_item_class(cratetng),
-                crate_thing_to_workshop_item_model(cratetng), WrkCrtF_NoOffmap);
+            if (!is_hero_thing(cratetng) && !is_neutral_thing(cratetng))
+            {
+                remove_workshop_item_from_amount_stored(cratetng->owner,
+                    crate_thing_to_workshop_item_class(cratetng),
+                    crate_thing_to_workshop_item_model(cratetng), WrkCrtF_NoOffmap);
+            }
         }
     }
     creature_drag_object(thing, cratetng);
@@ -1881,6 +1881,10 @@ short creature_arms_trap(struct Thing *thing)
         return 0;
     }
     rearm_trap(traptng);
+    if (imp_will_soon_be_arming_trap(traptng)) //Another crate is still earmarked for this trap, refund it.
+    {
+        readd_workshop_item_to_amount_placeable(traptng->owner, traptng->class_id, traptng->model);
+    }
     dungeon = get_dungeon(thing->owner);
     dungeon->lvstats.traps_armed++;
     creature_drop_dragged_object(thing, cratetng);

@@ -46,21 +46,14 @@ enum SpecialKinds {
 };
 
 struct SpecialDesc {
-long field_0;
-long field_4;
     /** Speech message index, from TbSpeechMessages enum */
     long speech_msg;
 };
 
 /******************************************************************************/
-DLLIMPORT long _DK_transfer_creature_scroll_offset;
-#define transfer_creature_scroll_offset _DK_transfer_creature_scroll_offset
-DLLIMPORT long _DK_resurrect_creature_scroll_offset;
-#define resurrect_creature_scroll_offset _DK_resurrect_creature_scroll_offset
-DLLIMPORT unsigned short _DK_dungeon_special_selected;
-#define dungeon_special_selected _DK_dungeon_special_selected
-DLLIMPORT struct SpecialDesc _DK_special_desc[8];
-#define special_desc _DK_special_desc
+extern long transfer_creature_scroll_offset;
+extern long resurrect_creature_scroll_offset;
+extern unsigned short dungeon_special_selected;
 
 #pragma pack()
 /******************************************************************************/
@@ -71,7 +64,7 @@ void make_safe(struct PlayerInfo *player);
 TbBool activate_bonus_level(struct PlayerInfo *player);
 void activate_dungeon_special(struct Thing *thing, struct PlayerInfo *player);
 void resurrect_creature(struct Thing *thing, PlayerNumber owner, ThingModel model, unsigned char crlevel);
-void transfer_creature(struct Thing *tng1, struct Thing *tng2, unsigned char a3);
+void transfer_creature(struct Thing *tng1, struct Thing *tng2, unsigned char plyr_idx);
 void start_resurrect_creature(struct PlayerInfo *player, struct Thing *thing);
 void start_transfer_creature(struct PlayerInfo *player, struct Thing *thing);
 long create_transferred_creatures_on_level(void);

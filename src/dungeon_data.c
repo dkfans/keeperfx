@@ -526,8 +526,8 @@ void init_dungeon_essential_position(struct Dungeon *dungeon)
         room = room_get(dungeonadd->room_kind[rkind]);
     }
     if (room_is_invalid(room)) {
-        dungeon->essential_pos.x.val = subtile_coord_center(map_subtiles_x/2);
-        dungeon->essential_pos.y.val = subtile_coord_center(map_subtiles_y/2);
+        dungeon->essential_pos.x.val = subtile_coord_center(gameadd.map_subtiles_x/2);
+        dungeon->essential_pos.y.val = subtile_coord_center(gameadd.map_subtiles_y/2);
         dungeon->essential_pos.z.val = subtile_coord(0,1);
         return;
     }
@@ -580,7 +580,7 @@ void init_dungeons(void)
           else
             dungeon->hates_player[k] = game.fight_max_hate;
         }
-        LbMemorySet(dungeon->creature_models_joined, 0, CREATURE_TYPES_COUNT);
+        LbMemorySet(dungeon->creature_models_joined, 0, CREATURE_TYPES_MAX);
     }
 }
 

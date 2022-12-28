@@ -797,7 +797,6 @@ void update_all_events(void)
 void event_kill_all_players_events(long plyr_idx)
 {
     SYNCDBG(8,"Starting");
-    //_DK_event_kill_all_players_events(plyr_idx);
     TbBool keep_objective = gameadd.heart_lost_display_message;
     for (int i = 1; i < EVENTS_COUNT; i++)
     {
@@ -821,7 +820,6 @@ void event_kill_all_players_events(long plyr_idx)
 void remove_events_thing_is_attached_to(struct Thing *thing)
 {
     SYNCDBG(8,"Starting");
-    //_DK_remove_events_thing_is_attached_to(thing);
     for (int i = 1; i < EVENTS_COUNT; i++)
     {
         struct Event* event = &game.event[i];

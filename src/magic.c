@@ -360,7 +360,6 @@ TbBool can_cast_power_on_thing(PlayerNumber plyr_idx, const struct Thing *thing,
 void update_power_sight_explored(struct PlayerInfo *player)
 {
     SYNCDBG(16,"Starting");
-    //_DK_update_power_sight_explored(player);
     struct Dungeon *dungeon;
     dungeon = get_players_dungeon(player);
     if (dungeon->sight_casted_thing_idx == 0) {
@@ -381,7 +380,7 @@ void update_power_sight_explored(struct PlayerInfo *player)
     for (shift_y=0; shift_y < 2*MAX_SOE_RADIUS; shift_y++)
     {
         stl_y = thing->mappos.y.stl.num - MAX_SOE_RADIUS + shift_y;
-        if ((stl_y < 0) || (stl_y > map_subtiles_y)) {
+        if ((stl_y < 0) || (stl_y > gameadd.map_subtiles_y)) {
             continue;
         }
 
@@ -407,14 +406,14 @@ void update_power_sight_explored(struct PlayerInfo *player)
             if (stl_x_beg < 0) {
                 stl_x_beg = 0;
             } else
-            if (stl_x_beg > map_subtiles_x-1) {
-                stl_x_beg = map_subtiles_x-1;
+            if (stl_x_beg > gameadd.map_subtiles_x-1) {
+                stl_x_beg = gameadd.map_subtiles_x-1;
             }
             if (stl_x_end < 0) {
                 stl_x_end = 0;
             } else
-            if (stl_x_end > map_subtiles_x-1) {
-                stl_x_end = map_subtiles_x-1;
+            if (stl_x_end > gameadd.map_subtiles_x-1) {
+                stl_x_end = gameadd.map_subtiles_x-1;
             }
             if (stl_x_end >= stl_x_beg)
             {
@@ -436,7 +435,7 @@ void update_power_sight_explored(struct PlayerInfo *player)
     for (shift_x = 0; shift_x < 2*MAX_SOE_RADIUS; shift_x++)
     {
       stl_x = thing->mappos.x.stl.num - MAX_SOE_RADIUS + shift_x;
-      if ((stl_x < 0) || (stl_x > map_subtiles_x)) {
+      if ((stl_x < 0) || (stl_x > gameadd.map_subtiles_x)) {
           continue;
       }
       stl_y = thing->mappos.y.stl.num - MAX_SOE_RADIUS;
@@ -461,14 +460,14 @@ void update_power_sight_explored(struct PlayerInfo *player)
             if (stl_y_end < 0) {
                 stl_y_end = 0;
             } else
-            if (stl_y_end > map_subtiles_y-1) {
-                stl_y_end = map_subtiles_y-1;
+            if (stl_y_end > gameadd.map_subtiles_y-1) {
+                stl_y_end = gameadd.map_subtiles_y-1;
             }
             if (stl_y_beg < 0) {
                 stl_y_beg = 0;
             } else
-            if (stl_y_beg > map_subtiles_y-1) {
-                stl_y_beg = map_subtiles_y-1;
+            if (stl_y_beg > gameadd.map_subtiles_y-1) {
+                stl_y_beg = gameadd.map_subtiles_y-1;
             }
             if (stl_y_beg <= stl_y_end)
             {
@@ -538,7 +537,7 @@ void slap_creature(struct PlayerInfo *player, struct Thing *thing)
         creature_mark_if_woken_up(thing);
         external_set_thing_state(thing, CrSt_CreatureSlapCowers);
     }
-    cctrl->field_B1 = 6;
+    cctrl->frozen_on_hit = 6;
     cctrl->field_27F = 18;
     play_creature_sound(thing, CrSnd_Slap, 3, 0);
 }
@@ -1908,7 +1907,6 @@ void process_magic_power_must_obey(PlayerNumber plyr_idx)
 void process_dungeon_power_magic(void)
 {
     SYNCDBG(8,"Starting");
-    //_DK_process_dungeon_power_magic();
     long i;
     for (i = 0; i < PLAYERS_COUNT; i++)
     {

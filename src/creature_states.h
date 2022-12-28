@@ -271,13 +271,7 @@ struct StateInfo { // sizeof = 41
 };
 
 /******************************************************************************/
-DLLIMPORT struct StateInfo _DK_states[145];
-//#define states _DK_states
 extern struct StateInfo states[CREATURE_STATES_COUNT];
-DLLIMPORT long _DK_r_stackpos;
-#define r_stackpos _DK_r_stackpos
-DLLIMPORT struct DiggerStack _DK_reinforce_stack[DIGGER_TASK_MAX_COUNT];
-#define reinforce_stack _DK_reinforce_stack
 
 #pragma pack()
 /******************************************************************************/

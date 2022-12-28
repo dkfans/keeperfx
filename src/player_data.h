@@ -123,7 +123,7 @@ struct SubtileXY {
     unsigned char stl_y;
 };
 
-struct Wander // sizeof = 424
+struct Wander
 {
   unsigned long points_count;
   /** Index at which the search function inserts (or replaces) points. */
@@ -142,7 +142,6 @@ struct Wander // sizeof = 424
   struct SubtileXY points[WANDER_POINTS_COUNT];
 };
 
-#define SIZEOF_PlayerInfo 0x4EF
 struct PlayerInfo {
     unsigned char allocflags;
     unsigned char field_1;
@@ -269,8 +268,7 @@ struct PlayerInfoAdd {
 };
 
 /******************************************************************************/
-DLLIMPORT extern unsigned char _DK_my_player_number;
-#define my_player_number _DK_my_player_number
+extern unsigned char my_player_number;
 
 #pragma pack()
 /******************************************************************************/

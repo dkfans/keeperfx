@@ -33,8 +33,7 @@ struct GuiMenu;
 struct GuiButton;
 
 /******************************************************************************/
-DLLIMPORT extern unsigned short _DK_battle_creature_over;
-#define battle_creature_over _DK_battle_creature_over
+extern unsigned short battle_creature_over;
 
 #pragma pack()
 /******************************************************************************/

@@ -79,6 +79,12 @@ void redraw_frontview(void);
 /******************************************************************************/
 long xtab[640][2];
 long ytab[480][2];
+
+unsigned char smooth_on;
+static unsigned char * map_fade_ghost_table;
+static unsigned char * map_fade_dest;
+static unsigned char * map_fade_src;
+static long draw_spell_cost;
 /******************************************************************************/
 static void draw_creature_view_icons(struct Thing* creatng)
 {
@@ -222,7 +228,6 @@ void load_engine_window(TbGraphicsWindow *ewnd)
 
 void map_fade(unsigned char *outbuf, unsigned char *srcbuf1, unsigned char *srcbuf2, unsigned char *fade_tbl, unsigned char *ghost_tbl, long a6, long const xmax, long const ymax, long a9)
 {
-    //_DK_map_fade(outbuf, srcbuf1, srcbuf2, fade_tbl, ghost_tbl, a6, xmax, ymax, a9); return;
     long ix;
     long iy;
     long x1base = 4 * a6;

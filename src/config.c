@@ -46,12 +46,19 @@
 extern "C" {
 #endif
 /******************************************************************************/
-const char keeper_config_file[]="keeperfx.cfg";
+
+static float phase_of_moon;
+static long net_number_of_levels;
+static struct NetLevelDesc net_level_desc[100];
+static const char keeper_config_file[]="keeperfx.cfg";
+
 int max_track = 7;
 unsigned short AtmosRepeat = 1013;
 unsigned short AtmosStart = 1014;
 unsigned short AtmosEnd = 1034;
 TbBool AssignCpuKeepers = 0;
+struct InstallInfo install_info;
+char keeper_runtime_directory[152];
 
 /**
  * Language 3-char abbreviations.

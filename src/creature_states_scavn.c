@@ -228,7 +228,7 @@ TbBool player_can_afford_to_scavenge_creature(const struct Thing *creatng)
 
 TbBool reset_scavenge_counts(struct Dungeon *dungeon)
 {
-    memset(dungeon->creatures_scavenging, 0, CREATURE_TYPES_COUNT);
+    memset(dungeon->creatures_scavenging, 0, gameadd.crtr_conf.model_count);
     dungeon->scavenge_counters_turn = game.play_gameturn;
     return true;
 }
@@ -348,7 +348,6 @@ struct Thing *get_scavenger_target(const struct Thing *calltng)
 
 long turn_creature_to_scavenger(struct Thing *scavtng, struct Thing *calltng)
 {
-    //return _DK_turn_creature_to_scavenger(scavtng, calltng);
     struct Room* room = get_room_thing_is_on(calltng);
     if (room_is_invalid(room) || !room_role_matches(room->kind, RoRoF_CrScavenge) || (room->owner != calltng->owner))
     {

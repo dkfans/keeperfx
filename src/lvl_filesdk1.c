@@ -520,6 +520,31 @@ TbBool level_lof_file_parse(char *fname, char *buf, long len)
         case 12: // DATE
             // As for now, ignore these
             break;
+        case 13: // MAPSIZE
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                if (k > 0)
+                {
+                  lvinfo->mapsize_x = k;
+                  n++;
+                }
+            }
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                if (k > 0)
+                {
+                  lvinfo->mapsize_y = k;
+                  n++;
+                }
+            }
+            if (n < 2)
+            {
+              WARNMSG("Couldn't recognize \"%s\" mapsize in LOF file '%s'.",
+                  COMMAND_TEXT(cmd_num),fname);
+            }
+            break;
         case 0: // comment
             break;
         case -1: // end of buffer
@@ -635,14 +660,14 @@ TbBool load_map_data_file(LevelNumber lv_num)
     unsigned long x;
     unsigned long y;
     clear_map();
-    long fsize = 2 * (map_subtiles_y + 1) * (map_subtiles_x + 1);
+    long fsize = 2 * (gameadd.map_subtiles_y + 1) * (gameadd.map_subtiles_x + 1);
     unsigned char* buf = load_single_map_file_to_buffer(lv_num, "dat", &fsize, LMFF_None);
     if (buf == NULL)
         return false;
     unsigned long i = 0;
-    for (y=0; y < (map_subtiles_y+1); y++)
+    for (y=0; y < (gameadd.map_subtiles_y+1); y++)
     {
-        for (x=0; x < (map_subtiles_x+1); x++)
+        for (x=0; x < (gameadd.map_subtiles_x+1); x++)
         {
             mapblk = get_map_block_at(x,y);
             unsigned long n = -lword(&buf[i]);
@@ -652,9 +677,9 @@ TbBool load_map_data_file(LevelNumber lv_num)
     }
     LbMemoryFree(buf);
     // Clear some bits and do some other setup
-    for (y=0; y < (map_subtiles_y+1); y++)
+    for (y=0; y < (gameadd.map_subtiles_y+1); y++)
     {
-        for (x=0; x < (map_subtiles_x+1); x++)
+        for (x=0; x < (gameadd.map_subtiles_x+1); x++)
         {
             mapblk = get_map_block_at(x,y);
             unsigned short* wptr = &game.lish.subtile_lightness[get_subtile_number(x, y)];
@@ -983,13 +1008,13 @@ long load_map_wibble_file(unsigned long lv_num)
     unsigned long i;
     unsigned long k;
     long fsize;
-    fsize = (map_subtiles_y+1)*(map_subtiles_x+1);
+    fsize = (gameadd.map_subtiles_y+1)*(gameadd.map_subtiles_x+1);
     buf = load_single_map_file_to_buffer(lv_num,"wib",&fsize,LMFF_None);
     if (buf == NULL)
       return false;
     i = 0;
-    for (stl_y=0; stl_y < (map_subtiles_y+1); stl_y++)
-      for (stl_x=0; stl_x < (map_subtiles_x+1); stl_x++)
+    for (stl_y=0; stl_y < (gameadd.map_subtiles_y+1); stl_y++)
+      for (stl_x=0; stl_x < (gameadd.map_subtiles_x+1); stl_x++)
       {
         mapblk = get_map_block_at(stl_x,stl_y);
         k = buf[i];
@@ -1008,16 +1033,16 @@ short load_map_ownership_file(LevelNumber lv_num)
     unsigned char *buf;
     unsigned long i;
     long fsize;
-    fsize = (map_subtiles_y+1)*(map_subtiles_x+1);
+    fsize = (gameadd.map_subtiles_y+1)*(gameadd.map_subtiles_x+1);
     buf = load_single_map_file_to_buffer(lv_num,"own",&fsize,LMFF_None);
     if (buf == NULL)
       return false;
     i = 0;
-    for (y=0; y < (map_subtiles_y+1); y++)
-      for (x=0; x < (map_subtiles_x+1); x++)
+    for (y=0; y < (gameadd.map_subtiles_y+1); y++)
+      for (x=0; x < (gameadd.map_subtiles_x+1); x++)
       {
         slb = get_slabmap_for_subtile(x,y);
-        if ((x < map_subtiles_x) && (y < map_subtiles_y))
+        if ((x < gameadd.map_subtiles_x) && (y < gameadd.map_subtiles_y))
             slabmap_set_owner(slb,buf[i]);
         else
             slabmap_set_owner(slb,NEUTRAL_PLAYER);
@@ -1036,8 +1061,8 @@ TbBool initialise_map_wlb_auto(void)
     unsigned long n;
     unsigned long nbridge;
     nbridge = 0;
-    for (y=0; y < map_tiles_y; y++)
-      for (x=0; x < map_tiles_x; x++)
+    for (y=0; y < gameadd.map_tiles_y; y++)
+      for (x=0; x < gameadd.map_tiles_x; x++)
       {
         slb = get_slabmap_block(x,y);
         if (slb->kind == SlbT_BRIDGE)
@@ -1071,13 +1096,13 @@ TbBool load_map_wlb_file(unsigned long lv_num)
     long fsize;
     SYNCDBG(7,"Starting");
     nfixes = 0;
-    fsize = map_tiles_y*map_tiles_x;
+    fsize = gameadd.map_tiles_y*gameadd.map_tiles_x;
     buf = load_single_map_file_to_buffer(lv_num,"wlb",&fsize,LMFF_Optional);
     if (buf == NULL)
       return false;
     i = 0;
-    for (y=0; y < map_tiles_y; y++)
-      for (x=0; x < map_tiles_x; x++)
+    for (y=0; y < gameadd.map_tiles_y; y++)
+      for (x=0; x < gameadd.map_tiles_x; x++)
       {
         slb = get_slabmap_block(x,y);
         n = (buf[i] << 3);
@@ -1120,13 +1145,13 @@ short load_map_slab_file(unsigned long lv_num)
     unsigned long i;
     unsigned long n;
     long fsize;
-    fsize = 2*map_tiles_y*map_tiles_x;
+    fsize = 2*gameadd.map_tiles_y*gameadd.map_tiles_x;
     buf = load_single_map_file_to_buffer(lv_num,"slb",&fsize,LMFF_None);
     if (buf == NULL)
       return false;
     i = 0;
-    for (y=0; y < map_tiles_y; y++)
-      for (x=0; x < map_tiles_x; x++)
+    for (y=0; y < gameadd.map_tiles_y; y++)
+      for (x=0; x < gameadd.map_tiles_x; x++)
       {
         slb = get_slabmap_block(x,y);
         n = lword(&buf[i]);
@@ -1148,14 +1173,14 @@ short load_map_slab_file(unsigned long lv_num)
 short load_map_flag_file(unsigned long lv_num)
 {
     SYNCDBG(5,"Starting");
-    long fsize = 2 * (map_subtiles_y + 1) * (map_subtiles_x + 1);
+    long fsize = 2 * (gameadd.map_subtiles_y + 1) * (gameadd.map_subtiles_x + 1);
     unsigned char* buf = load_single_map_file_to_buffer(lv_num, "flg", &fsize, LMFF_Optional);
     if (buf == NULL)
         return false;
     unsigned long i = 0;
-    for (unsigned long stl_y = 0; stl_y < (map_subtiles_y + 1); stl_y++)
+    for (unsigned long stl_y = 0; stl_y < (gameadd.map_subtiles_y + 1); stl_y++)
     {
-        for (unsigned long stl_x = 0; stl_x < (map_subtiles_x + 1); stl_x++)
+        for (unsigned long stl_x = 0; stl_x < (gameadd.map_subtiles_x + 1); stl_x++)
         {
             struct Map* mapblk = get_map_block_at(stl_x, stl_y);
             mapblk->flags = buf[i];
@@ -1226,7 +1251,7 @@ static void load_ext_slabs(LevelNumber lvnum)
     char* fname = prepare_file_fmtpath(fgroup, "map%05lu.slx", (unsigned long)lvnum);
     if (LbFileExists(fname))
     {
-        if (sizeof(gameadd.slab_ext_data) != LbFileLoadAt(fname, gameadd.slab_ext_data))
+        if (gameadd.map_tiles_x * gameadd.map_tiles_y != LbFileLoadAt(fname, gameadd.slab_ext_data))
         {
             JUSTLOG("Invalid ExtSlab data from %s", fname);
             memset(gameadd.slab_ext_data, 0, sizeof(gameadd.slab_ext_data));

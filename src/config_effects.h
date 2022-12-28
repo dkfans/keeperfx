@@ -41,6 +41,7 @@ struct EffectsConfig {
     long effect_types_count;
     struct EffectConfigStats effect_cfgstats[EFFECTS_TYPES_MAX];
 };
+/******************************************************************************/
 extern const char keeper_effects_file[];
 extern struct NamedCommand effect_desc[EFFECTS_TYPES_MAX];
 extern long const imp_spangle_effects[];

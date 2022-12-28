@@ -48,14 +48,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT long _DK_move_effect(struct Thing *efftng);
-
-/******************************************************************************/
 extern struct EffectElementStats _DK_effect_element_stats[95];
-//DLLIMPORT struct InitEffect _DK_effect_info[];
-//#define effect_info _DK_effect_info
-//extern struct EffectGeneratorStats _DK_effect_generator_stats[6];
-//#define effect_element_stats _DK_effect_element_stats
 /******************************************************************************/
 struct EffectGeneratorStats effect_generator_stats[] = {
     { 0,  0,  0,  0, 0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 0},
@@ -555,9 +548,9 @@ struct Thing *create_effect_element(const struct Coord3d *pos, unsigned short ee
         set_flag_byte(&thing->rendering_flags,TRF_Unknown01,true);
     }
 
-    thing->fall_acceleration = eestat->field_18;
-    thing->field_23 = eestat->field_1A;
-    thing->field_24 = eestat->field_1C;
+    thing->fall_acceleration = eestat->fall_acceleration;
+    thing->inertia_floor = eestat->inertia_floor;
+    thing->inertia_air = eestat->inertia_air;
     thing->movement_flags |= TMvF_Unknown08;
     set_flag_byte(&thing->movement_flags,TMvF_Unknown10,eestat->field_16);
     thing->creation_turn = game.play_gameturn;
@@ -612,7 +605,6 @@ struct Thing *create_effect_element(const struct Coord3d *pos, unsigned short ee
 
 void process_spells_affected_by_effect_elements(struct Thing *thing)
 {
-    //_DK_process_spells_affected_by_effect_elements(thing);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     GameTurnDelta dturn;
     long angle;
@@ -819,7 +811,6 @@ TngUpdateRet move_effect_element(struct Thing *thing)
 void change_effect_element_into_another(struct Thing *thing, long nmodel)
 {
     SYNCDBG(18,"Starting");
-    //return _DK_change_effect_element_into_another(thing,nmodel);
     struct EffectElementStats* eestat = get_effect_element_model_stats(nmodel);
     int speed = eestat->sprite_speed_min + EFFECT_RANDOM(thing, eestat->sprite_speed_max - eestat->sprite_speed_min + 1);
     int scale = eestat->sprite_size_min + EFFECT_RANDOM(thing, eestat->sprite_size_max - eestat->sprite_size_min + 1);
@@ -827,9 +818,9 @@ void change_effect_element_into_another(struct Thing *thing, long nmodel)
     set_thing_draw(thing, eestat->sprite_idx, speed, scale, eestat->field_D, 0, 2);
     thing->rendering_flags ^= (thing->rendering_flags ^ 0x02 * eestat->field_13) & TRF_Unknown02;
     thing->rendering_flags ^= (thing->rendering_flags ^ 0x10 * eestat->field_14) & (TRF_Transpar_Flags);
-    thing->fall_acceleration = eestat->field_18;
-    thing->field_23 = eestat->field_1A;
-    thing->field_24 = eestat->field_1C;
+    thing->fall_acceleration = eestat->fall_acceleration;
+    thing->inertia_floor = eestat->inertia_floor;
+    thing->inertia_air = eestat->inertia_air;
     if (eestat->numfield_3 <= 0) {
         thing->health = get_lifespan_of_animation(thing->anim_sprite, thing->anim_speed);
     } else {
@@ -1297,8 +1288,8 @@ struct Thing *create_effect(const struct Coord3d *pos, ThingModel effmodel, Play
     thing->owner = owner;
     thing->parent_idx = thing->index;
     thing->fall_acceleration = 0;
-    thing->field_23 = 0;
-    thing->field_24 = 0;
+    thing->inertia_floor = 0;
+    thing->inertia_air = 0;
     thing->rendering_flags |= TRF_Unknown01;
     thing->health = ieffect->start_health;
     if (ieffect->ilght.radius != 0)
@@ -1409,8 +1400,16 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
             } else // Explosions move creatures and other things
             {
                 long move_angle = get_angle_xy_to(pos, &tngdst->mappos);
-                long move_dist = get_radially_decaying_value(blow_strength, max_dist / 4, 3 * max_dist / 4, distance);
-                if (move_dist > 0)
+                long move_dist = 0;
+                if (blow_strength > 0)
+                {
+                    move_dist = get_radially_decaying_value(blow_strength, max_dist / 4, max_dist * 3 / 4, distance);
+                }
+                else
+                {
+                    move_dist = get_radially_growing_value(blow_strength, max_dist / 4, max_dist * 3 / 4, distance, tngdst->inertia_floor);
+                }
+                if (move_dist != 0)
                 {
                     tngdst->veloc_push_add.x.val += distance_with_angle_to_coord_x(move_dist, move_angle);
                     tngdst->veloc_push_add.y.val += distance_with_angle_to_coord_y(move_dist, move_angle);
@@ -1548,26 +1547,26 @@ void word_of_power_affecting_area(struct Thing *efftng, struct Thing *owntng, st
     if (stl_xmin < 0) {
         stl_xmin = 0;
     } else
-    if (stl_xmin > map_subtiles_x) {
-        stl_xmin = map_subtiles_x;
+    if (stl_xmin > gameadd.map_subtiles_x) {
+        stl_xmin = gameadd.map_subtiles_x;
     }
     if (stl_ymin < 0) {
       stl_ymin = 0;
     } else
-    if (stl_ymin > map_subtiles_y) {
-      stl_ymin = map_subtiles_y;
+    if (stl_ymin > gameadd.map_subtiles_y) {
+      stl_ymin = gameadd.map_subtiles_y;
     }
     if (stl_xmax < 0) {
       stl_xmax = 0;
     } else
-    if (stl_xmax > map_subtiles_x) {
-      stl_xmax = map_subtiles_x;
+    if (stl_xmax > gameadd.map_subtiles_x) {
+      stl_xmax = gameadd.map_subtiles_x;
     }
     if (stl_ymax < 0) {
       stl_ymax = 0;
     } else
-    if (stl_ymax > map_subtiles_y) {
-      stl_ymax = map_subtiles_y;
+    if (stl_ymax > gameadd.map_subtiles_y) {
+      stl_ymax = gameadd.map_subtiles_y;
     }
     for (long stl_y = stl_ymin; stl_y <= stl_ymax; stl_y++)
     {
@@ -1683,11 +1682,11 @@ long explosion_affecting_area(struct Thing *tngsrc, const struct Coord3d *pos, M
     else
       start_y = 0;
     MapSubtlCoord end_x = range_stl + pos->x.stl.num;
-    if (end_x >= map_subtiles_x)
-      end_x = map_subtiles_x;
+    if (end_x >= gameadd.map_subtiles_x)
+      end_x = gameadd.map_subtiles_x;
     MapSubtlCoord end_y = range_stl + pos->y.stl.num;
-    if (end_y > map_subtiles_y)
-      end_y = map_subtiles_y;
+    if (end_y > gameadd.map_subtiles_y)
+      end_y = gameadd.map_subtiles_y;
 #if (BFDEBUG_LEVEL > 0)
     if ((start_params.debug_flags & DFlg_ShotsDamage) != 0)
         create_price_effect(pos, my_player_number, max_damage);
@@ -1828,26 +1827,26 @@ long poison_cloud_affecting_area(struct Thing *tngsrc, struct Coord3d *pos, long
     if (start_x < 0) {
         start_x = 0;
     } else
-    if (start_x > map_subtiles_x) {
-        start_x = map_subtiles_x;
+    if (start_x > gameadd.map_subtiles_x) {
+        start_x = gameadd.map_subtiles_x;
     }
     if (start_y < 0) {
         start_y = 0;
     } else
-    if (start_y > map_subtiles_y) {
-        start_y = map_subtiles_y;
+    if (start_y > gameadd.map_subtiles_y) {
+        start_y = gameadd.map_subtiles_y;
     }
     if (end_x < 0) {
         end_x = 0;
     } else
-    if (end_x > map_subtiles_x) {
-        end_x = map_subtiles_x;
+    if (end_x > gameadd.map_subtiles_x) {
+        end_x = gameadd.map_subtiles_x;
     }
     if (end_y < 0) {
         end_y = 0;
     } else
-    if (end_y > map_subtiles_y) {
-        end_y = map_subtiles_y;
+    if (end_y > gameadd.map_subtiles_y) {
+        end_y = gameadd.map_subtiles_y;
     }
     long num_affected = 0;
     for (MapSubtlCoord stl_y = start_y; stl_y <= end_y; stl_y++)

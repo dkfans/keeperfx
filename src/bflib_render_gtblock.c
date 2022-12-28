@@ -36,14 +36,10 @@ void gtblock_set_clipping_window(unsigned char *screen_addr, long clip_width, lo
 #else
 
 /******************************************************************************/
-DLLIMPORT unsigned char *_DK_gtblock_screen_addr;
-#define gtblock_screen_addr _DK_gtblock_screen_addr
-DLLIMPORT long _DK_gtblock_clip_width;
-#define gtblock_clip_width _DK_gtblock_clip_width
-DLLIMPORT long _DK_gtblock_clip_height;
-#define gtblock_clip_height _DK_gtblock_clip_height
-DLLIMPORT long _DK_gtblock_screen_width;
-#define gtblock_screen_width _DK_gtblock_screen_width
+static unsigned char *gtblock_screen_addr;
+static long gtblock_clip_width;
+static long gtblock_clip_height;
+static long gtblock_screen_width;
 /******************************************************************************/
 long const gtblock_arr08[] = { 0x08, 0x10, 0x20, };
 long const gtblock_arr07[] = { 0x10, 0x20, };
