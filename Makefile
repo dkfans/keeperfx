@@ -40,7 +40,6 @@ CPP      = $(CROSS_COMPILE)g++
 CC       = $(CROSS_COMPILE)gcc
 WINDRES  = $(CROSS_COMPILE)windres
 DLLTOOL  = $(CROSS_COMPILE)dlltool
-EXETODLL = tools/peresec/bin/peresec$(CROSS_EXEEXT)
 DOXYTOOL = doxygen
 BUILD_NUMBER ?= $(VER_BUILD)
 PACKAGE_SUFFIX ?= Prototype
@@ -65,7 +64,7 @@ HVLOGBIN = bin/keeperfx_hvlog$(EXEEXT)
 # Names of intermediate build products
 GENSRC   = obj/ver_defs.h
 RES      = obj/keeperfx_stdres.res
-LIBS     = obj/libkeeperfx.a obj/enet.a
+LIBS     = obj/enet.a
 
 DEPS = \
 obj/spng.o \
@@ -337,7 +336,7 @@ CU_OBJS = \
 	obj/cu/Util.o
 
 # include and library directories
-LINKLIB =  -L"sdl/lib" -mwindows obj/libkeeperfx.a obj/enet.a \
+LINKLIB =  -L"sdl/lib" -mwindows obj/enet.a \
 	-lwinmm -lmingw32 -limagehlp -lSDL2main -lSDL2 -lSDL2_mixer -lSDL2_net \
 	-L"deps/zlib" -lz -lws2_32
 INCS =  -I"sdl/include" -I"sdl/include/SDL2" -I"deps/enet/include"
@@ -547,16 +546,6 @@ obj/ver_defs.h: version.mk Makefile
 	$(ECHO) \#define GIT_REVISION  \"`git describe  --always`\" >> "$(@D)/tmp"
 	$(MV) "$(@D)/tmp" "$@"
 
-obj/libkeeperfx.a: bin/keeperfx.dll obj/keeperfx.def
-	-$(ECHO) 'Generating gcc library archive for: $<'
-	$(DLLTOOL) --dllname "$<" --def "obj/keeperfx.def" --output-lib "$@"
-	-$(ECHO) ' '
-
-bin/keeperfx.dll obj/keeperfx.def: lib/keeper95_gold.dll lib/keeper95_gold.map $(EXETODLL)
-	-$(ECHO) 'Rebuilding DLL export table from: $<'
-	$(EXETODLL) -o"$@" --def "obj/keeperfx.def" -p"_DK_" "$<"
-	-$(ECHO) ' '
-
 tests: std-before $(TEST_BIN)
 
 libexterns: libexterns.mk
@@ -583,7 +572,6 @@ deps/zlib/libz.a: deps/zlib/configure.log
 obj/enet.a:
 	$(MAKE) -f enet.mk PREFIX=$(CROSS_COMPILE) WARNFLAGS=$(WARNFLAGS) obj/enet.a
 
-include tool_peresec.mk
 include tool_png2ico.mk
 include tool_pngpal2raw.mk
 include tool_png2bestpal.mk
