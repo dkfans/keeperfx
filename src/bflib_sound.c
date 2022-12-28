@@ -86,14 +86,17 @@ long get_best_sound_heap_size(long sh_mem_size)
       return 0;
     }
     if (sh_mem_size <= 8)
-      return 0x100000; // 1MB
+      return 0x0100000; // 1MB
     if (sh_mem_size <= 16)
-      return 0x200000; // 2MB
+      return 0x0200000; // 2MB
     if (sh_mem_size <= 24)
-      return 0x500000; // 5MB
+      return 0x0500000; // 5MB
     if (sh_mem_size <= 32)
-      return 0x800000; // 8MB
-    return 0xC00000; // 12MB
+      return 0x0800000; // 8MB
+    if (sh_mem_size <= 48)
+        return 0x0c00000; // 12MB
+    
+    return 0x3000000; // 50MB
 }
 
 long dummy_line_of_sight_function(long a1, long a2, long a3, long a4, long a5, long a6)
