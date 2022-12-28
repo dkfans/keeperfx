@@ -217,7 +217,6 @@ short field_14BB65[592];
     unsigned char small_map_state;
     struct Coord3d pos_14C006;
     struct Packet packets[PACKETS_COUNT];
-    struct CreatureStatsOLD creature_stats_OLD[CREATURE_TYPES_COUNT]; // New stats are in GameAdd
     struct RoomStatsOLD room_stats_OLD[ROOM_TYPES_COUNT_OLD];
     struct MagicStats keeper_power_stats[POWER_TYPES_COUNT];
     struct ActionPoint action_points_OLD[ACTN_POINTS_COUNT_OLD];
