@@ -42,9 +42,14 @@ extern "C" {
 /******************************************************************************/
 char gui_textbuf[TEXT_BUFFER_LENGTH];
 
-/******************************************************************************/
-/******************************************************************************/
-
+unsigned char * gui_panel_sprite_data;
+unsigned char * end_gui_panel_sprite_data;
+unsigned char *gui_slab;
+unsigned char *frontend_background;
+struct TbSprite *frontend_sprite;
+struct TbSprite *frontend_end_sprite;
+unsigned char * frontend_sprite_data;
+unsigned char * frontend_end_sprite_data;
 /******************************************************************************/
 
 int get_bitmap_max_scale(int img_w,int img_h,int rect_w,int rect_h)

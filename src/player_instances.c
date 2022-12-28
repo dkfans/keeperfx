@@ -765,7 +765,6 @@ long pinstfm_fade_from_map(struct PlayerInfo *player, long *n)
 
 long pinstfe_fade_from_map(struct PlayerInfo *player, long *n)
 {
-    //return _DK_pinstfe_fade_from_map(player, n);
     struct PlayerInfo* myplyr = get_player(my_player_number);
     set_engine_view(player, player->view_mode_restore);
     if (player->id_number == myplyr->id_number) {
@@ -778,7 +777,6 @@ long pinstfe_fade_from_map(struct PlayerInfo *player, long *n)
 
 long pinstfs_zoom_to_position(struct PlayerInfo *player, long *n)
 {
-    //return _DK_pinstfs_zoom_to_position(player, n);
     player->controlled_thing_idx = 0;
     player->controlled_thing_creatrn = 0;
     player->allocflags |= PlaF_MouseInputDisabled;

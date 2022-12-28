@@ -168,7 +168,6 @@ TbBool creature_is_group_member(const struct Thing *thing)
 
 TbBool creature_is_group_leader(const struct Thing *thing)
 {
-    //return _DK_creature_is_group_leader(thing);
     struct Thing* leadtng = get_group_leader(thing);
     if (thing_is_invalid(leadtng))
         return false;
@@ -266,7 +265,6 @@ void internal_add_member_to_group_chain_head(struct Thing *creatng, struct Thing
  */
 TbBool remove_creature_from_group_without_leader_consideration(struct Thing *creatng)
 {
-    //return _DK_remove_creature_from_group(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     // Remember any other group member, and whether we're removing a leader
     TbBool was_leader;
@@ -532,7 +530,6 @@ TbBool add_creature_to_group(struct Thing *creatng, struct Thing *grptng)
 
 long add_creature_to_group_as_leader(struct Thing *creatng, struct Thing *grptng)
 {
-    //return _DK_add_creature_to_group_as_leader(creatng, grptng);
     SYNCDBG(5,"Adding %s index %d",thing_model_name(creatng),(int)creatng->index);
     if ((grptng->index == creatng->index) || (grptng->owner != creatng->owner)) {
         return 0;
@@ -748,7 +745,6 @@ void creature_follower_pos_add(struct Thing *creatng, int ifollow, const struct 
 
 void leader_find_positions_for_followers(struct Thing *leadtng)
 {
-    //_DK_leader_find_positions_for_followers(thing);
     int group_len = get_no_creatures_in_group(leadtng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(leadtng);
     // Base the position update frequency on leader move speed; speed of 48 requires refresh per 32 turns

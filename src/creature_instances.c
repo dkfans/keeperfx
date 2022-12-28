@@ -72,6 +72,8 @@ long instf_reinforce(struct Thing *creatng, long *param);
 long instf_tortured(struct Thing *creatng, long *param);
 long instf_tunnel(struct Thing *creatng, long *param);
 
+struct InstanceButtonInit instance_button_init[48];
+
 const struct NamedCommand creature_instances_func_type[] = {
   {"attack_room_slab",         1},
   {"creature_cast_spell",      2},
@@ -721,7 +723,6 @@ long instf_damage_wall(struct Thing *creatng, long *param)
 {
     SYNCDBG(16,"Starting");
     TRACE_THING(creatng);
-    //return _DK_instf_damage_wall(creatng, param);
     MapSubtlCoord stl_x;
     MapSubtlCoord stl_y;
     {
@@ -751,7 +752,6 @@ long instf_damage_wall(struct Thing *creatng, long *param)
 long instf_eat(struct Thing *creatng, long *param)
 {
     TRACE_THING(creatng);
-    //return _DK_instf_eat(creatng, param);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     if (cctrl->hunger_amount > 0)
         cctrl->hunger_amount--;
@@ -763,7 +763,6 @@ long instf_eat(struct Thing *creatng, long *param)
 long instf_fart(struct Thing *creatng, long *param)
 {
     TRACE_THING(creatng);
-    //return _DK_instf_fart(creatng, param);
     struct Thing* efftng = create_effect(&creatng->mappos, TngEff_Gas3, creatng->owner);
     if (!thing_is_invalid(efftng))
         efftng->shot_effect.hit_type = THit_CrtrsOnlyNotOwn;

@@ -261,7 +261,6 @@ long force_complete_current_manufacturing(long plyr_idx)
 
 void apply_spell_effect_to_players_creatures(PlayerNumber plyr_idx, long spl_idx, long overchrg)
 {
-    //_DK_apply_spell_effect_to_players_creatures(plyr_idx, spl_idx, overchrg);
     SYNCDBG(8,"Starting");
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
     unsigned long k = 0;
@@ -303,7 +302,6 @@ TbBool kill_creature_if_under_chicken_spell(struct Thing *thing)
 
 void kill_all_players_chickens(PlayerNumber plyr_idx)
 {
-    //_DK_kill_all_players_chickens(plyr_idx);
     SYNCDBG(18,"Starting");
     const struct StructureList* slist = get_list_for_thing_class(TCls_Object);
     unsigned long k = 0;
@@ -642,7 +640,6 @@ short creature_being_sacrificed(struct Thing *thing)
 // This is state-process function of a creature
 short creature_sacrifice(struct Thing *thing)
 {
-    //return _DK_creature_sacrifice(thing);
     if ((thing->movement_flags & TMvF_Flying) != 0) {
         thing->movement_flags &= ~TMvF_Flying;
     }

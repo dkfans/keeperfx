@@ -219,7 +219,6 @@ struct GuiMenu frontend_add_session_box =
 /******************************************************************************/
 void frontnet_draw_session_selected(struct GuiButton *gbtn)
 {
-    //_DK_frontnet_draw_session_selected(gbtn);
     struct TbSprite *spr;
     long pos_x;
     long pos_y;
@@ -257,7 +256,6 @@ void frontnet_draw_session_selected(struct GuiButton *gbtn)
 
 void frontnet_session_select(struct GuiButton *gbtn)
 {
-    //_DK_frontnet_session_select(gbtn);
     long i;
     i = (long)gbtn->content + net_session_scroll_offset - 45;
     if (net_number_of_sessions > i)

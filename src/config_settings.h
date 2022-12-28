@@ -36,24 +36,6 @@ struct GameKey { // sizeof = 2
   unsigned char mods;
 };
 
-struct _DK_GameSettings { // sizeof = 0x52 (82)
-    unsigned char field_0;
-    unsigned char video_shadows;
-    unsigned char view_distance;
-    unsigned char video_rotate_mode;
-    unsigned char video_textures;
-    unsigned char video_cluedo_mode;
-    unsigned char sound_volume;
-    unsigned char redbook_volume;
-    unsigned char roomflags_on;
-    unsigned short gamma_correction;
-    int video_scrnmode;
-    struct GameKey kbkeys[DK_GAME_KEYS_COUNT];
-    unsigned char tooltips_on;
-    unsigned char first_person_move_invert;
-    unsigned char first_person_move_sensitivity;
-    };
-
 struct GameSettings { // KFX settings
     unsigned char field_0;
     unsigned char video_shadows;

@@ -160,7 +160,6 @@ void region_lnk(int nreg)
 
 static void region_connect(unsigned long tree_reg)
 {
-    //_DK_region_connect(tree_reg); return;
     long nreg_id = region_alloc();
     Regions[nreg_id].field_2 = 1;
     region_store_init();

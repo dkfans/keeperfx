@@ -309,7 +309,6 @@ void creature_stats_updated(ThingModel crstat_idx)
 void check_and_auto_fix_stats(void)
 {
     SYNCDBG(8,"Starting for %d models",(int)gameadd.crtr_conf.model_count);
-    //_DK_check_and_auto_fix_stats();
     for (long model = 0; model < gameadd.crtr_conf.model_count; model++)
     {
         struct CreatureStats* crstat = creature_stats_get(model);

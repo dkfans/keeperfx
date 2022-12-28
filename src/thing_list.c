@@ -1317,7 +1317,6 @@ void place_thing_in_mapwho(struct Thing *thing)
     SYNCDBG(18,"Starting");
     if ((thing->alloc_flags & TAlF_IsInMapWho) != 0)
         return;
-    //_DK_place_thing_in_mapwho(thing);
     struct Map* mapblk = get_map_block_at(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
     thing->next_on_mapblk = get_mapwho_thing_index(mapblk);
     if (thing->next_on_mapblk > 0)
@@ -3129,7 +3128,6 @@ short update_thing_sound(struct Thing *thing)
 
 long collide_filter_thing_is_of_type(const struct Thing *thing, const struct Thing *sectng, long tngclass, long tngmodel)
 {
-    //return _DK_collide_filter_thing_is_of_type(thing, sectng, a3, a4);
     if (tngmodel >= 0)
     {
         if (thing->model != tngmodel)
@@ -3868,7 +3866,6 @@ struct Thing *get_creature_of_model_training_at_subtile_and_owned_by(MapSubtlCoo
 
 struct Thing *get_nearest_object_at_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-  // return _DK_get_nearest_object_at_position(stl_x, stl_y);
   return get_object_around_owned_by_and_matching_bool_filter(
         subtile_coord_center(stl_x), subtile_coord_center(stl_y), -1, thing_is_object);
 }

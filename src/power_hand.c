@@ -73,7 +73,6 @@ extern "C" {
 /******************************************************************************/
 struct Thing *create_gold_for_hand_grab(struct Thing *thing, long owner)
 {
-    //return _DK_create_gold_for_hand_grab(thing, owner);
     struct Thing *objtng;
     objtng = INVALID_THING;
     struct Dungeon *dungeon;
@@ -1036,7 +1035,6 @@ TbBool process_creature_in_dungeon_hand(struct Dungeon *dungeon, struct Thing *t
 
 void process_things_in_dungeon_hand(void)
 {
-    //_DK_process_things_in_dungeon_hand();
     PlayerNumber plyr_idx;
     for (plyr_idx=0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {

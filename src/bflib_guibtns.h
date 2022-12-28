@@ -172,7 +172,7 @@ struct GuiButton {
 struct GuiMenu {
       char ident;
       unsigned char visual_state;
-      short fade_time;
+      float fade_time;
       struct GuiButtonInit *buttons;
       short pos_x;
       short pos_y;

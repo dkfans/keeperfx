@@ -1352,7 +1352,6 @@ long check_for_buildable(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long plyr_idx
 
 long get_corridor(struct Coord3d *pos1, struct Coord3d * pos2, unsigned char round_directn, PlayerNumber plyr_idx, unsigned short slabs_dist)
 {
-    //return _DK_get_corridor(pos1, pos2, a3, a4, a5);
     struct Coord3d mvpos;
     mvpos.x.val = pos1->x.val;
     mvpos.y.val = pos1->y.val;
@@ -2188,7 +2187,6 @@ long task_dig_to_attack(struct Computer2 *comp, struct ComputerTask *ctask)
       remove_task(comp, ctask);
       return CTaskRet_Unk0;
     }
-    //return _DK_task_dig_to_attack(comp,ctask);
     if (ctask->dig.pos_next.x.val > 0)
     {
         struct SlabMap *slb;
@@ -2332,7 +2330,6 @@ long task_magic_call_to_arms(struct Computer2 *comp, struct ComputerTask *ctask)
     SYNCDBG(9,"Starting");
     struct Dungeon *dungeon;
     dungeon = comp->dungeon;
-    //return _DK_task_magic_call_to_arms(comp,ctask);
     switch (ctask->task_state)
     {
     case 0:
