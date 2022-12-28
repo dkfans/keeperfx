@@ -4319,7 +4319,7 @@ LONG __stdcall Vex_handler(
 int main(int argc, char *argv[])
 {
   char *text;
-
+#ifdef _WIN32
   AddVectoredExceptionHandler(0, &Vex_handler);
   get_cmdln_args(bf_argc, bf_argv);
 #else

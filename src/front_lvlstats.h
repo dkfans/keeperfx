@@ -30,9 +30,6 @@ extern "C" {
 /******************************************************************************/
 #pragma pack(1)
 
-DKEXTERN struct LevelStats _DK_frontstats_data;
-#define frontstats_data _DK_frontstats_data
-
 typedef long (*StatGetValueCallback)(void *ptr);
 
 struct StatsData { // sizeof = 12
