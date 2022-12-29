@@ -295,11 +295,6 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
         game.boulder_reduce_health_slap = 10;
         game.boulder_reduce_health_wall = 10;
         game.boulder_reduce_health_room = 10;
-        game.tile_strength = 50;
-        game.gold_tile_strength = 500;
-        game.minimum_gold = 100;
-        game.max_gold_lookup = 5000;
-        game.min_gold_to_record = 10;
         game.pay_day_gap = 5000;
         game.chest_gold_hold = 1000;
         game.dungeon_heart_health = 100;
@@ -477,69 +472,11 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
             }
             break;
         case 13: // TILESTRENGTH
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              game.tile_strength = k;
-              n++;
-            }
-            if (n < 1)
-            {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            }
-            break;
         case 14: // GOLDTILESTRENGTH
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              game.gold_tile_strength = k;
-              n++;
-            }
-            if (n < 1)
-            {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            }
-            break;
         case 15: // MINIMUMGOLD
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              game.minimum_gold = k;
-              n++;
-            }
-            if (n < 1)
-            {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            }
-            break;
         case 16: // MAXGOLDLOOKUP
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              game.max_gold_lookup = k;
-              n++;
-            }
-            if (n < 1)
-            {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            }
-            break;
         case 17: // MINGOLDTORECORD
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              game.min_gold_to_record = k;
-              n++;
-            }
-            if (n < 1)
-            {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            }
+        //unused
             break;
         case 18: // PAYDAYGAP
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
@@ -691,8 +628,6 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
             }
             break;
         case 26: // DEATHMATCHSTATUEREAPPERTIME
-            //Unused
-            break;
         case 27: // DEATHMATCHOBJECTREAPPERTIME
             //Unused
             break;
@@ -834,10 +769,6 @@ TbBool parse_rules_computer_blocks(char *buf, long len, const char *config_textn
     // Default values
     if ((flags & CnfLd_AcceptPartial) == 0)
     {
-        game.wait_for_room_time = 800;
-        game.check_expand_time = 1000;
-        game.max_distance_to_dig = 96;
-        game.wait_after_room_area = 200;
         gameadd.disease_to_temple_pct = 500;
     }
     // Find the block
@@ -863,59 +794,11 @@ TbBool parse_rules_computer_blocks(char *buf, long len, const char *config_textn
         switch (cmd_num)
         {
         case 1: // AUTODIGLIMIT
-            //Unused
-            break;
         case 2: // WAITFORROOMTIME
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              game.wait_for_room_time = k;
-              n++;
-            }
-            if (n < 1)
-            {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            }
-            break;
         case 3: // CHECKEXPANDTIME
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              game.check_expand_time = k;
-              n++;
-            }
-            if (n < 1)
-            {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            }
-            break;
         case 4: // MAXDISTANCETODIG
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              game.max_distance_to_dig = k;
-              n++;
-            }
-            if (n < 1)
-            {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            }
-            break;
         case 5: // WAITAFTERROOMAREA
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              game.wait_after_room_area = k;
-              n++;
-            }
-            if (n < 1)
-            {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            }
+            //Unused
             break;
         case 6: // DISEASEHPTEMPLEPERCENTAGE
             if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)

@@ -205,16 +205,6 @@ unsigned int packet_file_pos;
     struct GoldLookup gold_lookup[GOLD_LOOKUP_COUNT];
     unsigned short ambient_sound_thing_idx;
     unsigned short block_health[9];
-
-    unsigned short minimum_gold; //unused rule
-    unsigned short max_gold_lookup; //unused rule
-    unsigned short min_gold_to_record; //unused rule
-    unsigned short wait_for_room_time; //unused rule
-    unsigned short check_expand_time; //unused rule
-    unsigned short max_distance_to_dig; //unused rule
-    unsigned short wait_after_room_area; //unused rule
-    unsigned short per_imp_gold_dig_size; //unused rule
-
     unsigned short default_generate_speed;
     unsigned short generate_speed;
     unsigned long entrance_last_generate_turn;
@@ -232,10 +222,6 @@ unsigned int packet_file_pos;
     unsigned short fight_hate_kill_value;
     unsigned short body_remains_for;
     unsigned short graveyard_convert_time;
-
-    unsigned short tile_strength;  //unused rule
-    unsigned short gold_tile_strength;  //unused rule
-
     unsigned char min_distance_for_teleport;
     unsigned char recovery_frequency;
     unsigned short nodungeon_creatr_list_start; /**< Linked list of creatures which have no dungeon (neutral and owned by nonexisting players) */
