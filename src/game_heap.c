@@ -95,7 +95,7 @@ TbBool setup_heap_manager(void)
     for (i=0; i < KEEPSPRITE_LENGTH; i++)
         keepsprite[i] = NULL;
     for (i=0; i < KEEPSPRITE_LENGTH; i++)
-        heap_handle[i] = NULL;
+        sprite_heap_handle[i] = NULL;
     return true;
 }
 
@@ -149,7 +149,7 @@ void reset_heap_manager(void)
     for (i=0; i < KEEPSPRITE_LENGTH; i++)
         keepsprite[i] = NULL;
     for (i=0; i < KEEPSPRITE_LENGTH; i++)
-        heap_handle[i] = NULL;
+        sprite_heap_handle[i] = NULL;
 }
 
 void reset_heap_memory(void)
@@ -296,14 +296,9 @@ TbBool setup_heaps(void)
     return true;
 }
 
-TbBool read_heap_item(struct HeapMgrHandle *hmhandle, long offs, long len)
+void *he_alloc(size_t size)
 {
-    if (file_handle == -1) {
-        return false;
-    }
-    // TODO make error handling
-    LbFileSeek(file_handle, offs, 0);
-    LbFileRead(file_handle, hmhandle->buf, len);
-    return true;
+    // We could need some wrapper
+    return malloc(size);
 }
 /******************************************************************************/

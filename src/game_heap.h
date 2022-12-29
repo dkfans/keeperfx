@@ -34,8 +34,9 @@ void reset_heap_manager(void);
 void reset_heap_memory(void);
 TbBool setup_heaps(void);
 
-TbBool read_heap_item(struct HeapMgrHandle *hmhandle, long offs, long len);
 /******************************************************************************/
+void *he_alloc(size_t size);
+
 #ifdef __cplusplus
 }
 #endif
