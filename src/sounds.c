@@ -49,6 +49,7 @@
 
 #include "keeperfx.hpp"
 #include "post_inc.h"
+#include "game_heap.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -352,33 +353,11 @@ void process_3d_sounds(void)
     process_sound_emitters();
 }
 
+// This function marks not playing samples (to remove them from heap MB)
 void process_sound_heap(void)
 {
-    struct SampleTable *satab;
-    struct HeapMgrHandle *hmhndl;
-    long i;
+    long i = 0;
     SYNCDBG(9,"Starting");
-    for (i = 0; i < samples_in_bank; i++)
-    {
-        satab = &sample_table[i];
-        hmhndl = satab->hmhandle;
-        if (hmhndl != NULL) {
-            hmhndl->flags &= ~0x0004;
-            hmhndl->flags &= ~0x0002;
-        }
-    }
-    if (using_two_banks)
-    {
-        for (i = 0; i < samples_in_bank2; i++)
-        {
-            satab = &sample_table2[i];
-            hmhndl = satab->hmhandle;
-            if (hmhndl != NULL) {
-                hmhndl->flags &= ~0x0004;
-                hmhndl->flags &= ~0x0002;
-            }
-        }
-    }
     struct SampleInfo* smpinfo_last = GetLastSampleInfoStructure();
     for (struct SampleInfo* smpinfo = GetFirstSampleInfoStructure(); smpinfo <= smpinfo_last; smpinfo++)
     {
@@ -386,23 +365,7 @@ void process_sound_heap(void)
       {
           if ( IsSamplePlaying(0, 0, smpinfo->field_0) )
           {
-            if ( (using_two_banks) && ((smpinfo->flags_17 & 0x04) != 0) )
-            {
-                satab = &sample_table2[smpinfo->field_12];
-                hmhndl = satab->hmhandle;
-                if (hmhndl != NULL) {
-                    hmhndl->flags |= 0x0004;
-                    hmhndl->flags |= 0x0002;
-                }
-            } else
-            {
-                satab = &sample_table[smpinfo->field_12];
-                hmhndl = satab->hmhandle;
-                if (hmhndl != NULL) {
-                    hmhndl->flags |= 0x0004;
-                    hmhndl->flags |= 0x0002;
-                }
-            }
+              i++;
           } else
           {
               smpinfo->flags_17 &= ~0x01;
@@ -410,6 +373,7 @@ void process_sound_heap(void)
           }
       }
     }
+    SYNCDBG(9,"Done (%l playing yet)", i);
 }
 
 long parse_sound_file(TbFileHandle fileh, unsigned char *buf, long *nsamples, long buf_len, long a5)
@@ -483,7 +447,8 @@ long parse_sound_file(TbFileHandle fileh, unsigned char *buf, long *nsamples, lo
         smpl->file_pos = k + bsample.field_12;
         smpl->data_size = bsample.data_size;
         smpl->sfxid = bsample.sfxid;
-        smpl->hmhandle = NULL;
+        he_free(smpl->snd_buf);
+        smpl->snd_buf = NULL;
         smpl++;
     }
     //TODO SOUND Check why we're returning nsamples * 32 and not nsamples * 16

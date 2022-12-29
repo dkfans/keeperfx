@@ -122,7 +122,7 @@ extern unsigned char player_bit;
 extern TbSpriteData *keepsprite[KEEPSPRITE_LENGTH];
 extern TbSpriteData sprite_heap_handle[KEEPSPRITE_LENGTH];
 extern struct HeapMgrHeader *graphics_heap;
-extern TbFileHandle file_handle;
+extern TbFileHandle jty_file_handle;
 
 extern long x_init_off;
 extern long y_init_off;

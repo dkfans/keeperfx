@@ -36,6 +36,7 @@ TbBool setup_heaps(void);
 
 /******************************************************************************/
 void *he_alloc(size_t size);
+void he_free(void *data);
 
 #ifdef __cplusplus
 }
