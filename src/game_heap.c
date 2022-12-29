@@ -292,10 +292,4 @@ void *he_alloc(size_t size)
     // We could need some wrapper
     return malloc(size);
 }
-
-void he_free(void *data)
-{
-    if (data)
-        free(data);
-}
 /******************************************************************************/
