@@ -314,7 +314,6 @@ long pinstfs_passenger_control_creature(struct PlayerInfo *player, long *n)
     turn_off_all_window_menus();
     turn_off_menu(GMnu_CREATURE_QUERY1);
     turn_off_menu(GMnu_CREATURE_QUERY2);
-    game.field_15038E = 0;
     game.flags_font |= FFlg_unk04;
   }
   struct Camera* cam = player->acamera;
