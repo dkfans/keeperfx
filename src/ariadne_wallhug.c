@@ -1185,7 +1185,7 @@ static signed char get_starting_angle_and_side_of_hug(
     pos_46.y.val = creatng->mappos.y.val;
     pos_46.z.val = creatng->mappos.z.val;
     move_angle_xy = creatng->move_angle_xy;
-    memcpy(v49, navi, sizeof(struct Navigation));
+    memcpy(v49, navi, 0x2Du); // copy navi + field_211
     creatng->move_angle_xy = angle_39;
     navi->side = v34;
     navi->dist_to_final_pos = get_2d_distance_squared(&creatng->mappos, &navi->pos_final);
@@ -1298,7 +1298,7 @@ LABEL_40:
     creatng->mappos.y.val = pos_46.y.val;
     creatng->mappos.z.val = pos_46.z.val;
     creatng->move_angle_xy = move_angle_xy;
-    memcpy(navi, v49, sizeof(struct Navigation));
+    memcpy(navi, v49, 0x2Du); // copy navi and field_211
     v31 = get_starting_angle_and_side_of_hug_sub2(creatng, navi, pos, slab_flag, angle_37, v35, max_speed, 255, crt_owner_bit);
     if (v42 >= 0)
     {

@@ -3081,6 +3081,7 @@ void draw_defining_a_key_box(void)
 
 char update_menu_fade_level(struct GuiMenu *gmnu)
 {
+    int i;
     switch (gmnu->visual_state)
     {
     case 1: // Fade in

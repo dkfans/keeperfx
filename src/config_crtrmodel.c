@@ -2509,6 +2509,8 @@ TbBool load_creaturemodel_config_file(long crtr_model,const char *textname,const
         if (!result)
             WARNMSG("Parsing %s file \"%s\" sounds blocks failed.",textname,fname);
     }
+    // Mark the fact that stats were updated
+    creature_stats_updated(crtr_model);
     // Freeing and exiting
     LbMemoryFree(buf);
     return result;
@@ -2562,6 +2564,7 @@ void do_creature_swap(long ncrt_id, long crtr_id)
 {
     swap_creaturemodel_config(ncrt_id, crtr_id, 0);
     SCRPTLOG("Swapped creature %s out for creature %s", creature_code_name(crtr_id), new_creature_code_name(ncrt_id));
+    creature_stats_updated(crtr_id);
 }
 
 TbBool swap_creature(long ncrt_id, long crtr_id)
@@ -2607,6 +2610,7 @@ TbBool change_max_health_of_creature_kind(ThingModel crmodel, long new_max)
     }
     SYNCDBG(3,"Changing all %s health from %d to %d.",creature_code_name(crmodel),(int)crstat->health,(int)new_max);
     crstat->health = saturate_set_signed(new_max, 16);
+    creature_stats_updated(crmodel);
     int n = do_to_all_things_of_class_and_model(TCls_Creature, crmodel, update_creature_health_to_max);
     return (n > 0);
 }

@@ -125,7 +125,7 @@ void play_thing_walking(struct Thing *thing)
         struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
         if ((cctrl->distance_to_destination) && get_foot_creature_has_down(thing))
         {
-            int smpl_variant = foot_down_sound_sample_variant[4 * ((cctrl->mood_flags & 0x1C) >> 2) + (cctrl->sound_flag & 0x1F)];
+            int smpl_variant = foot_down_sound_sample_variant[4 * ((cctrl->mood_flags & 0x1C) >> 2) + (cctrl->field_67 & 0x1F)];
             long smpl_idx;
             if ((thing->movement_flags & TMvF_IsOnSnow) != 0) {
                 smpl_idx = 181 + smpl_variant;
@@ -133,12 +133,12 @@ void play_thing_walking(struct Thing *thing)
                 struct CreatureSound* crsound = get_creature_sound(thing, CrSnd_Foot);
                 smpl_idx = crsound->index + smpl_variant;
             }
-            cctrl->sound_flag = (cctrl->sound_flag ^ (cctrl->sound_flag ^ (cctrl->sound_flag + 1))) & 0x1F;
-            if ((cctrl->sound_flag & 0x1F) >= 4)
+            cctrl->field_67 = (cctrl->field_67 ^ (cctrl->field_67 ^ (cctrl->field_67 + 1))) & 0x1F;
+            if ((cctrl->field_67 & 0x1F) >= 4)
             {
                 cctrl->mood_flags &= ~0x1C;
                 cctrl->mood_flags |=  (UNSYNC_RANDOM(4) << 2);
-                cctrl->sound_flag &= ~0x1F;
+                cctrl->field_67 &= ~0x1F;
             }
             crstat = creature_stats_get(thing->model);
             thing_play_sample(thing, smpl_idx, crstat->footstep_pitch, 0, 3, 3, 1, loudness);
