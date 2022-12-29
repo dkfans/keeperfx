@@ -21,6 +21,7 @@
 
 #include "bflib_basics.h"
 #include "globals.h"
+#include "config_creature.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -114,7 +115,7 @@ struct Room {
     struct {
       /** For rooms which store creatures, amount of each model.
        * Rooms which have such lists are lairs. */
-      unsigned char content_per_model[32];
+      unsigned char content_per_model[CREATURE_TYPES_MAX];
     };
     /* For hatchery; integrate with something else, if possible */
     struct {
@@ -122,12 +123,12 @@ struct Room {
       unsigned char field_1Bh[28];
     };
     };
-    unsigned short slabs_list;
-    unsigned short slabs_list_tail;
+    SlabCodedCoords slabs_list;
+    SlabCodedCoords slabs_list_tail;
     unsigned short slabs_count;
     unsigned short creatures_list;
     unsigned short efficiency;
-    unsigned short field_41;
+    SlabCodedCoords field_41;
     unsigned char field_43;
     unsigned char flame_stl;
 };
