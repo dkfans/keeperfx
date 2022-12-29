@@ -34,6 +34,7 @@
 #include "globals.h"
 #include "game_heap.h"
 #include "post_inc.h"
+#include "game_heap.h"
 
 #define INVALID_SOUND_EMITTER (&emitter[0])
 

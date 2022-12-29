@@ -7581,8 +7581,8 @@ static long load_single_frame(TbSpriteData *data_ptr, unsigned short kspr_idx)
     nlength = creature_table[kspr_idx+1].DataOffset - creature_table[kspr_idx].DataOffset;
     *data_ptr = he_alloc(nlength);
 
-    LbFileSeek(file_handle, creature_table[kspr_idx].DataOffset, 0);
-    LbFileRead(file_handle, *data_ptr, nlength);
+    LbFileSeek(jty_file_handle, creature_table[kspr_idx].DataOffset, 0);
+    LbFileRead(jty_file_handle, *data_ptr, nlength);
 
     keepsprite[kspr_idx] = data_ptr;
     return 1;
