@@ -5322,7 +5322,7 @@ TngUpdateRet update_creature(struct Thing *thing)
     if (cctrl->force_visible > 0)
         cctrl->force_visible--;
     if (cctrl->unknown.byte_8B == 0)
-        cctrl->unknown.byte_8B = game.field_14EA4B;
+        cctrl->unknown.byte_8B = game.map_changed_for_nagivation;
     if (cctrl->stopped_for_hand_turns == 0) {
         process_creature_instance(thing);
     }

@@ -858,7 +858,7 @@ short good_doing_nothing(struct Thing *creatng)
         }
         if ((player->victory_state != VicS_LostLevel) && players_are_enemies(creatng->owner, target_plyr_idx))
         {
-            nturns = game.play_gameturn - cctrl->hero.long_91;
+            nturns = game.play_gameturn - cctrl->hero.wait_time;
             if (nturns > 400)
             {
                 // Go to the previously chosen dungeon
@@ -882,8 +882,8 @@ short good_doing_nothing(struct Thing *creatng)
             } else
             {
                 // Value lower than 0 would mean it is invalid
-                WARNLOG("Invalid wait time detected for %s index %d, value %ld",thing_model_name(creatng),(int)creatng->index,(long)cctrl->hero.long_91);
-                cctrl->hero.long_91 = 0;
+                WARNLOG("Invalid wait time detected for %s index %d, value %ld",thing_model_name(creatng),(int)creatng->index,(long)cctrl->hero.wait_time);
+                cctrl->hero.wait_time = 0;
             }
         } else
         {
@@ -903,16 +903,16 @@ short good_doing_nothing(struct Thing *creatng)
     }
     if (target_plyr_idx == -1)
     {
-        nturns = game.play_gameturn - cctrl->hero.long_91;
+        nturns = game.play_gameturn - cctrl->hero.wait_time;
         if (nturns > 400)
         {
-            cctrl->hero.long_91 = game.play_gameturn;
+            cctrl->hero.wait_time = game.play_gameturn;
             cctrl->hero.byte_8C = 1;
         }
-        nturns = game.play_gameturn - cctrl->hero.long_8D;
+        nturns = game.play_gameturn - cctrl->hero.look_for_enemy_dungeon_turn;
         if (nturns > 64)
         {
-            cctrl->hero.long_8D = game.play_gameturn;
+            cctrl->hero.look_for_enemy_dungeon_turn = game.play_gameturn;
             cctrl->party.target_plyr_idx = good_find_best_enemy_dungeon(creatng);
         }
         target_plyr_idx = cctrl->party.target_plyr_idx;

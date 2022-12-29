@@ -222,8 +222,8 @@ unsigned char sound_flag;
     unsigned char hero_gate_creation_turn;
     TbBool byte_8B;
     TbBool byte_8C;
-    long long_8D;
-    long long_91;
+    long look_for_enemy_dungeon_turn;
+    long wait_time;
   } hero;
   struct {
     char sbyte_89_unused;
