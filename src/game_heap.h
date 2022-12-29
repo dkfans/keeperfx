@@ -21,7 +21,6 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
-#include "bflib_heapmgr.h"
 
 #ifdef __cplusplus
 extern "C" {

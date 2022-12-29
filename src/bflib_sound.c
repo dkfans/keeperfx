@@ -26,15 +26,14 @@
 #include "bflib_basics.h"
 #include "bflib_memory.h"
 #include "bflib_math.h"
-#include "bflib_heapmgr.h"
 #include "bflib_sndlib.h"
 #include "bflib_fileio.h"
 #include "bflib_planar.h"
 #include "config_settings.h"
 #include "game_legacy.h"
 #include "globals.h"
-#include "post_inc.h"
 #include "game_heap.h"
+#include "post_inc.h"
 
 #define INVALID_SOUND_EMITTER (&emitter[0])
 
@@ -910,10 +909,6 @@ struct SampleInfo *play_sample_using_heap(unsigned long a1, SoundSmplTblID smptb
 
 void stop_sample_using_heap(SoundEmitterID emit_id, SoundSmplTblID smptbl_id, SoundBankID bank_id)
 {
-    struct SampleInfo *smpinfo;
-    struct SampleInfo *smpinfo_last;
-    struct SampleTable *satab;
-    struct HeapMgrHandle *hmhndl;
     SYNCDBG(19,"Starting");
     if ( !using_two_banks )
     {

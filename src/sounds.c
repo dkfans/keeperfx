@@ -27,7 +27,6 @@
 #include "bflib_memory.h"
 #include "bflib_math.h"
 #include "bflib_bufrw.h"
-#include "bflib_heapmgr.h"
 #include "engine_render.h"
 #include "map_utils.h"
 #include "engine_camera.h"
@@ -48,8 +47,8 @@
 #include "config.h"
 
 #include "keeperfx.hpp"
-#include "post_inc.h"
 #include "game_heap.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -553,13 +552,6 @@ TbBool init_sound_heap_two_banks(unsigned char *heap_mem, long heap_size, char *
         return false;
     }
     SYNCLOG("Got sound buffer of %ld bytes, samples in banks: %d,%d",buf_len,(int)samples_in_bank,(int)samples_in_bank2);
-    sndheap = heapmgr_init(buf, buf_len, samples_in_bank2 + samples_in_bank);
-    if (sndheap == NULL)
-    {
-        ERRORLOG("Sound heap manager init error");
-        close_sound_heap();
-        return false;
-    }
     using_two_banks = 1;
     return true;
 }

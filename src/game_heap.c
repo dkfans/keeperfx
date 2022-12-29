@@ -25,7 +25,6 @@
 #include "bflib_sound.h"
 #include "bflib_sndlib.h"
 #include "bflib_fileio.h"
-#include "bflib_heapmgr.h"
 #include "config.h"
 #include "front_simple.h"
 #include "engine_render.h"
@@ -72,15 +71,7 @@ TbBool setup_heap_manager(void)
         ERRORLOG("Graphics Heap not allocated");
         return false;
     }
-    long i = heap_size / 512;
-    if (i >= KEEPSPRITE_LENGTH)
-      i = KEEPSPRITE_LENGTH-1;
-    graphics_heap = heapmgr_init(heap, heap_size, i);
-    if (graphics_heap == NULL)
-    {
-        ERRORLOG("Not enough memory to initialize heap.");
-        return false;
-    }
+    long i;
     wait_for_cd_to_be_available();
 #ifdef SPRITE_FORMAT_V2
     fname = prepare_file_fmtpath(FGrp_StdData,"thingspr-%d.jty",32);

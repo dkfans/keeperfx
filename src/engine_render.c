@@ -30,7 +30,6 @@
 #include "bflib_sprite.h"
 #include "bflib_vidraw.h"
 #include "bflib_render.h"
-#include "bflib_heapmgr.h"
 
 #include "engine_lenses.h"
 #include "engine_camera.h"
