@@ -23,13 +23,13 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
+#include "bflib_fileio.h"
 #include "bflib_memory.h"
 #include "bflib_math.h"
 #include "bflib_video.h"
 #include "bflib_sprite.h"
 #include "bflib_vidraw.h"
 #include "bflib_render.h"
-#include "bflib_heapmgr.h"
 
 #include "engine_lenses.h"
 #include "engine_camera.h"
@@ -489,9 +489,9 @@ unsigned char temp_cluedo_mode; // This is true(1) if the "short wall" have been
 struct Thing *thing_being_displayed;
 
 TbSpriteData *keepsprite[KEEPSPRITE_LENGTH];
-struct HeapMgrHandle * heap_handle[KEEPSPRITE_LENGTH];
+TbSpriteData sprite_heap_handle[KEEPSPRITE_LENGTH];
 struct HeapMgrHeader *graphics_heap;
-TbFileHandle file_handle;
+TbFileHandle jty_file_handle;
 
 unsigned char player_bit;
 
@@ -7575,89 +7575,16 @@ static unsigned short get_thing_shade(struct Thing* thing)
     return shval;
 }
 
-static void lock_keepersprite(unsigned short kspr_idx)
-{
-    int frame_num;
-    int frame_count;
-    struct KeeperSprite *kspr_arr;
-    kspr_arr = &creature_table[kspr_idx];
-    if (kspr_arr->Rotable) {
-        frame_count = 5 * kspr_arr->FramesCount;
-    } else {
-        frame_count = kspr_arr->FramesCount;
-    }
-    for (frame_num=0; frame_num < frame_count; frame_num++)
-    {
-        struct HeapMgrHandle *hmhndl;
-        hmhndl = heap_handle[kspr_idx+frame_num];
-        if (hmhndl != NULL) {
-            hmhndl->flags |= 0x02;
-        }
-    }
-}
-
-static void unlock_keepersprite(unsigned short kspr_idx)
-{
-    int frame_num;
-    int frame_count;
-    struct KeeperSprite *kspr_arr;
-    kspr_arr = &creature_table[kspr_idx];
-    if (kspr_arr->Rotable) {
-        frame_count = 5 * kspr_arr->FramesCount;
-    } else {
-        frame_count = kspr_arr->FramesCount;
-    }
-    for (frame_num=0; frame_num < frame_count; frame_num++)
-    {
-        struct HeapMgrHandle *hmhndl;
-        hmhndl = heap_handle[kspr_idx+frame_num];
-        if (hmhndl != NULL) {
-            hmhndl->flags &= ~0x02;
-        }
-    }
-}
-
-static long load_single_frame(unsigned short kspr_idx)
+static long load_single_frame(TbSpriteData *data_ptr, unsigned short kspr_idx)
 {
     long nlength;
-    struct HeapMgrHandle *nitem;
-    int i;
     nlength = creature_table[kspr_idx+1].DataOffset - creature_table[kspr_idx].DataOffset;
-    for (i=0; i < 100; i++)
-    {
-        nitem = heapmgr_add_item(graphics_heap, nlength);
-        if (nitem != NULL) {
-            break;
-        }
-        long idfreed;
-        idfreed = heapmgr_free_oldest(graphics_heap);
-        if (idfreed < 0)
-        {
-            // If can't free anything more, try to defrag existing items
-            heapmgr_complete_defrag(graphics_heap);
-            nitem = heapmgr_add_item(graphics_heap, nlength);
-            if (nitem != NULL) {
-                break;
-            }
-            // Cannot free and cannot defrag - we can't do anything more
-            ERRORLOG("Unable to find freeable item");
-            return 0;
-        }
-        heap_handle[idfreed] = NULL;
-        keepsprite[idfreed] = NULL;
-    }
-    if (nitem == NULL) {
-        ERRORLOG("Unable to make room for new item on heap");
-        return 0;
-    }
-    if (!read_heap_item(nitem, creature_table[kspr_idx].DataOffset, nlength))
-    {
-        ERRORLOG("Load Fail On KeepSprite %d",(int)kspr_idx);
-        return 0;
-    }
-    keepsprite[kspr_idx] = (unsigned char **)&nitem->buf;
-    heap_handle[kspr_idx] = nitem;
-    nitem->idx = kspr_idx;
+    *data_ptr = he_alloc(nlength);
+
+    LbFileSeek(jty_file_handle, creature_table[kspr_idx].DataOffset, 0);
+    LbFileRead(jty_file_handle, *data_ptr, nlength);
+
+    keepsprite[kspr_idx] = data_ptr;
     return 1;
 }
 
@@ -7674,18 +7601,13 @@ static long load_keepersprite_if_needed(unsigned short kspr_idx)
     }
     for (frame_num=0; frame_num < frame_count; frame_num++)
     {
-        struct HeapMgrHandle **hmhndl;
-        hmhndl = &heap_handle[kspr_idx+frame_num];
-        if ((*hmhndl) != NULL)
+        TbSpriteData *sprite_data_ptr = &sprite_heap_handle[kspr_idx+frame_num];
+        if ((*sprite_data_ptr) == NULL)
         {
-            heapmgr_make_newest(graphics_heap, *hmhndl);
-        } else
-        {
-            if (!load_single_frame(kspr_idx+frame_num))
+            if (!load_single_frame(sprite_data_ptr, kspr_idx+frame_num))
             {
                 return 0;
             }
-            (*hmhndl)->flags |= 0x02;
         }
     }
     return 1;
@@ -7696,9 +7618,7 @@ static long heap_manage_keepersprite(unsigned short kspr_idx)
     long result;
     if (kspr_idx >= KEEPERSPRITE_ADD_OFFSET)
         return 1;
-    lock_keepersprite(kspr_idx);
     result = load_keepersprite_if_needed(kspr_idx);
-    unlock_keepersprite(kspr_idx);
     return result;
 }
 
