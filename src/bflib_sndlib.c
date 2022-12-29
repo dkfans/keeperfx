@@ -191,9 +191,9 @@ int __stdcall PlayStreamedSample(char *fname, int sample_type, int a3, int a4)
 {
     /*
     Possible sample types:
-    811 - no playback
-    822 - no playback
-    844 - no playback
+    811 - 8-bit 11khz
+    822 - 8-bit 22khz
+    844 - 8-bit 44khz
     1611 - 16-bit 11khz
     1622 - 16-bit 22khz
     1644 - 16-bit 44khz
