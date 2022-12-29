@@ -119,8 +119,8 @@ enum PlayerAdditionalFlags {
 #pragma pack(1)
 
 struct SubtileXY {
-    unsigned char stl_x;
-    unsigned char stl_y;
+    MapSubtlCoord stl_x;
+    MapSubtlCoord stl_y;
 };
 
 struct Wander

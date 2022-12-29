@@ -87,8 +87,8 @@ struct Room {
     unsigned char owner;
     short prev_of_owner;
     short next_of_owner;
-    unsigned char central_stl_x;
-    unsigned char central_stl_y;
+    MapSubtlCoord central_stl_x;
+    MapSubtlCoord central_stl_y;
     unsigned short kind;
     unsigned short health;
     unsigned short total_capacity;
