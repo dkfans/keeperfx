@@ -194,9 +194,9 @@ int __stdcall PlayStreamedSample(char *fname, int sample_type, int a3, int a4)
     811 - no playback
     822 - no playback
     844 - no playback
-    1611 - slow playback
-    1622 - normal speed
-    1644 - fast playback
+    1611 - 16-bit 11khz
+    1622 - 16-bit 22khz
+    1644 - 16-bit 44khz
     */
     HMODULE hModule=LoadLibrary("WSND7R");
     FARPROC proc = GetProcAddress(hModule, "_PlayStreamedSample@16");
