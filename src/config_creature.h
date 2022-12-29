@@ -284,7 +284,6 @@ extern const struct NamedCommand creature_graphics_desc[];
 struct CreatureStats *creature_stats_get(ThingModel crstat_idx);
 struct CreatureStats *creature_stats_get_from_thing(const struct Thing *thing);
 TbBool creature_stats_invalid(const struct CreatureStats *crstat);
-void creature_stats_updated(ThingModel crstat_idx);
 void check_and_auto_fix_stats(void);
 const char *creature_code_name(ThingModel crmodel);
 const char* new_creature_code_name(ThingModel crmodel);

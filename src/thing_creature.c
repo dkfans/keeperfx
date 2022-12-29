@@ -3793,8 +3793,8 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
     cctrl->blood_type = CREATURE_RANDOM(crtng, BLOOD_TYPES_COUNT);
     if (owner == game.hero_player_num)
     {
-      cctrl->party.target_plyr_idx = -1;
-      cctrl->byte_8C = 1;
+      cctrl->hero.sbyte_89 = -1;
+      cctrl->hero.byte_8C = 1;
     }
     cctrl->flee_pos.x.val = crtng->mappos.x.val;
     cctrl->flee_pos.y.val = crtng->mappos.y.val;
@@ -5319,8 +5319,8 @@ TngUpdateRet update_creature(struct Thing *thing)
         cctrl->frozen_on_hit--;
     if (cctrl->force_visible > 0)
         cctrl->force_visible--;
-    if (cctrl->byte_8B == 0)
-        cctrl->byte_8B = game.field_14EA4B;
+    if (cctrl->unknown.byte_8B == 0)
+        cctrl->unknown.byte_8B = game.field_14EA4B;
     if (cctrl->stopped_for_hand_turns == 0) {
         process_creature_instance(thing);
     }
