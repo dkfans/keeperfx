@@ -1600,7 +1600,6 @@ TbBool parse_rules_workers_blocks(char *buf, long len, const char *config_textna
       game.hits_per_slab = 2;
       game.default_imp_dig_damage = 1;
       game.default_imp_dig_own_damage = 2;
-      game.per_imp_gold_dig_size = 30;
   }
   // Find the block
   char block_buf[COMMAND_WORD_LEN];
@@ -1676,17 +1675,7 @@ TbBool parse_rules_workers_blocks(char *buf, long len, const char *config_textna
           }
           break;
       case 8: // PERIMPGOLDDIGSIZE
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            game.per_imp_gold_dig_size = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
+            //unused
           break;
       case 9: // IMPWORKEXPERIENCE
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
