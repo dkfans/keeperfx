@@ -235,44 +235,21 @@ unsigned char sound_flag;
 
   union {
   struct {
-        long start_gameturn;
-        long long_9Ex;
-        long long_A2x;
-        short assigned_torturer;
-        unsigned char vis_state;
+    long start_gameturn;
+    long gameturn_9Ex;
+    long gameturn_A2x;
+    short assigned_torturer;
+    unsigned char vis_state;
   } tortured;
   struct {
-        long start_gameturn;
-        long long_9Ex;
-        long long_A2x;
+    long start_gameturn;
   } idle;
   struct {
     unsigned char job_stage;
-    unsigned char byte_9B;
-    unsigned char byte_9C;
-    unsigned char byte_9D;
-    unsigned char byte_9E;
-    unsigned char byte_9F;
-    unsigned char byte_A0;
-    unsigned char byte_A1;
-    unsigned char byte_A2;
-    unsigned char byte_A3;
-    unsigned char byte_A4;
-    unsigned char byte_A5;
-  };
-  struct {
-    unsigned char byte_9A_scv;
-    unsigned char byte_9B_scv;
-    unsigned char byte_9C_scv;
+    unsigned char effect_id;
+    unsigned char previous_owner;
     unsigned char stl_9D_x;
     unsigned char stl_9D_y;
-    unsigned char byte_9F_scv;
-    unsigned char byte_A0_scv;
-    unsigned char byte_A1_scv;
-    unsigned char byte_A2_scv;
-    unsigned char byte_A3_scv;
-    unsigned char byte_A4_scv;
-    unsigned char byte_A5_scv;
   } scavenge;
   struct {
     unsigned char mode;// offset 9A
@@ -282,7 +259,6 @@ unsigned char sound_flag;
     unsigned char search_timeout;
     short partner_idx;
     long partner_creation;
-    unsigned char byte_A5x;
   } training;
   struct {
     long seen_enemy_turn;
@@ -298,49 +274,47 @@ unsigned char sound_flag;
     unsigned long last_mood_sound_turn;
   } imprison;
   struct {
-    short word_9A;
-    short word_9C;
-    short word_9E;
-    long long_A0;
-    short word_A4;
-    short assigned_torturer;
-  };
+    unsigned char byte_9A;
+    unsigned char swing_weapon_counter;
+    unsigned char stl_x;
+    unsigned char stl_y;
+    unsigned char byte_9E;
+  } workshop;
   struct {
-    short word_9A_cp2;
-    long long_9C;
-    long long_A0_cp2;
-    short word_A4_cp2;
-    short word_A6_cp2;
-  };
+    long foodtng_idx;
+  } eating;
   struct {
-    long long_9A;
-    long long_9E;
-    long long_A2;
-  };
+    unsigned char job_stage;
+    long random_thinking_angle;
+  } research;
+  struct {
+    short enemy_idx;
+    long enemy_creation_turn;
+    long turn_looked_for_enemy;
+  } seek_enemy;
   struct {
     unsigned long last_mood_sound_turn;
-    long long_9E_cp2;
-    long long_A2_cp2;
-    short word_A6_cp3;
-  };
+  }mood;
   struct {
-    unsigned char byte_9A_cp2;
-    long long_9B;
-    short word_9F_cp2;
-    long long_A1;
-    unsigned char byte_A5_cp2;
-    short word_A6_cp4;
-  };
+    unsigned char persuade_count;
+  }persuade;
   struct {
-    unsigned char byte_9A_cp3;
-    short word_9B;
-    short word_9D;
-    short word_9F;
-    short word_A1;
-    short word_A3;
-    unsigned char byte_A5_cp3;
-    short word_A6_cp5;
-  };
+    short room_idx;
+  }evacuate;
+  struct {
+    short word_9A;
+    short word_9C;
+  }sacrifice;
+  struct {
+    unsigned char byte_9A;
+  }mad_psycho;
+
+  struct {
+    unsigned char byte_9A;
+  }unknown_state;
+
+
+
   };
     unsigned char fight_til_death;
     TbBool field_AA;

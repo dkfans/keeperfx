@@ -1247,7 +1247,7 @@ short tunneller_doing_nothing(struct Thing *creatng)
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     PlayerNumber CurrentTarget = cctrl->party.target_plyr_idx;
     // Wait for some time
-    if (game.play_gameturn - cctrl->last_mood_sound_turn <= 1) {
+    if (game.play_gameturn - cctrl->idle.start_gameturn <= 1) {
         return 1;
     }
     /* Sometimes we may have no target dungeon. In that case, destination dungeon

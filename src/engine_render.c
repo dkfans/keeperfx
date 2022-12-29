@@ -7951,18 +7951,18 @@ void process_keeper_sprite(short x, short y, unsigned short kspr_base, short ksp
         water_y_offset = 0;
         water_source_cutoff = 0;
     } else
-    if ( (thing_being_displayed->movement_flags & (TMvF_IsOnWater|TMvF_IsOnLava|TMvF_Unknown04)) == 0)
+    if ( (thing_being_displayed->movement_flags & (TMvF_IsOnWater|TMvF_IsOnLava|TMvF_BeingSacrificed)) == 0)
     {
         water_y_offset = 0;
         water_source_cutoff = 0;
     } else
     {
         cutoff = 6;
-        if ( (thing_being_displayed->movement_flags & TMvF_Unknown04) != 0 )
+        if ( (thing_being_displayed->movement_flags & TMvF_BeingSacrificed) != 0 )
         {
             get_keepsprite_unscaled_dimensions(thing_being_displayed->anim_sprite, thing_being_displayed->move_angle_xy, thing_being_displayed->current_frame, &dim_ow, &dim_oh, &dim_tw, &dim_th);
             cctrl = creature_control_get_from_thing(thing_being_displayed);
-            lltemp = dim_oh * (48 - (long)cctrl->word_9A);
+            lltemp = dim_oh * (48 - (long)cctrl->sacrifice.word_9A);
             cutoff = ((((lltemp >> 24) & 0x1F) + (long)lltemp) >> 5) / 2;
         }
         if (player->view_mode == PVM_CreatureView)
@@ -8915,7 +8915,7 @@ static void do_map_who_for_thing(struct Thing *thing)
         ecor.y = (render_floorpos - map_z_pos); // For shadows
 
         // Shadows
-        if (thing_is_creature(thing) && ((thing->movement_flags & TMvF_Unknown04) == 0))
+        if (thing_is_creature(thing) && ((thing->movement_flags & TMvF_BeingSacrificed) == 0))
         {
             int count;
             int i;
