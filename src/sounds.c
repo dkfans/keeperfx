@@ -49,7 +49,6 @@
 #include "keeperfx.hpp"
 #include "game_heap.h"
 #include "post_inc.h"
-#include "game_heap.h"
 
 #ifdef __cplusplus
 extern "C" {
