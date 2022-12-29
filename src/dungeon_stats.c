@@ -78,6 +78,7 @@ TbBool load_stats_files(void)
       if (!load_creaturemodel_config(i,0))
         result = false;
     }
+    game.field_149E7B = game.tile_strength;
     SYNCDBG(3,"Finished");
     return result;
 }

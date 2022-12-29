@@ -3975,6 +3975,8 @@ TbBool create_random_hero_creature(MapCoord x, MapCoord y, PlayerNumber owner, C
   remove_first_creature(thing);
   set_first_creature(thing);
 //  set_start_state(thing); - simplified to the following two commands
+  game.field_14E498 = game.play_gameturn;
+  game.field_14E49C++;
   CrtrExpLevel lv = GAME_RANDOM(max_lv);
   set_creature_level(thing, lv);
   return true;

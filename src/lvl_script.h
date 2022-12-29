@@ -40,6 +40,13 @@ extern "C" {
 
 #define CONDITION_ALWAYS (CONDITIONS_COUNT)
 
+#define PARTY_TRIGGERS_COUNT_OLD     48
+#define CREATURE_PARTYS_COUNT_OLD    16
+#define CONDITIONS_COUNT_OLD         48
+#define TUNNELLER_TRIGGERS_COUNT_OLD 16
+#define SCRIPT_VALUES_COUNT_OLD      64
+#define WIN_CONDITIONS_COUNT_OLD      4
+
 #define SENSIBLE_GOLD 99999999
 
 enum ScriptOperator {
@@ -147,6 +154,18 @@ struct ScriptValue { // sizeof = 16
   };
 };
 
+static_assert(sizeof(struct ScriptValue) == 16, "");
+
+struct ConditionOld { // sizeof = 12
+  short condit_idx;
+  unsigned char status;
+  unsigned char plyr_range;
+  unsigned char variabl_type;
+  unsigned short variabl_idx;
+  unsigned char operation;
+  unsigned long rvalue;
+};
+
 struct Condition {
   short condit_idx;
   unsigned char status;
@@ -179,6 +198,23 @@ struct ScriptFxLine
 
     int total_steps;
     int step;
+};
+
+struct LevelScriptOld { // sizeof = 5884
+    struct TunnellerTrigger tunneller_triggers[TUNNELLER_TRIGGERS_COUNT_OLD];
+    unsigned long tunneller_triggers_num;
+    struct PartyTrigger party_triggers[PARTY_TRIGGERS_COUNT_OLD];
+    unsigned long party_triggers_num;
+    struct ScriptValue values[SCRIPT_VALUES_COUNT_OLD];
+    unsigned long values_num;
+    struct ConditionOld conditions[CONDITIONS_COUNT_OLD];
+    unsigned long conditions_num;
+    struct Party creature_partys[CREATURE_PARTYS_COUNT_OLD];
+    unsigned long creature_partys_num;
+    unsigned short win_conditions[WIN_CONDITIONS_COUNT_OLD];
+    unsigned long win_conditions_num;
+    unsigned short lose_conditions[WIN_CONDITIONS_COUNT_OLD];
+    unsigned long lose_conditions_num;
 };
 
 struct LevelScript {

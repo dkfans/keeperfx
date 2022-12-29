@@ -986,6 +986,12 @@ void init_keeper(void)
     init_top_texture_to_cube_table();
     load_texture_anim_file();
     game.neutral_player_num = neutral_player_number;
+    game.field_14EA34 = 4;
+    game.field_14EA38 = 200;
+    game.field_14EA28 = 256;
+    game.field_14EA2A = 256;
+    game.field_14EA2C = 256;
+    game.field_14EA2E = 256;
     if (game.generate_speed <= 0)
       game.generate_speed = game.default_generate_speed;
     poly_pool_end = &poly_pool[sizeof(poly_pool)-128];
@@ -2198,7 +2204,7 @@ void set_mouse_light(struct PlayerInfo *player)
             pos.y.val = pckt->pos_y;
             pos.z.val = get_floor_height_at(&pos);
             if (is_my_player(player)) {
-                game.mouse_light_pos = pos;
+                game.pos_14C006 = pos;
             }
             light_turn_light_on(player->cursor_light_idx);
             light_set_light_position(player->cursor_light_idx, &pos);
@@ -2430,12 +2436,36 @@ void process_payday(void)
     }
 }
 
+void count_dungeon_stuff(void)
+{
+  struct PlayerInfo *player;
+  struct Dungeon *dungeon;
+  int i;
+
+  game.field_14E4A4 = 0;
+  game.field_14E4A0 = 0;
+  game.field_14E49E = 0;
+
+  for (i=0; i < DUNGEONS_COUNT; i++)
+  {
+    dungeon = get_dungeon(i);
+    player = get_player(i);
+    if (player_exists(player))
+    {
+      game.field_14E4A0 += dungeon->total_money_owned;
+      game.field_14E4A4 += dungeon->num_active_diggers;
+      game.field_14E49E += dungeon->num_active_creatrs;
+    }
+  }
+}
+
 void process_dungeons(void)
 {
   SYNCDBG(7,"Starting");
   check_players_won();
   check_players_lost();
   process_dungeon_power_magic();
+  count_dungeon_stuff();
   process_dungeon_devastation_effects();
   process_entrance_generation();
   process_payday();
