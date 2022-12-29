@@ -235,53 +235,53 @@ unsigned char sound_flag;
 
   union {
   struct {
-    long start_gameturn;
-    long gameturn_9Ex;
-    long gameturn_A2x;
-    short assigned_torturer;
+    GameTurn start_gameturn;
+    GameTurn gameturn_9Ex;
+    GameTurn gameturn_A2x;
+    ThingIndex assigned_torturer;
     unsigned char vis_state;
   } tortured;
   struct {
-    long start_gameturn;
+    GameTurn start_gameturn;
   } idle;
   struct {
     unsigned char job_stage;
     unsigned char effect_id;
-    unsigned char previous_owner;
-    unsigned char stl_9D_x;
-    unsigned char stl_9D_y;
+    PlayerNumber previous_owner;
+    MapSubtlCoord stl_9D_x;
+    MapSubtlCoord stl_9D_y;
   } scavenge;
   struct {
     unsigned char mode;// offset 9A
     unsigned char train_timeout;
-    unsigned char pole_stl_x;
-    unsigned char pole_stl_y;
+    MapSubtlCoord pole_stl_x;
+    MapSubtlCoord pole_stl_y;
     unsigned char search_timeout;
     short partner_idx;
     long partner_creation;
   } training;
   struct {
-    long seen_enemy_turn;
+    GameTurn seen_enemy_turn;
     long battle_enemy_crtn;
-    short battle_enemy_idx;
-    short seen_enemy_idx;
+    ThingIndex battle_enemy_idx;
+    ThingIndex seen_enemy_idx;
     unsigned char state_id;
     unsigned char attack_type;
     unsigned char seen_enemy_los;
   } combat;
   struct {
-    unsigned long start_gameturn;
-    unsigned long last_mood_sound_turn;
+    GameTurn start_gameturn;
+    GameTurn last_mood_sound_turn;
   } imprison;
   struct {
     unsigned char byte_9A;
     unsigned char swing_weapon_counter;
-    unsigned char stl_x;
-    unsigned char stl_y;
+    MapSubtlCoord stl_x;
+    MapSubtlCoord stl_y;
     unsigned char byte_9E;
   } workshop;
   struct {
-    long foodtng_idx;
+    ThingIndex foodtng_idx;
   } eating;
   struct {
     unsigned char job_stage;
@@ -289,17 +289,17 @@ unsigned char sound_flag;
   } research;
   struct {
     short enemy_idx;
-    long enemy_creation_turn;
-    long turn_looked_for_enemy;
+    GameTurn enemy_creation_turn;
+    GameTurn turn_looked_for_enemy;
   } seek_enemy;
   struct {
-    unsigned long last_mood_sound_turn;
+    GameTurn last_mood_sound_turn;
   }mood;
   struct {
     unsigned char persuade_count;
   }persuade;
   struct {
-    short room_idx;
+    RoomIndex room_idx;
   }evacuate;
   struct {
     short word_9A;
