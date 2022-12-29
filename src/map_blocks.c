@@ -374,7 +374,7 @@ TbBool set_slab_explored(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord
 }
 
 // only used by mine_out_block
-void set_slab_explored_flags(unsigned char flag, long slb_x, long slb_y)
+void set_slab_explored_flags(unsigned char flag, MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
 
     MapSubtlCoord stl_y = STL_PER_SLB * slb_y;
@@ -871,7 +871,7 @@ void copy_block_with_cube_groups(short itm_idx, MapSubtlCoord stl_x, MapSubtlCoo
     }
 }
 
-void set_alt_bit_based_on_slab(SlabKind slbkind, unsigned char stl_x, unsigned char stl_y)
+void set_alt_bit_based_on_slab(SlabKind slbkind, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     struct SlabAttr *slbattr;
     slbattr = get_slab_kind_attrs(slbkind);
@@ -982,7 +982,7 @@ unsigned short get_slabset_index_f(SlabKind slbkind, unsigned char style, unsign
     return 28 * slbkind + 9 * style + pick;
 }
 
-void place_slab_object(unsigned short slb_num, long a2, long a3, unsigned short slabct_num, unsigned short slbelem, unsigned char a6)
+void place_slab_object(SlabCodedCoords slb_num, long a2, long a3, unsigned short slabct_num, unsigned short slbelem, unsigned char a6)
 {
     if (slabct_num >= SLABSET_COUNT) {
         ERRORLOG("Illegal animating slab number: %d", (int)slabct_num);

@@ -36,8 +36,8 @@ struct GoldLookup { // sizeof = 28
     unsigned char flags;
     /* Informs whether players are interested in that gold vein. */
     unsigned char player_interested[5];
-unsigned short stl_x;
-unsigned short stl_y;
+MapSubtlCoord stl_x;
+MapSubtlCoord stl_y;
 unsigned short field_A;
 unsigned short field_C;
 unsigned short num_gold_slabs;

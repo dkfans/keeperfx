@@ -92,7 +92,7 @@ struct InitLight { // sizeof=0x14
     unsigned char field_3;
     struct Coord3d mappos;
     unsigned char is_dynamic;
-    short attached_slb;
+    SlabCodedCoords attached_slb;
 };
 
 struct LightSystemState {

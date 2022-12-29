@@ -882,7 +882,7 @@ static int check_out_unreinforced_spiral(struct Thing *thing, int number_of_iter
 
 static long check_out_unreinforced_place(struct Thing *thing)
 {
-    unsigned short working_stl;
+    SubtlCodedCoords working_stl;
     SubtlCodedCoords stl_num;
     struct CreatureControl *cctrl;
     int v17;
