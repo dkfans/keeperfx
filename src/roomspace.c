@@ -772,9 +772,11 @@ void get_dungeon_build_user_roomspace(struct RoomSpace *roomspace, PlayerNumber 
             drag_start_y = slb_y;
         }
         TbBool can_drag; 
-        if (rkind == RoK_BRIDGE)
+        if (room_role_matches(rkind,RoRoF_PassWater|RoRoF_PassLava))
         {
-            can_drag = ( (can_build_room_at_slab(plyr_idx, rkind, drag_start_x, drag_start_y)) || (players_land_by_liquid(plyr_idx, drag_start_x, drag_start_y)) );
+            can_drag = ((can_build_room_at_slab(plyr_idx, rkind, drag_start_x, drag_start_y)) || 
+                        (room_role_matches(rkind,RoRoF_PassWater) && (players_land_by_slab_kind(plyr_idx, drag_start_x, drag_start_y,SlbT_WATER))) ||
+                        (room_role_matches(rkind,RoRoF_PassLava)  && (players_land_by_slab_kind(plyr_idx, drag_start_x, drag_start_y,SlbT_LAVA))) );
         }
         else
         {
@@ -792,7 +794,7 @@ void get_dungeon_build_user_roomspace(struct RoomSpace *roomspace, PlayerNumber 
         {
             detect_roomspace_direction(&temp_best_room);
         }
-        if (rkind == RoK_BRIDGE)
+        if (room_role_matches(rkind,RoRoF_PassWater|RoRoF_PassLava))
         {
             detect_bridge_shape(plyr_idx);
         }
@@ -1211,7 +1213,7 @@ void process_build_roomspace_inputs(PlayerNumber plyr_idx)
     struct PlayerInfoAdd* playeradd = get_playeradd(plyr_idx);
     long keycode = 0;
     struct Packet* pckt = get_packet(plyr_idx);
-    if (player->chosen_room_kind == RoK_BRIDGE)
+    if (room_role_matches(player->chosen_room_kind,RoRoF_PassLava|RoRoF_PassWater))
     {
         TbBool drag_check = ( ( (is_game_key_pressed(Gkey_BestRoomSpace, &keycode, true)) || (is_game_key_pressed(Gkey_SquareRoomSpace, &keycode, true)) ) && (left_button_held));
         if (drag_check) // Enable "paint mode" if Ctrl or Shift are held
@@ -1519,7 +1521,7 @@ void update_slab_grid(struct RoomSpace* roomspace, unsigned char mode, TbBool se
 TbBool roomspace_can_build_room_at_slab(PlayerNumber plyr_idx, RoomKind rkind, MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
     struct PlayerInfo* player = get_player(plyr_idx);
-    if (player->chosen_room_kind == RoK_BRIDGE)
+    if (room_role_matches(player->chosen_room_kind,RoRoF_PassLava|RoRoF_PassWater))
     {
         if (!subtile_revealed(slab_subtile_center(slb_x), slab_subtile_center(slb_y), plyr_idx))
         {
