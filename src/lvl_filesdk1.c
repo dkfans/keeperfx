@@ -842,6 +842,87 @@ TbBool load_action_point_file(LevelNumber lv_num)
   return true;
 }
 
+TbBool load_aptfx_file(LevelNumber lv_num)
+{
+    SYNCDBG(5, "Starting");
+    long fsize = 0;
+    unsigned char* buf = load_single_map_file_to_buffer(lv_num, "aptfx", &fsize, LMFF_None);
+    if (buf == NULL)
+        return false;
+    VALUE file_root, *root_ptr = &file_root;
+    char err[255];
+    char key[64];
+
+    if (toml_parse((char*)buf, err, sizeof(err), root_ptr))
+    {
+        WARNMSG("Unable to load APTFX file: %s", err);
+        LbMemoryFree(buf);
+        return false;
+    }
+    VALUE *common_section = value_dict_get(root_ptr, "common");
+    if (!common_section)
+    {
+        WARNMSG("No [common] in APTFX for level %d", lv_num);
+        value_fini(root_ptr);
+        LbMemoryFree(buf);
+        return false;
+    }
+    int32_t total;
+
+    VALUE *thing_arr = value_dict_get(root_ptr, "actionpoint");
+    if (value_type(thing_arr) == VALUE_ARRAY)
+    {
+        total = value_array_size(thing_arr);
+    }
+    else
+    {
+        thing_arr = NULL; // Against bad values
+        total = value_int32(value_dict_get(common_section, "ActionPointsCount"));
+    }
+    // Validate total amount of sections
+    if (total < 0)
+    {
+        WARNMSG("Bad amount of things in APTFX file");
+        value_fini(root_ptr);
+        LbMemoryFree(buf);
+        return false;
+    }
+    if (total > ACTN_POINTS_COUNT-1)
+    {
+        WARNMSG("Only %d things supported, file has %d.",(int)(ACTN_POINTS_COUNT-1),total);
+
+    }
+    // Create things
+    for (int k = 0; k < total; k++)
+    {
+        VALUE *section;
+        if (thing_arr)
+        {
+            // Array form
+            section = value_array_get(thing_arr, k);
+        }
+        else
+        {
+            sprintf(key, "actionpoint%d", k);
+            section = value_dict_get(root_ptr, key);
+        }
+        if (value_type(section) != VALUE_DICT)
+        {
+            WARNMSG("Invalid APTFX thing %d", k);
+        }
+        else
+        {
+            if (actnpoint_create_actnpoint_adv(section) == INVALID_ACTION_POINT)
+            {
+                ERRORLOG("Cannot allocate action point %d during APT load", k);
+            }
+        }
+    }
+    value_fini(root_ptr);
+    LbMemoryFree(buf);
+    return true;
+}
+
 TbBool load_slabdat_file(struct SlabSet *slbset, long *scount)
 {
   long k;
@@ -1460,7 +1541,14 @@ static TbBool load_level_file(LevelNumber lvnum)
         load_map_wibble_file(lvnum);
         load_and_setup_map_info(lvnum);
         load_texture_map_file(game.texture_id, 2);
-        load_action_point_file(lvnum);
+        if (new_format)
+        {
+            load_aptfx_file(lvnum);
+        }
+        else
+        {
+            load_action_point_file(lvnum);
+        }
         if (!load_map_slab_file(lvnum))
           result = false;
         if (new_format)
