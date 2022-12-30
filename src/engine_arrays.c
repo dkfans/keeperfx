@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "engine_arrays.h"
 
 #include "globals.h"
@@ -27,17 +28,23 @@
 #include "config.h"
 #include "front_simple.h"
 #include "engine_render.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT short _DK_td_iso[TD_ISO_POINTS];
-#define td_iso _DK_td_iso
-DLLIMPORT short _DK_iso_td[TD_ISO_POINTS];
-#define iso_td _DK_iso_td
+short td_iso[TD_ISO_POINTS];
+short iso_td[TD_ISO_POINTS];
 unsigned short floor_to_ceiling_map[FLOOR_TO_CEILING_MAP_LEN];
 struct WibbleTable blank_wibble_table[128];
+
+long randomisors[512];
+struct WibbleTable wibble_table[128];
+unsigned short floor_to_ceiling_map[592];
+long floor_height_table[256];
+long lintel_top_height[256];
+long lintel_bottom_height[256];
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -1046,7 +1053,7 @@ void fill_floor_heights_table(void)
         }
         lintel_bottom_height[n] = btm_height;
         lintel_top_height[n] = top_height;
-        _DK_floor_height[n] = shade_back;
+        floor_height_table[n] = shade_back;
     }
 }
 
@@ -1084,27 +1091,24 @@ void generate_wibble_table(void)
             empty_wibl++;
         }
     }
-    if (wibble_enabled() || liquid_wibble_enabled())
+    // Set wibble values using special random algorithm
+    seed = 0;
+    for (i=0; i < 32; i++)
     {
-        // Set wibble values using special random algorithm
-        seed = 0;
-        for (i=0; i < 32; i++)
-        {
-            wibl = &wibble_table[i+32];
-            n = wibble_random(65447,&seed);
-            wibl->field_0 = (n % 127) - 63;
-            n = wibble_random(65447,&seed);
-            wibl->field_4 = ((n % 127) - 63) / 3;
-            n = wibble_random(65447,&seed);
-            wibl->field_8 = (n % 127) - 63;
-            qwibl = &wibble_table[i+64];
-            n = wibble_random(65447,&seed);
-            wibl->field_C = (n % 2047) - 1023;
-            n = wibble_random(65447,&seed);
-            qwibl->field_0 = (n % 127) - 63;
-            n = wibble_random(65447,&seed);
-            qwibl->field_8 = (n % 127) - 63;
-        }
+        wibl = &wibble_table[i+32];
+        n = wibble_random(65447,&seed);
+        wibl->field_0 = (n % 127) - 63;
+        n = wibble_random(65447,&seed);
+        wibl->field_4 = ((n % 127) - 63) / 3;
+        n = wibble_random(65447,&seed);
+        wibl->field_8 = (n % 127) - 63;
+        qwibl = &wibble_table[i+64];
+        n = wibble_random(65447,&seed);
+        wibl->field_C = (n % 2047) - 1023;
+        n = wibble_random(65447,&seed);
+        qwibl->field_0 = (n % 127) - 63;
+        n = wibble_random(65447,&seed);
+        qwibl->field_8 = (n % 127) - 63;
     }
 }
 
@@ -1118,7 +1122,6 @@ TbBool load_ceiling_table(void)
     TbBool do_next;
     long i;
     long n;
-    //_DK_load_ceiling_table(); return true;
     // Prepare filename and open the file
     wait_for_cd_to_be_available();
     fname = prepare_file_path(FGrp_StdData,"ceiling.txt");
@@ -1157,7 +1160,6 @@ TbBool load_ceiling_table(void)
         }
     }
     LbFileClose(fh);
-    memcpy(_DK_floor_to_ceiling_map,floor_to_ceiling_map,sizeof(floor_to_ceiling_map));
     return true;
 }
 

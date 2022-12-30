@@ -46,7 +46,7 @@ enum LightFlags {
     LgtF_Unkn08       = 0x08,
     LgtF_Unkn10       = 0x10,
     LgtF_Unkn20       = 0x20,
-    LgtF_Unkn40       = 0x40,
+    LgtF_NeverCached  = 0x40,
     LgtF_Unkn80       = 0x80,
 };
 
@@ -59,15 +59,15 @@ struct Light { // sizeof = 46
   unsigned char range;
   unsigned char field_6;
   unsigned char field_7;
-  unsigned char field_8;
+  unsigned char field_8_unused;
   unsigned char min_radius;
-  unsigned char field_A[4];
+  unsigned char field_A_unused[4];
   unsigned short index;
   unsigned short shadow_index;
-  long field_12;
+  long attached_slb;
   unsigned short radius;
-  short field_18;
-  short field_1A;
+  short field_18_unused;
+  short field_1A_unused;
   unsigned short field_1C;
   unsigned short field_1E;
   unsigned short field_20;
@@ -83,19 +83,20 @@ struct LightAdd // Additional light data
     struct Coord3d previous_mappos;
     struct Coord3d interp_mappos;
     long last_turn_drawn;
+    long disable_interp_for_turns;
 };
 
 struct InitLight { // sizeof=0x14
-short radius;
-unsigned char intensity;
-unsigned char field_3;
-short field_4;
-short field_6;
-short field_8;
+    short radius;
+    unsigned char intensity;
+    unsigned char field_3;
+    short field_4_unused;
+    short field_6_unused;
+    short field_8_unused;
     struct Coord3d mappos;
-unsigned char field_10;
+    unsigned char field_10_unused;
     unsigned char is_dynamic;
-short field_12;
+    short attached_slb;
 };
 
 struct LightSystemState {
@@ -110,22 +111,6 @@ struct LightSystemState {
 };
 
 /******************************************************************************/
-DLLIMPORT long _DK_light_bitmask[32];
-#define light_bitmask _DK_light_bitmask
-DLLIMPORT long _DK_stat_light_needs_updating;
-#define stat_light_needs_updating _DK_stat_light_needs_updating
-DLLIMPORT long _DK_light_total_dynamic_lights;
-#define light_total_dynamic_lights _DK_light_total_dynamic_lights
-DLLIMPORT long _DK_light_total_stat_lights;
-#define light_total_stat_lights _DK_light_total_stat_lights
-DLLIMPORT long _DK_light_rendered_dynamic_lights;
-#define light_rendered_dynamic_lights _DK_light_rendered_dynamic_lights
-DLLIMPORT long _DK_light_rendered_optimised_dynamic_lights;
-#define light_rendered_optimised_dynamic_lights _DK_light_rendered_optimised_dynamic_lights
-DLLIMPORT long _DK_light_updated_stat_lights;
-#define light_updated_stat_lights _DK_light_updated_stat_lights
-DLLIMPORT long _DK_light_out_of_date_stat_lights;
-#define light_out_of_date_stat_lights _DK_light_out_of_date_stat_lights
 
 #pragma pack()
 /******************************************************************************/
@@ -150,7 +135,6 @@ void light_export_system_state(struct LightSystemState *lightst);
 void light_import_system_state(const struct LightSystemState *lightst);
 TbBool lights_stats_debug_dump(void);
 void light_signal_stat_light_update_in_area(long x1, long y1, long x2, long y2);
-void light_stat_light_map_clear_area(long x1, long y1, long x2, long y2);
 
 /******************************************************************************/
 #ifdef __cplusplus

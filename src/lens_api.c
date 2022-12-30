@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "lens_api.h"
 
 #include <math.h>
@@ -32,13 +33,17 @@
 #include "game_legacy.h"
 
 #include "keeperfx.hpp"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/******************************************************************************/
+unsigned long *eye_lens_memory;
+TbPixel *eye_lens_spare_screen_memory;
 /******************************************************************************/
 void init_lens(unsigned long *lens_mem, int width, int height, int pitch, int nlens, int mag, int period);
-void draw_displacement_lens(unsigned char *dstbuf, unsigned char *srcbuf, unsigned long *lens_mem, int width, int height, int scanln);
 /******************************************************************************/
 
 void init_lens(unsigned long *lens_mem, int width, int height, int pitch, int nlens, int mag, int period)
@@ -157,7 +162,7 @@ TbBool clear_lens_palette(void)
     return false;
 }
 
-void set_lens_palette(unsigned char *palette)
+static void set_lens_palette(unsigned char *palette)
 {
     struct PlayerInfo* player = get_my_player();
     player->main_palette = palette;
@@ -285,7 +290,7 @@ void reinitialise_eye_lens(long nlens)
   SYNCDBG(18,"Finished");
 }
 
-void draw_displacement_lens(unsigned char *dstbuf, unsigned char *srcbuf, unsigned long *lens_mem, int width, int height, int dstpitch)
+static void draw_displacement_lens(unsigned char *dstbuf, unsigned char *srcbuf, unsigned long *lens_mem, int width, int height, int dstpitch)
 {
     SYNCDBG(16,"Starting");
     unsigned char* dst = dstbuf;

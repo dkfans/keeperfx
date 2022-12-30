@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "creature_states_lair.h"
 #include "globals.h"
 
@@ -43,6 +44,7 @@
 #include "game_legacy.h"
 
 #include "keeperfx.hpp"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -187,8 +189,8 @@ long creature_add_lair_to_room(struct Thing *creatng, struct Room *room)
     pos.x.val = creatng->mappos.x.val;
     pos.y.val = creatng->mappos.y.val;
     pos.z.val = creatng->mappos.z.val;
-    struct CreatureData* crdata = creature_data_get_from_thing(creatng);
-    lairtng = create_object(&pos, crdata->lair_tngmodel, creatng->owner, -1);
+    struct CreatureStats* crstat = creature_stats_get(creatng->model);
+    lairtng = create_object(&pos, crstat->lair_object, creatng->owner, -1);
     if (thing_is_invalid(lairtng))
     {
         ERRORLOG("Could not create lair totem");
@@ -308,7 +310,6 @@ TbBool setup_head_for_random_unused_lair_subtile(struct Thing *creatng, struct R
 short creature_change_lair(struct Thing *thing)
 {
     TRACE_THING(thing);
-    //return _DK_creature_change_lair(thing);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     cctrl->target_room_id = 0;
     struct Room* room = get_room_thing_is_on(thing);
@@ -402,7 +403,6 @@ short cleanup_sleep(struct Thing *creatng)
 
 short creature_going_home_to_sleep(struct Thing *thing)
 {
-    //return _DK_creature_going_home_to_sleep(thing);
     if (creature_move_to_home_lair(thing))
     {
         thing->continue_state = CrSt_AtLairToSleep;
@@ -421,7 +421,7 @@ long room_has_slab_adjacent(const struct Room *room, long slbkind)
         // Per room tile code
         for (long n = 0; n < AROUND_SLAB_LENGTH; n++)
         {
-            long slab_num = i + around_slab[n];
+            long slab_num = i + gameadd.around_slab[n];
             struct SlabMap* slb = get_slabmap_direct(slab_num);
             if (!slabmap_block_invalid(slb))
             {

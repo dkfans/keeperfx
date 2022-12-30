@@ -27,7 +27,7 @@
 extern "C" {
 #endif
 
-#define GROUP_MEMBERS_COUNT 8
+#define GROUP_MEMBERS_COUNT 30
 
 enum TriggerFlags {
     TrgF_CREATE_PARTY                  =  0x00,
@@ -70,7 +70,7 @@ struct PartyMember { // sizeof = 13
   unsigned short field_6F;
 };
 
-struct Party { // sizeof = 208
+struct Party {
   char prtname[100];
   struct PartyMember members[GROUP_MEMBERS_COUNT];
   unsigned long members_num;

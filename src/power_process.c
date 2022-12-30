@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "power_process.h"
 
 #include "globals.h"
@@ -45,13 +46,13 @@
 #include "power_hand.h"
 
 #include "keeperfx.hpp"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT unsigned char _DK_backup_explored[26][26];
-#define backup_explored _DK_backup_explored
+static unsigned char backup_explored[26][26];
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -157,6 +158,16 @@ void process_armageddon(void)
     }
 }
 
+void teleport_armageddon_influenced_creature(struct Thing* creatng)
+{
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    cctrl->armageddon_teleport_turn = 0;
+    create_effect(&creatng->mappos, imp_spangle_effects[creatng->owner], creatng->owner);
+    move_thing_in_map(creatng, &game.armageddon.mappos);
+    cleanup_current_thing_state(creatng);
+    reset_interpolation_of_thing(creatng);
+}
+
 void process_armageddon_influencing_creature(struct Thing *creatng)
 {
     if (game.armageddon_cast_turn != 0)
@@ -165,13 +176,7 @@ void process_armageddon_influencing_creature(struct Thing *creatng)
         // If Armageddon is on, teleport creature to its position
         if ((cctrl->armageddon_teleport_turn != 0) && (cctrl->armageddon_teleport_turn <= game.play_gameturn))
         {
-            if (cctrl->instance_id == CrInst_NULL) // Avoid corruption from in progress instances, like claiming floors.
-            {
-                cctrl->armageddon_teleport_turn = 0;
-                create_effect(&creatng->mappos, imp_spangle_effects[creatng->owner], creatng->owner);
-                move_thing_in_map(creatng, &game.armageddon.mappos);
-                reset_interpolation_of_thing(creatng);
-            }
+            teleport_armageddon_influenced_creature(creatng);
         }
     }
 }
@@ -179,7 +184,6 @@ void process_armageddon_influencing_creature(struct Thing *creatng)
 void process_disease(struct Thing *creatng)
 {
     SYNCDBG(18,"Starting");
-    //_DK_process_disease(thing);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     if (!creature_affected_by_spell(creatng, SplK_Disease)) {
         return;
@@ -189,7 +193,7 @@ void process_disease(struct Thing *creatng)
         SubtlCodedCoords stl_num = get_subtile_number(creatng->mappos.x.stl.num, creatng->mappos.y.stl.num);
         for (long n = 0; n < AROUND_MAP_LENGTH; n++)
         {
-            struct Map* mapblk = get_map_block_at_pos(stl_num + around_map[n]);
+            struct Map* mapblk = get_map_block_at_pos(stl_num + gameadd.around_map[n]);
             unsigned long k = 0;
             long i = get_mapwho_thing_index(mapblk);
             while (i != 0)
@@ -308,7 +312,6 @@ void update_god_lightning_ball(struct Thing *thing)
 void god_lightning_choose_next_creature(struct Thing *shotng)
 {
     SYNCDBG(16,"Starting for %s index %d owner %d",thing_model_name(shotng),(int)shotng->index,(int)shotng->owner);
-    //_DK_god_lightning_choose_next_creature(shotng); return;
 
     long best_dist = LONG_MAX;
     struct Thing* best_thing = INVALID_THING;
@@ -365,7 +368,6 @@ void god_lightning_choose_next_creature(struct Thing *shotng)
 
 void draw_god_lightning(struct Thing *shotng)
 {
-    //_DK_draw_god_lightning(shotng); return;
     struct PlayerInfo* player = get_player(shotng->owner);
     const struct Camera* cam = player->acamera;
     if (cam == NULL) {
@@ -414,7 +416,6 @@ TbBool reset_creature_if_affected_by_cta(struct Thing *thing)
 
 void turn_off_power_call_to_arms(PlayerNumber plyr_idx)
 {
-    //_DK_turn_off_call_to_arms(plyr_idx);
     if (!player_uses_power_call_to_arms(plyr_idx)) {
         return;
     }
@@ -460,7 +461,7 @@ void update_vertical_explored_flags_for_power_sight(struct PlayerInfo *player, s
     MapSubtlCoord stl_y = (long)soe_pos->y.stl.num - MAX_SOE_RADIUS;
     for (long soe_y = 0; soe_y < 2 * MAX_SOE_RADIUS; soe_y++, stl_y++)
     {
-        if ( (stl_y >= 0) && (stl_y <= 255) )
+        if ( (stl_y >= 0) && (stl_y <= gameadd.map_subtiles_y) )
         {
             MapSubtlCoord stl_x = (long)soe_pos->x.stl.num - MAX_SOE_RADIUS;
             for (long soe_x = 0; soe_x <= MAX_SOE_RADIUS; soe_x++, stl_x++)
@@ -481,17 +482,17 @@ void update_vertical_explored_flags_for_power_sight(struct PlayerInfo *player, s
                     {
                         stl_x = 0;
                     } else
-                    if (stl_x > map_subtiles_x-1)
+                    if (stl_x > gameadd.map_subtiles_x-1)
                     {
-                        stl_x = map_subtiles_x-1;
+                        stl_x = gameadd.map_subtiles_x-1;
                     }
                     if (boundstl_x < 0)
                     {
                         boundstl_x = 0;
                     } else
-                    if (boundstl_x > map_subtiles_x-1)
+                    if (boundstl_x > gameadd.map_subtiles_x-1)
                     {
-                        boundstl_x = map_subtiles_x-1;
+                        boundstl_x = gameadd.map_subtiles_x-1;
                     }
                     if (boundstl_x >= stl_x)
                     {
@@ -573,17 +574,17 @@ void update_horizonal_explored_flags_for_power_sight(struct PlayerInfo *player, 
                     {
                         boundstl_y = 0;
                     } else
-                    if (boundstl_y > map_subtiles_y-1)
+                    if (boundstl_y > gameadd.map_subtiles_y-1)
                     {
-                        boundstl_y = map_subtiles_y-1;
+                        boundstl_y = gameadd.map_subtiles_y-1;
                     }
                     if (stl_y < 0)
                     {
                         stl_y = 0;
                     } else
-                    if (stl_y > map_subtiles_y-1)
+                    if (stl_y > gameadd.map_subtiles_y-1)
                     {
-                        stl_y = map_subtiles_y-1;
+                        stl_y = gameadd.map_subtiles_y-1;
                     }
                     if (stl_y <= boundstl_y)
                     {

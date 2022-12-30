@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "config_campaigns.h"
 
 #include "globals.h"
@@ -31,6 +32,7 @@
 #include "frontmenu_ingame_tabs.h"
 
 #include "game_merge.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -77,6 +79,7 @@ const struct NamedCommand cmpgn_map_commands[] = {
   {"AUTHOR",         10},
   {"DESCRIPTION",    11},
   {"DATE",           12},
+  {"MAPSIZE",        13},
   {NULL,              0},
   };
 
@@ -146,6 +149,8 @@ void clear_level_info(struct LevelInformation *lvinfo)
   lvinfo->options = LvOp_None;
   lvinfo->state = LvSt_Hidden;
   lvinfo->location = LvLc_VarLevels;
+  lvinfo->mapsize_x = 85;
+  lvinfo->mapsize_y = 85;
 }
 
 /**
@@ -296,7 +301,9 @@ struct LevelInformation *get_campaign_level_info(struct GameCampaign *campgn, Le
   if (lvnum <= 0)
       return NULL;
   if (campgn->lvinfos == NULL)
-      return NULL;
+  {
+    init_level_info_entries(campgn,0);
+  }
   for (long i = 0; i < campgn->lvinfos_count; i++)
   {
       if (campgn->lvinfos[i].lvnum == lvnum)
@@ -410,8 +417,14 @@ short parse_campaign_common_blocks(struct GameCampaign *campgn,char *buf,long le
       case 1: // NAME
           i = get_conf_parameter_whole(buf,&pos,len,campgn->name,LINEMSG_SIZE);
           if (i <= 0)
+          {
               CONFWRNLOG("Couldn't read \"%s\" command parameter in %s %s file.",
                 COMMAND_TEXT(cmd_num), campgn->name, config_textname);
+          }
+          else
+          {
+              LbStringCopy(campgn->display_name,campgn->name,LINEMSG_SIZE);
+          }
           break;
       case 2: // SINGLE_LEVELS
           while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
@@ -644,7 +657,7 @@ short parse_campaign_common_blocks(struct GameCampaign *campgn,char *buf,long le
                 if (k > 0) {
                     const char* newname = get_string(STRINGS_MAX+k);
                     if (strcasecmp(newname,"") != 0) {
-                        LbStringCopy(campgn->name,newname,LINEMSG_SIZE); // use the index provided in the config file to get a specific UI string
+                        LbStringCopy(campgn->display_name,newname,LINEMSG_SIZE); // use the index provided in the config file to get a specific UI string
                     }
                     else {
                     CONFWRNLOG("Couldn't read \"%s\" command parameter in %s %s file. NAME_TEXT_ID is too high, NAME used instead.",
@@ -950,6 +963,31 @@ short parse_campaign_map_block(long lvnum, unsigned long lvoptions, char *buf, l
         case 12: // DATE
             // As for now, ignore these
             break;
+        case 13: // MAPSIZE
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                if (k > 0)
+                {
+                  lvinfo->mapsize_x = k;
+                  n++;
+                }
+            }
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                if (k > 0)
+                {
+                  lvinfo->mapsize_y = k;
+                  n++;
+                }
+            }
+            if (n < 2)
+            {
+              CONFWRNLOG("Couldn't recognize \"%s\" mapsize in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
+            break;
         case 0: // comment
             break;
         case -1: // end of buffer
@@ -1104,6 +1142,7 @@ TbBool change_campaign(const char *cmpgn_fname)
     }
     if (fgroup == FGrp_VarLevels)
     {
+        find_and_load_lof_files();
         find_and_load_lif_files();
     }
     load_or_create_high_score_table();
@@ -1361,6 +1400,7 @@ TbBool is_map_pack(void)
         return false;
     return (campaign.single_levels_count == 0) && (campaign.multi_levels_count == 0) && (campaign.freeplay_levels_count > 0);
 }
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

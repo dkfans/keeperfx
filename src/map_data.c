@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "map_data.h"
 #include "globals.h"
 #include "map_columns.h"
@@ -28,6 +29,7 @@
 #include "map_blocks.h"
 #include "map_utils.h"
 #include "room_util.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -52,23 +54,10 @@ const long map_to_slab[] = {
   84, 84, 84, 85, 85, 85, 86, 86, 86, 87, 87, 87, 88, 88, 88, 89, 89, 89,
 };
 
-/** Map subtiles, X dimension.
- *  @note The subtile indexed [map_subtiles_x] should exist
- *      in the map, so there really is map_subtiles_x+1 subtiles. */
-MapSubtlCoord map_subtiles_x = 255;
-/** Map subtiles, Y dimension.
- *  @note The subtile indexed [map_subtiles_y] should exist
- *      in the map, so there really is map_subtiles_y+1 subtiles. */
-MapSubtlCoord map_subtiles_y = 255;
 /** Map subtiles, Z dimension.
  */
 MapSubtlCoord map_subtiles_z = 8;
-/** Map tiles, X dimension.
- *  Equals to tiles (slabs) count; The last slab has index map_tiles_x-1. */
-MapSlabCoord map_tiles_x = 85;
-/** Map tiles, Y dimension.
- *  Equals to tiles (slabs) count; The last slab has index map_tiles_y-1. */
-MapSlabCoord map_tiles_y = 85;
+
 
 long navigation_map_size_x = 256;
 long navigation_map_size_y = 256;
@@ -81,8 +70,8 @@ long nav_map_initialised = 0;
  */
 TbBool subtile_has_slab(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-  if ((stl_x >= 0) && (stl_x < 3*map_tiles_x))
-    if ((stl_y >= 0) && (stl_y < 3*map_tiles_y))
+  if ((stl_x >= 0) && (stl_x < 3*gameadd.map_tiles_x))
+    if ((stl_y >= 0) && (stl_y < 3*gameadd.map_tiles_y))
       return true;
   return false;
 }
@@ -92,25 +81,25 @@ TbBool subtile_has_slab(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
  */
 TbBool subtile_coords_invalid(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-  if ((stl_x < 0) || (stl_x > map_subtiles_x))
+  if ((stl_x < 0) || (stl_x > gameadd.map_subtiles_x))
       return true;
-  if ((stl_y < 0) || (stl_y > map_subtiles_y))
+  if ((stl_y < 0) || (stl_y > gameadd.map_subtiles_y))
       return true;
   return false;
 }
 
 struct Map *get_map_block_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-  if ((stl_x < 0) || (stl_x > map_subtiles_x))
+  if ((stl_x < 0) || (stl_x > gameadd.map_subtiles_x))
       return INVALID_MAP_BLOCK;
-  if ((stl_y < 0) || (stl_y > map_subtiles_y))
+  if ((stl_y < 0) || (stl_y > gameadd.map_subtiles_y))
       return INVALID_MAP_BLOCK;
   return &game.map[get_subtile_number(stl_x,stl_y)];
 }
 
 struct Map *get_map_block_at_pos(long stl_num)
 {
-  if ((stl_num < 0) || (stl_num > get_subtile_number(map_subtiles_x,map_subtiles_y)))
+  if ((stl_num < 0) || (stl_num > get_subtile_number(gameadd.map_subtiles_x,gameadd.map_subtiles_y)))
       return INVALID_MAP_BLOCK;
   return &game.map[stl_num];
 }
@@ -126,18 +115,18 @@ TbBool map_block_invalid(const struct Map *map)
 
 unsigned long get_navigation_map(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-  if ((stl_x < 0) || (stl_x > map_subtiles_x))
+  if ((stl_x < 0) || (stl_x > gameadd.map_subtiles_x))
       return 0;
-  if ((stl_y < 0) || (stl_y > map_subtiles_y))
+  if ((stl_y < 0) || (stl_y > gameadd.map_subtiles_y))
       return 0;
   return game.navigation_map[navmap_tile_number(stl_x,stl_y)];
 }
 
 void set_navigation_map(MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned long navcolour)
 {
-  if ((stl_x < 0) || (stl_x > map_subtiles_x))
+  if ((stl_x < 0) || (stl_x > gameadd.map_subtiles_x))
       return;
-  if ((stl_y < 0) || (stl_y > map_subtiles_y))
+  if ((stl_y < 0) || (stl_y > gameadd.map_subtiles_y))
       return;
   game.navigation_map[navmap_tile_number(stl_x,stl_y)] = navcolour;
 }
@@ -155,20 +144,14 @@ long get_ceiling_height(const struct Coord3d *pos)
 
 long get_mapwho_thing_index(const struct Map *mapblk)
 {
-  return ((mapblk->data >> 11) & 0x7FF);
+  return mapblk->mapwho;
   //could also be ((mapblk->data & 0x3FF800) >> 11);
 }
 
 void set_mapwho_thing_index(struct Map *mapblk, long thing_idx)
 {
-  // Check if new value is correct
-  if ((unsigned long)thing_idx > 0x7FF)
-  {
-      ERRORLOG("Tried to set invalid thing %ld",thing_idx);
-      return;
-  }
-  // Clear previous and set new
-  mapblk->data ^= (mapblk->data ^ ((unsigned long)thing_idx << 11)) & 0x3FF800;
+
+  mapblk->mapwho = thing_idx;
 }
 
 long get_mapblk_column_index(const struct Map *mapblk)
@@ -241,13 +224,8 @@ void reveal_map_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber p
 
 TbBool subtile_revealed(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx)
 {
-    unsigned short plyr_bit = (1 << plyr_idx);
     struct Map* mapblk = get_map_block_at(stl_x, stl_y);
-    if (map_block_invalid(mapblk))
-        return false;
-    if ((mapblk->data >> 28) & plyr_bit)
-        return true;
-    return false;
+    return map_block_revealed(mapblk, plyr_idx);
 }
 
 void reveal_map_block(struct Map *mapblk, PlayerNumber plyr_idx)
@@ -260,8 +238,8 @@ void reveal_map_block(struct Map *mapblk, PlayerNumber plyr_idx)
 TbBool slabs_reveal_slab_and_corners(MapSlabCoord slab_x, MapSlabCoord slab_y, MaxCoordFilterParam param)
 {
     PlayerNumber plyr_idx = param->plyr_idx;
-    long max_slb_dim_x = (map_subtiles_x / STL_PER_SLB);
-    long max_slb_dim_y = (map_subtiles_y / STL_PER_SLB);
+    long max_slb_dim_x = (gameadd.map_subtiles_x / STL_PER_SLB);
+    long max_slb_dim_y = (gameadd.map_subtiles_y / STL_PER_SLB);
     MapSubtlCoord stl_cx = slab_subtile_center(slab_x), stl_cy = slab_subtile_center(slab_y);
     long s = STL_PER_SLB;
     reveal_map_area(plyr_idx, stl_cx, stl_cx, stl_cy, stl_cy);
@@ -348,21 +326,56 @@ TbBool slabs_change_type(MapSlabCoord slb_x, MapSlabCoord slb_y, MaxCoordFilterP
 
 TbBool map_block_revealed(const struct Map *mapblk, PlayerNumber plyr_idx)
 {
-    unsigned short plyr_bit = (1 << plyr_idx);
     if (map_block_invalid(mapblk))
         return false;
-    if ((mapblk->data >> 28) & plyr_bit)
+    unsigned short plyr_bit;
+    if (gameadd.allies_share_vision)
+    {
+        for (PlayerNumber i = 0; i < PLAYERS_COUNT; i++)
+        {
+            if (players_are_mutual_allies(plyr_idx, i))
+            {
+                plyr_bit = (1 << i);
+                if ((mapblk->data >> 28) & plyr_bit)
+                return true;
+            }
+        }
+    }
+    else
+    {
+        plyr_bit = (1 << plyr_idx);
+        if ((mapblk->data >> 28) & plyr_bit)
         return true;
+    }
     return false;
 }
 
 TbBool map_block_revealed_bit(const struct Map *mapblk, long plyr_bit)
 {
-  if (map_block_invalid(mapblk))
+    if (map_block_invalid(mapblk))
+    {
+        return false;
+    }
+    if (gameadd.allies_share_vision)
+    {
+        PlayerNumber plyr_idx = player_bit_to_player_number(plyr_bit);
+        for (PlayerNumber i = 0; i < PLAYERS_COUNT; i++)
+        {
+            if (players_are_mutual_allies(plyr_idx, i))
+            {
+                if ((mapblk->data >> 28) & (1 << i))
+                return true;
+            }
+        }
+    }
+    else
+    {
+        if ((mapblk->data >> 28) & plyr_bit)
+        {
+            return true;
+        }
+    }
     return false;
-  if ((mapblk->data >> 28) & plyr_bit)
-    return true;
-  return false;
 }
 
 TbBool valid_dig_position(PlayerNumber plyr_idx, long stl_x, long stl_y)
@@ -388,12 +401,12 @@ TbBool valid_dig_position(PlayerNumber plyr_idx, long stl_x, long stl_y)
 TbBool set_coords_with_range_check(struct Coord3d *pos, MapCoord cor_x, MapCoord cor_y, MapCoord cor_z, unsigned short flags)
 {
     TbBool corrected = false;
-    if (cor_x > subtile_coord(map_subtiles_x,255)) {
-        if (flags & MapCoord_ClipX) cor_x = subtile_coord(map_subtiles_x,255);
+    if (cor_x > subtile_coord(gameadd.map_subtiles_x,255)) {
+        if (flags & MapCoord_ClipX) cor_x = subtile_coord(gameadd.map_subtiles_x,255);
         corrected = true;
     }
-    if (cor_y > subtile_coord(map_subtiles_y,255)) {
-        if (flags & MapCoord_ClipY) cor_y = subtile_coord(map_subtiles_y,255);
+    if (cor_y > subtile_coord(gameadd.map_subtiles_y,255)) {
+        if (flags & MapCoord_ClipY) cor_y = subtile_coord(gameadd.map_subtiles_y,255);
         corrected = true;
     }
     MapSubtlCoord stl_x = coord_subtile(cor_x);
@@ -431,8 +444,8 @@ TbBool set_coords_with_range_check(struct Coord3d *pos, MapCoord cor_x, MapCoord
 
 TbBool set_coords_to_subtile_center(struct Coord3d *pos, MapSubtlCoord stl_x, MapSubtlCoord stl_y, MapSubtlCoord stl_z)
 {
-    if (stl_x > map_subtiles_x+1) stl_x = map_subtiles_x+1;
-    if (stl_y > map_subtiles_y+1) stl_y = map_subtiles_y+1;
+    if (stl_x > gameadd.map_subtiles_x+1) stl_x = gameadd.map_subtiles_x+1;
+    if (stl_y > gameadd.map_subtiles_y+1) stl_y = gameadd.map_subtiles_y+1;
     if (stl_z > 16) stl_z = 16;
     if (stl_x < 0)  stl_x = 0;
     if (stl_y < 0) stl_y = 0;
@@ -498,15 +511,15 @@ TbBool set_coords_add_velocity(struct Coord3d *pos, const struct Coord3d *source
  */
 SubtlCodedCoords get_subtile_number(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-  if (stl_x > map_subtiles_x+1u)
-      stl_x = map_subtiles_x+1;
-  if (stl_y > map_subtiles_y+1u)
-      stl_y = map_subtiles_y+1;
+  if (stl_x > gameadd.map_subtiles_x+1u)
+      stl_x = gameadd.map_subtiles_x+1;
+  if (stl_y > gameadd.map_subtiles_y+1u)
+      stl_y = gameadd.map_subtiles_y+1;
   if (stl_x < 0)
       stl_x = 0;
   if (stl_y < 0)
       stl_y = 0;
-  return stl_y*(map_subtiles_x+1) + stl_x;
+  return stl_y*(gameadd.map_subtiles_x+1) + stl_x;
 }
 
 /**
@@ -514,7 +527,7 @@ SubtlCodedCoords get_subtile_number(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
  */
 MapSubtlCoord stl_num_decode_x(SubtlCodedCoords stl_num)
 {
-  return stl_num % (map_subtiles_x+1);
+  return stl_num % (gameadd.map_subtiles_x+1);
 }
 
 /**
@@ -522,7 +535,7 @@ MapSubtlCoord stl_num_decode_x(SubtlCodedCoords stl_num)
  */
 MapSubtlCoord stl_num_decode_y(SubtlCodedCoords stl_num)
 {
-  return (stl_num/(map_subtiles_x+1))%map_subtiles_y;
+  return (stl_num/(gameadd.map_subtiles_x+1))%gameadd.map_subtiles_y;
 }
 
 /**
@@ -561,9 +574,9 @@ MapSubtlCoord stl_slab_ending_subtile(MapSubtlCoord stl_v)
 
 void clear_mapwho(void)
 {
-    for (MapSubtlCoord y = 0; y < (map_subtiles_y + 1); y++)
+    for (MapSubtlCoord y = 0; y < (gameadd.map_subtiles_y + 1); y++)
     {
-        for (MapSubtlCoord x = 0; x < (map_subtiles_x + 1); x++)
+        for (MapSubtlCoord x = 0; x < (gameadd.map_subtiles_x + 1); x++)
         {
             struct Map* mapblk = &game.map[get_subtile_number(x, y)];
             mapblk->data &= 0xFFC007FFu;
@@ -573,9 +586,9 @@ void clear_mapwho(void)
 
 void clear_mapmap_soft(void)
 {
-    for (MapSubtlCoord y = 0; y < (map_subtiles_y + 1); y++)
+    for (MapSubtlCoord y = 0; y < (gameadd.map_subtiles_y + 1); y++)
     {
-        for (MapSubtlCoord x = 0; x < (map_subtiles_x + 1); x++)
+        for (MapSubtlCoord x = 0; x < (gameadd.map_subtiles_x + 1); x++)
         {
             struct Map* mapblk = &game.map[get_subtile_number(x, y)];
             mapblk->data &= 0xFF3FFFFFu;
@@ -590,9 +603,9 @@ void clear_mapmap_soft(void)
 
 void clear_mapmap(void)
 {
-    for (unsigned long y = 0; y < (map_subtiles_y + 1); y++)
+    for (unsigned long y = 0; y < (gameadd.map_subtiles_y + 1); y++)
     {
-        for (unsigned long x = 0; x < (map_subtiles_x + 1); x++)
+        for (unsigned long x = 0; x < (gameadd.map_subtiles_x + 1); x++)
         {
             struct Map* mapblk = get_map_block_at(x, y);
             unsigned char* flg = &game.navigation_map[get_subtile_number(x, y)];
@@ -612,7 +625,7 @@ void clear_mapmap(void)
  */
 void clear_slab_dig(long slb_x, long slb_y, char plyr_idx)
 {
-    const struct SlabMap *slb = &game.slabmap[slb_x + 85 * slb_y];
+    const struct SlabMap *slb = get_slabmap_block(slb_x,slb_y);
     if ( get_slab_attrs(slb)->block_flags & (SlbAtFlg_Filled | SlbAtFlg_Digable | SlbAtFlg_Valuable) )
     {
         if (slb->kind == SlbT_ROCK) // fix #1128
@@ -854,6 +867,56 @@ TbBool subtile_is_diggable_for_player(PlayerNumber plyr_idx, MapSubtlCoord stl_x
     }
     return false;
 }
+
+void set_map_size(MapSlabCoord x,MapSlabCoord y)
+{
+    gameadd.map_subtiles_x = x * STL_PER_SLB;
+    gameadd.map_subtiles_y = y * STL_PER_SLB;
+    gameadd.map_tiles_x = x;
+    gameadd.map_tiles_y = y;
+
+    gameadd.small_around_slab[0] = -gameadd.map_tiles_x;
+    gameadd.small_around_slab[1] = 1;
+    gameadd.small_around_slab[2] = gameadd.map_tiles_x;
+    gameadd.small_around_slab[3] = -1;
+
+    gameadd.around_slab[0] = -gameadd.map_tiles_x - 1;
+    gameadd.around_slab[1] = -gameadd.map_tiles_x;
+    gameadd.around_slab[2] = -gameadd.map_tiles_x  + 1;
+    gameadd.around_slab[3] = -1;
+    gameadd.around_slab[4] = 0;
+    gameadd.around_slab[4] = 1;
+    gameadd.around_slab[6] = gameadd.map_tiles_x - 1;
+    gameadd.around_slab[7] = gameadd.map_tiles_x;
+    gameadd.around_slab[8] = gameadd.map_tiles_x + 1;
+
+    gameadd.around_slab_eight[0] = -gameadd.map_tiles_x - 1;
+    gameadd.around_slab_eight[1] = -gameadd.map_tiles_x;
+    gameadd.around_slab_eight[2] = -gameadd.map_tiles_x  + 1;
+    gameadd.around_slab_eight[3] = -1;
+    gameadd.around_slab_eight[4] = 1;
+    gameadd.around_slab_eight[5] = gameadd.map_tiles_x - 1;
+    gameadd.around_slab_eight[6] = gameadd.map_tiles_x;
+    gameadd.around_slab_eight[7] = gameadd.map_tiles_x + 1;
+
+    gameadd.around_map[0] = -gameadd.map_subtiles_x - 2;
+    gameadd.around_map[1] = -gameadd.map_subtiles_x - 1;
+    gameadd.around_map[2] = -gameadd.map_subtiles_x;
+    gameadd.around_map[3] = -1;
+    gameadd.around_map[4] = 0;
+    gameadd.around_map[5] = 1;
+    gameadd.around_map[6] = gameadd.map_subtiles_x;
+    gameadd.around_map[7] = gameadd.map_subtiles_x + 1;
+    gameadd.around_map[8] = gameadd.map_subtiles_x + 2;
+
+}
+
+void init_map_size(LevelNumber lvnum)
+{
+    struct LevelInformation* lvinfo = get_level_info(lvnum);
+    set_map_size(lvinfo->mapsize_x,lvinfo->mapsize_y);
+}
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

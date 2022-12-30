@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "thing_stats.h"
 
 #include "globals.h"
@@ -38,6 +39,7 @@
 #include "vidfade.h"
 #include "game_legacy.h"
 #include "thing_physics.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -234,7 +236,7 @@ TbBool is_hero_thing(const struct Thing *thing)
  * @param decay_start Distance after which the magnitude starts decaying.
  * @param decay_length Length of the decaying region.
  * @param distance Distance at which we want to compute the value.
- * @return Value at specified distane from epicenter.
+ * @return Value at specified distance from epicenter.
  */
 long get_radially_decaying_value(long magnitude,long decay_start,long decay_length,long distance)
 {
@@ -245,6 +247,35 @@ long get_radially_decaying_value(long magnitude,long decay_start,long decay_leng
     return magnitude * (decay_length - (distance-decay_start)) / decay_length;
   else
     return magnitude;
+}
+
+
+/**
+ * Returns a value which is stronger around some epicenter but can't go beyond, like implosion damage.
+ *
+ * @param magnitude Magnitude in nearest whereabouts of the epicenter.
+ * @param decay_start Distance after which the magnitude starts decaying.
+ * @param decay_length Length of the decaying region.
+ * @param distance Distance at which we want to compute the value.
+ * @param friction is used to calculate the deacceleration and therefore the expected distance travelled.
+ * @return Value at how fast it's pulled to epicenter.
+ */
+long get_radially_growing_value(long magnitude, long decay_start, long decay_length, long distance, long friction)
+{
+    if (distance >= decay_start + decay_length)
+        return 0; //Outside the max range, nothing is pulled inwards
+
+    if (distance >= decay_start) //too far away to pull with full power
+        magnitude = magnitude * (decay_length - (distance - decay_start)) / decay_length;
+        
+    long total_distance = abs((COORD_PER_STL / friction * magnitude + magnitude) / 2); // The intended distance to push the thing
+
+    if (total_distance > distance) // Never return a value that would go past the epicentre
+    {
+        short factor = COORD_PER_STL / friction * 3 / 4; // Creatures slide so move further then expected
+        return -(distance / factor);
+    }
+    return magnitude ;
 }
 
 long compute_creature_kind_score(ThingModel crkind,unsigned short crlevel)
@@ -710,7 +741,7 @@ static HitPoints apply_damage_to_creature(struct Thing *thing, HitPoints dmg)
       cdamage = 1;
     // Apply damage to the thing
     thing->health -= cdamage;
-    thing->field_4F |= TF4F_BeingHit;
+    thing->rendering_flags |= TRF_BeingHit;
     // Red palette if the possessed creature is hit very strong
     if (is_thing_some_way_controlled(thing))
     {
@@ -734,7 +765,7 @@ static HitPoints apply_damage_to_object(struct Thing *thing, HitPoints dmg)
 {
     HitPoints cdamage = dmg;
     thing->health -= cdamage;
-    thing->field_4F |= TF4F_BeingHit;
+    thing->rendering_flags |= TRF_BeingHit;
     return cdamage;
 }
 

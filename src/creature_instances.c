@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "creature_instances.h"
 
 #include "globals.h"
@@ -29,8 +30,10 @@
 #include "thing_traps.h"
 #include "thing_stats.h"
 #include "thing_shots.h"
+#include "thing_navigate.h"
 #include "creature_control.h"
 #include "creature_states.h"
+#include "creature_states_combt.h"
 #include "config_creature.h"
 #include "config_effects.h"
 #include "power_specials.h"
@@ -48,14 +51,12 @@
 #include "player_instances.h"
 
 #include "keeperfx.hpp"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-/******************************************************************************/
 
-// DLLIMPORT struct InstanceInfo _DK_instance_info[48];
-// #define instance_info _DK_instance_info
 /******************************************************************************/
 long instf_attack_room_slab(struct Thing *creatng, long *param);
 long instf_creature_cast_spell(struct Thing *creatng, long *param);
@@ -70,6 +71,8 @@ long instf_pretty_path(struct Thing *creatng, long *param);
 long instf_reinforce(struct Thing *creatng, long *param);
 long instf_tortured(struct Thing *creatng, long *param);
 long instf_tunnel(struct Thing *creatng, long *param);
+
+struct InstanceButtonInit instance_button_init[48];
 
 const struct NamedCommand creature_instances_func_type[] = {
   {"attack_room_slab",         1},
@@ -440,7 +443,7 @@ long instf_creature_fire_shot(struct Thing *creatng, long *param)
     int hittype;
     TRACE_THING(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    if (cctrl->targtng_idx <= 0)
+    if (cctrl->targtng_idx == 0)
     {
         if ((creatng->alloc_flags & TAlF_IsControlled) == 0)
             hittype = THit_CrtrsOnlyNotOwn;
@@ -507,6 +510,31 @@ long instf_creature_cast_spell(struct Thing *creatng, long *param)
     return 0;
 }
 
+
+long process_creature_self_spell_casting(struct Thing* creatng)
+{
+    TRACE_THING(creatng);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    if (((creatng->alloc_flags & TAlF_IsControlled) != 0)
+        || (cctrl->conscious_back_turns != 0)
+        || ((cctrl->stateblock_flags & CCSpl_Freeze) != 0)) {
+        return 0;
+    }
+    if (cctrl->instance_id != CrInst_NULL) {
+        return 0;
+    }
+    if (cctrl->combat_flags != 0) {
+        return 0;
+    }
+
+    long inst_idx = get_self_spell_casting(creatng);
+    if (inst_idx <= 0) {
+        return 0;
+    }
+    set_creature_instance(creatng, inst_idx, 1, creatng->index, 0);
+    return 1;
+}
+
 long instf_dig(struct Thing *creatng, long *param)
 {
     long stl_x;
@@ -521,12 +549,12 @@ long instf_dig(struct Thing *creatng, long *param)
     {
         struct MapTask* task = get_dungeon_task_list_entry(dungeon, task_idx);
         taskkind = task->kind;
-        if (task->coords != cctrl->word_8F)
+        if (task->coords != cctrl->digger.task_stl)
         {
             return 0;
       }
-      stl_x = stl_num_decode_x(cctrl->word_8F);
-      stl_y = stl_num_decode_y(cctrl->word_8F);
+      stl_x = stl_num_decode_x(cctrl->digger.task_stl);
+      stl_y = stl_num_decode_y(cctrl->digger.task_stl);
     }
     struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
     if (slabmap_block_invalid(slb)) {
@@ -695,7 +723,6 @@ long instf_damage_wall(struct Thing *creatng, long *param)
 {
     SYNCDBG(16,"Starting");
     TRACE_THING(creatng);
-    //return _DK_instf_damage_wall(creatng, param);
     MapSubtlCoord stl_x;
     MapSubtlCoord stl_y;
     {
@@ -725,7 +752,6 @@ long instf_damage_wall(struct Thing *creatng, long *param)
 long instf_eat(struct Thing *creatng, long *param)
 {
     TRACE_THING(creatng);
-    //return _DK_instf_eat(creatng, param);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     if (cctrl->hunger_amount > 0)
         cctrl->hunger_amount--;
@@ -737,7 +763,6 @@ long instf_eat(struct Thing *creatng, long *param)
 long instf_fart(struct Thing *creatng, long *param)
 {
     TRACE_THING(creatng);
-    //return _DK_instf_fart(creatng, param);
     struct Thing* efftng = create_effect(&creatng->mappos, TngEff_Gas3, creatng->owner);
     if (!thing_is_invalid(efftng))
         efftng->shot_effect.hit_type = THit_CrtrsOnlyNotOwn;
@@ -768,22 +793,22 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
     }
     MapSlabCoord ahead_slb_x = slb_x;
     MapSlabCoord ahead_slb_y = slb_y;
-    if ( (creatng->move_angle_xy >= 1792) || (creatng->move_angle_xy <= 255) )
+    if ( (creatng->move_angle_xy >= ANGLE_NORTHWEST) || (creatng->move_angle_xy < ANGLE_NORTHEAST) )
     {
         ahead_stl_y--;
         ahead_slb_y--;
     }
-    else if ( (creatng->move_angle_xy >= 768) && (creatng->move_angle_xy <= 1280) )
+    else if ( (creatng->move_angle_xy >= ANGLE_SOUTHEAST) && (creatng->move_angle_xy <= ANGLE_SOUTHWEST) )
     {
         ahead_stl_y++;
         ahead_slb_y++;
     }
-    else if ( (creatng->move_angle_xy >= 1280) && (creatng->move_angle_xy <= 1792) )
+    else if ( (creatng->move_angle_xy >= ANGLE_SOUTHWEST) && (creatng->move_angle_xy <= ANGLE_NORTHWEST) )
     {
         ahead_stl_x--;
         ahead_slb_x--;
     }
-    else if ( (creatng->move_angle_xy >= 256) && (creatng->move_angle_xy <= 768) )
+    else if ( (creatng->move_angle_xy >= ANGLE_NORTHEAST) && (creatng->move_angle_xy <= ANGLE_SOUTHEAST) )
     {
         ahead_stl_x++;
         ahead_slb_x++;
@@ -864,20 +889,47 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
     {
         if (slabmap_owner(slb) == creatng->owner)
         {
+            TbBool reinforce = true;
             MapSlabCoord ahead_sslb_x = subtile_slab_fast(ahead_stl_x);
             MapSlabCoord ahead_sslb_y = subtile_slab_fast(ahead_stl_y);
-            if ( check_place_to_reinforce(creatng, ahead_sslb_x, ahead_sslb_y) )
+            if (!check_place_to_reinforce(creatng, ahead_sslb_x, ahead_sslb_y))
             {
-                struct SlabMap* ahead_sslb = get_slabmap_block(ahead_sslb_x, ahead_sslb_y);
-                if ((ahead_sslb->kind >= SlbT_EARTH) && (ahead_sslb->kind <= SlbT_TORCHDIRT))
+                struct ShotConfigStats* shotst = get_shot_model_stats(ShM_Dig);
+                unsigned char subtiles = 0;
+                do
                 {
-                    if (slab_by_players_land(creatng->owner, ahead_sslb_x, ahead_sslb_y))
+                    subtiles++;
+                    if (subtiles > (shotst->health - 1))
                     {
-                        cctrl->digger.working_stl = get_subtile_number(ahead_stl_x, ahead_stl_y);
-                        instf_reinforce(creatng, NULL);
-                        return 1;
-                    } 
+                        reinforce = false;
+                        break;
+                    }
+                    if ( (creatng->move_angle_xy >= ANGLE_NORTHWEST) || (creatng->move_angle_xy < ANGLE_NORTHEAST) )
+                    {
+                        ahead_stl_y--;
+                    }
+                    else if ( (creatng->move_angle_xy >= ANGLE_SOUTHEAST) && (creatng->move_angle_xy <= ANGLE_SOUTHWEST) )
+                    {
+                        ahead_stl_y++;
+                    }
+                    else if ( (creatng->move_angle_xy >= ANGLE_SOUTHWEST) && (creatng->move_angle_xy <= ANGLE_NORTHWEST) )
+                    {
+                        ahead_stl_x--;
+                    }
+                    else if ( (creatng->move_angle_xy >= ANGLE_NORTHEAST) && (creatng->move_angle_xy <= ANGLE_SOUTHEAST) )
+                    {
+                        ahead_stl_x++;
+                    }
+                    ahead_sslb_x = subtile_slab_fast(ahead_stl_x);
+                    ahead_sslb_y = subtile_slab_fast(ahead_stl_y);
                 }
+                while (!check_place_to_reinforce(creatng, ahead_sslb_x, ahead_sslb_y));
+            }
+            if (reinforce)
+            {
+                cctrl->digger.working_stl = get_subtile_number(ahead_stl_x, ahead_stl_y);
+                instf_reinforce(creatng, NULL);
+                return 1;
             }
         }
         dig = false;
@@ -921,9 +973,9 @@ long instf_reinforce(struct Thing *creatng, long *param)
     if (check_place_to_reinforce(creatng, slb_x, slb_y) <= 0) {
         return 0;
     }
-    if (cctrl->digger.byte_93 <= 25)
+    if (cctrl->digger.consecutive_reinforcements <= 25)
     {
-        cctrl->digger.byte_93++;
+        cctrl->digger.consecutive_reinforcements++;
         if (!S3DEmitterIsPlayingSample(creatng->snd_emitter_id, 63, 0))
         {
             struct PlayerInfo* player;
@@ -937,7 +989,7 @@ long instf_reinforce(struct Thing *creatng, long *param)
         }
         return 0;
     }
-    cctrl->digger.byte_93 = 0;
+    cctrl->digger.consecutive_reinforcements = 0;
     place_and_process_pretty_wall_slab(creatng, slb_x, slb_y);
     struct Coord3d pos;
     pos.x.stl.pos = 128;
@@ -969,8 +1021,8 @@ long instf_tunnel(struct Thing *creatng, long *param)
     SYNCDBG(16,"Starting");
     TRACE_THING(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    MapSubtlCoord stl_x = stl_num_decode_x(cctrl->navi.field_15);
-    MapSubtlCoord stl_y = stl_num_decode_y(cctrl->navi.field_15);
+    MapSubtlCoord stl_x = stl_num_decode_x(cctrl->navi.first_colliding_block);
+    MapSubtlCoord stl_y = stl_num_decode_y(cctrl->navi.first_colliding_block);
     struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
     if (slabmap_block_invalid(slb)) {
         return 0;

@@ -172,6 +172,8 @@ void toggle_flag_word(unsigned short *flags,unsigned short mask);
 void toggle_flag_dword(unsigned long *flags,unsigned long mask);
 long saturate_set_signed(long long val,unsigned short nbits);
 unsigned long saturate_set_unsigned(unsigned long long val,unsigned short nbits);
+void make_lowercase(char *);
+void make_uppercase(char *);
 /******************************************************************************/
 #ifdef __cplusplus
 }

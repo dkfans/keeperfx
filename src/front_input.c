@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "front_input.h"
 
 #include "globals.h"
@@ -71,6 +72,7 @@
 #include "KeeperSpeech.h"
 
 #include <math.h>
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -89,6 +91,9 @@ KEEPERSPEECH_EVENT last_speech_event;
 struct GuiLayer gui_layer = {GuiLayer_Default};
 
 TbBool first_person_see_item_desc = false;
+
+long old_mx;
+long old_my;
 
 /******************************************************************************/
 void get_dungeon_control_nonaction_inputs(void);
@@ -115,9 +120,9 @@ TbBool check_current_gui_layer(long layer_id)
 {
     // Check the current gui layer against the one passed as a parameter
     // Also checks if the passed layer_id is the parent of the current gui layer
-    
+
     // This is just a basic example, GuiLayer objects should be created with parent properties etc etc
-    
+
     if (gui_layer.current_gui_layer == layer_id)
     {
         return true;
@@ -420,9 +425,6 @@ long get_small_map_inputs(long x, long y, long zoom)
   short result = 0;
   long curr_mx = GetMouseX();
   long curr_my = GetMouseY();
-  dummy_x = curr_mx;
-  dummy_y = curr_my;
-  dummy = 1;
   if (!grabbed_small_map)
     game.small_map_state = 0;
   if (((game.operation_flags & GOF_ShowGui) != 0) && (mouse_is_over_pannel_map(x,y) || grabbed_small_map))
@@ -720,8 +722,11 @@ TbBool get_level_lost_inputs(void)
     {
       if (is_key_pressed(KC_TAB,KMod_DONTCARE))
       {
-          if ((player->view_mode == PVM_IsometricView) || (player->view_mode == PVM_FrontView))
-          {
+          if (
+            player->view_mode == PVM_IsoWibbleView ||
+            player->view_mode == PVM_FrontView ||
+            player->view_mode == PVM_IsoStraightView
+          ) {
             clear_key_pressed(KC_TAB);
             toggle_gui();
           }
@@ -938,7 +943,7 @@ long get_dungeon_control_action_inputs(void)
             clear_key_pressed(KC_F12);
         }
     }
-    if (player->view_mode == PVM_IsometricView)
+    if (player->view_mode == PVM_IsoWibbleView || player->view_mode == PVM_IsoStraightView)
     {
       if (is_key_pressed(KC_TAB, !KMod_CONTROL))
       {
@@ -1061,14 +1066,6 @@ long get_dungeon_control_action_inputs(void)
             {
                 (angle = 1024);
             }
-            else if (angle == 512)
-            {
-                (angle = 1536);
-            }
-            else if (angle == 1536)
-            {
-                (angle = 512);
-            }
             else
             {
                 (angle = 0);
@@ -1109,10 +1106,10 @@ long get_dungeon_control_action_inputs(void)
     }
     else if (player->work_state == PSt_Sell)
     {
-        process_sell_roomspace_inputs(player->id_number); 
+        process_sell_roomspace_inputs(player->id_number);
     }
-    else if ( (player->work_state == PSt_PlaceTerrain) || (player->work_state == PSt_MkDigger) || (player->work_state == PSt_MkBadCreatr) || (player->work_state == PSt_MkGoodCreatr) 
-        || (player->work_state == PSt_KillPlayer) || (player->work_state == PSt_HeartHealth) || (player->work_state == PSt_StealRoom) || 
+    else if ( (player->work_state == PSt_PlaceTerrain) || (player->work_state == PSt_MkDigger) || (player->work_state == PSt_MkBadCreatr) || (player->work_state == PSt_MkGoodCreatr)
+        || (player->work_state == PSt_KillPlayer) || (player->work_state == PSt_HeartHealth) || (player->work_state == PSt_StealRoom) ||
         (player->work_state == PSt_StealSlab) || (player->work_state == PSt_ConvertCreatr) )
     {
         process_cheat_mode_selection_inputs();
@@ -1361,7 +1358,7 @@ short get_creature_control_action_inputs(void)
         update_wheel_scrolled();
       }
     }
- 
+
     if (is_key_pressed(KC_TAB, !KMod_CONTROL))
     {
         clear_key_pressed(KC_TAB);
@@ -1382,52 +1379,52 @@ short get_creature_control_action_inputs(void)
         }
     }
     if (numkey == -1)
-    {   
+    {
         if (is_key_pressed(79,KMod_DONTCARE))
         {
             clear_key_pressed(79);
             numkey = 0;
-        } else 
+        } else
         if (is_key_pressed(80,KMod_DONTCARE))
         {
             clear_key_pressed(80);
             numkey = 1;
-        } else 
+        } else
         if (is_key_pressed(81,KMod_DONTCARE))
         {
             clear_key_pressed(81);
             numkey = 2;
-        } else 
+        } else
         if (is_key_pressed(75,KMod_DONTCARE))
         {
             clear_key_pressed(75);
             numkey = 3;
-        } else 
+        } else
         if (is_key_pressed(76,KMod_DONTCARE))
         {
             clear_key_pressed(76);
             numkey = 4;
-        } else 
+        } else
         if (is_key_pressed(77,KMod_DONTCARE))
         {
             clear_key_pressed(77);
             numkey = 5;
-        } else 
+        } else
         if (is_key_pressed(71,KMod_DONTCARE))
         {
             clear_key_pressed(71);
             numkey = 6;
-        } else 
+        } else
         if (is_key_pressed(72,KMod_DONTCARE))
         {
             clear_key_pressed(72);
             numkey = 7;
-        } else 
+        } else
         if (is_key_pressed(73,KMod_DONTCARE))
         {
             clear_key_pressed(73);
             numkey = 8;
-        } else 
+        } else
         if (is_key_pressed(82,KMod_DONTCARE))
         {
             clear_key_pressed(82);
@@ -1452,7 +1449,7 @@ short get_creature_control_action_inputs(void)
                     StrID = roomst->name_stridx;
                 }
             }
-        
+
         }
         if (is_key_pressed(KC_SEMICOLON,KMod_DONTCARE))
         {
@@ -1676,7 +1673,7 @@ short get_map_action_inputs(void)
         if (left_button_released) {
             left_button_released = 0;
             set_players_packet_action(player, PckA_ZoomFromMap, stl_x, stl_y, 0, 0);
-            reset_interpolation_for_parchment_view();
+            reset_interpolation_for_parchment_view(player);
             return true;
         }
     }
@@ -2003,14 +2000,14 @@ TbBool get_player_coords_and_context(struct Coord3d *pos, unsigned char *context
    || (pointer_x >= player->engine_window_width/pixel_size)
    || (pointer_y >= player->engine_window_height/pixel_size))
       return false;
-  if (top_pointed_at_x <= map_subtiles_x)
+  if (top_pointed_at_x <= gameadd.map_subtiles_x)
     x = top_pointed_at_x;
   else
-    x = map_subtiles_x;
-  if (top_pointed_at_y <= map_subtiles_y)
+    x = gameadd.map_subtiles_x;
+  if (top_pointed_at_y <= gameadd.map_subtiles_y)
     y = top_pointed_at_y;
   else
-    y = map_subtiles_y;
+    y = gameadd.map_subtiles_y;
   unsigned int slb_x = subtile_slab_fast(x);
   unsigned int slb_y = subtile_slab_fast(y);
   struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
@@ -2033,7 +2030,7 @@ TbBool get_player_coords_and_context(struct Coord3d *pos, unsigned char *context
     pos->x.val = (x<<8) + top_pointed_at_frac_x;
     pos->y.val = (y<<8) + top_pointed_at_frac_y;
   } else
-  if (((slb_x >= map_tiles_x) || (slb_y >= map_tiles_y)) && (!playeradd->one_click_lock_cursor))
+  if (((slb_x >= gameadd.map_tiles_x) || (slb_y >= gameadd.map_tiles_y)) && (!playeradd->one_click_lock_cursor))
   {
     *context = CSt_DefaultArrow;
     pos->x.val = (block_pointed_at_x<<8) + pointed_at_frac_x;
@@ -2054,10 +2051,10 @@ TbBool get_player_coords_and_context(struct Coord3d *pos, unsigned char *context
     else
       *context = CSt_DefaultArrow;
   }
-  if (pos->x.val >= (map_subtiles_x << 8))
-    pos->x.val = (map_subtiles_x << 8)-1;
-  if (pos->y.val >= (map_subtiles_y << 8))
-    pos->y.val = (map_subtiles_y << 8)-1;
+  if (pos->x.val >= (gameadd.map_subtiles_x << 8))
+    pos->x.val = (gameadd.map_subtiles_x << 8)-1;
+  if (pos->y.val >= (gameadd.map_subtiles_y << 8))
+    pos->y.val = (gameadd.map_subtiles_y << 8)-1;
   return true;
 }
 
@@ -2092,7 +2089,8 @@ void get_dungeon_control_nonaction_inputs(void)
   }
   switch (player->view_mode)
   {
-  case PVM_IsometricView:
+  case PVM_IsoWibbleView:
+  case PVM_IsoStraightView:
       get_isometric_view_nonaction_inputs();
       break;
   case PVM_ParchmentView:
@@ -2204,10 +2202,10 @@ if (((MyScreenWidth >> 1) != GetMouseX()) || (GetMouseY() != y))
         pckt->pos_y = k*y + 127;
     }
     // Bound posx and pos_y
-    if (pckt->pos_x > map_subtiles_x)
-    pckt->pos_x = map_subtiles_x;
-    if (pckt->pos_y > map_subtiles_y)
-    pckt->pos_y = map_subtiles_y;
+    if (pckt->pos_x > 255)
+    pckt->pos_x = 255;
+    if (pckt->pos_y > 255)
+    pckt->pos_y = 255;
 
     // Now do user actions
     if (thing_is_invalid(thing))
@@ -2617,7 +2615,7 @@ void process_cheat_mode_selection_inputs()
         {
             goto INPUTS;
         }
-    }        
+    }
     if (is_key_pressed(KC_NUMPAD0, KMod_DONTCARE))
     {
         new_value = 0;
@@ -2724,7 +2722,7 @@ void process_cheat_mode_selection_inputs()
             }
             else if (is_key_pressed(KC_EQUALS, KMod_DONTCARE))
             {
-                
+
                 new_value = playeradd->cheatselection.chosen_experience_level;
                 if (new_value < 9)
                 {
@@ -2741,7 +2739,7 @@ void process_cheat_mode_selection_inputs()
                     new_value--;
                     set_players_packet_action(player, PckA_CheatSwitchExperience, new_value, 0, 0, 0);
                 }
-                clear_key_pressed(KC_MINUS); 
+                clear_key_pressed(KC_MINUS);
             }
             else if (is_key_pressed(KC_LSHIFT, KMod_DONTCARE))
             {

@@ -72,8 +72,6 @@ enum TbFeature {
     Ft_Censorship   =  0x0020,
     Ft_Atmossounds  =  0x0040,
     Ft_Resizemovies =  0x0080,
-    Ft_Wibble       =  0x0100,
-    Ft_LiquidWibble =  0x0200,
     Ft_FreezeOnLoseFocus            = 0x0400,
     Ft_UnlockCursorOnPause          = 0x0800,
     Ft_LockCursorInPossession       = 0x1000,
@@ -83,6 +81,7 @@ enum TbFeature {
     Ft_SkipSplashScreens            = 0x10000,
     Ft_DisableCursorCameraPanning   = 0x20000,
     Ft_DeltaTime                    = 0x40000,
+    Ft_NoCdMusic                    = 0x80000,
 };
 
 enum TbExtraLevels {
@@ -183,16 +182,8 @@ extern TbBool AssignCpuKeepers;
 
 extern unsigned int vid_scale_flags;
 /******************************************************************************/
-DLLIMPORT extern float _DK_phase_of_moon;
-#define phase_of_moon _DK_phase_of_moon
-DLLIMPORT extern long _DK_net_number_of_levels;
-#define net_number_of_levels _DK_net_number_of_levels
-DLLIMPORT extern struct NetLevelDesc _DK_net_level_desc[100];
-#define net_level_desc _DK_net_level_desc
-DLLIMPORT extern struct InstallInfo _DK_install_info;
-#define install_info _DK_install_info
-DLLIMPORT extern char _DK_keeper_runtime_directory[152];
-#define keeper_runtime_directory _DK_keeper_runtime_directory
+extern struct InstallInfo install_info;
+extern char keeper_runtime_directory[152];
 
 #pragma pack()
 /******************************************************************************/
@@ -215,8 +206,6 @@ TbBool is_feature_on(unsigned long feature);
 TbBool censorship_enabled(void);
 TbBool atmos_sounds_enabled(void);
 TbBool resize_movies_enabled(void);
-TbBool wibble_enabled(void);
-TbBool liquid_wibble_enabled(void);
 TbBool freeze_game_on_focus_lost(void);
 TbBool unlock_cursor_when_game_paused(void);
 TbBool lock_cursor_in_possession(void);

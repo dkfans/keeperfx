@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "thing_shots.h"
 
 #include "globals.h"
@@ -45,6 +46,7 @@
 #include "engine_lenses.h"
 
 #include "keeperfx.hpp"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -182,7 +184,6 @@ struct Thing *get_shot_collided_with_same_type_on_subtile(struct Thing *shotng, 
 
 struct Thing *get_shot_collided_with_same_type(struct Thing *shotng, struct Coord3d *nxpos)
 {
-    //return _DK_get_shot_collided_with_same_type(thing, nxpos);
     MapSubtlCoord stl_x_beg = coord_subtile(nxpos->x.val - 384);
     if (stl_x_beg < 0)
         stl_x_beg = 0;
@@ -190,11 +191,11 @@ struct Thing *get_shot_collided_with_same_type(struct Thing *shotng, struct Coor
     if (stl_y_beg < 0)
         stl_y_beg = 0;
     MapSubtlCoord stl_x_end = coord_subtile(nxpos->x.val + 384);
-    if (stl_x_end >= map_subtiles_x)
-      stl_x_end = map_subtiles_x;
+    if (stl_x_end >= gameadd.map_subtiles_x)
+      stl_x_end = gameadd.map_subtiles_x;
     MapSubtlCoord stl_y_end = coord_subtile(nxpos->y.val + 384);
-    if (stl_y_end >= map_subtiles_y)
-      stl_y_end = map_subtiles_y;
+    if (stl_y_end >= gameadd.map_subtiles_y)
+      stl_y_end = gameadd.map_subtiles_y;
     for (MapSubtlCoord stl_y = stl_y_beg; stl_y <= stl_y_end; stl_y++)
     {
         for (MapSubtlCoord stl_x = stl_x_beg; stl_x <= stl_x_end; stl_x++)
@@ -939,8 +940,8 @@ long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, stru
       } else {
           apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, shotst->damage_type, -1);
       }
-      if (shotst->old->field_24 != 0) {
-          tgcctrl->field_B1 = shotst->old->field_24;
+      if (shotst->old->target_frozen_on_hit != 0) {
+          tgcctrl->frozen_on_hit = shotst->old->target_frozen_on_hit;
       }
       if ( shotst->push_on_hit || creature_is_being_unconscious(trgtng))
       {
@@ -1028,7 +1029,9 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
             struct Coord3d pos2;
             pos2.x.val = killertng->mappos.x.val;
             pos2.y.val = killertng->mappos.y.val;
-            pos2.z.val = get_creature_eye_height(killertng) + killertng->mappos.z.val;
+            struct CreatureControl* cctrl = creature_control_get_from_thing(killertng);
+            short target_center = (killertng->solid_size_yz + ((killertng->solid_size_yz * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100)) / 2;
+            pos2.z.val = target_center + killertng->mappos.z.val;
             clear_thing_acceleration(shotng);
             set_thing_acceleration_angles(shotng, get_angle_xy_to(&shotng->mappos, &pos2), get_angle_yz_to(&shotng->mappos, &pos2));
             shotng->parent_idx = trgtng->parent_idx;
@@ -1077,10 +1080,10 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
         }
     }
     struct CreatureControl* cctrl = creature_control_get_from_thing(trgtng);
-    if (shotst->old->field_24 != 0)
+    if (shotst->old->target_frozen_on_hit != 0)
     {
-        if (cctrl->field_B1 == 0) {
-            cctrl->field_B1 = shotst->old->field_24;
+        if (cctrl->frozen_on_hit == 0) {
+            cctrl->frozen_on_hit = shotst->old->target_frozen_on_hit;
         }
     }
     if (shotst->cast_spell_kind != 0)
@@ -1298,11 +1301,11 @@ struct Thing *get_thing_collided_with_at_satisfying_filter(struct Thing *shotng,
         if (stl_y_min < 0)
             stl_y_min = 0;
         stl_x_max = coord_subtile(pos->x.val + radius);
-        if (stl_x_max > map_subtiles_x)
-            stl_x_max = map_subtiles_x;
+        if (stl_x_max > gameadd.map_subtiles_x)
+            stl_x_max = gameadd.map_subtiles_x;
         stl_y_max = coord_subtile(pos->y.val + radius);
-        if (stl_y_max > map_subtiles_y)
-            stl_y_max = map_subtiles_y;
+        if (stl_y_max > gameadd.map_subtiles_y)
+            stl_y_max = gameadd.map_subtiles_y;
     }
     for (MapSubtlCoord stl_y = stl_y_min; stl_y <= stl_y_max; stl_y++)
     {
@@ -1581,14 +1584,13 @@ struct Thing *create_shot(struct Coord3d *pos, unsigned short model, unsigned sh
     thing->owner = owner;
     thing->bounce_angle = shotst->bounce_angle;
     thing->fall_acceleration = shotst->fall_acceleration;
-    thing->field_21 = shotst->old->field_10;
-    thing->field_23 = shotst->old->field_11;
-    thing->field_24 = shotst->old->field_12;
+    thing->inertia_floor = shotst->old->inertia_floor;
+    thing->inertia_air = shotst->old->inertia_air;
     thing->movement_flags ^= (thing->movement_flags ^ TMvF_Unknown08 * shotst->old->field_13) & TMvF_Unknown08;
     set_thing_draw(thing, shotst->sprite_anim_idx, 256, shotst->sprite_size_max, 0, 0, 2);
-    thing->field_4F ^= (thing->field_4F ^ 0x02 * shotst->old->field_6) & TF4F_Unknown02;
-    thing->field_4F ^= thing->field_4F ^ ((thing->field_4F ^ TF4F_Transpar_8 * shotst->animation_transparency) & (TF4F_Transpar_Flags));
-    thing->field_4F ^= (thing->field_4F ^ shotst->old->field_7) & TF4F_Unknown01;
+    thing->rendering_flags ^= (thing->rendering_flags ^ 0x02 * shotst->old->field_6) & TRF_Unknown02;
+    thing->rendering_flags ^= thing->rendering_flags ^ ((thing->rendering_flags ^ TRF_Transpar_8 * shotst->animation_transparency) & (TRF_Transpar_Flags));
+    thing->rendering_flags ^= (thing->rendering_flags ^ shotst->hidden_projectile) & TRF_Unknown01;
     thing->clipbox_size_xy = shotst->size_xy;
     thing->clipbox_size_yz = shotst->size_yz;
     thing->solid_size_xy = shotst->size_xy;
@@ -1596,13 +1598,13 @@ struct Thing *create_shot(struct Coord3d *pos, unsigned short model, unsigned sh
     thing->shot.damage = shotst->damage;
     thing->shot.dexterity = 255;
     thing->health = shotst->health;
-    if (shotst->old->lightf_50)
+    if (shotst->old->light_radius)
     {
         struct InitLight ilght;
         LbMemorySet(&ilght, 0, sizeof(struct InitLight));
         memcpy(&ilght.mappos,&thing->mappos,sizeof(struct Coord3d));
-        ilght.radius = shotst->old->lightf_50;
-        ilght.intensity = shotst->old->lightf_52;
+        ilght.radius = shotst->old->light_radius;
+        ilght.intensity = shotst->old->light_intensity;
         ilght.is_dynamic = 1;
         ilght.field_3 = shotst->old->lightf_53;
         thing->light_id = light_create_light(&ilght);

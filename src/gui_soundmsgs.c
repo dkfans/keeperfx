@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "gui_soundmsgs.h"
 #include "bflib_sndlib.h"
 
@@ -28,16 +29,14 @@
 #include "config_terrain.h"
 #include "game_merge.h"
 #include "game_legacy.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT struct MessageQueueEntry _DK_message_queue[MESSAGE_QUEUE_COUNT];
-#define message_queue _DK_message_queue
-DLLIMPORT unsigned long _DK_message_playing;
-#define message_playing _DK_message_playing
-DLLIMPORT struct SMessage _DK_messages[126];
+static struct MessageQueueEntry message_queue[MESSAGE_QUEUE_COUNT];
+static unsigned long message_playing;
 /******************************************************************************/
 enum SpeechPhraseIndex {
     SpchIdx_Invalid = 0,
@@ -541,11 +540,6 @@ void clear_messages(void)
     for (i=0; i < sizeof(messages)/sizeof(messages[0]); i++)
     {
         messages[i].end_time = 0;
-    }
-    // Remove when won't be needed anymore
-    for (i=0; i < sizeof(_DK_messages)/sizeof(_DK_messages[0]); i++)
-    {
-        _DK_messages[i].end_time = 0;
     }
 }
 

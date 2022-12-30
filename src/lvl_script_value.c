@@ -16,7 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-
+#include "pre_inc.h"
 #include "thing_data.h"
 #include "thing_list.h"
 #include "map_data.h"
@@ -36,6 +36,7 @@
 #include "room_util.h"
 
 #include "lvl_script_lib.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -390,37 +391,6 @@ TbBool script_use_special_locate_hidden_world()
     return activate_bonus_level(get_player(my_player_number));
 }
 
-static void set_variable(int player_idx, long var_type, long var_idx, long new_val)
-{
-    struct Dungeon *dungeon = get_dungeon(player_idx);
-    struct DungeonAdd *dungeonadd = get_dungeonadd(player_idx);
-    struct Coord3d pos = {0};
-
-    switch (var_type)
-    {
-    case SVar_FLAG:
-        set_script_flag(player_idx, var_idx, new_val);
-        break;
-    case SVar_CAMPAIGN_FLAG:
-        intralvl.campaign_flags[player_idx][var_idx] = new_val;
-        break;
-    case SVar_BOX_ACTIVATED:
-        dungeonadd->box_info.activated[var_idx] = saturate_set_unsigned(new_val, 8);
-        break;
-    case SVar_SACRIFICED:
-        dungeon->creature_sacrifice[var_idx] = saturate_set_unsigned(new_val, 8);
-        if (find_temple_pool(player_idx, &pos))
-        {
-            process_sacrifice_creature(&pos, var_idx, player_idx, false);
-        }
-        break;
-    case SVar_REWARDED:
-        dungeonadd->creature_awarded[var_idx] = new_val;
-        break;
-    default:
-        WARNLOG("Unexpected type:%d",(int)var_type);
-    }
-}
 /**
  * Processes given VALUE immediately.
  * This processes given script command. It is used to process VALUEs at start when they have
@@ -580,7 +550,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           dungeon = get_dungeon(i);
           if (dungeon_invalid(dungeon))
               continue;
-          dungeon->creature_max_level[val2%CREATURE_TYPES_COUNT] = val3;
+          dungeon->creature_max_level[val2%gameadd.crtr_conf.model_count] = val3;
       }
       break;
   case Cmd_SET_CREATURE_HEALTH:
@@ -591,35 +561,30 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       if (creature_stats_invalid(crstat))
           break;
       crstat->strength = saturate_set_unsigned(val3, 8);
-      creature_stats_updated(val2);
       break;
   case Cmd_SET_CREATURE_ARMOUR:
       crstat = creature_stats_get(val2);
       if (creature_stats_invalid(crstat))
           break;
       crstat->armour = saturate_set_unsigned(val3, 8);
-      creature_stats_updated(val2);
       break;
   case Cmd_SET_CREATURE_FEAR_WOUNDED:
       crstat = creature_stats_get(val2);
       if (creature_stats_invalid(crstat))
           break;
       crstat->fear_wounded = saturate_set_unsigned(val3, 8);
-      creature_stats_updated(val2);
       break;
   case Cmd_SET_CREATURE_FEAR_STRONGER:
       crstat = creature_stats_get(val2);
       if (creature_stats_invalid(crstat))
           break;
       crstat->fear_stronger = saturate_set_unsigned(val3, 16);
-      creature_stats_updated(val2);
       break;
   case Cmd_SET_CREATURE_FEARSOME_FACTOR:
       crstat = creature_stats_get(val2);
       if (creature_stats_invalid(crstat))
           break;
       crstat->fearsome_factor = saturate_set_unsigned(val3, 16);
-      creature_stats_updated(val2);
       break;
   case Cmd_SET_CREATURE_PROPERTY:
       crconf = &gameadd.crtr_conf.model[val2];
@@ -827,13 +792,14 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           SCRPTERRLOG("Unknown creature property '%d'", val3);
           break;
       }
-      creature_stats_updated(val2);
       break;
   case Cmd_ALLY_PLAYERS:
       for (i=plr_start; i < plr_end; i++)
       {
-          set_ally_with_player(i, val2, val3);
-          set_ally_with_player(val2, i, val3);
+          set_ally_with_player(i, val2, (val3 & 1) ? true : false);
+          set_ally_with_player(val2, i, (val3 & 1) ? true : false);
+          set_player_ally_locked(i, val2, (val3 & 2) ? true : false);
+          set_player_ally_locked(val2, i, (val3 & 2) ? true : false);
       }
       break;
       break;
@@ -1258,7 +1224,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           }
           break;
       case 23:  //DungeonHeartHealth
-          if (val3 <= SHRT_MAX)
+          if (val3 <= LONG_MAX)
           {
               SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.dungeon_heart_health, val3);
               game.dungeon_heart_health = val3;
@@ -1289,6 +1255,22 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       case 28: //GameTurnsPerTortureHealthLoss
           SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.turns_per_torture_health_loss, val3);
           game.turns_per_torture_health_loss = val3;
+          break;
+      case 29: //AlliesShareVision
+          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.allies_share_vision, val3);
+          gameadd.allies_share_vision = (TbBool)val3;
+          break;
+      case 30: //AlliesShareDrop
+          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.allies_share_drop, val3);
+          gameadd.allies_share_drop = (TbBool)val3;
+          break;
+      case 31: //AlliesShareCta
+          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.allies_share_cta, val3);
+          gameadd.allies_share_cta = (TbBool)val3;
+          break; 
+      case 32: //BarrackMaxPartySize
+          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.barrack_max_party_size, val3);
+          game.barrack_max_party_size = (TbBool)val3;
           break;
       default:
           WARNMSG("Unsupported Game RULE, command %d.", val2);

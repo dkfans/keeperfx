@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "creature_senses.h"
 #include "globals.h"
 
@@ -32,6 +33,7 @@
 #include "config_settings.h"
 #include "map_blocks.h"
 #include "game_legacy.h"
+#include "post_inc.h"
 
 // Use values of 21 and below, otherwise you may need more rays to explore the entire distance
 const int CREATURE_EXPLORE_DISTANCE = 7;
@@ -812,11 +814,15 @@ TbBool line_of_sight_3d(const struct Coord3d *frpos, const struct Coord3d *topos
     nextpos.y.val = prevpos.y.val + increase_y;
     
     //Z position overshoots, which returns incorrect results. Workaround until a proper fix is made:
-    if ((increase_z >= 0 && ((nextpos.z.val + increase_z) >= topos->z.val)) ||
-        (increase_z < 0 && ((nextpos.z.val + increase_z) < topos->z.val)))
+    if ((increase_z >= 0 && ((prevpos.z.val + increase_z) >= topos->z.val)) ||
+        (increase_z < 0 && ((prevpos.z.val + increase_z) < topos->z.val)))
     {
         nextpos.z.val = topos->z.val;
         increase_z = 0;
+    }
+    else
+    {
+        nextpos.z.val = prevpos.z.val + increase_z;
     }
 
     while (distance > 0)

@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "gui_frontbtns.h"
 
 #include "globals.h"
@@ -30,18 +31,9 @@
 #include "gui_frontmenu.h"
 #include "frontend.h"
 #include "front_input.h"
-
-// needed for timeGetTime() -- should be later removed
-#if defined(_WIN32)
-//instead of #include <windows.h>
-#include <stdarg.h>
-#define NOMINMAX
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#include <mmsystem.h>
-#endif
-
+#include "sprites.h"
 #include "game_legacy.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -131,7 +123,7 @@ TbBool gui_slider_button_inputs(int gbtn_idx)
     mouse_x = GetMouseX();
     gbtn->gbactn_1 = 1;
     int bs_units_per_px;
-    bs_units_per_px = simple_button_sprite_height_units_per_px(gbtn, 2, 44);
+    bs_units_per_px = simple_button_sprite_height_units_per_px(gbtn, GBS_frontend_button_std_c, 44);
     slide_start = gbtn->pos_x + 32*bs_units_per_px/16;
     slide_end = gbtn->pos_x + gbtn->width - 32*bs_units_per_px/16;
     if (mouse_x < slide_start)
@@ -737,14 +729,22 @@ void frontend_over_button(struct GuiButton *gbtn)
     else
       i = (long)gbtn->content;
     if (old_mouse_over_button != i)
-      frontend_mouse_over_button_start_time = timeGetTime();
+      frontend_mouse_over_button_start_time = LbTimerClock_1000();
     frontend_mouse_over_button = i;
 }
 
 void frontend_draw_button(struct GuiButton *gbtn, unsigned short btntype, const char *text, unsigned int drw_flags)
 {
-    static const long large_button_sprite_anims[] =
-        { 2, 5, 8, 11, 14, 11, 8, 5, };
+    static const long large_button_sprite_anims[] = {
+        GFS_hugebutton_a01l,
+        GFS_hugebutton_a02l,
+        GFS_hugebutton_a03l,
+        GFS_hugebutton_a04l,
+        GFS_hugebutton_a05l,
+        GFS_hugebutton_a04l,
+        GFS_hugebutton_a03l,
+        GFS_hugebutton_a02l,
+    };
     unsigned int febtn_idx;
     unsigned int spridx;
     int fntidx;
@@ -756,20 +756,20 @@ void frontend_draw_button(struct GuiButton *gbtn, unsigned short btntype, const 
     if ((gbtn->flags & LbBtnF_Enabled) == 0)
     {
         fntidx = 3;
-        spridx = 14;
+        spridx = GFS_hugebutton_a05l;
     } else
     {
         fntidx = frontend_button_caption_font(gbtn, frontend_mouse_over_button);
         if ((febtn_idx > 0) && (frontend_mouse_over_button == febtn_idx)) {
-            spridx = large_button_sprite_anims[((timeGetTime()-frontend_mouse_over_button_start_time)/100) & 7];
+            spridx = large_button_sprite_anims[((LbTimerClock_1000()-frontend_mouse_over_button_start_time)/100) & 7];
         } else {
-            spridx = 14;
+            spridx = GFS_hugebutton_a05l;
         }
     }
     struct TbSprite *spr;
     // Detect scaling factor
     int units_per_px;
-    units_per_px = simple_frontend_sprite_height_units_per_px(gbtn, 14, 100);
+    units_per_px = simple_frontend_sprite_height_units_per_px(gbtn, GFS_hugebutton_a05l, 100);
     x = gbtn->scr_pos_x;
     y = gbtn->scr_pos_y;
     switch (btntype)
@@ -833,21 +833,21 @@ void frontend_draw_scroll_box_tab(struct GuiButton *gbtn)
     long pos_x;
     long pos_y;
     int fs_units_per_px;
-    fs_units_per_px = simple_frontend_sprite_height_units_per_px(gbtn, 75, 100);
-    spr = &frontend_sprite[75];
+    fs_units_per_px = simple_frontend_sprite_height_units_per_px(gbtn, GFS_hugearea_thc_tx1_tc, 100);
+    spr = &frontend_sprite[GFS_hugearea_thc_tx1_tc];
     pos_x = gbtn->scr_pos_x;
     // Since this tab is attachable from top, it is important to keep bottom position without variation
     pos_y = gbtn->scr_pos_y + gbtn->height - spr->SHeight * fs_units_per_px / 16;
-    spr = &frontend_sprite[74];
+    spr = &frontend_sprite[GFS_hugearea_thc_cor_tl];
     LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
     pos_x += spr->SWidth * fs_units_per_px / 16;
-    spr = &frontend_sprite[75];
+    spr = &frontend_sprite[GFS_hugearea_thc_tx1_tc];
     LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
     pos_x += spr->SWidth * fs_units_per_px / 16;
-    spr = &frontend_sprite[75];
+    spr = &frontend_sprite[GFS_hugearea_thc_tx1_tc];
     LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
     pos_x += spr->SWidth * fs_units_per_px / 16;
-    spr = &frontend_sprite[76];
+    spr = &frontend_sprite[GFS_hugearea_thc_cor_tr];
     LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
 }
 
@@ -903,7 +903,7 @@ void frontend_draw_scroll_box(struct GuiButton *gbtn)
     {
         int orig_size;
         orig_size = 0;
-        spr = &frontend_sprite[33];
+        spr = &frontend_sprite[GFS_hugearea_thn_cor_ml];
         for (i=0; i < 6; i++)
         {
             orig_size += spr->SWidth;
@@ -912,7 +912,7 @@ void frontend_draw_scroll_box(struct GuiButton *gbtn)
         units_per_px = (gbtn->width * 16 + orig_size/2) / orig_size;
     }
     // Draw top border
-    spr = &frontend_sprite[25];
+    spr = &frontend_sprite[GFS_hugearea_thn_cor_tl];
     pos_x = gbtn->scr_pos_x;
     for (i=0; i < 6; i++)
     {
@@ -923,17 +923,17 @@ void frontend_draw_scroll_box(struct GuiButton *gbtn)
     if ( draw_scrollbar )
     {
         pos_x = gbtn->scr_pos_x + gbtn->width;
-        draw_frontend_sprite_left(pos_x, pos_y - units_per_px/16, units_per_px, 31);
+        draw_frontend_sprite_left(pos_x, pos_y - units_per_px/16, units_per_px, GFS_scrollbar_toparrow_std);
     }
     // Draw inside
-    spr = &frontend_sprite[25];
+    spr = &frontend_sprite[GFS_hugearea_thn_cor_tl];
     pos_y += spr->SHeight * units_per_px / 16;
     for (; height_lines > 0; height_lines -= delta )
     {
       if (height_lines < 3)
-          spr_idx = 33;
+          spr_idx = GFS_hugearea_thn_cor_ml;
       else
-          spr_idx = 40;
+          spr_idx = GFS_hugearea_thc_cor_ml;
       spr = &frontend_sprite[spr_idx];
       pos_x = gbtn->scr_pos_x;
       for (i=0; i < 6; i++)
@@ -945,9 +945,9 @@ void frontend_draw_scroll_box(struct GuiButton *gbtn)
       if ( draw_scrollbar )
       {
         if ( height_lines < 3 )
-            secspr_idx = 39;
+            secspr_idx = GFS_scrollbar_vert_ct_short;
         else
-            secspr_idx = 46;
+            secspr_idx = GFS_scrollbar_vert_ct_long;
         pos_x = gbtn->scr_pos_x + gbtn->width;
         draw_frontend_sprite_left(pos_x, pos_y, units_per_px, secspr_idx);
       }
@@ -959,7 +959,7 @@ void frontend_draw_scroll_box(struct GuiButton *gbtn)
           delta = 3;
     }
     // Draw bottom border
-    spr = &frontend_sprite[47];
+    spr = &frontend_sprite[GFS_hugearea_thn_cor_bl];
     pos_x = gbtn->scr_pos_x;
     for (i=0; i < 6; i++)
     {
@@ -970,7 +970,7 @@ void frontend_draw_scroll_box(struct GuiButton *gbtn)
     if ( draw_scrollbar )
     {
         pos_x = gbtn->scr_pos_x + gbtn->width;
-        draw_frontend_sprite_left(pos_x, pos_y, units_per_px, 53);
+        draw_frontend_sprite_left(pos_x, pos_y, units_per_px, GFS_scrollbar_btmarrow_std);
     }
 }
 
@@ -984,16 +984,16 @@ void frontend_draw_slider_button(struct GuiButton *gbtn)
         if ( (btn_id != 0) && (frontend_mouse_over_button == btn_id) )
         {
             if ( (btn_id == 17) || (btn_id == 36) || (btn_id == 38) ) {
-                spr_idx = 32;
+                spr_idx = GFS_scrollbar_toparrow_act;
             } else {
-                spr_idx = 54;
+                spr_idx = GFS_scrollbar_btmarrow_act;
             }
         } else
         {
             if ( (btn_id == 17) || (btn_id == 36) || (btn_id == 38) ) {
-                spr_idx = 31;
+                spr_idx = GFS_scrollbar_toparrow_std;
             } else {
-                spr_idx = 53;
+                spr_idx = GFS_scrollbar_btmarrow_std;
             }
         }
     } else

@@ -48,16 +48,12 @@ struct WibbleTable {
   long field_1C;
 };
 /******************************************************************************/
-DLLIMPORT long _DK_randomisors[512];
-#define randomisors _DK_randomisors
-DLLIMPORT struct WibbleTable _DK_wibble_table[128];
-#define wibble_table _DK_wibble_table
-DLLIMPORT extern unsigned short _DK_floor_to_ceiling_map[592];
-DLLIMPORT extern long _DK_floor_height[256];
-DLLIMPORT extern long _DK_lintel_top_height[256];
-#define lintel_top_height _DK_lintel_top_height
-DLLIMPORT extern long _DK_lintel_bottom_height[256];
-#define lintel_bottom_height _DK_lintel_bottom_height
+extern long randomisors[512];
+extern struct WibbleTable wibble_table[128];
+extern unsigned short floor_to_ceiling_map[592];
+extern long floor_height_table[256];
+extern long lintel_top_height[256];
+extern long lintel_bottom_height[256];
 
 #pragma pack()
 

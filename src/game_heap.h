@@ -21,25 +21,11 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
-#include "bflib_heapmgr.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-/******************************************************************************/
-#pragma pack(1)
-
-DLLIMPORT long _DK_sound_heap_size;
-#define sound_heap_size _DK_sound_heap_size
-DLLIMPORT unsigned char *_DK_sound_heap_memory;
-#define sound_heap_memory _DK_sound_heap_memory
-DLLIMPORT long _DK_heap_size;
-#define heap_size _DK_heap_size
-DLLIMPORT unsigned char *_DK_heap;
-#define heap _DK_heap
-
-#pragma pack()
 /******************************************************************************/
 TbBool setup_heap_manager(void);
 TbBool setup_heap_memory(void);
@@ -47,8 +33,10 @@ void reset_heap_manager(void);
 void reset_heap_memory(void);
 TbBool setup_heaps(void);
 
-TbBool read_heap_item(struct HeapMgrHandle *hmhandle, long offs, long len);
 /******************************************************************************/
+void *he_alloc(size_t size);
+void he_free(void *data);
+
 #ifdef __cplusplus
 }
 #endif

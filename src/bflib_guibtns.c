@@ -17,6 +17,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "bflib_guibtns.h"
 
 #include <string.h>
@@ -28,6 +29,7 @@
 #include "bflib_string.h"
 #include "bflib_sound.h"
 #include "bflib_keybrd.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -36,6 +38,9 @@ extern "C" {
 /******************************************************************************/
 // Global variables
 TbCharCount input_field_pos;
+struct GuiButton *input_button;
+char backup_input_field[INPUT_FIELD_LEN];
+
 /******************************************************************************/
 // Functions
 

@@ -17,6 +17,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "bflib_sound.h"
 
 #include <string.h>
@@ -25,13 +26,14 @@
 #include "bflib_basics.h"
 #include "bflib_memory.h"
 #include "bflib_math.h"
-#include "bflib_heapmgr.h"
 #include "bflib_sndlib.h"
 #include "bflib_fileio.h"
 #include "bflib_planar.h"
 #include "config_settings.h"
 #include "game_legacy.h"
 #include "globals.h"
+#include "game_heap.h"
+#include "post_inc.h"
 
 #define INVALID_SOUND_EMITTER (&emitter[0])
 
@@ -40,8 +42,27 @@ extern "C" {
 #endif
 /******************************************************************************/
 // Global variables
-long NoSoundEmitters = SOUND_EMITTERS_MAX;
+static long NoSoundEmitters = SOUND_EMITTERS_MAX;
+struct SoundEmitter emitter[128];
+static long MaxNoSounds;
+static struct S3DSample SampleList[SOUNDS_MAX_COUNT];
+static S3D_LineOfSight_Func LineOfSightFunction;
+static long deadzone_radius;
+
+TbBool SoundDisabled;
 int atmos_sound_volume = 128;
+long samples_in_bank;
+long samples_in_bank2;
+long MaxSoundDistance;
+struct SoundReceiver Receiver;
+long Non3DEmitter;
+struct SampleTable *sample_table;
+struct SampleTable *sample_table2;
+TbFileHandle sound_file;
+TbFileHandle sound_file2;
+unsigned char using_two_banks;
+long SpeechEmitter;
+struct HeapMgrHeader *sndheap;
 /******************************************************************************/
 // Internal routines
 SoundEmitterID allocate_free_sound_emitter(void);
@@ -65,14 +86,17 @@ long get_best_sound_heap_size(long sh_mem_size)
       return 0;
     }
     if (sh_mem_size <= 8)
-      return 0x100000; // 1MB
+      return 0x0100000; // 1MB
     if (sh_mem_size <= 16)
-      return 0x200000; // 2MB
+      return 0x0200000; // 2MB
     if (sh_mem_size <= 24)
-      return 0x500000; // 5MB
+      return 0x0500000; // 5MB
     if (sh_mem_size <= 32)
-      return 0x800000; // 8MB
-    return 0xC00000; // 12MB
+      return 0x0800000; // 8MB
+    if (sh_mem_size <= 48)
+        return 0x0c00000; // 12MB
+    
+    return 0x3000000; // 50MB
 }
 
 long dummy_line_of_sight_function(long a1, long a2, long a3, long a4, long a5, long a6)
@@ -841,51 +865,6 @@ void kick_out_sample(short smpl_id)
     sample->is_playing = 0;
 }
 
-struct HeapMgrHandle *find_handle_for_new_sample(long smpl_len, long smpl_idx, long file_pos, unsigned char bank_id)
-{
-    if ((!using_two_banks) && (bank_id > 0))
-    {
-        ERRORLOG("Trying to use two sound banks when only one has been set up");
-        return NULL;
-    }
-    struct HeapMgrHandle* hmhandle = heapmgr_add_item(sndheap, smpl_len);
-    if (hmhandle == NULL)
-    {
-        while (sndheap->field_10)
-        {
-            hmhandle = heapmgr_add_item(sndheap, smpl_len);
-            if (hmhandle != NULL)
-              break;
-            long smptbl_idx = heapmgr_free_oldest(sndheap);
-            if (smptbl_idx < 0)
-              break;
-            struct SampleTable* smp_table;
-            if (smptbl_idx < samples_in_bank)
-            {
-              smp_table = &sample_table[smptbl_idx];
-            } else
-            {
-              smp_table = &sample_table2[smptbl_idx-samples_in_bank];
-            }
-            smp_table->hmhandle = hmhandle;
-        }
-    }
-    if (hmhandle == NULL)
-        return NULL;
-    if (bank_id > 0)
-    {
-        hmhandle->idx = samples_in_bank + smpl_idx;
-        LbFileSeek(sound_file2, file_pos, Lb_FILE_SEEK_BEGINNING);
-        LbFileRead(sound_file2, hmhandle->buf, smpl_len);
-    } else
-    {
-        hmhandle->idx = smpl_idx;
-        LbFileSeek(sound_file, file_pos, Lb_FILE_SEEK_BEGINNING);
-        LbFileRead(sound_file, hmhandle->buf, smpl_len);
-    }
-    return hmhandle;
-}
-
 struct SampleInfo *play_sample_using_heap(unsigned long a1, SoundSmplTblID smptbl_id, unsigned long a3, unsigned long a4, unsigned long a5, char a6, unsigned char a7, SoundBankID bank_id)
 {
     if ((!using_two_banks) && (bank_id > 0))
@@ -898,16 +877,25 @@ struct SampleInfo *play_sample_using_heap(unsigned long a1, SoundSmplTblID smptb
     if (smp_table == NULL) {
         return NULL;
     }
-    if (smp_table->hmhandle == NULL) {
-        smp_table->hmhandle = find_handle_for_new_sample(smp_table->data_size, smptbl_id, smp_table->file_pos, bank_id);
+    if (smp_table->snd_buf == NULL) {
+        smp_table->snd_buf = he_alloc(smp_table->data_size);
+        if (smp_table->snd_buf == NULL) {
+            ERRORLOG("Can't allocate to play sample %d",smptbl_id);
+            return NULL;
+        }
+        if (bank_id > 0)
+        {
+            LbFileSeek(sound_file2, smp_table->file_pos, Lb_FILE_SEEK_BEGINNING);
+            LbFileRead(sound_file2, smp_table->snd_buf, smp_table->data_size);
+        } else
+        {
+            LbFileSeek(sound_file, smp_table->file_pos, Lb_FILE_SEEK_BEGINNING);
+            LbFileRead(sound_file, smp_table->snd_buf , smp_table->data_size);
+        }
     }
-    if (smp_table->hmhandle == NULL) {
-        ERRORLOG("Can't find handle to play sample %d",smptbl_id);
-        return NULL;
-    }
-    heapmgr_make_newest(sndheap, smp_table->hmhandle);
+
     // Start the play
-    struct SampleInfo* smpinfo = PlaySampleFromAddress(a1, smptbl_id, a3, a4, a5, a6, a7, smp_table->hmhandle->buf, smp_table->sfxid);
+    struct SampleInfo* smpinfo = PlaySampleFromAddress(a1, smptbl_id, a3, a4, a5, a6, a7, smp_table->snd_buf, smp_table->sfxid);
     if (smpinfo == NULL) {
         SYNCLOG("Can't start playing sample %d",smptbl_id);
         return NULL;
@@ -916,16 +904,11 @@ struct SampleInfo *play_sample_using_heap(unsigned long a1, SoundSmplTblID smptb
     if (bank_id != 0) {
         smpinfo->flags_17 |= 0x04;
     }
-    smp_table->hmhandle->flags |= 0x06;
     return smpinfo;
 }
 
 void stop_sample_using_heap(SoundEmitterID emit_id, SoundSmplTblID smptbl_id, SoundBankID bank_id)
 {
-    struct SampleInfo *smpinfo;
-    struct SampleInfo *smpinfo_last;
-    struct SampleTable *satab;
-    struct HeapMgrHandle *hmhndl;
     SYNCDBG(19,"Starting");
     if ( !using_two_banks )
     {
@@ -934,39 +917,6 @@ void stop_sample_using_heap(SoundEmitterID emit_id, SoundSmplTblID smptbl_id, So
         }
     }
     StopSample(emit_id, smptbl_id);
-    smpinfo_last = GetLastSampleInfoStructure();
-    for (smpinfo = GetFirstSampleInfoStructure(); smpinfo <= smpinfo_last; smpinfo++)
-    {
-        if (smpinfo->field_12 == smptbl_id)
-        {
-            if ( (smpinfo->field_0 != 0) && ((smpinfo->flags_17 & 0x01) != 0) )
-            {
-                if ( (bank_id == 0) || ((smpinfo->flags_17 & 0x04) != 0) )
-                {
-                    if ( IsSamplePlaying(0, 0, smpinfo->field_0) ) {
-                        if (bank_id != 0)
-                        {
-                            satab = &sample_table2[smptbl_id];
-                            hmhndl = satab->hmhandle;
-                            if (hmhndl != NULL) {
-                                hmhndl->flags &= ~0x0004;
-                                hmhndl->flags &= ~0x0002;
-                            }
-                        } else
-                        {
-                            satab = &sample_table[smptbl_id];
-                            hmhndl = satab->hmhandle;
-                            if (hmhndl != NULL) {
-                                hmhndl->flags &= ~0x0004;
-                                hmhndl->flags &= ~0x0002;
-                            }
-                        }
-                        break;
-                    }
-                }
-            }
-        }
-    }
 }
 
 TbBool process_sound_samples(void)

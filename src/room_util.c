@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "room_util.h"
 
 #include "globals.h"
@@ -40,6 +41,7 @@
 #include "keeperfx.hpp"
 #include "frontend.h"
 #include "math.h"
+#include "post_inc.h"
 
 /******************************************************************************/
 struct Thing *create_room_surrounding_flame(struct Room *room, const struct Coord3d *pos,
@@ -65,20 +67,20 @@ void room_update_surrounding_flames(struct Room *room, const struct Coord3d *pos
     struct Room* curoom = subtile_room_get(x, y);
     if (curoom->index != room->index)
     {
-        k = (i + 1) % 4;
+        k = (i + 1) % SMALL_AROUND_LENGTH;
         room->field_43 = k;
         return;
     }
-    k = (i + 3) % 4;
+    k = (i + 3) % SMALL_AROUND_LENGTH;
     x += (MapSubtlCoord)small_around[k].delta_x;
     y += (MapSubtlCoord)small_around[k].delta_y;
     curoom = subtile_room_get(x,y);
     if (curoom->index != room->index)
     {
-        room->field_41 += slab_around[i];
+        room->field_41 += gameadd.small_around_slab[i];
         return;
     }
-    room->field_41 += slab_around[i] + slab_around[k];
+    room->field_41 += gameadd.small_around_slab[i] + gameadd.small_around_slab[k];
     room->field_43 = k;
 }
 

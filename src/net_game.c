@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "net_game.h"
 
 #include "globals.h"
@@ -34,18 +35,11 @@
 #include "config_settings.h"
 #include "game_legacy.h"
 #include "keeperfx.hpp"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-/******************************************************************************/
-/******************************************************************************/
-DLLIMPORT struct _GUID _DK_net_guid;
-#define net_guid _DK_net_guid
-DLLIMPORT int _DK_noOfEnumeratedDPlayServices;
-#define noOfEnumeratedDPlayServices _DK_noOfEnumeratedDPlayServices
-DLLIMPORT struct _GUID _DK_clientGuidTable[];
-#define clientGuidTable _DK_clientGuidTable
 /******************************************************************************/
 long number_of_comports;
 long number_of_speeds;
@@ -54,6 +48,18 @@ long net_speed_scroll_offset;
 char tmp_net_irq[8];
 char net_current_message[64];
 long net_current_message_index;
+
+struct TbNetworkPlayerInfo net_player_info[NET_PLAYERS_COUNT];
+struct TbNetworkSessionNameEntry *net_session[32];
+long net_number_of_sessions;
+long net_session_index_active;
+struct TbNetworkPlayerName net_player[NET_PLAYERS_COUNT];
+struct ConfigInfo net_config_info;
+char net_service[16][NET_SERVICE_LEN];
+char net_player_name[20];
+struct ServiceInitData net_serial_data;
+struct ServiceInitData net_modem_data;
+struct TbModemDev modem_dev;
 /******************************************************************************/
 short setup_network_service(int srvidx)
 {
@@ -125,10 +131,12 @@ static CoroutineLoopState setup_exchange_player_number(CoroutineLoop *context)
           player = get_player(k);
           player->id_number = k;
           player->allocflags |= PlaF_Allocated;
-          if (pckt->actn_par2 < 1)
-            player->view_mode_restore = PVM_IsometricView;
-          else
-            player->view_mode_restore = PVM_FrontView;
+          switch (pckt->actn_par2) {
+              case 0: player->view_mode_restore = PVM_IsoWibbleView; break;
+              case 1: player->view_mode_restore = PVM_IsoStraightView; break;
+              case 2: player->view_mode_restore = PVM_FrontView; break;
+              default: player->view_mode_restore = PVM_IsoWibbleView; break;
+          }
           player->is_active = pckt->actn_par1;
           init_player(player, 0);
           snprintf(player->field_15, sizeof(struct TbNetworkPlayerName), "%s", net_player[i].name);

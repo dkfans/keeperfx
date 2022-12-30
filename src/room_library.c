@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "room_library.h"
 
 #include "globals.h"
@@ -35,6 +36,7 @@
 #include "magic.h"
 #include "gui_soundmsgs.h"
 #include "game_legacy.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -283,7 +285,6 @@ TbBool update_or_add_players_research_amount(PlayerNumber plyr_idx, long rtyp, l
 
 void process_player_research(PlayerNumber plyr_idx)
 {
-    //_DK_process_player_research(plyr_idx); return;
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
     struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
     if (!player_has_room_of_role(plyr_idx, RoRoF_Research)) {

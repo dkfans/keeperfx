@@ -17,6 +17,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "player_computer.h"
 
 #include <limits.h>
@@ -45,6 +46,7 @@
 #include "game_legacy.h"
 #include "game_merge.h"
 #include "keeperfx.hpp"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -434,7 +436,6 @@ long computer_finds_nearest_room_to_gold(struct Computer2 *comp, struct Coord3d 
 
 long count_creatures_availiable_for_fight(struct Computer2 *comp, struct Coord3d *pos)
 {
-    //return _DK_count_creatures_availiable_for_fight(comp, pos);
     SYNCDBG(8,"Starting");
     struct Dungeon* dungeon = comp->dungeon;
     unsigned long count = 0;
@@ -533,7 +534,7 @@ void get_opponent(struct Computer2 *comp, struct THate hates[])
     {
         struct THate* hate = &hates[i];
         struct OpponentRelation* oprel = &comp->opponent_relations[hate->plyr_idx];
-        int ptidx = oprel->field_4;
+        int ptidx = oprel->next_idx;
         if (ptidx > 0)
           ptidx--;
         for (long n = 0; n < COMPUTER_SPARK_POSITIONS_COUNT; n++)
@@ -1120,7 +1121,6 @@ long count_creatures_for_defend_pickup(struct Computer2 *comp)
  */
 TbBool computer_find_non_solid_block(const struct Computer2 *comp, struct Coord3d *pos)
 {
-    //return _DK_computer_find_non_solid_block(comp, pos);
     for (unsigned long n = 0; n < MID_AROUND_LENGTH; n++)
     {
         MapSubtlCoord arstl_x = pos->x.stl.num + STL_PER_SLB * start_at_around[n].delta_x;
@@ -1148,7 +1148,6 @@ TbBool computer_find_non_solid_block(const struct Computer2 *comp, struct Coord3
  */
 TbBool computer_find_safe_non_solid_block(const struct Computer2* comp, struct Coord3d* pos)
 {
-    //return _DK_computer_find_non_solid_block(comp, pos);
     for (unsigned long n = 0; n < LARGE_AROUND_LIMITED; n++)
     {
         MapSubtlCoord arstl_x = pos->x.stl.num + STL_PER_SLB * large_around[n].delta_x;
@@ -1280,7 +1279,7 @@ TbBool setup_a_computer_player(PlayerNumber plyr_idx, long comp_model)
     {
         struct OpponentRelation* oprel = &comp->opponent_relations[i];
         oprel->field_0 = 0;
-        oprel->field_4 = 0;
+        oprel->next_idx = 0;
         if (i == plyr_idx) {
             oprel->hate_amount = LONG_MIN;
         } else {

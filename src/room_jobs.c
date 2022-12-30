@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "room_jobs.h"
 
 #include "globals.h"
@@ -44,6 +45,7 @@
 #include "creature_states_scavn.h"
 #include "creature_states_lair.h"
 #include "creature_states_pray.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {

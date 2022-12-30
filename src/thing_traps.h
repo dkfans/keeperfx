@@ -79,8 +79,8 @@ short field_16;
   unsigned char activation_type;
   unsigned char created_itm_model; // Shot model, effect model, slab kind
   unsigned char hit_type;
-short light_1C; // creates light if not null
-unsigned char light_1E;
+short light_radius; // creates light if not null
+unsigned char light_intensity;
 unsigned char light_1F;
 unsigned char field_20[8];
 unsigned char field_28[8];
@@ -90,9 +90,6 @@ short field_34;
 };
 
 /******************************************************************************/
-//DLLIMPORT extern unsigned char _DK_trap_to_object[8];
-//DLLIMPORT struct TrapStats _DK_trap_stats[7];
-//#define trap_stats _DK_trap_stats
 
 #pragma pack()
 /******************************************************************************/

@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "room_workshop.h"
 
 #include "globals.h"
@@ -36,6 +37,7 @@
 #include "player_instances.h"
 #include "creature_states.h"
 #include "keeperfx.hpp"
+#include "post_inc.h"
 
 /******************************************************************************/
 TbBool add_workshop_object_to_workshop(struct Room *room,struct Thing *cratetng)
@@ -669,7 +671,7 @@ short process_player_manufacturing(PlayerNumber plyr_idx)
     }
 
     dungeon->manufacture_progress -= (k << 8);
-    dungeon->field_118B = game.play_gameturn;
+    dungeon->turn_last_manufacture = game.play_gameturn;
     dungeon->lvstats.manufactured_items++;
     if (get_next_manufacture(dungeon))
     {

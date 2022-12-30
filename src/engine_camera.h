@@ -42,6 +42,9 @@ struct PlayerInfo;
 #define MINMAX_LENGTH 512 // Originally 64, adjusted for view distance
 #define MINMAX_ALMOST_HALF ((MINMAX_LENGTH/2)-1)
 
+extern long zoom_distance_setting; // CFG setting
+extern long frontview_zoom_distance_setting; // CFG setting
+
 enum CameraIndexValues {
     CamIV_Isometric = 0,
     CamIV_FirstPerson,
@@ -93,10 +96,8 @@ extern long previous_camera_zoom;
 extern long interpolated_camera_zoom;
 
 /******************************************************************************/
-DLLIMPORT extern struct M33 _DK_camera_matrix;
-#define camera_matrix _DK_camera_matrix
-DLLIMPORT extern struct EngineCoord _DK_object_origin;
-#define object_origin _DK_object_origin
+
+extern struct EngineCoord object_origin;
 
 #pragma pack()
 /******************************************************************************/
@@ -118,7 +119,6 @@ void view_zoom_camera_in(struct Camera *cam, long limit_max, long limit_min);
 void set_camera_zoom(struct Camera *cam, long val);
 void view_zoom_camera_out(struct Camera *cam, long limit_max, long limit_min);
 long get_camera_zoom(struct Camera *cam);
-unsigned long adjust_min_camera_zoom(struct Camera *cam, long width, long height, long status_panel_width);
 unsigned long scale_camera_zoom_to_screen(unsigned long zoom_lvl);
 void update_camera_zoom_bounds(struct Camera *cam,unsigned long zoom_max,unsigned long zoom_min);
 
@@ -128,9 +128,9 @@ void view_set_camera_rotation_inertia(struct Camera *cam, long a2, long a3);
 
 void update_all_players_cameras(void);
 void init_player_cameras(struct PlayerInfo *player);
-void set_previous_camera_values();
-void reset_interpolation_of_camera();
-void reset_interpolation_for_parchment_view();
+void set_previous_camera_values(struct PlayerInfo* player);
+void reset_interpolation_of_camera(struct PlayerInfo* player);
+void reset_interpolation_for_parchment_view(struct PlayerInfo* player);
 
 /******************************************************************************/
 #ifdef __cplusplus

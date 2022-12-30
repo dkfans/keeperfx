@@ -17,6 +17,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "player_computer.h"
 
 #include <limits.h>
@@ -59,6 +60,7 @@
 #include "cursor_tag.h"
 
 #include "keeperfx.hpp"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -581,6 +583,8 @@ void computer_pick_thing_by_hand(struct Computer2 *comp, struct Thing *thing)
         external_set_thing_state(thing, CrSt_InPowerHand);
         remove_all_traces_of_combat(thing);
     }
+    struct ThingAdd* thingadd = get_thingadd(thing->index);
+    thingadd->holding_player = comp->dungeon->owner;
     place_thing_in_limbo(thing);
 }
 
@@ -946,7 +950,7 @@ long task_dig_room(struct Computer2 *comp, struct ComputerTask *ctask)
     {
         if (ctask->dig.subfield_38 > 0)
         {
-            if ((stl_x < map_subtiles_x) && (stl_y < map_subtiles_y))
+            if ((stl_x < gameadd.map_subtiles_x) && (stl_y < gameadd.map_subtiles_y))
             {
                 struct SlabMap *slb;
                 slb = get_slabmap_for_subtile(stl_x, stl_y);
@@ -1348,7 +1352,6 @@ long check_for_buildable(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long plyr_idx
 
 long get_corridor(struct Coord3d *pos1, struct Coord3d * pos2, unsigned char round_directn, PlayerNumber plyr_idx, unsigned short slabs_dist)
 {
-    //return _DK_get_corridor(pos1, pos2, a3, a4, a5);
     struct Coord3d mvpos;
     mvpos.x.val = pos1->x.val;
     mvpos.y.val = pos1->y.val;
@@ -1601,7 +1604,7 @@ short tool_dig_to_pos2_skip_slabs_which_dont_need_digging_f(const struct Compute
         around_index = small_around_index_towards_destination(*nextstl_x,*nextstl_y,cdig->pos_dest.x.stl.num,cdig->pos_dest.y.stl.num);
         (*nextstl_x) += STL_PER_SLB * small_around[around_index].delta_x;
         (*nextstl_y) += STL_PER_SLB * small_around[around_index].delta_y;
-        if (i > map_tiles_x+map_tiles_y)
+        if (i > gameadd.map_tiles_x+gameadd.map_tiles_y)
         {
             ERRORLOG("%s: Infinite loop while finding path to dig gold",func_name);
             return -2;
@@ -1673,7 +1676,7 @@ short tool_dig_to_pos2_do_action_on_slab_which_needs_it_f(struct Computer2 * com
         around_index = small_around_index_towards_destination(*nextstl_x,*nextstl_y,cdig->pos_dest.x.stl.num,cdig->pos_dest.y.stl.num);
         (*nextstl_x) += STL_PER_SLB * small_around[around_index].delta_x;
         (*nextstl_y) += STL_PER_SLB * small_around[around_index].delta_y;
-        if (i > map_tiles_x*map_tiles_y)
+        if (i > gameadd.map_tiles_x*gameadd.map_tiles_y)
         {
             ERRORLOG("%s: Infinite loop while finding path to dig gold",func_name);
             return -2;
@@ -1977,7 +1980,7 @@ int search_spiral_f(struct Coord3d *pos, PlayerNumber owner, int area_total, lon
         {
             do
             {
-                if ( stl_x < map_subtiles_x && stl_y < map_subtiles_y )
+                if ( stl_x < gameadd.map_subtiles_x && stl_y < gameadd.map_subtiles_y )
                 {
                     int check_fn_result = cb(stl_x, stl_y, owner);
                     if ( check_fn_result )
@@ -2184,7 +2187,6 @@ long task_dig_to_attack(struct Computer2 *comp, struct ComputerTask *ctask)
       remove_task(comp, ctask);
       return CTaskRet_Unk0;
     }
-    //return _DK_task_dig_to_attack(comp,ctask);
     if (ctask->dig.pos_next.x.val > 0)
     {
         struct SlabMap *slb;
@@ -2328,7 +2330,6 @@ long task_magic_call_to_arms(struct Computer2 *comp, struct ComputerTask *ctask)
     SYNCDBG(9,"Starting");
     struct Dungeon *dungeon;
     dungeon = comp->dungeon;
-    //return _DK_task_magic_call_to_arms(comp,ctask);
     switch (ctask->task_state)
     {
     case 0:
@@ -3385,40 +3386,40 @@ TbBool create_task_move_creature_to_pos(struct Computer2 *comp, const struct Thi
         return false;
     }
     if ((gameadd.computer_chat_flags & CChat_TasksFrequent) != 0) {
-        struct CreatureData *crdata;
-        crdata = creature_data_get(thing->model);
+        struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[thing->model];
+
         switch (dst_state)
         {
         case CrSt_ImpImprovesDungeon:
-            message_add_fmt(comp->dungeon->owner, "This %s should go claiming.",get_string(crdata->namestr_idx));
+            message_add_fmt(comp->dungeon->owner, "This %s should go claiming.",get_string(crconf->namestr_idx));
             break;
         case CrSt_ImpDigsDirt:
-            message_add_fmt(comp->dungeon->owner, "This %s should go digging.",get_string(crdata->namestr_idx));
+            message_add_fmt(comp->dungeon->owner, "This %s should go digging.",get_string(crconf->namestr_idx));
             break;
         case CrSt_ImpMinesGold:
-            message_add_fmt(comp->dungeon->owner, "This %s should go mining.",get_string(crdata->namestr_idx));
+            message_add_fmt(comp->dungeon->owner, "This %s should go mining.",get_string(crconf->namestr_idx));
             break;
         case CrSt_CreatureDoingNothing:
         case CrSt_ImpDoingNothing:
-            message_add_fmt(comp->dungeon->owner, "This %s should stop doing that.",get_string(crdata->namestr_idx));
+            message_add_fmt(comp->dungeon->owner, "This %s should stop doing that.",get_string(crconf->namestr_idx));
             break;
         case CrSt_CreatureSacrifice:
             if (thing->model == gameadd.cheaper_diggers_sacrifice_model) {
                 struct PowerConfigStats *powerst;
                 powerst = get_power_model_stats(PwrK_MKDIGGER);
-                message_add_fmt(comp->dungeon->owner, "Sacrificing %s to reduce %s price.",get_string(crdata->namestr_idx),get_string(powerst->name_stridx));
+                message_add_fmt(comp->dungeon->owner, "Sacrificing %s to reduce %s price.",get_string(crconf->namestr_idx),get_string(powerst->name_stridx));
                 break;
             }
-            message_add_fmt(comp->dungeon->owner, "This %s will be sacrificed.",get_string(crdata->namestr_idx));
+            message_add_fmt(comp->dungeon->owner, "This %s will be sacrificed.",get_string(crconf->namestr_idx));
             break;
         case CrSt_Torturing:
-            message_add_fmt(comp->dungeon->owner, "This %s should be tortured.", get_string(crdata->namestr_idx));
+            message_add_fmt(comp->dungeon->owner, "This %s should be tortured.", get_string(crconf->namestr_idx));
             break;
         case CrSt_CreatureDoorCombat:
-            message_add_fmt(comp->dungeon->owner, "This %s should attack a door.", get_string(crdata->namestr_idx));
+            message_add_fmt(comp->dungeon->owner, "This %s should attack a door.", get_string(crconf->namestr_idx));
             break;
         default:
-            message_add_fmt(comp->dungeon->owner, "This %s should go there.",get_string(crdata->namestr_idx));
+            message_add_fmt(comp->dungeon->owner, "This %s should go there.",get_string(crconf->namestr_idx));
             break;
         }
     }
@@ -3773,9 +3774,8 @@ TbBool create_task_attack_magic(struct Computer2 *comp, const struct Thing *crea
     if ((gameadd.computer_chat_flags & CChat_TasksScarce) != 0) {
         struct PowerConfigStats *powerst;
         powerst = get_power_model_stats(pwkind);
-        struct CreatureData *crdata;
-        crdata = creature_data_get(creatng->model);
-        message_add_fmt(comp->dungeon->owner, "Casting %s on %s!",get_string(powerst->name_stridx),get_string(crdata->namestr_idx));
+        struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[creatng->model];
+        message_add_fmt(comp->dungeon->owner, "Casting %s on %s!",get_string(powerst->name_stridx),get_string(crconf->namestr_idx));
     }
     ctask->ttype = CTT_AttackMagic;
     ctask->attack_magic.target_thing_idx = creatng->index;

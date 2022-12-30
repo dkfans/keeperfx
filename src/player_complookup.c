@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "player_complookup.h"
 
 #include <limits.h>
@@ -30,6 +31,7 @@
 #include "game_legacy.h"
 #include "front_simple.h"
 #include "config_terrain.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -180,17 +182,16 @@ void check_map_for_gold(void)
     MapSlabCoord slb_y;
     SlabCodedCoords slb_num;
     SYNCDBG(8,"Starting");
-    //_DK_check_map_for_gold();
     for (long i = 0; i < GOLD_LOOKUP_COUNT; i++)
     {
         LbMemorySet(&game.gold_lookup[i], 0, sizeof(struct GoldLookup));
     }
     // Make a map with treasure areas marked
     unsigned char* treasure_map = (unsigned char*)scratch;
-    unsigned short* vein_list = (unsigned short*)&scratch[map_tiles_x * map_tiles_y];
-    for (slb_y = 0; slb_y < map_tiles_y; slb_y++)
+    unsigned short* vein_list = (unsigned short*)&scratch[gameadd.map_tiles_x * gameadd.map_tiles_y];
+    for (slb_y = 0; slb_y < gameadd.map_tiles_y; slb_y++)
     {
-        for (slb_x = 0; slb_x < map_tiles_x; slb_x++)
+        for (slb_x = 0; slb_x < gameadd.map_tiles_x; slb_x++)
         {
             slb_num = get_slab_number(slb_x, slb_y);
             struct SlabMap* slb = get_slabmap_direct(slb_num);
@@ -204,9 +205,9 @@ void check_map_for_gold(void)
     }
     // Add treasures to lookup as gold veins
     long gold_next_idx = 0;
-    for (slb_y = 0; slb_y < map_tiles_y; slb_y++)
+    for (slb_y = 0; slb_y < gameadd.map_tiles_y; slb_y++)
     {
-        for (slb_x = 0; slb_x < map_tiles_x; slb_x++)
+        for (slb_x = 0; slb_x < gameadd.map_tiles_x; slb_x++)
         {
             slb_num = get_slab_number(slb_x, slb_y);
             if ( ((treasure_map[slb_num] & 0x01) == 0) && ((treasure_map[slb_num] & 0x02) == 0) )

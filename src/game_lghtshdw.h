@@ -38,8 +38,8 @@ extern "C" {
 struct LightingTable { // sizeof = 8
   unsigned char is_populated;
   unsigned char distance; // 2 - 15
-  unsigned char delta_x;
-  unsigned char delta_y;
+  char delta_x; // signed
+  char delta_y; // signed
   unsigned long field_4; // strength? decay?
 };
 
@@ -58,8 +58,8 @@ struct LightsShadows { // sizeof = 164886
     struct ShadowCache shadow_cache[SHADOW_CACHE_COUNT];
     unsigned short stat_light_map[256*256];
     long field_46149;
-    char light_enabled;
-    char lighting_tables_initialised;
+    TbBool light_enabled;
+    TbBool lighting_tables_initialised;
     unsigned long light_rand_seed;
     int lighting_tables_count; // number of entries in lighting_tables
     unsigned short subtile_lightness[256*256];

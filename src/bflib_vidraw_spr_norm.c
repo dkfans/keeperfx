@@ -18,6 +18,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "bflib_vidraw.h"
 
 #include <string.h>
@@ -32,6 +33,7 @@
 #include "bflib_sprite.h"
 #include "bflib_mouse.h"
 #include "bflib_render.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -1252,6 +1254,38 @@ TbResult LbSpriteDrawUsingScalingDownDataSolidLR(uchar *outbuf, int scanline, in
     return 0;
 }
 
+static void setup_steps(long posx, long posy, const struct TbSprite *sprite, long **xstep, long **ystep, int *scanline)
+{
+    long sposx;
+    long sposy;
+    sposx = posx;
+    sposy = posy;
+    (*scanline) = lbDisplay.GraphicsScreenWidth;
+    if ((lbDisplay.DrawFlags & Lb_SPRITE_FLIP_HORIZ) != 0) {
+        sposx = sprite->SWidth + posx - 1;
+    }
+    if ((lbDisplay.DrawFlags & Lb_SPRITE_FLIP_VERTIC) != 0) {
+        sposy = sprite->SHeight + posy - 1;
+        (*scanline) = -lbDisplay.GraphicsScreenWidth;
+    }
+    (*xstep) = &xsteps_array[2 * sposx];
+    (*ystep) = &ysteps_array[2 * sposy];
+}
+
+static void setup_outbuf(const long *xstep, const long *ystep, uchar **outbuf, int *outheight)
+{
+    int gspos_x;
+    int gspos_y;
+    gspos_y = ystep[0];
+    if ((lbDisplay.DrawFlags & Lb_SPRITE_FLIP_VERTIC) != 0)
+        gspos_y += ystep[1] - 1;
+    gspos_x = xstep[0];
+    if ((lbDisplay.DrawFlags & Lb_SPRITE_FLIP_HORIZ) != 0)
+        gspos_x += xstep[1] - 1;
+    (*outbuf) = &lbDisplay.GraphicsWindowPtr[gspos_x + lbDisplay.GraphicsScreenWidth * gspos_y];
+    (*outheight) = lbDisplay.GraphicsScreenHeight;
+}
+
 /**
  * Draws a scaled sprite on current graphics window at given position.
  * Requires LbSpriteSetScalingData() to be called before.
@@ -1268,36 +1302,11 @@ TbResult LbSpriteDrawUsingScalingData(long posx, long posy, const struct TbSprit
     long *xstep;
     long *ystep;
     int scanline;
-    {
-        long sposx;
-        long sposy;
-        sposx = posx;
-        sposy = posy;
-        scanline = lbDisplay.GraphicsScreenWidth;
-        if ((lbDisplay.DrawFlags & Lb_SPRITE_FLIP_HORIZ) != 0) {
-            sposx = sprite->SWidth + posx - 1;
-        }
-        if ((lbDisplay.DrawFlags & Lb_SPRITE_FLIP_VERTIC) != 0) {
-            sposy = sprite->SHeight + posy - 1;
-            scanline = -lbDisplay.GraphicsScreenWidth;
-        }
-        xstep = &xsteps_array[2 * sposx];
-        ystep = &ysteps_array[2 * sposy];
-    }
     uchar *outbuf;
     int outheight;
-    {
-        int gspos_x;
-        int gspos_y;
-        gspos_y = ystep[0];
-        if ((lbDisplay.DrawFlags & Lb_SPRITE_FLIP_VERTIC) != 0)
-            gspos_y += ystep[1] - 1;
-        gspos_x = xstep[0];
-        if ((lbDisplay.DrawFlags & Lb_SPRITE_FLIP_HORIZ) != 0)
-            gspos_x += xstep[1] - 1;
-        outbuf = &lbDisplay.GraphicsWindowPtr[gspos_x + lbDisplay.GraphicsScreenWidth * gspos_y];
-        outheight = lbDisplay.GraphicsScreenHeight;
-    }
+    setup_steps(posx, posy, sprite, &xstep, &ystep, &scanline);
+    setup_outbuf(xstep, ystep, &outbuf, &outheight);
+
     if ( scale_up )
     {
         if ((lbDisplay.DrawFlags & Lb_TEXT_UNDERLNSHADOW) != 0)

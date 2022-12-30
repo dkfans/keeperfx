@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "thing_objects.h"
 
 #include "globals.h"
@@ -50,6 +51,7 @@
 #include "game_legacy.h"
 #include "keeperfx.hpp"
 #include "game_loop.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -443,10 +445,10 @@ struct Thing *create_object(const struct Coord3d *pos, unsigned short model, uns
     thing->solid_size_yz = objdat->size_yz;
     thing->anim_speed = objdat->anim_speed;
     thing->anim_sprite = objdat->sprite_anim_idx;
-    thing->health = saturate_set_signed(objconf->health,16);
+    thing->health = saturate_set_signed(objconf->health,32);
     thing->fall_acceleration = objconf->fall_acceleration;
-    thing->field_23 = 204;
-    thing->field_24 = 51;
+    thing->inertia_floor = 204;
+    thing->inertia_air = 51;
     thing->bounce_angle = 0;
     thing->movement_flags |= TMvF_Unknown08;
 
@@ -464,11 +466,11 @@ struct Thing *create_object(const struct Coord3d *pos, unsigned short model, uns
       k = -1;
     }
     set_thing_draw(thing, i, objdat->anim_speed, objdat->sprite_size_max, 0, k, objdat->draw_class);
-    set_flag_byte(&thing->field_4F, TF4F_Unknown02, objconf->light_unaffected);
-    set_flag_byte(&thing->field_4F, TF4F_Unknown01, objdat->field_3 & 0x01);
+    set_flag_byte(&thing->rendering_flags, TRF_Unknown02, objconf->light_unaffected);
+    set_flag_byte(&thing->rendering_flags, TRF_Unknown01, objdat->field_3 & 0x01);
 
-    set_flag_byte(&thing->field_4F, TF4F_Transpar_4, objdat->field_F & 0x01);
-    set_flag_byte(&thing->field_4F, TF4F_Transpar_8, objdat->field_F & 0x02);
+    set_flag_byte(&thing->rendering_flags, TRF_Transpar_4, objdat->field_F & 0x01);
+    set_flag_byte(&thing->rendering_flags, TRF_Transpar_8, objdat->field_F & 0x02);
 
     thing->active_state = objdat->initial_state;
     if (objconf->ilght.radius != 0)
@@ -494,8 +496,8 @@ struct Thing *create_object(const struct Coord3d *pos, unsigned short model, uns
         light_set_light_minimum_size_to_cache(thing->light_id, 0, 56);
         break;
       case 33: // Why it is hardcoded? And what is TempleS
-        thing->field_4F &= TF4F_Transpar_Flags;
-        thing->field_4F |= TF4F_Transpar_4;
+        thing->rendering_flags &= TRF_Transpar_Flags;
+        thing->rendering_flags |= TRF_Transpar_4;
         break;
       case 3:
       case 6:
@@ -957,7 +959,6 @@ TbBool delete_lair_totem(struct Thing *lairtng)
 
 long food_moves(struct Thing *objtng)
 {
-    //return _DK_food_moves(objtng);
     struct Coord3d pos;
     pos.x.val = objtng->mappos.x.val;
     pos.y.val = objtng->mappos.y.val;
@@ -1071,7 +1072,7 @@ long food_moves(struct Thing *objtng)
             objtng->food.angle = CREATURE_RANDOM(objtng, 0x7FF);
             objtng->food.byte_16 = 0;
         } else
-        if ((objtng->anim_speed * objtng->field_49 <= objtng->anim_speed + objtng->anim_time) && (objtng->food.byte_16 < 5))
+        if ((objtng->anim_speed * objtng->max_frames <= objtng->anim_speed + objtng->anim_time) && (objtng->food.byte_16 < 5))
         {
             objtng->food.byte_16--;
         }
@@ -1121,7 +1122,6 @@ long food_moves(struct Thing *objtng)
 
 long food_grows(struct Thing *objtng)
 {
-    //return _DK_food_grows(objtng);
     if (objtng->food.life_remaining > 0)
     {
         objtng->food.life_remaining--;
@@ -1143,7 +1143,7 @@ long food_grows(struct Thing *objtng)
         delete_thing_structure(objtng, 0);
         nobjtng = create_object(&pos, food_grow_objects[0], tngowner, room_idx);
         if (!thing_is_invalid(nobjtng)) {
-            nobjtng->food.life_remaining = (nobjtng->field_49 << 8) / nobjtng->anim_speed - 1;
+            nobjtng->food.life_remaining = (nobjtng->max_frames << 8) / nobjtng->anim_speed - 1;
         }
         ret = -1;
         break;
@@ -1152,7 +1152,7 @@ long food_grows(struct Thing *objtng)
         delete_thing_structure(objtng, 0);
         nobjtng = create_object(&pos, food_grow_objects[1], tngowner, room_idx);
         if (!thing_is_invalid(nobjtng)) {
-            nobjtng->food.life_remaining = 3 * ((nobjtng->field_49 << 8) / nobjtng->anim_speed - 1);
+            nobjtng->food.life_remaining = 3 * ((nobjtng->max_frames << 8) / nobjtng->anim_speed - 1);
         }
         ret = -1;
         break;
@@ -1161,7 +1161,7 @@ long food_grows(struct Thing *objtng)
         delete_thing_structure(objtng, 0);
         nobjtng = create_object(&pos, food_grow_objects[2], tngowner, room_idx);
         if (!thing_is_invalid(nobjtng)) {
-            nobjtng->food.life_remaining = (nobjtng->field_49 << 8) / nobjtng->anim_speed - 1;
+            nobjtng->food.life_remaining = (nobjtng->max_frames << 8) / nobjtng->anim_speed - 1;
         }
         ret = -1;
         break;
@@ -1301,7 +1301,6 @@ long process_temple_special(struct Thing *thing, long sacowner)
 
 void process_object_sacrifice(struct Thing *thing, long sacowner)
 {
-    //_DK_process_object_sacrifice(thing, sacowner); return;
     PlayerNumber slbowner;
     {
         struct SlabMap* slb = get_slabmap_thing_is_on(thing);
@@ -1466,7 +1465,7 @@ void update_dungeon_heart_beat(struct Thing *heartng)
             bounce = !bounce;
         }
         k = (((unsigned long long)heartng->anim_time >> 32) & 0xFF) + heartng->anim_time;
-        heartng->field_48 = (k >> 8) & 0xFF;
+        heartng->current_frame = (k >> 8) & 0xFF;
         if (LbIsFrozenOrPaused())
         {
             stop_thing_playing_sample(heartng, 93);
@@ -1528,14 +1527,14 @@ void set_call_to_arms_as_birthing(struct Thing *objtng)
     switch (objtng->call_to_arms_flag.state)
     {
     case CTAOL_Birthing:
-        frame = objtng->field_48;
+        frame = objtng->current_frame;
         break;
     case CTAOL_Alive:
         frame = 0;
         break;
     case CTAOL_Dying:
     case CTAOL_Rebirthing:
-        frame = objtng->field_49 - (int)objtng->field_48;
+        frame = objtng->max_frames - (int)objtng->current_frame;
         break;
     default:
         ERRORLOG("Invalid CTA object life state %d",(int)objtng->call_to_arms_flag.state);
@@ -1553,19 +1552,18 @@ void set_call_to_arms_as_birthing(struct Thing *objtng)
 
 void set_call_to_arms_as_dying(struct Thing *objtng)
 {
-    //_DK_set_call_to_arms_as_dying(objtng); return;
     int frame;
     switch (objtng->call_to_arms_flag.state)
     {
     case CTAOL_Birthing:
-        frame = objtng->field_49 - (int)objtng->field_48;
+        frame = objtng->max_frames - (int)objtng->current_frame;
         break;
     case CTAOL_Alive:
         frame = 0;
         break;
     case CTAOL_Dying:
     case CTAOL_Rebirthing:
-        frame = objtng->field_48;
+        frame = objtng->current_frame;
         break;
     default:
         ERRORLOG("Invalid CTA object life state %d",(int)objtng->call_to_arms_flag.state);
@@ -1580,19 +1578,18 @@ void set_call_to_arms_as_dying(struct Thing *objtng)
 
 void set_call_to_arms_as_rebirthing(struct Thing *objtng)
 {
-    //_DK_set_call_to_arms_as_rebirthing(objtng); return;
     int frame;
     switch (objtng->call_to_arms_flag.state)
     {
     case CTAOL_Birthing:
-        frame = objtng->field_49 - (int)objtng->field_48;
+        frame = objtng->max_frames - (int)objtng->current_frame;
         break;
     case CTAOL_Alive:
         frame = 0;
         break;
     case CTAOL_Dying:
     case CTAOL_Rebirthing:
-        frame = objtng->field_48;
+        frame = objtng->current_frame;
         break;
     default:
         ERRORLOG("Invalid CTA object life state %d",(int)objtng->call_to_arms_flag.state);
@@ -1620,7 +1617,7 @@ TngUpdateRet object_update_call_to_arms(struct Thing *thing)
     switch (thing->call_to_arms_flag.state)
     {
     case CTAOL_Birthing:
-        if (thing->field_49 - 1 <= thing->field_48)
+        if (thing->max_frames - 1 <= thing->current_frame)
         {
             thing->call_to_arms_flag.state = CTAOL_Alive;
             set_thing_draw(thing, ctagfx->alive_anim_idx, 256, objdat->sprite_size_max, 0, 0, 2);
@@ -1630,7 +1627,7 @@ TngUpdateRet object_update_call_to_arms(struct Thing *thing)
     case CTAOL_Alive:
         break;
     case CTAOL_Dying:
-        if (thing->field_49 - 1 == thing->field_48)
+        if (thing->max_frames - 1 == thing->current_frame)
         {
             player->field_43C = 0;
             delete_thing_structure(thing, 0);
@@ -1639,7 +1636,7 @@ TngUpdateRet object_update_call_to_arms(struct Thing *thing)
         break;
     case CTAOL_Rebirthing:
     {
-        if (thing->field_49 - 1 == thing->field_48)
+        if (thing->max_frames - 1 == thing->current_frame)
         {
             struct PowerConfigStats* powerst = get_power_model_stats(PwrK_CALL2ARMS);
             struct Coord3d pos;
@@ -1663,11 +1660,10 @@ TngUpdateRet object_update_call_to_arms(struct Thing *thing)
 
 TngUpdateRet object_update_armour(struct Thing *objtng)
 {
-    //return _DK_object_update_armour(objtng);
     struct Thing* thing = thing_get(objtng->armor.belongs_to);
     if (thing_is_picked_up(thing))
     {
-        objtng->field_4F |= TF4F_Unknown01;
+        objtng->rendering_flags |= TRF_Unknown01;
         return 1;
     }
     struct Coord3d pos;
@@ -1709,18 +1705,17 @@ TngUpdateRet object_update_armour(struct Thing *objtng)
     objtng->veloc_push_add.x.val += cvect.x;
     objtng->veloc_push_add.y.val += cvect.y;
     objtng->veloc_push_add.z.val += cvect.z;
-    objtng->field_4F &= ~TF4F_Unknown01;
+    objtng->rendering_flags &= ~TRF_Unknown01;
     return 1;
 }
 
 TngUpdateRet object_update_object_scale(struct Thing *objtng)
 {
-    //return _DK_object_update_object_scale(objtng);
     struct Thing* creatng = thing_get(objtng->lair.belongs_to);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     struct Objects* objdat = get_objects_data_for_thing(objtng);
     int spr_size;
-    int start_frame = objtng->field_48;
+    int start_frame = objtng->current_frame;
     if (objtng->lair.belongs_to) {
         spr_size = gameadd.crtr_conf.sprite_size + (gameadd.crtr_conf.sprite_size * cctrl->explevel * gameadd.crtr_conf.exp.size_increase_on_exp) / 100;
     } else {
@@ -1846,10 +1841,10 @@ TngUpdateRet object_update_power_sight(struct Thing *objtng)
             pos.y.val = pos_y;
             pos.z.val = 1408;
             create_effect_element(&pos, twinkle_eff_elements[objtng->owner], objtng->owner);
-            if ( pos_x >= 0 && pos_x < 65280 && pos_y >= 0 && pos_y < 65280 ) {
+            if ( pos_x >= 0 && pos_x < gameadd.map_subtiles_x * COORD_PER_STL && pos_y >= 0 && pos_y < gameadd.map_subtiles_y * COORD_PER_STL ) {
                 const int shift_x = pos.x.stl.num - objtng->mappos.x.stl.num + 13;
                 const int shift_y = pos.y.stl.num - objtng->mappos.y.stl.num + 13;
-                dungeon->soe_explored_flags[shift_y][shift_x] = pos.x.val < 0xFF00u && pos.y.val < 0xFF00u;
+                dungeon->soe_explored_flags[shift_y][shift_x] = pos.x.val < gameadd.map_subtiles_x * COORD_PER_STL && pos.y.val < gameadd.map_subtiles_y * COORD_PER_STL;
             }
         }
         return 1;
@@ -1933,8 +1928,16 @@ TngUpdateRet move_object(struct Thing *thing)
             long blocked_flags = get_thing_blocked_flags_at(thing, &pos);
             if (blocked_flags & SlbBloF_WalledZ)
             {
-                struct Dungeon* dungeon = get_dungeon(thing->owner);
-                if (dungeon->sight_casted_thing_idx != thing->index)
+                TbBool is_sight_of_evil = false;
+                if (thing->owner != PLAYER_NEUTRAL)
+                {
+                    struct Dungeon* dungeon = get_dungeon(thing->owner);
+                    if (dungeon->sight_casted_thing_idx == thing->index)
+                    {
+                        is_sight_of_evil = true;
+                    }
+                }
+                if (!is_sight_of_evil)
                 {
                     if (!find_free_position_on_slab(thing, &pos))
                     {
@@ -2155,7 +2158,6 @@ struct Thing *create_gold_hoarde(struct Room *room, const struct Coord3d *pos, G
  */
 long add_gold_to_hoarde(struct Thing *gldtng, struct Room *room, GoldAmount amount)
 {
-    //return _DK_add_gold_to_hoarde(gldtng, room, amount);
     GoldAmount wealth_size_holds = gameadd.gold_per_hoard / get_wealth_size_types_count();
     GoldAmount max_hoard_size_in_room = wealth_size_holds * room->total_capacity / room->slabs_count;
     // Fix amount
@@ -2208,7 +2210,6 @@ long add_gold_to_hoarde(struct Thing *gldtng, struct Room *room, GoldAmount amou
  */
 long remove_gold_from_hoarde(struct Thing *gldtng, struct Room *room, GoldAmount amount)
 {
-    //return _DK_remove_gold_from_hoarde(gldtng, room, amount);
     if (amount <= 0) {
         return 0;
     }

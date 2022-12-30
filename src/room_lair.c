@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "room_lair.h"
 
 #include "globals.h"
@@ -30,6 +31,7 @@
 #include "gui_soundmsgs.h"
 #include "game_legacy.h"
 #include "front_simple.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -39,6 +41,9 @@ extern "C" {
 #ifdef __cplusplus
 }
 #endif
+/******************************************************************************/
+struct Room *start_rooms;
+struct Room *end_rooms;
 /******************************************************************************/
 long calculate_free_lair_space(struct Dungeon * dungeon)
 {
@@ -162,7 +167,7 @@ struct Room *get_best_new_lair_for_creature(struct Thing *creatng)
                     TbBool room_has_units_of_same_kind = false;
                     TbBool room_has_units_of_different_kind = false;
                     TbBool room_has_lair_enemy = false;
-                    for ( ThingModel model = 0; model < CREATURE_TYPES_COUNT; ++model )
+                    for ( ThingModel model = 0; model < gameadd.crtr_conf.model_count; ++model )
                     {
                         if ( room_has_units_of_same_kind && room_has_units_of_different_kind && room_has_lair_enemy )
                             break;

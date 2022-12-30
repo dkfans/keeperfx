@@ -675,9 +675,6 @@
     <ClCompile Include="src\vidmode_data.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\hookfn.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\roomspace.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -733,6 +730,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\event_monitoring.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\map_ceiling.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -1371,6 +1371,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\event_monitoring.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sprites.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\map_ceiling.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

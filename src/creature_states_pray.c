@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "creature_states_pray.h"
 #include "globals.h"
 
@@ -41,6 +42,7 @@
 #include "power_hand.h"
 #include "gui_soundmsgs.h"
 #include "game_legacy.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -194,9 +196,9 @@ TbBool summon_creature(long model, struct Coord3d *pos, long owner, long expleve
     }
     init_creature_level(thing, explevel);
     internal_set_thing_state(thing, CrSt_CreatureBeingSummoned);
-    thing->movement_flags |= TMvF_Unknown04;
+    thing->movement_flags |= TMvF_BeingSacrificed;
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    cctrl->word_9C = 48;
+    cctrl->sacrifice.word_9C = 48;
     return true;
 }
 
@@ -259,7 +261,6 @@ long force_complete_current_manufacturing(long plyr_idx)
 
 void apply_spell_effect_to_players_creatures(PlayerNumber plyr_idx, long spl_idx, long overchrg)
 {
-    //_DK_apply_spell_effect_to_players_creatures(plyr_idx, spl_idx, overchrg);
     SYNCDBG(8,"Starting");
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
     unsigned long k = 0;
@@ -301,7 +302,6 @@ TbBool kill_creature_if_under_chicken_spell(struct Thing *thing)
 
 void kill_all_players_chickens(PlayerNumber plyr_idx)
 {
-    //_DK_kill_all_players_chickens(plyr_idx);
     SYNCDBG(18,"Starting");
     const struct StructureList* slist = get_list_for_thing_class(TCls_Object);
     unsigned long k = 0;
@@ -344,19 +344,19 @@ short creature_being_summoned(struct Thing *thing)
     if (creature_control_invalid(cctrl)) {
         return 0;
     }
-    if (cctrl->word_9A <= 0)
+    if (cctrl->sacrifice.word_9A <= 0)
     {
-        get_keepsprite_unscaled_dimensions(thing->anim_sprite, thing->move_angle_xy, thing->field_48, &orig_w, &orig_h, &unsc_w, &unsc_h);
+        get_keepsprite_unscaled_dimensions(thing->anim_sprite, thing->move_angle_xy, thing->current_frame, &orig_w, &orig_h, &unsc_w, &unsc_h);
         create_effect(&thing->mappos, TngEff_Explosion4, thing->owner);
-        thing->movement_flags |= TMvF_Unknown04;
-        cctrl->word_9A = 1;
-        cctrl->word_9C = 48;//orig_h;
+        thing->movement_flags |= TMvF_BeingSacrificed;
+        cctrl->sacrifice.word_9A = 1;
+        cctrl->sacrifice.word_9C = 48;//orig_h;
         return 0;
     }
-    cctrl->word_9A++;
-    if (cctrl->word_9A > cctrl->word_9C)
+    cctrl->sacrifice.word_9A++;
+    if (cctrl->sacrifice.word_9A > cctrl->sacrifice.word_9C)
     {
-        thing->movement_flags &= ~TMvF_Unknown04;
+        thing->movement_flags &= ~TMvF_BeingSacrificed;
         set_start_state(thing);
         return 0;
     }
@@ -369,7 +369,7 @@ short cleanup_sacrifice(struct Thing *creatng)
 {
     // If the creature has flight ability, return it to flying state
     restore_creature_flight_flag(creatng);
-    creatng->movement_flags &= ~TMvF_Unknown04;
+    creatng->movement_flags &= ~TMvF_BeingSacrificed;
     return 1;
 }
 
@@ -613,8 +613,8 @@ short creature_being_sacrificed(struct Thing *thing)
     SYNCDBG(6,"Starting");
 
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    cctrl->word_9A--;
-    if (cctrl->word_9A > 0)
+    cctrl->sacrifice.word_9A--;
+    if (cctrl->sacrifice.word_9A > 0)
     {
         // No flying while being sacrificed
         creature_turn_to_face_angle(thing, thing->move_angle_xy + LbFPMath_PI/4);
@@ -640,7 +640,6 @@ short creature_being_sacrificed(struct Thing *thing)
 // This is state-process function of a creature
 short creature_sacrifice(struct Thing *thing)
 {
-    //return _DK_creature_sacrifice(thing);
     if ((thing->movement_flags & TMvF_Flying) != 0) {
         thing->movement_flags &= ~TMvF_Flying;
     }
@@ -661,9 +660,9 @@ short creature_sacrifice(struct Thing *thing)
     }
     if (thing_touching_floor(thing))
     {
-        cctrl->word_9A = 48;
-        cctrl->word_9C = 48;
-        thing->movement_flags |= TMvF_Unknown04;
+        cctrl->sacrifice.word_9A = 48;
+        cctrl->sacrifice.word_9C = 48;
+        thing->movement_flags |= TMvF_BeingSacrificed;
         internal_set_thing_state(thing, CrSt_CreatureBeingSacrificed);
         thing->creature.gold_carried = 0;
         struct SlabMap* slb = get_slabmap_thing_is_on(thing);

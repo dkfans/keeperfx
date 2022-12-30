@@ -20,6 +20,7 @@
 #define DK_MUSICPLAYER_H
 
 #include "globals.h"
+#include "bflib_basics.h"
 #include <SDL2/SDL_mixer.h>
 
 #ifdef __cplusplus
@@ -29,7 +30,7 @@ extern "C" {
 #define FIRST_TRACK 2
 extern int max_track;
 
-int IsRedbookMusicActive(void);
+TbBool IsRedbookMusicActive(void);
 int InitializeMusicPlayer(void);
 void ShutdownMusicPlayer(void);
 void PlayMusicPlayer(int track);

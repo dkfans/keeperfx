@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "creature_states_combt.h"
 #include "globals.h"
 
@@ -47,6 +48,7 @@
 #include "gui_soundmsgs.h"
 #include "game_legacy.h"
 #include "engine_redraw.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -1234,6 +1236,8 @@ short cleanup_door_combat(struct Thing *thing)
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     cctrl->combat_flags &= ~CmbtF_DoorFight;
     cctrl->combat.battle_enemy_idx = 0;
+    //In case the unit walked into it:
+    cctrl->collided_door_subtile = 0;
     return 1;
 }
 
@@ -1394,7 +1398,6 @@ TbBool creature_has_creature_in_combat(const struct Thing *thing, const struct T
 
 long get_combat_score(const struct Thing *thing, const struct Thing *enmtng, CrAttackType attack_type, long a4)
 {
-    //return _DK_get_combat_score(thing, enmtng, attack_type, a4);
     struct CreatureControl* enmctrl = creature_control_get_from_thing(enmtng);
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
 
@@ -1610,7 +1613,6 @@ CrAttackType check_for_valid_combat(struct Thing *fightng, struct Thing *enmtng)
 TbBool combat_type_is_choice_of_creature(const struct Thing *thing, CrAttackType attack_type)
 {
     SYNCDBG(19,"Starting for %s index %d",thing_model_name(thing),(int)thing->index);
-    //return _DK_combat_type_is_choice_of_creature(thing, attack_type);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     if (attack_type <= AttckT_Unset) {
         return false;
@@ -1633,7 +1635,6 @@ TbBool combat_type_is_choice_of_creature(const struct Thing *thing, CrAttackType
 
 long guard_post_combat_move(struct Thing *thing, long cntn_crstate)
 {
-    //return _DK_guard_post_combat_move(thing, a2);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct Room* room = get_room_thing_is_on(thing);
     if (!room_is_invalid(room) && (room_role_matches(room->kind,get_room_role_for_job(Job_GUARD))) && (cctrl->last_work_room_id == room->index)) {
@@ -1756,10 +1757,6 @@ CrInstance get_best_self_preservation_instance_to_use(const struct Thing *thing)
     if (!creature_affected_by_spell(thing, SplK_Fly))
     {
         INSTANCE_RET_IF_AVAIL(thing, CrInst_FLY);
-    }
-    if (creature_would_benefit_from_healing(thing))
-    {
-        INSTANCE_RET_IF_AVAIL(thing, CrInst_HEAL);
     }
     return CrInst_NULL;
 }
@@ -1961,11 +1958,11 @@ struct Thing *get_thing_collided_with_at_satisfying_filter_in_square_of(struct T
     if (stl_x_beg <= 0)
         stl_x_beg = 0;
     MapSubtlCoord stl_x_end = coord_subtile(pos->x.val + square_size / 2);
-    if (stl_x_end >= map_subtiles_x)
-        stl_x_end = map_subtiles_x;
+    if (stl_x_end >= gameadd.map_subtiles_x)
+        stl_x_end = gameadd.map_subtiles_x;
     MapSubtlCoord stl_y_end = coord_subtile(pos->y.val + square_size / 2);
-    if (stl_y_end >= map_subtiles_y)
-        stl_y_end = map_subtiles_y;
+    if (stl_y_end >= gameadd.map_subtiles_y)
+        stl_y_end = gameadd.map_subtiles_y;
     MapSubtlCoord stl_y_beg = coord_subtile(pos->y.val - square_size / 2);
     if (stl_y_beg <= 0)
         stl_y_beg = 0;
@@ -2050,7 +2047,6 @@ long creature_move_to_a_space_around_enemy(struct Thing *creatng, struct Thing *
 
 long old_combat_move(struct Thing *thing, struct Thing *enmtng, long enm_distance, CrtrStateId ncrstate)
 {
-    //return _DK_old_combat_move(thing, enmtng, enm_distance, ncrstate);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     if ((cctrl->combat_flags & CmbtF_DoorFight) != 0)
     {
@@ -2262,7 +2258,6 @@ TbBool change_current_combat(struct Thing *fighter, struct Thing *enemy, CrAttac
 
 long creature_has_spare_slot_for_combat(struct Thing *fighter, struct Thing *enemy, CrAttackType attack_type)
 {
-    //return _DK_creature_has_spare_slot_for_combat(fighter, enemy, attack_type);
     struct CreatureControl* enmctrl = creature_control_get_from_thing(enemy);
     if (attack_type == AttckT_Ranged)
     {
@@ -2287,7 +2282,6 @@ long creature_has_spare_slot_for_combat(struct Thing *fighter, struct Thing *ene
 
 long change_creature_with_existing_attacker(struct Thing *fighter, struct Thing *enemy, CrAttackType attack_type)
 {
-    //return _DK_change_creature_with_existing_attacker(fighter, enemy, attack_type);
     int i;
     struct CreatureControl* cctrl = creature_control_get_from_thing(enemy);
     MapCoordDelta dist = get_2d_box_distance(&fighter->mappos, &enemy->mappos) - (enemy->clipbox_size_xy + fighter->clipbox_size_xy) / 2;
@@ -2660,7 +2654,6 @@ short creature_in_combat(struct Thing *creatng)
 
 void combat_object_state_melee_combat(struct Thing *creatng)
 {
-    //_DK_combat_object_state_melee_combat(creatng); return;
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     struct Thing* objtng = thing_get(cctrl->combat.battle_enemy_idx);
     long dist = get_combat_distance(creatng, objtng);
@@ -2680,7 +2673,6 @@ void combat_object_state_melee_combat(struct Thing *creatng)
 
 void combat_object_state_ranged_combat(struct Thing *creatng)
 {
-    //_DK_combat_object_state_ranged_combat(thing); return;
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     struct Thing* objtng = thing_get(cctrl->combat.battle_enemy_idx);
     long dist = get_combat_distance(creatng, objtng);
@@ -2699,7 +2691,6 @@ void combat_object_state_ranged_combat(struct Thing *creatng)
 
 void combat_door_state_melee_combat(struct Thing *creatng)
 {
-    //_DK_combat_door_state_melee_combat(creatng); return;
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     struct Thing* objtng = thing_get(cctrl->combat.battle_enemy_idx);
     long dist = get_combat_distance(creatng, objtng);
@@ -2719,7 +2710,6 @@ void combat_door_state_melee_combat(struct Thing *creatng)
 
 void combat_door_state_ranged_combat(struct Thing *creatng)
 {
-    //_DK_combat_door_state_ranged_combat(creatng); return;
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     struct Thing* objtng = thing_get(cctrl->combat.battle_enemy_idx);
     long dist = get_combat_distance(creatng, objtng);
@@ -2924,15 +2914,15 @@ TbResult creature_retreat_from_combat(struct Thing *figtng, struct Thing *enmtng
     if (abs(dist_y) >= abs(dist_x))
     {
       if (dist_y <= 0)
-        pos.y.val += 256;
+        pos.y.val += COORD_PER_STL;
       else
-        pos.y.val -= 256;
+        pos.y.val -= COORD_PER_STL;
     } else
     {
       if (dist_x <= 0)
-        pos.x.val += 256;
+        pos.x.val += COORD_PER_STL;
       else
-        pos.x.val -= 256;
+        pos.x.val -= COORD_PER_STL;
     }
     pos.z.val = get_thing_height_at(figtng, &pos);
 
@@ -3090,23 +3080,4 @@ long project_creature_attack_target_damage(const struct Thing *firing, const str
     return damage;
 }
 
-long process_creature_self_spell_casting(struct Thing *creatng)
-{
-    TRACE_THING(creatng);
-    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    if (((creatng->alloc_flags & TAlF_IsControlled) != 0)
-      || (cctrl->conscious_back_turns != 0)
-      || ((cctrl->stateblock_flags & CCSpl_Freeze) != 0)) {
-        return 0;
-    }
-    if (cctrl->instance_id != CrInst_NULL) {
-        return 0;
-    }
-    long inst_idx = get_self_spell_casting(creatng);
-    if (inst_idx <= 0) {
-        return 0;
-    }
-    set_creature_instance(creatng, inst_idx, 1, creatng->index, 0);
-    return 1;
-}
 /******************************************************************************/

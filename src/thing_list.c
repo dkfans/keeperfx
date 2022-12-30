@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "thing_list.h"
 
 #include "bflib_basics.h"
@@ -46,6 +47,7 @@
 #include "game_legacy.h"
 #include "keeperfx.hpp"
 #include "bflib_planar.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -626,6 +628,36 @@ long anywhere_thing_filter_is_of_class_and_model_and_owned_by(const struct Thing
  * @param param Parameters exchanged between filter calls.
  * @param maximizer Previous value which made a thing pass the filter.
  */
+long in_action_point_thing_filter_is_of_class_and_model_and_owned_by(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
+{
+    if (thing->class_id == param->class_id)
+    {
+        if (thing_matches_model(thing, param->model_id))
+        {
+            if ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
+            {
+                struct Coord3d refpos;
+                refpos.x.val = param->num1;
+                refpos.y.val = param->num2;
+                refpos.z.val = 0;
+                MapCoordDelta dist = get_2d_distance(&thing->mappos, &refpos);
+                if (dist <= param->num3) {
+                    // Return the largest value to stop sweeping
+                    return LONG_MAX;
+                }
+            }
+        }
+    }
+    // If conditions are not met, return -1 to be sure thing will not be returned.
+    return -1;
+}
+
+/**
+ * Filter function.
+ * @param thing The thing being checked.
+ * @param param Parameters exchanged between filter calls.
+ * @param maximizer Previous value which made a thing pass the filter.
+ */
 long anywhere_thing_filter_is_food_available_to_eat_and_owned_by(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
 {
     if (thing->class_id == TCls_Object)
@@ -671,7 +703,7 @@ long anywhere_thing_filter_is_creature_of_model_training_and_owned_by(const stru
               if (((int)thing->index != param->num1) || (param->num1 == -1))
               {
                   struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-                  if ((thing->active_state == CrSt_Training) && (cctrl->job_stage > 1))
+                  if ((thing->active_state == CrSt_Training) && (cctrl->training.mode > 1))
                   {
                       // Return the largest value to stop sweeping
                       return LONG_MAX;
@@ -1145,8 +1177,8 @@ void init_player_start(struct PlayerInfo *player, TbBool keep_prev)
         // the heart position - it's needed for Floating Spirit
         if (!keep_prev)
         {
-            dungeon->mappos.x.val = subtile_coord_center(map_subtiles_x/2);
-            dungeon->mappos.y.val = subtile_coord_center(map_subtiles_y/2);
+            dungeon->mappos.x.val = subtile_coord_center(gameadd.map_subtiles_x/2);
+            dungeon->mappos.y.val = subtile_coord_center(gameadd.map_subtiles_y/2);
             dungeon->mappos.z.val = subtile_coord_center(map_subtiles_z/2);
         }
     }
@@ -1285,7 +1317,6 @@ void place_thing_in_mapwho(struct Thing *thing)
     SYNCDBG(18,"Starting");
     if ((thing->alloc_flags & TAlF_IsInMapWho) != 0)
         return;
-    //_DK_place_thing_in_mapwho(thing);
     struct Map* mapblk = get_map_block_at(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
     thing->next_on_mapblk = get_mapwho_thing_index(mapblk);
     if (thing->next_on_mapblk > 0)
@@ -2102,6 +2133,49 @@ long count_player_creatures_of_model(PlayerNumber plyr_idx, int crmodel)
     }
     if (((crmodel > 0) && (!is_creature_model_wildcard(crmodel)) && is_spec_digger) || 
         (crmodel == CREATURE_ANY) || (crmodel == CREATURE_DIGGER)) 
+    {
+        count += count_player_list_creatures_with_filter(dungeon->digger_list_start, filter, &param);
+    }
+    return count;
+}
+
+long count_player_creatures_of_model_in_action_point(PlayerNumber plyr_idx, int crmodel, long apt_index)
+{
+    struct ActionPoint* apt = action_point_get(apt_index);
+    if (!action_point_exists(apt))
+    {
+        WARNLOG("Action point is invalid:%d", apt->num);
+        return 0;
+    }
+    if (apt->range == 0)
+    {
+        WARNLOG("Action point with zero range:%d", apt->num);
+        return 0;
+    }
+
+    SYNCDBG(19,"Starting");
+    struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
+    Thing_Maximizer_Filter filter = in_action_point_thing_filter_is_of_class_and_model_and_owned_by;
+    struct CompoundTngFilterParam param;
+    param.class_id = TCls_Creature;
+    param.model_id = (is_creature_model_wildcard(crmodel)) ? CREATURE_ANY : crmodel;
+    param.plyr_idx = plyr_idx;
+    param.num1 = apt->mappos.x.val;
+    param.num2 = apt->mappos.y.val;
+    param.num3 = apt->range;
+    if (dungeon_invalid(dungeon)) {
+        // Invalid dungeon - use list of creatures not associated to any dungeon
+        return count_player_list_creatures_with_filter(game.nodungeon_creatr_list_start, filter, &param);
+    }
+    TbBool is_spec_digger = (crmodel > 0) && creature_kind_is_for_dungeon_diggers_list(plyr_idx, crmodel);
+    long count = 0;
+    if (((crmodel > 0) && (!is_creature_model_wildcard(crmodel)) && !is_spec_digger) ||
+        (crmodel == CREATURE_ANY) || (crmodel == CREATURE_NOT_A_DIGGER))
+    {
+        count += count_player_list_creatures_with_filter(dungeon->creatr_list_start, filter, &param);
+    }
+    if (((crmodel > 0) && (!is_creature_model_wildcard(crmodel)) && is_spec_digger) ||
+        (crmodel == CREATURE_ANY) || (crmodel == CREATURE_DIGGER))
     {
         count += count_player_list_creatures_with_filter(dungeon->digger_list_start, filter, &param);
     }
@@ -2977,9 +3051,9 @@ TbBool update_thing(struct Thing *thing)
         if (thing->mappos.z.val > thing->floor_height)
         {
             if (thing->veloc_base.x.val != 0)
-                thing->veloc_base.x.val = thing->veloc_base.x.val * (256 - (int)thing->field_24) / 256;
+                thing->veloc_base.x.val = thing->veloc_base.x.val * (256 - (int)thing->inertia_air) / 256;
             if (thing->veloc_base.y.val != 0)
-                thing->veloc_base.y.val = thing->veloc_base.y.val * (256 - (int)thing->field_24) / 256;
+                thing->veloc_base.y.val = thing->veloc_base.y.val * (256 - (int)thing->inertia_air) / 256;
             if ((thing->movement_flags & TMvF_Flying) == 0)
             {
                 thing->veloc_push_add.z.val -= thing->fall_acceleration;
@@ -2989,11 +3063,11 @@ TbBool update_thing(struct Thing *thing)
                 // For flying creatures, the Z velocity should also decrease over time
                 if (thing->veloc_base.z.val != 0)
                 {
-                    thing->veloc_base.z.val = thing->veloc_base.z.val * (256 - (int)thing->field_24) / 256;
+                    thing->veloc_base.z.val = thing->veloc_base.z.val * (256 - (int)thing->inertia_air) / 256;
                 }
                 else 
                 {
-                    if (thing_above_flight_altitude(thing) && !is_thing_directly_controlled(thing))
+                    if (thing_above_flight_altitude(thing) && ((thing->alloc_flags & TAlF_IsControlled) == 0))
                     {
                         thing->veloc_push_add.z.val -= thing->fall_acceleration;
                         thing->state_flags |= TF1_PushAdd;
@@ -3003,9 +3077,9 @@ TbBool update_thing(struct Thing *thing)
         } else
         {
             if (thing->veloc_base.x.val != 0)
-              thing->veloc_base.x.val = thing->veloc_base.x.val * (256 - (int)thing->field_23) / 256;
+              thing->veloc_base.x.val = thing->veloc_base.x.val * (256 - (int)thing->inertia_floor) / 256;
             if (thing->veloc_base.y.val != 0)
-              thing->veloc_base.y.val = thing->veloc_base.y.val * (256 - (int)thing->field_23) / 256;
+              thing->veloc_base.y.val = thing->veloc_base.y.val * (256 - (int)thing->inertia_floor) / 256;
             thing->mappos.z.val = thing->floor_height;
             if ((thing->movement_flags & TMvF_Unknown08) != 0)
             {
@@ -3054,7 +3128,6 @@ short update_thing_sound(struct Thing *thing)
 
 long collide_filter_thing_is_of_type(const struct Thing *thing, const struct Thing *sectng, long tngclass, long tngmodel)
 {
-    //return _DK_collide_filter_thing_is_of_type(thing, sectng, a3, a4);
     if (tngmodel >= 0)
     {
         if (thing->model != tngmodel)
@@ -3793,7 +3866,6 @@ struct Thing *get_creature_of_model_training_at_subtile_and_owned_by(MapSubtlCoo
 
 struct Thing *get_nearest_object_at_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-  // return _DK_get_nearest_object_at_position(stl_x, stl_y);
   return get_object_around_owned_by_and_matching_bool_filter(
         subtile_coord_center(stl_x), subtile_coord_center(stl_y), -1, thing_is_object);
 }

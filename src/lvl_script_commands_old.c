@@ -13,9 +13,8 @@
  * @author   KeeperFX Team
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "lvl_script_commands_old.h"
-
-#include <strings.h>
 
 #include "bflib_math.h"
 #include "config_strings.h"
@@ -33,6 +32,7 @@
 #include "lvl_script_lib.h"
 #include "lvl_script_conditions.h"
 #include "lvl_script_commands.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -70,6 +70,10 @@ const struct NamedCommand game_rule_desc[] = {
   {"FoodHealthGain",                26},
   {"TortureHealthLoss",             27},
   {"GameTurnsPerTortureHealthLoss", 28},
+  {"AlliesShareVision",             29},
+  {"AlliesShareDrop",               30},
+  {"AlliesShareCta",                31},
+  {"BarrackMaxPartySize",           32},
   {NULL,                             0},
 };
 

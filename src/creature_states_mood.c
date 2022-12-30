@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "creature_states_mood.h"
 #include "globals.h"
 
@@ -39,6 +40,7 @@
 #include "room_jobs.h"
 #include "player_utils.h"
 #include "game_legacy.h"
+#include "post_inc.h"
 
 /******************************************************************************/
 TbBool creature_can_get_angry(const struct Thing *creatng)
@@ -63,10 +65,10 @@ short creature_moan(struct Thing *thing)
         }
         return 0;
     }
-    if (game.play_gameturn - cctrl->last_mood_sound_turn > 32)
+    if (game.play_gameturn - cctrl->mood.last_mood_sound_turn > 32)
     {
         play_creature_sound(thing, CrSnd_Sad, 2, 0);
-        cctrl->last_mood_sound_turn = game.play_gameturn;
+        cctrl->mood.last_mood_sound_turn = game.play_gameturn;
     }
     if (cctrl->instance_id == CrInst_NULL) {
         set_creature_instance(thing, CrInst_MOAN, 1, 0, 0);
@@ -87,10 +89,10 @@ short creature_roar(struct Thing *thing)
         set_start_state(thing);
         return 0;
     }
-    if (game.play_gameturn - cctrl->long_9A > 32)
+    if (game.play_gameturn - cctrl->mood.last_mood_sound_turn > 32)
     {
         play_creature_sound(thing, 4, 2, 0);
-        cctrl->long_9A = game.play_gameturn;
+        cctrl->mood.last_mood_sound_turn = game.play_gameturn;
     }
     return 1;
 }
@@ -108,10 +110,10 @@ short creature_be_happy(struct Thing *thing)
       }
       return 0;
     }
-    if (game.play_gameturn - cctrl->last_mood_sound_turn > 32)
+    if (game.play_gameturn - cctrl->mood.last_mood_sound_turn > 32)
     {
         play_creature_sound(thing, CrSnd_Happy, 2, 0);
-        cctrl->last_mood_sound_turn = game.play_gameturn;
+        cctrl->mood.last_mood_sound_turn = game.play_gameturn;
     }
     if (cctrl->instance_id == CrInst_NULL) {
         set_creature_instance(thing, CrInst_CELEBRATE_SHORT, 1, 0, 0);
@@ -506,7 +508,7 @@ TbBool process_job_causes_going_postal(struct Thing *creatng, struct Room *room,
         set_creature_instance(creatng, inst_use, 0, combt_thing->index, 0);
         external_set_thing_state(combt_thing, CrSt_CreatureEvacuateRoom);
         struct CreatureControl* combctrl = creature_control_get_from_thing(combt_thing);
-        combctrl->word_9A = room->index;
+        combctrl->evacuate.room_idx = room->index;
         anger_apply_anger_to_creature(creatng, crstat->annoy_going_postal, AngR_Other, 1);
         return true;
     }

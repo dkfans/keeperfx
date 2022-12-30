@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "thing_traps.h"
 
 #include "globals.h"
@@ -42,6 +43,7 @@
 #include "keeperfx.hpp"
 #include "creature_senses.h"
 #include "cursor_tag.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -224,15 +226,15 @@ TbBool update_trap_trigger_line_of_sight_90(struct Thing *traptng)
         if (stl_x_beg <= 0)
             stl_x_beg = 0;
         stl_x_end = coord_subtile(coord_x + trap_radius);
-        if (stl_x_end >= map_subtiles_x)
-            stl_x_end = map_subtiles_x;
+        if (stl_x_end >= gameadd.map_subtiles_x)
+            stl_x_end = gameadd.map_subtiles_x;
         MapCoord coord_y = traptng->mappos.y.val;
         stl_y_beg = coord_subtile(coord_y - trap_radius);
         if (stl_y_beg <= 0)
             stl_y_beg = 0;
         stl_y_end = coord_subtile(coord_y + trap_radius);
-        if (stl_y_end >= map_subtiles_y)
-            stl_y_end = map_subtiles_y;
+        if (stl_y_end >= gameadd.map_subtiles_y)
+            stl_y_end = gameadd.map_subtiles_y;
     }
     MapSubtlCoord stl_x_pre;
     MapSubtlCoord stl_x_aft;
@@ -243,14 +245,14 @@ TbBool update_trap_trigger_line_of_sight_90(struct Thing *traptng)
         if (stl_y_pre <= 0)
             stl_y_pre = 0;
         stl_y_aft = stl_y_end + line_of_sight_90_range;
-        if (stl_y_aft >= map_subtiles_y+1)
-            stl_y_aft = map_subtiles_y+1;
+        if (stl_y_aft >= gameadd.map_subtiles_y+1)
+            stl_y_aft = gameadd.map_subtiles_y+1;
         stl_x_pre = stl_x_beg - line_of_sight_90_range;
         if (stl_x_pre <= 0)
             stl_x_pre = 0;
         stl_x_aft = stl_x_end + line_of_sight_90_range;
-        if (stl_x_aft >= map_subtiles_x+1)
-            stl_x_aft = map_subtiles_x+1;
+        if (stl_x_aft >= gameadd.map_subtiles_x+1)
+            stl_x_aft = gameadd.map_subtiles_x+1;
     }
     MapSubtlCoord stl_x;
     MapSubtlCoord stl_y;
@@ -676,8 +678,8 @@ TngUpdateRet update_trap_trigger(struct Thing *traptng)
                 if ((slb->kind != SlbT_CLAIMED) && (slb->kind != SlbT_PATH)) {
                     traptng->health = -1;
                 }
-                traptng->field_4F &= TF4F_Transpar_Flags;
-                traptng->field_4F |= TF4F_Transpar_4;
+                traptng->rendering_flags &= TRF_Transpar_Flags;
+                traptng->rendering_flags |= TRF_Transpar_4;
                 if (!is_neutral_thing(traptng) && !is_hero_thing(traptng)) 
                 {
                     if (placing_offmap_workshop_item(traptng->owner, TCls_Trap, traptng->model))
@@ -703,7 +705,7 @@ TbBool rearm_trap(struct Thing *traptng)
     struct ManfctrConfig* mconf = &gameadd.traps_config[traptng->model];
     struct TrapStats* trapstat = &gameadd.trap_stats[traptng->model];
     traptng->trap.num_shots = mconf->shots;
-    traptng->field_4F ^= (traptng->field_4F ^ (trapstat->field_12 << 4)) & (TF4F_Transpar_Flags);
+    traptng->rendering_flags ^= (traptng->rendering_flags ^ (trapstat->field_12 << 4)) & (TRF_Transpar_Flags);
     return true;
 }
 
@@ -763,14 +765,14 @@ struct Thing *create_trap(struct Coord3d *pos, ThingModel trpkind, PlayerNumber 
     }
     set_thing_draw(thing, trapstat->sprite_anim_idx, trapstat->anim_speed, trapstat->sprite_size_max, trapstat->unanimated, start_frame, 2);
     if (trapstat->field_11) {
-        thing->field_4F |= TF4F_Unknown02;
+        thing->rendering_flags |= TRF_Unknown02;
     } else {
-        thing->field_4F &= ~TF4F_Unknown02;
+        thing->rendering_flags &= ~TRF_Unknown02;
     }
     if (trapstat->unanimated) {
-        thing->field_4F |= TF4F_Unknown40;
+        thing->rendering_flags |= TRF_Unmoving;
     } else {
-        thing->field_4F &= ~TF4F_Unknown40;
+        thing->rendering_flags &= ~TRF_Unmoving;
     }
     thing->clipbox_size_xy = trapstat->size_xy;
     thing->clipbox_size_yz = trapstat->field_16;
@@ -778,17 +780,17 @@ struct Thing *create_trap(struct Coord3d *pos, ThingModel trpkind, PlayerNumber 
     thing->solid_size_yz = trapstat->field_16;
     thing->creation_turn = game.play_gameturn;
     thing->health = trapstat->field_0;
-    thing->field_4F &= ~TF4F_Transpar_Flags;
-    thing->field_4F |= TF4F_Transpar_4;
+    thing->rendering_flags &= ~TRF_Transpar_Flags;
+    thing->rendering_flags |= TRF_Transpar_4;
     thing->trap.num_shots = 0;
     thing->trap.rearm_turn = game.play_gameturn;
-    if (trapstat->light_1C != 0)
+    if (trapstat->light_radius != 0)
     {
         ilght.mappos.x.val = thing->mappos.x.val;
         ilght.mappos.y.val = thing->mappos.y.val;
         ilght.mappos.z.val = thing->mappos.z.val;
-        ilght.radius = trapstat->light_1C;
-        ilght.intensity = trapstat->light_1E;
+        ilght.radius = trapstat->light_radius;
+        ilght.intensity = trapstat->light_intensity;
         ilght.is_dynamic = 1;
         ilght.field_3 = trapstat->light_1F;
         thing->light_id = light_create_light(&ilght);

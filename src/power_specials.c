@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "power_specials.h"
 
 #include "globals.h"
@@ -47,6 +48,7 @@
 #include "game_legacy.h"
 
 #include "keeperfx.hpp"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -57,6 +59,12 @@ extern "C" {
 }
 #endif
 /******************************************************************************/
+long transfer_creature_scroll_offset;
+long resurrect_creature_scroll_offset;
+unsigned short dungeon_special_selected;
+static struct SpecialDesc special_speechmsgs[8];
+/******************************************************************************/
+
 /**
  * Makes a bonus level for current SP level visible on the land map screen.
  */
@@ -247,14 +255,13 @@ TbBool steal_hero(struct PlayerInfo *player, struct Coord3d *pos)
 
 void make_safe(struct PlayerInfo *player)
 {
-    //_DK_make_safe(player);
     unsigned char* areamap = (unsigned char*)scratch;
     MapSlabCoord slb_x;
     MapSlabCoord slb_y;
     // Prepare the array to remember which slabs were already taken care of
-    for (slb_y=0; slb_y < map_tiles_y; slb_y++)
+    for (slb_y=0; slb_y < gameadd.map_tiles_y; slb_y++)
     {
-        for (slb_x=0; slb_x < map_tiles_x; slb_x++)
+        for (slb_x=0; slb_x < gameadd.map_tiles_x; slb_x++)
         {
             SlabCodedCoords slb_num = get_slab_number(slb_x, slb_y);
             struct SlabMap* slb = get_slabmap_direct(slb_num);
@@ -274,7 +281,7 @@ void make_safe(struct PlayerInfo *player)
     }
 
     PlayerNumber plyr_idx = player->id_number;
-    SlabCodedCoords* slblist = (SlabCodedCoords*)(scratch + map_tiles_x * map_tiles_y);
+    SlabCodedCoords* slblist = (SlabCodedCoords*)(scratch + gameadd.map_tiles_x * gameadd.map_tiles_y);
     unsigned int list_len = 0;
     unsigned int list_cur = 0;
     while (list_cur <= list_len)
@@ -304,7 +311,7 @@ void make_safe(struct PlayerInfo *player)
                 list_len++;
             }
         }
-        if (slb_x < map_tiles_x-1)
+        if (slb_x < gameadd.map_tiles_x-1)
         {
             slb_num = get_slab_number(slb_x+1, slb_y);
             if ((areamap[slb_num] & 0x01) != 0)
@@ -350,7 +357,7 @@ void make_safe(struct PlayerInfo *player)
                 list_len++;
             }
         }
-        if (slb_y < map_tiles_y-1)
+        if (slb_y < gameadd.map_tiles_y-1)
         {
             slb_num = get_slab_number(slb_x, slb_y+1);
             if ((areamap[slb_num] & 0x01) != 0)
@@ -378,7 +385,7 @@ void make_safe(struct PlayerInfo *player)
         slb_y = slb_num_decode_y(slblist[list_cur]);
         list_cur++;
     }
-    pannel_map_update(0, 0, map_subtiles_x+1, map_subtiles_y+1);
+    pannel_map_update(0, 0, gameadd.map_subtiles_x+1, gameadd.map_subtiles_y+1);
 }
 
 void activate_dungeon_special(struct Thing *cratetng, struct PlayerInfo *player)
@@ -463,7 +470,7 @@ void activate_dungeon_special(struct Thing *cratetng, struct PlayerInfo *player)
       if ( used )
       {
         if (is_my_player(player) && !no_speech)
-          output_message(special_desc[spkindidx].speech_msg, 0, true);
+          output_message(special_speechmsgs[spkindidx].speech_msg, 0, true);
         create_special_used_effect(&pos, player->id_number);
       }
   }

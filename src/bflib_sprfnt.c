@@ -17,6 +17,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "bflib_sprfnt.h"
 
 #include <stdarg.h>
@@ -31,6 +32,7 @@
 //TODO: this breaks my convention - non-bflib call from bflib (used for asian fonts)
 #include "frontend.h"
 #include "front_credits.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -68,6 +70,11 @@ long dbc_colour1 = 0;
 short dbc_language = 0;
 TbBool dbc_initialized = false;
 TbBool dbc_enabled = true;
+const struct TbSprite *lbFontPtr;
+
+static TbGraphicsWindow lbTextJustifyWindow;
+static TbGraphicsWindow lbTextClipWindow;
+static unsigned char lbSpacesPerTab;
 /******************************************************************************/
 
 /** Returns if the given char starts a wide charcode.
@@ -726,6 +733,17 @@ void put_down_simpletext_sprites(const char *sbuf, const char *ebuf, long x, lon
   for (c=sbuf; c < ebuf; c++)
   {
     chr = (unsigned char)(*c);
+    if (c[0] == '\xc2' && c + 1 < ebuf && c[1] == '\xa0')
+    {
+        w = len;
+        if ((lbDisplay.DrawFlags & Lb_TEXT_UNDERLINE) != 0)
+        {
+            h = LbTextLineHeight();
+            LbDrawCharUnderline(x,y,w,h,lbDisplay.DrawColour,lbDisplayEx.ShadowColour);
+        }
+        x += w;
+        c++;
+    } else
     if (chr > 32)
     {
       spr = LbFontCharSprite(lbFontPtr,chr);
@@ -817,6 +835,17 @@ void put_down_simpletext_sprites_resized(const char *sbuf, const char *ebuf, lon
   for (c=sbuf; c < ebuf; c++)
   {
     chr = (unsigned char)(*c);
+    if (c[0] == '\xc2' && c + 1 < ebuf && c[1] == '\xa0')
+    {
+        w = space_len;
+        if ((lbDisplay.DrawFlags & Lb_TEXT_UNDERLINE) != 0)
+        {
+            h = LbTextLineHeight() * units_per_px / 16;
+            LbDrawCharUnderline(x,y,w,h,lbDisplay.DrawColour,lbDisplayEx.ShadowColour);
+        }
+        x += w;
+        c++;
+    } else
     if (chr > 32)
     {
       spr = LbFontCharSprite(lbFontPtr,chr);
@@ -1035,6 +1064,9 @@ TbBool LbTextDrawResized(int posx, int posy, int units_per_px, const char *text)
         {
             ebuf++;
             if (*ebuf == '\0') break;
+            chr = (chr<<8) + (unsigned char)*ebuf;
+        } else if (ebuf[0] == '\xc2' && ebuf[1] == '\xa0') {
+            ebuf++;
             chr = (chr<<8) + (unsigned char)*ebuf;
         }
 
