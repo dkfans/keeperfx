@@ -835,7 +835,7 @@ TbBool load_action_point_file(LevelNumber lv_num)
       struct InitActionPoint iapt;
       LbMemoryCopy(&iapt, &buf[i], sizeof(struct InitActionPoint));
       if (actnpoint_create_actnpoint(&iapt) == INVALID_ACTION_POINT)
-          ERRORLOG("Cannot allocate action point %d during APT load", k);
+          ERRORLOG("Cannot allocate action point %d during APTFX load", k);
     i += sizeof(struct InitActionPoint);
   }
   LbMemoryFree(buf);
@@ -1431,7 +1431,7 @@ static TbBool load_lgtfx_file(unsigned long lv_num)
         items_arr = NULL; // Against bad values
         total = value_int32(value_dict_get(common_section, "LightsCount"));
     }
-    // Validate total amount of things
+    // Validate total amount of sections
     if (total < 0)
     {
         WARNMSG("Bad amount of things in LGTFX file");
@@ -1448,7 +1448,7 @@ static TbBool load_lgtfx_file(unsigned long lv_num)
         WARNMSG("Only %d lights supported, file has %d.",(int)(LIGHTS_COUNT-1),total);
         total = LIGHTS_COUNT-1;
     }
-    // Create the lights
+    // Create lights
     for (int k = 0; k < total; k++)
     {
         VALUE *light_section;
@@ -1464,13 +1464,13 @@ static TbBool load_lgtfx_file(unsigned long lv_num)
         }
         if (value_type(light_section) != VALUE_DICT)
         {
-            WARNMSG("Invalid TNGFX thing %d", k);
+            WARNMSG("Invalid LGTFX section %d", k);
         }
         else
         {
             if (!light_create_light_adv(light_section))
             {
-                WARNMSG("Failed to load thing %d from TNGFX", k);
+                WARNMSG("Failed to load thing %d from LGTFX", k);
             }
         }
     }
