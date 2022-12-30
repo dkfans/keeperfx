@@ -1366,8 +1366,8 @@ short cleanup_seek_the_enemy(struct Thing *creatng)
 {
     TRACE_THING(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    cctrl->word_9A = 0;
-    cctrl->long_9C = 0;
+    cctrl->seek_enemy.enemy_idx = 0;
+    cctrl->seek_enemy.enemy_creation_turn = 0;
     return 1;
 }
 
@@ -1938,7 +1938,7 @@ short creature_evacuate_room(struct Thing *creatng)
     }
     struct Room* room = get_room_thing_is_on(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    if (cctrl->word_9A != room->index)
+    if (cctrl->evacuate.room_idx != room->index)
     {
         set_start_state(creatng);
         return CrCkRet_Continue;
@@ -2357,7 +2357,7 @@ short creature_persuade(struct Thing *creatng)
     TRACE_THING(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     struct Dungeon* dungeon = get_players_num_dungeon(creatng->owner);
-    if ((cctrl->job_stage > 0) && (dungeon->num_active_creatrs > 1))
+    if ((cctrl->persuade.persuade_count > 0) && (dungeon->num_active_creatrs > 1))
     {
         struct Thing* perstng = find_random_creature_for_persuade(creatng->owner, &creatng->mappos);
         if (setup_person_move_to_coord(creatng, &perstng->mappos, NavRtF_Default)) {
@@ -3543,7 +3543,7 @@ CrCheckRet move_check_persuade(struct Thing *creatng)
     struct Thing *i_leader;
 
     struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
-    if (cctrl->job_stage)
+    if (cctrl->persuade.persuade_count)
     {
         group_leader = get_group_leader(creatng);
         if (group_leader == creatng)
@@ -3580,8 +3580,8 @@ CrCheckRet move_check_persuade(struct Thing *creatng)
                     }
                     if ((creature_is_leader && add_creature_to_group(i, creatng)) || add_creature_to_group_as_leader(creatng, i))
                     {
-                        cctrl->job_stage--;
-                        if (cctrl->job_stage == 0)
+                        cctrl->persuade.persuade_count--;
+                        if (cctrl->persuade.persuade_count == 0)
                         {
                             return 0;
                         }
@@ -4112,32 +4112,32 @@ struct Thing *thing_update_enemy_to_fight_with(struct Thing *thing)
     SYNCDBG(9,"Starting");
     TRACE_THING(thing);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    if (cctrl->word_9A != 0)
+    if (cctrl->seek_enemy.enemy_idx != 0)
     {
-        enemytng = thing_get(cctrl->word_9A);
+        enemytng = thing_get(cctrl->seek_enemy.enemy_idx);
         TRACE_THING(enemytng);
-        if (((enemytng->alloc_flags & TAlF_Exists) == 0) || (cctrl->long_9C != enemytng->creation_turn))
+        if (((enemytng->alloc_flags & TAlF_Exists) == 0) || (cctrl->seek_enemy.enemy_creation_turn != enemytng->creation_turn))
         {
           enemytng = INVALID_THING;
-          cctrl->long_9C = 0;
-          cctrl->word_9A = 0;
+          cctrl->seek_enemy.enemy_creation_turn = 0;
+          cctrl->seek_enemy.enemy_idx = 0;
         }
     } else
     {
         enemytng = INVALID_THING;
     }
-    if (game.play_gameturn - cctrl->long_A0 > 64)
+    if (game.play_gameturn - cctrl->seek_enemy.turn_looked_for_enemy > 64)
     {
-        cctrl->long_A0 = game.play_gameturn;
+        cctrl->seek_enemy.turn_looked_for_enemy = game.play_gameturn;
         enemytng = find_nearest_enemy_creature(thing);
     }
     if (thing_is_invalid(enemytng))
     {
-        cctrl->word_9A = 0;
+        cctrl->seek_enemy.enemy_idx = 0;
         return NULL;
     }
-    cctrl->word_9A = enemytng->index;
-    cctrl->long_9C = enemytng->creation_turn;
+    cctrl->seek_enemy.enemy_idx = enemytng->index;
+    cctrl->seek_enemy.enemy_creation_turn = enemytng->creation_turn;
     return enemytng;
 }
 

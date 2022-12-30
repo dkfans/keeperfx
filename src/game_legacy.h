@@ -276,7 +276,7 @@ unsigned short field_14EA44;
     unsigned short nodungeon_creatr_list_start; /**< Linked list of creatures which have no dungeon (neutral and owned by nonexisting players) */
     unsigned short food_generation_speed;
     char game_kind; /**< Kind of the game being played, from GameKinds enumeration. Originally was GameMode. */
-char field_14EA4B;
+char map_changed_for_nagivation;
     struct PerExpLevelValues creature_scores[CREATURE_TYPES_MAX];
     unsigned long default_max_crtrs_gen_entrance;
     unsigned long default_imp_dig_damage;
