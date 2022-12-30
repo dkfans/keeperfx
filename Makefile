@@ -71,6 +71,7 @@ obj/spng.o \
 obj/json/json.o \
 obj/json/value.o \
 obj/json/json-dom.o \
+obj/centitoml/toml_api.o \
 obj/unzip.o \
 obj/ioapi.o
 
@@ -422,7 +423,13 @@ heavylog: CFLAGS += $(HVLOGFLAGS)
 heavylog: hvlog-before $(HVLOGBIN) hvlog-after
 
 # not nice but necessary for make -j to work
-$(shell $(MKDIR) bin obj/std obj/hvlog obj/tests obj/cu obj/std/json obj/hvlog/json obj/enet)
+FOLDERS = bin obj/std obj/hvlog \
+obj/tests obj/cu \
+obj/std/json obj/hvlog/json \
+obj/std/centitoml obj/hvlog/centitoml \
+obj/enet
+
+$(shell $(MKDIR) $(FOLDERS))
 std-before:
 hvlog-before:
 
@@ -481,6 +488,11 @@ obj/std/spng.o obj/hvlog/spng.o: deps/libspng/spng/spng.c deps/zlib/libz.a
 obj/std/json/%.o obj/hvlog/json/%.o: deps/centijson/src/%.c
 	-$(ECHO) 'Building file: $<'
 	$(CC) $(CFLAGS) -I"deps/centijson/src" -o"$@" "$<"
+	-$(ECHO) ' '
+
+obj/std/centitoml/%.o obj/hvlog/centitoml/%.o: deps/centitoml/%.c
+	-$(ECHO) 'Building file: $<'
+	$(CC) $(CFLAGS) -I"deps/centijson/src" -I"deps/centitoml/src" -o"$@" "$<"
 	-$(ECHO) ' '
 
 obj/std/unzip.o obj/hvlog/unzip.o: deps/zlib/contrib/minizip/unzip.c
