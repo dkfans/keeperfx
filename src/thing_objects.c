@@ -1496,7 +1496,6 @@ TngUpdateRet object_update_dungeon_heart(struct Thing *heartng)
             if (heartng->health > objconf->health)
             {
               heartng->health = objconf->health;
-              JUSTMSG("testlog 3 = %d", heartng->health);
             }
         }
         long long k = ((heartng->health << 8) / objconf->health) << 7;
