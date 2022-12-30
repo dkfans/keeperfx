@@ -38,6 +38,8 @@
 #include "engine_textures.h"
 #include "game_legacy.h"
 #include "keeperfx.hpp"
+
+#include <toml.h>
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -692,7 +694,7 @@ TbBool load_map_data_file(LevelNumber lv_num)
     return true;
 }
 
-TbBool load_thing_file(LevelNumber lv_num)
+static TbBool load_thing_file(LevelNumber lv_num)
 {
     SYNCDBG(5,"Starting");
     long fsize = 2;
@@ -721,6 +723,87 @@ TbBool load_thing_file(LevelNumber lv_num)
         thing_create_thing(&itng);
         i += sizeof(struct InitThing);
     }
+    LbMemoryFree(buf);
+    return true;
+}
+
+static TbBool load_tngfx_file(LevelNumber lv_num)
+{
+    SYNCDBG(5,"Starting");
+    long fsize = 0;
+    unsigned char* buf = load_single_map_file_to_buffer(lv_num, "tngfx", &fsize, LMFF_None);
+    if (buf == NULL)
+        return false;
+    VALUE file_root, *root_ptr = &file_root;
+    char err[255];
+    char key[64];
+
+    if (toml_parse((char*)buf, err, sizeof(err), root_ptr))
+    {
+        WARNMSG("Unable to load TNGFX file: %s", err);
+        LbMemoryFree(buf);
+        return false;
+    }
+    VALUE *common_section = value_dict_get(root_ptr, "common");
+    if (!common_section)
+    {
+        WARNMSG("No [common] in TNGFX for level %d", lv_num);
+        value_fini(root_ptr);
+        LbMemoryFree(buf);
+        return false;
+    }
+    int32_t total;
+
+    VALUE *thing_arr = value_dict_get(root_ptr, "thing");
+    if (value_type(thing_arr) == VALUE_ARRAY)
+    {
+        total = value_array_size(thing_arr);
+    }
+    else
+    {
+        thing_arr = NULL; // Against bad values
+        total = value_int32(value_dict_get(common_section, "ThingsCount"));
+    }
+    // Validate total amount of things
+    if (total < 0)
+    {
+        WARNMSG("Bad amount of things in TNGFX file");
+        value_fini(root_ptr);
+        LbMemoryFree(buf);
+        return false;
+    }
+    if (total > THINGS_COUNT-2)
+    {
+        WARNMSG("Only %d things supported, file has %d.",(int)(THINGS_COUNT-2),total);
+
+    }
+    // Create things
+    for (int k = 0; k < total; k++)
+    {
+        VALUE *thing_section;
+        if (thing_arr)
+        {
+            // Array form
+            thing_section = value_array_get(thing_arr, k);
+        }
+        else
+        {
+            sprintf(key, "thing%d", k);
+            thing_section = value_dict_get(root_ptr, key);
+        }
+        if (value_type(thing_section) != VALUE_DICT)
+        {
+            WARNMSG("Invalid TNGFX thing %d", k);
+        }
+        else
+        {
+            if (!thing_create_thing_adv(thing_section))
+            {
+                WARNMSG("Failed to load thing %d from TNGFX", k);
+            }
+        }
+    }
+    value_fini(root_ptr);
     LbMemoryFree(buf);
     return true;
 }
@@ -1191,7 +1274,7 @@ short load_map_flag_file(unsigned long lv_num)
     return true;
 }
 
-long load_static_light_file(unsigned long lv_num)
+static TbBool load_static_light_file(unsigned long lv_num)
 {
     long fsize = 4;
     unsigned char* buf = load_single_map_file_to_buffer(lv_num, "lgt", &fsize, LMFF_Optional);
@@ -1231,6 +1314,90 @@ long load_static_light_file(unsigned long lv_num)
     return true;
 }
 
+static TbBool load_lgtfx_file(unsigned long lv_num)
+{
+    long fsize = 0;
+    unsigned char* buf = load_single_map_file_to_buffer(lv_num, "lgtfx", &fsize, LMFF_Optional);
+    if (buf == NULL)
+        return false;
+    VALUE file_root, *root_ptr = &file_root;
+    char err[255];
+    char key[64];
+
+    if (toml_parse((char*)buf, err, sizeof(err), root_ptr))
+    {
+        WARNMSG("Unable to load LGTFX file: %s", err);
+        LbMemoryFree(buf);
+        return false;
+    }
+    VALUE *common_section = value_dict_get(root_ptr, "common");
+    if (!common_section)
+    {
+        WARNMSG("No [common] in LGTFX for level %d", lv_num);
+        value_fini(root_ptr);
+        LbMemoryFree(buf);
+        return false;
+    }
+    int32_t total;
+
+    VALUE *thing_arr = value_dict_get(root_ptr, "light");
+    if (value_type(thing_arr) == VALUE_ARRAY)
+    {
+        total = value_array_size(thing_arr);
+    }
+    else
+    {
+        thing_arr = NULL; // Against bad values
+        total = value_int32(value_dict_get(common_section, "LightsCount"));
+    }
+    // Validate total amount of things
+    if (total < 0)
+    {
+        WARNMSG("Bad amount of things in LGTFX file");
+        value_fini(root_ptr);
+        LbMemoryFree(buf);
+        return false;
+    }
+    if (total > LIGHTS_COUNT / 2)
+    {
+        WARNMSG("More than %d%% of light slots used by static lights.",100*total/LIGHTS_COUNT);
+    }
+    if (total > LIGHTS_COUNT-1)
+    {
+        WARNMSG("Only %d lights supported, file has %d.",(int)(LIGHTS_COUNT-1),total);
+        total = LIGHTS_COUNT-1;
+    }
+    // Create the lights
+    for (int k = 0; k < total; k++)
+    {
+        VALUE *light_section;
+        if (thing_arr)
+        {
+            // Array form
+            light_section = value_array_get(thing_arr, k);
+        }
+        else
+        {
+            sprintf(key, "light%d", k);
+            light_section = value_dict_get(root_ptr, key);
+        }
+        if (value_type(light_section) != VALUE_DICT)
+        {
+            WARNMSG("Invalid TNGFX thing %d", k);
+        }
+        else
+        {
+            if (!light_create_light_adv(light_section))
+            {
+                WARNMSG("Failed to load thing %d from TNGFX", k);
+            }
+        }
+    }
+    value_fini(root_ptr);
+    LbMemoryFree(buf);
+    return true;
+}
+
 short load_and_setup_map_info(unsigned long lv_num)
 {
     long fsize = 1;
@@ -1266,9 +1433,10 @@ static void load_ext_slabs(LevelNumber lvnum)
     }
 }
 
-static short load_level_file(LevelNumber lvnum)
+static TbBool load_level_file(LevelNumber lvnum)
 {
     short result;
+    TbBool new_format = true;
     short fgroup = get_level_fgroup(lvnum);
     char* fname = prepare_file_fmtpath(fgroup, "map%05lu.slb", (unsigned long)lvnum);
     wait_for_cd_to_be_available();
@@ -1281,7 +1449,12 @@ static short load_level_file(LevelNumber lvnum)
         init_whole_blocks();
         load_slab_file();
         init_columns();
-        load_static_light_file(lvnum);
+        result = load_lgtfx_file(lvnum);
+        if (!result)
+        {
+            new_format = false;
+            result = load_static_light_file(lvnum);
+        }
         if (!load_map_ownership_file(lvnum))
           result = false;
         load_map_wibble_file(lvnum);
@@ -1290,8 +1463,14 @@ static short load_level_file(LevelNumber lvnum)
         load_action_point_file(lvnum);
         if (!load_map_slab_file(lvnum))
           result = false;
-        if (!load_thing_file(lvnum))
-          result = false;
+        if (new_format)
+        {
+            result = load_tngfx_file(lvnum);
+        }
+        else
+        {
+            result = load_thing_file(lvnum);
+        }
         reinitialise_map_rooms();
         ceiling_init(0, 1);
         if (result)

@@ -113,6 +113,9 @@ struct LightSystemState {
 /******************************************************************************/
 
 #pragma pack()
+
+typedef struct VALUE VALUE;
+
 /******************************************************************************/
 void clear_stat_light_map(void);
 void update_light_render_area(void);
@@ -123,6 +126,7 @@ void light_turn_light_on(long num);
 unsigned char light_get_light_intensity(long idx);
 void light_set_light_intensity(long idx, unsigned char intensity);
 long light_create_light(struct InitLight *ilght);
+long light_create_light_adv(VALUE *init_data);
 void light_set_light_never_cache(long lgt_id);
 TbBool light_is_invalid(const struct Light *lgt);
 long light_is_light_allocated(long lgt_id);

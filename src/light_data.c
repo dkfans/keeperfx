@@ -31,6 +31,8 @@
 
 #include "thing_stats.h"
 #include "game_legacy.h"
+#include "value_util.h"
+
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -163,8 +165,56 @@ long light_create_light(struct InitLight *ilght)
     lgt->intensity = ilght->intensity;
     unsigned long k = 2 * ilght->field_3;
     lgt->flags2 = k ^ ((k ^ lgt->flags2) & 0x01);
-    set_flag_byte(&lgt->flags,LgtF_Dynamic,ilght->is_dynamic);
     lgt->attached_slb = ilght->attached_slb;
+
+    struct LightAdd* lightadd = get_lightadd(lgt->index);
+    LbMemorySet(lightadd, 0, sizeof(struct LightAdd)); // Clear any previously used LightAdd stuff
+
+    return lgt->index;
+}
+
+long light_create_light_adv(VALUE *init_data)
+{
+    struct Light* lgt = light_allocate_light();
+    if (light_is_invalid(lgt)) {
+        return 0;
+    }
+    if (value_coerce_bool(value_dict_get(init_data, "Dynamic")))
+    {
+        struct ShadowCache* shdc = light_allocate_shadow_cache();
+        if (light_shadow_cache_invalid(shdc))
+        {
+            ERRORDBG(11,"Cannot allocate cache for dynamic light");
+            light_free_light(lgt);
+            return 0;
+        }
+        light_total_dynamic_lights++;
+        lgt->shadow_index = light_shadow_cache_index(shdc);
+        light_add_light_to_list(lgt, &game.thing_lists[TngList_DynamLights]);
+        set_flag_byte(&lgt->flags, LgtF_Dynamic, true);
+    }
+    else
+    {
+        light_total_stat_lights++;
+        light_add_light_to_list(lgt, &game.thing_lists[TngList_StaticLights]);
+        stat_light_needs_updating = 1;
+        set_flag_byte(&lgt->flags, LgtF_Dynamic, false);
+    }
+    lgt->flags |= LgtF_Unkn02;
+    lgt->flags |= LgtF_Unkn08;
+    lgt->mappos.x.val = value_read_stl_coord(value_dict_get(init_data, "SubtileX"));
+    lgt->mappos.y.val = value_read_stl_coord(value_dict_get(init_data, "SubtileY"));
+    lgt->mappos.z.val = value_read_stl_coord(value_dict_get(init_data, "SubtileZ"));
+    lgt->radius = value_read_stl_coord(value_dict_get(init_data, "LightRange"));;
+    lgt->intensity = value_uint32(value_dict_get(init_data, "LightIntensity"));
+
+    /*
+     * TODO: not implemented yet
+    unsigned long k = 2 * ilght->field_3;
+    lgt->flags2 = k ^ ((k ^ lgt->flags2) & 0x01);
+
+    lgt->attached_slb = ilght->attached_slb;
+     */
 
     struct LightAdd* lightadd = get_lightadd(lgt->index);
     LbMemorySet(lightadd, 0, sizeof(struct LightAdd)); // Clear any previously used LightAdd stuff
