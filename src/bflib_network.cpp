@@ -225,20 +225,6 @@ static struct TbNetworkSessionNameEntry sessions[SESSION_COUNT]; //using origina
 
 // New network code data definitions end here =================================
 
-/*
- * The following two functions are not exported from this module.
- *
-TbError LbNetwork_Startup(void)
-{
-  return _DK_LbNetwork_Startup();
-}
-
-TbError LbNetwork_Shutdown(void)
-{
-  return _DK_LbNetwork_Shutdown();
-}
-*/
-
 //debug function to find out reason for mutating peer ids
 static TbBool UserIdentifiersValid(void)
 {
@@ -642,7 +628,7 @@ TbError LbNetwork_Init(unsigned long srvcindex, unsigned long maxplayrs, void *e
 
   localPlayerInfoPtr = locplayr; //TODO NET try to get rid of dependency on external player list, makes things 2x more complicated
 
-  /*//return _DK_LbNetwork_Init(srvcp,guid,maxplayrs,exchng_buf,exchng_size,locplayr,init_data);
+  /*
   exchangeSize = exchng_size;
   maximumPlayers = maxplayrs;
   //thread_data_mem = _wint_thread_data;
@@ -757,7 +743,6 @@ TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *plyr_name
 {
   /*TbError ret;
   TbClockMSec tmStart;
-  //return _DK_LbNetwork_Join(nsname, plyr_name, plyr_num);
   ret = Lb_FAIL;
   tmStart = LbTimerClock();
   if (spPtr == NULL)
@@ -845,7 +830,6 @@ TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *plyr_name
 
 TbError LbNetwork_Create(char *nsname_str, char *plyr_name, unsigned long *plyr_num, void *optns)
 {
-  //return _DK_LbNetwork_Create(nsname_str, plyr_name, plyr_num);
   /*if (spPtr == NULL)
   {
     ERRORLOG("ServiceProvider ptr is NULL");
@@ -906,7 +890,6 @@ TbError LbNetwork_ChangeExchangeBuffer(void *buf, unsigned long buf_size)
 {
   /*void *cbuf;
   long comps_size;
-  //return _DK_LbNetwork_ChangeExchangeBuffer(buf, buf_size);
   exchangeBuffer = buf;
   exchangeSize = buf_size;
   comps_size = buf_size * maximumPlayers;
@@ -961,7 +944,7 @@ TbError LbNetwork_Stop(void)
     NetFrame* frame;
     NetFrame* nextframe;
 
-    /*//return _DK_LbNetwork_Stop();
+    /*
   if (spPtr == NULL)
   {
     ERRORLOG("ServiceProvider ptr is NULL");
@@ -1152,7 +1135,6 @@ TbError LbNetwork_Exchange(void *buf)
     NetUserId id;
 
     NETDBG(7, "Starting");
-  //return _DK_LbNetwork_Exchange(buf);
   /*spPtr->update();
   if (LbNetwork_StartExchange(buf) != Lb_OK)
   {
@@ -1275,7 +1257,6 @@ TbBool LbNetwork_Resync(void * buf, size_t len)
 
 TbError LbNetwork_EnableNewPlayers(TbBool allow)
 {
-  //return _DK_LbNetwork_EnableNewPlayers(allow);
   /*if (spPtr == NULL)
   {
     ERRORLOG("ServiceProvider ptr is NULL");
@@ -1316,34 +1297,10 @@ TbError LbNetwork_EnableNewPlayers(TbBool allow)
 
 TbError LbNetwork_EnumerateServices(TbNetworkCallbackFunc callback, void *ptr)
 {
-//  TbBool local_init;
-
   struct TbNetworkCallbackData netcdat = {};
 
   SYNCDBG(7, "Starting");
 
-  //return _DK_LbNetwork_EnumerateServices(callback, ptr);
-/*
-  local_init = false;
-  if (!network_initialized)
-  {
-    if (LbNetwork_Startup() != Lb_OK)
-      local_init = true;
-  }
-  if (network_initialized)
-  {
-    strcpy(netcdat.svc_name, "SERIAL");
-    callback(&netcdat, ptr);
-    strcpy(netcdat.svc_name, "MODEM");
-    callback(&netcdat, ptr);
-    strcpy(netcdat.svc_name, "IPX");
-    callback(&netcdat, ptr);
-    NETMSG("Enumerate Services called");
-  }
-  if (local_init)
-    LbNetwork_Shutdown();
-  return Lb_OK;
-*/
   strcpy(netcdat.svc_name, "Serial");
   callback(&netcdat, ptr);
   strcpy(netcdat.svc_name, "Modem");
@@ -1370,7 +1327,6 @@ TbError LbNetwork_EnumeratePlayers(struct TbNetworkSessionNameEntry *sesn, TbNet
     SYNCDBG(9, "Starting");
 
   /*char ret;
-  //return _DK_LbNetwork_EnumeratePlayers(sesn, callback, a2);
   if (spPtr == NULL)
   {
     ERRORLOG("ServiceProvider ptr is NULL");
@@ -1405,7 +1361,6 @@ TbError LbNetwork_EnumerateSessions(TbNetworkCallbackFunc callback, void *ptr)
     SYNCDBG(9, "Starting");
 
   //char ret;
-  //return _DK_LbNetwork_EnumerateSessions(callback, ptr);
   /*if (spPtr == NULL)
   {
     ERRORLOG("ServiceProvider ptr is NULL");

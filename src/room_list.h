@@ -61,10 +61,8 @@ struct CompoundRoomFilterParam {
 
 /******************************************************************************/
 
-DLLIMPORT struct Room *_DK_start_rooms;
-#define start_rooms _DK_start_rooms
-DLLIMPORT struct Room *_DK_end_rooms;
-#define end_rooms _DK_end_rooms
+extern struct Room *start_rooms;
+extern struct Room *end_rooms;
 
 #pragma pack()
 /******************************************************************************/

@@ -87,7 +87,6 @@ TbBool jailbreak_possible(struct Room *room, PlayerNumber creature_owner)
 
 short cleanup_prison(struct Thing *thing)
 {
-  // return _DK_cleanup_prison(thing);
   struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
   cctrl->flgfield_1 &= (CCFlg_Exists | CCFlg_PreventDamage | CCFlg_Unknown08 | CCFlg_Unknown10 | CCFlg_IsInRoomList | CCFlg_Unknown40 | CCFlg_Unknown80);
   state_cleanup_in_room(thing);

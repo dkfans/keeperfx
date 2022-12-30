@@ -94,9 +94,11 @@ WINBASEAPI VOID WINAPI GlobalMemoryStatus(LPMEMORYSTATUS);
 }
 #endif
 /******************************************************************************/
-unsigned long lbMemoryAvailable=0;
-short lbMemorySetup=0;
+static unsigned long lbMemoryAvailable=0;
+static short lbMemorySetup=0;
+
 char lbEmptyString[] = "";
+unsigned long mem_size;
 /******************************************************************************/
 /**
  * Updates memory status variables.
@@ -104,25 +106,16 @@ char lbEmptyString[] = "";
 short update_memory_constraits(void)
 {
   LbMemoryCheck();
-  if ( lbMemoryAvailable <= (8*1024*1024) )
+  if (lbMemoryAvailable <= (8 * 1024 * 1024))
+  {
       mem_size = 8;
+      WARNLOG("Very limited memory available: %d, PhysicalMemory %d\n", lbMemoryAvailable, mem_size);
+  }
   else
-  if ( lbMemoryAvailable <= (16*1024*1024) )
-      mem_size = 16;
-  else
-  if ( lbMemoryAvailable <= (24*1024*1024) )
-      mem_size = 24;
-  else
-//  if ( lbMemoryAvailable <= (32*1024*1024) )
-      mem_size = 32;
-/*
-  else
-  if ( lbMemoryAvailable <= (48*1024*1024) )
-      mem_size = 48;
-  else
+  {
       mem_size = 64;
-*/
-  LbSyncLog("PhysicalMemory %d\n", mem_size);
+      LbSyncLog("PhysicalMemory %d\n", mem_size);
+  }
   return true;
 }
 

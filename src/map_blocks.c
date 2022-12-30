@@ -211,7 +211,6 @@ TbBool tag_blocks_for_digging_in_area(MapSubtlCoord stl_x, MapSubtlCoord stl_y, 
         ERRORLOG("Attempt to tag area outside of map");
         return 0;
     }
-    //return _DK_tag_blocks_for_digging_in_area(stl_x, stl_y, plyr_idx);
     TbBool task_added;
     task_added = false;
     struct Map *mapblk;
@@ -486,7 +485,7 @@ long delete_all_object_things_from_slab(MapSlabCoord slb_x, MapSlabCoord slb_y, 
         struct Coord3d pos;
         unsigned long k;
         long i;
-        mapblk = get_map_block_at_pos(stl_num+around_map[n]);
+        mapblk = get_map_block_at_pos(stl_num+gameadd.around_map[n]);
         k = 0;
         i = get_mapwho_thing_index(mapblk);
         while (i != 0)
@@ -538,7 +537,7 @@ unsigned long delete_unwanted_things_from_liquid_slab(MapSlabCoord slb_x, MapSla
     removed_num = 0;
     for (n=0; n < AROUND_MAP_LENGTH; n++)
     {
-        mapblk = get_map_block_at_pos(stl_num+around_map[n]);
+        mapblk = get_map_block_at_pos(stl_num+gameadd.around_map[n]);
         k = 0;
         i = get_mapwho_thing_index(mapblk);
         while (i != 0)
@@ -590,7 +589,7 @@ unsigned long remove_unwanted_things_from_wall_slab(MapSlabCoord slb_x, MapSlabC
     unsigned long removed_num = 0;
     for (long n=0; n < AROUND_MAP_LENGTH; n++)
     {
-        struct Map *mapblk = get_map_block_at_pos(stl_num+around_map[n]);
+        struct Map *mapblk = get_map_block_at_pos(stl_num+gameadd.around_map[n]);
         unsigned long k = 0;
         long i = get_mapwho_thing_index(mapblk);
         while (i != 0)
@@ -679,7 +678,7 @@ unsigned long remove_unwanted_things_from_floor_slab(MapSlabCoord slb_x, MapSlab
     unsigned long removed_num = 0;
     for (long n=0; n < AROUND_MAP_LENGTH; n++)
     {
-        struct Map *mapblk = get_map_block_at_pos(stl_num+around_map[n]);
+        struct Map *mapblk = get_map_block_at_pos(stl_num+gameadd.around_map[n]);
         unsigned long k = 0;
         long i = get_mapwho_thing_index(mapblk);
         while (i != 0)
@@ -835,7 +834,6 @@ void place_column_on_map_element(struct Column *ncol, MapSubtlCoord stl_x, MapSu
 
 void copy_block_with_cube_groups(short itm_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    //_DK_copy_block_with_cube_groups(a1, a2, a3);
     if (itm_idx >= 0) {
       ERRORLOG("We should only be dealing with columns now");
       return;
@@ -928,7 +926,6 @@ void set_alt_bit_based_on_slab(SlabKind slbkind, unsigned char stl_x, unsigned c
 
 void place_slab_columns(long slbkind, unsigned char stl_x, unsigned char stl_y, const ColumnIndex *col_idx)
 {
-    //_DK_place_slab_columns(slbkind, a2, a3, a4); return;
     struct SlabAttr *slbattr;
     slbattr = get_slab_kind_attrs(slbkind);
     if (slbattr->wlb_type != 3)
@@ -987,7 +984,6 @@ unsigned short get_slabset_index_f(SlabKind slbkind, unsigned char style, unsign
 
 void place_slab_object(unsigned short slb_num, long a2, long a3, unsigned short slabct_num, unsigned short slbelem, unsigned char a6)
 {
-    //_DK_place_slab_object(a1, a2, a3, a4, a5, a6); return;
     if (slabct_num >= SLABSET_COUNT) {
         ERRORLOG("Illegal animating slab number: %d", (int)slabct_num);
         return;
@@ -1602,7 +1598,6 @@ static void shuffle_unattached_things_on_slab(MapSlabCoord slb_x, MapSlabCoord s
 
 void dump_slab_on_map(SlabKind slbkind, long slabct_num, MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber owner)
 {
-    //_DK_dump_slab_on_map(slbkind, a2, stl_x, stl_y, owner); return;
     MapSlabCoord slb_x;
     MapSlabCoord slb_y;
     slb_x = subtile_slab_fast(stl_x);
@@ -1702,7 +1697,6 @@ void dump_slab_on_map(SlabKind slbkind, long slabct_num, MapSubtlCoord stl_x, Ma
 void place_animating_slab_type_on_map(SlabKind slbkind, char ani_frame, MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber owner)
 {
     SYNCDBG(7,"Starting");
-    //_DK_place_animating_slab_type_on_map(slbkind,a2,a3,a4,owner);
     MapSlabCoord slb_x;
     MapSlabCoord slb_y;
     slb_x = subtile_slab_fast(stl_x);
@@ -2659,7 +2653,6 @@ unsigned short get_point_in_map_solid_flags_ignoring_own_door(const struct Coord
 void fill_in_reinforced_corners(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
     SYNCDBG(16,"Starting");
-    // _DK_fill_in_reinforced_corners(plyr_idx, slb_x, slb_y); return;
   struct SlabMap *slb = get_slabmap_block(slb_x, slb_y);
   struct SlabAttr* slbattr = get_slab_attrs(slb);
   if ((slbattr->category != SlbAtCtg_FortifiedWall))
@@ -2708,7 +2701,6 @@ SlabKind choose_pretty_type(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCo
 {
     struct SlabMap *pvslb, *nxslb;
     SYNCDBG(16,"Starting");
-    // return _DK_choose_pretty_type(plyr_idx, slb_x, slb_y);
     // if x co-ordinate is divisible by 5
     if (slb_x % 5 == 0)
     {

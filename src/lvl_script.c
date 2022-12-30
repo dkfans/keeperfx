@@ -41,8 +41,8 @@ extern "C" {
 #endif
 
 /******************************************************************************/
-
-
+unsigned char next_command_reusable;
+/******************************************************************************/
 const struct CommandDesc *get_next_word(char **line, char *param, int *para_level, const struct CommandDesc *cmdlist_desc)
 {
     char chr;
@@ -760,7 +760,6 @@ long script_scan_line(char *line,TbBool preloaded)
 
 short clear_script(void)
 {
-    LbMemorySet(&game.script, 0, sizeof(struct LevelScriptOld));
     LbMemorySet(&gameadd.script, 0, sizeof(struct LevelScript));
     gameadd.script.next_string = gameadd.script.strings;
     set_script_current_condition(CONDITION_ALWAYS);

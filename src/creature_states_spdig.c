@@ -374,7 +374,6 @@ long check_out_place_for_convert_behind_door(struct Thing *thing, MapSlabCoord s
 
 long check_out_unconverted_drop_place(struct Thing *thing)
 {
-    //return _DK_check_out_unconverted_drop_place(thing);
     MapSlabCoord slb_x = subtile_slab_fast(thing->mappos.x.stl.num);
     MapSlabCoord slb_y = subtile_slab_fast(thing->mappos.y.stl.num);
     if (check_place_to_convert_excluding(thing, slb_x, slb_y))
@@ -1279,7 +1278,6 @@ short imp_picks_up_gold_pile(struct Thing *spdigtng)
 short imp_reinforces(struct Thing *thing)
 {
     TRACE_THING(thing);
-    //return _DK_imp_reinforces(thing);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     MapSubtlCoord stl_x = stl_num_decode_x(cctrl->digger.working_stl);
     MapSubtlCoord stl_y = stl_num_decode_y(cctrl->digger.working_stl);

@@ -61,12 +61,6 @@
 #define BFDEBUG_LEVEL 0
 #endif
 
-#if defined(BUILD_DLL)
-# define DLLIMPORT __declspec (dllexport)
-#else // Not defined BUILD_DLL
-# define DLLIMPORT __declspec (dllimport)
-#endif
-
 #ifdef __cplusplus
 #include <algorithm>
 using std::min;
@@ -183,19 +177,6 @@ extern "C" {
   #define EVM_CREATURE_EVENT_WITH_TARGET(event_name, plyr_id, thing, targ_val)
   #define EVM_CREATURE_STAT(event_name, plyr_id, thing, stat_name, stat_val)
   #define EVM_MAP_EVENT(event_name, plyr_idx, x, y, opt)
-#endif
-
-void replaceFn(void* oldFn, void* newFn);
-#define CONCAT_(x, y) x##y
-#define CONCAT(x, y) CONCAT_(x, y)
-
-#ifdef _MSC_VER
-#define HOOK_DK_FUNC(name) \
-	DLLIMPORT void _DK_##name();
-#else
-#define HOOK_DK_FUNC(name) \
-	DLLIMPORT void _DK_##name(); \
-	__attribute__((constructor)) static void CONCAT(hookFn, __COUNTER__)(void) { replaceFn(&_DK_##name, &name); }
 #endif
 
 #pragma pack(1)

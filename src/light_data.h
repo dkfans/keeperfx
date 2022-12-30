@@ -111,22 +111,6 @@ struct LightSystemState {
 };
 
 /******************************************************************************/
-DLLIMPORT unsigned long _DK_light_bitmask[32];
-#define light_bitmask _DK_light_bitmask
-DLLIMPORT long _DK_stat_light_needs_updating;
-#define stat_light_needs_updating _DK_stat_light_needs_updating
-DLLIMPORT long _DK_light_total_dynamic_lights;
-#define light_total_dynamic_lights _DK_light_total_dynamic_lights
-DLLIMPORT long _DK_light_total_stat_lights;
-#define light_total_stat_lights _DK_light_total_stat_lights
-DLLIMPORT long _DK_light_rendered_dynamic_lights;
-#define light_rendered_dynamic_lights _DK_light_rendered_dynamic_lights
-DLLIMPORT long _DK_light_rendered_optimised_dynamic_lights;
-#define light_rendered_optimised_dynamic_lights _DK_light_rendered_optimised_dynamic_lights
-DLLIMPORT long _DK_light_updated_stat_lights;
-#define light_updated_stat_lights _DK_light_updated_stat_lights
-DLLIMPORT long _DK_light_out_of_date_stat_lights;
-#define light_out_of_date_stat_lights _DK_light_out_of_date_stat_lights
 
 #pragma pack()
 /******************************************************************************/

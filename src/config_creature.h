@@ -170,12 +170,6 @@ enum CreatureAttackType {
 
 struct Thing;
 
-struct CreatureData {
-      unsigned char flags;
-      short lair_tngmodel;
-      short namestr_idx_UNUSED;
-};
-
 struct Creatures { // sizeof = 16
   unsigned short evil_start_state;
   unsigned short good_start_state;
@@ -191,11 +185,8 @@ struct Creatures { // sizeof = 16
 };
 
 /******************************************************************************/
-DLLIMPORT struct Creatures _DK_creatures[CREATURE_TYPES_COUNT];
-#define creatures _DK_creatures
-DLLIMPORT unsigned short _DK_breed_activities[CREATURE_TYPES_COUNT];
-#define breed_activities _DK_breed_activities
-
+extern struct Creatures creatures[CREATURE_TYPES_MAX];
+extern unsigned short breed_activities[CREATURE_TYPES_MAX];
 #pragma pack()
 /******************************************************************************/
 
@@ -271,9 +262,9 @@ struct CreatureConfig {
     ThingModel special_digger_good;
     ThingModel special_digger_evil;
     ThingModel spectator_breed;
-    short creature_graphics[CREATURE_TYPES_COUNT][CREATURE_GRAPHICS_INSTANCES];
+    short creature_graphics[CREATURE_TYPES_MAX][CREATURE_GRAPHICS_INSTANCES];
     long sprite_size;
-    struct CreatureSounds creature_sounds[CREATURE_TYPES_COUNT];
+    struct CreatureSounds creature_sounds[CREATURE_TYPES_MAX];
 };
 
 /******************************************************************************/
@@ -288,15 +279,11 @@ extern const struct NamedCommand creatmodel_attributes_commands[];
 
 extern const struct NamedCommand creature_graphics_desc[];
 /******************************************************************************/
-extern struct CreatureData creature_data[];
 //extern struct Creatures creatures[];
 /******************************************************************************/
 struct CreatureStats *creature_stats_get(ThingModel crstat_idx);
 struct CreatureStats *creature_stats_get_from_thing(const struct Thing *thing);
-struct CreatureData *creature_data_get(ThingModel crstat_idx);
-struct CreatureData *creature_data_get_from_thing(const struct Thing *thing);
 TbBool creature_stats_invalid(const struct CreatureStats *crstat);
-void creature_stats_updated(ThingModel crstat_idx);
 void check_and_auto_fix_stats(void);
 const char *creature_code_name(ThingModel crmodel);
 const char* new_creature_code_name(ThingModel crmodel);

@@ -56,10 +56,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-/******************************************************************************/
 
-// DLLIMPORT struct InstanceInfo _DK_instance_info[48];
-// #define instance_info _DK_instance_info
 /******************************************************************************/
 long instf_attack_room_slab(struct Thing *creatng, long *param);
 long instf_creature_cast_spell(struct Thing *creatng, long *param);
@@ -74,6 +71,8 @@ long instf_pretty_path(struct Thing *creatng, long *param);
 long instf_reinforce(struct Thing *creatng, long *param);
 long instf_tortured(struct Thing *creatng, long *param);
 long instf_tunnel(struct Thing *creatng, long *param);
+
+struct InstanceButtonInit instance_button_init[48];
 
 const struct NamedCommand creature_instances_func_type[] = {
   {"attack_room_slab",         1},
@@ -550,12 +549,12 @@ long instf_dig(struct Thing *creatng, long *param)
     {
         struct MapTask* task = get_dungeon_task_list_entry(dungeon, task_idx);
         taskkind = task->kind;
-        if (task->coords != cctrl->word_8F)
+        if (task->coords != cctrl->digger.task_stl)
         {
             return 0;
       }
-      stl_x = stl_num_decode_x(cctrl->word_8F);
-      stl_y = stl_num_decode_y(cctrl->word_8F);
+      stl_x = stl_num_decode_x(cctrl->digger.task_stl);
+      stl_y = stl_num_decode_y(cctrl->digger.task_stl);
     }
     struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
     if (slabmap_block_invalid(slb)) {
@@ -724,7 +723,6 @@ long instf_damage_wall(struct Thing *creatng, long *param)
 {
     SYNCDBG(16,"Starting");
     TRACE_THING(creatng);
-    //return _DK_instf_damage_wall(creatng, param);
     MapSubtlCoord stl_x;
     MapSubtlCoord stl_y;
     {
@@ -754,7 +752,6 @@ long instf_damage_wall(struct Thing *creatng, long *param)
 long instf_eat(struct Thing *creatng, long *param)
 {
     TRACE_THING(creatng);
-    //return _DK_instf_eat(creatng, param);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     if (cctrl->hunger_amount > 0)
         cctrl->hunger_amount--;
@@ -766,7 +763,6 @@ long instf_eat(struct Thing *creatng, long *param)
 long instf_fart(struct Thing *creatng, long *param)
 {
     TRACE_THING(creatng);
-    //return _DK_instf_fart(creatng, param);
     struct Thing* efftng = create_effect(&creatng->mappos, TngEff_Gas3, creatng->owner);
     if (!thing_is_invalid(efftng))
         efftng->shot_effect.hit_type = THit_CrtrsOnlyNotOwn;

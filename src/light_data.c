@@ -38,6 +38,17 @@ extern "C" {
 #endif
 /******************************************************************************/
 static void light_stat_light_map_clear_area(MapSubtlCoord x1, MapSubtlCoord y1, MapSubtlCoord x2, MapSubtlCoord y2);
+
+/******************************************************************************/
+
+static unsigned long light_bitmask[32];
+static long stat_light_needs_updating;
+static long light_total_dynamic_lights;
+static long light_total_stat_lights;
+static long light_rendered_dynamic_lights;
+static long light_rendered_optimised_dynamic_lights;
+static long light_updated_stat_lights;
+static long light_out_of_date_stat_lights;
 /******************************************************************************/
 
 struct Light *light_allocate_light(void)
@@ -359,7 +370,6 @@ void set_previous_light_position(struct Light *light) {
 
 void light_set_light_position(long lgt_id, struct Coord3d *pos)
 {
-  // _DK_light_set_light_position(lgt_id, pos);
   struct Light *lgt = &game.lish.lights[lgt_id];
 
   set_previous_light_position(lgt);
@@ -403,7 +413,6 @@ void light_set_light_position(long lgt_id, struct Coord3d *pos)
 
 void light_remove_light_from_list(struct Light *lgt, struct StructureList *list)
 {
-  // _DK_light_remove_light_from_list(lgt, list);
   if ( list->count == 0 )
   {
       ERRORLOG("List %d has no structures", list->index);
@@ -454,7 +463,6 @@ void light_remove_light_from_list(struct Light *lgt, struct StructureList *list)
 
 void light_signal_stat_light_update_in_area(long x1, long y1, long x2, long y2)
 {
-  // _DK_light_signal_stat_light_update_in_area(x1, y1, x2, y2);
   int i = 0;
   struct Light *lgt = &game.lish.lights[1];
   do
@@ -484,7 +492,6 @@ void light_signal_stat_light_update_in_area(long x1, long y1, long x2, long y2)
 
 void light_signal_update_in_area(long sx, long sy, long ex, long ey)
 {
-   // _DK_light_signal_update_in_area(sx, sy, ex, ey);
   struct Light *lgt = &game.lish.lights[1];
   do
   {
@@ -578,7 +585,6 @@ void light_turn_light_on(long idx)
 
 unsigned char light_get_light_intensity(long idx)
 {
-  // return _DK_light_get_light_intensity(idx);
   if ( idx )
   {
     if ( game.lish.lights[idx].flags & LgtF_Allocated )
@@ -600,7 +606,6 @@ unsigned char light_get_light_intensity(long idx)
 
 void light_set_light_intensity(long idx, unsigned char intensity)
 {
-  // return _DK_light_set_light_intensity(a1, a2);
   struct Light *lgt = &game.lish.lights[idx];
   long x1,x2,y1,y2;
   if ( !light_is_invalid(lgt) )
@@ -2247,11 +2252,11 @@ void update_light_render_area(void)
         player->view_mode == PVM_FrontView ||
         player->view_mode == PVM_IsoStraightView
     ) {
-        game.field_14BB5D = LIGHT_MAX_RANGE;
-        game.field_14BB59 = LIGHT_MAX_RANGE;
+        game.something_light_y = LIGHT_MAX_RANGE;
+        game.something_light_x = LIGHT_MAX_RANGE;
     }
-    int delta_x = abs(game.field_14BB59);
-    int delta_y = abs(game.field_14BB5D);
+    int delta_x = abs(game.something_light_x);
+    int delta_y = abs(game.something_light_y);
     // Prepare the area constraints
     if (player->acamera != NULL)
     {
@@ -2262,7 +2267,7 @@ void update_light_render_area(void)
       subtile_y = 0;
       subtile_x = 0;
     }
-//SYNCMSG("LghtRng %d,%d CamTil %d,%d",game.field_14BB59,game.field_14BB5D,tile_x,tile_y);
+//SYNCMSG("LghtRng %d,%d CamTil %d,%d",game.something_light_x,game.something_light_y,tile_x,tile_y);
     if (subtile_y > delta_y)
     {
       starty = subtile_y - delta_y;

@@ -34,14 +34,7 @@ struct PlayerInfo;
 
 #pragma pack()
 /******************************************************************************/
-DLLIMPORT unsigned char _DK_smooth_on;
-#define smooth_on _DK_smooth_on
-DLLIMPORT unsigned char * _DK_map_fade_ghost_table;
-#define map_fade_ghost_table _DK_map_fade_ghost_table
-DLLIMPORT unsigned char * _DK_map_fade_dest;
-#define map_fade_dest _DK_map_fade_dest
-DLLIMPORT unsigned char * _DK_map_fade_src;
-#define map_fade_src _DK_map_fade_src
+extern unsigned char smooth_on;
 /******************************************************************************/
 void setup_engine_window(long x1, long y1, long x2, long y2);
 void store_engine_window(TbGraphicsWindow *ewnd,int divider);

@@ -21,11 +21,7 @@
 #include "bflib_render.h"
 
 #include "globals.h"
-#include "bflib_basics.h"
-#include "bflib_memory.h"
 #include "bflib_video.h"
-#include "bflib_sprite.h"
-#include "bflib_vidraw.h"
 #include "post_inc.h"
 
 /******************************************************************************/
@@ -40,7 +36,7 @@ unsigned char *LOC_vec_screen;
 unsigned long LOC_vec_screen_width;
 unsigned long LOC_vec_window_width;
 unsigned long LOC_vec_window_height;
-struct PolyPoint polyscans[2*POLY_SCANS_COUNT]; // Allocate twice the size - this array is often exceeded, and rendering routines aren't safe
+struct PolyPoint *polyscans = NULL;
 /******************************************************************************/
 void draw_triangle(struct PolyPoint *point_a, struct PolyPoint *point_b, struct PolyPoint *point_c)
 {
@@ -51,5 +47,23 @@ void draw_quad(struct PolyPoint *point_a, struct PolyPoint *point_b, struct Poly
 {
     draw_gpoly(point_a, point_b, point_c);
     draw_gpoly(point_a, point_b, point_d);
+}
+
+void setup_bflib_render(long width, long height)
+{
+    if (polyscans)
+    {
+        free(polyscans);
+    }
+    polyscans = malloc(sizeof(struct PolyPoint) * height);
+}
+
+void finish_bflib_render()
+{
+    if (polyscans)
+    {
+        free(polyscans);
+        polyscans = NULL;
+    }
 }
 /******************************************************************************/

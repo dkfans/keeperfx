@@ -144,20 +144,14 @@ long get_ceiling_height(const struct Coord3d *pos)
 
 long get_mapwho_thing_index(const struct Map *mapblk)
 {
-  return ((mapblk->data >> 11) & 0x7FF);
+  return mapblk->mapwho;
   //could also be ((mapblk->data & 0x3FF800) >> 11);
 }
 
 void set_mapwho_thing_index(struct Map *mapblk, long thing_idx)
 {
-  // Check if new value is correct
-  if ((unsigned long)thing_idx > 0x7FF)
-  {
-      ERRORLOG("Tried to set invalid thing %ld",thing_idx);
-      return;
-  }
-  // Clear previous and set new
-  mapblk->data ^= (mapblk->data ^ ((unsigned long)thing_idx << 11)) & 0x3FF800;
+
+  mapblk->mapwho = thing_idx;
 }
 
 long get_mapblk_column_index(const struct Map *mapblk)
@@ -881,29 +875,39 @@ void set_map_size(MapSlabCoord x,MapSlabCoord y)
     gameadd.map_tiles_x = x;
     gameadd.map_tiles_y = y;
 
-    small_around_slab[0] = -gameadd.map_tiles_x;
-    small_around_slab[2] = gameadd.map_tiles_x;
+    gameadd.small_around_slab[0] = -gameadd.map_tiles_x;
+    gameadd.small_around_slab[1] = 1;
+    gameadd.small_around_slab[2] = gameadd.map_tiles_x;
+    gameadd.small_around_slab[3] = -1;
 
-    around_slab[0] = -gameadd.map_tiles_x - 1;
-    around_slab[1] = -gameadd.map_tiles_x;
-    around_slab[2] = -gameadd.map_tiles_x  + 1;
-    around_slab[6] = gameadd.map_tiles_x - 1;
-    around_slab[7] = gameadd.map_tiles_x;
-    around_slab[8] = gameadd.map_tiles_x + 1;
+    gameadd.around_slab[0] = -gameadd.map_tiles_x - 1;
+    gameadd.around_slab[1] = -gameadd.map_tiles_x;
+    gameadd.around_slab[2] = -gameadd.map_tiles_x  + 1;
+    gameadd.around_slab[3] = -1;
+    gameadd.around_slab[4] = 0;
+    gameadd.around_slab[4] = 1;
+    gameadd.around_slab[6] = gameadd.map_tiles_x - 1;
+    gameadd.around_slab[7] = gameadd.map_tiles_x;
+    gameadd.around_slab[8] = gameadd.map_tiles_x + 1;
 
-    around_slab_eight[0] = -gameadd.map_tiles_x - 1;
-    around_slab_eight[1] = -gameadd.map_tiles_x;
-    around_slab_eight[2] = -gameadd.map_tiles_x  + 1;
-    around_slab_eight[5] = gameadd.map_tiles_x - 1;
-    around_slab_eight[6] = gameadd.map_tiles_x;
-    around_slab_eight[7] = gameadd.map_tiles_x + 1;
+    gameadd.around_slab_eight[0] = -gameadd.map_tiles_x - 1;
+    gameadd.around_slab_eight[1] = -gameadd.map_tiles_x;
+    gameadd.around_slab_eight[2] = -gameadd.map_tiles_x  + 1;
+    gameadd.around_slab_eight[3] = -1;
+    gameadd.around_slab_eight[4] = 1;
+    gameadd.around_slab_eight[5] = gameadd.map_tiles_x - 1;
+    gameadd.around_slab_eight[6] = gameadd.map_tiles_x;
+    gameadd.around_slab_eight[7] = gameadd.map_tiles_x + 1;
 
-    around_map[0] = -gameadd.map_subtiles_x - 2;
-    around_map[1] = -gameadd.map_subtiles_x - 1;
-    around_map[2] = -gameadd.map_subtiles_x;
-    around_map[6] = gameadd.map_subtiles_x;
-    around_map[7] = gameadd.map_subtiles_x + 1;
-    around_map[8] = gameadd.map_subtiles_x + 2;
+    gameadd.around_map[0] = -gameadd.map_subtiles_x - 2;
+    gameadd.around_map[1] = -gameadd.map_subtiles_x - 1;
+    gameadd.around_map[2] = -gameadd.map_subtiles_x;
+    gameadd.around_map[3] = -1;
+    gameadd.around_map[4] = 0;
+    gameadd.around_map[5] = 1;
+    gameadd.around_map[6] = gameadd.map_subtiles_x;
+    gameadd.around_map[7] = gameadd.map_subtiles_x + 1;
+    gameadd.around_map[8] = gameadd.map_subtiles_x + 2;
 
 }
 

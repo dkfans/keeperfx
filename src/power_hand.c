@@ -73,7 +73,6 @@ extern "C" {
 /******************************************************************************/
 struct Thing *create_gold_for_hand_grab(struct Thing *thing, long owner)
 {
-    //return _DK_create_gold_for_hand_grab(thing, owner);
     struct Thing *objtng;
     objtng = INVALID_THING;
     struct Dungeon *dungeon;
@@ -1036,7 +1035,6 @@ TbBool process_creature_in_dungeon_hand(struct Dungeon *dungeon, struct Thing *t
 
 void process_things_in_dungeon_hand(void)
 {
-    //_DK_process_things_in_dungeon_hand();
     PlayerNumber plyr_idx;
     for (plyr_idx=0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
@@ -1237,7 +1235,7 @@ void add_creature_to_sacrifice_list(PlayerNumber plyr_idx, long model, long expl
     ERRORLOG("Player %d cannot sacrifice %s",(int)plyr_idx,thing_class_and_model_name(TCls_Creature, model));
     return;
   }
-  if ((model < 0) || (model >= CREATURE_TYPES_COUNT))
+  if ((model < 0) || (model >= gameadd.crtr_conf.model_count))
   {
     ERRORLOG("Tried to sacrifice invalid creature model %d",(int)model);
     return;

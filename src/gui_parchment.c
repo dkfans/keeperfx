@@ -63,6 +63,9 @@
 /******************************************************************************/
 unsigned short engine_remap_texture_blocks(long stl_x, long stl_y, unsigned short tex_id);
 /******************************************************************************/
+int parchment_loaded;
+unsigned char *hires_parchment;
+/******************************************************************************/
 void load_parchment_file(void)
 {
     if ( !parchment_loaded )
@@ -166,16 +169,19 @@ TbBool parchment_copy_background_at(const struct TbRect *bkgnd_area, int units_p
     int img_width;
     int img_height;
     unsigned char *srcbuf;
+    unsigned char shift;
     if (LbScreenWidth() < 640)
     {
         img_width = 320;
         img_height = 200;
         srcbuf = poly_pool;
+        shift = 5;
     } else
     {
         img_width = 640;
         img_height = 480;
         srcbuf = hires_parchment;
+        shift = 4;
     }
     // Only 8bpp supported for now
     if (LbGraphicsScreenBPP() != 8)
@@ -185,9 +191,9 @@ TbBool parchment_copy_background_at(const struct TbRect *bkgnd_area, int units_p
         img_width*units_per_px/16,img_height*units_per_px/16,bkgnd_area->left,bkgnd_area->top,srcbuf,img_width,img_height);
     // Burning candle flames
     const struct TbSprite* spr = &button_sprite[GBS_parchment_map_screen_flame_1 + (game.play_gameturn & 3)];
-    LbSpriteDrawScaled(bkgnd_area->left+(36*units_per_px/(16*pixel_size)),(bkgnd_area->top+0*units_per_px/(16*pixel_size)), spr, spr->SWidth*units_per_px/16, spr->SHeight*units_per_px/16);
+    LbSpriteDrawScaled(bkgnd_area->left+(36*units_per_px/(pixel_size << shift)),(bkgnd_area->top+0*units_per_px/(16*pixel_size)), spr, spr->SWidth*units_per_px/16, spr->SHeight*units_per_px/16);
     spr = &button_sprite[GBS_parchment_map_screen_flame_5+(game.play_gameturn & 3)];
-    LbSpriteDrawScaled(bkgnd_area->left+(574*units_per_px/(16*pixel_size)),(bkgnd_area->top+0*units_per_px/(16*pixel_size)), spr, spr->SWidth*units_per_px/16, spr->SHeight*units_per_px/16);
+    LbSpriteDrawScaled(bkgnd_area->left+(574*units_per_px/(pixel_size << shift)),(bkgnd_area->top+0*units_per_px/(16*pixel_size)), spr, spr->SWidth*units_per_px/16, spr->SHeight*units_per_px/16);
     return true;
 }
 

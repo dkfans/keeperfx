@@ -23,13 +23,13 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
+#include "bflib_fileio.h"
 #include "bflib_memory.h"
 #include "bflib_math.h"
 #include "bflib_video.h"
 #include "bflib_sprite.h"
 #include "bflib_vidraw.h"
 #include "bflib_render.h"
-#include "bflib_heapmgr.h"
 
 #include "engine_lenses.h"
 #include "engine_camera.h"
@@ -479,6 +479,9 @@ static long water_source_cutoff;
 static long water_y_offset;
 static long cam_map_angle;
 
+static struct M33 camera_matrix;
+struct EngineCoord object_origin;
+
 short mx;
 short my;
 short mz;
@@ -486,16 +489,11 @@ unsigned char temp_cluedo_mode; // This is true(1) if the "short wall" have been
 struct Thing *thing_being_displayed;
 
 TbSpriteData *keepsprite[KEEPSPRITE_LENGTH];
-struct HeapMgrHandle * heap_handle[KEEPSPRITE_LENGTH];
+TbSpriteData sprite_heap_handle[KEEPSPRITE_LENGTH];
 struct HeapMgrHeader *graphics_heap;
-TbFileHandle file_handle;
+TbFileHandle jty_file_handle;
 
 unsigned char player_bit;
-
-long ScrWidth;
-long ScrHeight;
-long ScrCenterX;
-long ScrCenterY;
 
 struct MapVolumeBox map_volume_box;
 long fade_max;
@@ -1005,8 +1003,8 @@ static void fill_in_points_perspective(struct Camera *cam, long bstl_x, long bst
     mmax = max(mm[0].max,mm[1].max);
     if (mmin + bstl_x < 1)
       mmin = 1 - bstl_x;
-    if (mmax + bstl_x > gameadd.map_subtiles_y)
-      mmax = gameadd.map_subtiles_y - bstl_x;
+    if (mmax + bstl_x > gameadd.map_subtiles_x)
+      mmax = gameadd.map_subtiles_x - bstl_x;
     MapSubtlCoord stl_x;
     MapSubtlCoord stl_y;
     stl_y = bstl_y;
@@ -1145,8 +1143,8 @@ static void fill_in_points_cluedo(struct Camera *cam, long bstl_x, long bstl_y, 
     if (mmin + bstl_x < 1) {
         mmin = 1 - bstl_x;
     }
-    if (mmax + bstl_x > gameadd.map_subtiles_y) {
-        mmax = gameadd.map_subtiles_y - bstl_x;
+    if (mmax + bstl_x > gameadd.map_subtiles_x) {
+        mmax = gameadd.map_subtiles_x - bstl_x;
     }
     if (mmax < mmin) {
         return;
@@ -1355,9 +1353,9 @@ static void fill_in_points_isometric(struct Camera *cam, long bstl_x, long bstl_
         clip_min = true;
         mmin = 1 - bstl_x;
     }
-    if (mmax + bstl_x > gameadd.map_subtiles_y) {
+    if (mmax + bstl_x > gameadd.map_subtiles_x) {
         clip_max = true;
-        mmax = gameadd.map_subtiles_y - bstl_x;
+        mmax = gameadd.map_subtiles_x - bstl_x;
     }
     if (mmax < mmin) {
         return;
@@ -4158,8 +4156,8 @@ static void do_a_plane_of_engine_columns_perspective(long stl_x, long stl_y, lon
     if (stl_x + plane_start < 1)
         clip_start = 1 - stl_x;
     clip_end = plane_end;
-    if (stl_x + plane_end > gameadd.map_subtiles_y)
-        clip_end = gameadd.map_subtiles_y - stl_x;
+    if (stl_x + plane_end > gameadd.map_subtiles_x)
+        clip_end = gameadd.map_subtiles_x - stl_x;
     struct EngineCol *bec;
     struct EngineCol *fec;
     bec = &back_ec[clip_start + MINMAX_ALMOST_HALF];
@@ -4529,8 +4527,8 @@ static void do_a_plane_of_engine_columns_cluedo(long stl_x, long stl_y, long pla
         xaval = 1 - stl_x;
     }
     xbval = plane_end;
-    if (stl_x + plane_end > gameadd.map_subtiles_y) {
-        xbval = gameadd.map_subtiles_y - stl_x;
+    if (stl_x + plane_end > gameadd.map_subtiles_x) {
+        xbval = gameadd.map_subtiles_x - stl_x;
     }
     int xidx;
     int xdelta;
@@ -4736,9 +4734,9 @@ static void do_a_plane_of_engine_columns_isometric(long stl_x, long stl_y, long 
         xaval = 1 - stl_x;
     }
     xbval = plane_end;
-    if (stl_x + plane_end > gameadd.map_subtiles_y) {
+    if (stl_x + plane_end > gameadd.map_subtiles_x) {
         xbclip = 1;
-        xbval = gameadd.map_subtiles_y - stl_x;
+        xbval = gameadd.map_subtiles_x - stl_x;
     }
     int xidx;
     int xdelta;
@@ -7577,89 +7575,16 @@ static unsigned short get_thing_shade(struct Thing* thing)
     return shval;
 }
 
-static void lock_keepersprite(unsigned short kspr_idx)
-{
-    int frame_num;
-    int frame_count;
-    struct KeeperSprite *kspr_arr;
-    kspr_arr = &creature_table[kspr_idx];
-    if (kspr_arr->Rotable) {
-        frame_count = 5 * kspr_arr->FramesCount;
-    } else {
-        frame_count = kspr_arr->FramesCount;
-    }
-    for (frame_num=0; frame_num < frame_count; frame_num++)
-    {
-        struct HeapMgrHandle *hmhndl;
-        hmhndl = heap_handle[kspr_idx+frame_num];
-        if (hmhndl != NULL) {
-            hmhndl->flags |= 0x02;
-        }
-    }
-}
-
-static void unlock_keepersprite(unsigned short kspr_idx)
-{
-    int frame_num;
-    int frame_count;
-    struct KeeperSprite *kspr_arr;
-    kspr_arr = &creature_table[kspr_idx];
-    if (kspr_arr->Rotable) {
-        frame_count = 5 * kspr_arr->FramesCount;
-    } else {
-        frame_count = kspr_arr->FramesCount;
-    }
-    for (frame_num=0; frame_num < frame_count; frame_num++)
-    {
-        struct HeapMgrHandle *hmhndl;
-        hmhndl = heap_handle[kspr_idx+frame_num];
-        if (hmhndl != NULL) {
-            hmhndl->flags &= ~0x02;
-        }
-    }
-}
-
-static long load_single_frame(unsigned short kspr_idx)
+static long load_single_frame(TbSpriteData *data_ptr, unsigned short kspr_idx)
 {
     long nlength;
-    struct HeapMgrHandle *nitem;
-    int i;
     nlength = creature_table[kspr_idx+1].DataOffset - creature_table[kspr_idx].DataOffset;
-    for (i=0; i < 100; i++)
-    {
-        nitem = heapmgr_add_item(graphics_heap, nlength);
-        if (nitem != NULL) {
-            break;
-        }
-        long idfreed;
-        idfreed = heapmgr_free_oldest(graphics_heap);
-        if (idfreed < 0)
-        {
-            // If can't free anything more, try to defrag existing items
-            heapmgr_complete_defrag(graphics_heap);
-            nitem = heapmgr_add_item(graphics_heap, nlength);
-            if (nitem != NULL) {
-                break;
-            }
-            // Cannot free and cannot defrag - we can't do anything more
-            ERRORLOG("Unable to find freeable item");
-            return 0;
-        }
-        heap_handle[idfreed] = NULL;
-        keepsprite[idfreed] = NULL;
-    }
-    if (nitem == NULL) {
-        ERRORLOG("Unable to make room for new item on heap");
-        return 0;
-    }
-    if (!read_heap_item(nitem, creature_table[kspr_idx].DataOffset, nlength))
-    {
-        ERRORLOG("Load Fail On KeepSprite %d",(int)kspr_idx);
-        return 0;
-    }
-    keepsprite[kspr_idx] = (unsigned char **)&nitem->buf;
-    heap_handle[kspr_idx] = nitem;
-    nitem->idx = kspr_idx;
+    *data_ptr = he_alloc(nlength);
+
+    LbFileSeek(jty_file_handle, creature_table[kspr_idx].DataOffset, 0);
+    LbFileRead(jty_file_handle, *data_ptr, nlength);
+
+    keepsprite[kspr_idx] = data_ptr;
     return 1;
 }
 
@@ -7676,18 +7601,13 @@ static long load_keepersprite_if_needed(unsigned short kspr_idx)
     }
     for (frame_num=0; frame_num < frame_count; frame_num++)
     {
-        struct HeapMgrHandle **hmhndl;
-        hmhndl = &heap_handle[kspr_idx+frame_num];
-        if ((*hmhndl) != NULL)
+        TbSpriteData *sprite_data_ptr = &sprite_heap_handle[kspr_idx+frame_num];
+        if ((*sprite_data_ptr) == NULL)
         {
-            heapmgr_make_newest(graphics_heap, *hmhndl);
-        } else
-        {
-            if (!load_single_frame(kspr_idx+frame_num))
+            if (!load_single_frame(sprite_data_ptr, kspr_idx+frame_num))
             {
                 return 0;
             }
-            (*hmhndl)->flags |= 0x02;
         }
     }
     return 1;
@@ -7698,9 +7618,7 @@ static long heap_manage_keepersprite(unsigned short kspr_idx)
     long result;
     if (kspr_idx >= KEEPERSPRITE_ADD_OFFSET)
         return 1;
-    lock_keepersprite(kspr_idx);
     result = load_keepersprite_if_needed(kspr_idx);
-    unlock_keepersprite(kspr_idx);
     return result;
 }
 
@@ -7953,18 +7871,18 @@ void process_keeper_sprite(short x, short y, unsigned short kspr_base, short ksp
         water_y_offset = 0;
         water_source_cutoff = 0;
     } else
-    if ( (thing_being_displayed->movement_flags & (TMvF_IsOnWater|TMvF_IsOnLava|TMvF_Unknown04)) == 0)
+    if ( (thing_being_displayed->movement_flags & (TMvF_IsOnWater|TMvF_IsOnLava|TMvF_BeingSacrificed)) == 0)
     {
         water_y_offset = 0;
         water_source_cutoff = 0;
     } else
     {
         cutoff = 6;
-        if ( (thing_being_displayed->movement_flags & TMvF_Unknown04) != 0 )
+        if ( (thing_being_displayed->movement_flags & TMvF_BeingSacrificed) != 0 )
         {
             get_keepsprite_unscaled_dimensions(thing_being_displayed->anim_sprite, thing_being_displayed->move_angle_xy, thing_being_displayed->current_frame, &dim_ow, &dim_oh, &dim_tw, &dim_th);
             cctrl = creature_control_get_from_thing(thing_being_displayed);
-            lltemp = dim_oh * (48 - (long)cctrl->word_9A);
+            lltemp = dim_oh * (48 - (long)cctrl->sacrifice.word_9A);
             cutoff = ((((lltemp >> 24) & 0x1F) + (long)lltemp) >> 5) / 2;
         }
         if (player->view_mode == PVM_CreatureView)
@@ -8575,7 +8493,7 @@ static void update_frontview_pointed_block(unsigned long laaa, unsigned char qdr
         stl_x = (pos_x >> 8) + x_offs[qdrant];
         stl_y = (pos_y >> 8) + y_offs[qdrant];
         
-        if (stl_x < 0 || stl_x > gameadd.map_subtiles_y - 1 || stl_y < -2 || stl_y > gameadd.map_subtiles_y) {
+        if (stl_x < 0 || stl_x > gameadd.map_subtiles_x - 1 || stl_y < -2 || stl_y > gameadd.map_subtiles_y) {
             out_of_bounds = true;
         }
 
@@ -8917,7 +8835,7 @@ static void do_map_who_for_thing(struct Thing *thing)
         ecor.y = (render_floorpos - map_z_pos); // For shadows
 
         // Shadows
-        if (thing_is_creature(thing) && ((thing->movement_flags & TMvF_Unknown04) == 0))
+        if (thing_is_creature(thing) && ((thing->movement_flags & TMvF_BeingSacrificed) == 0))
         {
             int count;
             int i;

@@ -107,11 +107,6 @@ extern long split_1;
 extern long split_2;
 extern long fade_max;
 
-extern long ScrWidth;
-extern long ScrHeight;
-extern long ScrCenterX;
-extern long ScrCenterY;
-
 extern short mx;
 extern short my;
 extern short mz;
@@ -125,9 +120,9 @@ extern Offset high_offset[3];
 extern unsigned char player_bit;
 
 extern TbSpriteData *keepsprite[KEEPSPRITE_LENGTH];
-extern struct HeapMgrHandle * heap_handle[KEEPSPRITE_LENGTH];
+extern TbSpriteData sprite_heap_handle[KEEPSPRITE_LENGTH];
 extern struct HeapMgrHeader *graphics_heap;
-extern TbFileHandle file_handle;
+extern TbFileHandle jty_file_handle;
 
 extern long x_init_off;
 extern long y_init_off;

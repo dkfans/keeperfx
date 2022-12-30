@@ -314,7 +314,6 @@ long pinstfs_passenger_control_creature(struct PlayerInfo *player, long *n)
     turn_off_all_window_menus();
     turn_off_menu(GMnu_CREATURE_QUERY1);
     turn_off_menu(GMnu_CREATURE_QUERY2);
-    game.field_15038E = 0;
     game.flags_font |= FFlg_unk04;
   }
   struct Camera* cam = player->acamera;
@@ -722,7 +721,6 @@ long pinstfs_fade_to_map(struct PlayerInfo *player, long *n)
     {
         set_flag_byte(&player->field_1, 0x02, settings.tooltips_on);
         settings.tooltips_on = 0;
-        copy_settings_to_dk_settings();
         set_flag_byte(&player->field_1, 0x01, toggle_status_menu(0));
   }
   set_engine_view(player, PVM_ParchFadeIn);
@@ -740,7 +738,6 @@ long pinstfe_fade_to_map(struct PlayerInfo *player, long *n)
   set_player_mode(player, PVT_MapScreen);
   if (is_my_player(player))
     settings.tooltips_on = ((player->field_1 & 0x02) != 0);
-  copy_settings_to_dk_settings();
   player->allocflags &= ~PlaF_MouseInputDisabled;
   return 0;
 }
@@ -752,7 +749,6 @@ long pinstfs_fade_from_map(struct PlayerInfo *player, long *n)
   {
     set_flag_byte(&player->field_1, 0x02, settings.tooltips_on);
     settings.tooltips_on = 0;
-    copy_settings_to_dk_settings();
     game.operation_flags &= ~GOF_ShowPanel;
   }
   player->field_4BD = 32;
@@ -768,12 +764,10 @@ long pinstfm_fade_from_map(struct PlayerInfo *player, long *n)
 
 long pinstfe_fade_from_map(struct PlayerInfo *player, long *n)
 {
-    //return _DK_pinstfe_fade_from_map(player, n);
     struct PlayerInfo* myplyr = get_player(my_player_number);
     set_engine_view(player, player->view_mode_restore);
     if (player->id_number == myplyr->id_number) {
         settings.tooltips_on = ((player->field_1 & 2) != 0);
-        copy_settings_to_dk_settings();
         toggle_status_menu(player->field_1 & 1);
     }
     player->allocflags &= ~PlaF_MouseInputDisabled;
@@ -782,7 +776,6 @@ long pinstfe_fade_from_map(struct PlayerInfo *player, long *n)
 
 long pinstfs_zoom_to_position(struct PlayerInfo *player, long *n)
 {
-    //return _DK_pinstfs_zoom_to_position(player, n);
     player->controlled_thing_idx = 0;
     player->controlled_thing_creatrn = 0;
     player->allocflags |= PlaF_MouseInputDisabled;

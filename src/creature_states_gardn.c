@@ -193,7 +193,7 @@ void person_search_for_food_again(struct Thing *creatng, struct Room *room)
     }
     creatng->continue_state = CrSt_CreatureEatingAtGarden;
     cctrl = creature_control_get_from_thing(creatng);
-    cctrl->long_9A = near_food_tng->index;
+    cctrl->eating.foodtng_idx = near_food_tng->index;
 }
 
 short creature_arrived_at_garden(struct Thing *thing)
@@ -222,9 +222,8 @@ short creature_eat(struct Thing *thing)
 
 short creature_eating_at_garden(struct Thing *creatng)
 {
-    //return _DK_creature_eating_at_garden(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    struct Thing* foodtng = thing_get(cctrl->long_9A);
+    struct Thing* foodtng = thing_get(cctrl->eating.foodtng_idx);
     if (!thing_exists(foodtng)) {
         set_start_state(creatng);
         return 0;
@@ -243,7 +242,7 @@ short creature_eating_at_garden(struct Thing *creatng)
         return 0;
     }
     person_eat_food(creatng, foodtng, room);
-    cctrl->long_9A = 0;
+    cctrl->eating.foodtng_idx = 0;
     return 1;
 }
 

@@ -49,6 +49,11 @@ extern "C" {
 #endif
 /******************************************************************************/
 
+long owner_player_navigating;
+long nav_thing_can_travel_over_lava;
+
+/******************************************************************************/
+
 // Call this function if you don't want the creature/thing to (visually) fly across the map whenever suddenly moving a very far distance. (teleporting for example)
 void reset_interpolation_of_thing(struct Thing *thing)
 {
@@ -144,7 +149,6 @@ static void get_nearest_navigable_point_for_thing(struct Thing *thing, struct Co
         get_nearest_valid_position_for_creature_at(thing, pos2);
     nav_thing_can_travel_over_lava = 0;
 }
-HOOK_DK_FUNC(get_nearest_navigable_point_for_thing)
 
 TbBool setup_person_move_to_position_f(struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, NaviRouteFlags flags, const char *func_name)
 {
@@ -360,7 +364,7 @@ TbBool creature_can_navigate_to_f(const struct Thing *thing, struct Coord3d *dst
  * @return
  * @see creature_can_get_to_any_of_players_rooms() is a function used in similar manner.
  */
-TbBool creature_can_get_to_dungeon(struct Thing *creatng, PlayerNumber plyr_idx)
+TbBool creature_can_get_to_dungeon_heart(struct Thing *creatng, PlayerNumber plyr_idx)
 {
     SYNCDBG(18,"Starting");
     struct PlayerInfo* player = get_player(plyr_idx);

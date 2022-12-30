@@ -360,7 +360,6 @@ TbBool can_cast_power_on_thing(PlayerNumber plyr_idx, const struct Thing *thing,
 void update_power_sight_explored(struct PlayerInfo *player)
 {
     SYNCDBG(16,"Starting");
-    //_DK_update_power_sight_explored(player);
     struct Dungeon *dungeon;
     dungeon = get_players_dungeon(player);
     if (dungeon->sight_casted_thing_idx == 0) {
@@ -538,7 +537,7 @@ void slap_creature(struct PlayerInfo *player, struct Thing *thing)
         creature_mark_if_woken_up(thing);
         external_set_thing_state(thing, CrSt_CreatureSlapCowers);
     }
-    cctrl->field_B1 = 6;
+    cctrl->frozen_on_hit = 6;
     cctrl->field_27F = 18;
     play_creature_sound(thing, CrSnd_Slap, 3, 0);
 }
@@ -1908,7 +1907,6 @@ void process_magic_power_must_obey(PlayerNumber plyr_idx)
 void process_dungeon_power_magic(void)
 {
     SYNCDBG(8,"Starting");
-    //_DK_process_dungeon_power_magic();
     long i;
     for (i = 0; i < PLAYERS_COUNT; i++)
     {
