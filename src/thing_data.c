@@ -319,7 +319,7 @@ void query_thing(struct Thing *thing)
             }
             else if (querytng->class_id == TCls_Object)
             {
-                if (querytng->model == 5)
+                if (querytng->model == 5)  //todo make model independent
                 {
                     sprintf(output, "%s/%ld", health, game.dungeon_heart_health);
                 }

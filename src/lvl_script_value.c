@@ -1224,7 +1224,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           }
           break;
       case 23:  //DungeonHeartHealth
-          if (val3 <= SHRT_MAX)
+          if (val3 <= LONG_MAX)
           {
               SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.dungeon_heart_health, val3);
               game.dungeon_heart_health = val3;
