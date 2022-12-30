@@ -2658,7 +2658,7 @@ TbBool kill_creature(struct Thing *creatng, struct Thing *killertng,
         anger_apply_anger_to_creature(killertng, crstat->annoy_win_battle, AngR_Other, 1);
     }
     if (!creature_control_invalid(cctrlgrp) && ((flags & CrDed_DiedInBattle) != 0)) {
-        cctrlgrp->job_stage++;
+        cctrlgrp->unknown_state.byte_9A++;
     }
     if (!dungeon_invalid(dungeon)) {
         dungeon->hates_player[killertng->owner] += game.fight_hate_kill_value;
@@ -5320,7 +5320,7 @@ TngUpdateRet update_creature(struct Thing *thing)
     if (cctrl->force_visible > 0)
         cctrl->force_visible--;
     if (cctrl->unknown.byte_8B == 0)
-        cctrl->unknown.byte_8B = game.field_14EA4B;
+        cctrl->unknown.byte_8B = game.map_changed_for_nagivation;
     if (cctrl->stopped_for_hand_turns == 0) {
         process_creature_instance(thing);
     }

@@ -222,8 +222,8 @@ unsigned char sound_flag;
     unsigned char hero_gate_creation_turn;
     TbBool byte_8B;
     TbBool byte_8C;
-    long long_8D;
-    long long_91;
+    long look_for_enemy_dungeon_turn;
+    long wait_time;
   } hero;
   struct {
     char sbyte_89_unused;
@@ -235,112 +235,86 @@ unsigned char sound_flag;
 
   union {
   struct {
-        long start_gameturn;
-        long long_9Ex;
-        long long_A2x;
-        short assigned_torturer;
-        unsigned char vis_state;
+    GameTurn start_gameturn;
+    GameTurn gameturn_9Ex;
+    GameTurn gameturn_A2x;
+    ThingIndex assigned_torturer;
+    unsigned char vis_state;
   } tortured;
   struct {
-        long start_gameturn;
-        long long_9Ex;
-        long long_A2x;
+    GameTurn start_gameturn;
   } idle;
   struct {
     unsigned char job_stage;
-    unsigned char byte_9B;
-    unsigned char byte_9C;
-    unsigned char byte_9D;
-    unsigned char byte_9E;
-    unsigned char byte_9F;
-    unsigned char byte_A0;
-    unsigned char byte_A1;
-    unsigned char byte_A2;
-    unsigned char byte_A3;
-    unsigned char byte_A4;
-    unsigned char byte_A5;
-  };
-  struct {
-    unsigned char byte_9A_scv;
-    unsigned char byte_9B_scv;
-    unsigned char byte_9C_scv;
-    unsigned char stl_9D_x;
-    unsigned char stl_9D_y;
-    unsigned char byte_9F_scv;
-    unsigned char byte_A0_scv;
-    unsigned char byte_A1_scv;
-    unsigned char byte_A2_scv;
-    unsigned char byte_A3_scv;
-    unsigned char byte_A4_scv;
-    unsigned char byte_A5_scv;
+    unsigned char effect_id;
+    PlayerNumber previous_owner;
+    MapSubtlCoord stl_9D_x;
+    MapSubtlCoord stl_9D_y;
   } scavenge;
   struct {
     unsigned char mode;// offset 9A
     unsigned char train_timeout;
-    unsigned char pole_stl_x;
-    unsigned char pole_stl_y;
+    MapSubtlCoord pole_stl_x;
+    MapSubtlCoord pole_stl_y;
     unsigned char search_timeout;
     short partner_idx;
     long partner_creation;
-    unsigned char byte_A5x;
   } training;
   struct {
-    long seen_enemy_turn;
+    GameTurn seen_enemy_turn;
     long battle_enemy_crtn;
-    short battle_enemy_idx;
-    short seen_enemy_idx;
+    ThingIndex battle_enemy_idx;
+    ThingIndex seen_enemy_idx;
     unsigned char state_id;
     unsigned char attack_type;
     unsigned char seen_enemy_los;
   } combat;
   struct {
-    unsigned long start_gameturn;
-    unsigned long last_mood_sound_turn;
+    GameTurn start_gameturn;
+    GameTurn last_mood_sound_turn;
   } imprison;
+  struct {
+    unsigned char byte_9A;
+    unsigned char swing_weapon_counter;
+    MapSubtlCoord stl_x;
+    MapSubtlCoord stl_y;
+    unsigned char byte_9E;
+  } workshop;
+  struct {
+    ThingIndex foodtng_idx;
+  } eating;
+  struct {
+    unsigned char job_stage;
+    long random_thinking_angle;
+  } research;
+  struct {
+    short enemy_idx;
+    GameTurn enemy_creation_turn;
+    GameTurn turn_looked_for_enemy;
+  } seek_enemy;
+  struct {
+    GameTurn last_mood_sound_turn;
+  }mood;
+  struct {
+    unsigned char persuade_count;
+  }persuade;
+  struct {
+    RoomIndex room_idx;
+  }evacuate;
   struct {
     short word_9A;
     short word_9C;
-    short word_9E;
-    long long_A0;
-    short word_A4;
-    short assigned_torturer;
-  };
+  }sacrifice;
   struct {
-    short word_9A_cp2;
-    long long_9C;
-    long long_A0_cp2;
-    short word_A4_cp2;
-    short word_A6_cp2;
-  };
+    unsigned char byte_9A;
+  }mad_psycho;
+
   struct {
-    long long_9A;
-    long long_9E;
-    long long_A2;
-  };
-  struct {
-    unsigned long last_mood_sound_turn;
-    long long_9E_cp2;
-    long long_A2_cp2;
-    short word_A6_cp3;
-  };
-  struct {
-    unsigned char byte_9A_cp2;
-    long long_9B;
-    short word_9F_cp2;
-    long long_A1;
-    unsigned char byte_A5_cp2;
-    short word_A6_cp4;
-  };
-  struct {
-    unsigned char byte_9A_cp3;
-    short word_9B;
-    short word_9D;
-    short word_9F;
-    short word_A1;
-    short word_A3;
-    unsigned char byte_A5_cp3;
-    short word_A6_cp5;
-  };
+    unsigned char byte_9A;
+  }unknown_state;
+
+
+
   };
     unsigned char fight_til_death;
     TbBool field_AA;
