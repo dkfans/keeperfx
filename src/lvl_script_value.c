@@ -561,35 +561,30 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       if (creature_stats_invalid(crstat))
           break;
       crstat->strength = saturate_set_unsigned(val3, 8);
-      creature_stats_updated(val2);
       break;
   case Cmd_SET_CREATURE_ARMOUR:
       crstat = creature_stats_get(val2);
       if (creature_stats_invalid(crstat))
           break;
       crstat->armour = saturate_set_unsigned(val3, 8);
-      creature_stats_updated(val2);
       break;
   case Cmd_SET_CREATURE_FEAR_WOUNDED:
       crstat = creature_stats_get(val2);
       if (creature_stats_invalid(crstat))
           break;
       crstat->fear_wounded = saturate_set_unsigned(val3, 8);
-      creature_stats_updated(val2);
       break;
   case Cmd_SET_CREATURE_FEAR_STRONGER:
       crstat = creature_stats_get(val2);
       if (creature_stats_invalid(crstat))
           break;
       crstat->fear_stronger = saturate_set_unsigned(val3, 16);
-      creature_stats_updated(val2);
       break;
   case Cmd_SET_CREATURE_FEARSOME_FACTOR:
       crstat = creature_stats_get(val2);
       if (creature_stats_invalid(crstat))
           break;
       crstat->fearsome_factor = saturate_set_unsigned(val3, 16);
-      creature_stats_updated(val2);
       break;
   case Cmd_SET_CREATURE_PROPERTY:
       crconf = &gameadd.crtr_conf.model[val2];
@@ -797,7 +792,6 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           SCRPTERRLOG("Unknown creature property '%d'", val3);
           break;
       }
-      creature_stats_updated(val2);
       break;
   case Cmd_ALLY_PLAYERS:
       for (i=plr_start; i < plr_end; i++)
@@ -1230,7 +1224,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           }
           break;
       case 23:  //DungeonHeartHealth
-          if (val3 <= SHRT_MAX)
+          if (val3 <= LONG_MAX)
           {
               SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.dungeon_heart_health, val3);
               game.dungeon_heart_health = val3;
@@ -1273,6 +1267,10 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       case 31: //AlliesShareCta
           SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.allies_share_cta, val3);
           gameadd.allies_share_cta = (TbBool)val3;
+          break; 
+      case 32: //BarrackMaxPartySize
+          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.barrack_max_party_size, val3);
+          game.barrack_max_party_size = (TbBool)val3;
           break;
       default:
           WARNMSG("Unsupported Game RULE, command %d.", val2);

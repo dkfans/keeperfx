@@ -294,18 +294,6 @@ TbBool creature_stats_invalid(const struct CreatureStats *crstat)
   return (crstat <= &gameadd.creature_stats[0]) || (crstat == NULL);
 }
 
-/**
- * Informs the module that creature stats for given creature model were changed.
- * To be removed as soon as it's no longer needed!
- */
-void creature_stats_updated(ThingModel crstat_idx)
-{
-    struct CreatureStats* crstat = creature_stats_get(crstat_idx);
-    // Update old stats by copying part of the new stats memory
-    // Note that CreatureStats may only change at end for this hack to work!
-    memcpy(&game.creature_stats_OLD[crstat_idx],crstat,sizeof(struct CreatureStatsOLD));
-}
-
 void check_and_auto_fix_stats(void)
 {
     SYNCDBG(8,"Starting for %d models",(int)gameadd.crtr_conf.model_count);
@@ -369,7 +357,6 @@ void check_and_auto_fix_stats(void)
                 }
             }
         }
-        creature_stats_updated(model);
     }
     SYNCDBG(9,"Finished");
 }

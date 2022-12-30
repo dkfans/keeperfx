@@ -2252,11 +2252,11 @@ void update_light_render_area(void)
         player->view_mode == PVM_FrontView ||
         player->view_mode == PVM_IsoStraightView
     ) {
-        game.field_14BB5D = LIGHT_MAX_RANGE;
-        game.field_14BB59 = LIGHT_MAX_RANGE;
+        game.something_light_y = LIGHT_MAX_RANGE;
+        game.something_light_x = LIGHT_MAX_RANGE;
     }
-    int delta_x = abs(game.field_14BB59);
-    int delta_y = abs(game.field_14BB5D);
+    int delta_x = abs(game.something_light_x);
+    int delta_y = abs(game.something_light_y);
     // Prepare the area constraints
     if (player->acamera != NULL)
     {
@@ -2267,7 +2267,7 @@ void update_light_render_area(void)
       subtile_y = 0;
       subtile_x = 0;
     }
-//SYNCMSG("LghtRng %d,%d CamTil %d,%d",game.field_14BB59,game.field_14BB5D,tile_x,tile_y);
+//SYNCMSG("LghtRng %d,%d CamTil %d,%d",game.something_light_x,game.something_light_y,tile_x,tile_y);
     if (subtile_y > delta_y)
     {
       starty = subtile_y - delta_y;

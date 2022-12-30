@@ -61,16 +61,6 @@
 #define BFDEBUG_LEVEL 0
 #endif
 
-#ifdef _WIN32
-#if defined(BUILD_DLL)
-# define DLLIMPORT __declspec (dllexport)
-#else // Not defined BUILD_DLL
-# define DLLIMPORT __declspec (dllimport)
-#endif
-#else
-# define DLLIMPORT
-#endif
-
 #ifdef __cplusplus
 #include <algorithm>
 using std::min;

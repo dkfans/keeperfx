@@ -179,11 +179,6 @@ static void init_level(void)
     // on computers in MP, as it shouldn't affect game actions)
     game.unsync_rand_seed = (unsigned long)LbTimeSec();
 #endif
-    if (!SoundDisabled)
-    {
-        game.field_14BB54 = (UNSYNC_RANDOM(67) % 3 + 1);
-        game.field_14BB55 = 0;
-    }
     light_set_lights_on(1);
     {
         struct PlayerInfo *player;
@@ -404,7 +399,6 @@ void clear_complete_game(void)
     game.turns_packetoff = -1;
     game.local_plyr_idx = default_loc_player;
     game.packet_checksum_verify = start_params.packet_checksum_verify;
-    game.numfield_1503A2 = -1;
     game.flags_font = start_params.flags_font;
     game.numfield_149F47 = 0;
     // Set levels to 0, as we may not have the campaign loaded yet

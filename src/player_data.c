@@ -299,8 +299,6 @@ void set_player_state(struct PlayerInfo *player, short nwrk_state, long chosen_k
   }
   player->continue_work_state = player->work_state;
   player->work_state = nwrk_state;
-  if (is_my_player(player))
-    game.field_14E92E = 0;
   if ((player->work_state != PSt_CreatrQuery) && (player->work_state != PSt_CreatrInfo)
      && (player->work_state != PSt_QueryAll) && (player->work_state != PSt_CreatrInfoAll)
      && (player->work_state != PSt_CtrlDirect) && (player->work_state != PSt_CtrlPassngr)

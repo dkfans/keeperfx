@@ -66,12 +66,12 @@ short at_kinky_torture_room(struct Thing *thing)
         return 0;
     }
     add_creature_to_torture_room(thing, room);
-    cctrl->assigned_torturer = 0;
+    cctrl->tortured.assigned_torturer = 0;
     cctrl->turns_at_job = game.play_gameturn;
     cctrl->tortured.start_gameturn = game.play_gameturn;
-    cctrl->tortured.long_9Ex = game.play_gameturn;
+    cctrl->tortured.gameturn_9Ex = game.play_gameturn;
     cctrl->tortured.vis_state = CTVS_TortureGoToDevice;
-    cctrl->tortured.long_A2x = game.play_gameturn;
+    cctrl->tortured.gameturn_A2x = game.play_gameturn;
     internal_set_thing_state(thing, get_continue_state_for_job(Job_KINKY_TORTURE));
     return 1;
 }
@@ -100,12 +100,12 @@ short at_torture_room(struct Thing *thing)
     }
     add_creature_to_torture_room(thing, room);
     cctrl->flgfield_1 |= CCFlg_NoCompControl;
-    cctrl->assigned_torturer = 0;
+    cctrl->tortured.assigned_torturer = 0;
     cctrl->turns_at_job = game.play_gameturn;
     cctrl->tortured.start_gameturn = game.play_gameturn;
-    cctrl->tortured.long_9Ex = game.play_gameturn;
+    cctrl->tortured.gameturn_9Ex = game.play_gameturn;
     cctrl->tortured.vis_state = CTVS_TortureGoToDevice;
-    cctrl->tortured.long_A2x = game.play_gameturn;
+    cctrl->tortured.gameturn_A2x = game.play_gameturn;
     internal_set_thing_state(thing, get_continue_state_for_job(Job_PAINFUL_TORTURE));
     return 1;
 }
@@ -113,14 +113,14 @@ short at_torture_room(struct Thing *thing)
 short cleanup_torturing(struct Thing *creatng)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    if (cctrl->assigned_torturer > 0)
+    if (cctrl->tortured.assigned_torturer > 0)
     {
-        struct Thing* thing = thing_get(cctrl->assigned_torturer);
+        struct Thing* thing = thing_get(cctrl->tortured.assigned_torturer);
         if (thing_exists(thing)) {
             thing->torturer.belongs_to = 0;
             thing->rendering_flags &= ~TRF_Unknown01;
         }
-        cctrl->assigned_torturer = 0;
+        cctrl->tortured.assigned_torturer = 0;
     }
     // If the creature has flight ability, return it to flying state
     restore_creature_flight_flag(creatng);
@@ -162,7 +162,7 @@ long setup_torture_move_to_device(struct Thing *creatng, struct Room *room, Crea
             creatng->continue_state = get_continue_state_for_job(jobpref);
             tortrtng->torturer.belongs_to = creatng->index;
             tortrtng->torturer.cssize = tortrtng->sprite_size;
-            cctrl->assigned_torturer = tortrtng->index;
+            cctrl->tortured.assigned_torturer = tortrtng->index;
             return 1;
         }
         slbnum = get_next_slab_number_in_room(slbnum);
@@ -186,7 +186,7 @@ long process_torture_visuals(struct Thing *creatng, struct Room *room, CreatureJ
     switch (cctrl->tortured.vis_state)
     {
     case CTVS_TortureRandMove:
-        if (game.play_gameturn - cctrl->tortured.long_9Ex > 100) {
+        if (game.play_gameturn - cctrl->tortured.gameturn_9Ex > 100) {
             cctrl->tortured.vis_state = CTVS_TortureGoToDevice;
         }
         if (!creature_setup_adjacent_move_for_job_within_room(creatng, room, jobpref)) {
@@ -197,14 +197,14 @@ long process_torture_visuals(struct Thing *creatng, struct Room *room, CreatureJ
     case CTVS_TortureGoToDevice:
         if (!setup_torture_move_to_device(creatng, room, jobpref)) {
             cctrl->tortured.vis_state = CTVS_TortureRandMove;
-            cctrl->tortured.long_9Ex = game.play_gameturn;
+            cctrl->tortured.gameturn_9Ex = game.play_gameturn;
             return CrStRet_Unchanged;
         }
         cctrl->tortured.vis_state = CTVS_TortureInDevice;
-        cctrl->tortured.long_9Ex = game.play_gameturn;
+        cctrl->tortured.gameturn_9Ex = game.play_gameturn;
         return 1;
     case CTVS_TortureInDevice:
-        sectng = thing_get(cctrl->assigned_torturer);
+        sectng = thing_get(cctrl->tortured.assigned_torturer);
         if (creature_turn_to_face_angle(creatng, sectng->move_angle_xy) >= LbFPMath_PI/12) {
             return CrStRet_Unchanged;
         }
@@ -219,16 +219,16 @@ long process_torture_visuals(struct Thing *creatng, struct Room *room, CreatureJ
         } else {
             ERRORLOG("No device for torture");
         }
-        dturn = game.play_gameturn - cctrl->long_A2;
+        dturn = game.play_gameturn - cctrl->tortured.gameturn_A2x;
         if ((dturn > 32) || ((cctrl->spell_flags & CSAfF_Speed) && (dturn > 16)))
         {
             play_creature_sound(creatng, CrSnd_Torture, 2, 0);
-            cctrl->long_A2 = game.play_gameturn;
+            cctrl->tortured.gameturn_A2x = game.play_gameturn;
         }
         return CrStRet_Unchanged;
     default:
         WARNLOG("Invalid creature state in torture room");
-        cctrl->tortured.long_9Ex = game.play_gameturn;
+        cctrl->tortured.gameturn_9Ex = game.play_gameturn;
         cctrl->tortured.vis_state = CTVS_TortureGoToDevice;
         break;
     }
@@ -517,7 +517,7 @@ CrCheckRet process_torture_function(struct Thing *creatng)
         return CrCkRet_Available;
     // Torture must take some time before it has any affect
     i = compute_torture_convert_time(creatng,room);
-    if ( (i < crstat->torture_break_time) || (cctrl->assigned_torturer == 0) )
+    if ( (i < crstat->torture_break_time) || (cctrl->tortured.assigned_torturer == 0) )
         return CrCkRet_Available;
     // After that, every time broke chance is hit, do something
     if (CREATURE_RANDOM(creatng, 100) < compute_torture_broke_chance(creatng))

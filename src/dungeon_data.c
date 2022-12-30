@@ -126,9 +126,6 @@ void clear_dungeons(void)
   LbMemorySet(&bad_dungeon, 0, sizeof(struct Dungeon));
   LbMemorySet(&bad_dungeonadd, 0, sizeof(struct DungeonAdd));
   bad_dungeon.owner = PLAYERS_COUNT;
-  game.field_14E4A4 = 0;
-  game.field_14E4A0 = 0;
-  game.field_14E49E = 0;
 }
 
 void decrease_dungeon_area(PlayerNumber plyr_idx, long value)

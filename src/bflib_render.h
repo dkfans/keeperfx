@@ -62,7 +62,8 @@ enum VecModes {
 };
 
 
-struct PolyPoint { // sizeof=20
+// These are used "per screen row"
+struct PolyPoint {
     long X; // Horizontal coordinate within screen buffer
     long Y; // Vertical coordinate within screen buffer
     long U; // Texture UV mapping, U coordinate
@@ -94,6 +95,7 @@ extern unsigned char vec_mode;
 extern unsigned char *render_fade_tables;
 extern unsigned char *render_ghost;
 extern unsigned char *render_alpha;
+extern struct PolyPoint *polyscans;
 // Rename pending for these entries
 extern unsigned char *LOC_poly_screen;
 extern unsigned char *LOC_vec_map;
@@ -113,6 +115,9 @@ void gtblock_draw(struct GtBlock *gtb);
 /******************************************************************************/
 void trig(struct PolyPoint *point_a, struct PolyPoint *point_b, struct PolyPoint *point_c);
 /******************************************************************************/
+void setup_bflib_render(long width, long height);
+void finish_bflib_render();
+
 #ifdef __cplusplus
 }
 #endif
