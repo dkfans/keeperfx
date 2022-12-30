@@ -754,14 +754,14 @@ static TbBool load_tngfx_file(LevelNumber lv_num)
     }
     int32_t total;
 
-    VALUE *thing_arr = value_dict_get(root_ptr, "thing");
-    if (value_type(thing_arr) == VALUE_ARRAY)
+    VALUE *item_arr = value_dict_get(root_ptr, "thing");
+    if (value_type(item_arr) == VALUE_ARRAY)
     {
-        total = value_array_size(thing_arr);
+        total = value_array_size(item_arr);
     }
     else
     {
-        thing_arr = NULL; // Against bad values
+        item_arr = NULL; // Against bad values
         total = value_int32(value_dict_get(common_section, "ThingsCount"));
     }
     // Validate total amount of things
@@ -780,24 +780,24 @@ static TbBool load_tngfx_file(LevelNumber lv_num)
     // Create things
     for (int k = 0; k < total; k++)
     {
-        VALUE *thing_section;
-        if (thing_arr)
+        VALUE *section;
+        if (item_arr)
         {
             // Array form
-            thing_section = value_array_get(thing_arr, k);
+            section = value_array_get(item_arr, k);
         }
         else
         {
             sprintf(key, "thing%d", k);
-            thing_section = value_dict_get(root_ptr, key);
+            section = value_dict_get(root_ptr, key);
         }
-        if (value_type(thing_section) != VALUE_DICT)
+        if (value_type(section) != VALUE_DICT)
         {
             WARNMSG("Invalid TNGFX thing %d", k);
         }
         else
         {
-            if (!thing_create_thing_adv(thing_section))
+            if (!thing_create_thing_adv(section))
             {
                 WARNMSG("Failed to load thing %d from TNGFX", k);
             }
@@ -1421,14 +1421,14 @@ static TbBool load_lgtfx_file(unsigned long lv_num)
     }
     int32_t total;
 
-    VALUE *thing_arr = value_dict_get(root_ptr, "light");
-    if (value_type(thing_arr) == VALUE_ARRAY)
+    VALUE *items_arr = value_dict_get(root_ptr, "light");
+    if (value_type(items_arr) == VALUE_ARRAY)
     {
-        total = value_array_size(thing_arr);
+        total = value_array_size(items_arr);
     }
     else
     {
-        thing_arr = NULL; // Against bad values
+        items_arr = NULL; // Against bad values
         total = value_int32(value_dict_get(common_section, "LightsCount"));
     }
     // Validate total amount of things
@@ -1452,10 +1452,10 @@ static TbBool load_lgtfx_file(unsigned long lv_num)
     for (int k = 0; k < total; k++)
     {
         VALUE *light_section;
-        if (thing_arr)
+        if (items_arr)
         {
             // Array form
-            light_section = value_array_get(thing_arr, k);
+            light_section = value_array_get(items_arr, k);
         }
         else
         {

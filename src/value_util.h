@@ -24,7 +24,7 @@ static inline unsigned short value_read_stl_coord(VALUE *value)
             WARNMSG("Invalid coords");
             return 0;
         }
-        return (stl << 8) | sub_stl;
+        return (stl << 8) | (sub_stl & 0xFF);
     }
     else
     {
