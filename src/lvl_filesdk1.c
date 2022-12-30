@@ -928,7 +928,7 @@ TbBool columns_add_static_entries(void)
       c[i] = 0;
     struct Column lcolmn;
     LbMemorySet(&lcolmn, 0, sizeof(struct Column));
-    short* wptr = &game.field_14A818[0];
+    short* wptr = &game.col_static_entries[0];
     for (long i=0; i < 3; i++)
     {
         LbMemorySet(&lcolmn, 0, sizeof(struct Column));

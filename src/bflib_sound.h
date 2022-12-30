@@ -48,6 +48,7 @@ enum SoundSampleFlags {
     Smp_Unknown02  = 0x02,
 };
 
+typedef void *SndData;
 typedef long (*S3D_LineOfSight_Func)(long, long, long, long, long, long);
 
 struct SoundCoord3d {
@@ -98,7 +99,7 @@ struct SampleTable { // sizeof = 16
   unsigned long file_pos;
   unsigned long data_size;
   unsigned long sfxid;
-  struct HeapMgrHandle *hmhandle;
+  SndData *snd_buf;
 };
 
 /** Sound bank ID. */
