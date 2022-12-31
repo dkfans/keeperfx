@@ -1795,7 +1795,7 @@ int add_unclaimed_unconscious_bodies_to_imp_stack(struct Dungeon *dungeon, int m
     unsigned long k;
     int i;
     if (!dungeon_has_room_of_role(dungeon, RoRoF_Prison)) {
-        SYNCDBG(8,"Dungeon %d has no %s",(int)dungeon->owner,room_role_code_name(RoK_PRISON));
+        SYNCDBG(8,"Dungeon %d has no %s",(int)dungeon->owner,room_role_code_name(RoRoF_Prison));
         return 0;
     }
     if (!player_creature_tends_to(dungeon->owner, CrTend_Imprison)) {

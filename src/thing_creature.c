@@ -1701,7 +1701,7 @@ struct Thing *find_gold_pile_or_chicken_laying_on_mapblk(struct Map *mapblk)
                 struct Room* room = get_room_thing_is_on(thing);
                 if (room_is_invalid(room))
                     return thing;
-                if (!room_role_matches(room->kind, RoRoF_FoodStorage) && (room->kind != RoK_TORTURE) && (room->kind != RoK_PRISON))
+                if (!room_role_matches(room->kind, RoRoF_FoodStorage) && !room_role_matches(room->kind, RoRoF_Torture) && !room_role_matches(room->kind, RoRoF_Prison))
                     return thing;
             }
         }
@@ -6207,7 +6207,7 @@ TbBool thing_is_pickable_by_digger(struct Thing *picktng, struct Thing *creatng)
     }
     else if (thing_is_dead_creature(picktng))
     {
-        return ( (get_room_slabs_count(creatng->owner, RoK_GRAVEYARD) > 0) && (corpse_ready_for_collection(picktng)) );
+        return ( (get_room_of_role_slabs_count(creatng->owner, RoRoF_DeadStorage) > 0) && (corpse_ready_for_collection(picktng)) );
     }
     else if (thing_can_be_picked_to_place_in_player_room_of_role(picktng, creatng->owner, RoRoF_PowersStorage, TngFRPickF_Default))
     {
@@ -6219,7 +6219,7 @@ TbBool thing_is_pickable_by_digger(struct Thing *picktng, struct Thing *creatng)
     }
     else if (thing_can_be_picked_to_place_in_player_room_of_role(picktng, creatng->owner, RoRoF_CratesStorage, TngFRPickF_Default))
     {
-        return (get_room_slabs_count(creatng->owner, RoK_WORKSHOP) > 0);
+        return (get_room_of_role_slabs_count(creatng->owner, RoRoF_CratesStorage) > 0);
     }
     else if (thing_is_trap_crate(picktng)) // for trap crates in one's own Workshop
     {

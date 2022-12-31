@@ -995,13 +995,13 @@ long food_moves(struct Thing *objtng)
       }
       else
       {
-            if ( (room_is_invalid(room)) || (!room_role_matches(room->kind, RoRoF_FoodSpawn)) || (room->owner != objtng->owner) || (room->used_capacity > room->total_capacity) )
+            if ( (room_is_invalid(room)) || (!room_role_matches(room->kind, RoRoF_FoodStorage)) || (room->owner != objtng->owner) || (room->used_capacity > room->total_capacity) )
             {
                 objtng->food.life_remaining = game.food_life_out_of_hatchery;
                 struct Room* hatchroom = room_get(objtng->parent_idx);
                 if (!room_is_invalid(hatchroom))
                 {
-                    if (hatchroom->kind == RoK_GARDEN)
+                    if (room_role_matches(hatchroom->kind, RoRoF_FoodStorage))
                     {
                         update_room_contents(hatchroom);
                     }
@@ -1027,7 +1027,7 @@ long food_moves(struct Thing *objtng)
       }
     }
     TbBool has_near_creature = false;
-    if (!room_is_invalid(room) && (room->kind == RoK_GARDEN) && (objtng->food.life_remaining < 0))
+    if (!room_is_invalid(room) && (room_role_matches(room->kind, RoRoF_FoodStorage)) && (objtng->food.life_remaining < 0))
     {
         objtng->parent_idx = room->index;
         struct Thing* near_creatng;
