@@ -145,12 +145,14 @@ char field_117DA[14];
     struct SpellConfig spells_config[30];
     struct Things things;
     struct Persons persons;
+    
     struct Columns columns;
     unsigned short slabset_num;
     struct SlabSet slabset[SLABSET_COUNT];
     unsigned short slabobjs_num;
     short slabobjs_idx[SLABSET_COUNT];
     struct SlabObj slabobjs[SLABOBJS_COUNT];
+
     unsigned char land_map_start;
     struct LightsShadows lish;
     struct CreatureControl cctrl_data[CREATURES_COUNT];

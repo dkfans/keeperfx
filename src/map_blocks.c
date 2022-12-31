@@ -985,9 +985,8 @@ unsigned short get_slabset_index_f(SlabKind slbkind, unsigned char style, unsign
     return 28 * slbkind + 9 * style + pick;
 }
 
-void place_slab_object(unsigned short slb_num, long a2, long a3, unsigned short slabct_num, unsigned short slbelem, unsigned char a6)
+void place_slab_object(SlabCodedCoords slb_num, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned short slabct_num, unsigned short slbelem, PlayerNumber plyr_idx)
 {
-    //_DK_place_slab_object(a1, a2, a3, a4, a5, a6); return;
     if (slabct_num >= SLABSET_COUNT) {
         ERRORLOG("Illegal animating slab number: %d", (int)slabct_num);
         return;
@@ -1008,8 +1007,8 @@ void place_slab_object(unsigned short slb_num, long a2, long a3, unsigned short 
             continue;
         }
         struct Coord3d pos;
-        pos.x.val = (a2 << 8) + sobj->field_4;
-        pos.y.val = (a3 << 8) + sobj->field_6;
+        pos.x.val = (stl_x << 8) + sobj->field_4;
+        pos.y.val = (stl_y << 8) + sobj->field_6;
         pos.z.val = sobj->field_8;
         struct Map *mapblk;
         mapblk = get_map_block_at(coord_subtile(pos.x.val), coord_subtile(pos.y.val));
@@ -1043,10 +1042,10 @@ void place_slab_object(unsigned short slb_num, long a2, long a3, unsigned short 
                     ThingModel tngmodel;
                     tngmodel = sobj->sofield_B;
                     if (tngmodel == dungeon_flame_objects[0]) {
-                        tngmodel = dungeon_flame_objects[a6];
+                        tngmodel = dungeon_flame_objects[plyr_idx];
                     } else
                     if (tngmodel == player_guardflag_objects[0]) {
-                        tngmodel = player_guardflag_objects[a6];
+                        tngmodel = player_guardflag_objects[plyr_idx];
                     }
                     if (tngmodel <= 0)
                         continue;
@@ -1060,8 +1059,8 @@ void place_slab_object(unsigned short slb_num, long a2, long a3, unsigned short 
                     {
                         MapSlabCoord slb_x;
                         MapSlabCoord slb_y;
-                        slb_x = subtile_slab(a2);
-                        slb_y = subtile_slab(a3);
+                        slb_x = subtile_slab(stl_x);
+                        slb_y = subtile_slab(stl_y);
                         nprison = 0;
                         nfilled = 0;
                         if ((slbelem & 1) != 0)
@@ -1097,7 +1096,7 @@ void place_slab_object(unsigned short slb_num, long a2, long a3, unsigned short 
                             continue;
                       }
                       struct Thing *objtng;
-                      objtng = create_object(&pos, tngmodel, a6, slb_num);
+                      objtng = create_object(&pos, tngmodel, plyr_idx, slb_num);
                       if (thing_is_invalid(objtng)) {
                           ERRORLOG("Cannot create object type %d", tngmodel);
                           continue;
@@ -1106,7 +1105,7 @@ void place_slab_object(unsigned short slb_num, long a2, long a3, unsigned short 
                 if (sobj->field_A == TCls_EffectGen)
                 {
                     struct Thing *effgentng;
-                    effgentng = create_effect_generator(&pos, sobj->sofield_B, sobj->sofield_C << 8, a6, slb_num);
+                    effgentng = create_effect_generator(&pos, sobj->sofield_B, sobj->sofield_C << 8, plyr_idx, slb_num);
                     if (thing_is_invalid(effgentng)) {
                         ERRORLOG("Cannot create effect generator, type %d", sobj->sofield_B);
                         continue;
@@ -1710,7 +1709,7 @@ void place_animating_slab_type_on_map(SlabKind slbkind, char ani_frame, MapSubtl
     if (!slab_kind_is_animated(slbkind))
     {
         ERRORLOG("Attempt to dump an invalid animating slab: %d", (int)slbkind);
-        dump_slab_on_map(SlbT_LAVA, 0, stl_x, stl_y, game.neutral_player_num);
+        dump_slab_on_map(SlbT_SLAB50, 0, stl_x, stl_y, game.neutral_player_num);
         return;
     }
     struct SlabMap *slbmap = get_slabmap_block(slb_x, slb_y);
@@ -1794,7 +1793,7 @@ SlabKind alter_rock_style(SlabKind slbkind, MapSlabCoord tgslb_x, MapSlabCoord t
     return retkind;
 }
 
-void place_slab_type_on_map_f(SlabKind nslab, MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber owner, unsigned char a5,const char *func_name)
+void place_slab_type_on_map_f(SlabKind nslab, MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber owner, TbBool suppress_updates,const char *func_name)
 {
     SlabKind previous_slab_types_around[8];
     struct SlabMap *slb;
@@ -1812,7 +1811,7 @@ void place_slab_type_on_map_f(SlabKind nslab, MapSubtlCoord stl_x, MapSubtlCoord
     slb_y = subtile_slab_fast(stl_y);
     if (slab_kind_is_animated(nslab))
     {
-        ERRORLOG("%s: Placing animating slab %d as standard slab",func_name,(int)nslab);
+        ERRORLOG("%s: Placing animating slab %d as standard slab",(int)nslab);
     }
     for (i = 0; i < AROUND_EIGHT_LENGTH; i++)
     {
@@ -1908,7 +1907,7 @@ void place_slab_type_on_map_f(SlabKind nslab, MapSubtlCoord stl_x, MapSubtlCoord
         }
     }
 
-    if (!a5)
+    if (!suppress_updates)
       update_blocks_around_slab(slb_x,slb_y);
     switch (nslab)
     {
