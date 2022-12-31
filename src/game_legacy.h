@@ -100,28 +100,22 @@ enum GameNumfieldDFlags {
 /******************************************************************************/
 #pragma pack(1)
 
-struct CreaturePool { // sizeof = 129
-  long crtr_kind[CREATURE_TYPES_COUNT];
+struct CreaturePool {
+  long crtr_kind[CREATURE_TYPES_MAX];
   unsigned char is_empty;
 };
 
-struct PerExpLevelValues { // sizeof = 10
+struct PerExpLevelValues {
   unsigned char value[10];
 };
 
-#define SIZEOF_Game 1382437
 
-// only one such struct exists at .data:005F0310
-// it ends at 00741B35
-struct Game { // sizeof=0x151825
-    // This was a level and version before, but now saved games have another versioning system.
-    unsigned short unused_version[3];
+struct Game {
     LevelNumber continue_level_number;
     unsigned char system_flags;
-char align_B;
     /** Flags which control how the game operates, mostly defined by command line. */
     unsigned char operation_flags;
-    unsigned char numfield_D;
+    unsigned char numfield_D; //flags in enum GameNumfieldDFlags
     unsigned char flags_font;
     unsigned char flags_gui;
     unsigned char eastegg01_cntr;
@@ -135,13 +129,7 @@ char numfield_1A;
     unsigned char numfield_1B;
     struct PlayerInfo players[PLAYERS_COUNT];
     struct Column columns_data[COLUMNS_COUNT];
-    struct CubeAttribs cubes_data_UNUSED[CUBE_ITEMS_MAX_OLD];
     struct ObjectConfig objects_config[OBJECT_TYPES_COUNT_ORIGINAL];
-struct ObjectConfig objects_config_UNUSED[103];
-char field_117DA[14];
-    // Traps and doors config; note that eventually we'll want to merge it with trapdoor_conf
-    struct ManfctrConfig traps_config_UNUSED[TRAP_TYPES_COUNT];
-    struct ManfctrConfig doors_config_UNUSED[DOOR_TYPES_COUNT_OLD];
     struct SpellConfig spells_config[30];
     struct Things things;
     struct Persons persons;
@@ -164,13 +152,8 @@ char field_117DA[14];
     struct SlabMap slabmap[85*85];
     struct Room rooms[ROOMS_COUNT];
     struct Dungeon dungeon[DUNGEONS_COUNT];
-char field_149E05;
     struct StructureList thing_lists[13];
-    int field_149E6E; // signed
-char field_149E72[5];
     unsigned int unrevealed_column_idx;
-unsigned char field_149E7B;
-unsigned int field_149E7C;
     unsigned char packet_save_enable;
     unsigned char packet_load_enable;
     char packet_fname[150];
@@ -180,24 +163,22 @@ unsigned int packet_file_pos;
     struct PacketSaveHead packet_save_head;
     unsigned long turns_stored;
     unsigned long turns_fastforward;
-unsigned char numfield_149F38;
+    unsigned char numfield_149F38;
     unsigned char packet_checksum_verify;
     unsigned long log_things_start_turn;
     unsigned long log_things_end_turn;
     unsigned long turns_packetoff;
-    unsigned char local_plyr_idx;
-unsigned char numfield_149F47;
+    PlayerNumber local_plyr_idx;
+    unsigned char numfield_149F47; // something with packetload
 // Originally, save_catalogue was here.
     char campaign_fname[CAMPAIGN_FNAME_LEN];
-    char save_catalogue_UNUSED[72];
     struct Event event[EVENTS_COUNT];
-unsigned long ceiling_height_max;
-unsigned long ceiling_height_min;
-unsigned long ceiling_dist;
-unsigned long ceiling_search_dist;
-unsigned long ceiling_step;
-short field_14A818[18];
-char field_14A83C;
+    unsigned long ceiling_height_max;
+    unsigned long ceiling_height_min;
+    unsigned long ceiling_dist;
+    unsigned long ceiling_search_dist;
+    unsigned long ceiling_step;
+    short col_static_entries[18];
     //unsigned char level_file_number; // merged with level_number to get maps > 255
     short loaded_level_number;
     short texture_animation[8*TEXTURE_BLOCKS_ANIM_COUNT];
@@ -205,58 +186,37 @@ char field_14A83C;
     unsigned char texture_id;
     unsigned short free_things[THINGS_COUNT-1];
     /** Index of the first used element in free things array. All elements BEYOND this index are free. If all things are free, it is set to 0. */
-    unsigned short free_things_start_index;
-    unsigned long play_gameturn;
-    unsigned long pckt_gameturn;
+    ThingIndex free_things_start_index;
+    GameTurn play_gameturn;
+    GameTurn pckt_gameturn;
     /** Synchronized random seed. used for game actions, as it's always identical for clients of network game. */
     unsigned long action_rand_seed;
     /** Unsynchronized random seed. Shouldn't affect game actions, because it's local - other clients have different value. */
     unsigned long unsync_rand_seed;
-short field_14BB52;
-unsigned char field_14BB54;
-int field_14BB55;
-int field_14BB59;
-int field_14BB5D;
+    int something_light_x;
+    int something_light_y;
     unsigned long time_delta;
-short field_14BB65[592];
+    short top_cube[592];
     unsigned char small_map_state;
-    struct Coord3d pos_14C006;
+    struct Coord3d mouse_light_pos;
     struct Packet packets[PACKETS_COUNT];
-    struct CreatureStatsOLD creature_stats_OLD[CREATURE_TYPES_COUNT]; // New stats are in GameAdd
-    struct RoomStatsOLD room_stats_OLD[ROOM_TYPES_COUNT_OLD];
     struct MagicStats keeper_power_stats[POWER_TYPES_COUNT];
-    struct ActionPoint action_points_OLD[ACTN_POINTS_COUNT_OLD];
-char active_players_count;
-    unsigned char hero_player_num;
-    unsigned char neutral_player_num;
-int field_14E498;
-short field_14E49C;
-short field_14E49E;
-int field_14E4A0;
-short field_14E4A4;
+    char active_players_count;
+    PlayerNumber hero_player_num;
+    PlayerNumber neutral_player_num;
     struct GoldLookup gold_lookup[GOLD_LOOKUP_COUNT];
     unsigned short ambient_sound_thing_idx;
     unsigned short block_health[9];
-    unsigned short minimum_gold;
-    unsigned short max_gold_lookup;
-    unsigned short min_gold_to_record;
-    unsigned short wait_for_room_time;
-    unsigned short check_expand_time;
-    unsigned short max_distance_to_dig;
-    unsigned short wait_after_room_area;
-    unsigned short per_imp_gold_dig_size;
     unsigned short default_generate_speed;
     unsigned short generate_speed;
-    unsigned short field_14E92E;
-unsigned char field_14E930[4];
     unsigned long entrance_last_generate_turn;
     unsigned short entrance_room_id;
     unsigned short entrances_count;
-    unsigned short gold_per_gold_block;
-    unsigned short pot_of_gold_holds;
-    unsigned short chest_gold_hold;
-    unsigned short gold_pile_value;
-    unsigned short gold_pile_maximum;
+    GoldAmount gold_per_gold_block;
+    GoldAmount pot_of_gold_holds;
+    GoldAmount chest_gold_hold;
+    GoldAmount gold_pile_value;
+    GoldAmount gold_pile_maximum;
     unsigned short fight_max_hate;
     unsigned short fight_borderline;
     unsigned short fight_max_love;
@@ -264,30 +224,17 @@ unsigned char field_14E930[4];
     unsigned short fight_hate_kill_value;
     unsigned short body_remains_for;
     unsigned short graveyard_convert_time;
-    unsigned short tile_strength;
-    unsigned short gold_tile_strength;
-unsigned char field_14E958[208];
-unsigned short field_14EA28;
-unsigned short field_14EA2A;
-unsigned short field_14EA2C;
-unsigned short field_14EA2E;
-unsigned long field_14EA30;
-unsigned short field_14EA34;
-unsigned short field_14EA36;
-unsigned short field_14EA38;
-unsigned char field_14EA3A[8];
     unsigned char min_distance_for_teleport;
     unsigned char recovery_frequency;
-unsigned short field_14EA44;
     unsigned short nodungeon_creatr_list_start; /**< Linked list of creatures which have no dungeon (neutral and owned by nonexisting players) */
-    unsigned short food_generation_speed;
-    char game_kind; /**< Kind of the game being played, from GameKinds enumeration. Originally was GameMode. */
-char field_14EA4B;
-    struct PerExpLevelValues creature_scores[CREATURE_TYPES_COUNT];
+    GameTurnDelta food_generation_speed;
+    enum GameKinds game_kind; /**< Kind of the game being played, from GameKinds enumeration. Originally was GameMode. */
+    TbBool map_changed_for_nagivation; // something with navigation
+    struct PerExpLevelValues creature_scores[CREATURE_TYPES_MAX];
     unsigned long default_max_crtrs_gen_entrance;
     unsigned long default_imp_dig_damage;
     unsigned long default_imp_dig_own_damage;
-    unsigned short game_turns_in_flee;
+    GameTurnDelta game_turns_in_flee;
     unsigned short hunger_health_loss;
     unsigned short turns_per_hunger_health_loss;
     unsigned short food_health_gain;
@@ -295,14 +242,13 @@ char field_14EA4B;
     unsigned short torture_health_loss;
     unsigned short turns_per_torture_health_loss;
     unsigned char ghost_convert_chance;
-    struct LevelScriptOld script;
     struct Bookmark bookmark[BOOKMARKS_COUNT];
     struct CreaturePool pool;
     long frame_skip;
-    unsigned long pay_day_gap;
-unsigned long pay_day_progress;
-    unsigned long power_hand_gold_grab_amount;
-    unsigned char no_intro;
+    GameTurnDelta pay_day_gap;
+    GameTurnDelta pay_day_progress;
+    GoldAmount power_hand_gold_grab_amount;
+    TbBool no_intro;
     unsigned long hero_door_wait_time;
     unsigned long dungeon_heart_heal_time;
     long dungeon_heart_heal_health;
@@ -310,44 +256,33 @@ unsigned long pay_day_progress;
     unsigned char disease_transfer_percentage;
     unsigned char disease_lose_percentage_health;
     unsigned char disease_lose_health_time;
-    unsigned long armageddon_cast_turn;
-    unsigned long armageddon_over_turn;
-    unsigned char armageddon_caster_idx;
-    unsigned long hold_audience_time;
+    GameTurn armageddon_cast_turn;
+    GameTurn armageddon_over_turn;
+    PlayerNumber armageddon_caster_idx;
+    GameTurnDelta hold_audience_time;
     unsigned long armagedon_teleport_your_time_gap;
     unsigned long armagedon_teleport_enemy_time_gap;
     unsigned char hits_per_slab;
     long collapse_dungeon_damage;
-    unsigned long turns_per_collapse_dngn_dmg;
+    GameTurnDelta turns_per_collapse_dngn_dmg;
     struct SoundSettings sound_settings;
-long field_15038E;
     long num_fps;
-    unsigned long train_cost_frequency;
-    unsigned long scavenge_cost_frequency;
+    GameTurnDelta train_cost_frequency;
+    GameTurnDelta scavenge_cost_frequency;
     unsigned long temple_scavenge_protection_turns;
-char numfield_1503A2;
     unsigned char bodies_for_vampire;
     struct CreatureBattle battles[BATTLES_COUNT];
-unsigned char field_1506D4;
     long music_track_index;
     char evntbox_text_objective[MESSAGE_TEXT_LEN];
     char evntbox_text_buffer[MESSAGE_TEXT_LEN];
     struct TextScrollWindow evntbox_scroll_window;
-char field_1512E6[1037];
     long flash_button_index; /**< GUI Button Designation ID of a button which is supposed to flash, as part of tutorial. */
-    long flash_button_gameturns_UNUSED; // replaced by flash_button_time in gameadd
-long field_1516FB;
     char loaded_swipe_idx;
     long boulder_reduce_health_wall;
     long boulder_reduce_health_slap;
     long boulder_reduce_health_room;
-    struct GuiMessage_OLD messages_[3];
     unsigned char active_messages_count;
-    // Moved bonuses_foudn to IntralevelData
-    unsigned char ex_intralvl_plug[6];
     long bonus_time;
-    // Moved transfered_creauture to IntralevelData
-    unsigned char ex_transfered_creature_plug[2];
     struct Armageddon armageddon;
     char active_panel_mnu_idx; /**< The MenuID of currently active panel menu, or 0 if none. */
     char comp_player_aggressive;
@@ -355,11 +290,11 @@ long field_1516FB;
     char comp_player_construct;
     char comp_player_creatrsonly;
     /** Imprisonment tendency variable. Used for GUI only; the real tendency is a flag inside Dungeon. */
-    char creatures_tend_imprison;
+    TbBool creatures_tend_imprison;
     /** Flee tendency variable. Used for GUI only; the real tendency is a flag inside Dungeon. */
-    char creatures_tend_flee;
-    short hand_over_subtile_x;
-    short hand_over_subtile_y;
+    TbBool creatures_tend_flee;
+    MapSubtlCoord hand_over_subtile_x;
+    MapSubtlCoord hand_over_subtile_y;
     int chosen_room_kind;
     int chosen_room_spridx;
     int chosen_room_tooltip;
@@ -369,13 +304,12 @@ long field_1516FB;
     int manufactr_element;
     int manufactr_spridx;
     int manufactr_tooltip;
+    short barrack_max_party_size;
 };
 
 #pragma pack()
 /******************************************************************************/
-DLLIMPORT extern struct Game _DK_game;
-#define game _DK_game
-/******************************************************************************/
+extern struct Game game;
 /******************************************************************************/
 #ifdef __cplusplus
 }

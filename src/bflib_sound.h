@@ -48,6 +48,7 @@ enum SoundSampleFlags {
     Smp_Unknown02  = 0x02,
 };
 
+typedef void *SndData;
 typedef long (*S3D_LineOfSight_Func)(long, long, long, long, long, long);
 
 struct SoundCoord3d {
@@ -98,7 +99,7 @@ struct SampleTable { // sizeof = 16
   unsigned long file_pos;
   unsigned long data_size;
   unsigned long sfxid;
-  struct HeapMgrHandle *hmhandle;
+  SndData *snd_buf;
 };
 
 /** Sound bank ID. */
@@ -116,43 +117,20 @@ typedef long SoundPitch;
 
 /******************************************************************************/
 // Exported variables
-DLLIMPORT extern int _DK_SoundDisabled;
-#define SoundDisabled _DK_SoundDisabled
-DLLIMPORT extern struct SoundEmitter _DK_emitter[128];
-#define emitter _DK_emitter
-DLLIMPORT extern long _DK_Non3DEmitter;
-#define Non3DEmitter _DK_Non3DEmitter
-DLLIMPORT extern long _DK_SpeechEmitter;
-#define SpeechEmitter _DK_SpeechEmitter
-DLLIMPORT extern struct SoundReceiver _DK_Receiver;
-#define Receiver _DK_Receiver
-DLLIMPORT extern long _DK_MaxSoundDistance;
-#define MaxSoundDistance _DK_MaxSoundDistance
-DLLIMPORT extern long _DK_MaxNoSounds;
-#define MaxNoSounds _DK_MaxNoSounds
-DLLIMPORT extern struct S3DSample _DK_SampleList[SOUNDS_MAX_COUNT];
-#define SampleList _DK_SampleList
-DLLIMPORT TbFileHandle _DK_sound_file;
-#define sound_file _DK_sound_file
-DLLIMPORT TbFileHandle _DK_sound_file2;
-#define sound_file2 _DK_sound_file2
-DLLIMPORT unsigned char _DK_using_two_banks;
-#define using_two_banks _DK_using_two_banks
-DLLIMPORT long _DK_samples_in_bank;
-#define samples_in_bank _DK_samples_in_bank
-DLLIMPORT struct SampleTable *_DK_sample_table;
-#define sample_table _DK_sample_table
-DLLIMPORT long _DK_samples_in_bank2;
-#define samples_in_bank2 _DK_samples_in_bank2
-DLLIMPORT struct SampleTable *_DK_sample_table2;
-#define sample_table2 _DK_sample_table2
-DLLIMPORT struct HeapMgrHeader *_DK_sndheap;
-#define sndheap _DK_sndheap
-DLLIMPORT S3D_LineOfSight_Func _DK_LineOfSightFunction;
-#define LineOfSightFunction _DK_LineOfSightFunction
-DLLIMPORT long _DK_deadzone_radius;
-#define deadzone_radius _DK_deadzone_radius
-
+extern int atmos_sound_volume;
+extern long samples_in_bank;
+extern long samples_in_bank2;
+extern TbBool SoundDisabled;
+extern long MaxSoundDistance;
+extern struct SoundReceiver Receiver;
+extern long Non3DEmitter;
+extern struct SampleTable *sample_table;
+extern struct SampleTable *sample_table2;
+extern TbFileHandle sound_file;
+extern TbFileHandle sound_file2;
+extern unsigned char using_two_banks;
+extern long SpeechEmitter;
+extern struct HeapMgrHeader *sndheap;
 #pragma pack()
 /******************************************************************************/
 // Exported functions
@@ -183,7 +161,7 @@ void play_non_3d_sample_no_overlap(long smpl_idx);
 void play_atmos_sound(long smpl_idx);
 short sound_emitter_in_use(SoundEmitterID eidx);
 long get_best_sound_heap_size(long sh_mem_size);
-struct SampleInfo *play_sample_using_heap(unsigned long a1, short a2, unsigned long a3, unsigned long a4, unsigned long a5, char a6, unsigned char a7, SoundBankID bank_id);
+struct SampleInfo *play_sample_using_heap(SoundEmitterID emit_id, SoundSmplTblID smptbl_id, unsigned long a3, unsigned long a4, unsigned long a5, char a6, unsigned char a7, SoundBankID bank_id);
 void stop_sample_using_heap(SoundEmitterID emit_id, SoundSmplTblID smptbl_id, SoundBankID bank_id);
 long speech_sample_playing(void);
 long play_speech_sample(SoundSmplTblID smptbl_id);
@@ -193,8 +171,6 @@ long stop_emitter_samples(struct SoundEmitter *emit);
 TbBool process_sound_emitters(void);
 void increment_sample_times(void);
 TbBool process_sound_samples(void);
-
-extern int atmos_sound_volume;
 
 struct SoundEmitter* S3DGetSoundEmitter(SoundEmitterID eidx);
 SoundEmitterID get_emitter_id(struct SoundEmitter *emit);

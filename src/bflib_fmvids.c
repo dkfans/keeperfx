@@ -54,8 +54,10 @@ extern "C" {
 
 /******************************************************************************/
 // Global variables
-SmackDrawCallback smack_draw_callback = NULL;
-unsigned char smk_palette[768];
+static SmackDrawCallback smack_draw_callback = NULL;
+static unsigned char smk_palette[768];
+static struct Animation animation;
+
 /******************************************************************************/
 void copy_to_screen(unsigned char *srcbuf, unsigned long width, unsigned long height, unsigned int flags);
 /******************************************************************************/
@@ -73,7 +75,7 @@ typedef void (WINAPI *FARSMACKTOBUF)(struct SmackTag *,unsigned long,unsigned lo
 char SmackSoundUseMSS(void* dig_driver)
 {
     HMODULE hModule;
-    hModule=GetModuleHandle("SMACKW32");
+    hModule=LoadLibrary("SMACKW32");
     FARPROC proc;
     proc=GetProcAddress(hModule,"_SmackSoundUseMSS@4");
     if (proc==NULL)
@@ -84,7 +86,7 @@ char SmackSoundUseMSS(void* dig_driver)
 struct SmackTag *SmackOpen(const char *name,unsigned int flags,int extrabuf)
 {
     HMODULE hModule;
-    hModule=GetModuleHandle("SMACKW32");
+    hModule=LoadLibrary("SMACKW32");
     FARPROC proc;
     proc=GetProcAddress(hModule,"_SmackOpen@12");
     if (proc==NULL)
@@ -95,7 +97,7 @@ struct SmackTag *SmackOpen(const char *name,unsigned int flags,int extrabuf)
 void SmackSummary(struct SmackTag *smk,struct SmackSumTag *sum)
 {
     HMODULE hModule;
-    hModule=GetModuleHandle("SMACKW32");
+    hModule=LoadLibrary("SMACKW32");
     FARPROC proc;
     proc=GetProcAddress(hModule,"_SmackSummary@8");
     if (proc==NULL)
@@ -106,7 +108,7 @@ void SmackSummary(struct SmackTag *smk,struct SmackSumTag *sum)
 unsigned long SmackWait(struct SmackTag *smk)
 {
     HMODULE hModule;
-    hModule=GetModuleHandle("SMACKW32");
+    hModule=LoadLibrary("SMACKW32");
     FARPROC proc;
     proc=GetProcAddress(hModule,"_SmackWait@4");
     if (proc==NULL)
@@ -117,7 +119,7 @@ unsigned long SmackWait(struct SmackTag *smk)
 void SmackClose(struct SmackTag *smk)
 {
     HMODULE hModule;
-    hModule=GetModuleHandle("SMACKW32");
+    hModule=LoadLibrary("SMACKW32");
     FARPROC proc;
     proc=GetProcAddress(hModule,"_SmackClose@4");
     if (proc==NULL)
@@ -128,7 +130,7 @@ void SmackClose(struct SmackTag *smk)
 unsigned long SmackDoFrame(struct SmackTag *smk)
 {
     HMODULE hModule;
-    hModule=GetModuleHandle("SMACKW32");
+    hModule=LoadLibrary("SMACKW32");
     FARPROC proc;
     proc=GetProcAddress(hModule,"_SmackDoFrame@4");
     if (proc==NULL)
@@ -139,7 +141,7 @@ unsigned long SmackDoFrame(struct SmackTag *smk)
 void SmackNextFrame(struct SmackTag *smk)
 {
     HMODULE hModule;
-    hModule=GetModuleHandle("SMACKW32");
+    hModule=LoadLibrary("SMACKW32");
     FARPROC proc;
     proc=GetProcAddress(hModule,"_SmackNextFrame@4");
     if (proc==NULL)
@@ -151,7 +153,7 @@ void SmackToBuffer(struct SmackTag *smk,unsigned long left,unsigned long top,
     unsigned long Pitch,unsigned long destheight,const void *buf,unsigned long Flags)
 {
     HMODULE hModule;
-    hModule=GetModuleHandle("SMACKW32");
+    hModule=LoadLibrary("SMACKW32");
     FARPROC proc;
     proc=GetProcAddress(hModule,"_SmackToBuffer@28");
     if (proc==NULL)
@@ -162,7 +164,7 @@ void SmackToBuffer(struct SmackTag *smk,unsigned long left,unsigned long top,
 void SmackGoto(struct SmackTag *smk,unsigned long frame)
 {
     HMODULE hModule;
-    hModule=GetModuleHandle("SMACKW32");
+    hModule=LoadLibrary("SMACKW32");
     FARPROC proc;
     proc=GetProcAddress(hModule,"_SmackGoto@8");
     if (proc==NULL)
@@ -173,7 +175,7 @@ void SmackGoto(struct SmackTag *smk,unsigned long frame)
 void SmackSimulate(unsigned long sim)
 {
     HMODULE hModule;
-    hModule=GetModuleHandle("SMACKW32");
+    hModule=LoadLibrary("SMACKW32");
     FARPROC proc;
     proc=GetProcAddress(hModule,"_SmackSimulate@4");
     if (proc==NULL)

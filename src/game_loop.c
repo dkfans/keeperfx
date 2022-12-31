@@ -69,8 +69,8 @@ void initialise_devastate_dungeon_from_heart(PlayerNumber plyr_idx)
         }
         else {
             dungeon->devastation_turn = 1;
-            dungeon->devastation_centr_x = map_subtiles_x / 2;
-            dungeon->devastation_centr_y = map_subtiles_y / 2;
+            dungeon->devastation_centr_x = gameadd.map_subtiles_x / 2;
+            dungeon->devastation_centr_y = gameadd.map_subtiles_y / 2;
         }
     }
 }
@@ -168,7 +168,7 @@ void process_dungeon_destroy(struct Thing* heartng)
         {
             if (gameadd.heart_lost_display_message)
             {
-                if (is_my_player_number(heartng->owner))
+                if (is_my_player_number(dungeon->owner))
                 {
                     const char* objective = (gameadd.heart_lost_quick_message) ? gameadd.quick_messages[gameadd.heart_lost_message_id] : get_string(gameadd.heart_lost_message_id);
                     process_objective(objective, gameadd.heart_lost_message_target, 0, 0);

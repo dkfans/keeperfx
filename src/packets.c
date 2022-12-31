@@ -392,7 +392,7 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
             break;
         }
     }
-    unsigned long zoom_min = adjust_min_camera_zoom(cam, player->engine_window_width, player->engine_window_height, ((game.operation_flags & GOF_ShowGui) != 0) ? status_panel_width : 0);
+    unsigned long zoom_min = max(CAMERA_ZOOM_MIN, zoom_distance_setting);
     unsigned long zoom_max = CAMERA_ZOOM_MAX;
     if (pckt->control_flags & PCtr_ViewZoomIn)
     {
@@ -905,7 +905,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
          toggle_ally_with_player(plyr_idx, pckt->actn_par1);
          if (gameadd.allies_share_vision)
          {
-            pannel_map_update(0, 0, map_subtiles_x+1, map_subtiles_y+1);
+            pannel_map_update(0, 0, gameadd.map_subtiles_x+1, gameadd.map_subtiles_y+1);
          }
       }
       return false;

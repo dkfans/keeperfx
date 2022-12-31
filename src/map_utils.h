@@ -68,8 +68,7 @@ struct CompoundCoordFilterParam {
 };
 
 /******************************************************************************/
-DLLIMPORT struct MapOffset _DK_spiral_step[SPIRAL_STEPS_COUNT];
-#define spiral_step _DK_spiral_step
+extern struct MapOffset spiral_step[SPIRAL_STEPS_COUNT];
 /******************************************************************************/
 #define AROUND_TILES_COUNT      9
 extern struct Around const around[];
@@ -88,15 +87,8 @@ extern struct Around const small_around_mid[];
 extern struct Around const my_around_eight[];
 #define AROUND_NINE_LENGTH 9
 extern struct Around const my_around_nine[];
-extern short around_map[];
-#define AROUND_MAP_LENGTH 9
 
-#define AROUND_SLAB_LENGTH 9
-#define AROUND_SLAB_EIGHT_LENGTH 8
-extern short around_slab[];
-extern short around_slab_eight[];
-#define SMALL_AROUND_SLAB_LENGTH 4
-extern short small_around_slab[];
+
 /******************************************************************************/
 void init_spiral_steps(void);
 

@@ -57,9 +57,12 @@ const char jtytext[] = "Jonty here   : ...I am writing this at 4am on Keepers la
     "and the little one, Crofty, Scooper, Jason Stanton [a cup of coffee], Aaron Senna, Mike Dorell, Ian Howie, Helen Thain, Alex Forest-Hay, Lee Hazelwood, Vicky Arnold, Guy Simmons, Shin, Val Taylor.... If I forgot you I am sorry... but sleep is due to me... and I have a dream to live...";
 
 /******************************************************************************/
+
 float render_tooltip_scroll_offset; // Rendering float
 float render_tooltip_scroll_timer; // Rendering float
+struct ToolTipBox tool_tip_box;
 
+/******************************************************************************/
 static inline void reset_scrolling_tooltip(void)
 {
     render_tooltip_scroll_offset = 0;
@@ -333,7 +336,7 @@ void setup_gui_tooltip(struct GuiButton *gbtn)
   if (i == GUIStr_PickCreatrMostExpDesc)
   {
       k = gbtn->btype_value & LbBFeF_IntValueMask;
-      if ((k > 0) && (top_of_breed_list+k < CREATURE_TYPES_COUNT))
+      if ((k > 0) && (top_of_breed_list+k < gameadd.crtr_conf.model_count))
           k = breed_activities[top_of_breed_list+k];
       else
           k = get_players_special_digger_model(my_player_number);
@@ -434,7 +437,7 @@ void draw_tooltip_slab64k(char *tttext, long pos_x, long pos_y, long ttwidth, lo
             if (-ttwidth >= render_tooltip_scroll_offset)
               render_tooltip_scroll_offset = viswidth;
             else
-              render_tooltip_scroll_offset -= 4.0 * gameadd.delta_time;
+              render_tooltip_scroll_offset -= ((MyScreenHeight >= 400) ? 4.0 : 2.0) * gameadd.delta_time;
         } else
         {
             render_tooltip_scroll_timer -= 1.0 * gameadd.delta_time;

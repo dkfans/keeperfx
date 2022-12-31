@@ -61,6 +61,8 @@ const char *saved_game_filename="fx1g%04d.sav";
 const char *packet_filename="fx1rp%04d.pck";
 
 struct CatalogueEntry save_game_catalogue[TOTAL_SAVE_SLOTS_COUNT];
+
+int number_of_saved_games;
 /******************************************************************************/
 TbBool is_primitive_save_version(long filesize)
 {
@@ -415,7 +417,7 @@ TbBool load_game(long slot_num)
     LbStringCopy(game.campaign_fname,campaign.fname,sizeof(game.campaign_fname));
     reinit_level_after_load();
     output_message(SMsg_GameLoaded, 0, true);
-    pannel_map_update(0, 0, map_subtiles_x+1, map_subtiles_y+1);
+    pannel_map_update(0, 0, gameadd.map_subtiles_x+1, gameadd.map_subtiles_y+1);
     calculate_moon_phase(false,false);
     update_extra_levels_visibility();
     struct PlayerInfo* player = get_my_player();

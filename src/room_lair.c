@@ -42,6 +42,9 @@ extern "C" {
 }
 #endif
 /******************************************************************************/
+struct Room *start_rooms;
+struct Room *end_rooms;
+/******************************************************************************/
 long calculate_free_lair_space(struct Dungeon * dungeon)
 {
     SYNCDBG(9,"Starting");
@@ -164,7 +167,7 @@ struct Room *get_best_new_lair_for_creature(struct Thing *creatng)
                     TbBool room_has_units_of_same_kind = false;
                     TbBool room_has_units_of_different_kind = false;
                     TbBool room_has_lair_enemy = false;
-                    for ( ThingModel model = 0; model < CREATURE_TYPES_COUNT; ++model )
+                    for ( ThingModel model = 0; model < gameadd.crtr_conf.model_count; ++model )
                     {
                         if ( room_has_units_of_same_kind && room_has_units_of_different_kind && room_has_lair_enemy )
                             break;

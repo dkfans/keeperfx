@@ -703,7 +703,7 @@ long anywhere_thing_filter_is_creature_of_model_training_and_owned_by(const stru
               if (((int)thing->index != param->num1) || (param->num1 == -1))
               {
                   struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-                  if ((thing->active_state == CrSt_Training) && (cctrl->job_stage > 1))
+                  if ((thing->active_state == CrSt_Training) && (cctrl->training.mode > 1))
                   {
                       // Return the largest value to stop sweeping
                       return LONG_MAX;
@@ -1177,8 +1177,8 @@ void init_player_start(struct PlayerInfo *player, TbBool keep_prev)
         // the heart position - it's needed for Floating Spirit
         if (!keep_prev)
         {
-            dungeon->mappos.x.val = subtile_coord_center(map_subtiles_x/2);
-            dungeon->mappos.y.val = subtile_coord_center(map_subtiles_y/2);
+            dungeon->mappos.x.val = subtile_coord_center(gameadd.map_subtiles_x/2);
+            dungeon->mappos.y.val = subtile_coord_center(gameadd.map_subtiles_y/2);
             dungeon->mappos.z.val = subtile_coord_center(map_subtiles_z/2);
         }
     }
@@ -1317,7 +1317,6 @@ void place_thing_in_mapwho(struct Thing *thing)
     SYNCDBG(18,"Starting");
     if ((thing->alloc_flags & TAlF_IsInMapWho) != 0)
         return;
-    //_DK_place_thing_in_mapwho(thing);
     struct Map* mapblk = get_map_block_at(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
     thing->next_on_mapblk = get_mapwho_thing_index(mapblk);
     if (thing->next_on_mapblk > 0)
@@ -3052,9 +3051,9 @@ TbBool update_thing(struct Thing *thing)
         if (thing->mappos.z.val > thing->floor_height)
         {
             if (thing->veloc_base.x.val != 0)
-                thing->veloc_base.x.val = thing->veloc_base.x.val * (256 - (int)thing->field_24) / 256;
+                thing->veloc_base.x.val = thing->veloc_base.x.val * (256 - (int)thing->inertia_air) / 256;
             if (thing->veloc_base.y.val != 0)
-                thing->veloc_base.y.val = thing->veloc_base.y.val * (256 - (int)thing->field_24) / 256;
+                thing->veloc_base.y.val = thing->veloc_base.y.val * (256 - (int)thing->inertia_air) / 256;
             if ((thing->movement_flags & TMvF_Flying) == 0)
             {
                 thing->veloc_push_add.z.val -= thing->fall_acceleration;
@@ -3064,7 +3063,7 @@ TbBool update_thing(struct Thing *thing)
                 // For flying creatures, the Z velocity should also decrease over time
                 if (thing->veloc_base.z.val != 0)
                 {
-                    thing->veloc_base.z.val = thing->veloc_base.z.val * (256 - (int)thing->field_24) / 256;
+                    thing->veloc_base.z.val = thing->veloc_base.z.val * (256 - (int)thing->inertia_air) / 256;
                 }
                 else 
                 {
@@ -3078,9 +3077,9 @@ TbBool update_thing(struct Thing *thing)
         } else
         {
             if (thing->veloc_base.x.val != 0)
-              thing->veloc_base.x.val = thing->veloc_base.x.val * (256 - (int)thing->field_23) / 256;
+              thing->veloc_base.x.val = thing->veloc_base.x.val * (256 - (int)thing->inertia_floor) / 256;
             if (thing->veloc_base.y.val != 0)
-              thing->veloc_base.y.val = thing->veloc_base.y.val * (256 - (int)thing->field_23) / 256;
+              thing->veloc_base.y.val = thing->veloc_base.y.val * (256 - (int)thing->inertia_floor) / 256;
             thing->mappos.z.val = thing->floor_height;
             if ((thing->movement_flags & TMvF_Unknown08) != 0)
             {
@@ -3129,7 +3128,6 @@ short update_thing_sound(struct Thing *thing)
 
 long collide_filter_thing_is_of_type(const struct Thing *thing, const struct Thing *sectng, long tngclass, long tngmodel)
 {
-    //return _DK_collide_filter_thing_is_of_type(thing, sectng, a3, a4);
     if (tngmodel >= 0)
     {
         if (thing->model != tngmodel)
@@ -3868,7 +3866,6 @@ struct Thing *get_creature_of_model_training_at_subtile_and_owned_by(MapSubtlCoo
 
 struct Thing *get_nearest_object_at_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-  // return _DK_get_nearest_object_at_position(stl_x, stl_y);
   return get_object_around_owned_by_and_matching_bool_filter(
         subtile_coord_center(stl_x), subtile_coord_center(stl_y), -1, thing_is_object);
 }

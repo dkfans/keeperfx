@@ -326,8 +326,7 @@ long gpoly_divtable[][64] = {
        50737,   52851,   54965,   57079,   59193,   61307,   63421,   65536,},
 };
 
-DLLIMPORT long _DK_gpoly_pro_enable_mode_ofs;
-#define gpoly_pro_enable_mode_ofs _DK_gpoly_pro_enable_mode_ofs
+static long gpoly_pro_enable_mode_ofs;
 // Static variables used only inside draw_gpoly().
 // These don't really have to be global; but this helps
 // in using these inside assembly code
@@ -374,8 +373,6 @@ void draw_gpoly_sub14();
 
 void draw_gpoly(struct PolyPoint *point_a, struct PolyPoint *point_b, struct PolyPoint *point_c)
 {
-    //_DK_vec_mode = vec_mode; _DK_vec_colour = vec_colour;
-    //_DK_draw_gpoly(point_a, point_b, point_c); return;
     LOC_poly_screen = poly_screen;
     LOC_vec_map = vec_map;
     LOC_vec_screen = vec_screen;

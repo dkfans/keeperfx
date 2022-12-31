@@ -85,10 +85,7 @@ struct FileChunkHeader {
 };
 
 /******************************************************************************/
-//DLLIMPORT extern struct CatalogueEntry _DK_save_game_catalogue[SAVE_SLOTS_COUNT];
-//#define save_game_catalogue _DK_save_game_catalogue
-DLLIMPORT extern int _DK_number_of_saved_games;
-#define number_of_saved_games _DK_number_of_saved_games
+extern int number_of_saved_games;
 
 #pragma pack()
 /******************************************************************************/

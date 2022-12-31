@@ -20,6 +20,7 @@
 #include "config_crtrmodel.h"
 #include "globals.h"
 #include "game_merge.h"
+#include "game_legacy.h"
 
 #include "bflib_basics.h"
 #include "bflib_memory.h"
@@ -81,6 +82,7 @@ const struct NamedCommand creatmodel_attributes_commands[] = {
   {"TOKINGRECOVERY",     31},
   {"CORPSEVANISHEFFECT", 32},
   {"FOOTSTEPPITCH",      33},
+  {"LAIROBJECT",         34},
   {NULL,                  0},
   };
 
@@ -795,6 +797,22 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
           {
             CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
                 COMMAND_TEXT(cmd_num),block_buf,config_textname);
+          }
+          break;
+      case 34: // LAIROBJECT
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = get_id(object_desc, word_buf);
+              if (k > 0)
+              {
+                  crstat->lair_object = k;
+                  n++;
+              }
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
           break;
       case 0: // comment
@@ -2491,8 +2509,6 @@ TbBool load_creaturemodel_config_file(long crtr_model,const char *textname,const
         if (!result)
             WARNMSG("Parsing %s file \"%s\" sounds blocks failed.",textname,fname);
     }
-    // Mark the fact that stats were updated
-    creature_stats_updated(crtr_model);
     // Freeing and exiting
     LbMemoryFree(buf);
     return result;
@@ -2546,12 +2562,11 @@ void do_creature_swap(long ncrt_id, long crtr_id)
 {
     swap_creaturemodel_config(ncrt_id, crtr_id, 0);
     SCRPTLOG("Swapped creature %s out for creature %s", creature_code_name(crtr_id), new_creature_code_name(ncrt_id));
-    creature_stats_updated(crtr_id);
 }
 
 TbBool swap_creature(long ncrt_id, long crtr_id)
 {
-    if ((crtr_id < 0) || (crtr_id >= CREATURE_TYPES_COUNT))
+    if ((crtr_id < 0) || (crtr_id >= gameadd.crtr_conf.model_count))
     {
         ERRORLOG("Creature index %d is invalid", crtr_id);
         return false;
@@ -2592,7 +2607,6 @@ TbBool change_max_health_of_creature_kind(ThingModel crmodel, long new_max)
     }
     SYNCDBG(3,"Changing all %s health from %d to %d.",creature_code_name(crmodel),(int)crstat->health,(int)new_max);
     crstat->health = saturate_set_signed(new_max, 16);
-    creature_stats_updated(crmodel);
     int n = do_to_all_things_of_class_and_model(TCls_Creature, crmodel, update_creature_health_to_max);
     return (n > 0);
 }

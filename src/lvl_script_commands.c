@@ -1562,14 +1562,14 @@ static void add_heart_health_process(struct ScriptContext *context)
     struct Thing* heartng = get_player_soul_container(context->value->arg0);
     if (!thing_is_invalid(heartng))
     {
-        short old_health = heartng->health;
-        long new_health = heartng->health + context->value->arg1;
+        long old_health = heartng->health;
+        unsigned long new_health = heartng->health + context->value->arg1;
         if (new_health > (signed long)game.dungeon_heart_health)
         {
             SCRIPTDBG(7,"Player %d's calculated heart health (%ld) is greater than maximum: %ld", heartng->owner, new_health, game.dungeon_heart_health);
             new_health = game.dungeon_heart_health;
         }
-        heartng->health = (short)new_health;
+        heartng->health = new_health;
         TbBool warn_on_damage = (context->value->arg2);
         if (warn_on_damage)
         {
@@ -1857,6 +1857,15 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
         value->shorts[2] = atoi(scline->tp[2]);
     }
 
+    if (creatvar == 34) // LAIROBJECT
+    {
+        value->shorts[2] = get_id(object_desc, scline->tp[2]);
+    }
+    else
+    {
+        value->shorts[2] = atoi(scline->tp[2]);
+    }
+
     SCRIPTDBG(7, "Setting creature %s attribute %d to %d (%d)", creature_code_name(scline->np[0]), scline->np[1], scline->np[2], scline->np[3]);
     value->shorts[0] = scline->np[0];
     value->shorts[1] = creatvar;
@@ -1974,6 +1983,10 @@ static void set_creature_configuration_process(struct ScriptContext* context)
         break;
     case 33: // FOOTSTEPPITCH
         crstat->footstep_pitch = value;
+        break;
+    case 34: // LAIROBJECT
+        crstat->lair_object = value;
+        break;
     case 0: // comment
         break;
     case -1: // end of buffer
@@ -1983,7 +1996,6 @@ static void set_creature_configuration_process(struct ScriptContext* context)
         break;
     }
     check_and_auto_fix_stats();
-    creature_stats_updated(creatid);
 }
 
 static void set_object_configuration_process(struct ScriptContext *context)
@@ -2405,14 +2417,14 @@ static void set_box_tooltip_id(const struct ScriptLine *scline)
 static void change_slab_owner_check(const struct ScriptLine *scline)
 {
 
-    if (scline->np[0] < 0 || scline->np[0] > map_tiles_x) //x coord
+    if (scline->np[0] < 0 || scline->np[0] > gameadd.map_tiles_x) //x coord
     {
-        SCRPTERRLOG("Value '%d' out of range. Range 0-%d allowed.", scline->np[0],map_tiles_x);
+        SCRPTERRLOG("Value '%d' out of range. Range 0-%d allowed.", scline->np[0],gameadd.map_tiles_x);
         return;
     }
-    if (scline->np[1] < 0 || scline->np[1] > map_tiles_y) //y coord
+    if (scline->np[1] < 0 || scline->np[1] > gameadd.map_tiles_y) //y coord
     {
-        SCRPTERRLOG("Value '%d' out of range. Range 0-%d allowed.", scline->np[1],map_tiles_y);
+        SCRPTERRLOG("Value '%d' out of range. Range 0-%d allowed.", scline->np[1],gameadd.map_tiles_y);
         return;
     }
     long filltype = get_id(fill_desc, scline->tp[3]);
@@ -2445,9 +2457,9 @@ static void change_slab_type_check(const struct ScriptLine *scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
 
-    if (scline->np[0] < 0 || scline->np[0] > map_tiles_x) //x coord
+    if (scline->np[0] < 0 || scline->np[0] > gameadd.map_tiles_x) //x coord
     {
-        SCRPTERRLOG("Value '%d' out of range. Range 0-%d allowed.", scline->np[0],map_tiles_x);
+        SCRPTERRLOG("Value '%d' out of range. Range 0-%d allowed.", scline->np[0],gameadd.map_tiles_x);
         return;
     }
     else
@@ -2455,9 +2467,9 @@ static void change_slab_type_check(const struct ScriptLine *scline)
         value->shorts[0] = scline->np[0];
     }
 
-    if (scline->np[1] < 0 || scline->np[1] > map_tiles_y) //y coord
+    if (scline->np[1] < 0 || scline->np[1] > gameadd.map_tiles_y) //y coord
     {
-        SCRPTERRLOG("Value '%d' out of range. Range 0-%d allowed.", scline->np[0],map_tiles_y);
+        SCRPTERRLOG("Value '%d' out of range. Range 0-%d allowed.", scline->np[0],gameadd.map_tiles_y);
         return;
     }
     else

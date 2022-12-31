@@ -109,8 +109,7 @@ struct InstanceButtonInit {  // sizeof=0x6
 };
 /******************************************************************************/
 
-DLLIMPORT struct InstanceButtonInit _DK_instance_button_init[48];
-#define instance_button_init _DK_instance_button_init
+extern struct InstanceButtonInit instance_button_init[48];
 
 #pragma pack()
 /******************************************************************************/
@@ -121,6 +120,8 @@ extern Creature_Instf_Func creature_instances_func_list[];
 #define creature_instance_info_get(inst_idx) creature_instance_info_get_f(inst_idx,__func__)
 struct InstanceInfo *creature_instance_info_get_f(CrInstance inst_idx,const char *func_name);
 void process_creature_instance(struct Thing *thing);
+long process_creature_self_spell_casting(struct Thing* thing);
+
 TbBool creature_instance_info_invalid(const struct InstanceInfo *inst_inf);
 TbBool creature_instance_is_available(const struct Thing *thing, CrInstance inum);
 

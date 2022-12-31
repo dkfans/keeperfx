@@ -96,10 +96,8 @@ extern long previous_camera_zoom;
 extern long interpolated_camera_zoom;
 
 /******************************************************************************/
-DLLIMPORT extern struct M33 _DK_camera_matrix;
-#define camera_matrix _DK_camera_matrix
-DLLIMPORT extern struct EngineCoord _DK_object_origin;
-#define object_origin _DK_object_origin
+
+extern struct EngineCoord object_origin;
 
 #pragma pack()
 /******************************************************************************/
@@ -121,7 +119,6 @@ void view_zoom_camera_in(struct Camera *cam, long limit_max, long limit_min);
 void set_camera_zoom(struct Camera *cam, long val);
 void view_zoom_camera_out(struct Camera *cam, long limit_max, long limit_min);
 long get_camera_zoom(struct Camera *cam);
-unsigned long adjust_min_camera_zoom(struct Camera *cam, long width, long height, long status_panel_width);
 unsigned long scale_camera_zoom_to_screen(unsigned long zoom_lvl);
 void update_camera_zoom_bounds(struct Camera *cam,unsigned long zoom_max,unsigned long zoom_min);
 

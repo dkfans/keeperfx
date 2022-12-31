@@ -78,10 +78,6 @@ TbBool load_stats_files(void)
       if (!load_creaturemodel_config(i,0))
         result = false;
     }
-    game.field_149E7B = game.tile_strength;
-//  LbFileSaveAt("!stat11", &game, sizeof(struct Game));
-//  LbFileSaveAt("!stat12", &shot_stats, sizeof(shot_stats));
-//  LbFileSaveAt("!stat13", &instance_info, sizeof(instance_info));
     SYNCDBG(3,"Finished");
     return result;
 }
