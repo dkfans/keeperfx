@@ -1531,6 +1531,15 @@ TbBool roomspace_can_build_room_at_slab(PlayerNumber plyr_idx, RoomKind rkind, M
         {
             return false;
         }
+        struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
+        if(slb->kind == SlbT_WATER && !room_role_matches( rkind,RoRoF_PassWater))
+        {
+            return false;
+        }
+        if(slb->kind == SlbT_LAVA && !room_role_matches( rkind,RoRoF_PassLava))
+        {
+            return false;
+        }
         struct PlayerInfoAdd* playeradd = get_playeradd(plyr_idx);
         if (playeradd->roomspace_horizontal_first)
         {
