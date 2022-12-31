@@ -865,6 +865,48 @@ void kick_out_sample(short smpl_id)
     sample->is_playing = 0;
 }
 
+struct SampleInfo *play_sample_using_heap(SoundEmitterID emit_id, SoundSmplTblID smptbl_id, unsigned long a3, unsigned long a4, unsigned long a5, char a6, unsigned char a7, SoundBankID bank_id)
+{
+    if ((!using_two_banks) && (bank_id > 0))
+    {
+        ERRORLOG("Trying to use two sound banks when only one has been set up");
+        return NULL;
+    }
+
+    struct SampleTable* smp_table = sample_table_get(smptbl_id, bank_id);
+    if (smp_table == NULL) {
+        return NULL;
+    }
+    if (smp_table->snd_buf == NULL) {
+        smp_table->snd_buf = he_alloc(smp_table->data_size);
+        if (smp_table->snd_buf == NULL) {
+            ERRORLOG("Can't allocate to play sample %d",smptbl_id);
+            return NULL;
+        }
+        if (bank_id > 0)
+        {
+            LbFileSeek(sound_file2, smp_table->file_pos, Lb_FILE_SEEK_BEGINNING);
+            LbFileRead(sound_file2, smp_table->snd_buf, smp_table->data_size);
+        } else
+        {
+            LbFileSeek(sound_file, smp_table->file_pos, Lb_FILE_SEEK_BEGINNING);
+            LbFileRead(sound_file, smp_table->snd_buf , smp_table->data_size);
+        }
+    }
+
+    // Start the play
+    struct SampleInfo* smpinfo = PlaySampleFromAddress(emit_id, smptbl_id, a3, a4, a5, a6, a7, smp_table->snd_buf, smp_table->sfxid);
+    if (smpinfo == NULL) {
+        SYNCLOG("Can't start playing sample %d",smptbl_id);
+        return NULL;
+    }
+    smpinfo->flags_17 |= 0x01;
+    if (bank_id != 0) {
+        smpinfo->flags_17 |= 0x04;
+    }
+    return smpinfo;
+}
+
 struct HeapMgrHandle *find_handle_for_new_sample(long smpl_len, long smpl_idx, long file_pos, unsigned char bank_id)
 {
     if ((!using_two_banks) && (bank_id > 0))
@@ -908,48 +950,6 @@ struct HeapMgrHandle *find_handle_for_new_sample(long smpl_len, long smpl_idx, l
         LbFileRead(sound_file, hmhandle->buf, smpl_len);
     }
     return hmhandle;
-}
-
-struct SampleInfo *play_sample_using_heap(SoundEmitterID emit_id, SoundSmplTblID smptbl_id, unsigned long a3, unsigned long a4, unsigned long a5, char a6, unsigned char a7, SoundBankID bank_id)
-{
-    if ((!using_two_banks) && (bank_id > 0))
-    {
-        ERRORLOG("Trying to use two sound banks when only one has been set up");
-        return NULL;
-    }
-
-    struct SampleTable* smp_table = sample_table_get(smptbl_id, bank_id);
-    if (smp_table == NULL) {
-        return NULL;
-    }
-    if (smp_table->snd_buf == NULL) {
-        smp_table->snd_buf = he_alloc(smp_table->data_size);
-        if (smp_table->snd_buf == NULL) {
-            ERRORLOG("Can't allocate to play sample %d",smptbl_id);
-            return NULL;
-        }
-        if (bank_id > 0)
-        {
-            LbFileSeek(sound_file2, smp_table->file_pos, Lb_FILE_SEEK_BEGINNING);
-            LbFileRead(sound_file2, smp_table->snd_buf, smp_table->data_size);
-        } else
-        {
-            LbFileSeek(sound_file, smp_table->file_pos, Lb_FILE_SEEK_BEGINNING);
-            LbFileRead(sound_file, smp_table->snd_buf , smp_table->data_size);
-        }
-    }
-
-    // Start the play
-    struct SampleInfo* smpinfo = PlaySampleFromAddress(emit_id, smptbl_id, a3, a4, a5, a6, a7, smp_table->snd_buf, smp_table->sfxid);
-    if (smpinfo == NULL) {
-        SYNCLOG("Can't start playing sample %d",smptbl_id);
-        return NULL;
-    }
-    smpinfo->flags_17 |= 0x01;
-    if (bank_id != 0) {
-        smpinfo->flags_17 |= 0x04;
-    }
-    return smpinfo;
 }
 
 void stop_sample_using_heap(SoundEmitterID emit_id, SoundSmplTblID smptbl_id, SoundBankID bank_id)
