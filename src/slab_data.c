@@ -746,7 +746,7 @@ TbBool players_land_by_slab_kind(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapS
             MapSlabCoord aslb_x = slb_x + small_around[n].delta_x;
             MapSlabCoord aslb_y = slb_y + small_around[n].delta_y;
             struct SlabMap* slb = get_slabmap_block(aslb_x, aslb_y);
-            if (slb->kind = slbkind) 
+            if (slb->kind == slbkind) 
             {
                 return true;
             }
