@@ -312,14 +312,14 @@ void query_thing(struct Thing *thing)
                     sprintf((char*)amount, "Amount: %ld", querytng->valuable.gold_stored);   
                 }
             }  
-            sprintf((char*)health, "Health: %d", querytng->health);
+            sprintf((char*)health, "Health: %ld", querytng->health);
             if (querytng->class_id == TCls_Door)
             {
                 sprintf(output, "%s/%ln", health, &gameadd.trapdoor_conf.door_cfgstats[querytng->model].health);
             }
             else if (querytng->class_id == TCls_Object)
             {
-                if (querytng->model == 5)
+                if (querytng->model == 5)  //todo make model independent
                 {
                     sprintf(output, "%s/%ld", health, game.dungeon_heart_health);
                 }

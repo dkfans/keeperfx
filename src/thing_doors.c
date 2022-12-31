@@ -192,7 +192,7 @@ TbBool add_key_on_door(struct Thing *thing)
 void unlock_door(struct Thing *thing)
 {
     thing->door.is_locked = false;
-    game.field_14EA4B = 1;
+    game.map_changed_for_nagivation = 1;
     update_navigation_triangulation(thing->mappos.x.stl.num-1, thing->mappos.y.stl.num-1,
       thing->mappos.x.stl.num+1, thing->mappos.y.stl.num+1);
     pannel_map_update(thing->mappos.x.stl.num-1, thing->mappos.y.stl.num-1, STL_PER_SLB, STL_PER_SLB);
@@ -209,7 +209,7 @@ void lock_door(struct Thing *doortng)
     doortng->active_state = DorSt_Closed;
     doortng->door.closing_counter = 0;
     doortng->door.is_locked = 1;
-    game.field_14EA4B = 1;
+    game.map_changed_for_nagivation = 1;
     place_animating_slab_type_on_map(doorst->slbkind[doortng->door.orientation], 0, stl_x, stl_y, doortng->owner);
     update_navigation_triangulation(stl_x-1,  stl_y-1, stl_x+1,stl_y+1);
     pannel_map_update(stl_x-1, stl_y-1, STL_PER_SLB, STL_PER_SLB);

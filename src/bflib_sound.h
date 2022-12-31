@@ -48,6 +48,7 @@ enum SoundSampleFlags {
     Smp_Unknown02  = 0x02,
 };
 
+typedef void *SndData;
 typedef long (*S3D_LineOfSight_Func)(long, long, long, long, long, long);
 
 struct SoundCoord3d {
@@ -98,7 +99,7 @@ struct SampleTable { // sizeof = 16
   unsigned long file_pos;
   unsigned long data_size;
   unsigned long sfxid;
-  struct HeapMgrHandle *hmhandle;
+  SndData *snd_buf;
 };
 
 /** Sound bank ID. */
@@ -160,7 +161,7 @@ void play_non_3d_sample_no_overlap(long smpl_idx);
 void play_atmos_sound(long smpl_idx);
 short sound_emitter_in_use(SoundEmitterID eidx);
 long get_best_sound_heap_size(long sh_mem_size);
-struct SampleInfo *play_sample_using_heap(unsigned long a1, short a2, unsigned long a3, unsigned long a4, unsigned long a5, char a6, unsigned char a7, SoundBankID bank_id);
+struct SampleInfo *play_sample_using_heap(SoundEmitterID emit_id, SoundSmplTblID smptbl_id, unsigned long a3, unsigned long a4, unsigned long a5, char a6, unsigned char a7, SoundBankID bank_id);
 void stop_sample_using_heap(SoundEmitterID emit_id, SoundSmplTblID smptbl_id, SoundBankID bank_id);
 long speech_sample_playing(void);
 long play_speech_sample(SoundSmplTblID smptbl_id);

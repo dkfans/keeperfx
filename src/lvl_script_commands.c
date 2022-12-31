@@ -1562,14 +1562,14 @@ static void add_heart_health_process(struct ScriptContext *context)
     struct Thing* heartng = get_player_soul_container(context->value->arg0);
     if (!thing_is_invalid(heartng))
     {
-        short old_health = heartng->health;
-        long new_health = heartng->health + context->value->arg1;
+        long old_health = heartng->health;
+        unsigned long new_health = heartng->health + context->value->arg1;
         if (new_health > (signed long)game.dungeon_heart_health)
         {
             SCRIPTDBG(7,"Player %d's calculated heart health (%ld) is greater than maximum: %ld", heartng->owner, new_health, game.dungeon_heart_health);
             new_health = game.dungeon_heart_health;
         }
-        heartng->health = (short)new_health;
+        heartng->health = new_health;
         TbBool warn_on_damage = (context->value->arg2);
         if (warn_on_damage)
         {
@@ -1996,7 +1996,6 @@ static void set_creature_configuration_process(struct ScriptContext* context)
         break;
     }
     check_and_auto_fix_stats();
-    creature_stats_updated(creatid);
 }
 
 static void set_object_configuration_process(struct ScriptContext *context)

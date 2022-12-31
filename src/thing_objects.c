@@ -445,7 +445,7 @@ struct Thing *create_object(const struct Coord3d *pos, unsigned short model, uns
     thing->solid_size_yz = objdat->size_yz;
     thing->anim_speed = objdat->anim_speed;
     thing->anim_sprite = objdat->sprite_anim_idx;
-    thing->health = saturate_set_signed(objconf->health,16);
+    thing->health = saturate_set_signed(objconf->health,32);
     thing->fall_acceleration = objconf->fall_acceleration;
     thing->inertia_floor = 204;
     thing->inertia_air = 51;

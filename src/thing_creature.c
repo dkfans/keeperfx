@@ -240,6 +240,10 @@ long check_for_first_person_barrack_party(struct Thing *grthing)
                 add_creature_to_group(thing, grthing);
             }
             n++;
+            if (n >= game.barrack_max_party_size || n >= GROUP_MEMBERS_COUNT)
+            {
+                break;
+            }
         }
         // Per creature code ends
         k++;
@@ -2658,7 +2662,7 @@ TbBool kill_creature(struct Thing *creatng, struct Thing *killertng,
         anger_apply_anger_to_creature(killertng, crstat->annoy_win_battle, AngR_Other, 1);
     }
     if (!creature_control_invalid(cctrlgrp) && ((flags & CrDed_DiedInBattle) != 0)) {
-        cctrlgrp->job_stage++;
+        cctrlgrp->unknown_state.byte_9A++;
     }
     if (!dungeon_invalid(dungeon)) {
         dungeon->hates_player[killertng->owner] += game.fight_hate_kill_value;
@@ -3793,8 +3797,8 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
     cctrl->blood_type = CREATURE_RANDOM(crtng, BLOOD_TYPES_COUNT);
     if (owner == game.hero_player_num)
     {
-      cctrl->party.target_plyr_idx = -1;
-      cctrl->byte_8C = 1;
+      cctrl->hero.sbyte_89 = -1;
+      cctrl->hero.byte_8C = 1;
     }
     cctrl->flee_pos.x.val = crtng->mappos.x.val;
     cctrl->flee_pos.y.val = crtng->mappos.y.val;
@@ -3975,8 +3979,6 @@ TbBool create_random_hero_creature(MapCoord x, MapCoord y, PlayerNumber owner, C
   remove_first_creature(thing);
   set_first_creature(thing);
 //  set_start_state(thing); - simplified to the following two commands
-  game.field_14E498 = game.play_gameturn;
-  game.field_14E49C++;
   CrtrExpLevel lv = GAME_RANDOM(max_lv);
   set_creature_level(thing, lv);
   return true;
@@ -5321,8 +5323,8 @@ TngUpdateRet update_creature(struct Thing *thing)
         cctrl->frozen_on_hit--;
     if (cctrl->force_visible > 0)
         cctrl->force_visible--;
-    if (cctrl->byte_8B == 0)
-        cctrl->byte_8B = game.field_14EA4B;
+    if (cctrl->unknown.byte_8B == 0)
+        cctrl->unknown.byte_8B = game.map_changed_for_nagivation;
     if (cctrl->stopped_for_hand_turns == 0) {
         process_creature_instance(thing);
     }
