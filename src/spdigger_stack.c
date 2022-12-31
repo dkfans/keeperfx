@@ -1859,7 +1859,7 @@ int add_unclaimed_dead_bodies_to_imp_stack(struct Dungeon *dungeon, int max_task
     int remain_num;
     unsigned long k;
     int i;
-    if (!dungeon_has_room(dungeon, RoK_GRAVEYARD)) {
+    if (!dungeon_has_room_of_role(dungeon, RoRoF_DeadStorage)) {
         SYNCDBG(8,"Dungeon %d has no %s",(int)dungeon->owner,room_role_code_name(RoRoF_DeadStorage));
         return 0;
     }

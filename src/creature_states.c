@@ -3749,7 +3749,7 @@ short person_sulk_at_lair(struct Thing *creatng)
     if (!room_still_valid_as_type_for_thing(room, RoRoF_LairStorage, creatng))
     {
         WARNLOG("Room %s index %d is not valid %s for %s owned by player %d to work in",
-            room_code_name(room->kind),(int)room->index,room_code_name(RoK_LAIR),
+            room_code_name(room->kind),(int)room->index,room_role_code_name(RoRoF_LairStorage),
             thing_model_name(creatng),(int)creatng->owner);
         set_start_state(creatng);
         return 0;

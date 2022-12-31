@@ -53,25 +53,31 @@ long calculate_free_lair_space(struct Dungeon * dungeon)
     unsigned long k = 0;
     struct DungeonAdd* dungeonadd = get_dungeonadd_by_dungeon(dungeon);
 
-    long i = dungeonadd->room_kind[RoK_LAIR];
-    while (i != 0)
+    for (RoomKind rkind = 0; rkind < slab_conf.room_types_count; rkind++)
     {
-        struct Room* room = room_get(i);
-        if (room_is_invalid(room))
+        if(room_role_matches(rkind,RoRoF_LairStorage))
         {
-            ERRORLOG("Jump to invalid room detected");
-            break;
-        }
-        i = room->next_of_owner;
-        // Per-room code
-        cap_total += room->total_capacity;
-        cap_used += room->used_capacity;
-        // Per-room code ends
-        k++;
-        if (k > ROOMS_COUNT)
-        {
-            ERRORLOG("Infinite loop detected when sweeping rooms list");
-            break;
+            long i = dungeonadd->room_kind[rkind];
+            while (i != 0)
+            {
+                struct Room* room = room_get(i);
+                if (room_is_invalid(room))
+                {
+                    ERRORLOG("Jump to invalid room detected");
+                    break;
+                }
+                i = room->next_of_owner;
+                // Per-room code
+                cap_total += room->total_capacity;
+                cap_used += room->used_capacity;
+                // Per-room code ends
+                k++;
+                if (k > ROOMS_COUNT)
+                {
+                    ERRORLOG("Infinite loop detected when sweeping rooms list");
+                    break;
+                }
+            }
         }
     }
     long cap_required = 0;
