@@ -83,7 +83,7 @@ enum ThingMovementFlags {
     TMvF_Default            = 0x00,
     TMvF_IsOnWater          = 0x01,
     TMvF_IsOnLava           = 0x02,
-    TMvF_Unknown04          = 0x04, //Touching ground? Also don't cast shadows when this is set
+    TMvF_BeingSacrificed    = 0x04,
     TMvF_Unknown08          = 0x08,
     TMvF_Unknown10          = 0x10, //Stopped by walls?
     TMvF_Flying             = 0x20,
@@ -264,7 +264,7 @@ unsigned char tint_colour;
     unsigned short clipbox_size_yz;
     unsigned short solid_size_xy;
     unsigned short solid_size_yz;
-    short health; //signed
+    long health;
 unsigned short floor_height;
     unsigned short light_id;
     short ccontrol_idx;
