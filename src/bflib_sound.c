@@ -907,51 +907,6 @@ struct SampleInfo *play_sample_using_heap(SoundEmitterID emit_id, SoundSmplTblID
     return smpinfo;
 }
 
-struct HeapMgrHandle *find_handle_for_new_sample(long smpl_len, long smpl_idx, long file_pos, unsigned char bank_id)
-{
-    if ((!using_two_banks) && (bank_id > 0))
-    {
-        ERRORLOG("Trying to use two sound banks when only one has been set up");
-        return NULL;
-    }
-    struct HeapMgrHandle* hmhandle = heapmgr_add_item(sndheap, smpl_len);
-    if (hmhandle == NULL)
-    {
-        while (sndheap->field_10)
-        {
-            hmhandle = heapmgr_add_item(sndheap, smpl_len);
-            if (hmhandle != NULL)
-              break;
-            long smptbl_idx = heapmgr_free_oldest(sndheap);
-            if (smptbl_idx < 0)
-              break;
-            struct SampleTable* smp_table;
-            if (smptbl_idx < samples_in_bank)
-            {
-              smp_table = &sample_table[smptbl_idx];
-            } else
-            {
-              smp_table = &sample_table2[smptbl_idx-samples_in_bank];
-            }
-            smp_table->hmhandle = hmhandle;
-        }
-    }
-    if (hmhandle == NULL)
-        return NULL;
-    if (bank_id > 0)
-    {
-        hmhandle->idx = samples_in_bank + smpl_idx;
-        LbFileSeek(sound_file2, file_pos, Lb_FILE_SEEK_BEGINNING);
-        LbFileRead(sound_file2, hmhandle->buf, smpl_len);
-    } else
-    {
-        hmhandle->idx = smpl_idx;
-        LbFileSeek(sound_file, file_pos, Lb_FILE_SEEK_BEGINNING);
-        LbFileRead(sound_file, hmhandle->buf, smpl_len);
-    }
-    return hmhandle;
-}
-
 void stop_sample_using_heap(SoundEmitterID emit_id, SoundSmplTblID smptbl_id, SoundBankID bank_id)
 {
     SYNCDBG(19,"Starting");
