@@ -77,19 +77,19 @@ struct ActionPoint *actnpoint_create_actnpoint(struct InitActionPoint *iapt)
     return apt;
 }
 
-struct ActionPoint *actnpoint_create_actnpoint_adv(VALUE *init_data)
+TbBool actnpoint_create_actnpoint_adv(VALUE *init_data)
 {
     int point_number = value_int32(value_dict_get(init_data, "PointNumber"));
     if (point_number < 0)
-        return INVALID_ACTION_POINT;
+        return false;
 
     struct ActionPoint* apt = allocate_free_action_point_structure_with_number(point_number);
     if (action_point_is_invalid(apt))
-        return INVALID_ACTION_POINT;
+        return false;
     apt->mappos.x.val = value_read_stl_coord(value_dict_get(init_data, "SubtileX"));
     apt->mappos.y.val = value_read_stl_coord(value_dict_get(init_data, "SubtileY"));
     apt->range = value_read_stl_coord(value_dict_get(init_data, "PointRange"));
-    return apt;
+    return true;
 }
 
 struct ActionPoint *action_point_get(ActionPointId apt_idx)

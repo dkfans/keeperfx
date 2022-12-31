@@ -727,11 +727,13 @@ static TbBool load_thing_file(LevelNumber lv_num)
     return true;
 }
 
-static TbBool load_tngfx_file(LevelNumber lv_num)
+static TbBool load_kfx_toml_file(LevelNumber lv_num, const char *ext, const char *msg_name,
+                                 const char *sections, const char *count_field, const char *section_fmt,
+                                 int max_count, TbBool (*section_loader)(VALUE *arg))
 {
     SYNCDBG(5,"Starting");
     long fsize = 0;
-    unsigned char* buf = load_single_map_file_to_buffer(lv_num, "tngfx", &fsize, LMFF_None);
+    unsigned char* buf = load_single_map_file_to_buffer(lv_num, ext, &fsize, LMFF_None);
     if (buf == NULL)
         return false;
     VALUE file_root, *root_ptr = &file_root;
@@ -740,21 +742,21 @@ static TbBool load_tngfx_file(LevelNumber lv_num)
 
     if (toml_parse((char*)buf, err, sizeof(err), root_ptr))
     {
-        WARNMSG("Unable to load TNGFX file: %s", err);
+        WARNMSG("Unable to load %s file\n %s", msg_name, err);
         LbMemoryFree(buf);
         return false;
     }
     VALUE *common_section = value_dict_get(root_ptr, "common");
     if (!common_section)
     {
-        WARNMSG("No [common] in TNGFX for level %d", lv_num);
+        WARNMSG("No [common] in %s for level %d", msg_name, lv_num);
         value_fini(root_ptr);
         LbMemoryFree(buf);
         return false;
     }
     int32_t total;
 
-    VALUE *item_arr = value_dict_get(root_ptr, "thing");
+    VALUE *item_arr = value_dict_get(root_ptr, sections);
     if (value_type(item_arr) == VALUE_ARRAY)
     {
         total = value_array_size(item_arr);
@@ -762,22 +764,22 @@ static TbBool load_tngfx_file(LevelNumber lv_num)
     else
     {
         item_arr = NULL; // Against bad values
-        total = value_int32(value_dict_get(common_section, "ThingsCount"));
+        total = value_int32(value_dict_get(common_section, count_field));
     }
-    // Validate total amount of things
+    // Validate total amount of sections
     if (total < 0)
     {
-        WARNMSG("Bad amount of things in TNGFX file");
+        WARNMSG("Bad amount of secions in %s file", msg_name);
         value_fini(root_ptr);
         LbMemoryFree(buf);
         return false;
     }
-    if (total > THINGS_COUNT-2)
+    if (total >= max_count)
     {
-        WARNMSG("Only %d things supported, file has %d.",(int)(THINGS_COUNT-2),total);
+        WARNMSG("Only %d things supported, file has %d.", max_count,total);
 
     }
-    // Create things
+    // Create sections
     for (int k = 0; k < total; k++)
     {
         VALUE *section;
@@ -788,24 +790,31 @@ static TbBool load_tngfx_file(LevelNumber lv_num)
         }
         else
         {
-            sprintf(key, "thing%d", k);
+            sprintf(key, section_fmt, k);
             section = value_dict_get(root_ptr, key);
         }
         if (value_type(section) != VALUE_DICT)
         {
-            WARNMSG("Invalid TNGFX thing %d", k);
+            WARNMSG("Invalid %s section %d", msg_name, k);
         }
         else
         {
-            if (!thing_create_thing_adv(section))
+            if (!section_loader(section))
             {
-                WARNMSG("Failed to load thing %d from TNGFX", k);
+                WARNMSG("Failed to load section %d from %s", k, msg_name);
             }
         }
     }
     value_fini(root_ptr);
     LbMemoryFree(buf);
     return true;
+}
+
+static TbBool load_tngfx_file(LevelNumber lv_num)
+{
+    return load_kfx_toml_file(lv_num, "tngfx", "TNGFX",
+                              "thing", "ThingsCount", "thing%d", THINGS_COUNT - 2,
+                              &thing_create_thing_adv);
 }
 
 TbBool load_action_point_file(LevelNumber lv_num)
@@ -835,7 +844,7 @@ TbBool load_action_point_file(LevelNumber lv_num)
       struct InitActionPoint iapt;
       LbMemoryCopy(&iapt, &buf[i], sizeof(struct InitActionPoint));
       if (actnpoint_create_actnpoint(&iapt) == INVALID_ACTION_POINT)
-          ERRORLOG("Cannot allocate action point %d during APTFX load", k);
+          ERRORLOG("Cannot allocate action point %d during APT load", k);
     i += sizeof(struct InitActionPoint);
   }
   LbMemoryFree(buf);
@@ -844,83 +853,9 @@ TbBool load_action_point_file(LevelNumber lv_num)
 
 TbBool load_aptfx_file(LevelNumber lv_num)
 {
-    SYNCDBG(5, "Starting");
-    long fsize = 0;
-    unsigned char* buf = load_single_map_file_to_buffer(lv_num, "aptfx", &fsize, LMFF_None);
-    if (buf == NULL)
-        return false;
-    VALUE file_root, *root_ptr = &file_root;
-    char err[255];
-    char key[64];
-
-    if (toml_parse((char*)buf, err, sizeof(err), root_ptr))
-    {
-        WARNMSG("Unable to load APTFX file: %s", err);
-        LbMemoryFree(buf);
-        return false;
-    }
-    VALUE *common_section = value_dict_get(root_ptr, "common");
-    if (!common_section)
-    {
-        WARNMSG("No [common] in APTFX for level %d", lv_num);
-        value_fini(root_ptr);
-        LbMemoryFree(buf);
-        return false;
-    }
-    int32_t total;
-
-    VALUE *thing_arr = value_dict_get(root_ptr, "actionpoint");
-    if (value_type(thing_arr) == VALUE_ARRAY)
-    {
-        total = value_array_size(thing_arr);
-    }
-    else
-    {
-        thing_arr = NULL; // Against bad values
-        total = value_int32(value_dict_get(common_section, "ActionPointsCount"));
-    }
-    // Validate total amount of sections
-    if (total < 0)
-    {
-        WARNMSG("Bad amount of things in APTFX file");
-        value_fini(root_ptr);
-        LbMemoryFree(buf);
-        return false;
-    }
-    if (total > ACTN_POINTS_COUNT-1)
-    {
-        WARNMSG("Only %d things supported, file has %d.",(int)(ACTN_POINTS_COUNT-1),total);
-
-    }
-    // Create things
-    for (int k = 0; k < total; k++)
-    {
-        VALUE *section;
-        if (thing_arr)
-        {
-            // Array form
-            section = value_array_get(thing_arr, k);
-        }
-        else
-        {
-            sprintf(key, "actionpoint%d", k);
-            section = value_dict_get(root_ptr, key);
-        }
-        if (value_type(section) != VALUE_DICT)
-        {
-            WARNMSG("Invalid APTFX thing %d", k);
-        }
-        else
-        {
-            if (actnpoint_create_actnpoint_adv(section) == INVALID_ACTION_POINT)
-            {
-                ERRORLOG("Cannot allocate action point %d during APT load", k);
-            }
-        }
-    }
-    value_fini(root_ptr);
-    LbMemoryFree(buf);
-    return true;
+    return load_kfx_toml_file(lv_num, "aptfx", "APTFX",
+                              "actionpoint", "ActionPointsCount", "actionpoint%d", ACTN_POINTS_COUNT - 1,
+                              &actnpoint_create_actnpoint_adv);
 }
 
 TbBool load_slabdat_file(struct SlabSet *slbset, long *scount)
@@ -1397,86 +1332,14 @@ static TbBool load_static_light_file(unsigned long lv_num)
 
 static TbBool load_lgtfx_file(unsigned long lv_num)
 {
-    long fsize = 0;
-    unsigned char* buf = load_single_map_file_to_buffer(lv_num, "lgtfx", &fsize, LMFF_Optional);
-    if (buf == NULL)
-        return false;
-    VALUE file_root, *root_ptr = &file_root;
-    char err[255];
-    char key[64];
-
-    if (toml_parse((char*)buf, err, sizeof(err), root_ptr))
+    TbBool ret = load_kfx_toml_file(lv_num, "lgtfx", "LGTFX",
+                             "light", "LightsCount", "light%d", LIGHTS_COUNT - 1,
+                             &light_create_light_adv);
+    if (light_count_lights() > LIGHTS_COUNT / 2)
     {
-        WARNMSG("Unable to load LGTFX file: %s", err);
-        LbMemoryFree(buf);
-        return false;
+        WARNMSG("More than %d%% of light slots used by static lights.", 100*light_count_lights()/LIGHTS_COUNT);
     }
-    VALUE *common_section = value_dict_get(root_ptr, "common");
-    if (!common_section)
-    {
-        WARNMSG("No [common] in LGTFX for level %d", lv_num);
-        value_fini(root_ptr);
-        LbMemoryFree(buf);
-        return false;
-    }
-    int32_t total;
-
-    VALUE *items_arr = value_dict_get(root_ptr, "light");
-    if (value_type(items_arr) == VALUE_ARRAY)
-    {
-        total = value_array_size(items_arr);
-    }
-    else
-    {
-        items_arr = NULL; // Against bad values
-        total = value_int32(value_dict_get(common_section, "LightsCount"));
-    }
-    // Validate total amount of sections
-    if (total < 0)
-    {
-        WARNMSG("Bad amount of things in LGTFX file");
-        value_fini(root_ptr);
-        LbMemoryFree(buf);
-        return false;
-    }
-    if (total > LIGHTS_COUNT / 2)
-    {
-        WARNMSG("More than %d%% of light slots used by static lights.",100*total/LIGHTS_COUNT);
-    }
-    if (total > LIGHTS_COUNT-1)
-    {
-        WARNMSG("Only %d lights supported, file has %d.",(int)(LIGHTS_COUNT-1),total);
-        total = LIGHTS_COUNT-1;
-    }
-    // Create lights
-    for (int k = 0; k < total; k++)
-    {
-        VALUE *light_section;
-        if (items_arr)
-        {
-            // Array form
-            light_section = value_array_get(items_arr, k);
-        }
-        else
-        {
-            sprintf(key, "light%d", k);
-            light_section = value_dict_get(root_ptr, key);
-        }
-        if (value_type(light_section) != VALUE_DICT)
-        {
-            WARNMSG("Invalid LGTFX section %d", k);
-        }
-        else
-        {
-            if (!light_create_light_adv(light_section))
-            {
-                WARNMSG("Failed to load thing %d from LGTFX", k);
-            }
-        }
-    }
-    value_fini(root_ptr);
-    LbMemoryFree(buf);
-    return true;
+    return ret;
 }
 
 short load_and_setup_map_info(unsigned long lv_num)

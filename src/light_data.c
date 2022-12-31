@@ -68,6 +68,20 @@ struct Light *light_allocate_light(void)
     return NULL;
 }
 
+int light_count_lights()
+{
+    int cnt = 0;
+    for (int i = 1; i < LIGHTS_COUNT; i++)
+    {
+        struct Light *lgt = &game.lish.lights[i];
+        if (lgt->flags & LgtF_Allocated)
+        {
+            cnt++;
+        }
+    }
+    return cnt;
+}
+
 void light_free_light(struct Light *lgt)
 {
     LbMemorySet(lgt, 0, sizeof(struct Light));
@@ -173,11 +187,11 @@ long light_create_light(struct InitLight *ilght)
     return lgt->index;
 }
 
-long light_create_light_adv(VALUE *init_data)
+TbBool light_create_light_adv(VALUE *init_data)
 {
     struct Light* lgt = light_allocate_light();
     if (light_is_invalid(lgt)) {
-        return 0;
+        return false;
     }
     if (value_coerce_bool(value_dict_get(init_data, "Dynamic")))
     {
@@ -186,7 +200,7 @@ long light_create_light_adv(VALUE *init_data)
         {
             ERRORDBG(11,"Cannot allocate cache for dynamic light");
             light_free_light(lgt);
-            return 0;
+            return false;
         }
         light_total_dynamic_lights++;
         lgt->shadow_index = light_shadow_cache_index(shdc);
@@ -219,7 +233,7 @@ long light_create_light_adv(VALUE *init_data)
     struct LightAdd* lightadd = get_lightadd(lgt->index);
     LbMemorySet(lightadd, 0, sizeof(struct LightAdd)); // Clear any previously used LightAdd stuff
 
-    return lgt->index;
+    return true;
 }
 
 long light_get_total_dynamic_lights(void)

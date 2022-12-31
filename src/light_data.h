@@ -126,7 +126,7 @@ void light_turn_light_on(long num);
 unsigned char light_get_light_intensity(long idx);
 void light_set_light_intensity(long idx, unsigned char intensity);
 long light_create_light(struct InitLight *ilght);
-long light_create_light_adv(VALUE *init_data);
+TbBool light_create_light_adv(VALUE *init_data);
 void light_set_light_never_cache(long lgt_id);
 TbBool light_is_invalid(const struct Light *lgt);
 long light_is_light_allocated(long lgt_id);
@@ -140,6 +140,7 @@ void light_import_system_state(const struct LightSystemState *lightst);
 TbBool lights_stats_debug_dump(void);
 void light_signal_stat_light_update_in_area(long x1, long y1, long x2, long y2);
 
+int light_count_lights();
 /******************************************************************************/
 #ifdef __cplusplus
 }
