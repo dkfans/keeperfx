@@ -304,8 +304,15 @@ TbBool thing_create_thing_adv(VALUE *init_data)
             }
             {
                 int level = value_int32(value_dict_get(init_data, "CreatureLevel"));
-                if (level == -1)
+                if (level < 1 || level > 10)
+                {
                     level = 0; // Default
+                    WARNLOG("invalid level in tngfx file %d", level);
+                }
+                else
+                {
+                    level --; //levels are in readable format in file, gamecode always has them 1 lower
+                }
                 init_creature_level(thing, level);
             }
             break;
