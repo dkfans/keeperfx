@@ -99,7 +99,7 @@ long map_sound_fade;
 unsigned char *map_screen;
 long fe_net_level_selected;
 long net_map_limp_time;
-struct ScreenPacket net_screen_packet[4];
+struct ScreenPacket net_screen_packet[NET_PLAYERS_COUNT];
 long players_currently_in_session;
 /******************************************************************************/
 extern struct TbSetupSprite map_flag_setup_sprites[];

@@ -296,14 +296,16 @@ static void SendClientFrame(const char * send_buf, size_t buf_size, int seq_nbr)
         ptr - netstate.msg_buffer);
 }
 
-static unsigned CountLoggedInClients(void)
+static int CountLoggedInClients()
 {
     NetUserId id;
-    unsigned count;
+    int count;
 
-    for (count = 0, id = 0; id < netstate.max_players; ++id) {
-        if (netstate.users[id].progress == USER_LOGGEDIN) {
-            ++count;
+    for (count = 0, id = 0; id < netstate.max_players; ++id)
+    {
+        if (netstate.users[id].progress == USER_LOGGEDIN)
+        {
+            count++;
         }
     }
 
@@ -441,7 +443,7 @@ static void HandleClientFrame(NetUserId source, char *dst_ptr, const char * ptr,
     netstate.users[source].ack = *(int *) ptr;
     ptr += 4;
 
-    LbMemoryCopy(&dst_ptr, ptr, frame_size);
+    LbMemoryCopy(dst_ptr, ptr, frame_size);
     ptr += frame_size;
 
     if (ptr >= end) {
@@ -1058,7 +1060,7 @@ static void ProcessMessagesUntilNextLoginReply(TbClockMSec timeout, void *server
     }
 }
 
-static void ConsumeServerFrame(void *server_buf, size_t size)
+static void ConsumeServerFrame(void *server_buf, int frame_size)
 {
     NetFrame * frame;
 
@@ -1124,13 +1126,17 @@ TbError LbNetwork_ExchangeClient(void *send_buf, void *server_buf, size_t client
         return Lb_FAIL;
     }
 
-    // most likely overwrites what is sent in SendClientFrame
-    ConsumeServerFrame(server_buf, 0);
+    // most likely overwrites what was sent in SendClientFrame
+    ConsumeServerFrame(server_buf, client_frame_size);
 
     //TODO NET deal with case where no new frame is available and game should be stalled
     netstate.sp->update(OnNewUser);
 
-    assert(UserIdentifiersValid());
+    if (!UserIdentifiersValid())
+    {
+        fprintf(stderr, "Bad network peer state\n");
+        return Lb_FAIL;
+    }
     return Lb_OK;
 }
 

@@ -1489,6 +1489,7 @@ void process_frontend_packets(void)
   if (LbNetwork_Exchange(nspckt, &net_screen_packet, sizeof(struct ScreenPacket)))
   {
       ERRORLOG("LbNetwork_Exchange failed");
+      net_service_index_selected = -1; // going to quit
   }
   if (frontend_should_all_players_quit())
   {
