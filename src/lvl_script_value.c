@@ -1224,7 +1224,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           }
           break;
       case 23:  //DungeonHeartHealth
-          if (val3 <= SHRT_MAX)
+          if (val3 <= LONG_MAX)
           {
               SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.dungeon_heart_health, val3);
               game.dungeon_heart_health = val3;
@@ -1267,6 +1267,10 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       case 31: //AlliesShareCta
           SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.allies_share_cta, val3);
           gameadd.allies_share_cta = (TbBool)val3;
+          break; 
+      case 32: //BarrackMaxPartySize
+          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.barrack_max_party_size, val3);
+          game.barrack_max_party_size = (TbBool)val3;
           break;
       default:
           WARNMSG("Unsupported Game RULE, command %d.", val2);

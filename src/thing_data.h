@@ -264,7 +264,7 @@ unsigned char tint_colour;
     unsigned short clipbox_size_yz;
     unsigned short solid_size_xy;
     unsigned short solid_size_yz;
-    short health; //signed
+    long health;
 unsigned short floor_height;
     unsigned short light_id;
     short ccontrol_idx;
