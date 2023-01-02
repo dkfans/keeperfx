@@ -38,6 +38,8 @@
 #include "engine_textures.h"
 #include "game_legacy.h"
 #include "keeperfx.hpp"
+
+#include <toml.h>
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -692,7 +694,7 @@ TbBool load_map_data_file(LevelNumber lv_num)
     return true;
 }
 
-TbBool load_thing_file(LevelNumber lv_num)
+static TbBool load_thing_file(LevelNumber lv_num)
 {
     SYNCDBG(5,"Starting");
     long fsize = 2;
@@ -723,6 +725,96 @@ TbBool load_thing_file(LevelNumber lv_num)
     }
     LbMemoryFree(buf);
     return true;
+}
+
+static TbBool load_kfx_toml_file(LevelNumber lv_num, const char *ext, const char *msg_name,
+                                 const char *sections, const char *count_field, const char *section_fmt,
+                                 int max_count, TbBool (*section_loader)(VALUE *arg))
+{
+    SYNCDBG(5,"Starting");
+    long fsize = 0;
+    unsigned char* buf = load_single_map_file_to_buffer(lv_num, ext, &fsize, LMFF_None);
+    if (buf == NULL)
+        return false;
+    VALUE file_root, *root_ptr = &file_root;
+    char err[255];
+    char key[64];
+
+    if (toml_parse((char*)buf, err, sizeof(err), root_ptr))
+    {
+        WARNMSG("Unable to load %s file\n %s", msg_name, err);
+        LbMemoryFree(buf);
+        return false;
+    }
+    VALUE *common_section = value_dict_get(root_ptr, "common");
+    if (!common_section)
+    {
+        WARNMSG("No [common] in %s for level %d", msg_name, lv_num);
+        value_fini(root_ptr);
+        LbMemoryFree(buf);
+        return false;
+    }
+    int32_t total;
+
+    VALUE *item_arr = value_dict_get(root_ptr, sections);
+    if (value_type(item_arr) == VALUE_ARRAY)
+    {
+        total = value_array_size(item_arr);
+    }
+    else
+    {
+        item_arr = NULL; // Against bad values
+        total = value_int32(value_dict_get(common_section, count_field));
+    }
+    // Validate total amount of sections
+    if (total < 0)
+    {
+        WARNMSG("Bad amount of secions in %s file", msg_name);
+        value_fini(root_ptr);
+        LbMemoryFree(buf);
+        return false;
+    }
+    if (total >= max_count)
+    {
+        WARNMSG("Only %d things supported, file has %d.", max_count,total);
+
+    }
+    // Create sections
+    for (int k = 0; k < total; k++)
+    {
+        VALUE *section;
+        if (item_arr)
+        {
+            // Array form
+            section = value_array_get(item_arr, k);
+        }
+        else
+        {
+            sprintf(key, section_fmt, k);
+            section = value_dict_get(root_ptr, key);
+        }
+        if (value_type(section) != VALUE_DICT)
+        {
+            WARNMSG("Invalid %s section %d", msg_name, k);
+        }
+        else
+        {
+            if (!section_loader(section))
+            {
+                WARNMSG("Failed to load section %d from %s", k, msg_name);
+            }
+        }
+    }
+    value_fini(root_ptr);
+    LbMemoryFree(buf);
+    return true;
+}
+
+static TbBool load_tngfx_file(LevelNumber lv_num)
+{
+    return load_kfx_toml_file(lv_num, "tngfx", "TNGFX",
+                              "thing", "ThingsCount", "thing%d", THINGS_COUNT - 2,
+                              &thing_create_thing_adv);
 }
 
 TbBool load_action_point_file(LevelNumber lv_num)
@@ -757,6 +849,13 @@ TbBool load_action_point_file(LevelNumber lv_num)
   }
   LbMemoryFree(buf);
   return true;
+}
+
+TbBool load_aptfx_file(LevelNumber lv_num)
+{
+    return load_kfx_toml_file(lv_num, "aptfx", "APTFX",
+                              "actionpoint", "ActionPointsCount", "actionpoint%d", ACTN_POINTS_COUNT - 1,
+                              &actnpoint_create_actnpoint_adv);
 }
 
 TbBool load_slabdat_file(struct SlabSet *slbset, long *scount)
@@ -1191,7 +1290,7 @@ short load_map_flag_file(unsigned long lv_num)
     return true;
 }
 
-long load_static_light_file(unsigned long lv_num)
+static TbBool load_static_light_file(unsigned long lv_num)
 {
     long fsize = 4;
     unsigned char* buf = load_single_map_file_to_buffer(lv_num, "lgt", &fsize, LMFF_Optional);
@@ -1231,6 +1330,18 @@ long load_static_light_file(unsigned long lv_num)
     return true;
 }
 
+static TbBool load_lgtfx_file(unsigned long lv_num)
+{
+    TbBool ret = load_kfx_toml_file(lv_num, "lgtfx", "LGTFX",
+                             "light", "LightsCount", "light%d", LIGHTS_COUNT - 1,
+                             &light_create_light_adv);
+    if (light_count_lights() > LIGHTS_COUNT / 2)
+    {
+        WARNMSG("More than %d%% of light slots used by static lights.", 100*light_count_lights()/LIGHTS_COUNT);
+    }
+    return ret;
+}
+
 short load_and_setup_map_info(unsigned long lv_num)
 {
     long fsize = 1;
@@ -1266,9 +1377,10 @@ static void load_ext_slabs(LevelNumber lvnum)
     }
 }
 
-static short load_level_file(LevelNumber lvnum)
+static TbBool load_level_file(LevelNumber lvnum)
 {
     short result;
+    TbBool new_format = true;
     short fgroup = get_level_fgroup(lvnum);
     char* fname = prepare_file_fmtpath(fgroup, "map%05lu.slb", (unsigned long)lvnum);
     wait_for_cd_to_be_available();
@@ -1281,17 +1393,35 @@ static short load_level_file(LevelNumber lvnum)
         init_whole_blocks();
         load_slab_file();
         init_columns();
-        load_static_light_file(lvnum);
+        result = load_lgtfx_file(lvnum);
+        if (!result)
+        {
+            new_format = false;
+            result = load_static_light_file(lvnum);
+        }
         if (!load_map_ownership_file(lvnum))
           result = false;
         load_map_wibble_file(lvnum);
         load_and_setup_map_info(lvnum);
         load_texture_map_file(game.texture_id, 2);
-        load_action_point_file(lvnum);
+        if (new_format)
+        {
+            load_aptfx_file(lvnum);
+        }
+        else
+        {
+            load_action_point_file(lvnum);
+        }
         if (!load_map_slab_file(lvnum))
           result = false;
-        if (!load_thing_file(lvnum))
-          result = false;
+        if (new_format)
+        {
+            result = load_tngfx_file(lvnum);
+        }
+        else
+        {
+            result = load_thing_file(lvnum);
+        }
         reinitialise_map_rooms();
         ceiling_init(0, 1);
         if (result)

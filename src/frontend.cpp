@@ -3070,7 +3070,12 @@ char update_menu_fade_level(struct GuiMenu *gmnu)
             gmnu->visual_state = 2;
             return 0;
         }
-        gmnu->fade_time -= gameadd.delta_time;
+        if (game.frame_skip == 0)
+        {
+            gmnu->fade_time -= gameadd.delta_time;
+        } else {
+            gmnu->fade_time -= 1.0;
+        }
         return 0;
     case 3: // Fade out
         if (gmnu->fade_time-1.0 <= 0.0)
@@ -3078,7 +3083,12 @@ char update_menu_fade_level(struct GuiMenu *gmnu)
             gmnu->fade_time = 0.0;
             return -1; // Kill menu
         }
-        gmnu->fade_time -= gameadd.delta_time;
+        if (game.frame_skip == 0)
+        {
+            gmnu->fade_time -= gameadd.delta_time;
+        } else {
+            gmnu->fade_time -= 1.0;
+        }
         return 0;
     default:
         break;

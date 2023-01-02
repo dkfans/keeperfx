@@ -71,6 +71,7 @@ obj/spng.o \
 obj/json/json.o \
 obj/json/value.o \
 obj/json/json-dom.o \
+obj/centitoml/toml_api.o \
 obj/unzip.o \
 obj/ioapi.o
 
@@ -308,6 +309,7 @@ obj/thing_physics.o \
 obj/thing_shots.o \
 obj/thing_stats.o \
 obj/thing_traps.o \
+obj/value_util.o \
 obj/vidfade.o \
 obj/vidmode_data.o \
 obj/vidmode.o \
@@ -335,7 +337,7 @@ CU_OBJS = \
 LINKLIB =  -L"sdl/lib" -mwindows obj/enet.a \
 	-lwinmm -lmingw32 -limagehlp -lSDL2main -lSDL2 -lSDL2_mixer -lSDL2_net \
 	-L"deps/zlib" -lz -lws2_32
-INCS =  -I"sdl/include" -I"sdl/include/SDL2" -I"deps/enet/include"
+INCS =  -I"sdl/include" -I"sdl/include/SDL2" -I"deps/enet/include" -I"deps/centijson/src" -I"deps/centitoml"
 CXXINCS =  $(INCS)
 
 STDOBJS   = $(subst obj/,obj/std/,$(OBJS))
@@ -419,7 +421,13 @@ heavylog: CFLAGS += $(HVLOGFLAGS)
 heavylog: hvlog-before $(HVLOGBIN) hvlog-after
 
 # not nice but necessary for make -j to work
-$(shell $(MKDIR) bin obj/std obj/hvlog obj/tests obj/cu obj/std/json obj/hvlog/json obj/enet)
+FOLDERS = bin obj/std obj/hvlog \
+obj/tests obj/cu \
+obj/std/json obj/hvlog/json \
+obj/std/centitoml obj/hvlog/centitoml \
+obj/enet
+
+$(shell $(MKDIR) $(FOLDERS))
 std-before:
 hvlog-before:
 
@@ -477,7 +485,12 @@ obj/std/spng.o obj/hvlog/spng.o: deps/libspng/spng/spng.c deps/zlib/libz.a
 
 obj/std/json/%.o obj/hvlog/json/%.o: deps/centijson/src/%.c
 	-$(ECHO) 'Building file: $<'
-	$(CC) $(CFLAGS) -I"deps/centijson/src" -o"$@" "$<"
+	$(CC) $(CFLAGS) -o"$@" "$<"
+	-$(ECHO) ' '
+
+obj/std/centitoml/%.o obj/hvlog/centitoml/%.o: deps/centitoml/%.c
+	-$(ECHO) 'Building file: $<'
+	$(CC) $(CFLAGS) -o"$@" "$<"
 	-$(ECHO) ' '
 
 obj/std/unzip.o obj/hvlog/unzip.o: deps/zlib/contrib/minizip/unzip.c
@@ -490,9 +503,14 @@ obj/std/ioapi.o obj/hvlog/ioapi.o: deps/zlib/contrib/minizip/ioapi.c
 	$(CC) $(CFLAGS) -I"deps/zlib" -o"$@" "$<"
 	-$(ECHO) ' '
 
+obj/std/lvl_filesdk1.o obj/hvlog/lvl_filesdk1.o: src/lvl_filesdk1.c deps/zlib/contrib/minizip/unzip.c
+	-$(ECHO) 'Building file: $<'
+	$(CC) $(CFLAGS) -I"deps/zlib" -I"deps/zlib/contrib/minizip" -o"$@" "$<"
+	-$(ECHO) ' '
+
 obj/std/custom_sprites.o obj/hvlog/custom_sprites.o: src/custom_sprites.c deps/zlib/contrib/minizip/unzip.c
 	-$(ECHO) 'Building file: $<'
-	$(CC) $(CFLAGS) -I"deps/libspng/spng" -I"deps/centijson/src" -I"deps/zlib" -I"deps/zlib/contrib/minizip" -o"$@" "$<"
+	$(CC) $(CFLAGS) -I"deps/libspng/spng" -I"deps/zlib" -I"deps/zlib/contrib/minizip" -o"$@" "$<"
 	-$(ECHO) ' '
 
 obj/tests/%.o: tests/%.cpp $(GENSRC)
