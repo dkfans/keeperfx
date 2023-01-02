@@ -498,45 +498,7 @@ static void HandleServerFrame(char * ptr, char * end, size_t user_frame_size)
     NETDBG(9, "Handled server frame of %u bytes", frame->size);
 }
 
-static void HandleMessageFromServer(NetUserId source, void *server_buf, size_t frame_size)
-{
-    //this is a very bad way to do network message parsing, but it is what C offers
-    //(I could also load into it memory by some complicated system with data description
-    //auxiliary structures which I don't got time to code nor do the requirements
-    //justify it)
-
-    char * buffer_ptr;
-    char * buffer_end;
-    size_t buffer_size;
-    enum NetMessageType type;
-
-    NETDBG(7, "Handling message from %u", source);
-
-    buffer_ptr = netstate.msg_buffer;
-    buffer_size = sizeof(netstate.msg_buffer);
-    buffer_end = buffer_ptr + buffer_size;
-
-    //type
-    type = (enum NetMessageType) *buffer_ptr;
-    buffer_ptr += 1;
-
-    switch (type) {
-    case NETMSG_LOGIN:
-        HandleLoginRequest(source, buffer_ptr, buffer_end);
-        break;
-    case NETMSG_USERUPDATE:
-        WARNLOG("Unexpected USERUPDATE");
-        break;
-    case NETMSG_FRAME:
-        HandleClientFrame(source,((char*)server_buf) + source * frame_size,
-                          buffer_ptr, buffer_end, frame_size);
-        break;
-    default:
-        break;
-    }
-}
-
-static void HandleMessageFromClient(NetUserId source, size_t frame_size)
+static void HandleMessageFromServer(NetUserId source, size_t frame_size)
 {
     //this is a very bad way to do network message parsing, but it is what C offers
     //(I could also load into it memory by some complicated system with data description
@@ -573,6 +535,44 @@ static void HandleMessageFromClient(NetUserId source, size_t frame_size)
     }
 }
 
+static void HandleMessageFromClient(NetUserId source, void *server_buf, size_t frame_size)
+{
+    //this is a very bad way to do network message parsing, but it is what C offers
+    //(I could also load into it memory by some complicated system with data description
+    //auxiliary structures which I don't got time to code nor do the requirements
+    //justify it)
+
+    char * buffer_ptr;
+    char * buffer_end;
+    size_t buffer_size;
+    enum NetMessageType type;
+
+    NETDBG(7, "Handling message from %u", source);
+
+    buffer_ptr = netstate.msg_buffer;
+    buffer_size = sizeof(netstate.msg_buffer);
+    buffer_end = buffer_ptr + buffer_size;
+
+    //type
+    type = (enum NetMessageType) *buffer_ptr;
+    buffer_ptr += 1;
+
+    switch (type) {
+        case NETMSG_LOGIN:
+            HandleLoginRequest(source, buffer_ptr, buffer_end);
+            break;
+        case NETMSG_USERUPDATE:
+            WARNLOG("Unexpected USERUPDATE");
+            break;
+        case NETMSG_FRAME:
+            HandleClientFrame(source,((char*)server_buf) + source * frame_size,
+                              buffer_ptr, buffer_end, frame_size);
+            break;
+        default:
+            break;
+    }
+}
+
 static TbError ProcessMessage(NetUserId source, void* server_buf, size_t frame_size)
 {
     size_t rcount;
@@ -583,11 +583,11 @@ static TbError ProcessMessage(NetUserId source, void* server_buf, size_t frame_s
     {
         if (source == SERVER_ID)
         {
-            HandleMessageFromServer(source, server_buf, frame_size);
+            HandleMessageFromServer(source, frame_size);
         }
         else
         {
-            HandleMessageFromClient(source, frame_size);
+            HandleMessageFromClient(source, server_buf, frame_size);
         }
     }
     else
