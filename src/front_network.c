@@ -54,6 +54,7 @@ const char *keeper_netconf_file = "fxconfig.net";
 
 const struct ConfigInfo default_net_config_info = {
     "",
+    "Player",
 };
 
 int fe_network_active;
