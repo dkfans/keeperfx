@@ -494,7 +494,6 @@ TbBool map_position_initially_explored_for_player(PlayerNumber plyr_idx, MapSlab
 
 void fill_in_explored_area(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-
     
     int block_flags;
     int v13;
@@ -531,8 +530,8 @@ void fill_in_explored_area(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlC
     };
 
     struct XY {
-        char x;
-        char y;
+        MapSlabCoord x;
+        MapSlabCoord y;
     };
 
     static const struct XY byte_522199[6] =
