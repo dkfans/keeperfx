@@ -491,7 +491,7 @@ obj/std/json/%.o obj/hvlog/json/%.o: deps/centijson/src/%.c
 	$(CC) $(CFLAGS) -o"$@" "$<"
 	-$(ECHO) ' '
 
-obj/std/centitoml/%.o obj/hvlog/centitoml/%.o: deps/centitoml/%.c
+obj/std/centitoml/toml_api.o obj/hvlog/centitoml/toml_api.o: deps/centitoml/toml_api.c obj/std/json/value.o obj/hvlog/json/value.o
 	-$(ECHO) 'Building file: $<'
 	$(CC) $(CFLAGS) -o"$@" "$<"
 	-$(ECHO) ' '
