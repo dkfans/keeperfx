@@ -1487,7 +1487,9 @@ void process_frontend_packets(void)
   nspckt->field_6 = VersionMajor;
   nspckt->field_8 = VersionMinor;
   if (LbNetwork_Exchange(nspckt, &net_screen_packet, sizeof(struct ScreenPacket)))
-    ERRORLOG("LbNetwork_Exchange failed");
+  {
+      ERRORLOG("LbNetwork_Exchange failed");
+  }
   if (frontend_should_all_players_quit())
   {
     i = frontnet_number_of_players_in_session();
@@ -1505,8 +1507,7 @@ void process_frontend_packets(void)
             return;
           }
           frontend_set_state(FeSt_MAIN_MENU);
-      } else
-      if (frontend_menu_state == FeSt_NET_START)
+      } else if (frontend_menu_state == FeSt_NET_START)
       {
           if (LbNetwork_Stop())
           {
@@ -1516,7 +1517,8 @@ void process_frontend_packets(void)
           if (setup_network_service(net_service_index_selected))
           {
             frontend_set_state(FeSt_NET_SESSION);
-          } else
+          }
+          else
           {
             frontend_set_state(FeSt_MAIN_MENU);
           }

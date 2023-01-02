@@ -47,17 +47,9 @@ extern struct TbNetworkPlayerName net_player[NET_PLAYERS_COUNT];
 extern struct ConfigInfo net_config_info;
 extern char net_service[16][NET_SERVICE_LEN];
 extern char net_player_name[20];
-extern struct ServiceInitData net_serial_data;
-extern struct ServiceInitData net_modem_data;
-extern struct TbModemDev modem_dev;
 
 #pragma pack()
 /******************************************************************************/
-extern long number_of_comports;
-extern long number_of_speeds;
-extern long net_comport_scroll_offset;
-extern long net_speed_scroll_offset;
-extern char tmp_net_irq[8];
 extern char net_current_message[64];
 extern long net_current_message_index;
 /******************************************************************************/

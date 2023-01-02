@@ -41,11 +41,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-long number_of_comports;
-long number_of_speeds;
-long net_comport_scroll_offset;
-long net_speed_scroll_offset;
-char tmp_net_irq[8];
 char net_current_message[64];
 long net_current_message_index;
 
@@ -57,9 +52,6 @@ struct TbNetworkPlayerName net_player[NET_PLAYERS_COUNT];
 struct ConfigInfo net_config_info;
 char net_service[16][NET_SERVICE_LEN];
 char net_player_name[20];
-struct ServiceInitData net_serial_data;
-struct ServiceInitData net_modem_data;
-struct TbModemDev modem_dev;
 /******************************************************************************/
 short setup_network_service(int srvidx)
 {
@@ -69,17 +61,8 @@ short setup_network_service(int srvidx)
   switch (srvidx)
   {
   case 0:
-      maxplayrs = 2;
-      init_data = &net_serial_data;
-      set_flag_byte(&game.flags_font,FFlg_unk10,true);
-      SYNCMSG("Initializing %d-players serial network",maxplayrs);
-      break;
-  case 1:
-      maxplayrs = 2;
-      init_data = &net_modem_data;
-      set_flag_byte(&game.flags_font,FFlg_unk10,true);
-      SYNCMSG("Initializing %d-players modem network",maxplayrs);
-      break;
+      SYNCMSG("Old network modes are not supported");
+      return 0;
   case 2:
       maxplayrs = 4;
       init_data = NULL;
@@ -226,29 +209,11 @@ void set_network_player_name(int plyr_idx, const char *name)
 
 long network_session_join(void)
 {
-    unsigned long plyr_num;
-    void *conn_options;
-    switch (net_service_index_selected)
+    long plyr_num;
+    display_attempting_to_join_message();
+    if ( LbNetwork_Join(net_session[net_session_index_active], net_player_name, &plyr_num, NULL) )
     {
-    case 1:
-      modem_dev.field_0 = 0;
-      modem_dev.field_4 = 0;
-      strcpy(modem_dev.field_58, net_config_info.str_join);
-      modem_dev.field_AC = modem_initialise_callback;
-      modem_dev.field_B0 = modem_connect_callback;
-      conn_options = &modem_dev;
-      break;
-    default:
-      display_attempting_to_join_message();
-      conn_options = NULL;
-      break;
-    }
-    if ( LbNetwork_Join(net_session[net_session_index_active], net_player_name, &plyr_num, conn_options) )
-    {
-      if (net_service_index_selected == 1)
-        process_network_error(modem_dev.field_A8);
-      else
-        process_network_error(-802);
+      process_network_error(-802);
       return -1;
     }
     return plyr_num;

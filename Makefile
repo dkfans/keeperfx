@@ -108,12 +108,9 @@ obj/bflib_memory.o \
 obj/bflib_mouse.o \
 obj/bflib_mshandler.o \
 obj/bflib_mspointer.o \
-obj/bflib_nethost_udp.o \
-obj/bflib_netlisten_udp.o \
 obj/bflib_netsession.o \
 obj/bflib_netsp.o \
 obj/bflib_netsp_ipx.o \
-obj/bflib_netsp_tcp.o \
 obj/bflib_netsync.o \
 obj/bflib_network.o \
 obj/bflib_planar.o \

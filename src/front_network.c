@@ -53,60 +53,17 @@ extern "C" {
 const char *keeper_netconf_file = "fxconfig.net";
 
 const struct ConfigInfo default_net_config_info = {
-    -1, {4, 3, 4, 3, 4, 3, 4, 3, }, -1,
-    "ATZ",
-    "ATDT",
-    "ATH",
-    "ATS0=1",
-    "",
     "",
 };
 
 int fe_network_active;
 int net_service_index_selected;
 char tmp_net_player_name[24];
-char tmp_net_phone_number[24];
-char tmp_net_modem_init[20];
-char tmp_net_modem_dial[20];
-char tmp_net_modem_hangup[20];
-char tmp_net_modem_answer[20];
 /******************************************************************************/
 #ifdef __cplusplus
 }
 #endif
 /******************************************************************************/
-long modem_initialise_callback(void)
-{
-    if (is_key_pressed(KC_ESCAPE, KMod_DONTCARE))
-    {
-      clear_key_pressed(KC_ESCAPE);
-      return -7;
-    }
-    if (LbScreenLock() == Lb_SUCCESS)
-    {
-      draw_text_box(get_string(GUIStr_NetInitingModem));
-      LbScreenUnlock();
-    }
-    LbScreenSwap();
-    return 0;
-}
-
-long modem_connect_callback(void)
-{
-  if (is_key_pressed(KC_ESCAPE, KMod_DONTCARE))
-  {
-    clear_key_pressed(KC_ESCAPE);
-    return -7;
-  }
-  if (LbScreenLock() == Lb_SUCCESS)
-  {
-    draw_text_box(get_string(GUIStr_NetConnectnModem));
-    LbScreenUnlock();
-  }
-  LbScreenSwap();
-  return 0;
-}
-
 void process_network_error(long errcode)
 {
   const char *text;
@@ -367,58 +324,6 @@ void frontnet_session_update(void)
     }
 }
 
-void frontnet_modem_update(void)
-{
-    if (net_comport_scroll_offset < 0)
-    {
-        net_comport_scroll_offset = 0;
-    } else
-    if (net_comport_scroll_offset > number_of_comports - 1)
-    {
-        net_comport_scroll_offset = number_of_comports - 1;
-    }
-    if (net_speed_scroll_offset < 0)
-    {
-        net_speed_scroll_offset = 0;
-    } else
-    if (net_speed_scroll_offset > number_of_speeds - 1)
-    {
-        net_speed_scroll_offset = number_of_speeds - 1;
-    }
-    if (number_of_speeds - 1 < net_speed_index_active) {
-        net_speed_index_active = -1;
-    }
-    if (number_of_comports - 1 < net_comport_index_active) {
-        net_comport_index_active = -1;
-    }
-}
-
-void frontnet_serial_update(void)
-{
-    if (net_comport_scroll_offset < 0)
-    {
-        net_comport_scroll_offset = 0;
-    } else
-    if (net_comport_scroll_offset > number_of_comports - 1)
-    {
-        net_comport_scroll_offset = number_of_comports - 1;
-    }
-    if (net_speed_scroll_offset < 0)
-    {
-        net_speed_scroll_offset = 0;
-    } else
-    if (net_speed_scroll_offset > number_of_speeds - 1)
-    {
-        net_speed_scroll_offset = number_of_speeds - 1;
-    }
-    if (number_of_speeds - 1 < net_speed_index_active) {
-        net_speed_index_active = -1;
-    }
-    if (number_of_comports - 1 < net_comport_index_active) {
-        net_comport_index_active = -1;
-    }
-}
-
 void frontnet_rewite_net_messages(void)
 {
     struct NetMessage lmsg[NET_MESSAGES_COUNT];
@@ -458,8 +363,8 @@ void frontnet_start_update(void)
     if ((net_number_of_messages <= 0) || (net_message_scroll_offset < 0))
     {
       net_message_scroll_offset = 0;
-    } else
-    if (net_message_scroll_offset > net_number_of_messages-1)
+    }
+    else if (net_message_scroll_offset > net_number_of_messages-1)
     {
       net_message_scroll_offset = net_number_of_messages-1;
     }
@@ -493,7 +398,7 @@ void net_load_config_file(void)
     }
     // If can't load, then use default config
     LbMemoryCopy(&net_config_info, &default_net_config_info, sizeof(net_config_info));
-    LbStringCopy(net_config_info.str_u2, get_string(GUIStr_MnuNoName), 20);
+    LbStringCopy(net_config_info.net_player_name, get_string(GUIStr_MnuNoName), 20);
 }
 
 void net_write_config_file(void)
@@ -503,10 +408,6 @@ void net_write_config_file(void)
     TbFileHandle handle = LbFileOpen(fname, Lb_FILE_MODE_NEW);
     if (handle != -1)
     {
-        make_uppercase(net_config_info.str_atz);
-        make_uppercase(net_config_info.str_ath);
-        make_uppercase(net_config_info.str_atdt);
-        make_uppercase(net_config_info.str_ats);
         LbFileWrite(handle, &net_config_info, sizeof(net_config_info));
         LbFileClose(handle);
     }
@@ -533,8 +434,8 @@ void frontnet_session_setup(void)
 {
     if (net_player_name[0] == '\0')
     {
-        snprintf(net_player_name, sizeof(net_player_name), "%s", net_config_info.str_u2);
-        strcpy(tmp_net_player_name, net_config_info.str_u2);
+        snprintf(net_player_name, sizeof(net_player_name), "%s", net_config_info.net_player_name);
+        strcpy(tmp_net_player_name, net_config_info.net_player_name);
     }
     net_session_index_active = -1;
     fe_computer_players = 2;
@@ -559,34 +460,4 @@ void frontnet_start_setup(void)
     }
 }
 
-void frontnet_modem_setup(void)
-{
-    net_load_config_file();
-    number_of_comports = 8;
-    net_comport_index_active = net_config_info.numfield_0;
-    net_speed_index_active = net_config_info.numfield_9;
-    if (net_comport_index_active == -1)
-      strcpy(tmp_net_irq, "4");
-    else
-      sprintf(tmp_net_irq, "%d", net_config_info.numfield_1[net_comport_index_active]);
-    number_of_speeds = 8;
-    strcpy(tmp_net_modem_init, net_config_info.str_atz);
-    strcpy(tmp_net_modem_dial, net_config_info.str_atdt);
-    strcpy(tmp_net_modem_hangup, net_config_info.str_ath);
-    strcpy(tmp_net_modem_answer, net_config_info.str_ats);
-    strcpy(tmp_net_phone_number, net_config_info.str_join);
-}
-
-void frontnet_serial_setup(void)
-{
-    net_load_config_file();
-    number_of_comports = 8;
-    net_comport_index_active = net_config_info.numfield_0;
-    net_speed_index_active = net_config_info.numfield_9;
-    if (net_comport_index_active == -1)
-      strcpy(tmp_net_irq, "4");
-    else
-      sprintf(tmp_net_irq, "%d", net_config_info.numfield_1[net_comport_index_active]);
-    number_of_speeds = 7;
-}
 /******************************************************************************/
