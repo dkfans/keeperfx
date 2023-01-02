@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "creature_states_guard.h"
 #include "globals.h"
 
@@ -36,6 +37,7 @@
 
 #include "game_legacy.h"
 #include "keeperfx.hpp"
+#include "post_inc.h"
 
 /******************************************************************************/
 short at_guard_post_room(struct Thing *thing)
@@ -43,7 +45,7 @@ short at_guard_post_room(struct Thing *thing)
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     cctrl->target_room_id = 0;
     struct Room* room = get_room_thing_is_on(thing);
-    if (!room_initially_valid_as_type_for_thing(room, get_room_for_job(Job_GUARD), thing))
+    if (!room_initially_valid_as_type_for_thing(room, get_room_role_for_job(Job_GUARD), thing))
     {
         WARNLOG("Room %s owned by player %d is invalid for %s index %d",room_code_name(room->kind),(int)room->owner,thing_model_name(thing),(int)thing->index);
         set_start_state(thing);

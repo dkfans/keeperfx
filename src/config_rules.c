@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "config_rules.h"
 #include "globals.h"
 
@@ -32,6 +33,7 @@
 #include "game_merge.h"
 #include "room_library.h"
 #include "game_legacy.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -73,6 +75,9 @@ const struct NamedCommand rules_game_commands[] = {
   {"TRAPSELLVALUEPERCENT",       31},
   {"PLACETRAPSONSUBTILES",       32},
   {"BAGGOLDHOLD",                33},
+  {"ALLIESSHAREVISION",          34},
+  {"ALLIESSHAREDROP",            35},
+  {"ALLIESSHARECTA",             36},
   {NULL,                          0},
   };
 
@@ -163,6 +168,7 @@ const struct NamedCommand rules_rooms_commands[] = {
   {"TIMEBETWEENPRISONBREAK",              21},
   {"PRISONBREAKCHANCE",                   22},
   {"TORTUREDEATHCHANCE",                  23},
+  {"BARRACKMAXPARTYSIZE",                 24},
   {NULL,                                   0},
   };
 
@@ -290,11 +296,6 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
         game.boulder_reduce_health_slap = 10;
         game.boulder_reduce_health_wall = 10;
         game.boulder_reduce_health_room = 10;
-        game.tile_strength = 50;
-        game.gold_tile_strength = 500;
-        game.minimum_gold = 100;
-        game.max_gold_lookup = 5000;
-        game.min_gold_to_record = 10;
         game.pay_day_gap = 5000;
         game.chest_gold_hold = 1000;
         game.dungeon_heart_health = 100;
@@ -472,69 +473,11 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
             }
             break;
         case 13: // TILESTRENGTH
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              game.tile_strength = k;
-              n++;
-            }
-            if (n < 1)
-            {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            }
-            break;
         case 14: // GOLDTILESTRENGTH
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              game.gold_tile_strength = k;
-              n++;
-            }
-            if (n < 1)
-            {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            }
-            break;
         case 15: // MINIMUMGOLD
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              game.minimum_gold = k;
-              n++;
-            }
-            if (n < 1)
-            {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            }
-            break;
         case 16: // MAXGOLDLOOKUP
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              game.max_gold_lookup = k;
-              n++;
-            }
-            if (n < 1)
-            {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            }
-            break;
         case 17: // MINGOLDTORECORD
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              game.min_gold_to_record = k;
-              n++;
-            }
-            if (n < 1)
-            {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            }
+        //unused
             break;
         case 18: // PAYDAYGAP
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
@@ -686,8 +629,6 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
             }
             break;
         case 26: // DEATHMATCHSTATUEREAPPERTIME
-            //Unused
-            break;
         case 27: // DEATHMATCHOBJECTREAPPERTIME
             //Unused
             break;
@@ -769,6 +710,45 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
                     COMMAND_TEXT(cmd_num), block_buf, config_textname);
             }
             break;
+        case 34: // ALLIESSHAREVISION
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                gameadd.allies_share_vision = (TbBool)k;
+                n++;
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), block_buf, config_textname);
+            }
+            break;
+        case 35: // ALLIESSHAREDROP
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                gameadd.allies_share_drop = (TbBool)k;
+                n++;
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), block_buf, config_textname);
+            }
+            break;
+        case 36: // ALLIESSHARECTA
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                gameadd.allies_share_cta = (TbBool)k;
+                n++;
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), block_buf, config_textname);
+            }
+            break;
         case 0: // comment
             break;
         case -1: // end of buffer
@@ -790,10 +770,6 @@ TbBool parse_rules_computer_blocks(char *buf, long len, const char *config_textn
     // Default values
     if ((flags & CnfLd_AcceptPartial) == 0)
     {
-        game.wait_for_room_time = 800;
-        game.check_expand_time = 1000;
-        game.max_distance_to_dig = 96;
-        game.wait_after_room_area = 200;
         gameadd.disease_to_temple_pct = 500;
     }
     // Find the block
@@ -819,59 +795,11 @@ TbBool parse_rules_computer_blocks(char *buf, long len, const char *config_textn
         switch (cmd_num)
         {
         case 1: // AUTODIGLIMIT
-            //Unused
-            break;
         case 2: // WAITFORROOMTIME
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              game.wait_for_room_time = k;
-              n++;
-            }
-            if (n < 1)
-            {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            }
-            break;
         case 3: // CHECKEXPANDTIME
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              game.check_expand_time = k;
-              n++;
-            }
-            if (n < 1)
-            {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            }
-            break;
         case 4: // MAXDISTANCETODIG
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              game.max_distance_to_dig = k;
-              n++;
-            }
-            if (n < 1)
-            {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            }
-            break;
         case 5: // WAITAFTERROOMAREA
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              game.wait_after_room_area = k;
-              n++;
-            }
-            if (n < 1)
-            {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            }
+            //Unused
             break;
         case 6: // DISEASEHPTEMPLEPERCENTAGE
             if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
@@ -1383,6 +1311,7 @@ TbBool parse_rules_rooms_blocks(char *buf, long len, const char *config_textname
       game.prison_skeleton_chance = 100;
       game.bodies_for_vampire = 6;
       game.graveyard_convert_time = 300;
+      game.barrack_max_party_size = 10;
       gameadd.scavenge_good_allowed = 1;
       gameadd.scavenge_neutral_allowed = 1;
       gameadd.time_between_prison_break = 64;
@@ -1648,6 +1577,19 @@ TbBool parse_rules_rooms_blocks(char *buf, long len, const char *config_textname
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
           break;
+      case 24: // BARRACKMAXPARTYSIZE
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              game.barrack_max_party_size = k;
+              n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
       case 0: // comment
           break;
       case -1: // end of buffer
@@ -1673,7 +1615,6 @@ TbBool parse_rules_workers_blocks(char *buf, long len, const char *config_textna
       game.hits_per_slab = 2;
       game.default_imp_dig_damage = 1;
       game.default_imp_dig_own_damage = 2;
-      game.per_imp_gold_dig_size = 30;
   }
   // Find the block
   char block_buf[COMMAND_WORD_LEN];
@@ -1749,17 +1690,7 @@ TbBool parse_rules_workers_blocks(char *buf, long len, const char *config_textna
           }
           break;
       case 8: // PERIMPGOLDDIGSIZE
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            game.per_imp_gold_dig_size = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
+            //unused
           break;
       case 9: // IMPWORKEXPERIENCE
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
@@ -2245,12 +2176,6 @@ TbBool load_rules_config_file(const char *textname, const char *fname, unsigned 
     {
         if ((flags & CnfLd_IgnoreErrors) == 0)
             WARNMSG("The %s file \"%s\" doesn't exist or is too small.",textname,fname);
-        return false;
-    }
-    if (len > MAX_CONFIG_FILE_SIZE)
-    {
-        if ((flags & CnfLd_IgnoreErrors) == 0)
-            WARNMSG("The %s file \"%s\" is too large.",textname,fname);
         return false;
     }
     char* buf = (char*)LbMemoryAlloc(len + 256);

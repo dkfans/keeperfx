@@ -19,8 +19,10 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "bflib_fileio.h"
 
+#include <errno.h>
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -38,6 +40,7 @@
 #include <dos.h>
 #include <direct.h>
 #endif
+#include "post_inc.h"
 
 #if defined(_WIN32)
 #ifdef __cplusplus
@@ -201,6 +204,27 @@ int LbFilePosition(TbFileHandle handle)
   return result;
 }
 
+int create_directory_for_file(const char * fname)
+{
+  const int size = strlen(fname) + 1;
+  char * tmp = (char *) malloc(size);
+  char * separator = strchr(fname, '/');
+
+  while (separator != NULL) {
+    memcpy(tmp, fname, separator - fname);
+    tmp[separator - fname] = 0;
+    if (_mkdir(tmp) != 0) {
+      if (errno != EEXIST) {
+        free(tmp);
+        return 0;
+      }
+    }
+    separator = strchr(++separator, '/');
+  }
+  free(tmp);
+  return 1;
+}
+
 TbFileHandle LbFileOpen(const char *fname, const unsigned char accmode)
 {
   unsigned char mode = accmode;
@@ -234,7 +258,9 @@ TbFileHandle LbFileOpen(const char *fname, const unsigned char accmode)
 #ifdef __DEBUG
       LbSyncLog("LbFileOpen: LBO_CREAT mode\n");
 #endif
-        rc = _sopen(fname, O_RDWR|O_CREAT|O_BINARY, SH_DENYNO, S_IREAD|S_IWRITE);
+        if (create_directory_for_file(fname)) {
+          rc = _sopen(fname, O_RDWR|O_CREAT|O_BINARY, SH_DENYNO, S_IREAD|S_IWRITE);
+        }
     };break;
   case Lb_FILE_MODE_OLD:
     {
@@ -383,8 +409,7 @@ long LbFileLength(const char *fname)
 void convert_find_info(struct TbFileFind *ffind)
 {
   struct _finddata_t *fdata=&(ffind->Reserved);
-  strncpy(ffind->Filename,fdata->name,144);
-  ffind->Filename[143]='\0';
+  snprintf(ffind->Filename,144, "%s", fdata->name);
 #if defined(_WIN32)
   GetShortPathName(fdata->name,ffind->AlternateFilename,14);
 #else

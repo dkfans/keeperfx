@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "creature_battle.h"
 #include "globals.h"
 
@@ -33,6 +34,12 @@
 #include "thing_objects.h"
 #include "player_instances.h"
 #include "game_legacy.h"
+#include "post_inc.h"
+
+/******************************************************************************/
+
+unsigned short friendly_battler_list[3*MESSAGE_BATTLERS_COUNT];
+unsigned short enemy_battler_list[3*MESSAGE_BATTLERS_COUNT];
 
 /******************************************************************************/
 /**
@@ -180,7 +187,7 @@ long get_flee_position(struct Thing *creatng, struct Coord3d *pos)
         pos->z.val = lairtng->mappos.z.val;
     }
     else
-    if (creature_can_get_to_dungeon(creatng, creatng->owner))
+    if (creature_can_get_to_dungeon_heart(creatng, creatng->owner))
     {
         struct Thing* heartng = get_player_soul_container(creatng->owner);
         TRACE_THING(heartng);
@@ -311,8 +318,8 @@ long battle_move_player_towards_battle(struct PlayerInfo *player, BattleIndex ba
     if (!thing_exists(thing))
     {
         ERRORLOG("Jump to invalid thing detected");
-        player->zoom_to_pos_x = subtile_coord_center(map_subtiles_x/2);
-        player->zoom_to_pos_y = subtile_coord_center(map_subtiles_y/2);
+        player->zoom_to_pos_x = subtile_coord_center(gameadd.map_subtiles_x/2);
+        player->zoom_to_pos_y = subtile_coord_center(gameadd.map_subtiles_y/2);
         return 0;
     }
     player->zoom_to_pos_x = thing->mappos.x.val;

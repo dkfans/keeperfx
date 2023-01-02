@@ -16,10 +16,11 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "frontmenu_ingame_evnt.h"
 #include "globals.h"
 #include "bflib_basics.h"
-
+#include "bflib_datetm.h"
 #include "bflib_guibtns.h"
 #include "bflib_vidraw.h"
 #include "bflib_sprfnt.h"
@@ -40,10 +41,13 @@
 #include "front_input.h"
 #include "vidfade.h"
 #include "game_legacy.h"
+#include "sprites.h"
 
 #include "keeperfx.hpp"
+#include "post_inc.h"
 
 unsigned long TimerTurns = 0;
+unsigned short battle_creature_over;
 
 /******************************************************************************/
 void gui_open_event(struct GuiButton *gbtn)
@@ -223,12 +227,13 @@ void draw_battle_head(struct Thing *thing, long scr_x, long scr_y, int units_per
         max_health = 1;
     LbDrawBox(curscr_x + 2*units_per_px/16, curscr_y + 2*units_per_px/16, ((12 * health)/max_health)*units_per_px/16, 2*units_per_px/16, player_room_colours[thing->owner]);
     // Draw experience level
-    spr = &button_sprite[184];
+    spr = &button_sprite[GBS_creature_flower_level_01];
     int bs_units_per_px = (17 * units_per_px + spr->SHeight / 2) / spr->SHeight;
-    curscr_y = (scr_y - ((spr->SHeight*bs_units_per_px/16) >> 1));
-    curscr_x = (scr_x - ((spr->SWidth*bs_units_per_px/16) >> 1));
-    spr = &button_sprite[184 + cctrl->explevel];
-    LbSpriteDrawResized(curscr_x, curscr_y, bs_units_per_px, spr);
+    TbBool high_res = (MyScreenHeight >= 400);
+    curscr_y = (scr_y - ((spr->SHeight*bs_units_per_px/16) >> (unsigned char)high_res));
+    curscr_x = (scr_x - ((spr->SWidth*bs_units_per_px/16) >> (unsigned char)high_res));
+    spr = &button_sprite[GBS_creature_flower_level_01 + cctrl->explevel];
+    LbSpriteDrawResized(curscr_x, curscr_y, ps_units_per_px, spr);
 }
 
 void gui_area_friendly_battlers(struct GuiButton *gbtn)
@@ -367,7 +372,7 @@ void draw_bonus_timer(void)
         if (nturns < 0)
         {
             nturns = 0;
-        } 
+        }
         else if (nturns > 99999)
         {
             nturns = 99999;
@@ -377,6 +382,11 @@ void draw_bonus_timer(void)
     LbTextSetFont(winfont);
     long width = 10 * (LbTextCharWidth('0') * units_per_pixel / 16);
     long height = LbTextLineHeight() * units_per_pixel / 16 + (LbTextLineHeight() * units_per_pixel / 16) / 2;
+    if (MyScreenHeight < 400)
+    {
+        height *= 2;
+        width *= 2;
+    }
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
     long scr_x = MyScreenWidth - width - 16 * units_per_pixel / 16;
     long scr_y = 16 * units_per_pixel / 16;
@@ -387,7 +397,7 @@ void draw_bonus_timer(void)
     }
     LbTextSetWindow(scr_x, scr_y, width, height);
     draw_slab64k(scr_x, scr_y, units_per_pixel, width, height);
-    int tx_units_per_px = (22 * units_per_pixel) / LbTextLineHeight();
+    int tx_units_per_px = ( (MyScreenHeight < 400) && (dbc_language > 0) ) ? scale_ui_value(32) : (22 * units_per_pixel) / LbTextLineHeight();
     LbTextDrawResized(0, 0, tx_units_per_px, text);
     LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
 }
@@ -419,9 +429,14 @@ void draw_timer(void)
         }
         text = buf_sprintf("%02d:%02d:%02d", Timer.Hours, Timer.Minutes, Timer.Seconds);
     }
-    LbTextSetFont(winfont); 
+    LbTextSetFont(winfont);
     long width = 10 * (LbTextCharWidth('0') * units_per_pixel >> 4);
     long height = LbTextLineHeight() * units_per_pixel / 16 + (LbTextLineHeight() * units_per_pixel / 16) / 2;
+    if (MyScreenHeight < 400)
+    {
+        height *= 2;
+        width *= 2;
+    }
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
     long scr_x = MyScreenWidth - width - 16 * units_per_pixel / 16;
     long scr_y = 16 * units_per_pixel / 16;
@@ -431,7 +446,7 @@ void draw_timer(void)
     }
     LbTextSetWindow(scr_x, scr_y, width, height);
     draw_slab64k(scr_x, scr_y, units_per_pixel, width, height);
-    int tx_units_per_px = (22 * units_per_pixel) / LbTextLineHeight();
+    int tx_units_per_px = ( (MyScreenHeight < 400) && (dbc_language > 0) ) ? scale_ui_value(32) : (22 * units_per_pixel) / LbTextLineHeight();
     LbTextDrawResized(0, 0, tx_units_per_px, text);
     LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
 }
@@ -439,6 +454,11 @@ void draw_timer(void)
 TbBool timer_enabled(void)
 {
   return ((game_flags2 & GF2_Timer) != 0);
+}
+
+TbBool frametime_enabled(void)
+{
+  return (debug_display_frametime != 0);
 }
 
 TbBool script_timer_enabled(void)
@@ -472,6 +492,11 @@ void draw_script_timer(PlayerNumber plyr_idx, unsigned char timer_id, unsigned l
     LbTextSetFont(winfont);
     long width = 10 * (LbTextCharWidth('0') * units_per_pixel / 16);
     long height = LbTextLineHeight() * units_per_pixel / 16 + (LbTextLineHeight() * units_per_pixel / 16) / 2;
+    if (MyScreenHeight < 400)
+    {
+        height *= 2;
+        width *= 2;
+    }
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
     long scr_x = MyScreenWidth - width - 16 * units_per_pixel / 16;
     long scr_y = 16 * units_per_pixel / 16;
@@ -482,7 +507,7 @@ void draw_script_timer(PlayerNumber plyr_idx, unsigned char timer_id, unsigned l
     }
     LbTextSetWindow(scr_x, scr_y, width, height);
     draw_slab64k(scr_x, scr_y, units_per_pixel, width, height);
-    int tx_units_per_px = (22 * units_per_pixel) / LbTextLineHeight();
+    int tx_units_per_px = ( (MyScreenHeight < 400) && (dbc_language > 0) ) ? scale_ui_value(32) : (22 * units_per_pixel) / LbTextLineHeight();
     LbTextDrawResized(0, 0, tx_units_per_px, text);
     LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
 }
@@ -503,7 +528,7 @@ void draw_script_variable(PlayerNumber plyr_idx, unsigned char valtype, unsigned
         }
         else if (targettype == 1)
         {
-            value = ((~target)+1) + value; 
+            value = ((~target)+1) + value;
         }
     }
     if (targettype != 2)
@@ -517,6 +542,11 @@ void draw_script_variable(PlayerNumber plyr_idx, unsigned char valtype, unsigned
     LbTextSetFont(winfont);
     long width = 10 * (LbTextCharWidth('0') * units_per_pixel / 16);
     long height = LbTextLineHeight() * units_per_pixel / 16 + (LbTextLineHeight() * units_per_pixel / 16) / 2;
+    if (MyScreenHeight < 400)
+    {
+        height *= 2;
+        width *= 2;
+    }
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
     long scr_x = MyScreenWidth - width - 16 * units_per_pixel / 16;
     long scr_y = 16 * units_per_pixel / 16;
@@ -535,8 +565,44 @@ void draw_script_variable(PlayerNumber plyr_idx, unsigned char valtype, unsigned
     }
     LbTextSetWindow(scr_x, scr_y, width, height);
     draw_slab64k(scr_x, scr_y, units_per_pixel, width, height);
-    int tx_units_per_px = (22 * units_per_pixel) / LbTextLineHeight();
+    int tx_units_per_px = ( (MyScreenHeight < 400) && (dbc_language > 0) ) ? scale_ui_value(32) : (22 * units_per_pixel) / LbTextLineHeight();
     LbTextDrawResized(0, 0, tx_units_per_px, text);
     LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
+}
+
+void draw_frametime()
+{
+    float display_value;
+    char *text;
+    LbTextSetFont(winfont);
+    lbDisplay.DrawFlags = Lb_TEXT_HALIGN_RIGHT;
+    int tx_units_per_px = (11 * units_per_pixel) / LbTextLineHeight();
+
+    // FPS
+    display_value = 1000 / frametime_measurements.frametime_display[Frametime_FullFrame];
+
+    text = buf_sprintf("FPS: %f", display_value);
+    LbTextDrawResized(0, 27*tx_units_per_px, tx_units_per_px, text);
+
+    // Frametimes
+    for (int i = 0; i < TOTAL_FRAMETIME_KINDS; i++) {
+        display_value = frametime_measurements.frametime_display[i];
+        switch (i) {
+            case Frametime_FullFrame:
+                text = buf_sprintf("Frametime: %f ms", display_value);
+                break;
+            case Frametime_Logic:
+                text = buf_sprintf("Logic: %f ms", display_value);
+                break;
+            case Frametime_Draw:
+                text = buf_sprintf("Draw: %f ms", display_value);
+                break;
+            case Frametime_Sleep:
+                text = buf_sprintf("Sleep: %f ms", display_value);
+                break;
+        }
+        LbTextDrawResized(0, (28+i)*tx_units_per_px, tx_units_per_px, text);
+    }
+    lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
 }
 /******************************************************************************/

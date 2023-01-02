@@ -251,6 +251,7 @@ struct ShotConfigStats {
     struct ShotHitConfig hit_water;
     struct ShotHitConfig hit_lava;
     struct ShotHitConfig hit_creature;
+    struct ShotHitConfig dig;
     short firing_sound;
     short shot_sound;
     unsigned char firing_sound_variants;
@@ -262,6 +263,7 @@ struct ShotConfigStats {
     unsigned char fall_acceleration;
     unsigned char cast_spell_kind;
     unsigned char push_on_hit;
+    unsigned char hidden_projectile;
     short bounce_angle;
     short wind_immune;
     short no_air_damage;
@@ -320,63 +322,19 @@ struct SpellConfig { // sizeof=4
   int duration;
 };
 
-struct ShotStats // sizeof = 101
+struct ShotStats
 {
-  short sprite_anim_idx_UNUSED;
-  short sprite_size_max_UNUSED;
-  unsigned char field_4[2];
-  unsigned char field_6;
-  unsigned char field_7;
-  unsigned char animation_transparency_UNUSED; // transparency mode
-  short size_xy_UNUSED;
-  short size_yz_UNUSED;
-  short bounce_angle_UNUSED;
-  unsigned char fall_acceleration_UNUSED;
-  unsigned char field_10;
-  unsigned char field_11;
-  unsigned char field_12;
-  unsigned char field_13;
-  short health_UNUSED;
-  short damage_UNUSED;
+  unsigned char field_6; //something with rendering flags
+  unsigned char inertia_floor;
+  unsigned char inertia_air;
+  unsigned char field_13; // something with movement flags
   unsigned char destroy_on_first_hit;
-  short speed_UNUSED;
-  short firing_sound_UNUSED;
-  unsigned char firing_sound_variants_UNUSED;
-  short shot_sound_UNUSED;
-  short field_20;
-  short hit_sound_UNUSED;
-  unsigned char field_24;
-  short cast_spell_kind_UNUSED;
-  unsigned char health_drain_UNUSED;
-  unsigned char cannot_hit_thing_UNUSED;
-  unsigned char rebound_immune_UNUSED;
-  unsigned char push_on_hit_UNUSED;
-  struct ShotHitConfig hit_generic_UNUSED;
-  struct ShotHitConfig hit_door_UNUSED;
-  short hit_water_effect_model_UNUSED;
-  short hit_water_sndsample_idx_UNUSED;
-  unsigned char hit_water_destroyed_UNUSED;
-  short hit_lava_effect_model_UNUSED;
-  short hit_lava_sndsample_idx_UNUSED;
-  unsigned char hit_lava_destroyed_UNUSED;
-  short area_range_UNUSED;
-  short area_damage_UNUSED;
-  short is_boulder_UNUSED;
-  unsigned char takes_air_damage_UNUSED;
-  unsigned char is_melee_UNUSED;
-  unsigned char is_digging_UNUSED;
-  unsigned char area_hit_type_UNUSED;
-  unsigned char group_with_shooter_UNUSED;
-  unsigned char deals_magic_damage_UNUSED;
-  unsigned char cannot_make_target_unconscious_UNUSED;
+  short field_20;//sound related
+  unsigned char target_frozen_on_hit;
   short experience_given_to_shooter;
-  short lightf_50;
-  unsigned char lightf_52;
+  short light_radius;
+  unsigned char light_intensity;
   unsigned char lightf_53;
-  unsigned char field_54[4];
-  unsigned char field_58[8];
-  unsigned char field_60[4];
-  unsigned char affected_by_wind_UNUSED;
 };
 
 struct MagicStats {  // sizeof=0x4C
@@ -428,9 +386,6 @@ struct SpellData {
 };
 
 #pragma pack()
-/******************************************************************************/
-DLLIMPORT struct ShotStats _DK_shot_stats[30];
-#define shot_stats _DK_shot_stats
 /******************************************************************************/
 extern struct MagicConfig magic_conf;
 extern const char keeper_magic_file[];

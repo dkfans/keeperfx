@@ -38,7 +38,7 @@ private:
 	SDL_Thread * thread;
 	ThreadCond cond;
 
-	static void threadFunc(UDP_NetListener * sh);
+	static int threadFunc(void *);
 
 	struct Session
 	{

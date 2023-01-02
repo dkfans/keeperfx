@@ -45,17 +45,20 @@
 #include <process.h>
 #endif
 
+#ifdef _MSC_VER
+// static_assert is not defined in C standard
+#ifndef __cplusplus
+#define static_assert(a, b)
+#endif
+#define strcasecmp strcmp
+#define strncasecmp strncmp
+#endif
+
 #include "version.h"
 
 #ifndef BFDEBUG_LEVEL
 #error "BFDEBUG_LEVEL should be defined in version.h"
 #define BFDEBUG_LEVEL 0
-#endif
-
-#if defined(BUILD_DLL)
-# define DLLIMPORT __declspec (dllexport)
-#else // Not defined BUILD_DLL
-# define DLLIMPORT __declspec (dllimport)
 #endif
 
 #ifdef __cplusplus
@@ -162,26 +165,19 @@ extern "C" {
 #if AUTOTESTING
   #include "event_monitoring.h"
   #define EVM_CREATURE_EVENT(event_name, plyr_id, thing) \
-    evm_stat(0, "ev.%s,cr=%s,thing=%d,plyr=%d cnt=1", event_name, get_string(creature_data_get(thing->model)->namestr_idx), thing->index, plyr_id)
+    evm_stat(0, "ev.%s,cr=%s,thing=%d,plyr=%d cnt=1", event_name, get_string(gameadd.crtr_conf.model[thing->model].namestr_idx), thing->index, plyr_id)
   #define EVM_CREATURE_EVENT_WITH_TARGET(event_name, plyr_id, thing, targ_val) \
-    evm_stat(0, "ev.%s,cr=%s,thing=%d,plyr=%d cnt=1,targ=%d", event_name, get_string(creature_data_get(thing->model)->namestr_idx), thing->index, plyr_id, targ_val)
+    evm_stat(0, "ev.%s,cr=%s,thing=%d,plyr=%d cnt=1,targ=%d", event_name, get_string(gameadd.crtr_conf.model[thing->model].namestr_idx), thing->index, plyr_id, targ_val)
   #define EVM_MAP_EVENT(event_name, plyr_idx, x, y, opt) \
     evm_stat(0, "map.%s,x=%d,y=%d,plyr=%d,opt=%s cnt=1,x=%d,y=%d", event_name, x, y, plyr_idx, opt, x,y)
   #define EVM_CREATURE_STAT(event_name, plyr_id, thing, stat_name, stat_val) \
-    evm_stat(0, "ev.%s,cr=%s,thing=%d,plyr=%d %s=%d", event_name, get_string(creature_data_get(thing->model)->namestr_idx), thing->index, plyr_id, stat_name, stat_val)
+    evm_stat(0, "ev.%s,cr=%s,thing=%d,plyr=%d %s=%d", event_name, get_string(gameadd.crtr_conf.model[thing->model].namestr_idx), thing->index, plyr_id, stat_name, stat_val)
 #else
   #define EVM_CREATURE_EVENT(event_name, plyr_id, thing)
   #define EVM_CREATURE_EVENT_WITH_TARGET(event_name, plyr_id, thing, targ_val)
   #define EVM_CREATURE_STAT(event_name, plyr_id, thing, stat_name, stat_val)
   #define EVM_MAP_EVENT(event_name, plyr_idx, x, y, opt)
 #endif
-
-void replaceFn(void* oldFn, void* newFn);
-#define CONCAT_(x, y) x##y
-#define CONCAT(x, y) CONCAT_(x, y)
-#define HOOK_DK_FUNC(name) \
-	DLLIMPORT void _DK_##name(); \
-	__attribute__((constructor)) static void CONCAT(hookFn, __COUNTER__)(void) { replaceFn(&_DK_##name, &name); }
 
 #pragma pack(1)
 
@@ -255,6 +251,8 @@ typedef long MapSubtlCoord;
 typedef long MapSubtlDelta;
 /** Map slab coordinate. Slab is a cubic part of map with specific content. */
 typedef short MapSlabCoord;
+/** Distance between map coordinates in slabs.  */
+typedef short MapSlabDelta;
 /** Map subtile 2D coordinates, coded into one number. */
 typedef unsigned long SubtlCodedCoords;
 /** Map slab 2D coordinates, coded into one number. */

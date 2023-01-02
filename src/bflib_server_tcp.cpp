@@ -17,8 +17,9 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-
+#include "pre_inc.h"
 #include "bflib_server_tcp.hpp"
+#include "post_inc.h"
 
 TCP_NetServer::TCP_NetServer(ushort port) : TCP_NetBase(),
 		remoteMutex(SDL_CreateMutex())

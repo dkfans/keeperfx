@@ -17,6 +17,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "player_computer.h"
 
 #include <limits.h>
@@ -42,6 +43,7 @@
 #include "power_hand.h"
 #include "room_data.h"
 #include "game_legacy.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -57,56 +59,31 @@ unsigned short computer_types_tooltip_stridx[] = {
     GUIStr_ConstructionAssistDesc, GUIStr_MoveOnlyAssistDesc, };
 
 /******************************************************************************/
-DLLIMPORT extern struct ComputerProcess _DK_BuildAllRooms3x3;
-#define BuildAllRooms3x3 _DK_BuildAllRooms3x3
-DLLIMPORT extern struct ComputerProcess _DK_BuildAllRooms4x4;
-#define BuildAllRooms4x4 _DK_BuildAllRooms4x4
-DLLIMPORT extern struct ComputerProcess _DK_BuildPrisonRoom;
-#define BuildPrisonRoom _DK_BuildPrisonRoom
-DLLIMPORT extern struct ComputerProcess _DK_BuildTortureRoom;
-#define BuildTortureRoom _DK_BuildTortureRoom
-DLLIMPORT extern struct ComputerProcess _DK_BuildScavengerRoom;
-#define BuildScavengerRoom _DK_BuildScavengerRoom
-DLLIMPORT extern struct ComputerProcess _DK_BuildTempleRoom;
-#define BuildTempleRoom _DK_BuildTempleRoom
-DLLIMPORT extern struct ComputerProcess _DK_BuildGraveyardRoom;
-#define BuildGraveyardRoom _DK_BuildGraveyardRoom
-DLLIMPORT extern struct ComputerProcess _DK_BuildBarrackRoom;
-#define BuildBarrackRoom _DK_BuildBarrackRoom
-DLLIMPORT extern struct ComputerProcess _DK_BuildTreasureRoom;
-#define BuildTreasureRoom _DK_BuildTreasureRoom
-DLLIMPORT extern struct ComputerProcess _DK_BuildResearchRoom;
-#define BuildResearchRoom _DK_BuildResearchRoom
-DLLIMPORT extern struct ComputerProcess _DK_BuildHatcheryRoom;
-#define BuildHatcheryRoom _DK_BuildHatcheryRoom
-DLLIMPORT extern struct ComputerProcess _DK_BuildLairRoom;
-#define BuildLairRoom _DK_BuildLairRoom
-DLLIMPORT extern struct ComputerProcess _DK_BuildTrainingRoom;
-#define BuildTrainingRoom _DK_BuildTrainingRoom
-DLLIMPORT extern struct ComputerProcess _DK_BuildWorkshopRoom;
-#define BuildWorkshopRoom _DK_BuildWorkshopRoom
-DLLIMPORT extern struct ComputerProcess _DK_DigToEntrance;
-#define DigToEntrance _DK_DigToEntrance
-DLLIMPORT extern struct ComputerProcess _DK_DigToGoldForMoney;
-#define DigToGoldForMoney _DK_DigToGoldForMoney
-DLLIMPORT extern struct ComputerProcess _DK_BuildTreasureRoom4x4;
-#define BuildTreasureRoom4x4 _DK_BuildTreasureRoom4x4
-DLLIMPORT extern struct ComputerProcess _DK_BuildLairRoom4x4;
-#define BuildLairRoom4x4 _DK_BuildLairRoom4x4
-DLLIMPORT extern struct ComputerProcess _DK_DigToCloseGoldForMoney;
-#define DigToCloseGoldForMoney _DK_DigToCloseGoldForMoney
-DLLIMPORT extern struct ComputerProcess _DK_DigToGoldGreedy;
-#define DigToGoldGreedy _DK_DigToGoldGreedy
-DLLIMPORT extern struct ComputerProcess _DK_DigToGoldGreedy2;
-#define DigToGoldGreedy2 _DK_DigToGoldGreedy2
-DLLIMPORT extern struct ComputerProcess _DK_ComputerSightOfEvil;
-#define ComputerSightOfEvil _DK_ComputerSightOfEvil
-DLLIMPORT extern struct ComputerProcess _DK_ComputerSightOfEvilScare;
-#define ComputerSightOfEvilScare _DK_ComputerSightOfEvilScare
-DLLIMPORT extern struct ComputerProcess _DK_ComputerAttack1;
-#define ComputerAttack1 _DK_ComputerAttack1
-DLLIMPORT extern struct ComputerProcess _DK_ComputerSafeAttack;
-#define ComputerSafeAttack _DK_ComputerSafeAttack
+extern struct ComputerProcess BuildAllRooms3x3;
+extern struct ComputerProcess BuildAllRooms4x4;
+extern struct ComputerProcess BuildPrisonRoom;
+extern struct ComputerProcess BuildTortureRoom;
+extern struct ComputerProcess BuildScavengerRoom;
+extern struct ComputerProcess BuildTempleRoom;
+extern struct ComputerProcess BuildGraveyardRoom;
+extern struct ComputerProcess BuildBarrackRoom;
+extern struct ComputerProcess BuildTreasureRoom;
+extern struct ComputerProcess BuildResearchRoom;
+extern struct ComputerProcess BuildHatcheryRoom;
+extern struct ComputerProcess BuildLairRoom;
+extern struct ComputerProcess BuildTrainingRoom;
+extern struct ComputerProcess BuildWorkshopRoom;
+extern struct ComputerProcess DigToEntrance;
+extern struct ComputerProcess DigToGoldForMoney;
+extern struct ComputerProcess BuildTreasureRoom4x4;
+extern struct ComputerProcess BuildLairRoom4x4;
+extern struct ComputerProcess DigToCloseGoldForMoney;
+extern struct ComputerProcess DigToGoldGreedy;
+extern struct ComputerProcess DigToGoldGreedy2;
+extern struct ComputerProcess ComputerSightOfEvil;
+extern struct ComputerProcess ComputerSightOfEvilScare;
+extern struct ComputerProcess ComputerAttack1;
+extern struct ComputerProcess ComputerSafeAttack;
 /******************************************************************************/
 
 struct ValidRooms valid_rooms_to_build[] = {

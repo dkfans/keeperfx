@@ -17,9 +17,11 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "bflib_network.h"
 
 #include "bflib_basics.h"
+#include "bflib_enet.h"
 #include "bflib_datetm.h"
 #include "bflib_memory.h"
 #include "bflib_netsession.h"
@@ -35,23 +37,11 @@
 #include "net_game.h"
 #include "packets.h"
 #include "front_landview.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-/******************************************************************************/
-DLLIMPORT TbError _DK_LbNetwork_Exchange(void *buf);
-DLLIMPORT TbError _DK_LbNetwork_Startup(void);
-DLLIMPORT TbError _DK_LbNetwork_Shutdown(void);
-DLLIMPORT TbError _DK_LbNetwork_Stop(void);
-DLLIMPORT TbError _DK_LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *plyr_name, unsigned long *plyr_num);
-DLLIMPORT TbError _DK_LbNetwork_Create(char *nsname_str, char *plyr_name, unsigned long *plyr_num);
-DLLIMPORT TbError _DK_LbNetwork_ChangeExchangeBuffer(void *, unsigned long);
-DLLIMPORT TbError _DK_LbNetwork_Init(unsigned long,struct _GUID guid, unsigned long, void *, unsigned long, struct TbNetworkPlayerInfo *netplayr, void *);
-DLLIMPORT TbError _DK_LbNetwork_EnableNewPlayers(unsigned long allow);
-DLLIMPORT TbError _DK_LbNetwork_EnumerateServices(TbNetworkCallbackFunc callback, void *a2);
-DLLIMPORT TbError _DK_LbNetwork_EnumeratePlayers(struct TbNetworkSessionNameEntry *sesn, TbNetworkCallbackFunc callback, void *a2);
-DLLIMPORT TbError _DK_LbNetwork_EnumerateSessions(TbNetworkCallbackFunc callback, void *ptr);
 /******************************************************************************/
 // Local functions definition
 TbError ClearClientData(void);
@@ -235,20 +225,6 @@ static struct TbNetworkSessionNameEntry sessions[SESSION_COUNT]; //using origina
 
 // New network code data definitions end here =================================
 
-/*
- * The following two functions are not exported from this module.
- *
-TbError LbNetwork_Startup(void)
-{
-  return _DK_LbNetwork_Startup();
-}
-
-TbError LbNetwork_Shutdown(void)
-{
-  return _DK_LbNetwork_Shutdown();
-}
-*/
-
 //debug function to find out reason for mutating peer ids
 static TbBool UserIdentifiersValid(void)
 {
@@ -341,7 +317,7 @@ static unsigned CountLoggedInClients(void)
     return count;
 }
 
-static void SendServerFrame(void)
+static void SendServerFrame()
 {
     char * ptr;
     size_t size;
@@ -652,7 +628,7 @@ TbError LbNetwork_Init(unsigned long srvcindex, unsigned long maxplayrs, void *e
 
   localPlayerInfoPtr = locplayr; //TODO NET try to get rid of dependency on external player list, makes things 2x more complicated
 
-  /*//return _DK_LbNetwork_Init(srvcp,guid,maxplayrs,exchng_buf,exchng_size,locplayr,init_data);
+  /*
   exchangeSize = exchng_size;
   maximumPlayers = maxplayrs;
   //thread_data_mem = _wint_thread_data;
@@ -745,6 +721,10 @@ TbError LbNetwork_Init(unsigned long srvcindex, unsigned long maxplayrs, void *e
       netstate.sp = &tcpSP;
 
       break;
+  case NS_ENET_UDP:
+      netstate.sp = InitEnetSP();
+      NETMSG("Selecting UDP");
+      break;
   default:
       WARNLOG("The serviceIndex value of %d is out of range", srvcindex);
       res = Lb_FAIL;
@@ -763,7 +743,6 @@ TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *plyr_name
 {
   /*TbError ret;
   TbClockMSec tmStart;
-  //return _DK_LbNetwork_Join(nsname, plyr_name, plyr_num);
   ret = Lb_FAIL;
   tmStart = LbTimerClock();
   if (spPtr == NULL)
@@ -834,13 +813,13 @@ TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *plyr_name
     SendLoginRequest(plyr_name, netstate.password);
     ProcessMessagesUntilNextLoginReply(WAIT_FOR_SERVER_TIMEOUT_IN_MS);
     if (netstate.msg_buffer[0] != NETMSG_LOGIN) {
-        NETMSG("Network login rejected");
+        fprintf(stderr, "Network login rejected");
         return Lb_FAIL;
     }
     ProcessMessage(SERVER_ID);
 
     if (netstate.my_id == 23456) {
-        NETMSG("Network login unsuccessful");
+        fprintf(stderr, "Network login unsuccessful");
         return Lb_FAIL;
     }
 
@@ -851,7 +830,6 @@ TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *plyr_name
 
 TbError LbNetwork_Create(char *nsname_str, char *plyr_name, unsigned long *plyr_num, void *optns)
 {
-  //return _DK_LbNetwork_Create(nsname_str, plyr_name, plyr_num);
   /*if (spPtr == NULL)
   {
     ERRORLOG("ServiceProvider ptr is NULL");
@@ -912,7 +890,6 @@ TbError LbNetwork_ChangeExchangeBuffer(void *buf, unsigned long buf_size)
 {
   /*void *cbuf;
   long comps_size;
-  //return _DK_LbNetwork_ChangeExchangeBuffer(buf, buf_size);
   exchangeBuffer = buf;
   exchangeSize = buf_size;
   comps_size = buf_size * maximumPlayers;
@@ -967,7 +944,7 @@ TbError LbNetwork_Stop(void)
     NetFrame* frame;
     NetFrame* nextframe;
 
-    /*//return _DK_LbNetwork_Stop();
+    /*
   if (spPtr == NULL)
   {
     ERRORLOG("ServiceProvider ptr is NULL");
@@ -1139,7 +1116,7 @@ static void ProcessPendingMessages(NetUserId id)
     }
 }
 
-static void ConsumeServerFrame(void)
+static void ConsumeServerFrame()
 {
     NetFrame * frame;
 
@@ -1158,7 +1135,6 @@ TbError LbNetwork_Exchange(void *buf)
     NetUserId id;
 
     NETDBG(7, "Starting");
-  //return _DK_LbNetwork_Exchange(buf);
   /*spPtr->update();
   if (LbNetwork_StartExchange(buf) != Lb_OK)
   {
@@ -1216,8 +1192,8 @@ TbError LbNetwork_Exchange(void *buf)
 
             SendClientFrame((char *) buf, netstate.exchg_queue->seq_nbr);
         }
-
-        if (!netstate.enable_lag) {
+        else
+        {
             SendClientFrame((char *) buf, netstate.seq_nbr);
             ProcessMessagesUntilNextFrame(SERVER_ID, 0);
 
@@ -1281,7 +1257,6 @@ TbBool LbNetwork_Resync(void * buf, size_t len)
 
 TbError LbNetwork_EnableNewPlayers(TbBool allow)
 {
-  //return _DK_LbNetwork_EnableNewPlayers(allow);
   /*if (spPtr == NULL)
   {
     ERRORLOG("ServiceProvider ptr is NULL");
@@ -1322,34 +1297,10 @@ TbError LbNetwork_EnableNewPlayers(TbBool allow)
 
 TbError LbNetwork_EnumerateServices(TbNetworkCallbackFunc callback, void *ptr)
 {
-//  TbBool local_init;
-
-  struct TbNetworkCallbackData netcdat;
+  struct TbNetworkCallbackData netcdat = {};
 
   SYNCDBG(7, "Starting");
 
-  //return _DK_LbNetwork_EnumerateServices(callback, ptr);
-/*
-  local_init = false;
-  if (!network_initialized)
-  {
-    if (LbNetwork_Startup() != Lb_OK)
-      local_init = true;
-  }
-  if (network_initialized)
-  {
-    strcpy(netcdat.svc_name, "SERIAL");
-    callback(&netcdat, ptr);
-    strcpy(netcdat.svc_name, "MODEM");
-    callback(&netcdat, ptr);
-    strcpy(netcdat.svc_name, "IPX");
-    callback(&netcdat, ptr);
-    NETMSG("Enumerate Services called");
-  }
-  if (local_init)
-    LbNetwork_Shutdown();
-  return Lb_OK;
-*/
   strcpy(netcdat.svc_name, "Serial");
   callback(&netcdat, ptr);
   strcpy(netcdat.svc_name, "Modem");
@@ -1357,6 +1308,8 @@ TbError LbNetwork_EnumerateServices(TbNetworkCallbackFunc callback, void *ptr)
   strcpy(netcdat.svc_name, "IPX");
   callback(&netcdat, ptr);
   strcpy(netcdat.svc_name, "TCP");
+  callback(&netcdat, ptr);
+  strcpy(netcdat.svc_name, "ENET/UDP");
   callback(&netcdat, ptr);
   NETMSG("Enumerate Services called");
   return Lb_OK;
@@ -1368,13 +1321,12 @@ TbError LbNetwork_EnumerateServices(TbNetworkCallbackFunc callback, void *ptr)
  */
 TbError LbNetwork_EnumeratePlayers(struct TbNetworkSessionNameEntry *sesn, TbNetworkCallbackFunc callback, void *buf)
 {
-    TbNetworkCallbackData data;
+    TbNetworkCallbackData data = {};
     NetUserId id;
 
     SYNCDBG(9, "Starting");
 
   /*char ret;
-  //return _DK_LbNetwork_EnumeratePlayers(sesn, callback, a2);
   if (spPtr == NULL)
   {
     ERRORLOG("ServiceProvider ptr is NULL");
@@ -1409,7 +1361,6 @@ TbError LbNetwork_EnumerateSessions(TbNetworkCallbackFunc callback, void *ptr)
     SYNCDBG(9, "Starting");
 
   //char ret;
-  //return _DK_LbNetwork_EnumerateSessions(callback, ptr);
   /*if (spPtr == NULL)
   {
     ERRORLOG("ServiceProvider ptr is NULL");
@@ -1639,7 +1590,7 @@ TbError GenericModemInit(void *init_data)
     WARNLOG("Failure on SP construction");
     return Lb_FAIL;
   }
-  if (spPtr->Init(&receiveCallbacks, 0) != Lb_OK)
+  if (spPtr->Init(&receiveCallbacks, nullptr) != Lb_OK)
   {
     WARNLOG("Failure on SP::Init()");
     return Lb_FAIL;
@@ -1661,7 +1612,7 @@ TbError GenericIPXInit(void *init_data)
     WARNLOG("Failure on SP construction");
     return Lb_FAIL;
   }
-  if (spPtr->Init(&receiveCallbacks, 0) != Lb_OK)
+  if (spPtr->Init(&receiveCallbacks, nullptr) != Lb_OK)
   {
     WARNLOG("Failure on SP::Init()");
     return Lb_FAIL;

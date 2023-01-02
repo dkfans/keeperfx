@@ -124,18 +124,12 @@ enum IngameButtonGroupIDs {
 };
 
 /******************************************************************************/
-DLLIMPORT long _DK_activity_list[24];
-#define activity_list _DK_activity_list
-DLLIMPORT char _DK_gui_room_type_highlighted;
-#define gui_room_type_highlighted _DK_gui_room_type_highlighted
-DLLIMPORT char _DK_gui_door_type_highlighted;
-#define gui_door_type_highlighted _DK_gui_door_type_highlighted
-DLLIMPORT char _DK_gui_trap_type_highlighted;
-#define gui_trap_type_highlighted _DK_gui_trap_type_highlighted
-DLLIMPORT char _DK_gui_creature_type_highlighted;
-#define gui_creature_type_highlighted _DK_gui_creature_type_highlighted
-DLLIMPORT unsigned long _DK_first_person_instance_top_half_selected;
-#define first_person_instance_top_half_selected _DK_first_person_instance_top_half_selected
+extern long activity_list[24];
+extern char gui_room_type_highlighted;
+extern char gui_door_type_highlighted;
+extern char gui_trap_type_highlighted;
+extern char gui_creature_type_highlighted;
+extern unsigned long first_person_instance_top_half_selected;
 
 #pragma pack()
 /******************************************************************************/
@@ -174,6 +168,7 @@ void draw_whole_status_panel(void);
 void gui_set_button_flashing(long btn_idx, long gameturns);
 short button_designation_to_tab_designation(short btn_designt_id);
 short get_button_designation(short btn_group, short btn_item);
+void draw_placefiller(long scr_x, long scr_y, long units_per_px);
 
 void gui_over_creature_button(struct GuiButton* gbtn);
 

@@ -29,9 +29,14 @@ extern "C" {
 #endif
 /******************************************************************************/
 #define LbFPMath_PI 1024
+#define LbFPMath_TAU 2048
 #define LbFPMath_AngleMask 0x7FF
 /** Amount of fractional bits in resulting values of trigonometric operations. */
 #define LbFPMath_TrigmBits 16
+
+#define CEILING_POS(X) ((X-(int)(X)) > 0 ? (int)(X+1) : (int)(X))
+#define CEILING_NEG(X) ((X-(int)(X)) < 0 ? (int)(X-1) : (int)(X))
+#define CEILING(X) ( ((X) > 0) ? CEILING_POS(X) : CEILING_NEG(X) )
 
 enum MathOperator {
     MOp_UNDEFINED                      =  0,
@@ -62,8 +67,6 @@ struct Proportion { // sizeof = 8
 //extern struct Proportion proportions[513];
 /******************************************************************************/
 #define LB_RANDOM(range,seed) LbRandomSeries(range, seed, __func__, __LINE__, "lb")
-#define FIXED_POLAR_TO_X(orient,distance) ((distance * LbSinL(orient)) >> LbFPMath_TrigmBits)
-#define FIXED_POLAR_TO_Y(orient,distance) ((distance * LbCosL(orient)) >> LbFPMath_TrigmBits)
 
 /******************************************************************************/
 
@@ -77,7 +80,9 @@ unsigned long LbRandomSeries(unsigned long range, unsigned long *seed, const cha
 TbBool LbNumberSignsSame(long num_a, long num_b);
 char LbCompareMultiplications(long mul1a, long mul1b, long mul2a, long mul2b);
 long LbDiagonalLength(long a, long b);
-
+float lerp(float a, float b, float f);
+long lerp_angle(long from, long to, float weight);
+double fastPow(double a, double b);
 /******************************************************************************/
 #ifdef __cplusplus
 }

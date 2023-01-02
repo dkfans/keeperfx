@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "config_magic.h"
 #include "globals.h"
 
@@ -34,6 +35,7 @@
 #include "game_legacy.h"
 
 #include "keeperfx.hpp"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -95,6 +97,9 @@ const struct NamedCommand magic_shot_commands[] = {
   {"HITLAVAEFFECT",         32},
   {"HITCREATURESOUND",      33},
   {"ANIMATIONTRANSPARENCY", 34},
+  {"DIGSOUND",              35},
+  {"DIGSOUNDVARIANTS",      36},
+  {"DIGEFFECT",             37},
   {NULL,                     0},
   };
 
@@ -146,6 +151,7 @@ const struct NamedCommand shotmodel_properties_commands[] = {
   {"NO_AIR_DAMAGE",       17},
   {"WIND_IMMUNE",         18},
   {"FIXED_DAMAGE",        19},
+  {"HIDDEN_PROJECTILE",   20},
   {NULL,                   0},
   };
 
@@ -224,6 +230,40 @@ const Expand_Check_Func powermodel_expand_check_func_list[] = {
   call_to_arms_expand_check,
   NULL,
   NULL,
+};
+
+static struct ShotStats shot_stats[30]=
+{   
+    { 0, 0,0,0,0,0,0,  0,   0, 0,0},//stuff bigger then 30 gets remaped to 0  //SHOT_WORD_OF_POWER  //SHOT_TRAP_WORD_OF_POWER  
+	{ 1, 0,0,0,1,1,6,256,1792,52,1},//SHOT_FIREBALL
+	{ 1, 0,0,0,1,1,6,256,2560,52,1},//SHOT_FIREBOMB
+	{ 1, 0,0,0,1,1,6,256,   0, 0,0},//SHOT_FREEZE
+	{ 0, 0,0,0,0,1,6,256,2560,52,0},//SHOT_LIGHTNING
+	{ 1, 0,0,0,1,1,6,256,   0, 0,0},//SHOT_POISON_CLOUD
+	{ 1, 0,0,0,1,1,6,256,   0, 0,0},//SHOT_NAVI_MISSILE
+	{ 0, 0,0,0,0,1,6, 32,1792,52,0},//SHOT_FLAME_BREATH
+	{ 0, 0,0,1,0,1,6,256,   0, 0,0},//SHOT_WIND
+	{ 1, 0,0,0,1,1,6,256,   0, 0,0},//SHOT_MISSILE
+	{ 1, 0,0,0,1,1,6,256,   0, 0,0},//SHOT_SLOW
+	{ 0,32,0,1,0,1,0,256,   0, 0,0},//SHOT_GRENADE  //SHOT_LIZARD
+	{ 0, 0,0,0,0,1,0,256,   0, 0,0},//SHOT_DRAIN
+	{ 0, 0,0,0,1,1,6,256,   0, 0,0},//SHOT_HAILSTORM
+	{ 1, 0,0,0,1,1,6,256,   0, 0,0},//SHOT_ARROW
+	{ 0, 0,0,1,0,1,0,256,   0, 0,0},//SHOT_BOULDER
+	{ 0, 0,0,0,0,1,0,256,   0, 0,0},//SHOT_GOD_LIGHTNING
+	{ 0, 0,0,0,1,1,0,256,   0, 0,0},//SHOT_SPIKE
+	{ 0, 0,0,1,0,1,6,256,   0, 0,0},//hardcoded remap from 18 to 11
+	{ 0, 0,0,0,0,4,0,256,   0, 0,0},//SHOT_ALARM
+	{ 0, 0,0,1,0,1,0,256,   0, 0,0},//SHOT_SOLID_BOULDER
+	{ 1, 0,0,0,1,1,6,256,   0, 0,0},//SHOT_SWING_SWORD
+	{ 1, 0,0,0,1,1,6,256,   0, 0,0},//SHOT_SWING_FIST
+	{ 1, 0,0,1,0,1,0,256,   0, 0,0},//SHOT_DIG
+	{ 0, 0,0,0,0,1,0,256,   0, 0,0},//SHOT_LIGHTNING_BALL
+	{ 0, 0,0,0,1,1,0,256,   0, 0,0},//SHOT_GROUP
+	{ 0, 0,0,0,1,1,6,256,   0, 0,0},//SHOT_DISEASE
+	{ 0, 0,0,0,1,1,6,256,   0, 0,0},//SHOT_CHICKEN
+	{ 0, 0,0,0,1,1,6,256,   0, 0,0},//SHOT_TIME_BOMB
+	{ 0, 0,0,0,0,3,6,256,2560,52,0} //SHOT_TRAP_LIGHTNING
 };
 
 /******************************************************************************/
@@ -677,54 +717,60 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
   // Block name and parameter word store variables
   // Initialize the array
   int arr_size;
-  if ((flags & CnfLd_AcceptPartial) == 0)
   {
-      arr_size = sizeof(magic_conf.shot_cfgstats)/sizeof(magic_conf.shot_cfgstats[0]);
-      for (i=0; i < arr_size; i++)
+      arr_size = sizeof(magic_conf.shot_cfgstats) / sizeof(magic_conf.shot_cfgstats[0]);
+      for (i = 0; i < arr_size; i++)
       {
           shotst = get_shot_model_stats(i);
-          LbMemorySet(shotst->code_name, 0, COMMAND_WORD_LEN);
-          shotst->model_flags = 0;
-          if (i == 18)
+          if (((flags & CnfLd_AcceptPartial) == 0) || (strlen(shotst->code_name) <= 0))
           {
-              shotst->old = &shot_stats[11];
-          } else
-          if (i < 30)
-          {
-              shotst->old = &shot_stats[i];
-          } else
-          {
-              shotst->old = &shot_stats[0];
+              LbMemorySet(shotst->code_name, 0, COMMAND_WORD_LEN);
+              shotst->model_flags = 0;
+              if (i == 18)
+              {
+                  shotst->old = &shot_stats[11];
+              }
+              else
+                  if (i < 30)
+                  {
+                      shotst->old = &shot_stats[i];
+                  }
+                  else
+                  {
+                      shotst->old = &shot_stats[0];
+                  }
+              if (i < magic_conf.shot_types_count)
+              {
+                  shot_desc[i].name = shotst->code_name;
+                  shot_desc[i].num = i;
+              }
+              else
+              {
+                  shot_desc[i].name = NULL;
+                  shot_desc[i].num = 0;
+              }
+              shotst->area_hit_type = THit_CrtrsOnly;
+              shotst->area_range = 0;
+              shotst->area_damage = 0;
+              shotst->area_blow = 0;
+              shotst->bounce_angle = 0;
+              shotst->damage = 0;
+              shotst->fall_acceleration = 0;
+              shotst->hidden_projectile = 0;
+              shotst->hit_door.withstand = 0;
+              shotst->hit_generic.withstand = 0;
+              shotst->hit_lava.withstand = 0;
+              shotst->hit_water.withstand = 0;
+              shotst->no_air_damage = 0;
+              shotst->push_on_hit = 0;
+              shotst->max_range = 0;
+              shotst->size_xy = 0;
+              shotst->size_yz = 0;
+              shotst->speed = 0;
+              shotst->wind_immune = 0;
+              shotst->animation_transparency = 0;
+              shotst->fixed_damage = 0;
           }
-          if (i < magic_conf.shot_types_count)
-          {
-            shot_desc[i].name = shotst->code_name;
-            shot_desc[i].num = i;
-          } else
-          {
-            shot_desc[i].name = NULL;
-            shot_desc[i].num = 0;
-          }
-          shotst->area_hit_type = THit_CrtrsOnly;
-          shotst->area_range = 0;
-          shotst->area_damage = 0;
-          shotst->area_blow = 0;
-          shotst->bounce_angle = 0;
-          shotst->damage = 0;
-          shotst->fall_acceleration = 0;
-          shotst->hit_door.withstand = 0;
-          shotst->hit_generic.withstand = 0;
-          shotst->hit_lava.withstand = 0;
-          shotst->hit_water.withstand = 0;
-          shotst->no_air_damage = 0;
-          shotst->push_on_hit = 0;
-          shotst->max_range = 0;
-          shotst->size_xy = 0;
-          shotst->size_yz = 0;
-          shotst->speed = 0;
-          shotst->wind_immune = 0;
-          shotst->animation_transparency = 0;
-          shotst->fixed_damage = 0;
       }
   }
   // Load the file
@@ -768,6 +814,11 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
             CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
                 COMMAND_TEXT(cmd_num),block_buf,config_textname);
             break;
+          }
+          if (shot_desc[i].name == NULL) 
+          {
+              shot_desc[i].name = shotst->code_name;
+              shot_desc[i].num = i;
           }
           n++;
           break;
@@ -872,6 +923,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           shotst->hit_water.withstand = 0;
           shotst->no_air_damage = 0;
           shotst->wind_immune = 0;
+          shotst->hidden_projectile = 0;
           while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = get_id(shotmodel_properties_commands, word_buf);
@@ -951,6 +1003,10 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                 break;
             case 19: // FIXED_DAMAGE
                 shotst->fixed_damage = 1;
+                n++;
+                break;
+            case 20: // HIDDEN_PROJECTILE
+                shotst->hidden_projectile = 1;
                 n++;
                 break;
             default:
@@ -1289,6 +1345,45 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           {
               k = atoi(word_buf);
               shotst->animation_transparency = k;
+              n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 35: //DIGSOUND
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->dig.sndsample_idx = k;
+              n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 36: //DIGSOUNDVARIANTS
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->dig.sndsample_range = k;
+              n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 37: //DIGEFFECT
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->dig.effect_model = k;
               n++;
           }
           if (n < 1)
@@ -1823,12 +1918,6 @@ TbBool load_magic_config_file(const char *textname, const char *fname, unsigned 
             WARNMSG("The %s file \"%s\" doesn't exist or is too small.",textname,fname);
         return false;
     }
-    if (len > MAX_CONFIG_FILE_SIZE)
-    {
-        if ((flags & CnfLd_IgnoreErrors) == 0)
-            WARNMSG("The %s file \"%s\" is too large.",textname,fname);
-        return false;
-    }
     char* buf = (char*)LbMemoryAlloc(len + 256);
     if (buf == NULL)
         return false;
@@ -2060,7 +2149,13 @@ TbBool set_power_available(PlayerNumber plyr_idx, PowerKind pwkind, long resrch,
     if (avail <= 0)
     {
         if (is_power_available(plyr_idx, pwkind))
+        {
             remove_power_from_player(pwkind, plyr_idx);
+        }
+        return true;
+    }
+    if (is_power_available(plyr_idx, pwkind))
+    {
         return true;
     }
     return add_power_to_player(pwkind, plyr_idx);

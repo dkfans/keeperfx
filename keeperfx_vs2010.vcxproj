@@ -172,7 +172,6 @@
     <ClCompile Include="src\gui_soundmsgs.c" />
     <ClCompile Include="src\gui_tooltips.c" />
     <ClCompile Include="src\gui_topmsg.c" />
-    <ClCompile Include="src\hookfn.cpp" />
     <ClCompile Include="src\KeeperSpeechImp.c" />
     <ClCompile Include="src\kjm_input.c" />
     <ClCompile Include="src\lens_api.c" />
@@ -190,6 +189,7 @@
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\main_game.c" />
     <ClCompile Include="src\map_blocks.c" />
+    <ClCompile Include="src\map_ceiling.c" />
     <ClCompile Include="src\map_columns.c" />
     <ClCompile Include="src\map_data.c" />
     <ClCompile Include="src\map_events.c" />
@@ -413,6 +413,7 @@
     <ClInclude Include="src\lvl_script_value.h" />
     <ClInclude Include="src\magic.h" />
     <ClInclude Include="src\map_blocks.h" />
+    <ClInclude Include="src\map_ceiling.h" />
     <ClInclude Include="src\map_columns.h" />
     <ClInclude Include="src\map_data.h" />
     <ClInclude Include="src\map_events.h" />
@@ -448,6 +449,7 @@
     <ClInclude Include="src\slab_data.h" />
     <ClInclude Include="src\sounds.h" />
     <ClInclude Include="src\spdigger_stack.h" />
+    <ClInclude Include="src\sprites.h" />
     <ClInclude Include="src\tasks_list.h" />
     <ClInclude Include="src\thing_corpses.h" />
     <ClInclude Include="src\thing_creature.h" />

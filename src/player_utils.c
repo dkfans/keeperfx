@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "player_utils.h"
 
 #include "globals.h"
@@ -52,10 +53,8 @@
 #include "frontmenu_ingame_map.h"
 #include "keeperfx.hpp"
 #include "kjm_input.h"
+#include "post_inc.h"
 
-/******************************************************************************/
-/******************************************************************************/
-DLLIMPORT void _DK_fill_in_explored_area(unsigned char plyr_idx, short stl_x, short stl_y);
 /******************************************************************************/
 TbBool player_has_won(PlayerNumber plyr_idx)
 {
@@ -237,7 +236,7 @@ GoldAmount take_money_from_room(struct Room *room, GoldAmount amount_take)
         // Per-slab code ends
         slbnum = get_next_slab_number_in_room(slbnum);
         k++;
-        if (k > map_tiles_x * map_tiles_y)
+        if (k > gameadd.map_tiles_x * gameadd.map_tiles_y)
         {
             ERRORLOG("Infinite loop detected when sweeping room slabs");
             break;
@@ -269,7 +268,7 @@ GoldAmount take_money_from_room(struct Room *room, GoldAmount amount_take)
         // Per-slab code ends
         slbnum = get_next_slab_number_in_room(slbnum);
         k++;
-        if (k > map_tiles_x * map_tiles_y)
+        if (k > gameadd.map_tiles_x * gameadd.map_tiles_y)
         {
             ERRORLOG("Infinite loop detected when sweeping room slabs");
             break;
@@ -281,6 +280,7 @@ GoldAmount take_money_from_room(struct Room *room, GoldAmount amount_take)
 long take_money_from_dungeon_f(PlayerNumber plyr_idx, GoldAmount amount_take, TbBool only_whole_sum, const char *func_name)
 {
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
+    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
     if (dungeon_invalid(dungeon)) {
         WARNLOG("%s: Cannot take gold from player %d with no dungeon",func_name,(int)plyr_idx);
         return -1;
@@ -313,40 +313,50 @@ long take_money_from_dungeon_f(PlayerNumber plyr_idx, GoldAmount amount_take, Tb
         dungeon->total_money_owned -= offmap_money;
         dungeon->offmap_money_owned = 0;
     }
-    long i = dungeon->room_kind[RoK_TREASURE];
-    unsigned long k = 0;
-    while (i != 0)
+
+    for (RoomKind rkind = 0; rkind < slab_conf.room_types_count; rkind++)
     {
-        struct Room* room = room_get(i);
-        if (room_is_invalid(room))
+        if(room_role_matches(rkind,RoRoF_GoldStorage))
         {
-          ERRORLOG("Jump to invalid room detected");
-          break;
-        }
-        i = room->next_of_owner;
-        // Per-room code
-        if (room->capacity_used_for_storage > 0)
-        {
-            take_remain -= take_money_from_room(room, take_remain);
-            if (take_remain <= 0)
+            long i = dungeonadd->room_kind[rkind];
+            unsigned long k = 0;
+            while (i != 0)
             {
-                if (is_my_player_number(plyr_idx))
+                struct Room* room = room_get(i);
+                if (room_is_invalid(room))
                 {
-                  if ((total_money >= 1000) && (total_money - amount_take < 1000)) {
-                      output_message(SMsg_GoldLow, MESSAGE_DELAY_TREASURY, true);
-                  }
+                ERRORLOG("Jump to invalid room detected");
+                break;
                 }
-                return amount_take;
+                i = room->next_of_owner;
+                // Per-room code
+                if (room->capacity_used_for_storage > 0)
+                {
+                    take_remain -= take_money_from_room(room, take_remain);
+                    if (take_remain <= 0)
+                    {
+                        if (is_my_player_number(plyr_idx))
+                        {
+                        if ((total_money >= 1000) && (total_money - amount_take < 1000)) {
+                            output_message(SMsg_GoldLow, MESSAGE_DELAY_TREASURY, true);
+                        }
+                        }
+                        return amount_take;
+                    }
+                }
+                // Per-room code ends
+                k++;
+                if (k > ROOMS_COUNT)
+                {
+                ERRORLOG("Infinite loop detected when sweeping rooms list");
+                break;
+                }
             }
         }
-        // Per-room code ends
-        k++;
-        if (k > ROOMS_COUNT)
-        {
-          ERRORLOG("Infinite loop detected when sweeping rooms list");
-          break;
-        }
     }
+
+
+
     WARNLOG("%s: Player %d could not give %d gold, %d was missing; his total gold was %d",func_name,(int)plyr_idx,(int)amount_take,(int)take_remain,(int)total_money);
     return -1;
 }
@@ -385,7 +395,6 @@ long update_dungeon_generation_speeds(void)
 
 void calculate_dungeon_area_scores(void)
 {
-    //_DK_calculate_dungeon_area_scores();
     // Zero dungeon areas
     for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
@@ -397,9 +406,9 @@ void calculate_dungeon_area_scores(void)
         }
     }
     // Compute new values for dungeon areas
-    for (MapSlabCoord slb_y = 0; slb_y < map_tiles_y; slb_y++)
+    for (MapSlabCoord slb_y = 0; slb_y < gameadd.map_tiles_y; slb_y++)
     {
-        for (MapSlabCoord slb_x = 0; slb_x < map_tiles_x; slb_x++)
+        for (MapSlabCoord slb_x = 0; slb_x < gameadd.map_tiles_x; slb_x++)
         {
             SlabCodedCoords slb_num = get_slab_number(slb_x, slb_y);
             struct SlabMap* slb = get_slabmap_direct(slb_num);
@@ -485,19 +494,195 @@ TbBool map_position_initially_explored_for_player(PlayerNumber plyr_idx, MapSlab
 
 void fill_in_explored_area(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    _DK_fill_in_explored_area(plyr_idx, stl_x, stl_y); return;
+
+    
+    int block_flags;
+    int v13;
+    char *fs_par_slab;
+    char v15;
+    char v16;
+    char v17;
+    char v18;
+    const char *i;
+    char *v20;
+    MapSlabCoord slb_y;
+    MapSlabCoord slb_x;
+    unsigned int v24;
+    unsigned int v30;
+
+    static const char byte_522148[80] =
+    {
+    0,0,0,0,0,
+    0,0,0,0,0,
+    0,0,0,0,0,
+    1,0,0,0,-4,
+    0,0,0,0,0,
+    0,0,0,0,0,
+    2,0,0,0,-7,
+    1,0,0,0,-2,
+    0,0,0,0,0,
+    4,0,0,0,-10,
+    0,0,0,0,0,
+    1,0,0,0,-3,
+    3,0,0,0,-13,
+    3,0,0,0,-5,
+    2,0,0,0,-3,
+    1,0,0,0,0
+    };
+
+    struct XY {
+        char x;
+        char y;
+    };
+
+    static const struct XY byte_522199[6] =
+    {
+        { 0, 0},
+        { 1,-1},
+        { 1, 1},
+        {-1, 1},
+        {-1,-1},
+        { 0, 0}
+    };
+
+    char *first_scratch = (char*) scratch;
+    
+    struct XY *second_scratch = (struct XY *)scratch + gameadd.map_tiles_x * gameadd.map_tiles_y;
+    memset((void *)scratch, 0, gameadd.map_tiles_x * gameadd.map_tiles_y);
+
+    for(MapSlabCoord slb_y_2 = 0;slb_y_2 < gameadd.map_tiles_y;slb_y_2++)
+    {
+        for(MapSlabCoord slb_x_2 = 0;slb_x_2 < gameadd.map_tiles_x;slb_x_2++)
+        {
+            struct SlabMap *slb = get_slabmap_block(slb_x_2,slb_y_2);
+            struct SlabAttr *slbattr = get_slab_attrs(slb);
+            block_flags = slbattr->block_flags;
+
+            if ((block_flags & (SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0 || ((block_flags & SlbAtFlg_IsDoor) != 0 && slabmap_owner(slb) != plyr_idx))
+            {
+                first_scratch[get_slab_number(slb_x_2,slb_y_2)] = 1;
+            }
+        }
+    }
+
+    for(MapSubtlCoord lpstl_y = 0;lpstl_y < gameadd.map_subtiles_y;lpstl_y++)
+    {
+        for(MapSubtlCoord lpstl_x = 0;lpstl_x < gameadd.map_subtiles_x;lpstl_x++)
+        {
+            struct Map *mapblk = get_map_block_at(lpstl_x,lpstl_y);
+            mapblk->data = ((~(1 << plyr_idx) << 28) | 0xFFFFFFF) & mapblk->data;
+        }
+    }
+
+    v30 = 0;
+    v24 = 0;
+    slb_x = stl_x / 3;
+    slb_y = stl_y / 3;
+    first_scratch[get_slab_number(slb_x,slb_y)] |= 2u;
+    do
+    {
+        v13 = 0;
+        fs_par_slab = &first_scratch[get_slab_number(slb_x,slb_y)];
+        v15 = *(fs_par_slab - 1);
+        if ((v15 & 1) != 0)
+        {
+            v13 = 8;
+            *(fs_par_slab - 1) = v15 | 2;
+        }
+        else if ((v15 & 2) == 0)
+        {
+            *(fs_par_slab - 1) = v15 | 2;
+           
+            second_scratch[v24].x = slb_x - 1;
+            second_scratch[v24].y = slb_y;
+            v24++;
+        }
+        v16 = fs_par_slab[1];
+        if ((v16 & 1) != 0)
+        {
+            v13 |= 2u;
+            fs_par_slab[1] = v16 | 2;
+        }
+        else if ((v16 & 2) == 0)
+        {
+            fs_par_slab[1] = v16 | 2;
+            second_scratch[v24].x = slb_x + 1;
+            second_scratch[v24].y = slb_y;
+            v24++;
+        }
+        v17 = *(fs_par_slab - gameadd.map_tiles_x);
+        if ((v17 & 1) != 0)
+        {
+            v13 |= 1u;
+            *(fs_par_slab - gameadd.map_tiles_x) = v17 | 2;
+        }
+        else if ((v17 & 2) == 0)
+        {
+            *(fs_par_slab - gameadd.map_tiles_x) = v17 | 2;
+            second_scratch[v24].x = slb_x;
+            second_scratch[v24].y = slb_y - 1;
+            v24++;
+        }
+        v18 = fs_par_slab[gameadd.map_tiles_x];
+        if ((v18 & 1) != 0)
+        {
+            v13 |= 4u;
+            fs_par_slab[gameadd.map_tiles_x] = v18 | 2;
+        }
+        else if ((v18 & 2) == 0)
+        {
+            fs_par_slab[gameadd.map_tiles_x] = v18 | 2;
+            second_scratch[v24].x = slb_x;
+            second_scratch[v24].y = slb_y + 1;
+            v24++;
+        }
+        for (i = &byte_522148[5 * v13]; *i; i = &byte_522148[5 * v13])
+        {
+            if (v13 == 15)
+            {
+                v13 = 0;
+                *(fs_par_slab - gameadd.map_tiles_x - 1) |= 2u;
+                fs_par_slab[gameadd.map_tiles_x + 1] |= 2u;
+                fs_par_slab[gameadd.map_tiles_x -1] |= 2u;
+                *(fs_par_slab - gameadd.map_tiles_x + 1) |= 2u;
+            }
+            else
+            {
+                v20 = &first_scratch[get_slab_number(byte_522199[*(int *)i].x,byte_522199[*(int *)i].y) + gameadd.map_tiles_x * slb_y];
+                v20[slb_x] |= 2u;
+                v13 &= i[4];
+            }
+        }
+        slb_x = second_scratch[v30].x;
+        slb_y = second_scratch[v30].y;
+        v30++;
+    } while (v24 >= v30);
+
+
+    for (slb_y = 0; slb_y < gameadd.map_tiles_y; ++slb_y)
+    {
+        for (slb_x = 0; slb_x < gameadd.map_tiles_x; ++slb_x)
+        {
+            if ((first_scratch[get_slab_number(slb_x,slb_y) ] & 2) != 0)
+            {
+                clear_slab_dig(slb_x, slb_y, plyr_idx);
+                set_slab_explored(plyr_idx, slb_x, slb_y);
+            }
+        }
+    }
+    pannel_map_update(0, 0, 256, 256);
+    
 }
 
 void init_keeper_map_exploration_by_terrain(struct PlayerInfo *player)
 {
-    //_DK_init_keeper_map_exploration(player); return;
     struct Thing* heartng = get_player_soul_container(player->id_number);
     if (thing_exists(heartng)) {
         fill_in_explored_area(player->id_number, heartng->mappos.x.stl.num, heartng->mappos.y.stl.num);
     }
-    for (MapSlabCoord slb_y = 0; slb_y < map_tiles_y; slb_y++)
+    for (MapSlabCoord slb_y = 0; slb_y < gameadd.map_tiles_y; slb_y++)
     {
-        for (MapSlabCoord slb_x = 0; slb_x < map_tiles_x; slb_x++)
+        for (MapSlabCoord slb_x = 0; slb_x < gameadd.map_tiles_x; slb_x++)
         {
             if (map_position_initially_explored_for_player(player->id_number, slb_x, slb_y)) {
                 set_slab_explored(player->id_number, slb_x, slb_y);
@@ -527,7 +712,7 @@ void init_player_as_single_keeper(struct PlayerInfo *player)
     ilght.field_3 = 5;
     ilght.is_dynamic = 1;
     unsigned short idx = light_create_light(&ilght);
-    player->field_460 = idx;
+    player->cursor_light_idx = idx;
     if (idx != 0) {
         light_set_light_never_cache(idx);
     } else {
@@ -583,7 +768,6 @@ void init_player(struct PlayerInfo *player, short no_explore)
         break;
     }
     init_player_cameras(player);
-    pannel_map_update(0, 0, map_subtiles_x+1, map_subtiles_y+1);
     player->mp_message_text[0] = '\0';
     if (is_my_player(player))
     {
@@ -736,7 +920,7 @@ long wander_point_initialise(struct Wander *wandr, PlayerNumber plyr_idx, unsign
             stl_num_list_count++;
         }
         slb_num++;
-        if (slb_num >= map_tiles_x*map_tiles_y) {
+        if (slb_num >= gameadd.map_tiles_x*gameadd.map_tiles_y) {
             break;
         }
     }
@@ -769,12 +953,12 @@ long wander_point_update(struct Wander *wandr)
             stl_num_list_count++;
             if ((wandr->wdrfield_14 != 0) && (stl_num_list_count == wandr->max_found_per_check))
             {
-                slb_num = (wandr->num_check_per_run + wandr->last_checked_slb_num) % (map_tiles_x*map_tiles_y);
+                slb_num = (wandr->num_check_per_run + wandr->last_checked_slb_num) % (gameadd.map_tiles_x*gameadd.map_tiles_y);
                 break;
             }
         }
         slb_num++;
-        if (slb_num >= map_tiles_x*map_tiles_y) {
+        if (slb_num >= gameadd.map_tiles_x*gameadd.map_tiles_y) {
             slb_num = 0;
         }
     }
@@ -805,6 +989,7 @@ void post_init_player(struct PlayerInfo *player)
         }
         break;
     }
+    pannel_map_update(0, 0, gameadd.map_subtiles_x+1, gameadd.map_subtiles_y+1);
 }
 
 void post_init_players(void)
@@ -824,10 +1009,12 @@ void init_players_local_game(void)
     struct PlayerInfo* player = get_my_player();
     player->id_number = my_player_number;
     player->allocflags |= PlaF_Allocated;
-    if (settings.video_rotate_mode < 1)
-      player->view_mode_restore = PVM_IsometricView;
-    else
-      player->view_mode_restore = PVM_FrontView;
+    switch (settings.video_rotate_mode) {
+        case 0: player->view_mode_restore = PVM_IsoWibbleView; break;
+        case 1: player->view_mode_restore = PVM_IsoStraightView; break;
+        case 2: player->view_mode_restore = PVM_FrontView; break;
+        default: player->view_mode_restore = PVM_IsoWibbleView; break;
+    }
     init_player(player, 0);
 }
 

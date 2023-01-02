@@ -75,10 +75,10 @@ TbBool creature_is_being_attacked_by_enemy_creature_not_digger(struct Thing *fig
 TbBool creature_has_creature_in_combat(const struct Thing *thing, const struct Thing *enmtng);
 TbBool set_creature_combat_state(struct Thing *fighter, struct Thing *enemy, CrAttackType attack_type);
 TbBool battle_with_creature_of_player(PlayerNumber plyr_idx, BattleIndex battle_id);
+TbBool creature_would_benefit_from_healing(const struct Thing* thing);
 
 long project_creature_attack_target_damage(const struct Thing *firing, const struct Thing *target);
 
-long process_creature_self_spell_casting(struct Thing *thing);
 CrInstance get_best_quick_range_instance_to_use(const struct Thing *thing);
 
 TbBool creature_will_do_combat(const struct Thing *thing);
@@ -96,6 +96,7 @@ TbBool set_creature_in_combat_to_the_death(struct Thing *fighter, struct Thing *
 CrAttackType find_fellow_creature_to_fight_in_room(struct Thing *fighter, struct Room *room,long crmodel, struct Thing **enemytng);
 long remove_all_traces_of_combat(struct Thing *thing);
 long get_combat_score(const struct Thing *thing, const struct Thing *enmtng, CrAttackType attack_type, long a4);
+CrInstance get_self_spell_casting(const struct Thing* thing);
 /******************************************************************************/
 #ifdef __cplusplus
 }

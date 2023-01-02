@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "vidmode.h"
 
 #include "globals.h"
@@ -46,6 +47,8 @@
 #include "creature_graphics.h"
 #include "keeperfx.hpp"
 #include "custom_sprites.h"
+#include "sprites.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -60,9 +63,9 @@ TbScreenMode switching_vidmodes[] = {
   Lb_SCREEN_MODE_INVALID,
   };
 
-TbScreenMode failsafe_vidmode = Lb_SCREEN_MODE_320_200_8;
-TbScreenMode movies_vidmode   = Lb_SCREEN_MODE_640_480_8;
-TbScreenMode frontend_vidmode = Lb_SCREEN_MODE_640_480_8;
+static TbScreenMode failsafe_vidmode = Lb_SCREEN_MODE_320_200_8;
+static TbScreenMode movies_vidmode   = Lb_SCREEN_MODE_640_480_8;
+static TbScreenMode frontend_vidmode = Lb_SCREEN_MODE_640_480_8;
 
 //struct IPOINT_2D units_per_pixel;
 unsigned short units_per_pixel_min;
@@ -70,9 +73,13 @@ unsigned short units_per_pixel_width;
 unsigned short units_per_pixel_height;
 unsigned short units_per_pixel_best;
 unsigned short units_per_pixel_ui;
+unsigned long aspect_ratio_factor_HOR_PLUS;
+unsigned long aspect_ratio_factor_HOR_PLUS_AND_VERT_PLUS;
+unsigned long first_person_horizontal_fov;
+unsigned long first_person_vertical_fov;
 long base_mouse_sensitivity = 256;
 
-short force_video_mode_reset = true;
+static short force_video_mode_reset = true;
 
 struct TbSprite *pointer_sprites;
 struct TbSprite *end_pointer_sprites;
@@ -85,6 +92,13 @@ TbSpriteData end_map_font_data;
 TbSpriteData map_hand_data;
 TbSpriteData end_map_hand_data;
 struct MapLevelInfo map_info;
+
+int MinimalResolutionSetup;
+
+struct TbColorTables pixmap;
+struct TbAlphaTables alpha_sprite_table;
+unsigned char white_pal[256];
+unsigned char red_pal[256];
 /******************************************************************************/
 
 extern struct TbSetupSprite setup_sprites_minimal[];
@@ -328,7 +342,7 @@ TbBool set_pointer_graphic_menu(void)
     LbMouseChangeSpriteAndHotspot(NULL, 0, 0);
     return false;
   }
-  LbMouseChangeSpriteAndHotspot(&frontend_sprite[1], 0, 0);
+  LbMouseChangeSpriteAndHotspot(&frontend_sprite[GFS_cursor_horny], 0, 0);
   return true;
 }
 
@@ -411,10 +425,19 @@ TbBool set_pointer_graphic(long ptr_idx)
   case MousePG_PlaceTrap04:
   case MousePG_PlaceTrap05:
   case MousePG_PlaceTrap06:
+  case MousePG_PlaceTrap07:
+  case MousePG_PlaceTrap08:
+  case MousePG_PlaceTrap09:
+  case MousePG_PlaceTrap10:
+  case MousePG_PlaceTrap11:
+  case MousePG_PlaceTrap12:
+  case MousePG_PlaceTrap13:
+  case MousePG_PlaceTrap14:
   case MousePG_PlaceDoor01:
   case MousePG_PlaceDoor02:
   case MousePG_PlaceDoor03:
   case MousePG_PlaceDoor04:
+  case MousePG_Mystery:
       spr = &pointer_sprites[ptr_idx];
       x = 12; y = 38;
       break;
@@ -758,6 +781,9 @@ TbBool update_screen_mode_data(long width, long height)
   units_per_pixel_best = ((is_ar_wider_than_original(width, height)) ? units_per_pixel_height : units_per_pixel_width); // 8 for low res, 16 is "kfx default"
   long ui_scale = UI_NORMAL_SIZE; // UI_NORMAL_SIZE, UI_HALF_SIZE, or UI_DOUBLE_SIZE (not fully implemented yet)
   units_per_pixel_ui = resize_ui(units_per_pixel_best, ui_scale);
+  calculate_aspect_ratio_factor(width, height);
+  first_person_vertical_fov = DEFAULT_FIRST_PERSON_VERTICAL_FOV;
+  first_person_horizontal_fov = FOV_based_on_aspect_ratio();
 
   if (MinimalResolutionSetup)
     LbSpriteSetupAll(setup_sprites_minimal);
@@ -901,7 +927,6 @@ TbScreenMode reenter_video_mode(void)
     if (setup_screen_mode(scrmode))
     {
         settings.video_scrnmode = scrmode;
-        copy_settings_to_dk_settings();
   } else
   {
       SYNCLOG("Can't enter %s (mode %d), falling to failsafe mode",

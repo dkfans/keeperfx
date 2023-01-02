@@ -61,10 +61,8 @@ struct CompoundRoomFilterParam {
 
 /******************************************************************************/
 
-DLLIMPORT struct Room *_DK_start_rooms;
-#define start_rooms _DK_start_rooms
-DLLIMPORT struct Room *_DK_end_rooms;
-#define end_rooms _DK_end_rooms
+extern struct Room *start_rooms;
+extern struct Room *end_rooms;
 
 #pragma pack()
 /******************************************************************************/
@@ -80,11 +78,10 @@ struct Room *get_player_room_of_kind_nearest_to(PlayerNumber plyr_idx, RoomKind 
 struct Room *get_player_room_any_kind_nearest_to(PlayerNumber plyr_idx,
     MapSubtlCoord stl_x, MapSubtlCoord stl_y, long *retdist);
 
-struct Room *find_any_navigable_room_for_thing_closer_than(struct Thing *thing, PlayerNumber owner, RoomKind rkind, unsigned char nav_flags, long max_distance);
+struct Room *find_any_navigable_room_for_thing_closer_than(struct Thing *thing, PlayerNumber owner, RoomRole rrole, unsigned char nav_flags, long max_distance);
 
-struct Room *find_nearest_room_for_thing(struct Thing *thing, PlayerNumber plyr_idx, RoomKind rkind, unsigned char nav_flags);
-struct Room *find_nearest_room_for_thing_excluding_two_types(struct Thing *thing, PlayerNumber owner, RoomKind skip_rkind1, RoomKind skip_rkind2, unsigned char nav_flags);
-struct Room *find_nearest_room_for_thing_with_used_capacity(struct Thing *thing, PlayerNumber plyr_idx, RoomKind rkind, unsigned char a4, long a5);
+struct Room *find_nearest_room_of_role_for_thing(struct Thing *thing, PlayerNumber plyr_idx, RoomRole rrole, unsigned char nav_flags);
+struct Room *find_nearest_room_of_role_for_thing_with_used_capacity(struct Thing *thing, PlayerNumber plyr_idx, RoomRole rrole, unsigned char nav_flags, long used);
 struct Room *find_nearest_room_to_vandalise(struct Thing *thing, PlayerNumber owner, unsigned char nav_flags);
 
 /******************************************************************************/

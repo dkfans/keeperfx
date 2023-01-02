@@ -357,7 +357,7 @@ struct ComputerTask { // sizeof = 148
     };
     long lastrun_turn;
     long field_60;
-    struct Coord3d pos_64; // new room position?
+    struct Coord3d new_room_pos;
     struct Coord3d pos_6A;
     union {
     struct {
@@ -507,7 +507,7 @@ struct ComputerTask { // sizeof = 148
 
 struct OpponentRelation { // sizeof = 394
     unsigned long field_0;
-    short field_4;
+    short next_idx;
     long hate_amount;
     struct Coord3d pos_A[COMPUTER_SPARK_POSITIONS_COUNT];
 };
@@ -518,13 +518,13 @@ struct Computer2 { // sizeof = 5322
   unsigned long gameturn_wait;
   unsigned long field_C;
   unsigned long tasks_did;
-  unsigned long field_14;
-  unsigned long field_18;
-  unsigned long field_1C; // seems to be signed long
+  unsigned long processes_time;
+  unsigned long click_rate;
+  unsigned long dig_stack_size; // seems to be signed long
   unsigned long sim_before_dig;
   struct Dungeon *dungeon;
   unsigned long model;
-  unsigned long field_2C;
+  unsigned long turn_begin;
   unsigned long max_room_build_tasks;
   unsigned long field_34;
   struct ComputerProcess processes[COMPUTER_PROCESSES_COUNT+1];
@@ -639,7 +639,6 @@ struct ComputerTask *get_task_in_progress(struct Computer2 *comp, ComputerTaskTy
 struct ComputerTask *get_task_in_progress_in_list(const struct Computer2 *comp, const ComputerTaskType *ttypes);
 TbBool is_task_in_progress(struct Computer2 *comp, ComputerTaskType ttype);
 TbBool is_task_in_progress_using_hand(struct Computer2 *comp);
-struct ComputerTask *get_free_task(struct Computer2 *comp, long a2);
 TbBool computer_task_invalid(const struct ComputerTask *ctask);
 TbBool remove_task(struct Computer2 *comp, struct ComputerTask *ctask);
 void shut_down_task_process(struct Computer2 *comp, struct ComputerTask *ctask);
@@ -663,9 +662,9 @@ TbBool create_task_magic_speed_up(struct Computer2 *comp, const struct Thing *cr
 TbBool create_task_attack_magic(struct Computer2 *comp, const struct Thing *creatng, PowerKind pwkind, int repeat_num, int splevel, int gaction);
 
 TbBool computer_able_to_use_power(struct Computer2 *comp, PowerKind pwkind, long pwlevel, long amount);
-long computer_get_room_kind_total_capacity(struct Computer2 *comp, RoomKind room_kind);
+long computer_get_room_role_total_capacity(struct Computer2 *comp, RoomRole rrole);
 long computer_get_room_kind_free_capacity(struct Computer2 *comp, RoomKind room_kind);
-long computer_finds_nearest_room_to_pos(struct Computer2 *comp, struct Room **retroom, struct Coord3d *nearpos);
+TbBool computer_finds_nearest_room_to_pos(struct Computer2 *comp, struct Room **retroom, struct Coord3d *nearpos);
 long process_tasks(struct Computer2 *comp);
 long computer_check_any_room(struct Computer2* comp, struct ComputerProcess* cproc);
 TbResult game_action(PlayerNumber plyr_idx, unsigned short gaction, unsigned short alevel,
@@ -674,8 +673,8 @@ TbResult try_game_action(struct Computer2 *comp, PlayerNumber plyr_idx, unsigned
     MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned short param1, unsigned short param2);
 short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbBool simulation, unsigned short digflags, const char *func_name);
 #define tool_dig_to_pos2(comp,cdig,simulation,digflags) tool_dig_to_pos2_f(comp,cdig,simulation,digflags,__func__)
-#define search_spiral(pos, owner, i3, cb) search_spiral_f(pos, owner, i3, cb, __func__)
-int search_spiral_f(struct Coord3d *pos, PlayerNumber owner, int i3, long (*cb)(MapSubtlCoord, MapSubtlCoord, long), const char *func_name);
+#define search_spiral(pos, owner, area_total, cb) search_spiral_f(pos, owner, area_total, cb, __func__)
+int search_spiral_f(struct Coord3d *pos, PlayerNumber owner, int area_total, long (*cb)(MapSubtlCoord, MapSubtlCoord, long), const char *func_name);
 /******************************************************************************/
 ItemAvailability computer_check_room_available(const struct Computer2 * comp, long rkind);
 TbBool computer_find_non_solid_block(const struct Computer2 *comp, struct Coord3d *pos);

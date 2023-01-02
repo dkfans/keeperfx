@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "room_scavenge.h"
 
 #include "globals.h"
@@ -25,16 +26,17 @@
 #include "dungeon_data.h"
 #include "thing_data.h"
 #include "thing_effects.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
-long const scavenge_effect_element[] = {TngEff_BallPuffRed, TngEff_BallPuffBlue, TngEff_BallPuffGreen, TngEff_BallPuffYellow, TngEff_BallPuffWhite, TngEff_BallPuffWhite,};
+long const scavenge_effect[] = {TngEff_BallPuffRed, TngEff_BallPuffBlue, TngEff_BallPuffGreen, TngEff_BallPuffYellow, TngEff_BallPuffWhite, TngEff_BallPuffWhite,};
 /******************************************************************************/
-long get_scavenge_effect_element(PlayerNumber owner)
+long get_scavenge_effect(PlayerNumber owner)
 {
-  return scavenge_effect_element[player_colors_map[owner % PLAYERS_EXT_COUNT]];
+  return scavenge_effect[player_colors_map[owner % PLAYERS_EXT_COUNT]];
 }
 /******************************************************************************/
 #ifdef __cplusplus

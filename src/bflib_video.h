@@ -228,53 +228,19 @@ typedef struct SSurface TSurface;
 
 /******************************************************************************/
 
-DLLIMPORT extern TbDisplayStruct _DK_lbDisplay;
-#define lbDisplay _DK_lbDisplay
-DLLIMPORT extern unsigned short _DK_MyScreenWidth;
-#define MyScreenWidth _DK_MyScreenWidth
-DLLIMPORT extern unsigned short _DK_MyScreenHeight;
-#define MyScreenHeight _DK_MyScreenHeight
-DLLIMPORT extern unsigned short _DK_pixel_size;
-#define pixel_size _DK_pixel_size
-DLLIMPORT unsigned short _DK_pixels_per_block;
-#define pixels_per_block _DK_pixels_per_block
-DLLIMPORT unsigned short _DK_units_per_pixel;
-#define units_per_pixel _DK_units_per_pixel
-DLLIMPORT extern int _DK_lbUseSdk;
-//#define lbUseSdk _DK_lbUseSdk
-
-DLLIMPORT unsigned char _DK_fade_started;
-#define fade_started _DK_fade_started
-DLLIMPORT unsigned char _DK_from_pal[PALETTE_SIZE];
-#define from_pal _DK_from_pal
-DLLIMPORT unsigned char _DK_to_pal[PALETTE_SIZE];
-#define to_pal _DK_to_pal
-DLLIMPORT long _DK_fade_count;
-#define fade_count _DK_fade_count
-DLLIMPORT TbGraphicsWindow _DK_lbTextJustifyWindow;
-#define lbTextJustifyWindow _DK_lbTextJustifyWindow
-DLLIMPORT TbGraphicsWindow _DK_lbTextClipWindow;
-#define lbTextClipWindow _DK_lbTextClipWindow
 
 #pragma pack()
 /******************************************************************************/
-/*
-extern unsigned char *palette;
-extern struct TbDisplayStruct lbDisplay;
-extern unsigned char *lbVesaData;
-extern bool screen_initialised;
-extern void *back_buffer;
-extern char redraw_screen_flag;
-extern bool lbScreenDirectAccessActive;
-extern unsigned short lbVesaPage;
-*/
 extern volatile TbBool lbScreenInitialised;
 extern volatile TbBool lbUseSdk;
 extern volatile TbBool lbInteruptMouse;
 extern volatile TbDisplayStructEx lbDisplayEx;
 extern unsigned char lbPalette[PALETTE_SIZE];
 
-#define DEFAULT_UI_SCALE                128 // is equivilent to size 1 or 100%
+#define DEFAULT_UI_SCALE                       128 // is equivilent to size 1 or 100%
+#define DEFAULT_ASPECT_RATIO_FACTOR            160 // is equivilent to 16/10 * 100
+#define DEFAULT_FIRST_PERSON_HORIZONTAL_FOV     94 // 94 degrees at 16/10 aspect ratio
+#define DEFAULT_FIRST_PERSON_VERTICAL_FOV       68 // 68 degrees at 16/10 aspect ratio
 
 enum UIScaleSettings {
     UI_NORMAL_SIZE = DEFAULT_UI_SCALE,
@@ -286,6 +252,18 @@ extern unsigned short units_per_pixel_width;
 extern unsigned short units_per_pixel_height;
 extern unsigned short units_per_pixel_best;
 extern unsigned short units_per_pixel_ui;
+extern unsigned long aspect_ratio_factor_HOR_PLUS;
+extern unsigned long aspect_ratio_factor_HOR_PLUS_AND_VERT_PLUS;
+extern unsigned long first_person_horizontal_fov;
+extern unsigned long first_person_vertical_fov;
+
+extern unsigned short MyScreenWidth;
+extern unsigned short MyScreenHeight;
+extern unsigned short pixel_size;
+extern unsigned short pixels_per_block;
+extern unsigned short units_per_pixel;
+
+extern TbDisplayStruct lbDisplay;
 /******************************************************************************/
 TbResult LbScreenInitialize(void);
 TbResult LbScreenSetDoubleBuffering(TbBool state);
@@ -343,6 +321,9 @@ long scale_fixed_DK_value(long base_value);
 TbBool is_ar_wider_than_original(long width, long height);
 long calculate_relative_upp(long base_length, long reference_upp, long reference_length);
 long resize_ui(long units_per_px, long ui_scale);
+void calculate_aspect_ratio_factor(long width, long height);
+long scale_fixed_DK_value_by_ar(long base_value, TbBool scale_up, TbBool vert_plus);
+long FOV_based_on_aspect_ratio(void);
 /******************************************************************************/
 #ifdef __cplusplus
 }

@@ -15,8 +15,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-
-
+#include "pre_inc.h"
 #include "lvl_script_conditions.h"
 
 #include "globals.h"
@@ -28,6 +27,7 @@
 #include "keeperfx.hpp"
 #include "bflib_math.h"
 #include "lvl_script_lib.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -35,12 +35,8 @@ extern "C" {
 
 
 static int script_current_condition = 0;
-
-
-DLLIMPORT unsigned short _DK_condition_stack_pos;
-#define condition_stack_pos _DK_condition_stack_pos
-DLLIMPORT unsigned short _DK_condition_stack[48];
-#define condition_stack _DK_condition_stack
+static unsigned short condition_stack_pos;
+static unsigned short condition_stack[48];
 
 
 long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned char validx)
@@ -194,12 +190,12 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned 
         return dungeonadd->mnfct_info.door_amount_stored[validx%gameadd.trapdoor_conf.door_types_count]
               + dungeonadd->mnfct_info.door_amount_offmap[validx%gameadd.trapdoor_conf.door_types_count];
     case SVar_AVAILABLE_ROOM: // IF_AVAILABLE(ROOM)
-        dungeon = get_dungeon(plyr_idx);
-        return (dungeon->room_buildable[validx%ROOM_TYPES_COUNT] & 1);
+        dungeonadd = get_dungeonadd(plyr_idx);
+        return (dungeonadd->room_buildable[validx%slab_conf.room_types_count] & 1);
     case SVar_AVAILABLE_CREATURE: // IF_AVAILABLE(CREATURE)
         dungeon = get_dungeon(plyr_idx);
         if (creature_will_generate_for_dungeon(dungeon, validx)) {
-            return min(game.pool.crtr_kind[validx%CREATURE_TYPES_COUNT],dungeon->max_creatures_attracted - (long)dungeon->num_active_creatrs);
+            return min(game.pool.crtr_kind[validx%gameadd.crtr_conf.model_count],dungeon->max_creatures_attracted - (long)dungeon->num_active_creatrs);
         }
         return 0;
     case SVar_SLAB_OWNER: //IF_SLAB_OWNER
@@ -216,7 +212,7 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned 
     }
     case SVar_CONTROLS_CREATURE: // IF_CONTROLS(CREATURE)
         dungeon = get_dungeon(plyr_idx);
-        return dungeon->owned_creatures_of_model[validx%CREATURE_TYPES_COUNT]
+        return dungeon->owned_creatures_of_model[validx%gameadd.crtr_conf.model_count]
           - count_player_list_creatures_of_model_matching_bool_filter(plyr_idx, validx, creature_is_kept_in_custody_by_enemy_or_dying);
     case SVar_CONTROLS_TOTAL_CREATURES:// IF_CONTROLS(TOTAL_CREATURES)
         dungeon = get_dungeon(plyr_idx);
@@ -282,6 +278,11 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned 
     case SVar_CREATURES_TRANSFERRED:
         dungeonadd = get_dungeonadd(plyr_idx);
         return dungeonadd->creatures_transferred;
+    case SVar_ALLIED_PLAYER:
+    {
+        struct PlayerInfo* player = get_player(plyr_idx);
+        return player_allied_with(player, validx);
+    }
     default:
         break;
     };

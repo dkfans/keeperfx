@@ -33,6 +33,7 @@ enum TbFontDrawFlags {
   Fnt_LeftJustify   = 0x00,
   Fnt_RightJustify  = 0x01,
   Fnt_CenterPos     = 0x02,
+  Fnt_CenterLeftPos = 0x03,
   };
 
 /******************************************************************************/
@@ -87,12 +88,11 @@ struct AsianFontWindow {
 
 extern short dbc_language;
 extern TbBool dbc_enabled;
+extern TbBool dbc_initialized;
+extern const struct TbSprite *lbFontPtr;
 
 /******************************************************************************/
-DLLIMPORT extern const struct TbSprite *_DK_lbFontPtr;
-#define lbFontPtr _DK_lbFontPtr
-DLLIMPORT extern unsigned char _DK_lbSpacesPerTab;
-#define lbSpacesPerTab _DK_lbSpacesPerTab
+
 
 #pragma pack()
 /******************************************************************************/

@@ -16,11 +16,13 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "front_lvlstats.h"
 #include "globals.h"
 #include "bflib_basics.h"
 
 #include "dungeon_stats.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -28,11 +30,10 @@ extern "C" {
 /******************************************************************************/
 long stat_return_c_slong(void *ptr);
 
-DLLIMPORT extern struct LevelStats _DK_frontstats_data;
-#define frontstats_data _DK_frontstats_data
+struct LevelStats frontstats_data;
 /******************************************************************************/
 struct StatsData main_stats_data[] = {
-    {1749, stat_return_c_slong, &frontstats_data.field_4},
+    {1749, stat_return_c_slong, &frontstats_data.creatures_attracted},
     {1743, stat_return_c_slong, &frontstats_data.average_room_efficiency},
     {1746, stat_return_c_slong, &frontstats_data.gameplay_time},
     {1747, stat_return_c_slong, &frontstats_data.player_style},

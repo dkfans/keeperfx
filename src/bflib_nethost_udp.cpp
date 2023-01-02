@@ -18,9 +18,10 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-
+#include "pre_inc.h"
 #include "bflib_nethost_udp.hpp"
 #include "bflib_netconfig.hpp"
+#include "post_inc.h"
 
 const int MAX_PACKET_SIZE = 400;
 
@@ -30,7 +31,7 @@ UDP_NetHost::UDP_NetHost(const StringVector & broadcastAddresses) :
 	broadcastAddr(broadcastAddresses),
 	errorFlag(false)
 {
-	thread = SDL_CreateThread(reinterpret_cast<int (*)(void *)>(threadFunc), "UDP_NetHost", this);
+	thread = SDL_CreateThread(threadFunc, "UDP_NetHost", this);
 	if (thread == NULL) {
 		ERRORLOG("Failure to create session host thread");
 		errorFlag = true; //would be better with exception handling but...
@@ -43,14 +44,15 @@ UDP_NetHost::~UDP_NetHost()
 	SDL_WaitThread(thread, NULL);
 }
 
-void UDP_NetHost::threadFunc(UDP_NetHost * sh)
+int UDP_NetHost::threadFunc(void * ptr)
 {
+	auto sh = static_cast<UDP_NetHost *>(ptr);
 	// Create UDP socket.
 
 	UDPsocket socket = SDLNet_UDP_Open(HOST_PORT_NUMBER);
 	if (socket == NULL) {
 		NETMSG("Failed to open UDP socket: %s", SDLNet_GetError());
-		return;
+		return 0;
 	}
 
 	// Create packet.
@@ -59,7 +61,7 @@ void UDP_NetHost::threadFunc(UDP_NetHost * sh)
 	if (packet == NULL) {
 		NETMSG("Failed to create UDP packet: %s", SDLNet_GetError());
 		SDLNet_UDP_Close(socket);
-		return;
+		return 0;
 	}
 
 	sh->cond.lock();
@@ -108,4 +110,5 @@ void UDP_NetHost::threadFunc(UDP_NetHost * sh)
 
 	SDLNet_FreePacket(packet);
 	SDLNet_UDP_Close(socket);
+	return 0;
 }

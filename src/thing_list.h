@@ -30,7 +30,7 @@ extern "C" {
 
 /******************************************************************************/
 #define THING_CLASSES_COUNT    14
-#define THINGS_COUNT         2048
+#define THINGS_COUNT         8192
 
 enum ThingClassIndex {
     TCls_Empty        =  0,
@@ -231,6 +231,7 @@ struct Thing *get_creature_near_who_is_enemy_of_and_not_specdigger(MapCoord pos_
 struct Thing *get_creature_near_to_be_keeper_power_target(MapCoord pos_x, MapCoord pos_y, PowerKind pwmodel, PlayerNumber plyr_idx);
 struct Thing *get_nearest_thing_for_slap(PlayerNumber plyr_idx, MapCoord pos_x, MapCoord pos_y);
 struct Thing *get_creature_near_and_owned_by(MapCoord pos_x, MapCoord pos_y, PlayerNumber plyr_idx, long crmodel);
+struct Thing *get_creature_near(MapCoord pos_x, MapCoord pos_y);
 struct Thing *get_creature_in_range_and_owned_by_or_allied_with(MapCoord pos_x, MapCoord pos_y, MapSubtlDelta distance_stl, PlayerNumber plyr_idx);
 struct Thing *get_creature_in_range_of_model_owned_and_controlled_by(MapCoord pos_x, MapCoord pos_y, MapSubtlDelta distance_stl, long crmodel, PlayerNumber plyr_idx);
 struct Thing *get_creature_in_range_who_is_enemy_of_able_to_attack_and_not_specdigger(MapCoord pos_x, MapCoord pos_y, long distance_stl, PlayerNumber plyr_idx);
@@ -287,6 +288,7 @@ TbBool perform_action_on_all_creatures_in_group(struct Thing *thing, Thing_Bool_
 
 struct Thing *creature_of_model_in_prison_or_tortured(ThingModel crmodel);
 long count_player_creatures_of_model(PlayerNumber plyr_idx, int crmodel);
+long count_player_creatures_of_model_in_action_point(PlayerNumber plyr_idx, int crmodel, long apt_index);
 long count_player_list_creatures_of_model(long thing_idx, ThingModel crmodel);
 long count_player_list_creatures_of_model_on_territory(long thing_idx, ThingModel crmodel, int friendly);
 GoldAmount compute_player_payday_total(const struct Dungeon *dungeon);
@@ -322,6 +324,8 @@ TbBool update_thing(struct Thing *thing);
 TbBigChecksum get_thing_checksum(const struct Thing *thing);
 short update_thing_sound(struct Thing *thing);
 struct Thing* find_players_dungeon_heart(PlayerNumber plyridx);
+
+struct Thing *find_random_thing_in_room(ThingClass tngclass, ThingModel tngmodel,struct Room *room);
 /******************************************************************************/
 #ifdef __cplusplus
 }

@@ -31,27 +31,9 @@ extern "C" {
 /******************************************************************************/
 #pragma pack(1)
 
-DLLIMPORT extern unsigned char * _DK_frontstory_background;
-#define frontstory_background _DK_frontstory_background
-DLLIMPORT extern struct TbSprite *_DK_frontstory_font;
-#define frontstory_font _DK_frontstory_font
-DLLIMPORT extern struct TbSprite *_DK_frontstory_end_font;
-#define frontstory_end_font _DK_frontstory_end_font
-DLLIMPORT extern unsigned char * _DK_frontstory_font_data;
-#define frontstory_font_data _DK_frontstory_font_data
-DLLIMPORT extern unsigned char * _DK_frontstory_end_font_data;
-#define frontstory_end_font_data _DK_frontstory_end_font_data
-DLLIMPORT extern long _DK_frontstory_text_no;
-#define frontstory_text_no _DK_frontstory_text_no
-DLLIMPORT extern struct TbSetupSprite _DK_frontstory_setup_sprites[2];
-#define frontstory_setup_sprites _DK_frontstory_setup_sprites
-
-DLLIMPORT extern long _DK_credits_scroll_speed;
-#define credits_scroll_speed _DK_credits_scroll_speed
-DLLIMPORT extern long _DK_credits_offset;
-#define credits_offset _DK_credits_offset
-DLLIMPORT extern int _DK_credits_end;
-#define credits_end _DK_credits_end
+extern struct TbSprite *frontstory_font;
+extern long credits_offset;
+extern int credits_end;
 
 #pragma pack()
 /******************************************************************************/

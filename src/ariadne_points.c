@@ -16,23 +16,22 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "ariadne_points.h"
 
 #include "globals.h"
 #include "bflib_basics.h"
 #include "gui_topmsg.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
 /******************************************************************************/
-DLLIMPORT long _DK_count_Points;
-#define count_Points _DK_count_Points
-DLLIMPORT long _DK_ix_Points;
-#define ix_Points _DK_ix_Points
-DLLIMPORT long _DK_free_Points;
-#define free_Points _DK_free_Points
+static long count_Points;
+static long ix_Points;
+static long free_Points;
 
 struct Point ari_Points[POINTS_COUNT];
 /******************************************************************************/

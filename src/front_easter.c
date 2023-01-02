@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "front_easter.h"
 #include "globals.h"
 #include "bflib_basics.h"
@@ -34,6 +35,7 @@
 #include "front_credits.h"
 #include "game_legacy.h"
 #include "keeperfx.hpp"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -67,8 +69,7 @@ struct KeycodeString eastegg_skeksis_codes = {
     {KC_S,KC_K,KC_E,KC_K,KC_S,KC_I,KC_S,KC_UNASSIGNED}, 7,
 };
 /******************************************************************************/
-DLLIMPORT extern unsigned char _DK_eastegg_skeksis_cntr;
-#define eastegg_skeksis_cntr _DK_eastegg_skeksis_cntr
+static unsigned char eastegg_skeksis_cntr;
 /******************************************************************************/
 #ifdef __cplusplus
 }

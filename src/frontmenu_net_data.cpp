@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "frontmenu_net.h"
 #include "globals.h"
 #include "bflib_basics.h"
@@ -34,6 +35,8 @@
 #include "frontend.h"
 #include "front_landview.h"
 #include "net_game.h"
+#include "sprites.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -216,7 +219,6 @@ struct GuiMenu frontend_add_session_box =
 /******************************************************************************/
 void frontnet_draw_session_selected(struct GuiButton *gbtn)
 {
-    //_DK_frontnet_draw_session_selected(gbtn);
     struct TbSprite *spr;
     long pos_x;
     long pos_y;
@@ -224,8 +226,8 @@ void frontnet_draw_session_selected(struct GuiButton *gbtn)
     pos_x = gbtn->scr_pos_x;
     pos_y = gbtn->scr_pos_y;
     int fs_units_per_px;
-    fs_units_per_px = simple_frontend_sprite_height_units_per_px(gbtn, 56, 100);
-    spr = &frontend_sprite[55];
+    fs_units_per_px = simple_frontend_sprite_height_units_per_px(gbtn, GFS_largearea_xts_tx1_c, 100);
+    spr = &frontend_sprite[GFS_largearea_xts_cor_l];
     for (i=0; i < 6; i++)
     {
         LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
@@ -254,7 +256,6 @@ void frontnet_draw_session_selected(struct GuiButton *gbtn)
 
 void frontnet_session_select(struct GuiButton *gbtn)
 {
-    //_DK_frontnet_session_select(gbtn);
     long i;
     i = (long)gbtn->content + net_session_scroll_offset - 45;
     if (net_number_of_sessions > i)

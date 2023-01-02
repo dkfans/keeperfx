@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "creature_states_scavn.h"
 #include "globals.h"
 
@@ -42,12 +43,11 @@
 #include "power_hand.h"
 #include "gui_soundmsgs.h"
 #include "game_legacy.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-/******************************************************************************/
-DLLIMPORT short _DK_creature_scavenged_reappear(struct Thing *scavtng);
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -65,7 +65,7 @@ TbBool creature_can_do_scavenging(const struct Thing *creatng)
 short at_scavenger_room(struct Thing *thing)
 {
     struct Room* room = get_room_thing_is_on(thing);
-    if (!room_initially_valid_as_type_for_thing(room, get_room_for_job(Job_SCAVENGE), thing))
+    if (!room_initially_valid_as_type_for_thing(room, get_room_role_for_job(Job_SCAVENGE), thing))
     {
         WARNLOG("Room %s owned by player %d is invalid for %s index %d",room_code_name(room->kind),(int)room->owner,thing_model_name(thing),(int)thing->index);
         set_start_state(thing);
@@ -170,35 +170,32 @@ short creature_scavenged_disappear(struct Thing *thing)
 {
     struct Coord3d pos;
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    cctrl->job_stage--;
-    if (cctrl->job_stage > 0)
+    cctrl->scavenge.job_stage--;
+    if (cctrl->scavenge.job_stage > 0)
     {
-      if ((cctrl->job_stage == 7) && (cctrl->byte_9B < PLAYERS_COUNT))
+      if ((cctrl->scavenge.job_stage == 7) && (cctrl->scavenge.effect_id < PLAYERS_COUNT))
       {
           //TODO EFFECTS Verify what is wrong here - we want either effect or effect element
-          create_effect(&thing->mappos, get_scavenge_effect_element(cctrl->byte_9B), thing->owner);
+          create_effect(&thing->mappos, get_scavenge_effect(cctrl->scavenge.effect_id), thing->owner);
       }
       return 0;
     }
-    // We don't really have to convert coordinates into numbers and back to XY.
-    long i = get_subtile_number(cctrl->scavenge.stl_9D_x, cctrl->scavenge.stl_9D_y);
-    MapSubtlCoord stl_x = stl_num_decode_x(i);
-    MapSubtlCoord stl_y = stl_num_decode_y(i);
-    struct Room* room = subtile_room_get(stl_x, stl_y);
+    struct Room* room = subtile_room_get(cctrl->scavenge.stl_9D_x, cctrl->scavenge.stl_9D_y);
     if (room_is_invalid(room) || !room_role_matches(room->kind, RoRoF_CrScavenge))
     {
-        ERRORLOG("Room %s at (%d,%d) disappeared",room_code_name(RoK_SCAVENGER),(int)stl_x,(int)stl_y);
+        ERRORLOG("Room %s at subtile (%d,%d) disappeared",room_code_name(RoK_SCAVENGER),(int)cctrl->scavenge.stl_9D_x,(int)cctrl->scavenge.stl_9D_y);
         kill_creature(thing, INVALID_THING, -1, CrDed_NoEffects);
         return -1;
     }
     if (find_random_valid_position_for_thing_in_room(thing, room, &pos))
     {
         move_thing_in_map(thing, &pos);
+        reset_interpolation_of_thing(thing);
         anger_set_creature_anger_all_types(thing, 0);
         if (is_my_player_number(thing->owner))
           output_message(SMsg_MinionScanvenged, 0, true);
-        cctrl->byte_9C = thing->owner;
-        change_creature_owner(thing, cctrl->byte_9B);
+        cctrl->scavenge.previous_owner = thing->owner;
+        change_creature_owner(thing, cctrl->scavenge.effect_id);
         internal_set_thing_state(thing, CrSt_CreatureScavengedReappear);
         return 0;
     } else
@@ -211,7 +208,10 @@ short creature_scavenged_disappear(struct Thing *thing)
 
 short creature_scavenged_reappear(struct Thing *thing)
 {
-    return _DK_creature_scavenged_reappear(thing);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    create_effect(&thing->mappos, get_scavenge_effect(cctrl->scavenge.previous_owner), thing->owner);
+    set_start_state(thing);
+    return 0;
 }
 
 /**
@@ -228,7 +228,7 @@ TbBool player_can_afford_to_scavenge_creature(const struct Thing *creatng)
 
 TbBool reset_scavenge_counts(struct Dungeon *dungeon)
 {
-    memset(dungeon->creatures_scavenging, 0, CREATURE_TYPES_COUNT);
+    memset(dungeon->creatures_scavenging, 0, gameadd.crtr_conf.model_count);
     dungeon->scavenge_counters_turn = game.play_gameturn;
     return true;
 }
@@ -348,7 +348,6 @@ struct Thing *get_scavenger_target(const struct Thing *calltng)
 
 long turn_creature_to_scavenger(struct Thing *scavtng, struct Thing *calltng)
 {
-    //return _DK_turn_creature_to_scavenger(scavtng, calltng);
     struct Room* room = get_room_thing_is_on(calltng);
     if (room_is_invalid(room) || !room_role_matches(room->kind, RoRoF_CrScavenge) || (room->owner != calltng->owner))
     {
@@ -373,10 +372,10 @@ long turn_creature_to_scavenger(struct Thing *scavtng, struct Thing *calltng)
     }
     {
         struct CreatureControl* cctrl = creature_control_get_from_thing(scavtng);
-        cctrl->job_stage = 8;
-        cctrl->byte_9B = calltng->owner;
-        cctrl->byte_9D = pos.x.stl.num;
-        cctrl->byte_9E = pos.y.stl.num;
+        cctrl->scavenge.job_stage = 8;
+        cctrl->scavenge.effect_id = calltng->owner;
+        cctrl->scavenge.stl_9D_x = pos.x.stl.num;
+        cctrl->scavenge.stl_9D_y = pos.y.stl.num;
     }
     external_set_thing_state(scavtng, CrSt_CreatureScavengedDisappear);
     return 1;
@@ -453,7 +452,7 @@ TbBool creature_scavenge_from_creature_pool(struct Thing *calltng)
 {
     struct Coord3d pos;
     struct Room* room = get_room_thing_is_on(calltng);
-    if (!room_initially_valid_as_type_for_thing(room, RoK_SCAVENGER, calltng)) {
+    if (!room_initially_valid_as_type_for_thing(room, RoRoF_CrScavenge, calltng)) {
         WARNLOG("Room %s owned by player %d is bad work place for %s index %d owner %d",room_code_name(room->kind),(int)room->owner,thing_model_name(calltng),(int)calltng->index,(int)calltng->owner);
         return false;
     }
@@ -503,7 +502,7 @@ CrCheckRet process_scavenge_function(struct Thing *calltng)
     struct CreatureControl* callctrl = creature_control_get_from_thing(calltng);
     struct Dungeon* calldngn = get_dungeon(calltng->owner);
     struct Room* room = get_room_creature_works_in(calltng);
-    if ( !room_still_valid_as_type_for_thing(room, RoK_SCAVENGER, calltng) )
+    if ( !room_still_valid_as_type_for_thing(room, RoRoF_CrScavenge, calltng) )
     {
         WARNLOG("Room %s owned by player %d is bad work place for %s owned by played %d",room_code_name(room->kind),(int)room->owner,thing_model_name(calltng),(int)calltng->owner);
         set_start_state(calltng);

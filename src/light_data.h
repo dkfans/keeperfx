@@ -22,7 +22,7 @@
 #include "globals.h"
 #include "bflib_basics.h"
 
-#define LIGHT_MAX_RANGE        30
+#define LIGHT_MAX_RANGE       256 // Large enough to cover the whole map
 #define LIGHTS_COUNT          400
 #define MINIMUM_LIGHTNESS    8192
 
@@ -44,41 +44,59 @@ enum LightFlags {
     LgtF_Unkn02       = 0x02,
     LgtF_Dynamic      = 0x04,
     LgtF_Unkn08       = 0x08,
+    LgtF_Unkn10       = 0x10,
+    LgtF_Unkn20       = 0x20,
+    LgtF_NeverCached  = 0x40,
+    LgtF_Unkn80       = 0x80,
 };
 
 struct Light { // sizeof = 46
   unsigned char flags;
   unsigned char flags2;
   unsigned char intensity;
-  unsigned char field_3[2];
+  unsigned char field_3;
+  unsigned char field_4;
   unsigned char range;
   unsigned char field_6;
-  unsigned short field_7;
-  unsigned char field_9;
-  unsigned char field_A[4];
+  unsigned char field_7;
+  unsigned char field_8_unused;
+  unsigned char min_radius;
+  unsigned char field_A_unused[4];
   unsigned short index;
   unsigned short shadow_index;
-  long field_12;
+  long attached_slb;
   unsigned short radius;
-  short field_18;
-  short field_1A;
-  unsigned char field_1C[8];
-  unsigned short field_24;
-  unsigned short field_26;
+  short field_18_unused;
+  short field_1A_unused;
+  unsigned short field_1C;
+  unsigned short field_1E;
+  unsigned short field_20;
+  unsigned short field_22;
+  unsigned short min_intensity;
+  unsigned short next_in_list;
   struct Coord3d mappos;
 };
 
+struct LightAdd // Additional light data
+{
+    TbBool interp_has_been_initialized;
+    struct Coord3d previous_mappos;
+    struct Coord3d interp_mappos;
+    long last_turn_drawn;
+    long disable_interp_for_turns;
+};
+
 struct InitLight { // sizeof=0x14
-short radius;
-unsigned char intensity;
-unsigned char field_3;
-short field_4;
-short field_6;
-short field_8;
+    short radius;
+    unsigned char intensity;
+    unsigned char field_3;
+    short field_4_unused;
+    short field_6_unused;
+    short field_8_unused;
     struct Coord3d mappos;
-unsigned char field_10;
+    unsigned char field_10_unused;
     unsigned char is_dynamic;
-short field_12;
+    short attached_slb;
 };
 
 struct LightSystemState {
@@ -93,29 +111,12 @@ struct LightSystemState {
 };
 
 /******************************************************************************/
-DLLIMPORT long _DK_light_bitmask[32];
-#define light_bitmask _DK_light_bitmask
-DLLIMPORT long _DK_stat_light_needs_updating;
-#define stat_light_needs_updating _DK_stat_light_needs_updating
-DLLIMPORT long _DK_light_total_dynamic_lights;
-#define light_total_dynamic_lights _DK_light_total_dynamic_lights
-DLLIMPORT long _DK_light_total_stat_lights;
-#define light_total_stat_lights _DK_light_total_stat_lights
-DLLIMPORT long _DK_light_rendered_dynamic_lights;
-#define light_rendered_dynamic_lights _DK_light_rendered_dynamic_lights
-DLLIMPORT long _DK_light_rendered_optimised_dynamic_lights;
-#define light_rendered_optimised_dynamic_lights _DK_light_rendered_optimised_dynamic_lights
-DLLIMPORT long _DK_light_updated_stat_lights;
-#define light_updated_stat_lights _DK_light_updated_stat_lights
-DLLIMPORT long _DK_light_out_of_date_stat_lights;
-#define light_out_of_date_stat_lights _DK_light_out_of_date_stat_lights
 
 #pragma pack()
 /******************************************************************************/
 void clear_stat_light_map(void);
 void update_light_render_area(void);
 void light_delete_light(long idx);
-void light_initialise_lighting_tables(void);
 void light_initialise(void);
 void light_turn_light_off(long num);
 void light_turn_light_on(long num);
@@ -134,7 +135,6 @@ void light_export_system_state(struct LightSystemState *lightst);
 void light_import_system_state(const struct LightSystemState *lightst);
 TbBool lights_stats_debug_dump(void);
 void light_signal_stat_light_update_in_area(long x1, long y1, long x2, long y2);
-void light_stat_light_map_clear_area(long x1, long y1, long x2, long y2);
 
 /******************************************************************************/
 #ifdef __cplusplus

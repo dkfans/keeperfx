@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "scrcapt.h"
 #include "bflib_basics.h"
 #include "bflib_fileio.h"
@@ -33,6 +34,7 @@
 #include "frontend.h"
 
 #include <string.h>
+#include "post_inc.h"
 /******************************************************************************/
 
 short screenshot_format=1;
@@ -195,7 +197,6 @@ long prepare_bmp_screenshot(unsigned char *buf,unsigned char *palette)
 
 TbBool cumulative_screen_shot(void)
 {
-  //_DK_cumulative_screen_shot();return;
   static long frame_number=0;
   char fname[255];
   const char *fext;

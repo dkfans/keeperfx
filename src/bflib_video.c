@@ -18,14 +18,18 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "bflib_video.h"
 
 #include "bflib_mouse.h"
-#include "bflib_vidsurface.h"
+#include "bflib_render.h"
 #include "bflib_sprfnt.h"
-#include "bflib_inputctrl.h"
+#include "bflib_vidsurface.h"
+
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_syswm.h>
+#include <math.h>
+#include "post_inc.h"
 
 #define SCREEN_MODES_COUNT 40
 
@@ -61,6 +65,21 @@ char lbDrawAreaTitle[128] = "Bullfrog Shell";
 volatile TbBool lbInteruptMouse;
 volatile unsigned long lbIconIndex = 0;
 SDL_Window *lbWindow = NULL;
+
+TbDisplayStruct lbDisplay;
+
+
+unsigned short MyScreenWidth;
+unsigned short MyScreenHeight;
+unsigned short pixel_size;
+unsigned short pixels_per_block;
+unsigned short units_per_pixel;
+
+static unsigned char fade_started;
+static unsigned char from_pal[PALETTE_SIZE];
+static unsigned char to_pal[PALETTE_SIZE];
+static long fade_count;
+
 /******************************************************************************/
 void *LbExeReferenceNumber(void)
 {
@@ -449,6 +468,12 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
         TbBool stillInWindowedMode = ((sdlFlags & 1) == 0) && ((cflags & 1) == 0); // it is hard to detect if windowed mode (flag = 0) is still the same (i.e. no change of mode, still in windowed mode)
         if (stillInWindowedMode) {
             sameWindowMode = (sameWindowMode || stillInWindowedMode);
+            if (!sameResolution)
+            {
+                // reset window
+                SDL_DestroyWindow(lbWindow);
+                lbWindow = SDL_CreateWindow(lbDrawAreaTitle, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, mdinfo->Width, mdinfo->Height, sdlFlags);
+            }
         }
         int fullscreenMode = (((sdlFlags & SDL_WINDOW_FULLSCREEN) != 0) ? SDL_WINDOW_FULLSCREEN : 0);
         if (!sameWindowMode && (fullscreenMode == 0))
@@ -476,7 +501,7 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
         }
     }
     if (lbWindow == NULL) { // Only create a new window if we don't have a valid one already
-        lbWindow = SDL_CreateWindow(lbDrawAreaTitle, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, mdinfo->Width, mdinfo->Height, sdlFlags);
+        lbWindow = SDL_CreateWindow(lbDrawAreaTitle, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, mdinfo->Width, mdinfo->Height, sdlFlags);
     }
     if (lbWindow == NULL) {
         ERRORLOG("SDL_CreateWindow: %s", SDL_GetError());
@@ -528,6 +553,8 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
         if (msspr != NULL)
           LbMouseChangeSpriteAndHotspot(msspr, hot_x, hot_y);
     }
+
+    setup_bflib_render(lbDisplay.GraphicsScreenWidth, lbDisplay.GraphicsScreenHeight);
     SYNCDBG(8,"Finished");
     return Lb_SUCCESS;
 }
@@ -631,20 +658,20 @@ TbResult LbPaletteGet(unsigned char *palette)
 
 TbResult LbSetTitle(const char *title)
 {
-  strncpy(lbDrawAreaTitle, title, sizeof(lbDrawAreaTitle)-1);
-  return Lb_SUCCESS;
+    snprintf(lbDrawAreaTitle, sizeof(lbDrawAreaTitle), "%s", title);
+    return Lb_SUCCESS;
 }
 
 TbResult LbSetIcon(unsigned short nicon)
 {
-  lbIconIndex = nicon;
-  return Lb_SUCCESS;
+    lbIconIndex = nicon;
+    return Lb_SUCCESS;
 }
 
 TbScreenModeInfo *LbScreenGetModeInfo(TbScreenMode mode)
 {
     if (mode < lbScreenModeInfoNum)
-      return &lbScreenModeInfo[mode];
+        return &lbScreenModeInfo[mode];
     return &lbScreenModeInfo[0];
 }
 
@@ -662,6 +689,7 @@ TbResult LbScreenReset(void)
         SDL_FreeSurface(lbDrawSurface);
     }
     //do not free screen surface, it is freed automatically on SDL_Quit or next call to set video mode
+    finish_bflib_render();
     lbHasSecondSurface = false;
     lbDrawSurface = NULL;
     lbScreenSurface = NULL;
@@ -713,7 +741,7 @@ TbResult LbScreenSetGraphicsWindow(long x, long y, long width, long height)
     long i;
     long x2 = x + width;
     long y2 = y + height;
-    if (x2 < x)
+    if (x2 < x)  //Alarm! Voodoo magic detected!
     {
         i = (x ^ x2);
         x = x ^ i;
@@ -841,7 +869,7 @@ TbScreenMode LbRegisterVideoMode(const char *desc, TbScreenCoord width, TbScreen
     mdinfo->BitsPerPixel = bpp;
     mdinfo->Available = false;
     mdinfo->VideoFlags = flags;
-    strncpy(mdinfo->Desc,desc,sizeof(mdinfo->Desc));
+    snprintf(mdinfo->Desc, sizeof(mdinfo->Desc), "%s", desc);
     return mode;
 }
 
@@ -1027,7 +1055,7 @@ long scale_value_by_horizontal_resolution(long base_value)
 {
     // return value is equivalent to: round(base_value * units_per_pixel_width /16)
     long value = ((((units_per_pixel_width * base_value) >> 3) + (((units_per_pixel_width * base_value) >> 3) & 1)) >> 1);
-    return max(1,value);
+    return value;
 }
 
 /**
@@ -1040,7 +1068,7 @@ long scale_value_by_vertical_resolution(long base_value)
 {
     // return value is equivalent to: round(base_value * units_per_pixel_height /16)
     long value = ((((units_per_pixel_height * base_value) >> 3) + (((units_per_pixel_height * base_value) >> 3) & 1)) >> 1);
-    return max(1,value);
+    return value;
 }
 
 /**
@@ -1086,7 +1114,7 @@ long scale_fixed_DK_value(long base_value)
 {
     // return value is equivalent to: round(base_value * units_per_pixel_best /16)
     long value = ((((units_per_pixel_best * base_value) >> 3) + (((units_per_pixel_best * base_value) >> 3) & 1)) >> 1);
-    return max(1,value);
+    return value;
 }
 
 /**
@@ -1126,6 +1154,39 @@ long resize_ui(long units_per_px, long ui_scale)
 {
     long value = (units_per_px * ui_scale / DEFAULT_UI_SCALE);
     return max(1,value);
+}
+
+void calculate_aspect_ratio_factor(long width, long height)
+{
+    aspect_ratio_factor_HOR_PLUS = aspect_ratio_factor_HOR_PLUS_AND_VERT_PLUS = 100 * width / height;
+    if (!is_ar_wider_than_original(width, height))
+    {
+        aspect_ratio_factor_HOR_PLUS = 160;
+        aspect_ratio_factor_HOR_PLUS_AND_VERT_PLUS = 256 * height / width;
+    }
+}
+
+long scale_fixed_DK_value_by_ar(long base_value, TbBool scale_up, TbBool vert_plus)
+{
+    long aspect_ratio_factor = vert_plus ? aspect_ratio_factor_HOR_PLUS_AND_VERT_PLUS : aspect_ratio_factor_HOR_PLUS;
+    long multiplier = scale_up ? aspect_ratio_factor : DEFAULT_ASPECT_RATIO_FACTOR;
+    long divisor = scale_up ? DEFAULT_ASPECT_RATIO_FACTOR : aspect_ratio_factor;
+
+    long value = multiplier * base_value / divisor;
+    return value;
+}
+
+long convert_vertical_FOV_to_horizontal(long vert_fov)
+{
+    double horizontal_fov = (2.0 * atan(tan((vert_fov * M_PI /180.0) / 2.0) * 16.0 / 10.0 )) * 180.0 / M_PI;
+    long value = lround(horizontal_fov);
+    return value;
+}
+
+long FOV_based_on_aspect_ratio(void)
+{
+    long value = scale_fixed_DK_value_by_ar(convert_vertical_FOV_to_horizontal(first_person_vertical_fov), false, false);
+    return value;
 }
 /******************************************************************************/
 #ifdef __cplusplus

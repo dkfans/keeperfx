@@ -1,6 +1,3 @@
-[submodule "tools/peresec"]
-	path = tools/peresec
-	url = https://github.com/dkfans/peresec.git
 [submodule "deps/libspng"]
 	path = deps/libspng
 	url = https://github.com/randy408/libspng.git
@@ -11,3 +8,6 @@
 [submodule "deps/centijson"]
 	path = deps/centijson
 	url = https://github.com/mity/centijson.git
+[submodule "deps/enet"]
+	path = deps/enet
+	url = https://github.com/lsalzman/enet.git

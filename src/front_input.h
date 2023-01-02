@@ -55,17 +55,18 @@ enum GameKeys {
     Gkey_ZoomRoom12,
     Gkey_ZoomRoom13,
     Gkey_ZoomRoom14,
-    Gkey_ZoomToFight, // 25
+    Gkey_ZoomRoom15, // 25
+    Gkey_ZoomToFight, 
     Gkey_ZoomCrAnnoyed,
     Gkey_CrtrContrlMod,
     Gkey_CrtrQueryMod,
-    Gkey_DumpToOldPos,
-    Gkey_TogglePause, // 30
+    Gkey_DumpToOldPos, // 30
+    Gkey_TogglePause,
     Gkey_SwitchToMap,
     Gkey_ToggleMessage,
     Gkey_SnapCamera,
-    Gkey_BestRoomSpace,
-    Gkey_SquareRoomSpace, // 35
+    Gkey_BestRoomSpace, // 35
+    Gkey_SquareRoomSpace,
     Gkey_RoomSpaceIncSize,
     Gkey_RoomSpaceDecSize,
     Gkey_SellTrapOnSubtile,
@@ -96,10 +97,8 @@ struct GuiButton;
 
 #pragma pack()
 /******************************************************************************/
-DLLIMPORT long _DK_old_mx;
-#define old_mx _DK_old_mx
-DLLIMPORT long _DK_old_my;
-#define old_my _DK_old_my
+extern long old_mx;
+extern long old_my;
 /******************************************************************************/
 void input(void);
 short get_inputs(void);

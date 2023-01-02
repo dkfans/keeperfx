@@ -69,6 +69,7 @@ struct CreditsItem {
  */
 struct GameCampaign {
   char name[LINEMSG_SIZE];
+  char display_name[LINEMSG_SIZE];
   char fname[DISKPATH_SIZE];
   char levels_location[DISKPATH_SIZE];
   char speech_location[DISKPATH_SIZE];
@@ -139,6 +140,8 @@ struct LevelInformation {
   unsigned long options;
   unsigned short state;
   unsigned short location;
+  int mapsize_x;
+  int mapsize_y;
 };
 
 struct CampaignsList {

@@ -18,6 +18,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "bflib_vidraw.h"
 
 #include <string.h>
@@ -25,6 +26,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
+#include <stddef.h>
 #include "globals.h"
 
 #include "bflib_video.h"
@@ -32,6 +34,7 @@
 #include "bflib_sprite.h"
 #include "bflib_mouse.h"
 #include "bflib_render.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -51,33 +54,18 @@ long xsteps_array[2*SPRITE_SCALING_XSTEPS];
 long ysteps_array[2*SPRITE_SCALING_YSTEPS];
 long alpha_xsteps_array[2*SPRITE_SCALING_XSTEPS];
 long alpha_ysteps_array[2*SPRITE_SCALING_YSTEPS];
-/*
-bool sprscale_enlarge;
-long  sprscale_wbuf[512];
-long  sprscale_hbuf[512];
-struct PurpleDrawItem p_list[NUM_DRAWITEMS];
-unsigned short purple_draw_index;
-struct PurpleDrawItem *purple_draw_list=p_list;
-TbSprite *lbFontPtr;
-unsigned short text_window_x1, text_window_y1;
-unsigned short text_window_x2, text_window_y2;
-char my_line_spacing;
-TbPixel vec_colour=0x70;
-unsigned char vec_tmap[0x10000];
-struct StartScreenPoint hots[50];
-unsigned char *poly_screen=NULL;
-unsigned char *vec_screen=NULL;
-unsigned char *vec_map=NULL;
-unsigned char *vec_pal=NULL;
-unsigned long vec_screen_width=0;
-unsigned long vec_window_width=0;
-unsigned long vec_window_height=0;
-unsigned char *dither_map=NULL;
-unsigned char *dither_end=NULL;
-struct StartScreenPoint proj_origin = { (640>>1)-1, ((480+60)>>1)-1 };
-struct StartScreenPoint *hotspot_buffer=hots;
+
+unsigned char *poly_screen;
+unsigned char *vec_screen;
+unsigned char *vec_map;
+unsigned long vec_screen_width;
+long vec_window_width;
+long vec_window_height;
+unsigned char *dither_map;
+unsigned char *dither_end;
 unsigned char *lbSpriteReMapPtr;
-*/
+long scale_up;
+long alpha_scale_up;
 /******************************************************************************/
 /**  Prints horizontal or vertical line on current graphics window.
  *  Does no screen locking - screen must be lock before and unlocked
@@ -1711,9 +1699,9 @@ void LbPixelBlockCopyForward(TbPixel * dst, const TbPixel * src, long len)
 {
     TbPixel px;
     unsigned long pxquad;
-    if ( !((int)dst & 3) || ((px = *src, ++src, *dst = px, ++dst, --len, len)
-     && (!((int)dst & 3) || ((px = *src, ++src, *dst = px, ++dst, --len, len)
-     && (!((int)dst & 3) ||  (px = *src, ++src, *dst = px, ++dst, --len, len))))) )
+    if ( !((ptrdiff_t)dst & 3) || ((px = *src, ++src, *dst = px, ++dst, --len, len)
+     && (!((ptrdiff_t)dst & 3) || ((px = *src, ++src, *dst = px, ++dst, --len, len)
+     && (!((ptrdiff_t)dst & 3) ||  (px = *src, ++src, *dst = px, ++dst, --len, len))))) )
     {
         long l;
         for ( l = len>>2; l > 0; l--)
@@ -2020,7 +2008,6 @@ void LbSpriteSetScalingData(long x, long y, long swidth, long sheight, long dwid
         scale_up = false;
     // Checking whether to select simple scaling creation, or more comprehensive one - with clipping
     if ((swidth <= 0) || (dwidth <= 0)) {
-        WARNLOG("Tried scaling width %ld -> %ld", swidth, dwidth);
         LbSpriteClearScalingWidth();
     } else
     // Normally it would be enough to check if ((dwidth+y) >= gwidth), but due to rounding we need to add swidth
@@ -2031,7 +2018,6 @@ void LbSpriteSetScalingData(long x, long y, long swidth, long sheight, long dwid
         LbSpriteSetScalingWidthSimple(x, swidth, dwidth);
     }
     if ((sheight <= 0) || (dheight <= 0)) {
-        WARNLOG("Tried scaling height %ld -> %ld", sheight, dheight);
         LbSpriteClearScalingHeight();
     } else
     // Normally it would be enough to check if ((dheight+y) >= gheight), but our simple rounding may enlarge the image
@@ -2051,7 +2037,6 @@ void SetAlphaScalingData(long x, long y, long swidth, long sheight, long dwidth,
     if ((dwidth <= swidth) && (dheight <= sheight))
         alpha_scale_up = false;
     if ((swidth <= 0) || (dwidth <= 0)) {
-        WARNLOG("Tried scaling width %ld -> %ld", swidth, dwidth);
         LbSpriteClearAlphaScalingWidth();
     } else
     if ((x < 0) || ((dwidth+x) >= gwidth))
@@ -2061,7 +2046,6 @@ void SetAlphaScalingData(long x, long y, long swidth, long sheight, long dwidth,
         LbSpriteSetAlphaScalingWidthSimple(x, swidth, dwidth);
     }
     if ((sheight <= 0) || (dheight <= 0)) {
-        WARNLOG("Tried scaling height %ld -> %ld", sheight, dheight);
         LbSpriteClearAlphaScalingHeight();
     } else
     if ((y < 0) || ((dheight+y) >= gheight))
@@ -2123,9 +2107,9 @@ void setup_vecs(unsigned char *screenbuf, unsigned char *nvec_map,
     dither_end = nvec_map + 16;
   }
   if (height > 0)
-    vec_window_height = height;
+    vec_window_height = (long)height;
   if (width > 0)
-    vec_window_width = width;
+    vec_window_width = (long)width;
 }
 
 /**
