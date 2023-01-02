@@ -1436,6 +1436,18 @@ TbBool slab_kind_is_room(SlabKind slbkind)
     return (slab_corresponding_room(slbkind) != 0);
 }
 
+/**
+ * Returns if given slab type represents room slab.
+ * @param slbkind The slab kind to be checked.
+ * @return True if given slab kind is assigned to a room, false otherwise.
+ */
+TbBool slab_kind_has_torches(SlabKind slbkind)
+{
+    if ((slbkind == SlbT_WALLTORCH) || (slbkind == SlbT_TORCHDIRT))
+        return true;
+    return false;
+}
+
 /** Returns creature model to be created by given room kind.
  * @param rkind The room kind to be checked.
  * @return

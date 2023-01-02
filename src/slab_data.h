@@ -104,19 +104,29 @@ struct SlabMap {
 };
 
 struct SlabSet { // sizeof = 18
-  short col_idx[9];
+  ColumnIndex col_idx[9];
+};
+struct SlabSetStyle {
+    struct SlabSet slabset[9];
+};
+struct SlabKindSets {
+    TbBool is_animated;
+    struct SlabSetStyle style[3]; //0 = normal, 1 = near water, 2 = near lava
+    struct SlabSet center; //the center one doesn't need a style
 };
 
-struct SlabObj { // sizeof = 13
-  unsigned char field_0;
-  short field_1;
-  unsigned char field_3;
-  short field_4;
-  short field_6;
-  short field_8;
-  unsigned char field_A;
-  unsigned char sofield_B;
-  unsigned char sofield_C;
+
+
+struct SlabObj {
+  unsigned char isLight;
+  short slabct_num;
+  unsigned char slbelem;
+  short stl_pos_x; // position within the subtile
+  short stl_pos_y;
+  short val_z;
+  unsigned char class;
+  unsigned char model; //for lights this is intencity
+  unsigned char range; //radius for lights / range for effect generators
 };
 
 #pragma pack()

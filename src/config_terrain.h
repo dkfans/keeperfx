@@ -62,6 +62,7 @@ enum SlabFillStyle {
     SlbFillStl_Normal = 0,
     SlbFillStl_Lava = 1,
     SlbFillStl_Water = 2,
+    SlbFillStl_Center = 3,
 };
 
 enum RoomCfgFlags {
@@ -185,6 +186,7 @@ TbBool slab_kind_is_door(SlabKind slbkind);
 TbBool slab_kind_is_nonmagic_door(SlabKind slbkind);
 TbBool slab_kind_is_liquid(SlabKind slbkind);
 TbBool slab_kind_is_room(SlabKind slbkind);
+TbBool slab_kind_has_torches(SlabKind slbkind);
 /******************************************************************************/
 struct RoomConfigStats *get_room_kind_stats(RoomKind room_kind);
 TbBool make_all_rooms_free(void);

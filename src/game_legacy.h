@@ -136,7 +136,7 @@ char numfield_1A;
     
     struct Columns columns;
     unsigned short slabset_num;
-    struct SlabSet slabset[SLABSET_COUNT];
+    struct SlabKindSets slabset[TERRAIN_ITEMS_MAX];
     unsigned short slabobjs_num;
     short slabobjs_idx[SLABSET_COUNT];
     struct SlabObj slabobjs[SLABOBJS_COUNT];
