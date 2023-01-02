@@ -26,7 +26,7 @@
 #ifndef CENTITOML_TOML_H
 #define CENTITOML_TOML_H
 
-#include "value.h"
+#include <value.h>
 
 void toml_set_memutil(void *(*xxmalloc)(size_t), void (*xxfree)(void *));
 
