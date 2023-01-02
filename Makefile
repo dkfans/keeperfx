@@ -432,6 +432,7 @@ obj/enet
 
 $(shell $(MKDIR) $(FOLDERS))
 
+# We need this file because we need git update
 build-before: libexterns deps/zlib/configure.log
 
 std-before: build-before
