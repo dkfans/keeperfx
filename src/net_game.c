@@ -139,7 +139,7 @@ static CoroutineLoopState setup_exchange_player_number(CoroutineLoop *context)
           }
           player->is_active = pckt->actn_par1;
           init_player(player, 0);
-          snprintf(player->field_15, sizeof(struct TbNetworkPlayerName), "%s", net_player[i].name);
+          snprintf(player->player_name, sizeof(struct TbNetworkPlayerName), "%s", net_player[i].name);
           k++;
       }
   }

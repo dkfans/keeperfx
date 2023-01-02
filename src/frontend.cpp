@@ -621,8 +621,8 @@ TbBool validate_versions(void)
       if ((net_screen_packet[i].field_4 & 0x01) != 0)
       {
         if (ver == -1)
-          ver = player->field_4E7;
-        if (player->field_4E7 != ver)
+          ver = player->game_version;
+        if (player->game_version != ver)
           return false;
       }
     }

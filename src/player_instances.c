@@ -792,7 +792,7 @@ long pinstfs_zoom_to_position(struct PlayerInfo *player, long *n)
       if (dt_x <= 256)
         dt_x = 256;
     }
-    player->field_4DB = dt_x;
+    player->zoom_to_movement_x = dt_x;
     if (dt_y < 0)
     {
         if (dt_y >= -256)
@@ -802,7 +802,7 @@ long pinstfs_zoom_to_position(struct PlayerInfo *player, long *n)
         if (dt_y <= 256)
           dt_y = 256;
     }
-    player->field_4DF = dt_y;
+    player->zoom_to_movement_y = dt_y;
     return 0;
 }
 
@@ -811,12 +811,12 @@ long pinstfm_zoom_to_position(struct PlayerInfo *player, long *n)
     long x;
     long y;
     struct Camera* cam = player->acamera;
-    if (abs(cam->mappos.x.val - player->zoom_to_pos_x) >= abs(player->field_4DB))
-      x = player->field_4DB + cam->mappos.x.val;
+    if (abs(cam->mappos.x.val - player->zoom_to_pos_x) >= abs(player->zoom_to_movement_x))
+      x = player->zoom_to_movement_x + cam->mappos.x.val;
     else
       x = player->zoom_to_pos_x;
-    if (abs(cam->mappos.y.val - player->zoom_to_pos_y) >= abs(player->field_4DF))
-      y = player->field_4DF + cam->mappos.y.val;
+    if (abs(cam->mappos.y.val - player->zoom_to_pos_y) >= abs(player->zoom_to_movement_y))
+      y = player->zoom_to_movement_y + cam->mappos.y.val;
     else
       y = player->zoom_to_pos_y;
     if ((player->zoom_to_pos_x == x) && (player->zoom_to_pos_y == y))

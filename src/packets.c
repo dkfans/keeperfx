@@ -1603,7 +1603,7 @@ void process_frontend_packets(void)
         if (k != 2)
           fe_computer_players = k;
       }
-      player->field_4E7 = nspckt->field_8 + (nspckt->field_6 << 8);
+      player->game_version = nspckt->field_8 + (nspckt->field_6 << 8);
     }
     nspckt->field_4 &= 0x07;
   }
