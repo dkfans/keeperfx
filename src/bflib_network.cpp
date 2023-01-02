@@ -212,7 +212,6 @@ struct NetState
     NetUserId               my_id;              //id for user representing this machine
     int                     seq_nbr;            //sequence number of next frame to be issued
     unsigned                max_players;        //max players that will actually be used
-    TbBool                  enable_lag;         //enable scheduled lag mode in exchange (in the best case this would always be true but other parts of code expects perfect sync for now)
     char                    msg_buffer[(sizeof(NetFrame) + sizeof(struct Packet)) * PACKETS_COUNT + 1]; //completely estimated for now
     char                    msg_buffer_null;    //theoretical safe guard vs non-terminated strings
     TbBool                  locked;             //if set, no players may join
@@ -904,11 +903,6 @@ TbError LbNetwork_Create(char *nsname_str, char *plyr_name, unsigned long *plyr_
     return Lb_OK;
 }
 
-void LbNetwork_EnableLag(TbBool lag)
-{
-    netstate.enable_lag = lag;
-}
-
 void LbNetwork_ChangeExchangeTimeout(unsigned long tmout)
 {
   exchangeTimeout = 1000 * tmout;
@@ -1086,19 +1080,6 @@ static void ProcessMessagesUntilNextLoginReply(TbClockMSec timeout, void *server
     }
 }
 
-// Used only in "lag mode"
-static void ProcessPendingMessages(NetUserId id, void *server_buf, size_t client_frame_size)
-{
-    //process as many messages as possible
-    while (netstate.sp->msgready(id, 0) != 0)
-    {
-        if (ProcessMessage(id, server_buf, client_frame_size) == Lb_FAIL)
-        {
-            return;
-        }
-    }
-}
-
 static void ConsumeServerFrame(void *server_buf, size_t size)
 {
     NetFrame * frame;
@@ -1131,8 +1112,7 @@ TbError LbNetwork_ExchangeServer(void *server_buf, size_t client_frame_size)
 
         if (netstate.users[id].progress == USER_LOGGEDIN)
         {
-            if (!netstate.enable_lag ||
-                netstate.seq_nbr >= SCHEDULED_LAG_IN_FRAMES) { //scheduled lag in TCP stream
+            if (netstate.seq_nbr >= SCHEDULED_LAG_IN_FRAMES) { //scheduled lag in TCP stream
                 //TODO NET take time to detect a lagger which can then be announced
                 ProcessMessagesUntilNextFrame(id, server_buf, client_frame_size, WAIT_FOR_CLIENT_TIMEOUT_IN_MS);
             }
@@ -1157,31 +1137,13 @@ TbError LbNetwork_ExchangeServer(void *server_buf, size_t client_frame_size)
 
 TbError LbNetwork_ExchangeClient(void *send_buf, void *server_buf, size_t client_frame_size)
 {
-    if (netstate.enable_lag)
+    SendClientFrame((char *) send_buf, client_frame_size, netstate.seq_nbr);
+    ProcessMessagesUntilNextFrame(SERVER_ID, server_buf, client_frame_size, 0);
+
+    if (netstate.exchg_queue == NULL)
     {
-        ProcessPendingMessages(SERVER_ID, server_buf, client_frame_size);
-
-        if (netstate.exchg_queue == NULL) {
-            //we need at least one frame so block
-            ProcessMessagesUntilNextFrame(SERVER_ID, server_buf, client_frame_size, 0);
-        }
-
-        if (netstate.exchg_queue == NULL) {
-            //connection lost
-            return Lb_FAIL;
-        }
-
-        SendClientFrame((char *) send_buf, client_frame_size, netstate.exchg_queue->seq_nbr);
-    }
-    else
-    {
-        SendClientFrame((char *) send_buf, client_frame_size, netstate.seq_nbr);
-        ProcessMessagesUntilNextFrame(SERVER_ID, server_buf, client_frame_size, 0);
-
-        if (netstate.exchg_queue == NULL) {
-            //connection lost
-            return Lb_FAIL;
-        }
+        //connection lost
+        return Lb_FAIL;
     }
 
     // most likely overwrites what is sent in SendClientFrame
