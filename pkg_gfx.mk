@@ -81,6 +81,7 @@ pkg/ldata/frontbit-64.dat
 
 ENGINEGFX = \
 pkg/data/thingspr-32.jty \
+#pkg/data/thingspr-128.jty
 pkg/data/frac00.raw \
 pkg/data/frac01.raw \
 pkg/data/frac02.raw \
@@ -130,6 +131,8 @@ GUIDATTABS = $(LANDVIEWDATTABS) $(TOTRUREDATTABS) $(ENGINEDATTABS)
 .PHONY: pkg-gfx pkg-landviews pkg-menugfx pkg-enginegfx
 
 pkg-gfx: pkg-landviews pkg-menugfx pkg-enginegfx
+
+pkg-before:
 
 pkg-landviews: pkg-before $(LANDVIEWRAWS) $(LANDVIEWDATTABS)
 
@@ -276,6 +279,7 @@ pkg/data/font1-32.dat: gfx/font_simp-32/filelist_font1.txt pkg/data/palette.dat 
 pkg/data/font2-32.dat: gfx/font2-32/filelist_font2.txt pkg/data/palette.dat $(PNGTORAW)
 pkg/data/font2-64.dat: gfx/font2-64/filelist_font2.txt pkg/data/palette.dat $(PNGTORAW)
 pkg/data/thingspr-32.jty: gfx/sprites-32/animlist.txt pkg/data/palette.dat $(PNGTORAW)
+#pkg/data/thingspr-128.jty: gfx/sprites-128/animlist.txt pkg/data/palette.dat $(PNGTORAW)
 
 pkg/data/swipe01-32.dat: gfx/swipes-32/filelist_bhandrl.txt pkg/data/palette.dat $(PNGTORAW)
 pkg/data/swipe02-32.dat: gfx/swipes-32/filelist_swordrl.txt pkg/data/palette.dat $(PNGTORAW)
@@ -284,32 +288,32 @@ pkg/data/swipe04-32.dat: gfx/swipes-32/filelist_sticklr.txt pkg/data/palette.dat
 pkg/data/swipe05-32.dat: gfx/swipes-32/filelist_stickrl.txt pkg/data/palette.dat $(PNGTORAW)
 pkg/data/swipe06-32.dat: gfx/swipes-32/filelist_clawsrl.txt pkg/data/palette.dat $(PNGTORAW)
 
-pkg/data/frac%-%.raw:
+pkg/data/frac%.raw:
 	-$(ECHO) 'Building RAW texture: $@'
 	$(PNGTORAW) -o "$@" -p "$(word 2,$^)" -r 255 -f raw -l 100 "$<"
 	-$(ECHO) 'Finished building: $@'
 	-$(ECHO) ' '
 
-pkg/data/tmapa%-%.dat:
+pkg/data/tmapa%.dat:
 	-$(ECHO) 'Building RAW texture: $@'
 	$(PNGTORAW) -b -o "$@" -p "$(word 2,$^)" -f raw -l 0 "$<"
 	-$(ECHO) 'Finished building: $@'
 	-$(ECHO) ' '
 
-pkg/ldata/%-%.raw pkg/data/%-%.raw:
+pkg/ldata/%.raw pkg/data/%.raw:
 	-$(ECHO) 'Building RAW image: $@'
 	$(PNGTORAW) -o "$@" -p "$(word 2,$^)" -f raw -l 100 "$<"
 	-$(ECHO) 'Finished building: $@'
 	-$(ECHO) ' '
 
-pkg/ldata/%-%.dat pkg/data/%-%.dat:
+pkg/ldata/%.dat pkg/data/%.dat:
 	-$(ECHO) 'Building tabulated sprites: $@'
 	$(MKDIR) "$(@D)"
 	$(PNGTORAW) -b -o "$@" -p "$(word 2,$^)" -f sspr2 -l 0 "$<"
 	-$(ECHO) 'Finished building: $@'
 	-$(ECHO) ' '
 
-pkg/creatrs/%-%.jty pkg/data/%-%.jty:
+pkg/creatrs/%.jty pkg/data/%.jty:
 	-$(ECHO) 'Building jonty sprites: $@'
 	@$(MKDIR) "$(@D)"
 	$(PNGTORAW) -m -o "$@" -p "$(word 2,$^)" -f jspr2 -l 0 "$<"
