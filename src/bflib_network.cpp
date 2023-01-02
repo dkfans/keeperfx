@@ -1092,10 +1092,10 @@ TbError LbNetwork_ExchangeServer(void *server_buf, size_t client_frame_size)
 
         if (netstate.users[id].progress == USER_LOGGEDIN)
         {
-            if (netstate.seq_nbr >= SCHEDULED_LAG_IN_FRAMES) { //scheduled lag in TCP stream
+            //if (netstate.seq_nbr >= SCHEDULED_LAG_IN_FRAMES) { //scheduled lag in TCP stream
                 //TODO NET take time to detect a lagger which can then be announced
                 ProcessMessagesUntilNextFrame(id, server_buf, client_frame_size, WAIT_FOR_CLIENT_TIMEOUT_IN_MS);
-            }
+            //}
 
             netstate.seq_nbr += 1;
             SendServerFrame(server_buf, client_frame_size, CountLoggedInClients() + 1);
