@@ -52,12 +52,13 @@ long calculate_free_lair_space(struct Dungeon * dungeon)
     long cap_total = 0;
     unsigned long k = 0;
     struct DungeonAdd* dungeonadd = get_dungeonadd_by_dungeon(dungeon);
+    long i;
 
     for (RoomKind rkind = 0; rkind < slab_conf.room_types_count; rkind++)
     {
         if(room_role_matches(rkind,RoRoF_LairStorage))
         {
-            long i = dungeonadd->room_kind[rkind];
+            i = dungeonadd->room_kind[rkind];
             while (i != 0)
             {
                 struct Room* room = room_get(i);
