@@ -1398,7 +1398,7 @@ void process_packets(void)
         if (!game.packet_load_enable || game.numfield_149F47)
         {
             struct Packet* pckt = get_packet_direct(player->packet_num);
-            if (LbNetwork_Exchange(pckt) != 0)
+            if (LbNetwork_Exchange(pckt, game.packets, sizeof(struct Packet)) != 0)
             {
                 ERRORLOG("LbNetwork_Exchange failed");
             }
@@ -1481,7 +1481,7 @@ void process_frontend_packets(void)
   nspckt->field_4 ^= ((nspckt->field_4 ^ (fe_computer_players << 1)) & 0x06);
   nspckt->field_6 = VersionMajor;
   nspckt->field_8 = VersionMinor;
-  if (LbNetwork_Exchange(nspckt))
+  if (LbNetwork_Exchange(nspckt, &net_screen_packet, sizeof(struct ScreenPacket)))
     ERRORLOG("LbNetwork_Exchange failed");
   if (frontend_should_all_players_quit())
   {

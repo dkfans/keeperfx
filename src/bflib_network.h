@@ -256,13 +256,12 @@ long field_C;
 #pragma pack()
 /******************************************************************************/
 void    LbNetwork_InitSessionsFromCmdLine(const char * str);
-TbError LbNetwork_Init(unsigned long srvcindex, unsigned long maxplayrs, void *exchng_buf, unsigned long exchng_size, struct TbNetworkPlayerInfo *locplayr, struct ServiceInitData *init_data);
+TbError LbNetwork_Init(unsigned long srvcindex, unsigned long maxplayrs, struct TbNetworkPlayerInfo *locplayr, struct ServiceInitData *init_data);
 TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *playr_name, unsigned long *playr_num, void *optns);
 TbError LbNetwork_Create(char *nsname_str, char *plyr_name, unsigned long *plyr_num, void *optns);
-TbError LbNetwork_Exchange(void *buf);
+TbError LbNetwork_Exchange(void *send_buf, void *server_buf, size_t buf_size);
 TbBool  LbNetwork_Resync(void * buf, size_t len);
 void    LbNetwork_ChangeExchangeTimeout(unsigned long tmout);
-TbError LbNetwork_ChangeExchangeBuffer(void *buf, unsigned long a2);
 void    LbNetwork_EnableLag(TbBool lag); //new addition to enable/disable scheduled lag mode
 TbError LbNetwork_EnableNewPlayers(TbBool allow);
 TbError LbNetwork_EnumerateServices(TbNetworkCallbackFunc callback, void *a2);

@@ -72,7 +72,7 @@ void *TwoPlayerCallback(unsigned long, unsigned long, unsigned long, void *);
 TbError LbNetwork_StartExchange(void *buf);
 TbError LbNetwork_CompleteExchange(void *buf);
 static void OnDroppedUser(NetUserId id, enum NetDropReason reason);
-static void ProcessMessagesUntilNextLoginReply(TbClockMSec timeout);
+static void ProcessMessagesUntilNextLoginReply(TbClockMSec timeout, void *server_buf, size_t client_frame_size);
 /******************************************************************************/
 struct ReceiveCallbacks receiveCallbacks = {
   AddMsgCallback,
@@ -209,8 +209,6 @@ struct NetState
     NetUserId               my_id;              //id for user representing this machine
     int                     seq_nbr;            //sequence number of next frame to be issued
     unsigned                max_players;        //max players that will actually be used
-    size_t                  user_frame_size;    //sizeof(Packet) most probably
-    char *                  exchg_buffer;
     TbBool                  enable_lag;         //enable scheduled lag mode in exchange (in the best case this would always be true but other parts of code expects perfect sync for now)
     char                    msg_buffer[(sizeof(NetFrame) + sizeof(struct Packet)) * PACKETS_COUNT + 1]; //completely estimated for now
     char                    msg_buffer_null;    //theoretical safe guard vs non-terminated strings
@@ -282,7 +280,7 @@ static void SendUserUpdate(NetUserId dest, NetUserId updated_user)
         ptr - netstate.msg_buffer);
 }
 
-static void SendClientFrame(const char * frame_buffer, int seq_nbr) //seq_nbr because it isn't necessarily determined
+static void SendClientFrame(const char * send_buf, size_t buf_size, int seq_nbr) //seq_nbr because it isn't necessarily determined
 {
     char * ptr;
 
@@ -296,8 +294,8 @@ static void SendClientFrame(const char * frame_buffer, int seq_nbr) //seq_nbr be
     *(int *) ptr = seq_nbr;
     ptr += 4;
 
-    LbMemoryCopy(ptr, frame_buffer, netstate.user_frame_size);
-    ptr += netstate.user_frame_size;
+    LbMemoryCopy(ptr, send_buf, buf_size);
+    ptr += buf_size;
 
     netstate.sp->sendmsg_single(SERVER_ID, netstate.msg_buffer,
         ptr - netstate.msg_buffer);
@@ -317,10 +315,9 @@ static unsigned CountLoggedInClients(void)
     return count;
 }
 
-static void SendServerFrame()
+static void SendServerFrame(const void *send_buf, size_t frame_size, int num_frames)
 {
     char * ptr;
-    size_t size;
 
     NETDBG(9, "Starting");
 
@@ -331,12 +328,11 @@ static void SendServerFrame()
     *(int *) ptr = netstate.seq_nbr;
     ptr += sizeof(int);
 
-    *ptr = CountLoggedInClients() + 1;
+    *ptr = num_frames;
     ptr += sizeof(char);
 
-    size = (CountLoggedInClients() + 1) * netstate.user_frame_size;
-    LbMemoryCopy(ptr, netstate.exchg_buffer, size);
-    ptr += size;
+    LbMemoryCopy(ptr, send_buf, frame_size * num_frames);
+    ptr += frame_size * num_frames;
 
     netstate.sp->sendmsg_all(netstate.msg_buffer, ptr - netstate.msg_buffer);
 }
@@ -443,16 +439,15 @@ static void HandleUserUpdate(NetUserId source, char * ptr, char * end)
     strcpy(localPlayerInfoPtr[id].name, netstate.users[id].name);
 }
 
-static void HandleClientFrame(NetUserId source, char * ptr, char * end)
+static void HandleClientFrame(NetUserId source, char *dst_ptr, const char * ptr, char * end, size_t frame_size)
 {
     NETDBG(7, "Starting");
 
     netstate.users[source].ack = *(int *) ptr;
     ptr += 4;
 
-    LbMemoryCopy(&netstate.exchg_buffer[source * netstate.user_frame_size],
-        ptr, netstate.user_frame_size);
-    ptr += netstate.user_frame_size;
+    LbMemoryCopy(&dst_ptr, ptr, frame_size);
+    ptr += frame_size;
 
     if (ptr >= end) {
         //TODO NET handle bad frame
@@ -463,7 +458,7 @@ static void HandleClientFrame(NetUserId source, char * ptr, char * end)
     NETDBG(9, "Handled client frame of %u bytes", netstate.user_frame_size);
 }
 
-static void HandleServerFrame(char * ptr, char * end)
+static void HandleServerFrame(char * ptr, char * end, size_t user_frame_size)
 {
     int seq_nbr;
     NetFrame * frame;
@@ -479,16 +474,20 @@ static void HandleServerFrame(char * ptr, char * end)
     ptr += 1;
 
     frame = (NetFrame *) LbMemoryAlloc(sizeof(*frame));
-    if (netstate.exchg_queue == NULL) {
+    if (netstate.exchg_queue == NULL)
+    {
         netstate.exchg_queue = frame;
     }
-    else {
-        for (it = netstate.exchg_queue; it->next != NULL; it = it->next);
+    else
+    {
+        for (it = netstate.exchg_queue; it->next != NULL; it = it->next)
+        {
+        }
         it->next = frame;
     }
 
     frame->next = NULL;
-    frame->size = num_user_frames * netstate.user_frame_size;
+    frame->size = num_user_frames * user_frame_size;
     frame->buffer = (char *) LbMemoryAlloc(frame->size);
     frame->seq_nbr = seq_nbr;
 
@@ -497,7 +496,7 @@ static void HandleServerFrame(char * ptr, char * end)
     NETDBG(9, "Handled server frame of %u bytes", frame->size);
 }
 
-static void HandleMessage(NetUserId source)
+static void HandleMessageServer(NetUserId source, void *server_buf, size_t frame_size)
 {
     //this is a very bad way to do network message parsing, but it is what C offers
     //(I could also load into it memory by some complicated system with data description
@@ -521,25 +520,14 @@ static void HandleMessage(NetUserId source)
 
     switch (type) {
     case NETMSG_LOGIN:
-        if (netstate.my_id == SERVER_ID) {
-            HandleLoginRequest(source, buffer_ptr, buffer_end);
-        }
-        else {
-            HandleLoginReply(buffer_ptr, buffer_end);
-        }
+        HandleLoginRequest(source, buffer_ptr, buffer_end);
         break;
     case NETMSG_USERUPDATE:
-        if (netstate.my_id != SERVER_ID) {
-            HandleUserUpdate(source, buffer_ptr, buffer_end);
-        }
+        WARNLOG("Unexpected USERUPDATE");
         break;
     case NETMSG_FRAME:
-        if (netstate.my_id == SERVER_ID) {
-            HandleClientFrame(source, buffer_ptr, buffer_end);
-        }
-        else {
-            HandleServerFrame(buffer_ptr, buffer_end);
-        }
+        HandleClientFrame(source,((char*)server_buf) + source * frame_size,
+                          buffer_ptr, buffer_end, frame_size);
         break;
     case NETMSG_LAGWARNING:
         break;
@@ -548,35 +536,69 @@ static void HandleMessage(NetUserId source)
     }
 }
 
-static TbError ProcessMessage(NetUserId source)
+static void HandleMessageClient(NetUserId source, size_t frame_size)
+{
+    //this is a very bad way to do network message parsing, but it is what C offers
+    //(I could also load into it memory by some complicated system with data description
+    //auxiliary structures which I don't got time to code nor do the requirements
+    //justify it)
+
+    char * buffer_ptr;
+    char * buffer_end;
+    size_t buffer_size;
+    enum NetMessageType type;
+
+    NETDBG(7, "Handling message from %u", source);
+
+    buffer_ptr = netstate.msg_buffer;
+    buffer_size = sizeof(netstate.msg_buffer);
+    buffer_end = buffer_ptr + buffer_size;
+
+    //type
+    type = (enum NetMessageType) *buffer_ptr;
+    buffer_ptr += 1;
+
+    switch (type) {
+        case NETMSG_LOGIN:
+            HandleLoginReply(buffer_ptr, buffer_end);
+            break;
+        case NETMSG_USERUPDATE:
+            HandleUserUpdate(source, buffer_ptr, buffer_end);
+            break;
+        case NETMSG_FRAME:
+            HandleServerFrame(buffer_ptr, buffer_end, frame_size);
+            break;
+        case NETMSG_LAGWARNING:
+            break;
+        default:
+            break;
+    }
+}
+
+static TbError ProcessMessage(NetUserId source, void* server_buf, size_t frame_size)
 {
     size_t rcount;
 
-    rcount = netstate.sp->readmsg(source, netstate.msg_buffer,
-        sizeof(netstate.msg_buffer));
+    rcount = netstate.sp->readmsg(source, netstate.msg_buffer, sizeof(netstate.msg_buffer));
 
-    if (rcount > 0) {
-        HandleMessage(source);
+    if (rcount > 0)
+    {
+        if (source == SERVER_ID)
+        {
+            HandleMessageServer(source, server_buf, frame_size);
+        }
+        else
+        {
+            HandleMessageClient(source, frame_size);
+        }
     }
-    else {
+    else
+    {
         NETLOG("Problem reading message from %u", source);
         return Lb_FAIL;
     }
 
     return Lb_OK;
-}
-
-static void VerifyBufferSize(void)
-{
-    size_t required_msg_buffer_size;
-
-    required_msg_buffer_size = (netstate.user_frame_size + sizeof(unsigned)) * netstate.max_players + 1;
-
-    if (required_msg_buffer_size > sizeof(netstate.msg_buffer)) { //frame data + seq nbr
-        ERRORLOG("Too small message buffer size: %u bytes required, %u bytes available. Will ABORT: Force programmer to fix error",
-            required_msg_buffer_size, sizeof(netstate.msg_buffer));
-        abort(); //no point in continuing, code bug
-    }
 }
 
 static void AddSession(const char * str, size_t len)
@@ -619,7 +641,7 @@ void LbNetwork_InitSessionsFromCmdLine(const char * str)
     }
 }
 
-TbError LbNetwork_Init(unsigned long srvcindex, unsigned long maxplayrs, void *exchng_buf, unsigned long exchng_size, struct TbNetworkPlayerInfo *locplayr, struct ServiceInitData *init_data)
+TbError LbNetwork_Init(unsigned long srvcindex, unsigned long maxplayrs, struct TbNetworkPlayerInfo *locplayr, struct ServiceInitData *init_data)
 {
   TbError res;
   NetUserId usr;
@@ -668,9 +690,6 @@ TbError LbNetwork_Init(unsigned long srvcindex, unsigned long maxplayrs, void *e
   }
 
   netstate.max_players = maxplayrs;
-  netstate.exchg_buffer = (char *) exchng_buf;
-  netstate.user_frame_size = exchng_size;
-  VerifyBufferSize();
 
   // Initialising the service provider object
   switch (srvcindex)
@@ -811,12 +830,12 @@ TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *plyr_name
     netstate.my_id = 23456;
 
     SendLoginRequest(plyr_name, netstate.password);
-    ProcessMessagesUntilNextLoginReply(WAIT_FOR_SERVER_TIMEOUT_IN_MS);
+    ProcessMessagesUntilNextLoginReply(WAIT_FOR_SERVER_TIMEOUT_IN_MS, &net_screen_packet, sizeof(struct ScreenPacket));
     if (netstate.msg_buffer[0] != NETMSG_LOGIN) {
         fprintf(stderr, "Network login rejected");
         return Lb_FAIL;
     }
-    ProcessMessage(SERVER_ID);
+    ProcessMessage(SERVER_ID, &net_screen_packet, sizeof (struct ScreenPacket));
 
     if (netstate.my_id == 23456) {
         fprintf(stderr, "Network login unsuccessful");
@@ -1061,15 +1080,17 @@ static void OnDroppedUser(NetUserId id, enum NetDropReason reason)
     }
 }
 
-static void ProcessMessagesUntilNextFrame(NetUserId id, unsigned timeout)
+static void ProcessMessagesUntilNextFrame(NetUserId id, void *serv_buf, size_t frame_size, unsigned timeout)
 {
     /*TbClockMSec start;
     start = LbTimerClock();*/
 
     //read all messages up to next frame
     while (timeout == 0 || netstate.sp->msgready(id,
-            timeout /*- (min(LbTimerClock() - start, max(timeout - 1, 0)))*/) != 0) {
-        if (ProcessMessage(id) == Lb_FAIL) {
+            timeout /*- (min(LbTimerClock() - start, max(timeout - 1, 0)))*/) != 0)
+    {
+        if (ProcessMessage(id, serv_buf, frame_size) == Lb_FAIL)
+        {
             break;
         }
 
@@ -1084,15 +1105,17 @@ static void ProcessMessagesUntilNextFrame(NetUserId id, unsigned timeout)
     }
 }
 
-static void ProcessMessagesUntilNextLoginReply(TbClockMSec timeout)
+static void ProcessMessagesUntilNextLoginReply(TbClockMSec timeout, void *server_buf, size_t client_frame_size)
 {
     TbClockMSec start;
     start = LbTimerClock();
 
     //read all messages up to next frame
     while (timeout == 0 || netstate.sp->msgready(SERVER_ID,
-            timeout - (min(LbTimerClock() - start, max(timeout - 1, 0l)))) != 0) {
-        if (ProcessMessage(SERVER_ID) == Lb_FAIL) {
+            timeout - (min(LbTimerClock() - start, max(timeout - 1, 0l)))) != 0)
+    {
+        if (ProcessMessage(SERVER_ID, server_buf, client_frame_size) == Lb_FAIL)
+        {
             break;
         }
 
@@ -1100,23 +1123,27 @@ static void ProcessMessagesUntilNextLoginReply(TbClockMSec timeout)
             break;
         }
 
-        if (LbTimerClock() - start > timeout) {
+        if (LbTimerClock() - start > timeout)
+        {
             break;
         }
     }
 }
 
-static void ProcessPendingMessages(NetUserId id)
+// Used only in "lag mode"
+static void ProcessPendingMessages(NetUserId id, void *server_buf, size_t client_frame_size)
 {
     //process as many messages as possible
-    while (netstate.sp->msgready(id, 0) != 0) {
-        if (ProcessMessage(id) == Lb_FAIL) {
+    while (netstate.sp->msgready(id, 0) != 0)
+    {
+        if (ProcessMessage(id, server_buf, client_frame_size) == Lb_FAIL)
+        {
             return;
         }
     }
 }
 
-static void ConsumeServerFrame()
+static void ConsumeServerFrame(void *server_buf, size_t size)
 {
     NetFrame * frame;
 
@@ -1125,32 +1152,28 @@ static void ConsumeServerFrame()
 
     netstate.exchg_queue = frame->next;
     netstate.seq_nbr = frame->seq_nbr;
-    LbMemoryCopy(netstate.exchg_buffer, frame->buffer, frame->size);
+    LbMemoryCopy(server_buf, frame->buffer, frame->size);
     LbMemoryFree(frame->buffer);
     LbMemoryFree(frame);
 }
 
-TbError LbNetwork_Exchange(void *buf)
+/*
+ * send_buf is a buffer inside shared buffer which sent to a server
+ * server_buf is a buffer shared between all clients and server
+ */
+TbError LbNetwork_Exchange(void *send_buf, void *server_buf, size_t client_frame_size)
 {
     NetUserId id;
 
     NETDBG(7, "Starting");
-  /*spPtr->update();
-  if (LbNetwork_StartExchange(buf) != Lb_OK)
-  {
-    WARNLOG("Failure when Starting Exchange");
-    return Lb_FAIL;
-  }
-  if (LbNetwork_CompleteExchange(buf) != Lb_OK)
-  {
-    WARNLOG("Failure when Completing Exchange");
-    return Lb_FAIL;
-  }*/
+
     assert(UserIdentifiersValid());
 
-    if (netstate.users[netstate.my_id].progress == USER_SERVER) {
+    if (netstate.users[netstate.my_id].progress == USER_SERVER)
+    {
         //server needs to be careful about how it reads messages
-        for (id = 0; id < MAX_N_USERS; ++id) {
+        for (id = 0; id < MAX_N_USERS; ++id)
+        {
             if (id == netstate.my_id) {
                 continue;
             }
@@ -1159,30 +1182,33 @@ TbError LbNetwork_Exchange(void *buf)
                 continue;
             }
 
-            if (netstate.users[id].progress == USER_LOGGEDIN) {
+            if (netstate.users[id].progress == USER_LOGGEDIN)
+            {
                 if (!netstate.enable_lag ||
                         netstate.seq_nbr >= SCHEDULED_LAG_IN_FRAMES) { //scheduled lag in TCP stream
                     //TODO NET take time to detect a lagger which can then be announced
-                    ProcessMessagesUntilNextFrame(id, WAIT_FOR_CLIENT_TIMEOUT_IN_MS);
+                    ProcessMessagesUntilNextFrame(id, server_buf, client_frame_size, WAIT_FOR_CLIENT_TIMEOUT_IN_MS);
                 }
 
                 netstate.seq_nbr += 1;
-                SendServerFrame();
+                SendServerFrame(server_buf, client_frame_size, CountLoggedInClients() + 1);
             }
-            else {
-                ProcessMessagesUntilNextFrame(id, WAIT_FOR_CLIENT_TIMEOUT_IN_MS);
+            else
+            {
+                ProcessMessagesUntilNextFrame(id, server_buf, client_frame_size, WAIT_FOR_CLIENT_TIMEOUT_IN_MS);
                 netstate.seq_nbr += 1;
-                SendServerFrame();
+                SendServerFrame(server_buf, client_frame_size, CountLoggedInClients() + 1);
             }
         }
     }
     else { //client
-        if (netstate.enable_lag) {
-            ProcessPendingMessages(SERVER_ID);
+        if (netstate.enable_lag)
+        {
+            ProcessPendingMessages(SERVER_ID, server_buf, client_frame_size);
 
             if (netstate.exchg_queue == NULL) {
                 //we need at least one frame so block
-                ProcessMessagesUntilNextFrame(SERVER_ID, 0);
+                ProcessMessagesUntilNextFrame(SERVER_ID, server_buf, client_frame_size, 0);
             }
 
             if (netstate.exchg_queue == NULL) {
@@ -1190,12 +1216,12 @@ TbError LbNetwork_Exchange(void *buf)
                 return Lb_FAIL;
             }
 
-            SendClientFrame((char *) buf, netstate.exchg_queue->seq_nbr);
+            SendClientFrame((char *) send_buf, client_frame_size, netstate.exchg_queue->seq_nbr);
         }
         else
         {
-            SendClientFrame((char *) buf, netstate.seq_nbr);
-            ProcessMessagesUntilNextFrame(SERVER_ID, 0);
+            SendClientFrame((char *) send_buf, client_frame_size, netstate.seq_nbr);
+            ProcessMessagesUntilNextFrame(SERVER_ID, server_buf, client_frame_size, 0);
 
             if (netstate.exchg_queue == NULL) {
                 //connection lost
@@ -1203,7 +1229,8 @@ TbError LbNetwork_Exchange(void *buf)
             }
         }
 
-        ConsumeServerFrame(); //most likely overwrites what is sent in SendClientFrame
+        // most likely overwrites what is sent in SendClientFrame
+        ConsumeServerFrame(server_buf, 0);
     }
 
     //TODO NET deal with case where no new frame is available and game should be stalled

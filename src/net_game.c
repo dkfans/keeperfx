@@ -94,8 +94,7 @@ short setup_network_service(int srvidx)
       break;
   }
   LbMemorySet(&net_player_info[0], 0, sizeof(struct TbNetworkPlayerInfo));
-  if ( LbNetwork_Init(srvidx, maxplayrs, &net_screen_packet,
-      sizeof(struct ScreenPacket), &net_player_info[0], init_data) )
+  if ( LbNetwork_Init(srvidx, maxplayrs, &net_player_info[0], init_data) )
   {
     if (srvidx != 0)
       process_network_error(-800);
@@ -120,7 +119,7 @@ static CoroutineLoopState setup_exchange_player_number(CoroutineLoop *context)
   struct PlayerInfo* player = get_my_player();
   struct Packet* pckt = get_packet_direct(my_player_number);
   set_packet_action(pckt, PckA_InitPlayerNum, player->is_active, settings.video_rotate_mode, 0, 0);
-  if (LbNetwork_Exchange(pckt))
+  if (LbNetwork_Exchange(pckt, game.packets, sizeof(struct Packet)))
       ERRORLOG("Network Exchange failed");
   int k = 0;
   for (int i = 0; i < NET_PLAYERS_COUNT; i++)
@@ -191,8 +190,6 @@ void setup_count_players(void)
 void init_players_network_game(CoroutineLoop *context)
 {
   SYNCDBG(4,"Starting");
-  if (LbNetwork_ChangeExchangeBuffer(game.packets, sizeof(struct Packet)))
-      ERRORLOG("Unable to reinitialize ExchangeBuffer");
   setup_select_player_number();
   coroutine_add(context, &setup_exchange_player_number);
   coroutine_add(context, &perform_checksum_verification);
