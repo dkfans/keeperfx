@@ -44,8 +44,8 @@ DOXYTOOL = doxygen
 BUILD_NUMBER ?= $(VER_BUILD)
 PACKAGE_SUFFIX ?= Prototype
 PNGTOICO = tools/png2ico/png2ico$(CROSS_EXEEXT)
-PNGTORAW = tools/pngpal2raw/bin/pngpal2raw$(CROSS_EXEEXT)
-PNGTOBSPAL = tools/png2bestpal/bin/png2bestpal$(CROSS_EXEEXT)
+PNGTORAW = tools/pngpal2raw/bin/pngpal2raw.exe     #these have hardcoded .exe since the linux version doesn't work, this fixes wsl
+PNGTOBSPAL = tools/png2bestpal/bin/png2bestpal.exe #  "
 POTONGDAT = tools/po2ngdat/bin/po2ngdat$(CROSS_EXEEXT)
 WAVTODAT = tools/sndbanker/bin/sndbanker$(CROSS_EXEEXT)
 RNC      = tools/rnctools/bin/rnc$(CROSS_EXEEXT)
@@ -580,8 +580,7 @@ include tool_rnctools.mk
 #include tool_dkillconv.mk
 
 include pkg_lang.mk
-#include pkg_gfx.mk
-include pkg_gfx_v2.mk
+include pkg_gfx.mk
 include pkg_sfx.mk
 include package.mk
 
