@@ -46,7 +46,7 @@ struct DoorDesc { // sizeof = 44
   struct TbSprite *sprites_end;
   unsigned char *data;
   unsigned char *data_end;
-  long field_28;
+  long smptbl_id;
 };
 
 struct TortureState { // sizeof = 4
