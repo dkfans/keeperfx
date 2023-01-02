@@ -452,7 +452,7 @@ static void HandleClientFrame(NetUserId source, char *dst_ptr, const char * ptr,
         return;
     }
 
-    NETDBG(9, "Handled client frame of %u bytes", netstate.user_frame_size);
+    NETDBG(9, "Handled client frame of %u bytes", frame_size);
 }
 
 static void HandleServerFrame(char * ptr, char * end, size_t user_frame_size)
