@@ -44,8 +44,8 @@ enum TbPacketAction {
         PckA_PlyrMsgBegin,
         PckA_PlyrMsgEnd,
         PckA_Unknown015,//15
-        PckA_Unknown016,
-        PckA_Unknown017,
+        PckA_LandviewFrameCli, // Assume unused
+        PckA_LandviewFrameSrv, // Assume unused
         PckA_Unknown018,
         PckA_Unknown019,
         PckA_ToggleLights,//20

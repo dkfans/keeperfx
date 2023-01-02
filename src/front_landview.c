@@ -1587,10 +1587,52 @@ long frontmap_update(void)
   return 0;
 }
 
+TbBool frontmap_exchange_screen_packet_srv_cb(void *context, unsigned long turn, int net_player_idx,
+                                       unsigned char kind, void *packet_data, short size)
+{
+    if (kind == PckA_LandviewFrameCli)
+    {
+        // Server wants only one packet
+        memcpy(&net_screen_packet[net_player_idx], packet_data, sizeof(struct ScreenPacket));
+    }
+    else
+    {
+        WARNLOG("Unexpected packet kind %d", kind);
+    }
+    return false;
+}
+
+TbBool frontmap_exchange_screen_packet_cb(void *context, unsigned long turn, int net_player_idx,
+                                          unsigned char kind, void *packet_data, short size)
+{
+    if (kind == PckA_LandviewFrameSrv)
+    {
+        // Client wants packets from server for all players
+        memcpy(&net_screen_packet, packet_data, sizeof(net_screen_packet));
+    }
+    else
+    {
+        WARNLOG("Unexpected packet kind %d", kind);
+    }
+    return false;
+}
+
 TbBool frontmap_exchange_screen_packet(void)
 {
     LbMemorySet(net_screen_packet, 0, sizeof(net_screen_packet));
-    struct ScreenPacket* nspck = &net_screen_packet[my_player_number];
+    struct ScreenPacket* nspck;
+    LbNetwork_Packet_Callback cb;
+    if (LbNetwork_IsServer())
+    {
+        nspck = LbNetwork_AddPacket(PckA_LandviewFrameSrv, 0, sizeof(net_screen_packet));
+        cb = &frontmap_exchange_screen_packet_srv_cb;
+    }
+    else
+    {
+        nspck = LbNetwork_AddPacket(PckA_LandviewFrameCli, 0, sizeof(struct ScreenPacket));
+        cb = &frontmap_exchange_screen_packet_cb;
+    }
+
     nspck->field_4 |= 0x01;
     nspck->param1 = fe_net_level_selected;
     if (net_map_limp_time > 0)
@@ -1606,8 +1648,8 @@ TbBool frontmap_exchange_screen_packet(void)
             limp_hand_x + hand_limp_xoffset[0] - map_info.screen_shift_x,
             limp_hand_y + hand_limp_yoffset[0] - map_info.screen_shift_y);
       }
-    } else
-    if (fe_net_level_selected > 0)
+    }
+    else if (fe_net_level_selected > 0)
     {
         struct TbSprite* spr = get_map_ensign(1);
         struct LevelInformation* lvinfo = get_level_info(fe_net_level_selected);
@@ -1616,8 +1658,8 @@ TbBool frontmap_exchange_screen_packet(void)
             nspck->field_6 = lvinfo->ensign_x + my_player_number * ((long)spr->SWidth);
             nspck->field_8 = lvinfo->ensign_y - 48;
         }
-    } else
-    if (net_map_slap_frame > 0)
+    }
+    else if (net_map_slap_frame > 0)
     {
         nspck->field_6 = GetMouseX()*16/units_per_pixel + map_info.screen_shift_x;
         nspck->field_8 = GetMouseY()*16/units_per_pixel + map_info.screen_shift_y;
@@ -1626,18 +1668,20 @@ TbBool frontmap_exchange_screen_packet(void)
           nspck->field_4 = (nspck->field_4 & 0x07) | 0x08;
           nspck->param1 = net_map_slap_frame;
           net_map_slap_frame++;
-        } else
+        }
+        else
         {
           net_map_slap_frame = 0;
         }
-    } else
+    }
+    else
     {
         nspck->field_6 = GetMouseX()*16/units_per_pixel + map_info.screen_shift_x;
         nspck->field_8 = GetMouseY()*16/units_per_pixel + map_info.screen_shift_y;
     }
     if (fe_network_active)
     {
-      if ( LbNetwork_Exchange(nspck, &net_screen_packet, sizeof(struct ScreenPacket)) )
+      if ( LbNetwork_Exchange(0, cb) )
       {
           ERRORLOG("LbNetwork_Exchange failed");
           return false;

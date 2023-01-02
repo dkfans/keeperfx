@@ -227,9 +227,24 @@ void    LbNetwork_InitSessionsFromCmdLine(const char * str);
 TbError LbNetwork_Init(unsigned long srvcindex, unsigned long maxplayrs, struct TbNetworkPlayerInfo *locplayr, struct ServiceInitData *init_data);
 TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *playr_name, long *playr_num, void *optns);
 TbError LbNetwork_Create(char *nsname_str, char *plyr_name, unsigned long *plyr_num, void *optns);
-TbError LbNetwork_ExchangeServer(void *server_buf, size_t buf_size);
-TbError LbNetwork_ExchangeClient(void *send_buf, void *server_buf, size_t buf_size);
-TbError LbNetwork_Exchange(void *send_buf, void *server_buf, size_t buf_size);
+
+/* This function allocates new packet of requested size and enqueues it
+   kind is a value from PckA_*
+*/
+#define LbNetwork_AddPacket(kind, turn, size) LbNetwork_AddPacket_f(kind, turn, size, __func__)
+void *LbNetwork_AddPacket_f(unsigned char kind, unsigned long turn, short size, const char* func);
+/*  This is a callback that process all enqueued packets from all players
+    Ordered by turn then by plyr_idx
+
+    All packet pointers should be valid till exit from LbNetwork_Exchange
+*/
+typedef TbBool (*LbNetwork_Packet_Callback) (
+        void *context, unsigned long turn, int net_player_idx, unsigned char kind, void *packet_data, short size);
+
+TbError LbNetwork_Exchange(void *context, LbNetwork_Packet_Callback callback);
+
+TbBool LbNetwork_IsServer();
+
 TbBool  LbNetwork_Resync(void * buf, size_t len);
 void    LbNetwork_ChangeExchangeTimeout(unsigned long tmout);
 TbError LbNetwork_EnableNewPlayers(TbBool allow);
