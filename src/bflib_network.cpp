@@ -498,7 +498,7 @@ static void HandleServerFrame(char * ptr, char * end, size_t user_frame_size)
     NETDBG(9, "Handled server frame of %u bytes", frame->size);
 }
 
-static void HandleMessageServer(NetUserId source, void *server_buf, size_t frame_size)
+static void HandleMessageFromServer(NetUserId source, void *server_buf, size_t frame_size)
 {
     //this is a very bad way to do network message parsing, but it is what C offers
     //(I could also load into it memory by some complicated system with data description
@@ -536,7 +536,7 @@ static void HandleMessageServer(NetUserId source, void *server_buf, size_t frame
     }
 }
 
-static void HandleMessageClient(NetUserId source, size_t frame_size)
+static void HandleMessageFromClient(NetUserId source, size_t frame_size)
 {
     //this is a very bad way to do network message parsing, but it is what C offers
     //(I could also load into it memory by some complicated system with data description
@@ -583,11 +583,11 @@ static TbError ProcessMessage(NetUserId source, void* server_buf, size_t frame_s
     {
         if (source == SERVER_ID)
         {
-            HandleMessageServer(source, server_buf, frame_size);
+            HandleMessageFromServer(source, server_buf, frame_size);
         }
         else
         {
-            HandleMessageClient(source, frame_size);
+            HandleMessageFromClient(source, frame_size);
         }
     }
     else
