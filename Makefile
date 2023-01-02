@@ -401,7 +401,7 @@ VER_STRING = $(VER_MAJOR).$(VER_MINOR).$(VER_RELEASE).$(BUILD_NUMBER) $(PACKAGE_
 include prebuilds.mk
 
 # name virtual targets
-.PHONY: all docs docsdox clean clean-build deep-clean
+.PHONY: all docs docsdox clean clean-build deep-clean build-before
 .PHONY: standard std-before std-after
 .PHONY: heavylog hvlog-before hvlog-after
 .PHONY: package clean-package deep-clean-package
@@ -431,8 +431,11 @@ obj/std/centitoml obj/hvlog/centitoml \
 obj/enet
 
 $(shell $(MKDIR) $(FOLDERS))
-std-before:
-hvlog-before:
+
+build-before: libexterns deps/zlib/configure.log
+
+std-before: build-before
+hvlog-before: build-before
 
 docs: docsdox
 
@@ -491,7 +494,7 @@ obj/std/json/%.o obj/hvlog/json/%.o: deps/centijson/src/%.c
 	$(CC) $(CFLAGS) -o"$@" "$<"
 	-$(ECHO) ' '
 
-obj/std/centitoml/toml_api.o obj/hvlog/centitoml/toml_api.o: deps/centitoml/toml_api.c obj/std/spng.o obj/hvlog/spng.o
+obj/std/centitoml/toml_api.o obj/hvlog/centitoml/toml_api.o: deps/centitoml/toml_api.c build-before
 	-$(ECHO) 'Building file: $<'
 	$(CC) $(CFLAGS) -o"$@" "$<"
 	-$(ECHO) ' '
@@ -575,13 +578,14 @@ clean-libexterns: libexterns.mk
 	-cd deps/zlib && git checkout Makefile zconf.h
 	-$(RM) libexterns
 
-deps/centijson/src/json.c deps/centijson/src/value.c deps/centijson/src/json-dom.c: deps/zlib/configure.log
-deps/libspng/spng/spng.c: deps/zlib/configure.log
-deps/zlib/contrib/minizip/unzip.c deps/zlib/contrib/minizip/ioapi.c: deps/zlib/configure.log
+deps/centijson/src/json.c deps/centijson/src/value.c deps/centijson/src/json-dom.c: build-before
+deps/libspng/spng/spng.c: build-before
+deps/zlib/contrib/minizip/unzip.c deps/zlib/contrib/minizip/ioapi.c: build-before
 
 
 deps/zlib/configure.log:
-	git submodule sync && git submodule update --init && cd deps/zlib && ./configure --static
+	git submodule sync && git submodule update --init
+	cd deps/zlib && ./configure --static
 
 deps/zlib/libz.a: deps/zlib/configure.log
 	cd deps/zlib && $(MAKE) -f win32/Makefile.gcc PREFIX=$(CROSS_COMPILE) libz.a
