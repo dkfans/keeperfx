@@ -43,7 +43,7 @@ enum TbPacketAction {
         PckA_LevelExactCheck,
         PckA_PlyrMsgBegin,
         PckA_PlyrMsgEnd,
-        PckA_Unknown015,//15
+        PckA_TortureFrame,//15 Unused?
         PckA_LandviewFrameCli, // Assume unused
         PckA_LandviewFrameSrv, // Assume unused
         PckA_Unknown018,

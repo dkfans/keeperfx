@@ -250,14 +250,57 @@ void fronttorture_clear_state(void)
     torture_door_selected = -1;
 }
 
+TbBool fronttorture_cb(void *context, unsigned long turn, int net_player_idx,
+                       unsigned char kind, void *packet_data, short size)
+{
+    long *door_id = (long *)context;
+    // Determine the controlling player and get his mouse coords
+    if (kind != PckA_TortureFrame)
+    {
+        return false;
+    }
+    int plyr_idx = net_player_idx;
+    struct PlayerInfo *player = get_player(plyr_idx);
+    struct Packet *pckt = packet_data;
+    unsigned short x, y;
+    if ((pckt->action == 0) || (player->victory_state != VicS_WonLevel))
+    {
+        return false;
+    }
+    if (plyr_idx < PLAYERS_COUNT)
+    {
+        x = pckt->actn_par1;
+        y = pckt->actn_par2;
+    } else
+    {
+        plyr_idx = my_player_number;
+        player = get_player(plyr_idx);
+        pckt = get_packet(plyr_idx);
+        x = 0;
+        y = 0;
+    }
+    if ((pckt->action & 0x01) != 0)
+    {
+        frontend_set_state(FeSt_LEVEL_STATS);
+        if ((game.system_flags & GSF_NetworkActive) != 0)
+            LbNetwork_Stop();
+        return false;
+    }
+    // Get active door and store it
+    *door_id = torture_door_over_point(x, y);
+    if ((torture_door_selected != -1) && (torture_door_selected != *door_id))
+        *door_id = -1;
+}
+
 void fronttorture_input(void)
 {
     long x;
     long y;
+    long door_id = -1;
     PlayerNumber plyr_idx;
     clear_packets();
     struct PlayerInfo* player = get_my_player();
-    struct Packet* pckt = get_packet(my_player_number);
+    struct Packet* pckt = LbNetwork_AddPacket(PckA_TortureFrame, 0, sizeof(struct Packet));
     // Get inputs and create packet
     if (player->victory_state == VicS_WonLevel)
     {
@@ -283,40 +326,11 @@ void fronttorture_input(void)
     // Exchange packet with other players
     if ((game.system_flags & GSF_NetworkActive) != 0)
     {
-        if (LbNetwork_Exchange(pckt, game.packets, sizeof(struct Packet)))
+        if (LbNetwork_Exchange(&door_id, &fronttorture_cb))
+        {
             ERRORLOG("LbNetwork_Exchange failed");
+        }
     }
-    // Determine the controlling player and get his mouse coords
-    for (plyr_idx=0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
-    {
-        player = get_player(plyr_idx);
-        pckt = get_packet(plyr_idx);
-        if ((pckt->action != 0) && (player->victory_state == VicS_WonLevel))
-            break;
-    }
-    if (plyr_idx < PLAYERS_COUNT)
-    {
-        x = pckt->actn_par1;
-        y = pckt->actn_par2;
-    } else
-    {
-        plyr_idx = my_player_number;
-        player = get_player(plyr_idx);
-        pckt = get_packet(plyr_idx);
-        x = 0;
-        y = 0;
-    }
-    if ((pckt->action & 0x01) != 0)
-    {
-        frontend_set_state(FeSt_LEVEL_STATS);
-        if ((game.system_flags & GSF_NetworkActive) != 0)
-            LbNetwork_Stop();
-        return;
-    }
-    // Get active door
-    long door_id = torture_door_over_point(x, y);
-    if ((torture_door_selected != -1) && (torture_door_selected != door_id))
-        door_id = -1;
     // Make the action
     if (door_id == -1)
       torture_left_button = 0;
