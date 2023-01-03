@@ -81,7 +81,6 @@ pkg/ldata/frontbit-64.dat
 
 ENGINEGFX = \
 pkg/data/thingspr-32.jty \
-#pkg/data/thingspr-128.jty
 pkg/data/frac00.raw \
 pkg/data/frac01.raw \
 pkg/data/frac02.raw \
