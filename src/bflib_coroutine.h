@@ -49,7 +49,7 @@ typedef struct CoroutineLoopS
     int         read_idx;
     int         write_idx;
     CoroutineFn fns[COROUTINE_MAX_NUM];
-    int         args[COROUTINE_MAX_NUM * COROUTINE_ARGS];
+    intptr_t    args[COROUTINE_MAX_NUM * COROUTINE_ARGS];
     TbBool      error;
 } CoroutineLoop;
 
@@ -62,7 +62,7 @@ extern void coroutine_clear(CoroutineLoop *context, TbBool error);
 // exec all coroutines from the list
 extern void coroutine_process(CoroutineLoop *context);
 
-extern int *coroutine_args(CoroutineLoop *context);
+extern intptr_t *coroutine_args(CoroutineLoop *context);
 
 #ifdef __cplusplus
 }

@@ -65,7 +65,7 @@ void coroutine_process(CoroutineLoop *context)
     context->read_idx = 0;
 }
 
-int *coroutine_args(CoroutineLoop *context)
+intptr_t *coroutine_args(CoroutineLoop *context)
 {
     return &context->args[context->read_idx * COROUTINE_ARGS];
 }
@@ -76,6 +76,7 @@ void coroutine_clear(CoroutineLoop *context, TbBool error)
     {
         context->fns[i] = 0;
     }
+    memset(context->args, 0, sizeof(context->args));
     context->write_idx = 0;
     context->error |= error;
 }
