@@ -62,8 +62,6 @@ extern "C" {
 long transfer_creature_scroll_offset;
 long resurrect_creature_scroll_offset;
 unsigned short dungeon_special_selected;
-static const long special_speechmsgs[8] =
-    { 77,  78,  79,  81,  82,  83,  84,  85};
 /******************************************************************************/
 
 /**
@@ -397,7 +395,8 @@ void activate_dungeon_special(struct Thing *cratetng, struct PlayerInfo *player)
   // Gathering data which we'll need if the special is used and disposed.
   struct DungeonAdd* dungeonadd = get_dungeonadd(player->id_number);
   memcpy(&pos,&cratetng->mappos,sizeof(struct Coord3d));
-  int spkindidx = cratetng->model - 86;
+  int spkindidx = cratetng->model - 85; //todo make configurable
+  struct SpecialConfigStats* specst;
   short used = 0;
   TbBool no_speech = false;
   if (thing_exists(cratetng) && thing_is_special_box(cratetng))
@@ -470,9 +469,12 @@ void activate_dungeon_special(struct Thing *cratetng, struct PlayerInfo *player)
       }
       if ( used )
       {
-        if (is_my_player(player) && !no_speech)
-          output_message(special_speechmsgs[spkindidx], 0, true);
-        create_special_used_effect(&pos, player->id_number);
+          if (is_my_player(player) && !no_speech)
+          {
+              specst = get_special_model_stats(spkindidx);
+              output_message(specst->speech, 0, true);
+          }
+          create_special_used_effect(&pos, player->id_number); //todo put into config too
       }
   }
 }

@@ -303,6 +303,7 @@ struct SpecialConfigStats {
     char code_name[COMMAND_WORD_LEN];
     ThingModel artifact_model;
     TextStringId tooltip_stridx;
+    long speech;
 };
 
 struct MagicConfig {
