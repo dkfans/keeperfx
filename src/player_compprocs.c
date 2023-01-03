@@ -1216,10 +1216,10 @@ static long computer_look_for_opponent(struct Computer2 *comp, MapSubtlCoord stl
                             pos = &comp->opponent_relations[slab_owner].pos_A[current_idx];
                             comp->opponent_relations[slab_owner].next_idx = (current_idx + 1) % COMPUTER_SPARK_POSITIONS_COUNT;
                             comp->opponent_relations[slab_owner].field_0 = game.play_gameturn;
-                            pos->x.stl.pos = stl_x_current;
-                            pos->x.stl.num = 0;
-                            pos->y.stl.pos = stl_y_current;
-                            pos->y.stl.num = 0;
+                            pos->x.stl.num = stl_x_current;
+                            pos->x.stl.pos = 0;
+                            pos->y.stl.num = stl_y_current;
+                            pos->y.stl.pos = 0;
                             if ((1 << (game.neutral_player_num + 1)) - computer_player_bit == 1)
                                 return computer_player_bit;
                         }

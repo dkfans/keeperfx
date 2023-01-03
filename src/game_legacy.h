@@ -222,7 +222,7 @@ unsigned int packet_file_pos;
     unsigned short fight_hate_kill_value;
     unsigned short body_remains_for;
     unsigned short graveyard_convert_time;
-    unsigned char min_distance_for_teleport;
+    MapSlabDelta min_distance_for_teleport;
     unsigned char recovery_frequency;
     unsigned short nodungeon_creatr_list_start; /**< Linked list of creatures which have no dungeon (neutral and owned by nonexisting players) */
     GameTurnDelta food_generation_speed;

@@ -248,8 +248,8 @@ struct Packet { // sizeof = 0x11 (17)
     int field_0;
     TbChecksum chksum; //! Checksum of all things within the game and synchronized random seed
     unsigned char action; //! Action kind performed by the player which owns this packet
-    unsigned short actn_par1; //! Players action parameter #1
-    unsigned short actn_par2; //! Players action parameter #2
+    long actn_par1; //! Players action parameter #1
+    long actn_par2; //! Players action parameter #2
     long pos_x; //! Mouse Cursor Position X
     long pos_y; //! Mouse Cursor Position Y
     unsigned short control_flags;
@@ -278,7 +278,7 @@ struct PacketEx
 /******************************************************************************/
 struct Packet *get_packet_direct(long pckt_idx);
 struct Packet *get_packet(long plyr_idx);
-void set_packet_action(struct Packet *pckt, unsigned char pcktype, unsigned short par1, unsigned short par2, unsigned short par3, unsigned short par4);
+void set_packet_action(struct Packet *pckt, unsigned char pcktype, long par1, long par2, unsigned short par3, unsigned short par4);
 void set_players_packet_action(struct PlayerInfo *player, unsigned char pcktype, unsigned short par1, unsigned short par2, unsigned short par3, unsigned short par4);
 void set_packet_control(struct Packet *pckt, unsigned long flag);
 void set_players_packet_control(struct PlayerInfo *player, unsigned long flag);
