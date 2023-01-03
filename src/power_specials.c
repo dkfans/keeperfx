@@ -469,12 +469,12 @@ void activate_dungeon_special(struct Thing *cratetng, struct PlayerInfo *player)
       }
       if ( used )
       {
+          specst = get_special_model_stats(spkindidx);
           if (is_my_player(player) && !no_speech)
           {
-              specst = get_special_model_stats(spkindidx);
               output_message(specst->speech, 0, true);
           }
-          create_special_used_effect(&pos, player->id_number); //todo put into config too
+          create_special_used_effect(&pos, player->id_number, specst->effect_id);
       }
   }
 }
@@ -492,7 +492,8 @@ void resurrect_creature(struct Thing *boxtng, PlayerNumber owner, ThingModel crm
         if (is_my_player_number(owner))
           output_message(SMsg_CommonAcknowledge, 0, true);
     }
-    create_special_used_effect(&boxtng->mappos, owner);
+    struct SpecialConfigStats* specst = get_special_model_stats(2); //todo magic number
+    create_special_used_effect(&boxtng->mappos, owner, specst->effect_id);
     remove_events_thing_is_attached_to(boxtng);
     force_any_creature_dragging_owned_thing_to_drop_it(boxtng);
     if ((gameadd.classic_bugs_flags & ClscBug_ResurrectForever) == 0) {
@@ -535,7 +536,8 @@ void transfer_creature(struct Thing *boxtng, struct Thing *transftng, unsigned c
     kill_creature(transftng, INVALID_THING, -1, CrDed_NoEffects|CrDed_NotReallyDying);
     if (!from_script)
     {
-        create_special_used_effect(&boxtng->mappos, plyr_idx);
+        struct SpecialConfigStats* specst = get_special_model_stats(3); //todo magic number
+        create_special_used_effect(&boxtng->mappos, plyr_idx, specst->effect_id);
         remove_events_thing_is_attached_to(boxtng);
         force_any_creature_dragging_owned_thing_to_drop_it(boxtng);
         delete_thing_structure(boxtng, 0);

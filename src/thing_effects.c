@@ -1315,9 +1315,20 @@ struct Thing *create_effect(const struct Coord3d *pos, ThingModel effmodel, Play
     return thing;
 }
 
-struct Thing *create_special_used_effect(const struct Coord3d *pos, long plyr_idx)
+struct Thing *create_special_used_effect(const struct Coord3d *pos, long plyr_idx, short effect)
 {
-    struct Thing* efftng = create_effect(pos, TngEff_SpecialBox, plyr_idx);
+    if (effect == 0)
+        return INVALID_THING;
+     
+    struct Thing* efftng;
+    if (effect > 0)
+    {
+        efftng = create_effect(pos, effect, plyr_idx);
+    }
+    else
+    {
+        efftng = create_effect_element(pos, ~(effect) + 1, plyr_idx);
+    }
     TRACE_THING(efftng);
     return efftng;
 }
