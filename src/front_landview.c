@@ -99,7 +99,7 @@ long map_sound_fade;
 unsigned char *map_screen;
 long fe_net_level_selected;
 long net_map_limp_time;
-struct ScreenPacket net_screen_packet[4];
+struct ScreenPacket net_screen_packet[NET_PLAYERS_COUNT];
 long players_currently_in_session;
 /******************************************************************************/
 extern struct TbSetupSprite map_flag_setup_sprites[];
@@ -1637,7 +1637,7 @@ TbBool frontmap_exchange_screen_packet(void)
     }
     if (fe_network_active)
     {
-      if ( LbNetwork_Exchange(nspck) )
+      if ( LbNetwork_Exchange(nspck, &net_screen_packet, sizeof(struct ScreenPacket)) )
       {
           ERRORLOG("LbNetwork_Exchange failed");
           return false;

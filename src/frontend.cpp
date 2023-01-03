@@ -170,8 +170,8 @@ struct GuiMenu *menu_list[] = {
     &frontend_net_service_menu,//20
     &frontend_net_session_menu,
     &frontend_net_start_menu,
-    &frontend_net_modem_menu,
-    &frontend_net_serial_menu,
+    NULL, // Modem
+    NULL, // Serial
     &frontend_statistics_menu,
     &frontend_high_score_table_menu,
     &dungeon_special_menu,
@@ -2051,8 +2051,6 @@ short is_toggleable_menu(short mnu_idx)
   case GMnu_FENET_SERVICE:
   case GMnu_FENET_SESSION:
   case GMnu_FENET_START:
-  case GMnu_FENET_MODEM:
-  case GMnu_FENET_SERIAL:
   case GMnu_FESTATISTICS:
   case GMnu_FEHIGH_SCORE_TABLE:
   case GMnu_RESURRECT_CREATURE:
@@ -2658,14 +2656,6 @@ void frontend_shutdown_state(FrontendMenuState pstate)
     case FeSt_CREDITS:
         StopMusicPlayer();
         break;
-    case FeSt_NET_MODEM:
-        turn_off_menu(GMnu_FENET_MODEM);
-        frontnet_modem_reset();
-        break;
-    case FeSt_NET_SERIAL:
-        turn_off_menu(GMnu_FENET_SERIAL);
-        frontnet_serial_reset();
-        break;
     case FeSt_LEVEL_STATS:
         StopStreamedSample();
         turn_off_menu(GMnu_FESTATISTICS);
@@ -2802,14 +2792,6 @@ FrontendMenuState frontend_setup_state(FrontendMenuState nstate)
           credits_end = 0;
           LbTextSetWindow(0, 0, lbDisplay.PhysicalScreenWidth, lbDisplay.PhysicalScreenHeight);
           lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
-          break;
-      case FeSt_NET_MODEM:
-          turn_on_menu(GMnu_FENET_MODEM);
-          frontnet_modem_setup();
-          break;
-      case FeSt_NET_SERIAL:
-          turn_on_menu(GMnu_FENET_SERIAL);
-          frontnet_serial_setup();
           break;
       case FeSt_LEVEL_STATS:
           turn_on_menu(GMnu_FESTATISTICS);
@@ -3004,8 +2986,6 @@ void frontend_input(void)
         frontmap_input();
         break;
     case FeSt_NET_SESSION:
-    case FeSt_NET_MODEM:
-    case FeSt_NET_SERIAL:
         get_gui_inputs(0);
         break;
     case FeSt_NET_START:
@@ -3330,8 +3310,6 @@ short frontend_draw(void)
     case FeSt_FELOAD_GAME:
     case FeSt_NET_SERVICE:
     case FeSt_NET_SESSION:
-    case FeSt_NET_MODEM:
-    case FeSt_NET_SERIAL:
     case FeSt_NET_START:
     case FeSt_LEVEL_STATS:
     case FeSt_HIGH_SCORES:
@@ -3544,12 +3522,6 @@ void frontend_update(short *finish_menu)
     case FeSt_CREDITS:
         PlayMusicPlayer(7);
         break;
-    case FeSt_NET_MODEM:
-        frontnet_modem_update();
-        break;
-    case FeSt_NET_SERIAL:
-        frontnet_serial_update();
-        break;
     case FeSt_LEVEL_STATS:
         frontstats_update();
         break;
@@ -3618,8 +3590,6 @@ FrontendMenuState get_menu_state_when_back_from_substate(FrontendMenuState subst
     case FeSt_NET_START:
         return FeSt_NET_SESSION;
     case FeSt_NET_SESSION:
-    case FeSt_NET_MODEM:
-    case FeSt_NET_SERIAL:
     case FeSt_NETLAND_VIEW:
         return FeSt_NET_SERVICE;
     case FeSt_TORTURE:

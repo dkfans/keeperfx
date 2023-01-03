@@ -183,7 +183,7 @@ CoroutineLoopState perform_checksum_verification(CoroutineLoop *con)
     struct Packet* pckt = get_packet(my_player_number);
     set_packet_action(pckt, PckA_LevelExactCheck, 0, 0, 0, 0);
     pckt->chksum = checksum_mem + game.action_rand_seed;
-    if (LbNetwork_Exchange(pckt))
+    if (LbNetwork_Exchange(pckt, game.packets, sizeof(struct Packet)))
     {
         ERRORLOG("Network exchange failed on level checksum verification");
         result = false;
