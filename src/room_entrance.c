@@ -122,7 +122,7 @@ TbBool generation_due_for_dungeon(struct Dungeon * dungeon)
 TbBool generation_available_to_dungeon(const struct Dungeon * dungeon)
 {
     SYNCDBG(9,"Starting");
-    if (!dungeon_has_room(dungeon, RoK_ENTRANCE))
+    if (!dungeon_has_room_of_role(dungeon, RoRoF_CrPoolSpawn))
         return false;
     if (game.armageddon.count_down + game.armageddon_cast_turn > game.play_gameturn) //No new creatures during armageddon
         return false;

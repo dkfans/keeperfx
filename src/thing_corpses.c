@@ -152,7 +152,7 @@ void remove_body_from_graveyard(struct Thing *thing)
         ERRORLOG("The %s is not in room",thing_model_name(thing));
         return;
     }
-    if (room->kind != RoK_GRAVEYARD) {
+    if (!room_role_matches(room->kind,RoRoF_DeadStorage)) {
         ERRORLOG("The %s is in %s instead of graveyard",thing_model_name(thing),room_code_name(room->kind));
         return;
     }
