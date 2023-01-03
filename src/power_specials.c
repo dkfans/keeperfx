@@ -62,7 +62,8 @@ extern "C" {
 long transfer_creature_scroll_offset;
 long resurrect_creature_scroll_offset;
 unsigned short dungeon_special_selected;
-static struct SpecialDesc special_speechmsgs[8];
+static const struct SpecialDesc special_speechmsgs[7] =
+    { 421,  422,  423,  424,  425,  426,  427};
 /******************************************************************************/
 
 /**
