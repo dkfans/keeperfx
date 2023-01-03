@@ -62,8 +62,8 @@ extern "C" {
 long transfer_creature_scroll_offset;
 long resurrect_creature_scroll_offset;
 unsigned short dungeon_special_selected;
-static const struct SpecialDesc special_speechmsgs[7] =
-    { 421,  422,  423,  424,  425,  426,  427};
+static const long special_speechmsgs[8] =
+    { 77,  78,  79,  81,  82,  83,  84,  85};
 /******************************************************************************/
 
 /**
@@ -471,7 +471,7 @@ void activate_dungeon_special(struct Thing *cratetng, struct PlayerInfo *player)
       if ( used )
       {
         if (is_my_player(player) && !no_speech)
-          output_message(special_speechmsgs[spkindidx].speech_msg, 0, true);
+          output_message(special_speechmsgs[spkindidx], 0, true);
         create_special_used_effect(&pos, player->id_number);
       }
   }
