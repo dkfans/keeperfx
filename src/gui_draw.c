@@ -522,6 +522,56 @@ void draw_button_string(struct GuiButton *gbtn, int base_width, const char *text
         }
     }
     unsigned long h = (gbtn->height - text_string_height(tx_units_per_px, dtext)) / 2 - 3 * units_per_px / 16;
+    if (dbc_language > 0)
+    {
+        switch (gbtn->tooltip_stridx)
+        {
+            case GUIStr_CreatureKillsDesc:
+            case GUIStr_CreatureStrengthDesc:
+            case GUIStr_CreatureWageDesc:
+            case GUIStr_CreatureGoldHeldDesc:
+            case GUIStr_CreatureDefenceDesc:
+            case GUIStr_CreatureSkillDesc:
+            case GUIStr_CreatureTimeInDungeonDesc:
+            case GUIStr_CreatureDexterityDesc:
+            case GUIStr_CreatureLuckDesc:
+            case GUIStr_CreatureBloodTypeDesc:
+            case GUIStr_CreatureArmourDesc:
+            case GUIStr_CreatureSpeedDesc:
+            case GUIStr_CreatureLoyaltyDesc:
+            case GUIStr_CreatureResrchSkillDesc:
+            case GUIStr_CreatureManfctrSkillDesc:
+            case GUIStr_CreatureTraingSkillDesc:
+            case GUIStr_CreatureScavngSkillDesc:
+            case GUIStr_CreatureTraingCostDesc:
+            case GUIStr_CreatureScavngCostDesc:
+            case GUIStr_CreatureBestDmgDesc:
+            case GUIStr_CreatureWeightDesc:
+            case GUIStr_CreatureHealthDesc:
+            {
+                if (MyScreenWidth > 1280)
+                {
+                    h += 16;
+                    w += 8;
+                    tx_units_per_px = scale_value_by_horizontal_resolution(8);
+                }
+                else if (MyScreenWidth >= 640)
+                {
+                    w += 12;
+                    tx_units_per_px = scale_value_by_horizontal_resolution(16);
+                }
+                break;
+            }
+            case GUIStr_ExperienceDesc:
+            {
+                if (MyScreenWidth > 1280)
+                {
+                    h += 12;
+                }
+                break;
+            }
+        }
+    }
     LbTextDrawResized(w, h, tx_units_per_px, dtext);
     LbTextSetJustifyWindow(0, 0, LbGraphicsScreenWidth());
     LbTextSetClipWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
