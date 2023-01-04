@@ -2555,7 +2555,7 @@ static void player_zoom_to_process(struct ScriptContext *context)
 
     find_location_pos(target, context->player_idx, &pos, __func__);
     set_player_zoom_to_position(get_player(context->player_idx),&pos);
-=======
+}
 static void set_creature_instance_check(const struct ScriptLine *scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
