@@ -96,8 +96,8 @@ pkg/data/gui1-64.dat \
 pkg/data/gui1-32.dat \
 pkg/data/pointer-64.dat \
 pkg/data/pointer-32.dat \
-pkg/data/points-64.dat \
-pkg/data/points-32.dat \
+pkg/data/pointsm-64.dat \
+pkg/data/pointsm-32.dat \
 pkg/data/font1-64.dat \
 pkg/data/font1-32.dat \
 pkg/data/font2-32.dat \
@@ -271,8 +271,8 @@ pkg/data/gui1-64.dat: gfx/gui1-64/filelist_gui1.txt pkg/data/palette.dat $(PNGTO
 pkg/data/gui1-256.dat: gfx/gui1-256/filelist_gui1.txt pkg/data/palette.dat $(PNGTORAW)
 pkg/data/pointer-64.dat: gfx/pointer-64/filelist_pointer.txt pkg/data/palette.dat $(PNGTORAW)
 pkg/data/pointer-32.dat: gfx/pointer-64/filelist_lpointer.txt pkg/data/palette.dat $(PNGTORAW)
-pkg/data/points-64.dat: gfx/pointer-64/filelist_points.txt pkg/data/palette.dat $(PNGTORAW)
-pkg/data/points-32.dat: gfx/pointer-64/filelist_lpoints.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/pointsm-64.dat: gfx/pointer-64/filelist_points.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/pointsm-32.dat: gfx/pointer-64/filelist_lpoints.txt pkg/data/palette.dat $(PNGTORAW)
 pkg/data/font1-64.dat: gfx/font_simp-64/filelist_font1.txt pkg/data/palette.dat $(PNGTORAW)
 pkg/data/font1-32.dat: gfx/font_simp-32/filelist_font1.txt pkg/data/palette.dat $(PNGTORAW)
 pkg/data/font2-32.dat: gfx/font2-32/filelist_font2.txt pkg/data/palette.dat $(PNGTORAW)
