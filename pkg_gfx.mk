@@ -128,7 +128,7 @@ GUIDATTABS = $(LANDVIEWDATTABS) $(TOTRUREDATTABS) $(ENGINEDATTABS)
 
 pkg-gfx: pkg-landviews pkg-menugfx pkg-enginegfx
 
-pkg-landviews: pkg-before $(LANDVIEWRAWS) $(LANDVIEWDATTABS)
+pkg-landviews: $(LANDVIEWRAWS) $(LANDVIEWDATTABS)
 
 pkg-menugfx: $(TOTRUREGFX) $(FRONTENDGFX)
 
