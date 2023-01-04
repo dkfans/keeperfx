@@ -130,9 +130,9 @@ pkg-gfx: pkg-landviews pkg-menugfx pkg-enginegfx
 
 pkg-landviews: pkg-before $(LANDVIEWRAWS) $(LANDVIEWDATTABS)
 
-pkg-menugfx: pkg-before $(TOTRUREGFX) $(FRONTENDGFX)
+pkg-menugfx: $(TOTRUREGFX) $(FRONTENDGFX)
 
-pkg-enginegfx: pkg-before $(ENGINEGFX)
+pkg-enginegfx: $(ENGINEGFX)
 
 # Creation of land view image files for campaigns
 define define_campaign_landview_rule
