@@ -6080,7 +6080,7 @@ void display_controlled_pick_up_thing_name(struct Thing *picktng, unsigned long 
         {
             if (gameadd.box_tooltip[picktng->custom_box.box_kind][0] == 0)
             {
-                strcat(str, get_string(2005));
+                strcat(str, get_string(get_special_description_strindex(box_thing_to_special(picktng)))); 
                 strcpy(msg_buf, str);
                 sprintf(str, strtok(msg_buf, ":"));
             }
