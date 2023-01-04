@@ -1175,6 +1175,7 @@ void draw_centred_string64k(const char *text, short x, short y, short base_w, sh
     lbDisplay.DrawFlags |= Lb_TEXT_HALIGN_CENTER;
     int tx_units_per_px;
     int text_x;
+    int text_y = -6*dst_w/base_w;
     if ( (MyScreenHeight < 400) && (dbc_language > 0) ) 
     {
         tx_units_per_px = scale_ui_value(32);
@@ -1182,10 +1183,18 @@ void draw_centred_string64k(const char *text, short x, short y, short base_w, sh
     }
     else
     {
-        tx_units_per_px = (22 * units_per_pixel) / LbTextLineHeight();
+        if ( (dbc_language > 0) && (MyScreenWidth > 1280) )
+        {
+            tx_units_per_px = scale_value_by_horizontal_resolution(12 + (MyScreenWidth / 640));
+            text_y += 12;
+        }
+        else
+        {
+            tx_units_per_px = (22 * units_per_pixel) / LbTextLineHeight();
+        }
         text_x = 0;
     }
-    LbTextDrawResized(text_x, -6*dst_w/base_w, tx_units_per_px, text);
+    LbTextDrawResized(text_x, text_y, tx_units_per_px, text);
     LbTextSetJustifyWindow(0, 0, LbGraphicsScreenWidth());
     LbTextSetClipWindow(0, 0, LbGraphicsScreenWidth(), LbGraphicsScreenHeight());
     LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
