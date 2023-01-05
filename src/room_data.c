@@ -2544,9 +2544,9 @@ void init_room_sparks(struct Room *room)
         struct SlabMap* sibslb = get_slabmap_block(slb_x, slb_y - 1);
         if (sibslb->room_index != slb->room_index)
         {
-            room->field_43 = 1;
+            room->flames_around_idx = 1;
             room->flame_stl = 0;
-            room->field_41 = i;
+            room->flame_slb = i;
             break;
         }
         // Per room tile code ends
