@@ -374,7 +374,7 @@ TbBool set_slab_explored(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord
 }
 
 // only used by mine_out_block
-void set_slab_explored_flags(PlayerBitFlag flag, long slb_x, long slb_y)
+void set_slab_explored_flags(PlayerBitFlag flag, MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
     MapSubtlCoord stl_y = STL_PER_SLB * slb_y;
     MapSubtlCoord stl_x = STL_PER_SLB * slb_x;
