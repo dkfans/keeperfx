@@ -52,8 +52,6 @@ enum GUI_Menus {
   GMnu_FENET_SERVICE      = 20,
   GMnu_FENET_SESSION      = 21,
   GMnu_FENET_START        = 22,
-  GMnu_FENET_MODEM        = 23,
-  GMnu_FENET_SERIAL       = 24,
   GMnu_FESTATISTICS       = 25,
   GMnu_FEHIGH_SCORE_TABLE = 26,
   GMnu_DUNGEON_SPECIAL    = 27,

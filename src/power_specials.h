@@ -45,11 +45,6 @@ enum SpecialKinds {
     SpcKind_Unknown9,
 };
 
-struct SpecialDesc {
-    /** Speech message index, from TbSpeechMessages enum */
-    long speech_msg;
-};
-
 /******************************************************************************/
 extern long transfer_creature_scroll_offset;
 extern long resurrect_creature_scroll_offset;

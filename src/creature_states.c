@@ -2630,7 +2630,7 @@ short creature_pretend_chicken_setup_move(struct Thing *creatng)
 
         if (room_is_invalid(room) || !room_role_matches(room->kind,RoRoF_FoodStorage) || room->owner != creatng->owner )
         {
-            room = find_random_room_for_thing(creatng, creatng->owner, RoK_GARDEN, 0);
+            room = find_random_room_of_role_for_thing(creatng, creatng->owner, RoRoF_FoodStorage, 0);
         }
 
         if ( !room_is_invalid(room) )
@@ -3749,7 +3749,7 @@ short person_sulk_at_lair(struct Thing *creatng)
     if (!room_still_valid_as_type_for_thing(room, RoRoF_LairStorage, creatng))
     {
         WARNLOG("Room %s index %d is not valid %s for %s owned by player %d to work in",
-            room_code_name(room->kind),(int)room->index,room_code_name(RoK_LAIR),
+            room_code_name(room->kind),(int)room->index,room_role_code_name(RoRoF_LairStorage),
             thing_model_name(creatng),(int)creatng->owner);
         set_start_state(creatng);
         return 0;
@@ -4822,7 +4822,7 @@ long process_creature_needs_to_eat(struct Thing *creatng, const struct CreatureS
     {
         cctrl->garden_eat_check_turn = game.play_gameturn;
         // No food in nearest room, try to find another room
-        nroom = find_random_room_for_thing(creatng, creatng->owner, RoK_GARDEN, 0);
+        nroom = find_random_room_of_role_for_thing(creatng, creatng->owner, RoRoF_FoodStorage, 0);
         if (room_is_invalid(nroom))
         {
             // There seem to be a correct room, but we can't reach it

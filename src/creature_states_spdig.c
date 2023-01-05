@@ -1453,7 +1453,7 @@ short creature_pick_up_unconscious_body(struct Thing *thing)
     // Check if the player has means to do such kind of action
      if (!player_has_room_of_role(thing->owner, RoRoF_Prison) || !player_creature_tends_to(thing->owner, CrTend_Imprison))
      {
-         SYNCDBG(19,"Player %d has no %s or has imprison tendency off",(int)thing->owner,room_code_name(RoK_PRISON));
+         SYNCDBG(19,"Player %d has no %s or has imprison tendency off",(int)thing->owner,room_role_code_name(RoRoF_Prison));
          set_start_state(thing);
          return 0;
      }
@@ -1476,7 +1476,7 @@ short creature_pick_up_unconscious_body(struct Thing *thing)
     }
     if (!find_random_valid_position_for_thing_in_room(thing, dstroom, &pos))
     {
-        WARNLOG("Player %d can't pick %s - no position within %s to store it",(int)thing->owner,thing_model_name(picktng),room_code_name(RoK_PRISON));
+        WARNLOG("Player %d can't pick %s - no position within %s to store it",(int)thing->owner,thing_model_name(picktng),room_role_code_name(RoRoF_Prison));
         set_start_state(thing);
         return 0;
     }
@@ -1516,7 +1516,7 @@ short creature_picks_up_corpse(struct Thing *creatng)
     }
     if (!find_random_valid_position_for_thing_in_room_avoiding_object(creatng, dstroom, &pos) )
     {
-        WARNLOG("Player %d can't pick %s - no position within %s to store it",(int)creatng->owner,thing_model_name(picktng),room_code_name(RoK_GRAVEYARD));
+        WARNLOG("Player %d can't pick %s - no position within %s to store it",(int)creatng->owner,thing_model_name(picktng),room_role_code_name(RoRoF_DeadStorage));
         set_start_state(creatng);
         return 0;
     }
@@ -1593,7 +1593,7 @@ short creature_picks_up_crate_for_workshop(struct Thing *creatng)
     struct Room* dstroom = find_nearest_room_of_role_for_thing_with_spare_item_capacity(creatng, creatng->owner, RoRoF_CratesStorage, NavRtF_Default);
     if ( room_is_invalid(dstroom) || !find_random_valid_position_for_thing_in_room_avoiding_object(creatng, dstroom, &pos) )
     {
-        WARNLOG("Player %d can't pick %s - doesn't have proper %s to store it",(int)creatng->owner,thing_model_name(cratetng),room_code_name(RoK_WORKSHOP));
+        WARNLOG("Player %d can't pick %s - doesn't have proper %s to store it",(int)creatng->owner,thing_model_name(cratetng),room_role_code_name(RoRoF_CratesStorage));
         set_start_state(creatng);
         return 0;
     }
@@ -1687,7 +1687,7 @@ short creature_drops_corpse_in_graveyard(struct Thing *creatng)
     struct Room* room = get_room_thing_is_on(creatng);
     if ( room_is_invalid(room) )
     {
-        WARNLOG("Tried to drop %s index %d in %s, but room no longer exists",thing_model_name(deadtng),(int)deadtng->index,room_code_name(RoK_GRAVEYARD));
+        WARNLOG("Tried to drop %s index %d in %s, but room no longer exists",thing_model_name(deadtng),(int)deadtng->index,room_role_code_name(RoRoF_DeadStorage));
         if (creature_drop_thing_to_another_room(creatng, room, RoRoF_DeadStorage)) {
             creatng->continue_state = CrSt_CreatureDropsCorpseInGraveyard;
             return 1;
@@ -1699,7 +1699,7 @@ short creature_drops_corpse_in_graveyard(struct Thing *creatng)
     if (!room_role_matches(room->kind, RoRoF_DeadStorage) || (room->owner != creatng->owner)
         || (room->used_capacity >= room->total_capacity) )
     {
-        WARNLOG("Tried to drop %s index %d in %s, but room won't accept it",thing_model_name(deadtng),(int)deadtng->index,room_code_name(RoK_GRAVEYARD));
+        WARNLOG("Tried to drop %s index %d in %s, but room won't accept it",thing_model_name(deadtng),(int)deadtng->index,room_role_code_name(RoRoF_DeadStorage));
         if (creature_drop_thing_to_another_room(creatng, room, RoRoF_DeadStorage)) {
             creatng->continue_state = CrSt_CreatureDropsCorpseInGraveyard;
             return 1;
@@ -1738,7 +1738,7 @@ short creature_drops_crate_in_workshop(struct Thing *thing)
     struct Room* room = get_room_thing_is_on(thing);
     if ( room_is_invalid(room) )
     {
-        SYNCDBG(7,"Tried to drop %s index %d in %s, but room no longer exists",thing_model_name(cratetng),(int)cratetng->index,room_code_name(RoK_WORKSHOP));
+        SYNCDBG(7,"Tried to drop %s index %d in %s, but room no longer exists",thing_model_name(cratetng),(int)cratetng->index,room_role_code_name(RoRoF_CratesStorage));
         if (creature_drop_thing_to_another_room(thing, room, RoRoF_CratesStorage)) {
             thing->continue_state = CrSt_CreatureDropsCrateInWorkshop;
             return 1;
@@ -1749,7 +1749,7 @@ short creature_drops_crate_in_workshop(struct Thing *thing)
     if (!room_role_matches(room->kind, RoRoF_CratesStorage) || (room->owner != thing->owner)
         || (room->used_capacity >= room->total_capacity))
     {
-        SYNCDBG(7,"Tried to drop %s index %d in %s, but room won't accept it",thing_model_name(cratetng),(int)cratetng->index,room_code_name(RoK_WORKSHOP));
+        SYNCDBG(7,"Tried to drop %s index %d in %s, but room won't accept it",thing_model_name(cratetng),(int)cratetng->index,room_role_code_name(RoRoF_CratesStorage));
         if (creature_drop_thing_to_another_room(thing, room, RoRoF_CratesStorage)) {
             thing->continue_state = CrSt_CreatureDropsCrateInWorkshop;
             return 1;
@@ -1763,7 +1763,7 @@ short creature_drops_crate_in_workshop(struct Thing *thing)
     {
         if (!add_workshop_object_to_workshop(room, cratetng))
         {
-            WARNLOG("Adding %s index %d to %s room capacity failed",thing_model_name(cratetng),(int)cratetng->index,room_code_name(RoK_WORKSHOP));
+            WARNLOG("Adding %s index %d to %s room capacity failed",thing_model_name(cratetng),(int)cratetng->index,room_role_code_name(RoRoF_CratesStorage));
             set_start_state(thing);
             return 1;
         }
@@ -1803,7 +1803,7 @@ short creature_drops_spell_object_in_library(struct Thing *creatng)
     struct Room* room = get_room_thing_is_on(creatng);
     if ( room_is_invalid(room) )
     {
-        WARNLOG("Tried to drop %s index %d in %s, but room no longer exists",thing_model_name(spelltng),(int)spelltng->index,room_code_name(RoK_LIBRARY));
+        WARNLOG("Tried to drop %s index %d in %s, but room no longer exists",thing_model_name(spelltng),(int)spelltng->index,room_role_code_name(RoRoF_PowersStorage));
         if (creature_drop_thing_to_another_room(creatng, room, RoRoF_PowersStorage)) {
             creatng->continue_state = CrSt_CreatureDropsSpellObjectInLibrary;
             return 1;
@@ -1814,7 +1814,7 @@ short creature_drops_spell_object_in_library(struct Thing *creatng)
     if (!room_role_matches(room->kind, RoRoF_PowersStorage) || (room->owner != creatng->owner)
         || (room->used_capacity >= room->total_capacity))
     {
-        WARNLOG("Tried to drop %s index %d in %s room, but room won't accept it",thing_model_name(spelltng),(int)spelltng->index,room_code_name(RoK_LIBRARY));
+        WARNLOG("Tried to drop %s index %d in %s room, but room won't accept it",thing_model_name(spelltng),(int)spelltng->index,room_role_code_name(RoRoF_PowersStorage));
         if (creature_drop_thing_to_another_room(creatng, room, RoRoF_PowersStorage)) {
             creatng->continue_state = CrSt_CreatureDropsSpellObjectInLibrary;
             return 1;
@@ -1828,7 +1828,7 @@ short creature_drops_spell_object_in_library(struct Thing *creatng)
     if (thing_is_spellbook(spelltng))
     {
         if (!add_item_to_room_capacity(room, true)) {
-            WARNLOG("Adding %s index %d to %s room capacity failed",thing_model_name(spelltng),(int)spelltng->index,room_code_name(RoK_LIBRARY));
+            WARNLOG("Adding %s index %d to %s room capacity failed",thing_model_name(spelltng),(int)spelltng->index,room_role_code_name(RoRoF_PowersStorage));
             set_start_state(creatng);
             return 1;
         }

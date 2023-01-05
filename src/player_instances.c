@@ -1163,7 +1163,7 @@ struct Room *player_build_room_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Play
     struct Room* room = place_room(plyr_idx, rkind, stl_x, stl_y);
     if (!room_is_invalid(room))
     {
-      if (rkind == RoK_BRIDGE)
+      if (room_role_matches(rkind,RoRoF_PassWater|RoRoF_PassLava))
         dungeon->lvstats.bridges_built++;
       if (is_my_player(player))
       {

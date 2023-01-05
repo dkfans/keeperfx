@@ -23,6 +23,7 @@
 #include "bflib_basics.h"
 #include "globals.h"
 #include "bflib_sprite.h"
+#include "net_game.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -86,7 +87,7 @@ extern long map_sound_fade;
 extern unsigned char *map_screen;
 extern long fe_net_level_selected;
 extern long net_map_limp_time;
-extern struct ScreenPacket net_screen_packet[4];
+extern struct ScreenPacket net_screen_packet[NET_PLAYERS_COUNT];
 extern long players_currently_in_session;
 
 #pragma pack()
