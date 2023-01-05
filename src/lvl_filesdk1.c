@@ -744,9 +744,9 @@ TbBool load_map_data_file(LevelNumber lv_num)
             mapblk = get_map_block_at(x,y);
             unsigned short* wptr = &game.lish.subtile_lightness[get_subtile_number(x, y)];
             *wptr = 32;
-            mapblk->data &= 0xFFC007FFu;
-            mapblk->data &= ~0x0F000000;
-            mapblk->data &= ~0xF0000000;
+            mapblk->mapwho = 0;
+            mapblk->data &= ~0x0F000000; //filled subtiles
+            mapblk->revealed = 0;
         }
     }
     return true;

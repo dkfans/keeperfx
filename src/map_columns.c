@@ -43,14 +43,14 @@ struct Column *get_column_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
   mapblk = get_map_block_at(stl_x, stl_y);
   if (map_block_invalid(mapblk))
     return INVALID_COLUMN;
-  return game.columns.lookup[mapblk->data & 0x7FF];
+  return game.columns.lookup[get_mapblk_column_index(mapblk)];
 }
 
 struct Column *get_map_column(const struct Map *mapblk)
 {
   if (map_block_invalid(mapblk))
     return INVALID_COLUMN;
-  return game.columns.lookup[mapblk->data & 0x7FF];
+  return game.columns.lookup[get_mapblk_column_index(mapblk)];
 }
 
 TbBool column_invalid(const struct Column *colmn)
