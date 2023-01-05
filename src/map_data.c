@@ -675,10 +675,6 @@ void reveal_map_area(PlayerNumber plyr_idx,MapSubtlCoord start_x,MapSubtlCoord e
 
 void conceal_map_area(PlayerNumber plyr_idx,MapSubtlCoord start_x,MapSubtlCoord end_x,MapSubtlCoord start_y,MapSubtlCoord end_y, TbBool all)
 {
-    unsigned long nflag = (1 << plyr_idx);
-    nflag <<= 28;
-    nflag = ~nflag;
-
     start_x = stl_slab_starting_subtile(start_x);
     start_y = stl_slab_starting_subtile(start_y);
     end_x = stl_slab_ending_subtile(end_x)+1;
@@ -703,7 +699,7 @@ void conceal_map_area(PlayerNumber plyr_idx,MapSubtlCoord start_x,MapSubtlCoord 
                         break;
                 }
             }
-            mapblk->data &= nflag;
+            mapblk->revealed &= ~(1 << plyr_idx);
         }
     }
     pannel_map_update(start_x,start_y,end_x,end_y);
