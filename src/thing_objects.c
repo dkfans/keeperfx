@@ -491,21 +491,21 @@ struct Thing *create_object(const struct Coord3d *pos, unsigned short model, uns
     }
     switch (thing->model)
     {
-      case 5:
+      case ObjMdl_SoulCountainer:
         thing->heart.beat_direction = 1;
         light_set_light_minimum_size_to_cache(thing->light_id, 0, 56);
         break;
-      case 33: // Why it is hardcoded? And what is TempleS
+      case ObjMdl_TempleSpangle: // Why it is hardcoded? And what is TempleS
         thing->rendering_flags &= TRF_Transpar_Flags;
         thing->rendering_flags |= TRF_Transpar_4;
         break;
-      case 3:
-      case 6:
-      case 43:
-      case 136:
+      case ObjMdl_GoldChest:
+      case ObjMdl_GoldPot:
+      case ObjMdl_Goldl:
+      case ObjMdl_GoldBag:
         thing->valuable.gold_stored = gold_object_typical_value(thing->model);
         break;
-      case 49:
+      case ObjMdl_HeroGate:
         i = get_free_hero_gate_number();
         if (i > 0)
         {
@@ -1162,7 +1162,7 @@ long food_grows(struct Thing *objtng)
       case 896:
       case 900:
         delete_thing_structure(objtng, 0);
-        nobjtng = create_object(&pos, 10, tngowner, room_idx);
+        nobjtng = create_object(&pos, ObjMdl_ChickenMature, tngowner, room_idx);
         if (!thing_is_invalid(nobjtng)) {
             nobjtng->move_angle_xy = CREATURE_RANDOM(objtng, 0x800);
             nobjtng->food.byte_15 = CREATURE_RANDOM(objtng, 0x6FF);
@@ -1433,7 +1433,7 @@ void update_dungeon_heart_beat(struct Thing *heartng)
     {
         long i = (char)heartng->heart.beat_direction;
         heartng->anim_speed = 0;
-        struct ObjectConfig* objconf = get_object_model_stats2(5);
+        struct ObjectConfig* objconf = get_object_model_stats2(ObjMdl_SoulCountainer);
         long long k = 384 * (long)(objconf->health - heartng->health) / objconf->health;
         k = base_heart_beat_rate / (k + 128);
         light_set_light_intensity(heartng->light_id, light_get_light_intensity(heartng->light_id) + (i*36/k));
@@ -1476,7 +1476,7 @@ TngUpdateRet object_update_dungeon_heart(struct Thing *heartng)
     SYNCDBG(18,"Starting");
     if ((heartng->health > 0) && (game.dungeon_heart_heal_time != 0))
     {
-        struct ObjectConfig* objconf = get_object_model_stats2(5);
+        struct ObjectConfig* objconf = get_object_model_stats2(ObjMdl_SoulCountainer);
         if ((game.play_gameturn % game.dungeon_heart_heal_time) == 0)
         {
             heartng->health += game.dungeon_heart_heal_health;
@@ -2044,10 +2044,10 @@ struct Thing *create_gold_pot_at(long pos_x, long pos_y, PlayerNumber plyr_idx)
     pos.x.val = pos_x;
     pos.y.val = pos_y;
     pos.z.val = subtile_coord(3,0);
-    struct Thing* gldtng = create_object(&pos, 6, plyr_idx, -1);
+    struct Thing* gldtng = create_object(&pos, ObjMdl_GoldPot, plyr_idx, -1);
     if (thing_is_invalid(gldtng))
         return INVALID_THING;
-    gldtng->valuable.gold_stored = gold_object_typical_value(6);
+    gldtng->valuable.gold_stored = gold_object_typical_value(ObjMdl_GoldPot);
     // Update size of the gold object
     add_gold_to_pile(gldtng, 0);
     return gldtng;
@@ -2294,15 +2294,15 @@ GoldAmount gold_object_typical_value(ThingModel tngmodel)
 {
     switch (tngmodel)
     {
-      case 3:
+      case ObjMdl_GoldChest:
           return game.chest_gold_hold;
-      case 6:
+      case ObjMdl_GoldPot:
           return game.pot_of_gold_holds;
-      case 43:
+      case ObjMdl_Goldl:
           return game.gold_pile_value;
-      case 136:
+      case ObjMdl_GoldBag:
           return gameadd.bag_gold_hold;
-      case 128:
+      case ObjMdl_SpinningCoin:
           return game.gold_pile_maximum;
       default:
         break;
@@ -2343,7 +2343,7 @@ TbBool add_gold_to_pile(struct Thing *thing, long value)
 
 struct Thing *create_gold_pile(struct Coord3d *pos, PlayerNumber plyr_idx, long value)
 {
-    struct Thing* gldtng = create_object(pos, 43, plyr_idx, -1);
+    struct Thing* gldtng = create_object(pos, ObjMdl_Goldl, plyr_idx, -1);
     if (thing_is_invalid(gldtng)) {
         return INVALID_THING;
     }

@@ -7943,7 +7943,7 @@ static void process_keeper_speedup_sprite(struct BucketKindJontySprite *jspr, lo
     player = get_my_player();
     switch (thing->model)
     {
-    case 28:
+    case ObjMdl_Candlestick:
         graph_id2 = 112;
         if (player->view_type == PVT_DungeonTop)
         {
@@ -7956,7 +7956,7 @@ static void process_keeper_speedup_sprite(struct BucketKindJontySprite *jspr, lo
         }
         transp2 = scale / 2;
         break;
-    case 2:
+    case ObjMdl_Torch:
         graph_id2 = 113;
         if (player->view_type == PVT_DungeonTop)
         {

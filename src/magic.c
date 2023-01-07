@@ -1391,7 +1391,7 @@ TbResult magic_use_power_lightning(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     range = (i << 8) / 2;
     if (power_sight_explored(stl_x, stl_y, plyr_idx))
         max_damage /= 4;
-    obtng = create_object(&pos, 124, plyr_idx, -1);
+    obtng = create_object(&pos, ObjMdl_PowerLightning, plyr_idx, -1);
     if (!thing_is_invalid(obtng))
     {
         obtng->lightning.spell_level = splevel;
@@ -1465,7 +1465,7 @@ TbResult magic_use_power_sight(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSu
     pos.x.val = subtile_coord_center(stl_x);
     pos.y.val = subtile_coord_center(stl_y);
     pos.z.val = subtile_coord_center(5);
-    thing = create_object(&pos, 123, plyr_idx, -1);
+    thing = create_object(&pos, ObjMdl_PowerSight, plyr_idx, -1);
     if (!thing_is_invalid(thing))
     {
         struct PowerConfigStats *powerst;
@@ -1661,7 +1661,7 @@ TbResult magic_use_power_call_to_arms(PlayerNumber plyr_idx, MapSubtlCoord stl_x
     objtng = thing_get(player->field_43C);
     if ((dungeon->cta_start_turn == 0) || !thing_is_object(objtng))
     {
-          objtng = create_object(&pos, 24, plyr_idx, -1);
+          objtng = create_object(&pos, ObjMdl_CTAEnsign, plyr_idx, -1);
           if (thing_is_invalid(objtng)) {
               ERRORLOG("Cannot create call to arms");
               return 0;
