@@ -1108,7 +1108,7 @@ msgid ""
 "All the heroes are dead, which is as it should be. This land and all its "
 "spoils are yours. May I suggest that you waste everything?"
 msgstr ""
-"所有的英雄都得到了他们应有的下场：死亡。这片土地和所有的战利品都属于你。"
+"所有的英雄都得到了他们应有的下场: 死亡。这片土地和所有的战利品都属于你。"
 "把它们全都糟蹋掉怎么样？"
 
 #. Level Hearth objective
@@ -1928,7 +1928,7 @@ msgid ""
 "Name and Health: Each creature has its own name. Behind is the creature "
 "health bar. The higher the red bar, the better health the creature is in."
 msgstr ""
-"名字和生命值：每一个怪物都有自己的名字。在名字后方的是怪物的生命条。"
+"名字和生命值: 每一个怪物都有自己的名字。在名字后方的是怪物的生命条。"
 "红色部分越长，表明怪物的生命值越高。"
 
 #: guitext:223
@@ -5798,7 +5798,7 @@ msgctxt "In-game message"
 msgid ""
 "Choices, choices Keeper. Choose your path wisely. Some routes are more "
 "perilous than others ..."
-msgstr "选择！选择！守护者：明智地选择你的道路。有些路线比其他的更加致命……"
+msgstr "选择！选择！守护者: 明智地选择你的道路。有些路线比其他的更加致命……"
 
 #. DD Level Caddis Fell objective after good destroyed
 #: guitext:914
@@ -6050,63 +6050,63 @@ msgstr "速度: 生物在移动和执行地下城任务时的速度。"
 msgctxt "In-game interface description"
 msgid "Loyalty: How resistant the creature is against scavenging by the enemy."
 msgstr ""
-"忠诚：怪物对敌方的招募有多少抵抗力。"
+"忠诚: 怪物对敌方的招募有多少抵抗力。"
 
 #: guitext:952
 msgctxt "In-game interface description"
 msgid "Research Skill: How fast the creature works in Library. The higher the Skill level, "
 "the better the creature's performance."
-msgstr "研究能力：怪物在图书馆研究的效率。这个数值越高，怪物的表现就越好。"
+msgstr "研究能力: 怪物在图书馆研究的效率。这个数值越高，怪物的表现就越好。"
 
 #: guitext:953
 msgctxt "In-game interface description"
 msgid ""
 "Manufacture Skill: How fast the creature works in Workshop. The higher the "
 "Skill level, the better the creature's performance."
-msgstr "制造能力：怪物在工厂做工的效率。这个能力值越高，怪物的表现越好。"
+msgstr "制造能力: 怪物在工厂做工的效率。这个能力值越高，怪物的表现越好。"
 
 #: guitext:954
 msgctxt "In-game interface description"
 msgid ""
 "Training Skill: How fast the creature works on training. The higher the "
 "Skill level, the better the creature's performance."
-msgstr "训练能力：怪物在训练室训练的效率。这个能力值越高，怪物的表现越好。"
+msgstr "训练能力: 怪物在训练室训练的效率。这个能力值越高，怪物的表现越好。"
 
 #: guitext:955
 msgctxt "In-game interface description"
 msgid ""
 "Scavenge Skill: How fast the creature works on scavenging. The higher the "
 "Skill level, the better the creature's performance."
-msgstr "招募能力：怪物在招募中心招募的效率。这个能力值越高，怪物的表现越好。"
+msgstr "招募能力: 怪物在招募中心招募的效率。这个能力值越高，怪物的表现越好。"
 
 #: guitext:956
 msgctxt "In-game interface description"
 msgid "Training Cost: Gold used for training the creature."
-msgstr "训练费用：用于训练这个怪物花费的黄金数量。"
+msgstr "训练费用: 用于训练这个怪物花费的黄金数量。"
 
 #: guitext:957
 msgctxt "In-game interface description"
 msgid "Scavenge Cost: Gold used for scavenging by the creature."
-msgstr "招募费用：用于招募这个怪物花费的黄金数量。"
+msgstr "招募费用: 用于招募这个怪物花费的黄金数量。"
 
 #: guitext:958
 msgctxt "In-game interface description"
 msgid ""
 "Best Damage: How much harm can be done by the strongest attack the creature "
 "has."
-msgstr "最佳伤害：这个怪物使用最强的攻击所能造成的伤害量。"
+msgstr "最佳伤害: 这个怪物使用最强的攻击所能造成的伤害量。"
 
 #: guitext:959
 msgctxt "In-game interface description"
 msgid ""
 "Weight: Mass of the creature. Some people say overweight can lead to heart "
 "attack."
-msgstr "重量：这个怪物的体重。有些人说超重会导致心脏病。"
+msgstr "重量: 这个怪物的体重。有些人说超重会导致心脏病。"
 
 #: guitext:960
 msgctxt "In-game interface description"
 msgid "Score: Estimate of an overall creature value. Added to player score when finishing the level."
-msgstr "分数：对怪物总体价值的评估。在关卡胜利后会计入玩家的得分。"
+msgstr "分数: 对怪物总体价值的评估。在关卡胜利后会计入玩家的得分。"
 
 #: guitext:961
 msgctxt "Keeper spell name"
@@ -6123,7 +6123,7 @@ msgctxt "Keeper spell description"
 msgid "Hand Of Evil: Ability to pick up your creatures and hold them in your hand. "
 "Just don't hold them forever or they may get irritated."
 msgstr ""
-"邪恶之手：可以抓起生物并拿在手中。但是不要一直举着它们，"
+"邪恶之手: 可以抓起生物并拿在手中。但是不要一直举着它们，"
 "否则它们会生气的。"
 
 #: guitext:964
@@ -6138,13 +6138,13 @@ msgstr ""
 msgctxt "In-game interface description"
 msgid ""
 "Health: How much health points the creature has left to lose."
-msgstr "生命值：这个怪物还剩下多少生命点数。"
+msgstr "生命值: 这个怪物还剩下多少生命点数。"
 
 #: guitext:966
 msgctxt "In-game interface description"
 msgid ""
 "Health: The maximum amount of health points for this creature."
-msgstr "最大生命值：这个怪物的生命值的最大值。"
+msgstr "最大生命值: 这个怪物的生命值的最大值。"
 
 #: guitext:967
 msgctxt "Menu interface item"
@@ -6319,7 +6319,7 @@ msgstr "快照相机"
 #: guitext:1005
 msgctxt "Dungeon special decription"
 msgid "Mysterious Box: There's no telling what this will do."
-msgstr "神秘物品：没有说明它是干什么用的。"
+msgstr "神秘物品: 没有说明它是干什么用的。"
 
 #: guitext:1006
 msgctxt "Network game message"
@@ -6329,7 +6329,7 @@ msgstr "已加入的玩家的主机中的地图版本不相同。"
 #: guitext:1007
 msgctxt "In-game interface description"
 msgid "Display Resolution: Switch to the next configured display resolution. LMB toggle. RMB display current resolution."
-msgstr "显示分辨率：切换至下一个设置的游戏分辨率。左键切换，右键显示当前分辨率。"
+msgstr "显示分辨率: 切换至下一个设置的游戏分辨率。左键切换，右键显示当前分辨率。"
 
 #: guitext:1008
 msgctxt "In-game interface item"
@@ -6461,4 +6461,3 @@ msgstr "双子守护者战役"
 msgctxt "Menu interface item""
 msgid "Undead Keeper campaign"
 msgstr "亡灵守护者战役"
-

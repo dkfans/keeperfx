@@ -128,71 +128,6 @@ struct GuiButtonInit frontend_net_start_buttons[] = {
   {-1,  0, 0, 0, NULL,               NULL,   NULL,                    0,   0,   0,   0,   0,   0,  0, NULL,                              0,           0,  0,   {0},    0, NULL },
 };
 
-struct GuiButtonInit frontend_net_modem_buttons[] = {
-  { 0,  0, 0, 0, NULL,               NULL,   NULL,                    0, 999,  30, 999,  30, 371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty, 0,  {53},    0, NULL },
-  { 0,  0, 0, 0, NULL,               NULL,   NULL,                    0,  41, 102,  41, 102, 212, 26, frontnet_draw_small_scroll_box_tab,0, GUIStr_Empty, 0,  {28},    0, NULL },
-  { 0,  0, 0, 0, NULL,               NULL,   NULL,                    0,  41, 128,  41, 128, 268, 70, frontnet_draw_small_scroll_box,    0, GUIStr_Empty, 0,  {24},    0, NULL },
-  { 1,  0, 0, 0, frontnet_comport_up,NULL,   frontend_over_button,    0, 275, 128, 275, 128,  26, 14, frontnet_draw_slider_button,       0, GUIStr_Empty, 0,  {17},    0, frontnet_comport_up_maintain },
-  { 1,  0, 0, 0, frontnet_comport_down,NULL, frontend_over_button,    0, 275, 186, 275, 186,  26, 14, frontnet_draw_slider_button,       0, GUIStr_Empty, 0,  {18},    0, frontnet_comport_down_maintain },
-  { 1,  0, 0, 0, NULL,               NULL,   NULL,                    0, 279, 142, 279, 142,  20, 44, frontnet_draw_comport_scroll_tab,  0, GUIStr_Empty, 0,  {40},    0, NULL },
-  { 0,  0, 0, 0, NULL,               NULL,   NULL,                    0,  61, 103,  61, 103, 172, 25, frontend_draw_text,                0, GUIStr_Empty, 0,  {55},    0, NULL },
-  { 0,  0, 0, 0, NULL,               NULL,   NULL,                    0,  41, 198,  41, 198, 268, 23, frontnet_draw_comport_selected,    0, GUIStr_Empty, 0,  {57},    0, NULL },
-  { 0,  0, 0, 0, frontnet_comport_select,NULL,frontend_over_button,   0,  54, 136,  54, 136, 190, 26, frontnet_draw_comport_button,      0, GUIStr_Empty, 0,  {45},    0, frontnet_comport_select_maintain },
-  { 0,  0, 0, 0, frontnet_comport_select,NULL,frontend_over_button,   0,  54, 164,  54, 164, 190, 26, frontnet_draw_comport_button,      0, GUIStr_Empty, 0,  {46},    0, frontnet_comport_select_maintain },
-  { 0,  0, 0, 0, NULL,               NULL,   NULL,                    0, 331, 102, 331, 102, 212, 26, frontnet_draw_small_scroll_box_tab,0, GUIStr_Empty, 0,  {28},    0, NULL },
-  { 0,  0, 0, 0, NULL,               NULL,   NULL,                    0, 331, 128, 331, 128, 268, 70, frontnet_draw_small_scroll_box,    0, GUIStr_Empty, 0,  {24},    0, NULL },
-  { 1,  0, 0, 0, frontnet_speed_up,  NULL,   frontend_over_button,    0, 565, 128, 565, 128,  26, 14, frontnet_draw_slider_button,       0, GUIStr_Empty, 0,  {36},    0, frontnet_speed_up_maintain },
-  { 1,  0, 0, 0, frontnet_speed_down,NULL,   frontend_over_button,    0, 565, 186, 565, 186,  26, 14, frontnet_draw_slider_button,       0, GUIStr_Empty, 0,  {37},    0, frontnet_speed_down_maintain },
-  { 1,  0, 0, 0, NULL,               NULL,   NULL,                    0, 569, 142, 569, 142,  20, 44, frontnet_draw_speed_scroll_tab,    0, GUIStr_Empty, 0,  {40},    0, NULL },
-  { 0,  0, 0, 0, NULL,               NULL,   NULL,                    0, 351, 103, 351, 103, 172, 25, frontend_draw_text,                0, GUIStr_Empty, 0,  {56},    0, NULL },
-  { 0,  0, 0, 0, NULL,               NULL,   NULL,                    0, 331, 198, 331, 198, 450, 28, frontnet_draw_speed_selected,      0, GUIStr_Empty, 0,  {58},    0, NULL },
-  { 0,  0, 0, 0, frontnet_speed_select,NULL, frontend_over_button,    0, 344, 136, 344, 136, 190, 14, frontnet_draw_speed_button,        0, GUIStr_Empty, 0,  {47},    0, frontnet_speed_select_maintain },
-  { 0,  0, 0, 0, frontnet_speed_select,NULL, frontend_over_button,    0, 344, 164, 344, 164, 190, 14, frontnet_draw_speed_button,        0, GUIStr_Empty, 0,  {48},    0, frontnet_speed_select_maintain },
-  { 0,  0, 0, 0, NULL,               NULL,   NULL,                    0,  82, 254,  82, 254, 165, 28, frontnet_draw_text_cont_bar,       0, GUIStr_Empty, 0,  {27},    0, NULL },
-  { 0,  0, 0, 0, NULL,               NULL,   NULL,                    0,  95, 255,  91, 255, 165, 25, frontend_draw_text,                0, GUIStr_Empty, 0,  {71},    0, NULL },
-  { 5, -3,-1, 0, frontnet_net_set_phone_number,NULL,frontend_over_button,71,280,255,95, 255, 432, 25, frontend_draw_enter_text,          0, GUIStr_Empty, 0, {(long)tmp_net_phone_number}, 20, NULL },
-  { 0,  0, 0, 0, NULL,               NULL,   NULL,                    0,  82, 282,  82, 282, 165, 28, frontnet_draw_text_cont_bar,       0, GUIStr_Empty, 0,  {27},    0, NULL },
-  { 0,  0, 0, 0, NULL,               NULL,   NULL,                    0,  95, 283,  91, 283, 165, 25, frontend_draw_text,                0, GUIStr_Empty, 0,  {66},    0, NULL },
-  { 5, -1,-1, 0, frontnet_net_set_modem_init,NULL,frontend_over_button,66,280,283,  95, 283, 432, 25, frontend_draw_enter_text,          0, GUIStr_Empty, 0, {(long)tmp_net_modem_init}, -20, NULL },
-  { 0,  0, 0, 0, NULL,               NULL,   NULL,                    0,  82, 310,  82, 310, 165, 28, frontnet_draw_text_cont_bar,       0, GUIStr_Empty, 0,  {27},    0, NULL },
-  { 0,  0, 0, 0, NULL,               NULL,   NULL,                    0,  95, 311,  91, 311, 165, 25, frontend_draw_text,                0, GUIStr_Empty, 0,  {67},    0, NULL },
-  { 5, -1,-1, 0, frontnet_net_set_modem_hangup,NULL,frontend_over_button,67,280,311,95, 311, 432, 25, frontend_draw_enter_text,          0, GUIStr_Empty, 0, {(long)tmp_net_modem_hangup}, -20, NULL },
-  { 0,  0, 0, 0, NULL,               NULL,   NULL,                    0,  82, 338,  82, 338, 165, 28, frontnet_draw_text_cont_bar,       0, GUIStr_Empty, 0,  {27},    0, NULL },
-  { 0,  0, 0, 0, NULL,               NULL,   NULL,                    0,  95, 339,  91, 339, 165, 25, frontend_draw_text,                0, GUIStr_Empty, 0,  {68},    0, NULL },
-  { 5, -1,-1, 0, frontnet_net_set_modem_dial,NULL,frontend_over_button,68,280,339,  95, 339, 432, 25, frontend_draw_enter_text,          0, GUIStr_Empty, 0, {(long)tmp_net_modem_dial}, -20, NULL },
-  { 0,  0, 0, 0, NULL,               NULL,   NULL,                    0,  82, 366,  82, 366, 165, 28, frontnet_draw_text_cont_bar,       0, GUIStr_Empty, 0,  {27},    0, NULL },
-  { 0,  0, 0, 0, NULL,               NULL,   NULL,                    0,  95, 367,  91, 367, 165, 25, frontend_draw_text,                0, GUIStr_Empty, 0,  {69},    0, NULL },
-  { 5, -1,-1, 0, frontnet_net_set_modem_answer,NULL,frontend_over_button,69,280,367,95, 367, 432, 25, frontend_draw_enter_text,          0, GUIStr_Empty, 0, {(long)tmp_net_modem_answer}, -20, NULL },
-  { 0,  0, 0, 0, frontnet_net_modem_start,NULL,frontend_over_button,  0,  49, 412,  49, 412, 247, 46, frontend_draw_small_menu_button,   0, GUIStr_Empty, 0,  {72},    0, frontnet_net_modem_start_maintain },
-  { 0,  0, 0, 0, frontend_change_state,NULL,frontend_over_button,     1, 345, 412, 345, 412, 247, 46, frontend_draw_small_menu_button,   0, GUIStr_Empty, 0,  {16},    0, NULL },
-  {-1,  0, 0, 0, NULL,               NULL,   NULL,                    0,   0,   0,   0,   0,   0,  0, NULL,                              0,            0, 0,   {0},    0, NULL },
-};
-
-struct GuiButtonInit frontend_net_serial_buttons[] = {
-  { 0,  0, 0, 0, NULL,               NULL,   NULL,                    0, 999,  30, 999,  30, 371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty, 0,  {54},    0, NULL },
-  { 0,  0, 0, 0, NULL,               NULL,   NULL,                    0,  41, 178,  41, 178, 212, 26, frontnet_draw_small_scroll_box_tab,0, GUIStr_Empty, 0,  {28},    0, NULL },
-  { 0,  0, 0, 0, NULL,               NULL,   NULL,                    0,  41, 204,  41, 204, 268, 70, frontnet_draw_small_scroll_box,    0, GUIStr_Empty, 0,  {24},    0, NULL },
-  { 1,  0, 0, 0, frontnet_comport_up,NULL,   frontend_over_button,    0, 275, 204, 275, 204,  26, 14, frontnet_draw_slider_button,       0, GUIStr_Empty, 0,  {17},    0, frontnet_comport_up_maintain },
-  { 1,  0, 0, 0, frontnet_comport_down,NULL, frontend_over_button,    0, 275, 261, 275, 261,  26, 14, frontnet_draw_slider_button,       0, GUIStr_Empty, 0,  {18},    0, frontnet_comport_down_maintain },
-  { 1,  0, 0, 0, NULL,               NULL,   NULL,                    0, 279, 218, 279, 218,  20, 44, frontnet_draw_comport_scroll_tab,  0, GUIStr_Empty, 0,  {40},    0, NULL },
-  { 0,  0, 0, 0, NULL,               NULL,   NULL,                    0,  61, 179,  61, 179, 172, 25, frontend_draw_text,                0, GUIStr_Empty, 0,  {55},    0, NULL },
-  { 0,  0, 0, 0, NULL,               NULL,   NULL,                    0,  41, 274,  41, 274, 268, 28, frontnet_draw_comport_selected,    0, GUIStr_Empty, 0,  {57},    0, NULL },
-  { 0,  0, 0, 0, frontnet_comport_select,NULL,frontend_over_button,   0,  54, 212,  54, 212, 190, 26, frontnet_draw_comport_button,      0, GUIStr_Empty, 0,  {45},    0, frontnet_comport_select_maintain },
-  { 0,  0, 0, 0, frontnet_comport_select,NULL,frontend_over_button,   0,  54, 240,  54, 240, 190, 26, frontnet_draw_comport_button,      0, GUIStr_Empty, 0,  {46},    0, frontnet_comport_select_maintain },
-  { 0,  0, 0, 0, NULL,               NULL,   NULL,                    0, 331, 178, 331, 178, 212, 26, frontnet_draw_small_scroll_box_tab,0, GUIStr_Empty, 0,  {28},    0, NULL },
-  { 0,  0, 0, 0, NULL,               NULL,   NULL,                    0, 331, 204, 331, 204, 268, 70, frontnet_draw_small_scroll_box,    0, GUIStr_Empty, 0,  {24},    0, NULL },
-  { 1,  0, 0, 0, frontnet_speed_up,NULL,     frontend_over_button,    0, 565, 204, 565, 204,  26, 14, frontnet_draw_slider_button,       0, GUIStr_Empty, 0,  {36},    0, frontnet_speed_up_maintain },
-  { 1,  0, 0, 0, frontnet_speed_down,NULL,   frontend_over_button,    0, 565, 261, 565, 261,  26, 14, frontnet_draw_slider_button,       0, GUIStr_Empty, 0,  {37},    0, frontnet_speed_down_maintain },
-  { 1,  0, 0, 0, NULL,               NULL,   NULL,                    0, 569, 218, 569, 218,  20, 44, frontnet_draw_speed_scroll_tab,    0, GUIStr_Empty, 0,  {40},    0, NULL },
-  { 0,  0, 0, 0, NULL,               NULL,   NULL,                    0, 351, 179, 351, 179, 172, 25, frontend_draw_text,                0, GUIStr_Empty, 0,  {56},    0, NULL },
-  { 0,  0, 0, 0, NULL,               NULL,   NULL,                    0, 331, 274, 331, 274, 268, 28, frontnet_draw_speed_selected,      0, GUIStr_Empty, 0,  {58},    0, NULL },
-  { 0,  0, 0, 0, frontnet_speed_select,NULL, frontend_over_button,    0, 344, 212, 344, 212, 190, 26, frontnet_draw_speed_button,        0, GUIStr_Empty, 0,  {47},    0, frontnet_speed_select_maintain },
-  { 0,  0, 0, 0, frontnet_speed_select,NULL, frontend_over_button,    0, 344, 240, 344, 240, 190, 26, frontnet_draw_speed_button,        0, GUIStr_Empty, 0,  {48},    0, frontnet_speed_select_maintain },
-  { 0,  0, 0, 0, frontnet_net_serial_start,NULL,frontend_over_button, 0,  49, 412,  49, 412, 247, 46, frontend_draw_small_menu_button,   0, GUIStr_Empty, 0,  {73},    0, frontnet_net_serial_start_maintain },
-  { 0,  0, 0, 0, frontend_change_state,NULL, frontend_over_button,    1, 345, 412, 345, 412, 247, 46, frontend_draw_small_menu_button,   0, GUIStr_Empty, 0,  {16},    0, NULL },
-  {-1,  0, 0, 0, NULL,               NULL,   NULL,                    0,   0,   0,   0,   0,   0,  0, NULL,                              0,            0, 0,   {0},    0, NULL },
-};
-
 struct GuiButtonInit frontend_add_session_buttons[] = {//TODO GUI prepare add session screen
   { 0,  0, 0, 0, NULL,               NULL,        NULL,               0, 999, 0, 999, 0,450,180, frontnet_draw_scroll_box,               0, GUIStr_Empty, 0,      {26},            0, NULL },
   { 0,  0, 0, 0, frontnet_add_session_done,NULL,  frontend_over_button,0,  72, 48,  72, 48,247, 46, frontend_draw_small_menu_button,     0, GUIStr_Empty, 0,      {13},            0, NULL },
@@ -206,10 +141,6 @@ struct GuiMenu frontend_net_session_menu =
  { GMnu_FENET_SESSION, 0, 1, frontend_net_session_buttons, POS_SCRCTR, POS_SCRCTR,  640, 480, NULL, 0, NULL,    NULL,                    0, 0, 0,};
 struct GuiMenu frontend_net_start_menu =
  { GMnu_FENET_START,   0, 1, frontend_net_start_buttons,   POS_SCRCTR, POS_SCRCTR,  640, 480, NULL, 0, NULL,    NULL,                    0, 0, 0,};
-struct GuiMenu frontend_net_modem_menu =
- { GMnu_FENET_MODEM,   0, 1, frontend_net_modem_buttons,   POS_SCRCTR, POS_SCRCTR,  640, 480, NULL, 0, NULL,    NULL,                    0, 0, 0,};
-struct GuiMenu frontend_net_serial_menu =
- { GMnu_FENET_SERIAL,  0, 1, frontend_net_serial_buttons,  POS_SCRCTR, POS_SCRCTR,  640, 480, NULL, 0, NULL,    NULL,                    0, 0, 0,};
 struct GuiMenu frontend_add_session_box =
  { GMnu_FEADD_SESSION, 0, 1, frontend_add_session_buttons, POS_SCRCTR, POS_SCRCTR,  450,  92, NULL, 0, NULL,    NULL,                    0, 1, 0,};
 /******************************************************************************/
@@ -312,25 +243,9 @@ void frontnet_session_create(struct GuiButton *gbtn)
     text = buf_sprintf("%s (%d)", net_player_name, idx+1);
   else
     text = buf_sprintf("%s", net_player_name);
-  switch (net_service_index_selected)
-  {
-  case 1:
-      modem_dev.field_0 = 0;
-      modem_dev.field_4 = 0;
-      strcpy(modem_dev.field_58, net_config_info.str_join);
-      modem_dev.field_AC = modem_initialise_callback;
-      modem_dev.field_B0 = modem_connect_callback;
-      conn_options = &modem_dev;
-      break;
-  default:
-      conn_options = NULL;
-      break;
-  }
+  conn_options = NULL;
   if (LbNetwork_Create(text, net_player_name, &plyr_num, conn_options))
   {
-    if (net_service_index_selected == 1)
-      process_network_error(modem_dev.field_A8);
-    else
       process_network_error(-801);
     return;
   }

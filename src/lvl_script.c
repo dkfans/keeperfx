@@ -801,7 +801,41 @@ static char* process_multiline_comment(char *buf, char *buf_end)
     return buf;
 }
 
-short preload_script(long lvnum)
+static void parse_txt_data(char *script_data, long script_len)
+{// Process the file lines
+    char* buf = script_data;
+    char* buf_end = script_data + script_len;
+    while (buf < buf_end)
+    {
+        // Check for long comment
+        buf = process_multiline_comment(buf, buf_end);
+      // Find end of the line
+      int lnlen = 0;
+      while (&buf[lnlen] < buf_end)
+      {
+        if ((buf[lnlen] == '\r') || (buf[lnlen] == '\n'))
+          break;
+        lnlen++;
+      }
+      // Get rid of the next line characters
+      buf[lnlen] = 0;
+      lnlen++;
+      if (&buf[lnlen] < buf_end)
+      {
+        if ((buf[lnlen] == '\r') || (buf[lnlen] == '\n'))
+          lnlen++;
+      }
+      //SCRPTLOG("Analyse");
+      // Analyze the line
+      script_scan_line(buf, true);
+      // Set new line start
+      text_line_number++;
+      buf += lnlen;
+    }
+    LbMemoryFree(script_data);
+}
+
+TbBool preload_script(long lvnum)
 {
   SYNCDBG(7,"Starting");
   set_script_current_condition(CONDITION_ALWAYS);
@@ -813,38 +847,11 @@ short preload_script(long lvnum)
   long script_len = 1;
   char* script_data = (char*)load_single_map_file_to_buffer(lvnum, "txt", &script_len, LMFF_None);
   if (script_data == NULL)
-    return false;
-  // Process the file lines
-  char* buf = script_data;
-  char* buf_end = script_data + script_len;
-  while (buf < buf_end)
   {
-      // Check for long comment
-      buf = process_multiline_comment(buf, buf_end);
-    // Find end of the line
-    int lnlen = 0;
-    while (&buf[lnlen] < buf_end)
-    {
-      if ((buf[lnlen] == '\r') || (buf[lnlen] == '\n'))
-        break;
-      lnlen++;
-    }
-    // Get rid of the next line characters
-    buf[lnlen] = 0;
-    lnlen++;
-    if (&buf[lnlen] < buf_end)
-    {
-      if ((buf[lnlen] == '\r') || (buf[lnlen] == '\n'))
-        lnlen++;
-    }
-    //SCRPTLOG("Analyse");
-    // Analyze the line
-    script_scan_line(buf, true);
-    // Set new line start
-    text_line_number++;
-    buf += lnlen;
+      // Here we could load lua instead
+      return false;
   }
-  LbMemoryFree(script_data);
+  parse_txt_data(script_data, script_len);
   SYNCDBG(8,"Finished");
   return true;
 }

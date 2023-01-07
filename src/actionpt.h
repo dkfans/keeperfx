@@ -53,9 +53,11 @@ struct ActionPoint { // sizeof = 0xA
 #pragma pack()
 
 #define INVALID_ACTION_POINT (&gameadd.action_points[0])
+typedef struct VALUE VALUE;
 /******************************************************************************/
 struct ActionPoint *allocate_free_action_point_structure_with_number(long apt_num);
 struct ActionPoint *actnpoint_create_actnpoint(struct InitActionPoint *iapt);
+TbBool actnpoint_create_actnpoint_adv(VALUE *data);
 struct ActionPoint *action_point_get(ActionPointId apt_idx);
 struct ActionPoint *action_point_get_by_number(long apt_num);
 TbBool action_point_exists(const struct ActionPoint *apt);

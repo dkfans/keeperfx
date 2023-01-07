@@ -283,8 +283,9 @@ TbBool can_build_room_at_slab(PlayerNumber plyr_idx, RoomKind rkind,
         SYNCDBG(7,"Cannot place %s owner %d as slab (%d,%d) has blocking thing on it",room_code_name(rkind),(int)plyr_idx,(int)slb_x,(int)slb_y);
         return false;
     }
-    if (rkind == RoK_BRIDGE) {
-        return slab_kind_is_liquid(slb->kind) && slab_by_players_land(plyr_idx, slb_x, slb_y);
+    if (room_role_matches(rkind,RoRoF_PassWater|RoRoF_PassLava)) {
+        return ((room_role_matches(rkind,RoRoF_PassWater) && (slb->kind == SlbT_WATER && slab_by_players_land(plyr_idx, slb_x, slb_y))) ||
+                (room_role_matches(rkind,RoRoF_PassLava)  && (slb->kind == SlbT_LAVA  && slab_by_players_land(plyr_idx, slb_x, slb_y))));
     }
     if (slabmap_owner(slb) != plyr_idx) {
         return false;
@@ -295,9 +296,10 @@ TbBool can_build_room_at_slab(PlayerNumber plyr_idx, RoomKind rkind,
 TbBool can_build_room_at_slab_fast(PlayerNumber plyr_idx, RoomKind rkind, MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
     struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
-    if (rkind == RoK_BRIDGE)
+    if (room_role_matches(rkind,RoRoF_PassWater|RoRoF_PassLava))
     {
-        return (slab_kind_is_liquid(slb->kind) && slab_by_players_land(plyr_idx, slb_x, slb_y));
+        return ((room_role_matches(rkind,RoRoF_PassWater) && (slb->kind == SlbT_WATER && slab_by_players_land(plyr_idx, slb_x, slb_y))) ||
+                (room_role_matches(rkind,RoRoF_PassLava)  && (slb->kind == SlbT_LAVA  && slab_by_players_land(plyr_idx, slb_x, slb_y))));
     }
     else
     {
@@ -325,9 +327,10 @@ int check_room_at_slab_loose(PlayerNumber plyr_idx, RoomKind rkind, MapSlabCoord
 
     struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
     int result = 0;
-    if (rkind == RoK_BRIDGE)
+    if (room_role_matches(rkind,RoRoF_PassWater|RoRoF_PassLava))
     {
-        result = (slab_kind_is_liquid(slb->kind) && slab_by_players_land(plyr_idx, slb_x, slb_y)); // 0 or 1
+        result = ((room_role_matches(rkind,RoRoF_PassWater) && (slb->kind == SlbT_WATER && slab_by_players_land(plyr_idx, slb_x, slb_y))) ||
+                  (room_role_matches(rkind,RoRoF_PassLava)  && (slb->kind == SlbT_LAVA  && slab_by_players_land(plyr_idx, slb_x, slb_y)))); // 0 or 1
     }
     else
     {
@@ -733,7 +736,7 @@ TbBool slab_kind_has_no_ownership(SlabKind slbkind)
             || (slbkind == SlbT_PATH) || (slab_kind_is_liquid(slbkind)) );
 }
 
-TbBool players_land_by_liquid(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y)
+TbBool players_land_by_slab_kind(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y, SlabKind slbkind)
 {
     struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
     if (slabmap_owner(slb) == plyr_idx)
@@ -742,7 +745,8 @@ TbBool players_land_by_liquid(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlab
         {
             MapSlabCoord aslb_x = slb_x + small_around[n].delta_x;
             MapSlabCoord aslb_y = slb_y + small_around[n].delta_y;
-            if (slab_is_liquid(aslb_x, aslb_y)) 
+            struct SlabMap* aslb = get_slabmap_block(aslb_x, aslb_y);
+            if (aslb->kind == slbkind) 
             {
                 return true;
             }
@@ -750,6 +754,7 @@ TbBool players_land_by_liquid(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlab
     }
     return false;
 }
+
 
 /**
  * Returns whether the given slab has an adjacent slab owned by given player.
