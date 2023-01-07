@@ -31,8 +31,6 @@ extern "C" {
 #define OBJECT_TYPES_COUNT_ORIGINAL  136
 #define OBJECT_TYPES_COUNT  255
 
-#define OBJECT_TYPE_SPECBOX_CUSTOM    133
-
 enum ObjectStates {
     ObSt_Unused = 0,
     ObSt_FoodMoves,
@@ -55,6 +53,53 @@ enum CallToArmsObjectLife {
     CTAOL_Alive,
     CTAOL_Dying,
     CTAOL_Rebirthing,
+};
+
+//avoid using this enum for new stuff, all properties should come from config, not hardcoded to 1 type
+//only the ones still used by code are mentioned here
+enum ObjectModels
+{
+    ObjMdl_Torch = 2,
+    ObjMdl_GoldChest = 3,
+    ObjMdl_StatueLit = 4,
+    ObjMdl_SoulCountainer = 5,
+    ObjMdl_GoldPot = 6,
+    ObjMdl_ChickenGrowing = 9,
+    ObjMdl_ChickenMature = 10,
+    ObjMdl_SpelbookHoe = 11,
+    ObjMdl_CTAEnsign = 24,
+    ObjMdl_Anvil = 26,
+    ObjMdl_PrisonBar = 27,
+    ObjMdl_Candlestick = 28,
+    ObjMdl_Gravestone = 29,
+    ObjMdl_TrainingPost = 31,
+    ObjMdl_TortureSpike = 32,
+    ObjMdl_Goldl = 43,
+    ObjMdl_SpinningKey = 44,
+    ObjMdl_HeroGate = 49,
+    ObjMdl_SpecboxRevealMap = 86,
+    ObjMdl_SpecboxResurect = 87,
+    ObjMdl_SpecboxTransfer = 88,
+    ObjMdl_SpecboxStealHero = 89,
+    ObjMdl_SpecboxMultiply = 90,
+    ObjMdl_SpecboxIncreaseLevel = 91,
+    ObjMdl_SpecboxMakeSafe = 92,
+    ObjMdl_SpecboxHiddenWorld = 93,
+    ObjMdl_HeartFlameRed = 111,
+    ObjMdl_ScavangeEye = 113,
+    ObjMdl_WorkshopMachine = 114,
+    ObjMdl_GuardFlagRed = 115,
+    ObjMdl_GuardFlagBlue = 116,
+    ObjMdl_GuardFlagGreen = 117,
+    ObjMdl_GuardFlagYellow = 118,
+    ObjMdl_GuardFlagPole = 119,
+    ObjMdl_HeartFlameBlue = 120,
+    ObjMdl_HeartFlameGreen = 121,
+    ObjMdl_HeartFlameYellow = 122,
+    ObjMdl_Torturer = 125,
+    ObjMdl_SpinningCoin = 128,
+    ObjMdl_SpecboxCustom = 133,
+    ObjMdl_GoldBag = 136
 };
 /******************************************************************************/
 #pragma pack(1)

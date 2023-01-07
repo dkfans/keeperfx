@@ -236,20 +236,20 @@ struct Objects objects_data_init[OBJECT_TYPES_MAX] = {
   {0, 0, 0, 0, 0, 950, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown3, 1, 0}, //8 STATUE_UNLIT
   {2, 0, 0, 0, 0, 893, 0x0008, 0x80, 0x80, 300, 0, 0, 2, 1,  0, ObOC_Unknown2, 1, 0}, //9 CHICKEN_GRW
   {1, 0, 0, 0, 0, 819, 0x0100, 0x80, 0x80, 300, 0, 0, 2, 0,  0, ObOC_Unknown2, 1, 0}, //10 CHICKEN_MAT
-  {0, 0, 0, 0, 1, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0, 0}, //11 SPELLBOOK
-  {0, 0, 0, 0, 1, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0, 0}, //12
-  {0, 0, 0, 0, 1, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0, 0}, //13
-  {0, 0, 0, 0, 1, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0, 0}, //14
-  {0, 0, 0, 0, 1, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0, 0}, //15
-  {0, 0, 0, 0, 1, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0, 0}, //16
-  {0, 0, 0, 0, 1, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0, 0}, //17
-  {0, 0, 0, 0, 1, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0, 0}, //18
-  {0, 0, 0, 0, 1, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0, 0}, //19
-  {0, 0, 0, 0, 1, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0, 0}, //20
-  {0, 0, 0, 0, 1, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0, 0}, //21
-  {0, 0, 0, 0, 1, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0, 0},
-  {0, 0, 0, 0, 1, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0, 0},
-  {0, 0, 0, 0, 0,   0, 0x0100,    0,    0, 375, 0, 0, 2, 0,  0, ObOC_Unknown1, 0, 0}, //24
+  {0, 0, 0, 0, 1, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0, 0}, //11 SPELLBOOK_HOE
+  {0, 0, 0, 0, 1, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0, 0}, //12 SPELLBOOK_IMP
+  {0, 0, 0, 0, 1, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0, 0}, //13 SPELLBOOK_OBEY
+  {0, 0, 0, 0, 1, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0, 0}, //14 SPELLBOOK_SLAP
+  {0, 0, 0, 0, 1, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0, 0}, //15 SPELLBOOK_SOE
+  {0, 0, 0, 0, 1, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0, 0}, //16 SPELLBOOK_CTA
+  {0, 0, 0, 0, 1, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0, 0}, //17 SPELLBOOK_CAVI
+  {0, 0, 0, 0, 1, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0, 0}, //18 SPELLBOOK_HEAL
+  {0, 0, 0, 0, 1, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0, 0}, //19 SPELLBOOK_HLDAUD
+  {0, 0, 0, 0, 1, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0, 0}, //20 SPELLBOOK_LIGHTN
+  {0, 0, 0, 0, 1, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0, 0}, //21 SPELLBOOK_SPDC
+  {0, 0, 0, 0, 1, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0, 0}, //22 SPELLBOOK_PROT
+  {0, 0, 0, 0, 1, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0, 0}, //23 SPELLBOOK_CONCL
+  {0, 0, 0, 0, 0,   0, 0x0100,    0,    0, 375, 0, 0, 2, 0,  0, ObOC_Unknown1, 0, 0}, //24 CTA_ENSIGN
   {0, 0, 0, 0, 0,   0, 0x0100,    0,    0, 300, 0, 0, 5, 0,  0, ObOC_Unknown0, 0, 0}, //25 ROOM_FLAG
   {0, 0, 0, 0, 0, 789, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown2, 1, 0}, //26 ANVIL
   {0, 0, 0, 0, 0, 796, 0x0100,    0,    0, 200, 0, 0, 2, 1,  0, ObOC_Unknown2, 1, 0}, //27 PRISON_BAR
@@ -270,10 +270,10 @@ struct Objects objects_data_init[OBJECT_TYPES_MAX] = {
   {2, 0, 0, 0, 0, 896, 0x00C0, 0x80, 0x80, 300, 0, 0, 2, 1,  0, ObOC_Unknown2, 1, 0}, //42 CHICKEN_CRK
   {0, 0, 0, 0, 0, 936, 0x0055, 0x80, 0x40, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 1, 0}, //43 GOLDL
   {0, 0, 0, 0, 0, 810, 0x0100,    0,    0, 300, 0, 0, 6, 0,  0, ObOC_Unknown2, 0, 0}, //44 SPINNING_KEY
-  {0, 0, 0, 0, 0, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0, 0}, //45
-  {0, 0, 0, 0, 0, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0, 0},
-  {0, 0, 0, 0, 0, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0, 0},
-  {0, 0, 0, 0, 0, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0, 0},
+  {0, 0, 0, 0, 0, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0, 0}, //45 SPELLBOOK_DISEASE
+  {0, 0, 0, 0, 0, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0, 0}, //46 SPELLBOOK_CHKN
+  {0, 0, 0, 0, 0, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0, 0}, //47 SPELLBOOK_DWAL
+  {0, 0, 0, 0, 0, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0, 0}, //48 SPELLBOOK_TBMB
   {0, 0, 0, 0, 0, 776, 0x0100,    0,    0, 300, 3, 0, 2, 0,  0, ObOC_Unknown1, 0, 0}, //49 HERO_GATE
   {0, 0, 0, 0, 0, 818, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown0, 0, 0}, //50 SPINNING_KEY
   {0, 0, 1, 0, 0, 850, 0x0100,    0,    0, 144, 3, 0, 2, 0,  0, ObOC_Unknown0, 0, 0}, //51 LIGHT_BALL
@@ -284,35 +284,35 @@ struct Objects objects_data_init[OBJECT_TYPES_MAX] = {
   {0, 0, 0, 0, 0, 940, 0x0080,    0,    0, 375, 0, 0, 2, 0,  0, ObOC_Unknown1, 1, 0}, //56 GOLD_HORDE4
   {0, 0, 0, 0, 0, 124, 0x0100,    0,    0, 300, 0, 0, 2, 0,  1, ObOC_Unknown2, 0, 0}, //57 LAIR_WIZRD
   {0, 0, 0, 0, 0, 124, 0x0100,    0,    0, 300, 0, 0, 2, 0,  2, ObOC_Unknown2, 0, 0}, //58 LAIR_BARBR
-  {0, 0, 0, 0, 0, 124, 0x0100,    0,    0, 300, 0, 0, 2, 0,  3, ObOC_Unknown2, 0, 0}, //59
-  {0, 0, 0, 0, 0, 124, 0x0100,    0,    0, 300, 0, 0, 2, 0,  4, ObOC_Unknown2, 0, 0}, //60
-  {0, 0, 0, 0, 0, 124, 0x0100,    0,    0, 300, 0, 0, 2, 0,  5, ObOC_Unknown2, 0, 0}, //61
-  {0, 0, 0, 0, 0, 124, 0x0100,    0,    0, 300, 0, 0, 2, 0,  6, ObOC_Unknown2, 0, 0}, //62
-  {0, 0, 0, 0, 0, 124, 0x0100,    0,    0, 300, 0, 0, 2, 0,  7, ObOC_Unknown2, 0, 0}, //63
-  {0, 0, 0, 0, 0, 124, 0x0100,    0,    0, 300, 0, 0, 2, 0,  8, ObOC_Unknown2, 0, 0}, //64
-  {0, 0, 0, 0, 0, 124, 0x0100,    0,    0, 300, 0, 0, 2, 0,  9, ObOC_Unknown2, 0, 0}, //65
-  {0, 0, 0, 0, 0, 124, 0x0100,    0,    0, 300, 0, 0, 2, 0, 10, ObOC_Unknown2, 0, 0}, //66
-  {0, 0, 0, 0, 0, 124, 0x0100,    0,    0, 300, 0, 0, 2, 0, 11, ObOC_Unknown2, 0, 0}, //67
-  {0, 0, 0, 0, 0, 124, 0x0100,    0,    0, 300, 0, 0, 2, 0, 12, ObOC_Unknown2, 0, 0}, //68
-  {0, 0, 0, 0, 0, 124, 0x0100,    0,    0, 300, 0, 0, 2, 0, 13, ObOC_Unknown2, 0, 0}, //69
+  {0, 0, 0, 0, 0, 124, 0x0100,    0,    0, 300, 0, 0, 2, 0,  3, ObOC_Unknown2, 0, 0}, //59 LAIR_ARCHR
+  {0, 0, 0, 0, 0, 124, 0x0100,    0,    0, 300, 0, 0, 2, 0,  4, ObOC_Unknown2, 0, 0}, //60 LAIR_MONK
+  {0, 0, 0, 0, 0, 124, 0x0100,    0,    0, 300, 0, 0, 2, 0,  5, ObOC_Unknown2, 0, 0}, //61 LAIR_DWRFA
+  {0, 0, 0, 0, 0, 124, 0x0100,    0,    0, 300, 0, 0, 2, 0,  6, ObOC_Unknown2, 0, 0}, //62 LAIR_KNGHT
+  {0, 0, 0, 0, 0, 124, 0x0100,    0,    0, 300, 0, 0, 2, 0,  7, ObOC_Unknown2, 0, 0}, //63 LAIR_AVATR
+  {0, 0, 0, 0, 0, 124, 0x0100,    0,    0, 300, 0, 0, 2, 0,  8, ObOC_Unknown2, 0, 0}, //64 LAIR_TUNLR
+  {0, 0, 0, 0, 0, 124, 0x0100,    0,    0, 300, 0, 0, 2, 0,  9, ObOC_Unknown2, 0, 0}, //65 LAIR_WITCH
+  {0, 0, 0, 0, 0, 124, 0x0100,    0,    0, 300, 0, 0, 2, 0, 10, ObOC_Unknown2, 0, 0}, //66 LAIR_GIANT
+  {0, 0, 0, 0, 0, 124, 0x0100,    0,    0, 300, 0, 0, 2, 0, 11, ObOC_Unknown2, 0, 0}, //67 LAIR_FAIRY
+  {0, 0, 0, 0, 0, 124, 0x0100,    0,    0, 300, 0, 0, 2, 0, 12, ObOC_Unknown2, 0, 0}, //68 LAIR_THIEF
+  {0, 0, 0, 0, 0, 124, 0x0100,    0,    0, 300, 0, 0, 2, 0, 13, ObOC_Unknown2, 0, 0}, //69 LAIR_SAMUR
   {0, 0, 0, 0, 0, 158, 0x0100,    0,    0, 300, 0, 0, 2, 0, 14, ObOC_Unknown2, 0, 0}, //70 LAIR_REAPER
-  {0, 0, 0, 0, 0, 156, 0x0100,    0,    0, 300, 0, 0, 2, 0, 15, ObOC_Unknown2, 0, 0}, //71
-  {0, 0, 0, 0, 0, 154, 0x0100,    0,    0, 300, 0, 0, 2, 0, 16, ObOC_Unknown2, 0, 0}, //72
-  {0, 0, 0, 0, 0, 152, 0x0100,    0,    0, 300, 0, 0, 2, 0, 17, ObOC_Unknown2, 0, 0}, //73
-  {0, 0, 0, 0, 0, 150, 0x0100,    0,    0, 300, 0, 0, 2, 0, 18, ObOC_Unknown2, 0, 0}, //74
-  {0, 0, 0, 0, 0, 148, 0x0100,    0,    0, 300, 0, 0, 2, 0, 19, ObOC_Unknown2, 0, 0}, //75
-  {0, 0, 0, 0, 0, 146, 0x0100,    0,    0, 300, 0, 0, 2, 0, 20, ObOC_Unknown2, 0, 0}, //76
-  {0, 0, 0, 0, 0, 144, 0x0100,    0,    0, 300, 0, 0, 2, 0, 21, ObOC_Unknown2, 0, 0}, //77
-  {0, 0, 0, 0, 0, 142, 0x0100,    0,    0, 300, 0, 0, 2, 0, 22, ObOC_Unknown2, 0, 0}, //78
-  {0, 0, 0, 0, 0, 152, 0x0100,    0,    0, 300, 0, 0, 2, 0, 23, ObOC_Unknown2, 0, 0}, //79
-  {0, 0, 0, 0, 0, 140, 0x0100,    0,    0, 300, 0, 0, 2, 0, 24, ObOC_Unknown2, 0, 0}, //80
-  {0, 0, 0, 0, 0, 138, 0x0100,    0,    0, 300, 0, 0, 2, 0, 25, ObOC_Unknown2, 0, 0}, //81
-  {0, 0, 0, 0, 0, 136, 0x0100,    0,    0, 300, 0, 0, 2, 0, 26, ObOC_Unknown2, 0, 0}, //82
-  {0, 0, 0, 0, 0, 134, 0x0100,    0,    0, 300, 0, 0, 2, 0, 27, ObOC_Unknown2, 0, 0}, //83
+  {0, 0, 0, 0, 0, 156, 0x0100,    0,    0, 300, 0, 0, 2, 0, 15, ObOC_Unknown2, 0, 0}, //71 LAIR_SKELT
+  {0, 0, 0, 0, 0, 154, 0x0100,    0,    0, 300, 0, 0, 2, 0, 16, ObOC_Unknown2, 0, 0}, //72 LAIR_GOBLN
+  {0, 0, 0, 0, 0, 152, 0x0100,    0,    0, 300, 0, 0, 2, 0, 17, ObOC_Unknown2, 0, 0}, //73 LAIR_DRAGN
+  {0, 0, 0, 0, 0, 150, 0x0100,    0,    0, 300, 0, 0, 2, 0, 18, ObOC_Unknown2, 0, 0}, //74 LAIR_DEMSP
+  {0, 0, 0, 0, 0, 148, 0x0100,    0,    0, 300, 0, 0, 2, 0, 19, ObOC_Unknown2, 0, 0}, //75 LAIR_FLY
+  {0, 0, 0, 0, 0, 146, 0x0100,    0,    0, 300, 0, 0, 2, 0, 20, ObOC_Unknown2, 0, 0}, //76 LAIR_DKMIS
+  {0, 0, 0, 0, 0, 144, 0x0100,    0,    0, 300, 0, 0, 2, 0, 21, ObOC_Unknown2, 0, 0}, //77 LAIR_SORCR
+  {0, 0, 0, 0, 0, 142, 0x0100,    0,    0, 300, 0, 0, 2, 0, 22, ObOC_Unknown2, 0, 0}, //78 LAIR_BILDM
+  {0, 0, 0, 0, 0, 152, 0x0100,    0,    0, 300, 0, 0, 2, 0, 23, ObOC_Unknown2, 0, 0}, //79 LAIR_IMP
+  {0, 0, 0, 0, 0, 140, 0x0100,    0,    0, 300, 0, 0, 2, 0, 24, ObOC_Unknown2, 0, 0}, //80 LAIR_BUG
+  {0, 0, 0, 0, 0, 138, 0x0100,    0,    0, 300, 0, 0, 2, 0, 25, ObOC_Unknown2, 0, 0}, //81 LAIR_VAMP
+  {0, 0, 0, 0, 0, 136, 0x0100,    0,    0, 300, 0, 0, 2, 0, 26, ObOC_Unknown2, 0, 0}, //82 LAIR_SPIDR
+  {0, 0, 0, 0, 0, 134, 0x0100,    0,    0, 300, 0, 0, 2, 0, 27, ObOC_Unknown2, 0, 0}, //83 LAIR_HLHND
   {0, 0, 0, 0, 0, 132, 0x0100,    0,    0, 300, 0, 0, 2, 0, 28, ObOC_Unknown2, 0, 0}, //84 LAIR_GHOST
   {0, 0, 0, 0, 0, 128, 0x0100,    0,    0, 300, 0, 0, 2, 0, 29, ObOC_Unknown2, 0, 0}, //85 LAIR_TENTC
   {0, 0, 1, 0, 0, 901, 0x0080,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown1, 0, 0}, //86 SPECBOX_REVMAP
-  {0, 0, 1, 0, 0, 901, 0x0080,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown1, 0, 0},
+  {0, 0, 1, 0, 0, 901, 0x0080,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown1, 0, 0}, //87 SPECBOX_RESURCT
   {0, 0, 1, 0, 0, 901, 0x0080,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown1, 0, 0},
   {0, 0, 1, 0, 0, 901, 0x0080,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown1, 0, 0},
   {0, 0, 1, 0, 0, 901, 0x0080,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown1, 0, 0},
@@ -346,7 +346,7 @@ struct Objects objects_data_init[OBJECT_TYPES_MAX] = {
   {0, 0, 1, 0, 0, 108, 0x0080,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown2, 0, 0}, //118
   {0, 0, 1, 0, 0, 100, 0x0080,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown2, 0, 0}, //119 GUARDFLAG_POLE
   {0, 0, 1, 0, 0, 799, 0x0100,    0,    0, 300, 3, 0, 2, 0,  0, ObOC_Unknown2, 0, 0}, //120 HEARTFLAME_BLUE
-  {0, 0, 1, 0, 0, 800, 0x0100,    0,    0, 300, 3, 0, 2, 0,  0, ObOC_Unknown2, 0, 0}, //121
+  {0, 0, 1, 0, 0, 800, 0x0100,    0,    0, 300, 3, 0, 2, 0,  0, ObOC_Unknown2, 0, 0}, //121 HEARTFLAME_GREEN
   {0, 0, 1, 0, 0, 801, 0x0100,    0,    0, 300, 3, 0, 2, 0,  0, ObOC_Unknown2, 0, 0}, //122 HEARTFLAME_YELLOW
   {0, 0, 0, 0, 0,   0, 0x0000,    0,    0,   0, 0, 0, 0, 0,  0, ObOC_Unknown0, 0, 0}, //123 POWER_SIGHT
   {0, 0, 0, 0, 0,   0, 0x0000,    0,    0,   0, 0, 0, 0, 0,  0, ObOC_Unknown0, 0, 0}, //124 POWER_LIGHTNG
@@ -671,7 +671,7 @@ TbBool thing_is_mature_food(const struct Thing *thing)
 {
     if (thing_is_invalid(thing))
         return false;
-    return (thing->class_id == TCls_Object) && (thing->model == 10);
+    return (thing->class_id == TCls_Object) && (thing->model == ObjMdl_ChickenMature);
 }
 
 TbBool thing_is_spellbook(const struct Thing *thing)
@@ -692,7 +692,7 @@ TbBool thing_is_lair_totem(const struct Thing *thing)
 
 TbBool object_is_hero_gate(const struct Thing *thing)
 {
-  return (thing->model == 49);
+  return (thing->model == ObjMdl_HeroGate);
 }
 
 TbBool object_is_infant_food(const struct Thing *thing)
@@ -702,12 +702,12 @@ TbBool object_is_infant_food(const struct Thing *thing)
 
 TbBool object_is_growing_food(const struct Thing *thing)
 {
-  return (thing->model == 9);
+  return (thing->model == ObjMdl_ChickenGrowing);
 }
 
 TbBool object_is_mature_food(const struct Thing *thing)
 {
-  return (thing->model == 10);
+  return (thing->model == ObjMdl_ChickenMature);
 }
 
 TbBool object_is_gold(const struct Thing *thing)
@@ -733,11 +733,11 @@ TbBool object_is_gold_pile(const struct Thing *thing)
         return false;
     switch (thing->model)
     {
-      case 3: // Chest of gold
-      case 6: // Pot of gold
-      case 43: // Gold laying on the ground
-      case 128: // Spinning coin
-      case 136: // Gold bag
+      case ObjMdl_GoldChest:
+      case ObjMdl_GoldPot:
+      case ObjMdl_Goldl: // Gold laying on the ground
+      case ObjMdl_SpinningCoin: // Spinning coin
+      case ObjMdl_GoldBag: // Gold bag
           return true;
       default:
           return false;
@@ -746,7 +746,7 @@ TbBool object_is_gold_pile(const struct Thing *thing)
 
 TbBool object_is_gold_laying_on_ground(const struct Thing *thing)
 {
-    return (thing->model == 43);
+    return (thing->model == ObjMdl_Goldl);
 }
 
 /**
@@ -758,11 +758,11 @@ TbBool object_is_guard_flag(const struct Thing *thing)
 {
     switch (thing->model)
     {
-      case 115:
-      case 116:
-      case 117:
-      case 118:
-      case 119:
+      case ObjMdl_GuardFlagRed:
+      case ObjMdl_GuardFlagBlue:
+      case ObjMdl_GuardFlagGreen:
+      case ObjMdl_GuardFlagYellow:
+      case ObjMdl_GuardFlagPole:
           return true;
       default:
           return false;
@@ -783,40 +783,34 @@ TbBool object_is_room_equipment(const struct Thing *thing, RoomKind rkind)
         // No objects
         return false;
     case RoK_TREASURE:
-        // Candlestick
-        return (thing->model == 28);
+        return (thing->model == ObjMdl_Candlestick);
     case RoK_LIBRARY:
         // No objects
         return false;
     case RoK_PRISON:
-        // Prison bar
-        return (thing->model == 27);
+        return (thing->model == ObjMdl_PrisonBar);
     case RoK_TORTURE:
-        // Spike and torturer
-        return (thing->model == 32) || (thing->model == 125);
+        return (thing->model == ObjMdl_TortureSpike) || (thing->model == ObjMdl_Torturer);
     case RoK_TRAINING:
-        // Training post and torch
-        return (thing->model == 31) || (thing->model == 2);
+        return (thing->model == ObjMdl_TrainingPost) || (thing->model == ObjMdl_Torch);
     case RoK_DUNGHEART:
-        // Heart flames
-        return (thing->model == 111) || (thing->model == 120) || (thing->model == 121) || (thing->model == 122);
+        return (thing->model == ObjMdl_HeartFlameRed) || (thing->model == ObjMdl_HeartFlameBlue) || (thing->model == ObjMdl_HeartFlameGreen) || (thing->model == ObjMdl_HeartFlameYellow);
     case RoK_WORKSHOP:
-        // Workshop machine and anvil
-        return (thing->model == 114) || (thing->model == 26);
+        return (thing->model == ObjMdl_WorkshopMachine) || (thing->model == ObjMdl_Anvil);
     case RoK_SCAVENGER:
         // Scavenge eye and torch
-        return (thing->model == 113) || (thing->model == 2);
+        return (thing->model == ObjMdl_ScavangeEye) || (thing->model == ObjMdl_Torch);
     case RoK_TEMPLE:
         // Temple statue
-        return (thing->model == 4);
+        return (thing->model == ObjMdl_StatueLit);
     case RoK_GRAVEYARD:
         // Gravestone and torch
-        return (thing->model == 29) || (thing->model == 2);
+        return (thing->model == ObjMdl_Gravestone) || (thing->model == ObjMdl_Torch);
     case RoK_BARRACKS:
         // No break
     case RoK_GARDEN:
         // Torch
-        return (thing->model == 2);
+        return (thing->model == ObjMdl_Torch);
     case RoK_LAIR:
         // No objects
         return false;
@@ -1413,7 +1407,7 @@ long object_being_dropped(struct Thing *thing)
                 }
             }
         }
-        if (thing->model == 128)
+        if (thing->model == ObjMdl_SpinningCoin)
         {
             drop_gold_pile(thing->valuable.gold_stored, &thing->mappos);
             delete_thing_structure(thing, 0);
@@ -1952,7 +1946,7 @@ TngUpdateRet move_object(struct Thing *thing)
                 remove_relevant_forces_from_thing_after_slide(thing, &pos, blocked_flags);
             }
             // GOLD_POT to make a sound when hitting the floor
-            if (thing->model == 6)
+            if (thing->model == ObjMdl_GoldPot)
             {
                 thing_play_sample(thing, 79, NORMAL_PITCH, 0, 3, 0, 1, FULL_LOUDNESS);
             }

@@ -6076,7 +6076,7 @@ void display_controlled_pick_up_thing_name(struct Thing *picktng, unsigned long 
     else if (thing_is_special_box(picktng))
     {
         char msg_buf[255];
-        if (picktng->model == OBJECT_TYPE_SPECBOX_CUSTOM)
+        if (picktng->model == ObjMdl_SpecboxCustom)
         {
             if (gameadd.box_tooltip[picktng->custom_box.box_kind][0] == 0)
             {
