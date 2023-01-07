@@ -66,7 +66,6 @@ enum ObjectModels
     ObjMdl_GoldPot = 6,
     ObjMdl_ChickenGrowing = 9,
     ObjMdl_ChickenMature = 10,
-    ObjMdl_SpelbookHoe = 11,
     ObjMdl_CTAEnsign = 24,
     ObjMdl_Anvil = 26,
     ObjMdl_PrisonBar = 27,
