@@ -5620,7 +5620,7 @@ msgstr ""
 
 #: guitext:952
 msgctxt "In-game interface description"
-msgid "Research Skill: How fast the creature works in Library. The higher the skill level, "
+msgid "Research Skill: How fast the creature works in the Library. The higher the skill level, "
 "the better the creature's performance."
 msgstr ""
 
