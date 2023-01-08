@@ -5626,7 +5626,7 @@ msgstr ""
 
 #: guitext:953
 msgctxt "In-game interface description"
-msgid "Manufacture Skill: How fast the creature works in Workshop. The higher the skill level, the better the creature's performance."
+msgid "Manufacture Skill: How fast the creature works in the Workshop. The higher the skill level, the better the creature's performance."
 msgstr ""
 
 #: guitext:954
