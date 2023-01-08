@@ -1512,7 +1512,7 @@ msgstr ""
 #: guitext:176
 msgctxt "In-game message"
 msgid ""
-"Your researchers have discovered the Heal Creature spell that allows to "
+"Your researchers have discovered the Heal Creature spell, which allows you to "
 "replenish the health of your creatures and keep them from dying for a while "
 "longer."
 msgstr ""
