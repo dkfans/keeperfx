@@ -5678,7 +5678,7 @@ msgstr ""
 #: guitext:963
 msgctxt "Keeper spell description"
 msgid "Hand Of Evil: Ability to pick up your creatures and hold them in your hand. "
-"Just don't hold them forever or they may get irritated."
+"Just don't hold them forever, or they may get irritated."
 msgstr ""
 
 #: guitext:964
