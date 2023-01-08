@@ -3095,10 +3095,10 @@ void update_block_pointed(int i,long x, long x_frac, long y, long y_frac)
     {
       mapblk = get_map_block_at(x,y);
       visible = map_block_revealed_bit(mapblk, player_bit);
-      if ((!visible) || ((mapblk->data & 0x7FF) > 0))
+      if ((!visible) || (get_mapblk_column_index(mapblk) > 0))
       {
         if (visible)
-          k = mapblk->data & 0x7FF;
+          k = get_mapblk_column_index(mapblk);
         else
           k = game.unrevealed_column_idx;
         colmn = get_column(k);
@@ -3106,7 +3106,7 @@ void update_block_pointed(int i,long x, long x_frac, long y, long y_frac)
         if ((temp_cluedo_mode) && (smask != 0))
         {
           if (visible)
-            k = mapblk->data & 0x7FF;
+            k = get_mapblk_column_index(mapblk);
           else
             k = game.unrevealed_column_idx;
           colmn = get_column(k);

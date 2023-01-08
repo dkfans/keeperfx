@@ -326,7 +326,7 @@ void process_player_research(PlayerNumber plyr_idx)
                 break;
             }
             if (room_is_invalid(room)) {
-                WARNLOG("Player %d has no %s with capacity for %s artifact, delaying creation",(int)plyr_idx,room_code_name(RoK_LIBRARY),power_code_name(pwkind));
+                WARNLOG("Player %d has no %s with capacity for %s artifact, delaying creation",(int)plyr_idx,room_role_code_name(RoRoF_PowersStorage),power_code_name(pwkind));
                 return;
             }
             pos.x.val = 0;
@@ -341,7 +341,7 @@ void process_player_research(PlayerNumber plyr_idx)
             room = find_random_room_of_role_for_thing_with_spare_room_item_capacity(spelltng, plyr_idx, RoRoF_PowersStorage, 0);
             if (room_is_invalid(room))
             {
-                ERRORLOG("There should be %s for %s artifact, but not found",room_code_name(RoK_LIBRARY),power_code_name(pwkind));
+                ERRORLOG("There should be %s for %s artifact, but not found",room_role_code_name(RoRoF_PowersStorage),power_code_name(pwkind));
                 delete_thing_structure(spelltng, 0);
                 return;
             }

@@ -227,7 +227,7 @@ struct ComputerTask *computer_setup_build_room(struct Computer2 *comp, RoomKind 
         max_slabs = width_slabs;
     long area_min = (max_slabs + 1) / 2 + 1;
     long area_max = area_min / 3 + 2 * area_min;
-    if (rkind == RoK_LAIR)
+    if (room_role_matches(rkind,RoRoF_LairStorage))
     {
         if (width_slabs*height_slabs < dungeon->max_creatures_attracted)
         {

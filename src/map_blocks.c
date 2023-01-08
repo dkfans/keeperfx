@@ -374,44 +374,24 @@ TbBool set_slab_explored(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord
 }
 
 // only used by mine_out_block
-void set_slab_explored_flags(unsigned char flag, long slb_x, long slb_y)
+void set_slab_explored_flags(PlayerBitFlag flag, MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
-
     MapSubtlCoord stl_y = STL_PER_SLB * slb_y;
     MapSubtlCoord stl_x = STL_PER_SLB * slb_x;
 
     struct Map *mapblk = get_map_block_at(stl_x, stl_y);
 
-
-    if (mapblk->data >> 28 != flag)
+    if (mapblk->revealed != flag)
     {
-        int shifted_flag = flag << 28;
-        get_map_block_at(stl_x,     stl_y    )->data &= 0xFFFFFFFu;
-        get_map_block_at(stl_x,     stl_y    )->data |= shifted_flag;
-            
-        get_map_block_at(stl_x + 1, stl_y    )->data &= 0xFFFFFFFu;
-        get_map_block_at(stl_x + 1, stl_y    )->data |= shifted_flag;
-            
-        get_map_block_at(stl_x + 2, stl_y    )->data &= 0xFFFFFFFu;
-        get_map_block_at(stl_x + 2, stl_y    )->data |= shifted_flag;
-        
-        get_map_block_at(stl_x,     stl_y + 1)->data &= 0xFFFFFFFu;
-        get_map_block_at(stl_x,     stl_y + 1)->data |= shifted_flag;
-        
-        get_map_block_at(stl_x + 1, stl_y + 1)->data &= 0xFFFFFFFu;
-        get_map_block_at(stl_x + 1, stl_y + 1)->data |= shifted_flag;
-        
-        get_map_block_at(stl_x + 2, stl_y + 1)->data &= 0xFFFFFFFu;
-        get_map_block_at(stl_x + 2, stl_y + 1)->data |= shifted_flag;
-        
-        get_map_block_at(stl_x,     stl_y + 2)->data &= 0xFFFFFFFu;
-        get_map_block_at(stl_x,     stl_y + 2)->data |= shifted_flag;
-        
-        get_map_block_at(stl_x + 1, stl_y + 2)->data &= 0xFFFFFFFu;
-        get_map_block_at(stl_x + 1, stl_y + 2)->data |= shifted_flag;
-        
-        get_map_block_at(stl_x + 2, stl_y + 2)->data &= 0xFFFFFFFu;
-        get_map_block_at(stl_x + 2, stl_y + 2)->data |= shifted_flag;
+        get_map_block_at(stl_x,     stl_y    )->revealed = flag;
+        get_map_block_at(stl_x + 1, stl_y    )->revealed = flag;
+        get_map_block_at(stl_x + 2, stl_y    )->revealed = flag;
+        get_map_block_at(stl_x,     stl_y + 1)->revealed = flag;
+        get_map_block_at(stl_x + 1, stl_y + 1)->revealed = flag;
+        get_map_block_at(stl_x + 2, stl_y + 1)->revealed = flag;
+        get_map_block_at(stl_x,     stl_y + 2)->revealed = flag;
+        get_map_block_at(stl_x + 1, stl_y + 2)->revealed = flag;
+        get_map_block_at(stl_x + 2, stl_y + 2)->revealed = flag;
 
         pannel_map_update(stl_x, stl_y, STL_PER_SLB, STL_PER_SLB);
     }

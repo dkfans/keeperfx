@@ -38,9 +38,10 @@ enum MapCoordClipFlags {
 };
 
 struct Map {
-      unsigned char flags;
-      unsigned long data;
-      unsigned long mapwho;
+      unsigned char flags; // flags in enum SlabAttrFlags
+      unsigned long data; // 4b unused 4b filled_subtiles 2b wibble_value 11b unused 11b column
+      ThingIndex mapwho;
+      PlayerBitFlag revealed;
 };
 
 #define INVALID_MAP_BLOCK (&bad_map_block)
@@ -90,8 +91,8 @@ TbBool map_block_revealed_bit(const struct Map *mapblk, long plyr_bit);
 
 TbBool valid_dig_position(PlayerNumber plyr_idx, long stl_x, long stl_y);
 long get_ceiling_height(const struct Coord3d *pos);
-long get_mapwho_thing_index(const struct Map *mapblk);
-void set_mapwho_thing_index(struct Map *map, long thing_idx);
+ThingIndex get_mapwho_thing_index(const struct Map *mapblk);
+void set_mapwho_thing_index(struct Map *map, ThingIndex thing_idx);
 long get_mapblk_column_index(const struct Map *map);
 void set_mapblk_column_index(struct Map *map, long column_idx);
 long get_mapblk_filled_subtiles(const struct Map *mapblk);
