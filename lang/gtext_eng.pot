@@ -139,7 +139,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "You have not yet built a Treasure Room. Until you build this room, you will "
-"be unable to pay any creatures. Only Imps give their loyalty freely. No "
+"be unable to pay any creatures. Only Imps give their loyalty free of charge. No "
 "other creatures will serve you unpaid."
 msgstr ""
 
@@ -202,7 +202,7 @@ msgstr ""
 #: guitext:19
 msgctxt "In-game message"
 msgid ""
-"The Lord of the Land has arrived. I can smell his fear. Defeat him and the "
+"The Lord of the Land has arrived. I can smell his fear. Defeat him, and the "
 "realm is yours."
 msgstr ""
 
@@ -263,7 +263,7 @@ msgstr ""
 #: guitext:26
 msgctxt "In-game message"
 msgid ""
-"Your plan proceeds smoothly, keeper. Allow your Imps time to fortify the "
+"Your plan proceeds smoothly, Keeper. Allow your Imps time to fortify the "
 "walls of your dungeon. This increases the efficiency of rooms and repels "
 "would-be invaders."
 msgstr ""
@@ -273,7 +273,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "The Training Room attracts ever more ferocious creatures, such as Demon "
-"Spawn. Build it and they will come."
+"Spawn. Build it, and they will come."
 msgstr ""
 
 #. Level Cosyton information after attracting Demon Spawn
@@ -357,7 +357,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "That's a fine collection of parchments and tomes you've assembled. Most "
-"creatures can engage in research but Warlocks make the best and keenest "
+"creatures can engage in research, but Warlocks make the best and keenest "
 "researchers. Stupid Trolls have trouble holding books the right way up and "
 "sometimes even chew the pages."
 msgstr ""
@@ -424,7 +424,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "Build up your dungeon with the rooms available to you and claim the Portal "
-"nearby but do not yet venture north. Powerful adversaries lurk there. It "
+"nearby, but do not yet venture north. Powerful adversaries lurk there. It "
 "would be wiser not to disturb them until you are prepared."
 msgstr ""
 
@@ -441,7 +441,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "A study of dungeon designs reveals that Workshops manufacture essential "
-"furniture, such as Doors and Traps. If your Workshop occupies a square of at "
+"furniture, such as doors and traps. If your Workshop occupies a square of at "
 "least nine tiles, its mere presence will lure the underworld's finest "
 "artisans into your dungeon."
 msgstr ""
@@ -450,7 +450,7 @@ msgstr ""
 #: guitext:48
 msgctxt "In-game message"
 msgid ""
-"To manufacture Traps and Doors in your Workshop you will need to assign "
+"To manufacture traps and doors in your Workshop, you will need to assign "
 "creatures to it, by dropping them into the room. Manufactured items can be "
 "selected from the Workshop Panel as soon as they're ready."
 msgstr ""
@@ -483,7 +483,7 @@ msgstr ""
 #: guitext:52
 msgctxt "In-game message"
 msgid ""
-"A Troll has joined you. Skilled in the craft of manufacturing, trolls are "
+"A Troll has joined you. Skilled in the craft of manufacturing, Trolls are "
 "best employed doing dark deeds in your Workshop. They don't complain about "
 "the hours, because their labours keep them away from combat."
 msgstr ""
@@ -501,7 +501,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "Your Workshop has created a Wooden Door. Placed in a corridor, it restricts "
-"access to the enemy. Your creatures may pass freely. Lock or unlock Doors by "
+"access to the enemy. Your creatures may pass freely. Lock or unlock doors by "
 "clicking over them with the left mouse button."
 msgstr ""
 
@@ -554,7 +554,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "Your loyal researchers have perfected the Sight of Evil spell. Cast it on an "
-"unexplored area and it will be revealed to you for a moment."
+"unexplored area, and it will be revealed to you for a moment."
 msgstr ""
 
 #. Level Lushmeadow-on-Down information
@@ -589,7 +589,7 @@ msgstr ""
 #: guitext:64
 msgctxt "In-game message"
 msgid ""
-"It's time to mete out the ultimate punishment to a keeper who dares to "
+"It's time to mete out the ultimate punishment to a Keeper who dares to "
 "challenge you for this corner of your subterranean empire. The price of "
 "failure shall be oblivion."
 msgstr ""
@@ -757,7 +757,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "Behold, you have summoned a Horned Reaper. Try not make it angry. You'll "
-"fail, because everything makes a Horned Reaper angry but at least try to "
+"fail, because everything makes a Horned Reaper angry, but at least try to "
 "make sure that everything near it is an enemy creature when it finally goes "
 "ballistic."
 msgstr ""
@@ -785,7 +785,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "You have researched the Graveyard. Your Imps will drag corpses here to "
-"rot... And possibly to rise again as Vampires, ready to do your bidding. "
+"rot... and possibly to rise again as Vampires, ready to do your bidding. "
 "That's style."
 msgstr ""
 
@@ -801,8 +801,8 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "Powerful creatures inhabit a cave south of here. There's a party of heroes "
-"between you and them but, if you reach them and convert them to your side "
-"before they join the other keepers, you will be unstoppable, unless you do "
+"between you and them, but, if you reach them and convert them to your side "
+"before they join the other Keepers, you will be unstoppable, unless you do "
 "something stupid."
 msgstr ""
 
@@ -837,7 +837,7 @@ msgctxt "In-game message"
 msgid ""
 "Your tireless librarians have researched the Scavenger Room. Creatures "
 "placed within a Scavenger Room will lure their kin from other dungeons and "
-"the outside world, into your domain."
+"the outside world into your domain."
 msgstr ""
 
 #. Level Nevergrim information
@@ -859,7 +859,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "The other two Keepers in this region have put aside their differences for "
-"the moment and joined forces, in an effort to destroy you. That's almost a "
+"the moment and joined forces in an effort to destroy you. That's almost a "
 "compliment. Kill the creeps."
 msgstr ""
 
@@ -939,7 +939,7 @@ msgstr ""
 #: guitext:105
 msgctxt "In-game message"
 msgid ""
-"If lands had legs this one would be on its knees. Its desperate inhabitants "
+"If lands had legs, this one would be on its knees. Its desperate inhabitants "
 "are preparing a full scale attack on your dungeon. It will be an ideal "
 "opportunity to practise unspeakable evil on a massive scale. Go for it, "
 "master."
@@ -1130,7 +1130,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "If you should encounter hero patrols, ensure that none of their number "
-"escape. Otherwise your presence will be revealed and then you will be in "
+"escape. Otherwise, your presence will be revealed, and then you will be in "
 "trouble."
 msgstr ""
 
@@ -1187,7 +1187,7 @@ msgstr ""
 #: guitext:135
 msgctxt "In-game message"
 msgid ""
-"You have destroyed the Avatar's castle but your rival has already taken the "
+"You have destroyed the Avatar's castle, but your rival has already taken the "
 "Avatar prisoner. Be that as it may, only the Keeper with the blackest heart "
 "can destroy this legendary hero, so ransack your rival's dungeon and take "
 "the prize."
@@ -1216,7 +1216,7 @@ msgstr ""
 #: guitext:138
 msgctxt "In-game message"
 msgid ""
-"Possess this Dragon to help you negotiate the fiery pits but be prepared to "
+"Possess this Dragon to help you negotiate the fiery pits, but be prepared to "
 "transfer your soul to a more appropriate creature when the situation demands "
 "it."
 msgstr ""
@@ -1324,8 +1324,8 @@ msgstr ""
 #: guitext:152
 msgctxt "In-game message"
 msgid ""
-"Well done. You have excelled in your use of large balls of stone for which "
-"the dark gods will repay you, by allowing you to use the warrior you found "
+"Well done. You have excelled in your use of large balls of stone, for which "
+"the dark gods will repay you by allowing you to use the warrior you found "
 "when you reach the next realm."
 msgstr ""
 
@@ -1334,7 +1334,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "This region of the underworld will test your ability to traverse the network "
-"of caverns. Indeed, time is your enemy here. Defeat it and you will find "
+"of caverns. Indeed, time is your enemy here. Defeat it, and you will find "
 "where a legendary warrior is imprisoned. That warrior will serve you well in "
 "the future."
 msgstr ""
@@ -1361,8 +1361,8 @@ msgstr ""
 #: guitext:156
 msgctxt "In-game message"
 msgid ""
-"Your evil has corrupted a Samurai Warrior, he has forsaken honour to join "
-"your cause. Should your minions suffer heavy casualties, this Warrior will "
+"Your evil has corrupted a Samurai warrior; he has forsaken honour to join "
+"your cause. Should your minions suffer heavy casualties, this warrior will "
 "even call upon his brothers in arms to offer assistance. How kind. How "
 "stupid!"
 msgstr ""
@@ -1430,7 +1430,7 @@ msgstr ""
 #: guitext:165
 msgctxt "In-game message"
 msgid ""
-"Take more care of your Bile Demons or you will never make it beyond this "
+"Take more care of your Bile Demons, or you will never make it beyond this "
 "realm."
 msgstr ""
 
@@ -1496,8 +1496,8 @@ msgstr ""
 #: guitext:174
 msgctxt "In-game message"
 msgid ""
-"Did you see? Your Demon Spawn has evolved to become a powerful Dragon ready "
-"to reduce your enemies into ashes!"
+"Did you see? Your Demon Spawn has evolved into a powerful Dragon ready "
+"to reduce your enemies to ashes!"
 msgstr ""
 
 #. Level Bonus 6 objective
@@ -1523,7 +1523,7 @@ msgctxt "In-game message"
 msgid ""
 "Try the Must Obey spell. When activated, it constantly forces your creatures "
 "to obey to all your orders, making all of them working faster without the "
-"possibility for them to take a nap. Be sure to have plenty of money so that "
+"possibility for them to take a nap. Be sure to have plenty of money, so that "
 "the spell will stay activated."
 msgstr ""
 
@@ -1531,8 +1531,8 @@ msgstr ""
 #: guitext:178
 msgctxt "In-game message"
 msgid ""
-"A Tentacle has joined your dungeon. These rare little creatures enjoy to be "
-"in water and their spine can even pierce the most solid armours and paralyse "
+"A Tentacle has joined your dungeon. These rare little creatures enjoy being "
+"in water, and their spine can even pierce the most solid armours and paralyse "
 "your enemies! Marvellous!"
 msgstr ""
 
@@ -1766,14 +1766,14 @@ msgstr ""
 msgctxt "Creature spell"
 msgid ""
 "Invisibility: Cast on one of your minions, it makes the host creature "
-"invisible to all enemies. Unless they possess a subnatural Sight."
+"invisible to all enemies. Unless they possess a subnatural sight."
 msgstr ""
 
 #: guitext:240
 msgctxt "Creature spell"
 msgid ""
 "Teleport: With this spell, a creature can teleport anywhere on the map. If "
-"you are Possessing a creature, then it teleports to its Lair or to the "
+"you are possessing a creature, then it teleports to its Lair or to the "
 "Dungeon Heart."
 msgstr ""
 
@@ -1785,7 +1785,7 @@ msgstr ""
 #: guitext:242
 msgctxt "Creature spell"
 msgid ""
-"Illumination: Brings light onto darkness, allowing the creature to see but "
+"Illumination: Brings light onto darkness, allowing the creature to see, but "
 "also be seen by others."
 msgstr ""
 
@@ -1804,7 +1804,7 @@ msgstr ""
 #: guitext:245
 msgctxt "Creature spell"
 msgid ""
-"Slow: Slows down the target creature, making it attacks and movement delayed."
+"Slow: Slows down the target creature, making its attacks and movement delayed."
 msgstr ""
 
 #: guitext:246
@@ -1818,8 +1818,8 @@ msgstr ""
 msgctxt "Creature spell"
 msgid ""
 "Word of Power: Causes rings of demonic energy to emanate from the creature's body and "
-"inflicts massive damage on the vicinity. Very effective against crowded hordes of enemies, "
-"also pushes them back."
+"inflicts massive damage on the vicinity. Very effective against crowded hordes of enemies. "
+"Also pushes them back."
 msgstr ""
 
 #: guitext:248
@@ -1865,7 +1865,7 @@ msgstr ""
 #: guitext:254
 msgctxt "Creature spell"
 msgid ""
-"Dig: This is the basic ability of the Imp and allows it to tunnel through "
+"Dig: This is the basic ability of the Imp, and allows it to tunnel through "
 "earth."
 msgstr ""
 
@@ -1881,7 +1881,7 @@ msgstr ""
 msgctxt "Creature spell"
 msgid ""
 "Chicken: Turns enemy into chicken for a while. The enemy isn't able to "
-"attack but has the same strength and thus won't be as easy to kill as a "
+"attack, but has the same strength and thus won't be as easy to kill as a "
 "normal chicken."
 msgstr ""
 
@@ -2083,12 +2083,12 @@ msgstr ""
 
 #: guitext:294
 msgctxt "In-game interface description"
-msgid "Wage: The creature's salary in gold which it takes on each payday."
+msgid "Wage: The creature's salary in gold, which it takes on each payday."
 msgstr ""
 
 #: guitext:295
 msgctxt "In-game interface description"
-msgid "Gold Held: The amount of gold the creature is carrying."
+msgid "Gold Held: The quantity of gold the creature is carrying."
 msgstr ""
 
 #: guitext:296
@@ -2101,7 +2101,7 @@ msgstr ""
 #: guitext:297
 msgctxt "In-game interface description"
 msgid ""
-"Skill: The creature's ability to perform tasks. The higher the Skill level, "
+"Skill: The creature's ability to perform tasks. The higher the skill level, "
 "the better the creature's performance."
 msgstr ""
 
@@ -2233,7 +2233,7 @@ msgstr ""
 
 #: guitext:319
 msgctxt "Slab description"
-msgid "Empty Lair: Would suit itinerant creature."
+msgid "Empty Lair: Would suit itinerant creatures."
 msgstr ""
 
 #: guitext:320
@@ -2258,13 +2258,13 @@ msgstr ""
 #: guitext:323
 msgctxt "In-game interface description"
 msgid ""
-"Full Screen Map: Takes you to the Map Screen which displays your entire "
-"Dungeon and the surrounding area. LMB select."
+"Full Screen Map: Takes you to the Map Screen, which displays your entire "
+"dungeon and the surrounding area. LMB select."
 msgstr ""
 
 #: guitext:324
 msgctxt "Slab description"
-msgid "Impenetrable Rock: Your Imps cannot dig through this, the only solution is to go round. It is visible even if far from your territory."
+msgid "Impenetrable Rock: Your Imps cannot dig through this; the only solution is to go round. It is visible even if far from your territory."
 msgstr ""
 
 #: guitext:325
@@ -2965,7 +2965,7 @@ msgstr ""
 
 #: guitext:463
 msgctxt "In-game interface description"
-msgid "Sell Item: Sell a Trap or Door. Allows you to earn gold on manufacturing. LMB select."
+msgid "Sell Item: Sell a trap or door. Allows you to earn gold on manufacturing. LMB select."
 msgstr ""
 
 #: guitext:464
@@ -3370,7 +3370,7 @@ msgstr ""
 
 #: guitext:544
 msgctxt "Slab description"
-msgid "Gems: Infinite wealth for your Imps to extract. Cannot be destroyed, but takes longer to mine than Gold."
+msgid "Gems: Infinite wealth for your Imps to extract. Cannot be destroyed, but takes longer to mine than gold."
 msgstr ""
 
 #: guitext:545
@@ -3570,7 +3570,7 @@ msgstr ""
 #: guitext:584
 msgctxt "Trap description"
 msgid ""
-"Boulder Trap: A rolling rock that crushes everything in its path. Triggered when enemy creature "
+"Boulder Trap: A rolling rock that crushes everything in its path. Triggered when an enemy creature "
 "is close and within line of sight, or when slapped by a Keeper. LMB select. RMB zoom."
 msgstr ""
 
@@ -3582,14 +3582,14 @@ msgstr ""
 #: guitext:586
 msgctxt "Trap description"
 msgid ""
-"Poison Gas Trap: A cloud of noxious vapours triggered by your enemies. Can hurt owner creatures if they inhale it. LMB "
+"Poison Gas Trap: A cloud of noxious vapours triggered by your enemies. Can hurt the owner's creatures if they inhale it. LMB "
 "select. RMB zoom."
 msgstr ""
 
 #: guitext:587
 msgctxt "Trap description"
 msgid ""
-"Lightning Trap: Strikes nearby enemy creatures with bolts of lightning when tripped. Does no harm to owner creatures. LMB "
+"Lightning Trap: Strikes nearby enemy creatures with bolts of lightning when tripped. Does no harm to the owner's creatures. LMB "
 "select. RMB zoom."
 msgstr ""
 
@@ -3603,7 +3603,7 @@ msgstr ""
 #: guitext:589
 msgctxt "Trap description"
 msgid ""
-"Lava Trap: The tile disintegrates revealing a pool of molten lava. Effects are irreversible, so Bridge is needed to be able to step on affected area again. LMB "
+"Lava Trap: The tile disintegrates revealing a pool of molten lava. Effects are irreversible, so a Bridge is needed to be able to step on the affected area again. LMB "
 "select. RMB zoom."
 msgstr ""
 
@@ -3778,7 +3778,7 @@ msgstr ""
 #: guitext:621
 msgctxt "Room description"
 msgid ""
-"Workshop: Place creatures inside to manufacture Traps and Doors. LMB select. "
+"Workshop: Place creatures inside to manufacture traps and doors. LMB select. "
 "RMB zoom. [17.8]"
 msgstr ""
 
@@ -4406,7 +4406,7 @@ msgstr ""
 #: guitext:737
 msgctxt "In-game interface description"
 msgid ""
-"Invert Mouse: Inverts the vertical mouse movements while Possessing a "
+"Invert Mouse: Inverts the vertical mouse movements while possessing a "
 "creature. LMB toggle."
 msgstr ""
 
@@ -4740,28 +4740,28 @@ msgstr ""
 #: guitext:803
 msgctxt "Easter egg"
 msgid ""
-"When night does not give way to day, And children are too scared to play, "
-"Abandon hope, embrace despair, You're destined for my Dragon's lair"
+"When night does not give way to day, and children are too scared to play, "
+"abandon hope, embrace despair, you're destined for my Dragon's lair."
 msgstr ""
 
 #: guitext:804
 msgctxt "Easter egg"
-msgid "If thou art bold and pure of heart, Come down here, be torn apart."
+msgid "If thou art bold and pure of heart, come down here, be torn apart."
 msgstr ""
 
 #: guitext:805
 msgctxt "Easter egg"
-msgid "Through my dungeon you may tread, But rest assured, you'll end up dead."
+msgid "Through my dungeon you may tread, but rest assured, you'll end up dead."
 msgstr ""
 
 #: guitext:806
 msgctxt "Easter egg"
-msgid "If you find you lose it all, Why not play Theme Hospital?"
+msgid "If you find you lose it all, why not play Theme Hospital?"
 msgstr ""
 
 #: guitext:807
 msgctxt "Easter egg"
-msgid "Armoured Knights who have true grit, Roast more quickly on a spit."
+msgid "Armoured Knights who have true grit, roast more quickly on a spit."
 msgstr ""
 
 #: guitext:808
@@ -4771,72 +4771,72 @@ msgstr ""
 
 #: guitext:809
 msgctxt "Easter egg"
-msgid "Evil, malice, death, decay, Just another working day."
+msgid "Evil, malice, death, decay, just another working day."
 msgstr ""
 
 #: guitext:810
 msgctxt "Easter egg"
-msgid "Evil, malice, death, decay, There really is no better way."
+msgid "Evil, malice, death, decay, there really is no better way."
 msgstr ""
 
 #: guitext:811
 msgctxt "Easter egg"
-msgid "Giant, Dwarf, Thief and Fairy, None of you are very scary."
+msgid "Giant, Dwarf, Thief and Fairy, none of you are very scary."
 msgstr ""
 
 #: guitext:812
 msgctxt "Easter egg"
-msgid "The denizens of your domain, Just cannot wait to kill again."
+msgid "The denizens of your domain, just cannot wait to kill again."
 msgstr ""
 
 #: guitext:813
 msgctxt "Easter egg"
-msgid "The better creatures you employ, The greater carnage you enjoy."
+msgid "The better creatures you employ, the greater carnage you enjoy."
 msgstr ""
 
 #: guitext:814
 msgctxt "Easter egg"
-msgid "Hark! The Avatar's abroad, And I can smell a frightened Lord."
+msgid "Hark! The Avatar's abroad, and I can smell a frightened Lord."
 msgstr ""
 
 #: guitext:815
 msgctxt "Easter egg"
-msgid "Trespassers will meet their doom, In your dungeon's Torture Room."
+msgid "Trespassers will meet their doom, in your dungeon's Torture Room."
 msgstr ""
 
 #: guitext:816
 msgctxt "Easter egg"
-msgid "Though intruders' hearts be pure, They'll end up on your dungeon floor."
+msgid "Though intruders' hearts be pure, they'll end up on your dungeon floor."
 msgstr ""
 
 #: guitext:817
 msgctxt "Easter egg"
 msgid ""
-"Your tunnels will be dark and cold, And no place for a Knight of old, Even "
+"Your tunnels will be dark and cold, and no place for a Knight of old, Even "
 "if he claims he's bold."
 msgstr ""
 
 #: guitext:818
 msgctxt "Easter egg"
-msgid "The fools who enter your domain, Will never see the light again."
+msgid "The fools who enter your domain, will never see the light again."
 msgstr ""
 
 #: guitext:819
 msgctxt "Easter egg"
-msgid "Pain and anguish are your tools, To use upon intruding fools."
+msgid "Pain and anguish are your tools, to use upon intruding fools."
 msgstr ""
 
 #: guitext:820
 msgctxt "Easter egg"
 msgid ""
-"When good guys head right for your treasure, Hunt and kill them at your "
+"When good guys head right for your treasure, hunt and kill them at your "
 "leisure."
 msgstr ""
 
 #: guitext:821
 msgctxt "Easter egg"
 msgid ""
-"Protect your gold and Dungeon Heart, And slap your minions till they fart."
+"Protect your gold and Dungeon Heart, and slap your minions till they fart."
 msgstr ""
 
 #: guitext:822
@@ -4851,22 +4851,22 @@ msgstr ""
 
 #: guitext:824
 msgctxt "Easter egg"
-msgid "When your creatures give you hell, Stick them in your Prison Cell."
+msgid "When your creatures give you hell, stick them in your prison cell."
 msgstr ""
 
 #: guitext:825
 msgctxt "Easter egg"
-msgid "Torture is the crowning glory, Of your Dungeon Keeper story."
+msgid "Torture is the crowning glory, of your Dungeon Keeper story."
 msgstr ""
 
 #: guitext:826
 msgctxt "Easter egg"
-msgid "You are the Keeper, chosen one, And being evil is great fun."
+msgid "You are the Keeper, chosen one, and being evil is great fun."
 msgstr ""
 
 #: guitext:827
 msgctxt "Easter egg"
-msgid "When your troops are hunger-stricken, Your Hatchery has yummy chicken."
+msgid "When your troops are hunger-stricken, your Hatchery has yummy chicken."
 msgstr ""
 
 #: guitext:828
@@ -4932,7 +4932,7 @@ msgstr ""
 
 #: guitext:837
 msgctxt "In-game hint message"
-msgid "He who controls the most gold controls the entire Underworld."
+msgid "He who controls the most gold controls the entire underworld."
 msgstr ""
 
 #: guitext:838
@@ -5215,7 +5215,7 @@ msgstr ""
 #: guitext:893
 msgctxt "In-game message"
 msgid ""
-"Another Keeper has already claimed this realm. He is unfit to rule so "
+"Another Keeper has already claimed this realm. He is unfit to rule, so "
 "destroy him and take what is rightfully yours. Great riches lie in the "
 "caverns around the land; explore to gain more power."
 msgstr ""
@@ -5224,7 +5224,7 @@ msgstr ""
 #: guitext:894
 msgctxt "In-game message"
 msgid ""
-"This land is highly coveted amongst the evil and there are three enemy "
+"This land is highly coveted amongst the evil, and there are three enemy "
 "Dungeon Keepers you must battle with to claim supremacy. Keep an eye out for "
 "any rogue bands of heroes waiting to ambush a careless Keeper."
 msgstr ""
@@ -5242,7 +5242,7 @@ msgstr ""
 #: guitext:896
 msgctxt "In-game message"
 msgid ""
-"You and a rival Dungeon Keeper are vying for control of this realm but the "
+"You and a rival Dungeon Keeper are vying for control of this realm, but the "
 "Lord of the Land has constructed his own dungeon between you to halt your "
 "conquest. Destroy him and the enemy Keeper to reign supreme."
 msgstr ""
@@ -5251,15 +5251,15 @@ msgstr ""
 #: guitext:897
 msgctxt "In-game message"
 msgid ""
-"You have done well to come this far but further hardships await. Search the "
-"map carefully and you may find many secrets to aid your conquest."
+"You have done well to come this far, but further hardships await. Search the "
+"map carefully, and you may find many secrets to aid your conquest."
 msgstr ""
 
 #. DD Level Abbadon first objective
 #: guitext:898
 msgctxt "In-game message"
 msgid ""
-"You have come to this realm with little to assist you so you must explore to "
+"You have come to this realm with little to assist you, so you must explore to "
 "gain more power. Keep an eye out for any loathsome heroes who may try to "
 "thwart your progress."
 msgstr ""
@@ -5277,7 +5277,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "Your opponent for this realm has foolishly challenged your superior skill. "
-"Such disrespect should be punished so make an example of his insolence."
+"Such disrespect should be punished, so make an example of his insolence."
 msgstr ""
 
 #. DD Level Morkardar information soon after start
@@ -5325,7 +5325,7 @@ msgstr ""
 #: guitext:906
 msgctxt "In-game message"
 msgid ""
-"Congratulations Keeper. This vial has given your researchers a much needed "
+"Congratulations, Keeper. This vial has given your researchers a much needed "
 "boost. You can now construct Bridges, which enable you to traverse water and "
 "fire."
 msgstr ""
