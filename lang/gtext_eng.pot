@@ -5657,7 +5657,7 @@ msgstr ""
 
 #: guitext:959
 msgctxt "In-game interface description"
-msgid "Weight: Mass of the creature. Some people say overweight can lead to heart attack."
+msgid "Weight: Mass of the creature. Some people say that being overweight can lead to heart attacks."
 msgstr ""
 
 #: guitext:960
