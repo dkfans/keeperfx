@@ -65,6 +65,8 @@ enum FrontendMenuStates {
   FeSt_STORY_POEM,
   FeSt_CREDITS,
   FeSt_DEMO,
+  FeSt_UNUSED1,
+  FeSt_UNUSED2,
   FeSt_LEVEL_STATS,
   FeSt_HIGH_SCORES,
   FeSt_TORTURE,
