@@ -77,12 +77,12 @@ struct Thing *script_process_new_object(long tngmodel, TbMapLocation location, l
     }
     switch (tngmodel)
     {
-        case OBJECT_TYPE_SPECBOX_CUSTOM: // Custom box from SPECBOX_HIDNWRL
+        case ObjMdl_SpecboxCustom: // Custom box from SPECBOX_HIDNWRL
             thing->custom_box.box_kind = (unsigned char)arg;
             break;
-        case 3:
-        case 6: //GOLD
-        case 43:
+        case ObjMdl_GoldChest:
+        case ObjMdl_GoldPot:
+        case ObjMdl_Goldl:
             thing->valuable.gold_stored = arg;
             break;
     }

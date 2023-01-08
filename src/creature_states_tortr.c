@@ -150,7 +150,7 @@ long setup_torture_move_to_device(struct Thing *creatng, struct Room *room, Crea
     {
         MapSlabCoord slb_x = slb_num_decode_x(slbnum);
         MapSlabCoord slb_y = slb_num_decode_y(slbnum);
-        struct Thing* tortrtng = find_base_thing_on_mapwho(TCls_Object, 125, slab_subtile_center(slb_x), slab_subtile_center(slb_y));
+        struct Thing* tortrtng = find_base_thing_on_mapwho(TCls_Object, ObjMdl_Torturer, slab_subtile_center(slb_x), slab_subtile_center(slb_y));
         if (!thing_is_invalid(tortrtng) && (tortrtng->torturer.belongs_to == 0))
         {
             if (!setup_person_move_to_coord(creatng, &tortrtng->mappos, NavRtF_Default))
