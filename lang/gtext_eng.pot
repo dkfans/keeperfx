@@ -1852,7 +1852,7 @@ msgstr ""
 #: guitext:252
 msgctxt "Creature spell"
 msgid ""
-"Hand to Hand: The basic battle ability that allows to attack the enemy with "
+"Hand to Hand: The basic battle ability that allows you to attack the enemy with "
 "either bare hands or a sword."
 msgstr ""
 
