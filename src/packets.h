@@ -21,6 +21,7 @@
 
 #include "bflib_basics.h"
 #include "globals.h"
+#include "bflib_coroutine.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -46,7 +47,7 @@ enum TbPacketAction {
         PckA_TortureFrame,//15 Unused?
         PckA_LandviewFrameCli, // Assume unused
         PckA_LandviewFrameSrv, // Assume unused
-        PckA_Unknown018,
+        PckA_FrameSrv, // Unused?
         PckA_Unknown019,
         PckA_ToggleLights,//20
         PckA_SwitchScrnRes,
@@ -293,7 +294,7 @@ TbBool process_players_dungeon_control_packet_action(long idx);
 void process_players_creature_control_packet_control(long idx);
 void process_players_creature_passenger_packet_action(long idx);
 void process_players_creature_control_packet_action(long idx);
-void process_frontend_packets(void);
+void process_frontend_packets(CoroutineLoop *context);
 void process_map_packet_clicks(long idx);
 void process_pause_packet(long a1, long a2);
 void process_quit_packet(struct PlayerInfo *player, short complete_quit);

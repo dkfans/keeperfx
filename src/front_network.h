@@ -46,7 +46,7 @@ void frontnet_session_setup(void);
 void frontnet_start_setup(void);
 void frontnet_service_update(void);
 void frontnet_session_update(void);
-void frontnet_start_update(void);
+void frontnet_start_update(CoroutineLoop *context);
 
 void net_load_config_file(void);
 void net_write_config_file(void);

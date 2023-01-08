@@ -3689,7 +3689,7 @@ static TbBool wait_at_frontend(void)
         break; // end while
       }
 
-      frontend_update(&finish_menu);
+      frontend_update(&loop, &finish_menu);
       if ( exit_keeper )
       {
         SYNCDBG(0,"Frontend Update exit condition invoked");
@@ -3713,7 +3713,8 @@ static TbBool wait_at_frontend(void)
       {
         fade_in();
         fade_palette_in = 0;
-      } else
+      }
+      else
       {
         LbSleepUntil(fe_last_loop_time + 30);
       }

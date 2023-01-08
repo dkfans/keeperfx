@@ -185,7 +185,7 @@ struct NetState
     int                     seq_nbr;            //sequence number of next frame to be issued
     unsigned                max_players;        //max players that will actually be used
 
-    struct NetPacket        *outpacket;
+    struct NetPacket        *outpacket, *outpacket_tail; // List of outgoing packets (in order)
 
     char                    msg_buffer[(sizeof(NetFrame) + sizeof(struct Packet)) * PACKETS_COUNT + 1]; //completely estimated for now
     char                    msg_buffer_null;    //theoretical safe guard vs non-terminated strings
@@ -779,25 +779,36 @@ TbError LbNetwork_Create(char *nsname_str, char *plyr_name, unsigned long *plyr_
     return Lb_OK;
 }
 
+TbBool LbNetwork_IsServer()
+{
+    return netstate.my_id == SERVER_ID;
+}
+
 void LbNetwork_ChangeExchangeTimeout(unsigned long tmout)
 {
 }
 
 TbError LbNetwork_Stop(void)
 {
-    NetFrame* frame;
-    NetFrame* nextframe;
 
-    if (netstate.sp) {
+    if (netstate.sp)
+    {
         netstate.sp->exit();
     }
 
-    frame = netstate.exchg_queue;
-    while (frame != NULL) {
-        nextframe = frame->next;
+    for (NetFrame* frame = netstate.exchg_queue;frame != NULL;)
+    {
+        NetFrame *nextframe = frame->next;
         LbMemoryFree(frame->buffer);
         LbMemoryFree(frame);
         frame = nextframe;
+    }
+
+    for (auto outframe = netstate.outpacket; outframe != nullptr; )
+    {
+        auto nextframe = outframe->next;
+        free(outframe);
+        outframe = nextframe;
     }
 
     LbMemorySet(&netstate, 0, sizeof(netstate));
@@ -909,11 +920,27 @@ static void ConsumeServerFrame(void *server_buf, int frame_size)
     LbMemoryFree(frame);
 }
 
+void *LbNetwork_AddPacket_f(unsigned char kind, unsigned long turn, short size, const char* func)
+{
+    // TODO optimize somehow
+    auto ret = static_cast<NetPacket *>(malloc(sizeof(struct NetPacket) + size));
+    if (netstate.outpacket)
+    {
+        netstate.outpacket_tail->next = ret;
+        netstate.outpacket_tail = ret;
+    }
+    else
+    {
+        netstate.outpacket = ret;
+        netstate.outpacket_tail = ret;
+    }
+    return ret;
+}
 static void SendFrames()
 {
     //SendClientFrame((char *) send_buf, client_frame_size, netstate.seq_nbr);
     //SendServerFrame(server_buf, client_frame_size, CountLoggedInClients() + 1);
-    for (struct NetPacket *packet = netstate.outpacket; packet != NULL;)
+    for (struct NetPacket *packet = netstate.outpacket; packet != nullptr;)
     {
         netstate.sp->sendmsg_all(((const char *)packet) + offsetof(struct NetPacket, kind), packet->size);
 
@@ -922,6 +949,8 @@ static void SendFrames()
         // TODO: maybe keep and process them
         free(old_packet);
     }
+    netstate.outpacket = nullptr;
+    netstate.outpacket_tail = nullptr;
 }
 /*
  * send_buf is a buffer inside shared buffer which sent to a server
@@ -948,7 +977,7 @@ TbError LbNetwork_Exchange(void *context, LbNetwork_Packet_Callback callback)
     while (true)
     {
         //  TODO NET: Now we are steplocked
-        size_t rcount;
+        short rcount = 0;
         NetUserId source;
         for (source = 0; source < MAX_N_USERS; source++)
         {

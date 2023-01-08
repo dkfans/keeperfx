@@ -22,6 +22,7 @@
 #include "globals.h"
 #include "bflib_guibtns.h"
 #include "gui_frontmenu.h"
+#include "bflib_coroutine.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -279,7 +280,7 @@ FrontendMenuState frontend_set_state(FrontendMenuState nstate);
 FrontendMenuState get_startup_menu_state(void);
 FrontendMenuState get_menu_state_when_back_from_substate(FrontendMenuState substate);
 void frontend_input(void);
-void frontend_update(short *finish_menu);
+void frontend_update(CoroutineLoop *context, short *finish_menu);
 short frontend_draw(void);
 void create_frontend_error_box(long showTime, const char * text);
 void try_restore_frontend_error_box(); // Restore error box if frontend state was switched

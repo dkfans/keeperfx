@@ -3480,7 +3480,7 @@ void display_objectives(PlayerNumber plyr_idx, long x, long y)
     }
 }
 
-void frontend_update(short *finish_menu)
+void frontend_update(CoroutineLoop *context, short *finish_menu)
 {
     SYNCDBG(18,"Starting for menu state %d", (int)frontend_menu_state);
     switch ( frontend_menu_state )
@@ -3507,7 +3507,7 @@ void frontend_update(short *finish_menu)
         frontnet_session_update();
         break;
     case FeSt_NET_START:
-        frontnet_start_update();
+        frontnet_start_update(context);
         break;
     case FeSt_START_KPRLEVEL:
     case FeSt_START_MPLEVEL:

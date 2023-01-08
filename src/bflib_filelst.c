@@ -133,28 +133,28 @@ short LbDataLoad(struct TbLoadFiles *load_file)
  */
 short LbDataLoadAll(struct TbLoadFiles load_files[])
 {
-  LbMemorySetup();
-  LbDataFreeAll(load_files);
-  int ferror = 0;
-  int i = 0;
-  struct TbLoadFiles* t_lfile = &load_files[i];
-  while (t_lfile->Start != NULL)
-  {
-      int ret_val = LbDataLoad(t_lfile);
-      if (ret_val == -100)
-      {
-          ERRORLOG("Can't allocate memory for \"%s\"", t_lfile->FName);
-          ferror++;
-    } else
-    if ( ret_val == -101 )
+    LbMemorySetup();
+    LbDataFreeAll(load_files);
+    int ferror = 0;
+    int i = 0;
+    struct TbLoadFiles* t_lfile = &load_files[i];
+    while (t_lfile->Start != NULL)
     {
-      ERRORLOG("Can't load file \"%s\"", t_lfile->FName);
-      ferror++;
+        int ret_val = LbDataLoad(t_lfile);
+        if (ret_val == -100)
+        {
+            ERRORLOG("Can't allocate memory for \"%s\"", t_lfile->FName);
+            ferror++;
+        }
+        else if ( ret_val == -101 )
+        {
+            ERRORLOG("Can't load file \"%s\"", t_lfile->FName);
+            ferror++;
+        }
+        i++;
+        t_lfile = &load_files[i];
     }
-    i++;
-    t_lfile = &load_files[i];
-  }
-  return ferror;
+    return ferror;
 }
 
 ModifyDataLoadFnameFunc *LbDataLoadSetModifyFilenameFunction(ModifyDataLoadFnameFunc *newfunc)

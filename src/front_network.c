@@ -346,7 +346,7 @@ void frontnet_rewite_net_messages(void)
       memcpy(&net_message[i], &lmsg[i], sizeof(struct NetMessage));
 }
 
-void frontnet_start_update(void)
+void frontnet_start_update(CoroutineLoop *context)
 {
     static TbClockMSec player_last_time = 0;
     SYNCDBG(18,"Starting");
@@ -369,7 +369,7 @@ void frontnet_start_update(void)
     {
       net_message_scroll_offset = net_number_of_messages-1;
     }
-    process_frontend_packets();
+    process_frontend_packets(context);
     frontnet_rewite_net_messages();
 }
 

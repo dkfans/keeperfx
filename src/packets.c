@@ -95,6 +95,7 @@
 
 #include "music_player.h"
 #include "post_inc.h"
+#include "bflib_datetm.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -1397,6 +1398,17 @@ static void replace_with_ai(int old_active_players)
     }
 }
 
+static TbBool process_packets_cb(void *context, unsigned long turn, int net_player_idx, unsigned char kind, void *packet_data, short size)
+{
+    // TODO: copy all packets to game.packets
+    return false;
+}
+
+static TbBool process_packets_server_cb(void *context, unsigned long turn, int net_player_idx, unsigned char kind, void *packet_data, short size)
+{
+    // TODO: copy player packet to game.packets
+    return false;
+}
 /**
  * Exchange packets if MP game, then process all packets influencing local game state.
  */
@@ -1419,10 +1431,25 @@ void process_packets(void)
         }
         if (!game.packet_load_enable || game.numfield_149F47)
         {
-            struct Packet* pckt = get_packet_direct(player->packet_num);
-            if (LbNetwork_Exchange(pckt, game.packets, sizeof(struct Packet)) != 0)
+            struct Packet* outgoing;
+            if (LbNetwork_IsServer())
             {
-                ERRORLOG("LbNetwork_Exchange failed");
+                outgoing = LbNetwork_AddPacket(PckA_FrameSrv, game.play_gameturn, sizeof(struct Packet) * NET_PLAYERS_COUNT);
+                memcpy(outgoing, game.packets, sizeof(struct Packet) * NET_PLAYERS_COUNT);
+                if (LbNetwork_Exchange(game.packets, process_packets_server_cb) != 0)
+                {
+                    ERRORLOG("LbNetwork_Exchange failed");
+                }
+            }
+            else
+            {
+                struct Packet* pckt = get_packet_direct(player->packet_num);
+                outgoing = LbNetwork_AddPacket(PckA_Frame, game.play_gameturn, sizeof(struct Packet));
+                memcpy(outgoing, pckt, sizeof(struct Packet));
+                if (LbNetwork_Exchange(game.packets, process_packets_cb) != 0)
+                {
+                    ERRORLOG("LbNetwork_Exchange failed");
+                }
             }
         }
         replace_with_ai(old_active_players);
@@ -1472,160 +1499,205 @@ void process_packets(void)
   SYNCDBG(7,"Finished");
 }
 
-void process_frontend_packets(void)
+static TbBool process_frontend_packets_cb(void *context, unsigned long turn, int net_player_idx, unsigned char kind, void *packet_data, short size)
 {
-  long i;
-  for (i=0; i < NET_PLAYERS_COUNT; i++)
-  {
-    net_screen_packet[i].field_4 &= ~0x01;
-  }
-  struct ScreenPacket* nspckt = &net_screen_packet[my_player_number];
-  set_flag_byte(&nspckt->field_4, 0x01, true);
-  nspckt->field_5 = frontend_alliances;
-  set_flag_byte(&nspckt->field_4, 0x01, true);
-  nspckt->field_4 ^= ((nspckt->field_4 ^ (fe_computer_players << 1)) & 0x06);
-  nspckt->field_6 = VersionMajor;
-  nspckt->field_8 = VersionMinor;
-  if (LbNetwork_Exchange(nspckt, &net_screen_packet, sizeof(struct ScreenPacket)))
-  {
-      ERRORLOG("LbNetwork_Exchange failed");
-      net_service_index_selected = -1; // going to quit
-  }
-  if (frontend_should_all_players_quit())
-  {
-    i = frontnet_number_of_players_in_session();
-    if (players_currently_in_session < i)
+    // TODO: copy all packets to game.packets
+    return false;
+}
+
+static TbBool process_frontend_packets_server_cb(void *context, unsigned long turn, int net_player_idx, unsigned char kind, void *packet_data, short size)
+{
+    // TODO: copy player packet to game.packets
+    return false;
+}
+
+void process_frontend_packets(CoroutineLoop *context)
+{
+    long i;
+    static TbClockMSec next_time = 0;
+    TbClockMSec now_time = LbTimerClock();
+    TbBool need_packet = false;
+    if (now_time > next_time)
     {
-      players_currently_in_session = i;
+        next_time =  now_time + 20;
+        need_packet = true;
     }
-    if (players_currently_in_session > i)
+
+    for (i=0; i < NET_PLAYERS_COUNT; i++)
     {
-      if (frontend_menu_state == FeSt_NET_SESSION)
-      {
-          if (LbNetwork_Stop())
-          {
-            ERRORLOG("LbNetwork_Stop() failed");
-            return;
-          }
-          frontend_set_state(FeSt_MAIN_MENU);
-      } else if (frontend_menu_state == FeSt_NET_START)
-      {
-          if (LbNetwork_Stop())
-          {
-            ERRORLOG("LbNetwork_Stop() failed");
-            return;
-          }
-          if (setup_network_service(net_service_index_selected))
-          {
-            frontend_set_state(FeSt_NET_SESSION);
-          }
-          else
-          {
-            frontend_set_state(FeSt_MAIN_MENU);
-          }
-      }
+        net_screen_packet[i].field_4 &= ~0x01;
     }
-  }
-#if DEBUG_NETWORK_PACKETS
-  write_debug_screenpackets();
-#endif
-  for (i=0; i < NET_PLAYERS_COUNT; i++)
-  {
-    nspckt = &net_screen_packet[i];
-    struct PlayerInfo* player = get_player(i);
-    if ((nspckt->field_4 & 0x01) != 0)
+    struct ScreenPacket* nspckt = &net_screen_packet[my_player_number];
+    set_flag_byte(&nspckt->field_4, 0x01, true);
+    nspckt->field_5 = frontend_alliances;
+    set_flag_byte(&nspckt->field_4, 0x01, true);
+    nspckt->field_4 ^= ((nspckt->field_4 ^ (fe_computer_players << 1)) & 0x06);
+    nspckt->field_6 = VersionMajor;
+    nspckt->field_8 = VersionMinor;
+    if (LbNetwork_IsServer())
     {
-        long k;
-        switch (nspckt->field_4 >> 3)
+        if (need_packet)
         {
-        case 2:
-            add_message(i, (char*)&nspckt->param1);
-            break;
-        case 3:
-            if (!validate_versions())
+            void *outgoing = LbNetwork_AddPacket(PckA_LandviewFrameSrv, 0,
+                                                 sizeof(struct ScreenPacket) * NET_PLAYERS_COUNT);
+            memcpy(outgoing, net_screen_packet, sizeof(struct ScreenPacket) * NET_PLAYERS_COUNT);
+        }
+        if (LbNetwork_Exchange(net_screen_packet, &process_frontend_packets_server_cb))
+        {
+            ERRORLOG("LbNetwork_Exchange failed");
+            net_service_index_selected = -1; // going to quit
+        }
+    }
+    else
+    {
+        if (need_packet)
+        {
+            void *outgoing = LbNetwork_AddPacket(PckA_LandviewFrameCli, 0,
+                                                 sizeof(struct ScreenPacket));
+            memcpy(outgoing, nspckt, sizeof(struct ScreenPacket));
+        }
+        if (LbNetwork_Exchange(net_screen_packet, &process_frontend_packets_server_cb))
+        {
+            ERRORLOG("LbNetwork_Exchange failed");
+            net_service_index_selected = -1; // going to quit
+        }
+    }
+    if (frontend_should_all_players_quit())
+    {
+        i = frontnet_number_of_players_in_session();
+        if (players_currently_in_session < i)
+        {
+            players_currently_in_session = i;
+        }
+        if (players_currently_in_session > i)
+        {
+            if (frontend_menu_state == FeSt_NET_SESSION)
             {
+                if (LbNetwork_Stop())
+                {
+                    ERRORLOG("LbNetwork_Stop() failed");
+                    return;
+                }
+                frontend_set_state(FeSt_MAIN_MENU);
+            }
+            else if (frontend_menu_state == FeSt_NET_START)
+            {
+                if (LbNetwork_Stop())
+                {
+                    ERRORLOG("LbNetwork_Stop() failed");
+                    return;
+                }
+                if (setup_network_service(net_service_index_selected))
+                {
+                    frontend_set_state(FeSt_NET_SESSION);
+                }
+                else
+                {
+                    frontend_set_state(FeSt_MAIN_MENU);
+                }
+            }
+        }
+    }
+    #if DEBUG_NETWORK_PACKETS
+    write_debug_screenpackets();
+    #endif
+    for (i=0; i < NET_PLAYERS_COUNT; i++)
+    {
+        nspckt = &net_screen_packet[i];
+        struct PlayerInfo* player = get_player(i);
+        if ((nspckt->field_4 & 0x01) != 0)
+        {
+            long k;
+            switch (nspckt->field_4 >> 3)
+            {
+            case 2:
+                add_message(i, (char*)&nspckt->param1);
+                break;
+            case 3:
+                if (!validate_versions())
+                {
                 versions_different_error();
                 break;
-            }
-            fe_network_active = 1;
-            frontend_set_state(FeSt_NETLAND_VIEW);
-            break;
-        case 4:
-            frontend_set_alliance(nspckt->param1, nspckt->param2);
-            break;
-        case 7:
-            fe_computer_players = nspckt->param1;
-            break;
-        case 8:
-        {
-            k = strlen(player->mp_message_text);
-            unsigned short c;
-            if (nspckt->param1 == KC_BACK)
-            {
-                if (k > 0)
-                {
-                    k--;
-                    player->mp_message_text[k] = '\0';
                 }
-            }
-            else if (nspckt->param1 == KC_RETURN)
+                fe_network_active = 1;
+                frontend_set_state(FeSt_NETLAND_VIEW);
+                break;
+            case 4:
+                frontend_set_alliance(nspckt->param1, nspckt->param2);
+                break;
+            case 7:
+                fe_computer_players = nspckt->param1;
+                break;
+            case 8:
             {
-                if (k > 0)
+                k = strlen(player->mp_message_text);
+                unsigned short c;
+                if (nspckt->param1 == KC_BACK)
                 {
-                    add_message(i, player->mp_message_text);
-                    k = 0;
-                    player->mp_message_text[k] = '\0';
+                    if (k > 0)
+                    {
+                        k--;
+                        player->mp_message_text[k] = '\0';
+                    }
                 }
+                else if (nspckt->param1 == KC_RETURN)
+                {
+                    if (k > 0)
+                    {
+                        add_message(i, player->mp_message_text);
+                        k = 0;
+                        player->mp_message_text[k] = '\0';
+                    }
+                }
+                else
+                {
+                    c = key_to_ascii(nspckt->param1, nspckt->param2);
+                    if ((c != 0) && (frontend_font_char_width(1, c) > 1) && (k < 62))
+                    {
+                        player->mp_message_text[k] = c;
+                        k++;
+                        player->mp_message_text[k] = '\0';
+                    }
+                }
+                if (frontend_font_string_width(1, player->mp_message_text) >= 420)
+                {
+                    if (k > 0)
+                    {
+                        k--;
+                        player->mp_message_text[k] = '\0';
+                    }
+                }
+                break;
             }
-            else
+            default:
+                break;
+            }
+            if (frontend_alliances == -1)
             {
-                c = key_to_ascii(nspckt->param1, nspckt->param2);
-                if ((c != 0) && (frontend_font_char_width(1, c) > 1) && (k < 62))
-                {
-                    player->mp_message_text[k] = c;
-                    k++;
-                    player->mp_message_text[k] = '\0';
-                }
+                if (nspckt->field_5 != -1)
+                    frontend_alliances = nspckt->field_5;
             }
-            if (frontend_font_string_width(1, player->mp_message_text) >= 420)
+            if (fe_computer_players == 2)
             {
-                if (k > 0)
-                {
-                    k--;
-                    player->mp_message_text[k] = '\0';
-                }
+                k = ((nspckt->field_4 & 0x06) >> 1);
+                if (k != 2)
+                    fe_computer_players = k;
             }
-            break;
+            player->field_4E7 = nspckt->field_8 + (nspckt->field_6 << 8);
         }
-      default:
-        break;
-      }
-      if (frontend_alliances == -1)
-      {
-        if (nspckt->field_5 != -1)
-          frontend_alliances = nspckt->field_5;
-      }
-      if (fe_computer_players == 2)
-      {
-        k = ((nspckt->field_4 & 0x06) >> 1);
-        if (k != 2)
-          fe_computer_players = k;
-      }
-      player->field_4E7 = nspckt->field_8 + (nspckt->field_6 << 8);
+        nspckt->field_4 &= 0x07;
     }
-    nspckt->field_4 &= 0x07;
-  }
-  if (frontend_alliances == -1)
-    frontend_alliances = 0;
-  for (i=0; i < NET_PLAYERS_COUNT; i++)
-  {
-    nspckt = &net_screen_packet[i];
-    if ((nspckt->field_4 & 0x01) == 0)
+    if (frontend_alliances == -1)
+        frontend_alliances = 0;
+    for (i=0; i < NET_PLAYERS_COUNT; i++)
     {
-      if (frontend_is_player_allied(my_player_number, i))
-        frontend_set_alliance(my_player_number, i);
+        nspckt = &net_screen_packet[i];
+        if ((nspckt->field_4 & 0x01) == 0)
+        {
+            if (frontend_is_player_allied(my_player_number, i))
+                frontend_set_alliance(my_player_number, i);
+        }
     }
-  }
 }
 
 /******************************************************************************/
