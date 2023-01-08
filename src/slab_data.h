@@ -111,7 +111,7 @@ struct SlabSetStyle {
 };
 struct SlabKindSets {
     TbBool is_animated;
-    struct SlabSetStyle style[3]; //0 = normal, 1 = near water, 2 = near lava
+    struct SlabSetStyle style[3]; //0 = normal, 1 = near water, 2 = near lava / for room walls this is if it's pretty or not
     struct SlabSet center; //the center one doesn't need a style
 };
 
@@ -124,7 +124,7 @@ struct SlabObj {
   short stl_pos_x; // position within the subtile
   short stl_pos_y;
   short val_z;
-  unsigned char class;
+  ThingClass class_id;
   unsigned char model; //for lights this is intencity
   unsigned char range; //radius for lights / range for effect generators
 };
