@@ -1621,13 +1621,13 @@ TbBool set_default_startup_parameters(void)
 
 void clear_slabsets(void)
 {
-    struct SlabSet *sset;
+    struct SlabKindSets *sset;
     struct SlabObj *sobj;
     int i;
     for (i=0; i < SLABSET_COUNT; i++)
     {
         sset = &game.slabset[i];
-        memset(sset, 0, sizeof(struct SlabSet));
+        memset(sset, 0, sizeof(struct SlabKindSets));
         game.slabobjs_idx[i] = -1;
     }
     game.slabset_num = SLABSET_COUNT;
