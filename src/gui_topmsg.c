@@ -96,6 +96,11 @@ TbBool erstat_check(void)
         return false;
     int stat_num = last_checked_stat_num;
     JUSTMSG("testlog stat_num = %d", stat_num);
+    if (stat_num >= sizeof(erstat))
+    { 
+        JUSTMSG("testlog return false");
+        return false; 
+    }
     long a = erstat[stat_num].n;
     long b = erstat[stat_num].nprv;
 
