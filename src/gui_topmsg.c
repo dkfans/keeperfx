@@ -47,7 +47,7 @@ struct ErrorStatistics erstat[] = {
     {0, 0, "Route tree failure"},
     {0, 0, "Cannot read packet from file"},
 };
-int last_checked_stat_num = 0;
+static int last_checked_stat_num = 0;
 /******************************************************************************/
 void erstats_clear(void)
 {
