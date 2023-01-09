@@ -101,15 +101,12 @@ TbBool erstat_check(void)
     }
 
     int stat_num = last_checked_stat_num;
-
     int sdiff = erstat[stat_num].n - erstat[stat_num].nprv;
     // Display an error if any things were not created in this game turn
     if (sdiff != 0)
     {
 #if (BFDEBUG_LEVEL > 0)
-
         show_onscreen_msg(game.num_fps,"%s, %ld occurrences",erstat[stat_num].msg,sdiff);
-
 #else
         WARNLOG("%s, %ld occurrences",erstat[stat_num].msg,sdiff);
 #endif
@@ -136,7 +133,6 @@ TbBool draw_onscreen_direct_messages(void)
         tx_units_per_px = scale_ui_value_lofi(16);
     }
     // Display in-game message for debug purposes
-
     if (erstat_check() || (render_onscreen_msg_time > 0.0))
     {
         if (LbScreenIsLocked())
@@ -145,7 +141,6 @@ TbBool draw_onscreen_direct_messages(void)
         }
         render_onscreen_msg_time -= gameadd.delta_time;
     }
-
     unsigned int msg_pos = scale_value_by_vertical_resolution(200);
     if ((game.system_flags & GSF_NetGameNoSync) != 0)
     {
