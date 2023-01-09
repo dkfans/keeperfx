@@ -90,22 +90,30 @@ TbBool show_onscreen_msg(int nturns, const char *fmt_str, ...)
 
 TbBool erstat_check(void)
 {
+    JUSTMSG("testlog: crash at erstat_check position 1");
     // Don't check more often than every 7 turns
     if ((game.play_gameturn & 0x07) != 0)
         return false;
     int stat_num = last_checked_stat_num;
     int sdiff = erstat[stat_num].n - erstat[stat_num].nprv;
     // Display an error if any things were not created in this game turn
+    JUSTMSG("testlog: crash at position 2");
     if (sdiff != 0)
     {
 #if (BFDEBUG_LEVEL > 0)
+        JUSTMSG("testlog: crash at position 3");
         show_onscreen_msg(game.num_fps,"%s, %ld occurrences",erstat[stat_num].msg,sdiff);
+        JUSTMSG("testlog: crash at position 4");
 #else
+        JUSTMSG("testlog: crash at position 5");
         WARNLOG("%s, %ld occurrences",erstat[stat_num].msg,sdiff);
 #endif
+        JUSTMSG("testlog: crash at position 6");
         erstat[stat_num].nprv = erstat[stat_num].n;
     }
+    JUSTMSG("testlog: crash at position 7");
     last_checked_stat_num = (last_checked_stat_num+1) % (sizeof(erstat)/sizeof(erstat[0]));
+    JUSTMSG("testlog: return from erstat_check");
     return (sdiff != 0);
 }
 
@@ -129,7 +137,8 @@ TbBool draw_onscreen_direct_messages(void)
     }
     // Display in-game message for debug purposes
     SYNCDBG(5, " place 3");
-    if ((render_onscreen_msg_time > 0.0) || erstat_check())
+
+    if (erstat_check())
     {
         SYNCDBG(5, " place 4");
         if (LbScreenIsLocked())
@@ -140,6 +149,19 @@ TbBool draw_onscreen_direct_messages(void)
         SYNCDBG(5, " place 6");
         render_onscreen_msg_time -= gameadd.delta_time;
     }
+    SYNCDBG(5, " it's not erstat check!");
+    if ((render_onscreen_msg_time > 0.0)) 
+    {
+        SYNCDBG(5, " place 4b");
+        if (LbScreenIsLocked())
+        {
+            SYNCDBG(5, " place 5b");
+            LbTextDrawResized(scale_value_by_horizontal_resolution(160), 0, tx_units_per_px, onscreen_msg_text);
+        }
+        SYNCDBG(5, " place 6b");
+        render_onscreen_msg_time -= gameadd.delta_time;
+    }
+
     SYNCDBG(5, " place 7");
     unsigned int msg_pos = scale_value_by_vertical_resolution(200);
     SYNCDBG(5, " place 8");
