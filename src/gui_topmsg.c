@@ -119,34 +119,57 @@ TbBool draw_onscreen_direct_messages(void)
     int tx_units_per_px;
     if (dbc_language > 0)
     {
+        SYNCDBG(5, " place 1");
         tx_units_per_px = scale_value_by_horizontal_resolution((MyScreenWidth >= 640) ? 16 : 32);
     }
     else
     {
+        SYNCDBG(5, " place 2");
         tx_units_per_px = scale_ui_value_lofi(16);
     }
     // Display in-game message for debug purposes
+    SYNCDBG(5, " place 3");
     if ((render_onscreen_msg_time > 0.0) || erstat_check())
     {
-        if ( LbScreenIsLocked() )
-      LbTextDrawResized(scale_value_by_horizontal_resolution(160), 0, tx_units_per_px, onscreen_msg_text);
+        SYNCDBG(5, " place 4");
+        if (LbScreenIsLocked())
+        {
+            SYNCDBG(5, " place 5");
+            LbTextDrawResized(scale_value_by_horizontal_resolution(160), 0, tx_units_per_px, onscreen_msg_text);
+        }
+        SYNCDBG(5, " place 6");
         render_onscreen_msg_time -= gameadd.delta_time;
     }
+    SYNCDBG(5, " place 7");
     unsigned int msg_pos = scale_value_by_vertical_resolution(200);
+    SYNCDBG(5, " place 8");
     if ((game.system_flags & GSF_NetGameNoSync) != 0)
     {
+        SYNCDBG(5, " place 9");
         ERRORLOG("OUT OF SYNC (GameTurn %7d)", game.play_gameturn);
-        if ( LbScreenIsLocked() )
-          LbTextDrawResized(scale_value_by_horizontal_resolution(260), scale_value_by_vertical_resolution(msg_pos), tx_units_per_px, "OUT OF SYNC");
+        if (LbScreenIsLocked())
+        {
+            SYNCDBG(5, " place 10");
+            LbTextDrawResized(scale_value_by_horizontal_resolution(260), scale_value_by_vertical_resolution(msg_pos), tx_units_per_px, "OUT OF SYNC");
+        }
+        SYNCDBG(5, " place 11");
         msg_pos += scale_value_by_horizontal_resolution(20);
     }
+    SYNCDBG(5, " place 12");
     if ((game.system_flags & GSF_NetSeedNoSync) != 0)
     {
+        SYNCDBG(5, " place 13");
         ERRORLOG("SEED OUT OF SYNC (GameTurn %7d)", game.play_gameturn);
-        if ( LbScreenIsLocked() )
-          LbTextDrawResized(scale_value_by_horizontal_resolution(260), scale_value_by_vertical_resolution(msg_pos), tx_units_per_px, "SEED OUT OF SYNC");
+        if (LbScreenIsLocked())
+        {
+            SYNCDBG(5, " place 14");
+            LbTextDrawResized(scale_value_by_horizontal_resolution(260), scale_value_by_vertical_resolution(msg_pos), tx_units_per_px, "SEED OUT OF SYNC");
+        }
+        SYNCDBG(5, " place 15");
         msg_pos += scale_value_by_vertical_resolution(20);
+        SYNCDBG(5, " place 16");
     }
+    SYNCDBG(5, " place 17");
     SYNCDBG(18,"Finished");
     return true;
 }
