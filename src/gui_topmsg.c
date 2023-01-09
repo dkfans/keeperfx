@@ -95,6 +95,12 @@ TbBool erstat_check(void)
     if ((game.play_gameturn & 0x07) != 0)
         return false;
     int stat_num = last_checked_stat_num;
+    JUSTMSG("testlog stat_num = %d", stat_num);
+    long a = erstat[stat_num].n;
+    long b = erstat[stat_num].nprv;
+
+    JUSTMSG("Testlog a = %d, b = %d, stat_num = %d", a, b, stat_num);
+    JUSTMSG("testlog a-b = %d", a - b);
     int sdiff = erstat[stat_num].n - erstat[stat_num].nprv;
     // Display an error if any things were not created in this game turn
     JUSTMSG("testlog: crash at position 2");
