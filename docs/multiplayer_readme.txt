@@ -13,32 +13,35 @@ friends to play with.
 * Limited to two players.
 * Desyncs and crashes are very possible, report issues and they may be fixed.
 
-Multiplayer over TCP/IP
-------------------------------
-
-To host a TCP/IP game:
-Make sure the port 5555 is open for traffic and is forwarded to port 5555 on
-your computer. When you have started the game, click Multiplayer -> TCP/IP ->
-Create Game.
-
-To join a TCP/IP game:
-Specify a command line option -sessions [ip_address]:5555 when starting game.
-For instance, if the host's IP address is 55.83.54.187, the appropriate command
-line option is -sessions 55.83.54.187:5555
-The launcher can be used to set this.
-
-Several sessions can be added to command line by prepending a semicolon before
-each extra address, e.g. -sessions 55.83.54.187:5555;214.43.45.67:5555
-
-When you have started the game, click Multiplayer -> TCP/IP -> [select IP
-address in list] -> Join Game.
-
 Multiplayer over ENET/UDP
 ------------------------------
 
-Hosting or joining a game over ENET/UDP works the same as over TCP/IP, with a
-key difference. Open port 5556 instead and select ENET/UDP from the multiplayer
+To host a ENET/UDP game:
+Make sure the port 5556 is open for traffic and is forwarded to port 5556 on
+your computer. When you have started the game, click Multiplayer -> ENET/UDP ->
+Create Game.
+
+To join a ENET/UDP game:
+Specify a command line option -sessions [ip_address]:5556 when starting game.
+For instance, if the host's IP address is 55.83.54.187, the appropriate command
+line option is -sessions 55.83.54.187:5556
+The launcher can be used to set this.
+
+Several sessions can be added to command line by prepending a semicolon before
+each extra address, e.g. -sessions 55.83.54.187:5555;214.43.45.67:5556
+
+When you have started the game, click Multiplayer -> ENET/UDP -> [select IP
+address in list] -> Join Game.
+
+Multiplayer over TCP/IP
+------------------------------
+
+Hosting or joining a game over TCP/IP works the same as over ENET/UDP, with a
+key difference. Open port 5555 instead and select TCP/IP from the multiplayer
 menu.
 
-+ A faster protocol so could accept a bit more latency for the same lag.
-- Brand new, so totally untested. Go for it and tell us where we're wrong.
+TCP/IP is less suitable for multiplayer as a protocol, and there's no known 
+reason to use this over ENET/UDP as you will have significantly more lag.
+However, this protocal has been around for longer and is no longer being 
+developed or tested on, there's a chance that new bugs on ENET/UDP have
+not ended up in this protocol.
