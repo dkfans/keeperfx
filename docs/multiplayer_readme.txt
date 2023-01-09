@@ -4,10 +4,10 @@ Multiplayer in KeeperFX
 KeeperFX supports multiplayer over TCP/IP or ENET/UDP. Serial, Modem and IPX are
 not supported. 1Player allows you to practice multiplayer maps alone.
 
-At the moment of writing, KeeperFX, like Dungeon Keeper, requires a LAN-grade
-connection to work properly. Low latency is what's important, not high speeds.
-Latency is always high when playing over very high distances, so look for local
-friends to play with.
+KeeperFX, like Dungeon Keeper, requires a low latency connection to work properly.
+Latency is always high when playing over very high distances, so playing with 
+people near you will work best. Multiplayer will start to become unplayable when 
+you are over a couple hundred kilometer away from each other.
 
 * High-latency connections will make both games run very slow.
 * Limited to two players.
