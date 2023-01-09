@@ -93,12 +93,14 @@ TbBool erstat_check(void)
     // Don't check more often than every 7 turns
     if ((game.play_gameturn & 0x07) != 0)
         return false;
-    int stat_num = last_checked_stat_num;
-    if (stat_num >= sizeof(erstat) / sizeof(erstat[0]))
+
+    if (last_checked_stat_num >= sizeof(erstat) / sizeof(erstat[0]))
     { 
-        ERRORLOG("Invalid last checked stat number %d, resetting to 0", stat_num);
-        stat_num = 0;
+        ERRORLOG("Invalid last checked stat number %d, resetting to 0", last_checked_stat_num);
+        last_checked_stat_num = 0;
     }
+
+    int stat_num = last_checked_stat_num;
 
     int sdiff = erstat[stat_num].n - erstat[stat_num].nprv;
     // Display an error if any things were not created in this game turn
