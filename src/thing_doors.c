@@ -171,7 +171,7 @@ struct Thing *create_door(struct Coord3d *pos, ThingModel tngmodel, unsigned cha
 
 TbBool remove_key_on_door(struct Thing *thing)
 {
-    struct Thing* keytng = find_base_thing_on_mapwho(TCls_Object, 44, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
+    struct Thing* keytng = find_base_thing_on_mapwho(TCls_Object, ObjMdl_SpinningKey, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
     if (thing_is_invalid(keytng))
         return false;
     delete_thing_structure(keytng, 0);
@@ -180,7 +180,7 @@ TbBool remove_key_on_door(struct Thing *thing)
 
 TbBool add_key_on_door(struct Thing *thing)
 {
-    struct Thing* keytng = create_object(&thing->mappos, 44, thing->owner, 0);
+    struct Thing* keytng = create_object(&thing->mappos, ObjMdl_SpinningKey, thing->owner, 0);
     if (thing_is_invalid(keytng))
       return false;
     keytng->mappos.x.stl.pos = COORD_PER_STL/2;
