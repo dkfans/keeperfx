@@ -544,10 +544,10 @@ void fill_in_explored_area(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlC
         { 0, 0}
     };
 
-    char *first_scratch = (char*) scratch;
+    char *first_scratch = (char*) big_scratch;
     
-    struct XY *second_scratch = (struct XY *)scratch + gameadd.map_tiles_x * gameadd.map_tiles_y;
-    memset((void *)scratch, 0, gameadd.map_tiles_x * gameadd.map_tiles_y);
+    struct XY *second_scratch = (struct XY *)big_scratch + gameadd.map_tiles_x * gameadd.map_tiles_y;
+    memset((void *)big_scratch, 0, gameadd.map_tiles_x * gameadd.map_tiles_y);
 
     for(MapSlabCoord slb_y_2 = 0;slb_y_2 < gameadd.map_tiles_y;slb_y_2++)
     {
