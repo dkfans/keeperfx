@@ -30,8 +30,8 @@ extern "C" {
 #endif
 /******************************************************************************/
 static unsigned char * frontstory_background;
-static struct TbSprite *frontstory_end_font;
-static unsigned char * frontstory_font_data;
+struct TbSprite *frontstory_end_font;
+unsigned char * frontstory_font_data;
 static unsigned char * frontstory_end_font_data;
 
 #ifdef SPRITE_FORMAT_V2

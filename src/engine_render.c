@@ -5030,7 +5030,7 @@ static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprit
     {
         //TODO CONFIG object model dependency, move to config
 
-        if (thing->model == 2)
+        if (thing->model == ObjMdl_Torch)
         {
             n = 113;
             if (player->view_type == PVT_DungeonTop)
@@ -5046,7 +5046,7 @@ static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprit
             v16 = 2 * a6_2 / 3;
             special_drawing = true;
         }
-        else if (thing->model == 4)
+        else if (thing->model == ObjMdl_StatueLit)
         {
             n = 113;
             if (player->view_type == PVT_DungeonTop)
@@ -5062,7 +5062,7 @@ static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprit
             v16 = a6_2 / 3;
             special_drawing = true;
         }
-        else if (thing->model == 28) //torchflames
+        else if (thing->model == ObjMdl_Candlestick) //torchflames
         {
             n = 112;
             if (player->view_type == PVT_DungeonTop)
@@ -7943,7 +7943,7 @@ static void process_keeper_speedup_sprite(struct BucketKindJontySprite *jspr, lo
     player = get_my_player();
     switch (thing->model)
     {
-    case 28:
+    case ObjMdl_Candlestick:
         graph_id2 = 112;
         if (player->view_type == PVT_DungeonTop)
         {
@@ -7956,7 +7956,7 @@ static void process_keeper_speedup_sprite(struct BucketKindJontySprite *jspr, lo
         }
         transp2 = scale / 2;
         break;
-    case 2:
+    case ObjMdl_Torch:
         graph_id2 = 113;
         if (player->view_type == PVT_DungeonTop)
         {
@@ -8191,7 +8191,7 @@ static void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
         {
         case TCls_Object:
             //TODO CONFIG object model dependency, move to config
-            if ((thing->model == 2) || (thing->model == 4) || (thing->model == 28)) //torchflames
+            if ((thing->model == ObjMdl_Torch) || (thing->model == ObjMdl_StatueLit) || (thing->model == ObjMdl_Candlestick)) //torchflames
             {
                 process_keeper_speedup_sprite(jspr, angle, scale);
                 break;

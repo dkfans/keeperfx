@@ -404,19 +404,19 @@ void activate_dungeon_special(struct Thing *cratetng, struct PlayerInfo *player)
   {
     switch (cratetng->model)
     {
-        case 86:
+        case ObjMdl_SpecboxRevealMap:
           reveal_whole_map(player);
           remove_events_thing_is_attached_to(cratetng);
           used = 1;
           delete_thing_structure(cratetng, 0);
           break;
-        case 87:
+        case ObjMdl_SpecboxResurect:
           start_resurrect_creature(player, cratetng);
           break;
-        case 88:
+        case ObjMdl_SpecboxTransfer:
           start_transfer_creature(player, cratetng);
           break;
-        case 89:
+        case ObjMdl_SpecboxStealHero:
           if (steal_hero(player, &cratetng->mappos))
           {
             remove_events_thing_is_attached_to(cratetng);
@@ -424,31 +424,31 @@ void activate_dungeon_special(struct Thing *cratetng, struct PlayerInfo *player)
             delete_thing_structure(cratetng, 0);
           }
           break;
-        case 90:
+        case ObjMdl_SpecboxMultiply:
           multiply_creatures(player);
           remove_events_thing_is_attached_to(cratetng);
           used = 1;
           delete_thing_structure(cratetng, 0);
           break;
-        case 91:
+        case ObjMdl_SpecboxIncreaseLevel:
           increase_level(player, 1);
           remove_events_thing_is_attached_to(cratetng);
           used = 1;
           delete_thing_structure(cratetng, 0);
           break;
-        case 92:
+        case ObjMdl_SpecboxMakeSafe:
           make_safe(player);
           remove_events_thing_is_attached_to(cratetng);
           used = 1;
           delete_thing_structure(cratetng, 0);
           break;
-        case 93:
+        case ObjMdl_SpecboxHiddenWorld:
           activate_bonus_level(player);
           remove_events_thing_is_attached_to(cratetng);
           used = 1;
           delete_thing_structure(cratetng, 0);
           break;
-        case OBJECT_TYPE_SPECBOX_CUSTOM:
+        case ObjMdl_SpecboxCustom:
           if (gameadd.current_player_turn == game.play_gameturn)
           {
               WARNLOG("box activation rejected turn:%d", gameadd.current_player_turn);
