@@ -93,6 +93,13 @@ TbBool erstat_check(void)
     // Don't check more often than every 7 turns
     if ((game.play_gameturn & 0x07) != 0)
         return false;
+
+    if (last_checked_stat_num >= sizeof(erstat) / sizeof(erstat[0]))
+    { 
+        ERRORLOG("Invalid last checked stat number %d, resetting to 0", last_checked_stat_num);
+        last_checked_stat_num = 0;
+    }
+
     int stat_num = last_checked_stat_num;
     int sdiff = erstat[stat_num].n - erstat[stat_num].nprv;
     // Display an error if any things were not created in this game turn
@@ -126,25 +133,31 @@ TbBool draw_onscreen_direct_messages(void)
         tx_units_per_px = scale_ui_value_lofi(16);
     }
     // Display in-game message for debug purposes
-    if ((render_onscreen_msg_time > 0.0) || erstat_check())
+    if (erstat_check() || (render_onscreen_msg_time > 0.0))
     {
-        if ( LbScreenIsLocked() )
-      LbTextDrawResized(scale_value_by_horizontal_resolution(160), 0, tx_units_per_px, onscreen_msg_text);
+        if (LbScreenIsLocked())
+        {
+            LbTextDrawResized(scale_value_by_horizontal_resolution(160), 0, tx_units_per_px, onscreen_msg_text);
+        }
         render_onscreen_msg_time -= gameadd.delta_time;
     }
     unsigned int msg_pos = scale_value_by_vertical_resolution(200);
     if ((game.system_flags & GSF_NetGameNoSync) != 0)
     {
         ERRORLOG("OUT OF SYNC (GameTurn %7d)", game.play_gameturn);
-        if ( LbScreenIsLocked() )
-          LbTextDrawResized(scale_value_by_horizontal_resolution(260), scale_value_by_vertical_resolution(msg_pos), tx_units_per_px, "OUT OF SYNC");
+        if (LbScreenIsLocked())
+        {
+            LbTextDrawResized(scale_value_by_horizontal_resolution(260), scale_value_by_vertical_resolution(msg_pos), tx_units_per_px, "OUT OF SYNC");
+        }
         msg_pos += scale_value_by_horizontal_resolution(20);
     }
     if ((game.system_flags & GSF_NetSeedNoSync) != 0)
     {
         ERRORLOG("SEED OUT OF SYNC (GameTurn %7d)", game.play_gameturn);
-        if ( LbScreenIsLocked() )
-          LbTextDrawResized(scale_value_by_horizontal_resolution(260), scale_value_by_vertical_resolution(msg_pos), tx_units_per_px, "SEED OUT OF SYNC");
+        if (LbScreenIsLocked())
+        {
+            LbTextDrawResized(scale_value_by_horizontal_resolution(260), scale_value_by_vertical_resolution(msg_pos), tx_units_per_px, "SEED OUT OF SYNC");
+        }
         msg_pos += scale_value_by_vertical_resolution(20);
     }
     SYNCDBG(18,"Finished");
