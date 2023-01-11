@@ -21,6 +21,7 @@
 
 #include "bflib_basics.h"
 #include "globals.h"
+#include "engine_camera.h"
 
 #ifdef __cplusplus
 extern "C" {
