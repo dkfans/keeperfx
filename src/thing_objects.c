@@ -466,7 +466,7 @@ struct Thing *create_object(const struct Coord3d *pos, unsigned short model, uns
       k = -1;
     }
     set_thing_draw(thing, i, objdat->anim_speed, objdat->sprite_size_max, 0, k, objdat->draw_class);
-    set_flag_byte(&thing->rendering_flags, TRF_Unknown02, objconf->light_unaffected);
+    set_flag_byte(&thing->rendering_flags, TRF_Unshaded, objconf->light_unaffected);
     set_flag_byte(&thing->rendering_flags, TRF_Unknown01, objdat->field_3 & 0x01);
 
     set_flag_byte(&thing->rendering_flags, TRF_Transpar_4, objdat->field_F & 0x01);

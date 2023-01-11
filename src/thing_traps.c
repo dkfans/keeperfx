@@ -50,15 +50,15 @@ extern "C" {
 #endif
 /******************************************************************************/
 
-//field_0; sprite_anim_idx; sprite_size_max; unanimated; anim_speed; field_11; field_12; field_13; size_xy; field_16; trigger_type; activation_type; created_itm_model;  hit_type; etc
+//health; sprite_anim_idx; sprite_size_max; unanimated; anim_speed; unshaded; field_12; random_start_frame; size_xy; size_yz; trigger_type; activation_type; created_itm_model;  hit_type; etc
 struct TrapStats old_trap_stats[7] = {
-{0,           0,   0, 0,   0,        0, 0, 0,          0,      0,          0, 0,  0, 0, 0, 0, 0, {0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0}, 0, 0, 0},
-{128,       861, 384, 1,   0,        0, 0, 1,        640,    512,          1, 1, 15, 9, 0, 0, 0, {0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0}, 0, 0, 0}, //Boulder
-{1,         844, 256, 0, 256,        0, 0, 1,          0,      0,          2, 3, 19, 2, 0, 0, 0, {0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0}, 0, 0, 0}, //Alarm
-{1,         845, 256, 0, 256,        0, 0, 1,          0,      0,          2, 2, 13, 4, 0, 0, 0, {0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0}, 0, 0, 0}, //Gas
-{1,         846, 256, 0, 256,        0, 0, 1,          0,      0,          2, 3, 29, 4, 0, 0, 0, {0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0}, 0, 0, 0}, //Lightning
-{1,         844, 256, 0, 256,        0, 0, 1,          0,      0,          2, 2, 14, 4, 0, 0, 0, {0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0}, 0, 0, 0}, //WoP
-{1,         845, 256, 0, 256,        0, 0, 1,          0,      0,          2, 4, 12, 4, 0, 0, 0, {0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0}, 0, 0, 0}, //Lava
+{0,            0,   0, 0,   0,        0, 0, 0,          0,      0,          0, 0,  0, 0, 0, 0, 0, {0, 0, 0} },
+{128,        861, 384, 1,   0,        0, 0, 1,        640,    512,          1, 1, 15, 9, 0, 0, 0, {0, 0, 0} }, //Boulder
+{ 1,         844, 256, 0, 256,        0, 0, 1,          0,      0,          2, 3, 19, 2, 0, 0, 0, {0, 0, 0} }, //Alarm
+{ 1,         845, 256, 0, 256,        0, 0, 1,          0,      0,          2, 2, 13, 4, 0, 0, 0, {0, 0, 0} }, //Gas
+{ 1,         846, 256, 0, 256,        0, 0, 1,          0,      0,          2, 3, 29, 4, 0, 0, 0, {0, 0, 0} }, //Lightning
+{ 1,         844, 256, 0, 256,        0, 0, 1,          0,      0,          2, 2, 14, 4, 0, 0, 0, {0, 0, 0} }, //WoP
+{ 1,         845, 256, 0, 256,        0, 0, 1,          0,      0,          2, 4, 12, 4, 0, 0, 0, {0, 0, 0} }, //Lava
 };
 
 TbBool destroy_trap(struct Thing *traptng)
@@ -438,9 +438,9 @@ void activate_trap_shot_on_trap(struct Thing *traptng, struct Thing *creatng)
     if (!thing_is_invalid(shotng)) {
         shotng->shot.hit_type = trapstat->hit_type;
         shotng->parent_idx = 0;
-        shotng->veloc_push_add.x.val += trapstat->field_30;
-        shotng->veloc_push_add.y.val += trapstat->field_32;
-        shotng->veloc_push_add.z.val += trapstat->field_34;
+        shotng->veloc_push_add.x.val += trapstat->shotvector.x;
+        shotng->veloc_push_add.y.val += trapstat->shotvector.y;
+        shotng->veloc_push_add.z.val += trapstat->shotvector.z;
         shotng->state_flags |= TF1_PushAdd;
     }
 }
@@ -758,16 +758,16 @@ struct Thing *create_trap(struct Coord3d *pos, ThingModel trpkind, PlayerNumber 
     thing->parent_idx = thing->index;
     thing->owner = plyr_idx;
     char start_frame;
-    if (trapstat->field_13) {
+    if (trapstat->random_start_frame) {
         start_frame = -1;
     } else {
         start_frame = 0;
     }
     set_thing_draw(thing, trapstat->sprite_anim_idx, trapstat->anim_speed, trapstat->sprite_size_max, trapstat->unanimated, start_frame, 2);
-    if (trapstat->field_11) {
-        thing->rendering_flags |= TRF_Unknown02;
+    if (trapstat->unshaded) {
+        thing->rendering_flags |= TRF_Unshaded;
     } else {
-        thing->rendering_flags &= ~TRF_Unknown02;
+        thing->rendering_flags &= ~TRF_Unshaded;
     }
     if (trapstat->unanimated) {
         thing->rendering_flags |= TRF_Unmoving;
@@ -775,11 +775,11 @@ struct Thing *create_trap(struct Coord3d *pos, ThingModel trpkind, PlayerNumber 
         thing->rendering_flags &= ~TRF_Unmoving;
     }
     thing->clipbox_size_xy = trapstat->size_xy;
-    thing->clipbox_size_yz = trapstat->field_16;
+    thing->clipbox_size_yz = trapstat->size_yz;
     thing->solid_size_xy = trapstat->size_xy;
-    thing->solid_size_yz = trapstat->field_16;
+    thing->solid_size_yz = trapstat->size_yz;
     thing->creation_turn = game.play_gameturn;
-    thing->health = trapstat->field_0;
+    thing->health = trapstat->health;
     thing->rendering_flags &= ~TRF_Transpar_Flags;
     thing->rendering_flags |= TRF_Transpar_4;
     thing->trap.num_shots = 0;

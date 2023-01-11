@@ -65,28 +65,24 @@ enum TrapActivationTypes {
 struct Thing;
 
 struct TrapStats {  // sizeof=54
-unsigned long field_0;
+  unsigned long health;
   unsigned long sprite_anim_idx;
   unsigned long sprite_size_max;
-unsigned char unanimated;
+  unsigned char unanimated;
   unsigned long anim_speed;
-unsigned char field_11;
+  unsigned char unshaded;
   unsigned char field_12; // transparency in lower 2 bits
-unsigned char field_13;
+  unsigned char random_start_frame;
   short size_xy;
-short field_16;
+  short size_yz;
   unsigned char trigger_type;
   unsigned char activation_type;
   unsigned char created_itm_model; // Shot model, effect model, slab kind
   unsigned char hit_type;
-short light_radius; // creates light if not null
-unsigned char light_intensity;
+  short light_radius; // creates light if not null
+  unsigned char light_intensity;
 unsigned char light_1F;
-unsigned char field_20[8];
-unsigned char field_28[8];
-short field_30;
-short field_32;
-short field_34;
+  struct ComponentVector shotvector;
 };
 
 /******************************************************************************/
