@@ -114,7 +114,6 @@ unsigned long remove_traps_around_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl
 
 void external_activate_trap_shot_at_angle(struct Thing *thing, long a2, struct Thing *hand);
 
-extern struct TrapStats old_trap_stats[7];
 /******************************************************************************/
 #ifdef __cplusplus
 }

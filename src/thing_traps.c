@@ -50,17 +50,6 @@ extern "C" {
 #endif
 /******************************************************************************/
 
-//health; sprite_anim_idx; sprite_size_max; unanimated; anim_speed; unshaded; transparency_flag; random_start_frame; size_xy; size_yz; trigger_type; activation_type; created_itm_model;  hit_type; etc
-struct TrapStats old_trap_stats[7] = {
-{0,           0,   0, 0,   0,        0, 0, 0,          0,      0,          0, 0,  0, 0, 0, 0, 0, {0, 0, 0} },
-{128,       861, 384, 1,   0,        0, 0, 1,        640,    512,          1, 1, 15, 9, 0, 0, 0, {0, 0, 0} }, //Boulder
-{1,         844, 256, 0, 256,        0, 0, 1,          0,      0,          2, 3, 19, 2, 0, 0, 0, {0, 0, 0} }, //Alarm
-{1,         845, 256, 0, 256,        0, 0, 1,          0,      0,          2, 2, 13, 4, 0, 0, 0, {0, 0, 0} }, //Gas
-{1,         846, 256, 0, 256,        0, 0, 1,          0,      0,          2, 3, 29, 4, 0, 0, 0, {0, 0, 0} }, //Lightning
-{1,         844, 256, 0, 256,        0, 0, 1,          0,      0,          2, 2, 14, 4, 0, 0, 0, {0, 0, 0} }, //WoP
-{1,         845, 256, 0, 256,        0, 0, 1,          0,      0,          2, 4, 12, 4, 0, 0, 0, {0, 0, 0} }, //Lava
-};
-
 TbBool destroy_trap(struct Thing *traptng)
 {
     if ((traptng->trap.num_shots == 0) && !is_neutral_thing(traptng) && !is_hero_thing(traptng)) {
