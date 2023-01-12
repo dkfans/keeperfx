@@ -792,7 +792,7 @@ struct Thing *create_trap(struct Coord3d *pos, ThingModel trpkind, PlayerNumber 
         ilght.radius = trapstat->light_radius;
         ilght.intensity = trapstat->light_intensity;
         ilght.is_dynamic = 1;
-        ilght.field_3 = trapstat->light_1F;
+        ilght.field_3 = trapstat->light_flag;
         thing->light_id = light_create_light(&ilght);
         if (thing->light_id <= 0) {
             SYNCDBG(8,"Cannot allocate dynamic light to %s.",thing_model_name(thing));

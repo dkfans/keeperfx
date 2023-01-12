@@ -65,14 +65,14 @@ enum TrapActivationTypes {
 
 struct Thing;
 
-struct TrapStats {  // sizeof=54
+struct TrapStats {
   unsigned long health;
   unsigned long sprite_anim_idx;
   unsigned long sprite_size_max;
   unsigned char unanimated;
   unsigned long anim_speed;
   unsigned char unshaded;
-  unsigned char field_12; // transparency in lower 2 bits
+  unsigned char transparency_flag; // transparency in lower 2 bits
   unsigned char random_start_frame;
   short size_xy;
   short size_yz;
@@ -82,7 +82,7 @@ struct TrapStats {  // sizeof=54
   unsigned char hit_type;
   short light_radius; // creates light if not null
   unsigned char light_intensity;
-unsigned char light_1F;
+  unsigned char light_flag;
   struct ComponentVector shotvector;
 };
 
