@@ -613,6 +613,10 @@ void draw_script_variable(PlayerNumber plyr_idx, unsigned char valtype, unsigned
     {
         height *= 2;
         width *= 2;
+        if (dbc_language > 0)
+        {
+            width += (width / 3);
+        }
     }
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
     long scr_x = MyScreenWidth - width - 16 * units_per_pixel / 16;
