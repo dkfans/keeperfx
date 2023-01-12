@@ -1384,6 +1384,7 @@ TbBool check_lif_files_in_mappack(struct GameCampaign *campgn)
     LbMemoryCopy(&campbuf, &campaign, sizeof(struct GameCampaign));
     LbMemoryCopy(&campaign, campgn, sizeof(struct GameCampaign));
     find_and_load_lif_files();
+    find_and_load_lof_files();
     TbBool result  = (campaign.freeplay_levels_count != 0);
     if (!result) {
         // Could be either: no valid levels in LEVELS_LOCATION, no LEVELS_LOCATION specified, or LEVELS_LOCATION does not exist
