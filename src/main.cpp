@@ -915,7 +915,7 @@ void update_thing_animation(struct Thing *thing)
         }
         if (thing->anim_time > i-1)
         {
-          if (thing->rendering_flags & TRF_Unmoving)
+          if (thing->rendering_flags & TRF_AnimateOnce)
           {
             thing->anim_speed = 0;
             thing->anim_time = i-1;

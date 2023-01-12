@@ -1086,7 +1086,7 @@ void refresh_trap_anim(long trap_id)
             traptng->anim_sprite = gameadd.trap_stats[trap_id].sprite_anim_idx;
             struct TrapStats* trapstat = &gameadd.trap_stats[traptng->model];
             char start_frame;
-            if (trapstat->field_13) {
+            if (trapstat->random_start_frame) {
                 start_frame = -1;
             }
             else {
