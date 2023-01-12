@@ -254,7 +254,7 @@ void set_thing_draw(struct Thing *thing, long anim, long speed, long scale, char
         thing->sprite_size = scale;
     }
     if (a5 != -1) {
-        set_flag_byte(&thing->rendering_flags, TRF_Unmoving, a5);
+        set_flag_byte(&thing->rendering_flags, TRF_AnimateOnce, a5);
     }
     if (start_frame == -2)
     {

@@ -542,7 +542,7 @@ struct Thing *create_effect_element(const struct Coord3d *pos, unsigned short ee
         set_thing_draw(thing, eestat->sprite_idx, eestat->sprite_speed_min + n, eestat->sprite_size_min + i, 0, 0, eestat->draw_class);
         set_flag_byte(&thing->rendering_flags,TRF_Unshaded,eestat->field_13);
         thing->rendering_flags ^= (thing->rendering_flags ^ (0x10 * eestat->field_14)) & (TRF_Transpar_Flags);
-        set_flag_byte(&thing->rendering_flags,TRF_Unmoving,eestat->field_D);
+        set_flag_byte(&thing->rendering_flags,TRF_AnimateOnce,eestat->field_D);
     } else
     {
         set_flag_byte(&thing->rendering_flags,TRF_Unknown01,true);
