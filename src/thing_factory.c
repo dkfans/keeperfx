@@ -155,7 +155,7 @@ TbBool thing_create_thing(struct InitThing *itng)
             {
                 thing->hero_gate.number = itng->params[1];
             }
-            else if (thing->model == OBJECT_TYPE_SPECBOX_CUSTOM)
+            else if (thing->model == ObjMdl_SpecboxCustom)
             {
                 thing->custom_box.box_kind = itng->params[1];
                 if (itng->params[1] > gameadd.max_custom_box_kind)
@@ -275,7 +275,7 @@ TbBool thing_create_thing_adv(VALUE *init_data)
                         thing->hero_gate.number = (unsigned char) gate;
                     }
                 }
-                else if (thing->model == OBJECT_TYPE_SPECBOX_CUSTOM)
+                else if (thing->model == ObjMdl_SpecboxCustom)
                 {
                     int box_kind = value_int32(value_dict_get(init_data, "CustomBox"));
                     if (box_kind == -1)

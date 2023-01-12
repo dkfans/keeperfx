@@ -1048,7 +1048,7 @@ void place_slab_object(SlabCodedCoords slb_num, MapSubtlCoord stl_x, MapSubtlCoo
                     int nfilled;
                     int nprison;
 
-                    if ((tngmodel == 27) && (slbelem != 4)) //27 = Prison Bar
+                    if ((tngmodel == ObjMdl_PrisonBar) && (slbelem != 4))
                     {
                         MapSlabCoord slb_x;
                         MapSlabCoord slb_y;
