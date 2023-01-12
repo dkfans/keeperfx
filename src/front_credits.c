@@ -46,7 +46,8 @@ extern struct TbSprite *frontstory_end_font;
 extern unsigned char * frontstory_font_data;
 
 static long frontstory_text_no;
-static struct TbSetupSprite frontstory_setup_sprites[2] = {{ &frontstory_font, &frontstory_end_font, &frontstory_font_data }};
+static struct TbSetupSprite frontstory_setup_sprites[2] = {{  &frontstory_font, &frontstory_end_font, &frontstory_font_data },
+                                                           { NULL, NULL, NULL}};
 static long credits_scroll_speed;
 
 struct TbSprite *frontstory_font;
