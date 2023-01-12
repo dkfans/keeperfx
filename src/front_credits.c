@@ -42,9 +42,11 @@
 
 /******************************************************************************/
 extern struct TbLoadFiles frontstory_load_files_640[];
+extern struct TbSprite *frontstory_end_font;
+extern unsigned char * frontstory_font_data;
 
 static long frontstory_text_no;
-static struct TbSetupSprite frontstory_setup_sprites[2];
+static struct TbSetupSprite frontstory_setup_sprites[2] = {{ &frontstory_font, &frontstory_end_font, &frontstory_font_data }};
 static long credits_scroll_speed;
 
 struct TbSprite *frontstory_font;
