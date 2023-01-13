@@ -64,7 +64,8 @@ HVLOGBIN = bin/keeperfx_hvlog$(EXEEXT)
 # Names of intermediate build products
 GENSRC   = obj/ver_defs.h
 RES      = obj/keeperfx_stdres.res
-LIBS     = obj/enet.a
+
+LIBS     = obj/enet.a obj/luau.a
 
 DEPS = \
 obj/spng.o \
@@ -337,10 +338,10 @@ CU_OBJS = \
 	obj/cu/Util.o
 
 # include and library directories
-LINKLIB =  -L"sdl/lib" -mwindows obj/enet.a lib/lua/liblua54.a \
+LINKLIB =  -L"sdl/lib" -mwindows obj/enet.a obj/luau.a \
 	-lwinmm -lmingw32 -limagehlp -lSDL2main -lSDL2 -lSDL2_mixer -lSDL2_net \
 	-L"deps/zlib" -lz -lws2_32
-INCS =  -I"sdl/include" -I"sdl/include/SDL2" -I"deps/enet/include"
+INCS =  -I"sdl/include" -I"sdl/include/SDL2" -I"deps/enet/include" -I"deps/luau/Compiler/include" -I"deps/luau/Compiler/include"
 CXXINCS =  $(INCS)
 
 STDOBJS   = $(subst obj/,obj/std/,$(OBJS))
@@ -555,6 +556,7 @@ libexterns: libexterns.mk
 clean-libexterns: libexterns.mk
 	-$(MAKE) -f libexterns.mk clean-libexterns
 	-$(MAKE) -f enet.mk clean
+	-$(MAKE) -f luau.mk clean
 	-cd deps/zlib && $(MAKE) -f win32/Makefile.gcc clean
 	-cd deps/zlib && git checkout Makefile zconf.h
 	-$(RM) libexterns
@@ -572,6 +574,9 @@ deps/zlib/libz.a: deps/zlib/configure.log
 
 obj/enet.a:
 	$(MAKE) -f enet.mk PREFIX=$(CROSS_COMPILE) WARNFLAGS=$(WARNFLAGS) obj/enet.a
+
+obj/luau.a:
+	$(MAKE) -f luau.mk PREFIX=$(CROSS_COMPILE) WARNFLAGS=$(WARNFLAGS) obj/luau.a
 
 include tool_png2ico.mk
 include tool_pngpal2raw.mk
