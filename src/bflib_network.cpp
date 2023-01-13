@@ -184,6 +184,7 @@ struct NetState
     NetUserId               my_id;              //id for user representing this machine
     int                     seq_nbr;            //sequence number of next frame to be issued
     unsigned                max_players;        //max players that will actually be used
+    int                     login_attempts;
 
     struct NetPacket        *outpacket, *outpacket_tail; // List of outgoing packets (in order)
 
@@ -824,11 +825,13 @@ static TbBool OnNewUser(NetUserId * assigned_id)
         return 0;
     }
 
-    for (i = 0; i < MAX_N_USERS; ++i) {
+    for (i = 0; i < MAX_N_USERS; ++i)
+    {
         if (netstate.users[i].progress == USER_UNUSED) {
             *assigned_id = i;
             netstate.users[i].progress = USER_CONNECTED;
             netstate.users[i].ack = -1;
+            netstate.login_attempts++;
             NETLOG("Assigning new user to ID %u", i);
             return 1;
         }
@@ -1013,10 +1016,13 @@ TbError LbNetwork_Exchange(void *context, LbNetwork_Packet_Callback callback)
         }
     } // while (true)
 
-    if (!netstate.exchg_queue)
+    if (netstate.login_attempts > 0)
     {
-        //connection lost
-        return Lb_FAIL;
+        if (!netstate.exchg_queue)
+        {
+            //connection lost
+            return Lb_FAIL;
+        }
     }
 
     // most likely overwrites what was sent in SendClientFrame
@@ -1029,6 +1035,7 @@ TbError LbNetwork_Exchange(void *context, LbNetwork_Packet_Callback callback)
         fprintf(stderr, "Bad network peer state\n");
         return Lb_FAIL;
     }
+    return Lb_OK;
 }
 
 TbBool LbNetwork_Resync(void * buf, size_t len)
