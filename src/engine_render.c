@@ -4945,7 +4945,7 @@ static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprit
             break;
     }
     unsigned short v6 = 0x2000;
-    if ( !(thing->rendering_flags & TRF_Unknown02) )
+    if ( !(thing->rendering_flags & TRF_Unshaded) )
         v6 = get_thing_shade(thing);
     v6 >>= 8;
 
@@ -8001,7 +8001,7 @@ static void prepare_jonty_remap_and_scale(long *scale, const struct BucketKindJo
     if (lens_mode == 0)
     {
         fade = 65536;
-        if ((thing->rendering_flags & TRF_Unknown02) == 0)
+        if ((thing->rendering_flags & TRF_Unshaded) == 0)
             i = get_thing_shade(thing);
         else
             i = MINIMUM_LIGHTNESS;
@@ -8010,7 +8010,7 @@ static void prepare_jonty_remap_and_scale(long *scale, const struct BucketKindJo
     if (jspr->field_14 <= lfade_min)
     {
         fade = jspr->field_14;
-        if ((thing->rendering_flags & TRF_Unknown02) == 0)
+        if ((thing->rendering_flags & TRF_Unshaded) == 0)
             i = get_thing_shade(thing);
         else
             i = MINIMUM_LIGHTNESS;
@@ -8019,7 +8019,7 @@ static void prepare_jonty_remap_and_scale(long *scale, const struct BucketKindJo
     if (jspr->field_14 < lfade_max)
     {
         fade = jspr->field_14;
-        if ((thing->rendering_flags & TRF_Unknown02) == 0)
+        if ((thing->rendering_flags & TRF_Unshaded) == 0)
             i = get_thing_shade(thing);
         else
             i = MINIMUM_LIGHTNESS;
