@@ -26,17 +26,18 @@
 extern "C" {
 #endif
 /******************************************************************************/
+
 enum TbPacketAction {
         PckA_None = 0,
-        PckA_Unknown001,
+        PckA_Unknown001, // Quit
         PckA_Unknown002,
         PckA_Unknown003,
         PckA_Unknown004,
-        PckA_FinishGame,// 5
-        PckA_Unknown006,
-        PckA_Unknown007,
-        PckA_Unknown008,
-        PckA_Unknown009,
+        PckA_FinishGame, // 5
+        PckA_Login,      // From `enum NetMessageType`
+        PckA_UserUpdate,
+        PckA_Frame,
+        PckA_Resync,
         PckA_InitPlayerNum,//10
         PckA_Unknown011,
         PckA_LevelExactCheck,

@@ -950,7 +950,7 @@ short good_drops_gold(struct Thing *thing)
     GoldAmount amount = game.pot_of_gold_holds;
     if (thing->creature.gold_carried <= game.pot_of_gold_holds)
         amount = thing->creature.gold_carried;
-    struct Thing* gldtng = create_object(&thing->mappos, 6, thing->owner, -1);
+    struct Thing* gldtng = create_object(&thing->mappos, ObjMdl_GoldPot, thing->owner, -1);
     if (thing_is_invalid(gldtng)) {
         return 0;
     }
@@ -972,7 +972,7 @@ short good_leave_through_exit_door(struct Thing *thing)
         erstat_inc(ESE_BadCreatrState);
         return false;
     }
-    struct Thing* tmptng = find_base_thing_on_mapwho(TCls_Object, 49, thing->mappos.x.stl.num, thing->mappos.y.stl.num); //49 = hero gate
+    struct Thing* tmptng = find_base_thing_on_mapwho(TCls_Object, ObjMdl_HeroGate, thing->mappos.x.stl.num, thing->mappos.y.stl.num); //49 = hero gate
     if (thing_is_invalid(tmptng))
     {
         return 0;
@@ -1031,7 +1031,7 @@ short good_wait_in_exit_door(struct Thing *thing)
     cctrl->countdown_282--;
     if (cctrl->countdown_282 == 0)
     {
-        struct Thing* tmptng = find_base_thing_on_mapwho(TCls_Object, 49, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
+        struct Thing* tmptng = find_base_thing_on_mapwho(TCls_Object, ObjMdl_HeroGate, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
         if (!thing_is_invalid(tmptng))
         {
             if (cctrl->hero.hero_gate_creation_turn == tmptng->creation_turn)

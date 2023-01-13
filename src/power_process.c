@@ -634,7 +634,6 @@ void update_explored_flags_for_power_sight(struct PlayerInfo *player)
 void remove_explored_flags_for_power_sight(struct PlayerInfo *player)
 {
     SYNCDBG(9, "Starting");
-    int data;
     unsigned char backup_flags;
     struct Dungeon *dungeon = get_players_dungeon(player);
 
@@ -655,11 +654,10 @@ void remove_explored_flags_for_power_sight(struct PlayerInfo *player)
                 if (!map_block_invalid(mapblk))
                 {
                     unsigned long plyr_bit = (1 << player->id_number);
-                    data = mapblk->data & (~(plyr_bit << 28) );
                     backup_flags = backup_explored[soe_y][soe_x];
-                    mapblk->data = data;
+                    mapblk->revealed &= ~plyr_bit;
                     if ((backup_flags & 1) != 0)
-                        mapblk->data = data | (plyr_bit << 28);
+                        mapblk->revealed |= plyr_bit ;
                     if ((backup_flags & 2) != 0)
                         mapblk->flags |= SlbAtFlg_Unexplored;
                     if ((backup_flags & 4) != 0)

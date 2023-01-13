@@ -213,7 +213,7 @@ extern const struct NamedCommand player_desc[];
 /******************************************************************************/
 short clear_script(void);
 short load_script(long lvl_num);
-short preload_script(long lvnum);
+TbBool preload_script(long lvnum);
 /******************************************************************************/
 
 long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned char a3);

@@ -54,7 +54,7 @@ TbBool add_body_to_graveyard(struct Thing *deadtng, struct Room *room)
     }
     if (corpse_laid_to_rest(deadtng))
     {
-        ERRORLOG("The %s is already decomposing in %s",thing_model_name(deadtng),room_code_name(RoK_GRAVEYARD));
+        ERRORLOG("The %s is already decomposing in %s",thing_model_name(deadtng),room_role_code_name(RoRoF_DeadStorage));
         return false;
     }
     room->used_capacity++;

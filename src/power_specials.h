@@ -39,15 +39,10 @@ enum SpecialKinds {
     SpcKind_TrnsfrCrtr,
     SpcKind_StealHero,
     SpcKind_MultplCrtr,
-    SpcKind_Unknown6,
-    SpcKind_Unknown7,
-    SpcKind_Unknown8,
-    SpcKind_Unknown9,
-};
-
-struct SpecialDesc {
-    /** Speech message index, from TbSpeechMessages enum */
-    long speech_msg;
+    SpcKind_IncrseLvl,
+    SpcKind_MakeSafe,
+    SpcKind_HiddnWorld,
+    SpcKind_Custom,
 };
 
 /******************************************************************************/

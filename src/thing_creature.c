@@ -895,7 +895,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
             for (k=0; k < 2; k++)
             {
                 set_coords_to_cylindric_shift(&pos, &thing->mappos, 32, n, k * (thing->clipbox_size_yz >> 1) );
-                ntng = create_object(&pos, 51, thing->owner, -1);
+                ntng = create_object(&pos, ObjMdl_LightBall, thing->owner, -1);
                 if (!thing_is_invalid(ntng))
                 {
                     cctrl->spell_tngidx_armour[k] = ntng->index;
@@ -1011,7 +1011,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
               pos.x.val += distance_with_angle_to_coord_x(32,n);
               pos.y.val += distance_with_angle_to_coord_y(32,n);
               pos.z.val += k * (long)(thing->clipbox_size_yz >> 1);
-              ntng = create_object(&pos, 112, thing->owner, -1);
+              ntng = create_object(&pos, ObjMdl_Disease, thing->owner, -1);
               if (!thing_is_invalid(ntng))
               {
                 cctrl->spell_tngidx_disease[k] = ntng->index;
@@ -1694,14 +1694,14 @@ struct Thing *find_gold_pile_or_chicken_laying_on_mapblk(struct Map *mapblk)
         i = thing->next_on_mapblk;
         if (thing->class_id == TCls_Object)
         {
-            if ((thing->model == 43) && thing_touching_floor(thing))
+            if ((thing->model == ObjMdl_Goldl) && thing_touching_floor(thing))
                 return thing;
             if (object_is_mature_food(thing))
             {
                 struct Room* room = get_room_thing_is_on(thing);
                 if (room_is_invalid(room))
                     return thing;
-                if (!room_role_matches(room->kind, RoRoF_FoodStorage) && (room->kind != RoK_TORTURE) && (room->kind != RoK_PRISON))
+                if (!room_role_matches(room->kind, RoRoF_FoodStorage) && !room_role_matches(room->kind, RoRoF_Torture) && !room_role_matches(room->kind, RoRoF_Prison))
                     return thing;
             }
         }
@@ -5874,7 +5874,7 @@ void controlled_creature_drop_thing(struct Thing *creatng, struct Thing *droptng
                     }
                     else
                     {
-                        WARNLOG("Adding %s index %d to %s room capacity failed",thing_model_name(droptng),(int)droptng->index,room_code_name(RoK_LIBRARY));
+                        WARNLOG("Adding %s index %d to %s room capacity failed",thing_model_name(droptng),(int)droptng->index,room_role_code_name(RoRoF_PowersStorage));
                         if (is_my_player_number(plyr_idx))
                         {
                             output_message(SMsg_LibraryTooSmall, 0, true);
@@ -5897,7 +5897,7 @@ void controlled_creature_drop_thing(struct Thing *creatng, struct Thing *droptng
                     }
                     else
                     {
-                        WARNLOG("Adding %s index %d to %s room capacity failed",thing_model_name(droptng),(int)droptng->index,room_code_name(RoK_WORKSHOP));
+                        WARNLOG("Adding %s index %d to %s room capacity failed",thing_model_name(droptng),(int)droptng->index,room_role_code_name(RoRoF_CratesStorage));
                         if (is_my_player_number(plyr_idx))
                         {
                             output_message(SMsg_WorkshopTooSmall, 0, true);
@@ -6076,11 +6076,11 @@ void display_controlled_pick_up_thing_name(struct Thing *picktng, unsigned long 
     else if (thing_is_special_box(picktng))
     {
         char msg_buf[255];
-        if (picktng->model == OBJECT_TYPE_SPECBOX_CUSTOM)
+        if (picktng->model == ObjMdl_SpecboxCustom)
         {
             if (gameadd.box_tooltip[picktng->custom_box.box_kind][0] == 0)
             {
-                strcat(str, get_string(2005));
+                strcat(str, get_string(get_special_description_strindex(box_thing_to_special(picktng)))); 
                 strcpy(msg_buf, str);
                 sprintf(str, strtok(msg_buf, ":"));
             }
@@ -6207,7 +6207,7 @@ TbBool thing_is_pickable_by_digger(struct Thing *picktng, struct Thing *creatng)
     }
     else if (thing_is_dead_creature(picktng))
     {
-        return ( (get_room_slabs_count(creatng->owner, RoK_GRAVEYARD) > 0) && (corpse_ready_for_collection(picktng)) );
+        return ( (get_room_of_role_slabs_count(creatng->owner, RoRoF_DeadStorage) > 0) && (corpse_ready_for_collection(picktng)) );
     }
     else if (thing_can_be_picked_to_place_in_player_room_of_role(picktng, creatng->owner, RoRoF_PowersStorage, TngFRPickF_Default))
     {
@@ -6219,7 +6219,7 @@ TbBool thing_is_pickable_by_digger(struct Thing *picktng, struct Thing *creatng)
     }
     else if (thing_can_be_picked_to_place_in_player_room_of_role(picktng, creatng->owner, RoRoF_CratesStorage, TngFRPickF_Default))
     {
-        return (get_room_slabs_count(creatng->owner, RoK_WORKSHOP) > 0);
+        return (get_room_of_role_slabs_count(creatng->owner, RoRoF_CratesStorage) > 0);
     }
     else if (thing_is_trap_crate(picktng)) // for trap crates in one's own Workshop
     {

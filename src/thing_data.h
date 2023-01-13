@@ -58,7 +58,7 @@ enum ThingFlags2 {
 
 enum ThingRenderingFlags {
     TRF_Unknown01     = 0x01, /** Not Drawn **/
-    TRF_Unknown02     = 0x02, // Not shaded
+    TRF_Unshaded     = 0x02, // Not shaded
 
     TRF_Unknown04     = 0x04, // Tint1 (used to draw enemy creatures when they are blinking to owners color)
     TRF_Unknown08     = 0x08, // Tint2 (not used?)
@@ -69,7 +69,7 @@ enum ThingRenderingFlags {
     TRF_Transpar_Alpha = 0x30,
     TRF_Transpar_Flags = 0x30,
 
-    TRF_Unmoving       = 0x40,
+    TRF_AnimateOnce    = 0x40,
     TRF_BeingHit       = 0x80,    // Being hit (draw red sometimes)
 };
 
