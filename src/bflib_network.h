@@ -84,8 +84,9 @@ struct NetSP // new version
     /**
      * Checks for new connections.
      * @param new_user Call back if a new user has connected.
+     * @return Lb_FAIL or Lb_OK Lb_FAIL on "serious fail"
      */
-    void    (*update)(NetNewUserCallback new_user);
+    TbError   (*update)(NetNewUserCallback new_user);
 
     /**
      * Sends a message buffer to a certain user.

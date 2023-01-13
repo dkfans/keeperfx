@@ -1704,7 +1704,9 @@ TbBool frontnetmap_update_players(struct NetMapPlayersState * nmps)
             if (fe_network_active)
             {
               if (LbNetwork_EnableNewPlayers(1))
-                ERRORLOG("Unable to enable new players joining exchange");
+              {
+                  ERRORLOG("Unable to enable new players joining exchange");
+              }
               frontend_set_state(FeSt_NET_START);
             } else
             {
@@ -1715,7 +1717,8 @@ TbBool frontnetmap_update_players(struct NetMapPlayersState * nmps)
         if ((nspck->param1 == SINGLEPLAYER_NOTSTARTED) || ((nspck->field_4 & 0xF8) == 8))
         {
             nmps->tmp1++;
-        } else
+        }
+        else
         {
             //TODO FRONTEND This is so wrong - remove casting when param1 is changed to int
             LevelNumber pckt_lvnum = (unsigned char)nspck->param1;
@@ -1723,7 +1726,8 @@ TbBool frontnetmap_update_players(struct NetMapPlayersState * nmps)
             if (scratch[pckt_lvnum] == tmp2)
             {
                 nmps->is_selected = false;
-            } else
+            }
+            else
             if (scratch[pckt_lvnum] > tmp2)
             {
                 nmps->lvnum = pckt_lvnum;

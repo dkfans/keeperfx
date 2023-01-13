@@ -65,7 +65,7 @@ static TbError  tcpSP_init(NetDropCallback drop_callback);
 static void     tcpSP_exit(void);
 static TbError  tcpSP_host(const char * session, void * options);
 static TbError  tcpSP_join(const char * session, void * options);
-static void     tcpSP_update(NetNewUserCallback new_user);
+static TbError  tcpSP_update(NetNewUserCallback new_user);
 static void     tcpSP_sendmsg_single(NetUserId destination, const char * buffer, size_t size);
 static void     tcpSP_sendmsg_all(const char * buffer, size_t size);
 static size_t   tcpSP_msgready(NetUserId source, unsigned timeout);
@@ -398,13 +398,14 @@ static TbError tcpSP_join(const char * session, void * options)
     return Lb_OK;
 }
 
-static void tcpSP_update(NetNewUserCallback new_user)
+static TbError tcpSP_update(NetNewUserCallback new_user)
 {
     assert(new_user);
     NETDBG(8, "Starting");
 
-    if (!spstate.ishost) {
-        return; //clients don't need to do anything here
+    if (!spstate.ishost)
+    {
+        return Lb_OK; // clients don't need to do anything here
     }
 
     TCPsocket new_socket;
@@ -431,6 +432,7 @@ static void tcpSP_update(NetNewUserCallback new_user)
             NETMSG("Socket dropped because server is full");
         }
     }
+    return Lb_OK;
 }
 
 static void tcpSP_sendmsg_single(NetUserId destination, const char * buffer, size_t size)
