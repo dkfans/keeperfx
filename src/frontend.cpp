@@ -1421,6 +1421,13 @@ void frontend_init_options_menu(struct GuiMenu *gmnu)
     sound_level_slider = make_audio_slider_linear(settings.sound_volume);
     mentor_level_slider = make_audio_slider_linear(settings.mentor_volume);
     fe_mouse_sensitivity = settings.first_person_move_sensitivity;
+    if (!is_campaign_loaded())
+    {
+        if (!change_campaign(""))
+        {
+            ERRORLOG("Unable to load campaign");
+        }
+    }
 }
 
 void frontend_set_player_number(long plr_num)
