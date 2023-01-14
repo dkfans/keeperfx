@@ -112,7 +112,7 @@ void draw_load_button(struct GuiButton *gbtn)
     }
     if (gbtn->content != NULL)
     {
-        sprintf(gui_textbuf, "%s", (const char *)gbtn->content);
+        snprintf(gui_textbuf, sizeof(gui_textbuf), "%s", (const char*)gbtn->content);
         draw_button_string(gbtn, (gbtn->width*32 + 16)/gbtn->height, gui_textbuf);
     }
 }
