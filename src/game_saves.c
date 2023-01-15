@@ -558,6 +558,11 @@ short save_continue_game(LevelNumber lvnum)
       set_continue_level_number(lvnum);
     SYNCDBG(6,"Continue set to level %d (loaded is %d)",(int)get_continue_level_number(),(int)get_loaded_level_number());
     char* fname = prepare_file_path(FGrp_Save, continue_game_filename);
+    if (!continue_game_available())
+    {
+        WARNLOG("No previous continue game available, deleting file");
+        LbFileDelete(fname);
+    }
     long fsize = LbFileSaveAt(fname, &game, sizeof(struct Game) + sizeof(struct IntralevelData));
     // Appending IntralevelData
     TbFileHandle fh = LbFileOpen(fname,Lb_FILE_MODE_NEW);
