@@ -560,7 +560,7 @@ short save_continue_game(LevelNumber lvnum)
     char* fname = prepare_file_path(FGrp_Save, continue_game_filename);
     if (!continue_game_available())
     {
-        WARNLOG("No previous continue game available, deleting file");
+        WARNLOG("No previous continue game available, deleting %s", fname);
         LbFileDelete(fname);
     }
     long fsize = LbFileSaveAt(fname, &game, sizeof(struct Game) + sizeof(struct IntralevelData));
