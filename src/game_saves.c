@@ -579,17 +579,17 @@ short read_continue_game_part(unsigned char *buf,long pos,long buf_len)
     {
         SYNCDBG(7, "No correct .SAV file; there's no continue");
         return false;
-  }
-  TbFileHandle fh = LbFileOpen(fname, Lb_FILE_MODE_READ_ONLY);
-  if (fh == -1)
-  {
-    SYNCDBG(7,"Can't open .SAV file; there's no continue");
-    return false;
-  }
-  LbFileSeek(fh, pos, Lb_FILE_SEEK_BEGINNING);
-  short result = (LbFileRead(fh, buf, buf_len) == buf_len);
-  LbFileClose(fh);
-  return result;
+    }
+    TbFileHandle fh = LbFileOpen(fname, Lb_FILE_MODE_READ_ONLY);
+    if (fh == -1)
+    {
+        SYNCDBG(7,"Can't open .SAV file; there's no continue");
+        return false;
+    }
+    LbFileSeek(fh, pos, Lb_FILE_SEEK_BEGINNING);
+    short result = (LbFileRead(fh, buf, buf_len) == buf_len);
+    LbFileClose(fh);
+    return result;
 }
 
 /**
