@@ -107,12 +107,11 @@ struct NetSP // new version
      * Asks if a message has finished reception and get be read through readmsg.
      * May block under some circumstances but shouldn't unless it can be presumed
      * a whole message is on the way.
-     * @param source The source user.
      * @param timeout If non-zero, this method will wait this number of milliseconds
      *  for a message to arrive before returning.
      * @return The size of the message waiting if there is a message, otherwise 0.
      */
-    size_t  (*msgready)(NetUserId source, unsigned timeout);
+    size_t  (*msgready)(unsigned timeout);
 
     /**
      * Completely reads a message. Blocks until entire message has been read.
@@ -123,7 +122,7 @@ struct NetSP // new version
      * @return The actual size of the message received, <= max_size. If 0, an
      *  error occurred.
      */
-    size_t  (*readmsg)(NetUserId source, char * buffer, size_t max_size);
+    size_t  (*readmsg)(NetUserId *source, char * buffer, size_t max_size);
 
     /**
      * Disconnects a user.

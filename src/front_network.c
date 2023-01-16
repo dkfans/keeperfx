@@ -243,7 +243,6 @@ void frontnet_session_update(void)
       if (net_number_of_sessions == 0)
       {
         net_session_index_active = -1;
-        net_session_index_active_id = -1;
       } else
       if (net_session_index_active != -1)
       {
@@ -260,8 +259,6 @@ void frontnet_session_update(void)
               }
             }
           }
-          if (net_session_index_active == -1)
-            net_session_index_active_id = -1;
       }
     }
 
@@ -285,7 +282,6 @@ void frontnet_session_update(void)
       if ( LbNetwork_EnumeratePlayers(net_session[net_session_index_active], enum_players_callback, 0) )
       {
         net_session_index_active = -1;
-        net_session_index_active_id = -1;
         return;
       }
       last_enum_players = LbTimerClock();
@@ -334,6 +330,8 @@ void frontnet_start_update(CoroutineLoop *context)
     {
       net_number_of_enum_players = 0;
       LbMemorySet(net_player, 0, sizeof(net_player));
+      if (net_session_index_active < 0)
+            net_session_index_active = 0; // I am the host here
       if ( LbNetwork_EnumeratePlayers(net_session[net_session_index_active], enum_players_callback, 0) )
       {
         ERRORLOG("LbNetwork_EnumeratePlayers() failed");
@@ -421,7 +419,6 @@ void frontnet_session_setup(void)
     net_session_index_active = -1;
     fe_computer_players = 2;
     lbInkey = 0;
-    net_session_index_active_id = -1;
 }
 
 void frontnet_start_setup(void)

@@ -1541,13 +1541,30 @@ void process_packets(void)
 
 static TbBool process_frontend_packets_cb(void *context, unsigned long turn, int net_player_idx, unsigned char kind, void *packet_data, short size)
 {
-    // TODO: copy all packets to game.packets
+    // TODO: Guard net_player_idx against overflow
+    if (kind == PckA_LandviewFrameSrv)
+    {
+        assert(size <= sizeof(net_screen_packet));
+        memcpy(&net_screen_packet, packet_data, size);
+    }
+    else
+    {
+        ERRORLOG("Unexpected packet kind: %d", kind);
+    }
     return false;
 }
 
 static TbBool process_frontend_packets_server_cb(void *context, unsigned long turn, int net_player_idx, unsigned char kind, void *packet_data, short size)
 {
-    // TODO: copy player packet to game.packets
+    // TODO: Guard net_player_idx against overflow
+    if (kind == PckA_LandviewFrameCli)
+    {
+        memcpy(&net_screen_packet[net_player_idx], packet_data, size);
+    }
+    else
+    {
+        ERRORLOG("Unexpected packet kind: %d", kind);
+    }
     return false;
 }
 
@@ -1595,7 +1612,7 @@ void process_frontend_packets(CoroutineLoop *context)
                                                  sizeof(struct ScreenPacket));
             memcpy(outgoing, nspckt, sizeof(struct ScreenPacket));
         }
-        if (LbNetwork_Exchange(net_screen_packet, &process_frontend_packets_server_cb))
+        if (LbNetwork_Exchange(net_screen_packet, &process_frontend_packets_cb))
         {
             ERRORLOG("LbNetwork_Exchange failed");
             net_service_index_selected = -1; // going to quit

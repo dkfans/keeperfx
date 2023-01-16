@@ -26,6 +26,7 @@
 #define NUM_CHANNELS 2
 #define CONNECT_TIMEOUT 3000
 #define DEFAULT_PORT 5556
+#define MAX_INCOMING_PACKETS 50
 
 namespace
 {
@@ -34,15 +35,47 @@ namespace
     ENetPeer *client_peer = nullptr;
 
     // List
-    ENetPacket *oldest_packet = nullptr;
-    ENetPacket *newest_packet = nullptr;
+    struct PacketRecord
+    {
+        PacketRecord    *next;
+        ENetPacket      *packet;
+        NetUserId       user_id;
+    };
+
+    PacketRecord *oldest_packet = nullptr;
+    PacketRecord *newest_packet = nullptr;
+
+    PacketRecord *packet_reocrd_arr = nullptr;
+    PacketRecord *free_packet_record_ptr = nullptr;
+
     int incoming_queue_size = 0;
+
+    PacketRecord* new_packet_record()
+    {
+        auto ret = free_packet_record_ptr;
+        free_packet_record_ptr = ret->next;
+        ret->next = nullptr;
+        return ret;
+    }
+
+    void free_packet_record(PacketRecord *record)
+    {
+        record->next = free_packet_record_ptr;
+        free_packet_record_ptr = record;
+    }
 
     TbError bf_enet_init(NetDropCallback drop_callback)
     {
         if (enet_initialize())
             return Lb_FAIL;
         g_drop_callback = drop_callback;
+        packet_reocrd_arr = reinterpret_cast<PacketRecord*>(malloc(sizeof(PacketRecord) * MAX_INCOMING_PACKETS));
+        for (int i = 0; i < MAX_INCOMING_PACKETS - 1; i++)
+        {
+            packet_reocrd_arr[i].next = &packet_reocrd_arr[i+1];
+        }
+        packet_reocrd_arr[MAX_INCOMING_PACKETS - 1].next = nullptr;
+        free_packet_record_ptr = &packet_reocrd_arr[0];
         return Lb_OK;
     }
 
@@ -50,11 +83,13 @@ namespace
     {
         if (oldest_packet)
         {
-            for (ENetPacket *p = oldest_packet; p != nullptr;)
+            for (auto p = oldest_packet; p != nullptr;)
             {
-                ENetPacket *pp = p;
-                p = static_cast<ENetPacket *>(p->userData);
+                ENetPacket *pp = p->packet;
+                auto next_p = p->next;
                 enet_packet_destroy(pp);
+                free_packet_record(p);
+                p = next_p;
             }
 
             oldest_packet = nullptr;
@@ -77,6 +112,9 @@ namespace
         host_destroy();
         g_drop_callback = nullptr;
         enet_deinitialize();
+        free(packet_reocrd_arr);
+        packet_reocrd_arr = nullptr;
+        free_packet_record_ptr = nullptr;
     }
 
     /**
@@ -201,21 +239,26 @@ namespace
                 case ENET_EVENT_TYPE_RECEIVE:
                     if (oldest_packet == nullptr)
                     {
-                        newest_packet = ev.packet;
+                        newest_packet = new_packet_record();
+                        newest_packet->packet = ev.packet;
+                        newest_packet->user_id = reinterpret_cast<NetUserId>(ev.peer->data);
                         oldest_packet = newest_packet;
                         incoming_queue_size = 1;
                     }
                     else
                     {
-                        newest_packet->userData = ev.packet;
-                        newest_packet = ev.packet;
-                        newest_packet->userData = nullptr;
-                        incoming_queue_size +=1;
-                        if (incoming_queue_size > 50)
+                        if (incoming_queue_size >= MAX_INCOMING_PACKETS - 1)
                         {
                             fprintf(stderr, "Too many packets %d\n", incoming_queue_size);
                             WARNLOG("Too many packets %d", incoming_queue_size);
+                            return 1;
                         }
+                        auto new_packet = new_packet_record();
+                        new_packet->packet = ev.packet;
+                        new_packet->user_id = reinterpret_cast<NetUserId>(ev.peer->data);
+                        newest_packet->next = new_packet;
+                        newest_packet = new_packet;
+                        incoming_queue_size +=1;
                     }
                     return 1;
                 case ENET_EVENT_TYPE_NONE:
@@ -293,20 +336,23 @@ namespace
      * @return The actual size of the message received, <= max_size. If 0, an
      *  error occurred.
      */
-    size_t bf_enet_readmsg(NetUserId source, char *buffer, size_t max_size)
+    size_t bf_enet_readmsg(NetUserId *source, char *buffer, size_t max_size)
     {
         size_t sz;
         while (!oldest_packet)
         {
             bf_enet_read_event(not_expected_user, 0);
         }
-        ENetPacket *packet = oldest_packet;
-        oldest_packet = static_cast<ENetPacket *>(oldest_packet->userData);
+        auto currenct_record = oldest_packet;
+        oldest_packet = currenct_record->next;
         incoming_queue_size--;
 
+        *source = currenct_record->user_id;
+        ENetPacket *packet = currenct_record->packet;
         sz = min(packet->dataLength, max_size);
         memcpy(buffer, packet->data, sz);
         enet_packet_destroy(packet);
+        free_packet_record(currenct_record);
         return sz;
     }
 
@@ -321,13 +367,13 @@ namespace
      *  for a message to arrive before returning.
      * @return The size of the message waiting if there is a message, otherwise 0.
      */
-    size_t bf_enet_msgready(NetUserId source, unsigned timeout)
+    size_t bf_enet_msgready(unsigned timeout)
     {
         if ((!oldest_packet) && timeout > 0)
         {
             bf_enet_read_event(not_expected_user, timeout);
         }
-        return oldest_packet? oldest_packet->dataLength : 0;
+        return oldest_packet? oldest_packet->packet->dataLength : 0;
     }
 
     /**
