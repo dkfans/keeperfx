@@ -547,6 +547,10 @@ int script_recognize_params(char **line, const struct CommandDesc *cmd_desc, str
                         if (funscline->tp[fi][0] == '\0') {
                             break;
                         }
+                        JUSTMSG("testlog: tp value %d  = %d", fi, funscline->tp[fi]);
+                        JUSTMSG("testlog: np value %d  = %d", fi, funscline->np[fi]);
+                        JUSTMSG("testlog: ri tp value %d  = %d", ri, funscline->tp[ri]);
+                        JUSTMSG("testlog: ri np value %d  = %d", ri, funscline->np[ri]);
                         if ((toupper(chr) == 'A') &! //Strings don't have a range, but IF statements have 'Aa' to allow both variable compare and numbers. Numbers are allowed, 'a' is a string for sure.
                             (((scline->command == Cmd_IF) || (scline->command == Cmd_IF_AVAILABLE) || (scline->command == Cmd_IF_CONTROLS)) && (chr == 'A')))
                         {
@@ -572,6 +576,7 @@ int script_recognize_params(char **line, const struct CommandDesc *cmd_desc, str
                                 return -1;
                             }
                             ranges[ri].max = funscline->np[fi];
+                            JUSTMSG("TESTLOG: Max is %d, min is %d", ranges[ri].max, ranges[ri].min);
                             if (ranges[ri].max < ranges[ri].min) {
                                 SCRPTWRNLOG("Range definition in argument of function \"%s\" within command \"%s\" should have lower value first", funcmd_desc->textptr, scline->tcmnd);
                                 ranges[ri].max = ranges[ri].min;
