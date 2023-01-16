@@ -65,13 +65,17 @@ struct MapLevelInfo { // sizeof = 56
 };
 
 struct ScreenPacket {
-  unsigned char field_0[4];
-  unsigned char field_4;
-  char frontend_alliances;
-  short field_6;
-  short field_8;
-  short param1;
-  unsigned char param2;
+    unsigned char tick; // to remove duplication
+    unsigned char flags;
+    unsigned char event;
+    char frontend_alliances;
+    short field_6;
+    short field_8;
+    char param1;
+    unsigned short lvl;
+    unsigned char param2;
+    unsigned char key;
+    TbBool shift;
 };
 
 /******************************************************************************/

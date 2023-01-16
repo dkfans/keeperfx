@@ -97,7 +97,7 @@
 extern "C" {
 #endif
 
-extern void enum_sessions_callback(struct TbNetworkCallbackData *netcdat, void *ptr);
+extern void enum_sessions_callback(struct TbNetworkCallbackData *netcdat, TbBool is_new);
 /******************************************************************************/
 TbClockMSec gui_message_timeout = 0;
 char gui_message_text[TEXT_BUFFER_LENGTH];
@@ -634,7 +634,7 @@ TbBool validate_versions(void)
     for (i=0; i < NET_PLAYERS_COUNT; i++)
     {
       player = get_player(i);
-      if ((net_screen_packet[i].field_4 & 0x01) != 0)
+      if ((net_screen_packet[i].flags & 1) != 0)
       {
         if (ver == -1)
           ver = player->game_version;
@@ -668,7 +668,7 @@ void versions_different_error(void)
     {
       plyr_nam = network_player_name(i);
       nspckt = &net_screen_packet[i];
-      if ((nspckt->field_4 & 0x01) != 0)
+      if ((nspckt->flags & 0x01) != 0)
       {
         str = buf_sprintf("%s(%d.%02d) ", plyr_nam, nspckt->field_6, nspckt->field_8);
         strncat(text, str, MESSAGE_TEXT_LEN-strlen(text));
@@ -1546,9 +1546,9 @@ void frontend_toggle_computer_players(struct GuiButton *gbtn)
 {
     struct ScreenPacket *nspck;
     nspck = &net_screen_packet[my_player_number];
-    if ((nspck->field_4 & 0xF8) == 0)
+    if (nspck->event == 0)
     {
-        nspck->field_4 = (nspck->field_4 & 0x07) | 0x38;
+        nspck->event = 0x7;
         nspck->param1 = (fe_computer_players == 0);
     }
 }
@@ -1580,8 +1580,8 @@ void set_packet_start(struct GuiButton *gbtn)
 {
     struct ScreenPacket *nspck;
     nspck = &net_screen_packet[my_player_number];
-    if ((nspck->field_4 & 0xF8) == 0)
-        nspck->field_4 = (nspck->field_4 & 7) | 0x18;
+    if (nspck->event == 0)
+        nspck->event = 0x3;
 }
 
 void draw_scrolling_button_string(struct GuiButton *gbtn, const char *text)

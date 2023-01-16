@@ -45,7 +45,6 @@ struct TbNetworkPlayerInfo net_player_info[NET_PLAYERS_COUNT];
 struct TbNetworkSessionNameEntry *net_session[32];
 long net_number_of_sessions;
 long net_session_index_active;
-struct TbNetworkPlayerName net_player[NET_PLAYERS_COUNT];
 struct ConfigInfo net_config_info;
 char net_service[16][NET_SERVICE_LEN];
 char net_player_name[20];
@@ -121,7 +120,7 @@ static CoroutineLoopState setup_exchange_player_number(CoroutineLoop *context)
             }
             player->is_active = pckt->actn_par1;
             init_player(player, 0);
-            snprintf(player->player_name, sizeof(struct TbNetworkPlayerName), "%s", net_player[i].name);
+            snprintf(player->player_name, sizeof(player->player_name) - 1, "%s", net_player_info[i].name);
             k++;
         }
     }
@@ -195,7 +194,7 @@ const char *network_player_name(int plyr_idx)
 {
     if ((plyr_idx < 0) || (plyr_idx >= NET_PLAYERS_COUNT))
         return NULL;
-    return net_player[plyr_idx].name;
+    return net_player_info[plyr_idx].name;
 }
 
 void set_network_player_name(int plyr_idx, const char *name)
@@ -204,7 +203,7 @@ void set_network_player_name(int plyr_idx, const char *name)
         ERRORLOG("Outranged network player %d",plyr_idx);
         return;
     }
-    snprintf(net_player[plyr_idx].name, sizeof(net_player[0].name), "%s", name);
+    snprintf(net_player_info[plyr_idx].name, sizeof(net_player_info[0].name), "%s", name);
 }
 
 long network_session_join(void)

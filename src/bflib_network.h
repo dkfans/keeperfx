@@ -157,18 +157,15 @@ struct ConfigInfo {
 };
 
 struct TbNetworkPlayerInfo {
-char name[32];
-long active;
+    char name[32];
+    long active;
+    uint8_t last_packet_tick;
 };
 
 struct TbNetworkCallbackData {
   char svc_name[12];
   char plyr_name[20];
   char field_20[32];
-};
-
-struct TbNetworkPlayerName {
-  char name[20];
 };
 
 struct TbNetworkPlayerNameEntry {

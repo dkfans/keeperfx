@@ -86,7 +86,7 @@ void update_mouse(void);
 void update_wheel_scrolled(void);
 
 short is_key_pressed(TbKeyCode key, TbKeyMods kmodif);
-unsigned short key_to_ascii(TbKeyCode key, TbKeyMods kmodif);
+char key_to_ascii(TbKeyCode key, TbKeyMods kmodif);
 void clear_key_pressed(long key);
 void update_key_modifiers(void);
 void define_key_input(void);

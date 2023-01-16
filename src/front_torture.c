@@ -290,15 +290,12 @@ TbBool fronttorture_cb(void *context, unsigned long turn, int net_player_idx,
     *door_id = torture_door_over_point(x, y);
     if ((torture_door_selected != -1) && (torture_door_selected != *door_id))
         *door_id = -1;
-    return true;
+    return false;
 }
 
 void fronttorture_input(void)
 {
-    long x;
-    long y;
     long door_id = -1;
-    PlayerNumber plyr_idx;
     clear_packets();
     struct PlayerInfo* player = get_my_player();
     struct Packet* pckt = LbNetwork_AddPacket(PckA_TortureFrame, 0, sizeof(struct Packet));

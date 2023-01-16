@@ -113,31 +113,29 @@ void frontnet_start_game_maintain(struct GuiButton *gbtn)
     gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * (net_number_of_enum_players > 1)) & LbBtnF_Enabled;
 }
 
-TbBool frontnet_start_input(void)
+void frontnet_start_input(void)
 {
     if (lbInkey != KC_UNASSIGNED)
     {
-        unsigned short asckey;
-        asckey = key_to_ascii(lbInkey, KMod_NONE);
+        short asckey = key_to_ascii(lbInkey, KMod_SHIFT); // FIX: Should shift be here?
         if ((lbInkey == KC_BACK) || (lbInkey == KC_RETURN) || (frontend_font_char_width(1,asckey) > 0))
         {
-            struct ScreenPacket *nspck;
-            nspck = &net_screen_packet[my_player_number];
-            if ((nspck->field_4 & 0xF8) == 0)
+            struct ScreenPacket *nspck = &net_screen_packet[my_player_number];
+            if (nspck->event == 0)
             {
-                nspck->field_4 = (nspck->field_4 & 7) | 0x40;
-                nspck->param1 = lbInkey;
+                nspck->event = 0x8;
+                nspck->key = lbInkey;
                 nspck->param2 = key_modifiers;
                 if (key_modifiers)
                 {
                     lbInkey = KC_UNASSIGNED;
-                    return true;
+                    return;
                 }
+                nspck->shift = (lbKeyOn[KC_LSHIFT] != 0) || (lbKeyOn[KC_RSHIFT] != 0);
             }
         }
         lbInkey = KC_UNASSIGNED;
     }
-    return false;
 }
 
 void frontnet_draw_services_scroll_tab(struct GuiButton *gbtn)
@@ -229,7 +227,7 @@ void frontnet_draw_net_session_players(struct GuiButton *gbtn)
     for (shift_y=0; shift_y < gbtn->height; shift_y += height, netplyr_idx++)
     {
         const char *text;
-        text = net_player[netplyr_idx].name;
+        text = net_player_info[netplyr_idx].name;
         if (netplyr_idx >= net_number_of_enum_players)
             break;
         spr = &frontend_sprite[GFS_bullfrog_red_med+netplyr_idx];
@@ -351,7 +349,7 @@ void frontnet_draw_net_start_players(struct GuiButton *gbtn)
     for (shift_y=0; shift_y < gbtn->height; shift_y += height, netplyr_idx++)
     {
         const char *text;
-        text = net_player[netplyr_idx].name;
+        text = net_player_info[netplyr_idx].name;
         if (netplyr_idx >= net_number_of_enum_players)
             break;
 
@@ -386,10 +384,10 @@ void frontnet_select_alliance(struct GuiButton *gbtn)
     {
         struct ScreenPacket *nspck;
         nspck = &net_screen_packet[my_player_number];
-        if ((nspck->field_4 & 0xF8) == 0)
+        if (nspck->event == 0)
         {
-            nspck->field_4 = (nspck->field_4 & 7) | 0x20;
-            nspck->param1 = plyr1_idx;
+            nspck->event = 0x4;
+            nspck->param1 = (char)plyr1_idx;
             nspck->param2 = plyr2_idx;
         }
     }

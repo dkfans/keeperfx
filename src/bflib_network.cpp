@@ -114,7 +114,7 @@ struct NetUser
     NetUserId               id; //same as array index. server always 0
     char                    name[32];
 	enum NetUserProgress	progress;
-	int                     ack; //last sequence number processed
+	TbBool                  is_new;
 };
 
 struct NetFrame
@@ -657,7 +657,7 @@ static TbBool OnNewUser(NetUserId * assigned_id)
         if (netstate.users[i].progress == USER_UNUSED) {
             *assigned_id = i;
             netstate.users[i].progress = USER_CONNECTED;
-            netstate.users[i].ack = -1;
+            netstate.users[i].is_new = 1;
             netstate.login_attempts++;
             NETLOG("Assigning new user to ID %u", i);
             return 1;
@@ -915,9 +915,9 @@ TbError LbNetwork_EnumerateServices(TbNetworkCallbackFunc callback, void *ptr)
 
   SYNCDBG(7, "Starting");
   strcpy(netcdat.svc_name, "TCP");
-  callback(&netcdat, ptr);
+  callback(&netcdat, 1);
   strcpy(netcdat.svc_name, "ENET/UDP");
-  callback(&netcdat, ptr);
+  callback(&netcdat, 1);
   NETMSG("Enumerate Services called");
   return Lb_OK;
 }
@@ -954,7 +954,8 @@ TbError LbNetwork_EnumeratePlayers(struct TbNetworkSessionNameEntry *sesn, TbNet
             LbMemorySet(&data, 0, sizeof(data));
             LbStringCopy(data.plyr_name, netstate.users[id].name,
                 sizeof(data.plyr_name));
-            callback(&data, buf);
+            callback(&data, netstate.users[id].is_new);
+            netstate.users[id].is_new = false; //TODO: stateful is bad
         }
     }
 
@@ -985,7 +986,7 @@ TbError LbNetwork_EnumerateSessions(TbNetworkCallbackFunc callback, void *ptr)
             continue;
         }
 
-        callback((TbNetworkCallbackData *) &sessions[i], ptr);
+        callback((TbNetworkCallbackData *) &sessions[i], 1);
     }
 
     return Lb_OK;
