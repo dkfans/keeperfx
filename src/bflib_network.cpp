@@ -69,7 +69,6 @@ struct ReceiveCallbacks receiveCallbacks = {
 };
 
 unsigned long inside_sr;
-unsigned long actualTimeout;
 void *localDataPtr;
 void *compositeBuffer;
 unsigned long waitingForPlayerMapResponse;
@@ -361,41 +360,29 @@ static void HandleLoginRequest(NetUserId source, char * ptr, const char *end)
 static void HandleUserUpdate(NetUserId source, char * ptr, const char * end)
 {
     NetUserId id;
-
     NETDBG(7, "Starting");
-
+    if (source != SERVER_ID)
+    {
+        NETLOG("Error: UserUpdate not from server! Source:%d", source);
+        return;
+    }
+    if (end - ptr < 3)
+    {
+        NETLOG("Error: Invalid UserUpdate len:%d", end - ptr);
+        return;
+    }
     id = (uint8_t) *ptr;
-    if (id < 0 && id >= MAX_N_USERS) {
-        NETLOG("Critical error: Out of range user ID %i received from server, could be used for buffer overflow attack", id);
-        abort();
+    if (id < 0 && id >= MAX_N_USERS)
+    {
+        NETLOG("Error: Out of range user ID %i received from server", id);
+        return;
     }
     ptr += 1;
 
     netstate.users[id].progress = (enum NetUserProgress) *ptr;
     ptr += 1;
 
-    LbStringCopy(netstate.users[id].name, ptr, sizeof(netstate.users[id].name));
-
-    //send up the stuff the other parts of the game expect
-}
-
-static void HandleClientFrame(NetUserId source, char *dst_ptr, const char * ptr, char * end, size_t frame_size)
-{
-    NETDBG(7, "Starting");
-
-    netstate.users[source].ack = *(int *) ptr;
-    ptr += 4;
-
-    LbMemoryCopy(dst_ptr, ptr, frame_size);
-    ptr += frame_size;
-
-    if (ptr >= end) {
-        //TODO NET handle bad frame
-        NETMSG("Bad frame size from client %u", source);
-        return;
-    }
-
-    NETDBG(9, "Handled client frame of %u bytes", frame_size);
+    LbStringCopy(netstate.users[id].name, ptr, min((int)sizeof(netstate.users[id].name), end - ptr));
 }
 
 static void HandleServerFrame(char *ptr, const char *end, size_t user_frame_size)
@@ -434,88 +421,6 @@ static void HandleServerFrame(char *ptr, const char *end, size_t user_frame_size
     LbMemoryCopy(frame->buffer, ptr, frame->size);
 
     NETDBG(9, "Handled server frame of %u bytes", frame->size);
-}
-
-static void HandleMessageFromServer(char *buffer_start, size_t buffer_size, size_t frame_size)
-{
-    char * buffer_ptr = buffer_start;
-    const char * buffer_end = buffer_ptr + buffer_size;
-    uint8_t kind;
-
-    NETDBG(7, "Handling message from %u", source);
-
-    //kind
-    kind = (uint8_t) buffer_ptr[0];
-    buffer_ptr += 1;
-
-    switch (kind) {
-        case PckA_UserUpdate:
-            HandleUserUpdate(SERVER_ID, buffer_ptr, buffer_end);
-            break;
-        case NETMSG_FRAME:
-            HandleServerFrame(buffer_ptr, buffer_end, frame_size);
-            break;
-        default:
-            NETLOG("Unexpected packet kind: %d", kind);
-    }
-}
-
-static void HandleMessageFromClient(NetUserId source, void *server_buf, size_t frame_size)
-{
-    //this is a very bad way to do network message parsing, but it is what C offers
-    //(I could also load into it memory by some complicated system with data description
-    //auxiliary structures which I don't got time to code nor do the requirements
-    //justify it)
-
-    char * buffer_ptr;
-    char * buffer_end;
-    size_t buffer_size;
-    uint8_t type;
-
-    NETDBG(7, "Handling message from %u", source);
-
-    buffer_ptr = netstate.msg_buffer;
-    buffer_size = sizeof(netstate.msg_buffer);
-    buffer_end = buffer_ptr + buffer_size;
-
-    //type
-    type = (enum NetMessageType) *buffer_ptr;
-
-    switch (type) {
-        case PckA_Login:
-            HandleLoginRequest(source, buffer_ptr + 1, buffer_end);
-            break;
-        case PckA_UserUpdate:
-            WARNLOG("Unexpected USERUPDATE");
-            break;
-        case NETMSG_FRAME:
-            HandleClientFrame(source,((char*)server_buf) + source * frame_size,
-                              buffer_ptr + 1, buffer_end, frame_size);
-            break;
-        default:
-            break;
-    }
-}
-
-static TbError ProcessMessage(char* packet_buf, size_t frame_size)
-{
-    size_t rcount;
-    NetUserId user_id = -1;
-    rcount = netstate.sp->readmsg(&user_id, packet_buf, frame_size);
-    assert(user_id == SERVER_ID);
-    assert(rcount < frame_size);
-
-    if (rcount > 0)
-    {
-        HandleMessageFromServer(packet_buf, rcount, frame_size);
-    }
-    else
-    {
-        NETLOG("Problem reading message from %u", SERVER_ID);
-        return Lb_FAIL;
-    }
-
-    return Lb_OK;
 }
 
 static void AddSession(const char * str, size_t len)
@@ -670,8 +575,6 @@ TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *plyr_name
         fprintf(stderr, "Network login rejected\n");
         return Lb_FAIL;
     }
-    ProcessMessage((char *)&net_screen_packet[0], sizeof (struct ScreenPacket));
-
     if (netstate.my_id == 23456) {
         fprintf(stderr, "Network login unsuccessful\n");
         return Lb_FAIL;
@@ -778,7 +681,8 @@ static void OnDroppedUser(NetUserId id, enum NetDropReason reason)
     assert(id >= 0);
     assert(id < MAX_N_USERS);
 
-    if (netstate.my_id == id) {
+    if (netstate.my_id == id)
+    {
         NETMSG("Warning: Trying to drop local user. There's a bug in code somewhere, probably server trying to send message to itself.");
         return;
     }
@@ -794,7 +698,7 @@ static void OnDroppedUser(NetUserId id, enum NetDropReason reason)
     }
 
 
-    if (netstate.my_id == SERVER_ID)
+    if (LbNetwork_IsServer())
     {
         CleanupUser(id);
 
@@ -847,6 +751,7 @@ void *LbNetwork_AddPacket_f(unsigned char kind, unsigned long turn, short size, 
     ret->size = size;
     return &ret->data[0];
 }
+
 static void SendFrames()
 {
     //SendClientFrame((char *) send_buf, client_frame_size, netstate.seq_nbr);
@@ -901,12 +806,15 @@ TbError LbNetwork_Exchange(void *context, LbNetwork_Packet_Callback callback)
             }*/
             int turn = 0;
             uint8_t kind = netstate.input_buffer[0];
-            if (kind == PckA_Login)
+            switch (kind)
             {
+            case PckA_Login:
                 HandleLoginRequest(source, netstate.input_buffer + 1, netstate.input_buffer + rcount);
-            }
-            else
-            {
+                break;
+            case PckA_UserUpdate:
+                HandleUserUpdate(source, netstate.input_buffer + 1, netstate.input_buffer + rcount);
+                break;
+            default:
                 callback(context, turn,
                          source, // NetPlayerIdx? or Player?
                          kind,
