@@ -62,15 +62,18 @@ struct MapLevelInfo { // sizeof = 56
   long screen_shift_aimed_y;
 };
 
-struct ScreenPacket { // sizeof = 12
-  unsigned char field_0[4];
-  unsigned char field_4;
-  char field_5;
-  short field_6;
-  short field_8;
-  //TODO LANDVIEW This is unacceptable - level number won't fit in 8 bits; this causes zoom area to be invalid. Change to int when possible.
-  char param1;
-  unsigned char param2;
+struct ScreenPacket {
+    unsigned char tick; // to remove duplication
+    unsigned char flags;
+    unsigned char event;
+    char field_5;
+    short field_6;
+    short field_8;
+    char param1;
+    unsigned short lvl;
+    unsigned char param2;
+    unsigned char key;
+    TbBool shift;
 };
 
 /******************************************************************************/

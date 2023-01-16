@@ -68,8 +68,8 @@ static TbError  tcpSP_join(const char * session, void * options);
 static TbError  tcpSP_update(NetNewUserCallback new_user);
 static void     tcpSP_sendmsg_single(NetUserId destination, const char * buffer, size_t size);
 static void     tcpSP_sendmsg_all(const char * buffer, size_t size);
-static size_t   tcpSP_msgready(NetUserId source, unsigned timeout);
-static size_t   tcpSP_readmsg(NetUserId source, char * buffer, size_t max_size);
+static size_t   tcpSP_msgready(unsigned timeout);
+static size_t   tcpSP_readmsg(NetUserId *source, char * buffer, size_t max_size);
 static void     tcpSP_drop_user(NetUserId id);
 
 const struct NetSP tcpSP =
@@ -486,10 +486,10 @@ static void tcpSP_sendmsg_all(const char * buffer, size_t size)
     }
 }
 
-static size_t tcpSP_msgready(NetUserId source, unsigned timeout)
+static size_t tcpSP_msgready(unsigned timeout)
 {
     NETDBG(9, "Starting message ready check for user %u", source);
-
+    NetUserId source = spstate.ishost?1:0;
     struct Msg* msg = find_peer_message(source);
     if (!msg) {
         return 0;
@@ -515,14 +515,15 @@ static size_t tcpSP_msgready(NetUserId source, unsigned timeout)
     return 0;
 }
 
-static size_t tcpSP_readmsg(NetUserId source, char * buffer, size_t max_size)
+static size_t tcpSP_readmsg(NetUserId *source_ptr, char * buffer, size_t max_size)
 {
     size_t size;
 
     assert(buffer);
     assert(max_size > 0);
     NETDBG(9, "Starting read from user %u", source);
-
+    NetUserId source = spstate.ishost? 1: 0;
+    *source_ptr = source;
     struct Msg* msg = find_peer_message(source);
     if (!msg) {
         return 0;

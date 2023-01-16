@@ -978,8 +978,10 @@ TbBool frontnetmap_load(void)
         for (long i = 0; i < 4; i++)
         {
             struct ScreenPacket* nspck = &net_screen_packet[i];
-            if ((nspck->field_4 & 0x01) != 0)
-              net_number_of_players++;
+            if ((nspck->flags & 0x01) != 0)
+            {
+                net_number_of_players++;
+            }
         }
     } else
     {
@@ -1158,7 +1160,7 @@ TbBool test_hand_slap_collides(PlayerNumber plyr_idx)
   if (is_my_player_number(plyr_idx))
     return false;
   struct ScreenPacket* nspck = &net_screen_packet[my_player_number];
-  if ((nspck->field_4 >> 3) == 0x02)
+  if (nspck->event == 0x02)
     return false;
   // Rectangle of given player
   nspck = &net_screen_packet[(int)plyr_idx];
@@ -1169,7 +1171,7 @@ TbBool test_hand_slap_collides(PlayerNumber plyr_idx)
   rcta.bottom = rcta.top + 20;
   // Rectangle of local player
   nspck = &net_screen_packet[my_player_number];
-  if ((nspck->field_4 >> 3) == 0x01)
+  if (nspck->event == 0x01)
   {
     rctb.left = nspck->field_6 - 31;
     rctb.top = nspck->field_8 - 27;
@@ -1303,17 +1305,17 @@ void draw_netmap_players_hands(void)
       nspck = &net_screen_packet[i];
       plyr_nam = network_player_name(i);
       colr = net_player_colours[i];
-      if ((nspck->field_4 & 0x01) != 0)
+      if ((nspck->flags & 0x01) != 0)
       {
         x = 0;
         y = 0;
-        n = nspck->field_4 & 0xF8;
-        if (n == 8)
+        n = nspck->event;
+        if (n == 1)
         {
           k = (unsigned char)nspck->param1;
           spr = &map_hand[k];
-        } else
-        if (n == 16)
+        }
+        else if (n == 2)
         {
           k = nspck->param2;
           if (k > 11)
@@ -1324,7 +1326,7 @@ void draw_netmap_players_hands(void)
           y = hand_limp_yoffset[k];
           spr = &map_hand[21];
         } else
-        if (nspck->param1 == SINGLEPLAYER_NOTSTARTED)
+        if (nspck->param1 == 0)
         {
             k = LbTimerClock() / 150;
             spr = &map_hand[1 + (k%8)];
@@ -1633,11 +1635,11 @@ TbBool frontmap_exchange_screen_packet(void)
         cb = &frontmap_exchange_screen_packet_cb;
     }
 
-    nspck->field_4 |= 0x01;
-    nspck->param1 = fe_net_level_selected;
+    nspck->flags |= 0x01;
+    nspck->lvl = fe_net_level_selected;
     if (net_map_limp_time > 0)
     {
-      nspck->field_4 = (nspck->field_4 & 0x07) | 0x10;
+      nspck->event = 0x2;
       nspck->field_6 = limp_hand_x;
       nspck->field_8 = limp_hand_y;
       net_map_limp_time--;
@@ -1665,7 +1667,7 @@ TbBool frontmap_exchange_screen_packet(void)
         nspck->field_8 = GetMouseY()*16/units_per_pixel + map_info.screen_shift_y;
         if (net_map_slap_frame <= 16)
         {
-          nspck->field_4 = (nspck->field_4 & 0x07) | 0x08;
+          nspck->event = 0x1;
           nspck->param1 = net_map_slap_frame;
           net_map_slap_frame++;
         }
@@ -1697,7 +1699,7 @@ TbBool frontnetmap_update_players(struct NetMapPlayersState * nmps)
     for (long i = 0; i < NET_PLAYERS_COUNT; i++)
     {
         struct ScreenPacket* nspck = &net_screen_packet[i];
-        if ((nspck->field_4 & 0x01) == 0)
+        if ((nspck->flags & 0x01) == 0)
           continue;
         if (nspck->param1 == LEVELNUMBER_ERROR)
         {
@@ -1714,14 +1716,14 @@ TbBool frontnetmap_update_players(struct NetMapPlayersState * nmps)
             }
             return false;
         }
-        if ((nspck->param1 == SINGLEPLAYER_NOTSTARTED) || ((nspck->field_4 & 0xF8) == 8))
+        if ((nspck->param1 == 0) || (nspck->event == 1))
         {
             nmps->tmp1++;
         }
         else
         {
             //TODO FRONTEND This is so wrong - remove casting when param1 is changed to int
-            LevelNumber pckt_lvnum = (unsigned char)nspck->param1;
+            LevelNumber pckt_lvnum = nspck->lvl;
             scratch[pckt_lvnum]++;
             if (scratch[pckt_lvnum] == tmp2)
             {
@@ -1735,7 +1737,7 @@ TbBool frontnetmap_update_players(struct NetMapPlayersState * nmps)
                 nmps->is_selected = true;
             }
         }
-        if (((nspck->field_4 & 0xF8) == 0x08) && (nspck->param1 == 13))
+        if ((nspck->event == 1) && (nspck->param1 == 13))
         {
             if ( test_hand_slap_collides(i) )
             {
@@ -1744,7 +1746,7 @@ TbBool frontnetmap_update_players(struct NetMapPlayersState * nmps)
                 net_map_slap_frame = 0;
                 limp_hand_x = nspck->field_6;
                 limp_hand_y = nspck->field_8;
-                nspck->field_4 = (nspck->field_4 & 7) | 0x10;
+                nspck->event = 0x2;
                 SYNCLOG("Slapped out of level");
             }
         }
