@@ -607,7 +607,7 @@ TbBool continue_game_available(void)
         {
             return false;
         }
-        long i = (char*)&game.campaign_fname[0] - (char*)&game;
+        long i = (char*)&save_game_catalogue->campaign_fname[0] - (char*)&save_game_catalogue;
         char cmpgn_fname[CAMPAIGN_FNAME_LEN];
         read_continue_game_part((unsigned char*)cmpgn_fname, i, CAMPAIGN_FNAME_LEN);
         cmpgn_fname[CAMPAIGN_FNAME_LEN-1] = '\0';

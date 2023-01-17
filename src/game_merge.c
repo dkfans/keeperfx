@@ -84,7 +84,7 @@ LevelNumber set_continue_level_number(LevelNumber lvnum)
         game.continue_level_number = lvnum;
         save_game_catalogue->continue_level_num = lvnum;
     }
-  return game.continue_level_number;
+  return save_game_catalogue->continue_level_num;
 }
 
 /**
