@@ -52,6 +52,7 @@ extern "C" {
 #endif
 /******************************************************************************/
 const char *keeper_netconf_file = "fxconfig.net";
+#define DEDUP_MAX_TICK 31
 
 const struct ConfigInfo default_net_config_info = {
     "",
@@ -285,7 +286,11 @@ void frontnet_session_update(void)
     if (LbTimerClock() >= last_enum_players)
     {
       net_number_of_enum_players = 0;
-      LbMemorySet(net_player_info, 0, sizeof(net_player_info));
+      for (int i = 0; i < NET_PLAYERS_COUNT; i++)
+      {
+          net_player_info[i].name[0] = 0;
+          net_player_info[i].active = 0;
+      }
       if ( LbNetwork_EnumeratePlayers(net_session[net_session_index_active], enum_players_callback, 0) )
       {
         net_session_index_active = -1;
@@ -336,7 +341,12 @@ void frontnet_start_update(CoroutineLoop *context)
     if (LbTimerClock() >= player_last_time+200)
     {
         net_number_of_enum_players = 0;
-        LbMemorySet(net_player_info, 0, sizeof(net_player_info));
+        for (int i = 0; i < NET_PLAYERS_COUNT; i++)
+        {
+            net_player_info[i].name[0] = 0;
+            net_player_info[i].active = 0;
+        }
+
         if (net_session_index_active < 0)
         {
             net_session_index_active = 0; // I am the host here
@@ -448,6 +458,44 @@ void frontnet_start_setup(void)
 }
 
 /******************************************************************************/
+static TbBool frontnet_quit_all()
+{
+    int i = frontnet_number_of_players_in_session();
+    if (players_currently_in_session < i)
+    {
+        players_currently_in_session = i;
+    }
+    if (players_currently_in_session > i)
+    {
+        if (frontend_menu_state == FeSt_NET_SESSION)
+        {
+            if (LbNetwork_Stop())
+            {
+                ERRORLOG("LbNetwork_Stop() failed");
+                return true;
+            }
+            frontend_set_state(FeSt_MAIN_MENU);
+        }
+        else if (frontend_menu_state == FeSt_NET_START)
+        {
+            if (LbNetwork_Stop())
+            {
+                ERRORLOG("LbNetwork_Stop() failed");
+                return true;
+            }
+            if (setup_network_service(net_service_index_selected))
+            {
+                frontend_set_state(FeSt_NET_SESSION);
+            }
+            else
+            {
+                frontend_set_state(FeSt_MAIN_MENU);
+            }
+        }
+    }
+    return false;
+}
+
 
 static TbBool process_frontend_packets_cb(void *context, unsigned long turn, int net_player_idx, unsigned char kind, void *packet_data, short size)
 {
@@ -480,17 +528,16 @@ static TbBool process_frontend_packets_server_cb(void *context, unsigned long tu
 
 void process_frontend_packets(CoroutineLoop *context)
 {
-    long i;
     static TbClockMSec next_time = 0;
     TbClockMSec now_time = LbTimerClock();
     TbBool need_packet = false;
     if (now_time > next_time)
     {
-        next_time =  now_time + 300;
+        next_time = now_time + 300; // Send events sometimes
         need_packet = true;
     }
 
-    for (i=0; i < NET_PLAYERS_COUNT; i++) // TODO weird
+    for (int i = 0; i < NET_PLAYERS_COUNT; i++) // TODO weird
     {
         net_screen_packet[i].flags &= ~0x01;
     }
@@ -507,11 +554,15 @@ void process_frontend_packets(CoroutineLoop *context)
             ERRORLOG("LbNetwork_Exchange failed");
             net_service_index_selected = -1; // going to quit
         }
-        if (need_packet || (nspckt->event != 0))
+        if (nspckt->event != 0)
         {
-            nspckt->tick = (net_player_info[i].last_packet_tick + 1) & 7; // Deduplication
+            need_packet = true;
         }
-        for (i=0; i < NET_PLAYERS_COUNT; i++)
+        if (need_packet)
+        {
+            nspckt->tick = (net_player_info[my_player_number].last_packet_tick + 1) & DEDUP_MAX_TICK; // Deduplication
+        }
+        for (int i=0; i < NET_PLAYERS_COUNT; i++)
         {
             if (net_screen_packet[i].event != 0)
             {
@@ -528,12 +579,16 @@ void process_frontend_packets(CoroutineLoop *context)
     }
     else
     {
-        if (need_packet || (nspckt->event != 0))
+        if (nspckt->event != 0)
+        {
+            need_packet = true;
+        }
+        if (need_packet)
         {
             void *outgoing = LbNetwork_AddPacket(PckA_LandviewFrameCli, 0,
                                                  sizeof(struct ScreenPacket));
 
-            nspckt->tick = (net_player_info[i].last_packet_tick + 1) & 3; // Deduplication
+            nspckt->tick = (net_player_info[my_player_number].last_packet_tick + 1) & DEDUP_MAX_TICK; // Deduplication
 
             memcpy(outgoing, nspckt, sizeof(struct ScreenPacket));
         }
@@ -545,56 +600,30 @@ void process_frontend_packets(CoroutineLoop *context)
     }
     if (frontend_should_all_players_quit())
     {
-        i = frontnet_number_of_players_in_session();
-        if (players_currently_in_session < i)
+        if (frontnet_quit_all())
         {
-            players_currently_in_session = i;
-        }
-        if (players_currently_in_session > i)
-        {
-            if (frontend_menu_state == FeSt_NET_SESSION)
-            {
-                if (LbNetwork_Stop())
-                {
-                    ERRORLOG("LbNetwork_Stop() failed");
-                    return;
-                }
-                frontend_set_state(FeSt_MAIN_MENU);
-            }
-            else if (frontend_menu_state == FeSt_NET_START)
-            {
-                if (LbNetwork_Stop())
-                {
-                    ERRORLOG("LbNetwork_Stop() failed");
-                    return;
-                }
-                if (setup_network_service(net_service_index_selected))
-                {
-                    frontend_set_state(FeSt_NET_SESSION);
-                }
-                else
-                {
-                    frontend_set_state(FeSt_MAIN_MENU);
-                }
-            }
+            return;
         }
     }
 #if DEBUG_NETWORK_PACKETS
     write_debug_screenpackets();
 #endif
-    for (i=0; i < NET_PLAYERS_COUNT; i++)
+    for (int i = 0; i < NET_PLAYERS_COUNT; i++)
     {
         nspckt = &net_screen_packet[i];
         struct PlayerInfo* player = get_player(i);
         if (nspckt->event != 0)
         {
-            if (nspckt->tick == net_player_info[i].last_packet_tick)
+            uint8_t diff = (nspckt->tick - net_player_info[i].last_packet_tick) & DEDUP_MAX_TICK; // Deduplication
+            if ((diff == 0) || (diff >= (DEDUP_MAX_TICK / 2))) // Some packets could be reordered or lost but not that much
             {
+                nspckt->event = 0;
                 continue;
             }
+            NETLOG("event:%d for:%d tick:%d old:%d diff:%d", nspckt->event, i, nspckt->tick, net_player_info[i].last_packet_tick,
+                   diff);
             net_player_info[i].last_packet_tick = nspckt->tick;
 
-            NETLOG("event: %d", nspckt->event);
             long k;
             switch (nspckt->event)
             {
@@ -677,7 +706,7 @@ void process_frontend_packets(CoroutineLoop *context)
     }
     if (frontend_alliances == -1)
         frontend_alliances = 0;
-    for (i=0; i < NET_PLAYERS_COUNT; i++)
+    for (int i = 0; i < NET_PLAYERS_COUNT; i++)
     {
         nspckt = &net_screen_packet[i];
         if ((nspckt->flags & 0x01) == 0)

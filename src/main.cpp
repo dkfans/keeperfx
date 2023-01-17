@@ -3633,7 +3633,7 @@ void initialise_map_health(void)
     }
 }
 
-static TbBool wait_at_frontend(void)
+static TbBool wait_at_frontend()
 {
     struct PlayerInfo *player;
     // This is an improvised coroutine-like stuff

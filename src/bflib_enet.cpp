@@ -387,6 +387,24 @@ namespace
     }
 }
 
+extern "C" {
+
+    uint32_t EnetGetSentPackets()
+{
+    if (!host)
+        return 0;
+    return host->totalSentPackets;
+}
+
+uint32_t EnetGetReceivedPackets()
+{
+    if (!host)
+        return 0;
+    return host->totalReceivedPackets;
+}
+
+}
+
 struct NetSP *InitEnetSP()
 {
     static struct NetSP ret =
