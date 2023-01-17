@@ -562,19 +562,21 @@ short save_continue_game(LevelNumber lvnum)
       set_continue_level_number(lvnum);
     SYNCDBG(6,"Continue set to level %d (loaded is %d)",(int)get_continue_level_number(),(int)get_loaded_level_number());
     char* fname = prepare_file_path(FGrp_Save, continue_game_filename);
-    long fsize = LbFileSaveAt(fname, &game, sizeof(struct Game) + sizeof(struct IntralevelData));
+    //long fsize = LbFileSaveAt(fname, &game, sizeof(struct Game) + sizeof(struct IntralevelData));
+    long fsize = LbFileSaveAt(fname, &save_game_catalogue[0], sizeof(struct CatalogueEntry) + sizeof(struct IntralevelData));
+    
     // Appending IntralevelData
     TbFileHandle fh = LbFileOpen(fname,Lb_FILE_MODE_NEW);
-    LbFileSeek(fh, sizeof(struct Game), Lb_FILE_SEEK_BEGINNING);
+    LbFileSeek(fh, sizeof(struct CatalogueEntry), Lb_FILE_SEEK_BEGINNING);
     LbFileWrite(fh, &intralvl, sizeof(struct IntralevelData));
     LbFileClose(fh);
-    return (fsize == sizeof(struct Game) + sizeof(struct IntralevelData));
+    return (fsize == sizeof(struct CatalogueEntry) + sizeof(struct IntralevelData));
 }
 
 short read_continue_game_part(unsigned char *buf,long pos,long buf_len)
 {
     char* fname = prepare_file_path(FGrp_Save, continue_game_filename);
-    if (LbFileLength(fname) != sizeof(struct Game) + sizeof(struct IntralevelData))
+    if (LbFileLength(fname) != sizeof(struct CatalogueEntry) + sizeof(struct IntralevelData))
     {
         SYNCDBG(7, "No correct .SAV file; there's no continue");
         return false;
@@ -609,7 +611,7 @@ TbBool continue_game_available(void)
         char cmpgn_fname[CAMPAIGN_FNAME_LEN];
         read_continue_game_part((unsigned char*)cmpgn_fname, i, CAMPAIGN_FNAME_LEN);
         cmpgn_fname[CAMPAIGN_FNAME_LEN-1] = '\0';
-        lvnum = ((struct Game *)buf)->continue_level_number;
+        lvnum = ((struct CatalogueEntry*)buf)->continue_level_num;
         if (!change_campaign(cmpgn_fname))
         {
           ERRORLOG("Unable to load campaign");
@@ -641,7 +643,7 @@ short load_continue_game(void)
         WARNLOG("Can't read continue game file head");
         return false;
     }
-    long i = (char*)&game.campaign_fname[0] - (char*)&game;
+    long i = (char*)&save_game_catalogue->campaign_name - (char*)&save_game_catalogue;
     char cmpgn_fname[CAMPAIGN_FNAME_LEN];
     read_continue_game_part((unsigned char*)cmpgn_fname, i, CAMPAIGN_FNAME_LEN);
     cmpgn_fname[CAMPAIGN_FNAME_LEN-1] = '\0';
@@ -658,8 +660,7 @@ short load_continue_game(void)
     }
     set_continue_level_number(lvnum);
     // Restoring intralevel data
-    read_continue_game_part((unsigned char *)&intralvl, sizeof(struct Game),
-        sizeof(struct IntralevelData));
+    read_continue_game_part((unsigned char *)&intralvl, sizeof(struct CatalogueEntry),sizeof(struct IntralevelData));
     LbStringCopy(game.campaign_fname,campaign.fname,sizeof(game.campaign_fname));
     update_extra_levels_visibility();
     JUSTMSG("Continued level %d from %s", lvnum, campaign.name);

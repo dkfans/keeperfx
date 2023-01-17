@@ -18,6 +18,7 @@
 /******************************************************************************/
 #include "pre_inc.h"
 #include "game_merge.h"
+#include "game_saves.h"
 
 #include "globals.h"
 #include "bflib_basics.h"
@@ -78,8 +79,11 @@ LevelNumber get_continue_level_number(void)
  */
 LevelNumber set_continue_level_number(LevelNumber lvnum)
 {
-  if (is_singleplayer_like_level(lvnum))
-    game.continue_level_number = lvnum;
+    if (is_singleplayer_like_level(lvnum))
+    {
+        game.continue_level_number = lvnum;
+        save_game_catalogue->continue_level_num = lvnum;
+    }
   return game.continue_level_number;
 }
 
