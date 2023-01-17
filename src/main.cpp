@@ -915,7 +915,7 @@ void update_thing_animation(struct Thing *thing)
         }
         if (thing->anim_time > i-1)
         {
-          if (thing->rendering_flags & TRF_Unmoving)
+          if (thing->rendering_flags & TRF_AnimateOnce)
           {
             thing->anim_speed = 0;
             thing->anim_time = i-1;
@@ -1414,20 +1414,31 @@ void toggle_hero_health_flowers(void)
 
 void reset_gui_based_on_player_mode(void)
 {
-    struct PlayerInfo *player;
-    player = get_my_player();
-    if ((player->view_type == PVT_CreatureContrl) || (player->view_type == PVT_CreaturePasngr))
+    struct PlayerInfo *player = get_my_player();
+    if (player->view_type == PVT_CreatureContrl)
     {
-        turn_on_menu(GMnu_CREATURE_QUERY1);
-    } else
+        turn_on_menu(vid_change_query_menu);
+    }
+    else if (player->view_type == PVT_CreaturePasngr)
+    {
+        turn_on_menu(vid_change_query_menu);
+        turn_off_query_menus();
+    }
+    else
     {
         turn_on_menu(GMnu_MAIN);
         if (game.active_panel_mnu_idx > 0)
         {
             initialise_tab_tags(game.active_panel_mnu_idx);
-            turn_on_menu(game.active_panel_mnu_idx);
-            MenuNumber mnuidx;
-            mnuidx = menu_id_to_number(GMnu_MAIN);
+            if ( (player->work_state == PSt_CreatrInfo) || (player->work_state == PSt_CreatrInfoAll) )
+            {
+                turn_on_menu(vid_change_query_menu);
+            }
+            else
+            {
+                turn_on_menu(game.active_panel_mnu_idx);
+            }
+            MenuNumber mnuidx = menu_id_to_number(GMnu_MAIN);
             if (mnuidx != MENU_INVALID_ID) {
                 setup_radio_buttons(&active_menus[mnuidx]);
             }

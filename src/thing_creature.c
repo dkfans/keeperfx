@@ -895,7 +895,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
             for (k=0; k < 2; k++)
             {
                 set_coords_to_cylindric_shift(&pos, &thing->mappos, 32, n, k * (thing->clipbox_size_yz >> 1) );
-                ntng = create_object(&pos, 51, thing->owner, -1);
+                ntng = create_object(&pos, ObjMdl_LightBall, thing->owner, -1);
                 if (!thing_is_invalid(ntng))
                 {
                     cctrl->spell_tngidx_armour[k] = ntng->index;
@@ -1011,7 +1011,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
               pos.x.val += distance_with_angle_to_coord_x(32,n);
               pos.y.val += distance_with_angle_to_coord_y(32,n);
               pos.z.val += k * (long)(thing->clipbox_size_yz >> 1);
-              ntng = create_object(&pos, 112, thing->owner, -1);
+              ntng = create_object(&pos, ObjMdl_Disease, thing->owner, -1);
               if (!thing_is_invalid(ntng))
               {
                 cctrl->spell_tngidx_disease[k] = ntng->index;
@@ -1694,7 +1694,7 @@ struct Thing *find_gold_pile_or_chicken_laying_on_mapblk(struct Map *mapblk)
         i = thing->next_on_mapblk;
         if (thing->class_id == TCls_Object)
         {
-            if ((thing->model == 43) && thing_touching_floor(thing))
+            if ((thing->model == ObjMdl_Goldl) && thing_touching_floor(thing))
                 return thing;
             if (object_is_mature_food(thing))
             {
@@ -6076,11 +6076,11 @@ void display_controlled_pick_up_thing_name(struct Thing *picktng, unsigned long 
     else if (thing_is_special_box(picktng))
     {
         char msg_buf[255];
-        if (picktng->model == OBJECT_TYPE_SPECBOX_CUSTOM)
+        if (picktng->model == ObjMdl_SpecboxCustom)
         {
             if (gameadd.box_tooltip[picktng->custom_box.box_kind][0] == 0)
             {
-                strcat(str, get_string(2005));
+                strcat(str, get_string(get_special_description_strindex(box_thing_to_special(picktng)))); 
                 strcpy(msg_buf, str);
                 sprintf(str, strtok(msg_buf, ":"));
             }

@@ -2073,10 +2073,10 @@ void create_room_flag(struct Room *room)
         pos.z.val = subtile_coord(2, 0);
         pos.x.val = subtile_coord(stl_x,0);
         pos.y.val = subtile_coord(stl_y,0);
-        struct Thing* thing = find_base_thing_on_mapwho(TCls_Object, 25, stl_x, stl_y);
+        struct Thing* thing = find_base_thing_on_mapwho(TCls_Object, ObjMdl_RoomFlag, stl_x, stl_y);
         if (thing_is_invalid(thing))
         {
-            thing = create_object(&pos, 25, room->owner, -1);
+            thing = create_object(&pos, ObjMdl_RoomFlag, room->owner, -1);
         }
         if (thing_is_invalid(thing))
         {
@@ -2093,7 +2093,7 @@ void delete_room_flag(struct Room *room)
     MapSubtlCoord stl_y = slab_subtile_center(slb_num_decode_y(room->slabs_list));
     if (room_can_have_ensign(room->kind))
     {
-        struct Thing* thing = find_base_thing_on_mapwho(TCls_Object, 25, stl_x, stl_y);
+        struct Thing* thing = find_base_thing_on_mapwho(TCls_Object, ObjMdl_RoomFlag, stl_x, stl_y);
         if (!thing_is_invalid(thing)) {
             delete_thing_structure(thing, 0);
         }
@@ -2215,7 +2215,7 @@ TbBool room_create_new_food_at(struct Room *room, MapSubtlCoord stl_x, MapSubtlC
     pos.x.val = subtile_coord_center(stl_x);
     pos.y.val = subtile_coord_center(stl_y);
     pos.z.val = 0;
-    struct Thing* foodtng = create_object(&pos, 9, room->owner, -1);
+    struct Thing* foodtng = create_object(&pos, ObjMdl_ChickenGrowing, room->owner, -1);
     if (thing_is_invalid(foodtng))
     {
         ERRORLOG("Cannot Create Food!");
@@ -2272,9 +2272,9 @@ short room_grow_food(struct Room *room)
             MapSubtlCoord stl_x = slab_subtile(slb_x, m % STL_PER_SLB);
             MapSubtlCoord stl_y = slab_subtile(slb_y, m / STL_PER_SLB);
             // Check if there is a food object already
-            struct Thing* thing = find_base_thing_on_mapwho(TCls_Object, 9, stl_x, stl_y);
+            struct Thing* thing = find_base_thing_on_mapwho(TCls_Object, ObjMdl_ChickenGrowing, stl_x, stl_y);
             if (thing_is_invalid(thing)) {
-                thing = find_base_thing_on_mapwho(TCls_Object, 4, stl_x, stl_y);
+                thing = find_base_thing_on_mapwho(TCls_Object, ObjMdl_StatueLit, stl_x, stl_y);
             }
             if (thing_is_invalid(thing))
             {

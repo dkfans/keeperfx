@@ -324,7 +324,7 @@ void set_player_state(struct PlayerInfo *player, short nwrk_state, long chosen_k
           pos.x.val = 0;
           pos.y.val = 0;
           pos.z.val = 0;
-          struct Thing* thing = create_object(&pos, 37, player->id_number, -1);
+          struct Thing* thing = create_object(&pos, ObjMdl_PowerHand, player->id_number, -1);
           if (thing_is_invalid(thing))
           {
               player->hand_thing_idx = 0;

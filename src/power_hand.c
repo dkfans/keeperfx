@@ -108,7 +108,7 @@ struct Thing *create_gold_for_hand_grab(struct Thing *thing, long owner)
     }
     if (gold_picked > 0)
     {
-        objtng = create_object(&pos, 43, game.neutral_player_num, -1);
+        objtng = create_object(&pos, ObjMdl_Goldl, game.neutral_player_num, -1);
         if (!thing_is_invalid(objtng))
         {
             objtng->valuable.gold_stored = gold_picked;
@@ -250,10 +250,10 @@ struct Thing *process_object_being_picked_up(struct Thing *thing, long plyr_idx)
   long i;
   switch (thing->model)
   {
-    case 3:
-    case 6:
-    case 43:
-    case 136:
+    case ObjMdl_GoldChest:
+    case ObjMdl_GoldPot:
+    case ObjMdl_Goldl:
+    case ObjMdl_GoldBag:
       i = thing->creature.gold_carried;
       if (i != 0)
       {
@@ -266,7 +266,7 @@ struct Thing *process_object_being_picked_up(struct Thing *thing, long plyr_idx)
       thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
       picktng = thing;
       break;
-    case 10:
+    case ObjMdl_ChickenMature:
       i = UNSYNC_RANDOM(3);
       powerst = get_power_model_stats(PwrK_PICKUPFOOD);
       thing_play_sample(thing, powerst->select_sound_idx+i, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
@@ -275,21 +275,21 @@ struct Thing *process_object_being_picked_up(struct Thing *thing, long plyr_idx)
       remove_food_from_food_room_if_possible(thing);
       picktng = thing;
       break;
-    case 52:
-    case 53:
-    case 54:
-    case 55:
-    case 56:
+    case ObjMdl_GoldPile:
+    case ObjMdl_GoldHorde1:
+    case ObjMdl_GoldHorde2:
+    case ObjMdl_GoldHorde3:
+    case ObjMdl_GoldHorde4:
       picktng = create_gold_for_hand_grab(thing, plyr_idx);
       break;
-    case 86:
-    case 87:
-    case 88:
-    case 89:
-    case 90:
-    case 91:
-    case 92:
-    case 93:
+    case ObjMdl_SpecboxRevealMap:
+    case ObjMdl_SpecboxResurect:
+    case ObjMdl_SpecboxTransfer:
+    case ObjMdl_SpecboxStealHero:
+    case ObjMdl_SpecboxMultiply:
+    case ObjMdl_SpecboxIncreaseLevel:
+    case ObjMdl_SpecboxMakeSafe:
+    case ObjMdl_SpecboxHiddenWorld:
       player = get_player(plyr_idx);
       activate_dungeon_special(thing, player);
       picktng = NULL;
@@ -762,7 +762,7 @@ void drop_gold_coins(const struct Coord3d *pos, long value, long plyr_idx)
             locpos.y.val = pos->y.val;
         }
         struct Thing *thing;
-        thing = create_object(&locpos, 128, plyr_idx, -1);
+        thing = create_object(&locpos, ObjMdl_SpinningCoin, plyr_idx, -1);
         if (thing_is_invalid(thing))
             break;
         if (i > 0)
@@ -1162,7 +1162,7 @@ struct Thing *create_power_hand(PlayerNumber owner)
     pos.x.val = 0;
     pos.y.val = 0;
     pos.z.val = 0;
-    thing = create_object(&pos, 37, owner, -1);
+    thing = create_object(&pos, ObjMdl_PowerHand, owner, -1);
     player = get_player(owner);
     if (thing_is_invalid(thing)) {
         player->hand_thing_idx = 0;
@@ -1173,16 +1173,16 @@ struct Thing *create_power_hand(PlayerNumber owner)
     grabtng = get_first_thing_in_power_hand(player);
     if (thing_is_invalid(thing))
     {
-      objdat = get_objects_data(37);
+      objdat = get_objects_data(ObjMdl_PowerHand);
       set_power_hand_graphic(owner, objdat->sprite_anim_idx, objdat->anim_speed);
     } else
     if ((grabtng->class_id == TCls_Object) && object_is_gold_pile(grabtng))
     {
-        objdat = get_objects_data(127);
+        objdat = get_objects_data(ObjMdl_PowerHandWithGold);
         set_power_hand_graphic(owner, objdat->sprite_anim_idx, objdat->anim_speed);
     } else
     {
-        objdat = get_objects_data(38);
+        objdat = get_objects_data(ObjMdl_PowerHandGrab);
         set_power_hand_graphic(owner, objdat->sprite_anim_idx, objdat->anim_speed);
     }
     place_thing_in_limbo(thing);

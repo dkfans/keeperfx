@@ -254,7 +254,7 @@ void set_thing_draw(struct Thing *thing, long anim, long speed, long scale, char
         thing->sprite_size = scale;
     }
     if (a5 != -1) {
-        set_flag_byte(&thing->rendering_flags, TRF_Unmoving, a5);
+        set_flag_byte(&thing->rendering_flags, TRF_AnimateOnce, a5);
     }
     if (start_frame == -2)
     {
@@ -278,7 +278,7 @@ void set_thing_draw(struct Thing *thing, long anim, long speed, long scale, char
 void query_thing(struct Thing *thing)
 {
     struct Thing *querytng;
-    if ( (thing->class_id == TCls_Object) && (thing->model == 44) && (!is_key_pressed(KC_LALT, KMod_DONTCARE)) )
+    if ( (thing->class_id == TCls_Object) && (thing->model == ObjMdl_SpinningKey) && (!is_key_pressed(KC_LALT, KMod_DONTCARE)) )
     {
         querytng = get_door_for_position(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
     }   
@@ -319,7 +319,7 @@ void query_thing(struct Thing *thing)
             }
             else if (querytng->class_id == TCls_Object)
             {
-                if (querytng->model == 5)  //todo make model independent
+                if (querytng->model == ObjMdl_SoulCountainer)  //todo make model independent
                 {
                     sprintf(output, "%s/%ld", health, game.dungeon_heart_health);
                 }

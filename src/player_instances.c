@@ -134,7 +134,7 @@ long pinstfs_hand_grab(struct PlayerInfo *player, long *n)
     struct Objects* objdat;
     if (!thing_is_invalid(thing))
     {
-        objdat = get_objects_data(38);
+        objdat = get_objects_data(ObjMdl_PowerHandGrab);
         set_power_hand_graphic(player->id_number, objdat->sprite_anim_idx, objdat->anim_speed);
     }
     return 0;
@@ -161,7 +161,7 @@ long pinstfe_hand_grab(struct PlayerInfo *player, long *n)
     // Update sprites for the creature in hand, and power hand itself
     if (!thing_is_invalid(grabtng))
     {
-        objdat = get_objects_data(38);
+        objdat = get_objects_data(ObjMdl_PowerHandGrab);
         set_power_hand_graphic(player->id_number, objdat->sprite_anim_idx+1, objdat->anim_speed);
     }
     return 0;
@@ -175,7 +175,7 @@ long pinstfs_hand_drop(struct PlayerInfo *player, long *n)
     player->influenced_thing_idx = dungeon->things_in_hand[0];
     if (!thing_is_invalid(thing))
     {
-        objdat = get_objects_data(38);
+        objdat = get_objects_data(ObjMdl_PowerHandGrab);
         set_power_hand_graphic(player->id_number, objdat->sprite_anim_idx, -objdat->anim_speed);
     }
     return 0;
@@ -187,7 +187,7 @@ long pinstfe_hand_drop(struct PlayerInfo *player, long *n)
     struct Objects* objdat;
     if (!thing_is_invalid(thing))
     {
-        objdat = get_objects_data(37);
+        objdat = get_objects_data(ObjMdl_PowerHand);
         set_power_hand_graphic(player->id_number, objdat->sprite_anim_idx, objdat->anim_speed);
     }
     player->influenced_thing_idx = 0;
@@ -200,7 +200,7 @@ long pinstfs_hand_whip(struct PlayerInfo *player, long *n)
     struct Objects* objdat;
     if (!thing_is_invalid(thing))
     {
-        objdat = get_objects_data(39);
+        objdat = get_objects_data(ObjMdl_PowerHandWhip);
         set_power_hand_graphic(player->id_number, objdat->sprite_anim_idx+1, objdat->anim_speed);
     }
     return 0;
@@ -244,12 +244,12 @@ long pinstfe_hand_whip(struct PlayerInfo *player, long *n)
       break;
   }
   case TCls_Shot:
-      if (thing->model == 15) //TODO CONFIG shot model dependency, make config option instead
+      if (thing->model == ShM_Boulder) //TODO CONFIG shot model dependency, make config option instead
       {
           thing->move_angle_xy = player->acamera->orient_a;
           thing->health -= game.boulder_reduce_health_slap;
       } else
-      if (thing->model == 20) //TODO CONFIG shot model dependency, make config option instead
+      if (thing->model == ShM_SolidBoulder) //TODO CONFIG shot model dependency, make config option instead
       {
           thing->move_angle_xy = player->acamera->orient_a;
       } else
@@ -287,7 +287,7 @@ long pinstfs_hand_whip_end(struct PlayerInfo *player, long *n)
     struct Objects* objdat;
     if (!thing_is_invalid(thing))
     {
-        objdat = get_objects_data(39);
+        objdat = get_objects_data(ObjMdl_PowerHandWhip);
         set_power_hand_graphic(player->id_number, objdat->sprite_anim_idx + 2, objdat->anim_speed);
     }
     return 0;
@@ -299,7 +299,7 @@ long pinstfe_hand_whip_end(struct PlayerInfo *player, long *n)
     struct Objects* objdat;
     if (!thing_is_invalid(thing))
     {
-        objdat = get_objects_data(39);
+        objdat = get_objects_data(ObjMdl_PowerHandWhip);
         set_power_hand_graphic(player->id_number, objdat->sprite_anim_idx, objdat->anim_speed);
     }
     return 0;

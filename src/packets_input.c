@@ -247,19 +247,19 @@ TbBool process_dungeon_power_hand_state(long plyr_idx)
             thing = get_first_thing_in_power_hand(player);
             if ((player->thing_under_hand != 0) || thing_is_invalid(thing))
             {
-                objdat = get_objects_data(37);
+                objdat = get_objects_data(ObjMdl_PowerHand);
                 set_power_hand_graphic(plyr_idx, objdat->sprite_anim_idx, objdat->anim_speed);
                 if (!thing_is_invalid(thing))
                     thing->rendering_flags |= TRF_Unknown01;
             } else
             if ((thing->class_id == TCls_Object) && object_is_gold_pile(thing))
             {
-                objdat = get_objects_data(127);
+                objdat = get_objects_data(ObjMdl_PowerHandWithGold);
                 set_power_hand_graphic(plyr_idx, objdat->sprite_anim_idx, objdat->anim_speed);
                 thing->rendering_flags &= ~TRF_Unknown01;
             } else
             {
-                objdat = get_objects_data(38);
+                objdat = get_objects_data(ObjMdl_PowerHandGrab);
                 set_power_hand_graphic(plyr_idx, objdat->sprite_anim_idx + 1, objdat->anim_speed);
                 thing->rendering_flags &= ~TRF_Unknown01;
             }
