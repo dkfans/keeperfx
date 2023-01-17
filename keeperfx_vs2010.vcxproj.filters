@@ -735,6 +735,15 @@
     <ClCompile Include="src\map_ceiling.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\value_util.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\bflib_enet.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\bflib_datetm.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\actionpt.h">
@@ -1377,6 +1386,18 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\map_ceiling.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\value_util.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pre_inc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\bflib_enet.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\post_inc.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
