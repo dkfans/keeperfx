@@ -47,8 +47,8 @@ TbError ClearClientData(void);
 TbError GetPlayerInfo(void);
 TbError GetCurrentPlayers(void);
 TbError AddAPlayer(struct TbNetworkPlayerNameEntry *plyrname);
-static TbError GenericIPXInit(void *init_data);
-//static TbError GenericTCPInit(void *init_data); // this is not being used
+// static TbError GenericIPXInit(void *init_data);
+// static TbError GenericTCPInit(void *init_data); // this is not being used
 TbError StartMultiPlayerExchange(void *buf);
 TbError CompleteTwoPlayerExchange(void *buf);
 TbError CompleteMultiPlayerExchange(void *buf);
@@ -687,25 +687,6 @@ TbError LbNetwork_Init(unsigned long srvcindex, unsigned long maxplayrs, struct 
   // Initialising the service provider object
   switch (srvcindex)
   {
-  case NS_Serial_OLD:
-      NETMSG("Selecting Serial SP");
-        res = Lb_FAIL;
-      break;
-  case NS_Modem_OLD:
-      NETMSG("Selecting Modem SP");
-        res = Lb_FAIL;
-      break;
-  case NS_IPX:
-      NETMSG("Selecting IPX SP");
-      if (GenericIPXInit(init_data) == Lb_OK)
-      {
-        res = Lb_OK;
-      } else
-      {
-        WARNLOG("Failure on IPX Initialization");
-        res = Lb_FAIL;
-      }
-      break;
   case NS_TCP_IP:
       NETMSG("Selecting TCP/IP SP");
       /*if (GenericTCPInit(init_data) == Lb_OK) {
@@ -1243,13 +1224,6 @@ TbError LbNetwork_EnumerateServices(TbNetworkCallbackFunc callback, void *ptr)
   struct TbNetworkCallbackData netcdat = {};
 
   SYNCDBG(7, "Starting");
-
-  strcpy(netcdat.svc_name, "Serial");
-  callback(&netcdat, ptr);
-  strcpy(netcdat.svc_name, "Modem");
-  callback(&netcdat, ptr);
-  strcpy(netcdat.svc_name, "IPX");
-  callback(&netcdat, ptr);
   strcpy(netcdat.svc_name, "TCP");
   callback(&netcdat, ptr);
   strcpy(netcdat.svc_name, "ENET/UDP");
