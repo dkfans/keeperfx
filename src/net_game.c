@@ -57,7 +57,7 @@ short setup_network_service(int srvidx)
 {
   struct ServiceInitData *init_data = NULL;
   set_flag_byte(&game.flags_font,FFlg_unk10,false);
-  SYNCMSG("Initializing %d-players type %d network",4,srvidx);
+  SYNCMSG("Initializing 4-players type %d network",srvidx);
   LbMemorySet(&net_player_info[0], 0, sizeof(struct TbNetworkPlayerInfo));
   if ( LbNetwork_Init(srvidx, 4, &net_player_info[0], init_data) )
   {
