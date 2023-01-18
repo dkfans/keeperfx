@@ -29,7 +29,9 @@
     <ClCompile Include="src\bflib_cpu.c" />
     <ClCompile Include="src\bflib_crash.c" />
     <ClCompile Include="src\bflib_datetm.c" />
+    <ClCompile Include="src\bflib_datetm.cpp" />
     <ClCompile Include="src\bflib_dernc.c" />
+    <ClCompile Include="src\bflib_enet.cpp" />
     <ClCompile Include="src\bflib_fileio.c" />
     <ClCompile Include="src\bflib_filelst.c" />
     <ClCompile Include="src\bflib_fmvids.c" />
@@ -248,6 +250,7 @@
     <ClCompile Include="src\thing_shots.c" />
     <ClCompile Include="src\thing_stats.c" />
     <ClCompile Include="src\thing_traps.c" />
+    <ClCompile Include="src\value_util.c" />
     <ClCompile Include="src\vidfade.c" />
     <ClCompile Include="src\vidmode.c" />
     <ClCompile Include="src\vidmode_data.cpp" />
@@ -272,6 +275,7 @@
     <ClInclude Include="src\bflib_crash.h" />
     <ClInclude Include="src\bflib_datetm.h" />
     <ClInclude Include="src\bflib_dernc.h" />
+    <ClInclude Include="src\bflib_enet.h" />
     <ClInclude Include="src\bflib_fileio.h" />
     <ClInclude Include="src\bflib_filelst.h" />
     <ClInclude Include="src\bflib_fmvids.h" />
@@ -429,9 +433,11 @@
     <ClInclude Include="src\player_instances.h" />
     <ClInclude Include="src\player_states.h" />
     <ClInclude Include="src\player_utils.h" />
+    <ClInclude Include="src\post_inc.h" />
     <ClInclude Include="src\power_hand.h" />
     <ClInclude Include="src\power_process.h" />
     <ClInclude Include="src\power_specials.h" />
+    <ClInclude Include="src\pre_inc.h" />
     <ClInclude Include="src\roomspace.h" />
     <ClInclude Include="src\roomspace_detection.h" />
     <ClInclude Include="src\room_data.h" />
@@ -464,6 +470,7 @@
     <ClInclude Include="src\thing_shots.h" />
     <ClInclude Include="src\thing_stats.h" />
     <ClInclude Include="src\thing_traps.h" />
+    <ClInclude Include="src\value_util.h" />
     <ClInclude Include="src\version.h" />
     <ClInclude Include="src\vidfade.h" />
     <ClInclude Include="src\vidmode.h" />

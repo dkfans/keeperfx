@@ -39,10 +39,10 @@ enum SpecialKinds {
     SpcKind_TrnsfrCrtr,
     SpcKind_StealHero,
     SpcKind_MultplCrtr,
-    SpcKind_Unknown6,
-    SpcKind_Unknown7,
-    SpcKind_Unknown8,
-    SpcKind_Unknown9,
+    SpcKind_IncrseLvl,
+    SpcKind_MakeSafe,
+    SpcKind_HiddnWorld,
+    SpcKind_Custom,
 };
 
 /******************************************************************************/

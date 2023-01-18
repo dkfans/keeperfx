@@ -3364,7 +3364,7 @@ struct Thing *smallest_gold_pile_at_xy(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
         }
         i = thing->next_on_mapblk;
         // Per thing processing block
-        if ((thing->class_id == TCls_Object) && (thing->model == 43))
+        if ((thing->class_id == TCls_Object) && (object_is_gold_laying_on_ground(thing)))
         {
             if (thing->creature.gold_carried < chosen_gold)
             {
@@ -3449,7 +3449,7 @@ TbBool gold_pile_with_maximum_at_xy(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
         }
         i = thing->next_on_mapblk;
         // Per thing processing block
-        if ((thing->class_id == TCls_Object) && (thing->model == 43))
+        if ((thing->class_id == TCls_Object) && (object_is_gold_laying_on_ground(thing)))
         {
             if (thing->valuable.gold_stored >= game.gold_pile_maximum)
             {

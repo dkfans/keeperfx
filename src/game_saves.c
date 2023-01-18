@@ -408,6 +408,10 @@ TbBool load_game(long slot_num)
     if (load_game_chunks(fh,centry) != GLoad_SavedGame)
     {
         LbFileClose(fh);
+        if (game.loaded_level_number == 0)
+        {
+            game.loaded_level_number = centry->level_num;
+        }
         WARNMSG("Couldn't correctly load saved game in slot %d.",(int)slot_num);
         init_lookups();
         return false;

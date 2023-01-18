@@ -45,8 +45,8 @@ extern "C" {
 static void powerful_magic_breaking_sparks(struct Thing* breaktng)
 {
     struct Coord3d pos;
-    pos.x.val = subtile_coord_center(breaktng->mappos.x.stl.num + UNSYNC_RANDOM(11) - 5);
-    pos.y.val = subtile_coord_center(breaktng->mappos.y.stl.num + UNSYNC_RANDOM(11) - 5);
+    pos.x.val = subtile_coord_center(breaktng->mappos.x.stl.num + GAME_RANDOM(11) - 5);
+    pos.y.val = subtile_coord_center(breaktng->mappos.y.stl.num + GAME_RANDOM(11) - 5);
     pos.z.val = get_floor_height_at(&pos);
     draw_lightning(&breaktng->mappos, &pos, 96, TngEffElm_ElectricBall3);
     if (!S3DEmitterIsPlayingSample(breaktng->snd_emitter_id, 157, 0)) {
@@ -103,7 +103,7 @@ void process_dungeon_destroy(struct Thing* heartng)
         dungeon->heart_destroy_turn++;
         if (dungeon->heart_destroy_turn < 32)
         {
-            if (UNSYNC_RANDOM(96) < (dungeon->heart_destroy_turn << 6) / 32 + 32) {
+            if (GAME_RANDOM(96) < (dungeon->heart_destroy_turn << 6) / 32 + 32) {
                 create_effect(central_pos, TngEff_HearthCollapse, plyr_idx);
             }
         }

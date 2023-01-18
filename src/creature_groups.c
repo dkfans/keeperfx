@@ -629,7 +629,6 @@ TbBool delete_member_from_party(int party_id, long crtr_model, long crtr_level)
             return true;
         }
     }
-    WARNLOG("Creature not found party:%s model:%d level:%d", party->prtname, crtr_model, crtr_level);
     return false;
 }
 
