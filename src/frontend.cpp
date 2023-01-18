@@ -396,7 +396,6 @@ char gui_error_text[256];
 long net_service_scroll_offset;
 long net_number_of_services;
 long net_number_of_enum_players;
-long net_map_slap_frame;
 long net_level_hilighted;
 struct NetMessage net_message[NET_MESSAGES_COUNT];
 long net_number_of_messages;
@@ -624,20 +623,16 @@ void add_message(long plyr_idx, char *msg)
  */
 TbBool validate_versions(void)
 {
-    struct PlayerInfo *player;
-    long i;
-    long ver;
-    ver = -1;
-    for (i=0; i < NET_PLAYERS_COUNT; i++)
+    long ver = net_player_info[my_player_number].version_packed;
+    for (int i = 0; i < NET_PLAYERS_COUNT; i++)
     {
-      player = get_player(i);
-      if ((net_screen_packet[i].flags & 1) != 0)
-      {
-        if (ver == -1)
-          ver = player->game_version;
-        if (player->game_version != ver)
-          return false;
-      }
+        if (net_player_info[i].active)
+        {
+            if (net_player_info[i].version_packed != ver)
+            {
+                return false;
+            }
+        }
     }
     return true;
 }
@@ -648,7 +643,6 @@ void versions_different_error(void)
     struct ScreenPacket *nspckt;
     char text[MESSAGE_TEXT_LEN];
     char *str;
-    int i;
 
     NETMSG("Error: Players have different versions of DK");
 
@@ -661,11 +655,11 @@ void versions_different_error(void)
     lbKeyOn[KC_RETURN] = 0;
     text[0] = '\0';
     // Preparing message
-    for (i=0; i < NET_PLAYERS_COUNT; i++)
+    for (int i=0; i < NET_PLAYERS_COUNT; i++)
     {
       plyr_nam = network_player_name(i);
       nspckt = &net_screen_packet[i];
-      if ((nspckt->flags & 0x01) != 0)
+      if (net_player_info[i].active)
       {
         str = buf_sprintf("%s(%d.%02d) ", plyr_nam, nspckt->field_6, nspckt->field_8);
         strncat(text, str, MESSAGE_TEXT_LEN-strlen(text));
@@ -1578,7 +1572,11 @@ void set_packet_start(struct GuiButton *gbtn)
     struct ScreenPacket *nspck;
     nspck = &net_screen_packet[my_player_number];
     if (nspck->event == 0)
+    {
+        nspck->field_6 = VersionMajor;
+        nspck->field_8 = VersionMinor;
         nspck->event = 0x3;
+    }
 }
 
 void draw_scrolling_button_string(struct GuiButton *gbtn, const char *text)
@@ -2900,7 +2898,7 @@ FrontendMenuState frontend_setup_state(FrontendMenuState nstate)
           break;
       case FeSt_NETLAND_VIEW:
           set_pointer_graphic_none();
-          frontnet_init_level_descriptions();
+          frontnet_init_view();
           frontnetmap_load();
           break;
       case FeSt_FEDEFINE_KEYS:

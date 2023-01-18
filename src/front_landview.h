@@ -68,9 +68,10 @@ struct ScreenPacket {
     unsigned char tick; // to remove duplication
     unsigned char flags;
     unsigned char event;
+    unsigned char computer_players;
     char frontend_alliances;
-    short field_6;
-    short field_8;
+    long field_6;
+    long field_8;
     char param1;
     unsigned short lvl;
     unsigned char param2;
@@ -105,7 +106,6 @@ extern TbSpriteData map_hand_data;
 extern TbSpriteData end_map_hand_data;
 extern struct MapLevelInfo map_info;
 
-extern long map_window_len;
 /******************************************************************************/
 void frontnetmap_unload(void);
 TbBool frontnetmap_load(void);
@@ -119,7 +119,7 @@ void frontmap_unload(void);
 long frontmap_update(void);
 void frontzoom_to_point(long a1, long a2, long a3);
 void compressed_window_draw(void);
-void frontnet_init_level_descriptions(void);
+void frontnet_init_view(void);
 
 TbBool initialize_description_speech(void);
 TbBool play_current_description_speech(short play_good);

@@ -33,6 +33,8 @@ extern "C" {
 #define NET_SERVICE_LEN        64
 #define PACKETS_COUNT           5
 
+#define DEDUP_MAX_TICK 31
+
 /******************************************************************************/
 #pragma pack(1)
 

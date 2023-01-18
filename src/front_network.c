@@ -52,7 +52,6 @@ extern "C" {
 #endif
 /******************************************************************************/
 const char *keeper_netconf_file = "fxconfig.net";
-#define DEDUP_MAX_TICK 31
 
 const struct ConfigInfo default_net_config_info = {
     "",
@@ -455,6 +454,7 @@ void frontnet_start_setup(void)
         struct PlayerInfo* player = get_player(i);
         player->mp_message_text[0] = '\0';
     }
+    net_player_info[my_player_number].version_packed = VersionMinor + (VersionMajor<< 8);
 }
 
 /******************************************************************************/
@@ -500,10 +500,26 @@ static TbBool frontnet_quit_all()
 static TbBool process_frontend_packets_cb(void *context, unsigned long turn, int net_player_idx, unsigned char kind, void *packet_data, short size)
 {
     // TODO: Guard net_player_idx against overflow
-    if (kind == PckA_LandviewFrameSrv)
+    if (kind == PckA_SessionViewFrame)
     {
         assert(size <= sizeof(net_screen_packet));
         memcpy(&net_screen_packet, packet_data, size);
+    }
+    else if (kind == PckA_LandviewFrame) // It seems game already started
+    {
+        assert(size <= sizeof(net_screen_packet));
+        memcpy(&net_screen_packet, packet_data, size);
+        struct ScreenPacket *nspckt = &net_screen_packet[0];
+        // Proceed to Landview NOW
+        nspckt->event = 3;
+        nspckt->flags = 0x01;
+        nspckt->field_6 = VersionMajor;
+        nspckt->field_8 = VersionMinor;
+        uint8_t diff = (nspckt->tick - net_player_info[0].last_packet_tick) & DEDUP_MAX_TICK; // Deduplication
+        if ((diff == 0) || (diff >= (DEDUP_MAX_TICK / 2))) // Some packets could be reordered or lost but not that much
+        {
+            nspckt->tick = (net_player_info[0].last_packet_tick + 1) & DEDUP_MAX_TICK; // Deduplication
+        }
     }
     else
     {
@@ -515,9 +531,25 @@ static TbBool process_frontend_packets_cb(void *context, unsigned long turn, int
 static TbBool process_frontend_packets_server_cb(void *context, unsigned long turn, int net_player_idx, unsigned char kind, void *packet_data, short size)
 {
     // TODO: Guard net_player_idx against overflow
-    if (kind == PckA_LandviewFrameCli)
+    if (kind == PckA_SessionViewFrame)
     {
         memcpy(&net_screen_packet[net_player_idx], packet_data, size);
+    }
+    else if (kind == PckA_LandviewFrame) // It seems game already started by client
+    {
+        assert(size <= sizeof(net_screen_packet));
+        memcpy(&net_screen_packet, packet_data, size);
+        struct ScreenPacket *nspckt = &net_screen_packet[0];
+        // Proceed to Landview NOW
+        nspckt->event = 3;
+        nspckt->flags = 0x01;
+        nspckt->field_6 = VersionMajor;
+        nspckt->field_8 = VersionMinor;
+        uint8_t diff = (nspckt->tick - net_player_info[0].last_packet_tick) & DEDUP_MAX_TICK; // Deduplication
+        if ((diff == 0) || (diff >= (DEDUP_MAX_TICK / 2))) // Some packets could be reordered or lost but not that much
+        {
+            nspckt->tick = (net_player_info[0].last_packet_tick + 1) & DEDUP_MAX_TICK; // Deduplication
+        }
     }
     else
     {
@@ -531,11 +563,6 @@ void process_frontend_packets(CoroutineLoop *context)
     static TbClockMSec next_time = 0;
     TbClockMSec now_time = LbTimerClock();
     TbBool need_packet = false;
-    if (now_time > next_time)
-    {
-        next_time = now_time + 300; // Send events sometimes
-        need_packet = true;
-    }
 
     for (int i = 0; i < NET_PLAYERS_COUNT; i++) // TODO weird
     {
@@ -544,9 +571,17 @@ void process_frontend_packets(CoroutineLoop *context)
     struct ScreenPacket* nspckt = &net_screen_packet[my_player_number];
     set_flag_value(nspckt->flags, 0x01, true);
     nspckt->frontend_alliances = frontend_alliances;
-    nspckt->flags ^= ((nspckt->flags ^ (fe_computer_players << 1)) & 0x06);
-    nspckt->field_6 = VersionMajor;
-    nspckt->field_8 = VersionMinor;
+    nspckt->computer_players = fe_computer_players;
+
+    if (now_time > next_time)
+    {
+        next_time = now_time + 300; // Send events sometimes
+
+        nspckt->event = 9; // Set Version
+        nspckt->field_6 = VersionMajor;
+        nspckt->field_8 = VersionMinor;
+    }
+
     if (LbNetwork_IsServer())
     {
         if (LbNetwork_Exchange(net_screen_packet, &process_frontend_packets_server_cb))
@@ -572,7 +607,7 @@ void process_frontend_packets(CoroutineLoop *context)
         }
         if (need_packet)
         {
-            void *outgoing = LbNetwork_AddPacket(PckA_LandviewFrameSrv, 0,
+            void *outgoing = LbNetwork_AddPacket(PckA_SessionViewFrame, 0,
                                                  sizeof(struct ScreenPacket) * NET_PLAYERS_COUNT);
             memcpy(outgoing, net_screen_packet, sizeof(struct ScreenPacket) * NET_PLAYERS_COUNT);
         }
@@ -585,7 +620,7 @@ void process_frontend_packets(CoroutineLoop *context)
         }
         if (need_packet)
         {
-            void *outgoing = LbNetwork_AddPacket(PckA_LandviewFrameCli, 0,
+            void *outgoing = LbNetwork_AddPacket(PckA_SessionViewFrame, 0,
                                                  sizeof(struct ScreenPacket));
 
             nspckt->tick = (net_player_info[my_player_number].last_packet_tick + 1) & DEDUP_MAX_TICK; // Deduplication
@@ -620,8 +655,6 @@ void process_frontend_packets(CoroutineLoop *context)
                 nspckt->event = 0;
                 continue;
             }
-            NETLOG("event:%d for:%d tick:%d old:%d diff:%d", nspckt->event, i, nspckt->tick, net_player_info[i].last_packet_tick,
-                   diff);
             net_player_info[i].last_packet_tick = nspckt->tick;
 
             long k;
@@ -631,6 +664,7 @@ void process_frontend_packets(CoroutineLoop *context)
                     add_message(i, (char*)&nspckt->param1);
                     break;
                 case 3:
+                    net_player_info[i].version_packed = nspckt->field_8 + (nspckt->field_6 << 8);
                     if (!validate_versions())
                     {
                         versions_different_error();
@@ -686,8 +720,14 @@ void process_frontend_packets(CoroutineLoop *context)
                     }
                     break;
                 }
-                default:
+                case 9:
+                    net_player_info[i].version_packed = nspckt->field_8 + (nspckt->field_6 << 8);
+                    player->game_version = net_player_info[i].version_packed;
                     break;
+                case 0:
+                    break;
+                default:
+                    WARNLOG("Unknown event: %d", nspckt->event);
             }
             if (frontend_alliances == -1)
             {
@@ -696,11 +736,9 @@ void process_frontend_packets(CoroutineLoop *context)
             }
             if (fe_computer_players == 2)
             {
-                k = ((nspckt->flags & 0x06) >> 1);
-                if (k != 2)
-                    fe_computer_players = k;
+                if (nspckt->computer_players != 2)
+                    fe_computer_players = nspckt->computer_players;
             }
-            player->game_version = nspckt->field_8 + (nspckt->field_6 << 8);
             nspckt->event = 0;
         }
     }

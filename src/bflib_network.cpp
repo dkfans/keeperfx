@@ -618,7 +618,6 @@ void LbNetwork_ChangeExchangeTimeout(unsigned long tmout)
 
 TbError LbNetwork_Stop(void)
 {
-
     if (netstate.sp)
     {
         netstate.sp->exit();

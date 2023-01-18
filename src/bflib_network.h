@@ -160,6 +160,8 @@ struct TbNetworkPlayerInfo {
     char name[32];
     long active;
     uint8_t last_packet_tick;
+    long version_packed;
+    TbBool hand_shown;
 };
 
 struct TbNetworkCallbackData {
