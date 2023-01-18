@@ -128,13 +128,11 @@ GUIDATTABS = $(LANDVIEWDATTABS) $(TOTRUREDATTABS) $(ENGINEDATTABS)
 
 pkg-gfx: pkg-landviews pkg-menugfx pkg-enginegfx
 
-pkg-before:
+pkg-landviews: $(LANDVIEWRAWS) $(LANDVIEWDATTABS)
 
-pkg-landviews: pkg-before $(LANDVIEWRAWS) $(LANDVIEWDATTABS)
+pkg-menugfx: $(TOTRUREGFX) $(FRONTENDGFX)
 
-pkg-menugfx: pkg-before $(TOTRUREGFX) $(FRONTENDGFX)
-
-pkg-enginegfx: pkg-before $(ENGINEGFX)
+pkg-enginegfx: $(ENGINEGFX)
 
 # Creation of land view image files for campaigns
 define define_campaign_landview_rule
