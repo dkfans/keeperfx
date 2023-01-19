@@ -2290,6 +2290,7 @@ struct Thing *get_player_list_nth_creature_of_model_on_territory(long thing_idx,
 {
     long i = thing_idx;
     unsigned long k = 0;
+    struct Thing *nth_creature = INVALID_THING;
     while (i != 0)
     {
         struct Thing* thing = thing_get(i);
@@ -2300,6 +2301,10 @@ struct Thing *get_player_list_nth_creature_of_model_on_territory(long thing_idx,
         }
         struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
         i = cctrl->players_next_creature_idx;
+        if ((i == -1) || (crtr_idx ==-1))
+        {
+            return nth_creature;
+        }
         // Per creature code
         int slbwnr = get_slab_owner_thing_is_on(thing);
         int match = 0;
@@ -2325,12 +2330,9 @@ struct Thing *get_player_list_nth_creature_of_model_on_territory(long thing_idx,
             }
         }
 
-        if (((crmodel == 0) || (crmodel == CREATURE_ANY) || (thing->model == crmodel && crtr_idx <= 1)) && (match == 1))
+        if (((crmodel == 0) || (crmodel == CREATURE_ANY) || (thing->model == crmodel)) && (match == 1))
         {
-            return thing;
-        }
-        if ((crmodel == 0) || (crmodel == CREATURE_ANY) || ((thing->model == crmodel) && (match == 1)))
-        {
+            nth_creature = thing; 
             crtr_idx--;
         }
         // Per creature code ends
