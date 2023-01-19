@@ -182,6 +182,7 @@ struct NetState
     int                     login_attempts;
 
     struct NetPacket        *outpacket, *outpacket_tail; // List of outgoing packets (in order)
+    struct NetPacket        *midpacket; // List of packets to move to receiving queue
 
     TbBool                  locked;             //if set, no players may join
     char                    input_buffer[260];
@@ -758,12 +759,9 @@ static void SendFrames()
     for (struct NetPacket *packet = netstate.outpacket; packet != nullptr;)
     {
         netstate.sp->sendmsg_all(((const char *)packet) + offsetof(struct NetPacket, kind), packet->size);
-
-        NetPacket *old_packet = packet;
         packet = packet->next;
-        // TODO: maybe keep and process them
-        free(old_packet);
     }
+    netstate.midpacket = netstate.outpacket;
     netstate.outpacket = nullptr;
     netstate.outpacket_tail = nullptr;
 }
@@ -782,6 +780,7 @@ TbError LbNetwork_Exchange(void *context, LbNetwork_Packet_Callback callback)
     }
 
     SendFrames();
+    auto midpacket = netstate.midpacket;
     while (true)
     {
         //  TODO NET: Now we are steplocked
@@ -791,6 +790,16 @@ TbError LbNetwork_Exchange(void *context, LbNetwork_Packet_Callback callback)
         {
             rcount = netstate.sp->readmsg(&source, netstate.input_buffer, sizeof(netstate.input_buffer));
             assert((source >= 0) && (source < MAX_N_USERS));
+        }
+        else if (midpacket)
+        {
+            auto curpacket = midpacket;
+            midpacket = midpacket->next;
+            source = netstate.my_id;
+            rcount = min(sizeof(netstate.input_buffer), (size_t)curpacket->size);
+            memcpy(netstate.input_buffer, &curpacket->kind, // Kind + all data
+                    rcount);
+            free(curpacket);
         }
 
         if (rcount > 0)
@@ -828,6 +837,7 @@ TbError LbNetwork_Exchange(void *context, LbNetwork_Packet_Callback callback)
             break;
         }
     } // while (true)
+    netstate.midpacket = nullptr;
 
     // most likely overwrites what was sent in SendClientFrame
     //ConsumeServerFrame(server_buf, client_frame_size);

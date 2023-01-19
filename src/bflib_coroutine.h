@@ -25,6 +25,7 @@ extern "C" {
 
 #define COROUTINE_MAX_NUM 8
 #define COROUTINE_ARGS 2
+#define COROUTINE_VARS 2
 
 /*
  * It is a list of functions with some common state (args)
@@ -39,6 +40,7 @@ typedef enum CoroutineLoopStateS
     CLS_REPEAT,
     CLS_CONTINUE,
     CLS_RETURN,
+    CLS_ERROR,
 } CoroutineLoopState;
 
 typedef CoroutineLoopState (*CoroutineFn)(struct CoroutineLoopS *loop_context);
@@ -50,6 +52,7 @@ typedef struct CoroutineLoopS
     int         write_idx;
     CoroutineFn fns[COROUTINE_MAX_NUM];
     intptr_t    args[COROUTINE_MAX_NUM * COROUTINE_ARGS];
+    intptr_t    vars[COROUTINE_VARS];
     TbBool      error;
 } CoroutineLoop;
 
@@ -63,6 +66,7 @@ extern void coroutine_clear(CoroutineLoop *context, TbBool error);
 extern void coroutine_process(CoroutineLoop *context);
 
 extern intptr_t *coroutine_args(CoroutineLoop *context);
+extern intptr_t *coroutine_vars(CoroutineLoop *context);
 
 #ifdef __cplusplus
 }

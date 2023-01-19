@@ -502,6 +502,10 @@ static TbBool process_frontend_packets_cb(void *context, unsigned long turn, int
     // TODO: Guard net_player_idx against overflow
     if (kind == PckA_SessionViewFrame)
     {
+        if (net_player_idx != SERVER_ID)
+        {
+            return false;
+        }
         assert(size <= sizeof(net_screen_packet));
         memcpy(&net_screen_packet, packet_data, size);
     }
@@ -533,6 +537,10 @@ static TbBool process_frontend_packets_server_cb(void *context, unsigned long tu
     // TODO: Guard net_player_idx against overflow
     if (kind == PckA_SessionViewFrame)
     {
+        if (net_player_idx == SERVER_ID)
+        {
+            return false;
+        }
         memcpy(&net_screen_packet[net_player_idx], packet_data, size);
     }
     else if (kind == PckA_LandviewFrame) // It seems game already started by client

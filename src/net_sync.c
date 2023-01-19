@@ -36,6 +36,7 @@
 #include "frontend.h"
 #include "thing_effects.h"
 #include "post_inc.h"
+#include "bflib_datetm.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -194,10 +195,11 @@ CoroutineLoopState perform_checksum_verification(CoroutineLoop *con)
             checksum_mem += thing->mappos.z.val + thing->mappos.y.val + thing->mappos.x.val;
         }
     }
-    clear_packets();
-    if (coroutine_args(con)[0] == 0) // TODO: mb create "coroutine_once"
+    TbClockMSec now = LbTimerClock();
+    if (now > coroutine_vars(con)[0])
     {
-        coroutine_args(con)[0] = 1;
+        coroutine_vars(con)[0] = now + 500; // two times per second
+        clear_packets();
         struct Packet* pckt = LbNetwork_AddPacket(PckA_LevelExactCheck, 0, sizeof(struct Packet));
         set_packet_action(pckt, PckA_LevelExactCheck, 0, 0, 0, 0);
         pckt->chksum = checksum_mem + game.action_rand_seed;
@@ -222,10 +224,8 @@ CoroutineLoopState perform_checksum_verification(CoroutineLoop *con)
     }
     if (!result)
     {
-        coroutine_clear(con, true);
-
         create_frontend_error_box(5000, get_string(GUIStr_NetUnsyncedMap));
-        return CLS_ABORT;
+        return CLS_ERROR;
     }
     NETLOG("Checksums are verified");
     return CLS_CONTINUE;

@@ -36,6 +36,7 @@
 #include "game_legacy.h"
 #include "keeperfx.hpp"
 #include "post_inc.h"
+#include "bflib_datetm.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -91,18 +92,20 @@ static TbBool setup_exchange_player_number_cb(void *context, unsigned long turn,
 static CoroutineLoopState setup_exchange_player_number(CoroutineLoop *context)
 {
     SYNCDBG(6,"Starting");
-    clear_packets();
     struct PlayerInfo* player = get_my_player();
-    if (coroutine_args(context)[0] == 0) // TODO: mb create "coroutine_once"
+    TbClockMSec now = LbTimerClock();
+    if (now > coroutine_vars(context)[0])
     {
-        coroutine_args(context)[0] = 1;
+        coroutine_vars(context)[0] = now + 500; // two times per second
+        clear_packets(); // Only once
+
         struct Packet* pckt = LbNetwork_AddPacket(PckA_InitPlayerNum, 0, sizeof(struct Packet));
         set_packet_action(pckt, PckA_InitPlayerNum, player->is_active, settings.video_rotate_mode, 0, 0);
     }
     if (LbNetwork_Exchange(game.packets, &setup_exchange_player_number_cb))
     {
         ERRORLOG("Network Exchange failed");
-        return CLS_REPEAT; // Repeat
+        return CLS_ERROR;
     }
     int k = 0;
     for (int i = 0; i < NET_PLAYERS_COUNT; i++)
@@ -129,6 +132,7 @@ static CoroutineLoopState setup_exchange_player_number(CoroutineLoop *context)
     {
         return CLS_REPEAT; // Repeat
     }
+    NETLOG("CLS_CONTINUE");
     return CLS_CONTINUE; // Skip loop to next function
 }
 
