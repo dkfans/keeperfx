@@ -159,12 +159,13 @@ TbBool setup_object_tooltips(struct Coord3d *pos)
   if (!thing_is_invalid(thing))
   {
       update_gui_tooltip_target(thing);
-      if (thing->model == OBJECT_TYPE_SPECBOX_CUSTOM)
+      if (thing->model == ObjMdl_SpecboxCustom)
       {
           // TODO: get it from Map script
           if (gameadd.box_tooltip[thing->custom_box.box_kind][0] == 0)
           {
-              set_gui_tooltip_box_fmt(5, "%s", get_string(2005));
+              i = box_thing_to_special(thing);
+              set_gui_tooltip_box_fmt(5, "%s", get_string(get_special_description_strindex(i)));
           }
           else
           {

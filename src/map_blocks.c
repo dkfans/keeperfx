@@ -1032,7 +1032,7 @@ void place_slab_object(SlabCodedCoords slb_num, long a2, long a3, unsigned short
                     int nfilled;
                     int nprison;
 
-                    if ((tngmodel == 27) && (slbelem != 4))
+                    if ((tngmodel == ObjMdl_PrisonBar) && (slbelem != 4))
                     {
                         MapSlabCoord slb_x;
                         MapSlabCoord slb_y;

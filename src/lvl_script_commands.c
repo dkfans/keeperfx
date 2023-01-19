@@ -753,7 +753,8 @@ short script_transfer_creature(long plyr_idx, long crmodel, long criteria, int c
             dungeonadd = get_dungeonadd(plyr_idx);
             dungeonadd->creatures_transferred++;
             remove_thing_from_power_hand_list(thing, plyr_idx);
-            create_special_used_effect(&thing->mappos, plyr_idx);
+            struct SpecialConfigStats* specst = get_special_model_stats(SpcKind_Resurrect);
+            create_special_used_effect(&thing->mappos, plyr_idx, specst->effect_id);
             kill_creature(thing, INVALID_THING, -1, CrDed_NoEffects | CrDed_NotReallyDying);
         }
     }
@@ -1085,7 +1086,7 @@ void refresh_trap_anim(long trap_id)
             traptng->anim_sprite = gameadd.trap_stats[trap_id].sprite_anim_idx;
             struct TrapStats* trapstat = &gameadd.trap_stats[traptng->model];
             char start_frame;
-            if (trapstat->field_13) {
+            if (trapstat->random_start_frame) {
                 start_frame = -1;
             }
             else {

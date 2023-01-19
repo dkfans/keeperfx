@@ -65,6 +65,8 @@ enum FrontendMenuStates {
   FeSt_STORY_POEM,
   FeSt_CREDITS,
   FeSt_DEMO,
+  FeSt_UNUSED1,
+  FeSt_UNUSED2,
   FeSt_LEVEL_STATS,
   FeSt_HIGH_SCORES,
   FeSt_TORTURE,
@@ -130,6 +132,7 @@ extern unsigned char new_objective;
 extern int frontend_menu_state;
 extern int load_game_scroll_offset;
 extern unsigned char video_gamma_correction;
+extern MenuID vid_change_query_menu;
 
 // *** SPRITES ***
 extern struct TbSprite *font_sprites;
