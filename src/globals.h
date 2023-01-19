@@ -315,21 +315,21 @@ struct Coord2d {
 
 struct Coord3d {
     union {
-      unsigned long val;
+      long val;
       struct {
         unsigned char pos;
         unsigned short num;
         } stl;
     } x;
     union {
-      unsigned long val;
+      long val;
       struct {
         unsigned char pos;
         unsigned short num;
         } stl;
     } y;
     union {
-      unsigned long val;
+      long val;
       struct {
         unsigned char pos;
         unsigned short num;
