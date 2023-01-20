@@ -580,7 +580,7 @@ TbBool can_cast_power_at_xy(PlayerNumber plyr_idx, PowerKind pwkind,
     {
         struct PlayerInfo *player;
         player = get_player(plyr_idx);
-        if (game.play_gameturn <= player->field_4E3+20) {
+        if (game.play_gameturn <= player->power_last_used_turn+20) {
             return false;
         }
     }
@@ -1409,7 +1409,6 @@ TbResult magic_use_power_lightning(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
             thing_play_sample(efftng, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
         }
     }
-    player->field_4E3 = game.play_gameturn;
     return Lb_SUCCESS;
 }
 
@@ -2062,6 +2061,10 @@ TbResult magic_use_power_on_thing(PlayerNumber plyr_idx, PowerKind pwkind,
             break;
         }
     }
+    if (ret == Lb_SUCCESS)
+    {
+        get_player(plyr_idx)->power_last_used_turn = game.play_gameturn;
+    }
     return ret;
 }
 
@@ -2150,6 +2153,10 @@ TbResult magic_use_power_on_subtile(PlayerNumber plyr_idx, PowerKind pwkind,
             ret = Lb_FAIL;
             break;
         }
+    }
+    if (ret == Lb_SUCCESS)
+    {
+        get_player(plyr_idx)->power_last_used_turn = game.play_gameturn;
     }
     return ret;
 }
