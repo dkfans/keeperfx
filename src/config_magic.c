@@ -1439,6 +1439,7 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
           powerst->pointer_sprite_idx = 0;
           powerst->panel_tab_idx = 0;
           powerst->select_sound_idx = 0;
+          powerst->cast_cooldown = 0;
           if (i < magic_conf.power_types_count)
           {
               power_desc[i].name = powerst->code_name;
