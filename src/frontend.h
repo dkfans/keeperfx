@@ -317,6 +317,7 @@ void turn_off_roaming_menus(void);
 
 void frontend_set_player_number(long plr_num);
 TbBool frontend_start_new_campaign(const char *cmpgn_fname);
+void frontend_draw_product_version(struct GuiButton *gbtn);
 /******************************************************************************/
 #ifdef __cplusplus
 }
