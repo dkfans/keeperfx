@@ -589,6 +589,10 @@ int script_recognize_params(char **line, const struct CommandDesc *cmd_desc, str
                                 LbMemoryFree(funscline);
                                 return -1;
                             }
+                            if (funscline->tp[fi][0] != '\0')
+                            {
+                                funscline->np[fi] = atol(funscline->tp[fi]);
+                            }
                             ranges[ri].min = funscline->np[fi];
                             ranges[ri].max = funscline->np[fi];
                             range_total++;
@@ -636,7 +640,7 @@ int script_recognize_params(char **line, const struct CommandDesc *cmd_desc, str
                             if (is_if_statement)
                             {
                                 scline->np[dst] = ranges[fi].min + range_index - range_total;
-                                itoa(scline->np[dst], scline->tp[dst], 10);
+                                ltoa(scline->np[dst], scline->tp[dst], 10);
                             }
                             else
                             {
