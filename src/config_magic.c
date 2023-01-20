@@ -107,7 +107,7 @@ const struct NamedCommand magic_power_commands[] = {
   {"NAME",            1},
   {"POWER",           2},
   {"COST",            3},
-  {"TIME",            4},
+  {"DURATION",        4},
   {"CASTABILITY",     5},
   {"ARTIFACT",        6},
   {"NAMETEXTID",      7},
