@@ -526,7 +526,7 @@ void slap_creature(struct PlayerInfo *player, struct Thing *thing)
     }
     pwrdynst = get_power_dynamic_stats(PwrK_SLAP);
     i = cctrl->slap_turns;
-    cctrl->slap_turns = pwrdynst->time;
+    cctrl->slap_turns = pwrdynst->duration;
     if (i == 0)
       cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
     if (thing->active_state != CrSt_CreatureSlapCowers)
@@ -774,7 +774,7 @@ long find_spell_age_percentage(PlayerNumber plyr_idx, PowerKind pwkind)
         if (dungeon->cta_start_turn != 0)
         {
             curr = game.play_gameturn - dungeon->cta_start_turn;
-            total = pwrdynst->time;
+            total = pwrdynst->duration;
         }
         break;
     default:
@@ -1868,7 +1868,7 @@ void process_magic_power_call_to_arms(PlayerNumber plyr_idx)
             }
         }
     }
-    if (((pwrdynst->time < 1) || ((duration % pwrdynst->time) == 0)) && pay_land)
+    if (((pwrdynst->duration < 1) || ((duration % pwrdynst->duration) == 0)) && pay_land)
     {
         if (!pay_for_spell(plyr_idx, PwrK_CALL2ARMS, dungeon->cta_splevel)) {
             if (is_my_player_number(plyr_idx))
@@ -1896,7 +1896,7 @@ void process_magic_power_must_obey(PlayerNumber plyr_idx)
     delta = game.play_gameturn - dungeon->must_obey_turn;
     const struct MagicStats *pwrdynst;
     pwrdynst = get_power_dynamic_stats(PwrK_OBEY);
-    if ((delta % pwrdynst->time) == 0)
+    if ((delta % pwrdynst->duration) == 0)
     {
         if (!pay_for_spell(plyr_idx, PwrK_OBEY, 0)) {
             magic_use_power_obey(plyr_idx, PwMod_Default);
