@@ -580,7 +580,7 @@ TbBool can_cast_power_at_xy(PlayerNumber plyr_idx, PowerKind pwkind,
     {
         struct PlayerInfo *player;
         player = get_player(plyr_idx);
-        if (game.play_gameturn <= player->power_of_cooldown_turn + powerst->cast_cooldown) {
+        if (game.play_gameturn <= player->power_of_cooldown_turn) {
             return false;
         }
     }
