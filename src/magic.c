@@ -580,7 +580,7 @@ TbBool can_cast_power_at_xy(PlayerNumber plyr_idx, PowerKind pwkind,
     {
         struct PlayerInfo *player;
         player = get_player(plyr_idx);
-        if (game.play_gameturn <= player->power_last_used_turn+20) {
+        if (game.play_gameturn <= player->power_of_cooldown_turn + powerst->cast_cooldown) {
             return false;
         }
     }
@@ -1983,6 +1983,8 @@ TbResult magic_use_available_power_on_thing(PlayerNumber plyr_idx, PowerKind pwk
 TbResult magic_use_power_on_thing(PlayerNumber plyr_idx, PowerKind pwkind,
     unsigned short splevel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct Thing *thing, unsigned long allow_flags)
 {
+    const struct PowerConfigStats* powerst = get_power_model_stats(pwkind);
+
     TbResult ret;
     ret = Lb_OK;
     if (!thing_exists(thing)) {
@@ -1991,8 +1993,6 @@ TbResult magic_use_power_on_thing(PlayerNumber plyr_idx, PowerKind pwkind,
     }
     if (ret == Lb_OK)
     {// Zero coords mean we should take real ones from the thing. But even if they're not zero, we might want to fix them sometimes
-        const struct PowerConfigStats *powerst;
-        powerst = get_power_model_stats(pwkind);
         if (((stl_x == 0) && (stl_y == 0)) || ((powerst->can_cast_flags & PwCast_AllThings) != 0)) {
             stl_x = thing->mappos.x.stl.num;
             stl_y = thing->mappos.y.stl.num;
@@ -2063,7 +2063,7 @@ TbResult magic_use_power_on_thing(PlayerNumber plyr_idx, PowerKind pwkind,
     }
     if (ret == Lb_SUCCESS)
     {
-        get_player(plyr_idx)->power_last_used_turn = game.play_gameturn;
+        get_player(plyr_idx)->power_of_cooldown_turn = game.play_gameturn + powerst->cast_cooldown;
     }
     return ret;
 }
@@ -2156,7 +2156,8 @@ TbResult magic_use_power_on_subtile(PlayerNumber plyr_idx, PowerKind pwkind,
     }
     if (ret == Lb_SUCCESS)
     {
-        get_player(plyr_idx)->power_last_used_turn = game.play_gameturn;
+        const struct PowerConfigStats* powerst = get_power_model_stats(pwkind);
+        get_player(plyr_idx)->power_of_cooldown_turn = game.play_gameturn + powerst->cast_cooldown;
     }
     return ret;
 }

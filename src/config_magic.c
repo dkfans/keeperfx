@@ -121,6 +121,7 @@ const struct NamedCommand magic_power_commands[] = {
   {"PLAYERSTATE",    16},
   {"PARENTPOWER",    17},
   {"SOUNDPLAYED",    18},
+  {"COOLDOWN",       19},
   {NULL,              0},
   };
 
@@ -1759,6 +1760,22 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
                 COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }
           break;
+          case 19: //COOLDOWN
+              if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+              {
+                  k = atoi(word_buf);
+                  if (k >= 0)
+                  {
+                      powerst->cast_cooldown = k;
+                      n++;
+                  }
+              }
+              if (n < 1)
+              {
+                  CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                      COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              }
+              break;
       case 0: // comment
           break;
       case -1: // end of buffer
