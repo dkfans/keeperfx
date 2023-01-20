@@ -712,7 +712,7 @@ TbError ServiceProvider::EnumeratePlayers(TbNetworkCallbackFunc callback, void *
   for (i=0; i < players_count; i++)
   {
     netplyr = &this->players[i];
-    callback((struct TbNetworkCallbackData *)netplyr, ptr);
+    callback((struct TbNetworkCallbackData *)netplyr, 1);
   }
   return result;
 }

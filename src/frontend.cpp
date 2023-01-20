@@ -96,7 +96,7 @@
 extern "C" {
 #endif
 
-extern void __stdcall enum_sessions_callback(struct TbNetworkCallbackData *netcdat, void *ptr);
+extern void enum_sessions_callback(struct TbNetworkCallbackData *netcdat, TbBool is_new);
 /******************************************************************************/
 TbClockMSec gui_message_timeout = 0;
 char gui_message_text[TEXT_BUFFER_LENGTH];
@@ -383,16 +383,11 @@ char input_string[8][16];
 char gui_error_text[256];
 long net_service_scroll_offset;
 long net_number_of_services;
-long net_comport_index_active;
-long net_speed_index_active;
-long net_number_of_players;
 long net_number_of_enum_players;
-long net_map_slap_frame;
 long net_level_hilighted;
 struct NetMessage net_message[NET_MESSAGES_COUNT];
 long net_number_of_messages;
 long net_message_scroll_offset;
-long net_session_index_active_id;
 long net_session_scroll_offset;
 long net_player_scroll_offset;
 struct GuiButton active_buttons[ACTIVE_BUTTONS_COUNT];
@@ -612,20 +607,16 @@ void add_message(long plyr_idx, char *msg)
  */
 TbBool validate_versions(void)
 {
-    struct PlayerInfo *player;
-    long i;
-    long ver;
-    ver = -1;
-    for (i=0; i < NET_PLAYERS_COUNT; i++)
+    long ver = net_player_info[my_player_number].version_packed;
+    for (int i = 0; i < NET_PLAYERS_COUNT; i++)
     {
-      player = get_player(i);
-      if ((net_screen_packet[i].field_4 & 0x01) != 0)
-      {
-        if (ver == -1)
-          ver = player->field_4E7;
-        if (player->field_4E7 != ver)
-          return false;
-      }
+        if (net_player_info[i].active)
+        {
+            if (net_player_info[i].version_packed != ver)
+            {
+                return false;
+            }
+        }
     }
     return true;
 }
@@ -636,7 +627,6 @@ void versions_different_error(void)
     struct ScreenPacket *nspckt;
     char text[MESSAGE_TEXT_LEN];
     char *str;
-    int i;
 
     NETMSG("Error: Players have different versions of DK");
 
@@ -649,11 +639,11 @@ void versions_different_error(void)
     lbKeyOn[KC_RETURN] = 0;
     text[0] = '\0';
     // Preparing message
-    for (i=0; i < NET_PLAYERS_COUNT; i++)
+    for (int i=0; i < NET_PLAYERS_COUNT; i++)
     {
       plyr_nam = network_player_name(i);
       nspckt = &net_screen_packet[i];
-      if ((nspckt->field_4 & 0x01) != 0)
+      if (net_player_info[i].active)
       {
         str = buf_sprintf("%s(%d.%02d) ", plyr_nam, nspckt->field_6, nspckt->field_8);
         strncat(text, str, MESSAGE_TEXT_LEN-strlen(text));
@@ -1530,9 +1520,9 @@ void frontend_toggle_computer_players(struct GuiButton *gbtn)
 {
     struct ScreenPacket *nspck;
     nspck = &net_screen_packet[my_player_number];
-    if ((nspck->field_4 & 0xF8) == 0)
+    if (nspck->event == 0)
     {
-        nspck->field_4 = (nspck->field_4 & 0x07) | 0x38;
+        nspck->event = 0x7;
         nspck->param1 = (fe_computer_players == 0);
     }
 }
@@ -1564,8 +1554,12 @@ void set_packet_start(struct GuiButton *gbtn)
 {
     struct ScreenPacket *nspck;
     nspck = &net_screen_packet[my_player_number];
-    if ((nspck->field_4 & 0xF8) == 0)
-        nspck->field_4 = (nspck->field_4 & 7) | 0x18;
+    if (nspck->event == 0)
+    {
+        nspck->field_6 = VersionMajor;
+        nspck->field_8 = VersionMinor;
+        nspck->event = 0x3;
+    }
 }
 
 void draw_scrolling_button_string(struct GuiButton *gbtn, const char *text)
@@ -2817,7 +2811,7 @@ FrontendMenuState frontend_setup_state(FrontendMenuState nstate)
           break;
       case FeSt_NETLAND_VIEW:
           set_pointer_graphic_none();
-          frontnet_init_level_descriptions();
+          frontnet_init_view();
           frontnetmap_load();
           break;
       case FeSt_FEDEFINE_KEYS:
@@ -3488,7 +3482,7 @@ void display_objectives(PlayerNumber plyr_idx, long x, long y)
     }
 }
 
-void frontend_update(short *finish_menu)
+void frontend_update(CoroutineLoop *context, short *finish_menu)
 {
     SYNCDBG(18,"Starting for menu state %d", (int)frontend_menu_state);
     switch ( frontend_menu_state )
@@ -3515,7 +3509,7 @@ void frontend_update(short *finish_menu)
         frontnet_session_update();
         break;
     case FeSt_NET_START:
-        frontnet_start_update();
+        frontnet_start_update(context);
         break;
     case FeSt_START_KPRLEVEL:
     case FeSt_START_MPLEVEL:
@@ -3642,7 +3636,7 @@ FrontendMenuState get_startup_menu_state(void)
       game_flags2 &= ~GF2_Server;
       SYNCLOG("Setup server");
 
-      if (setup_network_service(NS_TCP_IP))
+      if (setup_network_service(NS_ENET_UDP))
       {
           frontnet_service_setup();
           frontnet_session_setup();
@@ -3654,7 +3648,7 @@ FrontendMenuState get_startup_menu_state(void)
   {
       game_flags2 &= ~GF2_Connect;
       SYNCLOG("Setup client");
-      if (setup_network_service(NS_TCP_IP))
+      if (setup_network_service(NS_ENET_UDP))
       {
           frontnet_service_setup();
           frontnet_session_setup();

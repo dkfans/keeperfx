@@ -35,6 +35,7 @@
 #include "frontend.h"
 #include "thing_effects.h"
 #include "post_inc.h"
+#include "bflib_datetm.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -164,6 +165,20 @@ void resync_game(void)
     set_flag_byte(&game.system_flags,GSF_NetSeedNoSync,false);
 }
 
+static TbBool perform_checksum_verification_cb(void *context, unsigned long turn, int net_player_idx, unsigned char kind, void *packet_data, short size)
+{
+    if (kind == PckA_LevelExactCheck)
+    {
+        struct Packet *pckt = ((struct Packet*) context) + net_player_idx;
+        memcpy(pckt, packet_data, size);
+    }
+    else
+    {
+        NETLOG("Unexpected packet %d from %d", kind, net_player_idx);
+    }
+    return false;
+}
+
 /**
  * Exchanges verification packets between all players, making sure level data is identical.
  * @return Returns true if all players return same checksum.
@@ -179,19 +194,27 @@ CoroutineLoopState perform_checksum_verification(CoroutineLoop *con)
             checksum_mem += thing->mappos.z.val + thing->mappos.y.val + thing->mappos.x.val;
         }
     }
-    clear_packets();
-    struct Packet* pckt = get_packet(my_player_number);
-    set_packet_action(pckt, PckA_LevelExactCheck, 0, 0, 0, 0);
-    pckt->chksum = checksum_mem + game.action_rand_seed;
-    if (LbNetwork_Exchange(pckt, game.packets, sizeof(struct Packet)))
+    TbClockMSec now = LbTimerClock();
+    if (now > coroutine_vars(con)[0])
+    {
+        coroutine_vars(con)[0] = now + 500; // two times per second
+        clear_packets();
+        struct Packet* pckt = LbNetwork_AddPacket(PckA_LevelExactCheck, 0, sizeof(struct Packet));
+        set_packet_action(pckt, PckA_LevelExactCheck, 0, 0, 0, 0);
+        pckt->chksum = checksum_mem + game.action_rand_seed;
+    }
+    if (LbNetwork_Exchange(game.packets, &perform_checksum_verification_cb))
     {
         ERRORLOG("Network exchange failed on level checksum verification");
         result = false;
     }
-    if (get_packet(0)->action != get_packet(1)->action)
+    for (int i = 0; i < game.active_players_count; i++)
     {
-        // Wait for message from other side
-        return CLS_REPEAT;
+        if (get_packet(i)->action != PckA_LevelExactCheck)
+        {
+            // Wait for message from all sides
+            return CLS_REPEAT;
+        }
     }
     if ( checksums_different() )
     {
@@ -200,10 +223,8 @@ CoroutineLoopState perform_checksum_verification(CoroutineLoop *con)
     }
     if (!result)
     {
-        coroutine_clear(con, true);
-
         create_frontend_error_box(5000, get_string(GUIStr_NetUnsyncedMap));
-        return CLS_ABORT;
+        return CLS_ERROR;
     }
     NETLOG("Checksums are verified");
     return CLS_CONTINUE;
