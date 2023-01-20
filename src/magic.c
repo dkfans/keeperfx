@@ -2110,7 +2110,7 @@ TbResult magic_use_power_on_subtile(PlayerNumber plyr_idx, PowerKind pwkind,
     cast_at_xy = can_cast_power_at_xy(plyr_idx, pwkind, stl_x, stl_y, allow_flags);
     // Fail if the function has failed
     if (!cast_at_xy) {
-        WARNLOG("Player %d tried to cast %s on %s which can't be targeted",
+        SYNCDBG(7,"Player %d tried to cast %s on %s which can't be targeted now",
             (int)plyr_idx,power_code_name(pwkind),"a subtile");
         ret = Lb_FAIL;
     }
