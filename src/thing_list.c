@@ -2461,22 +2461,25 @@ struct Thing *get_random_players_creature_of_model(PlayerNumber plyr_idx, ThingM
 
 struct Thing *get_random_players_creature_of_model_on_territory(PlayerNumber plyr_idx, ThingModel crmodel, int friendly)
 {
+    long model_count;
     long total_count;
     TbBool is_spec_digger = ((crmodel > 0) && creature_kind_is_for_dungeon_diggers_list(plyr_idx, crmodel));
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
     if (is_spec_digger)
     {
         total_count = count_player_list_creatures_of_model_on_territory(dungeon->digger_list_start, crmodel, friendly);
+        model_count = count_player_list_creatures_of_model(dungeon->digger_list_start, crmodel);
     }
     else
     {
         total_count = count_player_list_creatures_of_model_on_territory(dungeon->creatr_list_start, crmodel, friendly);
+        model_count = count_player_list_creatures_of_model(dungeon->creatr_list_start, crmodel);
     }
     if (total_count < 1)
     {
       return INVALID_THING;
     }
-    long crtr_idx = PLAYER_RANDOM(plyr_idx, total_count) + 1;
+    long crtr_idx = PLAYER_RANDOM(plyr_idx, model_count);
     if (is_spec_digger)
     {
         return get_player_list_nth_creature_of_model_on_territory(dungeon->digger_list_start, crmodel, crtr_idx, friendly);
