@@ -1898,7 +1898,7 @@ TbBool parse_magic_special_blocks(char *buf, long len, const char *config_textna
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
-              if (k > 0)
+              if (k >= 0)
               {
                   specst->speech = k;
                   n++;
