@@ -33,7 +33,7 @@ void close_lua_script()
         lua_close(L);
 }
 
-void open_lua_script(LevelNumber lvnum)
+TbBool open_lua_script(LevelNumber lvnum)
 {
 	L = luaL_newstate();
 
@@ -59,7 +59,10 @@ void open_lua_script(LevelNumber lvnum)
 	//if(!CheckLua(Lvl_script, luaL_dofile(Lvl_script, fname)))
 	{
         close_lua_script();
+        return false;
 	}
+    return true;
+    
 }
 
 
