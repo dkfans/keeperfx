@@ -107,7 +107,7 @@ const struct NamedCommand magic_power_commands[] = {
   {"NAME",            1},
   {"POWER",           2},
   {"COST",            3},
-  {"TIME",            4},
+  {"DURATION",        4},
   {"CASTABILITY",     5},
   {"ARTIFACT",        6},
   {"NAMETEXTID",      7},
@@ -121,14 +121,17 @@ const struct NamedCommand magic_power_commands[] = {
   {"PLAYERSTATE",    16},
   {"PARENTPOWER",    17},
   {"SOUNDPLAYED",    18},
+  {"COOLDOWN",       19},
   {NULL,              0},
   };
 
 const struct NamedCommand magic_special_commands[] = {
-  {"NAME",            1},
-  {"ARTIFACT",        2},
-  {"TOOLTIPTEXTID",   3},
-  {NULL,              0},
+  {"NAME",             1},
+  {"ARTIFACT",         2},
+  {"TOOLTIPTEXTID",    3},
+  {"SPEECHPLAYED",     4},
+  {"ACTIVATIONEFFECT", 5},
+  {NULL,               0},
   };
 
 const struct NamedCommand shotmodel_properties_commands[] = {
@@ -1436,6 +1439,7 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
           powerst->pointer_sprite_idx = 0;
           powerst->panel_tab_idx = 0;
           powerst->select_sound_idx = 0;
+          powerst->cast_cooldown = 0;
           if (i < magic_conf.power_types_count)
           {
               power_desc[i].name = powerst->code_name;
@@ -1533,11 +1537,11 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
                   COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }
           break;
-      case 4: // TIME
+      case 4: // Duration
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
-              pwrdynst->time = k;
+              pwrdynst->duration = k;
               n++;
           }
           if (n < 1)
@@ -1757,6 +1761,22 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
                 COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }
           break;
+          case 19: //COOLDOWN
+              if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+              {
+                  k = atoi(word_buf);
+                  if (k >= 0)
+                  {
+                      powerst->cast_cooldown = k;
+                      n++;
+                  }
+              }
+              if (n < 1)
+              {
+                  CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                      COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              }
+              break;
       case 0: // comment
           break;
       case -1: // end of buffer
@@ -1890,6 +1910,35 @@ TbBool parse_magic_special_blocks(char *buf, long len, const char *config_textna
           {
             CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
                 COMMAND_TEXT(cmd_num),block_buf,config_textname);
+          }
+          break;
+      case 4: // SPEECHPLAYED
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              if (k > 0)
+              {
+                  specst->speech = k;
+                  n++;
+              }
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 5: // ACTIVATIONEFFECT
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              specst->effect_id = k;
+              n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
           break;
       case 0: // comment

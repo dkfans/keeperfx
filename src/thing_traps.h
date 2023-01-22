@@ -21,6 +21,7 @@
 
 #include "bflib_basics.h"
 #include "globals.h"
+#include "engine_camera.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -64,29 +65,25 @@ enum TrapActivationTypes {
 
 struct Thing;
 
-struct TrapStats {  // sizeof=54
-unsigned long field_0;
+struct TrapStats {
+  unsigned long health;
   unsigned long sprite_anim_idx;
   unsigned long sprite_size_max;
-unsigned char unanimated;
+  unsigned char unanimated;
   unsigned long anim_speed;
-unsigned char field_11;
-  unsigned char field_12; // transparency in lower 2 bits
-unsigned char field_13;
+  unsigned char unshaded;
+  unsigned char transparency_flag; // transparency in lower 2 bits
+  unsigned char random_start_frame;
   short size_xy;
-short field_16;
+  short size_yz;
   unsigned char trigger_type;
   unsigned char activation_type;
   unsigned char created_itm_model; // Shot model, effect model, slab kind
   unsigned char hit_type;
-short light_radius; // creates light if not null
-unsigned char light_intensity;
-unsigned char light_1F;
-unsigned char field_20[8];
-unsigned char field_28[8];
-short field_30;
-short field_32;
-short field_34;
+  short light_radius; // creates light if not null
+  unsigned char light_intensity;
+  unsigned char light_flag;
+  struct ComponentVector shotvector;
 };
 
 /******************************************************************************/
@@ -117,7 +114,6 @@ unsigned long remove_traps_around_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl
 
 void external_activate_trap_shot_at_angle(struct Thing *thing, long a2, struct Thing *hand);
 
-extern struct TrapStats old_trap_stats[7];
 /******************************************************************************/
 #ifdef __cplusplus
 }

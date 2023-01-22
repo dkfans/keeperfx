@@ -717,31 +717,38 @@ TbBool find_temple_pool(int player_idx, struct Coord3d *pos)
     long max_value = 0;
     struct DungeonAdd *dungeonadd = get_dungeonadd(player_idx);
 
-    int k = 0, i = dungeonadd->room_kind[RoK_TEMPLE];
-    while (i != 0)
+
+    for (RoomKind rkind = 0; rkind < slab_conf.room_types_count; rkind++)
     {
-        struct Room* room = room_get(i);
-        if (room_is_invalid(room))
+        if(room_role_matches(rkind,RoRoF_CrPoolSpawn))
         {
-            ERRORLOG("Jump to invalid room detected");
-            break;
-        }
-        i = room->next_of_owner;
-        // Per-room code
-        if (find_random_sacrifice_center(pos, room))
-        {
-            if (max_value < room->total_capacity)
+            int k = 0, i = dungeonadd->room_kind[rkind];
+            while (i != 0)
             {
-                max_value = room->total_capacity;
-                best_room = room;
+                struct Room* room = room_get(i);
+                if (room_is_invalid(room))
+                {
+                    ERRORLOG("Jump to invalid room detected");
+                    break;
+                }
+                i = room->next_of_owner;
+                // Per-room code
+                if (find_random_sacrifice_center(pos, room))
+                {
+                    if (max_value < room->total_capacity)
+                    {
+                        max_value = room->total_capacity;
+                        best_room = room;
+                    }
+                }
+                // Per-room code ends
+                k++;
+                if (k > ROOMS_COUNT)
+                {
+                ERRORLOG("Infinite loop detected when sweeping rooms list");
+                break;
+                }
             }
-        }
-        // Per-room code ends
-        k++;
-        if (k > ROOMS_COUNT)
-        {
-          ERRORLOG("Infinite loop detected when sweeping rooms list");
-          break;
         }
     }
 

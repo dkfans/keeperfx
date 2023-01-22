@@ -2290,6 +2290,7 @@ struct Thing *get_player_list_nth_creature_of_model_on_territory(long thing_idx,
 {
     long i = thing_idx;
     unsigned long k = 0;
+    struct Thing *nth_creature = INVALID_THING;
     while (i != 0)
     {
         struct Thing* thing = thing_get(i);
@@ -2300,6 +2301,10 @@ struct Thing *get_player_list_nth_creature_of_model_on_territory(long thing_idx,
         }
         struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
         i = cctrl->players_next_creature_idx;
+        if ((i == -1) || (crtr_idx ==-1))
+        {
+            return nth_creature;
+        }
         // Per creature code
         int slbwnr = get_slab_owner_thing_is_on(thing);
         int match = 0;
@@ -2325,12 +2330,9 @@ struct Thing *get_player_list_nth_creature_of_model_on_territory(long thing_idx,
             }
         }
 
-        if (((crmodel == 0) || (crmodel == CREATURE_ANY) || (thing->model == crmodel && crtr_idx <= 1)) && (match == 1))
+        if (((crmodel == 0) || (crmodel == CREATURE_ANY) || (thing->model == crmodel)) && (match == 1))
         {
-            return thing;
-        }
-        if ((crmodel == 0) || (crmodel == CREATURE_ANY) || ((thing->model == crmodel) && (match == 1)))
-        {
+            nth_creature = thing; 
             crtr_idx--;
         }
         // Per creature code ends
@@ -2459,22 +2461,25 @@ struct Thing *get_random_players_creature_of_model(PlayerNumber plyr_idx, ThingM
 
 struct Thing *get_random_players_creature_of_model_on_territory(PlayerNumber plyr_idx, ThingModel crmodel, int friendly)
 {
+    long model_count;
     long total_count;
     TbBool is_spec_digger = ((crmodel > 0) && creature_kind_is_for_dungeon_diggers_list(plyr_idx, crmodel));
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
     if (is_spec_digger)
     {
         total_count = count_player_list_creatures_of_model_on_territory(dungeon->digger_list_start, crmodel, friendly);
+        model_count = count_player_list_creatures_of_model(dungeon->digger_list_start, crmodel);
     }
     else
     {
         total_count = count_player_list_creatures_of_model_on_territory(dungeon->creatr_list_start, crmodel, friendly);
+        model_count = count_player_list_creatures_of_model(dungeon->creatr_list_start, crmodel);
     }
     if (total_count < 1)
     {
       return INVALID_THING;
     }
-    long crtr_idx = PLAYER_RANDOM(plyr_idx, total_count) + 1;
+    long crtr_idx = PLAYER_RANDOM(plyr_idx, model_count);
     if (is_spec_digger)
     {
         return get_player_list_nth_creature_of_model_on_territory(dungeon->digger_list_start, crmodel, crtr_idx, friendly);
@@ -3364,7 +3369,7 @@ struct Thing *smallest_gold_pile_at_xy(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
         }
         i = thing->next_on_mapblk;
         // Per thing processing block
-        if ((thing->class_id == TCls_Object) && (thing->model == 43))
+        if ((thing->class_id == TCls_Object) && (object_is_gold_laying_on_ground(thing)))
         {
             if (thing->creature.gold_carried < chosen_gold)
             {
@@ -3449,7 +3454,7 @@ TbBool gold_pile_with_maximum_at_xy(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
         }
         i = thing->next_on_mapblk;
         // Per thing processing block
-        if ((thing->class_id == TCls_Object) && (thing->model == 43))
+        if ((thing->class_id == TCls_Object) && (object_is_gold_laying_on_ground(thing)))
         {
             if (thing->valuable.gold_stored >= game.gold_pile_maximum)
             {

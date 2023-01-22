@@ -220,7 +220,7 @@ void message_add(PlayerNumber plyr_idx, const char *text)
 void message_add_va(PlayerNumber plyr_idx, const char *fmt_str, va_list arg)
 {
     static char full_msg_text[2048];
-    vsprintf(full_msg_text, fmt_str, arg);
+    vsnprintf(full_msg_text, sizeof(full_msg_text), fmt_str, arg);
     message_add(plyr_idx, full_msg_text);
 }
 
@@ -237,7 +237,7 @@ void targeted_message_add(PlayerNumber plyr_idx, PlayerNumber target_idx, unsign
     va_list val;
     va_start(val, fmt_str);
     static char full_msg_text[2048];
-    vsprintf(full_msg_text, fmt_str, val);
+    vsnprintf(full_msg_text, sizeof(full_msg_text), fmt_str, val);
     SYNCDBG(2,"Player %d: %s",(int)plyr_idx,full_msg_text);
     for (int i = GUI_MESSAGES_COUNT - 1; i > 0; i--)
     {

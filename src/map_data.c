@@ -142,15 +142,13 @@ long get_ceiling_height(const struct Coord3d *pos)
     return ((game.map[i].data & 0xF000000u) >> 24) << 8;
 }
 
-long get_mapwho_thing_index(const struct Map *mapblk)
+ThingIndex get_mapwho_thing_index(const struct Map *mapblk)
 {
   return mapblk->mapwho;
-  //could also be ((mapblk->data & 0x3FF800) >> 11);
 }
 
-void set_mapwho_thing_index(struct Map *mapblk, long thing_idx)
+void set_mapwho_thing_index(struct Map *mapblk, ThingIndex thing_idx)
 {
-
   mapblk->mapwho = thing_idx;
 }
 
@@ -216,10 +214,9 @@ void set_mapblk_filled_subtiles(struct Map *mapblk, long height)
 
 void reveal_map_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx)
 {
-    unsigned short nflag = (1 << plyr_idx);
+    PlayerBitFlag nflag = (1 << plyr_idx);
     struct Map* mapblk = get_map_block_at(stl_x, stl_y);
-    unsigned long i = (mapblk->data >> 28) | nflag;
-    mapblk->data |= (i & 0x0F) << 28;
+    mapblk->revealed |= nflag;
 }
 
 TbBool subtile_revealed(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx)
@@ -230,9 +227,8 @@ TbBool subtile_revealed(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber p
 
 void reveal_map_block(struct Map *mapblk, PlayerNumber plyr_idx)
 {
-    unsigned short nflag = (1 << plyr_idx);
-    unsigned long i = (mapblk->data >> 28) | nflag;
-    mapblk->data |= (i & 0x0F) << 28;
+    PlayerBitFlag nflag = (1 << plyr_idx);
+    mapblk->revealed |= nflag;
 }
 
 TbBool slabs_reveal_slab_and_corners(MapSlabCoord slab_x, MapSlabCoord slab_y, MaxCoordFilterParam param)
@@ -328,7 +324,7 @@ TbBool map_block_revealed(const struct Map *mapblk, PlayerNumber plyr_idx)
 {
     if (map_block_invalid(mapblk))
         return false;
-    unsigned short plyr_bit;
+    PlayerBitFlag plyr_bit;
     if (gameadd.allies_share_vision)
     {
         for (PlayerNumber i = 0; i < PLAYERS_COUNT; i++)
@@ -336,7 +332,7 @@ TbBool map_block_revealed(const struct Map *mapblk, PlayerNumber plyr_idx)
             if (players_are_mutual_allies(plyr_idx, i))
             {
                 plyr_bit = (1 << i);
-                if ((mapblk->data >> 28) & plyr_bit)
+                if ((mapblk->revealed) & plyr_bit)
                 return true;
             }
         }
@@ -344,7 +340,7 @@ TbBool map_block_revealed(const struct Map *mapblk, PlayerNumber plyr_idx)
     else
     {
         plyr_bit = (1 << plyr_idx);
-        if ((mapblk->data >> 28) & plyr_bit)
+        if ((mapblk->revealed) & plyr_bit)
         return true;
     }
     return false;
@@ -363,14 +359,14 @@ TbBool map_block_revealed_bit(const struct Map *mapblk, long plyr_bit)
         {
             if (players_are_mutual_allies(plyr_idx, i))
             {
-                if ((mapblk->data >> 28) & (1 << i))
+                if ((mapblk->revealed) & (1 << i))
                 return true;
             }
         }
     }
     else
     {
-        if ((mapblk->data >> 28) & plyr_bit)
+        if ((mapblk->revealed) & plyr_bit)
         {
             return true;
         }
@@ -579,26 +575,9 @@ void clear_mapwho(void)
         for (MapSubtlCoord x = 0; x < (gameadd.map_subtiles_x + 1); x++)
         {
             struct Map* mapblk = &game.map[get_subtile_number(x, y)];
-            mapblk->data &= 0xFFC007FFu;
+            mapblk->mapwho = 0;
         }
   }
-}
-
-void clear_mapmap_soft(void)
-{
-    for (MapSubtlCoord y = 0; y < (gameadd.map_subtiles_y + 1); y++)
-    {
-        for (MapSubtlCoord x = 0; x < (gameadd.map_subtiles_x + 1); x++)
-        {
-            struct Map* mapblk = &game.map[get_subtile_number(x, y)];
-            mapblk->data &= 0xFF3FFFFFu;
-            mapblk->data &= 0xFFFFF800u;
-            mapblk->data &= 0xFFC007FFu;
-            mapblk->data &= 0x0FFFFFFFu;
-            mapblk->flags = 0;
-        }
-    }
-    clear_subtiles_lightness(&game.lish);
 }
 
 void clear_mapmap(void)
@@ -696,10 +675,6 @@ void reveal_map_area(PlayerNumber plyr_idx,MapSubtlCoord start_x,MapSubtlCoord e
 
 void conceal_map_area(PlayerNumber plyr_idx,MapSubtlCoord start_x,MapSubtlCoord end_x,MapSubtlCoord start_y,MapSubtlCoord end_y, TbBool all)
 {
-    unsigned long nflag = (1 << plyr_idx);
-    nflag <<= 28;
-    nflag = ~nflag;
-
     start_x = stl_slab_starting_subtile(start_x);
     start_y = stl_slab_starting_subtile(start_y);
     end_x = stl_slab_ending_subtile(end_x)+1;
@@ -724,7 +699,7 @@ void conceal_map_area(PlayerNumber plyr_idx,MapSubtlCoord start_x,MapSubtlCoord 
                         break;
                 }
             }
-            mapblk->data &= nflag;
+            mapblk->revealed &= ~(1 << plyr_idx);
         }
     }
     pannel_map_update(start_x,start_y,end_x,end_y);

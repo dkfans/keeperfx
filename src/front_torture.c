@@ -85,7 +85,7 @@ void torture_play_sound(long door_id, TbBool state)
     return;
   if (state)
   {
-    play_sample_using_heap(0, doors[door_id].field_28, 0, 64, 100, -1, 2, 0);
+    play_sample_using_heap(0, doors[door_id].smptbl_id, 0, 64, 100, -1, 2, 0);
     door_sound_state[door_id].field_0 = 0;
     door_sound_state[door_id].field_4 = 16;
   }
@@ -283,7 +283,7 @@ void fronttorture_input(void)
     // Exchange packet with other players
     if ((game.system_flags & GSF_NetworkActive) != 0)
     {
-        if (LbNetwork_Exchange(pckt))
+        if (LbNetwork_Exchange(pckt, game.packets, sizeof(struct Packet)))
             ERRORLOG("LbNetwork_Exchange failed");
     }
     // Determine the controlling player and get his mouse coords
@@ -402,7 +402,7 @@ void fronttorture_update(void)
             {
                 volume = 0;
                 doorsnd->field_4 = 0;
-                StopSample(0, door->field_28);
+                StopSample(0, door->smptbl_id);
             } else
             if (volume >= 127)
             {
@@ -412,7 +412,7 @@ void fronttorture_update(void)
             doorsnd->field_0 = volume;
             if (volume > 0)
             {
-              SetSampleVolume(0, door->field_28, volume, 0);
+              SetSampleVolume(0, door->smptbl_id, volume, 0);
             }
         }
     }

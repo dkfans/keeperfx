@@ -160,13 +160,23 @@ static void init_level(void)
     erstats_clear();
     init_dungeons();
     init_map_size(get_selected_level_number());
+    clear_messages();
     // Load the actual level files
-    preload_script(get_selected_level_number());
-    open_lua_script(get_selected_level_number());
-    load_map_file(get_selected_level_number());
+
+    TbBool luascript_ok = open_lua_script(get_selected_level_number());
+    TbBool dkscript_ok  = preload_script(get_selected_level_number());
+    if (luascript_ok || dkscript_ok)
+    {
+        ok = load_map_file(get_selected_level_number());
+    }
+    if (!ok)
+    {
+        // TODO: whine about missing file to screen
+        JUSTMSG("Unable to load level %d from %s", get_selected_level_number(), campaign.name);
+        return;
+    }
 
     init_navigation();
-    clear_messages();
     LbStringCopy(game.campaign_fname,campaign.fname,sizeof(game.campaign_fname));
 #ifdef AUTOTESTING
     if (start_params.autotest_flags & ATF_FixedSeed)

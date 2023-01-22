@@ -526,7 +526,7 @@ void slap_creature(struct PlayerInfo *player, struct Thing *thing)
     }
     pwrdynst = get_power_dynamic_stats(PwrK_SLAP);
     i = cctrl->slap_turns;
-    cctrl->slap_turns = pwrdynst->time;
+    cctrl->slap_turns = pwrdynst->duration;
     if (i == 0)
       cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
     if (thing->active_state != CrSt_CreatureSlapCowers)
@@ -580,7 +580,7 @@ TbBool can_cast_power_at_xy(PlayerNumber plyr_idx, PowerKind pwkind,
     {
         struct PlayerInfo *player;
         player = get_player(plyr_idx);
-        if (game.play_gameturn <= player->field_4E3+20) {
+        if (game.play_gameturn <= player->power_of_cooldown_turn) {
             return false;
         }
     }
@@ -774,7 +774,7 @@ long find_spell_age_percentage(PlayerNumber plyr_idx, PowerKind pwkind)
         if (dungeon->cta_start_turn != 0)
         {
             curr = game.play_gameturn - dungeon->cta_start_turn;
-            total = pwrdynst->time;
+            total = pwrdynst->duration;
         }
         break;
     default:
@@ -1391,7 +1391,7 @@ TbResult magic_use_power_lightning(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     range = (i << 8) / 2;
     if (power_sight_explored(stl_x, stl_y, plyr_idx))
         max_damage /= 4;
-    obtng = create_object(&pos, 124, plyr_idx, -1);
+    obtng = create_object(&pos, ObjMdl_PowerLightning, plyr_idx, -1);
     if (!thing_is_invalid(obtng))
     {
         obtng->lightning.spell_level = splevel;
@@ -1409,7 +1409,6 @@ TbResult magic_use_power_lightning(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
             thing_play_sample(efftng, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
         }
     }
-    player->field_4E3 = game.play_gameturn;
     return Lb_SUCCESS;
 }
 
@@ -1465,7 +1464,7 @@ TbResult magic_use_power_sight(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSu
     pos.x.val = subtile_coord_center(stl_x);
     pos.y.val = subtile_coord_center(stl_y);
     pos.z.val = subtile_coord_center(5);
-    thing = create_object(&pos, 123, plyr_idx, -1);
+    thing = create_object(&pos, ObjMdl_PowerSight, plyr_idx, -1);
     if (!thing_is_invalid(thing))
     {
         struct PowerConfigStats *powerst;
@@ -1661,7 +1660,7 @@ TbResult magic_use_power_call_to_arms(PlayerNumber plyr_idx, MapSubtlCoord stl_x
     objtng = thing_get(player->field_43C);
     if ((dungeon->cta_start_turn == 0) || !thing_is_object(objtng))
     {
-          objtng = create_object(&pos, 24, plyr_idx, -1);
+          objtng = create_object(&pos, ObjMdl_CTAEnsign, plyr_idx, -1);
           if (thing_is_invalid(objtng)) {
               ERRORLOG("Cannot create call to arms");
               return 0;
@@ -1868,7 +1867,7 @@ void process_magic_power_call_to_arms(PlayerNumber plyr_idx)
             }
         }
     }
-    if (((pwrdynst->time < 1) || ((duration % pwrdynst->time) == 0)) && pay_land)
+    if (((pwrdynst->duration < 1) || ((duration % pwrdynst->duration) == 0)) && pay_land)
     {
         if (!pay_for_spell(plyr_idx, PwrK_CALL2ARMS, dungeon->cta_splevel)) {
             if (is_my_player_number(plyr_idx))
@@ -1896,7 +1895,7 @@ void process_magic_power_must_obey(PlayerNumber plyr_idx)
     delta = game.play_gameturn - dungeon->must_obey_turn;
     const struct MagicStats *pwrdynst;
     pwrdynst = get_power_dynamic_stats(PwrK_OBEY);
-    if ((delta % pwrdynst->time) == 0)
+    if ((delta % pwrdynst->duration) == 0)
     {
         if (!pay_for_spell(plyr_idx, PwrK_OBEY, 0)) {
             magic_use_power_obey(plyr_idx, PwMod_Default);
@@ -1984,6 +1983,8 @@ TbResult magic_use_available_power_on_thing(PlayerNumber plyr_idx, PowerKind pwk
 TbResult magic_use_power_on_thing(PlayerNumber plyr_idx, PowerKind pwkind,
     unsigned short splevel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct Thing *thing, unsigned long allow_flags)
 {
+    const struct PowerConfigStats* powerst = get_power_model_stats(pwkind);
+
     TbResult ret;
     ret = Lb_OK;
     if (!thing_exists(thing)) {
@@ -1992,8 +1993,6 @@ TbResult magic_use_power_on_thing(PlayerNumber plyr_idx, PowerKind pwkind,
     }
     if (ret == Lb_OK)
     {// Zero coords mean we should take real ones from the thing. But even if they're not zero, we might want to fix them sometimes
-        const struct PowerConfigStats *powerst;
-        powerst = get_power_model_stats(pwkind);
         if (((stl_x == 0) && (stl_y == 0)) || ((powerst->can_cast_flags & PwCast_AllThings) != 0)) {
             stl_x = thing->mappos.x.stl.num;
             stl_y = thing->mappos.y.stl.num;
@@ -2062,6 +2061,10 @@ TbResult magic_use_power_on_thing(PlayerNumber plyr_idx, PowerKind pwkind,
             break;
         }
     }
+    if (ret == Lb_SUCCESS)
+    {
+        get_player(plyr_idx)->power_of_cooldown_turn = game.play_gameturn + powerst->cast_cooldown;
+    }
     return ret;
 }
 
@@ -2107,7 +2110,7 @@ TbResult magic_use_power_on_subtile(PlayerNumber plyr_idx, PowerKind pwkind,
     cast_at_xy = can_cast_power_at_xy(plyr_idx, pwkind, stl_x, stl_y, allow_flags);
     // Fail if the function has failed
     if (!cast_at_xy) {
-        WARNLOG("Player %d tried to cast %s on %s which can't be targeted",
+        SYNCDBG(7,"Player %d tried to cast %s on %s which can't be targeted now",
             (int)plyr_idx,power_code_name(pwkind),"a subtile");
         ret = Lb_FAIL;
     }
@@ -2150,6 +2153,11 @@ TbResult magic_use_power_on_subtile(PlayerNumber plyr_idx, PowerKind pwkind,
             ret = Lb_FAIL;
             break;
         }
+    }
+    if (ret == Lb_SUCCESS)
+    {
+        const struct PowerConfigStats* powerst = get_power_model_stats(pwkind);
+        get_player(plyr_idx)->power_of_cooldown_turn = game.play_gameturn + powerst->cast_cooldown;
     }
     return ret;
 }

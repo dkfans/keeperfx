@@ -916,7 +916,7 @@ void update_thing_animation(struct Thing *thing)
         }
         if (thing->anim_time > i-1)
         {
-          if (thing->rendering_flags & TRF_Unmoving)
+          if (thing->rendering_flags & TRF_AnimateOnce)
           {
             thing->anim_speed = 0;
             thing->anim_time = i-1;
@@ -1415,20 +1415,31 @@ void toggle_hero_health_flowers(void)
 
 void reset_gui_based_on_player_mode(void)
 {
-    struct PlayerInfo *player;
-    player = get_my_player();
-    if ((player->view_type == PVT_CreatureContrl) || (player->view_type == PVT_CreaturePasngr))
+    struct PlayerInfo *player = get_my_player();
+    if (player->view_type == PVT_CreatureContrl)
     {
-        turn_on_menu(GMnu_CREATURE_QUERY1);
-    } else
+        turn_on_menu(vid_change_query_menu);
+    }
+    else if (player->view_type == PVT_CreaturePasngr)
+    {
+        turn_on_menu(vid_change_query_menu);
+        turn_off_query_menus();
+    }
+    else
     {
         turn_on_menu(GMnu_MAIN);
         if (game.active_panel_mnu_idx > 0)
         {
             initialise_tab_tags(game.active_panel_mnu_idx);
-            turn_on_menu(game.active_panel_mnu_idx);
-            MenuNumber mnuidx;
-            mnuidx = menu_id_to_number(GMnu_MAIN);
+            if ( (player->work_state == PSt_CreatrInfo) || (player->work_state == PSt_CreatrInfoAll) )
+            {
+                turn_on_menu(vid_change_query_menu);
+            }
+            else
+            {
+                turn_on_menu(game.active_panel_mnu_idx);
+            }
+            MenuNumber mnuidx = menu_id_to_number(GMnu_MAIN);
             if (mnuidx != MENU_INVALID_ID) {
                 setup_radio_buttons(&active_menus[mnuidx]);
             }
@@ -2666,14 +2677,14 @@ long update_cave_in(struct Thing *thing)
             pos.z.val = get_ceiling_height(&pos) - 128;
             efftng = create_effect_element(&pos, TngEff_Flash, owner);
             if (!thing_is_invalid(efftng)) {
-                efftng->health = pwrdynst->time;
+                efftng->health = pwrdynst->duration;
             }
         }
     }
 
     GameTurnDelta turns_between;
     GameTurnDelta turns_alive;
-    turns_between = pwrdynst->time / 5;
+    turns_between = pwrdynst->duration / 5;
     turns_alive = game.play_gameturn - thing->creation_turn;
     if ((turns_alive != 0) && ((turns_between < 1) || (3 * turns_between / 4 == turns_alive % turns_between)))
     {
@@ -2700,9 +2711,9 @@ long update_cave_in(struct Thing *thing)
         do_to_things_with_param_around_map_block(&pos, do_cb, &param);
     }
 
-    if ((8 * pwrdynst->time / 10 >= thing->health) && (2 * pwrdynst->time / 10 <= thing->health))
+    if ((8 * pwrdynst->duration / 10 >= thing->health) && (2 * pwrdynst->duration / 10 <= thing->health))
     {
-        if ((pwrdynst->time < 10) || ((thing->health % (pwrdynst->time / 10)) == 0))
+        if ((pwrdynst->duration < 10) || ((thing->health % (pwrdynst->duration / 10)) == 0))
         {
             int round_idx;
             round_idx = CREATURE_RANDOM(thing, AROUND_TILES_COUNT);
@@ -3097,10 +3108,10 @@ void update_block_pointed(int i,long x, long x_frac, long y, long y_frac)
     {
       mapblk = get_map_block_at(x,y);
       visible = map_block_revealed_bit(mapblk, player_bit);
-      if ((!visible) || ((mapblk->data & 0x7FF) > 0))
+      if ((!visible) || (get_mapblk_column_index(mapblk) > 0))
       {
         if (visible)
-          k = mapblk->data & 0x7FF;
+          k = get_mapblk_column_index(mapblk);
         else
           k = game.unrevealed_column_idx;
         colmn = get_column(k);
@@ -3108,7 +3119,7 @@ void update_block_pointed(int i,long x, long x_frac, long y, long y_frac)
         if ((temp_cluedo_mode) && (smask != 0))
         {
           if (visible)
-            k = mapblk->data & 0x7FF;
+            k = get_mapblk_column_index(mapblk);
           else
             k = game.unrevealed_column_idx;
           colmn = get_column(k);

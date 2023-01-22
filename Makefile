@@ -44,8 +44,8 @@ DOXYTOOL = doxygen
 BUILD_NUMBER ?= $(VER_BUILD)
 PACKAGE_SUFFIX ?= Prototype
 PNGTOICO = tools/png2ico/png2ico$(CROSS_EXEEXT)
-PNGTORAW = tools/pngpal2raw/bin/pngpal2raw$(CROSS_EXEEXT)
-PNGTOBSPAL = tools/png2bestpal/bin/png2bestpal$(CROSS_EXEEXT)
+PNGTORAW = tools/pngpal2raw/bin/pngpal2raw.exe     #these have hardcoded .exe since the linux version doesn't work, this fixes wsl
+PNGTOBSPAL = tools/png2bestpal/bin/png2bestpal.exe #  "
 POTONGDAT = tools/po2ngdat/bin/po2ngdat$(CROSS_EXEEXT)
 WAVTODAT = tools/sndbanker/bin/sndbanker$(CROSS_EXEEXT)
 RNC      = tools/rnctools/bin/rnc$(CROSS_EXEEXT)
@@ -72,6 +72,7 @@ obj/spng.o \
 obj/json/json.o \
 obj/json/value.o \
 obj/json/json-dom.o \
+obj/centitoml/toml_api.o \
 obj/unzip.o \
 obj/ioapi.o
 
@@ -109,12 +110,9 @@ obj/bflib_memory.o \
 obj/bflib_mouse.o \
 obj/bflib_mshandler.o \
 obj/bflib_mspointer.o \
-obj/bflib_nethost_udp.o \
-obj/bflib_netlisten_udp.o \
 obj/bflib_netsession.o \
 obj/bflib_netsp.o \
 obj/bflib_netsp_ipx.o \
-obj/bflib_netsp_tcp.o \
 obj/bflib_netsync.o \
 obj/bflib_network.o \
 obj/bflib_planar.o \
@@ -314,6 +312,7 @@ obj/thing_physics.o \
 obj/thing_shots.o \
 obj/thing_stats.o \
 obj/thing_traps.o \
+obj/value_util.o \
 obj/vidfade.o \
 obj/vidmode_data.o \
 obj/vidmode.o \
@@ -341,7 +340,7 @@ CU_OBJS = \
 LINKLIB =  -L"sdl/lib" -mwindows obj/enet.a obj/luauvm.a obj/luaucompiler.a \
 	-lwinmm -lmingw32 -limagehlp -lSDL2main -lSDL2 -lSDL2_mixer -lSDL2_net \
 	-L"deps/zlib" -lz -lws2_32
-INCS =  -I"sdl/include" -I"sdl/include/SDL2" -I"deps/enet/include" -I"deps/luau/Compiler/include" -I"deps/luau/Compiler/include"
+INCS =  -I"sdl/include" -I"sdl/include/SDL2" -I"deps/enet/include" -I"deps/centijson/src" -I"deps/centitoml" -I"deps/luau/Compiler/include" -I"deps/luau/Compiler/include"
 CXXINCS =  $(INCS)
 
 STDOBJS   = $(subst obj/,obj/std/,$(OBJS))
@@ -402,7 +401,7 @@ VER_STRING = $(VER_MAJOR).$(VER_MINOR).$(VER_RELEASE).$(BUILD_NUMBER) $(PACKAGE_
 include prebuilds.mk
 
 # name virtual targets
-.PHONY: all docs docsdox clean clean-build deep-clean
+.PHONY: all docs docsdox clean clean-build deep-clean build-before
 .PHONY: standard std-before std-after
 .PHONY: heavylog hvlog-before hvlog-after
 .PHONY: package clean-package deep-clean-package
@@ -425,9 +424,20 @@ heavylog: CFLAGS += $(HVLOGFLAGS)
 heavylog: hvlog-before $(HVLOGBIN) hvlog-after
 
 # not nice but necessary for make -j to work
-$(shell $(MKDIR) bin obj/std obj/hvlog obj/tests obj/cu obj/std/json obj/hvlog/json obj/enet obj/luauCompiler obj/luauVM)
-std-before:
-hvlog-before:
+
+FOLDERS = bin obj/std obj/hvlog \
+obj/tests obj/cu \
+obj/std/json obj/hvlog/json \
+obj/std/centitoml obj/hvlog/centitoml \
+obj/enet  obj/luauCompiler obj/luauVM
+
+$(shell $(MKDIR) $(FOLDERS))
+
+# We need this file because we need git update
+build-before: libexterns deps/zlib/configure.log
+
+std-before: build-before
+hvlog-before: build-before
 
 docs: docsdox
 
@@ -483,7 +493,12 @@ obj/std/spng.o obj/hvlog/spng.o: deps/libspng/spng/spng.c deps/zlib/libz.a
 
 obj/std/json/%.o obj/hvlog/json/%.o: deps/centijson/src/%.c
 	-$(ECHO) 'Building file: $<'
-	$(CC) $(CFLAGS) -I"deps/centijson/src" -o"$@" "$<"
+	$(CC) $(CFLAGS) -o"$@" "$<"
+	-$(ECHO) ' '
+
+obj/std/centitoml/toml_api.o obj/hvlog/centitoml/toml_api.o: deps/centitoml/toml_api.c build-before
+	-$(ECHO) 'Building file: $<'
+	$(CC) $(CFLAGS) -o"$@" "$<"
 	-$(ECHO) ' '
 
 obj/std/unzip.o obj/hvlog/unzip.o: deps/zlib/contrib/minizip/unzip.c
@@ -496,9 +511,14 @@ obj/std/ioapi.o obj/hvlog/ioapi.o: deps/zlib/contrib/minizip/ioapi.c
 	$(CC) $(CFLAGS) -I"deps/zlib" -o"$@" "$<"
 	-$(ECHO) ' '
 
+obj/std/lvl_filesdk1.o obj/hvlog/lvl_filesdk1.o: src/lvl_filesdk1.c deps/zlib/contrib/minizip/unzip.c
+	-$(ECHO) 'Building file: $<'
+	$(CC) $(CFLAGS) -I"deps/zlib" -I"deps/zlib/contrib/minizip" -o"$@" "$<"
+	-$(ECHO) ' '
+
 obj/std/custom_sprites.o obj/hvlog/custom_sprites.o: src/custom_sprites.c deps/zlib/contrib/minizip/unzip.c
 	-$(ECHO) 'Building file: $<'
-	$(CC) $(CFLAGS) -I"deps/libspng/spng" -I"deps/centijson/src" -I"deps/zlib" -I"deps/zlib/contrib/minizip" -o"$@" "$<"
+	$(CC) $(CFLAGS) -I"deps/libspng/spng" -I"deps/zlib" -I"deps/zlib/contrib/minizip" -o"$@" "$<"
 	-$(ECHO) ' '
 
 obj/tests/%.o: tests/%.cpp $(GENSRC)
@@ -561,13 +581,14 @@ clean-libexterns: libexterns.mk
 	-cd deps/zlib && git checkout Makefile zconf.h
 	-$(RM) libexterns
 
-deps/centijson/src/json.c deps/centijson/src/value.c deps/centijson/src/json-dom.c: deps/zlib/configure.log
-deps/libspng/spng/spng.c: deps/zlib/configure.log
-deps/zlib/contrib/minizip/unzip.c deps/zlib/contrib/minizip/ioapi.c: deps/zlib/configure.log
+deps/centijson/src/json.c deps/centijson/src/value.c deps/centijson/src/json-dom.c: build-before
+deps/libspng/spng/spng.c: build-before
+deps/zlib/contrib/minizip/unzip.c deps/zlib/contrib/minizip/ioapi.c: build-before
 
 
 deps/zlib/configure.log:
-	git submodule sync && git submodule update --init && cd deps/zlib && ./configure --static
+	git submodule sync && git submodule update --init
+	cd deps/zlib && ./configure --static
 
 deps/zlib/libz.a: deps/zlib/configure.log
 	cd deps/zlib && $(MAKE) -f win32/Makefile.gcc PREFIX=$(CROSS_COMPILE) libz.a

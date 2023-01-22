@@ -21,6 +21,7 @@
 #define BFLIB_SNDLIB_H
 
 #include "bflib_basics.h"
+#include "bflib_sound.h"
 
 #include "globals.h"
 
@@ -41,7 +42,7 @@ struct SampleInfo { // sizeof = 29
   unsigned char field_4[4];
   unsigned char field_8;
   unsigned char field_9[9];
-    unsigned short field_12;
+  SoundSmplTblID smptbl_id;
   unsigned char field_14[3];
   unsigned char flags_17;
   unsigned long field_18;
@@ -70,18 +71,18 @@ int __stdcall StopAllSamples(void);
 struct SampleInfo * __stdcall GetFirstSampleInfoStructure(void);
 int __stdcall InitAudio(void *);
 int __stdcall SetupAudioOptionDefaults(void *);
-int __stdcall PlayStreamedSample(char *fname, int a2, int a3, int a4);
+int __stdcall PlayStreamedSample(char *fname, int sample_type, int a3, int a4);
 int __stdcall IsSamplePlaying(int a1, int a2, int a3);
 int __stdcall StopStreamedSample(void);
 int __stdcall StreamedSampleFinished(void);
 int __stdcall SetStreamedSampleVolume(int);
 struct SampleInfo * __stdcall GetLastSampleInfoStructure(void);
 int __stdcall GetCurrentSoundMasterVolume(void);
-int __stdcall StopSample(int a,int b);
-int __stdcall SetSampleVolume(int a,int b,int c,int d);
-int __stdcall SetSamplePan(int a,int b,int c,int d);
-int __stdcall SetSamplePitch(int a,int b,int c,int d);
-struct SampleInfo * __stdcall PlaySampleFromAddress(int a1, int smpl_idx, int a3, int a4, int a5, unsigned char a6, unsigned char a7, void * buf, int a9);
+int __stdcall StopSample(SoundEmitterID emit_id, long smptbl_id);
+int __stdcall SetSampleVolume(SoundEmitterID emit_id, long smptbl_id,long volume,long d);
+int __stdcall SetSamplePan(SoundEmitterID emit_id, long smptbl_id,long pan,int d);
+int __stdcall SetSamplePitch(SoundEmitterID emit_id, long smptbl_id,long pitch,int d);
+struct SampleInfo * __stdcall PlaySampleFromAddress(SoundEmitterID emit_id, int smpl_idx, int a3, int a4, int a5, unsigned char a6, unsigned char a7, void * buf, int sfxid);
 /******************************************************************************/
 #ifdef __cplusplus
 }
