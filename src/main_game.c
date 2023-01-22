@@ -165,7 +165,8 @@ static void init_level(void)
 
     TbBool luascript_ok = open_lua_script(get_selected_level_number());
     TbBool dkscript_ok  = preload_script(get_selected_level_number());
-    if (luascript_ok || dkscript_ok)
+    TbBool ok = (luascript_ok || dkscript_ok);
+    if (ok)
     {
         ok = load_map_file(get_selected_level_number());
     }
