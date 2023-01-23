@@ -1,8 +1,8 @@
 #include "pre_inc.h"
 
-
-#include "../deps/luau/VM/include/lualib.h"
-#include "../deps/luau/VM/include/lua.h"
+#include "../lib/lua/include/lua.h"
+#include "../lib/lua/include/lauxlib.h"
+#include "../lib/lua/include/lualib.h"
 
 #include "bflib_basics.h"
 #include "globals.h"
@@ -91,9 +91,9 @@ static int lua_set_player_as_lost_level(lua_State *L)
 }
 
 
+
 void reg_host_functions(lua_State *L)
 {
-    /*
     lua_register(L, "GetCreatureNear", lua_get_creature_near);
     lua_register(L, "MakeThingZombie", make_thing_zombie);
     lua_register(L, "SendChatMessage", send_chat_message);
@@ -101,7 +101,6 @@ void reg_host_functions(lua_State *L)
     lua_register(L, "KillCreature", lua_kill_creature);
     lua_register(L, "PlayerWin", lua_set_player_as_won_level);
     lua_register(L, "PlayerLose", lua_set_player_as_lost_level);
-    */
 }
 
 
