@@ -33,7 +33,7 @@ void lua_game_start();
 void lua_game_loop();
 
 
-void open_lua_script(LevelNumber lvnum);
+TbBool open_lua_script(LevelNumber lvnum);
 void close_lua_script();
 
 #ifdef __cplusplus
