@@ -11,6 +11,6 @@
 [submodule "deps/enet"]
 	path = deps/enet
 	url = https://github.com/lsalzman/enet.git
-[submodule "deps/luau"]
-	path = deps/luau
-	url = https://github.com/Roblox/luau.git
+[submodule "deps/luajit"]
+	path = deps/luajit
+	url = https://luajit.org/git/luajit.git
