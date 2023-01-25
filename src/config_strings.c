@@ -170,8 +170,14 @@ const char * gui_string(unsigned int index)
 const char * cmpgn_string(unsigned int index)
 {
     if ((campaign.strings == NULL) || (index >= STRINGS_MAX))
-        return lbEmptyString;
-    return campaign.strings[index];
+    {
+        return gui_string(index - STRINGS_MAX);
+    }
+    if (*campaign.strings[index] != '\0')
+    {
+        return campaign.strings[index];
+    }
+    return gui_string(index);
 }
 
 const char * get_string(TextStringId stridx)
