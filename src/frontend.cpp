@@ -3798,10 +3798,9 @@ void frontend_draw_product_version(struct GuiButton *gbtn)
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
     LbTextSetFont(frontend_font[3]);
     int units_per_px = simple_frontend_sprite_height_units_per_px(gbtn, GFS_hugebutton_a05l, 100);
-    char* text = buf_sprintf("%s %s", PRODUCT_NAME, PRODUCT_VERSION);
-    int h = LbTextHeight(text) * units_per_px / 16;
+    int h = LbTextLineHeight() * units_per_px / 16;
     LbTextSetWindow(0, gbtn->scr_pos_y, gbtn->width, h);
-    LbTextDrawResized(0, 0, units_per_px, text);
+    LbTextDrawResized(0, 0, units_per_px, PRODUCT_VERSION);
 }
 
 /******************************************************************************/
