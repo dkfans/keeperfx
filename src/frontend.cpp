@@ -3800,7 +3800,7 @@ void frontend_draw_product_version(struct GuiButton *gbtn)
     int units_per_px = simple_frontend_sprite_height_units_per_px(gbtn, GFS_hugebutton_a05l, 100);
     char* text = buf_sprintf("%s %s", PRODUCT_NAME, PRODUCT_VERSION);
     int h = LbTextHeight(text) * units_per_px / 16;
-    LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, h);
+    LbTextSetWindow(0, gbtn->scr_pos_y, gbtn->width, h);
     LbTextDrawResized(0, 0, units_per_px, text);
 }
 
