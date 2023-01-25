@@ -3796,7 +3796,8 @@ void frontend_maintain_error_text_box(struct GuiButton *gbtn)
 void frontend_draw_product_version(struct GuiButton *gbtn)
 {
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
-    LbTextSetFont(frontend_font[3]);
+    unsigned char font = ((dbc_initialized) && (dbc_enabled)) ? 1 : 3;
+    LbTextSetFont(frontend_font[font]);
     int units_per_px = simple_frontend_sprite_height_units_per_px(gbtn, GFS_hugebutton_a05l, 100);
     int h = LbTextLineHeight() * units_per_px / 16;
     LbTextSetWindow(0, gbtn->scr_pos_y, gbtn->width, h);
