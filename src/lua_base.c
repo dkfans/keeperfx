@@ -17,7 +17,7 @@ lua_State *Lvl_script;
 // Little error checking utility function
 static TbBool CheckLua(lua_State *L, int r)
 {
-	if (r != LUA_OK)
+	if (r != 1)
 	{
 		ERRORLOG("%s",(char*)lua_tostring(L, -1));
 		return false;
