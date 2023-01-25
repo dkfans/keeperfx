@@ -932,7 +932,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
           thing->health = min(i,cctrl->max_health);
         }
         cctrl->field_2B0 = 7;
-        cctrl->field_2AE = pwrdynst->time;
+        cctrl->field_2AE = pwrdynst->duration;
         break;
     case SplK_Invisibility:
         i = get_free_spell_slot(thing);
@@ -1100,7 +1100,7 @@ void reapply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long spe
           thing->health = min(i,cctrl->max_health);
         }
         cctrl->field_2B0 = 7;
-        cctrl->field_2AE = pwrdynst->time;
+        cctrl->field_2AE = pwrdynst->duration;
         break;
     }
     case SplK_Invisibility:

@@ -3425,10 +3425,10 @@ void update_player_objectives(PlayerNumber plyr_idx)
     player = get_player(plyr_idx);
     if ((game.system_flags & GSF_NetworkActive) != 0)
     {
-      if ((!player->field_4EB) && (player->victory_state != VicS_Undecided))
-        player->field_4EB = game.play_gameturn+1;
+      if ((!player->display_objective_turn) && (player->victory_state != VicS_Undecided))
+        player->display_objective_turn = game.play_gameturn+1;
     }
-    if (player->field_4EB == game.play_gameturn)
+    if (player->display_objective_turn == game.play_gameturn)
     {
       switch (player->victory_state)
       {

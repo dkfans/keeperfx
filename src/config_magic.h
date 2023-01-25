@@ -294,6 +294,7 @@ struct PowerConfigStats {
     short pointer_sprite_idx;
     long panel_tab_idx;
     unsigned short select_sound_idx;
+    short cast_cooldown;
 };
 
 /**
@@ -341,7 +342,7 @@ struct ShotStats
 
 struct MagicStats {  // sizeof=0x4C
   long cost[MAGIC_OVERCHARGE_LEVELS];
-  long time;
+  long duration;
   long strength[MAGIC_OVERCHARGE_LEVELS];
 };
 

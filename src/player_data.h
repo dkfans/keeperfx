@@ -216,9 +216,9 @@ short cursor_light_idx;
     char video_cluedo_mode;
     MapCoordDelta zoom_to_movement_x;
     MapCoordDelta zoom_to_movement_y;
-    GameTurn field_4E3;
+    GameTurn power_of_cooldown_turn;
     long game_version;
-    GameTurn field_4EB;
+    GameTurn display_objective_turn;
     };
 
 struct CheatSelection

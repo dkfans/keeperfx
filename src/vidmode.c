@@ -467,6 +467,7 @@ TbBool set_pointer_graphic(long ptr_idx)
   case  MousePG_PlaceRoom12:
   case  MousePG_PlaceRoom13:
   case  MousePG_PlaceRoom14:
+  case  MousePG_PlaceRoom15:
       spr = &pointer_sprites[ptr_idx];
       x = 12; y = 38;
       break;
