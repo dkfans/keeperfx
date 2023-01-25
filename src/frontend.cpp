@@ -3796,7 +3796,7 @@ void frontend_maintain_error_text_box(struct GuiButton *gbtn)
 void frontend_draw_product_version(struct GuiButton *gbtn)
 {
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
-    unsigned char font = ((dbc_initialized) && (dbc_enabled)) ? 1 : 3;
+    unsigned char font = ((dbc_initialized) && (dbc_enabled)) ? 1 : 3; // why is the text grey in font 3 in East Asian languages?
     LbTextSetFont(frontend_font[font]);
     int units_per_px = simple_frontend_sprite_height_units_per_px(gbtn, GFS_hugebutton_a05l, 100);
     int h = LbTextLineHeight() * units_per_px / 16;
