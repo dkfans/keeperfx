@@ -2343,8 +2343,7 @@ struct Thing *get_player_list_nth_creature_of_model_on_territory(long thing_idx,
             return INVALID_THING;
         }
     }
-    ERRORLOG("Tried to get creature of index exceeding list");
-    return INVALID_THING;
+    return nth_creature;
 }
 
 /**
