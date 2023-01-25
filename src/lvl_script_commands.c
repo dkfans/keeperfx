@@ -210,6 +210,16 @@ const struct NamedCommand trap_config_desc[] = {
   {"TriggerAlarm",        19},
   {"Slappable",           20},
   {"Unanimated",          21},
+  {"Health",              22},
+  {"Unshaded",            23},
+  {"RandomStartFrame",    24},
+  {"ThingSize",           25},
+  {"HitType",             26},
+  {"LightRadius",         27},
+  {"LightIntensity",      28},
+  {"LightFlags",          29},
+  {"TransparencyFlags",   30},
+  {"ShotVector",          31},
   {NULL,                   0},
 };
 
@@ -864,7 +874,7 @@ static void set_trap_configuration_check(const struct ScriptLine* scline)
 
     value->shorts[0] = trap_id;
     value->shorts[1] = trapvar;
-    if (trapvar == 3) // SymbolSprites
+    if ((trapvar == 3) || (trapvar == 25)) // SymbolSprites
     {
         char *tmp = malloc(strlen(scline->tp[2]) + strlen(scline->tp[3]) + 3);
         // Pass two vars along as one merged val like: first\nsecond\m
@@ -1111,6 +1121,7 @@ static void set_trap_configuration_process(struct ScriptContext *context)
     struct ManfctrConfig *mconf = &gameadd.traps_config[trap_type];
     struct ManufactureData *manufctr = get_manufacture_data(trap_type);
     short value = context->value->shorts[2];
+    short value2 = context->value->shorts[3];
     switch (context->value->shorts[1])
     {
         case 1: // NameTextID
@@ -1202,11 +1213,41 @@ static void set_trap_configuration_process(struct ScriptContext *context)
             gameadd.trap_stats[trap_type].unanimated = value;
             refresh_trap_anim(trap_type);
             break;
+        case 22: // Health
+            gameadd.trap_stats[trap_type].health = value;
+            break;
+        case 23: // Unshaded
+            gameadd.trap_stats[trap_type].unshaded = value;
+            break;
+        case 24: // RandomStartFrame
+            gameadd.trap_stats[trap_type].random_start_frame = value;
+            break;
+        case 25: // ThingSize
+            gameadd.trap_stats[trap_type].size_xy = value; // First
+            gameadd.trap_stats[trap_type].size_yz = value2; // Second
+            break;
+        case 26: // HitType
+            gameadd.trap_stats[trap_type].hit_type = value;
+            break;
+        case 27: // LightRadius
+            gameadd.trap_stats[trap_type].light_radius = value;
+            break;
+        case 28: // LightIntensity
+            gameadd.trap_stats[trap_type].light_intensity = value;
+            break;
+        case 29: // LightFlags
+            gameadd.trap_stats[trap_type].light_flag = value;
+            break;
+        case 30: // TransparencyFlags
+            gameadd.trap_stats[trap_type].transparency_flag = value;
+            break;
+        case 31: // ShotVector  //Todo
         default:
             WARNMSG("Unsupported Trap configuration, variable %d.", context->value->shorts[1]);
             break;
     }
 }
+
 
 static void set_hand_rule_process(struct ScriptContext* context)
 {
