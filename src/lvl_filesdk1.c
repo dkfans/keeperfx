@@ -1140,11 +1140,10 @@ short load_map_ownership_file(LevelNumber lv_num)
     for (y=0; y < (gameadd.map_subtiles_y+1); y++)
       for (x=0; x < (gameadd.map_subtiles_x+1); x++)
       {
-        slb = get_slabmap_for_subtile(x,y);
         if ((x < gameadd.map_subtiles_x) && (y < gameadd.map_subtiles_y))
-            slabmap_set_owner(slb,buf[i]);
+            set_slab_owner(subtile_slab(x),subtile_slab(y),buf[i]);
         else
-            slabmap_set_owner(slb,NEUTRAL_PLAYER);
+            set_slab_owner(subtile_slab(x),subtile_slab(y),NEUTRAL_PLAYER);
         i++;
       }
     LbMemoryFree(buf);
