@@ -8,7 +8,7 @@
 #  @par Comment:
 #      Use this file to improve the translation for specific language.
 #  @author   KeeperFX Team
-#  @date     25 Aug 2012 - 02 Oct 2012
+#  @date     25 Aug 2012 - 20 Jan 2023
 #  @par  Copying and copyrights:
 #      This program is free software; you can redistribute it and/or modify
 #      it under the terms of the GNU General Public License as published by
@@ -16,26 +16,16 @@
 #      (at your option) any later version.
 #
 # ******************************************************************************
-msgid ""
-msgstr ""
+
 "Project-Id-Version: GUI Strings for KeeperFX\n"
-"Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
-"POT-Creation-Date: 2012-09-02 01:12+0200\n"
-"PO-Revision-Date: 2014-10-28 21:24+0100\n"
 "Last-Translator: JieLeTian <jieletian@gmail.com>\n"
-"Language-Team: KeeperFX Team <code.google.com>\n"
 "Language: zh_CN\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
-"Content-Transfer-Encoding: 8bit\n"
-"X-Poedit-SourceCharset: utf-8\n"
-"X-Generator: Poedit 1.5.7\n"
 
 #. Generic victory message
 #: guitext:0
 msgctxt "In-game message"
-msgid "Success! The land is yours. Press Space to proceed to the next realm."
-msgstr "成功了！你拥有了这片土地。按空格键进入下一个王国。"
+msgid ""
+msgstr ""
 
 #. Syndika (lv206)
 #: guitext:1
@@ -498,6 +488,8 @@ msgstr "圣者又一次回来了，还带领着一支强大的军队！为最后
 #: guitext:186 guitext:187 guitext:188 guitext:189 guitext:190 guitext:191
 #: guitext:192 guitext:193 guitext:194 guitext:195 guitext:196 guitext:197
 #: guitext:198 guitext:199 guitext:200
+msgid ""
+msgstr ""
 
 #: guitext:201
 msgctxt "Level name"
@@ -551,7 +543,6 @@ msgstr "太阳鸟鸣反向对战"
 
 #: guitext:211 guitext:212 guitext:213 guitext:214 guitext:215 guitext:216
 #: guitext:217 guitext:218 guitext:219 guitext:220 guitext:221 guitext:222
-
 #: guitext:223 guitext:224 guitext:225
 msgctxt "Level name"
 msgid "Unused"

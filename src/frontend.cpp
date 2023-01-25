@@ -101,6 +101,7 @@ extern void __stdcall enum_sessions_callback(struct TbNetworkCallbackData *netcd
 TbClockMSec gui_message_timeout = 0;
 char gui_message_text[TEXT_BUFFER_LENGTH];
 static char path_string[178];
+MenuID vid_change_query_menu = GMnu_CREATURE_QUERY1;
 
 struct GuiButtonInit frontend_main_menu_buttons[] = {
   { 0,  0, 0, 0, NULL,               NULL,        NULL,                 0, 999,  26, 999,  26, 371, 46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,       {1},            0, NULL },
@@ -1420,6 +1421,13 @@ void frontend_init_options_menu(struct GuiMenu *gmnu)
     sound_level_slider = make_audio_slider_linear(settings.sound_volume);
     mentor_level_slider = make_audio_slider_linear(settings.mentor_volume);
     fe_mouse_sensitivity = settings.first_person_move_sensitivity;
+    if (!is_campaign_loaded())
+    {
+        if (!change_campaign(""))
+        {
+            ERRORLOG("Unable to load campaign");
+        }
+    }
 }
 
 void frontend_set_player_number(long plr_num)
@@ -3417,10 +3425,10 @@ void update_player_objectives(PlayerNumber plyr_idx)
     player = get_player(plyr_idx);
     if ((game.system_flags & GSF_NetworkActive) != 0)
     {
-      if ((!player->field_4EB) && (player->victory_state != VicS_Undecided))
-        player->field_4EB = game.play_gameturn+1;
+      if ((!player->display_objective_turn) && (player->victory_state != VicS_Undecided))
+        player->display_objective_turn = game.play_gameturn+1;
     }
-    if (player->field_4EB == game.play_gameturn)
+    if (player->display_objective_turn == game.play_gameturn)
     {
       switch (player->victory_state)
       {
