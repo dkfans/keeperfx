@@ -2977,7 +2977,7 @@ static void set_texture_process(struct ScriptContext *context)
                 {
                     if (texture_id == 0)
                     {
-                        gameadd.slab_ext_data[get_slab_number(slb_x,slb_y)] = gameadd.slab_ext_data_initial[get_slab_number(slb_x,slb_y)]
+                        gameadd.slab_ext_data[get_slab_number(slb_x,slb_y)] = gameadd.slab_ext_data_initial[get_slab_number(slb_x,slb_y)];
                     }
                     else
                     {
