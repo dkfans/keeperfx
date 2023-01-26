@@ -2945,7 +2945,7 @@ static void set_texture_check(const struct ScriptLine *scline)
     {
         if (parameter_is_number(scline->tp[1]))
         {
-            texture_id = atoi(scline->tp[1]);
+            texture_id = atoi(scline->tp[1]) + 1;
         }
         else
         {
@@ -2966,10 +2966,7 @@ static void set_texture_process(struct ScriptContext *context)
         dungeon = get_dungeon(i);
         dungeon->texture_pack = texture_id;
 
-        if (texture_id == 0)
-        {
-            continue;
-        }
+
 
         for (MapSlabCoord slb_y=0; slb_y < gameadd.map_tiles_y; slb_y++)
         {
@@ -2978,9 +2975,15 @@ static void set_texture_process(struct ScriptContext *context)
                 struct SlabMap* slb = get_slabmap_block(slb_x,slb_y);
                 if (slabmap_owner(slb) == i)
                 {
-                    gameadd.slab_ext_data[get_slab_number(slb_x,slb_y)] = texture_id;
+                    if (texture_id == 0)
+                    {
+                        gameadd.slab_ext_data[get_slab_number(slb_x,slb_y)] = gameadd.slab_ext_data_initial[get_slab_number(slb_x,slb_y)]
+                    }
+                    else
+                    {
+                        gameadd.slab_ext_data[get_slab_number(slb_x,slb_y)] = texture_id;
+                    }
                 }
-                
             }
         }
     }
