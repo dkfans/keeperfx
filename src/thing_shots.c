@@ -1402,7 +1402,6 @@ TbBool shot_hit_something_while_moving(struct Thing *shotng, struct Coord3d *nxp
 {
     SYNCDBG(18,"Starting for %s index %d, hit type %d",thing_model_name(shotng),(int)shotng->index, (int)shotng->shot.hit_type);
     struct Thing* targetng = INVALID_THING;
-    JUSTMSG("testlog: trying this with hit type %d", shotng->shot.hit_type);
     HitTargetFlags hit_targets = hit_type_to_hit_targets(shotng->shot.hit_type);
     targetng = get_thing_collided_with_at_satisfying_filter(shotng, nxpos, collide_filter_thing_is_shootable, hit_targets, 0);
     if (thing_is_invalid(targetng)) {
