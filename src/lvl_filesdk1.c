@@ -1126,7 +1126,6 @@ long load_map_wibble_file(unsigned long lv_num)
 
 short load_map_ownership_file(LevelNumber lv_num)
 {
-    struct SlabMap *slb;
     unsigned long x;
     unsigned long y;
     unsigned char *buf;
