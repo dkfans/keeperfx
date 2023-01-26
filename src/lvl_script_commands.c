@@ -365,7 +365,7 @@ const struct NamedCommand texture_pack_desc[] = {
   {"WINTER",       3},
   {"SNAKE_KEY",    4},
   {"STONE_FACE",   5},
-  {"BIG_BREASTS",  6},
+  {"VOLUPTUOUS",  6},
   {"ROUGH_ANCIENT",7},
   {"SKULL_RELIEF", 8},
   {"DESERT_TOMB ", 9},
