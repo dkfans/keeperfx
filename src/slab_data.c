@@ -168,8 +168,11 @@ void set_slab_owner(MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber owner)
     if (owner != NEUTRAL_PLAYER)
     {
         struct Dungeon *dungeon = get_dungeon(owner);
-        JUSTLOG("tex %d",dungeon->texture_pack);
-        if (dungeon->texture_pack != 0)
+        if (dungeon->texture_pack == 0)
+        {
+            gameadd.slab_ext_data[get_slab_number(slb_x,slb_y)] = gameadd.slab_ext_data_initial[get_slab_number(slb_x,slb_y)];
+        }
+        else
         {
             gameadd.slab_ext_data[get_slab_number(slb_x,slb_y)] = dungeon->texture_pack;
         }
