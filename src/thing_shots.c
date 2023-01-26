@@ -715,6 +715,72 @@ long shot_kill_object(struct Thing *shotng, struct Thing *target)
     return 0;
 }
 
+static TbBool shot_hit_trap_at(struct Thing* shotng, struct Thing* target, struct Coord3d* pos)
+{
+    struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
+    if (target->class_id != TCls_Trap) {
+        return false;
+    }
+    if (shotst->model_flags & ShMF_NoHit) {
+        return false;
+    }
+    if (target->health < 0) {
+        return false;
+    }
+    struct ObjectConfig* objconf = get_object_model_stats2(target->model);
+    if (objconf->resistant_to_nonmagic && !(shotst->damage_type == DmgT_Magical)) {
+        return false;
+    }
+    struct Thing* shootertng = INVALID_THING;
+    if (shotng->parent_idx != shotng->index) {
+        shootertng = thing_get(shotng->parent_idx);
+    }
+    int i = shotst->hit_generic.sndsample_idx;
+    if (i > 0) {
+        thing_play_sample(target, i, NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
+    }
+
+    HitPoints damage_done = 0;
+    if (shotng->shot.damage)
+    {
+        //if (trap_can_be_damaged(target)) // do not damage objects that cannot be destroyed
+        {
+            damage_done = apply_damage_to_thing(target, shotng->shot.damage, shotst->damage_type, -1);
+
+            // Drain allows caster to regain half of damage
+            if ((shotst->model_flags & ShMF_LifeDrain) && thing_is_creature(shootertng))
+            {
+                give_shooter_drained_health(shootertng, damage_done / 2);
+            }
+        }
+    }
+    create_relevant_effect_for_shot_hitting_thing(shotng, target);
+    if (target->health < 0) 
+    {
+        struct TrapConfigStats* trapst = get_trap_model_stats(target->model);
+        if (trapst->destructible == 2)
+        {
+            activate_trap(target, target);
+        }
+        if (trapst->destructible > 0)
+        {
+            destroy_trap(target);
+        }
+        else
+        {
+            WARNLOG("Indestructable trap of %s index %d has no health left.", thing_model_name(target), (int)target->index);
+        }
+
+    }
+    if (shotst->old->destroy_on_first_hit) {
+        delete_thing_structure(shotng, 0);
+        // If thing was deleted something was hit
+        // To test this use zero damage shots
+        return true;
+    }
+    return damage_done > 0;
+}
+
 static TbBool shot_hit_object_at(struct Thing *shotng, struct Thing *target, struct Coord3d *pos)
 {
     struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
@@ -1224,6 +1290,9 @@ TbBool shot_hit_shootable_thing_at(struct Thing *shotng, struct Thing *target, s
     if (target->class_id == TCls_Creature) {
         return shot_hit_creature_at(shotng, target, pos);
     }
+    if (target->class_id == TCls_Trap) {
+        return shot_hit_trap_at(shotng, target, pos);
+    }
     if (target->class_id == TCls_DeadCreature) {
         //TODO implement shooting dead bodies
     }
@@ -1333,6 +1402,7 @@ TbBool shot_hit_something_while_moving(struct Thing *shotng, struct Coord3d *nxp
 {
     SYNCDBG(18,"Starting for %s index %d, hit type %d",thing_model_name(shotng),(int)shotng->index, (int)shotng->shot.hit_type);
     struct Thing* targetng = INVALID_THING;
+    JUSTMSG("testlog: trying this with hit type %d", shotng->shot.hit_type);
     HitTargetFlags hit_targets = hit_type_to_hit_targets(shotng->shot.hit_type);
     targetng = get_thing_collided_with_at_satisfying_filter(shotng, nxpos, collide_filter_thing_is_shootable, hit_targets, 0);
     if (thing_is_invalid(targetng)) {
