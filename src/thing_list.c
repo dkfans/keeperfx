@@ -3145,7 +3145,7 @@ long collide_filter_thing_is_of_type(const struct Thing *thing, const struct Thi
     return true;
 }
 
-unsigned long hit_type_to_hit_targets(long hit_type)
+HitTargetFlags hit_type_to_hit_targets(long hit_type)
 {
     switch (hit_type)
     {
