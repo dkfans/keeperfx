@@ -1367,13 +1367,13 @@ static void load_ext_slabs(LevelNumber lvnum)
             memset(gameadd.slab_ext_data, 0, sizeof(gameadd.slab_ext_data));
         }
         SYNCDBG(1, "ExtSlab file:%s ok", fname);
-        return;
     }
     else
     {
         SYNCDBG(1, "No ExtSlab file:%s", fname);
         memset(gameadd.slab_ext_data, 0, sizeof(gameadd.slab_ext_data));
     }
+    memcpy(&gameadd.slab_ext_data_initial,&gameadd.slab_ext_data, sizeof(gameadd.slab_ext_data));
 }
 
 static TbBool load_level_file(LevelNumber lvnum)
