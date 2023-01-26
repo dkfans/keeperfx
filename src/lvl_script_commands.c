@@ -368,6 +368,25 @@ const struct NamedCommand set_door_desc[] = {
   {NULL, 0}
 };
 
+const struct NamedCommand texture_pack_desc[] = {
+  {"NONE",         0},
+  {"STANDARD",     1},
+  {"ANCIENT",      2},
+  {"WINTER",       3},
+  {"SNAKE_KEY",    4},
+  {"STONE_FACE",   5},
+  {"VOLUPTUOUS",   6},
+  {"BIG_BREASTS",  6},
+  {"ROUGH_ANCIENT",7},
+  {"SKULL_RELIEF", 8},
+  {"DESERT_TOMB ", 9},
+  {"GYPSUM",       10},
+  {"LILAC_STONE",  11},
+  {"SWAMP_SERPENT",12},
+  {"LAVA_CAVERN",  13},
+  {NULL,           0},
+};
+
 
 static int sac_compare_fn(const void *ptr_a, const void *ptr_b)
 {
@@ -2966,6 +2985,59 @@ static void if_allied_check(const struct ScriptLine *scline)
     command_add_condition(pA, op, SVar_ALLIED_PLAYER, pB, val);
 }
 
+static void set_texture_check(const struct ScriptLine *scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
+
+    long texture_id = get_rid(texture_pack_desc, scline->tp[1]);
+    if (texture_id == -1)
+    {
+        if (parameter_is_number(scline->tp[1]))
+        {
+            texture_id = atoi(scline->tp[1]) + 1;
+        }
+        else
+        {
+            SCRPTERRLOG("Invalid texture pack: '%s'", scline->tp[1]);
+            return;
+        }
+    }
+    value->shorts[0] = texture_id;
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void set_texture_process(struct ScriptContext *context)
+{
+    long texture_id = context->value->shorts[0];
+    struct Dungeon* dungeon;
+    for (int i = context->plr_start; i < context->plr_end; i++)
+    {
+        dungeon = get_dungeon(i);
+        dungeon->texture_pack = texture_id;
+
+
+
+        for (MapSlabCoord slb_y=0; slb_y < gameadd.map_tiles_y; slb_y++)
+        {
+            for (MapSlabCoord slb_x=0; slb_x < gameadd.map_tiles_x; slb_x++)
+            {
+                struct SlabMap* slb = get_slabmap_block(slb_x,slb_y);
+                if (slabmap_owner(slb) == i)
+                {
+                    if (texture_id == 0)
+                    {
+                        gameadd.slab_ext_data[get_slab_number(slb_x,slb_y)] = gameadd.slab_ext_data_initial[get_slab_number(slb_x,slb_y)];
+                    }
+                    else
+                    {
+                        gameadd.slab_ext_data[get_slab_number(slb_x,slb_y)] = texture_id;
+                    }
+                }
+            }
+        }
+    }
+}
+
 /**
  * Descriptions of script commands for parser.
  * Arguments are: A-string, N-integer, C-creature model, P- player, R- room kind, L- location, O- operator, S- slab kind
@@ -3100,6 +3172,7 @@ const struct CommandDesc command_desc[] = {
   {"MOVE_CREATURE",                     "PC!ANLa ", Cmd_MOVE_CREATURE, &move_creature_check, &move_creature_process},
   {"COUNT_CREATURES_AT_ACTION_POINT",   "NPC!PA  ", Cmd_COUNT_CREATURES_AT_ACTION_POINT, &count_creatures_at_action_point_check, &count_creatures_at_action_point_process},
   {"IF_ALLIED",                         "PPON    ", Cmd_IF_ALLIED, &if_allied_check, NULL},
+  {"SET_TEXTURE",                       "PA      ", Cmd_SET_TEXTURE, &set_texture_check, &set_texture_process},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 
