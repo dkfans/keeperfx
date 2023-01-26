@@ -365,7 +365,8 @@ const struct NamedCommand texture_pack_desc[] = {
   {"WINTER",       3},
   {"SNAKE_KEY",    4},
   {"STONE_FACE",   5},
-  {"VOLUPTUOUS",  6},
+  {"VOLUPTUOUS",   6},
+  {"BIG_BREASTS",  6},
   {"ROUGH_ANCIENT",7},
   {"SKULL_RELIEF", 8},
   {"DESERT_TOMB ", 9},
@@ -2939,10 +2940,18 @@ static void set_texture_check(const struct ScriptLine *scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
 
-    long texture_id = get_id(texture_pack_desc, scline->tp[1]);
-    if (texture_id == -1) {
-        SCRPTERRLOG("Invalid texture pack: '%s'", scline->tp[1]);
-        return;
+    long texture_id = get_rid(texture_pack_desc, scline->tp[1]);
+    if (texture_id == -1)
+    {
+        if (parameter_is_number(scline->tp[1]))
+        {
+            texture_id = atoi(scline->tp[1]);
+        }
+        else
+        {
+            SCRPTERRLOG("Invalid texture pack: '%s'", scline->tp[1]);
+            return;
+        }
     }
     value->shorts[0] = texture_id;
     PROCESS_SCRIPT_VALUE(scline->command);
@@ -2950,14 +2959,30 @@ static void set_texture_check(const struct ScriptLine *scline)
 
 static void set_texture_process(struct ScriptContext *context)
 {
-    JUSTLOG("process");
     long texture_id = context->value->shorts[0];
-    JUSTLOG("process %d" ,texture_id);
     struct Dungeon* dungeon;
     for (int i = context->plr_start; i < context->plr_end; i++)
     {
         dungeon = get_dungeon(i);
         dungeon->texture_pack = texture_id;
+
+        if (texture_id == 0)
+        {
+            continue;
+        }
+
+        for (MapSlabCoord slb_y=0; slb_y < gameadd.map_tiles_y; slb_y++)
+        {
+            for (MapSlabCoord slb_x=0; slb_x < gameadd.map_tiles_x; slb_x++)
+            {
+                struct SlabMap* slb = get_slabmap_block(slb_x,slb_y);
+                if (slabmap_owner(slb) == i)
+                {
+                    gameadd.slab_ext_data[get_slab_number(slb_x,slb_y)] = texture_id;
+                }
+                
+            }
+        }
     }
 }
 
