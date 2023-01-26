@@ -120,9 +120,9 @@ enum HitTargetFlagsList {
     HitTF_AlliedDeployedTraps = 0x0000000020000000,//!< Allow targeting allied and neutral deployed Traps.
     HitTF_OwnedDeployedTraps  = 0x0000000040000000,//!< Allow targeting Owned Deployed Traps.
     HitTF_CreatureDeadBodies  = 0x0000000080000000,//!< Allow targeting Creature Dead Bodies.
-    HitTF_EnemyHittableTraps  = 0x0000000100000000,//!< Allow targeting enemy Deployed Traps.
-    HitTF_AlliedHittableTraps = 0x0000000200000000,//!< Allow targeting allied and neutral deployed Traps.
-    HitTF_OwnedHittableTraps  = 0x0000000400000000,//!< Allow targeting Owned Deployed Traps.
+    HitTF_EnemyDestructibleTraps  = 0x0000000100000000,//!< Allow targeting enemy Deployed Traps.
+    HitTF_AlliedDestructibleTraps = 0x0000000200000000,//!< Allow targeting allied and neutral deployed Traps.
+    HitTF_OwnedDestructibleTraps  = 0x0000000400000000,//!< Allow targeting Owned Deployed Traps.
 };
 
 /******************************************************************************/

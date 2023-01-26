@@ -151,7 +151,17 @@ TbBool slab_middle_column_has_trap_on(MapSlabCoord slb_x, MapSlabCoord slb_y)
     return false;
 }
 
-TbBool thing_is_deployed_trap(const struct Thing *thing)
+TbBool thing_is_destructible_trap(const struct Thing *thing)
+{
+    if (thing_is_invalid(thing))
+        return false;
+    if (thing->class_id != TCls_Trap)
+        return false;
+    struct TrapConfigStats* trapst = &gameadd.trapdoor_conf.trap_cfgstats[thing->model];
+    return (trapst->destructible > 0);
+}
+
+TbBool thing_is_deployed_trap(const struct Thing* thing)
 {
     if (thing_is_invalid(thing))
         return false;

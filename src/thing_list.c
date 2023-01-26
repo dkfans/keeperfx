@@ -3155,13 +3155,13 @@ HitTargetFlags hit_type_to_hit_targets(long hit_type)
             HitTF_EnemySoulContainer|HitTF_AlliedSoulContainer|HitTF_OwnedSoulContainer|
             HitTF_AnyWorkshopBoxes|HitTF_AnySpellbooks|HitTF_AnyDnSpecialBoxes|
             HitTF_EnemyShotsCollide|HitTF_AlliedShotsCollide|HitTF_OwnedShotsCollide|
-            HitTF_EnemyHittableTraps|HitTF_AlliedHittableTraps|HitTF_OwnedHittableTraps|
+            HitTF_EnemyDestructibleTraps|HitTF_AlliedDestructibleTraps|HitTF_OwnedDestructibleTraps|
             HitTF_AnyFoodObjects|HitTF_AnyGoldPiles;
     case THit_CrtrsNObjcts:
         return HitTF_EnemyCreatures|HitTF_AlliedCreatures|HitTF_OwnedCreatures|HitTF_ArmourAffctdCreatrs|HitTF_PreventDmgCreatrs|
             HitTF_EnemySoulContainer|HitTF_AlliedSoulContainer|HitTF_OwnedSoulContainer|
             HitTF_AnyWorkshopBoxes|HitTF_AnySpellbooks|HitTF_AnyDnSpecialBoxes|
-            HitTF_EnemyHittableTraps|HitTF_AlliedHittableTraps|HitTF_OwnedHittableTraps|
+            HitTF_EnemyDestructibleTraps|HitTF_AlliedDestructibleTraps|HitTF_OwnedDestructibleTraps|
             HitTF_AnyFoodObjects|HitTF_AnyGoldPiles;
     case THit_CrtrsOnly:
         return HitTF_EnemyCreatures|HitTF_AlliedCreatures|HitTF_OwnedCreatures|HitTF_ArmourAffctdCreatrs;
@@ -3169,7 +3169,7 @@ HitTargetFlags hit_type_to_hit_targets(long hit_type)
         return HitTF_EnemyCreatures|HitTF_AlliedCreatures|HitTF_ArmourAffctdCreatrs|
         HitTF_EnemySoulContainer|HitTF_AlliedSoulContainer|
         HitTF_AnyWorkshopBoxes|HitTF_AnySpellbooks|HitTF_AnyDnSpecialBoxes|
-        HitTF_EnemyHittableTraps | HitTF_AlliedHittableTraps|
+        HitTF_EnemyDestructibleTraps | HitTF_AlliedDestructibleTraps|
         HitTF_AnyFoodObjects|HitTF_AnyGoldPiles;
     case THit_CrtrsOnlyNotOwn:
         return HitTF_EnemyCreatures|HitTF_AlliedCreatures|HitTF_ArmourAffctdCreatrs;
@@ -3180,7 +3180,7 @@ HitTargetFlags hit_type_to_hit_targets(long hit_type)
     case THit_HeartOnlyNotOwn:
         return HitTF_EnemySoulContainer|HitTF_AlliedSoulContainer;
     case THit_TrapsAll:
-        return HitTF_EnemyHittableTraps|HitTF_AlliedHittableTraps|HitTF_OwnedHittableTraps|
+        return HitTF_EnemyDestructibleTraps|HitTF_AlliedDestructibleTraps|HitTF_OwnedDestructibleTraps|
             HitTF_OwnedDeployedTraps|HitTF_AlliedDeployedTraps|HitTF_EnemyDeployedTraps;
     case THit_None:
         return HitTF_None;
@@ -3294,6 +3294,17 @@ TbBool thing_is_shootable(const struct Thing *thing, PlayerNumber shot_owner, Hi
     }
     if (thing_is_deployed_trap(thing))
     {
+        if (thing_is_destructible_trap(thing))
+        {
+            return true; // remove
+            if (shot_owner == thing->owner) {
+                return ((hit_targets & HitTF_OwnedDestructibleTraps) != 0);
+            }
+            if ((shot_owner < 0) || players_are_enemies(shot_owner, thing->owner)) {
+                return ((hit_targets & HitTF_EnemyDestructibleTraps) != 0);
+            }
+            return ((hit_targets & HitTF_AlliedDestructibleTraps) != 0);
+        }
         if (shot_owner == thing->owner) {
             return ((hit_targets & HitTF_OwnedDeployedTraps) != 0);
         }

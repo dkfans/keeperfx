@@ -456,6 +456,8 @@ long instf_creature_fire_shot(struct Thing *creatng, long *param)
         TRACE_THING(target);
         if (target->class_id == TCls_Object)
             hittype = THit_CrtrsNObjcts;
+        else if (target->class_id == TCls_Trap)
+            hittype = THit_TrapsAll;
         else
             hittype = THit_CrtrsOnly;
     }
