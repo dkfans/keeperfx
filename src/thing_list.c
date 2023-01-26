@@ -3155,11 +3155,13 @@ HitTargetFlags hit_type_to_hit_targets(long hit_type)
             HitTF_EnemySoulContainer|HitTF_AlliedSoulContainer|HitTF_OwnedSoulContainer|
             HitTF_AnyWorkshopBoxes|HitTF_AnySpellbooks|HitTF_AnyDnSpecialBoxes|
             HitTF_EnemyShotsCollide|HitTF_AlliedShotsCollide|HitTF_OwnedShotsCollide|
+            HitTF_EnemyHittableTraps|HitTF_AlliedHittableTraps|HitTF_OwnedHittableTraps|
             HitTF_AnyFoodObjects|HitTF_AnyGoldPiles;
     case THit_CrtrsNObjcts:
         return HitTF_EnemyCreatures|HitTF_AlliedCreatures|HitTF_OwnedCreatures|HitTF_ArmourAffctdCreatrs|HitTF_PreventDmgCreatrs|
             HitTF_EnemySoulContainer|HitTF_AlliedSoulContainer|HitTF_OwnedSoulContainer|
             HitTF_AnyWorkshopBoxes|HitTF_AnySpellbooks|HitTF_AnyDnSpecialBoxes|
+            HitTF_EnemyHittableTraps|HitTF_AlliedHittableTraps|HitTF_OwnedHittableTraps|
             HitTF_AnyFoodObjects|HitTF_AnyGoldPiles;
     case THit_CrtrsOnly:
         return HitTF_EnemyCreatures|HitTF_AlliedCreatures|HitTF_OwnedCreatures|HitTF_ArmourAffctdCreatrs;
@@ -3167,6 +3169,7 @@ HitTargetFlags hit_type_to_hit_targets(long hit_type)
         return HitTF_EnemyCreatures|HitTF_AlliedCreatures|HitTF_ArmourAffctdCreatrs|
         HitTF_EnemySoulContainer|HitTF_AlliedSoulContainer|
         HitTF_AnyWorkshopBoxes|HitTF_AnySpellbooks|HitTF_AnyDnSpecialBoxes|
+        HitTF_EnemyHittableTraps | HitTF_AlliedHittableTraps|
         HitTF_AnyFoodObjects|HitTF_AnyGoldPiles;
     case THit_CrtrsOnlyNotOwn:
         return HitTF_EnemyCreatures|HitTF_AlliedCreatures|HitTF_ArmourAffctdCreatrs;
@@ -3176,6 +3179,9 @@ HitTargetFlags hit_type_to_hit_targets(long hit_type)
         return HitTF_EnemySoulContainer|HitTF_AlliedSoulContainer|HitTF_OwnedSoulContainer;
     case THit_HeartOnlyNotOwn:
         return HitTF_EnemySoulContainer|HitTF_AlliedSoulContainer;
+    case THit_TrapsAll:
+        return HitTF_EnemyHittableTraps|HitTF_AlliedHittableTraps|HitTF_OwnedHittableTraps|
+            HitTF_OwnedDeployedTraps|HitTF_AlliedDeployedTraps|HitTF_EnemyDeployedTraps;
     case THit_None:
         return HitTF_None;
     default:
