@@ -1312,7 +1312,7 @@ TbBool shot_hit_shootable_thing_at(struct Thing *shotng, struct Thing *target, s
     return false;
 }
 
-long collide_filter_thing_is_shootable(const struct Thing *thing, const struct Thing *parntng, long hit_targets, long a4)
+long collide_filter_thing_is_shootable(const struct Thing *thing, const struct Thing *parntng, HitTargetFlags hit_targets, long a4)
 {
     PlayerNumber shot_owner = -1;
     if (thing_exists(parntng))
@@ -1320,7 +1320,7 @@ long collide_filter_thing_is_shootable(const struct Thing *thing, const struct T
     return thing_is_shootable(thing, shot_owner, hit_targets);
 }
 
-struct Thing *get_thing_collided_with_at_satisfying_filter_for_subtile(struct Thing *shotng, struct Coord3d *pos, Thing_Collide_Func filter, long param1, long param2, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+struct Thing *get_thing_collided_with_at_satisfying_filter_for_subtile(struct Thing *shotng, struct Coord3d *pos, Thing_Collide_Func filter, HitTargetFlags param1, long param2, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     struct Thing* parntng = INVALID_THING;
     if (shotng->parent_idx > 0) {
@@ -1361,7 +1361,7 @@ struct Thing *get_thing_collided_with_at_satisfying_filter_for_subtile(struct Th
     return false;
 }
 
-struct Thing *get_thing_collided_with_at_satisfying_filter(struct Thing *shotng, struct Coord3d *pos, Thing_Collide_Func filter, long hit_targets, long a5)
+struct Thing *get_thing_collided_with_at_satisfying_filter(struct Thing *shotng, struct Coord3d *pos, Thing_Collide_Func filter, HitTargetFlags hit_targets, long a5)
 {
     MapSubtlCoord stl_x_min;
     MapSubtlCoord stl_y_min;

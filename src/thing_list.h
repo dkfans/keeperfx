@@ -149,7 +149,7 @@ typedef long (*Thing_Filter)(const struct Thing *, FilterParam);
 typedef TbBool (*Thing_Bool_Filter)(const struct Thing *);
 /** Definition of a callback type used for selecting best match through all the things by maximizing a value. */
 typedef long (*Thing_Maximizer_Filter)(const struct Thing *, MaxTngFilterParam, long);
-typedef long (*Thing_Collide_Func)(const struct Thing *, const struct Thing *, long, long);
+typedef long (*Thing_Collide_Func)(const struct Thing *, const struct Thing *, HitTargetFlags, long);
 /** Definition of a simple callback type which can only return true/false and can modify the thing. */
 typedef TbBool (*Thing_Bool_Modifier)(struct Thing *);
 
