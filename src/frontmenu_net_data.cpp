@@ -37,6 +37,7 @@
 #include "net_game.h"
 #include "sprites.h"
 #include "post_inc.h"
+#include "game_loop.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -218,38 +219,64 @@ void frontnet_draw_session_button(struct GuiButton *gbtn)
 
 void frontnet_session_create(struct GuiButton *gbtn)
 {
-  struct TbNetworkSessionNameEntry *nsname;
-  unsigned long plyr_num;
-  void *conn_options;
-  char *text;
-  char *txpos;
-  long i;
-  long idx;
-  idx = 0;
-  for (i=0; i < net_number_of_sessions; i++)
-  {
-      nsname = net_session[i];
-      if (nsname == NULL)
-        continue;
-      text = buf_sprintf("%s",nsname->text);
-      txpos = strchr(text, '\'');
-      if (txpos != NULL)
-        *txpos = '\0';
-      if (strcmp(text, net_player_name) != 0)
-        idx++;
-  }
-  if (idx > 0)
-    text = buf_sprintf("%s (%d)", net_player_name, idx+1);
-  else
-    text = buf_sprintf("%s", net_player_name);
-  conn_options = NULL;
-  if (LbNetwork_Create(text, net_player_name, &plyr_num, conn_options))
-  {
-      process_network_error(-801);
-    return;
-  }
-  frontend_set_player_number(plyr_num);
-  fe_computer_players = 0;
-  frontend_set_state(FeSt_NET_START);
+    struct TbNetworkSessionNameEntry *nsname;
+    unsigned long plyr_num;
+    void *conn_options;
+    char *text;
+    char *txpos;
+    long idx;
+    idx = 0;
+    for (int i = 0; i < net_number_of_sessions; i++)
+    {
+        nsname = net_session[i];
+        if (nsname == NULL)
+        {
+            continue;
+        }
+        text = buf_sprintf("%s",nsname->text);
+        txpos = strchr(text, '\'');
+        if (txpos != NULL)
+        {
+            *txpos = '\0';
+        }
+        if (strcmp(text, net_player_name) != 0)
+        {
+            idx++;
+        }
+    }
+    if (idx > 0)
+    {
+        text = buf_sprintf("%s (%d)", net_player_name, idx + 1);
+    }
+    else
+    {
+        text = buf_sprintf("%s", net_player_name);
+    }
+    conn_options = NULL;
+    if (LbNetwork_Create(text, net_player_name, &plyr_num, conn_options))
+    {
+        process_network_error(-801);
+        return;
+    }
+    frontend_set_player_number(plyr_num);
+    fe_computer_players = 0;
+
+    if (start_params.selected_campaign[0] != '\0')
+    {
+        // TODO: add a Gui for campaigns
+        TbBool result = change_campaign(start_params.selected_campaign);
+        if (!result)
+        {
+            WARNMSG("Unable to load campaign '%s'", start_params.selected_campaign);
+        }
+        else
+        {
+            frontend_set_state(FeSt_NET_START);
+        }
+    }
+    else
+    {
+        frontend_set_state(FeSt_NET_START);
+    }
 }
 /******************************************************************************/
