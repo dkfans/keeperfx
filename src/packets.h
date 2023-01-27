@@ -30,9 +30,9 @@ extern "C" {
 
 enum TbPacketAction {
         PckA_None = 0,
-        PckA_Unknown001, // Quit
+        PckA_Quit_1, // Quit
         PckA_Unknown002,
-        PckA_Unknown003,
+        PckA_Quit_3,
         PckA_Unknown004,
         PckA_FinishGame, // 5
         PckA_Login,      // From `enum NetMessageType`
