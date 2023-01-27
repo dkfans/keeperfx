@@ -228,6 +228,7 @@ struct GameAdd {
     unsigned long heart_lost_message_id;
     long heart_lost_message_target;
     unsigned char slab_ext_data[MAX_TILES_X*MAX_TILES_Y];
+    unsigned char slab_ext_data_initial[MAX_TILES_X*MAX_TILES_Y];
     struct PlayerInfoAdd players[PLAYERS_COUNT];
     float delta_time;
     long double process_turn_time;
