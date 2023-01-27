@@ -1598,7 +1598,7 @@ void dump_slab_on_map(SlabKind slbkind, long slabct_num, MapSubtlCoord stl_x, Ma
     struct SlabSet *sset;
     sset = &game.slabset[slabct_num];
     place_slab_columns(slbkind, stl_xa, stl_ya, sset->col_idx);
-    set_whole_slab_owner(slb_x, slb_y, owner);
+    set_slab_owner(slb_x, slb_y, owner);
 
     SlabCodedCoords place_slbnum;
     place_slbnum = get_slab_number(slb_x, slb_y);
@@ -1826,7 +1826,7 @@ void place_slab_type_on_map_f(SlabKind nslab, MapSubtlCoord stl_x, MapSubtlCoord
     }
     slb->kind = skind;
 
-    set_whole_slab_owner(slb_x, slb_y, owner);
+    set_slab_owner(slb_x, slb_y, owner);
     place_single_slab_type_on_map(skind, slb_x, slb_y, owner);
     shuffle_unattached_things_on_slab(slb_x, slb_y);
 
