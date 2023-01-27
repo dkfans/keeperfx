@@ -618,7 +618,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
   int i;
   switch (pckt->action)
   {
-  case PckA_Unknown001:
+  case PckA_Quit_1:
       if (is_my_player(player))
       {
         turn_off_all_menus();
@@ -628,7 +628,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       player->flgfield_6 |= PlaF6_PlyrHasQuit;
       process_quit_packet(player, 0);
       return 1;
-  case PckA_Unknown003:
+  case PckA_Quit_3:
       if (is_my_player(player))
       {
         turn_off_all_menus();

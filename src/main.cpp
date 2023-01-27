@@ -3440,11 +3440,6 @@ void gameplay_loop_logic()
     }
 
     frametime_start_measurement(Frametime_Logic);
-    if ((game.flags_font & FFlg_unk10) != 0)
-    {
-        if (game.play_gameturn == 4)
-            LbNetwork_ChangeExchangeTimeout(0);
-    }
 #ifdef FUNCTESTING
     if(flag_is_set(start_params.functest_flags, FTF_Enabled))
     {
