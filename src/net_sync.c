@@ -170,6 +170,7 @@ static TbBool perform_checksum_verification_cb(void *context, unsigned long turn
 {
     if (kind == PckA_LevelExactCheck)
     {
+        NETLOG("Got %d/%d", net_player_idx, game.active_players_count);
         struct Packet *pckt = ((struct Packet*) context) + net_player_idx;
         memcpy(pckt, packet_data, size);
     }
@@ -196,13 +197,21 @@ CoroutineLoopState perform_checksum_verification(CoroutineLoop *con)
         }
     }
     TbClockMSec now = LbTimerClock();
-    if (now > coroutine_vars(con)[0])
+    if (my_player_number != SERVER_ID) // Everyone have to wait for a server
     {
-        coroutine_vars(con)[0] = now + 500; // two times per second
-        clear_packets();
-        struct Packet* pckt = LbNetwork_AddPacket(PckA_LevelExactCheck, 0, sizeof(struct Packet));
-        set_packet_action(pckt, PckA_LevelExactCheck, 0, 0, 0, 0);
-        pckt->chksum = checksum_mem + game.action_rand_seed;
+        if (now > coroutine_vars(con)[0])
+        {
+            coroutine_vars(con)[0] = now + 500; // two times per second
+            clear_packets();
+            struct Packet *pckt = LbNetwork_AddPacket(PckA_LevelExactCheck, 0, sizeof(struct Packet));
+            set_packet_action(pckt, PckA_LevelExactCheck, 0, 0, 0, 0);
+            pckt->chksum = checksum_mem + game.action_rand_seed;
+        }
+    }
+    else
+    {
+        get_packet(my_player_number)->action = PckA_LevelExactCheck;
+        get_packet(my_player_number)->chksum = checksum_mem + game.action_rand_seed;
     }
     if (LbNetwork_Exchange(game.packets, &perform_checksum_verification_cb))
     {
@@ -213,6 +222,11 @@ CoroutineLoopState perform_checksum_verification(CoroutineLoop *con)
     {
         if (get_packet(i)->action != PckA_LevelExactCheck)
         {
+            if (now > coroutine_vars(con)[1])
+            {
+                coroutine_vars(con)[1] = now + 750;
+                NETLOG("Waiting for a checksum from %d", i);
+            }
             // Wait for message from all sides
             return CLS_REPEAT;
         }
@@ -226,6 +240,12 @@ CoroutineLoopState perform_checksum_verification(CoroutineLoop *con)
     {
         create_frontend_error_box(5000, get_string(GUIStr_NetUnsyncedMap));
         return CLS_ERROR;
+    }
+    if (my_player_number == SERVER_ID)
+    {   // Last chance for clients to catch up
+        struct Packet* pckt = LbNetwork_AddPacket(PckA_LevelExactCheck, 0, sizeof(struct Packet));
+        set_packet_action(pckt, PckA_LevelExactCheck, 0, 0, 0, 0);
+        pckt->chksum = checksum_mem + game.action_rand_seed;
     }
     NETLOG("Checksums are verified");
     return CLS_CONTINUE;

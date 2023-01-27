@@ -637,14 +637,15 @@ TbBool validate_versions(void)
     return true;
 }
 
-void versions_different_error(void)
+void versions_different_error(long last_version)
 {
     const char *plyr_nam;
     struct ScreenPacket *nspckt;
     char text[MESSAGE_TEXT_LEN];
     char *str;
 
-    NETMSG("Error: Players have different versions of DK");
+    NETMSG("Error: Players have different versions of KFX (my_id:%d mine:%ld last:%ld)",
+           my_player_number, net_player_info[my_player_number].version_packed, last_version);
 
     if (LbNetwork_Stop())
     {
@@ -669,8 +670,10 @@ void versions_different_error(void)
     // Waiting for users reaction
     while ( 1 )
     {
-      if (lbKeyOn[KC_ESCAPE] || lbKeyOn[KC_SPACE] || lbKeyOn[KC_RETURN])
+      if (lbKeyOn[KC_ESCAPE] || lbKeyOn[KC_SPACE] || lbKeyOn[KC_RETURN] || lbKeyOn[KC_X])
         break;
+      if (lbDisplay.LeftButton) // Exit on mouse click
+          break;
       LbWindowsControl();
       if (LbScreenLock() == Lb_SUCCESS)
       {

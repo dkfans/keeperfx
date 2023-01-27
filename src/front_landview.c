@@ -1626,6 +1626,10 @@ TbBool frontmap_exchange_screen_packet_srv_cb(void *context, unsigned long turn,
 {
     if (kind == PckA_LandviewFrame)
     {
+        if (net_player_idx == SERVER_ID)
+        {
+            return true;
+        }
         // Server wants only one packet
         memcpy(&net_screen_packet[net_player_idx], packet_data, sizeof(struct ScreenPacket));
     }
@@ -1646,6 +1650,10 @@ TbBool frontmap_exchange_screen_packet_cb(void *context, unsigned long turn, int
 {
     if (kind == PckA_LandviewFrame)
     {
+        if (net_player_idx != SERVER_ID) // Want only server data
+        {
+            return true;
+        }
         // Client wants packets from server for all players except his own
         struct ScreenPacket old = net_screen_packet[my_player_number];
         memcpy(&net_screen_packet, packet_data, sizeof(net_screen_packet));

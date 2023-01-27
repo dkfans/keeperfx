@@ -132,7 +132,6 @@ static CoroutineLoopState setup_exchange_player_number(CoroutineLoop *context)
     {
         return CLS_REPEAT; // Repeat
     }
-    NETLOG("CLS_CONTINUE");
     return CLS_CONTINUE; // Skip loop to next function
 }
 

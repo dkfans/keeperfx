@@ -150,6 +150,7 @@ CoroutineLoopState setup_alliances(CoroutineLoop *loop)
         {
             if (frontend_is_player_allied(my_player_number, i))
             {
+                NETLOG("Allied %d with %d", my_player_number, i);
                 set_ally_with_player(my_player_number, i, true);
                 set_ally_with_player(i, my_player_number, true);
             }
@@ -675,7 +676,7 @@ void process_frontend_packets(CoroutineLoop *context)
                     net_player_info[i].version_packed = nspckt->field_8 + (nspckt->field_6 << 8);
                     if (!validate_versions())
                     {
-                        versions_different_error();
+                        versions_different_error(net_player_info[i].version_packed);
                         break;
                     }
                     fe_network_active = 1;
