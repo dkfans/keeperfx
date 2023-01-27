@@ -125,6 +125,8 @@ struct NetFrame
     size_t                  size;
 };
 
+// sizeof(kind)
+#define PACKET_HEAD_SZ 1
 struct NetPacket
 {
     struct NetPacket        *next;
@@ -758,7 +760,7 @@ static void SendFrames()
     //SendServerFrame(server_buf, client_frame_size, CountLoggedInClients() + 1);
     for (struct NetPacket *packet = netstate.outpacket; packet != nullptr;)
     {
-        netstate.sp->sendmsg_all(((const char *)packet) + offsetof(struct NetPacket, kind), packet->size);
+        netstate.sp->sendmsg_all(((const char *)packet) + offsetof(struct NetPacket, kind), packet->size + PACKET_HEAD_SZ);
         packet = packet->next;
     }
     netstate.midpacket = netstate.outpacket;
@@ -796,7 +798,7 @@ TbError LbNetwork_Exchange(void *context, LbNetwork_Packet_Callback callback)
             auto curpacket = midpacket;
             midpacket = midpacket->next;
             source = netstate.my_id;
-            rcount = min(sizeof(netstate.input_buffer), (size_t)curpacket->size);
+            rcount = min(sizeof(netstate.input_buffer), (size_t)curpacket->size + PACKET_HEAD_SZ);
             memcpy(netstate.input_buffer, &curpacket->kind, // Kind + all data
                     rcount);
             free(curpacket);
@@ -826,8 +828,8 @@ TbError LbNetwork_Exchange(void *context, LbNetwork_Packet_Callback callback)
                 callback(context, turn,
                          source, // NetPlayerIdx? or Player?
                          kind,
-                         netstate.input_buffer + 1,
-                         (short) (rcount - 1)
+                         netstate.input_buffer + PACKET_HEAD_SZ,
+                         (short) (rcount - PACKET_HEAD_SZ)
                 );
             }
         }

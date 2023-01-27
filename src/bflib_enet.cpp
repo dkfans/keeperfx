@@ -223,7 +223,6 @@ namespace
                 NETDBG(1, "enet_host -> %d", ret);
                 return ret;
             }
-            WARNLOG("Enet event: %d", ev.type);
             switch (ev.type)
             {
                 case ENET_EVENT_TYPE_CONNECT:

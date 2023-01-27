@@ -392,7 +392,7 @@ void faststartup_network_game(CoroutineLoop *context)
 
 CoroutineLoopState set_not_has_quit(CoroutineLoop *context)
 {
-    NETLOG("Player here!");
+    NETLOG("Player %d here!", my_player_number);
     get_my_player()->flgfield_6 &= ~PlaF6_PlyrHasQuit;
     return CLS_CONTINUE;
 }

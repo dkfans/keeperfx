@@ -510,6 +510,25 @@ static TbBool process_frontend_packets_cb(void *context, unsigned long turn, int
         assert(size <= sizeof(net_screen_packet));
         memcpy(&net_screen_packet, packet_data, size);
     }
+    else if (kind == PckA_StartupInfo)
+    {
+        if (net_player_idx != SERVER_ID)
+        {
+            return false;
+        }
+        assert (size < sizeof(start_params.selected_campaign));
+        memcpy(start_params.selected_campaign, packet_data, size);
+        start_params.selected_campaign[size] = 0;
+        TbBool result = change_campaign(start_params.selected_campaign);
+        if (!result)
+        {
+            WARNMSG("Unable to load campaign from server, default loaded.");
+            if (!change_campaign(""))
+            {
+                WARNMSG("Unable to load default campaign for the specified level CMD Line parameter");
+            }
+        }
+    }
     else if (kind == PckA_LandviewFrame) // It seems game already started
     {
         assert(size <= sizeof(net_screen_packet));
@@ -543,6 +562,14 @@ static TbBool process_frontend_packets_server_cb(void *context, unsigned long tu
             return false;
         }
         memcpy(&net_screen_packet[net_player_idx], packet_data, size);
+    }
+    else if (kind == PckA_StartupInfo)
+    {
+        if (net_player_idx == SERVER_ID)
+        {
+            return false;
+        }
+        ERRORLOG("Unexpected packet kind: %d", kind);
     }
     else if (kind == PckA_LandviewFrame) // It seems game already started by client
     {
@@ -584,7 +611,7 @@ void process_frontend_packets(CoroutineLoop *context)
 
     if (now_time > next_time)
     {
-        next_time = now_time + 300; // Send events sometimes
+        next_time = now_time + 200; // Send events sometimes
 
         nspckt->event = 9; // Set Version
         nspckt->field_6 = VersionMajor;
@@ -605,6 +632,12 @@ void process_frontend_packets(CoroutineLoop *context)
         if (need_packet)
         {
             nspckt->tick = (net_player_info[my_player_number].last_packet_tick + 1) & DEDUP_MAX_TICK; // Deduplication
+            if (start_params.selected_campaign[0] != '\0')
+            {
+                void *outgoing = LbNetwork_AddPacket(PckA_StartupInfo, 0,
+                                                     strlen(start_params.selected_campaign));
+                memcpy(outgoing, start_params.selected_campaign, strlen(start_params.selected_campaign));
+            }
         }
         for (int i=0; i < NET_PLAYERS_COUNT; i++)
         {

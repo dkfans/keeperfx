@@ -3662,7 +3662,7 @@ static TbBool wait_at_frontend()
         TbBool result = false;
         if (start_params.selected_campaign[0] != '\0')
         {
-            result = change_campaign(strcat(start_params.selected_campaign,".cfg"));
+            result = change_campaign(start_params.selected_campaign);
         }
         if (!result) {
             if (!change_campaign("")) {
@@ -4071,7 +4071,7 @@ short process_command_line(unsigned short argc, char *argv[])
       } else
       if ( strcasecmp(parstr,"campaign") == 0 )
       {
-        strcpy(start_params.selected_campaign, pr2str);
+        snprintf(start_params.selected_campaign, sizeof(start_params.selected_campaign), "%s.cfg", pr2str);
         narg++;
       } else
       if ( strcasecmp(parstr,"ppropoly") == 0 )

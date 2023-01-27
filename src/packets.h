@@ -48,7 +48,7 @@ enum TbPacketAction {
         PckA_SessionViewFrame, // Assume unused
         PckA_LandviewFrame, // Assume unused
         PckA_FrameSrv, // Unused?
-        PckA_Unknown019,
+        PckA_StartupInfo, // Server set campaign for clients
         PckA_ToggleLights,//20
         PckA_SwitchScrnRes,
         PckA_TogglePause,

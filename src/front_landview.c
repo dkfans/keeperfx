@@ -926,11 +926,9 @@ TbBool load_map_and_window(LevelNumber lvnum)
 void frontnet_init_view(void)
 {
     //TODO NETWORK Don't allow campaigns besides original - we don't have per-campaign MP yet
-    //if (!is_campaign_loaded())
+    if (!is_campaign_loaded())
     {
-        if (!change_campaign("")) {
-            return;
-        }
+        ERRORLOG("Campaign is not loaded!");
     }
     // Cleanup from session
     for (int i = 0; i < NET_PLAYERS_COUNT; i++)
