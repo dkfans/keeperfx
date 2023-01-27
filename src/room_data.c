@@ -4901,13 +4901,12 @@ static void change_room_map_element_ownership(struct Room *room, PlayerNumber pl
     unsigned long i = room->slabs_list;
     while (i > 0)
     {
-        struct SlabMap* slb = get_slabmap_direct(i);
         MapSlabCoord slb_x = slb_num_decode_x(i);
         MapSlabCoord slb_y = slb_num_decode_y(i);
         i = get_next_slab_number_in_room(i);
         // Per-slab code
         set_slab_explored(plyr_idx, slb_x, slb_y);
-        slabmap_set_owner(slb, plyr_idx);
+        set_slab_owner(slb_x,slb_y, plyr_idx);
         MapSubtlCoord start_stl_x = slab_subtile(slb_x, 0);
         MapSubtlCoord start_stl_y = slab_subtile(slb_y, 0);
         MapSubtlCoord end_stl_x = slab_subtile(slb_x + 1, 0);

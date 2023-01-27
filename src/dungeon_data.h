@@ -234,6 +234,7 @@ unsigned long field_14BE;
     unsigned short selected_creatures_of_model[CREATURE_TYPES_MAX];
     /** Index of last creature picked up of given GUI Job. */
     unsigned short selected_creatures_of_gui_job[CREATURE_GUI_JOBS_COUNT];
+    unsigned char texture_pack;
     };
 
 #pragma pack()

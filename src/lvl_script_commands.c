@@ -210,6 +210,16 @@ const struct NamedCommand trap_config_desc[] = {
   {"TriggerAlarm",        19},
   {"Slappable",           20},
   {"Unanimated",          21},
+  {"Health",              22},
+  {"Unshaded",            23},
+  {"RandomStartFrame",    24},
+  {"ThingSize",           25},
+  {"HitType",             26},
+  {"LightRadius",         27},
+  {"LightIntensity",      28},
+  {"LightFlags",          29},
+  {"TransparencyFlags",   30},
+  {"ShotVector",          31},
   {NULL,                   0},
 };
 
@@ -356,6 +366,25 @@ const struct NamedCommand set_door_desc[] = {
   {"LOCKED", 1},
   {"UNLOCKED", 2},
   {NULL, 0}
+};
+
+const struct NamedCommand texture_pack_desc[] = {
+  {"NONE",         0},
+  {"STANDARD",     1},
+  {"ANCIENT",      2},
+  {"WINTER",       3},
+  {"SNAKE_KEY",    4},
+  {"STONE_FACE",   5},
+  {"VOLUPTUOUS",   6},
+  {"BIG_BREASTS",  6},
+  {"ROUGH_ANCIENT",7},
+  {"SKULL_RELIEF", 8},
+  {"DESERT_TOMB",  9},
+  {"GYPSUM",       10},
+  {"LILAC_STONE",  11},
+  {"SWAMP_SERPENT",12},
+  {"LAVA_CAVERN",  13},
+  {NULL,           0},
 };
 
 
@@ -864,6 +893,9 @@ static void set_trap_configuration_check(const struct ScriptLine* scline)
 
     value->shorts[0] = trap_id;
     value->shorts[1] = trapvar;
+    value->shorts[2] = scline->np[2];
+    value->shorts[3] = scline->np[3];
+    value->shorts[4] = scline->np[4];
     if (trapvar == 3) // SymbolSprites
     {
         char *tmp = malloc(strlen(scline->tp[2]) + strlen(scline->tp[3]) + 3);
@@ -1111,6 +1143,8 @@ static void set_trap_configuration_process(struct ScriptContext *context)
     struct ManfctrConfig *mconf = &gameadd.traps_config[trap_type];
     struct ManufactureData *manufctr = get_manufacture_data(trap_type);
     short value = context->value->shorts[2];
+    short value2 = context->value->shorts[3];
+    short value3 = context->value->shorts[4];
     switch (context->value->shorts[1])
     {
         case 1: // NameTextID
@@ -1202,11 +1236,45 @@ static void set_trap_configuration_process(struct ScriptContext *context)
             gameadd.trap_stats[trap_type].unanimated = value;
             refresh_trap_anim(trap_type);
             break;
+        case 22: // Health
+            gameadd.trap_stats[trap_type].health = value;
+            break;
+        case 23: // Unshaded
+            gameadd.trap_stats[trap_type].unshaded = value;
+            break;
+        case 24: // RandomStartFrame
+            gameadd.trap_stats[trap_type].random_start_frame = value;
+            break;
+        case 25: // ThingSize
+            gameadd.trap_stats[trap_type].size_xy = value; // First
+            gameadd.trap_stats[trap_type].size_yz = value2; // Second
+            break;
+        case 26: // HitType
+            gameadd.trap_stats[trap_type].hit_type = value;
+            break;
+        case 27: // LightRadius
+            gameadd.trap_stats[trap_type].light_radius = value;
+            break;
+        case 28: // LightIntensity
+            gameadd.trap_stats[trap_type].light_intensity = value;
+            break;
+        case 29: // LightFlags
+            gameadd.trap_stats[trap_type].light_flag = value;
+            break;
+        case 30: // TransparencyFlags
+            gameadd.trap_stats[trap_type].transparency_flag = value;
+            break;
+        case 31: // ShotVector
+            gameadd.trap_stats[trap_type].shotvector.x = value;
+            gameadd.trap_stats[trap_type].shotvector.y = value2;
+            gameadd.trap_stats[trap_type].shotvector.z = value3;
+            break;
         default:
             WARNMSG("Unsupported Trap configuration, variable %d.", context->value->shorts[1]);
             break;
     }
 }
+
 
 static void set_hand_rule_process(struct ScriptContext* context)
 {
@@ -2917,6 +2985,59 @@ static void if_allied_check(const struct ScriptLine *scline)
     command_add_condition(pA, op, SVar_ALLIED_PLAYER, pB, val);
 }
 
+static void set_texture_check(const struct ScriptLine *scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
+
+    long texture_id = get_rid(texture_pack_desc, scline->tp[1]);
+    if (texture_id == -1)
+    {
+        if (parameter_is_number(scline->tp[1]))
+        {
+            texture_id = atoi(scline->tp[1]) + 1;
+        }
+        else
+        {
+            SCRPTERRLOG("Invalid texture pack: '%s'", scline->tp[1]);
+            return;
+        }
+    }
+    value->shorts[0] = texture_id;
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void set_texture_process(struct ScriptContext *context)
+{
+    long texture_id = context->value->shorts[0];
+    struct Dungeon* dungeon;
+    for (int i = context->plr_start; i < context->plr_end; i++)
+    {
+        dungeon = get_dungeon(i);
+        dungeon->texture_pack = texture_id;
+
+
+
+        for (MapSlabCoord slb_y=0; slb_y < gameadd.map_tiles_y; slb_y++)
+        {
+            for (MapSlabCoord slb_x=0; slb_x < gameadd.map_tiles_x; slb_x++)
+            {
+                struct SlabMap* slb = get_slabmap_block(slb_x,slb_y);
+                if (slabmap_owner(slb) == i)
+                {
+                    if (texture_id == 0)
+                    {
+                        gameadd.slab_ext_data[get_slab_number(slb_x,slb_y)] = gameadd.slab_ext_data_initial[get_slab_number(slb_x,slb_y)];
+                    }
+                    else
+                    {
+                        gameadd.slab_ext_data[get_slab_number(slb_x,slb_y)] = texture_id;
+                    }
+                }
+            }
+        }
+    }
+}
+
 /**
  * Descriptions of script commands for parser.
  * Arguments are: A-string, N-integer, C-creature model, P- player, R- room kind, L- location, O- operator, S- slab kind
@@ -3013,7 +3134,7 @@ const struct CommandDesc command_desc[] = {
   {"LEVEL_UP_CREATURE",                 "PC!AN   ", Cmd_LEVEL_UP_CREATURE, NULL, NULL},
   {"CHANGE_CREATURE_OWNER",             "PC!AP   ", Cmd_CHANGE_CREATURE_OWNER, NULL, NULL},
   {"SET_GAME_RULE",                     "AN      ", Cmd_SET_GAME_RULE, NULL, NULL},
-  {"SET_TRAP_CONFIGURATION",            "AAAn!   ", Cmd_SET_TRAP_CONFIGURATION, &set_trap_configuration_check, &set_trap_configuration_process},
+  {"SET_TRAP_CONFIGURATION",            "AAAn!n! ", Cmd_SET_TRAP_CONFIGURATION, &set_trap_configuration_check, &set_trap_configuration_process},
   {"SET_DOOR_CONFIGURATION",            "AAAn!   ", Cmd_SET_DOOR_CONFIGURATION, &set_door_configuration_check, &set_door_configuration_process},
   {"SET_OBJECT_CONFIGURATION",          "AAA     ", Cmd_SET_OBJECT_CONFIGURATION, &set_object_configuration_check, &set_object_configuration_process},
   {"SET_CREATURE_CONFIGURATION",        "CAAn    ", Cmd_SET_CREATURE_CONFIGURATION, &set_creature_configuration_check, &set_creature_configuration_process},
@@ -3051,6 +3172,7 @@ const struct CommandDesc command_desc[] = {
   {"MOVE_CREATURE",                     "PC!ANLa ", Cmd_MOVE_CREATURE, &move_creature_check, &move_creature_process},
   {"COUNT_CREATURES_AT_ACTION_POINT",   "NPC!PA  ", Cmd_COUNT_CREATURES_AT_ACTION_POINT, &count_creatures_at_action_point_check, &count_creatures_at_action_point_process},
   {"IF_ALLIED",                         "PPON    ", Cmd_IF_ALLIED, &if_allied_check, NULL},
+  {"SET_TEXTURE",                       "PA      ", Cmd_SET_TEXTURE, &set_texture_check, &set_texture_process},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 

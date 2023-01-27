@@ -1200,7 +1200,6 @@ long load_map_wibble_file(unsigned long lv_num)
 
 short load_map_ownership_file(LevelNumber lv_num)
 {
-    struct SlabMap *slb;
     unsigned long x;
     unsigned long y;
     unsigned char *buf;
@@ -1214,11 +1213,10 @@ short load_map_ownership_file(LevelNumber lv_num)
     for (y=0; y < (gameadd.map_subtiles_y+1); y++)
       for (x=0; x < (gameadd.map_subtiles_x+1); x++)
       {
-        slb = get_slabmap_for_subtile(x,y);
         if ((x < gameadd.map_subtiles_x) && (y < gameadd.map_subtiles_y))
-            slabmap_set_owner(slb,buf[i]);
+            set_slab_owner(subtile_slab(x),subtile_slab(y),buf[i]);
         else
-            slabmap_set_owner(slb,NEUTRAL_PLAYER);
+            set_slab_owner(subtile_slab(x),subtile_slab(y),NEUTRAL_PLAYER);
         i++;
       }
     LbMemoryFree(buf);
@@ -1452,13 +1450,13 @@ static void load_ext_slabs(LevelNumber lvnum)
             memset(gameadd.slab_ext_data, 0, sizeof(gameadd.slab_ext_data));
         }
         SYNCDBG(1, "ExtSlab file:%s ok", fname);
-        return;
     }
     else
     {
         SYNCDBG(1, "No ExtSlab file:%s", fname);
         memset(gameadd.slab_ext_data, 0, sizeof(gameadd.slab_ext_data));
     }
+    memcpy(&gameadd.slab_ext_data_initial,&gameadd.slab_ext_data, sizeof(gameadd.slab_ext_data));
 }
 
 static TbBool load_level_file(LevelNumber lvnum)
