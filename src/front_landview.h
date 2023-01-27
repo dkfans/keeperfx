@@ -90,7 +90,6 @@ extern struct TbSprite *end_map_flag;
 extern struct TbSprite *map_font;
 extern struct TbSprite *map_hand;
 extern long map_sound_fade;
-extern unsigned char *map_screen;
 extern long fe_net_level_selected;
 extern long net_map_limp_time;
 extern struct ScreenPacket net_screen_packet[NET_PLAYERS_COUNT];

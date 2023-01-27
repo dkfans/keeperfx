@@ -72,6 +72,7 @@ extern unsigned char * fronttor_end_data;
 /******************************************************************************/
 extern struct TbLoadFiles torture_load_files[];
 extern struct TbSetupSprite setup_torture_sprites[];
+extern unsigned char land_map_start[];
 
 long torture_doors_available = TORTURE_DOORS_COUNT;
 /******************************************************************************/
@@ -162,7 +163,7 @@ void fronttorture_load(void)
         ptr += i;
         doors[k].sprites_end =(struct TbSprite *) ptr;
     }
-    ptr = &game.land_map_start;
+    ptr = land_map_start;
     for (k=1; k < 8; k++)
     {
         fname = prepare_file_fmtpath(FGrp_LoData,"door%02d.dat",k+1);

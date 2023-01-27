@@ -100,7 +100,11 @@ struct TbSprite *end_map_flag;
 struct TbSprite *map_font;
 struct TbSprite *map_hand;
 long map_sound_fade;
-unsigned char *map_screen;
+
+#define MAX_MAP_IMG_SIZE 1228997
+static unsigned char *map_screen;
+unsigned char land_map_start[MAX_MAP_IMG_SIZE];
+
 long fe_net_level_selected;
 long net_map_limp_time;
 struct ScreenPacket net_screen_packet[NET_PLAYERS_COUNT];
@@ -833,15 +837,14 @@ void unload_map_and_window(void)
     clear_rooms();
     clear_dungeons();
     LbMemoryCopy(frontend_palette, frontend_backup_palette, PALETTE_SIZE);
-    map_window_len = 0;
 }
 
 TbBool load_map_and_window(LevelNumber lvnum)
 {
     SYNCDBG(8,"Starting");
     // Select proper land view image for the level
-    char* land_view = NULL;
-    char* land_window = NULL;
+    const char* land_view = NULL;
+    const char* land_window = NULL;
     if (lvnum == SINGLEPLAYER_NOTSTARTED)
     {
         land_view = campaign.land_view_start;
@@ -864,10 +867,37 @@ TbBool load_map_and_window(LevelNumber lvnum)
             land_window = campaign.land_window_start;
         }
     }
-    if ((land_view == NULL) || (land_window == NULL))
+    if ((!land_view) || (!land_window) || (!land_view[0]) || (!land_window[0]))
     {
-        ERRORLOG("No Land View file names for level %d",lvnum);
-        return false;
+        memset(land_map_start, 9 , sizeof (land_map_start));
+        map_screen = land_map_start;
+        map_window.Lines = (long *)&block_mem[0];
+        for (int i = 0; i < WINDOW_Y_SIZE; i++)
+        {
+            map_window.Lines[i] = 0;
+        }
+        map_window.Data = &block_mem[WINDOW_Y_SIZE*sizeof(long)];
+        ((long *)map_window.Data)[0] = 2; // borders
+        memset(map_window.Data + sizeof(long), 0 , 2);
+        ((long *)&map_window.Data[2])[1] = WINDOW_X_SIZE - 4;
+        ((long *)&map_window.Data[2])[2] = 2;
+        memset(map_window.Data + sizeof(long) * 3 + 2, 0 , 2);
+
+        // Prepare pointer to window data
+        // Fill the rest of huge sprite
+        map_window.SWidth = WINDOW_X_SIZE;
+        map_window.SHeight = WINDOW_Y_SIZE;
+        map_window_len = 32;
+        memcpy(frontend_backup_palette, &frontend_palette, PALETTE_SIZE); // maybe this is Bad Omen
+        land_view = "campgns/keeporig_lnd/rgmap00.pal";
+        if (LbFileLoadAt(land_view, frontend_palette) != PALETTE_SIZE)
+        {
+            ERRORLOG("Unable to load Land Map palette \"%s.pal\"",land_view);
+            unload_map_and_window();
+            return false;
+        }
+        ERRORLOG("No Land View file names for level %d", lvnum);
+        return true;
     }
     // Prepare full file name and load the image
     char* fname = prepare_file_fmtpath(FGrp_LandView, "%s.raw", land_view);
@@ -882,15 +912,15 @@ TbBool load_map_and_window(LevelNumber lvnum)
         ERRORLOG("Not enough memory in game structure for Land Map background \"%s.raw\"",land_view);
         return false;
     }
-    if (LbFileLoadAt(fname, &game.land_map_start) != flen)
+    if (LbFileLoadAt(fname, land_map_start) != flen)
     {
         ERRORLOG("Unable to load Land Map background \"%s.raw\"",land_view);
         return false;
     }
-    map_screen = &game.land_map_start;
+    map_screen = land_map_start;
     // Texture blocks memory isn't used here, so reuse it instead of allocating
     unsigned char* ptr = block_mem;
-    memcpy(frontend_backup_palette, &frontend_palette, PALETTE_SIZE);
+    memcpy(frontend_backup_palette, &frontend_palette, PALETTE_SIZE); // maybe this is Bad Omen
     // Now prepare window sprite file name and load the file
     fname = prepare_file_fmtpath(FGrp_LandView,"%s.dat",land_window);
     wait_for_cd_to_be_available();

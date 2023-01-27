@@ -155,7 +155,6 @@ char numfield_1A;
     unsigned short slabobjs_num;
     short slabobjs_idx[SLABSET_COUNT];
     struct SlabObj slabobjs[SLABOBJS_COUNT];
-    unsigned char land_map_start;
     struct LightsShadows lish;
     struct CreatureControl cctrl_data[CREATURES_COUNT];
     struct Thing things_data[THINGS_COUNT];
