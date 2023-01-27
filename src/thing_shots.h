@@ -59,6 +59,7 @@ enum ShotModels {
     ShM_Chicken,
     ShM_TimeBomb,
     ShM_TrapLightning, // 29
+    ShM_TrapTNT = 32,
 };
 
 /******************************************************************************/

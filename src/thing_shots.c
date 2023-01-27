@@ -34,6 +34,7 @@
 #include "front_simple.h"
 #include "thing_stats.h"
 #include "map_blocks.h"
+#include "magic.h"
 #include "room_garden.h"
 #include "config_creature.h"
 #include "config_terrain.h"
@@ -123,6 +124,11 @@ TbBool detonate_shot(struct Thing *shotng)
     case ShM_Lizard:
         create_effect(&shotng->mappos, TngEff_Explosion7, shotng->owner);
         create_effect(&shotng->mappos, TngEff_Blood4, shotng->owner);
+        break;
+    case ShM_TrapTNT:
+        create_effect(&shotng->mappos, TngEff_Eruption, shotng->owner);
+        magic_use_power_destroy_walls(shotng->owner, shotng->mappos.x.stl.num, shotng->mappos.y.stl.num, 7, 1);
+        create_effect_around_thing(shotng, TngEff_Explosion7);
         break;
     case ShM_Firebomb:
         create_effect(&shotng->mappos, TngEff_Explosion7, shotng->owner);
@@ -1590,6 +1596,20 @@ TngUpdateRet update_shot(struct Thing *thing)
             break;
         case ShM_GodLightBall:
             update_god_lightning_ball(thing);
+            break;
+        case ShM_TrapTNT:
+            
+            thing->mappos.z.val = 0;
+            if (thing->health < 6)
+            {
+                for (i = 5; i > 0; i--)
+                {
+                    pos1.x.val = thing->mappos.x.val - UNSYNC_RANDOM(127) + 63;
+                    pos1.y.val = thing->mappos.y.val - UNSYNC_RANDOM(127) + 63;
+                    pos1.z.val = thing->mappos.z.val - UNSYNC_RANDOM(127) + 63;
+                    create_thing(&pos1, TCls_EffectElem, TngEffElm_Blast1, thing->owner, -1);
+                }
+            }
             break;
         case ShM_TrapLightning:
             if (((game.play_gameturn - thing->creation_turn) % 16) == 0)
