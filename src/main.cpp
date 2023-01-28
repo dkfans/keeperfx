@@ -2752,7 +2752,8 @@ void update(void)
     SYNCDBG(4,"Starting for turn %ld",(long)game.play_gameturn);
 
     process_packets();
-    if (quit_game || exit_keeper) {
+    if (quit_game || exit_keeper)
+    {
         return;
     }
     if (game.game_kind == GKind_Unknown1)
@@ -3578,7 +3579,7 @@ static TbBool wait_at_frontend()
     struct PlayerInfo *player;
     // This is an improvised coroutine-like stuff
     CoroutineLoop loop;
-    memset(&loop, 0, sizeof(loop));
+    coroutine_reset(&loop);
 
     SYNCDBG(0,"Falling into frontend menu.");
     // Moon phase calculation
