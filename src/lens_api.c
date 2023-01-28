@@ -185,7 +185,7 @@ void reset_eye_lenses(void)
         eye_lens_spare_screen_memory = NULL;
     }
     clear_flag(game.flags_cd, MFlg_EyeLensReady);
-    game.numfield_1A = 0;
+    game.current_lens = 0;
     game.numfield_1B = 0;
     SYNCDBG(9,"Done");
 }
@@ -229,15 +229,15 @@ void setup_eye_lens(long nlens)
     }
     SYNCDBG(7,"Starting for lens %ld",nlens);
     if (clear_lens_palette()) {
-        game.numfield_1A = 0;
+        game.current_lens = 0;
     }
     if (nlens == 0)
     {
-        game.numfield_1A = 0;
+        game.current_lens = 0;
         game.numfield_1B = 0;
         return;
     }
-    if (game.numfield_1A == nlens)
+    if (game.current_lens == nlens)
     {
         game.numfield_1B = nlens;
         return;
@@ -276,7 +276,7 @@ void setup_eye_lens(long nlens)
         set_lens_palette(lenscfg->palette);
     }
     game.numfield_1B = nlens;
-    game.numfield_1A = nlens;
+    game.current_lens = nlens;
 }
 
 void reinitialise_eye_lens(long nlens)

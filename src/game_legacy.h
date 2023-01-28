@@ -90,9 +90,9 @@ enum GameOperationFlags {
 };
 
 enum GameNumfieldDFlags {
-    GNFldD_Unkn01 = 0x01,
+    GNFldD_Unkn01 = 0x01, // First person view
     GNFldD_Unkn02 = 0x02,
-    GNFldD_Unkn04 = 0x04,
+    GNFldD_Unkn04 = 0x04, // Something about Computer Players
     GNFldD_CreaturePasngr = 0x08, // Possessing a creature as a passenger (no direct control)
     GNFldD_Unkn10 = 0x10,
     GNFldD_Unkn20 = 0x20,
@@ -143,7 +143,7 @@ struct Game {
     char last_audiotrack;
 char numfield_15;
     LevelNumber selected_level_number;
-char numfield_1A;
+    char current_lens;
     unsigned char numfield_1B;
     struct PlayerInfo players[PLAYERS_COUNT];
     struct Column columns_data[COLUMNS_COUNT];
@@ -172,12 +172,13 @@ char numfield_1A;
     char packet_fname[150];
     char packet_fopened;
     TbFileHandle packet_save_fp;
-unsigned int packet_file_pos;
+    unsigned int packet_file_pos;
     struct PacketSaveHead packet_save_head;
     unsigned long turns_stored;
     unsigned long turns_fastforward;
     unsigned char numfield_149F38;
     unsigned char packet_checksum_verify;
+
     unsigned long log_things_start_turn;
     unsigned long log_things_end_turn;
     unsigned long turns_packetoff;

@@ -81,18 +81,18 @@ enum ModeFlags {
     MFlg_DeadBackToPool     =  0x08,
     MFlg_NoCdMusic          =  0x10, // unused
     MFlg_unk20              =  0x20,
-    MFlg_unk40              =  0x40,
+    MFlg_unk40              =  0x40, // Will play foolmoon etc easters
     MFlg_NoHeroHealthFlower              =  0x80,
 };
 
 enum FFlags {
-    FFlg_unk01              =  0x01,
-    FFlg_unk02              =  0x02,
-    FFlg_unk04              =  0x04, // unused, had something to do with Passenger Control
+    FFlg_Unused_1           =  0x01,
+    FFlg_Unused_2           =  0x02,
+    FFlg_Unused_4           =  0x04,
     FFlg_unk08              =  0x08,
-    FFlg_unk10              =  0x10,
+    FFlg_unk10              =  0x10, // Net related, unused
     FFlg_AlexCheat          =  0x20,
-    FFlg_UsrSndFont         =  0x40, // now unused
+    FFlg_Unused_40          =  0x40, // now unused
     FFlg_unk80              =  0x80,
 };
 
