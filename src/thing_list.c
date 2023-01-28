@@ -3130,16 +3130,16 @@ short update_thing_sound(struct Thing *thing)
   return true;
 }
 
-long collide_filter_thing_is_of_type(const struct Thing *thing, const struct Thing *sectng, long tngclass, long tngmodel)
+HitTargetFlags collide_filter_thing_is_of_type(const struct Thing *thing, const struct Thing *sectng, HitTargetFlags tngclass, long tngmodel)
 {
     if (tngmodel >= 0)
     {
         if (thing->model != tngmodel)
           return false;
     }
-    if (tngclass >= 0)
+    if ((long)tngclass >= 0)
     {
-        if (thing->class_id != tngclass)
+        if (thing->class_id != (long)tngclass)
           return false;
     }
     return true;

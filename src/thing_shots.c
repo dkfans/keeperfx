@@ -1312,7 +1312,7 @@ TbBool shot_hit_shootable_thing_at(struct Thing *shotng, struct Thing *target, s
     return false;
 }
 
-long collide_filter_thing_is_shootable(const struct Thing *thing, const struct Thing *parntng, HitTargetFlags hit_targets, long a4)
+HitTargetFlags collide_filter_thing_is_shootable(const struct Thing *thing, const struct Thing *parntng, HitTargetFlags hit_targets, long a4)
 {
     PlayerNumber shot_owner = -1;
     if (thing_exists(parntng))

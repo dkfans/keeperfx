@@ -149,7 +149,7 @@ typedef long (*Thing_Filter)(const struct Thing *, FilterParam);
 typedef TbBool (*Thing_Bool_Filter)(const struct Thing *);
 /** Definition of a callback type used for selecting best match through all the things by maximizing a value. */
 typedef long (*Thing_Maximizer_Filter)(const struct Thing *, MaxTngFilterParam, long);
-typedef long (*Thing_Collide_Func)(const struct Thing *, const struct Thing *, HitTargetFlags, long);
+typedef HitTargetFlags(*Thing_Collide_Func)(const struct Thing *, const struct Thing *, HitTargetFlags, long);
 /** Definition of a simple callback type which can only return true/false and can modify the thing. */
 typedef TbBool (*Thing_Bool_Modifier)(struct Thing *);
 
@@ -312,7 +312,7 @@ struct Thing *find_creature_lair_totem_at_subtile(MapSubtlCoord stl_x, MapSubtlC
 
 TbBool thing_is_shootable(const struct Thing *thing, PlayerNumber shot_owner, HitTargetFlags hit_targets);
 HitTargetFlags hit_type_to_hit_targets(long hit_type);
-long collide_filter_thing_is_of_type(const struct Thing *thing, const struct Thing *sectng, long a3, long a4);
+HitTargetFlags collide_filter_thing_is_of_type(const struct Thing *thing, const struct Thing *sectng, HitTargetFlags a3, long a4);
 
 TbBool imp_already_digging_at_excluding(struct Thing *excltng, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 TbBool gold_pile_with_maximum_at_xy(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
