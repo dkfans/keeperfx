@@ -1441,12 +1441,29 @@ static void replace_with_ai(int old_active_players)
 static TbBool process_packets_cb(void *context, unsigned long turn, int net_player_idx, unsigned char kind, void *packet_data, short size)
 {
     // TODO: copy all packets to game.packets
+    if (kind == PckA_FrameSrv)
+    {
+        assert(size <= sizeof(net_screen_packet));
+        memcpy(&net_screen_packet, packet_data, size);
+    }
+    else
+    {
+        WARNLOG("Unexpected packet kind %d", kind);
+    }
     return false;
 }
 
 static TbBool process_packets_server_cb(void *context, unsigned long turn, int net_player_idx, unsigned char kind, void *packet_data, short size)
 {
     // TODO: copy player packet to game.packets
+    if (kind == PckA_Frame)
+    {
+        memcpy(&net_screen_packet[net_player_idx], packet_data, sizeof(struct ScreenPacket));
+    }
+    else
+    {
+        WARNLOG("Unexpected packet kind %d", kind);
+    }
     return false;
 }
 /**
@@ -1469,7 +1486,7 @@ void process_packets(void)
             if (network_player_active(i))
                 old_active_players++;
         }
-        if (!game.packet_load_enable || game.numfield_149F47)
+        if (!game.packet_load_enable)
         {
             struct Packet* outgoing;
             if (LbNetwork_IsServer())
@@ -1495,24 +1512,9 @@ void process_packets(void)
         replace_with_ai(old_active_players);
     }
   // Setting checksum problem flags
-  switch (checksums_different())
+  if (checksums_different())
   {
-  case 1:
-      set_flag(game.system_flags, GSF_NetGameNoSync);
-      clear_flag(game.system_flags, GSF_NetSeedNoSync);
-    break;
-  case 2:
-      clear_flag(game.system_flags, GSF_NetGameNoSync);
-      set_flag(game.system_flags, GSF_NetSeedNoSync);
-    break;
-  case 3:
-      set_flag(game.system_flags, GSF_NetGameNoSync);
-      set_flag(game.system_flags, GSF_NetSeedNoSync);
-    break;
-  default:
-      clear_flag(game.system_flags, GSF_NetGameNoSync);
-      clear_flag(game.system_flags, GSF_NetSeedNoSync);
-    break;
+      set_flag(game.system_flags,GSF_NetGameNoSync);
   }
   // Write packets into file, if requested
   if ((game.packet_save_enable) && (game.packet_fopened))
@@ -1530,8 +1532,7 @@ void process_packets(void)
   }
   // Clear all packets
   clear_packets();
-  if (((game.system_flags & GSF_NetGameNoSync) != 0)
-   || ((game.system_flags & GSF_NetSeedNoSync) != 0))
+  if (game.system_flags & GSF_NetGameNoSync)
   {
     SYNCDBG(0,"Resyncing");
     resync_game();

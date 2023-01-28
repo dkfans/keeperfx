@@ -182,7 +182,6 @@ unsigned int packet_file_pos;
     unsigned long log_things_end_turn;
     unsigned long turns_packetoff;
     PlayerNumber local_plyr_idx;
-    unsigned char numfield_149F47; // something with packetload
 // Originally, save_catalogue was here.
     char campaign_fname[CAMPAIGN_FNAME_LEN];
     struct Event event[EVENTS_COUNT];

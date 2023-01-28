@@ -425,7 +425,6 @@ void clear_complete_game(void)
     game.local_plyr_idx = default_loc_player;
     game.packet_checksum_verify = start_params.packet_checksum_verify;
     game.flags_font = start_params.flags_font;
-    game.numfield_149F47 = 0;
     // Set levels to 0, as we may not have the campaign loaded yet
     set_continue_level_number(first_singleplayer_level());
     if ((start_params.operation_flags & GOF_SingleLevel) != 0)
