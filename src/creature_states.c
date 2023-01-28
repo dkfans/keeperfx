@@ -1003,7 +1003,7 @@ short arrive_at_call_to_arms(struct Thing *creatng)
         set_creature_door_combat(creatng, cmbttng);
         return 2;
     }
-    cmbttng = check_for_object_to_fight(cmbttng);
+    cmbttng = check_for_object_to_fight(creatng);
     if (!thing_is_invalid(cmbttng))
     {
         set_creature_object_combat(creatng, cmbttng);
