@@ -162,7 +162,6 @@ void resync_game(void)
     recall_localised_game_structure();
     reinit_level_after_load();
     set_flag_byte(&game.system_flags,GSF_NetGameNoSync,false);
-    set_flag_byte(&game.system_flags,GSF_NetSeedNoSync,false);
 }
 
 static TbBool perform_checksum_verification_cb(void *context, unsigned long turn, int net_player_idx, unsigned char kind, void *packet_data, short size)

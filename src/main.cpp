@@ -3633,7 +3633,7 @@ static TbBool wait_at_frontend()
     // Init load/save catalogue
     initialise_load_game_slots();
     // Prepare to enter PacketLoad game
-    if ((game.packet_load_enable) && (!game.numfield_149F47))
+    if (game.packet_load_enable)
     {
       faststartup_saved_packet_game();
       return true;

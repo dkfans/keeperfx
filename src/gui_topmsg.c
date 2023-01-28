@@ -151,15 +151,6 @@ TbBool draw_onscreen_direct_messages(void)
         }
         msg_pos += scale_value_by_horizontal_resolution(20);
     }
-    if ((game.system_flags & GSF_NetSeedNoSync) != 0)
-    {
-        ERRORLOG("SEED OUT OF SYNC (GameTurn %7d)", game.play_gameturn);
-        if (LbScreenIsLocked())
-        {
-            LbTextDrawResized(scale_value_by_horizontal_resolution(260), scale_value_by_vertical_resolution(msg_pos), tx_units_per_px, "SEED OUT OF SYNC");
-        }
-        msg_pos += scale_value_by_vertical_resolution(20);
-    }
     SYNCDBG(18,"Finished");
     return true;
 }
