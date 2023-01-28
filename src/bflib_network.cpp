@@ -136,17 +136,6 @@ struct NetPacket
     // uint16_t                turn; //TODO
     uint8_t                 data[];
 };
-/*
- * This should be squished into TbPacketAction
- */
-enum NetMessageType
-{
-    NETMSG_LOGIN_OLD = 0,           //to server: username and pass, from server: assigned id
-    NETMSG_USERUPDATE_OLD,      //changed player from server
-    NETMSG_FRAME,           //to server: ACK of frame + packets, from server: the frame itself
-    // Not used: NETMSG_LAGWARNING,      //from server: notice that some client is lagging
-    NETMSG_RESYNC,          //from server: re-synchronization is occurring
-};
 
 /**
  * Structure for network messages for illustrational purposes.
@@ -714,8 +703,10 @@ static void OnDroppedUser(NetUserId id, enum NetDropReason reason)
             SendUserUpdate(i, id);
         }
     }
-    else {
+    else
+    {
         NETMSG("Quitting after connection loss");
+        // TODO: Callback
         LbNetwork_Stop();
     }
 }
@@ -863,32 +854,39 @@ TbBool LbNetwork_Resync(void * buf, size_t len)
 
     full_buf = (char *) LbMemoryAlloc(len + 1);
 
-    if (netstate.users[netstate.my_id].progress == USER_SERVER) {
-        full_buf[0] = NETMSG_RESYNC;
+    if (LbNetwork_IsServer())
+    {
+        full_buf[0] = PckA_Resync;
         LbMemoryCopy(full_buf + 1, buf, len);
 
-        for (i = 0; i < MAX_N_USERS; ++i) {
-            if (netstate.users[i].progress != USER_LOGGEDIN) {
+        for (i = 0; i < MAX_N_USERS; ++i)
+        {
+            if (netstate.users[i].progress != USER_LOGGEDIN)
+            {
                 continue;
             }
 
             netstate.sp->sendmsg_single(netstate.users[i].id, full_buf, len + 1);
         }
     }
-    else {
+    else
+    {
         //discard all frames until next resync frame
         do {
             NetUserId user_id = -1;
+            netstate.sp->update(&UpdateCallbackNull);
             if (netstate.sp->readmsg(&user_id, full_buf, len + 1) < 1)
             {
                 NETLOG("Bad reception of resync message");
                 return false;
             }
             assert (user_id == SERVER_ID);
-        } while (full_buf[0] != NETMSG_RESYNC);
+        } while (full_buf[0] != PckA_Resync);
 
         LbMemoryCopy(buf, full_buf + 1, len);
     }
+
+    netstate.sp->update(&UpdateCallbackNull);
 
     LbMemoryFree(full_buf);
 

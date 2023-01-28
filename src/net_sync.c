@@ -205,6 +205,7 @@ CoroutineLoopState perform_checksum_verification(CoroutineLoop *con)
             struct Packet *pckt = LbNetwork_AddPacket(PckA_LevelExactCheck, 0, sizeof(struct Packet));
             set_packet_action(pckt, PckA_LevelExactCheck, 0, 0, 0, 0);
             pckt->chksum = checksum_mem + game.action_rand_seed;
+            NETLOG("Sending a checksum from %d", my_player_number);
         }
     }
     else
@@ -215,7 +216,7 @@ CoroutineLoopState perform_checksum_verification(CoroutineLoop *con)
     if (LbNetwork_Exchange(game.packets, &perform_checksum_verification_cb))
     {
         ERRORLOG("Network exchange failed on level checksum verification");
-        result = false;
+        return CLS_ERROR;
     }
     for (int i = 0; i < game.active_players_count; i++)
     {
@@ -245,6 +246,7 @@ CoroutineLoopState perform_checksum_verification(CoroutineLoop *con)
         struct Packet* pckt = LbNetwork_AddPacket(PckA_LevelExactCheck, 0, sizeof(struct Packet));
         set_packet_action(pckt, PckA_LevelExactCheck, 0, 0, 0, 0);
         pckt->chksum = checksum_mem + game.action_rand_seed;
+        NETLOG("Sending a checksum from %d", my_player_number);
     }
     NETLOG("Checksums are verified");
     return CLS_CONTINUE;

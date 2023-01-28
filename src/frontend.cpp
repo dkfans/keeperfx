@@ -406,9 +406,8 @@ struct GuiButton active_buttons[ACTIVE_BUTTONS_COUNT];
 long frontend_mouse_over_button_start_time;
 short old_menu_mouse_x;
 short old_menu_mouse_y;
-unsigned char menu_ids[3];
 unsigned char new_objective;
-int frontend_menu_state;
+FrontendMenuState frontend_menu_state;
 int load_game_scroll_offset;
 unsigned char video_gamma_correction;
 
@@ -3798,8 +3797,10 @@ FrontendMenuState get_startup_menu_state(void)
         SYNCLOG("Standard startup state selected");
         return FeSt_MAIN_MENU;
     }
-  } else
+  }
+  else
   {
+    // Such a mess
     player = get_my_player();
     lvnum = get_loaded_level_number();
     if ((game.system_flags & GSF_NetworkActive) != 0)
@@ -3809,31 +3810,32 @@ FrontendMenuState get_startup_menu_state(void)
         { // Player has won - go FeSt_TORTURE before any others
           player->additional_flags &= ~PlaAF_UnlockedLordTorture;
           return FeSt_TORTURE;
-        } else
-        if ((player->flgfield_6 & PlaF6_PlyrHasQuit) == 0)
+        }
+        else if ((player->flgfield_6 & PlaF6_PlyrHasQuit) == 0)
         {
           return FeSt_LEVEL_STATS;
-        } else
-        if (setup_old_network_service())
+        }
+        else if (setup_old_network_service())
         {
           return FeSt_NET_SESSION;
-        } else
+        }
+        else
         {
           return FeSt_MAIN_MENU;
         }
-    } else
-    if (((player->flgfield_6 & PlaF6_PlyrHasQuit) != 0) || (player->victory_state == VicS_Undecided))
+    }
+    else if (((player->flgfield_6 & PlaF6_PlyrHasQuit) != 0) || (player->victory_state == VicS_Undecided))
     {
         SYNCLOG("Undecided victory state selected");
         return get_menu_state_based_on_last_level(lvnum);
-    } else
-    if (game.flags_cd & MFlg_IsDemoMode)
+    }
+    else if (game.flags_cd & MFlg_IsDemoMode)
     { // It wasn't a real game, just a demo - back to main menu
         SYNCLOG("Demo mode state selected");
         game.flags_cd &= ~MFlg_IsDemoMode;
         return FeSt_MAIN_MENU;
-    } else
-    if (player->victory_state == VicS_WonLevel)
+    }
+    else if (player->victory_state == VicS_WonLevel)
     {
         SYNCLOG("Victory achieved state selected");
         if (is_singleplayer_level(lvnum))

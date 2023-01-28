@@ -95,8 +95,8 @@
 #include "keeperfx.hpp"
 
 #include "music_player.h"
-#include "post_inc.h"
 #include "bflib_datetm.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -1413,15 +1413,23 @@ void process_players_creature_control_packet_action(long plyr_idx)
   }
 }
 
-static void replace_with_ai(int old_active_players)
+static int count_active_players()
 {
-    int k = 0;
+    int active_players = 0;
     for (int i = 0; i < NET_PLAYERS_COUNT; i++)
     {
         if (network_player_active(i))
-            k++;
+        {
+            active_players++;
+        }
     }
-    if (old_active_players != k)
+    return active_players;
+}
+
+static void process_lost_players(int old_active_players)
+{
+    int new_active_players = count_active_players();
+    if (old_active_players != new_active_players)
     {
         for (int i = 0; i < NET_PLAYERS_COUNT; i++)
         {
@@ -1480,12 +1488,7 @@ void process_packets(void)
     if (game.game_kind != GKind_LocalGame)
     {
         player = get_my_player();
-        int old_active_players = 0;
-        for (i = 0; i < NET_PLAYERS_COUNT; i++)
-        {
-            if (network_player_active(i))
-                old_active_players++;
-        }
+        int old_active_players = count_active_players();
         if (!game.packet_load_enable)
         {
             struct Packet* outgoing;
@@ -1509,7 +1512,7 @@ void process_packets(void)
                 }
             }
         }
-        replace_with_ai(old_active_players);
+        process_lost_players(old_active_players);
     }
   // Setting checksum problem flags
   if (checksums_different())
@@ -1528,7 +1531,9 @@ void process_packets(void)
   {
     player = get_player(i);
     if (player_exists(player) && ((player->allocflags & PlaF_CompCtrl) == 0))
+    {
       process_players_packet(i);
+    }
   }
   // Clear all packets
   clear_packets();

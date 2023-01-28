@@ -37,20 +37,35 @@ void coroutine_add_args(CoroutineLoop *context, CoroutineFn fn, int args[COROUTI
     context->write_idx++;
 }
 
-// exec all coroutines from the list
+// exec all coroutines from the list starting from first
 void coroutine_process(CoroutineLoop *context)
 {
     context->read_idx = 0;
+    memset(context->vars, 0, sizeof(context->vars));
+
     CoroutineFn fn = context->fns[context->read_idx];
+    if ((context->guard_2 != &context->guard_2) || (context->guard_1 != &context->guard_1))
+    {
+        LbSyncLog("Coroutine damaged");
+        context->guard_1 = &context->guard_1;
+        context->guard_2 = &context->guard_2;
+    }
     while (fn)
     {
         CoroutineLoopState ret = fn(context);
+        if ((context->guard_2 != &context->guard_2) || (context->guard_1 != &context->guard_1))
+        {
+            LbSyncLog("Coroutine damaged 2");
+            context->guard_1 = &context->guard_1;
+            context->guard_2 = &context->guard_2;
+        }
+
         if (ret == CLS_CONTINUE)
         {
             context->fns[context->read_idx] = 0;
             context->read_idx++;
             fn = context->fns[context->read_idx];
-            memset(context->vars, 0, sizeof(intptr_t));
+            memset(context->vars, 0, sizeof(context->vars));
         }
         else if (ret == CLS_ABORT)
         {
@@ -81,17 +96,12 @@ intptr_t *coroutine_args(CoroutineLoop *context)
 
 intptr_t *coroutine_vars(CoroutineLoop *context)
 {
-    return &context->vars[context->read_idx * COROUTINE_ARGS];
+    return context->vars;
 }
 
-void coroutine_clear(CoroutineLoop *context, TbBool error)
+void coroutine_reset(CoroutineLoop *context)
 {
-    for (int i = 0; i < context->write_idx; i++)
-    {
-        context->fns[i] = 0;
-    }
-    memset(context->args, 0, sizeof(context->args));
-    memset(context->vars, 0, sizeof(intptr_t));
-    context->write_idx = 0;
-    context->error |= error;
+    memset(context, 0, sizeof(CoroutineLoop));
+    context->guard_1 = &context->guard_1;
+    context->guard_2 = &context->guard_2;
 }
