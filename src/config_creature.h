@@ -139,15 +139,16 @@ enum JobKindFlags {
 };
 
 enum InstancePropertiesFlags {
-    InstPF_None               = 0x00,
-    InstPF_RepeatTrigger      = 0x01,
-    InstPF_RangedAttack       = 0x02,
-    InstPF_MeleeAttack        = 0x04,
-    InstPF_SelfBuff           = 0x08,
-    InstPF_RangedDebuff       = 0x10,
-    InstPF_Dangerous          = 0x20,
-    InstPF_Destructive        = 0x40,
-    InstPF_Quick              = 0x80,
+    InstPF_None               = 0x0000,
+    InstPF_RepeatTrigger      = 0x0001,
+    InstPF_RangedAttack       = 0x0002,
+    InstPF_MeleeAttack        = 0x0004,
+    InstPF_SelfBuff           = 0x0008,
+    InstPF_RangedDebuff       = 0x0010,
+    InstPF_Dangerous          = 0x0020,
+    InstPF_Destructive        = 0x0040,
+    InstPF_Quick              = 0x0080,
+    InstPF_Disarming          = 0x0100,
 };
 
 enum CreatureDeathKind {

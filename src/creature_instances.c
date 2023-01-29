@@ -313,6 +313,17 @@ CrInstance creature_instance_get_available_id_for_pos(struct Thing *thing, int r
     return CrInst_NULL;
 }
 
+TbBool instance_is_disarming_weapon(CrInstance inum)
+{
+    struct InstanceInfo* inst_inf;
+    inst_inf = creature_instance_info_get(inum);
+    if (inst_inf->flags & InstPF_Disarming)
+    {
+        return true;
+    }
+    return false;
+}
+
 TbBool instance_is_ranged_weapon(CrInstance inum)
 {
     struct InstanceInfo* inst_inf;
@@ -361,6 +372,27 @@ TbBool creature_has_ranged_weapon(const struct Thing *creatng)
         if (cctrl->instance_available[inum] > 0)
         {
             if (instance_is_ranged_weapon(inum))
+                return true;
+        }
+    }
+    return false;
+}
+
+/**
+ * Informs whether the creature has an instance which is ranged weapon useable against other creatures.
+ * The instances currently in use and currently in cooldown are included.
+ * @param creatng The creature to be checked.
+ * @return True if the creature has ranged weapon, false otherwise.
+ */
+TbBool creature_has_disarming_weapon(const struct Thing* creatng)
+{
+    TRACE_THING(creatng);
+    const struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    for (long inum = 1; inum < CREATURE_INSTANCES_COUNT; inum++)
+    {
+        if (cctrl->instance_available[inum] > 0)
+        {
+            if (instance_is_disarming_weapon(inum))
                 return true;
         }
     }
@@ -469,6 +501,8 @@ long instf_creature_fire_shot(struct Thing *creatng, long *param)
             hittype = THit_CrtrsNObjcts;
         else if (thing_is_destructible_trap(target))
             hittype = THit_CrtrsNObjcts;
+        else if (target->class_id == TCls_Trap)
+            hittype = THit_TrapsAll;
         else if (target->owner == creatng->owner)
             hittype = THit_CrtrsOnly;
         else

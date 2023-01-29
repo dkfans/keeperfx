@@ -155,6 +155,7 @@ const struct NamedCommand shotmodel_properties_commands[] = {
   {"WIND_IMMUNE",         18},
   {"FIXED_DAMAGE",        19},
   {"HIDDEN_PROJECTILE",   20},
+  {"DISARMING",           21},
   {NULL,                   0},
   };
 
@@ -1010,6 +1011,10 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                 break;
             case 20: // HIDDEN_PROJECTILE
                 shotst->hidden_projectile = 1;
+                n++;
+                break;
+            case 21: // DISARMING
+                shotst->model_flags |= ShMF_Disarming;
                 n++;
                 break;
             default:

@@ -2861,6 +2861,10 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
             damage = calculate_shot_damage(firing, shot_model);
         }
     }
+    if ((shotst->model_flags & ShMF_Disarming) && thing_is_deployed_trap(target))
+    {
+        hit_type = THit_TrapsAll;
+    }
     struct Thing* shotng = NULL;
     long target_idx = 0;
     // Set target index for navigating shots
@@ -3142,7 +3146,6 @@ ThingIndex get_human_controlled_creature_target(struct Thing *thing, long primar
                             switch (primary_target)
                             {
                                 case 1:
-                                case 7:
                                     is_valid_target = ((thing_is_creature(i) && !creature_is_being_unconscious(i)) || thing_is_dungeon_heart(i));
                                     break;
                                 case 2:
@@ -3159,6 +3162,9 @@ ThingIndex get_human_controlled_creature_target(struct Thing *thing, long primar
                                     break;
                                 case 6:
                                     is_valid_target = ((thing_is_creature(i) && !creature_is_being_unconscious(i)) && i->owner == thing->owner);
+                                    break;
+                                case 7:
+                                    is_valid_target = ((thing_is_creature(i) && !creature_is_being_unconscious(i)) || thing_is_dungeon_heart(i) || thing_is_deployed_trap(i));
                                     break;
                                 case 8:
                                     is_valid_target = true;
