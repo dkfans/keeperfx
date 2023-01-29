@@ -749,7 +749,7 @@ static TbBool shot_hit_trap_at(struct Thing* shotng, struct Thing* target, struc
     HitPoints damage_done = 0;
     if (shotng->shot.damage)
     {
-        //if (trap_can_be_damaged(target)) // do not damage objects that cannot be destroyed
+        if (thing_is_destructible_trap(target)) // do not damage objects that cannot be destroyed
         {
             damage_done = apply_damage_to_thing(target, shotng->shot.damage, shotst->damage_type, -1);
 
