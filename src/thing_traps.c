@@ -113,6 +113,12 @@ struct Thing *get_trap_for_slab_position(MapSlabCoord slb_x, MapSlabCoord slb_y)
     return get_trap_around_of_model_and_owned_by(pos_x, pos_y, -1, -1);
 }
 
+TbBool slab_has_sellable_trap_on(MapSlabCoord slb_x, MapSlabCoord slb_y)
+{
+    struct Thing* traptng = get_trap_for_slab_position(slb_x, slb_y);
+    return !thing_is_sellable_trap(traptng);
+}
+
 TbBool slab_has_trap_on(MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
     struct Thing* traptng = get_trap_for_slab_position(slb_x, slb_y);
@@ -159,6 +165,16 @@ TbBool thing_is_destructible_trap(const struct Thing *thing)
         return false;
     struct TrapConfigStats* trapst = &gameadd.trapdoor_conf.trap_cfgstats[thing->model];
     return (trapst->destructible > 0);
+}
+
+TbBool thing_is_sellable_trap(const struct Thing* thing)
+{
+    if (thing_is_invalid(thing))
+        return false;
+    if (thing->class_id != TCls_Trap)
+        return false;
+    struct TrapConfigStats* trapst = &gameadd.trapdoor_conf.trap_cfgstats[thing->model];
+    return (trapst->unsellable == 0);
 }
 
 TbBool thing_is_deployed_trap(const struct Thing* thing)
