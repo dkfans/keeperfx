@@ -21,20 +21,18 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
+#include "bflib_basics.h"
+#include "../lib/lua/include/lua.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-
-
-void lua_chatmsg(PlayerNumber plyr_idx, char *msg);
-void lua_game_start();
-void lua_game_loop();
-
-
+TbBool CheckLua(lua_State *L, int r);
 TbBool open_lua_script(LevelNumber lvnum);
 void close_lua_script();
+
+extern struct lua_State *Lvl_script;
 
 #ifdef __cplusplus
 }

@@ -60,7 +60,7 @@
 #include "config_compp.h"
 #include "config_effects.h"
 #include "lvl_script.h"
-#include "lua_base.h"
+#include "lua_triggers.h"
 #include "thing_list.h"
 #include "player_instances.h"
 #include "player_utils.h"

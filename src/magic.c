@@ -59,6 +59,7 @@
 #include "sounds.h"
 #include "game_legacy.h"
 #include "creature_instances.h"
+#include "lua_triggers.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -2063,7 +2064,9 @@ TbResult magic_use_power_on_thing(PlayerNumber plyr_idx, PowerKind pwkind,
     }
     if (ret == Lb_SUCCESS)
     {
+        
         get_player(plyr_idx)->power_of_cooldown_turn = game.play_gameturn + powerst->cast_cooldown;
+        lua_cast_power_on_thing(pwkind,plyr_idx, thing, stl_x, stl_y, splevel);
     }
     return ret;
 }

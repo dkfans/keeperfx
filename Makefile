@@ -241,6 +241,7 @@ obj/lens_mist.o \
 obj/light_data.o \
 obj/lua_api.o \
 obj/lua_base.o \
+obj/lua_triggers.o \
 obj/lvl_filesdk1.o \
 obj/lvl_script.o \
 obj/lvl_script_commands.o \

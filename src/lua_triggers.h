@@ -1,8 +1,8 @@
 /******************************************************************************/
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
-/** @file lua_api.h
- *     Header file for lua_api.c.
+/** @file lua_base.h
+ *     Header file for lua_base.c.
  * @par Purpose:
  *     Console commands
  * @par Comment:
@@ -16,8 +16,8 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-#ifndef LUAAPI_H
-#define LUAAPI_H
+#ifndef LUATRIGGERS_H
+#define LUATRIGGERS_H
 
 #include "globals.h"
 #include "bflib_basics.h"
@@ -26,11 +26,13 @@
 extern "C" {
 #endif
 
-void reg_host_functions(lua_State *L);
+void lua_chatmsg(PlayerNumber plyr_idx, char *msg);
+void lua_game_start();
+void lua_game_loop();
+void lua_cast_power_on_thing(PowerKind pwkind,PlayerNumber plyr_idx, struct Thing* thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned short splevel);
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif
-

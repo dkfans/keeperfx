@@ -35,6 +35,7 @@
 #include "kjm_input.h"
 #include "lvl_filesdk1.h"
 #include "lua_base.h"
+#include "lua_triggers.h"
 #include "net_sync.h"
 #include "room_library.h"
 #include "room_list.h"

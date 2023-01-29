@@ -90,7 +90,7 @@
 #include "vidfade.h"
 #include "spdigger_stack.h"
 #include "frontmenu_ingame_map.h"
-#include "lua_base.h"
+#include "lua_triggers.h"
 
 #include "keeperfx.hpp"
 
