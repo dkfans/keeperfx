@@ -515,6 +515,10 @@ short get_minimap_control_inputs(void)
     {
         if (player->minimap_zoom < 2048)
         {
+            if (menu_is_active(GMnu_MAIN))
+            {
+                fake_button_click(BID_MAP_ZOOM_OU);
+            }
             set_players_packet_action(player, PckA_SetMinimapConf, 2 * (long)player->minimap_zoom, 0, 0, 0);
             packet_made = true;
         }
@@ -526,8 +530,12 @@ short get_minimap_control_inputs(void)
   {
       if ( player->minimap_zoom > 128 )
       {
-        set_players_packet_action(player, PckA_SetMinimapConf, player->minimap_zoom >> 1, 0, 0, 0);
-        packet_made = true;
+          if (menu_is_active(GMnu_MAIN))
+          {
+              fake_button_click(BID_MAP_ZOOM_IN);
+          }
+          set_players_packet_action(player, PckA_SetMinimapConf, player->minimap_zoom >> 1, 0, 0, 0);
+          packet_made = true;
       }
       clear_key_pressed(KC_ADD);
       if (packet_made) return true;
@@ -758,9 +766,17 @@ TbBool get_level_lost_inputs(void)
     {
       clear_key_pressed(KC_ESCAPE);
       if ( a_menu_window_is_active() )
+      {
         turn_off_all_window_menus();
+      }
       else
+      {
+          if (menu_is_active(GMnu_MAIN))
+          {
+            fake_button_click(BID_OPTIONS);
+          }
         turn_on_menu(GMnu_OPTIONS);
+      }
     }
     TbBool inp_done=false;
     switch (player->view_type)
