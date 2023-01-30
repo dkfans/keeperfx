@@ -165,6 +165,7 @@ enum TbScriptCommands {
     Cmd_MOVE_CREATURE                     = 152,
     Cmd_COUNT_CREATURES_AT_ACTION_POINT   = 153,
     Cmd_IF_ALLIED                         = 154,
+    Cmd_SET_TEXTURE                       = 155,
 };
 
 struct ScriptLine {
