@@ -935,6 +935,26 @@ void create_relevant_effect_for_shot_hitting_thing(struct Thing *shotng, struct 
             break;
         }
     }
+    if (target->class_id == TCls_Trap)
+    {
+        switch (shotng->model)
+        {
+        case ShM_Fireball:
+        case ShM_Firebomb:
+        case ShM_Lightning:
+            efftng = create_effect(&shotng->mappos, TngEff_Explosion1, shotng->owner);
+            break;
+        case ShM_PoisonCloud:
+            efftng = create_effect(&shotng->mappos, TngEff_Gas3, shotng->owner);
+            if ( !thing_is_invalid(efftng) ) {
+                efftng->shot_effect.hit_type = THit_CrtrsOnly;
+            }
+            break;
+        case ShM_NaviMissile:
+        case ShM_Missile:
+            efftng = create_effect(&shotng->mappos, TngEff_Blood3, shotng->owner);
+            break;
+    }
     TRACE_THING(efftng);
 }
 
