@@ -35,6 +35,7 @@
 #include "custom_sprites.h"
 #include "sprites.h"
 #include "post_inc.h"
+#include "frontmenu_ingame_tabs.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -524,51 +525,20 @@ void draw_button_string(struct GuiButton *gbtn, int base_width, const char *text
     unsigned long h = (gbtn->height - text_string_height(tx_units_per_px, dtext)) / 2 - 3 * units_per_px / 16;
     if (dbc_language > 0)
     {
-        switch (gbtn->tooltip_stridx)
+        if (gbtn->id_num == BID_QUERY_INFO)
         {
-            case GUIStr_CreatureKillsDesc:
-            case GUIStr_CreatureStrengthDesc:
-            case GUIStr_CreatureWageDesc:
-            case GUIStr_CreatureGoldHeldDesc:
-            case GUIStr_CreatureDefenceDesc:
-            case GUIStr_CreatureSkillDesc:
-            case GUIStr_CreatureTimeInDungeonDesc:
-            case GUIStr_CreatureDexterityDesc:
-            case GUIStr_CreatureLuckDesc:
-            case GUIStr_CreatureBloodTypeDesc:
-            case GUIStr_CreatureArmourDesc:
-            case GUIStr_CreatureSpeedDesc:
-            case GUIStr_CreatureLoyaltyDesc:
-            case GUIStr_CreatureResrchSkillDesc:
-            case GUIStr_CreatureManfctrSkillDesc:
-            case GUIStr_CreatureTraingSkillDesc:
-            case GUIStr_CreatureScavngSkillDesc:
-            case GUIStr_CreatureTraingCostDesc:
-            case GUIStr_CreatureScavngCostDesc:
-            case GUIStr_CreatureBestDmgDesc:
-            case GUIStr_CreatureWeightDesc:
-            case GUIStr_CreatureHealthDesc:
+            if (MyScreenWidth > 640)
             {
-                if (MyScreenWidth > 1280)
-                {
-                    h += 16;
-                    w += 8;
-                    tx_units_per_px = scale_value_by_horizontal_resolution(8);
-                }
-                else if (MyScreenWidth >= 640)
-                {
-                    w += 12;
-                    tx_units_per_px = scale_value_by_horizontal_resolution(16);
-                }
-                break;
+                h += (13 + (MyScreenWidth / 640));
+                w += 8;
+                tx_units_per_px = scale_value_by_horizontal_resolution(8);
             }
-            case GUIStr_ExperienceDesc:
+        }
+        else if (gbtn->tooltip_stridx == GUIStr_ExperienceDesc)
+        {
+            if (MyScreenWidth > 640)
             {
-                if (MyScreenWidth > 1280)
-                {
-                    h += 12;
-                }
-                break;
+                h += (8 + (MyScreenWidth / 640));
             }
         }
     }
