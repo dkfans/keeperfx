@@ -1436,9 +1436,9 @@ void update_dungeon_heart_beat(struct Thing *heartng)
         struct ObjectConfig* objconf = get_object_model_stats2(ObjMdl_SoulCountainer);
         long long k = 384 * (long)(objconf->health - heartng->health) / objconf->health;
         k = base_heart_beat_rate / (k + 128);
-        // intensity capped to 66 to fix the first beat flickering black which is visible when SKIP_HEART_ZOOM is on
-        int intensity = min(light_get_light_intensity(heartng->light_id) + (i*36/k), 66);
-        light_set_light_intensity(heartng->light_id, intensity);
+        int intensity = light_get_light_intensity(heartng->light_id) + (i*36/k);
+        // intensity capped to 63 to fix the first beat flickering black which is visible when SKIP_HEART_ZOOM is on
+        light_set_light_intensity(heartng->light_id, min(intensity, 63));
         heartng->anim_time += (i*base_heart_beat_rate/k);
         if (heartng->anim_time < 0)
         {
