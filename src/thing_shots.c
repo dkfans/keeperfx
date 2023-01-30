@@ -128,9 +128,9 @@ TbBool detonate_shot(struct Thing *shotng)
     case ShM_TrapTNT:
         create_effect(&shotng->mappos, TngEff_Eruption, shotng->owner);
         short spell_level = shotng->shot.damage;
-        if (spell_level > 8)
+        if (spell_level > SPELL_MAX_LEVEL)
         {
-            spell_level = 8;
+            spell_level = SPELL_MAX_LEVEL;
         }
         magic_use_power_destroy_walls(shotng->owner, shotng->mappos.x.stl.num, shotng->mappos.y.stl.num, spell_level, PwMod_CastForFree);
         create_effect_around_thing(shotng, TngEff_Explosion7);
