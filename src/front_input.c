@@ -513,12 +513,12 @@ short get_minimap_control_inputs(void)
     short packet_made = false;
     if (is_key_pressed(KC_SUBTRACT, KMod_NONE))
     {
+        if (menu_is_active(GMnu_MAIN))
+        {
+            fake_button_click(BID_MAP_ZOOM_OU);
+        }
         if (player->minimap_zoom < 2048)
         {
-            if (menu_is_active(GMnu_MAIN))
-            {
-                fake_button_click(BID_MAP_ZOOM_OU);
-            }
             set_players_packet_action(player, PckA_SetMinimapConf, 2 * (long)player->minimap_zoom, 0, 0, 0);
             packet_made = true;
         }
@@ -528,12 +528,12 @@ short get_minimap_control_inputs(void)
   }
   if (is_key_pressed(KC_ADD,KMod_NONE))
   {
+      if (menu_is_active(GMnu_MAIN))
+      {
+          fake_button_click(BID_MAP_ZOOM_IN);
+      }
       if ( player->minimap_zoom > 128 )
       {
-          if (menu_is_active(GMnu_MAIN))
-          {
-              fake_button_click(BID_MAP_ZOOM_IN);
-          }
           set_players_packet_action(player, PckA_SetMinimapConf, player->minimap_zoom >> 1, 0, 0, 0);
           packet_made = true;
       }
