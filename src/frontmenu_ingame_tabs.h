@@ -109,6 +109,7 @@ enum IngameButtonDesignationIDs {
     BID_CRTR_NXWRKR,
     BID_CRTR_NXFIGT,
     BID_QUERY_INFO,
+    BID_DUNGEON_INFO,
 };
 
 enum IngameButtonGroupIDs {
