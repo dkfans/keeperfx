@@ -180,6 +180,7 @@ enum TbPacketAction {
         PckA_SetRoomspaceHighlight,
         PckA_SetNearestTeleport,
         PckA_SetRoomspaceDragPaint,
+        PckA_SetGoldPickupMode,
 };
 
 /** Packet flags for non-action player operation. */

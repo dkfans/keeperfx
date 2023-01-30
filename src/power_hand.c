@@ -81,7 +81,8 @@ struct Thing *create_gold_for_hand_grab(struct Thing *thing, long owner)
     {
         dungeon->field_14BC = thing->index;
         GoldAmount gold_req;
-        if (lbKeyOn[KC_LCONTROL])
+        struct PlayerInfoAdd* playeradd = get_playeradd(dungeon->owner);
+        if (playeradd->pickup_all_gold)
         {
             gold_req = thing->valuable.gold_stored;
         }

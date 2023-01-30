@@ -1098,6 +1098,12 @@ long get_dungeon_control_action_inputs(void)
         if ( (player->primary_cursor_state == CSt_PickAxe) || (player->primary_cursor_state == CSt_PowerHand) )
         {
             process_highlight_roomspace_inputs(player->id_number);
+            if ((player->primary_cursor_state == CSt_PowerHand))
+            {
+                struct Packet* pckt = get_packet(player->id_number);
+                TbBool all_gold = (lbKeyOn[KC_LCONTROL]);
+                set_packet_action(pckt,PckA_SetGoldPickupMode,all_gold,0,0,0);
+            }
         }
     }
     else if (player->work_state == PSt_BuildRoom)
