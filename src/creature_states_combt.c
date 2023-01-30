@@ -2906,7 +2906,7 @@ TbBool creature_look_for_enemy_heart_combat(struct Thing *thing)
     return true;
 }
 
-struct Thing* check_for_object_to_fight(struct Thing* thing)
+struct Thing* check_for_object_to_fight(struct Thing* thing) //just traps now, could be expanded to non-trap objects
 {
     long m = CREATURE_RANDOM(thing, SMALL_AROUND_SLAB_LENGTH);
     for (long n = 0; n < SMALL_AROUND_SLAB_LENGTH; n++)
@@ -2918,7 +2918,11 @@ struct Thing* check_for_object_to_fight(struct Thing* thing)
         {
             if (players_are_enemies(thing->owner, trpthing->owner))
             {
-                return trpthing;
+                struct TrapConfigStats* trapst = &gameadd.trapdoor_conf.trap_cfgstats[trpthing->model];
+                if (creature_can_see_invisible(thing) || (trapst->hidden == 0) || (trpthing->trap.revealed == 1))
+                {
+                    return trpthing;
+                }
             }
         }
         m = (m + 1) % SMALL_AROUND_SLAB_LENGTH;
