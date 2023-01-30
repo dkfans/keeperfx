@@ -763,20 +763,12 @@ static TbBool shot_hit_trap_at(struct Thing* shotng, struct Thing* target, struc
     create_relevant_effect_for_shot_hitting_thing(shotng, target);
     if (target->health < 0) 
     {
+        create_effect_element(&target->mappos, TngEffElm_Blast2, target->owner);
         struct TrapConfigStats* trapst = get_trap_model_stats(target->model);
         if (trapst->destructible == 2)
         {
             activate_trap(target, target);
         }
-        if (trapst->destructible > 0)
-        {
-            destroy_trap(target);
-        }
-        else
-        {
-            WARNLOG("Indestructable trap of %s index %d has no health left.", thing_model_name(target), (int)target->index);
-        }
-
     }
     if (shotst->old->destroy_on_first_hit) {
         delete_thing_structure(shotng, 0);
@@ -946,7 +938,7 @@ void create_relevant_effect_for_shot_hitting_thing(struct Thing *shotng, struct 
             break;
         case ShM_PoisonCloud:
             efftng = create_effect(&shotng->mappos, TngEff_Gas3, shotng->owner);
-            if ( !thing_is_invalid(efftng) ) {
+            if (!thing_is_invalid(efftng)) {
                 efftng->shot_effect.hit_type = THit_CrtrsOnly;
             }
             break;
@@ -954,6 +946,7 @@ void create_relevant_effect_for_shot_hitting_thing(struct Thing *shotng, struct 
         case ShM_Missile:
             efftng = create_effect(&shotng->mappos, TngEff_Blood3, shotng->owner);
             break;
+        }
     }
     TRACE_THING(efftng);
 }
