@@ -202,9 +202,13 @@ int LbWarnLog(const char *format, ...)
         return -1;
     LbLogSetPrefix(&error_log, "Warning: ");
     va_list val;
+    va_list val2;
     va_start(val, format);
+    va_copy(val2, val);
     int result=LbLog(&error_log, format, val);
     va_end(val);
+    vfprintf(stderr, format, val2);
+    va_end(val2);
     return result;
 }
 
