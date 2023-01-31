@@ -1345,7 +1345,6 @@ void process_highlight_roomspace_inputs(PlayerNumber plyr_idx)
 {
     long keycode = 0;
     unsigned short par1, par2;
-    unsigned short par3 = 0;
     struct PlayerInfo* player = get_player(plyr_idx);
     struct PlayerInfoAdd* playeradd;
     if (!is_game_key_pressed(Gkey_BestRoomSpace, &keycode, true))
@@ -1381,7 +1380,7 @@ void process_highlight_roomspace_inputs(PlayerNumber plyr_idx)
             }
         }
     }
-    else if (is_game_key_pressed(Gkey_SellTrapOnSubtile, &keycode, true))
+    else if (is_game_key_pressed(Gkey_SellTrapOnSubtile, &keycode, true) )
     {
         if (player->primary_cursor_state == CSt_PowerHand)
         {
@@ -1398,9 +1397,8 @@ void process_highlight_roomspace_inputs(PlayerNumber plyr_idx)
     {
         par1 = 0;
         par2 = numpad_to_value(false);
-        par3 = (lbKeyOn[KC_LCONTROL]);
     }
-    set_players_packet_action(player, PckA_SetRoomspaceHighlight, par1, par2, par3, 0);
+    set_players_packet_action(player, PckA_SetRoomspaceHighlight, par1, par2, 0, 0);
 }
 
 void update_slab_grid(struct RoomSpace* roomspace, unsigned char mode, TbBool sell)

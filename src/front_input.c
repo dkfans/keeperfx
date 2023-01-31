@@ -1860,6 +1860,8 @@ void get_isometric_view_nonaction_inputs(void)
       return;
     if (speed_pressed != 0)
         packet->additional_packet_values |= PCAdV_SpeedupPressed;
+    if (rotate_pressed != 0)
+        packet->additional_packet_values |= PCAdV_RotatePressed;
     TbBool no_mods = false;
     if ((rotate_pressed != 0) || (speed_pressed != 0) || (check_current_gui_layer(GuiLayer_OneClick)))
       no_mods = true;
@@ -2496,6 +2498,10 @@ void input(void)
       pckt->additional_packet_values |= PCAdV_CrtrQueryPressed;
     else
       pckt->additional_packet_values &= ~PCAdV_CrtrQueryPressed;
+    if (is_game_key_pressed(Gkey_RotateMod, NULL, false) != 0)
+        pckt->additional_packet_values |= PCAdV_RotatePressed;
+    else
+        pckt->additional_packet_values &= ~PCAdV_RotatePressed;
 
     get_inputs();
 

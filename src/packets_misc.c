@@ -44,8 +44,6 @@ void set_players_packet_action(struct PlayerInfo *player, unsigned char pcktype,
     struct Packet* pckt = get_packet_direct(player->packet_num);
     pckt->actn_par1 = par1;
     pckt->actn_par2 = par2;
-    pckt->actn_par3 = par3;
-    pckt->actn_par4 = par4;
     pckt->action = pcktype;
 }
 
