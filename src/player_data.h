@@ -47,7 +47,7 @@ enum PlayerInitFlags {
     PlaF_Allocated               = 0x01,
     PlaF_Unknown2                = 0x02,
     PlaF_NewMPMessage            = 0x04,
-    PlaF_Unknown8                = 0x08,
+    PlaF_Unknown8                = 0x08, // Passenger
     PlaF_KeyboardInputDisabled   = 0x10,
     PlaF_ChosenSlabHasActiveTask = 0x20, // Enabled when there are active tasks for the current slab. Used to determine if a high slab is tagged for digging (or not).
     PlaF_CompCtrl                = 0x40,

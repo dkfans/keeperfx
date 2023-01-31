@@ -998,7 +998,7 @@ void init_keeper(void)
     game.creatures_tend_imprison = 0;
     game.creatures_tend_flee = 0;
     game.operation_flags |= GOF_ShowPanel;
-    game.numfield_D |= (GNFldD_Unkn20 | GNFldD_Unkn40);
+    game.numfield_D |= GNFldD_Unkn40;
     init_censorship();
     SYNCDBG(9,"Finished");
 }
@@ -3335,14 +3335,6 @@ TbBool keeper_screen_swap(void)
  */
 TbBool keeper_wait_for_next_turn(void)
 {
-    if ((game.numfield_D & GNFldD_Unkn10) != 0)
-    {
-        // No idea when such situation occurs
-        TbClockMSec sleep_end = last_loop_time + 1000;
-        LbSleepUntil(sleep_end);
-        last_loop_time = LbTimerClock();
-        return true;
-    }
     if (game.frame_skip == 0)
     {
         // Standard delaying system
