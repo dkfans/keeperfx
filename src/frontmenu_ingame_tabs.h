@@ -108,6 +108,7 @@ enum IngameButtonDesignationIDs {
     BID_CRTR_NXWNDR,
     BID_CRTR_NXWRKR,
     BID_CRTR_NXFIGT,
+    BID_OPTIONS,
 };
 
 enum IngameButtonGroupIDs {
