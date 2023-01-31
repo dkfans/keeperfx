@@ -3294,7 +3294,7 @@ TbBool thing_is_shootable(const struct Thing *thing, PlayerNumber shot_owner, Hi
     }
     if (thing_is_deployed_trap(thing))
     {
-        if (thing_is_destructible_trap(thing))
+        if (thing_is_destructible_trap(thing) > 0)
         {
             if (shot_owner == thing->owner) {
                 return ((hit_targets & HitTF_OwnedDestructibleTraps) != 0);

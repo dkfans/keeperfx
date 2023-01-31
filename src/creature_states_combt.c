@@ -1343,7 +1343,7 @@ TbBool combat_enemy_exists(struct Thing *thing, struct Thing *enmtng)
     }
     struct CreatureControl* enmcctrl = creature_control_get_from_thing(enmtng);
     if (creature_control_invalid(enmcctrl) && (enmtng->class_id != TCls_Object) && (enmtng->class_id != TCls_Door) 
-        && !thing_is_destructible_trap(enmtng) && !(thing_is_deployed_trap(enmtng) && creature_has_disarming_weapon(thing)))
+        && (thing_is_destructible_trap(enmtng) <= 0) && !((thing_is_destructible_trap(enmtng) >= 0) && creature_has_disarming_weapon(thing))) //destructible traps -1 can't even be destroyed by disarming weapons, 1 by anybody
     {
         ERRORLOG("No control structure - C%d M%d GT%ld CA%d", (int)enmtng->class_id,
             (int)enmtng->model, (long)game.play_gameturn, (int)thing->creation_turn);
@@ -1916,15 +1916,24 @@ long get_best_melee_object_offensive_weapon(const struct Thing *thing, long dist
     int atktyp = (InstPF_MeleeAttack | InstPF_Destructive | InstPF_Dangerous);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct Thing* objtng = thing_get(cctrl->combat.battle_enemy_idx);
-    CrInstance inst_id;
+    CrInstance inst_id = CrInst_NULL;
+    struct TrapConfigStats* trapst;
 
-    if (thing_is_deployed_trap(objtng) && !thing_is_destructible_trap(objtng))
+    if (thing_is_destructible_trap(objtng) > 0) //can be destroyed by regular object weapons
     {
-        inst_id = get_best_combat_weapon_instance_to_use_versus_trap(thing, offensive_weapon, dist, atktyp);
-    }
-    else
+        trapst = get_trap_model_stats(objtng->model);
+        if (trapst->unstable == 1) //If it's gonna trigger when hurt, better try to disarm it instead
+        {
+            inst_id = get_best_combat_weapon_instance_to_use_versus_trap(thing, offensive_weapon, dist, atktyp);
+        }
+        if (inst_id == CrInst_NULL)
+        {
+            inst_id = get_best_combat_weapon_instance_to_use(thing, offensive_weapon, dist, atktyp);
+        }
+    } else
+    if (thing_is_destructible_trap(objtng) == 0) //can only be destroyed be destroyed by disarming weapons.
     {
-        inst_id = get_best_combat_weapon_instance_to_use(thing, offensive_weapon, dist, atktyp);
+       inst_id = get_best_combat_weapon_instance_to_use_versus_trap(thing, offensive_weapon, dist, atktyp);
     }
     return inst_id;
 }
@@ -1934,15 +1943,26 @@ long get_best_ranged_object_offensive_weapon(const struct Thing *thing, long dis
     int atktyp = (InstPF_RangedAttack | InstPF_Destructive | InstPF_Dangerous);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct Thing* objtng = thing_get(cctrl->combat.battle_enemy_idx);
-    CrInstance inst_id;
-    if (thing_is_deployed_trap(objtng) && !thing_is_destructible_trap(objtng))
+    CrInstance inst_id = CrInst_NULL;
+    struct TrapConfigStats* trapst;
+
+    if (thing_is_destructible_trap(objtng) > 0) //can be destroyed by regular object weapons
     {
-        inst_id = get_best_combat_weapon_instance_to_use_versus_trap(thing, offensive_weapon, dist, atktyp);
+        trapst = get_trap_model_stats(objtng->model);
+        if (trapst->unstable == 1) //If it's gonna trigger when hurt, better try to disarm it instead
+        {
+            inst_id = get_best_combat_weapon_instance_to_use_versus_trap(thing, offensive_weapon, dist, atktyp);
+        }
+        if (inst_id == CrInst_NULL)
+        {
+            inst_id = get_best_combat_weapon_instance_to_use(thing, offensive_weapon, dist, atktyp);
+        }
     }
     else
-    {
-        inst_id = get_best_combat_weapon_instance_to_use(thing, offensive_weapon, dist, atktyp);
-    }
+        if (thing_is_destructible_trap(objtng) == 0) //can only be destroyed be destroyed by disarming weapons.
+        {
+            inst_id = get_best_combat_weapon_instance_to_use_versus_trap(thing, offensive_weapon, dist, atktyp);
+        }
     return inst_id;
 }
 
@@ -2914,7 +2934,7 @@ struct Thing* check_for_object_to_fight(struct Thing* thing) //just traps now, c
         MapSlabCoord slb_x = subtile_slab_fast(thing->mappos.x.stl.num) + (long)small_around[m].delta_x;
         MapSlabCoord slb_y = subtile_slab_fast(thing->mappos.y.stl.num) + (long)small_around[m].delta_y;
         struct Thing* trpthing = get_trap_for_position(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
-        if (thing_is_destructible_trap(trpthing) || (creature_has_disarming_weapon(thing) && thing_is_deployed_trap(trpthing)))
+        if ((thing_is_destructible_trap(trpthing) > 0) || (creature_has_disarming_weapon(thing) && (thing_is_destructible_trap(trpthing) >= 0)))
         {
             if (players_are_enemies(thing->owner, trpthing->owner))
             {
@@ -2945,7 +2965,6 @@ TbBool creature_look_for_enemy_object_combat(struct Thing* thing)
         }
     }
     objtng = check_for_object_to_fight(thing);
-    //objtng = get_enemy_soul_container_creature_can_see(thing);
     if (thing_is_invalid(objtng) || !(creature_can_navigate_to(thing, &objtng->mappos, NavRtF_Default)))
     {
         return false;

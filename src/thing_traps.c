@@ -157,14 +157,14 @@ TbBool slab_middle_column_has_trap_on(MapSlabCoord slb_x, MapSlabCoord slb_y)
     return false;
 }
 
-TbBool thing_is_destructible_trap(const struct Thing *thing)
+short thing_is_destructible_trap(const struct Thing *thing)
 {
     if (thing_is_invalid(thing))
-        return false;
+        return -2;
     if (thing->class_id != TCls_Trap)
-        return false;
+        return -2;
     struct TrapConfigStats* trapst = &gameadd.trapdoor_conf.trap_cfgstats[thing->model];
-    return (trapst->destructible > 0);
+    return trapst->destructible;
 }
 
 TbBool thing_is_sellable_trap(const struct Thing* thing)

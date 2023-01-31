@@ -754,7 +754,8 @@ static TbBool shot_hit_trap_at(struct Thing* shotng, struct Thing* target, struc
     HitPoints damage_done = 0;
     if (shotng->shot.damage)
     {
-        if (thing_is_destructible_trap(target) || (thing_is_deployed_trap(target) && (shotst->model_flags & ShMF_Disarming)))
+  
+        if ((thing_is_destructible_trap(target) > 0) || ((thing_is_destructible_trap(target) > -1) && (shotst->model_flags & ShMF_Disarming)))
         {
             damage_done = apply_damage_to_thing(target, shotng->shot.damage, shotst->damage_type, -1);
 
@@ -770,7 +771,7 @@ static TbBool shot_hit_trap_at(struct Thing* shotng, struct Thing* target, struc
     {
         create_effect_element(&target->mappos, TngEffElm_Blast2, target->owner);
         struct TrapConfigStats* trapst = get_trap_model_stats(target->model);
-        if (trapst->destructible == 2)
+        if (((trapst->unstable == 1) && !(shotst->model_flags & ShMF_Disarming)) || trapst->unstable == 2)
         {
             activate_trap(target, target);
         }

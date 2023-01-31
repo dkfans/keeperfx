@@ -97,7 +97,8 @@ const struct NamedCommand trapdoor_trap_commands[] = {
   {"TRANSPARENCYFLAGS",    31},
   {"SHOTVECTOR",           32},
   {"DESTRUCTIBLE",         33},
-  {"UNSELLABLE",           34},
+  {"UNSTABLE",             34},
+  {"UNSELLABLE",           35},
   {NULL,                    0},
 };
 /******************************************************************************/
@@ -258,6 +259,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
           trapst->hidden = 0;
           trapst->slappable = 0;
           trapst->destructible = 0;
+          trapst->unstable = 0;
           trapst->unsellable = 0;
           trapst->notify = 0;
 
@@ -887,7 +889,23 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
           break;
-      case 34: // UNSELLABLE
+      case 34: // UNSTABLE
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              if (k >= 0)
+              {
+                  trapst->unstable = k;
+                  n++;
+              }
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 35: // UNSELLABLE
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);

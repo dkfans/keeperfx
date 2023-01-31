@@ -68,6 +68,7 @@ struct TrapConfigStats {
     short hidden;
     short slappable;
     short destructible;
+    short unstable;
     short notify;
     short unsellable;
 };
