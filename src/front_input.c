@@ -1860,8 +1860,6 @@ void get_isometric_view_nonaction_inputs(void)
       return;
     if (speed_pressed != 0)
         packet->additional_packet_values |= PCAdV_SpeedupPressed;
-    if (rotate_pressed != 0)
-        packet->additional_packet_values |= PCAdV_RotatePressed;
     TbBool no_mods = false;
     if ((rotate_pressed != 0) || (speed_pressed != 0) || (check_current_gui_layer(GuiLayer_OneClick)))
       no_mods = true;
