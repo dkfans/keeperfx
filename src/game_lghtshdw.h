@@ -57,7 +57,7 @@ struct LightsShadows { // sizeof = 164886
     struct Light lights[LIGHTS_COUNT];
     struct ShadowCache shadow_cache[SHADOW_CACHE_COUNT];
     unsigned short stat_light_map[256*256];
-    long field_46149;
+    long global_ambient_light;
     TbBool light_enabled;
     TbBool lighting_tables_initialised;
     unsigned long light_rand_seed;
