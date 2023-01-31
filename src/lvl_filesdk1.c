@@ -779,6 +779,7 @@ static TbBool load_kfx_toml_file(LevelNumber lv_num, const char *ext, const char
         WARNMSG("Only %d things supported, file has %d.", max_count,total);
 
     }
+    int invalids = 0;
     // Create sections
     for (int k = 0; k < total; k++)
     {
@@ -795,7 +796,11 @@ static TbBool load_kfx_toml_file(LevelNumber lv_num, const char *ext, const char
         }
         if (value_type(section) != VALUE_DICT)
         {
-            WARNMSG("Invalid %s section %d", msg_name, k);
+            if (invalids == 0)
+            {
+                WARNMSG("Invalid %s section %d", msg_name, k);
+            }
+            invalids++;
         }
         else
         {
@@ -807,6 +812,10 @@ static TbBool load_kfx_toml_file(LevelNumber lv_num, const char *ext, const char
     }
     value_fini(root_ptr);
     LbMemoryFree(buf);
+    if (invalids)
+    {
+        WARNMSG("Total %d invalid sections", invalids);
+    }
     return true;
 }
 
