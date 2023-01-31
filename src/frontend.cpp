@@ -573,6 +573,10 @@ void get_player_gui_clicks(void)
             turn_off_all_window_menus();
         } else
         {
+            if (menu_is_active(GMnu_MAIN))
+            {
+              fake_button_click(BID_OPTIONS);
+            }
             turn_on_menu(GMnu_OPTIONS);
         }
       }
