@@ -222,9 +222,9 @@ char field_462;
     char video_cluedo_mode;
     long field_4DB;
     long field_4DF;
-    long field_4E3;
+    long power_of_cooldown_turn;
     long field_4E7;
-    long field_4EB;
+    long display_objective_turn;
     };
 
 struct CheatSelection

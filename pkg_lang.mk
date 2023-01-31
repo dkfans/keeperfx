@@ -53,6 +53,8 @@ pkg/campgns/cqarctic/text_pol.dat \
 pkg/campgns/dstninja/text_eng.dat \
 pkg/campgns/dstninja/text_chi.dat \
 pkg/campgns/dstninja/text_pol.dat \
+pkg/campgns/evilkeep/text_fre.dat \
+pkg/campgns/evilkeep/text_ger.dat \
 pkg/campgns/grkreign/text_eng.dat \
 pkg/campgns/grkreign/text_pol.dat \
 pkg/campgns/grkreign/text_chi.dat \

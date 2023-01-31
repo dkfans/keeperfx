@@ -562,11 +562,6 @@ short save_continue_game(LevelNumber lvnum)
       set_continue_level_number(lvnum);
     SYNCDBG(6,"Continue set to level %d (loaded is %d)",(int)get_continue_level_number(),(int)get_loaded_level_number());
     char* fname = prepare_file_path(FGrp_Save, continue_game_filename);
-    if (!continue_game_available())
-    {
-        WARNLOG("No previous continue game available, deleting %s", fname);
-        LbFileDelete(fname);
-    }
     long fsize = LbFileSaveAt(fname, &game, sizeof(struct Game) + sizeof(struct IntralevelData));
     // Appending IntralevelData
     TbFileHandle fh = LbFileOpen(fname,Lb_FILE_MODE_NEW);
@@ -583,17 +578,17 @@ short read_continue_game_part(unsigned char *buf,long pos,long buf_len)
     {
         SYNCDBG(7, "No correct .SAV file; there's no continue");
         return false;
-    }
-    TbFileHandle fh = LbFileOpen(fname, Lb_FILE_MODE_READ_ONLY);
-    if (fh == -1)
-    {
-        SYNCDBG(7,"Can't open .SAV file; there's no continue");
-        return false;
-    }
-    LbFileSeek(fh, pos, Lb_FILE_SEEK_BEGINNING);
-    short result = (LbFileRead(fh, buf, buf_len) == buf_len);
-    LbFileClose(fh);
-    return result;
+  }
+  TbFileHandle fh = LbFileOpen(fname, Lb_FILE_MODE_READ_ONLY);
+  if (fh == -1)
+  {
+    SYNCDBG(7,"Can't open .SAV file; there's no continue");
+    return false;
+  }
+  LbFileSeek(fh, pos, Lb_FILE_SEEK_BEGINNING);
+  short result = (LbFileRead(fh, buf, buf_len) == buf_len);
+  LbFileClose(fh);
+  return result;
 }
 
 /**
