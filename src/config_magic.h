@@ -264,6 +264,7 @@ struct ShotConfigStats {
     unsigned char cast_spell_kind;
     unsigned char push_on_hit;
     unsigned char hidden_projectile;
+    unsigned char destroy_on_first_hit;
     short bounce_angle;
     short wind_immune;
     short no_air_damage;
@@ -331,7 +332,6 @@ struct ShotStats
   unsigned char inertia_floor;
   unsigned char inertia_air;
   unsigned char field_13; // something with movement flags
-  unsigned char destroy_on_first_hit;
   short field_20;//sound related
   unsigned char target_frozen_on_hit;
   short experience_given_to_shooter;

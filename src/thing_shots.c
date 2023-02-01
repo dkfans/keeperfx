@@ -777,7 +777,7 @@ static TbBool shot_hit_object_at(struct Thing *shotng, struct Thing *target, str
     if (target->health < 0) {
         shot_kill_object(shotng, target);
     }
-    if (shotst->old->destroy_on_first_hit) {
+    if (shotst->destroy_on_first_hit) {
         delete_thing_structure(shotng, 0);
         // If thing was deleted something was hit
         // To test this use zero damage shots
@@ -964,7 +964,7 @@ long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, stru
           shot_kill_creature(shotng,trgtng);
       }
     }
-    if (shotst->old->destroy_on_first_hit) {
+    if (shotst->destroy_on_first_hit) {
         delete_thing_structure(shotng, 0);
     }
     return 1;
@@ -1208,7 +1208,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
     }
 
 
-    if (shotst->old->destroy_on_first_hit != 0) {
+    if (shotst->destroy_on_first_hit != 0) {
         delete_thing_structure(shotng, 0);
     }
     return 1;
