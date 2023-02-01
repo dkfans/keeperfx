@@ -940,8 +940,8 @@ long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, stru
       } else {
           apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, shotst->damage_type, -1);
       }
-      if (shotst->old->target_frozen_on_hit != 0) {
-          tgcctrl->frozen_on_hit = shotst->old->target_frozen_on_hit;
+      if (shotst->target_hitstop_turns != 0) {
+          tgcctrl->frozen_on_hit = shotst->target_hitstop_turns;
       }
       if ( shotst->push_on_hit || creature_is_being_unconscious(trgtng))
       {
@@ -1080,10 +1080,10 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
         }
     }
     struct CreatureControl* cctrl = creature_control_get_from_thing(trgtng);
-    if (shotst->old->target_frozen_on_hit != 0)
+    if (shotst->target_hitstop_turns != 0)
     {
         if (cctrl->frozen_on_hit == 0) {
-            cctrl->frozen_on_hit = shotst->old->target_frozen_on_hit;
+            cctrl->frozen_on_hit = shotst->target_hitstop_turns;
         }
     }
     if (shotst->cast_spell_kind != 0)
