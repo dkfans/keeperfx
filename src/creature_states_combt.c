@@ -1935,6 +1935,10 @@ long get_best_melee_object_offensive_weapon(const struct Thing *thing, long dist
     {
        inst_id = get_best_combat_weapon_instance_to_use_versus_trap(thing, offensive_weapon, dist, atktyp);
     }
+    else
+    {
+        inst_id = get_best_combat_weapon_instance_to_use(thing, offensive_weapon, dist, atktyp);
+    }
     return inst_id;
 }
 
@@ -1959,10 +1963,14 @@ long get_best_ranged_object_offensive_weapon(const struct Thing *thing, long dis
         }
     }
     else
-        if (thing_is_destructible_trap(objtng) == 0) //can only be destroyed be destroyed by disarming weapons.
-        {
-            inst_id = get_best_combat_weapon_instance_to_use_versus_trap(thing, offensive_weapon, dist, atktyp);
-        }
+    if (thing_is_destructible_trap(objtng) == 0) //can only be destroyed be destroyed by disarming weapons.
+    {
+        inst_id = get_best_combat_weapon_instance_to_use_versus_trap(thing, offensive_weapon, dist, atktyp);
+    }
+    else
+    {
+        inst_id = get_best_combat_weapon_instance_to_use(thing, offensive_weapon, dist, atktyp);
+    }
     return inst_id;
 }
 
