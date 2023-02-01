@@ -1598,15 +1598,15 @@ struct Thing *create_shot(struct Coord3d *pos, unsigned short model, unsigned sh
     thing->shot.damage = shotst->damage;
     thing->shot.dexterity = 255;
     thing->health = shotst->health;
-    if (shotst->old->light_radius)
+    if (shotst->light_radius)
     {
         struct InitLight ilght;
         LbMemorySet(&ilght, 0, sizeof(struct InitLight));
         memcpy(&ilght.mappos,&thing->mappos,sizeof(struct Coord3d));
-        ilght.radius = shotst->old->light_radius;
-        ilght.intensity = shotst->old->light_intensity;
+        ilght.radius = shotst->light_radius;
+        ilght.intensity = shotst->light_intensity;
         ilght.is_dynamic = 1;
-        ilght.field_3 = shotst->old->lightf_53;
+        ilght.field_3 = shotst->lightf_53;
         thing->light_id = light_create_light(&ilght);
         if (thing->light_id == 0) {
             // Being out of free lights is quite common - so info instead of warning here

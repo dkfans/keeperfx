@@ -273,6 +273,9 @@ struct ShotConfigStats {
     unsigned char target_hitstop_turns;
     short animation_transparency;
     short fixed_damage;
+    short light_radius;
+    unsigned char light_intensity;
+    unsigned char lightf_53;
 };
 
 typedef unsigned char (*Expand_Check_Func)(void);
@@ -335,9 +338,6 @@ struct ShotStats
   unsigned char inertia_floor;
   unsigned char inertia_air;
   unsigned char field_13; // something with movement flags
-  short light_radius;
-  unsigned char light_intensity;
-  unsigned char lightf_53;
 };
 
 struct MagicStats {  // sizeof=0x4C
