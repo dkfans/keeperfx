@@ -254,6 +254,7 @@ struct ShotConfigStats {
     struct ShotHitConfig dig;
     short firing_sound;
     short shot_sound;
+    short sound_priority;
     unsigned char firing_sound_variants;
     short max_range;
     unsigned short sprite_anim_idx;
@@ -334,7 +335,6 @@ struct ShotStats
   unsigned char inertia_floor;
   unsigned char inertia_air;
   unsigned char field_13; // something with movement flags
-  short field_20;//sound related
   short light_radius;
   unsigned char light_intensity;
   unsigned char lightf_53;
