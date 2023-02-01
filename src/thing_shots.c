@@ -667,7 +667,7 @@ TbBool apply_shot_experience(struct Thing *shooter, long exp_factor, long exp_in
     struct CreatureControl* shcctrl = creature_control_get_from_thing(shooter);
     struct ShotConfigStats* shotst = get_shot_model_stats(shot_model);
     long exp_mag = shotst->experience_given_to_shooter;
-    long exp_gained = (exp_mag * (exp_factor + 12 * exp_factor * exp_increase / 100) << 8) / 256;
+    long exp_gained = (exp_mag * (exp_factor + gameadd.crtr_conf.exp.exp_on_hitting_increase_on_exp * exp_factor * exp_increase / 100) << 8) / 256;
     shcctrl->prev_exp_points = shcctrl->exp_points;
     shcctrl->exp_points += exp_gained;
     if ( check_experience_upgrade(shooter) ) {
