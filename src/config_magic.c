@@ -101,6 +101,7 @@ const struct NamedCommand magic_shot_commands[] = {
   {"DIGSOUNDVARIANTS",      36},
   {"DIGEFFECT",             37},
   {"DESTROYONHIT",          38},
+  {"BASEEXPERIENCEGAIN",    39},
   {NULL,                     0},
   };
 
@@ -238,36 +239,36 @@ const Expand_Check_Func powermodel_expand_check_func_list[] = {
 
 static struct ShotStats shot_stats[30]=
 {   
-    { 0, 0,0,0,0,0,  0,   0, 0,0},//stuff bigger then 30 gets remaped to 0  //SHOT_WORD_OF_POWER  //SHOT_TRAP_WORD_OF_POWER  
-	{ 1, 0,0,0,1,6,256,1792,52,1},//SHOT_FIREBALL
-	{ 1, 0,0,0,1,6,256,2560,52,1},//SHOT_FIREBOMB
-	{ 1, 0,0,0,1,6,256,   0, 0,0},//SHOT_FREEZE
-	{ 0, 0,0,0,1,6,256,2560,52,0},//SHOT_LIGHTNING
-	{ 1, 0,0,0,1,6,256,   0, 0,0},//SHOT_POISON_CLOUD
-	{ 1, 0,0,0,1,6,256,   0, 0,0},//SHOT_NAVI_MISSILE
-	{ 0, 0,0,0,1,6, 32,1792,52,0},//SHOT_FLAME_BREATH
-	{ 0, 0,0,1,1,6,256,   0, 0,0},//SHOT_WIND
-	{ 1, 0,0,0,1,6,256,   0, 0,0},//SHOT_MISSILE
-	{ 1, 0,0,0,1,6,256,   0, 0,0},//SHOT_SLOW
-	{ 0,32,0,1,1,0,256,   0, 0,0},//SHOT_GRENADE  //SHOT_LIZARD
-	{ 0, 0,0,0,1,0,256,   0, 0,0},//SHOT_DRAIN
-	{ 0, 0,0,0,1,6,256,   0, 0,0},//SHOT_HAILSTORM
-	{ 1, 0,0,0,1,6,256,   0, 0,0},//SHOT_ARROW
-	{ 0, 0,0,1,1,0,256,   0, 0,0},//SHOT_BOULDER
-	{ 0, 0,0,0,1,0,256,   0, 0,0},//SHOT_GOD_LIGHTNING
-	{ 0, 0,0,0,1,0,256,   0, 0,0},//SHOT_SPIKE
-	{ 0, 0,0,1,1,6,256,   0, 0,0},//hardcoded remap from 18 to 11
-	{ 0, 0,0,0,4,0,256,   0, 0,0},//SHOT_ALARM
-	{ 0, 0,0,1,1,0,256,   0, 0,0},//SHOT_SOLID_BOULDER
-	{ 1, 0,0,0,1,6,256,   0, 0,0},//SHOT_SWING_SWORD
-	{ 1, 0,0,0,1,6,256,   0, 0,0},//SHOT_SWING_FIST
-	{ 1, 0,0,1,1,0,256,   0, 0,0},//SHOT_DIG
-	{ 0, 0,0,0,1,0,256,   0, 0,0},//SHOT_LIGHTNING_BALL
-	{ 0, 0,0,0,1,0,256,   0, 0,0},//SHOT_GROUP
-	{ 0, 0,0,0,1,6,256,   0, 0,0},//SHOT_DISEASE
-	{ 0, 0,0,0,1,6,256,   0, 0,0},//SHOT_CHICKEN
-	{ 0, 0,0,0,1,6,256,   0, 0,0},//SHOT_TIME_BOMB
-	{ 0, 0,0,0,3,6,256,2560,52,0} //SHOT_TRAP_LIGHTNING
+    { 0, 0,0,0,0,0,   0, 0,0},//stuff bigger then 30 gets remaped to 0  //SHOT_WORD_OF_POWER  //SHOT_TRAP_WORD_OF_POWER  
+	{ 1, 0,0,0,1,6,1792,52,1},//SHOT_FIREBALL
+	{ 1, 0,0,0,1,6,2560,52,1},//SHOT_FIREBOMB
+	{ 1, 0,0,0,1,6,   0, 0,0},//SHOT_FREEZE
+	{ 0, 0,0,0,1,6,2560,52,0},//SHOT_LIGHTNING
+	{ 1, 0,0,0,1,6,   0, 0,0},//SHOT_POISON_CLOUD
+	{ 1, 0,0,0,1,6,   0, 0,0},//SHOT_NAVI_MISSILE
+	{ 0, 0,0,0,1,6,1792,52,0},//SHOT_FLAME_BREATH
+	{ 0, 0,0,1,1,6,   0, 0,0},//SHOT_WIND
+	{ 1, 0,0,0,1,6,   0, 0,0},//SHOT_MISSILE
+	{ 1, 0,0,0,1,6,   0, 0,0},//SHOT_SLOW
+	{ 0,32,0,1,1,0,   0, 0,0},//SHOT_GRENADE  //SHOT_LIZARD
+	{ 0, 0,0,0,1,0,   0, 0,0},//SHOT_DRAIN
+	{ 0, 0,0,0,1,6,   0, 0,0},//SHOT_HAILSTORM
+	{ 1, 0,0,0,1,6,   0, 0,0},//SHOT_ARROW
+	{ 0, 0,0,1,1,0,   0, 0,0},//SHOT_BOULDER
+	{ 0, 0,0,0,1,0,   0, 0,0},//SHOT_GOD_LIGHTNING
+	{ 0, 0,0,0,1,0,   0, 0,0},//SHOT_SPIKE
+	{ 0, 0,0,1,1,6,   0, 0,0},//hardcoded remap from 18 to 11
+	{ 0, 0,0,0,4,0,   0, 0,0},//SHOT_ALARM
+	{ 0, 0,0,1,1,0,   0, 0,0},//SHOT_SOLID_BOULDER
+	{ 1, 0,0,0,1,6,   0, 0,0},//SHOT_SWING_SWORD
+	{ 1, 0,0,0,1,6,   0, 0,0},//SHOT_SWING_FIST
+	{ 1, 0,0,1,1,0,   0, 0,0},//SHOT_DIG
+	{ 0, 0,0,0,1,0,   0, 0,0},//SHOT_LIGHTNING_BALL
+	{ 0, 0,0,0,1,0,   0, 0,0},//SHOT_GROUP
+	{ 0, 0,0,0,1,6,   0, 0,0},//SHOT_DISEASE
+	{ 0, 0,0,0,1,6,   0, 0,0},//SHOT_CHICKEN
+	{ 0, 0,0,0,1,6,   0, 0,0},//SHOT_TIME_BOMB
+	{ 0, 0,0,0,3,6,2560,52,0} //SHOT_TRAP_LIGHTNING
 };
 
 /******************************************************************************/
@@ -391,7 +392,7 @@ short write_magic_shot_to_log(const struct ShotConfigStats *shotst, int num)
 {
   JUSTMSG("[shot%d]",(int)num);
   JUSTMSG("Name = %s",shotst->code_name);
-  JUSTMSG("Values = %d %d",(int)shotst->damage_type,(int)shotst->old->experience_given_to_shooter);
+  JUSTMSG("Values = %d %d",(int)shotst->damage_type,(int)shotst->experience_given_to_shooter);
   return true;
 }
 
@@ -772,6 +773,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
               shotst->size_yz = 0;
               shotst->speed = 0;
               shotst->destroy_on_first_hit = 0;
+              shotst->experience_given_to_shooter = 0;
               shotst->wind_immune = 0;
               shotst->animation_transparency = 0;
               shotst->fixed_damage = 0;
@@ -1402,6 +1404,19 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           {
               k = atoi(word_buf);
               shotst->destroy_on_first_hit = k;
+              n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 39: //BASEEXPERIENCEGAIN
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->experience_given_to_shooter = k;
               n++;
           }
           if (n < 1)
