@@ -172,7 +172,7 @@ static void init_level(void)
     {
         if (script_preloaded == false)
         {
-            // TODO: whine about missing file to screen
+            show_onscreen_msg(200,"%s: No Script %d", get_string(GUIStr_Error), get_selected_level_number());
             JUSTMSG("Unable to load script level %d from %s", get_selected_level_number(), campaign.name);
         }
     }
