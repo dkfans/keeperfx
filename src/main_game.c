@@ -161,16 +161,20 @@ static void init_level(void)
     init_map_size(get_selected_level_number());
     clear_messages();
     // Load the actual level files
-    TbBool ok = preload_script(get_selected_level_number());
-    if (ok)
-    {
-        ok = load_map_file(get_selected_level_number());
-    }
-    if (!ok)
+    TbBool script_preloaded = preload_script(get_selected_level_number());
+    if (!load_map_file(get_selected_level_number()))
     {
         // TODO: whine about missing file to screen
         JUSTMSG("Unable to load level %d from %s", get_selected_level_number(), campaign.name);
         return;
+    }
+    else
+    {
+        if (script_preloaded == false)
+        {
+            // TODO: whine about missing file to screen
+            JUSTMSG("Unable to load script level %d from %s", get_selected_level_number(), campaign.name);
+        }
     }
 
     init_navigation();
