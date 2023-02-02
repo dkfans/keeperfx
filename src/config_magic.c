@@ -103,7 +103,7 @@ const struct NamedCommand magic_shot_commands[] = {
   {"DESTROYONHIT",          38},
   {"BASEEXPERIENCEGAIN",    39},
   {"TARGETHITSTOPTURNS",    40},
-  {"SHOTSHOUNDPRIORITY",    41},
+  {"SHOTSOUNDPRIORITY",     41},
   {"LIGHTING",              42},
   {NULL,                     0},
   };
@@ -1443,7 +1443,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
           break;
-      case 41: //SHOTSHOUNDPRIORITY
+      case 41: //SHOTSOUNDPRIORITY
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
