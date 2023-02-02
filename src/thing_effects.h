@@ -262,8 +262,8 @@ struct EffectElementStats { // sizeof = 79
   unsigned short sprite_speed_min;
   unsigned short sprite_speed_max;
   unsigned char field_12;
-  unsigned char field_13;
-  unsigned char field_14;  // transparency flags in bits 4-5
+  unsigned char unshaded;
+  unsigned char transparant;  // transparency flags in bits 4-5
   unsigned char field_15;
   unsigned char field_16;
   unsigned char field_17;

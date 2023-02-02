@@ -278,6 +278,7 @@ struct ShotConfigStats {
     short light_radius;
     unsigned char light_intensity;
     unsigned char lightf_53;
+    unsigned char unshaded;
 };
 
 typedef unsigned char (*Expand_Check_Func)(void);
@@ -336,7 +337,6 @@ struct SpellConfig { // sizeof=4
 
 struct ShotStats
 {
-  unsigned char field_6; //something with rendering flags
   unsigned char field_13; // something with movement flags
 };
 
