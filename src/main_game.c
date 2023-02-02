@@ -163,19 +163,21 @@ static void init_level(void)
     init_map_size(get_selected_level_number());
     clear_messages();
     // Load the actual level files
-
-    TbBool luascript_ok = open_lua_script(get_selected_level_number());
-    TbBool dkscript_ok  = preload_script(get_selected_level_number());
-    TbBool ok = (luascript_ok || dkscript_ok);
-    if (ok)
-    {
-        ok = load_map_file(get_selected_level_number());
-    }
-    if (!ok)
+    TbBool luascript_loaded = open_lua_script(get_selected_level_number());
+    TbBool script_preloaded = preload_script(get_selected_level_number());
+    if (!load_map_file(get_selected_level_number()))
     {
         // TODO: whine about missing file to screen
         JUSTMSG("Unable to load level %d from %s", get_selected_level_number(), campaign.name);
         return;
+    }
+    else
+    {
+        if (script_preloaded == false && luascript_loaded == false)
+        {
+            show_onscreen_msg(200,"%s: No Script %d", get_string(GUIStr_Error), get_selected_level_number());
+            JUSTMSG("Unable to load script level %d from %s", get_selected_level_number(), campaign.name);
+        }
     }
 
     init_navigation();

@@ -1005,6 +1005,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
         {
             reset_dungeon_build_room_ui_variables(plyr_idx);
             playeradd->roomspace_width = playeradd->roomspace_height = pckt->actn_par2;
+            playeradd->pickup_all_gold = (pckt->additional_packet_values & PCAdV_RotatePressed);
         }
         playeradd->roomspace_no_default = true;
         return false;
