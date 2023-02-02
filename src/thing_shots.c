@@ -1584,8 +1584,8 @@ struct Thing *create_shot(struct Coord3d *pos, unsigned short model, unsigned sh
     thing->owner = owner;
     thing->bounce_angle = shotst->bounce_angle;
     thing->fall_acceleration = shotst->fall_acceleration;
-    thing->inertia_floor = shotst->old->inertia_floor;
-    thing->inertia_air = shotst->old->inertia_air;
+    thing->inertia_floor = shotst->inertia_floor;
+    thing->inertia_air = shotst->inertia_air;
     thing->movement_flags ^= (thing->movement_flags ^ TMvF_Unknown08 * shotst->old->field_13) & TMvF_Unknown08;
     set_thing_draw(thing, shotst->sprite_anim_idx, 256, shotst->sprite_size_max, 0, 0, 2);
     thing->rendering_flags ^= (thing->rendering_flags ^ 0x02 * shotst->old->field_6) & TRF_Unshaded;

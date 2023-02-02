@@ -84,7 +84,7 @@ enum ThingMovementFlags {
     TMvF_IsOnWater          = 0x01,
     TMvF_IsOnLava           = 0x02,
     TMvF_BeingSacrificed    = 0x04,
-    TMvF_Unknown08          = 0x08,
+    TMvF_Unknown08          = 0x08, // thing->veloc_base.z.val = 0
     TMvF_Unknown10          = 0x10, //Stopped by walls?
     TMvF_Flying             = 0x20,
     TMvF_Unknown40          = 0x40,

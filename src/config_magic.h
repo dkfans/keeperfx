@@ -266,7 +266,9 @@ struct ShotConfigStats {
     unsigned char push_on_hit;
     unsigned char hidden_projectile;
     unsigned char destroy_on_first_hit;
-    short experience_given_to_shooter;  
+    short experience_given_to_shooter;
+    unsigned char inertia_floor;
+    unsigned char inertia_air;
     short bounce_angle;
     short wind_immune;
     short no_air_damage;
@@ -335,8 +337,6 @@ struct SpellConfig { // sizeof=4
 struct ShotStats
 {
   unsigned char field_6; //something with rendering flags
-  unsigned char inertia_floor;
-  unsigned char inertia_air;
   unsigned char field_13; // something with movement flags
 };
 
