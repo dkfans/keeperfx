@@ -245,7 +245,6 @@ struct ShotConfigStats {
     short damage;
     short speed;
     DamageType damage_type;
-    struct ShotStats *old;
     struct ShotHitConfig hit_generic;
     struct ShotHitConfig hit_door;
     struct ShotHitConfig hit_water;
@@ -279,6 +278,7 @@ struct ShotConfigStats {
     unsigned char light_intensity;
     unsigned char lightf_53;
     unsigned char unshaded;
+    unsigned char soft_landing;
 };
 
 typedef unsigned char (*Expand_Check_Func)(void);
@@ -333,11 +333,6 @@ struct MagicConfig {
 
 struct SpellConfig { // sizeof=4
   int duration;
-};
-
-struct ShotStats
-{
-  unsigned char field_13; // something with movement flags
 };
 
 struct MagicStats {  // sizeof=0x4C

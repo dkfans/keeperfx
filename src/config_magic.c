@@ -107,6 +107,7 @@ const struct NamedCommand magic_shot_commands[] = {
   {"LIGHTING",              42},
   {"INERTIA",               43},
   {"UNSHADED",              44},
+  {"SOFTLANDING",           45},
   {NULL,                     0},
   };
 
@@ -240,40 +241,6 @@ const Expand_Check_Func powermodel_expand_check_func_list[] = {
   call_to_arms_expand_check,
   NULL,
   NULL,
-};
-
-static struct ShotStats shot_stats[30]=
-{   
-    { 0},//stuff bigger then 30 gets remaped to 0  //SHOT_WORD_OF_POWER  //SHOT_TRAP_WORD_OF_POWER  
-	{ 0},//SHOT_FIREBALL
-	{ 0},//SHOT_FIREBOMB
-	{ 0},//SHOT_FREEZE
-	{ 0,},//SHOT_LIGHTNING
-	{ 0},//SHOT_POISON_CLOUD
-	{ 0},//SHOT_NAVI_MISSILE
-	{ 0,},//SHOT_FLAME_BREATH
-	{ 1},//SHOT_WIND
-	{ 0},//SHOT_MISSILE
-	{ 0},//SHOT_SLOW
-	{ 1},//SHOT_GRENADE  //SHOT_LIZARD
-	{ 0},//SHOT_DRAIN
-	{ 0},//SHOT_HAILSTORM
-	{ 0},//SHOT_ARROW
-	{ 1},//SHOT_BOULDER
-	{ 0},//SHOT_GOD_LIGHTNING
-	{ 0},//SHOT_SPIKE
-	{ 1},//hardcoded remap from 18 to 11
-	{ 0},//SHOT_ALARM
-	{ 1},//SHOT_SOLID_BOULDER
-	{ 0},//SHOT_SWING_SWORD
-	{ 0},//SHOT_SWING_FIST
-	{ 1},//SHOT_DIG
-	{ 0},//SHOT_LIGHTNING_BALL
-	{ 0},//SHOT_GROUP
-	{ 0},//SHOT_DISEASE
-	{ 0},//SHOT_CHICKEN
-	{ 0},//SHOT_TIME_BOMB
-	{ 0} //SHOT_TRAP_LIGHTNING
 };
 
 /******************************************************************************/
@@ -736,19 +703,6 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           {
               LbMemorySet(shotst->code_name, 0, COMMAND_WORD_LEN);
               shotst->model_flags = 0;
-              if (i == 18)
-              {
-                  shotst->old = &shot_stats[11];
-              }
-              else
-                  if (i < 30)
-                  {
-                      shotst->old = &shot_stats[i];
-                  }
-                  else
-                  {
-                      shotst->old = &shot_stats[0];
-                  }
               if (i < magic_conf.shot_types_count)
               {
                   shot_desc[i].name = shotst->code_name;
@@ -789,6 +743,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
               shotst->inertia_air = 0;
               shotst->inertia_floor = 0;
               shotst->target_hitstop_turns = 0;
+              shotst->soft_landing = 0;
           }
       }
   }
@@ -1512,6 +1467,19 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           {
               k = atoi(word_buf);
               shotst->unshaded = k;
+              n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 45: //SOFTLANDING
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->soft_landing = k;
               n++;
           }
           if (n < 1)
