@@ -296,10 +296,10 @@ TbBool S3DMoveSoundEmitterTo(SoundEmitterID eidx, long x, long y, long z)
     return true;
 }
 
-TbBool S3DAddSampleToEmitterPri(SoundEmitterID eidx, SoundSmplTblID smptbl_id, SoundBankID bank_id, SoundPitch pitch, SoundVolume loudness, long a6, char a7, long a8, long a9)
+TbBool S3DAddSampleToEmitterPri(SoundEmitterID eidx, SoundSmplTblID smptbl_id, SoundBankID bank_id, SoundPitch pitch, SoundVolume loudness, long a6, char a7, long a8, long priority)
 {
     struct SoundEmitter* emit = S3DGetSoundEmitter(eidx);
-    return start_emitter_playing(emit, smptbl_id, bank_id, pitch, loudness, a6, a7, a8, a9) != 0;
+    return start_emitter_playing(emit, smptbl_id, bank_id, pitch, loudness, a6, a7, a8, priority) != 0;
 }
 
 long S3DCreateSoundEmitterPri(long x, long y, long z, SoundSmplTblID smptbl_id, SoundBankID bank_id, SoundPitch pitch, SoundVolume loudness, long a8, long a9, long a10)
@@ -653,10 +653,10 @@ short find_slot(long fild8, SoundBankID bank_id, struct SoundEmitter *emit, long
         sample = &SampleList[i];
         if (sample->is_playing == 0)
             return i;
-        if (spcval > sample->field_0)
+        if (spcval > sample->priority)
         {
             min_sample_id = i;
-            spcval = sample->field_0;
+            spcval = sample->priority;
         }
     }
     if (spcval >= spcmax)
@@ -1017,13 +1017,13 @@ long play_speech_sample(SoundSmplTblID smptbl_id)
     return true;
 }
 
-long start_emitter_playing(struct SoundEmitter *emit, SoundSmplTblID smptbl_id, SoundBankID bank_id, long smpitch, SoundVolume loudness, long fild1D, long ctype, unsigned char flags, long fild0)
+long start_emitter_playing(struct SoundEmitter *emit, SoundSmplTblID smptbl_id, SoundBankID bank_id, long smpitch, SoundVolume loudness, long fild1D, long ctype, unsigned char flags, long priority)
 {
     long pan;
     long volume;
     long pitch;
     get_emitter_pan_volume_pitch(&Receiver, emit, &pan, &volume, &pitch);
-    long smpl_idx = find_slot(smptbl_id, bank_id, emit, ctype, fild0);
+    long smpl_idx = find_slot(smptbl_id, bank_id, emit, ctype, priority);
     volume = (volume * loudness) / 256;
     if (smpl_idx < 0)
         return 0;
@@ -1032,7 +1032,7 @@ long start_emitter_playing(struct SoundEmitter *emit, SoundSmplTblID smptbl_id, 
         return 0;
     }
     struct S3DSample* sample = &SampleList[smpl_idx];
-    sample->field_0 = fild0;
+    sample->priority = priority;
     sample->smptbl_id = smptbl_id;
     sample->bank_id = bank_id;
     sample->emit_ptr = emit;

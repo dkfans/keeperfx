@@ -452,7 +452,7 @@ struct Thing *create_object(const struct Coord3d *pos, unsigned short model, uns
     thing->bounce_angle = 0;
     thing->movement_flags |= TMvF_Unknown08;
 
-    set_flag_byte(&thing->movement_flags, TMvF_Unknown40, objconf->movement_flag);
+    set_flag_byte(&thing->movement_flags, TMvF_Immobile, objconf->movement_flag);
     thing->owner = owner;
     thing->creation_turn = game.play_gameturn;
 
@@ -1436,9 +1436,9 @@ void update_dungeon_heart_beat(struct Thing *heartng)
         struct ObjectConfig* objconf = get_object_model_stats2(ObjMdl_SoulCountainer);
         long long k = 384 * (long)(objconf->health - heartng->health) / objconf->health;
         k = base_heart_beat_rate / (k + 128);
-        // intensity capped to 66 to fix the first beat flickering black which is visible when SKIP_HEART_ZOOM is on
-        int intensity = min(light_get_light_intensity(heartng->light_id) + (i*36/k), 66);
-        light_set_light_intensity(heartng->light_id, intensity);
+        int intensity = light_get_light_intensity(heartng->light_id) + (i*36/k);
+        // intensity capped to 63 to fix the first beat flickering black which is visible when SKIP_HEART_ZOOM is on
+        light_set_light_intensity(heartng->light_id, min(intensity, 63));
         heartng->anim_time += (i*base_heart_beat_rate/k);
         if (heartng->anim_time < 0)
         {
@@ -1995,7 +1995,7 @@ TngUpdateRet update_object(struct Thing *thing)
     SYNCDBG(18,"Updating position");
     thing->movement_flags &= ~TMvF_IsOnWater;
     thing->movement_flags &= ~TMvF_IsOnLava;
-    if ( ((thing->movement_flags & TMvF_Unknown40) == 0) && thing_touching_floor(thing) )
+    if ( ((thing->movement_flags & TMvF_Immobile) == 0) && thing_touching_floor(thing) )
     {
       if (subtile_has_lava_on_top(thing->mappos.x.stl.num, thing->mappos.y.stl.num))
       {
@@ -2012,7 +2012,7 @@ TngUpdateRet update_object(struct Thing *thing)
         thing->movement_flags |= TMvF_IsOnWater;
       }
     }
-    if ((thing->movement_flags & TMvF_Unknown40) != 0)
+    if ((thing->movement_flags & TMvF_Immobile) != 0)
         return TUFRet_Modified;
     return move_object(thing);
 }

@@ -2823,10 +2823,10 @@ short creature_slap_cowers(struct Thing *creatng)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     TRACE_THING(creatng);
-    if (cctrl->field_27F > 0) {
-        cctrl->field_27F--;
+    if (cctrl->cowers_from_slap_turns > 0) {
+        cctrl->cowers_from_slap_turns--;
     }
-    if (cctrl->field_27F > 0) {
+    if (cctrl->cowers_from_slap_turns > 0) {
         return 0;
     }
     restore_backup_state(creatng, cctrl->active_state_bkp, cctrl->continue_state_bkp);

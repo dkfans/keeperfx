@@ -734,7 +734,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
           break;
-      case 26: // THING_SIZE
+      case 26: // THINGSIZE
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);

@@ -2991,7 +2991,7 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
       }
       if (shotst->shot_sound > 0)
       {
-        thing_play_sample(shotng, shotst->shot_sound, NORMAL_PITCH, 0, 3, 0, shotst->old->field_20, FULL_LOUDNESS);
+        thing_play_sample(shotng, shotst->shot_sound, NORMAL_PITCH, 0, 3, 0, shotst->sound_priority, FULL_LOUDNESS);
       }
       set_flag_byte(&shotng->movement_flags,TMvF_Unknown10,flag1);
     }

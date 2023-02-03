@@ -244,6 +244,7 @@ struct CreatureExperience {
     long defense_increase_on_exp;
     long loyalty_increase_on_exp;
     long armour_increase_on_exp;
+    long exp_on_hitting_increase_on_exp;
 };
 
 struct CreatureConfig {
