@@ -115,6 +115,7 @@ enum GameFlags2 {
     GF2_Timer                     = 0x0004,
     GF2_Server                    = 0x0008, // Run server after loading
     GF2_Connect                   = 0x0010, // Connect to first session after loading
+    GF2_NextTurn                  = 0x0020, // Next physics turn should be allowed
     GF2_ShowEventLog              = 0x00010000,
     GF2_PERSISTENT_FLAGS          = 0xFFFF0000
 };

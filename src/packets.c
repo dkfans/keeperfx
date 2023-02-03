@@ -26,59 +26,35 @@
 #include "bflib_video.h"
 #include "bflib_sprite.h"
 #include "bflib_keybrd.h"
-#include "bflib_vidraw.h"
-#include "bflib_fileio.h"
-#include "bflib_dernc.h"
 #include "bflib_network.h"
 #include "bflib_sound.h"
 #include "bflib_sndlib.h"
-#include "bflib_sprfnt.h"
-#include "bflib_planar.h"
 
 #include "kjm_input.h"
-#include "front_input.h"
 #include "front_simple.h"
-#include "front_landview.h"
-#include "front_network.h"
-#include "frontmenu_net.h"
 #include "frontend.h"
 #include "vidmode.h"
-#include "config.h"
 #include "config_creature.h"
-#include "config_crtrmodel.h"
-#include "config_effects.h"
 #include "config_terrain.h"
-#include "config_players.h"
 #include "config_settings.h"
 #include "player_instances.h"
 #include "player_data.h"
 #include "player_states.h"
-#include "player_utils.h"
-#include "thing_physics.h"
-#include "thing_doors.h"
 #include "thing_effects.h"
 #include "thing_objects.h"
-#include "thing_navigate.h"
 #include "thing_creature.h"
 #include "creature_states.h"
 #include "creature_instances.h"
-#include "creature_groups.h"
 #include "console_cmd.h"
 #include "dungeon_data.h"
-#include "tasks_list.h"
 #include "power_specials.h"
 #include "power_hand.h"
 #include "room_util.h"
-#include "room_workshop.h"
 #include "room_data.h"
 #include "thing_stats.h"
 #include "thing_traps.h"
 #include "magic.h"
-#include "map_blocks.h"
-#include "map_utils.h"
 #include "light_data.h"
-#include "gui_draw.h"
-#include "gui_topmsg.h"
 #include "gui_frontmenu.h"
 #include "gui_soundmsgs.h"
 #include "gui_parchment.h"
@@ -87,15 +63,11 @@
 #include "net_sync.h"
 #include "game_legacy.h"
 #include "engine_redraw.h"
-#include "frontmenu_ingame_tabs.h"
-#include "vidfade.h"
-#include "spdigger_stack.h"
 #include "frontmenu_ingame_map.h"
 
 #include "keeperfx.hpp"
 
 #include "music_player.h"
-#include "bflib_datetm.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -1436,11 +1408,15 @@ static void process_lost_players(int old_active_players)
             struct PlayerInfo *player = get_player(i);
             if (!network_player_active(player->packet_num))
             {
-                message_add(MsgType_Player, player->id_number, "I am the computer now!");
-                JUSTLOG("p:%d I am the computer now!", player->id_number);
-
-                player->allocflags |= PlaF_CompCtrl;
-                toggle_computer_player(i);
+                NETLOG("Player %d lost", i);
+                // TODO: do something instead of silent AI
+                player->is_active = 0;
+                message_add(MsgType_Query, player->id_number, "<Player lost>");
+                // TODO: do we need an option to turn players into computers
+                //message_add(MsgType_Player, player->id_number, "I am the computer now!");
+                //JUSTLOG("p:%d I am the computer now!", player->id_number);
+                //player->allocflags |= PlaF_CompCtrl;
+                //toggle_computer_player(i);
             }
         }
     }
@@ -1448,11 +1424,33 @@ static void process_lost_players(int old_active_players)
 
 static TbBool process_packets_cb(void *context, unsigned long turn, int net_player_idx, unsigned char kind, void *packet_data, short size)
 {
-    // TODO: copy all packets to game.packets
     if (kind == PckA_FrameSrv)
     {
-        assert(size <= sizeof(net_screen_packet));
-        memcpy(&net_screen_packet, packet_data, size);
+        assert(size <= sizeof(game.packets));
+        memcpy(game.packets, packet_data, size);
+
+        for (int i = 0; i < NET_PLAYERS_COUNT; i++)
+        {
+            struct Packet* pckt = get_packet_direct(i);
+            pckt->net_flags |= PACKET_IS_NEW;
+        }
+    }
+    else if (kind == PckA_Frame)
+    {
+        assert( net_player_idx == my_player_number);
+        struct Packet* pckt = get_packet_direct(net_player_idx);
+        pckt->net_flags |= PACKET_IS_NEW;
+        return false;
+    }
+    else if (kind == PckA_Resync)
+    {
+        if (net_player_idx == SERVER_ID)
+        {
+            game.system_flags |= GSF_NetGameNoSync;
+            NETLOG("Forced to resync");
+            return resync_callback(NULL, turn, net_player_idx, kind, packet_data, size);
+        }
+        // Client wants other client to resync?
     }
     else
     {
@@ -1463,10 +1461,24 @@ static TbBool process_packets_cb(void *context, unsigned long turn, int net_play
 
 static TbBool process_packets_server_cb(void *context, unsigned long turn, int net_player_idx, unsigned char kind, void *packet_data, short size)
 {
-    // TODO: copy player packet to game.packets
     if (kind == PckA_Frame)
     {
-        memcpy(&net_screen_packet[net_player_idx], packet_data, sizeof(struct ScreenPacket));
+        assert(size == sizeof(struct Packet));
+        memcpy(&game.packets[net_player_idx], packet_data, size);
+        struct Packet *pckt = &game.packets[net_player_idx];
+
+        pckt->net_flags |= PACKET_IS_NEW;
+    }
+    else if (kind == PckA_FrameSrv)
+    {
+        assert(size <= sizeof(game.packets));
+        struct Packet* pckt = get_packet_direct(net_player_idx);
+        pckt->net_flags |= PACKET_IS_NEW;
+    }
+    else if (kind == PckA_LevelExactCheck)
+    {
+        // It seems delayed packet.
+        return false;
     }
     else
     {
@@ -1479,11 +1491,15 @@ static TbBool process_packets_server_cb(void *context, unsigned long turn, int n
  */
 void process_packets(void)
 {
-    int i;
     struct PlayerInfo* player;
     SYNCDBG(5, "Starting");
     // Do the network data exchange
-    lbDisplay.DrawColour = colours[15][15][15];
+    if (game.system_flags & GSF_NetGameNoSync)
+    {
+        SYNCDBG(0,"Resyncing");
+        resync_game();
+        return;
+    }
     // Exchange packets with the network
     if (game.game_kind != GKind_LocalGame)
     {
@@ -1491,10 +1507,16 @@ void process_packets(void)
         int old_active_players = count_active_players();
         if (!game.packet_load_enable)
         {
-            struct Packet* outgoing;
+            for (int i = 0; i < NET_PLAYERS_COUNT; i++)
+            {
+                struct Packet *pckt = get_packet_direct(i);
+                pckt->net_flags &= ~PACKET_IS_NEW;
+            }
+            struct Packet *outgoing;
             if (LbNetwork_IsServer())
             {
-                outgoing = LbNetwork_AddPacket(PckA_FrameSrv, game.play_gameturn, sizeof(struct Packet) * NET_PLAYERS_COUNT);
+                outgoing = LbNetwork_AddPacket(PckA_FrameSrv, game.play_gameturn,
+                                               sizeof(struct Packet) * NET_PLAYERS_COUNT);
                 memcpy(outgoing, game.packets, sizeof(struct Packet) * NET_PLAYERS_COUNT);
                 if (LbNetwork_Exchange(game.packets, process_packets_server_cb) != 0)
                 {
@@ -1503,7 +1525,7 @@ void process_packets(void)
             }
             else
             {
-                struct Packet* pckt = get_packet_direct(player->packet_num);
+                struct Packet *pckt = get_packet_direct(player->packet_num);
                 outgoing = LbNetwork_AddPacket(PckA_Frame, game.play_gameturn, sizeof(struct Packet));
                 memcpy(outgoing, pckt, sizeof(struct Packet));
                 if (LbNetwork_Exchange(game.packets, process_packets_cb) != 0)
@@ -1511,14 +1533,49 @@ void process_packets(void)
                     ERRORLOG("LbNetwork_Exchange failed");
                 }
             }
+            if (game.system_flags & GSF_NetGameNoSync)
+            {
+                // We were forced to resync
+                if ((game.packet_save_enable) && (game.packet_fopened))
+                    save_packets();
+                return;
+            }
         }
         process_lost_players(old_active_players);
+        // Count players
+        int cnt = 0;
+        for (int i = 0; i < PLAYERS_COUNT; i++)
+        {
+            struct Packet *pckt = get_packet_direct(i);
+            if (network_player_active(i))
+            {
+                if (pckt->net_flags & PACKET_IS_NEW)
+                {
+                    cnt++;
+                }
+            }
+        }
+
+        if (cnt < network_num_clients())
+        {
+            // We need ALL packets
+            return;
+        }
+        // Setting checksum problem flags
+        if (checksums_different())
+        {
+            set_flag(game.system_flags, GSF_NetGameNoSync);
+        }
+        else
+        {
+            game_flags2 |= GF2_NextTurn;
+        }
     }
-  // Setting checksum problem flags
-  if (checksums_different())
-  {
-      set_flag(game.system_flags,GSF_NetGameNoSync);
-  }
+    else
+    {
+        // Single player should always have next turn
+        game_flags2 |= GF2_NextTurn;
+    }
   // Write packets into file, if requested
   if ((game.packet_save_enable) && (game.packet_fopened))
     save_packets();
@@ -1527,10 +1584,10 @@ void process_packets(void)
   write_debug_packets();
 #endif
   // Process the packets
-  for (i=0; i<PACKETS_COUNT; i++)
+  for (int i = 0; i < PACKETS_COUNT; i++)
   {
     player = get_player(i);
-    if (player_exists(player) && ((player->allocflags & PlaF_CompCtrl) == 0))
+    if (is_human_player(player))
     {
       process_players_packet(i);
     }

@@ -845,54 +845,6 @@ TbError LbNetwork_Exchange(void *context, LbNetwork_Packet_Callback callback)
     return Lb_OK;
 }
 
-TbBool LbNetwork_Resync(void * buf, size_t len)
-{
-    char * full_buf;
-    int i;
-
-    NETLOG("Starting");
-
-    full_buf = (char *) LbMemoryAlloc(len + 1);
-
-    if (LbNetwork_IsServer())
-    {
-        full_buf[0] = PckA_Resync;
-        LbMemoryCopy(full_buf + 1, buf, len);
-
-        for (i = 0; i < MAX_N_USERS; ++i)
-        {
-            if (netstate.users[i].progress != USER_LOGGEDIN)
-            {
-                continue;
-            }
-
-            netstate.sp->sendmsg_single(netstate.users[i].id, full_buf, len + 1);
-        }
-    }
-    else
-    {
-        //discard all frames until next resync frame
-        do {
-            NetUserId user_id = -1;
-            netstate.sp->update(&UpdateCallbackNull);
-            if (netstate.sp->readmsg(&user_id, full_buf, len + 1) < 1)
-            {
-                NETLOG("Bad reception of resync message");
-                return false;
-            }
-            assert (user_id == SERVER_ID);
-        } while (full_buf[0] != PckA_Resync);
-
-        LbMemoryCopy(buf, full_buf + 1, len);
-    }
-
-    netstate.sp->update(&UpdateCallbackNull);
-
-    LbMemoryFree(full_buf);
-
-    return true;
-}
-
 TbError LbNetwork_EnableNewPlayers(TbBool allow)
 {
     int i;

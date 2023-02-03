@@ -239,7 +239,6 @@ TbError LbNetwork_Exchange(void *context, LbNetwork_Packet_Callback callback);
 
 TbBool LbNetwork_IsServer();
 
-TbBool  LbNetwork_Resync(void * buf, size_t len);
 void    LbNetwork_ChangeExchangeTimeout(unsigned long tmout);
 TbError LbNetwork_EnableNewPlayers(TbBool allow);
 TbError LbNetwork_EnumerateServices(TbNetworkCallbackFunc callback, void *a2);

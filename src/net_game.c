@@ -174,6 +174,12 @@ void setup_count_players(void)
   }
 }
 
+int network_num_clients()
+{
+    // TODO: separate them for observers etc
+    return game.active_players_count;
+}
+
 void init_players_network_game(CoroutineLoop *context)
 {
   SYNCDBG(4,"Starting");
@@ -221,12 +227,6 @@ long network_session_join(void)
       return -1;
     }
     return plyr_num;
-}
-
-void init_network_seed()
-{
-   if (!LbNetwork_Resync(&game.action_rand_seed, 4))
-      ERRORLOG("Action seed initialisation failed"); 
 }
 /******************************************************************************/
 #ifdef __cplusplus

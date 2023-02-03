@@ -45,8 +45,8 @@ enum TbPacketAction {
         PckA_PlyrMsgBegin,
         PckA_PlyrMsgEnd,
         PckA_TortureFrame,//15 Unused?
-        PckA_SessionViewFrame, // Assume unused
-        PckA_LandviewFrame, // Assume unused
+        PckA_SessionViewFrame,
+        PckA_LandviewFrame,
         PckA_FrameSrv, // Unused?
         PckA_StartupInfo, // Server set campaign for clients
         PckA_ToggleLights,//20
@@ -245,12 +245,17 @@ struct PlayerInfo;
 struct CatalogueEntry;
 
 extern unsigned long start_seed;
+enum
+{
+    PACKET_IS_NEW = 1
+};
 
 /**
  * Stores data exchanged between players each turn and used to re-create their input.
  */
 struct Packet {
-    int field_0;
+    uint8_t tick;
+    uint8_t net_flags;
     TbChecksum chksum; //! Checksum of all things within the game and synchronized random seed
     unsigned char action; //! Action kind performed by the player which owns this packet
     long actn_par1; //! Players action parameter #1

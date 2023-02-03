@@ -35,36 +35,72 @@
 #include "keeperfx.hpp"
 #include "frontend.h"
 #include "thing_effects.h"
-#include "post_inc.h"
 #include "bflib_datetm.h"
+#include "vidfade.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
 struct Boing {
-  unsigned char field_0;
-  unsigned char comp_player_aggressive;
-  unsigned char comp_player_defensive;
-  unsigned char comp_player_construct;
-  unsigned char comp_player_creatrsonly;
+  char field_0;
+  char comp_player_aggressive;
+  char comp_player_defensive;
+  char comp_player_construct;
+  char comp_player_creatrsonly;
   unsigned char creatures_tend_imprison;
   unsigned char creatures_tend_flee;
   unsigned short hand_over_subtile_x;
   unsigned short hand_over_subtile_y;
-  unsigned long chosen_room_kind;
-  unsigned long chosen_room_spridx;
-  unsigned long chosen_room_tooltip;
-  unsigned long chosen_spell_type;
-  unsigned long chosen_spell_spridx;
-  unsigned long chosen_spell_tooltip;
-  unsigned long manufactr_element;
-  unsigned long manufactr_spridx;
-  unsigned long manufactr_tooltip;
+  long chosen_room_kind;
+  long chosen_room_spridx;
+  long chosen_room_tooltip;
+  long chosen_spell_type;
+  long chosen_spell_spridx;
+  long chosen_spell_tooltip;
+  long manufactr_element;
+  long manufactr_spridx;
+  long manufactr_tooltip;
 };
 /******************************************************************************/
 /** Structure used for storing 'localised parameters' when resyncing net game. */
-struct Boing boing;
+
+enum
+{
+    RESYNC_CHUNK = 1024,
+    RESYNC_PACKETS_PER_TURN = 8,
+};
+
+struct ResyncProgress
+{
+    struct Boing boing;
+    TbBool is_finished;
+    uint32_t phase;
+    uint32_t max_phase;
+};
+
+struct ResyncPacket
+{
+    uint8_t flags; // 0 = PART, 1 = FIN, 2 = CONFIRM
+    uint8_t part;
+    uint16_t idx;
+    uint8_t data[];
+};
+
+struct ResyncPart
+{
+    uint8_t *data;
+    uint32_t total;
+};
+
+static struct ResyncPart resync_parts[] =
+{
+        {(uint8_t *) &game,    sizeof(game), },
+        {(uint8_t *) &gameadd, sizeof(gameadd) },
+};
+
+static struct ResyncProgress resync_progress;
 /******************************************************************************/
 long get_resync_sender(void)
 {
@@ -77,82 +113,216 @@ long get_resync_sender(void)
   return -1;
 }
 
-TbBool send_resync_game(void)
+static uint32_t count_max_resync_phase(uint32_t current_phase)
 {
-  //TODO NET see if it is necessary to dump to file... probably superfluous
-  char* fname = prepare_file_path(FGrp_Save, "resync.dat");
-  TbFileHandle fh = LbFileOpen(fname, Lb_FILE_MODE_NEW);
-  if (fh == -1)
-  {
-    ERRORLOG("Can't open resync file.");
+    uint32_t ret = current_phase;
+    for (int i = 0; i < sizeof(resync_parts) / sizeof(resync_parts[0]); i++)
+    {
+        struct ResyncPart *part = &resync_parts[i];
+        ret += (part->total / RESYNC_CHUNK) + 1;
+    }
+    return ret;
+}
+
+static TbBool resync_server_cb(
+        void *context, unsigned long turn, int net_player_idx, unsigned char kind, void *packet_data, short size)
+{
+    if (kind == PckA_Resync)
+    {
+        if (net_player_idx == SERVER_ID)
+        {
+            return false; // Ignore our own packets
+        }
+
+    }
+    else if (kind == PckA_Frame)
+    {
+        NETLOG("PckA_Frame ignored while resyncing");
+    }
+    else
+    {
+        NETLOG("Unexpected packet kind %d", kind);
+    }
     return false;
-  }
-
-  LbFileWrite(fh, &game, sizeof(game));
-  LbFileClose(fh);
-
-  NETLOG("Initiating re-synchronization of network game");
-  return LbNetwork_Resync(&game, sizeof(game));
 }
 
-TbBool receive_resync_game(void)
+static TbBool send_resync_game(void)
 {
-    NETLOG("Initiating re-synchronization of network game");
-    return LbNetwork_Resync(&game, sizeof(game));
+    if (resync_progress.phase == 1) // Assuming lossless delivery
+    {
+        resync_progress.phase++;
+        resync_progress.max_phase = 1 + count_max_resync_phase(resync_progress.phase);
+
+        NETLOG("Initiating re-sync:%d/%d", resync_progress.phase, resync_progress.max_phase);
+    }
+
+    if (resync_progress.phase < resync_progress.max_phase - 1)
+    {
+        uint32_t p = 2;
+        int cnt = 0;
+        for (int i = 0; i < sizeof(resync_parts) / sizeof(resync_parts[0]); i++)
+        {
+            struct ResyncPart *part = &resync_parts[i];
+            struct ResyncPacket *pckt;
+            uint32_t tail = part->total;
+            uint16_t idx = 0;
+            while (tail != 0)
+            {
+                uint32_t part_size;
+                part_size = tail > RESYNC_CHUNK ? RESYNC_CHUNK : tail;
+
+                if ((p >= resync_progress.phase) && (cnt < RESYNC_PACKETS_PER_TURN))
+                {
+                    resync_progress.phase++;
+                    pckt = LbNetwork_AddPacket(PckA_Resync, game.play_gameturn,
+                                               sizeof(struct ResyncPacket) + part_size);
+                    pckt->idx = idx;
+                    pckt->part = i;
+                    memcpy(pckt->data, part->data + (idx * RESYNC_CHUNK), part_size);
+                    resync_progress.phase++;
+                    cnt++;
+                }
+                idx++; // Assuming part->total < RESYNC_CHUNG * MAX_INT16
+                tail -= part_size;
+            }
+        }
+    }
+
+    if (LbNetwork_Exchange(game.packets, resync_server_cb) != 0)
+    {
+        ERRORLOG("LbNetwork_Exchange failed");
+        return false;
+    }
+
+    if (resync_progress.phase == resync_progress.max_phase)
+    {
+        resync_progress.is_finished = 1;
+        // TODO wait for confirmation
+    }
+    return true;
 }
 
-void store_localised_game_structure(void)
+static TbBool resync_client_cb(
+        void *context, unsigned long turn, int net_player_idx, unsigned char kind, void *packet_data, short size)
 {
-    boing.field_0 = game.active_panel_mnu_idx;
-    boing.comp_player_aggressive = game.comp_player_aggressive;
-    boing.comp_player_defensive = game.comp_player_defensive;
-    boing.comp_player_construct = game.comp_player_construct;
-    boing.comp_player_creatrsonly = game.comp_player_creatrsonly;
-    boing.creatures_tend_imprison = game.creatures_tend_imprison;
-    boing.creatures_tend_flee = game.creatures_tend_flee;
-    boing.hand_over_subtile_x = game.hand_over_subtile_x;
-    boing.hand_over_subtile_y = game.hand_over_subtile_y;
-    boing.chosen_room_kind = game.chosen_room_kind;
-    boing.chosen_room_spridx = game.chosen_room_spridx;
-    boing.chosen_room_tooltip = game.chosen_room_tooltip;
-    boing.chosen_spell_type = game.chosen_spell_type;
-    boing.chosen_spell_spridx = game.chosen_spell_spridx;
-    boing.chosen_spell_tooltip = game.chosen_spell_tooltip;
-    boing.manufactr_element = game.manufactr_element;
-    boing.manufactr_spridx = game.manufactr_spridx;
-    boing.manufactr_tooltip = game.manufactr_tooltip;
+    if (kind == PckA_Resync)
+    {
+        if (net_player_idx != SERVER_ID)
+        {
+            return false; // Our own confirmation is not 
+        }
+        struct ResyncPacket *pckt = packet_data;
+        struct ResyncPart *part = &resync_parts[pckt->part];
+        assert (pckt->part < (sizeof(resync_parts) / sizeof(resync_parts[0])));
+        assert (pckt->idx <= (part->total / RESYNC_CHUNK));
+        size_t part_size = size - sizeof(struct ResyncPacket);
+
+        memcpy(part->data + (pckt->idx * RESYNC_CHUNK), pckt->data, part_size);
+
+        NETLOG("Resync %d/%d", resync_progress.phase, resync_progress.max_phase);
+        resync_progress.phase++;
+    }
+    else if (kind == PckA_FrameSrv)
+    {
+        NETLOG("PckA_FrameSrv ignored while resyncing");
+    }
+    else
+    {
+        NETLOG("Unexpected packet kind %d", kind);
+    }
+    return false;
+}
+
+static TbBool receive_resync_game(void)
+{
+    if (resync_progress.phase == 1) // Assuming lossless delivery
+    {
+        resync_progress.phase++;
+        resync_progress.max_phase = count_max_resync_phase(resync_progress.phase);
+        NETLOG("Initiating re-sync:%d/%d", resync_progress.phase, resync_progress.max_phase);
+    }
+
+    if (LbNetwork_Exchange(NULL, resync_client_cb) != 0)
+    {
+        ERRORLOG("LbNetwork_Exchange failed");
+        return false;
+    }
+
+    if (resync_progress.phase == resync_progress.max_phase)
+    {
+        NETLOG("Resync done");
+        resync_progress.is_finished = 1;
+    }
+    return true;
+}
+
+TbBool resync_callback(void *context, unsigned long turn, int net_player_idx, unsigned char kind, void *packet_data, short size)
+{
+    if (my_player_number == SERVER_ID) // TODO: my_net_id?
+    {
+        return resync_server_cb(NULL, turn, net_player_idx, kind, packet_data, size);
+    }
+    else
+    {
+        return resync_client_cb(NULL, turn, net_player_idx, kind, packet_data, size);
+    }
+}
+
+static void store_localised_game_structure(void)
+{
+    resync_progress.boing.field_0 = game.active_panel_mnu_idx;
+    resync_progress.boing.comp_player_aggressive = game.comp_player_aggressive;
+    resync_progress.boing.comp_player_defensive = game.comp_player_defensive;
+    resync_progress.boing.comp_player_construct = game.comp_player_construct;
+    resync_progress.boing.comp_player_creatrsonly = game.comp_player_creatrsonly;
+    resync_progress.boing.creatures_tend_imprison = game.creatures_tend_imprison;
+    resync_progress.boing.creatures_tend_flee = game.creatures_tend_flee;
+    resync_progress.boing.hand_over_subtile_x = game.hand_over_subtile_x;
+    resync_progress.boing.hand_over_subtile_y = game.hand_over_subtile_y;
+    resync_progress.boing.chosen_room_kind = game.chosen_room_kind;
+    resync_progress.boing.chosen_room_spridx = game.chosen_room_spridx;
+    resync_progress.boing.chosen_room_tooltip = game.chosen_room_tooltip;
+    resync_progress.boing.chosen_spell_type = game.chosen_spell_type;
+    resync_progress.boing.chosen_spell_spridx = game.chosen_spell_spridx;
+    resync_progress.boing.chosen_spell_tooltip = game.chosen_spell_tooltip;
+    resync_progress.boing.manufactr_element = game.manufactr_element;
+    resync_progress.boing.manufactr_spridx = game.manufactr_spridx;
+    resync_progress.boing.manufactr_tooltip = game.manufactr_tooltip;
 }
 
 void recall_localised_game_structure(void)
 {
-    game.active_panel_mnu_idx = boing.field_0;
-    game.comp_player_aggressive = boing.comp_player_aggressive;
-    game.comp_player_defensive = boing.comp_player_defensive;
-    game.comp_player_construct = boing.comp_player_construct;
-    game.comp_player_creatrsonly = boing.comp_player_creatrsonly;
-    game.creatures_tend_imprison = boing.creatures_tend_imprison;
-    game.creatures_tend_flee = boing.creatures_tend_flee;
-    game.hand_over_subtile_x = boing.hand_over_subtile_x;
-    game.hand_over_subtile_y = boing.hand_over_subtile_y;
-    game.chosen_room_kind = boing.chosen_room_kind;
-    game.chosen_room_spridx = boing.chosen_room_spridx;
-    game.chosen_room_tooltip = boing.chosen_room_tooltip;
-    game.chosen_spell_type = boing.chosen_spell_type;
-    game.chosen_spell_spridx = boing.chosen_spell_spridx;
-    game.chosen_spell_tooltip = boing.chosen_spell_tooltip;
-    game.manufactr_element = boing.manufactr_element;
-    game.manufactr_spridx = boing.manufactr_spridx;
-    game.manufactr_tooltip = boing.manufactr_tooltip;
+    game.active_panel_mnu_idx = resync_progress.boing.field_0;
+    game.comp_player_aggressive = resync_progress.boing.comp_player_aggressive;
+    game.comp_player_defensive = resync_progress.boing.comp_player_defensive;
+    game.comp_player_construct = resync_progress.boing.comp_player_construct;
+    game.comp_player_creatrsonly = resync_progress.boing.comp_player_creatrsonly;
+    game.creatures_tend_imprison = resync_progress.boing.creatures_tend_imprison;
+    game.creatures_tend_flee = resync_progress.boing.creatures_tend_flee;
+    game.hand_over_subtile_x = resync_progress.boing.hand_over_subtile_x;
+    game.hand_over_subtile_y = resync_progress.boing.hand_over_subtile_y;
+    game.chosen_room_kind = resync_progress.boing.chosen_room_kind;
+    game.chosen_room_spridx = resync_progress.boing.chosen_room_spridx;
+    game.chosen_room_tooltip = resync_progress.boing.chosen_room_tooltip;
+    game.chosen_spell_type = resync_progress.boing.chosen_spell_type;
+    game.chosen_spell_spridx = resync_progress.boing.chosen_spell_spridx;
+    game.chosen_spell_tooltip = resync_progress.boing.chosen_spell_tooltip;
+    game.manufactr_element = resync_progress.boing.manufactr_element;
+    game.manufactr_spridx = resync_progress.boing.manufactr_spridx;
+    game.manufactr_tooltip = resync_progress.boing.manufactr_tooltip;
 }
 
 void resync_game(void)
 {
     SYNCDBG(2,"Starting");
-    struct PlayerInfo* player = get_my_player();
-    draw_out_of_sync_box(0, 32*units_per_pixel/16, player->engine_window_x);
-    reset_eye_lenses();
-    store_localised_game_structure();
-    int i = get_resync_sender();
+    if (resync_progress.phase == 0)
+    {
+        reset_eye_lenses();
+        store_localised_game_structure();
+        resync_progress.phase++;
+    }
+    int i = get_resync_sender(); // TODO: Fix this
+    NETLOG("Resync sender is player%d", i);
     if (is_my_player_number(i))
     {
         send_resync_game();
@@ -160,9 +330,13 @@ void resync_game(void)
     {
         receive_resync_game();
     }
-    recall_localised_game_structure();
-    reinit_level_after_load();
-    clear_flag(game.system_flags, GSF_NetGameNoSync);
+
+    if (resync_progress.is_finished)
+    {
+        recall_localised_game_structure();
+        reinit_level_after_load();
+        clear_flag(game.system_flags, GSF_NetGameNoSync);
+    }
 }
 
 static TbBool perform_checksum_verification_cb(void *context, unsigned long turn, int net_player_idx, unsigned char kind, void *packet_data, short size)
@@ -171,6 +345,8 @@ static TbBool perform_checksum_verification_cb(void *context, unsigned long turn
     {
         NETLOG("Got %d/%d", net_player_idx, game.active_players_count);
         struct Packet *pckt = ((struct Packet*) context) + net_player_idx;
+        game.action_rand_seed = pckt->actn_par1;
+        pckt->net_flags = PACKET_IS_NEW;
         memcpy(pckt, packet_data, size);
     }
     else
@@ -236,6 +412,7 @@ CoroutineLoopState perform_checksum_verification(CoroutineLoop *con)
         ERRORLOG("Level checksums different for network players");
         result = false;
     }
+    NETLOG("Checksums are %s", result? "ok" :"bad");
     if (!result)
     {
         create_frontend_error_box(5000, get_string(GUIStr_NetUnsyncedMap));
@@ -244,11 +421,11 @@ CoroutineLoopState perform_checksum_verification(CoroutineLoop *con)
     if (my_player_number == SERVER_ID)
     {   // Last chance for clients to catch up
         struct Packet* pckt = LbNetwork_AddPacket(PckA_LevelExactCheck, 0, sizeof(struct Packet));
-        set_packet_action(pckt, PckA_LevelExactCheck, 0, 0, 0, 0);
+        set_packet_action(pckt, PckA_LevelExactCheck, (long)game.action_rand_seed, 0, 0, 0);
         pckt->chksum = checksum_mem + game.action_rand_seed;
         NETLOG("Sending a checksum from %d", my_player_number);
     }
-    NETLOG("Checksums are verified");
+    NETLOG("Done");
     return CLS_CONTINUE;
 }
 
@@ -305,12 +482,18 @@ short checksums_different()
     TbChecksum checksum = 0;
     unsigned short is_set = false;
     int plyr = -1;
+    int checked = 0;
     for (int i = 0; i < PLAYERS_COUNT; i++)
     {
         struct PlayerInfo* player = get_player(i);
-        if (player_exists(player) && ((player->allocflags & PlaF_CompCtrl) == 0))
+        if (is_human_player(player))
         {
             struct Packet* pckt = get_packet_direct(player->packet_num);
+            if ((pckt->net_flags & PACKET_IS_NEW) == 0)
+            {
+                continue;
+            }
+            checked++;
             if (!is_set)
             {
                 checksum = pckt->chksum;
@@ -325,6 +508,7 @@ short checksums_different()
             }
         }
     }
+    NETLOG("checked:%d", checked);
     return false;
 }
 

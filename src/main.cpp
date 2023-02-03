@@ -2803,8 +2803,13 @@ void update(void)
     player = get_my_player();
     set_previous_camera_values(player);
 
-    if ((game.operation_flags & GOF_Paused) == 0)
+    if (game.operation_flags & GOF_Paused)
     {
+        game_flags2 &= ~GF2_NextTurn;
+    }
+    if (game_flags2 & GF2_NextTurn)
+    {
+        game_flags2 &= ~GF2_NextTurn;
         if (player->additional_flags & PlaAF_LightningPaletteIsActive)
         {
             PaletteSetPlayerPalette(player, engine_palette);
@@ -2812,7 +2817,7 @@ void update(void)
         }
         clear_active_dungeons_stats();
         update_creature_pool_state();
-        if ((game.play_gameturn & 0x01) != 0)
+        if ((game.play_gameturn & 0x01) != 0) // Each two turns
             update_animating_texture_maps();
         update_things();
         process_rooms();
@@ -2840,10 +2845,12 @@ void update(void)
         things_stats_debug_dump();
         creature_stats_debug_dump();
 #endif
+        game.play_gameturn++;
+        NETLOG("New turn: %ld", game.play_gameturn);
     }
 
     message_update();
-    update_all_players_cameras();
+    update_all_players_cameras(); // Notice: moving gamera while game is paused would move a player cursor at worldmap
     update_player_sounds();
     game.map_changed_for_nagivation = 0;
     SYNCDBG(6,"Finished");

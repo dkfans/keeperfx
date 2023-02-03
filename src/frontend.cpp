@@ -620,7 +620,7 @@ void add_message(long plyr_idx, char *msg)
 /**
  * Checks if all the network players are using compatible version of DK.
  */
-TbBool validate_versions(void)
+int validate_versions()
 {
     long ver = net_player_info[my_player_number].version_packed;
     for (int i = 0; i < NET_PLAYERS_COUNT; i++)
@@ -629,22 +629,22 @@ TbBool validate_versions(void)
         {
             if (net_player_info[i].version_packed != ver)
             {
-                return false;
+                return i;
             }
         }
     }
-    return true;
+    return -1;
 }
 
-void versions_different_error(long last_version)
+void versions_different_error(long last_version, int failed_client)
 {
     const char *plyr_nam;
     struct ScreenPacket *nspckt;
     char text[MESSAGE_TEXT_LEN];
     char *str;
 
-    NETMSG("Error: Players have different versions of KFX (my_id:%d mine:%ld last:%ld)",
-           my_player_number, net_player_info[my_player_number].version_packed, last_version);
+    NETMSG("Error: Players have different versions of KFX (my_id:%d him:%d mine:%ld last:%ld)",
+           my_player_number, failed_client, net_player_info[my_player_number].version_packed, last_version);
 
     if (LbNetwork_Stop())
     {
