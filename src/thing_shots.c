@@ -666,8 +666,8 @@ TbBool apply_shot_experience(struct Thing *shooter, long exp_factor, long exp_in
         return false;
     struct CreatureControl* shcctrl = creature_control_get_from_thing(shooter);
     struct ShotConfigStats* shotst = get_shot_model_stats(shot_model);
-    long exp_mag = shotst->old->experience_given_to_shooter;
-    long exp_gained = (exp_mag * (exp_factor + 12 * exp_factor * exp_increase / 100) << 8) / 256;
+    long exp_mag = shotst->experience_given_to_shooter;
+    long exp_gained = (exp_mag * (exp_factor + gameadd.crtr_conf.exp.exp_on_hitting_increase_on_exp * exp_factor * exp_increase / 100) << 8) / 256;
     shcctrl->prev_exp_points = shcctrl->exp_points;
     shcctrl->exp_points += exp_gained;
     if ( check_experience_upgrade(shooter) ) {
@@ -777,7 +777,7 @@ static TbBool shot_hit_object_at(struct Thing *shotng, struct Thing *target, str
     if (target->health < 0) {
         shot_kill_object(shotng, target);
     }
-    if (shotst->old->destroy_on_first_hit) {
+    if (shotst->destroy_on_first_hit) {
         delete_thing_structure(shotng, 0);
         // If thing was deleted something was hit
         // To test this use zero damage shots
@@ -940,8 +940,8 @@ long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, stru
       } else {
           apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, shotst->damage_type, -1);
       }
-      if (shotst->old->target_frozen_on_hit != 0) {
-          tgcctrl->frozen_on_hit = shotst->old->target_frozen_on_hit;
+      if (shotst->target_hitstop_turns != 0) {
+          tgcctrl->frozen_on_hit = shotst->target_hitstop_turns;
       }
       if ( shotst->push_on_hit || creature_is_being_unconscious(trgtng))
       {
@@ -964,7 +964,7 @@ long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, stru
           shot_kill_creature(shotng,trgtng);
       }
     }
-    if (shotst->old->destroy_on_first_hit) {
+    if (shotst->destroy_on_first_hit) {
         delete_thing_structure(shotng, 0);
     }
     return 1;
@@ -1080,10 +1080,10 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
         }
     }
     struct CreatureControl* cctrl = creature_control_get_from_thing(trgtng);
-    if (shotst->old->target_frozen_on_hit != 0)
+    if (shotst->target_hitstop_turns != 0)
     {
         if (cctrl->frozen_on_hit == 0) {
-            cctrl->frozen_on_hit = shotst->old->target_frozen_on_hit;
+            cctrl->frozen_on_hit = shotst->target_hitstop_turns;
         }
     }
     if (shotst->cast_spell_kind != 0)
@@ -1208,7 +1208,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
     }
 
 
-    if (shotst->old->destroy_on_first_hit != 0) {
+    if (shotst->destroy_on_first_hit != 0) {
         delete_thing_structure(shotng, 0);
     }
     return 1;
@@ -1584,11 +1584,11 @@ struct Thing *create_shot(struct Coord3d *pos, unsigned short model, unsigned sh
     thing->owner = owner;
     thing->bounce_angle = shotst->bounce_angle;
     thing->fall_acceleration = shotst->fall_acceleration;
-    thing->inertia_floor = shotst->old->inertia_floor;
-    thing->inertia_air = shotst->old->inertia_air;
-    thing->movement_flags ^= (thing->movement_flags ^ TMvF_Unknown08 * shotst->old->field_13) & TMvF_Unknown08;
+    thing->inertia_floor = shotst->inertia_floor;
+    thing->inertia_air = shotst->inertia_air;
+    thing->movement_flags ^= (thing->movement_flags ^ TMvF_Unknown08 * shotst->soft_landing) & TMvF_Unknown08;
     set_thing_draw(thing, shotst->sprite_anim_idx, 256, shotst->sprite_size_max, 0, 0, 2);
-    thing->rendering_flags ^= (thing->rendering_flags ^ 0x02 * shotst->old->field_6) & TRF_Unshaded;
+    thing->rendering_flags ^= (thing->rendering_flags ^ TRF_Unshaded * shotst->unshaded) & TRF_Unshaded;
     thing->rendering_flags ^= thing->rendering_flags ^ ((thing->rendering_flags ^ TRF_Transpar_8 * shotst->animation_transparency) & (TRF_Transpar_Flags));
     thing->rendering_flags ^= (thing->rendering_flags ^ shotst->hidden_projectile) & TRF_Unknown01;
     thing->clipbox_size_xy = shotst->size_xy;
@@ -1598,15 +1598,15 @@ struct Thing *create_shot(struct Coord3d *pos, unsigned short model, unsigned sh
     thing->shot.damage = shotst->damage;
     thing->shot.dexterity = 255;
     thing->health = shotst->health;
-    if (shotst->old->light_radius)
+    if (shotst->light_radius)
     {
         struct InitLight ilght;
         LbMemorySet(&ilght, 0, sizeof(struct InitLight));
         memcpy(&ilght.mappos,&thing->mappos,sizeof(struct Coord3d));
-        ilght.radius = shotst->old->light_radius;
-        ilght.intensity = shotst->old->light_intensity;
+        ilght.radius = shotst->light_radius;
+        ilght.intensity = shotst->light_intensity;
         ilght.is_dynamic = 1;
-        ilght.field_3 = shotst->old->lightf_53;
+        ilght.field_3 = shotst->lightf_53;
         thing->light_id = light_create_light(&ilght);
         if (thing->light_id == 0) {
             // Being out of free lights is quite common - so info instead of warning here
