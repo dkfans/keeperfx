@@ -776,7 +776,7 @@ static TbBool shot_hit_trap_at(struct Thing* shotng, struct Thing* target, struc
             activate_trap(target, target);
         }
     }
-    if (shotst->old->destroy_on_first_hit) {
+    if (shotst->destroy_on_first_hit) {
         delete_thing_structure(shotng, 0);
         // If thing was deleted something was hit
         // To test this use zero damage shots
