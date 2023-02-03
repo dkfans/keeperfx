@@ -3130,22 +3130,22 @@ short update_thing_sound(struct Thing *thing)
   return true;
 }
 
-long collide_filter_thing_is_of_type(const struct Thing *thing, const struct Thing *sectng, long tngclass, long tngmodel)
+HitTargetFlags collide_filter_thing_is_of_type(const struct Thing *thing, const struct Thing *sectng, HitTargetFlags tngclass, long tngmodel)
 {
     if (tngmodel >= 0)
     {
         if (thing->model != tngmodel)
           return false;
     }
-    if (tngclass >= 0)
+    if ((long)tngclass >= 0)
     {
-        if (thing->class_id != tngclass)
+        if (thing->class_id != (long)tngclass)
           return false;
     }
     return true;
 }
 
-unsigned long hit_type_to_hit_targets(long hit_type)
+HitTargetFlags hit_type_to_hit_targets(long hit_type)
 {
     switch (hit_type)
     {
@@ -3155,11 +3155,13 @@ unsigned long hit_type_to_hit_targets(long hit_type)
             HitTF_EnemySoulContainer|HitTF_AlliedSoulContainer|HitTF_OwnedSoulContainer|
             HitTF_AnyWorkshopBoxes|HitTF_AnySpellbooks|HitTF_AnyDnSpecialBoxes|
             HitTF_EnemyShotsCollide|HitTF_AlliedShotsCollide|HitTF_OwnedShotsCollide|
+            HitTF_EnemyDestructibleTraps|HitTF_AlliedDestructibleTraps|HitTF_OwnedDestructibleTraps|
             HitTF_AnyFoodObjects|HitTF_AnyGoldPiles;
     case THit_CrtrsNObjcts:
         return HitTF_EnemyCreatures|HitTF_AlliedCreatures|HitTF_OwnedCreatures|HitTF_ArmourAffctdCreatrs|HitTF_PreventDmgCreatrs|
             HitTF_EnemySoulContainer|HitTF_AlliedSoulContainer|HitTF_OwnedSoulContainer|
             HitTF_AnyWorkshopBoxes|HitTF_AnySpellbooks|HitTF_AnyDnSpecialBoxes|
+            HitTF_EnemyDestructibleTraps|HitTF_AlliedDestructibleTraps|HitTF_OwnedDestructibleTraps|
             HitTF_AnyFoodObjects|HitTF_AnyGoldPiles;
     case THit_CrtrsOnly:
         return HitTF_EnemyCreatures|HitTF_AlliedCreatures|HitTF_OwnedCreatures|HitTF_ArmourAffctdCreatrs;
@@ -3167,6 +3169,7 @@ unsigned long hit_type_to_hit_targets(long hit_type)
         return HitTF_EnemyCreatures|HitTF_AlliedCreatures|HitTF_ArmourAffctdCreatrs|
         HitTF_EnemySoulContainer|HitTF_AlliedSoulContainer|
         HitTF_AnyWorkshopBoxes|HitTF_AnySpellbooks|HitTF_AnyDnSpecialBoxes|
+        HitTF_EnemyDestructibleTraps | HitTF_AlliedDestructibleTraps|
         HitTF_AnyFoodObjects|HitTF_AnyGoldPiles;
     case THit_CrtrsOnlyNotOwn:
         return HitTF_EnemyCreatures|HitTF_AlliedCreatures|HitTF_ArmourAffctdCreatrs;
@@ -3176,6 +3179,9 @@ unsigned long hit_type_to_hit_targets(long hit_type)
         return HitTF_EnemySoulContainer|HitTF_AlliedSoulContainer|HitTF_OwnedSoulContainer;
     case THit_HeartOnlyNotOwn:
         return HitTF_EnemySoulContainer|HitTF_AlliedSoulContainer;
+    case THit_TrapsAll:
+        return HitTF_EnemyDestructibleTraps|HitTF_AlliedDestructibleTraps|HitTF_OwnedDestructibleTraps|
+            HitTF_OwnedDeployedTraps|HitTF_AlliedDeployedTraps|HitTF_EnemyDeployedTraps;
     case THit_None:
         return HitTF_None;
     default:
@@ -3288,6 +3294,16 @@ TbBool thing_is_shootable(const struct Thing *thing, PlayerNumber shot_owner, Hi
     }
     if (thing_is_deployed_trap(thing))
     {
+        if (thing_is_destructible_trap(thing) > 0)
+        {
+            if (shot_owner == thing->owner) {
+                return ((hit_targets & HitTF_OwnedDestructibleTraps) != 0);
+            }
+            if ((shot_owner < 0) || players_are_enemies(shot_owner, thing->owner)) {
+                return ((hit_targets & HitTF_EnemyDestructibleTraps) != 0);
+            }
+            return ((hit_targets & HitTF_AlliedDestructibleTraps) != 0);
+        }
         if (shot_owner == thing->owner) {
             return ((hit_targets & HitTF_OwnedDeployedTraps) != 0);
         }

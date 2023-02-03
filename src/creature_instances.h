@@ -87,7 +87,7 @@ struct Thing;
 
 typedef long (*Creature_Instf_Func)(struct Thing *, long *);
 
-struct InstanceInfo { // sizeof = 42
+struct InstanceInfo {
     TbBool instant;
     long time;
     long fp_time;
@@ -96,7 +96,7 @@ struct InstanceInfo { // sizeof = 42
     long reset_time;
     long fp_reset_time;
     unsigned char graphics_idx;
-    unsigned char flags;
+    short flags;
     short force_visibility;
     unsigned char primary_target;
     Creature_Instf_Func func_cb;
@@ -128,6 +128,7 @@ TbBool creature_instance_is_available(const struct Thing *thing, CrInstance inum
 TbBool creature_choose_first_available_instance(struct Thing *thing);
 void creature_increase_available_instances(struct Thing *thing);
 TbBool creature_has_ranged_weapon(const struct Thing *thing);
+TbBool creature_has_disarming_weapon(const struct Thing* creatng);
 TbBool creature_has_ranged_object_weapon(const struct Thing *creatng);
 TbBool creature_has_quick_range_weapon(const struct Thing *creatng);
 

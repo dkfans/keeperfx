@@ -130,6 +130,7 @@ enum ShotModelFlags {
     ShMF_StrengthBased  = 0x0200,
     ShMF_AlarmsUnits    = 0x0400,
     ShMF_CanCollide     = 0x0800,
+    ShMF_Disarming      = 0x1000,
 };
 
 enum PowerCanCastFlags {

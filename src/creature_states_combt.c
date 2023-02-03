@@ -1342,7 +1342,8 @@ TbBool combat_enemy_exists(struct Thing *thing, struct Thing *enmtng)
         return false;
     }
     struct CreatureControl* enmcctrl = creature_control_get_from_thing(enmtng);
-    if (creature_control_invalid(enmcctrl) && (enmtng->class_id != TCls_Object) && (enmtng->class_id != TCls_Door))
+    if (creature_control_invalid(enmcctrl) && (enmtng->class_id != TCls_Object) && (enmtng->class_id != TCls_Door) 
+        && (thing_is_destructible_trap(enmtng) <= 0) && !((thing_is_destructible_trap(enmtng) >= 0) && creature_has_disarming_weapon(thing))) //destructible traps -1 can't even be destroyed by disarming weapons, 1 by anybody
     {
         ERRORLOG("No control structure - C%d M%d GT%ld CA%d", (int)enmtng->class_id,
             (int)enmtng->model, (long)game.play_gameturn, (int)thing->creation_turn);
@@ -1858,6 +1859,36 @@ CrInstance get_best_combat_weapon_instance_to_use(const struct Thing *thing, con
     return inst_id;
 }
 
+CrInstance get_best_combat_weapon_instance_to_use_versus_trap(const struct Thing* thing, const struct CombatWeapon* cweapons, long dist, int atktype)
+{
+    CrInstance inst_id = CrInst_NULL;
+    struct InstanceInfo* inst_inf;
+    for (const struct CombatWeapon* cweapon = cweapons; cweapon->inst_id != CrInst_NULL; cweapon++)
+    {
+        inst_inf = creature_instance_info_get(cweapon->inst_id);
+        if (creature_instance_is_available(thing, cweapon->inst_id))
+        {
+            if ((((inst_inf->flags & (InstPF_RangedAttack | InstPF_RangedDebuff | InstPF_MeleeAttack)) && (atktype & InstPF_RangedAttack)) ||
+                ((inst_inf->flags & (InstPF_MeleeAttack | InstPF_RangedDebuff)) && (atktype & InstPF_MeleeAttack))) &&
+                (!(inst_inf->flags & InstPF_Dangerous) || !(atktype & InstPF_Dangerous)) &&
+                ((inst_inf->flags & InstPF_Destructive) >= (atktype & InstPF_Destructive)) &&
+                (inst_inf->flags & InstPF_Disarming) )
+            {
+                if (creature_instance_has_reset(thing, cweapon->inst_id))
+                {
+                    if ((cweapon->range_min <= dist) && (cweapon->range_max >= dist)) {
+                        return cweapon->inst_id;
+                    }
+                }
+                if (inst_id == CrInst_NULL) {
+                    inst_id = -(cweapon->inst_id);
+                }
+            }
+        }
+    }
+    return inst_id;
+}
+
 CrInstance get_best_ranged_offensive_weapon(const struct Thing *thing, long dist)
 {
     CrInstance inst_id = get_best_self_preservation_instance_to_use(thing);
@@ -1883,14 +1914,63 @@ CrInstance get_best_melee_offensive_weapon(const struct Thing *thing, long dist)
 long get_best_melee_object_offensive_weapon(const struct Thing *thing, long dist)
 {
     int atktyp = (InstPF_MeleeAttack | InstPF_Destructive | InstPF_Dangerous);
-    CrInstance inst_id = get_best_combat_weapon_instance_to_use(thing, offensive_weapon, dist, atktyp);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    struct Thing* objtng = thing_get(cctrl->combat.battle_enemy_idx);
+    CrInstance inst_id = CrInst_NULL;
+    struct TrapConfigStats* trapst;
+
+    if (thing_is_destructible_trap(objtng) > 0) //can be destroyed by regular object weapons
+    {
+        trapst = get_trap_model_stats(objtng->model);
+        if (trapst->unstable == 1) //If it's gonna trigger when hurt, better try to disarm it instead
+        {
+            inst_id = get_best_combat_weapon_instance_to_use_versus_trap(thing, offensive_weapon, dist, atktyp);
+        }
+        if (inst_id == CrInst_NULL)
+        {
+            inst_id = get_best_combat_weapon_instance_to_use(thing, offensive_weapon, dist, atktyp);
+        }
+    } else
+    if (thing_is_destructible_trap(objtng) == 0) //can only be destroyed be destroyed by disarming weapons.
+    {
+       inst_id = get_best_combat_weapon_instance_to_use_versus_trap(thing, offensive_weapon, dist, atktyp);
+    }
+    else
+    {
+        inst_id = get_best_combat_weapon_instance_to_use(thing, offensive_weapon, dist, atktyp);
+    }
     return inst_id;
 }
 
 long get_best_ranged_object_offensive_weapon(const struct Thing *thing, long dist)
 {
     int atktyp = (InstPF_RangedAttack | InstPF_Destructive | InstPF_Dangerous);
-    CrInstance inst_id = get_best_combat_weapon_instance_to_use(thing, offensive_weapon, dist,atktyp);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    struct Thing* objtng = thing_get(cctrl->combat.battle_enemy_idx);
+    CrInstance inst_id = CrInst_NULL;
+    struct TrapConfigStats* trapst;
+
+    if (thing_is_destructible_trap(objtng) > 0) //can be destroyed by regular object weapons
+    {
+        trapst = get_trap_model_stats(objtng->model);
+        if (trapst->unstable == 1) //If it's gonna trigger when hurt, better try to disarm it instead
+        {
+            inst_id = get_best_combat_weapon_instance_to_use_versus_trap(thing, offensive_weapon, dist, atktyp);
+        }
+        if (inst_id == CrInst_NULL)
+        {
+            inst_id = get_best_combat_weapon_instance_to_use(thing, offensive_weapon, dist, atktyp);
+        }
+    }
+    else
+    if (thing_is_destructible_trap(objtng) == 0) //can only be destroyed be destroyed by disarming weapons.
+    {
+        inst_id = get_best_combat_weapon_instance_to_use_versus_trap(thing, offensive_weapon, dist, atktyp);
+    }
+    else
+    {
+        inst_id = get_best_combat_weapon_instance_to_use(thing, offensive_weapon, dist, atktyp);
+    }
     return inst_id;
 }
 
@@ -1906,7 +1986,7 @@ TbBool combat_has_line_of_sight(const struct Thing *creatng, const struct Thing 
     return cctrl->combat.seen_enemy_los;
 }
 
-long collide_filter_thing_is_in_my_fight(const struct Thing *firstng, const struct Thing *coldtng, long a3, long a4)
+HitTargetFlags collide_filter_thing_is_in_my_fight(const struct Thing *firstng, const struct Thing *coldtng, HitTargetFlags a3, long a4)
 {
     if (!thing_is_creature(firstng)) {
         return false;
@@ -1917,7 +1997,7 @@ long collide_filter_thing_is_in_my_fight(const struct Thing *firstng, const stru
 }
 
 struct Thing *get_thing_collided_with_at_satisfying_filter_in_square_of_for_subtile(struct Thing *shotng, struct Coord3d *pos,
-    long square_size, Thing_Collide_Func filter, long filter_par1, long filter_par2, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+    long square_size, Thing_Collide_Func filter, ThingHitType filter_par1, long filter_par2, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     struct Thing* creatng = INVALID_THING;
     if (shotng->parent_idx > 0) {
@@ -1952,7 +2032,7 @@ struct Thing *get_thing_collided_with_at_satisfying_filter_in_square_of_for_subt
     return INVALID_THING;
 }
 
-struct Thing *get_thing_collided_with_at_satisfying_filter_in_square_of(struct Thing *shotng, struct Coord3d *pos, long square_size, Thing_Collide_Func filter, long filter_par1, long filter_par2)
+struct Thing *get_thing_collided_with_at_satisfying_filter_in_square_of(struct Thing *shotng, struct Coord3d *pos, long square_size, Thing_Collide_Func filter, HitTargetFlags filter_par1, long filter_par2)
 {
     MapSubtlCoord stl_x_beg = coord_subtile(pos->x.val - square_size / 2);
     if (stl_x_beg <= 0)
@@ -2851,6 +2931,54 @@ TbBool creature_look_for_enemy_heart_combat(struct Thing *thing)
     }
     TRACE_THING(heartng);
     set_creature_object_combat(thing, heartng);
+    return true;
+}
+
+struct Thing* check_for_object_to_fight(struct Thing* thing) //just traps now, could be expanded to non-trap objects
+{
+    long m = CREATURE_RANDOM(thing, SMALL_AROUND_SLAB_LENGTH);
+    for (long n = 0; n < SMALL_AROUND_SLAB_LENGTH; n++)
+    {
+        MapSlabCoord slb_x = subtile_slab_fast(thing->mappos.x.stl.num) + (long)small_around[m].delta_x;
+        MapSlabCoord slb_y = subtile_slab_fast(thing->mappos.y.stl.num) + (long)small_around[m].delta_y;
+        struct Thing* trpthing = get_trap_for_position(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
+        if ((thing_is_destructible_trap(trpthing) > 0) || (creature_has_disarming_weapon(thing) && (thing_is_destructible_trap(trpthing) >= 0)))
+        {
+            if (players_are_enemies(thing->owner, trpthing->owner))
+            {
+                struct TrapConfigStats* trapst = &gameadd.trapdoor_conf.trap_cfgstats[trpthing->model];
+                if (creature_can_see_invisible(thing) || (trapst->hidden == 0) || (trpthing->trap.revealed == 1))
+                {
+                    return trpthing;
+                }
+            }
+        }
+        m = (m + 1) % SMALL_AROUND_SLAB_LENGTH;
+    }
+    return INVALID_THING;
+}
+
+TbBool creature_look_for_enemy_object_combat(struct Thing* thing)
+{
+    SYNCDBG(19, "Starting for %s index %d", thing_model_name(thing), (int)thing->index);
+    TRACE_THING(thing);
+
+    struct Thing* objtng;
+    // If already fighting dungeon heart, skip the rest
+    if (get_creature_state_besides_interruptions(thing) == CrSt_CreatureObjectCombat) {
+        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+        objtng = thing_get(cctrl->combat.battle_enemy_idx);
+        if (thing_is_dungeon_heart(objtng)) {
+            return false;
+        }
+    }
+    objtng = check_for_object_to_fight(thing);
+    if (thing_is_invalid(objtng) || !(creature_can_navigate_to(thing, &objtng->mappos, NavRtF_Default)))
+    {
+        return false;
+    }
+    TRACE_THING(objtng);
+    set_creature_object_combat(thing, objtng);
     return true;
 }
 

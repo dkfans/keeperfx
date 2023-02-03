@@ -34,6 +34,7 @@
 #include "front_simple.h"
 #include "thing_stats.h"
 #include "map_blocks.h"
+#include "magic.h"
 #include "room_garden.h"
 #include "config_creature.h"
 #include "config_terrain.h"
@@ -123,6 +124,16 @@ TbBool detonate_shot(struct Thing *shotng)
     case ShM_Lizard:
         create_effect(&shotng->mappos, TngEff_Explosion7, shotng->owner);
         create_effect(&shotng->mappos, TngEff_Blood4, shotng->owner);
+        break;
+    case ShM_TrapTNT:
+        create_effect(&shotng->mappos, TngEff_Eruption, shotng->owner);
+        short spell_level = shotng->shot.damage;
+        if (spell_level > SPELL_MAX_LEVEL)
+        {
+            spell_level = SPELL_MAX_LEVEL;
+        }
+        magic_use_power_destroy_walls(shotng->owner, shotng->mappos.x.stl.num, shotng->mappos.y.stl.num, spell_level, PwMod_CastForFree);
+        create_effect_around_thing(shotng, TngEff_Explosion7);
         break;
     case ShM_Firebomb:
         create_effect(&shotng->mappos, TngEff_Explosion7, shotng->owner);
@@ -715,6 +726,65 @@ long shot_kill_object(struct Thing *shotng, struct Thing *target)
     return 0;
 }
 
+static TbBool shot_hit_trap_at(struct Thing* shotng, struct Thing* target, struct Coord3d* pos)
+{
+    struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
+    if (target->class_id != TCls_Trap) {
+        return false;
+    }
+    if (shotst->model_flags & ShMF_NoHit) {
+        return false;
+    }
+    if (target->health < 0) {
+        return false;
+    }
+    struct ObjectConfig* objconf = get_object_model_stats2(target->model);
+    if (objconf->resistant_to_nonmagic && !(shotst->damage_type == DmgT_Magical)) {
+        return false;
+    }
+    struct Thing* shootertng = INVALID_THING;
+    if (shotng->parent_idx != shotng->index) {
+        shootertng = thing_get(shotng->parent_idx);
+    }
+    int i = shotst->hit_generic.sndsample_idx;
+    if (i > 0) {
+        thing_play_sample(target, i, NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
+    }
+
+    HitPoints damage_done = 0;
+    if (shotng->shot.damage)
+    {
+  
+        if ((thing_is_destructible_trap(target) > 0) || ((thing_is_destructible_trap(target) > -1) && (shotst->model_flags & ShMF_Disarming)))
+        {
+            damage_done = apply_damage_to_thing(target, shotng->shot.damage, shotst->damage_type, -1);
+
+            // Drain allows caster to regain half of damage
+            if ((shotst->model_flags & ShMF_LifeDrain) && thing_is_creature(shootertng))
+            {
+                give_shooter_drained_health(shootertng, damage_done / 2);
+            }
+        }
+    }
+    create_relevant_effect_for_shot_hitting_thing(shotng, target);
+    if (target->health < 0) 
+    {
+        create_effect_element(&target->mappos, TngEffElm_Blast2, target->owner);
+        struct TrapConfigStats* trapst = get_trap_model_stats(target->model);
+        if (((trapst->unstable == 1) && !(shotst->model_flags & ShMF_Disarming)) || trapst->unstable == 2)
+        {
+            activate_trap(target, target);
+        }
+    }
+    if (shotst->destroy_on_first_hit) {
+        delete_thing_structure(shotng, 0);
+        // If thing was deleted something was hit
+        // To test this use zero damage shots
+        return true;
+    }
+    return damage_done > 0;
+}
+
 static TbBool shot_hit_object_at(struct Thing *shotng, struct Thing *target, struct Coord3d *pos)
 {
     struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
@@ -860,6 +930,27 @@ void create_relevant_effect_for_shot_hitting_thing(struct Thing *shotng, struct 
             if (creature_model_bleeds(target->model)) {
                 efftng = create_effect(&shotng->mappos, TngEff_HitBleedingUnit, shotng->owner);
             }
+            break;
+        }
+    }
+    if (target->class_id == TCls_Trap)
+    {
+        switch (shotng->model)
+        {
+        case ShM_Fireball:
+        case ShM_Firebomb:
+        case ShM_Lightning:
+            efftng = create_effect(&shotng->mappos, TngEff_Explosion1, shotng->owner);
+            break;
+        case ShM_PoisonCloud:
+            efftng = create_effect(&shotng->mappos, TngEff_Gas3, shotng->owner);
+            if (!thing_is_invalid(efftng)) {
+                efftng->shot_effect.hit_type = THit_CrtrsOnly;
+            }
+            break;
+        case ShM_NaviMissile:
+        case ShM_Missile:
+            efftng = create_effect(&shotng->mappos, TngEff_Blood3, shotng->owner);
             break;
         }
     }
@@ -1224,6 +1315,9 @@ TbBool shot_hit_shootable_thing_at(struct Thing *shotng, struct Thing *target, s
     if (target->class_id == TCls_Creature) {
         return shot_hit_creature_at(shotng, target, pos);
     }
+    if (target->class_id == TCls_Trap) {
+        return shot_hit_trap_at(shotng, target, pos);
+    }
     if (target->class_id == TCls_DeadCreature) {
         //TODO implement shooting dead bodies
     }
@@ -1237,7 +1331,7 @@ TbBool shot_hit_shootable_thing_at(struct Thing *shotng, struct Thing *target, s
     return false;
 }
 
-long collide_filter_thing_is_shootable(const struct Thing *thing, const struct Thing *parntng, long hit_targets, long a4)
+HitTargetFlags collide_filter_thing_is_shootable(const struct Thing *thing, const struct Thing *parntng, HitTargetFlags hit_targets, long a4)
 {
     PlayerNumber shot_owner = -1;
     if (thing_exists(parntng))
@@ -1245,7 +1339,7 @@ long collide_filter_thing_is_shootable(const struct Thing *thing, const struct T
     return thing_is_shootable(thing, shot_owner, hit_targets);
 }
 
-struct Thing *get_thing_collided_with_at_satisfying_filter_for_subtile(struct Thing *shotng, struct Coord3d *pos, Thing_Collide_Func filter, long param1, long param2, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+struct Thing *get_thing_collided_with_at_satisfying_filter_for_subtile(struct Thing *shotng, struct Coord3d *pos, Thing_Collide_Func filter, HitTargetFlags param1, long param2, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     struct Thing* parntng = INVALID_THING;
     if (shotng->parent_idx > 0) {
@@ -1286,7 +1380,7 @@ struct Thing *get_thing_collided_with_at_satisfying_filter_for_subtile(struct Th
     return false;
 }
 
-struct Thing *get_thing_collided_with_at_satisfying_filter(struct Thing *shotng, struct Coord3d *pos, Thing_Collide_Func filter, long hit_targets, long a5)
+struct Thing *get_thing_collided_with_at_satisfying_filter(struct Thing *shotng, struct Coord3d *pos, Thing_Collide_Func filter, HitTargetFlags hit_targets, long a5)
 {
     MapSubtlCoord stl_x_min;
     MapSubtlCoord stl_y_min;
@@ -1521,6 +1615,20 @@ TngUpdateRet update_shot(struct Thing *thing)
             break;
         case ShM_GodLightBall:
             update_god_lightning_ball(thing);
+            break;
+        case ShM_TrapTNT:
+            
+            thing->mappos.z.val = 0;
+            if (thing->health < 6)
+            {
+                for (i = 5; i > 0; i--)
+                {
+                    pos1.x.val = thing->mappos.x.val - UNSYNC_RANDOM(127) + 63;
+                    pos1.y.val = thing->mappos.y.val - UNSYNC_RANDOM(127) + 63;
+                    pos1.z.val = thing->mappos.z.val - UNSYNC_RANDOM(127) + 63;
+                    create_thing(&pos1, TCls_EffectElem, TngEffElm_Blast1, thing->owner, -1);
+                }
+            }
             break;
         case ShM_TrapLightning:
             if (((game.play_gameturn - thing->creation_turn) % 16) == 0)
