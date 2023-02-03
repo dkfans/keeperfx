@@ -38,7 +38,7 @@ extern char tmp_net_player_name[24];
 #pragma pack()
 /******************************************************************************/
 void process_network_error(long errcode);
-void draw_out_of_sync_box(long a1, long a2, long box_width);
+void draw_out_of_sync_box();
 void display_attempting_to_join_message(void);
 CoroutineLoopState setup_alliances(CoroutineLoop *con);
 void frontnet_service_setup(void);

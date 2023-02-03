@@ -290,6 +290,7 @@ struct PlayerInfoAdd *get_playeradd_f(long plyr_idx,const char *func_name);
 #define get_my_playeradd() get_playeradd_f(my_player_number,__func__)
 TbBool player_invalid(const struct PlayerInfo *player);
 TbBool player_exists(const struct PlayerInfo *player);
+TbBool is_human_player(const struct PlayerInfo *player);
 TbBool is_my_player(const struct PlayerInfo *player);
 TbBool is_my_player_number(PlayerNumber plyr_num);
 TbBool player_allied_with(const struct PlayerInfo *player, PlayerNumber ally_idx);
@@ -309,6 +310,13 @@ void reset_player_mode(struct PlayerInfo *player, unsigned short nview);
 void clear_players(void);
 
 PlayerNumber player_bit_to_player_number(unsigned char plyr_bit);
+
+inline TbBool is_active_net_player(const struct PlayerInfo *player)
+{
+    // TOOD: separate players and net_users
+    return is_human_player(player);
+}
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

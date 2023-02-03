@@ -243,11 +243,17 @@ enum ChecksumKind {
 struct PlayerInfo;
 struct CatalogueEntry;
 
+enum
+{
+    PACKET_IS_NEW = 1
+};
+
 /**
  * Stores data exchanged between players each turn and used to re-create their input.
  */
-struct Packet { // sizeof = 0x11 (17)
-    int field_0;
+struct Packet {
+    uint8_t tick;
+    uint8_t net_flags;
     TbChecksum chksum; //! Checksum of all things within the game and synchronized random seed
     unsigned char action; //! Action kind performed by the player which owns this packet
     unsigned short actn_par1; //! Players action parameter #1

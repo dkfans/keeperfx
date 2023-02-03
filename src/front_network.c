@@ -106,10 +106,10 @@ void process_network_error(long errcode)
   create_frontend_error_box(3000, text);
 }
 
-void draw_out_of_sync_box(long a1, long a2, long box_width)
+void draw_out_of_sync_box()
 {
-    long min_width = 2 * a1;
-    long max_width = 2 * a2;
+    long min_width = 0;
+    long max_width = 2 * 32*units_per_pixel/16;
     if (min_width > max_width)
     {
         min_width = max_width;
@@ -118,27 +118,23 @@ void draw_out_of_sync_box(long a1, long a2, long box_width)
     {
         min_width = 0;
     }
+    long box_width = (game.operation_flags & GOF_ShowGui)?status_panel_width:0;
     int units_per_px = units_per_pixel;
-    if (LbScreenLock() == Lb_SUCCESS)
-    {
-        long ornate_width = 200 * units_per_px / 16;
-        long ornate_height = 100 * units_per_px / 16;
-        long x = box_width + (MyScreenWidth - box_width - ornate_width) / 2;
-        long y = (MyScreenHeight - ornate_height) / 2;
-        draw_ornate_slab64k(x, y, units_per_px, ornate_width, ornate_height);
-        LbTextSetFont(winfont);
-        lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
-        LbTextSetWindow(x, y, ornate_width, ornate_height);
-        int tx_units_per_px = (22 * units_per_px) / LbTextLineHeight();
-        long text_h = LbTextLineHeight() * tx_units_per_px / 16;
-        long text_x = x + 100 * units_per_px / 16 - max_width;
-        long text_y = y + 58 * units_per_px / 16;
-        LbTextDrawResized(0, 50*units_per_px/16 - text_h, tx_units_per_px, get_string(GUIStr_NetResyncing));
-        LbDrawBox(text_x, text_y, 2*max_width, 16*units_per_px/16, 0);
-        LbDrawBox(text_x, text_y, 2*min_width, 16*units_per_px/16, 133);
-        LbScreenUnlock();
-        LbScreenSwap();
-    }
+    long ornate_width = 200 * units_per_px / 16;
+    long ornate_height = 100 * units_per_px / 16;
+    long x = box_width + (MyScreenWidth - box_width - ornate_width) / 2;
+    long y = (MyScreenHeight - ornate_height) / 2;
+    draw_ornate_slab64k(x, y, units_per_px, ornate_width, ornate_height);
+    LbTextSetFont(winfont);
+    lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
+    LbTextSetWindow(x, y, ornate_width, ornate_height);
+    int tx_units_per_px = (22 * units_per_px) / LbTextLineHeight();
+    long text_h = LbTextLineHeight() * tx_units_per_px / 16;
+    long text_x = x + 100 * units_per_px / 16 - max_width;
+    long text_y = y + 58 * units_per_px / 16;
+    LbTextDrawResized(0, 50*units_per_px/16 - text_h, tx_units_per_px, get_string(GUIStr_NetResyncing));
+    LbDrawBox(text_x, text_y, 2*max_width, 16*units_per_px/16, 0);
+    LbDrawBox(text_x, text_y, 2*min_width, 16*units_per_px/16, 133);
 }
 
 CoroutineLoopState setup_alliances(CoroutineLoop *loop)

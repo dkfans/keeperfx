@@ -192,6 +192,12 @@ void setup_count_players(void)
   }
 }
 
+int network_num_clients()
+{
+    // TODO: separate them for observers etc
+    return game.active_players_count;
+}
+
 void init_players_network_game(CoroutineLoop *context)
 {
   SYNCDBG(4,"Starting");
