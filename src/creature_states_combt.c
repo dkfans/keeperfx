@@ -2845,6 +2845,9 @@ TbBool creature_look_for_combat(struct Thing *creatng)
 {
     SYNCDBG(9,"Starting for %s index %d",thing_model_name(creatng),(int)creatng->index);
     TRACE_THING(creatng);
+    if ((get_creature_model_flags(creatng) & CMF_IgnoreEnemies) != 0) {
+        return false;
+    }
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     struct Thing* enmtng;
     CrAttackType attack_type = check_for_possible_combat(creatng, &enmtng);

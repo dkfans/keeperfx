@@ -113,6 +113,7 @@ const struct NamedCommand creatmodel_properties_commands[] = {
   {"IMMUNE_TO_DISEASE", 25},
   {"ILLUMINATED",       26},
   {"ALLURING_SCVNGR",   27},
+  {"IGNORE_ENEMIES",    28},
   {NULL,                 0},
   };
 
@@ -748,6 +749,10 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                 break;
             case 27: // ALLURING_SCVNGR
                 crstat->entrance_force = true;
+                n++;
+                break;
+            case 28: // IGNORE_ENEMIES
+                crconf->model_flags |= CMF_IgnoreEnemies;
                 n++;
                 break;
             default:

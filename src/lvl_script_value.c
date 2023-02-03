@@ -788,6 +788,16 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       case 27: // ALLURING_SCVNGR
           crstat->entrance_force = val4;
           break;
+      case 28: // IGNORE_ENEMIES
+          if (val4 >= 1)
+          {
+              crconf->model_flags |= CMF_IgnoreEnemies;
+          }
+          else
+          {
+              crconf->model_flags ^= CMF_IgnoreEnemies;
+          }
+          break;
       default:
           SCRPTERRLOG("Unknown creature property '%d'", val3);
           break;
