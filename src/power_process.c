@@ -681,8 +681,43 @@ void process_timebomb(struct Thing *creatng)
     }
     else
     {
-        struct thing* efftng  = create_effect(&creatng->mappos, TngEff_Explosion5, creatng->owner);
-        kill_creature(creatng, efftng, creatng->owner, CrDed_NoUnconscious);
+        struct Coord3d orig_pos = creatng->mappos;
+        PlayerNumber owner = creatng->owner;
+        unsigned char radius = cctrl->timebomb_radius;
+        struct Thing* efftng = create_effect(&orig_pos, TngEff_Explosion5, owner);
+        kill_creature(creatng, efftng, owner, CrDed_NoUnconscious);
+        for (unsigned char x = 0; x < radius; x++)
+        {
+            struct Coord3d pos, pos2;
+            pos.x.stl.num = orig_pos.x.stl.num - x;
+            pos2.x.stl.num = orig_pos.x.stl.num + x;
+            pos.y.stl.num = orig_pos.y.stl.num;
+            pos2.y.stl.num = orig_pos.y.stl.num;
+            pos.z.val = get_floor_height_at(&pos);
+            pos2.z.val = get_floor_height_at(&pos2);
+            for (unsigned char y = 1; y < radius; y++)
+            {
+                struct Coord3d pos3, pos4, pos5, pos6;
+                pos3.x.stl.num = pos.x.stl.num;
+                pos4.x.stl.num = pos2.x.stl.num;
+                pos3.y.stl.num = pos.y.stl.num - y;
+                pos4.y.stl.num = pos2.y.stl.num + y;
+                pos5.x.stl.num = pos.x.stl.num;
+                pos5.y.stl.num = pos.y.stl.num + y;
+                pos6.x.stl.num = pos2.x.stl.num;
+                pos6.y.stl.num = pos2.y.stl.num - y;
+                pos3.z.val = get_floor_height_at(&pos3);
+                pos4.z.val = get_floor_height_at(&pos4);
+                pos5.z.val = get_floor_height_at(&pos5);
+                pos6.z.val = get_floor_height_at(&pos6);
+                create_effect(&pos, TngEff_Explosion5, owner);
+                create_effect(&pos2, TngEff_Explosion5, owner);
+                create_effect(&pos3, TngEff_Explosion5, owner);
+                create_effect(&pos4, TngEff_Explosion5, owner);
+                create_effect(&pos5, TngEff_Explosion5, owner);
+                create_effect(&pos6, TngEff_Explosion5, owner);
+            }
+        }
     }
 }
 /******************************************************************************/

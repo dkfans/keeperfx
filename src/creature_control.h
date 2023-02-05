@@ -401,6 +401,7 @@ unsigned short shot_shift_z;
     long following_leader_since;
     unsigned char follow_leader_fails;
     unsigned long timebomb_countdown;
+    unsigned char timebomb_radius;
 };
 
 struct CreatureStats { // These stats are not compatible with original DK - they have more fields
