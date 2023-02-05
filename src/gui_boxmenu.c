@@ -97,6 +97,7 @@ struct GuiBoxOption gui_main_cheat_list[] = { //gui_main_option_list in beta
   {"",                         2,           NULL,                        NULL, 0, 0, 0,                       PSt_None, 0, 0, 0, false},
   {"Kill player mode",         1,           NULL,              gf_change_player_state, 0, 0, 0,         PSt_KillPlayer, 0, 0, 0, true},
   {"Edit heart health",        1,  gfa_single_player_mode,     gf_change_player_state, 0, 0, 0,        PSt_HeartHealth, 0, 0, 0, true},
+  {"Time Bomb",                1,           NULL,              gf_change_player_state, 0, 0, 0,           PSt_TimeBomb, 0, 0, 0, true}, // TODO: remove this when the spell is in the normal slots
   {"!",                        0,           NULL,                        NULL, 0, 0, 0,                       PSt_None, 0, 0, 0, false},
 };
 

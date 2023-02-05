@@ -667,4 +667,22 @@ void remove_explored_flags_for_power_sight(struct PlayerInfo *player)
         }
     }
 }
+
+void process_timebomb(struct Thing *creatng)
+{
+    SYNCDBG(18,"Starting");
+    if (!creature_affected_by_spell(creatng, SplK_TimeBomb)) {
+        return;
+    }
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    if (cctrl->timebomb_countdown != 0)
+    {
+        cctrl->timebomb_countdown--;
+    }
+    else
+    {
+        struct thing* efftng  = create_effect(&creatng->mappos, TngEff_Explosion5, creatng->owner);
+        kill_creature(creatng, efftng, creatng->owner, CrDed_NoUnconscious);
+    }
+}
 /******************************************************************************/

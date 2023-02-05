@@ -945,6 +945,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
             }
             break;
         case PSt_TurnChicken:
+        case PSt_TimeBomb:
             influence_own_creatures = true;
             pwkind = player_state_to_power_kind[player->work_state];
             thing = get_creature_near_to_be_keeper_power_target(x, y, pwkind, plyr_idx);

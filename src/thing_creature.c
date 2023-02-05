@@ -696,6 +696,8 @@ TbBool creature_affected_by_spell(const struct Thing *thing, SpellKind spkind)
         return ((cctrl->spell_flags & CSAfF_Disease) != 0);
     case SplK_Chicken:
         return ((cctrl->spell_flags & CSAfF_Chicken) != 0);
+    case SplK_TimeBomb:
+        return ((cctrl->spell_flags & CSAfF_Timebomb) != 0);
     // Handle spells with no continuous effect
     case SplK_Lightning:
     case SplK_Heal:
@@ -703,7 +705,6 @@ TbBool creature_affected_by_spell(const struct Thing *thing, SpellKind spkind)
     case SplK_NavigMissile:
     case SplK_Grenade:
     case SplK_WordOfPower:
-    case SplK_TimeBomb:
     case SplK_Fireball:
     case SplK_FireBomb:
     case SplK_FlameBreath:
@@ -1058,6 +1059,19 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
                     cctrl->spell_flags |= CSAfF_Light;
                     illuminate_creature(thing);
                 }
+            }
+        }
+        break;
+    case SplK_TimeBomb:
+        i = get_free_spell_slot(thing);
+        if (i != -1)
+        {
+            fill_spell_slot(thing, i, spell_idx, splconf->duration);
+            if (!creature_affected_by_spell(thing, SplK_TimeBomb))
+            {
+                cctrl->spell_flags |= CSAfF_Timebomb;
+                pwrdynst = get_power_dynamic_stats(PwrK_TIMEBOMB);
+                cctrl->timebomb_countdown = pwrdynst->duration;
             }
         }
         break;
@@ -5400,6 +5414,7 @@ TngUpdateRet update_creature(struct Thing *thing)
     process_spells_affected_by_effect_elements(thing);
     process_landscape_affecting_creature(thing);
     process_disease(thing);
+    process_timebomb(thing);
     move_thing_in_map(thing, &thing->mappos);
     set_creature_graphic(thing);
     if (cctrl->field_2B0)
