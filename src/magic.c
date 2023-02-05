@@ -1185,7 +1185,6 @@ TbResult magic_use_power_time_bomb(PlayerNumber plyr_idx, struct Thing *thing, l
             return Lb_FAIL;
         }
     }
-    thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     apply_spell_effect_to_thing(thing, SplK_TimeBomb, splevel);
     struct PowerConfigStats *powerst = get_power_model_stats(PwrK_TIMEBOMB);
     thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
