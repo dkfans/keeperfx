@@ -675,6 +675,30 @@ void process_timebomb(struct Thing *creatng)
         return;
     }
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    struct Thing* timetng = thing_get(cctrl->timebomb_countdown_id);
+    if (thing_is_invalid(timetng))
+    {
+        long time = (cctrl->timebomb_countdown / game.num_fps) + 1;
+        timetng = create_price_effect(&creatng->mappos, creatng->owner, time);
+        cctrl->timebomb_countdown_id = timetng->index;
+        thing_play_sample(creatng, 853, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+    }
+    else
+    {
+        if (timetng->health <= 0)
+        {
+            delete_thing_structure(timetng, 0);
+            cctrl->timebomb_countdown_id = 0;
+        }
+        else
+        {
+            struct Coord3d pos;
+            pos.x.val = creatng->mappos.x.val;
+            pos.y.val = creatng->mappos.y.val;
+            pos.z.val = timetng->mappos.z.val;
+            move_thing_in_map(timetng, &pos);
+        }
+    }
     if (cctrl->timebomb_countdown != 0)
     {
         cctrl->timebomb_countdown--;
