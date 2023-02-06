@@ -687,7 +687,7 @@ void process_timebomb(struct Thing *creatng)
         }
         create_effect_around_thing(creatng, TngEff_Explosion6);
         struct ShotConfigStats* shotst = get_shot_model_stats(SplK_TimeBomb);
-        HitTargetFlags hit_targets = hit_type_to_hit_targets(shotst->area_hit_type);
+        HitTargetFlags hit_targets = hit_type_to_hit_targets(THit_All);
         explosion_affecting_area(creatng, &creatng->mappos, subtile_coord(cctrl->timebomb_radius, 0) * 1000, 20000, shotst->area_blow, hit_targets, shotst->damage_type); //todo configure proper damage
         kill_creature(creatng, INVALID_THING, -1, CrDed_NoEffects);
     }
