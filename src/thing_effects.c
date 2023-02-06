@@ -1667,7 +1667,7 @@ long explosion_affecting_map_block(struct Thing *tngsrc, const struct Map *mapbl
  *
  * @param tngsrc The thing which caused the effect, usually spell caster.
  * @param pos Position of the effect epicenter.
- * @param range Range of the effect, in subtiles.
+ * @param max_dist Range of the effect.
  * @param max_damage Damage at epicenter of the effect.
  * @param blow_strength The strength of hitwave blowing creatures out of affected area.
  * @param hit_targets Defines which things are affected.
@@ -1684,20 +1684,26 @@ long explosion_affecting_area(struct Thing *tngsrc, const struct Coord3d *pos, M
         return 0;
     }
     MapSubtlCoord range_stl = (max_dist + 5 * COORD_PER_STL / 6) / COORD_PER_STL;
-    if (pos->x.stl.num > range_stl)
       start_x = pos->x.stl.num - range_stl;
-    else
+    if (start_x < 0)
+    {
       start_x = 0;
-    if (pos->y.stl.num > range_stl)
+    }
       start_y = pos->y.stl.num - range_stl;
-    else
+    if (start_y < 0)
+    {
       start_y = 0;
+    }
     MapSubtlCoord end_x = range_stl + pos->x.stl.num;
-    if (end_x >= gameadd.map_subtiles_x)
+    if (end_x > gameadd.map_subtiles_x)
+    {
       end_x = gameadd.map_subtiles_x;
+    }
     MapSubtlCoord end_y = range_stl + pos->y.stl.num;
     if (end_y > gameadd.map_subtiles_y)
+    {
       end_y = gameadd.map_subtiles_y;
+    }
 #if (BFDEBUG_LEVEL > 0)
     if ((start_params.debug_flags & DFlg_ShotsDamage) != 0)
         create_price_effect(pos, my_player_number, max_damage);
