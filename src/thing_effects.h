@@ -23,6 +23,7 @@
 #include "bflib_basics.h"
 
 #include "light_data.h"
+#include "map_data.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -344,6 +345,15 @@ long explosion_affecting_area(struct Thing *tngsrc, const struct Coord3d *pos, M
     
 TbBool explosion_affecting_door(struct Thing *tngsrc, struct Thing *tngdst, const struct Coord3d *pos,
     MapCoordDelta max_dist, HitPoints max_damage, long blow_strength, DamageType damage_type, PlayerNumber owner);
+    
+TbBool timebomb_explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, const struct Coord3d *pos,
+    MapCoordDelta max_dist, HitPoints max_damage, long blow_strength, DamageType damage_type, PlayerNumber owner);
+    
+long timebomb_explosion_affecting_map_block(struct Thing *tngsrc, const struct Map *mapblk, const struct Coord3d *pos,
+    MapCoord max_dist, HitPoints max_damage, long blow_strength, HitTargetFlags hit_targets, DamageType damage_type);
+    
+long timebomb_explosion_affecting_area(struct Thing *tngsrc, const struct Coord3d *pos, MapCoord max_dist,
+    HitPoints max_damage, long blow_strength, HitTargetFlags hit_targets, DamageType damage_type);
 
 /******************************************************************************/
 #ifdef __cplusplus

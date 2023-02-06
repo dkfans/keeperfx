@@ -1930,6 +1930,169 @@ struct Thing *create_price_effect(const struct Coord3d *pos, long plyr_idx, long
     return elemtng;
 }
 
+TbBool timebomb_explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, const struct Coord3d *pos,
+    MapCoordDelta max_dist, HitPoints max_damage, long blow_strength, DamageType damage_type, PlayerNumber owner)
+{
+    TbBool affected = false;
+    SYNCDBG(17,"Starting for %s, max damage %d, max blow %d, owner %d",thing_model_name(tngdst),(int)max_damage,(int)blow_strength,(int)owner);
+    // if (nowibble_line_of_sight_3d(pos, &tngdst->mappos))
+    // {
+        // Friendly fire usually causes less damage and at smaller distance
+        if ((tngdst->class_id == TCls_Creature) && (tngdst->owner == owner)) {
+            max_dist = max_dist * gameadd.friendly_fight_area_range_permil / 1000;
+            max_damage = max_damage * gameadd.friendly_fight_area_damage_permil / 1000;
+        }
+        MapCoordDelta distance = get_2d_distance(pos, &tngdst->mappos);
+        if (distance <= max_dist)
+        {
+            if (tngdst->class_id == TCls_Creature)
+            {
+                HitPoints damage = get_radially_decaying_value(max_damage, max_dist / 4, 3 * max_dist / 4, distance) + 1;
+                SYNCDBG(7,"Causing %d damage to %s at distance %d",(int)damage,thing_model_name(tngdst),(int)distance);
+                apply_damage_to_thing_and_display_health(tngdst, damage, damage_type, owner);
+                affected = true;
+                if (tngdst->health < 0)
+                {
+                    CrDeathFlags dieflags = CrDed_DiedInBattle;
+                    // Explosions kill rather than only stun friendly creatures when imprison is on
+                    if ((tngsrc->owner == tngdst->owner) &! (gameadd.classic_bugs_flags & ClscBug_FriendlyFaint))
+                    {
+                        dieflags |= CrDed_NoUnconscious;
+                    }
+                    kill_creature(tngdst, tngsrc, -1, dieflags);
+                    affected = true;
+                }
+            }
+            else if (thing_is_deployed_door(tngdst))
+            {
+                affected = explosion_affecting_door(tngsrc, tngdst, pos, max_dist, max_damage, blow_strength, damage_type, owner);
+            }
+            else if (thing_is_dungeon_heart(tngdst))
+            {
+                HitPoints damage = get_radially_decaying_value(max_damage, max_dist / 4, 3 * max_dist / 4, distance) + 1;
+                SYNCDBG(7,"Causing %d damage to %s at distance %d",(int)damage,thing_model_name(tngdst),(int)distance);
+                apply_damage_to_thing(tngdst, damage, damage_type, -1);
+                affected = true;
+                event_create_event_or_update_nearby_existing_event(tngdst->mappos.x.val, tngdst->mappos.y.val,EvKind_HeartAttacked, tngdst->owner, 0);
+                if (is_my_player_number(tngdst->owner))
+                {
+                    output_message(SMsg_HeartUnderAttack, 400, true);
+                }
+            } else // Explosions move creatures and other things
+            {
+                long move_angle = get_angle_xy_to(pos, &tngdst->mappos);
+                long move_dist = 0;
+                if (blow_strength > 0)
+                {
+                    move_dist = get_radially_decaying_value(blow_strength, max_dist / 4, max_dist * 3 / 4, distance);
+                }
+                else
+                {
+                    move_dist = get_radially_growing_value(blow_strength, max_dist / 4, max_dist * 3 / 4, distance, tngdst->inertia_floor);
+                }
+                if (move_dist != 0)
+                {
+                    tngdst->veloc_push_add.x.val += distance_with_angle_to_coord_x(move_dist, move_angle);
+                    tngdst->veloc_push_add.y.val += distance_with_angle_to_coord_y(move_dist, move_angle);
+                    tngdst->state_flags |= TF1_PushAdd;
+                    affected = true;
+                }
+            }
+        }
+    // }
+    return affected;
+}
+
+long timebomb_explosion_affecting_map_block(struct Thing *tngsrc, const struct Map *mapblk, const struct Coord3d *pos,
+    MapCoord max_dist, HitPoints max_damage, long blow_strength, HitTargetFlags hit_targets, DamageType damage_type)
+{
+    PlayerNumber owner;
+    if (!thing_is_invalid(tngsrc))
+        owner = tngsrc->owner;
+    else
+        owner = -1;
+    long num_affected = 0;
+    unsigned long k = 0;
+    long i = get_mapwho_thing_index(mapblk);
+    while (i != 0)
+    {
+        struct Thing* thing = thing_get(i);
+        TRACE_THING(thing);
+        if (thing_is_invalid(thing))
+        {
+            WARNLOG("Jump out of things array");
+            break;
+        }
+        i = thing->next_on_mapblk;
+        // Should never happen - only existing thing shall be in list
+        if (!thing_exists(thing))
+        {
+            WARNLOG("Jump to non-existing thing");
+            break;
+        }
+        // Per thing processing block
+        if (area_effect_can_affect_thing(thing, hit_targets, owner))
+        {
+            if (timebomb_explosion_affecting_thing(tngsrc, thing, pos, max_dist, max_damage, blow_strength, damage_type, owner))
+                num_affected++;
+        }
+        // Per thing processing block ends
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break_mapwho_infinite_chain(mapblk);
+            break;
+        }
+    }
+    return num_affected;
+}
+
+long timebomb_explosion_affecting_area(struct Thing *tngsrc, const struct Coord3d *pos, MapCoord max_dist,
+    HitPoints max_damage, long blow_strength, HitTargetFlags hit_targets, DamageType damage_type)
+{
+    if (hit_targets == HitTF_None)
+    {
+        ERRORLOG("The %s tries to affect area up to distance %d with invalid hit type %d",thing_model_name(tngsrc),(int)max_dist,(int)hit_targets);
+        return 0;
+    }
+    MapSubtlCoord range_stl = coord_subtile(max_dist);
+    MapSubtlCoord start_x = pos->x.stl.num - range_stl;
+    if (start_x < 0)
+    {
+      start_x = 0;
+    }
+    MapSubtlCoord start_y = pos->y.stl.num - range_stl;
+    if (start_y < 0)
+    {
+      start_y = 0;
+    }
+    MapSubtlCoord end_x = range_stl + pos->x.stl.num;
+    if (end_x > gameadd.map_subtiles_x)
+    {
+      end_x = gameadd.map_subtiles_x;
+    }
+    MapSubtlCoord end_y = range_stl + pos->y.stl.num;
+    if (end_y > gameadd.map_subtiles_y)
+    {
+      end_y = gameadd.map_subtiles_y;
+    }
+#if (BFDEBUG_LEVEL > 0)
+    if ((start_params.debug_flags & DFlg_ShotsDamage) != 0)
+        create_price_effect(pos, my_player_number, max_damage);
+#endif
+    long num_affected = 0;
+    for (MapSubtlCoord stl_y = start_y; stl_y <= end_y; stl_y++)
+    {
+        for (MapSubtlCoord stl_x = start_x; stl_x <= end_x; stl_x++)
+        {
+            const struct Map* mapblk = get_map_block_at(stl_x, stl_y);
+            num_affected += timebomb_explosion_affecting_map_block(tngsrc, mapblk, pos, max_dist, max_damage, blow_strength, hit_targets, damage_type);
+        }
+    }
+    return num_affected;
+}
+
 /******************************************************************************/
 #ifdef __cplusplus
 }
