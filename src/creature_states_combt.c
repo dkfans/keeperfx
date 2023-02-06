@@ -38,6 +38,7 @@
 #include "thing_shots.h"
 #include "thing_navigate.h"
 #include "creature_states_lair.h"
+#include "creature_states_spdig.h"
 #include "player_utils.h"
 #include "power_hand.h"
 #include "room_data.h"
@@ -1765,34 +1766,64 @@ CrInstance get_best_self_preservation_instance_to_use(const struct Thing *thing)
 CrInstance get_self_spell_casting(const struct Thing *thing)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    if (!creature_affected_by_spell(thing, SplK_Sight))
-    {
-        INSTANCE_RET_IF_AVAIL(thing, CrInst_SIGHT);
-    }
+    struct InstanceInfo* inst_inf;
     if (creature_would_benefit_from_healing(thing))
     {
         INSTANCE_RET_IF_AVAIL(thing, CrInst_HEAL);
     }
-    long state_type = get_creature_state_type(thing);
-    if (!creature_is_kept_in_custody(thing))
+
+    if (thing_is_creature_special_digger(thing) && creature_is_doing_digger_activity(thing))
     {
+        
         // casting wind when under influence of gas
         if ((cctrl->spell_flags & CSAfF_PoisonCloud) != 0)
         {
             INSTANCE_RET_IF_AVAIL(thing, CrInst_WIND);
         }
-        if (!creature_affected_by_spell(thing, SplK_Speed) && (state_type != CrStTyp_Idle))
+
+        for (short i = 0; i < CREATURE_INSTANCES_COUNT; i++)
         {
-            INSTANCE_RET_IF_AVAIL(thing, CrInst_SPEED);
+            if (i == CrInst_HEAL)
+                continue;
+
+            inst_inf = creature_instance_info_get(i);
+            if ((inst_inf->flags & InstPF_SelfBuff))
+            {
+                if (!creature_affected_by_spell(thing, inst_inf->func_params[1]))
+                {
+                    INSTANCE_RET_IF_AVAIL(thing, i);
+                }
+            }
         }
-        if (!creature_affected_by_spell(thing, SplK_Fly) && ((state_type != CrStTyp_Idle) || terrain_toxic_for_creature_at_position(thing, coord_subtile(thing->mappos.x.val), coord_subtile(thing->mappos.y.val))))
+    }
+    else
+    {
+        if (!creature_affected_by_spell(thing, SplK_Sight))
         {
-            INSTANCE_RET_IF_AVAIL(thing, CrInst_FLY);
+            INSTANCE_RET_IF_AVAIL(thing, CrInst_SIGHT);
         }
-        //TODO CREATURE_AI allow using invisibility when creature is being attacked or escaping
-        if (!creature_affected_by_spell(thing, SplK_Invisibility) && (state_type != CrStTyp_Idle))
+
+        long state_type = get_creature_state_type(thing);
+        if (!creature_is_kept_in_custody(thing))
         {
-            INSTANCE_RET_IF_AVAIL(thing, CrInst_INVISIBILITY);
+            // casting wind when under influence of gas
+            if ((cctrl->spell_flags & CSAfF_PoisonCloud) != 0)
+            {
+                INSTANCE_RET_IF_AVAIL(thing, CrInst_WIND);
+            }
+            if (!creature_affected_by_spell(thing, SplK_Speed) && (state_type != CrStTyp_Idle))
+            {
+                INSTANCE_RET_IF_AVAIL(thing, CrInst_SPEED);
+            }
+            if (!creature_affected_by_spell(thing, SplK_Fly) && ((state_type != CrStTyp_Idle) || terrain_toxic_for_creature_at_position(thing, coord_subtile(thing->mappos.x.val), coord_subtile(thing->mappos.y.val))))
+            {
+                INSTANCE_RET_IF_AVAIL(thing, CrInst_FLY);
+            }
+            //TODO CREATURE_AI allow using invisibility when creature is being attacked or escaping
+            if (!creature_affected_by_spell(thing, SplK_Invisibility) && (state_type != CrStTyp_Idle))
+            {
+                INSTANCE_RET_IF_AVAIL(thing, CrInst_INVISIBILITY);
+            }
         }
     }
     return CrInst_NULL;
