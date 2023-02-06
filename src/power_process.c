@@ -685,9 +685,13 @@ void process_timebomb(struct Thing *creatng)
         {
             create_effect_around_thing(creatng, TngEff_Blood5);
         }
-        create_effect_around_thing(creatng, TngEff_Explosion6);
+        create_effect_around_thing(creatng, TngEff_Explosion5);
         struct ShotConfigStats* shotst = get_shot_model_stats(SplK_TimeBomb);
-        HitTargetFlags hit_targets = hit_type_to_hit_targets(shotst->area_hit_type);
+        HitTargetFlags hit_targets = HitTF_EnemyCreatures|HitTF_AlliedCreatures|HitTF_OwnedCreatures|HitTF_ArmourAffctdCreatrs|
+            HitTF_EnemySoulContainer|HitTF_AlliedSoulContainer|HitTF_OwnedSoulContainer|
+            HitTF_AnyWorkshopBoxes|HitTF_AnySpellbooks|HitTF_AnyDnSpecialBoxes|
+            HitTF_EnemyDestructibleTraps|HitTF_AlliedDestructibleTraps|HitTF_OwnedDestructibleTraps|
+            HitTF_AnyFoodObjects|HitTF_AnyGoldPiles;
         explosion_affecting_area(creatng, &creatng->mappos, subtile_coord(cctrl->timebomb_radius, 0) * 1000, 20000, shotst->area_blow, hit_targets, shotst->damage_type); //todo configure proper damage
         kill_creature(creatng, INVALID_THING, -1, CrDed_NoEffects);
     }
