@@ -1933,10 +1933,14 @@ struct Thing *create_price_effect(const struct Coord3d *pos, long plyr_idx, long
 TbBool timebomb_explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, const struct Coord3d *pos,
     MapCoordDelta max_dist, HitPoints max_damage, long blow_strength, DamageType damage_type, PlayerNumber owner)
 {
+    if (thing_is_deployed_door(tngdst))
+    {
+        return explosion_affecting_door(tngsrc, tngdst, pos, max_dist, max_damage, blow_strength, damage_type, owner);
+    }
     TbBool affected = false;
     SYNCDBG(17,"Starting for %s, max damage %d, max blow %d, owner %d",thing_model_name(tngdst),(int)max_damage,(int)blow_strength,(int)owner);
-    // if (nowibble_line_of_sight_3d(pos, &tngdst->mappos))
-    // {
+    if (nowibble_line_of_sight_3d(pos, &tngdst->mappos))
+    {
         // Friendly fire usually causes less damage and at smaller distance
         if ((tngdst->class_id == TCls_Creature) && (tngdst->owner == owner)) {
             max_dist = max_dist * gameadd.friendly_fight_area_range_permil / 1000;
@@ -1962,10 +1966,6 @@ TbBool timebomb_explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tn
                     kill_creature(tngdst, tngsrc, -1, dieflags);
                     affected = true;
                 }
-            }
-            else if (thing_is_deployed_door(tngdst))
-            {
-                affected = explosion_affecting_door(tngsrc, tngdst, pos, max_dist, max_damage, blow_strength, damage_type, owner);
             }
             else if (thing_is_dungeon_heart(tngdst))
             {
@@ -1999,7 +1999,7 @@ TbBool timebomb_explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tn
                 }
             }
         }
-    // }
+    }
     return affected;
 }
 
