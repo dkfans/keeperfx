@@ -1688,7 +1688,7 @@ long explosion_affecting_area(struct Thing *tngsrc, const struct Coord3d *pos, M
         ERRORLOG("The %s tries to affect area up to distance %d with invalid hit type %d",thing_model_name(tngsrc),(int)max_dist,(int)hit_targets);
         return 0;
     }
-    MapSubtlCoord range_stl = (max_dist + 5 * COORD_PER_STL / 6) / COORD_PER_STL;
+    MapSubtlCoord range_stl = coord_subtile(max_dist);
       start_x = pos->x.stl.num - range_stl;
     if (start_x < 0)
     {
