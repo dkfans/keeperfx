@@ -266,7 +266,7 @@ struct StateInfo { // sizeof = 41
   unsigned char blocks_all_state_changes;
     unsigned short sprite_idx;
   unsigned char display_thought_bubble;
-  unsigned char _unused_27;
+  unsigned char sneaky;
   unsigned char react_to_cta;
 };
 

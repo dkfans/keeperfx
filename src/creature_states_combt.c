@@ -2876,10 +2876,8 @@ TbBool creature_look_for_combat(struct Thing *creatng)
 {
     SYNCDBG(9,"Starting for %s index %d",thing_model_name(creatng),(int)creatng->index);
     TRACE_THING(creatng);
-    if ((get_creature_model_flags(creatng) & CMF_IgnoreEnemies) != 0) {
-        return false;
-    }
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    CrtrStateId crstate;
     struct Thing* enmtng;
     CrAttackType attack_type = check_for_possible_combat(creatng, &enmtng);
     if (attack_type <= AttckT_Unset)
@@ -2908,14 +2906,18 @@ TbBool creature_look_for_combat(struct Thing *creatng)
         }
     }
 
-    // If high fear creature is invisible and not in combat, then don't let it start one
-    if (creature_is_invisible(creatng))
+    // Don't start combat if not already in combat and high fear + invisible or sneaky
+    if ((cctrl->opponents_melee_count == 0) && (cctrl->opponents_ranged_count == 0))
     {
-        if ( (cctrl->opponents_melee_count == 0) && (cctrl->opponents_ranged_count == 0) ) {
+        if (creature_is_invisible(creatng))
+        {
             struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
             if (crstat->fear_wounded >= 101)
                 return false;
         }
+        crstate = get_creature_state_besides_move(creatng);
+        if (states[crstate].sneaky == 1)
+            return false;
     }
 
     // If not too scared for combat, then do the combat
