@@ -950,6 +950,7 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
     case PSt_FreeTurnChicken:
     case PSt_FreeCtrlPassngr:
     case PSt_FreeCtrlDirect:
+    case PSt_TimeBomb:
         draw_spell_cursor(player->work_state, 0, game.mouse_light_pos.x.stl.num, game.mouse_light_pos.y.stl.num);
         break;
     case PSt_CreatrQuery:
