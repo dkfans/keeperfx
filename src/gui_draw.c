@@ -35,6 +35,7 @@
 #include "custom_sprites.h"
 #include "sprites.h"
 #include "post_inc.h"
+#include "frontmenu_ingame_tabs.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -522,6 +523,34 @@ void draw_button_string(struct GuiButton *gbtn, int base_width, const char *text
         }
     }
     unsigned long h = (gbtn->height - text_string_height(tx_units_per_px, dtext)) / 2 - 3 * units_per_px / 16;
+    if (dbc_language > 0)
+    {
+        if (gbtn->id_num == BID_QUERY_INFO)
+        {
+            if (MyScreenWidth > 640)
+            {
+                h += (13 + (MyScreenWidth / 640));
+                w += 8;
+                tx_units_per_px = scale_value_by_horizontal_resolution(10);
+            }
+        }
+        else if (gbtn->id_num == BID_DUNGEON_INFO)
+        {
+            if (MyScreenWidth > 640)
+            {
+                h += (12 + (MyScreenWidth / 640));
+                w += 8;
+                tx_units_per_px = scale_value_by_horizontal_resolution(12);
+            }
+        }
+        else if (gbtn->tooltip_stridx == GUIStr_ExperienceDesc)
+        {
+            if (MyScreenWidth > 640)
+            {
+                h += (8 + (MyScreenWidth / 640));
+            }
+        }
+    }
     LbTextDrawResized(w, h, tx_units_per_px, dtext);
     LbTextSetJustifyWindow(0, 0, LbGraphicsScreenWidth());
     LbTextSetClipWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
