@@ -531,7 +531,7 @@ void draw_button_string(struct GuiButton *gbtn, int base_width, const char *text
             {
                 h += (13 + (MyScreenWidth / 640));
                 w += 8;
-                tx_units_per_px = scale_value_by_horizontal_resolution(8);
+                tx_units_per_px = scale_value_by_horizontal_resolution(10);
             }
         }
         else if (gbtn->id_num == BID_DUNGEON_INFO)
