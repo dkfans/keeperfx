@@ -40,6 +40,7 @@ enum ThingHitTypes {
     THit_HeartOnly, // Affect only dungeon hearts
     THit_HeartOnlyNotOwn, // Affect only not own dungeon hearts
     THit_CrtrsNObjctsNShot, // Affect all creatures and all objects, also allow colliding with other shots
+    THit_TrapsAll, // Affect all traps, not just the ones that are destructable
     THit_TypesCount, // Last item in enumeration, allows checking amount of valid types
 };
 
@@ -262,8 +263,8 @@ struct EffectElementStats { // sizeof = 79
   unsigned short sprite_speed_min;
   unsigned short sprite_speed_max;
   unsigned char field_12;
-  unsigned char field_13;
-  unsigned char field_14;  // transparency flags in bits 4-5
+  unsigned char unshaded;
+  unsigned char transparant;  // transparency flags in bits 4-5
   unsigned char field_15;
   unsigned char field_16;
   unsigned char field_17;

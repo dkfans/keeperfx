@@ -91,6 +91,7 @@ struct TrapStats {
 #pragma pack()
 /******************************************************************************/
 TbBool slab_has_trap_on(MapSlabCoord slb_x, MapSlabCoord slb_y);
+TbBool slab_has_sellable_trap_on(MapSlabCoord slb_x, MapSlabCoord slb_y);
 TbBool subtile_has_trap_on(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 TbBool slab_middle_row_has_trap_on(MapSlabCoord slb_x, MapSlabCoord slb_y);
 TbBool slab_middle_column_has_trap_on(MapSlabCoord slb_x, MapSlabCoord slb_y);
@@ -103,6 +104,8 @@ struct Thing *get_trap_for_slab_position(MapSlabCoord slb_x, MapSlabCoord slb_y)
 TbBool trap_is_active(const struct Thing *thing);
 TbBool trap_is_slappable(const struct Thing *thing, PlayerNumber plyr_idx);
 TbBool thing_is_deployed_trap(const struct Thing *thing);
+short thing_is_destructible_trap(const struct Thing* thing);
+TbBool thing_is_sellable_trap(const struct Thing* thing);
 TbBool rearm_trap(struct Thing *traptng);
 TngUpdateRet update_trap(struct Thing *thing);
 void init_traps(void);

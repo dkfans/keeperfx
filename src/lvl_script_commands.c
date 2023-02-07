@@ -220,6 +220,9 @@ const struct NamedCommand trap_config_desc[] = {
   {"LightFlags",          29},
   {"TransparencyFlags",   30},
   {"ShotVector",          31},
+  {"Destructible",        32},
+  {"Unstable",            33},
+  {"Unsellable",          34},
   {NULL,                   0},
 };
 
@@ -1268,6 +1271,15 @@ static void set_trap_configuration_process(struct ScriptContext *context)
             gameadd.trap_stats[trap_type].shotvector.x = value;
             gameadd.trap_stats[trap_type].shotvector.y = value2;
             gameadd.trap_stats[trap_type].shotvector.z = value3;
+            break;
+        case 32: // Destructible
+            trapst->destructible = value;
+            break;
+        case 33: // Unstable
+            trapst->unstable = value;
+            break;
+        case 34: // Unsellable
+            trapst->unsellable = value;
             break;
         default:
             WARNMSG("Unsupported Trap configuration, variable %d.", context->value->shorts[1]);

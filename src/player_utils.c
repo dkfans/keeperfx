@@ -1076,7 +1076,7 @@ TbBool player_sell_trap_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     if (player->full_slab_cursor == false)
     {
         thing = get_trap_for_position(stl_x, stl_y);
-        if (thing_is_invalid(thing))
+        if (!thing_is_sellable_trap(thing))
         {
             return false;
         }
@@ -1086,7 +1086,7 @@ TbBool player_sell_trap_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     else
     {
         thing = get_trap_for_slab_position(subtile_slab_fast(stl_x), subtile_slab_fast(stl_y));
-        if (thing_is_invalid(thing))
+        if (!thing_is_sellable_trap(thing))
         {
             return false;
         }

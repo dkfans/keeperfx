@@ -1575,13 +1575,13 @@ void creature_cast_spell_at_thing(struct Thing *castng, struct Thing *targetng, 
     unsigned char hit_type;
     if ((castng->alloc_flags & TAlF_IsControlled) != 0)
     {
-        if (targetng->class_id == TCls_Object)
+        if ((targetng->class_id == TCls_Object) || (targetng->class_id == TCls_Trap))
             hit_type = THit_CrtrsNObjcts;
         else
             hit_type = THit_CrtrsOnly;
     } else
     {
-        if (targetng->class_id == TCls_Object)
+        if ((targetng->class_id == TCls_Object) || (targetng->class_id == TCls_Trap))
             hit_type = THit_CrtrsNObjctsNotOwn;
         else
         if (targetng->owner == castng->owner)
@@ -1802,6 +1802,9 @@ TngUpdateRet process_creature_state(struct Thing *thing)
         TbBool fighting = creature_look_for_combat(thing);
         if (!fighting) {
             fighting = creature_look_for_enemy_heart_combat(thing);
+        }
+        if (!fighting) {
+            fighting = creature_look_for_enemy_object_combat(thing);
         }
     }
     if ((cctrl->combat_flags & CmbtF_DoorFight) == 0)
@@ -2858,6 +2861,10 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
             damage = calculate_shot_damage(firing, shot_model);
         }
     }
+    if ((shotst->model_flags & ShMF_Disarming) && thing_is_deployed_trap(target))
+    {
+        hit_type = THit_TrapsAll;
+    }
     struct Thing* shotng = NULL;
     long target_idx = 0;
     // Set target index for navigating shots
@@ -2984,7 +2991,7 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
       }
       if (shotst->shot_sound > 0)
       {
-        thing_play_sample(shotng, shotst->shot_sound, NORMAL_PITCH, 0, 3, 0, shotst->old->field_20, FULL_LOUDNESS);
+        thing_play_sample(shotng, shotst->shot_sound, NORMAL_PITCH, 0, 3, 0, shotst->sound_priority, FULL_LOUDNESS);
       }
       set_flag_byte(&shotng->movement_flags,TMvF_Unknown10,flag1);
     }
@@ -3139,7 +3146,6 @@ ThingIndex get_human_controlled_creature_target(struct Thing *thing, long primar
                             switch (primary_target)
                             {
                                 case 1:
-                                case 7:
                                     is_valid_target = ((thing_is_creature(i) && !creature_is_being_unconscious(i)) || thing_is_dungeon_heart(i));
                                     break;
                                 case 2:
@@ -3156,6 +3162,9 @@ ThingIndex get_human_controlled_creature_target(struct Thing *thing, long primar
                                     break;
                                 case 6:
                                     is_valid_target = ((thing_is_creature(i) && !creature_is_being_unconscious(i)) && i->owner == thing->owner);
+                                    break;
+                                case 7:
+                                    is_valid_target = ((thing_is_creature(i) && !creature_is_being_unconscious(i)) || thing_is_dungeon_heart(i) || thing_is_deployed_trap(i));
                                     break;
                                 case 8:
                                     is_valid_target = true;

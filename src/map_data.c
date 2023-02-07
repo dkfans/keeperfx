@@ -780,7 +780,7 @@ TbBool subtile_is_sellable_door_or_trap(PlayerNumber plyr_idx, MapSubtlCoord stl
     struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
     if (slabmap_owner(slb) != plyr_idx)
         return false;
-    if ((slab_has_door_thing_on(subtile_slab(stl_x), subtile_slab(stl_y))) || (slab_has_trap_on(subtile_slab(stl_x), subtile_slab(stl_y))))
+    if ((slab_has_door_thing_on(subtile_slab(stl_x), subtile_slab(stl_y))) || (slab_has_sellable_trap_on(subtile_slab(stl_x), subtile_slab(stl_y))))
         return true;
     return false;
 }

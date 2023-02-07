@@ -540,8 +540,8 @@ struct Thing *create_effect_element(const struct Coord3d *pos, unsigned short ee
         i = EFFECT_RANDOM(thing, eestat->sprite_size_max  - (int)eestat->sprite_size_min  + 1);
         long n = EFFECT_RANDOM(thing, eestat->sprite_speed_max - (int)eestat->sprite_speed_min + 1);
         set_thing_draw(thing, eestat->sprite_idx, eestat->sprite_speed_min + n, eestat->sprite_size_min + i, 0, 0, eestat->draw_class);
-        set_flag_byte(&thing->rendering_flags,TRF_Unshaded,eestat->field_13);
-        thing->rendering_flags ^= (thing->rendering_flags ^ (0x10 * eestat->field_14)) & (TRF_Transpar_Flags);
+        set_flag_byte(&thing->rendering_flags,TRF_Unshaded,eestat->unshaded);
+        thing->rendering_flags ^= (thing->rendering_flags ^ (TRF_Transpar_8 * eestat->transparant)) & (TRF_Transpar_Flags);
         set_flag_byte(&thing->rendering_flags,TRF_AnimateOnce,eestat->field_D);
     } else
     {
@@ -816,8 +816,8 @@ void change_effect_element_into_another(struct Thing *thing, long nmodel)
     int scale = eestat->sprite_size_min + EFFECT_RANDOM(thing, eestat->sprite_size_max - eestat->sprite_size_min + 1);
     thing->model = nmodel;
     set_thing_draw(thing, eestat->sprite_idx, speed, scale, eestat->field_D, 0, 2);
-    thing->rendering_flags ^= (thing->rendering_flags ^ 0x02 * eestat->field_13) & TRF_Unshaded;
-    thing->rendering_flags ^= (thing->rendering_flags ^ 0x10 * eestat->field_14) & (TRF_Transpar_Flags);
+    thing->rendering_flags ^= (thing->rendering_flags ^ TRF_Unshaded * eestat->unshaded) & TRF_Unshaded;
+    thing->rendering_flags ^= (thing->rendering_flags ^ TRF_Transpar_8 * eestat->transparant) & (TRF_Transpar_Flags);
     thing->fall_acceleration = eestat->fall_acceleration;
     thing->inertia_floor = eestat->inertia_floor;
     thing->inertia_air = eestat->inertia_air;
@@ -1488,7 +1488,7 @@ long explosion_effect_affecting_map_block(struct Thing *efftng, struct Thing *tn
         }
         i = thing->next_on_mapblk;
         // Per thing processing block
-        if ((thing->class_id == TCls_Door) && (efftng->shot_effect.hit_type != 4)) //TODO: Find pretty way to say that WoP traps should not destroy doors. And make it configurable through configs.
+        if ((thing->class_id == TCls_Door) && (efftng->shot_effect.hit_type != THit_CrtrsOnlyNotOwn)) //TODO: Find pretty way to say that WoP traps should not destroy doors. And make it configurable through configs.
         {
             if (explosion_affecting_door(tngsrc, thing, &efftng->mappos, max_dist, max_damage, blow_strength, damage_type, owner))
             {
@@ -1532,7 +1532,7 @@ void word_of_power_affecting_area(struct Thing *efftng, struct Thing *owntng, st
         return;
     }
     struct ShotConfigStats* shotst;
-    if (efftng->shot_effect.hit_type == 4) // TODO: hit type seems hard coded. Find a better way to tell apart WoP traps from spells.
+    if (efftng->shot_effect.hit_type == THit_CrtrsOnlyNotOwn) // TODO: hit type seems hard coded. Find a better way to tell apart WoP traps from spells.
     {
         shotst = get_shot_model_stats(31); //SHOT_TRAP_WORD_OF_POWER
     }

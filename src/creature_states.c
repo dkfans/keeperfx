@@ -997,10 +997,16 @@ short arrive_at_call_to_arms(struct Thing *creatng)
         set_start_state(creatng);
         return 1;
     }
-    struct Thing* doortng = check_for_door_to_fight(creatng);
-    if (!thing_is_invalid(doortng))
+    struct Thing* cmbttng = check_for_door_to_fight(creatng);
+    if (!thing_is_invalid(cmbttng))
     {
-        set_creature_door_combat(creatng, doortng);
+        set_creature_door_combat(creatng, cmbttng);
+        return 2;
+    }
+    cmbttng = check_for_object_to_fight(creatng);
+    if (!thing_is_invalid(cmbttng))
+    {
+        set_creature_object_combat(creatng, cmbttng);
         return 2;
     }
     if (!attempt_to_destroy_enemy_room(creatng, dungeon->cta_stl_x, dungeon->cta_stl_y))
@@ -1495,6 +1501,10 @@ short creature_being_dropped(struct Thing *creatng)
             }
             if (creature_look_for_enemy_door_combat(creatng)) {
                 SYNCDBG(3,"The %s index %d owner %d found enemy combat at (%d,%d)",thing_model_name(creatng),(int)creatng->index,(int)creatng->owner,(int)stl_x,(int)stl_y);
+                return 2;
+            }
+            if (creature_look_for_enemy_object_combat(creatng)) {
+                SYNCDBG(3, "The %s index %d owner %d found enemy combat at (%d,%d)", thing_model_name(creatng), (int)creatng->index, (int)creatng->owner, (int)stl_x, (int)stl_y);
                 return 2;
             }
         }
@@ -2813,10 +2823,10 @@ short creature_slap_cowers(struct Thing *creatng)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     TRACE_THING(creatng);
-    if (cctrl->field_27F > 0) {
-        cctrl->field_27F--;
+    if (cctrl->cowers_from_slap_turns > 0) {
+        cctrl->cowers_from_slap_turns--;
     }
-    if (cctrl->field_27F > 0) {
+    if (cctrl->cowers_from_slap_turns > 0) {
         return 0;
     }
     restore_backup_state(creatng, cctrl->active_state_bkp, cctrl->continue_state_bkp);

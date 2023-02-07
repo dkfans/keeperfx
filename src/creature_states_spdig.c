@@ -63,6 +63,40 @@ extern "C" {
 }
 #endif
 /******************************************************************************/
+
+TbBool creature_is_doing_digger_activity(const struct Thing* thing)
+{
+    CrtrStateId i = get_creature_state_besides_interruptions(thing);
+    switch (i)
+    {
+        // case CrSt_ImpDoingNothing:
+        case CrSt_ImpArrivesAtDigDirt:
+        case CrSt_ImpArrivesAtMineGold:
+        case CrSt_ImpDigsDirt:
+        case CrSt_ImpMinesGold:
+        case CrSt_ImpDropsGold:
+        case CrSt_ImpLastDidJob:
+        case CrSt_ImpArrivesAtImproveDungeon:
+        case CrSt_ImpImprovesDungeon:
+        case CrSt_ImpToking:
+        case CrSt_ImpPicksUpGoldPile:
+        case CrSt_MoveBackwardsToPosition:
+        case CrSt_CreatureDropBodyInPrison:
+        case CrSt_ImpArrivesAtConvertDungeon:
+        case CrSt_ImpConvertsDungeon:
+        case CrSt_ImpArrivesAtReinforce:
+        case CrSt_ImpReinforces:
+        case CrSt_CreaturePicksUpSpellObject:
+        case CrSt_CreatureDropsSpellObjectInLibrary:
+        case CrSt_CreaturePicksUpCorpse:
+        case CrSt_CreatureDropsCorpseInGraveyard:
+        case CrSt_CreatureGoingToSafetyForToking:
+            return true;
+        default:
+            return false;
+    }
+}
+
 struct Thing *check_for_empty_trap_for_imp(struct Thing *spdigtng, long tngmodel)
 {
     TRACE_THING(spdigtng);
