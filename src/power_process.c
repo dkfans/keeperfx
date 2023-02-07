@@ -717,7 +717,8 @@ void process_timebomb(struct Thing *creatng)
             HitTF_EnemyDestructibleTraps|HitTF_AlliedDestructibleTraps|HitTF_OwnedDestructibleTraps|
             HitTF_EnemyDeployedDoors|HitTF_AlliedDeployedDoors|HitTF_OwnedDeployedDoors|
             HitTF_AnyFoodObjects|HitTF_AnyGoldPiles;
-        timebomb_explosion_affecting_area(creatng, &creatng->mappos, subtile_coord(cctrl->timebomb_radius + 1, 0), 1000 * (cctrl->timebomb_radius + 1), shotst->area_blow * (cctrl->timebomb_radius + 1), hit_targets, shotst->damage_type); //todo configure proper damage
+        struct MagicStats* pwrdynst = get_power_dynamic_stats(PwrK_TIMEBOMB);
+        timebomb_explosion_affecting_area(creatng, &creatng->mappos, subtile_coord(cctrl->timebomb_radius + 1, 0), pwrdynst->strength[cctrl->timebomb_radius] * (cctrl->timebomb_radius + 1), shotst->area_blow * (cctrl->timebomb_radius + 1), hit_targets, shotst->damage_type); //todo configure proper damage
         kill_creature(creatng, INVALID_THING, -1, CrDed_NoEffects);
     }
 }
