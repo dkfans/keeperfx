@@ -194,7 +194,7 @@ struct GuiButtonInit spell_menu_buttons[] = {
   {LbBtnT_NormalBtn, BID_POWER_TD13, 0, 0, gui_choose_special_spell,NULL,   NULL,               0,  66, 352,  70, 356, 32, 36, gui_area_spell_button, GPS_keepower_armagedn_std_s, CpgStr_PowerDesc1+16, 0,      {19},               0, maintain_spell },
   {LbBtnT_NormalBtn, BID_POWER_TD12, 0, 0, gui_choose_spell,gui_go_to_next_spell,NULL,          0,  98, 352, 102, 356, 32, 36, gui_area_spell_button, GPS_keepower_dstwall_std_s, CpgStr_PowerDesc1+13, 0,      {16},               0, maintain_spell },
   {LbBtnT_NormalBtn,    BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,   8, 210,   8, 194,126, 44, gui_area_big_spell_button,         0, GUIStr_Empty,         0,       {0},               0, maintain_big_spell },
-  {LbBtnT_NormalBtn, BID_POWER_NXPG, 0, 1, NULL,               NULL,        NULL,               0,  56, 390,  56, 390, 32, 20, gui_area_new_normal_button, GPS_rpanel_rpanel_btn_nxpage_act, GUIStr_Empty,&spell_menu2,{0},    0, NULL },
+  {LbBtnT_NormalBtn, BID_POWER_NXPG, 0, 1, NULL,               NULL,        NULL,               0,  98, 194,  98, 194, 32, 20, gui_area_new_normal_button, GPS_rpanel_rpanel_btn_nxpage_act, GUIStr_Empty,&spell_menu2,{0},    0, NULL },
   {              -1,    BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,                  0,       {0},               0, NULL },
 };
 
@@ -216,7 +216,7 @@ struct GuiButtonInit spell_menu2_buttons[] = {
   {LbBtnT_NormalBtn, BID_POWER_TD31, 0, 0, gui_choose_special_spell,NULL,   NULL,               0,  66, 352,  70, 356, 32, 36, gui_area_spell_button, GPS_keepower_armagedn_std_s, CpgStr_Empty, 0,      {19},               0, maintain_spell },
   {LbBtnT_NormalBtn, BID_POWER_TD32, 0, 0, gui_choose_spell,gui_go_to_next_spell,NULL,          0,  98, 352, 102, 356, 32, 36, gui_area_spell_button, GPS_keepower_dstwall_std_s, CpgStr_Empty, 0,      {16},               0, maintain_spell },
   {LbBtnT_NormalBtn,    BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,   8, 210,   8, 194,126, 44, gui_area_big_spell_button,         0, GUIStr_Empty,         0,       {0},               0, maintain_big_spell },
-  {LbBtnT_NormalBtn, BID_POWER_NXPG, 0, 1, NULL,               NULL,        NULL,               0,  56, 390,  56, 390, 32, 20, gui_area_new_normal_button, GPS_rpanel_rpanel_btn_nxpage_act, GUIStr_Empty,&spell_menu,{0},    0, NULL },
+  {LbBtnT_NormalBtn, BID_POWER_NXPG, 0, 1, NULL,               NULL,        NULL,               0,  98, 194,  98, 194, 32, 20, gui_area_new_normal_button, GPS_rpanel_rpanel_btn_nxpage_act, GUIStr_Empty,&spell_menu,{0},    0, NULL },
   {              -1,    BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,                  0,       {0},               0, NULL },
 };
 
