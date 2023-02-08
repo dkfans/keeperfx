@@ -306,9 +306,13 @@ void turn_on_main_panel_menu(void)
   {
     turn_on_menu(GMnu_ROOM);
   } else
-  if (spell_tag != 0)
+  if (spell_tag == 1)
   {
     turn_on_menu(GMnu_SPELL);
+  }   else
+  if (spell_tag == 2)
+  {
+    turn_on_menu(GMnu_SPELL2);
   } else
   if (trap_tag != 0)
   {

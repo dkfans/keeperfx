@@ -2036,6 +2036,7 @@ short is_toggleable_menu(short mnu_idx)
   case GMnu_MAIN:
   case GMnu_ROOM:
   case GMnu_SPELL:
+  case GMnu_SPELL2:
   case GMnu_TRAP:
   case GMnu_CREATURE:
   case GMnu_EVENT:
@@ -2334,28 +2335,27 @@ MenuNumber create_menu(struct GuiMenu *gmnu)
 
 unsigned long toggle_status_menu(short visible)
 {
-  static unsigned char room_on = 0;
-  static unsigned char spell_on = 0;
-  static unsigned char spell_lost_on = 0;
-  static unsigned char trap_on = 0;
-  static unsigned char creat_on = 0;
-  static unsigned char event_on = 0;
-  static unsigned char query_on = 0;
-  static unsigned char creature_query1_on = 0;
-  static unsigned char creature_query2_on = 0;
-  static unsigned char creature_query3_on = 0;
-  static unsigned char creature_query4_on = 0;
-  static unsigned char objective_on = 0;
-  static unsigned char battle_on = 0;
-  static unsigned char special_on = 0;
+  static TbBool room_on = false;
+  static TbBool spell_on = false;
+  static TbBool spell_2_on = false;
+  static TbBool spell_lost_on = false;
+  static TbBool trap_on = false;
+  static TbBool creat_on = false;
+  static TbBool event_on = false;
+  static TbBool query_on = false;
+  static TbBool creature_query1_on = false;
+  static TbBool creature_query2_on = false;
+  static TbBool creature_query3_on = false;
+  static TbBool creature_query4_on = false;
+  static TbBool objective_on = false;
+  static TbBool battle_on = false;
+  static TbBool special_on = false;
 
-  long k;
-  unsigned long i;
-  k = menu_id_to_number(GMnu_MAIN);
+  long k = menu_id_to_number(GMnu_MAIN);
   if (k < 0) return 0;
   // Update pannel width
   status_panel_width = get_active_menu(k)->width;
-  i = get_active_menu(k)->is_turned_on;
+  unsigned long i = get_active_menu(k)->is_turned_on;
   if (visible != i)
   {
     if ( visible )
@@ -2365,6 +2365,8 @@ unsigned long toggle_status_menu(short visible)
         set_menu_visible_on(GMnu_ROOM);
       if ( spell_on )
         set_menu_visible_on(GMnu_SPELL);
+      if ( spell_2_on )
+        set_menu_visible_on(GMnu_SPELL2);
       if ( spell_lost_on )
         set_menu_visible_on(GMnu_SPELL_LOST);
       if ( trap_on )
@@ -2402,6 +2404,11 @@ unsigned long toggle_status_menu(short visible)
       if (k >= 0)
         spell_on = get_active_menu(k)->is_turned_on;
       set_menu_visible_off(GMnu_SPELL);
+      
+      k = menu_id_to_number(GMnu_SPELL2);
+      if (k >= 0)
+        spell_2_on = get_active_menu(k)->is_turned_on;
+      set_menu_visible_off(GMnu_SPELL2);
 
       k = menu_id_to_number(GMnu_SPELL_LOST);
       if (k >= 0)
@@ -2593,7 +2600,18 @@ void initialise_tab_tags(MenuID menu_id)
     info_tag =  (menu_id == GMnu_QUERY) || (menu_id == GMnu_CREATURE_QUERY1) ||
         (menu_id == GMnu_CREATURE_QUERY2) || (menu_id == GMnu_CREATURE_QUERY3) || (menu_id == GMnu_CREATURE_QUERY4);
     room_tag = (menu_id == GMnu_ROOM);
-    spell_tag = (menu_id == GMnu_SPELL);
+    if (menu_id == GMnu_SPELL)
+    {
+        spell_tag = 1;
+    }
+    else if (menu_id == GMnu_SPELL2)
+    {
+        spell_tag = 2;
+    }
+    else
+    {
+        spell_tag = 0;
+    }
     trap_tag = (menu_id == GMnu_TRAP);
     creature_tag = (menu_id == GMnu_CREATURE);
 }
