@@ -270,7 +270,7 @@ struct Thing *find_hero_door_hero_can_navigate_to(struct Thing *herotng)
         }
         i = thing->next_of_class;
         // Per thing code
-        if (object_is_hero_gate(thing))
+        if (object_is_hero_gate(thing) && !thing_is_in_limbo(thing))
         {
             if (creature_can_navigate_to_with_storage(herotng, &thing->mappos, NavRtF_Default)) {
                 return thing;
