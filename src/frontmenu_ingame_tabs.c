@@ -2442,4 +2442,23 @@ void draw_placefiller(long scr_x, long scr_y, long units_per_px)
     struct TbSprite* spr = &gui_panel_sprites[547];
     LbSpriteDrawResized(scr_x, scr_y, units_per_px, spr);
 }
+
+void maintain_spell_next_page_button(struct GuiButton *gbtn)
+{
+    for (int i=0; i < 16; i++)
+    {
+        struct GuiButtonInit* ibtn = &spell_menu2.buttons[i];
+        if (ibtn->id_num != BID_POWER_NXPG)
+        {
+            if (is_power_obtainable(my_player_number, ibtn->content.lval))
+            {
+                gbtn->flags |= LbBtnF_Visible;
+                gbtn->flags |= LbBtnF_Enabled;
+                return;
+            }
+        }
+    }
+    gbtn->flags &= ~LbBtnF_Visible;
+    gbtn->flags &= ~LbBtnF_Enabled;
+}
 /******************************************************************************/

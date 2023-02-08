@@ -201,6 +201,8 @@ void go_to_my_next_room_of_type_and_select(RoomKind rkind);
 void go_to_my_next_room_of_type(RoomKind rkind);
 RoomIndex find_my_next_room_of_type(RoomKind rkind);
 RoomIndex find_next_room_of_type(PlayerNumber plyr_idx, RoomKind rkind);
+
+void maintain_spell_next_page_button(struct GuiButton *gbtn);
 /******************************************************************************/
 #ifdef __cplusplus
 }
