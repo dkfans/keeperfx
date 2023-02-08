@@ -2400,9 +2400,9 @@ void update_powers_tab_to_config(void)
         ibtn2->draw_call = gui_area_new_null_button;
         ibtn2->maintain_call = NULL;
     }
-    for (i=0; i < magic_conf.power_types_count; i++)
+    for (PowerKind pwkind = PwrK_None; pwkind < magic_conf.power_types_count; pwkind++)
     {
-        struct PowerConfigStats* powerst = get_power_model_stats(i);
+        struct PowerConfigStats* powerst = get_power_model_stats(pwkind);
         if (powerst->panel_tab_idx < 1)
             continue;
         struct GuiButtonInit* ibtn; 
@@ -2416,8 +2416,8 @@ void update_powers_tab_to_config(void)
         }
         ibtn->sprite_idx = powerst->medsym_sprite_idx;
         ibtn->tooltip_stridx = powerst->tooltip_stridx;
-        ibtn->content.lval = i;
-        if (is_special_power(i)) {
+        ibtn->content.lval = pwkind;
+        if (is_special_power(pwkind)) {
             ibtn->click_event = gui_choose_special_spell;
             ibtn->rclick_event = NULL;
             ibtn->ptover_event = NULL;
