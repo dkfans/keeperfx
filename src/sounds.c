@@ -715,7 +715,7 @@ void update_first_person_object_ambience(struct Thing *thing)
              objtng = thing_get(objtng->next_of_class))
         {
             objdat = get_objects_data_for_thing(objtng);
-            if (objdat->fp_smpl_idx != 0)
+            if ((objdat->fp_smpl_idx != 0) && ((thing->alloc_flags & TAlF_IsInLimbo) != 0))
             {
                 new_distance = get_2d_box_distance(&thing->mappos, &objtng->mappos);
                 if (new_distance <= hearing_range)
