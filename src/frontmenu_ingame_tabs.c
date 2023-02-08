@@ -2444,12 +2444,10 @@ void maintain_spell_next_page_button(struct GuiButton *gbtn)
         struct GuiButtonInit* ibtn = &spell_menu2.buttons[i];
         if (is_power_obtainable(my_player_number, ibtn->content.lval))
         {
-            gbtn->flags |= LbBtnF_Visible;
-            gbtn->flags |= LbBtnF_Enabled;
+            gbtn->flags |= (LbBtnF_Visible|LbBtnF_Enabled);
             return;
         }
     }
-    gbtn->flags &= ~LbBtnF_Visible;
-    gbtn->flags &= ~LbBtnF_Enabled;
+    gbtn->flags &= ~(LbBtnF_Visible|LbBtnF_Enabled);
 }
 /******************************************************************************/
