@@ -2448,14 +2448,11 @@ void maintain_spell_next_page_button(struct GuiButton *gbtn)
     for (int i=0; i < 16; i++)
     {
         struct GuiButtonInit* ibtn = &spell_menu2.buttons[i];
-        if (ibtn->id_num != BID_POWER_NXPG)
+        if (is_power_obtainable(my_player_number, ibtn->content.lval))
         {
-            if (is_power_obtainable(my_player_number, ibtn->content.lval))
-            {
-                gbtn->flags |= LbBtnF_Visible;
-                gbtn->flags |= LbBtnF_Enabled;
-                return;
-            }
+            gbtn->flags |= LbBtnF_Visible;
+            gbtn->flags |= LbBtnF_Enabled;
+            return;
         }
     }
     gbtn->flags &= ~LbBtnF_Visible;
