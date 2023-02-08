@@ -31,16 +31,17 @@ extern "C" {
 #pragma pack(1)
 
 enum CreatureHeroTasks {
-    CHeroTsk_Default         = 0,
-    CHeroTsk_AttackRooms     = 1,
-    CHeroTsk_AttackEnemies   = 2,
-    CHeroTsk_AttackDnHeart   = 3,
-    CHeroTsk_StealGold       = 4,
-    CHeroTsk_StealSpells     = 5,
-    CHeroTsk_DefendParty     = 6, // Objectives without target players start here
-    CHeroTsk_DefendSpawn     = 7,
-    CHeroTsk_DefendHeart     = 8,
-    CHeroTsk_DefendRooms     = 9,
+    CHeroTsk_Default         =  0,
+    CHeroTsk_AttackRooms     =  1,
+    CHeroTsk_AttackEnemies   =  2,
+    CHeroTsk_AttackDnHeart   =  3,
+    CHeroTsk_SabotageRooms   =  4,
+    CHeroTsk_StealGold       =  5,
+    CHeroTsk_StealSpells     =  6,
+    CHeroTsk_DefendParty     =  7, // Objectives without target players start here
+    CHeroTsk_DefendSpawn     =  8,
+    CHeroTsk_DefendHeart     =  9,
+    CHeroTsk_DefendRooms     = 10,
 };
 
 struct Thing;

@@ -151,6 +151,7 @@ const struct NamedCommand hero_objective_desc[] = {
   {"ATTACK_ENEMIES",       CHeroTsk_AttackEnemies},
   {"ATTACK_DUNGEON_HEART", CHeroTsk_AttackDnHeart},
   {"ATTACK_ROOMS",         CHeroTsk_AttackRooms},
+  {"SABOTAGE_ROOMS",       CHeroTsk_SabotageRooms},
   {"DEFEND_PARTY",         CHeroTsk_DefendParty},
   {"DEFEND_LOCATION",      CHeroTsk_DefendSpawn},
   {"DEFEND_HEART",         CHeroTsk_DefendHeart},

@@ -165,7 +165,7 @@ enum CreatureStates {
     CrSt_GoodWaitInExitDoor,
     CrSt_GoodAttackRoom1,//[130]
     CrSt_CreatureSearchForGoldToStealInRoom2,
-    CrSt_GoodAttackRoom2,
+    CrSt_GoodArrivedAtSabotageRoom,
     CrSt_CreaturePretendChickenSetupMove,
     CrSt_CreaturePretendChickenMove,
     CrSt_CreatureAttackRooms,

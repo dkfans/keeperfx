@@ -5581,7 +5581,8 @@ TbBool creature_stats_debug_dump(void)
             case CrSt_GoodWaitInExitDoor:
             case CrSt_GoodAttackRoom1:
             case CrSt_CreatureSearchForGoldToStealInRoom2:
-            case CrSt_GoodAttackRoom2:
+            case CrSt_GoodArrivedAtAttackRoom:
+            case CrSt_GoodArrivedAtSabotageRoom:
                 ERRORLOG("Player %d %s index %d is in Good-only state %d",(int)thing->owner,thing_model_name(thing),(int)thing->index,(int)crstate);
                 result = true;
                 break;
