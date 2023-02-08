@@ -2379,32 +2379,26 @@ void update_powers_tab_to_config(void)
 {
     int i;
     // Clear 4x4 area of buttons, no "sell" button at end
-    for (i=0; i < 4*4; i++)
+    for (i=0; i < 16; i++)
     {
         struct GuiButtonInit* ibtn = &spell_menu.buttons[i];
-        if (ibtn->id_num != BID_POWER_NXPG)
-        {
-            ibtn->sprite_idx = 24;
-            ibtn->tooltip_stridx = GUIStr_Empty;
-            ibtn->content.lval = 0;
-            ibtn->click_event = NULL;
-            ibtn->rclick_event = NULL;
-            ibtn->ptover_event = NULL;
-            ibtn->draw_call = gui_area_new_null_button;
-            ibtn->maintain_call = NULL;
-        }
+        ibtn->sprite_idx = 24;
+        ibtn->tooltip_stridx = GUIStr_Empty;
+        ibtn->content.lval = PwrK_None;
+        ibtn->click_event = NULL;
+        ibtn->rclick_event = NULL;
+        ibtn->ptover_event = NULL;
+        ibtn->draw_call = gui_area_new_null_button;
+        ibtn->maintain_call = NULL;
         struct GuiButtonInit* ibtn2 = &spell_menu2.buttons[i];
-        if (ibtn2->id_num != BID_POWER_NXPG)
-        {
-            ibtn2->sprite_idx = 24;
-            ibtn2->tooltip_stridx = GUIStr_Empty;
-            ibtn2->content.lval = 0;
-            ibtn2->click_event = NULL;
-            ibtn2->rclick_event = NULL;
-            ibtn2->ptover_event = NULL;
-            ibtn2->draw_call = gui_area_new_null_button;
-            ibtn2->maintain_call = NULL;
-        }
+        ibtn2->sprite_idx = 24;
+        ibtn2->tooltip_stridx = GUIStr_Empty;
+        ibtn2->content.lval = PwrK_None;
+        ibtn2->click_event = NULL;
+        ibtn2->rclick_event = NULL;
+        ibtn2->ptover_event = NULL;
+        ibtn2->draw_call = gui_area_new_null_button;
+        ibtn2->maintain_call = NULL;
     }
     for (i=0; i < magic_conf.power_types_count; i++)
     {
