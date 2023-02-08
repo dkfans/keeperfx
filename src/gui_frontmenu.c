@@ -172,6 +172,10 @@ void turn_off_all_panel_menus(void)
   {
     turn_off_menu(GMnu_SPELL);
   }
+  if ( menu_is_active(GMnu_SPELL2) )
+  {
+    turn_off_menu(GMnu_SPELL2);
+  }
   if ( menu_is_active(GMnu_TRAP) )
   {
     turn_off_menu(GMnu_TRAP);

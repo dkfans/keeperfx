@@ -176,7 +176,7 @@ short button_designation_to_tab_designation(short btn_designt_id)
         return BID_INFO_TAB;
     if ((btn_designt_id >= BID_ROOM_TD01) && (btn_designt_id <= BID_ROOM_TD16))
         return BID_ROOM_TAB;
-    if ((btn_designt_id >= BID_POWER_TD01) && (btn_designt_id <= BID_POWER_TD16))
+    if ( ((btn_designt_id >= BID_POWER_TD01) && (btn_designt_id <= BID_POWER_TD16)) || ((btn_designt_id >= BID_POWER_TD17) && (btn_designt_id <= BID_POWER_TD32)) )
         return BID_SPELL_TAB;
     if ((btn_designt_id >= BID_MNFCT_TD01) && (btn_designt_id <= BID_MNFCT_TD16))
         return BID_MNFCT_TAB;
@@ -2382,21 +2382,44 @@ void update_powers_tab_to_config(void)
     for (i=0; i < 4*4; i++)
     {
         struct GuiButtonInit* ibtn = &spell_menu.buttons[i];
-        ibtn->sprite_idx = 24;
-        ibtn->tooltip_stridx = GUIStr_Empty;
-        ibtn->content.lval = 0;
-        ibtn->click_event = NULL;
-        ibtn->rclick_event = NULL;
-        ibtn->ptover_event = NULL;
-        ibtn->draw_call = gui_area_new_null_button;
-        ibtn->maintain_call = NULL;
+        if (ibtn->id_num != BID_POWER_NXPG)
+        {
+            ibtn->sprite_idx = 24;
+            ibtn->tooltip_stridx = GUIStr_Empty;
+            ibtn->content.lval = 0;
+            ibtn->click_event = NULL;
+            ibtn->rclick_event = NULL;
+            ibtn->ptover_event = NULL;
+            ibtn->draw_call = gui_area_new_null_button;
+            ibtn->maintain_call = NULL;
+        }
+        struct GuiButtonInit* ibtn2 = &spell_menu2.buttons[i];
+        if (ibtn2->id_num != BID_POWER_NXPG)
+        {
+            ibtn2->sprite_idx = 24;
+            ibtn2->tooltip_stridx = GUIStr_Empty;
+            ibtn2->content.lval = 0;
+            ibtn2->click_event = NULL;
+            ibtn2->rclick_event = NULL;
+            ibtn2->ptover_event = NULL;
+            ibtn2->draw_call = gui_area_new_null_button;
+            ibtn2->maintain_call = NULL;
+        }
     }
     for (i=0; i < magic_conf.power_types_count; i++)
     {
         struct PowerConfigStats* powerst = get_power_model_stats(i);
         if (powerst->panel_tab_idx < 1)
             continue;
-        struct GuiButtonInit* ibtn = &spell_menu.buttons[powerst->panel_tab_idx - 1];
+        struct GuiButtonInit* ibtn; 
+        if (powerst->panel_tab_idx <= 16)
+        {
+            ibtn = &spell_menu.buttons[powerst->panel_tab_idx - 1];
+        }
+        else
+        {
+            ibtn = &spell_menu2.buttons[powerst->panel_tab_idx - 17];
+        }
         ibtn->sprite_idx = powerst->medsym_sprite_idx;
         ibtn->tooltip_stridx = powerst->tooltip_stridx;
         ibtn->content.lval = i;
