@@ -155,8 +155,8 @@ short creature_pick_up_spell_to_steal(struct Thing *creatng);
 #endif
 /******************************************************************************/
 //process_state, cleanup_state, move_from_slab, move_check,
-//override_feed, override_own_needs, override_sleep, override_fight_crtr, override_gets_salary, override_prev_fld1F, override_prev_fld20, override_escape, override_unconscious, override_anger_job, override_fight_object, override_fight_door, override_call2arms, override_follow,
-    //state_type, field_1F, field_20, field_21, field_23, sprite_idx, field_26, field_27, react_to_cta
+//override_feed, override_own_needs, override_sleep, override_fight_crtr, override_gets_salary, override_captive, override_transition, override_escape, override_unconscious, override_anger_job, override_fight_object, override_fight_door, override_call2arms, override_follow,
+    //state_type, captive, transition, follow_behavior, blocks_all_state_changes, sprite_idx, display_thought_bubble, _unused_27, react_to_cta
 struct StateInfo states[CREATURE_STATES_COUNT] = {
   {NULL, NULL, NULL, NULL,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Idle, 0, 0, 0, 0,  0, 0, 0, 0},
@@ -4518,9 +4518,9 @@ TbBool can_change_from_state_to(const struct Thing *thing, CrtrStateId curr_stat
             return false;
         }
     }
-    if ((curr_stati->field_20) && (!next_stati->override_prev_fld20))
+    if ((curr_stati->transition) && (!next_stati->override_transition))
         return false;
-    if ((curr_stati->field_1F) && (!next_stati->override_prev_fld1F))
+    if ((curr_stati->captive) && (!next_stati->override_captive))
         return false;
     switch (curr_stati->state_type)
     {
