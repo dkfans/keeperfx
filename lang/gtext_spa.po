@@ -1,3 +1,4 @@
+# ******************************************************************************
 #  Free implementation of Bullfrog's Dungeon Keeper strategy game.
 # ******************************************************************************
 #   @file gtext_spa.po
@@ -15,14 +16,10 @@
 #      (at your option) any later version.
 #
 # ******************************************************************************
-msgid ""
-msgstr ""
+
 "Project-Id-Version: GUI Strings for KeeperFX\n"
-"Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
 "PO-Revision-Date: 2023-02-09 21:12+0100\n"
-"Last-Translator: Tomasz Lis <listom@gmail.com>\n"
-"Language-Team: KeeperFX Team <code.google.com>\n"
 "Language: es_ES\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
@@ -5873,116 +5870,116 @@ msgid "Moo4"
 msgstr "Moo4"
 
 #: guitext:1011
-msgctxt "Menu interface item\""
+msgctxt "Menu interface item"
 msgid "Dungeon Keeper original campaign"
 msgstr "Dungeon Keeper Original"
 
 #: guitext:1012
-msgctxt "Menu interface item\""
+msgctxt "Menu interface item"
 msgid "Assmist Isle"
 msgstr "La Isla Asistida"
 
 #: guitext:1013
-msgctxt "Menu interface item\""
+msgctxt "Menu interface item"
 msgid "Ancient Keeper campaign"
 msgstr "El Guardián Antiguo"
 
 #: guitext:1014
-msgctxt "Menu interface item\""
+msgctxt "Menu interface item"
 msgid "Burdened Imps' Level Pack"
 msgstr "Los Diablillos agobiados, paquete de niveles"
 
 #: guitext:1015
-msgctxt "Menu interface item\""
+msgctxt "Menu interface item"
 msgid "Conquest of the Arctic"
 msgstr "La Conquista del Ártico"
 
 #: guitext:1016
-msgctxt "Menu interface item\""
+msgctxt "Menu interface item"
 msgid "The Destiny of Ninja"
 msgstr "El Destino del Ninja"
 
 #: guitext:1017
-msgctxt "Menu interface item\""
+msgctxt "Menu interface item"
 msgid "DzjeeAr's  6-level campaign"
 msgstr "DzjeeAr's : Nivel 6"
 
 #: guitext:1018
-msgctxt "Menu interface item\""
+msgctxt "Menu interface item"
 msgid "DzjeeAr's 10-level campaign"
 msgstr "DzjeeAr's : Nivel 10"
 
 #: guitext:1019
-msgctxt "Menu interface item\""
+msgctxt "Menu interface item"
 msgid "DzjeeAr's 25-level campaign"
 msgstr "DzjeeAr's : Nivel 25"
 
 #: guitext:1020
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "Evil Keeper campaign"
 msgstr "El Guardián Malvado"
 
 #: guitext:1021
-msgctxt "Menu interface item\""
+msgctxt "Menu interface item"
 msgid "Grinics' KReign campaign"
 msgstr "Las Crónicas de Grinics Kreign"
 
 #: guitext:1022
-msgctxt "Menu interface item\""
+msgctxt "Menu interface item"
 msgid "Japanese DKMaps8 pack"
 msgstr "Paquete Japonés de 8 Mapas"
 
 #: guitext:1023
-msgctxt "Menu interface item\""
+msgctxt "Menu interface item"
 msgid "KDK Levels"
 msgstr "Niveles KDK"
 
 #: guitext:1024
-msgctxt "Menu interface item\""
+msgctxt "Menu interface item"
 msgid "Good Campaign"
 msgstr "Buenos"
 
 #: guitext:1025
-msgctxt "Menu interface item\""
+msgctxt "Menu interface item"
 msgid "Lord Vexer campaign"
 msgstr "Lord Vexer"
 
 #: guitext:1026
-msgctxt "Menu interface item\""
+msgctxt "Menu interface item"
 msgid "Nikolai's Castles campaign"
 msgstr "El Castillo de Nikolai"
 
 #: guitext:1027
-msgctxt "Menu interface item\""
+msgctxt "Menu interface item"
 msgid "A Dungeon Keeper - New Game+"
-msgstr "The Dungeon Keeper, FX+"
+msgstr "Dungeon Keeper - Nuevo Juego+"
 
 #: guitext:1028
-msgctxt "Menu interface item\""
+msgctxt "Menu interface item"
 msgid "Post Ancient Keeper campaign"
 msgstr "El Guardián Antiguo"
 
 #: guitext:1029
-msgctxt "Menu interface item\""
+msgctxt "Menu interface item"
 msgid "Post Undead Keeper campaign"
 msgstr "El Muerto Viviente"
 
 #: guitext:1030
-msgctxt "Menu interface item\""
+msgctxt "Menu interface item"
 msgid "Quest for the Hero campaign"
 msgstr "La Búsqueda del Héroe"
 
 #: guitext:1031
-msgctxt "Menu interface item\""
+msgctxt "Menu interface item"
 msgid "Revenge of the Lord"
 msgstr "La Venganza del Caballero"
 
 #: guitext:1032
-msgctxt "Menu interface item\""
+msgctxt "Menu interface item"
 msgid "Twin Keepers Campaign"
 msgstr "Los Guardianes Gemelos"
 
 #: guitext:1033
-msgctxt "Menu interface item\""
+msgctxt "Menu interface item"
 msgid "Undead Keeper campaign"
 msgstr "El Guardián Muerto Viviente"
