@@ -62,6 +62,8 @@ void creature_in_ranged_combat(struct Thing *thing);
 void creature_in_melee_combat(struct Thing *thing);
 void combat_object_state_melee_combat(struct Thing *thing);
 void combat_object_state_ranged_combat(struct Thing *thing);
+void combat_object_state_melee_snipe(struct Thing* thing);
+void combat_object_state_ranged_snipe(struct Thing* thing);
 void combat_door_state_melee_combat(struct Thing *thing);
 void combat_door_state_ranged_combat(struct Thing *thing);
 
@@ -84,6 +86,7 @@ CrInstance get_best_quick_range_instance_to_use(const struct Thing *thing);
 TbBool creature_will_do_combat(const struct Thing *thing);
 TbBool creature_look_for_combat(struct Thing *creatng);
 TbBool creature_look_for_enemy_heart_combat(struct Thing *thing);
+TbBool creature_look_for_enemy_heart_snipe(struct Thing* thing);
 TbBool creature_look_for_enemy_door_combat(struct Thing *thing);
 TbBool creature_look_for_enemy_object_combat(struct Thing* thing);
 

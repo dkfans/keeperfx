@@ -316,8 +316,8 @@ struct StateInfo states[CREATURE_STATES_COUNT] = {
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Idle, 0, 0, 1, 0,  0, 0, 0, 1},
   {creature_object_combat, cleanup_object_combat, NULL, NULL,
     1, 1, 1, 1, 1, 0, 0, 1, 0, 1, 0, 0, 1, 1, CrStTyp_FightObj, 0, 0, 1, 0, 51, 1, 0, 0},
-  {NULL, NULL, NULL, NULL,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Idle, 0, 0, 0, 0,  0, 0, 0, 1},
+  {creature_object_combat, cleanup_object_combat, NULL, NULL,
+    1, 1, 1, 1, 1, 0, 0, 1, 0, 1, 0, 0, 1, 1, CrStTyp_AngerJob, 1, 0, 1, 0, 51, 1, 0, 0 },
   {creature_change_lair, NULL, NULL, move_check_on_head_for_room, // [80]
     0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0,  CrStTyp_OwnNeeds, 0, 0, 1, 0, 58, 1, 0, 1},
   {imp_birth, NULL, NULL, NULL,

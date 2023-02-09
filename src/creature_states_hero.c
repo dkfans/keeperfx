@@ -27,6 +27,7 @@
 #include "creature_control.h"
 #include "creature_instances.h"
 #include "creature_states_spdig.h"
+#include "creature_states_combt.h"
 #include "creature_jobs.h"
 #include "config_creature.h"
 #include "config_crtrstates.h"
@@ -679,6 +680,32 @@ TbBool good_setup_wander_to_dungeon_heart(struct Thing *creatng, PlayerNumber pl
     return true;
 }
 
+TbBool good_setup_rush_to_dungeon_heart(struct Thing* creatng, PlayerNumber plyr_idx)
+{
+    SYNCDBG(18, "Starting");
+    TRACE_THING(creatng);
+    if (creatng->owner == plyr_idx)
+    {
+        ERRORLOG("The %s index %d tried to wander to own (%d) heart", thing_model_name(creatng), (int)creatng->index, (int)plyr_idx);
+        return false;
+    }
+    struct PlayerInfo* player = get_player(plyr_idx);
+    if (!player_exists(player))
+    {
+        WARNLOG("The %s index %d tried to wander to inactive player (%d) heart", thing_model_name(creatng), (int)creatng->index, (int)plyr_idx);
+        return false;
+    }
+    struct Thing* heartng = get_player_soul_container(plyr_idx);
+    TRACE_THING(heartng);
+    if (thing_is_invalid(heartng))
+    {
+        WARNLOG("The %s index %d tried to wander to player %d which has no heart", thing_model_name(creatng), (int)creatng->index, (int)plyr_idx);
+        return false;
+    }
+    set_creature_object_snipe(creatng, heartng);
+    return true;
+}
+
 TbBool good_setup_wander_to_own_heart(struct Thing* creatng)
 {
     SYNCDBG(7, "Starting");
@@ -726,6 +753,13 @@ TbBool good_creature_setup_task_in_dungeon(struct Thing *creatng, PlayerNumber t
             return true;
         }
         ERRORLOG("Cannot wander to player %d heart", (int)target_plyr_idx);
+        return false;
+    case CHeroTsk_SnipeDnHeart:
+        if (good_setup_rush_to_dungeon_heart(creatng, target_plyr_idx))
+        {
+            return true;
+        }
+        ERRORLOG("Cannot rush to player %d heart", (int)target_plyr_idx);
         return false;
     case CHeroTsk_StealGold:
     {

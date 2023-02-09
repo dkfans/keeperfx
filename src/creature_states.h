@@ -112,7 +112,7 @@ enum CreatureStates {
     CrSt_CreatureTakeSalary,
     CrSt_TunnellerDoingNothing,
     CrSt_CreatureObjectCombat,
-    CrSt_Null79,
+    CrSt_CreatureObjectSnipe,
     CrSt_CreatureChangeLair,//[80]
     CrSt_ImpBirth,
     CrSt_AtTemple,

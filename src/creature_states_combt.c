@@ -68,10 +68,14 @@ const CombatState combat_object_state[] = {
     NULL,
     combat_object_state_melee_combat,
     combat_object_state_ranged_combat,
+    combat_object_state_melee_snipe,
+    combat_object_state_ranged_snipe,
 };
 
 const CombatState combat_door_state[] = {
     NULL,
+    combat_door_state_melee_combat,
+    combat_door_state_ranged_combat,
     combat_door_state_melee_combat,
     combat_door_state_ranged_combat,
 };
@@ -2782,6 +2786,25 @@ void combat_object_state_melee_combat(struct Thing *creatng)
     }
 }
 
+void combat_object_state_melee_snipe(struct Thing* creatng)
+{
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    struct Thing* objtng = thing_get(cctrl->combat.battle_enemy_idx);
+    long dist = get_combat_distance(creatng, objtng);
+    CrInstance inst_id = get_best_melee_object_offensive_weapon(creatng, dist);
+    if (inst_id == CrInst_NULL)
+    {
+        ERRORLOG("The %s index %d has no melee instance in fight", thing_model_name(creatng), (int)creatng->index);
+        set_start_state(creatng);
+    }
+    if (melee_combat_move(creatng, objtng, dist, CrSt_CreatureObjectSnipe))
+    {
+        if (inst_id > CrInst_NULL) {
+            set_creature_instance(creatng, inst_id, 1, objtng->index, 0);
+        }
+    }
+}
+
 void combat_object_state_ranged_combat(struct Thing *creatng)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
@@ -2793,6 +2816,24 @@ void combat_object_state_ranged_combat(struct Thing *creatng)
         WARNLOG("The %s index %d has no ranged instance in fight", thing_model_name(creatng), (int)creatng->index);
     }
     if (ranged_combat_move(creatng, objtng, dist, CrSt_CreatureObjectCombat))
+    {
+        if (inst_id > CrInst_NULL) {
+            set_creature_instance(creatng, inst_id, 0, objtng->index, 0);
+        }
+    }
+}
+
+void combat_object_state_ranged_snipe(struct Thing* creatng)
+{
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    struct Thing* objtng = thing_get(cctrl->combat.battle_enemy_idx);
+    long dist = get_combat_distance(creatng, objtng);
+    CrInstance inst_id = get_best_ranged_object_offensive_weapon(creatng, dist);
+    if (inst_id == CrInst_NULL)
+    {
+        WARNLOG("The %s index %d has no ranged instance in fight", thing_model_name(creatng), (int)creatng->index);
+    }
+    if (ranged_combat_move(creatng, objtng, dist, CrSt_CreatureObjectSnipe))
     {
         if (inst_id > CrInst_NULL) {
             set_creature_instance(creatng, inst_id, 0, objtng->index, 0);
@@ -2967,6 +3008,33 @@ TbBool creature_look_for_enemy_heart_combat(struct Thing *thing)
     }
     TRACE_THING(heartng);
     set_creature_object_combat(thing, heartng);
+    return true;
+}
+
+
+TbBool creature_look_for_enemy_heart_snipe(struct Thing* thing)
+{
+    SYNCDBG(19, "Starting for %s index %d", thing_model_name(thing), (int)thing->index);
+    TRACE_THING(thing);
+    if ((get_creature_model_flags(thing) & CMF_NoEnmHeartAttack) != 0) {
+        return false;
+    }
+    struct Thing* heartng;
+    // If already fighting dungeon heart, skip the rest
+    if (get_creature_state_besides_interruptions(thing) == CrSt_CreatureObjectSnipe) {
+        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+        heartng = thing_get(cctrl->combat.battle_enemy_idx);
+        if (thing_is_dungeon_heart(heartng)) {
+            return false;
+        }
+    }
+    heartng = get_enemy_soul_container_creature_can_see(thing);
+    if (thing_is_invalid(heartng) || !(creature_can_navigate_to(thing, &heartng->mappos, NavRtF_Default)))
+    {
+        return false;
+    }
+    TRACE_THING(heartng);
+    set_creature_object_snipe(thing, heartng);
     return true;
 }
 

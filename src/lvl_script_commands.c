@@ -150,6 +150,7 @@ const struct NamedCommand hero_objective_desc[] = {
   {"STEAL_SPELLS",         CHeroTsk_StealSpells},
   {"ATTACK_ENEMIES",       CHeroTsk_AttackEnemies},
   {"ATTACK_DUNGEON_HEART", CHeroTsk_AttackDnHeart},
+  {"SNIPE_DUNGEON_HEART",  CHeroTsk_SnipeDnHeart},
   {"ATTACK_ROOMS",         CHeroTsk_AttackRooms},
   {"SABOTAGE_ROOMS",       CHeroTsk_SabotageRooms},
   {"DEFEND_PARTY",         CHeroTsk_DefendParty},
