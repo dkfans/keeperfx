@@ -77,11 +77,12 @@ struct Thing *create_gold_for_hand_grab(struct Thing *thing, long owner)
     objtng = INVALID_THING;
     struct Dungeon *dungeon;
     dungeon = get_players_num_dungeon(owner);
-    if (dungeon->field_14BC != thing->index)
+    struct PlayerInfoAdd* playeradd = get_playeradd(dungeon->owner);
+    if (dungeon->gold_hoard_for_pickup != thing->index)
     {
-        dungeon->field_14BC = thing->index;
+        dungeon->gold_hoard_for_pickup = thing->index;
         GoldAmount gold_req;
-        if (lbKeyOn[KC_LCONTROL])
+        if (playeradd->pickup_all_gold)
         {
             gold_req = thing->valuable.gold_stored;
         }
@@ -91,18 +92,24 @@ struct Thing *create_gold_for_hand_grab(struct Thing *thing, long owner)
         }
         if (gold_req <= 100)
             gold_req = 100;
-        dungeon->field_14BE = gold_req;
+        dungeon->gold_pickup_amount = gold_req;
     }
     struct Coord3d pos;
     pos.x.val = thing->mappos.x.val;
     pos.y.val = thing->mappos.y.val;
     pos.z.val = thing->mappos.z.val;
+
+    if (playeradd->pickup_all_gold)
+    {
+        dungeon->gold_pickup_amount = thing->valuable.gold_stored;
+    }
+
     GoldAmount gold_picked;
     {
         struct Room *room;
         room = get_room_thing_is_on(thing);
         if (!room_is_invalid(room))
-            gold_picked = remove_gold_from_hoarde(thing, room, dungeon->field_14BE);
+            gold_picked = remove_gold_from_hoarde(thing, room, dungeon->gold_pickup_amount);
         else
             gold_picked = 0;
     }

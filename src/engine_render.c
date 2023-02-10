@@ -5252,7 +5252,7 @@ void fill_status_sprite_indexes(struct Thing *thing, struct CreatureControl *cct
         {
             struct StateInfo *stati;
             stati = get_creature_state_with_task_completion(thing);
-            if (!stati->field_23)
+            if (!stati->blocks_all_state_changes)
             {
                 if ((cctrl->spell_flags & CSAfF_MadKilling) != 0)
                 {
@@ -5290,7 +5290,7 @@ void fill_status_sprite_indexes(struct Thing *thing, struct CreatureControl *cct
                 {
                     stati = get_creature_state_with_task_completion(thing);
                 }
-                if ((*(short *)&stati->field_26 == 1) || (thing_pointed_at == thing))
+                if ((*(short *)&stati->display_thought_bubble == 1) || (thing_pointed_at == thing))
                 {
                     (*state_spridx) = stati->sprite_idx;
                 }

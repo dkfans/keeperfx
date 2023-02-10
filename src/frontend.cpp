@@ -2743,6 +2743,11 @@ FrontendMenuState frontend_setup_state(FrontendMenuState nstate)
           break;
       case FeSt_MAIN_MENU:
           continue_game_option_available = continue_game_available();
+          if (!continue_game_option_available)
+          {
+              char* fname = prepare_file_path(FGrp_Save, continue_game_filename);
+              LbFileDelete(fname);
+          }
           turn_on_menu(GMnu_FEMAIN);
           last_mouse_x = GetMouseX();
           last_mouse_y = GetMouseY();

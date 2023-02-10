@@ -209,10 +209,10 @@ enum TbPacketControl {
 enum TbPacketAddValues {
     PCAdV_None              = 0x00, //!< Dummy flag
     PCAdV_SpeedupPressed    = 0x01, //!< The keyboard modified used for speeding up camera movement is pressed.
-    PCAdV_ContextMask       = 0x1E, //!< Instead of a single bit, this value stores is 4-byte integer; stores context of map coordinates. The context is used to set the Cursor State.
+    PCAdV_ContextMask       = 0x1E, //!< Instead of a single bit, this value stores is 4-bit integer; stores context of map coordinates. The context is used to set the Cursor State.
     PCAdV_CrtrContrlPressed = 0x20, //!< The keyboard modified used for creature control is pressed.
     PCAdV_CrtrQueryPressed  = 0x40, //!< The keyboard modified used for querying creatures is pressed.
-    PCAdV_Unknown80         = 0x80, //!< Seem unused
+    PCAdV_RotatePressed     = 0x80,
 };
 
 enum ChecksumKind {
@@ -245,7 +245,7 @@ struct CatalogueEntry;
 /**
  * Stores data exchanged between players each turn and used to re-create their input.
  */
-struct Packet { // sizeof = 0x11 (17)
+struct Packet {
     int field_0;
     TbChecksum chksum; //! Checksum of all things within the game and synchronized random seed
     unsigned char action; //! Action kind performed by the player which owns this packet

@@ -78,7 +78,7 @@ struct SoundReceiver { // sizeof = 17
 };
 
 struct S3DSample { // sizeof = 37
-  unsigned long field_0;
+  unsigned long priority;
   unsigned long time_turn;
   unsigned short smptbl_id;
   unsigned char bank_id;

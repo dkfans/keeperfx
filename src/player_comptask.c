@@ -3249,7 +3249,8 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                     ERRORLOG("Internal error - invalid trap model %d in slot %d",(int)model,(int)i);
                     break;
                 }
-                if (dungeonadd->mnfct_info.trap_amount_placeable[model] > 0)
+                struct TrapConfigStats* trapst = &gameadd.trapdoor_conf.trap_cfgstats[model];
+                if ((dungeonadd->mnfct_info.trap_amount_placeable[model] > 0) && (trapst->unsellable == 0))
                 {
                     int crate_source;
                     crate_source = remove_workshop_item_from_amount_stored(dungeon->owner, TCls_Trap, model, WrkCrtF_Default);
