@@ -56,7 +56,7 @@ struct GuiButtonInit text_info_buttons[] = {
   { 0, BID_OBJ_CLOSE,       0, 1, gui_close_objective,gui_close_objective,NULL,        0,   4,  56,   4,  56, 30, 24, gui_area_new_normal_button, GPS_message_message_btn_accept_act, GUIStr_CloseWindow,  0,       {0},            0, NULL },
   { 1, BID_OBJ_SCRL_UP,     0, 0, gui_scroll_text_up, NULL,        NULL,               0, 446,   4, 446,   4, 30, 24, gui_area_new_normal_button, GPS_message_message_btn_up_act, GUIStr_CtrlUp,       0,{(long)&game.evntbox_scroll_window},0,maintain_scroll_up },
   { 1, BID_OBJ_SCRL_DWN,    0, 0, gui_scroll_text_down,NULL,       NULL,               0, 446,  56, 446,  56, 30, 24, gui_area_new_normal_button, GPS_message_message_btn_down_act, GUIStr_CtrlDown,     0,{(long)&game.evntbox_scroll_window},0,maintain_scroll_down },
-  {-1,                      0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,                 0,       {0},            0, NULL },
+  {-1, 0,                   0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,                 0,       {0},            0, NULL },
 };
 
 struct GuiButtonInit battle_buttons[] = {
