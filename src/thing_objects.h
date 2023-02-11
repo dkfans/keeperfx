@@ -20,6 +20,7 @@
 #define DK_THINGOBJCT_H
 
 #include "globals.h"
+#include "config.h"
 
 #include "thing_list.h"
 

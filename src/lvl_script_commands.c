@@ -2140,7 +2140,7 @@ static void set_object_configuration_process(struct ScriptContext *context)
         case 19: // AMBIENCESOUND
             objdat->fp_smpl_idx = context->value->arg2;
             break;
-        case 19: // UPDATEFUNCTION
+        case 20: // UPDATEFUNCTION
             objdat->updatefn_idx = context->value->arg2;
             break;
         default:
