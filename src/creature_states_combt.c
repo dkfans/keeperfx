@@ -38,6 +38,7 @@
 #include "thing_shots.h"
 #include "thing_navigate.h"
 #include "creature_states_lair.h"
+#include "creature_states_spdig.h"
 #include "player_utils.h"
 #include "power_hand.h"
 #include "room_data.h"
@@ -67,10 +68,14 @@ const CombatState combat_object_state[] = {
     NULL,
     combat_object_state_melee_combat,
     combat_object_state_ranged_combat,
+    combat_object_state_melee_snipe,
+    combat_object_state_ranged_snipe,
 };
 
 const CombatState combat_door_state[] = {
     NULL,
+    combat_door_state_melee_combat,
+    combat_door_state_ranged_combat,
     combat_door_state_melee_combat,
     combat_door_state_ranged_combat,
 };
@@ -1342,7 +1347,8 @@ TbBool combat_enemy_exists(struct Thing *thing, struct Thing *enmtng)
         return false;
     }
     struct CreatureControl* enmcctrl = creature_control_get_from_thing(enmtng);
-    if (creature_control_invalid(enmcctrl) && (enmtng->class_id != TCls_Object) && (enmtng->class_id != TCls_Door))
+    if (creature_control_invalid(enmcctrl) && (enmtng->class_id != TCls_Object) && (enmtng->class_id != TCls_Door) 
+        && (thing_is_destructible_trap(enmtng) <= 0) && !((thing_is_destructible_trap(enmtng) >= 0) && creature_has_disarming_weapon(thing))) //destructible traps -1 can't even be destroyed by disarming weapons, 1 by anybody
     {
         ERRORLOG("No control structure - C%d M%d GT%ld CA%d", (int)enmtng->class_id,
             (int)enmtng->model, (long)game.play_gameturn, (int)thing->creation_turn);
@@ -1764,34 +1770,64 @@ CrInstance get_best_self_preservation_instance_to_use(const struct Thing *thing)
 CrInstance get_self_spell_casting(const struct Thing *thing)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    if (!creature_affected_by_spell(thing, SplK_Sight))
-    {
-        INSTANCE_RET_IF_AVAIL(thing, CrInst_SIGHT);
-    }
+    struct InstanceInfo* inst_inf;
     if (creature_would_benefit_from_healing(thing))
     {
         INSTANCE_RET_IF_AVAIL(thing, CrInst_HEAL);
     }
-    long state_type = get_creature_state_type(thing);
-    if (!creature_is_kept_in_custody(thing))
+
+    if (thing_is_creature_special_digger(thing) && creature_is_doing_digger_activity(thing))
     {
+        
         // casting wind when under influence of gas
         if ((cctrl->spell_flags & CSAfF_PoisonCloud) != 0)
         {
             INSTANCE_RET_IF_AVAIL(thing, CrInst_WIND);
         }
-        if (!creature_affected_by_spell(thing, SplK_Speed) && (state_type != CrStTyp_Idle))
+
+        for (short i = 0; i < CREATURE_INSTANCES_COUNT; i++)
         {
-            INSTANCE_RET_IF_AVAIL(thing, CrInst_SPEED);
+            if (i == CrInst_HEAL)
+                continue;
+
+            inst_inf = creature_instance_info_get(i);
+            if ((inst_inf->flags & InstPF_SelfBuff))
+            {
+                if (!creature_affected_by_spell(thing, inst_inf->func_params[1]))
+                {
+                    INSTANCE_RET_IF_AVAIL(thing, i);
+                }
+            }
         }
-        if (!creature_affected_by_spell(thing, SplK_Fly) && ((state_type != CrStTyp_Idle) || terrain_toxic_for_creature_at_position(thing, coord_subtile(thing->mappos.x.val), coord_subtile(thing->mappos.y.val))))
+    }
+    else
+    {
+        if (!creature_affected_by_spell(thing, SplK_Sight))
         {
-            INSTANCE_RET_IF_AVAIL(thing, CrInst_FLY);
+            INSTANCE_RET_IF_AVAIL(thing, CrInst_SIGHT);
         }
-        //TODO CREATURE_AI allow using invisibility when creature is being attacked or escaping
-        if (!creature_affected_by_spell(thing, SplK_Invisibility) && (state_type != CrStTyp_Idle))
+
+        long state_type = get_creature_state_type(thing);
+        if (!creature_is_kept_in_custody(thing))
         {
-            INSTANCE_RET_IF_AVAIL(thing, CrInst_INVISIBILITY);
+            // casting wind when under influence of gas
+            if ((cctrl->spell_flags & CSAfF_PoisonCloud) != 0)
+            {
+                INSTANCE_RET_IF_AVAIL(thing, CrInst_WIND);
+            }
+            if (!creature_affected_by_spell(thing, SplK_Speed) && (state_type != CrStTyp_Idle))
+            {
+                INSTANCE_RET_IF_AVAIL(thing, CrInst_SPEED);
+            }
+            if (!creature_affected_by_spell(thing, SplK_Fly) && ((state_type != CrStTyp_Idle) || terrain_toxic_for_creature_at_position(thing, coord_subtile(thing->mappos.x.val), coord_subtile(thing->mappos.y.val))))
+            {
+                INSTANCE_RET_IF_AVAIL(thing, CrInst_FLY);
+            }
+            //TODO CREATURE_AI allow using invisibility when creature is being attacked or escaping
+            if (!creature_affected_by_spell(thing, SplK_Invisibility) && (state_type != CrStTyp_Idle))
+            {
+                INSTANCE_RET_IF_AVAIL(thing, CrInst_INVISIBILITY);
+            }
         }
     }
     return CrInst_NULL;
@@ -1858,6 +1894,36 @@ CrInstance get_best_combat_weapon_instance_to_use(const struct Thing *thing, con
     return inst_id;
 }
 
+CrInstance get_best_combat_weapon_instance_to_use_versus_trap(const struct Thing* thing, const struct CombatWeapon* cweapons, long dist, int atktype)
+{
+    CrInstance inst_id = CrInst_NULL;
+    struct InstanceInfo* inst_inf;
+    for (const struct CombatWeapon* cweapon = cweapons; cweapon->inst_id != CrInst_NULL; cweapon++)
+    {
+        inst_inf = creature_instance_info_get(cweapon->inst_id);
+        if (creature_instance_is_available(thing, cweapon->inst_id))
+        {
+            if ((((inst_inf->flags & (InstPF_RangedAttack | InstPF_RangedDebuff | InstPF_MeleeAttack)) && (atktype & InstPF_RangedAttack)) ||
+                ((inst_inf->flags & (InstPF_MeleeAttack | InstPF_RangedDebuff)) && (atktype & InstPF_MeleeAttack))) &&
+                (!(inst_inf->flags & InstPF_Dangerous) || !(atktype & InstPF_Dangerous)) &&
+                ((inst_inf->flags & InstPF_Destructive) >= (atktype & InstPF_Destructive)) &&
+                (inst_inf->flags & InstPF_Disarming) )
+            {
+                if (creature_instance_has_reset(thing, cweapon->inst_id))
+                {
+                    if ((cweapon->range_min <= dist) && (cweapon->range_max >= dist)) {
+                        return cweapon->inst_id;
+                    }
+                }
+                if (inst_id == CrInst_NULL) {
+                    inst_id = -(cweapon->inst_id);
+                }
+            }
+        }
+    }
+    return inst_id;
+}
+
 CrInstance get_best_ranged_offensive_weapon(const struct Thing *thing, long dist)
 {
     CrInstance inst_id = get_best_self_preservation_instance_to_use(thing);
@@ -1883,14 +1949,63 @@ CrInstance get_best_melee_offensive_weapon(const struct Thing *thing, long dist)
 long get_best_melee_object_offensive_weapon(const struct Thing *thing, long dist)
 {
     int atktyp = (InstPF_MeleeAttack | InstPF_Destructive | InstPF_Dangerous);
-    CrInstance inst_id = get_best_combat_weapon_instance_to_use(thing, offensive_weapon, dist, atktyp);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    struct Thing* objtng = thing_get(cctrl->combat.battle_enemy_idx);
+    CrInstance inst_id = CrInst_NULL;
+    struct TrapConfigStats* trapst;
+
+    if (thing_is_destructible_trap(objtng) > 0) //can be destroyed by regular object weapons
+    {
+        trapst = get_trap_model_stats(objtng->model);
+        if (trapst->unstable == 1) //If it's gonna trigger when hurt, better try to disarm it instead
+        {
+            inst_id = get_best_combat_weapon_instance_to_use_versus_trap(thing, offensive_weapon, dist, atktyp);
+        }
+        if (inst_id == CrInst_NULL)
+        {
+            inst_id = get_best_combat_weapon_instance_to_use(thing, offensive_weapon, dist, atktyp);
+        }
+    } else
+    if (thing_is_destructible_trap(objtng) == 0) //can only be destroyed be destroyed by disarming weapons.
+    {
+       inst_id = get_best_combat_weapon_instance_to_use_versus_trap(thing, offensive_weapon, dist, atktyp);
+    }
+    else
+    {
+        inst_id = get_best_combat_weapon_instance_to_use(thing, offensive_weapon, dist, atktyp);
+    }
     return inst_id;
 }
 
 long get_best_ranged_object_offensive_weapon(const struct Thing *thing, long dist)
 {
     int atktyp = (InstPF_RangedAttack | InstPF_Destructive | InstPF_Dangerous);
-    CrInstance inst_id = get_best_combat_weapon_instance_to_use(thing, offensive_weapon, dist,atktyp);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    struct Thing* objtng = thing_get(cctrl->combat.battle_enemy_idx);
+    CrInstance inst_id = CrInst_NULL;
+    struct TrapConfigStats* trapst;
+
+    if (thing_is_destructible_trap(objtng) > 0) //can be destroyed by regular object weapons
+    {
+        trapst = get_trap_model_stats(objtng->model);
+        if (trapst->unstable == 1) //If it's gonna trigger when hurt, better try to disarm it instead
+        {
+            inst_id = get_best_combat_weapon_instance_to_use_versus_trap(thing, offensive_weapon, dist, atktyp);
+        }
+        if (inst_id == CrInst_NULL)
+        {
+            inst_id = get_best_combat_weapon_instance_to_use(thing, offensive_weapon, dist, atktyp);
+        }
+    }
+    else
+    if (thing_is_destructible_trap(objtng) == 0) //can only be destroyed be destroyed by disarming weapons.
+    {
+        inst_id = get_best_combat_weapon_instance_to_use_versus_trap(thing, offensive_weapon, dist, atktyp);
+    }
+    else
+    {
+        inst_id = get_best_combat_weapon_instance_to_use(thing, offensive_weapon, dist, atktyp);
+    }
     return inst_id;
 }
 
@@ -1906,7 +2021,7 @@ TbBool combat_has_line_of_sight(const struct Thing *creatng, const struct Thing 
     return cctrl->combat.seen_enemy_los;
 }
 
-long collide_filter_thing_is_in_my_fight(const struct Thing *firstng, const struct Thing *coldtng, long a3, long a4)
+HitTargetFlags collide_filter_thing_is_in_my_fight(const struct Thing *firstng, const struct Thing *coldtng, HitTargetFlags a3, long a4)
 {
     if (!thing_is_creature(firstng)) {
         return false;
@@ -1917,7 +2032,7 @@ long collide_filter_thing_is_in_my_fight(const struct Thing *firstng, const stru
 }
 
 struct Thing *get_thing_collided_with_at_satisfying_filter_in_square_of_for_subtile(struct Thing *shotng, struct Coord3d *pos,
-    long square_size, Thing_Collide_Func filter, long filter_par1, long filter_par2, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+    long square_size, Thing_Collide_Func filter, ThingHitType filter_par1, long filter_par2, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     struct Thing* creatng = INVALID_THING;
     if (shotng->parent_idx > 0) {
@@ -1952,7 +2067,7 @@ struct Thing *get_thing_collided_with_at_satisfying_filter_in_square_of_for_subt
     return INVALID_THING;
 }
 
-struct Thing *get_thing_collided_with_at_satisfying_filter_in_square_of(struct Thing *shotng, struct Coord3d *pos, long square_size, Thing_Collide_Func filter, long filter_par1, long filter_par2)
+struct Thing *get_thing_collided_with_at_satisfying_filter_in_square_of(struct Thing *shotng, struct Coord3d *pos, long square_size, Thing_Collide_Func filter, HitTargetFlags filter_par1, long filter_par2)
 {
     MapSubtlCoord stl_x_beg = coord_subtile(pos->x.val - square_size / 2);
     if (stl_x_beg <= 0)
@@ -2671,6 +2786,25 @@ void combat_object_state_melee_combat(struct Thing *creatng)
     }
 }
 
+void combat_object_state_melee_snipe(struct Thing* creatng)
+{
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    struct Thing* objtng = thing_get(cctrl->combat.battle_enemy_idx);
+    long dist = get_combat_distance(creatng, objtng);
+    CrInstance inst_id = get_best_melee_object_offensive_weapon(creatng, dist);
+    if (inst_id == CrInst_NULL)
+    {
+        ERRORLOG("The %s index %d has no melee instance in fight", thing_model_name(creatng), (int)creatng->index);
+        set_start_state(creatng);
+    }
+    if (melee_combat_move(creatng, objtng, dist, CrSt_CreatureObjectSnipe))
+    {
+        if (inst_id > CrInst_NULL) {
+            set_creature_instance(creatng, inst_id, 1, objtng->index, 0);
+        }
+    }
+}
+
 void combat_object_state_ranged_combat(struct Thing *creatng)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
@@ -2682,6 +2816,24 @@ void combat_object_state_ranged_combat(struct Thing *creatng)
         WARNLOG("The %s index %d has no ranged instance in fight", thing_model_name(creatng), (int)creatng->index);
     }
     if (ranged_combat_move(creatng, objtng, dist, CrSt_CreatureObjectCombat))
+    {
+        if (inst_id > CrInst_NULL) {
+            set_creature_instance(creatng, inst_id, 0, objtng->index, 0);
+        }
+    }
+}
+
+void combat_object_state_ranged_snipe(struct Thing* creatng)
+{
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    struct Thing* objtng = thing_get(cctrl->combat.battle_enemy_idx);
+    long dist = get_combat_distance(creatng, objtng);
+    CrInstance inst_id = get_best_ranged_object_offensive_weapon(creatng, dist);
+    if (inst_id == CrInst_NULL)
+    {
+        WARNLOG("The %s index %d has no ranged instance in fight", thing_model_name(creatng), (int)creatng->index);
+    }
+    if (ranged_combat_move(creatng, objtng, dist, CrSt_CreatureObjectSnipe))
     {
         if (inst_id > CrInst_NULL) {
             set_creature_instance(creatng, inst_id, 0, objtng->index, 0);
@@ -2766,6 +2918,7 @@ TbBool creature_look_for_combat(struct Thing *creatng)
     SYNCDBG(9,"Starting for %s index %d",thing_model_name(creatng),(int)creatng->index);
     TRACE_THING(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    CrtrStateId crstate;
     struct Thing* enmtng;
     CrAttackType attack_type = check_for_possible_combat(creatng, &enmtng);
     if (attack_type <= AttckT_Unset)
@@ -2794,14 +2947,18 @@ TbBool creature_look_for_combat(struct Thing *creatng)
         }
     }
 
-    // If high fear creature is invisible and not in combat, then don't let it start one
-    if (creature_is_invisible(creatng))
+    // Don't start combat if not already in combat and high fear + invisible or sneaky
+    if ((cctrl->opponents_melee_count == 0) && (cctrl->opponents_ranged_count == 0))
     {
-        if ( (cctrl->opponents_melee_count == 0) && (cctrl->opponents_ranged_count == 0) ) {
+        if (creature_is_invisible(creatng))
+        {
             struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
             if (crstat->fear_wounded >= 101)
                 return false;
         }
+        crstate = get_creature_state_besides_move(creatng);
+        if (states[crstate].sneaky == 1)
+            return false;
     }
 
     // If not too scared for combat, then do the combat
@@ -2851,6 +3008,81 @@ TbBool creature_look_for_enemy_heart_combat(struct Thing *thing)
     }
     TRACE_THING(heartng);
     set_creature_object_combat(thing, heartng);
+    return true;
+}
+
+
+TbBool creature_look_for_enemy_heart_snipe(struct Thing* thing)
+{
+    SYNCDBG(19, "Starting for %s index %d", thing_model_name(thing), (int)thing->index);
+    TRACE_THING(thing);
+    if ((get_creature_model_flags(thing) & CMF_NoEnmHeartAttack) != 0) {
+        return false;
+    }
+    struct Thing* heartng;
+    // If already fighting dungeon heart, skip the rest
+    if (get_creature_state_besides_interruptions(thing) == CrSt_CreatureObjectSnipe) {
+        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+        heartng = thing_get(cctrl->combat.battle_enemy_idx);
+        if (thing_is_dungeon_heart(heartng)) {
+            return false;
+        }
+    }
+    heartng = get_enemy_soul_container_creature_can_see(thing);
+    if (thing_is_invalid(heartng) || !(creature_can_navigate_to(thing, &heartng->mappos, NavRtF_Default)))
+    {
+        return false;
+    }
+    TRACE_THING(heartng);
+    set_creature_object_snipe(thing, heartng);
+    return true;
+}
+
+struct Thing* check_for_object_to_fight(struct Thing* thing) //just traps now, could be expanded to non-trap objects
+{
+    long m = CREATURE_RANDOM(thing, SMALL_AROUND_SLAB_LENGTH);
+    for (long n = 0; n < SMALL_AROUND_SLAB_LENGTH; n++)
+    {
+        MapSlabCoord slb_x = subtile_slab_fast(thing->mappos.x.stl.num) + (long)small_around[m].delta_x;
+        MapSlabCoord slb_y = subtile_slab_fast(thing->mappos.y.stl.num) + (long)small_around[m].delta_y;
+        struct Thing* trpthing = get_trap_for_position(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
+        if ((thing_is_destructible_trap(trpthing) > 0) || (creature_has_disarming_weapon(thing) && (thing_is_destructible_trap(trpthing) >= 0)))
+        {
+            if (players_are_enemies(thing->owner, trpthing->owner))
+            {
+                struct TrapConfigStats* trapst = &gameadd.trapdoor_conf.trap_cfgstats[trpthing->model];
+                if (creature_can_see_invisible(thing) || (trapst->hidden == 0) || (trpthing->trap.revealed == 1))
+                {
+                    return trpthing;
+                }
+            }
+        }
+        m = (m + 1) % SMALL_AROUND_SLAB_LENGTH;
+    }
+    return INVALID_THING;
+}
+
+TbBool creature_look_for_enemy_object_combat(struct Thing* thing)
+{
+    SYNCDBG(19, "Starting for %s index %d", thing_model_name(thing), (int)thing->index);
+    TRACE_THING(thing);
+
+    struct Thing* objtng;
+    // If already fighting dungeon heart, skip the rest
+    if (get_creature_state_besides_interruptions(thing) == CrSt_CreatureObjectCombat) {
+        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+        objtng = thing_get(cctrl->combat.battle_enemy_idx);
+        if (thing_is_dungeon_heart(objtng)) {
+            return false;
+        }
+    }
+    objtng = check_for_object_to_fight(thing);
+    if (thing_is_invalid(objtng) || !(creature_can_navigate_to(thing, &objtng->mappos, NavRtF_Default)))
+    {
+        return false;
+    }
+    TRACE_THING(objtng);
+    set_creature_object_combat(thing, objtng);
     return true;
 }
 

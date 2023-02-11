@@ -150,7 +150,9 @@ const struct NamedCommand hero_objective_desc[] = {
   {"STEAL_SPELLS",         CHeroTsk_StealSpells},
   {"ATTACK_ENEMIES",       CHeroTsk_AttackEnemies},
   {"ATTACK_DUNGEON_HEART", CHeroTsk_AttackDnHeart},
+  {"SNIPE_DUNGEON_HEART",  CHeroTsk_SnipeDnHeart},
   {"ATTACK_ROOMS",         CHeroTsk_AttackRooms},
+  {"SABOTAGE_ROOMS",       CHeroTsk_SabotageRooms},
   {"DEFEND_PARTY",         CHeroTsk_DefendParty},
   {"DEFEND_LOCATION",      CHeroTsk_DefendSpawn},
   {"DEFEND_HEART",         CHeroTsk_DefendHeart},
@@ -220,6 +222,9 @@ const struct NamedCommand trap_config_desc[] = {
   {"LightFlags",          29},
   {"TransparencyFlags",   30},
   {"ShotVector",          31},
+  {"Destructible",        32},
+  {"Unstable",            33},
+  {"Unsellable",          34},
   {NULL,                   0},
 };
 
@@ -1269,6 +1274,15 @@ static void set_trap_configuration_process(struct ScriptContext *context)
             gameadd.trap_stats[trap_type].shotvector.y = value2;
             gameadd.trap_stats[trap_type].shotvector.z = value3;
             break;
+        case 32: // Destructible
+            trapst->destructible = value;
+            break;
+        case 33: // Unstable
+            trapst->unstable = value;
+            break;
+        case 34: // Unsellable
+            trapst->unsellable = value;
+            break;
         default:
             WARNMSG("Unsupported Trap configuration, variable %d.", context->value->shorts[1]);
             break;
@@ -1894,10 +1908,22 @@ static void set_object_configuration_check(const struct ScriptLine *scline)
             value->arg2 = number_value;
             break;
         }
+        case 20: // UPDATEFUNCTION
+        {
+            number_value = get_id(object_update_functions_desc,new_value);
+            if (number_value < 0)
+            {
+                SCRPTERRLOG("Invalid object update function id");
+                DEALLOCATE_SCRIPT_VALUE
+                return;
+            }
+            value->arg2 = number_value;
+            break;
+        }
         default:
             value->arg2 = atoi(new_value);
     }
-
+    
     SCRIPTDBG(7, "Setting object %s property %s to %d", objectname, property, number_value);
     value->arg0 = objct_id;
     value->arg1 = objectvar;
@@ -2127,6 +2153,9 @@ static void set_object_configuration_process(struct ScriptContext *context)
             break;
         case 19: // AMBIENCESOUND
             objdat->fp_smpl_idx = context->value->arg2;
+            break;
+        case 20: // UPDATEFUNCTION
+            objdat->updatefn_idx = context->value->arg2;
             break;
         default:
             WARNMSG("Unsupported Object configuration, variable %d.", context->value->arg1);
@@ -2665,6 +2694,43 @@ static void set_creature_instance_process(struct ScriptContext *context)
     }
 }
 
+
+static void hide_hero_gate_check(const struct ScriptLine* scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    short n = scline->np[0];
+    if (scline->np[0] < 0)
+    {
+        n = -scline->np[0];
+    }
+    struct Thing* thing = find_hero_gate_of_number(n);
+    if (thing_is_invalid(thing))
+    {
+        SCRPTERRLOG("Invalid hero gate: %d", scline->np[0]);
+        return;
+    }
+    value->bytes[0] = n;
+    value->bytes[1] = scline->np[1];
+
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void hide_hero_gate_process(struct ScriptContext* context)
+{
+    struct Thing* thing = find_hero_gate_of_number(context->value->bytes[0]);
+
+    if (context->value->bytes[1])
+    {
+        create_effect(&thing->mappos, TngEff_BallPuffWhite, thing->owner);
+        place_thing_in_creature_controlled_limbo(thing);
+    }
+    else
+    {
+        create_effect(&thing->mappos, TngEff_BallPuffWhite, thing->owner);
+        remove_thing_from_creature_controlled_limbo(thing);
+    }
+}
+
 static void if_check(const struct ScriptLine *scline)
 {
 
@@ -3173,6 +3239,7 @@ const struct CommandDesc command_desc[] = {
   {"COUNT_CREATURES_AT_ACTION_POINT",   "NPC!PA  ", Cmd_COUNT_CREATURES_AT_ACTION_POINT, &count_creatures_at_action_point_check, &count_creatures_at_action_point_process},
   {"IF_ALLIED",                         "PPON    ", Cmd_IF_ALLIED, &if_allied_check, NULL},
   {"SET_TEXTURE",                       "PA      ", Cmd_SET_TEXTURE, &set_texture_check, &set_texture_process},
+  {"HIDE_HERO_GATE",                    "Nn      ", Cmd_HIDE_HERO_GATE, &hide_hero_gate_check, &hide_hero_gate_process},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 

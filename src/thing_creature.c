@@ -541,7 +541,7 @@ struct Thing *get_enemy_soul_container_creature_can_see(struct Thing *creatng)
     return INVALID_THING;
 }
 
-void set_creature_combat_object_state(struct Thing *creatng, struct Thing *obthing)
+void set_creature_combat_object_state(struct Thing *creatng, struct Thing *obthing, short combattype)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     cctrl->combat.battle_enemy_idx = obthing->index;
@@ -549,11 +549,27 @@ void set_creature_combat_object_state(struct Thing *creatng, struct Thing *obthi
     cctrl->field_AA = 0;
     cctrl->combat_flags |= CmbtF_ObjctFight;
     const struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
-    if ((crstat->attack_preference == AttckT_Ranged)
-      && creature_has_ranged_object_weapon(creatng)) {
-        cctrl->combat.state_id = ObjCmbtSt_Ranged;
-    } else {
-        cctrl->combat.state_id = ObjCmbtSt_Melee;
+    if ((crstat->attack_preference == AttckT_Ranged) && creature_has_ranged_object_weapon(creatng)) 
+    {
+        if (combattype == CrSt_CreatureObjectSnipe)
+        {
+            cctrl->combat.state_id = ObjCmbtSt_RangedSnipe;
+        }
+        else
+        {
+            cctrl->combat.state_id = ObjCmbtSt_Ranged;
+        }
+    } 
+    else 
+    {
+        if (combattype == CrSt_CreatureObjectSnipe)
+        {
+            cctrl->combat.state_id = ObjCmbtSt_MeleeSnipe;
+        }
+        else
+        {
+            cctrl->combat.state_id = ObjCmbtSt_Melee;
+        }
     }
 }
 
@@ -563,8 +579,19 @@ TbBool set_creature_object_combat(struct Thing *creatng, struct Thing *obthing)
     if (!external_set_thing_state(creatng, CrSt_CreatureObjectCombat)) {
         return false;
     }
-    set_creature_combat_object_state(creatng, obthing);
+    set_creature_combat_object_state(creatng, obthing, CrSt_CreatureObjectCombat);
     SYNCDBG(19,"Finished");
+    return true;
+}
+
+TbBool set_creature_object_snipe(struct Thing* creatng, struct Thing* obthing)
+{
+    SYNCDBG(8, "Starting");
+    if (!external_set_thing_state(creatng, CrSt_CreatureObjectSnipe)) {
+        return false;
+    }
+    set_creature_combat_object_state(creatng, obthing, CrSt_CreatureObjectSnipe);
+    SYNCDBG(19, "Finished");
     return true;
 }
 
@@ -1575,13 +1602,13 @@ void creature_cast_spell_at_thing(struct Thing *castng, struct Thing *targetng, 
     unsigned char hit_type;
     if ((castng->alloc_flags & TAlF_IsControlled) != 0)
     {
-        if (targetng->class_id == TCls_Object)
+        if ((targetng->class_id == TCls_Object) || (targetng->class_id == TCls_Trap))
             hit_type = THit_CrtrsNObjcts;
         else
             hit_type = THit_CrtrsOnly;
     } else
     {
-        if (targetng->class_id == TCls_Object)
+        if ((targetng->class_id == TCls_Object) || (targetng->class_id == TCls_Trap))
             hit_type = THit_CrtrsNObjctsNotOwn;
         else
         if (targetng->owner == castng->owner)
@@ -1802,6 +1829,9 @@ TngUpdateRet process_creature_state(struct Thing *thing)
         TbBool fighting = creature_look_for_combat(thing);
         if (!fighting) {
             fighting = creature_look_for_enemy_heart_combat(thing);
+        }
+        if (!fighting) {
+            fighting = creature_look_for_enemy_object_combat(thing);
         }
     }
     if ((cctrl->combat_flags & CmbtF_DoorFight) == 0)
@@ -2858,6 +2888,10 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
             damage = calculate_shot_damage(firing, shot_model);
         }
     }
+    if ((shotst->model_flags & ShMF_Disarming) && thing_is_deployed_trap(target))
+    {
+        hit_type = THit_TrapsAll;
+    }
     struct Thing* shotng = NULL;
     long target_idx = 0;
     // Set target index for navigating shots
@@ -2984,7 +3018,7 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
       }
       if (shotst->shot_sound > 0)
       {
-        thing_play_sample(shotng, shotst->shot_sound, NORMAL_PITCH, 0, 3, 0, shotst->old->field_20, FULL_LOUDNESS);
+        thing_play_sample(shotng, shotst->shot_sound, NORMAL_PITCH, 0, 3, 0, shotst->sound_priority, FULL_LOUDNESS);
       }
       set_flag_byte(&shotng->movement_flags,TMvF_Unknown10,flag1);
     }
@@ -3139,7 +3173,6 @@ ThingIndex get_human_controlled_creature_target(struct Thing *thing, long primar
                             switch (primary_target)
                             {
                                 case 1:
-                                case 7:
                                     is_valid_target = ((thing_is_creature(i) && !creature_is_being_unconscious(i)) || thing_is_dungeon_heart(i));
                                     break;
                                 case 2:
@@ -3156,6 +3189,9 @@ ThingIndex get_human_controlled_creature_target(struct Thing *thing, long primar
                                     break;
                                 case 6:
                                     is_valid_target = ((thing_is_creature(i) && !creature_is_being_unconscious(i)) && i->owner == thing->owner);
+                                    break;
+                                case 7:
+                                    is_valid_target = ((thing_is_creature(i) && !creature_is_being_unconscious(i)) || thing_is_dungeon_heart(i) || thing_is_deployed_trap(i));
                                     break;
                                 case 8:
                                     is_valid_target = true;
@@ -5572,7 +5608,8 @@ TbBool creature_stats_debug_dump(void)
             case CrSt_GoodWaitInExitDoor:
             case CrSt_GoodAttackRoom1:
             case CrSt_CreatureSearchForGoldToStealInRoom2:
-            case CrSt_GoodAttackRoom2:
+            case CrSt_GoodArrivedAtAttackRoom:
+            case CrSt_GoodArrivedAtSabotageRoom:
                 ERRORLOG("Player %d %s index %d is in Good-only state %d",(int)thing->owner,thing_model_name(thing),(int)thing->index,(int)crstate);
                 result = true;
                 break;

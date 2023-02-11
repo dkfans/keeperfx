@@ -539,7 +539,7 @@ void slap_creature(struct PlayerInfo *player, struct Thing *thing)
         external_set_thing_state(thing, CrSt_CreatureSlapCowers);
     }
     cctrl->frozen_on_hit = 6;
-    cctrl->field_27F = 18;
+    cctrl->cowers_from_slap_turns = 18;
     play_creature_sound(thing, CrSnd_Slap, 3, 0);
 }
 
