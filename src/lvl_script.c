@@ -589,7 +589,7 @@ int script_recognize_params(char **line, const struct CommandDesc *cmd_desc, str
                                 LbMemoryFree(funscline);
                                 return -1;
                             }
-                            if (funscline->tp[fi][0] != '\0')
+                            if (funscline->np[fi] == '\0')
                             {
                                 funscline->np[fi] = atol(funscline->tp[fi]);
                             }

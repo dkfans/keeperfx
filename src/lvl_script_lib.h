@@ -166,6 +166,7 @@ enum TbScriptCommands {
     Cmd_COUNT_CREATURES_AT_ACTION_POINT   = 153,
     Cmd_IF_ALLIED                         = 154,
     Cmd_SET_TEXTURE                       = 155,
+    Cmd_HIDE_HERO_GATE                    = 156,
 };
 
 struct ScriptLine {
