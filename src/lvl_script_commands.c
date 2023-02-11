@@ -1906,10 +1906,22 @@ static void set_object_configuration_check(const struct ScriptLine *scline)
             value->arg2 = number_value;
             break;
         }
+        case 20: // UPDATEFUNCTION
+        {
+            number_value = get_id(object_update_functions_desc,new_value);
+            if (number_value < 0)
+            {
+                SCRPTERRLOG("Invalid object update function id");
+                DEALLOCATE_SCRIPT_VALUE
+                return;
+            }
+            value->arg2 = number_value;
+            break;
+        }
         default:
             value->arg2 = atoi(new_value);
     }
-
+    
     SCRIPTDBG(7, "Setting object %s property %s to %d", objectname, property, number_value);
     value->arg0 = objct_id;
     value->arg1 = objectvar;
