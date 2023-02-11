@@ -226,7 +226,7 @@ struct CreatureAngerJobConfig {
 struct CreatureModelConfig {
     char name[COMMAND_WORD_LEN];
     long namestr_idx;
-    unsigned short model_flags;
+    unsigned long model_flags;
 };
 
 /**
@@ -295,11 +295,11 @@ TbBool is_creature_model_wildcard(ThingModel crmodel);
 /******************************************************************************/
 TbBool load_creaturetypes_config(const char *conf_fname, unsigned short flags);
 /******************************************************************************/
-unsigned short get_creature_model_flags(const struct Thing *thing);
+unsigned long get_creature_model_flags(const struct Thing *thing);
 TbBool set_creature_available(PlayerNumber plyr_idx, ThingModel crtr_model, long can_be_avail, long force_avail);
 ThingModel get_players_special_digger_model(PlayerNumber plyr_idx);
 ThingModel get_players_spectator_model(PlayerNumber plyr_idx);
-ThingModel get_creature_model_with_model_flags(unsigned short needflags);
+ThingModel get_creature_model_with_model_flags(unsigned long needflags);
 /******************************************************************************/
 struct CreatureInstanceConfig *get_config_for_instance(CrInstance inst_id);
 const char *creature_instance_code_name(CrInstance inst_id);

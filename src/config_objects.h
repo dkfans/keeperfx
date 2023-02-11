@@ -71,7 +71,7 @@ char movement_flag;
 /******************************************************************************/
 struct ObjectConfigStats {
     char code_name[COMMAND_WORD_LEN];
-    unsigned short model_flags;
+    unsigned long model_flags;
     long genre;
     long name_stridx;
     long map_icon;

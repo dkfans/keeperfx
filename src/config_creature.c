@@ -1694,14 +1694,14 @@ TbBool load_creaturetypes_config(const char *conf_fname, unsigned short flags)
     return result;
 }
 
-unsigned short get_creature_model_flags(const struct Thing *thing)
+unsigned long get_creature_model_flags(const struct Thing *thing)
 {
     if ((thing->model < 1) || (thing->model >= gameadd.crtr_conf.model_count))
       return 0;
   return gameadd.crtr_conf.model[thing->model].model_flags;
 }
 
-ThingModel get_creature_model_with_model_flags(unsigned short needflags)
+ThingModel get_creature_model_with_model_flags(unsigned long needflags)
 {
     for (ThingModel crmodel = 0; crmodel < gameadd.crtr_conf.model_count; crmodel++)
     {

@@ -125,6 +125,8 @@ enum ObjectCombatStates {
     ObjCmbtSt_Unset = 0,
     ObjCmbtSt_Melee,
     ObjCmbtSt_Ranged,
+    ObjCmbtSt_MeleeSnipe,
+    ObjCmbtSt_RangedSnipe,
 };
 
 struct CastedSpellData {
