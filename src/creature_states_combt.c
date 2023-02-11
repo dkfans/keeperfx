@@ -2960,6 +2960,14 @@ TbBool creature_look_for_enemy_heart_combat(struct Thing *thing)
     {
         return false;
     }
+
+    CrInstance inst_id = get_best_self_preservation_instance_to_use(thing);
+    if (inst_id > CrInst_NULL)
+    {
+        set_creature_instance(thing, inst_id, 0, 0, 0);
+        return false;
+    }
+
     TRACE_THING(heartng);
     set_creature_object_combat(thing, heartng);
     return true;
@@ -3008,6 +3016,14 @@ TbBool creature_look_for_enemy_object_combat(struct Thing* thing)
     {
         return false;
     }
+
+    CrInstance inst_id = get_best_self_preservation_instance_to_use(thing);
+    if (inst_id > CrInst_NULL)
+    {
+        set_creature_instance(thing, inst_id, 0, 0, 0);
+        return false;
+    }
+
     TRACE_THING(objtng);
     set_creature_object_combat(thing, objtng);
     return true;
@@ -3042,6 +3058,14 @@ TbBool creature_look_for_enemy_door_combat(struct Thing *thing)
     if (thing_is_invalid(doortng)) {
         return false;
     }
+
+    CrInstance inst_id = get_best_self_preservation_instance_to_use(thing);
+    if (inst_id > CrInst_NULL)
+    {
+        set_creature_instance(thing, inst_id, 0, 0, 0);
+        return false;
+    }
+
     set_creature_door_combat(thing, doortng);
     return true;
 }
