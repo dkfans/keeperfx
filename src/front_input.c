@@ -95,6 +95,8 @@ TbBool first_person_see_item_desc = false;
 
 long old_mx;
 long old_my;
+int mwheel_zoom_repeats = 1;
+int mwheel_zoom_repeat_counter = 0;
 
 /******************************************************************************/
 void get_dungeon_control_nonaction_inputs(void);
@@ -1734,7 +1736,7 @@ short get_map_action_inputs(void)
     }
 }
 
-int mousewheel_zoom_repeat = 0;
+
 
 // TODO: Might want to initiate this in main() and pass a reference to it
 // rather than using this global variable. But this works.
@@ -1750,11 +1752,23 @@ void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rotate_pre
         {
             if (wheel_scrolled_up)
             {
-                set_packet_control(pckt, PCtr_ViewZoomIn);
+                mwheel_zoom_repeat_counter = mwheel_zoom_repeats;
             }
             if (wheel_scrolled_down)
             {
-                set_packet_control(pckt, PCtr_ViewZoomOut);
+                mwheel_zoom_repeat_counter = -mwheel_zoom_repeats;
+            }
+
+            if (mwheel_zoom_repeat_counter > 0)
+            {
+                mwheel_zoom_repeat_counter -= 1; // Bring closer to 0
+                set_packet_control(pckt, PCtr_ViewZoomIn);
+            } else {
+                if (mwheel_zoom_repeat_counter < 0)
+                {
+                    mwheel_zoom_repeat_counter += 1; // Bring closer to 0
+                    set_packet_control(pckt, PCtr_ViewZoomOut);
+                }
             }
         }
     }

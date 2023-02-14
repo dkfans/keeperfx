@@ -43,8 +43,8 @@ extern "C" {
 #endif
 /******************************************************************************/
 /******************************************************************************/
-int zoom_speed_in = 15; // Default value [1-100]. Set by CFG.
-int zoom_speed_out = 15; // Default value [1-100]. Set by CFG.
+int zoom_speed_near = 15; // Default value [1-100]. Set by CFG.
+int zoom_speed_far = 15; // Default value [1-100]. Set by CFG.
 long zoom_distance_setting;
 long frontview_zoom_distance_setting;
 long camera_zoom;
@@ -234,7 +234,7 @@ void view_zoom_camera_in(struct Camera *cam, long limit_max, long limit_min)
     long new_zoom;
     long old_zoom = get_camera_zoom(cam);
 
-    int zoom_rate = 100-lerp(zoom_speed_in, zoom_speed_out, 1.0-pow(zoomed_percent, 4.0));
+    int zoom_rate = 100-lerp(zoom_speed_near, zoom_speed_far, 1.0-pow(zoomed_percent, 4.0));
 
     JUSTLOG("%d",zoom_rate);
     switch (cam->view_mode)
@@ -301,7 +301,7 @@ void view_zoom_camera_out(struct Camera *cam, long limit_max, long limit_min)
     long new_zoom;
     long old_zoom = get_camera_zoom(cam);
     
-    int zoom_rate = 100-lerp(zoom_speed_in, zoom_speed_out, 1.0-pow(zoomed_percent, 4.0));
+    int zoom_rate = 100-lerp(zoom_speed_near, zoom_speed_far, 1.0-pow(zoomed_percent, 4.0));
 
     switch (cam->view_mode)
     {
