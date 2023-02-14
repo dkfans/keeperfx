@@ -43,6 +43,8 @@ extern "C" {
 #endif
 /******************************************************************************/
 /******************************************************************************/
+int zoom_speed_in = 15; // Default value [1-100]. Set by CFG.
+int zoom_speed_out = 15; // Default value [1-100]. Set by CFG.
 long zoom_distance_setting;
 long frontview_zoom_distance_setting;
 long camera_zoom;
@@ -231,11 +233,15 @@ void view_zoom_camera_in(struct Camera *cam, long limit_max, long limit_min)
 {
     long new_zoom;
     long old_zoom = get_camera_zoom(cam);
+
+    int zoom_rate = 100-lerp(zoom_speed_in, zoom_speed_out, 1.0-pow(zoomed_percent, 4.0));
+
+    JUSTLOG("%d",zoom_rate);
     switch (cam->view_mode)
     {
     case PVM_IsoWibbleView:
     case PVM_IsoStraightView:
-        new_zoom = (100 * old_zoom) / 85;
+        new_zoom = (100 * old_zoom) / zoom_rate;
         if (new_zoom == old_zoom)
             new_zoom++;
         if (new_zoom < limit_min) {
@@ -257,7 +263,7 @@ void view_zoom_camera_in(struct Camera *cam, long limit_max, long limit_min)
         }
         break;
     case PVM_FrontView:
-        new_zoom = (100 * old_zoom) / 85;
+        new_zoom = (100 * old_zoom) / zoom_rate;
         if (new_zoom == old_zoom)
             new_zoom++;
         if (new_zoom < FRONTVIEW_CAMERA_ZOOM_MIN) { //Originally 16384, adjusted for view distance
@@ -294,11 +300,14 @@ void view_zoom_camera_out(struct Camera *cam, long limit_max, long limit_min)
 {
     long new_zoom;
     long old_zoom = get_camera_zoom(cam);
+    
+    int zoom_rate = 100-lerp(zoom_speed_in, zoom_speed_out, 1.0-pow(zoomed_percent, 4.0));
+
     switch (cam->view_mode)
     {
     case PVM_IsoWibbleView:
     case PVM_IsoStraightView:
-        new_zoom = (85 * old_zoom) / 100;
+        new_zoom = (zoom_rate * old_zoom) / 100;
         if (new_zoom == old_zoom)
             new_zoom--;
         if (new_zoom < limit_min) {
@@ -320,7 +329,7 @@ void view_zoom_camera_out(struct Camera *cam, long limit_max, long limit_min)
         }
         break;
     case PVM_FrontView:
-        new_zoom = (85 * old_zoom) / 100;
+        new_zoom = (zoom_rate * old_zoom) / 100;
         if (new_zoom == old_zoom)
             new_zoom--;
         if (new_zoom < max(FRONTVIEW_CAMERA_ZOOM_MIN, frontview_zoom_distance_setting)) {

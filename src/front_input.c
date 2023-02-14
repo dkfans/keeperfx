@@ -1748,28 +1748,13 @@ void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rotate_pre
         // mouse scroll zoom unaffected by frameskip
         if ((pckt->control_flags & PCtr_MapCoordsValid) != 0)
         {
-            float zoom_step = 6.0;
             if (wheel_scrolled_up)
             {
-                float percent = 1.0 - get_zoomed_percent();
-                mousewheel_zoom_repeat = round(pow(zoom_step, percent));
+                set_packet_control(pckt, PCtr_ViewZoomIn);
             }
             if (wheel_scrolled_down)
             {
-                float percent = 1.0 - get_zoomed_percent();
-                mousewheel_zoom_repeat = -round(pow(zoom_step, percent));
-            }
-
-            if (mousewheel_zoom_repeat > 0)
-            {
-                mousewheel_zoom_repeat -= 1; // Bring closer to 0
-                set_packet_control(pckt, PCtr_ViewZoomIn);
-            } else {
-                if (mousewheel_zoom_repeat < 0)
-                {
-                    mousewheel_zoom_repeat += 1; // Bring closer to 0
-                    set_packet_control(pckt, PCtr_ViewZoomOut);
-                }
+                set_packet_control(pckt, PCtr_ViewZoomOut);
             }
         }
     }

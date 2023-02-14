@@ -44,6 +44,8 @@ struct PlayerInfo;
 
 extern long zoom_distance_setting; // CFG setting
 extern long frontview_zoom_distance_setting; // CFG setting
+extern int zoom_speed_in; // CFG setting
+extern int zoom_speed_out; // CFG setting
 
 enum CameraIndexValues {
     CamIV_Isometric = 0,

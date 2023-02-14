@@ -35,6 +35,8 @@
 #include "sounds.h"
 #include "engine_render.h"
 
+#include "front_input.h"
+
 #include "config_campaigns.h"
 #include "front_simple.h"
 #include "scrcapt.h"
@@ -138,6 +140,8 @@ const struct NamedCommand conf_commands[] = {
   {"DELTA_TIME"                    , 25},
   {"CREATURE_STATUS_SIZE"          , 26},
   {"MAX_ZOOM_DISTANCE"             , 27},
+  {"ZOOM_SPEED_IN"                 , 28},
+  {"ZOOM_SPEED_OUT"                , 29},
   {NULL,                   0},
   };
 
@@ -1067,6 +1071,28 @@ short load_configuration(void)
               if (i > 100) {i = 100;}
               zoom_distance_setting = lerp(4100, CAMERA_ZOOM_MIN, (float)i/100.0);
               frontview_zoom_distance_setting = lerp(16384, FRONTVIEW_CAMERA_ZOOM_MIN, (float)i/100.0);
+          } else {
+              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",COMMAND_TEXT(cmd_num),config_textname);
+          }
+          break;
+      case 28: // ZOOM_SPEED_IN
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            i = atoi(word_buf);
+          }
+          if ((i >= 1) && (i <= 100)) { // Can be a value between 1 and 100. A value of 0 causes a divide by 0 error.
+              zoom_speed_in = i;
+          } else {
+              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",COMMAND_TEXT(cmd_num),config_textname);
+          }
+          break;
+      case 29: // ZOOM_SPEED_OUT
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            i = atoi(word_buf);
+          }
+          if ((i >= 1) && (i <= 100)) { // Can be a value between 1 and 100. A value of 0 causes a divide by 0 error.
+              zoom_speed_out = i;
           } else {
               CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",COMMAND_TEXT(cmd_num),config_textname);
           }
