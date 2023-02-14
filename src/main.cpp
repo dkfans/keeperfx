@@ -209,6 +209,10 @@ TbBool TimerNoReset = false;
 TbBool TimerFreeze = false;
 /******************************************************************************/
 
+float get_zoomed_percent()
+{
+    return zoomed_percent;
+}
 
 TbPixel get_player_path_colour(unsigned short owner)
 {

@@ -286,6 +286,7 @@ void give_shooter_drained_health(struct Thing *shooter, long health_delta);
 long get_foot_creature_has_down(struct Thing *thing);
 void process_keeper_spell_effect(struct Thing *thing);
 
+float get_zoomed_percent();
 TbPixel get_player_path_colour(unsigned short owner);
 
 void startup_saved_packet_game(void);

@@ -98,6 +98,7 @@ extern unsigned char poly_pool[POLY_POOL_SIZE];
 extern unsigned char *poly_pool_end;
 extern long cells_away;
 extern float hud_scale;
+extern float zoomed_percent;
 extern int creature_status_size;
 
 extern struct MapVolumeBox map_volume_box;

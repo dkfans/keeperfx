@@ -67,6 +67,7 @@
 #include "creature_states_spdig.h"
 #include "room_data.h"
 #include "map_blocks.h"
+#include "bflib_math.h"
 
 #include "keeperfx.hpp"
 #include "KeeperSpeech.h"
@@ -1733,6 +1734,8 @@ short get_map_action_inputs(void)
     }
 }
 
+int mousewheel_zoom_repeat = 0;
+
 // TODO: Might want to initiate this in main() and pass a reference to it
 // rather than using this global variable. But this works.
 int global_frameskipTurn = 0;
@@ -1745,13 +1748,28 @@ void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rotate_pre
         // mouse scroll zoom unaffected by frameskip
         if ((pckt->control_flags & PCtr_MapCoordsValid) != 0)
         {
+            float zoom_step = 6.0;
             if (wheel_scrolled_up)
             {
-                set_packet_control(pckt, PCtr_ViewZoomIn);
+                float percent = 1.0 - get_zoomed_percent();
+                mousewheel_zoom_repeat = round(pow(zoom_step, percent));
             }
             if (wheel_scrolled_down)
             {
-                set_packet_control(pckt, PCtr_ViewZoomOut);
+                float percent = 1.0 - get_zoomed_percent();
+                mousewheel_zoom_repeat = -round(pow(zoom_step, percent));
+            }
+
+            if (mousewheel_zoom_repeat > 0)
+            {
+                mousewheel_zoom_repeat -= 1; // Bring closer to 0
+                set_packet_control(pckt, PCtr_ViewZoomIn);
+            } else {
+                if (mousewheel_zoom_repeat < 0)
+                {
+                    mousewheel_zoom_repeat += 1; // Bring closer to 0
+                    set_packet_control(pckt, PCtr_ViewZoomOut);
+                }
             }
         }
     }

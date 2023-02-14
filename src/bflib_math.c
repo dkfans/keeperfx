@@ -849,7 +849,7 @@ long lerp_angle(long from, long to, float weight)
     return new % LbFPMath_TAU;
 }
 
-double fastPow(double a, double b)
+double pow(double a, double b)
 {
   union {
     double d;

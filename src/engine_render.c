@@ -430,6 +430,7 @@ struct EngineCol ecs2[MINMAX_LENGTH-1];
 struct EngineCol *front_ec;
 struct EngineCol *back_ec;
 float hud_scale;
+float zoomed_percent;
 
 int creature_status_size = 16; // Default value, overwritten by cfg setting
 static int water_wibble_angle = 0;
@@ -528,33 +529,32 @@ static void draw_keepsprite_unscaled_in_buffer(unsigned short kspr_n, short a2, 
 static void draw_jonty_mapwho(struct BucketKindJontySprite *jspr);
 /******************************************************************************/
 
-static void calculate_hud_scale(struct Camera *cam) {
+static float range_percent(float range_input, float range_min, float range_max)
+{
+    range_input = max(range_min, min(range_input, range_max)); // clamp
+    return ((range_input - range_min)) / (range_max - range_min);
+}
+
+static void calculate_zoomed_percentage(struct Camera *cam) {
     // hud_scale is the current camera zoom converted to a percentage that ranges between base level zoom and fully zoomed out.
     // HUD items: creature status flowers, room flags, popup gold numbers. They scale with the zoom.
-    float range_input = cam->zoom;
-    float range_min;
-    float range_max;
     switch (cam->view_mode) {
         case PVM_IsoWibbleView:
         case PVM_IsoStraightView:
-            range_min = CAMERA_ZOOM_MIN; // Fully zoomed out
-            range_max = 4100; // Base zoom level
+            zoomed_percent = range_percent(cam->zoom, CAMERA_ZOOM_MIN, CAMERA_ZOOM_MAX);
+            hud_scale = range_percent(cam->zoom, CAMERA_ZOOM_MIN, 4100);
             break;
         case PVM_FrontView:
-            range_min = FRONTVIEW_CAMERA_ZOOM_MIN; // Fully zoomed out
-            range_max = 32768; // Base zoom level
+            zoomed_percent = range_percent(cam->zoom, FRONTVIEW_CAMERA_ZOOM_MIN, FRONTVIEW_CAMERA_ZOOM_MAX);
+            hud_scale = range_percent(cam->zoom, FRONTVIEW_CAMERA_ZOOM_MIN, 32768);
             break;
         default:
             hud_scale = 0;
+            zoomed_percent = 0;
             return;
     }
-    if (range_input < range_min) {
-        range_input = range_min;
-    } else if (range_input > range_max) {
-        range_input = range_max;
-    }
-    hud_scale = ((range_input - range_min)) / (range_max - range_min);
 }
+
 
 long interpolate(long variable_to_interpolate, long previous, long current)
 {
@@ -6840,7 +6840,7 @@ void draw_view(struct Camera *cam, unsigned char a2)
     long aposc;
     long bposc;
     SYNCDBG(9,"Starting");
-    calculate_hud_scale(cam);
+    calculate_zoomed_percentage(cam);
     camera_zoom = scale_camera_zoom_to_screen(cam->zoom);
     zoom_mem = cam->zoom;//TODO [zoom] remove when all cam->zoom will be changed to camera_zoom
     cam->zoom = camera_zoom;//TODO [zoom] remove when all cam->zoom will be changed to camera_zoom
@@ -9095,7 +9095,7 @@ void draw_frontview_engine(struct Camera *cam)
     player = get_my_player();
     if (cam->zoom > FRONTVIEW_CAMERA_ZOOM_MAX)
         cam->zoom = FRONTVIEW_CAMERA_ZOOM_MAX;
-    calculate_hud_scale(cam);
+    calculate_zoomed_percentage(cam);
     camera_zoom = scale_camera_zoom_to_screen(cam->zoom);
     zoom_mem = cam->zoom;//TODO [zoom] remove when all cam->zoom will be changed to camera_zoom
     cam->zoom = camera_zoom;//TODO [zoom] remove when all cam->zoom will be changed to camera_zoom
