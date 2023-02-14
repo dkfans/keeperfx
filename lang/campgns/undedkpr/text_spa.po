@@ -1,24 +1,22 @@
-# *****************************************************************************
+# ******************************************************************************
 #  Free implementation of Bullfrog's Dungeon Keeper strategy game.
-# *****************************************************************************
-#   @file undedkpr/text_eng.pot
-#      KeeperFX Campaign Strings translation template
+# ******************************************************************************
+#   @file undedkpr/text_spa.po
+#      KeeperFX Campaign Strings translation file
 #  @par Purpose:
-#      Allows to create .po files used for translating the game.
-#      Also, acts as a source of english translation strings.
+#      Contains translation of the national strings in the game.
 #  @par Comment:
-#      Use this file to create or update source strings in translations.
+#      Use this file to improve the translation for specific language.
 #  @author   KeeperFX Team
-#  @date     25 Aug 2012 - 03 Nov 2013
+#  @date     25 Aug 2012 - 02 Jan 2014
 #  @par  Copying and copyrights:
 #      This program is free software; you can redistribute it and/or modify
 #      it under the terms of the GNU General Public License as published by
 #      the Free Software Foundation; either version 2 of the License, or
 #      (at your option) any later version.
 #
-# *****************************************************************************
+# ******************************************************************************
 "Project-Id-Version: Undead Keeper campaign for KeeperFX\n"
-"Language-Team: KeeperFX Team
 
 #. Generic victory message
 #: guitext:0
