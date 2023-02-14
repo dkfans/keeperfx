@@ -6368,6 +6368,96 @@ PlayerNumber get_appropriate_player_for_creature(struct Thing *creatng)
     return creatng->owner;
 }
 
+ThingIndex get_timebomb_target(struct Thing* creatng)
+{
+    ThingIndex ret = 0;
+    unsigned long most_creatures = 0;
+    for (ThingIndex i = 0; i < THINGS_COUNT; i++)
+    {
+        struct Thing* trgtng = thing_get(i);
+        if (thing_is_creature(trgtng))
+        {
+            if (players_are_enemies(creatng->owner, trgtng->owner))
+            {
+                if (creature_can_navigate_to(creatng, &trgtng->mappos, NavRtF_Default))
+                {
+                    unsigned long nearby_creatures = 0;
+                    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+                    MapSubtlCoord range_stl = cctrl->timebomb_radius / 2;
+                    MapSubtlCoord start_x = creatng->mappos.x.stl.num - range_stl;
+                    if (start_x < 0)
+                    {
+                      start_x = 0;
+                    }
+                    MapSubtlCoord start_y = creatng->mappos.y.stl.num - range_stl;
+                    if (start_y < 0)
+                    {
+                      start_y = 0;
+                    }
+                    MapSubtlCoord end_x = range_stl + creatng->mappos.x.stl.num;
+                    if (end_x > gameadd.map_subtiles_x)
+                    {
+                      end_x = gameadd.map_subtiles_x;
+                    }
+                    MapSubtlCoord end_y = range_stl + creatng->mappos.y.stl.num;
+                    if (end_y > gameadd.map_subtiles_y)
+                    {
+                      end_y = gameadd.map_subtiles_y;
+                    }
+                    for (MapSubtlCoord stl_y = start_y; stl_y <= end_y; stl_y++)
+                    {
+                        for (MapSubtlCoord stl_x = start_x; stl_x <= end_x; stl_x++)
+                        {
+                            struct Map* mapblk = get_map_block_at(stl_x, stl_y);
+                            ThingIndex srch_idx = get_mapwho_thing_index(mapblk);
+                            int k = 0;
+                            while (srch_idx != 0)
+                            {
+                                struct Thing* srchtng = thing_get(srch_idx);
+                                TRACE_THING(thing);
+                                if (thing_is_invalid(srchtng))
+                                {
+                                    WARNLOG("Jump out of things array");
+                                    break;
+                                }
+                                srch_idx = srchtng->next_on_mapblk;
+                                // Should never happen - only existing thing shall be in list
+                                if (!thing_exists(srchtng))
+                                {
+                                    WARNLOG("Jump to non-existing thing");
+                                    break;
+                                }
+                                // Per thing processing block
+                                if (thing_is_creature(srchtng))
+                                {
+                                    if (players_are_enemies(creatng->owner, srchtng->owner))
+                                    {
+                                        nearby_creatures++;
+                                    }
+                                }
+                                // Per thing processing block ends
+                                k++;
+                                if (k > THINGS_COUNT)
+                                {
+                                    ERRORLOG("Infinite loop detected when sweeping things list");
+                                    break_mapwho_infinite_chain(mapblk);
+                                    break;
+                                }
+                            }
+                            if (nearby_creatures > most_creatures)
+                            {
+                                most_creatures = nearby_creatures;
+                                ret = trgtng->index;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return ret;
+}
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

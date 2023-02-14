@@ -405,6 +405,7 @@ unsigned short shot_shift_z;
     unsigned long timebomb_countdown;
     unsigned char timebomb_radius;
     ThingIndex timebomb_countdown_id;
+    ThingIndex timebomb_target;
 };
 
 struct CreatureStats { // These stats are not compatible with original DK - they have more fields

@@ -44,6 +44,7 @@
 #include "slab_data.h"
 #include "game_legacy.h"
 #include "power_hand.h"
+#include "player_instances.h"
 
 #include "keeperfx.hpp"
 #include "post_inc.h"
@@ -675,6 +676,22 @@ void process_timebomb(struct Thing *creatng)
         return;
     }
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    if (!is_thing_directly_controlled(creatng))
+    {
+        ThingIndex target = cctrl->timebomb_target;
+        cctrl->timebomb_target = get_timebomb_target(creatng);
+        if (cctrl->timebomb_target != target)
+        {
+            struct Thing* trgtng = thing_get(cctrl->timebomb_target);
+            if (!thing_is_invalid(trgtng))
+            {
+                if (!setup_person_move_to_position(creatng, trgtng->mappos.x.stl.num, trgtng->mappos.y.stl.num, NavRtF_Default))
+                {
+                    WARNLOG("The %s index %d cannot go to (%d %d)", thing_model_name(creatng), creatng->index, trgtng->mappos.x.stl.num, trgtng->mappos.y.stl.num);
+                }
+            }
+        }
+    }
     struct Thing* timetng = thing_get(cctrl->timebomb_countdown_id);
     if (thing_is_invalid(timetng))
     {
