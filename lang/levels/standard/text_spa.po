@@ -29,817 +29,1229 @@ msgstr ""
 #. Tymnath Herez (lv301)
 #: guitext:1
 msgctxt "In-game message"
-msgid "The mighty Keepers Prerun (Blue) and Swailihr (Green) are both eager to seize this realm and each will not hesitate to start the conflict. The Heroes have dug themselves in, naively hoping they can survive the imminent onslaught! It is a shame they hold strategic positions and possess vital knowledge and treasures. "
+msgid ""
+"The mighty Keepers Prerun (Blue) and Swailihr (Green) are both eager to "
+"seize this realm and each will not hesitate to start the conflict. The "
+"Heroes have dug themselves in, naively hoping they can survive the imminent "
+"onslaught! It is a shame they hold strategic positions and possess vital "
+"knowledge and treasures. "
 msgstr ""
+"Los poderosos guardianes Prerun (Azul) y Swailihr (Verde) están ansiosos por "
+"apoderarse de este reino y no dudarán en iniciar un conflicto. ¡Los Héroes "
+"se han atrincherado, esperando ingenuamente que puedan sobrevivir al ataque "
+"inminente! Es una pena que ocupen posiciones estratégicas, posean "
+"conocimientos y tesoros vitales."
 
 #. Tymnath Herez (lv301)
 #: guitext:2
 msgctxt "In-game message"
-msgid "Excellent Keeper! One of your enemies has fallen. I trust your losses were not too severe, as it's now time to eliminate another? "
+msgid ""
+"Excellent Keeper! One of your enemies has fallen. I trust your losses were "
+"not too severe, as it's now time to eliminate another? "
 msgstr ""
+"¡Excelente Guardián! Uno de tus enemigos ha caído. Confío en que tus "
+"pérdidas no hayan sido demasiado graves, ya que ahora es el momento de "
+"eliminar al otro."
 
 #. Tymnath Herez (lv301)
 #: guitext:3
 msgctxt "In-game message"
-msgid "Those greedy Keepers, and the irritiating Heroes have been dealt with effectively Master. This land is now yours! "
+msgid ""
+"Those greedy Keepers, and the irritiating Heroes have been dealt with "
+"effectively Master. This land is now yours! "
 msgstr ""
+"Esos Guardianes codiciosos y los Héroes irritantes han sido tratados con "
+"eficacia, Maestro. ¡Esta tierra ahora es tuya!"
 
 #. Tymnath Herez (lv301)
 #: guitext:4
 msgctxt "In-game message"
-msgid "So your rivals Prerun and Swailihr have been defeated? Good work. But Heroes remain, so you must hunt them down and eliminate them! "
+msgid ""
+"So your rivals Prerun and Swailihr have been defeated? Good work. But Heroes "
+"remain, so you must hunt them down and eliminate them! "
 msgstr ""
+"¿Así que tus rivales Prerun y Swailihr han sido derrotados? Buen trabajo. "
+"Pero aún quedan héroes… ¡Cázalos y elimínalos!"
 
 #. Yami (lv405)
 #: guitext:5
 msgctxt "In-game message"
-msgid "This realm is ruled by the Shogun, a legendary Samurai warrior with great swordfighting skills. I say it's time we put these so-called skills to the test? But be warned, the Shogun may decide to pre-emptively attack us if we become too powerful. "
+msgid ""
+"This realm is ruled by the Shogun, a legendary Samurai warrior with great "
+"swordfighting skills. I say it's time we put these so-called skills to the "
+"test? But be warned, the Shogun may decide to pre-emptively attack us if we "
+"become too powerful. "
 msgstr ""
+"Este reino está gobernado por el Shogun, un guerrero Samurái legendario con "
+"grandes habilidades en el manejo de la espada. ¿Creo que es hora de que "
+"pongamos a prueba estas supuestas habilidades? Pero ten cuidado, el Shogun "
+"puede decidir atacarnos de forma preventiva si nos volvemos demasiado "
+"poderosos."
 
 #. Yami (lv405)
 #: guitext:6
 msgctxt "In-game message"
 msgid "The Shogun himself has arrived... string him up! "
-msgstr ""
+msgstr "El mismísimo Shogun ha llegado… ¡Cuélgalo!"
 
 #. Yami (lv405)
 #: guitext:7
 msgctxt "In-game message"
 msgid "The Shogun has fallen, now eliminate any remaining opposition! "
-msgstr ""
+msgstr "El Shogun ha caído, ¡ahora elimina cualquier oposición restante!"
 
 #. Yami (lv405)
 #: guitext:8
 msgctxt "In-game message"
-msgid "Yami, the land of the Shogun is now under your control! An impressive victory Master. I'm sure there will be more? "
+msgid ""
+"Yami, the land of the Shogun is now under your control! An impressive "
+"victory Master. I'm sure there will be more? "
 msgstr ""
+"¡Yami, la tierra del Shogun ahora está bajo tu control! Una victoria "
+"impresionante, Maestro. ¿Seguro que habrá más?"
 
 #. Temple Deal (lv443)
 #: guitext:9
 msgctxt "In-game message"
-msgid "Welcome Keeper! This a land where the wealth has been taken by Heroes and a Keeper to the South-East. Tunnellers will shortly arrive to steal what little gold you have, so your first task is to eliminate them somehow. To work! "
+msgid ""
+"Welcome Keeper! This a land where the wealth has been taken by Heroes and a "
+"Keeper to the South-East. Tunnellers will shortly arrive to steal what "
+"little gold you have, so your first task is to eliminate them somehow. To "
+"work! "
 msgstr ""
+"¡Bienvenido Guardián! Esta es una tierra donde los Héroes y un Guardián se "
+"han llevado la riqueza del sudeste. Los enanos del valle llegarán en breve "
+"para robar el poco oro que tienes, por lo que tu primera tarea es "
+"eliminarlos de alguna manera. ¡A trabajar!"
 
 #. Temple Deal (lv443)
 #: guitext:10
 msgctxt "In-game message"
-msgid "You will claim no portals in this realm Master. You know what is required? "
+msgid ""
+"You will claim no portals in this realm Master. You know what is required? "
 msgstr ""
+"No podrás reclamar ningún portal en este reino, Maestro. ¿Sabes como "
+"manejarlo?"
 
 #. Temple Deal (lv443)
 #: guitext:11
 msgctxt "In-game message"
-msgid "Do I hear the sound of bones coming from the north? Go have a look, but one skeleton won't be able to fight off these tunnellers! "
+msgid ""
+"Do I hear the sound of bones coming from the north? Go have a look, but one "
+"skeleton won't be able to fight off these tunnellers! "
 msgstr ""
+"¿Escucho desde el norte sonidos de huesos? ¡Ve a echar un vistazo, pero un "
+"esqueleto no podrá luchar contra estas máquinas de hacer túneles!"
 
 #. Temple Deal (lv443)
 #: guitext:12
 msgctxt "In-game message"
-msgid "The rival keeper is very wealthy. Do not expect him to run out of gold. Heroes are gathering to the North-East. You would be wise to avoid them until you have sufficient forces. An early encounter may cause an untimely end to your quest! "
+msgid ""
+"The rival keeper is very wealthy. Do not expect him to run out of gold. "
+"Heroes are gathering to the North-East. You would be wise to avoid them "
+"until you have sufficient forces. An early encounter may cause an untimely "
+"end to your quest! "
 msgstr ""
+"El Guardián rival es muy rico. No esperes que se quede sin oro. Los héroes "
+"se están reuniendo en el noreste. Sería prudente evitarlos hasta que tenga "
+"las fuerzas suficientes. ¡Un encuentro temprano puede causar un final "
+"prematuro para tu búsqueda!"
 
 #. Temple Deal (lv443)
 #: guitext:13
 msgctxt "In-game message"
-msgid "Skeletons will not bring victory against the Hero troops. You must obtain stronger minions somehow? "
+msgid ""
+"Skeletons will not bring victory against the Hero troops. You must obtain "
+"stronger minions somehow? "
 msgstr ""
+"Los esqueletos no portaran la victoria contra las tropas de los héroes. "
+"¿Debes obtener servidores más fuertes de alguna manera?"
 
 #. Temple Deal (lv443)
 #: guitext:14
 msgctxt "In-game message"
-msgid "Your enemies have realised that their minions end up in your army of the Undead, and have changed their strategy accordingly. These are formidable adversaries My Lord! "
+msgid ""
+"Your enemies have realised that their minions end up in your army of the "
+"Undead, and have changed their strategy accordingly. These are formidable "
+"adversaries My Lord! "
 msgstr ""
+"Tus enemigos se han dado cuenta de que sus aliados, acaban en tu ejército de "
+"muertos vivientes, y han cambiado su estrategia en consecuencia. ¡Estos son "
+"adversarios formidables, mi Señor!"
 
 #. Temple Deal (lv443)
 #: guitext:15
 msgctxt "In-game message"
 msgid "Look! Your imprisoned Vampire has company! "
-msgstr ""
+msgstr "¡Observa! ¡Tu vampiro encarcelado tiene compañía!"
 
 #. Temple Deal (lv443)
 #: guitext:16
 msgctxt "In-game message"
-msgid "If you listen carefully you can hear one of your Keeper neighbours trying to break into the Hero Dungeon? "
+msgid ""
+"If you listen carefully you can hear one of your Keeper neighbours trying to "
+"break into the Hero Dungeon? "
 msgstr ""
+"Escucha atentamente, ¿puedes oír a uno de tus vecinos Guardianes tratando de "
+"entrar en la Mazmorra del Héroe?"
 
 #. Temple Deal (lv443)
 #: guitext:17
 msgctxt "In-game message"
-msgid "The Hero dungeon heart has fallen! However, this will attract further Hero reprisals! Will you survive Keeper? "
+msgid ""
+"The Hero dungeon heart has fallen! However, this will attract further Hero "
+"reprisals! Will you survive Keeper? "
 msgstr ""
+"¡El Corazón de Mazmorra del Héroe ha caído! Sin embargo… ¡Esto atraerá "
+"represalias por parte de los héroes! ¿Sobrevivirás a esto, Guardián?"
 
 #. Temple Deal (lv443)
 #: guitext:18
 msgctxt "In-game message"
-msgid "Here they come! Defeat the Lord of Land and his company and the land is yours forever."
+msgid ""
+"Here they come! Defeat the Lord of Land and his company and the land is "
+"yours forever."
 msgstr ""
+"¡Aquí llegan! Derrota al Señor de la Tierra y su compañía, obtendrás la "
+"tierra para siempre."
 
 #. Temple Deal (lv443)
 #: guitext:19
 msgctxt "In-game message"
-msgid "The Lord of the Land lies dead! You have conquered this realm, and added it to your growing Empire. Congratulations Master. "
+msgid ""
+"The Lord of the Land lies dead! You have conquered this realm, and added it "
+"to your growing Empire. Congratulations Master. "
 msgstr ""
+"¡El Señor de la Tierra yace muerto! Has conquistado este reino y lo has "
+"agregado a tu creciente imperio. Felicidades, Maestro."
 
 #. Temple Deal (lv443)
 #: guitext:20
 msgctxt "In-game message"
-msgid "Gold is not the only scarce resource in this land. You're limited to build only one tile of bridge at a time."
+msgid ""
+"Gold is not the only scarce resource in this land. You're limited to build "
+"only one tile of bridge at a time."
 msgstr ""
+"El oro no es el único recurso escaso en esta tierra. Estás limitado a "
+"construir solo un trozo de puente cada vez."
 
 #. Temple Deal (lv443)
 #: guitext:21
 msgctxt "In-game message"
 msgid "Smart move. But are you wealthy enough to afford them? "
 msgstr ""
+"Movimiento inteligente. Pero… ¿Eres lo suficientemente rico como para "
+"permitírtelo?"
 
 #. Thug of War (lv451)
 #: guitext:22
 msgctxt "In-game message"
-msgid "The best defence is a good offence. Kill the Heroes and steal their magic or they will overrun you."
+msgid ""
+"The best defence is a good offence. Kill the Heroes and steal their magic or "
+"they will overrun you."
 msgstr ""
+"La mejor defensa es un buen ataque. Mata a los Héroes y roba su magia o te "
+"invadirán."
 
 #. Thug of War (lv451)
 #: guitext:23
 msgctxt "In-game message"
-msgid "Heroes will attack. Raid their dungeon to gain power, or get crushed by the relentless heroes of this realm."
+msgid ""
+"Heroes will attack. Raid their dungeon to gain power, or get crushed by the "
+"relentless heroes of this realm."
 msgstr ""
+"Los héroes atacarán. Asalta su mazmorra para obtener más poder o sé "
+"aplastado por los implacables héroes de este reino."
 
 #. Thug of War (lv451)
 #: guitext:24
 msgctxt "In-game message"
-msgid "The Heroes have learned that being captured by you is a fate worse than death. They will avoid your prison at all cost. Better destroy them and take their magic before they really get smart! "
+msgid ""
+"The Heroes have learned that being captured by you is a fate worse than "
+"death. They will avoid your prison at all cost. Better destroy them and take "
+"their magic before they really get smart! "
 msgstr ""
+"Los Héroes han aprendido que ser capturado por ti es un destino peor que la "
+"muerte. Evitarán tu prisión a toda costa. ¡Mejor destrúyelos y toma su magia "
+"antes de que realmente se vuelvan inteligentes!"
 
 #. Thug of War (lv451)
 #: guitext:25
 msgctxt "In-game message"
 msgid "You have a Dragon now, more powerful than you have ever seen!"
-msgstr ""
+msgstr "¡Ahora tienes un Dragón, más poderoso de lo que jamás hayas visto!"
 
 #. Thug of War (lv451)
 #: guitext:26
 msgctxt "In-game message"
 msgid "The Heroes know where you are. They will come for you."
-msgstr ""
+msgstr "Los héroes saben dónde estás. Vendrán a por ti."
 
 #. Thug of War (lv451)
 #: guitext:27
 msgctxt "In-game message"
-msgid "You must hurry! The Heroes are gathering a massive party that will kill you. Strike them down or die trying."
+msgid ""
+"You must hurry! The Heroes are gathering a massive party that will kill you. "
+"Strike them down or die trying."
 msgstr ""
+"¡Hay que darse prisa! Los Héroes están reuniendo un grupo masivo que te "
+"matará. Golpéalos o muere en el intento."
 
 #. Thug of War (lv451)
 #: guitext:28
 msgctxt "In-game message"
 msgid "This will hurt. You should have destroyed the heart."
-msgstr ""
+msgstr "Esto dolerá. Deberías haber destruido el Corazón."
 
 #. Thug of War (lv451)
 #: guitext:29
 msgctxt "In-game message"
-msgid "You have reached the heart of this fortress. The final battle is upon you. Kill all Heroes, destroy the heart and claim their magic."
+msgid ""
+"You have reached the heart of this fortress. The final battle is upon you. "
+"Kill all Heroes, destroy the heart and claim their magic."
 msgstr ""
+"Has llegado al Corazón de esta fortaleza. La batalla final está sobre ti. "
+"Mata a todos los héroes, destruye el Corazón y reclama su magia."
 
 #. Thug of War (lv451)
 #: guitext:30
 msgctxt "In-game message"
 msgid "I was just starting to like them. Victory!"
-msgstr ""
+msgstr "Me estaban empezando a gustar. ¡Victoria!"
 
 #. Generic defeat message
 #: guitext:31
 msgctxt "In-game message"
-msgid "You have failed in your duties Keeper. Defeat and shame are your reward."
+msgid ""
+"You have failed in your duties Keeper. Defeat and shame are your reward."
 msgstr ""
+"Has fallado en tus deberes de Guardián. La derrota y la vergüenza son tu "
+"recompensa."
 
 #. Wetlands (lv452)
 #: guitext:32
 msgctxt "In-game message"
-msgid "I'll keep it simple. Get a Horned Reaper and use it to destroy the lord of the land."
+msgid ""
+"I'll keep it simple. Get a Horned Reaper and use it to destroy the lord of "
+"the land."
 msgstr ""
+"Así de simple. Consigue un Segador Astado y úsalo para destruir al señor de "
+"la tierra."
 
 #. Wetlands (lv452)
 #: guitext:33
 msgctxt "In-game message"
-msgid "You'll need a bridge to get a Horned Reaper. But Wizards have a spell in play to stop you from building one."
+msgid ""
+"You'll need a bridge to get a Horned Reaper. But Wizards have a spell in "
+"play to stop you from building one."
 msgstr ""
+"Necesitarás un puente para poder conseguirte un Segador Astado. Pero los "
+"Magos tienen activado un hechizo que evita que puedas construir uno."
 
 #. Wetlands (lv452)
 #: guitext:34
 msgctxt "In-game message"
-msgid "We can't build temples in this realm, but we can move the pieces we have. Summon Horny!"
+msgid ""
+"We can't build temples in this realm, but we can move the pieces we have. "
+"Summon Horny!"
 msgstr ""
+"No puedes construir templos en este reino, pero puedes mover los trozos que "
+"consigas, y luego... ¡Invoca a un Segador Astado!"
 
 #. Wetlands (lv452)
 #: guitext:35
 msgctxt "In-game message"
-msgid "Great, you can now make bridges! Use them to get a Horned Reaper to join you."
+msgid ""
+"Great, you can now make bridges! Use them to get a Horned Reaper to join you."
 msgstr ""
+"¡Genial, ahora puedes construir puentes! Úsalos para que un Segador Astado "
+"se una a ti."
 
 #. Wetlands (lv452)
 #: guitext:36
 msgctxt "In-game message"
-msgid ""
-"Well done. Bile demons may now join us. "
-msgstr ""
+msgid "Well done. Bile demons may now join us. "
+msgstr "Bien hecho. Los demonios de hiel ahora pueden unirse a ti."
 
 #. Wetlands (lv452)
 #: guitext:37
 msgctxt "In-game message"
-msgid "Well done! Destroy the Heroes and their stronghold. Keep Horny alive or all is lost."
+msgid ""
+"Well done! Destroy the Heroes and their stronghold. Keep Horny alive or all "
+"is lost."
 msgstr ""
+"¡Bien hecho! Destruye a los Héroes y su fortaleza. Mantén vivo al Segador "
+"Astado o todo estará perdido."
 
 #. Wetlands (lv452)
 #: guitext:38
 msgctxt "In-game message"
 msgid "You've lost Horny? No second chances."
-msgstr ""
+msgstr "¿Has perdido al Segador? No hay segundas oportunidades."
 
 #. Wetlands (lv452)
 #: guitext:39
 msgctxt "In-game message"
-msgid "Heroes think you are vulnerable, and will try to attack you until the bitter end. "
+msgid ""
+"Heroes think you are vulnerable, and will try to attack you until the bitter "
+"end. "
 msgstr ""
+"Los héroes creen que eres vulnerable e intentarán atacarte hasta un final "
+"amargo."
 
 #. Wetlands (lv452)
 #: guitext:40
 msgctxt "In-game message"
-msgid "Your enemies have learned that getting captured by you is a fate worse than death. They will avoid your prison at all cost."
+msgid ""
+"Your enemies have learned that getting captured by you is a fate worse than "
+"death. They will avoid your prison at all cost."
 msgstr ""
+"Tus enemigos han aprendido que ser capturado por ti es un destino peor que "
+"la muerte. Evitarán tu prisión a toda costa."
 
 #. Wetlands (lv452)
 #: guitext:41
 msgctxt "In-game message"
 msgid ""
-"Your powers in this realm have been limited by the Magical Heroes, which will make progress difficult. However, their "
-"arrogance prevents them working together effectively, which will give you an opportunity to slay them all! "
+"Your powers in this realm have been limited by the Magical Heroes, which "
+"will make progress difficult. However, their arrogance prevents them working "
+"together effectively, which will give you an opportunity to slay them all! "
 msgstr ""
+"Tus poderes en este reino han sido limitados por los Héroes Mágicos, lo que "
+"dificultará el progreso. Sin embargo, su arrogancia les impide trabajar "
+"juntos de manera efectiva, ¡lo que te dará la oportunidad de matarlos a "
+"todos!"
 
 #. Wetlands (lv452)
 #: guitext:42
 msgctxt "In-game message"
 msgid "Victory! This realm is yours Keeper."
-msgstr ""
+msgstr "¡Victoria! El reino es tuyo Guardián."
 
 #. Desperation (lv453)
 #: guitext:43
 msgctxt "In-game message"
-msgid "Your chances in this realm are slim to none. Three Keepers here are stronger than you. A desperate struggle awaits you. Hurry!"
+msgid ""
+"Your chances in this realm are slim to none. Three Keepers here are stronger "
+"than you. A desperate struggle awaits you. Hurry!"
 msgstr ""
+"Tus posibilidades en este lugar son escasas o nulas. Los tres Guardianes que "
+"tienes aquí son más fuertes que tú. Te espera una lucha desesperada. "
+"¡Apurarse!"
 
 #. Desperation (lv453)
 #: guitext:44
 msgctxt "In-game message"
-msgid "The remaining Keepers have now formed an alliance. Kill all who stand against you!"
+msgid ""
+"The remaining Keepers have now formed an alliance. Kill all who stand "
+"against you!"
 msgstr ""
+"Los Guardianes restantes se han aliado. ¡Mata a todos los que se oponen a ti!"
 
 #. Desperation (lv453)
 #: guitext:45
 msgctxt "In-game message"
 msgid "Blue is desperate. Kill him!"
-msgstr ""
+msgstr "El Guardián Azul está desesperado. ¡Mátalo!"
 
 #. Desperation (lv453)
 #: guitext:46
 msgctxt "In-game message"
 msgid "Green is trembling in fear. Finish the job!"
-msgstr ""
+msgstr "El Guardián Verde está temblando de miedo. ¡Termina el trabajo!"
 
 #. Desperation (lv453)
 #: guitext:47
 msgctxt "In-game message"
 msgid "Yellow can't take much more. Strike now to end him! "
 msgstr ""
+"El Guardián Amarillo no puede soportar mucho más. ¡Ataca ahora y acaba con "
+"él!"
 
 #. Desperation (lv453)
 #: guitext:48
 msgctxt "In-game message"
-msgid "Drawn to the scent of desperation, the Heroes come to cleanse the land of all evil! Make sure you are the last one standing."
+msgid ""
+"Drawn to the scent of desperation, the Heroes come to cleanse the land of "
+"all evil! Make sure you are the last one standing."
 msgstr ""
+"¡Atraídos por el olor de la desesperación, los Héroes vienen a limpiar la "
+"tierra de todo mal! Asegúrate de ser el último en pie."
 
 #. Desperation (lv453)
 #: guitext:49
 msgctxt "In-game message"
 msgid "You are victorious! About time."
-msgstr ""
+msgstr "¡Sales victorioso! Ya era hora."
 
 #. Dread Mountain (lv454)
 #: guitext:50
 msgctxt "In-game message"
-msgid "In this realm, food is power. Claim hatcheries, feed your bile demons until they are big and strong. Hurry, Heroes are coming!"
+msgid ""
+"In this realm, food is power. Claim hatcheries, feed your bile demons until "
+"they are big and strong. Hurry, Heroes are coming!"
 msgstr ""
+"En este lugar, la comida es poder. Reclama criaderos, alimenta a tus "
+"demonios de hiel hasta que sean grandes y fuertes. ¡Date prisa, vienen "
+"héroes!"
 
 #. Dread Mountain (lv454)
 #: guitext:51
 msgctxt "In-game message"
-msgid "This magic gizmo spawns ugly little creatures called imps that you may use as slaves. To conquer the realm I mean. Don't have sex with them."
+msgid ""
+"This magic gizmo spawns ugly little creatures called imps that you may use "
+"as slaves. To conquer the realm I mean. Don't have sex with them."
 msgstr ""
+"Este artilugio mágico genera pequeñas criaturas feas llamadas, Duendes, que "
+"puedes usar como esclavos. Para conquistar el reino me refiero. No tengas "
+"sexo con ellos."
 
 #. Dread Mountain (lv454)
 #: guitext:52
 msgctxt "In-game message"
-msgid "Two butt holes are better than one! Research a prison to give your bile demons more slaves. Be careful though, they don't care for the undead."
+msgid ""
+"Two butt holes are better than one! Research a prison to give your bile "
+"demons more slaves. Be careful though, they don't care for the undead."
 msgstr ""
+"¡Dos agujeros en el culo son mejores que uno! Investiga una prisión para dar "
+"a tus demonios de hiel más esclavos. Sin embargo, ten cuidado, no les "
+"interesan los muertos vivientes."
 
 #. Dread Mountain (lv454)
 #: guitext:53
 msgctxt "In-game message"
-msgid "Time to grow strong. Capture Heroes and claim hatcheries. When you're strong enough, find a weak spot in the blue defenses."
+msgid ""
+"Time to grow strong. Capture Heroes and claim hatcheries. When you're strong "
+"enough, find a weak spot in the blue defenses."
 msgstr ""
+"Es hora de crecer fuerte. Captura héroes y reclama sus criaderos. Cuando "
+"seas lo suficientemente fuerte, encuentra un punto débil en las defensas del "
+"Guardián Azul."
 
 #. Dread Mountain (lv454)
 #: guitext:54
 msgctxt "In-game message"
 msgid "Destroy blue and clear the path towards the Hero stronghold."
 msgstr ""
+"Destruye al Guardián Azul y despeja el camino hacia la fortaleza del héroe."
 
 #. Dread Mountain (lv454)
 #: guitext:55
 msgctxt "In-game message"
-msgid "You have found a way beyond the mountains. Destroy blue and clear the path towards the hero stronghold."
+msgid ""
+"You have found a way beyond the mountains. Destroy blue and clear the path "
+"towards the hero stronghold."
 msgstr ""
+"Has encontrado un camino más allá de las montañas. Destruye al Guardián Azul "
+"y despeja el camino hacia la fortaleza del héroe."
 
 #. Dread Mountain (lv454)
 #: guitext:56
 msgctxt "In-game message"
-msgid "With blue out of the way it is time to destroy the hero heart and rule this realm!"
+msgid ""
+"With blue out of the way it is time to destroy the hero heart and rule this "
+"realm!"
 msgstr ""
+"¡Con el Guardián Azul fuera del camino, es hora de destruir el Corazón del "
+"Héroe y gobernar en este reino!"
 
 #. Dread Mountain (lv454)
 #: guitext:57
 msgctxt "In-game message"
-msgid "Get the barbecue ready, it is time to eat those who stood against you. Victory! "
+msgid ""
+"Get the barbecue ready, it is time to eat those who stood against you. "
+"Victory! "
 msgstr ""
+"Prepara la barbacoa, es hora de comerse a los que se te opusieron. ¡Victoria!"
 
 #. Dread Mountain (lv454)
 #: guitext:58
 msgctxt "In-game message"
-msgid "Not only will these barracks attract powerful allies to your dungeon, they will also help you lead the assault on your rival. "
+msgid ""
+"Not only will these barracks attract powerful allies to your dungeon, they "
+"will also help you lead the assault on your rival. "
 msgstr ""
+"Estos barracones no solo atraerán poderosos aliados a tu mazmorra, sino que "
+"también te ayudarán a liderar el asalto a tu rival."
 
 #. Dread Mountain (lv454)
 #: guitext:59
 msgctxt "In-game message"
-msgid "Your ghost has been drawn into the void, and has returned with a tiny body. "
+msgid ""
+"Your ghost has been drawn into the void, and has returned with a tiny body. "
 msgstr ""
+"Tu fantasma ha sido arrastrado al vacío y ha regresado con un cuerpo "
+"diminuto."
 
 #. Dread Mountain (lv454)
 #: guitext:60
 msgctxt "In-game message"
-msgid "Your Bile Demons killed a Skeleton. The undead won't be much help here? "
+msgid ""
+"Your Bile Demons killed a Skeleton. The undead won't be much help here? "
 msgstr ""
+"Tus demonios de hiel mataron a un esqueleto. ¿Los muertos vivientes no serán "
+"de mucha ayuda aquí?"
 
 #. Dread Mountain (lv454)
 #: guitext:61
 msgctxt "In-game message"
-msgid "All hope is lost! Farts breathe life into your dungeon. Keep your Bile Demons happy and alive. "
+msgid ""
+"All hope is lost! Farts breathe life into your dungeon. Keep your Bile "
+"Demons happy and alive. "
 msgstr ""
+"¡Toda esperanza está perdida! Los pedos dan vida a tu mazmorra. Mantén a tus "
+"demonios de hiel vivos y felices."
 
 #. Dread Mountain (lv454)
 #: guitext:62
 msgctxt "In-game message"
-msgid "Blue is well fortified. Claim all hatcheries to grow in power, then find a way through the mountains to kill him and the heroes. "
+msgid ""
+"Blue is well fortified. Claim all hatcheries to grow in power, then find a "
+"way through the mountains to kill him and the heroes. "
 msgstr ""
+"El Guardián Azul está bien fortificado. Reclama todos los criaderos para "
+"crecer en poder, luego encuentra un camino a través de las montañas para "
+"matarlo a él y a los héroes."
 
 #. Dread Mountain (lv454)
 #: guitext:63
 msgctxt "In-game message"
-msgid "Your Dark Mistress has rejoined blue! They don't seem to mind being tortured?"
+msgid ""
+"Your Dark Mistress has rejoined blue! They don't seem to mind being tortured?"
 msgstr ""
+"¡Tu Dama Oscura se ha aliado al Guardián Azul! ¿No las importa ser "
+"torturadas?"
 
 #. Frozen Legion (lv455)
 #: guitext:64
 msgctxt "In-game message"
-msgid "The Heroes have gathered the biggest army you've ever seen. Your creatures won't be able to put up a fight. Traps will be the key to victory here. "
+msgid ""
+"The Heroes have gathered the biggest army you've ever seen. Your creatures "
+"won't be able to put up a fight. Traps will be the key to victory here. "
 msgstr ""
+"Los Héroes han reunido el ejército más grande que jamás hayas visto. Tus "
+"criaturas no podrán aguantar este combate. Las trampas serán la clave para "
+"una victoria aquí."
 
 #. Frozen Legion (lv455)
 #: guitext:65
 msgctxt "In-game message"
 msgid "The level will start when you claim your first creature. "
-msgstr ""
+msgstr "El nivel comenzará cuando reclames a tu primera criatura."
 
 #. Frozen Legion (lv455)
 #: guitext:66
 msgctxt "In-game message"
-msgid "You should have started by claiming the creature. Welcome to hard mode! "
+msgid ""
+"You should have started by claiming the creature. Welcome to hard mode! "
 msgstr ""
+"Deberías haber comenzado reclamando a tu criatura. ¡Bienvenido al modo "
+"difícil!"
 
 #. Frozen Legion (lv455)
 #: guitext:67
 msgctxt "In-game message"
 msgid "Corpses are starting to build up. You need to find a graveyard! "
 msgstr ""
+"Los cadáveres comienzan a acumularse. ¡Tienes que encontrar un cementerio!"
 
 #. Frozen Legion (lv455)
 #: guitext:68
 msgctxt "In-game message"
-msgid "The Heroes will keep getting stronger. You must do something or perish! "
+msgid ""
+"The Heroes will keep getting stronger. You must do something or perish! "
 msgstr ""
+"Los Héroes seguirán haciéndose más fuertes. ¡Debes hacer algo o perecer!"
 
 #. Frozen Legion (lv455)
 #: guitext:69
 msgctxt "In-game message"
-msgid "You have the upper hand. Make a push to destroy their heart and break the attack! "
+msgid ""
+"You have the upper hand. Make a push to destroy their heart and break the "
+"attack! "
 msgstr ""
+"Tienes ventaja. ¡Haz un esfuerzo por destruir su Corazón y romper el ataque!"
 
 #. Frozen Legion (lv455)
 #: guitext:70
 msgctxt "In-game message"
 msgid "End it now! Kill the Lord and destroy his heart to conquer this realm. "
 msgstr ""
+"¡Acábalo ya! Mata al Señor y destruye su Corazón para conquistar este reino."
 
 #. Frozen Legion (lv455)
 #: guitext:71
 msgctxt "In-game message"
 msgid "That was easy? Victory! "
-msgstr ""
+msgstr "¿Fue fácil? ¡Victoria!"
 
 #. Frozen Legion (lv455)
 #: guitext:72
 msgctxt "In-game message"
 msgid "You have a fighting chance. Don't let the Heroes whittle you down. "
 msgstr ""
+"Tienes una oportunidad para combatirlos. No dejes que los Héroes te "
+"debiliten."
 
 #. Frozen Legion (lv455)
 #: guitext:73
 msgctxt "In-game message"
-msgid "Your magic generator will feed off your Vampires to give you a healthy number of imps. However, keep enough imps alive and you'll have an undead army to kill the heroes with. "
+msgid ""
+"Your magic generator will feed off your Vampires to give you a healthy "
+"number of imps. However, keep enough imps alive and you'll have an undead "
+"army to kill the heroes with. "
 msgstr ""
+"Tu generador de magia se alimentará de tus vampiros para darte una buena "
+"cantidad de Duendecillos. Sin embargo, mantén suficientes Duendecillos con "
+"vida y tendrás un ejército de muertos vivientes para matar a todos los "
+"héroes."
 
 #. Shores of Battle (lv456)
 #: guitext:74
 msgctxt "In-game message"
-msgid "An ancient truce, the land divided. Kill them all, let none survive. And the Heroes? We'll cross that bridge when we come to it! "
+msgid ""
+"An ancient truce, the land divided. Kill them all, let none survive. And the "
+"Heroes? We'll cross that bridge when we come to it! "
 msgstr ""
+"Una antigua tregua, la tierra está dividida. Mátalos a todos, que ninguno "
+"sobreviva. ¿Y los héroes? ¡Cruzaremos ese puente cuando lleguemos a él!"
 
 #. Shores of Battle (lv456)
 #: guitext:75
 msgctxt "In-game message"
 msgid "As the wise man looks for a bridge the fool crosses the river. "
-msgstr ""
+msgstr "Cuando el sabio busca el puente, el necio cruza el río."
 
 #. Shores of Battle (lv456)
 #: guitext:76
 msgctxt "In-game message"
-msgid "Think of these heroes as dessert. Finish your main course first: Blue, Yellow and Green. After that, turn the Lord of the Land into whipped cream. "
+msgid ""
+"Think of these heroes as dessert. Finish your main course first: Blue, "
+"Yellow and Green. After that, turn the Lord of the Land into whipped cream. "
 msgstr ""
+"Piense en esos héroes como si fueran el postre. Termina primero tu plato "
+"principal, los guardianes Azul, Amarillo y Verde. Después de eso, convierte "
+"al Señor de la Tierra en crema batida."
 
 #. Shores of Battle (lv456)
 #: guitext:77
 msgctxt "In-game message"
-msgid "With your rivals destroyed, plunder their dungeons and breach the centre. "
+msgid ""
+"With your rivals destroyed, plunder their dungeons and breach the centre. "
 msgstr ""
+"Con tus rivales destruidos, saquea sus mazmorras y abre una brecha en el "
+"centro."
 
 #. Shores of Battle (lv456)
 #: guitext:78
 msgctxt "In-game message"
-msgid "A bridge of blood and havoc stretches from the homes of heroes to the unforgiving nightmare emerging anew. Leave none alive. "
+msgid ""
+"A bridge of blood and havoc stretches from the homes of heroes to the "
+"unforgiving nightmare emerging anew. Leave none alive. "
 msgstr ""
+"Un puente de sangre y estragos se extiende desde los hogares de los héroes, "
+"hasta la implacable pesadilla que emerge de nuevo. No dejes ninguno con vida."
 
 #. Shores of Battle (lv456)
 #: guitext:79
 msgctxt "In-game message"
-msgid "The Heroes know conflict is imminent. Destroy them now before they take the offensive with a larger force. "
+msgid ""
+"The Heroes know conflict is imminent. Destroy them now before they take the "
+"offensive with a larger force. "
 msgstr ""
+"Los Héroes saben que el conflicto es inminente. Destrúyelos ahora antes de "
+"que hagan la ofensiva con una fuerza mayor."
 
 #. Shores of Battle (lv456)
 #: guitext:80
 msgctxt "In-game message"
 msgid "It's now or never? Kill or be killed! "
-msgstr ""
+msgstr "¿Es ahora o nunca? ¡Matar o morir!"
 
 #. Shores of Battle (lv456)
 #: guitext:81
 msgctxt "In-game message"
 msgid "Here they come! "
-msgstr ""
+msgstr "¡Están llegando!"
 
 #. Shores of Battle (lv456)
 #: guitext:82
 msgctxt "In-game message"
-msgid "I give your performance 2 out of 5 spleens. But I guess it's the result that counts. Victory!
+msgid ""
+"I give your performance 2 out of 5 spleens. But I guess it's the result that "
+"counts. Victory"
 msgstr ""
+"Le doy a tu actuación 2 de 5 enojados. Pero supongo que es el resultado lo "
+"que cuenta. Victoria."
 
 #. My Pet Dungeon (lv457)
 #: guitext:83
 msgctxt "In-game message"
-msgid "Welcome to SimDungeon. You can attract 25 evil creatures per portal. Heroes can be summoned at the spawner.
+msgid ""
+"Welcome to SimDungeon. You can attract 25 evil creatures per portal. Heroes "
+"can be summoned at the spawner"
 msgstr ""
+"Bienvenido a SimDungeon. Puedes atraer a 25 criaturas malvadas por portal. "
+"Los héroes pueden ser generados desde el generador."
 
 #. My Pet Dungeon (lv457)
 #: guitext:84
 msgctxt "In-game message"
-msgid "Find a way to build a bridge. It will help you to expand in this realm. "
+msgid ""
+"Find a way to build a bridge. It will help you to expand in this realm. "
 msgstr ""
+"Encuentra una manera de construir un puente. Te ayudará a expandirte en este "
+"reino."
 
 #. My Pet Dungeon (lv457)
 #: guitext:85
 msgctxt "In-game message"
-msgid "You're well on your way to an impressive dungeon? Get to one hundred units and we'll talk. "
+msgid ""
+"You're well on your way to an impressive dungeon? Get to one hundred units "
+"and we'll talk. "
 msgstr ""
+"¿Estás bien encaminado hacia una mazmorra impresionante? Llega a cien "
+"unidades y hablamos."
 
 #. My Pet Dungeon (lv457)
 #: guitext:86
 msgctxt "In-game message"
-msgid "There is a way to breach the white wall and take over the north-west corner of the map. Useful but optional. "
+msgid ""
+"There is a way to breach the white wall and take over the north-west corner "
+"of the map. Useful but optional. "
 msgstr ""
+"Hay una manera de atravesar la pared blanca y apoderarse de la esquina "
+"noroeste del mapa. Útil pero opcional."
 
 #. My Pet Dungeon (lv457)
 #: guitext:87
 msgctxt "In-game message"
-msgid "You have a most impressive army. When you're done sell your prison. It will trigger an endless invasion. "
+msgid ""
+"You have a most impressive army. When you're done sell your prison. It will "
+"trigger an endless invasion. "
 msgstr ""
+"Tienes un ejército impresionante. Cuando termines vende tu prisión. "
+"Desencadenarás una invasión sin fin."
 
 #. My Pet Dungeon (lv457)
 #: guitext:88
 msgctxt "In-game message"
 msgid "Let's see how good your dungeon really is. How long can you survive? "
 msgstr ""
+"Veamos qué tan buena es realmente tu mazmorra. ¿Cuánto tiempo puedes "
+"sobrevivir?"
 
 #. My Pet Dungeon (lv457)
 #: guitext:89
 msgctxt "In-game message"
 msgid "You've done the impossible. Victory! "
-msgstr ""
+msgstr "Has hecho lo imposible. ¡Victoria!"
 
 #. Ghost in the Machine (lv458)
 #: guitext:90
 msgctxt "In-game message"
-msgid "You have an old version of KeeperFX. You need to update to play this map. Visit www.keeperklan.com "
+msgid ""
+"You have an old version of KeeperFX. You need to update to play this map. "
+"Visit www.keeperklan.com "
 msgstr ""
+"Tiene una versión antigua de KeeperFX. Necesita actualizar el juego para "
+"poder jugar a este mapa. Visite www.keeperklan.com"
 
 #. Ghost in the Machine (lv458)
 #: guitext:91
 msgctxt "In-game message"
-msgid "The yellow Wizards are using powerful magic to hold you at bay. You can't reach them but the dark gods will help. Sacrifice all imps in battle or at the temple and they will send your ghosts to fight them. "
+msgid ""
+"The yellow Wizards are using powerful magic to hold you at bay. You can't "
+"reach them but the dark gods will help. Sacrifice all imps in battle or at "
+"the temple and they will send your ghosts to fight them. "
 msgstr ""
+"Los magos amarillos están usando una magia muy poderosa para mantenerte a "
+"raya. No puedes alcanzarlos, pero los dioses oscuros te ayudarán. Sacrifica "
+"a todos los duendes en la batalla o en el templo y enviarán sus fantasmas "
+"para luchar contra ellos."
 
 #. Ghost in the Machine (lv458)
 #: guitext:92
 msgctxt "In-game message"
 msgid "You have angered the gods and lost all hope of victory. "
-msgstr ""
+msgstr "Has enfadado a los dioses y has perdido toda esperanza de victoria."
 
 #. Ghost in the Machine (lv458)
 #: guitext:93
 msgctxt "In-game message"
-msgid "Barbarians have started to attack. They will only increase in number. Kill them and you can use their ghosts in this ream. "
+msgid ""
+"Barbarians have started to attack. They will only increase in number. Kill "
+"them and you can use their ghosts in this ream. "
 msgstr ""
+"Los bárbaros han comenzado a atacar. Sólo aumentarán en número. Mátalos y "
+"podrás usar sus fantasmas en este resma."
 
 #. Ghost in the Machine (lv458)
 #: guitext:94
 msgctxt "In-game message"
-msgid "The Barbarians you've killed have returned as ghosts and joined your army. I suggest you kill all the Barbarians you can find? "
+msgid ""
+"The Barbarians you've killed have returned as ghosts and joined your army. I "
+"suggest you kill all the Barbarians you can find? "
 msgstr ""
+"Los bárbaros que has matado han regresado como fantasmas y se han unido a tu "
+"ejército. ¿Te sugiero que mates a todos los bárbaros que puedas encontrar?"
 
 #. Ghost in the Machine (lv458)
 #: guitext:95
 msgctxt "In-game message"
-msgid "The Wizards will keep sending Barbarians in ever greater numbers, but it is all a distraction. They will use this time to grow beyond your might. Keep their power in check by regularly attacking them. "
+msgid ""
+"The Wizards will keep sending Barbarians in ever greater numbers, but it is "
+"all a distraction. They will use this time to grow beyond your might. Keep "
+"their power in check by regularly attacking them. "
 msgstr ""
+"Los Magos seguirán enviando bárbaros en cantidades cada vez mayores, pero "
+"todo es una distracción. Usarán este tiempo para crecer más allá de tu "
+"poder. Mantén su poder bajo control atacándolos regularmente."
 
 #. Ghost in the Machine (lv458)
 #: guitext:96
 msgctxt "In-game message"
-msgid "With each Monk killed, the Ghosts gain in strength! Keep killing Monks as well as Barbarians. "
+msgid ""
+"With each Monk killed, the Ghosts gain in strength! Keep killing Monks as "
+"well as Barbarians. "
 msgstr ""
+"¡Por cada Monje asesinado, los Fantasmas ganan en fuerza! Sigue matando "
+"monjes y bárbaros."
 
 #. Ghost in the Machine (lv458)
 #: guitext:97
 msgctxt "In-game message"
-msgid "There are no more Monks so your Ghosts are as strong as they can get. They should be able to do some serious damage to the yellow Wizards? Dispose of your imps to initiate the attack. "
+msgid ""
+"There are no more Monks so your Ghosts are as strong as they can get. They "
+"should be able to do some serious damage to the yellow Wizards? Dispose of "
+"your imps to initiate the attack. "
 msgstr ""
+"Ya no quedan monjes, así que tus fantasmas son lo más fuerte que pueden ser. "
+"¿Deberían poder causar algún daño serio a los magos amarillos? Deshazte de "
+"tus duendes para iniciar el ataque."
 
 #. Ghost in the Machine (lv458)
 #: guitext:98
 msgctxt "In-game message"
-msgid "Your Ghosts are being transported to the yellow Hero stronghold! Destroy their heart and this realm is yours."
+msgid ""
+"Your Ghosts are being transported to the yellow Hero stronghold! Destroy "
+"their heart and this realm is yours."
 msgstr ""
+"¡Tus fantasmas están siendo transportados a la fortaleza amarilla de los "
+"héroes! Destruye su Corazón y este reino será tuyo."
 
 #. Ghost in the Machine (lv458)
 #: guitext:99
 msgctxt "In-game message"
-msgid "These Ghosts are at maximum power. Surely the wizards don't stand a chance now?"
+msgid ""
+"These Ghosts are at maximum power. Surely the wizards don't stand a chance "
+"now?"
 msgstr ""
+"Estos fantasmas están a su máxima potencia. ¿Seguramente los magos ahora no "
+"tienen ninguna oportunidad?"
 
 #. Ghost in the Machine (lv458)
 #: guitext:100
 msgctxt "In-game message"
-msgid "Your Ghosts have failed and paid the price for it! Luckily there's always more death? When you have regained enough Ghosts, eliminate your imps to try again."
+msgid ""
+"Your Ghosts have failed and paid the price for it! Luckily there's always "
+"more death? When you have regained enough Ghosts, eliminate your imps to try "
+"again."
 msgstr ""
+"¡Tus fantasmas han fracasado y han pagado el precio por ello! Por suerte, "
+"¿siempre hay más muerte? Cuando hayas recuperado suficientes fantasmas, "
+"elimina a tus duendes para volver a intentarlo."
 
 #. Ghost in the Machine (lv458)
 #: guitext:101
 msgctxt "In-game message"
 msgid "This is taking too long. Let's see what happens."
-msgstr ""
+msgstr "Esto está llevando demasiado tiempo. Veamos qué pasa."
 
 #. Ghost in the Machine (lv458)
 #: guitext:102
 msgctxt "In-game message"
-msgid ""Your message could be posted here. Victory!"
-msgstr ""
+msgid "Your message could be posted here. Victory!"
+msgstr "Su mensaje se ha publicado aquí. ¡Victoria!"
 
 #. Grail Run (lv444)
 #: guitext:103
 msgctxt "In-game message"
-msgid "As you have claimed your first room, Heroes have started gathering their troops and will be here soon. The more heroes are wiped out, the stronger the groups they will form."
+msgid ""
+"As you have claimed your first room, Heroes have started gathering their "
+"troops and will be here soon. The more heroes are wiped out, the stronger "
+"the groups they will form."
 msgstr ""
+"Como reclamaste tu primera habitación, los Héroes comenzaran a reunir sus "
+"tropas y llegaran pronto. Cuantos más héroes sean eliminados, más fuertes "
+"serán los grupos que formarán."
 
 #. Grail Run (lv444)
 #: guitext:104
 msgctxt "In-game message"
 msgid "First party has arrived! They seem to go lightly on on you. For now..."
-msgstr ""
+msgstr "¡Llegó el primer grupo! Parecen venir en desventaja. Por ahora…"
 
 #. Grail Run (lv444)
 #: guitext:105
 msgctxt "In-game message"
-msgid "Having seen their previous efforts fail, the Heroes have formed a new group."
+msgid ""
+"Having seen their previous efforts fail, the Heroes have formed a new group."
 msgstr ""
+"Viendo como han fracasado sus esfuerzos anteriores, los Héroes han formado "
+"un nuevo grupo."
 
 #. Grail Run (lv444)
 #: guitext:106
 msgctxt "In-game message"
-msgid "Heroes have returned, this time with modified creatures to aid them! Careful, as these are definitely tougher than any common dungeon creatures!"
+msgid ""
+"Heroes have returned, this time with modified creatures to aid them! "
+"Careful, as these are definitely tougher than any common dungeon creatures!"
 msgstr ""
+"¡Los héroes han regresado, esta vez con aliados mejorados para ayudarlos! "
+"¡Cuidado, ya que estos son definitivamente más duros que cualquier criatura "
+"de mazmorra común!"
 
 #. Grail Run (lv444)
 #: guitext:107
 msgctxt "In-game message"
-msgid "Heroes have formed yet another army. If this attempt fails, the Avatar will come and take care of you!"
+msgid ""
+"Heroes have formed yet another army. If this attempt fails, the Avatar will "
+"come and take care of you!"
 msgstr ""
+"Los héroes han formado otro ejército. ¡Si este intento falla, el Avatar "
+"vendrá para cuidarles de ti!"
 
 #. Grail Run (lv444)
 #: guitext:108
 msgctxt "In-game message"
-msgid "It's time to prove yourself, Keeper. Clear the last wave and the land is yours!"
+msgid ""
+"It's time to prove yourself, Keeper. Clear the last wave and the land is "
+"yours!"
 msgstr ""
+"Es hora de probarse a sí mismo, Guardián. ¡Despeja la última oleada y la "
+"tierra será tuya!"
 
 #. Grail Run (lv444)
 #: guitext:109
 msgctxt "In-game message"
 msgid "This has been a humiliating defeat for the Heroes. Congratulations!"
-msgstr ""
+msgstr "Esta ha sido una derrota humillante para los Héroes. ¡Felicidades!"
 
 #. Grail Run (lv444)
 #: guitext:110
 msgctxt "In-game message"
-msgid "You are in possession of a very unusual hero gate located to the east of your dungeon heart. It attracts units from other realms based on your claimed  dungeon rooms. Claim rooms to attract more and stronger units. Barracks=Barbarians, Workshop=Dwarves, Library=Warlocks, Temple=Monks, Training Rooms=Archers. New units arrive in groups but only if you have fewer than 22 minions. Withstand the hero waves, defeat the Avatar and his guards and this land is yours!"
+msgid ""
+"You are in possession of a very unusual hero gate located to the east of "
+"your dungeon heart. It attracts units from other realms based on your "
+"claimed  dungeon rooms. Claim rooms to attract more and stronger units. "
+"Barracks=Barbarians, Workshop=Dwarves, Library=Warlocks, Temple=Monks, "
+"Training Rooms=Archers. New units arrive in groups but only if you have "
+"fewer than 22 minions. Withstand the hero waves, defeat the Avatar and his "
+"guards and this land is yours!"
 msgstr ""
+"Estás en posesión de una puerta de héroe muy inusual ubicada al este de tu "
+"Corazón de Mazmorra. Atrae unidades de otros reinos en función de las salas "
+"de mazmorras reclamadas. Reclama habitaciones para atraer más unidades y más "
+"fuertes. Barracones=Bárbaros, Taller=Enanos, Biblioteca=Brujos, "
+"Templo=Monjes, Salas de Entrenamiento=Arqueros. Las nuevas unidades llegan "
+"en grupos, pero solo si tienes menos de 22 criaturas. ¡Resiste las oleadas "
+"de héroes, derrota al Avatar y sus guardias y esta tierra será tuya!"
 
 #. The Death Clock (lv450)
 #: guitext:111
 msgctxt "In-game message"
-msgid "Your dungeon lies in ruins and you are powerless. Fortunately the Dungeon Heart is still intact. Reclaim it to get back your strength."
+msgid ""
+"Your dungeon lies in ruins and you are powerless. Fortunately the Dungeon "
+"Heart is still intact. Reclaim it to get back your strength."
 msgstr ""
+"Tu mazmorra está en ruinas y eres impotente. Afortunadamente, el Corazón de "
+"Mazmorra sigue intacto. Reclámalo para recuperar tu fuerza."
 
 #. The Death Clock (lv450)
 #: guitext:112
 msgctxt "In-game message"
-msgid "Good, you have your dungeon back, your power is returning. The heroes know, they will return to kill us all. Make the most of your final moments."
+msgid ""
+"Good, you have your dungeon back, your power is returning. The heroes know, "
+"they will return to kill us all. Make the most of your final moments."
 msgstr ""
+"Bien, has recuperado tu mazmorra, tu poder está volviendo. Los héroes saben "
+"que volverán para matarnos a todos. Aprovecha al máximo tus momentos finales."
 
 #. The Death Clock (lv450)
 #: guitext:113
 msgctxt "In-game message"
-msgid "If you want the heroes to remember your final battle, quickly take whatever you can from their remaining forces here and the keeper they left for dead."
+msgid ""
+"If you want the heroes to remember your final battle, quickly take whatever "
+"you can from their remaining forces here and the keeper they left for dead."
 msgstr ""
+"Si quieres que los héroes recuerden tu batalla final, toma rápidamente todo "
+"lo que puedas de sus fuerzas restantes aquí y del Guardián que dejaron por "
+"muerto."
 
 #. The Death Clock (lv450)
 #: guitext:114
 msgctxt "In-game message"
-msgid "Heroes waltzed over your former rival, I'm sure they will muster a counter attack if you claim this dungeon and its riches as your own."
+msgid ""
+"Heroes waltzed over your former rival, I'm sure they will muster a counter "
+"attack if you claim this dungeon and its riches as your own."
 msgstr ""
+"Los héroes bailaron sobre tu antiguo rival. Estoy seguro de que lanzarán un "
+"contraataque si reclamas esta mazmorra y sus riquezas como propias."
 
 #. The Death Clock (lv450)
 #: guitext:115
 msgctxt "In-game message"
-msgid "Heroes! Send in the hounds! Then have them lick your wounds, because I'm sure there are more to come."
+msgid ""
+"Heroes! Send in the hounds! Then have them lick your wounds, because I'm "
+"sure there are more to come."
 msgstr ""
+"¡Héroes! ¡Envíen a los sabuesos! Luego haz que te laman las heridas, porque "
+"estoy seguro de que habrá más por llegar."
 
 #. The Death Clock (lv450)
 #: guitext:116
 msgctxt "In-game message"
 msgid "A sizeable graveyard would be useful right about now,..."
-msgstr ""
+msgstr "Un cementerio considerablemente grande sería útil en este momento…"
 
 #. The Death Clock (lv450)
 #: guitext:117
 msgctxt "In-game message"
-msgid "Kill all the heroes you can find. They will do the same thing to you soon enough."
+msgid ""
+"Kill all the heroes you can find. They will do the same thing to you soon "
+"enough."
 msgstr ""
+"Mata a todos los héroes que puedas encontrar. Muy pronto te harán lo mismo."
 
 #. The Death Clock (lv450)
 #: guitext:118
 msgctxt "In-game message"
-msgid "In the east the heroes have a fortress. Why don't you go find out what it contains?"
+msgid ""
+"In the east the heroes have a fortress. Why don't you go find out what it "
+"contains?"
 msgstr ""
+"En el este los héroes tienen una fortaleza. ¿Por qué no vas a averiguar qué "
+"contiene?"
 
 #. The Death Clock (lv450)
 #: guitext:119
 msgctxt "In-game message"
-msgid "Mole-man save us, they are almost here! Place more traps now or hope your little army is stronger than it looks."
+msgid ""
+"Mole-man save us, they are almost here! Place more traps now or hope your "
+"little army is stronger than it looks."
 msgstr ""
+"¡Hombre topo sálvanos, ya casi están aquí! Coloca más trampas ahora o espera "
+"que tu pequeño ejército sea más fuerte de lo que parece."
 
 #. The Death Clock (lv450)
 #: guitext:120
 msgctxt "In-game message"
-msgid "I have a bad feeling about this. You know you are supposed to kill the little white men right?"
+msgid ""
+"I have a bad feeling about this. You know you are supposed to kill the "
+"little white men right?"
 msgstr ""
+"Tengo un mal presentimiento. Sabes que se supone que debes matar a los "
+"hombrecitos blancos, ¿verdad?"
 
 #. The Death Clock (lv450)
 #: guitext:121
 msgctxt "In-game message"
-msgid "Yes, we have some creatures left! I never doubted you for a second. Congratulations!"
+msgid ""
+"Yes, we have some creatures left! I never doubted you for a second. "
+"Congratulations!"
 msgstr ""
+"¡Sí, nos quedan algunas criaturas! Nunca dudé de ti ni por un segundo. "
+"¡Felicidades!"
 
 #. The Death Clock (lv450)
 #: guitext:122
 msgctxt "In-game message"
-msgid "You lost your only creature. You needed it to get claim the tiles around your heart. Hopeless."
+msgid ""
+"You lost your only creature. You needed it to get claim the tiles around "
+"your heart. Hopeless."
 msgstr ""
+"Perdiste a tu única criatura. Lo necesitabas para reclamar las baldosas "
+"alrededor de tu Corazón. Desesperanzado."
 
-#: guitext:123 guitext:124 guitext:125
-#: guitext:126 guitext:127 guitext:128 guitext:129 guitext:130 guitext:131
-#: guitext:132 guitext:133 guitext:134 guitext:135 guitext:136 guitext:137
-#: guitext:138 guitext:139 guitext:140 guitext:141 guitext:142 guitext:143
-#: guitext:144 guitext:145 guitext:146 guitext:147 guitext:148 guitext:149
-#: guitext:150 guitext:151 guitext:152 guitext:153 guitext:154 guitext:155
-#: guitext:156 guitext:157 guitext:158 guitext:159 guitext:160 guitext:161
-#: guitext:162 guitext:163 guitext:164 guitext:165 guitext:166 guitext:167
-#: guitext:168 guitext:169 guitext:170 guitext:171 guitext:172 guitext:173
-#: guitext:174 guitext:175 guitext:176 guitext:177 guitext:178 guitext:179
-#: guitext:180 guitext:181 guitext:182 guitext:183 guitext:184 guitext:185
-#: guitext:186 guitext:187 guitext:188 guitext:189 guitext:190 guitext:191
-#: guitext:192 guitext:193 guitext:194 guitext:195 guitext:196 guitext:197
-#: guitext:198 guitext:199 guitext:200
+#: guitext:123 guitext:124 guitext:125 guitext:126 guitext:127 guitext:128
+#: guitext:129 guitext:130 guitext:131 guitext:132 guitext:133 guitext:134
+#: guitext:135 guitext:136 guitext:137 guitext:138 guitext:139 guitext:140
+#: guitext:141 guitext:142 guitext:143 guitext:144 guitext:145 guitext:146
+#: guitext:147 guitext:148 guitext:149 guitext:150 guitext:151 guitext:152
+#: guitext:153 guitext:154 guitext:155 guitext:156 guitext:157 guitext:158
+#: guitext:159 guitext:160 guitext:161 guitext:162 guitext:163 guitext:164
+#: guitext:165 guitext:166 guitext:167 guitext:168 guitext:169 guitext:170
+#: guitext:171 guitext:172 guitext:173 guitext:174 guitext:175 guitext:176
+#: guitext:177 guitext:178 guitext:179 guitext:180 guitext:181 guitext:182
+#: guitext:183 guitext:184 guitext:185 guitext:186 guitext:187 guitext:188
+#: guitext:189 guitext:190 guitext:191 guitext:192 guitext:193 guitext:194
+#: guitext:195 guitext:196 guitext:197 guitext:198 guitext:199 guitext:200
 msgctxt "In-game message"
 msgid "Moo"
-msgstr ""
+msgstr "Muu"
 
 #: guitext:201
 msgctxt "Level name"
 msgid "Tymnath Herez"
-msgstr ""
+msgstr "Tymnath Herez"
 
 #: guitext:202
 msgctxt "Level name"
 msgid "Yami"
-msgstr ""
+msgstr "Yami"
 
 #: guitext:203
 msgctxt "Level name"
 msgid "Temple Deal"
-msgstr ""
+msgstr "El Acuerdo del Templo"
 
 #: guitext:204
 msgctxt "Level name"
 msgid "Grail Run"
-msgstr ""
+msgstr "La Carrera del Grial"
 
 #: guitext:205
 msgctxt "Level name"
 msgid "Thug of War"
-msgstr ""
+msgstr "Tira y Afloja"
 
 #: guitext:206
 msgctxt "Level name"
 msgid "Wetlands"
-msgstr ""
+msgstr "Los Humedales"
 
 #: guitext:207
 msgctxt "Level name"
 msgid "Desperation"
-msgstr ""
+msgstr "Desesperación"
 
 #: guitext:208
 msgctxt "Level name"
 msgid "Dread Mountain"
-msgstr ""
+msgstr "La Montaña Aterradora"
 
 #: guitext:209
 msgctxt "Level name"
 msgid "Frozen Legion"
-msgstr ""
+msgstr "Legión Congelada"
 
 #: guitext:210
 msgctxt "Level name"
 msgid "Shores of Battle"
-msgstr ""
+msgstr "Costas de batallas"
 
 #: guitext:211
 msgctxt "Level name"
 msgid "My Pet Dungeon"
-msgstr ""
+msgstr "Mi mazmorra de Mascotas"
 
 #: guitext:212
 msgctxt "Level name"
 msgid "Ghost in the Machine"
-msgstr ""
+msgstr "Fantasmas en la Maquina"
 
 #: guitext:213
 msgctxt "Level name"
 msgid "The Death Clock"
-msgstr ""
+msgstr "El Reloj de la Muerte"
