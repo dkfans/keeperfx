@@ -80,8 +80,10 @@ pkg/campgns/undedkpr/text_pol.dat
 MPTEXTDATS = \
 pkg/levels/classic/text_eng.dat \
 pkg/levels/classic/text_chi.dat \
+pkg/levels/classic/text_spa.dat \
 pkg/levels/standard/text_eng.dat \
-pkg/levels/standard/text_chi.dat
+pkg/levels/standard/text_chi.dat \
+pkg/levels/standard/text_spa.dat
 
 EU_CHAR_ENCODING = tools/po2ngdat/res/char_encoding_tbl_eu.txt
 JP_CHAR_ENCODING = tools/po2ngdat/res/char_encoding_tbl_jp.txt
@@ -134,6 +136,9 @@ pkg/%/text_ger.dat: lang/%/text_ger.po $(POTONGDAT) $(EU_CHAR_ENCODING) | pkg/%
 	$(POTONGDAT) -o $@ -e $(EU_CHAR_ENCODING) $< >/dev/null
 
 pkg/%/text_pol.dat: lang/%/text_pol.po $(POTONGDAT) $(EU_CHAR_ENCODING) | pkg/%
+	$(POTONGDAT) -o $@ -e $(EU_CHAR_ENCODING) $< >/dev/null
+
+pkg/%/text_spa.dat: lang/%/text_spa.po $(POTONGDAT) $(EU_CHAR_ENCODING) | pkg/%
 	$(POTONGDAT) -o $@ -e $(EU_CHAR_ENCODING) $< >/dev/null
 
 pkg/%/landview_pol.dat: lang/%/landview_pol.po $(POTONGDAT) $(EU_CHAR_ENCODING) | pkg/%
