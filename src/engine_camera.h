@@ -80,6 +80,8 @@ struct Camera {
     TbBool in_active_movement_x;
     long inertia_y;
     TbBool in_active_movement_y;
+    float zoomed_percent;
+    float previous_zoomed_percent;
 };
 
 extern long previous_cam_mappos_x;
@@ -133,6 +135,7 @@ void init_player_cameras(struct PlayerInfo *player);
 void set_previous_camera_values(struct PlayerInfo* player);
 void reset_interpolation_of_camera(struct PlayerInfo* player);
 void reset_interpolation_for_parchment_view(struct PlayerInfo* player);
+void zoom_moves_cam_towards_mouse(struct PlayerInfo* player, int pointer_x, int pointer_y);
 
 /******************************************************************************/
 #ifdef __cplusplus

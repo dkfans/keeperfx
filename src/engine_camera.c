@@ -69,18 +69,39 @@ long interpolated_camera_zoom;
 #endif
 /******************************************************************************/
 
+void zoom_moves_cam_towards_mouse(struct PlayerInfo *player, int pointer_x, int pointer_y)
+{
+    // This function runs after the zooming function is called.
+    struct Camera* cam = player->acamera;
+
+    int viewport_w = player->engine_window_width;
+    int viewport_h = player->engine_window_height;
+
+    int viewport_center_x = (viewport_w / 2);
+    int viewport_center_y = (viewport_h / 2);
+
+    float previous_pos_x = (pointer_x - viewport_center_x) / cam->previous_zoomed_percent;
+    float previous_pos_y = (pointer_y - viewport_center_y) / cam->previous_zoomed_percent;
+    
+    float new_pos_x = (pointer_x - viewport_center_x) / cam->zoomed_percent;
+    float new_pos_y = (pointer_y - viewport_center_y) / cam->zoomed_percent;
+
+    cam->mappos.x.val += (previous_pos_x - new_pos_x) * 2.0;
+    cam->mappos.y.val += (previous_pos_y - new_pos_y) * 2.0;
+}
+
 static void calculate_zoomed_percentage(struct Camera *cam) {
 	// This function is performed once per turn, unlike calculate_hud_scale which is performed each rendering frame
     switch (cam->view_mode) {
         case PVM_IsoWibbleView:
         case PVM_IsoStraightView:
-            zoomed_percent = normalize_within_range(cam->zoom, CAMERA_ZOOM_MIN, CAMERA_ZOOM_MAX);
+            cam->zoomed_percent = normalize_within_range(cam->zoom, CAMERA_ZOOM_MIN, CAMERA_ZOOM_MAX);
             break;
         case PVM_FrontView:
-            zoomed_percent = normalize_within_range(cam->zoom, FRONTVIEW_CAMERA_ZOOM_MIN, FRONTVIEW_CAMERA_ZOOM_MAX);
+            cam->zoomed_percent = normalize_within_range(cam->zoom, FRONTVIEW_CAMERA_ZOOM_MIN, FRONTVIEW_CAMERA_ZOOM_MAX);
             break;
         default:
-            zoomed_percent = 0;
+            cam->zoomed_percent = 0;
             return;
     }
 }
@@ -244,7 +265,7 @@ void project_point_to_wall_on_angle(const struct Coord3d *pos1, struct Coord3d *
     pos2->z.val = pos.z.val;
 }
 
-int calculate_zoom_rate()
+int calculate_zoom_rate(struct Camera *cam)
 {
     // If playing multiplayer then return original 85 value, because otherwise desyncs can occur if two players have different cfg values
     if (game.game_kind != GKind_LocalGame)
@@ -252,7 +273,7 @@ int calculate_zoom_rate()
         return 85;
     }
 
-    int easing = (1.0-pow(zoomed_percent, 0.25)) * 100;
+    int easing = (1.0-pow(cam->zoomed_percent, 0.25)) * 100;
     int calc_rate = integer_lerp(zoom_speed_near, zoom_speed_far, easing);
     calc_rate = 100 - clamp(calc_rate, 1, 99);
     return calc_rate;
@@ -263,7 +284,7 @@ void view_zoom_camera_in(struct Camera *cam, long limit_max, long limit_min)
     long new_zoom;
     long old_zoom = get_camera_zoom(cam);
 
-    int zoom_rate = calculate_zoom_rate();
+    int zoom_rate = calculate_zoom_rate(cam);
 
     switch (cam->view_mode)
     {
@@ -330,7 +351,7 @@ void view_zoom_camera_out(struct Camera *cam, long limit_max, long limit_min)
     long new_zoom;
     long old_zoom = get_camera_zoom(cam);
     
-    int zoom_rate = calculate_zoom_rate();
+    int zoom_rate = calculate_zoom_rate(cam);
 
     switch (cam->view_mode)
     {

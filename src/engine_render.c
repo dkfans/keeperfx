@@ -430,7 +430,6 @@ struct EngineCol ecs2[MINMAX_LENGTH-1];
 struct EngineCol *front_ec;
 struct EngineCol *back_ec;
 float hud_scale;
-float zoomed_percent;
 
 int creature_status_size = 16; // Default value, overwritten by cfg setting
 static int water_wibble_angle = 0;
