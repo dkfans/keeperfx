@@ -69,27 +69,6 @@ long interpolated_camera_zoom;
 #endif
 /******************************************************************************/
 
-void zoom_moves_cam_towards_mouse(struct PlayerInfo *player, int pointer_x, int pointer_y)
-{
-    // This function runs after the zooming function is called.
-    struct Camera* cam = player->acamera;
-
-    int viewport_w = player->engine_window_width;
-    int viewport_h = player->engine_window_height;
-
-    int viewport_center_x = (viewport_w / 2);
-    int viewport_center_y = (viewport_h / 2);
-
-    float previous_pos_x = (pointer_x - viewport_center_x) / cam->previous_zoomed_percent;
-    float previous_pos_y = (pointer_y - viewport_center_y) / cam->previous_zoomed_percent;
-    
-    float new_pos_x = (pointer_x - viewport_center_x) / cam->zoomed_percent;
-    float new_pos_y = (pointer_y - viewport_center_y) / cam->zoomed_percent;
-
-    cam->mappos.x.val += (previous_pos_x - new_pos_x) * 2.0;
-    cam->mappos.y.val += (previous_pos_y - new_pos_y) * 2.0;
-}
-
 static void calculate_zoomed_percentage(struct Camera *cam) {
 	// This function is performed once per turn, unlike calculate_hud_scale which is performed each rendering frame
     switch (cam->view_mode) {
@@ -144,6 +123,8 @@ void reset_interpolation_of_camera(struct PlayerInfo* player)
 }
 
 void set_previous_camera_values(struct PlayerInfo* player) {
+    
+
     // Used for interpolation mainly
     struct Camera *cam = player->acamera;
     previous_cam_mappos_x = cam->mappos.x.val;
@@ -157,6 +138,8 @@ void set_previous_camera_values(struct PlayerInfo* player) {
     {
         reset_interpolation_of_camera(player); // Stop camera from being laggy while frameskipping
     }
+    
+    cam->previous_zoomed_percent = cam->zoomed_percent;
 }
 
 MapCoordDelta get_3d_box_distance(const struct Coord3d *pos1, const struct Coord3d *pos2)
@@ -531,6 +514,10 @@ void init_player_cameras(struct PlayerInfo *player)
     cam->zoom = settings.frontview_zoom_level;
 
     reset_interpolation_of_camera(player);
+    
+    // setup previous_zoomed_percent
+    calculate_zoomed_percentage(cam);
+    cam->previous_zoomed_percent = cam->zoomed_percent;
 }
 
 static int get_walking_bob_direction(struct Thing *thing)
@@ -936,5 +923,43 @@ void update_all_players_cameras(void)
           update_player_camera(player);
     }
   }
+}
+
+void zoom_moves_cam_towards_mouse(struct PlayerInfo *player, int pointer_x, int pointer_y)
+{
+    if (!is_my_player(player)) {return;}
+
+    // This function runs after the zooming function is called.
+    struct Camera* cam = player->acamera;
+
+    int viewport_w = player->engine_window_width;
+    int viewport_h = player->engine_window_height;
+
+    int viewport_center_x = (viewport_w / 2);
+    int viewport_center_y = (viewport_h / 2);
+
+    float previous_pos_x = (pointer_x - viewport_center_x) / cam->previous_zoomed_percent;
+    float previous_pos_y = (pointer_y - viewport_center_y) / cam->previous_zoomed_percent;
+    
+    float new_pos_x = (pointer_x - viewport_center_x) / cam->zoomed_percent;
+    float new_pos_y = (pointer_y - viewport_center_y) / cam->zoomed_percent;
+
+    int distance_x = (previous_pos_x - new_pos_x) * 2.0;
+    int distance_y = (previous_pos_y - new_pos_y) * 2.0;
+    
+    if (distance_x < 0) {
+        view_move_camera_left(cam, abs(distance_x));
+    } else {
+        if (distance_x > 0) {
+            view_move_camera_right(cam, abs(distance_x));
+        }
+    }
+    if (distance_y < 0) {
+        view_move_camera_up(cam, abs(distance_y));
+    } else {
+        if (distance_y > 0) {
+            view_move_camera_down(cam, abs(distance_y));
+        }
+    }
 }
 /******************************************************************************/
