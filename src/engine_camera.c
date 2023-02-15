@@ -297,7 +297,6 @@ void view_zoom_camera_in(struct Camera *cam, long limit_max, long limit_min)
 
 void set_camera_zoom(struct Camera *cam, long new_zoom)
 {
-    JUSTLOG("new_zoom = %d", new_zoom);
     if (cam == NULL)
       return;
     switch (cam->view_mode)
