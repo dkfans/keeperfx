@@ -19,7 +19,7 @@
 "Language-Team: KeeperFX Team \n"
 "MIME-Version: 1.0\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: spa\n"
+"Language: es\n"
 
 #. Generic victory message
 #: guitext:0
