@@ -1,14 +1,13 @@
 # *****************************************************************************
 #  Free implementation of Bullfrog's Dungeon Keeper strategy game.
 # *****************************************************************************
-#   @file burdnimp/text_pol.po
+#   @file burdnimp/text_spa.pot
 #      KeeperFX Campaign Strings translation file
 #  @par Purpose:
 #      Contains translation of the national strings in the game.
 #  @par Comment:
-#      Use this file to improve the translation for specific language.
+       Use this file to improve the translation for specific language.
 #  @author   KeeperFX Team
-#  @date     25 Aug 2012 - 02 Jun 2014
 #  @par  Copying and copyrights:
 #      This program is free software; you can redistribute it and/or modify
 #      it under the terms of the GNU General Public License as published by
@@ -16,6 +15,12 @@
 #      (at your option) any later version.
 #
 # *****************************************************************************
+"Project-Id-Version: Burdened Imp campaign for KeeperFX\n"
+"Language-Team: KeeperFX Team \n"
+"MIME-Version: 1.0\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: spa\n"
+
 #. Generic victory message
 #: guitext:0
 msgctxt "In-game message"
@@ -36,11 +41,6 @@ msgid ""
 "the essence, Keeper, restore this old dungeon as fast as you can. I can "
 "already hear heroes readying themselves to meet you."
 msgstr ""
-"Strażnica Miesiącznycień. Dom dla wielu rycerzy i czarodziejów o "
-"nieskazitelnej moralności. Stanowią oni plamę na tym świecie i niewątpliwie "
-"zasługują na pewną śmierć. Prędkość ma tu zasadnicze znaczenie, Strażniku; "
-"odświerz te stare lochy tak szybko jak to możliwe. Słyszę już bohaterów "
-"szykujących się by cię poznać."
 
 #: guitext:11
 msgctxt "In-game message"
@@ -206,7 +206,7 @@ msgstr ""
 #: guitext:35 guitext:36 guitext:37
 msgctxt "In-game message"
 msgid "Moo5"
-msgstr "Muuu5"
+msgstr ""
 
 #: guitext:38
 msgctxt "In-game message"
@@ -250,7 +250,7 @@ msgstr ""
 #: guitext:43
 msgctxt "In-game message"
 msgid "Moo6"
-msgstr "Muuu6"
+msgstr ""
 
 #: guitext:44
 msgctxt "In-game message"
@@ -286,7 +286,7 @@ msgstr ""
 #: guitext:48 guitext:49 guitext:50
 msgctxt "In-game message"
 msgid "Moo7"
-msgstr "Muuu7"
+msgstr ""
 
 #: guitext:51
 msgctxt "In-game message"
@@ -343,7 +343,7 @@ msgstr ""
 #: guitext:58 guitext:59
 msgctxt "In-game message"
 msgid "Moo8"
-msgstr "Muuu8"
+msgstr ""
 
 #: guitext:60
 msgctxt "In-game message"
@@ -402,7 +402,7 @@ msgstr ""
 #: guitext:68 guitext:69
 msgctxt "In-game message"
 msgid "Moo9"
-msgstr "Muuu9"
+msgstr ""
 
 #: guitext:70
 msgctxt "In-game message"
@@ -574,44 +574,44 @@ msgstr ""
 #: guitext:195 guitext:196 guitext:197 guitext:198 guitext:199 guitext:200
 msgctxt "In-game message"
 msgid "Moo"
-msgstr "Muuuu"
+msgstr ""
 
 #: guitext:202
 msgctxt "Level name"
 msgid "Moonshadow Keep"
-msgstr "Strażnica Miesiącznycień"
+msgstr ""
 
 #: guitext:203
 msgctxt "Level name"
 msgid "Winterfrost Run"
-msgstr "Przepust Mroźnaszadź"
+msgstr ""
 
 #: guitext:204
 msgctxt "Level name"
 msgid "Blistering Furnace"
-msgstr "Piecki Parzenne"
+msgstr ""
 
 #: guitext:205
 msgctxt "Level name"
 msgid "Raven's Claw"
-msgstr "Krucze Szponidły"
+msgstr ""
 
 #: guitext:206
 msgctxt "Level name"
 msgid "Silversong Fall"
-msgstr "Zapadlisko Srebrnapieśń"
+msgstr ""
 
 #: guitext:207
 msgctxt "Level name"
 msgid "Waterspring River"
-msgstr "Wodotrysk Podrzeczny"
+msgstr ""
 
 #: guitext:208
 msgctxt "Level name"
 msgid "Amberstone Hills"
-msgstr "Bursztynowe Wzgórza"
+msgstr ""
 
 #: guitext:209
 msgctxt "Level name"
 msgid "Dreamweave Caverns"
-msgstr "Jaskinie Nocnych Słaniań"
+msgstr ""
