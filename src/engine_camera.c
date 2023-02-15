@@ -69,6 +69,21 @@ long interpolated_camera_zoom;
 #endif
 /******************************************************************************/
 
+static void calculate_zoomed_percentage(struct Camera *cam) {
+	// This function is performed once per turn, unlike calculate_hud_scale which is performed each rendering frame
+    switch (cam->view_mode) {
+        case PVM_IsoWibbleView:
+        case PVM_IsoStraightView:
+            zoomed_percent = normalize_within_range(cam->zoom, CAMERA_ZOOM_MIN, CAMERA_ZOOM_MAX);
+            break;
+        case PVM_FrontView:
+            zoomed_percent = normalize_within_range(cam->zoom, FRONTVIEW_CAMERA_ZOOM_MIN, FRONTVIEW_CAMERA_ZOOM_MAX);
+            break;
+        default:
+            zoomed_percent = 0;
+            return;
+    }
+}
 
 // Instantly move camera when going from parchment view to main view
 void reset_interpolation_for_parchment_view(struct PlayerInfo* player)
@@ -234,9 +249,10 @@ void view_zoom_camera_in(struct Camera *cam, long limit_max, long limit_min)
     long new_zoom;
     long old_zoom = get_camera_zoom(cam);
 
-    int zoom_rate = 100-lerp(zoom_speed_near, zoom_speed_far, 1.0-pow(zoomed_percent, 4.0));
+    int easing = (1.0-pow(zoomed_percent, 0.25)) * 100;
+    int zoom_rate = integer_lerp(zoom_speed_near, zoom_speed_far, easing);
+    zoom_rate = 100 - clamp(zoom_rate, 1, 99);
 
-    JUSTLOG("%d",zoom_rate);
     switch (cam->view_mode)
     {
     case PVM_IsoWibbleView:
@@ -281,6 +297,7 @@ void view_zoom_camera_in(struct Camera *cam, long limit_max, long limit_min)
 
 void set_camera_zoom(struct Camera *cam, long new_zoom)
 {
+    JUSTLOG("new_zoom = %d", new_zoom);
     if (cam == NULL)
       return;
     switch (cam->view_mode)
@@ -294,6 +311,7 @@ void set_camera_zoom(struct Camera *cam, long new_zoom)
         cam->mappos.z.val = new_zoom;
         break;
     }
+    calculate_zoomed_percentage(cam);
 }
 
 void view_zoom_camera_out(struct Camera *cam, long limit_max, long limit_min)
@@ -301,7 +319,9 @@ void view_zoom_camera_out(struct Camera *cam, long limit_max, long limit_min)
     long new_zoom;
     long old_zoom = get_camera_zoom(cam);
     
-    int zoom_rate = 100-lerp(zoom_speed_near, zoom_speed_far, 1.0-pow(zoomed_percent, 4.0));
+    int easing = (1.0-pow(zoomed_percent, 0.25)) * 100;
+    int zoom_rate = integer_lerp(zoom_speed_near, zoom_speed_far, easing);
+    zoom_rate = 100 - clamp(zoom_rate, 1, 99);
 
     switch (cam->view_mode)
     {

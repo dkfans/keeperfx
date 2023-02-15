@@ -529,28 +529,19 @@ static void draw_keepsprite_unscaled_in_buffer(unsigned short kspr_n, short a2, 
 static void draw_jonty_mapwho(struct BucketKindJontySprite *jspr);
 /******************************************************************************/
 
-static float range_percent(float range_input, float range_min, float range_max)
-{
-    range_input = max(range_min, min(range_input, range_max)); // clamp
-    return ((range_input - range_min)) / (range_max - range_min);
-}
-
-static void calculate_zoomed_percentage(struct Camera *cam) {
+static void calculate_hud_scale(struct Camera *cam) {
     // hud_scale is the current camera zoom converted to a percentage that ranges between base level zoom and fully zoomed out.
     // HUD items: creature status flowers, room flags, popup gold numbers. They scale with the zoom.
     switch (cam->view_mode) {
         case PVM_IsoWibbleView:
         case PVM_IsoStraightView:
-            zoomed_percent = range_percent(cam->zoom, CAMERA_ZOOM_MIN, CAMERA_ZOOM_MAX);
-            hud_scale = range_percent(cam->zoom, CAMERA_ZOOM_MIN, 4100);
+            hud_scale = normalize_within_range(cam->zoom, CAMERA_ZOOM_MIN, 4100);
             break;
         case PVM_FrontView:
-            zoomed_percent = range_percent(cam->zoom, FRONTVIEW_CAMERA_ZOOM_MIN, FRONTVIEW_CAMERA_ZOOM_MAX);
-            hud_scale = range_percent(cam->zoom, FRONTVIEW_CAMERA_ZOOM_MIN, 32768);
+            hud_scale = normalize_within_range(cam->zoom, FRONTVIEW_CAMERA_ZOOM_MIN, 32768);
             break;
         default:
             hud_scale = 0;
-            zoomed_percent = 0;
             return;
     }
 }
@@ -6840,7 +6831,7 @@ void draw_view(struct Camera *cam, unsigned char a2)
     long aposc;
     long bposc;
     SYNCDBG(9,"Starting");
-    calculate_zoomed_percentage(cam);
+    calculate_hud_scale(cam);
     camera_zoom = scale_camera_zoom_to_screen(cam->zoom);
     zoom_mem = cam->zoom;//TODO [zoom] remove when all cam->zoom will be changed to camera_zoom
     cam->zoom = camera_zoom;//TODO [zoom] remove when all cam->zoom will be changed to camera_zoom
@@ -9095,7 +9086,7 @@ void draw_frontview_engine(struct Camera *cam)
     player = get_my_player();
     if (cam->zoom > FRONTVIEW_CAMERA_ZOOM_MAX)
         cam->zoom = FRONTVIEW_CAMERA_ZOOM_MAX;
-    calculate_zoomed_percentage(cam);
+    calculate_hud_scale(cam);
     camera_zoom = scale_camera_zoom_to_screen(cam->zoom);
     zoom_mem = cam->zoom;//TODO [zoom] remove when all cam->zoom will be changed to camera_zoom
     cam->zoom = camera_zoom;//TODO [zoom] remove when all cam->zoom will be changed to camera_zoom

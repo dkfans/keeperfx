@@ -37,6 +37,7 @@ extern "C" {
 #define CEILING_POS(X) ((X-(int)(X)) > 0 ? (int)(X+1) : (int)(X))
 #define CEILING_NEG(X) ((X-(int)(X)) < 0 ? (int)(X-1) : (int)(X))
 #define CEILING(X) ( ((X) > 0) ? CEILING_POS(X) : CEILING_NEG(X) )
+#define clamp(value, min, max)  (((value) > (max)) ? (max) : (((value) < (min)) ? (min) : (value)))
 
 enum MathOperator {
     MOp_UNDEFINED                      =  0,
@@ -81,6 +82,8 @@ TbBool LbNumberSignsSame(long num_a, long num_b);
 char LbCompareMultiplications(long mul1a, long mul1b, long mul2a, long mul2b);
 long LbDiagonalLength(long a, long b);
 float lerp(float a, float b, float f);
+int integer_lerp(int a, int b, int t);
+float normalize_within_range(float a, float b, float c);
 long lerp_angle(long from, long to, float weight);
 double pow(double a, double b);
 /******************************************************************************/
