@@ -244,14 +244,26 @@ void project_point_to_wall_on_angle(const struct Coord3d *pos1, struct Coord3d *
     pos2->z.val = pos.z.val;
 }
 
+int calculate_zoom_rate()
+{
+    // If playing multiplayer then return original 85 value, because otherwise desyncs can occur if two players have different cfg values
+    if (game.game_kind != GKind_LocalGame)
+    {
+        return 85;
+    }
+
+    int easing = (1.0-pow(zoomed_percent, 0.25)) * 100;
+    int calc_rate = integer_lerp(zoom_speed_near, zoom_speed_far, easing);
+    calc_rate = 100 - clamp(calc_rate, 1, 99);
+    return calc_rate;
+}
+
 void view_zoom_camera_in(struct Camera *cam, long limit_max, long limit_min)
 {
     long new_zoom;
     long old_zoom = get_camera_zoom(cam);
 
-    int easing = (1.0-pow(zoomed_percent, 0.25)) * 100;
-    int zoom_rate = integer_lerp(zoom_speed_near, zoom_speed_far, easing);
-    zoom_rate = 100 - clamp(zoom_rate, 1, 99);
+    int zoom_rate = calculate_zoom_rate();
 
     switch (cam->view_mode)
     {
@@ -318,9 +330,7 @@ void view_zoom_camera_out(struct Camera *cam, long limit_max, long limit_min)
     long new_zoom;
     long old_zoom = get_camera_zoom(cam);
     
-    int easing = (1.0-pow(zoomed_percent, 0.25)) * 100;
-    int zoom_rate = integer_lerp(zoom_speed_near, zoom_speed_far, easing);
-    zoom_rate = 100 - clamp(zoom_rate, 1, 99);
+    int zoom_rate = calculate_zoom_rate();
 
     switch (cam->view_mode)
     {
