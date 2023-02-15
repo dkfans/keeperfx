@@ -521,6 +521,11 @@ msgstr ""
 "te lo van a dar por nada!"
 
 #. Return to Skybird Trill (lv416)
+#: guitext:49
+msgctxt "In-game message"
+msgid ""
+"These Heroes have faith in their quest to take what is yours. As you have no faith in anything, power must be your substitute! Use this reclaimed power to break down the doors to their dungeon and teach the real meaning of fear! The Monk of Might will be your first victim. Armed with his faith, he waits to face you nearby! "
+
 #. Return to Skybird Trill (lv416)
 #: guitext:50
 msgctxt "In-game message"
