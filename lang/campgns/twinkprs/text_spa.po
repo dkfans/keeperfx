@@ -1,23 +1,23 @@
 # *****************************************************************************
 #  Free implementation of Bullfrog's Dungeon Keeper strategy game.
 # *****************************************************************************
-#   @file twinkprs/text_pol.po
+#   @file twinkprs/text_spa.po
 #      KeeperFX Campaign Strings translation file
 #  @par Purpose:
 #      Contains translation of the national strings in the game.
 #  @par Comment:
 #      Use this file to improve the translation for specific language.
 #  @author   KeeperFX Team
-#  @date     25 Aug 2012 - 02 Jun 2014
+#  @date     25 Aug 2012 - 02 Oct 2012
 #  @par  Copying and copyrights:
 #      This program is free software; you can redistribute it and/or modify
 #      it under the terms of the GNU General Public License as published by
 #      the Free Software Foundation; either version 2 of the License, or
 #      (at your option) any later version.
 #
-# *****************************************************************************
-"Project-Id-Version: Twin Keepers campaign for KeeperFX\n"
-"Language: pl_PL\n"
+# *****************************************************************************                                                                               
+"Project-Id-Version: KeeperFX Twin Keepers\n"
+"Language: es\n"
 
 #. Generic victory message
 #: guitext:0
@@ -343,7 +343,7 @@ msgstr ""
 #: guitext:197 guitext:198 guitext:199 guitext:200
 msgctxt "In-game message"
 msgid "Moo"
-msgstr "Muuuu"
+msgstr ""
 
 #: guitext:202
 msgctxt "Level name"
@@ -353,12 +353,12 @@ msgstr ""
 #: guitext:203
 msgctxt "Level name"
 msgid "The Nameless Hero"
-msgstr "Bezimienny Bohater"
+msgstr ""
 
 #: guitext:204
 msgctxt "Level name"
 msgid "Invisible"
-msgstr "To Co Niewidoczne"
+msgstr ""
 
 #: guitext:205
 msgctxt "Level name"
