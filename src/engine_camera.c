@@ -69,7 +69,7 @@ long interpolated_camera_zoom;
 #endif
 /******************************************************************************/
 
-static void calculate_zoomed_percentage(struct Camera *cam) {
+static void update_zoomed_percentage(struct Camera *cam) {
 	// This function is performed once per turn, unlike calculate_hud_scale which is performed each rendering frame
     switch (cam->view_mode) {
         case PVM_IsoWibbleView:
@@ -326,7 +326,7 @@ void set_camera_zoom(struct Camera *cam, long new_zoom)
         cam->mappos.z.val = new_zoom;
         break;
     }
-    calculate_zoomed_percentage(cam);
+    update_zoomed_percentage(cam);
 }
 
 void view_zoom_camera_out(struct Camera *cam, long limit_max, long limit_min)
@@ -473,6 +473,8 @@ void view_set_camera_rotation_inertia(struct Camera *cam, long delta, long ilimi
 void init_player_cameras(struct PlayerInfo *player)
 {
     struct Thing* heartng = get_player_soul_container(player->id_number);
+
+    // Initialise first person camera
     struct Camera* cam = &player->cameras[CamIV_FirstPerson];
     cam->mappos.x.val = 0;
     cam->mappos.y.val = 0;
@@ -483,6 +485,7 @@ void init_player_cameras(struct PlayerInfo *player)
     cam->orient_a = LbFPMath_PI/2;
     cam->view_mode = PVM_CreatureView;
 
+    // Initialise isometric camera
     cam = &player->cameras[CamIV_Isometric];
     cam->mappos.x.val = heartng->mappos.x.val;
     cam->mappos.y.val = heartng->mappos.y.val;
@@ -497,7 +500,9 @@ void init_player_cameras(struct PlayerInfo *player)
         cam->view_mode = PVM_IsoWibbleView;
     }
     cam->zoom = settings.isometric_view_zoom_level;
+    update_zoomed_percentage(cam);
 
+    // Initialise parchment camera
     cam = &player->cameras[CamIV_Parchment];
     cam->mappos.x.val = 0;
     cam->mappos.y.val = 0;
@@ -505,6 +510,7 @@ void init_player_cameras(struct PlayerInfo *player)
     cam->horizontal_fov = 94;
     cam->view_mode = PVM_ParchmentView;
 
+    // Initialise frontview camera
     cam = &player->cameras[CamIV_FrontView];
     cam->mappos.x.val = heartng->mappos.x.val;
     cam->mappos.y.val = heartng->mappos.y.val;
@@ -512,12 +518,10 @@ void init_player_cameras(struct PlayerInfo *player)
     cam->horizontal_fov = 94;
     cam->view_mode = PVM_FrontView;
     cam->zoom = settings.frontview_zoom_level;
+    update_zoomed_percentage(cam);
 
+    // Initialise interpolation
     reset_interpolation_of_camera(player);
-    
-    // setup previous_zoomed_percent
-    calculate_zoomed_percentage(cam);
-    cam->previous_zoomed_percent = cam->zoomed_percent;
 }
 
 static int get_walking_bob_direction(struct Thing *thing)
@@ -927,10 +931,10 @@ void update_all_players_cameras(void)
 
 void zoom_moves_cam_towards_mouse(struct PlayerInfo *player, int pointer_x, int pointer_y)
 {
-    if (!is_my_player(player)) {return;}
-
     // This function runs after the zooming function is called.
+
     struct Camera* cam = player->acamera;
+    //if (!is_my_player(player)) {return;}
 
     int viewport_w = player->engine_window_width;
     int viewport_h = player->engine_window_height;
