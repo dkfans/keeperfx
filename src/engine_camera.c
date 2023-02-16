@@ -954,8 +954,8 @@ void zoom_moves_cam_towards_mouse(struct PlayerInfo *player, int pointer_x, int 
         distance_x = (previous_pos_x - new_pos_x) * 2.0;
         distance_y = (previous_pos_y - new_pos_y) * 2.0;
     } else {
-        distance_x = (new_pos_x - previous_pos_x) * 2.0;
-        distance_y = (new_pos_y - previous_pos_y) * 2.0;
+        distance_x = (new_pos_x - previous_pos_x) * 1.0;
+        distance_y = (new_pos_y - previous_pos_y) * 1.0;
     }
     
     if (distance_x < 0) {
