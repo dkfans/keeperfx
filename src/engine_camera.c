@@ -948,15 +948,8 @@ void zoom_moves_cam_towards_mouse(struct PlayerInfo *player, int pointer_x, int 
     float new_pos_x = (pointer_x - viewport_center_x) / cam->zoomed_percent;
     float new_pos_y = (pointer_y - viewport_center_y) / cam->zoomed_percent;
 
-    int distance_x;
-    int distance_y;
-    if (cam->previous_zoomed_percent < cam->zoomed_percent) {
-        distance_x = (previous_pos_x - new_pos_x) * 2.0;
-        distance_y = (previous_pos_y - new_pos_y) * 2.0;
-    } else {
-        distance_x = (new_pos_x - previous_pos_x) * 2.0;
-        distance_y = (new_pos_y - previous_pos_y) * 2.0;
-    }
+    int distance_x = (previous_pos_x - new_pos_x) * 2.0;
+    int distance_y = (previous_pos_y - new_pos_y) * 2.0;
     
     if (distance_x < 0) {
         view_move_camera_left(cam, abs(distance_x));
