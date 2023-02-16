@@ -1,32 +1,28 @@
-# *****************************************************************************
-#  Free implementation of Bullfrog's Dungeon Keeper strategy game.
-# *****************************************************************************
-#   @file text_eng.pot
-#      KeeperFX Campaign Strings translation template
-#  @par Purpose:
-#      Allows to create .po files used for translating the game.
-#      Also, acts as a source of english translation strings.
-#  @par Comment:
-#      Use this file to create or update source strings in translations.
-#  @author   KeeperFX Team
-#  @date     Dec 2020
-#  @par  Copying and copyrights:
-#      This program is free software; you can redistribute it and/or modify
-#      it under the terms of the GNU General Public License as published by
-#      the Free Software Foundation; either version 2 of the License, or
-#      (at your option) any later version.
-#
-# *****************************************************************************
-
+#. *****************************************************************************
+#.  Free implementation of Bullfrog's Dungeon Keeper strategy game.
+#. *****************************************************************************
+#.   @file revlord/text_spa.po
+#.      KeeperFX Campaign Strings translation file
+#.  @par Purpose:
+#      Contains translation of the national strings in the game.
+#.  @par Comment:
+#      Use this file to improve the translation for specific language.
+#.  @author   KeeperFX Team
+#.  @date     Jan 2021
+#.  @par  Copying and copyrights:
+#.      This program is free software; you can redistribute it and/or modify
+#.      it under the terms of the GNU General Public License as published by
+#.      the Free Software Foundation; either version 2 of the License, or
+#.      (at your option) any later version.
+#. *****************************************************************************
 "Project-Id-Version: Revenge of the Lord campaign for KeeperFX\n"
 "Report-Msgid-Bugs-To: https://github.com/dkfans/keeperfx/issues"
-"POT-Creation-Date: 2012-09-02 01:12+0200\n"
-"PO-Revision-Date: 2020-11-19 10:34+0100\n"
-"Language-Team: KeeperFX Team"
+"Language-Team: KeeperFX Team \n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 2.4.1\n"
+"X-Generator: Poedit 2.4.2\n"
+"Language: es\n"
 
 #. Generic victory message
 #: guitext:0
