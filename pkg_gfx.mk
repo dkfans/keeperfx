@@ -323,6 +323,6 @@ gfx/swipes-32/%.txt gfx/swipes-64/%.txt gfx/swipes-128/%.txt \
 gfx/textures-32/%.png gfx/textures-64/%.png gfx/textures-128/%.png \
 gfx/textures-32/%.txt gfx/textures-64/%.txt gfx/textures-128/%.txt \
 gfx/torturescr/%.png gfx/torturescr/%.txt gfx/guimap/%.txt gfx/parchmentbug/%.txt gfx/creatrportrait/%.txt:
-	git clone --depth=1 https://github.com/dkfans/FXGraphics.git gfx
+	git clone --depth=1 https://github.com/dkfans/FXGraphics.git gfx_temp && mv gfx_temp/* gfx
 
 #******************************************************************************
