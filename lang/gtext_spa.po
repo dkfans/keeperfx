@@ -5796,7 +5796,7 @@ msgstr "Puerta Oculta"
 #: guitext:996
 msgctxt "Mouse"
 msgid "Scroll Wheel Up"
-msgstr "Rueda del Ratón"
+msgstr "Rueda de Ratón"
 
 #: guitext:997
 msgctxt "Mouse"
