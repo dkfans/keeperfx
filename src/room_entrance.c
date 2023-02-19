@@ -124,7 +124,7 @@ TbBool generation_available_to_dungeon(const struct Dungeon * dungeon)
     SYNCDBG(9,"Starting");
     if (!dungeon_has_room_of_role(dungeon, RoRoF_CrPoolSpawn))
         return false;
-    if (game.armageddon.count_down + game.armageddon_cast_turn > game.play_gameturn) //No new creatures during armageddon
+    if ((game.armageddon.count_down + game.armageddon_cast_turn > game.play_gameturn) && (game.armageddon_cast_turn > 0)) //No new creatures during armageddon
         return false;
     return ((long)dungeon->num_active_creatrs < (long)dungeon->max_creatures_attracted);
 }
