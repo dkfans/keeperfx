@@ -1646,7 +1646,7 @@ static void add_heart_health_process(struct ScriptContext *context)
     if (!thing_is_invalid(heartng))
     {
         long old_health = heartng->health;
-        unsigned long new_health = heartng->health + context->value->arg1;
+        long long new_health = heartng->health + context->value->arg1;
         if (new_health > (signed long)game.dungeon_heart_health)
         {
             SCRIPTDBG(7,"Player %d's calculated heart health (%ld) is greater than maximum: %ld", heartng->owner, new_health, game.dungeon_heart_health);
