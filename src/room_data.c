@@ -95,7 +95,7 @@ struct AroundLByte const room_spark_offset[] = {
   {-256,  256},
 };
 
-unsigned char const slabs_to_centre_peices[] = {
+unsigned char const slabs_to_centre_pieces[] = {
   0,  0,  0,  0,  0,  0,  0,  0,  0,
   1,  1,  1,  2,  2,  2,  3,  4,  4,
   4,  5,  6,  6,  6,  7,  8,  9,  9,
@@ -2311,9 +2311,9 @@ long calculate_room_widespread_factor(const struct Room *room)
 {
     long nslabs = room->slabs_count;
     long i = nslabs;
-    if (i >= sizeof(slabs_to_centre_peices)/sizeof(slabs_to_centre_peices[0]))
-        i = sizeof(slabs_to_centre_peices)/sizeof(slabs_to_centre_peices[0]) - 1;
-    long npieces = slabs_to_centre_peices[i];
+    if (i >= sizeof(slabs_to_centre_pieces)/sizeof(slabs_to_centre_pieces[0]))
+        i = sizeof(slabs_to_centre_pieces)/sizeof(slabs_to_centre_pieces[0]) - 1;
+    long npieces = slabs_to_centre_pieces[i];
     return 2 * (npieces + 4 * nslabs);
 }
 
