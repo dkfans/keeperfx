@@ -5796,12 +5796,12 @@ msgstr "Puerta Oculta"
 #: guitext:996
 msgctxt "Mouse"
 msgid "Scroll Wheel Up"
-msgstr "Mueve la rueda del ratón hacia arriba"
+msgstr "Rueda del Ratón"
 
 #: guitext:997
 msgctxt "Mouse"
 msgid "Scroll Wheel Down"
-msgstr "Mueve la rueda del ratón hacia abajo"
+msgstr "Rueda del Ratón"
 
 #: guitext:998
 msgctxt "Mouse"
