@@ -5801,7 +5801,7 @@ msgstr "Rueda de Ratón"
 #: guitext:997
 msgctxt "Mouse"
 msgid "Scroll Wheel Down"
-msgstr "Rueda de Ratón"
+msgstr "Rueda del Ratón"
 
 #: guitext:998
 msgctxt "Mouse"
