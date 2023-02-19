@@ -24,13 +24,9 @@
 msgctxt "In-game message"
 msgid ""
 msgstr ""
-#. Generic victory message
-#: guitext:0
-msgctxt "In-game message"
-msgid ""
-msgstr ""
 
 #. Deserted Crypt Win Message
+
 #: guitext:1
 msgctxt "In-game message"
 msgid "We're done here but the siege just begins. Let's head for the Isle."
