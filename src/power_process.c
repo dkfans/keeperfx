@@ -678,16 +678,18 @@ void process_timebomb(struct Thing *creatng)
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     if (!is_thing_directly_controlled(creatng))
     {
-        ThingIndex target = cctrl->timebomb_target;
-        cctrl->timebomb_target = get_timebomb_target(creatng);
-        if (cctrl->timebomb_target != target)
+        struct Thing* trgtng = find_nearest_enemy_creature(creatng);
+        if (!thing_is_invalid(trgtng))
         {
-            struct Thing* trgtng = thing_get(cctrl->timebomb_target);
-            if (!thing_is_invalid(trgtng))
+            if ( (trgtng->mappos.x.stl.num != cctrl->moveto_pos.x.stl.num) || (trgtng->mappos.y.stl.num != cctrl->moveto_pos.y.stl.num) )
             {
-                if (!setup_person_move_to_position(creatng, trgtng->mappos.x.stl.num, trgtng->mappos.y.stl.num, NavRtF_Default))
+                cctrl->moveto_pos.x.stl.num = trgtng->mappos.x.stl.num;
+                cctrl->moveto_pos.y.stl.num = trgtng->mappos.y.stl.num;
+                cctrl->moveto_pos.z.stl.num = trgtng->mappos.z.stl.num;
+                cctrl->move_flags = NavRtF_Default;
+                if (creatng->active_state != CrSt_MoveToPosition)
                 {
-                    WARNLOG("The %s index %d cannot go to (%d %d)", thing_model_name(creatng), creatng->index, trgtng->mappos.x.stl.num, trgtng->mappos.y.stl.num);
+                    internal_set_thing_state(creatng, CrSt_MoveToPosition);
                 }
             }
         }
