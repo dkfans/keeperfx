@@ -66,7 +66,7 @@ msgctxt "In-game message"
 msgid ""
 "Be warned, Keeper! A band of heroes has left the keep and are heading for "
 "your domain!"
-msgstr "注意，守护者！我发现一群英雄已经离开了他们的基地并向你的地下城进发！"
+msgstr "注意，守护者！一群英雄已经离开了他们的基地并正在向你的地下城进发！"
 
 #: guitext:14
 msgctxt "In-game message"
@@ -133,13 +133,13 @@ msgctxt "In-game message"
 msgid ""
 "Without servants or gold it will be impossible to go on, Keeper. You have "
 "failed miserably."
-msgstr "你失去了唯一的仆从，无法继续挖金子，也无法继续发展，守护者。你已经悲惨"
+msgstr "你失去了唯一的仆从和仅有的金子，已经无法继续发展了，守护者。你已经悲惨"
 "地失败了。"
 
 #: guitext:22 guitext:24 guitext:26
 msgctxt "In-game message"
 msgid "This creature was vital to your success, Keeper! You have failed."
-msgstr "这只怪物是不可或缺的！现在它死了，你也失败了。"
+msgstr "这只怪物是不可或缺的，守护者！你已经失败了。"
 
 #: guitext:23
 msgctxt "In-game message"
@@ -351,7 +351,7 @@ msgid ""
 "various types of demons. It is almost a shame to see such a talent wasted... "
 "Almost."
 msgstr "莎卡拉，精通巫毒的老巫婆。她还学习过召唤多种恶魔的魔法。这样的天赋就这么"
-"被浪费了，简直令人羞愧…大概吧。"
+"被浪费了，简直令人遗憾…大概吧。"
 
 #: guitext:55
 msgctxt "In-game message"
@@ -523,7 +523,7 @@ msgctxt "In-game message"
 msgid ""
 "A prison is now available to you, in case you feel like giving some heroes a "
 "new home."
-msgstr "你得到了一间监狱，正好可以安排给英雄们作为他们的新家。"
+msgstr "你现在获得了监狱，正好可以安排给英雄们作为他们的新家。"
 
 #: guitext:80
 msgctxt "In-game message"
@@ -543,8 +543,8 @@ msgid ""
 "Although small and annoying, imps are the backbone of your existence. "
 "Without them you are nothing, and since you lost all your servants you are "
 "indeed... nothing."
-msgstr "虽然小鬼身材矮小又经常惹麻烦，但也是你地下城的顶梁柱，没有它们你什么也"
-"做不了。而现在你失去了所有的小鬼，你自己也变得一无是处了…"
+msgstr "虽然小鬼身材矮小又惹人烦，但也是你地下城的顶梁柱。没有它们你什么也"
+"做不了，而现在你失去了所有的小鬼，你自己也变得…一无是处了。"
 
 #: guitext:83
 msgctxt "In-game message"
@@ -601,13 +601,13 @@ msgid ""
 "An imp was carrying your Create Imp spell in its backpack. You are back in "
 "business. Pay the wizards a little visit, one that they will not survice, "
 "and level their dungeon for good measure."
-msgstr "这只小鬼的袋子里带着制造小鬼魔法书。你现在又有活干了。别忘了见那些巫师"
+msgstr "一只小鬼的背包里带来了制造小鬼魔法书。你现在又有活干了。别忘了见那些巫师"
 "一面，让他们没有生存的余地，并把他们的地下城夷为平地。"
 
 #: guitext:92
 msgctxt "In-game message"
 msgid "Revenge is ever so sweet, don't you agree, Keeper? A marvelous victory."
-msgstr "你从未感觉复仇的滋味是如此甜蜜，不是吗，守护者？一次伟大的胜利！"
+msgstr "复仇的滋味总是如此甜蜜，不是吗，守护者？一次伟大的胜利！"
 
 #: guitext:93 guitext:94 guitext:95 guitext:96 guitext:97 guitext:98
 #: guitext:99 guitext:100 guitext:101 guitext:102 guitext:103 guitext:104

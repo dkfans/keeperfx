@@ -1,12 +1,13 @@
 # *****************************************************************************
 #  Free implementation of Bullfrog's Dungeon Keeper strategy game.
 # *****************************************************************************
-#   @file questfth/text_fre.po
-#      KeeperFX Campaign Strings translation file
+#   @file questfth/text_chi.pot
+#      KeeperFX Campaign Strings translation template
 #  @par Purpose:
-#      Contains translation of the national strings in the game.
+#      Allows to create .po files used for translating the game.
+#      Also, acts as a source of english translation strings.
 #  @par Comment:
-#      Use this file to improve the translation for specific language.
+#      Use this file to create or update source strings in translations.
 #  @author   KeeperFX Team
 #  @date     25 Aug 2012 - 02 Oct 2012
 #  @par  Copying and copyrights:
@@ -16,14 +17,11 @@
 #      (at your option) any later version.
 #
 # *****************************************************************************
-"Project-Id-Version: KeeperFX CCP 0.40\n"
-"Last-Translator: Tomasz Lis <listom@gmail.com>\n"
-"Language-Team: Stanislas Dolcini <dolcini.stan@orange.fr>\n"
-"Language: fr_FR\n"
+"Project-Id-Version: Quest for the Hero campaign for KeeperFX\n"
+"Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Poedit-SourceCharset: utf-8\n"
 "X-Generator: Poedit 1.5.7\n"
 
 #. Generic victory message
@@ -38,45 +36,36 @@ msgid ""
 "This realm used to be one of wealth and peace. Now it is torn and lost in "
 "chaos ever since Metilians have been sighted, lured in by the gold. Keep a "
 "watchful eye on your ally, and whipe out any Metilians you encounter."
-msgstr ""
-"Autrefois ce royaume était riche et en paix. Désormais, il est déchiré et à "
-"sombré dans le chaos depuis que les Metilians ont été aperçus, appatés par "
-"l'or. Faites attention à votre allié, et éradiquez tous les Metilians que "
-"vous rencontrerez."
+msgstr "这里曾经是一个充满财富与和平的王国。而如今，随着梅提利安族被这里的金子吸引"
+"而来，这片土地遭到摧残并卷入了混战中。盯紧你的盟友，并消灭你所遇到的所有梅提利安族。"
 
 #: guitext:2
 msgctxt "In-game message"
 msgid "Watch it keeper, your presence has not gone unnoticed..."
-msgstr "Soyez sur vos gardes, Gardien. Vous n'êtes pas passés inaperçus."
+msgstr "小心，守护者，敌人已经注意到你的存在了…"
 
 #: guitext:3
 msgctxt "In-game message"
 msgid ""
 "You might have noticed by now, your minions happen to be fast and cheap at "
 "training. As a result, they do terrible at research."
-msgstr ""
-"Vous avez dû vous en rendre compte, vos larbins s'entraînent très vite et "
-"pour une misère. En revanche, il font de très mauvais chercheurs."
+msgstr "你可能已经发现了，你的怪物变得行动迅速且训练价格低廉。然而，他们完全不擅长研究。"
 
 #: guitext:4
 msgctxt "In-game message"
 msgid ""
 "Your troops may be cheap and fast, they require a lot of food. Keep this in "
 "mind Keeper, make sure your Hatchery is large enough."
-msgstr ""
-"Vos troupes sont peut être rapides et peu chères, mais elles ont besoin de "
-"beaucoup de nourriture. Gardez cela en tête gardien, et veillez à ce que "
-"votre couvoir soit assez grand."
+msgstr "虽然你的怪物训练价格低廉且行动迅速，但是他们要吃的食物也更多了。"
+"你必须时刻保证你的孵化室足够大，守护者。"
 
 #: guitext:5
 msgctxt "In-game message"
 msgid ""
 "It seems the perfection of the Gror has arrived, a Horned Reaper. These "
 "creatures are by far your most powerful troops, but they won't work for free."
-msgstr ""
-"Il semble que la perfection de Gror soit arrivée.  Les Démons Cornus sont de "
-"loins vos créatures les plus puissante, mais elles ne travailleront pas "
-"gratuitement."
+msgstr "完美的冥界使者戈罗尔已经来了。这种怪物是你目前最强的一种了，"
+"但是它们是不会无偿为你工作的。"
 
 #: guitext:6
 msgctxt "In-game message"
@@ -84,10 +73,8 @@ msgid ""
 "A Dark Mistress has found her way into your tribe. These pain loving "
 "creatures offer the only ranged magic support to your troops, and like "
 "Horned Reapers, they require payment."
-msgstr ""
-"Une maîtresse noire a trouvé son chemin jusqu'à votre tribu. Ces créatures "
-"masochistes offrent la seule protection à distance pour soutenir vos "
-"troupes, et comme les Démons Cornus, Elles doivent ^^être payées"
+msgstr "一个黑暗女王已经投靠了你的部落。这些受虐狂会使用远程魔法攻击来"
+"支援你的部队，但和冥界使者一样，她们需要高昂的薪水。"
 
 #: guitext:7
 msgctxt "In-game message"
@@ -95,10 +82,8 @@ msgid ""
 "A splendid performance, great one. No time to celebrate though, you are far "
 "from finished. There are still Metilians in the region, feeding off on the "
 "gold. Find and slay them!"
-msgstr ""
-"Une réussite formidable, votre Grandeur. Pas le temps de la célébrer "
-"cependant, vous êtes loin d'avoir fini. Il y a toujours des Metilians dans "
-"la region, se nourrisant d'or. Trouvez-les et éliminez les."
+msgstr "棒极了，伟大的主人。但现在还不是庆祝的时候，因为任务还远没有完成。"
+"这片土地上还有不少梅提利安族，他们靠劫掠金子为生。找到并杀掉他们！"
 
 #: guitext:8
 msgctxt "In-game message"
@@ -106,11 +91,8 @@ msgid ""
 "Flies could be considered your personal airforce, capable of sighting and "
 "attacking enemies from a long distance range. Although not your strongest "
 "units, they gain experience the fastest, and are well worth their training."
-msgstr ""
-"Les mouches peuvent être considéres comme vos forces aériennes, capables de "
-"voir et d'attaquer les enemis à longue distance. Bien qu'elles ne soient pas "
-"vos unités les plus puissantes, elles sont les plus rapides à entraîner et "
-"cela en vaut bien la peine."
+msgstr "苍蝇就像是你的私人空军部队，它们可以从远处侦查到敌人并发起攻击。虽然它们"
+"并不强大，但是升级速度是最快的，因此十分值得训练。"
 
 #: guitext:9
 msgctxt "In-game message"
@@ -118,10 +100,8 @@ msgid ""
 "A dark, clammy maze. The Dark Gods are putting you to the test, great one. "
 "Find yourself a way out of this, but beware. Who knows what could lurk deep "
 "inside these mysterious hallways..."
-msgstr ""
-"Un labyrinthe humide et sombre. Les Sombres Dieux vous mettent au défi, "
-"votre Grandeur. Taillez vous un chemin dans ce labyrinthe, mais faites "
-"attention. Qui sait ce qui pourrait se cacher dans ces couloirs mystérieux."
+msgstr "好一个黑暗又潮湿的洞穴迷宫。这是黑暗之神对你的考验，伟大的主人。"
+"找到一条正确的路走出这里，但也要小心谨慎。谁也不知道这些神秘的通道里藏着什么东西…"
 
 #: guitext:10
 msgctxt "In-game message"
@@ -131,13 +111,9 @@ msgid ""
 "their strength, where only the strongest survive and manage to venture into "
 "higher realms. Proof your skills and your worth to lead these creatures, "
 "Keeper. The Dark Gods have special plans for you..."
-msgstr ""
-"Hmmmm oui... Bienvenue dans le coeur de la section Metilianne du monde "
-"soutterain, Gardien. La matrice pour être exacte, c'est ici que les "
-"Metilians montrent leur valeur, ou seuls les plus fort survivent se "
-"débrouillent pour se rendre dans les royaumes supérieurs.  Montrez vos "
-"capacité et votre valeur pour prouver au Metilians que vous pouvez les "
-"diriger, Gardien. Les Sombres Dieux ont des plans spéciaux pour vous."
+msgstr "嗯，没错…欢迎来到梅提利安地下城的中心，守护者。确切的说，这里是征募处，是"
+"梅提利安族证明自己实力的地方，只有最强大的人才能存活下来并前往更高级的王国冒险。"
+"证明你自己有足够的能力来驾驭这些怪物吧，守护者。黑暗之神为你制定了个特别的计划…"
 
 #: guitext:11
 msgctxt "In-game message"
@@ -145,10 +121,8 @@ msgid ""
 "Beware! A particular nasty group of Metilians have crawlen into your region. "
 "Defeating them though might be enough to proof your worth to the dark "
 "gods... Make them feel it!"
-msgstr ""
-"Prenez Garde! Un groupe particulièrement nuisible de Metilians ont rampé "
-"dans votre région. Les défaire en revanche pour être considéré comme une "
-"preuve de valeur aux yeux des Dieux du Mal... Faites le leur sentir."
+msgstr "小心！一群非常狡猾的梅提利安族已经溜进了你的领地。如果你能击败他们，"
+"就足以展示给黑暗之神作为你实力的证明…让他们感受一下吧！"
 
 #: guitext:12
 msgctxt "In-game message"
@@ -163,19 +137,11 @@ msgid ""
 "to lose. With the lava river dried up, heroes have the upperhand in this "
 "realm as well. Your mission is simple, try and find yourself a way "
 "northward, before heroes find out about your presence, and destroy you."
-msgstr ""
-"Un royaume puissant à la surface à commencé la construction d'une tour, plus "
-"grande qu'aucune autre. Cette forteresse est supposée donnér aux héros "
-"locaux le contrôle total des terres d'une position stratégique. Les forces "
-"maléfiques alliées à la surface ne peuvent rien faire contre ça. Ils sosnt "
-"coincés sur la baie par des troupes de héros les plus puissant. Mécontents "
-"comme l'étaient les Dieux du Mal, la décision fut prise de traiter cette "
-"menace de façon souterraine. Cette énorme construction est soutenue par "
-"trois fondations et l'une d'entre elles se trouve dans ce royaume. Il n'y a "
-"pas de temps à perdre. Avec la rivière de lave asséchée, les héros ont aussi "
-"la main mise sur ce royaume. Votre mission est simple, frayez vous un chemin "
-"vers le nord, avant que les héros ne découvrent votre présence et ne vous "
-"détruisent."
+msgstr "地表上面的一个强大王国正在建造一座有史以来最宏伟的高塔。这个要塞应该是英雄们"
+"为了在地表上面控制战略位置用的。你的邪恶势力同盟无法前来帮你抗敌，"因为他们正被强力"
+"英雄部队拦截在海湾处。尽管黑暗之神并不情愿，他还是决定亲手处理地下的威胁。"
+"这座巨大的建筑有三座地基，其中一座就在这片土地上。不要浪费时间。随着岩浆河的干涸，"
+"英雄们也会占据优势。你的任务很简单，在英雄们发现并消灭你之前，找到通往北方的一条路。"
 
 #: guitext:13
 msgctxt "In-game message"
@@ -184,43 +150,34 @@ msgid ""
 "original path, and is now slowly melting away the weak walls surrounding the "
 "Tower's fundament. The heroes are trapped and scattered, this is your chance "
 "to find and destroy the enemy heart!"
-msgstr ""
-"Merveilleux! Quand le barrage à été brêché, la lave en fusion à réclamé son "
-"lit originel, et fait maintenant fondre les murs faibles autours des "
-"fondations de la tour. Les héros sont piégés et dispersés. C'est votre "
-"chance de trouver et de détruire le coeur du donjon."
+msgstr "太棒了！随着堤坝被摧毁，炙热的岩浆又流回了原来的河道，并慢慢融化着高塔"
+"地基附近的摇摇欲坠的墙。英雄们被岩浆困住而分散了，这是你寻找并摧毁敌人心脏的好机会！"
 
 #: guitext:14
 msgctxt "In-game message"
 msgid ""
 "While passing through, it might be useful to enter and explore the Metilian "
 "caverns. WHo knows what you can find?..."
-msgstr ""
-"Tant que vous y êtes, il pourrait être utile d'entrer et d'explorer les "
-"cavernes Metiliannes qui sais ce que vous pouvez y trouver..."
+msgstr "在你路过梅提利安族的洞穴时，不妨去探个究竟，或许会有用。谁知道你能找到什么东西？…"
 
 #: guitext:15
 msgctxt "In-game message"
 msgid "Alas Keeper, of your old dungeon remains nothing more but ruins..."
-msgstr "Hélas Gardien, de votre vieux donjon, il ne reste que des ruines."
+msgstr "唉，曾经统治着这座古老地下城的守护者，已经只剩下一片废墟了…"
 
 #: guitext:16
 msgctxt "In-game message"
 msgid ""
 "Ahhh, the enemy heart... Destroying it will definately call for the lord of "
 "this realm's intervention. Attack it now!"
-msgstr ""
-"Ahhh, le coeur du donjon enemi... Le détruire va définitivement attirer "
-"l'intervention du Seigneur de ces lieux. Attaquez-le maintenant!"
+msgstr "啊，是敌人的心脏…如果摧毁它，毫无疑问会逼迫国王亲自进入地下城。趁现在攻击它吧！"
 
 #: guitext:17
 msgctxt "In-game message"
 msgid ""
 "Make haste, Keeper. You wouldn't want to give these heroes the opportunity "
 "to assemble too much reinforcements, would you?"
-msgstr ""
-"Hâtez-vous, Gardien. Vous ne voudriez pas donner à ces héros la possibilité "
-"de de rassembler trop de renforts, n'est-ce pas ?"
+msgstr "不要犹豫，你一定不想给那些英雄请求援军的机会吧，守护者？"
 
 #: guitext:18
 msgctxt "In-game message"
@@ -228,10 +185,8 @@ msgid ""
 "You are taking too long, evil one. Hero forces are assembling and preparing "
 "an assault. The longer you take, the more difficult it will be to stop them "
 "once they arrive."
-msgstr ""
-"Vous prenez trop de temps, votre malfaisance. Les Héros se rassemblent et "
-"préparent un assault. Plus vous prenez de temps, plus il sera difficile de "
-"les arrêter quand ils arriveront."
+msgstr "你花了太长时间了，邪恶的主人。英雄部队正在集合并准备出击。你花的时间越长，"
+"想要阻挡这些英雄部队的进攻就越困难。"
 
 #: guitext:19
 msgctxt "In-game message"
@@ -241,12 +196,9 @@ msgid ""
 "they make their move, intending on gaining control of the region to claim "
 "the victory as theirs. This insolence can not be tolerated! You know what to "
 "do."
-msgstr ""
-"Les nids des Metilians rivaux vous ont regardé vous occupez des opposants, "
-"et maintenant que les fondations de la tour tombent en ruines et fondent, "
-"ils se mettent en marche, dans le but de prendre le contrôle de la région et "
-"de réclamer la victoir comme la leur. Cette insolence ne peut pas être "
-"tolérée! Vous savez quoi faire."
+msgstr "你的竞争对手，梅提利安族正在附近偷窥着你对付英雄时的一举一动，"
+"而高塔的地基已经融化并逐渐松动，他们正准备展开行动，夺取你的胜利果实。"
+"这种卑鄙行为不可容忍！你知道该怎么做的。"
 
 #: guitext:20
 msgctxt "In-game message"
@@ -255,28 +207,21 @@ msgid ""
 "hopeless, Heroes still try to gain a foothold to possibly regain and "
 "reestablish the region, as well to rebuild the fundament. This should be "
 "nothing more but a minor pest to you though, their desperation is clear."
-msgstr ""
-"Même si la forteresse est déjà en ruine et que la situation est sans espoir, "
-"les héros essaient encore de gagner du terrain pour regagner et réétablir la "
-"région, et reconstruire les fondations. Cela ne doit être qu'un léger contre-"
-"temps pour vous cependant, leur desespoir est évident."
+msgstr "虽然英雄们的要塞已毁，他们已经没有机会了，但英雄们仍然不肯放弃，要找一处"
+"立足之地来重建这座地基，甚至这个王国。现在他们对你来说不过是一只蝼蚁，他们的败局已定。"
 
 #: guitext:21
 msgctxt "In-game message"
 msgid ""
 "Make sure to explore any cavern you find Keeper, Metilians lurk everywhere."
-msgstr ""
-"Veillez à explorer toutes les cavernes que vous trouverez gardien. Les "
-"Métilians se cachent partout."
+msgstr "把所有的洞穴都探索一遍，守护者，据说梅提利安族到处劫掠财宝。"
 
 #: guitext:22
 msgctxt "In-game message"
 msgid ""
 "Marvelous! None would dare to question your might now, oh great one!... "
 "Although..."
-msgstr ""
-"Merveilleux! Personne n'osera remettre en cause votre prestige désormais, "
-"votre Grandeur... Bien que..."
+msgstr "棒极了！现在没有人敢质疑你的意志了，哦，伟大的主人！… 虽然…"
 
 #: guitext:23
 msgctxt "In-game message"
@@ -287,14 +232,10 @@ msgid ""
 "Keeper, and find a way to break the dam. This won't be easy. Note that it "
 "would only be a matter of time untill your Dungeon is discovered, and heroes "
 "will come to destroy it. Make haste!"
-msgstr ""
-"Des maudits héros ont réussi à capturer un groupe allié de Metilians, qui "
-"sont tenus prisonniers. Un assault de grande envergure ne ferait que les "
-"alerter, et ce n'est pas quelque chose que l'on veut. Infiltrez la région "
-"aussi silencieusement que possible, Gardien et trouvez un moyen de briser le "
-"barrage. Ce ne sera pas facile. Ce n'est qu'un question de temps avant que "
-"votre donjon ne soit dévouvert et que les héros ne viennent le détruire. "
-"Hâtez-vous."
+msgstr "英雄们俘虏了一伙梅提利安族，并将他们囚禁了。如果发动大规模的进攻只会打草惊蛇，"
+"而这并不是我们所希望的…悄无声息地潜入这片区域，然后想方设法破坏这里的堤坝，守护者。"
+"这并不是件容易事。记住，只要不让英雄们发现了你地下城的位置，并前来摧毁你的地下城，"
+"这只是个时间问题。抓紧行动吧！"
 
 #: guitext:24
 msgctxt "In-game message"
@@ -303,12 +244,8 @@ msgid ""
 "forms even a threat to the Dark gods! You have proven your worth so far, but "
 "this will be a challenge unlike any before. Good luck, evil one. It has been "
 "a pleasure working with you..."
-msgstr ""
-"Un héros légendaire réside dans cette région. Il est dit qu'il est si "
-"puissant, qu'il représente une menace au Dieux du Mal. Vous avez prouvez "
-"votre valeur jusqu'à maintenant, mais ce défi dépasse tout ce que vous "
-"connaissez. Bonne chance votre Méchanceté. Ce fut un plaisir de travailler "
-"avec vous..."
+msgstr "一名传奇英雄隐居在这里，传说他的强大曾经让黑暗之神都畏惧三分！一直以来你的"
+"表现都很出色，但这一次挑战非同寻常。祝你好运，邪恶的主人。与你共事是一种享受…"
 
 #: guitext:25
 msgctxt "In-game message"
@@ -316,29 +253,25 @@ msgid ""
 "Hero forces are already assembling and grouping. Strike fast and hard, this "
 "legendary Hero will be a pest on his own, and you can't afford having Heroes "
 "group to aid him."
-msgstr ""
-"Les héros se rassemblent en ce moment. Frappez vite et fort, ce héros "
-"légendaire sera casse-pied tout seul, et vous ne pouvez pas vous permettre "
-"de laisser les héros se rassembler pour l'aider."
+msgstr "英雄部队已经开始集结了。趁着这名传奇英雄还势单力薄，快准狠地出击，"
+"一旦英雄部队前来支援他，你将无法抵挡。"
 
 #: guitext:26
 msgctxt "In-game message"
 msgid "Hurry, Keeper. I smell heroes gathering..."
-msgstr "Dépêchez vous,  Gardien. J'entends les héros se réunir..."
+msgstr "快点，守护者。我感觉英雄正在集结部队…"
 
 #: guitext:27
 msgctxt "In-game message"
 msgid "You are taking too long!"
-msgstr "Vous prenez trop de temps!"
+msgstr "你花的时间太长了！"
 
 #: guitext:28
 msgctxt "In-game message"
 msgid ""
 "More and more heroes gather Keeper, this isn't good. It is likely their "
 "forces will be too numerous to handle."
-msgstr ""
-"De plus en plus de héros se réunissent Gardien, cela n'est pas bon. Il "
-"semble que ses forces seront trop dures à rmaîtriser."
+msgstr "越来越多的英雄部队正在集结，这可不妙。似乎他们的人数已经众多到让你难以应付了。"
 
 #: guitext:29
 msgctxt "In-game message"
@@ -346,10 +279,8 @@ msgid ""
 "Too late, Keeper! The heroes have taken it upon themselves to launch a full-"
 "scale assault now that enough forces have gathered. Let us hope you know "
 "what you are doing."
-msgstr ""
-"Trop tard, Gardien! Les héros vont lancer un assaut d'envergergure "
-"maintenant que suffisamment de forces ont été réunis. Espérons que vous "
-"savez ce que vous faîtes."
+msgstr "太晚了，守护者！英雄们已经集结了足够强大的部队，并展开了全面攻势。"
+"我希望你清楚你自己在干什么。"
 
 #: guitext:30
 msgctxt "In-game message"
@@ -357,15 +288,13 @@ msgid ""
 "Passing onto holy ground doesn't seem like something this Hero is prepared "
 "to tolerate, good! His party has arrived, and he is furious. Good luck, oh "
 "great one."
-msgstr ""
-"Marcher sur un sol sacré n'est pas quelque chose que ce héros est préparé à "
-"tolérer, bien! Son groupe est arrivé, et il est furieux. Bonne chance, votre "
-"Grandeur."
+msgstr "这名传奇英雄似乎无法容忍你这邪恶的家伙踏足这片圣地，很好！他的部队已经到来，"
+"而他也十分愤怒。祝你好运，伟大的主人。"
 
 #: guitext:31
 msgctxt "In-game message"
 msgid "You are indeed, a Master Keeper."
-msgstr "Vous êtes vraiment, un Maître du Donjon."
+msgstr "你真的是一名大师级守护者。"
 
 #: guitext:32
 msgctxt "In-game message"
@@ -373,20 +302,16 @@ msgid ""
 "Beetles are by far your weakest troops. Especially at the lower levels they "
 "proof their worth though, and their fast speed make them ideal imp "
 "interceptors."
-msgstr ""
-"Les scarabées sont de loin vos plus faibles créatures. Cependant, ils sont "
-"très utile notamment à un niveau très faible, et leur grande vitesse en font "
-"des intercepteurs de lutins très efficaces."
+msgstr "甲虫是你目前最弱小的部队。但在低等级的时候它们很值得培养，而且它们"
+"敏捷的速度十分适合追击敌人的小鬼。"
 
 #: guitext:33
 msgctxt "In-game message"
 msgid ""
 "Spiders are powerfull and usefull back-up units for Metilians, capable of "
 "stunning enemies and rendering them vulnerable targets for other Metilians."
-msgstr ""
-"Les Araignées sont puissantes et des unités de soutien pour les Metilians, "
-"capable d'assomer des enemis, et de les rendres vulnérables pour les autres "
-"Métilians."
+msgstr "蜘蛛是梅提利安族强大而实用的后援部队，它们可以束缚住敌人，使他们变成其他"
+"战友的活靶子。"
 
 #: guitext:34
 msgctxt "In-game message"
@@ -395,7 +320,8 @@ msgid ""
 "lethal creature, although not the toughest of the lot, possesses good speed, "
 "and is capable of firing powerfull blasts of fire at enemies at long range, "
 "dealing unmatched damage in a single shot."
-msgstr "Comme les Cerbères "
+msgstr "和地狱犬一样，龙是梅提利安军队的骨干成员。这条致人死命的怪兽虽然不是很强壮，"
+"却有敏捷的速度，并且可以在远处发射强力的火球轰炸敌人，每一发的威力都无可匹敌。"
 
 #: guitext:35
 msgctxt "In-game message"
@@ -404,21 +330,15 @@ msgid ""
 "like the beetle not capable of dealing powerfull damage, they can withstand "
 "a good amount of blows, train fast, and are most effective at keeping "
 "enemies at range from Dragons."
-msgstr ""
-"Les Cerbères sont, avec les Dragons l'épine dorsale des armées Metiliannes. "
-"Bien que comme les scarabées incapable de faire de gros dégâts , ils peuvent "
-"subir une grande quantité de dégâts, s'entraîner rapidement et sont plus "
-"efficaces pour tenir les enemis loins des dragons."
+msgstr "和龙一样，地狱犬是梅提利安军队的骨干成员。虽然它们和甲虫一样输出不高，"
+"但它们可以承受大量的伤害，且训练速度快，最适合将敌人吸引到龙的攻击范围内。"
 
 #: guitext:36
 msgctxt "In-game message"
 msgid ""
 "Demonspawns are mystical, above average creatures who learn a good arsenal "
 "of spells, and form a perfect support unit for your spiders."
-msgstr ""
-"Les Démons Avortons sont mystiques, au dessus des créatures normales qui "
-"apprennent un grand arsenal de sorts, et forment un soutien parfait pour vos "
-"araignées."
+msgstr "恶鬼是一种实力中上等，精通多种魔法的神秘生物，非常适合与你的蜘蛛协同作战。"
 
 #: guitext:37
 msgctxt "In-game message"
@@ -428,12 +348,9 @@ msgid ""
 "Metilians can do any research themselves. It is only a matter of time before "
 "these monsters grow fed up with a Warlock's attitude, and kill them. On top "
 "of it all, there's no food available for these sorcerors."
-msgstr ""
-"Un Sorcier est entré dans votre donjon, bien que contre sa volonté. Les "
-"sorciers sont des eclaves pour les Metilians, forcés de faire leurs "
-"recherches puisqu'aucun des Metilians ne peut le faire. C'est juste une "
-"question de temps avant que ces monstres s'énervent de l'attitude du "
-"sorcier, et ne le tue. En plus, Il n'y a pas de nourriture pour ces sorciers."
+msgstr "一名魔术师进入了你的地下城，尽管他一定很不情愿。魔术师是梅提利安族的奴隶，"
+"他们被不学无术的梅提利安族胁迫来搞研究。这些怪物们迟早会无法忍受这些魔术师的古怪"
+"脾气，并杀掉他们的。最重要的是，这里并没有适合魔术师的食物。"
 
 #: guitext:38
 msgctxt "In-game message"
@@ -443,14 +360,12 @@ msgid ""
 "heavy, large beasts can both dish out and take damage with eaze, and their "
 "lightning attacks add to the already harsh ranged punch Metilians can dish "
 "out. This comes at a price though, these monsters require a LOT of gold..."
-msgstr ""
-"La suprémacie est entrée dans votre donjon, finalement. Les Démons Bileux "
-"rendent vraiment les Metilians dangereux.  Bien que atrocement lent, ces "
-"créatures lourdes et grosses peuvent faire le ménage et prendre des dégâts "
-"aisément, et leur attaque foudroyante ne fait qu'augmenter la puissance de "
-"feu à distance des Metilians. Cela à un prix néamoins, ces monstres ont "
-"besoin de Beaucoup d'argent."
+msgstr "终于，一只重量级的家伙进入了你的地下城。巨魔以一己之力撑起了整个梅提利安族"
+"的实力。虽然它们行动非常缓慢，但这些巨大的重量级怪兽既能轻松碾碎敌人，又能轻松"
+"扛下敌人的攻击，它们的闪电魔法也为梅提利安族的远程输出锦上添花。不过，凡事都有代价，"
+"这种怪物同时也需要巨量的金钱作为薪水…"
 
+#. Level Waterdream Warm objective
 #: guitext:39
 msgctxt "In-game message"
 msgid ""
@@ -458,9 +373,10 @@ msgid ""
 "domain that lived in feeling but it surely won't be long before their kin "
 "launch another assault."
 msgstr ""
-"La première vague d'attaquants gît en pièces sur le sol. Votre domaine donne "
-"l'impression d'être habité. La vague suivante ne va pas tarder."
+"第一波的攻击者已经尸横遍野，你的领域中又出现了生存的感觉，但敌人很快就会发起"
+"第二次攻击。"
 
+#. Level Waterdream Warm objective
 #: guitext:40
 msgctxt "In-game message"
 msgid ""
@@ -468,32 +384,33 @@ msgid ""
 "Hatchery's topsoil fertile. They also serve as warnings to other foolhardy "
 "adventurers, of course."
 msgstr ""
-"Vous avez encore gagné, Gardien. Tous ces cadavres vont contribuer à la "
-"fertilisation du sol de votre couvoir. Ils serviront également "
-"d'avertissement aux autres aventuriers imprudents."
+"守护者，你再一次的获得了胜利。那些尸体将保持你的孵化室的土壤的肥沃。这对那些"
+"有勇无谋的冒险家们也是一种警告。"
 
+#. Level Waterdream Warm objective
 #: guitext:41
 msgctxt "In-game message"
 msgid ""
 "All is quiet again. Use this time to ready yourself for the next attacks. "
 "The enemy is only regrouping. It is not yet defeated."
 msgstr ""
-"Tout est à nouveau calme. Profitez-en pour vous préparez aux prochaines "
-"attaques. L'ennemi se regroupe et n'est pas encore battu."
+"一切又恢复了平静。利用这短暂的时间为抵抗下一次进攻做准备吧。敌人正在重新组织"
+"军队。他们仍然没有被彻底击败。"
 
+#. Level Waterdream Warm information
 #: guitext:42
 msgctxt "In-game message"
 msgid ""
 "Is that Imp playing football with a decapitated head? Stay alert, Keeper."
-msgstr ""
-"Ce lutin joue au foot avec la tête de quelqu'un, ou quoi ? Restez vigilant, "
-"Gardien."
+msgstr "这个小鬼在用被砍下的头颅踢足球吗？请保持警戒，守护者。"
 
+#. Level Waterdream Warm objective
 #: guitext:43
 msgctxt "In-game message"
 msgid "Now would be an excellent time to train a Warlock."
-msgstr "C'est l'occasion rêvée d'entraîner un sorcier."
+msgstr "现在是训练一个魔术师的最佳时间。"
 
+#. Level Waterdream Warm information
 #: guitext:44
 msgctxt "In-game message"
 msgid ""
@@ -501,10 +418,10 @@ msgid ""
 "perfected. Cast it on a creature and observe the dramatic increase in its "
 "speed. The effect wears off after a while."
 msgstr ""
-"Vos recherches portent déjà leurs fruits. Le sortilège d'Accéleration est "
-"une réussite. Utilisez-le et constatez la rapidité incroyable de la "
-"créature. L'effet disparaît progressivement."
+"你的研究有成果了。速度术已经研制成功了。对一个怪物施法，然后观察他的速度的神"
+"奇般的提高。魔法在一段时间后会失效。"
 
+#. Level Flowerhat objective
 #: guitext:45
 msgctxt "In-game message"
 msgid ""
@@ -512,21 +429,20 @@ msgid ""
 "nearby but do not yet venture north. Powerful adversaries lurk there. It "
 "would be wiser not to disturb them until you are prepared."
 msgstr ""
-"Construisez votre donjon avec les salles à votre disposition et réclamez le "
-"portail le plus proche, mais ne vous aventurez pas au Nord. Des ennemis très "
-"puissants y sont tapis et il vaudrait mieux ne pas les déranger tant que "
-"vous ne serez pas prêt."
+"继续建设你的地下城，建造房间并占领附近的入口。但不要冒险向北边发展，强大的敌"
+"人潜伏在那里。在你有充分的准备之前不要打扰他们，这是明智的作法。"
 
+#. Level Flowerhat information
 #: guitext:46
 msgctxt "In-game message"
 msgid ""
 "Clever research has given your Imps the engineering skill to build Bridges. "
 "You will need Bridges to cross some of the more hazardous underworld terrain."
 msgstr ""
-"Grâce à des recherches brillantes, vos lutins peuvent construire des ponts. "
-"Vous aurez besoin de ces ponts pour traverser les zones les plus dangereuses "
-"des enfers."
+"通过研究，你的小鬼获得了造桥的技巧。你需要通过桥来穿越地下世界中更加危险的地"
+"方。"
 
+#. Level Flowerhat objective
 #: guitext:47
 msgctxt "In-game message"
 msgid ""
@@ -535,10 +451,10 @@ msgid ""
 "least nine tiles, its mere presence will lure the underworld's finest "
 "artisans into your dungeon."
 msgstr ""
-"Une étude des plans du donjon a révélé que l'Atelier produit des meubles "
-"essentiels (Portes et Pièges). Si votre Atelier comporte au moins 9 carrés, "
-"il va attirer les meilleurs artisans des enfers."
+"新的研究成果表明工厂可以制造一些重要的物品，例如，门和陷阱。如果你有一个大小"
+"为九个格以上的工厂，它将吸引地下世界中最好的工匠加入你的地下城。"
 
+#. Level Flowerhat information
 #: guitext:48
 msgctxt "In-game message"
 msgid ""
@@ -546,38 +462,36 @@ msgid ""
 "creatures to it, by dropping them into the room. Manufactured items can be "
 "selected from the Workshop Panel as soon as they're ready."
 msgstr ""
-"Pour fabriquer des Pièges et des Portes dans votre Atelier, vous devrez "
-"assigner des créatures à ce travail en les lâchant dans la salle. Les Objets "
-"fabriqués peuvent être sélectionnés dès qu'ils sont prêts à partir du "
-"panneau de l'Atelier."
+"要在你的工厂中制造陷阱和门，你需要把怪物放到工厂中，指派怪物去进行制造工作。"
+"只要物品的制造完成，你就可以通过工厂面板选择并使用它们。"
 
+#. Level Flowerhat objective
 #: guitext:49
 msgctxt "In-game message"
 msgid ""
 "When your troops are sufficient in number and have had some training, lead "
 "them north and crush any who oppose you."
 msgstr ""
-"Lorsque vos troupes seront suffisamment importantes et bien entraînées, "
-"envoyez-les au Nord et écrasez tout ce que vous rencontrerez."
+"当你有了一定数量的军队，而且经过了一定的训练，那么就向北前进，消灭一切敢于抵"
+"抗的势力。"
 
+#. Level Flowerhat objective
 #: guitext:50
 msgctxt "In-game message"
 msgid ""
 "You will have to find a way to cross the river of molten lava that bars your "
 "way."
-msgstr ""
-"Vous devrez trouver un moyen de traverser la rivière de lave en fusion qui "
-"vous barre la route."
+msgstr "你必须找到一条穿越岩浆的路，它阻挡了你。"
 
+#. Level Flowerhat objective
 #: guitext:51
 msgctxt "In-game message"
 msgid ""
 "The enemy's Dungeon Heart throbs before you. Assemble your minions nearby "
 "and administer the coup de grace."
-msgstr ""
-"Le coeur du donjon ennemi palpite sous vos yeux. Rassemblez vos larbins et "
-"portez le coup de grâce."
+msgstr "敌人的地下城的心脏在你面前跳动。集合你的军队，进行最后的一击。"
 
+#. Level Flowerhat information
 #: guitext:52
 msgctxt "In-game message"
 msgid ""
@@ -585,20 +499,20 @@ msgid ""
 "best employed doing dark deeds in your Workshop. They don't complain about "
 "the hours, because their labours keep them away from combat."
 msgstr ""
-"Un Troll vous a rejoint. Doué pour la fabrication, les Trolls sont "
-"particulièrement utiles pour faire des sales coups dans votre Atelier. Ils "
-"ne se plaignent pas des heures de travail, car ils évitent ainsi le combat."
+"一个精灵加入了你的阵营。精灵是在工厂中执行制造任务的最佳人选，他们从不抱怨工"
+"作的艰辛，因为这样可以使他们远离战场。"
 
+#. Level Flowerhat objective
 #: guitext:53
 msgctxt "In-game message"
 msgid ""
 "With the enemy Dungeon Heart in ruins, you have trounced the once proud "
 "opposition. Rule your new domain with terror and loathing, for a laugh."
 msgstr ""
-"Le coeur du donjon ennemi est détruit et vous avez écrasé vos opposants "
-"jadis si fiers. Faites régner la terreur et la haine sur votre nouveau "
-"domaine, juste pour rire."
+"随着敌人地下城心脏的毁灭，你给了曾经不可一视的敌人致命一击。让恐怖和憎恨降临"
+"在你统治的土地吧！"
 
+#. Level Flowerhat information
 #: guitext:54
 msgctxt "In-game message"
 msgid ""
@@ -606,20 +520,20 @@ msgid ""
 "access to the enemy. Your creatures may pass freely. Lock or unlock Doors by "
 "clicking over them with the left mouse button."
 msgstr ""
-"Une Porte en Bois a été fabriquée dans votre Atelier. Placée dans un "
-"couloir, elle empêche l'ennemi de passer, mais pas vos créatures. "
-"Verrouillez ou déverrouillez les portes d'un clic Gauche de la souris."
+"你的工厂制造了一个木头门。将它放在通道中可以限制敌人的通行，而你的怪物可以自"
+"由地通过。用鼠标左键单击门，可以将它上锁或开锁。"
 
+#. Level Flowerhat information
 #: guitext:55
 msgctxt "In-game message"
 msgid ""
 "Your Workshop has produced a Poison Gas trap. Position it and, when an "
 "intruder sets it off, it will envelop the area in deadly vapours."
 msgstr ""
-"Un piège à Gaz Empoisonné a été fabriqué dans votre Atelier. Installez-le, "
-"et lorsqu'il sera déclenché par un intrus, il envahira la zone de vapeurs "
-"mortelles."
+"你的工厂生产了一个毒气陷阱。将它安置在合适的位置，当敌人经过时会被触发，致命"
+"的毒气将覆盖这个区域。"
 
+#. Level Flowerhat information
 #: guitext:56
 msgctxt "In-game message"
 msgid ""
@@ -628,11 +542,11 @@ msgid ""
 "target area. Call to Arms only costs gold when it's targetted beyond your "
 "territory."
 msgstr ""
-"Vous avez mis au point le sortilège du Ralliement. La première fois, vos "
-"créatures se rassembleront autour d'un drapeau créé par le sortilège. "
-"Utilisez-le à nouveau dans une zone cible. Il ne vous coûte de l'or que s'il "
-"est utilisé hors de votre territoire."
+"你研制成功了召唤军队的魔法。第一次使用它时怪物将在魔法所产生的旗帜下聚集。在"
+"目的区域再次使用它，你的军队将向目的地前进。如果目标区域是你没有控制的区域，"
+"这个魔法将消耗金子。"
 
+#. Level Lushmeadow-on-Down objective
 #: guitext:57
 msgctxt "In-game message"
 msgid ""
@@ -640,19 +554,20 @@ msgid ""
 "north. If you are to entice creatures to work for you instead of him, you "
 "will have to build a more magnificent dungeon. Get on with it then."
 msgstr ""
-"Un autre Gardien contrôle ce royaume infernal. Son donjon est au Nord. Si "
-"vous voulez attirer ses créatures, construisez un donjon réellement "
-"magnifique. Alors, au boulot!"
+"另一个守护者控制了地下王国。他的地下城在你的北边。如果你想引诱怪物们为你工作"
+"而不是为他工作，你必须建造一个更加华丽的地下城。继续吧。"
 
+#. Level Lushmeadow-on-Down objective
 #: guitext:58
 msgctxt "In-game message"
 msgid ""
 "You have slain your rival. His defeat is a testimony to your clever dungeon "
 "design. You have the makings of a Dungeon Keeper worthy of the name."
 msgstr ""
-"Vous avez massacré votre rival, ce qui prouve que votre donjon est "
-"intelligemment conçu. Vous avez l'étoffe d'un vrai Gardien."
+"你已经击败了你的对手。他的失败是对你的高超的地下城设计技巧的证明。你具备一个"
+"成功的守护者的素质。地下城守护者，你拥有这个名字当之无愧。"
 
+#. Level Lushmeadow-on-Down information
 #: guitext:59
 msgctxt "In-game message"
 msgid ""
@@ -660,19 +575,20 @@ msgid ""
 "ample Hatcheries. These corpulent monstrosities attack somewhat "
 "unconventionally."
 msgstr ""
-"Un Démon Enragée a choisi de rallier votre camp. Il lui faut un Antre et un "
-"Couvoir spacieux. Ces monstres corpulents ont une manière d'attaquer plutôt "
-"particulière..."
+"一个巨魔投靠了你。巨魔需要大的巢穴和充足的食物。这些肥胖的畸形有时会随意地搞"
+"破坏。"
 
+#. Level Lushmeadow-on-Down information
 #: guitext:60
 msgctxt "In-game message"
 msgid ""
 "Your loyal researchers have perfected the Sight of Evil spell. Cast it on an "
 "unexplored area and it will be revealed to you for a moment."
 msgstr ""
-"Vos loyaux chercheurs ont amélioré le sortilège de L'Oeil du Dable. Lancez-"
-"le sur une zone inexplorée et elle vous sera révélée pendant un instant."
+"你的忠实的研究者们研制出了邪恶之眼。在未探索的区域里施展它，这个区域将被揭示"
+"一段时间。"
 
+#. Level Lushmeadow-on-Down information
 #: guitext:61
 msgctxt "In-game message"
 msgid ""
@@ -681,11 +597,11 @@ msgid ""
 "off to a cell. Prisoners who die of starvation may rise again as Skeleton "
 "warriors for you to command."
 msgstr ""
-"Vous avez demandé une Prison. Sélectionnez Emprisonnement dans le panneau "
-"d'Informations. Vos créatures maîtriseront l'ennemi, qui sera ensuite traîné "
-"dans une cellule par les lutins. Les prisonniers morts de faim peuvent "
-"constituer une armée de Squelettes à vos ordres."
+"你占领了一个监狱。在信息面板中选择囚禁，你的怪物将不杀死敌人，而是把敌人打"
+"昏，然后你的小鬼将把敌人拖到监狱中。被饿死的囚犯可能会变成骷髅战士加入你的军"
+"队。"
 
+#. Level Lushmeadow-on-Down information
 #: guitext:62
 msgctxt "In-game message"
 msgid ""
@@ -693,9 +609,10 @@ msgid ""
 "a strategically important area and assign creatures to occupy it by dropping "
 "them there."
 msgstr ""
-"Vos bibliothécaires si dévoués ont mis au point un Poste de Garde. Placez-le "
-"à un point stratégique, et lâchez-y des créatures pour qu'elles l'occupent."
+"你忠诚的图书管理员们研究出了警戒哨所。将警戒哨所放置在战略要地上，然后将一个"
+"怪物放置在这里。这个怪物就担任了守卫的工作。"
 
+#. Level Lushmeadow-on-Down information
 #: guitext:63
 msgctxt "In-game message"
 msgid ""
@@ -703,21 +620,19 @@ msgid ""
 "endeavour to keep them apart. Overcoming such obstacles will temper your "
 "mettle - whatever that means."
 msgstr ""
-"Une Araignée a rejoint votre donjon. Les Araignées sont l'ennemi naturel des "
-"Mouches, efforçez-vous donc de les séparer. Vous devrez surmonter des "
-"obstacles de ce genre pour tempérer vos ardeurs... Quoi que cela signifie."
+"一个蜘蛛加入了你的地下城。他们是苍蝇的天敌，因此请尽量使他们分开。克服这样的"
+"障碍将磨练你的性格，无论它意味着什么。"
 
+#. Level Snuggledell objective
 #: guitext:64
 msgctxt "In-game message"
 msgid ""
 "It's time to mete out the ultimate punishment to a keeper who dares to "
 "challenge you for this corner of your subterranean empire. The price of "
 "failure shall be oblivion."
-msgstr ""
-"Il est temps d'infliger l'ultime châtiment à un Gardien qui ose vous défier "
-"et revendiquer cette partie de votre empire souterrain. Le prix de l'échec "
-"sera l'oubli."
+msgstr "到了惩罚一个敢于挑战你的地下帝国的守护者的时间了。失败的代价是被遗忘。"
 
+#. Level Snuggledell objective
 #: guitext:65
 msgctxt "In-game message"
 msgid ""
@@ -725,10 +640,10 @@ msgid ""
 "dissipate. There'll be no controversy over this year's hall of infamy "
 "nomination."
 msgstr ""
-"Quel bonheur de voir le donjon d'un Gardien ennemi s'effondrer et son "
-"pouvoir disparaître. l'élection du plus infâme Gardien de l'année sera sans "
-"équivoque."
+"看着一个敌对的守护者的地下城的崩溃和丧失他的力量是一件多么愉快的事情啊！你的"
+"胜利是无可争议的。"
 
+#. Level Snuggledell information
 #: guitext:66
 msgctxt "In-game message"
 msgid ""
@@ -737,11 +652,10 @@ msgid ""
 "Alternatively, place your own creatures within the room whenever "
 "disciplinary measures become necessary."
 msgstr ""
-"Vous avez demandé une Salle de Torture. Placez les créatures et les héros "
-"captifs dans cette chambre des horreurs pour les convertir à votre programme "
-"du maléfice suprême. Vous pouvez aussi y placer vos propres créatures si des "
-"mesures disciplinaires s'imposent."
+"你占领了一个审讯室。将被囚禁的英雄和怪物带到这恐怖的房间中受审，使它们成为你"
+"的奴仆。同样你也可以将你的怪物放到这里，不论他们是否应受惩罚。"
 
+#. Level Snuggledell information
 #: guitext:67
 msgctxt "In-game message"
 msgid ""
@@ -749,21 +663,19 @@ msgid ""
 "Mistress. You must discipline these wicked wenches frequently. They respond "
 "particularly well to a good slapping."
 msgstr ""
-"Vous avez construit un donjon suffisamment impressionnant pour attirer une "
-"Maîtresse Noire. Ces jeunes femmes malfaisantes doivent souvent être "
-"corrigées. Elles comprennent particulièrement bien les coups."
+"你终于拥有了一个可以吸引黑暗女王加入的地下城。你必须经常惩罚这些邪恶的女仆。"
+"她们对于被打耳光的反应异常的好。"
 
+#. Level Snuggledell information
 #: guitext:68
 msgctxt "In-game message"
 msgid ""
 "Your manufacturers have created a Braced Door. If security matters, you can "
 "be sure when you buy a Braced Door. You couldn't be certain with only a "
 "curtain and a hole in the wall is no help at all."
-msgstr ""
-"Une Porte Renforcée a été fabriquée dans votre Atelier. En matière de "
-"sécurité, vous n'avez rien à craindre. Ce serait différent avec un simple "
-"rideau, et une brèche dans le mur serait encore pire!"
+msgstr "你的工匠们制造了一个铁皮门。如果安全有问题，你可以确定何时购买它。"
 
+#. Level Snuggledell information
 #: guitext:69
 msgctxt "In-game message"
 msgid ""
@@ -771,19 +683,18 @@ msgid ""
 "thunderstorm on the target of your choice. Select the spell, aim at a "
 "hostile creature and flash-fry him with a Lightning Strike."
 msgstr ""
-"Vos chercheurs ont mis au point un sortilège qui libère la violence d'un "
-"ouragan sur la cible de votre choix. Sélectionnez-le, ciblez la créature "
-"hostile et faites-la griller d'une décharge de Foudre."
+"你的研究者设计出了可以释放雷电的能量的魔法。选择这个魔法并对一个敌对的怪物使"
+"用它，敌人将受到闪电的打击。"
 
+#. Level Snuggledell information
 #: guitext:70
 msgctxt "In-game message"
 msgid ""
 "You have manufactured a powerful Lightning Trap. Try it out. It's bound to "
 "give someone a shock."
-msgstr ""
-"Vous avez fabriqué un piège à Eclaire de Feu très puissant. Essayez-le. Il "
-"devrait provoquer de sérieux coups de foudre."
+msgstr "你已经研制成功了一个强力的闪电陷阱。试试它，它将使敌人遭到电击。"
 
+#. Level Wishvale objective
 #: guitext:71
 msgctxt "In-game message"
 msgid ""
@@ -791,19 +702,20 @@ msgid ""
 "would be wise to stay out of the way until you are strong enough to "
 "eliminate both sides."
 msgstr ""
-"Il semble que vous êtes tombé au beau milieu d'une bataille acharnée. Il "
-"serait peut-être plus sage de rester à l'écart tant que vous ne serez pas "
-"suffisamment fort pour éliminer les deux camps."
+"你似乎卷入了激战。但先养精畜锐，直到你已经足够强大了以后再给双方敌人一个致命"
+"的打击是更聪明的策略。"
 
+#. Level Wishvale information
 #: guitext:72
 msgctxt "In-game message"
 msgid ""
 "An Orc warlord joins you and brings with him the plans for building a "
 "Barracks. In this room you can form creatures into teams."
 msgstr ""
-"Un sorcier orque vous rejoint et apporte les plans d'un Quartier Général. "
-"Dans cette salle, vous pourrez rassembler des équipes de créatures."
+"一个兽人军官加入了你方，同时它也为你带来了兵营的设计图。在这个房间里你可以将"
+"你的怪物编队。"
 
+#. Level Wishvale objective
 #: guitext:73
 msgctxt "In-game message"
 msgid ""
@@ -811,31 +723,29 @@ msgid ""
 "finally roused himself from the fireside to find out where all his loyal "
 "servants have gone."
 msgstr ""
-"Il me semble entendre le cliquetis d'une armure... Oui! Le grand seigneur a "
-"fini par quitter le coin du feu pour partir à la recherche de ses loyaux "
-"serviteurs."
+"我想我听到了金属铠甲的撞击声。是的，国王被从醉生梦死中唤醒了，他想来看看，他"
+"的那些忠实的奴仆消失在什么地方。"
 
+#. Level Wishvale objective
 #: guitext:74
 msgctxt "In-game message"
 msgid ""
 "You have turned local heroes into something of an endangered species, now "
 "make the enemy Dungeon Keeper extinct."
 msgstr ""
-"Vous avez fait des héros locaux une espèce en voie de disparition. Il "
-"faudrait maintenant que le Gardien du donjon ennemi disparaisse "
-"définitivement."
+"你已经让这个地方的英雄成为了将要灭绝的物种，现在让同样的命运降临在敌对的守护"
+"者身上吧！"
 
+#. Level Wishvale objective
 #: guitext:75
 msgctxt "In-game message"
 msgid ""
 "You have prevailed, Keeper. The bodies of your enemies litter the most "
 "forlorn alcoves of your domain, in tribute to their futile efforts to keep "
 "you at bay."
-msgstr ""
-"Vous avez gagné, Gardien. Les cadavres ennemis jonchent le sol de vos "
-"cachots, tel un sinistre hommage à leurs tentatives futiles de vous tenir en "
-"échec."
+msgstr "你已经获胜了，守护者。你的敌人们尸横遍野，它们的徒劳令人感慨。"
 
+#. Level Tickle objective
 #: guitext:76
 msgctxt "In-game message"
 msgid ""
@@ -843,28 +753,26 @@ msgid ""
 "Explain the concept of early retirement to him. On the other hand, string "
 "him up. It's in the only language he understands."
 msgstr ""
-"Recherchez votre rival potentiel dans cette zone infernale et expliquez-lui "
-"le concept de la retraite anticipée. Par la même occasion, pendez-le haut et "
-"court, car c'est le seul langage qu'il comprenne."
+"寻找一个将在这个地下城中成为你的竞争者的人。向他解释提前退休的好处。同时把他"
+"吊起来，也许这是他唯一可以理解的语言。"
 
+#. Level Tickle information
 #: guitext:77
 msgctxt "In-game message"
 msgid ""
 "You have researched the power of Invisibility. Cast it on a creature to hide "
 "it from enemy eyes."
-msgstr ""
-"Vous avez découvert l'Invisibilité. Lancez ce sortilège sur une de vos "
-"créatures pour que l'ennemi ne puisse plus la voir."
+msgstr "你已经研究出了隐身术。对一个怪物施展这个魔法可以使他在敌人的眼中消失。"
 
+#. Level Tickle information
 #: guitext:78
 msgctxt "In-game message"
 msgid ""
 "The Protect Creature spell has been researched at last. Cast it on a "
 "creature to increase its toughness."
-msgstr ""
-"Le sortilège de Protection a enfin été découvert. Lancez-le sur une créature "
-"pour augmenter sa résistance."
+msgstr "保护术魔法终于研制成功了。对一个怪物施展它可以提高他的防御能力。"
 
+#. Level Tickle objective
 #: guitext:79
 msgctxt "In-game message"
 msgid ""
@@ -872,9 +780,10 @@ msgid ""
 "of the land above bow down before your depraved presence. As if that will "
 "save them..."
 msgstr ""
-"Encore un ennemi éliminé! Les habitants sans défense de ce territoire "
-"saluent bien bas votre comportement dépravé. Comme si ça allait les sauver!"
+"另一个敌人被成功地除掉了。这片土地的没有反抗能力的居民跪倒在你的面前，仿佛这"
+"样就能拯救他们……"
 
+#. Level Tickle information
 #: guitext:80
 msgctxt "In-game message"
 msgid ""
@@ -883,10 +792,10 @@ msgid ""
 "You might have to experiment with the offerings you make. The dark gods are "
 "not easy to please."
 msgstr ""
-"Les chercheurs ont trouvé les plans d'un Temple dédié aux dieux du mal. "
-"Sacrifiez des créatures dans l'enceinte du Temple pour être comblé par les "
-"dieux. Testez vos offrandes au préalable, car ils sont plutôt difficiles."
+"研究者设计了一个祭祀黑暗之神的寺庙。将怪物作为供品放到祭坛上，你将得到神赐予"
+"的礼物。你需要献祭不同的祭品来试验结果，黑暗之神没那么容易猜透。"
 
+#. Level Moonbrush Wood objective
 #: guitext:81
 msgctxt "In-game message"
 msgid ""
@@ -894,19 +803,20 @@ msgid ""
 "everything under control, because their feeble magical power impresses the "
 "locals. But you're not from these parts..."
 msgstr ""
-"Ce royaume est dirigé par quatre sorciers arrogants. Ils pensent tout "
-"contrôler parce que leurs pouvoirs magiques minables impressionnent les gens "
-"du coin. Mais vous n'allez pas vous laisser prendre à ce jeu-là..."
+"这个王国被四个骄傲的巫师统治，他们以为一切都在他们的掌握之下。因为他们微弱的"
+"法力给当地的居民以深刻的印象。但你并非来自他们当中。"
 
+#. Level Moonbrush Wood objective
 #: guitext:82
 msgctxt "In-game message"
 msgid ""
 "Well, you're done down here. Time to introduce yourself to the locals and re-"
 "organise their nice little lives."
 msgstr ""
-"Bon... C'est fini pour vous par ici. Songez à faire connaissance avec la "
-"population et à réorganiser leur petite vie."
+"很好，你把这里搞定了。现在是把你介绍给本地的居民的时间了，并且重新安排他们的"
+"美满的生活。"
 
+#. Levels Tickle and Moonbrush Wood information
 #: guitext:83
 msgctxt "In-game message"
 msgid ""
@@ -915,20 +825,20 @@ msgid ""
 "make sure that everything near it is an enemy creature when it finally goes "
 "ballistic."
 msgstr ""
-"Regardez, vous avez appelé un Grand Cornu. Essayez de ne pas le mettre en "
-"colère. Mais vous n'y arriverez pas, car un Grand Cornu s'énerve pour un "
-"rien. Assurez-vous au moins que les créatures qui l'entourent sont des "
-"ennemis."
+"看，你召唤到了一个冥界使者。小心地不要让它生气，但这样你将失败因为一切的一切"
+"只会带给他愤怒。不过你可以使在他周围的都是敌人，这样他就上了轨道了。"
 
+#. Level Moonbrush Wood information
 #: guitext:84
 msgctxt "In-game message"
 msgid ""
 "Your researchers have concocted a Disease spell. Cast it on enemy creatures "
 "and watch the affliction spread like the plague."
 msgstr ""
-"Vos chercheurs ont mis au point un sortilège d'Epidémie. Lancez-le sur les "
-"créatures ennemies et observez le mal se répandre comme la peste."
+"你的研究者研制成功了疾病术。将它施展到敌人的怪物身上，然后观察苦难如何象瘟疫"
+"一样传播。"
 
+#. Level Moonbrush Wood information
 #: guitext:85
 msgctxt "In-game message"
 msgid ""
@@ -937,11 +847,10 @@ msgid ""
 "in a huff, but they're extremely powerful and fearsome underlings to have in "
 "your employ."
 msgstr ""
-"Un Vampire a fait surface dans votre Cimetière, nourri par l'âme des morts "
-"qui y ont été enterré. Soyez gentil avec les Vampires, Sinon ils se "
-"fâcheront et partiront. Ce sont des sous-fifres extrêmement puissants et "
-"redoutables."
+"一个吸血鬼在陵墓中诞生了，他来自那些被带到这里的死者的灵魂。你必须巴结吸血"
+"鬼，否则他们将因愤怒而爆炸，但他们是极为强大的，你的雇佣军团中可怕的成员。"
 
+#. Level Moonbrush Wood information
 #: guitext:86
 msgctxt "In-game message"
 msgid ""
@@ -949,18 +858,17 @@ msgid ""
 "rot... And possibly to rise again as Vampires, ready to do your bidding. "
 "That's style."
 msgstr ""
-"Vous avez créé un Cimetière. Vos lutins vont y traîner les corps pour qu'ils "
-"puissent y pourrir... et éventuellement se transformer en Vampires prêts à "
-"satisfaire tous vos désirs. C'est la classe!"
+"你研制出了陵墓。你的小鬼将把尸体拖到这里使其腐烂……也可能再生为吸血鬼供你驱"
+"谴。"
 
+#. Levels Tickle and Moonbrush Wood information
 #: guitext:87
 msgctxt "In-game message"
 msgid ""
 "You have manufactured an Iron Door. It's a formidable barrier. Use it well."
-msgstr ""
-"Vous avez fabriqué une Porte de Fer. C'est une barrière formidable, utilisez-"
-"la à bon escient."
+msgstr "你制造出了一个铁门。它是有力的屏障。请很好地使用它。"
 
+#. Level Elf's Dance objective
 #: guitext:88
 msgctxt "In-game message"
 msgid ""
@@ -969,29 +877,30 @@ msgid ""
 "before they join the other keepers, you will be unstoppable, unless you do "
 "something stupid."
 msgstr ""
-"Des créatures puissantes habitent une grotte au Sud. Un groupe de héros se "
-"trouve entre vous et elles, mais si vous les atteignez et les ralliez à "
-"votre cause avant qu'elles ne rejoignent l'autre Gardien, plus personne ne "
-"pourra vous arrêter, à moins que vous ne fassiez une bêtise."
+"强力的怪物居住在南面的洞穴里。在你和他们中间有一群英雄，如果你接触到他们，并"
+"在别的守护者招募他们之前使他们加入你一方，你将成为不可阻挡的，除非你干蠢事。"
 
+#. Level Elf's Dance objective
 #: guitext:89
 msgctxt "In-game message"
 msgid ""
 "You have overcome all resistance to your rule, O despicable one. It's time "
 "to flex the old misery muscle on the pathetic inhabitants of the land above."
 msgstr ""
-"Vous avez écrasé toute résistance, O être abject. Il est temps d'infliger un "
-"peu de supplices aux pitoyables habitants de ce territoire."
+"噢，卑鄙的家伙，你已经消灭了所有的抵抗。现在是使地面上的可悲的居民驱从于你的"
+"时候了。"
 
+#. Level Nevergrim information
 #: guitext:90
 msgctxt "In-game message"
 msgid ""
 "You have a manufactured a Boulder Trap. Place it in a corridor and howl "
 "deliriously as it rumbles inexorably towards unwary trespassers."
 msgstr ""
-"Vous avez fabriqué un piège Rocher. Installez-le dans un couloir et hurlez "
-"de délire lorsqu'il roulera inexorablement vers des intrus imprudents."
+"你制造出了一个圆石陷阱。将它放在通道上，它将发出无情的隆隆声咆哮着碾碎那些大"
+"意的入侵者。"
 
+#. Level Nevergrim information
 #: guitext:91
 msgctxt "In-game message"
 msgid ""
@@ -999,10 +908,10 @@ msgid ""
 "block off passages and repair dungeon breaches. Interestingly, the rockfall "
 "will crush to death any creatures caught beneath it."
 msgstr ""
-"Toujours aussi brillant! Vous avez découvert le sortilège de l'Effondrement. "
-"Utilisez-le pour obstruer des passages et réparer les failles du donjon. Il "
-"fera de la bouillie avec les créatures qui lui passeront dessous."
+"伴随着象征性的光辉，你研制出了塌方魔法。使用它可以阻挡敌人的通过和修复地下城"
+"的裂缝。有趣地是它也会压死任何遇到它的怪物。"
 
+#. Level Nevergrim information
 #: guitext:92
 msgctxt "In-game message"
 msgid ""
@@ -1010,23 +919,26 @@ msgid ""
 "placed within a Scavenger Room will lure their kin from other dungeons and "
 "the outside world, into your domain."
 msgstr ""
-"Vos bibliothécaires inépuisables ont découvert la salle d'Enrôlement. Les "
-"créatures qui y sont placées vont y attirer leurs semblables."
+"你那不知疲倦的图书管理员研制出了招募中心。将怪物放到招募中心中，他们会引诱其"
+"他地下城中和外面世界中的他们的同类进入你的地下城。"
 
+#. Level Nevergrim information
 #: guitext:93
 msgctxt "In-game message"
 msgid ""
 "Your great wealth has bought the loyalty of a passing Dragon. They are "
 "fickle creatures. Keep your eye on this one."
 msgstr ""
-"Votre richesse colossale a permis d'acheter la loyauté d'un Dragon de "
-"passage. Les Dragons sont des créatures instables, gardez un oeil sur lui!"
+"你巨大的财富收买了一个经过这里的龙的忠诚。他们是反复无常的家伙，随时注意他们"
+"的动向。"
 
+#. Level Nevergrim information
 #: guitext:94
 msgctxt "In-game message"
 msgid "A Hell Hound has been lured to your domain by your Scavenger Room."
-msgstr "Un Cerbère a été attiré dans votre domaine par la salle d'Enrôlement."
+msgstr "一个地狱之犬被你的招募中心吸引到了你的地下城中。"
 
+#. Level Buffy Oak objective
 #: guitext:95
 msgctxt "In-game message"
 msgid ""
@@ -1034,65 +946,67 @@ msgid ""
 "the moment and joined forces, in an effort to destroy you. That's almost a "
 "compliment. Kill the creeps."
 msgstr ""
-"Les deux autres Gardiens de la région ont provisoirement oublié leur "
-"différend et se sont unis pour vous détruire. C'est presque flatteur. "
-"Saignez ces minables!"
+"这个区域中的另外两个守护者暂时不计前嫌，结成了反对你的同盟。这近乎于是对你的"
+"赞扬。干掉这些爬虫。"
 
+#. Level Buffy Oak objective
 #: guitext:96
 msgctxt "In-game message"
 msgid ""
 "You have won a magnificent victory, Master. You have a talent for twisted "
 "mercilessness that makes other Keepers look well behaved by comparison."
 msgstr ""
-"Vous avez remporté une victoire magnifique, Maître. Vous êtes "
-"particulièrement implacable et tordu, les autres Gardiens ont vraiment l'air "
-"d'anges en comparaison."
+"你赢得了辉煌的胜利，主人。你有与生俱来的残忍，这使得每一个败在你手下的守护者"
+"看起来都象是好人。"
 
+#. Level Hearth information
 #: guitext:97
 msgctxt "In-game message"
 msgid ""
 "You have discovered a devastating magical power. Target it against a "
 "creature to transform a fearsome monster into a clucking chicken. Marvellous."
 msgstr ""
-"Vous avez découvert un pouvoir magique dévastateur. Il transformera un "
-"monstre effroyable en poussin piailleur. Merveilleux!"
+"你研制出了极富破坏性的魔法。它可以把一个可怕的怪物变成一个可爱的小鸡。了不"
+"起！"
 
+#. Level Hearth information
 #: guitext:98
 msgctxt "In-game message"
 msgid ""
 "Your manufacturers have built an Alarm Trap. It will warn you of your "
 "enemies' approach and summon nearby creatures to deal with the intruders."
 msgstr ""
-"Vos artisans ont construit un piège Alarme qui vous avertira lorsque vos "
-"ennemis approcheront et appellera vos créatures à la rescousse."
+"你的工人制造出了一个警戒陷阱。它将在敌人靠近时发出警报，并召唤附近的怪物去对"
+"付入侵者。"
 
+#. Level Buffy Oak information
 #: guitext:99
 msgctxt "In-game message"
 msgid ""
 "You have created a Magic Door. These are almost impregnable to all but "
 "magical attacks. I recommend sealing off your Treasure Room or Dungeon Heart."
 msgstr ""
-"Vous avez créé une Porte Magique. Elle résiste à tout, sauf à la magie. Je "
-"vous conseille de sceller votre Salle du Trésor ou le Coeur du Donjon."
+"你制造了一个魔法门。除了魔法攻击外，它几乎是劳不可破的。我建议你将它放在你的"
+"储金室或地下城的心脏附近。"
 
+#. Level Nevergrim objective
 #: guitext:100
 msgctxt "In-game message"
 msgid ""
 "Elsewhere in this fiery realm you have a rival Keeper to contend with. I "
 "advise extreme antisocial behaviour on your part."
-msgstr ""
-"Quelque part dans ce royaume ardent, vous devez affronter un Gardien rival. "
-"Je vous conseille d'être extrêmement antisocial."
+msgstr "在这个火热的王国中，一个守护者与你竞争。我站在极端反社会的你这一方。"
 
+#. Level Nevergrim objective
 #: guitext:101
 msgctxt "In-game message"
 msgid ""
 "Notch up another victory, most malicious one. You have another land to add "
 "to your dismal collection."
 msgstr ""
-"Vous marquez encore, Grand Malicieux. Vous pouvez ajouter un nouveau "
-"territoire à votre lugubre collection."
+"最恶毒的人，你又获得了另一个胜利。你可以把另一片土地加入你的凄凉的收藏。"
 
+#. Level Hearth objective
 #: guitext:102
 msgctxt "In-game message"
 msgid ""
@@ -1100,27 +1014,27 @@ msgid ""
 "demons from the fifth plane of hell. Train your creatures and prepare for "
 "another battle. You're attracting quite an audience."
 msgstr ""
-"L'anéantissement des premiers attaquants a interressé une horde de démons du "
-"cinquième enfer. Entraîner vos créatures et préparez-vous à une autre "
-"bataille. Vous attirez du monde!"
+"你对第一波攻击的毁灭性打击得到了来自第五层地狱的魔鬼们的赞赏。训练你的怪物，"
+"准备另一场战斗。你正在吸引一个怪物加入。"
 
+#. Level Hearth objective
 #: guitext:103
 msgctxt "In-game message"
 msgid ""
 "The enemy are upon us. I'm just telling you in case you were having a doze."
-msgstr ""
-"Les enemis nous tombent dessus. Je vous le dit au cas ou vous seriez en "
-"train de somnoler."
+msgstr "敌人迫近了，我提醒你是因为怕你在打瞌睡。"
 
+#. Level Hearth objective
 #: guitext:104
 msgctxt "In-game message"
 msgid ""
 "All the heroes are dead, which is as it should be. This land and all its "
 "spoils are yours. May I suggest that you waste everything?"
 msgstr ""
-"Tous les héros sont morts, c'est parfait! Ce territoire et toutes ses "
-"richesses sont à vous. Je vous suggère de tout dilapider."
+"所有的英雄都得到了他们应有的下场: 死亡。这片土地和所有的战利品都属于你。"
+"把它们全都糟蹋掉怎么样？"
 
+#. Level Hearth objective
 #: guitext:105
 msgctxt "In-game message"
 msgid ""
@@ -1129,21 +1043,22 @@ msgid ""
 "opportunity to practise unspeakable evil on a massive scale. Go for it, "
 "master."
 msgstr ""
-"Si les territoires étaient des hommes, celui-ci serait à genou. Ses "
-"habitants désespérés préparent une attaque massive contre votre donjon, "
-"l'occasion idéale de faire le mal à grande échelle. Allez-y, Maître."
+"如果土地有一个支点，那么它应该以膝盖来支撑。它的不知死活的居民们正准备对你的"
+"地下城发动总攻击。这是用一个伟大的天平来检验终极的邪恶的理想机会。进行吧，主"
+"人。"
 
+#. Level Woodly Rhyme information
 #: guitext:106
 msgctxt "In-game message"
 msgid ""
 "Your latest discovery is the Word of Power Trap. When activated, the trap "
-"triggers an expanding ring of fire that incinerates anything caught in its "
-"area of effect. What a scream that should be."
+"triggers an expanding ring of demonic energy that incinerates anything "
+"caught in its area of effect. What a scream that should be."
 msgstr ""
-"Le piège à Anneaux de Feu est votre dernière découverte. Lorsqu'il est "
-"activé, il déclenche un anneau de feu qui brûle tout alentour. C'est "
-"sûrement désopilant!"
+"你的最新发明是强力咒语陷阱。当它被触发时，一个扩散的能量环将毁灭它作用范围"
+"内的任何东西。我已经听见了绝望的尖叫声。"
 
+#. Level Moonbrush Wood information
 #: guitext:107
 msgctxt "In-game message"
 msgid ""
@@ -1151,20 +1066,18 @@ msgid ""
 "all of your creatures back to your Dungeon Heart. Let's hope you never need "
 "it."
 msgstr ""
-"Vous avez découvert le sortilège du Capteur de Foule. Il peut guider "
-"immédiatement toutes vos créatures dans le coeur du donjon. Espérons que "
-"vous n'en aurez jamais besoin."
+"召唤魔法研制成功。它将会把你所有的怪物传送到地下城的心脏。我希望你永远不需要"
+"它。"
 
+#. Level Sleepiburgh objective
 #: guitext:108
 msgctxt "In-game message"
 msgid ""
 "You can't swing a cat for Dungeon Keepers fighting over the destiny of this "
 "region. It should fall to you to settle the disagreement once and for all."
-msgstr ""
-"Des Gardiens qui se battent pour l'avenir de cette région... Il n'y a pas de "
-"quoi fouetter un troll, franchement! Vous devriez régler ce désaccord une "
-"fois pour toutes."
+msgstr "你不能指望轻松的战胜任何守护者，因为这样无法解决纠纷。"
 
+#. Level Buffy Oak information
 #: guitext:109
 msgctxt "In-game message"
 msgid ""
@@ -1172,10 +1085,10 @@ msgid ""
 "any creature to instantly transform the target into poultry. It's a fowl "
 "weapon."
 msgstr ""
-"Vos chercheurs ont découvert le sortilège dévastateur de la Galinamorphose. "
-"Il permet de transformer instantanément toute créature en volaille. C'est du "
-"tout cuit!"
+"你的研究者们发现了破坏性的变为小鸡的魔法。将它施展到任何怪物身上，他们将立即"
+"变为家禽。这是一个家禽武器。"
 
+#. Level Sleepiburgh information
 #: guitext:110
 msgctxt "In-game message"
 msgid ""
@@ -1183,48 +1096,50 @@ msgid ""
 "to cast and it's also possible that your enemies possess the same magic "
 "power. This could still turn out to be one of those days."
 msgstr ""
-"Vous disposez maintenant d'un sortilège qui réduit en poussière les murs "
-"fortifiés. Son utilisation coûte cher et il est possible que vos ennemis "
-"disposent également du même sortilège. Ça promet!"
+"现在你有一个可以把强化过的墙壁转变为尘埃的魔法。使用它的代价是昂贵的，同样你"
+"的敌人也可能有这个魔法。"
 
+#. Level Sleepiburgh objective
 #: guitext:111
 msgctxt "In-game message"
 msgid ""
 "Only the Lord of this Land stands between you and hectares of desolation and "
 "woe. I bet you can't wait to meet him."
 msgstr ""
-"Seul le grand seigneur vous sépare de quelques hectares de terre où règnent "
-"souffrance et désolation. Je parie que vous ne pouvez plus attendre."
+"只有国王还存在于你和这片荒芜和苦难的土地之间。我相信你不会等到他来会见你。"
 
+#. Level Sleepiburgh objective
 #: guitext:112
 msgctxt "In-game message"
 msgid "Your continued success makes me sick. Thank you, your wickedness."
-msgstr "Vos succès répétés me rendent malade. Merci votre méchanceté"
+msgstr "你的持续的胜利使我生病。谢谢，你的邪恶。"
 
+#. Level Woodly Rhyme objective
 #: guitext:113
 msgctxt "In-game message"
 msgid ""
 "You seem to have started a trend. Two other Dungeon Keepers also have "
 "designs on this dark domain. Expect no quarter from your rivals."
 msgstr ""
-"On dirait que vous avez lancé une mode. Deux autres Gardiens de donjon ont "
-"également des vues sur ce sombre domaine. Ne vous attendez à aucune pitié..."
+"你看起来已经开始行动了。在这个领域里，两个其他的守护者也有他们的野心。希望你"
+"不要被你的对手分尸。"
 
+#. Level Woodly Rhyme information
 #: guitext:114
 msgctxt "In-game message"
 msgid ""
 "Can you see how vulnerable one of your opponents has become? Then kill him."
-msgstr "Vous voyez comme cet ennemi est devenu si vulnérable ? Alors, tuez-le!"
+msgstr "你能看到你的对手变得多么脆弱吗？如果这样，杀死他们。"
 
+#. Level Woodly Rhyme information
 #: guitext:115
 msgctxt "In-game message"
 msgid ""
 "I spy a keeper with hardly any creatures left under his control. I spy a "
 "Keeper who's about to die."
-msgstr ""
-"Je vois un Gardien qui n'a presque plus de créatures. Je vois un Gardien qui "
-"va bientôt mourir..."
+msgstr "我侦察到一个守护者几乎没有控制任何怪物。我觉得一个守护者将要死亡。"
 
+#. Level Woodly Rhyme information
 #: guitext:116
 msgctxt "In-game message"
 msgid ""
@@ -1232,38 +1147,40 @@ msgid ""
 "simply means there should be some interesting treasure worth stealing. Now "
 "that's what I call practical archaeology."
 msgstr ""
-"Ce vieux donjon a une grande valeur archéologique, ce qui veut dire qu'il "
-"doit y avoir des trésors intéressants et qui valent la peine d'être volés. "
-"Appelons ça de l'archéologie pratique..."
+"这个古代的地下城有重大的考古学价值。这意味着这里有一些有趣的宝藏值得窃取。这"
+"就是我所谓的实用主义的考古学。"
 
+#. Level Woodly Rhyme information
 #: guitext:117
 msgctxt "In-game message"
 msgid ""
 "Your librarians have learned a spell that can break through fortified walls. "
 "Give them a slap for not learning it earlier."
 msgstr ""
-"Vos bibliothécaires ont appris un sortilège qui permet de franchir les murs "
-"fortifiés. Ils doivent être idiots pour ne pas l'avoir découvert plus tôt."
+"你的图书管理员们学到了一个可以打破强化过的墙壁的魔法。如果谁没有尽快地将它学"
+"会就打他的耳光。"
 
+#. Level Woodly Rhyme information
 #: guitext:118
 msgctxt "In-game message"
 msgid ""
 "One of your opponents has developed a spell that can break through fortified "
 "walls. Typical. Be on your guard."
 msgstr ""
-"Un de vos adversaires a découvert un sortilège qui permet de traverser les "
-"murs fortifiés. Classique! Soyez sur vos gardes."
+"一个你的敌人发现了一个可以打破被加固的墙壁的魔法。你的防守现在成为了一种象征"
+"性的东西。"
 
+#. Level Woodly Rhyme information
 #: guitext:119
 msgctxt "In-game message"
 msgid ""
 "You have developed the Armageddon spell. That's quite a name to live up to. "
 "Make sure you're the most powerful force in the region before casting it."
 msgstr ""
-"Vous avez mis au point le sortilège d'Armageddon. C'est un nom plutôt "
-"difficile à porter. Assurez-vous que vous êtes le plus puissant de la région "
-"avant de l'utiliser."
+"你已经开发出末日审判魔法。这是美好生活的同意词。在你施展它之前请确定你是这个"
+"区域中最强大的力量。"
 
+#. Level Tulipscent information
 #: guitext:120
 msgctxt "In-game message"
 msgid ""
@@ -1271,15 +1188,21 @@ msgid ""
 "hard to gain any advantage. But, if you intend to rule the world, you've "
 "simply got to get through days like this."
 msgstr ""
-"Rien ne sera facile dans cette région. Vous devrez réellement vous battre "
-"pour prendre l'avantage, mais si vous avez l'intention de dominer le monde, "
-"vous devrez affronter de telles épreuves."
+"你无法找到通过这个区域的任何捷径。你必须为前进的每一步进行艰苦地战斗。但是，"
+"如果你想要统治这个世界，你只需要简单地度过这艰难的每一天。"
 
+#. Level Elf's Dance information
 #: guitext:121
 msgctxt "In-game message"
-msgid "Your manufacturers have crafted the Lava Trap."
-msgstr "Vos artisans ont fabriqué le piège à LAVE."
+msgid ""
+"Your manufacturers have crafted the Lava Trap. After enemy creature steps on "
+"it, the area around changes into molten lava, which most creatures won't "
+"even try to pass."
+msgstr ""
+"你的工人们制造出了岩浆陷阱。在敌人的生物踏上后，周围的地方会变成熔岩，大多数"
+"生物无法在那里生存。"
 
+#. Level Mirthshire objective
 #: guitext:122
 msgctxt "In-game message"
 msgid ""
@@ -1287,19 +1210,18 @@ msgid ""
 "quickly to mobilise their forces against you. It's pathetic. They deserve to "
 "have their heads impaled on lances for such impudence."
 msgstr ""
-"Les héros de ce territoire savent ou vous êtes. Ils ont réagi rapidement et "
-"se mobilisent contre vous. Quels minables! Ils méritent, pour leur "
-"impudence, que leurs têtes soient embrochées sur des lances."
+"你的位置已经被这片土地的英雄们查明。他们已经迅速地动员了他们的力量进攻你。这"
+"实在令人伤感。因为他们的厚颜无耻，他们的头颅将被刺穿。"
 
+#. Level Mirthshire objective
 #: guitext:123
 msgctxt "In-game message"
 msgid ""
 "You've upset the local Lord. He's on his way right now. Shall I alert the "
 "media?"
-msgstr ""
-"Vous avez irrité le seigneur local. Il est en route. J'avertis la presse et "
-"la télé ?"
+msgstr "你已经令本地的国王坐立不安。他就要上路了。我应该警告你吗？"
 
+#. Level Mirthshire information
 #: guitext:124
 msgctxt "In-game message"
 msgid ""
@@ -1307,26 +1229,26 @@ msgid ""
 "should belong to you. I'm certain you will settle the matter of their "
 "ownership in your own way."
 msgstr ""
-"Les héros de ce royaume possèdent des trésors très importants. Ils devraient "
-"manifestement vous appartenir. Je suis sur que vous allez rétablir cette "
-"histoire de propriété."
+"这个王国的英雄拥有具有非常力量的宝藏。显然，它们应该属于你。我确信你将会把他"
+"们拥有的财富收缴。"
 
+#. Level Tulipscent objective
 #: guitext:125
 msgctxt "In-game message"
 msgid ""
 "It appears you have a rival. Another Keeper believes he is more ruthless and "
 "evil than you. We shall soon see."
 msgstr ""
-"Il semble que vous ayez un rival. Un autre Gardien croit être plus "
-"impitoyable et plus mauvais que vous. On va voir ça..."
+"看来你有一个竞争对手。另一个守护者相信他比你更加残忍，更加邪恶。我们很快就会"
+"看到结果。"
 
+#. Level Tulipscent information
 #: guitext:126
 msgctxt "In-game message"
 msgid "This ancient realm is rich in magical artifacts. Go forth and plunder."
-msgstr ""
-"Cet ancien royaume recèle de nombreux artifices magiques. Allez-y, pillage "
-"général!"
+msgstr "这个古代的王国有丰富的魔法物品。前进并且掠夺。"
 
+#. Level Blaise End objective
 #: guitext:127
 msgctxt "In-game message"
 msgid ""
@@ -1334,10 +1256,10 @@ msgid ""
 "you can or they'll be breakfasted, wide awake and inherently more difficult "
 "to slaughter."
 msgstr ""
-"Les Gardiens de ce royaume sont actuellement endormis. Attaquez-les dès que "
-"possible sinon ils seront bientôt rassasiés, bien réveillés et forcément "
-"plus difficiles à massacrer."
+"这个王国的守护者们还在睡梦中。尽快地攻击他们，否则他们将被唤醒，屠杀将变得更"
+"为艰难。"
 
+#. Level Blaise End information
 #: guitext:128
 msgctxt "In-game message"
 msgid ""
@@ -1345,26 +1267,25 @@ msgid ""
 "escape. Otherwise your presence will be revealed and then you will be in "
 "trouble."
 msgstr ""
-"Si vous rencontrez des patrouilles de héros, Assurez-vous qu'aucun n'en "
-"réchappe. Sinon votre présence sera connue et vous aurez des problèmes."
+"如果你遇到巡逻的英雄，不要留下活口。否则你的存在将被泄露，那么你就遇到麻烦"
+"了。"
 
+#. Level Blaise End information
 #: guitext:129
 msgctxt "In-game message"
 msgid ""
 "You're taking forever over this. Attack and destroy the heroes' stronghold "
 "soon, preferably before hell freezes over."
-msgstr ""
-"Vous prenez le pouvoir pour toujours. Ne tardez pas à attaquer et à détruire "
-"la place forte des héros, de préférence avant que les poules aient des dents."
+msgstr "你即将永远接管这里。尽快攻击并捣毁英雄的要塞，最好在地狱完全结冰之前。"
 
+#. Level Blaise End information
 #: guitext:130
 msgctxt "In-game message"
 msgid ""
 "Enemy reinforcements have arrived. So what? Let's hear it for more killing."
-msgstr ""
-"Les renforts ennemis sont présents. Et alors ? Ça en fera un peu plus à "
-"saigner."
+msgstr "敌人的增援到达了。这又如何？让我们期待更辉煌的战果。"
 
+#. Level Blaise End objective
 #: guitext:131
 msgctxt "In-game message"
 msgid ""
@@ -1372,19 +1293,18 @@ msgid ""
 "underground stronghold of their own. Who do they think they are? Sorry, "
 "master, that was a rhetorical question."
 msgstr ""
-"Les héros de ce royaume se sont préparés à votre arrivée en construisant une "
-"place forte souterraine. Pour qui se prennent-ils ? Pardon Maître, c'était "
-"une question pour la forme."
+"这个王国的英雄们已经建造好了一个地下要塞等待你的到来。他们认为自己是什么人？"
+"抱歉，主人，这是一个修辞学的问题。"
 
+#. Level Bonus 6 information
 #: guitext:132
 msgctxt "In-game message"
 msgid ""
 "You are about to face the greatest challenge yet to your evil aspirations. "
 "Here it comes, ready or not."
-msgstr ""
-"Vous allez relever le défi le plus important de votre malfaisante existence. "
-"Ça arrive, prêt ou non."
+msgstr "你将面临对你邪恶渴望的最大的挑战。它来了，准备好了吗？"
 
+#. Level Bonus 6 objective
 #: guitext:133
 msgctxt "In-game message"
 msgid ""
@@ -1392,20 +1312,20 @@ msgid ""
 "their empires into this realm. Ultimately, only the one who rules the "
 "underworld can conquer the realms above."
 msgstr ""
-"Trois autres Gardiens de donjon, tout aussi puissants et malfaisants que "
-"vous, ont étendu leur empire dans ce royaume. Seul celui qui règne sur les "
-"enfers peut conquérir le royaume de la surface."
+"三个其他的守护者，他们与你一样的邪恶和强大，他们将自己的帝国扩展到了这里。最"
+"终只有一个统治了地下世界的人可以征服这个王国。"
 
+#. Level Skybird Trill objective
 #: guitext:134
 msgctxt "In-game message"
 msgid ""
 "This realm is begging to be plunged into darkness. The Avatar himself has a "
 "castle here. Another Keeper also seeks his soul. This could get messy."
 msgstr ""
-"Ce royaume ne demande qu'à être plongé dans les ténèbres. L'Avatar lui-même "
-"y a un château. Un autre Gardien s'intéresse également à son âme. Ça "
-"pourrait devenir très compliqué."
+"这个王国乞求投入黑暗的怀抱。圣者自己拥有一个城堡。另一个守护者也在寻找他的灵"
+"魂。这可能会使你有麻烦。"
 
+#. Level Skybird Trill objective
 #: guitext:135
 msgctxt "In-game message"
 msgid ""
@@ -1414,11 +1334,10 @@ msgid ""
 "can destroy this legendary hero, so ransack your rival's dungeon and take "
 "the prize."
 msgstr ""
-"Vous avez détruit le château de l'Avatar, mais il a déjà été emprisonné par "
-"votre rival. Seul le Gardien à l'âme la plus noire pourra détruire ce héros "
-"légendaire. Mettez à sac le donjon de votre rival et vous remporterez le "
-"premier prix."
+"你已经摧毁了圣者的城堡，而你的竞争者则囚禁了圣者。只有一个最心狠手辣的守护者"
+"可以击败传说中的英雄，所以搜索你的敌人的地下城，拿走你的战利品。"
 
+#. Level Skybird Trill objective
 #: guitext:136
 msgctxt "In-game message"
 msgid ""
@@ -1427,11 +1346,11 @@ msgid ""
 "those who would stand against you. It's time you gave this self-righteous "
 "oaf a proper kicking, master."
 msgstr ""
-"L'Avatar a été ressuscité par ses loyaux lieutenants qui restaient dans "
-"l'ombre. Ils ont ainsi dévoilé leur présence. L'Avatar rassemble maintenant "
-"tout ceux qui veulent s'opposer à vous. Il est temps de donner une bonne "
-"leçon à ce malotru trop sur de lui, Maître."
+"圣者的那些隐藏的忠诚的臣子使他复活了。但他们的行动也使他们暴露了。现在圣者正"
+"在召集所有那些反对你的力量。主人，现在是给那些自以为是的畸形儿们上一课的时候"
+"了。"
 
+#. Level Bonus 5 objective
 #: guitext:137
 msgctxt "In-game message"
 msgid ""
@@ -1439,10 +1358,10 @@ msgid ""
 "dungeon from being constructed here. You will have to conquer this realm "
 "another way."
 msgstr ""
-"Un sort puissant, traversant la roche du royaume de la surface, empêche la "
-"construction d'un donjon à cet endroit. Il faudra trouver un autre moyen de "
-"conquérir ce royaume."
+"强力的魔法遍及这个王国的每一块岩石，它妨碍了地下城的建设。你必须用别的方法征"
+"服这个王国。"
 
+#. Level Bonus 5 information
 #: guitext:138
 msgctxt "In-game message"
 msgid ""
@@ -1450,19 +1369,20 @@ msgid ""
 "transfer your soul to a more appropriate creature when the situation demands "
 "it."
 msgstr ""
-"Envoûtez ce Dragon pour qu'il vous aide a négocier ces fosses ardentes, mais "
-"soyez prêt a transférer votre âme dans une créature plus appropriée lorsque "
-"la situation l'exigera."
+"控制一只龙可以帮助你穿越炙热的岩浆，但在环境需要的时候你要准备将你的灵魂转移"
+"到更加合适的怪物中。"
 
+#. Level Bonus 5 objective
 #: guitext:139
 msgctxt "In-game message"
 msgid ""
 "Possess the Vampire below. Should you succeed in killing every hero in this "
 "region, the Vampire will accompany you to the realm beyond."
 msgstr ""
-"Envoûtez le Vampire. Si vous parvenez à tuer tous les héros de la région, le "
-"Vampire vous accompagnera dans le royaume suivant."
+"控制吸血鬼。你应该可以杀死这个区域中的每一个英雄，吸血鬼将陪伴你来到上面的王"
+"国。"
 
+#. Level Bonus 2 objective
 #: guitext:140
 msgctxt "In-game message"
 msgid ""
@@ -1470,23 +1390,24 @@ msgid ""
 "which you accomplish their destruction will determine your fitness for "
 "greater tasks ahead."
 msgstr ""
-"Ces lutins sont tous devenus des gredins. Plus vous les détruirez "
-"rapidement, plus vous serez en forme pour les grands travaux à venir."
+"这些小鬼们全部染上了恶习，因此他们必须去死。你完成对他们的毁灭的时间将决定你"
+"对前面更加伟大的任务的适应程度。"
 
+#. Level Bonus 2 information
 #: guitext:141
 msgctxt "In-game message"
 msgid "Tempus fugit, Keeper. You have been warned."
-msgstr "Tempus Fugitivus, Gardien, Vous étiez prévenu."
+msgstr "光阴似箭，守护者。你被警告了。"
 
+#. Level Bonus 2 objective
 #: guitext:142
 msgctxt "In-game message"
 msgid ""
 "You have failed. Perhaps you're not the harbinger of doom the forces of "
 "darkness were hoping for."
-msgstr ""
-"Vous avez échoué. Vous n'êtes peut-être pas le funeste présage que les "
-"forces du mal attendaient"
+msgstr "你失败了。可能你不是黑暗的力量所需要的天命的先驱者。"
 
+#. Level Bonus 2 objective
 #: guitext:143
 msgctxt "In-game message"
 msgid ""
@@ -1494,50 +1415,47 @@ msgid ""
 "panache that not one but two Dark Mistresses have devoted themselves to "
 "helping you achieve your next goal. You may proceed to your next conquest."
 msgstr ""
-"Vous avez réellement l'esprit tordu, Maître. Vous avez rayé les lutins de la "
-"carte avec une telle maestrïa que pas une, mais deux maîtresses noires se "
-"sont dévouées pour vous aider à atteindre votre prochain objectif. Vous "
-"pouvez passer à la conquête suivante."
+"你的确有一个扭曲的灵魂，主人。你用这样夸张的手段使小鬼灭绝了，以至于除了两个"
+"黑暗女王外没有人会帮助你完成下一个目标。你可以继续征服下一个王国了。"
 
+#. Level Bonus 3 objective
 #: guitext:144
 msgctxt "In-game message"
 msgid ""
 "You must have lightning reflexes to complete the task ahead of you. Kill "
 "these Imps as quickly as you can."
-msgstr ""
-"Vous devrez être plus rapide que l'éclair pour achever la tâche qui vous "
-"attend. Exterminez ces lutins aussi vite que vous pourrez."
+msgstr "你必须有闪电般的反应力才能完成你面前的任务。尽可能迅速地杀掉这些小鬼。"
 
+#. Level Bonus 3 information
 #: guitext:145
 msgctxt "In-game message"
 msgid "Half your allotted time has elapsed."
-msgstr "La moitié du temps qui vous était accordé s'est écoulée."
+msgstr "你已经用掉了一半时间。"
 
+#. Level Bonus 3 objective
 #: guitext:146
 msgctxt "In-game message"
 msgid "You are out of time. That was a shocking performance."
-msgstr "Votre temps est écoulé. Votre performance était navrante."
+msgstr "你的时间用完了。这是一个可怕的表现。"
 
+#. Level Bonus 3 objective
 #: guitext:147
 msgctxt "In-game message"
 msgid ""
 "It is done. Tiny heaps of charred flesh smoulder where Imps once stood. You "
 "certainly had your finger on the pulse this time. The dark gods will send "
-"you a Giant to help you conquer the next realm."
+"you a vicious creature to help you conquer the next realm."
 msgstr ""
-"C'est fait. Les lutins ne sont plus que d'insignifiants tas de chair "
-"carbonisée et fumante. Vous étiez certainement en phase, cette fois. Les "
-"dieux du mal vous enverront un Géant pour vous aider à conquérir le royaume "
-"suivant."
+"完成了。无数尸体在这个小鬼曾经站立的地方被炙烤。你把握住了时间的脉搏。黑暗之"
+"神赐给你一只凶猛的怪物来帮助你征服下一个王国。"
 
+#. Level Bonus 3 objective
 #: guitext:148
 msgctxt "In-game message"
 msgid ""
 "You have no gold left. It pays to keep your head in such a charged "
 "environment."
-msgstr ""
-"Vous n'avez plus d'or. Vous devriez garder la tête sur les épaules dans un "
-"environnement aussi chargé."
+msgstr "你没有金子了。金子可以使你在这个漫天要价的世界里立于不败之地。"
 
 #: guitext:149
 msgctxt "In-game message"
@@ -1546,48 +1464,47 @@ msgid ""
 "Demons by crushing them with Boulder Traps scattered around the perimeter of "
 "the dungeon. You have very little time, so rock and roll!"
 msgstr ""
-"Vous avez été appelé dans ce royaume pour punir une horde de Démons enragés "
-"en les écrasant avec des rochers disséminés autour du donjon. Vous avez très "
-"peu de temps, allez-y!"
+"你被召唤到这个王国惩罚一个背叛的巨魔的部落，你要用地下城周围的圆石陷阱将它们"
+"碾碎。你只有很少的时间，让我们干吧。"
 
+#. Level Bonus 4 objective
 #: guitext:150
 msgctxt "In-game message"
 msgid "Half your time has expired."
-msgstr "La moitié du temps est écoulée."
+msgstr "你的一半时间已经过去。"
 
+#. Level Bonus 4 objective
 #: guitext:151
 msgctxt "In-game message"
 msgid ""
 "Your time is up. You have failed. I'm embarrassed to come from the same "
 "inter-dimensional void as you."
-msgstr ""
-"Votre temps est écoulé. Vous avez échoué. J'ai honte de venir du même vide "
-"inter-dimensionnel que vous."
+msgstr "时间用完了，你失败了。我与你同样感到尴尬。"
 
+#. Level Bonus 4 objective
 #: guitext:152
 msgctxt "In-game message"
 msgid ""
 "Well done. You have excelled in your use of large balls of stone for which "
-"the dark gods will repay you, by granting you three superior Imps when you "
-"reach the next realm."
+"the dark gods will repay you, by allowing you to use the warrior you found "
+"when you reach the next realm."
 msgstr ""
-"Bien joué. Vous avez été excellent avec les grosses boules de pierre. Les "
-"dieux du mal vous récompenseront en vous accordant trois lutins supérieurs "
-"lorsque vous atteindrez le royaume suivant."
+"干得漂亮。你已经精通了大石球的使用方法，黑暗之神为此要奖励你。你可以将你找到的"
+"这名战士带到下一个王国。"
 
+#. Level Bonus 4 objective
 #: guitext:153
 msgctxt "In-game message"
 msgid ""
 "This region of the underworld will test your ability to traverse the network "
 "of caverns. Indeed, time is your enemy here. Defeat it and you will find "
-"where the legendary warrior, Ug the Barbarian is imprisoned. Ug will serve "
-"you well in the future."
+"where a legendary warrior is imprisoned. That warrior will serve you well in "
+"the future."
 msgstr ""
-"Cette région infernale testera vos capacités pour traverser le réseau de "
-"cavernes. En effet, ici le temps joue contre vous. Soyez vainqueur et "
-"trouvez à quel endroit le guerrier légendaire YONEL Le Barbare est "
-"emprisonné. Yonel vous servira bien dans le futur."
+"这个区域考验你横穿洞穴网的能力。时间是你真正的敌人。打败它，你将发现一名被囚禁的"
+"传说中的战士。这名战士将在以后为你服务。"
 
+#. Level Mistle objective
 #: guitext:154
 msgctxt "In-game message"
 msgid ""
@@ -1596,20 +1513,18 @@ msgid ""
 "history. This will be no mean feat. Resources are scarce because of his "
 "activities."
 msgstr ""
-"Les habitants de ce royaume parlent d'un Gardien nommé Raphaels, que vous "
-"trouverez forcément sur votre passage. Vous devrez alors le faire passer à "
-"la postérité, ce qui ne sera pas chose facile. A cause de lui, nos "
-"ressources sont maigres."
+"这个王国的人对你讲了一个叫维泽的守护者的故事，他将阻止你。当他这样做时，你将"
+"不得不把他变成历史。资源将因为他的活动而变得稀少。"
 
+#. Level Mistle objective
 #: guitext:155
 msgctxt "In-game message"
 msgid ""
 "Wisel is defeated. The land is yours to plunder and despoil for all "
 "eternity. Give 'em hell, master."
-msgstr ""
-"Raphaels est vaincu. Le territoire vous appartient et vous pouvez désormais "
-"le piller et le saccager. Faites-leur en baver, Maître!"
+msgstr "维泽被打败了。这片土地成为了你的永远的战利品。给他们降临苦难吧，主人。"
 
+#. Level Mistle information
 #: guitext:156
 msgctxt "In-game message"
 msgid ""
@@ -1618,29 +1533,28 @@ msgid ""
 "even call upon his brothers in arms to offer assistance. How kind. How "
 "stupid!"
 msgstr ""
-"Votre malfaisance a corrompu un guerrier Samourai qui a sacrifié son honneur "
-"pour rallier votre cause. Si vos larbins se font couper en petites "
-"rondelles, ce guerrier fera même appel à ses frères d'armes pour vous aider. "
-"N'est-ce pas aimable de sa part ? Et idiot, non ?"
+"你的邪恶使一个日本武士堕落了，他放弃了荣誉加入了你。在你的爪牙们将要遭受重大"
+"伤亡的时候，这个武士甚至会召唤来他在军队中的兄弟帮助你。多么的善良，多么的愚"
+"蠢！"
 
+#. Level Mistle information
 #: guitext:157
 msgctxt "In-game message"
 msgid ""
 "This region of the underworld is riddled with tunnels and many heroes "
 "explore their labyrinthine ways. No-one said being evil would be easy."
 msgstr ""
-"Cette région infernale est infestée de tunnels, et de nombreux héros les "
-"explorent. Nul n'a jamais dit que la voie de la méchanceté serait aisée."
+"这个区域象一个迷宫，许多英雄在探索他们的道路。没有人说邪恶是一件轻松的事情。"
 
+#. Level Mistle information
 #: guitext:158
 msgctxt "In-game message"
 msgid ""
 "It is rumoured that two Dragons are held captive somewhere east of here. "
 "Were you to find them and free them, they would make powerful servants."
-msgstr ""
-"La rumeur coure qu'il y a deux Dragons en captivité à quelque part à l'Est "
-"d'ici. Si vous les libérez ils feront des serviteurs puissants."
+msgstr "传说龙被囚禁在这个地方的东边。找到并释放他们，他们将成为你有力的工具。"
 
+#. Level Mistle information
 #: guitext:159
 msgctxt "In-game message"
 msgid ""
@@ -1648,39 +1562,38 @@ msgid ""
 "guarded well. It might be wise to direct the humans' attention towards your "
 "subterranean enemy."
 msgstr ""
-"Un tunnel au nord mène au domaine du Seigneur de ce royaume. Cette porte est "
-"bien guardée. Il pourrait être sage de diriger l'attention des humains sur "
-"votre enemi souterrain."
+"一个向北的隧道通向国王的领域。这个门戒备森严。将人类的注意力引向你地下的敌人"
+"是明智的抉择。"
 
+#. Level Mistle information
 #: guitext:160
 msgctxt "In-game message"
 msgid ""
 "These Boulder Traps are ideal for crushing the foe but there are only three "
 "of them at your disposal, so use them wisely."
 msgstr ""
-"Ces Rochers sont idéals pour écraser les enemis, mais vous n'en avez que "
-"trois alors faites en bon usage."
+"这些圆石陷阱可以碾碎你的敌人，但你只有三个可支配，所以请聪明地使用它们。"
 
 #: guitext:161
 msgctxt "In-game message"
 msgid "May I suggest that you kill or imprison anything that gets in your way?"
-msgstr ""
-"Puis-je suggérer que vous tuiez ou emprisonnez tout ce qui ce mettra en "
-"travers de votre chemin ?"
+msgstr "我可以建议你杀死或囚禁任何阻挡你的意志的家伙吗？"
 
+#. Level Blaise End objective
 #: guitext:162
 msgctxt "In-game message"
 msgid ""
 "Another realm falls under your evil reign. Another cloud of misery and "
 "despair gathers. Lovely."
 msgstr ""
-"Un autre royaume tombe sous votre contrôle maléfique. Une autre aura de "
-"malheur et de désespoir se crée. Ravissant."
+"另一个王国被划入了在你的邪恶统治之下的区域。另一片悲惨和绝望的云雾聚集了。有"
+"趣。"
 
+#. Level Skybird Trill objective
 #: guitext:163
 msgctxt "In-game message"
 msgid "You have failed. This is a grim day for evil."
-msgstr "Vous avez échoué. C'est un jour triste pour le mal."
+msgstr "你失败了。这对于邪恶来说是一个残酷的日子。"
 
 #: guitext:164
 msgctxt "In-game message"
@@ -1689,72 +1602,69 @@ msgid ""
 "region and recruit as many Bile Demons as you can. If you free the Wizard "
 "held captive in this realm, he will serve you for some time to come."
 msgstr ""
-"Eliminez ces odieux nains qui parcourent cette région et recrutez autant de "
-"démons bileux que vous le pouvez. Si vous libérez le magicien maintenu "
-"captif dans ce royaume, il vous servira pour les temps qui viennent."
+"忘掉与徘徊在这个区域里的奇特的矮人部落的不愉快的经历，象招募巨魔一样尽量多地"
+"招募他们。如果你释放了被囚禁的巫师，他将为你服务一端时间。"
 
 #: guitext:165
 msgctxt "In-game message"
 msgid ""
 "Take more care of your Bile Demons or you will never make it beyond this "
 "realm."
-msgstr "Occupez vous mieux de vos démons bileux ou vous n'irez pas plus loin."
+msgstr "小心你的巨魔，否则你将永远见不到阳光。"
 
+#. Level Bonus 1 objective
 #: guitext:166
 msgctxt "In-game message"
 msgid "How time flies... hurry!"
-msgstr "Le temps est presque écoulé. Dépêchez-vous."
+msgstr "光阴似箭，快一点！"
 
+#. Level Skybird Trill information
 #: guitext:167
 msgctxt "In-game message"
 msgid ""
 "You will meet your nemesis, the Avatar, in this subterranean place. This is "
 "your ultimate test. Remember, mercy is for losers."
 msgstr ""
-"Vous allez rencontrer votre enemi juré, l'avatar dans cet endroit "
-"souterrain. Ceci est votre test ultime. Rappelez-vous, la pitié est pour les "
-"perdants."
+"你将遭到天罚，圣者，在这个地下世界中。这是对你的最终的考验。记住，怜悯是失败"
+"者的性格。"
 
 #: guitext:168
 msgctxt "In-game message"
 msgid ""
-"The Avatar and his allys are defeated, yet his power over this land lingers. "
-"Prepare thyself..."
-msgstr ""
-"L'avatar et ses alliés sont battus, pourtant son pouvoir ne disparait pas. "
-"Préparez-vous..."
+"The Avatar and his allies are defeated, yet his power over this land "
+"lingers. Prepare thyself..."
+msgstr "圣者和他的同盟被打败了，在这土地上的他的魔力正在消失。你自己准备好吧…"
 
+#. Level Skybird Trill objective
 #: guitext:169
 msgctxt "In-game message"
 msgid ""
 "You got rid of that Keeper easily. Now all that stands between you and total "
 "world domination is that ponce in shining armour. Let's get him."
 msgstr ""
-"Vous vous êtes débarrassés de ce gardien facilement. Désormais, la seule "
-"chose qui s'oppose à votre domination totale est cet imbécile en armure "
-"scintillante. Attrapons-le."
+"你轻松地除掉了这个守护者。现在，在你和这个世界之间的是铠甲上的鲜红色。让我们"
+"得到它。"
 
+#. Level Mirthshire objective
 #: guitext:170
 msgctxt "In-game message"
 msgid "Success is thine. Truly, you have earned your title, Dungeon Keeper."
-msgstr ""
-"La victoire est à vous. Vraiment, vous avez mérité votre titre, Gardien du "
-"Donjon."
+msgstr "成功属于你。你已经赢得了你的称号，地下城守护者。"
 
+#. Level Skybird Trill objective
 #: guitext:171
 msgctxt "In-game message"
 msgid "What is this? The Avatar lives!"
-msgstr "Que se passe-t-il ? L'Avatar est vivant!"
+msgstr "这是什么？圣者还活着！"
 
+#. Level Skybird Trill win objective, also used in DD Level Belial
 #: guitext:172
 msgctxt "In-game message"
 msgid ""
 "Finally, you stand unchallenged. The world is yours to waste and despoil. I "
 "bet you have never felt so bad."
-msgstr ""
-"Finalement, vous n'avez plus le moindre ennemi. Vous pouvez piller et "
-"saccager le monde entier. Je parie que vous ne vous êtes jamais senti aussi "
-"bien, non... ?"
+msgstr "最终，你拥有无可争辩的权威。世界是你的。我打赌你的感觉从为这么糟糕。"
+
 
 #: guitext:173 guitext:174 guitext:175 guitext:176 guitext:177 guitext:178
 #: guitext:179 guitext:180 guitext:181 guitext:182 guitext:183 guitext:184
@@ -1763,51 +1673,44 @@ msgstr ""
 #: guitext:197 guitext:198 guitext:199 guitext:200
 msgctxt "In-game message"
 msgid "Moo"
-msgstr "Moo"
+msgstr ""
 
 #: guitext:202
 msgctxt "Level name"
 msgid "Manudania"
-msgstr "Manudania"
+msgstr "曼努达尼亚"
 
 #: guitext:203
 msgctxt "Level name"
 msgid "A-Maze-ing"
-msgstr "Fan-Ta-Stique"
+msgstr "神奇迷宫"
 
 #: guitext:204
 msgctxt "Level name"
 msgid "Hivespawn"
-msgstr "Rejet-de-Ruche"
+msgstr "蜂王浆"
 
 #: guitext:205
 msgctxt "Level name"
 msgid "Tower of Power"
-msgstr "Tour de Puissance"
+msgstr "力量之塔"
 
 #: guitext:206
 msgctxt "Level name"
 msgid "Dambreak"
-msgstr "Fracas"
+msgstr "丹布雷克"
 
 #: guitext:207
 msgctxt "Level name"
 msgid "Sin-king"
-msgstr "Roi-Pêcheur"
+msgstr "罪恶之王"
 
 #: guitext:208
 msgctxt "Level name"
 msgid "Superblah"
-msgstr "Superblah"
+msgstr "弥天大谎"
 
 #: guitext:209
 msgctxt "Level name"
 msgid "Stronghold"
-msgstr "Forterresse"
-
-#: guitext:210 guitext:211 guitext:212 guitext:213 guitext:214 guitext:215
-#: guitext:216 guitext:217 guitext:218 guitext:219 guitext:220 guitext:221
-#: guitext:222 guitext:223 guitext:224 guitext:225
-msgctxt "Level name"
-msgid "Unused"
-msgstr "Non Utilisé"
+msgstr "最终堡垒"
