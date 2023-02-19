@@ -679,7 +679,7 @@ void process_timebomb(struct Thing *creatng)
     if (!is_thing_directly_controlled(creatng))
     {
         struct Thing* trgtng = find_nearest_enemy_creature(creatng);
-        if (!thing_is_invalid(trgtng))
+        if ( (!thing_is_invalid(trgtng)) && (creature_can_navigate_to(creatng, &trgtng->mappos, NavRtF_Default)) )
         {
             if ( (trgtng->mappos.x.stl.num != cctrl->moveto_pos.x.stl.num) || (trgtng->mappos.y.stl.num != cctrl->moveto_pos.y.stl.num) )
             {
