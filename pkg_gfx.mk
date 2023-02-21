@@ -309,7 +309,7 @@ pkg/creatrs/%.jty pkg/data/%.jty:
 gfx/%:: | gfx/LICENSE ;
 
 gfx/LICENSE:
-	git submodule update gfx
+	git submodule update --init gfx
 
 # The package is extracted only if targets does not exits; the "|" causes file dates to be ignored
 # Note that ignoring timestamp means it is possible to have outadated files after a new
