@@ -675,25 +675,8 @@ void process_timebomb(struct Thing *creatng)
     if (!creature_affected_by_spell(creatng, SplK_TimeBomb)) {
         return;
     }
+    update_creature_speed(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    if (!is_thing_directly_controlled(creatng))
-    {
-        struct Thing* trgtng = find_nearest_enemy_creature(creatng);
-        if ( (!thing_is_invalid(trgtng)) && (creature_can_navigate_to(creatng, &trgtng->mappos, NavRtF_Default)) )
-        {
-            if ( (trgtng->mappos.x.stl.num != cctrl->moveto_pos.x.stl.num) || (trgtng->mappos.y.stl.num != cctrl->moveto_pos.y.stl.num) )
-            {
-                cctrl->moveto_pos.x.stl.num = trgtng->mappos.x.stl.num;
-                cctrl->moveto_pos.y.stl.num = trgtng->mappos.y.stl.num;
-                cctrl->moveto_pos.z.stl.num = trgtng->mappos.z.stl.num;
-                cctrl->move_flags = NavRtF_Default;
-                if (creatng->active_state != CrSt_MoveToPosition)
-                {
-                    internal_set_thing_state(creatng, CrSt_MoveToPosition);
-                }
-            }
-        }
-    }
     struct Thing* timetng = thing_get(cctrl->timebomb_countdown_id);
     if (thing_is_invalid(timetng))
     {
