@@ -306,11 +306,10 @@ pkg/creatrs/%.jty pkg/data/%.jty:
 	-$(ECHO) 'Finished building: $@'
 	-$(ECHO) ' '
 
-gfx/%:: | gfx ;
+gfx/%:: | gfx/LICENSE ;
 
-gfx:
-	-$(ECHO) 'cloning FXGraphics git'
-	git clone --depth=1 https://github.com/dkfans/FXGraphics.git gfx
+gfx/LICENSE:
+	git submodule update gfx
 
 # The package is extracted only if targets does not exits; the "|" causes file dates to be ignored
 # Note that ignoring timestamp means it is possible to have outadated files after a new
