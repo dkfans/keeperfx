@@ -132,7 +132,7 @@ pkg-landviews: $(LANDVIEWRAWS) $(LANDVIEWDATTABS)
 
 pkg-menugfx: $(TOTRUREGFX) $(FRONTENDGFX)
 
-pkg-enginegfx: $(ENGINEGFX)
+pkg-enginegfx: gfx $(ENGINEGFX)
 
 # Creation of land view image files for campaigns
 define define_campaign_landview_rule
@@ -307,7 +307,8 @@ pkg/creatrs/%.jty pkg/data/%.jty:
 	-$(ECHO) ' '
 
 gfx:
-    git clone --depth=1 https://github.com/dkfans/FXGraphics.git gfx
+	-$(ECHO) 'cloning FXGraphics git'
+	git clone --depth=1 https://github.com/dkfans/FXGraphics.git gfx
 
 # The package is extracted only if targets does not exits; the "|" causes file dates to be ignored
 # Note that ignoring timestamp means it is possible to have outadated files after a new
