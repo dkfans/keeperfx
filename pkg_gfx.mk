@@ -132,7 +132,7 @@ pkg-landviews: $(LANDVIEWRAWS) $(LANDVIEWDATTABS)
 
 pkg-menugfx: $(TOTRUREGFX) $(FRONTENDGFX)
 
-pkg-enginegfx: gfx $(ENGINEGFX)
+pkg-enginegfx: $(ENGINEGFX)
 
 # Creation of land view image files for campaigns
 define define_campaign_landview_rule
@@ -305,6 +305,8 @@ pkg/creatrs/%.jty pkg/data/%.jty:
 	$(PNGTORAW) -m -o "$@" -p "$(word 2,$^)" -f jspr -l 0 "$<"
 	-$(ECHO) 'Finished building: $@'
 	-$(ECHO) ' '
+
+gfx/%:: | gfx ;
 
 gfx:
 	-$(ECHO) 'cloning FXGraphics git'
