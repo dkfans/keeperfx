@@ -306,6 +306,9 @@ pkg/creatrs/%.jty pkg/data/%.jty:
 	-$(ECHO) 'Finished building: $@'
 	-$(ECHO) ' '
 
+gfx:
+    git clone --depth=1 https://github.com/dkfans/FXGraphics.git gfx
+
 # The package is extracted only if targets does not exits; the "|" causes file dates to be ignored
 # Note that ignoring timestamp means it is possible to have outadated files after a new
 # package release, if no targets were modified with the update.
@@ -322,7 +325,7 @@ gfx/sprites-32/%.txt gfx/sprites-64/%.txt gfx/sprites-128/%.txt \
 gfx/swipes-32/%.txt gfx/swipes-64/%.txt gfx/swipes-128/%.txt \
 gfx/textures-32/%.png gfx/textures-64/%.png gfx/textures-128/%.png \
 gfx/textures-32/%.txt gfx/textures-64/%.txt gfx/textures-128/%.txt \
-gfx/torturescr/%.png gfx/torturescr/%.txt gfx/guimap/%.txt gfx/parchmentbug/%.txt gfx/creatrportrait/%.txt:
-	git clone --depth=1 https://github.com/dkfans/FXGraphics.git gfx
+gfx/torturescr/%.png gfx/torturescr/%.txt gfx/guimap/%.txt gfx/parchmentbug/%.txt \
+gfx/creatrportrait/%.txt: gfx
 
 #******************************************************************************
