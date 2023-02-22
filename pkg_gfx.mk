@@ -136,21 +136,21 @@ pkg-enginegfx: $(ENGINEGFX)
 
 # Creation of land view image files for campaigns
 define define_campaign_landview_rule
-pkg/campgns/$(1)_lnd/rgmap%.pal: gfx/$(1)_lnd/rgmap%.png gfx/$(1)_lnd/viframe.png tools/png2bestpal/res/color_tbl_landview.txt $$(PNGTOBSPAL)
+pkg/campgns/$(1)_lnd/rgmap%.pal: gfx/landviews/$(1)_lnd/rgmap%.png gfx/landviews/$(1)_lnd/viframe.png tools/png2bestpal/res/color_tbl_landview.txt $$(PNGTOBSPAL)
 	-$$(ECHO) 'Building land view palette: $$@'
 	@$$(MKDIR) $$(@D)
 	$$(PNGTOBSPAL) -o "$$@" -m "$$(word 3,$$^)" "$$(word 1,$$^)" "$$(word 2,$$^)"
 	-$$(ECHO) 'Finished building: $$@'
 	-$$(ECHO) ' '
 
-pkg/campgns/$(1)_lnd/rgmap%.raw: gfx/$(1)_lnd/rgmap%.png pkg/campgns/$(1)_lnd/rgmap%.pal $$(PNGTORAW) $$(RNC)
+pkg/campgns/$(1)_lnd/rgmap%.raw: gfx/landviews/$(1)_lnd/rgmap%.png pkg/campgns/$(1)_lnd/rgmap%.pal $$(PNGTORAW) $$(RNC)
 	-$$(ECHO) 'Building land view image: $$@'
 	$$(PNGTORAW) -o "$$@" -p "$$(word 2,$$^)" -f raw -l 100 "$$<"
 	-$$(RNC) "$$@"
 	-$$(ECHO) 'Finished building: $$@'
 	-$$(ECHO) ' '
 
-pkg/campgns/$(1)_lnd/viframe%.dat: gfx/$(1)_lnd/viframe.png pkg/campgns/$(1)_lnd/rgmap%.pal $$(PNGTORAW) $$(RNC)
+pkg/campgns/$(1)_lnd/viframe%.dat: gfx/landviews/$(1)_lnd/viframe.png pkg/campgns/$(1)_lnd/rgmap%.pal $$(PNGTORAW) $$(RNC)
 	-$$(ECHO) 'Building land view frame: $$@'
 	$$(PNGTORAW) -o "$$@" -p "$$(word 2,$$^)" -f hspr -l 50 "$$<"
 	-$$(RNC) "$$@"
