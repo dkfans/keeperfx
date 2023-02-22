@@ -11,6 +11,3 @@
 [submodule "deps/enet"]
 	path = deps/enet
 	url = https://github.com/lsalzman/enet.git
-[submodule "gfx"]
-	path = gfx
-	url = https://github.com/dkfans/FXGraphics.git
