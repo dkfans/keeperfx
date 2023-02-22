@@ -24,9 +24,8 @@ jobs:
     - name: build gfx
       run: |
         set -eux
-        BUILD_NUMBER=$(git rev-list --count origin/master)
-        GITHUB_SHA=$(cat $GITHUB_EVENT_PATH | jq -r .pull_request.head.sha)
-        PACKAGE_SUFFIX=Prototype_$(git rev-parse --short=7 "$GITHUB_SHA")
+        BUILD_NUMBER=$(git rev-list --count HEAD)
+        PACKAGE_SUFFIX=Alpha
         make -j`nproc` BUILD_NUMBER=$BUILD_NUMBER PACKAGE_SUFFIX=$PACKAGE_SUFFIX pkg-enginegfx
 
     - name: build
