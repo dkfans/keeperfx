@@ -39,14 +39,16 @@ pkg/fxdata/gtext_eng.dat
 NCTEXTDATS = \
 pkg/campgns/ami2019/text_eng.dat \
 pkg/campgns/ami2019/text_chi.dat \
+pkg/campgns/ami2019/text_spa.dat \
 pkg/campgns/ancntkpr/text_eng.dat \
 pkg/campgns/ancntkpr/text_fre.dat \
 pkg/campgns/ancntkpr/text_ger.dat \
 pkg/campgns/ancntkpr/text_pol.dat \
 pkg/campgns/ancntkpr/text_chi.dat \
 pkg/campgns/burdnimp/text_eng.dat \
-pkg/campgns/burdnimp/text_pol.dat \
 pkg/campgns/burdnimp/text_chi.dat \
+pkg/campgns/burdnimp/text_pol.dat \
+pkg/campgns/burdnimp/text_spa.dat \
 pkg/campgns/cqarctic/text_eng.dat \
 pkg/campgns/cqarctic/text_chi.dat \
 pkg/campgns/cqarctic/text_pol.dat \
@@ -71,12 +73,15 @@ pkg/campgns/questfth/text_fre.dat \
 pkg/campgns/questfth/text_pol.dat \
 pkg/campgns/revlord/text_eng.dat \
 pkg/campgns/revlord/text_chi.dat \
+pkg/campgns/revlord/text_spa.dat \
 pkg/campgns/twinkprs/text_eng.dat \
-pkg/campgns/twinkprs/text_pol.dat \
 pkg/campgns/twinkprs/text_chi.dat \
+pkg/campgns/twinkprs/text_pol.dat \
+pkg/campgns/twinkprs/text_spa.dat \
 pkg/campgns/undedkpr/text_eng.dat \
 pkg/campgns/undedkpr/text_chi.dat \
-pkg/campgns/undedkpr/text_pol.dat
+pkg/campgns/undedkpr/text_pol.dat \
+pkg/campgns/undedkpr/text_spa.dat
 
 MPTEXTDATS = \
 pkg/levels/classic/text_eng.dat \
