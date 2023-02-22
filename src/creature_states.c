@@ -458,7 +458,7 @@ struct StateInfo states[CREATURE_STATES_COUNT] = {
   {creature_going_to_safety_for_toking, NULL, NULL, NULL,
     0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,  CrStTyp_Sleep, 0, 0, 1, 0, 54, 1, 0, 1},
   {creature_timebomb, cleanup_hold_audience, NULL, NULL,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Idle, 0, 0, 1, 0,  0, 0, 0, 1},
+    1, 1, 1, 1, 1, 0, 1, 1, 0, 0, 0, 0, 1, 1,  CrStTyp_Idle, 0, 0, 1, 0,  0, 1, 0, 0},
 };
 
 /** GUI States of creatures - from "Creatures" Tab in UI.
@@ -5280,14 +5280,11 @@ short creature_timebomb(struct Thing *creatng)
             cctrl->moveto_pos.y.val = trgtng->mappos.y.val;
             cctrl->moveto_pos.z.val = trgtng->mappos.z.val;
             cctrl->move_flags = NavRtF_Default;
+            creature_move_to(creatng, &cctrl->moveto_pos, cctrl->max_speed, NavRtF_Default, false);
         }
         else
         {
             creature_choose_random_destination_on_valid_adjacent_slab(creatng);
-        }
-        if (creatng->active_state != CrSt_MoveToPosition)
-        {
-            internal_set_thing_state(creatng, CrSt_MoveToPosition);
         }
         creatng->continue_state = CrSt_Timebomb;
         return 1;

@@ -677,6 +677,13 @@ void process_timebomb(struct Thing *creatng)
     }
     update_creature_speed(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    if (!is_thing_directly_controlled(creatng))
+    {
+        if (creatng->active_state != CrSt_Timebomb)
+        {
+            initialise_thing_state(creatng, CrSt_Timebomb);
+        }
+    }
     struct Thing* timetng = thing_get(cctrl->timebomb_countdown_id);
     if (thing_is_invalid(timetng))
     {
