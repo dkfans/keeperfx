@@ -13,6 +13,7 @@
 #include "map_data.h"
 #include "game_legacy.h"
 #include "player_utils.h"
+#include "lvl_script_lib.h"
 
 #include "post_inc.h"
 
@@ -23,9 +24,394 @@ struct luaThing
     ThingIndex thing_idx;
     GameTurn creation_turn;
 };
+/*****/
 
-static struct Thing *lua_toThing(lua_State *L, int index);
-static struct luaThing *lua_pushThing(lua_State *L, struct Thing* thing);
+static struct Thing *lua_toThing(lua_State *L, int index)
+{
+    luaL_checktype(L, index, LUA_TUSERDATA);
+
+    struct luaThing *ltng = (struct luaThing *)lua_touserdata(L, index);
+
+    if (ltng == NULL)
+    {
+        JUSTLOG("3");
+        luaL_typerror(L, index, "thing");
+        return INVALID_THING;
+    }
+    JUSTLOG("4");
+    struct Thing* thing = thing_get(ltng->thing_idx);
+    JUSTLOG("5");
+    if(thing_is_invalid(thing))
+    {
+        JUSTLOG("6");
+        return INVALID_THING;
+    }
+    if(ltng->creation_turn != thing->creation_turn)
+    {
+        JUSTLOG("7");
+        return INVALID_THING;
+    }
+    JUSTLOG("8");
+    return thing;
+}
+
+static TbMapLocation luaL_checkLocation(lua_State *L, int index)
+{
+    const char* locname = lua_tostring(L, index);
+    TbMapLocation location;
+    if(!get_map_location_id(locname, &location))
+    {
+        luaL_error (L,"Invalid player name, '%s'", locname);
+    }
+    return location;
+}
+
+static PlayerNumber luaL_checkPlayerSingle(lua_State *L, int index)
+{
+
+}
+
+static PlayerNumber luaL_checkPlayerRange(lua_State *L, int index)
+{
+    const char* plrname = lua_tostring(L, index);
+    PlayerNumber plr_range_id = get_rid(player_desc, plrname);
+    if (plr_range_id == -1)
+    {
+      plr_range_id = get_rid(cmpgn_human_player_options, plrname);
+      if (plr_range_id == -1)
+      {
+        luaL_error (L,"Invalid player name, '%s'", plrname);
+        return -1;
+      }
+    }
+    return plr_range_id;
+}
+
+static long luaL_checkNamedCommand(lua_State *L, int index,const struct NamedCommand * commanddesc)
+{
+    if (lua_isnumber(L, index))
+    {
+        return lua_tointeger(L, index);
+    }
+    else if(lua_isstring(L, index))
+    {
+        const char* text = lua_tostring(L, index);
+        long id = get_rid(commanddesc, text);
+        if (id == -1)
+        {
+            luaL_error(L,"invalid namedcommandoption, '%s'", text);
+        }
+        return id;
+    }
+    luaL_error(L,"invalid namedcommandoption");
+
+}
+
+/**********/
+
+struct luaThing *lua_pushThing(lua_State *L, struct Thing* thing)
+{
+    struct luaThing *lthing = (struct luaThing *)lua_newuserdata(L, sizeof(struct luaThing));
+    lthing->thing_idx = thing->index;
+    lthing->creation_turn = thing->creation_turn;
+    luaL_getmetatable(L, "thing");
+    lua_setmetatable(L, -2);
+    return lthing;
+}
+
+/**********************************************/
+// game
+/**********************************************/
+
+
+static int lua_CREATE_PARTY(lua_State *L)
+{
+    const char* party_name = luaL_checklstring(L, 1,NULL);
+    create_party(party_name);
+    return 0;
+}
+static int lua_ADD_TO_PARTY(lua_State *L)
+{
+    const char* party_name = luaL_checkstring(L,  1);
+    long crtr_id           = luaL_checkNamedCommand(L,2,creature_desc);
+    long experience        = luaL_checklong(L, 3);
+    long gold              = luaL_checklong(L, 4);
+    long objective_id      = luaL_checkNamedCommand(L, 5,hero_objective_desc);
+    long countdown         = luaL_checklong (L, 6);
+
+    int party_id = get_party_index_of_name(party_name);
+    if (party_id < 0)
+    {
+        SCRPTERRLOG("Invalid Party:%s",party_name);
+        return 0;
+    }
+    if ((experience < 1) || (experience > CREATURE_MAX_LEVEL))
+    {
+      SCRPTERRLOG("Invalid Creature Level parameter; %ld not in range (%d,%d)",experience,1,CREATURE_MAX_LEVEL);
+      return 0;
+    }
+
+    add_member_to_party(party_id, crtr_id, experience, gold, objective_id, countdown);
+}
+static int lua_DELETE_FROM_PARTY(lua_State *L)
+{
+    const char* party_name = lua_tostring(L,  1);
+    const char* creature   = lua_tostring(L,  2);
+    long experience  = lua_tointeger(L, 3);
+
+    int party_id = get_party_index_of_name(party_name);
+    if (party_id < 0)
+    {
+        SCRPTERRLOG("Invalid Party:%s",party_name);
+        return 0;
+    }
+    long creature_id = get_rid(creature_desc, creature);
+    if (creature_id == -1)
+    {
+      SCRPTERRLOG("Unknown creature, '%s'", creature);
+      return 0;
+    }
+
+    delete_member_from_party(party_id, creature_id, experience);
+    return 0;
+}
+static int lua_ADD_PARTY_TO_LEVEL(lua_State *L)
+{
+    long plr_range_id      = luaL_checkinteger(L, 1);
+    const char *prtname    = luaL_checkstring(L,  2);
+    TbMapLocation location = luaL_checkLocation(L,  3);
+    long ncopies           = luaL_checkinteger(L, 4);
+
+    if (ncopies < 1)
+    {
+        SCRPTERRLOG("Invalid NUMBER parameter");
+        return 0;
+    }
+    if (gameadd.script.party_triggers_num >= PARTY_TRIGGERS_COUNT)
+    {
+        SCRPTERRLOG("Too many ADD_CREATURE commands in script");
+        return 0;
+    }
+    // Verify player
+    long plr_id = get_players_range_single(plr_range_id);
+    if (plr_id < 0) {
+        SCRPTERRLOG("Given owning player is not supported in this command");
+        return 0;
+    }
+    // Recognize place where party is created
+    if (location == 0)
+        return 0;
+    // Recognize party name
+    long prty_id = get_party_index_of_name(prtname);
+    if (prty_id < 0)
+    {
+        SCRPTERRLOG("Party of requested name, '%s', is not defined",prtname);
+        return 0;
+    }
+    struct Party* party = &gameadd.script.creature_partys[prty_id];
+    script_process_new_party(party, plr_id, location, ncopies);
+        return 0;
+}
+static int lua_ADD_CREATURE_TO_LEVEL(lua_State *L)
+{
+    PlayerNumber plr_idx   = luaL_checkPlayerSingle(L, 1);
+    const char *crtr_name  = luaL_checkstring(L,  2);
+    TbMapLocation location = luaL_checkLocation(L,  3);
+    long ncopies           = luaL_checkinteger(L, 4);
+    long crtr_level        = luaL_checkinteger(L, 5);
+    long carried_gold      = luaL_checkinteger(L, 6);
+       
+    if ((crtr_level < 1) || (crtr_level > CREATURE_MAX_LEVEL))
+    {
+        SCRPTERRLOG("Invalid CREATURE LEVEL parameter");
+        return 0;
+    }
+    if ((ncopies <= 0) || (ncopies >= CREATURES_COUNT))
+    {
+        SCRPTERRLOG("Invalid number of creatures to add");
+        return 0;
+    }
+    if (gameadd.script.party_triggers_num >= PARTY_TRIGGERS_COUNT)
+    {
+        SCRPTERRLOG("Too many ADD_CREATURE commands in script");
+        return 0;
+    }
+    long crtr_id = get_rid(creature_desc, crtr_name);
+    if (crtr_id == -1)
+    {
+        SCRPTERRLOG("Unknown creature, '%s'", crtr_name);
+        return 0;
+    }
+    // Verify player
+    //long plr_id = get_players_range_single(plr_range_id);
+    //if (plr_id < 0) {
+    //    SCRPTERRLOG("Given owning player is not supported in this command");
+    //    return 0;
+    //}
+    // Recognize place where party is created
+    if (location == 0)
+        return 0;
+    script_process_new_creatures(plr_idx, crtr_id, location, ncopies, carried_gold, crtr_level-1);
+        return 0;
+
+}
+static int lua_ADD_OBJECT_TO_LEVEL(lua_State *L)
+{
+    const char *obj_name;
+    TbMapLocation location = luaL_checkLocation(L,  2);
+    long arg = lua_tointeger(L,3);
+    PlayerNumber plr_idx   = luaL_checkPlayerSingle(L, 4);
+
+    long obj_id = get_rid(object_desc, obj_name);
+    if (obj_id == -1)
+    {
+        SCRPTERRLOG("Unknown object, '%s'", obj_name);
+        return 0;
+    }
+    if (gameadd.script.party_triggers_num >= PARTY_TRIGGERS_COUNT)
+    {
+        SCRPTERRLOG("Too many ADD_CREATURE commands in script");
+        return 0;
+    }
+
+    script_process_new_object(obj_id, location, arg, plr_idx);
+        return 0;
+    
+}
+/*
+static int lua_SET_HATE(lua_State *L)
+static int lua_SET_GENERATE_SPEED(lua_State *L)
+static int lua_START_MONEY(lua_State *L)
+static int lua_ROOM_AVAILABLE(lua_State *L)
+static int lua_CREATURE_AVAILABLE(lua_State *L)
+static int lua_MAGIC_AVAILABLE(lua_State *L)
+static int lua_TRAP_AVAILABLE(lua_State *L)
+static int lua_RESEARCH(lua_State *L)
+static int lua_RESEARCH_ORDER(lua_State *L)
+static int lua_COMPUTER_PLAYER(lua_State *L)
+static int lua_SET_TIMER(lua_State *L)
+static int lua_ADD_TUNNELLER_TO_LEVEL(lua_State *L)
+static int lua_WIN_GAME(lua_State *L)
+static int lua_LOSE_GAME(lua_State *L)
+static int lua_SET_FLAG(lua_State *L)
+static int lua_MAX_CREATURES(lua_State *L)
+static int lua_NEXT_COMMAND_REUSABLE(lua_State *L)
+static int lua_DOOR_AVAILABLE(lua_State *L)
+static int lua_DISPLAY_OBJECTIVE(lua_State *L)
+static int lua_DISPLAY_OBJECTIVE_WITH_POS(lua_State *L)
+static int lua_DISPLAY_INFORMATION(lua_State *L)
+static int lua_DISPLAY_INFORMATION_WITH_POS(lua_State *L)
+static int lua_ADD_TUNNELLER_PARTY_TO_LEVEL(lua_State *L)
+static int lua_ADD_CREATURE_TO_POOL(lua_State *L)
+static int lua_RESET_ACTION_POINT(lua_State *L)
+static int lua_SET_CREATURE_MAX_LEVEL(lua_State *L)
+static int lua_SET_MUSIC(lua_State *L)
+static int lua_TUTORIAL_FLASH_BUTTON(lua_State *L)
+static int lua_SET_CREATURE_STRENGTH(lua_State *L)
+static int lua_SET_CREATURE_HEALTH(lua_State *L)
+static int lua_SET_CREATURE_ARMOUR(lua_State *L)
+static int lua_SET_CREATURE_FEAR_WOUNDED(lua_State *L)
+static int lua_SET_CREATURE_FEAR_STRONGER(lua_State *L)
+static int lua_SET_CREATURE_FEARSOME_FACTOR(lua_State *L)
+static int lua_SET_CREATURE_PROPERTY(lua_State *L)
+static int lua_SET_COMPUTER_GLOBALS(lua_State *L)
+static int lua_SET_COMPUTER_CHECKS(lua_State *L)
+static int lua_SET_COMPUTER_EVENT(lua_State *L)
+static int lua_SET_COMPUTER_PROCESS(lua_State *L)
+static int lua_ALLY_PLAYERS(lua_State *L)
+static int lua_DEAD_CREATURES_RETURN_TO_POOL(lua_State *L)
+static int lua_BONUS_LEVEL_TIME(lua_State *L)
+static int lua_QUICK_OBJECTIVE(lua_State *L)
+static int lua_QUICK_INFORMATION(lua_State *L)
+static int lua_QUICK_OBJECTIVE_WITH_POS(lua_State *L)
+static int lua_QUICK_INFORMATION_WITH_POS(lua_State *L)
+static int lua_SWAP_CREATURE(lua_State *L)
+static int lua_PRINT(lua_State *L)
+static int lua_MESSAGE(lua_State *L)
+static int lua_PLAY_MESSAGE(lua_State *L)
+static int lua_ADD_GOLD_TO_PLAYER(lua_State *L)
+static int lua_SET_CREATURE_TENDENCIES(lua_State *L)
+static int lua_REVEAL_MAP_RECT(lua_State *L)
+static int lua_CONCEAL_MAP_RECT(lua_State *L)
+static int lua_REVEAL_MAP_LOCATION(lua_State *L)
+static int lua_LEVEL_VERSION(lua_State *L)
+static int lua_KILL_CREATURE(lua_State *L)
+static int lua_COMPUTER_DIG_TO_LOCATION(lua_State *L)
+static int lua_USE_POWER_ON_CREATURE(lua_State *L)
+static int lua_USE_POWER_AT_POS(lua_State *L)
+static int lua_USE_POWER_AT_SUBTILE(lua_State *L)
+static int lua_USE_POWER_AT_LOCATION(lua_State *L)
+static int lua_USE_POWER(lua_State *L)
+static int lua_USE_SPECIAL_INCREASE_LEVEL(lua_State *L)
+static int lua_USE_SPECIAL_MULTIPLY_CREATURES",
+static int lua_USE_SPECIAL_MAKE_SAFE(lua_State *L)
+static int lua_USE_SPECIAL_LOCATE_HIDDEN_WORLD"
+static int lua_USE_SPECIAL_TRANSFER_CREATURE(lua_State *L)
+static int lua_TRANSFER_CREATURE(lua_State *L)
+static int lua_CHANGE_CREATURES_ANNOYANCE(lua_State *L)
+static int lua_ADD_TO_FLAG(lua_State *L)
+static int lua_SET_CAMPAIGN_FLAG(lua_State *L)
+static int lua_ADD_TO_CAMPAIGN_FLAG(lua_State *L)
+static int lua_EXPORT_VARIABLE(lua_State *L)
+static int lua_RUN_AFTER_VICTORY(lua_State *L)
+static int lua_LEVEL_UP_CREATURE(lua_State *L)
+static int lua_CHANGE_CREATURE_OWNER(lua_State *L)
+static int lua_SET_GAME_RULE(lua_State *L)
+static int lua_SET_TRAP_CONFIGURATION(lua_State *L)
+static int lua_SET_DOOR_CONFIGURATION(lua_State *L)
+static int lua_SET_OBJECT_CONFIGURATION(lua_State *L)
+static int lua_SET_CREATURE_CONFIGURATION(lua_State *L)
+static int lua_SET_SACRIFICE_RECIPE(lua_State *L)
+static int lua_REMOVE_SACRIFICE_RECIPE(lua_State *L)
+static int lua_SET_BOX_TOOLTIP(lua_State *L)
+static int lua_SET_BOX_TOOLTIP_ID(lua_State *L)
+static int lua_CHANGE_SLAB_OWNER(lua_State *L)
+static int lua_CHANGE_SLAB_TYPE(lua_State *L)
+static int lua_CREATE_EFFECTS_LINE(lua_State *L)
+static int lua_QUICK_MESSAGE(lua_State *L)
+static int lua_DISPLAY_MESSAGE(lua_State *L)
+static int lua_USE_SPELL_ON_CREATURE(lua_State *L)
+static int lua_SET_HEART_HEALTH(lua_State *L)
+static int lua_ADD_HEART_HEALTH(lua_State *L)
+static int lua_CREATURE_ENTRANCE_LEVEL(lua_State *L)
+static int lua_RANDOMISE_FLAG(lua_State *L)
+static int lua_COMPUTE_FLAG(lua_State *L)
+static int lua_DISPLAY_TIMER(lua_State *L)
+static int lua_ADD_TO_TIMER(lua_State *L)
+static int lua_ADD_BONUS_TIME(lua_State *L)
+static int lua_DISPLAY_VARIABLE(lua_State *L)
+static int lua_DISPLAY_COUNTDOWN(lua_State *L)
+static int lua_HIDE_TIMER(lua_State *L)
+static int lua_HIDE_VARIABLE(lua_State *L)
+static int lua_CREATE_EFFECT(lua_State *L)
+static int lua_CREATE_EFFECT_AT_POS(lua_State *L)
+static int lua_HEART_LOST_QUICK_OBJECTIVE(lua_State *L)
+static int lua_HEART_LOST_OBJECTIVE(lua_State *L)
+static int lua_SET_DOOR(lua_State *L)
+static int lua_SET_CREATURE_INSTANCE(lua_State *L)
+static int lua_SET_HAND_RULE(lua_State *L)
+static int lua_MOVE_CREATURE(lua_State *L)
+static int lua_COUNT_CREATURES_AT_ACTION_POINT(lua_State *L)
+static int lua_SET_TEXTURE(lua_State *L)
+static int lua_HIDE_HERO_GATE(lua_State *L)
+
+
+
+
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /**********************************************/
 // game
@@ -87,6 +473,129 @@ static int lua_set_player_as_lost_level(lua_State *L)
 }
 
 static const luaL_reg game_methods[] = {
+    {"CREATE_PARTY",                        lua_CREATE_PARTY},
+    {"ADD_TO_PARTY",                        lua_ADD_TO_PARTY},
+    {"DELETE_FROM_PARTY",                   lua_DELETE_FROM_PARTY},
+    {"ADD_PARTY_TO_LEVEL",                  lua_ADD_PARTY_TO_LEVEL},
+    {"ADD_CREATURE_TO_LEVEL",               lua_ADD_CREATURE_TO_LEVEL},
+    {"ADD_OBJECT_TO_LEVEL",                 lua_ADD_OBJECT_TO_LEVEL},
+    /*
+    {"SET_HATE",                            lua_SET_HATE},
+    {"SET_GENERATE_SPEED",                  lua_SET_GENERATE_SPEED},
+    {"START_MONEY",                         lua_START_MONEY},
+    {"ROOM_AVAILABLE",                      lua_ROOM_AVAILABLE},
+    {"CREATURE_AVAILABLE",                  lua_CREATURE_AVAILABLE},
+    {"MAGIC_AVAILABLE",                     lua_MAGIC_AVAILABLE},
+    {"TRAP_AVAILABLE",                      lua_TRAP_AVAILABLE},
+    {"RESEARCH",                            lua_RESEARCH},
+    {"RESEARCH_ORDER",                      lua_RESEARCH_ORDER},
+    {"COMPUTER_PLAYER",                     lua_COMPUTER_PLAYER},
+    {"SET_TIMER",                           lua_SET_TIMER},
+    {"ADD_TUNNELLER_TO_LEVEL",              lua_ADD_TUNNELLER_TO_LEVEL},
+    {"WIN_GAME",                            lua_WIN_GAME},
+    {"LOSE_GAME",                           lua_LOSE_GAME},
+    {"SET_FLAG",                            lua_SET_FLAG},
+    {"MAX_CREATURES",                       lua_MAX_CREATURES},
+    {"NEXT_COMMAND_REUSABLE",               lua_NEXT_COMMAND_REUSABLE},
+    {"DOOR_AVAILABLE",                      lua_DOOR_AVAILABLE},
+    {"DISPLAY_OBJECTIVE",                   lua_DISPLAY_OBJECTIVE},
+    {"DISPLAY_OBJECTIVE_WITH_POS",          lua_DISPLAY_OBJECTIVE_WITH_POS},
+    {"DISPLAY_INFORMATION",                 lua_DISPLAY_INFORMATION},
+    {"DISPLAY_INFORMATION_WITH_POS",        lua_DISPLAY_INFORMATION_WITH_POS},
+    {"ADD_TUNNELLER_PARTY_TO_LEVEL",        lua_ADD_TUNNELLER_PARTY_TO_LEVEL},
+    {"ADD_CREATURE_TO_POOL",                lua_ADD_CREATURE_TO_POOL},
+    {"RESET_ACTION_POINT",                  lua_RESET_ACTION_POINT},
+    {"SET_CREATURE_MAX_LEVEL",              lua_SET_CREATURE_MAX_LEVEL},
+    {"SET_MUSIC",                           lua_SET_MUSIC},
+    {"TUTORIAL_FLASH_BUTTON",               lua_TUTORIAL_FLASH_BUTTON},
+    {"SET_CREATURE_STRENGTH",               lua_SET_CREATURE_STRENGTH},
+    {"SET_CREATURE_HEALTH",                 lua_SET_CREATURE_HEALTH},
+    {"SET_CREATURE_ARMOUR",                 lua_SET_CREATURE_ARMOUR},
+    {"SET_CREATURE_FEAR_WOUNDED",           lua_SET_CREATURE_FEAR_WOUNDED},
+    {"SET_CREATURE_FEAR_STRONGER",          lua_SET_CREATURE_FEAR_STRONGER},
+    {"SET_CREATURE_FEARSOME_FACTOR",        lua_SET_CREATURE_FEARSOME_FACTOR},
+    {"SET_CREATURE_PROPERTY",               lua_SET_CREATURE_PROPERTY},
+    {"SET_COMPUTER_GLOBALS",                lua_SET_COMPUTER_GLOBALS},
+    {"SET_COMPUTER_CHECKS",                 lua_SET_COMPUTER_CHECKS},
+    {"SET_COMPUTER_EVENT",                  lua_SET_COMPUTER_EVENT},
+    {"SET_COMPUTER_PROCESS",                lua_SET_COMPUTER_PROCESS},
+    {"ALLY_PLAYERS",                        lua_ALLY_PLAYERS},
+    {"DEAD_CREATURES_RETURN_TO_POOL",       lua_DEAD_CREATURES_RETURN_TO_POOL},
+    {"BONUS_LEVEL_TIME",                    lua_BONUS_LEVEL_TIME},
+    {"QUICK_OBJECTIVE",                     lua_QUICK_OBJECTIVE},
+    {"QUICK_INFORMATION",                   lua_QUICK_INFORMATION},
+    {"QUICK_OBJECTIVE_WITH_POS",            lua_QUICK_OBJECTIVE_WITH_POS},
+    {"QUICK_INFORMATION_WITH_POS",          lua_QUICK_INFORMATION_WITH_POS},
+    {"SWAP_CREATURE",                       lua_SWAP_CREATURE},
+    {"PRINT",                               lua_PRINT},
+    {"MESSAGE",                             lua_MESSAGE},
+    {"PLAY_MESSAGE",                        lua_PLAY_MESSAGE},
+    {"ADD_GOLD_TO_PLAYER",                  lua_ADD_GOLD_TO_PLAYER},
+    {"SET_CREATURE_TENDENCIES",             lua_SET_CREATURE_TENDENCIES},
+    {"REVEAL_MAP_RECT",                     lua_REVEAL_MAP_RECT},
+    {"CONCEAL_MAP_RECT",                    lua_CONCEAL_MAP_RECT},
+    {"REVEAL_MAP_LOCATION",                 lua_REVEAL_MAP_LOCATION},
+    {"LEVEL_VERSION",                       lua_LEVEL_VERSION},
+    {"KILL_CREATURE",                       lua_KILL_CREATURE},
+    {"COMPUTER_DIG_TO_LOCATION",            lua_COMPUTER_DIG_TO_LOCATION},
+    {"USE_POWER_ON_CREATURE",               lua_USE_POWER_ON_CREATURE},
+    {"USE_POWER_AT_POS",                    lua_USE_POWER_AT_POS},
+    {"USE_POWER_AT_SUBTILE",                lua_USE_POWER_AT_SUBTILE},
+    {"USE_POWER_AT_LOCATION",               lua_USE_POWER_AT_LOCATION},
+    {"USE_POWER",                           lua_USE_POWER},
+    {"USE_SPECIAL_INCREASE_LEVEL",          lua_USE_SPECIAL_INCREASE_LEVEL},
+    {"USE_SPECIAL_MULTIPLY_CREATURES",      lua_USE_SPECIAL_MULTIPLY_CREATURES},
+    {"USE_SPECIAL_MAKE_SAFE",               lua_USE_SPECIAL_MAKE_SAFE},
+    {"USE_SPECIAL_LOCATE_HIDDEN_WORLD",     lua_USE_SPECIAL_LOCATE_HIDDEN_WORLD},
+    {"USE_SPECIAL_TRANSFER_CREATURE",       lua_USE_SPECIAL_TRANSFER_CREATURE},
+    {"TRANSFER_CREATURE",                   lua_TRANSFER_CREATURE},
+    {"CHANGE_CREATURES_ANNOYANCE",          lua_CHANGE_CREATURES_ANNOYANCE},
+    {"ADD_TO_FLAG",                         lua_ADD_TO_FLAG},
+    {"SET_CAMPAIGN_FLAG",                   lua_SET_CAMPAIGN_FLAG},
+    {"ADD_TO_CAMPAIGN_FLAG",                lua_ADD_TO_CAMPAIGN_FLAG},
+    {"EXPORT_VARIABLE",                     lua_EXPORT_VARIABLE},
+    {"RUN_AFTER_VICTORY",                   lua_RUN_AFTER_VICTORY},
+    {"LEVEL_UP_CREATURE",                   lua_LEVEL_UP_CREATURE},
+    {"CHANGE_CREATURE_OWNER",               lua_CHANGE_CREATURE_OWNER},
+    {"SET_GAME_RULE",                       lua_SET_GAME_RULE},
+    {"SET_TRAP_CONFIGURATION",              lua_SET_TRAP_CONFIGURATION},
+    {"SET_DOOR_CONFIGURATION",              lua_SET_DOOR_CONFIGURATION},
+    {"SET_OBJECT_CONFIGURATION",            lua_SET_OBJECT_CONFIGURATION},
+    {"SET_CREATURE_CONFIGURATION",          lua_SET_CREATURE_CONFIGURATION},
+    {"SET_SACRIFICE_RECIPE",                lua_SET_SACRIFICE_RECIPE},
+    {"REMOVE_SACRIFICE_RECIPE",             lua_REMOVE_SACRIFICE_RECIPE},
+    {"SET_BOX_TOOLTIP",                     lua_SET_BOX_TOOLTIP},
+    {"SET_BOX_TOOLTIP_ID",                  lua_SET_BOX_TOOLTIP_ID},
+    {"CHANGE_SLAB_OWNER",                   lua_CHANGE_SLAB_OWNER},
+    {"CHANGE_SLAB_TYPE",                    lua_CHANGE_SLAB_TYPE},
+    {"CREATE_EFFECTS_LINE",                 lua_CREATE_EFFECTS_LINE},
+    {"QUICK_MESSAGE",                       lua_QUICK_MESSAGE},
+    {"DISPLAY_MESSAGE",                     lua_DISPLAY_MESSAGE},
+    {"USE_SPELL_ON_CREATURE",               lua_USE_SPELL_ON_CREATURE},
+    {"SET_HEART_HEALTH",                    lua_SET_HEART_HEALTH},
+    {"ADD_HEART_HEALTH",                    lua_ADD_HEART_HEALTH},
+    {"CREATURE_ENTRANCE_LEVEL",             lua_CREATURE_ENTRANCE_LEVEL},
+    {"RANDOMISE_FLAG",                      lua_RANDOMISE_FLAG},
+    {"COMPUTE_FLAG",                        lua_COMPUTE_FLAG},
+    {"DISPLAY_TIMER",                       lua_DISPLAY_TIMER},
+    {"ADD_TO_TIMER",                        lua_ADD_TO_TIMER},
+    {"ADD_BONUS_TIME",                      lua_ADD_BONUS_TIME},
+    {"DISPLAY_VARIABLE",                    lua_DISPLAY_VARIABLE},
+    {"DISPLAY_COUNTDOWN",                   lua_DISPLAY_COUNTDOWN},
+    {"HIDE_TIMER",                          lua_HIDE_TIMER},
+    {"HIDE_VARIABLE",                       lua_HIDE_VARIABLE},
+    {"CREATE_EFFECT",                       lua_CREATE_EFFECT},
+    {"CREATE_EFFECT_AT_POS",                lua_CREATE_EFFECT_AT_POS},
+    {"HEART_LOST_QUICK_OBJECTIVE",          lua_HEART_LOST_QUICK_OBJECTIVE},
+    {"HEART_LOST_OBJECTIVE",                lua_HEART_LOST_OBJECTIVE},
+    {"SET_DOOR",                            lua_SET_DOOR},
+    {"SET_CREATURE_INSTANCE",               lua_SET_CREATURE_INSTANCE},
+    {"SET_HAND_RULE",                       lua_SET_HAND_RULE},
+    {"MOVE_CREATURE",                       lua_MOVE_CREATURE},
+    {"COUNT_CREATURES_AT_ACTION_POINT",     lua_COUNT_CREATURES_AT_ACTION_POINT},
+    {"SET_TEXTURE",                         lua_SET_TEXTURE},
+    {"HIDE_HERO_GATE",                      lua_HIDE_HERO_GATE},
+    */
     {"GetCreatureNear", lua_get_creature_near},
     {"SendChatMessage", send_chat_message},
     {"PlayerWin", lua_set_player_as_won_level},
@@ -156,43 +665,6 @@ static int lua_kill_creature(lua_State *L)
     kill_creature(thing, INVALID_THING, -1, CrDed_NoUnconscious);
 
     return 0;
-}
-static struct luaThing *lua_pushThing(lua_State *L, struct Thing* thing)
-{
-    struct luaThing *lthing = (struct luaThing *)lua_newuserdata(L, sizeof(struct luaThing));
-    lthing->thing_idx = thing->index;
-    lthing->creation_turn = thing->creation_turn;
-    luaL_getmetatable(L, "thing");
-    lua_setmetatable(L, -2);
-    return lthing;
-}
-static struct Thing *lua_toThing(lua_State *L, int index)
-{
-    luaL_checktype(L, index, LUA_TUSERDATA);
-
-    struct luaThing *ltng = (struct luaThing *)lua_touserdata(L, index);
-
-    if (ltng == NULL)
-    {
-        JUSTLOG("3");
-        luaL_typerror(L, index, "thing");
-        return INVALID_THING;
-    }
-    JUSTLOG("4");
-    struct Thing* thing = thing_get(ltng->thing_idx);
-    JUSTLOG("5");
-    if(thing_is_invalid(thing))
-    {
-        JUSTLOG("6");
-        return INVALID_THING;
-    }
-    if(ltng->creation_turn != thing->creation_turn)
-    {
-        JUSTLOG("7");
-        return INVALID_THING;
-    }
-    JUSTLOG("8");
-    return thing;
 }
 
 static int thing_tostring(lua_State *L)

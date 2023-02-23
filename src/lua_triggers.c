@@ -12,10 +12,12 @@
 #include "bflib_fileio.h"
 #include "config.h"
 #include "globals.h"
+#include "thing_data.h"
+
 
 #include "post_inc.h"
 
-
+static struct luaThing *lua_pushThing(lua_State *L, struct Thing* thing);
 
 void lua_chatmsg(PlayerNumber plyr_idx, char *msg)
 {
@@ -48,14 +50,14 @@ void lua_game_loop()
 	}
 }
 
-void lua_cast_power_on_thing(PowerKind pwkind,PlayerNumber plyr_idx, struct Thing* thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned short splevel)
+void lua_cast_power_on_thing(PowerKind pwkind,PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned short splevel)
 {
     lua_getglobal(Lvl_script, "CastPowerOnThing");
 	if (lua_isfunction(Lvl_script, -1))
 	{
 		lua_pushinteger(Lvl_script, pwkind);
 		lua_pushinteger(Lvl_script, plyr_idx);
-		lua_pushinteger(Lvl_script, 0); //lua_pushThing(Lvl_script, thing); 
+		lua_pushThing(Lvl_script, thing); 
 		lua_pushinteger(Lvl_script, stl_x);
 		lua_pushinteger(Lvl_script, stl_y);
 		lua_pushinteger(Lvl_script, splevel);
