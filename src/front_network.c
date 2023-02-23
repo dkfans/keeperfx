@@ -108,8 +108,8 @@ void process_network_error(long errcode)
 
 void draw_out_of_sync_box()
 {
-    long min_width = 0;
     long max_width = 2 * 32*units_per_pixel/16;
+    long min_width = 0 * max_width; // TODO: progress
     if (min_width > max_width)
     {
         min_width = max_width;

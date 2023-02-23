@@ -69,7 +69,8 @@ struct Boing {
 enum
 {
     RESYNC_CHUNK = 1024,
-    RESYNC_PACKETS_PER_TURN = 8,
+    RESYNC_PACKETS_PER_TURN = 16,
+    RESYNC_FLAG_ACK = 1,
 };
 
 struct ResyncProgress
@@ -78,6 +79,17 @@ struct ResyncProgress
     TbBool is_finished;
     uint32_t phase;
     uint32_t max_phase;
+
+    TbClockMSec resync_timer;
+    TbBool send_now;
+
+    uint8_t srv_min_part; // item inside of resync_parts
+    uint16_t srv_min_idx;
+
+
+    // Client ready to accept this chunk
+    uint8_t client_last_part;
+    uint16_t client_last_idx;
 };
 
 struct ResyncPacket
@@ -92,12 +104,13 @@ struct ResyncPart
 {
     uint8_t *data;
     uint32_t total;
+    uint16_t max_idx;
 };
 
 static struct ResyncPart resync_parts[] =
 {
-        {(uint8_t *) &game,    sizeof(game), },
-        {(uint8_t *) &gameadd, sizeof(gameadd) },
+        {(uint8_t *) &game,    sizeof(game), 0, },
+        {(uint8_t *) &gameadd, sizeof(gameadd), 0 },
 };
 
 static struct ResyncProgress resync_progress;
@@ -119,7 +132,12 @@ static uint32_t count_max_resync_phase(uint32_t current_phase)
     for (int i = 0; i < sizeof(resync_parts) / sizeof(resync_parts[0]); i++)
     {
         struct ResyncPart *part = &resync_parts[i];
-        ret += (part->total / RESYNC_CHUNK) + 1;
+        uint16_t parts = (part->total / RESYNC_CHUNK);
+        if (part->max_idx == 0)
+        {
+            part->max_idx = parts;
+        }
+        ret += parts + 1;
     }
     return ret;
 }
@@ -133,7 +151,25 @@ static TbBool resync_server_cb(
         {
             return false; // Ignore our own packets
         }
-
+        // TODO: multiple clients
+        struct ResyncPacket *pckt = packet_data;
+        if (pckt->flags == RESYNC_FLAG_ACK)
+        {
+            if (resync_progress.srv_min_part < pckt->part)
+            {
+                resync_progress.srv_min_part = pckt->part;
+                resync_progress.srv_min_idx = pckt->idx;
+                resync_progress.send_now = true;
+            }
+            else if (resync_progress.srv_min_idx < pckt->idx)
+            {
+                resync_progress.srv_min_idx = pckt->idx;
+                resync_progress.send_now = true;
+            }
+            memcpy(&resync_progress.phase, pckt->data, sizeof(resync_progress.phase));
+        }
+        NETLOG("net_id:%d %d/%d f:%x, %d.%d", net_player_idx, resync_progress.phase, resync_progress.max_phase,
+               pckt->flags, pckt->part, pckt->idx);
     }
     else if (kind == PckA_Frame)
     {
@@ -151,40 +187,34 @@ static TbBool send_resync_game(void)
     if (resync_progress.phase == 1) // Assuming lossless delivery
     {
         resync_progress.phase++;
-        resync_progress.max_phase = 1 + count_max_resync_phase(resync_progress.phase);
+        resync_progress.max_phase = count_max_resync_phase(resync_progress.phase);
 
+        resync_progress.resync_timer = 0;
+        resync_progress.srv_min_part = 0;
+        resync_progress.srv_min_idx = 0;
         NETLOG("Initiating re-sync:%d/%d", resync_progress.phase, resync_progress.max_phase);
     }
-
-    if (resync_progress.phase < resync_progress.max_phase - 1)
+    TbClockMSec now = LbTimerClock();
+    if (resync_progress.send_now || (resync_progress.resync_timer < now))
     {
-        uint32_t p = 2;
-        int cnt = 0;
-        for (int i = 0; i < sizeof(resync_parts) / sizeof(resync_parts[0]); i++)
-        {
-            struct ResyncPart *part = &resync_parts[i];
-            struct ResyncPacket *pckt;
-            uint32_t tail = part->total;
-            uint16_t idx = 0;
-            while (tail != 0)
-            {
-                uint32_t part_size;
-                part_size = tail > RESYNC_CHUNK ? RESYNC_CHUNK : tail;
+        resync_progress.resync_timer = now + 200;
+        resync_progress.send_now = false;
+        struct ResyncPart *part = &resync_parts[resync_progress.srv_min_part];
 
-                if ((p >= resync_progress.phase) && (cnt < RESYNC_PACKETS_PER_TURN))
-                {
-                    resync_progress.phase++;
-                    pckt = LbNetwork_AddPacket(PckA_Resync, game.play_gameturn,
-                                               sizeof(struct ResyncPacket) + part_size);
-                    pckt->idx = idx;
-                    pckt->part = i;
-                    memcpy(pckt->data, part->data + (idx * RESYNC_CHUNK), part_size);
-                    resync_progress.phase++;
-                    cnt++;
-                }
-                idx++; // Assuming part->total < RESYNC_CHUNG * MAX_INT16
-                tail -= part_size;
-            }
+        for (int i = 0; i < RESYNC_PACKETS_PER_TURN; i++)
+        {
+            struct ResyncPacket *pckt;
+            uint16_t idx = resync_progress.srv_min_idx + i;
+            if (idx > part->max_idx)
+                break;
+            int ofs = idx * RESYNC_CHUNK;
+            uint32_t tail = part->total - ofs;
+            uint32_t part_size = tail > RESYNC_CHUNK ? RESYNC_CHUNK : tail;
+            pckt = LbNetwork_AddPacket(PckA_Resync, game.play_gameturn, sizeof(struct ResyncPacket) + part_size);
+            pckt->flags = 0;
+            pckt->idx = idx;
+            pckt->part = resync_progress.srv_min_part;
+            memcpy(pckt->data, part->data + ofs, part_size);
         }
     }
 
@@ -196,8 +226,8 @@ static TbBool send_resync_game(void)
 
     if (resync_progress.phase == resync_progress.max_phase)
     {
+        NETLOG("Resync done");
         resync_progress.is_finished = 1;
-        // TODO wait for confirmation
     }
     return true;
 }
@@ -212,15 +242,32 @@ static TbBool resync_client_cb(
             return false; // Our own confirmation is not 
         }
         struct ResyncPacket *pckt = packet_data;
-        struct ResyncPart *part = &resync_parts[pckt->part];
-        assert (pckt->part < (sizeof(resync_parts) / sizeof(resync_parts[0])));
-        assert (pckt->idx <= (part->total / RESYNC_CHUNK));
-        size_t part_size = size - sizeof(struct ResyncPacket);
+        NETLOG("Resync %d/%d got:%d.%d wait:%d.%d", resync_progress.phase, resync_progress.max_phase,
+               pckt->part, pckt->idx, resync_progress.client_last_part, resync_progress.client_last_idx);
 
-        memcpy(part->data + (pckt->idx * RESYNC_CHUNK), pckt->data, part_size);
+        if (pckt->part == resync_progress.client_last_part)
+        {
+            struct ResyncPart *part = &resync_parts[pckt->part];
+            assert (pckt->part < (sizeof(resync_parts) / sizeof(resync_parts[0])));
+            assert (pckt->idx <= (part->total / RESYNC_CHUNK));
+            if (pckt->idx == resync_progress.client_last_idx)
+            {
+                size_t part_size = size - sizeof(struct ResyncPacket);
 
-        NETLOG("Resync %d/%d", resync_progress.phase, resync_progress.max_phase);
-        resync_progress.phase++;
+                memcpy(part->data + (pckt->idx * RESYNC_CHUNK), pckt->data, part_size);
+                if (pckt->idx == part->max_idx)
+                {
+                    resync_progress.client_last_idx = 0;
+                    resync_progress.client_last_part++;
+                }
+                else
+                {
+                    resync_progress.client_last_idx++;
+                }
+                resync_progress.phase++;
+            }
+        }
+        resync_progress.send_now = true;
     }
     else if (kind == PckA_FrameSrv)
     {
@@ -239,7 +286,23 @@ static TbBool receive_resync_game(void)
     {
         resync_progress.phase++;
         resync_progress.max_phase = count_max_resync_phase(resync_progress.phase);
+        resync_progress.client_last_part = 0;
+        resync_progress.client_last_idx = 0;
+        resync_progress.send_now = false;
+        resync_progress.resync_timer = 0;
         NETLOG("Initiating re-sync:%d/%d", resync_progress.phase, resync_progress.max_phase);
+    }
+    TbClockMSec now = LbTimerClock();
+    if (resync_progress.send_now || (resync_progress.resync_timer < now))
+    {
+        resync_progress.resync_timer = now + 200;
+        resync_progress.send_now = false;
+
+        struct ResyncPacket *confirm_pckt = LbNetwork_AddPacket(PckA_Resync, game.play_gameturn, sizeof(struct ResyncPacket) + sizeof(uint32_t));
+        confirm_pckt->flags = RESYNC_FLAG_ACK;
+        confirm_pckt->idx = resync_progress.client_last_idx;
+        confirm_pckt->part = resync_progress.client_last_part;
+        memcpy(confirm_pckt->data, &resync_progress.phase, sizeof(resync_progress.phase));
     }
 
     if (LbNetwork_Exchange(NULL, resync_client_cb) != 0)
@@ -315,6 +378,7 @@ void recall_localised_game_structure(void)
 void resync_game(void)
 {
     SYNCDBG(2,"Starting");
+
     if (resync_progress.phase == 0)
     {
         reset_eye_lenses();
@@ -333,6 +397,8 @@ void resync_game(void)
 
     if (resync_progress.is_finished)
     {
+        resync_progress.phase = 0;
+        resync_progress.is_finished = 0;
         recall_localised_game_structure();
         reinit_level_after_load();
         clear_flag(game.system_flags, GSF_NetGameNoSync);

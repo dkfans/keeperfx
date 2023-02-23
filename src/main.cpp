@@ -2846,7 +2846,7 @@ void update(void)
         creature_stats_debug_dump();
 #endif
         game.play_gameturn++;
-        NETLOG("New turn: %ld", game.play_gameturn);
+        // NETLOG("New turn: %ld", game.play_gameturn);
     }
 
     message_update();
