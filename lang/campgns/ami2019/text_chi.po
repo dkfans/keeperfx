@@ -51,7 +51,7 @@ msgstr "太好了，你得到了一只怪物！只要你能找到传送怪物宝
 #: guitext:4
 msgctxt "In-game message"
 msgid "Heroes have been alerted and are heading to your dungeon now!"
-msgstr "英雄们警惕起来了，现在正准备进攻你的地下城。"
+msgstr "英雄们警惕起来了，现在正准备进攻你的地下城！"
 
 #. Deserted Crypt Message on gaining workshop
 #: guitext:5
@@ -69,7 +69,7 @@ msgstr "你占领了一座图书馆，并且获得了一小块区域的视野。
 #: guitext:7
 msgctxt "In-game message"
 msgid "The sacred tombs are infested with pests of all kinds. You'll have to find a way to raid the tombs and resist pest attacks."
-msgstr "你占领了一座图书馆，并且获得了一小块区域的视野。尽快获得魔法书应该是你的首要任务。我们的目标是获得32000单位黄金。"
+msgstr "圣墓里到处都是各种各样的臭虫。你得想办法向墓地进攻，并抵抗臭虫的袭击。"
 
 #. Deserted Crypt Message on gaining MONEY>13,000
 #: guitext:8
@@ -105,13 +105,13 @@ msgstr "你的到来让当地的人们警惕起来了。为了打工赚钱，一
 #: guitext:13
 msgctxt "In-game message"
 msgid "You're at the shores of Acemist isle. An awfully poor and Christian place where citizens die of old age, after a boring puritanical life spreading their ludicrous beliefs! Some call it the second Poland. However, do not underestimate them. They have managed to convert some of your minions which they'll gladly use against you. Their abominable accent makes the isle name sound as if they were mumbling 'Assmist isle'. A fitting future name once your bile demons are done with it, don't you think? "
-msgstr "你抵达了亚米斯特岛的海岸。这是一个极其贫穷和充满基督徒的地方，那里的居民都能寿终正寝，过着无聊的清教徒生活，并乐于向世人传播他们可笑的信仰。有人称之为第二个波兰。不过，不要小看了他们：他们甚至成功地招降了你的一些爪牙，并很乐意用它们来对付你。他们令人厌恶的口音念起这个岛的名字听起来像是“混蛋斯特岛”。当你派遣巨魔解决他们之后，这将是一个贴切的名字，你不觉得吗？"
+msgstr "你抵达了亚米斯特岛的海岸。这是一个极其贫穷和充满基督徒的地方，那里的居民都能寿终正寝，过着无聊的清教徒生活，并乐于向世人传播他们可笑的信仰！有人称之为第二个波兰。不过，不要小看了他们：他们甚至成功地招降了你的一些爪牙，并很乐意用它们来对付你。他们令人厌恶的口音念起这个岛的名字听起来像是“混蛋斯特岛”。当你派遣巨魔解决他们之后，这将是一个贴切的名字，你不觉得吗？"
 
 #. Don't Fear The Reaper (Level 2) message after Horny is killed
 #: guitext:14
 msgctxt "In-game message"
 msgid "Horny is not so horny any more! Good job."
-msgstr "冥界使者终于不再那么耀武扬威了。干得漂亮。"
+msgstr "冥界使者终于不再那么耀武扬威了！干得漂亮。"
 
 #. Don't Fear The Reaper (Level 2) message regarding transfer of money to next level.
 #: guitext:15
@@ -311,7 +311,7 @@ msgstr "战斗还没有结束。僧侣们正在复活圣者，卫兵们也在准
 #: guitext:47
 msgctxt "In-game message"
 msgid "Some kind of alarm sets off as you take a step into the hallway. Heroes are taking precautions to avoid imprisonment. You must seek the Avatar. "
-msgstr "当你踏进走廊时，警报响起来了。英雄们现在采取了预防措施以避免被你抓进监狱。你必须调查圣者的位置……"
+msgstr "当你踏进走廊时，警报响起来了。英雄们现在采取了预防措施以避免被你抓进监狱。你必须调查圣者的位置。"
 
 #. Opulent Point (lv5) Opening Objective
 #: guitext:48
@@ -395,13 +395,13 @@ msgstr "当心，守护者。这扇门后面发出的可不只有地下城心脏
 #: guitext:61
 msgctxt "In-game message"
 msgid "Your breakout has caused great alarm amongst the people of this land. You must expect some resistance, pathetic though it may be!"
-msgstr "你的到来让当地的人们警惕起来了。准备好他们对你的反抗吧，虽然只是可悲的尝试！"
+msgstr "你的到来让当地的人们警惕起来了。准备好面对他们的反抗吧，虽然只是可悲的尝试！"
 
 #. Ziggurat Blitz Massacre (lv6) after claiming graveyard
 #: guitext:62
 msgctxt "In-game message"
 msgid "You have reclaimed the graveyard, and so your Vampires begin to recover their powers! Their powers will recover further as you reclaim more of their native ground."
-msgstr "你占领了一座陵墓，你的吸血鬼的力量正在恢复！如果你能继续占领更多的陵墓，它们的力量还会进一步恢复！"
+msgstr "你占领了一座陵墓，你的吸血鬼的力量正在恢复！如果你能继续占领更多的陵墓，它们的力量还会进一步恢复。"
 
 #. Ziggurat Blitz Massacre (lv6) after claiming more graveyard
 #: guitext:63
@@ -425,7 +425,7 @@ msgstr "所有的陵墓都被占领了，你的吸血鬼完全恢复了力量。
 #: guitext:66
 msgctxt "In-game message"
 msgid "You have a Vampire! However, be aware that a group of monks on the surface have blessed the Ziggurat which has drained the strength from these creatures. You must fight your way to their graveyards to counter the blessing and regain their strength."
-msgstr "你得到了一个吸血鬼！不过要注意，这里的一群僧侣向这座塔庙祈求了祝福，使其削弱了你的吸血鬼的力量。占领尽可能多的陵墓来解除这一祝福，使它们恢复原来的力量！"
+msgstr "你得到了一个吸血鬼！不过要注意，这里的一群僧侣向这座塔庙祈求了祝福，使其削弱了你的吸血鬼的力量。占领尽可能多的陵墓来解除这一祝福，使它们恢复原来的力量。"
 
 #. Ziggurat Blitz Massacre (lv6) on gaining a Vampire
 #: guitext:67
@@ -605,7 +605,7 @@ msgstr "注意，主人！敌人的吸血鬼已经挣脱了僧侣的诅咒魔法
 #: guitext:96
 msgctxt "In-game message"
 msgid "The Lord of the Land took his time but is finally here to revenge his comrades. Send him where he belongs!"
-msgstr "国王终于不辞辛苦地来为他的战友复仇了。把他送到他该去的地方吧。"
+msgstr "国王终于不辞辛苦地来为他的战友复仇了。把他送到他该去的地方吧！"
 
 #. Spring Execration (lv8) victory message
 #: guitext:97
@@ -749,7 +749,7 @@ msgstr "看！招募中心之眼从云之寺庙遗迹中招募了几个野蛮人
 #: guitext:120
 msgctxt "In-game message"
 msgid "You have finally caught their attention. They have begun sending their most forceful troops. Good luck!"
-msgstr "你终于引起了他们的注意。他们已经派出了主力部队。祝你好运。"
+msgstr "你终于引起了他们的注意。他们已经派出了主力部队。祝你好运！"
 
 #. Fervent asyylum (lv10) Final Party
 #: guitext:121
@@ -767,7 +767,7 @@ msgstr "这里的英雄都被杀死了，财宝也被你抢劫一空，带到了
 #: guitext:123
 msgctxt "In-game message"
 msgid "The Phoenix Penitentiary. Where Knights keep watch over convicted Sorcerors, and the Polish government send their Warlocks for injecting whole marijuanas. And a home to two and a half keepers. Every keeper in this land has his own reason for dwelling this place. It's futile to  expect mercy from any of them; as if you care, right? Your task is to eliminate the Keepers and all Knights."
-msgstr "这里是凤凰监狱。骑士们看守着被定罪的魔术师。波兰政府把这些魔术师送来注射大麻。这里也是两个守护者的家，他们都由于某种原因而居住在这里。指望他们中的任何一个对你手下留情都是不可能的。你根本不在乎这一点，不是吗？现在，消灭他们。两个守护者和所有骑士。"
+msgstr "这里是凤凰监狱。骑士们看守着被定罪的魔术师。波兰政府把这些魔术师送来注射大麻。这里也是两个守护者的家，他们都由于某种原因而居住在这里。指望他们中的任何一个对你手下留情都是不可能的；你根本不在乎这一点，不是吗？现在，消灭他们。两个守护者和所有骑士。"
 
 #. Phoenix Penitentiary (lv11) Opening Information
 #: guitext:124
@@ -1061,7 +1061,7 @@ msgstr "消灭位于南部的骑士和地下城心脏，以赢得胜利。但首
 #: guitext:172
 msgctxt "In-game message"
 msgid "Good job! Use the Transfer Creature special to bring one of your minions to the next realm."
-msgstr "干得好。使用传送怪物宝物，选择一只怪物传送到下一个王国。"
+msgstr "干得好！使用传送怪物宝物，选择一只怪物传送到下一个王国。"
 
 #. Thieves Den Detour (bonus lv22) AP1
 #: guitext:173
