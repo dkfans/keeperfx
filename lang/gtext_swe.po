@@ -6714,7 +6714,6 @@ msgctxt "In-game interface item"
 msgid "Ambience"
 msgstr ""
 
-msgstr ""
 #: guitext:1010
 msgctxt "Unused"
 msgid "Moo4"
@@ -6838,41 +6837,41 @@ msgstr ""
 #: guitext:1034 guitext:1035
 msgctxt "Unused"
 msgid "Moo5"
-msgstr ""
+msgstr "Oanvänd5"
 
 #: guitext:1036
 msgctxt "Trap names"
 msgid "Demolition Trap"
-msgstr ""
+msgstr "Bomb Fälla"
 
 #: guitext:1037
 msgctxt "Trap description"
 msgid ""
 "Demolition Trap: An explosive with unrivaled destructive power."
-msgstr ""
+msgstr "Bomb Fälla: En explosion med makalös kraft."
 
 #: guitext:1038
 msgctxt "Trap description"
 msgid ""
 "Sentry Trap: Stands guard and shoots at enemies in sight."
-msgstr ""
+msgstr "Vakts Fälla: Står vakt och skjuter mot fiender som syns."
 
 #: guitext:1039 guitext:1040
 msgctxt "Unused"
 msgid "Moo6"
-msgstr ""
+msgstr "Oanvänd6"
 
 #: guitext:1041
 msgctxt "Creature name"
 msgid "Spirit"
-msgstr ""
+msgstr "Ande"
 
 #: guitext:1042
 msgctxt "Creature name"
 msgid "Druid"
-msgstr ""
+msgstr "Druid"
 
 #: guitext:1043
 msgctxt "Creature name"
 msgid "Time Mage"
-msgstr ""
+msgstr "Tids Magiker"

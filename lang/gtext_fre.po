@@ -6944,7 +6944,6 @@ msgctxt "In-game interface item"
 msgid "Ambience"
 msgstr "Ambiance"
 
-msgstr ""
 #: guitext:1010
 msgctxt "Unused"
 msgid "Moo4"

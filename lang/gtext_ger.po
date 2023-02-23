@@ -6956,7 +6956,6 @@ msgctxt "In-game interface item"
 msgid "Ambience"
 msgstr "Atmosphäre"
 
-msgstr ""
 #: guitext:1010
 msgctxt "Unused"
 msgid "Moo4"
