@@ -6999,3 +6999,45 @@ msgstr ""
 msgctxt "Menu interface item""
 msgid "Undead Keeper campaign"
 msgstr ""
+
+#: guitext:1034 guitext:1035
+msgctxt "Unused"
+msgid "Moo5"
+msgstr ""
+
+#: guitext:1036
+msgctxt "Trap names"
+msgid "Demolition Trap"
+msgstr ""
+
+#: guitext:1037
+msgctxt "Trap description"
+msgid ""
+"Demolition Trap: An explosive with unrivaled destructive power."
+msgstr ""
+
+#: guitext:1038
+msgctxt "Trap description"
+msgid ""
+"Sentry Trap: Stands guard and shoots at enemies in sight."
+msgstr ""
+
+#: guitext:1039 guitext:1040
+msgctxt "Unused"
+msgid "Moo6"
+msgstr ""
+
+#: guitext:1041
+msgctxt "Creature name"
+msgid "Spirit"
+msgstr ""
+
+#: guitext:1042
+msgctxt "Creature name"
+msgid "Druid"
+msgstr ""
+
+#: guitext:1043
+msgctxt "Creature name"
+msgid "Time Mage"
+msgstr ""
