@@ -995,7 +995,7 @@ msgid ""
 "everything under control, because their feeble magical power impresses the "
 "locals. But you're not from these parts..."
 msgstr ""
-"Dieses Reich wird von vier arroganten Magier regiert, die glauben, alles "
+"Dieses Reich wird von vier arroganten Magiern regiert, die glauben, alles "
 "unter Kontrolle zu haben, weil ihre kläglichen magischen Fähigkeiten die "
 "Einheimischen beeindrucken. Ihr seid aber nicht einheimisch ..."
 
