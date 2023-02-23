@@ -995,7 +995,7 @@ msgid ""
 "everything under control, because their feeble magical power impresses the "
 "locals. But you're not from these parts..."
 msgstr ""
-"Dieses Reich wird von vier arroganten Zauberern regiert, die glauben, alles "
+"Dieses Reich wird von vier arroganten Magier regiert, die glauben, alles "
 "unter Kontrolle zu haben, weil ihre kläglichen magischen Fähigkeiten die "
 "Einheimischen beeindrucken. Ihr seid aber nicht einheimisch ..."
 
@@ -1901,7 +1901,7 @@ msgid ""
 msgstr ""
 "Verzichtet auf eine wiederliche Gruppe von Zwergen, die hier durch die "
 "Gegend wandert, und rekrutiert lieber so viele Teufler, wie es nur geht. "
-"Wenn Ihr den Zauberer befreit, der in diesem Reich eingesperrt ist, wird er "
+"Wenn Ihr den Magier befreit, der in diesem Reich eingesperrt ist, wird er "
 "Euch einige Zeit zur Verfügung stehen."
 
 #: guitext:165
@@ -2531,7 +2531,7 @@ msgstr "Ritter"
 #: guitext:277
 msgctxt "Creature name"
 msgid "Wizard"
-msgstr "Zauberer"
+msgstr "Magier"
 
 #: guitext:278
 msgctxt "Creature name"
@@ -5739,7 +5739,7 @@ msgstr ""
 msgctxt "Easter egg"
 msgid "Wizard in your dungeon grim? A trap will make short work of him."
 msgstr ""
-"Ein Zaubrer in Eures Dungeons Rachen? 'ne Falle kurzen Prozeß wird machen."
+"Ein Magier in Eures Dungeons Rachen? 'ne Falle kurzen Prozeß wird machen."
 
 #: guitext:824
 msgctxt "Easter egg"
@@ -6493,7 +6493,7 @@ msgid ""
 "Spider and explore the realm. Find the Wizard, kill him and make an example "
 "of his foolishness."
 msgstr ""
-"Ein teuflischer Zauberer hat Euch um Eure magischen Kräfte betrogen. Setzt "
+"Ein teuflischer Magier hat Euch um Eure magischen Kräfte betrogen. Setzt "
 "Spinnen ein, um das Reich zu erkunden. Sucht den Verräter und statuiert ein "
 "Exempel, wie Ihr mit Verrat umzugehen pflegt."
 
@@ -6549,7 +6549,7 @@ msgid ""
 "Before you lies the Wizard's domain. Defeat him and you will regain your "
 "powers."
 msgstr ""
-"Vor Euch liegt das Reich des Zauberers. Ringt ihn nieder, und Ihr erhaltet "
+"Vor Euch liegt das Reich des Magiers. Ringt ihn nieder, und Ihr erhaltet "
 "Eure magischen Fähigkeiten zurück."
 
 #. DD Level Dixaroc objective after wizard is dead
