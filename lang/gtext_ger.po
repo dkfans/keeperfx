@@ -7079,41 +7079,39 @@ msgstr ""
 #: guitext:1034 guitext:1035
 msgctxt "Unused"
 msgid "Moo5"
-msgstr ""
+msgstr "Moo5"
 
 #: guitext:1036
 msgctxt "Trap names"
 msgid "Demolition Trap"
-msgstr ""
+msgstr "Zerstörungsfalle"
 
 #: guitext:1037
 msgctxt "Trap description"
-msgid ""
-"Demolition Trap: An explosive with unrivaled destructive power."
-msgstr ""
+msgid "Demolition Trap: An explosive with unrivaled destructive power."
+msgstr "Zerstörungsfalle: Ein Sprengstoff mit unübertroffener Zerstörungskraft."
 
 #: guitext:1038
 msgctxt "Trap description"
-msgid ""
-"Sentry Trap: Stands guard and shoots at enemies in sight."
-msgstr ""
+msgid "Sentry Trap: Stands guard and shoots at enemies in sight."
+msgstr "Wächterfalle: Steht Wache und schießt auf Feinde in Sichtweite"
 
 #: guitext:1039 guitext:1040
 msgctxt "Unused"
 msgid "Moo6"
-msgstr ""
+msgstr "Moo6"
 
 #: guitext:1041
 msgctxt "Creature name"
 msgid "Spirit"
-msgstr ""
+msgstr "Geist"
 
 #: guitext:1042
 msgctxt "Creature name"
 msgid "Druid"
-msgstr ""
+msgstr "Druide"
 
 #: guitext:1043
 msgctxt "Creature name"
 msgid "Time Mage"
-msgstr ""
+msgstr "Zeitmagier" 
