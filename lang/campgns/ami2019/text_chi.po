@@ -51,7 +51,7 @@ msgstr "太好了，你得到了一只怪物！只要你能找到传送怪物宝
 #: guitext:4
 msgctxt "In-game message"
 msgid "Heroes have been alerted and are heading to your dungeon now!"
-msgstr "英雄们警惕起来了，现在正准备进攻你的地下城。"
+msgstr "英雄们警惕起来了，现在正准备进攻你的地下城！"
 
 #. Deserted Crypt Message on gaining workshop
 #: guitext:5
@@ -69,7 +69,7 @@ msgstr "你占领了一座图书馆，并且获得了一小块区域的视野。
 #: guitext:7
 msgctxt "In-game message"
 msgid "The sacred tombs are infested with pests of all kinds. You'll have to find a way to raid the tombs and resist pest attacks."
-msgstr "你占领了一座图书馆，并且获得了一小块区域的视野。尽快获得魔法书应该是你的首要任务。我们的目标是获得32000单位黄金。"
+msgstr "圣墓里到处都是各种各样的臭虫。你得想办法向墓地进发，并抵抗臭虫的袭击。"
 
 #. Deserted Crypt Message on gaining MONEY>13,000
 #: guitext:8
@@ -111,7 +111,7 @@ msgstr "你抵达了亚米斯特岛的海岸。这是一个极其贫穷和充满
 #: guitext:14
 msgctxt "In-game message"
 msgid "Horny is not so horny any more! Good job."
-msgstr "冥界使者终于不再那么耀武扬威了。干得漂亮。"
+msgstr "冥界使者终于不再那么耀武扬威了！干得漂亮。"
 
 #. Don't Fear The Reaper (Level 2) message regarding transfer of money to next level.
 #: guitext:15
@@ -311,7 +311,7 @@ msgstr "战斗还没有结束。僧侣们正在复活圣者，卫兵们也在准
 #: guitext:47
 msgctxt "In-game message"
 msgid "Some kind of alarm sets off as you take a step into the hallway. Heroes are taking precautions to avoid imprisonment. You must seek the Avatar. "
-msgstr "当你踏进走廊时，警报响起来了。英雄们现在采取了预防措施以避免被你抓进监狱。你必须调查圣者的位置……"
+msgstr "当你踏进走廊时，警报响起来了。英雄们现在采取了预防措施以避免被你抓进监狱。你必须调查圣者的位置。"
 
 #. Opulent Point (lv5) Opening Objective
 #: guitext:48
