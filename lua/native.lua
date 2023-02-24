@@ -371,19 +371,47 @@ function SET_MUSIC(track_number) end
 function SET_CREATURE_INSTANCE() end
 function SET_HAND_RULE() end
 function MOVE_CREATURE() end
-function COUNT_CREATURES_AT_ACTION_POINT() end
-function SET_TEXTURE() end
-function HIDE_HERO_GATE() end
 
+---returns the amount of creatures at the ap
+---@param action_point integer
+---@param player playerrange
+---@param creature string
+---@return integer amount amount of creatures matching the conditions
+function COUNT_CREATURES_AT_ACTION_POINT(action_point,player,creature) return 0 end
+
+---Changes the slabs belonging to a specific player to a custom texture
+---@param player playerrange  The name of the player who's slabs are changed.
+---@param texture string The name or number of the texture to use for the player, like 'STONE_FACE'. Accepts 'None' or '-1'.
+function SET_TEXTURE(player,texture) end
+
+---Hides a specific hero gate, so that it can't be seen or heard by the player or by the heroes themselves.
+---@param gate_number integer The number of the hero gate to be hidden.
+---@param hidden boolean Set to true to hide it, and set to false to make it visible again.
+function HIDE_HERO_GATE(gate_number,hidden) end
+
+---Place any object at a specific place on the map
+---@param object string The object name from fxdata\objects.cfg
+---@param location location
+---@param property string If the objects has properties, set it. For Gold, it's the amount. If you use SPECBOX_CUSTOM to place the mystery box, it's the box number in the BOX#_ACTIVATED variable.
+---@param player? playersingle When used it sets the owner of the object.
 function ADD_OBJECT_TO_LEVEL(object,location,property,player) end
 
 ---@param trgt_plr_range_id playerrange
 ---@param enmy_plr_id playersingle
 ---@param hate_val integer
 function SET_HATE(trgt_plr_range_id, enmy_plr_id, hate_val) end
-function WIN_GAME() end
-function LOSE_GAME() end
-function ADD_GOLD_TO_PLAYER() end
+
+---@param player? playerrange
+function WIN_GAME(player) end
+
+---@param player? playerrange
+function LOSE_GAME(player) end
+
+---Allows to add some off-map gold as a reward to a player.
+---@param player playerrange
+---@param amount integer
+function ADD_GOLD_TO_PLAYER(player,amount) end
+
 function SET_CREATURE_TENDENCIES() end
 
 function USE_POWER_ON_CREATURE() end
@@ -398,7 +426,13 @@ function SET_BOX_TOOLTIP_ID() end
 function CREATE_EFFECTS_LINE() end
 function USE_SPELL_ON_CREATURE() end
 function SET_HEART_HEALTH() end
-function ADD_HEART_HEALTH() end
+
+---Restores or drains health from a players Dungeon Heart. Can't exceed the standard max health value.
+---@param player playerrange
+---@param health integer
+---@param warning boolean
+function ADD_HEART_HEALTH(player,health,warning) end
+
 function CREATURE_ENTRANCE_LEVEL() end
 function CREATE_EFFECT() end
 function CREATE_EFFECT_AT_POS() end
@@ -415,6 +449,4 @@ function CREATE_EFFECT_AT_POS() end
 
 function GetCreatureNear() end
 function SendChatMessage() end
-function PlayerWin() end
-function PlayerLose() end
 function GetThingByIdx() end
