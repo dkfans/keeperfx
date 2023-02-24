@@ -4598,6 +4598,12 @@ short set_start_state_f(struct Thing *thing,const char *func_name)
         initialise_thing_state(thing, CrSt_CreaturePretendChickenSetupMove);
         return thing->active_state;
     }
+    if (creature_affected_by_spell(thing, SplK_TimeBomb))
+    {
+        cleanup_current_thing_state(thing);
+        initialise_thing_state(thing, CrSt_Timebomb);
+        return thing->active_state;
+    }
     if (is_neutral_thing(thing))
     {
         cleanup_current_thing_state(thing);
@@ -5269,9 +5275,9 @@ short creature_timebomb(struct Thing *creatng)
     if (creature_control_invalid(cctrl))
     {
         ERRORLOG("Invalid creature control; no action");
-        return 0;
+        return CrStRet_Unchanged;
     }
-    if (!is_thing_directly_controlled(creatng))
+    if ((creatng->alloc_flags & TAlF_IsControlled) == 0)
     {
         struct Thing* trgtng = find_nearest_enemy_creature(creatng);
         if ( (!thing_is_invalid(trgtng)) && (creature_can_navigate_to(creatng, &trgtng->mappos, NavRtF_Default)) )
@@ -5287,9 +5293,9 @@ short creature_timebomb(struct Thing *creatng)
             creature_choose_random_destination_on_valid_adjacent_slab(creatng);
         }
         creatng->continue_state = CrSt_Timebomb;
-        return 1;
+        return CrStRet_Modified;
     }
-    return 0;
+    return CrStRet_Unchanged;
 }
 
 /******************************************************************************/
