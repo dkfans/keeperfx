@@ -99,15 +99,37 @@ static void draw_creature_view_icons(struct Thing* creatng)
         y = MyScreenHeight - scale_ui_value_lofi(spr->SHeight * 2);
     }
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    for (int Spell = SplK_Freeze; Spell <= SplK_TimeBomb; Spell++)
+    for (SpellKind Spell = SplK_Freeze; Spell <= SplK_TimeBomb; Spell++)
     {
         if (creature_affected_by_spell(creatng, Spell))
         {
             struct SpellInfo* spinfo = get_magic_info(Spell);
             long spridx = spinfo->medsym_sprite_idx;
-            if ( (Spell == SplK_Invisibility) && (cctrl->force_visible & 2) )
+            if (Spell == SplK_Invisibility)
             {
-                spridx++;
+                if (cctrl->force_visible & 2)
+                {
+                    spridx++;
+                }
+            }
+            else if (Spell == SplK_TimeBomb)
+            {
+                int tx_units_per_px = (dbc_language > 0) ? scale_ui_value_lofi(16) : (22 * units_per_pixel) / LbTextLineHeight();
+                int h = LbTextLineHeight() * tx_units_per_px / 16;
+                int w = scale_ui_value_lofi(spr->SWidth);
+                if (dbc_language > 0)
+                {
+                    if (MyScreenHeight < 400)
+                    {
+                        w *= 2;
+                    }
+                }
+                LbTextSetWindow(x + scale_ui_value_lofi(spr->SWidth / 2), y - scale_ui_value_lofi(spr->SHeight), w, h);
+                lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
+                lbDisplay.DrawColour = LbTextGetFontFaceColor();
+                lbDisplayEx.ShadowColour = LbTextGetFontBackColor();
+                char* text = buf_sprintf("%d", (cctrl->timebomb_countdown / game.num_fps) + 1);
+                LbTextDrawResized(0, 0, tx_units_per_px, text);
             }
             draw_gui_panel_sprite_left(x, y, ps_units_per_px, spridx);
             x += scale_ui_value_lofi(spr->SWidth);
