@@ -2,14 +2,37 @@
 --functions exported from the C code
 --also serves as documentation of said function
 
---location can be a number wich represents an action point, 
---a player, wich will pick said players heart
----@class  location:any 
 
----can be a in the format of PLAYER0, a color eg. RED or a number 
----@class  playersingle:any
----can be same as playersingle but also a range like ALL_PLAYERS
----@class  playerrange:any
+---@alias playersingle "PLAYER0" | "PLAYER1" | "PLAYER2" | "PLAYER3" | "PLAYER_GOOD" | "PLAYER_NEUTRAL"
+---@alias playerrange  playersingle | "ALL_PLAYERS"
+---@alias controls_variable "TOTAL_DIGGERS"|"TOTAL_CREATURES"|"TOTAL_DOORS"|"TOTAL_AREA"|"GOOD_CREATURES"|"EVIL_CREATURES"
+---@alias timer "TIMER0"|"TIMER1"|"TIMER2"|"TIMER3"|"TIMER4"|"TIMER5"|"TIMER6"|"TIMER7"
+---@alias flag_desc 0|1|2|3|4|5|6|7|"FLAG0"|"FLAG1"|"FLAG2"|"FLAG3"|"FLAG4"|"FLAG5"|"FLAG6"|"FLAG7"|"CAMPAIGN_FLAG0"|"CAMPAIGN_FLAG1"|"CAMPAIGN_FLAG2"|"CAMPAIGN_FLAG3"|"CAMPAIGN_FLAG4"|"CAMPAIGN_FLAG5"|"CAMPAIGN_FLAG6"|"CAMPAIGN_FLAG7"
+---@alias hand_rule "ALWAYS"|"AGE_LOWER"|"AGE_HIGHER"|"LEVEL_LOWER"|"LEVEL_HIGHER"|"AT_ACTION_POINT"|"AFFECTED_BY"|"WANDERING"|"WORKING"|"FIGHTING"
+---@alias rule_slot 0|1|2|3|4|5|6|7|"RULE0"|"RULE1"|"RULE2"|"RULE3"|"RULE4"|"RULE5"|"RULE6"|"RULE7"
+---@alias rule_action "DENY"|"ALLOW"|"ENABLE"|"DISABLE"
+---@alias hero_objective "STEAL_GOLD"|"STEAL_SPELLS"|"ATTACK_ENEMIES"|"ATTACK_DUNGEON_HEART"|"SNIPE_DUNGEON_HEART"|"ATTACK_ROOMS"|"SABOTAGE_ROOMS"|"DEFEND_PARTY"|"DEFEND_LOCATION"|"DEFEND_HEART"|"DEFEND_ROOMS"
+---@alias msgtype "SPEECH"|"SOUND"
+---@alias tendency "IMPRISON"|"FLEE"
+---@alias creature_select_criteria "MOST_EXPERIENCED"|"MOST_EXP_WANDERING"|"MOST_EXP_WORKING"|"MOST_EXP_FIGHTING"|"LEAST_EXPERIENCED"|"LEAST_EXP_WANDERING"|"LEAST_EXP_WORKING"|"LEAST_EXP_FIGHTING"|"NEAR_OWN_HEART"|"NEAR_ENEMY_HEART"|"ON_ENEMY_GROUND"|"ON_FRIENDLY_GROUND"|"ON_NEUTRAL_GROUND"|"ANYWHERE"
+---@alias trap_config "NameTextID"|"TooltipTextID"|"SymbolSprites"|"PointerSprites"|"PanelTabIndex"|"Crate"|"ManufactureLevel"|"ManufactureRequired"|"Shots"|"TimeBetweenShots"|"SellingValue"|"Model"|"ModelSize"|"AnimationSpeed"|"TriggerType"|"ActivationType"|"EffectType"|"Hidden"|"TriggerAlarm"|"Slappable"|"Unanimated"|"Health"|"Unshaded"|"RandomStartFrame"|"ThingSize"|"HitType"|"LightRadius"|"LightIntensity"|"LightFlags"|"TransparencyFlags"|"ShotVector"|"Destructible"|"Unstable"|"Unsellable"
+---@alias gui_button_group "MINIMAP"|"TABS"|"INFO"|"ROOM"|"POWER"|"TRAP"|"DOOR"|"CREATURE"|"MESSAGE"
+---@alias script_operator "SET"|"INCREASE"|"DECREASE"|"MULTIPLY"
+---@alias variable flag_desc|timer|room_type|"MONEY"|"GAME_TURN"|"BREAK_IN"|"TOTAL_DIGGERS"|"TOTAL_CREATURES"|"TOTAL_RESEARCH"|"TOTAL_DOORS"|"TOTAL_AREA"|"TOTAL_CREATURES_LEFT"|"CREATURES_ANNOYED"|"BATTLES_LOST"|"BATTLES_WON"|"ROOMS_DESTROYED"|"SPELLS_STOLEN"|"TIMES_BROKEN_INTO"|"GOLD_POTS_STOLEN"|"HEART_HEALTH"|"GHOSTS_RAISED"|"SKELETONS_RAISED"|"VAMPIRES_RAISED"|"CREATURES_CONVERTED"|"EVIL_CREATURES_CONVERTED"|"GOOD_CREATURES_CONVERTED"|"TIMES_ANNOYED_CREATURE"|"TIMES_TORTURED_CREATURE"|"TOTAL_DOORS_MANUFACTURED"|"TOTAL_TRAPS_MANUFACTURED"|"TOTAL_MANUFACTURED"|"TOTAL_TRAPS_USED"|"TOTAL_DOORS_USED"|"KEEPERS_DESTROYED"|"CREATURES_SACRIFICED"|"CREATURES_FROM_SACRIFICE"|"TIMES_LEVELUP_CREATURE"|"TOTAL_SALARY"|"CURRENT_SALARY"|"DUNGEON_DESTROYED"|"TOTAL_GOLD_MINED"|"DOORS_DESTROYED"|"CREATURES_SCAVENGED_LOST"|"CREATURES_SCAVENGED_GAINED"|"ALL_DUNGEONS_DESTROYED"|"GOOD_CREATURES"|"EVIL_CREATURES"|"TRAPS_SOLD"|"DOORS_SOLD"|"MANUFACTURED_SOLD"|"MANUFACTURE_GOLD"|"TOTAL_SCORE"|"BONUS_TIME"|"CREATURES_TRANSFERRED"
+---@alias fill "NONE"|"MATCH"|"FLOOR"|"BRIDGE"
+---@alias set_door "LOCKED"|"UNLOCKED"
+---@alias texture_pack "NONE"|"STANDARD"|"ANCIENT"|"WINTER"|"SNAKE_KEY"|"STONE_FACE"|"VOLUPTUOUS"|"BIG_BREASTS"|"ROUGH_ANCIENT"|"SKULL_RELIEF"|"DESERT_TOMB"|"GYPSUM"|"LILAC_STONE"|"SWAMP_SERPENT"|"LAVA_CAVERN"
+---@alias head_for "ACTION_POINT"|"DUNGEON"|"DUNGEON_HEART"|"APPROPIATE_DUNGEON"
+
+---@alias location playersingle|integer|"LAST_EVENT"|"COMBAT"
+
+---@alias creature_model "WIZARD"|"BARBARIAN"|"ARCHER"|"MONK"|"DWARFA"|"KNIGHT"|"AVATAR"|"TUNNELLER"|"WITCH"|"GIANT"|"FAIRY"|"THIEF"|"SAMURAI"|"HORNY"|"SKELETON"|"TROLL"|"DRAGON"|"DEMONSPAWN"|"FLY"|"DARK_MISTRESS"|"SORCEROR"|"BILE_DEMON"|"IMP"|"BUG"|"VAMPIRE"|"SPIDER"|"HELL_HOUND"|"GHOST"|"TENTACLE"|"ORC"|"FLOATING_SPIRIT"|"DRUID"|"TIME_MAGE"
+---@alias room_type "ENTRANCE"|"TREASURE"|"RESEARCH"|"PRISON"|"TORTURE"|"TRAINING"|"DUNGEON_HEART"|"WORKSHOP"|"SCAVENGER"|"TEMPLE"|"GRAVEYARD"|"BARRACKS"|"GARDEN"|"LAIR"|"BRIDGE"|"GUARD_POST"
+---@alias spell_type "POWER_HAND"|"POWER_IMP"|"POWER_OBEY"|"POWER_SLAP"|"POWER_SIGHT"|"POWER_CALL_TO_ARMS"|"POWER_CAVE_IN"|"POWER_HEAL_CREATURE"|"POWER_HOLD_AUDIENCE"|"POWER_LIGHTNING"|"POWER_SPEED"|"POWER_PROTECT"|"POWER_CONCEAL"|"POWER_DISEASE"|"POWER_CHICKEN"|"POWER_DESTROY_WALLS"|"POWER_TIME_BOMB"|"POWER_POSSESS"|"POWER_ARMAGEDDON"|"POWER_PICKUP_CREATURE"|"POWER_PICKUP_GOLD"|"POWER_PICKUP_FOOD"
+---@alias trap_type "BOULDER"|"ALARM"|"POISON_GAS"|"LIGHTNING"|"WORD_OF_POWER"|"LAVA"
+---@alias door_type "WOOD"|"BRACED"|"STEEL"|"MAGIC"
+---@alias object_type string
+
 
 ------------------------------------------------------
 ------------------------------------------------------
@@ -62,7 +85,7 @@ function DEAD_CREATURES_RETURN_TO_POOL(return_to_pool) end
 
 ---This command tells the game that a specific creature can come through that player’s Portal.
 ---@param player playerrange The player’s name, e.g. PLAYER1. See players section for more information.
----@param creature string The creature’s name, e.g. SORCEROR. See creature names section for more information.
+---@param creature creature_model The creature’s name, e.g. SORCEROR. See creature names section for more information.
 ---@param can_be_attracted boolean This value should always be set to 1. Creatures, unlike spells and rooms, do not have to be pre-enabled.
 ---@param amount_forced boolean This value should either be 0 or 1. Set it to 1 to enable the creature to appear from the Portal.
 function CREATURE_AVAILABLE(player,creature,can_be_attracted,amount_forced) end
@@ -87,13 +110,13 @@ function SET_GAME_RULE() end
 ---This is a first come, first serve system so players will need to hurry if they want to gain the rarest creatures.
 ---If a creature becomes angry, it will exit via an Portal and return to the pool. Dead creatures do not return to the pool so be careful the players do not run out.
 ---This command sets the number of creatures that are placed in this pool. If you leave any creatures off the list then they will not appear in the pool.
----@param creature integer The creature's name, e.g. BILE_DEMON.
+---@param creature creature_model The creature's name, e.g. BILE_DEMON.
 ---@param amount integer The number of creature's of that type in the pool.
 function ADD_CREATURE_TO_POOL(creature,amount) end
 
 ---This command tells the game that a specific room is available for the player to place down.
 ---@param player playerrange The players the room should be made available for.
----@param room string The room’s name, e.g. TEMPLE.
+---@param room room_type The room’s name, e.g. TEMPLE.
 ---@param can_be_available boolean This value can be set to 0 or 1. If it is 1 then you are telling the game that the room may be researched at some point.
 ---@param is_available boolean This value should either be 0 or 1. If it is 1 then the room is available straight away. If it is 0 then the room cannot become available until it is set to 1 or it is researched.
 function ROOM_AVAILABLE(player,room,can_be_available,is_available) end
@@ -101,21 +124,21 @@ function ROOM_AVAILABLE(player,room,can_be_available,is_available) end
 
 ---This command tells the game that a specific spell is available for the player to cast.
 ---@param player playerrange The player’s name, e.g. PLAYER1. See players section for more information.
----@param spell string The spell’s name, e.g. POWER_LIGHTNING. See spell names section for more information.
+---@param spell spell_type The spell’s name, e.g. POWER_LIGHTNING. See spell names section for more information.
 ---@param can_be_available boolean This value can be set to 0 or 1. If it is 1 then you are telling the game that the spell may be researched at some point.
 ---@param is_available boolean This value should either be 0 or 1. If it is 1 then the spell is available straight away. If it is 0 then the spell cannot become available until it is set to 1 or researched.
 function MAGIC_AVAILABLE(player,spell,can_be_available,is_available) end
 
 ---This command tells the game that a specific trap is available for the player to construct.
 ---@param player playerrange The player’s name, e.g. PLAYER1. See players section for more information.
----@param trap string The trap’s name, e.g. LAVA. See doors/traps names section for more information.
+---@param trap trap_type The trap’s name, e.g. LAVA. See doors/traps names section for more information.
 ---@param can_be_available boolean This value can be set to 0 or 1. If it is 1 then you are telling the game that the trap may be constructed at some point.
 ---@param number_available integer The number of doors available to the player at the start of the level or when they become available. Bear in mind that without a Workshop, the traps cannot be armed. This may cause problems in the game. It is best to leave this at 0 when you write your scripts.
 function TRAP_AVAILABLE(player,trap,can_be_available,number_available) end
 
 ---This command tells the game that a specific door is available for the player to construct.
 ---@param player playerrange The player’s name, e.g. PLAYER1. See players section for more information.
----@param door string The door’s name, e.g. BRACED. See doors/traps names section for more information.
+---@param door door_type The door’s name, e.g. BRACED. See doors/traps names section for more information.
 ---@param can_be_available boolean This value can be set to 0 or 1. If it is 1 then you are telling the game that the door can be constructed.
 ---@param number_available integer The number of doors available to the player at the start of the level or when they become available.
 function DOOR_AVAILABLE(player,door,can_be_available,number_available) end
@@ -127,8 +150,8 @@ function DOOR_AVAILABLE(player,door,can_be_available,number_available) end
 
 ---This command allows you to adjust the research value for individual rooms or spells and even for a specific player.
 ---@param player playerrange player’s name, e.g. PLAYER1. See players section for more information.
----@param research_type string Whether it is a room or spell you are researching. Use one of the following commands:
----@param room_or_spell string The name of the room or spell you want to adjust, e.g. TEMPLE or MAGIC_LIGHTNING. See room names section and spell names section for more information.
+---@param research_type "MAGIC"|"ROOM"|"CREATURE" Whether it is a room or spell you are researching. Use one of the following commands:
+---@param room_or_spell spell_type|room_type|creature_model The name of the room or spell you want to adjust, e.g. TEMPLE or MAGIC_LIGHTNING. See room names section and spell names section for more information.
 ---@param research_value integer The new research value. This must be a number below 16777216.
 function RESEARCH(player,research_type,room_or_spell,research_value) end
 
@@ -147,7 +170,7 @@ function CREATE_PARTY(party_name) end
 ---@param owner playersingle owner of the creature
 ---@param party_name string The name as defined with the CREATE_PARTY command
 ---@param spawn_location location where the party should be spawned
----@param head_for string This command tells the Tunneller what it is tunnelling to. one of these options ACTION_POINT,DUNGEON,DUNGEON_HEART,APPROPIATE_DUNGEON
+---@param head_for head_for This command tells the Tunneller what it is tunnelling to. one of these options ACTION_POINT,DUNGEON,DUNGEON_HEART,APPROPIATE_DUNGEON
 ---@param target integer This command will tell the Tunneller which Action Point (if the head for command was ACTION_POINT) or Player (if the head for command was DUNGEON or DUNGEON_HEART) to go to.
 ---If the command was APPROPIATE_DUNGEON then this will just be 0 as the APPROPIATE_DUNGEON command sends the Tunneller to the dungeon of the player with the highest score.
 ---If you wish to put player here, you must type player number, like 1, not player name. If you will type PLAYER1, the game won't be able to recognize the number and will treat it as 0.
@@ -159,7 +182,7 @@ function ADD_TUNNELLER_PARTY_TO_LEVEL(owner,party_name,spawn_location,head_for,t
 ---Tunneller Dwarves are the only creatures that can tunnel towards a target.
 ---@param owner playersingle owner of the creature
 ---@param spawn_location location where the party should be spawned
----@param head_for string This command tells the Tunneller what it is tunnelling to. one of these options ACTION_POINT,DUNGEON,DUNGEON_HEART,APPROPIATE_DUNGEON
+---@param head_for head_for This command tells the Tunneller what it is tunnelling to. one of these options ACTION_POINT,DUNGEON,DUNGEON_HEART,APPROPIATE_DUNGEON
 ---@param target integer This command will tell the Tunneller which Action Point (if the head for command was ACTION_POINT) or Player (if the head for command was DUNGEON or DUNGEON_HEART) to go to.
 ---If the command was APPROPIATE_DUNGEON then this will just be 0 as the APPROPIATE_DUNGEON command sends the Tunneller to the dungeon of the player with the highest score. If you wish to put player here, you must type player number, like 1, not player name. If you will type PLAYER1, the game won't be able to recognize the number and will treat it as 0.
 ---@param experience integer The experience level of the Tunneller.
@@ -168,15 +191,15 @@ function ADD_TUNNELLER_TO_LEVEL(owner,spawn_location,head_for,target,experience,
 
 ---This command adds a number of creatures to a party 
 ---@param party_name string The name as defined with the CREATE_PARTY command
----@param creaturemodel string
+---@param creaturemodel creature_model
 ---@param level integer
----@param gold string
+---@param gold integer
 ---@param objective string units role in the party, should be on of these STEAL_GOLD,STEAL_SPELLS,ATTACK_ENEMIES,ATTACK_DUNGEON_HEART,ATTACK_ROOMS,DEFEND_PARTY
----@param countdown string Number of game turns before the leader of the party start moving to the objective. Even if this is set to zero, there usually is a little delay (approx. 200 game turns) before the leader starts moving.
+---@param countdown integer Number of game turns before the leader of the party start moving to the objective. Even if this is set to zero, there usually is a little delay (approx. 200 game turns) before the leader starts moving.
 function ADD_TO_PARTY(party_name,creaturemodel,level,gold,objective,countdown) end
 
 ---@param party_name string The name as defined with the CREATE_PARTY command
----@param creaturemodel string
+---@param creaturemodel creature_model
 ---@param level integer
 function DELETE_FROM_PARTY(party_name,creaturemodel,level) end
 
@@ -191,7 +214,7 @@ function ADD_PARTY_TO_LEVEL(playerrange,party_name,location,ncopies) end
 ---This command will add a number of new creatures to the level at the co-ordinates of a specifies Action Point.
 ---You cannot set where the creatures head for so you may need to use a party instead.
 ---@param owner playersingle The player that the creatures belong to.
----@param creature_model string The creature's name, e.g. DRAGON.
+---@param creature_model creature_model  The creature's name, e.g. DRAGON.
 ---@param location location where the creature(s) should be spawned
 ---@param ncopies integer number of identical creatures that should be created
 ---@param level integer   
@@ -241,6 +264,9 @@ function HEART_LOST_QUICK_OBJECTIVE() end
 function HEART_LOST_OBJECTIVE() end
 function QUICK_MESSAGE() end
 
+---Sets up a timer that increases by 1 every game turn from when it was triggered.
+---@param player playersingle
+---@param timer timer
 function SET_TIMER(player,timer) end
 --------------------
 --Manipulating Map-
@@ -251,6 +277,7 @@ function CONCEAL_MAP_RECT() end
 function REVEAL_MAP_LOCATION() end
 function CHANGE_SLAB_OWNER() end
 function CHANGE_SLAB_TYPE() end
+function SET_DOOR() end
 -------------------------------
 --Manipulating Creature stats-
 -------------------------------
@@ -260,25 +287,25 @@ function SWAP_CREATURE() end
 ---This command sets the maximum experience level the creature can train to.
 ---You can use this to stop certain creatures from becoming too powerful.
 ---@param player playerrange players this should affect.
----@param creature string players this should affect.
+---@param creature creature_model  players this should affect.
 ---@param max_level integer the max level they should train to
 function SET_CREATURE_MAX_LEVEL(player,creature,max_level) end
 
 ---This command sets the strength of all the creatures of that type on the level.
 ---Each creature has a default strength which can be found in the creature.txt file, e.g. the BILE_DEMON has a strength level of 80.
----@param creature string creaturetype eg. BILE_DEMON
+---@param creature creature_model  creaturetype eg. BILE_DEMON
 ---@param strength integer The new strength of that creature. The strength must be between 0 and 255.
 function SET_CREATURE_STRENGTH(creature,strength) end
 
 ---This command sets the health of all the creatures of that type on the level.
 ---Each creature has a default full health level which can be found in the creature.txt file, e.g. the DRAGON has a full health level of 900.
----@param creature string creaturetype eg. BILE_DEMON
+---@param creature creature_model  creaturetype eg. BILE_DEMON
 ---@param health integer The new health level of that creature. The health level must be between 0 and 7895. 
 function SET_CREATURE_HEALTH(creature,health) end
 
 ---This command sets the armour of all the creatures of that type on the level.
 ---Each creature has a default armour level which can be found in the creature.txt file, e.g. the Dark Mistress has a armour level of 50.
----@param creature string creaturetype eg. BILE_DEMON
+---@param creature creature_model  creaturetype eg. BILE_DEMON
 ---@param armor integer The new armour level of that creature. The armour level must be between 0 and 255.
 function SET_CREATURE_ARMOUR(creature,armor) end
 
@@ -304,13 +331,11 @@ function RANDOMISE_FLAG() end
 function COMPUTE_FLAG() end
 
 ---Sets up a flag that is assigned a number.
----@param player playerrange
----@param flag any The flag’s name eg. FLAG0, CAMPAIGN_FLAG3 
+---@param player playersingle
+---@param flag flag_desc The flag’s name eg. FLAG0, CAMPAIGN_FLAG3 
 ---@param value integer The number assigned to the flag.
 function SET_FLAG(player,flag,value) end
 function ADD_TO_FLAG() end
-function SET_CAMPAIGN_FLAG() end
-function ADD_TO_CAMPAIGN_FLAG() end
 function EXPORT_VARIABLE() end
 
 -----------------------------
@@ -357,7 +382,7 @@ function USE_SPECIAL_TRANSFER_CREATURE() end
 ---------
 
 function RUN_AFTER_VICTORY() end
-function SET_DOOR() end
+
 
 ---Once an Action Point has been triggered, it cannot be triggered again unless it has been reset by this command.
 ---@param action_point integer Action Point number
@@ -375,7 +400,7 @@ function MOVE_CREATURE() end
 ---returns the amount of creatures at the ap
 ---@param action_point integer
 ---@param player playerrange
----@param creature string
+---@param creature creature_model 
 ---@return integer amount amount of creatures matching the conditions
 function COUNT_CREATURES_AT_ACTION_POINT(action_point,player,creature) return 0 end
 
@@ -390,7 +415,7 @@ function SET_TEXTURE(player,texture) end
 function HIDE_HERO_GATE(gate_number,hidden) end
 
 ---Place any object at a specific place on the map
----@param object string The object name from fxdata\objects.cfg
+---@param object object_type The object name from fxdata\objects.cfg
 ---@param location location
 ---@param property string If the objects has properties, set it. For Gold, it's the amount. If you use SPECBOX_CUSTOM to place the mystery box, it's the box number in the BOX#_ACTIVATED variable.
 ---@param player? playersingle When used it sets the owner of the object.
@@ -439,10 +464,6 @@ function CREATE_EFFECT_AT_POS() end
 
 
 
-
-
-
-
 -------------------------------------------------------
 --functions only available in lua
 -------------------------------------------------------
@@ -450,3 +471,9 @@ function CREATE_EFFECT_AT_POS() end
 function GetCreatureNear() end
 function SendChatMessage() end
 function GetThingByIdx() end
+
+---comment
+---@param player playersingle
+---@param varname variable
+---@return integer
+function VAR(player,varname) return 0 end

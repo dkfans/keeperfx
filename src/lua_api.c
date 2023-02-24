@@ -19,6 +19,11 @@
 
 /**********************************************/
 
+struct PlayerRange
+{
+    PlayerNumber start_idx;
+    PlayerNumber end_idx;
+};
 struct luaThing
 {
     ThingIndex thing_idx;
@@ -68,23 +73,36 @@ static TbMapLocation luaL_checkLocation(lua_State *L, int index)
 
 static PlayerNumber luaL_checkPlayerSingle(lua_State *L, int index)
 {
-
+    struct PlayerRange playerRange = luaL_checkPlayerRange(L,index);
+    if(playerRange.start_idx != playerRange.end_idx)
+    {
+        luaL_error (L,"player range not supported for this command");
+    }
+    return playerRange.start_idx;
 }
 
-static PlayerNumber luaL_checkPlayerRange(lua_State *L, int index)
+static struct PlayerRange luaL_checkPlayerRange(lua_State *L, int index)
 {
+    struct PlayerRange playerRange = {0,0};
     const char* plrname = lua_tostring(L, index);
-    PlayerNumber plr_range_id = get_rid(player_desc, plrname);
+    
+    long plr_range_id = get_rid(player_desc, plrname);
     if (plr_range_id == -1)
     {
-      plr_range_id = get_rid(cmpgn_human_player_options, plrname);
-      if (plr_range_id == -1)
-      {
-        luaL_error (L,"Invalid player name, '%s'", plrname);
-        return -1;
-      }
+        plr_range_id = get_rid(cmpgn_human_player_options, plrname);
     }
-    return plr_range_id;
+    if (plr_range_id == ALL_PLAYERS)
+    {
+        playerRange.start_idx = 0;
+        playerRange.end_idx = PLAYERS_COUNT;
+    }
+    else
+    {
+        playerRange.start_idx = plr_range_id;
+        playerRange.end_idx   = plr_range_id;
+    }
+
+    return playerRange;
 }
 
 static long luaL_checkNamedCommand(lua_State *L, int index,const struct NamedCommand * commanddesc)
@@ -291,8 +309,33 @@ static int lua_RESEARCH_ORDER(lua_State *L)
 static int lua_COMPUTER_PLAYER(lua_State *L)
 static int lua_SET_TIMER(lua_State *L)
 static int lua_ADD_TUNNELLER_TO_LEVEL(lua_State *L)
+*/
 static int lua_WIN_GAME(lua_State *L)
+{
+    if(lua_isnone(L,1))
+        int plyr_idx = luaL_checkPlayerRange(L, 1);
+    else 
+        int plyr_idx = {0,PLAYERS_COUNT};
+
+    struct PlayerInfo *player = get_player(plyr_idx);
+    set_player_as_won_level(player);
+
+    return 0;
+    
+}
 static int lua_LOSE_GAME(lua_State *L)
+{
+    int plyr_idx = luaL_checkPlayerRange(L, 1);
+    struct PlayerInfo *player = get_player(plyr_idx);
+    set_player_as_lost_level(player);
+
+    return 0;
+    
+}
+
+
+
+/*
 static int lua_SET_FLAG(lua_State *L)
 static int lua_MAX_CREATURES(lua_State *L)
 static int lua_NEXT_COMMAND_REUSABLE(lua_State *L)
@@ -454,23 +497,7 @@ static int send_chat_message(lua_State *L)
     return 0;
 }
 
-static int lua_set_player_as_won_level(lua_State *L)
-{
-    int plyr_idx = lua_tointeger(L, 1);
-    struct PlayerInfo *player = get_player(plyr_idx);
-    set_player_as_won_level(player);
 
-    return 0;
-}
-
-static int lua_set_player_as_lost_level(lua_State *L)
-{
-    int plyr_idx = lua_tointeger(L, 1);
-    struct PlayerInfo *player = get_player(plyr_idx);
-    set_player_as_lost_level(player);
-
-    return 0;
-}
 
 static const luaL_reg game_methods[] = {
     {"CREATE_PARTY",                        lua_CREATE_PARTY},
@@ -598,8 +625,6 @@ static const luaL_reg game_methods[] = {
     */
     {"GetCreatureNear", lua_get_creature_near},
     {"SendChatMessage", send_chat_message},
-    {"PlayerWin", lua_set_player_as_won_level},
-    {"PlayerLose", lua_set_player_as_lost_level},
     {"getThingByIdx", lua_get_thing_by_idx},
     {0, 0}};
 
