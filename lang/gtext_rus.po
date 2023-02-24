@@ -7007,13 +7007,13 @@ msgstr ""
 #: guitext:1036
 msgctxt "Trap names"
 msgid "Demolition Trap"
-msgstr ""
+msgstr "Подрывной заряд"
 
 #: guitext:1037
 msgctxt "Trap description"
 msgid ""
 "Demolition Trap: An explosive with unrivaled destructive power."
-msgstr ""
+msgstr "Подрывной заряд: Заряд невероятной разрушительной силы."
 
 #: guitext:1038
 msgctxt "Trap description"
