@@ -6750,7 +6750,7 @@ msgstr ""
 #: guitext:984
 msgctxt "Trap names"
 msgid "Sentry Trap"
-msgstr ""
+msgstr "Ловушка-Страж"
 
 #: guitext:985
 msgctxt "Trap names"
@@ -7019,7 +7019,7 @@ msgstr ""
 msgctxt "Trap description"
 msgid ""
 "Sentry Trap: Stands guard and shoots at enemies in sight."
-msgstr ""
+msgstr "Ловушка-Страж: Отстреливает врагов"
 
 #: guitext:1039 guitext:1040
 msgctxt "Unused"
