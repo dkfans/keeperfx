@@ -2533,7 +2533,7 @@ TbBool find_random_valid_position_for_thing_in_room_avoiding_object(struct Thing
                     }
                 }
             }
-            start_stl = (start_stl + 1) % 9;
+            start_stl = (start_stl + 1) % AROUND_TILES_COUNT;
         }
         // Per room tile code ends
         if (n+1 >= room->slabs_count)
