@@ -3,7 +3,7 @@
 --also serves as documentation of said function
 
 
----@alias playersingle "PLAYER0" | "PLAYER1" | "PLAYER2" | "PLAYER3" | "PLAYER_GOOD" | "PLAYER_NEUTRAL"
+---@alias playersingle Player | "PLAYER0" | "PLAYER1" | "PLAYER2" | "PLAYER3" | "PLAYER_GOOD" | "PLAYER_NEUTRAL"
 ---@alias playerrange  playersingle | "ALL_PLAYERS"
 ---@alias controls_variable "TOTAL_DIGGERS"|"TOTAL_CREATURES"|"TOTAL_DOORS"|"TOTAL_AREA"|"GOOD_CREATURES"|"EVIL_CREATURES"
 ---@alias timer "TIMER0"|"TIMER1"|"TIMER2"|"TIMER3"|"TIMER4"|"TIMER5"|"TIMER6"|"TIMER7"
@@ -23,10 +23,11 @@
 ---@alias set_door "LOCKED"|"UNLOCKED"
 ---@alias texture_pack "NONE"|"STANDARD"|"ANCIENT"|"WINTER"|"SNAKE_KEY"|"STONE_FACE"|"VOLUPTUOUS"|"BIG_BREASTS"|"ROUGH_ANCIENT"|"SKULL_RELIEF"|"DESERT_TOMB"|"GYPSUM"|"LILAC_STONE"|"SWAMP_SERPENT"|"LAVA_CAVERN"
 ---@alias head_for "ACTION_POINT"|"DUNGEON"|"DUNGEON_HEART"|"APPROPIATE_DUNGEON"
-
+---@alias creature_propery "BLEEDS"|"UNAFFECTED_BY_WIND"|"IMMUNE_TO_GAS"|"HUMANOID_SKELETON"|"PISS_ON_DEAD"|"FLYING"|"SEE_INVISIBLE"|"PASS_LOCKED_DOORS"|"SPECIAL_DIGGER"|"ARACHNID"|"DIPTERA"|"LORD"|"SPECTATOR"|"EVIL"|"NEVER_CHICKENS"|"IMMUNE_TO_BOULDER"|"NO_CORPSE_ROTTING"|"NO_ENMHEART_ATTCK"|"TREMBLING_FAT"|"FEMALE"|"INSECT"|"ONE_OF_KIND"|"NO_IMPRISONMENT"|"IMMUNE_TO_DISEASE"|"ILLUMINATED"|"ALLURING_SCVNGR"
 ---@alias location playersingle|integer|"LAST_EVENT"|"COMBAT"
 
----@alias creature_model "WIZARD"|"BARBARIAN"|"ARCHER"|"MONK"|"DWARFA"|"KNIGHT"|"AVATAR"|"TUNNELLER"|"WITCH"|"GIANT"|"FAIRY"|"THIEF"|"SAMURAI"|"HORNY"|"SKELETON"|"TROLL"|"DRAGON"|"DEMONSPAWN"|"FLY"|"DARK_MISTRESS"|"SORCEROR"|"BILE_DEMON"|"IMP"|"BUG"|"VAMPIRE"|"SPIDER"|"HELL_HOUND"|"GHOST"|"TENTACLE"|"ORC"|"FLOATING_SPIRIT"|"DRUID"|"TIME_MAGE"
+---followning options come from cfg files, but these are the defaults, if you added them correctly to cfg, errors the ide gives can be ignored
+---@alias creature_type "WIZARD"|"BARBARIAN"|"ARCHER"|"MONK"|"DWARFA"|"KNIGHT"|"AVATAR"|"TUNNELLER"|"WITCH"|"GIANT"|"FAIRY"|"THIEF"|"SAMURAI"|"HORNY"|"SKELETON"|"TROLL"|"DRAGON"|"DEMONSPAWN"|"FLY"|"DARK_MISTRESS"|"SORCEROR"|"BILE_DEMON"|"IMP"|"BUG"|"VAMPIRE"|"SPIDER"|"HELL_HOUND"|"GHOST"|"TENTACLE"|"ORC"|"FLOATING_SPIRIT"|"DRUID"|"TIME_MAGE"
 ---@alias room_type "ENTRANCE"|"TREASURE"|"RESEARCH"|"PRISON"|"TORTURE"|"TRAINING"|"DUNGEON_HEART"|"WORKSHOP"|"SCAVENGER"|"TEMPLE"|"GRAVEYARD"|"BARRACKS"|"GARDEN"|"LAIR"|"BRIDGE"|"GUARD_POST"
 ---@alias spell_type "POWER_HAND"|"POWER_IMP"|"POWER_OBEY"|"POWER_SLAP"|"POWER_SIGHT"|"POWER_CALL_TO_ARMS"|"POWER_CAVE_IN"|"POWER_HEAL_CREATURE"|"POWER_HOLD_AUDIENCE"|"POWER_LIGHTNING"|"POWER_SPEED"|"POWER_PROTECT"|"POWER_CONCEAL"|"POWER_DISEASE"|"POWER_CHICKEN"|"POWER_DESTROY_WALLS"|"POWER_TIME_BOMB"|"POWER_POSSESS"|"POWER_ARMAGEDDON"|"POWER_PICKUP_CREATURE"|"POWER_PICKUP_GOLD"|"POWER_PICKUP_FOOD"
 ---@alias trap_type "BOULDER"|"ALARM"|"POISON_GAS"|"LIGHTNING"|"WORD_OF_POWER"|"LAVA"
@@ -34,11 +35,138 @@
 ---@alias object_type string
 
 
-------------------------------------------------------
-------------------------------------------------------
--- functions also used by the Dk scripting language --
-------------------------------------------------------
--------------------------------------------------------
+
+
+
+---@class Player
+---@field private name string
+---@field MONEY integer
+---@field GAME_TURN integer
+---@field BREAK_IN integer
+---@field TOTAL_DIGGERS integer
+---@field TOTAL_CREATURES integer
+---@field TOTAL_RESEARCH integer
+---@field TOTAL_DOORS integer
+---@field TOTAL_AREA integer
+---@field TOTAL_CREATURES_LEFT integer
+---@field CREATURES_ANNOYED integer
+---@field BATTLES_LOST integer
+---@field BATTLES_WON integer
+---@field ROOMS_DESTROYED integer
+---@field SPELLS_STOLEN integer
+---@field TIMES_BROKEN_INTO integer
+---@field GOLD_POTS_STOLEN integer
+---@field HEART_HEALTH integer
+---@field GHOSTS_RAISED integer
+---@field SKELETONS_RAISED integer
+---@field VAMPIRES_RAISED integer
+---@field CREATURES_CONVERTED integer
+---@field EVIL_CREATURES_CONVERTED integer
+---@field GOOD_CREATURES_CONVERTED integer
+---@field TIMES_ANNOYED_CREATURE integer
+---@field TIMES_TORTURED_CREATURE integer
+---@field TOTAL_DOORS_MANUFACTURED integer
+---@field TOTAL_TRAPS_MANUFACTURED integer
+---@field TOTAL_MANUFACTURED integer
+---@field TOTAL_TRAPS_USED integer
+---@field TOTAL_DOORS_USED integer
+---@field KEEPERS_DESTROYED integer
+---@field CREATURES_SACRIFICED integer
+---@field CREATURES_FROM_SACRIFICE integer
+---@field TIMES_LEVELUP_CREATURE integer
+---@field TOTAL_SALARY integer
+---@field CURRENT_SALARY integer
+---@field DUNGEON_DESTROYED integer
+---@field TOTAL_GOLD_MINED integer
+---@field DOORS_DESTROYED integer
+---@field CREATURES_SCAVENGED_LOST integer
+---@field CREATURES_SCAVENGED_GAINED integer
+---@field ALL_DUNGEONS_DESTROYED integer
+---@field GOOD_CREATURES integer
+---@field EVIL_CREATURES integer
+---@field TRAPS_SOLD integer
+---@field DOORS_SOLD integer
+---@field MANUFACTURED_SOLD integer
+---@field MANUFACTURE_GOLD integer
+---@field TOTAL_SCORE integer
+---@field BONUS_TIME integer
+---@field CREATURES_TRANSFERRED integer
+
+local Player = {}
+Player.__index = Player -- failed table lookups on the instances should fallback to the class table, to get methods
+
+---@class Thing
+local Thing = {}
+Thing.__index = Thing -- failed table lookups on the instances should fallback to the class table, to get methods
+
+---@class Creature:Thing
+local Creature = {}
+Creature.__index = Creature -- failed table lookups on the instances should fallback to the class table, to get methods
+
+
+function Player.new(tostring)
+  local self = setmetatable({}, Player)
+  self.tostring = tostring
+  return self
+end
+
+function Thing.new(idx,creation_turn)
+    local self = setmetatable({}, Thing)
+    self.idx = idx
+    self.creation_turn = creation_turn
+    return self
+  end
+
+
+local flags = {"FLAG0","FLAG1","FLAG2","FLAG3","FLAG4","FLAG5","FLAG6","FLAG7",
+"CAMPAIGN_FLAG0","CAMPAIGN_FLAG1","CAMPAIGN_FLAG2","CAMPAIGN_FLAG3","CAMPAIGN_FLAG4","CAMPAIGN_FLAG5","CAMPAIGN_FLAG6","CAMPAIGN_FLAG7"}
+
+---check if the table contains an element with value val
+---@param tab table
+---@param val any
+---@return boolean
+local function has_value (tab, val)
+    for index, value in ipairs(tab) do
+        if value == val then
+            return true
+        end
+    end
+
+    return false
+end
+
+
+function Player:__newindex( index, value )
+    if has_value(flags,index) then
+        self.members[index] = value
+        print( "Set member " .. index .. " to " .. value )
+    else
+        rawset( self, index, value )
+    end
+end
+
+
+function Player:__index( index )
+    if index == "testMember" then
+        print( "Getting " .. index )
+        --return self.members[index]
+    else
+        return rawget( self, index )
+    end
+end
+
+
+function Player:__tostring( index )
+    return self.name
+end
+
+PLAYER0 = Player.new("PLAYER0")
+PLAYER1 = Player.new("PLAYER1")
+PLAYER2 = Player.new("PLAYER2")
+PLAYER3 = Player.new("PLAYER3")
+PLAYER_GOOD = Player.new("PLAYER_GOOD")
+PLAYER_NEUTRAL = Player.new("PLAYER_NEUTRAL")
+
 
 ------------------
 --Setup Commands--
@@ -85,10 +213,10 @@ function DEAD_CREATURES_RETURN_TO_POOL(return_to_pool) end
 
 ---This command tells the game that a specific creature can come through that player’s Portal.
 ---@param player playerrange The player’s name, e.g. PLAYER1. See players section for more information.
----@param creature creature_model The creature’s name, e.g. SORCEROR. See creature names section for more information.
+---@param creature_type creature_type The creature’s name, e.g. SORCEROR. See creature names section for more information.
 ---@param can_be_attracted boolean This value should always be set to 1. Creatures, unlike spells and rooms, do not have to be pre-enabled.
 ---@param amount_forced boolean This value should either be 0 or 1. Set it to 1 to enable the creature to appear from the Portal.
-function CREATURE_AVAILABLE(player,creature,can_be_attracted,amount_forced) end
+function CREATURE_AVAILABLE(player,creature_type,can_be_attracted,amount_forced) end
 
 ------------------------
 --Manipulating Configs--
@@ -110,9 +238,9 @@ function SET_GAME_RULE() end
 ---This is a first come, first serve system so players will need to hurry if they want to gain the rarest creatures.
 ---If a creature becomes angry, it will exit via an Portal and return to the pool. Dead creatures do not return to the pool so be careful the players do not run out.
 ---This command sets the number of creatures that are placed in this pool. If you leave any creatures off the list then they will not appear in the pool.
----@param creature creature_model The creature's name, e.g. BILE_DEMON.
+---@param creature_type creature_type The creature's name, e.g. BILE_DEMON.
 ---@param amount integer The number of creature's of that type in the pool.
-function ADD_CREATURE_TO_POOL(creature,amount) end
+function ADD_CREATURE_TO_POOL(creature_type,amount) end
 
 ---This command tells the game that a specific room is available for the player to place down.
 ---@param player playerrange The players the room should be made available for.
@@ -151,7 +279,7 @@ function DOOR_AVAILABLE(player,door,can_be_available,number_available) end
 ---This command allows you to adjust the research value for individual rooms or spells and even for a specific player.
 ---@param player playerrange player’s name, e.g. PLAYER1. See players section for more information.
 ---@param research_type "MAGIC"|"ROOM"|"CREATURE" Whether it is a room or spell you are researching. Use one of the following commands:
----@param room_or_spell spell_type|room_type|creature_model The name of the room or spell you want to adjust, e.g. TEMPLE or MAGIC_LIGHTNING. See room names section and spell names section for more information.
+---@param room_or_spell spell_type|room_type|creature_type The name of the room or spell you want to adjust, e.g. TEMPLE or MAGIC_LIGHTNING. See room names section and spell names section for more information.
 ---@param research_value integer The new research value. This must be a number below 16777216.
 function RESEARCH(player,research_type,room_or_spell,research_value) end
 
@@ -182,16 +310,17 @@ function ADD_TUNNELLER_PARTY_TO_LEVEL(owner,party_name,spawn_location,head_for,t
 ---Tunneller Dwarves are the only creatures that can tunnel towards a target.
 ---@param owner playersingle owner of the creature
 ---@param spawn_location location where the party should be spawned
----@param head_for head_for This command tells the Tunneller what it is tunnelling to. one of these options ACTION_POINT,DUNGEON,DUNGEON_HEART,APPROPIATE_DUNGEON
+---@param head_for head_for This command tells the Tunneller what it is tunnelling to.
 ---@param target integer This command will tell the Tunneller which Action Point (if the head for command was ACTION_POINT) or Player (if the head for command was DUNGEON or DUNGEON_HEART) to go to.
 ---If the command was APPROPIATE_DUNGEON then this will just be 0 as the APPROPIATE_DUNGEON command sends the Tunneller to the dungeon of the player with the highest score. If you wish to put player here, you must type player number, like 1, not player name. If you will type PLAYER1, the game won't be able to recognize the number and will treat it as 0.
 ---@param experience integer The experience level of the Tunneller.
 ---@param gold integer The amount of gold the Tunneller is carrying.
-function ADD_TUNNELLER_TO_LEVEL(owner,spawn_location,head_for,target,experience,gold) end
+---@return Creature
+function ADD_TUNNELLER_TO_LEVEL(owner,spawn_location,head_for,target,experience,gold) return Creature end
 
 ---This command adds a number of creatures to a party 
 ---@param party_name string The name as defined with the CREATE_PARTY command
----@param creaturemodel creature_model
+---@param creaturemodel creature_type
 ---@param level integer
 ---@param gold integer
 ---@param objective string units role in the party, should be on of these STEAL_GOLD,STEAL_SPELLS,ATTACK_ENEMIES,ATTACK_DUNGEON_HEART,ATTACK_ROOMS,DEFEND_PARTY
@@ -199,7 +328,7 @@ function ADD_TUNNELLER_TO_LEVEL(owner,spawn_location,head_for,target,experience,
 function ADD_TO_PARTY(party_name,creaturemodel,level,gold,objective,countdown) end
 
 ---@param party_name string The name as defined with the CREATE_PARTY command
----@param creaturemodel creature_model
+---@param creaturemodel creature_type
 ---@param level integer
 function DELETE_FROM_PARTY(party_name,creaturemodel,level) end
 
@@ -214,12 +343,13 @@ function ADD_PARTY_TO_LEVEL(playerrange,party_name,location,ncopies) end
 ---This command will add a number of new creatures to the level at the co-ordinates of a specifies Action Point.
 ---You cannot set where the creatures head for so you may need to use a party instead.
 ---@param owner playersingle The player that the creatures belong to.
----@param creature_model creature_model  The creature's name, e.g. DRAGON.
+---@param creature_model creature_type  The creature's name, e.g. DRAGON.
 ---@param location location where the creature(s) should be spawned
 ---@param ncopies integer number of identical creatures that should be created
 ---@param level integer   
 ---@param carried_gold integer
-function ADD_CREATURE_TO_LEVEL(owner,creature_model,location,ncopies,level,carried_gold) end
+---@return Creature ...
+function ADD_CREATURE_TO_LEVEL(owner,creature_model,location,ncopies,level,carried_gold) return Creature end
 
 
 
@@ -227,14 +357,29 @@ function ADD_CREATURE_TO_LEVEL(owner,creature_model,location,ncopies,level,carri
 --Displaying information and affecting interface--
 --------------------------------------------------
 
-function QUICK_OBJECTIVE() end
+function QUICK_OBJECTIVE(a,objective,where) end
 function QUICK_INFORMATION() end
 function QUICK_OBJECTIVE_WITH_POS() end
 function QUICK_INFORMATION_WITH_POS() end
-function DISPLAY_OBJECTIVE() end
-function DISPLAY_OBJECTIVE_WITH_POS() end
-function DISPLAY_INFORMATION() end
-function DISPLAY_INFORMATION_WITH_POS() end
+
+---comment
+---@param msg_id integer
+---@param zoom_location? location
+function DISPLAY_OBJECTIVE(msg_id,zoom_location) end
+
+---@param msg_id integer The number of the message, 0 to 839. Text of every message is stored in TEXT.DAT. This parameter is a message index in the TEXT.DAT file.
+---@param x integer
+---@param y integer
+function DISPLAY_OBJECTIVE_WITH_POS(msg_id,x,y) end
+
+---@param msg_id integer The number of the message, 0 to 839. Text of every message is stored in TEXT.DAT. This parameter is a message index in the TEXT.DAT file.
+---@param zoom_location? location
+function DISPLAY_INFORMATION(msg_id,zoom_location) end
+
+---@param msg_id integer The number of the message, 0 to 839. Text of every message is stored in TEXT.DAT. This parameter is a message index in the TEXT.DAT file.
+---@param x integer
+---@param y integer
+function DISPLAY_INFORMATION_WITH_POS(msg_id,x,y) end
 
 ---Sets time to be displayed on "bonus timer" - on-screen time field, used mostly for bonus levels.
 ---But now this command can be used to show bonus timer in any level, and may show clocktime instead of turns.
@@ -287,84 +432,118 @@ function SWAP_CREATURE() end
 ---This command sets the maximum experience level the creature can train to.
 ---You can use this to stop certain creatures from becoming too powerful.
 ---@param player playerrange players this should affect.
----@param creature creature_model  players this should affect.
+---@param creature_type creature_type  players this should affect.
 ---@param max_level integer the max level they should train to
-function SET_CREATURE_MAX_LEVEL(player,creature,max_level) end
+function SET_CREATURE_MAX_LEVEL(player,creature_type,max_level) end
 
 ---This command sets the strength of all the creatures of that type on the level.
 ---Each creature has a default strength which can be found in the creature.txt file, e.g. the BILE_DEMON has a strength level of 80.
----@param creature creature_model  creaturetype eg. BILE_DEMON
+---@param creature_type creature_type  creaturetype eg. BILE_DEMON
 ---@param strength integer The new strength of that creature. The strength must be between 0 and 255.
-function SET_CREATURE_STRENGTH(creature,strength) end
+function SET_CREATURE_STRENGTH(creature_type,strength) end
 
 ---This command sets the health of all the creatures of that type on the level.
 ---Each creature has a default full health level which can be found in the creature.txt file, e.g. the DRAGON has a full health level of 900.
----@param creature creature_model  creaturetype eg. BILE_DEMON
+---@param creature_type creature_type  creaturetype eg. BILE_DEMON
 ---@param health integer The new health level of that creature. The health level must be between 0 and 7895. 
-function SET_CREATURE_HEALTH(creature,health) end
+function SET_CREATURE_HEALTH(creature_type,health) end
 
 ---This command sets the armour of all the creatures of that type on the level.
 ---Each creature has a default armour level which can be found in the creature.txt file, e.g. the Dark Mistress has a armour level of 50.
----@param creature creature_model  creaturetype eg. BILE_DEMON
+---@param creature_type creature_type  creaturetype eg. BILE_DEMON
 ---@param armor integer The new armour level of that creature. The armour level must be between 0 and 255.
-function SET_CREATURE_ARMOUR(creature,armor) end
+function SET_CREATURE_ARMOUR(creature_type,armor) end
 
-function SET_CREATURE_FEAR_WOUNDED() end
-function SET_CREATURE_FEAR_STRONGER() end
-function SET_CREATURE_FEARSOME_FACTOR() end
-function SET_CREATURE_PROPERTY() end
+---@param creature_type creature_type
+---@param fear integer
+function SET_CREATURE_FEAR_WOUNDED(creature_type,fear) end
+
+---@param creature_type creature_type
+---@param fear integer
+function SET_CREATURE_FEAR_STRONGER(creature_type,fear) end
+
+---Modifies this value from the creature config for a creature type.
+---It determines how much more or less intimidating a unit is compared to what you would expect from looking at his Strength and Health values.
+---Creatures with lots of spells tend to have a value above 100.
+---Use this command when you've modified a unit type in the level script and need a fear response to match.
+---@param creature_type creature_type
+---@param fearsome_factor integer The new 'fearsome factor' for the creature type.
+function SET_CREATURE_FEARSOME_FACTOR(creature_type,fearsome_factor) end
+
+---comment
+---@param creature_type creature_type The creature name, e.g. BILE_DEMON.
+---@param property creature_propery The name of the creature property you want to set, e.g. NEVER_CHICKENS. See imp.cfg for options.
+---@param enable boolean Set this to true to enable the property, or false to disable to property.
+function SET_CREATURE_PROPERTY(creature_type,property,enable) end
 
 -------------------------------------
 --Manipulating individual Creatures--
 -------------------------------------
 
-function LEVEL_UP_CREATURE() end
-function TRANSFER_CREATURE() end
-function KILL_CREATURE() end
-function CHANGE_CREATURES_ANNOYANCE() end
-function CHANGE_CREATURE_OWNER() end
-----------------------
---Manipulating Flags-
-----------------------
+---gets a single creature based on the given criteria
+---@param player playerrange
+---@param creature_type creature_type
+---@param criterion creature_select_criteria
+---@return Creature
+function GET_CREATURE_BY_CRITERION(player,creature_type,criterion) return Creature end
 
-function RANDOMISE_FLAG() end
-function COMPUTE_FLAG() end
+---increases creatures level by a given amount
+---@param creature Creature
+---@param levels integer
+function LEVEL_UP_CREATURE(creature,levels) end
 
----Sets up a flag that is assigned a number.
----@param player playersingle
----@param flag flag_desc The flag’s name eg. FLAG0, CAMPAIGN_FLAG3 
----@param value integer The number assigned to the flag.
-function SET_FLAG(player,flag,value) end
-function ADD_TO_FLAG() end
-function EXPORT_VARIABLE() end
+---comment
+---@param creature Creature
+function TRANSFER_CREATURE(creature) end
+
+function KILL_CREATURE(creature) end
+function CHANGE_CREATURE_OWNER(creature,new_owner) end
+
+----------------------------------------
+--Manipulating all Creatures of a type--
+----------------------------------------
+
+---comment
+---@param player playerrange
+---@param creature creature_type
+---@param operation any
+---@param annoyance integer
+function CHANGE_CREATURES_ANNOYANCE(player,creature,operation,annoyance) end
 
 -----------------------------
---Tweaking computer players-
+--Tweaking computer players--
 -----------------------------
 
 ---This command is not fully documented yet. Sorry.
 function SET_COMPUTER_GLOBALS(player,a,a,a,a,a,a) end
 
----If no importand event is occuring, the computer player searches for things that need to be done using checks. Checks are similar to IF commands which allows computer player to undertake a process under some circumstances determined by values of variables.
+---If no importand event is occuring, the computer player searches for things that need to be done using checks.
+---Checks are similar to IF commands which allows computer player to undertake a process under some circumstances determined by values of variables.
 ---@param player playerrange The computer player’s name, e.g. PLAYER1. See players section for more information.
 ---@param checks_name string Text name of the check which is being altered. See player control parameters for more information.
 ---@param check_every integer Number of turns before repeating the test.
 ---@param data1 string ,data2,data3,data4 These parameters can have different meaning for different values of "checks name".
 function SET_COMPUTER_CHECKS(player,checks_name,check_every,data1,data2,data3,data4) end
 
----Event is a sudden situation that needs a process to be undertaken. Unlike checks, events are triggered by often complicated logic conditions. Both checks and events are used to test if a process should be started.player The computer player’s name, e.g. PLAYER1. See players section for more information.
+---Event is a sudden situation that needs a process to be undertaken. Unlike checks, events are triggered by often complicated logic conditions.
+---Both checks and events are used to test if a process should be started.player The computer player’s name, e.g. PLAYER1. See players section for more information.
 ---@param event_name string Text name of the event which is being altered. See player control parameters for more information.
 ---@param data1 string ,data2 These parameters can have different meaning for different values of "event name".
 function SET_COMPUTER_EVENT(player,event_name,data1,data2) end
 
----Changes conditions and parameters for one of the computer processes. A process is started if the computer player realizes that any action is needed. Some of the processes have more than one version, and specific one is selected by checking variables inside the processes.
+---Changes conditions and parameters for one of the computer processes.
+---A process is started if the computer player realizes that any action is needed. Some of the processes have more than one version, and specific one is selected by checking variables inside the processes.
 ---@param player playerrange The computer player’s name, e.g. PLAYER1. See players section for more information.
 ---@param process_name string Text name of the process which is being changed. See player control parameters for more information.
 ---@param priority integer Priority of the process. This parameter controls which process to choose if more than one process has met the conditions to be conducted.
 ---@param data1 string ,data2,data3,data4 These parameters can have different meaning for different values of "process name".
 function SET_COMPUTER_PROCESS(player,process_name,priority,data1,data2,data3,data4) end
 
-function COMPUTER_DIG_TO_LOCATION() end
+---Makes a computer player dig somewhere.
+---@param player playersingle The player’s name, e.g. PLAYER1.
+---@param origin location The origin location, e.g. PLAYER1 or 1 to go from an action point.
+---@param destination location The location to dig to, e.g. PLAYER0.
+function COMPUTER_DIG_TO_LOCATION(player,origin,destination) end
 
 
 ------------
@@ -400,9 +579,9 @@ function MOVE_CREATURE() end
 ---returns the amount of creatures at the ap
 ---@param action_point integer
 ---@param player playerrange
----@param creature creature_model 
+---@param creature_type creature_type 
 ---@return integer amount amount of creatures matching the conditions
-function COUNT_CREATURES_AT_ACTION_POINT(action_point,player,creature) return 0 end
+function COUNT_CREATURES_AT_ACTION_POINT(action_point,player,creature_type) return 0 end
 
 ---Changes the slabs belonging to a specific player to a custom texture
 ---@param player playerrange  The name of the player who's slabs are changed.
@@ -475,5 +654,6 @@ function GetThingByIdx() end
 ---comment
 ---@param player playersingle
 ---@param varname variable
+---@param alt? boolean If set to true, creature flags will be interpreted as in IF_CONTROLS and rooms/doors/traps as in IF_AVAILABLE. Set it to 0 and it takes the value as IF uses it.
 ---@return integer
-function VAR(player,varname) return 0 end
+function VAR(player,varname,alt) return 0 end
