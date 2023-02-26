@@ -11,6 +11,14 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+// Multi-threading
+#include "mingw.thread.h"
+#include "mingw.mutex.h"
+#include "mingw.condition_variable.h"
+#include "mingw.invoke.h"
+#include "mingw.future.h"
+#include "mingw.shared_mutex.h"
+
 #include "pre_inc.h"
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -3470,6 +3478,17 @@ void gameplay_loop_timestep()
     frametime_end_measurement(Frametime_Sleep);
 }
 
+void multithreaded_drawing_loop()
+{
+    // Runs parallel with main gameplay loop logic
+    while (true)
+    {
+        //JUSTLOG("AAA",0);
+        gameplay_loop_draw();
+        gameplay_loop_timestep();
+    }
+}
+
 void keeper_gameplay_loop(void)
 {
     struct PlayerInfo *player;
@@ -3489,13 +3508,17 @@ void keeper_gameplay_loop(void)
     KeeperSpeechClearEvents();
     LbErrorParachuteUpdate(); // For some reasone parachute keeps changing; Remove when won't be needed anymore
     initial_time_point();
-    //the main gameplay loop starts
+
+    // The drawing thread starts
+    std::thread t(multithreaded_drawing_loop);
+
+    // The main gameplay loop starts
     while ((!quit_game) && (!exit_keeper))
     {
         frametime_start_measurement(Frametime_FullFrame);
         gameplay_loop_logic();
-        gameplay_loop_draw();
-        gameplay_loop_timestep();
+        //gameplay_loop_draw();
+        //gameplay_loop_timestep();
         frametime_end_measurement(Frametime_FullFrame);
     } // end while
     SYNCDBG(0,"Gameplay loop finished after %lu turns",(unsigned long)game.play_gameturn);
