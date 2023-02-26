@@ -458,7 +458,7 @@ struct StateInfo states[CREATURE_STATES_COUNT] = {
   {creature_going_to_safety_for_toking, NULL, NULL, NULL,
     0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,  CrStTyp_Sleep, 0, 0, 1, 0, 54, 1, 0, 1},
   {creature_timebomb, cleanup_hold_audience, NULL, NULL,
-    1, 1, 1, 1, 1, 0, 1, 1, 0, 0, 0, 0, 1, 1,  CrStTyp_Idle, 0, 0, 1, 0,  0, 1, 0, 0},
+    1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1, 1,  CrStTyp_Idle, 1, 1, 1, 0, 0, 1, 0, 0},
 };
 
 /** GUI States of creatures - from "Creatures" Tab in UI.
