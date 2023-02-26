@@ -2656,8 +2656,8 @@ TbBool find_random_valid_position_for_thing_in_room(struct Thing *thing, struct 
     {
         MapSlabCoord slb_x = slb_num_decode_x(slbnum);
         MapSlabCoord slb_y = slb_num_decode_y(slbnum);
-        int ssub = CREATURE_RANDOM(thing, 9);
-        for (int snum = 0; snum < 9; snum++)
+        int ssub = CREATURE_RANDOM(thing, AROUND_TILES_COUNT);
+        for (int snum = 0; snum < AROUND_TILES_COUNT; snum++)
         {
             MapSubtlCoord stl_x = slab_subtile(slb_x, ssub % 3);
             MapSubtlCoord stl_y = slab_subtile(slb_y, ssub / 3);
@@ -2674,7 +2674,7 @@ TbBool find_random_valid_position_for_thing_in_room(struct Thing *thing, struct 
                     }
                 }
             }
-            ssub = (ssub + 1) % 9;
+            ssub = (ssub + 1) % AROUND_TILES_COUNT;
         }
         slbnum = get_next_slab_number_in_room(slbnum);
         if (slbnum == 0) {
