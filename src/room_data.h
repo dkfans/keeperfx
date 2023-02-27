@@ -20,6 +20,7 @@
 #define DK_ROOMDATA_H
 
 #include "bflib_basics.h"
+#include "config_creature.h"
 #include "globals.h"
 
 #ifdef __cplusplus
@@ -114,7 +115,7 @@ struct Room {
     struct {
       /** For rooms which store creatures, amount of each model.
        * Rooms which have such lists are lairs. */
-      unsigned char content_per_model[32];
+      unsigned char content_per_model[CREATURE_TYPES_MAX];
     };
     /* For hatchery; integrate with something else, if possible */
     struct {
