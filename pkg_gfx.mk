@@ -263,8 +263,8 @@ pkg/data/pointer64.dat: gfx/enginefx/pointer-64/filelist_pointer.txt pkg/data/pa
 pkg/data/pointer32.dat: gfx/enginefx/pointer-64/filelist_lpointer.txt pkg/data/palette.dat $(PNGTORAW)
 pkg/data/points64.dat:  gfx/enginefx/pointer-64/filelist_points.txt pkg/data/palette.dat $(PNGTORAW)
 pkg/data/points32.dat:  gfx/enginefx/pointer-64/filelist_lpoints.txt pkg/data/palette.dat $(PNGTORAW)
-pkg/data/font1-64.dat:  gfx/enginefx/font_simp-64/filelist_font1.txt pkg/data/palette.dat $(PNGTORAW)
-pkg/data/font1-32.dat:  gfx/enginefx/font_simp-32/filelist_font1.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/font1-64.dat:  gfx/menufx/font_simp-64/filelist_font1.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/font1-32.dat:  gfx/menufx/font_simp-32/filelist_font1.txt pkg/data/palette.dat $(PNGTORAW)
 
 pkg/data/font2-32.dat:  gfx/menufx/font2-32/filelist_font2.txt pkg/data/palette.dat $(PNGTORAW)
 pkg/data/font2-64.dat:  gfx/menufx/font2-64/filelist_font2.txt pkg/data/palette.dat $(PNGTORAW)
