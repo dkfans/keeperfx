@@ -263,8 +263,8 @@ pkg/data/pointer64.dat: gfx/enginefx/pointer-64/filelist_pointer.txt pkg/data/pa
 pkg/data/pointer32.dat: gfx/enginefx/pointer-64/filelist_lpointer.txt pkg/data/palette.dat $(PNGTORAW)
 pkg/data/points64.dat:  gfx/enginefx/pointer-64/filelist_points.txt pkg/data/palette.dat $(PNGTORAW)
 pkg/data/points32.dat:  gfx/enginefx/pointer-64/filelist_lpoints.txt pkg/data/palette.dat $(PNGTORAW)
-pkg/data/font1-64.dat:  gfx/menufx/font_simp-64/filelist_font1.txt pkg/data/palette.dat $(PNGTORAW)
-pkg/data/font1-32.dat:  gfx/menufx/font_simp-32/filelist_font1.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/font1-64.dat:  gfx/enginefx/font_simp-64/filelist_font1.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/font1-32.dat:  gfx/enginefx/font_simp-32/filelist_font1.txt pkg/data/palette.dat $(PNGTORAW)
 
 pkg/data/font2-32.dat:  gfx/menufx/font2-32/filelist_font2.txt pkg/data/palette.dat $(PNGTORAW)
 pkg/data/font2-64.dat:  gfx/menufx/font2-64/filelist_font2.txt pkg/data/palette.dat $(PNGTORAW)
@@ -319,13 +319,14 @@ gfx/LICENSE:
 # package release, if no targets were modified with the update.
 $(foreach campaign,$(sort $(CAMPAIGNS)), gfx/$(campaign)_lnd/%.png) \
 gfx/menufx/loading/%.png gfx/palettes/%.pal \
-gfx/menufx/font2-32/%.txt gfx/menufx/font2-64/%.txt gfx/menufx/font_simp-32/%.txt gfx/menufx/font_simp-64/%.txt gfx/menufx/font_net/%.txt \
+gfx/menufx/font2-32/%.txt gfx/menufx/font2-64/%.txt gfx/menufx/font_net/%.txt \
 gfx/menufx/font_front_std_dkr-64/%.txt gfx/menufx/font_front_std_red-64/%.txt gfx/menufx/font_front_std_ylw-64/%.txt \
 gfx/menufx/font_front_hdr_dkr-64/%.txt gfx/menufx/font_front_hdr_red-64/%.txt gfx/menufx/font_front_hdr_ylw-64/%.txt \
 gfx/menufx/frontend-64/%.txt gfx/enginefx/pointer-64/%.txt \
 gfx/menufx/gui1-32/%.txt gfx/menufx/gui1-64/%.txt gfx/menufx/gui1-128/%.txt gfx/menufx/gui1-256/%.txt \
 gfx/menufx/gui2-32/%.txt gfx/menufx/gui2-64/%.txt gfx/menufx/gui2-128/%.txt gfx/menufx/gui2-256/%.txt \
 gfx/landviewdattabs/landview_ensign/%.txt gfx/landviewdattabs/landview_hand/%.txt gfx/landviewdattabs/landview_pinpnt/%.txt \
+gfx/enginefx/font_simp-32/%.txt gfx/enginefx/font_simp-64/%.txt \
 gfx/enginefx/sprites-32/%.txt gfx/enginefx/sprites-64/%.txt gfx/enginefx/sprites-128/%.txt \
 gfx/enginefx/swipes-32/%.txt gfx/enginefx/swipes-64/%.txt gfx/enginefx/swipes-128/%.txt \
 gfx/enginefx/textures-32/%.png gfx/enginefx/textures-64/%.png gfx/enginefx/textures-128/%.png \
