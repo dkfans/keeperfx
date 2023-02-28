@@ -64,6 +64,7 @@ const struct NamedCommand objects_object_commands[] = {
   {"LIGHTISDYNAMIC",   17},
   {"MAPICON",          18},
   {"AMBIENCESOUND",    19},
+  {"UPDATEFUNCTION",   20},
   {NULL,                0},
   };
 
@@ -550,6 +551,19 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                         objdat->fp_smpl_idx = n;
                     }
                 }
+                break;
+            case 20: // UPDATEFUNCTION
+                if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+                {
+                    n = get_id(object_update_functions_desc, word_buf);
+                }
+                if (n < 0)
+                {
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                        COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                    break;
+                }
+                objdat->updatefn_idx = n;
                 break;
             case 0: // comment
                 break;

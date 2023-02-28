@@ -2668,22 +2668,22 @@ long update_cave_in(struct Thing *thing)
     if ((game.play_gameturn % 3) == 0)
     {
         int n;
-        n = UNSYNC_RANDOM(AROUND_TILES_COUNT);
-        pos.x.val = thing->mappos.x.val + UNSYNC_RANDOM(704) * around[n].delta_x;
-        pos.y.val = thing->mappos.y.val + UNSYNC_RANDOM(704) * around[n].delta_y;
+        n = GAME_RANDOM(AROUND_TILES_COUNT);
+        pos.x.val = thing->mappos.x.val + GAME_RANDOM(704) * around[n].delta_x;
+        pos.y.val = thing->mappos.y.val + GAME_RANDOM(704) * around[n].delta_y;
         if (subtile_has_slab(coord_subtile(pos.x.val),coord_subtile(pos.y.val)))
         {
             pos.z.val = get_ceiling_height(&pos) - 128;
             efftng = create_effect_element(&pos, TngEff_Flash, owner);
             if (!thing_is_invalid(efftng)) {
-                efftng->health = pwrdynst->time;
+                efftng->health = pwrdynst->duration;
             }
         }
     }
 
     GameTurnDelta turns_between;
     GameTurnDelta turns_alive;
-    turns_between = pwrdynst->time / 5;
+    turns_between = pwrdynst->duration / 5;
     turns_alive = game.play_gameturn - thing->creation_turn;
     if ((turns_alive != 0) && ((turns_between < 1) || (3 * turns_between / 4 == turns_alive % turns_between)))
     {
@@ -2710,9 +2710,9 @@ long update_cave_in(struct Thing *thing)
         do_to_things_with_param_around_map_block(&pos, do_cb, &param);
     }
 
-    if ((8 * pwrdynst->time / 10 >= thing->health) && (2 * pwrdynst->time / 10 <= thing->health))
+    if ((8 * pwrdynst->duration / 10 >= thing->health) && (2 * pwrdynst->duration / 10 <= thing->health))
     {
-        if ((pwrdynst->time < 10) || ((thing->health % (pwrdynst->time / 10)) == 0))
+        if ((pwrdynst->duration < 10) || ((thing->health % (pwrdynst->duration / 10)) == 0))
         {
             int round_idx;
             round_idx = CREATURE_RANDOM(thing, AROUND_TILES_COUNT);

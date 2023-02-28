@@ -359,6 +359,7 @@ short creature_choose_room_for_lair_site(struct Thing *thing)
 short at_lair_to_sleep(struct Thing *thing)
 {
     TRACE_THING(thing);
+    reset_interpolation_of_thing(thing); // Fixes rendering bug 'Creatures behind their lair in straight view'
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct Thing* lairtng = thing_get(cctrl->lairtng_idx);
     TRACE_THING(lairtng);

@@ -357,9 +357,9 @@ static void process_condition(struct Condition *condt, int idx)
                         WARNLOG("Invalid player range %d in CONDITION command %d.", (int)condt->plyr_range, (int)condt->variabl_type);
                         return;
                     }
-                    for (i = plr_start; i < plr_end; i++)
+                    for (long j = plr_start_right; j < plr_end_right; j++)
                     {
-                        right_value = get_condition_value(i, condt->variabl_type_right, condt->variabl_idx_right);
+                        right_value = get_condition_value(j, condt->variabl_type_right, condt->variabl_idx_right);
                         new_status = get_condition_status(condt->operation, left_value, right_value);
                         if (new_status != false)
                         {

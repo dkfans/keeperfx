@@ -50,17 +50,6 @@ extern "C" {
 #endif
 /******************************************************************************/
 
-//health; sprite_anim_idx; sprite_size_max; unanimated; anim_speed; unshaded; transparency_flag; random_start_frame; size_xy; size_yz; trigger_type; activation_type; created_itm_model;  hit_type; etc
-struct TrapStats old_trap_stats[7] = {
-{0,           0,   0, 0,   0,        0, 0, 0,          0,      0,          0, 0,  0, 0, 0, 0, 0, {0, 0, 0} },
-{128,       861, 384, 1,   0,        0, 0, 1,        640,    512,          1, 1, 15, 9, 0, 0, 0, {0, 0, 0} }, //Boulder
-{1,         844, 256, 0, 256,        0, 0, 1,          0,      0,          2, 3, 19, 2, 0, 0, 0, {0, 0, 0} }, //Alarm
-{1,         845, 256, 0, 256,        0, 0, 1,          0,      0,          2, 2, 13, 4, 0, 0, 0, {0, 0, 0} }, //Gas
-{1,         846, 256, 0, 256,        0, 0, 1,          0,      0,          2, 3, 29, 4, 0, 0, 0, {0, 0, 0} }, //Lightning
-{1,         844, 256, 0, 256,        0, 0, 1,          0,      0,          2, 2, 14, 4, 0, 0, 0, {0, 0, 0} }, //WoP
-{1,         845, 256, 0, 256,        0, 0, 1,          0,      0,          2, 4, 12, 4, 0, 0, 0, {0, 0, 0} }, //Lava
-};
-
 TbBool destroy_trap(struct Thing *traptng)
 {
     if ((traptng->trap.num_shots == 0) && !is_neutral_thing(traptng) && !is_hero_thing(traptng)) {
@@ -124,6 +113,12 @@ struct Thing *get_trap_for_slab_position(MapSlabCoord slb_x, MapSlabCoord slb_y)
     return get_trap_around_of_model_and_owned_by(pos_x, pos_y, -1, -1);
 }
 
+TbBool slab_has_sellable_trap_on(MapSlabCoord slb_x, MapSlabCoord slb_y)
+{
+    struct Thing* traptng = get_trap_for_slab_position(slb_x, slb_y);
+    return !thing_is_sellable_trap(traptng);
+}
+
 TbBool slab_has_trap_on(MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
     struct Thing* traptng = get_trap_for_slab_position(slb_x, slb_y);
@@ -162,7 +157,27 @@ TbBool slab_middle_column_has_trap_on(MapSlabCoord slb_x, MapSlabCoord slb_y)
     return false;
 }
 
-TbBool thing_is_deployed_trap(const struct Thing *thing)
+short thing_is_destructible_trap(const struct Thing *thing)
+{
+    if (thing_is_invalid(thing))
+        return -2;
+    if (thing->class_id != TCls_Trap)
+        return -2;
+    struct TrapConfigStats* trapst = &gameadd.trapdoor_conf.trap_cfgstats[thing->model];
+    return trapst->destructible;
+}
+
+TbBool thing_is_sellable_trap(const struct Thing* thing)
+{
+    if (thing_is_invalid(thing))
+        return false;
+    if (thing->class_id != TCls_Trap)
+        return false;
+    struct TrapConfigStats* trapst = &gameadd.trapdoor_conf.trap_cfgstats[thing->model];
+    return (trapst->unsellable == 0);
+}
+
+TbBool thing_is_deployed_trap(const struct Thing* thing)
 {
     if (thing_is_invalid(thing))
         return false;
@@ -535,7 +550,7 @@ void activate_trap(struct Thing *traptng, struct Thing *creatng)
         activate_trap_slab_change(traptng, creatng);
         break;
     case TrpAcT_CreatureShot:
-        creature_fire_shot(traptng, creatng, trapstat->created_itm_model, THit_CrtrsNObjcts, 1);
+        creature_fire_shot(traptng, creatng, trapstat->created_itm_model, 1, THit_CrtrsNObjcts);
         break;
     case TrpAcT_CreatureSpawn:
         activate_trap_spawn_creature(traptng, trapstat);

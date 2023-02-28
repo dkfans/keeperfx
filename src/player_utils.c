@@ -124,7 +124,7 @@ void set_player_as_won_level(struct PlayerInfo *player)
   dungeon->lvstats.player_score = compute_player_final_score(player, dungeon->max_gameplay_score);
   dungeon->lvstats.allow_save_score = 1;
   if ((game.system_flags & GSF_NetworkActive) == 0)
-    player->field_4EB = game.play_gameturn + 300;
+    player->display_objective_turn = game.play_gameturn + 300;
   if (my_player)
   {
     if (lord_of_the_land_in_prison_or_tortured())
@@ -179,7 +179,7 @@ void set_player_as_lost_level(struct PlayerInfo *player)
     set_player_mode(player, PVT_DungeonTop);
     set_player_state(player, PSt_CtrlDungeon, 0);
     if ((game.system_flags & GSF_NetworkActive) == 0)
-        player->field_4EB = game.play_gameturn + 300;
+        player->display_objective_turn = game.play_gameturn + 300;
     if ((game.system_flags & GSF_NetworkActive) != 0)
         reveal_whole_map(player);
     if ((dungeon->computer_enabled & 0x01) != 0)
@@ -1076,7 +1076,7 @@ TbBool player_sell_trap_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     if (player->full_slab_cursor == false)
     {
         thing = get_trap_for_position(stl_x, stl_y);
-        if (thing_is_invalid(thing))
+        if (!thing_is_sellable_trap(thing))
         {
             return false;
         }
@@ -1086,7 +1086,7 @@ TbBool player_sell_trap_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     else
     {
         thing = get_trap_for_slab_position(subtile_slab_fast(stl_x), subtile_slab_fast(stl_y));
-        if (thing_is_invalid(thing))
+        if (!thing_is_sellable_trap(thing))
         {
             return false;
         }

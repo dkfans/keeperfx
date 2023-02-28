@@ -128,11 +128,11 @@ GUIDATTABS = $(LANDVIEWDATTABS) $(TOTRUREDATTABS) $(ENGINEDATTABS)
 
 pkg-gfx: pkg-landviews pkg-menugfx pkg-enginegfx
 
-pkg-landviews: pkg-before $(LANDVIEWRAWS) $(LANDVIEWDATTABS)
+pkg-landviews: $(LANDVIEWRAWS) $(LANDVIEWDATTABS)
 
-pkg-menugfx: pkg-before $(TOTRUREGFX) $(FRONTENDGFX)
+pkg-menugfx: $(TOTRUREGFX) $(FRONTENDGFX)
 
-pkg-enginegfx: pkg-before $(ENGINEGFX)
+pkg-enginegfx: $(ENGINEGFX)
 
 # Creation of land view image files for campaigns
 define define_campaign_landview_rule
@@ -309,6 +309,11 @@ pkg/creatrs/%.jty pkg/data/%.jty:
 	-$(ECHO) 'Finished building: $@'
 	-$(ECHO) ' '
 
+gfx/%:: | gfx/LICENSE ;
+
+gfx/LICENSE:
+	git clone --depth=1 https://github.com/dkfans/FXGraphics.git gfx
+
 # The package is extracted only if targets does not exits; the "|" causes file dates to be ignored
 # Note that ignoring timestamp means it is possible to have outadated files after a new
 # package release, if no targets were modified with the update.
@@ -325,7 +330,6 @@ gfx/enginefx/sprites-32/%.txt gfx/enginefx/sprites-64/%.txt gfx/enginefx/sprites
 gfx/enginefx/swipes-32/%.txt gfx/enginefx/swipes-64/%.txt gfx/enginefx/swipes-128/%.txt \
 gfx/enginefx/textures-32/%.png gfx/enginefx/textures-64/%.png gfx/enginefx/textures-128/%.png \
 gfx/enginefx/textures-32/%.txt gfx/enginefx/textures-64/%.txt gfx/enginefx/textures-128/%.txt \
-gfx/menufx/torturescr/%.png gfx/menufx/torturescr/%.txt gfx/landviewdattabs/guimap/%.txt gfx/enginefx/parchmentbug/%.txt gfx/creatrportrait/%.txt:
-	git clone --depth=1 https://github.com/dkfans/FXGraphics.git gfx
+gfx/menufx/torturescr/%.png gfx/menufx/torturescr/%.txt gfx/landviewdattabs/guimap/%.txt gfx/enginefx/parchmentbug/%.txt gfx/creatrportrait/%.txt: gfx
 
 #******************************************************************************

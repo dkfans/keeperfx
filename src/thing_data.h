@@ -84,10 +84,10 @@ enum ThingMovementFlags {
     TMvF_IsOnWater          = 0x01,
     TMvF_IsOnLava           = 0x02,
     TMvF_BeingSacrificed    = 0x04,
-    TMvF_Unknown08          = 0x08,
+    TMvF_Unknown08          = 0x08, // thing->veloc_base.z.val = 0
     TMvF_Unknown10          = 0x10, //Stopped by walls?
     TMvF_Flying             = 0x20,
-    TMvF_Unknown40          = 0x40,
+    TMvF_Immobile           = 0x40,
     TMvF_IsOnSnow           = 0x80,
 };
 
@@ -322,6 +322,7 @@ TbBool thing_exists(const struct Thing *thing);
 short thing_is_invalid(const struct Thing *thing);
 long thing_get_index(const struct Thing *thing);
 
+TbBool thing_is_in_limbo(const struct Thing* thing);
 TbBool thing_is_dragged_or_pulled(const struct Thing *thing);
 struct PlayerInfo *get_player_thing_is_controlled_by(const struct Thing *thing);
 

@@ -95,7 +95,7 @@ struct AroundLByte const room_spark_offset[] = {
   {-256,  256},
 };
 
-unsigned char const slabs_to_centre_peices[] = {
+unsigned char const slabs_to_centre_pieces[] = {
   0,  0,  0,  0,  0,  0,  0,  0,  0,
   1,  1,  1,  2,  2,  2,  3,  4,  4,
   4,  5,  6,  6,  6,  7,  8,  9,  9,
@@ -2311,9 +2311,9 @@ long calculate_room_widespread_factor(const struct Room *room)
 {
     long nslabs = room->slabs_count;
     long i = nslabs;
-    if (i >= sizeof(slabs_to_centre_peices)/sizeof(slabs_to_centre_peices[0]))
-        i = sizeof(slabs_to_centre_peices)/sizeof(slabs_to_centre_peices[0]) - 1;
-    long npieces = slabs_to_centre_peices[i];
+    if (i >= sizeof(slabs_to_centre_pieces)/sizeof(slabs_to_centre_pieces[0]))
+        i = sizeof(slabs_to_centre_pieces)/sizeof(slabs_to_centre_pieces[0]) - 1;
+    long npieces = slabs_to_centre_pieces[i];
     return 2 * (npieces + 4 * nslabs);
 }
 
@@ -2656,8 +2656,8 @@ TbBool find_random_valid_position_for_thing_in_room(struct Thing *thing, struct 
     {
         MapSlabCoord slb_x = slb_num_decode_x(slbnum);
         MapSlabCoord slb_y = slb_num_decode_y(slbnum);
-        int ssub = CREATURE_RANDOM(thing, 9);
-        for (int snum = 0; snum < 9; snum++)
+        int ssub = CREATURE_RANDOM(thing, AROUND_TILES_COUNT);
+        for (int snum = 0; snum < AROUND_TILES_COUNT; snum++)
         {
             MapSubtlCoord stl_x = slab_subtile(slb_x, ssub % 3);
             MapSubtlCoord stl_y = slab_subtile(slb_y, ssub / 3);
@@ -2674,7 +2674,7 @@ TbBool find_random_valid_position_for_thing_in_room(struct Thing *thing, struct 
                     }
                 }
             }
-            ssub = (ssub + 1) % 9;
+            ssub = (ssub + 1) % AROUND_TILES_COUNT;
         }
         slbnum = get_next_slab_number_in_room(slbnum);
         if (slbnum == 0) {
@@ -4901,13 +4901,12 @@ static void change_room_map_element_ownership(struct Room *room, PlayerNumber pl
     unsigned long i = room->slabs_list;
     while (i > 0)
     {
-        struct SlabMap* slb = get_slabmap_direct(i);
         MapSlabCoord slb_x = slb_num_decode_x(i);
         MapSlabCoord slb_y = slb_num_decode_y(i);
         i = get_next_slab_number_in_room(i);
         // Per-slab code
         set_slab_explored(plyr_idx, slb_x, slb_y);
-        slabmap_set_owner(slb, plyr_idx);
+        set_slab_owner(slb_x,slb_y, plyr_idx);
         MapSubtlCoord start_stl_x = slab_subtile(slb_x, 0);
         MapSubtlCoord start_stl_y = slab_subtile(slb_y, 0);
         MapSubtlCoord end_stl_x = slab_subtile(slb_x + 1, 0);

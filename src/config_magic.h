@@ -130,6 +130,7 @@ enum ShotModelFlags {
     ShMF_StrengthBased  = 0x0200,
     ShMF_AlarmsUnits    = 0x0400,
     ShMF_CanCollide     = 0x0800,
+    ShMF_Disarming      = 0x1000,
 };
 
 enum PowerCanCastFlags {
@@ -245,7 +246,6 @@ struct ShotConfigStats {
     short damage;
     short speed;
     DamageType damage_type;
-    struct ShotStats *old;
     struct ShotHitConfig hit_generic;
     struct ShotHitConfig hit_door;
     struct ShotHitConfig hit_water;
@@ -254,6 +254,7 @@ struct ShotConfigStats {
     struct ShotHitConfig dig;
     short firing_sound;
     short shot_sound;
+    short sound_priority;
     unsigned char firing_sound_variants;
     short max_range;
     unsigned short sprite_anim_idx;
@@ -264,11 +265,21 @@ struct ShotConfigStats {
     unsigned char cast_spell_kind;
     unsigned char push_on_hit;
     unsigned char hidden_projectile;
+    unsigned char destroy_on_first_hit;
+    short experience_given_to_shooter;
+    unsigned char inertia_floor;
+    unsigned char inertia_air;
     short bounce_angle;
     short wind_immune;
     short no_air_damage;
+    unsigned char target_hitstop_turns;
     short animation_transparency;
     short fixed_damage;
+    short light_radius;
+    unsigned char light_intensity;
+    unsigned char lightf_53;
+    unsigned char unshaded;
+    unsigned char soft_landing;
 };
 
 typedef unsigned char (*Expand_Check_Func)(void);
@@ -294,6 +305,7 @@ struct PowerConfigStats {
     short pointer_sprite_idx;
     long panel_tab_idx;
     unsigned short select_sound_idx;
+    short cast_cooldown;
 };
 
 /**
@@ -324,24 +336,9 @@ struct SpellConfig { // sizeof=4
   int duration;
 };
 
-struct ShotStats
-{
-  unsigned char field_6; //something with rendering flags
-  unsigned char inertia_floor;
-  unsigned char inertia_air;
-  unsigned char field_13; // something with movement flags
-  unsigned char destroy_on_first_hit;
-  short field_20;//sound related
-  unsigned char target_frozen_on_hit;
-  short experience_given_to_shooter;
-  short light_radius;
-  unsigned char light_intensity;
-  unsigned char lightf_53;
-};
-
 struct MagicStats {  // sizeof=0x4C
   long cost[MAGIC_OVERCHARGE_LEVELS];
-  long time;
+  long duration;
   long strength[MAGIC_OVERCHARGE_LEVELS];
 };
 
