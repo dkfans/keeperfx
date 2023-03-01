@@ -258,6 +258,10 @@ TbBool creature_is_actually_scared(const struct Thing *creatng, const struct Thi
     // Neutral creatures are not easily scared, as they shouldn't have enemies
     if (is_neutral_thing(creatng))
         return false;
+    if (creature_affected_by_spell(enmtng, SplK_TimeBomb))
+    {
+        return true;
+    }
     // Creature with fear 101 are scared of everything other that their own model
     if (crstat->fear_wounded >= 101)
     {
