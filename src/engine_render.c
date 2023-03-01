@@ -4099,7 +4099,8 @@ static void create_shadows(struct Thing *thing, struct EngineCoord *ecor, struct
 static void add_draw_status_box(struct Thing *thing, struct EngineCoord *ecor)
 {
     struct EngineCoord coord = *ecor;
-    coord.y += (uint16_t)thing->clipbox_size_yz + shield_offset[thing->model];
+    const struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    coord.y += thing->clipbox_size_yz + crstat->shield_offset; 
     rotpers(&coord, &camera_matrix);
     if (getpoly >= poly_pool_end)
         return;
