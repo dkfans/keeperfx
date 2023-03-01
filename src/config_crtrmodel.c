@@ -83,7 +83,6 @@ const struct NamedCommand creatmodel_attributes_commands[] = {
   {"CORPSEVANISHEFFECT", 32},
   {"FOOTSTEPPITCH",      33},
   {"LAIROBJECT",         34},
-  {"SHIELDOFFSET",       35},
   {NULL,                  0},
   };
 
@@ -172,6 +171,7 @@ const struct NamedCommand creatmodel_appearance_commands[] = {
   {"CORPSEVANISHEFFECT",   6},
   {"FOOTSTEPPITCH",        7},
   {"PICKUPOFFSET",         8},
+  {"STATUSOFFSET",         9},
   {NULL,                   0},
   };
 
@@ -273,7 +273,6 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
       crstat->can_go_locked_doors = false;
       crconf->namestr_idx = 0;
       crconf->model_flags = 0;
-      crstat->shield_offset = 128;
   }
   // Find the block
   char block_buf[COMMAND_WORD_LEN];
@@ -808,21 +807,6 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
               if (k > 0)
               {
                   crstat->lair_object = k;
-                  n++;
-              }
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
-          }
-          break;
-      case 35: // SHIELDOFFSET
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              if (k > 0)
-              {
-                  crstat->shield_offset = k;
                   n++;
               }
           }
@@ -1533,6 +1517,7 @@ TbBool parse_creaturemodel_appearance_blocks(long crtr_model,char *buf,long len,
         creatures[crtr_model].shot_shift_z = 0;
         crstat->footstep_pitch = 100;
         crstat->corpse_vanish_effect = 0;
+        crstat->status_offset = 32;
     }
     // Find the block
     char block_buf[COMMAND_WORD_LEN];
@@ -1683,6 +1668,21 @@ TbBool parse_creaturemodel_appearance_blocks(long crtr_model,char *buf,long len,
             if (n < 4)
             {
                 CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), block_buf, config_textname);
+            }
+            break;
+        case 9: // STATUSOFFSET
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                if (k > 0)
+                {
+                    crstat->status_offset = k;
+                    n++;
+                }
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
                     COMMAND_TEXT(cmd_num), block_buf, config_textname);
             }
             break;
