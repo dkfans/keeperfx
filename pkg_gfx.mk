@@ -136,21 +136,21 @@ pkg-enginegfx: $(ENGINEGFX)
 
 # Creation of land view image files for campaigns
 define define_campaign_landview_rule
-pkg/campgns/$(1)_lnd/rgmap%.pal: gfx/$(1)_lnd/rgmap%.png gfx/$(1)_lnd/viframe.png tools/png2bestpal/res/color_tbl_landview.txt $$(PNGTOBSPAL)
+pkg/campgns/$(1)_lnd/rgmap%.pal: gfx/landviews/$(1)_lnd/rgmap%.png gfx/landviews/$(1)_lnd/viframe.png tools/png2bestpal/res/color_tbl_landview.txt $$(PNGTOBSPAL)
 	-$$(ECHO) 'Building land view palette: $$@'
 	@$$(MKDIR) $$(@D)
 	$$(PNGTOBSPAL) -o "$$@" -m "$$(word 3,$$^)" "$$(word 1,$$^)" "$$(word 2,$$^)"
 	-$$(ECHO) 'Finished building: $$@'
 	-$$(ECHO) ' '
 
-pkg/campgns/$(1)_lnd/rgmap%.raw: gfx/$(1)_lnd/rgmap%.png pkg/campgns/$(1)_lnd/rgmap%.pal $$(PNGTORAW) $$(RNC)
+pkg/campgns/$(1)_lnd/rgmap%.raw: gfx/landviews/$(1)_lnd/rgmap%.png pkg/campgns/$(1)_lnd/rgmap%.pal $$(PNGTORAW) $$(RNC)
 	-$$(ECHO) 'Building land view image: $$@'
 	$$(PNGTORAW) -o "$$@" -p "$$(word 2,$$^)" -f raw -l 100 "$$<"
 	-$$(RNC) "$$@"
 	-$$(ECHO) 'Finished building: $$@'
 	-$$(ECHO) ' '
 
-pkg/campgns/$(1)_lnd/viframe%.dat: gfx/$(1)_lnd/viframe.png pkg/campgns/$(1)_lnd/rgmap%.pal $$(PNGTORAW) $$(RNC)
+pkg/campgns/$(1)_lnd/viframe%.dat: gfx/landviews/$(1)_lnd/viframe.png pkg/campgns/$(1)_lnd/rgmap%.pal $$(PNGTORAW) $$(RNC)
 	-$$(ECHO) 'Building land view frame: $$@'
 	$$(PNGTORAW) -o "$$@" -p "$$(word 2,$$^)" -f hspr -l 50 "$$<"
 	-$$(RNC) "$$@"
@@ -163,14 +163,14 @@ endef
 
 $(foreach campaign,$(sort $(CAMPAIGNS)),$(eval $(call define_campaign_landview_rule,$(campaign))))
 
-pkg/ldata/torture.pal: gfx/torturescr/tortr_background.png gfx/torturescr/tortr_doora_open11.png gfx/torturescr/tortr_doorb_open11.png gfx/torturescr/tortr_doorc_open11.png gfx/torturescr/tortr_doord_open11.png gfx/torturescr/tortr_doore_open11.png gfx/torturescr/tortr_doorf_open11.png gfx/torturescr/tortr_doorg_open11.png gfx/torturescr/tortr_doorh_open11.png gfx/torturescr/tortr_doori_open11.png gfx/torturescr/cursor_horny.png tools/png2bestpal/res/color_tbl_basic.txt $(PNGTOBSPAL)
-pkg/data/legal32.pal: gfx/loading/legal-32.png tools/png2bestpal/res/color_tbl_basic.txt $(PNGTOBSPAL)
-pkg/data/legal64.pal: gfx/loading/legal-64.png tools/png2bestpal/res/color_tbl_basic.txt $(PNGTOBSPAL)
-pkg/data/startfx32.pal: gfx/loading/startupfx-32.png tools/png2bestpal/res/color_tbl_basic.txt $(PNGTOBSPAL)
-pkg/data/startfx64.pal: gfx/loading/startupfx-64.png tools/png2bestpal/res/color_tbl_basic.txt $(PNGTOBSPAL)
-pkg/data/loading32.pal: gfx/loading/loading-32.png tools/png2bestpal/res/color_tbl_basic.txt $(PNGTOBSPAL)
-pkg/data/loading64.pal: gfx/loading/loading-64.png tools/png2bestpal/res/color_tbl_basic.txt $(PNGTOBSPAL)
-pkg/data/nocd.pal: gfx/loading/nocd-32.png tools/png2bestpal/res/color_tbl_basic.txt $(PNGTOBSPAL)
+pkg/ldata/torture.pal:  gfx/menufx/torturescr/tortr_background.png gfx/menufx/torturescr/tortr_doora_open11.png gfx/menufx/torturescr/tortr_doorb_open11.png gfx/menufx/torturescr/tortr_doorc_open11.png gfx/menufx/torturescr/tortr_doord_open11.png gfx/menufx/torturescr/tortr_doore_open11.png gfx/menufx/torturescr/tortr_doorf_open11.png gfx/menufx/torturescr/tortr_doorg_open11.png gfx/menufx/torturescr/tortr_doorh_open11.png gfx/menufx/torturescr/tortr_doori_open11.png gfx/menufx/torturescr/cursor_horny.png tools/png2bestpal/res/color_tbl_basic.txt $(PNGTOBSPAL)
+pkg/data/legal32.pal:   gfx/menufx/loading/legal-32.png tools/png2bestpal/res/color_tbl_basic.txt $(PNGTOBSPAL)
+pkg/data/legal64.pal:   gfx/menufx/loading/legal-64.png tools/png2bestpal/res/color_tbl_basic.txt $(PNGTOBSPAL)
+pkg/data/startfx32.pal: gfx/menufx/loading/startupfx-32.png tools/png2bestpal/res/color_tbl_basic.txt $(PNGTOBSPAL)
+pkg/data/startfx64.pal: gfx/menufx/loading/startupfx-64.png tools/png2bestpal/res/color_tbl_basic.txt $(PNGTOBSPAL)
+pkg/data/loading32.pal: gfx/menufx/loading/loading-32.png tools/png2bestpal/res/color_tbl_basic.txt $(PNGTOBSPAL)
+pkg/data/loading64.pal: gfx/menufx/loading/loading-64.png tools/png2bestpal/res/color_tbl_basic.txt $(PNGTOBSPAL)
+pkg/data/nocd.pal:      gfx/menufx/loading/nocd-32.png tools/png2bestpal/res/color_tbl_basic.txt $(PNGTOBSPAL)
 
 pkg/ldata/torture.pal pkg/data/legal32.pal pkg/data/legal64.pal pkg/data/startfx32.pal pkg/data/startfx64.pal pkg/data/loading32.pal pkg/data/loading64.pal pkg/data/nocd.pal:
 	-$(ECHO) 'Building palette: $@'
@@ -193,86 +193,89 @@ pkg/ldata/front.pal pkg/data/palette.dat:
 # mark palette files precious to make sure they're not auto-removed after dependencies are built
 .PRECIOUS: pkg/ldata/torture.pal pkg/ldata/front.pal pkg/data/palette.dat
 
-pkg/ldata/lndflag_ens.dat: gfx/landview_ensign/filelist_lndflag.txt pkg/campgns/keeporig_lnd/rgmap00.pal $(PNGTORAW)
-pkg/ldata/netflag_ens.dat: gfx/landview_ensign/filelist_netflag.txt pkg/campgns/keeporig_lnd/rgmap00.pal $(PNGTORAW)
-pkg/ldata/lndflag_pin.dat: gfx/landview_pinpnt/filelist_lndflag.txt pkg/campgns/keeporig_lnd/rgmap00.pal $(PNGTORAW)
-pkg/ldata/netflag_pin.dat: gfx/landview_pinpnt/filelist_netflag.txt pkg/campgns/keeporig_lnd/rgmap00.pal $(PNGTORAW)
-pkg/ldata/maphand.dat: gfx/landview_hand/filelist_maphand.txt pkg/campgns/keeporig_lnd/rgmap00.pal $(PNGTORAW)
-pkg/ldata/netfont.dat: gfx/font_net/filelist_netfont.txt pkg/campgns/keeporig_lnd/rgmap00.pal $(PNGTORAW)
+pkg/ldata/lndflag_ens.dat: gfx/landviewdattabs/landview_ensign/filelist_lndflag.txt pkg/campgns/keeporig_lnd/rgmap00.pal $(PNGTORAW)
+pkg/ldata/netflag_ens.dat: gfx/landviewdattabs/landview_ensign/filelist_netflag.txt pkg/campgns/keeporig_lnd/rgmap00.pal $(PNGTORAW)
+pkg/ldata/lndflag_pin.dat: gfx/landviewdattabs/landview_pinpnt/filelist_lndflag.txt pkg/campgns/keeporig_lnd/rgmap00.pal $(PNGTORAW)
+pkg/ldata/netflag_pin.dat: gfx/landviewdattabs/landview_pinpnt/filelist_netflag.txt pkg/campgns/keeporig_lnd/rgmap00.pal $(PNGTORAW)
+pkg/ldata/maphand.dat:     gfx/landviewdattabs/landview_hand/filelist_maphand.txt pkg/campgns/keeporig_lnd/rgmap00.pal $(PNGTORAW)
+pkg/ldata/netfont.dat:     gfx/landviewdattabs/font_net/filelist_netfont.txt pkg/campgns/keeporig_lnd/rgmap00.pal $(PNGTORAW)
 
-pkg/ldata/fronttor.dat: gfx/torturescr/filelist_fronttor.txt pkg/ldata/torture.pal $(PNGTORAW)
-pkg/ldata/door01.dat: gfx/torturescr/filelist_tortr_doora.txt pkg/ldata/torture.pal $(PNGTORAW)
-pkg/ldata/door02.dat: gfx/torturescr/filelist_tortr_doorb.txt pkg/ldata/torture.pal $(PNGTORAW)
-pkg/ldata/door03.dat: gfx/torturescr/filelist_tortr_doorc.txt pkg/ldata/torture.pal $(PNGTORAW)
-pkg/ldata/door04.dat: gfx/torturescr/filelist_tortr_doord.txt pkg/ldata/torture.pal $(PNGTORAW)
-pkg/ldata/door05.dat: gfx/torturescr/filelist_tortr_doore.txt pkg/ldata/torture.pal $(PNGTORAW)
-pkg/ldata/door06.dat: gfx/torturescr/filelist_tortr_doorf.txt pkg/ldata/torture.pal $(PNGTORAW)
-pkg/ldata/door07.dat: gfx/torturescr/filelist_tortr_doorg.txt pkg/ldata/torture.pal $(PNGTORAW)
-pkg/ldata/door08.dat: gfx/torturescr/filelist_tortr_doorh.txt pkg/ldata/torture.pal $(PNGTORAW)
-pkg/ldata/door09.dat: gfx/torturescr/filelist_tortr_doori.txt pkg/ldata/torture.pal $(PNGTORAW)
-pkg/ldata/torture.raw: gfx/torturescr/tortr_background.png pkg/ldata/torture.pal $(PNGTORAW)
+pkg/ldata/fronttor.dat: gfx/menufx/torturescr/filelist_fronttor.txt pkg/ldata/torture.pal $(PNGTORAW)
+pkg/ldata/door01.dat:   gfx/menufx/torturescr/filelist_tortr_doora.txt pkg/ldata/torture.pal $(PNGTORAW)
+pkg/ldata/door02.dat:   gfx/menufx/torturescr/filelist_tortr_doorb.txt pkg/ldata/torture.pal $(PNGTORAW)
+pkg/ldata/door03.dat:   gfx/menufx/torturescr/filelist_tortr_doorc.txt pkg/ldata/torture.pal $(PNGTORAW)
+pkg/ldata/door04.dat:   gfx/menufx/torturescr/filelist_tortr_doord.txt pkg/ldata/torture.pal $(PNGTORAW)
+pkg/ldata/door05.dat:   gfx/menufx/torturescr/filelist_tortr_doore.txt pkg/ldata/torture.pal $(PNGTORAW)
+pkg/ldata/door06.dat:   gfx/menufx/torturescr/filelist_tortr_doorf.txt pkg/ldata/torture.pal $(PNGTORAW)
+pkg/ldata/door07.dat:   gfx/menufx/torturescr/filelist_tortr_doorg.txt pkg/ldata/torture.pal $(PNGTORAW)
+pkg/ldata/door08.dat:   gfx/menufx/torturescr/filelist_tortr_doorh.txt pkg/ldata/torture.pal $(PNGTORAW)
+pkg/ldata/door09.dat:   gfx/menufx/torturescr/filelist_tortr_doori.txt pkg/ldata/torture.pal $(PNGTORAW)
+pkg/ldata/torture.raw:  gfx/menufx/torturescr/tortr_background.png pkg/ldata/torture.pal $(PNGTORAW)
 
-pkg/ldata/front.raw: gfx/frontend-64/front_background-64.png pkg/ldata/front.pal $(PNGTORAW)
-pkg/ldata/frontbit.dat: gfx/frontend-64/filelist_frontbit.txt pkg/ldata/front.pal $(PNGTORAW)
-pkg/ldata/frontft1.dat: gfx/font_front_hdr_red-64/filelist_frontft1.txt pkg/ldata/front.pal $(PNGTORAW)
-pkg/ldata/frontft2.dat: gfx/font_front_std_red-64/filelist_frontft2.txt pkg/ldata/front.pal $(PNGTORAW)
-pkg/ldata/frontft3.dat: gfx/font_front_std_ylw-64/filelist_frontft3.txt pkg/ldata/front.pal $(PNGTORAW)
-pkg/ldata/frontft4.dat: gfx/font_front_std_dkr-64/filelist_frontft4.txt pkg/ldata/front.pal $(PNGTORAW)
+pkg/ldata/front.raw:    gfx/menufx/frontend-64/front_background-64.png pkg/ldata/front.pal $(PNGTORAW)
+pkg/ldata/frontbit.dat: gfx/menufx/frontend-64/filelist_frontbit.txt pkg/ldata/front.pal $(PNGTORAW)
+pkg/ldata/frontft1.dat: gfx/menufx/font_front_hdr_red-64/filelist_frontft1.txt pkg/ldata/front.pal $(PNGTORAW)
+pkg/ldata/frontft2.dat: gfx/menufx/font_front_std_red-64/filelist_frontft2.txt pkg/ldata/front.pal $(PNGTORAW)
+pkg/ldata/frontft3.dat: gfx/menufx/font_front_std_ylw-64/filelist_frontft3.txt pkg/ldata/front.pal $(PNGTORAW)
+pkg/ldata/frontft4.dat: gfx/menufx/font_front_std_dkr-64/filelist_frontft4.txt pkg/ldata/front.pal $(PNGTORAW)
 
-pkg/data/frac00.raw: gfx/textures-32/frac00.png gfx/textures-32/fract_bw.pal $(PNGTORAW)
-pkg/data/frac01.raw: gfx/textures-32/frac01.png gfx/textures-32/fract_bw.pal $(PNGTORAW)
-pkg/data/frac02.raw: gfx/textures-32/frac02.png gfx/textures-32/fract_bw.pal $(PNGTORAW)
-pkg/data/frac03.raw: gfx/textures-32/frac03.png gfx/textures-32/fract_bw.pal $(PNGTORAW)
-pkg/data/frac04.raw: gfx/textures-32/frac04.png gfx/textures-32/fract_bw.pal $(PNGTORAW)
-pkg/data/frac05.raw: gfx/textures-32/frac05.png gfx/textures-32/fract_bw.pal $(PNGTORAW)
-pkg/data/frac06.raw: gfx/textures-32/frac06.png gfx/textures-32/fract_bw.pal $(PNGTORAW)
-pkg/data/frac07.raw: gfx/textures-32/frac07.png gfx/textures-32/fract_bw.pal $(PNGTORAW)
-pkg/data/frac08.raw: gfx/textures-32/frac08.png gfx/textures-32/fract_bw.pal $(PNGTORAW)
+pkg/data/frac00.raw: gfx/enginefx/textures-32/frac00.png gfx/enginefx/textures-32/fract_bw.pal $(PNGTORAW)
+pkg/data/frac01.raw: gfx/enginefx/textures-32/frac01.png gfx/enginefx/textures-32/fract_bw.pal $(PNGTORAW)
+pkg/data/frac02.raw: gfx/enginefx/textures-32/frac02.png gfx/enginefx/textures-32/fract_bw.pal $(PNGTORAW)
+pkg/data/frac03.raw: gfx/enginefx/textures-32/frac03.png gfx/enginefx/textures-32/fract_bw.pal $(PNGTORAW)
+pkg/data/frac04.raw: gfx/enginefx/textures-32/frac04.png gfx/enginefx/textures-32/fract_bw.pal $(PNGTORAW)
+pkg/data/frac05.raw: gfx/enginefx/textures-32/frac05.png gfx/enginefx/textures-32/fract_bw.pal $(PNGTORAW)
+pkg/data/frac06.raw: gfx/enginefx/textures-32/frac06.png gfx/enginefx/textures-32/fract_bw.pal $(PNGTORAW)
+pkg/data/frac07.raw: gfx/enginefx/textures-32/frac07.png gfx/enginefx/textures-32/fract_bw.pal $(PNGTORAW)
+pkg/data/frac08.raw: gfx/enginefx/textures-32/frac08.png gfx/enginefx/textures-32/fract_bw.pal $(PNGTORAW)
 
-pkg/data/tmapa000.dat: gfx/textures-32/filelist_tmapa000.txt pkg/data/palette.dat $(PNGTORAW)
-pkg/data/tmapa001.dat: gfx/textures-32/filelist_tmapa001.txt pkg/data/palette.dat $(PNGTORAW)
-pkg/data/tmapa002.dat: gfx/textures-32/filelist_tmapa002.txt pkg/data/palette.dat $(PNGTORAW)
-pkg/data/tmapa003.dat: gfx/textures-32/filelist_tmapa003.txt pkg/data/palette.dat $(PNGTORAW)
-pkg/data/tmapa004.dat: gfx/textures-32/filelist_tmapa004.txt pkg/data/palette.dat $(PNGTORAW)
-pkg/data/tmapa005.dat: gfx/textures-32/filelist_tmapa005.txt pkg/data/palette.dat $(PNGTORAW)
-pkg/data/tmapa006.dat: gfx/textures-32/filelist_tmapa006.txt pkg/data/palette.dat $(PNGTORAW)
-pkg/data/tmapa007.dat: gfx/textures-32/filelist_tmapa007.txt pkg/data/palette.dat $(PNGTORAW)
-pkg/data/tmapa008.dat: gfx/textures-32/filelist_tmapa008.txt pkg/data/palette.dat $(PNGTORAW)
-pkg/data/tmapa009.dat: gfx/textures-32/filelist_tmapa009.txt pkg/data/palette.dat $(PNGTORAW)
-pkg/data/tmapa010.dat: gfx/textures-32/filelist_tmapa010.txt pkg/data/palette.dat $(PNGTORAW)
-pkg/data/tmapa011.dat: gfx/textures-32/filelist_tmapa011.txt pkg/data/palette.dat $(PNGTORAW)
-pkg/data/tmapa012.dat: gfx/textures-32/filelist_tmapa012.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/tmapa000.dat: gfx/enginefx/textures-32/filelist_tmapa000.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/tmapa001.dat: gfx/enginefx/textures-32/filelist_tmapa001.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/tmapa002.dat: gfx/enginefx/textures-32/filelist_tmapa002.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/tmapa003.dat: gfx/enginefx/textures-32/filelist_tmapa003.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/tmapa004.dat: gfx/enginefx/textures-32/filelist_tmapa004.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/tmapa005.dat: gfx/enginefx/textures-32/filelist_tmapa005.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/tmapa006.dat: gfx/enginefx/textures-32/filelist_tmapa006.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/tmapa007.dat: gfx/enginefx/textures-32/filelist_tmapa007.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/tmapa008.dat: gfx/enginefx/textures-32/filelist_tmapa008.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/tmapa009.dat: gfx/enginefx/textures-32/filelist_tmapa009.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/tmapa010.dat: gfx/enginefx/textures-32/filelist_tmapa010.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/tmapa011.dat: gfx/enginefx/textures-32/filelist_tmapa011.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/tmapa012.dat: gfx/enginefx/textures-32/filelist_tmapa012.txt pkg/data/palette.dat $(PNGTORAW)
 
-pkg/data/gmap32.raw: gfx/guimap/gmap-32.png pkg/data/palette.dat $(PNGTORAW)
-pkg/data/gmap64.raw: gfx/guimap/gmap-64.png pkg/data/palette.dat $(PNGTORAW)
-pkg/data/gmapbug.dat: gfx/parchmentbug/filelist-gbug.txt pkg/data/palette.dat $(PNGTORAW)
-pkg/data/legal32.raw: gfx/loading/legal-32.png pkg/data/legal32.pal $(PNGTORAW)
-pkg/data/legal64.raw: gfx/loading/legal-64.png pkg/data/legal64.pal $(PNGTORAW)
-pkg/data/startfx32.raw: gfx/loading/startupfx-32.png pkg/data/startfx32.pal $(PNGTORAW)
-pkg/data/startfx64.raw: gfx/loading/startupfx-64.png pkg/data/startfx64.pal $(PNGTORAW)
-pkg/data/loading32.raw: gfx/loading/loading-32.png pkg/data/loading32.pal $(PNGTORAW)
-pkg/data/loading64.raw: gfx/loading/loading-64.png pkg/data/loading64.pal $(PNGTORAW)
-pkg/data/nocd.raw: gfx/loading/nocd-32.png pkg/data/nocd.pal $(PNGTORAW)
-pkg/data/gui2-64.dat: gfx/gui2-64/filelist_gui2.txt pkg/data/palette.dat $(PNGTORAW)
-pkg/data/gui2-32.dat: gfx/gui2-32/filelist_gui2.txt pkg/data/palette.dat $(PNGTORAW)
-pkg/data/gui1-64.dat: gfx/gui1-64/filelist_gui1.txt pkg/data/palette.dat $(PNGTORAW)
-pkg/data/gui1-32.dat: gfx/gui1-32/filelist_gui1.txt pkg/data/palette.dat $(PNGTORAW)
-pkg/data/pointer64.dat: gfx/pointer-64/filelist_pointer.txt pkg/data/palette.dat $(PNGTORAW)
-pkg/data/pointer32.dat: gfx/pointer-64/filelist_lpointer.txt pkg/data/palette.dat $(PNGTORAW)
-pkg/data/points64.dat: gfx/pointer-64/filelist_points.txt pkg/data/palette.dat $(PNGTORAW)
-pkg/data/points32.dat: gfx/pointer-64/filelist_lpoints.txt pkg/data/palette.dat $(PNGTORAW)
-pkg/data/font1-64.dat: gfx/font_simp-64/filelist_font1.txt pkg/data/palette.dat $(PNGTORAW)
-pkg/data/font1-32.dat: gfx/font_simp-32/filelist_font1.txt pkg/data/palette.dat $(PNGTORAW)
-pkg/data/font2-32.dat: gfx/font2-32/filelist_font2.txt pkg/data/palette.dat $(PNGTORAW)
-pkg/data/font2-64.dat: gfx/font2-64/filelist_font2.txt pkg/data/palette.dat $(PNGTORAW)
-pkg/data/creature.jty: gfx/sprites-32/animlist.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/gmap32.raw:    gfx/enginefx/guimap/gmap-32.png pkg/data/palette.dat $(PNGTORAW)
+pkg/data/gmap64.raw:    gfx/enginefx/guimap/gmap-64.png pkg/data/palette.dat $(PNGTORAW)
+pkg/data/gmapbug.dat:   gfx/enginefx/parchmentbug/filelist-gbug.txt pkg/data/palette.dat $(PNGTORAW)
 
-pkg/data/swipe01.dat: gfx/swipes-32/filelist_bhandrl.txt pkg/data/palette.dat $(PNGTORAW)
-pkg/data/swipe02.dat: gfx/swipes-32/filelist_swordrl.txt pkg/data/palette.dat $(PNGTORAW)
-pkg/data/swipe03.dat: gfx/swipes-32/filelist_scythlr.txt pkg/data/palette.dat $(PNGTORAW)
-pkg/data/swipe04.dat: gfx/swipes-32/filelist_sticklr.txt pkg/data/palette.dat $(PNGTORAW)
-pkg/data/swipe05.dat: gfx/swipes-32/filelist_stickrl.txt pkg/data/palette.dat $(PNGTORAW)
-pkg/data/swipe06.dat: gfx/swipes-32/filelist_clawsrl.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/legal32.raw:   gfx/menufx/loading/legal-32.png pkg/data/legal32.pal $(PNGTORAW)
+pkg/data/legal64.raw:   gfx/menufx/loading/legal-64.png pkg/data/legal64.pal $(PNGTORAW)
+pkg/data/startfx32.raw: gfx/menufx/loading/startupfx-32.png pkg/data/startfx32.pal $(PNGTORAW)
+pkg/data/startfx64.raw: gfx/menufx/loading/startupfx-64.png pkg/data/startfx64.pal $(PNGTORAW)
+pkg/data/loading32.raw: gfx/menufx/loading/loading-32.png pkg/data/loading32.pal $(PNGTORAW)
+pkg/data/loading64.raw: gfx/menufx/loading/loading-64.png pkg/data/loading64.pal $(PNGTORAW)
+pkg/data/nocd.raw:      gfx/menufx/loading/nocd-32.png pkg/data/nocd.pal $(PNGTORAW)
+pkg/data/gui2-64.dat:   gfx/menufx/gui2-64/filelist_gui2.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/gui2-32.dat:   gfx/menufx/gui2-32/filelist_gui2.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/gui1-64.dat:   gfx/menufx/gui1-64/filelist_gui1.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/gui1-32.dat:   gfx/menufx/gui1-32/filelist_gui1.txt pkg/data/palette.dat $(PNGTORAW)
+
+pkg/data/pointer64.dat: gfx/enginefx/pointer-64/filelist_pointer.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/pointer32.dat: gfx/enginefx/pointer-64/filelist_lpointer.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/points64.dat:  gfx/enginefx/pointer-64/filelist_points.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/points32.dat:  gfx/enginefx/pointer-64/filelist_lpoints.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/font1-64.dat:  gfx/enginefx/font_simp-64/filelist_font1.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/font1-32.dat:  gfx/enginefx/font_simp-32/filelist_font1.txt pkg/data/palette.dat $(PNGTORAW)
+
+pkg/data/font2-32.dat:  gfx/menufx/font2-32/filelist_font2.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/font2-64.dat:  gfx/menufx/font2-64/filelist_font2.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/creature.jty:  gfx/enginefx/sprites-32/animlist.txt pkg/data/palette.dat $(PNGTORAW)
+
+pkg/data/swipe01.dat: gfx/enginefx/swipes-32/filelist_bhandrl.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/swipe02.dat: gfx/enginefx/swipes-32/filelist_swordrl.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/swipe03.dat: gfx/enginefx/swipes-32/filelist_scythlr.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/swipe04.dat: gfx/enginefx/swipes-32/filelist_sticklr.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/swipe05.dat: gfx/enginefx/swipes-32/filelist_stickrl.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/swipe06.dat: gfx/enginefx/swipes-32/filelist_clawsrl.txt pkg/data/palette.dat $(PNGTORAW)
 
 pkg/data/frac%.raw:
 	-$(ECHO) 'Building RAW texture: $@'
@@ -306,23 +309,28 @@ pkg/creatrs/%.jty pkg/data/%.jty:
 	-$(ECHO) 'Finished building: $@'
 	-$(ECHO) ' '
 
+gfx/%:: | gfx/LICENSE ;
+
+gfx/LICENSE:
+	git clone --depth=1 https://github.com/dkfans/FXGraphics.git gfx
+
 # The package is extracted only if targets does not exits; the "|" causes file dates to be ignored
 # Note that ignoring timestamp means it is possible to have outadated files after a new
 # package release, if no targets were modified with the update.
 $(foreach campaign,$(sort $(CAMPAIGNS)), gfx/$(campaign)_lnd/%.png) \
-gfx/loading/%.png gfx/palettes/%.pal \
-gfx/font2-32/%.txt gfx/font2-64/%.txt gfx/font_simp-32/%.txt gfx/font_simp-64/%.txt gfx/font_net/%.txt \
-gfx/font_front_std_dkr-64/%.txt gfx/font_front_std_red-64/%.txt gfx/font_front_std_ylw-64/%.txt \
-gfx/font_front_hdr_dkr-64/%.txt gfx/font_front_hdr_red-64/%.txt gfx/font_front_hdr_ylw-64/%.txt \
-gfx/frontend-64/%.txt gfx/pointer-64/%.txt \
-gfx/gui1-32/%.txt gfx/gui1-64/%.txt gfx/gui1-128/%.txt gfx/gui1-256/%.txt \
-gfx/gui2-32/%.txt gfx/gui2-64/%.txt gfx/gui2-128/%.txt gfx/gui2-256/%.txt \
-gfx/landview_ensign/%.txt gfx/landview_hand/%.txt gfx/landview_pinpnt/%.txt \
-gfx/sprites-32/%.txt gfx/sprites-64/%.txt gfx/sprites-128/%.txt \
-gfx/swipes-32/%.txt gfx/swipes-64/%.txt gfx/swipes-128/%.txt \
-gfx/textures-32/%.png gfx/textures-64/%.png gfx/textures-128/%.png \
-gfx/textures-32/%.txt gfx/textures-64/%.txt gfx/textures-128/%.txt \
-gfx/torturescr/%.png gfx/torturescr/%.txt gfx/guimap/%.txt gfx/parchmentbug/%.txt gfx/creatrportrait/%.txt:
-	git clone --depth=1 https://github.com/dkfans/FXGraphics.git gfx
+gfx/menufx/loading/%.png gfx/palettes/%.pal \
+gfx/menufx/font2-32/%.txt gfx/menufx/font2-64/%.txt gfx/menufx/font_net/%.txt \
+gfx/menufx/font_front_std_dkr-64/%.txt gfx/menufx/font_front_std_red-64/%.txt gfx/menufx/font_front_std_ylw-64/%.txt \
+gfx/menufx/font_front_hdr_dkr-64/%.txt gfx/menufx/font_front_hdr_red-64/%.txt gfx/menufx/font_front_hdr_ylw-64/%.txt \
+gfx/menufx/frontend-64/%.txt gfx/enginefx/pointer-64/%.txt \
+gfx/menufx/gui1-32/%.txt gfx/menufx/gui1-64/%.txt gfx/menufx/gui1-128/%.txt gfx/menufx/gui1-256/%.txt \
+gfx/menufx/gui2-32/%.txt gfx/menufx/gui2-64/%.txt gfx/menufx/gui2-128/%.txt gfx/menufx/gui2-256/%.txt \
+gfx/landviewdattabs/landview_ensign/%.txt gfx/landviewdattabs/landview_hand/%.txt gfx/landviewdattabs/landview_pinpnt/%.txt \
+gfx/enginefx/font_simp-32/%.txt gfx/enginefx/font_simp-64/%.txt \
+gfx/enginefx/sprites-32/%.txt gfx/enginefx/sprites-64/%.txt gfx/enginefx/sprites-128/%.txt \
+gfx/enginefx/swipes-32/%.txt gfx/enginefx/swipes-64/%.txt gfx/enginefx/swipes-128/%.txt \
+gfx/enginefx/textures-32/%.png gfx/enginefx/textures-64/%.png gfx/enginefx/textures-128/%.png \
+gfx/enginefx/textures-32/%.txt gfx/enginefx/textures-64/%.txt gfx/enginefx/textures-128/%.txt \
+gfx/menufx/torturescr/%.png gfx/menufx/torturescr/%.txt gfx/landviewdattabs/guimap/%.txt gfx/enginefx/parchmentbug/%.txt gfx/creatrportrait/%.txt: gfx
 
 #******************************************************************************

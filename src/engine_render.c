@@ -346,10 +346,6 @@ struct SideOri {
 };
 
 /******************************************************************************/
-static const unsigned short shield_offset[] = {
- 0x0,  0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x118, 0x80,
- 0x80, 0x100,  0x80,  0x80, 0x100, 0x100, 0x138,  0x80,  0x80, 0x138,  0x80,  0x80, 0x100,  0x80, 0x80, 0x100,
-};
 static const struct SideOri sideoris[] = {
     { 0,  1,  2,  3},
     { 0,  0,  3,  2},
@@ -4099,7 +4095,8 @@ static void create_shadows(struct Thing *thing, struct EngineCoord *ecor, struct
 static void add_draw_status_box(struct Thing *thing, struct EngineCoord *ecor)
 {
     struct EngineCoord coord = *ecor;
-    coord.y += (uint16_t)thing->clipbox_size_yz + shield_offset[thing->model];
+    const struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    coord.y += thing->clipbox_size_yz + crstat->status_offset; 
     rotpers(&coord, &camera_matrix);
     if (getpoly >= poly_pool_end)
         return;

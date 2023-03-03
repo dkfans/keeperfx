@@ -20,6 +20,7 @@
 #define DK_ROOMDATA_H
 
 #include "bflib_basics.h"
+#include "config_creature.h"
 #include "globals.h"
 #include "config_creature.h"
 
