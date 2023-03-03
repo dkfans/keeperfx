@@ -31,13 +31,7 @@ extern "C" {
 /******************************************************************************/
 
 
-const struct NamedCommand head_for_desc[] = {
-  {"ACTION_POINT",         MLoc_ACTIONPOINT},
-  {"DUNGEON",              MLoc_PLAYERSDUNGEON},
-  {"DUNGEON_HEART",        MLoc_PLAYERSHEART},
-  {"APPROPIATE_DUNGEON",   MLoc_APPROPRTDUNGEON},
-  {NULL,                   0},
-};
+
 
 TbBool get_coords_at_location(struct Coord3d *pos, TbMapLocation location)
 {

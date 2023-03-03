@@ -65,6 +65,43 @@ unsigned short dungeon_special_selected;
 /******************************************************************************/
 
 /**
+ * Increases creatures' levels for player.
+ * @param plyr_idx target player
+ * @param count how many times should the level be increased
+ */
+void script_use_special_increase_level(PlayerNumber plyr_idx, int count)
+{
+    increase_level(get_player(plyr_idx), count);
+}
+
+/**
+ * Multiplies every creature for player.
+ * @param plyr_idx target player
+ */
+void script_use_special_multiply_creatures(PlayerNumber plyr_idx)
+{
+    multiply_creatures(get_player(plyr_idx));
+}
+
+/**
+ * Fortifies player's dungeon.
+ * @param plyr_idx target player
+ */
+void script_use_special_make_safe(PlayerNumber plyr_idx)
+{
+    make_safe(get_player(plyr_idx));
+}
+
+/**
+ * Enables bonus level for current player.
+ */
+TbBool script_use_special_locate_hidden_world()
+{
+    return activate_bonus_level(get_player(my_player_number));
+}
+
+
+/**
  * Makes a bonus level for current SP level visible on the land map screen.
  */
 TbBool activate_bonus_level(struct PlayerInfo *player)

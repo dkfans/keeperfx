@@ -52,6 +52,14 @@ enum MetaLocation {
   MML_RECENT_COMBAT,
 };
 
+const struct NamedCommand head_for_desc[] = {
+  {"ACTION_POINT",         MLoc_ACTIONPOINT},
+  {"DUNGEON",              MLoc_PLAYERSDUNGEON},
+  {"DUNGEON_HEART",        MLoc_PLAYERSHEART},
+  {"APPROPIATE_DUNGEON",   MLoc_APPROPRTDUNGEON},
+  {NULL,                   0},
+};
+
 /******************************************************************************/
 unsigned short get_map_location_type(TbMapLocation location);
 unsigned long get_map_location_longval(TbMapLocation location);

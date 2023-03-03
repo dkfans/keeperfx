@@ -283,7 +283,15 @@ function DOOR_AVAILABLE(player,door,can_be_available,number_available) end
 ---@param research_value integer The new research value. This must be a number below 16777216.
 function RESEARCH(player,research_type,room_or_spell,research_value) end
 
-function RESEARCH_ORDER() end
+---When this command is first called, the research list for specified players is cleared.
+---Using it you may create a research list from beginning.
+---Note that if you won't place an item on the list, it will not be possible to research it.
+---So if you're using this command, you must add all items available on the level to the research list. Example:
+---@param player playerrange player’s name, e.g. PLAYER1. See players section for more information.
+---@param research_type "MAGIC"|"ROOM"|"CREATURE" Whether it is a room or spell you are researching. Use one of the following commands:
+---@param room_or_spell spell_type|room_type|creature_type The name of the room or spell you want to adjust, e.g. TEMPLE or MAGIC_LIGHTNING. See room names section and spell names section for more information.
+---@param research_value integer The new research value. This must be a number below 16777216.
+function RESEARCH_ORDER(player,research_type,room_or_spell,research_value) end
 
 -------------------------------------------------
 --Adding New Creatures and Parties to the Level--
@@ -347,6 +355,7 @@ function ADD_PARTY_TO_LEVEL(playerrange,party_name,location,ncopies) end
 ---@param location location where the creature(s) should be spawned
 ---@param ncopies integer number of identical creatures that should be created
 ---@param level integer   
+
 ---@param carried_gold integer
 ---@return Creature ...
 function ADD_CREATURE_TO_LEVEL(owner,creature_model,location,ncopies,level,carried_gold) return Creature end
@@ -485,6 +494,7 @@ function SET_CREATURE_PROPERTY(creature_type,property,enable) end
 ---@param creature_type creature_type
 ---@param criterion creature_select_criteria
 ---@return Creature
+---@nodiscard
 function GET_CREATURE_BY_CRITERION(player,creature_type,criterion) return Creature end
 
 ---increases creatures level by a given amount
@@ -581,6 +591,7 @@ function MOVE_CREATURE() end
 ---@param player playerrange
 ---@param creature_type creature_type 
 ---@return integer amount amount of creatures matching the conditions
+---@nodiscard
 function COUNT_CREATURES_AT_ACTION_POINT(action_point,player,creature_type) return 0 end
 
 ---Changes the slabs belonging to a specific player to a custom texture
