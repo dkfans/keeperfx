@@ -2230,7 +2230,7 @@ TbResult LbHugeSpriteDrawUsingScalingUpData(uchar *outbuf, int scanline, int out
 TbResult LbHugeSpriteDraw(const struct TbHugeSprite * spr, long sp_len,
     unsigned char *r, int r_row_delta, int r_height, short xshift, short yshift, int units_per_px)
 {
-    LbSpriteSetScalingData(-xshift, -yshift, spr->SWidth, spr->SHeight, spr->SWidth*units_per_px/16, spr->SHeight*units_per_px/16);
+    LbSpriteSetScalingData(-scale_value_for_resolution(xshift), -scale_value_for_resolution(yshift), spr->SWidth, spr->SHeight, scale_value_for_resolution(spr->SWidth), scale_value_for_resolution(spr->SHeight));
     return LbHugeSpriteDrawUsingScalingUpData(r, r_row_delta, r_height, xsteps_array, ysteps_array, spr);
 }
 
