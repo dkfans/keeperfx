@@ -27,7 +27,26 @@ struct PlayerRange
 };
 
 /*****/
+static long luaL_checkNamedCommand(lua_State *L, int index,const struct NamedCommand * commanddesc)
+{
+    if (lua_isnumber(L, index))
+    {
+        return lua_tointeger(L, index);
+    }
+    else if(lua_isstring(L, index))
+    {
+        const char* text = lua_tostring(L, index);
+        long id = get_rid(commanddesc, text);
+        if (id == -1)
+        {
+            luaL_error(L,"invalid namedcommandoption, '%s'", text);
+        }
+        return id;
+    }
+    luaL_error(L,"invalid namedcommandoption");
+    return 0;
 
+}
 static struct Thing *luaL_checkThing(lua_State *L, int index)
 {
     luaL_checktype(L, index, LUA_TTABLE);
@@ -60,8 +79,11 @@ static TbMapLocation luaL_checkLocation(lua_State *L, int index)
 static TbMapLocation luaL_checkHeadingLocation(lua_State *L, int index)
 {
     const char* locname = lua_tostring(L, index);
+    long target = luaL_checkNamedCommand(L, index + 1,head_for_desc);
+
+    
     TbMapLocation location;
-    if(!get_map_heading_id(locname, &location))
+    if(!get_map_heading_id(locname, target, &location))
     {
         luaL_error (L,"Invalid location, '%s'", locname);
     }
@@ -101,36 +123,20 @@ static PlayerNumber luaL_checkPlayerSingle(lua_State *L, int index)
     return playerRange.start_idx;
 }
 
-static long luaL_checkNamedCommand(lua_State *L, int index,const struct NamedCommand * commanddesc)
-{
-    if (lua_isnumber(L, index))
-    {
-        return lua_tointeger(L, index);
-    }
-    else if(lua_isstring(L, index))
-    {
-        const char* text = lua_tostring(L, index);
-        long id = get_rid(commanddesc, text);
-        if (id == -1)
-        {
-            luaL_error(L,"invalid namedcommandoption, '%s'", text);
-        }
-        return id;
-    }
-    luaL_error(L,"invalid namedcommandoption");
 
-}
 
 /**********/
 
-struct luaThing *lua_pushThing(lua_State *L, struct Thing* thing)
+void lua_pushThing(lua_State *L, struct Thing* thing)
 {
+    /*
     struct luaThing *lthing = (struct luaThing *)lua_newtable(L, );
     lthing->thing_idx = thing->index;
     lthing->creation_turn = thing->creation_turn;
     luaL_getmetatable(L, "thing");
     lua_setmetatable(L, -2);
     return lthing;
+    */
 }
 
 /**********************************************/
@@ -164,6 +170,7 @@ static int lua_ADD_TO_PARTY(lua_State *L)
     }
 
     add_member_to_party(party_id, crtr_id, experience, gold, objective_id, countdown);
+    return 0;
 }
 static int lua_DELETE_FROM_PARTY(lua_State *L)
 {
@@ -372,7 +379,7 @@ static int lua_RESEARCH(lua_State *L)
             break;
         default:
             luaL_error (L,"invalid research_type %d",research_type);
-            break;
+            return 0;
     }
     long research_value         = luaL_checkint(L, 4);
 
@@ -397,7 +404,7 @@ static int lua_RESEARCH_ORDER(lua_State *L)
             break;
         default:
             luaL_error (L,"invalid research_type %d",research_type);
-            break;
+            return 0;
     }
     long research_value         = luaL_checkint(L, 4);
 
@@ -435,9 +442,9 @@ static int lua_ADD_TUNNELLER_TO_LEVEL(lua_State *L)
 {
     PlayerNumber plr_id          = luaL_checkPlayerSingle(L,1);
     TbMapLocation spawn_location = luaL_checkLocation(L,2);
-    long head_for                = luaL_checkHeadingLocation(L,3,head_for_desc);
-    long level                   = luaL_checkinteger(L,4);
-    long gold_held               = luaL_checkinteger(L,5);
+    TbMapLocation head_for       = luaL_checkHeadingLocation(L,3);
+    long level                   = luaL_checkinteger(L,5);
+    long gold_held               = luaL_checkinteger(L,6);
 
     struct Thing* thing = script_process_new_tunneler(plr_id, spawn_location, head_for, level-1, gold_held);
 
@@ -836,7 +843,7 @@ static int lua_kill_creature(lua_State *L)
 static int thing_tostring(lua_State *L)
 {
     char buff[32];
-    struct Thing* thing = lual_CheckThing(L, 1);
+    struct Thing* thing = luaL_checkThing(L, 1);
     sprintf(buff, "id: %d turn: %ld class: %d", thing->index, thing->creation_turn,thing->class_id);
 
     lua_pushfstring(L, "Foo (%s)", buff);

@@ -203,6 +203,7 @@ struct Thing *script_create_new_creature(PlayerNumber plyr_idx, ThingModel crmod
 struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, ThingModel crmodel, TbMapLocation location);
 void script_process_new_creatures(PlayerNumber plyr_idx, long crmodel, long location, long copies_num, long carried_gold, long crtr_level);
 PlayerNumber get_appropriate_player_for_creature(struct Thing *creatng);
+struct Thing* script_get_creature_by_criteria(PlayerNumber plyr_idx, long crmodel, long criteria);
 /******************************************************************************/
 #ifdef __cplusplus
 }

@@ -60,6 +60,7 @@
 #include "game_legacy.h"
 #include "creature_instances.h"
 #include "lua_triggers.h"
+#include "map_locations.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus

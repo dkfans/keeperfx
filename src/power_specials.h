@@ -64,6 +64,11 @@ void start_resurrect_creature(struct PlayerInfo *player, struct Thing *thing);
 void start_transfer_creature(struct PlayerInfo *player, struct Thing *thing);
 long create_transferred_creatures_on_level(void);
 
+void script_use_special_increase_level(PlayerNumber plyr_idx, int count);
+void script_use_special_multiply_creatures(PlayerNumber plyr_idx);
+void script_use_special_make_safe(PlayerNumber plyr_idx);
+TbBool script_use_special_locate_hidden_world();
+
 /******************************************************************************/
 #ifdef __cplusplus
 }
