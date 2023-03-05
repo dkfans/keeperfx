@@ -987,7 +987,6 @@ TbScreenMode switch_to_next_video_mode(void)
         vid_change_query_menu = GMnu_CREATURE_QUERY4;
     }
     reinit_all_menus();
-    init_custom_sprites(SPRITE_LAST_LEVEL);
     if (reload_video)
     {
         turn_on_menu(GMnu_VIDEO);
