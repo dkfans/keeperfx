@@ -1355,12 +1355,12 @@ void process_highlight_roomspace_inputs(PlayerNumber plyr_idx)
     {
         par2 = 0;
     }
-    if ( (is_game_key_pressed(Gkey_BestRoomSpace, &keycode, true)) && (player->primary_cursor_state != CSt_PowerHand) ) // Use "modern" click and drag method
+    if ( (is_game_key_pressed(Gkey_BestRoomSpace, &keycode, true)) ) // Use "modern" click and drag method
     {
         par1 = 1;
         par2 = 0;
     }
-    else if ( (is_game_key_pressed(Gkey_SquareRoomSpace, &keycode, true)) && (player->primary_cursor_state != CSt_PowerHand) ) // Use "modern" click and drag method
+    else if ( (is_game_key_pressed(Gkey_SquareRoomSpace, &keycode, true))  ) // Use "modern" click and drag method
     {
         par1 = 2;
         playeradd = get_playeradd(plyr_idx);
