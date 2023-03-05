@@ -283,6 +283,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
         player->secondary_cursor_state = CSt_DefaultArrow;
     player->primary_cursor_state = (unsigned short)(pckt->additional_packet_values & PCAdV_ContextMask) >> 1; // get current cursor state from pckt->additional_packet_values
     playeradd->render_roomspace.highlight_mode = false; // reset one-click highlight mode
+    playeradd->pickup_all_gold = (pckt->additional_packet_values & PCAdV_RotatePressed);
 
     process_dungeon_power_hand_state(plyr_idx);
 
