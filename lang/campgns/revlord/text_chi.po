@@ -497,7 +497,7 @@ msgstr "陛下，俘虏的怪物已经招供了。虽然它对臭虫之巢几乎
 #. Hellspring (lv7)
 #: guitext:78
 msgctxt "In-game message"
-msgid "The multitude of magical tomes and arcane grimoires hidden within this library, provide you with evidence that enchantments protecting Wickedridge are of ancient origin and have nothing to do with the local keeper. It changes nothing, since the only way through to the vale  of Verminfeast is beyond the enemy's inner sanctum. "
+msgid "The multitude of magical tomes and arcane grimoires hidden within this library, provide you with evidence that enchantments protecting Wickedridge are of ancient origin and have nothing to do with the local keeper. It changes nothing, since the only way through to the vale of Verminfeast is beyond the enemy's inner sanctum. "
 msgstr "收藏在这个图书馆里的很多神秘的魔法书籍，为你提供了证据，证明保护恶魔山脊的魔法起源于古代，与当地的守护者无关。我们什么也改变不了，因为通往臭虫之巢的唯一途径就是穿过敌人领地内部的神殿。"
 
 #. Hellspring (lv7)

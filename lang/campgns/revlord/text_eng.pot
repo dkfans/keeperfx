@@ -124,7 +124,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "My Liege, bands of orcs and trolls from Widerwilds have arrived to these lands, lured by promises of great wealth! "
-"Their vanguard is already here, tunnelling towards our fortress. "
+"Their vanguard is already here, tunnelling towards our fortress."
 msgstr ""
 
 #. Dwarfton (lv1)
@@ -154,7 +154,7 @@ msgstr ""
 #: guitext:17
 msgctxt "In-game message"
 msgid ""
-"Your discovery of this arcane library will attract more of the Fairies from Sparkleforest. Just ensure nothing chews on the tomes? "
+"Your discovery of this arcane library will attract more of the Fairies from Sparkleforest. Just ensure nothing chews on the tomes?"
 msgstr ""
 
 #. Dwarfton (lv1)
@@ -190,7 +190,7 @@ msgstr ""
 #: guitext:22
 msgctxt "In-game message"
 msgid ""
-"Make haste, my Liege: the longer you let the vile monsters breed, the harder it will be to overcome their numbers! "
+"Make haste, my Liege: the longer you let the vile monsters breed, the harder it will be to overcome their numbers!"
 msgstr ""
 
 #. Sparkleforest (lv2)
@@ -198,7 +198,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "It seems the first monsters are already headed towards your dungeon, my Liege - mostly overgrown vermin which breed within piles "
-"of scrap, but your presence will surely be noticed by the sounds of combat. "
+"of scrap, but your presence will surely be noticed by the sounds of combat."
 msgstr ""
 
 #. Sparkleforest (lv2)
@@ -213,7 +213,7 @@ msgstr ""
 #: guitext:25
 msgctxt "In-game message"
 msgid ""
-"The rallying cries of Orcs and Trolls can be heard all along the underground river. They are preparing for an all-out onslaught!
+"The rallying cries of Orcs and Trolls can be heard all along the underground river. They are preparing for an all-out onslaught!"
 msgstr ""
 
 #. Sparkleforest (lv2)
@@ -235,7 +235,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "All of the monsters are dead, and the people of Sparkleforest are now safe. But it is now time to head towards besieged "
-"Abbeystone, where the evil keeper seeks to quash one of the last few bastions of virtue in Dominus. "
+"Abbeystone, where the evil keeper seeks to quash one of the last few bastions of virtue in Dominus."
 msgstr ""
 
 #. Abbeystone (lv3)
@@ -302,7 +302,7 @@ msgstr ""
 #: guitext:37
 msgctxt "In-game message"
 msgid ""
-"The Abbeystone has fallen, my Liege!.. It is a grim day indeed. "
+"The Abbeystone has fallen, my Liege!.. It is a grim day indeed."
 msgstr ""
 
 #. Abbeystone (lv3)
@@ -340,7 +340,7 @@ msgstr ""
 #: guitext:42
 msgctxt "In-game message"
 msgid ""
-"Grave news, my Liege! Some crazed Barbarians have allied with the monsters and are sowing chaos across the land! "
+"Grave news, my Liege! Some crazed Barbarians have allied with the monsters and are sowing chaos across the land!"
 msgstr ""
 
 #. Widerwilds (lv4)
@@ -354,14 +354,14 @@ msgstr ""
 #: guitext:44
 msgctxt "In-game message"
 msgid ""
-"Congratulations, my Liege! You have defeated the barbarian chieftain fair and square. "
+"Congratulations, my Liege! You have defeated the barbarian chieftain fair and square."
 msgstr ""
 
 #. Widerwilds (lv4)
 #: guitext:45
 msgctxt "In-game message"
 msgid ""
-"Treachery! The Barbarian who challenged you has turned out to have been a Demon all along! Put him and his remaining minions down, quickly! "
+"Treachery! The Barbarian who challenged you has turned out to have been a Demon all along! Put him and his remaining minions down, quickly!"
 msgstr ""
 
 #. Widerwilds (lv4) victory message
@@ -391,7 +391,7 @@ msgstr ""
 #: guitext:49
 msgctxt "In-game message"
 msgid "My liege, the silence of the Misty Bog has turned especially oppressive and eerie - your presence has not gone unnoticed. It will be "
-"wise to prepare for an attack. "
+"wise to prepare for an attack."
 msgstr ""
 
 #. Misty Bog (lv5)
@@ -405,7 +405,7 @@ msgstr ""
 #. Misty Bog (lv5)
 #: guitext:51
 msgctxt "In-game message"
-msgid "I have divined more Undead minions of the Necromancer, who are approaching from the north. "
+msgid "I have divined more Undead minions of the Necromancer, who are approaching from the north."
 msgstr ""
 
 #. Misty Bog (lv5)
@@ -418,21 +418,21 @@ msgstr ""
 #. Misty Bog (lv5)
 #: guitext:53
 msgctxt "In-game message"
-msgid "Our dungeon heart is breached by the Undead forces! "
+msgid "Our dungeon heart is breached by the Undead forces!"
 msgstr ""
 
 #. Misty Bog (lv5)
 #: guitext:54
 msgctxt "In-game message"
 msgid ""
-"The people speak of a haunted Temple in the area. You would be wise to cleanse it of the taint? "
+"The people speak of a haunted Temple in the area. You would be wise to cleanse it of the taint?"
 msgstr ""
 
 #. Misty Bog (lv5)
 #: guitext:55
 msgctxt "In-game message"
 msgid "The heart of one evil Necromancer is destroyed, but there is another! Find and destroy his second phylactery, and then proceed to "
-" stake all surviving vampires in the bog. "
+" stake all surviving vampires in the bog."
 msgstr ""
 
 #. Misty Bog (lv5)
@@ -448,14 +448,14 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "The heart of an evil Necromancer is destroyed, but another remains. Find and destroy his second phylactery, and then proceed to stake "
-"all surviving vampires in the bog. "
+"all surviving vampires in the bog."
 msgstr ""
 
 #. Misty Bog (lv5) victory message
 #: guitext:58
 msgctxt "In-game message"
 msgid "Glorious victory, my Liege! The Undead are defeated and Misty Bog is safe! It is now possible to restore Knight's Castle, which "
-"fell into disrepair after the Vampires settled here.
+"fell into disrepair after the Vampires settled here."
 msgstr ""
 
 #. Widerwilds (lv3)
@@ -486,7 +486,7 @@ msgstr ""
 #: guitext:62
 msgctxt "In-game message"
 msgid ""
-"My Liege, the monsters are attacking! They seem to be gathering at the libraries and workshops, as well as dungeons of enemy keepers. "
+"My Liege, the monsters are attacking! They seem to be gathering at the libraries and workshops, as well as dungeons of enemy keepers."
 msgstr ""
 
 #. Knight's castle (lv6)
@@ -605,8 +605,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid "The multitude of magical tomes and arcane grimoires hidden within this library, provide you with evidence that enchantments protecting "
 "Wickedridge are of ancient origin and have nothing to do with the local keeper. It changes nothing, since the only way through to the vale "
-" of Verminfeast is beyond the enemy's inner sanctum. "
-"
+"of Verminfeast is beyond the enemy's inner sanctum."
 msgstr ""
 
 #. Hellspring (lv7)
