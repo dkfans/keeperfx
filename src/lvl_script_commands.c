@@ -389,6 +389,7 @@ const struct NamedCommand texture_pack_desc[] = {
   {"LILAC_STONE",  11},
   {"SWAMP_SERPENT",12},
   {"LAVA_CAVERN",  13},
+  {"LATERITE_CAVERN",14},
   {NULL,           0},
 };
 
