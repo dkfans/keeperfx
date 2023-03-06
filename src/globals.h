@@ -179,10 +179,10 @@ extern "C" {
   #define EVM_MAP_EVENT(event_name, plyr_idx, x, y, opt)
 #endif
 
-#define MAX_TILES_X 500
-#define MAX_TILES_Y 500
-#define MAX_SUBTILES_X 1501
-#define MAX_SUBTILES_Y 1501
+#define MAX_TILES_X 170
+#define MAX_TILES_Y 170
+#define MAX_SUBTILES_X 511
+#define MAX_SUBTILES_Y 511
 
 #pragma pack(1)
 
