@@ -124,7 +124,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "My Liege, bands of orcs and trolls from Widerwilds have arrived to these lands, lured by promises of great wealth! "
-"Their vanguard is already here, tunnelling towards our fortress. "
+"Their vanguard is already here, tunnelling towards our fortress."
 msgstr ""
 
 #. Dwarfton (lv1)
@@ -154,7 +154,7 @@ msgstr ""
 #: guitext:17
 msgctxt "In-game message"
 msgid ""
-"Your discovery of this arcane library will attract more of the Fairies from Sparkleforest. Just ensure nothing chews on the tomes? "
+"Your discovery of this arcane library will attract more of the Fairies from Sparkleforest. Just ensure nothing chews on the tomes?"
 msgstr ""
 
 #. Dwarfton (lv1)
@@ -190,7 +190,7 @@ msgstr ""
 #: guitext:22
 msgctxt "In-game message"
 msgid ""
-"Make haste, my Liege: the longer you let the vile monsters breed, the harder it will be to overcome their numbers! "
+"Make haste, my Liege: the longer you let the vile monsters breed, the harder it will be to overcome their numbers!"
 msgstr ""
 
 #. Sparkleforest (lv2)
@@ -198,7 +198,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "It seems the first monsters are already headed towards your dungeon, my Liege - mostly overgrown vermin which breed within piles "
-"of scrap, but your presence will surely be noticed by the sounds of combat. "
+"of scrap, but your presence will surely be noticed by the sounds of combat."
 msgstr ""
 
 #. Sparkleforest (lv2)
@@ -213,7 +213,7 @@ msgstr ""
 #: guitext:25
 msgctxt "In-game message"
 msgid ""
-"The rallying cries of Orcs and Trolls can be heard all along the underground river. They are preparing for an all-out onslaught!
+"The rallying cries of Orcs and Trolls can be heard all along the underground river. They are preparing for an all-out onslaught!"
 msgstr ""
 
 #. Sparkleforest (lv2)
@@ -235,7 +235,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "All of the monsters are dead, and the people of Sparkleforest are now safe. But it is now time to head towards besieged "
-"Abbeystone, where the evil keeper seeks to quash one of the last few bastions of virtue in Dominus. "
+"Abbeystone, where the evil keeper seeks to quash one of the last few bastions of virtue in Dominus."
 msgstr ""
 
 #. Abbeystone (lv3)
@@ -302,7 +302,7 @@ msgstr ""
 #: guitext:37
 msgctxt "In-game message"
 msgid ""
-"The Abbeystone has fallen, my Liege!.. It is a grim day indeed. "
+"The Abbeystone has fallen, my Liege!.. It is a grim day indeed."
 msgstr ""
 
 #. Abbeystone (lv3)
@@ -340,7 +340,7 @@ msgstr ""
 #: guitext:42
 msgctxt "In-game message"
 msgid ""
-"Grave news, my Liege! Some crazed Barbarians have allied with the monsters and are sowing chaos across the land! "
+"Grave news, my Liege! Some crazed Barbarians have allied with the monsters and are sowing chaos across the land!"
 msgstr ""
 
 #. Widerwilds (lv4)
@@ -354,14 +354,14 @@ msgstr ""
 #: guitext:44
 msgctxt "In-game message"
 msgid ""
-"Congratulations, my Liege! You have defeated the barbarian chieftain fair and square. "
+"Congratulations, my Liege! You have defeated the barbarian chieftain fair and square."
 msgstr ""
 
 #. Widerwilds (lv4)
 #: guitext:45
 msgctxt "In-game message"
 msgid ""
-"Treachery! The Barbarian who challenged you has turned out to have been a Demon all along! Put him and his remaining minions down, quickly! "
+"Treachery! The Barbarian who challenged you has turned out to have been a Demon all along! Put him and his remaining minions down, quickly!"
 msgstr ""
 
 #. Widerwilds (lv4) victory message
@@ -391,7 +391,7 @@ msgstr ""
 #: guitext:49
 msgctxt "In-game message"
 msgid "My liege, the silence of the Misty Bog has turned especially oppressive and eerie - your presence has not gone unnoticed. It will be "
-"wise to prepare for an attack. "
+"wise to prepare for an attack."
 msgstr ""
 
 #. Misty Bog (lv5)
@@ -405,7 +405,7 @@ msgstr ""
 #. Misty Bog (lv5)
 #: guitext:51
 msgctxt "In-game message"
-msgid "I have divined more Undead minions of the Necromancer, who are approaching from the north. "
+msgid "I have divined more Undead minions of the Necromancer, who are approaching from the north."
 msgstr ""
 
 #. Misty Bog (lv5)
@@ -418,21 +418,21 @@ msgstr ""
 #. Misty Bog (lv5)
 #: guitext:53
 msgctxt "In-game message"
-msgid "Our dungeon heart is breached by the Undead forces! "
+msgid "Our dungeon heart is breached by the Undead forces!"
 msgstr ""
 
 #. Misty Bog (lv5)
 #: guitext:54
 msgctxt "In-game message"
 msgid ""
-"The people speak of a haunted Temple in the area. You would be wise to cleanse it of the taint? "
+"The people speak of a haunted Temple in the area. You would be wise to cleanse it of the taint?"
 msgstr ""
 
 #. Misty Bog (lv5)
 #: guitext:55
 msgctxt "In-game message"
 msgid "The heart of one evil Necromancer is destroyed, but there is another! Find and destroy his second phylactery, and then proceed to "
-" stake all surviving vampires in the bog. "
+" stake all surviving vampires in the bog."
 msgstr ""
 
 #. Misty Bog (lv5)
@@ -448,14 +448,14 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "The heart of an evil Necromancer is destroyed, but another remains. Find and destroy his second phylactery, and then proceed to stake "
-"all surviving vampires in the bog. "
+"all surviving vampires in the bog."
 msgstr ""
 
 #. Misty Bog (lv5) victory message
 #: guitext:58
 msgctxt "In-game message"
 msgid "Glorious victory, my Liege! The Undead are defeated and Misty Bog is safe! It is now possible to restore Knight's Castle, which "
-"fell into disrepair after the Vampires settled here.
+"fell into disrepair after the Vampires settled here."
 msgstr ""
 
 #. Widerwilds (lv3)
@@ -486,7 +486,7 @@ msgstr ""
 #: guitext:62
 msgctxt "In-game message"
 msgid ""
-"My Liege, the monsters are attacking! They seem to be gathering at the libraries and workshops, as well as dungeons of enemy keepers. "
+"My Liege, the monsters are attacking! They seem to be gathering at the libraries and workshops, as well as dungeons of enemy keepers."
 msgstr ""
 
 #. Knight's castle (lv6)
@@ -605,8 +605,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid "The multitude of magical tomes and arcane grimoires hidden within this library, provide you with evidence that enchantments protecting "
 "Wickedridge are of ancient origin and have nothing to do with the local keeper. It changes nothing, since the only way through to the vale "
-" of Verminfeast is beyond the enemy's inner sanctum. "
-"
+"of Verminfeast is beyond the enemy's inner sanctum."
 msgstr ""
 
 #. Hellspring (lv7)
@@ -747,520 +746,17 @@ msgctxt "In-game message"
 msgid "All of your Heroes are dead, while the evil Wizard survives. This realm is lost. "
 msgstr ""
 
-#. Martyr Halls (lv4) Timer1
-#: guitext:99
-msgctxt "In-game message"
-msgid "Some of the resistance has arrived!"
-msgstr ""
-
-#. Abandoned Sanctum (lv9) after 4 creatures gained
-#: guitext:100
-msgctxt "In-game message"
-msgid "The land is unusable with this many insects crawling around. Your task is to find and case any insect and spider lairs you find. Careful, "
-"for they are hidden well and they do like revenge. Flush them out."
-msgstr ""
-
-#. Abandoned Sanctum (lv9) Opening Objective
-#: guitext:101
-msgctxt "In-game message"
-msgid "This realm was once an Imp prison beneath a monastery. A place of great suffering, it has now been abandoned. For good reason!"
-msgstr ""
-
-#. Abandoned Sanctum (lv9) cannot have more than 3 vampires
-#: guitext:102
-msgctxt "In-game message"
-msgid ""
-"Worms have spread through the bodies of your Vampires, killing some. Keeping more than a few vampires is impossible as they're getting eaten 'alive'!"
-msgstr ""
-
-#. Abandoned Sanctum (lv9) - spare / unused message
-#: guitext:103
-msgctxt "In-game message"
-msgid "The enemy are upon us. I'm just telling you in case you were having a doze."
-msgstr ""
-
-#. Abandoned Sanctum (lv9) action point 10
-#: guitext:104
-msgctxt "In-game message"
-msgid "You've activated an old Imp portal from the time of the Monastery. Some imps may die, and you can no longer summon them at will. However, there remains "
-"other strange Imp magic in this land for you to discover!"
-msgstr ""
-
-#. Abandoned Sanctum (lv9) Heroes lose first guard post
-#: guitext:105
-msgctxt "In-game message"
-msgid ""
-"You hear insect noise in the tunnels... they sound angry."
-msgstr ""
-
-#. Abandoned Sanctum (lv9) Heroes lose 2nd guard post
-#: guitext:106
-msgctxt "In-game message"
-msgid ""
-"You hear insect noise in the tunnels... as if they seemed even more angry!"
-msgstr ""
-
-#. Abandoned Sanctum (lv9) Heroes lose 3rd guard post
-#: guitext:107
-msgctxt "In-game message"
-msgid "You have conquered more than half of the insect lairs now Master!"
-msgstr ""
-
-#. Abandoned Sanctum (lv9) Heroes lose 4th guard post
-#: guitext:108
-msgctxt "In-game message"
-msgid "Just a few more lairs to destroy now!"
-msgstr ""
-
-#. Abandoned Sanctum (lv9) Heroes lose all guard posts
-#: guitext:109
-msgctxt "In-game message"
-msgid ""
-"you have destroyed all the insect lairs now, and the inevitable counter-attack is imminent!"
-msgstr ""
-
-#. Abandoned Sanctum (lv9) Final assault
-#: guitext:110
-msgctxt "In-game message"
-msgid ""
-"They are here, Keeper. Eliminate every foe, be it bug or otherwise!"
-msgstr ""
-
-#. Abandoned Sanctum (lv9) Victory message
-#: guitext:111
-msgctxt "In-game message"
-msgid "Finally. This land is now suitable to be added to your domain."
-msgstr ""
-
-#. Fervent Asylum (lv10) Opening objective
-#: guitext:112
-msgctxt "In-game message"
-msgid "Insufferable heat, lack of portals and the constant danger of being raided by heroes makes this dune treasury a truly forsaken place. "
-"Could it be the mysterious scavenger eye that attracts them?"
-msgstr ""
-
-#. Fervent Asylum (lv10) Opening Information
-#: guitext:113
-msgctxt "In-game message"
-msgid "This eerie scavenger eye works differently to a portal or a scavenger room. It attracts creatures from other realms based on the rooms "
-"you own. Claiming and expanding those rooms will summon higher level creatures. Barracks will summon Archers, hatchery summons Bile Demons. "
-"Warlocks and Wizards are attracted to your library, whilst Dragons are attracted by various other rooms you claim. The summoning works until "
-"your army is 30 strong!"
-msgstr ""
-
-#. Fervent Asylum (lv10) Avatar Message
-#: guitext:114
-msgctxt "In-game message"
-msgid "One of the heroes' most dangerous insurgents has entered this realm. Recruit him and he'll serve you well..."
-msgstr ""
-
-#. Fervent Asylum (lv10)
-#: guitext:115
-msgctxt "In-game message"
-msgid "People of this land are sending their troops periodically. As they foolishly think you are outnumbered they prioritize mobilising their "
-"tougher parties to other realms. Find and destroy their dungeon heart before the offense becomes overwhelming and eliminate every foe to win this land."
-msgstr ""
-
-#. Fervent Asylum (lv10) unused message / blank for future use
-#: guitext:116
-msgctxt "In-game message"
-msgid ""
-"This ancient dungeon possesses great archaeological significance. This simply means there should be some interesting treasure worth stealing. Now that's what I "
-"call practical archaeology."
-msgstr ""
-
-#. Fervent Asylum (lv10)
-#: guitext:117
-msgctxt "In-game message"
-msgid "The Mysterious Scavenger Eye will transfer your gold to the next realm when you are victorious. So amass what you can!"
-msgstr ""
-
-#. Fervent Asylum (lv10)
-#: guitext:118
-msgctxt "In-game message"
-msgid "Spies have discovered that the dwarves will recede in the absence of workshops Master."
-msgstr ""
-
-#. Fervent Asylum (lv10)
-#: guitext:119
-msgctxt "In-game message"
-msgid "Look! The Scavenger Eye has summoned a few barbarians from Cloud Temple Ruins! It senses your impending victory perhaps?"
-msgstr ""
-
-#. Fervent Asylum (lv10)
-#: guitext:120
-msgctxt "In-game message"
-msgid ""
-"You have finally caught their attention. They have begun sending their most forceful troops. Good luck!"
-msgstr ""
-
-#. Fervent Asylum (lv10) Final Party
-#: guitext:121
-msgctxt "In-game message"
-msgid ""
-"The final group is here to finish you off. Wreck them. Eliminate every foe in this land to win. "
-msgstr ""
-
-#. Fervent Asylum (lv10) Victory Message
-#: guitext:122
-msgctxt "In-game message"
-msgid ""
-"The Heroes are despatched and you have plundered the riches of this realm to fund your next conquest. Excellent! Now you may "
-"depart this unbearably hot land."
-msgstr ""
-
-#. Phoenix Penitentiary (lv11) Opening Message
-#: guitext:123
-msgctxt "In-game message"
-msgid "The Phoenix Penitentiary. Where Knights keep watch over convicted Sorcerors, and the Polish government send their Warlocks for injecting"
-" whole marijuanas. And a home to two and a half keepers. Every keeper in this land has his own reason for dwelling this place. It's futile to "
-" expect mercy from any of them; as if you care, right? Your task is to eliminate the Keepers and all Knights."
-msgstr ""
-
-#. Phoenix Penitentiary (lv11) Opening Information
-#: guitext:124
-msgctxt "In-game message"
-msgid ""
-"Spies have discovered that you may recruit Imps from the cavern to the east of your dungeon."
-msgstr ""
-
-#. Phoenix Penitentiary (lv11) on gaining an imp
-#: guitext:125
-msgctxt "In-game message"
-msgid "These Knights are not exactly the loyal types. Convert as many of them as possible. Perhaps you could talk them into joining you in the next realm?"
-msgstr ""
-
-#. Phoenix Penitentiary (lv11) AP6
-#: guitext:126
-msgctxt "In-game message"
-msgid "You have desecrated their Portal, so the Fairies should be no more."
-msgstr ""
-
-#. Phoenix Penitentiary (lv11) AP7
-#: guitext:127
-msgctxt "In-game message"
-msgid ""
-"The Gems were surrounded by intruder alarms, so guess what? Heroes are on their way!"
-msgstr ""
-
-#. Phoenix Penitentiary (lv11) Timer0
-#: guitext:128
-msgctxt "In-game message"
-msgid "The heroes have opened a fairy portal in a lava cove nearby. Though annoying, it is very delicate: desecrate the portal by touching it and "
-"it'll stop working. Simple, right?"
-msgstr ""
-
-#. Phoenix Penitentiary (lv11) Flag0
-#: guitext:129
-msgctxt "In-game message"
-msgid "You are taking too long, keeper. You don't want to be here when the heroes come to clean up!"
-msgstr ""
-
-#. Phoenix Penitentiary (lv11) Timer4
-#: guitext:130
-msgctxt "In-game message"
-msgid "Careful keeper, retribution has arrived. Eliminate every rival keeper and the four knights to win. Don't forget to convert knights if you "
-" wish to see them accompany you in the next realm! Also, be aware that Spies inform us that this land has access to a hidden realm!"
-msgstr ""
-
-#. Phoenix Penitentiary (lv11) All dungeons destroyed
-#: guitext:131
-msgctxt "In-game message"
-msgid ""
-"Impressive job, Keeper. Most of the isle is now yours. "
-msgstr ""
-
-#. Phoenix Penitentiary (lv11) Knight transfer
-#: guitext:132
-msgctxt "In-game message"
-msgid "Impressive job, Keeper. One of your knights will join you in the next realm."
-msgstr ""
-
-#. Phoenix Penitentiary (lv11) Knights transfer
-#: guitext:133
-msgctxt "In-game message"
-msgid ""
-"Impressive job, Keeper. A couple of your knights will join you in the next realm. "
-msgstr ""
-
-#. Phoenix Penitentiary (lv11)
-#: guitext:134
-msgctxt "In-game message"
-msgid "This realm is begging to be plunged into darkness. The Avatar himself has a castle here. Another Keeper also seeks his soul. This could get messy."
-msgstr ""
-
-#. Mill Vault (lv12) Opening Message
-#: guitext:135
-msgctxt "In-game message"
-msgid ""
-"The plan for a first strike went bust. The people of this land have already launched attacks upon your dungeon from multiple directions. "
-"It's up to you to take control. Withstand the smite and defeat the lord of the land."
-msgstr ""
-
-#. Mill Vault (lv12) Opening Information
-#: guitext:136
-msgctxt "In-game message"
-msgid ""
-"There are 4 creature dwelling bases in this land: orc, comprising Samurai, Warlock and Bile Demon forts. Choose the one to raid, get one of their "
-"troops to join you and they'll be joining your army from the portal at a maximum 6 of each (of level of the unit type you obtain as first). "
-"Be careful, however: they will be only willing to join you as long as you have at least one of a kind in your dungeon! If they die off their time "
-" is over in this land!"
-msgstr ""
-
-#. Mill Vault (lv12) Game Turn >15000
-#: guitext:137
-msgctxt "In-game message"
-msgid ""
-"Occupying a fort absorbs their building knowledge and provides a financial income. The Samuari can build Training Rooms. Orcs build Guard posts. "
-"Warlocks can build bridges, and Bile Demons use the Workshop. Plan your strategy Keeper!"
-msgstr ""
-
-#. Mill Vault (lv12) Game Turn >15000
-#: guitext:138
-msgctxt "In-game message"
-msgid ""
-"You cannot own a Torture Chamber in this land. Get rid of the prisoners as soon as possible, or the Heroes will try to rescue them on their way to erase you!"
-msgstr ""
-
-#. Mill Vault (lv12) Flag1 Objective
-#: guitext:139
-msgctxt "In-game message"
-msgid "The Lord of the Land has arrived. I can smell his fear. Defeat him and the realm is yours."
-msgstr ""
-
-#. Mill Vault (lv12)
-#: guitext:140
-msgctxt "In-game message"
-msgid ""
-"Highly skilled Imps will join your army through the Portal when you seize any fort."
-"ahead."
-msgstr ""
-
-#. Mill Vault (lv12) Victory Message
-#: guitext:141
-msgctxt "In-game message"
-msgid "Perfect! Another piece of land added to your domain."
-msgstr ""
-
-#. Mill Vault (lv12) Bridge Message
-#: guitext:142
-msgctxt "In-game message"
-msgid "Careful keeper. Resources are insufficient to build more than one slab of bridge! Think well where you place it as that is the last slab "
-" of bridge you will ever build!"
-msgstr ""
-
-#. Mill Vault (lv12) Vampires Message
-#: guitext:143
-msgctxt "In-game message"
-msgid ""
-"Autistic monks are at it again! Their exorcistical incantations prevent you from recruiting any more undead creatures."
-msgstr ""
-
-#. Reapers' Yard (lv13) opening objective
-#: guitext:144
-msgctxt "In-game message"
-msgid "The platform has four points of access. Expect human parties attacking from all directions. You must protect your dungeon heart at all cost!"
-msgstr ""
-
-#. Reapers' Yard (lv13) after battle wins
-#: guitext:145
-msgctxt "In-game message"
-msgid "Your once wealthy minions are guarded by Heroes in the eastern lava-flooded area. These Knights have confiscated their gold, so you have extra "
-"motivation to defeat them and reclaim what is rightfully yours!"
-msgstr ""
-
-#. Reapers' Yard (lv13) 2nd wave Flag1
-#: guitext:146
-msgctxt "In-game message"
-msgid "The end of the resistance is near, Keeper. I can smell the desperation in their greedy faces!"
-msgstr ""
-
-#. Reapers' Yard (lv13) Flag2
-#: guitext:147
-msgctxt "In-game message"
-msgid ""
-"The final pathetic attempt to bring you down is on its way. Withstand the attack, defeat every Knight and the land is yours."
-msgstr ""
-
-#. Reapers' Yard (lv13) less than 7 Knights
-#: guitext:148
-msgctxt "In-game message"
-msgid "Gold falls from the Knight's pockets as he mumbles something in Polish. Then he shuts up and dies. Kill some more of them. Not just for the fun "
-"but also for the gold they owe you."
-msgstr ""
-
-#. Reapers' Yard (lv13) when heroes lose library
-#: guitext:149
-msgctxt "In-game message"
-msgid ""
-"The library you have claimed contains plans for bridge building. Useful stuff! You know what to do. . "
-msgstr ""
-
-#. Reapers' Yard (lv13) Victory Message
-#: guitext:150
-msgctxt "In-game message"
-msgid "Fantastic work, Keeper. Just one more land and the Isle is free from the Polish empire."
-msgstr ""
-
-#. Comet Landing Grotto (lv14) Opening Objective
-#: guitext:151
-msgctxt "In-game message"
-msgid "Something has fallen out of the sky, opening a path to the surface, and bestowing the area with life and riches. Could the esoteric Altars "
-"have attracted this object?"
-msgstr ""
-
-#. Comet Landing Grotto (lv14) Opening Information
-#: guitext:152
-msgctxt "In-game message"
-msgid ""
-"Touch the red Altar of the Elders to grant you a boulder trap. Touch the blue Altar of Kings to receive 25,000 gold. Touch the green Altar of the "
-"Damned and the Gods will destroy ten Undead minions in this realm. Touch the yellow Altar of Light and the Gods kill ten of the most powerful "
-"Monks and Priestesses. Touching an Altar makes you unable to activate another for some time. It also causes some dismay to the heroes on the surface."
-msgstr ""
-
-#. Comet Landing Grotto (lv14) Green Altar activated
-#: guitext:153
-msgctxt "In-game message"
-msgid ""
-"You have activated the Green Altar and destroyed the Heroes Undead allies! However, they are in no way defeated. Prepare well for they are greedy "
-"in nature, and will not relinquish their riches without a fight!"
-msgstr ""
-
-#. Comet Landing Grotto (lv14) Red Altar activated
-#: guitext:154
-msgctxt "In-game message"
-msgid ""
-"You have activated the Red Altar and gained a single boulder trap. use it wisely."
-msgstr ""
-
-#. Comet Landing Grotto (lv14) Blue Altar activated
-#: guitext:155
-msgctxt "In-game message"
-msgid "You have activated the Blue Altar and gained great wealth. Spend it wisely preparing for the battles to come."
-msgstr ""
-
-#. Comet Landing Grotto (lv14) Yellow Altar activated
-#: guitext:156
-msgctxt "In-game message"
-msgid ""
-"You have activated the Yellow Altar and eliminated the enemy Monks & Priestesses! These Altars do indeed have great power!" 
-msgstr ""
-
-#. Comet Landing Grotto (lv14) Avatar arrival
-#: guitext:157
-msgctxt "In-game message"
-msgid "The lord of the land has visited this land to examine the regeneration caused by the strange comet. He has now sealed himself off to "
-"raise an army of Fairies. Be aware that the Wizards in this realm are unusually powerful, and one of them guards a spell that can "
-"destroy walls. You must defeat them and use this valuable power!"
-msgstr ""
-
-#. Comet Landing Grotto (lv14)
-#: guitext:158
-msgctxt "In-game message"
-msgid "The Heroes and the Undead are allied in this strange land! These traditional foes must both sense your impending conquest? "
-"Quickly possess your Ghost and use the power of the Green Altar to send them back to where they belong!"
-msgstr ""
-
-#. Comet Landing Grotto (lv14) gaining destroy wall spell
-#: guitext:159
-msgctxt "In-game message"
-msgid ""
-"You have claimed the spell which destroys walls! As a bonus you also extracted Torture Chamber plans, which will make it interesting "
-"when you make a social call to your uninvited guests?"
-msgstr ""
-
-#. Comet Landing Grotto (lv14) Avatar defeated
-#: guitext:160
-msgctxt "In-game message"
-msgid "Is it not over yet? The altars begin to glow strangely... It's as if their glow is directed to the center of the impact, "
-"embodying the spirits glow into living beings! Eliminate every hero in this land to win!"
-msgstr ""
-
-#. Comet Landing Grotto (lv14) Hero replenishment
-#: guitext:161
-msgctxt "In-game message"
-msgid "Seems like they won't give up! Defeat them all!"
-msgstr ""
-
-#. Comet Landing Grotto (lv14) Hero replenishment
-#: guitext:162
-msgctxt "In-game message"
-msgid "Another party of Heroes! Where are they coming from?!"
-msgstr ""
-
-#. Comet Landing Grotto (lv14) Victory message
-#: guitext:163
-msgctxt "In-game message"
-msgid "I see dead people. And dead undead. Congratulations, the Assmist Isle is yours! You'll be surprised to hear that living here "
-"has actually improved. Thanks for playing."
-msgstr ""
-
-#. Cloud Temple Ruins (bonus lv21) opening Objective
-#: guitext:164
-msgctxt "In-game message"
-msgid ""
-"You'll be battling two Keepers and the natives for the riches of the land. Eliminate them all and the barbarians will be joining you "
-"throughout the campaign! Good luck!"
-msgstr ""
-
-#. Cloud Temple Ruins (bonus lv21) Hero Heart destroyed
-#: guitext:165
-msgctxt "In-game message"
-msgid "A new group of natives has appeared!"
-msgstr ""
-
-#. Cloud Temple Ruins (bonus lv21)
-#: guitext:166
-msgctxt "In-game message"
-msgid "Legends say the barbaric natives keep fairies somewhere near the ruins..."
-msgstr ""
-
-#. Cloud Temple Ruins (bonus lv21) Victory message
-#: guitext:167
-msgctxt "In-game message"
-msgid "The natives are now under your command. New slaves! Wonderful!"
-msgstr ""
-
-#. Thieves Den Detour (bonus lv22) Opening objective
-#: guitext:168
-msgctxt "In-game message"
-msgid "A den of thieves. Or at least it used to be. Now it's training grounds for crusaders. FIX IT"
-msgstr ""
-
-#. Thieves Den Detour (bonus lv22) Opening information
-#: guitext:169
-msgctxt "In-game message"
-msgid "There are no libraries in this land. Acquire spellbooks as you find them. Bridge-building will be possible when you gather some gold."
-msgstr ""
-
-#. Thieves Den Detour (bonus lv22) Opening information
-#: guitext:170
-msgctxt "In-game message"
-msgid "Be aware Keeper that victory in this realm is not possible if you sell any rooms."
-msgstr ""
-
-#. Thieves Den Detour (bonus lv22)
-#: guitext:171
-msgctxt "In-game message"
-msgid "Eliminate the Knight and dungeon heart located southward to win this scenario. But first... reach them..."
-msgstr ""
-
-#. Thieves Den Detour (bonus lv22) Victory message
-#: guitext:172
-msgctxt "In-game message"
-msgid "Good job! Use the Transfer Creature special to bring one of your minions to the next realm."
-msgstr ""
-
-#. Thieves Den Detour (bonus lv22) AP1
-#: guitext:173
-msgctxt "In-game message"
-msgid ""
-"Look! That wall can be dug through!"
-msgstr ""
-
-#: guitext:174 guitext:175 guitext:176 guitext:177 guitext:178 guitext:179
-#: guitext:180 guitext:181 guitext:182 guitext:183 guitext:184 guitext:185 guitext:186 guitext:187 guitext:188 guitext:189 guitext:190 guitext:191 guitext:192
-#: guitext:193 guitext:194 guitext:195 guitext:196 guitext:197 guitext:198 guitext:199 guitext:200
+#: guitext:99 guitext:100
+#: guitext:101 guitext:102 guitext:103 guitext:104 guitext:105 guitext:106 guitext:107 guitext:108 guitext:109 guitext:110
+#: guitext:111 guitext:112 guitext:113 guitext:114 guitext:115 guitext:116 guitext:117 guitext:118 guitext:119 guitext:120
+#: guitext:121 guitext:122 guitext:123 guitext:124 guitext:125 guitext:126 guitext:127 guitext:128 guitext:129 guitext:130
+#: guitext:131 guitext:132 guitext:133 guitext:134 guitext:135 guitext:136 guitext:137 guitext:138 guitext:139 guitext:140
+#: guitext:141 guitext:142 guitext:143 guitext:144 guitext:145 guitext:146 guitext:147 guitext:148 guitext:149 guitext:150
+#: guitext:151 guitext:152 guitext:153 guitext:154 guitext:155 guitext:156 guitext:157 guitext:158 guitext:159 guitext:160
+#: guitext:161 guitext:162 guitext:163 guitext:164 guitext:165 guitext:166 guitext:167 guitext:168 guitext:169 guitext:170
+#: guitext:171 guitext:172 guitext:173 guitext:174 guitext:175 guitext:176 guitext:177 guitext:178 guitext:179 guitext:180
+#: guitext:181 guitext:182 guitext:183 guitext:184 guitext:185 guitext:186 guitext:187 guitext:188 guitext:189 guitext:190
+#: guitext:191 guitext:192 guitext:193 guitext:194 guitext:195 guitext:196 guitext:197 guitext:198 guitext:199 guitext:200
 msgctxt "In-game message"
 msgid "Moo"
 msgstr ""
