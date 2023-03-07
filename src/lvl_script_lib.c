@@ -67,16 +67,10 @@ struct Thing *script_process_new_object(long tngmodel, TbMapLocation location, l
     }
     if (thing_is_dungeon_heart(thing))
     {
-        struct DungeonAdd* dungeonadd = get_players_dungeonadd(get_player(tngowner));
+        struct DungeonAdd* dungeonadd = get_dungeonadd(tngowner);
         if (dungeonadd->backup_heart_idx == 0)
         {
-            struct Thing* scndthing = find_players_backup_dungeon_heart(tngowner);
-            {
-                if (!thing_is_invalid(thing))
-                {
-                    dungeonadd->backup_heart_idx = scndthing->index;
-                }
-            }
+            dungeonadd->backup_heart_idx = thing->index;
         }
     }
     thing->mappos.z.val = get_thing_height_at(thing, &thing->mappos);
