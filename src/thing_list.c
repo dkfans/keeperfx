@@ -312,6 +312,36 @@ long near_thing_pos_thing_filter_is_enemy_which_can_be_attacked_by_creature(cons
  * @param param Parameters exchanged between filter calls.
  * @param maximizer Previous value which made a thing pass the filter.
  */
+long near_thing_pos_thing_filter_is_enemy_object_which_can_be_attacked_by_creature(const struct Thing* thing, MaxTngFilterParam param, long maximizer)
+{
+    if ((param->class_id == -1) || (thing->class_id == param->class_id))
+    {
+        if (thing_matches_model(thing, param->model_id))
+        {
+            if ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
+            {
+                struct Thing* creatng = thing_get(param->num1);
+                if (players_are_enemies(creatng->owner, thing->owner))
+                {
+                    //if (creature_will_attack_creature(creatng, thing)) destructible object
+                    {
+                        // This function should return max value when the distance is minimal, so:
+                        return LONG_MAX - get_2d_distance(&thing->mappos, &creatng->mappos);
+                    }
+                }
+            }
+        }
+    }
+    // If conditions are not met, return -1 to be sure thing will not be returned.
+    return -1;
+}
+
+/**
+ * Filter function.
+ * @param thing The thing being checked.
+ * @param param Parameters exchanged between filter calls.
+ * @param maximizer Previous value which made a thing pass the filter.
+ */
 long highest_score_thing_filter_is_enemy_within_distance_which_can_be_attacked_by_creature(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
 {
     if ((param->class_id == -1) || (thing->class_id == param->class_id))
@@ -1741,6 +1771,20 @@ struct Thing *get_nearest_enemy_creature_possible_to_attack_by(struct Thing *cre
     struct CompoundTngFilterParam param;
     param.class_id = TCls_Creature;
     param.model_id = CREATURE_ANY;
+    param.plyr_idx = -1;
+    param.num1 = creatng->index;
+    param.num2 = -1;
+    param.num3 = -1;
+    return get_nth_thing_of_class_with_filter(filter, &param, 0);
+}
+
+struct Thing* get_nearest_enemy_object_possible_to_attack_by(struct Thing* creatng)
+{
+    SYNCDBG(19, "Starting");
+    Thing_Maximizer_Filter filter = near_thing_pos_thing_filter_is_enemy_object_which_can_be_attacked_by_creature;
+    struct CompoundTngFilterParam param;
+    param.class_id = TCls_Object;
+    param.model_id = -1;
     param.plyr_idx = -1;
     param.num1 = creatng->index;
     param.num2 = -1;
