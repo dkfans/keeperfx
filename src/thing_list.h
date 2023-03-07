@@ -329,7 +329,6 @@ short update_thing_sound(struct Thing *thing);
 struct Thing* find_players_dungeon_heart(PlayerNumber plyridx);
 
 struct Thing *find_random_thing_in_room(ThingClass tngclass, ThingModel tngmodel,struct Room *room);
-struct Thing* find_players_backup_dungeon_heart(PlayerNumber plyridx);
 /******************************************************************************/
 #ifdef __cplusplus
 }
