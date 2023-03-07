@@ -77,6 +77,9 @@ void initialise_devastate_dungeon_from_heart(PlayerNumber plyr_idx)
 
 void process_dungeon_destroy(struct Thing* heartng)
 {
+    if (heartng->owner == game.neutral_player_num)
+        return;
+
     long plyr_idx = heartng->owner;
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
     struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
