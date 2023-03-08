@@ -312,21 +312,20 @@ long near_thing_pos_thing_filter_is_enemy_which_can_be_attacked_by_creature(cons
  * @param param Parameters exchanged between filter calls.
  * @param maximizer Previous value which made a thing pass the filter.
  */
-long near_thing_pos_thing_filter_is_enemy_object_which_can_be_attacked_by_creature(const struct Thing* thing, MaxTngFilterParam param, long maximizer)
+long near_thing_pos_thing_filter_is_enemy_object_which_can_be_attacked_by_creature(const struct Thing* objtng, MaxTngFilterParam param, long maximizer)
 {
-    if ((param->class_id == -1) || (thing->class_id == param->class_id))
+    if ((param->class_id == -1) || (objtng->class_id == param->class_id))
     {
-        if (thing_matches_model(thing, param->model_id))
+        if (thing_matches_model(objtng, param->model_id))
         {
-            if ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
+            if ((param->plyr_idx == -1) || (objtng->owner == param->plyr_idx))
             {
                 struct Thing* creatng = thing_get(param->num1);
-                if (players_are_enemies(creatng->owner, thing->owner))
+                if (players_are_enemies(creatng->owner, objtng->owner))
                 {
-                    //if (creature_will_attack_creature(creatng, thing)) destructible object
+                    if (thing_is_dungeon_heart(objtng)) //Just dungeon hearts now. Todo: expand with other types of destructible objects
                     {
-                        // This function should return max value when the distance is minimal, so:
-                        return LONG_MAX - get_2d_distance(&thing->mappos, &creatng->mappos);
+                        return LONG_MAX - get_2d_distance(&creatng->mappos, &objtng->mappos);
                     }
                 }
             }

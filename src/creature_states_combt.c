@@ -3036,8 +3036,14 @@ TbBool creature_look_for_combat(struct Thing *creatng)
     // If not too scared for combat, then do the combat
     if ((!creature_too_scared_for_combat(creatng, enmtng)) || (cctrl->wait_to_turn > (long)game.play_gameturn) )
     {
-        //set_creature_in_combat(creatng, enmtng, attack_type);
-        set_creature_object_combat(creatng, enmtng);
+        if (thing_is_object(enmtng))
+        {
+            set_creature_object_combat(creatng, enmtng);
+        }
+        else
+        {
+            set_creature_in_combat(creatng, enmtng, attack_type);
+        }
         return true;
     }
 
