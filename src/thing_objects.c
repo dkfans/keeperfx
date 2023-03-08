@@ -1360,11 +1360,6 @@ static TngUpdateRet object_update_dungeon_heart(struct Thing *heartng)
     {
         dungeon = get_players_num_dungeon(heartng->owner);
     }
-    if (heartng->index != dungeon->dnheart_idx)
-    {
-        SYNCDBG(18, "Inactive Heart");
-        return TUFRet_Unchanged;
-    }
 
     if ((heartng->health > 0) && (game.dungeon_heart_heal_time != 0))
     {
@@ -1387,7 +1382,7 @@ static TngUpdateRet object_update_dungeon_heart(struct Thing *heartng)
         heartng->sprite_size = i * (long)objdat->sprite_size_max >> 8;
         heartng->clipbox_size_xy = i * (long)objdat->size_xy >> 8;
     }
-    else if (dungeon != INVALID_DUNGEON)
+    else if ((dungeon != INVALID_DUNGEON) && (heartng->index == dungeon->dnheart_idx))
     {
         if (dungeon->heart_destroy_state == 0)
         {
@@ -1398,7 +1393,27 @@ static TngUpdateRet object_update_dungeon_heart(struct Thing *heartng)
             dungeon->essential_pos.z.val = heartng->mappos.z.val;
         }
     }
-    process_dungeon_destroy(heartng);
+    if (heartng->index != dungeon->dnheart_idx)
+    {
+        SYNCDBG(18, "Inactive Heart");
+        if (heartng->health <= 0)
+        {
+            struct Thing* efftng;
+            efftng = create_effect(&heartng->mappos, TngEff_Explosion4, heartng->owner);
+            if (!thing_is_invalid(efftng))
+                efftng->shot_effect.hit_type = THit_HeartOnlyNotOwn;
+            efftng = create_effect(&heartng->mappos, TngEff_WoPExplosion, heartng->owner);
+            if (!thing_is_invalid(efftng))
+                efftng->shot_effect.hit_type = THit_HeartOnlyNotOwn;
+            destroy_dungeon_heart_room(heartng->owner, heartng);
+            delete_thing_structure(heartng, 0);
+        }
+        return TUFRet_Unchanged;
+    }
+    else
+    {
+        process_dungeon_destroy(heartng);
+    }
     SYNCDBG(18,"Beat update");
     if ((heartng->alloc_flags & TAlF_Exists) == 0)
       return TUFRet_Modified;
