@@ -517,6 +517,7 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     char corpse_vanish_effect;
     short footstep_pitch;
     short lair_object;
+    short status_offset;
 };
 
 struct Persons {

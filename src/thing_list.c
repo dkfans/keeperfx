@@ -1186,7 +1186,7 @@ void init_player_start(struct PlayerInfo *player, TbBool keep_prev)
     dungeonadd->backup_heart_idx = 0;
     struct Thing* scndthing = find_players_backup_dungeon_heart(player->id_number);
     {
-        if (!thing_is_invalid(thing))
+        if (!thing_is_invalid(scndthing))
         {
             dungeonadd->backup_heart_idx = scndthing->index;
         }
