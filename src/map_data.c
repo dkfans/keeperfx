@@ -36,31 +36,10 @@ extern "C" {
 #endif
 /******************************************************************************/
 struct Map bad_map_block;
-const long map_to_slab[] = {
-   0,  0,  0,  1,  1,  1,  2,  2,  2,  3,  3,  3,  4,  4,  4,  5,  5,  5,
-   6,  6,  6,  7,  7,  7,  8,  8,  8,  9,  9,  9, 10, 10, 10, 11, 11, 11,
-  12, 12, 12, 13, 13, 13, 14, 14, 14, 15, 15, 15, 16, 16, 16, 17, 17, 17,
-  18, 18, 18, 19, 19, 19, 20, 20, 20, 21, 21, 21, 22, 22, 22, 23, 23, 23,
-  24, 24, 24, 25, 25, 25, 26, 26, 26, 27, 27, 27, 28, 28, 28, 29, 29, 29,
-  30, 30, 30, 31, 31, 31, 32, 32, 32, 33, 33, 33, 34, 34, 34, 35, 35, 35,
-  36, 36, 36, 37, 37, 37, 38, 38, 38, 39, 39, 39, 40, 40, 40, 41, 41, 41,
-  42, 42, 42, 43, 43, 43, 44, 44, 44, 45, 45, 45, 46, 46, 46, 47, 47, 47,
-  48, 48, 48, 49, 49, 49, 50, 50, 50, 51, 51, 51, 52, 52, 52, 53, 53, 53,
-  54, 54, 54, 55, 55, 55, 56, 56, 56, 57, 57, 57, 58, 58, 58, 59, 59, 59,
-  60, 60, 60, 61, 61, 61, 62, 62, 62, 63, 63, 63, 64, 64, 64, 65, 65, 65,
-  66, 66, 66, 67, 67, 67, 68, 68, 68, 69, 69, 69, 70, 70, 70, 71, 71, 71,
-  72, 72, 72, 73, 73, 73, 74, 74, 74, 75, 75, 75, 76, 76, 76, 77, 77, 77,
-  78, 78, 78, 79, 79, 79, 80, 80, 80, 81, 81, 81, 82, 82, 82, 83, 83, 83,
-  84, 84, 84, 85, 85, 85, 86, 86, 86, 87, 87, 87, 88, 88, 88, 89, 89, 89,
-};
 
 /** Map subtiles, Z dimension.
  */
 MapSubtlCoord map_subtiles_z = 8;
-
-
-long navigation_map_size_x = 256;
-long navigation_map_size_y = 256;
 
 unsigned char *IanMap = NULL;
 long nav_map_initialised = 0;
@@ -97,7 +76,7 @@ struct Map *get_map_block_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
   return &game.map[get_subtile_number(stl_x,stl_y)];
 }
 
-struct Map *get_map_block_at_pos(long stl_num)
+struct Map *get_map_block_at_pos(SubtlCodedCoords stl_num)
 {
   if ((stl_num < 0) || (stl_num > get_subtile_number(gameadd.map_subtiles_x,gameadd.map_subtiles_y)))
       return INVALID_MAP_BLOCK;
@@ -547,7 +526,7 @@ SubtlCodedCoords get_subtile_number_at_slab_center(long slb_x, long slb_y)
  */
 MapSubtlCoord stl_slab_center_subtile(MapSubtlCoord stl_v)
 {
-  return subtile_slab_fast(stl_v)*STL_PER_SLB+1;
+  return subtile_slab(stl_v)*STL_PER_SLB+1;
 }
 
 /**
@@ -555,7 +534,7 @@ MapSubtlCoord stl_slab_center_subtile(MapSubtlCoord stl_v)
  */
 MapSubtlCoord stl_slab_starting_subtile(MapSubtlCoord stl_v)
 {
-  return subtile_slab_fast(stl_v)*STL_PER_SLB;
+  return subtile_slab(stl_v)*STL_PER_SLB;
 }
 
 /**
@@ -563,7 +542,7 @@ MapSubtlCoord stl_slab_starting_subtile(MapSubtlCoord stl_v)
  */
 MapSubtlCoord stl_slab_ending_subtile(MapSubtlCoord stl_v)
 {
-  return subtile_slab_fast(stl_v)*STL_PER_SLB+STL_PER_SLB-1;
+  return subtile_slab(stl_v)*STL_PER_SLB+STL_PER_SLB-1;
 }
 
 /******************************************************************************/
@@ -667,8 +646,8 @@ void reveal_map_area(PlayerNumber plyr_idx,MapSubtlCoord start_x,MapSubtlCoord e
   start_y = stl_slab_starting_subtile(start_y);
   end_x = stl_slab_ending_subtile(end_x)+1;
   end_y = stl_slab_ending_subtile(end_y)+1;
-  clear_dig_for_map_rect(plyr_idx,subtile_slab_fast(start_x),subtile_slab_fast(end_x),
-      subtile_slab_fast(start_y),subtile_slab_fast(end_y));
+  clear_dig_for_map_rect(plyr_idx,subtile_slab(start_x),subtile_slab(end_x),
+      subtile_slab(start_y),subtile_slab(end_y));
   reveal_map_rect(plyr_idx,start_x,end_x,start_y,end_y);
   pannel_map_update(start_x,start_y,end_x,end_y);
 }
@@ -679,8 +658,8 @@ void conceal_map_area(PlayerNumber plyr_idx,MapSubtlCoord start_x,MapSubtlCoord 
     start_y = stl_slab_starting_subtile(start_y);
     end_x = stl_slab_ending_subtile(end_x)+1;
     end_y = stl_slab_ending_subtile(end_y)+1;
-    clear_dig_for_map_rect(plyr_idx,subtile_slab_fast(start_x),subtile_slab_fast(end_x),
-                           subtile_slab_fast(start_y),subtile_slab_fast(end_y));
+    clear_dig_for_map_rect(plyr_idx,subtile_slab(start_x),subtile_slab(end_x),
+                           subtile_slab(start_y),subtile_slab(end_y));
     for (MapSubtlCoord y = start_y; y < end_y; y++)
     {
         for (MapSubtlCoord x = start_x; x < end_x; x++)
@@ -849,6 +828,9 @@ void set_map_size(MapSlabCoord x,MapSlabCoord y)
     gameadd.map_subtiles_y = y * STL_PER_SLB;
     gameadd.map_tiles_x = x;
     gameadd.map_tiles_y = y;
+
+    gameadd.navigation_map_size_x = gameadd.map_subtiles_x + 1;
+    gameadd.navigation_map_size_y = gameadd.map_subtiles_y + 1;
 
     gameadd.small_around_slab[0] = -gameadd.map_tiles_x;
     gameadd.small_around_slab[1] = 1;

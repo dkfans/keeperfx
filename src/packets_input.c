@@ -64,7 +64,7 @@ void remember_cursor_subtile(struct PlayerInfo *player) {
     playeradd->previous_cursor_subtile_x = playeradd->cursor_subtile_x;
     playeradd->previous_cursor_subtile_y = playeradd->cursor_subtile_y;
     
-    TbBool badPacket = ((unsigned short)pckt->pos_x == 0) && ((unsigned short)pckt->pos_y == 0);
+    TbBool badPacket = (pckt->pos_x == 0) && (pckt->pos_y == 0);
     TbBool onGui = ((pckt->control_flags & PCtr_Gui) != 0);
 
     if (onGui == true || playeradd->mouse_is_offmap == true || badPacket == true) {
@@ -72,8 +72,8 @@ void remember_cursor_subtile(struct PlayerInfo *player) {
         fix_previous_cursor_subtile_when_offmap = true;
     } else {
         // On field
-        playeradd->cursor_subtile_x = coord_subtile(((unsigned short)pckt->pos_x));
-        playeradd->cursor_subtile_y = coord_subtile(((unsigned short)pckt->pos_y));
+        playeradd->cursor_subtile_x = coord_subtile((pckt->pos_x));
+        playeradd->cursor_subtile_y = coord_subtile((pckt->pos_y));
         if (fix_previous_cursor_subtile_when_offmap == true) {
             fix_previous_cursor_subtile_when_offmap = false;
             playeradd->previous_cursor_subtile_x = playeradd->cursor_subtile_x;
@@ -106,8 +106,8 @@ TbBool process_dungeon_control_packet_dungeon_build_room(long plyr_idx)
     struct PlayerInfo* player = get_player(plyr_idx);
     struct PlayerInfoAdd* playeradd = get_playeradd(plyr_idx);
     struct Packet* pckt = get_packet_direct(player->packet_num);
-    MapCoord x = ((unsigned short)pckt->pos_x);
-    MapCoord y = ((unsigned short)pckt->pos_y);
+    MapCoord x = (pckt->pos_x);
+    MapCoord y = (pckt->pos_y);
     MapSubtlCoord stl_x = coord_subtile(x);
     MapSubtlCoord stl_y = coord_subtile(y);
     if ((pckt->control_flags & PCtr_MapCoordsValid) == 0)
@@ -147,14 +147,14 @@ TbBool process_dungeon_control_packet_dungeon_build_room(long plyr_idx)
     }
     else if ((pckt->control_flags & PCtr_LBtnHeld) == PCtr_LBtnHeld)
     {
-        if ( (player->boxsize == 0) || (!can_build_room_at_slab(player->id_number, player->chosen_room_kind, subtile_slab_fast(stl_x), subtile_slab_fast(stl_y))) )
+        if ( (player->boxsize == 0) || (!can_build_room_at_slab(player->id_number, player->chosen_room_kind, subtile_slab(stl_x), subtile_slab(stl_y))) )
         {
             return false; //stops attempts at invalid rooms, if left mouse button held (i.e. don't repeat failure sound repeatedly in paint mode)
         }
     }
     if (i == 0)
     {
-        if (can_build_room_at_slab(player->id_number, player->chosen_room_kind, subtile_slab_fast(stl_x), subtile_slab_fast(stl_y)))
+        if (can_build_room_at_slab(player->id_number, player->chosen_room_kind, subtile_slab(stl_x), subtile_slab(stl_y)))
         {
             struct Dungeon* dungeon = get_dungeon(player->id_number);
             if (playeradd->render_roomspace.total_roomspace_cost > dungeon->total_money_owned)
@@ -195,8 +195,8 @@ TbBool process_dungeon_power_hand_state(long plyr_idx)
     struct PlayerInfo* player = get_player(plyr_idx);
     struct PlayerInfoAdd* playeradd = get_playeradd(plyr_idx);
     struct Packet* pckt = get_packet_direct(player->packet_num);
-    MapCoord x = ((unsigned short)pckt->pos_x);
-    MapCoord y = ((unsigned short)pckt->pos_y);
+    MapCoord x = pckt->pos_x;
+    MapCoord y = pckt->pos_y;
     MapSubtlCoord stl_x = coord_subtile(x);
     MapSubtlCoord stl_y = coord_subtile(y);
     struct Objects* objdat;
@@ -275,8 +275,8 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
     struct PlayerInfoAdd* playeradd = get_playeradd(plyr_idx);
     struct Dungeon* dungeon = get_players_dungeon(player);
     struct Packet* pckt = get_packet_direct(player->packet_num);
-    MapCoord x = ((unsigned short)pckt->pos_x);
-    MapCoord y = ((unsigned short)pckt->pos_y);
+    MapCoord x = pckt->pos_x;
+    MapCoord y = pckt->pos_y;
     MapSubtlCoord stl_x = coord_subtile(x);
     MapSubtlCoord stl_y = coord_subtile(y);
     if ((pckt->control_flags & PCtr_LBtnAnyAction) == 0)
@@ -523,8 +523,8 @@ TbBool process_dungeon_control_packet_sell_operation(long plyr_idx)
         }
         return false;
     }
-    MapCoord x = ((unsigned short)pckt->pos_x);
-    MapCoord y = ((unsigned short)pckt->pos_y);
+    MapCoord x = (pckt->pos_x);
+    MapCoord y = (pckt->pos_y);
     MapSubtlCoord stl_x = coord_subtile(x);
     MapSubtlCoord stl_y = coord_subtile(y);
     player->full_slab_cursor = (playeradd->roomspace_mode != single_subtile_mode);
@@ -620,8 +620,8 @@ TbBool process_dungeon_control_packet_dungeon_place_trap(long plyr_idx)
 {
     struct PlayerInfo* player = get_player(plyr_idx);
     struct Packet* pckt = get_packet_direct(player->packet_num);
-    MapCoord x = ((unsigned short)pckt->pos_x);
-    MapCoord y = ((unsigned short)pckt->pos_y);
+    MapCoord x = (pckt->pos_x);
+    MapCoord y = (pckt->pos_y);
     MapSubtlCoord stl_x = coord_subtile(x);
     MapSubtlCoord stl_y = coord_subtile(y);
 
@@ -692,15 +692,15 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
 
     update_double_click_detection(plyr_idx);
     player->thing_under_hand = 0;
-    MapCoord x = ((unsigned short)pckt->pos_x);
-    MapCoord y = ((unsigned short)pckt->pos_y);
+    MapCoord x = (pckt->pos_x);
+    MapCoord y = (pckt->pos_y);
     MapSubtlCoord stl_x = coord_subtile(x);
     MapSubtlCoord stl_y = coord_subtile(y);
 
     short influence_own_creatures = false;
     long i;
-    MapSlabCoord slb_x = subtile_slab_fast(stl_x);
-    MapSlabCoord slb_y = subtile_slab_fast(stl_y);
+    MapSlabCoord slb_x = subtile_slab(stl_x);
+    MapSlabCoord slb_y = subtile_slab(stl_y);
     switch (player->work_state)
     {
         case PSt_CtrlDungeon:
@@ -973,8 +973,8 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
             break;
     }
     // resetting position variables - they may have been changed
-    x = ((unsigned short)pckt->pos_x);
-    y = ((unsigned short)pckt->pos_y);
+    x = (pckt->pos_x);
+    y = (pckt->pos_y);
     stl_x = coord_subtile(x);
     stl_y = coord_subtile(y);
     if (player->thing_under_hand == 0)

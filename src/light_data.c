@@ -1750,7 +1750,7 @@ static char light_render_light_dynamic_uncached(struct Light *lgt, int radius, i
 static char light_render_light_dynamic(struct Light *lgt, int radius, int render_intensity, unsigned int lighting_tables_idx)
 {
     unsigned short *stl_lightness;
-    int stl_num_2;
+    SubtlCodedCoords stl_num_2;
     int v10;
     int v11;
     struct LightingTable *lighting_table;

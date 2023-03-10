@@ -558,8 +558,8 @@ short good_attack_room(struct Thing *thing)
         set_start_state(thing);
         return 0;
     }
-    MapSlabCoord base_slb_x = subtile_slab_fast(thing->mappos.x.stl.num);
-    MapSlabCoord base_slb_y = subtile_slab_fast(thing->mappos.y.stl.num);
+    MapSlabCoord base_slb_x = subtile_slab(thing->mappos.x.stl.num);
+    MapSlabCoord base_slb_y = subtile_slab(thing->mappos.y.stl.num);
     struct Room* room = slab_room_get(base_slb_x, base_slb_y);
     // If the current tile can be destroyed
     if (room_exists(room) && !players_creatures_tolerate_each_other(thing->owner, room->owner) && !room_cannot_vandalise(room->kind))

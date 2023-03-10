@@ -321,9 +321,9 @@ void set_power_hand_graphic(unsigned char plyr_idx, long AnimationID, long Anima
   }
   if (player->hand_busy_until_turn < game.play_gameturn)
   {
-    if (player->field_C != AnimationID)
+    if (player->hand_animationId != AnimationID)
     {
-      player->field_C = AnimationID;
+      player->hand_animationId = AnimationID;
       thing = thing_get(player->hand_thing_idx);
       if ((AnimationID == 782) || (AnimationID == 781))
       {
@@ -637,7 +637,7 @@ void draw_power_hand(void)
             break;
         }
     }
-    if (player->field_C == 784)
+    if (player->hand_animationId == 784)
     {
         inputpos_x = GetMouseX() + scale_ui_value(58);
         inputpos_y = GetMouseY() +  scale_ui_value(6);
@@ -1176,7 +1176,7 @@ struct Thing *create_power_hand(PlayerNumber owner)
         return INVALID_THING;
     }
     player->hand_thing_idx = thing->index;
-    player->field_C = 0;
+    player->hand_animationId = 0;
     grabtng = get_first_thing_in_power_hand(player);
     if (thing_is_invalid(thing))
     {
