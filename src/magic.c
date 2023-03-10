@@ -102,7 +102,7 @@ TbBool can_cast_spell_f(PlayerNumber plyr_idx, PowerKind pwkind, MapSubtlCoord s
     }
     else if ( (player->work_state == PSt_FreeCastDisease) || (player->work_state == PSt_FreeTurnChicken) )
     {
-        return (slab_is_wall(subtile_slab_fast(stl_x), subtile_slab_fast(stl_y)) == false);
+        return (slab_is_wall(subtile_slab(stl_x), subtile_slab(stl_y)) == false);
     }
     if ((flags & CastChk_SkipAvailiabilty) == 0)
     {
@@ -1112,8 +1112,8 @@ TbResult magic_use_power_destroy_walls(PlayerNumber plyr_idx, MapSubtlCoord stl_
     MapSlabCoord slb_x_end;
     MapSlabCoord slb_y_end;
     int i;
-    slb_x_start = map_to_slab[stl_x] - 1;
-    slb_y_start = map_to_slab[stl_y] - 1;
+    slb_x_start = subtile_slab(stl_x) - 1;
+    slb_y_start = subtile_slab(stl_y) - 1;
     slb_x_end = slb_x_start + 3;
     slb_y_end = slb_y_start + 3;
     i = 0;
@@ -1484,8 +1484,8 @@ TbResult magic_use_power_cave_in(PlayerNumber plyr_idx, MapSubtlCoord stl_x, Map
 {
     MapSlabCoord slb_x;
     MapSlabCoord slb_y;
-    slb_y = subtile_slab_fast(stl_y);
-    slb_x = subtile_slab_fast(stl_x);
+    slb_y = subtile_slab(stl_y);
+    slb_x = subtile_slab(stl_x);
     struct Map *mapblk;
     mapblk = get_map_block_at(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
     long i;
