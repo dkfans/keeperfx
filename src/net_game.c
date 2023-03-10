@@ -59,7 +59,7 @@ short setup_network_service(int srvidx)
   set_flag_byte(&game.flags_font,FFlg_unk10,false);
   SYNCMSG("Initializing 4-players type %d network",srvidx);
   LbMemorySet(&net_player_info[0], 0, sizeof(struct TbNetworkPlayerInfo));
-  if ( LbNetwork_Init(srvidx, 4, &net_player_info[0], init_data) )
+  if ( LbNetwork_Init(srvidx, NET_PLAYERS_COUNT, &net_player_info[0], init_data) )
   {
     if (srvidx != 0)
       process_network_error(-800);
