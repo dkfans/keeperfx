@@ -2033,8 +2033,8 @@ struct Room *prepare_new_room(PlayerNumber owner, RoomKind rkind, MapSubtlCoord 
     room->kind = rkind;
     add_room_to_global_list(room);
     add_room_to_players_list(room, owner);
-    MapSlabCoord slb_x = subtile_slab_fast(stl_x);
-    MapSlabCoord slb_y = subtile_slab_fast(stl_y);
+    MapSlabCoord slb_x = subtile_slab(stl_x);
+    MapSlabCoord slb_y = subtile_slab(stl_y);
     add_slab_to_room_tiles_list(room, slb_x, slb_y);
     return room;
 }
@@ -2449,8 +2449,8 @@ struct Room* link_adjacent_rooms_of_type(PlayerNumber owner, MapSubtlCoord x, Ma
     MapSubtlCoord stl_y;
     long n;
     // Central slab coords - we will need it if we'll find adjacent room
-    MapSlabCoord central_slb_x = subtile_slab_fast(x);
-    MapSlabCoord central_slb_y = subtile_slab_fast(y);
+    MapSlabCoord central_slb_x = subtile_slab(x);
+    MapSlabCoord central_slb_y = subtile_slab(y);
     // Localize the room to be merged with other rooms
     struct Room* linkroom = INVALID_ROOM;
     for (n = 0; n < SMALL_AROUND_LENGTH; n++)
@@ -2544,9 +2544,9 @@ void init_room_sparks(struct Room *room)
         struct SlabMap* sibslb = get_slabmap_block(slb_x, slb_y - 1);
         if (sibslb->room_index != slb->room_index)
         {
-            room->field_43 = 1;
+            room->flames_around_idx = 1;
             room->flame_stl = 0;
-            room->field_41 = i;
+            room->flame_slb = i;
             break;
         }
         // Per room tile code ends
@@ -4500,8 +4500,8 @@ struct Room *place_room(PlayerNumber owner, RoomKind rkind, MapSubtlCoord stl_x,
     game.map_changed_for_nagivation = 1;
     if (subtile_coords_invalid(stl_x, stl_y))
         return INVALID_ROOM;
-    long slb_x = subtile_slab_fast(stl_x);
-    long slb_y = subtile_slab_fast(stl_y);
+    long slb_x = subtile_slab(stl_x);
+    long slb_y = subtile_slab(stl_y);
     struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
     // If there already was a room, delete it; also, update area statistics
     if (slb->room_index > 0)
@@ -4844,7 +4844,7 @@ void delete_room_slabbed_objects(SlabCodedCoords slb_num)
 static TbBool change_room_subtile_things_ownership(struct Room *room, MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx)
 {
     struct Map* mapblk = get_map_block_at(stl_x, stl_y);
-    long parent_idx = get_slab_number(subtile_slab_fast(stl_x), subtile_slab_fast(stl_y));
+    long parent_idx = get_slab_number(subtile_slab(stl_x), subtile_slab(stl_y));
     unsigned long k = 0;
     long i = get_mapwho_thing_index(mapblk);
     while (i != 0)

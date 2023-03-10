@@ -22,6 +22,7 @@
 #include "bflib_basics.h"
 #include "config_creature.h"
 #include "globals.h"
+#include "config_creature.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -84,12 +85,12 @@ struct RoomInfo { // sizeof = 6
 
 struct Room {
     unsigned char alloc_flags;
-    unsigned short index; // index in the rooms array
-    unsigned char owner;
-    short prev_of_owner;
-    short next_of_owner;
-    unsigned char central_stl_x;
-    unsigned char central_stl_y;
+    RoomIndex index; // index in the rooms array
+    PlayerNumber owner;
+    RoomIndex prev_of_owner;
+    RoomIndex next_of_owner;
+    MapSubtlCoord central_stl_x;
+    MapSubtlCoord central_stl_y;
     unsigned short kind;
     unsigned short health;
     unsigned short total_capacity;
@@ -102,15 +103,13 @@ struct Room {
      *  Rooms which can store things are workshops, libraries, treasure rooms etc. */
     struct {
       unsigned long capacity_used_for_storage;
-      short hatchfield_1B;
-      unsigned char field_1D[26];
+      ThingIndex hatchfield_1B;
     };
     /** For rooms which are often browsed for various reasons, list of all rooms of given kind.
      *  Rooms which have such list are entrances (only?). */
     struct {
-      short prev_of_kind;
-      short next_of_kind;
-      unsigned char field_1Bx[28];
+      RoomIndex prev_of_kind;
+      RoomIndex next_of_kind;
     };
     struct {
       /** For rooms which store creatures, amount of each model.
@@ -120,23 +119,18 @@ struct Room {
     /* For hatchery; integrate with something else, if possible */
     struct {
       long hatch_gameturn;
-      unsigned char field_1Bh[28];
     };
     };
-    unsigned short slabs_list;
-    unsigned short slabs_list_tail;
+    SlabCodedCoords slabs_list;
+    SlabCodedCoords slabs_list_tail;
     unsigned short slabs_count;
-    unsigned short creatures_list;
+    ThingIndex creatures_list;
     unsigned short efficiency;
-    unsigned short field_41;
-    unsigned char field_43;
+    SlabCodedCoords flame_slb;
+    unsigned char flames_around_idx;
     unsigned char flame_stl;
 };
 
-struct RoomStatsOLD {
-  short cost_unused;
-  unsigned short health_unused;
-};
 
 /** Max. amount of items to be repositioned in a room */
 #define ROOM_REPOSITION_COUNT 16

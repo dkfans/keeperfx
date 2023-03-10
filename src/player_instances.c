@@ -792,7 +792,7 @@ long pinstfs_zoom_to_position(struct PlayerInfo *player, long *n)
       if (dt_x <= 256)
         dt_x = 256;
     }
-    player->field_4DB = dt_x;
+    player->zoom_to_movement_x = dt_x;
     if (dt_y < 0)
     {
         if (dt_y >= -256)
@@ -802,7 +802,7 @@ long pinstfs_zoom_to_position(struct PlayerInfo *player, long *n)
         if (dt_y <= 256)
           dt_y = 256;
     }
-    player->field_4DF = dt_y;
+    player->zoom_to_movement_y = dt_y;
     return 0;
 }
 
@@ -811,12 +811,12 @@ long pinstfm_zoom_to_position(struct PlayerInfo *player, long *n)
     long x;
     long y;
     struct Camera* cam = player->acamera;
-    if (abs(cam->mappos.x.val - player->zoom_to_pos_x) >= abs(player->field_4DB))
-      x = player->field_4DB + cam->mappos.x.val;
+    if (abs(cam->mappos.x.val - player->zoom_to_pos_x) >= abs(player->zoom_to_movement_x))
+      x = player->zoom_to_movement_x + cam->mappos.x.val;
     else
       x = player->zoom_to_pos_x;
-    if (abs(cam->mappos.y.val - player->zoom_to_pos_y) >= abs(player->field_4DF))
-      y = player->field_4DF + cam->mappos.y.val;
+    if (abs(cam->mappos.y.val - player->zoom_to_pos_y) >= abs(player->zoom_to_movement_y))
+      y = player->zoom_to_movement_y + cam->mappos.y.val;
     else
       y = player->zoom_to_pos_y;
     if ((player->zoom_to_pos_x == x) && (player->zoom_to_pos_y == y))
@@ -1188,13 +1188,13 @@ TbBool player_place_trap_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumb
     struct PlayerInfo* player = get_player(plyr_idx);
     if ((player->chosen_trap_kind == TngTrp_Boulder) || (!gameadd.place_traps_on_subtiles))
     {
-        set_coords_to_slab_center(&pos,subtile_slab_fast(stl_x),subtile_slab_fast(stl_y));
+        set_coords_to_slab_center(&pos,subtile_slab(stl_x),subtile_slab(stl_y));
     }
     else
     {
         set_coords_to_subtile_center(&pos,stl_x,stl_y,1);
     }
-    delete_room_slabbed_objects(get_slab_number(subtile_slab_fast(stl_x),subtile_slab_fast(stl_y)));
+    delete_room_slabbed_objects(get_slab_number(subtile_slab(stl_x),subtile_slab(stl_y)));
     struct Thing* traptng = create_trap(&pos, tngmodel, plyr_idx);
     if (thing_is_invalid(traptng)) {
         return false;
