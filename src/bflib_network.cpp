@@ -47,8 +47,6 @@ TbError ClearClientData(void);
 TbError GetPlayerInfo(void);
 TbError GetCurrentPlayers(void);
 TbError AddAPlayer(struct TbNetworkPlayerNameEntry *plyrname);
-// static TbError GenericIPXInit(void *init_data);
-// static TbError GenericTCPInit(void *init_data); // this is not being used
 TbError StartMultiPlayerExchange(void *buf);
 TbError CompleteTwoPlayerExchange(void *buf);
 TbError CompleteMultiPlayerExchange(void *buf);
