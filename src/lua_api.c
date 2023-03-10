@@ -15,6 +15,7 @@
 #include "player_utils.h"
 #include "lvl_script_lib.h"
 #include "room_library.h"
+#include "keeperfx.hpp"
 
 #include "post_inc.h"
 
@@ -37,10 +38,9 @@ static long luaL_checkNamedCommand(lua_State *L, int index,const struct NamedCom
     {
         const char* text = lua_tostring(L, index);
         long id = get_rid(commanddesc, text);
-        if (id == -1)
-        {
-            luaL_error(L,"invalid namedcommandoption, '%s'", text);
-        }
+
+        luaL_argcheck(L,id != -1,index,"invalid namedcommandoption");
+
         return id;
     }
     luaL_error(L,"invalid namedcommandoption");
@@ -74,6 +74,15 @@ static TbMapLocation luaL_checkLocation(lua_State *L, int index)
         luaL_error (L,"Invalid location, '%s'", locname);
     }
     return location;
+}
+
+static TbMapLocation luaL_optLocation(lua_State *L, int index)
+{
+    if (lua_isnone(L,index))
+        return 0;
+    else
+        return luaL_checkLocation(L,index);
+
 }
 
 static TbMapLocation luaL_checkHeadingLocation(lua_State *L, int index)
@@ -129,6 +138,22 @@ static PlayerNumber luaL_checkPlayerSingle(lua_State *L, int index)
 
 void lua_pushThing(lua_State *L, struct Thing* thing)
 {
+    if(thing_is_invalid(thing))
+    {
+        
+    }
+    
+    lua_createtable(L, 0, 4); /* creates and pushes new table on top of Lua stack */
+
+    lua_pushinteger(L, thing->index); /* Pushes table value on top of Lua stack */
+    lua_setfield(L, -2, "index");  /* table["name"] = row->name. Pops key value */
+
+    lua_pushinteger(L, thing->creation_turn);
+    lua_setfield(L, -2, "creation_turn");
+
+    /* Returning one table which is already on top of Lua stack. */
+    return 1;
+
     /*
     struct luaThing *lthing = (struct luaThing *)lua_newtable(L, );
     lthing->thing_idx = thing->index;
@@ -288,6 +313,7 @@ static int lua_SET_HATE(lua_State *L)
 static int lua_SET_GENERATE_SPEED(lua_State *L)
 {
     GameTurnDelta interval   = luaL_checkinteger(L,1);
+
     game.generate_speed = saturate_set_unsigned(interval, 16);
     update_dungeon_generation_speeds();
     return 0;
@@ -490,21 +516,74 @@ static int lua_LOSE_GAME(lua_State *L)
     return 0;
 }
 
-
-
-/*
 static int lua_MAX_CREATURES(lua_State *L)
+{
+    struct PlayerRange player_range = luaL_checkPlayerRange(L, 1);
+    long max_amount                 = luaL_checkinteger(L, 2);
+
+    for (int i=player_range.start_idx; i < player_range.end_idx; i++)
+    {
+        SYNCDBG(4,"Setting player %d max attracted creatures to %d.",(int)i,(int)max_amount);
+        struct Dungeon* dungeon = get_dungeon(i);
+        if (dungeon_invalid(dungeon))
+            continue;
+        dungeon->max_creatures_attracted = max_amount;
+    }
+    return 0;
+}
+
 static int lua_DOOR_AVAILABLE(lua_State *L)
+{
+    struct PlayerRange player_range = luaL_checkPlayerRange(L, 1);
+    long door_type                  = luaL_checkNamedCommand(L,2,door_desc);
+    TbBool can_be_available         = lua_toboolean(L, 3);
+    long number_available           = luaL_checkinteger(L, 4);
+
+    for (PlayerNumber i = player_range.start_idx; i < player_range.end_idx; i++)
+    {
+        set_door_buildable_and_add_to_amount(i, door_type, can_be_available, number_available);
+    }
+    return 0;
+}
+
 static int lua_DISPLAY_OBJECTIVE(lua_State *L)
+{
+    long msg_id    = luaL_checkinteger(L, 1);
+    TbMapLocation zoom_location = luaL_optLocation(L,2);
+
+    set_general_objective(msg_id,zoom_location,0,0);
+    return 0;
+}
+
 static int lua_DISPLAY_OBJECTIVE_WITH_POS(lua_State *L)
+{
+    long msg_id    = luaL_checkinteger(L, 1);
+    long x    = luaL_checkinteger(L, 1);
+    long y    = luaL_checkinteger(L, 1);
+    
+    set_general_objective(msg_id,0,x,y);
+    return 0;
+}
+
 static int lua_DISPLAY_INFORMATION(lua_State *L)
+{
+    long msg_id    = luaL_checkinteger(L, 1);
+}
+
 static int lua_DISPLAY_INFORMATION_WITH_POS(lua_State *L)
-static int lua_ADD_TUNNELLER_PARTY_TO_LEVEL(lua_State *L)
-static int lua_ADD_CREATURE_TO_POOL(lua_State *L)
+{
+    long msg_id    = luaL_checkinteger(L, 1);
+}
+
+//static int lua_ADD_TUNNELLER_PARTY_TO_LEVEL(lua_State *L)
+//static int lua_ADD_CREATURE_TO_POOL(lua_State *L)
+/*
 static int lua_RESET_ACTION_POINT(lua_State *L)
 static int lua_SET_CREATURE_MAX_LEVEL(lua_State *L)
 static int lua_SET_MUSIC(lua_State *L)
-static int lua_TUTORIAL_FLASH_BUTTON(lua_State *L)
+*/
+//static int lua_TUTORIAL_FLASH_BUTTON(lua_State *L)
+/*
 static int lua_SET_CREATURE_STRENGTH(lua_State *L)
 static int lua_SET_CREATURE_HEALTH(lua_State *L)
 static int lua_SET_CREATURE_ARMOUR(lua_State *L)
