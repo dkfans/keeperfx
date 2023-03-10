@@ -156,7 +156,7 @@ short creature_pick_up_spell_to_steal(struct Thing *creatng);
 /******************************************************************************/
 //process_state, cleanup_state, move_from_slab, move_check,
 //override_feed, override_own_needs, override_sleep, override_fight_crtr, override_gets_salary, override_captive, override_transition, override_escape, override_unconscious, override_anger_job, override_fight_object, override_fight_door, override_call2arms, override_follow,
-    //state_type, captive, transition, follow_behavior, blocks_all_state_changes, sprite_idx, display_thought_bubble, _unused_27, react_to_cta
+    //state_type, captive, transition, follow_behavior, blocks_all_state_changes, sprite_idx, display_thought_bubble, sneaky, react_to_cta
 struct StateInfo states[CREATURE_STATES_COUNT] = {
   {NULL, NULL, NULL, NULL,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Idle, 0, 0, 0, 0,  0, 0, 0, 0},
@@ -316,8 +316,8 @@ struct StateInfo states[CREATURE_STATES_COUNT] = {
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Idle, 0, 0, 1, 0,  0, 0, 0, 1},
   {creature_object_combat, cleanup_object_combat, NULL, NULL,
     1, 1, 1, 1, 1, 0, 0, 1, 0, 1, 0, 0, 1, 1, CrStTyp_FightObj, 0, 0, 1, 0, 51, 1, 0, 0},
-  {NULL, NULL, NULL, NULL,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Idle, 0, 0, 0, 0,  0, 0, 0, 1},
+  {creature_object_combat, cleanup_object_combat, NULL, NULL,
+    1, 1, 1, 1, 1, 0, 0, 1, 0, 1, 0, 0, 1, 1, CrStTyp_AngerJob, 1, 0, 1, 0, 51, 1, 0, 0 },
   {creature_change_lair, NULL, NULL, move_check_on_head_for_room, // [80]
     0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0,  CrStTyp_OwnNeeds, 0, 0, 1, 0, 58, 1, 0, 1},
   {imp_birth, NULL, NULL, NULL,
@@ -421,9 +421,9 @@ struct StateInfo states[CREATURE_STATES_COUNT] = {
   {good_attack_room, NULL, NULL, NULL, // [130]
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Idle, 1, 1, 0, 0,  0, 0, 0, 1},
   {creature_search_for_gold_to_steal_in_room, NULL, NULL, NULL,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, CrStTyp_AngerJob, 1, 1, 0, 0,  0, 0, 0, 1},
-  {good_attack_room, NULL, NULL, NULL,
-    0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, CrStTyp_Idle, 1, 1, 0, 0,  0, 0, 0, 1},
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, CrStTyp_AngerJob, 0, 0, 0, 0,  0, 0, 1, 1},
+  {good_arrived_at_attack_room, NULL, NULL, move_check_attack_any_door,
+    0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, CrStTyp_AngerJob, 0, 0, 0, 0, 55, 1, 1, 1},
   {creature_pretend_chicken_setup_move, NULL, NULL, NULL,
     1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1,  CrStTyp_Idle, 1, 1, 0, 0,  0, 0, 0, 0},
   {creature_pretend_chicken_move, NULL, NULL, NULL,
@@ -449,7 +449,7 @@ struct StateInfo states[CREATURE_STATES_COUNT] = {
   {creature_present_to_dungeon_heart, NULL, NULL, NULL,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Idle, 0, 0, 0, 0,  0, 0, 0, 1},
   {creature_search_for_spell_to_steal_in_room, NULL, NULL, move_check_attack_any_door,
-    0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, CrStTyp_AngerJob, 0, 0, 0, 0, 55, 1, 0, 1},
+    0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, CrStTyp_AngerJob, 0, 0, 0, 0, 55, 1, 1, 1},
   {creature_pick_up_spell_to_steal, NULL, NULL, move_check_attack_any_door,
     0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, CrStTyp_AngerJob, 0, 0, 0, 0, 55, 1, 0, 1},
   {good_arrived_at_attack_room, NULL, NULL, move_check_attack_any_door,
@@ -2533,7 +2533,7 @@ TbBool find_random_valid_position_for_thing_in_room_avoiding_object(struct Thing
                     }
                 }
             }
-            start_stl = (start_stl + 1) % 9;
+            start_stl = (start_stl + 1) % AROUND_TILES_COUNT;
         }
         // Per room tile code ends
         if (n+1 >= room->slabs_count)

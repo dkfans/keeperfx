@@ -150,7 +150,9 @@ const struct NamedCommand hero_objective_desc[] = {
   {"STEAL_SPELLS",         CHeroTsk_StealSpells},
   {"ATTACK_ENEMIES",       CHeroTsk_AttackEnemies},
   {"ATTACK_DUNGEON_HEART", CHeroTsk_AttackDnHeart},
+  {"SNIPE_DUNGEON_HEART",  CHeroTsk_SnipeDnHeart},
   {"ATTACK_ROOMS",         CHeroTsk_AttackRooms},
+  {"SABOTAGE_ROOMS",       CHeroTsk_SabotageRooms},
   {"DEFEND_PARTY",         CHeroTsk_DefendParty},
   {"DEFEND_LOCATION",      CHeroTsk_DefendSpawn},
   {"DEFEND_HEART",         CHeroTsk_DefendHeart},
@@ -387,6 +389,7 @@ const struct NamedCommand texture_pack_desc[] = {
   {"LILAC_STONE",  11},
   {"SWAMP_SERPENT",12},
   {"LAVA_CAVERN",  13},
+  {"LATERITE_CAVERN",14},
   {NULL,           0},
 };
 
@@ -425,6 +428,7 @@ TbBool script_change_creatures_annoyance(PlayerNumber plyr_idx, ThingModel crmod
     SYNCDBG(8, "Starting");
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
     unsigned long k = 0;
+    TbBool is_spec_digger;
     int i = dungeon->creatr_list_start;
     while (i != 0)
     {
@@ -436,9 +440,11 @@ TbBool script_change_creatures_annoyance(PlayerNumber plyr_idx, ThingModel crmod
             ERRORLOG("Jump to invalid creature detected");
             break;
         }
+        is_spec_digger = (thing->model > 0) && creature_kind_is_for_dungeon_diggers_list(plyr_idx, thing->model);
         i = cctrl->players_next_creature_idx;
         // Per creature code
-        if (thing->model == crmodel || crmodel == 0)
+       
+        if (thing->model == crmodel || crmodel == 0 || (!is_spec_digger && (crmodel == CREATURE_ANY)) || (is_spec_digger && (crmodel == CREATURE_DIGGER)))
         {
             i = cctrl->players_next_creature_idx;
             if (operation == SOpr_SET)
@@ -1644,7 +1650,7 @@ static void add_heart_health_process(struct ScriptContext *context)
     if (!thing_is_invalid(heartng))
     {
         long old_health = heartng->health;
-        unsigned long new_health = heartng->health + context->value->arg1;
+        long long new_health = heartng->health + context->value->arg1;
         if (new_health > (signed long)game.dungeon_heart_health)
         {
             SCRIPTDBG(7,"Player %d's calculated heart health (%ld) is greater than maximum: %ld", heartng->owner, new_health, game.dungeon_heart_health);
@@ -1772,8 +1778,23 @@ static void create_effects_line_check(const struct ScriptLine *scline)
     value->chars[8] = scline->np[2]; // curvature
     value->bytes[9] = scline->np[3]; // spatial stepping
     value->bytes[10] = scline->np[4]; // temporal stepping
-    // TODO: use effect elements when below zero?
-    value->chars[11] = scline->np[5]; // effect
+
+    const char* effect_name = scline->tp[5];
+    long effct_id = get_rid(effect_desc, effect_name);
+    if (effct_id == -1)
+    {
+        if (parameter_is_number(effect_name))
+        {
+            effct_id = atoi(effect_name);
+        }
+        else
+        {
+            SCRPTERRLOG("Unrecognised effect: %s", effect_name);
+            return;
+        }
+    }
+
+    value->chars[11] = effct_id; // effect
 
     PROCESS_SCRIPT_VALUE(scline->command);
 }
@@ -1906,10 +1927,22 @@ static void set_object_configuration_check(const struct ScriptLine *scline)
             value->arg2 = number_value;
             break;
         }
+        case 20: // UPDATEFUNCTION
+        {
+            number_value = get_id(object_update_functions_desc,new_value);
+            if (number_value < 0)
+            {
+                SCRPTERRLOG("Invalid object update function id");
+                DEALLOCATE_SCRIPT_VALUE
+                return;
+            }
+            value->arg2 = number_value;
+            break;
+        }
         default:
             value->arg2 = atoi(new_value);
     }
-
+    
     SCRIPTDBG(7, "Setting object %s property %s to %d", objectname, property, number_value);
     value->arg0 = objct_id;
     value->arg1 = objectvar;
@@ -2139,6 +2172,9 @@ static void set_object_configuration_process(struct ScriptContext *context)
             break;
         case 19: // AMBIENCESOUND
             objdat->fp_smpl_idx = context->value->arg2;
+            break;
+        case 20: // UPDATEFUNCTION
+            objdat->updatefn_idx = context->value->arg2;
             break;
         default:
             WARNMSG("Unsupported Object configuration, variable %d.", context->value->arg1);
@@ -2677,6 +2713,43 @@ static void set_creature_instance_process(struct ScriptContext *context)
     }
 }
 
+
+static void hide_hero_gate_check(const struct ScriptLine* scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    short n = scline->np[0];
+    if (scline->np[0] < 0)
+    {
+        n = -scline->np[0];
+    }
+    struct Thing* thing = find_hero_gate_of_number(n);
+    if (thing_is_invalid(thing))
+    {
+        SCRPTERRLOG("Invalid hero gate: %d", scline->np[0]);
+        return;
+    }
+    value->bytes[0] = n;
+    value->bytes[1] = scline->np[1];
+
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void hide_hero_gate_process(struct ScriptContext* context)
+{
+    struct Thing* thing = find_hero_gate_of_number(context->value->bytes[0]);
+
+    if (context->value->bytes[1])
+    {
+        create_effect(&thing->mappos, TngEff_BallPuffWhite, thing->owner);
+        place_thing_in_creature_controlled_limbo(thing);
+    }
+    else
+    {
+        create_effect(&thing->mappos, TngEff_BallPuffWhite, thing->owner);
+        remove_thing_from_creature_controlled_limbo(thing);
+    }
+}
+
 static void if_check(const struct ScriptLine *scline)
 {
 
@@ -3156,7 +3229,7 @@ const struct CommandDesc command_desc[] = {
   {"SET_BOX_TOOLTIP_ID",                "NN      ", Cmd_SET_BOX_TOOLTIP_ID, &set_box_tooltip_id, &null_process},
   {"CHANGE_SLAB_OWNER",                 "NNPa    ", Cmd_CHANGE_SLAB_OWNER, &change_slab_owner_check, &change_slab_owner_process},
   {"CHANGE_SLAB_TYPE",                  "NNSa    ", Cmd_CHANGE_SLAB_TYPE, &change_slab_type_check, &change_slab_type_process},
-  {"CREATE_EFFECTS_LINE",               "LLNNNN  ", Cmd_CREATE_EFFECTS_LINE, &create_effects_line_check, &create_effects_line_process},
+  {"CREATE_EFFECTS_LINE",               "LLNNNA  ", Cmd_CREATE_EFFECTS_LINE, &create_effects_line_check, &create_effects_line_process},
   {"IF_SLAB_OWNER",                     "NNP     ", Cmd_IF_SLAB_OWNER, NULL, NULL},
   {"IF_SLAB_TYPE",                      "NNS     ", Cmd_IF_SLAB_TYPE, NULL, NULL},
   {"QUICK_MESSAGE",                     "NAA     ", Cmd_QUICK_MESSAGE, NULL, NULL},
@@ -3185,6 +3258,7 @@ const struct CommandDesc command_desc[] = {
   {"COUNT_CREATURES_AT_ACTION_POINT",   "NPC!PA  ", Cmd_COUNT_CREATURES_AT_ACTION_POINT, &count_creatures_at_action_point_check, &count_creatures_at_action_point_process},
   {"IF_ALLIED",                         "PPON    ", Cmd_IF_ALLIED, &if_allied_check, NULL},
   {"SET_TEXTURE",                       "PA      ", Cmd_SET_TEXTURE, &set_texture_check, &set_texture_process},
+  {"HIDE_HERO_GATE",                    "Nn      ", Cmd_HIDE_HERO_GATE, &hide_hero_gate_check, &hide_hero_gate_process},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 

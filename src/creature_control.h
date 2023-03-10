@@ -125,6 +125,8 @@ enum ObjectCombatStates {
     ObjCmbtSt_Unset = 0,
     ObjCmbtSt_Melee,
     ObjCmbtSt_Ranged,
+    ObjCmbtSt_MeleeSnipe,
+    ObjCmbtSt_RangedSnipe,
 };
 
 struct CastedSpellData {
@@ -514,6 +516,7 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     char corpse_vanish_effect;
     short footstep_pitch;
     short lair_object;
+    short status_offset;
 };
 
 struct Persons {

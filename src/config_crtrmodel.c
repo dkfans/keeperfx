@@ -171,6 +171,7 @@ const struct NamedCommand creatmodel_appearance_commands[] = {
   {"CORPSEVANISHEFFECT",   6},
   {"FOOTSTEPPITCH",        7},
   {"PICKUPOFFSET",         8},
+  {"STATUSOFFSET",         9},
   {NULL,                   0},
   };
 
@@ -1516,6 +1517,7 @@ TbBool parse_creaturemodel_appearance_blocks(long crtr_model,char *buf,long len,
         creatures[crtr_model].shot_shift_z = 0;
         crstat->footstep_pitch = 100;
         crstat->corpse_vanish_effect = 0;
+        crstat->status_offset = 32;
     }
     // Find the block
     char block_buf[COMMAND_WORD_LEN];
@@ -1666,6 +1668,22 @@ TbBool parse_creaturemodel_appearance_blocks(long crtr_model,char *buf,long len,
             if (n < 4)
             {
                 CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), block_buf, config_textname);
+            }
+            break;
+        case 9: // STATUSOFFSET
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                if (k > 0)
+                {
+                    crstat->status_offset = k;
+                    n++;
+                }
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
                     COMMAND_TEXT(cmd_num), block_buf, config_textname);
             }
             break;

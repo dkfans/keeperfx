@@ -210,8 +210,11 @@ void slabmap_set_wlb(struct SlabMap *slb, unsigned long wlbflag)
  */
 SlabCodedCoords get_next_slab_number_in_room(SlabCodedCoords slab_num)
 {
-    if (slab_num >= gameadd.map_tiles_x*gameadd.map_tiles_y)
+    if (slab_num >= gameadd.map_tiles_x * gameadd.map_tiles_y)
+    {
+        ERRORLOG("Slabnumber %d exceeds map dimensions %d*%d", slab_num, gameadd.map_tiles_x, gameadd.map_tiles_y);
         return 0;
+    }
     return game.slabmap[slab_num].next_in_room;
 }
 

@@ -541,7 +541,7 @@ struct Thing *get_enemy_soul_container_creature_can_see(struct Thing *creatng)
     return INVALID_THING;
 }
 
-void set_creature_combat_object_state(struct Thing *creatng, struct Thing *obthing)
+void set_creature_combat_object_state(struct Thing *creatng, struct Thing *obthing, short combattype)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     cctrl->combat.battle_enemy_idx = obthing->index;
@@ -549,11 +549,27 @@ void set_creature_combat_object_state(struct Thing *creatng, struct Thing *obthi
     cctrl->field_AA = 0;
     cctrl->combat_flags |= CmbtF_ObjctFight;
     const struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
-    if ((crstat->attack_preference == AttckT_Ranged)
-      && creature_has_ranged_object_weapon(creatng)) {
-        cctrl->combat.state_id = ObjCmbtSt_Ranged;
-    } else {
-        cctrl->combat.state_id = ObjCmbtSt_Melee;
+    if ((crstat->attack_preference == AttckT_Ranged) && creature_has_ranged_object_weapon(creatng)) 
+    {
+        if (combattype == CrSt_CreatureObjectSnipe)
+        {
+            cctrl->combat.state_id = ObjCmbtSt_RangedSnipe;
+        }
+        else
+        {
+            cctrl->combat.state_id = ObjCmbtSt_Ranged;
+        }
+    } 
+    else 
+    {
+        if (combattype == CrSt_CreatureObjectSnipe)
+        {
+            cctrl->combat.state_id = ObjCmbtSt_MeleeSnipe;
+        }
+        else
+        {
+            cctrl->combat.state_id = ObjCmbtSt_Melee;
+        }
     }
 }
 
@@ -563,8 +579,19 @@ TbBool set_creature_object_combat(struct Thing *creatng, struct Thing *obthing)
     if (!external_set_thing_state(creatng, CrSt_CreatureObjectCombat)) {
         return false;
     }
-    set_creature_combat_object_state(creatng, obthing);
+    set_creature_combat_object_state(creatng, obthing, CrSt_CreatureObjectCombat);
     SYNCDBG(19,"Finished");
+    return true;
+}
+
+TbBool set_creature_object_snipe(struct Thing* creatng, struct Thing* obthing)
+{
+    SYNCDBG(8, "Starting");
+    if (!external_set_thing_state(creatng, CrSt_CreatureObjectSnipe)) {
+        return false;
+    }
+    set_creature_combat_object_state(creatng, obthing, CrSt_CreatureObjectSnipe);
+    SYNCDBG(19, "Finished");
     return true;
 }
 
@@ -5581,7 +5608,8 @@ TbBool creature_stats_debug_dump(void)
             case CrSt_GoodWaitInExitDoor:
             case CrSt_GoodAttackRoom1:
             case CrSt_CreatureSearchForGoldToStealInRoom2:
-            case CrSt_GoodAttackRoom2:
+            case CrSt_GoodArrivedAtAttackRoom:
+            case CrSt_GoodArrivedAtSabotageRoom:
                 ERRORLOG("Player %d %s index %d is in Good-only state %d",(int)thing->owner,thing_model_name(thing),(int)thing->index,(int)crstate);
                 result = true;
                 break;
