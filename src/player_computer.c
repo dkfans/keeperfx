@@ -1220,7 +1220,7 @@ long check_call_to_arms(struct Computer2 *comp)
                         SYNCDBG(8,"Found existing CTA task");
                         ret = 0;
                     }
-                    if (ctask->field_60 + ctask->lastrun_turn - (long)game.play_gameturn < ctask->field_60 - ctask->field_60/10) {
+                    if (ctask->delay + ctask->lastrun_turn - (long)game.play_gameturn < ctask->delay - ctask->delay/10) {
                         SYNCDBG(8,"Less than 90% turns");
                         ret = -1;
                         break;
@@ -1273,6 +1273,7 @@ TbBool setup_a_computer_player(PlayerNumber plyr_idx, long comp_model)
     comp->turn_begin = cpt->turn_begin;
     comp->sim_before_dig = cpt->sim_before_dig;
     comp->field_C = 1;
+    comp->field_34 = cpt->field_1C;
     comp->task_state = CTaskSt_Select;
 
     for (i=0; i < PLAYERS_COUNT; i++)
