@@ -70,11 +70,11 @@ struct Thing *create_cave_in(struct Coord3d *pos, unsigned short cimodel, unsign
     thing->owner = owner;
     thing->creation_turn = game.play_gameturn;
     struct MagicStats* pwrdynst = get_power_dynamic_stats(PwrK_CAVEIN);
-    thing->cave_in.time = pwrdynst->time;
+    thing->cave_in.time = pwrdynst->duration;
     thing->cave_in.x = pos->x.stl.num;
     thing->cave_in.y = pos->y.stl.num;
     thing->cave_in.model = cimodel;
-    thing->health = pwrdynst->time;
+    thing->health = pwrdynst->duration;
     if (owner != game.neutral_player_num)
     {
         struct Dungeon* dungeon = get_dungeon(owner);

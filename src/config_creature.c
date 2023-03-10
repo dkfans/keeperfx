@@ -61,18 +61,19 @@ const struct NamedCommand creaturetype_common_commands[] = {
   };
 
 const struct NamedCommand creaturetype_experience_commands[] = {
-  {"PAYINCREASEONEXP",         1},
-  {"SPELLDAMAGEINCREASEONEXP", 2},
-  {"RANGEINCREASEONEXP",       3},
-  {"JOBVALUEINCREASEONEXP",    4},
-  {"HEALTHINCREASEONEXP",      5},
-  {"STRENGTHINCREASEONEXP",    6},
-  {"DEXTERITYINCREASEONEXP",   7},
-  {"DEFENSEINCREASEONEXP",     8},
-  {"LOYALTYINCREASEONEXP",     9},
-  {"ARMOURINCREASEONEXP",     10},
-  {"SIZEINCREASEONEXP",       11},
-  {NULL,                       0},
+  {"PAYINCREASEONEXP",            1},
+  {"SPELLDAMAGEINCREASEONEXP",    2},
+  {"RANGEINCREASEONEXP",          3},
+  {"JOBVALUEINCREASEONEXP",       4},
+  {"HEALTHINCREASEONEXP",         5},
+  {"STRENGTHINCREASEONEXP",       6},
+  {"DEXTERITYINCREASEONEXP",      7},
+  {"DEFENSEINCREASEONEXP",        8},
+  {"LOYALTYINCREASEONEXP",        9},
+  {"ARMOURINCREASEONEXP",        10},
+  {"SIZEINCREASEONEXP",          11},
+  {"EXPFORHITTINGINCREASEONEXP", 12},
+  {NULL,                          0},
   };
 
 const struct NamedCommand creaturetype_instance_commands[] = {
@@ -105,6 +106,7 @@ const struct NamedCommand creaturetype_instance_properties[] = {
   {"DANGEROUS",            InstPF_Dangerous},
   {"DESTRUCTIVE",          InstPF_Destructive},
   {"QUICK",                InstPF_Quick},
+  {"DISARMING",            InstPF_Disarming},
   {NULL,                     0},
   };
 
@@ -616,6 +618,7 @@ TbBool parse_creaturetype_experience_blocks(char *buf, long len, const char *con
         gameadd.crtr_conf.exp.dexterity_increase_on_exp = CREATURE_PROPERTY_INCREASE_ON_EXP;
         gameadd.crtr_conf.exp.defense_increase_on_exp = CREATURE_PROPERTY_INCREASE_ON_EXP;
         gameadd.crtr_conf.exp.loyalty_increase_on_exp = CREATURE_PROPERTY_INCREASE_ON_EXP;
+        gameadd.crtr_conf.exp.exp_on_hitting_increase_on_exp = CREATURE_PROPERTY_INCREASE_ON_EXP;
         gameadd.crtr_conf.exp.armour_increase_on_exp = 0;
     }
     // Find the block
@@ -775,6 +778,19 @@ TbBool parse_creaturetype_experience_blocks(char *buf, long len, const char *con
             {
                 k = atoi(word_buf);
                 gameadd.crtr_conf.exp.size_increase_on_exp = k;
+                n++;
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), block_buf, config_textname);
+            }
+            break;
+        case 12: // EXPFORHITTINGINCREASEONEXP
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                gameadd.crtr_conf.exp.exp_on_hitting_increase_on_exp = k;
                 n++;
             }
             if (n < 1)
@@ -1678,14 +1694,14 @@ TbBool load_creaturetypes_config(const char *conf_fname, unsigned short flags)
     return result;
 }
 
-unsigned short get_creature_model_flags(const struct Thing *thing)
+unsigned long get_creature_model_flags(const struct Thing *thing)
 {
     if ((thing->model < 1) || (thing->model >= gameadd.crtr_conf.model_count))
       return 0;
   return gameadd.crtr_conf.model[thing->model].model_flags;
 }
 
-ThingModel get_creature_model_with_model_flags(unsigned short needflags)
+ThingModel get_creature_model_with_model_flags(unsigned long needflags)
 {
     for (ThingModel crmodel = 0; crmodel < gameadd.crtr_conf.model_count; crmodel++)
     {

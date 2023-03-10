@@ -62,11 +62,11 @@ struct EffectGeneratorStats effect_generator_stats[] = {
 //start_health;generation_type;accel_xy_min;accel_xy_max;accel_z_min;accel_z_max;size_yz;effect_sound;kind_min;kind_max;area_affect_type;field_11;struct InitLight ilght;affected_by_wind;
 struct InitEffect effect_info[] = {
     { 0, 1,   0,   0,  0,    0,  0,   0,  0,  0,  AAffT_None, 0, {0}, 0},
-    { 1, 1,  32,  32, -32,  32,  1,  47,  1,  1,  AAffT_None, 1, { 512, 45, 1, 0, 0, 0, {{0},{0},{0}}, 0, 0, 0}, 1},
-    { 5, 1,  32,  32, -64,  64,  5,  47,  1,  1,  AAffT_None, 1, {1024, 45, 1, 0, 0, 0, {{0},{0},{0}}, 0, 0, 0}, 1},
-    {10, 1, 128, 128,-128, 128, 10,  47,  1,  1,  AAffT_None, 1, {2048, 45, 1, 0, 0, 0, {{0},{0},{0}}, 0, 0, 0}, 1},
-    {10, 1, 172, 172,-172, 172,  6,  47,  1,  1,  AAffT_None, 1, {2560, 45, 1, 0, 0, 0, {{0},{0},{0}}, 0, 0, 0}, 1},
-    {20, 1, 256, 256,-256, 256, 10,  47,  1,  1,  AAffT_None, 1, {2560, 45, 1, 0, 0, 0, {{0},{0},{0}}, 0, 0, 0}, 1},
+    { 1, 1,  32,  32, -32,  32,  1,  47,  1,  1,  AAffT_None, 1, { 512, 45, 1, {{0},{0},{0}}, 0, 0}, 1},
+    { 5, 1,  32,  32, -64,  64,  5,  47,  1,  1,  AAffT_None, 1, {1024, 45, 1, {{0},{0},{0}}, 0, 0}, 1},
+    {10, 1, 128, 128,-128, 128, 10,  47,  1,  1,  AAffT_None, 1, {2048, 45, 1, {{0},{0},{0}}, 0, 0}, 1},
+    {10, 1, 172, 172,-172, 172,  6,  47,  1,  1,  AAffT_None, 1, {2560, 45, 1, {{0},{0},{0}}, 0, 0}, 1},
+    {20, 1, 256, 256,-256, 256, 10,  47,  1,  1,  AAffT_None, 1, {2560, 45, 1, {{0},{0},{0}}, 0, 0}, 1},
     { 1, 1,  32,  32, -96,  96,  2,   0, 84, 84,  AAffT_None, 1, {0}, 1},
     { 2, 1,  32,  32, -96,  96,  2,   0, 84, 84,  AAffT_None, 1, {0}, 1},
     { 2, 1,  64,  64, -96,  96,  4,   0, 84, 84,  AAffT_None, 1, {0}, 1},
@@ -75,7 +75,7 @@ struct InitEffect effect_info[] = {
     {40, 1,  44,  44, -32,  32,  2,  52,  7,  7,  AAffT_GasDamage, 1, {0}, 1},
     {40, 1,  44,  44, -32,  32,  2,  52,  7,  7,  AAffT_GasDamage, 1, {0}, 1},
     {40, 1,  44,  44, -32,  32,  2,  52,  7,  7,  AAffT_GasDamage, 1, {0}, 1},
-    {10, 1, 100, 100,   1,   1, 20, 178, 10, 10,  AAffT_WOPDamage, 1, {2560, 52, 0, 0, 0, 0, {{0},{0},{0}}, 0, 0, 0}, 1},
+    {10, 1, 100, 100,   1,   1, 20, 178, 10, 10,  AAffT_WOPDamage, 1, {2560, 52, 0, {{0},{0},{0}}, 0, 0}, 1},
     { 1, 1,   1,   1,   1,   1,  1,   0, 11, 11,  AAffT_None, 1, {0}, 1},
     {40, 1,  64,  64, -64,  64,  2,  52, 21, 21,  AAffT_None, 1, {0}, 1},
     {40, 1,  64,  64, -64,  64,  2,  52, 21, 21,  AAffT_None, 1, {0}, 1},
@@ -104,16 +104,16 @@ struct InitEffect effect_info[] = {
     {40, 1,  44,  44, -32,  32,  2,  52,  7,  7,  AAffT_GasSlow, 1, {0}, 0}, // [40]
     {40, 1,  44,  44, -32,  32,  2,  52,  7,  7,  AAffT_GasSlow, 1, {0}, 0},
     {40, 1,  44,  44, -32,  32,  2,  52,  7,  7,  AAffT_GasSlow, 1, {0}, 0},
-    {16, 1, 128, 128,-128, 128,  2,  47, 26, 32,  AAffT_None, 1, {2560, 45, 1, 0, 0, 0, {{0},{0},{0}}, 0, 0, 0}, 0},
+    {16, 1, 128, 128,-128, 128,  2,  47, 26, 32,  AAffT_None, 1, {2560, 45, 1, {{0},{0},{0}}, 0, 0}, 0},
     { 1, 1,  64,  64,-128, 128,  4,   0, 53, 53,  AAffT_None, 1, {0}, 0},
-    {16, 1,  96,  96, -96,  96,  4,  47, 39, 39,  AAffT_GasDamage, 1, {2560, 45, 1, 0, 0, 0, {{0},{0},{0}}, 0, 0, 0}, 1},
-    { 5, 1,  64,  64, -64,  64,  4,  39, 75, 75,  AAffT_None, 1, { 768, 20, 1, 0, 0, 0, {{0},{0},{0}}, 0, 0, 0}, 1},
+    {16, 1,  96,  96, -96,  96,  4,  47, 39, 39,  AAffT_GasDamage, 1, {2560, 45, 1, {{0},{0},{0}}, 0, 0}, 1},
+    { 5, 1,  64,  64, -64,  64,  4,  39, 75, 75,  AAffT_None, 1, { 768, 20, 1, {{0},{0},{0}}, 0, 0}, 1},
     {60, 3,   1,   1,   1,   1,  2,  54, 55, 58,  AAffT_None, 1, {0}, 1},
     {20, 4,   1,   1,   1,   1,  1,  47,  0,  0,  AAffT_None, 1, {0}, 1},
     {50, 4,   1,   1,   1,   1,  1,   0,  0,  0,  AAffT_None, 0, {0}, 0}, // Unknown Damage effect
-    {10, 1, 128, 128,-128, 128, 10,  47,  1,  1,  AAffT_None, 1, {4096, 50, 1, 0, 0, 0, {{0},{0},{0}}, 0, 0, 0}, 1}, // [50]
+    {10, 1, 128, 128,-128, 128, 10,  47,  1,  1,  AAffT_None, 1, {4096, 50, 1, {{0},{0},{0}}, 0, 0}, 1}, // [50]
     { 1, 1,   1,   1,   1,   1,  1, 112, 61, 61,  AAffT_None, 1, {0}, 1},
-    { 5, 1, 128, 128,-128, 128,  5,  47,  1,  1,  AAffT_None, 1, {2048, 45, 1, 0, 0, 0, {{0},{0},{0}}, 0, 0, 0}, 1},
+    { 5, 1, 128, 128,-128, 128,  5,  47,  1,  1,  AAffT_None, 1, {2048, 45, 1,  {{0},{0},{0}}, 0, 0}, 1},
     {96, 1, 256, 256,-256, 256,  1, 160, 63, 74,  AAffT_None, 1, {0}, 0},
     { 8, 1,  64,  64, -64,  64,  1, 159, 63, 66,  AAffT_None, 1, {0}, 0},
     { 8, 1,  64,  64, -64,  64,  1, 159, 67, 70,  AAffT_None, 1, {0}, 0},
@@ -129,7 +129,7 @@ struct InitEffect effect_info[] = {
     { 1, 1,  32,  32, 100, 100,  2,   0, 84, 84,  AAffT_None, 1, {0}, 1},
     { 1, 1,   1,   1,   1,   1,  2,   0, 85, 85,  AAffT_None, 1, {0}, 1},
     { 4, 1,  16,  16, -32,  64,  3,   0, 75, 78,  AAffT_None, 1, {0}, 1},
-    {10, 1,  20, 150, -80,  80, 20,  36, 27, 29,  AAffT_None, 1, {2560, 52, 0, 0, 0, 0, {{0},{0},{0}}, 0, 0, 0}, 1}, // [68]
+    {10, 1,  20, 150, -80,  80, 20,  36, 27, 29,  AAffT_None, 1, {2560, 52, 0, {{0},{0},{0}}, 0, 0}, 1}, // [68]
     { 0, 0,   0,   0,   0,   0,  0,   0,  0,  0,  0,          0, {0}, 0},
 };
 
@@ -540,8 +540,8 @@ struct Thing *create_effect_element(const struct Coord3d *pos, unsigned short ee
         i = EFFECT_RANDOM(thing, eestat->sprite_size_max  - (int)eestat->sprite_size_min  + 1);
         long n = EFFECT_RANDOM(thing, eestat->sprite_speed_max - (int)eestat->sprite_speed_min + 1);
         set_thing_draw(thing, eestat->sprite_idx, eestat->sprite_speed_min + n, eestat->sprite_size_min + i, 0, 0, eestat->draw_class);
-        set_flag_byte(&thing->rendering_flags,TRF_Unshaded,eestat->field_13);
-        thing->rendering_flags ^= (thing->rendering_flags ^ (0x10 * eestat->field_14)) & (TRF_Transpar_Flags);
+        set_flag_byte(&thing->rendering_flags,TRF_Unshaded,eestat->unshaded);
+        thing->rendering_flags ^= (thing->rendering_flags ^ (TRF_Transpar_8 * eestat->transparant)) & (TRF_Transpar_Flags);
         set_flag_byte(&thing->rendering_flags,TRF_AnimateOnce,eestat->field_D);
     } else
     {
@@ -816,8 +816,8 @@ void change_effect_element_into_another(struct Thing *thing, long nmodel)
     int scale = eestat->sprite_size_min + EFFECT_RANDOM(thing, eestat->sprite_size_max - eestat->sprite_size_min + 1);
     thing->model = nmodel;
     set_thing_draw(thing, eestat->sprite_idx, speed, scale, eestat->field_D, 0, 2);
-    thing->rendering_flags ^= (thing->rendering_flags ^ 0x02 * eestat->field_13) & TRF_Unshaded;
-    thing->rendering_flags ^= (thing->rendering_flags ^ 0x10 * eestat->field_14) & (TRF_Transpar_Flags);
+    thing->rendering_flags ^= (thing->rendering_flags ^ TRF_Unshaded * eestat->unshaded) & TRF_Unshaded;
+    thing->rendering_flags ^= (thing->rendering_flags ^ TRF_Transpar_8 * eestat->transparant) & (TRF_Transpar_Flags);
     thing->fall_acceleration = eestat->fall_acceleration;
     thing->inertia_floor = eestat->inertia_floor;
     thing->inertia_air = eestat->inertia_air;
@@ -1338,7 +1338,7 @@ TbBool destroy_effect_thing(struct Thing *efftng)
     if (efftng->model == TngEff_Eruption)
     {
         place_slab_type_on_map(SlbT_LAVA, efftng->mappos.x.stl.num, efftng->mappos.y.stl.num, efftng->owner, 0);
-        do_slab_efficiency_alteration(subtile_slab_fast(efftng->mappos.x.stl.num), subtile_slab_fast(efftng->mappos.y.stl.num));
+        do_slab_efficiency_alteration(subtile_slab(efftng->mappos.x.stl.num), subtile_slab(efftng->mappos.y.stl.num));
     }
     if (efftng->snd_emitter_id != 0)
     {
@@ -1488,7 +1488,7 @@ long explosion_effect_affecting_map_block(struct Thing *efftng, struct Thing *tn
         }
         i = thing->next_on_mapblk;
         // Per thing processing block
-        if ((thing->class_id == TCls_Door) && (efftng->shot_effect.hit_type != 4)) //TODO: Find pretty way to say that WoP traps should not destroy doors. And make it configurable through configs.
+        if ((thing->class_id == TCls_Door) && (efftng->shot_effect.hit_type != THit_CrtrsOnlyNotOwn)) //TODO: Find pretty way to say that WoP traps should not destroy doors. And make it configurable through configs.
         {
             if (explosion_affecting_door(tngsrc, thing, &efftng->mappos, max_dist, max_damage, blow_strength, damage_type, owner))
             {
@@ -1532,7 +1532,7 @@ void word_of_power_affecting_area(struct Thing *efftng, struct Thing *owntng, st
         return;
     }
     struct ShotConfigStats* shotst;
-    if (efftng->shot_effect.hit_type == 4) // TODO: hit type seems hard coded. Find a better way to tell apart WoP traps from spells.
+    if (efftng->shot_effect.hit_type == THit_CrtrsOnlyNotOwn) // TODO: hit type seems hard coded. Find a better way to tell apart WoP traps from spells.
     {
         shotst = get_shot_model_stats(31); //SHOT_TRAP_WORD_OF_POWER
     }

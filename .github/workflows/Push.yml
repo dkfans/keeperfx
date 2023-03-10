@@ -21,6 +21,13 @@ jobs:
         sudo apt update
         sudo apt install -y build-essential g++-mingw-w64-i686 libpng16-16
 
+    - name: build gfx
+      run: |
+        set -eux
+        BUILD_NUMBER=$(git rev-list --count HEAD)
+        PACKAGE_SUFFIX=Alpha
+        make -j`nproc` BUILD_NUMBER=$BUILD_NUMBER PACKAGE_SUFFIX=$PACKAGE_SUFFIX pkg-enginegfx
+
     - name: build
       run: |
         set -eux

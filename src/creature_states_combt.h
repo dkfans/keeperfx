@@ -62,6 +62,8 @@ void creature_in_ranged_combat(struct Thing *thing);
 void creature_in_melee_combat(struct Thing *thing);
 void combat_object_state_melee_combat(struct Thing *thing);
 void combat_object_state_ranged_combat(struct Thing *thing);
+void combat_object_state_melee_snipe(struct Thing* thing);
+void combat_object_state_ranged_snipe(struct Thing* thing);
 void combat_door_state_melee_combat(struct Thing *thing);
 void combat_door_state_ranged_combat(struct Thing *thing);
 
@@ -84,9 +86,12 @@ CrInstance get_best_quick_range_instance_to_use(const struct Thing *thing);
 TbBool creature_will_do_combat(const struct Thing *thing);
 TbBool creature_look_for_combat(struct Thing *creatng);
 TbBool creature_look_for_enemy_heart_combat(struct Thing *thing);
+TbBool creature_look_for_enemy_heart_snipe(struct Thing* thing);
 TbBool creature_look_for_enemy_door_combat(struct Thing *thing);
+TbBool creature_look_for_enemy_object_combat(struct Thing* thing);
 
 struct Thing *check_for_door_to_fight(struct Thing *thing);
+struct Thing* check_for_object_to_fight(struct Thing* thing);
 CrAttackType check_for_possible_combat_with_attacker_within_distance(struct Thing *figtng, struct Thing **outenmtng, long maxdist, unsigned long *outscore);
 CrAttackType check_for_possible_combat_with_enemy_creature_within_distance(struct Thing *fightng, struct Thing **outenmtng, long maxdist);
 TbResult creature_retreat_from_combat(struct Thing *figtng, struct Thing *enmtng, CrtrStateId continue_state, long a4);

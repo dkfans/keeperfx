@@ -27,6 +27,7 @@
 #include "creature_control.h"
 #include "creature_instances.h"
 #include "creature_states_spdig.h"
+#include "creature_states_combt.h"
 #include "creature_jobs.h"
 #include "config_creature.h"
 #include "config_crtrstates.h"
@@ -274,6 +275,30 @@ TbBool good_setup_attack_rooms(struct Thing *creatng, long dngn_id)
     }
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     creatng->continue_state = CrSt_GoodArrivedAtAttackRoom;
+    cctrl->target_room_id = room->index;
+    return true;
+}
+
+TbBool good_setup_sabotage_rooms(struct Thing* creatng, long dngn_id)
+{
+    struct Room* room = find_nearest_room_to_vandalise(creatng, dngn_id, NavRtF_NoOwner);
+    if (room_is_invalid(room))
+    {
+        return false;
+    }
+    struct Coord3d pos;
+    if (!find_random_valid_position_for_thing_in_room(creatng, room, &pos) || !creature_can_navigate_to_with_storage(creatng, &pos, NavRtF_NoOwner))
+    {
+        ERRORLOG("The %s index %d cannot destroy %s because it cannot reach position within it", thing_model_name(creatng), (int)creatng->index, room_code_name(room->kind));
+        return false;
+    }
+    if (!setup_random_head_for_room(creatng, room, NavRtF_NoOwner))
+    {
+        ERRORLOG("The %s index %d cannot destroy %s because it cannot head for it", thing_model_name(creatng), (int)creatng->index, room_code_name(room->kind));
+        return false;
+    }
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    creatng->continue_state = CrSt_GoodArrivedAtSabotageRoom;
     cctrl->target_room_id = room->index;
     return true;
 }
@@ -533,8 +558,8 @@ short good_attack_room(struct Thing *thing)
         set_start_state(thing);
         return 0;
     }
-    MapSlabCoord base_slb_x = subtile_slab_fast(thing->mappos.x.stl.num);
-    MapSlabCoord base_slb_y = subtile_slab_fast(thing->mappos.y.stl.num);
+    MapSlabCoord base_slb_x = subtile_slab(thing->mappos.x.stl.num);
+    MapSlabCoord base_slb_y = subtile_slab(thing->mappos.y.stl.num);
     struct Room* room = slab_room_get(base_slb_x, base_slb_y);
     // If the current tile can be destroyed
     if (room_exists(room) && !players_creatures_tolerate_each_other(thing->owner, room->owner) && !room_cannot_vandalise(room->kind))
@@ -655,6 +680,32 @@ TbBool good_setup_wander_to_dungeon_heart(struct Thing *creatng, PlayerNumber pl
     return true;
 }
 
+TbBool good_setup_rush_to_dungeon_heart(struct Thing* creatng, PlayerNumber plyr_idx)
+{
+    SYNCDBG(18, "Starting");
+    TRACE_THING(creatng);
+    if (creatng->owner == plyr_idx)
+    {
+        ERRORLOG("The %s index %d tried to wander to own (%d) heart", thing_model_name(creatng), (int)creatng->index, (int)plyr_idx);
+        return false;
+    }
+    struct PlayerInfo* player = get_player(plyr_idx);
+    if (!player_exists(player))
+    {
+        WARNLOG("The %s index %d tried to wander to inactive player (%d) heart", thing_model_name(creatng), (int)creatng->index, (int)plyr_idx);
+        return false;
+    }
+    struct Thing* heartng = get_player_soul_container(plyr_idx);
+    TRACE_THING(heartng);
+    if (thing_is_invalid(heartng))
+    {
+        WARNLOG("The %s index %d tried to wander to player %d which has no heart", thing_model_name(creatng), (int)creatng->index, (int)plyr_idx);
+        return false;
+    }
+    set_creature_object_snipe(creatng, heartng);
+    return true;
+}
+
 TbBool good_setup_wander_to_own_heart(struct Thing* creatng)
 {
     SYNCDBG(7, "Starting");
@@ -689,12 +740,26 @@ TbBool good_creature_setup_task_in_dungeon(struct Thing *creatng, PlayerNumber t
         WARNLOG("Can't attack player %d rooms, switching to attack heart", (int)target_plyr_idx);
         cctrl->party_objective = CHeroTsk_AttackDnHeart;
         return false;
+    case CHeroTsk_SabotageRooms:
+        if (good_setup_sabotage_rooms(creatng, target_plyr_idx)) {
+            return true;
+        }
+        WARNLOG("Can't attack player %d rooms, switching to attack heart", (int)target_plyr_idx);
+        cctrl->party_objective = CHeroTsk_AttackDnHeart;
+        return false;
     case CHeroTsk_AttackDnHeart:
         if (good_setup_wander_to_dungeon_heart(creatng, target_plyr_idx)) 
         {
             return true;
         }
         ERRORLOG("Cannot wander to player %d heart", (int)target_plyr_idx);
+        return false;
+    case CHeroTsk_SnipeDnHeart:
+        if (good_setup_rush_to_dungeon_heart(creatng, target_plyr_idx))
+        {
+            return true;
+        }
+        ERRORLOG("Cannot rush to player %d heart", (int)target_plyr_idx);
         return false;
     case CHeroTsk_StealGold:
     {

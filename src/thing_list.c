@@ -1186,7 +1186,7 @@ void init_player_start(struct PlayerInfo *player, TbBool keep_prev)
     dungeonadd->backup_heart_idx = 0;
     struct Thing* scndthing = find_players_backup_dungeon_heart(player->id_number);
     {
-        if (!thing_is_invalid(thing))
+        if (!thing_is_invalid(scndthing))
         {
             dungeonadd->backup_heart_idx = scndthing->index;
         }
@@ -2290,6 +2290,7 @@ struct Thing *get_player_list_nth_creature_of_model_on_territory(long thing_idx,
 {
     long i = thing_idx;
     unsigned long k = 0;
+    struct Thing *nth_creature = INVALID_THING;
     while (i != 0)
     {
         struct Thing* thing = thing_get(i);
@@ -2300,6 +2301,10 @@ struct Thing *get_player_list_nth_creature_of_model_on_territory(long thing_idx,
         }
         struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
         i = cctrl->players_next_creature_idx;
+        if ((i == -1) || (crtr_idx ==-1))
+        {
+            return nth_creature;
+        }
         // Per creature code
         int slbwnr = get_slab_owner_thing_is_on(thing);
         int match = 0;
@@ -2325,12 +2330,9 @@ struct Thing *get_player_list_nth_creature_of_model_on_territory(long thing_idx,
             }
         }
 
-        if (((crmodel == 0) || (crmodel == CREATURE_ANY) || (thing->model == crmodel && crtr_idx <= 1)) && (match == 1))
+        if (((crmodel == 0) || (crmodel == CREATURE_ANY) || (thing->model == crmodel)) && (match == 1))
         {
-            return thing;
-        }
-        if ((crmodel == 0) || (crmodel == CREATURE_ANY) || ((thing->model == crmodel) && (match == 1)))
-        {
+            nth_creature = thing; 
             crtr_idx--;
         }
         // Per creature code ends
@@ -2341,8 +2343,7 @@ struct Thing *get_player_list_nth_creature_of_model_on_territory(long thing_idx,
             return INVALID_THING;
         }
     }
-    ERRORLOG("Tried to get creature of index exceeding list");
-    return INVALID_THING;
+    return nth_creature;
 }
 
 /**
@@ -2459,22 +2460,25 @@ struct Thing *get_random_players_creature_of_model(PlayerNumber plyr_idx, ThingM
 
 struct Thing *get_random_players_creature_of_model_on_territory(PlayerNumber plyr_idx, ThingModel crmodel, int friendly)
 {
+    long model_count;
     long total_count;
     TbBool is_spec_digger = ((crmodel > 0) && creature_kind_is_for_dungeon_diggers_list(plyr_idx, crmodel));
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
     if (is_spec_digger)
     {
         total_count = count_player_list_creatures_of_model_on_territory(dungeon->digger_list_start, crmodel, friendly);
+        model_count = count_player_list_creatures_of_model(dungeon->digger_list_start, crmodel);
     }
     else
     {
         total_count = count_player_list_creatures_of_model_on_territory(dungeon->creatr_list_start, crmodel, friendly);
+        model_count = count_player_list_creatures_of_model(dungeon->creatr_list_start, crmodel);
     }
     if (total_count < 1)
     {
       return INVALID_THING;
     }
-    long crtr_idx = PLAYER_RANDOM(plyr_idx, total_count) + 1;
+    long crtr_idx = PLAYER_RANDOM(plyr_idx, model_count);
     if (is_spec_digger)
     {
         return get_player_list_nth_creature_of_model_on_territory(dungeon->digger_list_start, crmodel, crtr_idx, friendly);
@@ -3010,7 +3014,7 @@ TbBool update_thing(struct Thing *thing)
     if (thing_is_invalid(thing))
         return false;
 
-    if ((thing->movement_flags & TMvF_Unknown40) == 0)
+    if ((thing->movement_flags & TMvF_Immobile) == 0)
     {
         if ((thing->state_flags & TF1_PushAdd) != 0)
         {
@@ -3046,7 +3050,7 @@ TbBool update_thing(struct Thing *thing)
         return false;
     }
     SYNCDBG(18,"Class function end ok");
-    if ((thing->movement_flags & TMvF_Unknown40) == 0)
+    if ((thing->movement_flags & TMvF_Immobile) == 0)
     {
         if (thing->mappos.z.val > thing->floor_height)
         {
@@ -3126,22 +3130,22 @@ short update_thing_sound(struct Thing *thing)
   return true;
 }
 
-long collide_filter_thing_is_of_type(const struct Thing *thing, const struct Thing *sectng, long tngclass, long tngmodel)
+HitTargetFlags collide_filter_thing_is_of_type(const struct Thing *thing, const struct Thing *sectng, HitTargetFlags tngclass, long tngmodel)
 {
     if (tngmodel >= 0)
     {
         if (thing->model != tngmodel)
           return false;
     }
-    if (tngclass >= 0)
+    if ((long)tngclass >= 0)
     {
-        if (thing->class_id != tngclass)
+        if (thing->class_id != (long)tngclass)
           return false;
     }
     return true;
 }
 
-unsigned long hit_type_to_hit_targets(long hit_type)
+HitTargetFlags hit_type_to_hit_targets(long hit_type)
 {
     switch (hit_type)
     {
@@ -3151,11 +3155,13 @@ unsigned long hit_type_to_hit_targets(long hit_type)
             HitTF_EnemySoulContainer|HitTF_AlliedSoulContainer|HitTF_OwnedSoulContainer|
             HitTF_AnyWorkshopBoxes|HitTF_AnySpellbooks|HitTF_AnyDnSpecialBoxes|
             HitTF_EnemyShotsCollide|HitTF_AlliedShotsCollide|HitTF_OwnedShotsCollide|
+            HitTF_EnemyDestructibleTraps|HitTF_AlliedDestructibleTraps|HitTF_OwnedDestructibleTraps|
             HitTF_AnyFoodObjects|HitTF_AnyGoldPiles;
     case THit_CrtrsNObjcts:
         return HitTF_EnemyCreatures|HitTF_AlliedCreatures|HitTF_OwnedCreatures|HitTF_ArmourAffctdCreatrs|HitTF_PreventDmgCreatrs|
             HitTF_EnemySoulContainer|HitTF_AlliedSoulContainer|HitTF_OwnedSoulContainer|
             HitTF_AnyWorkshopBoxes|HitTF_AnySpellbooks|HitTF_AnyDnSpecialBoxes|
+            HitTF_EnemyDestructibleTraps|HitTF_AlliedDestructibleTraps|HitTF_OwnedDestructibleTraps|
             HitTF_AnyFoodObjects|HitTF_AnyGoldPiles;
     case THit_CrtrsOnly:
         return HitTF_EnemyCreatures|HitTF_AlliedCreatures|HitTF_OwnedCreatures|HitTF_ArmourAffctdCreatrs;
@@ -3163,6 +3169,7 @@ unsigned long hit_type_to_hit_targets(long hit_type)
         return HitTF_EnemyCreatures|HitTF_AlliedCreatures|HitTF_ArmourAffctdCreatrs|
         HitTF_EnemySoulContainer|HitTF_AlliedSoulContainer|
         HitTF_AnyWorkshopBoxes|HitTF_AnySpellbooks|HitTF_AnyDnSpecialBoxes|
+        HitTF_EnemyDestructibleTraps | HitTF_AlliedDestructibleTraps|
         HitTF_AnyFoodObjects|HitTF_AnyGoldPiles;
     case THit_CrtrsOnlyNotOwn:
         return HitTF_EnemyCreatures|HitTF_AlliedCreatures|HitTF_ArmourAffctdCreatrs;
@@ -3172,6 +3179,9 @@ unsigned long hit_type_to_hit_targets(long hit_type)
         return HitTF_EnemySoulContainer|HitTF_AlliedSoulContainer|HitTF_OwnedSoulContainer;
     case THit_HeartOnlyNotOwn:
         return HitTF_EnemySoulContainer|HitTF_AlliedSoulContainer;
+    case THit_TrapsAll:
+        return HitTF_EnemyDestructibleTraps|HitTF_AlliedDestructibleTraps|HitTF_OwnedDestructibleTraps|
+            HitTF_OwnedDeployedTraps|HitTF_AlliedDeployedTraps|HitTF_EnemyDeployedTraps;
     case THit_None:
         return HitTF_None;
     default:
@@ -3284,6 +3294,16 @@ TbBool thing_is_shootable(const struct Thing *thing, PlayerNumber shot_owner, Hi
     }
     if (thing_is_deployed_trap(thing))
     {
+        if (thing_is_destructible_trap(thing) > 0)
+        {
+            if (shot_owner == thing->owner) {
+                return ((hit_targets & HitTF_OwnedDestructibleTraps) != 0);
+            }
+            if ((shot_owner < 0) || players_are_enemies(shot_owner, thing->owner)) {
+                return ((hit_targets & HitTF_EnemyDestructibleTraps) != 0);
+            }
+            return ((hit_targets & HitTF_AlliedDestructibleTraps) != 0);
+        }
         if (shot_owner == thing->owner) {
             return ((hit_targets & HitTF_OwnedDeployedTraps) != 0);
         }

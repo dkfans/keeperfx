@@ -43,7 +43,7 @@ static long high_score_entry_index;
 
 char high_score_entry[64];
 int fe_high_score_table_from_main_menu;
-long high_score_entry_input_active;
+long high_score_entry_input_active = -1;
 /******************************************************************************/
 
 void draw_high_score_entry(int idx, long pos_x, long pos_y, int col1_width, int col2_width, int col3_width, int col4_width, int units_per_px)

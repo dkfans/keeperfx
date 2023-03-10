@@ -228,6 +228,11 @@ TbBool thing_exists(const struct Thing *thing)
     return true;
 }
 
+TbBool thing_is_in_limbo(const struct Thing* thing)
+{
+    return (thing->alloc_flags & TAlF_IsInLimbo);
+}
+
 TbBool thing_is_dragged_or_pulled(const struct Thing *thing)
 {
     return ((thing->state_flags & TF1_IsDragged1) != 0) || ((thing->alloc_flags & TAlF_IsDragged) != 0);
@@ -292,7 +297,7 @@ void query_thing(struct Thing *thing)
         const char* name = thing_model_name(querytng);
         const char owner[24]; 
         const char health[24];
-        const char position[24];
+        const char position[29];
         const char amount[24] = "\0";
         char output[36];
         sprintf((char*)title, "Thing ID: %d", querytng->index);
@@ -301,7 +306,8 @@ void query_thing(struct Thing *thing)
         if (querytng->class_id == TCls_Trap)
         {
             struct ManfctrConfig *mconf = &gameadd.traps_config[querytng->model];
-            sprintf((char*)health, "Shots: %d/%d", querytng->trap.num_shots, mconf->shots);
+            sprintf((char*)health, "Health: %ld", querytng->health);
+            sprintf((char*)amount, "Shots: %d/%d", querytng->trap.num_shots, mconf->shots);
         }
         else
         {

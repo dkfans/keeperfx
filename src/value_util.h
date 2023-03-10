@@ -13,7 +13,7 @@ static inline TbBool value_coerce_bool(VALUE *value)
            (value_type(value) == VALUE_INT32 && value_int32(value));
 }
 
-static inline unsigned short value_read_stl_coord(VALUE *value)
+static inline MapCoord value_read_stl_coord(VALUE *value)
 {
     if (value_type(value) == VALUE_ARRAY)
     {

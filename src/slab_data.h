@@ -97,7 +97,7 @@ struct Thing;
 
 struct SlabMap {
       SlabKind kind;
-      short next_in_room;
+      SlabCodedCoords next_in_room;
       unsigned char room_index;
       unsigned char health;
       unsigned char flags;
@@ -136,8 +136,7 @@ struct SlabMap *get_slabmap_thing_is_on(const struct Thing *thing);
 TbBool slabmap_block_invalid(const struct SlabMap *slb);
 TbBool slab_coords_invalid(MapSlabCoord slb_x, MapSlabCoord slb_y);
 long slabmap_owner(const struct SlabMap *slb);
-void slabmap_set_owner(struct SlabMap *slb, PlayerNumber owner);
-void set_whole_slab_owner(MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber owner);
+void set_slab_owner(MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber owner);
 PlayerNumber get_slab_owner_thing_is_on(const struct Thing *thing);
 unsigned long slabmap_wlb(struct SlabMap *slb);
 void slabmap_set_wlb(struct SlabMap *slb, unsigned long wlbflag);

@@ -497,12 +497,12 @@ void update_vertical_explored_flags_for_power_sight(struct PlayerInfo *player, s
                     if (boundstl_x >= stl_x)
                     {
                         delta = boundstl_x - stl_x + 1;
-                        long slb_y = subtile_slab_fast(stl_y);
+                        long slb_y = subtile_slab(stl_y);
                         for (i=0; i < delta; i++)
                         {
                             struct Map* mapblk = get_map_block_at(stl_x + i, stl_y);
                             reveal_map_block(mapblk, player->id_number);
-                            long slb_x = subtile_slab_fast(stl_x + i);
+                            long slb_x = subtile_slab(stl_x + i);
                             struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
                             struct SlabAttr* slbattr = get_slab_attrs(slb);
                             if ( !slbattr->is_diggable )
@@ -589,10 +589,10 @@ void update_horizonal_explored_flags_for_power_sight(struct PlayerInfo *player, 
                     if (stl_y <= boundstl_y)
                     {
                       delta = boundstl_y - stl_y + 1;
-                      long slb_x = subtile_slab_fast(stl_x);
+                      long slb_x = subtile_slab(stl_x);
                       for (i=0; i < delta; i++)
                       {
-                          long slb_y = subtile_slab_fast(stl_y + i);
+                          long slb_y = subtile_slab(stl_y + i);
                           struct Map* mapblk = get_map_block_at(stl_x, stl_y + i);
                           reveal_map_block(mapblk, player->id_number);
                           struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);

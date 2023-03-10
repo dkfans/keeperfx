@@ -86,7 +86,7 @@ enum DungeonManufactureBuildFlags {
 #pragma pack(1)
 
 struct DiggerStack {
-      unsigned short stl_num;
+      SubtlCodedCoords stl_num;
       SpDiggerTaskType task_type;
 };
 
@@ -116,11 +116,11 @@ struct Dungeon {
     int sight_casted_gameturn;
     short sight_casted_thing_idx;
     unsigned char sight_casted_splevel;
-    unsigned char sight_casted_stl_x;
-    unsigned char sight_casted_stl_y;
+    MapSubtlCoord sight_casted_stl_x;
+    MapSubtlCoord sight_casted_stl_y;
     unsigned char soe_explored_flags[2*MAX_SOE_RADIUS][2*MAX_SOE_RADIUS];
-    unsigned char cta_stl_x;
-    unsigned char cta_stl_y;
+    MapSubtlCoord cta_stl_x;
+    MapSubtlCoord cta_stl_y;
     unsigned char cta_splevel;
     unsigned long cta_start_turn;
     unsigned long must_obey_turn;
@@ -228,12 +228,13 @@ struct Dungeon {
     unsigned char devastation_centr_y;
     unsigned long devastation_turn;
     long creatures_total_pay;
-unsigned short field_14BC;
-unsigned long field_14BE;
+unsigned short gold_hoard_for_pickup;
+unsigned long gold_pickup_amount;
     /** Index of last creature picked up of given model. */
     unsigned short selected_creatures_of_model[CREATURE_TYPES_MAX];
     /** Index of last creature picked up of given GUI Job. */
     unsigned short selected_creatures_of_gui_job[CREATURE_GUI_JOBS_COUNT];
+    unsigned char texture_pack;
     };
 
 #pragma pack()

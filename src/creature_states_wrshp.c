@@ -161,8 +161,8 @@ SubtlCodedCoords find_unused_adjacent_position_in_workshop(const struct Coord3d 
     static const struct Around corners[] = { {1,2}, {0,1}, {1,0}, {2,1} };
     for (long i = 0; i < SMALL_AROUND_LENGTH; i++)
     {
-        MapSlabCoord slb_x = subtile_slab_fast(pos->x.stl.num) + (long)small_around[i].delta_x;
-        MapSlabCoord slb_y = subtile_slab_fast(pos->y.stl.num) + (long)small_around[i].delta_y;
+        MapSlabCoord slb_x = subtile_slab(pos->x.stl.num) + (long)small_around[i].delta_x;
+        MapSlabCoord slb_y = subtile_slab(pos->y.stl.num) + (long)small_around[i].delta_y;
         struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
         if ((slb->kind == SlbT_WORKSHOP) && (slabmap_owner(slb) == owner))
         {
@@ -299,8 +299,8 @@ long process_creature_in_workshop(struct Thing *creatng, struct Room *room)
             }
             break;
         }
-        slb_x = subtile_slab_fast(creatng->mappos.x.stl.num);
-        slb_y = subtile_slab_fast(creatng->mappos.y.stl.num);
+        slb_x = subtile_slab(creatng->mappos.x.stl.num);
+        slb_y = subtile_slab(creatng->mappos.y.stl.num);
         struct Thing *objtng;
         objtng = get_workshop_equipment_to_work_with_on_subtile(creatng->owner, slab_subtile_center(slb_x),slab_subtile_center(slb_y));
         if (!thing_is_invalid(objtng))

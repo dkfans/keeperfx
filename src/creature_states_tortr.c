@@ -366,8 +366,8 @@ long reveal_players_map_to_player(struct Thing *thing, PlayerNumber benefit_plyr
     unsigned int pts_count = 0;
     unsigned int pt_idx = 0;
 
-    slb_x = subtile_slab_fast(revealstl_x);
-    slb_y = subtile_slab_fast(revealstl_y);
+    slb_x = subtile_slab(revealstl_x);
+    slb_y = subtile_slab(revealstl_y);
     slb_num = get_slab_number(slb_x, slb_y);
     ownership_map[slb_num] |= 0x02;
     do

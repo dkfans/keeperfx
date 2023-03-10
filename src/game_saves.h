@@ -86,6 +86,7 @@ struct FileChunkHeader {
 
 /******************************************************************************/
 extern int number_of_saved_games;
+extern const char* continue_game_filename;
 
 #pragma pack()
 /******************************************************************************/

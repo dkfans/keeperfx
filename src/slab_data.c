@@ -153,35 +153,36 @@ TbBool slab_coords_invalid(MapSlabCoord slb_x, MapSlabCoord slb_y)
 long slabmap_owner(const struct SlabMap *slb)
 {
     if (slabmap_block_invalid(slb))
-        return 5;
+        return NEUTRAL_PLAYER;
     return slb->flags & 0x07;
-}
-
-/**
- * Sets owner of given SlabMap.
- */
-void slabmap_set_owner(struct SlabMap *slb, PlayerNumber owner)
-{
-    if (slabmap_block_invalid(slb))
-        return;
-    slb->flags ^= (slb->flags ^ owner) & 0x07;
 }
 
 /**
  * Sets owner of a slab on given position.
  */
-void set_whole_slab_owner(MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber owner)
+void set_slab_owner(MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber owner)
 {
-    MapSubtlCoord stl_x = STL_PER_SLB * slb_x;
-    MapSubtlCoord stl_y = STL_PER_SLB * slb_y;
-    for (long i = 0; i < STL_PER_SLB; i++)
+    struct SlabMap* slb = get_slabmap_block(slb_x,slb_y);
+    if (slabmap_block_invalid(slb))
+        return;
+    if (owner == NEUTRAL_PLAYER)
     {
-        for (long k = 0; k < STL_PER_SLB; k++)
+        gameadd.slab_ext_data[get_slab_number(slb_x,slb_y)] = gameadd.slab_ext_data_initial[get_slab_number(slb_x,slb_y)];
+    }
+    else
+    {
+        struct Dungeon *dungeon = get_dungeon(owner);
+        if (dungeon->texture_pack == 0)
         {
-            struct SlabMap* slb = get_slabmap_for_subtile(stl_x + k, stl_y + i);
-            slabmap_set_owner(slb, owner);
+            gameadd.slab_ext_data[get_slab_number(slb_x,slb_y)] = gameadd.slab_ext_data_initial[get_slab_number(slb_x,slb_y)];
+        }
+        else
+        {
+            gameadd.slab_ext_data[get_slab_number(slb_x,slb_y)] = dungeon->texture_pack;
         }
     }
+
+    slb->flags ^= (slb->flags ^ owner) & 0x07;
 }
 
 /**
@@ -209,8 +210,11 @@ void slabmap_set_wlb(struct SlabMap *slb, unsigned long wlbflag)
  */
 SlabCodedCoords get_next_slab_number_in_room(SlabCodedCoords slab_num)
 {
-    if (slab_num >= gameadd.map_tiles_x*gameadd.map_tiles_y)
+    if (slab_num >= gameadd.map_tiles_x * gameadd.map_tiles_y)
+    {
+        ERRORLOG("Slabnumber %d exceeds map dimensions %d*%d", slab_num, gameadd.map_tiles_x, gameadd.map_tiles_y);
         return 0;
+    }
     return game.slabmap[slab_num].next_in_room;
 }
 
