@@ -467,50 +467,50 @@ void update_creature_graphic_anim(struct Thing *thing)
         } else
         if ((cctrl->frozen_on_hit != 0) || creature_is_dying(thing) || creature_affected_by_spell(thing, SplK_Freeze))
         {
-            update_creature_anim(thing, 256, 8);
+            update_creature_anim(thing, 256, CGI_GotHit);
         } else
         if ((cctrl->stateblock_flags & CCSpl_ChickenRel) != 0)
         {
-            update_creature_anim(thing, 256, 0);
+            update_creature_anim(thing, 256, CGI_Stand);
         } else
         if (thing->active_state == CrSt_CreatureSlapCowers)
         {
-            update_creature_anim(thing, 256, 10);
+            update_creature_anim(thing, 256, CGI_GotSlapped);
         } else
         if ((thing->active_state == CrSt_CreaturePiss) || (thing->active_state == CrSt_CreatureRoar))
         {
-            update_creature_anim(thing, 128, 4);
+            update_creature_anim(thing, 128, CGI_Dig);
         } else
         if (thing->active_state == CrSt_CreatureUnconscious)
         {
-            update_creature_anim(thing, 64, 16);
+            update_creature_anim(thing, 64, CGI_DropDead);
             thing->rendering_flags |= TRF_AnimateOnce;
         } else
         if (thing->active_state == CrSt_CreatureSleep)
         {
             thing->rendering_flags &= ~(TRF_Transpar_Flags);
-            update_creature_anim(thing, 128, 12);
+            update_creature_anim(thing, 128, CGI_Sleep);
         } else
         if (cctrl->distance_to_destination == 0)
         {
-            update_creature_anim(thing, 256, 0);
+            update_creature_anim(thing, 256, CGI_Stand);
         } else
         if (thing->floor_height < thing->mappos.z.val)
         {
-            update_creature_anim(thing, 256, 0);
+            update_creature_anim(thing, 256, CGI_Stand);
         } else
         if ((cctrl->dragtng_idx != 0) && (thing_get(cctrl->dragtng_idx)->state_flags & TF1_IsDragged1))
         {
             i = (((long)cctrl->distance_to_destination) << 8) / (crstat->walking_anim_speed+1);
-            update_creature_anim(thing, i, 2);
+            update_creature_anim(thing, i, CGI_Drag);
         } else
         if (creatures[thing->model].field_6 == 4)
         {
-            update_creature_anim(thing, 256, 1);
+            update_creature_anim(thing, 256, CGI_Ambulate);
         } else
         {
             i = (((long)cctrl->distance_to_destination) << 8) / (crstat->walking_anim_speed+1);
-            if (!update_creature_anim(thing, i, 1))
+            if (!update_creature_anim(thing, i, CGI_Ambulate))
             {
                 thing->anim_speed = i;
             }
