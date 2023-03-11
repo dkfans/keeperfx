@@ -1399,6 +1399,7 @@ static TngUpdateRet object_update_dungeon_heart(struct Thing *heartng)
         if (heartng->health <= 0)
         {
             struct Thing* efftng;
+            struct DungeonAdd* dungeonadd;
             efftng = create_effect(&heartng->mappos, TngEff_Explosion4, heartng->owner);
             if (!thing_is_invalid(efftng))
                 efftng->shot_effect.hit_type = THit_HeartOnlyNotOwn;
@@ -1406,14 +1407,17 @@ static TngUpdateRet object_update_dungeon_heart(struct Thing *heartng)
             if (!thing_is_invalid(efftng))
                 efftng->shot_effect.hit_type = THit_HeartOnlyNotOwn;
             destroy_dungeon_heart_room(heartng->owner, heartng);
+            dungeonadd = get_dungeonadd(heartng->owner);
+            if (heartng->index == dungeonadd->backup_heart_idx)
+            {
+                dungeonadd->backup_heart_idx = 0;
+            }
             delete_thing_structure(heartng, 0);
         }
         return TUFRet_Unchanged;
     }
-    else
-    {
-        process_dungeon_destroy(heartng);
-    }
+    process_dungeon_destroy(heartng);
+
     SYNCDBG(18,"Beat update");
     if ((heartng->alloc_flags & TAlF_Exists) == 0)
       return TUFRet_Modified;
