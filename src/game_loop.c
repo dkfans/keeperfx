@@ -122,7 +122,7 @@ void process_dungeon_destroy(struct Thing* heartng)
                         xplevel = min(((dungeon->lvstats.player_score - 1000) / 10), (CREATURE_MAX_LEVEL - 1));
                     }
                     set_creature_level(soultng, xplevel);
-                    set_start_state(soultng);
+                    initialise_thing_state(soultng, CrSt_CreatureWantsAHome);
                 }
             }
             else if (dungeon->heart_destroy_turn == 20)
