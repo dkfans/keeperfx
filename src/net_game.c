@@ -55,29 +55,11 @@ char net_player_name[20];
 /******************************************************************************/
 short setup_network_service(int srvidx)
 {
-  struct ServiceInitData *init_data;
-  long maxplayrs;
-
-  switch (srvidx)
-  {
-  case 0:
-      SYNCMSG("Old network modes are not supported");
-      return 0;
-  case 2:
-      maxplayrs = 4;
-      init_data = NULL;
-      set_flag_byte(&game.flags_font,FFlg_unk10,false);
-      SYNCMSG("Initializing %d-players IPX network",maxplayrs);
-      break;
-  default:
-      maxplayrs = 4;
-      init_data = NULL;
-      set_flag_byte(&game.flags_font,FFlg_unk10,false);
-      SYNCMSG("Initializing %d-players type %d network",maxplayrs,srvidx);
-      break;
-  }
+  struct ServiceInitData *init_data = NULL;
+  set_flag_byte(&game.flags_font,FFlg_unk10,false);
+  SYNCMSG("Initializing 4-players type %d network",srvidx);
   LbMemorySet(&net_player_info[0], 0, sizeof(struct TbNetworkPlayerInfo));
-  if ( LbNetwork_Init(srvidx, maxplayrs, &net_player_info[0], init_data) )
+  if ( LbNetwork_Init(srvidx, NET_PLAYERS_COUNT, &net_player_info[0], init_data) )
   {
     if (srvidx != 0)
       process_network_error(-800);
@@ -121,7 +103,7 @@ static CoroutineLoopState setup_exchange_player_number(CoroutineLoop *context)
           }
           player->is_active = pckt->actn_par1;
           init_player(player, 0);
-          snprintf(player->field_15, sizeof(struct TbNetworkPlayerName), "%s", net_player[i].name);
+          snprintf(player->player_name, sizeof(struct TbNetworkPlayerName), "%s", net_player[i].name);
           k++;
       }
   }

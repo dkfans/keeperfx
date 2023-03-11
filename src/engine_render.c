@@ -814,11 +814,11 @@ static void rotpers_parallel_3(struct EngineCoord *epos, struct M33 *matx, long 
     inp_x = epos->x;
     inp_y = epos->y;
     inp_z = epos->z;
-    out_x = (inp_z * matx->r[0].v[2] + (inp_y + matx->r[0].v[0]) * (inp_x + matx->r[0].v[1]) - matx->r[0].v[3] - inp_x * inp_y) >> 14;
+    out_x = ((long long)(inp_z * matx->r[0].v[2]) + ((long long)(inp_y + matx->r[0].v[0]) * (long long)(inp_x + matx->r[0].v[1])) - (long long)matx->r[0].v[3] - (long long)(inp_x * inp_y)) >> 14;
     epos->x = out_x;
-    out_y = (inp_z * matx->r[1].v[2] + (inp_y + matx->r[1].v[0]) * (inp_x + matx->r[1].v[1]) - matx->r[1].v[3] - inp_x * inp_y) >> 14;
+    out_y = ((long long)(inp_z * matx->r[1].v[2]) + ((long long)(inp_y + matx->r[1].v[0]) * (long long)(inp_x + matx->r[1].v[1])) - (long long)matx->r[1].v[3] - (long long)(inp_x * inp_y)) >> 14;
     epos->y = out_y;
-    epos->z = (inp_z * matx->r[2].v[2] + (inp_y + matx->r[2].v[0]) * (inp_x + matx->r[2].v[1]) - matx->r[2].v[3] - inp_x * inp_y) >> 14;
+    epos->z = ((long long)(inp_z * matx->r[2].v[2]) + ((long long)(inp_y + matx->r[2].v[0]) * (long long)(inp_x + matx->r[2].v[1])) - (long long)matx->r[2].v[3] - (long long)(inp_x * inp_y)) >> 14;
     factor_w = (long)view_width_over_2 + (zoom * out_x >> 16);
     epos->view_width = factor_w;
     factor_h = (long)view_height_over_2 - (zoom * out_y >> 16);
@@ -4137,7 +4137,7 @@ static void do_a_plane_of_engine_columns_perspective(long stl_x, long stl_y, lon
     struct Column *sib_colmn;
     unsigned short textr_idx;
     unsigned short height_bit;
-    unsigned long center_block_idx;
+    SubtlCodedCoords center_block_idx;
     long fepos;
     long bepos;
     long ecpos;

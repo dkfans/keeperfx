@@ -227,8 +227,8 @@ struct GameAdd {
     TbBool heart_lost_quick_message;
     unsigned long heart_lost_message_id;
     long heart_lost_message_target;
-    unsigned char slab_ext_data[85 * 85];
-    unsigned char slab_ext_data_initial[85 * 85];
+    unsigned char slab_ext_data[MAX_TILES_X*MAX_TILES_Y];
+    unsigned char slab_ext_data_initial[MAX_TILES_X*MAX_TILES_Y];
     struct PlayerInfoAdd players[PLAYERS_COUNT];
     float delta_time;
     long double process_turn_time;
@@ -240,6 +240,8 @@ struct GameAdd {
     MapSubtlCoord map_subtiles_y;
     MapSlabCoord map_tiles_x;
     MapSlabCoord map_tiles_y;
+    long navigation_map_size_x;
+    long navigation_map_size_y;
     short around_map[AROUND_MAP_LENGTH];
     short around_slab[AROUND_SLAB_LENGTH];
     short around_slab_eight[AROUND_SLAB_EIGHT_LENGTH];

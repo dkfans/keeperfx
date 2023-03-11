@@ -376,7 +376,7 @@ int draw_overhead_call_to_arms(const struct TbRect *map_area, long block_size, P
             struct Dungeon* dungeon = get_dungeon(i);
             lbDisplay.DrawFlags = Lb_SPRITE_OUTLINE;
             const struct MagicStats* pwrdynst = get_power_dynamic_stats(PwrK_CALL2ARMS);
-            long m = (4 * ((i + game.play_gameturn) & 7) * subtile_slab_fast(pwrdynst->strength[dungeon->cta_splevel]));
+            long m = (4 * ((i + game.play_gameturn) & 7) * subtile_slab(pwrdynst->strength[dungeon->cta_splevel]));
             long pos_x = map_area->left + block_size * (int)dungeon->cta_stl_x / STL_PER_SLB;
             long pos_y = map_area->top + block_size * (int)dungeon->cta_stl_y / STL_PER_SLB;
             long radius = (((m & 7) + m) >> 3);
