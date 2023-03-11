@@ -388,7 +388,6 @@ CrAttackType creature_can_have_combat_with_creature(struct Thing *fightng, struc
     return AttckT_Ranged;
 }
 
-//perhaps not needed, go with creature_can_have_combat_with_creature
 CrAttackType creature_can_have_combat_with_object(struct Thing* fightng, struct Thing* enmtng, long dist, long move_on_ground, long set_if_seen)
 {
     SYNCDBG(19, "Starting for %s index %d vs %s index %d", thing_model_name(fightng), (int)fightng->index, thing_model_name(enmtng), (int)enmtng->index);
