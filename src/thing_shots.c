@@ -454,6 +454,7 @@ struct Thing *create_shot_hit_effect(struct Coord3d *effpos, long effowner, long
             long i = snd_idx;
             if (snd_range > 1)
                 i += UNSYNC_RANDOM(snd_range);
+            JUSTMSG("testlog thing play sample  %d", i);
             thing_play_sample(efftng, i, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
         }
     }
@@ -471,6 +472,7 @@ struct Thing *create_shot_hit_effect(struct Coord3d *effpos, long effowner, long
  */
 TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
 {
+    JUSTMSG("testlog shot hit wall");
     struct Thing *doortng;
     long i;
     SYNCDBG(8,"Starting for %s index %d",thing_model_name(shotng),(int)shotng->index);
@@ -494,6 +496,7 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
     // If blocked by a higher wall
     if ((blocked_flags & SlbBloF_WalledZ) != 0)
     {
+        JUSTMSG("testlog shot hit wall Z axis");
         long cube_id = get_top_cube_at(pos->x.stl.num, pos->y.stl.num, NULL);
         doortng = get_door_for_position(pos->x.stl.num, pos->y.stl.num);
         if (!thing_is_invalid(doortng))
@@ -518,25 +521,27 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
                 destroy_shot = 1;
             }
         } else
+        {
+            JUSTMSG("testlog shot hit wall yes at wall!");
+            eff_kind = shotst->hit_generic.effect_model;
+            smpl_idx = shotst->hit_generic.sndsample_idx;
+            range = shotst->hit_generic.sndsample_range;
+            if (digging)
             {
-                eff_kind = shotst->hit_generic.effect_model;
-                smpl_idx = shotst->hit_generic.sndsample_idx;
-                range = shotst->hit_generic.sndsample_range;
-                if (digging)
+                slb = get_slabmap_for_subtile(stl_num_decode_x(hit_stl_num), stl_num_decode_y(hit_stl_num));
+                if ((old_health > slb->health) || (slb->kind == SlbT_GEMS))
                 {
-                    slb = get_slabmap_for_subtile(stl_num_decode_x(hit_stl_num), stl_num_decode_y(hit_stl_num));
-                    if ((old_health > slb->health) || (slb->kind == SlbT_GEMS))
-                    {
-                        smpl_idx = shotst->dig.sndsample_idx;
-                        range = shotst->dig.sndsample_range;
-                        eff_kind = shotst->dig.effect_model;
-                    }
-                }
-                efftng = create_shot_hit_effect(&shotng->mappos, shotng->owner, eff_kind, smpl_idx, range);
-                if (!shotst->hit_generic.withstand) {
-                    destroy_shot = 1;
+                    smpl_idx = shotst->dig.sndsample_idx;
+                    range = shotst->dig.sndsample_range;
+                    eff_kind = shotst->dig.effect_model;
                 }
             }
+            JUSTMSG("testlog create shot with sound %d", smpl_idx);
+            efftng = create_shot_hit_effect(&shotng->mappos, shotng->owner, eff_kind, smpl_idx, range);
+            if (!shotst->hit_generic.withstand) {
+                destroy_shot = 1;
+            }
+        }
     }
 
     if ( !destroy_shot )
@@ -578,6 +583,7 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
                         eff_kind = shotst->dig.effect_model;
                     }
                 }
+                JUSTMSG("testlog create shot with sound %d at x/y", smpl_idx);
                 efftng = create_shot_hit_effect(&shotng->mappos, shotng->owner, eff_kind, smpl_idx, range);
 
                 if (!shotst->hit_generic.withstand) {

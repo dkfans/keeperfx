@@ -83,23 +83,13 @@ const struct NamedCommand magic_shot_commands[] = {
   {"SIZE_XY",               18},
   {"SIZE_YZ",               19},
   {"FALLACCELERATION",      20},
-  {"HITWALLSOUND",          21},
-  {"HITWALLSOUNDVARIANTS",  22},
-  {"HITWALLEFFECT",         23},
-  {"HITDOORSOUND",          24},
-  {"HITDOORSOUNDVARIANTS",  25},
-  {"HITDOOREFFECT",         26},
-  {"HITWATERSOUND",         27},
-  {"HITWATERSOUNDVARIANTS", 28},
-  {"HITWATEREFFECT",        29},
-  {"HITLAVASOUND",          30},
-  {"HITLAVASOUNDVARIANTS",  31},
-  {"HITLAVAEFFECT",         32},
-  {"HITCREATURESOUND",      33},
+  {"HITWALL",               23},
+  {"HITCREATURE",           24},
+  {"HITDOOR",               25},
+  {"HITWATER",              26},
+  {"HITLAVA",               27},
+  {"DIGHIT",                28},
   {"ANIMATIONTRANSPARENCY", 34},
-  {"DIGSOUND",              35},
-  {"DIGSOUNDVARIANTS",      36},
-  {"DIGEFFECT",             37},
   {"DESTROYONHIT",          38},
   {"BASEEXPERIENCEGAIN",    39},
   {"TARGETHITSTOPTURNS",    40},
@@ -155,10 +145,6 @@ const struct NamedCommand shotmodel_properties_commands[] = {
   {"STRENGTH_BASED",      10},
   {"ALARMS_UNITS",        11},
   {"CAN_COLLIDE",         12},
-  {"WITHSTAND_DOOR_HIT",  13},
-  {"WITHSTAND_WALL_HIT",  14},
-  {"WITHSTAND_LAVA_HIT",  15},
-  {"WITHSTAND_WATER_HIT", 16},
   {"NO_AIR_DAMAGE",       17},
   {"WIND_IMMUNE",         18},
   {"FIXED_DAMAGE",        19},
@@ -892,10 +878,6 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           break;
       case 8: // PROPERTIES
           shotst->model_flags = 0;
-          shotst->hit_door.withstand = 0;
-          shotst->hit_generic.withstand = 0;
-          shotst->hit_lava.withstand = 0;
-          shotst->hit_water.withstand = 0;
           shotst->no_air_damage = 0;
           shotst->wind_immune = 0;
           shotst->hidden_projectile = 0;
@@ -950,22 +932,6 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                 break;
             case 12: // CAN_COLLIDE
                 shotst->model_flags |= ShMF_CanCollide;
-                n++;
-                break;
-            case 13: // WITHSTAND_DOOR_HIT
-                shotst->hit_door.withstand = 1; //todo flag
-                n++;
-                break;
-            case 14: // WITHSTAND_WALL_HIT
-                shotst->hit_generic.withstand = 1; //todo flag
-                n++;
-                break;
-            case 15: // WITHSTAND_LAVA_HIT
-                shotst->hit_lava.withstand = 1; //todo flag
-                n++;
-                break;
-            case 16: // WITHSTAND_WATER_HIT
-                shotst->hit_water.withstand = 1; //todo flag
                 n++;
                 break;
             case 17: // NO_AIR_DAMAGE
@@ -1150,170 +1116,188 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
           break;
-      case 21: //HITWALLSOUND
+      case 23: //HITWALL
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->hit_generic.effect_model = k;
+              JUSTMSG("testlog hit effect for model %d = %d", i, k);
+              n++;
+          }
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
               shotst->hit_generic.sndsample_idx = k;
               n++;
           }
-          if (n < 1)
-          {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
-          }
-          break;
-      case 22: //HITWALLSOUNDVARIANTS
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
               shotst->hit_generic.sndsample_range = k;
               n++;
           }
-          if (n < 1)
-          {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
-          }
-          break;
-      case 23: //HITWALLEFFECT
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
-              shotst->hit_generic.effect_model = k;
+              shotst->hit_generic.withstand = k;
               n++;
           }
-          if (n < 1)
+          if (n < 4)
           {
               CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
           break;
-      case 24: //HITDOORSOUND
+      case 24: //HITCREATURE
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
-              shotst->hit_door.sndsample_idx = k;
+              shotst->hit_creature.effect_model = k;
               n++;
           }
-          if (n < 1)
-          {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
-          }
-          break;
-      case 25: //HITDOORSOUNDVARIANTS
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              shotst->hit_door.sndsample_range = k;
-              n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
-          }
-          break;
-      case 26: //HITDOOREFFECT
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              shotst->hit_door.effect_model = k;
-              n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
-          }
-          break;
-      case 27: //HITWATERSOUND
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              shotst->hit_water.sndsample_idx = k;
-              n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
-          }
-          break;
-      case 28: //HITWATERSOUNDVARIANTS
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              shotst->hit_water.sndsample_range = k;
-              n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
-          }
-          break;
-      case 29: //HITWATEREFFECT
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              shotst->hit_water.effect_model = k;
-              n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
-          }
-          break;
-      case 30: //HITLAVASOUND
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              shotst->hit_lava.sndsample_idx = k;
-              n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
-          }
-          break;
-      case 31: //HITLAVASOUNDVARIANTS
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              shotst->hit_lava.sndsample_range = k;
-              n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
-          }
-          break;
-      case 32: //HITLAVAEFFECT
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              shotst->hit_lava.effect_model = k;
-              n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
-          }
-          break;
-      case 33: //HITCREATURESOUND
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
               shotst->hit_creature.sndsample_idx = k;
               n++;
           }
-          if (n < 1)
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->hit_creature.sndsample_range = k;
+              n++;
+          }
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->hit_creature.withstand = k;
+              n++;
+          }
+          if (n < 4)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 25: //HITDOOR
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->hit_door.effect_model = k;
+              n++;
+          }
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->hit_door.sndsample_idx = k;
+              n++;
+          }
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->hit_door.sndsample_range = k;
+              n++;
+          }
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->hit_door.withstand = k;
+              n++;
+          }
+          if (n < 4)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 26: //HITWATER
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->hit_water.effect_model = k;
+              n++;
+          }
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->hit_water.sndsample_idx = k;
+              n++;
+          }
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->hit_water.sndsample_range = k;
+              n++;
+          }
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->hit_water.withstand = k;
+              n++;
+          }
+          if (n < 4)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 27: //HITLAVA
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->hit_lava.effect_model = k;
+              n++;
+          }
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->hit_lava.sndsample_idx = k;
+              n++;
+          }
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->hit_lava.sndsample_range = k;
+              n++;
+          }
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->hit_lava.withstand = k;
+              n++;
+          }
+          if (n < 4)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 28: //DIGHIT
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->dig.effect_model = k;
+              n++;
+          }
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->dig.sndsample_idx = k;
+              n++;
+          }
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->dig.sndsample_range = k;
+              n++;
+          }
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->dig.withstand = k;
+              n++;
+          }
+          if (n < 4)
           {
               CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
@@ -1324,45 +1308,6 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           {
               k = atoi(word_buf);
               shotst->animation_transparency = k;
-              n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
-          }
-          break;
-      case 35: //DIGSOUND
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              shotst->dig.sndsample_idx = k;
-              n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
-          }
-          break;
-      case 36: //DIGSOUNDVARIANTS
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              shotst->dig.sndsample_range = k;
-              n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
-          }
-          break;
-      case 37: //DIGEFFECT
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              shotst->dig.effect_model = k;
               n++;
           }
           if (n < 1)
