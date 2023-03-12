@@ -1272,6 +1272,10 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.barrack_max_party_size, val3);
           game.barrack_max_party_size = (TbBool)val3;
           break;
+      case 33: //ImpTempleSpells
+          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.digger_temple_spells, val3);
+          gameadd.digger_temple_spells = (TbBool)val3;
+          break;
       default:
           WARNMSG("Unsupported Game RULE, command %d.", val2);
           break;

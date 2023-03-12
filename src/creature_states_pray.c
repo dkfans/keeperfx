@@ -529,11 +529,19 @@ long process_sacrifice_award(struct Coord3d *pos, long model, PlayerNumber plyr_
         case SacA_NegSpellAll:
             if (explevel > SPELL_MAX_LEVEL) explevel = SPELL_MAX_LEVEL;
             apply_spell_effect_to_players_creatures(plyr_idx, sac->param, explevel);
+            if (gameadd.digger_temple_spells)
+            {
+               apply_spell_effect_to_players_diggers(plyr_idx, sac->param, explevel); 
+            }
             ret = SacR_Punished;
             break;
         case SacA_PosSpellAll:
             if (explevel > SPELL_MAX_LEVEL) explevel = SPELL_MAX_LEVEL;
             apply_spell_effect_to_players_creatures(plyr_idx, sac->param, explevel);
+            if (gameadd.digger_temple_spells)
+            {
+               apply_spell_effect_to_players_diggers(plyr_idx, sac->param, explevel); 
+            }
             ret = SacR_Awarded;
             break;
         case SacA_NegUniqFunc:
@@ -760,5 +768,35 @@ TbBool find_temple_pool(int player_idx, struct Coord3d *pos)
     }
 
     return true;
+}
+
+void apply_spell_effect_to_players_diggers(PlayerNumber plyr_idx, long spl_idx, long overchrg)
+{
+    SYNCDBG(8,"Starting");
+    struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
+    unsigned long k = 0;
+    int i = dungeon->digger_list_start;
+    while (i != 0)
+    {
+        struct Thing* thing = thing_get(i);
+        TRACE_THING(thing);
+        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+        if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
+        {
+            ERRORLOG("Jump to invalid creature detected");
+            break;
+        }
+        i = cctrl->players_next_creature_idx;
+        // Thing list loop body
+        apply_spell_effect_to_thing(thing, spl_idx, overchrg);
+        // Thing list loop body ends
+        k++;
+        if (k > CREATURES_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping creatures list");
+            break;
+        }
+    }
+    SYNCDBG(19,"Finished");
 }
 /******************************************************************************/
