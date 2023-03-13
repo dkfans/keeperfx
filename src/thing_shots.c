@@ -93,7 +93,8 @@ TbBool detonate_shot(struct Thing *shotng)
     SYNCDBG(8,"Starting for %s index %d owner %d",thing_model_name(shotng),(int)shotng->index,(int)shotng->owner);
     struct Thing* castng = INVALID_THING;
     struct PlayerInfo* myplyr = get_my_player();
-    // Identify the creator if the shot
+    short spell_level;
+    // Identify the creator of the shot
     if (shotng->index != shotng->parent_idx) {
         castng = thing_get(shotng->parent_idx);
         TRACE_THING(castng);
@@ -110,6 +111,32 @@ TbBool detonate_shot(struct Thing *shotng)
         HitTargetFlags hit_targets = hit_type_to_hit_targets(shotst->area_hit_type);
         explosion_affecting_area(castng, &shotng->mappos, dist, damage, shotst->area_blow, hit_targets, shotst->damage_type);
     }
+    
+    if (shotst->explode.effect1_model > 0)
+    {
+        create_effect(&shotng->mappos, shotst->explode.effect1_model, shotng->owner);
+    } else
+    if (shotst->explode.effect1_model < 0)
+    {
+        create_effect_element(&shotng->mappos, ~(shotst->explode.effect1_model)+1, shotng->owner);
+    }
+    if (shotst->explode.effect2_model > 0)
+    {
+        create_effect(&shotng->mappos, shotst->explode.effect2_model, shotng->owner);
+    } else
+    if (shotst->explode.effect2_model < 0)
+    {
+        create_effect_element(&shotng->mappos, ~(shotst->explode.effect2_model) + 1, shotng->owner);
+    }
+    if (shotst->explode.around_effect1_model > 0)
+    {
+        create_effect_around_thing(shotng, shotst->explode.around_effect1_model);
+    }
+    if (shotst->explode.around_effect2_model > 0)
+    {
+        create_effect_around_thing(shotng, shotst->explode.around_effect2_model);
+    }
+
     //TODO CONFIG shot model dependency, make config option instead
     switch (shotng->model)
     {
@@ -120,30 +147,13 @@ TbBool detonate_shot(struct Thing *shotng)
             PaletteSetPlayerPalette(myplyr, engine_palette);
         }
         break;
-    case ShM_Grenade:
-    case ShM_Lizard:
-        create_effect(&shotng->mappos, TngEff_Explosion7, shotng->owner);
-        create_effect(&shotng->mappos, TngEff_Blood4, shotng->owner);
-        break;
     case ShM_TrapTNT:
-        create_effect(&shotng->mappos, TngEff_Eruption, shotng->owner);
-        short spell_level = shotng->shot.damage;
+        spell_level = shotng->shot.damage;
         if (spell_level > SPELL_MAX_LEVEL)
         {
             spell_level = SPELL_MAX_LEVEL;
         }
         magic_use_power_destroy_walls(shotng->owner, shotng->mappos.x.stl.num, shotng->mappos.y.stl.num, spell_level, PwMod_CastForFree);
-        create_effect_around_thing(shotng, TngEff_Explosion7);
-        break;
-    case ShM_Firebomb:
-        create_effect(&shotng->mappos, TngEff_Explosion7, shotng->owner);
-        break;
-    case ShM_Missile:
-    case ShM_NaviMissile:
-        create_effect(&shotng->mappos, TngEff_ChickenBlood, shotng->owner);
-        break;
-    case ShM_Boulder:
-        create_effect_around_thing(shotng, TngEff_DirtRubble);
         break;
     default:
         break;

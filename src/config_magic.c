@@ -89,6 +89,7 @@ const struct NamedCommand magic_shot_commands[] = {
   {"HITWATER",              26},
   {"HITLAVA",               27},
   {"DIGHIT",                28},
+  {"EXPLOSIONEFFECTS",      29},
   {"ANIMATIONTRANSPARENCY", 34},
   {"DESTROYONHIT",          38},
   {"BASEEXPERIENCEGAIN",    39},
@@ -1121,7 +1122,6 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           {
               k = atoi(word_buf);
               shotst->hit_generic.effect_model = k;
-              JUSTMSG("testlog hit effect for model %d = %d", i, k);
               n++;
           }
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
@@ -1295,6 +1295,37 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           {
               k = atoi(word_buf);
               shotst->dig.withstand = k;
+              n++;
+          }
+          if (n < 4)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 29: // EXPLOSIONEFFECTS
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->explode.effect1_model = k;
+              n++;
+          }
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->explode.effect2_model = k;
+              n++;
+          }
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->explode.around_effect1_model = k;
+              n++;
+          }
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->explode.around_effect2_model = k;
               n++;
           }
           if (n < 4)

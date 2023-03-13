@@ -226,6 +226,13 @@ struct ShotHitConfig {
     unsigned char withstand; /**< Whether the shot can withstand a hit without getting destroyed; could be converted to flags. */
 };
 
+struct ShotDetonateConfig {
+    short effect1_model;
+    short effect2_model; 
+    short around_effect1_model;
+    short around_effect2_model;
+};
+
 /**
  * Configuration parameters for shots.
  */
@@ -252,6 +259,7 @@ struct ShotConfigStats {
     struct ShotHitConfig hit_lava;
     struct ShotHitConfig hit_creature;
     struct ShotHitConfig dig;
+    struct ShotDetonateConfig explode;
     short firing_sound;
     short shot_sound;
     short sound_priority;
