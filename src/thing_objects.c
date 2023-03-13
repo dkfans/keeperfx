@@ -1312,7 +1312,7 @@ void update_dungeon_heart_beat(struct Thing *heartng)
     {
         long i = (char)heartng->heart.beat_direction;
         heartng->anim_speed = 0;
-        struct ObjectConfig* objconf = get_object_model_stats2(ObjMdl_SoulCountainer);
+        struct ObjectConfig* objconf = get_object_model_stats2(heartng->model);
         long long k = 384 * (long)(objconf->health - heartng->health) / objconf->health;
         k = base_heart_beat_rate / (k + 128);
         int intensity = light_get_light_intensity(heartng->light_id) + (i*36/k);
@@ -1355,9 +1355,20 @@ void update_dungeon_heart_beat(struct Thing *heartng)
 static TngUpdateRet object_update_dungeon_heart(struct Thing *heartng)
 {
     SYNCDBG(18,"Starting");
+    struct Dungeon* dungeon = INVALID_DUNGEON;
+    if (heartng->owner != game.neutral_player_num)
+    {
+        dungeon = get_players_num_dungeon(heartng->owner);
+    }
+    if (heartng->index != dungeon->dnheart_idx)
+    {
+        SYNCDBG(18, "Inactive Heart");
+        return TUFRet_Unchanged;
+    }
+
     if ((heartng->health > 0) && (game.dungeon_heart_heal_time != 0))
     {
-        struct ObjectConfig* objconf = get_object_model_stats2(ObjMdl_SoulCountainer);
+        struct ObjectConfig* objconf = get_object_model_stats2(heartng->model);
         if ((game.play_gameturn % game.dungeon_heart_heal_time) == 0)
         {
             heartng->health += game.dungeon_heart_heal_health;
@@ -1376,9 +1387,8 @@ static TngUpdateRet object_update_dungeon_heart(struct Thing *heartng)
         heartng->sprite_size = i * (long)objdat->sprite_size_max >> 8;
         heartng->clipbox_size_xy = i * (long)objdat->size_xy >> 8;
     }
-    else if (heartng->owner != game.neutral_player_num)
+    else if (dungeon != INVALID_DUNGEON)
     {
-        struct Dungeon* dungeon = get_players_num_dungeon(heartng->owner);
         if (dungeon->heart_destroy_state == 0)
         {
             dungeon->heart_destroy_turn = 0;
