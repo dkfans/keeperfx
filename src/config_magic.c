@@ -146,6 +146,7 @@ const struct NamedCommand shotmodel_properties_commands[] = {
   {"STRENGTH_BASED",      10},
   {"ALARMS_UNITS",        11},
   {"CAN_COLLIDE",         12},
+  {"EXPLODE_FLESH",       13},
   {"NO_AIR_DAMAGE",       17},
   {"WIND_IMMUNE",         18},
   {"FIXED_DAMAGE",        19},
@@ -933,6 +934,10 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                 break;
             case 12: // CAN_COLLIDE
                 shotst->model_flags |= ShMF_CanCollide;
+                n++;
+                break;
+            case 13: // EXPLODE_FLESH
+                shotst->model_flags |= ShMF_Exploding;
                 n++;
                 break;
             case 17: // NO_AIR_DAMAGE

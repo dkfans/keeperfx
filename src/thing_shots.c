@@ -1081,9 +1081,8 @@ void set_thing_acceleration_angles(struct Thing *thing, long angle_xy, long angl
 
 TbBool shot_model_makes_flesh_explosion(long shot_model)
 {
-    if ((shot_model == ShM_Firebomb) || (shot_model == ShM_GodLightBall))
-        return true;
-    return false;
+    struct ShotConfigStats* shotst = get_shot_model_stats(shot_model);
+    return (shotst->model_flags & ShMF_Exploding);
 }
 
 long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coord3d *pos)
