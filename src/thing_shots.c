@@ -1536,6 +1536,11 @@ TngUpdateRet update_shot(struct Thing *thing)
         {
             affect_nearby_friends_with_alarm(thing);
         }
+        if (shotst->model_flags & ShMF_Boulder)
+        {
+            if (apply_wallhug_force_to_boulder(thing))
+                hit = true;
+        }
         switch (thing->model)
         {
         case ShM_Firebomb:
@@ -1576,11 +1581,6 @@ TngUpdateRet update_shot(struct Thing *thing)
             break;
         case ShM_Grenade:
             thing->move_angle_xy = (thing->move_angle_xy + LbFPMath_PI/9) & LbFPMath_AngleMask;
-            break;
-        case ShM_Boulder:
-        case ShM_SolidBoulder:
-            if (apply_wallhug_force_to_boulder(thing))
-              hit = true;
             break;
         case ShM_GodLightning:
             draw_god_lightning(thing);
