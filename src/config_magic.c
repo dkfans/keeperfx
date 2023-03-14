@@ -83,6 +83,7 @@ const struct NamedCommand magic_shot_commands[] = {
   {"SIZE_XY",               18},
   {"SIZE_YZ",               19},
   {"FALLACCELERATION",      20},
+  {"VISUALEFFECT",          21},
   {"HITWALL",               23},
   {"HITCREATURE",           24},
   {"HITDOOR",               25},
@@ -1117,6 +1118,37 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
               n++;
           }
           if (n < 1)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break; 
+      case 21: //VISUALEFFECT
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->visual.effect_model = k;
+              n++;
+          }
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->visual.amount = k;
+              n++;
+          }
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->visual.random_range = k;
+              n++;
+          }
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->visual.shot_health = k;
+              n++;
+          }
+          if (n < 4)
           {
               CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);

@@ -234,6 +234,13 @@ struct ShotDetonateConfig {
     short around_effect2_model;
 };
 
+struct ShotVisualConfig {
+    short effect_model;
+    unsigned char amount;
+    short random_range;
+    short shot_health;
+};
+
 /**
  * Configuration parameters for shots.
  */
@@ -261,6 +268,7 @@ struct ShotConfigStats {
     struct ShotHitConfig hit_creature;
     struct ShotHitConfig dig;
     struct ShotDetonateConfig explode;
+    struct ShotVisualConfig visual;
     short firing_sound;
     short shot_sound;
     short sound_priority;

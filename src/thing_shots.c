@@ -1541,17 +1541,30 @@ TngUpdateRet update_shot(struct Thing *thing)
             if (apply_wallhug_force_to_boulder(thing))
                 hit = true;
         }
+        if (shotst->visual.effect_model != 0)
+        {
+            if ((shotst->visual.shot_health == 0) ||
+                ((shotst->visual.shot_health > 0) && ((shotst->health - thing->health) <= shotst->visual.shot_health)) ||
+                ((shotst->visual.shot_health < 0) && ((thing->health - shotst->health) <= shotst->visual.shot_health)))
+            {
+                for (i = shotst->visual.amount; i > 0; i--)
+                {
+                    pos1.x.val = thing->mappos.x.val - UNSYNC_RANDOM(shotst->visual.random_range) + (shotst->visual.random_range / 2);
+                    pos1.y.val = thing->mappos.y.val - UNSYNC_RANDOM(shotst->visual.random_range) + (shotst->visual.random_range / 2);
+                    pos1.z.val = thing->mappos.z.val - UNSYNC_RANDOM(shotst->visual.random_range) + (shotst->visual.random_range / 2);
+                    if (shotst->visual.effect_model > 0)
+                    {
+                        create_effect(&pos1, shotst->visual.effect_model, thing->owner);
+                    }
+                    if (shotst->visual.effect_model < 0)
+                    {
+                        create_effect_element(&pos1, ~(shotst->visual.effect_model) + 1, thing->owner);
+                    }
+                }
+            }
+        }
         switch (thing->model)
         {
-        case ShM_Firebomb:
-            for (i = 2; i > 0; i--)
-            {
-              pos1.x.val = thing->mappos.x.val - UNSYNC_RANDOM(127) + 63;
-              pos1.y.val = thing->mappos.y.val - UNSYNC_RANDOM(127) + 63;
-              pos1.z.val = thing->mappos.z.val - UNSYNC_RANDOM(127) + 63;
-              create_thing(&pos1, TCls_EffectElem, TngEffElm_Blast1, thing->owner, -1);
-            }
-            break;
         case ShM_Lightning:
         {
             struct PlayerInfo* player;
@@ -1570,13 +1583,6 @@ TngUpdateRet update_shot(struct Thing *thing)
             break;
         }
         case ShM_Wind:
-            for (i = 10; i > 0; i--)
-            {
-              pos1.x.val = thing->mappos.x.val - UNSYNC_RANDOM(1023) + 511;
-              pos1.y.val = thing->mappos.y.val - UNSYNC_RANDOM(1023) + 511;
-              pos1.z.val = thing->mappos.z.val - UNSYNC_RANDOM(1023) + 511;
-              create_thing(&pos1, TCls_EffectElem, TngEffElm_Leaves1, thing->owner, -1);
-            }
             affect_nearby_enemy_creatures_with_wind(thing);
             break;
         case ShM_Grenade:
@@ -1616,18 +1622,7 @@ TngUpdateRet update_shot(struct Thing *thing)
             update_god_lightning_ball(thing);
             break;
         case ShM_TrapTNT:
-            
             thing->mappos.z.val = 0;
-            if (thing->health < 6)
-            {
-                for (i = 5; i > 0; i--)
-                {
-                    pos1.x.val = thing->mappos.x.val - UNSYNC_RANDOM(127) + 63;
-                    pos1.y.val = thing->mappos.y.val - UNSYNC_RANDOM(127) + 63;
-                    pos1.z.val = thing->mappos.z.val - UNSYNC_RANDOM(127) + 63;
-                    create_thing(&pos1, TCls_EffectElem, TngEffElm_Blast1, thing->owner, -1);
-                }
-            }
             break;
         case ShM_TrapLightning:
             if (((game.play_gameturn - thing->creation_turn) % 16) == 0)
@@ -1641,15 +1636,6 @@ TngUpdateRet update_shot(struct Thing *thing)
                   draw_lightning(&thing->mappos,&target->mappos, 96, TngEffElm_ElectricBall3);
                   apply_damage_to_thing_and_display_health(target, shotst->damage, shotst->damage_type, thing->owner);
               }
-            }
-            break;
-        case ShM_Disease:
-            for (i = 1; i > 0; i--)
-            {
-              pos1.x.val = thing->mappos.x.val - UNSYNC_RANDOM(511) + 255;
-              pos1.y.val = thing->mappos.y.val - UNSYNC_RANDOM(511) + 255;
-              pos1.z.val = thing->mappos.z.val - UNSYNC_RANDOM(511) + 255;
-              create_thing(&pos1, TCls_EffectElem, TngEffElm_DiseaseFly, thing->owner, -1);
             }
             break;
         default:
