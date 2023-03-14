@@ -392,6 +392,57 @@ CrAttackType creature_can_have_combat_with_creature(struct Thing *fightng, struc
     return AttckT_Ranged;
 }
 
+CrAttackType creature_can_have_combat_with_object(struct Thing* fightng, struct Thing* enmtng, long dist, long move_on_ground, long set_if_seen)
+{
+    SYNCDBG(19, "Starting for %s index %d vs %s index %d", thing_model_name(fightng), (int)fightng->index, thing_model_name(enmtng), (int)enmtng->index);
+    TRACE_THING(fightng);
+    TRACE_THING(enmtng);
+    TbBool can_see = false;
+    if (creature_can_hear_within_distance(fightng, dist))
+    {
+        // We can have a melee combat if we hear an enemy and we can move to it
+        if (move_on_ground)
+        {
+            if (creature_can_move_to_combat(fightng, enmtng) >= 0) {
+                return AttckT_Melee;
+            }
+        }
+        else
+        {
+            if (slab_wall_hug_route(fightng, &enmtng->mappos, 8) > 0) {
+                return AttckT_Melee;
+            }
+        }
+        // If we cannot move to the enemy, then ranged attack is the only option, and we need line of sight
+        if (!creature_has_ranged_weapon(fightng)) {
+            // Checking line of sight is expensive - in case we don't have ranged weapon, skip it
+            return AttckT_Unset;
+        }
+        can_see = creature_can_see_combat_path(fightng, enmtng, dist);
+        if (can_see <= 0) {
+            return AttckT_Unset;
+        }
+    }
+    else
+    {
+        can_see = creature_can_see_combat_path(fightng, enmtng, dist);
+        if (!can_see) {
+            return AttckT_Unset;
+        }
+        // If we can see it, assume that we can reach it
+        //TODO COMBAT is it acceptable to assume we can do melee combat here? Why no seen_enemy update?
+        return AttckT_Melee;
+    }
+    if (set_if_seen)
+    {
+        struct CreatureControl* fcctrl = creature_control_get_from_thing(fightng);
+        fcctrl->combat.seen_enemy_los = can_see;
+        fcctrl->combat.seen_enemy_idx = enmtng->index;
+        fcctrl->combat.seen_enemy_turn = game.play_gameturn;
+    }
+    return AttckT_Ranged;
+}
+
 void remove_thing_from_battle_list(struct Thing *thing)
 {
     SYNCDBG(9,"Starting for %s index %d",thing_model_name(thing),(int)thing->index);
@@ -1522,6 +1573,26 @@ CrAttackType check_for_possible_ranged_combat_with_attacker_within_distance(stru
         }
     }
     return best;
+}
+
+CrAttackType check_for_possible_combat_with_enemy_object_within_distance(struct Thing* fightng, struct Thing** outenmtng, long maxdist)
+{
+    struct Thing* thing = get_nearest_enemy_object_possible_to_attack_by(fightng);
+    if (!thing_is_invalid(thing))
+    {
+        SYNCDBG(9, "Best enemy for %s index %d is %s index %d", thing_model_name(fightng), (int)fightng->index, thing_model_name(thing), (int)thing->index);
+        // When counting distance, take size of creatures into account
+        long distance = get_combat_distance(fightng, thing);
+        CrAttackType attack_type = creature_can_have_combat_with_object(fightng, thing, distance, 1, 0);
+        if (attack_type > AttckT_Unset) {
+            *outenmtng = thing;
+            return attack_type;
+        }
+        else {
+            ERRORLOG("The %s index %d cannot fight with %s index %d returned as fight partner", thing_model_name(fightng), (int)fightng->index, thing_model_name(thing), (int)thing->index);
+        }
+    }
+    return AttckT_Unset;
 }
 
 CrAttackType check_for_possible_combat_with_enemy_creature_within_distance(struct Thing *fightng, struct Thing **outenmtng, long maxdist)
@@ -3081,6 +3152,13 @@ TbBool creature_look_for_enemy_object_combat(struct Thing* thing)
         }
     }
     objtng = check_for_object_to_fight(thing);
+    if (thing_is_invalid(objtng))
+    {
+        if (check_for_possible_combat_with_enemy_object_within_distance(thing, &objtng, LONG_MAX) == AttckT_Unset)
+        {
+            return false;
+        }
+    }
     if (thing_is_invalid(objtng) || !(creature_can_navigate_to(thing, &objtng->mappos, NavRtF_Default)))
     {
         return false;

@@ -191,12 +191,7 @@ void __stdcall enum_sessions_callback(struct TbNetworkCallbackData *netcdat, voi
         ERRORLOG("Too many sessions in enumeration");
         return;
     }
-    if (net_service_index_selected == 0)
-    {
-        net_session[net_number_of_sessions] = (struct TbNetworkSessionNameEntry *)netcdat;
-        net_number_of_sessions++;
-    } else
-    if (net_service_index_selected != 1)
+    if (net_service_index_selected >= 0)
     {
         net_session[net_number_of_sessions] = (struct TbNetworkSessionNameEntry *)netcdat;
         net_number_of_sessions++;
