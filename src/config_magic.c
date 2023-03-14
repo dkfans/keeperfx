@@ -84,22 +84,22 @@ const struct NamedCommand magic_shot_commands[] = {
   {"SIZE_YZ",               19},
   {"FALLACCELERATION",      20},
   {"VISUALEFFECT",          21},
-  {"HITWALL",               23},
-  {"HITCREATURE",           24},
-  {"HITDOOR",               25},
-  {"HITWATER",              26},
-  {"HITLAVA",               27},
-  {"DIGHIT",                28},
-  {"EXPLOSIONEFFECTS",      29},
-  {"ANIMATIONTRANSPARENCY", 34},
-  {"DESTROYONHIT",          38},
-  {"BASEEXPERIENCEGAIN",    39},
-  {"TARGETHITSTOPTURNS",    40},
-  {"SHOTSOUNDPRIORITY",     41},
-  {"LIGHTING",              42},
-  {"INERTIA",               43},
-  {"UNSHADED",              44},
-  {"SOFTLANDING",           45},
+  {"HITWALL",               22},
+  {"HITCREATURE",           23},
+  {"HITDOOR",               24},
+  {"HITWATER",              25},
+  {"HITLAVA",               26},
+  {"DIGHIT",                27},
+  {"EXPLOSIONEFFECTS",      28},
+  {"ANIMATIONTRANSPARENCY", 29},
+  {"DESTROYONHIT",          30},
+  {"BASEEXPERIENCEGAIN",    31},
+  {"TARGETHITSTOPTURNS",    32},
+  {"SHOTSOUNDPRIORITY",     33},
+  {"LIGHTING",              34},
+  {"INERTIA",               35},
+  {"UNSHADED",              36},
+  {"SOFTLANDING",           37},
   {NULL,                     0},
   };
 
@@ -148,11 +148,11 @@ const struct NamedCommand shotmodel_properties_commands[] = {
   {"ALARMS_UNITS",        11},
   {"CAN_COLLIDE",         12},
   {"EXPLODE_FLESH",       13},
-  {"NO_AIR_DAMAGE",       17},
-  {"WIND_IMMUNE",         18},
-  {"FIXED_DAMAGE",        19},
-  {"HIDDEN_PROJECTILE",   20},
-  {"DISARMING",           21},
+  {"NO_AIR_DAMAGE",       14},
+  {"WIND_IMMUNE",         15},
+  {"FIXED_DAMAGE",        16},
+  {"HIDDEN_PROJECTILE",   17},
+  {"DISARMING",           18},
   {NULL,                   0},
   };
 
@@ -941,23 +941,23 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                 shotst->model_flags |= ShMF_Exploding;
                 n++;
                 break;
-            case 17: // NO_AIR_DAMAGE
+            case 14: // NO_AIR_DAMAGE
                 shotst->no_air_damage = 1;
                 n++;
                 break;
-            case 18: // WIND_IMMUNE
+            case 15: // WIND_IMMUNE
                 shotst->wind_immune = 1;
                 n++;
                 break;
-            case 19: // FIXED_DAMAGE
+            case 16: // FIXED_DAMAGE
                 shotst->fixed_damage = 1;
                 n++;
                 break;
-            case 20: // HIDDEN_PROJECTILE
+            case 17: // HIDDEN_PROJECTILE
                 shotst->hidden_projectile = 1;
                 n++;
                 break;
-            case 21: // DISARMING
+            case 18: // DISARMING
                 shotst->model_flags |= ShMF_Disarming;
                 n++;
                 break;
@@ -1154,7 +1154,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
           break;
-      case 23: //HITWALL
+      case 22: //HITWALL
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
@@ -1185,7 +1185,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
           break;
-      case 24: //HITCREATURE
+      case 23: //HITCREATURE
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
@@ -1216,7 +1216,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
           break;
-      case 25: //HITDOOR
+      case 24: //HITDOOR
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
@@ -1247,7 +1247,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
           break;
-      case 26: //HITWATER
+      case 25: //HITWATER
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
@@ -1278,7 +1278,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
           break;
-      case 27: //HITLAVA
+      case 26: //HITLAVA
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
@@ -1309,7 +1309,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
           break;
-      case 28: //DIGHIT
+      case 27: //DIGHIT
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
@@ -1340,7 +1340,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
           break;
-      case 29: // EXPLOSIONEFFECTS
+      case 28: // EXPLOSIONEFFECTS
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
@@ -1371,7 +1371,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
           break;
-      case 34: //ANIMATIONTRANSPARENCY
+      case 29: //ANIMATIONTRANSPARENCY
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
@@ -1384,7 +1384,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
           break;
-      case 38: //DESTROYONHIT
+      case 30: //DESTROYONHIT
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
@@ -1397,7 +1397,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
           break;
-      case 39: //BASEEXPERIENCEGAIN
+      case 31: //BASEEXPERIENCEGAIN
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
@@ -1410,7 +1410,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
           break;
-      case 40: //TARGETHITSTOPTURNS
+      case 32: //TARGETHITSTOPTURNS
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
@@ -1423,7 +1423,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
           break;
-      case 41: //SHOTSOUNDPRIORITY
+      case 33: //SHOTSOUNDPRIORITY
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
@@ -1436,7 +1436,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
           break;
-      case 42: // LIGHTING
+      case 34: // LIGHTING
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
@@ -1461,7 +1461,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
           break;
-      case 43: // INERTIA
+      case 35: // INERTIA
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
@@ -1480,7 +1480,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
           break;
-      case 44: //UNSHADED
+      case 36: //UNSHADED
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
@@ -1493,7 +1493,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
           break;
-      case 45: //SOFTLANDING
+      case 37: //SOFTLANDING
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
