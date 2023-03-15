@@ -82,28 +82,28 @@ enum MousePointerGraphics {
     MousePG_Unkn47,
     MousePG_Unkn48,
     MousePG_Unkn49,
-    MousePG_PlaceImpRock = 152,
-    MousePG_PlaceGold    = 153,
-    MousePG_PlaceEarth   = 154,
-    MousePG_PlaceWall    = 155,
-    MousePG_PlacePath    = 156,
-    MousePG_PlaceClaimed = 157,
-    MousePG_PlaceLava    = 158,
-    MousePG_PlaceWater   = 159,
-    MousePG_PlaceGems    = 160,
-    MousePG_MkDigger     = 161,
-    MousePG_MkCreature   = 162,
-    MousePG_MvCreature   = 163,
-    MousePG_Mystery      = 164,
-    MousePG_PlaceTrap07  = 165,
-    MousePG_PlaceTrap08  = 166,
-    MousePG_PlaceTrap09  = 167,
-    MousePG_PlaceTrap10  = 168,
-    MousePG_PlaceTrap11  = 169,
-    MousePG_PlaceTrap12  = 170,
-    MousePG_PlaceTrap13  = 171,
-    MousePG_PlaceTrap14  = 172,
-    MousePG_PlaceRoom15  = 173,
+    MousePG_PlaceImpRock = 144,
+    MousePG_PlaceGold    = 145,
+    MousePG_PlaceEarth   = 146,
+    MousePG_PlaceWall    = 147,
+    MousePG_PlacePath    = 148,
+    MousePG_PlaceClaimed = 149,
+    MousePG_PlaceLava    = 150,
+    MousePG_PlaceWater   = 151,
+    MousePG_PlaceGems    = 152,
+    MousePG_MkDigger     = 153,
+    MousePG_MkCreature   = 154,
+    MousePG_MvCreature   = 155,
+    MousePG_Mystery      = 156,
+    MousePG_PlaceTrap07  = 157,
+    MousePG_PlaceTrap08  = 158,
+    MousePG_PlaceTrap09  = 159,
+    MousePG_PlaceTrap10  = 160,
+    MousePG_PlaceTrap11  = 161,
+    MousePG_PlaceTrap12  = 162,
+    MousePG_PlaceTrap13  = 163,
+    MousePG_PlaceTrap14  = 164,
+    MousePG_PlaceRoom15  = 165,
 };
 /******************************************************************************/
 
@@ -176,7 +176,7 @@ void init_colours(void);
 
 TbBool set_pointer_graphic_none(void);
 TbBool set_pointer_graphic_menu(void);
-TbBool set_pointer_graphic_spell(long group_idx, long frame);
+TbBool set_pointer_graphic_spell(long spridx, long frame);
 TbBool set_pointer_graphic(long ptr_idx);
 
 /******************************************************************************/

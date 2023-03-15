@@ -346,12 +346,12 @@ TbBool set_pointer_graphic_menu(void)
   return true;
 }
 
-TbBool set_pointer_graphic_spell(long group_idx, long frame)
+TbBool set_pointer_graphic_spell(long spridx, long frame)
 {
     long i;
     long x;
     long y;
-    SYNCDBG(8, "Setting to group %d", (int)group_idx);
+    SYNCDBG(8, "Setting to sprite %d", (int)spridx);
     if (pointer_sprites == NULL)
     {
         WARNLOG("Pointer sprites not loaded, setting to none");
@@ -362,12 +362,12 @@ TbBool set_pointer_graphic_spell(long group_idx, long frame)
   {
     y = 32;
     x = 32;
-    i = (is_custom_icon(group_idx)? group_idx : 8*group_idx) + (frame%8);
+    i = spridx + (frame%8);
   } else
   {
     y = 78;
     x = 26;
-    i = group_idx;
+    i = spridx;
   }
   const struct TbSprite* spr;
 
@@ -379,7 +379,7 @@ TbBool set_pointer_graphic_spell(long group_idx, long frame)
   }
   else
   {
-      spr = &pointer_sprites[40 + i];
+      spr = &pointer_sprites[i];
       SYNCDBG(8,"Activating pointer %d", 40+i);
       if ((spr >= pointer_sprites) && (spr < end_pointer_sprites))
       {
