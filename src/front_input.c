@@ -2024,8 +2024,9 @@ TbBool get_player_coords_and_context(struct Coord3d *pos, unsigned char *context
     y = top_pointed_at_y;
   else
     y = gameadd.map_subtiles_y;
-  unsigned int slb_x = subtile_slab_fast(x);
-  unsigned int slb_y = subtile_slab_fast(y);
+  unsigned int slb_x = subtile_slab(x);
+  unsigned int slb_y = subtile_slab(y);
+
   struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
   struct SlabAttr* slbattr = get_slab_attrs(slb);
   if (slab_kind_is_door(slb->kind) && (slabmap_owner(slb) == player->id_number) && (!playeradd->one_click_lock_cursor))
@@ -2879,8 +2880,8 @@ void process_cheat_mode_selection_inputs()
                     struct Coord3d pos;
                     if (screen_to_map(player->acamera, GetMouseX(), GetMouseY(), &pos))
                     {
-                        MapSlabCoord slb_x = subtile_slab_fast(pos.x.stl.num);
-                        MapSlabCoord slb_y = subtile_slab_fast(pos.y.stl.num);
+                        MapSlabCoord slb_x = subtile_slab(pos.x.stl.num);
+                        MapSlabCoord slb_y = subtile_slab(pos.y.stl.num);
                         struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
                         PlayerNumber id;
                         if ( (slb->kind == SlbT_CLAIMED) || ( (slb->kind >= SlbT_WALLDRAPE) && (slb->kind <= SlbT_DAMAGEDWALL) ) )

@@ -86,7 +86,7 @@ enum DungeonManufactureBuildFlags {
 #pragma pack(1)
 
 struct DiggerStack {
-      unsigned short stl_num;
+      SubtlCodedCoords stl_num;
       SpDiggerTaskType task_type;
 };
 
@@ -116,11 +116,11 @@ struct Dungeon {
     int sight_casted_gameturn;
     short sight_casted_thing_idx;
     unsigned char sight_casted_splevel;
-    unsigned char sight_casted_stl_x;
-    unsigned char sight_casted_stl_y;
+    MapSubtlCoord sight_casted_stl_x;
+    MapSubtlCoord sight_casted_stl_y;
     unsigned char soe_explored_flags[2*MAX_SOE_RADIUS][2*MAX_SOE_RADIUS];
-    unsigned char cta_stl_x;
-    unsigned char cta_stl_y;
+    MapSubtlCoord cta_stl_x;
+    MapSubtlCoord cta_stl_y;
     unsigned char cta_splevel;
     unsigned long cta_start_turn;
     unsigned long must_obey_turn;
@@ -292,6 +292,7 @@ struct DungeonAdd
     unsigned char         room_resrchable[TERRAIN_ITEMS_MAX];
     unsigned char         room_slabs_count[TERRAIN_ITEMS_MAX+1];
     unsigned short        backup_heart_idx;
+    unsigned short        free_soul_idx;
     struct HandRule       hand_rules[CREATURE_TYPES_MAX][HAND_RULE_SLOTS_COUNT];
 };
 /******************************************************************************/

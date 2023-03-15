@@ -97,7 +97,7 @@ struct Thing;
 
 struct SlabMap {
       SlabKind kind;
-      short next_in_room;
+      SlabCodedCoords next_in_room;
       unsigned char room_index;
       unsigned char health;
       unsigned char flags;

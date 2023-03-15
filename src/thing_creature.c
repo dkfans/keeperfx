@@ -2172,8 +2172,8 @@ long move_creature(struct Thing *thing)
             if (is_hero_tunnelling_to_attack(thing)) {
                 update_tunneller_trail(thing);
             }
-            if ((subtile_slab_fast(tngpos->x.stl.num) != subtile_slab_fast(nxpos.x.stl.num))
-             || (subtile_slab_fast(tngpos->y.stl.num) != subtile_slab_fast(nxpos.y.stl.num)))
+            if ((subtile_slab(tngpos->x.stl.num) != subtile_slab(nxpos.x.stl.num))
+             || (subtile_slab(tngpos->y.stl.num) != subtile_slab(nxpos.y.stl.num)))
             {
                 check_map_explored(thing, nxpos.x.stl.num, nxpos.y.stl.num);
                 struct StateInfo* stati = get_thing_active_state_info(thing);
@@ -3134,16 +3134,16 @@ ThingIndex get_human_controlled_creature_target(struct Thing *thing, long primar
     int smallest_angle_diff = INT_MAX;
     static const int range = 20;
     static const int max_hit_angle = 39;
-    short stl_x = thing->mappos.x.stl.num;
-    short stl_x_lower = stl_x - range;
-    short stl_x_upper = stl_x + range;
+    MapSubtlCoord stl_x = thing->mappos.x.stl.num;
+    MapSubtlCoord stl_x_lower = stl_x - range;
+    MapSubtlCoord stl_x_upper = stl_x + range;
     if ((stl_x - range) < 0)
         stl_x_lower = 0;
     if (stl_x_upper > gameadd.map_subtiles_x)
         stl_x_upper = gameadd.map_subtiles_x;
-    short stl_y = thing->mappos.y.stl.num;
-    short stl_y_lower = stl_y - range;
-    short stl_y_upper = stl_y + range;
+    MapSubtlCoord stl_y = thing->mappos.y.stl.num;
+    MapSubtlCoord stl_y_lower = stl_y - range;
+    MapSubtlCoord stl_y_upper = stl_y + range;
     if (stl_y + range > gameadd.map_subtiles_y)
         stl_y_upper = gameadd.map_subtiles_y;
     if (stl_y_lower < 0)
@@ -5077,7 +5077,7 @@ void check_for_creature_escape_from_lava(struct Thing *thing)
 TbBool thing_is_on_snow_texture(struct Thing* thing)
 {
     #define SNOW_TEXTURE 2
-    unsigned char ext_txtr = gameadd.slab_ext_data[get_slab_number(subtile_slab_fast(thing->mappos.x.stl.num), subtile_slab_fast(thing->mappos.y.stl.num))];
+    unsigned char ext_txtr = gameadd.slab_ext_data[get_slab_number(subtile_slab(thing->mappos.x.stl.num), subtile_slab(thing->mappos.y.stl.num))];
 
     if ((ext_txtr == 0) && (game.texture_id == SNOW_TEXTURE)) //Snow map and on default texture
     {
@@ -5516,8 +5516,8 @@ TbBool creature_can_see_invisible(const struct Thing *thing)
 
 int claim_neutral_creatures_in_sight(struct Thing *creatng, struct Coord3d *pos, int can_see_slabs)
 {
-    MapSlabCoord slb_x = subtile_slab_fast(pos->x.stl.num);
-    MapSlabCoord slb_y = subtile_slab_fast(pos->y.stl.num);
+    MapSlabCoord slb_x = subtile_slab(pos->x.stl.num);
+    MapSlabCoord slb_y = subtile_slab(pos->y.stl.num);
     long n = 0;
     long i = game.nodungeon_creatr_list_start;
     unsigned long k = 0;
@@ -5527,8 +5527,8 @@ int claim_neutral_creatures_in_sight(struct Thing *creatng, struct Coord3d *pos,
         struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
         i = cctrl->players_next_creature_idx;
         // Per thing code starts
-        int dx = abs(slb_x - subtile_slab_fast(thing->mappos.x.stl.num));
-        int dy = abs(slb_y - subtile_slab_fast(thing->mappos.y.stl.num));
+        int dx = abs(slb_x - subtile_slab(thing->mappos.x.stl.num));
+        int dy = abs(slb_y - subtile_slab(thing->mappos.y.stl.num));
         if ((dx <= can_see_slabs) && (dy <= can_see_slabs))
         {
             if (is_neutral_thing(thing) && line_of_sight_3d(&thing->mappos, pos))
@@ -6223,8 +6223,8 @@ struct Thing *controlled_get_thing_to_pick_up(struct Thing *creatng)
 
 TbBool thing_is_pickable_by_digger(struct Thing *picktng, struct Thing *creatng)
 {
-    if (check_place_to_pretty_excluding(creatng, subtile_slab_fast(creatng->mappos.x.stl.num), subtile_slab_fast(creatng->mappos.y.stl.num)) 
-        || (check_place_to_convert_excluding(creatng, subtile_slab_fast(creatng->mappos.x.stl.num), subtile_slab_fast(creatng->mappos.y.stl.num)) ) )
+    if (check_place_to_pretty_excluding(creatng, subtile_slab(creatng->mappos.x.stl.num), subtile_slab(creatng->mappos.y.stl.num)) 
+        || (check_place_to_convert_excluding(creatng, subtile_slab(creatng->mappos.x.stl.num), subtile_slab(creatng->mappos.y.stl.num)) ) )
     {
         return false;
     }

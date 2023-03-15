@@ -3043,8 +3043,8 @@ struct Thing* check_for_object_to_fight(struct Thing* thing) //just traps now, c
     long m = CREATURE_RANDOM(thing, SMALL_AROUND_SLAB_LENGTH);
     for (long n = 0; n < SMALL_AROUND_SLAB_LENGTH; n++)
     {
-        MapSlabCoord slb_x = subtile_slab_fast(thing->mappos.x.stl.num) + (long)small_around[m].delta_x;
-        MapSlabCoord slb_y = subtile_slab_fast(thing->mappos.y.stl.num) + (long)small_around[m].delta_y;
+        MapSlabCoord slb_x = subtile_slab(thing->mappos.x.stl.num) + (long)small_around[m].delta_x;
+        MapSlabCoord slb_y = subtile_slab(thing->mappos.y.stl.num) + (long)small_around[m].delta_y;
         struct Thing* trpthing = get_trap_for_position(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
         if ((thing_is_destructible_trap(trpthing) > 0) || (creature_has_disarming_weapon(thing) && (thing_is_destructible_trap(trpthing) >= 0)))
         {
@@ -3091,8 +3091,8 @@ struct Thing *check_for_door_to_fight(struct Thing *thing)
     long m = CREATURE_RANDOM(thing, SMALL_AROUND_SLAB_LENGTH);
     for (long n = 0; n < SMALL_AROUND_SLAB_LENGTH; n++)
     {
-        MapSlabCoord slb_x = subtile_slab_fast(thing->mappos.x.stl.num) + (long)small_around[m].delta_x;
-        MapSlabCoord slb_y = subtile_slab_fast(thing->mappos.y.stl.num) + (long)small_around[m].delta_y;
+        MapSlabCoord slb_x = subtile_slab(thing->mappos.x.stl.num) + (long)small_around[m].delta_x;
+        MapSlabCoord slb_y = subtile_slab(thing->mappos.y.stl.num) + (long)small_around[m].delta_y;
         struct Thing* doortng = get_door_for_position(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
         if (!thing_is_invalid(doortng))
         {

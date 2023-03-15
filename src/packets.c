@@ -108,7 +108,7 @@ extern "C" {
 extern TbBool process_players_global_cheats_packet_action(PlayerNumber plyr_idx, struct Packet* pckt);
 extern TbBool process_players_dungeon_control_cheats_packet_action(PlayerNumber plyr_idx, struct Packet* pckt);
 /******************************************************************************/
-void set_packet_action(struct Packet *pckt, unsigned char pcktype, unsigned short par1, unsigned short par2, unsigned short par3, unsigned short par4)
+void set_packet_action(struct Packet *pckt, unsigned char pcktype, long par1, long par2, unsigned short par3, unsigned short par4)
 {
     pckt->actn_par1 = par1;
     pckt->actn_par2 = par2;
@@ -137,8 +137,8 @@ struct Room *keeper_build_room(long stl_x,long stl_y,long plyr_idx,long rkind)
     struct Dungeon* dungeon = get_players_dungeon(player);
     struct RoomConfigStats* roomst = get_room_kind_stats(rkind);
     // Take top left subtile on single subtile boundbox, take center subtile on full slab boundbox
-    MapCoord x = ((player->full_slab_cursor == 0) ? slab_subtile(subtile_slab_fast(stl_x), 0) : slab_subtile_center(subtile_slab_fast(stl_x)));
-    MapCoord y = ((player->full_slab_cursor == 0) ? slab_subtile(subtile_slab_fast(stl_y), 0) : slab_subtile_center(subtile_slab_fast(stl_y)));
+    MapCoord x = ((player->full_slab_cursor == 0) ? slab_subtile(subtile_slab(stl_x), 0) : slab_subtile_center(subtile_slab(stl_x)));
+    MapCoord y = ((player->full_slab_cursor == 0) ? slab_subtile(subtile_slab(stl_y), 0) : slab_subtile_center(subtile_slab(stl_y)));
     struct Room* room = player_build_room_at(x, y, plyr_idx, rkind);
     if (!room_is_invalid(room))
     {
@@ -151,7 +151,7 @@ struct Room *keeper_build_room(long stl_x,long stl_y,long plyr_idx,long rkind)
             dungeon->camera_deviate_jump = 192;
         }
         struct Coord3d pos;
-        set_coords_to_slab_center(&pos, subtile_slab_fast(stl_x), subtile_slab_fast(stl_y));
+        set_coords_to_slab_center(&pos, subtile_slab(stl_x), subtile_slab(stl_y));
         create_price_effect(&pos, plyr_idx, roomst->cost);
     }
     return room;
@@ -224,13 +224,13 @@ TbBool player_sell_room_at_subtile(long plyr_idx, long stl_x, long stl_y)
         dungeon->rooms_destroyed++;
         dungeon->camera_deviate_jump = 192;
     }
-    delete_room_slab(subtile_slab_fast(stl_x), subtile_slab_fast(stl_y), 0);
+    delete_room_slab(subtile_slab(stl_x), subtile_slab(stl_y), 0);
     if (is_my_player_number(plyr_idx))
         play_non_3d_sample(115);
     if (revenue != 0)
     {
         struct Coord3d pos;
-        set_coords_to_slab_center(&pos, subtile_slab_fast(stl_x), subtile_slab_fast(stl_y));
+        set_coords_to_slab_center(&pos, subtile_slab(stl_x), subtile_slab(stl_y));
         create_price_effect(&pos, plyr_idx, revenue);
         player_add_offmap_gold(plyr_idx, revenue);
     }
@@ -1005,7 +1005,6 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
         {
             reset_dungeon_build_room_ui_variables(plyr_idx);
             playeradd->roomspace_width = playeradd->roomspace_height = pckt->actn_par2;
-            playeradd->pickup_all_gold = (pckt->additional_packet_values & PCAdV_RotatePressed);
         }
         playeradd->roomspace_no_default = true;
         return false;
@@ -1614,7 +1613,7 @@ void process_frontend_packets(void)
         if (k != 2)
           fe_computer_players = k;
       }
-      player->field_4E7 = nspckt->field_8 + (nspckt->field_6 << 8);
+      player->game_version = nspckt->field_8 + (nspckt->field_6 << 8);
     }
     nspckt->field_4 &= 0x07;
   }
