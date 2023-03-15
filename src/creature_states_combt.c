@@ -1856,7 +1856,7 @@ CrInstance get_self_spell_casting(const struct Thing *thing)
             INSTANCE_RET_IF_AVAIL(thing, CrInst_WIND);
         }
 
-        for (short i = 0; i < CREATURE_INSTANCES_COUNT; i++)
+        for (short i = 0; i < gameadd.crtr_conf.instances_count; i++)
         {
             if (i == CrInst_HEAL)
                 continue;

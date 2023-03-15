@@ -72,7 +72,7 @@ long instf_reinforce(struct Thing *creatng, long *param);
 long instf_tortured(struct Thing *creatng, long *param);
 long instf_tunnel(struct Thing *creatng, long *param);
 
-struct InstanceButtonInit instance_button_init[48];
+struct InstanceButtonInit instance_button_init[INSTANCE_TYPES_MAX];
 
 const struct NamedCommand creature_instances_func_type[] = {
   {"attack_room_slab",         1},
@@ -162,6 +162,23 @@ struct InstanceInfo instance_info[] = {
     {0, 16,  8,  8,  4,   1,   1, 14,  0,  0,  3, instf_tortured,                    {0,0}}, // 45
     {0, 16,  4,  4,  2,   1,   1,  5,  0,  0,  3, NULL,                              {0,0}},
     {0,  8,  4,  4,  2,   1,   1,  6,  0,  0,  3, NULL,                              {0,0}},
+    {0,  0,  0,  0,  0,   0,   0,  0,  0,  0,  0, NULL,                              {0,0}},
+    {0,  0,  0,  0,  0,   0,   0,  0,  0,  0,  0, NULL,                              {0,0}},
+    {0,  0,  0,  0,  0,   0,   0,  0,  0,  0,  0, NULL,                              {0,0}}, //50
+    {0,  0,  0,  0,  0,   0,   0,  0,  0,  0,  0, NULL,                              {0,0}},
+    {0,  0,  0,  0,  0,   0,   0,  0,  0,  0,  0, NULL,                              {0,0}},
+    {0,  0,  0,  0,  0,   0,   0,  0,  0,  0,  0, NULL,                              {0,0}},
+    {0,  0,  0,  0,  0,   0,   0,  0,  0,  0,  0, NULL,                              {0,0}},
+    {0,  0,  0,  0,  0,   0,   0,  0,  0,  0,  0, NULL,                              {0,0}}, //55
+    {0,  0,  0,  0,  0,   0,   0,  0,  0,  0,  0, NULL,                              {0,0}},
+    {0,  0,  0,  0,  0,   0,   0,  0,  0,  0,  0, NULL,                              {0,0}},
+    {0,  0,  0,  0,  0,   0,   0,  0,  0,  0,  0, NULL,                              {0,0}},
+    {0,  0,  0,  0,  0,   0,   0,  0,  0,  0,  0, NULL,                              {0,0}},
+    {0,  0,  0,  0,  0,   0,   0,  0,  0,  0,  0, NULL,                              {0,0}}, //60
+    {0,  0,  0,  0,  0,   0,   0,  0,  0,  0,  0, NULL,                              {0,0}},
+    {0,  0,  0,  0,  0,   0,   0,  0,  0,  0,  0, NULL,                              {0,0}},
+    {0,  0,  0,  0,  0,   0,   0,  0,  0,  0,  0, NULL,                              {0,0}},
+    {0,  0,  0,  0,  0,   0,   0,  0,  0,  0,  0, NULL,                              {0,0}},
 };
 
 /******************************************************************************/
@@ -367,7 +384,7 @@ TbBool creature_has_ranged_weapon(const struct Thing *creatng)
 {
     TRACE_THING(creatng);
     const struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    for (long inum = 1; inum < CREATURE_INSTANCES_COUNT; inum++)
+    for (long inum = 1; inum < gameadd.crtr_conf.instances_count; inum++)
     {
         if (cctrl->instance_available[inum] > 0)
         {
@@ -388,7 +405,7 @@ TbBool creature_has_disarming_weapon(const struct Thing* creatng)
 {
     TRACE_THING(creatng);
     const struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    for (long inum = 1; inum < CREATURE_INSTANCES_COUNT; inum++)
+    for (long inum = 1; inum < gameadd.crtr_conf.instances_count; inum++)
     {
         if (cctrl->instance_available[inum] > 0)
         {
@@ -409,7 +426,7 @@ TbBool creature_has_ranged_object_weapon(const struct Thing *creatng)
 {
     TRACE_THING(creatng);
     const struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    for (long inum = 1; inum < CREATURE_INSTANCES_COUNT; inum++)
+    for (long inum = 1; inum < gameadd.crtr_conf.instances_count; inum++)
     {
         if (cctrl->instance_available[inum])
         {
@@ -424,7 +441,7 @@ TbBool creature_has_quick_range_weapon(const struct Thing *creatng)
 {
     TRACE_THING(creatng);
     const struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    for (long inum = 1; inum < CREATURE_INSTANCES_COUNT; inum++)
+    for (long inum = 1; inum < gameadd.crtr_conf.instances_count; inum++)
     {
         if (cctrl->instance_available[inum])
         {

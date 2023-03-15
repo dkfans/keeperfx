@@ -20,6 +20,7 @@
 #define DK_CRTRINSTANCE_H
 
 #include "globals.h"
+#include "creature_control.h"
 #include "bflib_basics.h"
 #include "config.h"
 
@@ -109,7 +110,7 @@ struct InstanceButtonInit {  // sizeof=0x6
 };
 /******************************************************************************/
 
-extern struct InstanceButtonInit instance_button_init[48];
+extern struct InstanceButtonInit instance_button_init[INSTANCE_TYPES_MAX];
 
 #pragma pack()
 /******************************************************************************/
