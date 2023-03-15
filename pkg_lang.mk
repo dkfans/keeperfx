@@ -41,10 +41,11 @@ pkg/campgns/ami2019/text_eng.dat \
 pkg/campgns/ami2019/text_chi.dat \
 pkg/campgns/ami2019/text_spa.dat \
 pkg/campgns/ancntkpr/text_eng.dat \
+pkg/campgns/ancntkpr/text_chi.dat \
 pkg/campgns/ancntkpr/text_fre.dat \
 pkg/campgns/ancntkpr/text_ger.dat \
 pkg/campgns/ancntkpr/text_pol.dat \
-pkg/campgns/ancntkpr/text_chi.dat \
+pkg/campgns/ancntkpr/text_spa.dat \
 pkg/campgns/burdnimp/text_eng.dat \
 pkg/campgns/burdnimp/text_chi.dat \
 pkg/campgns/burdnimp/text_pol.dat \
