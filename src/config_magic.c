@@ -1035,7 +1035,8 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
       case 14: //ANIMATION
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
-              k = atoi(word_buf);
+              struct Objects obj_tmp;
+              k = get_anim_id(word_buf, &obj_tmp);
               shotst->sprite_anim_idx = k;
               n++;
           }
