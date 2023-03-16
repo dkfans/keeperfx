@@ -1007,9 +1007,7 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
               k = get_icon_id(word_buf);
               if (k >= 0)
               {
-                  //TODO CONFIG Add when InstanceInfo can be changed
-                  //inst_inf->symbol_spridx = k;
-                  instance_button_init[i].symbol_spridx = k;
+                  inst_inf->symbol_spridx = k;
                   n++;
               }
             }
