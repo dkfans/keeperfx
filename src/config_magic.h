@@ -21,6 +21,7 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
+#include "creature_instances.h"
 
 #include "config.h"
 
@@ -328,6 +329,7 @@ struct MagicConfig {
     struct PowerConfigStats power_cfgstats[MAGIC_ITEMS_MAX];
     long special_types_count;
     struct SpecialConfigStats special_cfgstats[MAGIC_ITEMS_MAX];
+    struct InstanceInfo instance_info[MAGIC_ITEMS_MAX]; //count in crtr_conf
 };
 
 #pragma pack(1)
