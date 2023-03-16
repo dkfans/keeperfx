@@ -729,6 +729,7 @@ TbBool creature_affected_by_spell(const struct Thing *thing, SpellKind spkind)
     case SplK_Missile:
     case SplK_NavigMissile:
     case SplK_Grenade:
+    case SplK_Lizard:
     case SplK_WordOfPower:
     case SplK_TimeBomb:
     case SplK_Fireball:
