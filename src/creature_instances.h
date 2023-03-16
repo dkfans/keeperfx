@@ -102,6 +102,8 @@ struct InstanceInfo {
     unsigned char primary_target;
     Creature_Instf_Func func_cb;
     long func_params[2];
+    long range_min;
+    long range_max;
 };
 
 struct InstanceButtonInit {  // sizeof=0x6

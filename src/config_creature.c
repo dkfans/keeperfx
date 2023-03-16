@@ -189,6 +189,12 @@ const struct NamedCommand creature_graphics_desc[] = {
   {NULL,                 0},
   };
 
+const struct NamedCommand instance_range_desc[] = {
+  {"MAX",         LONG_MAX},
+  {"MIN",                0},
+  {NULL,                -1},
+};
+
 /******************************************************************************/
 struct NamedCommand creature_desc[CREATURE_TYPES_MAX];
 struct NamedCommand newcrtr_desc[SWAP_CREATURE_TYPES_MAX];
@@ -858,8 +864,10 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
                 return false;
             }
             continue;
-      }
-      struct InstanceInfo* inst_inf = creature_instance_info_get(i);
+        }
+        struct InstanceInfo* inst_inf = creature_instance_info_get(i);
+        inst_inf->range_min = -1;
+        inst_inf->range_max = -1;
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(creaturetype_instance_commands,cmd_num)
       while (pos<len)
       {
@@ -1078,57 +1086,45 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
             }
             break;
         case 13: //RANGEMIN
-                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              int j = 0;
-              int l = 0;
-              for (j=0; j < 23; j++) // Size of offensive_weapon
-              {
-                  if (offensive_weapon[j].inst_id == i)
-                  {
-                      l = 1;
-                      break;
-                  }
-              }
-              if (l == 1)
-              {
-                  k = atoi(word_buf);
-                  offensive_weapon[j].range_min = k;
-                  n++;
-              }
-          }
-          if (n < 1)
-          {
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                k = get_id(instance_range_desc, word_buf);
+                if (k < 0)
+                {
+                    k = atoi(word_buf);
+                }
+                if (k >= 0)
+                {
+                    inst_inf->range_min = k;
+                    n++;
+                }
+            }
+            if (n < 1)
+            {
                 CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-                   break;
+                    COMMAND_TEXT(cmd_num), block_buf, config_textname);
+            }
+            break;
         case 14: //RANGEMAX
-                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              int j = 0;
-              int l = 0;
-              for (j=0; j < 23; j++) // Size of offensive_weapon
-              {
-                  if (offensive_weapon[j].inst_id == i)
-                  {
-                      l = 1;
-                      break;
-                  }
-              }
-              if (l == 1)
-              {
-                  k = atoi(word_buf);
-                  offensive_weapon[j].range_max = k;
-                  n++;
-              }
-          }
-          if (n < 1)
-          {
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                k = get_id(instance_range_desc, word_buf);
+                if (k < 0)
+                {
+                    k = atoi(word_buf);
+                }
+                if (k >= 0)
+                {
+                    inst_inf->range_max = k;
+                    n++;
+                }
+            }
+            if (n < 1)
+            {
                 CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
                     COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-                   break;
+            }
+            break;
         case 15: // PROPERTIES
             inst_inf->flags = 0;
             while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
