@@ -689,8 +689,8 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
     if ((cctrl->stateblock_flags & CCSpl_Teleport) != 0)
     {
         dturn = get_spell_duration_left_on_thing(thing, SplK_Teleport);
-        struct SpellConfig* splconf = &game.spells_config[SplK_Teleport];
-        if (splconf->duration / 2 < dturn)
+        const struct SpellInfo* spinfo = get_magic_info(SplK_Teleport);
+        if (spinfo->duration / 2 < dturn)
         {
             effeltng = create_effect_element(&thing->mappos, TngEffElm_FlashBall2, thing->owner);
             if (!thing_is_invalid(effeltng))
@@ -702,7 +702,7 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
                 effeltng->move_angle_xy = thing->move_angle_xy;
             }
         } else
-        if (splconf->duration / 2 > dturn)
+        if (spinfo->duration / 2 > dturn)
         {
             struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
             if ((dturn % 2) == 0) {

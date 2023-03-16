@@ -65,6 +65,7 @@ enum SpellKinds {
     SplK_Disease,
     SplK_Chicken,
     SplK_TimeBomb,//[28]
+    SplK_Lizard,
 };
 
 enum CreatureSpellAffectedFlags {
@@ -319,9 +320,34 @@ struct SpecialConfigStats {
     short effect_id;
 };
 
+ /**
+ * Spell information structure.
+ * Stores configuration of spells; to be replaced with SpellConfigStats when all fields are in CFG.
+ * It no longer matches the similar struct from DK - fields were added at end.
+ */
+struct SpellInfo {
+    /** Informs if the spell can be targeted on a thing. */
+    unsigned char cast_at_thing;
+    /** Shot model to be fired while casting. */
+    unsigned char shot_model;
+    /** Informs if caster is affected by the spell. */
+    unsigned char caster_affected;
+    /** Effect model created while casting. */
+    short cast_effect_model;
+    /** If caster is affected by the spell, indicates sound sample to be played. */
+    unsigned short caster_affect_sound;
+    /** Sprite index of big symbol icon representing the spell. */
+    short bigsym_sprite_idx;
+    /** Sprite index of medium symbol icon representing the spell. */
+    short medsym_sprite_idx;
+    short cast_sound;
+    int duration;
+};
+
 struct MagicConfig {
     long spell_types_count;
     struct SpellConfigStats spell_cfgstats[MAGIC_ITEMS_MAX];
+    struct SpellInfo spell_info[MAGIC_ITEMS_MAX];
     long shot_types_count;
     struct ShotConfigStats shot_cfgstats[MAGIC_ITEMS_MAX];
     long power_types_count;
@@ -332,38 +358,10 @@ struct MagicConfig {
 
 #pragma pack(1)
 
-struct SpellConfig { // sizeof=4
-  int duration;
-};
-
 struct MagicStats {  // sizeof=0x4C
   long cost[MAGIC_OVERCHARGE_LEVELS];
   long duration;
   long strength[MAGIC_OVERCHARGE_LEVELS];
-};
-
-/**
- * Spell information structure.
- * Stores configuration of spells; to be replaced with SpellConfigStats when all fields are in CFG.
- * It no longer matches the similar struct from DK - fields were added at end.
- */
-struct SpellInfo {
-  /** Informs if the spell can be targeted on a thing. */
-  unsigned char cast_at_thing;
-  /** Shot model to be fired while casting. */
-  unsigned char shot_model;
-  /** Informs if caster is affected by the spell. */
-  unsigned char caster_affected;
-  /** Effect model created while casting. */
-  unsigned char cast_effect_model;
-  /** Unknown. Maybe priority? Values range 0-43. */
-  unsigned short cast_field_4;
-  /** If caster is affected by the spell, indicates sound sample to be played. */
-  unsigned short caster_affect_sound;
-  /** Sprite index of big symbol icon representing the spell. */
-  short bigsym_sprite_idx;
-  /** Sprite index of medium symbol icon representing the spell. */
-  short medsym_sprite_idx;
 };
 
 /**

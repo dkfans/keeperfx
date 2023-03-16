@@ -258,13 +258,13 @@ struct NamedCommand special_desc[MAGIC_ITEMS_MAX];
 struct SpellInfo *get_magic_info(int mgc_idx)
 {
   if ((mgc_idx < 0) || (mgc_idx >= MAGIC_TYPES_COUNT))
-    return &spell_info[0];
-  return &spell_info[mgc_idx];
+    return &magic_conf.spell_info[0];
+  return &magic_conf.spell_info[mgc_idx];
 }
 
 TbBool magic_info_is_invalid(const struct SpellInfo *mgcinfo)
 {
-  if (mgcinfo <= &spell_info[0])
+  if (mgcinfo <= &magic_conf.spell_info[0])
     return true;
   return false;
 }
@@ -484,7 +484,6 @@ TbBool parse_magic_common_blocks(char *buf, long len, const char *config_textnam
 TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
   struct SpellConfigStats *spellst;
-  struct SpellConfig *splconf;
   struct SpellInfo *spinfo;
   int i;
   // Block name and parameter word store variables
@@ -510,9 +509,8 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
       arr_size = magic_conf.spell_types_count;
       for (i=0; i < arr_size; i++)
       {
-          splconf = &game.spells_config[i];
-          splconf->duration = 0;
           spinfo = get_magic_info(i);
+          spinfo->duration = 0;
           spinfo->caster_affected = 0;
           spinfo->caster_affect_sound = 0;
           spinfo->cast_at_thing = 0;
@@ -539,7 +537,6 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
           }
           continue;
     }
-    splconf = &game.spells_config[i];
     spinfo = get_magic_info(i);
     spellst = get_spell_model_stats(i);
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(magic_spell_commands,cmd_num)
@@ -572,7 +569,7 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
-              splconf->duration = k;
+              spinfo->duration = k;
               n++;
           }
           if (n < 1)
@@ -633,7 +630,12 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
               k = get_id(effect_desc, word_buf);
-              if (k >= 0) {
+              if (k < 0)
+              {
+                  k = atoi(word_buf);
+              }
+              if (k != 0)
+              {
                   spinfo->cast_effect_model = k;
                   n++;
               }
