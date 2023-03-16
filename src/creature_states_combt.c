@@ -2041,6 +2041,7 @@ long get_best_ranged_object_offensive_weapon(const struct Thing *thing, long dis
         trapst = get_trap_model_stats(objtng->model);
         if (trapst->unstable == 1) //If it's gonna trigger when hurt, better try to disarm it instead
         {
+            inst_id = get_best_combat_weapon_instance_to_use_versus_trap(thing, dist, atktyp);
         }
         if (inst_id == CrInst_NULL)
         {

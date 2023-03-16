@@ -158,7 +158,8 @@ static void draw_creature_view_icons(struct Thing* creatng)
         if (!creature_instance_is_available(creatng, cctrl->active_instance_id))
         {
             x = MyScreenWidth - (scale_value_by_horizontal_resolution(148) / 4);
-            draw_gui_panel_sprite_left(x, y, ps_units_per_px, instance_button_init[cctrl->active_instance_id % gameadd.crtr_conf.instances_count].symbol_spridx);
+            struct InstanceInfo* inst_inf = creature_instance_info_get(cctrl->active_instance_id % gameadd.crtr_conf.instances_count);
+            draw_gui_panel_sprite_left(x, y, ps_units_per_px, inst_inf->symbol_spridx);
         }
     }
 }

@@ -104,6 +104,8 @@ struct InstanceInfo {
     long func_params[2];
     long range_min;
     long range_max;
+    long symbol_spridx;
+    short tooltip_stridx;
 };
 
 struct InstanceButtonInit {  // sizeof=0x6
@@ -111,8 +113,6 @@ struct InstanceButtonInit {  // sizeof=0x6
     short tooltip_stridx;
 };
 /******************************************************************************/
-
-extern struct InstanceButtonInit instance_button_init[INSTANCE_TYPES_MAX];
 
 #pragma pack()
 /******************************************************************************/
