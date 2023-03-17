@@ -2535,7 +2535,7 @@ TbBool load_creaturemodel_config_file(long crtr_model,const char *textname,const
 TbBool load_creaturemodel_config(long crmodel, unsigned short flags)
 {
     static const char config_global_textname[] = "global creature model config";
-    static const char config_campgn_textname[] = "campaing creature model config";
+    static const char config_campgn_textname[] = "campaign creature model config";
     char conf_fnstr[COMMAND_WORD_LEN];
     LbStringToLowerCopy(conf_fnstr,get_conf_parameter_text(creature_desc,crmodel),COMMAND_WORD_LEN);
     if (strlen(conf_fnstr) == 0)
