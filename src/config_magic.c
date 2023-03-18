@@ -764,8 +764,8 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
               return false;
           }
           continue;
-    }
-    shotst = get_shot_model_stats(i);
+      }
+      shotst = get_shot_model_stats(i);
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(magic_shot_commands,cmd_num)
     while (pos<len)
     {

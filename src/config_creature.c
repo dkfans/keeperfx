@@ -827,29 +827,52 @@ TbBool parse_creaturetype_experience_blocks(char *buf, long len, const char *con
 
 TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
+    struct InstanceInfo* inst_inf;
     int i;
     // Block name and parameter word store variables
-    int arr_size;
     // Initialize the array
-    if ((flags & CnfLd_AcceptPartial) == 0)
+    int arr_size;
     {
-        arr_size = sizeof(gameadd.crtr_conf.instances)/sizeof(gameadd.crtr_conf.instances[0]);
-        for (i=0; i < arr_size; i++)
+        arr_size = sizeof(gameadd.crtr_conf.instances) / sizeof(gameadd.crtr_conf.instances[0]);
+        for (i = 0; i < arr_size; i++)
         {
-            LbMemorySet(gameadd.crtr_conf.instances[i].name, 0, COMMAND_WORD_LEN);
-            if (i < gameadd.crtr_conf.instances_count)
+            if (((flags & CnfLd_AcceptPartial) == 0) || (strlen(gameadd.crtr_conf.instances[i].name) <= 0))
             {
-                instance_desc[i].name = gameadd.crtr_conf.instances[i].name;
-                instance_desc[i].num = i;
-            } else
-            {
-                instance_desc[i].name = NULL;
-                instance_desc[i].num = 0;
+                LbMemorySet(gameadd.crtr_conf.instances[i].name, 0, COMMAND_WORD_LEN);
+                if (i < gameadd.crtr_conf.instances_count)
+                {
+                    instance_desc[i].name = gameadd.crtr_conf.instances[i].name;
+                    instance_desc[i].num = i;
+                    magic_conf.instance_info[i].instant = 0;
+                    magic_conf.instance_info[i].time = 0;
+                    magic_conf.instance_info[i].fp_time = 0;
+                    magic_conf.instance_info[i].action_time = 0;
+                    magic_conf.instance_info[i].fp_action_time = 0;
+                    magic_conf.instance_info[i].reset_time = 0;
+                    magic_conf.instance_info[i].fp_reset_time = 0;
+                    magic_conf.instance_info[i].graphics_idx = 0;
+                    magic_conf.instance_info[i].flags = 0;
+                    magic_conf.instance_info[i].force_visibility = 0;
+                    magic_conf.instance_info[i].primary_target = 0;
+                    magic_conf.instance_info[i].func_cb = 0;
+                    magic_conf.instance_info[i].func_params[0] = 0;
+                    magic_conf.instance_info[i].func_params[1] = 0;
+                    magic_conf.instance_info[i].symbol_spridx = 0;
+                    magic_conf.instance_info[i].tooltip_stridx = 0;
+                    magic_conf.instance_info[i].range_min = -1;
+                    magic_conf.instance_info[i].range_max = -1;
+
+                }
+                else
+                {
+                    instance_desc[i].name = NULL;
+                    instance_desc[i].num = 0;
+                }
             }
         }
     }
-    arr_size = gameadd.crtr_conf.instances_count;
     // Load the file blocks
+    arr_size = gameadd.crtr_conf.instances_count;
     for (i=0; i < arr_size; i++)
     {
         char block_buf[COMMAND_WORD_LEN];
@@ -865,7 +888,7 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
             }
             continue;
         }
-        struct InstanceInfo* inst_inf = creature_instance_info_get(i);
+        inst_inf = creature_instance_info_get(i);
         inst_inf->range_min = -1;
         inst_inf->range_max = -1;
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(creaturetype_instance_commands,cmd_num)
@@ -891,6 +914,11 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
                 CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
                     COMMAND_TEXT(cmd_num),block_buf,config_textname);
                 break;
+            }
+            if (instance_desc[i].name == NULL)
+            {
+                instance_desc[i].name = gameadd.crtr_conf.instances[i].name;;
+                instance_desc[i].num = i;
             }
             n++;
             break;
