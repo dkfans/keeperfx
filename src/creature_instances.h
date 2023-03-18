@@ -108,10 +108,6 @@ struct InstanceInfo {
     short tooltip_stridx;
 };
 
-struct InstanceButtonInit {  // sizeof=0x6
-    long symbol_spridx;
-    short tooltip_stridx;
-};
 /******************************************************************************/
 
 #pragma pack()
