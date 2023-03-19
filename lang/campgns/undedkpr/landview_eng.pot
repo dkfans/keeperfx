@@ -35,9 +35,9 @@ msgstr ""
 
 #: landview:20
 msgctxt "Level introduction"
-msgid "Havoth Dir. A serene and idyllic land where the sun always shines and the people are always smiling. The inhabitants of are "
-"content and generous, sharing their wealth and resources with each other without complaint. The air is filled with the sweet scent "
-"of blooming flowers and the sound of laughter."
+msgid "Havoth Dir. A serene and idyllic land where the sun always shines and the people are always smiling. The inhabitants of "
+"Havoth Dir are content and generous, sharing their wealth and resources with each other without complaint. The air is filled with "
+"the sweet scent of blooming flowers and the sound of laughter."
 msgstr ""
 
 #: landview:21
@@ -77,7 +77,7 @@ msgstr ""
 #: landview:50
 msgctxt "Level introduction"
 msgid "Nazirite. A whimsical and fantastical realm, where the skies are filled with rainbows and the forests are home to unicorns "
-"and fairies. The people here are dreamers, with wild imaginations and a love of magic and mystery. The world is a playground, "
+"and fairies. The people here are dreamers, with wild imaginations and a love of magic and mystery. The realm is a playground, "
 and every day is an adventure."
 msgstr ""
 
@@ -92,7 +92,7 @@ msgstr ""
 msgctxt "Level introduction"
 msgid "Elysium. A beautiful winter wonderland, where the snow-covered hills and trees sparkle in the sunlight. The residents are "
 "hearty and resilient, thriving in the cold weather. They enjoy ice skating, skiing, and sipping hot cocoa by the fireplace. The "
-"world is peaceful and quiet, with only the sound of snowflakes falling from the sky."
+"realm is peaceful and quiet, with only the sound of snowflakes falling from the sky."
 msgstr ""
 
 #: landview:61
