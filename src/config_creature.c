@@ -831,43 +831,40 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
     int i;
     // Block name and parameter word store variables
     // Initialize the array
-    int arr_size;
+    int arr_size = sizeof(gameadd.crtr_conf.instances) / sizeof(gameadd.crtr_conf.instances[0]);
+    for (i = 0; i < arr_size; i++)
     {
-        arr_size = sizeof(gameadd.crtr_conf.instances) / sizeof(gameadd.crtr_conf.instances[0]);
-        for (i = 0; i < arr_size; i++)
+        if (((flags & CnfLd_AcceptPartial) == 0) || (strlen(gameadd.crtr_conf.instances[i].name) <= 0))
         {
-            if (((flags & CnfLd_AcceptPartial) == 0) || (strlen(gameadd.crtr_conf.instances[i].name) <= 0))
+            LbMemorySet(gameadd.crtr_conf.instances[i].name, 0, COMMAND_WORD_LEN);
+            if (i < gameadd.crtr_conf.instances_count)
             {
-                LbMemorySet(gameadd.crtr_conf.instances[i].name, 0, COMMAND_WORD_LEN);
-                if (i < gameadd.crtr_conf.instances_count)
-                {
-                    instance_desc[i].name = gameadd.crtr_conf.instances[i].name;
-                    instance_desc[i].num = i;
-                    magic_conf.instance_info[i].instant = 0;
-                    magic_conf.instance_info[i].time = 0;
-                    magic_conf.instance_info[i].fp_time = 0;
-                    magic_conf.instance_info[i].action_time = 0;
-                    magic_conf.instance_info[i].fp_action_time = 0;
-                    magic_conf.instance_info[i].reset_time = 0;
-                    magic_conf.instance_info[i].fp_reset_time = 0;
-                    magic_conf.instance_info[i].graphics_idx = 0;
-                    magic_conf.instance_info[i].flags = 0;
-                    magic_conf.instance_info[i].force_visibility = 0;
-                    magic_conf.instance_info[i].primary_target = 0;
-                    magic_conf.instance_info[i].func_cb = 0;
-                    magic_conf.instance_info[i].func_params[0] = 0;
-                    magic_conf.instance_info[i].func_params[1] = 0;
-                    magic_conf.instance_info[i].symbol_spridx = 0;
-                    magic_conf.instance_info[i].tooltip_stridx = 0;
-                    magic_conf.instance_info[i].range_min = -1;
-                    magic_conf.instance_info[i].range_max = -1;
+                instance_desc[i].name = gameadd.crtr_conf.instances[i].name;
+                instance_desc[i].num = i;
+                magic_conf.instance_info[i].instant = 0;
+                magic_conf.instance_info[i].time = 0;
+                magic_conf.instance_info[i].fp_time = 0;
+                magic_conf.instance_info[i].action_time = 0;
+                magic_conf.instance_info[i].fp_action_time = 0;
+                magic_conf.instance_info[i].reset_time = 0;
+                magic_conf.instance_info[i].fp_reset_time = 0;
+                magic_conf.instance_info[i].graphics_idx = 0;
+                magic_conf.instance_info[i].flags = 0;
+                magic_conf.instance_info[i].force_visibility = 0;
+                magic_conf.instance_info[i].primary_target = 0;
+                magic_conf.instance_info[i].func_cb = 0;
+                magic_conf.instance_info[i].func_params[0] = 0;
+                magic_conf.instance_info[i].func_params[1] = 0;
+                magic_conf.instance_info[i].symbol_spridx = 0;
+                magic_conf.instance_info[i].tooltip_stridx = 0;
+                magic_conf.instance_info[i].range_min = -1;
+                magic_conf.instance_info[i].range_max = -1;
 
-                }
-                else
-                {
-                    instance_desc[i].name = NULL;
-                    instance_desc[i].num = 0;
-                }
+            }
+            else
+            {
+                instance_desc[i].name = NULL;
+                instance_desc[i].num = 0;
             }
         }
     }
