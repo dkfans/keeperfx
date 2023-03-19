@@ -488,38 +488,36 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
   int i;
   // Block name and parameter word store variables
   // Initialize the array
-  int arr_size;
-  if ((flags & CnfLd_AcceptPartial) == 0)
-  {
-      arr_size = sizeof(magic_conf.spell_cfgstats)/sizeof(magic_conf.spell_cfgstats[0]);
-      for (i=0; i < arr_size; i++)
-      {
-          spellst = get_spell_model_stats(i);
-          LbMemorySet(spellst->code_name, 0, COMMAND_WORD_LEN);
-          if (i < magic_conf.spell_types_count)
-          {
-            spell_desc[i].name = spellst->code_name;
-            spell_desc[i].num = i;
-          } else
-          {
-            spell_desc[i].name = NULL;
-            spell_desc[i].num = 0;
-          }
-      }
-      arr_size = magic_conf.spell_types_count;
-      for (i=0; i < arr_size; i++)
-      {
-          spinfo = get_magic_info(i);
-          spinfo->duration = 0;
-          spinfo->caster_affected = 0;
-          spinfo->caster_affect_sound = 0;
-          spinfo->cast_at_thing = 0;
-          spinfo->shot_model = 0;
-          spinfo->cast_effect_model = 0;
-          spinfo->bigsym_sprite_idx = 0;
-          spinfo->medsym_sprite_idx = 0;
-      }
-  }
+  int arr_size = sizeof(magic_conf.spell_cfgstats) / sizeof(magic_conf.spell_cfgstats[0]);
+    for (i=0; i < arr_size; i++)
+    {
+        if (((flags & CnfLd_AcceptPartial) == 0) || (strlen(magic_conf.spell_cfgstats[i].code_name) <= 0))
+        {
+            spellst = get_spell_model_stats(i);
+            LbMemorySet(&magic_conf.spell_cfgstats[i].code_name, 0, COMMAND_WORD_LEN);
+            if (i < magic_conf.spell_types_count)
+            {
+                spell_desc[i].name = magic_conf.spell_cfgstats[i].code_name;
+                spell_desc[i].num = i;
+            }
+            else
+            {
+                spell_desc[i].name = NULL;
+                spell_desc[i].num = 0;
+            }
+
+            spinfo = get_magic_info(i);
+            spinfo->duration = 0;
+            spinfo->caster_affected = 0;
+            spinfo->caster_affect_sound = 0;
+            spinfo->cast_at_thing = 0;
+            spinfo->shot_model = 0;
+            spinfo->cast_effect_model = 0;
+            spinfo->bigsym_sprite_idx = 0;
+            spinfo->medsym_sprite_idx = 0;
+        }
+    }
+    
   // Load the file
   arr_size = magic_conf.spell_types_count;
   for (i=0; i < arr_size; i++)
@@ -562,6 +560,11 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
               CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
                   COMMAND_TEXT(cmd_num),block_buf,config_textname);
               break;
+          }
+          if (spell_desc[i].name == NULL)
+          {
+              spell_desc[i].name = spellst->code_name;
+              spell_desc[i].num = i;
           }
           n++;
           break;
