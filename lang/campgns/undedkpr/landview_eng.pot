@@ -57,7 +57,7 @@ msgstr ""
 msgctxt "Level summary"
 msgid "The once-pleasant town has become a nightmare. The streets are filled with twisted and corrupted creatures, the buildings "
 "are coated in black mold, and the park is now home to a massive mausoleum. The children and the rest of the townsfolk have been "
-transformed into the walking dead. The air is thick with the stench of decay and the screams of the damned."
+"transformed into the walking dead. The air is thick with the stench of decay and the screams of the damned."
 msgstr ""
 
 #: landview:40
@@ -78,7 +78,7 @@ msgstr ""
 msgctxt "Level introduction"
 msgid "Nazirite. A whimsical and fantastical realm, where the skies are filled with rainbows and the forests are home to unicorns "
 "and fairies. The people here are dreamers, with wild imaginations and a love of magic and mystery. The realm is a playground, "
-and every day is an adventure."
+"and every day is an adventure."
 msgstr ""
 
 #: landview:51
