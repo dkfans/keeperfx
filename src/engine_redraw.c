@@ -103,8 +103,8 @@ static void draw_creature_view_icons(struct Thing* creatng)
     {
         if (creature_affected_by_spell(creatng, Spell))
         {
-            struct SpellInfo* spinfo = get_magic_info(Spell);
-            long spridx = spinfo->medsym_sprite_idx;
+            struct SpellConfig* spconf = get_spell_config(Spell);
+            long spridx = spconf->medsym_sprite_idx;
             if ( (Spell == SplK_Invisibility) && (cctrl->force_visible & 2) )
             {
                 spridx++;

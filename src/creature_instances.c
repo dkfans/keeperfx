@@ -474,9 +474,9 @@ long instf_creature_cast_spell(struct Thing *creatng, long *param)
     TRACE_THING(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     long spl_idx = *param;
-    struct SpellInfo* spinfo = get_magic_info(spl_idx);
+    struct SpellConfig* spconf = get_spell_config(spl_idx);
     SYNCDBG(8,"The %s index %d casts %s",thing_model_name(creatng),(int)creatng->index,spell_code_name(spl_idx));
-    if (spinfo->cast_at_thing)
+    if (spconf->cast_at_thing)
     {
         struct Thing* trthing = thing_get(cctrl->targtng_idx);
         if (!thing_is_invalid(trthing))
