@@ -258,13 +258,10 @@ static void process_fx_line(struct ScriptFxLine *fx_line)
         fx_line->here.z.val = get_floor_height_at(&fx_line->here);
         if (fx_line->here.z.val < FILLED_COLUMN_HEIGHT)
         {
-          if (fx_line->effect > 0)
-          {
-            create_effect(&fx_line->here, fx_line->effect, 5); // Owner - neutral
-          } else if (fx_line->effect < 0)
-          {
-            create_effect_element(&fx_line->here, -fx_line->effect, 5); // Owner - neutral
-          }
+            if (fx_line->effect != 0)
+            {
+                create_used_effect_or_element(&fx_line->here, fx_line->effect, PLAYER_NEUTRAL);
+            }
         }
 
         fx_line->step++;

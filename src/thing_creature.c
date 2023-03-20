@@ -1666,15 +1666,7 @@ void creature_cast_spell(struct Thing *castng, long spl_idx, long shot_lvl, long
     // Check if the spell has an effect associated
     if (spconf->cast_effect_model != 0)
     {
-        struct Thing* efthing;
-        if (spconf->cast_effect_model > 0)
-        {
-            efthing = create_effect(&castng->mappos, spconf->cast_effect_model, castng->owner);
-        }
-        else
-        {
-            efthing = create_effect_element(&castng->mappos, ~(spconf->cast_effect_model)+1, castng->owner);
-        }
+        struct Thing* efthing = create_used_effect_or_element(&castng->mappos, spconf->cast_effect_model, castng->owner);
         if (!thing_is_invalid(efthing))
         {
             struct ShotConfigStats* shotst = get_shot_model_stats(spconf->shot_model);

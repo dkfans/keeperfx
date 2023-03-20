@@ -505,7 +505,7 @@ struct EffectElementStats *get_effect_element_model_stats(ThingModel tngmodel)
     return &effect_element_stats[tngmodel];
 }
 
-struct Thing *create_effect_element(const struct Coord3d *pos, unsigned short eelmodel, unsigned short owner)
+struct Thing *create_effect_element(const struct Coord3d *pos, unsigned short eelmodel, PlayerNumber owner)
 {
     long i;
     if (!i_can_allocate_free_thing_structure(FTAF_Default)) {
@@ -1315,7 +1315,7 @@ struct Thing *create_effect(const struct Coord3d *pos, ThingModel effmodel, Play
     return thing;
 }
 
-struct Thing *create_special_used_effect(const struct Coord3d *pos, long plyr_idx, short effect)
+struct Thing *create_used_effect_or_element(const struct Coord3d *pos, short effect, long plyr_idx)
 {
     if (effect == 0)
         return INVALID_THING;

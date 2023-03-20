@@ -792,7 +792,7 @@ short script_transfer_creature(long plyr_idx, long crmodel, long criteria, int c
             dungeonadd->creatures_transferred++;
             remove_thing_from_power_hand_list(thing, plyr_idx);
             struct SpecialConfigStats* specst = get_special_model_stats(SpcKind_Resurrect);
-            create_special_used_effect(&thing->mappos, plyr_idx, specst->effect_id);
+            create_used_effect_or_element(&thing->mappos, specst->effect_id, plyr_idx);
             kill_creature(thing, INVALID_THING, -1, CrDed_NoEffects | CrDed_NotReallyDying);
         }
     }
