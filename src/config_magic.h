@@ -326,7 +326,7 @@ struct SpecialConfigStats {
  * Stores configuration of spells; to be replaced with SpellConfigStats when all fields are in CFG.
  * It no longer matches the similar struct from DK - fields were added at end.
  */
-struct SpellInfo {
+struct SpellConfig {
     /** Informs if the spell can be targeted on a thing. */
     unsigned char cast_at_thing;
     /** Shot model to be fired while casting. */
@@ -347,8 +347,8 @@ struct SpellInfo {
 
 struct MagicConfig {
     long spell_types_count;
+    struct SpellConfig spell_config[MAGIC_ITEMS_MAX];
     struct SpellConfigStats spell_cfgstats[MAGIC_ITEMS_MAX];
-    struct SpellInfo spell_info[MAGIC_ITEMS_MAX];
     long shot_types_count;
     struct ShotConfigStats shot_cfgstats[MAGIC_ITEMS_MAX];
     long power_types_count;
@@ -392,10 +392,10 @@ extern struct NamedCommand spell_desc[];
 extern struct NamedCommand shot_desc[];
 extern struct NamedCommand power_desc[];
 extern struct SpellData spell_data[];
-extern struct SpellInfo spell_info[];
+extern struct SpellConfig spell_config[];
 /******************************************************************************/
-struct SpellInfo *get_magic_info(int mgc_idx);
-TbBool magic_info_is_invalid(const struct SpellInfo *mgcinfo);
+struct SpellConfig *get_spell_config(int mgc_idx);
+TbBool spell_config_is_invalid(const struct SpellConfig *mgcinfo);
 struct SpellData *get_power_data(int pwkind);
 TextStringId get_power_description_strindex(PowerKind pwkind);
 TextStringId get_power_name_strindex(PowerKind pwkind);

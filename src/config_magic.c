@@ -255,16 +255,16 @@ struct NamedCommand special_desc[MAGIC_ITEMS_MAX];
 }
 #endif
 /******************************************************************************/
-struct SpellInfo *get_magic_info(int mgc_idx)
+struct SpellConfig *get_spell_config(int mgc_idx)
 {
   if ((mgc_idx < 0) || (mgc_idx >= MAGIC_TYPES_COUNT))
-    return &magic_conf.spell_info[0];
-  return &magic_conf.spell_info[mgc_idx];
+    return &magic_conf.spell_config[0];
+  return &magic_conf.spell_config[mgc_idx];
 }
 
-TbBool magic_info_is_invalid(const struct SpellInfo *mgcinfo)
+TbBool spell_config_is_invalid(const struct SpellConfig *mgcinfo)
 {
-  if (mgcinfo <= &magic_conf.spell_info[0])
+  if (mgcinfo <= &magic_conf.spell_config[0])
     return true;
   return false;
 }
@@ -484,7 +484,7 @@ TbBool parse_magic_common_blocks(char *buf, long len, const char *config_textnam
 TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
   struct SpellConfigStats *spellst;
-  struct SpellInfo *spinfo;
+  struct SpellConfig *spconf;
   int i;
   // Block name and parameter word store variables
   // Initialize the array
@@ -506,15 +506,15 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
                 spell_desc[i].num = 0;
             }
 
-            spinfo = get_magic_info(i);
-            spinfo->duration = 0;
-            spinfo->caster_affected = 0;
-            spinfo->caster_affect_sound = 0;
-            spinfo->cast_at_thing = 0;
-            spinfo->shot_model = 0;
-            spinfo->cast_effect_model = 0;
-            spinfo->bigsym_sprite_idx = 0;
-            spinfo->medsym_sprite_idx = 0;
+            spconf = get_spell_config(i);
+            spconf->duration = 0;
+            spconf->caster_affected = 0;
+            spconf->caster_affect_sound = 0;
+            spconf->cast_at_thing = 0;
+            spconf->shot_model = 0;
+            spconf->cast_effect_model = 0;
+            spconf->bigsym_sprite_idx = 0;
+            spconf->medsym_sprite_idx = 0;
         }
     }
     
@@ -535,7 +535,7 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
           }
           continue;
     }
-    spinfo = get_magic_info(i);
+    spconf = get_spell_config(i);
     spellst = get_spell_model_stats(i);
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(magic_spell_commands,cmd_num)
     while (pos<len)
@@ -572,7 +572,7 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
-              spinfo->duration = k;
+              spconf->duration = k;
               n++;
           }
           if (n < 1)
@@ -585,13 +585,13 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
-              spinfo->caster_affected = k;
+              spconf->caster_affected = k;
               n++;
           }
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
-              spinfo->caster_affect_sound = k;
+              spconf->caster_affect_sound = k;
               n++;
           }
           if (n < 2)
@@ -604,7 +604,7 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
-              spinfo->cast_at_thing = k;
+              spconf->cast_at_thing = k;
               n++;
           }
           if (n < 1)
@@ -618,7 +618,7 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
           {
               k = get_id(shot_desc, word_buf);
               if (k >= 0) {
-                  spinfo->shot_model = k;
+                  spconf->shot_model = k;
                   n++;
               }
           }
@@ -639,7 +639,7 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
               }
               if (k != 0)
               {
-                  spinfo->cast_effect_model = k;
+                  spconf->cast_effect_model = k;
                   n++;
               }
           }
@@ -653,21 +653,21 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
       case 7: // SYMBOLSPRITES
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
-              spinfo->bigsym_sprite_idx = bad_icon_id;
+              spconf->bigsym_sprite_idx = bad_icon_id;
               k = get_icon_id(word_buf);
               if (k >= 0)
               {
-                  spinfo->bigsym_sprite_idx = k;
+                  spconf->bigsym_sprite_idx = k;
                   n++;
               }
           }
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
-              spinfo->medsym_sprite_idx = bad_icon_id;
+              spconf->medsym_sprite_idx = bad_icon_id;
               k = get_icon_id(word_buf);
               if (k >= 0)
               {
-                  spinfo->medsym_sprite_idx = k;
+                  spconf->medsym_sprite_idx = k;
                   n++;
               }
           }
