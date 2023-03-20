@@ -37,14 +37,6 @@ struct Room;
 
 typedef void (*CombatState)(struct Thing *);
 
-struct CombatWeapon {
-    long inst_id;
-    long range_min;
-    long range_max;
-};
-
-extern struct CombatWeapon offensive_weapon[];
-
 #pragma pack()
 /******************************************************************************/
 extern const CombatState combat_state[];
