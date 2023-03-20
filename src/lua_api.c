@@ -132,6 +132,22 @@ static PlayerNumber luaL_checkPlayerSingle(lua_State *L, int index)
     return playerRange.start_idx;
 }
 
+static MapSubtlCoord luaL_checkstl_x(lua_State *L, int index)
+{
+    MapSubtlCoord stl_x = luaL_checkint(L,index);
+    luaL_argcheck(L, 0 <= stl_x && stl_x <= gameadd.map_subtiles_x, index,
+                       "x subtile coord out of range");
+    return stl_x;
+}
+
+static MapSubtlCoord luaL_checkstl_y(lua_State *L, int index)
+{
+    MapSubtlCoord stl_y = luaL_checkint(L,index);
+    luaL_argcheck(L, 0 <= stl_y && stl_y <= gameadd.map_subtiles_y, index,
+                       "y subtile coord out of range");
+    return stl_y;
+}
+
 
 
 /**********/
@@ -557,25 +573,45 @@ static int lua_DISPLAY_OBJECTIVE(lua_State *L)
 
 static int lua_DISPLAY_OBJECTIVE_WITH_POS(lua_State *L)
 {
-    long msg_id    = luaL_checkinteger(L, 1);
-    long x    = luaL_checkinteger(L, 1);
-    long y    = luaL_checkinteger(L, 1);
+    long msg_id   = luaL_checkinteger(L, 1);
+    long stl_x    = luaL_checkstl_x(L, 2);
+    long stl_y    = luaL_checkstl_y(L, 3);
     
-    set_general_objective(msg_id,0,x,y);
+    set_general_objective(msg_id,0,stl_x,stl_y);
     return 0;
 }
 
 static int lua_DISPLAY_INFORMATION(lua_State *L)
 {
     long msg_id    = luaL_checkinteger(L, 1);
+    TbMapLocation zoom_location = luaL_optLocation(L,2);
+
+    set_general_information(msg_id,zoom_location,0,0);
+    return 0;
 }
 
 static int lua_DISPLAY_INFORMATION_WITH_POS(lua_State *L)
 {
     long msg_id    = luaL_checkinteger(L, 1);
+    long stl_x    = luaL_checkstl_x(L, 2);
+    long stl_y    = luaL_checkstl_y(L, 3);
+
+    set_general_objective(msg_id,0,stl_x,stl_y);
+    return 0;
 }
 
-//static int lua_ADD_TUNNELLER_PARTY_TO_LEVEL(lua_State *L)
+static int lua_ADD_TUNNELLER_PARTY_TO_LEVEL(lua_State *L)
+{
+    PlayerNumber owner           = luaL_checkPlayerSingle(L, 1);
+    const char *party_name       = luaL_checkstring(L,  2);
+    TbMapLocation spawn_location = luaL_checkLocation(L,  3);
+    TbMapLocation head_for       = luaL_checkHeadingLocation(L,3);
+    long target                  = luaL_checkinteger(L, 4);
+    long experience              = luaL_checkinteger(L, 4);
+    GoldAmount gold              = luaL_checkinteger(L, 4);
+
+
+}
 //static int lua_ADD_CREATURE_TO_POOL(lua_State *L)
 /*
 static int lua_RESET_ACTION_POINT(lua_State *L)

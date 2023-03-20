@@ -355,7 +355,6 @@ function ADD_PARTY_TO_LEVEL(playerrange,party_name,location,ncopies) end
 ---@param location location where the creature(s) should be spawned
 ---@param ncopies integer number of identical creatures that should be created
 ---@param level integer   
-
 ---@param carried_gold integer
 ---@return Creature ...
 function ADD_CREATURE_TO_LEVEL(owner,creature_model,location,ncopies,level,carried_gold) return Creature end
@@ -371,21 +370,22 @@ function QUICK_INFORMATION() end
 function QUICK_OBJECTIVE_WITH_POS() end
 function QUICK_INFORMATION_WITH_POS() end
 
----comment
+---Displays one of the text messages stored in gtext_***.dat in an Objective Box.
+---This file comes in various language version, so messages from it are always in the language configured in the settings.
 ---@param msg_id integer
 ---@param zoom_location? location
 function DISPLAY_OBJECTIVE(msg_id,zoom_location) end
 
----@param msg_id integer The number of the message, 0 to 839. Text of every message is stored in TEXT.DAT. This parameter is a message index in the TEXT.DAT file.
+---@param msg_id integer
 ---@param x integer
 ---@param y integer
 function DISPLAY_OBJECTIVE_WITH_POS(msg_id,x,y) end
 
----@param msg_id integer The number of the message, 0 to 839. Text of every message is stored in TEXT.DAT. This parameter is a message index in the TEXT.DAT file.
+---@param msg_id integer
 ---@param zoom_location? location
 function DISPLAY_INFORMATION(msg_id,zoom_location) end
 
----@param msg_id integer The number of the message, 0 to 839. Text of every message is stored in TEXT.DAT. This parameter is a message index in the TEXT.DAT file.
+---@param msg_id integer
 ---@param x integer
 ---@param y integer
 function DISPLAY_INFORMATION_WITH_POS(msg_id,x,y) end
@@ -636,7 +636,11 @@ function USE_POWER_AT_LOCATION() end
 function USE_POWER() end
 function SET_SACRIFICE_RECIPE() end
 function REMOVE_SACRIFICE_RECIPE() end
-function SET_BOX_TOOLTIP() end
+
+---Creates a custom tooltip for Custom special boxes.
+---@param boxnumber integer The ID of the custom box. With a new ADiKtEd or the ADD_OBJECT_TO_LEVEL command you can set a number. Multiple boxes may have the same number, and they will get the same tooltip and functionality.
+---@param tooltip string The text that will displayed when you hover your mouse over the Special box.
+function SET_BOX_TOOLTIP(boxnumber,tooltip) end
 function SET_BOX_TOOLTIP_ID() end
 function CREATE_EFFECTS_LINE() end
 function USE_SPELL_ON_CREATURE() end
