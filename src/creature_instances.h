@@ -20,6 +20,7 @@
 #define DK_CRTRINSTANCE_H
 
 #include "globals.h"
+#include "creature_control.h"
 #include "bflib_basics.h"
 #include "config.h"
 
@@ -101,15 +102,13 @@ struct InstanceInfo {
     unsigned char primary_target;
     Creature_Instf_Func func_cb;
     long func_params[2];
-};
-
-struct InstanceButtonInit {  // sizeof=0x6
+    long range_min;
+    long range_max;
     long symbol_spridx;
     short tooltip_stridx;
 };
-/******************************************************************************/
 
-extern struct InstanceButtonInit instance_button_init[48];
+/******************************************************************************/
 
 #pragma pack()
 /******************************************************************************/

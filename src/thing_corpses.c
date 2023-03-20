@@ -517,14 +517,7 @@ void delete_corpse(struct Thing *deadtng)
     struct CreatureStats* crstat = creature_stats_get(deadtng->model);
     if (crstat->corpse_vanish_effect != 0)
     {
-       if (crstat->corpse_vanish_effect > 0)
-       {
-            create_effect(&deadtng->mappos, crstat->corpse_vanish_effect, deadtng->owner);
-       }
-       else
-       {
-            create_effect_element(&deadtng->mappos, ~(crstat->corpse_vanish_effect)+1, deadtng->owner);
-       }            
+        create_used_effect_or_element(&deadtng->mappos, crstat->corpse_vanish_effect, deadtng->owner);
     }
     delete_thing_structure(deadtng, 0);
 }

@@ -474,7 +474,7 @@ void activate_dungeon_special(struct Thing *cratetng, struct PlayerInfo *player)
           {
               output_message(specst->speech, 0, true);
           }
-          create_special_used_effect(&pos, player->id_number, specst->effect_id);
+          create_used_effect_or_element(&pos, specst->effect_id, player->id_number);
       }
   }
 }
@@ -493,7 +493,7 @@ void resurrect_creature(struct Thing *boxtng, PlayerNumber owner, ThingModel crm
           output_message(SMsg_CommonAcknowledge, 0, true);
     }
     struct SpecialConfigStats* specst = get_special_model_stats(SpcKind_Resurrect);
-    create_special_used_effect(&boxtng->mappos, owner, specst->effect_id);
+    create_used_effect_or_element(&boxtng->mappos, specst->effect_id, owner);
     remove_events_thing_is_attached_to(boxtng);
     force_any_creature_dragging_owned_thing_to_drop_it(boxtng);
     if ((gameadd.classic_bugs_flags & ClscBug_ResurrectForever) == 0) {
@@ -537,7 +537,7 @@ void transfer_creature(struct Thing *boxtng, struct Thing *transftng, unsigned c
     if (!from_script)
     {
         struct SpecialConfigStats* specst = get_special_model_stats(SpcKind_TrnsfrCrtr);
-        create_special_used_effect(&boxtng->mappos, plyr_idx, specst->effect_id);
+        create_used_effect_or_element(&boxtng->mappos, specst->effect_id, plyr_idx);
         remove_events_thing_is_attached_to(boxtng);
         force_any_creature_dragging_owned_thing_to_drop_it(boxtng);
         delete_thing_structure(boxtng, 0);

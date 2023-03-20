@@ -729,6 +729,7 @@ TbBool creature_affected_by_spell(const struct Thing *thing, SpellKind spkind)
     case SplK_Missile:
     case SplK_NavigMissile:
     case SplK_Grenade:
+    case SplK_Lizard:
     case SplK_WordOfPower:
     case SplK_TimeBomb:
     case SplK_Fireball:
@@ -893,7 +894,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
     if (spell_lev > SPELL_MAX_LEVEL)
         spell_lev = SPELL_MAX_LEVEL;
     // This pointer may be invalid if spell_idx is incorrect. But we're using it only when correct.
-    struct SpellConfig* splconf = &game.spells_config[spell_idx];
+    const struct SpellConfig* spconf = get_spell_config(spell_idx);
     long n;
     switch (spell_idx)
     {
@@ -901,7 +902,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
         i = get_free_spell_slot(thing);
         if (i != -1)
         {
-            fill_spell_slot(thing, i, spell_idx, splconf->duration);
+            fill_spell_slot(thing, i, spell_idx, spconf->duration);
             cctrl->stateblock_flags |= CCSpl_Freeze;
             if ((thing->movement_flags & TMvF_Flying) != 0)
             {
@@ -945,7 +946,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
         i = get_free_spell_slot(thing);
         if (i != -1)
         {
-            fill_spell_slot(thing, i, spell_idx, splconf->duration);
+            fill_spell_slot(thing, i, spell_idx, spconf->duration);
             cctrl->spell_flags |= CSAfF_Rebound;
         }
         break;
@@ -975,7 +976,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
         i = get_free_spell_slot(thing);
         if (i != -1)
         {
-            fill_spell_slot(thing, i, spell_idx, splconf->duration);
+            fill_spell_slot(thing, i, spell_idx, spconf->duration);
             cctrl->stateblock_flags |= CCSpl_Teleport;
         }
         break;
@@ -993,7 +994,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
         i = get_free_spell_slot(thing);
         if (i != -1)
         {
-            fill_spell_slot(thing, i, spell_idx, splconf->duration);
+            fill_spell_slot(thing, i, spell_idx, spconf->duration);
             cctrl->spell_flags |= CSAfF_Slow;
             cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
         }
@@ -1002,7 +1003,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
         i = get_free_spell_slot(thing);
         if (i != -1)
         {
-            fill_spell_slot(thing, i, spell_idx, splconf->duration);
+            fill_spell_slot(thing, i, spell_idx, spconf->duration);
             cctrl->spell_flags |= CSAfF_Flying;
             thing->movement_flags |= TMvF_Flying;
         }
@@ -1011,7 +1012,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
         i = get_free_spell_slot(thing);
         if (i != -1)
         {
-            fill_spell_slot(thing, i, spell_idx, splconf->duration);
+            fill_spell_slot(thing, i, spell_idx, spconf->duration);
             cctrl->spell_flags |= CSAfF_Sight;
         }
         break;
@@ -1079,7 +1080,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
             i = get_free_spell_slot(thing);
             if (i != -1)
             {
-                fill_spell_slot(thing, i, spell_idx, splconf->duration);
+                fill_spell_slot(thing, i, spell_idx, spconf->duration);
                 if (!creature_affected_by_spell(thing, SplK_Light))
                 {
                     cctrl->spell_flags |= CSAfF_Light;
@@ -1101,12 +1102,12 @@ void reapply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long spe
         spell_lev = SPELL_MAX_LEVEL;
     struct CastedSpellData* cspell = &cctrl->casted_spells[idx];
     // This pointer may be invalid if spell_idx is incorrect. But we're using it only when correct.
-    struct SpellConfig* splconf = &game.spells_config[spell_idx];
+    struct SpellConfig* spconf = get_spell_config(spell_idx);
     const struct MagicStats* pwrdynst;
     switch (spell_idx)
     {
     case SplK_Freeze:
-        cspell->duration = splconf->duration;
+        cspell->duration = spconf->duration;
         creature_set_speed(thing, 0);
         break;
     case SplK_Armour:
@@ -1114,7 +1115,7 @@ void reapply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long spe
         cspell->duration = pwrdynst->strength[spell_lev];
         break;
     case SplK_Rebound:
-        cspell->duration = splconf->duration;
+        cspell->duration = spconf->duration;
         break;
     case SplK_Heal:
     {
@@ -1135,23 +1136,23 @@ void reapply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long spe
         cspell->duration = pwrdynst->strength[spell_lev];
         break;
     case SplK_Teleport:
-        cspell->duration = splconf->duration;
+        cspell->duration = spconf->duration;
         break;
     case SplK_Speed:
         pwrdynst = get_power_dynamic_stats(PwrK_SPEEDCRTR);
         cspell->duration = pwrdynst->strength[spell_lev];
         break;
     case SplK_Slow:
-        cspell->duration = splconf->duration;
+        cspell->duration = spconf->duration;
         break;
     case SplK_Light:
-        cspell->duration = splconf->duration;
+        cspell->duration = spconf->duration;
         break;
     case SplK_Fly:
-        cspell->duration = splconf->duration;
+        cspell->duration = spconf->duration;
         break;
     case SplK_Sight:
-        cspell->duration = splconf->duration;
+        cspell->duration = spconf->duration;
         break;
     case SplK_Disease:
         pwrdynst = get_power_dynamic_stats(PwrK_DISEASE);
@@ -1297,7 +1298,7 @@ void terminate_thing_spell_effect(struct Thing *thing, SpellKind spkind)
 void process_thing_spell_teleport_effects(struct Thing *thing, struct CastedSpellData *cspell)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    struct SpellConfig* splconf = &game.spells_config[SplK_Teleport];
+    struct SpellConfig* spconf = get_spell_config(SplK_Teleport);
     struct Room* room = NULL;
     const struct Thing* desttng = NULL;
     long distance = LONG_MAX;
@@ -1306,7 +1307,7 @@ void process_thing_spell_teleport_effects(struct Thing *thing, struct CastedSpel
     long i;
     TbBool allowed = true;
     clear_messages_from_player(-45);
-    if (cspell->duration == splconf->duration / 2)
+    if (cspell->duration == spconf->duration / 2)
     {
         PlayerNumber plyr_idx = get_appropriate_player_for_creature(thing);
         struct PlayerInfoAdd* playeradd = get_playeradd(plyr_idx);
@@ -1616,13 +1617,13 @@ void creature_cast_spell_at_thing(struct Thing *castng, struct Thing *targetng, 
         else
             hit_type = THit_CrtrsOnlyNotOwn;
     }
-    const struct SpellInfo* spinfo = get_magic_info(spl_idx);
-    if (magic_info_is_invalid(spinfo))
+    const struct SpellConfig* spconf = get_spell_config(spl_idx);
+    if (spell_config_is_invalid(spconf))
     {
         ERRORLOG("The %s owned by player %d tried to cast invalid spell %d",thing_model_name(castng),(int)castng->owner,(int)spl_idx);
         return;
     }
-    creature_fire_shot(castng, targetng, spinfo->shot_model, shot_lvl, hit_type);
+    creature_fire_shot(castng, targetng, spconf->shot_model, shot_lvl, hit_type);
 }
 
 /**
@@ -1634,7 +1635,7 @@ void creature_cast_spell_at_thing(struct Thing *castng, struct Thing *targetng, 
 void creature_cast_spell(struct Thing *castng, long spl_idx, long shot_lvl, long trg_x, long trg_y)
 {
     long i;
-    const struct SpellInfo* spinfo = get_magic_info(spl_idx);
+    const struct SpellConfig* spconf = get_spell_config(spl_idx);
     struct CreatureControl* cctrl = creature_control_get_from_thing(castng);
     if (creature_control_invalid(cctrl))
     {
@@ -1647,30 +1648,29 @@ void creature_cast_spell(struct Thing *castng, long spl_idx, long shot_lvl, long
         cctrl->teleport_y = trg_y;
     }
     // Check if the spell can be fired as a shot
-    if (spinfo->shot_model > 0)
+    if (spconf->shot_model > 0)
     {
         if ((castng->alloc_flags & TAlF_IsControlled) != 0)
           i = THit_CrtrsNObjcts;
         else
           i = THit_CrtrsOnlyNotOwn;
-        creature_fire_shot(castng, INVALID_THING, spinfo->shot_model, shot_lvl, i);
+        creature_fire_shot(castng, INVALID_THING, spconf->shot_model, shot_lvl, i);
     } else
     // Check if the spell can be self-casted
-    if (spinfo->caster_affected)
+    if (spconf->caster_affected)
     {
-        i = (long)spinfo->caster_affect_sound;
-        if (i > 0)
-          thing_play_sample(castng, i, NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
+        if (spconf->caster_affect_sound > 0)
+          thing_play_sample(castng, spconf->caster_affect_sound, NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
         apply_spell_effect_to_thing(castng, spl_idx, cctrl->explevel);
     }
     // Check if the spell has an effect associated
-    if (spinfo->cast_effect_model != 0)
+    if (spconf->cast_effect_model != 0)
     {
-        struct Thing* efthing = create_effect(&castng->mappos, spinfo->cast_effect_model, castng->owner);
+        struct Thing* efthing = create_used_effect_or_element(&castng->mappos, spconf->cast_effect_model, castng->owner);
         if (!thing_is_invalid(efthing))
         {
-          if (spinfo->cast_effect_model == 14)
-            efthing->shot_effect.hit_type = THit_CrtrsNObjctsNotOwn;
+            struct ShotConfigStats* shotst = get_shot_model_stats(spconf->shot_model);
+            efthing->shot_effect.hit_type = shotst->area_hit_type;
         }
     }
 }

@@ -86,7 +86,8 @@ void message_draw(void)
                 }
                 else if (IsCreatureSpell)
                 {
-                    spr_idx = instance_button_init[~(char)(((char)gameadd.messages[i].plyr_idx) + 31) + 1].symbol_spridx;
+                    struct InstanceInfo* inst_inf = creature_instance_info_get(~(char)(((char)gameadd.messages[i].plyr_idx) + 31) + 1);
+                    spr_idx = inst_inf->symbol_spridx;
                     x -= (10 * units_per_pixel / 16);
                     y -= (10 * units_per_pixel / 16);
                 }

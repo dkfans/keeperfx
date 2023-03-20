@@ -40,9 +40,9 @@ extern "C" {
 /** Number of possible range combat opponents. */
 #define COMBAT_RANGED_OPPONENTS_LIMIT      4
 /** Amount of instances. */
-#define CREATURE_INSTANCES_COUNT          48
 /** Max amount of rooms needed for a creature to be attracted to a dungeon. */
 #define ENTRANCE_ROOMS_COUNT               3
+#define INSTANCE_TYPES_MAX 64
 
 #define INVALID_CRTR_CONTROL (game.persons.cctrl_lookup[0])
 /******************************************************************************/
@@ -347,8 +347,8 @@ unsigned char sound_flag;
     unsigned short targtng_idx;
     MapSubtlCoord targtstl_x;
     MapSubtlCoord targtstl_y;
-    unsigned long instance_use_turn[CREATURE_INSTANCES_COUNT];
-    char instance_available[CREATURE_INSTANCES_COUNT];
+    unsigned long instance_use_turn[INSTANCE_TYPES_MAX];
+    char instance_available[INSTANCE_TYPES_MAX];
     unsigned short instance_anim_step_turns;
     SubtlCodedCoords collided_door_subtile;
     char fighting_player_idx;
