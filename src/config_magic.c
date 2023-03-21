@@ -1358,6 +1358,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
               CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
+          break;
       case 35: //DIGHITEFFECT
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
@@ -1424,7 +1425,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
       case 38: //WITHSTANDHITAGAINST
           while (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
-              k = get_id(shotmodel_properties_commands, word_buf);
+              k = get_id(shotmodel_withstand_types, word_buf);
               switch (k)
               {
               case 1: // CREATURE
