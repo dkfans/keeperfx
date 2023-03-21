@@ -324,7 +324,8 @@ long near_thing_pos_thing_filter_is_enemy_object_which_can_be_attacked_by_creatu
                 if (players_are_enemies(creatng->owner, objtng->owner))
                 {
                     MapCoordDelta distance = get_2d_distance(&creatng->mappos, &objtng->mappos);
-                    if (thing_is_dungeon_heart(objtng) && creature_can_have_combat_with_creature(creatng, (struct Thing*)objtng, distance,1,0)) //Just dungeon hearts now. Todo: expand with other types of destructible objects
+                    //Just dungeon hearts now. Todo: expand with other types of destructible objects
+                    if (thing_is_dungeon_heart(objtng) && creature_can_have_combat_with_creature(creatng, (struct Thing*)objtng, distance,1,0) && !(get_creature_model_flags(creatng) & CMF_NoEnmHeartAttack))
                     {
                         return LONG_MAX - distance;
                     }
