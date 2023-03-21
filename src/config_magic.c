@@ -33,6 +33,7 @@
 #include "thing_effects.h"
 #include "power_process.h"
 #include "game_legacy.h"
+#include "console_cmd.h"
 
 #include "keeperfx.hpp"
 #include "post_inc.h"
@@ -645,9 +646,13 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
               k = get_id(effect_desc, word_buf);
               if (k < 0)
               {
-                  k = atoi(word_buf);
-              }
-              if (k != 0)
+                  if (parameter_is_number(word_buf))
+                  {
+                      k = atoi(word_buf);
+                      spconf->cast_effect_model = k;
+                      n++;
+                  }
+              } else
               {
                   spconf->cast_effect_model = k;
                   n++;
