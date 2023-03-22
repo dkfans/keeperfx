@@ -368,9 +368,9 @@ short sound_emitter_in_use(SoundEmitterID eidx)
 
 long get_sound_distance(const struct SoundCoord3d *pos1, const struct SoundCoord3d *pos2)
 {
-    long dist_x = abs(pos1->val_x - (long)pos2->val_x);
-    long dist_y = abs(pos1->val_y - (long)pos2->val_y);
-    long dist_z = abs(pos1->val_z - (long)pos2->val_z);
+    long dist_x = max(pos1->val_x, pos2->val_x) - min(pos1->val_x, pos2->val_x);
+    long dist_y = max(pos1->val_y, pos2->val_y) - min(pos1->val_y, pos2->val_y);
+    long dist_z = max(pos1->val_z, pos2->val_z) - min(pos1->val_z, pos2->val_z);
     // Make sure we're not exceeding sqrt(LONG_MAX/3), to fit the final result in long
     if (dist_x > 26754)
         dist_x = 26754;
@@ -383,9 +383,9 @@ long get_sound_distance(const struct SoundCoord3d *pos1, const struct SoundCoord
 
 long get_sound_squareedge_distance(const struct SoundCoord3d *pos1, const struct SoundCoord3d *pos2)
 {
-    long dist_x = abs(pos1->val_x - (long)pos2->val_x);
-    long dist_y = abs(pos1->val_y - (long)pos2->val_y);
-    long dist_z = abs(pos1->val_z - (long)pos2->val_z);
+    long dist_x = max(pos1->val_x, pos2->val_x) - min(pos1->val_x, pos2->val_x);
+    long dist_y = max(pos1->val_y, pos2->val_y) - min(pos1->val_y, pos2->val_y);
+    long dist_z = max(pos1->val_z, pos2->val_z) - min(pos1->val_z, pos2->val_z);
     // Make sure we're not exceeding LONG_MAX/3
     if (dist_x > LONG_MAX/3)
         dist_x = LONG_MAX/3;
