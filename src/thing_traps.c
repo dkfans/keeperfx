@@ -116,13 +116,19 @@ struct Thing *get_trap_for_slab_position(MapSlabCoord slb_x, MapSlabCoord slb_y)
 TbBool slab_has_sellable_trap_on(MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
     struct Thing* traptng = get_trap_for_slab_position(slb_x, slb_y);
-    return !thing_is_sellable_trap(traptng);
+    return thing_is_sellable_trap(traptng);
 }
 
 TbBool slab_has_trap_on(MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
     struct Thing* traptng = get_trap_for_slab_position(slb_x, slb_y);
     return !thing_is_invalid(traptng);
+}
+
+TbBool subtile_has_sellable_trap_on(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+    struct Thing* traptng = get_trap_for_position(stl_x, stl_y);
+    return thing_is_sellable_trap(traptng);
 }
 
 TbBool subtile_has_trap_on(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
