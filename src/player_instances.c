@@ -211,6 +211,7 @@ long pinstfe_hand_whip(struct PlayerInfo *player, long *n)
     struct PowerConfigStats* powerst = get_power_model_stats(PwrK_SLAP);
     struct Thing* thing = thing_get(player->influenced_thing_idx);
     struct TrapConfigStats *trapst;
+    struct ShotConfigStats* shotst;
     if (!thing_exists(thing) || (thing->creation_turn != player->influenced_thing_creation) || (!thing_slappable(thing, player->id_number)))
     {
         player->influenced_thing_creation = 0;
@@ -244,14 +245,14 @@ long pinstfe_hand_whip(struct PlayerInfo *player, long *n)
       break;
   }
   case TCls_Shot:
-      if (thing->model == ShM_Boulder) //TODO CONFIG shot model dependency, make config option instead
+      shotst = get_shot_model_stats(thing->model);
+      if (shotst->model_flags & ShMF_Boulder)
       {
           thing->move_angle_xy = player->acamera->orient_a;
-          thing->health -= game.boulder_reduce_health_slap;
-      } else
-      if (thing->model == ShM_SolidBoulder) //TODO CONFIG shot model dependency, make config option instead
-      {
-          thing->move_angle_xy = player->acamera->orient_a;
+          if (thing->model != ShM_SolidBoulder) //TODO CONFIG shot model dependency, make config option instead
+          {
+              thing->health -= game.boulder_reduce_health_slap;
+          }
       } else
       {
           detonate_shot(thing);

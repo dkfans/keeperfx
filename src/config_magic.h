@@ -133,6 +133,7 @@ enum ShotModelFlags {
     ShMF_AlarmsUnits    = 0x0400,
     ShMF_CanCollide     = 0x0800,
     ShMF_Disarming      = 0x1000,
+    ShMF_Exploding      = 0x2000,
 };
 
 enum PowerCanCastFlags {
@@ -228,6 +229,20 @@ struct ShotHitConfig {
     unsigned char withstand; /**< Whether the shot can withstand a hit without getting destroyed; could be converted to flags. */
 };
 
+struct ShotDetonateConfig {
+    short effect1_model;
+    short effect2_model; 
+    short around_effect1_model;
+    short around_effect2_model;
+};
+
+struct ShotVisualConfig {
+    short effect_model;
+    unsigned char amount;
+    short random_range;
+    short shot_health;
+};
+
 /**
  * Configuration parameters for shots.
  */
@@ -254,6 +269,8 @@ struct ShotConfigStats {
     struct ShotHitConfig hit_lava;
     struct ShotHitConfig hit_creature;
     struct ShotHitConfig dig;
+    struct ShotDetonateConfig explode;
+    struct ShotVisualConfig visual;
     short firing_sound;
     short shot_sound;
     short sound_priority;

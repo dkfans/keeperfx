@@ -3946,7 +3946,10 @@ void create_effect_around_thing(struct Thing *thing, long eff_kind)
             pos.z.val = coord_z_beg;
             while (pos.z.val <= coord_z_end)
             {
-                create_effect(&pos, eff_kind, thing->owner);
+                if (eff_kind != 0)
+                {
+                    create_used_effect_or_element(&pos, eff_kind, thing->owner);
+                }
                 pos.z.val += COORD_PER_STL;
             }
             pos.y.val += COORD_PER_STL;
