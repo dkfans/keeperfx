@@ -94,7 +94,7 @@ msgid ""
 "death will bring us closer to our ultimate goal, which is killing Emperor of "
 "Japan."
 msgstr ""
-Prepárate, guerrero de la sombra, y luego golpea justo en el corazón del mal. "
+"Prepárate, guerrero de la sombra, y luego golpea justo en el corazón del mal. "
 "En este caso, es el shogunato enemigo el que gobierna este pueblo. Su muerte "
 "nos acercará a nuestro objetivo final, que es matar al Emperador de Japón."
 
@@ -167,7 +167,7 @@ msgid ""
 "that is the task from your master."
 msgstr ""
 "El shogunato despiadado se enfurruña en estas mazmorras. Debes buscarlo y "
-destruirlo, esa es la tarea de un maestro."
+"destruirlo, esa es la tarea de un maestro."
 
 #: guitext:16
 msgctxt "In-game message"
