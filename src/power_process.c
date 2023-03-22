@@ -230,6 +230,18 @@ void process_disease(struct Thing *creatng)
     }
 }
 
+void process_bleed(struct Thing* creatng)
+{
+    SYNCDBG(18, "Starting");
+    if (!creature_affected_by_spell(creatng, SplK_Bleed)) {
+        return;
+    }
+    if ((game.play_gameturn % 10) == 0)
+    {
+        apply_damage_to_thing_and_display_health(creatng, 10, DmgT_Biological, -1);
+    }
+}
+
 void lightning_modify_palette(struct Thing *thing)
 {
     struct PlayerInfo* myplyr = get_my_player();

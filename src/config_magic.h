@@ -67,6 +67,7 @@ enum SpellKinds {
     SplK_Chicken,
     SplK_TimeBomb,//[28]
     SplK_Lizard,
+    SplK_Bleed,
 };
 
 enum CreatureSpellAffectedFlags {
@@ -83,6 +84,7 @@ enum CreatureSpellAffectedFlags {
     CSAfF_PoisonCloud  = 0x0400,
     CSAfF_CalledToArms = 0x0800,
     CSAfF_MadKilling   = 0x1000,
+    CSAfF_Bleed        = 0x10000,
     /** The creature does a free fall with magical effect, ie. it was just created with some initial velocity. */
     CSAfF_MagicFall    = 0x2000,
     CSAfF_ExpLevelUp   = 0x4000,

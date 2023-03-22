@@ -321,7 +321,7 @@ unsigned char sound_flag;
     unsigned char fight_til_death;
     TbBool field_AA;
     unsigned char stateblock_flags;
-    unsigned short spell_flags; // Sometimes treated as two bytes, but it's a short (AC + AD)
+    unsigned long spell_flags;
     unsigned char field_AE;
     short force_visible;
     unsigned char frozen_on_hit;
@@ -375,8 +375,8 @@ unsigned char cowers_from_slap_turns;
     struct MemberPos followers_pos[GROUP_MEMBERS_COUNT];
     unsigned short next_in_room;
     unsigned short prev_in_room;//field_2AC
-short field_2AE;
-    unsigned char field_2B0; // 7 == heal
+    short spell_in_progress_remaining;
+    unsigned char spell_in_progress;
     unsigned short job_assigned;
     unsigned short spell_tngidx_armour[3];
     unsigned short spell_tngidx_disease[3];

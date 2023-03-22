@@ -715,6 +715,8 @@ TbBool creature_affected_by_spell(const struct Thing *thing, SpellKind spkind)
         return ((cctrl->spell_flags & CSAfF_Speed) != 0);
     case SplK_Slow:
         return ((cctrl->spell_flags & CSAfF_Slow) != 0);
+    case SplK_Bleed:
+        return ((cctrl->spell_flags & CSAfF_Bleed) != 0);
     case SplK_Fly:
         return ((cctrl->spell_flags & CSAfF_Flying) != 0);
     case SplK_Sight:
@@ -959,8 +961,8 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
         } else {
           thing->health = min(i,cctrl->max_health);
         }
-        cctrl->field_2B0 = 7;
-        cctrl->field_2AE = pwrdynst->duration;
+        cctrl->spell_in_progress = SplK_Heal;
+        cctrl->spell_in_progress_remaining = pwrdynst->duration;
         break;
     case SplK_Invisibility:
         i = get_free_spell_slot(thing);
@@ -997,6 +999,14 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
             fill_spell_slot(thing, i, spell_idx, spconf->duration);
             cctrl->spell_flags |= CSAfF_Slow;
             cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
+        }
+        break;
+    case SplK_Bleed:
+        i = get_free_spell_slot(thing);
+        if (i != -1)
+        {
+            fill_spell_slot(thing, i, spell_idx, spconf->duration);
+            cctrl->spell_flags |= CSAfF_Bleed;
         }
         break;
     case SplK_Fly:
@@ -1127,8 +1137,8 @@ void reapply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long spe
         } else {
           thing->health = min(i,cctrl->max_health);
         }
-        cctrl->field_2B0 = 7;
-        cctrl->field_2AE = pwrdynst->duration;
+        cctrl->spell_in_progress = SplK_Heal;
+        cctrl->spell_in_progress_remaining = pwrdynst->duration;
         break;
     }
     case SplK_Invisibility:
@@ -1143,6 +1153,9 @@ void reapply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long spe
         cspell->duration = pwrdynst->strength[spell_lev];
         break;
     case SplK_Slow:
+        cspell->duration = spconf->duration;
+        break;
+    case SplK_Bleed:
         cspell->duration = spconf->duration;
         break;
     case SplK_Light:
@@ -1240,6 +1253,9 @@ void terminate_thing_spell_effect(struct Thing *thing, SpellKind spkind)
     case SplK_Slow:
         cctrl->spell_flags &= ~CSAfF_Slow;
         cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
+        break;
+    case SplK_Bleed:
+        cctrl->spell_flags &= ~CSAfF_Bleed;
         break;
     case SplK_Fly:
         //TODO SPELLS Strange condition regarding the fly - verify why it's here
@@ -5427,9 +5443,10 @@ TngUpdateRet update_creature(struct Thing *thing)
     process_spells_affected_by_effect_elements(thing);
     process_landscape_affecting_creature(thing);
     process_disease(thing);
+    process_bleed(thing);
     move_thing_in_map(thing, &thing->mappos);
     set_creature_graphic(thing);
-    if (cctrl->field_2B0)
+    if (cctrl->spell_in_progress)
     {
         process_keeper_spell_effect(thing);
     }

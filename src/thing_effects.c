@@ -667,6 +667,37 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
         }
     }
 
+    if ((cctrl->spell_flags & CSAfF_Bleed) != 0)
+    {
+        int diamtr = 8 * thing->clipbox_size_xy / 2;
+        MapCoord cor_z_max = thing->clipbox_size_yz + (thing->clipbox_size_yz * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 80; //effect is 20% smaller than unit
+        int i = cor_z_max / 64; //64 is the vertical speed of the circle.
+        if (i <= 1)
+            i = 1;
+        dturn = game.play_gameturn - thing->creation_turn;
+        int vrange = i;
+        if (dturn % (2 * i) < vrange)
+            pos.z.val = thing->mappos.z.val + cor_z_max / vrange * (dturn % vrange);
+        else
+            pos.z.val = thing->mappos.z.val + cor_z_max / vrange * (vrange - (dturn % vrange));
+        int radius = diamtr / 2;
+        if ((dturn % 10) == 0)
+        {
+            for (i = UNSYNC_RANDOM(8); i < 8; i++)
+            {
+                angle = (abs(UNSYNC_RANDOM(8)) & 0xF) << 7;
+                shift_x = (radius * LbSinL(angle) >> 8) >> 8;
+                shift_y = -(radius * LbCosL(angle) >> 8) >> 8;
+                pos.x.val = thing->mappos.x.val + UNSYNC_RANDOM(shift_x);
+                pos.y.val = thing->mappos.y.val + UNSYNC_RANDOM(shift_y);
+                effeltng = create_thing(&pos, TCls_EffectElem, TngEffElm_Blood1 + UNSYNC_RANDOM(2), thing->owner, -1);
+            }
+        }
+        if ((dturn % 18) == 0)
+            effeltng = create_thing(&thing->mappos, TCls_EffectElem, TngEffElm_BloodSplat, thing->owner, -1);
+
+    }
+
     if ((cctrl->spell_flags & CSAfF_Flying) != 0)
     {
         effeltng = create_thing(&thing->mappos, TCls_EffectElem, TngEffElm_CloudDisperse, thing->owner, -1);
