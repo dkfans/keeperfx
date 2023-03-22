@@ -30,6 +30,7 @@ msgctxt "In-game message"
 msgid ""
 "Success! The district is yours. Press Space to proceed to the next realm."
 msgstr ""
+"¡Éxito! El área es tuya. Pulsa la barra espaciadora para pasar al siguiente reino."
 
 #: guitext:1
 msgctxt "In-game message"
@@ -37,6 +38,8 @@ msgid ""
 "Enemy Shogun stands on our way to the province Iga. We need to kill him so "
 "we can continue our journey."
 msgstr ""
+"El Shogunato enemigo se encuentra justo en nuestro camino,hacia la provincia "
+"de Iga. Tenemos que matarlo para poder continuar nuestro viaje."
 
 #: guitext:2
 msgctxt "In-game message"
@@ -44,6 +47,9 @@ msgid ""
 "We have defeated the enemy Shogun. Now we can safely pass to the province "
 "Iga and visit our clan. Perfect work, mighty man of the shadow!"
 msgstr ""
+"Hemos derrotado al Shogunato enemigo. Ahora podemos pasar con seguridad a "
+"la provincia de Iga y visitar nuestro clan. ¡Trabajo perfecto, poderoso "
+"hombre de las sombras!"
 
 #: guitext:3
 msgctxt "In-game message"
@@ -51,6 +57,9 @@ msgid ""
 "We cannot turn our eyes while enemy ruler ravages this land. We have to stop "
 "him, so that local people can live without fear and worry."
 msgstr ""
+"No podemos mirar hacia otro lado, mientras el gobernante enemigo devasta esta "
+"tierra. Tenemos que detenerlo, para que la gente local pueda vivir sin miedo "
+"ni preocupaciones."
 
 #: guitext:4
 msgctxt "In-game message"
@@ -58,6 +67,8 @@ msgid ""
 "Is not for the man of the shadow to hesitate and question the order of "
 "things. You are wise to know that truth. Perfect work!"
 msgstr ""
+"No es propio del hombre de la sombra vacilar y cuestionar el orden de las cosas. "
+"Eres sabio al saber esa verdad. ¡Trabajo perfecto!"
 
 #: guitext:5
 msgctxt "In-game message"
@@ -66,11 +77,14 @@ msgid ""
 "Iga until be break it. The only way to do that is to kill enemy shogun which "
 "is in this land."
 msgstr ""
+"Hemos quedado atrapados en una barrera mágica. No podemos avanzar hacia Iga "
+"hasta que lo rompamos. La única forma de hacerlo es matar al shogunato enemigo "
+"que se encuentra en esta tierra."
 
 #: guitext:6
 msgctxt "In-game message"
 msgid "Excellent work, assassin! Now we can safely reach the province Iga."
-msgstr ""
+msgstr "¡Excelente trabajo, asesino! Ahora podemos llegar con seguridad a Iga."
 
 #: guitext:7
 msgctxt "In-game message"
@@ -80,11 +94,15 @@ msgid ""
 "death will bring us closer to our ultimate goal, which is killing Emperor of "
 "Japan."
 msgstr ""
+Prepárate, guerrero de la sombra, y luego golpea justo en el corazón del mal. "
+"En este caso, es el shogunato enemigo el que gobierna este pueblo. Su muerte "
+"nos acercará a nuestro objetivo final, que es matar al Emperador de Japón."
 
 #: guitext:8
 msgctxt "In-game message"
 msgid "You made it! Now we can work on a plan to reach the emperor's palace!"
 msgstr ""
+"¡Lo hiciste! ¡Ahora podemos trabajar en un plan para llegar al palacio del emperador!"
 
 #: guitext:9
 msgctxt "In-game message"
@@ -94,12 +112,17 @@ msgid ""
 "that you reach their heart without causing alarm. Use your spells sensibly, "
 "because your gold reserves are limited."
 msgstr ""
+"Para tener éxito en esta misión, debes tener cuidado y cuidar todos tus "
+"movimientos. Si los enemigos notan a alguien, su ejército vendrá a aplastarte. Es "
+"vital que llegues a su corazón sin causar alarma. Usa tus hechizos con sensatez, "
+"porque tus reservas de oro son limitadas."
 
 #: guitext:10
 msgctxt "In-game message"
 msgid ""
 "Congratulations, I did not expected you to deal with this so flawlessly!"
 msgstr ""
+"¡Felicidades, no esperaba que lidiaras con esto tan perfectamente!"
 
 #: guitext:11
 msgctxt "In-game message"
@@ -107,6 +130,8 @@ msgid ""
 "Ninja, another enemy Shogun is here. He is wicked and dishonorable, so we "
 "shall flush his kind from the surface of the the earth!"
 msgstr ""
+"Ninja, otro Shogunato enemigo está aquí. ¡Es malvado y deshonroso, así que "
+"eliminaremos a los de su especie de la superficie de esta tierra!"
 
 #: guitext:12
 msgctxt "In-game message"
@@ -114,6 +139,8 @@ msgid ""
 "Excellent, Ninja! You were quicker than the blade of fate. I did not expect "
 "this of you."
 msgstr ""
+"¡Excelente, Ninja! Fuiste más rápido que la espada del destino. No esperaba "
+"esto de ti."
 
 #: guitext:13
 msgctxt "In-game message"
@@ -121,6 +148,8 @@ msgid ""
 "Seek, Ninja, our enemy in these hardly accessible rocky regions. Surely "
 "somewhere here he hides."
 msgstr ""
+"Busca Ninja, a nuestro enemigo en estas regiones rocosas de difícil acceso. "
+"Seguramente se esconde en algún lugar de aquí."
 
 #: guitext:14
 msgctxt "In-game message"
@@ -128,6 +157,8 @@ msgid ""
 "Perfect, you are a courageous warrior of the shadow. Even in this region you "
 "were able to find and eliminate the enemy!"
 msgstr ""
+"Perfecto, eres un valiente guerrero de la sombra. ¡Incluso en esta región "
+"pudiste encontrar y eliminar al enemigo!"
 
 #: guitext:15
 msgctxt "In-game message"
@@ -135,6 +166,8 @@ msgid ""
 "Ruthless Shogun sulks in these dungeons. You must seek him out and destroy, "
 "that is the task from your master."
 msgstr ""
+"El shogunato despiadado se enfurruña en estas mazmorras. Debes buscarlo y "
+destruirlo, esa es la tarea de un maestro."
 
 #: guitext:16
 msgctxt "In-game message"
@@ -142,6 +175,8 @@ msgid ""
 "Excellent work, man of the shadow! You've crushed the enemy with great skill "
 "and conviction."
 msgstr ""
+"¡Excelente trabajo, hombre de las sombras! Has aplastado al enemigo con gran "
+"habilidad y convicción."
 
 #: guitext:17
 msgctxt "In-game message"
@@ -150,6 +185,9 @@ msgid ""
 "of his castle. We must find and kill him, so that Japan can again bloom with "
 "flowers of cherry tree."
 msgstr ""
+"Tus avances finalmente nos ha llevado al emperador. Se esconde detrás de los "
+"muros de su castillo. Debemos encontrarlo y matarlo, para que Japón pueda "
+"volver a florecer con flores de cerezo."
 
 #: guitext:18
 msgctxt "In-game message"
@@ -157,6 +195,8 @@ msgid ""
 "Success is ours! You are truly swift and clever warrior. Congratulations on "
 "the completion of The Destiny of Ninja campaign!"
 msgstr ""
+"¡El éxito es nuestro! Eres un guerrero verdaderamente veloz e inteligente. "
+"¡Felicidades por completar la campaña:¡El Destino del Ninja!"
 
 #: guitext:19 guitext:20 guitext:21 guitext:22 guitext:23 guitext:24
 #: guitext:25 guitext:26 guitext:27 guitext:28 guitext:29 guitext:30
@@ -191,49 +231,49 @@ msgstr ""
 #: guitext:199 guitext:200
 msgctxt "In-game message"
 msgid "Moo"
-msgstr ""
+msgstr "Muu"
 
 #: guitext:202
 msgctxt "Level name"
 msgid "Shadow Ninja"
-msgstr ""
+msgstr "La Sombra del Ninja"
 
 #: guitext:203
 msgctxt "Level name"
 msgid "Extreme Ninja"
-msgstr ""
+msgstr "Ninja Extremo"
 
 #: guitext:204
 msgctxt "Level name"
 msgid "Escape"
-msgstr ""
+msgstr "Evasión"
 
 #: guitext:205
 msgctxt "Level name"
 msgid "Dungeon Ninja"
-msgstr ""
+msgstr "La Mazmorra del Ninja"
 
 #: guitext:206
 msgctxt "Level name"
 msgid "Spectre"
-msgstr ""
+msgstr "Espectro"
 
 #: guitext:207
 msgctxt "Level name"
 msgid "Speed Ninja"
-msgstr ""
+msgstr "Ninja veloz"
 
 #: guitext:208
 msgctxt "Level name"
 msgid "Secret Ninja"
-msgstr ""
+msgstr "Secretos Ninja"
 
 #: guitext:209
 msgctxt "Level name"
 msgid "Kill shogun"
-msgstr ""
+msgstr "Mata al Shogunato"
 
 #: guitext:210
 msgctxt "Level name"
 msgid "Kill emperor"
-msgstr ""
+msgstr "Mata al Emperador"
