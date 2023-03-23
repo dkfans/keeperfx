@@ -740,8 +740,6 @@ void pannel_map_update_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSu
             doortng = get_door_for_position(stl_x, stl_y);
             if (!thing_is_invalid(doortng)) {
                 col = owner_col + 6 * ((doortng->door.is_locked == 1) + 2 * doortng->model) + 110;
-            } else {
-                ERRORLOG("No door for flagged position");
             }
         } else
         if ((mapblk->flags & SlbAtFlg_Blocking) == 0)
