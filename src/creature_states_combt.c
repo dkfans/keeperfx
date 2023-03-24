@@ -1579,20 +1579,10 @@ CrAttackType check_for_possible_combat_with_enemy_creature_within_distance(struc
         {
             *outenmtng = thing;
             return attack_type;
-        } else 
+        } 
+        else 
         {
-            move_on_ground = 1;
-            thing = get_highest_score_enemy_creature_within_distance_possible_to_attack_by(fightng, maxdist, move_on_ground);
-            if (!thing_is_invalid(thing))
-            {
-                attack_type = creature_can_have_combat_with_creature(fightng, thing, distance, move_on_ground,0);
-                if (attack_type > AttckT_Unset)
-                {
-                    *outenmtng = thing;
-                    return attack_type;
-                }
-                ERRORLOG("The %s index %d cannot fight with %s index %d returned as fight partner", thing_model_name(fightng), (int)fightng->index, thing_model_name(thing), (int)thing->index);
-            }
+            ERRORLOG("The %s index %d cannot fight with %s index %d returned as fight partner", thing_model_name(fightng), (int)fightng->index, thing_model_name(thing), (int)thing->index);
         }
     }
     return AttckT_Unset;
