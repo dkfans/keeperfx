@@ -1575,19 +1575,25 @@ CrAttackType check_for_possible_combat_with_enemy_creature_within_distance(struc
         // When counting distance, take size of creatures into account
         long distance = get_combat_distance(fightng, thing);
         CrAttackType attack_type = creature_can_have_combat_with_creature(fightng, thing, distance, 1, move_on_ground);
-        if (attack_type <= AttckT_Unset) 
+        if (attack_type > AttckT_Unset) 
+        {
+            *outenmtng = thing;
+            return attack_type;
+        } else 
         {
             move_on_ground = 1;
             thing = get_highest_score_enemy_creature_within_distance_possible_to_attack_by(fightng, maxdist, move_on_ground);
-            attack_type = creature_can_have_combat_with_creature(fightng, thing, distance, 1, move_on_ground);
-            if (attack_type <= AttckT_Unset)
+            if (!thing_is_invalid(thing))
             {
+                attack_type = creature_can_have_combat_with_creature(fightng, thing, distance, 1, move_on_ground);
+                if (attack_type > AttckT_Unset)
+                {
+                    *outenmtng = thing;
+                    return attack_type;
+                }
                 ERRORLOG("The %s index %d cannot fight with %s index %d returned as fight partner", thing_model_name(fightng), (int)fightng->index, thing_model_name(thing), (int)thing->index);
-                return AttckT_Unset;
             }
-        } 
-        *outenmtng = thing;
-        return attack_type;
+        }
     }
     return AttckT_Unset;
 }
