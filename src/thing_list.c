@@ -3946,12 +3946,12 @@ struct Thing *get_nearest_thing_at_position(MapSubtlCoord stl_x, MapSubtlCoord s
   {
     n = 0;
     y = stl_y + k;  
-    if ( (y >= 0) && (y < 256) )
+    if ( (y >= 0) && (y < gameadd.map_subtiles_y) )
     {
       do
       {
         x = stl_x + n;  
-        if ( (x >= 0) && (x < 256) )
+        if ( (x >= 0) && (x < gameadd.map_subtiles_x) )
         {
           struct Map *blk = get_map_block_at(x, y);
           thing = thing_get(get_mapwho_thing_index(blk));
