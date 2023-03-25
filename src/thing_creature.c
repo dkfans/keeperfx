@@ -1094,7 +1094,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
         i = get_free_spell_slot(thing);
         if (i != -1)
         {
-            fill_spell_slot(thing, i, spell_idx, splconf->duration);
+            fill_spell_slot(thing, i, spell_idx, spconf->duration);
             if (!creature_affected_by_spell(thing, SplK_TimeBomb))
             {
                 cctrl->spell_flags |= CSAfF_Timebomb;
