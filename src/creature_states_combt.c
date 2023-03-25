@@ -80,32 +80,6 @@ const CombatState combat_door_state[] = {
     combat_door_state_ranged_combat,
 };
 
-struct CombatWeapon offensive_weapon[] = {
-    {CrInst_FREEZE,                 156, LONG_MAX},
-    {CrInst_FEAR,                   156, LONG_MAX},
-    {CrInst_CAST_SPELL_DISEASE,     156, LONG_MAX},
-    {CrInst_CAST_SPELL_CHICKEN,     156, LONG_MAX},
-    {CrInst_CAST_SPELL_TIME_BOMB,   768, LONG_MAX},
-    {CrInst_LIZARD,                1000, LONG_MAX},
-    {CrInst_FIRE_BOMB,              768, LONG_MAX},
-    {CrInst_LIGHTNING,              768, LONG_MAX},
-    {CrInst_HAILSTORM,              156, LONG_MAX},
-    {CrInst_POISON_CLOUD,           156, LONG_MAX},
-    {CrInst_DRAIN,                  156, LONG_MAX},
-    {CrInst_SLOW,                   156, LONG_MAX},
-    {CrInst_NAVIGATING_MISSILE,     156, LONG_MAX},
-    {CrInst_MISSILE,                156, LONG_MAX},
-    {CrInst_FIREBALL,               156, LONG_MAX},
-    {CrInst_FIRE_ARROW,             156, LONG_MAX},
-    {CrInst_WIND,                     0, LONG_MAX},
-    {CrInst_WORD_OF_POWER,            0, 284},
-    {CrInst_FART,                     0, 284},
-    {CrInst_FLAME_BREATH,           156, 284},
-    {CrInst_SWING_WEAPON_SWORD,       0, 284},
-    {CrInst_SWING_WEAPON_FIST,        0, 284},
-    {CrInst_NULL,                     0,   0},
-};
-
 const signed char pos_calcs[][2] = {
     {1, 0}, {1, 1}, {1, 1}, {0, 1},
     {0, 1},{-1, 1},{-1, 1},{-1, 0},
@@ -1597,13 +1571,14 @@ CrAttackType check_for_possible_combat_with_enemy_object_within_distance(struct 
 
 CrAttackType check_for_possible_combat_with_enemy_creature_within_distance(struct Thing *fightng, struct Thing **outenmtng, long maxdist)
 {
-    struct Thing* thing = get_highest_score_enemy_creature_within_distance_possible_to_attack_by(fightng, maxdist);
+    long move_on_ground = 0;
+    struct Thing* thing = get_highest_score_enemy_creature_within_distance_possible_to_attack_by(fightng, maxdist, move_on_ground);
     if (!thing_is_invalid(thing))
     {
         SYNCDBG(9,"Best enemy for %s index %d is %s index %d",thing_model_name(fightng),(int)fightng->index,thing_model_name(thing),(int)thing->index);
         // When counting distance, take size of creatures into account
         long distance = get_combat_distance(fightng, thing);
-        CrAttackType attack_type = creature_can_have_combat_with_creature(fightng, thing, distance, 1, 0);
+        CrAttackType attack_type = creature_can_have_combat_with_creature(fightng, thing, distance, move_on_ground, 0);
         if (attack_type > AttckT_Unset) {
             *outenmtng = thing;
             return attack_type;
@@ -1860,7 +1835,7 @@ CrInstance get_self_spell_casting(const struct Thing *thing)
             INSTANCE_RET_IF_AVAIL(thing, CrInst_WIND);
         }
 
-        for (short i = 0; i < CREATURE_INSTANCES_COUNT; i++)
+        for (short i = 0; i < gameadd.crtr_conf.instances_count; i++)
         {
             if (i == CrInst_HEAL)
                 continue;
@@ -1940,28 +1915,31 @@ CrInstance get_best_quick_range_instance_to_use(const struct Thing *thing)
  * @param atktype The required properties of the attack
  * @return
  */
-CrInstance get_best_combat_weapon_instance_to_use(const struct Thing *thing, const struct CombatWeapon * cweapons, long dist, int atktype)
+CrInstance get_best_combat_weapon_instance_to_use(const struct Thing *thing, long dist, int atktype)
 {
     CrInstance inst_id = CrInst_NULL;
     struct InstanceInfo* inst_inf;
-    for (const struct CombatWeapon* cweapon = cweapons; cweapon->inst_id != CrInst_NULL; cweapon++)
+    for (short i = 0; i < gameadd.crtr_conf.instances_count; i++)
     {
-        inst_inf = creature_instance_info_get(cweapon->inst_id);
-        if (creature_instance_is_available(thing, cweapon->inst_id))
+        inst_inf = creature_instance_info_get(i);
+        if (inst_inf->range_min < 0) //instance is not a combat weapon
+            continue;
+
+        if (creature_instance_is_available(thing, i))
         {
             if ( ( ((inst_inf->flags & (InstPF_RangedAttack | InstPF_RangedDebuff | InstPF_MeleeAttack)) && (atktype & InstPF_RangedAttack)) ||
                    ((inst_inf->flags & (InstPF_MeleeAttack | InstPF_RangedDebuff))  && (atktype & InstPF_MeleeAttack)) ) &&
                  (!(inst_inf->flags & InstPF_Dangerous)   || !(atktype & InstPF_Dangerous)) &&
                  ((inst_inf->flags & InstPF_Destructive)  >=  (atktype & InstPF_Destructive)) )
             {
-                if (creature_instance_has_reset(thing, cweapon->inst_id))
+                if (creature_instance_has_reset(thing, i))
                 {
-                    if ((cweapon->range_min <= dist) && (cweapon->range_max >= dist)) {
-                        return cweapon->inst_id;
+                    if ((inst_inf->range_min <= dist) && (inst_inf->range_max >= dist)) {
+                        return i;
                     }
                 }
                 if (inst_id == CrInst_NULL) {
-                    inst_id = -(cweapon->inst_id);
+                    inst_id = -i;
                 }
             }
         }
@@ -1969,14 +1947,17 @@ CrInstance get_best_combat_weapon_instance_to_use(const struct Thing *thing, con
     return inst_id;
 }
 
-CrInstance get_best_combat_weapon_instance_to_use_versus_trap(const struct Thing* thing, const struct CombatWeapon* cweapons, long dist, int atktype)
+CrInstance get_best_combat_weapon_instance_to_use_versus_trap(const struct Thing* thing, long dist, int atktype)
 {
     CrInstance inst_id = CrInst_NULL;
     struct InstanceInfo* inst_inf;
-    for (const struct CombatWeapon* cweapon = cweapons; cweapon->inst_id != CrInst_NULL; cweapon++)
+    for (short i = 0; i < gameadd.crtr_conf.instances_count; i++)
     {
-        inst_inf = creature_instance_info_get(cweapon->inst_id);
-        if (creature_instance_is_available(thing, cweapon->inst_id))
+        inst_inf = creature_instance_info_get(i);
+        if (inst_inf->range_min < 0) //instance is not a combat weapon
+            continue;
+
+        if (creature_instance_is_available(thing, i))
         {
             if ((((inst_inf->flags & (InstPF_RangedAttack | InstPF_RangedDebuff | InstPF_MeleeAttack)) && (atktype & InstPF_RangedAttack)) ||
                 ((inst_inf->flags & (InstPF_MeleeAttack | InstPF_RangedDebuff)) && (atktype & InstPF_MeleeAttack))) &&
@@ -1984,14 +1965,14 @@ CrInstance get_best_combat_weapon_instance_to_use_versus_trap(const struct Thing
                 ((inst_inf->flags & InstPF_Destructive) >= (atktype & InstPF_Destructive)) &&
                 (inst_inf->flags & InstPF_Disarming) )
             {
-                if (creature_instance_has_reset(thing, cweapon->inst_id))
+                if (creature_instance_has_reset(thing, i))
                 {
-                    if ((cweapon->range_min <= dist) && (cweapon->range_max >= dist)) {
-                        return cweapon->inst_id;
+                    if ((inst_inf->range_min <= dist) && (inst_inf->range_max >= dist)) {
+                        return i;
                     }
                 }
                 if (inst_id == CrInst_NULL) {
-                    inst_id = -(cweapon->inst_id);
+                    inst_id = -i;
                 }
             }
         }
@@ -2005,7 +1986,7 @@ CrInstance get_best_ranged_offensive_weapon(const struct Thing *thing, long dist
     if (inst_id == CrInst_NULL)
     {
         int atktyp = InstPF_RangedAttack;
-        inst_id = get_best_combat_weapon_instance_to_use(thing, offensive_weapon, dist, atktyp);
+        inst_id = get_best_combat_weapon_instance_to_use(thing, dist, atktyp);
     }
     return inst_id;
 }
@@ -2016,7 +1997,7 @@ CrInstance get_best_melee_offensive_weapon(const struct Thing *thing, long dist)
     if (inst_id == CrInst_NULL)
     {
         int atktyp = InstPF_MeleeAttack;
-        inst_id = get_best_combat_weapon_instance_to_use(thing, offensive_weapon, dist, atktyp);
+        inst_id = get_best_combat_weapon_instance_to_use(thing, dist, atktyp);
     }
     return inst_id;
 }
@@ -2034,20 +2015,20 @@ long get_best_melee_object_offensive_weapon(const struct Thing *thing, long dist
         trapst = get_trap_model_stats(objtng->model);
         if (trapst->unstable == 1) //If it's gonna trigger when hurt, better try to disarm it instead
         {
-            inst_id = get_best_combat_weapon_instance_to_use_versus_trap(thing, offensive_weapon, dist, atktyp);
+            inst_id = get_best_combat_weapon_instance_to_use_versus_trap(thing, dist, atktyp);
         }
         if (inst_id == CrInst_NULL)
         {
-            inst_id = get_best_combat_weapon_instance_to_use(thing, offensive_weapon, dist, atktyp);
+            inst_id = get_best_combat_weapon_instance_to_use(thing, dist, atktyp);
         }
     } else
     if (thing_is_destructible_trap(objtng) == 0) //can only be destroyed be destroyed by disarming weapons.
     {
-       inst_id = get_best_combat_weapon_instance_to_use_versus_trap(thing, offensive_weapon, dist, atktyp);
+       inst_id = get_best_combat_weapon_instance_to_use_versus_trap(thing,  dist, atktyp);
     }
     else
     {
-        inst_id = get_best_combat_weapon_instance_to_use(thing, offensive_weapon, dist, atktyp);
+        inst_id = get_best_combat_weapon_instance_to_use(thing, dist, atktyp);
     }
     return inst_id;
 }
@@ -2065,21 +2046,21 @@ long get_best_ranged_object_offensive_weapon(const struct Thing *thing, long dis
         trapst = get_trap_model_stats(objtng->model);
         if (trapst->unstable == 1) //If it's gonna trigger when hurt, better try to disarm it instead
         {
-            inst_id = get_best_combat_weapon_instance_to_use_versus_trap(thing, offensive_weapon, dist, atktyp);
+            inst_id = get_best_combat_weapon_instance_to_use_versus_trap(thing, dist, atktyp);
         }
         if (inst_id == CrInst_NULL)
         {
-            inst_id = get_best_combat_weapon_instance_to_use(thing, offensive_weapon, dist, atktyp);
+            inst_id = get_best_combat_weapon_instance_to_use(thing, dist, atktyp);
         }
     }
     else
     if (thing_is_destructible_trap(objtng) == 0) //can only be destroyed be destroyed by disarming weapons.
     {
-        inst_id = get_best_combat_weapon_instance_to_use_versus_trap(thing, offensive_weapon, dist, atktyp);
+        inst_id = get_best_combat_weapon_instance_to_use_versus_trap(thing, dist, atktyp);
     }
     else
     {
-        inst_id = get_best_combat_weapon_instance_to_use(thing, offensive_weapon, dist, atktyp);
+        inst_id = get_best_combat_weapon_instance_to_use(thing, dist, atktyp);
     }
     return inst_id;
 }
@@ -3364,14 +3345,14 @@ long project_creature_attack_target_damage(const struct Thing *firing, const str
     long dist = get_combat_distance(firing, target);
     struct CreatureStats* crstat = creature_stats_get_from_thing(firing);
     if (crstat->attack_preference == AttckT_Ranged) {
-        inst_id = get_best_combat_weapon_instance_to_use(firing, offensive_weapon, dist,2);
+        inst_id = get_best_combat_weapon_instance_to_use(firing, dist,2);
         if (inst_id == CrInst_NULL) {
-            inst_id = get_best_combat_weapon_instance_to_use(firing, offensive_weapon, dist,4);
+            inst_id = get_best_combat_weapon_instance_to_use(firing, dist,4);
         }
     } else {
-        inst_id = get_best_combat_weapon_instance_to_use(firing, offensive_weapon, dist,4);
+        inst_id = get_best_combat_weapon_instance_to_use(firing, dist,4);
         if (inst_id == CrInst_NULL) {
-            inst_id = get_best_combat_weapon_instance_to_use(firing, offensive_weapon, dist,2);
+            inst_id = get_best_combat_weapon_instance_to_use(firing, dist,2);
         }
     }
     if (inst_id == CrInst_NULL) {

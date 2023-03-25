@@ -1690,8 +1690,9 @@ void maintain_instance(struct GuiButton *gbtn)
     }
     int curbtn_avail_pos = (long)gbtn->content;
     int curbtn_inst_id = creature_instance_get_available_id_for_pos(ctrltng, curbtn_avail_pos);
-    gbtn->sprite_idx = instance_button_init[curbtn_inst_id].symbol_spridx;
-    gbtn->tooltip_stridx = instance_button_init[curbtn_inst_id].tooltip_stridx;
+    struct InstanceInfo* inst_inf = creature_instance_info_get(curbtn_inst_id);
+    gbtn->sprite_idx = inst_inf->symbol_spridx;
+    gbtn->tooltip_stridx = inst_inf->tooltip_stridx;
     if (creature_instance_is_available(ctrltng, curbtn_inst_id))
     {
         gbtn->btype_value &= LbBFeF_IntValueMask;

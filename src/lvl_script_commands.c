@@ -792,7 +792,7 @@ short script_transfer_creature(long plyr_idx, long crmodel, long criteria, int c
             dungeonadd->creatures_transferred++;
             remove_thing_from_power_hand_list(thing, plyr_idx);
             struct SpecialConfigStats* specst = get_special_model_stats(SpcKind_Resurrect);
-            create_special_used_effect(&thing->mappos, plyr_idx, specst->effect_id);
+            create_used_effect_or_element(&thing->mappos, specst->effect_id, plyr_idx);
             kill_creature(thing, INVALID_THING, -1, CrDed_NoEffects | CrDed_NotReallyDying);
         }
     }
@@ -1588,15 +1588,7 @@ static void create_effect_process(struct ScriptContext *context)
     {
         pos.z.val += 128;
     }
-    struct Thing* efftng;
-    if (context->value->chars[0] >= 0)
-    {
-        efftng = create_effect(&pos, context->value->bytes[0], game.neutral_player_num);
-    }
-    else
-    {
-        efftng = create_effect_element(&pos, ~(context->value->bytes[0]) + 1, game.neutral_player_num);
-    }
+    struct Thing* efftng = create_used_effect_or_element(&pos, context->value->bytes[0], game.neutral_player_num);
     if (!thing_is_invalid(efftng))
     {
         if (thing_in_wall_at(efftng, &efftng->mappos))

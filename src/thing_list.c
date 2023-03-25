@@ -324,7 +324,8 @@ long near_thing_pos_thing_filter_is_enemy_object_which_can_be_attacked_by_creatu
                 if (players_are_enemies(creatng->owner, objtng->owner))
                 {
                     MapCoordDelta distance = get_2d_distance(&creatng->mappos, &objtng->mappos);
-                    if (thing_is_dungeon_heart(objtng) && creature_can_have_combat_with_creature(creatng, (struct Thing*)objtng, distance,1,0)) //Just dungeon hearts now. Todo: expand with other types of destructible objects
+                    //Just dungeon hearts now. Todo: expand with other types of destructible objects
+                    if (thing_is_dungeon_heart(objtng) && creature_can_have_combat_with_creature(creatng, (struct Thing*)objtng, distance,1,0) && !(get_creature_model_flags(creatng) & CMF_NoEnmHeartAttack))
                     {
                         return LONG_MAX - distance;
                     }
@@ -1792,7 +1793,7 @@ struct Thing* get_nearest_enemy_object_possible_to_attack_by(struct Thing* creat
     return get_nth_thing_of_class_with_filter(filter, &param, 0);
 }
 
-struct Thing *get_highest_score_enemy_creature_within_distance_possible_to_attack_by(struct Thing *creatng, MapCoordDelta dist)
+struct Thing *get_highest_score_enemy_creature_within_distance_possible_to_attack_by(struct Thing *creatng, MapCoordDelta dist, long move_on_ground)
 {
     SYNCDBG(19,"Starting");
     Thing_Maximizer_Filter filter = highest_score_thing_filter_is_enemy_within_distance_which_can_be_attacked_by_creature;
@@ -1802,7 +1803,7 @@ struct Thing *get_highest_score_enemy_creature_within_distance_possible_to_attac
     param.plyr_idx = -1;
     param.num1 = creatng->index;
     param.num2 = dist;
-    param.num3 = 0;
+    param.num3 = move_on_ground;
     return get_nth_thing_of_class_with_filter(filter, &param, 0);
 }
 
