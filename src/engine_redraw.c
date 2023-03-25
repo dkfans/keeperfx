@@ -103,8 +103,8 @@ static void draw_creature_view_icons(struct Thing* creatng)
     {
         if (creature_affected_by_spell(creatng, Spell))
         {
-            struct SpellInfo* spinfo = get_magic_info(Spell);
-            long spridx = spinfo->medsym_sprite_idx;
+            struct SpellConfig* spconf = get_spell_config(Spell);
+            long spridx = spconf->medsym_sprite_idx;
             if (Spell == SplK_Invisibility)
             {
                 if (cctrl->force_visible & 2)
@@ -180,7 +180,8 @@ static void draw_creature_view_icons(struct Thing* creatng)
         if (!creature_instance_is_available(creatng, cctrl->active_instance_id))
         {
             x = MyScreenWidth - (scale_value_by_horizontal_resolution(148) / 4);
-            draw_gui_panel_sprite_left(x, y, ps_units_per_px, instance_button_init[cctrl->active_instance_id % CREATURE_INSTANCES_COUNT].symbol_spridx);
+            struct InstanceInfo* inst_inf = creature_instance_info_get(cctrl->active_instance_id % gameadd.crtr_conf.instances_count);
+            draw_gui_panel_sprite_left(x, y, ps_units_per_px, inst_inf->symbol_spridx);
         }
     }
 }
