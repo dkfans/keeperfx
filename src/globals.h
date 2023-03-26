@@ -301,6 +301,7 @@ struct Coord2d {
       struct {
         unsigned char pos;
         unsigned short num;
+        unsigned char unused;
         } stl;
     } x;
     union {
@@ -308,6 +309,7 @@ struct Coord2d {
       struct {
         unsigned char pos;
         unsigned short num;
+        unsigned char unused;
         } stl;
     } y;
 };
@@ -315,10 +317,11 @@ struct Coord2d {
 
 struct Coord3d {
     union {
-      long val;
+       long val;
       struct {
         unsigned char pos;
         unsigned short num;
+        unsigned char unused;
         } stl;
     } x;
     union {
@@ -326,6 +329,7 @@ struct Coord3d {
       struct {
         unsigned char pos;
         unsigned short num;
+        unsigned char unused;
         } stl;
     } y;
     union {
@@ -333,6 +337,7 @@ struct Coord3d {
       struct {
         unsigned char pos;
         unsigned short num;
+        unsigned char unused;
         } stl;
     } z;
 };
