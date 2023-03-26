@@ -317,7 +317,7 @@ struct Coord2d {
 
 struct Coord3d {
     union {
-       long val;
+      long val;
       struct {
         unsigned char pos;
         unsigned short num;
