@@ -1069,46 +1069,6 @@ TbBool creature_find_safe_position_to_move_within_slab(struct Coord3d *pos, cons
     return false;
 }
 
-TbBool creature_find_safe_position_to_move_within_slab_with_radius(struct Coord3d* pos, const struct Thing* thing, MapSlabCoord slb_x, MapSlabCoord slb_y, MapSubtlCoord start_stl)
-{
-    SYNCDBG(7, "Finding at (%d,%d)", (int)slb_x, (int)slb_y);
-    MapSubtlCoord stl_x = thing->mappos.x.stl.num;
-    MapSubtlCoord stl_y = thing->mappos.y.stl.num;
-    MapSubtlCoord base_x = slab_subtile(slb_x, 0);
-    MapSubtlCoord base_y = slab_subtile(slb_y, 0);
-    long m = start_stl;
-    for (long i = 0; i < (STL_PER_SLB * STL_PER_SLB); i++)
-    {
-        MapSubtlCoord x = base_x + (m % STL_PER_SLB);
-        MapSubtlCoord y = base_y + (m / STL_PER_SLB);
-        if ((x != stl_x) || (y != stl_y))
-        {
-            struct Map* mapblk = get_map_block_at(x, y);
-            if ((mapblk->flags & SlbAtFlg_Blocking) == 0)
-            {
-                if (!terrain_toxic_for_creature_at_position(thing, x, y))
-                {
-                    int block_radius = subtile_coord(thing_nav_block_sizexy(thing), 0) / 2;
-                    struct Coord3d locpos;
-                    locpos.x.val = x;
-                    locpos.y.val = y;
-                    locpos.z.val = get_thing_height_at_with_radius(thing, pos, block_radius);
-
-                    if (!thing_in_wall_at_with_radius(thing, &locpos, block_radius))
-                    {
-                        pos->x.val = subtile_coord_center(x);
-                        pos->y.val = subtile_coord_center(y);
-                        pos->z.val = locpos.z.val;
-                        return true;
-                    }
-                }
-            }
-        }
-        m = (m + 1) % (STL_PER_SLB * STL_PER_SLB);
-    }
-    return false;
-}
-
 /**
  * Finds any position for creature on one of subtiles of given slab.
  * To be used when finding correct, safe position fails.
@@ -1179,9 +1139,16 @@ TbBool fill_moveable_small_around_slabs_array_in_room(TbBool *avail, const struc
 
 TbBool set_position_at_slab_for_thing(struct Coord3d *pos, const struct Thing *thing, MapSlabCoord slb_x, MapSlabCoord slb_y, long start_stl)
 {
+    long block_radius = subtile_coord(thing_nav_block_sizexy(thing), 0) / 2;
     struct Coord3d locpos;
-    if (creature_find_safe_position_to_move_within_slab_with_radius(&locpos, thing, slb_x, slb_y, start_stl))
+    if (creature_find_safe_position_to_move_within_slab(&locpos, thing, slb_x, slb_y, start_stl))
     {
+        if (thing_in_wall_at_with_radius(thing, &locpos, block_radius))
+        {
+            SYNCDBG(8,"The %s index %d can't fit to safe position (%d,%d)", thing_model_name(thing),
+                (int)thing->index, (int)locpos.x.stl.num, (int)locpos.y.stl.num);
+            return false;
+        }
         pos->x.val = locpos.x.val;
         pos->y.val = locpos.y.val;
         pos->z.val = locpos.z.val;
