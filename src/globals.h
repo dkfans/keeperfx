@@ -179,11 +179,6 @@ extern "C" {
   #define EVM_MAP_EVENT(event_name, plyr_idx, x, y, opt)
 #endif
 
-#define MAX_TILES_X 170
-#define MAX_TILES_Y 170
-#define MAX_SUBTILES_X 511
-#define MAX_SUBTILES_Y 511
-
 #pragma pack(1)
 
 /** Screen coordinate in scale of the game (resolution independent). */
@@ -261,7 +256,7 @@ typedef short MapSlabCoord;
 /** Distance between map coordinates in slabs.  */
 typedef short MapSlabDelta;
 /** Map subtile 2D coordinates, coded into one number. */
-typedef long SubtlCodedCoords;
+typedef unsigned long SubtlCodedCoords;
 /** Map slab 2D coordinates, coded into one number. */
 typedef unsigned long SlabCodedCoords;
 /** Index in the columns array. */
@@ -297,17 +292,17 @@ typedef unsigned char NaviRouteFlags;
 
 struct Coord2d {
     union {
-      unsigned long val;
+      unsigned short val;
       struct {
         unsigned char pos;
-        unsigned short num;
+        unsigned char num;
         } stl;
     } x;
     union {
-      unsigned long val;
+      unsigned short val;
       struct {
         unsigned char pos;
-        unsigned short num;
+        unsigned char num;
         } stl;
     } y;
 };
@@ -315,24 +310,24 @@ struct Coord2d {
 
 struct Coord3d {
     union {
-      long val;
+      unsigned short val;
       struct {
         unsigned char pos;
-        unsigned short num;
+        unsigned char num;
         } stl;
     } x;
     union {
-      long val;
+      unsigned short val;
       struct {
         unsigned char pos;
-        unsigned short num;
+        unsigned char num;
         } stl;
     } y;
     union {
-      long val;
+      unsigned short val;
       struct {
         unsigned char pos;
-        unsigned short num;
+        unsigned char num;
         } stl;
     } z;
 };
