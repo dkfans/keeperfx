@@ -2776,8 +2776,7 @@ msgid ""
 "Impenetrable Rock: Your Imps cannot dig through this, the only solution is "
 "to go round. It is visible even if far from your territory."
 msgstr ""
-"Ondoordringbare Rotsen: Niet doorheen te graven, er omheen is de enige optie. "
-"Het is op grote afstand zichtbaar."
+"Harde rots: Je Dondersteentjes kunnen hier niet doorheen graven."
 
 #: guitext:325
 #, fuzzy
