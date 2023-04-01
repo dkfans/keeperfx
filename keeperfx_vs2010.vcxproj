@@ -34,7 +34,6 @@
     <ClCompile Include="src\bflib_filelst.c" />
     <ClCompile Include="src\bflib_fmvids.c" />
     <ClCompile Include="src\bflib_guibtns.c" />
-    <ClCompile Include="src\bflib_heapmgr.c" />
     <ClCompile Include="src\bflib_inputctrl.cpp" />
     <ClCompile Include="src\bflib_keybrd.c" />
     <ClCompile Include="src\bflib_main.cpp" />
@@ -276,7 +275,6 @@
     <ClInclude Include="src\bflib_filelst.h" />
     <ClInclude Include="src\bflib_fmvids.h" />
     <ClInclude Include="src\bflib_guibtns.h" />
-    <ClInclude Include="src\bflib_heapmgr.h" />
     <ClInclude Include="src\bflib_inputctrl.h" />
     <ClInclude Include="src\bflib_keybrd.h" />
     <ClInclude Include="src\bflib_main.h" />
