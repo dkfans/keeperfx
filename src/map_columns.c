@@ -195,7 +195,7 @@ TbBool map_pos_solid_at_ceiling(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
     return get_map_ceiling_filled_subtiles(mapblk) > 0;
 }
 
-long get_top_cube_at_pos(SubtlCodedCoords stl_num)
+long get_top_cube_at_pos(long stl_num)
 {
     struct Column *col;
     struct Map *mapblk;
