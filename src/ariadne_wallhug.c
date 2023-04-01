@@ -194,11 +194,11 @@ static int hug_round_sub(struct Thing *creatng, MapSubtlCoord *pos1_stl_x, MapSu
     int v20 = max(abs(*pos1_stl_x - pos2_stl_x), abs(*pos1_stl_y - pos2_stl_y));
     if ((int)abs(v20) <= *delta && hug_can_move_on(
                                        creatng,
-                                       3 * small_around[quadrant].delta_x + *pos1_stl_x,
-                                       3 * small_around[quadrant].delta_y + *pos1_stl_y))
+                                       3 * small_around[(unsigned short)quadrant].delta_x + *pos1_stl_x,
+                                       3 * small_around[(unsigned short)quadrant].delta_y + *pos1_stl_y))
     {
-        *pos1_stl_x += 3 * small_around[quadrant].delta_x;
-        *pos1_stl_y += 3 * small_around[quadrant].delta_y;
+        *pos1_stl_x += 3 * small_around[(unsigned short)quadrant].delta_x;
+        *pos1_stl_y += 3 * small_around[(unsigned short)quadrant].delta_y;
 
         *delta = max(abs(*pos1_stl_x - pos2_stl_x), abs(*pos1_stl_y - pos2_stl_y));
 
@@ -219,7 +219,7 @@ static int hug_round_sub(struct Thing *creatng, MapSubtlCoord *pos1_stl_x, MapSu
             int v41 = v24;
             if (j >= 4u)
               break;
-            int v25 = v24;
+            int v25 = (unsigned short)v24;
             if (hug_can_move_on(
                     creatng,
                     3 * small_around[v25].delta_x + *pos1_stl_x,
@@ -762,7 +762,7 @@ static int get_starting_angle_and_side_of_hug_sub2(
         }
         else
         {
-            pos.x.stl.num = (creatng->mappos.x.val - nav_radius) >> 8;
+            pos.x.stl.num = (unsigned short)(creatng->mappos.x.val - nav_radius) >> 8;
             pos.x.stl.pos = 1;
             pos.x.val += nav_radius;
         }
@@ -772,13 +772,13 @@ static int get_starting_angle_and_side_of_hug_sub2(
     {
         if (arg_pos->y.val >= creatng->mappos.y.val)
         {
-            pos.y.stl.num = (nav_radius + creatng->mappos.y.val) >> 8;
+            pos.y.stl.num = (unsigned short)(nav_radius + creatng->mappos.y.val) >> 8;
             pos.y.stl.pos = -1;
             pos.y.val -= nav_radius;
         }
         else
         {
-            pos.y.stl.num = (creatng->mappos.y.val - nav_radius) >> 8;
+            pos.y.stl.num = (unsigned short)(creatng->mappos.y.val - nav_radius) >> 8;
             pos.y.stl.pos = 1;
             pos.y.val += nav_radius;
         }
@@ -896,13 +896,13 @@ static int get_starting_angle_and_side_of_hug_sub2(
                 {
                     if (v47.x.val >= creatng->mappos.x.val)
                     {
-                        pos.x.stl.num = (nav_radius + creatng->mappos.x.val) >> 8;
+                        pos.x.stl.num = (unsigned short)(nav_radius + creatng->mappos.x.val) >> 8;
                         pos.x.stl.pos = -1;
                         pos.x.val -= nav_radius;
                     }
                     else
                     {
-                        pos.x.stl.num = (creatng->mappos.x.val - nav_radius) >> 8;
+                        pos.x.stl.num = (unsigned short)(creatng->mappos.x.val - nav_radius) >> 8;
                         pos.x.stl.pos = 1;
                         pos.x.val += nav_radius;
                     }
@@ -912,13 +912,13 @@ static int get_starting_angle_and_side_of_hug_sub2(
                 {
                     if (v47.y.val >= creatng->mappos.y.val)
                     {
-                        pos.y.stl.num = (nav_radius + creatng->mappos.y.val) >> 8;
+                        pos.y.stl.num = (unsigned short)(nav_radius + creatng->mappos.y.val) >> 8;
                         pos.y.stl.pos = -1;
                         pos.y.val -= nav_radius;
                     }
                     else
                     {
-                        pos.y.stl.num = (creatng->mappos.y.val - nav_radius) >> 8;
+                        pos.y.stl.num = (unsigned short)(creatng->mappos.y.val - nav_radius) >> 8;
                         pos.y.stl.pos = 1;
                         pos.y.val += nav_radius;
                     }
@@ -928,25 +928,25 @@ static int get_starting_angle_and_side_of_hug_sub2(
                 {
                     if (v47.x.val >= creatng->mappos.x.val)
                     {
-                        pos.x.stl.num = (nav_radius + creatng->mappos.x.val) >> 8;
+                        pos.x.stl.num = (unsigned short)(nav_radius + creatng->mappos.x.val) >> 8;
                         pos.x.stl.pos = -1;
                         pos.x.val -= nav_radius;
                     }
                     else
                     {
-                        pos.x.stl.num = (creatng->mappos.x.val - nav_radius) >> 8;
+                        pos.x.stl.num = (unsigned short)(creatng->mappos.x.val - nav_radius) >> 8;
                         pos.x.stl.pos = 1;
                         pos.x.val += nav_radius;
                     }
                     if (v47.y.val >= (unsigned int)creatng->mappos.y.val)
                     {
-                        pos.y.stl.num = (nav_radius + creatng->mappos.y.val) >> 8;
+                        pos.y.stl.num = (unsigned short)(nav_radius + creatng->mappos.y.val) >> 8;
                         pos.y.stl.pos = -1;
                         pos.y.val -= nav_radius;
                     }
                     else
                     {
-                        pos.y.stl.num = (creatng->mappos.y.val - nav_radius) >> 8;
+                        pos.y.stl.num = (unsigned short)(creatng->mappos.y.val - nav_radius) >> 8;
                         pos.y.stl.pos = 1;
                         pos.y.val += nav_radius;
                     }
@@ -1024,13 +1024,13 @@ static int get_starting_angle_and_side_of_hug_sub1(
     {
         if (pos->x.val >= creatng->mappos.x.val)
         {
-            pos_2.x.stl.num = (nav_radius + creatng->mappos.x.val) >> 8;
+            pos_2.x.stl.num = (unsigned short)(nav_radius + creatng->mappos.x.val) >> 8;
             pos_2.x.stl.pos = -1;
             pos_2.x.val -= nav_radius;
         }
         else
         {
-            pos_2.x.stl.num = (creatng->mappos.x.val - nav_radius) >> 8;
+            pos_2.x.stl.num = (unsigned short)(creatng->mappos.x.val - nav_radius) >> 8;
             pos_2.x.stl.pos = 1;
             pos_2.x.val += nav_radius;
         }
@@ -1040,13 +1040,13 @@ static int get_starting_angle_and_side_of_hug_sub1(
     {
         if (pos->y.val >= creatng->mappos.y.val)
         {
-            pos_2.y.stl.num = (nav_radius + creatng->mappos.y.val) >> 8;
+            pos_2.y.stl.num = (unsigned short)(nav_radius + creatng->mappos.y.val) >> 8;
             pos_2.y.stl.pos = -1;
             pos_2.y.val -= nav_radius;
         }
         else
         {
-            pos_2.y.stl.num = (creatng->mappos.y.val - nav_radius) >> 8;
+            pos_2.y.stl.num = (unsigned short)(creatng->mappos.y.val - nav_radius) >> 8;
             pos_2.y.stl.pos = 1;
             pos_2.y.val += nav_radius;
         }
@@ -1056,25 +1056,25 @@ static int get_starting_angle_and_side_of_hug_sub1(
     {
         if (pos->x.val >= creatng->mappos.x.val)
         {
-            pos_2.x.stl.num = (nav_radius + creatng->mappos.x.val) >> 8;
+            pos_2.x.stl.num = (unsigned short)(nav_radius + creatng->mappos.x.val) >> 8;
             pos_2.x.stl.pos = -1;
             pos_2.x.val -= nav_radius;
         }
         else
         {
-            pos_2.x.stl.num = (creatng->mappos.x.val - nav_radius) >> 8;
+            pos_2.x.stl.num = (unsigned short)(creatng->mappos.x.val - nav_radius) >> 8;
             pos_2.x.stl.pos = 1;
             pos_2.x.val += nav_radius;
         }
         if (pos->y.val >= creatng->mappos.y.val)
         {
-            pos_2.y.stl.num = (nav_radius + creatng->mappos.y.val) >> 8;
+            pos_2.y.stl.num = (unsigned short)(nav_radius + creatng->mappos.y.val) >> 8;
             pos_2.y.stl.pos = -1;
             pos_2.y.val -= nav_radius;
         }
         else
         {
-            pos_2.y.stl.num = (creatng->mappos.y.val - nav_radius) >> 8;
+            pos_2.y.stl.num = (unsigned short)(creatng->mappos.y.val - nav_radius) >> 8;
             pos_2.y.stl.pos = 1;
             pos_2.y.val += nav_radius;
         }
@@ -1129,7 +1129,7 @@ static signed char get_starting_angle_and_side_of_hug(
     char v44_2;
     int v45;
     struct Coord3d pos_46;
-    struct Navigation v49;
+    char v49[48];
 
 
     struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
@@ -1139,7 +1139,7 @@ static signed char get_starting_angle_and_side_of_hug(
     pos_43.x.stl.pos = creatng->mappos.y.val - (uint16_t)pos->y.val <= 0;
     v38 = (uint16_t)creatng->mappos.x.val - (uint16_t)pos->x.val <= 0;
     v9 = creatng->mappos.y.val - navi->pos_final.y.val;
-    v49.navstate = v9 <= 0;
+    v49[0] = v9 <= 0;
     v10 = (uint16_t)creatng->mappos.x.val - navi->pos_final.x.val;
     pos_46.x.stl.pos = v10 <= 0;
     v44_2 = (int)abs(v10) < (int)abs(v9);
@@ -1147,10 +1147,10 @@ static signed char get_starting_angle_and_side_of_hug(
     if ((hugging_blocked_flags & 1) != 0)
     {
         v12 = 2 * v38;
-        v13 = v12 + (uint8_t)v49.navstate;
+        v13 = v12 + (uint8_t)v49[0];
         angle_39 = blocked_x_hug_start[0][v13].angle;
         v34 = byte_5111FA[3 * v13];
-        v14 = v12 + (v49.navstate == 0);
+        v14 = v12 + (v49[0] == 0);
         angle_37 = blocked_x_hug_start[0][v14].angle;
         v15 = byte_5111FA[3 * v14];
     }
@@ -1185,7 +1185,7 @@ static signed char get_starting_angle_and_side_of_hug(
     pos_46.y.val = creatng->mappos.y.val;
     pos_46.z.val = creatng->mappos.z.val;
     move_angle_xy = creatng->move_angle_xy;
-    memcpy(&v49, navi, sizeof(struct Navigation));
+    memcpy(v49, navi, sizeof(struct Navigation));
     creatng->move_angle_xy = angle_39;
     navi->side = v34;
     navi->dist_to_final_pos = get_2d_distance_squared(&creatng->mappos, &navi->pos_final);
@@ -1298,7 +1298,7 @@ LABEL_40:
     creatng->mappos.y.val = pos_46.y.val;
     creatng->mappos.z.val = pos_46.z.val;
     creatng->move_angle_xy = move_angle_xy;
-    memcpy(navi, &v49, sizeof(struct Navigation));
+    memcpy(navi, v49, sizeof(struct Navigation));
     v31 = get_starting_angle_and_side_of_hug_sub2(creatng, navi, pos, slab_flag, angle_37, v35, max_speed, 255, crt_owner_bit);
     if (v42 >= 0)
     {
@@ -1487,11 +1487,11 @@ static TbBool find_approach_position_to_subtile(const struct Coord3d *srcpos, Ma
     return (min_dist < LONG_MAX);
 }
 
-static SubtlCodedCoords get_map_index_of_first_block_thing_colliding_with_travelling_to(struct Thing *creatng, struct Coord3d *startpos, struct Coord3d *endpos, long mapblk_flags, unsigned char slabmap_flags)
+static long get_map_index_of_first_block_thing_colliding_with_travelling_to(struct Thing *creatng, struct Coord3d *startpos, struct Coord3d *endpos, long mapblk_flags, unsigned char slabmap_flags)
 {
-    SubtlCodedCoords stl_num;
+    long stl_num;
     struct Coord3d pos;
-    SubtlCodedCoords return_stl_num = 0;
+    int return_stl_num = 0;
 
     struct Coord3d creature_pos = *startpos;
 
@@ -1659,8 +1659,8 @@ static TbBool navigation_push_towards_target(struct Navigation *navi, struct Thi
     {
         SubtlCodedCoords stl_num = get_map_index_of_first_block_thing_colliding_with_travelling_to(creatng, &creatng->mappos, &navi->pos_next, 40, 0);
         navi->first_colliding_block = stl_num;
-        MapSubtlCoord stl_x = slab_subtile_center(subtile_slab(stl_num_decode_x(stl_num)));
-        MapSubtlCoord stl_y = slab_subtile_center(subtile_slab(stl_num_decode_y(stl_num)));
+        MapSubtlCoord stl_x = slab_subtile_center(subtile_slab_fast(stl_num_decode_x(stl_num)));
+        MapSubtlCoord stl_y = slab_subtile_center(subtile_slab_fast(stl_num_decode_y(stl_num)));
         find_approach_position_to_subtile(&creatng->mappos, stl_x, stl_y, nav_radius + 385, &navi->pos_next);
         navi->angle = get_angle_xy_to(&creatng->mappos, &navi->pos_next);
         navi->navstate = 3;
@@ -1756,8 +1756,8 @@ long get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *cr
                 stl_num = get_map_index_of_first_block_thing_colliding_with_travelling_to(creatng, &creatng->mappos, &navi->pos_next, SlbAtFlg_Filled|SlbAtFlg_Digable, 0);
                 navi->first_colliding_block = stl_num;
                 nav_radius = thing_nav_sizexy(creatng) / 2;
-                stl_x = slab_subtile_center(subtile_slab(stl_num_decode_x(stl_num)));
-                stl_y = slab_subtile_center(subtile_slab(stl_num_decode_y(stl_num)));
+                stl_x = slab_subtile_center(subtile_slab_fast(stl_num_decode_x(stl_num)));
+                stl_y = slab_subtile_center(subtile_slab_fast(stl_num_decode_y(stl_num)));
                 find_approach_position_to_subtile(&creatng->mappos, stl_x, stl_y, nav_radius + 385, &navi->pos_next);
                 navi->angle = get_angle_xy_to(&creatng->mappos, &navi->pos_next);
                 navi->navstate = 3;
@@ -1913,8 +1913,8 @@ long get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *cr
         stl_num = get_map_index_of_first_block_thing_colliding_with_travelling_to(creatng, &creatng->mappos, &navi->pos_next, SlbAtFlg_Filled|SlbAtFlg_Digable, 0);
         navi->first_colliding_block = stl_num;
         nav_radius = thing_nav_sizexy(creatng) / 2;
-        stl_x = slab_subtile_center(subtile_slab(stl_num_decode_x(stl_num)));
-        stl_y = slab_subtile_center(subtile_slab(stl_num_decode_y(stl_num)));
+        stl_x = slab_subtile_center(subtile_slab_fast(stl_num_decode_x(stl_num)));
+        stl_y = slab_subtile_center(subtile_slab_fast(stl_num_decode_y(stl_num)));
         find_approach_position_to_subtile(&creatng->mappos, stl_x, stl_y, nav_radius + 385, &navi->pos_next);
         navi->angle = get_angle_xy_to(&creatng->mappos, &navi->pos_next);
         navi->field_2 = 0;
@@ -1940,8 +1940,8 @@ long get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *cr
             navi->navstate = 4;
             return 1;
         }
-        stl_x = slab_subtile_center(subtile_slab(stl_num_decode_x(navi->first_colliding_block)));
-        stl_y = slab_subtile_center(subtile_slab(stl_num_decode_y(navi->first_colliding_block)));
+        stl_x = slab_subtile_center(subtile_slab_fast(stl_num_decode_x(navi->first_colliding_block)));
+        stl_y = slab_subtile_center(subtile_slab_fast(stl_num_decode_y(navi->first_colliding_block)));
         tmpos.x.val = subtile_coord_center(stl_x);
         tmpos.y.val = subtile_coord_center(stl_y);
         navi->angle = get_angle_xy_to(&creatng->mappos, &tmpos);
@@ -1965,8 +1965,8 @@ long get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *cr
             navi->navstate = 3;
             return 1;
         }
-        stl_x = slab_subtile_center(subtile_slab(stl_num_decode_x(navi->first_colliding_block)));
-        stl_y = slab_subtile_center(subtile_slab(stl_num_decode_y(navi->first_colliding_block)));
+        stl_x = slab_subtile_center(subtile_slab_fast(stl_num_decode_x(navi->first_colliding_block)));
+        stl_y = slab_subtile_center(subtile_slab_fast(stl_num_decode_y(navi->first_colliding_block)));
         tmpos.x.val = subtile_coord_center(stl_x);
         tmpos.y.val = subtile_coord_center(stl_y);
         navi->angle = get_angle_xy_to(&creatng->mappos, &tmpos);
@@ -1981,8 +1981,8 @@ long get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *cr
         return 2;
     case 6:
     {
-        stl_x = slab_subtile_center(subtile_slab(stl_num_decode_x(navi->first_colliding_block)));
-        stl_y = slab_subtile_center(subtile_slab(stl_num_decode_y(navi->first_colliding_block)));
+        stl_x = slab_subtile_center(subtile_slab_fast(stl_num_decode_x(navi->first_colliding_block)));
+        stl_y = slab_subtile_center(subtile_slab_fast(stl_num_decode_y(navi->first_colliding_block)));
         stl_num = get_subtile_number(stl_x,stl_y);
         navi->first_colliding_block = stl_num;
         navi->field_17 = stl_num;
@@ -2010,8 +2010,8 @@ long get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *cr
         return 1;
     }
     case 5:
-        stl_x = slab_subtile_center(subtile_slab(stl_num_decode_x(navi->first_colliding_block)));
-        stl_y = slab_subtile_center(subtile_slab(stl_num_decode_y(navi->first_colliding_block)));
+        stl_x = slab_subtile_center(subtile_slab_fast(stl_num_decode_x(navi->first_colliding_block)));
+        stl_y = slab_subtile_center(subtile_slab_fast(stl_num_decode_y(navi->first_colliding_block)));
         stl_num = get_subtile_number(stl_x,stl_y);
         navi->first_colliding_block = stl_num;
         navi->field_17 = stl_num;
