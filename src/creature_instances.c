@@ -975,13 +975,10 @@ long instf_reinforce(struct Thing *creatng, long *param)
     cctrl->digger.consecutive_reinforcements = 0;
     place_and_process_pretty_wall_slab(creatng, slb_x, slb_y);
     struct Coord3d pos;
-    pos.x.stl.pos = 128;
-    pos.y.stl.pos = 128;
-    pos.z.stl.pos = 128;
     for (long n = 0; n < SMALL_AROUND_LENGTH; n++)
     {
-        pos.x.stl.num = stl_x + 2 * small_around[n].delta_x;
-        pos.y.stl.num = stl_y + 2 * small_around[n].delta_y;
+        pos.x.val = subtile_coord_center(stl_x + 2 * small_around[n].delta_x);
+        pos.y.val = subtile_coord_center(stl_y + 2 * small_around[n].delta_y);
         struct Map* mapblk = get_map_block_at(pos.x.stl.num, pos.y.stl.num);
         if (map_block_revealed(mapblk, creatng->owner) && ((mapblk->flags & SlbAtFlg_Blocking) == 0))
         {

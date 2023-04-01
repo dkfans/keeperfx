@@ -422,6 +422,7 @@ TbBool parse_creaturetypes_common_blocks(char *buf, long len, const char *config
 {
     // Block name and parameter word store variables
     // Initialize block data
+    int k = sizeof(gameadd.crtr_conf.model) / sizeof(gameadd.crtr_conf.model[0]);
     if ((flags & CnfLd_AcceptPartial) == 0)
     {
         gameadd.crtr_conf.model_count = 1;
@@ -433,11 +434,10 @@ TbBool parse_creaturetypes_common_blocks(char *buf, long len, const char *config
         gameadd.crtr_conf.special_digger_evil = 0;
         gameadd.crtr_conf.spectator_breed = 0;
         gameadd.crtr_conf.sprite_size = 300;
-    }
-    int k = sizeof(gameadd.crtr_conf.model) / sizeof(gameadd.crtr_conf.model[0]);
-    for (int i = 0; i < k; i++)
-    {
-      LbMemorySet(gameadd.crtr_conf.model[i].name, 0, COMMAND_WORD_LEN);
+        for (int i = 0; i < k; i++)
+        {
+          LbMemorySet(gameadd.crtr_conf.model[i].name, 0, COMMAND_WORD_LEN);
+        }
     }
     LbStringCopy(gameadd.crtr_conf.model[0].name, "NOCREATURE", COMMAND_WORD_LEN);
     // Find the block
