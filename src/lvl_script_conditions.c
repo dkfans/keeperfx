@@ -180,7 +180,11 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned 
         dungeon = get_dungeon(plyr_idx);
         return dungeon->creatures_scavenge_gain;
     case SVar_AVAILABLE_MAGIC: // IF_AVAILABLE(MAGIC)
-        return is_power_available(plyr_idx, validx);
+        dungeon = get_dungeon(plyr_idx);
+        if (is_power_available(plyr_idx, validx)) {
+            return dungeon->magic_level[validx];
+        }
+        return 0;
     case SVar_AVAILABLE_TRAP: // IF_AVAILABLE(TRAP)
         dungeonadd = get_dungeonadd(plyr_idx);
         return dungeonadd->mnfct_info.trap_amount_stored[validx%gameadd.trapdoor_conf.trap_types_count]
