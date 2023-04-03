@@ -235,7 +235,7 @@ TbPixel get_overhead_mapblock_color(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Pl
     } else
     if (slb->kind == SlbT_GEMS)
     {
-        pixval = 100 + (pixmap.ghost[background] >> 6);
+        pixval = 102 + (pixmap.ghost[background] >> 6);
     }
     else if ((mapblk->flags & SlbAtFlg_IsRoom) != 0) // Room slab
     {

@@ -992,12 +992,12 @@ void setup_pannel_colours(void)
         {
             PannelColours[n + 3] = pixmap.ghost[bkcol + 26*256];
             PannelColours[n + 4] = pixmap.ghost[bkcol + 140*256];
-            PannelColours[n + 177] = 100 + (pixmap.ghost[bkcol] >> 6);
+            PannelColours[n + 177] = 102 + (pixmap.ghost[bkcol] >> 6);
         } else //as this is during setup at gameturn 1, the else looks like it is never used.
         {
             PannelColours[n + 3] = bkcol;
             PannelColours[n + 4] = bkcol;
-            PannelColours[n + 177] = 102 + (pixmap.ghost[bkcol] >> 6);
+            PannelColours[n + 177] = 104 + (pixmap.ghost[bkcol] >> 6);
         }
         PannelColours[n + 0] = bkcol;
         PannelColours[n + 1] = pixmap.ghost[bkcol + 16*256];
@@ -1006,7 +1006,7 @@ void setup_pannel_colours(void)
         PannelColours[n + 6] = 146;
         PannelColours[n + 7] = 85;
         PannelColours[n + 176] = 255;
-        PannelColours[n + 178] = 100 + (pixmap.ghost[bkcol] >> 6);
+        PannelColours[n + 178] = 102 + (pixmap.ghost[bkcol] >> 6);
         n = pncol_idx + 8;
         int i;
         int k;
