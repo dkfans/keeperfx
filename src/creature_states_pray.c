@@ -76,7 +76,7 @@ CrStateRet process_temple_visuals(struct Thing *creatng, struct Room *room)
     if (turns_in_temple < 120 + 50)
     {
         // Then celebrate for 50 turns
-        set_creature_instance(creatng, CrInst_CELEBRATE_SHORT, 1, 0, 0);
+        set_creature_instance(creatng, CrInst_CELEBRATE_SHORT, 0, 0);
     } else
     {
         // Then start from the beginning

@@ -76,7 +76,7 @@ void person_eat_food(struct Thing *creatng, struct Thing *foodtng, struct Room *
 {
     thing_play_sample(creatng, 112+UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     internal_set_thing_state(creatng, CrSt_CreatureEat);
-    set_creature_instance(creatng, CrInst_EAT, 1, 0, 0);
+    set_creature_instance(creatng, CrInst_EAT, 0, 0);
     creatng->continue_state = CrSt_CreatureToGarden;
     {
         // TODO ANGER Maybe better either zero the hunger anger or apply annoy_eat_food points, based on the annoy_eat_food value?
