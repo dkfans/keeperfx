@@ -628,7 +628,7 @@ void food_eaten_by_creature(struct Thing *foodtng, struct Thing *creatng)
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     if (cctrl->instance_id == CrInst_NULL)
     {
-        set_creature_instance(creatng, CrInst_EAT, 1, 0, 0);
+        set_creature_instance(creatng, CrInst_EAT, 0, 0);
     } else
     {
         if (cctrl->hunger_amount > 0) {
@@ -3292,7 +3292,7 @@ void get_creature_instance_times(const struct Thing *thing, long inst_idx, long 
     *raitime = aitime;
 }
 
-void set_creature_instance(struct Thing *thing, CrInstance inst_idx, long a2, long targtng_idx, const struct Coord3d *pos)
+void set_creature_instance(struct Thing *thing, CrInstance inst_idx, long targtng_idx, const struct Coord3d *pos)
 {
     long i;
     if (inst_idx == 0)

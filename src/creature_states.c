@@ -2187,7 +2187,7 @@ short creature_in_hold_audience(struct Thing *creatng)
     } else
     {
         cctrl->turns_at_job = 1;
-        set_creature_instance(creatng, CrInst_CELEBRATE_SHORT, 1, 0, 0);
+        set_creature_instance(creatng, CrInst_CELEBRATE_SHORT, 0, 0);
     }
     return 1;
 }
@@ -3043,7 +3043,7 @@ short creature_vandalise_rooms(struct Thing *creatng)
     }
     if (cctrl->instance_id == CrInst_NULL)
     {
-        set_creature_instance(creatng, CrInst_ATTACK_ROOM_SLAB, 1, 0, 0);
+        set_creature_instance(creatng, CrInst_ATTACK_ROOM_SLAB, 0, 0);
     }
     return 1;
 }
@@ -3833,7 +3833,7 @@ short person_sulking(struct Thing *creatng)
           cctrl->turns_at_job = 0;
         } else
         if (cctrl->instance_id == CrInst_NULL) {
-            set_creature_instance(creatng, CrInst_MOAN, 1, 0, 0);
+            set_creature_instance(creatng, CrInst_MOAN, 0, 0);
         }
     }
     struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
@@ -4291,7 +4291,7 @@ short seek_the_enemy(struct Thing *creatng)
             {
               if ((dist < 2304) && (game.play_gameturn-cctrl->countdown_282 < 20))
               {
-                set_creature_instance(creatng, CrInst_CELEBRATE_SHORT, 1, 0, 0);
+                set_creature_instance(creatng, CrInst_CELEBRATE_SHORT, 0, 0);
                 thing_play_sample(creatng, 168+UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
                 return 1;
               }

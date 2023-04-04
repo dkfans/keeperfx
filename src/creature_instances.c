@@ -514,7 +514,7 @@ long process_creature_self_spell_casting(struct Thing* creatng)
     if (inst_idx <= 0) {
         return 0;
     }
-    set_creature_instance(creatng, inst_idx, 1, creatng->index, 0);
+    set_creature_instance(creatng, inst_idx, creatng->index, 0);
     return 1;
 }
 

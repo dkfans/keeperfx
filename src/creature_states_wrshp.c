@@ -269,7 +269,7 @@ long process_creature_in_workshop(struct Thing *creatng, struct Room *room)
     if ((game.play_gameturn - dungeon->turn_last_manufacture < 50) && ((game.play_gameturn + creatng->index) & 3) == 0)
     {
         if (cctrl->instance_id == CrInst_NULL) {
-            set_creature_instance(creatng, CrInst_CELEBRATE_SHORT, 1, 0, 0);
+            set_creature_instance(creatng, CrInst_CELEBRATE_SHORT, 0, 0);
         }
         return 1;
     }
@@ -373,7 +373,7 @@ long process_creature_in_workshop(struct Thing *creatng, struct Room *room)
             setup_move_to_new_workshop_position(creatng, room, 1);
         } else
         if ((cctrl->workshop.swing_weapon_counter % 8) == 0) {
-            set_creature_instance(creatng, CrInst_SWING_WEAPON_SWORD, 1, 0, 0);
+            set_creature_instance(creatng, CrInst_SWING_WEAPON_SWORD, 0, 0);
         }
         break;
     }
