@@ -380,9 +380,9 @@ short field_2AE;
     unsigned short job_assigned;
     unsigned short spell_tngidx_armour[3];
     unsigned short spell_tngidx_disease[3];
-unsigned short shot_shift_x;
-unsigned short shot_shift_y;
-unsigned short shot_shift_z;
+    unsigned short shot_shift_x;
+    unsigned short shot_shift_y;
+    unsigned short shot_shift_z;
     unsigned long tasks_check_turn;
     unsigned long wander_around_check_turn;
     unsigned long job_primary_check_turn;
@@ -405,6 +405,7 @@ unsigned short shot_shift_z;
     long following_leader_since;
     unsigned char follow_leader_fails;
     unsigned long unsummon_turn;
+    short summoner_idx;
 };
 
 struct CreatureStats { // These stats are not compatible with original DK - they have more fields

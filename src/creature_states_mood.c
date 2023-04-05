@@ -548,6 +548,14 @@ TbBool process_job_stress_and_going_postal(struct Thing *creatng)
     if (((game.play_gameturn + creatng->index) % 20) != 0) {
         return false;
     }
+    if (cctrl->summoner_idx > 0) //todo move this somewhere
+    {
+        if (!creature_is_group_member(creatng))
+        {
+            struct Thing* summoner = thing_get(cctrl->summoner_idx);
+            add_creature_to_group(creatng, summoner);
+        }
+    }
     struct Room* room = get_room_creature_works_in(creatng);
     if (room_is_invalid(room)) {
         return false;

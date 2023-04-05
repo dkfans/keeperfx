@@ -1671,6 +1671,7 @@ void creature_cast_spell(struct Thing *castng, long spl_idx, long shot_lvl, long
         if (!thing_is_invalid(sumntng))
         {
             struct CreatureControl* smncctrl = creature_control_get_from_thing(sumntng);
+            smncctrl->summoner_idx = castng->index;
             creature_increase_multiple_levels(sumntng, spconf->crtr_summon_level-1);
             if (spconf->duration > 0)
             {
