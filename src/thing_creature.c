@@ -87,6 +87,7 @@
 #include "thing_physics.h"
 #include "thing_shots.h"
 #include "thing_stats.h"
+#include "thing_traps.h"
 
 #include "keeperfx.hpp"
 #include "post_inc.h"
@@ -1661,6 +1662,16 @@ void creature_cast_spell(struct Thing *castng, long spl_idx, long shot_lvl, long
         if (spconf->caster_affect_sound > 0)
           thing_play_sample(castng, spconf->caster_affect_sound, NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
         apply_spell_effect_to_thing(castng, spl_idx, cctrl->explevel);
+    }
+    if (spconf->crtr_summon_model > 0)
+    {
+        // todo duration
+        // todo sound
+        struct Thing *summoned_creature = activate_trap_spawn_creature(castng, spconf->crtr_summon_model);
+        if (!thing_is_invalid(summoned_creature))
+        {
+            creature_increase_multiple_levels(summoned_creature, spconf->crtr_summon_level-1);
+        }
     }
     // Check if the spell has an effect associated
     if (spconf->cast_effect_model != 0)
