@@ -1667,10 +1667,15 @@ void creature_cast_spell(struct Thing *castng, long spl_idx, long shot_lvl, long
     {
         // todo duration
         // todo sound
-        struct Thing *summoned_creature = activate_trap_spawn_creature(castng, spconf->crtr_summon_model);
-        if (!thing_is_invalid(summoned_creature))
+        struct Thing *sumntng = activate_trap_spawn_creature(castng, spconf->crtr_summon_model);
+        if (!thing_is_invalid(sumntng))
         {
-            creature_increase_multiple_levels(summoned_creature, spconf->crtr_summon_level-1);
+            struct CreatureControl* smncctrl = creature_control_get_from_thing(sumntng);
+            creature_increase_multiple_levels(sumntng, spconf->crtr_summon_level-1);
+            if (spconf->duration > 0)
+            {
+                smncctrl->unsummon_turn = game.play_gameturn + spconf->duration;
+            }
         }
     }
     // Check if the spell has an effect associated
@@ -5353,6 +5358,12 @@ TngUpdateRet update_creature(struct Thing *thing)
     {
         WARNLOG("Killing %s index %d with invalid control.",thing_model_name(thing),(int)thing->index);
         kill_creature(thing, INVALID_THING, -1, CrDed_Default);
+        return TUFRet_Deleted;
+    }
+    if ((cctrl->unsummon_turn > 0) && (cctrl->unsummon_turn < game.play_gameturn))
+    {
+        create_effect_around_thing(thing, (TngEff_BallPuffRed + thing->owner));
+        kill_creature(thing, INVALID_THING, -1, CrDed_NotReallyDying| CrDed_NoEffects);
         return TUFRet_Deleted;
     }
     process_armageddon_influencing_creature(thing);
