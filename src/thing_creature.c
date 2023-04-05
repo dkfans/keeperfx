@@ -2785,7 +2785,7 @@ void process_creature_standing_on_corpses_at(struct Thing *creatng, struct Coord
                 anger_apply_anger_to_creature(creatng, annoy_val, AngR_Other, 1);
             }
             cctrl->bloody_footsteps_turns = 20;
-            cctrl->field_B9 = thing->index;
+            cctrl->corpse_to_piss_on = thing->index;
             // Stop after one body was found
             break;
         }
@@ -5195,7 +5195,7 @@ void process_landscape_affecting_creature(struct Thing *thing)
         ERRORLOG("Invalid creature control; no action");
         return;
     }
-    cctrl->field_B9 = 0;
+    cctrl->corpse_to_piss_on = 0;
 
     int stl_idx = get_subtile_number(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
     unsigned long navheight = get_navigation_map_floor_height(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
