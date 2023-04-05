@@ -1676,6 +1676,26 @@ void creature_cast_spell(struct Thing *castng, long spl_idx, long shot_lvl, long
             {
                 smncctrl->unsummon_turn = game.play_gameturn + spconf->duration;
             }
+            struct Thing* leadtng = get_group_leader(castng);
+            if (leadtng == castng)
+            {
+
+                if (get_no_creatures_in_group(castng) < GROUP_MEMBERS_COUNT)
+                {
+                    add_creature_to_group(sumntng, castng);
+                }
+            }
+            else
+            {
+                if (get_no_creatures_in_group(castng) == 0) //Only make the caster a party leader if he is not already a member of another party
+                {
+                    add_creature_to_group_as_leader(castng, sumntng);
+                }
+                if (get_no_creatures_in_group(castng) < GROUP_MEMBERS_COUNT)
+                {
+                    add_creature_to_group(sumntng, castng);
+                }              
+            }
         }
     }
     // Check if the spell has an effect associated
