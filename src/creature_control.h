@@ -400,7 +400,7 @@ unsigned short shot_shift_z;
     MapSubtlCoord alarm_stl_x;
     MapSubtlCoord alarm_stl_y;
     unsigned long alarm_over_turn;
-    unsigned long field_2FE;
+    unsigned long lava_escape_since;
     unsigned char stopped_for_hand_turns;
     long following_leader_since;
     unsigned char follow_leader_fails;
