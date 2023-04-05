@@ -360,6 +360,8 @@ struct SpellConfig {
     short medsym_sprite_idx;
     short cast_sound;
     int duration;
+    short crtr_summon_model;
+    short crtr_summon_level;
 };
 
 struct MagicConfig {
