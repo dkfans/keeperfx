@@ -473,7 +473,7 @@ long instf_creature_cast_spell(struct Thing *creatng, long *param)
 {
     TRACE_THING(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    long spl_idx = *param;
+    long spl_idx = param[0];
     struct SpellConfig* spconf = get_spell_config(spl_idx);
     SYNCDBG(8,"The %s index %d casts %s",thing_model_name(creatng),(int)creatng->index,spell_code_name(spl_idx));
     if (spconf->cast_at_thing)
