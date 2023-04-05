@@ -133,7 +133,7 @@ short creature_piss(struct Thing *thing)
     if (i > 0) {
         return 1;
     }
-    cctrl->field_B2 = game.play_gameturn;
+    cctrl->last_piss_turn = game.play_gameturn;
     set_start_state(thing);
     return 0;
 }
