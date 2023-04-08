@@ -23,12 +23,17 @@
 #include "globals.h"
 
 #include "ariadne.h"
+#include "creature_graphics.h"
 #include "creature_groups.h"
 #include "thing_stats.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#define CREATURE_TYPES_MAX 64
+#define SWAP_CREATURE_TYPES_MAX 64
+#define CREATURE_STATES_MAX 256
 
 #define MAX_SIZEXY            768
 /** Max amount of spells casted at the creature at once. */
@@ -517,6 +522,7 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     short footstep_pitch;
     short lair_object;
     short status_offset;
+    struct CreaturePickedUpOffset creature_picked_up_offset;
 };
 
 struct Persons {

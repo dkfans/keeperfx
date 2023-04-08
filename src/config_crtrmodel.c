@@ -1644,25 +1644,25 @@ TbBool parse_creaturemodel_appearance_blocks(long crtr_model,char *buf,long len,
             if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                creature_picked_up_offset[crtr_model].delta_x = k;
+                crstat->creature_picked_up_offset.delta_x = k;
                 n++;
             }
             if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                creature_picked_up_offset[crtr_model].delta_y = k;
+                crstat->creature_picked_up_offset.delta_y = k;
                 n++;
             }
             if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                creature_picked_up_offset[crtr_model].field_4 = k;
+                crstat->creature_picked_up_offset.field_4 = k;
                 n++;
             }
             if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                creature_picked_up_offset[crtr_model].field_6 = k;
+                crstat->creature_picked_up_offset.field_6 = k;
                 n++;
             }
             if (n < 4)
