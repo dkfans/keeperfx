@@ -567,7 +567,7 @@ short good_attack_room(struct Thing *thing)
         struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
         if (cctrl->instance_id == CrInst_NULL)
         {
-            set_creature_instance(thing, CrInst_ATTACK_ROOM_SLAB, 1, 0, 0);
+            set_creature_instance(thing, CrInst_ATTACK_ROOM_SLAB, 0, 0);
             MapCoord ev_coord_x = subtile_coord_center(room->central_stl_x);
             MapCoord ev_coord_y = subtile_coord_center(room->central_stl_y);
             event_create_event_or_update_nearby_existing_event(ev_coord_x, ev_coord_y, EvKind_RoomUnderAttack, room->owner, 0);
@@ -1409,7 +1409,7 @@ long creature_tunnel_to(struct Thing *creatng, struct Coord3d *pos, short speed)
             MapSubtlCoord stl_y = stl_num_decode_y(cctrl->navi.first_colliding_block);
             struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
             if ( (slabmap_owner(slb) == creatng->owner) || (slb->kind == SlbT_EARTH || (slb->kind == SlbT_TORCHDIRT)) ) { // if this is false, that means the current tile must have changed to an undiggable wall
-                set_creature_instance(creatng, CrInst_TUNNEL, 0, 0, 0);
+                set_creature_instance(creatng, CrInst_TUNNEL, 0, 0);
             }
         else {
             return 1;

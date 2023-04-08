@@ -546,7 +546,7 @@ TbBool creature_move_to_using_teleport(struct Thing *thing, struct Coord3d *pos,
              // Use teleport only over large enough distances
              if (get_2d_box_distance(&thing->mappos, pos) > COORD_PER_STL*game.min_distance_for_teleport)
              {
-                 set_creature_instance(thing, CrInst_TELEPORT, 1, 0, pos);
+                 set_creature_instance(thing, CrInst_TELEPORT, 0, pos);
                  return true;
              }
          }
