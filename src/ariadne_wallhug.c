@@ -1659,8 +1659,8 @@ static TbBool navigation_push_towards_target(struct Navigation *navi, struct Thi
     {
         SubtlCodedCoords stl_num = get_map_index_of_first_block_thing_colliding_with_travelling_to(creatng, &creatng->mappos, &navi->pos_next, 40, 0);
         navi->first_colliding_block = stl_num;
-        MapSubtlCoord stl_x = slab_subtile_center(subtile_slab(stl_num_decode_x(stl_num)));
-        MapSubtlCoord stl_y = slab_subtile_center(subtile_slab(stl_num_decode_y(stl_num)));
+        MapSubtlCoord stl_x = slab_subtile_center(subtile_slab_fast(stl_num_decode_x(stl_num)));
+        MapSubtlCoord stl_y = slab_subtile_center(subtile_slab_fast(stl_num_decode_y(stl_num)));
         find_approach_position_to_subtile(&creatng->mappos, stl_x, stl_y, nav_radius + 385, &navi->pos_next);
         navi->angle = get_angle_xy_to(&creatng->mappos, &navi->pos_next);
         navi->navstate = 3;
@@ -1756,8 +1756,8 @@ long get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *cr
                 stl_num = get_map_index_of_first_block_thing_colliding_with_travelling_to(creatng, &creatng->mappos, &navi->pos_next, SlbAtFlg_Filled|SlbAtFlg_Digable, 0);
                 navi->first_colliding_block = stl_num;
                 nav_radius = thing_nav_sizexy(creatng) / 2;
-                stl_x = slab_subtile_center(subtile_slab(stl_num_decode_x(stl_num)));
-                stl_y = slab_subtile_center(subtile_slab(stl_num_decode_y(stl_num)));
+                stl_x = slab_subtile_center(subtile_slab_fast(stl_num_decode_x(stl_num)));
+                stl_y = slab_subtile_center(subtile_slab_fast(stl_num_decode_y(stl_num)));
                 find_approach_position_to_subtile(&creatng->mappos, stl_x, stl_y, nav_radius + 385, &navi->pos_next);
                 navi->angle = get_angle_xy_to(&creatng->mappos, &navi->pos_next);
                 navi->navstate = 3;
@@ -1913,8 +1913,8 @@ long get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *cr
         stl_num = get_map_index_of_first_block_thing_colliding_with_travelling_to(creatng, &creatng->mappos, &navi->pos_next, SlbAtFlg_Filled|SlbAtFlg_Digable, 0);
         navi->first_colliding_block = stl_num;
         nav_radius = thing_nav_sizexy(creatng) / 2;
-        stl_x = slab_subtile_center(subtile_slab(stl_num_decode_x(stl_num)));
-        stl_y = slab_subtile_center(subtile_slab(stl_num_decode_y(stl_num)));
+        stl_x = slab_subtile_center(subtile_slab_fast(stl_num_decode_x(stl_num)));
+        stl_y = slab_subtile_center(subtile_slab_fast(stl_num_decode_y(stl_num)));
         find_approach_position_to_subtile(&creatng->mappos, stl_x, stl_y, nav_radius + 385, &navi->pos_next);
         navi->angle = get_angle_xy_to(&creatng->mappos, &navi->pos_next);
         navi->field_2 = 0;
@@ -1940,8 +1940,8 @@ long get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *cr
             navi->navstate = 4;
             return 1;
         }
-        stl_x = slab_subtile_center(subtile_slab(stl_num_decode_x(navi->first_colliding_block)));
-        stl_y = slab_subtile_center(subtile_slab(stl_num_decode_y(navi->first_colliding_block)));
+        stl_x = slab_subtile_center(subtile_slab_fast(stl_num_decode_x(navi->first_colliding_block)));
+        stl_y = slab_subtile_center(subtile_slab_fast(stl_num_decode_y(navi->first_colliding_block)));
         tmpos.x.val = subtile_coord_center(stl_x);
         tmpos.y.val = subtile_coord_center(stl_y);
         navi->angle = get_angle_xy_to(&creatng->mappos, &tmpos);
@@ -1965,8 +1965,8 @@ long get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *cr
             navi->navstate = 3;
             return 1;
         }
-        stl_x = slab_subtile_center(subtile_slab(stl_num_decode_x(navi->first_colliding_block)));
-        stl_y = slab_subtile_center(subtile_slab(stl_num_decode_y(navi->first_colliding_block)));
+        stl_x = slab_subtile_center(subtile_slab_fast(stl_num_decode_x(navi->first_colliding_block)));
+        stl_y = slab_subtile_center(subtile_slab_fast(stl_num_decode_y(navi->first_colliding_block)));
         tmpos.x.val = subtile_coord_center(stl_x);
         tmpos.y.val = subtile_coord_center(stl_y);
         navi->angle = get_angle_xy_to(&creatng->mappos, &tmpos);
@@ -1981,8 +1981,8 @@ long get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *cr
         return 2;
     case 6:
     {
-        stl_x = slab_subtile_center(subtile_slab(stl_num_decode_x(navi->first_colliding_block)));
-        stl_y = slab_subtile_center(subtile_slab(stl_num_decode_y(navi->first_colliding_block)));
+        stl_x = slab_subtile_center(subtile_slab_fast(stl_num_decode_x(navi->first_colliding_block)));
+        stl_y = slab_subtile_center(subtile_slab_fast(stl_num_decode_y(navi->first_colliding_block)));
         stl_num = get_subtile_number(stl_x,stl_y);
         navi->first_colliding_block = stl_num;
         navi->field_17 = stl_num;
@@ -2010,8 +2010,8 @@ long get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *cr
         return 1;
     }
     case 5:
-        stl_x = slab_subtile_center(subtile_slab(stl_num_decode_x(navi->first_colliding_block)));
-        stl_y = slab_subtile_center(subtile_slab(stl_num_decode_y(navi->first_colliding_block)));
+        stl_x = slab_subtile_center(subtile_slab_fast(stl_num_decode_x(navi->first_colliding_block)));
+        stl_y = slab_subtile_center(subtile_slab_fast(stl_num_decode_y(navi->first_colliding_block)));
         stl_num = get_subtile_number(stl_x,stl_y);
         navi->first_colliding_block = stl_num;
         navi->field_17 = stl_num;
