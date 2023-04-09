@@ -42,9 +42,6 @@
 #include "game_legacy.h"
 #include "post_inc.h"
 
-long navigation_map_size_x = 256;
-long navigation_map_size_y = 256;
-
 #define EDGEFIT_LEN           64
 #define EDGEOR_COUNT           4
 
