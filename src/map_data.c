@@ -76,7 +76,7 @@ struct Map *get_map_block_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
   return &game.map[get_subtile_number(stl_x,stl_y)];
 }
 
-struct Map *get_map_block_at_pos(long stl_num)
+struct Map *get_map_block_at_pos(SubtlCodedCoords stl_num)
 {
   if ((stl_num < 0) || (stl_num > get_subtile_number(gameadd.map_subtiles_x,gameadd.map_subtiles_y)))
       return INVALID_MAP_BLOCK;
