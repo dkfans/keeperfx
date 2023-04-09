@@ -41,10 +41,11 @@ pkg/campgns/ami2019/text_eng.dat \
 pkg/campgns/ami2019/text_chi.dat \
 pkg/campgns/ami2019/text_spa.dat \
 pkg/campgns/ancntkpr/text_eng.dat \
+pkg/campgns/ancntkpr/text_chi.dat \
 pkg/campgns/ancntkpr/text_fre.dat \
 pkg/campgns/ancntkpr/text_ger.dat \
 pkg/campgns/ancntkpr/text_pol.dat \
-pkg/campgns/ancntkpr/text_chi.dat \
+pkg/campgns/ancntkpr/text_spa.dat \
 pkg/campgns/burdnimp/text_eng.dat \
 pkg/campgns/burdnimp/text_chi.dat \
 pkg/campgns/burdnimp/text_pol.dat \
@@ -52,9 +53,11 @@ pkg/campgns/burdnimp/text_spa.dat \
 pkg/campgns/cqarctic/text_eng.dat \
 pkg/campgns/cqarctic/text_chi.dat \
 pkg/campgns/cqarctic/text_pol.dat \
+pkg/campgns/cqarctic/text_spa.dat \
 pkg/campgns/dstninja/text_eng.dat \
 pkg/campgns/dstninja/text_chi.dat \
 pkg/campgns/dstninja/text_pol.dat \
+pkg/campgns/dstninja/text_spa.dat \
 pkg/campgns/evilkeep/text_fre.dat \
 pkg/campgns/evilkeep/text_ger.dat \
 pkg/campgns/grkreign/text_eng.dat \

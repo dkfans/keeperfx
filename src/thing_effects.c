@@ -505,7 +505,7 @@ struct EffectElementStats *get_effect_element_model_stats(ThingModel tngmodel)
     return &effect_element_stats[tngmodel];
 }
 
-struct Thing *create_effect_element(const struct Coord3d *pos, unsigned short eelmodel, unsigned short owner)
+struct Thing *create_effect_element(const struct Coord3d *pos, unsigned short eelmodel, PlayerNumber owner)
 {
     long i;
     if (!i_can_allocate_free_thing_structure(FTAF_Default)) {
@@ -689,8 +689,8 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
     if ((cctrl->stateblock_flags & CCSpl_Teleport) != 0)
     {
         dturn = get_spell_duration_left_on_thing(thing, SplK_Teleport);
-        struct SpellConfig* splconf = &game.spells_config[SplK_Teleport];
-        if (splconf->duration / 2 < dturn)
+        const struct SpellConfig* spconf = get_spell_config(SplK_Teleport);
+        if (spconf->duration / 2 < dturn)
         {
             effeltng = create_effect_element(&thing->mappos, TngEffElm_FlashBall2, thing->owner);
             if (!thing_is_invalid(effeltng))
@@ -702,7 +702,7 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
                 effeltng->move_angle_xy = thing->move_angle_xy;
             }
         } else
-        if (splconf->duration / 2 > dturn)
+        if (spconf->duration / 2 > dturn)
         {
             struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
             if ((dturn % 2) == 0) {
@@ -1315,7 +1315,7 @@ struct Thing *create_effect(const struct Coord3d *pos, ThingModel effmodel, Play
     return thing;
 }
 
-struct Thing *create_special_used_effect(const struct Coord3d *pos, long plyr_idx, short effect)
+struct Thing *create_used_effect_or_element(const struct Coord3d *pos, short effect, long plyr_idx)
 {
     if (effect == 0)
         return INVALID_THING;

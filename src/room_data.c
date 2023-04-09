@@ -5177,7 +5177,7 @@ void destroy_dungeon_heart_room(PlayerNumber plyr_idx, const struct Thing *heart
 {
     struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
     struct Room* room = get_room_thing_is_on(heartng);
-    if (room_is_invalid(room) || (room_role_matches(room->kind,RoRoF_KeeperStorage)))
+    if (room_is_invalid(room) || (!room_role_matches(room->kind,RoRoF_KeeperStorage)))
     {
         WARNLOG("The heart thing is not in heart room");
         long i = dungeonadd->room_kind[RoK_DUNGHEART];

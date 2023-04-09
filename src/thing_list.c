@@ -312,6 +312,37 @@ long near_thing_pos_thing_filter_is_enemy_which_can_be_attacked_by_creature(cons
  * @param param Parameters exchanged between filter calls.
  * @param maximizer Previous value which made a thing pass the filter.
  */
+long near_thing_pos_thing_filter_is_enemy_object_which_can_be_attacked_by_creature(const struct Thing* objtng, MaxTngFilterParam param, long maximizer)
+{
+    if ((param->class_id == -1) || (objtng->class_id == param->class_id))
+    {
+        if (thing_matches_model(objtng, param->model_id))
+        {
+            if ((param->plyr_idx == -1) || (objtng->owner == param->plyr_idx))
+            {
+                struct Thing* creatng = thing_get(param->num1);
+                if (players_are_enemies(creatng->owner, objtng->owner))
+                {
+                    MapCoordDelta distance = get_2d_distance(&creatng->mappos, &objtng->mappos);
+                    //Just dungeon hearts now. Todo: expand with other types of destructible objects
+                    if (thing_is_dungeon_heart(objtng) && creature_can_have_combat_with_creature(creatng, (struct Thing*)objtng, distance,1,0) && !(get_creature_model_flags(creatng) & CMF_NoEnmHeartAttack))
+                    {
+                        return LONG_MAX - distance;
+                    }
+                }
+            }
+        }
+    }
+    // If conditions are not met, return -1 to be sure thing will not be returned.
+    return -1;
+}
+
+/**
+ * Filter function.
+ * @param thing The thing being checked.
+ * @param param Parameters exchanged between filter calls.
+ * @param maximizer Previous value which made a thing pass the filter.
+ */
 long highest_score_thing_filter_is_enemy_within_distance_which_can_be_attacked_by_creature(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
 {
     if ((param->class_id == -1) || (thing->class_id == param->class_id))
@@ -1748,7 +1779,21 @@ struct Thing *get_nearest_enemy_creature_possible_to_attack_by(struct Thing *cre
     return get_nth_thing_of_class_with_filter(filter, &param, 0);
 }
 
-struct Thing *get_highest_score_enemy_creature_within_distance_possible_to_attack_by(struct Thing *creatng, MapCoordDelta dist)
+struct Thing* get_nearest_enemy_object_possible_to_attack_by(struct Thing* creatng)
+{
+    SYNCDBG(19, "Starting");
+    Thing_Maximizer_Filter filter = near_thing_pos_thing_filter_is_enemy_object_which_can_be_attacked_by_creature;
+    struct CompoundTngFilterParam param;
+    param.class_id = TCls_Object;
+    param.model_id = -1;
+    param.plyr_idx = -1;
+    param.num1 = creatng->index;
+    param.num2 = -1;
+    param.num3 = -1;
+    return get_nth_thing_of_class_with_filter(filter, &param, 0);
+}
+
+struct Thing *get_highest_score_enemy_creature_within_distance_possible_to_attack_by(struct Thing *creatng, MapCoordDelta dist, long move_on_ground)
 {
     SYNCDBG(19,"Starting");
     Thing_Maximizer_Filter filter = highest_score_thing_filter_is_enemy_within_distance_which_can_be_attacked_by_creature;
@@ -1758,7 +1803,7 @@ struct Thing *get_highest_score_enemy_creature_within_distance_possible_to_attac
     param.plyr_idx = -1;
     param.num1 = creatng->index;
     param.num2 = dist;
-    param.num3 = 0;
+    param.num3 = move_on_ground;
     return get_nth_thing_of_class_with_filter(filter, &param, 0);
 }
 
@@ -3901,12 +3946,12 @@ struct Thing *get_nearest_thing_at_position(MapSubtlCoord stl_x, MapSubtlCoord s
   {
     n = 0;
     y = stl_y + k;  
-    if ( (y >= 0) && (y < 256) )
+    if ( (y >= 0) && (y < gameadd.map_subtiles_y) )
     {
       do
       {
         x = stl_x + n;  
-        if ( (x >= 0) && (x < 256) )
+        if ( (x >= 0) && (x < gameadd.map_subtiles_x) )
         {
           struct Map *blk = get_map_block_at(x, y);
           thing = thing_get(get_mapwho_thing_index(blk));

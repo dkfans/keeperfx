@@ -130,7 +130,6 @@ char numfield_1A;
     struct PlayerInfo players[PLAYERS_COUNT];
     struct Column columns_data[COLUMNS_COUNT];
     struct ObjectConfig objects_config[OBJECT_TYPES_COUNT_ORIGINAL];
-    struct SpellConfig spells_config[30];
     struct Things things;
     struct Persons persons;
     struct Columns columns;

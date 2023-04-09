@@ -116,13 +116,19 @@ struct Thing *get_trap_for_slab_position(MapSlabCoord slb_x, MapSlabCoord slb_y)
 TbBool slab_has_sellable_trap_on(MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
     struct Thing* traptng = get_trap_for_slab_position(slb_x, slb_y);
-    return !thing_is_sellable_trap(traptng);
+    return thing_is_sellable_trap(traptng);
 }
 
 TbBool slab_has_trap_on(MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
     struct Thing* traptng = get_trap_for_slab_position(slb_x, slb_y);
     return !thing_is_invalid(traptng);
+}
+
+TbBool subtile_has_sellable_trap_on(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+    struct Thing* traptng = get_trap_for_position(stl_x, stl_y);
+    return thing_is_sellable_trap(traptng);
 }
 
 TbBool subtile_has_trap_on(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
@@ -474,14 +480,14 @@ void activate_trap_slab_change(struct Thing *traptng, struct Thing *creatng)
     do_slab_efficiency_alteration(subtile_slab(stl_x), subtile_slab(stl_y));
 }
 
-void activate_trap_spawn_creature(struct Thing *traptng, const struct TrapStats *trapstat)
+struct Thing *activate_trap_spawn_creature(struct Thing *traptng, unsigned char model)
 {
-    struct Thing *thing = create_creature(&traptng->mappos, trapstat->created_itm_model, traptng->owner);
+    struct Thing *thing = create_creature(&traptng->mappos, model, traptng->owner);
     struct CreatureControl* cctrl;
 
     if (thing_is_invalid(thing))
     {
-        return;
+        return thing;
     }
     thing->mappos.z.val = get_thing_height_at(thing, &thing->mappos);
 // Try to move thing out of the solid wall if it's inside one
@@ -489,7 +495,7 @@ void activate_trap_spawn_creature(struct Thing *traptng, const struct TrapStats 
     {
         ERRORLOG("Trap has to create creature, but creation failed");
         delete_thing_structure(thing, 0);
-        return;
+        return INVALID_THING;
     }
     cctrl = creature_control_get_from_thing(thing);
     thing->veloc_push_add.x.val += CREATURE_RANDOM(thing, 161) - 80;
@@ -498,6 +504,7 @@ void activate_trap_spawn_creature(struct Thing *traptng, const struct TrapStats 
     thing->state_flags |= TF1_PushAdd;
     cctrl->spell_flags |= CSAfF_MagicFall;
     thing->move_angle_xy = 0;
+    return thing;
     // EVM_CREATURE_EVENT("joined.trap", thing->owner, thing);
 }
 
@@ -553,7 +560,7 @@ void activate_trap(struct Thing *traptng, struct Thing *creatng)
         creature_fire_shot(traptng, creatng, trapstat->created_itm_model, 1, THit_CrtrsNObjcts);
         break;
     case TrpAcT_CreatureSpawn:
-        activate_trap_spawn_creature(traptng, trapstat);
+        activate_trap_spawn_creature(traptng, trapstat->created_itm_model);
         break;
     case TrpAcT_Power:
         activate_trap_god_spell(traptng, creatng, trapstat->created_itm_model);

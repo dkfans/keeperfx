@@ -1111,7 +1111,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                 unsigned char inst = atoi(pr2str);
                 if (thing_is_creature(thing))
                 {
-                    set_creature_instance(thing, inst, 0, 0, 0);
+                    set_creature_instance(thing, inst, 0, 0);
                     return true;
                 }
             }
