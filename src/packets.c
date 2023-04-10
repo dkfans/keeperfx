@@ -417,6 +417,7 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
             settings.frontview_zoom_level = cam->zoom;
             save_settings();
         }
+        zoom_moves_cam_towards_mouse(player, pointer_x, pointer_y);
     }
     if (pckt->control_flags & PCtr_ViewZoomOut)
     {
@@ -441,6 +442,7 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
             }
             break;
         }
+        zoom_moves_cam_towards_mouse(player, pointer_x, pointer_y);
     }
     process_dungeon_control_packet_clicks(plyr_idx);
     set_mouse_light(player);

@@ -209,7 +209,6 @@ TbBool TimerNoReset = false;
 TbBool TimerFreeze = false;
 /******************************************************************************/
 
-
 TbPixel get_player_path_colour(unsigned short owner)
 {
   return player_path_colours[player_colors_map[owner % PLAYERS_EXT_COUNT]];

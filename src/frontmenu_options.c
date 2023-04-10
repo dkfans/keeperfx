@@ -293,13 +293,13 @@ void gui_video_gamma_correction(struct GuiButton *gbtn)
 
 int make_audio_slider_linear(int a)
 {
-    float scaled = fastPow(a / 127.0, 0.5);
+    float scaled = pow(a / 127.0, 0.5);
     float clamped = max(min(scaled, 1.0), 0.0);
     return CEILING(lerp(0, 127, clamped));
 }
 int make_audio_slider_nonlinear(int a)
 {
-    float scaled = fastPow(a / 127.0, 2.00);
+    float scaled = pow(a / 127.0, 2.00);
     float clamped = max(min(scaled, 1.0), 0.0);
     return CEILING(lerp(0, 127, clamped));
 }

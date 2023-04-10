@@ -99,6 +99,7 @@ struct GuiButton;
 /******************************************************************************/
 extern long old_mx;
 extern long old_my;
+extern int mwheel_zoom_repeats;
 /******************************************************************************/
 void input(void);
 short get_inputs(void);

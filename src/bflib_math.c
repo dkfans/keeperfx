@@ -838,6 +838,23 @@ float lerp(float a, float b, float f)
     return (a * (1.0 - f)) + (b * f);
 }
 
+int integer_lerp(int a, int b, int t) // 3rd argument uses value 0 to 100
+{
+    if (t == 0) {
+        return a;
+    } else if (t == 100) {
+        return b;
+    } else {
+        return (a * (100 - t) + b * t) / 100;
+    }
+}
+
+float normalize_within_range(float a, float b, float c)
+{
+    a = clamp(a, b, c);
+    return ((a - b)) / (c - b);
+}
+
 long lerp_angle(long from, long to, float weight)
 {
     long difference = (to - from) % LbFPMath_TAU;
@@ -849,7 +866,7 @@ long lerp_angle(long from, long to, float weight)
     return new % LbFPMath_TAU;
 }
 
-double fastPow(double a, double b)
+double pow(double a, double b)
 {
   union {
     double d;

@@ -43,6 +43,8 @@ extern "C" {
 #endif
 /******************************************************************************/
 /******************************************************************************/
+int zoom_speed_near = 15; // Default value [1-100]. Set by CFG.
+int zoom_speed_far = 15; // Default value [1-100]. Set by CFG.
 long zoom_distance_setting;
 long frontview_zoom_distance_setting;
 long camera_zoom;
@@ -67,6 +69,21 @@ long interpolated_camera_zoom;
 #endif
 /******************************************************************************/
 
+static void update_zoomed_percentage(struct Camera *cam) {
+	// This function is performed once per turn, unlike calculate_hud_scale which is performed each rendering frame
+    switch (cam->view_mode) {
+        case PVM_IsoWibbleView:
+        case PVM_IsoStraightView:
+            cam->zoomed_percent = normalize_within_range(cam->zoom, CAMERA_ZOOM_MIN, CAMERA_ZOOM_MAX);
+            break;
+        case PVM_FrontView:
+            cam->zoomed_percent = normalize_within_range(cam->zoom, FRONTVIEW_CAMERA_ZOOM_MIN, FRONTVIEW_CAMERA_ZOOM_MAX);
+            break;
+        default:
+            cam->zoomed_percent = 0;
+            return;
+    }
+}
 
 // Instantly move camera when going from parchment view to main view
 void reset_interpolation_for_parchment_view(struct PlayerInfo* player)
@@ -106,6 +123,8 @@ void reset_interpolation_of_camera(struct PlayerInfo* player)
 }
 
 void set_previous_camera_values(struct PlayerInfo* player) {
+    
+
     // Used for interpolation mainly
     struct Camera *cam = player->acamera;
     previous_cam_mappos_x = cam->mappos.x.val;
@@ -119,6 +138,8 @@ void set_previous_camera_values(struct PlayerInfo* player) {
     {
         reset_interpolation_of_camera(player); // Stop camera from being laggy while frameskipping
     }
+    
+    cam->previous_zoomed_percent = cam->zoomed_percent;
 }
 
 MapCoordDelta get_3d_box_distance(const struct Coord3d *pos1, const struct Coord3d *pos2)
@@ -227,15 +248,32 @@ void project_point_to_wall_on_angle(const struct Coord3d *pos1, struct Coord3d *
     pos2->z.val = pos.z.val;
 }
 
+int calculate_zoom_rate(struct Camera *cam)
+{
+    // If playing multiplayer then return original 85 value, because otherwise desyncs can occur if two players have different cfg values
+    if (game.game_kind != GKind_LocalGame)
+    {
+        return 85;
+    }
+
+    int easing = (1.0-pow(cam->zoomed_percent, 0.25)) * 100;
+    int calc_rate = integer_lerp(zoom_speed_near, zoom_speed_far, easing);
+    calc_rate = 100 - clamp(calc_rate, 1, 99);
+    return calc_rate;
+}
+
 void view_zoom_camera_in(struct Camera *cam, long limit_max, long limit_min)
 {
     long new_zoom;
     long old_zoom = get_camera_zoom(cam);
+
+    int zoom_rate = calculate_zoom_rate(cam);
+
     switch (cam->view_mode)
     {
     case PVM_IsoWibbleView:
     case PVM_IsoStraightView:
-        new_zoom = (100 * old_zoom) / 85;
+        new_zoom = (100 * old_zoom) / zoom_rate;
         if (new_zoom == old_zoom)
             new_zoom++;
         if (new_zoom < limit_min) {
@@ -257,7 +295,7 @@ void view_zoom_camera_in(struct Camera *cam, long limit_max, long limit_min)
         }
         break;
     case PVM_FrontView:
-        new_zoom = (100 * old_zoom) / 85;
+        new_zoom = (100 * old_zoom) / zoom_rate;
         if (new_zoom == old_zoom)
             new_zoom++;
         if (new_zoom < FRONTVIEW_CAMERA_ZOOM_MIN) { //Originally 16384, adjusted for view distance
@@ -288,17 +326,21 @@ void set_camera_zoom(struct Camera *cam, long new_zoom)
         cam->mappos.z.val = new_zoom;
         break;
     }
+    update_zoomed_percentage(cam);
 }
 
 void view_zoom_camera_out(struct Camera *cam, long limit_max, long limit_min)
 {
     long new_zoom;
     long old_zoom = get_camera_zoom(cam);
+    
+    int zoom_rate = calculate_zoom_rate(cam);
+
     switch (cam->view_mode)
     {
     case PVM_IsoWibbleView:
     case PVM_IsoStraightView:
-        new_zoom = (85 * old_zoom) / 100;
+        new_zoom = (zoom_rate * old_zoom) / 100;
         if (new_zoom == old_zoom)
             new_zoom--;
         if (new_zoom < limit_min) {
@@ -320,7 +362,7 @@ void view_zoom_camera_out(struct Camera *cam, long limit_max, long limit_min)
         }
         break;
     case PVM_FrontView:
-        new_zoom = (85 * old_zoom) / 100;
+        new_zoom = (zoom_rate * old_zoom) / 100;
         if (new_zoom == old_zoom)
             new_zoom--;
         if (new_zoom < max(FRONTVIEW_CAMERA_ZOOM_MIN, frontview_zoom_distance_setting)) {
@@ -431,6 +473,8 @@ void view_set_camera_rotation_inertia(struct Camera *cam, long delta, long ilimi
 void init_player_cameras(struct PlayerInfo *player)
 {
     struct Thing* heartng = get_player_soul_container(player->id_number);
+
+    // Initialise first person camera
     struct Camera* cam = &player->cameras[CamIV_FirstPerson];
     cam->mappos.x.val = 0;
     cam->mappos.y.val = 0;
@@ -441,6 +485,7 @@ void init_player_cameras(struct PlayerInfo *player)
     cam->orient_a = LbFPMath_PI/2;
     cam->view_mode = PVM_CreatureView;
 
+    // Initialise isometric camera
     cam = &player->cameras[CamIV_Isometric];
     cam->mappos.x.val = heartng->mappos.x.val;
     cam->mappos.y.val = heartng->mappos.y.val;
@@ -455,7 +500,9 @@ void init_player_cameras(struct PlayerInfo *player)
         cam->view_mode = PVM_IsoWibbleView;
     }
     cam->zoom = settings.isometric_view_zoom_level;
+    update_zoomed_percentage(cam);
 
+    // Initialise parchment camera
     cam = &player->cameras[CamIV_Parchment];
     cam->mappos.x.val = 0;
     cam->mappos.y.val = 0;
@@ -463,6 +510,7 @@ void init_player_cameras(struct PlayerInfo *player)
     cam->horizontal_fov = 94;
     cam->view_mode = PVM_ParchmentView;
 
+    // Initialise frontview camera
     cam = &player->cameras[CamIV_FrontView];
     cam->mappos.x.val = heartng->mappos.x.val;
     cam->mappos.y.val = heartng->mappos.y.val;
@@ -470,7 +518,9 @@ void init_player_cameras(struct PlayerInfo *player)
     cam->horizontal_fov = 94;
     cam->view_mode = PVM_FrontView;
     cam->zoom = settings.frontview_zoom_level;
+    update_zoomed_percentage(cam);
 
+    // Initialise interpolation
     reset_interpolation_of_camera(player);
 }
 
@@ -877,5 +927,43 @@ void update_all_players_cameras(void)
           update_player_camera(player);
     }
   }
+}
+
+void zoom_moves_cam_towards_mouse(struct PlayerInfo *player, int pointer_x, int pointer_y)
+{
+    // This function runs after the zooming function is called.
+
+    struct Camera* cam = player->acamera;
+    //if (!is_my_player(player)) {return;}
+
+    int viewport_w = player->engine_window_width;
+    int viewport_h = player->engine_window_height;
+
+    int viewport_center_x = (viewport_w / 2);
+    int viewport_center_y = (viewport_h / 2);
+
+    float previous_pos_x = (pointer_x - viewport_center_x) / cam->previous_zoomed_percent;
+    float previous_pos_y = (pointer_y - viewport_center_y) / cam->previous_zoomed_percent;
+    
+    float new_pos_x = (pointer_x - viewport_center_x) / cam->zoomed_percent;
+    float new_pos_y = (pointer_y - viewport_center_y) / cam->zoomed_percent;
+
+    int distance_x = (previous_pos_x - new_pos_x) * 2.0;
+    int distance_y = (previous_pos_y - new_pos_y) * 2.0;
+    
+    if (distance_x < 0) {
+        view_move_camera_left(cam, abs(distance_x));
+    } else {
+        if (distance_x > 0) {
+            view_move_camera_right(cam, abs(distance_x));
+        }
+    }
+    if (distance_y < 0) {
+        view_move_camera_up(cam, abs(distance_y));
+    } else {
+        if (distance_y > 0) {
+            view_move_camera_down(cam, abs(distance_y));
+        }
+    }
 }
 /******************************************************************************/

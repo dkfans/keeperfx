@@ -527,30 +527,20 @@ static void draw_jonty_mapwho(struct BucketKindJontySprite *jspr);
 static void calculate_hud_scale(struct Camera *cam) {
     // hud_scale is the current camera zoom converted to a percentage that ranges between base level zoom and fully zoomed out.
     // HUD items: creature status flowers, room flags, popup gold numbers. They scale with the zoom.
-    float range_input = cam->zoom;
-    float range_min;
-    float range_max;
     switch (cam->view_mode) {
         case PVM_IsoWibbleView:
         case PVM_IsoStraightView:
-            range_min = CAMERA_ZOOM_MIN; // Fully zoomed out
-            range_max = 4100; // Base zoom level
+            hud_scale = normalize_within_range(cam->zoom, CAMERA_ZOOM_MIN, 4100);
             break;
         case PVM_FrontView:
-            range_min = FRONTVIEW_CAMERA_ZOOM_MIN; // Fully zoomed out
-            range_max = 32768; // Base zoom level
+            hud_scale = normalize_within_range(cam->zoom, FRONTVIEW_CAMERA_ZOOM_MIN, 32768);
             break;
         default:
             hud_scale = 0;
             return;
     }
-    if (range_input < range_min) {
-        range_input = range_min;
-    } else if (range_input > range_max) {
-        range_input = range_max;
-    }
-    hud_scale = ((range_input - range_min)) / (range_max - range_min);
 }
+
 
 long interpolate(long variable_to_interpolate, long previous, long current)
 {
