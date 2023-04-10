@@ -23,12 +23,17 @@
 #include "globals.h"
 
 #include "ariadne.h"
+#include "creature_graphics.h"
 #include "creature_groups.h"
 #include "thing_stats.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#define CREATURE_TYPES_MAX 64
+#define SWAP_CREATURE_TYPES_MAX 64
+#define CREATURE_STATES_MAX 256
 
 #define MAX_SIZEXY            768
 /** Max amount of spells casted at the creature at once. */
@@ -323,11 +328,11 @@ unsigned char sound_flag;
     unsigned char field_AE;
     short force_visible;
     unsigned char frozen_on_hit;
-    long field_B2;
+    long last_piss_turn;
     unsigned char disease_caster_plyridx;
     MapSubtlCoord teleport_x;
     MapSubtlCoord teleport_y;
-    unsigned short field_B9;
+    unsigned short corpse_to_piss_on;
     struct CoordDelta3d moveaccel;
     unsigned char bloody_footsteps_turns;
     short kills_num;
@@ -398,7 +403,7 @@ unsigned short shot_shift_z;
     MapSubtlCoord alarm_stl_x;
     MapSubtlCoord alarm_stl_y;
     unsigned long alarm_over_turn;
-    unsigned long field_2FE;
+    unsigned long lava_escape_since;
     unsigned char stopped_for_hand_turns;
     long following_leader_since;
     unsigned char follow_leader_fails;
@@ -518,6 +523,7 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     short footstep_pitch;
     short lair_object;
     short status_offset;
+    struct CreaturePickedUpOffset creature_picked_up_offset;
 };
 
 struct Persons {

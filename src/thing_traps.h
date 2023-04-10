@@ -100,6 +100,7 @@ TbBool can_place_trap_on(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoo
 
 TbBool destroy_trap(struct Thing *thing);
 struct Thing *create_trap(struct Coord3d *pos, ThingModel trpkind, PlayerNumber plyr_idx);
+struct Thing* activate_trap_spawn_creature(struct Thing* traptng, unsigned char model);
 struct Thing *get_trap_for_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 struct Thing *get_trap_for_slab_position(MapSlabCoord slb_x, MapSlabCoord slb_y);
 TbBool trap_is_active(const struct Thing *thing);
