@@ -843,6 +843,10 @@ static TbBool shot_hit_object_at(struct Thing *shotng, struct Thing *target, str
     if (target->health < 0) {
         shot_kill_object(shotng, target);
     }
+    if (!shotst->hit_door.withstand)
+    {
+        return detonate_shot(shotng);
+    }
     if (shotst->destroy_on_first_hit) {
         delete_thing_structure(shotng, 0);
         // If thing was deleted something was hit
