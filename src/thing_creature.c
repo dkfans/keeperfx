@@ -1808,7 +1808,7 @@ TbBool creature_pick_up_interesting_object_laying_nearby(struct Thing *creatng)
         anger_apply_anger_to_creature(creatng, crstat->annoy_got_wage, AngR_NotPaid, 1);
         return true;
     }
-    if (thing_can_be_eaten(tgthing))
+    if (thing_can_be_eaten(tgthing) && creature_able_to_eat(creatng))
     {
         food_eaten_by_creature(tgthing, creatng);
         return true;
