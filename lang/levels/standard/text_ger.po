@@ -599,16 +599,16 @@ msgstr ""
 #. Shores of Battle (lv456)
 #: guitext:82
 msgctxt "In-game message"
-msgid "I give your performance 2 out of 5 spleens. But I guess it's the result that counts. Victory!
+msgid "I give your performance 2 out of 5 spleens. But I guess it's the result that counts. Victory!"
 msgstr ""
-"Ich gebe Ihrer Leistung 2 von 5 Punkten. Aber ich denke, es ist das Endergebnis, das zählt. Sieg!
+"Ich gebe Ihrer Leistung 2 von 5 Punkten. Aber ich denke, es ist das Endergebnis, das zählt. Sieg!"
 
 #. My Pet Dungeon (lv457)
 #: guitext:83
 msgctxt "In-game message"
-msgid "Welcome to SimDungeon. You can attract 25 evil creatures per portal. Heroes can be summoned at the spawner.
+msgid "Welcome to SimDungeon. You can attract 25 evil creatures per portal. Heroes can be summoned at the spawner."
 msgstr ""
-"Willkommen bei SimDungeon. Ihr könnt 25 finstere Kreaturen pro Eingang anlocken. Helden können am Spawner herbeigerufen werden.
+"Willkommen bei SimDungeon. Ihr könnt 25 finstere Kreaturen pro Eingang anlocken. Helden können am Spawner herbeigerufen werden."
 
 #. My Pet Dungeon (lv457)
 #: guitext:84
@@ -738,7 +738,7 @@ msgstr ""
 #. Ghost in the Machine (lv458)
 #: guitext:102
 msgctxt "In-game message"
-msgid ""Your message could be posted here. Victory!"
+msgid "Your message could be posted here. Victory!"
 msgstr ""
 " Hier könnte Ihre Nachricht stehen. Sieg!"
 
@@ -842,8 +842,7 @@ msgstr ""
 #: guitext:117
 msgctxt "In-game message"
 msgid "Kill all the heroes you can find. They will do the same thing to you soon enough."
-msgstr ""
-Vernichtet alle Helden, die Ihr finden könnt. Bald genug werden sie das Gleiche mit Euch tun.
+msgstr "Vernichtet alle Helden, die Ihr finden könnt. Bald genug werden sie das Gleiche mit Euch tun."
 
 #. The Death Clock (lv450)
 #: guitext:118
@@ -911,8 +910,8 @@ msgstr "Yami"
 #: guitext:203
 msgctxt "Level name"
 msgid "Temple Deal"
-msgstr ""
-"Tempelgeschäft"
+msgstr "Tempelgeschäft"
+
 #: guitext:204
 msgctxt "Level name"
 msgid "Grail Run"
