@@ -584,7 +584,7 @@ msgstr ""
 #. Ghost in the Machine (lv458)
 #: guitext:93
 msgctxt "In-game message"
-msgid "Barbarians have started to attack. They will only increase in number. Kill them and you can use their ghosts in this ream. "
+msgid "Barbarians have started to attack. They will only increase in number. Kill them and you can use their ghosts in this realm. "
 msgstr ""
 
 #. Ghost in the Machine (lv458)
