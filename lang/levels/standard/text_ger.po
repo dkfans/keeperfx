@@ -150,7 +150,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid "Here they come! Defeat the Lord of Land and his company and the land is yours forever."
 msgstr ""
-"Da kommen sie! Besiege den Landesherrn und seine Truppen und das Land gehört für immer euch."
+"Da kommen sie! Besiege den Landesherrn und seine Truppen und das Land gehört für immer Euch."
 
 #. Temple Deal (lv443)
 #: guitext:19
@@ -178,7 +178,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid "The best defence is a good offence. Kill the Heroes and steal their magic or they will overrun you."
 msgstr ""
-"Angriff ist die beste Verteidigung. Töte die Helden und stehle ihre Zauber, oder sie werden euch überrennen."
+"Angriff ist die beste Verteidigung. Töte die Helden und stehle ihre Zauber, oder sie werden Euch überrennen."
 
 #. Thug of War (lv451)
 #: guitext:23
@@ -192,7 +192,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid "The Heroes have learned that being captured by you is a fate worse than death. They will avoid your prison at all cost. Better destroy them and take their magic before they really get smart! "
 msgstr ""
-"Die Helden haben gelernt, dass von euch gefangen genommen zu werden, noch schlimmer als der Tod ist. Sie werden Euer Gefängnis um jeden Preis meiden. Vernichtet sie lieber und raubt ihnen ihre Zauber, bevor sie noch wirklich schlau werden! "
+"Die Helden haben gelernt, dass von Euch gefangen genommen zu werden, noch schlimmer als der Tod ist. Sie werden Euer Gefängnis um jeden Preis meiden. Vernichtet sie lieber und raubt ihnen ihre Zauber, bevor sie noch wirklich schlau werden! "
 
 #. Thug of War (lv451)
 #: guitext:25
