@@ -92,6 +92,7 @@ pkg/levels/classic/text_chi.dat \
 pkg/levels/classic/text_spa.dat \
 pkg/levels/standard/text_eng.dat \
 pkg/levels/standard/text_chi.dat \
+pkg/levels/standard/text_ger.dat \
 pkg/levels/standard/text_spa.dat
 
 EU_CHAR_ENCODING = tools/po2ngdat/res/char_encoding_tbl_eu.txt
