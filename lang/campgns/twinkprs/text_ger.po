@@ -1,0 +1,375 @@
+# *****************************************************************************
+#  Free implementation of Bullfrog's Dungeon Keeper strategy game.
+# *****************************************************************************
+#   @file twinkprs/text_ger.po
+#      KeeperFX Campaign Strings translation file
+#  @par Purpose:
+#      Contains translation of the national strings in the game.
+#  @par Comment:
+#      Use this file to improve the translation for specific language.
+#  @author   KeeperFX Team
+#  @date     25 Aug 2012 - 02 Oct 2012
+#  @par  Copying and copyrights:
+#      This program is free software; you can redistribute it and/or modify
+#      it under the terms of the GNU General Public License as published by
+#      the Free Software Foundation; either version 2 of the License, or
+#      (at your option) any later version.
+#
+# *****************************************************************************                                                                               
+"Project-Id-Version: KeeperFX Twin Keepers\n"
+
+#. Generic victory message
+#: guitext:0
+msgctxt "In-game message"
+msgid ""
+msgstr ""
+
+#. Level Swedish Spirit Opening Message
+#: guitext:1
+msgctxt "In-game message"
+msgid ""
+"Circle circle of the dead, tell me who I'm gonna get. Having troll is making "
+"traps, as the workshop knack he has. Warlock brings a bunch of spells, "
+"that's what bookworms always have. Orc attracts a better army, which could "
+"do some serious harming."
+msgstr ""
+
+#. Level Swedish Spirit guard post message
+#: guitext:2
+msgctxt "In-game message"
+msgid ""
+"Your conquest of the guard post has caused the heroes to retreat. However, "
+"they are regrouping and reinforcing. You should use this lull to prepare "
+"your forces Master, as they will surely return!"
+msgstr ""
+
+#. Level Swedish Spirit 2nd portal claim
+#: guitext:3
+msgctxt "In-game message"
+msgid ""
+"Your capture of the second portal has forced the heroes to act, and an "
+"attack is on the way. Your spies report however, that the main hero army is "
+"being held in reserve. Your preparations will be thoroughly tested Master!"
+msgstr ""
+
+#. Level Swedish spirit outside hero heart"
+#: guitext:4
+msgctxt "In-game message"
+msgid ""
+"Beware, the main hero army approaches! I hope you're prepared for this, "
+"otherwise it may be a very short fight. Destroy the heart tainted by their "
+"rightfulness!"
+msgstr ""
+
+#. Level Swedish Spirit. Orc from steal hero message
+#: guitext:5
+msgctxt "In-game message"
+msgid ""
+"Fate has spoken, evil master. Your primary weapon is brute force. You'll "
+"also be able to imprison enemies, and use the unholy temple.. if you know "
+"how. Use your creatures well, as you cannot help them with traps or spells. "
+"Also, watch your gold reserve. The heroes have already noticed you and are "
+"preparing for a crusade."
+msgstr ""
+
+#. Level Swedish Spirit. Warlock from steal hero message
+#: guitext:6
+msgctxt "In-game message"
+msgid ""
+"Fate has spoken, evil master. Your primary weapon is magic. You'll be able "
+"to use lots of powerful spells. Use them well, as you cannot make traps or "
+"build a large army. The heroes have already noticed you and are preparing "
+"for a crusade."
+msgstr ""
+
+#. Level Swedish Spirit. Troll from steal hero message
+#: guitext:7
+msgctxt "In-game message"
+msgid ""
+"Fate has spoken, evil master. Your primary weapon is manufacture. You'll be "
+"able to build devastating traps. Use these devices well, as you cannot use "
+"magic or build a large army. The heroes have already noticed you and are "
+"preparing for a crusade."
+msgstr ""
+
+#: guitext:8
+msgctxt "In-game message"
+msgid ""
+"The abomination of a heart is destroyed. You must show no mercy. Be certain "
+"that no living heroes remain Keeper. "
+msgstr ""
+
+#. Level Nameless hero (2nd level) imminent victory
+#: guitext:9
+msgctxt "In-game message"
+msgid ""
+"Almost there! Be sure to slaughter every last hero. Let no-one suggest that "
+"you were merciful. Such a slander would ruin your reputation!"
+msgstr ""
+
+#: guitext:10
+msgctxt "In-game message"
+msgid ""
+"While traveling to this land, we lost our Treasure Room plans. Fortunately "
+"there is an ancient library in this land, left by a powerful long dead "
+"keeper. Use it well!"
+msgstr ""
+
+#: guitext:11
+msgctxt "In-game message"
+msgid ""
+"The hero forces will continue to attack, but they're getting weaker. When "
+"you're ready, focus on corridor near your entrance and commence an attack on "
+"their main force!"
+msgstr ""
+
+#: guitext:12
+msgctxt "In-game message"
+msgid ""
+"You've chosen to attack the main enemy force quite soon. I just hope it "
+"won't be your undoing, keeper."
+msgstr ""
+
+#: guitext:13
+msgctxt "In-game message"
+msgid ""
+"The good are beginning to understand their unavoidable fate. But stay alert, "
+"there's still a bunch to slay, and they're definitely not the weaker ones!"
+msgstr ""
+
+#: guitext:14
+msgctxt "In-game message"
+msgid ""
+"If I were in your skin.. I mean, in your flask - I would avoid attacking the "
+"door near the Entrance. Heroes who live there might prove to be a problem if "
+"your army does not consists of hardened veterans."
+msgstr ""
+
+#: guitext:15
+msgctxt "In-game message"
+msgid ""
+"The people of this land know well where to find the old Treasure Room. "
+"Expect visits of various heroes, looking either for fame and glory, or just "
+"for some easy gold."
+msgstr ""
+
+#: guitext:16
+msgctxt "In-game message"
+msgid ""
+"Do not allow your creatures to attack the door near Entrance! Instead, turn "
+"your eyes towards the door at bottom. Heroes there are somewhat weaker, and "
+"I smell a seductive wealth inside."
+msgstr ""
+
+#: guitext:17
+msgctxt "In-game message"
+msgid ""
+"Having gems will allow your Samurai to do proper training, and Thieves "
+"should no longer target you with such strength. That's a progress!"
+msgstr ""
+
+#: guitext:18
+msgctxt "In-game message"
+msgid ""
+"Congratulations Evil One. Victory is within your grasp! A few more corpses "
+"and we'll be done here. Hurry along!"
+msgstr ""
+
+#. Level Nameless hero opening message
+#: guitext:19
+msgctxt "In-game message"
+msgid ""
+"The hero who commands this realm cannot be of any significance, as he "
+"doesn't even have a name! You can worry about this when he has need of a "
+"tombstone Keeper. To work!"
+msgstr ""
+
+#. Level Nameless hero action point 22
+#: guitext:20
+msgctxt "In-game message"
+msgid ""
+"Have you found the man with no name yet Keeper? He must be here somewhere?!"
+msgstr ""
+
+#. Level Nameless hero opening message
+#: guitext:21
+msgctxt "In-game message"
+msgid ""
+"The nameless one commands many heroes Master, and he will not hesitate to "
+"march them against you."
+msgstr ""
+
+#. Level Twin Keepers opening message
+#: guitext:22
+msgctxt "In-game message"
+msgid ""
+"This land was kept in balance by the 4 keepers who dwell here. However, two "
+"have formed an alliance and will jointly attack the hero fortress. This will "
+"keep them occupied for a time Master, but rest assured they will be coming "
+"to claim your land when the hero fortress falls."
+msgstr ""
+
+#. Level Twin Keepers hero heart destroyed
+#: guitext:23
+msgctxt "In-game message"
+msgid ""
+"The hero dungeon has fallen Master! You have little time before the Twin "
+"Keepers make their move against you. Make your final preparations now! "
+msgstr ""
+
+#. Level Twin Keepers hero loss message
+#: guitext:24
+msgctxt "In-game message"
+msgid ""
+"Significant hero reinforcements have arrived, but will it be enough to hold "
+"off the combined forces of the Twin Keepers? Only time will tell."
+msgstr ""
+
+#. Level Twin Keepers victory message
+#: guitext:25
+msgctxt "In-game message"
+msgid "Excellent work Master! The final land of the Twin Keepers is yours!"
+msgstr ""
+
+#. Level Twin Keepers defeat message
+#: guitext:26
+msgctxt "In-game message"
+msgid ""
+"You are a great disappointment! However, these previously friendly Keepers "
+"have broken their alliance, so you can watch the show while you contemplate "
+"the implications of your incompetence."
+msgstr ""
+
+#. Level Tub vulnerabilities opening message
+#: guitext:27
+msgctxt "In-game message"
+msgid ""
+"This is the last land you must conquer if you wish to meet the Twin Keepers. "
+"Here there are three other keepers, and guess what? None of them like you!"
+msgstr ""
+
+#. Level Tub Vulnerabilities victory message
+#: guitext:28
+msgctxt "In-game message"
+msgid ""
+"A majestic victory Master! And you have earned the right to meet the "
+"infamous Twin Keepers in battle. Savour this moment awhile, then prepare "
+"yourself for the final trial!"
+msgstr ""
+
+#. Level Tub Vulnerabilities Hero Knight death message
+#: guitext:29
+msgctxt "In-game message"
+msgid ""
+"With their Knight defeated, these heroes now know this is a fight to the "
+"death, and they will attack at every opportunity Master. Best to reward "
+"their bravery the only way you know how!"
+msgstr ""
+
+#. Level Tub Vulnerabilities hero onslaught message
+#: guitext:30
+msgctxt "In-game message"
+msgid ""
+"You have unleashed waves of hero raiding parties Master, as these heroes "
+"make their last stand in this realm. Your defences need to be extensive and "
+"well placed if you are to triumph here."
+msgstr ""
+
+#. Level Embattled Formation opening message
+#: guitext:31
+msgctxt "In-game message"
+msgid ""
+"You are under siege in this land Master, with enemies to each of, three "
+"sides, and a land where there is nowhere to hide. Sickeningly they have made "
+"peace with each other and sworn to eliminate you from this land. You need a "
+"plan of your own and you need it fast!"
+msgstr ""
+
+#. Level Embattled Formation one opponent remaining message
+#: guitext:32
+msgctxt "In-game message"
+msgid ""
+"Impressive work master. It is a privilege to watch you wreak destruction on "
+"your enemies. Only one enemy remains, but beware, he has seen his allies' "
+"fate and will throw everything into the battle to save his skin!"
+msgstr ""
+
+#. Level Embattled Formation victory message
+#: guitext:33
+msgctxt "In-game message"
+msgid ""
+"An excellent victory once again. All three enemies lie amongst the dust of "
+"this once green and pleasant land. I sense you want to find the next land "
+"Master?"
+msgstr ""
+
+#. Level Embattled formation death of a keeper message
+#: guitext:34
+msgctxt "In-game message"
+msgid ""
+"A good start kepper, but beware. The remaining keepers grow stronger by "
+"pilfering the remnants of this dead kingdom, and therefore attract more "
+"creatures anxious to share the spoils!"
+msgstr ""
+
+#: guitext:35 guitext:36 guitext:37 guitext:38 guitext:39 guitext:40
+#: guitext:41 guitext:42 guitext:43 guitext:44 guitext:45 guitext:46
+#: guitext:47 guitext:48 guitext:49 guitext:50 guitext:51 guitext:52
+#: guitext:53 guitext:54 guitext:55 guitext:56 guitext:57 guitext:58
+#: guitext:59 guitext:60 guitext:61 guitext:62 guitext:63 guitext:64
+#: guitext:65 guitext:66 guitext:67 guitext:68 guitext:69 guitext:70
+#: guitext:71 guitext:72 guitext:73 guitext:74 guitext:75 guitext:76
+#: guitext:77 guitext:78 guitext:79 guitext:80 guitext:81 guitext:82
+#: guitext:83 guitext:84 guitext:85 guitext:86 guitext:87 guitext:88
+#: guitext:89 guitext:90 guitext:91 guitext:92 guitext:93 guitext:94
+#: guitext:95 guitext:96 guitext:97 guitext:98 guitext:99 guitext:100
+#: guitext:101 guitext:102 guitext:103 guitext:104 guitext:105 guitext:106
+#: guitext:107 guitext:108 guitext:109 guitext:110 guitext:111 guitext:112
+#: guitext:113 guitext:114 guitext:115 guitext:116 guitext:117 guitext:118
+#: guitext:119 guitext:120 guitext:121 guitext:122 guitext:123 guitext:124
+#: guitext:125 guitext:126 guitext:127 guitext:128 guitext:129 guitext:130
+#: guitext:131 guitext:132 guitext:133 guitext:134 guitext:135 guitext:136
+#: guitext:137 guitext:138 guitext:139 guitext:140 guitext:141 guitext:142
+#: guitext:143 guitext:144 guitext:145 guitext:146 guitext:147 guitext:148
+#: guitext:149 guitext:150 guitext:151 guitext:152 guitext:153 guitext:154
+#: guitext:155 guitext:156 guitext:157 guitext:158 guitext:159 guitext:160
+#: guitext:161 guitext:162 guitext:163 guitext:164 guitext:165 guitext:166
+#: guitext:167 guitext:168 guitext:169 guitext:170 guitext:171 guitext:172
+#: guitext:173 guitext:174 guitext:175 guitext:176 guitext:177 guitext:178
+#: guitext:179 guitext:180 guitext:181 guitext:182 guitext:183 guitext:184
+#: guitext:185 guitext:186 guitext:187 guitext:188 guitext:189 guitext:190
+#: guitext:191 guitext:192 guitext:193 guitext:194 guitext:195 guitext:196
+#: guitext:197 guitext:198 guitext:199 guitext:200
+msgctxt "In-game message"
+msgid "Moo"
+msgstr ""
+
+#: guitext:202
+msgctxt "Level name"
+msgid "Swedish spirit"
+msgstr ""
+
+#: guitext:203
+msgctxt "Level name"
+msgid "The Nameless Hero"
+msgstr ""
+
+#: guitext:204
+msgctxt "Level name"
+msgid "Invisible"
+msgstr ""
+
+#: guitext:205
+msgctxt "Level name"
+msgid "Embattled formation"
+msgstr ""
+
+#: guitext:206
+msgctxt "Level name"
+msgid "Tub vulnerabilities"
+msgstr ""
+
+#: guitext:207
+msgctxt "Level name"
+msgid "Twin Keepers"
+msgstr ""
