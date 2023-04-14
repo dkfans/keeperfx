@@ -733,6 +733,9 @@ void init_player(struct PlayerInfo *player, short no_explore)
     player->main_palette = engine_palette;
     if (is_my_player(player))
     {
+        player->minimap_zoom = settings.minimap_zoom;
+        player->isometric_view_zoom_level = settings.isometric_view_zoom_level;
+        player->frontview_zoom_level = settings.frontview_zoom_level;
         set_flag_byte(&game.operation_flags,GOF_ShowPanel,true);
         set_gui_visible(true);
         init_gui();
