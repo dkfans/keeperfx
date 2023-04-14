@@ -431,7 +431,7 @@ msgstr ""
 #. Misty Bog (lv5)
 #: guitext:55
 msgctxt "In-game message"
-msgid "The heart of one evil Necromancer is destroyed, but there is another! Find and destroy his second phylactery, and then proceed to "
+msgid "The heart of an evil Necromancer is destroyed, but there is another! Find and destroy his second phylactery, and then proceed to "
 " stake all surviving vampires in the bog."
 msgstr ""
 
@@ -443,12 +443,9 @@ msgid ""
 "on your heroes."
 msgstr ""
 
-#. Misty Bog (lv5)
 #: guitext:57
 msgctxt "In-game message"
-msgid ""
-"The heart of an evil Necromancer is destroyed, but another remains. Find and destroy his second phylactery, and then proceed to stake "
-"all surviving vampires in the bog."
+msgid "Moo"
 msgstr ""
 
 #. Misty Bog (lv5) victory message
