@@ -482,7 +482,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid "The level will start when you claim your first creature. "
 msgstr ""
-" Das Level beginnt, wenn Ihr Eure erste Kreatur erhaltet. "
+"Das Level beginnt, wenn Ihr Eure erste Kreatur erhaltet. "
 
 #. Frozen Legion (lv455)
 #: guitext:66
@@ -594,7 +594,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid "Here they come! "
 msgstr ""
-" Da kommen sie! "
+"Da kommen sie! "
 
 #. Shores of Battle (lv456)
 #: guitext:82
@@ -622,7 +622,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid "You're well on your way to an impressive dungeon? Get to one hundred units and we'll talk. "
 msgstr ""
-"Ihr seid auf dem richtigen Weg zu einem eindrucksvollen Dungeon? Locke hundert Kreaturen an, dann reden wir weiter. "
+"Ihr seid auf dem richtigen Weg zu einem eindrucksvollen Dungeon? Locke Einhundert Kreaturen an, dann reden wir weiter. "
 
 #. My Pet Dungeon (lv457)
 #: guitext:86
@@ -650,7 +650,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid "You've done the impossible. Victory! "
 msgstr ""
-" Ihr habt das Unmögliche geschafft. Sieg! "
+"Ihr habt das Unmögliche geschafft. Sieg! "
 
 #. Ghost in the Machine (lv458)
 #: guitext:90
@@ -670,7 +670,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid "You have angered the gods and lost all hope of victory. "
 msgstr ""
-" Ihr habt die Götter verärgert. Alle Hoffnung auf einen Sieg ist verloren. "
+"Ihr habt die Götter verärgert. Alle Hoffnung auf einen Sieg ist verloren. "
 
 #. Ghost in the Machine (lv458)
 #: guitext:93
@@ -740,7 +740,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid "Your message could be posted here. Victory!"
 msgstr ""
-" Hier könnte Ihre Nachricht stehen. Sieg!"
+"Hier könnte Ihre Werbung stehen. Sieg!"
 
 #. Grail Run (lv444)
 #: guitext:103
@@ -761,7 +761,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid "Having seen their previous efforts fail, the Heroes have formed a new group."
 msgstr ""
-" Nach dem Scheitern ihrer bisherigen Bemühungen haben die Helden eine neue Gruppe zusammengestellt."
+"Nach dem Scheitern ihrer bisherigen Bemühungen haben die Helden eine neue Gruppe zusammengestellt."
 
 #. Grail Run (lv444)
 #: guitext:106
@@ -808,7 +808,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid "Good, you have your dungeon back, your power is returning. The heroes know, they will return to kill us all. Make the most of your final moments."
 msgstr ""
-" Gut, Ihr habt Euren Dungeon wieder, Eure Macht kehrt zurück. Die Helden wissen dies, sie werden zurückkehren, um uns alle zu vernichten. Macht das Beste aus Euren verbleibenden Stunden."
+"Gut, Ihr habt Euren Dungeon wieder, Eure Macht kehrt zurück. Die Helden wissen dies, sie werden zurückkehren, um uns alle zu vernichten. Macht das Beste aus Euren verbleibenden Stunden."
 
 #. The Death Clock (lv450)
 #: guitext:113
@@ -870,14 +870,14 @@ msgstr ""
 msgctxt "In-game message"
 msgid "Yes, we have some creatures left! I never doubted you for a second. Congratulations!"
 msgstr ""
-" Jawohl, wir haben noch ein paar Kreaturen übrig! Ich habe nicht eine Sekunde an Euch gezweifelt. Glückwunsch!"
+"Jawohl, wir haben noch ein paar Kreaturen übrig! Ich habe nicht eine Sekunde an Euch gezweifelt. Glückwunsch!"
 
 #. The Death Clock (lv450)
 #: guitext:122
 msgctxt "In-game message"
 msgid "You lost your only creature. You needed it to get claim the tiles around your heart. Hopeless."
 msgstr ""
-" Ihr habt Eure einzige Kreatur verloren. Ihr brauchtet sie, um die Fliesen um Euer Herz herum zu beanspruchen. Vergeblich."
+"Ihr habt Eure einzige Kreatur verloren. Ihr brauchtet sie, um die Fliesen um Euer Herz herum zu beanspruchen. Vergeblich."
 
 #: guitext:123 guitext:124 guitext:125
 #: guitext:126 guitext:127 guitext:128 guitext:129 guitext:130 guitext:131
