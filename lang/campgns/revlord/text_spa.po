@@ -79,8 +79,7 @@ msgstr "Mi Señor, uno de los monjes que huía de la sitiada Piedrabadía, se ha
 #. Dwarfton (lv1)
 #: guitext:7
 msgctxt "In-game message"
-msgid ""
-"My Liege, you shouldn't have heard that!"
+msgid "My Liege, you shouldn't have heard that!"
 msgstr "¡Mi Señor, no deberías haber oído eso!"
 
 #. Dwarfton (lv1)
@@ -264,7 +263,7 @@ msgid ""
 "Abbeystone, where the evil keeper seeks to quash one of the last few bastions of virtue in Dominus."
 msgstr ""
 "Todos los monstruos están muertos y la gente de Bosque centelleante ahora están a salvo. Pero ahora es el momento de dirigirse "
-"a la sitiada Piedrabadía, donde un malvado Guardián busca aplastar a uno de los últimos bastiones de la virtud en Dominus.
+"a la sitiada Piedrabadía, donde un malvado Guardián busca aplastar a uno de los últimos bastiones de la virtud en Dominus."
 
 #. Abbeystone (lv3)
 #: guitext:29
@@ -537,12 +536,8 @@ msgstr ""
 #. Widerwilds (lv3)
 #: guitext:59
 msgctxt "In-game message"
-msgid ""
-"Treachery! The Barbarian who challenged you has turned out to have been a demon all along! You now must breach his fortress and destroy "
-"both the dungeon heart and the monster himself!"
-msgstr ""
-"¡Traición! ¡El bárbaro que te desafió resultó ser un demonio todo el tiempo! ¡Ahora debes destruir su fortaleza y acabar con el Corazón 
-"de Mazmorra y con el monstruo mismo!"
+msgid "Treachery! Turns out the Barbarian who challenged you was a demon all along! You now must breach his fortress and destroy both the dungeon heart and the monster himself!"
+msgstr "¡Traición! ¡El bárbaro que te desafió resultó ser un demonio todo el tiempo! ¡Ahora debes destruir su fortaleza y acabar con el Corazón de Mazmorra y con el monstruo mismo!"
 
 #. Knight's castle (lv6)
 #: guitext:60
@@ -615,7 +610,7 @@ msgid ""
 "You have established a new Knightly Order, and a wise and powerful Wizard has joined your cause! he brings with him the ability to "
 " Destroy Walls. It is now possible to finally eradicate the evil presence in these lands by destroying its very heart."
 msgstr ""
-"¡Has establecido una nueva orden caballeresca y un mago sabio y poderoso se ha unido a tu causa! trae consigo la capacidad de ,
+"¡Has establecido una nueva orden caballeresca y un mago sabio y poderoso se ha unido a tu causa! trae consigo la capacidad de ,"
 "Destruir Muros. Ahora es posible erradicar finalmente la presencia del mal en estas tierras destruyendo su mismo Corazón."
 
 #. Knight's castle (lv6)
@@ -626,7 +621,7 @@ msgid ""
 " upon the Wickedridge itself."
 msgstr ""
 "El mal que contamina esta tierra ya no existe, y los muros del Castillo de los Caballeros una vez más se alzan orgullosos al amanecer."
-" Ahora es el momento de moverse sobre la propia Cresta Malvada.
+" Ahora es el momento de moverse sobre la propia Cresta Malvada."
 
 #. Knight's castle (lv6)
 #: guitext:69
