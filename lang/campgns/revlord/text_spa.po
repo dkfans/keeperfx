@@ -503,10 +503,11 @@ msgstr "La gente habla de un templo embrujado en la zona. ¿Sería prudente limp
 #. Misty Bog (lv5)
 #: guitext:55
 msgctxt "In-game message"
-msgid "The heart of one evil Necromancer is destroyed, but there is another! Find and destroy his second phylactery, and then proceed to "
-" stake all surviving vampires in the bog."
+msgid ""
+"The heart of an evil Necromancer is destroyed, but another remains. Find and destroy his second phylactery, and then proceed to stake "
+"all surviving vampires in the bog. "
 msgstr ""
-"El Corazón del nigromante malvado está destruido, ¡pero hay otro! Encuentra y destruye su segunda filacteria, y luego procede a clavar "
+"El Corazón del nigromante malvado está destruido, pero hay otro. Encuentra y destruye su segunda filacteria, y luego procede a clavar "
 "estacas a todos los vampiros supervivientes en el pantano."
 
 #. Misty Bog (lv5)
@@ -519,15 +520,10 @@ msgstr ""
 "El último nigromante ha sido derrotado. Ahora, debes acabar con todos los vampiros supervivientes del pantano, que han llegado con "
 "retraso en busca de venganza sobre tus héroes."
 
-#. Misty Bog (lv5)
 #: guitext:57
 msgctxt "In-game message"
-msgid ""
-"The heart of an evil Necromancer is destroyed, but another remains. Find and destroy his second phylactery, and then proceed to stake "
-"all surviving vampires in the bog. "
+msgid "Moo"
 msgstr ""
-"El Corazón del nigromante malvado está destruido, pero hay otro. Encuentra y destruye su segunda filacteria, y luego procede a clavar "
-"estacas a todos los vampiros supervivientes en el pantano."
 
 #. Misty Bog (lv5) victory message
 #: guitext:58

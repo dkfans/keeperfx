@@ -363,7 +363,7 @@ REM			QUICK_OBJECTIVE(18,"The evil necromancer is defeated. Now, you must stake 
 		ENDIF
 		IF(PLAYER_GOOD, DUNGEON_DESTROYED==0)
 REM	QUICK_OBJECTIVE(16,"The heart of an evil necromancer is destroyed, but he still has another one. Find and destroy his second phylactery, and then proceed to stake all surviving vampires in the bog.", PLAYER0)
-		DISPLAY_OBJECTIVE(57,PLAYER0)
+		DISPLAY_OBJECTIVE(55,PLAYER0)
 		ENDIF
 ENDIF
 
