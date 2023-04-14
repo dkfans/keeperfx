@@ -89,6 +89,7 @@ pkg/campgns/undedkpr/text_spa.dat
 MPTEXTDATS = \
 pkg/levels/classic/text_eng.dat \
 pkg/levels/classic/text_chi.dat \
+pkg/levels/classic/text_ger.dat \
 pkg/levels/classic/text_spa.dat \
 pkg/levels/standard/text_eng.dat \
 pkg/levels/standard/text_chi.dat \
