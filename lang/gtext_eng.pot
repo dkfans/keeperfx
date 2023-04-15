@@ -473,7 +473,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "The enemy's Dungeon Heart throbs before you. Assemble your minions nearby "
-"and administer the coup de grace."
+"and administer the coup de grâce."
 msgstr ""
 
 #. Level Flowerhat information
