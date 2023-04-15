@@ -220,14 +220,22 @@ TbPixel get_overhead_mapblock_color(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Pl
         && ((game.play_gameturn & 4) != 0))
     {
         pixval = pixmap.ghost[background + 0x1A00];
+        if ((slb->kind == SlbT_GEMS))
+        {
+            pixval = pixval + 2;
+        }
     } else
     if (!map_block_revealed(mapblk,plyr_idx))
     {
         pixval = background;
     } else
-    if ((mapblk->flags & SlbAtFlg_Valuable) != 0)
+    if (slb->kind == SlbT_GOLD)
     {
         pixval = pixmap.ghost[background + 0x8C00];
+    } else
+    if (slb->kind == SlbT_GEMS)
+    {
+        pixval = 102 + (pixmap.ghost[background] >> 6);
     }
     else if ((mapblk->flags & SlbAtFlg_IsRoom) != 0) // Room slab
     {

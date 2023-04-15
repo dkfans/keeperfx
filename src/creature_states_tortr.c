@@ -212,7 +212,7 @@ long process_torture_visuals(struct Thing *creatng, struct Room *room, CreatureJ
         cctrl->spell_flags &= ~CSAfF_Flying;
         creatng->mappos.z.val = get_thing_height_at(creatng, &creatng->mappos);
         if (cctrl->instance_id == CrInst_NULL) {
-            set_creature_instance(creatng, CrInst_TORTURED, 1, 0, 0);
+            set_creature_instance(creatng, CrInst_TORTURED, 0, 0);
         }
         if (thing_exists(sectng)) {
             sectng->rendering_flags |= TRF_Unknown01;

@@ -59,7 +59,7 @@ enum CreatureGraphicsInstances {
 
 struct Thing;
 
-struct CreaturePickedUpOffset // sizeof = 8
+struct CreaturePickedUpOffset
 {
   short delta_x;
   short delta_y;
@@ -104,7 +104,6 @@ struct KeeperSpriteExt // More info for custom sprites
 extern struct KeeperSprite *creature_table;
 extern struct KeeperSprite creature_table_add[];
 extern struct KeeperSpriteExt creatures_table_ext[];
-extern struct CreaturePickedUpOffset creature_picked_up_offset[];
 /******************************************************************************/
 
 #pragma pack()
