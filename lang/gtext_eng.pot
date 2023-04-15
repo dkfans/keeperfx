@@ -6024,7 +6024,7 @@ msgstr ""
 #: guitext:1037
 msgctxt "Trap description"
 msgid ""
-"Demolition Trap: An explosive with unrivaled destructive power."
+"Demolition Trap: An explosive with unrivalled destructive power."
 msgstr ""
 
 #: guitext:1038
