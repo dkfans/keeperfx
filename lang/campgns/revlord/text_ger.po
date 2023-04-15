@@ -841,7 +841,7 @@ msgstr ""
 #: guitext:201
 msgctxt "Level name"
 msgid "Revenge of the Lord"
-msgstr "Vergeltung des Herrn"
+msgstr "Die Rache des Ritters"
 
 #: guitext:202
 msgctxt "Level name"
