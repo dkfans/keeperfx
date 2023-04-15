@@ -57,6 +57,64 @@ const char slabdat_fname[] = "slabs.dat";
   */
 long level_file_version = 0;
 /******************************************************************************/
+#pragma pack(1)
+
+// all these structs have a fixed size to remain compatible with the files out there
+struct LegacyCoord3d {
+    union {
+      unsigned short val;
+    } x;
+    union {
+      unsigned short val;
+    } y;
+    union {
+      unsigned short val;
+    } z;
+};
+
+struct LegacyCoord2d {
+    union {
+      unsigned short val;
+    } x;
+    union {
+      unsigned short val;
+    } y;
+};
+
+struct LegacyInitThing { // sizeof=0x15
+    struct LegacyCoord3d mappos;
+    unsigned char oclass;
+    unsigned char model;
+    unsigned char owner;
+    unsigned short range;
+    unsigned short index;
+    unsigned char params[8];
+};
+
+struct LegacyInitActionPoint { // sizeof = 8
+    struct LegacyCoord2d mappos;
+    unsigned short range;
+    unsigned short num;
+};
+
+struct LegacyInitLight { // sizeof=0x14
+    short radius;
+    unsigned char intensity;
+    unsigned char field_3;
+    short field_4_unused;
+    short field_6_unused;
+    short field_8_unused;
+    struct LegacyCoord3d mappos;
+    unsigned char field_10_unused;
+    unsigned char is_dynamic;
+    short attached_slb;
+};
+
+#pragma pack()
+
+
+/******************************************************************************/
+
 
 /**
  * Loads map file with given level number and file extension.
@@ -705,9 +763,9 @@ static TbBool load_thing_file(LevelNumber lv_num)
     long total = lword(&buf[i]);
     i += 2;
     // Validate total amount of things
-    if ((total < 0) || (total > (fsize-2)/sizeof(struct InitThing)))
+    if ((total < 0) || (total > (fsize-2)/sizeof(struct LegacyInitThing)))
     {
-        total = (fsize-2)/sizeof(struct InitThing);
+        total = (fsize-2)/sizeof(struct LegacyInitThing);
         WARNMSG("Bad amount of things in TNG file; corrected to %d.",(int)total);
     }
     if (total > THINGS_COUNT-2)
@@ -718,10 +776,21 @@ static TbBool load_thing_file(LevelNumber lv_num)
     // Create things
     for (long k = 0; k < total; k++)
     {
+        struct LegacyInitThing litng;
         struct InitThing itng;
-        LbMemoryCopy(&itng, &buf[i], sizeof(struct InitThing));
+        LbMemoryCopy(&litng, &buf[i], sizeof(struct LegacyInitThing));
+        itng.mappos.x.val = litng.mappos.x.val;
+        itng.mappos.y.val = litng.mappos.y.val;
+        itng.mappos.z.val = litng.mappos.z.val;
+        itng.oclass = litng.oclass;
+        itng.model  = litng.model;
+        itng.owner  = litng.owner;
+        itng.range  = litng.range;
+        itng.index  = litng.index;
+        LbMemoryCopy(&itng.params, &litng.params, 8);
+
         thing_create_thing(&itng);
-        i += sizeof(struct InitThing);
+        i += sizeof(struct LegacyInitThing);
     }
     LbMemoryFree(buf);
     return true;
@@ -828,9 +897,9 @@ TbBool load_action_point_file(LevelNumber lv_num)
   long total = llong(&buf[i]);
   i += 4;
   // Validate total amount of action points
-  if ((total < 0) || (total > (fsize-4)/sizeof(struct InitActionPoint)))
+  if ((total < 0) || (total > (fsize-4)/sizeof(struct LegacyInitActionPoint)))
   {
-    total = (fsize-4)/sizeof(struct InitActionPoint);
+    total = (fsize-4)/sizeof(struct LegacyInitActionPoint);
     WARNMSG("Bad amount of action points in APT file; corrected to %ld.",total);
   }
   if (total > ACTN_POINTS_COUNT-1)
@@ -841,11 +910,16 @@ TbBool load_action_point_file(LevelNumber lv_num)
   // Create action points
   for (long k = 0; k < total; k++)
   {
+      struct LegacyInitActionPoint legiapt;
       struct InitActionPoint iapt;
-      LbMemoryCopy(&iapt, &buf[i], sizeof(struct InitActionPoint));
+      LbMemoryCopy(&legiapt, &buf[i], sizeof(struct LegacyInitActionPoint));
+      iapt.mappos.x.val = legiapt.mappos.x.val;
+      iapt.mappos.y.val = legiapt.mappos.y.val;
+      iapt.num          = legiapt.num;
+      iapt.range        = legiapt.range;
       if (actnpoint_create_actnpoint(&iapt) == INVALID_ACTION_POINT)
           ERRORLOG("Cannot allocate action point %d during APT load", k);
-    i += sizeof(struct InitActionPoint);
+    i += sizeof(struct LegacyInitActionPoint);
   }
   LbMemoryFree(buf);
   return true;
@@ -1126,7 +1200,6 @@ long load_map_wibble_file(unsigned long lv_num)
 
 short load_map_ownership_file(LevelNumber lv_num)
 {
-    struct SlabMap *slb;
     unsigned long x;
     unsigned long y;
     unsigned char *buf;
@@ -1140,11 +1213,10 @@ short load_map_ownership_file(LevelNumber lv_num)
     for (y=0; y < (gameadd.map_subtiles_y+1); y++)
       for (x=0; x < (gameadd.map_subtiles_x+1); x++)
       {
-        slb = get_slabmap_for_subtile(x,y);
         if ((x < gameadd.map_subtiles_x) && (y < gameadd.map_subtiles_y))
-            slabmap_set_owner(slb,buf[i]);
+            set_slab_owner(subtile_slab(x),subtile_slab(y),buf[i]);
         else
-            slabmap_set_owner(slb,NEUTRAL_PLAYER);
+            set_slab_owner(subtile_slab(x),subtile_slab(y),NEUTRAL_PLAYER);
         i++;
       }
     LbMemoryFree(buf);
@@ -1301,9 +1373,9 @@ static TbBool load_static_light_file(unsigned long lv_num)
     long total = llong(&buf[i]);
     i += 4;
     // Validate total amount of lights
-    if ((total < 0) || (total > (fsize-4)/sizeof(struct InitLight)))
+    if ((total < 0) || (total > (fsize-4)/sizeof(struct LegacyInitLight)))
     {
-        total = (fsize-4)/sizeof(struct InitLight);
+        total = (fsize-4)/sizeof(struct LegacyInitLight);
         WARNMSG("Bad amount of static lights in LGT file; corrected to %ld.",total);
     }
     if (total >= LIGHTS_COUNT)
@@ -1318,13 +1390,23 @@ static TbBool load_static_light_file(unsigned long lv_num)
     // Create the lights
     for (long k = 0; k < total; k++)
     {
+        struct LegacyInitLight legilght;
         struct InitLight ilght;
-        LbMemoryCopy(&ilght, &buf[i], sizeof(struct InitLight));
+        LbMemoryCopy(&legilght, &buf[i], sizeof(struct LegacyInitLight));
+        ilght.attached_slb = legilght.attached_slb;
+        ilght.field_3      = legilght.field_3;
+        ilght.intensity    = legilght.intensity;
+        ilght.is_dynamic   = legilght.is_dynamic;
+        ilght.radius       = legilght.radius;
+        ilght.mappos.x.val = legilght.mappos.x.val;
+        ilght.mappos.y.val = legilght.mappos.y.val;
+        ilght.mappos.z.val = legilght.mappos.z.val;
+        
         if (light_create_light(&ilght) == 0)
         {
             WARNLOG("Couldn't allocate static light %d",(int)k);
         }
-        i += sizeof(struct InitLight);
+        i += sizeof(struct LegacyInitLight);
     }
     LbMemoryFree(buf);
     return true;
@@ -1368,13 +1450,13 @@ static void load_ext_slabs(LevelNumber lvnum)
             memset(gameadd.slab_ext_data, 0, sizeof(gameadd.slab_ext_data));
         }
         SYNCDBG(1, "ExtSlab file:%s ok", fname);
-        return;
     }
     else
     {
         SYNCDBG(1, "No ExtSlab file:%s", fname);
         memset(gameadd.slab_ext_data, 0, sizeof(gameadd.slab_ext_data));
     }
+    memcpy(&gameadd.slab_ext_data_initial,&gameadd.slab_ext_data, sizeof(gameadd.slab_ext_data));
 }
 
 static TbBool load_level_file(LevelNumber lvnum)

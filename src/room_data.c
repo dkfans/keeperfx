@@ -95,7 +95,7 @@ struct AroundLByte const room_spark_offset[] = {
   {-256,  256},
 };
 
-unsigned char const slabs_to_centre_peices[] = {
+unsigned char const slabs_to_centre_pieces[] = {
   0,  0,  0,  0,  0,  0,  0,  0,  0,
   1,  1,  1,  2,  2,  2,  3,  4,  4,
   4,  5,  6,  6,  6,  7,  8,  9,  9,
@@ -2033,8 +2033,8 @@ struct Room *prepare_new_room(PlayerNumber owner, RoomKind rkind, MapSubtlCoord 
     room->kind = rkind;
     add_room_to_global_list(room);
     add_room_to_players_list(room, owner);
-    MapSlabCoord slb_x = subtile_slab_fast(stl_x);
-    MapSlabCoord slb_y = subtile_slab_fast(stl_y);
+    MapSlabCoord slb_x = subtile_slab(stl_x);
+    MapSlabCoord slb_y = subtile_slab(stl_y);
     add_slab_to_room_tiles_list(room, slb_x, slb_y);
     return room;
 }
@@ -2311,9 +2311,9 @@ long calculate_room_widespread_factor(const struct Room *room)
 {
     long nslabs = room->slabs_count;
     long i = nslabs;
-    if (i >= sizeof(slabs_to_centre_peices)/sizeof(slabs_to_centre_peices[0]))
-        i = sizeof(slabs_to_centre_peices)/sizeof(slabs_to_centre_peices[0]) - 1;
-    long npieces = slabs_to_centre_peices[i];
+    if (i >= sizeof(slabs_to_centre_pieces)/sizeof(slabs_to_centre_pieces[0]))
+        i = sizeof(slabs_to_centre_pieces)/sizeof(slabs_to_centre_pieces[0]) - 1;
+    long npieces = slabs_to_centre_pieces[i];
     return 2 * (npieces + 4 * nslabs);
 }
 
@@ -2449,8 +2449,8 @@ struct Room* link_adjacent_rooms_of_type(PlayerNumber owner, MapSubtlCoord x, Ma
     MapSubtlCoord stl_y;
     long n;
     // Central slab coords - we will need it if we'll find adjacent room
-    MapSlabCoord central_slb_x = subtile_slab_fast(x);
-    MapSlabCoord central_slb_y = subtile_slab_fast(y);
+    MapSlabCoord central_slb_x = subtile_slab(x);
+    MapSlabCoord central_slb_y = subtile_slab(y);
     // Localize the room to be merged with other rooms
     struct Room* linkroom = INVALID_ROOM;
     for (n = 0; n < SMALL_AROUND_LENGTH; n++)
@@ -2544,9 +2544,9 @@ void init_room_sparks(struct Room *room)
         struct SlabMap* sibslb = get_slabmap_block(slb_x, slb_y - 1);
         if (sibslb->room_index != slb->room_index)
         {
-            room->field_43 = 1;
+            room->flames_around_idx = 1;
             room->flame_stl = 0;
-            room->field_41 = i;
+            room->flame_slb = i;
             break;
         }
         // Per room tile code ends
@@ -2656,8 +2656,8 @@ TbBool find_random_valid_position_for_thing_in_room(struct Thing *thing, struct 
     {
         MapSlabCoord slb_x = slb_num_decode_x(slbnum);
         MapSlabCoord slb_y = slb_num_decode_y(slbnum);
-        int ssub = CREATURE_RANDOM(thing, 9);
-        for (int snum = 0; snum < 9; snum++)
+        int ssub = CREATURE_RANDOM(thing, AROUND_TILES_COUNT);
+        for (int snum = 0; snum < AROUND_TILES_COUNT; snum++)
         {
             MapSubtlCoord stl_x = slab_subtile(slb_x, ssub % 3);
             MapSubtlCoord stl_y = slab_subtile(slb_y, ssub / 3);
@@ -2674,7 +2674,7 @@ TbBool find_random_valid_position_for_thing_in_room(struct Thing *thing, struct 
                     }
                 }
             }
-            ssub = (ssub + 1) % 9;
+            ssub = (ssub + 1) % AROUND_TILES_COUNT;
         }
         slbnum = get_next_slab_number_in_room(slbnum);
         if (slbnum == 0) {
@@ -4500,8 +4500,8 @@ struct Room *place_room(PlayerNumber owner, RoomKind rkind, MapSubtlCoord stl_x,
     game.map_changed_for_nagivation = 1;
     if (subtile_coords_invalid(stl_x, stl_y))
         return INVALID_ROOM;
-    long slb_x = subtile_slab_fast(stl_x);
-    long slb_y = subtile_slab_fast(stl_y);
+    long slb_x = subtile_slab(stl_x);
+    long slb_y = subtile_slab(stl_y);
     struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
     // If there already was a room, delete it; also, update area statistics
     if (slb->room_index > 0)
@@ -4844,7 +4844,7 @@ void delete_room_slabbed_objects(SlabCodedCoords slb_num)
 static TbBool change_room_subtile_things_ownership(struct Room *room, MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx)
 {
     struct Map* mapblk = get_map_block_at(stl_x, stl_y);
-    long parent_idx = get_slab_number(subtile_slab_fast(stl_x), subtile_slab_fast(stl_y));
+    long parent_idx = get_slab_number(subtile_slab(stl_x), subtile_slab(stl_y));
     unsigned long k = 0;
     long i = get_mapwho_thing_index(mapblk);
     while (i != 0)
@@ -4901,13 +4901,12 @@ static void change_room_map_element_ownership(struct Room *room, PlayerNumber pl
     unsigned long i = room->slabs_list;
     while (i > 0)
     {
-        struct SlabMap* slb = get_slabmap_direct(i);
         MapSlabCoord slb_x = slb_num_decode_x(i);
         MapSlabCoord slb_y = slb_num_decode_y(i);
         i = get_next_slab_number_in_room(i);
         // Per-slab code
         set_slab_explored(plyr_idx, slb_x, slb_y);
-        slabmap_set_owner(slb, plyr_idx);
+        set_slab_owner(slb_x,slb_y, plyr_idx);
         MapSubtlCoord start_stl_x = slab_subtile(slb_x, 0);
         MapSubtlCoord start_stl_y = slab_subtile(slb_y, 0);
         MapSubtlCoord end_stl_x = slab_subtile(slb_x + 1, 0);
@@ -5178,7 +5177,7 @@ void destroy_dungeon_heart_room(PlayerNumber plyr_idx, const struct Thing *heart
 {
     struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
     struct Room* room = get_room_thing_is_on(heartng);
-    if (room_is_invalid(room) || (room_role_matches(room->kind,RoRoF_KeeperStorage)))
+    if (room_is_invalid(room) || (!room_role_matches(room->kind,RoRoF_KeeperStorage)))
     {
         WARNLOG("The heart thing is not in heart room");
         long i = dungeonadd->room_kind[RoK_DUNGHEART];

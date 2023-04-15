@@ -101,6 +101,7 @@ extern void __stdcall enum_sessions_callback(struct TbNetworkCallbackData *netcd
 TbClockMSec gui_message_timeout = 0;
 char gui_message_text[TEXT_BUFFER_LENGTH];
 static char path_string[178];
+MenuID vid_change_query_menu = GMnu_CREATURE_QUERY1;
 
 struct GuiButtonInit frontend_main_menu_buttons[] = {
   { 0,  0, 0, 0, NULL,               NULL,        NULL,                 0, 999,  26, 999,  26, 371, 46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,       {1},            0, NULL },
@@ -112,6 +113,7 @@ struct GuiButtonInit frontend_main_menu_buttons[] = {
   { 0,  0, 0, 0, frontend_change_state,NULL, frontend_over_button,   27, 999, 322,   999, 322, 371, 46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,      {97},            0, NULL },
   { 0,  0, 0, 0, frontend_ldcampaign_change_state,NULL, frontend_over_button,18,999,368,999,368,371,46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,     {104},            0, frontend_main_menu_highscores_maintain },
   { 0,  0, 0, 0, frontend_change_state,NULL, frontend_over_button,      9, 999, 414, 999, 414, 371, 46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,       {5},            0, NULL },
+  { 0,  0, 0, 0, NULL,               NULL,        NULL,                 0, 0,   455, 0,   455, 371, 46, frontend_draw_product_version,    0, GUIStr_Empty,  0,       {0},            0, NULL },
   {-1,  0, 0, 0, NULL,               NULL,        NULL,                 0,   0,   0,   0,   0,   0,  0, NULL,                             0, GUIStr_Empty,  0,       {0},            0, NULL },
 };
 
@@ -571,6 +573,10 @@ void get_player_gui_clicks(void)
             turn_off_all_window_menus();
         } else
         {
+            if (menu_is_active(GMnu_MAIN))
+            {
+              fake_button_click(BID_OPTIONS);
+            }
             turn_on_menu(GMnu_OPTIONS);
         }
       }
@@ -621,8 +627,8 @@ TbBool validate_versions(void)
       if ((net_screen_packet[i].field_4 & 0x01) != 0)
       {
         if (ver == -1)
-          ver = player->field_4E7;
-        if (player->field_4E7 != ver)
+          ver = player->game_version;
+        if (player->game_version != ver)
           return false;
       }
     }
@@ -1420,6 +1426,13 @@ void frontend_init_options_menu(struct GuiMenu *gmnu)
     sound_level_slider = make_audio_slider_linear(settings.sound_volume);
     mentor_level_slider = make_audio_slider_linear(settings.mentor_volume);
     fe_mouse_sensitivity = settings.first_person_move_sensitivity;
+    if (!is_campaign_loaded())
+    {
+        if (!change_campaign(""))
+        {
+            ERRORLOG("Unable to load campaign");
+        }
+    }
 }
 
 void frontend_set_player_number(long plr_num)
@@ -2730,6 +2743,11 @@ FrontendMenuState frontend_setup_state(FrontendMenuState nstate)
           break;
       case FeSt_MAIN_MENU:
           continue_game_option_available = continue_game_available();
+          if (!continue_game_option_available)
+          {
+              char* fname = prepare_file_path(FGrp_Save, continue_game_filename);
+              LbFileDelete(fname);
+          }
           turn_on_menu(GMnu_FEMAIN);
           last_mouse_x = GetMouseX();
           last_mouse_y = GetMouseY();
@@ -3417,10 +3435,10 @@ void update_player_objectives(PlayerNumber plyr_idx)
     player = get_player(plyr_idx);
     if ((game.system_flags & GSF_NetworkActive) != 0)
     {
-      if ((!player->field_4EB) && (player->victory_state != VicS_Undecided))
-        player->field_4EB = game.play_gameturn+1;
+      if ((!player->display_objective_turn) && (player->victory_state != VicS_Undecided))
+        player->display_objective_turn = game.play_gameturn+1;
     }
-    if (player->field_4EB == game.play_gameturn)
+    if (player->display_objective_turn == game.play_gameturn)
     {
       switch (player->victory_state)
       {
@@ -3782,6 +3800,17 @@ void frontend_maintain_error_text_box(struct GuiButton *gbtn)
     {
         turn_off_menu(GMnu_FEERROR_BOX);
     }
+}
+
+void frontend_draw_product_version(struct GuiButton *gbtn)
+{
+    lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
+    LbTextSetFont(frontend_font[1]);
+    int units_per_px = simple_frontend_sprite_height_units_per_px(gbtn, GFS_hugebutton_a05l, 100);
+    int h = LbTextLineHeight() * units_per_px / 16;
+    LbTextSetWindow(0, gbtn->scr_pos_y, gbtn->width, h);
+    char* text = buf_sprintf("%s %s", PRODUCT_NAME, PRODUCT_VERSION);
+    LbTextDrawResized(0, 0, units_per_px, text);
 }
 
 /******************************************************************************/

@@ -211,6 +211,7 @@ long pinstfe_hand_whip(struct PlayerInfo *player, long *n)
     struct PowerConfigStats* powerst = get_power_model_stats(PwrK_SLAP);
     struct Thing* thing = thing_get(player->influenced_thing_idx);
     struct TrapConfigStats *trapst;
+    struct ShotConfigStats* shotst;
     if (!thing_exists(thing) || (thing->creation_turn != player->influenced_thing_creation) || (!thing_slappable(thing, player->id_number)))
     {
         player->influenced_thing_creation = 0;
@@ -244,14 +245,14 @@ long pinstfe_hand_whip(struct PlayerInfo *player, long *n)
       break;
   }
   case TCls_Shot:
-      if (thing->model == ShM_Boulder) //TODO CONFIG shot model dependency, make config option instead
+      shotst = get_shot_model_stats(thing->model);
+      if (shotst->model_flags & ShMF_Boulder)
       {
           thing->move_angle_xy = player->acamera->orient_a;
-          thing->health -= game.boulder_reduce_health_slap;
-      } else
-      if (thing->model == ShM_SolidBoulder) //TODO CONFIG shot model dependency, make config option instead
-      {
-          thing->move_angle_xy = player->acamera->orient_a;
+          if (thing->model != ShM_SolidBoulder) //TODO CONFIG shot model dependency, make config option instead
+          {
+              thing->health -= game.boulder_reduce_health_slap;
+          }
       } else
       {
           detonate_shot(thing);
@@ -792,7 +793,7 @@ long pinstfs_zoom_to_position(struct PlayerInfo *player, long *n)
       if (dt_x <= 256)
         dt_x = 256;
     }
-    player->field_4DB = dt_x;
+    player->zoom_to_movement_x = dt_x;
     if (dt_y < 0)
     {
         if (dt_y >= -256)
@@ -802,7 +803,7 @@ long pinstfs_zoom_to_position(struct PlayerInfo *player, long *n)
         if (dt_y <= 256)
           dt_y = 256;
     }
-    player->field_4DF = dt_y;
+    player->zoom_to_movement_y = dt_y;
     return 0;
 }
 
@@ -811,12 +812,12 @@ long pinstfm_zoom_to_position(struct PlayerInfo *player, long *n)
     long x;
     long y;
     struct Camera* cam = player->acamera;
-    if (abs(cam->mappos.x.val - player->zoom_to_pos_x) >= abs(player->field_4DB))
-      x = player->field_4DB + cam->mappos.x.val;
+    if (abs(cam->mappos.x.val - player->zoom_to_pos_x) >= abs(player->zoom_to_movement_x))
+      x = player->zoom_to_movement_x + cam->mappos.x.val;
     else
       x = player->zoom_to_pos_x;
-    if (abs(cam->mappos.y.val - player->zoom_to_pos_y) >= abs(player->field_4DF))
-      y = player->field_4DF + cam->mappos.y.val;
+    if (abs(cam->mappos.y.val - player->zoom_to_pos_y) >= abs(player->zoom_to_movement_y))
+      y = player->zoom_to_movement_y + cam->mappos.y.val;
     else
       y = player->zoom_to_pos_y;
     if ((player->zoom_to_pos_x == x) && (player->zoom_to_pos_y == y))
@@ -1188,13 +1189,13 @@ TbBool player_place_trap_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumb
     struct PlayerInfo* player = get_player(plyr_idx);
     if ((player->chosen_trap_kind == TngTrp_Boulder) || (!gameadd.place_traps_on_subtiles))
     {
-        set_coords_to_slab_center(&pos,subtile_slab_fast(stl_x),subtile_slab_fast(stl_y));
+        set_coords_to_slab_center(&pos,subtile_slab(stl_x),subtile_slab(stl_y));
     }
     else
     {
         set_coords_to_subtile_center(&pos,stl_x,stl_y,1);
     }
-    delete_room_slabbed_objects(get_slab_number(subtile_slab_fast(stl_x),subtile_slab_fast(stl_y)));
+    delete_room_slabbed_objects(get_slab_number(subtile_slab(stl_x),subtile_slab(stl_y)));
     struct Thing* traptng = create_trap(&pos, tngmodel, plyr_idx);
     if (thing_is_invalid(traptng)) {
         return false;

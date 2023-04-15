@@ -212,7 +212,7 @@ long process_torture_visuals(struct Thing *creatng, struct Room *room, CreatureJ
         cctrl->spell_flags &= ~CSAfF_Flying;
         creatng->mappos.z.val = get_thing_height_at(creatng, &creatng->mappos);
         if (cctrl->instance_id == CrInst_NULL) {
-            set_creature_instance(creatng, CrInst_TORTURED, 1, 0, 0);
+            set_creature_instance(creatng, CrInst_TORTURED, 0, 0);
         }
         if (thing_exists(sectng)) {
             sectng->rendering_flags |= TRF_Unknown01;
@@ -366,8 +366,8 @@ long reveal_players_map_to_player(struct Thing *thing, PlayerNumber benefit_plyr
     unsigned int pts_count = 0;
     unsigned int pt_idx = 0;
 
-    slb_x = subtile_slab_fast(revealstl_x);
-    slb_y = subtile_slab_fast(revealstl_y);
+    slb_x = subtile_slab(revealstl_x);
+    slb_y = subtile_slab(revealstl_y);
     slb_num = get_slab_number(slb_x, slb_y);
     ownership_map[slb_num] |= 0x02;
     do

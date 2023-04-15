@@ -61,18 +61,19 @@ const struct NamedCommand creaturetype_common_commands[] = {
   };
 
 const struct NamedCommand creaturetype_experience_commands[] = {
-  {"PAYINCREASEONEXP",         1},
-  {"SPELLDAMAGEINCREASEONEXP", 2},
-  {"RANGEINCREASEONEXP",       3},
-  {"JOBVALUEINCREASEONEXP",    4},
-  {"HEALTHINCREASEONEXP",      5},
-  {"STRENGTHINCREASEONEXP",    6},
-  {"DEXTERITYINCREASEONEXP",   7},
-  {"DEFENSEINCREASEONEXP",     8},
-  {"LOYALTYINCREASEONEXP",     9},
-  {"ARMOURINCREASEONEXP",     10},
-  {"SIZEINCREASEONEXP",       11},
-  {NULL,                       0},
+  {"PAYINCREASEONEXP",            1},
+  {"SPELLDAMAGEINCREASEONEXP",    2},
+  {"RANGEINCREASEONEXP",          3},
+  {"JOBVALUEINCREASEONEXP",       4},
+  {"HEALTHINCREASEONEXP",         5},
+  {"STRENGTHINCREASEONEXP",       6},
+  {"DEXTERITYINCREASEONEXP",      7},
+  {"DEFENSEINCREASEONEXP",        8},
+  {"LOYALTYINCREASEONEXP",        9},
+  {"ARMOURINCREASEONEXP",        10},
+  {"SIZEINCREASEONEXP",          11},
+  {"EXPFORHITTINGINCREASEONEXP", 12},
+  {NULL,                          0},
   };
 
 const struct NamedCommand creaturetype_instance_commands[] = {
@@ -105,6 +106,7 @@ const struct NamedCommand creaturetype_instance_properties[] = {
   {"DANGEROUS",            InstPF_Dangerous},
   {"DESTRUCTIVE",          InstPF_Destructive},
   {"QUICK",                InstPF_Quick},
+  {"DISARMING",            InstPF_Disarming},
   {NULL,                     0},
   };
 
@@ -186,6 +188,12 @@ const struct NamedCommand creature_graphics_desc[] = {
   {"GFX21",             1+CGI_GFX21},
   {NULL,                 0},
   };
+
+const struct NamedCommand instance_range_desc[] = {
+  {"MAX",         LONG_MAX},
+  {"MIN",                0},
+  {NULL,                -1},
+};
 
 /******************************************************************************/
 struct NamedCommand creature_desc[CREATURE_TYPES_MAX];
@@ -414,6 +422,7 @@ TbBool parse_creaturetypes_common_blocks(char *buf, long len, const char *config
 {
     // Block name and parameter word store variables
     // Initialize block data
+    int k = sizeof(gameadd.crtr_conf.model) / sizeof(gameadd.crtr_conf.model[0]);
     if ((flags & CnfLd_AcceptPartial) == 0)
     {
         gameadd.crtr_conf.model_count = 1;
@@ -425,11 +434,10 @@ TbBool parse_creaturetypes_common_blocks(char *buf, long len, const char *config
         gameadd.crtr_conf.special_digger_evil = 0;
         gameadd.crtr_conf.spectator_breed = 0;
         gameadd.crtr_conf.sprite_size = 300;
-    }
-    int k = sizeof(gameadd.crtr_conf.model) / sizeof(gameadd.crtr_conf.model[0]);
-    for (int i = 0; i < k; i++)
-    {
-      LbMemorySet(gameadd.crtr_conf.model[i].name, 0, COMMAND_WORD_LEN);
+        for (int i = 0; i < k; i++)
+        {
+          LbMemorySet(gameadd.crtr_conf.model[i].name, 0, COMMAND_WORD_LEN);
+        }
     }
     LbStringCopy(gameadd.crtr_conf.model[0].name, "NOCREATURE", COMMAND_WORD_LEN);
     // Find the block
@@ -616,6 +624,7 @@ TbBool parse_creaturetype_experience_blocks(char *buf, long len, const char *con
         gameadd.crtr_conf.exp.dexterity_increase_on_exp = CREATURE_PROPERTY_INCREASE_ON_EXP;
         gameadd.crtr_conf.exp.defense_increase_on_exp = CREATURE_PROPERTY_INCREASE_ON_EXP;
         gameadd.crtr_conf.exp.loyalty_increase_on_exp = CREATURE_PROPERTY_INCREASE_ON_EXP;
+        gameadd.crtr_conf.exp.exp_on_hitting_increase_on_exp = CREATURE_PROPERTY_INCREASE_ON_EXP;
         gameadd.crtr_conf.exp.armour_increase_on_exp = 0;
     }
     // Find the block
@@ -783,6 +792,19 @@ TbBool parse_creaturetype_experience_blocks(char *buf, long len, const char *con
                     COMMAND_TEXT(cmd_num), block_buf, config_textname);
             }
             break;
+        case 12: // EXPFORHITTINGINCREASEONEXP
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                gameadd.crtr_conf.exp.exp_on_hitting_increase_on_exp = k;
+                n++;
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), block_buf, config_textname);
+            }
+            break;
         case 0: // comment
             break;
         case -1: // end of buffer
@@ -805,29 +827,49 @@ TbBool parse_creaturetype_experience_blocks(char *buf, long len, const char *con
 
 TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
+    struct InstanceInfo* inst_inf;
     int i;
     // Block name and parameter word store variables
-    int arr_size;
     // Initialize the array
-    if ((flags & CnfLd_AcceptPartial) == 0)
+    int arr_size = sizeof(gameadd.crtr_conf.instances) / sizeof(gameadd.crtr_conf.instances[0]);
+    for (i = 0; i < arr_size; i++)
     {
-        arr_size = sizeof(gameadd.crtr_conf.instances)/sizeof(gameadd.crtr_conf.instances[0]);
-        for (i=0; i < arr_size; i++)
+        if (((flags & CnfLd_AcceptPartial) == 0) || (strlen(gameadd.crtr_conf.instances[i].name) <= 0))
         {
             LbMemorySet(gameadd.crtr_conf.instances[i].name, 0, COMMAND_WORD_LEN);
             if (i < gameadd.crtr_conf.instances_count)
             {
                 instance_desc[i].name = gameadd.crtr_conf.instances[i].name;
                 instance_desc[i].num = i;
-            } else
+                magic_conf.instance_info[i].instant = 0;
+                magic_conf.instance_info[i].time = 0;
+                magic_conf.instance_info[i].fp_time = 0;
+                magic_conf.instance_info[i].action_time = 0;
+                magic_conf.instance_info[i].fp_action_time = 0;
+                magic_conf.instance_info[i].reset_time = 0;
+                magic_conf.instance_info[i].fp_reset_time = 0;
+                magic_conf.instance_info[i].graphics_idx = 0;
+                magic_conf.instance_info[i].flags = 0;
+                magic_conf.instance_info[i].force_visibility = 0;
+                magic_conf.instance_info[i].primary_target = 0;
+                magic_conf.instance_info[i].func_cb = 0;
+                magic_conf.instance_info[i].func_params[0] = 0;
+                magic_conf.instance_info[i].func_params[1] = 0;
+                magic_conf.instance_info[i].symbol_spridx = 0;
+                magic_conf.instance_info[i].tooltip_stridx = 0;
+                magic_conf.instance_info[i].range_min = -1;
+                magic_conf.instance_info[i].range_max = -1;
+
+            }
+            else
             {
                 instance_desc[i].name = NULL;
                 instance_desc[i].num = 0;
             }
         }
     }
-    arr_size = gameadd.crtr_conf.instances_count;
     // Load the file blocks
+    arr_size = gameadd.crtr_conf.instances_count;
     for (i=0; i < arr_size; i++)
     {
         char block_buf[COMMAND_WORD_LEN];
@@ -842,8 +884,8 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
                 return false;
             }
             continue;
-      }
-      struct InstanceInfo* inst_inf = creature_instance_info_get(i);
+        }
+        inst_inf = creature_instance_info_get(i);
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(creaturetype_instance_commands,cmd_num)
       while (pos<len)
       {
@@ -867,6 +909,11 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
                 CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
                     COMMAND_TEXT(cmd_num),block_buf,config_textname);
                 break;
+            }
+            if (instance_desc[i].name == NULL)
+            {
+                instance_desc[i].name = gameadd.crtr_conf.instances[i].name;;
+                instance_desc[i].num = i;
             }
             n++;
             break;
@@ -967,9 +1014,7 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
               k = atoi(word_buf);
               if (k > 0)
               {
-                  //TODO CONFIG Add when InstanceInfo can be changed
-                  //inst_inf->tooltip_stridx = k;
-                  instance_button_init[i].tooltip_stridx = k;
+                  inst_inf->tooltip_stridx = k;
                   n++;
               }
             }
@@ -985,9 +1030,7 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
               k = get_icon_id(word_buf);
               if (k >= 0)
               {
-                  //TODO CONFIG Add when InstanceInfo can be changed
-                  //inst_inf->symbol_spridx = k;
-                  instance_button_init[i].symbol_spridx = k;
+                  inst_inf->symbol_spridx = k;
                   n++;
               }
             }
@@ -1062,57 +1105,39 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
             }
             break;
         case 13: //RANGEMIN
-                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              int j = 0;
-              int l = 0;
-              for (j=0; j < 23; j++) // Size of offensive_weapon
-              {
-                  if (offensive_weapon[j].inst_id == i)
-                  {
-                      l = 1;
-                      break;
-                  }
-              }
-              if (l == 1)
-              {
-                  k = atoi(word_buf);
-                  offensive_weapon[j].range_min = k;
-                  n++;
-              }
-          }
-          if (n < 1)
-          {
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                k = get_id(instance_range_desc, word_buf);
+                if (k < 0)
+                {
+                    k = atoi(word_buf);
+                }
+                inst_inf->range_min = k;
+                n++;
+            }
+            if (n < 1)
+            {
                 CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-                   break;
+                    COMMAND_TEXT(cmd_num), block_buf, config_textname);
+            }
+            break;
         case 14: //RANGEMAX
-                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              int j = 0;
-              int l = 0;
-              for (j=0; j < 23; j++) // Size of offensive_weapon
-              {
-                  if (offensive_weapon[j].inst_id == i)
-                  {
-                      l = 1;
-                      break;
-                  }
-              }
-              if (l == 1)
-              {
-                  k = atoi(word_buf);
-                  offensive_weapon[j].range_max = k;
-                  n++;
-              }
-          }
-          if (n < 1)
-          {
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                k = get_id(instance_range_desc, word_buf);
+                if (k < 0)
+                {
+                    k = atoi(word_buf);
+                }
+                inst_inf->range_max = k;
+                n++;
+            }
+            if (n < 1)
+            {
                 CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
                     COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-                   break;
+            }
+            break;
         case 15: // PROPERTIES
             inst_inf->flags = 0;
             while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
@@ -1678,14 +1703,14 @@ TbBool load_creaturetypes_config(const char *conf_fname, unsigned short flags)
     return result;
 }
 
-unsigned short get_creature_model_flags(const struct Thing *thing)
+unsigned long get_creature_model_flags(const struct Thing *thing)
 {
     if ((thing->model < 1) || (thing->model >= gameadd.crtr_conf.model_count))
       return 0;
   return gameadd.crtr_conf.model[thing->model].model_flags;
 }
 
-ThingModel get_creature_model_with_model_flags(unsigned short needflags)
+ThingModel get_creature_model_with_model_flags(unsigned long needflags)
 {
     for (ThingModel crmodel = 0; crmodel < gameadd.crtr_conf.model_count; crmodel++)
     {

@@ -62,8 +62,6 @@ extern "C" {
 long transfer_creature_scroll_offset;
 long resurrect_creature_scroll_offset;
 unsigned short dungeon_special_selected;
-static const long special_speechmsgs[8] =
-    { 77,  78,  79,  81,  82,  83,  84,  85};
 /******************************************************************************/
 
 /**
@@ -275,8 +273,8 @@ void make_safe(struct PlayerInfo *player)
     }
     {
         const struct Coord3d* center_pos = dungeon_get_essential_pos(player->id_number);
-        slb_x = subtile_slab_fast(center_pos->x.stl.num);
-        slb_y = subtile_slab_fast(center_pos->y.stl.num);
+        slb_x = subtile_slab(center_pos->x.stl.num);
+        slb_y = subtile_slab(center_pos->y.stl.num);
         SlabCodedCoords slb_num = get_slab_number(slb_x, slb_y);
         areamap[slb_num] |= 0x02;
     }
@@ -397,26 +395,27 @@ void activate_dungeon_special(struct Thing *cratetng, struct PlayerInfo *player)
   // Gathering data which we'll need if the special is used and disposed.
   struct DungeonAdd* dungeonadd = get_dungeonadd(player->id_number);
   memcpy(&pos,&cratetng->mappos,sizeof(struct Coord3d));
-  int spkindidx = cratetng->model - 86;
+  SpecialKind spkindidx = box_thing_to_special(cratetng);
+  struct SpecialConfigStats* specst;
   short used = 0;
   TbBool no_speech = false;
   if (thing_exists(cratetng) && thing_is_special_box(cratetng))
   {
-    switch (cratetng->model)
+    switch (spkindidx)
     {
-        case ObjMdl_SpecboxRevealMap:
+        case SpcKind_RevealMap:
           reveal_whole_map(player);
           remove_events_thing_is_attached_to(cratetng);
           used = 1;
           delete_thing_structure(cratetng, 0);
           break;
-        case ObjMdl_SpecboxResurect:
+        case SpcKind_Resurrect:
           start_resurrect_creature(player, cratetng);
           break;
-        case ObjMdl_SpecboxTransfer:
+        case SpcKind_TrnsfrCrtr:
           start_transfer_creature(player, cratetng);
           break;
-        case ObjMdl_SpecboxStealHero:
+        case SpcKind_StealHero:
           if (steal_hero(player, &cratetng->mappos))
           {
             remove_events_thing_is_attached_to(cratetng);
@@ -424,31 +423,31 @@ void activate_dungeon_special(struct Thing *cratetng, struct PlayerInfo *player)
             delete_thing_structure(cratetng, 0);
           }
           break;
-        case ObjMdl_SpecboxMultiply:
+        case SpcKind_MultplCrtr:
           multiply_creatures(player);
           remove_events_thing_is_attached_to(cratetng);
           used = 1;
           delete_thing_structure(cratetng, 0);
           break;
-        case ObjMdl_SpecboxIncreaseLevel:
+        case SpcKind_IncrseLvl:
           increase_level(player, 1);
           remove_events_thing_is_attached_to(cratetng);
           used = 1;
           delete_thing_structure(cratetng, 0);
           break;
-        case ObjMdl_SpecboxMakeSafe:
+        case SpcKind_MakeSafe:
           make_safe(player);
           remove_events_thing_is_attached_to(cratetng);
           used = 1;
           delete_thing_structure(cratetng, 0);
           break;
-        case ObjMdl_SpecboxHiddenWorld:
+        case SpcKind_HiddnWorld:
           activate_bonus_level(player);
           remove_events_thing_is_attached_to(cratetng);
           used = 1;
           delete_thing_structure(cratetng, 0);
           break;
-        case ObjMdl_SpecboxCustom:
+        case SpcKind_Custom:
           if (gameadd.current_player_turn == game.play_gameturn)
           {
               WARNLOG("box activation rejected turn:%d", gameadd.current_player_turn);
@@ -470,9 +469,12 @@ void activate_dungeon_special(struct Thing *cratetng, struct PlayerInfo *player)
       }
       if ( used )
       {
-        if (is_my_player(player) && !no_speech)
-          output_message(special_speechmsgs[spkindidx], 0, true);
-        create_special_used_effect(&pos, player->id_number);
+          specst = get_special_model_stats(spkindidx);
+          if (is_my_player(player) && !no_speech)
+          {
+              output_message(specst->speech, 0, true);
+          }
+          create_used_effect_or_element(&pos, specst->effect_id, player->id_number);
       }
   }
 }
@@ -490,7 +492,8 @@ void resurrect_creature(struct Thing *boxtng, PlayerNumber owner, ThingModel crm
         if (is_my_player_number(owner))
           output_message(SMsg_CommonAcknowledge, 0, true);
     }
-    create_special_used_effect(&boxtng->mappos, owner);
+    struct SpecialConfigStats* specst = get_special_model_stats(SpcKind_Resurrect);
+    create_used_effect_or_element(&boxtng->mappos, specst->effect_id, owner);
     remove_events_thing_is_attached_to(boxtng);
     force_any_creature_dragging_owned_thing_to_drop_it(boxtng);
     if ((gameadd.classic_bugs_flags & ClscBug_ResurrectForever) == 0) {
@@ -533,7 +536,8 @@ void transfer_creature(struct Thing *boxtng, struct Thing *transftng, unsigned c
     kill_creature(transftng, INVALID_THING, -1, CrDed_NoEffects|CrDed_NotReallyDying);
     if (!from_script)
     {
-        create_special_used_effect(&boxtng->mappos, plyr_idx);
+        struct SpecialConfigStats* specst = get_special_model_stats(SpcKind_TrnsfrCrtr);
+        create_used_effect_or_element(&boxtng->mappos, specst->effect_id, plyr_idx);
         remove_events_thing_is_attached_to(boxtng);
         force_any_creature_dragging_owned_thing_to_drop_it(boxtng);
         delete_thing_structure(boxtng, 0);

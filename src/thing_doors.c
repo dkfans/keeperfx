@@ -60,8 +60,8 @@ const short door_names[] = {
 /******************************************************************************/
 char find_door_angle(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx)
 {
-    MapSlabCoord door_slb_x = subtile_slab_fast(stl_x);
-    MapSlabCoord door_slb_y = subtile_slab_fast(stl_y);
+    MapSlabCoord door_slb_x = subtile_slab(stl_x);
+    MapSlabCoord door_slb_y = subtile_slab(stl_y);
 
     struct SlabMap* door_slb = get_slabmap_block(door_slb_x, door_slb_y);
     
@@ -253,8 +253,8 @@ long destroy_door(struct Thing *doortng)
         }
     }
     delete_thing_structure(doortng, 0);
-    MapSlabCoord slb_x = subtile_slab_fast(stl_x);
-    MapSlabCoord slb_y = subtile_slab_fast(stl_y);
+    MapSlabCoord slb_x = subtile_slab(stl_x);
+    MapSlabCoord slb_y = subtile_slab(stl_y);
     struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
     place_slab_type_on_map(SlbT_CLAIMED, stl_x, stl_y, slabmap_owner(slb), 0);
     do_slab_efficiency_alteration(slb_x, slb_y);
@@ -342,8 +342,8 @@ TbBool door_can_stand(struct Thing *thing)
     for (int i = 0; i < SMALL_AROUND_LENGTH; i++)
     {
         wall_flags *= 2;
-        long slb_x = subtile_slab_fast(thing->mappos.x.stl.num) + (int)small_around[i].delta_x;
-        long slb_y = subtile_slab_fast(thing->mappos.y.stl.num) + (int)small_around[i].delta_y;
+        long slb_x = subtile_slab(thing->mappos.x.stl.num) + (int)small_around[i].delta_x;
+        long slb_y = subtile_slab(thing->mappos.y.stl.num) + (int)small_around[i].delta_y;
         struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
         struct SlabAttr* slbattr = get_slab_attrs(slb);
         if ((slbattr->category == SlbAtCtg_FortifiedWall) || (slb->kind == SlbT_ROCK) || (slbattr->category == SlbAtCtg_FriableDirt) || (slb->kind == SlbT_GOLD) || (slb->kind == SlbT_GEMS))

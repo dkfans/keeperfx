@@ -130,7 +130,6 @@ char numfield_1A;
     struct PlayerInfo players[PLAYERS_COUNT];
     struct Column columns_data[COLUMNS_COUNT];
     struct ObjectConfig objects_config[OBJECT_TYPES_COUNT_ORIGINAL];
-    struct SpellConfig spells_config[30];
     struct Things things;
     struct Persons persons;
     struct Columns columns;
@@ -143,11 +142,11 @@ char numfield_1A;
     struct LightsShadows lish;
     struct CreatureControl cctrl_data[CREATURES_COUNT];
     struct Thing things_data[THINGS_COUNT];
-    unsigned char navigation_map[256*256];
-    struct Map map[256*256]; // field offset 0xDC157
+    unsigned char navigation_map[MAX_SUBTILES_X*MAX_SUBTILES_Y];
+    struct Map map[MAX_SUBTILES_X*MAX_SUBTILES_Y]; // field offset 0xDC157
     struct ComputerTask computer_task[COMPUTER_TASKS_COUNT];
     struct Computer2 computer[PLAYERS_COUNT];
-    struct SlabMap slabmap[85*85];
+    struct SlabMap slabmap[MAX_TILES_X*MAX_TILES_Y];
     struct Room rooms[ROOMS_COUNT];
     struct Dungeon dungeon[DUNGEONS_COUNT];
     struct StructureList thing_lists[13];
@@ -222,7 +221,7 @@ unsigned int packet_file_pos;
     unsigned short fight_hate_kill_value;
     unsigned short body_remains_for;
     unsigned short graveyard_convert_time;
-    unsigned char min_distance_for_teleport;
+    MapSubtlDelta min_distance_for_teleport;
     unsigned char recovery_frequency;
     unsigned short nodungeon_creatr_list_start; /**< Linked list of creatures which have no dungeon (neutral and owned by nonexisting players) */
     GameTurnDelta food_generation_speed;

@@ -74,7 +74,7 @@ static unsigned char MapBackColours[256];
 static unsigned char PannelColours[4096];
 static long PrevRoomHighlight;
 static long PrevDoorHighlight;
-static unsigned char PannelMap[256*256];//map subtiles x*y
+static unsigned char PannelMap[MAX_SUBTILES_X*MAX_SUBTILES_Y];//map subtiles x*y
 static struct InterpMinimap interp_minimap;
 
 long clicked_on_small_map;
@@ -696,8 +696,8 @@ void pannel_map_draw_overlay_things(long units_per_px, long scaled_zoom, long ba
 
 void pannel_map_update_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    MapSlabCoord slb_x = subtile_slab_fast(stl_x);
-    MapSlabCoord slb_y = subtile_slab_fast(stl_y);
+    MapSlabCoord slb_x = subtile_slab(stl_x);
+    MapSlabCoord slb_y = subtile_slab(stl_y);
     SubtlCodedCoords stl_num = get_subtile_number(stl_x, stl_y);
     struct Map *mapblk = get_map_block_at_pos(stl_num);
     struct SlabMap *slb = get_slabmap_block(slb_x, slb_y);
@@ -712,14 +712,23 @@ void pannel_map_update_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSu
     }
     else if (map_block_revealed(mapblk, plyr_idx))
     {
-        if ((mapblk->flags & SlbAtFlg_TaggedValuable) != 0)
-        {
-            col = 4;
-        } else
-        if ((mapblk->flags & SlbAtFlg_Valuable) != 0)
+        if (slb->kind == SlbT_GOLD)
         {
             col = 5;
+            if ((mapblk->flags & SlbAtFlg_TaggedValuable) != 0)
+            {
+                col--;
+            }
         } else
+        if (slb->kind == SlbT_GEMS)
+        {
+            col = 178;
+            if ((mapblk->flags & SlbAtFlg_TaggedValuable) != 0)
+            {
+                col--;
+            }
+        }
+        else
         if ((mapblk->flags & SlbAtFlg_IsRoom) != 0)
         {
             struct Room *room;
@@ -740,8 +749,6 @@ void pannel_map_update_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSu
             doortng = get_door_for_position(stl_x, stl_y);
             if (!thing_is_invalid(doortng)) {
                 col = owner_col + 6 * ((doortng->door.is_locked == 1) + 2 * doortng->model) + 110;
-            } else {
-                ERRORLOG("No door for flagged position");
             }
         } else
         if ((mapblk->flags & SlbAtFlg_Blocking) == 0)
@@ -985,10 +992,12 @@ void setup_pannel_colours(void)
         {
             PannelColours[n + 3] = pixmap.ghost[bkcol + 26*256];
             PannelColours[n + 4] = pixmap.ghost[bkcol + 140*256];
-        } else
+            PannelColours[n + 177] = 102 + (pixmap.ghost[bkcol] >> 6);
+        } else //as this is during setup at gameturn 1, the else looks like it is never used.
         {
             PannelColours[n + 3] = bkcol;
             PannelColours[n + 4] = bkcol;
+            PannelColours[n + 177] = 104 + (pixmap.ghost[bkcol] >> 6);
         }
         PannelColours[n + 0] = bkcol;
         PannelColours[n + 1] = pixmap.ghost[bkcol + 16*256];
@@ -997,6 +1006,7 @@ void setup_pannel_colours(void)
         PannelColours[n + 6] = 146;
         PannelColours[n + 7] = 85;
         PannelColours[n + 176] = 255;
+        PannelColours[n + 178] = 102 + (pixmap.ghost[bkcol] >> 6);
         n = pncol_idx + 8;
         int i;
         int k;
@@ -1056,10 +1066,12 @@ void update_pannel_colours(void)
         {
             PannelColours[n + 3] = pixmap.ghost[bkcol + 26*256];
             PannelColours[n + 4] = pixmap.ghost[bkcol + 140*256];
+            PannelColours[n + 177] = 102 + (pixmap.ghost[bkcol] >> 6);
         } else
         {
             PannelColours[n + 3] = bkcol;
             PannelColours[n + 4] = bkcol;
+            PannelColours[n + 177] = 100 + (pixmap.ghost[bkcol] >> 6);
         }
         n = pncol_idx + 8;
         int i;
@@ -1252,8 +1264,8 @@ void pannel_map_draw_slabs(long x, long y, long units_per_px, long zoom)
         for (w = end_w-start_w; w > 0; w--)
         {
             int pnmap_idx;
-            //formula will have to be redone if maps bigger then 256, but works for smaller
-            pnmap_idx = ((precor_x>>16) & 0xff) + (((precor_y>>16) & 0xff) * (gameadd.map_subtiles_x + 1) );
+            //formula will have to be redone if maps bigger then 256, but works for smallerAD
+            pnmap_idx = ((precor_x>>16)) + (((precor_y>>16)) * (gameadd.map_subtiles_x + 1) );
             int pncol_idx;
             pncol_idx = PannelMap[pnmap_idx] | (*bkgnd << 8);
             *out = PannelColours[pncol_idx];

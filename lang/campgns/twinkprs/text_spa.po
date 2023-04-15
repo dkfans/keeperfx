@@ -1,0 +1,478 @@
+# *****************************************************************************
+#  Free implementation of Bullfrog's Dungeon Keeper strategy game.
+# *****************************************************************************
+#   @file twinkprs/text_spa.po
+#      KeeperFX Campaign Strings translation file
+#  @par Purpose:
+#      Contains translation of the national strings in the game.
+#  @par Comment:
+#      Use this file to improve the translation for specific language.
+#  @author   KeeperFX Team
+#  @date     25 Aug 2012 - 02 Oct 2012
+#  @par  Copying and copyrights:
+#      This program is free software; you can redistribute it and/or modify
+#      it under the terms of the GNU General Public License as published by
+#      the Free Software Foundation; either version 2 of the License, or
+#      (at your option) any later version.
+#
+# *****************************************************************************                                                                               
+"Project-Id-Version: KeeperFX Twin Keepers\n"
+"Language: es\n"
+
+#. Generic victory message
+#: guitext:0
+msgctxt "In-game message"
+msgid ""
+msgstr ""
+
+#. Level Swedish Spirit Opening Message
+#: guitext:1
+msgctxt "In-game message"
+msgid ""
+"Circle circle of the dead, tell me who I'm gonna get. Having troll is making "
+"traps, as the workshop knack he has. Warlock brings a bunch of spells, "
+"that's what bookworms always have. Orc attracts a better army, which could "
+"do some serious harming."
+msgstr ""
+"Círculo, círculo de la muerte, dime a quién debo atraer. Un trol es hacer "
+"trampas, como la habilidad de taller que tiene. Brujo trae un montón de "
+"hechizos, eso es lo que siempre tienen los ratones de biblioteca. Los Orcos "
+"atraen a un mejor ejército, lo que podrían causar un daño más grave."
+
+#. Level Swedish Spirit guard post message
+#: guitext:2
+msgctxt "In-game message"
+msgid ""
+"Your conquest of the guard post has caused the heroes to retreat. However, "
+"they are regrouping and reinforcing. You should use this lull to prepare "
+"your forces Master, as they will surely return!"
+msgstr ""
+"Tu conquista del puesto de guardia ha hecho que los héroes se retiren. Sin "
+"embargo, se están reagrupando y reforzando. ¡Deberías usar esta calma para "
+"preparar tus fuerzas Maestro, ya que seguramente regresarán!"
+
+#. Level Swedish Spirit 2nd portal claim
+#: guitext:3
+msgctxt "In-game message"
+msgid ""
+"Your capture of the second portal has forced the heroes to act, and an "
+"attack is on the way. Your spies report however, that the main hero army is "
+"being held in reserve. Your preparations will be thoroughly tested Master!"
+msgstr ""
+"Tu captura del segundo portal ha obligado a los héroes a actuar, ahora un "
+"ataque está de camino. Sin embargo, tus espías te informan que el ejército "
+"principal de héroes se mantiene en reserva. ¡Tus preparaciones serán "
+"probadas a fondo, Maestro!"
+
+#. Level Swedish spirit outside hero heart"
+#: guitext:4
+msgctxt "In-game message"
+msgid ""
+"Beware, the main hero army approaches! I hope you're prepared for this, "
+"otherwise it may be a very short fight. Destroy the heart tainted by their "
+"rightfulness!"
+msgstr ""
+"¡Cuidado, el ejército del héroe principal se acerca! Espero que estés "
+"preparado, de lo contrario, puede ser una batalla muy corta. ¡Destruye el "
+"Corazón manchado por su rectitud!"
+
+#. Level Swedish Spirit. Orc from steal hero message
+#: guitext:5
+msgctxt "In-game message"
+msgid ""
+"Fate has spoken, evil master. Your primary weapon is brute force. You'll "
+"also be able to imprison enemies, and use the unholy temple.. if you know "
+"how. Use your creatures well, as you cannot help them with traps or spells. "
+"Also, watch your gold reserve. The heroes have already noticed you and are "
+"preparing for a crusade."
+msgstr ""
+"El destino ha hablado, malvado Maestro. Tu arma principal es la fuerza "
+"bruta. También podrás encarcelar enemigos y usar el templo profano… si sabes "
+"cómo hacerlo. Utiliza bien a tus criaturas, ya que no puedes ayudarlas con "
+"trampas o hechizos. Además, vigila tu reserva de oro. Los héroes ya han "
+"notado tu presencia y se están preparando para una cruzada."
+
+#. Level Swedish Spirit. Warlock from steal hero message
+#: guitext:6
+msgctxt "In-game message"
+msgid ""
+"Fate has spoken, evil master. Your primary weapon is magic. You'll be able "
+"to use lots of powerful spells. Use them well, as you cannot make traps or "
+"build a large army. The heroes have already noticed you and are preparing "
+"for a crusade."
+msgstr ""
+"El destino ha hablado, malvado Maestro. Tu arma principal es la magia. "
+"Podrás usar muchos hechizos poderosos. Utilízalos bien, ya que no puedes "
+"hacer trampas ni conseguir un gran ejército. Los héroes ya han notado tu "
+"presencia y se están preparando para una cruzada."
+
+#. Level Swedish Spirit. Troll from steal hero message
+#: guitext:7
+msgctxt "In-game message"
+msgid ""
+"Fate has spoken, evil master. Your primary weapon is manufacture. You'll be "
+"able to build devastating traps. Use these devices well, as you cannot use "
+"magic or build a large army. The heroes have already noticed you and are "
+"preparing for a crusade."
+msgstr ""
+"El destino ha hablado, malvado Maestro. Su arma principal es la fabricación. "
+"Podrás construir trampas devastadoras. Utiliza bien estos dispositivos, ya "
+"que no puedes usar magia o conseguir un gran ejército. Los héroes ya han "
+"notado tu presencia y se están preparando para una cruzada."
+
+#: guitext:8
+msgctxt "In-game message"
+msgid ""
+"The abomination of a heart is destroyed. You must show no mercy. Be certain "
+"that no living heroes remain Keeper. "
+msgstr ""
+"La abominación de ese Corazón debe ser destruida. No debes mostrar piedad. "
+"Asegúrate de que ningún Héroe siga vivo y siga siendo Guardián."
+
+#. Level Nameless hero (2nd level) imminent victory
+#: guitext:9
+msgctxt "In-game message"
+msgid ""
+"Almost there! Be sure to slaughter every last hero. Let no-one suggest that "
+"you were merciful. Such a slander would ruin your reputation!"
+msgstr ""
+"¡Casi has llegado! Asegúrate de matar hasta el último Héroe. Que nadie "
+"sugiera que fuiste misericordioso. ¡Tal calumnia arruinaría tu reputación!"
+
+#: guitext:10
+msgctxt "In-game message"
+msgid ""
+"While traveling to this land, we lost our Treasure Room plans. Fortunately "
+"there is an ancient library in this land, left by a powerful long dead "
+"keeper. Use it well!"
+msgstr ""
+"Mientras viajábamos a esta tierra, perdimos nuestros planos de la Sala del "
+"Tesoro. Afortunadamente, hay una biblioteca antigua en esta tierra, dejada "
+"por un poderoso Guardián que murió hace mucho tiempo. ¡Úsalo bien!"
+
+#: guitext:11
+msgctxt "In-game message"
+msgid ""
+"The hero forces will continue to attack, but they're getting weaker. When "
+"you're ready, focus on corridor near your entrance and commence an attack on "
+"their main force!"
+msgstr ""
+"Los grupos de los héroes seguirán atacando, pero se están debilitando. "
+"¡Cuando estés listo, concéntrate en el pasillo cerca de tu entrada y "
+"comienza un ataque contra su ejército principal!"
+
+#: guitext:12
+msgctxt "In-game message"
+msgid ""
+"You've chosen to attack the main enemy force quite soon. I just hope it "
+"won't be your undoing, keeper."
+msgstr ""
+"Has decidido atacar al ejército principal enemigo muy pronto. Solo espero "
+"que no sea tu perdición, Guardián."
+
+#: guitext:13
+msgctxt "In-game message"
+msgid ""
+"The good are beginning to understand their unavoidable fate. But stay alert, "
+"there's still a bunch to slay, and they're definitely not the weaker ones!"
+msgstr ""
+"Los buenos comienzan a comprender su destino inevitable. Pero mantente "
+"alerta, todavía hay un montón para matar, ¡y definitivamente no son los más "
+"débiles!"
+
+#: guitext:14
+msgctxt "In-game message"
+msgid ""
+"If I were in your skin.. I mean, in your flask - I would avoid attacking the "
+"door near the Entrance. Heroes who live there might prove to be a problem if "
+"your army does not consists of hardened veterans."
+msgstr ""
+"Si estuviera en tu lugar… quiero decir, en tu frasco, evitaría atacar la "
+"puerta cerca de la entrada. Los héroes que viven por ahí pueden resultar un "
+"problema, si tu ejército no está formado por veteranos endurecidos."
+
+#: guitext:15
+msgctxt "In-game message"
+msgid ""
+"The people of this land know well where to find the old Treasure Room. "
+"Expect visits of various heroes, looking either for fame and glory, or just "
+"for some easy gold."
+msgstr ""
+"La gente de esta tierra sabe bien dónde encontrar la antigua Sala del "
+"Tesoro. Espera visitas de varios héroes, en busca de fama y gloria, o "
+"simplemente de oro fácil."
+
+#: guitext:16
+msgctxt "In-game message"
+msgid ""
+"Do not allow your creatures to attack the door near Entrance! Instead, turn "
+"your eyes towards the door at bottom. Heroes there are somewhat weaker, and "
+"I smell a seductive wealth inside."
+msgstr ""
+"¡No permitas que tus criaturas ataquen la puerta cerca de la entrada! En su "
+"lugar, dirija sus ojos hacia la puerta en la parte inferior. Los héroes son "
+"algo más débiles, y huelo una riqueza seductora en su interior."
+
+#: guitext:17
+msgctxt "In-game message"
+msgid ""
+"Having gems will allow your Samurai to do proper training, and Thieves "
+"should no longer target you with such strength. That's a progress!"
+msgstr ""
+"Tener gemas permitirá que tu samurái realice un entrenamiento adecuado, y "
+"los ladrones ya no deberían atacarte con tanta fuerza. ¡Eso es un progreso!"
+
+#: guitext:18
+msgctxt "In-game message"
+msgid ""
+"Congratulations Evil One. Victory is within your grasp! A few more corpses "
+"and we'll be done here. Hurry along!"
+msgstr ""
+"Felicidades, Malvado. ¡La victoria está a tu alcance! Unos cuantos cadáveres "
+"más y habremos terminado aquí. ¡Date prisa!"
+
+#. Level Nameless hero opening message
+#: guitext:19
+msgctxt "In-game message"
+msgid ""
+"The hero who commands this realm cannot be of any significance, as he "
+"doesn't even have a name! You can worry about this when he has need of a "
+"tombstone Keeper. To work!"
+msgstr ""
+"¡El Héroe que gobierna este reino, no puede tener ninguna importancia, ya "
+"que ni siquiera tiene un nombre! Puedes preocuparte cuando necesite que un "
+"Guardián esté lapidado. ¡A trabajar!"
+
+#. Level Nameless hero action point 22
+#: guitext:20
+msgctxt "In-game message"
+msgid ""
+"Have you found the man with no name yet Keeper? He must be here somewhere?!"
+msgstr ""
+"¿Has encontrado al hombre sin nombre, Guardián? ¡¿Él debe estar aquí en "
+"alguna parte?!"
+
+#. Level Nameless hero opening message
+#: guitext:21
+msgctxt "In-game message"
+msgid ""
+"The nameless one commands many heroes Master, and he will not hesitate to "
+"march them against you."
+msgstr ""
+"Él sin nombre gobierna a muchos héroes, Maestro, y no dudará en hacerlos "
+"marchar contra ti."
+
+#. Level Twin Keepers opening message
+#: guitext:22
+msgctxt "In-game message"
+msgid ""
+"This land was kept in balance by the 4 keepers who dwell here. However, two "
+"have formed an alliance and will jointly attack the hero fortress. This will "
+"keep them occupied for a time Master, but rest assured they will be coming "
+"to claim your land when the hero fortress falls."
+msgstr ""
+"Esta tierra fue mantenida en equilibrio por los 4 guardianes que habitan "
+"aquí. Sin embargo, dos de ellos han formado una alianza y atacarán juntos la "
+"fortaleza del Héroe. Esto los mantendrá ocupados por un tiempo, Maestro, "
+"pero ten por seguro que vendrán a reclamar tu tierra cuando caiga la "
+"fortaleza del Héroe."
+
+#. Level Twin Keepers hero heart destroyed
+#: guitext:23
+msgctxt "In-game message"
+msgid ""
+"The hero dungeon has fallen Master! You have little time before the Twin "
+"Keepers make their move against you. Make your final preparations now! "
+msgstr ""
+"¡La Mazmorra del Héroe ha caído, Maestro! Tienes poco tiempo antes de que "
+"los Guardianes Gemelos hagan su movimiento contra ti. ¡Haz tus preparativos "
+"finales, ahora!"
+
+#. Level Twin Keepers hero loss message
+#: guitext:24
+msgctxt "In-game message"
+msgid ""
+"Significant hero reinforcements have arrived, but will it be enough to hold "
+"off the combined forces of the Twin Keepers? Only time will tell."
+msgstr ""
+"Han llegado importantes refuerzos de héroes, pero ¿serán suficientes para "
+"contener las fuerzas combinadas de los Guardianes Gemelos? Sólo el tiempo lo "
+"dirá."
+
+#. Level Twin Keepers victory message
+#: guitext:25
+msgctxt "In-game message"
+msgid "Excellent work Master! The final land of the Twin Keepers is yours!"
+msgstr ""
+"¡Excelente trabajo, Maestro! ¡La última tierra de los Guardianes Gemelos es "
+"tuya!"
+
+#. Level Twin Keepers defeat message
+#: guitext:26
+msgctxt "In-game message"
+msgid ""
+"You are a great disappointment! However, these previously friendly Keepers "
+"have broken their alliance, so you can watch the show while you contemplate "
+"the implications of your incompetence."
+msgstr ""
+"¡Eres una gran decepción! Sin embargo, estos guardianes, anteriormente "
+"amistosos, han roto su alianza, por lo que puedes ver el espectáculo de las "
+"implicaciones de tu incompetencia."
+
+#. Level Tub vulnerabilities opening message
+#: guitext:27
+msgctxt "In-game message"
+msgid ""
+"This is the last land you must conquer if you wish to meet the Twin Keepers. "
+"Here there are three other keepers, and guess what? None of them like you!"
+msgstr ""
+"Esta es la última tierra que te queda por conquistar, si deseas conocer a "
+"los Guardianes Gemelos. Aquí hay otros tres guardianes, ¿y adivina qué? "
+"¡Ninguno de ellos como tú!"
+
+#. Level Tub Vulnerabilities victory message
+#: guitext:28
+msgctxt "In-game message"
+msgid ""
+"A majestic victory Master! And you have earned the right to meet the "
+"infamous Twin Keepers in battle. Savour this moment awhile, then prepare "
+"yourself for the final trial!"
+msgstr ""
+"¡Una victoria majestuosa, Maestro! Y te has ganado el derecho de enfrentarte "
+"a los infames Guardianes Gemelos en batalla. ¡Saborea este momento por un "
+"rato y luego prepárate para la prueba final!"
+
+#. Level Tub Vulnerabilities Hero Knight death message
+#: guitext:29
+msgctxt "In-game message"
+msgid ""
+"With their Knight defeated, these heroes now know this is a fight to the "
+"death, and they will attack at every opportunity Master. Best to reward "
+"their bravery the only way you know how!"
+msgstr ""
+"Con su Caballero derrotado, estos héroes ahora saben que esta es una lucha a "
+"muerte y atacarán, en cada oportunidad, Maestro. ¡Lo mejor es recompensar su "
+"valentía de la única manera que sabes!"
+
+#. Level Tub Vulnerabilities hero onslaught message
+#: guitext:30
+msgctxt "In-game message"
+msgid ""
+"You have unleashed waves of hero raiding parties Master, as these heroes "
+"make their last stand in this realm. Your defences need to be extensive and "
+"well placed if you are to triumph here."
+msgstr ""
+"Has desatado oleadas de grupos de héroes, Maestro, ya que estos héroes "
+"comienzan su última resistencia en este reino. Tus defensas deben ser "
+"extensas y estar bien colocadas si quieres triunfar aquí."
+
+#. Level Embattled Formation opening message
+#: guitext:31
+msgctxt "In-game message"
+msgid ""
+"You are under siege in this land Master, with enemies to each of, three "
+"sides, and a land where there is nowhere to hide. Sickeningly they have made "
+"peace with each other and sworn to eliminate you from this land. You need a "
+"plan of your own and you need it fast!"
+msgstr ""
+"Estás bajo asedio en esta tierra, Maestro, con enemigos en cada uno de los "
+"tres lados, y una tierra donde no hay dónde esconderse. Asquerosamente, han "
+"hecho las paces entre ellos y han jurado eliminarte de esta tierra. "
+"¡Necesita un plan propio y lo necesita rápido!"
+
+#. Level Embattled Formation one opponent remaining message
+#: guitext:32
+msgctxt "In-game message"
+msgid ""
+"Impressive work master. It is a privilege to watch you wreak destruction on "
+"your enemies. Only one enemy remains, but beware, he has seen his allies' "
+"fate and will throw everything into the battle to save his skin!"
+msgstr ""
+"Impresionante trabajo, Maestro. Es un privilegio verte infligir destrucción "
+"a tus enemigos. ¡Solo queda un enemigo, pero cuidado, ha visto el destino de "
+"sus aliados y lo arrojará todo en batalla para salvar su pellejo!"
+
+#. Level Embattled Formation victory message
+#: guitext:33
+msgctxt "In-game message"
+msgid ""
+"An excellent victory once again. All three enemies lie amongst the dust of "
+"this once green and pleasant land. I sense you want to find the next land "
+"Master?"
+msgstr ""
+"Una excelente victoria, una vez más. Los tres enemigos yacen entre el polvo "
+"de esta tierra que alguna vez fue verde y placentera. ¿Siento que quieres "
+"encontrar al próximo Señor de la Tierra?"
+
+#. Level Embattled formation death of a keeper message
+#: guitext:34
+msgctxt "In-game message"
+msgid ""
+"A good start kepper, but beware. The remaining keepers grow stronger by "
+"pilfering the remnants of this dead kingdom, and therefore attract more "
+"creatures anxious to share the spoils!"
+msgstr ""
+"Un buen comienzo Guardián, pero cuidado. ¡Los guardianes restantes se "
+"fortalecen al robar los restos de este reino muerto y, por tanto, atraen a "
+"más criaturas ansiosas por compartir el botín!"
+
+#: guitext:35 guitext:36 guitext:37 guitext:38 guitext:39 guitext:40 guitext:41
+#: guitext:42 guitext:43 guitext:44 guitext:45 guitext:46 guitext:47 guitext:48
+#: guitext:49 guitext:50 guitext:51 guitext:52 guitext:53 guitext:54 guitext:55
+#: guitext:56 guitext:57 guitext:58 guitext:59 guitext:60 guitext:61 guitext:62
+#: guitext:63 guitext:64 guitext:65 guitext:66 guitext:67 guitext:68 guitext:69
+#: guitext:70 guitext:71 guitext:72 guitext:73 guitext:74 guitext:75 guitext:76
+#: guitext:77 guitext:78 guitext:79 guitext:80 guitext:81 guitext:82 guitext:83
+#: guitext:84 guitext:85 guitext:86 guitext:87 guitext:88 guitext:89 guitext:90
+#: guitext:91 guitext:92 guitext:93 guitext:94 guitext:95 guitext:96 guitext:97
+#: guitext:98 guitext:99 guitext:100 guitext:101 guitext:102 guitext:103
+#: guitext:104 guitext:105 guitext:106 guitext:107 guitext:108 guitext:109
+#: guitext:110 guitext:111 guitext:112 guitext:113 guitext:114 guitext:115
+#: guitext:116 guitext:117 guitext:118 guitext:119 guitext:120 guitext:121
+#: guitext:122 guitext:123 guitext:124 guitext:125 guitext:126 guitext:127
+#: guitext:128 guitext:129 guitext:130 guitext:131 guitext:132 guitext:133
+#: guitext:134 guitext:135 guitext:136 guitext:137 guitext:138 guitext:139
+#: guitext:140 guitext:141 guitext:142 guitext:143 guitext:144 guitext:145
+#: guitext:146 guitext:147 guitext:148 guitext:149 guitext:150 guitext:151
+#: guitext:152 guitext:153 guitext:154 guitext:155 guitext:156 guitext:157
+#: guitext:158 guitext:159 guitext:160 guitext:161 guitext:162 guitext:163
+#: guitext:164 guitext:165 guitext:166 guitext:167 guitext:168 guitext:169
+#: guitext:170 guitext:171 guitext:172 guitext:173 guitext:174 guitext:175
+#: guitext:176 guitext:177 guitext:178 guitext:179 guitext:180 guitext:181
+#: guitext:182 guitext:183 guitext:184 guitext:185 guitext:186 guitext:187
+#: guitext:188 guitext:189 guitext:190 guitext:191 guitext:192 guitext:193
+#: guitext:194 guitext:195 guitext:196 guitext:197 guitext:198 guitext:199
+#: guitext:200
+msgctxt "In-game message"
+msgid "Moo"
+msgstr "Muu"
+
+#: guitext:202
+msgctxt "Level name"
+msgid "Swedish spirit"
+msgstr "Espíritu sueco"
+
+#: guitext:203
+msgctxt "Level name"
+msgid "The Nameless Hero"
+msgstr "El Héroe sin nombre"
+
+#: guitext:204
+msgctxt "Level name"
+msgid "Invisible"
+msgstr "Invisible"
+
+#: guitext:205
+msgctxt "Level name"
+msgid "Embattled formation"
+msgstr "La Formación Asediada"
+
+#: guitext:206
+msgctxt "Level name"
+msgid "Tub vulnerabilities"
+msgstr "Vulnerabilidades de la tinaja"
+
+#: guitext:207
+msgctxt "Level name"
+msgid "Twin Keepers"
+msgstr "Guardianes Gemelos"

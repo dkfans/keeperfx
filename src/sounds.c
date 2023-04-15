@@ -64,7 +64,7 @@ char sound_dir[64] = "SOUND";
 int atmos_sound_frequency = 800;
 static char ambience_timer;
 /******************************************************************************/
-void thing_play_sample(struct Thing *thing, short smptbl_idx, unsigned short pitch, char a4, unsigned char a5, unsigned char a6, long a7, long loudness)
+void thing_play_sample(struct Thing *thing, short smptbl_idx, unsigned short pitch, char a4, unsigned char a5, unsigned char a6, long priority, long loudness)
 {
     if (SoundDisabled)
         return;
@@ -81,11 +81,11 @@ void thing_play_sample(struct Thing *thing, short smptbl_idx, unsigned short pit
         long eidx = thing->snd_emitter_id;
         if (eidx > 0)
         {
-            S3DAddSampleToEmitterPri(eidx, smptbl_idx, 0, pitch, loudness, a4, a5, a6 | 0x01, a7);
+            S3DAddSampleToEmitterPri(eidx, smptbl_idx, 0, pitch, loudness, a4, a5, a6 | 0x01, priority);
         } else
         {
             eidx = S3DCreateSoundEmitterPri(thing->mappos.x.val, thing->mappos.y.val, thing->mappos.z.val,
-               smptbl_idx, 0, pitch, loudness, a4, a6 | 0x01, a7);
+               smptbl_idx, 0, pitch, loudness, a4, a6 | 0x01, priority);
            thing->snd_emitter_id = eidx;
         }
     }
@@ -282,9 +282,12 @@ void update_player_sounds(void)
     int k = (game.bonus_time - game.play_gameturn) / 2;
     if (bonus_timer_enabled())
     {
-      if ((game.bonus_time == game.play_gameturn) ||
-         ((game.bonus_time > game.play_gameturn) && (((k <= 100) && ((k % 10) == 0)) ||
-          ((k<=300) && ((k % 50) == 0)) || ((k % 250) == 0))) )
+        if ((game.bonus_time == game.play_gameturn) ||
+            ((game.bonus_time > game.play_gameturn) && 
+            (   ((k <= 100)  && ((k % 10) == 0)) ||
+                ((k <= 300)  && ((k % 50) == 0)) || 
+                ((k <= 5000) && ((k % 250) == 0)) ||
+                                ((k % 5000) == 0)    )  ))
         play_non_3d_sample(89);
     }
     if (game.play_gameturn != 0)
@@ -712,7 +715,7 @@ void update_first_person_object_ambience(struct Thing *thing)
              objtng = thing_get(objtng->next_of_class))
         {
             objdat = get_objects_data_for_thing(objtng);
-            if (objdat->fp_smpl_idx != 0)
+            if ((objdat->fp_smpl_idx != 0) && !thing_is_in_limbo(objtng))
             {
                 new_distance = get_2d_box_distance(&thing->mappos, &objtng->mappos);
                 if (new_distance <= hearing_range)

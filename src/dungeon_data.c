@@ -249,7 +249,8 @@ struct Thing *get_player_soul_container(PlayerNumber plyr_idx)
 
 TbBool player_has_heart(PlayerNumber plyr_idx)
 {
-    return thing_exists(get_player_soul_container(plyr_idx));
+    struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
+    return (thing_exists(get_player_soul_container(plyr_idx)) && dungeon->heart_destroy_turn <= 0);
 }
 
 /** Returns if given dungeon contains a room of given kind.

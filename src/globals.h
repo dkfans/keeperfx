@@ -179,6 +179,11 @@ extern "C" {
   #define EVM_MAP_EVENT(event_name, plyr_idx, x, y, opt)
 #endif
 
+#define MAX_TILES_X 170
+#define MAX_TILES_Y 170
+#define MAX_SUBTILES_X 511
+#define MAX_SUBTILES_Y 511
+
 #pragma pack(1)
 
 /** Screen coordinate in scale of the game (resolution independent). */
@@ -256,7 +261,7 @@ typedef short MapSlabCoord;
 /** Distance between map coordinates in slabs.  */
 typedef short MapSlabDelta;
 /** Map subtile 2D coordinates, coded into one number. */
-typedef unsigned long SubtlCodedCoords;
+typedef long SubtlCodedCoords;
 /** Map slab 2D coordinates, coded into one number. */
 typedef unsigned long SlabCodedCoords;
 /** Index in the columns array. */
@@ -280,7 +285,7 @@ typedef unsigned char DamageType;
 /** Type which stores hit filters for things as THit_* values. */
 typedef unsigned char ThingHitType;
 /** Type which stores hit filters for things as HitTF_* flags. */
-typedef unsigned long HitTargetFlags;
+typedef unsigned long long HitTargetFlags;
 /** Index within active_buttons[] array. */
 typedef char ActiveButtonID;
 /** Type which stores FeST_* values from FrontendMenuStates enumeration. */

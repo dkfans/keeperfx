@@ -137,7 +137,6 @@ TbBool check_current_gui_layer(long layer_id)
                 {
                     case GuiLayer_OneClickBridgeBuild:
                         return true;
-                        break;
                     default:
                         return false;
                 }
@@ -513,6 +512,10 @@ short get_minimap_control_inputs(void)
     short packet_made = false;
     if (is_key_pressed(KC_SUBTRACT, KMod_NONE))
     {
+        if (menu_is_active(GMnu_MAIN))
+        {
+            fake_button_click(BID_MAP_ZOOM_OU);
+        }
         if (player->minimap_zoom < 2048)
         {
             set_players_packet_action(player, PckA_SetMinimapConf, 2 * (long)player->minimap_zoom, 0, 0, 0);
@@ -524,10 +527,14 @@ short get_minimap_control_inputs(void)
   }
   if (is_key_pressed(KC_ADD,KMod_NONE))
   {
+      if (menu_is_active(GMnu_MAIN))
+      {
+          fake_button_click(BID_MAP_ZOOM_IN);
+      }
       if ( player->minimap_zoom > 128 )
       {
-        set_players_packet_action(player, PckA_SetMinimapConf, player->minimap_zoom >> 1, 0, 0, 0);
-        packet_made = true;
+          set_players_packet_action(player, PckA_SetMinimapConf, player->minimap_zoom >> 1, 0, 0, 0);
+          packet_made = true;
       }
       clear_key_pressed(KC_ADD);
       if (packet_made) return true;
@@ -758,9 +765,17 @@ TbBool get_level_lost_inputs(void)
     {
       clear_key_pressed(KC_ESCAPE);
       if ( a_menu_window_is_active() )
+      {
         turn_off_all_window_menus();
+      }
       else
+      {
+          if (menu_is_active(GMnu_MAIN))
+          {
+            fake_button_click(BID_OPTIONS);
+          }
         turn_on_menu(GMnu_OPTIONS);
+      }
     }
     TbBool inp_done=false;
     switch (player->view_type)
@@ -1844,9 +1859,7 @@ void get_isometric_view_nonaction_inputs(void)
       return;
     if (speed_pressed != 0)
         packet->additional_packet_values |= PCAdV_SpeedupPressed;
-    TbBool no_mods = false;
-    if ((rotate_pressed != 0) || (speed_pressed != 0) || (check_current_gui_layer(GuiLayer_OneClick)))
-      no_mods = true;
+    TbBool no_mods = ((rotate_pressed != 0) || (speed_pressed != 0) || (check_current_gui_layer(GuiLayer_OneClick)));
 
     get_isometric_or_front_view_mouse_inputs(packet, rotate_pressed, speed_pressed);
 
@@ -1920,9 +1933,7 @@ void get_front_view_nonaction_inputs(void)
     struct Packet* pckt = get_packet(my_player_number);
     int rotate_pressed = is_game_key_pressed(Gkey_RotateMod, NULL, true);
     int speed_pressed = is_game_key_pressed(Gkey_SpeedMod, NULL, true);
-    TbBool no_mods = false;
-    if ((rotate_pressed != 0) || (speed_pressed != 0) || (check_current_gui_layer(GuiLayer_OneClick)))
-      no_mods = true;
+    TbBool no_mods = ((rotate_pressed != 0) || (speed_pressed != 0) || (check_current_gui_layer(GuiLayer_OneClick)));
 
     if ((player->allocflags & PlaF_KeyboardInputDisabled) != 0)
       return;
@@ -2008,8 +2019,9 @@ TbBool get_player_coords_and_context(struct Coord3d *pos, unsigned char *context
     y = top_pointed_at_y;
   else
     y = gameadd.map_subtiles_y;
-  unsigned int slb_x = subtile_slab_fast(x);
-  unsigned int slb_y = subtile_slab_fast(y);
+  unsigned int slb_x = subtile_slab(x);
+  unsigned int slb_y = subtile_slab(y);
+
   struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
   struct SlabAttr* slbattr = get_slab_attrs(slb);
   if (slab_kind_is_door(slb->kind) && (slabmap_owner(slb) == player->id_number) && (!playeradd->one_click_lock_cursor))
@@ -2480,6 +2492,10 @@ void input(void)
       pckt->additional_packet_values |= PCAdV_CrtrQueryPressed;
     else
       pckt->additional_packet_values &= ~PCAdV_CrtrQueryPressed;
+    if (is_game_key_pressed(Gkey_RotateMod, NULL, false) != 0)
+        pckt->additional_packet_values |= PCAdV_RotatePressed;
+    else
+        pckt->additional_packet_values &= ~PCAdV_RotatePressed;
 
     get_inputs();
 
@@ -2859,8 +2875,8 @@ void process_cheat_mode_selection_inputs()
                     struct Coord3d pos;
                     if (screen_to_map(player->acamera, GetMouseX(), GetMouseY(), &pos))
                     {
-                        MapSlabCoord slb_x = subtile_slab_fast(pos.x.stl.num);
-                        MapSlabCoord slb_y = subtile_slab_fast(pos.y.stl.num);
+                        MapSlabCoord slb_x = subtile_slab(pos.x.stl.num);
+                        MapSlabCoord slb_y = subtile_slab(pos.y.stl.num);
                         struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
                         PlayerNumber id;
                         if ( (slb->kind == SlbT_CLAIMED) || ( (slb->kind >= SlbT_WALLDRAPE) && (slb->kind <= SlbT_DAMAGEDWALL) ) )

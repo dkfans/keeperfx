@@ -270,7 +270,7 @@ struct Thing *find_hero_door_hero_can_navigate_to(struct Thing *herotng)
         }
         i = thing->next_of_class;
         // Per thing code
-        if (object_is_hero_gate(thing))
+        if (object_is_hero_gate(thing) && !thing_is_in_limbo(thing))
         {
             if (creature_can_navigate_to_with_storage(herotng, &thing->mappos, NavRtF_Default)) {
                 return thing;
@@ -546,7 +546,7 @@ TbBool creature_move_to_using_teleport(struct Thing *thing, struct Coord3d *pos,
              // Use teleport only over large enough distances
              if (get_2d_box_distance(&thing->mappos, pos) > COORD_PER_STL*game.min_distance_for_teleport)
              {
-                 set_creature_instance(thing, CrInst_TELEPORT, 1, 0, pos);
+                 set_creature_instance(thing, CrInst_TELEPORT, 0, pos);
                  return true;
              }
          }
