@@ -474,8 +474,9 @@ msgstr ""
 #. Misty Bog (lv5)
 #: guitext:55
 msgctxt "In-game message"
-msgid "The heart of the evil Necromancer is destroyed, but he has another! Find and destroy his second phylactery, and then proceed to stake all surviving vampires in the bog."
-msgstr "Das Herz eines bösen Nekromanten ist zerstört, aber es gibt noch ein weiteres! Finde und zerstöre sein zweites Phylakterium und pfähle dann alle überlebenden Vampire im Moor."
+msgid "The heart of the evil Necromancer is destroyed, but he has another! Find and destroy his second phylactery, and then proceed to "
+" stake all surviving vampires in the bog."
+msgstr "Das Herz des bösen Nekromanten ist zerstört, aber es gibt noch ein weiteres! Finde und zerstöre sein zweites Phylakterium und pfähle dann alle überlebenden Vampire im Moor."
 
 #. Misty Bog (lv5)
 #: guitext:56
@@ -483,7 +484,7 @@ msgctxt "In-game message"
 msgid "The Necromancer is defeated at last. Now, you must stake all surviving Vampires in the bog, who have belatedly arrived seeking vengeance "
 "on your heroes."
 msgstr ""
-"Der letzte Nekromant ist besiegt. Jetzt müsst Ihr alle überlebenden Vampire im Moor pfählen, die zu später Stunde eingetroffen sind, um sich an Euren Helden zu rächen."
+"Der Nekromant ist endgültig besiegt. Jetzt müsst Ihr alle überlebenden Vampire im Moor pfählen, die zu später Stunde eingetroffen sind, um sich an Euren Helden zu rächen."
 
 #: guitext:57
 msgctxt "In-game message"
@@ -496,13 +497,13 @@ msgctxt "In-game message"
 msgid "Glorious victory, my Liege! The Undead are defeated and Misty Bog is safe! It is now possible to restore Knight's Castle, which "
 "fell into disrepair after the Vampires settled here."
 msgstr ""
-"Ein glorreicher Sieg, mein Herr! Die Untoten sind besiegt und Nebelmoor ist sicher! Es ist nun möglich, Rittersburg wiederaufzubauen, was nach der Besetzung durch die Vampire verfallen ist."
+"Ein glorreicher Sieg, mein Herr! Die Untoten sind besiegt und Nebelmoor ist sicher! Es ist nun möglich, Rittersburg wiederaufzubauen, was mit der Besetzung durch die Vampire verfallen ist."
 
 #. Widerwilds (lv4)
 #: guitext:59
 msgctxt "In-game message"
 msgid "Treachery! Turns out the Barbarian who challenged you was a demon all along! You now must breach his fortress and destroy both the dungeon heart and the monster himself!"
-msgstr "Verrat! Der Barbar, der Euch angefochten war von Anfang an ein Dämon! Durchbrecht seine Verteidigung und zerstört das Dungeon-Herz und das Monster selbst."
+msgstr "Verrat! Der Barbarhäuptling war von Anfang an ein Dämon! Durchbrecht seine Verteidigung und zerstört das Dungeon-Herz und das Monster selbst."
 
 #. Knight's castle (lv6)
 #: guitext:60
