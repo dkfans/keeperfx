@@ -502,7 +502,7 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     unsigned char slaps_to_kill;
     short lair_enemy;
     short hero_vs_keeper_cost;
-    TbBool rebirth;
+    unsigned char rebirth;
     TbBool can_see_invisible;
     TbBool can_go_locked_doors;
     TbBool bleeds;

@@ -886,8 +886,6 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
             continue;
         }
         inst_inf = creature_instance_info_get(i);
-        inst_inf->range_min = -1;
-        inst_inf->range_max = -1;
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(creaturetype_instance_commands,cmd_num)
       while (pos<len)
       {
@@ -1114,11 +1112,8 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
                 {
                     k = atoi(word_buf);
                 }
-                if (k >= 0)
-                {
-                    inst_inf->range_min = k;
-                    n++;
-                }
+                inst_inf->range_min = k;
+                n++;
             }
             if (n < 1)
             {
@@ -1134,11 +1129,8 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
                 {
                     k = atoi(word_buf);
                 }
-                if (k >= 0)
-                {
-                    inst_inf->range_max = k;
-                    n++;
-                }
+                inst_inf->range_max = k;
+                n++;
             }
             if (n < 1)
             {
