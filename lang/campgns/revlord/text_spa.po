@@ -418,8 +418,7 @@ msgstr ""
 #. Widerwilds (lv4)
 #: guitext:45
 msgctxt "In-game message"
-msgid ""
-"Treachery! The Barbarian who challenged you has turned out to have been a Demon all along! Put him and his remaining minions down, quickly!"
+msgid "Treachery! Turns out the Barbarian who challenged you was a demon all along! Put him and his remaining minions down, quickly!"
 msgstr ""
 "¡Traición! ¡El bárbaro que te desafió resultó ser un demonio todo el tiempo! ¡Ponlo a él y a sus servidores restantes donde deben estar, rápido!"
 
@@ -436,7 +435,7 @@ msgstr ""
 #: guitext:47
 msgctxt "In-game message"
 msgid ""
-"The vile Necromancer holds this realm in his deathgrip. Rally the locals to vanquish the Undead and enact your revenge against the vampires "
+"A vile Necromancer holds this realm in his deathgrip. Rally the locals to vanquish the Undead and enact your revenge against the vampires "
 "who have brought the Knightly Order of Dominus to ruin!"
 msgstr ""
 "Un vil nigromante tiene a este reino en su puño mortal. Reúne a los lugareños para vencer a los muertos vivientes y promulga tu venganza "
@@ -495,16 +494,13 @@ msgstr "¡Nuestro Corazón de Mazmorra ha sido profanado por las fuerzas de los 
 #. Misty Bog (lv5)
 #: guitext:54
 msgctxt "In-game message"
-msgid ""
-"The people speak of a haunted Temple in the area. You would be wise to cleanse it of the taint?"
+msgid "The people speak of a haunted Temple in the area. You would be wise to cleanse it of the taint?"
 msgstr "La gente habla de un templo embrujado en la zona. ¿Sería prudente limpiarlo de la corrupción?"
 
 #. Misty Bog (lv5)
 #: guitext:55
 msgctxt "In-game message"
-msgid ""
-"The heart of an evil Necromancer is destroyed, but another remains. Find and destroy his second phylactery, and then proceed to stake "
-"all surviving vampires in the bog. "
+msgid "The heart of the evil Necromancer is destroyed, but he has another! Find and destroy his second phylactery, and then proceed to stake all surviving vampires in the bog."
 msgstr ""
 "El Corazón del nigromante malvado está destruido, pero hay otro. Encuentra y destruye su segunda filacteria, y luego procede a clavar "
 "estacas a todos los vampiros supervivientes en el pantano."
@@ -512,8 +508,7 @@ msgstr ""
 #. Misty Bog (lv5)
 #: guitext:56
 msgctxt "In-game message"
-msgid ""
-"The last Necromancer is defeated. Now, you must stake all surviving Vampires in the bog, who have belatedly arrived seeking vengeance "
+msgid "The Necromancer is defeated at last. Now, you must stake all surviving Vampires in the bog, who have belatedly arrived seeking vengeance "
 "on your heroes."
 msgstr ""
 "El último nigromante ha sido derrotado. Ahora, debes acabar con todos los vampiros supervivientes del pantano, que han llegado con "
@@ -533,7 +528,7 @@ msgstr ""
 "¡Gloriosa victoria, mi Señor! ¡Los muertos vivientes han sido derrotados y Pantano brumoso está a salvo! Ahora es posible restaurar el "
 "Castillo de los Caballeros, que está en mal estado después de que los vampiros se establecieran allí."
 
-#. Widerwilds (lv3)
+#. Widerwilds (lv4)
 #: guitext:59
 msgctxt "In-game message"
 msgid "Treachery! Turns out the Barbarian who challenged you was a demon all along! You now must breach his fortress and destroy both the dungeon heart and the monster himself!"

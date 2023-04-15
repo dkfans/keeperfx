@@ -395,10 +395,8 @@ msgstr ""
 #. Widerwilds (lv4)
 #: guitext:45
 msgctxt "In-game message"
-msgid ""
-"Treachery! The Barbarian who challenged you has turned out to have been a Demon all along! Put him and his remaining minions down, quickly!"
-msgstr ""
-"Verrat! Der Barbar, der Euch angefochten war von Anfang an ein Dämon! Schnell, macht ihn und seine restlichen Schergen nieder!"
+msgid "Treachery! Turns out the Barbarian who challenged you was a demon all along! Put him and his remaining minions down, quickly!"
+msgstr "Verrat! Der Barbarenhäuptling war von Anfang an ein Dämon! Schnell, macht ihn und seine restlichen Schergen nieder!"
 
 #. Widerwilds (lv4) victory message
 #: guitext:46
@@ -412,7 +410,7 @@ msgstr ""
 #: guitext:47
 msgctxt "In-game message"
 msgid ""
-"The vile Necromancer holds this realm in his deathgrip. Rally the locals to vanquish the Undead and enact your revenge against the vampires "
+"A vile Necromancer holds this realm in his deathgrip. Rally the locals to vanquish the Undead and enact your revenge against the vampires "
 "who have brought the Knightly Order of Dominus to ruin!"
 msgstr ""
 "Ein abscheulicher Nekromant hält dieses Reich in seinem Todesgriff. Versammle die Einheimischen, um die Untoten zu besiegen, und übe Rache an den Vampiren, die den Ritterorden von Dominus ins Verderben gestürzt haben!"
@@ -476,16 +474,13 @@ msgstr ""
 #. Misty Bog (lv5)
 #: guitext:55
 msgctxt "In-game message"
-msgid "The heart of an evil Necromancer is destroyed, but there is another! Find and destroy his second phylactery, and then proceed to "
-" stake all surviving vampires in the bog."
-msgstr ""
-"Das Herz eines bösen Nekromanten ist zerstört, aber es gibt noch ein weiteres! Finde und zerstöre sein zweites Phylakterium und pfähle dann alle überlebenden Vampire im Moor."
+msgid "The heart of the evil Necromancer is destroyed, but he has another! Find and destroy his second phylactery, and then proceed to stake all surviving vampires in the bog."
+msgstr "Das Herz eines bösen Nekromanten ist zerstört, aber es gibt noch ein weiteres! Finde und zerstöre sein zweites Phylakterium und pfähle dann alle überlebenden Vampire im Moor."
 
 #. Misty Bog (lv5)
 #: guitext:56
 msgctxt "In-game message"
-msgid ""
-"The last Necromancer is defeated. Now, you must stake all surviving Vampires in the bog, who have belatedly arrived seeking vengeance "
+msgid "The Necromancer is defeated at last. Now, you must stake all surviving Vampires in the bog, who have belatedly arrived seeking vengeance "
 "on your heroes."
 msgstr ""
 "Der letzte Nekromant ist besiegt. Jetzt müsst Ihr alle überlebenden Vampire im Moor pfählen, die zu später Stunde eingetroffen sind, um sich an Euren Helden zu rächen."
@@ -503,14 +498,11 @@ msgid "Glorious victory, my Liege! The Undead are defeated and Misty Bog is safe
 msgstr ""
 "Ein glorreicher Sieg, mein Herr! Die Untoten sind besiegt und Nebelmoor ist sicher! Es ist nun möglich, Rittersburg wiederaufzubauen, was nach der Besetzung durch die Vampire verfallen ist."
 
-#. Widerwilds (lv3)
+#. Widerwilds (lv4)
 #: guitext:59
 msgctxt "In-game message"
-msgid ""
-"Treachery! The Barbarian who challenged you has turned out to have been a demon all along! You now must breach his fortress and destroy "
-"both the dungeon heart and the monster himself!"
-msgstr ""
-"Verrat! Der Barbar, der Euch angefochten war von Anfang an ein Dämon! Durchbrecht seine Verteidigung und zerstört das Dungeon-Herz und das Monster selbst."
+msgid "Treachery! Turns out the Barbarian who challenged you was a demon all along! You now must breach his fortress and destroy both the dungeon heart and the monster himself!"
+msgstr "Verrat! Der Barbar, der Euch angefochten war von Anfang an ein Dämon! Durchbrecht seine Verteidigung und zerstört das Dungeon-Herz und das Monster selbst."
 
 #. Knight's castle (lv6)
 #: guitext:60
