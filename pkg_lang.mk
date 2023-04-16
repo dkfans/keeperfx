@@ -84,6 +84,7 @@ pkg/campgns/twinkprs/text_pol.dat \
 pkg/campgns/twinkprs/text_spa.dat \
 pkg/campgns/undedkpr/text_eng.dat \
 pkg/campgns/undedkpr/text_chi.dat \
+pkg/campgns/undedkpr/text_ger.dat \
 pkg/campgns/undedkpr/text_pol.dat \
 pkg/campgns/undedkpr/text_spa.dat
 

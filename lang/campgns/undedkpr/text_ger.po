@@ -29,138 +29,162 @@ msgctxt "In-game message"
 msgid ""
 "Make haste Master. It won't be long before your rival breaks into this realm."
 msgstr ""
+"Beeilt Euch, Meister. Es wird nicht lange dauern, bis Euer Rivale in dieses Reich vordringt."
 
 #: guitext:2
 msgctxt "In-game message"
 msgid ""
 "Your rival is advancing from the south. There is also word that reinforcements from Rosefield have arrived."
 msgstr ""
+" Euer Rivale rückt von Süden vor. Es gibt Nachrichten, dass Verstärkung aus Rosenfeld eingetroffen ist."
 
 #: guitext:3
 msgctxt "In-game message"
 msgid ""
 "The first domino falls here! Can we assume the prisoners will be properly taken care of?!"
 msgstr ""
+"Der erste Schritt ist damit getan! Können wir davon ausgehen, dass die Gefangenen angemessen behandelt werden?!"
 
 #: guitext:4
 msgctxt "In-game message"
 msgid ""
 "The Cathedral is currently under siege by one of Keeper Bane's underlings. Make haste and unearth the treasuries buried here."
 msgstr ""
+"Die Kathedrale wird derzeit von einem der Handlanger von Keeper Bane belagert. Beeilt Euch und grabt die hier verborgenen Schätze aus."
 
 #: guitext:5
 msgctxt "In-game message"
 msgid "Outstanding, Master! Now things will become more interesting."
-msgstr ""
+msgstr "Ausgezeichnet, Meister! Jetzt wird es erst richtig spannend."
 
 #: guitext:6
 msgctxt "In-game message"
 msgid "Just as I thought, the Victor was decided before the fight even began!"
 msgstr ""
+" So hatte ich es mir gedacht. Der Sieger stand fest, bevor der Kampf überhaupt begonnen hat!"
 
 #: guitext:7
 msgctxt "In-game message"
 msgid ""
 "This fortress is the last bastion of the Heroes. It is said that the construction took several hundred years, but I'm sure you can demolish it in an instant? However, be warned; there is evil within those walls."
 msgstr ""
+"Diese Festung ist die letzte Bastion der Helden. Man sagt, dass der Bau mehrere hundert Jahre gedauert hat, aber ich bin sicher, dass Ihr sie im Handumdrehen einreißen könnt. Aber seid gewarnt, in diesen Mauern lauert das Böse."
 
 #: guitext:8
 msgctxt "In-game message"
 msgid ""
 "The Wizards of this realm have robbed you of your spells. They obviously haven't heard of the saying ''What goes around comes around''! Reprisals are to be expected."
 msgstr ""
+"Die Magier dieses Reiches haben Euch Eurer Zaubersprüche beraubt. Offensichtlich kennen sie das Sprichwort ''Wie du mir, so ich dir'' nicht! Sie werden mit Vergeltung rechnen müssen."
 
 #: guitext:9
 msgctxt "In-game message"
 msgid ""
 "The Avatar is also among us! May I suggest we capture, torture him and listen to the wonderful sound of his bones being shattered?"
 msgstr ""
+"Der Avatar ist auch hier! Darf ich vorschlagen, ihn zu gefangen zu nehmen, zu foltern und dem wunderbaren Geräusch seiner splitternden Knochen zu lauschen?"
 
 #: guitext:10
 msgctxt "In-game message"
 msgid "Ahh, now this is what I like to call absolute CARNAGE! Can we move on please? This place has become too corpsy for my liking."
 msgstr ""
+"Ahh, das nenne ich mal ein absolutes BLUTBAD! Können wir bitte weitermachen? Dieser Ort ist für meinen Geschmack zu verleicht."
 
 #: guitext:11
 msgctxt "In-game message"
 msgid ""
 "This is an ancient realm full of riches, which you must use to your advantage. You are outnumbered, and your library has been captured by the vile warlocks in the East. Make them pay for this theft with their lives!"
 msgstr ""
+"Dies ist ein uraltes Reich voller Reichtümer, die Ihr zu Eurem Vorteil nutzen müsst. Ihr seid in der Unterzahl, und Eure Bibliothek wurde von den ruchlosen Zauberern im Osten in Beschlag genommen. Lasst sie für diesen Diebstahl mit ihrem Leben bezahlen!"
 
 #: guitext:12
 msgctxt "In-game message"
 msgid "Excellent, now we can research spells and rooms!"
 msgstr ""
+"Ausgezeichnet, jetzt können wir Zaubersprüche und Räume erforschen!"
 
 #: guitext:13
 msgctxt "In-game message"
 msgid ""
 "Another one bites the dust! Let us not waste too much time on these rookies, as greater challenges await on the horizon."
 msgstr ""
+"Wieder beißt einer ins Gras! Wir sollten nicht zu viel Zeit mit diesen Grünschnäbeln verschwenden, es warten schon größere Herausforderungen auf uns."
 
 #: guitext:14
 msgctxt "In-game message"
 msgid ""
 "A vast legion is hosted in this realm. However, with it's commanders being at odds, this makes the battle quite diverse. Quickly gather your forces and attack whilst there is still a state of confusion!"
 msgstr ""
+"Eine gewaltige Legion ist in diesem Reich stationiert. Da ihre Befehlshaber jedoch zerstritten sind, wird der Kampf sehr abwechslungsreich. Rasch, sammelt Eure Truppen und greift an, solange noch Verwirrung herrscht!"
 
 #: guitext:15
 msgctxt "In-game message"
 msgid ""
 "You cannot hope for victory without a portal to attract creatures. Go out and seek one."
 msgstr ""
+"Ohne einen Eingang, um Kreaturen anzulocken, werdet Ihr keine Aussicht auf Erfolg haben. Zieht los und sucht eines."
 
 #: guitext:16
 msgctxt "In-game message"
 msgid ""
 "A truly devastating victory. You've just routed and destroyed the last barrier between Keeper Bane and yourself. Now... let's kill that dirtbag!"
 msgstr ""
+"Ein wahrlich vernichtender Sieg. Ihr habt soeben die letzte Hürde zwischen Euch und Keeper Bane aus dem Weg geräumt. Nun... lasst uns diesen Drecksack töten!"
 
 #: guitext:17
 msgctxt "In-game message"
 msgid ""
 "Keeper Bane has barricaded himself in, the pathetic wretch. But the more suprising news is that most of the Elite Heroes along with their leader, the Avatar, have survived and are preparing to attack you!"
 msgstr ""
+"Keeper Bane hat sich verbarrikadiert, dieser erbärmliche Wicht. Aber überraschender ist, dass die meisten der Elite-Helden und ihr Anführer, der Avatar, überlebt haben und sich darauf vorbereiten, Euch anzugreifen!"
 
 #: guitext:18
 msgctxt "In-game message"
 msgid ""
 "Keeper Bane is very powerful because he has the support of all the creatures in this realm. The Dark Gods, however, are willing to help you, but they demand a tribute in the form of 100 Souls; preferably dead, of course!"
 msgstr ""
+"Keeper Bane ist unglaublich stark, denn er hat die Unterstützung aller Kreaturen in diesem Reich. Die Dunklen Götter sind jedoch bereit, Euch zu helfen, aber sie verlangen einen Tribut in Form von 100 Seelen; vorzugsweise tot, versteht sich!"
 
 #: guitext:19
 msgctxt "In-game message"
 msgid "The Dark Gods are pleased with your sacrifice!"
 msgstr ""
+"Die Dunklen Götter fühlen sich durch Eure Opfergabe geehrt!"
 
 #: guitext:20
 msgctxt "In-game message"
 msgid ""
 "Beware, the Avatar has returned. He won't give up and he's stronger than ever, so show this lunatic the error of his ways!"
+
 msgstr ""
+"Achtung, der Avatar ist zurückgekehrt. Er wird nicht aufgeben und ist stärker als je zuvor, also zeig diesem Spinner, dass er sich mit dem Falschen angelegt hat!"
 
 #: guitext:21
 msgctxt "In-game message"
 msgid ""
 "The Avatar is badly wounded. Finish him off now so we can turn to the real prize of this realm - Bane!"
 msgstr ""
+"Der Avatar ist schwer verwundet. Macht ihn fertig, damit wir uns dem Hauptgewinn dieses Reiches zuwenden können - Bane!"
 
 #: guitext:22
 msgctxt "In-game message"
 msgid ""
 "Finally, Keeper Bane is destroyed, his minions are dead, and so are the Heroes. There are no more living creatures on this continent, and there is nothing left to conquer; you have won!"
 msgstr ""
+"Endlich, Keeper Bane ist vernichtet, seine Schergen sind tot, und die Helden ebenfalls. Es gibt keine lebendigen Kreaturen mehr auf diesem Kontinent, und es gibt nichts mehr zu erobern; Ihr habt gewonnen!"
 
 #: guitext:23
 msgctxt "In-game message"
 msgid ""
 "An evil Keeper by the name of Dracovich has his designs for this realm. Let him know how you feel about those plans... in the appropriate way of course!"
 msgstr ""
+"Ein böser Keeper namens Drakovitsch hat einige Ideen für dieses Reich. Lasst ihn wissen, was Ihr von seinen Plänen haltet... natürlich auf die angemessene Art und Weise!"
 
 #: guitext:24
 msgctxt "In-game message"
 msgid "That is one less, well done."
 msgstr ""
+" Einer weniger, gut gemacht."
 
 #: guitext:25
 msgctxt "In-game message"
@@ -169,6 +193,7 @@ msgid ""
 "Use the resources you have available to build an even bigger force and crush "
 "that so-called army."
 msgstr ""
+"Die Helden werden langsam nervös und haben eine Armee geschickt, um Euch anzugreifen. Nutzt die Ressourcen, die Ihr habt, um die größere Streitmacht aufzubauen und diese sogenannte Armee zu zerquetschen."
 
 #: guitext:26
 msgctxt "In-game message"
@@ -176,11 +201,13 @@ msgid ""
 "You have slaughtered the vast majority of the Heroes, now prepare yourself "
 "for their elite warriors. Maybe they can provide some some actual fight?"
 msgstr ""
+"Ihr habt den Großteil der Helden abgeschlachtet, jetzt rüstet Euch für ihre Elitekrieger. Vielleicht können die ja einen echten Kampf liefern?"
 
 #: guitext:27
 msgctxt "In-game message"
 msgid "Here they come again."
 msgstr ""
+"Da sind sie wieder."
 
 #: guitext:28
 msgctxt "In-game message"
@@ -189,6 +216,7 @@ msgid ""
 "place will forever be haunted with wailing, vengeful revenants until the end "
 "of time. Outstanding!"
 msgstr ""
+"So viele Tote hier auf dem Schlachtfeld - ich kann mir vorstellen, dass dieser Ort bis ans Ende der Zeit von klagenden, rasenden Rachegeistern heimgesucht werden wird. Ausgezeichnet!"
 
 #: guitext:29
 msgctxt "In-game message"
@@ -197,11 +225,13 @@ msgid ""
 "unbeatable team, claiming that even Gods cower in their presence. Show them "
 "the error of their ways once seperated, the hard way."
 msgstr ""
+"Ein erbärmliches Duo namens Umbra und Abominor rühmt sich, ein unschlagbares Gespann zu sein und behauptet, dass selbst Götter vor ihnen zurückschrecken. Zeig ihnen auf die harte Tour, dass sie auf dem Holzweg sind, wenn sie erst einmal getrennt sind."
 
 #: guitext:30
 msgctxt "In-game message"
 msgid "Together they stand, together they fall!"
 msgstr ""
+"Aller bösen Dinge sind zwei!"
 
 #: guitext:31
 msgctxt "In-game message"
@@ -214,6 +244,7 @@ msgid ""
 "to make this realm a paradise of darkness. Destroy her, and raze this "
 "fortress to the ground. It seems like deja vu all over again!"
 msgstr ""
+"Die Helden haben die Festung eines legendären Samurai-Kriegers restauriert. Dieser wurde einst zusammen mit seinen Männern getötet und seine Burg verfiel. Das war kein kluger Schachzug der Helden, denn die Leichenberge werden Euch einen ständigen Nachschub an Kämpfern bescheren. Ihr seid jedoch nicht der Einzige hier, der nekromantische Fähigkeiten besitzt; Nex versucht, dieses Reich in ein Paradies der Dunkelheit zu verwandeln. Zerstöre sie und mach diese Festung dem Erdboden gleich. Es ist wie ein Déjà-vu!"
 
 #: guitext:32
 msgctxt "In-game message"
@@ -221,6 +252,7 @@ msgid ""
 "Nex wanted to make this realm a paradise of darkness. It will be one but, "
 "rightfully, under your banner!"
 msgstr ""
+"Nex wollte aus diesem Reich ein Paradies der Dunkelheit machen. Es wird eines sein, aber zu Recht, unter Eurer Flagge!"
 
 #: guitext:33
 msgctxt "In-game message"
@@ -229,6 +261,7 @@ msgid ""
 "delaying the inevitable. The Wizard Lucian himself will be present, so "
 "prepare for a long and tough fight. They are coming!"
 msgstr ""
+"Die Helden bereiten sich auf ein letztes Gefecht vor, was das Unvermeidliche natürlich nur hinausschiebt. Der Magier Lucian selbst wird vor Ort sein, also macht Euch auf einen langen und harten Kampf gefasst. Sie kommen!"
 
 #: guitext:34
 msgctxt "In-game message"
@@ -238,6 +271,7 @@ msgid ""
 "that lead the armies against you. Find them and kill them before you are "
 "overrun."
 msgstr ""
+"Lucian hat einen Zauber gesprochen, der Eure Kreaturen daran hindert, Erfahrung im Kampf zu sammeln. Die Essenz dieses Zaubers wird von fünf Generälen gebunden, die ihre Armeen gegen Euch befehligen. Findet sie und tötet sie, bevor Ihr überrannt werdet."
 
 #: guitext:35
 msgctxt "In-game message"
@@ -245,6 +279,7 @@ msgid ""
 "That is one less, well done. Be warned, I can sense something powerful stirring "
 "up the Heroes in the west..."
 msgstr ""
+"Einer weniger, gut gemacht! Seid gewarnt, ich spüre, dass die Helden im Westen von etwas Mächtigem angestachelt werden..."
 
 #: guitext:36
 msgctxt "In-game message"
@@ -256,6 +291,7 @@ msgid ""
 "find. Deliberate and cunning, he will use every dirty trick and dishonest "
 "tactic at his disposal to win the day."
 msgstr ""
+"Der allmächtige Keeper Leto hält sich in diesem Reich auf. Ich dachte, er sei nur eine Legende; allein der Ruf seiner Skrupellosigkeit, Bosheit und Grausamkeit ist überwältigend. Aber es ist seine Leidenschaft für die Kriegsführung, die ihn zu einem der gefürchtetsten Gegner macht, die es je gab. Mit List und Tücke setzt er jede schmutzigen Masche und unehrliche Taktik ein, die ihm zur Verfügung steht, um den Sieg davonzutragen. Richtig beneidenswert."
 
 #: guitext:37
 msgctxt "In-game message"
@@ -265,6 +301,7 @@ msgid ""
 "by Leto. You have to retrieve him from Leto's clutches somehow... No-one said "
 "this would be easy, did they?"
 msgstr ""
+"Ihr habt den vierten General getötet und dabei ihre Angriffswege abgeschnitten, aber der letzte und wichtigste der Generäle wurde von Leto gefangen genommen. Ihr müsst ihn irgendwie aus Letos Klauen befreien... Es hat ja auch niemand behauptet, dass es einfach wird, oder?"
 
 #: guitext:38
 msgctxt "In-game message"
@@ -272,6 +309,7 @@ msgid ""
 "With the death of all the Generals, I can already smell the fear from Lucian "
 "across the realm. Put his head on a spike when you are ready for it."
 msgstr ""
+"Nach dem Tod aller Generäle kann ich die Angst vor Lucian bis hierhin schon riechen. Setzt seinen Kopf auf einen Pfahl, wenn Ihr bereit seid."
 
 #: guitext:39
 msgctxt "In-game message"
@@ -280,6 +318,7 @@ msgid ""
 "nothing left to conquer... for the moment... I have this feeling we have "
 "not seen the last of either Leto or the Heroes...."
 msgstr ""
+"Ich hätte mir nie träumen lassen, dass Ihr so mächtig seid, Meister. Ihr habt gewonnen, es gibt nichts mehr zu erobern... für den Augenblick... Ich habe so ein Gefühl, dass wir weder Leto noch die Helden zum letzten Mal gesehen haben...."
 
 #: guitext:40
 msgctxt "In-game message"
@@ -292,6 +331,7 @@ msgid ""
 "will not hesitate to destroy them if nessesary so keep your eyes on the "
 "rascals."
 msgstr ""
+"Die alten Geister der Unbeugsamkeit, Tapferkeit und Gerechtigkeit beschützen dieses Reich mit ihrer uralten Magie. Sie haben nur ein winziges Detail übersehen: Der alte Vampirfürst Jedidiah wurde vor langer Zeit von denselben Geistern hier begraben. Weckt ihn aus seinem Winterschlaf! Dafür braucht Ihr gewisse Kraftzentren, welche von den Helden beschützt werden. Findet sie und stellt sie sicher. Die Helden werden nicht zögern, sie zu zerstören, wenn es nötig ist, also behaltet die Halunken im Auge."
 
 #: guitext:41
 msgctxt "In-game message"
@@ -299,6 +339,7 @@ msgid ""
 "You have reached and secured one of the power structures. Remember, the goal "
 "is to secure them, NOT destroy them!"
 msgstr ""
+"Ihr habet eines der Kraftzentren erreicht und besetzt. Denken Sie daran, das Ziel ist es, sie zu schützen, NICHT sie zu zerstören!"
 
 #: guitext:42
 msgctxt "In-game message"
@@ -307,17 +348,20 @@ msgid ""
 "him. Lead on! Your forces will gradually appear as the battle progresses... "
 "as will some special allies..."
 msgstr ""
+"Jeddiah ist erwacht und brennt darauf, sich an denen zu rächen, die ihn gefangen nahmen. Vorwärts! Eure Streitkräfte werden im Kampf nach und nach auftauchen... und auch einige besondere Verbündete..."
 
 #: guitext:43
 msgctxt "In-game message"
 msgid "More reinforcements are on the way to assist you."
 msgstr ""
+"Verstärkung ist auf dem Weg."
 
 #: guitext:44
 msgctxt "In-game message"
 msgid ""
 "Use this spell to break down the walls and destroy the remaining opposition!"
 msgstr ""
+" Nutzt diesen Zauber, um die Mauern zu zerstören und den restlichen Widerstand zu vernichten!"
 
 #: guitext:45
 msgctxt "In-game message"
@@ -325,6 +369,7 @@ msgid ""
 "The enemies of darkness and death have been shown no mercy... as it should "
 "be.... well done..."
 msgstr ""
+"Den Feinden von Finsternis und Tod wurde keine Gnade gewährt... wie es sich gehört.... Gut gemacht..."
 
 #: guitext:46
 #: guitext:47 guitext:48 guitext:49 guitext:50 guitext:51 guitext:52
@@ -360,59 +405,59 @@ msgstr ""
 #: guitext:202
 msgctxt "Level name"
 msgid "Winterrage"
-msgstr ""
+msgstr "Winterzorn"
 
 #: guitext:203
 msgctxt "Level name"
 msgid "Rosefield Cathedral"
-msgstr ""
+msgstr "Kathedrale Rosenfeld"
 
 #: guitext:204
 msgctxt "Level name"
 msgid "Arbor Heights"
-msgstr ""
+msgstr "Laubenhöhe"
 
 #: guitext:205
 msgctxt "Level name"
 msgid "Drachenfeld"
-msgstr ""
+msgstr "Drachenfeld"
 
 #: guitext:206
 msgctxt "Level name"
 msgid "Ashspire"
-msgstr ""
+msgstr "Ascheturm"
 
 #: guitext:207
 msgctxt "Level name"
 msgid "Dawnterror"
-msgstr ""
+msgstr "Schreckensdämmerung"
 
 #: guitext:208
 msgctxt "Level name"
 msgid "Ludim"
-msgstr ""
+msgstr "Ludim"
 
 #: guitext:209
 msgctxt "Level name"
 msgid "Havoth Dir"
-msgstr ""
+msgstr "Havoth Dir"
 
 #: guitext:210
 msgctxt "Level name"
 msgid "Ebenazer"
-msgstr ""
+msgstr "Ebenazer"
 
 #: guitext:211
 msgctxt "Level name"
 msgid "Chaerith"
-msgstr ""
+msgstr "Chaerith"
 
 #: guitext:212
 msgctxt "Level name"
 msgid "Nazirite"
-msgstr ""
+msgstr "Nazirite"
 
 #: guitext:213
 msgctxt "Level name"
 msgid "Elysium"
-msgstr ""
+msgstr "Elysium"
