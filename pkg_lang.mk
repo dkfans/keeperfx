@@ -79,6 +79,7 @@ pkg/campgns/revlord/text_chi.dat \
 pkg/campgns/revlord/text_spa.dat \
 pkg/campgns/twinkprs/text_eng.dat \
 pkg/campgns/twinkprs/text_chi.dat \
+pkg/campgns/twinkprs/text_fre.dat \
 pkg/campgns/twinkprs/text_pol.dat \
 pkg/campgns/twinkprs/text_spa.dat \
 pkg/campgns/undedkpr/text_eng.dat \
