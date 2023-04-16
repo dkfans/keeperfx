@@ -731,6 +731,9 @@ void init_player(struct PlayerInfo *player, short no_explore)
     player->work_state = PSt_CtrlDungeon;
     player->field_14 = 2;
     player->main_palette = engine_palette;
+    player->minimap_zoom = settings.minimap_zoom;
+    player->isometric_view_zoom_level = settings.isometric_view_zoom_level;
+    player->frontview_zoom_level = settings.frontview_zoom_level;
     if (is_my_player(player))
     {
         set_flag_byte(&game.operation_flags,GOF_ShowPanel,true);
@@ -751,6 +754,10 @@ void init_player(struct PlayerInfo *player, short no_explore)
         }
         break;
     case GKind_MultiGame:
+        //workaround until settings are synced through multiplayer
+        player->minimap_zoom = 256;
+        player->isometric_view_zoom_level = CAMERA_ZOOM_MAX;
+        player->frontview_zoom_level = FRONTVIEW_CAMERA_ZOOM_MAX;
         if (player->is_active != 1)
         {
           ERRORLOG("Non Keeper in Keeper game");
