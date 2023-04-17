@@ -454,7 +454,7 @@ void init_player_cameras(struct PlayerInfo *player)
     } else {
         cam->view_mode = PVM_IsoWibbleView;
     }
-    cam->zoom = settings.isometric_view_zoom_level;
+    cam->zoom = player->isometric_view_zoom_level;
 
     cam = &player->cameras[CamIV_Parchment];
     cam->mappos.x.val = 0;
@@ -469,7 +469,7 @@ void init_player_cameras(struct PlayerInfo *player)
     cam->mappos.z.val = 32;
     cam->horizontal_fov = 94;
     cam->view_mode = PVM_FrontView;
-    cam->zoom = settings.frontview_zoom_level;
+    cam->zoom = player->frontview_zoom_level;
 
     reset_interpolation_of_camera(player);
 }
