@@ -635,8 +635,8 @@ msgstr "Cela prend trop de temps. Voyons ce qui se passe."
 #. Ghost in the Machine (lv458)
 #: guitext:102
 msgctxt "In-game message"
-msgid "\"Your message could be posted here. Victory!"
-msgstr "\"Votre message pourrait être posté ici. Victoire !"
+msgid "Your message could be posted here. Victory!"
+msgstr "Votre message pourrait être posté ici. Victoire !"
 
 #. Grail Run (lv444)
 #: guitext:103

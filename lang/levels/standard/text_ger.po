@@ -732,15 +732,13 @@ msgstr ""
 #: guitext:101
 msgctxt "In-game message"
 msgid "This is taking too long. Let's see what happens."
-msgstr ""
-"Das dauert zu lange. Mal sehen, was passiert."
+msgstr "Das dauert zu lange. Mal sehen, was passiert."
 
 #. Ghost in the Machine (lv458)
 #: guitext:102
 msgctxt "In-game message"
 msgid "Your message could be posted here. Victory!"
-msgstr ""
-"Hier könnte Ihre Werbung stehen. Sieg!"
+msgstr "Hier könnte Ihre Werbung stehen. Sieg!"
 
 #. Grail Run (lv444)
 #: guitext:103
