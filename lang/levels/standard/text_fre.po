@@ -684,7 +684,7 @@ msgstr "Cela a été une défaite humiliante pour les héros. Félicitations !"
 #: guitext:110
 msgctxt "In-game message"
 msgid "You are in possession of a very unusual hero gate located to the east of your dungeon heart. It attracts units from other realms based on your claimed  dungeon rooms. Claim rooms to attract more and stronger units. Barracks=Barbarians, Workshop=Dwarves, Library=Warlocks, Temple=Monks, Training Rooms=Archers. New units arrive in groups but only if you have fewer than 22 minions. Withstand the hero waves, defeat the Avatar and his guards and this land is yours!"
-msgstr "Vous êtes en possession d'une porte de héros très inhabituelle située à l'Est de votre coeur de donjon. Il attire des unités d'autres royaumes en fonction de vos salles de donjon revendiquées. Réclamez des chambres pour attirer des unités plus nombreuses et plus fortes. Caserne = Barbares, Atelier = Nains, Bibliothèque = Mages, Temple = Moines, Salles d'entraînement = Archers. Les nouvelles unités arrivent en groupe mais seulement si vous avez moins de 22 sbires. Résistez aux vagues de héros, battez l'Avatar et ses gardes et cette terre est à vous !"
+msgstr "Vous êtes en possession d'une porte de héros très inhabituelle située à l'Est de votre coeur de donjon. Il attire des unités d'autres royaumes en fonction de vos salles de donjon revendiquées. Réclamez des chambres pour attirer des unités plus nombreuses et plus fortes. Caserne = Barbares, Atelier = Nains, Bibliothèque = Sorciers, Temple = Moines, Salles d'entraînement = Archers. Les nouvelles unités arrivent en groupe mais seulement si vous avez moins de 22 sbires. Résistez aux vagues de héros, battez l'Avatar et ses gardes et cette terre est à vous !"
 
 #. The Death Clock (lv450)
 #: guitext:111
