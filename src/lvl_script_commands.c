@@ -1588,7 +1588,7 @@ static void create_effect_process(struct ScriptContext *context)
     {
         pos.z.val += 128;
     }
-    struct Thing* efftng = create_used_effect_or_element(&pos, context->value->bytes[0], game.neutral_player_num);
+    struct Thing* efftng = create_used_effect_or_element(&pos, context->value->chars[0], game.neutral_player_num);
     if (!thing_is_invalid(efftng))
     {
         if (thing_in_wall_at(efftng, &efftng->mappos))

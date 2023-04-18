@@ -6730,19 +6730,19 @@ msgstr ""
 #: guitext:1036
 msgctxt "Trap names"
 msgid "Demolition Trap"
-msgstr ""
+msgstr "取壊しの罠"
 
 #: guitext:1037
 msgctxt "Trap description"
 msgid ""
 "Demolition Trap: An explosive with unrivaled destructive power."
-msgstr ""
+msgstr "取壊しの罠: 無類な破壊力がある爆薬。"
 
 #: guitext:1038
 msgctxt "Trap description"
 msgid ""
 "Sentry Trap: Stands guard and shoots at enemies in sight."
-msgstr ""
+msgstr "防御の罠: 見張ると視界内の敵を撃つ。"
 
 #: guitext:1039 guitext:1040
 msgctxt "Unused"
@@ -6752,14 +6752,14 @@ msgstr ""
 #: guitext:1041
 msgctxt "Creature name"
 msgid "Spirit"
-msgstr ""
+msgstr "スピリット"
 
 #: guitext:1042
 msgctxt "Creature name"
 msgid "Druid"
-msgstr ""
+msgstr "ドルイド"
 
 #: guitext:1043
 msgctxt "Creature name"
 msgid "Time Mage"
-msgstr ""
+msgstr "タイムメイジ"
