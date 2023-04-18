@@ -426,7 +426,7 @@ msgstr ""
 #: guitext:51
 msgctxt "In-game message"
 msgid ""
-"Where does the Monk of Cowardice hide?. Use your instinct to make the right choice "
+"Where does the Monk of Cowardice hide? Use your instinct to make the right choice."
 msgstr ""
 "Wo versteckt sich der Mönch der Feigheit? Nutzt Euren Instinkt, und trefft die richtige Wahl."
 

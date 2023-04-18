@@ -333,14 +333,14 @@ msgstr "Ces héros ont foi en leur quête pour prendre ce qui vous appartient. C
 #. Return to Skybird Trill (lv416)
 #: guitext:50
 msgctxt "In-game message"
-msgid "Correct me if I'm wrong, which I doubt, but wasn't there a third way in? "
-msgstr "Corrigez-moi si je me trompe, ce dont je doute, mais n'y avait-il pas une troisième voie ? "
+msgid "Correct me if I'm wrong, which I doubt, but wasn't there a third way in?"
+msgstr "Corrigez-moi si je me trompe, ce dont je doute, mais n'y avait-il pas une troisième voie ?"
 
 #. Return to Skybird Trill (lv416)
 #: guitext:51
 msgctxt "In-game message"
-msgid "Where does the Monk of Cowardice hide?. Use your instinct to make the right choice "
-msgstr "Où se cache le Moine de la Lâcheté ?. Utilisez votre instinct pour faire le bon choix "
+msgid "Where does the Monk of Cowardice hide? Use your instinct to make the right choice."
+msgstr "Où se cache le Moine de la Lâcheté ? Utilisez votre instinct pour faire le bon choix."
 
 #. Return to Skybird Trill (lv416)
 #: guitext:52
