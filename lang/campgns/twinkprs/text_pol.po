@@ -241,7 +241,7 @@ msgid ""
 "the implications of your incompetence."
 msgstr ""
 
-#. Level Tub vulnerabilities opening message
+#. Level Okehazama opening message
 #: guitext:27
 msgctxt "In-game message"
 msgid ""
@@ -249,7 +249,7 @@ msgid ""
 "Here there are three other keepers, and guess what? None of them like you!"
 msgstr ""
 
-#. Level Tub Vulnerabilities victory message
+#. Level Okehazama victory message
 #: guitext:28
 msgctxt "In-game message"
 msgid ""
@@ -258,7 +258,7 @@ msgid ""
 "yourself for the final trial!"
 msgstr ""
 
-#. Level Tub Vulnerabilities Hero Knight death message
+#. Level Okehazama Hero Knight death message
 #: guitext:29
 msgctxt "In-game message"
 msgid ""
@@ -267,7 +267,7 @@ msgid ""
 "their bravery the only way you know how!"
 msgstr ""
 
-#. Level Tub Vulnerabilities hero onslaught message
+#. Level Okehazama hero onslaught message
 #: guitext:30
 msgctxt "In-game message"
 msgid ""
