@@ -30,7 +30,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "The heroes of Winterrage will be no match for our undead army. But make haste Master, it won't be long before your rival breaks into this realm!"
-msgstr "快点行动吧，主人。你的敌人用不了多久就要闯入这个王国了。"
+msgstr "凛冬之怒的英雄们不会是我们亡灵军团的对手。不过快点行动吧，主人，你的敌人用不了多久就要闯入这个王国了！"
 
 #: guitext:2
 msgctxt "In-game message"
