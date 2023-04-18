@@ -64,7 +64,7 @@ msgstr ""
 "en cours. Vos espions rapportent cependant que l'armée principale des héros "
 "garde ses positions. Vos préparatifs vont être mis à rude épreuve, Maître !"
 
-#. Level Swedish spirit outside hero heart"
+#. Level Swedish spirit outside hero heart
 #: guitext:4
 msgctxt "In-game message"
 msgid ""

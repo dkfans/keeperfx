@@ -64,7 +64,7 @@ msgstr ""
 "principal de héroes se mantiene en reserva. ¡Tus preparaciones serán "
 "probadas a fondo, Maestro!"
 
-#. Level Swedish spirit outside hero heart"
+#. Level Swedish spirit outside hero heart
 #: guitext:4
 msgctxt "In-game message"
 msgid ""

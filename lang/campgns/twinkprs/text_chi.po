@@ -43,7 +43,7 @@ msgctxt "In-game message"
 msgid "Your capture of the second portal has forced the heroes to act, and an attack is on the way. Your spies report however, that the main hero army is being held in reserve. Your preparations will be thoroughly tested Master!"
 msgstr "你占领了第二个入口，使得英雄们不得不采取行动了，他们很快就会发起进攻。但是，你的探子报告，英雄的主力军还没有出动。你的准备工作将面临全方位的考验，主人！"
 
-#. Level Swedish spirit outside hero heart"
+#. Level Swedish spirit outside hero heart
 #: guitext:4
 msgctxt "In-game message"
 msgid "Beware, the main hero army approaches! I hope you're prepared for this, otherwise it may be a very short fight. Destroy the heart tainted by their rightfulness!"

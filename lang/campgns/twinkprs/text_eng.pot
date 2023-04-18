@@ -53,7 +53,7 @@ msgid ""
 "being held in reserve. Your preparations will be thoroughly tested Master!"
 msgstr ""
 
-#. Level Swedish spirit outside hero heart"
+#. Level Swedish spirit outside hero heart
 #: guitext:4
 msgctxt "In-game message"
 msgid ""
