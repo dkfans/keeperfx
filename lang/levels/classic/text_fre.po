@@ -20,7 +20,7 @@
 "POT-Creation-Date: \n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
-"Language-Team: fra team\n"
+"Language-Team: FR_team\n"
 "Language: fr_FR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -85,7 +85,7 @@ msgstr "Un deuxième roi bandit a été créé dans l'autel secret, avec une arm
 #: guitext:9
 msgctxt "In-game message"
 msgid "Heroic reinforcements have arrived on your land to take your belongings. Reward them for their impudence! "
-msgstr "Des renforts héroïques sont arrivés sur vos terres pour prendre vos affaires. Récompensez-les pour leur impudence ! "
+msgstr "Des renforts héroïques sont arrivés sur vos terres pour prendre vos possessions. Récompensez-les pour leur impudence ! "
 
 #. Kzelbatu (lv207)
 #: guitext:10
@@ -97,13 +97,13 @@ msgstr "Des agents se sont infiltrés dans votre donjon pour voler de l'or. Trou
 #: guitext:11
 msgctxt "In-game message"
 msgid "Hell must have a pact with these smugglers?  Make preparations Keeper, as these Demons have come to obliterate you! "
-msgstr "L'enfer doit avoir un pacte avec ces contebandiers ? Prépare-toi Gardien, car ces Démons sont venus pour t'anéantir ! "
+msgstr "Le diable doit avoir un pacte avec ces contrebandiers ? Prépare-toi Gardien, car ces Démons sont venus pour t'anéantir ! "
 
 #. Kzelbatu (lv207)
 #: guitext:12
 msgctxt "In-game message"
 msgid "The last of the bandit masters is preparing to return. You must raze his realm to the ground! "
-msgstr "Le dernier des maîtres bandits se prépare à revenir. Vous devez raser son royaume jusqu'au sol ! "
+msgstr "Le dernier des maîtres bandits se prépare à revenir. Vous devez réduire son royaume en poussière ! "
 
 #. Kzelbatu (lv207)
 #: guitext:13
@@ -115,7 +115,7 @@ msgstr "Le Seigneur est revenu avec un groupe de marionnettes optimistes. Que la
 #: guitext:14
 msgctxt "In-game message"
 msgid "The bandits and smugglers will not dare to return now.You have won a great Victory Master! "
-msgstr "Les bandits et les contrebandiers n'oseront plus revenir maintenant. Une belle victoire, maître ! "
+msgstr "Les bandits et les contrebandiers n'oseront plus revenir maintenant. Une belle victoire, Maître ! "
 
 #. Titan 2 (lv254)
 #: guitext:15
@@ -139,7 +139,7 @@ msgstr "Lorsque vos troupes sont en nombre suffisant et qu'elles se sont entraî
 #: guitext:18
 msgctxt "In-game message"
 msgid "This realm sees you and the Heroes as unlikely allies against a trio of rival Keepers. Dispose of them all, and I do mean ALL!"
-msgstr "Ce royaume vous voit, vous et les héros, comme des alliés improbables contre un trio de gardiens rivaux. Massacrez les tous, et je veux dire TOUS !"
+msgstr "Ce royaume vous voit, vous et les héros, comme des alliés improbables contre un trio de gardiens rivaux. Massacrez-les tous, et je veux dire TOUS !"
 
 #. Vassago (lv302)
 #: guitext:19
@@ -199,7 +199,7 @@ msgstr "La porte à l'est porte une simple plaque sur laquelle on peut lire : So
 #: guitext:28
 msgctxt "In-game message"
 msgid "The Battle of Midway is afoot. Beware Evil one, the enemy is strong and well defended. Turn their misled minions against each other, sit back and let the butchery begin."
-msgstr "La bataille de Midway est en cours. Attention maître, l'ennemi est fort et bien défendu. Retournez leurs sbires les uns contre les autres, et laissez la boucherie commencer."
+msgstr "La bataille de Midway est en cours. Attention Maître, l'ennemi est fort et bien défendu. Retournez leurs sbires les uns contre les autres, et laissez la boucherie commencer."
 
 #. Midway (lv336)
 #: guitext:29
@@ -229,25 +229,25 @@ msgstr "Une armée sans chevalier ne peut jamais réussir, votre défaite est do
 #: guitext:33
 msgctxt "In-game message"
 msgid "Well done noble one. Urien has fallen and Morgant flourishes. A rare act of loyalty has delivered a fine victory!"
-msgstr "Bravo maître. Urien est tombé et Morgant s'épanouit. Un rare acte de loyauté a livré une belle victoire !"
+msgstr "Bravo Maître. Urien est tombé et Morgant s'épanouit. Un rare acte de loyauté a livré une belle victoire !"
 
 #. Reaver Verruckt (lv406)
 #: guitext:34
 msgctxt "In-game message"
 msgid "Urien must have great power to recruit skeletons to the hero cause?!"
-msgstr "Urien doit avoir un grand pouvoir pour recruter des squelettes pour la cause des héros ? !"
+msgstr "Urien doit avoir un grand pouvoir pour recruter des squelettes pour la cause des héros ?!"
 
 #. Frostsorrow Glacier (lv407)
 #: guitext:35
 msgctxt "In-game message"
 msgid "Davaraux and Eis have suffered the same fate, and your rule over this land is now certain. A famous victory Keeper! "
-msgstr "Davaraux et Eis ont subi le même sort, et votre domination sur cette terre est désormais certaine. Un célèbre gardien de la victoire ! "
+msgstr "Davaraux et Eis ont subi le même sort, et votre domination sur cette terre est désormais certaine. Une victoire célèbre, Gardien ! "
 
 #. Frostsorrow Glacier (lv407)
 #: guitext:36
 msgctxt "In-game message"
 msgid "Welcome Noble one! The ruler of this realm, Lord Davaraux, has gone rogue at the expense of the innocent citizens who are now overtaxed. Deal with this bandit king appropriately! Do not let other matters distract you; he is your first and only priority."
-msgstr "Bienvenue maître ! Le dirigeant de ce royaume, Lord Davaraux, est devenu un voyou aux dépens des citoyens innocents qui sont maintenant surtaxés. Traitez ce roi bandit de manière appropriée ! Ne laissez pas d'autres sujets vous distraire ; il est votre première et unique priorité."
+msgstr "Bienvenue Maître ! Le dirigeant de ce royaume, Lord Davaraux, est devenu un voyou aux dépens des citoyens innocents qui sont maintenant surtaxés. Traitez ce roi bandit de manière appropriée ! Ne laissez pas d'autres sujets vous distraire ; il est votre première et unique priorité."
 
 #. Frostsorrow Glacier (lv407)
 #: guitext:37
@@ -273,8 +273,8 @@ msgctxt "In-game message"
 msgid ""
 "Apologies Master, but grave developments have necessitated your return to the land of one of your greatest conquests. Four magical Heroes plan to create a skillful new Keeper to serve them! They must be reminded of your authority in this land? However, they have acquired great power, so you must expect an even greater challenge than your last visit. I'm sure you relish the opportunity to punish these Heroes for their impudence? To work your Evilness! "
 msgstr ""
-"Excuses Maître, mais de graves événements ont nécessité votre retour sur la terre de l'une de vos plus grandes conquêtes. Quatre héros magiques prévoient de créer un nouveau gardien habile pour les servir ! Faut-il leur rappeler votre autorité dans ce pays ? Cependant, ils ont acquis une grande puissance, vous devez donc vous attendre à un défi encore plus grand que lors de votre dernière visite. Je suis sûr que vous savourez l'opportunité de punir "
-"ces Héros pour leur impudence ? Au travail, votre Méchanceté ! "
+"Mes excuses Maître, mais de graves événements ont nécessité votre retour sur la terre de l'une de vos plus grandes conquêtes. Quatre héros magiques prévoient de créer un nouveau Gardien habile pour les servir ! Faut-il leur rappeler votre autorité dans ce pays ? Cependant, ils ont acquis une grande puissance, vous devez donc vous attendre à un défi encore plus grand que lors de votre dernière visite. Je suis sûr que vous savourez l'opportunité de "
+"punir ces Héros pour leur impudence ? Au travail, votre Méchanceté ! "
 
 #. Return to Skybird Trill (lv416)
 #: guitext:41
@@ -310,7 +310,7 @@ msgstr "Je vois que vous avez trouvé des Orques ? Ce seront de bons ajouts à v
 #: guitext:46
 msgctxt "In-game message"
 msgid "The Witch of Summonings can call forth Bile Demons at will. Maybe she is stronger than we thought? "
-msgstr "La sorcière des invocations peut invoquer des démons bileux à volonté. Peut-être est-elle plus forte qu'on ne le pensait ? "
+msgstr "La Sorcière des Invocations peut invoquer des démons bileux à volonté. Peut-être est-elle plus forte qu'on ne le pensait ? "
 
 #. Return to Skybird Trill (lv416)
 #: guitext:47
@@ -340,19 +340,19 @@ msgstr "Corrigez-moi si je me trompe, ce dont je doute, mais n'y avait-il pas un
 #: guitext:51
 msgctxt "In-game message"
 msgid "Where does the Monk of Cowardice hide?. Use your instinct to make the right choice "
-msgstr "Où se cache le Moine de la lâcheté ? Utilisez votre instinct pour faire le bon choix "
+msgstr "Où se cache le Moine de la Lâcheté ?. Utilisez votre instinct pour faire le bon choix "
 
 #. Return to Skybird Trill (lv416)
 #: guitext:52
 msgctxt "In-game message"
 msgid "Looks like this worthless Dwarf has been hiding behind locked doors creating boulder traps? He was stupid enough not to use them all which you can use to your advantage! "
-msgstr "On dirait que ce nain sans valeur s'est caché derrière des portes verrouillées en créant des pièges à rochers ? Il a été assez stupide pour ne pas tous les utiliser, ce qui peut être à vôtre avantage ! "
+msgstr "On dirait que ce nain sans valeur s'est caché derrière des portes verrouillées en créant des pièges à rochers ? Il a été assez stupide pour ne pas tous les utiliser, ce qui peut être à votre avantage ! "
 
 #. Return to Skybird Trill (lv416)
 #: guitext:53
 msgctxt "In-game message"
 msgid "Such holy actions by such a holy Monk? Now take his holiness and corrupt it with your dark ways. This should be fun, right my lord? "
-msgstr "De si saintes actions par un Moine si béni ? Maintenant, prenez sa sainteté et corrompez-la avec vos sombres façons. Cela devrait être amusant, n'est-ce pas mon seigneur? "
+msgstr "De si saintes actions par un Moine si béni ? Maintenant, prenez sa sainteté et corrompez-la avec vos sombres façons. Cela devrait être amusant, n'est-ce pas mon Seigneur? "
 
 #. Return to Skybird Trill (lv416)
 #: guitext:54
@@ -364,14 +364,14 @@ msgstr "Vous avez acquis plus de puissance ! Cette salle de torture vous permet 
 #: guitext:55
 msgctxt "In-game message"
 msgid "And now to engage the Lava Fairy! Look at her abilities, and then look at her pitifulness in beseeching the great spirits to aid in her 'holy' quest. How brave, noble, and stupid! "
-msgstr "Et maintenant, pour engager la fée de lave ! Regardez ses capacités, puis regardez sa pitié en suppliant les grands esprits de l'aider dans sa quête « sacrée ». Quel courage, quelle noblesse et quelle stupidité ! "
+msgstr "Et maintenant, pour engager la Fée de Lave ! Regardez ses capacités, puis regardez sa pitié en suppliant les grands esprits de l'aider dans sa quête « sacrée ». Quel courage, quelle noblesse et quelle stupidité ! "
 
 #. Return to Skybird Trill (lv416)
 #: guitext:56
 msgctxt "In-game message"
 msgid "The Lava-Fairy is eliminated and the Training Room now yours to build! Next the Wizard of Allknowing awaits you in the northwestern area of this land. His power is great, yet no match for yours? Pay him a visit and deliver agonies he has never known; wretched evil deeds by someone dark and powerful who will show absolutely no mercy. In the unlikely event he survives, he should never forget it! "
 msgstr ""
-"La fée de lave est éliminée et la salle d'entraînement est désormais à vous ! Ensuite, le Magicien de l'Omniscience vous attend dans la zone nord-ouest de cette terre. Son pouvoir est grand, mais pas à la hauteur du vôtre ? Rendez-lui visite et livrez-lui des souffrances qu'il n'a jamais connues ; misérables mauvaises actions par quelqu'un de sombre et de puissant qui ne montrera absolument aucune pitié. Dans le cas improbable où il survivrait, il ne "
+"La Fée de Lave est éliminée et la salle d'entraînement est désormais à vous ! Ensuite, le Magicien de l'Omniscience vous attend dans la zone nord-ouest de cette terre. Son pouvoir est grand, mais pas à la hauteur du vôtre ? Rendez-lui visite et livrez-lui des souffrances qu'il n'a jamais connues ; misérables mauvaises actions par quelqu'un de sombre et de puissant qui ne montrera absolument aucune pitié. Dans le cas improbable où il survivrait, il ne "
 "devrait jamais l'oublier ! "
 
 #. Return to Skybird Trill (lv416)
@@ -384,20 +384,20 @@ msgstr "Le Puissant Sorcier de l'Omniscient semble n'être ni Puissant ni Omnisc
 #: guitext:58
 msgctxt "In-game message"
 msgid "The four Magical Heroes are defeated! But you cannot relax yet Master. Their final act was to invoke their Keeper creation, who is even now preparing his attack!. If you are to restore your authority in this land you must defeat him. Restoration of the Skybird Trill throne awaits you!"
-msgstr "Les quatre héros magiques sont vaincus ! Mais vous ne pouvez pas encore vous détendre Maître. Leur dernier acte était d'invoquer leur création gardienne, qui prépare même maintenant son attaque !. Si vous voulez restaurer votre autorité sur cette terre, vous devez le vaincre. La restauration du trône de Skybird Trill vous attend !"
+msgstr "Les quatre héros magiques sont vaincus ! Mais vous ne pouvez pas encore vous détendre Maître. Leur dernier acte était d'invoquer leur création gardienne, qui prépare même maintenant son attaque !. Si vous voulez restaurer votre autorité sur cette terre, vous devez le vaincre. La restauration du trône de Lyons-Perruche vous attend !"
 
 #. Return to Skybird Trill (lv416)
 #: guitext:59
 msgctxt "In-game message"
 msgid "Your total victory is now complete Master! This land is yours once more. Let no-one dare to challenge you here again! However, I suspect they probably will?"
-msgstr "Votre victoire est maintenant complète Maître ! Cette terre est à nouveau à vous. Que personne n'ose plus vous défier ici ! Cependant, je soupçonne qu'ils le feront probablement?"
+msgstr "Votre victoire est maintenant complète Maître ! Cette terre est à nouveau à vous. Que personne n'ose plus vous défier ici ! Cependant, je soupçonne qu'ils le feront probablement ?"
 
 #. Heroic Invasion (lv442)
 #: guitext:60
 msgctxt "In-game message"
 msgid "Beware Master, for many Keepers have tried to conquer this land but they have all failed. These Heroes are not to be underestimated, and your presence in this realm is already known! Prepare for a tough war. The local forces are numerous, and determined to eject you before you can establish an effective army. You must train your forces swiftly, as attacks must surely start soon!"
 msgstr ""
-"Méfiez-vous Maître, car de nombreux Gardiens ont essayé de conquérir cette terre mais ils ont tous échoué. Ces Héros ne doivent pas être sous-estimés, et votre présence dans ce royaume est déjà connue ! Préparez-vous à une guerre difficile. Les forces locales sont nombreuses et déterminées à vous expulser avant que vous ne puissiez constituer une armée efficace. Vous devez entraîner vos forces rapidement, car les attaques vont sûrement commencer "
+"Méfiez-vous Maître, car de nombreux gardiens ont essayé de conquérir cette terre mais ils ont tous échoué. Ces Héros ne doivent pas être sous-estimés, et votre présence dans ce royaume est déjà connue ! Préparez-vous à une guerre difficile. Les forces locales sont nombreuses et déterminées à vous expulser avant que vous ne puissiez constituer une armée efficace. Vous devez entraîner vos forces rapidement, car les attaques vont sûrement commencer "
 "bientôt !"
 
 #. Heroic Invasion (lv442)
@@ -446,7 +446,7 @@ msgstr "Une victoire impressionnante Gardien ! Je suis sûr que vous appréciere
 #: guitext:68
 msgctxt "In-game message"
 msgid "You're in Skybird Trill again! What dark forces compel you to return to this realm? It seems the gods seek proof that you can achieve victory no matter which side of the realm your quest begins? Prove that your victory versus the Avatar is unavoidable, no matter where your dungeon must be built!"
-msgstr "Vous êtes à nouveau dans Skybird Trill ! Quelles forces obscures vous obligent à retourner dans ce royaume ? Il semble que les dieux cherchent la preuve que vous pouvez remporter la victoire, quel que soit le côté du royaume où commence votre quête ? Prouvez que votre victoire contre l'Avatar est inéluctable, peu importe où votre donjon doit être construit !"
+msgstr "Vous êtes à nouveau dans Lyons-Perruche ! Quelles forces obscures vous obligent à retourner dans ce royaume ? Il semble que les dieux cherchent la preuve que vous pouvez remporter la victoire, quel que soit le côté du royaume où commence votre quête ? Prouvez que votre victoire contre l'Avatar est inéluctable, peu importe où votre donjon doit être construit !"
 
 #. Skybird's Other Side (lv920)
 #: guitext:69
@@ -458,7 +458,7 @@ msgstr "Vous avez détruit le château de l'Avatar mais votre rival a déjà fai
 #: guitext:70
 msgctxt "In-game message"
 msgid "You have once more proved yourself to be the ruler of Skybird Trill! The latest Avatar lies amongst your defeated foes; you can put him with his predecessors! Your authority in this realm is unchallenged. For now, anyway........ "
-msgstr "Vous avez une fois de plus prouvé que vous êtes le maître de Skybird Trill ! Le dernier Avatar se trouve parmi vos ennemis vaincus ; vous pouvez le mettre avec ses prédécesseurs ! Votre autorité dans ce domaine est incontestée. Pour l'instant en tout cas........ "
+msgstr "Vous avez une fois de plus prouvé que vous êtes le maître de Lyons-Perruche ! Le dernier Avatar se trouve parmi vos ennemis vaincus ; vous pouvez le mettre avec ses prédécesseurs ! Votre autorité dans ce domaine est incontestée. Pour l'instant en tout cas... "
 
 #. Skybird's Other Side (lv920)
 #: guitext:71
@@ -509,7 +509,7 @@ msgstr "Vassago"
 #: guitext:205
 msgctxt "Level name"
 msgid "Battle of Midway"
-msgstr "Battle of Midway"
+msgstr "Bataille de Midway"
 
 #: guitext:206
 msgctxt "Level name"
@@ -524,14 +524,14 @@ msgstr "Frostsorrow Glacier"
 #: guitext:208
 msgctxt "Level name"
 msgid "Return to Skybird Trill"
-msgstr "Return to Skybird Trill"
+msgstr "Retour à Lyons-Perruche"
 
 #: guitext:209
 msgctxt "Level name"
 msgid "Heroic invasion"
-msgstr "Heroic invasion"
+msgstr "Invasion Héroïque"
 
 #: guitext:210
 msgctxt "Level name"
 msgid "Skybird's Other Side"
-msgstr "Skybird's Other Side"
+msgstr "L'autre côté de Lyons-Perruche"
