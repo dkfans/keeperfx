@@ -16,8 +16,6 @@
 #      (at your option) any later version.
 #
 # ***************************************************************************** 
-msgid ""
-msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -28,8 +26,8 @@ msgstr ""
 #. Generic victory message
 #: guitext:0
 msgctxt "In-game message"
-msgid "Success! The land is yours. Press Space to proceed to the next realm."
-msgstr "おめでとう！ この土地はお前のものだ。 スペースキーを押し、次なる地へ進め。"
+msgid ""
+msgstr ""
 
 #. Level Swedish Spirit Opening Message
 #: guitext:1
