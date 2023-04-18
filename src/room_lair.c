@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "room_lair.h"
 
 #include "globals.h"
@@ -30,6 +31,7 @@
 #include "gui_soundmsgs.h"
 #include "game_legacy.h"
 #include "front_simple.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -40,6 +42,9 @@ extern "C" {
 }
 #endif
 /******************************************************************************/
+struct Room *start_rooms;
+struct Room *end_rooms;
+/******************************************************************************/
 long calculate_free_lair_space(struct Dungeon * dungeon)
 {
     SYNCDBG(9,"Starting");
@@ -47,26 +52,33 @@ long calculate_free_lair_space(struct Dungeon * dungeon)
     long cap_total = 0;
     unsigned long k = 0;
     struct DungeonAdd* dungeonadd = get_dungeonadd_by_dungeon(dungeon);
+    long i;
 
-    long i = dungeonadd->room_kind[RoK_LAIR];
-    while (i != 0)
+    for (RoomKind rkind = 0; rkind < slab_conf.room_types_count; rkind++)
     {
-        struct Room* room = room_get(i);
-        if (room_is_invalid(room))
+        if(room_role_matches(rkind,RoRoF_LairStorage))
         {
-            ERRORLOG("Jump to invalid room detected");
-            break;
-        }
-        i = room->next_of_owner;
-        // Per-room code
-        cap_total += room->total_capacity;
-        cap_used += room->used_capacity;
-        // Per-room code ends
-        k++;
-        if (k > ROOMS_COUNT)
-        {
-            ERRORLOG("Infinite loop detected when sweeping rooms list");
-            break;
+            i = dungeonadd->room_kind[rkind];
+            while (i != 0)
+            {
+                struct Room* room = room_get(i);
+                if (room_is_invalid(room))
+                {
+                    ERRORLOG("Jump to invalid room detected");
+                    break;
+                }
+                i = room->next_of_owner;
+                // Per-room code
+                cap_total += room->total_capacity;
+                cap_used += room->used_capacity;
+                // Per-room code ends
+                k++;
+                if (k > ROOMS_COUNT)
+                {
+                    ERRORLOG("Infinite loop detected when sweeping rooms list");
+                    break;
+                }
+            }
         }
     }
     long cap_required = 0;
@@ -162,7 +174,7 @@ struct Room *get_best_new_lair_for_creature(struct Thing *creatng)
                     TbBool room_has_units_of_same_kind = false;
                     TbBool room_has_units_of_different_kind = false;
                     TbBool room_has_lair_enemy = false;
-                    for ( ThingModel model = 0; model < CREATURE_TYPES_COUNT; ++model )
+                    for ( ThingModel model = 0; model < gameadd.crtr_conf.model_count; ++model )
                     {
                         if ( room_has_units_of_same_kind && room_has_units_of_different_kind && room_has_lair_enemy )
                             break;
@@ -209,8 +221,8 @@ struct Room *get_best_new_lair_for_creature(struct Thing *creatng)
             {
                 if ( room_scores[room->index] == best_score )
                 {
-                    room_center_pos.x.stl.pos = room->central_stl_x;
-                    room_center_pos.y.stl.pos = room->central_stl_y;
+                    room_center_pos.x.stl.num = room->central_stl_x;
+                    room_center_pos.y.stl.num = room->central_stl_y;
                     room_center_pos.z.val = 256;
                     distance = get_2d_box_distance(&creatng->mappos, &room_center_pos);
 

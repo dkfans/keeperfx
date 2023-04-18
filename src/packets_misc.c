@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "packets.h"
 
 #include "bflib_fileio.h"
@@ -24,7 +25,7 @@
 #include "game_legacy.h"
 #include "game_saves.h"
 #include "gui_topmsg.h"
-
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -38,7 +39,7 @@ struct Packet bad_packet;
 #endif
 
 void set_players_packet_action(struct PlayerInfo *player, unsigned char pcktype,
-        unsigned short par1, unsigned short par2, unsigned short par3, unsigned short par4)
+        unsigned long par1, unsigned long par2, unsigned short par3, unsigned short par4)
 {
     struct Packet* pckt = get_packet_direct(player->packet_num);
     pckt->actn_par1 = par1;

@@ -17,6 +17,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "bflib_mshandler.hpp"
 
 #include <string.h>
@@ -27,6 +28,8 @@
 #include "bflib_sprite.h"
 
 #include "keeperfx.hpp"
+#include "post_inc.h"
+
 /******************************************************************************/
 // Global variables
 int volatile lbMouseInstalled = false;

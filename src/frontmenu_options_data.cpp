@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "frontmenu_ingame_opts.h"
 #include "globals.h"
 #include "bflib_basics.h"
@@ -32,12 +33,16 @@
 #include "config_settings.h"
 #include "frontmenu_options.h"
 #include "game_legacy.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
 struct GuiButtonInit frontend_define_keys_buttons[] = {
+  // gbtype           id_num       gbifield_3                rclick_event ptover_event       btype_value   pos_x        height                                  sprite_idx        parent_menu  maxval
+  //                                  gbifield_5                                                 scr_pos_x      pos_y        draw_call                             tooltip_stridx   content                   maintain_call
+  //                                     click_event                                                  scr_pos_y     width
   {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0, 999,  30, 999,  30,371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty,  0,      {92},            0, NULL },
   {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,  82, 117,  82, 117,450,246, frontend_draw_scroll_box,          0, GUIStr_Empty,  0,      {94},            0, NULL },
   {LbBtnT_HoldableBtn,BID_DEFAULT, 0, 0, frontend_define_key_up,NULL, frontend_over_button,   0, 532, 116, 532, 116, 26, 14, frontend_draw_slider_button,       0, GUIStr_Empty,  0,      {17},            0, frontend_define_key_up_maintain },
@@ -58,14 +63,19 @@ struct GuiButtonInit frontend_define_keys_buttons[] = {
 };
 
 struct GuiButtonInit frontend_option_buttons[] = {
+  // gbtype           id_num       gbifield_3                rclick_event ptover_event       btype_value   pos_x        height                                  sprite_idx        parent_menu  maxval
+  //                                  gbifield_5                                                 scr_pos_x      pos_y        draw_call                             tooltip_stridx   content                   maintain_call
+  //                                     click_event                                                  scr_pos_y     width
   {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0, 999,  30, 999,  30,371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty,  0,      {96},            0, NULL },
   {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,  95, 107,  95, 107,220, 26, frontend_draw_scroll_box_tab,      0, GUIStr_Empty,  0,      {28},            0, NULL },
   {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,  95, 133,  95, 133,450, 88, frontend_draw_scroll_box,          0, GUIStr_Empty,  0,      {89},            0, NULL },
   {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0, 115, 108, 115, 108,220, 26, frontend_draw_text,                0, GUIStr_Empty,  0,      {99},            0, NULL },
-  {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0, 146, 142, 146, 142, 26, 32, frontend_draw_icon,               90, GUIStr_Empty,  0,       {0},            0, NULL },
-  {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0, 146, 182, 146, 182, 26, 32, frontend_draw_icon,               89, GUIStr_Empty,  0,       {0},            0, NULL },
-  {LbBtnT_HorizSlider,BID_SOUND_VOL,0,0, gui_set_sound_volume,NULL,       NULL,               0, 194, 147, 194, 147,300, 22, frontend_draw_slider,              0, GUIStr_Empty,  0,{(long)&sound_level}, 127, NULL },
-  {LbBtnT_HorizSlider,BID_DEFAULT, 0, 0, gui_set_music_volume,NULL,       NULL,               0, 194, 187, 194, 187,300, 22, frontend_draw_slider,              0, GUIStr_Empty,  0,{(long)&music_level}, 127, NULL },
+  {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0, 116, 136, 116, 136, 26, 32, frontend_draw_icon,               90, GUIStr_Empty,  0,       {0},            0, NULL },
+  {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0, 116, 176, 116, 176, 26, 32, frontend_draw_icon,               89, GUIStr_Empty,  0,       {0},            0, NULL },
+  {LbBtnT_HorizSlider,BID_SOUND_VOL,0,0, gui_set_sound_volume,NULL,       NULL,               0, 144, 147, 144, 147,180, 22, frontend_draw_slider,              0, GUIStr_Empty,  0,{(long)&sound_level_slider}, 127, NULL },
+  {LbBtnT_HorizSlider,BID_DEFAULT, 0, 0, gui_set_music_volume,NULL,       NULL,               0, 144, 187, 144, 187,180, 22, frontend_draw_slider,              0, GUIStr_Empty,  0,{(long)&music_level_slider}, 127, NULL },
+  {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0, 346, 136, 346, 136, 26, 32, frontend_draw_icon,               95, GUIStr_Empty,  0,       {0},            0, NULL },
+  {LbBtnT_HorizSlider,BID_DEFAULT, 0, 0, gui_set_mentor_volume,NULL,      NULL,               0, 364, 147, 364, 147,180, 22, frontend_draw_slider,              0, GUIStr_Empty,  0,{(long)&mentor_level_slider}, 127, NULL },
   {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,  95, 231,  95, 231,220, 26, frontend_draw_scroll_box_tab,      0, GUIStr_Empty,  0,      {28},            0, NULL },
   {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,  95, 257,  95, 257,450, 88, frontend_draw_scroll_box,          0, GUIStr_Empty,  0,      {89},            0, NULL },
   {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0, 115, 232, 115, 232,220, 26, frontend_draw_text,                0, GUIStr_Empty,  0,     {100},            0, NULL },

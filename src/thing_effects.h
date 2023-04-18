@@ -40,6 +40,7 @@ enum ThingHitTypes {
     THit_HeartOnly, // Affect only dungeon hearts
     THit_HeartOnlyNotOwn, // Affect only not own dungeon hearts
     THit_CrtrsNObjctsNShot, // Affect all creatures and all objects, also allow colliding with other shots
+    THit_TrapsAll, // Affect all traps, not just the ones that are destructable
     THit_TypesCount, // Last item in enumeration, allows checking amount of valid types
 };
 
@@ -262,16 +263,16 @@ struct EffectElementStats { // sizeof = 79
   unsigned short sprite_speed_min;
   unsigned short sprite_speed_max;
   unsigned char field_12;
-  unsigned char field_13;
-  unsigned char field_14;  // transparency flags in bits 4-5
+  unsigned char unshaded;
+  unsigned char transparant;  // transparency flags in bits 4-5
   unsigned char field_15;
   unsigned char field_16;
   unsigned char field_17;
-  unsigned char field_18;
+  unsigned char fall_acceleration;
   unsigned char field_19;
-  unsigned char field_1A;
+  unsigned char inertia_floor;
   unsigned char field_1B;
-  unsigned char field_1C;
+  unsigned char inertia_air;
   unsigned char field_1D;
   unsigned short subeffect_model;
   unsigned short subeffect_delay;
@@ -328,13 +329,13 @@ struct EffectElementStats *get_effect_element_model_stats(ThingModel tngmodel);
 TbBool thing_is_effect(const struct Thing *thing);
 struct Thing *create_effect(const struct Coord3d *pos, ThingModel effmodel, PlayerNumber owner);
 struct Thing *create_effect_generator(struct Coord3d *pos, unsigned short model, unsigned short range, unsigned short owner, long parent_idx);
-struct Thing *create_effect_element(const struct Coord3d *pos, unsigned short eelmodel, unsigned short owner);
+struct Thing *create_effect_element(const struct Coord3d *pos, unsigned short eelmodel, PlayerNumber owner);
+struct Thing* create_used_effect_or_element(const struct Coord3d* pos, short effect_id, long plyr_idx);
 TngUpdateRet update_effect_element(struct Thing *thing);
 TngUpdateRet update_effect(struct Thing *thing);
 TngUpdateRet process_effect_generator(struct Thing *thing);
 void process_spells_affected_by_effect_elements(struct Thing *thing);
 TbBool destroy_effect_thing(struct Thing *thing);
-struct Thing *create_special_used_effect(const struct Coord3d *pos, long plyr_idx);
 struct Thing *create_price_effect(const struct Coord3d *pos, long plyr_idx, long price);
 
 TbBool area_effect_can_affect_thing(const struct Thing *thing, HitTargetFlags hit_targets, PlayerNumber shot_owner);

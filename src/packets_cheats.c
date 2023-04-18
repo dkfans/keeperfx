@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "packets.h"
 #include "player_data.h"
 #include "player_states.h"
@@ -43,6 +44,7 @@
 #include "front_input.h"
 #include "bflib_math.h"
 #include "gui_topmsg.h"
+#include "post_inc.h"
 
 extern void clear_input(struct Packet* packet);
 
@@ -863,12 +865,12 @@ TbBool process_players_dungeon_control_cheats_packet_action(PlayerNumber plyr_id
     {
         case PckA_CheatPlaceTerrain:
         {
-            x = ((unsigned short)pckt->pos_x);
-            y = ((unsigned short)pckt->pos_y);
+            x = (pckt->pos_x);
+            y = (pckt->pos_y);
             stl_x = coord_subtile(x);
             stl_y = coord_subtile(y);
-            slb_x = subtile_slab_fast(stl_x);
-            slb_y = subtile_slab_fast(stl_y);
+            slb_x = subtile_slab(stl_x);
+            slb_y = subtile_slab(stl_y);
             if (slab_kind_is_animated(pckt->actn_par1))
             {
                 place_animating_slab_type_on_map(pckt->actn_par1, 0, stl_x, stl_y, pckt->actn_par2);
@@ -882,8 +884,8 @@ TbBool process_players_dungeon_control_cheats_packet_action(PlayerNumber plyr_id
         }
         case PckA_CheatMakeCreature:
         {
-            x = ((unsigned short)pckt->pos_x);
-            y = ((unsigned short)pckt->pos_y);
+            x = (pckt->pos_x);
+            y = (pckt->pos_y);
             pos.x.val = x;
             pos.y.val = y;
             PlayerNumber id = pckt->actn_par2;
@@ -897,8 +899,8 @@ TbBool process_players_dungeon_control_cheats_packet_action(PlayerNumber plyr_id
         }
         case PckA_CheatMakeDigger:
         {
-            x = ((unsigned short)pckt->pos_x);
-            y = ((unsigned short)pckt->pos_y);
+            x = (pckt->pos_x);
+            y = (pckt->pos_y);
             thing = create_owned_special_digger(x, y, pckt->actn_par1);
             if (!thing_is_invalid(thing))
             {
@@ -908,12 +910,12 @@ TbBool process_players_dungeon_control_cheats_packet_action(PlayerNumber plyr_id
         }
         case PckA_CheatStealSlab:
         {
-            x = ((unsigned short)pckt->pos_x);
-            y = ((unsigned short)pckt->pos_y);
+            x = (pckt->pos_x);
+            y = (pckt->pos_y);
             stl_x = coord_subtile(x);
             stl_y = coord_subtile(y);
-            slb_x = subtile_slab_fast(stl_x);
-            slb_y = subtile_slab_fast(stl_y);
+            slb_x = subtile_slab(stl_x);
+            slb_y = subtile_slab(stl_y);
             PlayerNumber id = pckt->actn_par2;
             TbBool effect = pckt->actn_par2 >> 8;
             if (effect)
@@ -965,8 +967,8 @@ TbBool process_players_dungeon_control_cheats_packet_action(PlayerNumber plyr_id
         }
         case PckA_CheatStealRoom:
         {
-            x = ((unsigned short)pckt->pos_x);
-            y = ((unsigned short)pckt->pos_y);
+            x = (pckt->pos_x);
+            y = (pckt->pos_y);
             stl_x = coord_subtile(x);
             stl_y = coord_subtile(y);
             struct Room* room = subtile_room_get(stl_x, stl_y);

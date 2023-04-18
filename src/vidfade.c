@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "vidfade.h"
 
 #include "globals.h"
@@ -32,13 +33,18 @@
 #include "player_data.h"
 #include "player_instances.h"
 #include "keeperfx.hpp"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
-TbBool lbAdvancedFade = true;
-int lbFadeDelay = 25;
+static TbBool lbAdvancedFade = true;
+static int lbFadeDelay = 25;
+
+unsigned char fade_palette_in;
+unsigned char frontend_palette[768];
+TbRGBColorTable colours;
 /******************************************************************************/
 void fade_in(void)
 {
@@ -207,7 +213,7 @@ void ProperFadePalette(unsigned char *pal, long fade_steps, enum TbPaletteFadeFl
     } else*/
     if (lbAdvancedFade)
     {
-        TbClockMSec last_loop_time = LbTimerClock();
+        TbClockMSec latest_loop_time = LbTimerClock();
         while (LbPaletteFade(pal, fade_steps, Lb_PALETTE_FADE_OPEN) < fade_steps)
         {
           if (!is_key_pressed(KC_SPACE,KMod_DONTCARE) &&
@@ -215,8 +221,8 @@ void ProperFadePalette(unsigned char *pal, long fade_steps, enum TbPaletteFadeFl
               !is_key_pressed(KC_RETURN,KMod_DONTCARE) &&
               !is_mouse_pressed_lrbutton())
           {
-            last_loop_time += lbFadeDelay;
-            LbSleepUntil(last_loop_time);
+            latest_loop_time += lbFadeDelay;
+            LbSleepUntil(latest_loop_time);
           }
         }
     } else
@@ -239,13 +245,13 @@ void ProperForcedFadePalette(unsigned char *pal, long fade_steps, enum TbPalette
     }
     if (lbAdvancedFade)
     {
-        TbClockMSec last_loop_time = LbTimerClock();
+        TbClockMSec latest_loop_time = LbTimerClock();
         while (LbPaletteFade(pal, fade_steps, Lb_PALETTE_FADE_OPEN) < fade_steps)
         {
-          last_loop_time += lbFadeDelay;
+          latest_loop_time += lbFadeDelay;
           
           if (is_feature_on(Ft_SkipSplashScreens) == false) {
-              LbSleepUntil(last_loop_time);
+              LbSleepUntil(latest_loop_time);
           }
         }
     } else

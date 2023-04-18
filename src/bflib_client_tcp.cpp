@@ -17,10 +17,11 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-
+#include "pre_inc.h"
 #include "bflib_client_tcp.hpp"
 
 #include "globals.h"
+#include "post_inc.h"
 
 TCP_NetClient::TCP_NetClient(const char hostname[], ushort port) : TCP_NetBase()
 {
@@ -33,7 +34,7 @@ TCP_NetClient::TCP_NetClient(const char hostname[], ushort port) : TCP_NetBase()
 		return;
 	}
 
-	recvThread = SDL_CreateThread(reinterpret_cast<int (*)(void *)>(recvThreadFunc), "TCP_NetClient", this);
+	recvThread = SDL_CreateThread(recvThreadFunc, "TCP_NetClient", this);
 	if (recvThread == NULL) {
 		NETMSG("Failed to initialize TCP client receive thread");
 		setErrorFlag();
@@ -46,8 +47,10 @@ TCP_NetClient::~TCP_NetClient()
 	haltRecvThread();
 }
 
-void TCP_NetClient::recvThreadFunc(TCP_NetClient * cli)
+int TCP_NetClient::recvThreadFunc(void * ptr)
 {
+	auto cli = static_cast<TCP_NetClient *>(ptr);
+
 	for (;;) {
 		char header[TCP_HEADER_SIZE];
 		if (!receiveOnSocket(cli->mySocket, header, sizeof(header))) {
@@ -69,6 +72,7 @@ void TCP_NetClient::recvThreadFunc(TCP_NetClient * cli)
 
 		cli->addIntMessage(msg);
 	}
+	return 0;
 }
 
 void TCP_NetClient::haltRecvThread()

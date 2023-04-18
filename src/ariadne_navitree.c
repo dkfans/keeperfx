@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "ariadne_navitree.h"
 
 #include "globals.h"
@@ -28,6 +29,7 @@
 #include "ariadne_findcache.h"
 #include "ariadne_naviheap.h"
 #include "gui_topmsg.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -226,7 +228,6 @@ static void delaunay_stack_point(long pt_x, long pt_y)
     long dst_cor_idx;
     long tri_id2;
     NAVIDBG(19,"Starting");
-    //_DK_delaunay_stack_point(pt_x, pt_y); return;
 
     long tri_idx = triangle_find8(pt_x << 8, pt_y << 8);
     if (tri_idx == -1) {
@@ -271,7 +272,6 @@ static void delaunay_stack_point(long pt_x, long pt_y)
     }
     NAVIDBG(19,"Done");
 }
-HOOK_DK_FUNC(delaunay_stack_point)
 
 long optimise_heuristic(long tri_id1, long tri_id2)
 {
@@ -348,7 +348,6 @@ long delaunay_seeded(long start_x, long start_y, long end_x, long end_y)
     }
     return count;
 }
-HOOK_DK_FUNC(delaunay_seeded)
 
 /******************************************************************************/
 #ifdef __cplusplus

@@ -2599,14 +2599,15 @@ msgid "Shadows: The number of shadows cast by each creature. LMB toggle."
 msgstr "影: 各クリーチャーが投影できる影の数。左クリックで切り替え。 [3.2.2]"
 
 #: guitext:314
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
-"View Type: Swap between the default and forced perspective views. Default "
-"view has warped walls and can be rotated, forced perspective shows larger "
-"area but can only be rotated 90 degrees. LMB toggle."
+"View Type: Swap between perspective views. Default view has warped walls "
+"and can be rotated. Disable the warp effect for clean lines. Forced perspective "
+"can only be rotated 90 degrees and changes the viewing angle. LMB toggle."
 msgstr ""
-"表示方式: 基本設定と固定の表示を切り替える。左クリックで切り替え。 [3.2.2]"
+"表示方式: 表示方式を切り替える。基本な表示は壁がグラグラしており、360度で回転させる。"
+"きれいな線を得るには、反り効果を無効にする。固定の表示は各方向に90度ずつだけ回転できる、"
+"視野角をまっすぐにする。左クリックで切り替え。"
 
 #: guitext:315
 #, fuzzy
@@ -2654,7 +2655,7 @@ msgctxt "In-game interface description"
 msgid ""
 "Zoom In: Zoom in the Dynamic Map. This increases the scale of the map. LMB "
 "select."
-msgstr "拡大: ダイナミックマップを拡大する。左クリック+選択。 [4.1]"
+msgstr "拡大: ダイナミックマップを拡大する。左クリックで選択。 [4.1]"
 
 #: guitext:322
 #, fuzzy
@@ -2662,7 +2663,7 @@ msgctxt "In-game interface description"
 msgid ""
 "Zoom Out: Zoom out the Dynamic Map. This decreases the scale of the map. LMB "
 "select."
-msgstr "縮小: ダイナミックマップを縮小する。左クリック+選択。 [4.1]"
+msgstr "縮小: ダイナミックマップを縮小する。左クリックで選択。 [4.1]"
 
 #: guitext:323
 #, fuzzy
@@ -3106,7 +3107,7 @@ msgstr "プレーヤー"
 #: guitext:406
 msgctxt "Menu interface item"
 msgid "Level"
-msgstr "level"
+msgstr "レベル"
 
 #: guitext:407
 msgctxt "Menu interface item"
@@ -3853,7 +3854,7 @@ msgstr "勇者の門: 勇者はこの門を通ってお前のダンジョンに�
 #: guitext:546
 msgctxt "Creature name"
 msgid "Tunneller"
-msgstr "マウンテンドワーフ"
+msgstr "トンネラードワーフ"
 
 #: guitext:547
 msgctxt "Creature name"
@@ -4553,7 +4554,7 @@ msgstr ""
 #: guitext:658
 msgctxt "Keeper spell description"
 msgid "Chicken: Transforms the enemy into a tasty morsel. LMB select. [18.12]"
-msgstr "呪い: 敵をニワトリ-変える。左クリック+選択。 [18.12]"
+msgstr "呪い: 敵をニワトリに変える。左クリックで選択。 [18.12]"
 
 #: guitext:659
 msgctxt "Keeper spell description"
@@ -4887,7 +4888,7 @@ msgstr "補助"
 #: guitext:722
 msgctxt "In-game interface description"
 msgid "Options: Open Options Panel. LMB open panel. [3.2]"
-msgstr "オプション: オプションパネルを開く。左クリック+パネルを開く。 [3.2]"
+msgstr "オプション: オプションパネルを開く。左クリックでパネルを開く。 [3.2]"
 
 #: guitext:723
 msgctxt "In-game interface description"
@@ -6591,7 +6592,17 @@ msgctxt "In-game interface description"
 msgid "Display Resolution: Switch to the next configured display resolution. LMB toggle. RMB display current resolution."
 msgstr "画面解像度: 次の設定された画面解像度に切り替わる。左クリックで切り替え。右クリックで現行の設定を示す。"
 
-#: guitext:1008 guitext:1009 guitext:1010
+#: guitext:1008
+msgctxt "In-game interface item"
+msgid "Voice"
+msgstr "声量"
+
+#: guitext:1009
+msgctxt "In-game interface item"
+msgid "Ambience"
+msgstr "環境音"
+
+#: guitext:1010
 msgctxt "Unused"
 msgid "Moo4"
 msgstr ""
@@ -6710,3 +6721,45 @@ msgstr "ツイン・キーパーズ・キャンペーン"
 msgctxt "Menu interface item""
 msgid "Undead Keeper campaign"
 msgstr "アンデッド・キーパー・キャンペーン"
+
+#: guitext:1034 guitext:1035
+msgctxt "Unused"
+msgid "Moo5"
+msgstr ""
+
+#: guitext:1036
+msgctxt "Trap names"
+msgid "Demolition Trap"
+msgstr "取壊しの罠"
+
+#: guitext:1037
+msgctxt "Trap description"
+msgid ""
+"Demolition Trap: An explosive with unrivaled destructive power."
+msgstr "取壊しの罠: 無類な破壊力がある爆薬。"
+
+#: guitext:1038
+msgctxt "Trap description"
+msgid ""
+"Sentry Trap: Stands guard and shoots at enemies in sight."
+msgstr "防御の罠: 見張ると視界内の敵を撃つ。"
+
+#: guitext:1039 guitext:1040
+msgctxt "Unused"
+msgid "Moo6"
+msgstr ""
+
+#: guitext:1041
+msgctxt "Creature name"
+msgid "Spirit"
+msgstr "スピリット"
+
+#: guitext:1042
+msgctxt "Creature name"
+msgid "Druid"
+msgstr "ドルイド"
+
+#: guitext:1043
+msgctxt "Creature name"
+msgid "Time Mage"
+msgstr "タイムメイジ"

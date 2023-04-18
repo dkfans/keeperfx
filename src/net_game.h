@@ -39,36 +39,17 @@ extern "C" {
 struct TbNetworkSessionNameEntry;
 
 /******************************************************************************/
-DLLIMPORT struct TbNetworkPlayerInfo _DK_net_player_info[NET_PLAYERS_COUNT];
-#define net_player_info _DK_net_player_info
-DLLIMPORT struct TbNetworkSessionNameEntry *_DK_net_session[32];
-#define net_session _DK_net_session
-DLLIMPORT long _DK_net_number_of_sessions;
-#define net_number_of_sessions _DK_net_number_of_sessions
-DLLIMPORT long _DK_net_session_index_active;
-#define net_session_index_active _DK_net_session_index_active
-DLLIMPORT struct TbNetworkPlayerName _DK_net_player[NET_PLAYERS_COUNT];
-#define net_player _DK_net_player
-DLLIMPORT struct ConfigInfo _DK_net_config_info;
-#define net_config_info _DK_net_config_info
-DLLIMPORT char _DK_net_service[16][NET_SERVICE_LEN];
-#define net_service _DK_net_service
-DLLIMPORT char _DK_net_player_name[20];
-#define net_player_name _DK_net_player_name
-DLLIMPORT struct ServiceInitData _DK_net_serial_data;
-#define net_serial_data _DK_net_serial_data
-DLLIMPORT struct ServiceInitData _DK_net_modem_data;
-#define net_modem_data _DK_net_modem_data
-DLLIMPORT struct TbModemDev _DK_modem_dev;
-#define modem_dev _DK_modem_dev
+extern struct TbNetworkPlayerInfo net_player_info[NET_PLAYERS_COUNT];
+extern struct TbNetworkSessionNameEntry *net_session[32];
+extern long net_number_of_sessions;
+extern long net_session_index_active;
+extern struct TbNetworkPlayerName net_player[NET_PLAYERS_COUNT];
+extern struct ConfigInfo net_config_info;
+extern char net_service[16][NET_SERVICE_LEN];
+extern char net_player_name[20];
 
 #pragma pack()
 /******************************************************************************/
-extern long number_of_comports;
-extern long number_of_speeds;
-extern long net_comport_scroll_offset;
-extern long net_speed_scroll_offset;
-extern char tmp_net_irq[8];
 extern char net_current_message[64];
 extern long net_current_message_index;
 /******************************************************************************/

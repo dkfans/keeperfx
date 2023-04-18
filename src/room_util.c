@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "room_util.h"
 
 #include "globals.h"
@@ -40,6 +41,7 @@
 #include "keeperfx.hpp"
 #include "frontend.h"
 #include "math.h"
+#include "post_inc.h"
 
 /******************************************************************************/
 struct Thing *create_room_surrounding_flame(struct Room *room, const struct Coord3d *pos,
@@ -59,35 +61,35 @@ struct Thing *create_room_surrounding_flame(struct Room *room, const struct Coor
 void room_update_surrounding_flames(struct Room *room, const struct Coord3d *pos)
 {
     long k;
-    long i = room->field_43;
+    long i = room->flames_around_idx;
     MapSubtlCoord x = pos->x.stl.num + (MapSubtlCoord)small_around[i].delta_x;
     MapSubtlCoord y = pos->y.stl.num + (MapSubtlCoord)small_around[i].delta_y;
     struct Room* curoom = subtile_room_get(x, y);
     if (curoom->index != room->index)
     {
-        k = (i + 1) % 4;
-        room->field_43 = k;
+        k = (i + 1) % SMALL_AROUND_LENGTH;
+        room->flames_around_idx = k;
         return;
     }
-    k = (i + 3) % 4;
+    k = (i + 3) % SMALL_AROUND_LENGTH;
     x += (MapSubtlCoord)small_around[k].delta_x;
     y += (MapSubtlCoord)small_around[k].delta_y;
     curoom = subtile_room_get(x,y);
     if (curoom->index != room->index)
     {
-        room->field_41 += slab_around[i];
+        room->flame_slb += gameadd.small_around_slab[i];
         return;
     }
-    room->field_41 += slab_around[i] + slab_around[k];
-    room->field_43 = k;
+    room->flame_slb += gameadd.small_around_slab[i] + gameadd.small_around_slab[k];
+    room->flames_around_idx = k;
 }
 
 void process_room_surrounding_flames(struct Room *room)
 {
     SYNCDBG(19,"Starting");
-    MapSlabCoord x = slb_num_decode_x(room->field_41);
-    MapSlabCoord y = slb_num_decode_y(room->field_41);
-    long i = 3 * room->field_43 + room->flame_stl;
+    MapSlabCoord x = slb_num_decode_x(room->flame_slb);
+    MapSlabCoord y = slb_num_decode_y(room->flame_slb);
+    long i = 3 * room->flames_around_idx + room->flame_stl;
     struct Coord3d pos;
     pos.x.val = subtile_coord_center(slab_subtile_center(x)) + room_spark_offset[i].delta_x;
     pos.y.val = subtile_coord_center(slab_subtile_center(y)) + room_spark_offset[i].delta_y;

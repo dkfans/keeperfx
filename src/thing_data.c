@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "thing_data.h"
 
 #include "globals.h"
@@ -34,6 +35,7 @@
 #include "engine_arrays.h"
 #include "kjm_input.h"
 #include "gui_topmsg.h" 
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -226,6 +228,11 @@ TbBool thing_exists(const struct Thing *thing)
     return true;
 }
 
+TbBool thing_is_in_limbo(const struct Thing* thing)
+{
+    return (thing->alloc_flags & TAlF_IsInLimbo);
+}
+
 TbBool thing_is_dragged_or_pulled(const struct Thing *thing)
 {
     return ((thing->state_flags & TF1_IsDragged1) != 0) || ((thing->alloc_flags & TAlF_IsDragged) != 0);
@@ -244,7 +251,7 @@ void set_thing_draw(struct Thing *thing, long anim, long speed, long scale, char
     thing->anim_sprite = convert_td_iso(anim);
     thing->field_50 &= 0x03;
     thing->field_50 |= (draw_class << 2);
-    thing->field_49 = keepersprite_frames(thing->anim_sprite);
+    thing->max_frames = keepersprite_frames(thing->anim_sprite);
     if (speed != -1) {
         thing->anim_speed = speed;
     }
@@ -252,23 +259,23 @@ void set_thing_draw(struct Thing *thing, long anim, long speed, long scale, char
         thing->sprite_size = scale;
     }
     if (a5 != -1) {
-        set_flag_byte(&thing->field_4F, TF4F_Unknown40, a5);
+        set_flag_byte(&thing->rendering_flags, TRF_AnimateOnce, a5);
     }
     if (start_frame == -2)
     {
       i = keepersprite_frames(thing->anim_sprite) - 1;
-      thing->field_48 = i;
+      thing->current_frame = i;
       thing->anim_time = i << 8;
     } else
     if (start_frame == -1)
     {
-      i = CREATURE_RANDOM(thing, thing->field_49);
-      thing->field_48 = i;
+      i = CREATURE_RANDOM(thing, thing->max_frames);
+      thing->current_frame = i;
       thing->anim_time = i << 8;
     } else
     {
       i = start_frame;
-      thing->field_48 = i;
+      thing->current_frame = i;
       thing->anim_time = i << 8;
     }
 }
@@ -276,7 +283,7 @@ void set_thing_draw(struct Thing *thing, long anim, long speed, long scale, char
 void query_thing(struct Thing *thing)
 {
     struct Thing *querytng;
-    if ( (thing->class_id == TCls_Object) && (thing->model == 44) && (!is_key_pressed(KC_LALT, KMod_DONTCARE)) )
+    if ( (thing->class_id == TCls_Object) && (thing->model == ObjMdl_SpinningKey) && (!is_key_pressed(KC_LALT, KMod_DONTCARE)) )
     {
         querytng = get_door_for_position(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
     }   
@@ -290,7 +297,7 @@ void query_thing(struct Thing *thing)
         const char* name = thing_model_name(querytng);
         const char owner[24]; 
         const char health[24];
-        const char position[24];
+        const char position[29];
         const char amount[24] = "\0";
         char output[36];
         sprintf((char*)title, "Thing ID: %d", querytng->index);
@@ -299,7 +306,8 @@ void query_thing(struct Thing *thing)
         if (querytng->class_id == TCls_Trap)
         {
             struct ManfctrConfig *mconf = &gameadd.traps_config[querytng->model];
-            sprintf((char*)health, "Shots: %d/%d", querytng->trap.num_shots, mconf->shots);
+            sprintf((char*)health, "Health: %ld", querytng->health);
+            sprintf((char*)amount, "Shots: %d/%d", querytng->trap.num_shots, mconf->shots);
         }
         else
         {
@@ -310,14 +318,14 @@ void query_thing(struct Thing *thing)
                     sprintf((char*)amount, "Amount: %ld", querytng->valuable.gold_stored);   
                 }
             }  
-            sprintf((char*)health, "Health: %d", querytng->health);
+            sprintf((char*)health, "Health: %ld", querytng->health);
             if (querytng->class_id == TCls_Door)
             {
                 sprintf(output, "%s/%ln", health, &gameadd.trapdoor_conf.door_cfgstats[querytng->model].health);
             }
             else if (querytng->class_id == TCls_Object)
             {
-                if (querytng->model == 5)
+                if (querytng->model == ObjMdl_SoulCountainer)  //todo make model independent
                 {
                     sprintf(output, "%s/%ld", health, game.dungeon_heart_health);
                 }

@@ -17,13 +17,14 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-
+#include "pre_inc.h"
 #include "bflib_network.h"
 
 #include "bflib_memory.h"
 
 #include <assert.h>
 #include <SDL2/SDL_net.h>
+#include "post_inc.h"
 
 enum MsgReadState
 {

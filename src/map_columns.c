@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "map_columns.h"
 #include "globals.h"
 
@@ -23,6 +24,7 @@
 #include "config_terrain.h"
 #include "slab_data.h"
 #include "game_legacy.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -41,14 +43,14 @@ struct Column *get_column_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
   mapblk = get_map_block_at(stl_x, stl_y);
   if (map_block_invalid(mapblk))
     return INVALID_COLUMN;
-  return game.columns.lookup[mapblk->data & 0x7FF];
+  return game.columns.lookup[get_mapblk_column_index(mapblk)];
 }
 
 struct Column *get_map_column(const struct Map *mapblk)
 {
   if (map_block_invalid(mapblk))
     return INVALID_COLUMN;
-  return game.columns.lookup[mapblk->data & 0x7FF];
+  return game.columns.lookup[get_mapblk_column_index(mapblk)];
 }
 
 TbBool column_invalid(const struct Column *colmn)
@@ -128,7 +130,7 @@ void set_map_floor_filled_subtiles(struct Map *mapblk, MapSubtlCoord n)
  */
 long get_column_ceiling_filled_subtiles(const struct Column *col)
 {
-    return (col->bitfields & 0x0E) >> 1;
+    return (col->bitfields & CLF_CEILING_MASK) >> 1;
 }
 
 /**
@@ -141,7 +143,7 @@ long get_map_ceiling_filled_subtiles(const struct Map *mapblk)
     col = get_map_column(mapblk);
     if (column_invalid(col))
         return 0;
-    return (col->bitfields & 0x0E) >> 1;
+    return (col->bitfields & CLF_CEILING_MASK) >> 1;
 }
 
 /**
@@ -155,7 +157,7 @@ long get_ceiling_filled_subtiles_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
     colmn = get_column_at(stl_x, stl_y);
     if (column_invalid(colmn))
         return 0;
-    return (colmn->bitfields & 0x0E) >> 1;
+    return (colmn->bitfields & CLF_CEILING_MASK) >> 1;
 }
 
 /**
@@ -165,8 +167,8 @@ long get_ceiling_filled_subtiles_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
  */
 void set_column_ceiling_filled_subtiles(struct Column *col, MapSubtlCoord n)
 {
-    col->bitfields &= ~0x0E;
-    col->bitfields |= (n<<1) & 0x0E;
+    col->bitfields &= ~CLF_CEILING_MASK;
+    col->bitfields |= (n<<1) & CLF_CEILING_MASK;
 }
 
 /**
@@ -180,8 +182,8 @@ void set_map_ceiling_filled_subtiles(struct Map *mapblk, MapSubtlCoord n)
     col = get_map_column(mapblk);
     if (column_invalid(col))
         return;
-    col->bitfields &= ~0x0E;
-    col->bitfields |= (n<<1) & 0x0E;
+    col->bitfields &= ~CLF_CEILING_MASK;
+    col->bitfields |= (n<<1) & CLF_CEILING_MASK;
 }
 
 TbBool map_pos_solid_at_ceiling(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
@@ -193,7 +195,7 @@ TbBool map_pos_solid_at_ceiling(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
     return get_map_ceiling_filled_subtiles(mapblk) > 0;
 }
 
-long get_top_cube_at_pos(long stl_num)
+long get_top_cube_at_pos(SubtlCodedCoords stl_num)
 {
     struct Column *col;
     struct Map *mapblk;
@@ -205,7 +207,7 @@ long get_top_cube_at_pos(long stl_num)
     if (top_pos > 0)
         tcube = col->cubes[top_pos-1];
     else
-        tcube = game.field_14BB65[col->baseblock];
+        tcube = game.top_cube[col->baseblock];
     return tcube;
 }
 
@@ -219,7 +221,7 @@ long get_top_cube_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long *cube_pos)
     if (top_pos > 0)
         tcube = col->cubes[top_pos-1];
     else
-        tcube = game.field_14BB65[col->baseblock];
+        tcube = game.top_cube[col->baseblock];
     if (cube_pos != NULL)
         *cube_pos = top_pos;
     return tcube;
@@ -421,18 +423,15 @@ void clear_columns(void)
     colmn->baseblock = 1;
     make_solidmask(colmn);
   }
-  game.field_149E6E = -1;
-  game.field_149E7C = 24;
   game.unrevealed_column_idx = 0;
   for (i=0; i < 18; i++)
   {
-    game.field_14A818[i] = 0;
+    game.col_static_entries[i] = 0;
   }
 }
 
 void init_columns(void)
 {
-    //_DK_init_columns();
     int i;
     for (i=1; i < COLUMNS_COUNT; i++)
     {
@@ -494,7 +493,6 @@ void init_whole_blocks(void)
     struct Column *colmn;
     struct Column lcolmn;
     long i;
-    game.field_149E6E = -1;
     LbMemorySet(&lcolmn, 0, sizeof(struct Column));
     // Prepare the local column
     lcolmn.baseblock = 22;
@@ -511,14 +509,12 @@ void init_whole_blocks(void)
     colmn = get_column(i);
     // Update its parameters
     colmn->bitfields |= CLF_ACTIVE;
-    game.field_149E7C = 24;
     game.unrevealed_column_idx = i;
 }
 
 void init_top_texture_to_cube_table(void)
 {
-    //_DK_init_top_texture_to_cube_table();
-    LbMemorySet(game.field_14BB65, 0, sizeof(game.field_14BB65));
+    LbMemorySet(game.top_cube, 0, sizeof(game.top_cube));
     int n;
     for (n=1; n < 592; n++)
     {
@@ -528,7 +524,7 @@ void init_top_texture_to_cube_table(void)
             struct CubeAttribs * cubed;
             cubed = &gameadd.cubes_data[i];
             if (cubed->texture_id[4] == n) {
-                game.field_14BB65[n] = i;
+                game.top_cube[n] = i;
                 break;
             }
         }

@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "front_landview.h"
 
 #include "globals.h"
@@ -58,6 +59,7 @@
 #include "keeperfx.hpp"
 
 #include "music_player.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -83,6 +85,22 @@ LevelNumber mouse_over_lvnum;
 LevelNumber playing_speech_lvnum;
 struct TbHugeSprite map_window;
 long map_window_len = 0;
+
+TbClockMSec play_desc_speech_time;
+unsigned long played_bad_descriptive_speech;
+unsigned long played_good_descriptive_speech;
+TbSpriteData map_flag_data;
+unsigned long end_map_flag_data;
+struct TbSprite *map_flag;
+struct TbSprite *end_map_flag;
+struct TbSprite *map_font;
+struct TbSprite *map_hand;
+long map_sound_fade;
+unsigned char *map_screen;
+long fe_net_level_selected;
+long net_map_limp_time;
+struct ScreenPacket net_screen_packet[NET_PLAYERS_COUNT];
+long players_currently_in_session;
 /******************************************************************************/
 extern struct TbSetupSprite map_flag_setup_sprites[];
 extern struct TbSetupSprite netmap_flag_setup_sprites[];
@@ -951,8 +969,6 @@ TbBool frontnetmap_load(void)
     net_level_hilighted = SINGLEPLAYER_NOTSTARTED;
     set_pointer_graphic_none();
     LbMouseSetPosition(lbDisplay.PhysicalScreenWidth/2, lbDisplay.PhysicalScreenHeight/2);
-    LbTextSetFont(map_font);
-    LbTextSetWindow(0, 0, lbDisplay.PhysicalScreenWidth, lbDisplay.PhysicalScreenHeight);
     map_sound_fade = 256;
     lbDisplay.DrawFlags = 0;
     SetMusicPlayerVolume(settings.redbook_volume);
@@ -1182,6 +1198,8 @@ TbBool test_hand_slap_collides(PlayerNumber plyr_idx)
 void frontmap_draw(void)
 {
     SYNCDBG(8,"Starting");
+    LbTextSetFont(map_font);
+    LbTextSetWindow(0, 0, lbDisplay.PhysicalScreenWidth, lbDisplay.PhysicalScreenHeight);
     if ((map_info.fadeflags & MLInfoFlg_Zooming) != 0)
     {
         frontzoom_to_point(map_info.hotspot_imgpos_x, map_info.hotspot_imgpos_y, map_info.fade_pos);
@@ -1368,6 +1386,8 @@ void draw_map_level_descriptions(void)
 void frontnetmap_draw(void)
 {
     SYNCDBG(8,"Starting");
+    LbTextSetFont(map_font);
+    LbTextSetWindow(0, 0, lbDisplay.PhysicalScreenWidth, lbDisplay.PhysicalScreenHeight);
     if ((map_info.fadeflags & MLInfoFlg_Zooming) != 0)
     {
         frontzoom_to_point(map_info.hotspot_imgpos_x, map_info.hotspot_imgpos_y, map_info.fade_pos);
@@ -1617,7 +1637,7 @@ TbBool frontmap_exchange_screen_packet(void)
     }
     if (fe_network_active)
     {
-      if ( LbNetwork_Exchange(nspck) )
+      if ( LbNetwork_Exchange(nspck, &net_screen_packet, sizeof(struct ScreenPacket)) )
       {
           ERRORLOG("LbNetwork_Exchange failed");
           return false;

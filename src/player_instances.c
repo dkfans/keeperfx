@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "player_instances.h"
 
 #include "globals.h"
@@ -57,19 +58,18 @@
 #include "bflib_inputctrl.h"
 
 #include "keeperfx.hpp"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
 long pinstfs_hand_grab(struct PlayerInfo *player, long *n);
-long pinstfm_hand_grab(struct PlayerInfo *player, long *n);
 long pinstfe_hand_grab(struct PlayerInfo *player, long *n);
 long pinstfs_hand_drop(struct PlayerInfo *player, long *n);
 long pinstfe_hand_drop(struct PlayerInfo *player, long *n);
 long pinstfs_hand_whip(struct PlayerInfo *player, long *n);
 long pinstfe_hand_whip(struct PlayerInfo *player, long *n);
-long pinstfm_hand_drop(struct PlayerInfo *player, long *n);
 long pinstfs_hand_whip_end(struct PlayerInfo *player, long *n);
 long pinstfe_hand_whip_end(struct PlayerInfo *player, long *n);
 long pinstfs_direct_control_creature(struct PlayerInfo *player, long *n);
@@ -101,10 +101,10 @@ long pinstfs_zoom_to_position(struct PlayerInfo *player, long *n);
 long pinstfm_zoom_to_position(struct PlayerInfo *player, long *n);
 long pinstfe_zoom_to_position(struct PlayerInfo *player, long *n);
 
-struct PlayerInstanceInfo player_instance_info[] = {
+struct PlayerInstanceInfo player_instance_info[PLAYER_INSTANCES_COUNT] = {
   { 0, 0, NULL,                        NULL,                        NULL,                                {0}, {0}, 0, 0},
-  { 3, 1, pinstfs_hand_grab,           pinstfm_hand_grab,           pinstfe_hand_grab,                   {0}, {0}, 0, 0},
-  { 3, 1, pinstfs_hand_drop,           pinstfm_hand_drop,           pinstfe_hand_drop,                   {0}, {0}, 0, 0},
+  { 3, 1, pinstfs_hand_grab,           NULL,                        pinstfe_hand_grab,                   {0}, {0}, 0, 0},
+  { 3, 1, pinstfs_hand_drop,           NULL,                        pinstfe_hand_drop,                   {0}, {0}, 0, 0},
   { 4, 0, pinstfs_hand_whip,           NULL,                        pinstfe_hand_whip,                   {0}, {0}, 0, 0},
   { 5, 0, pinstfs_hand_whip_end,       NULL,                        pinstfe_hand_whip_end,               {0}, {0}, 0, 0},
   {12, 1, pinstfs_direct_control_creature,pinstfm_control_creature, pinstfe_direct_control_creature,     {0}, {0}, 0, 0},
@@ -124,50 +124,20 @@ struct PlayerInstanceInfo player_instance_info[] = {
 };
 
 /******************************************************************************/
-
-DLLIMPORT long _DK_pinstfm_hand_grab(struct PlayerInfo *player, long *n);
-/******************************************************************************/
 #ifdef __cplusplus
 }
 #endif
 /******************************************************************************/
 long pinstfs_hand_grab(struct PlayerInfo *player, long *n)
 {
-    struct Dungeon* dungeon = get_players_dungeon(player);
     struct Thing* thing = thing_get(player->hand_thing_idx);
     struct Objects* objdat;
-    if (dungeon->num_things_in_hand > 0)
-    {
-        dungeon->field_43 = 60;
-        dungeon->field_53 = 40;
-    }
     if (!thing_is_invalid(thing))
     {
-        objdat = get_objects_data(38);
+        objdat = get_objects_data(ObjMdl_PowerHandGrab);
         set_power_hand_graphic(player->id_number, objdat->sprite_anim_idx, objdat->anim_speed);
     }
     return 0;
-}
-
-long pinstfm_hand_grab(struct PlayerInfo *player, long *n)
-{
-    //TODO INSTANCES check why rewritten code is disabled
-    return _DK_pinstfm_hand_grab(player, n);
-    struct Dungeon* dungeon = get_players_dungeon(player);
-    struct Thing* thing = thing_get(player->influenced_thing_idx);
-    if (thing->class_id == TCls_Creature)
-    {
-        struct CreaturePickedUpOffset* pickoffs = get_creature_picked_up_offset(thing);
-        dungeon->field_43 += (pickoffs->field_4 - 60) / 4;
-        dungeon->field_53 += (pickoffs->field_6 - 40) / 4;
-        return 0;
-    }
-    else
-    {
-        dungeon->field_43 = 60;
-        dungeon->field_53 = 40;
-        return 0;
-    }
 }
 
 long pinstfe_hand_grab(struct PlayerInfo *player, long *n)
@@ -189,10 +159,9 @@ long pinstfe_hand_grab(struct PlayerInfo *player, long *n)
         return 0;
     }
     // Update sprites for the creature in hand, and power hand itself
-    set_power_hand_offset(player, get_first_thing_in_power_hand(player));
-    if (!thing_is_invalid(grabtng)) 
+    if (!thing_is_invalid(grabtng))
     {
-        objdat = get_objects_data(38);
+        objdat = get_objects_data(ObjMdl_PowerHandGrab);
         set_power_hand_graphic(player->id_number, objdat->sprite_anim_idx+1, objdat->anim_speed);
     }
     return 0;
@@ -206,7 +175,7 @@ long pinstfs_hand_drop(struct PlayerInfo *player, long *n)
     player->influenced_thing_idx = dungeon->things_in_hand[0];
     if (!thing_is_invalid(thing))
     {
-        objdat = get_objects_data(38);
+        objdat = get_objects_data(ObjMdl_PowerHandGrab);
         set_power_hand_graphic(player->id_number, objdat->sprite_anim_idx, -objdat->anim_speed);
     }
     return 0;
@@ -214,14 +183,11 @@ long pinstfs_hand_drop(struct PlayerInfo *player, long *n)
 
 long pinstfe_hand_drop(struct PlayerInfo *player, long *n)
 {
-    struct Dungeon* dungeon = get_players_dungeon(player);
     struct Thing* thing = thing_get(player->hand_thing_idx);
     struct Objects* objdat;
-    dungeon->field_43 = 60;
-    dungeon->field_53 = 40;
     if (!thing_is_invalid(thing))
     {
-        objdat = get_objects_data(37);
+        objdat = get_objects_data(ObjMdl_PowerHand);
         set_power_hand_graphic(player->id_number, objdat->sprite_anim_idx, objdat->anim_speed);
     }
     player->influenced_thing_idx = 0;
@@ -234,7 +200,7 @@ long pinstfs_hand_whip(struct PlayerInfo *player, long *n)
     struct Objects* objdat;
     if (!thing_is_invalid(thing))
     {
-        objdat = get_objects_data(39);
+        objdat = get_objects_data(ObjMdl_PowerHandWhip);
         set_power_hand_graphic(player->id_number, objdat->sprite_anim_idx+1, objdat->anim_speed);
     }
     return 0;
@@ -245,6 +211,7 @@ long pinstfe_hand_whip(struct PlayerInfo *player, long *n)
     struct PowerConfigStats* powerst = get_power_model_stats(PwrK_SLAP);
     struct Thing* thing = thing_get(player->influenced_thing_idx);
     struct TrapConfigStats *trapst;
+    struct ShotConfigStats* shotst;
     if (!thing_exists(thing) || (thing->creation_turn != player->influenced_thing_creation) || (!thing_slappable(thing, player->id_number)))
     {
         player->influenced_thing_creation = 0;
@@ -278,14 +245,14 @@ long pinstfe_hand_whip(struct PlayerInfo *player, long *n)
       break;
   }
   case TCls_Shot:
-      if (thing->model == 15) //TODO CONFIG shot model dependency, make config option instead
+      shotst = get_shot_model_stats(thing->model);
+      if (shotst->model_flags & ShMF_Boulder)
       {
           thing->move_angle_xy = player->acamera->orient_a;
-          thing->health -= game.boulder_reduce_health_slap;
-      } else
-      if (thing->model == 20) //TODO CONFIG shot model dependency, make config option instead
-      {
-          thing->move_angle_xy = player->acamera->orient_a;
+          if (thing->model != ShM_SolidBoulder) //TODO CONFIG shot model dependency, make config option instead
+          {
+              thing->health -= game.boulder_reduce_health_slap;
+          }
       } else
       {
           detonate_shot(thing);
@@ -315,23 +282,13 @@ long pinstfe_hand_whip(struct PlayerInfo *player, long *n)
   return 0;
 }
 
-long pinstfm_hand_drop(struct PlayerInfo *player, long *n)
-{
-    struct Dungeon* dungeon = get_players_dungeon(player);
-    long i = player->instance_remain_rurns + 1;
-    if (i < 1) i = 1;
-    dungeon->field_43 += (60 - dungeon->field_43) / i;
-    dungeon->field_53 += (40 - dungeon->field_53) / i;
-    return 0;
-}
-
 long pinstfs_hand_whip_end(struct PlayerInfo *player, long *n)
 {
     struct Thing* thing = thing_get(player->hand_thing_idx);
     struct Objects* objdat;
-    if (!thing_is_invalid(thing)) 
+    if (!thing_is_invalid(thing))
     {
-        objdat = get_objects_data(39);
+        objdat = get_objects_data(ObjMdl_PowerHandWhip);
         set_power_hand_graphic(player->id_number, objdat->sprite_anim_idx + 2, objdat->anim_speed);
     }
     return 0;
@@ -343,7 +300,7 @@ long pinstfe_hand_whip_end(struct PlayerInfo *player, long *n)
     struct Objects* objdat;
     if (!thing_is_invalid(thing))
     {
-        objdat = get_objects_data(39);
+        objdat = get_objects_data(ObjMdl_PowerHandWhip);
         set_power_hand_graphic(player->id_number, objdat->sprite_anim_idx, objdat->anim_speed);
     }
     return 0;
@@ -358,7 +315,6 @@ long pinstfs_passenger_control_creature(struct PlayerInfo *player, long *n)
     turn_off_all_window_menus();
     turn_off_menu(GMnu_CREATURE_QUERY1);
     turn_off_menu(GMnu_CREATURE_QUERY2);
-    game.field_15038E = 0;
     game.flags_font |= FFlg_unk04;
   }
   struct Camera* cam = player->acamera;
@@ -420,10 +376,8 @@ long pinstfm_control_creature(struct PlayerInfo *player, long *n)
         cam->orient_a += mv_a;
         cam->orient_a &= LbFPMath_AngleMask;
         thing = thing_get(player->influenced_thing_idx);
-        struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
         // Now mv_a becomes a circle radius
-        mv_a = crstat->eye_height + (crstat->eye_height + (crstat->eye_height * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100) + thing->mappos.z.val;
+        mv_a = get_creature_eye_height(thing) + thing->mappos.z.val;
         long mv_x = thing->mappos.x.val + distance_with_angle_to_coord_x(mv_a, cam->orient_a) - (MapCoordDelta)cam->mappos.x.val;
         long mv_y = thing->mappos.y.val + distance_with_angle_to_coord_y(mv_a, cam->orient_a) - (MapCoordDelta)cam->mappos.y.val;
         if (mv_x < -128)
@@ -528,7 +482,7 @@ long pinstfs_direct_leave_creature(struct PlayerInfo *player, long *n)
   leave_creature_as_controller(player, thing);
   player->allocflags |= PlaF_KeyboardInputDisabled;
   player->influenced_thing_idx = 0;
-  light_turn_light_on(player->field_460);
+  light_turn_light_on(player->cursor_light_idx);
   play_non_3d_sample(177);
   return 0;
 }
@@ -568,7 +522,7 @@ long pinstfs_passenger_leave_creature(struct PlayerInfo *player, long *n)
   leave_creature_as_passenger(player, thing);
   player->allocflags |= PlaF_KeyboardInputDisabled;
   player->influenced_thing_idx = 0;
-  light_turn_light_on(player->field_460);
+  light_turn_light_on(player->cursor_light_idx);
   play_non_3d_sample(177);
   return 0;
 }
@@ -604,7 +558,7 @@ long pinstfs_zoom_to_heart(struct PlayerInfo *player, long *n)
 {
     SYNCDBG(6,"Starting for player %d",(int)player->id_number);
     LbPaletteDataFillWhite(zoom_to_heart_palette);
-    light_turn_light_off(player->field_460);
+    light_turn_light_off(player->cursor_light_idx);
     struct Thing* thing = get_player_soul_container(player->id_number);
     ThingModel spectator_breed = get_players_spectator_model(player->id_number);
     struct Coord3d mappos;
@@ -625,7 +579,7 @@ long pinstfs_zoom_to_heart(struct PlayerInfo *player, long *n)
 
 long pinstfm_zoom_to_heart(struct PlayerInfo *player, long *n)
 {
-    reset_interpolation_of_camera();
+    reset_interpolation_of_camera(player);
     struct Thing* thing = thing_get(player->controlled_thing_idx);
     if (!thing_is_invalid(thing))
     {
@@ -660,8 +614,8 @@ long pinstfs_zoom_out_of_heart(struct PlayerInfo *player, long *n)
     thing = get_player_soul_container(player->id_number);
     if (thing_is_invalid(thing))
     {
-        cam->mappos.x.val = subtile_coord_center(map_subtiles_x / 2);
-        cam->mappos.y.val = subtile_coord_center(map_subtiles_y / 2);
+        cam->mappos.x.val = subtile_coord_center(gameadd.map_subtiles_x / 2);
+        cam->mappos.y.val = subtile_coord_center(gameadd.map_subtiles_y / 2);
         cam->zoom = 24000;
         cam->orient_a = 0;
         return 0;
@@ -670,7 +624,7 @@ long pinstfs_zoom_out_of_heart(struct PlayerInfo *player, long *n)
   if (player->view_mode == PVM_FrontView)
   {
     cam->mappos.y.val = thing->mappos.y.val;
-    cam->zoom = settings.frontview_zoom_level;
+    cam->zoom = player->frontview_zoom_level;
   } else
   {
     cam->mappos.y.val = thing->mappos.y.val - (thing->clipbox_size_yz >> 1) -  thing->mappos.z.val;
@@ -696,7 +650,7 @@ long pinstfm_zoom_out_of_heart(struct PlayerInfo *player, long *n)
         unsigned long addval;
         if (cam != NULL)
         {
-          cam->zoom -= (24000 - settings.isometric_view_zoom_level) / 16;
+          cam->zoom -= (24000 - player->isometric_view_zoom_level) / 16;
           cam->orient_a += LbFPMath_PI/64;
           addval = (thing->clipbox_size_yz >> 1);
           deltax = distance_with_angle_to_coord_x((long)thing->mappos.z.val+addval, cam->orient_a);
@@ -725,10 +679,10 @@ long pinstfe_zoom_out_of_heart(struct PlayerInfo *player, long *n)
   struct Camera* cam = player->acamera;
   if ((player->view_mode != PVM_FrontView) && (cam != NULL))
   {
-    cam->zoom = settings.isometric_view_zoom_level;
+    cam->zoom = player->isometric_view_zoom_level;
     cam->orient_a = LbFPMath_PI/4;
   }
-  light_turn_light_on(player->field_460);
+  light_turn_light_on(player->cursor_light_idx);
   player->allocflags &= ~PlaF_KeyboardInputDisabled;
   player->allocflags &= ~PlaF_MouseInputDisabled;
   game.numfield_D &= ~GNFldD_CreaturePasngr;
@@ -753,7 +707,7 @@ long pinstfe_control_creature_fade(struct PlayerInfo *player, long *n)
       PaletteSetPlayerPalette(player, engine_palette);
   }
   player->allocflags &= ~PlaF_KeyboardInputDisabled;
-  light_turn_light_off(player->field_460);
+  light_turn_light_off(player->cursor_light_idx);
   player->allocflags &= ~PlaF_MouseInputDisabled;
   return 0;
 }
@@ -768,7 +722,6 @@ long pinstfs_fade_to_map(struct PlayerInfo *player, long *n)
     {
         set_flag_byte(&player->field_1, 0x02, settings.tooltips_on);
         settings.tooltips_on = 0;
-        copy_settings_to_dk_settings();
         set_flag_byte(&player->field_1, 0x01, toggle_status_menu(0));
   }
   set_engine_view(player, PVM_ParchFadeIn);
@@ -786,7 +739,6 @@ long pinstfe_fade_to_map(struct PlayerInfo *player, long *n)
   set_player_mode(player, PVT_MapScreen);
   if (is_my_player(player))
     settings.tooltips_on = ((player->field_1 & 0x02) != 0);
-  copy_settings_to_dk_settings();
   player->allocflags &= ~PlaF_MouseInputDisabled;
   return 0;
 }
@@ -798,7 +750,6 @@ long pinstfs_fade_from_map(struct PlayerInfo *player, long *n)
   {
     set_flag_byte(&player->field_1, 0x02, settings.tooltips_on);
     settings.tooltips_on = 0;
-    copy_settings_to_dk_settings();
     game.operation_flags &= ~GOF_ShowPanel;
   }
   player->field_4BD = 32;
@@ -814,12 +765,10 @@ long pinstfm_fade_from_map(struct PlayerInfo *player, long *n)
 
 long pinstfe_fade_from_map(struct PlayerInfo *player, long *n)
 {
-    //return _DK_pinstfe_fade_from_map(player, n);
     struct PlayerInfo* myplyr = get_player(my_player_number);
     set_engine_view(player, player->view_mode_restore);
     if (player->id_number == myplyr->id_number) {
         settings.tooltips_on = ((player->field_1 & 2) != 0);
-        copy_settings_to_dk_settings();
         toggle_status_menu(player->field_1 & 1);
     }
     player->allocflags &= ~PlaF_MouseInputDisabled;
@@ -828,7 +777,6 @@ long pinstfe_fade_from_map(struct PlayerInfo *player, long *n)
 
 long pinstfs_zoom_to_position(struct PlayerInfo *player, long *n)
 {
-    //return _DK_pinstfs_zoom_to_position(player, n);
     player->controlled_thing_idx = 0;
     player->controlled_thing_creatrn = 0;
     player->allocflags |= PlaF_MouseInputDisabled;
@@ -845,7 +793,7 @@ long pinstfs_zoom_to_position(struct PlayerInfo *player, long *n)
       if (dt_x <= 256)
         dt_x = 256;
     }
-    player->field_4DB = dt_x;
+    player->zoom_to_movement_x = dt_x;
     if (dt_y < 0)
     {
         if (dt_y >= -256)
@@ -855,7 +803,7 @@ long pinstfs_zoom_to_position(struct PlayerInfo *player, long *n)
         if (dt_y <= 256)
           dt_y = 256;
     }
-    player->field_4DF = dt_y;
+    player->zoom_to_movement_y = dt_y;
     return 0;
 }
 
@@ -864,12 +812,12 @@ long pinstfm_zoom_to_position(struct PlayerInfo *player, long *n)
     long x;
     long y;
     struct Camera* cam = player->acamera;
-    if (abs(cam->mappos.x.val - player->zoom_to_pos_x) >= abs(player->field_4DB))
-      x = player->field_4DB + cam->mappos.x.val;
+    if (abs(cam->mappos.x.val - player->zoom_to_pos_x) >= abs(player->zoom_to_movement_x))
+      x = player->zoom_to_movement_x + cam->mappos.x.val;
     else
       x = player->zoom_to_pos_x;
-    if (abs(cam->mappos.y.val - player->zoom_to_pos_y) >= abs(player->field_4DF))
-      y = player->field_4DF + cam->mappos.y.val;
+    if (abs(cam->mappos.y.val - player->zoom_to_pos_y) >= abs(player->zoom_to_movement_y))
+      y = player->zoom_to_movement_y + cam->mappos.y.val;
     else
       y = player->zoom_to_pos_y;
     if ((player->zoom_to_pos_x == x) && (player->zoom_to_pos_y == y))
@@ -952,23 +900,23 @@ void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing
         set_player_mode(player, PVT_DungeonTop);
         player->allocflags &= ~PlaF_Unknown8;
         set_engine_view(player, player->view_mode_restore);
-        player->cameras[CamIV_Isometric].mappos.x.val = subtile_coord_center(map_subtiles_x/2);
-        player->cameras[CamIV_Isometric].mappos.y.val = subtile_coord_center(map_subtiles_y/2);
-        player->cameras[CamIV_FrontView].mappos.x.val = subtile_coord_center(map_subtiles_x/2);
-        player->cameras[CamIV_FrontView].mappos.y.val = subtile_coord_center(map_subtiles_y/2);
+        player->cameras[CamIV_Isometric].mappos.x.val = subtile_coord_center(gameadd.map_subtiles_x/2);
+        player->cameras[CamIV_Isometric].mappos.y.val = subtile_coord_center(gameadd.map_subtiles_y/2);
+        player->cameras[CamIV_FrontView].mappos.x.val = subtile_coord_center(gameadd.map_subtiles_x/2);
+        player->cameras[CamIV_FrontView].mappos.y.val = subtile_coord_center(gameadd.map_subtiles_y/2);
         clear_selected_thing(player);
         return;
     }
     clear_selected_thing(player);
     set_player_mode(player, PVT_DungeonTop);
     thing->alloc_flags &= ~TAlF_IsControlled;
-    thing->field_4F &= ~TF4F_Unknown01;
+    thing->rendering_flags &= ~TRF_Unknown01;
     player->allocflags &= ~PlaF_Unknown8;
     set_engine_view(player, player->view_mode_restore);
     long i = player->acamera->orient_a;
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    long k = thing->mappos.z.val + (crstat->eye_height + (crstat->eye_height * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100);
+    long k = thing->mappos.z.val + get_creature_eye_height(thing);
     player->cameras[CamIV_Isometric].mappos.x.val = thing->mappos.x.val + distance_with_angle_to_coord_x(k,i);
     player->cameras[CamIV_Isometric].mappos.y.val = thing->mappos.y.val + distance_with_angle_to_coord_y(k,i);
     player->cameras[CamIV_FrontView].mappos.x.val = thing->mappos.x.val + distance_with_angle_to_coord_x(k,i);
@@ -999,21 +947,19 @@ void leave_creature_as_passenger(struct PlayerInfo *player, struct Thing *thing)
     set_player_mode(player, PVT_DungeonTop);
     player->allocflags &= ~PlaF_Unknown8;
     set_engine_view(player, player->view_mode_restore);
-    player->cameras[CamIV_Isometric].mappos.x.val = subtile_coord_center(map_subtiles_x/2);
-    player->cameras[CamIV_Isometric].mappos.y.val = subtile_coord_center(map_subtiles_y/2);
-    player->cameras[CamIV_FrontView].mappos.x.val = subtile_coord_center(map_subtiles_x/2);
-    player->cameras[CamIV_FrontView].mappos.y.val = subtile_coord_center(map_subtiles_y/2);
+    player->cameras[CamIV_Isometric].mappos.x.val = subtile_coord_center(gameadd.map_subtiles_x/2);
+    player->cameras[CamIV_Isometric].mappos.y.val = subtile_coord_center(gameadd.map_subtiles_y/2);
+    player->cameras[CamIV_FrontView].mappos.x.val = subtile_coord_center(gameadd.map_subtiles_x/2);
+    player->cameras[CamIV_FrontView].mappos.y.val = subtile_coord_center(gameadd.map_subtiles_y/2);
     clear_selected_thing(player);
     return;
   }
   set_player_mode(player, PVT_DungeonTop);
-  thing->field_4F &= ~TF4F_Unknown01;
+  thing->rendering_flags &= ~TRF_Unknown01;
   player->allocflags &= ~PlaF_Unknown8;
   set_engine_view(player, player->view_mode_restore);
   long i = player->acamera->orient_a;
-  struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-  struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-  long k = thing->mappos.z.val + (crstat->eye_height + (crstat->eye_height * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100);
+  long k = thing->mappos.z.val + get_creature_eye_height(thing);
   player->cameras[CamIV_Isometric].mappos.x.val = thing->mappos.x.val + distance_with_angle_to_coord_x(k,i);
   player->cameras[CamIV_Isometric].mappos.y.val = thing->mappos.y.val + distance_with_angle_to_coord_y(k,i);
   player->cameras[CamIV_FrontView].mappos.x.val = thing->mappos.x.val + distance_with_angle_to_coord_x(k,i);
@@ -1218,7 +1164,7 @@ struct Room *player_build_room_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Play
     struct Room* room = place_room(plyr_idx, rkind, stl_x, stl_y);
     if (!room_is_invalid(room))
     {
-      if (rkind == RoK_BRIDGE)
+      if (room_role_matches(rkind,RoRoF_PassWater|RoRoF_PassLava))
         dungeon->lvstats.bridges_built++;
       if (is_my_player(player))
       {
@@ -1243,13 +1189,13 @@ TbBool player_place_trap_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumb
     struct PlayerInfo* player = get_player(plyr_idx);
     if ((player->chosen_trap_kind == TngTrp_Boulder) || (!gameadd.place_traps_on_subtiles))
     {
-        set_coords_to_slab_center(&pos,subtile_slab_fast(stl_x),subtile_slab_fast(stl_y));
+        set_coords_to_slab_center(&pos,subtile_slab(stl_x),subtile_slab(stl_y));
     }
     else
     {
         set_coords_to_subtile_center(&pos,stl_x,stl_y,1);
     }
-    delete_room_slabbed_objects(get_slab_number(subtile_slab_fast(stl_x),subtile_slab_fast(stl_y)));
+    delete_room_slabbed_objects(get_slab_number(subtile_slab(stl_x),subtile_slab(stl_y)));
     struct Thing* traptng = create_trap(&pos, tngmodel, plyr_idx);
     if (thing_is_invalid(traptng)) {
         return false;

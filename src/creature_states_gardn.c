@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "creature_states_gardn.h"
 #include "globals.h"
 
@@ -40,6 +41,7 @@
 #include "gui_soundmsgs.h"
 #include "creature_states_prisn.h"
 #include "game_legacy.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -74,7 +76,7 @@ void person_eat_food(struct Thing *creatng, struct Thing *foodtng, struct Room *
 {
     thing_play_sample(creatng, 112+UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     internal_set_thing_state(creatng, CrSt_CreatureEat);
-    set_creature_instance(creatng, CrInst_EAT, 1, 0, 0);
+    set_creature_instance(creatng, CrInst_EAT, 0, 0);
     creatng->continue_state = CrSt_CreatureToGarden;
     {
         // TODO ANGER Maybe better either zero the hunger anger or apply annoy_eat_food points, based on the annoy_eat_food value?
@@ -191,7 +193,7 @@ void person_search_for_food_again(struct Thing *creatng, struct Room *room)
     }
     creatng->continue_state = CrSt_CreatureEatingAtGarden;
     cctrl = creature_control_get_from_thing(creatng);
-    cctrl->long_9A = near_food_tng->index;
+    cctrl->eating.foodtng_idx = near_food_tng->index;
 }
 
 short creature_arrived_at_garden(struct Thing *thing)
@@ -220,9 +222,8 @@ short creature_eat(struct Thing *thing)
 
 short creature_eating_at_garden(struct Thing *creatng)
 {
-    //return _DK_creature_eating_at_garden(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    struct Thing* foodtng = thing_get(cctrl->long_9A);
+    struct Thing* foodtng = thing_get(cctrl->eating.foodtng_idx);
     if (!thing_exists(foodtng)) {
         set_start_state(creatng);
         return 0;
@@ -241,7 +242,7 @@ short creature_eating_at_garden(struct Thing *creatng)
         return 0;
     }
     person_eat_food(creatng, foodtng, room);
-    cctrl->long_9A = 0;
+    cctrl->eating.foodtng_idx = 0;
     return 1;
 }
 

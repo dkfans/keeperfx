@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "music_player.h"
 
 #include "globals.h"
@@ -23,6 +24,8 @@
 
 #include "game_legacy.h"
 #include "keeperfx.hpp"
+#include "config.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -33,9 +36,9 @@ Mix_Music* tracks[50];
 int current_track;
 /******************************************************************************/
 
-int IsRedbookMusicActive(void)
+TbBool IsRedbookMusicActive(void)
 {
-    return (game.flags_cd & MFlg_NoCdMusic) == 0;
+    return (features_enabled & Ft_NoCdMusic) == 0;
 }
 
 int InitializeMusicPlayer(void)
@@ -176,8 +179,12 @@ void SetMusicPlayerVolume(int volume)
     {
         float volume_f = (float) volume;
         int normalized_volume = (int)((volume_f / MIX_MAX_VOLUME) * MIX_MAX_VOLUME);
+        int old_volume = Mix_VolumeMusic(-1);
         Mix_VolumeMusic(normalized_volume);
-        SYNCLOG("Music volume set: %d", normalized_volume);
+        if (normalized_volume != old_volume)
+        {
+            SYNCLOG("Music volume set: %d", normalized_volume);
+        }
     }
 }
 

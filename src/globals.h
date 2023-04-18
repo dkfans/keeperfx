@@ -45,17 +45,20 @@
 #include <process.h>
 #endif
 
+#ifdef _MSC_VER
+// static_assert is not defined in C standard
+#ifndef __cplusplus
+#define static_assert(a, b)
+#endif
+#define strcasecmp strcmp
+#define strncasecmp strncmp
+#endif
+
 #include "version.h"
 
 #ifndef BFDEBUG_LEVEL
 #error "BFDEBUG_LEVEL should be defined in version.h"
 #define BFDEBUG_LEVEL 0
-#endif
-
-#if defined(BUILD_DLL)
-# define DLLIMPORT __declspec (dllexport)
-#else // Not defined BUILD_DLL
-# define DLLIMPORT __declspec (dllimport)
 #endif
 
 #ifdef __cplusplus
@@ -162,13 +165,13 @@ extern "C" {
 #if AUTOTESTING
   #include "event_monitoring.h"
   #define EVM_CREATURE_EVENT(event_name, plyr_id, thing) \
-    evm_stat(0, "ev.%s,cr=%s,thing=%d,plyr=%d cnt=1", event_name, get_string(creature_data_get(thing->model)->namestr_idx), thing->index, plyr_id)
+    evm_stat(0, "ev.%s,cr=%s,thing=%d,plyr=%d cnt=1", event_name, get_string(gameadd.crtr_conf.model[thing->model].namestr_idx), thing->index, plyr_id)
   #define EVM_CREATURE_EVENT_WITH_TARGET(event_name, plyr_id, thing, targ_val) \
-    evm_stat(0, "ev.%s,cr=%s,thing=%d,plyr=%d cnt=1,targ=%d", event_name, get_string(creature_data_get(thing->model)->namestr_idx), thing->index, plyr_id, targ_val)
+    evm_stat(0, "ev.%s,cr=%s,thing=%d,plyr=%d cnt=1,targ=%d", event_name, get_string(gameadd.crtr_conf.model[thing->model].namestr_idx), thing->index, plyr_id, targ_val)
   #define EVM_MAP_EVENT(event_name, plyr_idx, x, y, opt) \
     evm_stat(0, "map.%s,x=%d,y=%d,plyr=%d,opt=%s cnt=1,x=%d,y=%d", event_name, x, y, plyr_idx, opt, x,y)
   #define EVM_CREATURE_STAT(event_name, plyr_id, thing, stat_name, stat_val) \
-    evm_stat(0, "ev.%s,cr=%s,thing=%d,plyr=%d %s=%d", event_name, get_string(creature_data_get(thing->model)->namestr_idx), thing->index, plyr_id, stat_name, stat_val)
+    evm_stat(0, "ev.%s,cr=%s,thing=%d,plyr=%d %s=%d", event_name, get_string(gameadd.crtr_conf.model[thing->model].namestr_idx), thing->index, plyr_id, stat_name, stat_val)
 #else
   #define EVM_CREATURE_EVENT(event_name, plyr_id, thing)
   #define EVM_CREATURE_EVENT_WITH_TARGET(event_name, plyr_id, thing, targ_val)
@@ -176,12 +179,10 @@ extern "C" {
   #define EVM_MAP_EVENT(event_name, plyr_idx, x, y, opt)
 #endif
 
-void replaceFn(void* oldFn, void* newFn);
-#define CONCAT_(x, y) x##y
-#define CONCAT(x, y) CONCAT_(x, y)
-#define HOOK_DK_FUNC(name) \
-	DLLIMPORT void _DK_##name(); \
-	__attribute__((constructor)) static void CONCAT(hookFn, __COUNTER__)(void) { replaceFn(&_DK_##name, &name); }
+#define MAX_TILES_X 170
+#define MAX_TILES_Y 170
+#define MAX_SUBTILES_X 511
+#define MAX_SUBTILES_Y 511
 
 #pragma pack(1)
 
@@ -191,6 +192,8 @@ typedef int ScreenCoord;
 typedef int RealScreenCoord;
 /** Player identification number, or owner of in-game thing/room/slab. */
 typedef signed char PlayerNumber;
+/** bitflag where each bit represents a player */
+typedef unsigned char PlayerBitFlag;
 /** Type which stores thing class. */
 typedef unsigned char ThingClass;
 /** Type which stores thing model. */
@@ -258,7 +261,7 @@ typedef short MapSlabCoord;
 /** Distance between map coordinates in slabs.  */
 typedef short MapSlabDelta;
 /** Map subtile 2D coordinates, coded into one number. */
-typedef unsigned long SubtlCodedCoords;
+typedef long SubtlCodedCoords;
 /** Map slab 2D coordinates, coded into one number. */
 typedef unsigned long SlabCodedCoords;
 /** Index in the columns array. */
@@ -282,7 +285,7 @@ typedef unsigned char DamageType;
 /** Type which stores hit filters for things as THit_* values. */
 typedef unsigned char ThingHitType;
 /** Type which stores hit filters for things as HitTF_* flags. */
-typedef unsigned long HitTargetFlags;
+typedef unsigned long long HitTargetFlags;
 /** Index within active_buttons[] array. */
 typedef char ActiveButtonID;
 /** Type which stores FeST_* values from FrontendMenuStates enumeration. */

@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "engine_lenses.h"
 
 #include "globals.h"
@@ -27,6 +28,7 @@
 
 #include "engine_render.h"
 #include "engine_camera.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -48,6 +50,10 @@ RotPers_Func rotpers_routines[] = {
 
 unsigned int eye_lens_width = 0;
 unsigned int eye_lens_height = 0;
+long lens;
+Perspect_Func perspective;
+RotPers_Func rotpers;
+unsigned char lens_mode;
 /******************************************************************************/
 #ifdef __cplusplus
 }

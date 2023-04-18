@@ -18,15 +18,18 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "bflib_video.h"
 
 #include "bflib_mouse.h"
-#include "bflib_vidsurface.h"
+#include "bflib_render.h"
 #include "bflib_sprfnt.h"
-#include "bflib_inputctrl.h"
+#include "bflib_vidsurface.h"
+
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_syswm.h>
 #include <math.h>
+#include "post_inc.h"
 
 #define SCREEN_MODES_COUNT 40
 
@@ -62,6 +65,21 @@ char lbDrawAreaTitle[128] = "Bullfrog Shell";
 volatile TbBool lbInteruptMouse;
 volatile unsigned long lbIconIndex = 0;
 SDL_Window *lbWindow = NULL;
+
+TbDisplayStruct lbDisplay;
+
+
+unsigned short MyScreenWidth;
+unsigned short MyScreenHeight;
+unsigned short pixel_size;
+unsigned short pixels_per_block;
+unsigned short units_per_pixel;
+
+static unsigned char fade_started;
+static unsigned char from_pal[PALETTE_SIZE];
+static unsigned char to_pal[PALETTE_SIZE];
+static long fade_count;
+
 /******************************************************************************/
 void *LbExeReferenceNumber(void)
 {
@@ -450,6 +468,12 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
         TbBool stillInWindowedMode = ((sdlFlags & 1) == 0) && ((cflags & 1) == 0); // it is hard to detect if windowed mode (flag = 0) is still the same (i.e. no change of mode, still in windowed mode)
         if (stillInWindowedMode) {
             sameWindowMode = (sameWindowMode || stillInWindowedMode);
+            if (!sameResolution)
+            {
+                // reset window
+                SDL_DestroyWindow(lbWindow);
+                lbWindow = SDL_CreateWindow(lbDrawAreaTitle, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, mdinfo->Width, mdinfo->Height, sdlFlags);
+            }
         }
         int fullscreenMode = (((sdlFlags & SDL_WINDOW_FULLSCREEN) != 0) ? SDL_WINDOW_FULLSCREEN : 0);
         if (!sameWindowMode && (fullscreenMode == 0))
@@ -477,7 +501,7 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
         }
     }
     if (lbWindow == NULL) { // Only create a new window if we don't have a valid one already
-        lbWindow = SDL_CreateWindow(lbDrawAreaTitle, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, mdinfo->Width, mdinfo->Height, sdlFlags);
+        lbWindow = SDL_CreateWindow(lbDrawAreaTitle, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, mdinfo->Width, mdinfo->Height, sdlFlags);
     }
     if (lbWindow == NULL) {
         ERRORLOG("SDL_CreateWindow: %s", SDL_GetError());
@@ -529,6 +553,8 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
         if (msspr != NULL)
           LbMouseChangeSpriteAndHotspot(msspr, hot_x, hot_y);
     }
+
+    setup_bflib_render(lbDisplay.GraphicsScreenWidth, lbDisplay.GraphicsScreenHeight);
     SYNCDBG(8,"Finished");
     return Lb_SUCCESS;
 }
@@ -632,20 +658,20 @@ TbResult LbPaletteGet(unsigned char *palette)
 
 TbResult LbSetTitle(const char *title)
 {
-  strncpy(lbDrawAreaTitle, title, sizeof(lbDrawAreaTitle)-1);
-  return Lb_SUCCESS;
+    snprintf(lbDrawAreaTitle, sizeof(lbDrawAreaTitle), "%s", title);
+    return Lb_SUCCESS;
 }
 
 TbResult LbSetIcon(unsigned short nicon)
 {
-  lbIconIndex = nicon;
-  return Lb_SUCCESS;
+    lbIconIndex = nicon;
+    return Lb_SUCCESS;
 }
 
 TbScreenModeInfo *LbScreenGetModeInfo(TbScreenMode mode)
 {
     if (mode < lbScreenModeInfoNum)
-      return &lbScreenModeInfo[mode];
+        return &lbScreenModeInfo[mode];
     return &lbScreenModeInfo[0];
 }
 
@@ -663,6 +689,7 @@ TbResult LbScreenReset(void)
         SDL_FreeSurface(lbDrawSurface);
     }
     //do not free screen surface, it is freed automatically on SDL_Quit or next call to set video mode
+    finish_bflib_render();
     lbHasSecondSurface = false;
     lbDrawSurface = NULL;
     lbScreenSurface = NULL;
@@ -714,7 +741,7 @@ TbResult LbScreenSetGraphicsWindow(long x, long y, long width, long height)
     long i;
     long x2 = x + width;
     long y2 = y + height;
-    if (x2 < x)
+    if (x2 < x)  //Alarm! Voodoo magic detected!
     {
         i = (x ^ x2);
         x = x ^ i;
@@ -842,7 +869,7 @@ TbScreenMode LbRegisterVideoMode(const char *desc, TbScreenCoord width, TbScreen
     mdinfo->BitsPerPixel = bpp;
     mdinfo->Available = false;
     mdinfo->VideoFlags = flags;
-    strncpy(mdinfo->Desc,desc,sizeof(mdinfo->Desc));
+    snprintf(mdinfo->Desc, sizeof(mdinfo->Desc), "%s", desc);
     return mode;
 }
 

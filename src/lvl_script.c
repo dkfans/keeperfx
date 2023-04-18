@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include <math.h>
 
 #include "lvl_script.h"
@@ -33,14 +34,15 @@
 #include "lvl_script_value.h"
 #include "lvl_script_commands_old.h"
 #include "lvl_script_commands.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /******************************************************************************/
-
-
+unsigned char next_command_reusable;
+/******************************************************************************/
 const struct CommandDesc *get_next_word(char **line, char *param, int *para_level, const struct CommandDesc *cmdlist_desc)
 {
     char chr;
@@ -89,7 +91,7 @@ const struct CommandDesc *get_next_word(char **line, char *param, int *para_leve
             if (pos+1 >= MAX_TEXT_LENGTH) break;
         }
         param[pos] = '\0';
-        strupr(param);
+        make_uppercase(param);
         // Check if it's a command
         int i = 0;
         cmnd_desc = NULL;
@@ -256,13 +258,10 @@ static void process_fx_line(struct ScriptFxLine *fx_line)
         fx_line->here.z.val = get_floor_height_at(&fx_line->here);
         if (fx_line->here.z.val < FILLED_COLUMN_HEIGHT)
         {
-          if (fx_line->effect > 0)
-          {
-            create_effect(&fx_line->here, fx_line->effect, 5); // Owner - neutral
-          } else if (fx_line->effect < 0)
-          {
-            create_effect_element(&fx_line->here, -fx_line->effect, 5); // Owner - neutral
-          }
+            if (fx_line->effect != 0)
+            {
+                create_used_effect_or_element(&fx_line->here, fx_line->effect, PLAYER_NEUTRAL);
+            }
         }
 
         fx_line->step++;
@@ -417,7 +416,7 @@ TbBool script_command_param_to_text(char type_chr, struct ScriptLine *scline, in
     switch (toupper(type_chr))
     {
     case 'N':
-        itoa(scline->np[idx], scline->tp[idx], 10);
+        snprintf(scline->tp[idx], MAX_TEXT_LENGTH, "%ld", scline->np[idx]);
         break;
     case 'P':
         strcpy(scline->tp[idx], player_code_name(scline->np[idx]));
@@ -536,6 +535,7 @@ int script_recognize_params(char **line, const struct CommandDesc *cmd_desc, str
                 long range_total = 0;
                 int fi;
                 struct MinMax ranges[COMMANDDESC_ARGS_COUNT];
+                TbBool is_if_statement = ((scline->command == Cmd_IF) || (scline->command == Cmd_IF_AVAILABLE) || (scline->command == Cmd_IF_CONTROLS));
                 if (level_file_version > 0)
                 {
                     chr = cmd_desc->args[src];
@@ -545,7 +545,7 @@ int script_recognize_params(char **line, const struct CommandDesc *cmd_desc, str
                         if (funscline->tp[fi][0] == '\0') {
                             break;
                         }
-                        if (toupper(chr) == 'A')
+                        if ((toupper(chr) == 'A') && (!is_if_statement) ) //Strings don't have a range, but IF statements have 'Aa' to allow both variable compare and numbers. Numbers are allowed, 'a' is a string for sure.
                         {
                             // Values which do not support range
                             if (strcmp(funscline->tp[fi],"~") == 0) {
@@ -556,13 +556,17 @@ int script_recognize_params(char **line, const struct CommandDesc *cmd_desc, str
                             // Values of that type cannot define ranges, as we cannot interpret them
                             ranges[ri].min = fi;
                             ranges[ri].max = fi;
-                            range_total += 1;
+                            range_total++;
                         } else
                         if ((ri > 0) && (strcmp(funscline->tp[fi],"~") == 0))
                         {
                             // Second step of defining range
                             ri--;
                             fi++;
+                            if (funscline->tp[fi][0] != '\0')
+                            {
+                                funscline->np[fi] = atol(funscline->tp[fi]);
+                            }
                             if (!script_command_param_to_number(chr, funscline, fi, false)) {
                                 SCRPTERRLOG("Parameter %d of function \"%s\" within command \"%s\" has unexpected range end value; discarding command", fi+1, funcmd_desc->textptr, scline->tcmnd);
                                 LbMemoryFree(funscline);
@@ -582,9 +586,13 @@ int script_recognize_params(char **line, const struct CommandDesc *cmd_desc, str
                                 LbMemoryFree(funscline);
                                 return -1;
                             }
+                            if (funscline->np[fi] == '\0')
+                            {
+                                funscline->np[fi] = atol(funscline->tp[fi]);
+                            }
                             ranges[ri].min = funscline->np[fi];
                             ranges[ri].max = funscline->np[fi];
-                            range_total += 1;
+                            range_total++;
                         }
                     }
                 } else
@@ -626,7 +634,15 @@ int script_recognize_params(char **line, const struct CommandDesc *cmd_desc, str
                     if ((range_index >= range_total) && (range_index <= range_total + ranges[fi].max - ranges[fi].min)) {
                         chr = cmd_desc->args[src];
                         if (toupper(chr) == 'A') {
-                            strcpy(scline->tp[dst], funscline->tp[ranges[fi].min]);
+                            if (is_if_statement)
+                            {
+                                scline->np[dst] = ranges[fi].min + range_index - range_total;
+                                ltoa(scline->np[dst], scline->tp[dst], 10);
+                            }
+                            else
+                            {
+                                strcpy(scline->tp[dst], funscline->tp[ranges[fi].min]);
+                            }
                         } else {
                             scline->np[dst] = ranges[fi].min + range_index - range_total;
                             // Set text value for that number
@@ -656,7 +672,7 @@ int script_recognize_params(char **line, const struct CommandDesc *cmd_desc, str
                 }
                 SCRPTLOG("Function \"%s\" returned value \"%ld\"", funcmd_desc->textptr,
                     intralvl.campaign_flags[player_id][flag_id]);
-                ltoa(intralvl.campaign_flags[player_id][flag_id], scline->tp[dst], 10);
+                snprintf(scline->tp[dst], MAX_TEXT_LENGTH, "%ld", intralvl.campaign_flags[player_id][flag_id]);
                 break;
             }
             default:
@@ -757,7 +773,6 @@ long script_scan_line(char *line,TbBool preloaded)
 
 short clear_script(void)
 {
-    LbMemorySet(&game.script, 0, sizeof(struct LevelScriptOld));
     LbMemorySet(&gameadd.script, 0, sizeof(struct LevelScript));
     gameadd.script.next_string = gameadd.script.strings;
     set_script_current_condition(CONDITION_ALWAYS);
@@ -799,7 +814,41 @@ static char* process_multiline_comment(char *buf, char *buf_end)
     return buf;
 }
 
-short preload_script(long lvnum)
+static void parse_txt_data(char *script_data, long script_len)
+{// Process the file lines
+    char* buf = script_data;
+    char* buf_end = script_data + script_len;
+    while (buf < buf_end)
+    {
+        // Check for long comment
+        buf = process_multiline_comment(buf, buf_end);
+      // Find end of the line
+      int lnlen = 0;
+      while (&buf[lnlen] < buf_end)
+      {
+        if ((buf[lnlen] == '\r') || (buf[lnlen] == '\n'))
+          break;
+        lnlen++;
+      }
+      // Get rid of the next line characters
+      buf[lnlen] = 0;
+      lnlen++;
+      if (&buf[lnlen] < buf_end)
+      {
+        if ((buf[lnlen] == '\r') || (buf[lnlen] == '\n'))
+          lnlen++;
+      }
+      //SCRPTLOG("Analyse");
+      // Analyze the line
+      script_scan_line(buf, true);
+      // Set new line start
+      text_line_number++;
+      buf += lnlen;
+    }
+    LbMemoryFree(script_data);
+}
+
+TbBool preload_script(long lvnum)
 {
   SYNCDBG(7,"Starting");
   set_script_current_condition(CONDITION_ALWAYS);
@@ -811,38 +860,11 @@ short preload_script(long lvnum)
   long script_len = 1;
   char* script_data = (char*)load_single_map_file_to_buffer(lvnum, "txt", &script_len, LMFF_None);
   if (script_data == NULL)
-    return false;
-  // Process the file lines
-  char* buf = script_data;
-  char* buf_end = script_data + script_len;
-  while (buf < buf_end)
   {
-      // Check for long comment
-      buf = process_multiline_comment(buf, buf_end);
-    // Find end of the line
-    int lnlen = 0;
-    while (&buf[lnlen] < buf_end)
-    {
-      if ((buf[lnlen] == '\r') || (buf[lnlen] == '\n'))
-        break;
-      lnlen++;
-    }
-    // Get rid of the next line characters
-    buf[lnlen] = 0;
-    lnlen++;
-    if (&buf[lnlen] < buf_end)
-    {
-      if ((buf[lnlen] == '\r') || (buf[lnlen] == '\n'))
-        lnlen++;
-    }
-    //SCRPTLOG("Analyse");
-    // Analyze the line
-    script_scan_line(buf, true);
-    // Set new line start
-    text_line_number++;
-    buf += lnlen;
+      // Here we could load lua instead
+      return false;
   }
-  LbMemoryFree(script_data);
+  parse_txt_data(script_data, script_len);
   SYNCDBG(8,"Finished");
   return true;
 }
@@ -862,6 +884,7 @@ short load_script(long lvnum)
     game.flags_cd |= MFlg_DeadBackToPool;
     reset_creature_max_levels();
     reset_script_timers_and_flags();
+    reset_hand_rules();
     if ((game.operation_flags & GOF_ColumnConvert) != 0)
     {
         convert_old_column_file(lvnum);

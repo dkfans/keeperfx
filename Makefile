@@ -40,7 +40,6 @@ CPP      = $(CROSS_COMPILE)g++
 CC       = $(CROSS_COMPILE)gcc
 WINDRES  = $(CROSS_COMPILE)windres
 DLLTOOL  = $(CROSS_COMPILE)dlltool
-EXETODLL = tools/peresec/bin/peresec$(CROSS_EXEEXT)
 DOXYTOOL = doxygen
 BUILD_NUMBER ?= $(VER_BUILD)
 PACKAGE_SUFFIX ?= Prototype
@@ -65,13 +64,14 @@ HVLOGBIN = bin/keeperfx_hvlog$(EXEEXT)
 # Names of intermediate build products
 GENSRC   = obj/ver_defs.h
 RES      = obj/keeperfx_stdres.res
-LIBS     = obj/libkeeperfx.a
+LIBS     = obj/enet.a
 
 DEPS = \
 obj/spng.o \
 obj/json/json.o \
 obj/json/value.o \
 obj/json/json-dom.o \
+obj/centitoml/toml_api.o \
 obj/unzip.o \
 obj/ioapi.o
 
@@ -96,11 +96,11 @@ obj/bflib_cpu.o \
 obj/bflib_crash.o \
 obj/bflib_datetm.o \
 obj/bflib_dernc.o \
+obj/bflib_enet.o \
 obj/bflib_fileio.o \
 obj/bflib_filelst.o \
 obj/bflib_fmvids.o \
 obj/bflib_guibtns.o \
-obj/bflib_heapmgr.o \
 obj/bflib_inputctrl.o \
 obj/bflib_keybrd.o \
 obj/bflib_main.o \
@@ -109,12 +109,9 @@ obj/bflib_memory.o \
 obj/bflib_mouse.o \
 obj/bflib_mshandler.o \
 obj/bflib_mspointer.o \
-obj/bflib_nethost_udp.o \
-obj/bflib_netlisten_udp.o \
 obj/bflib_netsession.o \
 obj/bflib_netsp.o \
 obj/bflib_netsp_ipx.o \
-obj/bflib_netsp_tcp.o \
 obj/bflib_netsync.o \
 obj/bflib_network.o \
 obj/bflib_planar.o \
@@ -236,7 +233,6 @@ obj/gui_parchment.o \
 obj/gui_soundmsgs.o \
 obj/gui_tooltips.o \
 obj/gui_topmsg.o \
-obj/hookfn.o \
 obj/kjm_input.o \
 obj/lens_api.o \
 obj/config_effects.o \
@@ -254,6 +250,7 @@ obj/magic.o \
 obj/main_game.o \
 obj/map_blocks.o \
 obj/map_columns.o \
+obj/map_ceiling.o \
 obj/map_data.o \
 obj/map_events.o \
 obj/map_locations.o \
@@ -312,6 +309,7 @@ obj/thing_physics.o \
 obj/thing_shots.o \
 obj/thing_stats.o \
 obj/thing_traps.o \
+obj/value_util.o \
 obj/vidfade.o \
 obj/vidmode_data.o \
 obj/vidmode.o \
@@ -322,7 +320,9 @@ MAIN_OBJ = obj/main.o
 
 TESTS_OBJ = obj/tests/tst_main.o \
 obj/tests/tst_fixes.o \
-obj/tests/001_test.o
+obj/tests/001_test.o \
+obj/tests/tst_enet_server.o \
+obj/tests/tst_enet_client.o
 
 CU_DIR = deps/CUnit-2.1-3/CUnit
 CU_INC = -I"$(CU_DIR)/Headers"
@@ -334,11 +334,11 @@ CU_OBJS = \
 	obj/cu/Util.o
 
 # include and library directories
-LINKLIB =  -L"sdl/lib" -mwindows obj/libkeeperfx.a \
+LINKLIB =  -L"sdl/lib" -mwindows obj/enet.a \
 	-lwinmm -lmingw32 -limagehlp -lSDL2main -lSDL2 -lSDL2_mixer -lSDL2_net \
-	-L"deps/zlib" -lz
-INCS =  -I"sdl/include" -I"sdl/include/SDL2"
-CXXINCS =  -I"sdl/include" -I"sdl/include/SDL2"
+	-L"deps/zlib" -lz -lws2_32
+INCS =  -I"sdl/include" -I"sdl/include/SDL2" -I"deps/enet/include" -I"deps/centijson/src" -I"deps/centitoml"
+CXXINCS =  $(INCS)
 
 STDOBJS   = $(subst obj/,obj/std/,$(OBJS))
 HVLOGOBJS = $(subst obj/,obj/hvlog/,$(OBJS))
@@ -380,38 +380,13 @@ CXXFLAGS = $(CXXINCS) -c -std=gnu++1y -fmessage-length=0 $(WARNFLAGS) $(DEPFLAGS
 CFLAGS = $(INCS) -c -std=gnu11 -fmessage-length=0 $(WARNFLAGS) -Werror=implicit $(DEPFLAGS) $(OPTFLAGS) $(DBGFLAGS) $(INCFLAGS)
 LDFLAGS = $(LINKLIB) $(OPTFLAGS) $(DBGFLAGS) $(LINKFLAGS) -Wl,-Map,"$(@:%.exe=%.map)"
 
-CAMPAIGNS  = \
-ami2019 \
-ancntkpr \
-burdnimp \
-cqarctic \
-dstninja \
-dzjr06lv \
-dzjr10lv \
-dzjr25lv \
-evilkeep \
-grkreign \
-jdkmaps8 \
-kdklvpck \
-keeporig \
-lqizgood \
-lrdvexer \
-ncastles \
-origplus \
-postanck \
-pstunded \
-questfth \
-revlord \
-twinkprs \
-undedkpr
+ifeq ($(USE_PRE_FILE), 1)
+CXXFLAGS += -DUSE_PRE_FILE=1
+CFLAGS += -DUSE_PRE_FILE=1
+endif
 
-MAPPACKS  = \
-classic \
-deepdngn \
-legacy \
-lostlvls \
-standard
-
+CAMPAIGNS = $(patsubst campgns/%.cfg,%,$(wildcard campgns/*.cfg))
+MAPPACKS = $(patsubst levels/%.cfg,%,$(filter-out %/personal.cfg,$(wildcard levels/*.cfg)))
 LANGS = eng chi cht cze dut fre ger ita jpn kor lat pol rus spa swe
 
 # load program version
@@ -423,7 +398,7 @@ VER_STRING = $(VER_MAJOR).$(VER_MINOR).$(VER_RELEASE).$(BUILD_NUMBER) $(PACKAGE_
 include prebuilds.mk
 
 # name virtual targets
-.PHONY: all docs docsdox clean clean-build deep-clean
+.PHONY: all docs docsdox clean clean-build deep-clean build-before
 .PHONY: standard std-before std-after
 .PHONY: heavylog hvlog-before hvlog-after
 .PHONY: package clean-package deep-clean-package
@@ -435,7 +410,7 @@ include prebuilds.mk
 -include $(filter %.d,$(STDOBJS:%.o=%.d))
 -include $(filter %.d,$(HVLOGOBJS:%.o=%.d))
 
-all: standard
+all: clean standard
 
 standard: CXXFLAGS += $(STLOGFLAGS)
 standard: CFLAGS += $(STLOGFLAGS)
@@ -446,9 +421,19 @@ heavylog: CFLAGS += $(HVLOGFLAGS)
 heavylog: hvlog-before $(HVLOGBIN) hvlog-after
 
 # not nice but necessary for make -j to work
-$(shell $(MKDIR) bin obj/std obj/hvlog obj/tests obj/cu obj/std/json obj/hvlog/json)
-std-before:
-hvlog-before:
+FOLDERS = bin obj/std obj/hvlog \
+obj/tests obj/cu \
+obj/std/json obj/hvlog/json \
+obj/std/centitoml obj/hvlog/centitoml \
+obj/enet
+
+$(shell $(MKDIR) $(FOLDERS))
+
+# We need this file because we need git update
+build-before: libexterns deps/zlib/configure.log
+
+std-before: build-before
+hvlog-before: build-before
 
 docs: docsdox
 
@@ -457,7 +442,10 @@ docsdox: docs/doxygen.conf
 
 deep-clean: deep-clean-tools deep-clean-libexterns deep-clean-package
 
-clean: clean-build clean-tools clean-libexterns clean-package
+clean: submodule clean-build clean-tools clean-libexterns clean-package
+
+submodule:
+	-git submodule init && git submodule update
 
 clean-build:
 	-$(RM) $(STDOBJS) $(STD_MAIN_OBJ) $(filter %.d,$(STDOBJS:%.o=%.d)) $(filter %.d,$(STD_MAIN_OBJ:%.o=%.d))
@@ -501,12 +489,17 @@ obj/std/spng.o obj/hvlog/spng.o: deps/libspng/spng/spng.c deps/zlib/libz.a
 
 obj/std/json/%.o obj/hvlog/json/%.o: deps/centijson/src/%.c
 	-$(ECHO) 'Building file: $<'
-	$(CC) $(CFLAGS) -I"deps/centijson/src" -o"$@" "$<"
+	$(CC) $(CFLAGS) -o"$@" "$<"
+	-$(ECHO) ' '
+
+obj/std/centitoml/toml_api.o obj/hvlog/centitoml/toml_api.o: deps/centitoml/toml_api.c build-before
+	-$(ECHO) 'Building file: $<'
+	$(CC) $(CFLAGS) -o"$@" "$<"
 	-$(ECHO) ' '
 
 obj/std/unzip.o obj/hvlog/unzip.o: deps/zlib/contrib/minizip/unzip.c
 	-$(ECHO) 'Building file: $<'
-	$(CC) $(CFLAGS) -I"deps/zlib" -o"$@" "$<"
+	$(CC) $(CFLAGS) -Wno-shadow -I"deps/zlib" -o"$@" "$<"
 	-$(ECHO) ' '
 
 obj/std/ioapi.o obj/hvlog/ioapi.o: deps/zlib/contrib/minizip/ioapi.c
@@ -514,9 +507,14 @@ obj/std/ioapi.o obj/hvlog/ioapi.o: deps/zlib/contrib/minizip/ioapi.c
 	$(CC) $(CFLAGS) -I"deps/zlib" -o"$@" "$<"
 	-$(ECHO) ' '
 
+obj/std/lvl_filesdk1.o obj/hvlog/lvl_filesdk1.o: src/lvl_filesdk1.c deps/zlib/contrib/minizip/unzip.c
+	-$(ECHO) 'Building file: $<'
+	$(CC) $(CFLAGS) -I"deps/zlib" -I"deps/zlib/contrib/minizip" -o"$@" "$<"
+	-$(ECHO) ' '
+
 obj/std/custom_sprites.o obj/hvlog/custom_sprites.o: src/custom_sprites.c deps/zlib/contrib/minizip/unzip.c
 	-$(ECHO) 'Building file: $<'
-	$(CC) $(CFLAGS) -I"deps/libspng/spng" -I"deps/centijson/src" -I"deps/zlib" -I"deps/zlib/contrib/minizip" -o"$@" "$<"
+	$(CC) $(CFLAGS) -I"deps/libspng/spng" -I"deps/zlib" -I"deps/zlib/contrib/minizip" -o"$@" "$<"
 	-$(ECHO) ' '
 
 obj/tests/%.o: tests/%.cpp $(GENSRC)
@@ -532,11 +530,15 @@ obj/cu/%.o: $(CU_DIR)/Sources/Basic/%.c
 
 obj/std/%.o obj/hvlog/%.o: src/%.cpp libexterns $(GENSRC)
 	-$(ECHO) 'Building file: $<'
+	@grep -E "#include \"pre_inc.h\"" "$<" >/dev/null || echo "\n\nAll files should have #include \"pre_inc.h\" as first include\n\n" >&2 | false
+	@grep -E "#include \"post_inc.h\"" "$<" >/dev/null || echo "\n\nAll files should have #include \"post_inc.h\" as last include\n\n" >&2 | false
 	$(CPP) $(CXXFLAGS) -o"$@" "$<"
 	-$(ECHO) ' '
 
 obj/std/%.o obj/hvlog/%.o: src/%.c libexterns $(GENSRC)
 	-$(ECHO) 'Building file: $<'
+	@grep -E "#include \"pre_inc.h\"" "$<" >/dev/null || echo "\n\nAll files should have #include \"pre_inc.h\" as first include\n\n" >&2 | false
+	@grep -E "#include \"post_inc.h\"" "$<" >/dev/null || echo "\n\nAll files should have #include \"post_inc.h\" as last include\n\n" >&2 | false
 	$(CC) $(CFLAGS) -o"$@" "$<"
 	-$(ECHO) ' '
 
@@ -562,16 +564,6 @@ obj/ver_defs.h: version.mk Makefile
 	$(ECHO) \#define GIT_REVISION  \"`git describe  --always`\" >> "$(@D)/tmp"
 	$(MV) "$(@D)/tmp" "$@"
 
-obj/libkeeperfx.a: bin/keeperfx.dll obj/keeperfx.def
-	-$(ECHO) 'Generating gcc library archive for: $<'
-	$(DLLTOOL) --dllname "$<" --def "obj/keeperfx.def" --output-lib "$@"
-	-$(ECHO) ' '
-
-bin/keeperfx.dll obj/keeperfx.def: lib/keeper95_gold.dll lib/keeper95_gold.map $(EXETODLL)
-	-$(ECHO) 'Rebuilding DLL export table from: $<'
-	$(EXETODLL) -o"$@" --def "obj/keeperfx.def" -p"_DK_" "$<"
-	-$(ECHO) ' '
-
 tests: std-before $(TEST_BIN)
 
 libexterns: libexterns.mk
@@ -579,22 +571,26 @@ libexterns: libexterns.mk
 
 clean-libexterns: libexterns.mk
 	-$(MAKE) -f libexterns.mk clean-libexterns
+	-$(MAKE) -f enet.mk clean
 	-cd deps/zlib && $(MAKE) -f win32/Makefile.gcc clean
 	-cd deps/zlib && git checkout Makefile zconf.h
 	-$(RM) libexterns
 
-deps/centijson/src/json.c deps/centijson/src/value.c deps/centijson/src/json-dom.c: deps/zlib/configure.log
-deps/libspng/spng/spng.c: deps/zlib/configure.log
-deps/zlib/contrib/minizip/unzip.c deps/zlib/contrib/minizip/ioapi.c: deps/zlib/configure.log
+deps/centijson/src/json.c deps/centijson/src/value.c deps/centijson/src/json-dom.c: build-before
+deps/libspng/spng/spng.c: build-before
+deps/zlib/contrib/minizip/unzip.c deps/zlib/contrib/minizip/ioapi.c: build-before
 
 
 deps/zlib/configure.log:
-	git submodule sync && git submodule update --init && cd deps/zlib && ./configure --static
+	git submodule sync && git submodule update --init
+	cd deps/zlib && ./configure --static
 
 deps/zlib/libz.a: deps/zlib/configure.log
 	cd deps/zlib && $(MAKE) -f win32/Makefile.gcc PREFIX=$(CROSS_COMPILE) libz.a
 
-include tool_peresec.mk
+obj/enet.a:
+	$(MAKE) -f enet.mk PREFIX=$(CROSS_COMPILE) WARNFLAGS=$(WARNFLAGS) obj/enet.a
+
 include tool_png2ico.mk
 include tool_pngpal2raw.mk
 include tool_png2bestpal.mk
@@ -603,10 +599,10 @@ include tool_sndbanker.mk
 include tool_rnctools.mk
 #include tool_dkillconv.mk
 
-include package.mk
 include pkg_lang.mk
 include pkg_gfx.mk
 include pkg_sfx.mk
+include package.mk
 
 export RM CP MKDIR MV ECHO
 #******************************************************************************

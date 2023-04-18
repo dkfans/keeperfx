@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "config_trapdoor.h"
 #include "globals.h"
 
@@ -31,6 +32,7 @@
 #include "player_states.h"
 #include "game_legacy.h"
 #include "custom_sprites.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -84,6 +86,19 @@ const struct NamedCommand trapdoor_trap_commands[] = {
   {"HIDDEN",               20},
   {"SLAPPABLE",            21},
   {"TRIGGERALARM",         22},
+  {"HEALTH",               23},
+  {"UNSHADED",             24},
+  {"RANDOMSTARTFRAME",     25},
+  {"THINGSIZE",            26},
+  {"HITTYPE",              27},
+  {"LIGHTRADIUS",          28},
+  {"LIGHTINTENSITY",       29},
+  {"LIGHTFLAGS",           30},
+  {"TRANSPARENCYFLAGS",    31},
+  {"SHOTVECTOR",           32},
+  {"DESTRUCTIBLE",         33},
+  {"UNSTABLE",             34},
+  {"UNSELLABLE",           35},
   {NULL,                    0},
 };
 /******************************************************************************/
@@ -243,7 +258,32 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
           trapst->panel_tab_idx = 0;
           trapst->hidden = 0;
           trapst->slappable = 0;
+          trapst->destructible = 0;
+          trapst->unstable = 0;
+          trapst->unsellable = 0;
           trapst->notify = 0;
+
+          gameadd.trap_stats[i].health = 0;
+          gameadd.trap_stats[i].sprite_anim_idx = 0;
+          gameadd.trap_stats[i].sprite_size_max = 0;
+          gameadd.trap_stats[i].unanimated = 0;
+          gameadd.trap_stats[i].anim_speed = 0;
+          gameadd.trap_stats[i].unshaded = 0;
+          gameadd.trap_stats[i].transparency_flag = 0;
+          gameadd.trap_stats[i].random_start_frame = 0;
+          gameadd.trap_stats[i].size_xy = 0;
+          gameadd.trap_stats[i].size_yz = 0;
+          gameadd.trap_stats[i].trigger_type = 0;
+          gameadd.trap_stats[i].activation_type = 0;
+          gameadd.trap_stats[i].created_itm_model = 0;
+          gameadd.trap_stats[i].hit_type = 0;
+          gameadd.trap_stats[i].light_radius = 0;
+          gameadd.trap_stats[i].light_intensity = 0;
+          gameadd.trap_stats[i].light_flag = 0;
+          gameadd.trap_stats[i].shotvector.x = 0;
+          gameadd.trap_stats[i].shotvector.y = 0;
+          gameadd.trap_stats[i].shotvector.z = 0;
+
           if (i < gameadd.trapdoor_conf.trap_types_count)
           {
               trap_desc[i].name = trapst->code_name;
@@ -644,6 +684,241 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
           {
             CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
                 COMMAND_TEXT(cmd_num),block_buf,config_textname);
+          }
+          break;
+      case 23: // HEALTH
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              if (k >= 0)
+              {
+                  gameadd.trap_stats[i].health = k;
+                  n++;
+              }
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 24: // UNSHADED
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              if (k >= 0)
+              {
+                  gameadd.trap_stats[i].unshaded = k;
+                  n++;
+              }
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 25: // RANDOMSTARTFRAME
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              if (k >= 0)
+              {
+                  gameadd.trap_stats[i].random_start_frame = k;
+                  n++;
+              }
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 26: // THINGSIZE
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              if (k >= 0)
+              {
+                  gameadd.trap_stats[i].size_xy = k;
+                  n++;
+              }
+          }
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              if (k >= 0)
+              {
+                  gameadd.trap_stats[i].size_yz = k;
+                  n++;
+              }
+          }
+          if (n < 2)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break; 
+      case 27: // HITTYPE
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              if (k >= 0)
+              {
+                  gameadd.trap_stats[i].hit_type = k;
+                  n++;
+              }
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 28: // LIGHTRADIUS
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              if (k >= 0)
+              {
+                  gameadd.trap_stats[i].light_radius = k;
+                  n++;
+              }
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+        case 29: // LIGHTINTENSITY
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                if (k >= 0)
+                {
+                    gameadd.trap_stats[i].light_intensity = k;
+                    n++;
+                }
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), block_buf, config_textname);
+            }
+            break;
+        case 30: // LIGHTFLAGS
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                if (k >= 0)
+                {
+                    gameadd.trap_stats[i].light_flag = k;
+                    n++;
+                }
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), block_buf, config_textname);
+            }
+            break;
+      case 31: // LIGHTFLAGS
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              if (k >= 0)
+              {
+                  gameadd.trap_stats[i].light_flag = k;
+                  n++;
+              }
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 32: // SHOTVECTOR
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              if (k >= 0)
+              {
+                  gameadd.trap_stats[i].shotvector.x = k;
+                  n++;
+              }
+          }
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              if (k >= 0)
+              {
+                  gameadd.trap_stats[i].shotvector.y = k;
+                  n++;
+              }
+          }
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              if (k >= 0)
+              {
+                  gameadd.trap_stats[i].shotvector.z = k;
+                  n++;
+              }
+          }
+          if (n < 3)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 33: // DESTRUCTIBLE
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              if (k >= 0)
+              {
+                  trapst->destructible = k;
+                  n++;
+              }
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 34: // UNSTABLE
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              if (k >= 0)
+              {
+                  trapst->unstable = k;
+                  n++;
+              }
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 35: // UNSELLABLE
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              if (k >= 0)
+              {
+                  trapst->unsellable = k;
+                  n++;
+              }
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
           break;
       case 0: // comment
@@ -1063,7 +1338,6 @@ TbBool create_manufacture_array_from_trapdoor_data(void)
 
 TbBool load_trapdoor_config(const char *conf_fname, unsigned short flags)
 {
-    memcpy(gameadd.trap_stats, old_trap_stats, sizeof(old_trap_stats));
     static const char config_global_textname[] = "global traps and doors config";
     static const char config_campgn_textname[] = "campaign traps and doors config";
     char* fname = prepare_file_path(FGrp_FxData, conf_fname);

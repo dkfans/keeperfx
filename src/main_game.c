@@ -1,3 +1,17 @@
+/******************************************************************************/
+// Free implementation of Bullfrog's Dungeon Keeper strategy game.
+/******************************************************************************/
+/** @file main_game.c
+ * @author KeeperFX Team
+ * @date 24 Sep 2021
+ * @par  Copying and copyrights:
+ *     This program is free software; you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation; either version 2 of the License, or
+ *     (at your option) any later version.
+ */
+/******************************************************************************/
+#include "pre_inc.h"
 #include "keeperfx.hpp"
 
 #include "bflib_coroutine.h"
@@ -29,6 +43,7 @@
 #include "vidmode.h"
 #include "custom_sprites.h"
 #include "gui_boxmenu.h"
+#include "post_inc.h"
 
 extern TbBool force_player_num;
 
@@ -109,7 +124,6 @@ static void init_level(void)
 {
     SYNCDBG(6,"Starting");
     struct IntralevelData transfer_mem;
-    //_DK_init_level(); return;
     //LbMemoryCopy(&transfer_mem,&game.intralvl.transferred_creature,sizeof(struct CreatureStorage));
     LbMemoryCopy(&transfer_mem,&intralvl,sizeof(struct IntralevelData));
     game.flags_gui = GGUI_SoloChatEnabled;
@@ -144,12 +158,26 @@ static void init_level(void)
 
     erstats_clear();
     init_dungeons();
+    init_map_size(get_selected_level_number());
+    clear_messages();
     // Load the actual level files
-    preload_script(get_selected_level_number());
-    load_map_file(get_selected_level_number());
+    TbBool script_preloaded = preload_script(get_selected_level_number());
+    if (!load_map_file(get_selected_level_number()))
+    {
+        // TODO: whine about missing file to screen
+        JUSTMSG("Unable to load level %d from %s", get_selected_level_number(), campaign.name);
+        return;
+    }
+    else
+    {
+        if (script_preloaded == false)
+        {
+            show_onscreen_msg(200,"%s: No Script %d", get_string(GUIStr_Error), get_selected_level_number());
+            JUSTMSG("Unable to load script level %d from %s", get_selected_level_number(), campaign.name);
+        }
+    }
 
     init_navigation();
-    clear_messages();
     LbStringCopy(game.campaign_fname,campaign.fname,sizeof(game.campaign_fname));
 #ifdef AUTOTESTING
     if (start_params.autotest_flags & ATF_FixedSeed)
@@ -164,11 +192,6 @@ static void init_level(void)
     // on computers in MP, as it shouldn't affect game actions)
     game.unsync_rand_seed = (unsigned long)LbTimeSec();
 #endif
-    if (!SoundDisabled)
-    {
-        game.field_14BB54 = (UNSYNC_RANDOM(67) % 3 + 1);
-        game.field_14BB55 = 0;
-    }
     light_set_lights_on(1);
     {
         struct PlayerInfo *player;
@@ -183,7 +206,7 @@ static void init_level(void)
     ambient_sound_prepare();
     zero_messages();
     game.armageddon_cast_turn = 0;
-    game.armageddon_field_15035A = 0;
+    game.armageddon_over_turn = 0;
     init_messages();
     game.creatures_tend_imprison = 0;
     game.creatures_tend_flee = 0;
@@ -284,7 +307,6 @@ static CoroutineLoopState startup_network_game_tail(CoroutineLoop *context);
 void startup_network_game(CoroutineLoop *context, TbBool local)
 {
     SYNCDBG(0,"Starting up network game");
-    //_DK_startup_network_game(); return;
     unsigned int flgmem;
     struct PlayerInfo *player;
     setup_count_players();
@@ -390,7 +412,6 @@ void clear_complete_game(void)
     game.turns_packetoff = -1;
     game.local_plyr_idx = default_loc_player;
     game.packet_checksum_verify = start_params.packet_checksum_verify;
-    game.numfield_1503A2 = -1;
     game.flags_font = start_params.flags_font;
     game.numfield_149F47 = 0;
     // Set levels to 0, as we may not have the campaign loaded yet
@@ -405,7 +426,7 @@ void clear_complete_game(void)
     set_flag_byte(&game.system_flags,GSF_AllowOnePlayer,start_params.one_player);
     gameadd.computer_chat_flags = start_params.computer_chat_flags;
     game.operation_flags = start_params.operation_flags;
-    strncpy(game.packet_fname,start_params.packet_fname,150);
+    snprintf(game.packet_fname,150, "%s", start_params.packet_fname);
     game.packet_save_enable = start_params.packet_save_enable;
     game.packet_load_enable = start_params.packet_load_enable;
     my_player_number = default_loc_player;

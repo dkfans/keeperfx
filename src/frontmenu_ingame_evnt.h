@@ -33,10 +33,7 @@ struct GuiMenu;
 struct GuiButton;
 
 /******************************************************************************/
-DLLIMPORT struct GuiButtonInit _DK_text_info_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_battle_buttons[];
-DLLIMPORT extern unsigned short _DK_battle_creature_over;
-#define battle_creature_over _DK_battle_creature_over
+extern unsigned short battle_creature_over;
 
 #pragma pack()
 /******************************************************************************/
@@ -64,7 +61,6 @@ TbBool display_variable_enabled(void);
 void draw_script_variable(PlayerNumber plyr_idx, unsigned char valtype, unsigned char validx, long target, unsigned char targettype);
 
 extern unsigned long TimerTurns;
-extern int debug_display_frametime;
 /******************************************************************************/
 #ifdef __cplusplus
 }

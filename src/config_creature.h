@@ -31,11 +31,6 @@
 extern "C" {
 #endif
 
-#define CREATURE_TYPES_MAX 64
-#define SWAP_CREATURE_TYPES_MAX 64
-#define INSTANCE_TYPES_MAX 64
-#define CREATURE_STATES_MAX 256
-
 #define CREATURE_NONE 255
 #define CREATURE_ANY  254
 #define CREATURE_NOT_A_DIGGER  253
@@ -139,15 +134,16 @@ enum JobKindFlags {
 };
 
 enum InstancePropertiesFlags {
-    InstPF_None               = 0x00,
-    InstPF_RepeatTrigger      = 0x01,
-    InstPF_RangedAttack       = 0x02,
-    InstPF_MeleeAttack        = 0x04,
-    InstPF_SelfBuff           = 0x08,
-    InstPF_RangedDebuff       = 0x10,
-    InstPF_Dangerous          = 0x20,
-    InstPF_Destructive        = 0x40,
-    InstPF_Quick              = 0x80,
+    InstPF_None               = 0x0000,
+    InstPF_RepeatTrigger      = 0x0001,
+    InstPF_RangedAttack       = 0x0002,
+    InstPF_MeleeAttack        = 0x0004,
+    InstPF_SelfBuff           = 0x0008,
+    InstPF_RangedDebuff       = 0x0010,
+    InstPF_Dangerous          = 0x0020,
+    InstPF_Destructive        = 0x0040,
+    InstPF_Quick              = 0x0080,
+    InstPF_Disarming          = 0x0100,
 };
 
 enum CreatureDeathKind {
@@ -170,12 +166,6 @@ enum CreatureAttackType {
 
 struct Thing;
 
-struct CreatureData {
-      unsigned char flags;
-      short lair_tngmodel;
-      short namestr_idx;
-};
-
 struct Creatures { // sizeof = 16
   unsigned short evil_start_state;
   unsigned short good_start_state;
@@ -191,11 +181,8 @@ struct Creatures { // sizeof = 16
 };
 
 /******************************************************************************/
-DLLIMPORT struct Creatures _DK_creatures[CREATURE_TYPES_COUNT];
-#define creatures _DK_creatures
-DLLIMPORT unsigned short _DK_breed_activities[CREATURE_TYPES_COUNT];
-#define breed_activities _DK_breed_activities
-
+extern struct Creatures creatures[CREATURE_TYPES_MAX];
+extern unsigned short breed_activities[CREATURE_TYPES_MAX];
 #pragma pack()
 /******************************************************************************/
 
@@ -234,7 +221,7 @@ struct CreatureAngerJobConfig {
 struct CreatureModelConfig {
     char name[COMMAND_WORD_LEN];
     long namestr_idx;
-    unsigned short model_flags;
+    unsigned long model_flags;
 };
 
 /**
@@ -252,6 +239,7 @@ struct CreatureExperience {
     long defense_increase_on_exp;
     long loyalty_increase_on_exp;
     long armour_increase_on_exp;
+    long exp_on_hitting_increase_on_exp;
 };
 
 struct CreatureConfig {
@@ -271,9 +259,9 @@ struct CreatureConfig {
     ThingModel special_digger_good;
     ThingModel special_digger_evil;
     ThingModel spectator_breed;
-    short creature_graphics[CREATURE_TYPES_COUNT][CREATURE_GRAPHICS_INSTANCES];
+    short creature_graphics[CREATURE_TYPES_MAX][CREATURE_GRAPHICS_INSTANCES];
     long sprite_size;
-    struct CreatureSounds creature_sounds[CREATURE_TYPES_COUNT];
+    struct CreatureSounds creature_sounds[CREATURE_TYPES_MAX];
 };
 
 /******************************************************************************/
@@ -288,15 +276,11 @@ extern const struct NamedCommand creatmodel_attributes_commands[];
 
 extern const struct NamedCommand creature_graphics_desc[];
 /******************************************************************************/
-extern struct CreatureData creature_data[];
 //extern struct Creatures creatures[];
 /******************************************************************************/
 struct CreatureStats *creature_stats_get(ThingModel crstat_idx);
 struct CreatureStats *creature_stats_get_from_thing(const struct Thing *thing);
-struct CreatureData *creature_data_get(ThingModel crstat_idx);
-struct CreatureData *creature_data_get_from_thing(const struct Thing *thing);
 TbBool creature_stats_invalid(const struct CreatureStats *crstat);
-void creature_stats_updated(ThingModel crstat_idx);
 void check_and_auto_fix_stats(void);
 const char *creature_code_name(ThingModel crmodel);
 const char* new_creature_code_name(ThingModel crmodel);
@@ -306,11 +290,11 @@ TbBool is_creature_model_wildcard(ThingModel crmodel);
 /******************************************************************************/
 TbBool load_creaturetypes_config(const char *conf_fname, unsigned short flags);
 /******************************************************************************/
-unsigned short get_creature_model_flags(const struct Thing *thing);
+unsigned long get_creature_model_flags(const struct Thing *thing);
 TbBool set_creature_available(PlayerNumber plyr_idx, ThingModel crtr_model, long can_be_avail, long force_avail);
 ThingModel get_players_special_digger_model(PlayerNumber plyr_idx);
 ThingModel get_players_spectator_model(PlayerNumber plyr_idx);
-ThingModel get_creature_model_with_model_flags(unsigned short needflags);
+ThingModel get_creature_model_with_model_flags(unsigned long needflags);
 /******************************************************************************/
 struct CreatureInstanceConfig *get_config_for_instance(CrInstance inst_id);
 const char *creature_instance_code_name(CrInstance inst_id);

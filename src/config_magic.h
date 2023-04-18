@@ -21,6 +21,7 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
+#include "creature_instances.h"
 
 #include "config.h"
 
@@ -65,6 +66,7 @@ enum SpellKinds {
     SplK_Disease,
     SplK_Chicken,
     SplK_TimeBomb,//[28]
+    SplK_Lizard,
 };
 
 enum CreatureSpellAffectedFlags {
@@ -130,6 +132,8 @@ enum ShotModelFlags {
     ShMF_StrengthBased  = 0x0200,
     ShMF_AlarmsUnits    = 0x0400,
     ShMF_CanCollide     = 0x0800,
+    ShMF_Disarming      = 0x1000,
+    ShMF_Exploding      = 0x2000,
 };
 
 enum PowerCanCastFlags {
@@ -225,6 +229,20 @@ struct ShotHitConfig {
     unsigned char withstand; /**< Whether the shot can withstand a hit without getting destroyed; could be converted to flags. */
 };
 
+struct ShotDetonateConfig {
+    short effect1_model;
+    short effect2_model; 
+    short around_effect1_model;
+    short around_effect2_model;
+};
+
+struct ShotVisualConfig {
+    short effect_model;
+    unsigned char amount;
+    short random_range;
+    short shot_health;
+};
+
 /**
  * Configuration parameters for shots.
  */
@@ -245,15 +263,17 @@ struct ShotConfigStats {
     short damage;
     short speed;
     DamageType damage_type;
-    struct ShotStats *old;
     struct ShotHitConfig hit_generic;
     struct ShotHitConfig hit_door;
     struct ShotHitConfig hit_water;
     struct ShotHitConfig hit_lava;
     struct ShotHitConfig hit_creature;
     struct ShotHitConfig dig;
+    struct ShotDetonateConfig explode;
+    struct ShotVisualConfig visual;
     short firing_sound;
     short shot_sound;
+    short sound_priority;
     unsigned char firing_sound_variants;
     short max_range;
     unsigned short sprite_anim_idx;
@@ -263,11 +283,22 @@ struct ShotConfigStats {
     unsigned char fall_acceleration;
     unsigned char cast_spell_kind;
     unsigned char push_on_hit;
+    unsigned char hidden_projectile;
+    unsigned char destroy_on_first_hit;
+    short experience_given_to_shooter;
+    unsigned char inertia_floor;
+    unsigned char inertia_air;
     short bounce_angle;
     short wind_immune;
     short no_air_damage;
+    unsigned char target_hitstop_turns;
     short animation_transparency;
     short fixed_damage;
+    short light_radius;
+    unsigned char light_intensity;
+    unsigned char lightf_53;
+    unsigned char unshaded;
+    unsigned char soft_landing;
 };
 
 typedef unsigned char (*Expand_Check_Func)(void);
@@ -293,6 +324,7 @@ struct PowerConfigStats {
     short pointer_sprite_idx;
     long panel_tab_idx;
     unsigned short select_sound_idx;
+    short cast_cooldown;
 };
 
 /**
@@ -302,10 +334,37 @@ struct SpecialConfigStats {
     char code_name[COMMAND_WORD_LEN];
     ThingModel artifact_model;
     TextStringId tooltip_stridx;
+    short speech;
+    short effect_id;
+};
+
+ /**
+ * Spell information structure.
+ * Stores configuration of spells; to be replaced with SpellConfigStats when all fields are in CFG.
+ * It no longer matches the similar struct from DK - fields were added at end.
+ */
+struct SpellConfig {
+    /** Informs if the spell can be targeted on a thing. */
+    unsigned char cast_at_thing;
+    /** Shot model to be fired while casting. */
+    unsigned char shot_model;
+    /** Informs if caster is affected by the spell. */
+    unsigned char caster_affected;
+    /** Effect model created while casting. */
+    short cast_effect_model;
+    /** If caster is affected by the spell, indicates sound sample to be played. */
+    unsigned short caster_affect_sound;
+    /** Sprite index of big symbol icon representing the spell. */
+    short bigsym_sprite_idx;
+    /** Sprite index of medium symbol icon representing the spell. */
+    short medsym_sprite_idx;
+    short cast_sound;
+    int duration;
 };
 
 struct MagicConfig {
     long spell_types_count;
+    struct SpellConfig spell_config[MAGIC_ITEMS_MAX];
     struct SpellConfigStats spell_cfgstats[MAGIC_ITEMS_MAX];
     long shot_types_count;
     struct ShotConfigStats shot_cfgstats[MAGIC_ITEMS_MAX];
@@ -313,101 +372,15 @@ struct MagicConfig {
     struct PowerConfigStats power_cfgstats[MAGIC_ITEMS_MAX];
     long special_types_count;
     struct SpecialConfigStats special_cfgstats[MAGIC_ITEMS_MAX];
+    struct InstanceInfo instance_info[MAGIC_ITEMS_MAX]; //count in crtr_conf
 };
 
 #pragma pack(1)
 
-struct SpellConfig { // sizeof=4
-  int duration;
-};
-
-struct ShotStats // sizeof = 101
-{
-  short sprite_anim_idx_UNUSED;
-  short sprite_size_max_UNUSED;
-  unsigned char field_4[2];
-  unsigned char field_6;
-  unsigned char field_7;
-  unsigned char animation_transparency_UNUSED; // transparency mode
-  short size_xy_UNUSED;
-  short size_yz_UNUSED;
-  short bounce_angle_UNUSED;
-  unsigned char fall_acceleration_UNUSED;
-  unsigned char field_10;
-  unsigned char field_11;
-  unsigned char field_12;
-  unsigned char field_13;
-  short health_UNUSED;
-  short damage_UNUSED;
-  unsigned char destroy_on_first_hit;
-  short speed_UNUSED;
-  short firing_sound_UNUSED;
-  unsigned char firing_sound_variants_UNUSED;
-  short shot_sound_UNUSED;
-  short field_20;
-  short hit_sound_UNUSED;
-  unsigned char field_24;
-  short cast_spell_kind_UNUSED;
-  unsigned char health_drain_UNUSED;
-  unsigned char cannot_hit_thing_UNUSED;
-  unsigned char rebound_immune_UNUSED;
-  unsigned char push_on_hit_UNUSED;
-  struct ShotHitConfig hit_generic_UNUSED;
-  struct ShotHitConfig hit_door_UNUSED;
-  short hit_water_effect_model_UNUSED;
-  short hit_water_sndsample_idx_UNUSED;
-  unsigned char hit_water_destroyed_UNUSED;
-  short hit_lava_effect_model_UNUSED;
-  short hit_lava_sndsample_idx_UNUSED;
-  unsigned char hit_lava_destroyed_UNUSED;
-  short area_range_UNUSED;
-  short area_damage_UNUSED;
-  short is_boulder_UNUSED;
-  unsigned char takes_air_damage_UNUSED;
-  unsigned char is_melee_UNUSED;
-  unsigned char is_digging_UNUSED;
-  unsigned char area_hit_type_UNUSED;
-  unsigned char group_with_shooter_UNUSED;
-  unsigned char deals_magic_damage_UNUSED;
-  unsigned char cannot_make_target_unconscious_UNUSED;
-  short experience_given_to_shooter;
-  short lightf_50;
-  unsigned char lightf_52;
-  unsigned char lightf_53;
-  unsigned char field_54[4];
-  unsigned char field_58[8];
-  unsigned char field_60[4];
-  unsigned char affected_by_wind_UNUSED;
-};
-
 struct MagicStats {  // sizeof=0x4C
   long cost[MAGIC_OVERCHARGE_LEVELS];
-  long time;
+  long duration;
   long strength[MAGIC_OVERCHARGE_LEVELS];
-};
-
-/**
- * Spell information structure.
- * Stores configuration of spells; to be replaced with SpellConfigStats when all fields are in CFG.
- * It no longer matches the similar struct from DK - fields were added at end.
- */
-struct SpellInfo {
-  /** Informs if the spell can be targeted on a thing. */
-  unsigned char cast_at_thing;
-  /** Shot model to be fired while casting. */
-  unsigned char shot_model;
-  /** Informs if caster is affected by the spell. */
-  unsigned char caster_affected;
-  /** Effect model created while casting. */
-  unsigned char cast_effect_model;
-  /** Unknown. Maybe priority? Values range 0-43. */
-  unsigned short cast_field_4;
-  /** If caster is affected by the spell, indicates sound sample to be played. */
-  unsigned short caster_affect_sound;
-  /** Sprite index of big symbol icon representing the spell. */
-  short bigsym_sprite_idx;
-  /** Sprite index of medium symbol icon representing the spell. */
-  short medsym_sprite_idx;
 };
 
 /**
@@ -430,19 +403,16 @@ struct SpellData {
 
 #pragma pack()
 /******************************************************************************/
-DLLIMPORT struct ShotStats _DK_shot_stats[30];
-#define shot_stats _DK_shot_stats
-/******************************************************************************/
 extern struct MagicConfig magic_conf;
 extern const char keeper_magic_file[];
 extern struct NamedCommand spell_desc[];
 extern struct NamedCommand shot_desc[];
 extern struct NamedCommand power_desc[];
 extern struct SpellData spell_data[];
-extern struct SpellInfo spell_info[];
+extern struct SpellConfig spell_config[];
 /******************************************************************************/
-struct SpellInfo *get_magic_info(int mgc_idx);
-TbBool magic_info_is_invalid(const struct SpellInfo *mgcinfo);
+struct SpellConfig *get_spell_config(int mgc_idx);
+TbBool spell_config_is_invalid(const struct SpellConfig *mgcinfo);
 struct SpellData *get_power_data(int pwkind);
 TextStringId get_power_description_strindex(PowerKind pwkind);
 TextStringId get_power_name_strindex(PowerKind pwkind);

@@ -17,6 +17,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "bflib_mouse.h"
 
 #include <string.h>
@@ -32,6 +33,7 @@
 #include "bflib_vidraw.h"
 #include "bflib_mshandler.hpp"
 #include "bflib_inputctrl.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {

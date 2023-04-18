@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "player_computer.h"
 
 #include <limits.h>
@@ -42,6 +43,7 @@
 #include "gui_soundmsgs.h"
 #include "game_legacy.h"
 #include "cursor_tag.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -307,7 +309,7 @@ static TbBool any_digger_is_digging_indestructible_valuables(struct Dungeon *dun
 }
 
 /**
- * Returns amount of diggable faces of indestructible valuables marked for digging.
+ * Returns number of diggable faces of indestructible valuables marked for digging.
  * In standard configuration, indestructible valuables are simply slabs with gems.
  * @param dungeon
  * @return
@@ -331,7 +333,7 @@ static int count_faces_of_indestructible_valuables_marked_for_dig(struct Dungeon
             const struct SlabAttr* slbattr = get_slab_attrs(slb);
             if (((slbattr->block_flags & SlbAtFlg_Valuable) != 0) && slab_kind_is_indestructible(slb->kind))
             {
-                num_faces += block_count_diggable_sides(dungeon->owner, subtile_slab_fast(stl_x), subtile_slab_fast(stl_y));
+                num_faces += block_count_diggable_sides(subtile_slab(stl_x), subtile_slab(stl_y));
             }
         }
     }
@@ -505,8 +507,8 @@ long computer_check_no_imps(struct Computer2 *comp, struct ComputerCheck * check
         {
             if ((gameadd.computer_chat_flags & CChat_TasksScarce) != 0) {
                 struct PowerConfigStats* powerst = get_power_model_stats(PwrK_MKDIGGER);
-                struct CreatureData* crdata = creature_data_get(get_players_special_digger_model(dungeon->owner));
-                message_add_fmt(comp->dungeon->owner, "My %s count is only %d, casting %s!",get_string(crdata->namestr_idx),(int)controlled_diggers,get_string(powerst->name_stridx));
+                struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[get_players_special_digger_model(dungeon->owner)];
+                message_add_fmt(comp->dungeon->owner, "My %s count is only %d, casting %s!",get_string(crconf->namestr_idx),(int)controlled_diggers,get_string(powerst->name_stridx));
             }
             if (try_game_action(comp, dungeon->owner, GA_UseMkDigger, 0, stl_x, stl_y, 1, 1) > Lb_OK) {
                 return CTaskRet_Unk1;
@@ -843,17 +845,17 @@ long computer_check_enemy_entrances(struct Computer2 *comp, struct ComputerCheck
             // Per-room code
             struct OpponentRelation* oprel = &comp->opponent_relations[(int)plyr_idx];
             long n;
-            for (n = 0; n < 64; n++)
+            for (n = 0; n < COMPUTER_SPARK_POSITIONS_COUNT; n++)
             {
                 struct Coord3d* pos = &oprel->pos_A[n];
                 if ((pos->x.val == subtile_coord(room->central_stl_x,0)) && (pos->y.val == subtile_coord(room->central_stl_y,0))) {
                     break;
                 }
             }
-            if (n == 64)
+            if (n == COMPUTER_SPARK_POSITIONS_COUNT)
             {
-                n = oprel->field_4;
-                oprel->field_4 = (n + 1) % 64;
+                n = oprel->next_idx;
+                oprel->next_idx = (n + 1) % COMPUTER_SPARK_POSITIONS_COUNT;
                 oprel->field_0 = game.play_gameturn;
                 struct Coord3d* pos = &oprel->pos_A[n];
                 pos->x.val = subtile_coord(room->central_stl_x,0);
@@ -879,8 +881,8 @@ static TbBool find_place_to_put_door_around_room(const struct Room *room, struct
     for (long n = 0; n < SMALL_AROUND_SLAB_LENGTH; n++)
     {
         // Get position containing room center
-        MapSlabCoord slb_x = subtile_slab_fast(room->central_stl_x);
-        MapSlabCoord slb_y = subtile_slab_fast(room->central_stl_y);
+        MapSlabCoord slb_x = subtile_slab(room->central_stl_x);
+        MapSlabCoord slb_y = subtile_slab(room->central_stl_y);
         // Move the position to edge of the room
         struct Room* sibroom = slab_room_get(slb_x, slb_y);
         while (!room_is_invalid(sibroom) && (sibroom->index == room->index))

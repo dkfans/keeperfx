@@ -17,6 +17,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "bflib_sprfnt.h"
 
 #include <stdarg.h>
@@ -31,6 +32,7 @@
 //TODO: this breaks my convention - non-bflib call from bflib (used for asian fonts)
 #include "frontend.h"
 #include "front_credits.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -68,6 +70,11 @@ long dbc_colour1 = 0;
 short dbc_language = 0;
 TbBool dbc_initialized = false;
 TbBool dbc_enabled = true;
+const struct TbSprite *lbFontPtr;
+
+static TbGraphicsWindow lbTextJustifyWindow;
+static TbGraphicsWindow lbTextClipWindow;
+static unsigned char lbSpacesPerTab;
 /******************************************************************************/
 
 /** Returns if the given char starts a wide charcode.
@@ -726,6 +733,17 @@ void put_down_simpletext_sprites(const char *sbuf, const char *ebuf, long x, lon
   for (c=sbuf; c < ebuf; c++)
   {
     chr = (unsigned char)(*c);
+    if (c[0] == '\xc2' && c + 1 < ebuf && c[1] == '\xa0')
+    {
+        w = len;
+        if ((lbDisplay.DrawFlags & Lb_TEXT_UNDERLINE) != 0)
+        {
+            h = LbTextLineHeight();
+            LbDrawCharUnderline(x,y,w,h,lbDisplay.DrawColour,lbDisplayEx.ShadowColour);
+        }
+        x += w;
+        c++;
+    } else
     if (chr > 32)
     {
       spr = LbFontCharSprite(lbFontPtr,chr);
@@ -817,6 +835,17 @@ void put_down_simpletext_sprites_resized(const char *sbuf, const char *ebuf, lon
   for (c=sbuf; c < ebuf; c++)
   {
     chr = (unsigned char)(*c);
+    if (c[0] == '\xc2' && c + 1 < ebuf && c[1] == '\xa0')
+    {
+        w = space_len;
+        if ((lbDisplay.DrawFlags & Lb_TEXT_UNDERLINE) != 0)
+        {
+            h = LbTextLineHeight() * units_per_px / 16;
+            LbDrawCharUnderline(x,y,w,h,lbDisplay.DrawColour,lbDisplayEx.ShadowColour);
+        }
+        x += w;
+        c++;
+    } else
     if (chr > 32)
     {
       spr = LbFontCharSprite(lbFontPtr,chr);
@@ -1036,6 +1065,9 @@ TbBool LbTextDrawResized(int posx, int posy, int units_per_px, const char *text)
             ebuf++;
             if (*ebuf == '\0') break;
             chr = (chr<<8) + (unsigned char)*ebuf;
+        } else if (ebuf[0] == '\xc2' && ebuf[1] == '\xa0') {
+            ebuf++;
+            chr = (chr<<8) + (unsigned char)*ebuf;
         }
 
         long w;
@@ -1043,7 +1075,7 @@ TbBool LbTextDrawResized(int posx, int posy, int units_per_px, const char *text)
         {
             // Align when ansi and unicode are mixed on one screen
             w = LbTextCharWidthM(chr, units_per_px);
-            
+
             if ((posx+w-justifyx <= lbTextJustifyWindow.width) || (count > 0) || !LbAlignMethodSet(lbDisplay.DrawFlags))
             {
                 posx += w;
@@ -1894,6 +1926,76 @@ void dbc_set_language(short ilng)
     dbc_language = ilng;
 }
 
+char * prepare_font_filename(const char * fpath, const char * fname) {
+  if (fpath == NULL || fpath[0] == 0)
+  {
+    // current folder, copy font filename as-is
+    const int fname_len = strlen(fname);
+    const int buffer_size = fname_len + 1;
+    char * buffer = malloc(buffer_size);
+    if (buffer == NULL)
+    {
+      return NULL;
+    }
+    memcpy(buffer, fname, buffer_size);
+    return buffer;
+  }
+  const int fpath_len = strlen(fpath);
+  const int fname_len = strlen(fname);
+  const int buffer_size = fpath_len + fname_len + 2;
+  char * buffer = malloc(buffer_size);
+  if (buffer == NULL)
+  {
+    return NULL;
+  }
+  if (fpath[fpath_len - 1] != '/')
+  {
+    // path does not end with /
+    snprintf(buffer, buffer_size, "%s/%s", fpath, fname);
+  }
+  else
+  {
+    // path ends with /
+    snprintf(buffer, buffer_size, "%s%s", fpath, fname);
+  }
+  return buffer;
+}
+
+short load_font_file(struct AsianFont * dbcfont, const char * fpath) {
+  char * fname = prepare_font_filename(fpath, dbcfont->fname);
+  if (fname == NULL)
+  {
+    ERRORLOG("Can't allocate memory for font filename %s", dbcfont->fname);
+    return 2;
+  }
+  // Allocate memory for the font, dbc_shutdown will free this memory later
+  dbcfont->data = LbMemoryAlloc(dbcfont->data_length);
+  if (dbcfont->data == NULL)
+  {
+    ERRORLOG("Can't allocate memory for font %s", dbcfont->fname);
+    free(fname);
+    return 2;
+  }
+  // Load font file
+  SYNCDBG(9, "Loading font \"%s\"", fname);
+  TbFileHandle fhandle = LbFileOpen(fname, Lb_FILE_MODE_READ_ONLY);
+  if (fhandle == -1)
+  {
+    ERRORLOG("Cannot open \"%s\"", fname);
+    free(fname);
+    return 1;
+  }
+  if (LbFileRead(fhandle, dbcfont->data, dbcfont->data_length) != dbcfont->data_length)
+  {
+      ERRORLOG("Error reading %ld bytes from \"%s\"", dbcfont->data_length, fname);
+      free(fname);
+      return 3;
+  }
+  LbFileClose(fhandle);
+  free(fname);
+  return 0;
+}
+
 /**
  * Loads Double Byte Coding fonts from disk.
  */
@@ -1902,60 +2004,20 @@ short dbc_initialize(const char *fpath)
   const long fonts_count = dbc_fonts_count();
   struct AsianFont *dbcfonts = dbc_fonts_list();
 
-  short ret = 0;
   if (dbc_initialized)
+  {
     dbc_shutdown();
+  }
   for (long i = 0; i < fonts_count; i++)
   {
-    active_dbcfont = &dbcfonts[i];
-    // Allocate memory for the font
-    active_dbcfont->data = LbMemoryAlloc(active_dbcfont->data_length);
-    if (active_dbcfont->data == NULL)
-    {
-      ERRORLOG("Can't allocate memory for font %d",i);
-      ret = 2;
-      break;
-    }
-    // Prepare font file name
-    char fname[DISKPATH_SIZE];
-    if ((fpath != NULL) && (fpath[0] != 0))
-    {
-      strncpy(fname, fpath, DISKPATH_SIZE);
-      fname[DISKPATH_SIZE-1] = '\0';
-      if (fname[strlen(fname)-1] != '/')
-        strcat(fname, "/");
-    } else
-    {
-      strcpy(fname, lbEmptyString);
-    }
-    strcat(fname, active_dbcfont->fname);
-    // Load font file
-    SYNCDBG(9,"Loading font %ld/%ld, file \"%s\"",i,fonts_count,fname);
-    TbFileHandle fhandle = LbFileOpen(fname, Lb_FILE_MODE_READ_ONLY);
-    if (fhandle != -1)
-    {
-        long k = active_dbcfont->data_length;
-        if (LbFileRead(fhandle, active_dbcfont->data, k) != k)
-        {
-            ERRORLOG("Error reading %ld bytes from \"%s\"", i, active_dbcfont->fname);
-            ret = 3;
+      const short result = load_font_file(&dbcfonts[i], fpath);
+      if (result != 0) {
+        dbc_shutdown();
+        return result;
       }
-      LbFileClose(fhandle);
-    } else
-    {
-      ERRORLOG("Cannot open \"%s\"",fname);
-      ret = 1;
-    }
-    if (ret != 0)
-      break;
-  }
-  if (ret != 0)
-  {
-    dbc_shutdown();
-    return ret;
   }
   dbc_initialized = 1;
-  return ret;
+  return 0;
 }
 
 /******************************************************************************/

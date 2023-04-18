@@ -16,9 +16,11 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "config_crtrmodel.h"
 #include "globals.h"
 #include "game_merge.h"
+#include "game_legacy.h"
 
 #include "bflib_basics.h"
 #include "bflib_memory.h"
@@ -39,6 +41,7 @@
 #include "creature_states.h"
 #include "player_data.h"
 #include "custom_sprites.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -79,6 +82,7 @@ const struct NamedCommand creatmodel_attributes_commands[] = {
   {"TOKINGRECOVERY",     31},
   {"CORPSEVANISHEFFECT", 32},
   {"FOOTSTEPPITCH",      33},
+  {"LAIROBJECT",         34},
   {NULL,                  0},
   };
 
@@ -167,6 +171,7 @@ const struct NamedCommand creatmodel_appearance_commands[] = {
   {"CORPSEVANISHEFFECT",   6},
   {"FOOTSTEPPITCH",        7},
   {"PICKUPOFFSET",         8},
+  {"STATUSOFFSET",         9},
   {NULL,                   0},
   };
 
@@ -795,6 +800,22 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                 COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }
           break;
+      case 34: // LAIROBJECT
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = get_id(object_desc, word_buf);
+              if (k > 0)
+              {
+                  crstat->lair_object = k;
+                  n++;
+              }
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
       case 0: // comment
           break;
       case -1: // end of buffer
@@ -1024,8 +1045,8 @@ TbBool parse_creaturemodel_annoyance_blocks(long crtr_model,char *buf,long len,c
             }
             if (n < 1)
             {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file of creature %s.",
+                    COMMAND_TEXT(cmd_num), block_buf, config_textname, creature_code_name(crtr_model));
             }
             break;
         case 2: // WILLNOTDOJOB
@@ -1037,8 +1058,8 @@ TbBool parse_creaturemodel_annoyance_blocks(long crtr_model,char *buf,long len,c
             }
             if (n < 1)
             {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file of creature %s.",
+                    COMMAND_TEXT(cmd_num), block_buf, config_textname, creature_code_name(crtr_model));
             }
             break;
         case 3: // INHAND
@@ -1050,8 +1071,8 @@ TbBool parse_creaturemodel_annoyance_blocks(long crtr_model,char *buf,long len,c
             }
             if (n < 1)
             {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file of creature %s.",
+                    COMMAND_TEXT(cmd_num), block_buf, config_textname, creature_code_name(crtr_model));
             }
             break;
         case 4: // NOLAIR
@@ -1063,8 +1084,8 @@ TbBool parse_creaturemodel_annoyance_blocks(long crtr_model,char *buf,long len,c
             }
             if (n < 1)
             {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file of creature %s.",
+                    COMMAND_TEXT(cmd_num), block_buf, config_textname, creature_code_name(crtr_model));
             }
             break;
         case 5: // NOHATCHERY
@@ -1076,8 +1097,8 @@ TbBool parse_creaturemodel_annoyance_blocks(long crtr_model,char *buf,long len,c
             }
             if (n < 1)
             {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file of creature %s.",
+                    COMMAND_TEXT(cmd_num), block_buf, config_textname, creature_code_name(crtr_model));
             }
             break;
         case 6: // WOKENUP
@@ -1089,8 +1110,8 @@ TbBool parse_creaturemodel_annoyance_blocks(long crtr_model,char *buf,long len,c
             }
             if (n < 1)
             {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file of creature %s.",
+                    COMMAND_TEXT(cmd_num), block_buf, config_textname, creature_code_name(crtr_model));
             }
             break;
         case 7: // STANDINGONDEADENEMY
@@ -1102,8 +1123,8 @@ TbBool parse_creaturemodel_annoyance_blocks(long crtr_model,char *buf,long len,c
             }
             if (n < 1)
             {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file of creature %s.",
+                    COMMAND_TEXT(cmd_num), block_buf, config_textname, creature_code_name(crtr_model));
             }
             break;
         case 8: // SULKING
@@ -1115,8 +1136,8 @@ TbBool parse_creaturemodel_annoyance_blocks(long crtr_model,char *buf,long len,c
             }
             if (n < 1)
             {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file of creature %s.",
+                    COMMAND_TEXT(cmd_num), block_buf, config_textname, creature_code_name(crtr_model));
             }
             break;
         case 9: // NOSALARY
@@ -1128,8 +1149,8 @@ TbBool parse_creaturemodel_annoyance_blocks(long crtr_model,char *buf,long len,c
             }
             if (n < 1)
             {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file of creature %s.",
+                    COMMAND_TEXT(cmd_num), block_buf, config_textname, creature_code_name(crtr_model));
             }
             break;
         case 10: // SLAPPED
@@ -1141,8 +1162,8 @@ TbBool parse_creaturemodel_annoyance_blocks(long crtr_model,char *buf,long len,c
             }
             if (n < 1)
             {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file of creature %s.",
+                    COMMAND_TEXT(cmd_num), block_buf, config_textname, creature_code_name(crtr_model));
             }
             break;
         case 11: // STANDINGONDEADFRIEND
@@ -1154,8 +1175,8 @@ TbBool parse_creaturemodel_annoyance_blocks(long crtr_model,char *buf,long len,c
             }
             if (n < 1)
             {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file of creature %s.",
+                    COMMAND_TEXT(cmd_num), block_buf, config_textname, creature_code_name(crtr_model));
             }
             break;
         case 12: // INTORTURE
@@ -1167,8 +1188,8 @@ TbBool parse_creaturemodel_annoyance_blocks(long crtr_model,char *buf,long len,c
             }
             if (n < 1)
             {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file of creature %s.",
+                    COMMAND_TEXT(cmd_num), block_buf, config_textname, creature_code_name(crtr_model));
             }
             break;
         case 13: // INTEMPLE
@@ -1180,8 +1201,8 @@ TbBool parse_creaturemodel_annoyance_blocks(long crtr_model,char *buf,long len,c
             }
             if (n < 1)
             {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file of creature %s.",
+                    COMMAND_TEXT(cmd_num), block_buf, config_textname, creature_code_name(crtr_model));
             }
             break;
         case 14: // SLEEPING
@@ -1193,8 +1214,8 @@ TbBool parse_creaturemodel_annoyance_blocks(long crtr_model,char *buf,long len,c
             }
             if (n < 1)
             {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file of creature %s.",
+                    COMMAND_TEXT(cmd_num), block_buf, config_textname, creature_code_name(crtr_model));
             }
             break;
         case 15: // GOTWAGE
@@ -1206,8 +1227,8 @@ TbBool parse_creaturemodel_annoyance_blocks(long crtr_model,char *buf,long len,c
             }
             if (n < 1)
             {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file of creature %s.",
+                    COMMAND_TEXT(cmd_num), block_buf, config_textname, creature_code_name(crtr_model));
             }
             break;
         case 16: // WINBATTLE
@@ -1219,8 +1240,8 @@ TbBool parse_creaturemodel_annoyance_blocks(long crtr_model,char *buf,long len,c
             }
             if (n < 1)
             {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file of creature %s.",
+                    COMMAND_TEXT(cmd_num), block_buf, config_textname, creature_code_name(crtr_model));
             }
             break;
         case 17: // UNTRAINED
@@ -1238,8 +1259,8 @@ TbBool parse_creaturemodel_annoyance_blocks(long crtr_model,char *buf,long len,c
             }
             if (n < 2)
             {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file of creature %s.",
+                    COMMAND_TEXT(cmd_num), block_buf, config_textname, creature_code_name(crtr_model));
             }
             break;
         case 18: // OTHERSLEAVING
@@ -1251,8 +1272,8 @@ TbBool parse_creaturemodel_annoyance_blocks(long crtr_model,char *buf,long len,c
             }
             if (n < 1)
             {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file of creature %s.",
+                    COMMAND_TEXT(cmd_num), block_buf, config_textname, creature_code_name(crtr_model));
             }
             break;
         case 19: // JOBSTRESS
@@ -1264,8 +1285,8 @@ TbBool parse_creaturemodel_annoyance_blocks(long crtr_model,char *buf,long len,c
             }
             if (n < 1)
             {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file of creature %s.",
+                    COMMAND_TEXT(cmd_num), block_buf, config_textname, creature_code_name(crtr_model));
             }
             break;
         case 20: // QUEUE
@@ -1277,8 +1298,8 @@ TbBool parse_creaturemodel_annoyance_blocks(long crtr_model,char *buf,long len,c
             }
             if (n < 1)
             {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file of creature %s.",
+                    COMMAND_TEXT(cmd_num), block_buf, config_textname, creature_code_name(crtr_model));
             }
             break;
         case 21: // LAIRENEMY
@@ -1298,8 +1319,8 @@ TbBool parse_creaturemodel_annoyance_blocks(long crtr_model,char *buf,long len,c
             }
             if (n < 1)
             {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file of creature %s.",
+                    COMMAND_TEXT(cmd_num), block_buf, config_textname, creature_code_name(crtr_model));
             }
             break;
         case 22: // ANNOYLEVEL
@@ -1311,8 +1332,8 @@ TbBool parse_creaturemodel_annoyance_blocks(long crtr_model,char *buf,long len,c
             }
             if (n < 1)
             {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file of creature %s.",
+                    COMMAND_TEXT(cmd_num), block_buf, config_textname, creature_code_name(crtr_model));
             }
             break;
         case 23: // ANGERJOBS
@@ -1326,8 +1347,8 @@ TbBool parse_creaturemodel_annoyance_blocks(long crtr_model,char *buf,long len,c
                 n++;
               } else
               {
-                CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\", in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num),word_buf,block_buf,config_textname);
+                  CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file of creature %s.",
+                      COMMAND_TEXT(cmd_num), block_buf, config_textname, creature_code_name(crtr_model));
               }
             }
             break;
@@ -1340,8 +1361,8 @@ TbBool parse_creaturemodel_annoyance_blocks(long crtr_model,char *buf,long len,c
             }
             if (n < 1)
             {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file of creature %s.",
+                    COMMAND_TEXT(cmd_num), block_buf, config_textname, creature_code_name(crtr_model));
             }
             break;
         case 0: // comment
@@ -1349,8 +1370,8 @@ TbBool parse_creaturemodel_annoyance_blocks(long crtr_model,char *buf,long len,c
         case -1: // end of buffer
             break;
         default:
-            CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
-                cmd_num,block_buf,config_textname);
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file of creature %s.",
+                COMMAND_TEXT(cmd_num), block_buf, config_textname, creature_code_name(crtr_model));
             break;
         }
         skip_conf_to_next_line(buf,&pos,len);
@@ -1367,7 +1388,7 @@ TbBool parse_creaturemodel_senses_blocks(long crtr_model,char *buf,long len,cons
     if ((flags & CnfLd_AcceptPartial) == 0)
     {
         crstat->hearing = 0;
-        crstat->eye_height = 0;
+        crstat->base_eye_height = 0;
         crstat->field_of_view = 0;
         crstat->eye_effect = 0;
         crstat->max_angle_change = 1;
@@ -1411,7 +1432,7 @@ TbBool parse_creaturemodel_senses_blocks(long crtr_model,char *buf,long len,cons
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              crstat->eye_height = k;
+              crstat->base_eye_height = k;
               n++;
             }
             if (n < 1)
@@ -1496,6 +1517,7 @@ TbBool parse_creaturemodel_appearance_blocks(long crtr_model,char *buf,long len,
         creatures[crtr_model].shot_shift_z = 0;
         crstat->footstep_pitch = 100;
         crstat->corpse_vanish_effect = 0;
+        crstat->status_offset = 32;
     }
     // Find the block
     char block_buf[COMMAND_WORD_LEN];
@@ -1622,30 +1644,46 @@ TbBool parse_creaturemodel_appearance_blocks(long crtr_model,char *buf,long len,
             if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                creature_picked_up_offset[crtr_model].delta_x = k;
+                crstat->creature_picked_up_offset.delta_x = k;
                 n++;
             }
             if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                creature_picked_up_offset[crtr_model].delta_y = k;
+                crstat->creature_picked_up_offset.delta_y = k;
                 n++;
             }
             if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                creature_picked_up_offset[crtr_model].field_4 = k;
+                crstat->creature_picked_up_offset.field_4 = k;
                 n++;
             }
             if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                creature_picked_up_offset[crtr_model].field_6 = k;
+                crstat->creature_picked_up_offset.field_6 = k;
                 n++;
             }
             if (n < 4)
             {
                 CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), block_buf, config_textname);
+            }
+            break;
+        case 9: // STATUSOFFSET
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                if (k > 0)
+                {
+                    crstat->status_offset = k;
+                    n++;
+                }
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
                     COMMAND_TEXT(cmd_num), block_buf, config_textname);
             }
             break;
@@ -2489,8 +2527,6 @@ TbBool load_creaturemodel_config_file(long crtr_model,const char *textname,const
         if (!result)
             WARNMSG("Parsing %s file \"%s\" sounds blocks failed.",textname,fname);
     }
-    // Mark the fact that stats were updated
-    creature_stats_updated(crtr_model);
     // Freeing and exiting
     LbMemoryFree(buf);
     return result;
@@ -2499,7 +2535,7 @@ TbBool load_creaturemodel_config_file(long crtr_model,const char *textname,const
 TbBool load_creaturemodel_config(long crmodel, unsigned short flags)
 {
     static const char config_global_textname[] = "global creature model config";
-    static const char config_campgn_textname[] = "campaing creature model config";
+    static const char config_campgn_textname[] = "campaign creature model config";
     char conf_fnstr[COMMAND_WORD_LEN];
     LbStringToLowerCopy(conf_fnstr,get_conf_parameter_text(creature_desc,crmodel),COMMAND_WORD_LEN);
     if (strlen(conf_fnstr) == 0)
@@ -2544,12 +2580,11 @@ void do_creature_swap(long ncrt_id, long crtr_id)
 {
     swap_creaturemodel_config(ncrt_id, crtr_id, 0);
     SCRPTLOG("Swapped creature %s out for creature %s", creature_code_name(crtr_id), new_creature_code_name(ncrt_id));
-    creature_stats_updated(crtr_id);
 }
 
 TbBool swap_creature(long ncrt_id, long crtr_id)
 {
-    if ((crtr_id < 0) || (crtr_id >= CREATURE_TYPES_COUNT))
+    if ((crtr_id < 0) || (crtr_id >= gameadd.crtr_conf.model_count))
     {
         ERRORLOG("Creature index %d is invalid", crtr_id);
         return false;
@@ -2590,7 +2625,6 @@ TbBool change_max_health_of_creature_kind(ThingModel crmodel, long new_max)
     }
     SYNCDBG(3,"Changing all %s health from %d to %d.",creature_code_name(crmodel),(int)crstat->health,(int)new_max);
     crstat->health = saturate_set_signed(new_max, 16);
-    creature_stats_updated(crmodel);
     int n = do_to_all_things_of_class_and_model(TCls_Creature, crmodel, update_creature_health_to_max);
     return (n > 0);
 }

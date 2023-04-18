@@ -64,7 +64,7 @@ msgid ""
 "Use the cursor keys to see other areas of the underworld. Rotate and zoom "
 "the view with the right ctrl key and cursor keys."
 msgstr ""
-"用方向键看地下世界的其他区域。按住右边的CRTL键，再按方向键可以旋转和缩放视"
+"用方向键看地下世界的其他区域。按住右边的CTRL键，再按方向键可以旋转和缩放视"
 "角。"
 
 #. Level Eversmile objective when built Treasure Room
@@ -741,7 +741,7 @@ msgid ""
 "particularly well to a good slapping."
 msgstr ""
 "你终于拥有了一个可以吸引黑暗女王加入的地下城。你必须经常惩罚这些邪恶的女仆。"
-"他们对于被打耳光的反应异常的好。"
+"她们对于被打耳光的反应异常的好。"
 
 #. Level Snuggledell information
 #: guitext:68
@@ -1108,7 +1108,7 @@ msgid ""
 "All the heroes are dead, which is as it should be. This land and all its "
 "spoils are yours. May I suggest that you waste everything?"
 msgstr ""
-"所有的英雄都得到了他们应有的下场：死亡。这片土地和所有的战利品都属于你。"
+"所有的英雄都得到了他们应有的下场: 死亡。这片土地和所有的战利品都属于你。"
 "把它们全都糟蹋掉怎么样？"
 
 #. Level Hearth objective
@@ -1501,7 +1501,7 @@ msgctxt "In-game message"
 msgid ""
 "You must have lightning reflexes to complete the task ahead of you. Kill "
 "these Imps as quickly as you can."
-msgstr "你必须有闪电术才能完成你面前的任务。尽可能迅速地杀掉这些小鬼。"
+msgstr "你必须有闪电般的反应力才能完成你面前的任务。尽可能迅速地杀掉这些小鬼。"
 
 #. Level Bonus 3 information
 #: guitext:145
@@ -1524,7 +1524,7 @@ msgid ""
 "you a vicious creature to help you conquer the next realm."
 msgstr ""
 "完成了。无数尸体在这个小鬼曾经站立的地方被炙烤。你把握住了时间的脉搏。黑暗之"
-"神将给你一个巨人，帮助你征服下一个王国。"
+"神赐给你一只凶猛的怪物来帮助你征服下一个王国。"
 
 #. Level Bonus 3 objective
 #: guitext:148
@@ -1566,8 +1566,8 @@ msgid ""
 "the dark gods will repay you, by allowing you to use the warrior you found "
 "when you reach the next realm."
 msgstr ""
-"干得漂亮。你已经精通了大石球的使用方法，黑暗之神为此要奖励你。在你到达下一个"
-"王国时，你将获得三个出色的小鬼。"
+"干得漂亮。你已经精通了大石球的使用方法，黑暗之神为此要奖励你。你可以将你找到的"
+"这名战士带到下一个王国。"
 
 #. Level Bonus 4 objective
 #: guitext:153
@@ -1578,8 +1578,8 @@ msgid ""
 "where a legendary warrior is imprisoned. That warrior will serve you well in "
 "the future."
 msgstr ""
-"这个区域考验你横穿洞穴网的能力。时间是你真正的敌人。打败它，你将发现被囚禁的"
-"野蛮人、传说中的战士 - 乌格。乌格将在以后为你服务。"
+"这个区域考验你横穿洞穴网的能力。时间是你真正的敌人。打败它，你将发现一名被囚禁的"
+"传说中的战士。这名战士将在以后为你服务。"
 
 #. Level Mistle objective
 #: guitext:154
@@ -1710,7 +1710,7 @@ msgctxt "In-game message"
 msgid ""
 "The Avatar and his allies are defeated, yet his power over this land "
 "lingers. Prepare thyself..."
-msgstr "圣者和他的同盟被打败了，在这土地上的他的魔力正在消失。你自己准备好吧。"
+msgstr "圣者和他的同盟被打败了，在这土地上的他的魔力正在消失。你自己准备好吧…"
 
 #. Level Skybird Trill objective
 #: guitext:169
@@ -1732,7 +1732,7 @@ msgstr "成功属于你。你已经赢得了你的称号，地下城守护者。
 #: guitext:171
 msgctxt "In-game message"
 msgid "What is this? The Avatar lives!"
-msgstr "这是什么？圣者还活着。"
+msgstr "这是什么？圣者还活着！"
 
 #. Level Skybird Trill win objective, also used in DD Level Belial
 #: guitext:172
@@ -1928,7 +1928,7 @@ msgid ""
 "Name and Health: Each creature has its own name. Behind is the creature "
 "health bar. The higher the red bar, the better health the creature is in."
 msgstr ""
-"名字和生命值：每一个怪物都有自己的名字。在名字后方的是怪物的生命条。"
+"名字和生命值: 每一个怪物都有自己的名字。在名字后方的是怪物的生命条。"
 "红色部分越长，表明怪物的生命值越高。"
 
 #: guitext:223
@@ -2507,12 +2507,13 @@ msgstr "影子: 每个怪物的影子的数量。左键切换。"
 #: guitext:314
 msgctxt "In-game interface description"
 msgid ""
-"View Type: Swap between the default and forced perspective views. Default "
-"view has warped walls and can be rotated, forced perspective shows larger "
-"area but can only be rotated 90 degrees. LMB toggle."
+"View Type: Swap between perspective views. Default view has warped walls "
+"and can be rotated. Disable the warp effect for clean lines. Forced perspective "
+"can only be rotated 90 degrees and changes the viewing angle. LMB toggle."
 msgstr ""
-"视角: 在默认视角和强制透视视角间切换。默认视角有弯曲的墙壁，可以随意旋转，"
-"而强制透视视角显示的区域较大，但只能一次旋转90度。左键切换。"
+"视图类型: 在不同类型的透视图中切换。默认视图可以自由旋转，且墙壁边缘略弯曲。"
+"切换后取消弯曲效果，墙壁边缘变得笔直。再次切换后变为强制透视视图，"
+"每次只能固定旋转90度来改变视角。左键切换。"
 
 #: guitext:315
 msgctxt "In-game interface description"
@@ -5797,7 +5798,7 @@ msgctxt "In-game message"
 msgid ""
 "Choices, choices Keeper. Choose your path wisely. Some routes are more "
 "perilous than others ..."
-msgstr "选择！选择！守护者：明智地选择你的道路。有些路线比其他的更加致命……"
+msgstr "选择！选择！守护者: 明智地选择你的道路。有些路线比其他的更加致命……"
 
 #. DD Level Caddis Fell objective after good destroyed
 #: guitext:914
@@ -6049,63 +6050,63 @@ msgstr "速度: 生物在移动和执行地下城任务时的速度。"
 msgctxt "In-game interface description"
 msgid "Loyalty: How resistant the creature is against scavenging by the enemy."
 msgstr ""
-"忠诚：怪物对敌方的招募有多少抵抗力。"
+"忠诚: 怪物对敌方的招募有多少抵抗力。"
 
 #: guitext:952
 msgctxt "In-game interface description"
 msgid "Research Skill: How fast the creature works in Library. The higher the Skill level, "
 "the better the creature's performance."
-msgstr "研究能力：怪物在图书馆研究的效率。这个数值越高，怪物的表现就越好。"
+msgstr "研究能力: 怪物在图书馆研究的效率。这个数值越高，怪物的表现就越好。"
 
 #: guitext:953
 msgctxt "In-game interface description"
 msgid ""
 "Manufacture Skill: How fast the creature works in Workshop. The higher the "
 "Skill level, the better the creature's performance."
-msgstr "制造能力：怪物在工厂做工的效率。这个能力值越高，怪物的表现越好。"
+msgstr "制造能力: 怪物在工厂做工的效率。这个能力值越高，怪物的表现越好。"
 
 #: guitext:954
 msgctxt "In-game interface description"
 msgid ""
 "Training Skill: How fast the creature works on training. The higher the "
 "Skill level, the better the creature's performance."
-msgstr "训练能力：怪物在训练室训练的效率。这个能力值越高，怪物的表现越好。"
+msgstr "训练能力: 怪物在训练室训练的效率。这个能力值越高，怪物的表现越好。"
 
 #: guitext:955
 msgctxt "In-game interface description"
 msgid ""
 "Scavenge Skill: How fast the creature works on scavenging. The higher the "
 "Skill level, the better the creature's performance."
-msgstr "招募能力：怪物在招募中心招募的效率。这个能力值越高，怪物的表现越好。"
+msgstr "招募能力: 怪物在招募中心招募的效率。这个能力值越高，怪物的表现越好。"
 
 #: guitext:956
 msgctxt "In-game interface description"
 msgid "Training Cost: Gold used for training the creature."
-msgstr "训练费用：用于训练这个怪物花费的黄金数量。"
+msgstr "训练费用: 用于训练这个怪物花费的黄金数量。"
 
 #: guitext:957
 msgctxt "In-game interface description"
 msgid "Scavenge Cost: Gold used for scavenging by the creature."
-msgstr "招募费用：用于招募这个怪物花费的黄金数量。"
+msgstr "招募费用: 用于招募这个怪物花费的黄金数量。"
 
 #: guitext:958
 msgctxt "In-game interface description"
 msgid ""
 "Best Damage: How much harm can be done by the strongest attack the creature "
 "has."
-msgstr "最佳伤害：这个怪物使用最强的攻击所能造成的伤害量。"
+msgstr "最佳伤害: 这个怪物使用最强的攻击所能造成的伤害量。"
 
 #: guitext:959
 msgctxt "In-game interface description"
 msgid ""
 "Weight: Mass of the creature. Some people say overweight can lead to heart "
 "attack."
-msgstr "重量：这个怪物的体重。有些人说超重会导致心脏病。"
+msgstr "重量: 这个怪物的体重。有些人说超重会导致心脏病。"
 
 #: guitext:960
 msgctxt "In-game interface description"
 msgid "Score: Estimate of an overall creature value. Added to player score when finishing the level."
-msgstr "分数：对怪物总体价值的评估。在关卡胜利后会计入玩家的得分。"
+msgstr "分数: 对怪物总体价值的评估。在关卡胜利后会计入玩家的得分。"
 
 #: guitext:961
 msgctxt "Keeper spell name"
@@ -6122,7 +6123,7 @@ msgctxt "Keeper spell description"
 msgid "Hand Of Evil: Ability to pick up your creatures and hold them in your hand. "
 "Just don't hold them forever or they may get irritated."
 msgstr ""
-"邪恶之手：可以抓起生物并拿在手中。但是不要一直举着它们，"
+"邪恶之手: 可以抓起生物并拿在手中。但是不要一直举着它们，"
 "否则它们会生气的。"
 
 #: guitext:964
@@ -6137,13 +6138,13 @@ msgstr ""
 msgctxt "In-game interface description"
 msgid ""
 "Health: How much health points the creature has left to lose."
-msgstr "生命值：这个怪物还剩下多少生命点数。"
+msgstr "生命值: 这个怪物还剩下多少生命点数。"
 
 #: guitext:966
 msgctxt "In-game interface description"
 msgid ""
 "Health: The maximum amount of health points for this creature."
-msgstr "最大生命值：这个怪物的生命值的最大值。"
+msgstr "最大生命值: 这个怪物的生命值的最大值。"
 
 #: guitext:967
 msgctxt "Menu interface item"
@@ -6318,7 +6319,7 @@ msgstr "快照相机"
 #: guitext:1005
 msgctxt "Dungeon special decription"
 msgid "Mysterious Box: There's no telling what this will do."
-msgstr "神秘物品：没有说明它是干什么用的。"
+msgstr "神秘物品: 没有说明它是干什么用的。"
 
 #: guitext:1006
 msgctxt "Network game message"
@@ -6328,12 +6329,22 @@ msgstr "已加入的玩家的主机中的地图版本不相同。"
 #: guitext:1007
 msgctxt "In-game interface description"
 msgid "Display Resolution: Switch to the next configured display resolution. LMB toggle. RMB display current resolution."
-msgstr "显示分辨率：切换至下一个设置的游戏分辨率。左键切换，右键显示当前分辨率。"
+msgstr "显示分辨率: 切换至下一个设置的游戏分辨率。左键切换，右键显示当前分辨率。"
 
-#: guitext:1008 guitext:1009 guitext:1010
+#: guitext:1008
+msgctxt "In-game interface item"
+msgid "Voice"
+msgstr "语音音量"
+
+#: guitext:1009
+msgctxt "In-game interface item"
+msgid "Ambience"
+msgstr "环境音效"
+
+#: guitext:1010
 msgctxt "Unused"
 msgid "Moo4"
-msgstr "Moo4"
+msgstr ""
 
 #: guitext:1011
 msgctxt "Menu interface item""
@@ -6450,3 +6461,44 @@ msgctxt "Menu interface item""
 msgid "Undead Keeper campaign"
 msgstr "亡灵守护者战役"
 
+#: guitext:1034 guitext:1035
+msgctxt "Unused"
+msgid "Moo5"
+msgstr ""
+
+#: guitext:1036
+msgctxt "Trap names"
+msgid "Demolition Trap"
+msgstr "爆破陷井"
+
+#: guitext:1037
+msgctxt "Trap description"
+msgid ""
+"Demolition Trap: An explosive with unrivaled destructive power."
+msgstr "爆破陷井:一个具有无与伦比破坏力的爆炸物。"
+
+#: guitext:1038
+msgctxt "Trap description"
+msgid ""
+"Sentry Trap: Stands guard and shoots at enemies in sight."
+msgstr "岗哨陷井：守卫在原地并向视野范围内的敌人开火。"
+
+#: guitext:1039 guitext:1040
+msgctxt "Unused"
+msgid "Moo6"
+msgstr ""
+
+#: guitext:1041
+msgctxt "Creature name"
+msgid "Spirit"
+msgstr "灵魂"
+
+#: guitext:1042
+msgctxt "Creature name"
+msgid "Druid"
+msgstr "德鲁伊"
+
+#: guitext:1043
+msgctxt "Creature name"
+msgid "Time Mage"
+msgstr "时间法师"
