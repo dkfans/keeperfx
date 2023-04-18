@@ -171,25 +171,25 @@ msgctxt "In-game message"
 msgid "You are a great disappointment! However, these previously friendly Keepers have broken their alliance, so you can watch the show while you contemplate the implications of your incompetence."
 msgstr "你实在是令人失望！不过，之前互为盟友的双子守护者现在已经反目成仇，你现在可以一边反思着自己被打败的教训，一边观赏他们之间的战斗了。"
 
-#. Level Tub vulnerabilities opening message
+#. Level Okehazama opening message
 #: guitext:27
 msgctxt "In-game message"
 msgid "This is the last land you must conquer if you wish to meet the Twin Keepers. Here there are three other keepers, and guess what? None of them like you!"
 msgstr "这是你要见到双子守护者之前所必须征服的最后一个王国。这里已经有了另外三个守护者，你猜怎么着？他们都不喜欢你！"
 
-#. Level Tub Vulnerabilities victory message
+#. Level Okehazama victory message
 #: guitext:28
 msgctxt "In-game message"
 msgid "A majestic victory Master! And you have earned the right to meet the infamous Twin Keepers in battle. Savour this moment awhile, then prepare yourself for the final trial!"
 msgstr "一次伟大的胜利，守护者！你赢得了与臭名昭著的双子守护者交手的机会。细细品味这一刻，然后准备迎接最终的挑战吧！"
 
-#. Level Tub Vulnerabilities Hero Knight death message
+#. Level Okehazama Hero Knight death message
 #: guitext:29
 msgctxt "In-game message"
 msgid "With their Knight defeated, these heroes now know this is a fight to the death, and they will attack at every opportunity Master. Best to reward their bravery the only way you know how!"
 msgstr "看到他们的骑士阵亡后，英雄们意识到这将是一场殊死之战，他们开始不顾一切地发起进攻，主人。你一定知道怎么做才能最好地嘉奖他们的勇气！"
 
-#. Level Tub Vulnerabilities hero onslaught message
+#. Level Okehazama hero onslaught message
 #: guitext:30
 msgctxt "In-game message"
 msgid "You have unleashed waves of hero raiding parties Master, as these heroes make their last stand in this realm. Your defences need to be extensive and well placed if you are to triumph here."
@@ -273,8 +273,8 @@ msgstr "四面楚歌"
 
 #: guitext:206
 msgctxt "Level name"
-msgid "Tub vulnerabilities"
-msgstr "破洞之桶"
+msgid "Okehazama"
+msgstr "桶狹間"
 
 #: guitext:207
 msgctxt "Level name"

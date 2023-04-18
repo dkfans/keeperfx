@@ -319,7 +319,7 @@ msgstr ""
 "amistosos, han roto su alianza, por lo que puedes ver el espectáculo de las "
 "implicaciones de tu incompetencia."
 
-#. Level Tub vulnerabilities opening message
+#. Level Okehazama opening message
 #: guitext:27
 msgctxt "In-game message"
 msgid ""
@@ -330,7 +330,7 @@ msgstr ""
 "los Guardianes Gemelos. Aquí hay otros tres guardianes, ¿y adivina qué? "
 "¡Ninguno de ellos como tú!"
 
-#. Level Tub Vulnerabilities victory message
+#. Level Okehazama victory message
 #: guitext:28
 msgctxt "In-game message"
 msgid ""
@@ -342,7 +342,7 @@ msgstr ""
 "a los infames Guardianes Gemelos en batalla. ¡Saborea este momento por un "
 "rato y luego prepárate para la prueba final!"
 
-#. Level Tub Vulnerabilities Hero Knight death message
+#. Level Okehazama Hero Knight death message
 #: guitext:29
 msgctxt "In-game message"
 msgid ""
@@ -354,7 +354,7 @@ msgstr ""
 "muerte y atacarán, en cada oportunidad, Maestro. ¡Lo mejor es recompensar su "
 "valentía de la única manera que sabes!"
 
-#. Level Tub Vulnerabilities hero onslaught message
+#. Level Okehazama hero onslaught message
 #: guitext:30
 msgctxt "In-game message"
 msgid ""
@@ -469,7 +469,7 @@ msgstr "La Formación Asediada"
 
 #: guitext:206
 msgctxt "Level name"
-msgid "Tub vulnerabilities"
+msgid "Okehazama"
 msgstr "Vulnerabilidades de la tinaja"
 
 #: guitext:207
