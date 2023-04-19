@@ -1,3 +1,17 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: FR_team\n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: FR_team\n"
+"Language: fr_FR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Generator: Poedit 3.2.2\n"
+
 # *****************************************************************************
 #  Free implementation of Bullfrog's Dungeon Keeper strategy game.
 # *****************************************************************************
@@ -16,16 +30,6 @@
 #      (at your option) any later version.
 #
 # *****************************************************************************
-"Project-Id-Version: KeeperFX CCP 0.40\n"
-"Last-Translator: Tomasz Lis <listom@gmail.com>\n"
-"Language-Team: Stanislas Dolcini <dolcini.stan@orange.fr>\n"
-"Language: fr_FR\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
-"X-Poedit-SourceCharset: utf-8\n"
-"X-Generator: Poedit 1.5.7\n"
-
 #. Generic victory message
 #: guitext:0
 msgctxt "In-game message"
@@ -87,7 +91,7 @@ msgid ""
 msgstr ""
 "Une maîtresse noire a trouvé son chemin jusqu'à votre tribu. Ces créatures "
 "masochistes offrent la seule protection à distance pour soutenir vos "
-"troupes, et comme les Démons Cornus, Elles doivent ^^être payées"
+"troupes, et comme les Démons Cornus, Elles doivent être payées."
 
 #: guitext:7
 msgctxt "In-game message"
@@ -98,7 +102,7 @@ msgid ""
 msgstr ""
 "Une réussite formidable, votre Grandeur. Pas le temps de la célébrer "
 "cependant, vous êtes loin d'avoir fini. Il y a toujours des Metilians dans "
-"la region, se nourrisant d'or. Trouvez-les et éliminez les."
+"la région, se nourrissant d'or. Trouvez-les et éliminez les !"
 
 #: guitext:8
 msgctxt "In-game message"
@@ -148,7 +152,7 @@ msgid ""
 msgstr ""
 "Prenez Garde! Un groupe particulièrement nuisible de Metilians ont rampé "
 "dans votre région. Les défaire en revanche pour être considéré comme une "
-"preuve de valeur aux yeux des Dieux du Mal... Faites le leur sentir."
+"preuve de valeur aux yeux des Dieux du Mal... Faites le leur sentir !"
 
 #: guitext:12
 msgctxt "In-game message"
@@ -185,10 +189,10 @@ msgid ""
 "Tower's fundament. The heroes are trapped and scattered, this is your chance "
 "to find and destroy the enemy heart!"
 msgstr ""
-"Merveilleux! Quand le barrage à été brêché, la lave en fusion à réclamé son "
-"lit originel, et fait maintenant fondre les murs faibles autours des "
+"Merveilleux! Quand le barrage à été rompu, la lave en fusion à réclamé son "
+"lit originel, et fait maintenant fondre les murs faibles autour des "
 "fondations de la tour. Les héros sont piégés et dispersés. C'est votre "
-"chance de trouver et de détruire le coeur du donjon."
+"chance de trouver et de détruire le coeur du donjon !"
 
 #: guitext:14
 msgctxt "In-game message"
@@ -289,12 +293,12 @@ msgid ""
 "will come to destroy it. Make haste!"
 msgstr ""
 "Des maudits héros ont réussi à capturer un groupe allié de Metilians, qui "
-"sont tenus prisonniers. Un assault de grande envergure ne ferait que les "
+"sont tenus prisonniers. Un assaut de grande envergure ne ferait que les "
 "alerter, et ce n'est pas quelque chose que l'on veut. Infiltrez la région "
 "aussi silencieusement que possible, Gardien et trouvez un moyen de briser le "
 "barrage. Ce ne sera pas facile. Ce n'est qu'un question de temps avant que "
-"votre donjon ne soit dévouvert et que les héros ne viennent le détruire. "
-"Hâtez-vous."
+"votre donjon ne soit découvert et que les héros ne viennent le détruire. "
+"Hâtez-vous !"
 
 #: guitext:24
 msgctxt "In-game message"
@@ -395,7 +399,12 @@ msgid ""
 "lethal creature, although not the toughest of the lot, possesses good speed, "
 "and is capable of firing powerfull blasts of fire at enemies at long range, "
 "dealing unmatched damage in a single shot."
-msgstr "Comme les Cerbères "
+msgstr ""
+"Avec les cerbères, les dragons sont la colonne vertébrale des armées "
+"Metiliennes. Cette créature mortelle, bien qu'elle ne soit pas la plus "
+"résistante du lot, possède une bonne vitesse et est capable de tirer de "
+"puissantes explosions de feu sur les ennemis à longue distance, infligeant "
+"des dégâts inégalés en un seul coup."
 
 #: guitext:35
 msgctxt "In-game message"
@@ -642,7 +651,7 @@ msgid ""
 msgstr ""
 "Un autre Gardien contrôle ce royaume infernal. Son donjon est au Nord. Si "
 "vous voulez attirer ses créatures, construisez un donjon réellement "
-"magnifique. Alors, au boulot!"
+"magnifique. Alors, au boulot."
 
 #: guitext:58
 msgctxt "In-game message"
@@ -762,7 +771,7 @@ msgid ""
 msgstr ""
 "Une Porte Renforcée a été fabriquée dans votre Atelier. En matière de "
 "sécurité, vous n'avez rien à craindre. Ce serait différent avec un simple "
-"rideau, et une brèche dans le mur serait encore pire!"
+"rideau, et une brèche dans le mur serait encore pire."
 
 #: guitext:69
 msgctxt "In-game message"
@@ -873,7 +882,7 @@ msgid ""
 "save them..."
 msgstr ""
 "Encore un ennemi éliminé! Les habitants sans défense de ce territoire "
-"saluent bien bas votre comportement dépravé. Comme si ça allait les sauver!"
+"saluent bien bas votre comportement dépravé. Comme si ça allait les sauver..."
 
 #: guitext:80
 msgctxt "In-game message"
@@ -951,7 +960,7 @@ msgid ""
 msgstr ""
 "Vous avez créé un Cimetière. Vos lutins vont y traîner les corps pour qu'ils "
 "puissent y pourrir... et éventuellement se transformer en Vampires prêts à "
-"satisfaire tous vos désirs. C'est la classe!"
+"satisfaire tous vos désirs. C'est la classe."
 
 #: guitext:87
 msgctxt "In-game message"
@@ -1020,7 +1029,7 @@ msgid ""
 "fickle creatures. Keep your eye on this one."
 msgstr ""
 "Votre richesse colossale a permis d'acheter la loyauté d'un Dragon de "
-"passage. Les Dragons sont des créatures instables, gardez un oeil sur lui!"
+"passage. Les Dragons sont des créatures instables, gardez un oeil sur lui."
 
 #: guitext:94
 msgctxt "In-game message"
@@ -1036,7 +1045,7 @@ msgid ""
 msgstr ""
 "Les deux autres Gardiens de la région ont provisoirement oublié leur "
 "différend et se sont unis pour vous détruire. C'est presque flatteur. "
-"Saignez ces minables!"
+"Saignez ces minables."
 
 #: guitext:96
 msgctxt "In-game message"
@@ -1055,7 +1064,7 @@ msgid ""
 "creature to transform a fearsome monster into a clucking chicken. Marvellous."
 msgstr ""
 "Vous avez découvert un pouvoir magique dévastateur. Il transformera un "
-"monstre effroyable en poussin piailleur. Merveilleux!"
+"monstre effroyable en poussin piailleur. Merveilleux."
 
 #: guitext:98
 msgctxt "In-game message"
@@ -1100,9 +1109,9 @@ msgid ""
 "demons from the fifth plane of hell. Train your creatures and prepare for "
 "another battle. You're attracting quite an audience."
 msgstr ""
-"L'anéantissement des premiers attaquants a interressé une horde de démons du "
+"L'anéantissement des premiers attaquants a intéressé une horde de démons du "
 "cinquième enfer. Entraîner vos créatures et préparez-vous à une autre "
-"bataille. Vous attirez du monde!"
+"bataille. Vous attirez du monde."
 
 #: guitext:103
 msgctxt "In-game message"
@@ -1119,7 +1128,7 @@ msgid ""
 "spoils are yours. May I suggest that you waste everything?"
 msgstr ""
 "Tous les héros sont morts, c'est parfait! Ce territoire et toutes ses "
-"richesses sont à vous. Je vous suggère de tout dilapider."
+"richesses sont à vous. Je vous suggère de tout dilapider?"
 
 #: guitext:105
 msgctxt "In-game message"
@@ -1142,7 +1151,7 @@ msgid ""
 msgstr ""
 "Le piège à Anneaux de Feu est votre dernière découverte. Lorsqu'il est "
 "activé, il déclenche un anneau de feu qui brûle tout alentour. C'est "
-"sûrement désopilant!"
+"sûrement désopilant."
 
 #: guitext:107
 msgctxt "In-game message"
@@ -1174,7 +1183,7 @@ msgid ""
 msgstr ""
 "Vos chercheurs ont découvert le sortilège dévastateur de la Galinamorphose. "
 "Il permet de transformer instantanément toute créature en volaille. C'est du "
-"tout cuit!"
+"tout cuit."
 
 #: guitext:110
 msgctxt "In-game message"
@@ -1185,7 +1194,7 @@ msgid ""
 msgstr ""
 "Vous disposez maintenant d'un sortilège qui réduit en poussière les murs "
 "fortifiés. Son utilisation coûte cher et il est possible que vos ennemis "
-"disposent également du même sortilège. Ça promet!"
+"disposent également du même sortilège. Ça promet."
 
 #: guitext:111
 msgctxt "In-game message"
@@ -1199,7 +1208,7 @@ msgstr ""
 #: guitext:112
 msgctxt "In-game message"
 msgid "Your continued success makes me sick. Thank you, your wickedness."
-msgstr "Vos succès répétés me rendent malade. Merci votre méchanceté"
+msgstr "Vos succès répétés me rendent malade. Merci votre méchanceté."
 
 #: guitext:113
 msgctxt "In-game message"
@@ -1214,7 +1223,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "Can you see how vulnerable one of your opponents has become? Then kill him."
-msgstr "Vous voyez comme cet ennemi est devenu si vulnérable ? Alors, tuez-le!"
+msgstr "Vous voyez comme cet ennemi est devenu si vulnérable ? Alors, tuez-le."
 
 #: guitext:115
 msgctxt "In-game message"
@@ -1325,7 +1334,7 @@ msgctxt "In-game message"
 msgid "This ancient realm is rich in magical artifacts. Go forth and plunder."
 msgstr ""
 "Cet ancien royaume recèle de nombreux artifices magiques. Allez-y, pillage "
-"général!"
+"général."
 
 #: guitext:127
 msgctxt "In-game message"
@@ -1485,7 +1494,7 @@ msgid ""
 "darkness were hoping for."
 msgstr ""
 "Vous avez échoué. Vous n'êtes peut-être pas le funeste présage que les "
-"forces du mal attendaient"
+"forces du mal attendaient."
 
 #: guitext:143
 msgctxt "In-game message"
@@ -1608,7 +1617,7 @@ msgid ""
 "eternity. Give 'em hell, master."
 msgstr ""
 "Raphaels est vaincu. Le territoire vous appartient et vous pouvez désormais "
-"le piller et le saccager. Faites-leur en baver, Maître!"
+"le piller et le saccager. Faites-leur en baver, Maître."
 
 #: guitext:156
 msgctxt "In-game message"
@@ -1621,7 +1630,7 @@ msgstr ""
 "Votre malfaisance a corrompu un guerrier Samourai qui a sacrifié son honneur "
 "pour rallier votre cause. Si vos larbins se font couper en petites "
 "rondelles, ce guerrier fera même appel à ses frères d'armes pour vous aider. "
-"N'est-ce pas aimable de sa part ? Et idiot, non ?"
+"N'est-ce pas aimable de sa part ? Et idiot !"
 
 #: guitext:157
 msgctxt "In-game message"
@@ -1703,7 +1712,7 @@ msgstr "Occupez vous mieux de vos démons bileux ou vous n'irez pas plus loin."
 #: guitext:166
 msgctxt "In-game message"
 msgid "How time flies... hurry!"
-msgstr "Le temps est presque écoulé. Dépêchez-vous."
+msgstr "Le temps est presque écoulé. Dépêchez-vous !"
 
 #: guitext:167
 msgctxt "In-game message"
@@ -1754,7 +1763,7 @@ msgid ""
 msgstr ""
 "Finalement, vous n'avez plus le moindre ennemi. Vous pouvez piller et "
 "saccager le monde entier. Je parie que vous ne vous êtes jamais senti aussi "
-"bien, non... ?"
+"bien, non..."
 
 #: guitext:173 guitext:174 guitext:175 guitext:176 guitext:177 guitext:178
 #: guitext:179 guitext:180 guitext:181 guitext:182 guitext:183 guitext:184
