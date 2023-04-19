@@ -1,23 +1,27 @@
 # *****************************************************************************
 #  Free implementation of Bullfrog's Dungeon Keeper strategy game.
 # *****************************************************************************
-#   @file twinkprs/text_eng.pot
-#      KeeperFX Campaign Strings translation template
+#   @file twinkprs/text_jpn.po
+#      KeeperFX Campaign Strings translation file
 #  @par Purpose:
-#      Allows to create .po files used for translating the game.
-#      Also, acts as a source of english translation strings.
+#      Contains translation of the national strings in the game.
 #  @par Comment:
-#      Use this file to create or update source strings in translations.
+#      Use this file to improve the translation for specific language.
 #  @author   KeeperFX Team
-#  @date     25 Aug 2012 - 03 Nov 2013
+#  @date     25 Aug 2012 - 17 Aug 2022
 #  @par  Copying and copyrights:
 #      This program is free software; you can redistribute it and/or modify
 #      it under the terms of the GNU General Public License as published by
 #      the Free Software Foundation; either version 2 of the License, or
 #      (at your option) any later version.
 #
-# *****************************************************************************
-"Project-Id-Version: Twin Keepers campaign for KeeperFX\n"
+# ***************************************************************************** 
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: "
+"Project-Id-Version: KeeperFX Twin Keepers\n"
+"Language: jpn\n"
 
 #. Generic victory message
 #: guitext:0
@@ -348,29 +352,36 @@ msgstr ""
 #: guitext:202
 msgctxt "Level name"
 msgid "Swedish spirit"
-msgstr ""
+msgstr "心技体"
 
 #: guitext:203
 msgctxt "Level name"
 msgid "The Nameless Hero"
-msgstr ""
+msgstr "The Nameless Hero"
 
 #: guitext:204
 msgctxt "Level name"
 msgid "Invisible"
-msgstr ""
+msgstr "インビジブル"
 
 #: guitext:205
 msgctxt "Level name"
 msgid "Embattled formation"
-msgstr ""
+msgstr "四面楚歌"
 
 #: guitext:206
 msgctxt "Level name"
 msgid "Okehazama"
-msgstr ""
+msgstr "桶狭間"
 
 #: guitext:207
 msgctxt "Level name"
 msgid "Twin Keepers"
+msgstr "Twin Keepers"
+
+#: guitext:208 guitext:209 guitext:210 guitext:211 guitext:212 guitext:213
+#: guitext:214 guitext:215 guitext:216 guitext:217 guitext:218 guitext:219
+#: guitext:220 guitext:221 guitext:222 guitext:223 guitext:224 guitext:225
+msgctxt "Level name"
+msgid "Unused"
 msgstr ""
