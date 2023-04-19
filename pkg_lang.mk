@@ -151,6 +151,9 @@ pkg/%/text_fre.dat: lang/%/text_fre.po $(POTONGDAT) $(EU_CHAR_ENCODING) | pkg/%
 pkg/%/text_ger.dat: lang/%/text_ger.po $(POTONGDAT) $(EU_CHAR_ENCODING) | pkg/%
 	$(POTONGDAT) -o $@ -e $(EU_CHAR_ENCODING) $< >/dev/null
 
+pkg/%/text_jpn.dat: lang/%/text_jpn.po $(POTONGDAT) $(JP_CHAR_ENCODING) | pkg/%
+	$(POTONGDAT) -o $@ -e $(JP_CHAR_ENCODING) $< >/dev/null
+
 pkg/%/text_pol.dat: lang/%/text_pol.po $(POTONGDAT) $(EU_CHAR_ENCODING) | pkg/%
 	$(POTONGDAT) -o $@ -e $(EU_CHAR_ENCODING) $< >/dev/null
 

@@ -107,6 +107,7 @@ const struct NamedCommand creaturetype_instance_properties[] = {
   {"DESTRUCTIVE",          InstPF_Destructive},
   {"QUICK",                InstPF_Quick},
   {"DISARMING",            InstPF_Disarming},
+  {"DISPLAY_SWIPE",        InstPF_UsesSwipe},
   {NULL,                     0},
   };
 
