@@ -1,0 +1,806 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: FR_team\n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: FR_team\n"
+"Language: fr_FR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Generator: Poedit 3.2.2\n"
+
+# *****************************************************************************
+#  Free implementation of Bullfrog's Dungeon Keeper strategy game.
+# *****************************************************************************
+#   @file burdnimp/text_fre.pot
+#      KeeperFX Campaign Strings translation file
+#  @par Purpose:
+#      Contains translation of the national strings in the game.
+#  @par Comment:
+#  @author   KeeperFX Team
+#  @par  Copying and copyrights:
+#      This program is free software; you can redistribute it and/or modify
+#      it under the terms of the GNU General Public License as published by
+#      the Free Software Foundation; either version 2 of the License, or
+#      (at your option) any later version.
+#
+# *****************************************************************************
+#. Generic victory message
+#: guitext:0
+msgctxt "In-game message"
+msgid ""
+msgstr ""
+
+#: guitext:1 guitext:2 guitext:3 guitext:4 guitext:5 guitext:6 guitext:7
+#: guitext:8 guitext:9
+msgctxt "In-game message"
+msgid "Moo3"
+msgstr "Moo3"
+
+#: guitext:10
+msgctxt "In-game message"
+msgid ""
+"Moonshadow Keep. Home to many knights and wizards of moral excellence. They "
+"truly are a stain on this world and deserving of certain death. Speed is of "
+"the essence, Keeper, restore this old dungeon as fast as you can. I can "
+"already hear heroes readying themselves to meet you."
+msgstr ""
+"Donjon d'Ombre de lune. Abritant de nombreux chevaliers et sorciers "
+"d'excellence morale. Ils sont vraiment une tache sur ce monde et méritent "
+"une mort certaine. La vitesse est primordiale, Gardien, restaurez cet ancien "
+"donjon aussi vite que possible. J'entends déjà des héros se préparer à te "
+"rencontrer."
+
+#: guitext:11
+msgctxt "In-game message"
+msgid ""
+"A final and desperate attempt to reclaim this land, Keeper. They should have "
+"fled when they had the chance. Make them regret their choice."
+msgstr ""
+"Une tentative finale et désespérée pour récupérer cette terre, Gardien. Ils "
+"auraient dû fuir quand ils en avaient l'occasion. Faites-leur regretter leur "
+"choix."
+
+#: guitext:12
+msgctxt "In-game message"
+msgid ""
+"All knights and wizards have been defeated. Without their leadership and "
+"wisdom this land has no choice but to bow down before your will. Expertly "
+"done, Keeper."
+msgstr ""
+"Tous les chevaliers et sorciers ont été vaincus. Sans leur leadership et "
+"leur sagesse, ce pays n'a d'autre choix que de s'incliner devant votre "
+"volonté. Fait de main de maître, Gardien."
+
+#: guitext:13
+msgctxt "In-game message"
+msgid ""
+"Be warned, Keeper! A band of heroes has left the keep and are heading for "
+"your domain!"
+msgstr ""
+"Soyez prévenu, Gardien ! Une bande de héros a quitté le donjon et se dirige "
+"vers votre domaine !"
+
+#: guitext:14
+msgctxt "In-game message"
+msgid ""
+"Be advised, Keeper, more heroes have left the safety of their home to "
+"destroy your dungeon."
+msgstr ""
+"Attention, Gardien, d'autres héros ont quitté la sécurité de leur maison "
+"pour détruire votre donjon."
+
+#: guitext:15
+msgctxt "In-game message"
+msgid ""
+"Beware! Another group of heroes left the keep! See that they receive an "
+"unexpected, fitting and gruesome end."
+msgstr ""
+"Faire attention! Un autre groupe de héros a quitté le donjon ! Veillez à ce "
+"qu'ils reçoivent une fin inattendue, appropriée et horrible."
+
+#: guitext:16
+msgctxt "In-game message"
+msgid ""
+"Keeper, here comes Yet another attempt to destroy your dungeon heart. How "
+"pathetic."
+msgstr ""
+"Gardien, voici encore une autre tentative de détruire votre cœur de donjon. "
+"Pathétique."
+
+#: guitext:17
+msgctxt "In-game message"
+msgid ""
+"A large group of heroes have left the keep once more to make a final, "
+"desperate attempt to destroy you. I thought you'd like to know."
+msgstr ""
+"Un grand groupe de héros a de nouveau quitté le donjon pour tenter une "
+"dernière tentative désespérée de vous détruire. J'ai pensé que tu aimerais "
+"savoir."
+
+#: guitext:18
+msgctxt "In-game message"
+msgid ""
+"The heroes have given up their pointless attacks on your dungeon and are "
+"cowering inside their fortress. The time has come to hunt them down. Put "
+"every so called noble knight and wizard out of his misery. Any other hero "
+"slain is more meat for your creatures to feast upon."
+msgstr ""
+"Les héros ont renoncé à leurs attaques inutiles sur votre donjon et se "
+"recroquevillent à l'intérieur de leur forteresse. Le moment est venu de les "
+"traquer. Mettez chaque soi-disant noble chevalier et sorcier hors de sa "
+"misère. Tout autre héros tué est plus de viande pour vos créatures."
+
+#: guitext:19
+msgctxt "In-game message"
+msgid "Moo4"
+msgstr "Moo4"
+
+#: guitext:20
+msgctxt "In-game message"
+msgid ""
+"An epic battle raged here, resulting in the defeat of a keeper. The heroes "
+"are healing their wounds and have not yet destroyed the keeper's dungeon. "
+"This is the perfect time to take his place and display the power of a real "
+"Keeper. Find your way into the dungeon and find the last remaining portal. "
+"But be wary, Keeper! You lack resources and minions. The death of a single "
+"creature could mean instant failure!"
+msgstr ""
+"Une bataille épique a fait rage ici, entraînant la défaite d'un gardien. Les "
+"héros soignent leurs blessures et n'ont pas encore détruit le donjon du "
+"gardien. C'est le moment idéal pour prendre sa place et montrer le pouvoir "
+"d'un vrai Gardien. Trouvez votre chemin dans le donjon et trouvez le dernier "
+"portail restant. Mais méfiez-vous, Gardien ! Vous manquez de ressources et "
+"de sbires. La mort d'une seule créature pourrait signifier un échec "
+"instantané !"
+
+#: guitext:21
+msgctxt "In-game message"
+msgid ""
+"Without servants or gold it will be impossible to go on, Keeper. You have "
+"failed miserably."
+msgstr ""
+"Sans serviteurs ni or, il sera impossible de continuer, Gardien. Vous avez "
+"lamentablement échoué."
+
+#: guitext:22 guitext:24 guitext:26
+msgctxt "In-game message"
+msgid "This creature was vital to your success, Keeper! You have failed."
+msgstr ""
+"Cette créature était essentielle à votre succès, Gardien ! Tu as échoué."
+
+#: guitext:23
+msgctxt "In-game message"
+msgid ""
+"A skeleton. Use his abilities wisely, Keeper. He might prove to be quite "
+"useful."
+msgstr ""
+"Un squelette. Utilisez ses capacités à bon escient, Gardien. Il pourrait se "
+"révéler très utile."
+
+#: guitext:25
+msgctxt "In-game message"
+msgid ""
+"Speed and wings will prove to be useful. Be sure that it does not perish "
+"before it carries out its task."
+msgstr ""
+"La vitesse et les ailes se révéleront utiles. Assurez-vous qu'il ne périsse "
+"pas avant d'accomplir sa tâche."
+
+#: guitext:27
+msgctxt "In-game message"
+msgid ""
+"Several cowardly imps have managed to hide during the slaughter and pledge "
+"their allegiance to you. Furthermore, they have restored your ability to "
+"summon them. It is time to dig out the portal and build up your forces. Be "
+"sure to be well prepared when you start your attack on the heroes' fortress."
+msgstr ""
+"Plusieurs larbins lâches ont réussi à se cacher pendant le massacre et à "
+"vous prêter allégeance. De plus, ils ont restauré votre capacité à les "
+"invoquer. Il est temps de creuser le portail et de renforcer vos forces. "
+"Assurez-vous d'être bien préparé lorsque vous lancez votre attaque sur la "
+"forteresse des héros."
+
+#: guitext:28
+msgctxt "In-game message"
+msgid ""
+"The lord of the land lies defeated in his stinking pool of corrupted undead "
+"minions and his dungeon heart is shattered like the bones of the skeletons "
+"that protected it. Excellent work, Keeper."
+msgstr ""
+"Le seigneur de la terre est vaincu dans sa mare puante de sbires morts-"
+"vivants corrompus et son cœur de donjon est brisé comme les os des "
+"squelettes qui le protégeaient. Excellent travail, Gardien."
+
+#: guitext:29
+msgctxt "In-game message"
+msgid ""
+"There doesn't seem to be a library available. There is another Keeper who "
+"can provide what you seek. Find him in the south-west and steal his magic. "
+"This Keeper is old and weak and lost his portal during a fight. He should "
+"not be a threat to you."
+msgstr ""
+"Il ne semble pas y avoir de bibliothèque disponible. Il y a un autre Gardien "
+"qui peut vous fournir ce que vous cherchez. Trouvez-le dans le sud-ouest et "
+"volez sa magie. Ce Gardien est vieux et faible et a perdu son portail lors "
+"d'un combat. Il ne devrait pas être une menace pour vous."
+
+#: guitext:30
+msgctxt "In-game message"
+msgid ""
+"This hallway reeks of death and decay. While the smell is very soothing it "
+"does not belong here. These so-called heroes might have had outside help to "
+"overthrow their enemies. Proceed with caution, Keeper."
+msgstr ""
+"Ce couloir pue la mort et la pourriture. Bien que l'odeur soit très "
+"apaisante, elle n'a pas sa place ici. Ces soi-disant héros auraient pu avoir "
+"une aide extérieure pour renverser leurs ennemis. Procédez avec prudence, "
+"Gardien."
+
+#: guitext:31
+msgctxt "In-game message"
+msgid ""
+"In case you were taking a nap, a band of fully rested heroes are on their "
+"way to meet you, Keeper."
+msgstr ""
+"Au cas où vous faisiez une sieste, un groupe de héros entièrement reposés "
+"est en route pour vous rencontrer, Gardien."
+
+#: guitext:32
+msgctxt "In-game message"
+msgid "More heroes are on their way. Be ready."
+msgstr "D'autres héros sont en route. Être prêt."
+
+#: guitext:33
+msgctxt "In-game message"
+msgid ""
+"Another feeble attempt has been launched to remove you from this land. Just "
+"that you know."
+msgstr ""
+"Une autre faible tentative a été lancée pour vous expulser de cette terre. "
+"Juste que tu sais."
+
+#: guitext:34
+msgctxt "In-game message"
+msgid ""
+"Heroes are becoming scarce. A final desperate attack has been launched to "
+"reclaim this dungeon. I see undead among them. What treachery is this?"
+msgstr ""
+"Les héros se font rares. Une dernière attaque désespérée a été lancée pour "
+"récupérer ce donjon. Je vois des morts-vivants parmi eux. De quelle trahison "
+"s'agit-il ?"
+
+#: guitext:35 guitext:36 guitext:37
+msgctxt "In-game message"
+msgid "Moo5"
+msgstr "Moo5"
+
+#: guitext:38
+msgctxt "In-game message"
+msgid ""
+"A portal is absent on this island. Without minions you have no hope of "
+"defeating the enemy Keeper here. However, visiting the nearby hero fortress "
+"might open some recruitment options. Starving heroes make fine skeletons and "
+"you might even be able to attract a vampire or two. Or, if you feel "
+"particularly evil today, why not convert them all to your cause and create a "
+"legion of heroes?"
+msgstr ""
+"Un portail est absent sur cette île. Sans serviteurs, vous n'avez aucun "
+"espoir de vaincre le gardien ennemi ici. Cependant, visiter la forteresse "
+"des héros à proximité pourrait ouvrir certaines options de recrutement. Les "
+"héros affamés font de beaux squelettes et vous pourriez même être en mesure "
+"d'attirer un vampire ou deux. Ou, si vous vous sentez particulièrement "
+"mauvais aujourd'hui, pourquoi ne pas les convertir tous à votre cause et "
+"créer une légion de héros ?"
+
+#: guitext:39
+msgctxt "In-game message"
+msgid ""
+"A fine display of wickedness. Congratulations, Keeper. Now, what to do with "
+"your remaining heroes..."
+msgstr ""
+"Une belle démonstration de méchanceté. Félicitations, Gardien. Maintenant, "
+"que faire de vos héros restants..."
+
+#: guitext:40
+msgctxt "In-game message"
+msgid "You cannot hope to win without minions, Keeper. You have failed."
+msgstr ""
+"Vous ne pouvez pas espérer gagner sans serviteurs, Gardien. Tu as échoué."
+
+#: guitext:41
+msgctxt "In-game message"
+msgid ""
+"You are well on your way, Keeper. Thirty or more minions might do to "
+"overthrow your adversary. But it will be wise to gather more. Remember, you "
+"cannot replace fallen minions easily without a portal."
+msgstr ""
+"Vous êtes sur la bonne voie, Gardien. Trente sbires ou plus pourraient faire "
+"pour renverser votre adversaire. Mais il sera sage d'en rassembler "
+"davantage. N'oubliez pas que vous ne pouvez pas remplacer facilement les "
+"serviteurs tombés sans portail."
+
+#: guitext:42
+msgctxt "In-game message"
+msgid ""
+"An assortment of heroes have arrived. They will undoubtly attack your "
+"dungeon after seeing the grief you have caused to their friends. Potential "
+"future servants?"
+msgstr ""
+"Un assortiment de héros est arrivé. Ils attaqueront sans aucun doute votre "
+"donjon après avoir vu le chagrin que vous avez causé à leurs amis. "
+"Potentiels futurs serviteurs ?"
+
+#: guitext:43
+msgctxt "In-game message"
+msgid "Moo6"
+msgstr "Moo6"
+
+#: guitext:44
+msgctxt "In-game message"
+msgid ""
+"The lord of this land has come to revenge his comrades. What he doesn't know "
+"is that he'll soon be fighting them. One has got to love the irony in that."
+msgstr ""
+"Le seigneur de cette terre est venu venger ses camarades. Ce qu'il ne sait "
+"pas, c'est qu'il va bientôt les combattre. Il faut aimer l'ironie là-dedans."
+
+#: guitext:45
+msgctxt "In-game message"
+msgid ""
+"Magnificent thinking, Keeper. The contamination of these holy wells by your "
+"minions' dirty feet has led to an interesting gift from the Gods. A Horned "
+"Reaper has come to aid you."
+msgstr ""
+"Magnifique pensée, Gardien. La contamination de ces puits sacrés par les "
+"pieds sales de vos sbires a conduit à un cadeau intéressant des dieux. Un "
+"faucheur cornu est venu vous aider."
+
+#: guitext:46
+msgctxt "In-game message"
+msgid ""
+"Most unpleasantly done, Keeper. This knight will make an excellent addition "
+"to your force."
+msgstr ""
+"Très désagréablement fait, Gardien. Ce chevalier fera un excellent ajout à "
+"votre force."
+
+#: guitext:47
+msgctxt "In-game message"
+msgid ""
+"A dragon has joined your cause. There may be others around. Be advised, "
+"Keeper, if you seek to imprisonate and torture your enemy, a dragon's flames "
+"can burn any victim beyond unconsciousness. It would be best to find other "
+"minions to subdue your enemy."
+msgstr ""
+"Un dragon a rejoint votre cause. Il peut y en avoir d'autres autour. Sachez, "
+"Gardien, que si vous cherchez à emprisonner et à torturer votre ennemi, les "
+"flammes d'un dragon peuvent brûler n'importe quelle victime au-delà de "
+"l'inconscience. Il serait préférable de trouver d'autres sbires pour "
+"maîtriser votre ennemi."
+
+#: guitext:48 guitext:49 guitext:50
+msgctxt "In-game message"
+msgid "Moo7"
+msgstr "Moo7"
+
+#: guitext:51
+msgctxt "In-game message"
+msgid ""
+"Four distinct mages are currently researching ways of becoming a Keeper such "
+"as yourself. If they would succeed there would be four more keepers "
+"threatening your land. Flush them out while they are still simple mortals. "
+"They are holed up in a cave called the Raven's Claw, past an ancient "
+"monastery."
+msgstr ""
+"Quatre mages distincts recherchent actuellement des moyens de devenir un "
+"Gardien tel que vous. S'ils réussissaient, quatre autres gardiens "
+"menaceraient votre terre. Débusquez-les alors qu'ils sont encore de simples "
+"mortels. Ils sont enfermés dans une grotte appelée la Griffe du Corbeau, "
+"devant un ancien monastère."
+
+#: guitext:52
+msgctxt "In-game message"
+msgid ""
+"All mages have been most efficiently removed. This will save you some time "
+"in the future for more important things. Like torturing your prisoners. Or "
+"slapping your imps. Or see a skeleton play with a group of hellhounds. Or "
+"play with your gold. Or flirt with a mistress. Well done."
+msgstr ""
+"Tous les mages ont été éliminés plus efficacement. Cela vous fera gagner du "
+"temps à l'avenir pour des choses plus importantes. Comme torturer vos "
+"prisonniers. Ou gifler vos larbins. Ou voyez un squelette jouer avec un "
+"groupe de chiens de l'enfer. Ou jouez avec votre or. Ou flirter avec une "
+"maîtresse. Bien joué."
+
+#: guitext:53
+msgctxt "In-game message"
+msgid ""
+"Von Lichstein. His bloodsucking days are quite over. A masterful victory."
+msgstr ""
+"Von Lichstein. Ses jours de suceurs de sang sont bien révolus. Une victoire "
+"magistrale."
+
+#: guitext:54
+msgctxt "In-game message"
+msgid ""
+"Shakara, voodoo witch extraordinaire. She also majored in the summoning of "
+"various types of demons. It is almost a shame to see such a talent wasted... "
+"Almost."
+msgstr ""
+"Shakara, extraordinaire sorcière vaudou. Elle s'est également spécialisée "
+"dans l'invocation de divers types de démons. C'est presque dommage de voir "
+"un tel talent gaspillé... Presque."
+
+#: guitext:55
+msgctxt "In-game message"
+msgid ""
+"Tovus the Dread, a powerful wizard. Now known as Tovus the Dead. He bled "
+"before he could have fled. Well done."
+msgstr ""
+"Tovus the Dread, un puissant sorcier. Maintenant connu sous le nom de Tovus "
+"le Mort. Il a saigné avant de pouvoir s'enfuir. Bien joué."
+
+#: guitext:56
+msgctxt "In-game message"
+msgid ""
+"Xaan, once a warlock of great stature. Now he lies on the floor in his own "
+"pool of blood. And his 'stature' died with him. That old fool."
+msgstr ""
+"Xaan, autrefois un sorcier de grande stature. Maintenant, il est allongé sur "
+"le sol dans sa propre mare de sang. Et sa « stature » est morte avec lui. Ce "
+"vieux fou."
+
+#: guitext:57
+msgctxt "In-game message"
+msgid "Quite the haunted place, Keeper. Such fun your minions must have!"
+msgstr ""
+"Un endroit plutôt hanté, Gardien. Un tel plaisir que vos serviteurs doivent "
+"avoir !"
+
+#: guitext:58 guitext:59
+msgctxt "In-game message"
+msgid "Moo8"
+msgstr "Moo8"
+
+#: guitext:60
+msgctxt "In-game message"
+msgid ""
+"The village of Silversong has been deserted. Rumors are that the people have "
+"fled underground, hiding from their enemies above. Little do they know that "
+"there is more below the ground than they are led to believe. Pay them a "
+"little visit and make them understand that this is your domain. In other "
+"words, destroy their heart and eradicate every hero alive."
+msgstr ""
+"Le village de Silversong a été déserté. Les rumeurs disent que les gens ont "
+"fui sous terre, se cachant de leurs ennemis d'en haut. Ils ne savent pas "
+"qu'il y a plus sous terre qu'ils ne le croient. Rendez-leur une petite "
+"visite et faites-leur comprendre qu'il s'agit de votre domaine. En d'autres "
+"termes, détruisez leur cœur et éradiquez tous les héros vivants."
+
+#: guitext:61
+msgctxt "In-game message"
+msgid ""
+"Heroes have come to take their revenge. There's quite a bunch of them. Good "
+"luck, Keeper. You might need it."
+msgstr ""
+"Les héros sont venus prendre leur revanche. Il y en a pas mal. Bonne chance, "
+"Gardien. Vous pourriez en avoir besoin."
+
+#: guitext:62
+msgctxt "In-game message"
+msgid ""
+"Well done, Keeper. Another piece of land added to your ever growing domain."
+msgstr ""
+"Bravo, Gardien. Un autre terrain ajouté à votre domaine en pleine croissance."
+
+#: guitext:63
+msgctxt "In-game message"
+msgid ""
+"Just that you know, someone has undoubtly heard the destruction of this "
+"door. The heroes might be aware of your presence."
+msgstr ""
+"Juste que vous le sachiez, quelqu'un a sans doute entendu la destruction de "
+"cette porte. Les héros pourraient être conscients de votre présence."
+
+#: guitext:64
+msgctxt "In-game message"
+msgid "Beware, a party of heroes is on its way to find your dungeon heart."
+msgstr ""
+"Attention, un groupe de héros est en route pour trouver votre cœur de donjon."
+
+#: guitext:65
+msgctxt "In-game message"
+msgid ""
+"Another try has been initiated to invade and destroy your dungeon. Just that "
+"you know."
+msgstr ""
+"Une autre tentative a été initiée pour envahir et détruire votre donjon. "
+"Juste que tu sais."
+
+#: guitext:66
+msgctxt "In-game message"
+msgid "Heads up, Keeper. More incoming heroes."
+msgstr "Attention, gardien. Plus de héros entrants."
+
+#: guitext:67
+msgctxt "In-game message"
+msgid ""
+"A few wizards did not agree on you taking their tome of wall shattering. "
+"They are after revenge, Keeper."
+msgstr ""
+"Quelques sorciers n'étaient pas d'accord pour que vous preniez leur tome de "
+"destruction de murs. Ils veulent se venger, Gardien."
+
+#: guitext:68 guitext:69
+msgctxt "In-game message"
+msgid "Moo9"
+msgstr "Moo9"
+
+#: guitext:70
+msgctxt "In-game message"
+msgid ""
+"Well done, Keeper. All knights have been dealt with. The river seems to have "
+"calmed down a bit too. You can now build a bridge to the other side. But "
+"beware, I sense something is coming for you."
+msgstr ""
+"Bravo, Gardien. Tous les chevaliers ont été traités. La rivière semble "
+"s'être un peu calmée aussi. Vous pouvez maintenant construire un pont vers "
+"l'autre côté. Mais attention, je sens que quelque chose se prépare pour vous."
+
+#: guitext:71
+msgctxt "In-game message"
+msgid ""
+"Well done. Let's hope the Avatar will not be resurrected this time, although "
+"I fear that it will be the case. But for today You are done here."
+msgstr ""
+"Bien joué. Espérons que l'Avatar ne ressuscitera pas cette fois, même si je "
+"crains que ce ne soit le cas. Mais pour aujourd'hui, vous avez terminé ici."
+
+#: guitext:72
+msgctxt "In-game message"
+msgid ""
+"Well done. Let's hope the Avatar will not escape from your grasp this time, "
+"although I fear that it will be the case. But for today you are done here."
+msgstr ""
+"Bien joué. Espérons que l'Avatar ne vous échappera pas cette fois, même si "
+"je crains que ce ne soit le cas. Mais pour aujourd'hui, vous avez terminé "
+"ici."
+
+#: guitext:73
+msgctxt "In-game message"
+msgid ""
+"The Avatar himself has come to defeat the corrupted knights. Ofcourse, he "
+"will not find them, but WILL find you instead. Be ready."
+msgstr ""
+"L'Avatar lui-même est venu vaincre les chevaliers corrompus. Bien sûr, il ne "
+"les trouvera pas, mais vous trouvera à la place. Être prêt."
+
+#: guitext:74
+msgctxt "In-game message"
+msgid ""
+"The shallow river running through this area has a strong current at the "
+"moment. Building bridges would result in failure. You will have to do "
+"without for now."
+msgstr ""
+"La rivière peu profonde qui traverse cette zone a un fort courant en ce "
+"moment. Construire des ponts se solderait par un échec. Vous devrez faire "
+"sans pour l'instant."
+
+#: guitext:75
+msgctxt "In-game message"
+msgid ""
+"Six knights occupy this realm, but they are no ordinary knights. These "
+"knights have abandoned their virtues. Lord Angelus the Unjust, Lord Donahan "
+"the Greedy, Lord Espardio the Cowardly, Lord Vladavir the Betrayer, Lord "
+"Demunus the Vile and Lord Gustavo the Unliving all hide here from their "
+"brethren's vengeance. Spineless cowards. Flush them out."
+msgstr ""
+"Six chevaliers occupent ce royaume, mais ce ne sont pas des chevaliers "
+"ordinaires. Ces chevaliers ont abandonné leurs vertus. Lord Angelus "
+"l'Injuste, Lord Donahan le Cupide, Lord Espardio le Lâche, Lord Vladavir le "
+"Traître, Lord Demunus le Vile et Lord Gustavo le Non-vivant se cachent tous "
+"ici de la vengeance de leurs frères. Des lâches veules. Rincez-les."
+
+#: guitext:76
+msgctxt "In-game message"
+msgid ""
+"How nice. A welcoming party is coming your way. Be sure to accept their "
+"invitation. And be sure to expect more of them."
+msgstr ""
+"Comme c'est gentil. Une fête de bienvenue se prépare. Assurez-vous "
+"d'accepter leur invitation. Et attendez-vous à plus d'eux."
+
+#: guitext:77
+msgctxt "In-game message"
+msgid "More incoming heroes. Do they annoy you yet, Keeper?"
+msgstr "Plus de héros entrants. Est-ce qu'ils t'ennuient encore, Gardien ?"
+
+#: guitext:78
+msgctxt "In-game message"
+msgid ""
+"More heroes have come to invade your home. This looks like their last try to "
+"destroy your dungeon. It is about time they gave up."
+msgstr ""
+"Plus de héros sont venus envahir votre maison. Cela ressemble à leur "
+"dernière tentative pour détruire votre donjon. Il est temps qu'ils "
+"abandonnent."
+
+#: guitext:79
+msgctxt "In-game message"
+msgid ""
+"A prison is now available to you, in case you feel like giving some heroes a "
+"new home."
+msgstr ""
+"Une prison est maintenant à votre disposition, au cas où vous auriez envie "
+"de donner une nouvelle maison à certains héros."
+
+#: guitext:80
+msgctxt "In-game message"
+msgid "Moo10"
+msgstr "Moo10"
+
+#: guitext:81
+msgctxt "In-game message"
+msgid ""
+"Well, there goes your last hope of success. You cannot hope to defeat "
+"anything emptyhanded, can you?"
+msgstr ""
+"Eh bien, voilà votre dernier espoir de succès. Vous ne pouvez pas espérer "
+"vaincre quoi que ce soit les mains vides, n'est-ce pas ?"
+
+#: guitext:82
+msgctxt "In-game message"
+msgid ""
+"Although small and annoying, imps are the backbone of your existence. "
+"Without them you are nothing, and since you lost all your servants you are "
+"indeed... nothing."
+msgstr ""
+"Bien que petits et ennuyeux, les larbins sont l'épine dorsale de votre "
+"existence. Sans eux, vous n'êtes rien, et puisque vous avez perdu tous vos "
+"serviteurs, vous n'êtes en effet... rien."
+
+#: guitext:83
+msgctxt "In-game message"
+msgid ""
+"Masterfully done. A victory like this makes my flaming heart burn with "
+"conflagration. Congratulations, Keeper."
+msgstr ""
+"Fait de main de maître. Une victoire comme celle-ci fait brûler mon cœur "
+"enflammé de conflagration. Félicitations, Gardien."
+
+#: guitext:84
+msgctxt "In-game message"
+msgid ""
+"Here you are, with nothing but three little servants and an enemy keeper to "
+"kill. His magic has stripped away your spells and resources, but things are "
+"not so bad... yet. Unless, ofcourse, you pick the wrong door. Choose wisely, "
+"Keeper. Your life depends on it."
+msgstr ""
+"Vous voilà, avec rien d'autre que trois petits serviteurs et un gardien "
+"ennemi à tuer. Sa magie a dépouillé vos sorts et vos ressources, mais les "
+"choses ne vont pas si mal... pour le moment. À moins, bien sûr, que vous "
+"choisissiez la mauvaise porte. Choisissez judicieusement, Gardien. Votre vie "
+"en dépend."
+
+#: guitext:85
+msgctxt "In-game message"
+msgid ""
+"This old portal is a start, but you will have to find more ways to enlarge "
+"your power. Search around. There are many secrets to be found in this place."
+msgstr ""
+"Cet ancien portail est un début, mais vous devrez trouver d'autres moyens "
+"d'augmenter votre pouvoir. Cherchez autour. Il y a beaucoup de secrets à "
+"découvrir dans cet endroit."
+
+#: guitext:86
+msgctxt "In-game message"
+msgid ""
+"You are about ready to start making your enemy's life miserable. Destroy his "
+"dungeon with extreme prejudice."
+msgstr ""
+"Vous êtes sur le point de commencer à rendre la vie de votre ennemi "
+"misérable. Détruisez son donjon avec un préjudice extrême."
+
+#: guitext:87 guitext:88 guitext:89
+msgctxt "In-game message"
+msgid "Moo11"
+msgstr "Moo11"
+
+#: guitext:90
+msgctxt "In-game message"
+msgid ""
+"Four wizards have cast a spell of fear over your servants, Keeper. Twelve "
+"imps fled into the northern part of these caves. Find at least eight of them "
+"and make sure they live. Oh, your servants took your spellbooks as well. "
+"Time to do a thorough search."
+msgstr ""
+"Quatre sorciers ont jeté un sort de terreur sur vos serviteurs, Gardien. "
+"Douze larbins se sont enfuis dans la partie nord de ces grottes. Trouvez-en "
+"au moins huit et assurez-vous qu'ils vivent. Oh, vos serviteurs ont "
+"également pris vos grimoires. Il est temps de faire une recherche "
+"approfondie."
+
+#: guitext:91
+msgctxt "In-game message"
+msgid ""
+"An imp was carrying your Create Imp spell in its backpack. You are back in "
+"business. Pay the wizards a little visit, one that they will not survice, "
+"and level their dungeon for good measure."
+msgstr ""
+"Un diablotin transportait votre sort Créer diablotin dans son sac à dos. "
+"Vous êtes de retour aux affaires. Rendez une petite visite aux sorciers, une "
+"visite à laquelle ils ne survivront pas, et nivelez leur donjon pour faire "
+"bonne mesure."
+
+#: guitext:92
+msgctxt "In-game message"
+msgid "Revenge is ever so sweet, don't you agree, Keeper? A marvelous victory."
+msgstr ""
+"La vengeance est toujours aussi douce, n'êtes-vous pas d'accord, Gardien ? "
+"Une merveilleuse victoire."
+
+#: guitext:93 guitext:94 guitext:95 guitext:96 guitext:97 guitext:98 guitext:99
+#: guitext:100 guitext:101 guitext:102 guitext:103 guitext:104 guitext:105
+#: guitext:106 guitext:107 guitext:108 guitext:109 guitext:110 guitext:111
+#: guitext:112 guitext:113 guitext:114 guitext:115 guitext:116 guitext:117
+#: guitext:118 guitext:119 guitext:120 guitext:121 guitext:122 guitext:123
+#: guitext:124 guitext:125 guitext:126 guitext:127 guitext:128 guitext:129
+#: guitext:130 guitext:131 guitext:132 guitext:133 guitext:134 guitext:135
+#: guitext:136 guitext:137 guitext:138 guitext:139 guitext:140 guitext:141
+#: guitext:142 guitext:143 guitext:144 guitext:145 guitext:146 guitext:147
+#: guitext:148 guitext:149 guitext:150 guitext:151 guitext:152 guitext:153
+#: guitext:154 guitext:155 guitext:156 guitext:157 guitext:158 guitext:159
+#: guitext:160 guitext:161 guitext:162 guitext:163 guitext:164 guitext:165
+#: guitext:166 guitext:167 guitext:168 guitext:169 guitext:170 guitext:171
+#: guitext:172 guitext:173 guitext:174 guitext:175 guitext:176 guitext:177
+#: guitext:178 guitext:179 guitext:180 guitext:181 guitext:182 guitext:183
+#: guitext:184 guitext:185 guitext:186 guitext:187 guitext:188 guitext:189
+#: guitext:190 guitext:191 guitext:192 guitext:193 guitext:194 guitext:195
+#: guitext:196 guitext:197 guitext:198 guitext:199 guitext:200
+msgctxt "In-game message"
+msgid "Moo"
+msgstr "Moo"
+
+#: guitext:202
+msgctxt "Level name"
+msgid "Moonshadow Keep"
+msgstr "Moonshadow Keep"
+
+#: guitext:203
+msgctxt "Level name"
+msgid "Winterfrost Run"
+msgstr "Winterfrost Run"
+
+#: guitext:204
+msgctxt "Level name"
+msgid "Blistering Furnace"
+msgstr "Blistering Furnace"
+
+#: guitext:205
+msgctxt "Level name"
+msgid "Raven's Claw"
+msgstr "Raven's Claw"
+
+#: guitext:206
+msgctxt "Level name"
+msgid "Silversong Fall"
+msgstr "Silversong Fall"
+
+#: guitext:207
+msgctxt "Level name"
+msgid "Waterspring River"
+msgstr "Waterspring River"
+
+#: guitext:208
+msgctxt "Level name"
+msgid "Amberstone Hills"
+msgstr "Amberstone Hills"
+
+#: guitext:209
+msgctxt "Level name"
+msgid "Dreamweave Caverns"
+msgstr "Dreamweave Caverns"
