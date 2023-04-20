@@ -680,10 +680,13 @@ void process_timebomb(struct Thing *creatng)
     struct Thing* timetng = thing_get(cctrl->timebomb_countdown_id);
     if (thing_is_invalid(timetng))
     {
-        long time = (cctrl->timebomb_countdown / game.num_fps);
-        timetng = create_price_effect(&creatng->mappos, creatng->owner, time);
-        cctrl->timebomb_countdown_id = timetng->index;
-        thing_play_sample(creatng, 853, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+        if ((cctrl->timebomb_countdown % game.num_fps) == 0)
+        {
+            long time = (cctrl->timebomb_countdown / game.num_fps);
+            timetng = create_price_effect(&creatng->mappos, creatng->owner, time);
+            cctrl->timebomb_countdown_id = timetng->index;
+            thing_play_sample(creatng, 853, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+        }
     }
     else
     {
