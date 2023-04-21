@@ -27,7 +27,7 @@ msgstr ""
 #: guitext:1
 msgctxt "In-game message"
 msgid "The heroes of Winterrage will be no match for our undead army. But make haste Master, it won't be long before your rival breaks into this realm!"
-msgstr "Date prisa Maestro. No pasará mucho tiempo antes de que tu rival irrumpa en este reino."
+msgstr "Los héroes de Furia Invernal no serán rival para nuestro ejército de muertos vivientes. ¡Pero date prisa Maestro, no pasará mucho tiempo antes de que tu rival irrumpa en este reino!"
 
 #: guitext:2
 msgctxt "In-game message"
