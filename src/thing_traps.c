@@ -235,7 +235,14 @@ TbBool update_trap_trigger_line_of_sight_90_on_subtile(struct Thing *traptng, Ma
 
 TbBool update_trap_trigger_line_of_sight_90(struct Thing *traptng)
 {
-    static const MapSubtlDelta line_of_sight_90_range = 20;
+    const struct TrapStats* trapstat = &gameadd.trap_stats[traptng->model];
+    struct ShotConfigStats* shotst = get_shot_model_stats(trapstat->created_itm_model);
+
+    MapSubtlDelta line_of_sight_90_range = (shotst->max_range / COORD_PER_STL);
+    if (line_of_sight_90_range == 0)
+    {
+        line_of_sight_90_range = max(gameadd.map_subtiles_x, gameadd.map_subtiles_y);
+    }
     MapSubtlCoord stl_x_beg;
     MapSubtlCoord stl_x_end;
     MapSubtlCoord stl_y_beg;
@@ -648,7 +655,12 @@ TbBool update_trap_trigger_pressure_subtile(struct Thing *traptng)
 TbBool update_trap_trigger_line_of_sight(struct Thing* traptng)
 {
     struct Thing* trgtng = get_nearest_enemy_creature_possible_to_attack_by(traptng);
-
+    const struct TrapStats* trapstat = &gameadd.trap_stats[traptng->model];
+    struct ShotConfigStats* shotst = get_shot_model_stats(trapstat->created_itm_model);
+    if (get_2d_distance(&traptng->mappos, &trgtng->mappos) > shotst->max_range)
+    {
+        return false;
+    }
     if (line_of_sight_2d(&traptng->mappos, &trgtng->mappos))
     {
         activate_trap(traptng, trgtng);
