@@ -654,14 +654,8 @@ TbBool update_trap_trigger_pressure_subtile(struct Thing *traptng)
 
 TbBool update_trap_trigger_line_of_sight(struct Thing* traptng)
 {
-    struct Thing* trgtng = get_nearest_enemy_creature_possible_to_attack_by(traptng);
-    const struct TrapStats* trapstat = &gameadd.trap_stats[traptng->model];
-    struct ShotConfigStats* shotst = get_shot_model_stats(trapstat->created_itm_model);
-    if (get_2d_distance(&traptng->mappos, &trgtng->mappos) > shotst->max_range)
-    {
-        return false;
-    }
-    if (line_of_sight_2d(&traptng->mappos, &trgtng->mappos))
+    struct Thing* trgtng = get_nearest_enemy_creature_in_sight_and_range_of_trap(traptng);
+    if (!thing_is_invalid(trgtng))
     {
         activate_trap(traptng, trgtng);
         return true;
