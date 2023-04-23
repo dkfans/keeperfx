@@ -800,7 +800,7 @@ TbBool parse_terrain_room_blocks(char *buf, long len, const char *config_textnam
     int arr_size = TERRAIN_ITEMS_MAX;
     for (i = 0; i < arr_size; i++)
     {
-        if (((flags & CnfLd_AcceptPartial) == 0) || ((room_desc[i].name) == NULL)) //(room_desc[i].num == 0))//(room_desc[i].name != NULL))
+        if (((flags & CnfLd_AcceptPartial) == 0) || ((room_desc[i].name) == NULL))
         {
             if (i < slab_conf.room_types_count)
             {
