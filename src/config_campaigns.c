@@ -67,20 +67,21 @@ const struct NamedCommand cmpgn_common_commands[] = {
   };
 
 const struct NamedCommand cmpgn_map_commands[] = {
-  {"NAME_TEXT",       1},
-  {"NAME_ID",         2},
-  {"ENSIGN_POS",      3},
-  {"ENSIGN_ZOOM",     4},
-  {"PLAYERS",         5},
-  {"OPTIONS",         6},
-  {"SPEECH",          7},
-  {"LAND_VIEW",       8},
-  {"KIND",            9}, // for LOF files only
-  {"AUTHOR",         10},
-  {"DESCRIPTION",    11},
-  {"DATE",           12},
-  {"MAPSIZE",        13},
-  {NULL,              0},
+  {"NAME_TEXT",           1},
+  {"NAME_ID",             2},
+  {"ENSIGN_POS",          3},
+  {"ENSIGN_ZOOM",         4},
+  {"PLAYERS",             5},
+  {"OPTIONS",             6},
+  {"SPEECH",              7},
+  {"LAND_VIEW",           8},
+  {"KIND",                9}, // for LOF files only
+  {"AUTHOR",             10},
+  {"DESCRIPTION",        11},
+  {"DATE",               12},
+  {"MAPSIZE",            13},
+  {"MAP_FORMAT_VERSION", 14},
+  {NULL,                  0},
   };
 
 const struct NamedCommand cmpgn_map_cmnds_options[] = {
